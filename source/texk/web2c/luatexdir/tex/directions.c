@@ -44,7 +44,7 @@ void scan_direction(void)
     integer d1, d2, d3;
     get_x_token();
     if (cur_cmd == assign_dir_cmd) {
-        cur_val = zeqtb[cur_chr].cint;
+        cur_val = eqtb[cur_chr].cint;
         return;
     } else {
         back_input();

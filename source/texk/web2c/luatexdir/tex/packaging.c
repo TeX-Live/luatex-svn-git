@@ -30,12 +30,12 @@ static const char _svn_version[] =
 #define saved(A) save_stack[save_ptr+(A)].cint
 #define prev_depth      cur_list.aux_field.cint
 #define space_factor    cur_list.aux_field.hh.lhfield
-#define box(A) zeqtb[get_box_base()+(A)].hh.rh
-#define dir_base static_int_base
-#define text_direction int_par(param_text_direction_code)
-#define body_direction int_par(param_body_direction_code)
-#define every_hbox loc_par(param_every_hbox_code)
-#define every_vbox loc_par(param_every_vbox_code)
+#define box(A) eqtb[box_base+(A)].hh.rh
+
+#define text_direction int_par(text_direction_code)
+#define body_direction int_par(body_direction_code)
+#define every_hbox equiv(every_hbox_loc)
+#define every_vbox equiv(every_vbox_loc)
 
 /*
 We're essentially done with the parts of \TeX\ that are concerned with
@@ -148,10 +148,10 @@ void scan_spec(group_code c, boolean three_codes)
         save_ptr = save_ptr + 6;
         new_save_level(c);
         scan_left_brace();
-        eq_word_define(dir_base + param_body_direction_code, spec_direction);
-        eq_word_define(dir_base + param_par_direction_code, spec_direction);
-        eq_word_define(dir_base + param_text_direction_code, spec_direction);
-        eq_word_define(static_int_base + param_level_local_dir_code, cur_level);
+        eq_word_define(dir_base + body_direction_code, spec_direction);
+        eq_word_define(dir_base + par_direction_code, spec_direction);
+        eq_word_define(dir_base + text_direction_code, spec_direction);
+        eq_word_define(int_base + level_local_dir_code, cur_level);
     } else {
         saved(0) = spec_code;
         saved(1) = cur_val;
@@ -733,7 +733,7 @@ halfword hpack(halfword p, scaled w, int m)
                 /* Report an underfull hbox and |goto common_ending|, if this box
                    is sufficiently bad */
                 last_badness = badness(x, total_stretch[normal]);
-                if (last_badness > int_par(param_hbadness_code)) {
+                if (last_badness > int_par(hbadness_code)) {
                     print_ln();
                     if (last_badness > 100)
                         tprint_nl("Underfull \\hbox (badness ");
@@ -777,16 +777,16 @@ halfword hpack(halfword p, scaled w, int m)
             set_glue_ratio_one(glue_set(r));    /* use the maximum shrinkage */
             /* Report an overfull hbox and |goto common_ending|, if this box
                is sufficiently bad */
-            if ((-x - total_shrink[normal] > dimen_par(param_hfuzz_code))
-                || (int_par(param_hbadness_code) < 100)) {
-                if ((dimen_par(param_overfull_rule_code) > 0)
+            if ((-x - total_shrink[normal] > dimen_par(hfuzz_code))
+                || (int_par(hbadness_code) < 100)) {
+                if ((dimen_par(overfull_rule_code) > 0)
                     && (-x - total_shrink[normal] >
-                        dimen_par(param_hfuzz_code))) {
+                        dimen_par(hfuzz_code))) {
                     while (vlink(q) != null)
                         q = vlink(q);
                     vlink(q) = new_rule();
                     rule_dir(vlink(q)) = box_dir(r);
-                    width(vlink(q)) = dimen_par(param_overfull_rule_code);
+                    width(vlink(q)) = dimen_par(overfull_rule_code);
                 }
                 print_ln();
                 tprint_nl("Overfull \\hbox (");
@@ -798,7 +798,7 @@ halfword hpack(halfword p, scaled w, int m)
             if (list_ptr(r) != null) {
                 /* Report a tight hbox and |goto common_ending|, if this box is sufficiently bad */
                 last_badness = badness(-x, total_shrink[normal]);
-                if (last_badness > int_par(param_hbadness_code)) {
+                if (last_badness > int_par(hbadness_code)) {
                     print_ln();
                     tprint_nl("Tight \\hbox (badness ");
                     print_int(last_badness);
@@ -1039,7 +1039,7 @@ halfword vpackage(halfword p, scaled h, int m, scaled l)
                 /* Report an underfull vbox and |goto common_ending|, if this box
                    is sufficiently bad */
                 last_badness = badness(x, total_stretch[normal]);
-                if (last_badness > int_par(param_vbadness_code)) {
+                if (last_badness > int_par(vbadness_code)) {
                     print_ln();
                     if (last_badness > 100)
                         tprint_nl("Underfull \\vbox (badness ");
@@ -1079,8 +1079,8 @@ halfword vpackage(halfword p, scaled h, int m, scaled l)
             last_badness = 1000000;
             set_glue_ratio_one(glue_set(r));    /* use the maximum shrinkage */
             /* Report an overfull vbox and |goto common_ending|, if this box is sufficiently bad */
-            if ((-x - total_shrink[normal] > dimen_par(param_vfuzz_code))
-                || (int_par(param_vbadness_code) < 100)) {
+            if ((-x - total_shrink[normal] > dimen_par(vfuzz_code))
+                || (int_par(vbadness_code) < 100)) {
                 print_ln();
                 tprint_nl("Overfull \\vbox (");
                 print_scaled(-x - total_shrink[normal]);
@@ -1091,7 +1091,7 @@ halfword vpackage(halfword p, scaled h, int m, scaled l)
             if (list_ptr(r) != null) {
                 /* Report a tight vbox and |goto common_ending|, if this box is sufficiently bad */
                 last_badness = badness(-x, total_shrink[normal]);
-                if (last_badness > int_par(param_vbadness_code)) {
+                if (last_badness > int_par(vbadness_code)) {
                     print_ln();
                     tprint_nl("Tight \\vbox (badness ");
                     print_int(last_badness);
@@ -1140,18 +1140,18 @@ void append_to_vlist(halfword b)
 {
     scaled d;                   /* deficiency of space between baselines */
     halfword p;                 /* a new glue node */
-    if (prev_depth > dimen_par(param_pdf_ignored_dimen_code)) {
+    if (prev_depth > dimen_par(pdf_ignored_dimen_code)) {
         if ((type(b) == hlist_node) && is_mirrored(box_dir(b))) {
-            d = width(glue_par(param_baseline_skip_code)) - prev_depth -
+            d = width(glue_par(baseline_skip_code)) - prev_depth -
                 depth(b);
         } else {
-            d = width(glue_par(param_baseline_skip_code)) - prev_depth -
+            d = width(glue_par(baseline_skip_code)) - prev_depth -
                 height(b);
         }
-        if (d < dimen_par(param_line_skip_limit_code)) {
-            p = new_param_glue(param_line_skip_code);
+        if (d < dimen_par(line_skip_limit_code)) {
+            p = new_param_glue(line_skip_code);
         } else {
-            p = new_skip_param(param_baseline_skip_code);
+            p = new_skip_param(baseline_skip_code);
             width(temp_ptr) = d;        /* |temp_ptr=glue_ptr(p)| */
         }
         couple_nodes(cur_list.tail_field, p);
@@ -1208,7 +1208,7 @@ halfword prune_page_top(halfword p, boolean s)
         case vlist_node:
         case rule_node:
             /* Insert glue for |split_top_skip| and set~|p:=null| */
-            q = new_skip_param(param_split_top_skip_code);
+            q = new_skip_param(split_top_skip_code);
             vlink(prev_p) = q;
             vlink(q) = p;       /* now |temp_ptr=glue_ptr(q)| */
             if (width(temp_ptr) > height(p))
@@ -1476,7 +1476,7 @@ halfword vsplit(halfword n, scaled h)
         return null;
     }
 
-    q = vert_break(list_ptr(v), h, dimen_par(param_split_max_depth_code));
+    q = vert_break(list_ptr(v), h, dimen_par(split_max_depth_code));
     /* Look at all the marks in nodes before the break, and set the final
        link to |null| at the break */
     /* It's possible that the box begins with a penalty node that is the
@@ -1509,7 +1509,7 @@ halfword vsplit(halfword n, scaled h)
         }
     }
 
-    q = prune_page_top(q, int_par(param_saving_vdiscards_code) > 0);
+    q = prune_page_top(q, int_par(saving_vdiscards_code) > 0);
     p = list_ptr(v);
     list_ptr(v) = null;
     flush_node(v);
@@ -1518,10 +1518,10 @@ halfword vsplit(halfword n, scaled h)
         box(n) = null;          /* the |eq_level| of the box stays the same */
     else
         box(n) =
-            filtered_vpackage(q, 0, additional, dimen_par(param_max_depth_code),
+            filtered_vpackage(q, 0, additional, dimen_par(max_depth_code),
                               split_keep_group);
     return filtered_vpackage(p, h, exactly,
-                             dimen_par(param_split_max_depth_code),
+                             dimen_par(split_max_depth_code),
                              split_off_group);
 }
 
@@ -1629,7 +1629,7 @@ void begin_box(integer box_context)
         push_nest();
         cur_list.mode_field = -k;
         if (k == vmode) {
-            prev_depth = dimen_par(param_pdf_ignored_dimen_code);
+            prev_depth = dimen_par(pdf_ignored_dimen_code);
             if (every_vbox != null)
                 begin_token_list(every_vbox, every_vbox_text);
         } else {

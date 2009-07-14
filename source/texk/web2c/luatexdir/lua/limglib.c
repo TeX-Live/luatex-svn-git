@@ -27,9 +27,6 @@
 
 #include "commands.h"
 
-#define pdf_inclusion_errorlevel int_par(param_pdf_inclusion_errorlevel_code)
-#define pdf_minor_version int_par(param_pdf_minor_version_code)
-
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";

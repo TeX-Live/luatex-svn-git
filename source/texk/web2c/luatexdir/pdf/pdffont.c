@@ -27,7 +27,6 @@ static const char __svn_version[] =
 
 #define text(A) hash[(A)].rh
 #define font_id_text(A) text(font_id_base+(A))  /* a frozen font identifier's name */
-#define define(A,B,C) do { if (a>=4) geq_define(A,B,C); else eq_define(A,B,C); } while (0)
 
 integer pk_dpi;                 /* PK pixel density value from \.{texmf.cnf} */
 
@@ -314,7 +313,6 @@ internal_font_number load_expand_font(internal_font_number f, integer e)
                                    and is a multiple of |pdf_font_step(f)| */
     str_number s;               /* font name */
     internal_font_number k;
-    integer font_id_base = get_font_id_base();
     s = expand_font_name(f, e);
     k = tfm_lookup(s, font_size(f));
     if (k == null_font) {
@@ -322,8 +320,7 @@ internal_font_number load_expand_font(internal_font_number f, integer e)
             k = auto_expand_font(f, e);
             font_id_text(k) = font_id_text(f);
         } else {
-            k = read_font_info(get_nullcs(), s, font_size(f),
-                               font_natural_dir(f));
+            k = read_font_info(null_cs, s, font_size(f), font_natural_dir(f));
         }
     }
     copy_expand_params(k, f, e);
@@ -481,7 +478,6 @@ void new_letterspaced_font(small_number a)
     pointer u;                  /* user's font identifier */
     str_number t;               /* name for the frozen font identifier */
     internal_font_number f, k;
-    integer font_id_base = get_font_id_base();
     get_r_token();
     u = cur_cs;
     if (u >= hash_base)
@@ -495,7 +491,7 @@ void new_letterspaced_font(small_number a)
     scan_int();
     f = letter_space_font(u, k, fix_int(cur_val, -1000, 1000));
     equiv(u) = f;
-    zeqtb[font_id_base + f] = zeqtb[u];
+    eqtb[font_id_base + f] = eqtb[u];
     font_id_text(f) = t;
 }
 
@@ -504,7 +500,6 @@ void make_font_copy(small_number a)
     pointer u;                  /* user's font identifier */
     str_number t;               /* name for the frozen font identifier */
     internal_font_number f, k;
-    integer font_id_base = get_font_id_base();
     get_r_token();
     u = cur_cs;
     if (u >= hash_base)
@@ -517,7 +512,7 @@ void make_font_copy(small_number a)
     k = cur_val;
     f = copy_font_info(k);
     equiv(u) = f;
-    zeqtb[font_id_base + f] = zeqtb[u];
+    eqtb[font_id_base + f] = eqtb[u];
     font_id_text(f) = t;
 }
 

@@ -262,8 +262,8 @@ static int get_cur_cs(lua_State * L)
             no_new_control_sequence = false;
             cs = id_lookup((last + 1), l);
             cur_tok = cs_token_flag + cs;
-            cur_cmd = zget_eq_type(cs);
-            cur_chr = zget_equiv(cs);
+            cur_cmd = eq_type(cs);
+            cur_chr = equiv(cs);
             no_new_control_sequence = save_nncs;
             ret = 1;
         }
@@ -316,9 +316,6 @@ static int get_cur_cs(lua_State * L)
 #define is_cat_letter(a)                                                \
   (get_char_cat_code(pool_to_unichar(str_start_macro(a))) == 11)
 
-static int null_cs = 0;
-static int eqtb_size = 0;
-
 /* 2,720,652 */
 char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
 {
@@ -341,11 +338,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
     ret = xmalloc(alloci);
     p = token_link(p);          /* skip refcount */
     if (p != null) {
-        if (null_cs == 0) {
-            null_cs = get_nullcs();
-            eqtb_size = get_eqtb_size();
-        }
-        e = int_par(param_escape_char_code);
+        e = int_par(escape_char_code);
     }
     while (p != null) {
         if (p < fix_mem_min || p > fix_mem_end) {
@@ -360,7 +353,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
                     if (q == null_cs) {
                         /* Print_esc("csname"); Print_esc("endcsname"); */
                     }
-                } else if ((q >= static_undefined_control_sequence)
+                } else if ((q >= undefined_control_sequence)
                            && ((q <= eqtb_size)
                                || (q > eqtb_size + hash_extra))) {
                     Print_esc("IMPOSSIBLE.");
@@ -467,8 +460,8 @@ void tokenlist_to_lua(lua_State * L, int p)
     while (p != null && p < fix_mem_end) {
         if (token_info(p) >= cs_token_flag) {
             cs = token_info(p) - cs_token_flag;
-            cmd = zget_eq_type(cs);
-            chr = zget_equiv(cs);
+            cmd = eq_type(cs);
+            chr = equiv(cs);
             make_token_table(L, cmd, chr, cs);
         } else {
             cmd = token_cmd(token_info(p));

@@ -26,19 +26,14 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define delimiter_factor     int_par(param_delimiter_factor_code)
-#define delimiter_shortfall  dimen_par(param_delimiter_shortfall_code)
-#define bin_op_penalty       int_par(param_bin_op_penalty_code)
-#define rel_penalty          int_par(param_rel_penalty_code)
-#define null_delimiter_space dimen_par(param_null_delimiter_space_code)
-#define script_space         dimen_par(param_script_space_code)
-#define disable_lig          int_par(param_disable_lig_code)
-#define disable_kern         int_par(param_disable_kern_code)
-
-#define level_one 1
-#define thin_mu_skip param_thin_mu_skip_code
-#define med_mu_skip param_med_mu_skip_code
-#define thick_mu_skip param_thick_mu_skip_code
+#define delimiter_factor     int_par(delimiter_factor_code)
+#define delimiter_shortfall  dimen_par(delimiter_shortfall_code)
+#define bin_op_penalty       int_par(bin_op_penalty_code)
+#define rel_penalty          int_par(rel_penalty_code)
+#define null_delimiter_space dimen_par(null_delimiter_space_code)
+#define script_space         dimen_par(script_space_code)
+#define disable_lig          int_par(disable_lig_code)
+#define disable_kern         int_par(disable_kern_code)
 
 #define nDEBUG
 
@@ -1180,8 +1175,8 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
 /* this needs to be called just at the start of |mlist_to_hlist| */
 void finalize_math_parameters(void)
 {
-    integer saved_trace = int_par(param_tracing_assigns_code);
-    int_par(param_tracing_assigns_code) = 0;
+    integer saved_trace = int_par(tracing_assigns_code);
+    int_par(tracing_assigns_code) = 0;
     if (get_math_param(math_param_space_after_script, display_style) ==
         undefined_math_parameter) {
         def_math_param(math_param_space_after_script, display_style,
@@ -1201,7 +1196,7 @@ void finalize_math_parameters(void)
         def_math_param(math_param_space_after_script,
                        cramped_script_script_style, script_space, level_one);
     }
-    int_par(param_tracing_assigns_code) = saved_trace;
+    int_par(tracing_assigns_code) = saved_trace;
 
 }
 
@@ -3425,40 +3420,40 @@ void initialize_math_spacing(void)
 {
     /* *INDENT-OFF* */
     ALL_STYLES   (math_param_ord_ord_spacing,     0);
-    ALL_STYLES   (math_param_ord_op_spacing,      thin_mu_skip);
-    SPLIT_STYLES (math_param_ord_bin_spacing,     med_mu_skip, 0);
-    SPLIT_STYLES (math_param_ord_rel_spacing,     thick_mu_skip, 0);
+    ALL_STYLES   (math_param_ord_op_spacing,      thin_mu_skip_code);
+    SPLIT_STYLES (math_param_ord_bin_spacing,     med_mu_skip_code, 0);
+    SPLIT_STYLES (math_param_ord_rel_spacing,     thick_mu_skip_code, 0);
     ALL_STYLES   (math_param_ord_open_spacing,    0);
     ALL_STYLES   (math_param_ord_close_spacing,   0);
     ALL_STYLES   (math_param_ord_punct_spacing,   0);
-    SPLIT_STYLES (math_param_ord_inner_spacing,   thin_mu_skip, 0);
+    SPLIT_STYLES (math_param_ord_inner_spacing,   thin_mu_skip_code, 0);
 
-    ALL_STYLES   (math_param_op_ord_spacing,      thin_mu_skip);
-    ALL_STYLES   (math_param_op_op_spacing,       thin_mu_skip);
+    ALL_STYLES   (math_param_op_ord_spacing,      thin_mu_skip_code);
+    ALL_STYLES   (math_param_op_op_spacing,       thin_mu_skip_code);
     ALL_STYLES   (math_param_op_bin_spacing,      0);
-    SPLIT_STYLES (math_param_op_rel_spacing,      thick_mu_skip, 0);
+    SPLIT_STYLES (math_param_op_rel_spacing,      thick_mu_skip_code, 0);
     ALL_STYLES   (math_param_op_open_spacing,     0);
     ALL_STYLES   (math_param_op_close_spacing,    0);
     ALL_STYLES   (math_param_op_punct_spacing,    0);
-    SPLIT_STYLES (math_param_op_inner_spacing,    thin_mu_skip, 0);
+    SPLIT_STYLES (math_param_op_inner_spacing,    thin_mu_skip_code, 0);
 
-    SPLIT_STYLES (math_param_bin_ord_spacing,     med_mu_skip, 0);
-    SPLIT_STYLES (math_param_bin_op_spacing,      med_mu_skip, 0);
+    SPLIT_STYLES (math_param_bin_ord_spacing,     med_mu_skip_code, 0);
+    SPLIT_STYLES (math_param_bin_op_spacing,      med_mu_skip_code, 0);
     ALL_STYLES   (math_param_bin_bin_spacing,     0);
     ALL_STYLES   (math_param_bin_rel_spacing,     0);
-    SPLIT_STYLES (math_param_bin_open_spacing,    med_mu_skip, 0);
+    SPLIT_STYLES (math_param_bin_open_spacing,    med_mu_skip_code, 0);
     ALL_STYLES   (math_param_bin_close_spacing,   0);
     ALL_STYLES   (math_param_bin_punct_spacing,   0);
-    SPLIT_STYLES (math_param_bin_inner_spacing,   med_mu_skip, 0);
+    SPLIT_STYLES (math_param_bin_inner_spacing,   med_mu_skip_code, 0);
 
-    SPLIT_STYLES (math_param_rel_ord_spacing,     thick_mu_skip, 0);
-    SPLIT_STYLES (math_param_rel_op_spacing,      thick_mu_skip, 0);
+    SPLIT_STYLES (math_param_rel_ord_spacing,     thick_mu_skip_code, 0);
+    SPLIT_STYLES (math_param_rel_op_spacing,      thick_mu_skip_code, 0);
     ALL_STYLES   (math_param_rel_bin_spacing,     0);
     ALL_STYLES   (math_param_rel_rel_spacing,     0);
-    SPLIT_STYLES (math_param_rel_open_spacing,    thick_mu_skip, 0);
+    SPLIT_STYLES (math_param_rel_open_spacing,    thick_mu_skip_code, 0);
     ALL_STYLES   (math_param_rel_close_spacing,   0);
     ALL_STYLES   (math_param_rel_punct_spacing,   0);
-    SPLIT_STYLES (math_param_rel_inner_spacing,   thick_mu_skip, 0);
+    SPLIT_STYLES (math_param_rel_inner_spacing,   thick_mu_skip_code, 0);
 
     ALL_STYLES   (math_param_open_ord_spacing,    0);
     ALL_STYLES   (math_param_open_op_spacing,     0);
@@ -3470,31 +3465,31 @@ void initialize_math_spacing(void)
     ALL_STYLES   (math_param_open_inner_spacing,  0);
 
     ALL_STYLES   (math_param_close_ord_spacing,   0);
-    ALL_STYLES   (math_param_close_op_spacing,    thin_mu_skip);
-    SPLIT_STYLES (math_param_close_bin_spacing,   med_mu_skip, 0);
-    SPLIT_STYLES (math_param_close_rel_spacing,   thick_mu_skip, 0);
+    ALL_STYLES   (math_param_close_op_spacing,    thin_mu_skip_code);
+    SPLIT_STYLES (math_param_close_bin_spacing,   med_mu_skip_code, 0);
+    SPLIT_STYLES (math_param_close_rel_spacing,   thick_mu_skip_code, 0);
     ALL_STYLES   (math_param_close_open_spacing,  0);
     ALL_STYLES   (math_param_close_close_spacing, 0);
     ALL_STYLES   (math_param_close_punct_spacing, 0);
-    SPLIT_STYLES (math_param_close_inner_spacing, thin_mu_skip, 0);
+    SPLIT_STYLES (math_param_close_inner_spacing, thin_mu_skip_code, 0);
 
-    SPLIT_STYLES (math_param_punct_ord_spacing,   thin_mu_skip, 0);
-    SPLIT_STYLES (math_param_punct_op_spacing,    thin_mu_skip, 0);
+    SPLIT_STYLES (math_param_punct_ord_spacing,   thin_mu_skip_code, 0);
+    SPLIT_STYLES (math_param_punct_op_spacing,    thin_mu_skip_code, 0);
     ALL_STYLES   (math_param_punct_bin_spacing,   0);
-    SPLIT_STYLES (math_param_punct_rel_spacing,   thin_mu_skip, 0);
-    SPLIT_STYLES (math_param_punct_open_spacing,  thin_mu_skip, 0);
-    SPLIT_STYLES (math_param_punct_close_spacing, thin_mu_skip, 0);
-    SPLIT_STYLES (math_param_punct_punct_spacing, thin_mu_skip, 0);
-    SPLIT_STYLES (math_param_punct_inner_spacing, thin_mu_skip, 0);
+    SPLIT_STYLES (math_param_punct_rel_spacing,   thin_mu_skip_code, 0);
+    SPLIT_STYLES (math_param_punct_open_spacing,  thin_mu_skip_code, 0);
+    SPLIT_STYLES (math_param_punct_close_spacing, thin_mu_skip_code, 0);
+    SPLIT_STYLES (math_param_punct_punct_spacing, thin_mu_skip_code, 0);
+    SPLIT_STYLES (math_param_punct_inner_spacing, thin_mu_skip_code, 0);
 
-    SPLIT_STYLES (math_param_inner_ord_spacing,   thin_mu_skip, 0);
-    ALL_STYLES   (math_param_inner_op_spacing,    thin_mu_skip);
-    SPLIT_STYLES (math_param_inner_bin_spacing,   med_mu_skip, 0);
-    SPLIT_STYLES (math_param_inner_rel_spacing,   thick_mu_skip, 0);
-    SPLIT_STYLES (math_param_inner_open_spacing,  thin_mu_skip, 0);
+    SPLIT_STYLES (math_param_inner_ord_spacing,   thin_mu_skip_code, 0);
+    ALL_STYLES   (math_param_inner_op_spacing,    thin_mu_skip_code);
+    SPLIT_STYLES (math_param_inner_bin_spacing,   med_mu_skip_code, 0);
+    SPLIT_STYLES (math_param_inner_rel_spacing,   thick_mu_skip_code, 0);
+    SPLIT_STYLES (math_param_inner_open_spacing,  thin_mu_skip_code, 0);
     ALL_STYLES   (math_param_inner_close_spacing, 0);
-    SPLIT_STYLES (math_param_inner_punct_spacing, thin_mu_skip, 0);
-    SPLIT_STYLES (math_param_inner_inner_spacing, thin_mu_skip, 0);
+    SPLIT_STYLES (math_param_inner_punct_spacing, thin_mu_skip_code, 0);
+    SPLIT_STYLES (math_param_inner_inner_spacing, thin_mu_skip_code, 0);
     /* *INDENT-ON* */
 }
 
@@ -3582,7 +3577,7 @@ pointer math_spacing_glue(int l_type, int r_type, int mstyle)
     }
     if (x != 0) {
         pointer y;
-        if (x <= thick_mu_skip) {       /* trap thin/med/thick settings cf. old TeX */
+        if (x <= thick_mu_skip_code) {       /* trap thin/med/thick settings cf. old TeX */
             y = math_glue(glue_par(x), cur_mu);
             z = new_glue(y);
             glue_ref_count(y) = null;

@@ -35,9 +35,7 @@ internal_ocp_list_number ocp_list_ptr;  /* largest internal ocp list number in u
 ocp_list_index *ocp_list_list;
 
 #define text(a) hash[(a)].rh
-#define define(A,B,C) do { if (a>=4) geq_define(A,B,C); else eq_define(A,B,C); } while (0)
 
-static integer ocp_list_id_base = 0;
 #define ocp_list_id_text(A) text(ocp_list_id_base+(A))
 
 void initialize_init_ocplists(void)
@@ -54,8 +52,6 @@ void initialize_init_ocplists(void)
 
 void initialize_ocplist_arrays(integer ocp_list_size)
 {
-    ocp_list_id_base = get_ocp_list_id_base();
-
     ocp_list_info = xmallocarray(memory_word, ocp_list_size);
     memset(ocp_list_info, 0, sizeof(memory_word) * ocp_list_size);
     ocp_lstack_info = xmallocarray(memory_word, ocp_list_size);
@@ -185,7 +181,6 @@ void ocp_apply_remove(ocp_list_index list_entry, boolean lbefore)
 void print_ocp_lstack(ocp_lstack_index lstack_entry)
 {
     ocp_lstack_index p;
-    integer ocp_id_base = get_ocp_id_base();
     p = lstack_entry;
     while (p != 0) {
         print_esc(text(ocp_id_base + ocp_lstack_ocp(p)));
@@ -307,7 +302,7 @@ void new_ocp_list(small_number a)
     scan_optional_equals();
     f = read_ocp_list();
     equiv(u) = f;
-    zeqtb[ocp_list_id_base + f] = zeqtb[u];
+    eqtb[ocp_list_id_base + f] = eqtb[u];
     text(ocp_list_id_base + f) = t;
     if (ocp_trace_level == 1) {
         tprint_nl("");

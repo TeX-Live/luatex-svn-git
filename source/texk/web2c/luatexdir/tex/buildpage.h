@@ -63,6 +63,8 @@ extern void freeze_page_specs(int s);
 
 extern boolean output_active;
 
+extern void start_new_page(void);
+
 #  define contrib_tail nest[0].tail_field
                                         /* tail of the contribution list */
 

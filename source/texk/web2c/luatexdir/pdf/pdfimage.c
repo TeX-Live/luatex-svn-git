@@ -25,7 +25,7 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-#define pdf_pagebox int_par(param_pdf_pagebox_code)
+#define pdf_pagebox int_par(pdf_pagebox_code)
 
 void place_img(PDF pdf, image * img)
 {

@@ -24,17 +24,7 @@ static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
-#define null_cs 1               /* equivalent of \.{\\csname\\endcsname} */
-#define too_big_char 1114112    /* |biggest_char+1| */
-
-static int frozen_control_sequence = 0; /* will be fetched from web */
-
 #define text(A) hash[(A)].rh
-
-#define frozen_endv (frozen_control_sequence+6)
-#define frozen_relax (frozen_control_sequence+7)
-#define frozen_dont_expand (frozen_control_sequence+9)
-#define frozen_primitive (frozen_control_sequence+11)
 
 /*
 Only a dozen or so command codes |>max_command| can possibly be returned by
@@ -83,9 +73,6 @@ void expand(void)
     integer cvl_backup, radix_backup, co_backup;        /* to save |cur_val_level|, etc. */
     halfword backup_backup;     /* to save |link(backup_head)| */
     int save_scanner_status;    /* temporary storage of |scanner_status| */
-    if (frozen_control_sequence == 0) {
-        frozen_control_sequence = get_nullcs() + 1 + get_hash_size();   /* hashbase=nullcs+1 */
-    }
     incr(expand_depth_count);
     if (expand_depth_count >= expand_depth)
         overflow("expansion depth", expand_depth);
@@ -97,7 +84,7 @@ void expand(void)
   RESWITCH:
     if (cur_cmd < call_cmd) {
         /* Expand a nonmacro */
-        if (int_par(param_tracing_commands_code) > 1)
+        if (int_par(tracing_commands_code) > 1)
             show_cur_cmd_chr();
         switch (cur_cmd) {
         case top_bot_mark_cmd:
@@ -256,8 +243,8 @@ void expand(void)
                code, which is actually part of |expand|. It comes into play when
                \.{\\or}, \.{\\else}, or \.{\\fi} is scanned. */
 
-            if (int_par(param_tracing_ifs_code) > 0)
-                if (int_par(param_tracing_commands_code) <= 1)
+            if (int_par(tracing_ifs_code) > 0)
+                if (int_par(tracing_commands_code) <= 1)
                     show_cur_cmd_chr();
             if (cur_chr > if_limit) {
                 if (if_limit == if_code) {
@@ -398,9 +385,6 @@ a harmless \.{\\relax} into the user's input.
 
 void insert_relax(void)
 {
-    if (frozen_control_sequence == 0) {
-        frozen_control_sequence = get_nullcs() + 1 + get_hash_size();   /* hashbase=nullcs+1 */
-    }
     cur_tok = cs_token_flag + cur_cs;
     back_input();
     cur_tok = cs_token_flag + frozen_relax;
@@ -416,9 +400,6 @@ common cases.
 
 void get_x_token(void)
 {                               /* sets |cur_cmd|, |cur_chr|, |cur_tok|,  and expands macros */
-    if (frozen_control_sequence == 0) {
-        frozen_control_sequence = get_nullcs() + 1 + get_hash_size();   /* hashbase=nullcs+1 */
-    }
   RESTART:
     get_token_lua();
     if (cur_cmd <= max_command_cmd)
@@ -563,7 +544,7 @@ void macro_call(void)
     warning_index = cur_cs;
     ref_count = cur_chr;
     r = token_link(ref_count);
-    if (int_par(param_tracing_macros_code) > 0) {
+    if (int_par(tracing_macros_code) > 0) {
         /* Show the text of the macro being expanded */
         begin_diagnostic();
         print_ln();
@@ -695,7 +676,7 @@ void macro_call(void)
 
             if (cur_tok == par_token)
                 if (long_state != long_call_cmd)
-                    if (!int_par(param_suppress_long_error_code)) {
+                    if (!int_par(suppress_long_error_code)) {
                         goto RUNAWAY;
                     }
             if (cur_tok < right_brace_limit) {
@@ -707,7 +688,7 @@ void macro_call(void)
                         get_token();
                         if (cur_tok == par_token) {
                             if (long_state != long_call_cmd) {
-                                if (!int_par(param_suppress_long_error_code)) {
+                                if (!int_par(suppress_long_error_code)) {
                                     goto RUNAWAY;
 
                                 }
@@ -777,7 +758,7 @@ void macro_call(void)
                     pstack[n] = token_link(temp_token_head);
                 }
                 incr(n);
-                if (int_par(param_tracing_macros_code) > 0) {
+                if (int_par(tracing_macros_code) > 0) {
                     begin_diagnostic();
                     print_nl(match_chr);
                     print_int(n);

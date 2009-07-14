@@ -1249,7 +1249,7 @@ static void ttf_write_post(PDF pdf)
     glyph_entry *glyph;
     char *s;
     long *id;
-    int l;
+    int k, l;
     ttf_reset_chksm(pdf, tab);
     if (!fd_cur->write_ttf_glyph_names || post_format == 0x00030000) {
         put_fixed(0x00030000);

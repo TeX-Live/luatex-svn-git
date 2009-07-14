@@ -25,27 +25,16 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define pausing int_par(param_pausing_code)
-#define cat_code_table int_par(param_cat_code_table_code)
-#define tracing_nesting int_par(param_tracing_nesting_code)
-#define end_line_char int_par(param_end_line_char_code)
-#define suppress_outer_error int_par(param_suppress_outer_error_code)
+#define pausing int_par(pausing_code)
+#define cat_code_table int_par(cat_code_table_code)
+#define tracing_nesting int_par(tracing_nesting_code)
+#define end_line_char int_par(end_line_char_code)
+#define suppress_outer_error int_par(suppress_outer_error_code)
 
-#define every_eof get_every_eof()
-#define box(A) equiv(get_box_base()+(A))
-
-#define null_cs 1               /* equivalent of \.{\\csname\\endcsname} */
-
-#define eq_level(a) zeqtb[a].hh.u.B1
-#define eq_type(a)  zeqtb[a].hh.u.B0
-#define equiv(a)    zeqtb[a].hh.v.RH
+#define every_eof equiv(every_eof_loc)
+#define box(A) equiv(box_base+(A))
 
 #define detokenized_line() (line_catcode_table==NO_CAT_TABLE)
-
-static int frozen_control_sequence = 0; /* will be fetched from web */
-
-#define frozen_cr (frozen_control_sequence+1)   /* permanent `\.{\\cr}' */
-#define frozen_fi (frozen_control_sequence+4)   /* permanent `\.{\\fi}' */
 
 #define do_get_cat_code(a) do {                                         \
     if (line_catcode_table!=DEFAULT_CAT_TABLE)                          \
@@ -721,9 +710,6 @@ void check_outer_validity(void)
     halfword q;                 /* auxiliary pointer */
     if (suppress_outer_error)
         return;
-    if (frozen_control_sequence == 0) {
-        frozen_control_sequence = get_nullcs() + 1 + get_hash_size();   /* hashbase=nullcs+1 */
-    }
     if (scanner_status != normal) {
         deletions_allowed = false;
         /* @<Back up an outer control sequence so that it can be reread@>; */
@@ -1634,46 +1620,46 @@ static boolean print_convert_string(halfword c, integer i)
     integer ff;                 /* for use with |set_ff| */
     boolean ret = true;
     switch (c) {
-    case convert_number_code:
+    case number_code:
         print_int(i);
         break;
-    case convert_roman_numeral_code:
+    case roman_numeral_code:
         print_roman_int(i);
         break;
-    case convert_etex_code:
+    case etex_code:
         tprint(eTeX_version_string);
         break;
-    case convert_omega_code:
+    case omega_code:
         tprint(Omega_version_string);
         break;
-    case convert_aleph_code:
+    case aleph_code:
         tprint(Aleph_version_string);
         break;
-    case convert_pdftex_revision_code:
+    case pdftex_revision_code:
         tprint(pdftex_revision);
         break;
-    case convert_luatex_revision_code:
+    case luatex_revision_code:
         print(get_luatexrevision());
         break;
-    case convert_luatex_date_code:
+    case luatex_date_code:
         print_int(get_luatex_date_info());
         break;
-    case convert_pdftex_banner_code:
+    case pdftex_banner_code:
         tprint(pdftex_banner);
         break;
-    case convert_uniform_deviate_code:
+    case uniform_deviate_code:
         print_int(unif_rand(i));
         break;
-    case convert_normal_deviate_code:
+    case normal_deviate_code:
         print_int(norm_rand());
         break;
-    case convert_format_name_code:
+    case format_name_code:
         print(format_name);
         break;
-    case convert_job_name_code:
+    case job_name_code:
         print(job_name);
         break;
-    case convert_font_name_code:
+    case font_name_code:
         append_string(font_name(i));
         if (font_size(i) != font_dsize(i)) {
             tprint(" at ");
@@ -1681,34 +1667,34 @@ static boolean print_convert_string(halfword c, integer i)
             tprint("pt");
         }
         break;
-    case convert_math_style_code:
+    case math_style_code:
         print_math_style();
         break;
-    case convert_pdf_font_name_code:
-    case convert_pdf_font_objnum_code:
+    case pdf_font_name_code:
+    case pdf_font_objnum_code:
         set_ff(i);
-        if (c == convert_pdf_font_name_code)
+        if (c == pdf_font_name_code)
             print_int(obj_info(static_pdf, pdf_font_num(ff)));
         else
             print_int(pdf_font_num(ff));
         break;
-    case convert_pdf_font_size_code:
+    case pdf_font_size_code:
         print_scaled(font_size(i));
         tprint("pt");
         break;
-    case convert_pdf_page_ref_code:
+    case pdf_page_ref_code:
         print_int(get_obj(static_pdf, obj_type_page, i, false));
         break;
-    case convert_pdf_xform_name_code:
+    case pdf_xform_name_code:
         print_int(obj_info(static_pdf, i));
         break;
-    case convert_Aleph_revision_code:
+    case Aleph_revision_code:
         tprint(Aleph_revision);
         break;
-    case convert_Omega_revision_code:
+    case Omega_revision_code:
         tprint(Omega_revision);
         break;
-    case convert_eTeX_revision_code:
+    case eTeX_revision_code:
         tprint(eTeX_revision);
         break;
     default:
@@ -1771,66 +1757,66 @@ void conv_toks(void)
     int c = cur_chr;            /* desired type of conversion */
     /* Scan the argument for command |c| */
     switch (c) {
-    case convert_number_code:
-    case convert_roman_numeral_code:
+    case number_code:
+    case roman_numeral_code:
         scan_int();
         break;
-    case convert_string_code:
-    case convert_meaning_code:
+    case string_code:
+    case meaning_code:
         save_scanner_status = scanner_status;
         scanner_status = normal;
         get_token();
         scanner_status = save_scanner_status;
         break;
-    case convert_etex_code:
-    case convert_omega_code:
-    case convert_aleph_code:
+    case etex_code:
+    case omega_code:
+    case aleph_code:
         break;
-    case convert_font_name_code:
+    case font_name_code:
         scan_font_ident();
         break;
-    case convert_pdftex_revision_code:
-    case convert_luatex_revision_code:
-    case convert_luatex_date_code:
-    case convert_pdftex_banner_code:
+    case pdftex_revision_code:
+    case luatex_revision_code:
+    case luatex_date_code:
+    case pdftex_banner_code:
         break;
-    case convert_pdf_font_name_code:
-    case convert_pdf_font_objnum_code:
-    case convert_pdf_font_size_code:
+    case pdf_font_name_code:
+    case pdf_font_objnum_code:
+    case pdf_font_size_code:
         scan_font_ident();
         if (cur_val == null_font)
             pdf_error("font", "invalid font identifier");
-        if (c != convert_pdf_font_size_code) {
+        if (c != pdf_font_size_code) {
             pdf_check_vf(cur_val);
             if (!font_used(cur_val))
                 pdf_init_font(static_pdf, cur_val);
         }
         break;
-    case convert_pdf_page_ref_code:
+    case pdf_page_ref_code:
         scan_int();
         if (cur_val <= 0)
             pdf_error("pageref", "invalid page number");
         break;
-    case convert_left_margin_kern_code:
-    case convert_right_margin_kern_code:
+    case left_margin_kern_code:
+    case right_margin_kern_code:
         scan_int();
         if ((box(cur_val) == null) || (type(box(cur_val)) != hlist_node))
             pdf_error("marginkern", "a non-empty hbox expected");
         break;
-    case convert_pdf_xform_name_code:
+    case pdf_xform_name_code:
         scan_int();
         pdf_check_obj(static_pdf, obj_type_xform, cur_val);
         break;
-    case convert_pdf_creation_date_code:
+    case pdf_creation_date_code:
         ins_list(string_to_toks(getcreationdate(static_pdf)));
         return;
         break;
-    case convert_format_name_code:
-    case convert_job_name_code:
+    case format_name_code:
+    case job_name_code:
         if (job_name == 0)
             open_log_file();
         break;
-    case convert_pdf_colorstack_init_code:
+    case pdf_colorstack_init_code:
         bool = scan_keyword("page");
         if (scan_keyword("direct"))
             cur_val = direct_always;
@@ -1860,12 +1846,12 @@ void conv_toks(void)
             restore_cur_string();
         }
         break;
-    case convert_uniform_deviate_code:
+    case uniform_deviate_code:
         scan_int();
         break;
-    case convert_normal_deviate_code:
+    case normal_deviate_code:
         break;
-    case convert_lua_escape_string_code:
+    case lua_escape_string_code:
         /*  check if a string is already being built */
         save_cur_string();
         save_scanner_status = scanner_status;
@@ -1886,9 +1872,9 @@ void conv_toks(void)
         restore_cur_string();
         return;
         break;
-    case convert_math_style_code:
+    case math_style_code:
         break;
-    case convert_expanded_code:
+    case expanded_code:
         save_scanner_status = scanner_status;
         save_warning_index = warning_index;
         save_def_ref = def_ref;
@@ -1901,7 +1887,7 @@ void conv_toks(void)
         restore_cur_string();
         return;
         break;
-    case convert_lua_code:
+    case lua_code:
         save_cur_string();
         save_scanner_status = scanner_status;
         save_def_ref = def_ref;
@@ -1920,10 +1906,10 @@ void conv_toks(void)
             lua_string_start();
         return;
         break;
-    case convert_pdf_insert_ht_code:
+    case pdf_insert_ht_code:
         scan_register_num();
         break;
-    case convert_pdf_ximage_bbox_code:
+    case pdf_ximage_bbox_code:
         scan_int();
         pdf_check_obj(static_pdf, obj_type_ximage, cur_val);
         i = obj_data_ptr(static_pdf, cur_val);
@@ -1933,9 +1919,9 @@ void conv_toks(void)
             pdf_error("pdfximagebbox", "invalid parameter");
         break;
         /* Cases of 'Scan the argument for command |c|' */
-    case convert_Aleph_revision_code:
-    case convert_Omega_revision_code:
-    case convert_eTeX_revision_code:
+    case Aleph_revision_code:
+    case Omega_revision_code:
+    case eTeX_revision_code:
         break;
     default:
         confusion("convert");
@@ -1947,91 +1933,81 @@ void conv_toks(void)
     b = pool_ptr;
 
     /* Print the result of command |c| */
-    if (!print_convert_string(c, cur_val)) {
-        switch (c) {
-        case convert_string_code:
-            if (cur_cs != 0)
-                sprint_cs(cur_cs);
-            else
-                print(cur_chr);
-            break;
-        case convert_meaning_code:
-            print_meaning();
-            break;
-        case convert_left_margin_kern_code:
-            p = list_ptr(box(cur_val));
-            if ((p != null) && (!is_char_node(p)) &&
-                (type(p) == glue_node)
-                && (subtype(p) == param_left_skip_code + 1))
-                p = vlink(p);
-            if ((p != null) && (!is_char_node(p)) &&
-                (type(p) == margin_kern_node) && (subtype(p) == left_side))
-                print_scaled(width(p));
-            else
-                print_char('0');
-            tprint("pt");
-            break;
-        case convert_right_margin_kern_code:
-            q = list_ptr(box(cur_val));
-            p = null;
-            if (q != null) {
-                p = prev_rightmost(q, null);
-                if ((p != null) && (!is_char_node(p)) &&
-                    (type(p) == glue_node)
-                    && (subtype(p) == param_right_skip_code + 1))
-                    p = prev_rightmost(q, p);
-            }
-            if ((p != null) && (!is_char_node(p)) &&
-                (type(p) == margin_kern_node) && (subtype(p) == right_side))
-                print_scaled(width(p));
-            else
-                print_char('0');
-            tprint("pt");
-            break;
-        case convert_pdf_colorstack_init_code:
-            print_int(cur_val);
-            break;
-        case convert_pdf_insert_ht_code:
-            i = cur_val;
-            p = page_ins_head;
-            while (i >= subtype(vlink(p)))
-                p = vlink(p);
-            if (subtype(p) == i)
-                print_scaled(height(p));
-            else
-                print_char('0');
-            tprint("pt");
-            break;
-        case convert_pdf_ximage_bbox_code:
-            if (is_pdf_image(i)) {
-                switch (j) {
-                case 1:
-                    print_scaled(epdf_orig_x(i));
-                    break;
-                case 2:
-                    print_scaled(epdf_orig_y(i));
-                    break;
-                case 3:
-                    print_scaled(epdf_orig_x(i) + epdf_xsize(i));
-                    break;
-                case 4:
-                    print_scaled(epdf_orig_y(i) + epdf_ysize(i));
-                    break;
-                }
-            } else {
-                print_scaled(0);
-            }
-            tprint("pt");
-            break;
-        case convert_pdf_creation_date_code:
-        case convert_lua_escape_string_code:
-        case convert_lua_code:
-        case convert_expanded_code:
-            break;
-        default:
-            confusion("convert");
-            break;
-        }
+    if (!print_convert_string(c,cur_val)) {
+	switch (c) {
+	case string_code:
+	    if (cur_cs!=0) 
+		sprint_cs(cur_cs);
+	    else 
+		print(cur_chr);
+	    break;
+	case meaning_code: 
+	    print_meaning();
+	    break;
+	case left_margin_kern_code:
+	    p = list_ptr(box(cur_val));
+	    if ((p != null) && (!is_char_node(p)) &&
+		(type(p) == glue_node) && (subtype(p) == left_skip_code + 1))
+		p = vlink(p);
+	    if ((p != null) && (!is_char_node(p)) &&
+		(type(p) == margin_kern_node) && (subtype(p) == left_side))
+		print_scaled(width(p));
+	    else
+		print_char('0');
+	    tprint("pt");
+	    break;
+	case right_margin_kern_code:
+	    q = list_ptr(box(cur_val));
+	    p = null;
+	    if (q != null) {
+		p = prev_rightmost(q, null);
+		if ((p != null) && (! is_char_node(p)) &&
+		    (type(p) == glue_node) && (subtype(p) == right_skip_code + 1))
+		    p = prev_rightmost(q, p);
+	    }
+	    if ((p != null) && (!is_char_node(p)) &&
+		(type(p) == margin_kern_node) && (subtype(p) == right_side))
+		print_scaled(width(p));
+	    else
+		print_char('0');
+	    tprint("pt");
+	    break;
+	case pdf_colorstack_init_code: 
+	    print_int(cur_val);
+	    break;
+	case pdf_insert_ht_code: 
+	    i = cur_val;
+	    p = page_ins_head;
+	    while (i >= subtype(vlink(p)))
+		p = vlink(p);
+	    if (subtype(p) == i) 
+		print_scaled(height(p));
+	    else
+		print_char('0');
+	    tprint("pt");
+	    break;
+	case pdf_ximage_bbox_code:
+	    if (is_pdf_image(i)) {
+		switch (j) {
+		case 1: print_scaled(epdf_orig_x(i)); break;
+		case 2: print_scaled(epdf_orig_y(i)); break;
+		case 3: print_scaled(epdf_orig_x(i) + epdf_xsize(i)); break;
+		case 4: print_scaled(epdf_orig_y(i) + epdf_ysize(i)); break;
+		}
+	    } else {
+		print_scaled(0);
+	    }
+	    tprint("pt");
+	    break;
+	case pdf_creation_date_code:
+	case lua_escape_string_code:
+	case lua_code:
+	case expanded_code:
+	    break;
+	default:
+	    confusion("convert");
+	    break;
+	}
     }
 
     selector = old_setting;
@@ -2058,7 +2034,7 @@ str_number the_convert_string(halfword c, integer i)
     selector = new_string;
     if (print_convert_string(c, i)) {
         ret = make_string();
-    } else if (c == convert_font_identifier_code) {
+    } else if (c == font_identifier_code) {
         print_font_identifier(i);
         ret = make_string();
     }
@@ -2161,42 +2137,40 @@ void read_toks(integer n, halfword r, halfword j)
                 }
             }
 
-        }
-        ilimit = last;
-        if (end_line_char_inactive())
-            decr(ilimit);
-        else
-            buffer[ilimit] = int_par(param_end_line_char_code);
-        first = ilimit + 1;
-        iloc = istart;
-        istate = new_line;
-        /* Handle \.{\\readline} and |goto done|; */
-        if (j == 1) {
-            while (iloc <= ilimit) {    /* current line not yet finished */
-                cur_chr = buffer[iloc];
-                incr(iloc);
-                if (cur_chr == ' ')
-                    cur_tok = space_token;
-                else
-                    cur_tok = cur_chr + other_token;
-                store_new_token(cur_tok);
-            }
-        } else {
-            while (1) {
-                get_token();
-                if (cur_tok == 0)
-                    break;      /* |cur_cmd=cur_chr=0| will occur at the end of the line */
-                if (align_state < 1000000) {    /* unmatched `\.\}' aborts the line */
-                    do {
-                        get_token();
-                    } while (cur_tok != 0);
-                    align_state = 1000000;
-                    break;
-                }
-                store_new_token(cur_tok);
-            }
-        }
-        end_file_reading();
+	}
+	ilimit=last;
+	if (end_line_char_inactive()) 
+	    decr(ilimit);
+	else  
+	    buffer[ilimit]=int_par(end_line_char_code);
+	first=ilimit+1; 
+	iloc=istart; 
+	istate=new_line;
+	/* Handle \.{\\readline} and |goto done|; */
+	if (j==1) {
+	    while (iloc<=ilimit) { /* current line not yet finished */
+		cur_chr=buffer[iloc]; 
+		incr(iloc);
+		if (cur_chr==' ')  
+		    cur_tok=space_token;
+		else 
+		    cur_tok=cur_chr+other_token;
+		store_new_token(cur_tok);
+	    }
+	} else {
+	    while (1) {
+		get_token();
+		if (cur_tok==0) 
+		    break;  /* |cur_cmd=cur_chr=0| will occur at the end of the line */
+		if (align_state<1000000) { /* unmatched `\.\}' aborts the line */
+		    do { get_token(); } while (cur_tok!=0);
+		    align_state=1000000; 
+		    break;
+		}
+		store_new_token(cur_tok);
+	    }
+	}
+	end_file_reading();
 
     } while (align_state != 1000000);
     cur_val = def_ref;

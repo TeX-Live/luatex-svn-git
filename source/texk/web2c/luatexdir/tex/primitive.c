@@ -35,20 +35,7 @@ static const char _svn_version[] =
 #define hash_is_full (hash_used==hash_base)     /* test if all positions are occupied */
 #define hash_size 65536
 
-#define unless_code 32          /* amount added for `\.{\\unless}' prefix */
 #define protected_token 0x1C00001       /* $2^{21}\cdot|end_match|+1$ */
-
-#define skip_base      get_skip_base()
-#define mu_skip_base   get_mu_skip_base()
-#define glue_base      static_glue_base
-#define toks_base      get_toks_base()
-#define count_base     get_count_base()
-#define int_base       static_int_base
-#define attribute_base get_attribute_base()
-#define scaled_base    get_scaled_base()
-#define dimen_base     get_dimen_base()
-
-
 
 /* \primitive support needs a few extra variables and definitions */
 
@@ -319,30 +306,21 @@ store_primitive_name(str_number s, quarterword c, halfword o, halfword offset)
 */
 
 void
-primitive(str_number ss, quarterword c, halfword o, halfword off,
+primitive(char *thes, quarterword c, halfword o, halfword off,
           int cmd_origin)
 {
-    str_number s;               /* actual |str_number| used */
     integer prim_val;           /* needed to fill |prim_eqtb| */
-    char *thes;
+    str_number ss;
     assert(o >= off);
-    if (ss < STRING_OFFSET) {
-        if (ss > 127)
-            confusion("prim");  /* should be ASCII */
-        append_char(ss);
-        s = make_string();
-    } else {
-        s = ss;
-    }
-    thes = makecstring(s);
+    ss = maketexstring(thes);
     if (cmd_origin == tex_command || cmd_origin == core_command) {
         primitive_def(thes, strlen(thes), c, o);
     }
-    prim_val = prim_lookup(s);
+    prim_val = prim_lookup(ss);
     prim_origin(prim_val) = cmd_origin;
     prim_eq_type(prim_val) = c;
     prim_equiv(prim_val) = o;
-    store_primitive_name(s, c, o, off);
+    store_primitive_name(ss, c, o, off);
 }
 
 
@@ -362,7 +340,7 @@ static halfword insert_id(halfword p, unsigned char *j, pool_pointer l)
             incr(hash_high);
             /* can't use eqtb_top here (perhaps because that is not finalized 
                yet when called from |primitive|?) */
-            next(p) = hash_high + get_eqtb_size();
+            next(p) = hash_high + eqtb_size;
             p = next(p);
         } else {
             do {
@@ -425,7 +403,7 @@ pointer id_lookup(integer j, integer l)
                     goto FOUND;
         if (next(p) == 0) {
             if (no_new_control_sequence) {
-                p = static_undefined_control_sequence;
+                p = undefined_control_sequence;
             } else {
                 p = insert_id(p, (buffer + j), l);
             }
@@ -455,7 +433,7 @@ pointer string_lookup(char *s, size_t l)
                 goto FOUND;
         if (next(p) == 0) {
             if (no_new_control_sequence) {
-                p = static_undefined_control_sequence;
+                p = undefined_control_sequence;
             } else {
                 p = insert_id(p, (unsigned char *) s, l);
             }

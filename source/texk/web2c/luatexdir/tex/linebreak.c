@@ -25,15 +25,6 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define etex_pen_base (get_toks_base()+number_regs)     /* start of table of \eTeX's penalties */
-#define param_inter_line_penalties_code 0       /* additional penalties between lines */
-#define param_club_penalties_code 1     /* penalties for creating club lines */
-#define param_widow_penalties_code 2    /* penalties for creating widow lines */
-#define param_display_widow_penalties_code 3    /* ditto, just before a display */
-
-#define etex_pen(A) equiv(etex_pen_base+A)
-
-
 /*
 We come now to what is probably the most interesting algorithm of \TeX:
 the mechanism for choosing the ``best possible'' breakpoints that yield
@@ -180,7 +171,7 @@ void line_break(boolean d)
             flush_node_list(leader_ptr(cur_list.tail_field));
         penalty(cur_list.tail_field) = inf_penalty;
     }
-    final_par_glue = new_param_glue(param_par_fill_skip_code);
+    final_par_glue = new_param_glue(par_fill_skip_code);
     couple_nodes(cur_list.tail_field, final_par_glue);
     lua_node_filter(pre_linebreak_filter_callback,
                     line_break_context, temp_head,
@@ -207,7 +198,7 @@ void line_break(boolean d)
                 succumb();
             }
         } else {
-            if (int_par(param_tracing_paragraphs_code) > 0) {
+            if (int_par(tracing_paragraphs_code) > 0) {
                 begin_diagnostic();
                 tprint_nl
                     ("Lua linebreak_filter failed, reverting to default on line ");
@@ -218,41 +209,41 @@ void line_break(boolean d)
     }
     if (callback_id == 0) {
         ext_do_line_break(d,
-                          int_par(param_pretolerance_code),
-                          int_par(param_tracing_paragraphs_code),
-                          int_par(param_tolerance_code),
-                          dimen_par(param_emergency_stretch_code),
-                          int_par(param_looseness_code),
-                          int_par(param_hyphen_penalty_code),
-                          int_par(param_ex_hyphen_penalty_code),
-                          int_par(param_pdf_adjust_spacing_code),
-                          loc_par(param_par_shape_code),
-                          int_par(param_adj_demerits_code),
-                          int_par(param_pdf_protrude_chars_code),
-                          int_par(param_line_penalty_code),
-                          int_par(param_last_line_fit_code),
-                          int_par(param_double_hyphen_demerits_code),
-                          int_par(param_final_hyphen_demerits_code),
-                          dimen_par(param_hang_indent_code),
-                          dimen_par(param_hsize_code),
-                          int_par(param_hang_after_code),
-                          glue_par(param_left_skip_code),
-                          glue_par(param_right_skip_code),
-                          dimen_par(param_pdf_each_line_height_code),
-                          dimen_par(param_pdf_each_line_depth_code),
-                          dimen_par(param_pdf_first_line_height_code),
-                          dimen_par(param_pdf_last_line_depth_code),
-                          etex_pen(param_inter_line_penalties_code),
-                          int_par(param_inter_line_penalty_code),
-                          int_par(param_club_penalty_code),
-                          etex_pen(param_club_penalties_code),
-                          etex_pen(param_display_widow_penalties_code),
-                          etex_pen(param_widow_penalties_code),
-                          int_par(param_display_widow_penalty_code),
-                          int_par(param_widow_penalty_code),
-                          int_par(param_broken_penalty_code),
+                          int_par(pretolerance_code),
+                          int_par(tracing_paragraphs_code),
+                          int_par(tolerance_code),
+                          dimen_par(emergency_stretch_code),
+                          int_par(looseness_code),
+                          int_par(hyphen_penalty_code),
+                          int_par(ex_hyphen_penalty_code),
+                          int_par(pdf_adjust_spacing_code),
+                          equiv(par_shape_loc),
+                          int_par(adj_demerits_code),
+                          int_par(pdf_protrude_chars_code),
+                          int_par(line_penalty_code),
+                          int_par(last_line_fit_code),
+                          int_par(double_hyphen_demerits_code),
+                          int_par(final_hyphen_demerits_code),
+                          dimen_par(hang_indent_code),
+                          dimen_par(hsize_code),
+                          int_par(hang_after_code),
+                          glue_par(left_skip_code),
+                          glue_par(right_skip_code),
+                          dimen_par(pdf_each_line_height_code),
+                          dimen_par(pdf_each_line_depth_code),
+                          dimen_par(pdf_first_line_height_code),
+                          dimen_par(pdf_last_line_depth_code),
+                          equiv(inter_line_penalties_loc),
+                          int_par(inter_line_penalty_code),
+                          int_par(club_penalty_code),
+                          equiv(club_penalties_loc),
+                          equiv(display_widow_penalties_loc),
+                          equiv(widow_penalties_loc),
+                          int_par(display_widow_penalty_code),
+                          int_par(widow_penalty_code),
+                          int_par(broken_penalty_code),
                           final_par_glue,
-                          dimen_par(param_pdf_ignored_dimen_code));
+                          dimen_par(pdf_ignored_dimen_code));
     }
     lua_node_filter(post_linebreak_filter_callback,
                     line_break_context, start_of_par,

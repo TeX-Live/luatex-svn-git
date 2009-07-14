@@ -264,7 +264,7 @@ vf_def_font(internal_font_number f, unsigned char *vf_buffer, integer * vf_cr)
     s = make_string();
     k = tfm_lookup(s, fs);
     if (k == null_font)
-        k = read_font_info(get_nullcs(), s, fs, -1);
+        k = read_font_info(null_cs, s, fs, -1);
     if (k != null_font) {
         if (checksum != 0 && font_checksum(k) != 0
             && checksum != font_checksum(k))

@@ -25,7 +25,7 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-#define pdf_link_margin          dimen_par(param_pdf_link_margin_code)
+#define pdf_link_margin          dimen_par(pdf_link_margin_code)
 
 /*
 To implement nested link annotations, we need a stack to hold copy of

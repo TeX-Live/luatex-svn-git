@@ -118,8 +118,8 @@ static int do_define_font(integer f, char *cnom, scaled s, integer natural_dir)
     } else if (callback_id == 0) {
         res = read_tfm_info(f, cnom, s);
         if (res) {
-            set_hyphen_char(f, int_par(param_default_hyphen_char_code));
-            set_skew_char(f, int_par(param_default_skew_char_code));
+	    set_hyphen_char(f, int_par(default_hyphen_char_code));
+	    set_skew_char(f, int_par(default_skew_char_code));
         }
     }
     if (res) {
@@ -154,7 +154,7 @@ int read_font_info(pointer u, str_number nom, scaled s, integer natural_dir)
             "e.g., type `I\font<same font id>=<substitute font name>'.",
             NULL
         };
-        if (!get_suppress_fontnotfound_error()) {
+        if (int_par(suppress_fontnotfound_error_code)==0) {
             msg = font_error_message(u, cnom, s);
             tex_error(msg, help);
             free(msg);

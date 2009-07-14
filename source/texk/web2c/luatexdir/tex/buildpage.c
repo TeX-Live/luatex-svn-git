@@ -25,26 +25,26 @@ static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
-#define box(A) zeqtb[get_box_base()+(A)].hh.rh
-#define count(A) zeqtb[get_count_base()+(A)].hh.rh
+#define box(A) eqtb[box_base+(A)].hh.rh
+#define count(A) eqtb[count_base+(A)].hh.rh
 #undef skip
-#define skip(A) zeqtb[get_skip_base()+(A)].hh.rh
-#define dimen(A) zeqtb[get_scaled_base()+(A)].hh.rh
+#define skip(A) eqtb[skip_base+(A)].hh.rh
+#define dimen(A) eqtb[scaled_base+(A)].hh.rh
 
-#define vbadness int_par(param_vbadness_code)
-#define max_dead_cycles int_par(param_max_dead_cycles_code)
-#define output_box int_par(param_output_box_code)
-#define text_direction int_par(param_text_direction_code)
-#define body_direction int_par(param_body_direction_code)
-#define holding_inserts int_par(param_holding_inserts_code)
+#define vbadness int_par(vbadness_code)
+#define max_dead_cycles int_par(max_dead_cycles_code)
+#define output_box int_par(output_box_code)
+#define text_direction int_par(text_direction_code)
+#define body_direction int_par(body_direction_code)
+#define holding_inserts int_par(holding_inserts_code)
 
-#define vsize dimen_par(param_vsize_code)
-#define vfuzz dimen_par(param_vfuzz_code)
-#define max_depth dimen_par(param_max_depth_code)
-#define pdf_ignored_dimen dimen_par(param_pdf_ignored_dimen_code)
+#define vsize dimen_par(vsize_code)
+#define vfuzz dimen_par(vfuzz_code)
+#define max_depth dimen_par(max_depth_code)
+#define pdf_ignored_dimen dimen_par(pdf_ignored_dimen_code)
 
-#define output_routine loc_par(param_output_routine_code)
-#define split_top_skip glue_par(param_split_top_skip_code)
+#define output_routine equiv(output_routine_loc)
+#define split_top_skip glue_par(split_top_skip_code)
 
 #define prev_depth cur_list.aux_field.cint
 #define mode_line cur_list.ml_field
@@ -237,7 +237,7 @@ void freeze_page_specs(int s)
     page_depth = 0;
     do_all_six(set_page_so_far_zero);
     least_page_cost = awful_bad;
-    if (int_par(param_tracing_pages_code) > 0) {
+    if (int_par(tracing_pages_code) > 0) {
         begin_diagnostic();
         tprint_nl("%% goal height=");
         print_scaled(page_goal);
@@ -260,7 +260,7 @@ the following state variables. (However, the page insertion list is initialized
 elsewhere.)
 */
 
-static void start_new_page(void)
+void start_new_page(void)
 {
     page_contents = empty;
     page_tail = page_head;
@@ -378,7 +378,7 @@ void build_page(void)
                     freeze_page_specs(box_there);
                 else
                     page_contents = box_there;
-                q = new_skip_param(param_top_skip_code);        /* now |temp_ptr=glue_ptr(q)| */
+                q = new_skip_param(top_skip_code);        /* now |temp_ptr=glue_ptr(q)| */
                 if ((type(p) == hlist_node) && is_mirrored(body_direction)) {
                     if (width(temp_ptr) > depth(p))
                         width(temp_ptr) = width(temp_ptr) - depth(p);
@@ -536,7 +536,7 @@ void build_page(void)
                         w = dimen(n) - height(r);
                     q = vert_break(ins_ptr(p), w, depth(p));
                     height(r) = height(r) + best_height_plus_depth;
-                    if (int_par(param_tracing_pages_code) > 0) {
+                    if (int_par(tracing_pages_code) > 0) {
                         /* Display the insertion split cost */
                         begin_diagnostic();
                         tprint_nl("% split");
@@ -607,7 +607,7 @@ void build_page(void)
             }
             if (insert_penalties >= 10000)
                 c = awful_bad;
-            if (int_par(param_tracing_pages_code) > 0) {
+            if (int_par(tracing_pages_code) > 0) {
                 /* Display the page break cost */
                 begin_diagnostic();
                 tprint_nl("%");
@@ -703,7 +703,7 @@ void build_page(void)
         /* Recycle node |p| */
         vlink(contrib_head) = vlink(p);
         vlink(p) = null;
-        if (int_par(param_saving_vdiscards_code) > 0) {
+        if (int_par(saving_vdiscards_code) > 0) {
             if (page_disc == null)
                 page_disc = p;
             else
@@ -754,11 +754,11 @@ void fire_up(halfword c)
 
     /* Set the value of |output_penalty| */
     if (type(best_page_break) == penalty_node) {
-        geq_word_define(static_int_base + param_output_penalty_code,
+        geq_word_define(int_base + output_penalty_code,
                         penalty(best_page_break));
         penalty(best_page_break) = inf_penalty;
     } else {
-        geq_word_define(static_int_base + param_output_penalty_code,
+        geq_word_define(int_base + output_penalty_code,
                         inf_penalty);
     }
 

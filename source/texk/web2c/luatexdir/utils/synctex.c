@@ -131,7 +131,7 @@ Tue Jul 1 15:23:00 UTC 2008
 #   define SYNCTEX_NO_OPTION INT_MAX
 /*  if synctex_options is set to SYNCTEX_NO_OPTION, no command line option was provided.  */
 
-#   define SYNCTEX_VALUE int_par(param_synctex_code)
+#   define SYNCTEX_VALUE int_par(synctex_code)
 
 /*  if there were a mean to share the value of synctex_code between *tex.web
  *  and this file, it would be great.  */

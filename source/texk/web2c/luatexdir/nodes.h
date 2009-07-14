@@ -458,7 +458,6 @@ typedef enum {
 #  define pdf_info_code pdf_thread_data_node
 #  define pdf_catalog_code  pdf_link_data_node
 
-
 #  define GLYPH_CHARACTER     (1 << 0)
 #  define GLYPH_LIGATURE      (1 << 1)
 #  define GLYPH_GHOST         (1 << 2)
@@ -733,6 +732,32 @@ typedef enum {
 
 #  define is_running(A) ((A)==null_flag)/* tests for a running dimension */
 
+extern halfword tail_of_list (halfword p);
+extern void delete_glue_ref(halfword p);
 
+extern halfword var_used;
+extern halfword temp_ptr; 
+
+#define cache_disabled max_halfword
+
+extern integer max_used_attr;
+extern halfword attr_list_cache;
+
+extern halfword new_null_box (void);
+extern halfword new_rule (void);
+extern halfword new_glyph(integer f, integer c);
+extern quarterword norm_min(integer h);
+extern halfword new_char(integer f, integer c);
+extern scaled glyph_width(halfword p);
+extern scaled glyph_height(halfword p);
+extern scaled glyph_depth(halfword p);
+extern halfword new_disc(void);
+extern halfword new_math(scaled w, int s);
+extern halfword new_spec(halfword p);
+extern halfword new_param_glue(int n);
+extern halfword new_glue(halfword q);
+extern halfword new_skip_param(int n); 
+extern halfword new_kern(scaled w) ;
+extern halfword new_penalty(integer m);
 
 #endif

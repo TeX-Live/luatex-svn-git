@@ -26,7 +26,6 @@ static const char _svn_version[] =
     "$Id$ $URL$";
 
 #define text(a) hash[(a)].rh
-#define define(A,B,C) do { if (a>=4) geq_define(A,B,C); else eq_define(A,B,C); } while (0)
 
 memory_word active_info[(active_mem_size + 1)];
 active_index active_min_ptr = 0;        /* first unused word of |active_info| */
@@ -37,9 +36,6 @@ static ocp_list_index holding[(active_mem_size + 1)] = { 0 };
 
 /* Here we do the main work required for reading and interpreting
    $\Omega$ Compiled Translation Processes.*/
-
-integer ocp_active_number_base = 0;
-static integer ocp_list_id_base = 0;
 
 #define ocp_list_id_text(A) text(ocp_list_id_base+(A))
 
@@ -883,9 +879,6 @@ void initialize_ocp_buffers(integer ocp_buf_size, integer ocp_stack_size)
 
 boolean is_last_ocp(scaled llstack_no, integer counter)
 {
-    if (ocp_active_number_base == 0)
-        ocp_active_number_base = get_ocp_active_number_base();
-
     active_min_ptr = equiv(ocp_active_min_ptr_base);
     active_max_ptr = equiv(ocp_active_max_ptr_base);
     active_real = active_min_ptr;
@@ -904,7 +897,6 @@ boolean is_last_ocp(scaled llstack_no, integer counter)
 void print_active_ocps(void)
 {
     integer i;
-    integer ocp_id_base = get_ocp_id_base();
     tprint_nl("Active ocps: [");
     i = active_min_ptr;
     while (i < active_max_ptr) {
@@ -950,8 +942,6 @@ void active_compile(void)
     scaled old_min;
     integer max_active;
     scaled stack_value;
-    if (ocp_active_number_base == 0)
-        ocp_active_number_base = get_ocp_active_number_base();
     active_min_ptr = active_max_ptr;
     min_stack_ocp = ocp_maxint;
     max_active = equiv(ocp_active_number_base) - 1;
@@ -987,10 +977,6 @@ void do_push_ocp_list(small_number a)
     halfword ocp_list_no;
     halfword old_number;
     integer i;
-    if (ocp_list_id_base == 0)
-        ocp_list_id_base = get_ocp_list_id_base();
-    if (ocp_active_number_base == 0)
-        ocp_active_number_base = get_ocp_active_number_base();
     scan_ocp_list_ident();
     ocp_list_no = cur_val;
     old_number = equiv(ocp_active_number_base);
@@ -1016,10 +1002,6 @@ void do_pop_ocp_list(small_number a)
 {
     halfword old_number;
     integer i;
-    if (ocp_active_number_base == 0)
-        ocp_active_number_base = get_ocp_active_number_base();
-    if (ocp_list_id_base == 0)
-        ocp_list_id_base = get_ocp_list_id_base();
     old_number = equiv(ocp_active_number_base);
     if (old_number == 0) {
         print_err("No active ocp lists to be popped");
@@ -1044,8 +1026,6 @@ void do_pop_ocp_list(small_number a)
 
 void do_clear_ocp_lists(small_number a)
 {
-    if (ocp_active_number_base == 0)
-        ocp_active_number_base = get_ocp_active_number_base();
     define(ocp_active_number_base, data_cmd, 0);
     active_compile();
     define(ocp_active_min_ptr_base, data_cmd, active_min_ptr);

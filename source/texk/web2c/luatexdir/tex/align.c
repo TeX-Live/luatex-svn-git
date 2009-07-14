@@ -28,9 +28,6 @@ void init_col(void);
 
 #define noDEBUG
 
-#define frozen_control_sequence (hash_base+get_hash_size())
-#define frozen_end_template (frozen_control_sequence+5) /* permanent `\.{\\endtemplate}' */
-
 #define end_template_token (cs_token_flag+frozen_end_template)
 
 #define prev_depth      cur_list.aux_field.cint
@@ -39,11 +36,11 @@ void init_col(void);
 
 #define saved(A) save_stack[save_ptr+(A)].cint
 
-#define every_cr          loc_par(param_every_cr_code)
-#define display_indent    dimen_par(param_display_indent_code)
-#define max_depth         dimen_par(param_max_depth_code)
-#define pdf_ignored_dimen dimen_par(param_pdf_ignored_dimen_code)
-#define overfull_rule     dimen_par(param_overfull_rule_code)
+#define every_cr          equiv(every_cr_loc)
+#define display_indent    dimen_par(display_indent_code)
+#define max_depth         dimen_par(max_depth_code)
+#define pdf_ignored_dimen dimen_par(pdf_ignored_dimen_code)
+#define overfull_rule     dimen_par(overfull_rule_code)
 
 #define max_quarterword 65535
 
@@ -303,14 +300,14 @@ void get_preamble_token(void)
     if (cur_cmd == endv_cmd)
         fatal_error("(interwoven alignment preambles are not allowed)");
     if ((cur_cmd == assign_glue_cmd)
-        && (cur_chr == static_glue_base + param_tab_skip_code)) {
+        && (cur_chr == glue_base + tab_skip_code)) {
         scan_optional_equals();
         scan_glue(glue_val_level);
-        if (int_par(param_global_defs_code) > 0)
-            geq_define(static_glue_base + param_tab_skip_code, glue_ref_cmd,
+        if (int_par(global_defs_code) > 0)
+            geq_define(glue_base + tab_skip_code, glue_ref_cmd,
                        cur_val);
         else
-            eq_define(static_glue_base + param_tab_skip_code, glue_ref_cmd,
+            eq_define(glue_base + tab_skip_code, glue_ref_cmd,
                       cur_val);
         goto RESTART;
     }
@@ -372,7 +369,7 @@ void init_align(void)
     /* at this point, |cur_cmd=left_brace| */
     while (true) {
         /* Append the current tabskip glue to the preamble list */
-        r = new_param_glue(param_tab_skip_code);
+        r = new_param_glue(tab_skip_code);
         vlink(cur_align) = r;
         cur_align = vlink(cur_align);
 
@@ -527,7 +524,7 @@ void init_row(void)
     else
         prev_depth = 0;
     tail_append(new_glue(glue_ptr(preamble)));
-    subtype(cur_list.tail_field) = param_tab_skip_code + 1;
+    subtype(cur_list.tail_field) = tab_skip_code + 1;
     cur_align = vlink(preamble);
     cur_tail = cur_head;
     cur_pre_tail = cur_pre_head;
@@ -729,7 +726,7 @@ boolean fin_col(void)
 
         /* Copy the tabskip glue between columns */
         tail_append(new_glue(glue_ptr(vlink(cur_align))));
-        subtype(cur_list.tail_field) = param_tab_skip_code + 1;
+        subtype(cur_list.tail_field) = tab_skip_code + 1;
 
         if (extra_info(cur_align) >= cr_code) {
             return true;
@@ -995,7 +992,7 @@ value is changed to zero and so is the next tabskip.
                         v = glue_ptr(s);
                         vlink(u) = new_glue(v);
                         u = vlink(u);
-                        subtype(u) = param_tab_skip_code + 1;
+                        subtype(u) = tab_skip_code + 1;
                         t = t + width(v);
                         if (glue_sign(p) == stretching) {
                             if (stretch_order(v) == glue_order(p))

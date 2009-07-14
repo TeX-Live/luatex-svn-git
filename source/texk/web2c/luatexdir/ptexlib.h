@@ -116,6 +116,7 @@ extern double rint(double x);
 #  include "tex/align.h"
 #  include "tex/directions.h"
 #  include "tex/errors.h"
+#  include "tex/equivalents.h"
 #  include "tex/inputstack.h"
 #  include "tex/stringpool.h"
 #  include "tex/printing.h"
@@ -128,6 +129,9 @@ extern double rint(double x);
 #  include "tex/scanning.h"
 #  include "tex/buildpage.h"
 #  include "tex/maincontrol.h"
+#  include "tex/dumpdata.h"
+#  include "tex/mainbody.h"
+#  include "tex/extensions.h"
 
 /**********************************************************************/
 
@@ -347,5 +351,6 @@ extern char *get_lua_name(int i);
 
 #  include "texmath.h"
 #  include "primitive.h"
+#  include "commands.h"
 
 #endif                          /* PTEXLIB_H */

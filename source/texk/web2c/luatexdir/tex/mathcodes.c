@@ -134,7 +134,7 @@ void unsavemathcode(quarterword gl)
         if (st.level > 0) {
             rawset_sa_item(mathcode_head, st.code, st.value);
             /* now do a trace message, if requested */
-            if (int_par(param_tracing_restores_code) > 0) {
+            if (int_par(tracing_restores_code) > 0) {
                 begin_diagnostic();
                 print_char('{');
                 tprint("restoring");
@@ -166,7 +166,7 @@ void set_math_code(integer n,
     mathcode_heap[mathcode_heapptr] = d;
     set_sa_item(mathcode_head, n, mathcode_heapptr, level);
     mathcode_heapptr++;
-    if (int_par(param_tracing_assigns_code) > 0) {
+    if (int_par(tracing_assigns_code) > 0) {
         begin_diagnostic();
         print_char('{');
         tprint("assigning");
@@ -324,7 +324,7 @@ void unsavedelcode(quarterword gl)
         if (st.level > 0) {
             rawset_sa_item(delcode_head, st.code, st.value);
             /* now do a trace message, if requested */
-            if (int_par(param_tracing_restores_code) > 0) {
+            if (int_par(tracing_restores_code) > 0) {
                 begin_diagnostic();
                 print_char('{');
                 tprint("restoring");
@@ -359,7 +359,7 @@ void set_del_code(integer n,
     }
     delcode_heap[delcode_heapptr] = d;
     set_sa_item(delcode_head, n, delcode_heapptr, gl);
-    if (int_par(param_tracing_assigns_code) > 0) {
+    if (int_par(tracing_assigns_code) > 0) {
         begin_diagnostic();
         print_char('{');
         tprint("assigning");

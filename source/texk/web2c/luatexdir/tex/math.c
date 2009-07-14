@@ -38,12 +38,8 @@ static const char _svn_version[] =
 #define space_factor  aux.hh.lhfield
 #define incompleat_noad aux.cint
 
-#define saved(A) save_stack[save_ptr+(A)].cint
-
-#define cur_fam int_par(param_cur_fam_code)
-#define text_direction zeqtb[static_int_base + param_text_direction_code].cint
-
-#define scan_normal_dimen() scan_dimen(false,false,false)
+#define cur_fam int_par(cur_fam_code)
+#define text_direction eqtb[int_base + text_direction_code].cint
 
 #define var_code 7
 
@@ -60,16 +56,16 @@ extern void rawset_sa_item(sa_tree hed, integer n, integer v);
 int scan_math(pointer, int);
 pointer fin_mlist(pointer);
 
-#define pre_display_size dimen_par(param_pre_display_size_code)
-#define hsize          dimen_par(param_hsize_code)
-#define display_width  dimen_par(param_display_width_code)
-#define display_indent dimen_par(param_display_indent_code)
-#define math_surround  dimen_par(param_math_surround_code)
-#define hang_indent    dimen_par(param_hang_indent_code)
-#define hang_after     int_par(param_hang_after_code)
-#define every_math     loc_par(param_every_math_code)
-#define every_display  loc_par(param_every_display_code)
-#define par_shape_ptr  loc_par(param_par_shape_code)
+#define pre_display_size dimen_par(pre_display_size_code)
+#define hsize          dimen_par(hsize_code)
+#define display_width  dimen_par(display_width_code)
+#define display_indent dimen_par(display_indent_code)
+#define math_surround  dimen_par(math_surround_code)
+#define hang_indent    dimen_par(hang_indent_code)
+#define hang_after     int_par(hang_after_code)
+#define every_math     equiv(every_math_loc)
+#define every_display  equiv(every_display_loc)
+#define par_shape_ptr  equiv(par_shape_loc)
 
 /*
 When \TeX\ reads a formula that is enclosed between \.\$'s, it constructs an
@@ -194,7 +190,7 @@ void def_fam_fnt(integer fam_id, integer size_id, integer f, integer lvl)
     integer n = fam_id + (256 * size_id);
     set_sa_item(math_fam_head, n, f, lvl);
     fixup_math_parameters(fam_id, size_id, f, lvl);
-    if (int_par(param_tracing_assigns_code) > 0) {
+    if (int_par(tracing_assigns_code) > 0) {
         begin_diagnostic();
         tprint("{assigning");
         print_char(' ');
@@ -219,7 +215,7 @@ void unsave_math_fam_data(integer gl)
         if (st.level > 0) {
             rawset_sa_item(math_fam_head, st.code, st.value);
             /* now do a trace message, if requested */
-            if (int_par(param_tracing_restores_code) > 0) {
+            if (int_par(tracing_restores_code) > 0) {
                 int size_id = st.code / 256;
                 int fam_id = st.code % 256;
                 begin_diagnostic();
@@ -250,7 +246,7 @@ void def_math_param(int param_id, int style_id, scaled value, int lvl)
 {
     integer n = param_id + (256 * style_id);
     set_sa_item(math_param_head, n, value, lvl);
-    if (int_par(param_tracing_assigns_code) > 0) {
+    if (int_par(tracing_assigns_code) > 0) {
         begin_diagnostic();
         tprint("{assigning");
         print_char(' ');
@@ -282,7 +278,7 @@ void unsave_math_param_data(integer gl)
         if (st.level > 0) {
             rawset_sa_item(math_param_head, st.code, st.value);
             /* now do a trace message, if requested */
-            if (int_par(param_tracing_restores_code) > 0) {
+            if (int_par(tracing_restores_code) > 0) {
                 int param_id = st.code % 256;
                 int style_id = st.code / 256;
                 begin_diagnostic();
@@ -789,10 +785,10 @@ void new_save_level_math(group_code c)
     text_dir_ptr = new_dir(math_direction);
     incr(save_ptr);
     new_save_level(c);
-    eq_word_define(static_int_base + param_body_direction_code, math_direction);
-    eq_word_define(static_int_base + param_par_direction_code, math_direction);
-    eq_word_define(static_int_base + param_text_direction_code, math_direction);
-    eq_word_define(static_int_base + param_level_local_dir_code, cur_level);
+    eq_word_define(int_base + body_direction_code, math_direction);
+    eq_word_define(int_base + par_direction_code, math_direction);
+    eq_word_define(int_base + text_direction_code, math_direction);
+    eq_word_define(int_base + level_local_dir_code, cur_level);
 }
 
 void push_math(group_code c, int mstyle)
@@ -809,7 +805,7 @@ void push_math(group_code c, int mstyle)
 void enter_ordinary_math(void)
 {
     push_math(math_shift_group, text_style);
-    eq_word_define(static_int_base + param_cur_fam_code, -1);
+    eq_word_define(int_base + cur_fam_code, -1);
     if (every_math != null)
         begin_token_list(every_math, every_math_text);
 }
@@ -937,10 +933,10 @@ void enter_display_math(void)
 
     push_math(math_shift_group, display_style);
     mode = mmode;
-    eq_word_define(static_int_base + param_cur_fam_code, -1);
-    eq_word_define(static_dimen_base + param_pre_display_size_code, w);
-    eq_word_define(static_dimen_base + param_display_width_code, l);
-    eq_word_define(static_dimen_base + param_display_indent_code, s);
+    eq_word_define(int_base + cur_fam_code, -1);
+    eq_word_define(dimen_base + pre_display_size_code, w);
+    eq_word_define(dimen_base + display_width_code, l);
+    eq_word_define(dimen_base + display_indent_code, s);
     if (every_display != null)
         begin_token_list(every_display, every_display_text);
     if (nest_ptr == 1) {
@@ -2085,13 +2081,13 @@ void finish_displayed_math(boolean l, boolean danger, pointer a)
        displacement for all three potential lines of the display, even though
        `\.{\\parshape}' may specify them differently.
      */
-    tail_append(new_penalty(int_par(param_pre_display_penalty_code)));
+    tail_append(new_penalty(int_par(pre_display_penalty_code)));
     if ((d + s <= pre_display_size) || l) {     /* not enough clearance */
-        g1 = param_above_display_skip_code;
-        g2 = param_below_display_skip_code;
+        g1 = above_display_skip_code;
+        g2 = below_display_skip_code;
     } else {
-        g1 = param_above_display_short_skip_code;
-        g2 = param_below_display_short_skip_code;
+        g1 = above_display_short_skip_code;
+        g2 = below_display_short_skip_code;
     }
     if (l && (e == 0)) {        /* it follows that |type(a)=hlist_node| */
         shift_amount(a) = s;
@@ -2131,7 +2127,7 @@ void finish_displayed_math(boolean l, boolean danger, pointer a)
         vlink(tail) = vlink(pre_adjust_head);
         tail = pre_t;
     }
-    tail_append(new_penalty(int_par(param_post_display_penalty_code)));
+    tail_append(new_penalty(int_par(post_display_penalty_code)));
     if (g2 > 0)
         tail_append(new_param_glue(g2));
 
@@ -2161,13 +2157,13 @@ void finish_display_alignment(pointer p, pointer q, memory_word aux_save)
         check_second_math_shift();
     }
     pop_nest();
-    tail_append(new_penalty(int_par(param_pre_display_penalty_code)));
-    tail_append(new_param_glue(param_above_display_skip_code));
+    tail_append(new_penalty(int_par(pre_display_penalty_code)));
+    tail_append(new_param_glue(above_display_skip_code));
     vlink(tail) = p;
     if (p != null)
         tail = q;
-    tail_append(new_penalty(int_par(param_post_display_penalty_code)));
-    tail_append(new_param_glue(param_below_display_skip_code));
+    tail_append(new_penalty(int_par(post_display_penalty_code)));
+    tail_append(new_param_glue(below_display_skip_code));
     prev_depth = aux_save.cint;
     resume_after_display();
 }

@@ -27,8 +27,6 @@ static const char _svn_version[] =
     "$Id$ $URL$";
 
 #define text(a) hash[(a)].rh    /* string number for control sequence name */
-#define null_cs 1               /* equivalent of \.{\\csname\\endcsname} */
-#define scan_normal_dimen() scan_dimen(false,false,false)
 
 char *scaled_to_string(scaled s)
 {                               /* prints scaled real, rounded to five digits */
@@ -184,6 +182,6 @@ void tex_def_font(small_number a)
     name_in_progress = false;
     f = read_font_info(u, cur_name, s, natural_dir);
     equiv(u) = f;
-    zeqtb[get_font_id_base() + f] = zeqtb[u];
-    text(get_font_id_base() + f) = t;
+    eqtb[font_id_base + f] = eqtb[u];
+    text(font_id_base + f) = t;
 }

@@ -28,39 +28,20 @@ static const char _svn_version[] =
 
 #define prev_depth cur_list.aux_field.cint
 #define space_factor cur_list.aux_field.hh.lhfield
-#define par_shape_ptr  loc_par(param_par_shape_code)
+#define par_shape_ptr  equiv(par_shape_loc)
 #define text(A) hash[(A)].rh
-#define font_id_text(A) text(get_font_id_base()+(A))
+#define font_id_text(A) text(font_id_base+(A))
 
-#define frozen_control_sequence (get_nullcs() + 1 + get_hash_size())
-#define frozen_relax (frozen_control_sequence+7)
-#define frozen_primitive (frozen_control_sequence+11)
-
-/* base for lp/rp/ef codes starts from 2:  0 for |hyphen_char|, 1 for |skew_char| */
-#define lp_code_base 2
-#define rp_code_base 3
-#define ef_code_base 4
-#define tag_code 5
-#define no_lig_code 6
-
-#define cat_code_base (static_int_base-5)       /* current category code data index  */
-#define lc_code_base (static_int_base-4)        /* table of |number_chars| lowercase mappings */
-#define uc_code_base (static_int_base-3)        /* table of |number_chars| uppercase mappings */
-#define sf_code_base (static_int_base-2)        /* table of |number_chars| spacefactor mappings */
-#define math_code_base (static_int_base-1)      /* table of |number_chars| math mode mappings */
-
-#define level_one 1
-
-#define attribute(A) zeqtb[get_attribute_base()+(A)].hh.rh
-#define dimen(A) zeqtb[get_scaled_base()+(A)].hh.rh
+#define attribute(A) eqtb[attribute_base+(A)].hh.rh
+#define dimen(A) eqtb[scaled_base+(A)].hh.rh
 #undef skip
-#define skip(A) zeqtb[get_skip_base()+(A)].hh.rh
-#define mu_skip(A) zeqtb[get_mu_skip_base()+(A)].hh.rh
-#define count(A) zeqtb[get_count_base()+(A)].hh.rh
-#define box(A) equiv(get_box_base()+(A))
+#define skip(A) eqtb[skip_base+(A)].hh.rh
+#define mu_skip(A) eqtb[mu_skip_base+(A)].hh.rh
+#define count(A) eqtb[count_base+(A)].hh.rh
+#define box(A) equiv(box_base+(A))
 
-#define text_direction int_par(param_text_direction_code)
-#define body_direction int_par(param_body_direction_code)
+#define text_direction int_par(text_direction_code)
+#define body_direction int_par(body_direction_code)
 /*
 Let's turn now to some procedures that \TeX\ calls upon frequently to digest
 certain kinds of patterns in the input. Most of these are quite simple;
@@ -234,16 +215,16 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
         scanned_result(equiv(m), tok_val_level);
         break;
     case assign_int_cmd:
-        scanned_result(zeqtb[m].cint, int_val_level);
+        scanned_result(eqtb[m].cint, int_val_level);
         break;
     case assign_attr_cmd:
-        scanned_result(zeqtb[m].cint, int_val_level);
+        scanned_result(eqtb[m].cint, int_val_level);
         break;
     case assign_dir_cmd:
-        scanned_result(zeqtb[m].cint, dir_val_level);
+        scanned_result(eqtb[m].cint, dir_val_level);
         break;
     case assign_dimen_cmd:
-        scanned_result(zeqtb[m].cint, dimen_val_level);
+        scanned_result(eqtb[m].cint, dimen_val_level);
         break;
     case assign_glue_cmd:
         scanned_result(equiv(m), glue_val_level);
@@ -346,25 +327,25 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
            We also handle \.{\\inputlineno} and \.{\\badness} here, because they are
            legal in similar contexts. */
 
-        if (m >= last_item_input_line_no_code) {
-            if (m >= last_item_eTeX_glue) {
+        if (m >= input_line_no_code) {
+            if (m >= eTeX_glue) {
                 /* Process an expression and |return| */
-                if (m < last_item_eTeX_mu) {
+                if (m < eTeX_mu) {
                     switch (m) {
-                    case last_item_mu_to_glue_code:
+                    case mu_to_glue_code:
                         scan_mu_glue();
                         break;
                     };          /* there are no other cases */
                     cur_val_level = glue_val_level;
-                } else if (m < last_item_eTeX_expr) {
+                } else if (m < eTeX_expr) {
                     switch (m) {
-                    case last_item_glue_to_mu_code:
+                    case glue_to_mu_code:
                         scan_normal_glue();
                         break;
                     }           /* there are no other cases */
                     cur_val_level = mu_val_level;
                 } else {
-                    cur_val_level = m - last_item_eTeX_expr + int_val_level;
+                    cur_val_level = m - eTeX_expr + int_val_level;
                     scan_expr();
                 }
                 /* This code for reducing |cur_val_level| and\slash or negating the
@@ -380,27 +361,27 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                 }
                 return succeeded;
 
-            } else if (m >= last_item_eTeX_dim) {
+            } else if (m >= eTeX_dim) {
                 switch (m) {
-                case last_item_font_char_wd_code:
-                case last_item_font_char_ht_code:
-                case last_item_font_char_dp_code:
-                case last_item_font_char_ic_code:
+                case font_char_wd_code:
+                case font_char_ht_code:
+                case font_char_dp_code:
+                case font_char_ic_code:
                     scan_font_ident();
                     q = cur_val;
                     scan_char_num();
                     if (char_exists(q, cur_val)) {
                         switch (m) {
-                        case last_item_font_char_wd_code:
+                        case font_char_wd_code:
                             cur_val = char_width(q, cur_val);
                             break;
-                        case last_item_font_char_ht_code:
+                        case font_char_ht_code:
                             cur_val = char_height(q, cur_val);
                             break;
-                        case last_item_font_char_dp_code:
+                        case font_char_dp_code:
                             cur_val = char_depth(q, cur_val);
                             break;
-                        case last_item_font_char_ic_code:
+                        case font_char_ic_code:
                             cur_val = char_italic(q, cur_val);
                             break;
                         }       /* there are no other cases */
@@ -408,10 +389,10 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                         cur_val = 0;
                     }
                     break;
-                case last_item_par_shape_length_code:
-                case last_item_par_shape_indent_code:
-                case last_item_par_shape_dimen_code:
-                    q = cur_chr - last_item_par_shape_length_code;
+                case par_shape_length_code:
+                case par_shape_indent_code:
+                case par_shape_dimen_code:
+                    q = cur_chr - par_shape_length_code;
                     scan_int();
                     if ((par_shape_ptr == null) || (cur_val <= 0)) {
                         cur_val = 0;
@@ -427,11 +408,11 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                     }
                     cur_val_level = dimen_val_level;
                     break;
-                case last_item_glue_stretch_code:
-                case last_item_glue_shrink_code:
+                case glue_stretch_code:
+                case glue_shrink_code:
                     scan_normal_glue();
                     q = cur_val;
-                    if (m == last_item_glue_stretch_code)
+                    if (m == glue_stretch_code)
                         cur_val = stretch(q);
                     else
                         cur_val = shrink(q);
@@ -441,76 +422,76 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                 cur_val_level = dimen_val_level;
             } else {
                 switch (m) {
-                case last_item_input_line_no_code:
+                case input_line_no_code:
                     cur_val = line;
                     break;
-                case last_item_badness_code:
+                case badness_code:
                     cur_val = last_badness;
                     break;
-                case last_item_pdftex_version_code:
+                case pdftex_version_code:
                     cur_val = pdftex_version;
                     break;
-                case last_item_luatex_version_code:
+                case luatex_version_code:
                     cur_val = get_luatexversion();
                     break;
-                case last_item_pdf_last_obj_code:
+                case pdf_last_obj_code:
                     cur_val = pdf_last_obj;
                     break;
-                case last_item_pdf_last_xform_code:
+                case pdf_last_xform_code:
                     cur_val = pdf_last_xform;
                     break;
-                case last_item_pdf_last_ximage_code:
+                case pdf_last_ximage_code:
                     cur_val = pdf_last_ximage;
                     break;
-                case last_item_pdf_last_ximage_pages_code:
+                case pdf_last_ximage_pages_code:
                     cur_val = pdf_last_ximage_pages;
                     break;
-                case last_item_pdf_last_annot_code:
+                case pdf_last_annot_code:
                     cur_val = pdf_last_annot;
                     break;
-                case last_item_pdf_last_x_pos_code:
+                case pdf_last_x_pos_code:
                     cur_val = pdf_last_x_pos;
                     break;
-                case last_item_pdf_last_y_pos_code:
+                case pdf_last_y_pos_code:
                     cur_val = pdf_last_y_pos;
                     break;
-                case last_item_pdf_retval_code:
+                case pdf_retval_code:
                     cur_val = pdf_retval;
                     break;
-                case last_item_pdf_last_ximage_colordepth_code:
+                case pdf_last_ximage_colordepth_code:
                     cur_val = pdf_last_ximage_colordepth;
                     break;
-                case last_item_random_seed_code:
+                case random_seed_code:
                     cur_val = random_seed;
                     break;
-                case last_item_pdf_last_link_code:
+                case pdf_last_link_code:
                     cur_val = pdf_last_link;
                     break;
-                case last_item_Aleph_version_code:
+                case Aleph_version_code:
                     cur_val = Aleph_version;
                     break;
-                case last_item_Omega_version_code:
+                case Omega_version_code:
                     cur_val = Omega_version;
                     break;
-                case last_item_eTeX_version_code:
+                case eTeX_version_code:
                     cur_val = eTeX_version;
                     break;
-                case last_item_Aleph_minor_version_code:
+                case Aleph_minor_version_code:
                     cur_val = Aleph_minor_version;
                     break;
-                case last_item_Omega_minor_version_code:
+                case Omega_minor_version_code:
                     cur_val = Omega_minor_version;
                     break;
-                case last_item_eTeX_minor_version_code:
+                case eTeX_minor_version_code:
                     cur_val = eTeX_minor_version;
                     break;
-                case last_item_current_group_level_code:
+                case current_group_level_code:
                     cur_val = cur_level - level_one;
                     break;
-                case last_item_current_group_type_code:
+                case current_group_type_code:
                     cur_val = cur_group;
                     break;
-                case last_item_current_if_level_code:
+                case current_if_level_code:
                     q = cond_ptr;
                     cur_val = 0;
                     while (q != null) {
@@ -518,7 +499,7 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                         q = vlink(q);
                     }
                     break;
-                case last_item_current_if_type_code:
+                case current_if_type_code:
                     if (cond_ptr == null)
                         cur_val = 0;
                     else if (cur_if < unless_code)
@@ -526,7 +507,7 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                     else
                         cur_val = -(cur_if - unless_code + 1);
                     break;
-                case last_item_current_if_branch_code:
+                case current_if_branch_code:
                     if ((if_limit == or_code) || (if_limit == else_code))
                         cur_val = 1;
                     else if (if_limit == fi_code)
@@ -534,11 +515,11 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                     else
                         cur_val = 0;
                     break;
-                case last_item_glue_stretch_order_code:
-                case last_item_glue_shrink_order_code:
+                case glue_stretch_order_code:
+                case glue_shrink_order_code:
                     scan_normal_glue();
                     q = cur_val;
-                    if (m == last_item_glue_stretch_order_code)
+                    if (m == glue_stretch_order_code)
                         cur_val = stretch_order(q);
                     else
                         cur_val = shrink_order(q);
@@ -553,7 +534,7 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                 cur_val = zero_glue;
             else
                 cur_val = 0;
-            if (cur_chr == last_item_last_node_type_code) {
+            if (cur_chr == last_node_type_code) {
                 cur_val_level = int_val_level;
                 if ((cur_list.tail_field == cur_list.head_field)
                     || (cur_list.mode_field == 0))
@@ -565,38 +546,38 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                 !is_char_node(cur_list.tail_field) &&
                 (cur_list.mode_field != 0)) {
                 switch (cur_chr) {
-                case last_item_lastpenalty_code:
+                case lastpenalty_code:
                     if (type(cur_list.tail_field) == penalty_node)
                         cur_val = penalty(cur_list.tail_field);
                     break;
-                case last_item_lastkern_code:
+                case lastkern_code:
                     if (type(cur_list.tail_field) == kern_node)
                         cur_val = width(cur_list.tail_field);
                     break;
-                case last_item_lastskip_code:
+                case lastskip_code:
                     if (type(cur_list.tail_field) == glue_node)
                         cur_val = glue_ptr(cur_list.tail_field);
                     if (subtype(cur_list.tail_field) == mu_glue)
                         cur_val_level = mu_val_level;
                     break;
-                case last_item_last_node_type_code:
+                case last_node_type_code:
                     cur_val = visible_last_node_type(cur_list.tail_field);
                     break;
                 }               /* there are no other cases */
             } else if ((cur_list.mode_field == vmode)
                        && (cur_list.tail_field == cur_list.head_field)) {
                 switch (cur_chr) {
-                case last_item_lastpenalty_code:
+                case lastpenalty_code:
                     cur_val = last_penalty;
                     break;
-                case last_item_lastkern_code:
+                case lastkern_code:
                     cur_val = last_kern;
                     break;
-                case last_item_lastskip_code:
+                case lastskip_code:
                     if (last_glue != max_halfword)
                         cur_val = last_glue;
                     break;
-                case last_item_last_node_type_code:
+                case last_node_type_code:
                     cur_val = last_node_type;
                     break;
                 }               /* there are no other cases */
@@ -682,7 +663,7 @@ void scan_something_internal(int level, boolean negative)
                 scanned_result(cur_val1, int_val_level);
             } else if (m == cat_code_base) {
                 cur_val1 =
-                    get_cat_code(int_par(param_cat_code_table_code), cur_val);
+                    get_cat_code(int_par(cat_code_table_code), cur_val);
                 scanned_result(cur_val1, int_val_level);
             } else {
                 confusion("def_char");
@@ -715,19 +696,19 @@ void scan_something_internal(int level, boolean negative)
                 scanned_result(0, dimen_val_level);
             } else if (cur_cmd == toks_register_cmd) {
                 scan_register_num();
-                m = get_toks_base() + cur_val;
+                m = toks_base + cur_val;
                 scanned_result(equiv(m), tok_val_level);
             } else {
                 back_input();
                 scan_font_ident();
-                scanned_result(get_font_id_base() + cur_val, ident_val_level);
+                scanned_result(font_id_base + cur_val, ident_val_level);
             }
             break;
         case def_family_cmd:
             /* Fetch a math font identifier */
             scan_char_num();
             cur_val1 = fam_fnt(cur_val, m);
-            scanned_result(get_font_id_base() + cur_val1, ident_val_level);
+            scanned_result(font_id_base + cur_val1, ident_val_level);
             break;
         case set_math_param_cmd:
             /* Fetch a math param */
@@ -752,12 +733,12 @@ void scan_something_internal(int level, boolean negative)
                 }
             } else {
                 cur_val1 = get_math_param(cur_val1, cur_chr);
-                if (cur_val1 == param_thin_mu_skip_code)
-                    cur_val1 = glue_par(param_thin_mu_skip_code);
-                else if (cur_val1 == param_med_mu_skip_code)
-                    cur_val1 = glue_par(param_med_mu_skip_code);
-                else if (cur_val1 == param_thick_mu_skip_code)
-                    cur_val1 = glue_par(param_thick_mu_skip_code);
+                if (cur_val1 == thin_mu_skip_code)
+                    cur_val1 = glue_par(thin_mu_skip_code);
+                else if (cur_val1 == med_mu_skip_code)
+                    cur_val1 = glue_par(med_mu_skip_code);
+                else if (cur_val1 == thick_mu_skip_code)
+                    cur_val1 = glue_par(thick_mu_skip_code);
                 scanned_result(cur_val1, mu_val_level);
             }
             break;
@@ -1381,7 +1362,7 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
     } else if (scan_keyword("ex")) {
         v = (x_height(get_cur_font()));
     } else if (scan_keyword("px")) {
-        v = int_par(param_pdf_px_dimen_code);
+        v = int_par(pdf_px_dimen_code);
     } else {
         goto NOT_FOUND;
     }
@@ -1412,9 +1393,9 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
     if (scan_keyword("true")) {
         /* Adjust (f)for the magnification ratio */
         prepare_mag();
-        if (int_par(param_mag_code) != 1000) {
-            cur_val = xn_over_d(cur_val, 1000, int_par(param_mag_code));
-            f = (1000 * f + 0200000 * tex_remainder) / int_par(param_mag_code);
+        if (int_par(mag_code) != 1000) {
+            cur_val = xn_over_d(cur_val, 1000, int_par(mag_code));
+            f = (1000 * f + 0200000 * tex_remainder) / int_par(mag_code);
             cur_val = cur_val + (f / 0200000);
             f = f % 0200000;
         }

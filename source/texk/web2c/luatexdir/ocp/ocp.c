@@ -25,8 +25,6 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define define(A,B,C) do { if (a>=4) geq_define(A,B,C); else eq_define(A,B,C); } while (0)
-
 #define flush_string() do { decr(str_ptr); pool_ptr=str_start_macro(str_ptr); } while (0)
 
 #define text(a) hash[(a)].rh
@@ -52,7 +50,6 @@ void new_ocp(small_number a)
     str_number t;               /* name for the frozen ocp identifier */
     str_number flushable_string;        /* string not yet referenced */
     boolean external_ocp = false;       /* external binary file */
-    integer ocp_id_base = get_ocp_id_base();
     if (job_name == 0)
         open_log_file();
     /* avoid confusing \.{texput} with the ocp name */
@@ -87,7 +84,7 @@ void new_ocp(small_number a)
     f = read_ocp_info(u, cur_name, cur_area, cur_ext, external_ocp);
   COMMON_ENDING:
     equiv(u) = f;
-    zeqtb[ocp_id_base + f] = zeqtb[u];
+    eqtb[ocp_id_base + f] = eqtb[u];
     text(ocp_id_base + f) = t;
     if (ocp_trace_level == 1) {
         tprint_nl("");
@@ -147,7 +144,6 @@ static void dump_ocp_table(int ocp_number)
 void dump_ocp_info(void)
 {
     integer k;
-    integer ocp_id_base = get_ocp_id_base();
     dump_int(123456);
     dump_int(ocp_ptr);
     for (k = null_ocp; k <= ocp_ptr; k++) {

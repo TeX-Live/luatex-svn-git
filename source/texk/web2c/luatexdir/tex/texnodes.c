@@ -29,6 +29,14 @@ static const char _svn_version[] =
     "$Id$ $URL$";
 
 #define adjust_pre subtype
+#define attribute(A) eqtb[attribute_base+(A)].cint
+
+#define dir_par(A) eqtb[dir_base+(A)].cint
+#define text_direction dir_par(text_direction_code)
+#define uc_hyph int_par(uc_hyph_code)
+#define cur_lang int_par(cur_lang_code)
+#define left_hyphen_min int_par(left_hyphen_min_code)
+#define right_hyphen_min int_par(right_hyphen_min_code)
 
 #define MAX_CHAIN_SIZE 13
 
@@ -1925,7 +1933,7 @@ void update_attribute_cache(void)
     attr_list_ref(attr_list_cache) = 0;
     p = attr_list_cache;
     for (i = 0; i <= max_used_attr; i++) {
-        register int v = get_attribute(i);
+        register int v = attribute(i);
         if (v > UNUSED_ATTRIBUTE) {
             register halfword r = new_attribute_node(i, v);
             vlink(p) = r;
@@ -2546,7 +2554,7 @@ void show_node_list(integer p)
     while (p != null) {
         print_ln();
         print_current_string(); /* display the nesting history */
-        if (int_par(param_tracing_online_code) < -2)
+        if (int_par(tracing_online_code) < -2)
             print_int(p);
         incr(n);
         if (n > breadth_max) {  /* time to stop */
@@ -2859,3 +2867,613 @@ pointer actual_box_width(pointer r, scaled base_width)
     }
     return w;
 }
+
+
+halfword tail_of_list (halfword p)
+{ 
+    halfword q=p;
+    while (vlink(q)!=null)  
+        q=vlink(q);
+    return q;
+}
+
+
+/* |delete_glue_ref| is called when a pointer to a glue
+   specification is being withdrawn.
+*/
+
+#define fast_delete_glue_ref(A) do {		\
+    if (glue_ref_count(A)==null) {		\
+      flush_node(A);				\
+    } else {					\
+      decr(glue_ref_count(A));			\
+    }						\
+  } while (0)
+
+void delete_glue_ref(halfword p) /* |p| points to a glue specification */
+{
+  assert(type(p)==glue_spec_node);
+  fast_delete_glue_ref(p);
+}
+
+halfword var_used;
+halfword temp_ptr; /* a pointer variable for occasional emergency use */
+
+/*
+Attribute lists need two extra globals to increase processing efficiency.
+|max_used_attr| limits the test loop that checks for set attributes, and
+|attr_list_cache| contains a pointer to an already created attribute list.  It is
+set to the special value |cache_disabled| when the current value can no longer be
+trusted: after an assignment to an attribute register, and after a group has
+ended.
+*/
+
+integer max_used_attr; /* maximum assigned attribute id  */
+halfword attr_list_cache;
+
+/*
+From the computer's standpoint, \TeX's chief mission is to create
+horizontal and vertical lists. We shall now investigate how the elements
+of these lists are represented internally as nodes in the dynamic memory.
+
+A horizontal or vertical list is linked together by |link| fields in
+the first word of each node. Individual nodes represent boxes, glue,
+penalties, or special things like discretionary hyphens; because of this
+variety, some nodes are longer than others, and we must distinguish different
+kinds of nodes. We do this by putting a `|type|' field in the first word,
+together with the link and an optional `|subtype|'.
+*/
+
+/*
+Character nodes appear only in horizontal lists, never in vertical lists.
+
+An |hlist_node| stands for a box that was made from a horizontal list.
+Each |hlist_node| is seven words long, and contains the following fields
+(in addition to the mandatory |type| and |link|, which we shall not
+mention explicitly when discussing the other node types): The |height| and
+|width| and |depth| are scaled integers denoting the dimensions of the
+box.  There is also a |shift_amount| field, a scaled integer indicating
+how much this box should be lowered (if it appears in a horizontal list),
+or how much it should be moved to the right (if it appears in a vertical
+list). There is a |list_ptr| field, which points to the beginning of the
+list from which this box was fabricated; if |list_ptr| is |null|, the box
+is empty. Finally, there are three fields that represent the setting of
+the glue:  |glue_set(p)| is a word of type |glue_ratio| that represents
+the proportionality constant for glue setting; |glue_sign(p)| is
+|stretching| or |shrinking| or |normal| depending on whether or not the
+glue should stretch or shrink or remain rigid; and |glue_order(p)|
+specifies the order of infinity to which glue setting applies (|normal|,
+|sfi|, |fil|, |fill|, or |filll|). The |subtype| field is not used.
+*/
+
+/*
+@d width_offset=2 {position of |width| field in a box node}
+@d depth_offset=3 {position of |depth| field in a box node}
+@d height_offset=4 {position of |height| field in a box node}
+@d width(#) == vmem(#+width_offset).sc {width of the box, in sp}
+@d depth(#) == vmem(#+depth_offset).sc {depth of the box, in sp}
+@d height(#) == vmem(#+height_offset).sc {height of the box, in sp}
+@d shift_amount(#) == vlink(#+5) {repositioning distance, in sp}
+@d box_dir(#) == vinfo(#+5) {position of |box_dir| in a box node}
+@d list_offset=6 {position of |list_ptr| field in a box node}
+@d list_ptr(#) == vlink(#+list_offset) {beginning of the list inside the box}
+@d glue_order(#) == subtype(#+list_offset) {applicable order of infinity}
+@d glue_sign(#) == type(#+list_offset) {stretching or shrinking}
+@d normal=0 {the most common case when several cases are named}
+@d stretching = 1 {glue setting applies to the stretch components}
+@d shrinking = 2 {glue setting applies to the shrink components}
+@d glue_set(#) == vmem(#+7).gr {a word of type |glue_ratio| for glue setting}
+*/
+
+/*
+The |new_null_box| function returns a pointer to an |hlist_node| in
+which all subfields have the values corresponding to `\.{\\hbox\{\}}'.
+The |subtype| field is set to |min_quarterword|, since that's the desired
+|span_count| value if this |hlist_node| is changed to an |unset_node|.
+*/
+
+halfword new_null_box (void) /* creates a new box node */
+{
+    halfword p; /* the new node */
+    p=new_node(hlist_node,min_quarterword);
+    box_dir(p)=text_direction;
+    return p;
+}
+
+/*
+A |vlist_node| is like an |hlist_node| in all respects except that it
+contains a vertical list.
+*/
+
+/*
+A |rule_node| stands for a solid black rectangle; it has |width|,
+|depth|, and |height| fields just as in an |hlist_node|. However, if
+any of these dimensions is $-2^{30}$, the actual value will be determined
+by running the rule up to the boundary of the innermost enclosing box.
+This is called a ``running dimension.'' The |width| is never running in
+an hlist; the |height| and |depth| are never running in a~vlist.
+
+@d null_flag==-@'10000000000 {$-2^{30}$, signifies a missing item}
+@d is_running(#) == (#=null_flag) {tests for a running dimension}
+@d rule_dir(#)==vlink(#+5)
+*/
+
+/*
+A new rule node is delivered by the |new_rule| function. It
+makes all the dimensions ``running,'' so you have to change the
+ones that are not allowed to run.
+*/
+
+halfword new_rule (void)
+{
+    halfword p; /* the new node */
+    p=new_node(rule_node,0); /* the |subtype| is not used */
+    return p;
+}
+
+/*
+@ Insertions are represented by |ins_node| records, where the |subtype|
+indicates the corresponding box number. For example, `\.{\\insert 250}'
+leads to an |ins_node| whose |subtype| is |250+min_quarterword|.
+The |height| field of an |ins_node| is slightly misnamed; it actually holds
+the natural height plus depth of the vertical list being inserted.
+The |depth| field holds the |split_max_depth| to be used in case this
+insertion is split, and the |split_top_ptr| points to the corresponding
+|split_top_skip|. The |float_cost| field holds the |floating_penalty| that
+will be used if this insertion floats to a subsequent page after a
+split insertion of the same class.  There is one more field, the
+|ins_ptr|, which points to the beginning of the vlist for the insertion.
+
+@d float_cost(#)==vmem(#+2).int {the |floating_penalty| to be used}
+@d ins_ptr(#)==vinfo(#+5) {the vertical list to be inserted}
+@d split_top_ptr(#)==vlink(#+5) {the |split_top_skip| to be used}
+
+@ A |mark_node| has a |mark_ptr| field that points to the reference count
+of a token list that contains the user's \.{\\mark} text.
+In addition there is a |mark_class| field that contains the mark class.
+
+@d mark_ptr(#)==vlink(#+2) {head of the token list for a mark}
+@d mark_class(#)==vinfo(#+2) {the mark class}
+
+@ An |adjust_node|, which occurs only in horizontal lists,
+specifies material that will be moved out into the surrounding
+vertical list; i.e., it is used to implement \TeX's `\.{\\vadjust}'
+operation.  The |adjust_ptr| field points to the vlist containing this
+material.
+
+@d adjust_pre == subtype  {pre-adjustment?}
+@d adjust_ptr(#)==vlink(#+2) {vertical list to be moved out of horizontal list}
+@#{|append_list| is used to append a list to |tail|}
+@d append_list(#) == begin vlink(tail) := vlink(#); append_list_end
+@d append_list_end(#) == tail := #; end
+
+@ A |glyph_node|, which occurs only in horizontal lists, specifies a
+glyph in a particular font, along with its attribute list. Older
+versions of \TeX\ could use token memory for characters, because the
+font,char combination would fit in a single word (both values were
+required to be strictly less than $2^{16}$). In \LuaTeX, room is
+needed for characters that are larger than that, as well as a pointer
+to a potential attribute list, and the two displacement values.
+
+In turn, that made the node so large that it made sense to merge
+ligature glyphs as well, as that requires only one extra pointer.  A
+few extra classes of glyph nodes will be introduced later.  The
+unification of all those types makes it easier to manipulate lists of
+glyphs. The subtype differentiates various glyph kinds.
+
+First, here is a function that returns a pointer to a glyph node for a given
+glyph in a given font. If that glyph doesn't exist, |null| is returned
+instead.  Nodes of this subtype are directly created only for accents
+and their base (through |make_accent|), and math nucleus items (in the
+conversion from |mlist| to |hlist|).
+
+
+@d is_char_node(#) == ((#<>null)and(type(#)=glyph_node))
+@d font(#)==vlink(#+2) {the font code in a |glyph_node|}
+@d character(#)==vinfo(#+2) {the character code in a |glyph_node|}
+@d lig_ptr(#)==vlink(#+3) {the list of characters for ligature replacements }
+@d lang_data(#)==vinfo(#+3) {language information }
+@d x_displace(#)==vinfo(#+4) { horizontal displacement }
+@d y_displace(#)==vlink(#+4) { vertical displacement  }
+*/
+
+halfword new_glyph(integer f, integer c)
+{
+    halfword p = null; /* the new node */
+    if ((f==0) || (char_exists(f,c))) {
+	p=new_glyph_node();
+	set_to_glyph(p); 
+	font(p)=f;  
+	character(p)=c;
+    }
+    return p;
+}
+
+/*
+A subset of the glyphs nodes represent ligatures: characters
+fabricated from the interaction of two or more actual characters.  The
+characters that generated the ligature have not been forgotten, since
+they are needed for diagnostic messages; the |lig_ptr| field points to
+a linked list of character nodes for all original characters that have
+been deleted. (This list might be empty if the characters that
+generated the ligature were retained in other nodes.)
+
+The |subtype| field of these |glyph_node|s is 1, plus 2 and/or 1 if
+the original source of the ligature included implicit left and/or
+right boundaries. These nodes are created by the C function |new_ligkern|.
+
+@ A third general type of glyphs could be called a character, as it
+only appears in lists that are not yet processed by the ligaturing and
+kerning steps of the program.
+
+|main_control| inserts these, and they are later converted to
+|subtype_normal| by |new_ligkern|.
+*/
+
+quarterword norm_min(integer h)
+{
+    if (h<=0) 
+	return 1;
+    else if (h>=255) 
+	return 255;
+    else 
+	return h;
+}
+
+halfword new_char(integer f, integer c)
+{
+    halfword p; /* the new node */
+    p=new_glyph_node();
+    set_to_character(p); 
+    font(p)=f;  
+    character(p)=c;
+    lang_data(p)=make_lang_data(uc_hyph,cur_lang,left_hyphen_min,right_hyphen_min);
+    return p;
+}
+
+/*
+Left and right ghost glyph nodes are the result of \.{\\leftghost}
+and \.{\\rightghost}, respectively. They are going to be removed by
+|new_ligkern|, at the end of which they are no longer needed.
+
+@ Here are a few handy helpers used by the list output routines.
+*/
+
+scaled glyph_width(halfword p)
+{
+    scaled w;
+    w = char_width(font(p),character(p));
+    return w;
+}
+
+scaled glyph_height(halfword p)
+{
+    scaled w;
+    w = char_height(font(p),character(p)) + y_displace(p);
+    if (w<0) w=0;
+    return w;
+}
+
+scaled glyph_depth(halfword p)
+{
+    scaled w;
+    w = char_depth(font(p),character(p));
+    if (y_displace(p)>0)  
+	w = w - y_displace(p);
+    if (w<0) w=0;
+    return w;
+}
+
+/*
+@ A |disc_node|, which occurs only in horizontal lists, specifies a
+``dis\-cretion\-ary'' line break. If such a break occurs at node |p|, the text
+that starts at |pre_break(p)| will precede the break, the text that starts at
+|post_break(p)| will follow the break, and text that appears in
+|no_break(p)| nodes will be ignored. For example, an ordinary
+discretionary hyphen, indicated by `\.{\\-}', yields a |disc_node| with
+|pre_break| pointing to a |char_node| containing a hyphen, |post_break=null|,
+and |no_break=null|.
+
+{TODO: Knuth said: All three of the discretionary texts must be lists
+that consist entirely of character, kern, box and rule nodes.}
+
+If |subtype(p)=automatic_disc|, the |ex_hyphen_penalty| will be charged for this
+break.  Otherwise the |hyphen_penalty| will be charged.  The texts will
+actually be substituted into the list by the line-breaking algorithm if it
+decides to make the break, and the discretionary node will disappear at
+that time; thus, the output routine sees only discretionaries that were
+not chosen.
+
+@d automatic_disc=2
+@d syllable_disc=3
+@d disc_type==subtype {the kind of discretionary}
+@d pre_break(#)==vinfo(#+2) {text that precedes a discretionary break}
+@d post_break(#)==vlink(#+2) {text that follows a discretionary break}
+@d no_break(#)==vlink(#+3) {text this discretionary break replaces}
+@d pre_break_head(#)==(#+4)
+@d post_break_head(#)==(#+6)
+@d no_break_head(#)==(#+8)
+@d tlink(#)==vinfo(#+1)
+*/
+
+halfword new_disc(void) /* creates an empty |disc_node| */
+{
+    halfword p; /* the new node */
+    p=new_node(disc_node,0);
+    return p;
+}
+
+/*
+A |whatsit_node| is a wild card reserved for extensions to \TeX. The
+|subtype| field in its first word says what `\\{whatsit}' it is, and
+implicitly determines the node size (which must be 2 or more) and the
+format of the remaining words. When a |whatsit_node| is encountered
+in a list, special actions are invoked; knowledgeable people who are
+careful not to mess up the rest of \TeX\ are able to make \TeX\ do new
+things by adding code at the end of the program. For example, there
+might be a `\TeX nicolor' extension to specify different colors of ink,
+@^extensions to \TeX@>
+and the whatsit node might contain the desired parameters.
+
+The present implementation of \TeX\ treats the features associated with
+`\.{\\write}' and `\.{\\special}' as if they were extensions, in order to
+illustrate how such routines might be coded. We shall defer further
+discussion of extensions until the end of this program.
+*/
+
+/*
+@ A |math_node|, which occurs only in horizontal lists, appears before and
+after mathematical formulas. The |subtype| field is |before| before the
+formula and |after| after it. There is a |surround| field, which represents
+the amount of surrounding space inserted by \.{\\mathsurround}.
+
+@d surround(#)==vlink(#+2)
+@d before=0 {|subtype| for math node that introduces a formula}
+@d after=1 {|subtype| for math node that winds up a formula}
+*/
+
+halfword new_math(scaled w, int s)
+{
+    halfword p; /* the new node */
+     p=new_node(math_node,s);
+     surround(p)=w; 
+     return p;
+}
+
+/*
+\TeX\ makes use of the fact that |hlist_node|, |vlist_node|,
+|rule_node|, |ins_node|, |mark_node|, |adjust_node|,
+|disc_node|, |whatsit_node|, and |math_node| are at the low end of the
+type codes, by permitting a break at glue in a list if and only if the
+|type| of the previous node is less than |math_node|. Furthermore, a
+node is discarded after a break if its type is |math_node| or~more.
+
+@d precedes_break(#)==(type(#)<math_node)
+@d non_discardable(#)==(type(#)<math_node)
+
+@ A |glue_node| represents glue in a list. However, it is really only
+a pointer to a separate glue specification, since \TeX\ makes use of the
+fact that many essentially identical nodes of glue are usually present.
+If |p| points to a |glue_node|, |glue_ptr(p)| points to
+another packet of words that specify the stretch and shrink components, etc.
+
+Glue nodes also serve to represent leaders; the |subtype| is used to
+distinguish between ordinary glue (which is called |normal|) and the three
+kinds of leaders (which are called |a_leaders|, |c_leaders|, and |x_leaders|).
+The |leader_ptr| field points to a rule node or to a box node containing the
+leaders; it is set to |null| in ordinary glue nodes.
+
+Many kinds of glue are computed from \TeX's ``skip'' parameters, and
+it is helpful to know which parameter has led to a particular glue node.
+Therefore the |subtype| is set to indicate the source of glue, whenever
+it originated as a parameter. We will be defining symbolic names for the
+parameter numbers later (e.g., |line_skip_code=0|, |baseline_skip_code=1|,
+etc.); it suffices for now to say that the |subtype| of parametric glue
+will be the same as the parameter number, plus~one.
+
+In math formulas there are two more possibilities for the |subtype| in a
+glue node: |mu_glue| denotes an \.{\\mskip} (where the units are scaled \.{mu}
+instead of scaled \.{pt}); and |cond_math_glue| denotes the `\.{\\nonscript}'
+feature that cancels the glue node immediately following if it appears
+in a subscript.
+
+@d cond_math_glue=98 {special |subtype| to suppress glue in the next node}
+@d mu_glue=99 {|subtype| for math glue}
+@d a_leaders=100 {|subtype| for aligned leaders}
+@d c_leaders=101 {|subtype| for centered leaders}
+@d x_leaders=102 {|subtype| for expanded leaders}
+@d glue_ptr(#)==vinfo(#+2) {pointer to a glue specification}
+@d leader_ptr(#)==vlink(#+2) {pointer to box or rule node for leaders}
+
+@ A glue specification has a halfword reference count in its first word,
+@^reference counts@>
+representing |null| plus the number of glue nodes that point to it (less one).
+Note that the reference count appears in the same position as
+the |link| field in list nodes; this is the field that is initialized
+to |null| when a node is allocated, and it is also the field that is flagged
+by |empty_flag| in empty nodes.
+
+Glue specifications also contain three |scaled| fields, for the |width|,
+|stretch|, and |shrink| dimensions. Finally, there are two one-byte
+fields called |stretch_order| and |shrink_order|; these contain the
+orders of infinity (|normal|, |sfi|, |fil|, |fill|, or |filll|)
+corresponding to the stretch and shrink values.
+
+@d glue_ref_count(#) == vlink(#+3) {reference count of a glue specification}
+@d stretch(#) == vlink(#+1) {the stretchability of this glob of glue}
+@d shrink(#) == vinfo(#+1) {the shrinkability of this glob of glue}
+@d stretch_order(#) == type(#+3) {order of infinity for stretching}
+@d shrink_order(#) == subtype(#+3) {order of infinity for shrinking}
+@d sfi=1 {first-order infinity}
+@d fil=2 {second-order infinity}
+@d fill=3 {third-order infinity}
+@d filll=4 {fourth-order infinity}
+*/
+
+/*
+@ Here is a function that returns a pointer to a copy of a glue spec.
+The reference count in the copy is |null|, because there is assumed
+to be exactly one reference to the new specification.
+*/
+
+halfword new_spec(halfword p) /* duplicates a glue specification */
+{
+    halfword q; /* the new spec */
+    q=copy_node(p);
+    glue_ref_count(q)=null;
+    return q;
+}
+
+/*
+@ And here's a function that creates a glue node for a given parameter
+identified by its code number; for example,
+|new_param_glue(line_skip_code)| returns a pointer to a glue node for the
+current \.{\\lineskip}.
+*/
+
+halfword new_param_glue(int n)
+{
+    halfword p; /* the new node */
+    halfword q; /* the glue specification */
+    p=new_node(glue_node,n+1);
+    q=glue_par(n);
+    glue_ptr(p)=q; 
+    incr(glue_ref_count(q));
+    return p;
+}
+
+/*
+Glue nodes that are more or less anonymous are created by |new_glue|,
+whose argument points to a glue specification.
+*/
+
+halfword new_glue(halfword q)
+{
+    halfword p; /* the new node */
+    p=new_node(glue_node,normal);
+    glue_ptr(p)=q; 
+    incr(glue_ref_count(q));
+    return p;
+}
+
+/*
+Still another subroutine is needed: This one is sort of a combination
+of |new_param_glue| and |new_glue|. It creates a glue node for one of
+the current glue parameters, but it makes a fresh copy of the glue
+specification, since that specification will probably be subject to change,
+while the parameter will stay put. The global variable |temp_ptr| is
+set to the address of the new spec.
+*/
+
+halfword new_skip_param(int n) 
+{
+    halfword p; /* the new node */
+    temp_ptr=new_spec(glue_par(n));
+    p=new_glue(temp_ptr); 
+    glue_ref_count(temp_ptr)=null; 
+    subtype(p)=n+1;
+    return p;
+}
+
+/*
+@ A |kern_node| has a |width| field to specify a (normally negative)
+amount of spacing. This spacing correction appears in horizontal lists
+between letters like A and V when the font designer said that it looks
+better to move them closer together or further apart. A kern node can
+also appear in a vertical list, when its `|width|' denotes additional
+spacing in the vertical direction. The |subtype| is either |normal| (for
+kerns inserted from font information or math mode calculations) or |explicit|
+(for kerns inserted from \.{\\kern} and \.{\\/} commands) or |acc_kern|
+(for kerns inserted from non-math accents) or |mu_glue| (for kerns
+inserted from \.{\\mkern} specifications in math formulas).
+
+@d explicit=1 {|subtype| of kern nodes from \.{\\kern} and \.{\\/}}
+@d acc_kern=2 {|subtype| of kern nodes from accents}
+
+@# {memory structure for marginal kerns}
+@d margin_char(#) == vlink(#+3)
+
+@# {|subtype| of marginal kerns}
+@d left_side == 0
+@d right_side == 1
+
+@# {base for lp/rp/ef codes starts from 2:
+    0 for |hyphen_char|,
+    1 for |skew_char|}
+@d lp_code_base == 2
+@d rp_code_base == 3
+@d ef_code_base == 4
+@d tag_code == 5
+
+@d auto_kern == explicit
+@d no_lig_code == 6
+
+@ The |new_kern| function creates a kern node having a given width.
+*/
+
+halfword new_kern(scaled w) 
+{
+    halfword p; /* the new node */
+    p=new_node(kern_node,normal);
+    width(p)=w;
+    return p;
+}
+
+/*
+A |penalty_node| specifies the penalty associated with line or page
+breaking, in its |penalty| field. This field is a fullword integer, but
+the full range of integer values is not used: Any penalty |>=10000| is
+treated as infinity, and no break will be allowed for such high values.
+Similarly, any penalty |<=-10000| is treated as negative infinity, and a
+break will be forced.
+
+@d inf_penalty==inf_bad {``infinite'' penalty value}
+@d eject_penalty==-inf_penalty {``negatively infinite'' penalty value}
+@d penalty(#) == vlink(#+2) {the added cost of breaking a list here}
+
+@ Anyone who has been reading the last few sections of the program will
+be able to guess what comes next.
+*/
+
+halfword new_penalty(integer m)
+{
+    halfword p; /* the new node */
+    p=new_node(penalty_node,0); /* the |subtype| is not used */
+    penalty(p)=m; 
+    return p;
+}
+
+/*
+@ You might think that we have introduced enough node types by now. Well,
+almost, but there is one more: An |unset_node| has nearly the same format
+as an |hlist_node| or |vlist_node|; it is used for entries in \.{\\halign}
+or \.{\\valign} that are not yet in their final form, since the box
+dimensions are their ``natural'' sizes before any glue adjustment has been
+made. The |glue_set| word is not present; instead, we have a |glue_stretch|
+field, which contains the total stretch of order |glue_order| that is
+present in the hlist or vlist being boxed.
+Similarly, the |shift_amount| field is replaced by a |glue_shrink| field,
+containing the total shrink of order |glue_sign| that is present.
+The |subtype| field is called |span_count|; an unset box typically
+contains the data for |qo(span_count)+1| columns.
+Unset nodes will be changed to box nodes when alignment is completed.
+
+@d glue_stretch(#)==vmem(#+7).sc {total stretch in an unset node}
+@d glue_shrink==shift_amount {total shrink in an unset node}
+@d span_count==subtype {indicates the number of spanned columns}
+
+@ In fact, there are still more types coming. When we get to math formula
+processing we will see that a |style_node| has |type=14|; and a number
+of larger type codes will also be defined, for use in math mode only.
+
+@ Warning: If any changes are made to these data structure layouts, such as
+changing any of the node sizes or even reordering the words of nodes,
+the |copy_node_list| procedure and the memory initialization code
+below may have to be changed. Such potentially dangerous parts of the
+program are listed in the index under `data structure assumptions'.
+@!@^data structure assumptions@>
+However, other references to the nodes are made symbolically in terms of
+the \.{WEB} macro definitions above, so that format changes will leave
+\TeX's other algorithms intact.
+@^system dependencies@>
+*/

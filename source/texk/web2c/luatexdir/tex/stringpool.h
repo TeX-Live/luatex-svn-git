@@ -32,6 +32,8 @@ extern str_number init_str_ptr;
 #  define STRING_OFFSET 0x200000
 #  define STRING_OFFSET_BITS 21
 
+#define get_nullstr() STRING_OFFSET
+
 #  define str_start_macro(a) str_start[(a) - STRING_OFFSET]
 
 #  define biggest_char 1114111

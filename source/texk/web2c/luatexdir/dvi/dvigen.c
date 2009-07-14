@@ -29,22 +29,22 @@ static const char __svn_version[] =
 
 #define mode cur_list.mode_field        /* current mode */
 
-#define pdf_output int_par(param_pdf_output_code)
-#define mag int_par(param_mag_code)
-#define tracing_output int_par(param_tracing_output_code)
-#define tracing_stats int_par(param_tracing_stats_code)
-#define tracing_online int_par(param_tracing_online_code)
-#define page_direction int_par(param_page_direction_code)       /* really direction */
-#define page_width dimen_par(param_page_width_code)
-#define page_height dimen_par(param_page_height_code)
-#define page_left_offset dimen_par(param_page_left_offset_code)
-#define page_right_offset dimen_par(param_page_right_offset_code)
-#define page_top_offset dimen_par(param_page_top_offset_code)
-#define page_bottom_offset dimen_par(param_page_bottom_offset_code)
-#define h_offset dimen_par(param_h_offset_code)
-#define v_offset dimen_par(param_v_offset_code)
+#define pdf_output int_par(pdf_output_code)
+#define mag int_par(mag_code)
+#define tracing_output int_par(tracing_output_code)
+#define tracing_stats int_par(tracing_stats_code)
+#define tracing_online int_par(tracing_online_code)
+#define page_direction int_par(page_direction_code)       /* really direction */
+#define page_width dimen_par(page_width_code)
+#define page_height dimen_par(page_height_code)
+#define page_left_offset dimen_par(page_left_offset_code)
+#define page_right_offset dimen_par(page_right_offset_code)
+#define page_top_offset dimen_par(page_top_offset_code)
+#define page_bottom_offset dimen_par(page_bottom_offset_code)
+#define h_offset dimen_par(h_offset_code)
+#define v_offset dimen_par(v_offset_code)
 
-#define count(A) zeqtb[count_base+(A)].cint
+#define count(A) eqtb[count_base+(A)].cint
 
 
 /*
@@ -2086,8 +2086,6 @@ void expand_macros_in_tokenlist(halfword p)
 {
     integer old_mode;           /* saved |mode| */
     pointer q, r;               /* temporary variables for list manipulation */
-    integer end_write = get_nullcs() + 1 + get_hash_size();     /* hashbase=nullcs+1 */
-    end_write += 8;             /* end_write=frozen_control_sequence+8 */
     q = get_avail();
     token_info(q) = right_brace_token + '}';
     r = get_avail();
@@ -2280,7 +2278,6 @@ void dvi_ship_out(halfword p)
     integer pre_callback_id;
     integer post_callback_id;
     boolean ret;
-    integer count_base = get_count_base();
 
     if (half_buf == 0) {
         half_buf = dvi_buf_size / 2;
@@ -2409,7 +2406,7 @@ void dvi_ship_out(halfword p)
         prepare_mag();
         dvi_four(mag);          /* magnification factor is frozen */
         if (output_comment) {
-            l = strlen(output_comment);
+            int l = strlen(output_comment);
             dvi_out(l);
             for (s = 0; s <= l - 1; s++)
                 dvi_out(output_comment[s]);
@@ -2417,14 +2414,14 @@ void dvi_ship_out(halfword p)
             old_setting = selector;
             selector = new_string;
             tprint(" LuaTeX output ");
-            print_int(int_par(param_year_code));
+            print_int(int_par(year_code));
             print_char('.');
-            print_two(int_par(param_month_code));
+            print_two(int_par(month_code));
             print_char('.');
-            print_two(int_par(param_day_code));
+            print_two(int_par(day_code));
             print_char(':');
-            print_two(int_par(param_time_code) / 60);
-            print_two(int_par(param_time_code) % 60);
+            print_two(int_par(time_code) / 60);
+            print_two(int_par(time_code) % 60);
             selector = old_setting;
             dvi_out(cur_length);
             for (s = str_start_macro(str_ptr); s <= pool_ptr - 1; s++)

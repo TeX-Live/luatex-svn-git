@@ -23,8 +23,8 @@
 
 /* these are for show_activities */
 #define page_goal page_so_far[0]
-#define pdf_ignored_dimen dimen_par(param_pdf_ignored_dimen_code)
-#define count(A) zeqtb[count_base+(A)].cint
+#define pdf_ignored_dimen dimen_par(pdf_ignored_dimen_code)
+#define count(A) eqtb[count_base+(A)].cint
 
 static const char _svn_version[] =
     "$Id$ $URL$";
@@ -360,7 +360,6 @@ void show_activities(void)
     memory_word a;              /* auxiliary */
     halfword q, r;              /* for showing the current page */
     integer t;                  /* ditto */
-    integer count_base = get_count_base();
     nest[nest_ptr] = cur_list;  /* put the top level into the array */
     tprint_nl("");
     print_ln();

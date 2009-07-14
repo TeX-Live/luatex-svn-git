@@ -183,7 +183,7 @@ void ext_post_line_break(boolean d,
         } else if (type(r) == glue_node) {
             delete_glue_ref(glue_ptr(r));
             glue_ptr(r) = right_skip;
-            subtype(r) = param_right_skip_code + 1;
+            subtype(r) = right_skip_code + 1;
             incr(glue_ref_count(right_skip));
             glue_break = true;
             /* |q| refers to the last node of the line */
@@ -328,7 +328,7 @@ void ext_post_line_break(boolean d,
            then we append |rightskip| after |q| now */
         if (!glue_break) {
             /* @<Put the \(r)\.{\\rightskip} glue after node |q|@>; */
-            halfword r = new_param_glue(param_right_skip_code);
+            halfword r = new_param_glue(right_skip_code);
             vlink(r) = vlink(q);
             vlink(q) = r;
             q = r;
@@ -374,7 +374,7 @@ void ext_post_line_break(boolean d,
             }
         };
         if (left_skip != zero_glue) {
-            r = new_param_glue(param_left_skip_code);
+            r = new_param_glue(left_skip_code);
             vlink(r) = q;
             q = r;
         }

@@ -25,9 +25,9 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-#define pdf_thread_margin        dimen_par(param_pdf_thread_margin_code)
-#define page_width dimen_par(param_page_width_code)
-#define page_height dimen_par(param_page_height_code)
+#define pdf_thread_margin        dimen_par(pdf_thread_margin_code)
+#define page_width dimen_par(page_width_code)
+#define page_height dimen_par(page_height_code)
 
 /* Threads are handled in similar way as link annotations */
 

@@ -146,7 +146,10 @@ static lua_Number get_dest_names_ptr(void)
     return (lua_Number) 0;
 }
 
-
+static int get_hash_size (void)
+{
+    return hash_size; /* is a #define */
+}
 
 extern int luabytecode_max;
 extern int luabytecode_bytes;
@@ -188,7 +191,7 @@ static struct statistic stats[] = {
     {"fix_mem_min", 'g', &fix_mem_min},
     {"fix_mem_end", 'g', &fix_mem_end},
     {"cs_count", 'g', &cs_count},
-    {"hash_size", 'G', &get_hash_size},
+    {"hash_size", 'g', &get_hash_size},
     {"hash_extra", 'g', &hash_extra},
     {"font_ptr", 'G', &max_font_id},
     {"max_in_stack", 'g', &max_in_stack},

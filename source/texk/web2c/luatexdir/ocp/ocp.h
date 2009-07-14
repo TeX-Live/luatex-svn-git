@@ -40,7 +40,7 @@ extern internal_ocp_number ocp_ptr;     /* largest internal ocp number in use */
 
 extern void new_ocp(small_number a);
 
-#  define ocp_trace_level loc_par(param_ocp_trace_level_code)
+#  define ocp_trace_level equiv(ocp_trace_level_base)
 
 extern void allocate_ocp_table(int ocp_number, int ocp_size);
 

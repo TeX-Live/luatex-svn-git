@@ -50,7 +50,7 @@ extern integer pdf_cur_form;    /* the form being output */
 
 void pdf_place_form(PDF pdf, integer i);
 
-void scan_pdfxform(PDF pdf, integer box_base);
+void scan_pdfxform(PDF pdf);
 void scan_pdfrefxform(PDF pdf);
 
 #endif

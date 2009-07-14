@@ -114,4 +114,12 @@ extern integer breadth_max;     /* maximum number of items shown at the same lis
 extern void show_box(halfword p);
 extern void short_display_n(integer p, integer m);      /* prints highlights of list |p| */
 
+extern void print_csnames (integer hstart, integer hfinish);
+extern void print_file_line (void);
+
+extern void begin_diagnostic (void);
+extern void end_diagnostic(boolean blank_line);
+extern int global_old_setting;
+
+
 #endif

@@ -198,7 +198,7 @@ void set_charinfo(internal_font_number f, integer c, charinfo * ci)
 
 charinfo *copy_charinfo(charinfo * ci)
 {
-    int x;
+    int x, k;
     kerninfo *kern;
     liginfo *lig;
     eight_bits *packet;
@@ -1358,6 +1358,7 @@ void set_no_ligatures(internal_font_number f)
 
 liginfo get_ligature(internal_font_number f, integer lc, integer rc)
 {
+    int k;
     liginfo t, u;
     charinfo *co;
     t.lig = 0;

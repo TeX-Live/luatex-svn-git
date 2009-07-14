@@ -20,7 +20,7 @@
 #include "ptexlib.h"
 #include "pdfpage.h"
 
-#define box(A) zeqtb[box_base+(A)].hh.rh
+#define box(A) eqtb[box_base+(A)].hh.rh
 
 static const char __svn_version[] =
     "$Id$"
@@ -40,8 +40,7 @@ void pdf_place_form(PDF pdf, integer objnum)
         append_object_list(pdf, obj_type_xform, objnum);
 }
 
-/* todo: the trick with |box_base| is a cludge */
-void scan_pdfxform(PDF pdf, integer box_base)
+void scan_pdfxform(PDF pdf)
 {
     integer k;
     halfword p;

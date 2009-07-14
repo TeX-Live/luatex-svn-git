@@ -22,28 +22,28 @@
 #include "commands.h"
 #include "luatex-api.h"         /* for tokenlist_to_cstring */
 
-#define count(A) zeqtb[count_base+(A)].cint
+#define count(A) eqtb[count_base+(A)].cint
 
 
-#define pdf_output int_par(param_pdf_output_code)
-#define pdf_gen_tounicode int_par(param_pdf_gen_tounicode_code)
-#define mag int_par(param_mag_code)
-#define tracing_output int_par(param_tracing_output_code)
-#define tracing_stats int_par(param_tracing_stats_code)
-#define page_direction int_par(param_page_direction_code)       /* really direction */
-#define page_width dimen_par(param_page_width_code)
-#define page_height dimen_par(param_page_height_code)
-#define page_left_offset dimen_par(param_page_left_offset_code)
-#define page_right_offset dimen_par(param_page_right_offset_code)
-#define page_top_offset dimen_par(param_page_top_offset_code)
-#define page_bottom_offset dimen_par(param_page_bottom_offset_code)
-#define h_offset dimen_par(param_h_offset_code)
-#define v_offset dimen_par(param_v_offset_code)
-#define pdf_h_origin dimen_par(param_pdf_h_origin_code)
-#define pdf_v_origin dimen_par(param_pdf_v_origin_code)
-#define pdf_page_attr loc_par(param_pdf_page_attr_code)
-#define pdf_pages_attr loc_par(param_pdf_pages_attr_code)
-#define pdf_page_resources loc_par(param_pdf_page_resources_code)
+#define pdf_output int_par(pdf_output_code)
+#define pdf_gen_tounicode int_par(pdf_gen_tounicode_code)
+#define mag int_par(mag_code)
+#define tracing_output int_par(tracing_output_code)
+#define tracing_stats int_par(tracing_stats_code)
+#define page_direction int_par(page_direction_code)       /* really direction */
+#define page_width dimen_par(page_width_code)
+#define page_height dimen_par(page_height_code)
+#define page_left_offset dimen_par(page_left_offset_code)
+#define page_right_offset dimen_par(page_right_offset_code)
+#define page_top_offset dimen_par(page_top_offset_code)
+#define page_bottom_offset dimen_par(page_bottom_offset_code)
+#define h_offset dimen_par(h_offset_code)
+#define v_offset dimen_par(v_offset_code)
+#define pdf_h_origin dimen_par(pdf_h_origin_code)
+#define pdf_v_origin dimen_par(pdf_v_origin_code)
+#define pdf_page_attr equiv(pdf_page_attr_loc)
+#define pdf_pages_attr equiv(pdf_pages_attr_loc)
+#define pdf_page_resources equiv(pdf_page_resources_loc)
 
 static const char __svn_version[] =
     "$Id$"
@@ -91,8 +91,6 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     integer post_callback_id;
     boolean ret;
     integer ff;                 /* for use with |set_ff| */
-
-    integer count_base = get_count_base();
     integer last_resources;
 
     /* Start sheet {\sl Sync\TeX} information record */

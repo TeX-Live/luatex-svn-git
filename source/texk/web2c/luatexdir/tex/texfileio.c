@@ -26,7 +26,7 @@ static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
-#define end_line_char int_par(param_end_line_char_code)
+#define end_line_char int_par(end_line_char_code)
 
 /*
 The bane of portability is the fact that different operating systems treat

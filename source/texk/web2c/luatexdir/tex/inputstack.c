@@ -25,8 +25,8 @@ static const char _svn_version[] =
     "$Id$ $URL$";
 
 
-#define end_line_char int_par(param_end_line_char_code)
-#define error_context_lines int_par(param_error_context_lines_code)
+#define end_line_char int_par(end_line_char_code)
+#define error_context_lines int_par(error_context_lines_code)
 
 
 in_state_record *input_stack = NULL;
@@ -417,7 +417,7 @@ void begin_token_list(halfword p, quarterword t)
             param_start = param_ptr;
         } else {
             iloc = token_link(p);
-            if (int_par(param_tracing_macros_code) > 1) {
+            if (int_par(tracing_macros_code) > 1) {
                 begin_diagnostic();
                 tprint_nl("");
                 if (t == mark_text)
@@ -427,7 +427,7 @@ void begin_token_list(halfword p, quarterword t)
                 else
                     print_cmd_chr(assign_toks_cmd,
                                   t - output_text +
-                                  loc_par(param_output_routine_code));
+                                  equiv(output_routine_loc));
                 tprint("->");
                 token_show(p);
                 end_diagnostic(false);
@@ -658,27 +658,24 @@ void pseudo_from_string(void)
     halfword p;                 /* for list construction */
     s = make_string();
     /* Convert string |s| into a new pseudo file */
-    str_pool[pool_ptr] = ' ';
-    p = string_to_pseudo(str_start_macro(s), pool_ptr,
-                         int_par(param_new_line_char_code));
-    vlink(p) = pseudo_files;
-    pseudo_files = p;
+    str_pool[pool_ptr]=' ';
+    p=string_to_pseudo(str_start_macro(s),pool_ptr,int_par(new_line_char_code));
+    vlink(p)=pseudo_files; 
+    pseudo_files=p;
 
     flush_string();
     /* Initiate input from new pseudo file */
-    begin_file_reading();       /* set up |cur_file| and new level of input */
-    line = 0;
-    ilimit = istart;
-    iloc = ilimit + 1;          /* force line read */
-    if (int_par(param_tracing_scan_tokens_code) > 0) {
-        if (term_offset > max_print_line - 3)
-            print_ln();
-        else if ((term_offset > 0) || (file_offset > 0))
-            print_char(' ');
-        iname = 20;
-        tprint("( ");
-        incr(open_parens);
-        update_terminal();
+    begin_file_reading(); /* set up |cur_file| and new level of input */
+    line=0; ilimit=istart; iloc=ilimit+1; /* force line read */
+    if (int_par(tracing_scan_tokens_code)>0) {
+	if (term_offset>max_print_line-3) 
+	    print_ln();
+	else if ((term_offset>0)||(file_offset>0)) 
+	    print_char(' ');
+	iname=20; 
+	tprint("( "); 
+	incr(open_parens); 
+	update_terminal();
     } else {
         iname = 18;
     }

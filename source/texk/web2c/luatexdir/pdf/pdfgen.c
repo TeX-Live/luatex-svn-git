@@ -159,10 +159,10 @@ void do_check_pdfminorversion(PDF pdf)
 
     } else {
         /* Check that variables for \.{PDF} output are unchanged */
-        if (pdf->minor_version != int_par(param_pdf_minor_version_code))
+        if (pdf->minor_version != int_par(pdf_minor_version_code))
             pdf_error("setup",
                       "\\pdfminorversion cannot be changed after data is written to the PDF file");
-        if (pdf->draftmode != int_par(param_pdf_draftmode_code))
+        if (pdf->draftmode != int_par(pdf_draftmode_code))
             pdf_error("setup",
                       "\\pdfdraftmode cannot be changed after data is written to the PDF file");
 
@@ -588,8 +588,8 @@ void pdf_print_mag_bp(PDF pdf, scaled s)
     pdffloat a;
     pdfstructure *p = pdf->pstruct;
     prepare_mag();
-    if (int_par(param_mag_code) != 1000)
-        a.m = lround(s * (long) int_par(param_mag_code) / 1000.0 * p->k1);
+    if (int_par(mag_code) != 1000)
+        a.m = lround(s * (long) int_par(mag_code) / 1000.0 * p->k1);
     else
         a.m = lround(s * p->k1);
     a.e = pdf->decimal_digits;
@@ -1407,7 +1407,7 @@ void pdf_warning(char *t, char *p, boolean prepend_nl, boolean append_nl)
 
 void check_pdfoutput(char *s, boolean is_error)
 {
-    if (int_par(param_pdf_output_code) <= 0) {
+    if (int_par(pdf_output_code) <= 0) {
         if (is_error)
             pdf_error(s, "not allowed in DVI mode (\\pdfoutput <= 0)");
         else

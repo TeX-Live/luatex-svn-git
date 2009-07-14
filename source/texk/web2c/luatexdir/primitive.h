@@ -34,16 +34,11 @@ typedef enum {
     core_command = 64,
 } command_origin;
 
-#  define eq_level(a) zeqtb[a].hh.u.B1
-#  define eq_type(a)  zeqtb[a].hh.u.B0
-#  define equiv(a)    zeqtb[a].hh.v.RH
-
 #  define undefined_primitive 0
 #  define prim_size 2100        /* maximum number of primitives */
 #  define prim_prime 1777       /* about 85\pct! of |primitive_size| */
 
 #  define hash_prime 55711      /* a prime number equal to about 85\pct! of |hash_size| */
-#  define hash_base 2
 
 extern void init_primitives(void);
 extern void ini_init_primitives(void);
@@ -70,7 +65,7 @@ extern void undump_primitives(void);
 #  define primitive_luatex(a,b,c,d) primitive((a),(b),(c),(d),luatex_command)
 #  define primitive_core(a,b,c,d)   primitive((a),(b),(c),(d),core_command)
 
-extern void primitive(str_number ss, quarterword c, halfword o, halfword off,
+extern void primitive(char *ss, quarterword c, halfword o, halfword off,
                       int cmd_origin);
 extern void primitive_def(char *s, size_t l, quarterword c, halfword o);
 extern void print_cmd_chr(quarterword cmd, halfword chr_code);

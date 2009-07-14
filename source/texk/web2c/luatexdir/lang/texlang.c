@@ -1042,7 +1042,7 @@ When \TeX\ has scanned `\.{\\hyphenation}', it calls on a procedure named
 void new_hyph_exceptions (void) /* enters new exceptions */
 {
     (void)scan_toks(false,true);
-    load_tex_hyphenation(int_par(param_language_code),def_ref);
+    load_tex_hyphenation(int_par(language_code),def_ref);
     flush_list(def_ref);
 }
 
@@ -1054,7 +1054,7 @@ procedure named |new_patterns|.
 void new_patterns (void) /* initializes the hyphenation pattern data */
 { 
     (void)scan_toks(false,true);
-    load_tex_patterns(int_par(param_language_code),def_ref);
+    load_tex_patterns(int_par(language_code),def_ref);
     flush_list(def_ref);
 }
 
@@ -1068,14 +1068,14 @@ void new_pre_hyphen_char (void)
 {
     scan_optional_equals();
     scan_int();
-    set_pre_hyphen_char(int_par(param_language_code),cur_val);
+    set_pre_hyphen_char(int_par(language_code),cur_val);
 }
 
 void new_post_hyphen_char (void)
 {
     scan_optional_equals(); 
     scan_int();
-    set_post_hyphen_char(int_par(param_language_code),cur_val);
+    set_post_hyphen_char(int_par(language_code),cur_val);
 }
 
 /*
@@ -1088,13 +1088,13 @@ void new_pre_exhyphen_char (void)
 {
     scan_optional_equals(); 
     scan_int();
-    set_pre_exhyphen_char(int_par(param_language_code),cur_val);
+    set_pre_exhyphen_char(int_par(language_code),cur_val);
 }
 
 void new_post_exhyphen_char (void)
 {
     scan_optional_equals(); 
     scan_int();
-    set_post_exhyphen_char(int_par(param_language_code),cur_val);
+    set_post_exhyphen_char(int_par(language_code),cur_val);
 }
 

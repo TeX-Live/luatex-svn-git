@@ -25,12 +25,9 @@ static const char _svn_version[] =
     "$URL$";
 
 
-#define null_cs 1               /* equivalent of \.{\\csname\\endcsname} */
-#define too_big_char 1114112    /* |biggest_char+1| */
 #define scan_normal_dimen() scan_dimen(false,false,false)
 #define text(A) hash[(A)].rh
-#define box(A) zeqtb[get_box_base()+(A)].hh.rh
-#define closed 2                /* not open, or at end of file */
+#define box(A) eqtb[box_base+(A)].hh.rh
 
 /* We consider now the way \TeX\ handles various kinds of \.{\\if} commands. */
 
@@ -93,7 +90,7 @@ void pass_text(void)
         }
     }
     scanner_status = save_scanner_status;
-    if (int_par(param_tracing_ifs_code) > 0)
+    if (int_par(tracing_ifs_code) > 0)
         show_cur_cmd_chr();
 }
 
@@ -178,7 +175,7 @@ static boolean test_for_cs(void)
         store_new_token(cur_tok);
     }
     if (cur_cmd != end_cs_name_cmd) {
-        if (int_par(param_suppress_ifcsname_error_code)) {
+        if (int_par(suppress_ifcsname_error_code)) {
             do {
                 get_x_token();
             } while (cur_cmd != end_cs_name_cmd);
@@ -244,8 +241,8 @@ void conditional(void)
     int this_if;                /*type of this conditional */
     boolean is_unless;          /*was this if preceded by `\.{\\unless}' ? */
     b = false;                  /*default is false, just in case */
-    if (int_par(param_tracing_ifs_code) > 0)
-        if (int_par(param_tracing_commands_code) <= 1)
+    if (int_par(tracing_ifs_code) > 0)
+        if (int_par(tracing_commands_code) <= 1)
             show_cur_cmd_chr();
     push_condition_stack();
     save_cond_ptr = cond_ptr;
@@ -425,7 +422,7 @@ void conditional(void)
            and |return| or |goto common_ending| */
         scan_int();
         n = cur_val;            /*|n| is the number of cases to pass */
-        if (int_par(param_tracing_commands_code) > 1) {
+        if (int_par(tracing_commands_code) > 1) {
             begin_diagnostic();
             tprint("{case ");
             print_int(n);
@@ -487,7 +484,7 @@ void conditional(void)
 
     if (is_unless)
         b = !b;
-    if (int_par(param_tracing_commands_code) > 1) {
+    if (int_par(tracing_commands_code) > 1) {
         /* Display the value of |b| */
         begin_diagnostic();
         if (b)

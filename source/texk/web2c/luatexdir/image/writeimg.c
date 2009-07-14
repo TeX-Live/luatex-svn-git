@@ -35,8 +35,7 @@
 
 #include "commands.h"
 
-#define pdf_image_resolution int_par(param_pdf_image_resolution_code)
-#define scan_normal_dimen() scan_dimen(false,false,false)
+#define pdf_image_resolution int_par(pdf_image_resolution_code)
 
 integer image_orig_x, image_orig_y;     /* origin of cropped PDF images */
 

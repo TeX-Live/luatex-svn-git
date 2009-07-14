@@ -28,7 +28,7 @@ static const char _svn_version[] =
     "$URL$";
 
 #define text(A) hash[(A)].rh
-#define font_id_text(A) text(get_font_id_base()+(A))
+#define font_id_text(A) text(font_id_base+(A))
 
 #define wlog(A)      fputc(A,log_file)
 #define wterm(A)     fputc(A,term_out)
@@ -152,7 +152,7 @@ void print_ln(void)
 void print_char(int s)
 {                               /* prints a single byte */
     assert(s >= 0 && s < 256);
-    if (s == int_par(param_new_line_char_code)) {
+    if (s == int_par(new_line_char_code)) {
         if (selector < pseudo) {
             print_ln();
             return;
@@ -247,7 +247,7 @@ void print(integer s)
                 print_char(s);
                 return;         /* internal strings are not expanded */
             }
-            if (s == int_par(param_new_line_char_code)) {
+            if (s == int_par(new_line_char_code)) {
                 if (selector < pseudo) {
                     print_ln();
                     return;
@@ -370,7 +370,7 @@ void log_banner(char *v, int e)
         "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
         "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
     };
-    unsigned month = (unsigned) int_par(param_month_code);
+    unsigned month = (unsigned) int_par(month_code);
     if (month > 12)
         month = 0;
     fprintf(log_file, "This is LuaTeX, Version %s%d", v, e);
@@ -378,15 +378,15 @@ void log_banner(char *v, int e)
     slow_print(format_ident);
     print_char(' ');
     print_char(' ');
-    print_int(int_par(param_day_code));
+    print_int(int_par(day_code));
     print_char(' ');
     fprintf(log_file, months[month]);
     print_char(' ');
-    print_int(int_par(param_year_code));
+    print_int(int_par(year_code));
     print_char(' ');
-    print_two(int_par(param_time_code) / 60);
+    print_two(int_par(time_code) / 60);
     print_char(':');
-    print_two(int_par(param_time_code) % 60);
+    print_two(int_par(time_code) % 60);
     if (shellenabledp) {
         wlog_cr();
         wlog(' ');
@@ -420,7 +420,7 @@ void print_esc(str_number s)
 {                               /* prints escape character, then |s| */
     integer c;                  /* the escape character code */
     /* Set variable |c| to the current escape character */
-    c = int_par(param_escape_char_code);
+    c = int_par(escape_char_code);
     if (c >= 0 && c < STRING_OFFSET)
         print(c);
     print(s);
@@ -430,7 +430,7 @@ void tprint_esc(char *s)
 {                               /* prints escape character, then |s| */
     integer c;                  /* the escape character code */
     /* Set variable |c| to the current escape character */
-    c = int_par(param_escape_char_code);
+    c = int_par(escape_char_code);
     if (c >= 0 && c < STRING_OFFSET)
         print(c);
     tprint(s);
@@ -575,16 +575,9 @@ individual characters must be printed one at a time using |print|, since
 they may be unprintable.
 */
 
-static int null_cs = 0;
-static int eqtb_size = 0;
-
 void print_cs(integer p)
 {                               /* prints a purported control sequence */
     str_number t = zget_cs_text(p);
-    if (null_cs == 0) {
-        null_cs = get_nullcs();
-        eqtb_size = get_eqtb_size();
-    }
     if (p < hash_base) {        /* nullcs */
         if (p == null_cs) {
             tprint_esc("csname");
@@ -592,7 +585,7 @@ void print_cs(integer p)
         } else {
             tprint_esc("IMPOSSIBLE.");
         }
-    } else if ((p >= static_undefined_control_sequence) &&
+    } else if ((p >= undefined_control_sequence) &&
                ((p <= eqtb_size) || p > eqtb_size + hash_extra)) {
         tprint_esc("IMPOSSIBLE.");
     } else if (t >= str_ptr) {
@@ -603,7 +596,7 @@ void print_cs(integer p)
         } else {
             print_esc(t);
             if (single_letter(t)) {
-                if (get_cat_code(int_par(param_cat_code_table_code),
+                if (get_cat_code(int_par(cat_code_table_code),
                                  pool_to_unichar(str_start_macro(t))) ==
                     letter_cmd)
                     print_char(' ');
@@ -622,10 +615,6 @@ prints a space after the control sequence.
 void sprint_cs(pointer p)
 {                               /* prints a control sequence */
     str_number t;
-    if (null_cs == 0) {
-        null_cs = get_nullcs();
-        eqtb_size = get_eqtb_size();
-    }
     if (p == null_cs) {
         tprint_esc("csname");
         tprint_esc("endcsname");
@@ -732,7 +721,7 @@ void print_font_identifier(internal_font_number f)
         else
             print_int(pdf_font_blink(f));
     }
-    if (int_par(param_pdf_tracing_fonts_code) > 0) {
+    if (int_par(pdf_tracing_fonts_code) > 0) {
         tprint(" (");
         print_font_name(f);
         if (font_size(f) != font_dsize(f)) {
@@ -817,63 +806,26 @@ parameter.
 
 void print_skip_param(integer n)
 {
-    switch (n) {
-    case param_line_skip_code:
-        tprint_esc("lineskip");
-        break;
-    case param_baseline_skip_code:
-        tprint_esc("baselineskip");
-        break;
-    case param_par_skip_code:
-        tprint_esc("parskip");
-        break;
-    case param_above_display_skip_code:
-        tprint_esc("abovedisplayskip");
-        break;
-    case param_below_display_skip_code:
-        tprint_esc("belowdisplayskip");
-        break;
-    case param_above_display_short_skip_code:
-        tprint_esc("abovedisplayshortskip");
-        break;
-    case param_below_display_short_skip_code:
-        tprint_esc("belowdisplayshortskip");
-        break;
-    case param_left_skip_code:
-        tprint_esc("leftskip");
-        break;
-    case param_right_skip_code:
-        tprint_esc("rightskip");
-        break;
-    case param_top_skip_code:
-        tprint_esc("topskip");
-        break;
-    case param_split_top_skip_code:
-        tprint_esc("splittopskip");
-        break;
-    case param_tab_skip_code:
-        tprint_esc("tabskip");
-        break;
-    case param_space_skip_code:
-        tprint_esc("spaceskip");
-        break;
-    case param_xspace_skip_code:
-        tprint_esc("xspaceskip");
-        break;
-    case param_par_fill_skip_code:
-        tprint_esc("parfillskip");
-        break;
-    case param_thin_mu_skip_code:
-        tprint_esc("thinmuskip");
-        break;
-    case param_med_mu_skip_code:
-        tprint_esc("medmuskip");
-        break;
-    case param_thick_mu_skip_code:
-        tprint_esc("thickmuskip");
-        break;
-    default:
-        tprint("[unknown glue parameter!]");
+    switch(n) {
+    case line_skip_code: tprint_esc("lineskip"); break;
+    case baseline_skip_code: tprint_esc("baselineskip"); break;
+    case par_skip_code: tprint_esc("parskip"); break;
+    case above_display_skip_code: tprint_esc("abovedisplayskip"); break;
+    case below_display_skip_code: tprint_esc("belowdisplayskip"); break;
+    case above_display_short_skip_code: tprint_esc("abovedisplayshortskip"); break;
+    case below_display_short_skip_code: tprint_esc("belowdisplayshortskip"); break;
+    case left_skip_code: tprint_esc("leftskip"); break;
+    case right_skip_code: tprint_esc("rightskip"); break;
+    case top_skip_code: tprint_esc("topskip"); break;
+    case split_top_skip_code: tprint_esc("splittopskip"); break;
+    case tab_skip_code: tprint_esc("tabskip"); break;
+    case space_skip_code: tprint_esc("spaceskip"); break;
+    case xspace_skip_code: tprint_esc("xspaceskip"); break;
+    case par_fill_skip_code: tprint_esc("parfillskip"); break;
+    case thin_mu_skip_code: tprint_esc("thinmuskip"); break;
+    case med_mu_skip_code: tprint_esc("medmuskip"); break;
+    case thick_mu_skip_code: tprint_esc("thickmuskip"); break;
+    default: tprint("[unknown glue parameter!]");
     }
 }
 
@@ -902,8 +854,8 @@ void show_box(halfword p)
 {
     /* Assign the values |depth_threshold:=show_box_depth| and
        |breadth_max:=show_box_breadth| */
-    depth_threshold = int_par(param_show_box_depth_code);
-    breadth_max = int_par(param_show_box_breadth_code);
+    depth_threshold=int_par(show_box_depth_code);
+    breadth_max=int_par(show_box_breadth_code);
 
     if (breadth_max <= 0)
         breadth_max = 5;
@@ -961,3 +913,84 @@ void short_display_n(integer p, integer m)
     }
     update_terminal();
 }
+
+/*
+When debugging a macro package, it can be useful to see the exact
+control sequence names in the format file.  For example, if ten new
+csnames appear, it's nice to know what they are, to help pinpoint where
+they came from.  (This isn't a truly ``basic'' printing procedure, but
+that's a convenient module in which to put it.)
+*/
+
+void print_csnames (integer hstart, integer hfinish)
+{
+    integer c, h;
+    fprintf(stderr, "fmtdebug:csnames from %d to %d:", hstart, hfinish);
+    for (h=hstart;h<=hfinish;h++) {
+	if (text(h) > 0) { /* if have anything at this position */
+	    for (c=str_start_macro(text(h));c<=str_start_macro(text(h) + 1) - 1;c++) {
+		fputc(str_pool[c], stderr); /* print the characters */
+	    }
+	    fprintf(stderr, "|");
+	}
+    }
+}
+
+/*
+A helper for printing file:line:error style messages.  Look for a
+filename in |full_source_filename_stack|, and if we fail to find
+one fall back on the non-file:line:error style.
+*/
+
+void print_file_line (void)
+{
+    int level;
+    level=in_open;
+    while ((level>0) && (full_source_filename_stack[level]==0)) 
+	decr(level);
+    if (level==0) {
+	tprint_nl("! ");
+    } else {
+	tprint_nl (""); 
+	print (full_source_filename_stack[level]); 
+	print_char (':');
+	if (level==in_open) 
+	    print_int (line);
+	else 
+	    print_int (line_stack[iindex+1-(in_open-level)]);
+	tprint (": ");
+    }
+}
+
+/*
+ \TeX\ is occasionally supposed to print diagnostic information that
+goes only into the transcript file, unless |tracing_online| is positive.
+Here are two routines that adjust the destination of print commands:
+*/
+
+void begin_diagnostic (void) /* prepare to do some tracing */
+{
+    global_old_setting=selector;
+    if ((int_par(tracing_online_code)<=0)&&(selector==term_and_log)) {
+	decr(selector);
+	if (history==spotless) 
+	    history=warning_issued;
+    }
+}
+
+
+void end_diagnostic(boolean blank_line) /* restore proper conditions after tracing */
+{
+    tprint_nl("");
+    if (blank_line) 
+	print_ln();
+    selector=global_old_setting;
+}
+
+/*
+Of course we had better declare another global variable, if the previous
+routines are going to work.
+*/
+
+int global_old_setting;
+

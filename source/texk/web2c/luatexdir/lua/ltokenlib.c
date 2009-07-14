@@ -25,9 +25,6 @@ static const char _svn_version[] =
 
 extern int get_command_id(char *);
 
-static int max_command = 0;
-static int null_cs = 0;
-
 #define  protected_token 0x1C00001
 
 #define  is_valid_token(L,i)  (lua_istable(L,i) && lua_objlen(L,i)==3)
@@ -47,7 +44,7 @@ static int test_expandable(lua_State * L)
         } else if (lua_isstring(L, -1)) {
             cmd = get_command_id((char *) lua_tostring(L, -1));
         }
-        if (cmd > max_command) {
+        if (cmd > max_command_cmd) {
             lua_pushboolean(L, 1);
         } else {
             lua_pushboolean(L, 0);
@@ -222,8 +219,8 @@ static int run_lookup(lua_State * L)
             no_new_control_sequence = true;
             cs = id_lookup((last + 1), l);      /* cleans up the lookup buffer */
             cs = string_lookup(s, l);
-            cmd = zget_eq_type(cs);
-            chr = zget_equiv(cs);
+            cmd = eq_type(cs);
+            chr = equiv(cs);
             make_token_table(L, cmd, chr, cs);
             no_new_control_sequence = save_nncs;
             return 1;
@@ -249,8 +246,8 @@ static int run_build(lua_State * L)
         }
         if (cmd == 13) {
             cs = active_to_cs(chr, false);
-            cmd = zget_eq_type(cs);
-            chr = zget_equiv(cs);
+            cmd = eq_type(cs);
+            chr = equiv(cs);
         }
         make_token_table(L, cmd, chr, cs);
         return 1;
@@ -278,7 +275,5 @@ static const struct luaL_reg tokenlib[] = {
 int luaopen_token(lua_State * L)
 {
     luaL_register(L, "token", tokenlib);
-    max_command = get_max_command();
-    null_cs = get_nullcs();
     return 1;
 }

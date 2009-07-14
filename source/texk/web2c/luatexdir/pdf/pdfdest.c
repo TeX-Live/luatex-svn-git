@@ -25,7 +25,7 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-#define pdf_dest_margin          dimen_par(param_pdf_dest_margin_code)
+#define pdf_dest_margin          dimen_par(pdf_dest_margin_code)
 
 /*
 Here we implement subroutines for work with objects and related things.
