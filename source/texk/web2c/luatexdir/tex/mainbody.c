@@ -1408,7 +1408,7 @@ integer get_luatexversion (void)
 
 str_number get_luatexrevision (void)
 {
-    return maketexstring(the_luatex_revision);
+    return the_luatex_revision;
 }
 
 integer  get_luatex_date_info (void)

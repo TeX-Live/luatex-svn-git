@@ -24,7 +24,7 @@
 
 
 #define the_luatex_version 41 /* \.{\\luatexversion}  */
-#define the_luatex_revision "0" /* \.{\\luatexrevision}  */
+#define the_luatex_revision '0' /* \.{\\luatexrevision}  */
 #define luatex_date_info 20000000 /* the compile date is negated */
 #define luatex_version_string "beta-0.41.0"
 
