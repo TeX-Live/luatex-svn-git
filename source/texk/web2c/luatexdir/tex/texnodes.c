@@ -2868,11 +2868,11 @@ pointer actual_box_width(pointer r, scaled base_width)
 }
 
 
-halfword tail_of_list (halfword p)
-{ 
-    halfword q=p;
-    while (vlink(q)!=null)  
-        q=vlink(q);
+halfword tail_of_list(halfword p)
+{
+    halfword q = p;
+    while (vlink(q) != null)
+        q = vlink(q);
     return q;
 }
 
@@ -2889,14 +2889,14 @@ halfword tail_of_list (halfword p)
     }						\
   } while (0)
 
-void delete_glue_ref(halfword p) /* |p| points to a glue specification */
-{
-  assert(type(p)==glue_spec_node);
-  fast_delete_glue_ref(p);
+void delete_glue_ref(halfword p)
+{                               /* |p| points to a glue specification */
+    assert(type(p) == glue_spec_node);
+    fast_delete_glue_ref(p);
 }
 
 integer var_used;
-halfword temp_ptr; /* a pointer variable for occasional emergency use */
+halfword temp_ptr;              /* a pointer variable for occasional emergency use */
 
 /*
 Attribute lists need two extra globals to increase processing efficiency.
@@ -2907,7 +2907,7 @@ trusted: after an assignment to an attribute register, and after a group has
 ended.
 */
 
-integer max_used_attr; /* maximum assigned attribute id  */
+integer max_used_attr;          /* maximum assigned attribute id  */
 halfword attr_list_cache;
 
 /*
@@ -2971,11 +2971,11 @@ The |subtype| field is set to |min_quarterword|, since that's the desired
 |span_count| value if this |hlist_node| is changed to an |unset_node|.
 */
 
-halfword new_null_box (void) /* creates a new box node */
-{
-    halfword p; /* the new node */
-    p=new_node(hlist_node,min_quarterword);
-    box_dir(p)=text_direction;
+halfword new_null_box(void)
+{                               /* creates a new box node */
+    halfword p;                 /* the new node */
+    p = new_node(hlist_node, min_quarterword);
+    box_dir(p) = text_direction;
     return p;
 }
 
@@ -3003,10 +3003,10 @@ makes all the dimensions ``running,'' so you have to change the
 ones that are not allowed to run.
 */
 
-halfword new_rule (void)
+halfword new_rule(void)
 {
-    halfword p; /* the new node */
-    p=new_node(rule_node,0); /* the |subtype| is not used */
+    halfword p;                 /* the new node */
+    p = new_node(rule_node, 0); /* the |subtype| is not used */
     return p;
 }
 
@@ -3078,12 +3078,12 @@ conversion from |mlist| to |hlist|).
 
 halfword new_glyph(integer f, integer c)
 {
-    halfword p = null; /* the new node */
-    if ((f==0) || (char_exists(f,c))) {
-	p=new_glyph_node();
-	set_to_glyph(p); 
-	font(p)=f;  
-	character(p)=c;
+    halfword p = null;          /* the new node */
+    if ((f == 0) || (char_exists(f, c))) {
+        p = new_glyph_node();
+        set_to_glyph(p);
+        font(p) = f;
+        character(p) = c;
     }
     return p;
 }
@@ -3111,22 +3111,23 @@ kerning steps of the program.
 
 quarterword norm_min(integer h)
 {
-    if (h<=0) 
-	return 1;
-    else if (h>=255) 
-	return 255;
-    else 
-	return h;
+    if (h <= 0)
+        return 1;
+    else if (h >= 255)
+        return 255;
+    else
+        return h;
 }
 
 halfword new_char(integer f, integer c)
 {
-    halfword p; /* the new node */
-    p=new_glyph_node();
-    set_to_character(p); 
-    font(p)=f;  
-    character(p)=c;
-    lang_data(p)=make_lang_data(uc_hyph,cur_lang,left_hyphen_min,right_hyphen_min);
+    halfword p;                 /* the new node */
+    p = new_glyph_node();
+    set_to_character(p);
+    font(p) = f;
+    character(p) = c;
+    lang_data(p) =
+        make_lang_data(uc_hyph, cur_lang, left_hyphen_min, right_hyphen_min);
     return p;
 }
 
@@ -3141,25 +3142,27 @@ and \.{\\rightghost}, respectively. They are going to be removed by
 scaled glyph_width(halfword p)
 {
     scaled w;
-    w = char_width(font(p),character(p));
+    w = char_width(font(p), character(p));
     return w;
 }
 
 scaled glyph_height(halfword p)
 {
     scaled w;
-    w = char_height(font(p),character(p)) + y_displace(p);
-    if (w<0) w=0;
+    w = char_height(font(p), character(p)) + y_displace(p);
+    if (w < 0)
+        w = 0;
     return w;
 }
 
 scaled glyph_depth(halfword p)
 {
     scaled w;
-    w = char_depth(font(p),character(p));
-    if (y_displace(p)>0)  
-	w = w - y_displace(p);
-    if (w<0) w=0;
+    w = char_depth(font(p), character(p));
+    if (y_displace(p) > 0)
+        w = w - y_displace(p);
+    if (w < 0)
+        w = 0;
     return w;
 }
 
@@ -3195,10 +3198,10 @@ not chosen.
 @d tlink(#)==vinfo(#+1)
 */
 
-halfword new_disc(void) /* creates an empty |disc_node| */
-{
-    halfword p; /* the new node */
-    p=new_node(disc_node,0);
+halfword new_disc(void)
+{                               /* creates an empty |disc_node| */
+    halfword p;                 /* the new node */
+    p = new_node(disc_node, 0);
     return p;
 }
 
@@ -3233,10 +3236,10 @@ the amount of surrounding space inserted by \.{\\mathsurround}.
 
 halfword new_math(scaled w, int s)
 {
-    halfword p; /* the new node */
-     p=new_node(math_node,s);
-     surround(p)=w; 
-     return p;
+    halfword p;                 /* the new node */
+    p = new_node(math_node, s);
+    surround(p) = w;
+    return p;
 }
 
 /*
@@ -3315,11 +3318,11 @@ The reference count in the copy is |null|, because there is assumed
 to be exactly one reference to the new specification.
 */
 
-halfword new_spec(halfword p) /* duplicates a glue specification */
-{
-    halfword q; /* the new spec */
-    q=copy_node(p);
-    glue_ref_count(q)=null;
+halfword new_spec(halfword p)
+{                               /* duplicates a glue specification */
+    halfword q;                 /* the new spec */
+    q = copy_node(p);
+    glue_ref_count(q) = null;
     return q;
 }
 
@@ -3332,11 +3335,11 @@ current \.{\\lineskip}.
 
 halfword new_param_glue(int n)
 {
-    halfword p; /* the new node */
-    halfword q; /* the glue specification */
-    p=new_node(glue_node,n+1);
-    q=glue_par(n);
-    glue_ptr(p)=q; 
+    halfword p;                 /* the new node */
+    halfword q;                 /* the glue specification */
+    p = new_node(glue_node, n + 1);
+    q = glue_par(n);
+    glue_ptr(p) = q;
     incr(glue_ref_count(q));
     return p;
 }
@@ -3348,9 +3351,9 @@ whose argument points to a glue specification.
 
 halfword new_glue(halfword q)
 {
-    halfword p; /* the new node */
-    p=new_node(glue_node,normal);
-    glue_ptr(p)=q; 
+    halfword p;                 /* the new node */
+    p = new_node(glue_node, normal);
+    glue_ptr(p) = q;
     incr(glue_ref_count(q));
     return p;
 }
@@ -3364,13 +3367,13 @@ while the parameter will stay put. The global variable |temp_ptr| is
 set to the address of the new spec.
 */
 
-halfword new_skip_param(int n) 
+halfword new_skip_param(int n)
 {
-    halfword p; /* the new node */
-    temp_ptr=new_spec(glue_par(n));
-    p=new_glue(temp_ptr); 
-    glue_ref_count(temp_ptr)=null; 
-    subtype(p)=n+1;
+    halfword p;                 /* the new node */
+    temp_ptr = new_spec(glue_par(n));
+    p = new_glue(temp_ptr);
+    glue_ref_count(temp_ptr) = null;
+    subtype(p) = n + 1;
     return p;
 }
 
@@ -3410,11 +3413,11 @@ inserted from \.{\\mkern} specifications in math formulas).
 @ The |new_kern| function creates a kern node having a given width.
 */
 
-halfword new_kern(scaled w) 
+halfword new_kern(scaled w)
 {
-    halfword p; /* the new node */
-    p=new_node(kern_node,normal);
-    width(p)=w;
+    halfword p;                 /* the new node */
+    p = new_node(kern_node, normal);
+    width(p) = w;
     return p;
 }
 
@@ -3436,9 +3439,9 @@ be able to guess what comes next.
 
 halfword new_penalty(integer m)
 {
-    halfword p; /* the new node */
-    p=new_node(penalty_node,0); /* the |subtype| is not used */
-    penalty(p)=m; 
+    halfword p;                 /* the new node */
+    p = new_node(penalty_node, 0);      /* the |subtype| is not used */
+    penalty(p) = m;
     return p;
 }
 

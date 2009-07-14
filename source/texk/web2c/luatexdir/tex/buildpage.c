@@ -378,7 +378,7 @@ void build_page(void)
                     freeze_page_specs(box_there);
                 else
                     page_contents = box_there;
-                q = new_skip_param(top_skip_code);        /* now |temp_ptr=glue_ptr(q)| */
+                q = new_skip_param(top_skip_code);      /* now |temp_ptr=glue_ptr(q)| */
                 if ((type(p) == hlist_node) && is_mirrored(body_direction)) {
                     if (width(temp_ptr) > depth(p))
                         width(temp_ptr) = width(temp_ptr) - depth(p);
@@ -758,8 +758,7 @@ void fire_up(halfword c)
                         penalty(best_page_break));
         penalty(best_page_break) = inf_penalty;
     } else {
-        geq_word_define(int_base + output_penalty_code,
-                        inf_penalty);
+        geq_word_define(int_base + output_penalty_code, inf_penalty);
     }
 
     for (i = 0; i <= biggest_used_mark; i++) {

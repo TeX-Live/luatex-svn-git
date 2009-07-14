@@ -32,6 +32,7 @@ char *font_type_strings[] = { "unknown", "virtual", "real", NULL };
 char *font_format_strings[] =
     { "unknown", "type1", "type3", "truetype", "opentype", NULL };
 char *font_embedding_strings[] = { "unknown", "no", "subset", "full", NULL };
+
 char *ligature_type_strings[] =
     { "=:", "=:|", "|=:", "|=:|", "", "=:|>", "|=:>", "|=:|>", "", "", "",
     "|=:|>>", NULL
@@ -1243,8 +1244,8 @@ font_char_from_lua(lua_State * L, internal_font_number f, integer i,
                         startconnect = n_numeric_field(L, luaS_start_index, 0);
                         endconnect = n_numeric_field(L, luaS_end_index, 0);
                         advance = n_numeric_field(L, luaS_advance_index, 0);
-                        h = new_variant(glyph, startconnect, endconnect, advance,
-                                        extender);
+                        h = new_variant(glyph, startconnect, endconnect,
+                                        advance, extender);
                         add_charinfo_hor_variant(co, h);
                         lua_pop(L, 1);
                     } else {
@@ -1270,8 +1271,8 @@ font_char_from_lua(lua_State * L, internal_font_number f, integer i,
                         startconnect = n_numeric_field(L, luaS_start_index, 0);
                         endconnect = n_numeric_field(L, luaS_end_index, 0);
                         advance = n_numeric_field(L, luaS_advance_index, 0);
-                        h = new_variant(glyph, startconnect, endconnect, advance,
-                                    extender);
+                        h = new_variant(glyph, startconnect, endconnect,
+                                        advance, extender);
                         add_charinfo_vert_variant(co, h);
                         lua_pop(L, 1);
                     } else {
@@ -1289,7 +1290,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, integer i,
                ["top_left"]    ={ { ["height"]=620, ["kern"]=0   }, { ["height"]=720,  ["kern"]=-80 } },
                ["top_right"]   ={ { ["height"]=676, ["kern"]=115 }, { ["height"]=776,  ["kern"]=45  } },
                } 
-            */
+             */
             lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_mathkern_index);
             lua_rawget(L, -2);
             if (lua_istable(L, -1)) {
@@ -1307,8 +1308,8 @@ font_char_from_lua(lua_State * L, internal_font_number f, integer i,
                 lua_pop(L, 1);
             }
             lua_pop(L, 1);
-        } /* end of |has_math| */
-
+        }
+        /* end of |has_math| */
         nk = count_hash_items(L, luaS_index(kerns));
         if (nk > 0) {
             ckerns = xcalloc((nk + 1), sizeof(kerninfo));
@@ -1631,9 +1632,11 @@ int font_from_lua(lua_State * L, int f)
                 } else if (lua_isstring(L, -2)) {
                     s = (char *) lua_tostring(L, -2);
                     if (luaS_ptr_eq(s, left_boundary)) {
-                        font_char_from_lua(L, f, left_boundarychar, l_fonts, !no_math);
+                        font_char_from_lua(L, f, left_boundarychar, l_fonts,
+                                           !no_math);
                     } else if (luaS_ptr_eq(s, right_boundary)) {
-                        font_char_from_lua(L, f, right_boundarychar, l_fonts, !no_math);
+                        font_char_from_lua(L, f, right_boundarychar, l_fonts,
+                                           !no_math);
                     }
                 }
                 lua_pop(L, 1);

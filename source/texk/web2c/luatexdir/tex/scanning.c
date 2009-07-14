@@ -662,8 +662,7 @@ void scan_something_internal(int level, boolean negative)
                 cur_val1 = get_sf_code(cur_val);
                 scanned_result(cur_val1, int_val_level);
             } else if (m == cat_code_base) {
-                cur_val1 =
-                    get_cat_code(int_par(cat_code_table_code), cur_val);
+                cur_val1 = get_cat_code(int_par(cat_code_table_code), cur_val);
                 scanned_result(cur_val1, int_val_level);
             } else {
                 confusion("def_char");

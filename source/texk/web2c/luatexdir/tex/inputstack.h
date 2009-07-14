@@ -35,12 +35,12 @@ typedef struct in_state_record {
     halfword name_field;
     halfword ocp_lstack_field;  /* used for omega translation processes */
     integer synctex_tag_field;  /* stack the tag of the current file */
-    halfword ocp_no_field : 16;      /* used for omega translation processes */
-    integer cattable_field : 16;     /* category table used by the current line (see textoken.c) */
-    quarterword state_field : 8;
-    quarterword index_field : 8;
-    boolean partial_field : 8;      /* is the current line partial? (see textoken.c) */
-    boolean nofilter_field : 8;     /* used by token filtering */
+    halfword ocp_no_field:16;   /* used for omega translation processes */
+    integer cattable_field:16;  /* category table used by the current line (see textoken.c) */
+    quarterword state_field:8;
+    quarterword index_field:8;
+    boolean partial_field:8;    /* is the current line partial? (see textoken.c) */
+    boolean nofilter_field:8;   /* used by token filtering */
 } in_state_record;
 
 extern in_state_record *input_stack;

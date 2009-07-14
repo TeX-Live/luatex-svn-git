@@ -371,9 +371,9 @@ This is the first of many sections of \TeX\ where global variables are
 defined.
 */
 
-integer bad; /* is some ``constant'' wrong? */
-boolean luainit; /* are we using lua for initializations  */
-boolean tracefilenames; /* print file open-close  info? */
+integer bad;                    /* is some ``constant'' wrong? */
+boolean luainit;                /* are we using lua for initializations  */
+boolean tracefilenames;         /* print file open-close  info? */
 
 /*
 Characters of text that have been converted to \TeX's internal form
@@ -421,44 +421,44 @@ initialize \TeX's internal tables; and (2)~there is a shorter and faster
 production version, which cuts the initialization to a bare minimum.
 */
 
-boolean ini_version; /* are we \.{INITEX}? */
-boolean dump_option; /* was the dump name option used? */
-boolean dump_line; /* was a \.{\%\AM format} line seen? */
-integer bound_default; /* temporary for setup */
-char *bound_name; /* temporary for setup */
-integer error_line; /* width of context lines on terminal error messages */
-integer half_error_line; /* width of first lines of contexts in terminal
-			    error messages; should be between 30 and |error_line-15| */
-integer max_print_line;  /* width of longest text lines output; should be at least 60 */
+boolean ini_version;            /* are we \.{INITEX}? */
+boolean dump_option;            /* was the dump name option used? */
+boolean dump_line;              /* was a \.{\%\AM format} line seen? */
+integer bound_default;          /* temporary for setup */
+char *bound_name;               /* temporary for setup */
+integer error_line;             /* width of context lines on terminal error messages */
+integer half_error_line;        /* width of first lines of contexts in terminal
+                                   error messages; should be between 30 and |error_line-15| */
+integer max_print_line;         /* width of longest text lines output; should be at least 60 */
 integer ocp_list_size;
 integer ocp_buf_size;
 integer ocp_stack_size;
-integer max_strings; /* maximum number of strings; must not exceed |max_halfword| */
-integer strings_free; /* strings available after format loaded */
-integer string_vacancies; /* the minimum number of characters that should be
-			     available for the user's control sequences and font names,
-			     after \TeX's own error messages are stored */
-integer pool_size; /* maximum number of characters in strings, including all
-		      error messages and help texts, and the names of all fonts and
-		      control sequences; must exceed |string_vacancies| by the total
-		      length of \TeX's own strings, which is currently about 23000 */
-integer pool_free; /* pool space free after format loaded */
-integer font_k; /* loop variable for initialization */
-integer buf_size; /* maximum number of characters simultaneously present in
-		      current lines of open files and in control sequences between
-		      \.{\\csname} and \.{\\endcsname}; must not exceed |max_halfword| */
-integer stack_size; /* maximum number of simultaneous input sources */
-integer max_in_open; /* maximum number of input files and error insertions that
-			 can be going on simultaneously */
-integer param_size; /* maximum number of simultaneous macro parameters */
-integer nest_size; /* maximum number of semantic levels simultaneously active */
-integer save_size; /* space for saving values outside of current group; must be
-		      at most |max_halfword| */
-integer expand_depth; /* limits recursive calls of the |expand| procedure */
-int parsefirstlinep; /* parse the first line for options */
-int filelineerrorstylep; /* format messages as file:line:error */
-int haltonerrorp; /* stop at first error */
-boolean quoted_filename; /* current filename is quoted */
+integer max_strings;            /* maximum number of strings; must not exceed |max_halfword| */
+integer strings_free;           /* strings available after format loaded */
+integer string_vacancies;       /* the minimum number of characters that should be
+                                   available for the user's control sequences and font names,
+                                   after \TeX's own error messages are stored */
+integer pool_size;              /* maximum number of characters in strings, including all
+                                   error messages and help texts, and the names of all fonts and
+                                   control sequences; must exceed |string_vacancies| by the total
+                                   length of \TeX's own strings, which is currently about 23000 */
+integer pool_free;              /* pool space free after format loaded */
+integer font_k;                 /* loop variable for initialization */
+integer buf_size;               /* maximum number of characters simultaneously present in
+                                   current lines of open files and in control sequences between
+                                   \.{\\csname} and \.{\\endcsname}; must not exceed |max_halfword| */
+integer stack_size;             /* maximum number of simultaneous input sources */
+integer max_in_open;            /* maximum number of input files and error insertions that
+                                   can be going on simultaneously */
+integer param_size;             /* maximum number of simultaneous macro parameters */
+integer nest_size;              /* maximum number of semantic levels simultaneously active */
+integer save_size;              /* space for saving values outside of current group; must be
+                                   at most |max_halfword| */
+integer expand_depth;           /* limits recursive calls of the |expand| procedure */
+int parsefirstlinep;            /* parse the first line for options */
+int filelineerrorstylep;        /* format messages as file:line:error */
+int haltonerrorp;               /* stop at first error */
+boolean quoted_filename;        /* current filename is quoted */
 
 /*
 In order to make efficient use of storage space, \TeX\ bases its major data
@@ -790,16 +790,16 @@ A global boolean variable called |no_new_control_sequence| is set to
 |true| during the time that new hash table entries are forbidden.
 */
 
-#define next(A) hash[(A)].lhfield /* link for coalesced lists */
-#define text(A) hash[(A)].rh /* string number for control sequence name */
+#define next(A) hash[(A)].lhfield       /* link for coalesced lists */
+#define text(A) hash[(A)].rh    /* string number for control sequence name */
 
-two_halves *hash; /* the hash table */
-halfword hash_used; /* allocation pointer for |hash| */
-integer hash_extra; /* |hash_extra=hash| above |eqtb_size| */
-halfword hash_top; /* maximum of the hash array */
-halfword hash_high; /* pointer to next high hash location */
-boolean no_new_control_sequence; /* are new identifiers legal? */
-integer cs_count; /* total number of known identifiers */
+two_halves *hash;               /* the hash table */
+halfword hash_used;             /* allocation pointer for |hash| */
+integer hash_extra;             /* |hash_extra=hash| above |eqtb_size| */
+halfword hash_top;              /* maximum of the hash array */
+halfword hash_high;             /* pointer to next high hash location */
+boolean no_new_control_sequence;        /* are new identifiers legal? */
+integer cs_count;               /* total number of known identifiers */
 
 /*
 The extra set of functions make sure we can query the
@@ -808,12 +808,12 @@ primitive meanings of thing s from C code
 
 str_number get_cs_text(integer cs)
 {
-    if (cs==null_cs) 
-	return maketexstring("\\csname\\endcsname");
-    else if ((text(cs)<0)||(text(cs)>=str_ptr)) 
-	return get_nullstr();
-    else 
-	return text(cs);
+    if (cs == null_cs)
+        return maketexstring("\\csname\\endcsname");
+    else if ((text(cs) < 0) || (text(cs) >= str_ptr))
+        return get_nullstr();
+    else
+        return text(cs);
 }
 
 /*
@@ -881,7 +881,7 @@ entire run. The global variable |mag_set| is set to the current magnification
 whenever it becomes necessary to ``freeze'' it at a particular value.
 */
 
-integer mag_set; /* if nonzero, this magnification should be used henceforth */
+integer mag_set;                /* if nonzero, this magnification should be used henceforth */
 
 /*
 The |prepare_mag| subroutine is called whenever \TeX\ wants to use |mag|
@@ -890,31 +890,31 @@ for magnification.
 
 #define mag int_par(mag_code)
 
-void prepare_mag (void)
+void prepare_mag(void)
 {
-    if ((mag_set>0)&&(mag!=mag_set)) {
-	print_err("Incompatible magnification ("); 
-	print_int(mag);
-	tprint(");"); 
-	tprint_nl(" the previous value will be retained");
-	help2("I can handle only one magnification ratio per job. So I've",
-	      "reverted to the magnification you used earlier on this run.");
-	int_error(mag_set);
-	geq_word_define(int_base+mag_code,mag_set); /* |mag:=mag_set| */
+    if ((mag_set > 0) && (mag != mag_set)) {
+        print_err("Incompatible magnification (");
+        print_int(mag);
+        tprint(");");
+        tprint_nl(" the previous value will be retained");
+        help2("I can handle only one magnification ratio per job. So I've",
+              "reverted to the magnification you used earlier on this run.");
+        int_error(mag_set);
+        geq_word_define(int_base + mag_code, mag_set);  /* |mag:=mag_set| */
     }
-    if ((mag<=0)||(mag>32768)) {
-	print_err("Illegal magnification has been changed to 1000");
-	help1("The magnification ratio must be between 1 and 32768.");
-	int_error(mag); 
-	geq_word_define(int_base+mag_code,1000);
+    if ((mag <= 0) || (mag > 32768)) {
+        print_err("Illegal magnification has been changed to 1000");
+        help1("The magnification ratio must be between 1 and 32768.");
+        int_error(mag);
+        geq_word_define(int_base + mag_code, 1000);
     }
-    if ((mag_set==0) && (mag!=mag_set)) {
-	if (mag!=1000)
-	    one_true_inch=xn_over_d(one_hundred_inch,10,mag);
-	else
-	    one_true_inch=one_inch;
+    if ((mag_set == 0) && (mag != mag_set)) {
+        if (mag != 1000)
+            one_true_inch = xn_over_d(one_hundred_inch, 10, mag);
+        else
+            one_true_inch = one_inch;
     }
-    mag_set=mag;
+    mag_set = mag;
 }
 
 /*
@@ -965,52 +965,52 @@ Therefore it will not be difficult to translate these algorithms into
 low-level languages that do not support recursion.
 */
 
-integer cur_cmd; /* current command set by |get_next| */
-halfword cur_chr; /* operand of current command */
-halfword cur_cs; /* control sequence found here, zero if none found */
-halfword cur_tok; /* packed representative of |cur_cmd| and |cur_chr| */
+integer cur_cmd;                /* current command set by |get_next| */
+halfword cur_chr;               /* operand of current command */
+halfword cur_cs;                /* control sequence found here, zero if none found */
+halfword cur_tok;               /* packed representative of |cur_cmd| and |cur_chr| */
 
 /* Here is a procedure that displays the current command. */
 
 #define mode cur_list.mode_field
 
-void show_cur_cmd_chr (void)
+void show_cur_cmd_chr(void)
 {
-    integer n; /* level of \.{\\if...\\fi} nesting */
-    integer l; /* line where \.{\\if} started */
+    integer n;                  /* level of \.{\\if...\\fi} nesting */
+    integer l;                  /* line where \.{\\if} started */
     halfword p;
     begin_diagnostic();
     tprint_nl("{");
-    if (mode!=shown_mode) {
-	print_mode(mode); 
-	tprint(": "); 
-	shown_mode=mode;
+    if (mode != shown_mode) {
+        print_mode(mode);
+        tprint(": ");
+        shown_mode = mode;
     }
-    print_cmd_chr(cur_cmd,cur_chr);
-    if (int_par(tracing_ifs_code)>0) {
-	if (cur_cmd>=if_test_cmd) {
-	    if (cur_cmd<=fi_or_else_cmd) {
-		tprint(": ");
-		if (cur_cmd==fi_or_else_cmd) {
-		    print_cmd_chr(if_test_cmd,cur_if); 
-		    print_char(' ');
-		    n=0; 
-		    l=if_line;
-		} else { 
-		    n=1; 
-		    l=line;
-		}
-		p=cond_ptr;
-		while (p!=null) {
-		    incr(n); 
-		    p=vlink(p);
-		}
-		tprint("(level "); 
-		print_int(n); 
-		print_char(')'); 
-		print_if_line(l);
-	    }
-	}
+    print_cmd_chr(cur_cmd, cur_chr);
+    if (int_par(tracing_ifs_code) > 0) {
+        if (cur_cmd >= if_test_cmd) {
+            if (cur_cmd <= fi_or_else_cmd) {
+                tprint(": ");
+                if (cur_cmd == fi_or_else_cmd) {
+                    print_cmd_chr(if_test_cmd, cur_if);
+                    print_char(' ');
+                    n = 0;
+                    l = if_line;
+                } else {
+                    n = 1;
+                    l = line;
+                }
+                p = cond_ptr;
+                while (p != null) {
+                    incr(n);
+                    p = vlink(p);
+                }
+                tprint("(level ");
+                print_int(n);
+                print_char(')');
+                print_if_line(l);
+            }
+        }
     }
     print_char('}');
     end_diagnostic(false);
@@ -1122,25 +1122,25 @@ the font.
 
 integer font_bytes;
 
-void set_cur_font (internal_font_number f)
+void set_cur_font(internal_font_number f)
 {
-    int a=0; /* never global */
-    define(cur_font_loc,data_cmd,f);
+    int a = 0;                  /* never global */
+    define(cur_font_loc, data_cmd, f);
 }
 
-integer get_luatexversion (void)
+integer get_luatexversion(void)
 {
     return the_luatex_version;
 }
 
-str_number get_luatexrevision (void)
+str_number get_luatexrevision(void)
 {
     return the_luatex_revision;
 }
 
-integer  get_luatex_date_info (void)
+integer get_luatex_date_info(void)
 {
-    return luatex_date_info; /* todo, silly value */
+    return luatex_date_info;    /* todo, silly value */
 }
 
 /*
@@ -1149,8 +1149,8 @@ Now we are ready to declare our new procedure |ship_out|.  It will call
 will call |dvi_ship_out|, which is the \TeX\ original |ship_out|.
 */
 
-void ship_out(halfword p) /* output the box |p| */
-{
+void ship_out(halfword p)
+{                               /* output the box |p| */
     fix_pdfoutput();
     if (int_par(pdf_output_code) > 0)
         pdf_ship_out(static_pdf, p, true);
@@ -1224,133 +1224,148 @@ The initial test involving |ready_already| should be deleted if the
 
 int ready_already = 0;
 
-void main_body (void)
+void main_body(void)
 {
 
     /*Bounds that may be set from the configuration file. We want the user to
-      be able to specify the names with underscores, but \.{TANGLE} removes
-      underscores, so we're stuck giving the names twice, once as a string,
-      once as the identifier. How ugly. */
+       be able to specify the names with underscores, but \.{TANGLE} removes
+       underscores, so we're stuck giving the names twice, once as a string,
+       once as the identifier. How ugly. */
 
-    setup_bound_var (100000, "pool_size", pool_size);
-    setup_bound_var (75000, "string_vacancies", string_vacancies);
-    setup_bound_var (5000, "pool_free", pool_free); /* min pool avail after fmt */
-    setup_bound_var (15000, "max_strings", max_strings);
-    setup_bound_var (100, "strings_free", strings_free);
-    setup_bound_var (3000, "buf_size", buf_size);
-    setup_bound_var (50, "nest_size", nest_size);
-    setup_bound_var (15, "max_in_open", max_in_open);
-    setup_bound_var (60, "param_size", param_size);
-    setup_bound_var (4000, "save_size", save_size);
-    setup_bound_var (300, "stack_size", stack_size);
-    setup_bound_var (16384, "dvi_buf_size", dvi_buf_size);
-    setup_bound_var (79, "error_line", error_line);
-    setup_bound_var (50, "half_error_line", half_error_line);
-    setup_bound_var (79, "max_print_line", max_print_line);
+    setup_bound_var(100000, "pool_size", pool_size);
+    setup_bound_var(75000, "string_vacancies", string_vacancies);
+    setup_bound_var(5000, "pool_free", pool_free);      /* min pool avail after fmt */
+    setup_bound_var(15000, "max_strings", max_strings);
+    setup_bound_var(100, "strings_free", strings_free);
+    setup_bound_var(3000, "buf_size", buf_size);
+    setup_bound_var(50, "nest_size", nest_size);
+    setup_bound_var(15, "max_in_open", max_in_open);
+    setup_bound_var(60, "param_size", param_size);
+    setup_bound_var(4000, "save_size", save_size);
+    setup_bound_var(300, "stack_size", stack_size);
+    setup_bound_var(16384, "dvi_buf_size", dvi_buf_size);
+    setup_bound_var(79, "error_line", error_line);
+    setup_bound_var(50, "half_error_line", half_error_line);
+    setup_bound_var(79, "max_print_line", max_print_line);
     setup_bound_var(1000, "ocp_list_size", ocp_list_size);
     setup_bound_var(1000, "ocp_buf_size", ocp_buf_size);
     setup_bound_var(1000, "ocp_stack_size", ocp_stack_size);
-    setup_bound_var (0, "hash_extra", hash_extra);
-    setup_bound_var (72, "pk_dpi", pk_dpi);
-    setup_bound_var (10000, "expand_depth", expand_depth);
+    setup_bound_var(0, "hash_extra", hash_extra);
+    setup_bound_var(72, "pk_dpi", pk_dpi);
+    setup_bound_var(10000, "expand_depth", expand_depth);
 
     /* Check other constants against their sup and inf. */
-    const_chk (buf_size);
-    const_chk (nest_size);
-    const_chk (max_in_open);
-    const_chk (param_size);
-    const_chk (save_size);
-    const_chk (stack_size);
-    const_chk (dvi_buf_size);
-    const_chk (pool_size);
-    const_chk (string_vacancies);
-    const_chk (pool_free);
-    const_chk (max_strings);
-    const_chk (strings_free);
-    const_chk (hash_extra);
-    const_chk (pk_dpi);
-    if (error_line > ssup_error_line) 
-	error_line = ssup_error_line;
+    const_chk(buf_size);
+    const_chk(nest_size);
+    const_chk(max_in_open);
+    const_chk(param_size);
+    const_chk(save_size);
+    const_chk(stack_size);
+    const_chk(dvi_buf_size);
+    const_chk(pool_size);
+    const_chk(string_vacancies);
+    const_chk(pool_free);
+    const_chk(max_strings);
+    const_chk(strings_free);
+    const_chk(hash_extra);
+    const_chk(pk_dpi);
+    if (error_line > ssup_error_line)
+        error_line = ssup_error_line;
 
     /* array memory allocation */
-    buffer=xmallocarray (packed_ASCII_code, buf_size);
-    nest=xmallocarray (list_state_record, nest_size);
-    save_stack=xmallocarray (memory_word, save_size);
-    input_stack=xmallocarray (in_state_record, stack_size);
-    input_file=xmallocarray (alpha_file, max_in_open);
-    input_file_callback_id=xmallocarray (integer, max_in_open);
-    line_stack=xmallocarray (integer, max_in_open);
-    eof_seen=xmallocarray (boolean, max_in_open);
-    grp_stack=xmallocarray (save_pointer, max_in_open);
-    if_stack=xmallocarray (pointer, max_in_open);
-    source_filename_stack=xmallocarray (str_number, max_in_open);
-    full_source_filename_stack=xmallocarray (str_number, max_in_open);
-    param_stack=xmallocarray (halfword, param_size);
-    dvi_buf=xmallocarray (eight_bits, dvi_buf_size);
+    buffer = xmallocarray(packed_ASCII_code, buf_size);
+    nest = xmallocarray(list_state_record, nest_size);
+    save_stack = xmallocarray(memory_word, save_size);
+    input_stack = xmallocarray(in_state_record, stack_size);
+    input_file = xmallocarray(alpha_file, max_in_open);
+    input_file_callback_id = xmallocarray(integer, max_in_open);
+    line_stack = xmallocarray(integer, max_in_open);
+    eof_seen = xmallocarray(boolean, max_in_open);
+    grp_stack = xmallocarray(save_pointer, max_in_open);
+    if_stack = xmallocarray(pointer, max_in_open);
+    source_filename_stack = xmallocarray(str_number, max_in_open);
+    full_source_filename_stack = xmallocarray(str_number, max_in_open);
+    param_stack = xmallocarray(halfword, param_size);
+    dvi_buf = xmallocarray(eight_bits, dvi_buf_size);
     initialize_ocplist_arrays(ocp_list_size);
     initialize_ocp_buffers(ocp_buf_size, ocp_stack_size);
 
     if (ini_version) {
-	fixmem=xmallocarray (smemory_word, fix_mem_init+1);
-	memset (voidcast(fixmem), 0, (fix_mem_init+1)*sizeof(smemory_word));
-	fix_mem_min=0;
-	fix_mem_max=fix_mem_init;
-	eqtb_top = eqtb_size+hash_extra;
-	if (hash_extra==0) 
-	    hash_top=undefined_control_sequence;
-	else
-	    hash_top=eqtb_top;
-	hash=xmallocarray (two_halves,(hash_top+1));
-    memset(hash,0,sizeof(two_halves)*(hash_top+1));
-	eqtb=xmallocarray (memory_word, (eqtb_top+1));
-    memset(eqtb,0,sizeof(memory_word)*(eqtb_top+1));
-	str_start=xmallocarray (pool_pointer, max_strings);
-    memset(str_start, 0, max_strings*sizeof(pool_pointer));
-	str_pool=xmallocarray (packed_ASCII_code, pool_size);
-    memset(str_pool, 0, pool_size*sizeof(packed_ASCII_code));
+        fixmem = xmallocarray(smemory_word, fix_mem_init + 1);
+        memset(voidcast(fixmem), 0, (fix_mem_init + 1) * sizeof(smemory_word));
+        fix_mem_min = 0;
+        fix_mem_max = fix_mem_init;
+        eqtb_top = eqtb_size + hash_extra;
+        if (hash_extra == 0)
+            hash_top = undefined_control_sequence;
+        else
+            hash_top = eqtb_top;
+        hash = xmallocarray(two_halves, (hash_top + 1));
+        memset(hash, 0, sizeof(two_halves) * (hash_top + 1));
+        eqtb = xmallocarray(memory_word, (eqtb_top + 1));
+        memset(eqtb, 0, sizeof(memory_word) * (eqtb_top + 1));
+        str_start = xmallocarray(pool_pointer, max_strings);
+        memset(str_start, 0, max_strings * sizeof(pool_pointer));
+        str_pool = xmallocarray(packed_ASCII_code, pool_size);
+        memset(str_pool, 0, pool_size * sizeof(packed_ASCII_code));
     }
 
-    history=fatal_error_stop; /* in case we quit during initialization */
-    t_open_out(); /* open the terminal for output */
+    history = fatal_error_stop; /* in case we quit during initialization */
+    t_open_out();               /* open the terminal for output */
     /* Check the ``constant'' values... */
-    bad=0;
+    bad = 0;
     if (!luainit)
-	tracefilenames=true;
-    if ((half_error_line<30)||(half_error_line>error_line-15))  bad=1;
-    if (max_print_line<60) bad=2;
-    if (dvi_buf_size % 8!=0) bad=3;
-    if (hash_prime>hash_size) bad=5;
-    if (max_in_open>=128) bad=6;
+        tracefilenames = true;
+    if ((half_error_line < 30) || (half_error_line > error_line - 15))
+        bad = 1;
+    if (max_print_line < 60)
+        bad = 2;
+    if (dvi_buf_size % 8 != 0)
+        bad = 3;
+    if (hash_prime > hash_size)
+        bad = 5;
+    if (max_in_open >= 128)
+        bad = 6;
     /* Here are the inequalities that the quarterword and halfword values
        must satisfy (or rather, the inequalities that they mustn't satisfy): */
-    if ((min_quarterword>0)||(max_quarterword<0x7FFF)) bad=11;
-    if ((min_halfword>0)||(max_halfword<0x3FFFFFFF)) bad=12;
-    if ((min_quarterword<min_halfword)||
-	(max_quarterword>max_halfword)) bad=13;
-    if (font_base<min_quarterword) bad=15;
-    if ((save_size>max_halfword)||(max_strings>max_halfword)) bad=17;
-    if (buf_size>max_halfword) bad=18;
-    if (max_quarterword-min_quarterword<0xFFFF) bad=19;
+    if ((min_quarterword > 0) || (max_quarterword < 0x7FFF))
+        bad = 11;
+    if ((min_halfword > 0) || (max_halfword < 0x3FFFFFFF))
+        bad = 12;
+    if ((min_quarterword < min_halfword) || (max_quarterword > max_halfword))
+        bad = 13;
+    if (font_base < min_quarterword)
+        bad = 15;
+    if ((save_size > max_halfword) || (max_strings > max_halfword))
+        bad = 17;
+    if (buf_size > max_halfword)
+        bad = 18;
+    if (max_quarterword - min_quarterword < 0xFFFF)
+        bad = 19;
 
-    if (cs_token_flag+eqtb_size+hash_extra>max_halfword) bad=21;
-    if (format_default_length>file_name_size) bad=31;
+    if (cs_token_flag + eqtb_size + hash_extra > max_halfword)
+        bad = 21;
+    if (format_default_length > file_name_size)
+        bad = 31;
 
-    if (bad>0) {
-	wterm_cr();
-	fprintf(term_out,"Ouch---my internal constants have been clobbered! ---case %d",(int)bad);
-	goto FINAL_END;
+    if (bad > 0) {
+        wterm_cr();
+        fprintf(term_out,
+                "Ouch---my internal constants have been clobbered! ---case %d",
+                (int) bad);
+        goto FINAL_END;
     }
-    initialize(); /* set global variables to their starting values */
+    initialize();               /* set global variables to their starting values */
     if (ini_version) {
-	if (!get_strings_started()) 
-	    goto FINAL_END;
-	init_prim(); /* call |primitive| for each primitive */
-	init_str_ptr=str_ptr; 
-	init_pool_ptr=pool_ptr; 
-	fix_date_and_time();
+        if (!get_strings_started())
+            goto FINAL_END;
+        init_prim();            /* call |primitive| for each primitive */
+        init_str_ptr = str_ptr;
+        init_pool_ptr = pool_ptr;
+        fix_date_and_time();
     }
-    ready_already=314159;
-    print_banner(luatex_version_string,luatex_date_info);
+    ready_already = 314159;
+    print_banner(luatex_version_string, luatex_date_info);
     /* Get the first line of input and prepare to start */
     /* When we begin the following code, \TeX's tables may still contain garbage;
        the strings might not even be present. Thus we must proceed cautiously to get
@@ -1358,55 +1373,55 @@ void main_body (void)
 
        But when we finish this part of the program, \TeX\ is ready to call on the
        |main_control| routine to do its work.
-    */
+     */
     initialize_inputstack();
     enable_etex();
-    if (!no_new_control_sequence)  /* just entered extended mode ? */
-	no_new_control_sequence=true;
-    else
-	if ((format_ident==0)||(buffer[iloc]=='&')||dump_line) {
-	    if (format_ident!=0) 
-		initialize(); /* erase preloaded format */
-	    if (!open_fmt_file()) 
-		goto FINAL_END;
-	    if (!load_fmt_file()) {
-		w_close(fmt_file); 
-		goto FINAL_END;
-	    }
-	    w_close(fmt_file);
-	    while ((iloc<ilimit)&&(buffer[iloc]==' ')) 
-		incr(iloc);
-	}
-    if (pdf_output_option != 0) 
-	int_par(pdf_output_code) = pdf_output_value;
-    if (pdf_draftmode_option != 0) 
-	int_par(pdf_draftmode_code) = pdf_draftmode_value;
+    if (!no_new_control_sequence)       /* just entered extended mode ? */
+        no_new_control_sequence = true;
+    else if ((format_ident == 0) || (buffer[iloc] == '&') || dump_line) {
+        if (format_ident != 0)
+            initialize();       /* erase preloaded format */
+        if (!open_fmt_file())
+            goto FINAL_END;
+        if (!load_fmt_file()) {
+            w_close(fmt_file);
+            goto FINAL_END;
+        }
+        w_close(fmt_file);
+        while ((iloc < ilimit) && (buffer[iloc] == ' '))
+            incr(iloc);
+    }
+    if (pdf_output_option != 0)
+        int_par(pdf_output_code) = pdf_output_value;
+    if (pdf_draftmode_option != 0)
+        int_par(pdf_draftmode_code) = pdf_draftmode_value;
     pdf_init_map_file("pdftex.map");
-    if (end_line_char_inactive()) 
-	decr(ilimit);
-    else  
-	buffer[ilimit]=int_par(end_line_char_code);
+    if (end_line_char_inactive())
+        decr(ilimit);
+    else
+        buffer[ilimit] = int_par(end_line_char_code);
     fix_date_and_time();
     if (ini_version)
-	make_pdftex_banner();
-    random_seed =(microseconds*1000)+(epochseconds % 1000000);
+        make_pdftex_banner();
+    random_seed = (microseconds * 1000) + (epochseconds % 1000000);
     init_randoms(random_seed);
     initialize_math();
     fixup_selector(log_opened);
     check_texconfig_init();
-    if ((iloc<ilimit)&&(get_cat_code(int_par(cat_code_table_code),
-                                     buffer[iloc])!=int_par(escape_char_code)))
-	start_input(); /* \.{\\input} assumed */
+    if ((iloc < ilimit) && (get_cat_code(int_par(cat_code_table_code),
+                                         buffer[iloc]) !=
+                            int_par(escape_char_code)))
+        start_input();          /* \.{\\input} assumed */
     /* DIR: Initialize |text_dir_ptr| */
-    text_dir_ptr=new_dir(0);
+    text_dir_ptr = new_dir(0);
 
-    history=spotless; /* ready to go! */
+    history = spotless;         /* ready to go! */
     /* Initialize synctex primitive */
     synctex_init_command();
-    main_control(); /* come to life */
-    final_cleanup(); /* prepare for death */
+    main_control();             /* come to life */
+    final_cleanup();            /* prepare for death */
     close_files_and_terminate();
-FINAL_END: 
+  FINAL_END:
     do_final_end();
 }
 
@@ -1426,87 +1441,98 @@ but that can't cause infinite recursion.
 This program doesn't bother to close the input files that may still be open.
 */
 
-void close_files_and_terminate (void)
+void close_files_and_terminate(void)
 {
-    integer k; /* all-purpose index */
+    integer k;                  /* all-purpose index */
     integer callback_id;
-    callback_id=callback_defined(stop_run_callback);
+    callback_id = callback_defined(stop_run_callback);
     /* Finish the extensions */
-    for (k=0;k<=15;k++) 
-	if (write_open[k]) 
-	    lua_a_close_out(write_file[k]);
-    if (int_par(tracing_stats_code)>0) {
-	if (callback_id==0) {
-	    /* Output statistics about this job */
-	    /* The present section goes directly to the log file instead of using
-	       |print| commands, because there's no need for these strings to take
-	       up |str_pool| memory when a non-{\bf stat} version of \TeX\ is being used.
-	    */
+    for (k = 0; k <= 15; k++)
+        if (write_open[k])
+            lua_a_close_out(write_file[k]);
+    if (int_par(tracing_stats_code) > 0) {
+        if (callback_id == 0) {
+            /* Output statistics about this job */
+            /* The present section goes directly to the log file instead of using
+               |print| commands, because there's no need for these strings to take
+               up |str_pool| memory when a non-{\bf stat} version of \TeX\ is being used.
+             */
 
-	    if (log_opened) {
-		wlog_cr();
-		fprintf(log_file, "  ");
-		wlog_cr();
-		fprintf(log_file, "Here is how much of TeX''s memory you used:");
-		wlog_cr();
-		fprintf(log_file, " %d ", (int)(str_ptr-init_str_ptr));
-		if (str_ptr!=init_str_ptr+1) 
-		    fprintf(log_file, "strings") ;
-		else 
-		    fprintf(log_file, "string");
-		fprintf(log_file, " out of %ld", (long)(max_strings-init_str_ptr+STRING_OFFSET));
-		wlog_cr();
-		fprintf(log_file, " %d string characters out of %d", (int)(pool_ptr-init_pool_ptr),
-			(int)(pool_size-init_pool_ptr));
-		wlog_cr();
-		fprintf(log_file,  " %d,%d words of node,token memory allocated", (int)var_mem_max, (int)fix_mem_max);
-		print_node_mem_stats();
-		wlog_cr();
-		fprintf(log_file, " %d multiletter control sequences out of %ld+%d", (int)cs_count,
-			(long)hash_size, (int)hash_extra);
-		wlog_cr();
-		fprintf(log_file," %d ", (int)max_font_id());
-		if (max_font_id()!=1) 
-		    fprintf(log_file, "fonts");
-		else 
-		    fprintf(log_file, "font");
-		wlog_cr();
-		fprintf(log_file," using %d bytes", (int)font_bytes);
-		wlog_cr();
-		fprintf(log_file," %di,%dn,%dp,%db,%ds stack positions out of %di,%dn,%dp,%db,%ds",
-			(int)max_in_stack,(int)max_nest_stack,(int)max_param_stack,(int)max_buf_stack,(int)max_save_stack+6,
-			(int)stack_size, (int)nest_size, (int)param_size, (int)buf_size, (int)save_size);
-	    }
-	}
+            if (log_opened) {
+                wlog_cr();
+                fprintf(log_file, "  ");
+                wlog_cr();
+                fprintf(log_file,
+                        "Here is how much of TeX''s memory you used:");
+                wlog_cr();
+                fprintf(log_file, " %d ", (int) (str_ptr - init_str_ptr));
+                if (str_ptr != init_str_ptr + 1)
+                    fprintf(log_file, "strings");
+                else
+                    fprintf(log_file, "string");
+                fprintf(log_file, " out of %ld",
+                        (long) (max_strings - init_str_ptr + STRING_OFFSET));
+                wlog_cr();
+                fprintf(log_file, " %d string characters out of %d",
+                        (int) (pool_ptr - init_pool_ptr),
+                        (int) (pool_size - init_pool_ptr));
+                wlog_cr();
+                fprintf(log_file, " %d,%d words of node,token memory allocated",
+                        (int) var_mem_max, (int) fix_mem_max);
+                print_node_mem_stats();
+                wlog_cr();
+                fprintf(log_file,
+                        " %d multiletter control sequences out of %ld+%d",
+                        (int) cs_count, (long) hash_size, (int) hash_extra);
+                wlog_cr();
+                fprintf(log_file, " %d ", (int) max_font_id());
+                if (max_font_id() != 1)
+                    fprintf(log_file, "fonts");
+                else
+                    fprintf(log_file, "font");
+                wlog_cr();
+                fprintf(log_file, " using %d bytes", (int) font_bytes);
+                wlog_cr();
+                fprintf(log_file,
+                        " %di,%dn,%dp,%db,%ds stack positions out of %di,%dn,%dp,%db,%ds",
+                        (int) max_in_stack, (int) max_nest_stack,
+                        (int) max_param_stack, (int) max_buf_stack,
+                        (int) max_save_stack + 6, (int) stack_size,
+                        (int) nest_size, (int) param_size, (int) buf_size,
+                        (int) save_size);
+            }
+        }
     }
     wake_up_terminal();
-    if (!fixed_pdfoutput_set) /* else there will be an infinite loop in error case */
-	fix_pdfoutput();
+    if (!fixed_pdfoutput_set)   /* else there will be an infinite loop in error case */
+        fix_pdfoutput();
     if (fixed_pdfoutput > 0) {
-	if (history == fatal_error_stop) {
-	    remove_pdffile(static_pdf);
-	    print_err(" ==> Fatal error occurred, no output PDF file produced!");
-	} else {
-	    finish_pdf_file(static_pdf, the_luatex_version, get_luatexrevision());
-	}
+        if (history == fatal_error_stop) {
+            remove_pdffile(static_pdf);
+            print_err
+                (" ==> Fatal error occurred, no output PDF file produced!");
+        } else {
+            finish_pdf_file(static_pdf, the_luatex_version,
+                            get_luatexrevision());
+        }
     } else {
-	finish_dvi_file(the_luatex_version, get_luatexrevision());
+        finish_dvi_file(the_luatex_version, get_luatexrevision());
     }
     /* Close {\sl Sync\TeX} file and write status */
-    synctex_terminate(log_opened); /* Let the {\sl Sync\TeX} controller close its files. */
+    synctex_terminate(log_opened);      /* Let the {\sl Sync\TeX} controller close its files. */
 
     free_text_codes();
     free_math_codes();
     if (log_opened) {
-	wlog_cr(); 
-	selector=selector-2;
-	if ((selector==term_only)&&(callback_id==0)) {
-	    tprint_nl("Transcript written on ");
-	    print_file_name(0, texmf_log_name, 0); 
-	    print_char('.');
-	    print_ln();
-	}
-	lua_a_close_out(log_file);
+        wlog_cr();
+        selector = selector - 2;
+        if ((selector == term_only) && (callback_id == 0)) {
+            tprint_nl("Transcript written on ");
+            print_file_name(0, texmf_log_name, 0);
+            print_char('.');
+            print_ln();
+        }
+        lua_a_close_out(log_file);
     }
 }
 
@@ -1515,80 +1541,81 @@ We get to the |final_cleanup| routine when \.{\\end} or \.{\\dump} has
 been scanned and |its_all_over|\kern-2pt.
 */
 
-void final_cleanup (void)
+void final_cleanup(void)
 {
-    int c; /* 0 for \.{\\end}, 1 for \.{\\dump} */
-    halfword i; /*  for looping marks  */
-    c=cur_chr;
-    if (job_name==0)
-	open_log_file();
-    while (input_ptr>0)
-	if (istate==token_list)
-	    end_token_list();
-	else 
-	    end_file_reading();
-    while (open_parens>0) {
-        if (tracefilenames) 
-	    tprint(" )");
+    int c;                      /* 0 for \.{\\end}, 1 for \.{\\dump} */
+    halfword i;                 /*  for looping marks  */
+    c = cur_chr;
+    if (job_name == 0)
+        open_log_file();
+    while (input_ptr > 0)
+        if (istate == token_list)
+            end_token_list();
+        else
+            end_file_reading();
+    while (open_parens > 0) {
+        if (tracefilenames)
+            tprint(" )");
         decr(open_parens);
     }
-    if (cur_level>level_one) {
-	tprint_nl("(\\end occurred inside a group at level ");
-	print_int(cur_level-level_one); 
-	print_char(')');
-	show_save_groups();
+    if (cur_level > level_one) {
+        tprint_nl("(\\end occurred inside a group at level ");
+        print_int(cur_level - level_one);
+        print_char(')');
+        show_save_groups();
     }
-    while (cond_ptr!=null) {
-	tprint_nl("(\\end occurred when "); 
-	print_cmd_chr(if_test_cmd,cur_if);
-	if (if_line!=0) {
-	    tprint(" on line "); 
-	    print_int(if_line);
-	}
-	tprint(" was incomplete)");
-	if_line=if_line_field(cond_ptr);
-	cur_if=subtype(cond_ptr); 
-	temp_ptr=cond_ptr;
-	cond_ptr=vlink(cond_ptr); 
-	flush_node(temp_ptr);
+    while (cond_ptr != null) {
+        tprint_nl("(\\end occurred when ");
+        print_cmd_chr(if_test_cmd, cur_if);
+        if (if_line != 0) {
+            tprint(" on line ");
+            print_int(if_line);
+        }
+        tprint(" was incomplete)");
+        if_line = if_line_field(cond_ptr);
+        cur_if = subtype(cond_ptr);
+        temp_ptr = cond_ptr;
+        cond_ptr = vlink(cond_ptr);
+        flush_node(temp_ptr);
     }
-    if (callback_defined(stop_run_callback)==0) 
-	if (history!=spotless)
-	    if ((history==warning_issued)||(interaction<error_stop_mode))
-		if (selector==term_and_log) {
-		    selector=term_only;
-		    tprint_nl("(see the transcript file for additional information)");
-		    selector=term_and_log;
-		}
-    if (c==1) {
-	if (ini_version) {
-	    for (i=0;i<=biggest_used_mark;i++) {
-		delete_top_mark(i); 
-		delete_first_mark(i); 
-		delete_bot_mark(i);
-		delete_split_first_mark(i); 
-		delete_split_bot_mark(i);
-	    }
-	    for (c=last_box_code;c<=vsplit_code;c++) 
-		flush_node_list(disc_ptr[c]);
-	    if (last_glue!=max_halfword) 
-		delete_glue_ref(last_glue);
-	    while (pseudo_files!=null) 
-		pseudo_close(); /* flush pseudo files */
-	    store_fmt_file(); 
-	    return;
-	}
-	tprint_nl("(\\dump is performed only by INITEX)");
-	return;
+    if (callback_defined(stop_run_callback) == 0)
+        if (history != spotless)
+            if ((history == warning_issued) || (interaction < error_stop_mode))
+                if (selector == term_and_log) {
+                    selector = term_only;
+                    tprint_nl
+                        ("(see the transcript file for additional information)");
+                    selector = term_and_log;
+                }
+    if (c == 1) {
+        if (ini_version) {
+            for (i = 0; i <= biggest_used_mark; i++) {
+                delete_top_mark(i);
+                delete_first_mark(i);
+                delete_bot_mark(i);
+                delete_split_first_mark(i);
+                delete_split_bot_mark(i);
+            }
+            for (c = last_box_code; c <= vsplit_code; c++)
+                flush_node_list(disc_ptr[c]);
+            if (last_glue != max_halfword)
+                delete_glue_ref(last_glue);
+            while (pseudo_files != null)
+                pseudo_close(); /* flush pseudo files */
+            store_fmt_file();
+            return;
+        }
+        tprint_nl("(\\dump is performed only by INITEX)");
+        return;
     }
 }
 
-void init_prim (void) /* initialize all the primitives */
-{
-    no_new_control_sequence=false;
-    first=0;
+void init_prim(void)
+{                               /* initialize all the primitives */
+    no_new_control_sequence = false;
+    first = 0;
     initialize_commands();
-    no_new_control_sequence=true;
+    no_new_control_sequence = true;
 }
 
 /*
@@ -1614,68 +1641,68 @@ program below. (If |m=13|, there is an additional argument, |l|.)
 */
 
 #ifdef DEBUG
-void debug_help (void) /* routine to display various things */
-{
+void debug_help(void)
+{                               /* routine to display various things */
     integer k;
-    int m=0, n=0, l=0;
+    int m = 0, n = 0, l = 0;
     while (1) {
-	wake_up_terminal();
-	tprint_nl("debug # (-1 to exit):"); 
-	update_terminal();
-	(void)fscanf(term_in,"%d",&m);
-	if (m<0) 
-	    return;
-	else if (m==0)
-	    abort(); /* go to every label at least once */
-	else {
-	    (void)fscanf(term_in,"%d",&n);
-	    switch (m) {
-	    case 1: 
-		print_word(varmem[n]); /* display |varmem[n]| in all forms */
-		break;
-	    case 2: 
-		print_int(info(n));
-		break;
-	    case 3: 
-		print_int(link(n));
-		break;
-	    case 4: 
-		print_word(eqtb[n]);
-		break;
-	    case 6: 
-		print_word(save_stack[n]);
-		break;
-	    case 7: 
-		show_box(n); /* show a box, abbreviated by |show_box_depth| and |show_box_breadth| */
-		break;
-	    case 8: 
-		breadth_max=10000; 
-		depth_threshold=pool_size-pool_ptr-10;
-		show_node_list(n); /* show a box in its entirety */
-		break;
-	    case 9: 
-		show_token_list(n,null,1000);
-		break;
-	    case 10: 
-		slow_print(n);
-		break;
-	    case 13: 
-		(void)fscanf(term_in,"%d",&l);
-		print_cmd_chr(n,l);
-		break;
-	    case 14: 
-		for (k=0;k<=n;k++) 
-		    print(buffer[k]);
-		break;
-	    case 15: 
-		font_in_short_display=null_font; 
-		short_display(n);
-		break;
-	    default: 
-		tprint("?");
-		break;
-	    }
-	}
+        wake_up_terminal();
+        tprint_nl("debug # (-1 to exit):");
+        update_terminal();
+        (void) fscanf(term_in, "%d", &m);
+        if (m < 0)
+            return;
+        else if (m == 0)
+            abort();            /* go to every label at least once */
+        else {
+            (void) fscanf(term_in, "%d", &n);
+            switch (m) {
+            case 1:
+                print_word(varmem[n]);  /* display |varmem[n]| in all forms */
+                break;
+            case 2:
+                print_int(info(n));
+                break;
+            case 3:
+                print_int(link(n));
+                break;
+            case 4:
+                print_word(eqtb[n]);
+                break;
+            case 6:
+                print_word(save_stack[n]);
+                break;
+            case 7:
+                show_box(n);    /* show a box, abbreviated by |show_box_depth| and |show_box_breadth| */
+                break;
+            case 8:
+                breadth_max = 10000;
+                depth_threshold = pool_size - pool_ptr - 10;
+                show_node_list(n);      /* show a box in its entirety */
+                break;
+            case 9:
+                show_token_list(n, null, 1000);
+                break;
+            case 10:
+                slow_print(n);
+                break;
+            case 13:
+                (void) fscanf(term_in, "%d", &l);
+                print_cmd_chr(n, l);
+                break;
+            case 14:
+                for (k = 0; k <= n; k++)
+                    print(buffer[k]);
+                break;
+            case 15:
+                font_in_short_display = null_font;
+                short_display(n);
+                break;
+            default:
+                tprint("?");
+                break;
+            }
+        }
     }
 }
 #endif

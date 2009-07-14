@@ -306,8 +306,7 @@ store_primitive_name(str_number s, quarterword c, halfword o, halfword offset)
 */
 
 void
-primitive(char *thes, quarterword c, halfword o, halfword off,
-          int cmd_origin)
+primitive(char *thes, quarterword c, halfword o, halfword off, int cmd_origin)
 {
     integer prim_val;           /* needed to fill |prim_eqtb| */
     str_number ss;

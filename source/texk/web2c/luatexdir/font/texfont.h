@@ -404,7 +404,7 @@ extern charinfo *char_info(internal_font_number f, integer c);
 already certain the font |f| exists, and that the |c| is a regular
 glyph id, not one of the two special boundary objects.
 */
-#define quick_char_exists(f,c) get_sa_item(font_tables[f]->characters,c)
+#  define quick_char_exists(f,c) get_sa_item(font_tables[f]->characters,c)
 
 extern void set_charinfo_width(charinfo * ci, scaled val);
 extern void set_charinfo_height(charinfo * ci, scaled val);

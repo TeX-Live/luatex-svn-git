@@ -30,7 +30,7 @@
 #define mag int_par(mag_code)
 #define tracing_output int_par(tracing_output_code)
 #define tracing_stats int_par(tracing_stats_code)
-#define page_direction dir_par(page_direction_code)       /* really direction */
+#define page_direction dir_par(page_direction_code)     /* really direction */
 #define page_width dimen_par(page_width_code)
 #define page_height dimen_par(page_height_code)
 #define page_left_offset dimen_par(page_left_offset_code)
@@ -793,7 +793,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
                     i = -pdf_font_num(k);
                     assert(pdf_font_num(i) > 0);
                     for (j = font_bc(k); j <= font_ec(k); j++)
-                        if (quick_char_exists(k,j) && pdf_char_marked(k, j))
+                        if (quick_char_exists(k, j) && pdf_char_marked(k, j))
                             pdf_mark_char(i, j);
                     if ((pdf_font_attr(i) == 0) && (pdf_font_attr(k) != 0)) {
                         set_pdf_font_attr(i, pdf_font_attr(k));

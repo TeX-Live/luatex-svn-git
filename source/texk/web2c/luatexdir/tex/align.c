@@ -304,11 +304,9 @@ void get_preamble_token(void)
         scan_optional_equals();
         scan_glue(glue_val_level);
         if (int_par(global_defs_code) > 0)
-            geq_define(glue_base + tab_skip_code, glue_ref_cmd,
-                       cur_val);
+            geq_define(glue_base + tab_skip_code, glue_ref_cmd, cur_val);
         else
-            eq_define(glue_base + tab_skip_code, glue_ref_cmd,
-                      cur_val);
+            eq_define(glue_base + tab_skip_code, glue_ref_cmd, cur_val);
         goto RESTART;
     }
 }

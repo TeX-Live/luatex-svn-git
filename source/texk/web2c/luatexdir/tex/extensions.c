@@ -123,397 +123,401 @@ The variable |write_loc| just introduced is used to provide an
 appropriate error message in case of ``runaway'' write texts.
 */
 
-halfword write_loc; /* |eqtb| address of \.{\\write} */
+halfword write_loc;             /* |eqtb| address of \.{\\write} */
 
 /*
 When an |extension| command occurs in |main_control|, in any mode,
 the |do_extension| routine is called.
 */
 
-void do_extension (void)
+void do_extension(void)
 {
-    integer i,j,k; /* all-purpose integers */
-    halfword p; /* all-purpose pointer */
+    integer i, j, k;            /* all-purpose integers */
+    halfword p;                 /* all-purpose pointer */
     switch (cur_chr) {
     case open_node:
         /* Implement \.{\\openout} */
-	new_write_whatsit(open_node_size);
-	scan_optional_equals(); 
-	scan_file_name();
-	open_name(tail)=cur_name; 
-	open_area(tail)=cur_area; 
-	open_ext(tail)=cur_ext;
+        new_write_whatsit(open_node_size);
+        scan_optional_equals();
+        scan_file_name();
+        open_name(tail) = cur_name;
+        open_area(tail) = cur_area;
+        open_ext(tail) = cur_ext;
         break;
     case write_node:
         /* Implement \.{\\write} */
-	/* When `\.{\\write 12\{...\}}' appears, we scan the token list `\.{\{...\}}'
-	   without expanding its macros; the macros will be expanded later when this
-	   token list is rescanned. */
-	k=cur_cs; 
-	new_write_whatsit(write_node_size);
-	cur_cs=k; 
-	p=scan_toks(false,false); 
-	write_tokens(tail)=def_ref;
+        /* When `\.{\\write 12\{...\}}' appears, we scan the token list `\.{\{...\}}'
+           without expanding its macros; the macros will be expanded later when this
+           token list is rescanned. */
+        k = cur_cs;
+        new_write_whatsit(write_node_size);
+        cur_cs = k;
+        p = scan_toks(false, false);
+        write_tokens(tail) = def_ref;
         break;
     case close_node:
         /* Implement \.{\\closeout} */
-	new_write_whatsit(write_node_size); 
-	write_tokens(tail)=null;
+        new_write_whatsit(write_node_size);
+        write_tokens(tail) = null;
         break;
     case special_node:
         /* Implement \.{\\special} */
-	/* When `\.{\\special\{...\}}' appears, we expand the macros in the token
-	   list as in \.{\\xdef} and \.{\\mark}. */
-	new_whatsit(special_node); 
-	write_stream(tail)=null;
-	p=scan_toks(false,true); 
-	write_tokens(tail)=def_ref;
+        /* When `\.{\\special\{...\}}' appears, we expand the macros in the token
+           list as in \.{\\xdef} and \.{\\mark}. */
+        new_whatsit(special_node);
+        write_stream(tail) = null;
+        p = scan_toks(false, true);
+        write_tokens(tail) = def_ref;
         break;
     case immediate_code:
         /* Implement \.{\\immediate} */
-	/* To write a token list, we must run it through \TeX's scanner, expanding
-	   macros and \.{\\the} and \.{\\number}, etc. This might cause runaways,
-	   if a delimited macro parameter isn't matched, and runaways would be
-	   extremely confusing since we are calling on \TeX's scanner in the middle
-	   of a \.{\\shipout} command. Therefore we will put a dummy control sequence as
-	   a ``stopper,'' right after the token list. This control sequence is
-	   artificially defined to be \.{\\outer}.
-	   @:end_write_}{\.{\\endwrite}@>
+        /* To write a token list, we must run it through \TeX's scanner, expanding
+           macros and \.{\\the} and \.{\\number}, etc. This might cause runaways,
+           if a delimited macro parameter isn't matched, and runaways would be
+           extremely confusing since we are calling on \TeX's scanner in the middle
+           of a \.{\\shipout} command. Therefore we will put a dummy control sequence as
+           a ``stopper,'' right after the token list. This control sequence is
+           artificially defined to be \.{\\outer}.
+           @:end_write_}{\.{\\endwrite}@>
 
-	   The presence of `\.{\\immediate}' causes the |do_extension| procedure
-	   to descend to one level of recursion. Nothing happens unless \.{\\immediate}
-	   is followed by `\.{\\openout}', `\.{\\write}', or `\.{\\closeout}'.
-	   @^recursion@> 
-	*/
-	get_x_token();
-	if (cur_cmd==extension_cmd) {
-	    if (cur_chr<=close_node) {
-		p=tail; 
-		do_extension(); /* append a whatsit node */
-		out_what(tail); /* do the action immediately */
-		flush_node_list(tail); 
-		tail=p; 
-		vlink(p)=null;
-	    } else {
-		switch (cur_chr) {
-		case pdf_obj_code:
-		    do_extension(); /* scan object and set |pdf_last_obj| */
-		    if (obj_data_ptr(static_pdf, pdf_last_obj) == 0)  /* this object has not been initialized yet */
-			pdf_error("ext1", "`\\pdfobj reserveobjnum' cannot be used with \\immediate");
-		    pdf_write_obj(static_pdf, pdf_last_obj);
-		    break;
-		case pdf_xform_code: 
-		    do_extension(); /* scan form and set |pdf_last_xform| */
-		    pdf_cur_form = pdf_last_xform;
-		    pdf_ship_out(static_pdf, obj_xform_box(static_pdf, pdf_last_xform), false);
-		    break;
-		case pdf_ximage_code: 
-		    do_extension(); /* scan image and set |pdf_last_ximage| */
-		    pdf_write_image(static_pdf, pdf_last_ximage);
-		    break;
-		default:
-		    back_input();
-		    break;
-		}
-	    }
-	} else {
-	    back_input();
-	}
+           The presence of `\.{\\immediate}' causes the |do_extension| procedure
+           to descend to one level of recursion. Nothing happens unless \.{\\immediate}
+           is followed by `\.{\\openout}', `\.{\\write}', or `\.{\\closeout}'.
+           @^recursion@> 
+         */
+        get_x_token();
+        if (cur_cmd == extension_cmd) {
+            if (cur_chr <= close_node) {
+                p = tail;
+                do_extension(); /* append a whatsit node */
+                out_what(tail); /* do the action immediately */
+                flush_node_list(tail);
+                tail = p;
+                vlink(p) = null;
+            } else {
+                switch (cur_chr) {
+                case pdf_obj_code:
+                    do_extension();     /* scan object and set |pdf_last_obj| */
+                    if (obj_data_ptr(static_pdf, pdf_last_obj) == 0)    /* this object has not been initialized yet */
+                        pdf_error("ext1",
+                                  "`\\pdfobj reserveobjnum' cannot be used with \\immediate");
+                    pdf_write_obj(static_pdf, pdf_last_obj);
+                    break;
+                case pdf_xform_code:
+                    do_extension();     /* scan form and set |pdf_last_xform| */
+                    pdf_cur_form = pdf_last_xform;
+                    pdf_ship_out(static_pdf,
+                                 obj_xform_box(static_pdf, pdf_last_xform),
+                                 false);
+                    break;
+                case pdf_ximage_code:
+                    do_extension();     /* scan image and set |pdf_last_ximage| */
+                    pdf_write_image(static_pdf, pdf_last_ximage);
+                    break;
+                default:
+                    back_input();
+                    break;
+                }
+            }
+        } else {
+            back_input();
+        }
         break;
-    case pdf_annot_node: 
+    case pdf_annot_node:
         /* Implement \.{\\pdfannot} */
-	check_pdfoutput("\\pdfannot", true);
-	scan_annot(static_pdf);
+        check_pdfoutput("\\pdfannot", true);
+        scan_annot(static_pdf);
         break;
-    case pdf_catalog_code: 
+    case pdf_catalog_code:
         /* Implement \.{\\pdfcatalog} */
-	check_pdfoutput("\\pdfcatalog", false);
-	scan_pdfcatalog(static_pdf);
+        check_pdfoutput("\\pdfcatalog", false);
+        scan_pdfcatalog(static_pdf);
         break;
-    case pdf_dest_node: 
+    case pdf_dest_node:
         /* Implement \.{\\pdfdest} */
-	check_pdfoutput("\\pdfdest", true);
-	scan_pdfdest(static_pdf);
+        check_pdfoutput("\\pdfdest", true);
+        scan_pdfdest(static_pdf);
         break;
-    case pdf_end_link_node: 
+    case pdf_end_link_node:
         /* Implement \.{\\pdfendlink} */
-	check_pdfoutput("\\pdfendlink", true);
-	if (abs(mode) == vmode)
-	    pdf_error("ext1", "\\pdfendlink cannot be used in vertical mode");
-	new_whatsit(pdf_end_link_node);
+        check_pdfoutput("\\pdfendlink", true);
+        if (abs(mode) == vmode)
+            pdf_error("ext1", "\\pdfendlink cannot be used in vertical mode");
+        new_whatsit(pdf_end_link_node);
         break;
-    case pdf_end_thread_node: 
+    case pdf_end_thread_node:
         /* Implement \.{\\pdfendthread} */
-	check_pdfoutput("\\pdfendthread", true);
-	new_whatsit(pdf_end_thread_node);
+        check_pdfoutput("\\pdfendthread", true);
+        new_whatsit(pdf_end_thread_node);
         break;
-    case pdf_font_attr_code: 
+    case pdf_font_attr_code:
         /* Implement \.{\\pdffontattr} */
-	/* A change from \THANH's original code: the font attributes are simply
-	   initialized to zero now, this is easier to deal with from C than an
-	   empty \TeX{} string, and surely nobody will want to set
-	   \.{\\pdffontattr} to a string containing a single zero, as that
-	   would be nonsensical in the PDF output. */
-	check_pdfoutput("\\pdffontattr", true);
-	scan_font_ident();
-	k = cur_val;
-	if (k == null_font)
-	    pdf_error("font", "invalid font identifier");
-	scan_pdf_ext_toks();
-	set_pdf_font_attr(k, tokens_to_string(def_ref));
-	if (str_length(pdf_font_attr(k)) == 0) {
-	    flush_string();
-	    set_pdf_font_attr(k,0);
-	}
+        /* A change from \THANH's original code: the font attributes are simply
+           initialized to zero now, this is easier to deal with from C than an
+           empty \TeX{} string, and surely nobody will want to set
+           \.{\\pdffontattr} to a string containing a single zero, as that
+           would be nonsensical in the PDF output. */
+        check_pdfoutput("\\pdffontattr", true);
+        scan_font_ident();
+        k = cur_val;
+        if (k == null_font)
+            pdf_error("font", "invalid font identifier");
+        scan_pdf_ext_toks();
+        set_pdf_font_attr(k, tokens_to_string(def_ref));
+        if (str_length(pdf_font_attr(k)) == 0) {
+            flush_string();
+            set_pdf_font_attr(k, 0);
+        }
         break;
-    case pdf_font_expand_code: 
+    case pdf_font_expand_code:
         /* Implement \.{\\pdffontexpand} */
-	read_expand_font();
+        read_expand_font();
         break;
-    case pdf_include_chars_code: 
+    case pdf_include_chars_code:
         /* Implement \.{\\pdfincludechars} */
-	check_pdfoutput("\\pdfincludechars", true);
-	pdf_include_chars(static_pdf);
+        check_pdfoutput("\\pdfincludechars", true);
+        pdf_include_chars(static_pdf);
         break;
-    case pdf_info_code: 
+    case pdf_info_code:
         /* Implement \.{\\pdfinfo} */
-	check_pdfoutput("\\pdfinfo", false);
-	scan_pdf_ext_toks();
-	if (pdf_output > 0)
-	    pdf_info_toks = concat_tokens(pdf_info_toks, def_ref);
+        check_pdfoutput("\\pdfinfo", false);
+        scan_pdf_ext_toks();
+        if (pdf_output > 0)
+            pdf_info_toks = concat_tokens(pdf_info_toks, def_ref);
         break;
-    case pdf_literal_node: 
+    case pdf_literal_node:
         /* Implement \.{\\pdfliteral} */
-	check_pdfoutput("\\pdfliteral", true);
-	new_whatsit(pdf_literal_node);
-	if (scan_keyword("direct"))
-	    set_pdf_literal_mode(tail,direct_always);
-	else if (scan_keyword("page"))
-	    set_pdf_literal_mode(tail,direct_page);
-	else
-	    set_pdf_literal_mode(tail,set_origin);
-	scan_pdf_ext_toks();
-	set_pdf_literal_type(tail, normal);
-	set_pdf_literal_data(tail, def_ref);
+        check_pdfoutput("\\pdfliteral", true);
+        new_whatsit(pdf_literal_node);
+        if (scan_keyword("direct"))
+            set_pdf_literal_mode(tail, direct_always);
+        else if (scan_keyword("page"))
+            set_pdf_literal_mode(tail, direct_page);
+        else
+            set_pdf_literal_mode(tail, set_origin);
+        scan_pdf_ext_toks();
+        set_pdf_literal_type(tail, normal);
+        set_pdf_literal_data(tail, def_ref);
         break;
-    case pdf_colorstack_node: 
+    case pdf_colorstack_node:
         /* Implement \.{\\pdfcolorstack} */
-	check_pdfoutput("\\pdfcolorstack", true);
-	/* Scan and check the stack number and store in |cur_val| */
-	scan_int();
-	if (cur_val >= colorstackused()) {
-	    print_err("Unknown color stack number ");
-	    print_int(cur_val);
-	    help3("Allocate and initialize a color stack with \\pdfcolorstackinit.",
-		  "I'll use default color stack 0 here.",
-		  "Proceed, with fingers crossed.");
-	    error();
-	    cur_val = 0;
-	}
-	if (cur_val < 0) {
-	    print_err("Invalid negative color stack number");
-	    help2("I'll use default color stack 0 here.",
-		  "Proceed, with fingers crossed.");
-	    error();
-	    cur_val = 0;
-	}
-	if (scan_keyword("set"))
-	    i = colorstack_set;
-	else if (scan_keyword("push"))
-	    i = colorstack_push;
-	else if (scan_keyword("pop"))
-	    i = colorstack_pop;
-	else if (scan_keyword("current"))
-	    i = colorstack_current;
-	else 
-	    i = -1; /* error */
-	
-	if (i >= 0) {
-	    new_whatsit(pdf_colorstack_node);
-	    set_pdf_colorstack_stack(tail, cur_val);
-	    set_pdf_colorstack_cmd(tail, i);
-	    set_pdf_colorstack_data(tail, null);
-	    if (i <= colorstack_data) {
-		scan_pdf_ext_toks();
-		set_pdf_colorstack_data(tail,def_ref);
-	    }
-	} else {
-	    print_err("Color stack action is missing");
-	    help3("The expected actions for \\pdfcolorstack:",
-		  "    set, push, pop, current",
-		  "I'll ignore the color stack command.");
-	    error();
-	}
+        check_pdfoutput("\\pdfcolorstack", true);
+        /* Scan and check the stack number and store in |cur_val| */
+        scan_int();
+        if (cur_val >= colorstackused()) {
+            print_err("Unknown color stack number ");
+            print_int(cur_val);
+            help3
+                ("Allocate and initialize a color stack with \\pdfcolorstackinit.",
+                 "I'll use default color stack 0 here.",
+                 "Proceed, with fingers crossed.");
+            error();
+            cur_val = 0;
+        }
+        if (cur_val < 0) {
+            print_err("Invalid negative color stack number");
+            help2("I'll use default color stack 0 here.",
+                  "Proceed, with fingers crossed.");
+            error();
+            cur_val = 0;
+        }
+        if (scan_keyword("set"))
+            i = colorstack_set;
+        else if (scan_keyword("push"))
+            i = colorstack_push;
+        else if (scan_keyword("pop"))
+            i = colorstack_pop;
+        else if (scan_keyword("current"))
+            i = colorstack_current;
+        else
+            i = -1;             /* error */
+
+        if (i >= 0) {
+            new_whatsit(pdf_colorstack_node);
+            set_pdf_colorstack_stack(tail, cur_val);
+            set_pdf_colorstack_cmd(tail, i);
+            set_pdf_colorstack_data(tail, null);
+            if (i <= colorstack_data) {
+                scan_pdf_ext_toks();
+                set_pdf_colorstack_data(tail, def_ref);
+            }
+        } else {
+            print_err("Color stack action is missing");
+            help3("The expected actions for \\pdfcolorstack:",
+                  "    set, push, pop, current",
+                  "I'll ignore the color stack command.");
+            error();
+        }
         break;
-    case pdf_setmatrix_node: 
+    case pdf_setmatrix_node:
         /* Implement \.{\\pdfsetmatrix} */
-	check_pdfoutput("\\pdfsetmatrix", true);
-	new_whatsit(pdf_setmatrix_node);
-	scan_pdf_ext_toks();
-	set_pdf_setmatrix_data(tail, def_ref);
+        check_pdfoutput("\\pdfsetmatrix", true);
+        new_whatsit(pdf_setmatrix_node);
+        scan_pdf_ext_toks();
+        set_pdf_setmatrix_data(tail, def_ref);
         break;
-    case pdf_save_node: 
+    case pdf_save_node:
         /* Implement \.{\\pdfsave} */
-	check_pdfoutput("\\pdfsave", true);
-	new_whatsit(pdf_save_node);
+        check_pdfoutput("\\pdfsave", true);
+        new_whatsit(pdf_save_node);
         break;
-    case pdf_restore_node: 
+    case pdf_restore_node:
         /* Implement \.{\\pdfrestore} */
-	check_pdfoutput("\\pdfrestore", true);
-	new_whatsit(pdf_restore_node);
+        check_pdfoutput("\\pdfrestore", true);
+        new_whatsit(pdf_restore_node);
         break;
-    case pdf_map_file_code: 
+    case pdf_map_file_code:
         /* Implement \.{\\pdfmapfile} */
-	check_pdfoutput("\\pdfmapfile", true);
-	scan_pdf_ext_toks();
-	pdfmapfile(def_ref);
-	delete_token_ref(def_ref);
+        check_pdfoutput("\\pdfmapfile", true);
+        scan_pdf_ext_toks();
+        pdfmapfile(def_ref);
+        delete_token_ref(def_ref);
         break;
-    case pdf_map_line_code: 
+    case pdf_map_line_code:
         /* Implement \.{\\pdfmapline} */
-	check_pdfoutput("\\pdfmapline", true);
-	scan_pdf_ext_toks();
-	pdfmapline(def_ref);
-	delete_token_ref(def_ref);
+        check_pdfoutput("\\pdfmapline", true);
+        scan_pdf_ext_toks();
+        pdfmapline(def_ref);
+        delete_token_ref(def_ref);
         break;
-    case pdf_names_code: 
+    case pdf_names_code:
         /* Implement \.{\\pdfnames} */
-	check_pdfoutput("\\pdfnames", true);
-	scan_pdf_ext_toks();
-	pdf_names_toks = concat_tokens(pdf_names_toks, def_ref);
+        check_pdfoutput("\\pdfnames", true);
+        scan_pdf_ext_toks();
+        pdf_names_toks = concat_tokens(pdf_names_toks, def_ref);
         break;
-    case pdf_obj_code: 
+    case pdf_obj_code:
         /* Implement \.{\\pdfobj} */
-	check_pdfoutput("\\pdfobj", true);
-	scan_obj(static_pdf);
+        check_pdfoutput("\\pdfobj", true);
+        scan_obj(static_pdf);
         break;
-    case pdf_outline_code: 
+    case pdf_outline_code:
         /* Implement \.{\\pdfoutline} */
-	check_pdfoutput("\\pdfoutline", true);
-	scan_pdfoutline(static_pdf);
+        check_pdfoutput("\\pdfoutline", true);
+        scan_pdfoutline(static_pdf);
         break;
-    case pdf_refobj_node: 
+    case pdf_refobj_node:
         /* Implement \.{\\pdfrefobj} */
-	check_pdfoutput("\\pdfrefobj", true);
-	scan_int();
-	pdf_check_obj(static_pdf, obj_type_obj, cur_val);
-	new_whatsit(pdf_refobj_node);
-	set_pdf_obj_objnum(tail, cur_val);
+        check_pdfoutput("\\pdfrefobj", true);
+        scan_int();
+        pdf_check_obj(static_pdf, obj_type_obj, cur_val);
+        new_whatsit(pdf_refobj_node);
+        set_pdf_obj_objnum(tail, cur_val);
         break;
-    case pdf_refxform_node: 
+    case pdf_refxform_node:
         /* Implement \.{\\pdfrefxform} */
-	check_pdfoutput("\\pdfrefxform", true);
-	scan_pdfrefxform(static_pdf);
+        check_pdfoutput("\\pdfrefxform", true);
+        scan_pdfrefxform(static_pdf);
         break;
-    case pdf_refximage_node: 
+    case pdf_refximage_node:
         /* Implement \.{\\pdfrefximage} */
-	check_pdfoutput("\\pdfrefximage", true);
-	scan_int();
-	pdf_check_obj(static_pdf, obj_type_ximage, cur_val);
-	new_whatsit(pdf_refximage_node);
-	j = obj_data_ptr(static_pdf, cur_val);
-	set_pdf_ximage_idx(tail, j);
-	set_pdf_width(tail, image_width(j));
-	set_pdf_height(tail, image_height(j));
-	set_pdf_depth(tail, image_depth(j));
+        check_pdfoutput("\\pdfrefximage", true);
+        scan_int();
+        pdf_check_obj(static_pdf, obj_type_ximage, cur_val);
+        new_whatsit(pdf_refximage_node);
+        j = obj_data_ptr(static_pdf, cur_val);
+        set_pdf_ximage_idx(tail, j);
+        set_pdf_width(tail, image_width(j));
+        set_pdf_height(tail, image_height(j));
+        set_pdf_depth(tail, image_depth(j));
         break;
-    case pdf_save_pos_node: 
+    case pdf_save_pos_node:
         /* Implement \.{\\pdfsavepos} */
-	new_whatsit(pdf_save_pos_node);
+        new_whatsit(pdf_save_pos_node);
         break;
-    case pdf_start_link_node: 
+    case pdf_start_link_node:
         /* Implement \.{\\pdfstartlink} */
-	check_pdfoutput("\\pdfstartlink", true);
-	scan_startlink(static_pdf);
+        check_pdfoutput("\\pdfstartlink", true);
+        scan_startlink(static_pdf);
         break;
-    case pdf_start_thread_node: 
+    case pdf_start_thread_node:
         /* Implement \.{\\pdfstartthread} */
-	check_pdfoutput("\\pdfstartthread", true);
-	new_annot_whatsit(pdf_start_thread_node);
-	scan_thread_id();
+        check_pdfoutput("\\pdfstartthread", true);
+        new_annot_whatsit(pdf_start_thread_node);
+        scan_thread_id();
         break;
-    case pdf_thread_node: 
+    case pdf_thread_node:
         /* Implement \.{\\pdfthread} */
-	check_pdfoutput("\\pdfthread", true);
-	new_annot_whatsit(pdf_thread_node);
-	scan_thread_id();
+        check_pdfoutput("\\pdfthread", true);
+        new_annot_whatsit(pdf_thread_node);
+        scan_thread_id();
         break;
-    case pdf_trailer_code: 
+    case pdf_trailer_code:
         /* Implement \.{\\pdftrailer} */
-	check_pdfoutput("\\pdftrailer", false);
-	scan_pdf_ext_toks();
-	if (pdf_output > 0)
-	    pdf_trailer_toks = concat_tokens(pdf_trailer_toks, def_ref);
+        check_pdfoutput("\\pdftrailer", false);
+        scan_pdf_ext_toks();
+        if (pdf_output > 0)
+            pdf_trailer_toks = concat_tokens(pdf_trailer_toks, def_ref);
         break;
-    case pdf_xform_code: 
+    case pdf_xform_code:
         /* Implement \.{\\pdfxform} */
-	check_pdfoutput("\\pdfxform", true);
-	scan_pdfxform(static_pdf);
+        check_pdfoutput("\\pdfxform", true);
+        scan_pdfxform(static_pdf);
         break;
-    case pdf_ximage_code: 
+    case pdf_ximage_code:
         /* Implement \.{\\pdfximage} */
-	check_pdfoutput("\\pdfximage", true);
-	check_pdfminorversion(static_pdf);
-	scan_image(static_pdf);
+        check_pdfoutput("\\pdfximage", true);
+        check_pdfminorversion(static_pdf);
+        scan_image(static_pdf);
         break;
-    case save_cat_code_table_code: 
+    case save_cat_code_table_code:
         /* Implement \.{\\savecatcodetable} */
-	scan_int();
-	if ((cur_val<0)||(cur_val>0xFFFF)) {
-	    print_err("Invalid \\catcode table");
-	    help1("All \\catcode table ids must be between 0 and 0xFFFF");
-	    error();
-	} else {
-	    if (cur_val==cat_code_table) {
-		print_err("Invalid \\catcode table");
-		help1("You cannot overwrite the current \\catcode table");
-		error();
-	    } else {
-		copy_cat_codes(cat_code_table,cur_val);
-	    }
-	}
+        scan_int();
+        if ((cur_val < 0) || (cur_val > 0xFFFF)) {
+            print_err("Invalid \\catcode table");
+            help1("All \\catcode table ids must be between 0 and 0xFFFF");
+            error();
+        } else {
+            if (cur_val == cat_code_table) {
+                print_err("Invalid \\catcode table");
+                help1("You cannot overwrite the current \\catcode table");
+                error();
+            } else {
+                copy_cat_codes(cat_code_table, cur_val);
+            }
+        }
         break;
-    case init_cat_code_table_code: 
+    case init_cat_code_table_code:
         /* Implement \.{\\initcatcodetable} */
-	scan_int();
-	if ((cur_val<0)||(cur_val>0xFFFF)) {
-	    print_err("Invalid \\catcode table");
-	    help1("All \\catcode table ids must be between 0 and 0xFFFF");
-	    error();
-	} else {
-	    if (cur_val==cat_code_table) {
-		print_err("Invalid \\catcode table");
-		help1("You cannot overwrite the current \\catcode table");
-		error();
-	    } else {
-		initex_cat_codes(cur_val);
-	    }
-	}
+        scan_int();
+        if ((cur_val < 0) || (cur_val > 0xFFFF)) {
+            print_err("Invalid \\catcode table");
+            help1("All \\catcode table ids must be between 0 and 0xFFFF");
+            error();
+        } else {
+            if (cur_val == cat_code_table) {
+                print_err("Invalid \\catcode table");
+                help1("You cannot overwrite the current \\catcode table");
+                error();
+            } else {
+                initex_cat_codes(cur_val);
+            }
+        }
         break;
-    case set_random_seed_code: 
+    case set_random_seed_code:
         /* Implement \.{\\pdfsetrandomseed} */
-	/*  Negative random seed values are silently converted to positive ones */
-	scan_int();
-	if (cur_val<0) 
-	    negate(cur_val);
-	random_seed = cur_val;
-	init_randoms(random_seed);
+        /*  Negative random seed values are silently converted to positive ones */
+        scan_int();
+        if (cur_val < 0)
+            negate(cur_val);
+        random_seed = cur_val;
+        init_randoms(random_seed);
         break;
-    case pdf_glyph_to_unicode_code: 
+    case pdf_glyph_to_unicode_code:
         /* Implement \.{\\pdfglyphtounicode} */
-	glyph_to_unicode();
+        glyph_to_unicode();
         break;
-    case late_lua_node: 
+    case late_lua_node:
         /* Implement \.{\\latelua} */
-	check_pdfoutput("\\latelua", true);
-	new_whatsit(late_lua_node);
-	late_lua_name(tail) = scan_lua_state();
-	(void)scan_toks(false, false);
-	late_lua_data(tail) = def_ref;
+        check_pdfoutput("\\latelua", true);
+        new_whatsit(late_lua_node);
+        late_lua_name(tail) = scan_lua_state();
+        (void) scan_toks(false, false);
+        late_lua_data(tail) = def_ref;
         break;
-    default: 
-	confusion("ext1"); 
-	break;
+    default:
+        confusion("ext1");
+        break;
     }
 }
 
@@ -525,10 +529,10 @@ and appends it to the current list.
 
 void new_whatsit(int s)
 {
-    halfword p; /* the new node */
-    p=new_node(whatsit_node,s);
-    couple_nodes(tail,p); 
-    tail=p;
+    halfword p;                 /* the new node */
+    p = new_node(whatsit_node, s);
+    couple_nodes(tail, p);
+    tail = p;
 }
 
 /*
@@ -539,16 +543,16 @@ involved, and also inserts a |write_stream| number.
 void new_write_whatsit(int w)
 {
     new_whatsit(cur_chr);
-    if (w!=write_node_size) {
-	scan_four_bit_int();
+    if (w != write_node_size) {
+        scan_four_bit_int();
     } else {
-	scan_int();
-	if (cur_val<0) 
-	    cur_val=17;
-	else if ((cur_val>15) && (cur_val != 18))
-	    cur_val=16;
+        scan_int();
+        if (cur_val < 0)
+            cur_val = 17;
+        else if ((cur_val > 15) && (cur_val != 18))
+            cur_val = 16;
     }
-    write_stream(tail)=cur_val;
+    write_stream(tail) = cur_val;
 }
 
 /*
@@ -556,22 +560,22 @@ void new_write_whatsit(int w)
   extensions.
 */
 
-void scan_pdf_ext_toks (void)
+void scan_pdf_ext_toks(void)
 {
-    (void)scan_toks(false, true); /* like \.{\\special} */
+    (void) scan_toks(false, true);      /* like \.{\\special} */
 }
 
 /*  We need to check whether the referenced object exists. */
 
 /* finds the node preceding the rightmost node |e|; |s| is some node before |e| */
-halfword prev_rightmost(halfword s, halfword e) 
+halfword prev_rightmost(halfword s, halfword e)
 {
     halfword p = s;
-    if (p == null) 
+    if (p == null)
         return null;
     while (vlink(p) != e) {
         p = vlink(p);
-        if (p == null) 
+        if (p == null)
             return null;
     }
     return p;
@@ -592,8 +596,8 @@ integer pdf_last_ximage;
 integer pdf_last_ximage_pages;
 integer pdf_last_ximage_colordepth;
 
-void flush_str(str_number s) /* flush a string if possible */
-{
+void flush_str(str_number s)
+{                               /* flush a string if possible */
     if (flushable(s))
         flush_string();
 }
@@ -611,40 +615,40 @@ To implement primitives as \.{\\pdfinfo}, \.{\\pdfcatalog} or
 \.{\\pdfnames} we need to concatenate tokens lists.
 */
 
-halfword  concat_tokens(halfword q, halfword r) /* concat |q| and |r| and returns the result tokens list */
-{
+halfword concat_tokens(halfword q, halfword r)
+{                               /* concat |q| and |r| and returns the result tokens list */
     halfword p;
     if (q == null)
         return r;
     p = q;
-    while (token_link(p) != null) 
+    while (token_link(p) != null)
         p = token_link(p);
-    set_token_link(p,token_link(r));
+    set_token_link(p, token_link(r));
     free_avail(r);
     return q;
 }
 
-integer pdf_retval; /* global multi-purpose return value */
+integer pdf_retval;             /* global multi-purpose return value */
 
 
-halfword make_local_par_node (void)
+halfword make_local_par_node(void)
 /* This function creates a |local_paragraph| node */
 {
-    halfword p,q;
-    p=new_node(whatsit_node,local_par_node);
-    local_pen_inter(p)=local_inter_line_penalty;
-    local_pen_broken(p)=local_broken_penalty;
-    if (local_left_box!=null) {
-	q=copy_node_list(local_left_box); 
-	local_box_left(p)=q;
-	local_box_left_width(p)=width(local_left_box);
+    halfword p, q;
+    p = new_node(whatsit_node, local_par_node);
+    local_pen_inter(p) = local_inter_line_penalty;
+    local_pen_broken(p) = local_broken_penalty;
+    if (local_left_box != null) {
+        q = copy_node_list(local_left_box);
+        local_box_left(p) = q;
+        local_box_left_width(p) = width(local_left_box);
     }
-    if (local_right_box!=null) {
-	q=copy_node_list(local_right_box); 
-	local_box_right(p)=q;
-	local_box_right_width(p)=width(local_right_box);
+    if (local_right_box != null) {
+        q = copy_node_list(local_right_box);
+        local_box_right(p) = q;
+        local_box_right_width(p) = width(local_right_box);
     }
-    local_par_dir(p)=par_direction;
+    local_par_dir(p) = par_direction;
     return p;
 }
 
@@ -668,13 +672,13 @@ is a run-time switch.
 */
 
 
-void enable_etex (void)
+void enable_etex(void)
 {
     if (ini_version) {
-	no_new_control_sequence=false;
-	initialize_etex_commands();
-	if (buffer[iloc]=='*')
-	    incr(iloc);
+        no_new_control_sequence = false;
+        initialize_etex_commands();
+        if (buffer[iloc] == '*')
+            incr(iloc);
     }
 }
 
@@ -694,7 +698,7 @@ In order to handle \.{\\everyeof} we need an array |eof_seen| of
 boolean variables.
 */
 
-boolean *eof_seen; /* has eof been seen? */
+boolean *eof_seen;              /* has eof been seen? */
 
 /*
 The |print_group| procedure prints the current level of grouping and
@@ -702,67 +706,70 @@ the name corresponding to |cur_group|.
 */
 
 void print_group(boolean e)
-{ 
+{
     switch (cur_group) {
-    case bottom_level: 
-	tprint("bottom level"); 
-	return;
-	break;
+    case bottom_level:
+        tprint("bottom level");
+        return;
+        break;
     case simple_group:
     case semi_simple_group:
-	if (cur_group==semi_simple_group)
-	    tprint("semi ");
-	tprint("simple");
-	break;;
+        if (cur_group == semi_simple_group)
+            tprint("semi ");
+        tprint("simple");
+        break;;
     case hbox_group:
     case adjusted_hbox_group:
-	if (cur_group==adjusted_hbox_group)
-	    tprint("adjusted ");
-	tprint("hbox");
-	break;
-    case vbox_group: 
-	tprint("vbox");
-	break;
-    case vtop_group: 
-	tprint("vtop");
-	break;
+        if (cur_group == adjusted_hbox_group)
+            tprint("adjusted ");
+        tprint("hbox");
+        break;
+    case vbox_group:
+        tprint("vbox");
+        break;
+    case vtop_group:
+        tprint("vtop");
+        break;
     case align_group:
     case no_align_group:
-	if (cur_group==no_align_group)
-	    tprint("no ");
-	tprint("align");
-	break;
-    case output_group: 
-	tprint("output");
-	break;
-    case disc_group: 
-	tprint("disc");
-	break;
-    case insert_group: 
-	tprint("insert");
-	break;
-    case vcenter_group: 
-	tprint("vcenter");
-	break;
+        if (cur_group == no_align_group)
+            tprint("no ");
+        tprint("align");
+        break;
+    case output_group:
+        tprint("output");
+        break;
+    case disc_group:
+        tprint("disc");
+        break;
+    case insert_group:
+        tprint("insert");
+        break;
+    case vcenter_group:
+        tprint("vcenter");
+        break;
     case math_group:
     case math_choice_group:
     case math_shift_group:
     case math_left_group:
-	tprint("math");
-	if (cur_group==math_choice_group) 
-	    tprint(" choice");
-	else if (cur_group==math_shift_group) 
-	    tprint(" shift");
-	else if (cur_group==math_left_group)
-	    tprint(" left");
-	break;
-    } /* there are no other cases */
-    tprint(" group (level "); 
-    print_int(cur_level); 
+        tprint("math");
+        if (cur_group == math_choice_group)
+            tprint(" choice");
+        else if (cur_group == math_shift_group)
+            tprint(" shift");
+        else if (cur_group == math_left_group)
+            tprint(" left");
+        break;
+    }                           /* there are no other cases */
+    tprint(" group (level ");
+    print_int(cur_level);
     print_char(')');
-    if (saved(-1)!=0) {
-	if (e) tprint(" entered at line "); else tprint(" at line ");
-	print_int(saved(-1));
+    if (saved(-1) != 0) {
+        if (e)
+            tprint(" entered at line ");
+        else
+            tprint(" at line ");
+        print_int(saved(-1));
     }
 }
 
@@ -772,13 +779,16 @@ begins (|e=false|) or ends (|e=true|) with |saved(-1)| containing the
 line number.
 */
 
-void group_trace(boolean e) 
+void group_trace(boolean e)
 {
-    begin_diagnostic(); 
+    begin_diagnostic();
     print_char('{');
-    if (e) tprint("leaving "); else tprint("entering ");
-    print_group(e); 
-    print_char('}'); 
+    if (e)
+        tprint("leaving ");
+    else
+        tprint("entering ");
+    print_group(e);
+    print_char('}');
     end_diagnostic(false);
 }
 
@@ -791,8 +801,8 @@ give a warning message when such anomalies occur, \eTeX\ uses the
 and |cond_ptr| values for each input file.
 */
 
-save_pointer *grp_stack; /* initial |cur_boundary| */
-halfword *if_stack; /* initial |cond_ptr| */
+save_pointer *grp_stack;        /* initial |cur_boundary| */
+halfword *if_stack;             /* initial |cond_ptr| */
 
 /*
 When a group ends that was apparently entered in a different input
@@ -806,38 +816,38 @@ recorded in the |name_field| of the |input_stack| only loosely
 synchronized with the |in_open| variable indexing |grp_stack|.
 */
 
-void group_warning (void)
-{ 
-    int i; /* index into |grp_stack| */
-    boolean w; /* do we need a warning? */
-    base_ptr=input_ptr; 
-    input_stack[base_ptr]=cur_input;   /* store current state */
-    i=in_open; 
-    w=false;
-    while ((grp_stack[i]==cur_boundary)&&(i>0)) {
-	/* Set variable |w| to indicate if this case should be reported */
-	/* This code scans the input stack in order to determine the type of the
-	   current input file. */
-	if (tracing_nesting>0) {
-	    while ((input_stack[base_ptr].state_field==token_list)||
-		   (input_stack[base_ptr].index_field>i)) 
-		decr(base_ptr);
-	    if (input_stack[base_ptr].name_field>17)  
-		w=true;
-	}
+void group_warning(void)
+{
+    int i;                      /* index into |grp_stack| */
+    boolean w;                  /* do we need a warning? */
+    base_ptr = input_ptr;
+    input_stack[base_ptr] = cur_input;  /* store current state */
+    i = in_open;
+    w = false;
+    while ((grp_stack[i] == cur_boundary) && (i > 0)) {
+        /* Set variable |w| to indicate if this case should be reported */
+        /* This code scans the input stack in order to determine the type of the
+           current input file. */
+        if (tracing_nesting > 0) {
+            while ((input_stack[base_ptr].state_field == token_list) ||
+                   (input_stack[base_ptr].index_field > i))
+                decr(base_ptr);
+            if (input_stack[base_ptr].name_field > 17)
+                w = true;
+        }
 
-	grp_stack[i]=save_index(save_ptr); 
-	decr(i);
+        grp_stack[i] = save_index(save_ptr);
+        decr(i);
     }
     if (w) {
-	tprint_nl("Warning: end of "); 
-	print_group(true);
-	tprint(" of a different file"); 
-	print_ln();
-	if (tracing_nesting>1) 
-	    show_context();
-	if (history==spotless) 
-	    history=warning_issued;
+        tprint_nl("Warning: end of ");
+        print_group(true);
+        tprint(" of a different file");
+        print_ln();
+        if (tracing_nesting > 1)
+            show_context();
+        if (history == spotless)
+            history = warning_issued;
     }
 }
 
@@ -848,37 +858,37 @@ input file, the |if_warning| procedure is invoked in order to update the
 give a warning message (with the same complications as above).
 */
 
-void if_warning (void)
-{ 
-    int i; /* index into |if_stack| */
-    boolean w; /* do we need a warning? */
-    base_ptr=input_ptr; 
-    input_stack[base_ptr]=cur_input; /* store current state */
-    i=in_open; 
-    w=false;
-    while (if_stack[i]==cond_ptr) {
-	/* Set variable |w| to... */
-	if (tracing_nesting>0) {
-	    while ((input_stack[base_ptr].state_field==token_list)||
-		   (input_stack[base_ptr].index_field>i)) 
-		decr(base_ptr);
-	    if (input_stack[base_ptr].name_field>17)  
-		w=true;
-	}
+void if_warning(void)
+{
+    int i;                      /* index into |if_stack| */
+    boolean w;                  /* do we need a warning? */
+    base_ptr = input_ptr;
+    input_stack[base_ptr] = cur_input;  /* store current state */
+    i = in_open;
+    w = false;
+    while (if_stack[i] == cond_ptr) {
+        /* Set variable |w| to... */
+        if (tracing_nesting > 0) {
+            while ((input_stack[base_ptr].state_field == token_list) ||
+                   (input_stack[base_ptr].index_field > i))
+                decr(base_ptr);
+            if (input_stack[base_ptr].name_field > 17)
+                w = true;
+        }
 
-	if_stack[i]=vlink(cond_ptr); 
-	decr(i);
+        if_stack[i] = vlink(cond_ptr);
+        decr(i);
     }
     if (w) {
-	tprint_nl("Warning: end of "); 
-	print_cmd_chr(if_test_cmd,cur_if);
-	print_if_line(if_line); 
-	tprint(" of a different file"); 
-	print_ln();
-	if (tracing_nesting>1) 
-	    show_context();
-	if (history==spotless) 
-	    history=warning_issued;
+        tprint_nl("Warning: end of ");
+        print_cmd_chr(if_test_cmd, cur_if);
+        print_if_line(if_line);
+        tprint(" of a different file");
+        print_ln();
+        if (tracing_nesting > 1)
+            show_context();
+        if (history == spotless)
+            history = warning_issued;
     }
 }
 
@@ -888,55 +898,55 @@ and some groups entered or conditionals started while reading from that
 file are still incomplete.
 */
 
-void file_warning (void)
+void file_warning(void)
 {
-    halfword p; /* saved value of |save_ptr| or |cond_ptr| */
-    quarterword l; /* saved value of |cur_level| or |if_limit| */
-    quarterword c; /* saved value of |cur_group| or |cur_if| */
-    integer i; /* saved value of |if_line| */
-    p=save_ptr; 
-    l=cur_level; 
-    c=cur_group; 
-    save_ptr=cur_boundary;
-    while (grp_stack[in_open]!=save_ptr) {
-	decr(cur_level);
-	tprint_nl("Warning: end of file when ");
-	print_group(true); 
-	tprint(" is incomplete");
-	cur_group=save_level(save_ptr); 
-	save_ptr=save_index(save_ptr);
+    halfword p;                 /* saved value of |save_ptr| or |cond_ptr| */
+    quarterword l;              /* saved value of |cur_level| or |if_limit| */
+    quarterword c;              /* saved value of |cur_group| or |cur_if| */
+    integer i;                  /* saved value of |if_line| */
+    p = save_ptr;
+    l = cur_level;
+    c = cur_group;
+    save_ptr = cur_boundary;
+    while (grp_stack[in_open] != save_ptr) {
+        decr(cur_level);
+        tprint_nl("Warning: end of file when ");
+        print_group(true);
+        tprint(" is incomplete");
+        cur_group = save_level(save_ptr);
+        save_ptr = save_index(save_ptr);
     }
-    save_ptr=p; 
-    cur_level=l; 
-    cur_group=c; /* restore old values */
-    p=cond_ptr; 
-    l=if_limit; 
-    c=cur_if; 
-    i=if_line;
-    while (if_stack[in_open]!=cond_ptr) {
-	tprint_nl("Warning: end of file when ");
-	print_cmd_chr(if_test_cmd,cur_if);
-	if (if_limit==fi_code) 
-	    tprint_esc("else");
-	print_if_line(if_line); 
-	tprint(" is incomplete");
-	if_line=if_line_field(cond_ptr); 
-	cur_if=if_limit_subtype(cond_ptr);
-	if_limit=if_limit_type(cond_ptr); 
-	cond_ptr=vlink(cond_ptr);
+    save_ptr = p;
+    cur_level = l;
+    cur_group = c;              /* restore old values */
+    p = cond_ptr;
+    l = if_limit;
+    c = cur_if;
+    i = if_line;
+    while (if_stack[in_open] != cond_ptr) {
+        tprint_nl("Warning: end of file when ");
+        print_cmd_chr(if_test_cmd, cur_if);
+        if (if_limit == fi_code)
+            tprint_esc("else");
+        print_if_line(if_line);
+        tprint(" is incomplete");
+        if_line = if_line_field(cond_ptr);
+        cur_if = if_limit_subtype(cond_ptr);
+        if_limit = if_limit_type(cond_ptr);
+        cond_ptr = vlink(cond_ptr);
     }
-    cond_ptr=p; 
-    if_limit=l; 
-    cur_if=c; 
-    if_line=i; /* restore old values */
+    cond_ptr = p;
+    if_limit = l;
+    cur_if = c;
+    if_line = i;                /* restore old values */
     print_ln();
-    if (tracing_nesting>1) 
-	show_context();
-    if (history==spotless) 
-	history=warning_issued;
+    if (tracing_nesting > 1)
+        show_context();
+    if (history == spotless)
+        history = warning_issued;
 }
 
-halfword last_line_fill; /* the |par_fill_skip| glue node of the new paragraph */
+halfword last_line_fill;        /* the |par_fill_skip| glue node of the new paragraph */
 
 /*
 The lua interface needs some extra pascal functions. The functions
@@ -951,126 +961,145 @@ pascal defines are not available.
 #define get_tex_attribute_register(j) attribute(j)
 #define get_tex_box_register(j) box(j)
 
-integer set_tex_dimen_register (integer j, scaled v)
+integer set_tex_dimen_register(integer j, scaled v)
 {
-    int a; /* return non-nil for error */
-    if (global_defs>0) a=4; else a=0;
-    word_define(j+scaled_base,v);
+    int a;                      /* return non-nil for error */
+    if (global_defs > 0)
+        a = 4;
+    else
+        a = 0;
+    word_define(j + scaled_base, v);
     return 0;
 }
 
-integer set_tex_skip_register (integer j, halfword v)
+integer set_tex_skip_register(integer j, halfword v)
 {
-    int a; /* return non-nil for error */
-    if (global_defs>0) a=4; else a=0;
+    int a;                      /* return non-nil for error */
+    if (global_defs > 0)
+        a = 4;
+    else
+        a = 0;
     if (type(v) != glue_spec_node)
-	return 1;
-    word_define(j+skip_base,v);
+        return 1;
+    word_define(j + skip_base, v);
     return 0;
 }
 
-integer set_tex_count_register (integer j, scaled v)
+integer set_tex_count_register(integer j, scaled v)
 {
-    int a; /* return non-nil for error */
-    if (global_defs>0) a=4; else a=0;
-    word_define(j+count_base,v);
-    return 0;
-}
-integer set_tex_box_register (integer j, scaled v)
-{
-    int a; /* return non-nil for error */
-    if (global_defs>0) a=4; else a=0;
-    define(j+box_base,box_ref_cmd,v);
+    int a;                      /* return non-nil for error */
+    if (global_defs > 0)
+        a = 4;
+    else
+        a = 0;
+    word_define(j + count_base, v);
     return 0;
 }
 
-integer set_tex_attribute_register  (integer j, scaled v)
+integer set_tex_box_register(integer j, scaled v)
 {
-    int a; /* return non-nil for error */
-    if (global_defs>0) a=4; else a=0;
-    if (j>max_used_attr) 
-	max_used_attr=j;
-    attr_list_cache=cache_disabled;
-    word_define(j+attribute_base,v);
+    int a;                      /* return non-nil for error */
+    if (global_defs > 0)
+        a = 4;
+    else
+        a = 0;
+    define(j + box_base, box_ref_cmd, v);
     return 0;
 }
 
-integer get_tex_toks_register (integer j)
+integer set_tex_attribute_register(integer j, scaled v)
+{
+    int a;                      /* return non-nil for error */
+    if (global_defs > 0)
+        a = 4;
+    else
+        a = 0;
+    if (j > max_used_attr)
+        max_used_attr = j;
+    attr_list_cache = cache_disabled;
+    word_define(j + attribute_base, v);
+    return 0;
+}
+
+integer get_tex_toks_register(integer j)
 {
     str_number s;
-    s=get_nullstr();
+    s = get_nullstr();
     if (toks(j) != null) {
         s = tokens_to_string(toks(j));
     }
     return s;
 }
 
-integer set_tex_toks_register (integer j, str_number s)
+integer set_tex_toks_register(integer j, str_number s)
 {
     pool_pointer s_pool_ptr;
     halfword ref;
     int a;
     s_pool_ptr = pool_ptr;
-    pool_ptr = str_start_macro(s+1);
+    pool_ptr = str_start_macro(s + 1);
     ref = get_avail();
-    (void)str_toks(str_start_macro(s));
+    (void) str_toks(str_start_macro(s));
     pool_ptr = s_pool_ptr;
-    set_token_ref_count(ref,0);
+    set_token_ref_count(ref, 0);
     set_token_link(ref, token_link(temp_token_head));
-    if (global_defs>0) a=4; else a=0;
-    define(j+toks_base,call_cmd,ref);
+    if (global_defs > 0)
+        a = 4;
+    else
+        a = 0;
+    define(j + toks_base, call_cmd, ref);
     flush_str(s);
     return 0;
 }
 
-scaled get_tex_box_width (integer j)
-{ 
+scaled get_tex_box_width(integer j)
+{
     halfword q = box(j);
-    if (q!= null)
-	return width(q);
+    if (q != null)
+        return width(q);
     return 0;
 }
 
-integer set_tex_box_width (integer j, scaled v)
+integer set_tex_box_width(integer j, scaled v)
 {
     halfword q = box(j);
-    if (q==null)
-	return 1;
+    if (q == null)
+        return 1;
     width(q) = v;
     return 0;
 }
 
-scaled get_tex_box_height (integer j)
-{ 
+scaled get_tex_box_height(integer j)
+{
     halfword q = box(j);
-    if (q!= null)
-	return height(q);
+    if (q != null)
+        return height(q);
     return 0;
 }
 
-integer set_tex_box_height (integer j, scaled v)
+integer set_tex_box_height(integer j, scaled v)
 {
     halfword q = box(j);
-    if (q==null)
-	return 1;
+    if (q == null)
+        return 1;
     height(q) = v;
     return 0;
 }
 
 
-scaled get_tex_box_depth (integer j)
-{ 
+scaled get_tex_box_depth(integer j)
+{
     halfword q = box(j);
-    if (q!= null)
-	return depth(q);
+    if (q != null)
+        return depth(q);
     return 0;
 }
 
-integer set_tex_box_depth (integer j, scaled v)
+integer set_tex_box_depth(integer j, scaled v)
 {
     halfword q = box(j);
-    if (q==null)
-	return 1;
+    if (q == null)
+        return 1;
     depth(q) = v;
     return 0;
 }
@@ -1124,7 +1153,7 @@ the same memory storage. |synctexoffset| is initialized to
 the correct value when quite everything is initialized.
 */
 
-integer synctexoffset; /* holds the true value of |synctex_code| */
+integer synctexoffset;          /* holds the true value of |synctex_code| */
 
 /*
 Synchronization is achieved with the help of an auxiliary file named
@@ -1220,10 +1249,10 @@ system-dependent section allows easy integration of Web2c and e-\TeX, etc.)
 @^<system dependencies@>
 */
 
-pool_pointer edit_name_start; /* where the filename to switch to starts */
-integer edit_name_length, edit_line; /* what line to start editing at */
-int ipcon; /* level of IPC action, 0 for none [default] */
-boolean stop_at_space; /* whether |more_name| returns false for space */
+pool_pointer edit_name_start;   /* where the filename to switch to starts */
+integer edit_name_length, edit_line;    /* what line to start editing at */
+int ipcon;                      /* level of IPC action, 0 for none [default] */
+boolean stop_at_space;          /* whether |more_name| returns false for space */
 
 /*
 The |edit_name_start| will be set to point into |str_pool| somewhere after
@@ -1243,5 +1272,4 @@ char *output_comment;
 
 /* Are we printing extra info as we read the format file? */
 
-boolean debug_format_file; 
-
+boolean debug_format_file;

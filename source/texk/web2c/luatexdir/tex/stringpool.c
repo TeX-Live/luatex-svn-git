@@ -53,7 +53,7 @@ into some integer greater than~|STRING_OFFSET|.
 packed_ASCII_code *str_pool;    /* the characters */
 pool_pointer *str_start;        /* the starting pointers */
 pool_pointer pool_ptr;          /* first unused position in |str_pool| */
-str_number str_ptr = (STRING_OFFSET+1);  /* number of the current string being created */
+str_number str_ptr = (STRING_OFFSET + 1);       /* number of the current string being created */
 pool_pointer init_pool_ptr;     /* the starting value of |pool_ptr| */
 str_number init_str_ptr;        /* the starting value of |str_ptr| */
 
@@ -354,4 +354,3 @@ str_number slow_make_string(void)
     }
     return t;
 }
-

@@ -47,57 +47,57 @@ before \TeX's tables are loaded.
 */
 
 str_number format_ident;
-str_number format_name; /* principal file name */
+str_number format_name;         /* principal file name */
 
 /*
 Format files consist of |memory_word| items, and we use the following
 macros to dump words of different types:
 */
 
-FILE *fmt_file; /* for input or output of format information */
+FILE *fmt_file;                 /* for input or output of format information */
 
 
-void store_fmt_file (void)
+void store_fmt_file(void)
 {
-    integer j,k,l; /* all-purpose indices */
-    halfword p; /* all-purpose pointer */
-    integer x; /* something to dump */
+    integer j, k, l;            /* all-purpose indices */
+    halfword p;                 /* all-purpose pointer */
+    integer x;                  /* something to dump */
     char *format_engine;
     /* If dumping is not allowed, abort */
     /* The user is not allowed to dump a format file unless |save_ptr=0|.
        This condition implies that |cur_level=level_one|, hence
        the |xeq_level| array is constant and it need not be dumped. */
-    if (save_ptr!=0) {
-	print_err("You can't dump inside a group");
-	help1("`{...\\dump}' is a no-no."); 
-	succumb();
+    if (save_ptr != 0) {
+        print_err("You can't dump inside a group");
+        help1("`{...\\dump}' is a no-no.");
+        succumb();
     }
 
     /* Create the |format_ident|, open the format file, and inform the user 
        that dumping has begun */
-    selector=new_string;
-    tprint(" (format="); 
-    print(job_name); 
+    selector = new_string;
+    tprint(" (format=");
+    print(job_name);
     print_char(' ');
-    print_int(int_par(year_code)); 
+    print_int(int_par(year_code));
     print_char('.');
-    print_int(int_par(month_code)); 
-    print_char('.'); 
-    print_int(int_par(day_code)); 
+    print_int(int_par(month_code));
+    print_char('.');
+    print_int(int_par(day_code));
     print_char(')');
     str_room(2);
-    format_ident=make_string();
+    format_ident = make_string();
     print(job_name);
-    format_name=make_string();
-    if (interaction==batch_mode) 
-	selector=log_only;
-    else 
-	selector=term_and_log;
+    format_name = make_string();
+    if (interaction == batch_mode)
+        selector = log_only;
+    else
+        selector = term_and_log;
     pack_job_name(format_extension);
     while (!w_open_out(fmt_file))
-	prompt_file_name("format file name",format_extension);
+        prompt_file_name("format file name", format_extension);
     tprint_nl("Beginning to dump on file ");
-    slow_print(w_make_name_string(fmt_file)); 
+    slow_print(w_make_name_string(fmt_file));
     flush_string();
     tprint_nl("");
     slow_print(format_ident);
@@ -106,18 +106,18 @@ void store_fmt_file (void)
     /* The next few sections of the program should make it clear how we use the
        dump/undump macros. */
 
-    dump_int(0x57325458);  /* Web2C \TeX's magic constant: "W2TX" */
+    dump_int(0x57325458);       /* Web2C \TeX's magic constant: "W2TX" */
     /* Align engine to 4 bytes with one or more trailing NUL */
-    x=strlen(engine_name);
-    format_engine=xmalloc(x+4);
+    x = strlen(engine_name);
+    format_engine = xmalloc(x + 4);
     strcpy(format_engine, stringcast(engine_name));
-    for (k=x;k<=x+3;k++) 
-	format_engine[k]=0;
-    x=x+4-(x % 4);
+    for (k = x; k <= x + 3; k++)
+        format_engine[k] = 0;
+    x = x + 4 - (x % 4);
     dump_int(x);
     dump_things(format_engine[0], x);
     xfree(format_engine);
-    dump_int(0x57325458); /* TODO HM, what checksum would make sense? */
+    dump_int(0x57325458);       /* TODO HM, what checksum would make sense? */
     dump_int(max_halfword);
     dump_int(hash_high);
     dump_int(eqtb_size);
@@ -125,11 +125,11 @@ void store_fmt_file (void)
 
     /* Dump the string pool */
     dump_int(pool_ptr);
-    dump_int((str_ptr-STRING_OFFSET));
-    dump_things(str_start[0], (str_ptr-STRING_OFFSET)+1);
+    dump_int((str_ptr - STRING_OFFSET));
+    dump_things(str_start[0], (str_ptr - STRING_OFFSET) + 1);
     dump_things(str_pool[0], pool_ptr);
-    print_ln(); 
-    print_int(str_ptr-STRING_OFFSET); 
+    print_ln();
+    print_int(str_ptr - STRING_OFFSET);
     tprint(" strings of total length ");
     print_int(pool_ptr);
 
@@ -140,95 +140,96 @@ void store_fmt_file (void)
 
        We recompute |var_used| and |dyn_used|, so that \.{INITEX} dumps valid
        information even when it has not been gathering statistics.
-    */
+     */
     dump_node_mem();
-    dump_int(temp_token_head); 
+    dump_int(temp_token_head);
     dump_int(hold_token_head);
-    dump_int(omit_template); 
+    dump_int(omit_template);
     dump_int(null_list);
-    dump_int(backup_head); 
+    dump_int(backup_head);
     dump_int(garbage);
-    dump_int(fix_mem_min); 
+    dump_int(fix_mem_min);
     dump_int(fix_mem_max);
     dump_int(fix_mem_end);
     dump_int(avail);
-    dyn_used=fix_mem_end+1;
-    dump_things(fixmem[fix_mem_min], fix_mem_end-fix_mem_min+1);
-    x=x+(fix_mem_end+1-fix_mem_min);
-    p=avail;
-    while (p!=null) {
-	decr(dyn_used); 
-	p=token_link(p);
+    dyn_used = fix_mem_end + 1;
+    dump_things(fixmem[fix_mem_min], fix_mem_end - fix_mem_min + 1);
+    x = x + (fix_mem_end + 1 - fix_mem_min);
+    p = avail;
+    while (p != null) {
+        decr(dyn_used);
+        p = token_link(p);
     }
     dump_int(dyn_used);
-    print_ln(); 
+    print_ln();
     print_int(x);
     tprint(" memory locations dumped; current usage is ");
-    print_int(var_used); 
-    print_char('&'); 
+    print_int(var_used);
+    print_char('&');
     print_int(dyn_used);
 
     /* Dump the table of equivalents */
     /* Dump regions 1 to 4 of |eqtb| */
     /*The table of equivalents usually contains repeated information, so we dump it
-      in compressed form: The sequence of $n+2$ values $(n,x_1,\ldots,x_n,m)$ in the
-      format file represents $n+m$ consecutive entries of |eqtb|, with |m| extra
-      copies of $x_n$, namely $(x_1,\ldots,x_n,x_n,\ldots,x_n)$.
-    */
-    k=null_cs;
-    do { 
-	j=k;
-	while (j<int_base-1) {
-	    if ((equiv(j)==equiv(j+1))&&(eq_type(j)==eq_type(j+1))&&
-		(eq_level(j)==eq_level(j+1))) 
-		goto FOUND1;
-	    incr(j);
-	}
-	l=int_base; 
-	goto DONE1; /* |j=int_base-1| */
-    FOUND1: 
-	incr(j); 
-	l=j;
-	while (j<int_base-1) {
-	    if ((equiv(j)!=equiv(j+1))||(eq_type(j)!=eq_type(j+1))||
-		(eq_level(j)!=eq_level(j+1))) 
-		goto DONE1;
-	    incr(j);
-	}
-    DONE1:
-	dump_int(l-k);
-	dump_things(eqtb[k], l-k);
-	k=j+1; 
-	dump_int(k-l);
-    } while (k!=int_base);
+       in compressed form: The sequence of $n+2$ values $(n,x_1,\ldots,x_n,m)$ in the
+       format file represents $n+m$ consecutive entries of |eqtb|, with |m| extra
+       copies of $x_n$, namely $(x_1,\ldots,x_n,x_n,\ldots,x_n)$.
+     */
+    k = null_cs;
+    do {
+        j = k;
+        while (j < int_base - 1) {
+            if ((equiv(j) == equiv(j + 1)) && (eq_type(j) == eq_type(j + 1)) &&
+                (eq_level(j) == eq_level(j + 1)))
+                goto FOUND1;
+            incr(j);
+        }
+        l = int_base;
+        goto DONE1;             /* |j=int_base-1| */
+      FOUND1:
+        incr(j);
+        l = j;
+        while (j < int_base - 1) {
+            if ((equiv(j) != equiv(j + 1)) || (eq_type(j) != eq_type(j + 1)) ||
+                (eq_level(j) != eq_level(j + 1)))
+                goto DONE1;
+            incr(j);
+        }
+      DONE1:
+        dump_int(l - k);
+        dump_things(eqtb[k], l - k);
+        k = j + 1;
+        dump_int(k - l);
+    } while (k != int_base);
 
     /* <Dump regions 5 and 6 of |eqtb|@> */
-    do{
-	j=k;
-	while (j<eqtb_size) {
-	    if (eqtb[j].cint==eqtb[j+1].cint)
-		goto FOUND2;
-	    incr(j);
-	}
-	l=eqtb_size+1; 
-	goto DONE2; /* |j=eqtb_size| */
-    FOUND2: 
-	incr(j); 
-	l=j;
-	while (j<eqtb_size) {
-	    if (eqtb[j].cint!=eqtb[j+1].cint) 
-		goto DONE2;
-	    incr(j);
-	}
-    DONE2:
-	dump_int(l-k);
-	dump_things(eqtb[k], l-k);
-	k=j+1; dump_int(k-l);
-    } while (k<=eqtb_size);
-    if (hash_high>0) 
-	dump_things(eqtb[eqtb_size+1],hash_high); /* dump |hash_extra| part */
+    do {
+        j = k;
+        while (j < eqtb_size) {
+            if (eqtb[j].cint == eqtb[j + 1].cint)
+                goto FOUND2;
+            incr(j);
+        }
+        l = eqtb_size + 1;
+        goto DONE2;             /* |j=eqtb_size| */
+      FOUND2:
+        incr(j);
+        l = j;
+        while (j < eqtb_size) {
+            if (eqtb[j].cint != eqtb[j + 1].cint)
+                goto DONE2;
+            incr(j);
+        }
+      DONE2:
+        dump_int(l - k);
+        dump_things(eqtb[k], l - k);
+        k = j + 1;
+        dump_int(k - l);
+    } while (k <= eqtb_size);
+    if (hash_high > 0)
+        dump_things(eqtb[eqtb_size + 1], hash_high);    /* dump |hash_extra| part */
 
-    dump_int(par_loc); 
+    dump_int(par_loc);
     dump_int(write_loc);
     dump_math_codes();
     dump_text_codes();
@@ -237,47 +238,48 @@ void store_fmt_file (void)
        region is usually sparse. When |text(p)<>0| for |p<=hash_used|, we output
        two words, |p| and |hash[p]|. The hash table is, of course, densely packed
        for |p>=hash_used|, so the remaining entries are output in a~block.
-    */
+     */
     dump_primitives();
-    dump_int(hash_used); 
-    cs_count=frozen_control_sequence-1-hash_used+hash_high;
-    for (p=hash_base;p<=hash_used;p++) {
-	if (text(p)!=0) {
-	    dump_int(p); 
-	    dump_hh(hash[p]); 
-	    incr(cs_count);
-	}
+    dump_int(hash_used);
+    cs_count = frozen_control_sequence - 1 - hash_used + hash_high;
+    for (p = hash_base; p <= hash_used; p++) {
+        if (text(p) != 0) {
+            dump_int(p);
+            dump_hh(hash[p]);
+            incr(cs_count);
+        }
     }
-    dump_things(hash[hash_used+1], undefined_control_sequence-1-hash_used);
-    if (hash_high>0) 
-	dump_things(hash[eqtb_size+1], hash_high);
+    dump_things(hash[hash_used + 1],
+                undefined_control_sequence - 1 - hash_used);
+    if (hash_high > 0)
+        dump_things(hash[eqtb_size + 1], hash_high);
     dump_int(cs_count);
-    print_ln(); 
-    print_int(cs_count); 
+    print_ln();
+    print_int(cs_count);
     tprint(" multiletter control sequences");
 
     /* Dump the font information */
     dump_int(max_font_id());
-    for (k=0;k<=max_font_id();k++) {
-	/* Dump the array info for internal font number |k| */
-	dump_font(k);
-	tprint_nl("\\font"); 
-	print_esc(font_id_text(k)); 
-	print_char('=');
-	print_file_name(tex_font_name(k),tex_font_area(k),get_nullstr());
-	flush_string(); 
-	flush_string();
-	if (font_size(k)!=font_dsize(k)) {
-	    tprint(" at ");
-	    print_scaled(font_size(k)); 
-	    tprint("pt");
-	}
+    for (k = 0; k <= max_font_id(); k++) {
+        /* Dump the array info for internal font number |k| */
+        dump_font(k);
+        tprint_nl("\\font");
+        print_esc(font_id_text(k));
+        print_char('=');
+        print_file_name(tex_font_name(k), tex_font_area(k), get_nullstr());
+        flush_string();
+        flush_string();
+        if (font_size(k) != font_dsize(k)) {
+            tprint(" at ");
+            print_scaled(font_size(k));
+            tprint("pt");
+        }
     }
-    print_ln(); 
-    print_int(max_font_id()); 
+    print_ln();
+    print_int(max_font_id());
     tprint(" preloaded font");
-    if (max_font_id()!=1) 
-	print_char('s');
+    if (max_font_id() != 1)
+        print_char('s');
     dump_math_data();
 
     /* Dump the ocp information */
@@ -292,13 +294,13 @@ void store_fmt_file (void)
     dump_pdftex_data(static_pdf);
 
     /* Dump a couple more things and the closing check word */
-    dump_int(interaction); 
-    dump_int(format_ident); 
-    dump_int(format_name); 
+    dump_int(interaction);
+    dump_int(format_ident);
+    dump_int(format_name);
     dump_int(69069);
     /* We have already printed a lot of statistics, so we set |tracing_stats:=0|
        to prevent them from appearing again. */
-    int_par(tracing_stats_code)=0;
+    int_par(tracing_stats_code) = 0;
 
     /* Dump the lua bytecodes */
     dump_luac_registers();
@@ -348,91 +350,94 @@ read an integer value |x| that is supposed to be in the range |a<=x<=b|.
     } while (0)
 
 
-boolean load_fmt_file (void)
+boolean load_fmt_file(void)
 {
-    integer j,k; /* all-purpose indices */
-    halfword p; /* all-purpose pointer */
-    integer x; /* something undumped */
+    integer j, k;               /* all-purpose indices */
+    halfword p;                 /* all-purpose pointer */
+    integer x;                  /* something undumped */
     char *format_engine;
     /* Undump constants for consistency check */
     if (ini_version) {
-	libcfree(str_pool); 
-	libcfree(str_start);
-	libcfree(hash); 
-	libcfree(eqtb); 
-	libcfree(fixmem); 
-	libcfree(varmemcast(varmem));
+        libcfree(str_pool);
+        libcfree(str_start);
+        libcfree(hash);
+        libcfree(eqtb);
+        libcfree(fixmem);
+        libcfree(varmemcast(varmem));
     }
     undump_int(x);
-    format_debug("format magic number",x);
-    if (x!=0x57325458) 
-	goto BAD_FMT; /* not a format file */
+    format_debug("format magic number", x);
+    if (x != 0x57325458)
+        goto BAD_FMT;           /* not a format file */
     undump_int(x);
-    format_debug("engine name size",x);
-    if ((x<0) || (x>256))
-	goto  BAD_FMT; /* corrupted format file */
+    format_debug("engine name size", x);
+    if ((x < 0) || (x > 256))
+        goto BAD_FMT;           /* corrupted format file */
 
-    format_engine=xmalloc(x);
+    format_engine = xmalloc(x);
     undump_things(format_engine[0], x);
-    format_engine[x-1]=0; /* force string termination, just in case */
+    format_engine[x - 1] = 0;   /* force string termination, just in case */
     if (strcmp(engine_name, format_engine)) {
-	wake_up_terminal();
-	wterm_cr();
-	fprintf(term_out,"---! %s was written by %s",(char *)(nameoffile+1), format_engine);
-	xfree(format_engine);
-	goto BAD_FMT;
+        wake_up_terminal();
+        wterm_cr();
+        fprintf(term_out, "---! %s was written by %s",
+                (char *) (nameoffile + 1), format_engine);
+        xfree(format_engine);
+        goto BAD_FMT;
     }
     xfree(format_engine);
     undump_int(x);
-    format_debug("string pool checksum",x);
-    if (x!=0x57325458) { /* todo: @$ */	/* check that strings are the same */
-	wake_up_terminal();
-	wterm_cr();
-	fprintf(term_out,"---! %s was written by a different version",(char *)(nameoffile+1));
-	goto BAD_FMT;
+    format_debug("string pool checksum", x);
+    if (x != 0x57325458) {      /* todo: @$ *//* check that strings are the same */
+        wake_up_terminal();
+        wterm_cr();
+        fprintf(term_out, "---! %s was written by a different version",
+                (char *) (nameoffile + 1));
+        goto BAD_FMT;
     }
     undump_int(x);
-    if (x!=max_halfword) 
-	goto BAD_FMT; /* check |max_halfword| */
+    if (x != max_halfword)
+        goto BAD_FMT;           /* check |max_halfword| */
     undump_int(hash_high);
-    if ((hash_high<0)||(hash_high>sup_hash_extra)) 
-	goto BAD_FMT;
-    if (hash_extra<hash_high) 
-	hash_extra=hash_high;
-    eqtb_top=eqtb_size+hash_extra;
-    if (hash_extra==0) 
-        hash_top=undefined_control_sequence;
+    if ((hash_high < 0) || (hash_high > sup_hash_extra))
+        goto BAD_FMT;
+    if (hash_extra < hash_high)
+        hash_extra = hash_high;
+    eqtb_top = eqtb_size + hash_extra;
+    if (hash_extra == 0)
+        hash_top = undefined_control_sequence;
     else
-        hash_top=eqtb_top;
-    hash=xmallocarray(two_halves,1+hash_top);
-    memset(hash,0,sizeof(two_halves)*(hash_top+1));
-    eqtb=xmallocarray (memory_word,eqtb_top+1);
-    set_eq_type(undefined_control_sequence,undefined_cs_cmd);
-    set_equiv(undefined_control_sequence,null);
-    set_eq_level(undefined_control_sequence,level_zero);
-    for (x=eqtb_size+1;x<=eqtb_top;x++)
-	eqtb[x]=eqtb[undefined_control_sequence];
+        hash_top = eqtb_top;
+    hash = xmallocarray(two_halves, 1 + hash_top);
+    memset(hash, 0, sizeof(two_halves) * (hash_top + 1));
+    eqtb = xmallocarray(memory_word, eqtb_top + 1);
+    set_eq_type(undefined_control_sequence, undefined_cs_cmd);
+    set_equiv(undefined_control_sequence, null);
+    set_eq_level(undefined_control_sequence, level_zero);
+    for (x = eqtb_size + 1; x <= eqtb_top; x++)
+        eqtb[x] = eqtb[undefined_control_sequence];
     undump_int(x);
-    if (x!=eqtb_size) 
-	goto BAD_FMT;
+    if (x != eqtb_size)
+        goto BAD_FMT;
     undump_int(x);
-    if (x!=hash_prime) 
-	goto BAD_FMT;
+    if (x != hash_prime)
+        goto BAD_FMT;
 
     /* Undump the string pool */
-    undump_size(0,sup_pool_size-pool_free,"string pool size",pool_ptr);
-    if (pool_size<pool_ptr+pool_free) 
-	pool_size=pool_ptr+pool_free;
-    undump_size(0,sup_max_strings-strings_free,"sup strings",str_ptr);
-    if (max_strings<str_ptr+strings_free)
-	max_strings=str_ptr+strings_free;
-    str_start=xmallocarray(pool_pointer, max_strings);
-    str_ptr=str_ptr + STRING_OFFSET;
-    undump_checked_things(0, pool_ptr, str_start[0], (unsigned)((str_ptr-STRING_OFFSET)+1));
-    str_pool=xmallocarray(packed_ASCII_code, pool_size);
+    undump_size(0, sup_pool_size - pool_free, "string pool size", pool_ptr);
+    if (pool_size < pool_ptr + pool_free)
+        pool_size = pool_ptr + pool_free;
+    undump_size(0, sup_max_strings - strings_free, "sup strings", str_ptr);
+    if (max_strings < str_ptr + strings_free)
+        max_strings = str_ptr + strings_free;
+    str_start = xmallocarray(pool_pointer, max_strings);
+    str_ptr = str_ptr + STRING_OFFSET;
+    undump_checked_things(0, pool_ptr, str_start[0],
+                          (unsigned) ((str_ptr - STRING_OFFSET) + 1));
+    str_pool = xmallocarray(packed_ASCII_code, pool_size);
     undump_things(str_pool[0], pool_ptr);
-    init_str_ptr=str_ptr; 
-    init_pool_ptr=pool_ptr;
+    init_str_ptr = str_ptr;
+    init_pool_ptr = pool_ptr;
 
     /* Undump the dynamic memory */
     undump_node_mem();
@@ -444,61 +449,62 @@ boolean load_fmt_file (void)
     undump_int(garbage);
     undump_int(fix_mem_min);
     undump_int(fix_mem_max);
-    fixmem = xmallocarray (smemory_word, fix_mem_max+1);
-    memset (voidcast(fixmem),0,(fix_mem_max+1)*sizeof(smemory_word));
+    fixmem = xmallocarray(smemory_word, fix_mem_max + 1);
+    memset(voidcast(fixmem), 0, (fix_mem_max + 1) * sizeof(smemory_word));
     undump_int(fix_mem_end);
     undump_int(avail);
-    undump_things (fixmem[fix_mem_min], fix_mem_end-fix_mem_min+1);
+    undump_things(fixmem[fix_mem_min], fix_mem_end - fix_mem_min + 1);
     undump_int(dyn_used);
 
     /* Undump the table of equivalents */
     /* Undump regions 1 to 6 of |eqtb| */
-    k=null_cs;
+    k = null_cs;
     do {
-	undump_int(x);
-	if ((x<1)||(k+x>eqtb_size+1)) 
-	    goto BAD_FMT;
-	undump_things(eqtb[k], x);
-	k=k+x;
-	undump_int(x);
-	if ((x<0)||(k+x>eqtb_size+1)) 
-	    goto BAD_FMT;
-	for (j=k;j<=k+x-1;j++) 
-	    eqtb[j]=eqtb[k-1];
-	k=k+x;
-    } while (k<=eqtb_size);
-    if (hash_high>0)     /* undump |hash_extra| part */
-	undump_things(eqtb[eqtb_size+1],hash_high);
+        undump_int(x);
+        if ((x < 1) || (k + x > eqtb_size + 1))
+            goto BAD_FMT;
+        undump_things(eqtb[k], x);
+        k = k + x;
+        undump_int(x);
+        if ((x < 0) || (k + x > eqtb_size + 1))
+            goto BAD_FMT;
+        for (j = k; j <= k + x - 1; j++)
+            eqtb[j] = eqtb[k - 1];
+        k = k + x;
+    } while (k <= eqtb_size);
+    if (hash_high > 0)          /* undump |hash_extra| part */
+        undump_things(eqtb[eqtb_size + 1], hash_high);
 
-    undump(hash_base,hash_top,par_loc);
-    par_token=cs_token_flag+par_loc;
-    undump(hash_base,hash_top,write_loc);
+    undump(hash_base, hash_top, par_loc);
+    par_token = cs_token_flag + par_loc;
+    undump(hash_base, hash_top, write_loc);
     undump_math_codes();
     undump_text_codes();
     /* Undump the hash table */
     undump_primitives();
-    undump(hash_base,frozen_control_sequence,hash_used); 
-    p=hash_base-1;
+    undump(hash_base, frozen_control_sequence, hash_used);
+    p = hash_base - 1;
     do {
-	undump(p+1,hash_used,p); 
-	undump_hh(hash[p]);
-    } while ( p!=hash_used );
-    undump_things (hash[hash_used+1], undefined_control_sequence-1-hash_used);
-    if (debug_format_file) 
-	print_csnames (hash_base, undefined_control_sequence - 1);
+        undump(p + 1, hash_used, p);
+        undump_hh(hash[p]);
+    } while (p != hash_used);
+    undump_things(hash[hash_used + 1],
+                  undefined_control_sequence - 1 - hash_used);
+    if (debug_format_file)
+        print_csnames(hash_base, undefined_control_sequence - 1);
     if (hash_high > 0) {
-	undump_things (hash[eqtb_size+1], hash_high);
-	if (debug_format_file)
-	    print_csnames (eqtb_size + 1, hash_high - (eqtb_size + 1));
+        undump_things(hash[eqtb_size + 1], hash_high);
+        if (debug_format_file)
+            print_csnames(eqtb_size + 1, hash_high - (eqtb_size + 1));
     }
     undump_int(cs_count);
 
     /* Undump the font information */
     undump_int(x);
     set_max_font_id(x);
-    for (k=0;k<=max_font_id();k++) {
-	/* Undump the array info for internal font number |k| */
-	undump_font(k);
+    for (k = 0; k <= max_font_id(); k++) {
+        /* Undump the array info for internal font number |k| */
+        undump_font(k);
     }
     undump_math_data();
     make_pdftex_banner();
@@ -515,26 +521,23 @@ boolean load_fmt_file (void)
     undump_pdftex_data(static_pdf);
 
     /* Undump a couple more things and the closing check word */
-    undump(batch_mode,error_stop_mode,interaction);
-    if (interactionoption!=unspecified_mode) 
-	interaction=interactionoption;
-    undump(0,str_ptr,format_ident);
-    undump(0,str_ptr,format_name);
+    undump(batch_mode, error_stop_mode, interaction);
+    if (interactionoption != unspecified_mode)
+        interaction = interactionoption;
+    undump(0, str_ptr, format_ident);
+    undump(0, str_ptr, format_name);
     undump_int(x);
-    if (x!=69069) 
-	goto BAD_FMT;
+    if (x != 69069)
+        goto BAD_FMT;
 
     /* Undump the lua bytecodes */
     undump_luac_registers();
 
     prev_depth = dimen_par(pdf_ignored_dimen_code);
-    return true; /* it worked! */
-BAD_FMT: 
+    return true;                /* it worked! */
+  BAD_FMT:
     wake_up_terminal();
     wterm_cr();
     fprintf(term_out, "(Fatal format file error; I'm stymied)");
     return false;
 }
-
-
-

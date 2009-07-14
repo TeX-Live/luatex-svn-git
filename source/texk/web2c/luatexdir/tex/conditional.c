@@ -170,7 +170,7 @@ static boolean test_for_cs(void)
     b = false;
     while (1) {
         get_x_token();
-        if (cur_cs != 0) 
+        if (cur_cs != 0)
             break;
         store_new_token(cur_tok);
     }

@@ -99,7 +99,7 @@ static boolean str_in_cstr(str_number s, char *r, unsigned i)
 void pdf_literal(PDF pdf, str_number s, integer literal_mode, boolean warn)
 {
     pool_pointer j = 0;         /* current character code position, initialized to make the compiler happy */
-    if (s >= STRING_OFFSET) {    /* needed for |out_save| */
+    if (s >= STRING_OFFSET) {   /* needed for |out_save| */
         j = str_start_macro(s);
         if (literal_mode == scan_special) {
             if (!(str_in_cstr(s, "PDF:", 0) || str_in_cstr(s, "pdf:", 0))) {

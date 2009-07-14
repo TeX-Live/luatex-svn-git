@@ -335,8 +335,7 @@ void initialize_pdf_output(PDF pdf)
             kpsesetprogramenabled(kpsepkformat, 1, kpsesrccmdline);
     }
     set_job_id(pdf, int_par(year_code),
-               int_par(month_code),
-               int_par(day_code), int_par(time_code));
+               int_par(month_code), int_par(day_code), int_par(time_code));
 
     if ((pdf_unique_resname > 0) && (pdf->resname_prefix == NULL))
         pdf->resname_prefix = get_resname_prefix(pdf);

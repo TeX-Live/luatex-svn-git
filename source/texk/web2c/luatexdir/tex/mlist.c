@@ -3577,7 +3577,7 @@ pointer math_spacing_glue(int l_type, int r_type, int mstyle)
     }
     if (x != 0) {
         pointer y;
-        if (x <= thick_mu_skip_code) {       /* trap thin/med/thick settings cf. old TeX */
+        if (x <= thick_mu_skip_code) {  /* trap thin/med/thick settings cf. old TeX */
             y = math_glue(glue_par(x), cur_mu);
             z = new_glue(y);
             glue_ref_count(y) = null;

@@ -780,8 +780,7 @@ halfword hpack(halfword p, scaled w, int m)
             if ((-x - total_shrink[normal] > dimen_par(hfuzz_code))
                 || (int_par(hbadness_code) < 100)) {
                 if ((dimen_par(overfull_rule_code) > 0)
-                    && (-x - total_shrink[normal] >
-                        dimen_par(hfuzz_code))) {
+                    && (-x - total_shrink[normal] > dimen_par(hfuzz_code))) {
                     while (vlink(q) != null)
                         q = vlink(q);
                     vlink(q) = new_rule();
@@ -1142,11 +1141,9 @@ void append_to_vlist(halfword b)
     halfword p;                 /* a new glue node */
     if (prev_depth > dimen_par(pdf_ignored_dimen_code)) {
         if ((type(b) == hlist_node) && is_mirrored(box_dir(b))) {
-            d = width(glue_par(baseline_skip_code)) - prev_depth -
-                depth(b);
+            d = width(glue_par(baseline_skip_code)) - prev_depth - depth(b);
         } else {
-            d = width(glue_par(baseline_skip_code)) - prev_depth -
-                height(b);
+            d = width(glue_par(baseline_skip_code)) - prev_depth - height(b);
         }
         if (d < dimen_par(line_skip_limit_code)) {
             p = new_param_glue(line_skip_code);
@@ -1521,8 +1518,7 @@ halfword vsplit(halfword n, scaled h)
             filtered_vpackage(q, 0, additional, dimen_par(max_depth_code),
                               split_keep_group);
     return filtered_vpackage(p, h, exactly,
-                             dimen_par(split_max_depth_code),
-                             split_off_group);
+                             dimen_par(split_max_depth_code), split_off_group);
 }
 
 /*

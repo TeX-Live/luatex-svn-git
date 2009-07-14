@@ -232,6 +232,7 @@ static const char *cs_token_pairs_list[][2] = {
     {" -|", "noaccess put"},
     {NULL, NULL}
 };
+
 static const char **cs_token_pair;
 
 static boolean t1_pfa, t1_cs, t1_scan, t1_eexec_encrypt, t1_synthetic;

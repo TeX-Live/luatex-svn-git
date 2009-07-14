@@ -551,10 +551,12 @@ void set_charinfo_index(charinfo * ci, scaled val)
 {
     ci->index = val;
 }
+
 void set_charinfo_name(charinfo * ci, char *val)
 {
     dxfree(ci->name, val);
 }
+
 void set_charinfo_tounicode(charinfo * ci, char *val)
 {
     dxfree(ci->tounicode, val);

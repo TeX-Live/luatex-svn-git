@@ -3137,7 +3137,7 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
 
 }
 
-#undef ERROR /* for mingw */
+#undef ERROR                    /* for mingw */
 #define ERROR(a) { perror(a); return 0; }
 
 /* Input : SID or CID (16-bit unsigned int)

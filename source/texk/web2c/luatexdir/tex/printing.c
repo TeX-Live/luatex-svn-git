@@ -806,26 +806,63 @@ parameter.
 
 void print_skip_param(integer n)
 {
-    switch(n) {
-    case line_skip_code: tprint_esc("lineskip"); break;
-    case baseline_skip_code: tprint_esc("baselineskip"); break;
-    case par_skip_code: tprint_esc("parskip"); break;
-    case above_display_skip_code: tprint_esc("abovedisplayskip"); break;
-    case below_display_skip_code: tprint_esc("belowdisplayskip"); break;
-    case above_display_short_skip_code: tprint_esc("abovedisplayshortskip"); break;
-    case below_display_short_skip_code: tprint_esc("belowdisplayshortskip"); break;
-    case left_skip_code: tprint_esc("leftskip"); break;
-    case right_skip_code: tprint_esc("rightskip"); break;
-    case top_skip_code: tprint_esc("topskip"); break;
-    case split_top_skip_code: tprint_esc("splittopskip"); break;
-    case tab_skip_code: tprint_esc("tabskip"); break;
-    case space_skip_code: tprint_esc("spaceskip"); break;
-    case xspace_skip_code: tprint_esc("xspaceskip"); break;
-    case par_fill_skip_code: tprint_esc("parfillskip"); break;
-    case thin_mu_skip_code: tprint_esc("thinmuskip"); break;
-    case med_mu_skip_code: tprint_esc("medmuskip"); break;
-    case thick_mu_skip_code: tprint_esc("thickmuskip"); break;
-    default: tprint("[unknown glue parameter!]");
+    switch (n) {
+    case line_skip_code:
+        tprint_esc("lineskip");
+        break;
+    case baseline_skip_code:
+        tprint_esc("baselineskip");
+        break;
+    case par_skip_code:
+        tprint_esc("parskip");
+        break;
+    case above_display_skip_code:
+        tprint_esc("abovedisplayskip");
+        break;
+    case below_display_skip_code:
+        tprint_esc("belowdisplayskip");
+        break;
+    case above_display_short_skip_code:
+        tprint_esc("abovedisplayshortskip");
+        break;
+    case below_display_short_skip_code:
+        tprint_esc("belowdisplayshortskip");
+        break;
+    case left_skip_code:
+        tprint_esc("leftskip");
+        break;
+    case right_skip_code:
+        tprint_esc("rightskip");
+        break;
+    case top_skip_code:
+        tprint_esc("topskip");
+        break;
+    case split_top_skip_code:
+        tprint_esc("splittopskip");
+        break;
+    case tab_skip_code:
+        tprint_esc("tabskip");
+        break;
+    case space_skip_code:
+        tprint_esc("spaceskip");
+        break;
+    case xspace_skip_code:
+        tprint_esc("xspaceskip");
+        break;
+    case par_fill_skip_code:
+        tprint_esc("parfillskip");
+        break;
+    case thin_mu_skip_code:
+        tprint_esc("thinmuskip");
+        break;
+    case med_mu_skip_code:
+        tprint_esc("medmuskip");
+        break;
+    case thick_mu_skip_code:
+        tprint_esc("thickmuskip");
+        break;
+    default:
+        tprint("[unknown glue parameter!]");
     }
 }
 
@@ -854,8 +891,8 @@ void show_box(halfword p)
 {
     /* Assign the values |depth_threshold:=show_box_depth| and
        |breadth_max:=show_box_breadth| */
-    depth_threshold=int_par(show_box_depth_code);
-    breadth_max=int_par(show_box_breadth_code);
+    depth_threshold = int_par(show_box_depth_code);
+    breadth_max = int_par(show_box_breadth_code);
 
     if (breadth_max <= 0)
         breadth_max = 5;
@@ -922,17 +959,19 @@ they came from.  (This isn't a truly ``basic'' printing procedure, but
 that's a convenient module in which to put it.)
 */
 
-void print_csnames (integer hstart, integer hfinish)
+void print_csnames(integer hstart, integer hfinish)
 {
     integer c, h;
-    fprintf(stderr, "fmtdebug:csnames from %d to %d:", (int)hstart, (int)hfinish);
-    for (h=hstart;h<=hfinish;h++) {
-	if (text(h) > 0) { /* if have anything at this position */
-	    for (c=str_start_macro(text(h));c<=str_start_macro(text(h) + 1) - 1;c++) {
-		fputc(str_pool[c], stderr); /* print the characters */
-	    }
-	    fprintf(stderr, "|");
-	}
+    fprintf(stderr, "fmtdebug:csnames from %d to %d:", (int) hstart,
+            (int) hfinish);
+    for (h = hstart; h <= hfinish; h++) {
+        if (text(h) > 0) {      /* if have anything at this position */
+            for (c = str_start_macro(text(h));
+                 c <= str_start_macro(text(h) + 1) - 1; c++) {
+                fputc(str_pool[c], stderr);     /* print the characters */
+            }
+            fprintf(stderr, "|");
+        }
     }
 }
 
@@ -942,23 +981,23 @@ filename in |full_source_filename_stack|, and if we fail to find
 one fall back on the non-file:line:error style.
 */
 
-void print_file_line (void)
+void print_file_line(void)
 {
     int level;
-    level=in_open;
-    while ((level>0) && (full_source_filename_stack[level]==0)) 
-	decr(level);
-    if (level==0) {
-	tprint_nl("! ");
+    level = in_open;
+    while ((level > 0) && (full_source_filename_stack[level] == 0))
+        decr(level);
+    if (level == 0) {
+        tprint_nl("! ");
     } else {
-	tprint_nl (""); 
-	print (full_source_filename_stack[level]); 
-	print_char (':');
-	if (level==in_open) 
-	    print_int (line);
-	else 
-	    print_int (line_stack[iindex+1-(in_open-level)]);
-	tprint (": ");
+        tprint_nl("");
+        print(full_source_filename_stack[level]);
+        print_char(':');
+        if (level == in_open)
+            print_int(line);
+        else
+            print_int(line_stack[iindex + 1 - (in_open - level)]);
+        tprint(": ");
     }
 }
 
@@ -968,23 +1007,23 @@ goes only into the transcript file, unless |tracing_online| is positive.
 Here are two routines that adjust the destination of print commands:
 */
 
-void begin_diagnostic (void) /* prepare to do some tracing */
-{
-    global_old_setting=selector;
-    if ((int_par(tracing_online_code)<=0)&&(selector==term_and_log)) {
-	decr(selector);
-	if (history==spotless) 
-	    history=warning_issued;
+void begin_diagnostic(void)
+{                               /* prepare to do some tracing */
+    global_old_setting = selector;
+    if ((int_par(tracing_online_code) <= 0) && (selector == term_and_log)) {
+        decr(selector);
+        if (history == spotless)
+            history = warning_issued;
     }
 }
 
 
-void end_diagnostic(boolean blank_line) /* restore proper conditions after tracing */
-{
+void end_diagnostic(boolean blank_line)
+{                               /* restore proper conditions after tracing */
     tprint_nl("");
-    if (blank_line) 
-	print_ln();
-    selector=global_old_setting;
+    if (blank_line)
+        print_ln();
+    selector = global_old_setting;
 }
 
 /*
@@ -993,4 +1032,3 @@ routines are going to work.
 */
 
 int global_old_setting;
-

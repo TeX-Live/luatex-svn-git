@@ -426,8 +426,7 @@ void begin_token_list(halfword p, quarterword t)
                     tprint_esc("write");
                 else
                     print_cmd_chr(assign_toks_cmd,
-                                  t - output_text +
-                                  equiv(output_routine_loc));
+                                  t - output_text + equiv(output_routine_loc));
                 tprint("->");
                 token_show(p);
                 end_diagnostic(false);
@@ -658,24 +657,27 @@ void pseudo_from_string(void)
     halfword p;                 /* for list construction */
     s = make_string();
     /* Convert string |s| into a new pseudo file */
-    str_pool[pool_ptr]=' ';
-    p=string_to_pseudo(str_start_macro(s),pool_ptr,int_par(new_line_char_code));
-    vlink(p)=pseudo_files; 
-    pseudo_files=p;
+    str_pool[pool_ptr] = ' ';
+    p = string_to_pseudo(str_start_macro(s), pool_ptr,
+                         int_par(new_line_char_code));
+    vlink(p) = pseudo_files;
+    pseudo_files = p;
 
     flush_string();
     /* Initiate input from new pseudo file */
-    begin_file_reading(); /* set up |cur_file| and new level of input */
-    line=0; ilimit=istart; iloc=ilimit+1; /* force line read */
-    if (int_par(tracing_scan_tokens_code)>0) {
-	if (term_offset>max_print_line-3) 
-	    print_ln();
-	else if ((term_offset>0)||(file_offset>0)) 
-	    print_char(' ');
-	iname=20; 
-	tprint("( "); 
-	incr(open_parens); 
-	update_terminal();
+    begin_file_reading();       /* set up |cur_file| and new level of input */
+    line = 0;
+    ilimit = istart;
+    iloc = ilimit + 1;          /* force line read */
+    if (int_par(tracing_scan_tokens_code) > 0) {
+        if (term_offset > max_print_line - 3)
+            print_ln();
+        else if ((term_offset > 0) || (file_offset > 0))
+            print_char(' ');
+        iname = 20;
+        tprint("( ");
+        incr(open_parens);
+        update_terminal();
     } else {
         iname = 18;
     }

@@ -242,8 +242,7 @@ void line_break(boolean d)
                           int_par(display_widow_penalty_code),
                           int_par(widow_penalty_code),
                           int_par(broken_penalty_code),
-                          final_par_glue,
-                          dimen_par(pdf_ignored_dimen_code));
+                          final_par_glue, dimen_par(pdf_ignored_dimen_code));
     }
     lua_node_filter(post_linebreak_filter_callback,
                     line_break_context, start_of_par,

@@ -1933,81 +1933,90 @@ void conv_toks(void)
     b = pool_ptr;
 
     /* Print the result of command |c| */
-    if (!print_convert_string(c,cur_val)) {
-	switch (c) {
-	case string_code:
-	    if (cur_cs!=0) 
-		sprint_cs(cur_cs);
-	    else 
-		print(cur_chr);
-	    break;
-	case meaning_code: 
-	    print_meaning();
-	    break;
-	case left_margin_kern_code:
-	    p = list_ptr(box(cur_val));
-	    if ((p != null) && (!is_char_node(p)) &&
-		(type(p) == glue_node) && (subtype(p) == left_skip_code + 1))
-		p = vlink(p);
-	    if ((p != null) && (!is_char_node(p)) &&
-		(type(p) == margin_kern_node) && (subtype(p) == left_side))
-		print_scaled(width(p));
-	    else
-		print_char('0');
-	    tprint("pt");
-	    break;
-	case right_margin_kern_code:
-	    q = list_ptr(box(cur_val));
-	    p = null;
-	    if (q != null) {
-		p = prev_rightmost(q, null);
-		if ((p != null) && (! is_char_node(p)) &&
-		    (type(p) == glue_node) && (subtype(p) == right_skip_code + 1))
-		    p = prev_rightmost(q, p);
-	    }
-	    if ((p != null) && (!is_char_node(p)) &&
-		(type(p) == margin_kern_node) && (subtype(p) == right_side))
-		print_scaled(width(p));
-	    else
-		print_char('0');
-	    tprint("pt");
-	    break;
-	case pdf_colorstack_init_code: 
-	    print_int(cur_val);
-	    break;
-	case pdf_insert_ht_code: 
-	    i = cur_val;
-	    p = page_ins_head;
-	    while (i >= subtype(vlink(p)))
-		p = vlink(p);
-	    if (subtype(p) == i) 
-		print_scaled(height(p));
-	    else
-		print_char('0');
-	    tprint("pt");
-	    break;
-	case pdf_ximage_bbox_code:
-	    if (is_pdf_image(i)) {
-		switch (j) {
-		case 1: print_scaled(epdf_orig_x(i)); break;
-		case 2: print_scaled(epdf_orig_y(i)); break;
-		case 3: print_scaled(epdf_orig_x(i) + epdf_xsize(i)); break;
-		case 4: print_scaled(epdf_orig_y(i) + epdf_ysize(i)); break;
-		}
-	    } else {
-		print_scaled(0);
-	    }
-	    tprint("pt");
-	    break;
-	case pdf_creation_date_code:
-	case lua_escape_string_code:
-	case lua_code:
-	case expanded_code:
-	    break;
-	default:
-	    confusion("convert");
-	    break;
-	}
+    if (!print_convert_string(c, cur_val)) {
+        switch (c) {
+        case string_code:
+            if (cur_cs != 0)
+                sprint_cs(cur_cs);
+            else
+                print(cur_chr);
+            break;
+        case meaning_code:
+            print_meaning();
+            break;
+        case left_margin_kern_code:
+            p = list_ptr(box(cur_val));
+            if ((p != null) && (!is_char_node(p)) &&
+                (type(p) == glue_node) && (subtype(p) == left_skip_code + 1))
+                p = vlink(p);
+            if ((p != null) && (!is_char_node(p)) &&
+                (type(p) == margin_kern_node) && (subtype(p) == left_side))
+                print_scaled(width(p));
+            else
+                print_char('0');
+            tprint("pt");
+            break;
+        case right_margin_kern_code:
+            q = list_ptr(box(cur_val));
+            p = null;
+            if (q != null) {
+                p = prev_rightmost(q, null);
+                if ((p != null) && (!is_char_node(p)) &&
+                    (type(p) == glue_node)
+                    && (subtype(p) == right_skip_code + 1))
+                    p = prev_rightmost(q, p);
+            }
+            if ((p != null) && (!is_char_node(p)) &&
+                (type(p) == margin_kern_node) && (subtype(p) == right_side))
+                print_scaled(width(p));
+            else
+                print_char('0');
+            tprint("pt");
+            break;
+        case pdf_colorstack_init_code:
+            print_int(cur_val);
+            break;
+        case pdf_insert_ht_code:
+            i = cur_val;
+            p = page_ins_head;
+            while (i >= subtype(vlink(p)))
+                p = vlink(p);
+            if (subtype(p) == i)
+                print_scaled(height(p));
+            else
+                print_char('0');
+            tprint("pt");
+            break;
+        case pdf_ximage_bbox_code:
+            if (is_pdf_image(i)) {
+                switch (j) {
+                case 1:
+                    print_scaled(epdf_orig_x(i));
+                    break;
+                case 2:
+                    print_scaled(epdf_orig_y(i));
+                    break;
+                case 3:
+                    print_scaled(epdf_orig_x(i) + epdf_xsize(i));
+                    break;
+                case 4:
+                    print_scaled(epdf_orig_y(i) + epdf_ysize(i));
+                    break;
+                }
+            } else {
+                print_scaled(0);
+            }
+            tprint("pt");
+            break;
+        case pdf_creation_date_code:
+        case lua_escape_string_code:
+        case lua_code:
+        case expanded_code:
+            break;
+        default:
+            confusion("convert");
+            break;
+        }
     }
 
     selector = old_setting;
@@ -2137,40 +2146,42 @@ void read_toks(integer n, halfword r, halfword j)
                 }
             }
 
-	}
-	ilimit=last;
-	if (end_line_char_inactive()) 
-	    decr(ilimit);
-	else  
-	    buffer[ilimit]=int_par(end_line_char_code);
-	first=ilimit+1; 
-	iloc=istart; 
-	istate=new_line;
-	/* Handle \.{\\readline} and |goto done|; */
-	if (j==1) {
-	    while (iloc<=ilimit) { /* current line not yet finished */
-		cur_chr=buffer[iloc]; 
-		incr(iloc);
-		if (cur_chr==' ')  
-		    cur_tok=space_token;
-		else 
-		    cur_tok=cur_chr+other_token;
-		store_new_token(cur_tok);
-	    }
-	} else {
-	    while (1) {
-		get_token();
-		if (cur_tok==0) 
-		    break;  /* |cur_cmd=cur_chr=0| will occur at the end of the line */
-		if (align_state<1000000) { /* unmatched `\.\}' aborts the line */
-		    do { get_token(); } while (cur_tok!=0);
-		    align_state=1000000; 
-		    break;
-		}
-		store_new_token(cur_tok);
-	    }
-	}
-	end_file_reading();
+        }
+        ilimit = last;
+        if (end_line_char_inactive())
+            decr(ilimit);
+        else
+            buffer[ilimit] = int_par(end_line_char_code);
+        first = ilimit + 1;
+        iloc = istart;
+        istate = new_line;
+        /* Handle \.{\\readline} and |goto done|; */
+        if (j == 1) {
+            while (iloc <= ilimit) {    /* current line not yet finished */
+                cur_chr = buffer[iloc];
+                incr(iloc);
+                if (cur_chr == ' ')
+                    cur_tok = space_token;
+                else
+                    cur_tok = cur_chr + other_token;
+                store_new_token(cur_tok);
+            }
+        } else {
+            while (1) {
+                get_token();
+                if (cur_tok == 0)
+                    break;      /* |cur_cmd=cur_chr=0| will occur at the end of the line */
+                if (align_state < 1000000) {    /* unmatched `\.\}' aborts the line */
+                    do {
+                        get_token();
+                    } while (cur_tok != 0);
+                    align_state = 1000000;
+                    break;
+                }
+                store_new_token(cur_tok);
+            }
+        }
+        end_file_reading();
 
     } while (align_state != 1000000);
     cur_val = def_ref;

@@ -32,7 +32,7 @@ extern scaled neg_ht;
 
 extern halfword write_loc;
 
-extern void do_extension (void);
+extern void do_extension(void);
 
 /* Three extra node types carry information from |main_control|. */
 
@@ -43,12 +43,12 @@ typesetting engine itself. Each has an id, a type, and a value. The
 type of the value depends on the |user_node_type| field.
 */
 
-#define flushable(A)  ((A) == str_ptr - 1)
+#  define flushable(A)  ((A) == str_ptr - 1)
 
 extern void new_whatsit(int s);
 extern void new_write_whatsit(int w);
-extern void scan_pdf_ext_toks (void);
-extern halfword prev_rightmost(halfword s, halfword e) ;
+extern void scan_pdf_ext_toks(void);
+extern halfword prev_rightmost(halfword s, halfword e);
 extern integer pdf_last_xform;
 extern integer pdf_last_ximage;
 extern integer pdf_last_ximage_pages;
@@ -58,10 +58,10 @@ extern integer pdf_last_annot;
 extern integer pdf_last_link;
 extern integer pdf_last_x_pos;
 extern integer pdf_last_y_pos;
-extern halfword  concat_tokens(halfword q, halfword r);
+extern halfword concat_tokens(halfword q, halfword r);
 extern integer pdf_retval;
 
-extern halfword make_local_par_node (void);
+extern halfword make_local_par_node(void);
 
 
 /*
@@ -72,37 +72,37 @@ distinguished by their |chr_code| values |last_box_code| and
 |copy_code|.
 */
 
-extern void enable_etex (void);
-extern boolean *eof_seen; /* has eof been seen? */
+extern void enable_etex(void);
+extern boolean *eof_seen;       /* has eof been seen? */
 extern void print_group(boolean e);
-extern void group_trace(boolean e) ;
+extern void group_trace(boolean e);
 extern save_pointer *grp_stack; /* initial |cur_boundary| */
-extern halfword *if_stack; /* initial |cond_ptr| */
-extern void group_warning (void);
-extern void if_warning (void);
-extern void file_warning (void);
+extern halfword *if_stack;      /* initial |cond_ptr| */
+extern void group_warning(void);
+extern void if_warning(void);
+extern void file_warning(void);
 
 extern halfword last_line_fill; /* the |par_fill_skip| glue node of the new paragraph */
 
-#define get_tex_dimen_register(j) dimen(j)
-#define get_tex_skip_register(j) skip(j)
-#define get_tex_count_register(j) count(j)
-#define get_tex_attribute_register(j) attribute(j)
-#define get_tex_box_register(j) box(j)
+#  define get_tex_dimen_register(j) dimen(j)
+#  define get_tex_skip_register(j) skip(j)
+#  define get_tex_count_register(j) count(j)
+#  define get_tex_attribute_register(j) attribute(j)
+#  define get_tex_box_register(j) box(j)
 
-extern integer set_tex_dimen_register (integer j, scaled v);
-extern integer set_tex_skip_register (integer j, halfword v);
-extern integer set_tex_count_register (integer j, scaled v);
-extern integer set_tex_box_register (integer j, scaled v);
-extern integer set_tex_attribute_register  (integer j, scaled v);
-extern integer get_tex_toks_register (integer l);
-extern integer set_tex_toks_register (integer j, str_number s);
-extern scaled get_tex_box_width (integer j);
-extern integer set_tex_box_width (integer j, scaled v);
-extern scaled get_tex_box_height (integer j);
-extern integer set_tex_box_height (integer j, scaled v);
-extern scaled get_tex_box_depth (integer j);
-extern integer set_tex_box_depth (integer j, scaled v);
+extern integer set_tex_dimen_register(integer j, scaled v);
+extern integer set_tex_skip_register(integer j, halfword v);
+extern integer set_tex_count_register(integer j, scaled v);
+extern integer set_tex_box_register(integer j, scaled v);
+extern integer set_tex_attribute_register(integer j, scaled v);
+extern integer get_tex_toks_register(integer l);
+extern integer set_tex_toks_register(integer j, str_number s);
+extern scaled get_tex_box_width(integer j);
+extern integer set_tex_box_width(integer j, scaled v);
+extern scaled get_tex_box_height(integer j);
+extern integer set_tex_box_height(integer j, scaled v);
+extern scaled get_tex_box_depth(integer j);
+extern integer set_tex_box_depth(integer j, scaled v);
 
 /* Synctex variables */
 
@@ -114,7 +114,7 @@ extern integer synctexoffset;
 extern pool_pointer edit_name_start;
 extern integer edit_name_length, edit_line;
 extern int ipcon;
-extern boolean stop_at_space; 
+extern boolean stop_at_space;
 extern str_number save_str_ptr;
 extern pool_pointer save_pool_ptr;
 extern int shellenabledp;
@@ -123,4 +123,3 @@ extern char *output_comment;
 extern boolean debug_format_file;
 
 #endif
-
