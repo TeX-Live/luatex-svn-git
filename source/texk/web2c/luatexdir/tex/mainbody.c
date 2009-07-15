@@ -1130,12 +1130,12 @@ void set_cur_font(internal_font_number f)
 
 integer get_luatexversion(void)
 {
-    return the_luatex_version;
+    return luatex_version;
 }
 
 str_number get_luatexrevision(void)
 {
-    return the_luatex_revision;
+    return luatex_revision;
 }
 
 integer get_luatex_date_info(void)
@@ -1496,11 +1496,11 @@ void close_files_and_terminate(void)
             print_err
                 (" ==> Fatal error occurred, no output PDF file produced!");
         } else {
-            finish_pdf_file(static_pdf, the_luatex_version,
+            finish_pdf_file(static_pdf, luatex_version,
                             get_luatexrevision());
         }
     } else {
-        finish_dvi_file(the_luatex_version, get_luatexrevision());
+        finish_dvi_file(luatex_version, get_luatexrevision());
     }
     /* Close {\sl Sync\TeX} file and write status */
     synctex_terminate(log_opened);      /* Let the {\sl Sync\TeX} controller close its files. */

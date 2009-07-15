@@ -24,13 +24,8 @@
 #  define PTEXLIB_H
 
 /* WEB2C macros and prototypes */
-#  if !defined(LUATEXCOERCE)
-#    ifdef luatex
-#      undef luatex             /* to avoid warning about redefining luatex in luatexd.h */
-#    endif                      /* luatex */
 #    define EXTERN extern
-#    include "luatexd.h"
-#  endif
+#    include "luatex.h"
 
 #  ifdef MSVC
 extern double rint(double x);
@@ -64,6 +59,7 @@ extern double rint(double x);
 /* pdftexlib macros */
 #  include "ptexmac.h"
 
+#  include "tex/mainbody.h"
 #  include "tex/textoken.h"
 #  include "tex/expand.h"
 #  include "tex/conditional.h"
@@ -350,8 +346,114 @@ extern void get_lua_string(char *table, char *name, char **target);
 
 extern char *get_lua_name(int i);
 
+/* Additions to texmfmp.h for pdfTeX */
+
+/* mark a char in font */
+#define pdf_mark_char(f,c) set_char_used(f,c,true)
+
+/* test whether a char in font is marked */
+#define pdf_char_marked char_used
+
+#define tex_b_open_in(f) \
+    open_input (&(f), kpse_tex_format, FOPEN_RBIN_MODE)
+#define ovf_b_open_in(f) \
+    open_input (&(f), kpse_ovf_format, FOPEN_RBIN_MODE)
+#define vf_b_open_in(f) \
+    open_input (&(f), kpse_vf_format, FOPEN_RBIN_MODE)
+
+extern int open_outfile(FILE ** f, char *name, char *mode);
+
+#define do_a_open_out(f) open_outfile(&(f),(char *)(nameoffile+1),FOPEN_W_MODE)
+#define do_b_open_out(f) open_outfile(&(f),(char *)(nameoffile+1),FOPEN_WBIN_MODE)
+
+#define pdfassert assert
+#define voidcast(a) (void *)(a)
+#define varmemcast(a) (memory_word *)(a)
+#define fixmemcast(a) (smemory_word *)(a)
+extern volatile memory_word *varmem;
+extern halfword var_mem_min;
+extern halfword var_mem_max;
+extern halfword get_node(integer s);
+extern void free_node(halfword p, integer s);
+extern void init_node_mem(integer s);
+extern void dump_node_mem(void);
+extern void undump_node_mem(void);
+
+extern void do_vf(internal_font_number tmp_f);
+
+extern int readbinfile(FILE * f, unsigned char **b, integer * s);
+
+#define read_tfm_file  readbinfile
+#define read_vf_file   readbinfile
+#define read_ocp_file  readbinfile
+#define read_data_file readbinfile
+
+/* This routine has to return four values.  */
+#define	dateandtime(i,j,k,l) get_date_and_time (&(i), &(j), &(k), &(l))
+extern void get_date_and_time (integer *, integer *, integer *, integer *);
+
+/* Get high-res time info. */
+#define seconds_and_micros(i,j) get_seconds_and_micros (&(i), &(j))
+extern void get_seconds_and_micros (integer *, integer *);
+
+/* This routine has to return a scaled value. */
+extern integer getrandomseed (void);
+
+/* Copy command-line arguments into the buffer, despite the name.  */
+extern void topenin (void);
+
+/* Can't prototype this since it uses poolpointer and ASCIIcode, which
+   are defined later in mfd.h, and mfd.h uses stuff from here.  */
+/* Therefore the department of ugly hacks decided to move this declaration
+   to the *coerce.h files. */
+/* extern void calledit (); */
+
+/* Set an array size from texmf.cnf.  */
+extern void setupboundvariable (integer *, const_string, integer);
+
+/* These defines reroute the file i/o calls to the new pipe-enabled 
+   functions in texmfmp.c*/
+
+#undef aopenin
+#undef aopenout
+#undef aclose
+#define a_open_in(f,p)  open_in_or_pipe(&(f),p,FOPEN_RBIN_MODE)
+#define a_open_out(f)   open_out_or_pipe(&(f),FOPEN_W_MODE)
+#define a_close(f)     close_file_or_pipe(f)
+
+/* `bopenin' (and out) is used only for reading (and writing) .tfm
+   files; `wopenin' (and out) only for dump files.  The filenames are
+   passed in as a global variable, `nameoffile'.  */
+#define b_open_in(f)	open_input (&(f), kpse_tfm_format, FOPEN_RBIN_MODE)
+#define ocp_open_in(f)	open_input (&(f), kpse_ocp_format, FOPEN_RBIN_MODE)
+#define ofm_open_in(f)	open_input (&(f), kpse_ofm_format, FOPEN_RBIN_MODE)
+#define b_open_out(f)	open_output (&(f), FOPEN_WBIN_MODE)
+
+/* Used in tex.ch (section 1338) to get a core dump in debugging mode.  */
+#ifdef unix
+#define dumpcore abort
+#else
+#define dumpcore uexit (1)
+#endif
+
+#define b_close close_file
+/* We define the routines to do the actual work in texmf.c.  */
+#define w_open_in(f)     zopen_w_input (&(f), DUMP_FORMAT, FOPEN_RBIN_MODE)
+#define w_open_out(f)    zopen_w_output (&(f), FOPEN_WBIN_MODE)
+#define w_close         zwclose
+
+extern boolean zopen_w_input (FILE **, int, const_string fopen_mode);
+extern boolean zopen_w_output (FILE **, const_string fopen_mode);
+extern void zwclose (FILE *);
+
 #  include "texmath.h"
 #  include "primitive.h"
 #  include "commands.h"
+
+
+/* here  are a few functions that used to be in coerce.h */
+
+extern str_number getjobname (str_number);
+extern str_number makefullnamestring();
 
 #endif                          /* PTEXLIB_H */

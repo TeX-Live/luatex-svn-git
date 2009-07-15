@@ -22,14 +22,11 @@
 #ifndef MAINBODY_H
 #  define MAINBODY_H
 
-
-#  define the_luatex_version 41 /* \.{\\luatexversion}  */
-#  define the_luatex_revision '0'
-                                /* \.{\\luatexrevision}  */
-#  define luatex_date_info 20000000     /* the compile date is negated */
-#  define luatex_version_string "beta-0.41.0"
-
-#  define engine_name "luatex"  /* the name of this engine */
+extern int luatex_version;
+extern int luatex_revision;
+extern int luatex_date_info;
+extern char *luatex_version_string;
+extern char *engine_name;
 
 /*
 The following parameters can be changed at compile time to extend or
@@ -93,7 +90,6 @@ in production versions of \TeX.
 
 
 #  include <stdio.h>
-#  include "cpascal.h"
 
 /* Types in the outer block */
 typedef int ASCII_code;         /* characters */

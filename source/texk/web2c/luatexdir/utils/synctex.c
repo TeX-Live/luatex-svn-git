@@ -214,9 +214,8 @@ Tue Jul 1 15:23:00 UTC 2008
 #   define SYNCTEX_NO  (0)
 #   define SYNCTEX_NO_ERROR  (0)
 
-#   include "luatexd.h"
+#   include "luatex.h"
 #   include "nodes.h"
-#   include "commands.h"
 #    undef  SYNCTEX_OFFSET_IS_PDF
 #    define SYNCTEX_OFFSET_IS_PDF (pdf_output_value>0)
 #    undef  SYNCTEX_OUTPUT

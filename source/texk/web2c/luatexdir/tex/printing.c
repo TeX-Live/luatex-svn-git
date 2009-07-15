@@ -20,9 +20,6 @@
 #include "luatex-api.h"
 #include <ptexlib.h>
 
-#include "commands.h"
-#include "luatexextra.h"        /* for BANNER */
-
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
