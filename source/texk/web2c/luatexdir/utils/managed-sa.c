@@ -77,17 +77,11 @@ void set_sa_item(sa_tree head, integer n, sa_tree_item v, integer gl)
     l = LOWPART_PART(n);
     if (head->tree == NULL) {
         head->tree =
-            (sa_tree_item ***) Mxmalloc_array(sa_tree_item **, HIGHPART);
-        for (i = 0; i < HIGHPART; i++) {
-            head->tree[i] = NULL;
-        }
-    }
+            (sa_tree_item ***) Mxcalloc_array(sa_tree_item **, HIGHPART);
+    } 
     if (head->tree[h] == NULL) {
         head->tree[h] =
-            (sa_tree_item **) Mxmalloc_array(sa_tree_item *, MIDPART);
-        for (i = 0; i < MIDPART; i++) {
-            head->tree[h][i] = NULL;
-        }
+            (sa_tree_item **) Mxcalloc_array(sa_tree_item *, MIDPART);
     }
     if (head->tree[h][m] == NULL) {
         head->tree[h][m] =
@@ -146,7 +140,7 @@ void destroy_sa_tree(sa_tree a)
 
 sa_tree copy_sa_tree(sa_tree b)
 {
-    int h, m, l;
+    int h, m;
     sa_tree a = (sa_tree) Mxmalloc_array(sa_tree_head, 1);
     a->stack_step = b->stack_step;
     a->stack_size = b->stack_size;
@@ -155,28 +149,28 @@ sa_tree copy_sa_tree(sa_tree b)
     a->stack_ptr = 0;
     a->tree = NULL;
     if (b->tree != NULL) {
-        a->tree = (sa_tree_item ***) Mxmalloc_array(void *, HIGHPART);
+        a->tree = (sa_tree_item ***) Mxcalloc_array(void *, HIGHPART);
         for (h = 0; h < HIGHPART; h++) {
             if (b->tree[h] != NULL) {
-                a->tree[h] = (sa_tree_item **) Mxmalloc_array(void *, MIDPART);
+                a->tree[h] = (sa_tree_item **) Mxcalloc_array(void *, MIDPART);
                 for (m = 0; m < MIDPART; m++) {
                     if (b->tree[h][m] != NULL) {
                         a->tree[h][m] = Mxmalloc_array(sa_tree_item, LOWPART);
-                        for (l = 0; l < LOWPART; l++) {
-                            a->tree[h][m][l] = b->tree[h][m][l];
-                        }
-                    } else {
-                        a->tree[h][m] = NULL;
+                        memcpy(a->tree[h][m],b->tree[h][m],sizeof(sa_tree_item)*LOWPART);
                     }
                 }
-            } else {
-                a->tree[h] = NULL;
             }
         }
     }
     return a;
 }
 
+/* The main reason to fill in the lowest entry branches here immediately
+is that most of the sparse arrays have a bias toward ASCII values. 
+
+Allocating those here immediately improves the chance of the structure
+|a->tree[0][0][x]| being close together in actual memory locations 
+*/
 
 sa_tree new_sa_tree(integer size, sa_tree_item dflt)
 {
@@ -184,7 +178,8 @@ sa_tree new_sa_tree(integer size, sa_tree_item dflt)
     a = (sa_tree_head *) xmalloc(sizeof(sa_tree_head));
     a->dflt = dflt;
     a->stack = NULL;
-    a->tree = NULL;
+    a->tree = (sa_tree_item ***) Mxcalloc_array(sa_tree_item **, HIGHPART);
+    a->tree[0] = (sa_tree_item **) Mxcalloc_array(sa_tree_item *, MIDPART);
     a->stack_size = size;
     a->stack_step = size;
     a->stack_ptr = 0;
@@ -261,11 +256,11 @@ sa_tree undump_sa_tree(void)
     undump_int(x);
     if (x == 0)
         return a;
-    a->tree = (sa_tree_item ***) Mxmalloc_array(void *, HIGHPART);
+    a->tree = (sa_tree_item ***) Mxcalloc_array(void *, HIGHPART);
     for (h = 0; h < HIGHPART; h++) {
         undump_qqqq(f);
         if (f > 0) {
-            a->tree[h] = (sa_tree_item **) Mxmalloc_array(void *, MIDPART);
+            a->tree[h] = (sa_tree_item **) Mxcalloc_array(void *, MIDPART);
             for (m = 0; m < MIDPART; m++) {
                 undump_qqqq(f);
                 if (f > 0) {
@@ -274,12 +269,8 @@ sa_tree undump_sa_tree(void)
                         undump_int(x);
                         a->tree[h][m][l] = (unsigned int) x;
                     }
-                } else {
-                    a->tree[h][m] = NULL;
                 }
             }
-        } else {
-            a->tree[h] = NULL;
         }
     }
     return a;

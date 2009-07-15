@@ -34,8 +34,11 @@
 #  define LOWPART_PART(a)  ((a)&127)
 
 #  define Mxmalloc_array(a,b)  xmalloc((b)*sizeof(a))
+#  define Mxcalloc_array(a,b)  xcalloc((b),sizeof(a))
 #  define Mxrealloc_array(a,b,c)  xrealloc((a),(c)*sizeof(b))
 #  define Mxfree(a) free(a); a=NULL
+
+
 
 typedef unsigned int sa_tree_item;
 
