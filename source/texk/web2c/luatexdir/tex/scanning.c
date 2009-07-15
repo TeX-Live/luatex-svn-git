@@ -24,7 +24,7 @@ static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
-#include "commands.h"
+
 
 #define prev_depth cur_list.aux_field.cint
 #define space_factor cur_list.aux_field.hh.lhfield

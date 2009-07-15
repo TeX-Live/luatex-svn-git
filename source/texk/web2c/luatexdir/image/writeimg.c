@@ -33,7 +33,7 @@
 #include <../lua51/lua.h>
 #include <../lua51/lauxlib.h>
 
-#include "commands.h"
+
 
 #define pdf_image_resolution int_par(pdf_image_resolution_code)
 

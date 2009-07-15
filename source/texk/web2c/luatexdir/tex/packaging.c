@@ -23,7 +23,7 @@ static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
-#include "commands.h"
+
 
 #define scan_normal_dimen() scan_dimen(false,false,false)
 

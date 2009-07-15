@@ -25,7 +25,7 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-#include "commands.h"
+
 
 #define mode cur_list.mode_field        /* current mode */
 

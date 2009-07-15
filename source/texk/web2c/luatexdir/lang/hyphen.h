@@ -43,7 +43,6 @@ extern "C" {
     typedef struct _HyphenDict HyphenDict;
 
 #  include "ptexlib.h"
-#  include "nodes.h"
 
     HyphenDict *hnj_hyphen_new(void);
     void hnj_hyphen_load(HyphenDict * dict, const unsigned char *fn);

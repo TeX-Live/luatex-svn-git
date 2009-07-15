@@ -19,8 +19,8 @@
 
 #include "luatex-api.h"
 #include <ptexlib.h>
-#include "nodes.h"
-#include "commands.h"
+
+
 
 void fin_align(void);
 void init_row(void);

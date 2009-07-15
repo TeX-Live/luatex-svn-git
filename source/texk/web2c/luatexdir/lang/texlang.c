@@ -22,8 +22,8 @@
 
 #include <string.h>
 
-#include "nodes.h"
-#include "commands.h"
+
+
 
 static const char _svn_version[] =
     "$Id$ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lang/texlang.c $";

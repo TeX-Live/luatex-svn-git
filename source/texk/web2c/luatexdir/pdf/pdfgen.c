@@ -19,7 +19,7 @@
 
 #include "ptexlib.h"
 #include <ctype.h>
-#include "commands.h"
+
 #include "md5.h"
 
 #include "luatex-api.h"         /* for tokenlist_to_cstring */

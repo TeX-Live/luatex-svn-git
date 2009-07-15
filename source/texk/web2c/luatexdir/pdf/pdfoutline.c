@@ -19,7 +19,7 @@
 
 #include "ptexlib.h"
 #include "luatex-api.h"
-#include "commands.h"
+
 
 static const char __svn_version[] =
     "$Id$"

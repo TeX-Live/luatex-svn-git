@@ -19,7 +19,7 @@
 
 #include <ptexlib.h>
 
-#include "commands.h"
+
 
 /* these are for show_activities */
 #define page_goal page_so_far[0]

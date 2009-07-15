@@ -18,7 +18,7 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 #include "ptexlib.h"
-#include "commands.h"
+
 #include "luatex-api.h"
 
 static const char __svn_version[] =
