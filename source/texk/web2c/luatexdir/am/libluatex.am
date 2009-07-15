@@ -90,7 +90,6 @@ libluatex_a_SOURCES = \
 	luatexdir/lua/texluac.c \
 	luatexdir/luatex-api.h \
 	luatexdir/luatex.h \
-	luatexdir/makecpool.c \
 	luatexdir/nodes.h \
 	luatexdir/ocp/ocp.c \
 	luatexdir/ocp/ocp.h \

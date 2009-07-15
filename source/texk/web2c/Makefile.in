@@ -237,11 +237,10 @@ am_libluatex_a_OBJECTS = libluatex_a-dvigen.$(OBJEXT) \
 	libluatex_a-ltokenlib.$(OBJEXT) libluatex_a-luainit.$(OBJEXT) \
 	libluatex_a-luanode.$(OBJEXT) libluatex_a-luastuff.$(OBJEXT) \
 	libluatex_a-luatex.$(OBJEXT) libluatex_a-luatoken.$(OBJEXT) \
-	libluatex_a-texluac.$(OBJEXT) libluatex_a-makecpool.$(OBJEXT) \
-	libluatex_a-ocp.$(OBJEXT) libluatex_a-ocplist.$(OBJEXT) \
-	libluatex_a-readocp.$(OBJEXT) libluatex_a-runocp.$(OBJEXT) \
-	libluatex_a-pagetree.$(OBJEXT) libluatex_a-pdfaction.$(OBJEXT) \
-	libluatex_a-pdfannot.$(OBJEXT) \
+	libluatex_a-texluac.$(OBJEXT) libluatex_a-ocp.$(OBJEXT) \
+	libluatex_a-ocplist.$(OBJEXT) libluatex_a-readocp.$(OBJEXT) \
+	libluatex_a-runocp.$(OBJEXT) libluatex_a-pagetree.$(OBJEXT) \
+	libluatex_a-pdfaction.$(OBJEXT) libluatex_a-pdfannot.$(OBJEXT) \
 	libluatex_a-pdfcolorstack.$(OBJEXT) \
 	libluatex_a-pdfdest.$(OBJEXT) libluatex_a-pdffont.$(OBJEXT) \
 	libluatex_a-pdfgen.$(OBJEXT) libluatex_a-pdfglyph.$(OBJEXT) \
@@ -1355,7 +1354,6 @@ libluatex_a_SOURCES = \
 	luatexdir/lua/texluac.c \
 	luatexdir/luatex-api.h \
 	luatexdir/luatex.h \
-	luatexdir/makecpool.c \
 	luatexdir/nodes.h \
 	luatexdir/ocp/ocp.c \
 	luatexdir/ocp/ocp.h \
@@ -1899,7 +1897,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-macnames.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mainbody.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-maincontrol.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-makecpool.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-managed-sa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mapfile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-math.Po@am__quote@
@@ -4308,20 +4305,6 @@ libluatex_a-texluac.obj: luatexdir/lua/texluac.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/lua/texluac.c' object='libluatex_a-texluac.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-texluac.obj `if test -f 'luatexdir/lua/texluac.c'; then $(CYGPATH_W) 'luatexdir/lua/texluac.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/texluac.c'; fi`
-
-libluatex_a-makecpool.o: luatexdir/makecpool.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-makecpool.o -MD -MP -MF $(DEPDIR)/libluatex_a-makecpool.Tpo -c -o libluatex_a-makecpool.o `test -f 'luatexdir/makecpool.c' || echo '$(srcdir)/'`luatexdir/makecpool.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-makecpool.Tpo $(DEPDIR)/libluatex_a-makecpool.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/makecpool.c' object='libluatex_a-makecpool.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-makecpool.o `test -f 'luatexdir/makecpool.c' || echo '$(srcdir)/'`luatexdir/makecpool.c
-
-libluatex_a-makecpool.obj: luatexdir/makecpool.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-makecpool.obj -MD -MP -MF $(DEPDIR)/libluatex_a-makecpool.Tpo -c -o libluatex_a-makecpool.obj `if test -f 'luatexdir/makecpool.c'; then $(CYGPATH_W) 'luatexdir/makecpool.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/makecpool.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-makecpool.Tpo $(DEPDIR)/libluatex_a-makecpool.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/makecpool.c' object='libluatex_a-makecpool.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-makecpool.obj `if test -f 'luatexdir/makecpool.c'; then $(CYGPATH_W) 'luatexdir/makecpool.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/makecpool.c'; fi`
 
 libluatex_a-ocp.o: luatexdir/ocp/ocp.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-ocp.o -MD -MP -MF $(DEPDIR)/libluatex_a-ocp.Tpo -c -o libluatex_a-ocp.o `test -f 'luatexdir/ocp/ocp.c' || echo '$(srcdir)/'`luatexdir/ocp/ocp.c
