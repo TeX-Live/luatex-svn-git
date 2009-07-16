@@ -446,7 +446,7 @@ extern boolean zopen_w_input (FILE **, int, const_string fopen_mode);
 extern boolean zopen_w_output (FILE **, const_string fopen_mode);
 extern void zwclose (FILE *);
 
-#  include "tex/nodes.h"
+#  include "tex/texnodes.h"
 #  include "tex/texmath.h"
 #  include "tex/primitive.h"
 #  include "tex/commands.h"

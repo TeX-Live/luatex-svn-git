@@ -181,7 +181,6 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/mlist.c \
 	luatexdir/tex/nesting.c \
 	luatexdir/tex/nesting.h \
-	luatexdir/tex/nodes.h \
 	luatexdir/tex/packaging.c \
 	luatexdir/tex/packaging.h \
 	luatexdir/tex/postlinebreak.c \
@@ -199,6 +198,7 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/texfileio.h \
 	luatexdir/tex/texmath.h \
 	luatexdir/tex/texnodes.c \
+	luatexdir/tex/texnodes.h \
 	luatexdir/tex/textoken.c \
 	luatexdir/tex/textoken.h \
 	luatexdir/tex/textcodes.c \
