@@ -362,8 +362,8 @@ void main_control(void)
     case vmode + stop_cmd:
         if (its_all_over())
             return;             /* this is the only way out */
-
-        /* Math cases in non-math modes */
+	break;
+        /* Math cases in non-math modes */	
     case vmode + math_char_num_cmd:
     case vmode + math_given_cmd:
     case vmode + omath_given_cmd:
