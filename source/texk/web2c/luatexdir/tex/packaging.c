@@ -99,6 +99,8 @@ void scan_spec(group_code c, boolean three_codes)
     if (three_codes) {
         s = saved(0);
       CONTINUE:
+        if (cur_cmd==relax_cmd || cur_cmd==spacer_cmd)
+            get_x_token();
         if (scan_keyword("attr")) {
             scan_register_num();
             i = cur_val;
