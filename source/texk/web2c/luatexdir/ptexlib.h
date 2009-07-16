@@ -56,8 +56,106 @@ extern double rint(double x);
 #  include <../lua51/lua.h>
 
 
-/* pdftexlib macros */
-#  include "ptexmac.h"
+/* pdftexlib macros from ptexmac.h */
+
+/* Not all systems define it. */
+#  ifndef M_PI
+#    define M_PI           3.14159265358979323846  /* pi */
+#  endif
+
+#  ifdef WIN32
+#    define inline __inline
+#  endif
+
+/**********************************************************************/
+/* Pascal WEB macros */
+
+#  define max_integer      0x7FFFFFFF
+#  define max_dimen        0x3FFFFFFF
+
+/**********************************************************************/
+
+#  define PRINTF_BUF_SIZE     1024
+#  define MAX_CSTRING_LEN     1024 * 1024
+#  define MAX_PSTRING_LEN     1024
+#  define SMALL_BUF_SIZE      256
+#  define SMALL_ARRAY_SIZE    256
+
+#  define check_buf(size, buf_size)                                 \
+  if ((unsigned)(size) > (unsigned)(buf_size))                      \
+    pdftex_fail("buffer overflow: %d > %d at file %s, line %d",     \
+                (int)(size), (int)(buf_size), __FILE__,  __LINE__ )
+
+#  define append_char_to_buf(c, p, buf, buf_size) do { \
+    if (c == 9)                                        \
+        c = 32;                                        \
+    if (c == 13 || c == EOF)                           \
+        c = 10;                                        \
+    if (c != ' ' || (p > buf && p[-1] != 32)) {        \
+        check_buf(p - buf + 1, (buf_size));            \
+        *p++ = c;                                      \
+    }                                                  \
+} while (0)
+
+#  define append_eol(p, buf, buf_size) do {            \
+    check_buf(p - buf + 2, (buf_size));                \
+    if (p - buf > 1 && p[-1] != 10)                    \
+        *p++ = 10;                                     \
+    if (p - buf > 2 && p[-2] == 32) {                  \
+        p[-2] = 10;                                    \
+        p--;                                           \
+    }                                                  \
+    *p = 0;                                            \
+} while (0)
+
+#  define remove_eol(p, buf) do {                      \
+    p = strend(buf) - 1;                               \
+    if (*p == 10)                                      \
+        *p = 0;                                        \
+} while (0)
+
+#  define skip(p, c)   if (*p == c)  p++
+
+#  define alloc_array(T, n, s) do {                    \
+    if (T##_array == NULL) {                           \
+        T##_limit = (s);                               \
+        if ((unsigned)(n) > T##_limit)                 \
+            T##_limit = (n);                           \
+        T##_array = xtalloc(T##_limit, T##_entry);     \
+        T##_ptr = T##_array;                           \
+    }                                                  \
+    else if ((unsigned)(T##_ptr - T##_array + (n)) > (unsigned)(T##_limit)) { \
+        size_t last_ptr_index = T##_ptr - T##_array;          \
+        T##_limit *= 2;                                \
+        if ((unsigned)(T##_ptr - T##_array + (n)) > (unsigned)(T##_limit)) \
+            T##_limit = T##_ptr - T##_array + (n);     \
+        xretalloc(T##_array, T##_limit, T##_entry);    \
+        T##_ptr = T##_array + last_ptr_index;          \
+    }                                                  \
+} while (0)
+
+#  define define_array(T)                   \
+T##_entry      *T##_ptr, *T##_array = NULL; \
+size_t          T##_limit
+
+#  define xfree(p)            do { if (p != NULL) free(p); p = NULL; } while (0)
+#  define strend(s)           strchr(s, 0)
+#  define xtalloc             XTALLOC
+#  define xretalloc           XRETALLOC
+
+#  define set_cur_file_name(s) \
+    cur_file_name = s;         \
+    pack_file_name(maketexstring(cur_file_name), get_nullstr(), get_nullstr())
+
+#  define cmp_return(a, b) \
+    if ((a) > (b))         \
+        return 1;          \
+    if ((a) < (b))         \
+        return -1
+
+#  define str_prefix(s1, s2)  (strncmp((s1), (s2), strlen(s2)) == 0)
+
+/* that was ptexmac.h */
 
 #  include "tex/mainbody.h"
 #  include "tex/textoken.h"

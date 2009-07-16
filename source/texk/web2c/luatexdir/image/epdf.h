@@ -41,7 +41,8 @@ extern "C" {
 #include <web2c/c-auto.h>       /* define SIZEOF_LONG */
 #include <web2c/config.h>       /* define type integer */
 
-#include <web2c/luatexdir/ptexmac.h>
+#  define xfree(p)            do { if (p != NULL) free(p); p = NULL; } while (0)
+
 #include "openbsd-compat.h"
 #include "image.h"
 #include "../utils/avlstuff.h"

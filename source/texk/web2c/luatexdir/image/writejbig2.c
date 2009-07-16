@@ -90,7 +90,6 @@ static const char _svn_version[] =
 #include <stdio.h>
 #include <assert.h>
 #include "ptexlib.h"
-#include "ptexmac.h"
 #include "image.h"
 
 /**********************************************************************/

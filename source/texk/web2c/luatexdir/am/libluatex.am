@@ -142,7 +142,6 @@ libluatex_a_SOURCES = \
 	luatexdir/pdf/pdftypes.h \
 	luatexdir/pdf/pdfxform.c \
 	luatexdir/pdf/pdfxform.h \
-	luatexdir/ptexmac.h \
 	luatexdir/tex/align.c \
 	luatexdir/tex/align.h \
 	luatexdir/tex/arithmetic.c \
