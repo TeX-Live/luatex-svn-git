@@ -93,7 +93,6 @@ extern int font_to_lua(lua_State * L, int f);
 extern int font_from_lua(lua_State * L, int f); /* return is boolean */
 
 extern int luaopen_token(lua_State * L);
-extern char *tokenlist_to_cstring(int p, int inhibit_par, int *siz);
 extern void tokenlist_to_lua(lua_State * L, int p);
 extern void tokenlist_to_luastring(lua_State * L, int p);
 extern int tokenlist_from_lua(lua_State * L);

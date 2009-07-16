@@ -168,6 +168,8 @@ extern void read_toks(integer n, halfword r, halfword j);
 
 extern str_number tokens_to_string(halfword p); /* return a string from tokens list */
 
+extern char *tokenlist_to_cstring(int p, int inhibit_par, int *siz);
+
 #  define token_cmd(A) ((A) >> STRING_OFFSET_BITS)
 #  define token_chr(A) ((A) & (STRING_OFFSET - 1))
 #  define token_val(A,B) (((A)<<STRING_OFFSET_BITS)+(B))
