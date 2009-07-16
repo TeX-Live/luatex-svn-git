@@ -33,7 +33,6 @@ void place_img(PDF pdf, image * img)
     float xoff, yoff, tmp;
     pdfstructure *p = pdf->pstruct;
     scaledpos pos = pdf->posstruct->pos;
-    assert(p != NULL);
     int r;                      /* number of digits after the decimal point */
     int k;
     scaled wd, ht, dp;
@@ -41,6 +40,7 @@ void place_img(PDF pdf, image * img)
     pdffloat cm[6];
     image_dict *idict;
     integer groupref;           /* added from web for 1.40.8 */
+    assert(p != NULL);
     assert(img != 0);
     idict = img_dict(img);
     assert(idict != 0);

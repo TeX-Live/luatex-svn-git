@@ -38,8 +38,8 @@ static const char __svn_version[] =
 void pdf_page_init(PDF pdf)
 {
     pdfstructure *p;
-    assert(pdf != NULL);
     int decimal_digits = pdf->decimal_digits;
+    assert(pdf != NULL);
     if (pdf->pstruct == NULL)
         pdf->pstruct = xmalloc(sizeof(pdfstructure));
     p = pdf->pstruct;
