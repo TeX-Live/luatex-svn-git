@@ -20,7 +20,7 @@
 #include "ptexlib.h"
 
 
-#include "luatex-api.h"         /* for tokenlist_to_cstring */
+
 
 static const char __svn_version[] =
     "$Id$"

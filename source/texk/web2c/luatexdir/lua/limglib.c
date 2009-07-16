@@ -23,7 +23,7 @@
 #include <../lua51/lua.h>
 #include <../lua51/lauxlib.h>
 #include <ptexlib.h>
-#include "../luatex-api.h"
+#include "lua/luatex-api.h"
 
 
 

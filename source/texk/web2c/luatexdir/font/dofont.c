@@ -19,8 +19,7 @@
 
 #include "ptexlib.h"
 
-#include "luatex-api.h"
-
+#include "lua/luatex-api.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";

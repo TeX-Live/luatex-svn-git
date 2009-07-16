@@ -20,7 +20,7 @@
 
 #include "ptexlib.h"
 #include <string.h>
-#include "luatex-api.h"
+
 
 static const char _svn_version[] =
     "$Id$ $URL$";

@@ -85,9 +85,9 @@ libluatex_a_SOURCES = \
 	luatexdir/lua/luanode.c \
 	luatexdir/lua/luastuff.c \
 	luatexdir/lua/luatex.c \
+	luatexdir/lua/luatex-api.h \
 	luatexdir/lua/luatoken.c \
 	luatexdir/lua/texluac.c \
-	luatexdir/luatex-api.h \
 	luatexdir/luatex.h \
 	luatexdir/ocp/ocp.c \
 	luatexdir/ocp/ocp.h \

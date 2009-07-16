@@ -20,7 +20,7 @@
 #include "ptexlib.h"
 
 
-#include "luatex-api.h"         /* for tokenlist_to_cstring */
+
 
 #define count(A) eqtb[count_base+(A)].cint
 

@@ -22,7 +22,7 @@
 #include "ptexlib.h"
 #include <kpathsea/c-auto.h>
 #include <kpathsea/c-memstr.h>
-#include "luatex-api.h"         /* for tokenlist_to_cstring */
+         /* for tokenlist_to_cstring */
 
 #include "image.h"
 #include "writejpg.h"

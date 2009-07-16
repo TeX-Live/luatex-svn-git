@@ -32,7 +32,8 @@
  */
 
 #include "ptexlib.h"
-#include "luatex-api.h"
+
+#include "lua/luatex-api.h"
 
 #define noDEBUG
 

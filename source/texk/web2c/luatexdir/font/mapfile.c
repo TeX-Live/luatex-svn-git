@@ -23,7 +23,7 @@
 #include <kpathsea/c-auto.h>
 #include <kpathsea/c-memstr.h>
 #include <string.h>
-#include "luatex-api.h"
+
 
 static const char _svn_version[] =
     "$Id$ "
