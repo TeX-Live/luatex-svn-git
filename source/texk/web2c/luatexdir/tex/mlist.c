@@ -3188,6 +3188,41 @@ We set |shift_down| and |shift_up| to the minimum amounts to shift the
 baseline of subscripts and superscripts based on the given nucleus.
 */
 
+#ifdef DEBUG
+void dump_simple_field (pointer q)
+{
+    pointer p;
+    printf("   [%d,  type=%d, vlink=%d] ", q, type(q), vlink(q));
+    switch (type(q)) {
+    case math_char_node: printf("mathchar "); break; 
+    case math_text_char_node: printf("texchar "); break;
+    case sub_box_node: printf("box "); break;
+    case sub_mlist_node: 
+        printf("mlist "); 
+        p = math_list(q);
+        while (p!=null) {
+            dump_simple_field (p);
+            p = vlink(p);
+        }
+        break;
+    }
+}
+
+
+void dump_simple_node (pointer q)
+{
+    printf("node %d, type=%d, vlink=%d\n", q, type(q), vlink(q));
+    printf ("nucleus: ");
+    dump_simple_field(nucleus(q));
+    printf("\n");
+    printf ("sub: ");
+    dump_simple_field(subscr(q));
+    printf("\n");
+    printf ("sup: ");
+    dump_simple_field(supscr(q));
+    printf("\n\n");
+}
+#endif
 
 void make_scripts(pointer q, pointer p, scaled it)
 {
@@ -3311,7 +3346,7 @@ void make_scripts(pointer q, pointer p, scaled it)
             /* the superscript is also to be shifted by |delta1| (the italic correction) */
             clr = MATH_KERN_NOT_FOUND;
             if (is_char_node(p) && supscr(q) != null
-                && type(subscr(q)) == math_char_node) {
+                && type(supscr(q)) == math_char_node) {
                 fetch(supscr(q));
                 if (char_exists(cur_f, cur_c)) {
                     clr =
