@@ -482,7 +482,8 @@ void lua_initialize(int ac, char **av)
     argc = ac;
     argv = av;
 
-    ptexbanner = BANNER;
+    ptexbanner = malloc(256);
+    snprintf (ptexbanner, 256, "This is LuaTeX, Version %s-%d", luatex_version_string, luatex_date_info);
 
     program_invocation_name = cleaned_invocation_name(argv[0]);
 

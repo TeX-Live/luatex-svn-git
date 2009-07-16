@@ -118,7 +118,6 @@ extern boolean input_line (FILE *);
 
 #include <luatexdir/ptexlib.h>
 
-#define BANNER "This is LuaTeX, Version LUATEX-VERSION"
 #define COPYRIGHT_HOLDER "Taco Hoekwater"
 #define AUTHOR NULL
 #define PROGRAM_HELP LUATEXHELP

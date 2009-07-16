@@ -30,6 +30,8 @@ static const char _svn_version[] =
 #define wlog(A)      fputc(A,log_file)
 #define wterm(A)     fputc(A,term_out)
 
+extern char *ptexbanner;
+
 /*
 Messages that are sent to a user's terminal and to the transcript-log file
 are produced by several `|print|' procedures. These procedures will
@@ -346,7 +348,6 @@ void print_banner(char *v, int e)
     callback_id = callback_defined(start_run_callback);
     if (callback_id == 0) {
         fprintf(term_out, "This is LuaTeX, Version %s-%d", v, e);
-        fprintf(term_out, versionstring);
         if (format_ident > 0)
             slow_print(format_ident);
         print_ln();
@@ -370,8 +371,7 @@ void log_banner(char *v, int e)
     unsigned month = (unsigned) int_par(month_code);
     if (month > 12)
         month = 0;
-    fprintf(log_file, "This is LuaTeX, Version %s%d", v, e);
-    fprintf(log_file, versionstring);
+    fprintf(log_file, "This is LuaTeX, Version %s-%d", v, e);
     slow_print(format_ident);
     print_char(' ');
     print_char(' ');
@@ -403,8 +403,7 @@ void log_banner(char *v, int e)
 
 void print_version_banner(void)
 {
-    fprintf(term_out, "%s%s", BANNER, luatex_version_string);   /* todo: get the extra info in here */
-    fprintf(term_out, versionstring);
+    fprintf(term_out, ptexbanner);   /* todo: get the extra info in here */
     /* write_svnversion(luatex_svnversion); */
 }
 
