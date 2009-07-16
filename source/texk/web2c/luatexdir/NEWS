@@ -1,4 +1,62 @@
 ==============================================================
+Luatex beta-0.42.0 was released 20090717
+==============================================================
+
+* There is a new node.tail() function
+
+* lua-loaded fonts now support a 'nomath' key to speed up 
+  loading the lua table.
+
+* A bugfix in the ttf reader for the inclusion backend, and
+  (also in the backend) support for treating ttc files by 
+  pretending they are single ttf fonts (both patches from pdftex)
+
+* Add Khaled Hosny's man page to the repository
+
+* The \pdfcompresslevel is now effectively fixed as soon as
+  output to the pdf file has occurred.
+
+* Patched status.filename so that it (nearly) always returns a 
+  file name.
+
+* fix '\the\delcode' and disable '\the\odelcode', '\the\Udelcode',
+  and '\the\Udelcodenum'  
+
+* Handle jfifs where either xres or yres is 0 and the other 
+  res is != 0 (from pdftex)
+
+* The single-argument version of lang.hyphenate() was broken.
+
+* Get rid of the \directlua/\latelua number warning.
+
+* The Lua coroutine patch (coco) is now disabled on linux
+  powerpc architectures (because it caused crashes)
+
+* Removed obsolete pdftex primitives: 
+  \pdfoptionalwaysusepdfpagebox 
+  \pdfoptionpdfinclusionerrorlevel 
+  \pdfforcepagebox
+  \pdfmovechars
+
+* The loading speed of large fonts (especially ttf) via the 
+  fontloader library, and the inclusion speed for subsetting
+  in the backend have both been improved.
+
+* The 'pdf' lua library has been enhanced with various new 
+  functions, see the manual for details.
+
+* BLT and BRT glyph position fixed.
+
+* Various fixes for synctex offsets.
+
+* Support for exotic font string encodings has been removed 
+  from the fontloader library.
+
+* The embedded MPlib is now 1.205.
+
+* libpng is now 1.2.38.
+
+==============================================================
 Luatex beta-0.40.6 was released 20090625
 ==============================================================
 
@@ -8,7 +66,6 @@ Luatex beta-0.40.6 was released 20090625
 
 * Sometimes pdf.print() could be used before the proper structures
   were initialized.
-  
 
 * There was a bug in the type codes for the lua package filter 
   callback: wrong extra info was passed to lua for the alignment 
