@@ -264,7 +264,7 @@ am_libluatex_a_OBJECTS = libluatex_a-dvigen.$(OBJEXT) \
 	libluatex_a-filename.$(OBJEXT) \
 	libluatex_a-inputstack.$(OBJEXT) \
 	libluatex_a-linebreak.$(OBJEXT) libluatex_a-mainbody.$(OBJEXT) \
-	libluatex_a-maincontrol.$(OBJEXT) libluatex_a-math.$(OBJEXT) \
+	libluatex_a-maincontrol.$(OBJEXT) \
 	libluatex_a-mathcodes.$(OBJEXT) \
 	libluatex_a-memoryword.$(OBJEXT) libluatex_a-mlist.$(OBJEXT) \
 	libluatex_a-nesting.$(OBJEXT) libluatex_a-packaging.$(OBJEXT) \
@@ -273,9 +273,10 @@ am_libluatex_a_OBJECTS = libluatex_a-dvigen.$(OBJEXT) \
 	libluatex_a-scanning.$(OBJEXT) \
 	libluatex_a-stringpool.$(OBJEXT) \
 	libluatex_a-texdeffont.$(OBJEXT) \
-	libluatex_a-texfileio.$(OBJEXT) libluatex_a-texnodes.$(OBJEXT) \
-	libluatex_a-textoken.$(OBJEXT) libluatex_a-textcodes.$(OBJEXT) \
-	libluatex_a-avl.$(OBJEXT) libluatex_a-avlstuff.$(OBJEXT) \
+	libluatex_a-texfileio.$(OBJEXT) libluatex_a-texmath.$(OBJEXT) \
+	libluatex_a-texnodes.$(OBJEXT) libluatex_a-textoken.$(OBJEXT) \
+	libluatex_a-textcodes.$(OBJEXT) libluatex_a-avl.$(OBJEXT) \
+	libluatex_a-avlstuff.$(OBJEXT) \
 	libluatex_a-managed-sa.$(OBJEXT) libluatex_a-synctex.$(OBJEXT) \
 	libluatex_a-utils.$(OBJEXT) libluatex_a-lmplib.$(OBJEXT)
 libluatex_a_OBJECTS = $(am_libluatex_a_OBJECTS)
@@ -1437,11 +1438,11 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/mainbody.h \
 	luatexdir/tex/maincontrol.c \
 	luatexdir/tex/maincontrol.h \
-	luatexdir/tex/math.c \
 	luatexdir/tex/mathcodes.c \
 	luatexdir/tex/memoryword.c \
 	luatexdir/tex/memoryword.h \
 	luatexdir/tex/mlist.c \
+	luatexdir/tex/mlist.h \
 	luatexdir/tex/nesting.c \
 	luatexdir/tex/nesting.h \
 	luatexdir/tex/packaging.c \
@@ -1459,6 +1460,7 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/texdeffont.c \
 	luatexdir/tex/texfileio.c \
 	luatexdir/tex/texfileio.h \
+	luatexdir/tex/texmath.c \
 	luatexdir/tex/texmath.h \
 	luatexdir/tex/texnodes.c \
 	luatexdir/tex/texnodes.h \
@@ -1898,7 +1900,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-maincontrol.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-managed-sa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mapfile.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-math.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mathcodes.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-memoryword.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mlist.Po@am__quote@
@@ -1945,6 +1946,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-texfont.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-texlang.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-texluac.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-texmath.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-texnodes.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-textcodes.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-textoken.Po@am__quote@
@@ -4893,20 +4895,6 @@ libluatex_a-maincontrol.obj: luatexdir/tex/maincontrol.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-maincontrol.obj `if test -f 'luatexdir/tex/maincontrol.c'; then $(CYGPATH_W) 'luatexdir/tex/maincontrol.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/maincontrol.c'; fi`
 
-libluatex_a-math.o: luatexdir/tex/math.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-math.o -MD -MP -MF $(DEPDIR)/libluatex_a-math.Tpo -c -o libluatex_a-math.o `test -f 'luatexdir/tex/math.c' || echo '$(srcdir)/'`luatexdir/tex/math.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-math.Tpo $(DEPDIR)/libluatex_a-math.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/math.c' object='libluatex_a-math.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-math.o `test -f 'luatexdir/tex/math.c' || echo '$(srcdir)/'`luatexdir/tex/math.c
-
-libluatex_a-math.obj: luatexdir/tex/math.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-math.obj -MD -MP -MF $(DEPDIR)/libluatex_a-math.Tpo -c -o libluatex_a-math.obj `if test -f 'luatexdir/tex/math.c'; then $(CYGPATH_W) 'luatexdir/tex/math.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/math.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-math.Tpo $(DEPDIR)/libluatex_a-math.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/math.c' object='libluatex_a-math.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-math.obj `if test -f 'luatexdir/tex/math.c'; then $(CYGPATH_W) 'luatexdir/tex/math.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/math.c'; fi`
-
 libluatex_a-mathcodes.o: luatexdir/tex/mathcodes.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-mathcodes.o -MD -MP -MF $(DEPDIR)/libluatex_a-mathcodes.Tpo -c -o libluatex_a-mathcodes.o `test -f 'luatexdir/tex/mathcodes.c' || echo '$(srcdir)/'`luatexdir/tex/mathcodes.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-mathcodes.Tpo $(DEPDIR)/libluatex_a-mathcodes.Po
@@ -5074,6 +5062,20 @@ libluatex_a-texfileio.obj: luatexdir/tex/texfileio.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/texfileio.c' object='libluatex_a-texfileio.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-texfileio.obj `if test -f 'luatexdir/tex/texfileio.c'; then $(CYGPATH_W) 'luatexdir/tex/texfileio.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/texfileio.c'; fi`
+
+libluatex_a-texmath.o: luatexdir/tex/texmath.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-texmath.o -MD -MP -MF $(DEPDIR)/libluatex_a-texmath.Tpo -c -o libluatex_a-texmath.o `test -f 'luatexdir/tex/texmath.c' || echo '$(srcdir)/'`luatexdir/tex/texmath.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-texmath.Tpo $(DEPDIR)/libluatex_a-texmath.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/texmath.c' object='libluatex_a-texmath.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-texmath.o `test -f 'luatexdir/tex/texmath.c' || echo '$(srcdir)/'`luatexdir/tex/texmath.c
+
+libluatex_a-texmath.obj: luatexdir/tex/texmath.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-texmath.obj -MD -MP -MF $(DEPDIR)/libluatex_a-texmath.Tpo -c -o libluatex_a-texmath.obj `if test -f 'luatexdir/tex/texmath.c'; then $(CYGPATH_W) 'luatexdir/tex/texmath.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/texmath.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libluatex_a-texmath.Tpo $(DEPDIR)/libluatex_a-texmath.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/tex/texmath.c' object='libluatex_a-texmath.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-texmath.obj `if test -f 'luatexdir/tex/texmath.c'; then $(CYGPATH_W) 'luatexdir/tex/texmath.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/texmath.c'; fi`
 
 libluatex_a-texnodes.o: luatexdir/tex/texnodes.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-texnodes.o -MD -MP -MF $(DEPDIR)/libluatex_a-texnodes.Tpo -c -o libluatex_a-texnodes.o `test -f 'luatexdir/tex/texnodes.c' || echo '$(srcdir)/'`luatexdir/tex/texnodes.c

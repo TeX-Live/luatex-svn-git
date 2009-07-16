@@ -173,11 +173,11 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/mainbody.h \
 	luatexdir/tex/maincontrol.c \
 	luatexdir/tex/maincontrol.h \
-	luatexdir/tex/math.c \
 	luatexdir/tex/mathcodes.c \
 	luatexdir/tex/memoryword.c \
 	luatexdir/tex/memoryword.h \
 	luatexdir/tex/mlist.c \
+	luatexdir/tex/mlist.h \
 	luatexdir/tex/nesting.c \
 	luatexdir/tex/nesting.h \
 	luatexdir/tex/packaging.c \
@@ -195,6 +195,7 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/texdeffont.c \
 	luatexdir/tex/texfileio.c \
 	luatexdir/tex/texfileio.h \
+	luatexdir/tex/texmath.c \
 	luatexdir/tex/texmath.h \
 	luatexdir/tex/texnodes.c \
 	luatexdir/tex/texnodes.h \

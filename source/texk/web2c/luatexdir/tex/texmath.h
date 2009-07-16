@@ -85,14 +85,6 @@ extern void dump_math_data(void);
 extern void undump_math_data(void);
 void unsave_math_data(integer lvl);
 
-extern pointer cur_mlist;
-extern integer cur_style;
-extern boolean mlist_penalties;
-extern integer cur_size;
-
-scaled get_math_quad(int a);
-boolean check_necessary_fonts(void);
-
 /*
   @ We also need to compute the change in style between mlists and their
   subsidiaries. The following macros define the subsidiary style for
@@ -122,8 +114,6 @@ extern const char *math_style_names[];
 #  define num_style(A) (A)+2-2*((A)/6)  /* smaller unless already script-script */
 #  define denom_style(A) 2*((A)/2)+cramped+2-2*((A)/6)  /* smaller, cramped */
 #  define sup_sup_style(A) sup_style(sup_style((A)))    /* smaller */
-
-void mlist_to_hlist(void);
 
 void setup_math_style(void);
 void print_math_style(void);

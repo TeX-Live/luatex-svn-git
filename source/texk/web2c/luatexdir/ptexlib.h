@@ -546,6 +546,7 @@ extern void zwclose (FILE *);
 
 #  include "tex/texnodes.h"
 #  include "tex/texmath.h"
+#  include "tex/mlist.h"
 #  include "tex/primitive.h"
 #  include "tex/commands.h"
 
