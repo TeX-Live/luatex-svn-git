@@ -33,6 +33,8 @@ PPCCROSS=FALSE
 JOBS_IF_PARALLEL=2
 MAX_LOAD_IF_PARALLEL=3.0
 
+CFLAGS="$CFLAGS -Wdeclaration-after-statement"
+
 while [ "$1" != "" ] ; do
   if [ "$1" = "--make" ] ;
   then ONLY_MAKE=TRUE ;
