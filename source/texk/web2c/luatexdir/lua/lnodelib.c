@@ -777,6 +777,24 @@ static int lua_nodelib_tail(lua_State * L)
     return 1;
 }
 
+static int lua_nodelib_tail_only(lua_State * L)
+{
+    halfword *n;
+    halfword t;
+    if (lua_isnil(L, 1))
+        return 1;               /* the nil itself */
+    n = check_isnode(L, 1);
+    t = *n;
+    if (t == null)
+        return 1;               /* the old userdata */
+    while (vlink(t) != null) {
+        t = vlink(t);
+    }
+    lua_nodelib_push_fast(L, t);
+    return 1;
+}
+
+
 /* a few utility functions for attribute stuff */
 
 static int lua_nodelib_has_attribute(lua_State * L)
@@ -3227,6 +3245,7 @@ static const struct luaL_reg nodelib_f[] = {
     {"count", lua_nodelib_count},
     {"traverse", lua_nodelib_traverse},
     {"traverse_id", lua_nodelib_traverse_filtered},
+    {"tail", lua_nodelib_tail_only},
     {"slide", lua_nodelib_tail},
     {"types", lua_nodelib_types},
     {"whatsits", lua_nodelib_whatsits},
