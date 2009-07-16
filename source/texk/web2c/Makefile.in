@@ -1430,6 +1430,7 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/extensions.c \
 	luatexdir/tex/extensions.h \
 	luatexdir/tex/filename.c \
+	luatexdir/tex/filename.h \
 	luatexdir/tex/inputstack.c \
 	luatexdir/tex/inputstack.h \
 	luatexdir/tex/linebreak.h \
@@ -1439,6 +1440,7 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/maincontrol.c \
 	luatexdir/tex/maincontrol.h \
 	luatexdir/tex/mathcodes.c \
+	luatexdir/tex/mathcodes.h \
 	luatexdir/tex/memoryword.c \
 	luatexdir/tex/memoryword.h \
 	luatexdir/tex/mlist.c \
@@ -1458,6 +1460,7 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/stringpool.c \
 	luatexdir/tex/stringpool.h \
 	luatexdir/tex/texdeffont.c \
+	luatexdir/tex/texdeffont.h \
 	luatexdir/tex/texfileio.c \
 	luatexdir/tex/texfileio.h \
 	luatexdir/tex/texmath.c \
@@ -1467,6 +1470,7 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/textoken.c \
 	luatexdir/tex/textoken.h \
 	luatexdir/tex/textcodes.c \
+	luatexdir/tex/textcodes.h \
 	luatexdir/utils/avl.c \
 	luatexdir/utils/avl.h \
 	luatexdir/utils/avlstuff.c \

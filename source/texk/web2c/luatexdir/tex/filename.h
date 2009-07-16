@@ -1,7 +1,6 @@
-/* mlist.h
+/* filename.h
    
-   Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -20,23 +19,14 @@
 
 /* $Id$ */
 
-#ifndef MLIST_H
-#  define MLIST_H 1
+#ifndef FILENAME_H
+#  define FILENAME_H
 
-extern pointer cur_mlist;
-extern integer cur_style;
-extern boolean mlist_penalties;
-extern integer cur_size;
+extern void scan_file_name(void);
+extern void pack_job_name(char *s);
+extern void prompt_file_name(char *s, char *e);
+extern str_number make_name_string(void);
+extern void print_file_name(str_number, str_number, str_number);
 
-void run_mlist_to_hlist(halfword, integer, boolean);
-void fixup_math_parameters(integer fam_id, integer size_id, integer f,
-                           integer lvl);
-
-
-scaled get_math_quad(int a);
-boolean check_necessary_fonts(void);
-
-void mlist_to_hlist(void);
 
 #endif
-

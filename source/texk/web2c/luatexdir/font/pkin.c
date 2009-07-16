@@ -44,6 +44,8 @@
 #include "ptexlib.h"
 #include "luatexfont.h"
 
+typedef short shalfword;
+
 static const char _svn_version[] =
     "$Id$ $URL$";
 

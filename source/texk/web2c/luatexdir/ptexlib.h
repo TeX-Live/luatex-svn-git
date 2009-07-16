@@ -230,17 +230,7 @@ size_t          T##_limit
 
 /**********************************************************************/
 
-typedef short shalfword;
-
-/* loadpool.c */
-int loadpoolstrings(integer spare_size);
-
-/* tex/filename.c */
-extern void scan_file_name(void);
-extern void pack_job_name(char *s);
-extern void prompt_file_name(char *s, char *e);
-extern str_number make_name_string(void);
-extern void print_file_name(str_number, str_number, str_number);
+#include "tex/filename.h"
 
 /* lua/luainit.c */
 extern void write_svnversion(char *a);
@@ -269,76 +259,8 @@ void show_pdf_literal(pointer p);
 void load_tex_patterns(int curlang, halfword head);
 void load_tex_hyphenation(int curlang, halfword head);
 
-/* textcodes.c */
-void set_lc_code(integer n, halfword v, quarterword gl);
-halfword get_lc_code(integer n);
-void set_uc_code(integer n, halfword v, quarterword gl);
-halfword get_uc_code(integer n);
-void set_sf_code(integer n, halfword v, quarterword gl);
-halfword get_sf_code(integer n);
-void set_cat_code(integer h, integer n, halfword v, quarterword gl);
-halfword get_cat_code(integer h, integer n);
-void unsave_cat_codes(integer h, quarterword gl);
-int valid_catcode_table(int h);
-void initex_cat_codes(int h);
-void unsave_text_codes(quarterword grouplevel);
-void initialize_text_codes(void);
-void dump_text_codes(void);
-void undump_text_codes(void);
-void copy_cat_codes(int from, int to);
-void free_math_codes(void);
-void free_text_codes(void);
-
-/* mathcodes.c */
-
-#  define no_mathcode 0         /* this is a flag for |scan_delimiter| */
-#  define tex_mathcode 8
-#  define aleph_mathcode 16
-#  define xetex_mathcode 21
-#  define xetexnum_mathcode 22
-
-typedef struct mathcodeval {
-    integer class_value;
-    integer origin_value;
-    integer family_value;
-    integer character_value;
-} mathcodeval;
-
-void set_math_code(integer n,
-                   integer commandorigin,
-                   integer mathclass,
-                   integer mathfamily, integer mathcharacter, quarterword gl);
-
-mathcodeval get_math_code(integer n);
-integer get_math_code_num(integer n);
-integer get_del_code_num(integer n);
-mathcodeval scan_mathchar(int extcode);
-mathcodeval scan_delimiter_as_mathchar(int extcode);
-
-mathcodeval mathchar_from_integer(integer value, int extcode);
-void show_mathcode_value(mathcodeval d);
-
-typedef struct delcodeval {
-    integer class_value;
-    integer origin_value;
-    integer small_family_value;
-    integer small_character_value;
-    integer large_family_value;
-    integer large_character_value;
-} delcodeval;
-
-void set_del_code(integer n,
-                  integer commandorigin,
-                  integer smathfamily,
-                  integer smathcharacter,
-                  integer lmathfamily, integer lmathcharacter, quarterword gl);
-
-delcodeval get_del_code(integer n);
-
-void unsave_math_codes(quarterword grouplevel);
-void initialize_math_codes(void);
-void dump_math_codes(void);
-void undump_math_codes(void);
+#include "tex/textcodes.h"
+#include "tex/mathcodes.h"
 
 /* lua/llualib.c */
 
@@ -375,14 +297,7 @@ extern void check_texconfig_init(void);
 scaled divide_scaled(scaled s, scaled m, integer dd);
 scaled divide_scaled_n(double s, double m, double d);
 
-/* tex/mlist.c */
-void run_mlist_to_hlist(pointer p, integer m_style, boolean penalties);
-void fixup_math_parameters(integer fam_id, integer size_id, integer f,
-                           integer lvl);
-
-/* tex/texdeffont.c */
-
-void tex_def_font(small_number a);
+#include "tex/texdeffont.h"
 
 /* lcallbacklib.c */
 

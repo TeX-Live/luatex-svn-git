@@ -2092,7 +2092,7 @@ integer cur_size;               /* size code corresponding to |cur_style|  */
 scaled cur_mu;                  /* the math unit width corresponding to |cur_size| */
 boolean mlist_penalties;        /* should |mlist_to_hlist| insert penalties? */
 
-void run_mlist_to_hlist(pointer p, integer mstyle, boolean penalties)
+void run_mlist_to_hlist(halfword p, integer mstyle, boolean penalties)
 {
     int callback_id;
     int a, sfix;
