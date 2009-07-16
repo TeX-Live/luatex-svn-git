@@ -426,7 +426,7 @@ void begin_token_list(halfword p, quarterword t)
                     tprint_esc("write");
                 else
                     print_cmd_chr(assign_toks_cmd,
-                                  t - output_text + equiv(output_routine_loc));
+                                  t - output_text + output_routine_loc);
                 tprint("->");
                 token_show(p);
                 end_diagnostic(false);
