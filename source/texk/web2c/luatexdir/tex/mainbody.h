@@ -166,14 +166,6 @@ extern boolean quoted_filename;
 
 #  define fix_date_and_time() dateandtime(int_par(time_code),int_par(day_code),int_par(month_code),int_par(year_code))
 
-extern two_halves *hash;        /* the hash table */
-extern halfword hash_used;      /* allocation pointer for |hash| */
-extern integer hash_extra;      /* |hash_extra=hash| above |eqtb_size| */
-extern halfword hash_top;       /* maximum of the hash array */
-extern halfword hash_high;      /* pointer to next high hash location */
-extern boolean no_new_control_sequence; /* are new identifiers legal? */
-extern integer cs_count;        /* total number of known identifiers */
-
 extern integer mag_set;         /* if nonzero, this magnification should be used henceforth */
 extern void prepare_mag(void);
 

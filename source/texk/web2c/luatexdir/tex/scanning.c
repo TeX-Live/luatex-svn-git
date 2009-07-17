@@ -29,8 +29,7 @@ static const char _svn_version[] =
 #define prev_depth cur_list.aux_field.cint
 #define space_factor cur_list.aux_field.hh.lhfield
 #define par_shape_ptr  equiv(par_shape_loc)
-#define text(A) hash[(A)].rh
-#define font_id_text(A) text(font_id_base+(A))
+#define font_id_text(A) cs_text(font_id_base+(A))
 
 #define attribute(A) eqtb[attribute_base+(A)].hh.rh
 #define dimen(A) eqtb[scaled_base+(A)].hh.rh
@@ -825,7 +824,7 @@ void scan_something_internal(int level, boolean negative)
                    expansion creating new errors.
                  */
                 get_token();
-                cur_cs = prim_lookup(text(cur_cs));
+                cur_cs = prim_lookup(cs_text(cur_cs));
                 if (cur_cs != undefined_primitive) {
                     cur_cmd = get_prim_eq_type(cur_cs);
                     cur_chr = get_prim_equiv(cur_cs);
@@ -1045,12 +1044,11 @@ void scan_int(void)
                     decr(align_state);
             }
         } else {                /* the value of a csname in this context is its name */
-            if (is_active_cs(text(cur_tok - cs_token_flag)))
-                cur_val = active_cs_value(text(cur_tok - cs_token_flag));
-            else if (single_letter(text(cur_tok - cs_token_flag)))
-                cur_val =
-                    pool_to_unichar(str_start_macro
-                                    (text(cur_tok - cs_token_flag)));
+            str_number txt = cs_text(cur_tok - cs_token_flag);
+            if (is_active_cs(txt))
+                cur_val = active_cs_value(txt);
+            else if (single_letter(txt))
+                cur_val = pool_to_unichar(str_start_macro(txt));
             else
                 cur_val = (biggest_char + 1);
         }
@@ -1077,7 +1075,7 @@ void scan_int(void)
            expansion creating new errors.
          */
         get_token();
-        cur_cs = prim_lookup(text(cur_cs));
+        cur_cs = prim_lookup(cs_text(cur_cs));
         if (cur_cs != undefined_primitive) {
             cur_cmd = get_prim_eq_type(cur_cs);
             cur_chr = get_prim_equiv(cur_cs);

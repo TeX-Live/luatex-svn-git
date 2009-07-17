@@ -24,8 +24,6 @@ static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
-#define text(A) hash[(A)].rh
-
 /*
 Only a dozen or so command codes |>max_command| can possibly be returned by
 |get_next|; in increasing order, they are |undefined_cs|, |expand_after|,
@@ -197,7 +195,7 @@ void expand(void)
                 scanner_status = normal;
                 get_token();
                 scanner_status = save_scanner_status;
-                cur_cs = prim_lookup(text(cur_cs));
+                cur_cs = prim_lookup(cs_text(cur_cs));
                 if (cur_cs != undefined_primitive) {
                     t = get_prim_eq_type(cur_cs);
                     if (t > max_command_cmd) {

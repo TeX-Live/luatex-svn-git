@@ -208,10 +208,12 @@ size_t          T##_limit
 
 #  include "lang/texlang.h"
 
+#  include "tex/textcodes.h"
+#  include "tex/mathcodes.h"
+
 #  include "tex/align.h"
 #  include "tex/directions.h"
 #  include "tex/errors.h"
-#  include "tex/equivalents.h"
 #  include "tex/inputstack.h"
 #  include "tex/stringpool.h"
 #  include "tex/printing.h"
@@ -227,10 +229,17 @@ size_t          T##_limit
 #  include "tex/dumpdata.h"
 #  include "tex/mainbody.h"
 #  include "tex/extensions.h"
+#  include "tex/texnodes.h"
+
+#  include "tex/texmath.h"
+#  include "tex/mlist.h"
+#  include "tex/primitive.h"
+#  include "tex/commands.h"
+#  include "tex/equivalents.h"
 
 /**********************************************************************/
 
-#include "tex/filename.h"
+#  include "tex/filename.h"
 
 /* lua/luainit.c */
 extern void write_svnversion(char *a);
@@ -258,9 +267,6 @@ void show_pdf_literal(pointer p);
 
 void load_tex_patterns(int curlang, halfword head);
 void load_tex_hyphenation(int curlang, halfword head);
-
-#include "tex/textcodes.h"
-#include "tex/mathcodes.h"
 
 /* lua/llualib.c */
 
@@ -458,13 +464,6 @@ extern void setupboundvariable (integer *, const_string, integer);
 extern boolean zopen_w_input (FILE **, int, const_string fopen_mode);
 extern boolean zopen_w_output (FILE **, const_string fopen_mode);
 extern void zwclose (FILE *);
-
-#  include "tex/texnodes.h"
-#  include "tex/texmath.h"
-#  include "tex/mlist.h"
-#  include "tex/primitive.h"
-#  include "tex/commands.h"
-
 
 /* here  are a few functions that used to be in coerce.h */
 

@@ -20,8 +20,6 @@
 
 #include <ptexlib.h>
 
-#define text(A) hash[(A)].rh    /* string number for control sequence name */
-
 static const char _svn_version[] =
     "$Id$ $URL$";
 
@@ -579,7 +577,7 @@ char *cs_to_string(halfword p)
         ret[k] = 0;
 
     } else {
-        str_number txt = text(p);
+        str_number txt = cs_text(p);
         s = makecstring(txt);
         if (is_active_cs(txt)) {
             s = s + 3;
@@ -2297,10 +2295,10 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
                            && ((q <= eqtb_size)
                                || (q > eqtb_size + hash_extra))) {
                     Print_esc("IMPOSSIBLE.");
-                } else if ((text(q) < 0) || (text(q) >= str_ptr)) {
+                } else if ((cs_text(q) < 0) || (cs_text(q) >= str_ptr)) {
                     Print_esc("NONEXISTENT.");
                 } else {
-                    str_number txt = text(q);
+                    str_number txt = cs_text(q);
                     s = makecstring(txt);
                     if (is_active_cs(txt)) {
                         s = s + 3;

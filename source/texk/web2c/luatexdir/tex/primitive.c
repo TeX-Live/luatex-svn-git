@@ -26,16 +26,41 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-/* as usual, the file starts with a bunch of #defines that mimic pascal @ds */
+/*
+Control sequences are stored and retrieved by means of a fairly standard hash
+table algorithm called the method of ``coalescing lists'' (cf.\ Algorithm 6.4C
+in {\sl The Art of Computer Programming\/}). Once a control sequence enters the
+table, it is never removed, because there are complicated situations
+involving \.{\\gdef} where the removal of a control sequence at the end of
+a group would be a mistake preventable only by the introduction of a
+complicated reference-count mechanism.
 
-#define level_one 1
+The actual sequence of letters forming a control sequence identifier is
+stored in the |str_pool| array together with all the other strings. An
+auxiliary array |hash| consists of items with two halfword fields per
+word. The first of these, called |next(p)|, points to the next identifier
+belonging to the same coalesced list as the identifier corresponding to~|p|;
+and the other, called |text(p)|, points to the |str_start| entry for
+|p|'s identifier. If position~|p| of the hash table is empty, we have
+|text(p)=0|; if position |p| is either empty or the end of a coalesced
+hash list, we have |next(p)=0|. An auxiliary pointer variable called
+|hash_used| is maintained in such a way that all locations |p>=hash_used|
+are nonempty. The global variable |cs_count| tells how many multiletter
+control sequences have been defined, if statistics are being kept.
 
-#define next(a) hash[(a)].lhfield       /* link for coalesced lists */
-#define text(a) hash[(a)].rh    /* string number for control sequence name */
+A global boolean variable called |no_new_control_sequence| is set to
+|true| during the time that new hash table entries are forbidden.
+*/
+
+two_halves *hash;               /* the hash table */
+halfword hash_used;             /* allocation pointer for |hash| */
+integer hash_extra;             /* |hash_extra=hash| above |eqtb_size| */
+halfword hash_top;              /* maximum of the hash array */
+halfword hash_high;             /* pointer to next high hash location */
+boolean no_new_control_sequence;        /* are new identifiers legal? */
+integer cs_count;               /* total number of known identifiers */
+
 #define hash_is_full (hash_used==hash_base)     /* test if all positions are occupied */
-#define hash_size 65536
-
-#define protected_token 0x1C00001       /* $2^{21}\cdot|end_match|+1$ */
 
 /* \primitive support needs a few extra variables and definitions */
 
@@ -334,20 +359,20 @@ static halfword insert_id(halfword p, unsigned char *j, pool_pointer l)
     /* This code far from ideal: the existance of |hash_extra| changes
        all the potential (short) coalesced lists into a single (long)
        one. This will create a slowdown. */
-    if (text(p) > 0) {
+    if (cs_text(p) > 0) {
         if (hash_high < hash_extra) {
             incr(hash_high);
             /* can't use eqtb_top here (perhaps because that is not finalized 
                yet when called from |primitive|?) */
-            next(p) = hash_high + eqtb_size;
-            p = next(p);
+            cs_next(p) = hash_high + eqtb_size;
+            p = cs_next(p);
         } else {
             do {
                 if (hash_is_full)
                     overflow("hash size", hash_size + hash_extra);
                 decr(hash_used);
-            } while (text(hash_used) != 0);     /* search for an empty location in |hash| */
-            next(p) = hash_used;
+            } while (cs_text(hash_used) != 0);     /* search for an empty location in |hash| */
+            cs_next(p) = hash_used;
             p = hash_used;
         }
     }
@@ -360,7 +385,7 @@ static halfword insert_id(halfword p, unsigned char *j, pool_pointer l)
     }
     for (k = j; k <= j + l - 1; k++)
         append_char(*k);
-    text(p) = make_string();
+    cs_text(p) = make_string();
     pool_ptr = pool_ptr + d;
     incr(cs_count);
     return p;
@@ -396,11 +421,11 @@ pointer id_lookup(integer j, integer l)
 #endif
     p = h + hash_base;          /* we start searching here; note that |0<=h<hash_prime| */
     while (1) {
-        if (text(p) > 0)
-            if (str_length(text(p)) == l)
-                if (str_eq_buf(text(p), j))
+        if (cs_text(p) > 0)
+            if (str_length(cs_text(p)) == l)
+                if (str_eq_buf(cs_text(p), j))
                     goto FOUND;
-        if (next(p) == 0) {
+        if (cs_next(p) == 0) {
             if (no_new_control_sequence) {
                 p = undefined_control_sequence;
             } else {
@@ -408,7 +433,7 @@ pointer id_lookup(integer j, integer l)
             }
             goto FOUND;
         }
-        p = next(p);
+        p = cs_next(p);
     }
   FOUND:
     return p;
@@ -427,10 +452,10 @@ pointer string_lookup(char *s, size_t l)
     h = compute_hash(s, l, hash_prime);
     p = h + hash_base;          /* we start searching here; note that |0<=h<hash_prime| */
     while (1) {
-        if (text(p) > 0)
-            if (str_eq_cstr(text(p), s, l))
+        if (cs_text(p) > 0)
+            if (str_eq_cstr(cs_text(p), s, l))
                 goto FOUND;
-        if (next(p) == 0) {
+        if (cs_next(p) == 0) {
             if (no_new_control_sequence) {
                 p = undefined_control_sequence;
             } else {
@@ -438,7 +463,7 @@ pointer string_lookup(char *s, size_t l)
             }
             goto FOUND;
         }
-        p = next(p);
+        p = cs_next(p);
     }
   FOUND:
     return p;

@@ -23,11 +23,7 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define text(A) hash[(A)].rh    /* string number for control sequence name */
-
 extern int get_command_id(char *);
-
-#define  protected_token 0x1C00001
 
 #define  is_valid_token(L,i)  (lua_istable(L,i) && lua_objlen(L,i)==3)
 #define  get_token_cmd(L,i)  lua_rawgeti(L,i,1)
@@ -40,10 +36,10 @@ static unsigned char *get_cs_text(integer cs)
 {
     if (cs == null_cs)
         return (unsigned char *)"\\csname\\endcsname";
-    else if ((text(cs) < 0) || (text(cs) >= str_ptr))
+    else if ((cs_text(cs) < 0) || (cs_text(cs) >= str_ptr))
         return (unsigned char *)"";
     else
-        return (unsigned char *)makecstring(text(cs));
+        return (unsigned char *)makecstring(cs_text(cs));
 }
 
 

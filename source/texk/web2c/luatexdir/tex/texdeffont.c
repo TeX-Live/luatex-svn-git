@@ -26,8 +26,6 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define text(a) hash[(a)].rh    /* string number for control sequence name */
-
 char *scaled_to_string(scaled s)
 {                               /* prints scaled real, rounded to five digits */
     static char result[16];
@@ -80,7 +78,7 @@ void tex_def_font(small_number a)
     get_r_token();
     u = cur_cs;
     if (u >= null_cs)
-        t = text(u);
+        t = cs_text(u);
     else
         t = maketexstring("FONT");
     if (a >= 4) {
@@ -183,5 +181,5 @@ void tex_def_font(small_number a)
     f = read_font_info(u, cur_name, s, natural_dir);
     equiv(u) = f;
     eqtb[font_id_base + f] = eqtb[u];
-    text(font_id_base + f) = t;
+    cs_text(font_id_base + f) = t;
 }

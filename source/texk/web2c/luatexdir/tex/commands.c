@@ -23,8 +23,6 @@ static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
-#define text(A) hash[(A)].rh
-
 void initialize_commands(void)
 {
 
@@ -341,7 +339,7 @@ void initialize_commands(void)
     primitive_tex("divide", divide_cmd, 0, 0);
     primitive_tex("endcsname", end_cs_name_cmd, 0, 0);
     primitive_tex("endgroup", end_group_cmd, 0, 0);
-    text(frozen_end_group) = maketexstring("endgroup");
+    cs_text(frozen_end_group) = maketexstring("endgroup");
     eqtb[frozen_end_group] = eqtb[cur_val];
     primitive_tex("expandafter", expand_after_cmd, 0, 0);
     primitive_tex("font", def_font_cmd, 0, 0);
@@ -386,7 +384,7 @@ void initialize_commands(void)
     primitive_luatex("Udelimiterover", radical_cmd, 7, 0);
     primitive_tex("read", read_to_cs_cmd, 0, 0);
     primitive_tex("relax", relax_cmd, too_big_char, too_big_char);
-    text(frozen_relax) = maketexstring("relax");
+    cs_text(frozen_relax) = maketexstring("relax");
     eqtb[frozen_relax] = eqtb[cur_val];
     primitive_omega("rightghost", char_ghost_cmd, 1, 0);
     primitive_tex("setbox", set_box_cmd, 0, 0);
@@ -514,7 +512,7 @@ void initialize_commands(void)
     primitive_pdftex("ifpdfprimitive", if_test_cmd, if_primitive_code, 0);
 
     primitive_tex("fi", fi_or_else_cmd, fi_code, 0);
-    text(frozen_fi) = maketexstring("fi");
+    cs_text(frozen_fi) = maketexstring("fi");
     eqtb[frozen_fi] = eqtb[cur_val];
     primitive_tex("or", fi_or_else_cmd, or_code, 0);
     primitive_tex("else", fi_or_else_cmd, else_code, 0);
@@ -522,28 +520,28 @@ void initialize_commands(void)
     /* \TeX\ always knows at least one font, namely the null font. It has no
        characters, and its seven parameters are all equal to zero. */
     primitive_tex("nullfont", set_font_cmd, null_font, 0);
-    text(frozen_null_font) = maketexstring("nullfont");
+    cs_text(frozen_null_font) = maketexstring("nullfont");
     eqtb[frozen_null_font] = eqtb[cur_val];
     /* $\Omega$ always knows at least one ocp, namely the null ocp.
        It does nothing. */
     primitive_omega("nullocp", set_ocp_cmd, null_ocp, 0);
-    text(frozen_null_ocp) = maketexstring("nullocp");
+    cs_text(frozen_null_ocp) = maketexstring("nullocp");
     eqtb[frozen_null_ocp] = eqtb[cur_val];
     geq_define(ocp_active_number_base, data_cmd, 0);
     geq_define(ocp_active_min_ptr_base, data_cmd, 0);
     geq_define(ocp_active_max_ptr_base, data_cmd, 0);
     /* $\Omega$ always knows at least one ocp list, namely the null ocp list. */
     primitive_omega("nullocplist", set_ocp_list_cmd, null_ocp_list, 0);
-    text(frozen_null_ocp_list) = maketexstring("nullocplist");
+    cs_text(frozen_null_ocp_list) = maketexstring("nullocplist");
     eqtb[frozen_null_ocp_list] = eqtb[cur_val];
 
     primitive_tex("span", tab_mark_cmd, span_code, span_code);
     primitive_tex("cr", car_ret_cmd, cr_code, cr_code);
-    text(frozen_cr) = maketexstring("cr");
+    cs_text(frozen_cr) = maketexstring("cr");
     eqtb[frozen_cr] = eqtb[cur_val];
     primitive_tex("crcr", car_ret_cmd, cr_cr_code, cr_code);
-    text(frozen_end_template) = maketexstring("endtemplate");
-    text(frozen_endv) = maketexstring("endtemplate");
+    cs_text(frozen_end_template) = maketexstring("endtemplate");
+    cs_text(frozen_endv) = maketexstring("endtemplate");
     set_eq_type(frozen_endv, endv_cmd);
     set_equiv(frozen_endv, null_list);
     set_eq_level(frozen_endv, level_one);
@@ -653,7 +651,7 @@ void initialize_commands(void)
     primitive_tex("left", left_right_cmd, left_noad_side, 0);
     primitive_tex("right", left_right_cmd, right_noad_side, 0);
     primitive_tex("middle", left_right_cmd, middle_noad_side, 0);
-    text(frozen_right) = maketexstring("right");
+    cs_text(frozen_right) = maketexstring("right");
     eqtb[frozen_right] = eqtb[cur_val];
 
     primitive_tex("long", prefix_cmd, 1, 0);
@@ -945,7 +943,7 @@ void initialize_commands(void)
     write_loc = cur_val;
     primitive_tex("closeout", extension_cmd, close_node, 0);
     primitive_tex("special", extension_cmd, special_node, 0);
-    text(frozen_special) = maketexstring("special");
+    cs_text(frozen_special) = maketexstring("special");
     eqtb[frozen_special] = eqtb[cur_val];
     primitive_tex("immediate", extension_cmd, immediate_code, 0);
     primitive_omega("localinterlinepenalty", assign_int_cmd,

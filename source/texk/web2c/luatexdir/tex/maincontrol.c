@@ -99,7 +99,6 @@ static const char _svn_version[] =
 #define dir_save      cur_list.dirs_field
 
 #define check_filter(A) if (!output_active) lua_node_filter_s(buildpage_filter_callback,(A))
-#define text(a) hash[(a)].rh
 
 #define var_code 7              /* math code meaning ``use the current family'' */
 
@@ -350,7 +349,7 @@ void main_control(void)
             scanner_status = normal;
             get_token_lua();
             scanner_status = t;
-            cur_cs = prim_lookup(text(cur_cs));
+            cur_cs = prim_lookup(cs_text(cur_cs));
             if (cur_cs != undefined_primitive) {
                 cur_cmd = get_prim_eq_type(cur_cs);
                 cur_chr = get_prim_equiv(cur_cs);
@@ -3312,8 +3311,8 @@ void shift_case(void)
                 i = get_lc_code(c);
             if (i != 0)
                 set_token_info(p, t - c + i);
-        } else if (is_active_cs(text(t - cs_token_flag))) {
-            c = active_cs_value(text(t - cs_token_flag));
+        } else if (is_active_cs(cs_text(t - cs_token_flag))) {
+            c = active_cs_value(cs_text(t - cs_token_flag));
             if (b == uc_code_base)
                 i = get_uc_code(c);
             else
@@ -3786,11 +3785,11 @@ void initialize(void)
         hash_high = 0;
         cs_count = 0;
         set_eq_type(frozen_dont_expand, dont_expand_cmd);
-        text(frozen_dont_expand) = maketexstring("notexpanded:");
+        cs_text(frozen_dont_expand) = maketexstring("notexpanded:");
         set_eq_type(frozen_primitive, ignore_spaces_cmd);
         set_equiv(frozen_primitive, 1);
         set_eq_level(frozen_primitive, level_one);
-        text(frozen_primitive) = maketexstring("primitive");
+        cs_text(frozen_primitive) = maketexstring("primitive");
         create_null_font();
         font_bytes = 0;
         init_null_ocp(get_nullstr(), maketexstring("nullocp"));
@@ -3808,9 +3807,9 @@ void initialize(void)
         pdf_image_apply_gamma = 0;
         pdf_px_dimen = one_bp;
         pdf_draftmode = 0;
-        text(frozen_protection) = maketexstring("inaccessible");
+        cs_text(frozen_protection) = maketexstring("inaccessible");
         format_ident = maketexstring(" (INITEX)");
-        text(end_write) = maketexstring("endwrite");
+        cs_text(end_write) = maketexstring("endwrite");
         set_eq_level(end_write, level_one);
         set_eq_type(end_write, outer_call_cmd);
         set_equiv(end_write, null);

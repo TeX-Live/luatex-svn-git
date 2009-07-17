@@ -34,11 +34,24 @@ typedef enum {
     core_command = 64,
 } command_origin;
 
+#  define hash_size 65536       /* maximum number of control sequences; it should be at most about |(fix_mem_max-fix_mem_min)/10| */
+
+#  define hash_prime 55711      /* a prime number equal to about 85\pct! of |hash_size| */
+
+extern two_halves *hash;        /* the hash table */
+extern halfword hash_used;      /* allocation pointer for |hash| */
+extern integer hash_extra;      /* |hash_extra=hash| above |eqtb_size| */
+extern halfword hash_top;       /* maximum of the hash array */
+extern halfword hash_high;      /* pointer to next high hash location */
+extern boolean no_new_control_sequence; /* are new identifiers legal? */
+extern integer cs_count;        /* total number of known identifiers */
+
+#define cs_next(a) hash[(a)].lhfield       /* link for coalesced lists */
+#define cs_text(a) hash[(a)].rh    /* string number for control sequence name */
+
 #  define undefined_primitive 0
 #  define prim_size 2100        /* maximum number of primitives */
 #  define prim_prime 1777       /* about 85\pct! of |primitive_size| */
-
-#  define hash_prime 55711      /* a prime number equal to about 85\pct! of |hash_size| */
 
 extern void init_primitives(void);
 extern void ini_init_primitives(void);
@@ -72,6 +85,5 @@ extern void print_cmd_chr(quarterword cmd, halfword chr_code);
 
 extern pointer string_lookup(char *s, size_t l);
 extern pointer id_lookup(integer j, integer l);
-
 
 #endif                          /* LUATEX_PRIMITIVE_H */

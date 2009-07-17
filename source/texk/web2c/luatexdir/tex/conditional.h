@@ -79,20 +79,4 @@ extern void change_if_limit(int l, halfword p);
 
 extern void conditional(void);
 
-/*
-An active character will be treated as category 13 following
-\.{\\if\\noexpand} or following \.{\\ifcat\\noexpand}.
-*/
-
-#  define get_x_token_or_active_char() do {				\
-	get_x_token();							\
-	if (cur_cmd==relax_cmd && cur_chr==no_expand_flag) {		\
-	    if (is_active_cs(text(cur_cs))) {				\
-		cur_cmd=active_char_cmd;				\
-		cur_chr=active_cs_value(text(cur_tok-cs_token_flag));	\
-	    }								\
-	}								\
-    } while (0)
-
-
 #endif

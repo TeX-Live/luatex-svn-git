@@ -24,8 +24,7 @@ static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
-#define text(A) hash[(A)].rh
-#define font_id_text(A) text(font_id_base+(A))
+#define font_id_text(A) cs_text(font_id_base+(A))
 
 #define wlog(A)      fputc(A,log_file)
 #define wterm(A)     fputc(A,term_out)
@@ -574,7 +573,7 @@ they may be unprintable.
 
 void print_cs(integer p)
 {                               /* prints a purported control sequence */
-    str_number t = text(p);
+    str_number t = cs_text(p);
     if (p < hash_base) {        /* nullcs */
         if (p == null_cs) {
             tprint_esc("csname");
@@ -616,7 +615,7 @@ void sprint_cs(pointer p)
         tprint_esc("csname");
         tprint_esc("endcsname");
     } else {
-        t = text(p);
+        t = cs_text(p);
         if (is_active_cs(t))
             print(active_cs_value(t));
         else
@@ -962,9 +961,9 @@ void print_csnames(integer hstart, integer hfinish)
     fprintf(stderr, "fmtdebug:csnames from %d to %d:", (int) hstart,
             (int) hfinish);
     for (h = hstart; h <= hfinish; h++) {
-        if (text(h) > 0) {      /* if have anything at this position */
-            for (c = str_start_macro(text(h));
-                 c <= str_start_macro(text(h) + 1) - 1; c++) {
+        if (cs_text(h) > 0) {      /* if have anything at this position */
+            for (c = str_start_macro(cs_text(h));
+                 c <= str_start_macro(cs_text(h) + 1) - 1; c++) {
                 fputc(str_pool[c], stderr);     /* print the characters */
             }
             fprintf(stderr, "|");

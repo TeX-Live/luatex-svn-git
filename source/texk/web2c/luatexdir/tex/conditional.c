@@ -24,9 +24,6 @@ static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
-
-#define scan_normal_dimen() scan_dimen(false,false,false)
-#define text(A) hash[(A)].rh
 #define box(A) eqtb[box_base+(A)].hh.rh
 
 /* We consider now the way \TeX\ handles various kinds of \.{\\if} commands. */
@@ -221,6 +218,23 @@ static boolean test_for_cs(void)
     flush_list(n);
     return b;
 }
+
+/*
+An active character will be treated as category 13 following
+\.{\\if\\noexpand} or following \.{\\ifcat\\noexpand}.
+*/
+
+#  define get_x_token_or_active_char() do {                             \
+        get_x_token();                                                  \
+        if (cur_cmd==relax_cmd && cur_chr==no_expand_flag) {            \
+            if (is_active_cs(cs_text(cur_cs))) {                        \
+                cur_cmd=active_char_cmd;                                \
+                cur_chr=active_cs_value(cs_text(cur_tok-cs_token_flag));	\
+            }                                                           \
+        }                                                               \
+    } while (0)
+
+
 
 
 /*
@@ -448,7 +462,7 @@ void conditional(void)
         scanner_status = normal;
         get_token_lua();
         scanner_status = save_scanner_status;
-        m = prim_lookup(text(cur_cs));
+        m = prim_lookup(cs_text(cur_cs));
         b = ((cur_cmd != undefined_cs_cmd) &&
              (m != undefined_primitive) &&
              (cur_cmd == get_prim_eq_type(m)) &&

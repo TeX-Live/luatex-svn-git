@@ -36,7 +36,6 @@ emphasize this distinction.
 */
 
 #  define font_base 0           /* smallest internal font number; must not be less than |min_quarterword| */
-#  define hash_size 65536       /* maximum number of control sequences; it should be at most about |(fix_mem_max-fix_mem_min)/10| */
 #  define ocp_base 0
 #  define number_ocps 32768
 #  define ocp_list_base 0

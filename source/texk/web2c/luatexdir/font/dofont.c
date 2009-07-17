@@ -24,8 +24,6 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define text(A) hash[(A)].rh    /* string number for control sequence name */
-
 #define TIMERS 0
 
 #if TIMERS
@@ -38,7 +36,7 @@ static const char _svn_version[] =
 static char *font_error_message(pointer u, char *nom, scaled s)
 {
     char *str = xmalloc(256);
-    char *c = makecstring(text(u));
+    char *c = makecstring(cs_text(u));
     char *extra = "metric data not found or bad";
     if (s >= 0) {
         snprintf(str, 255, "Font \\%s=%s at %gpt not loadable: %s", c, nom,

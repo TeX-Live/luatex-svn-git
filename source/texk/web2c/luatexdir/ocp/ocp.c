@@ -25,8 +25,6 @@ static const char _svn_version[] =
 
 #define flush_string() do { decr(str_ptr); pool_ptr=str_start_macro(str_ptr); } while (0)
 
-#define text(a) hash[(a)].rh
-
 int **ocp_tables;
 
 static int ocp_entries = 0;
@@ -56,7 +54,7 @@ void new_ocp(small_number a)
     get_r_token();
     u = cur_cs;
     if (u >= hash_base)
-        t = text(u);
+        t = cs_text(u);
     else
         t = maketexstring("OCP");
     define(u, set_ocp_cmd, null_ocp);
@@ -83,7 +81,7 @@ void new_ocp(small_number a)
   COMMON_ENDING:
     equiv(u) = f;
     eqtb[ocp_id_base + f] = eqtb[u];
-    text(ocp_id_base + f) = t;
+    cs_text(ocp_id_base + f) = t;
     if (ocp_trace_level == 1) {
         tprint_nl("");
         tprint_esc("ocp");
@@ -148,7 +146,7 @@ void dump_ocp_info(void)
         dump_ocp_table(k);
         if (ocp_ptr - ocp_base > 0) {
             tprint_nl("\\ocp");
-            print_esc(text(ocp_id_base + k));
+            print_esc(cs_text(ocp_id_base + k));
             print_char('=');
             print_file_name(ocp_name(k), ocp_area(k), get_nullstr());
         }

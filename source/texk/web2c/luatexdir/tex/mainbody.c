@@ -520,60 +520,12 @@ least twice the value |max_halfword| (see below). Therefore,
 glue parameters defined here. It is important that the ``muskip''
 parameters have larger numbers than the others.
 
-@d skip(#)==equiv(skip_base+#) {|mem| location of glue specification}
-@d mu_skip(#)==equiv(mu_skip_base+#) {|mem| location of math glue spec}
-@d glue_par(#)==equiv(glue_base+#) {|mem| location of glue specification}
-@d line_skip==glue_par(line_skip_code)
-@d baseline_skip==glue_par(baseline_skip_code)
-@d par_skip==glue_par(par_skip_code)
-@d above_display_skip==glue_par(above_display_skip_code)
-@d below_display_skip==glue_par(below_display_skip_code)
-@d above_display_short_skip==glue_par(above_display_short_skip_code)
-@d below_display_short_skip==glue_par(below_display_short_skip_code)
-@d left_skip==glue_par(left_skip_code)
-@d right_skip==glue_par(right_skip_code)
-@d top_skip==glue_par(top_skip_code)
-@d split_top_skip==glue_par(split_top_skip_code)
-@d tab_skip==glue_par(tab_skip_code)
-@d space_skip==glue_par(space_skip_code)
-@d xspace_skip==glue_par(xspace_skip_code)
-@d par_fill_skip==glue_par(par_fill_skip_code)
-@d thin_mu_skip==glue_par(thin_mu_skip_code)
-@d med_mu_skip==glue_par(med_mu_skip_code)
-@d thick_mu_skip==glue_par(thick_mu_skip_code)
-
-
 @ Region 4 of |eqtb| contains the local quantities defined here. The
 bulk of this region is taken up by five tables that are indexed by eight-bit
 characters; these tables are important to both the syntactic and semantic
 portions of \TeX. There are also a bunch of special things like font and
 token parameters, as well as the tables of \.{\\toks} and \.{\\box}
 registers.
-
-@d par_shape_ptr==equiv(par_shape_loc)
-@d output_routine==equiv(output_routine_loc)
-@d every_par==equiv(every_par_loc)
-@d every_math==equiv(every_math_loc)
-@d every_display==equiv(every_display_loc)
-@d every_hbox==equiv(every_hbox_loc)
-@d every_vbox==equiv(every_vbox_loc)
-@d every_job==equiv(every_job_loc)
-@d every_cr==equiv(every_cr_loc)
-@d err_help==equiv(err_help_loc)
-@d pdf_pages_attr==equiv(pdf_pages_attr_loc)
-@d pdf_page_attr==equiv(pdf_page_attr_loc)
-@d pdf_page_resources==equiv(pdf_page_resources_loc)
-@d pdf_pk_mode==equiv(pdf_pk_mode_loc)
-@d toks(#)==equiv(toks_base+#)
-@d local_left_box==equiv(local_left_box_base)
-@d local_right_box==equiv(local_right_box_base)
-@d box(#)==equiv(box_base+#)
-@d cur_font==equiv(cur_font_loc)
-
-
-@
-@d null_font==font_base
-@d var_code==7 {math code meaning ``use the current family''}
 
 @ Region 5 of |eqtb| contains the integer parameters and registers defined
 here, as well as the |del_code| table. The latter table differs from the
@@ -582,123 +534,6 @@ fullword integers while the other kinds of codes occupy at most a
 halfword. This is what makes region~5 different from region~4. We will
 store the |eq_level| information in an auxiliary array of quarterwords
 that will be defined later.
-
-@#
-@#
-@d count(#)==eqtb[count_base+#].int
-@d attribute(#)==eqtb[attribute_base+#].int
-@d int_par(#)==eqtb[int_base+#].int {an integer parameter}
-@d pretolerance==int_par(pretolerance_code)
-@d tolerance==int_par(tolerance_code)
-@d line_penalty==int_par(line_penalty_code)
-@d hyphen_penalty==int_par(hyphen_penalty_code)
-@d ex_hyphen_penalty==int_par(ex_hyphen_penalty_code)
-@d club_penalty==int_par(club_penalty_code)
-@d widow_penalty==int_par(widow_penalty_code)
-@d display_widow_penalty==int_par(display_widow_penalty_code)
-@d broken_penalty==int_par(broken_penalty_code)
-@d bin_op_penalty==int_par(bin_op_penalty_code)
-@d rel_penalty==int_par(rel_penalty_code)
-@d pre_display_penalty==int_par(pre_display_penalty_code)
-@d post_display_penalty==int_par(post_display_penalty_code)
-@d inter_line_penalty==int_par(inter_line_penalty_code)
-@d double_hyphen_demerits==int_par(double_hyphen_demerits_code)
-@d final_hyphen_demerits==int_par(final_hyphen_demerits_code)
-@d adj_demerits==int_par(adj_demerits_code)
-@d mag==int_par(mag_code)
-@d delimiter_factor==int_par(delimiter_factor_code)
-@d looseness==int_par(looseness_code)
-@d time==int_par(time_code)
-@d day==int_par(day_code)
-@d month==int_par(month_code)
-@d year==int_par(year_code)
-@d show_box_breadth==int_par(show_box_breadth_code)
-@d show_box_depth==int_par(show_box_depth_code)
-@d hbadness==int_par(hbadness_code)
-@d vbadness==int_par(vbadness_code)
-@d pausing==int_par(pausing_code)
-@d tracing_online==int_par(tracing_online_code)
-@d tracing_macros==int_par(tracing_macros_code)
-@d tracing_stats==int_par(tracing_stats_code)
-@d tracing_paragraphs==int_par(tracing_paragraphs_code)
-@d tracing_pages==int_par(tracing_pages_code)
-@d tracing_output==int_par(tracing_output_code)
-@d tracing_lost_chars==int_par(tracing_lost_chars_code)
-@d tracing_commands==int_par(tracing_commands_code)
-@d tracing_restores==int_par(tracing_restores_code)
-@d uc_hyph==int_par(uc_hyph_code)
-@d output_penalty==int_par(output_penalty_code)
-@d max_dead_cycles==int_par(max_dead_cycles_code)
-@d hang_after==int_par(hang_after_code)
-@d floating_penalty==int_par(floating_penalty_code)
-@d global_defs==int_par(global_defs_code)
-@d cur_fam==int_par(cur_fam_code)
-@d escape_char==int_par(escape_char_code)
-@d default_hyphen_char==int_par(default_hyphen_char_code)
-@d default_skew_char==int_par(default_skew_char_code)
-@d end_line_char==int_par(end_line_char_code)
-@d new_line_char==int_par(new_line_char_code)
-@d local_inter_line_penalty==int_par(local_inter_line_penalty_code)
-@d local_broken_penalty==int_par(local_broken_penalty_code)
-@d no_local_whatsits==int_par(no_local_whatsits_code)
-@d no_local_dirs==int_par(no_local_dirs_code)
-@d level_local_dir==int_par(level_local_dir_code)
-@d dir_par(#)==eqtb[dir_base+#].int {a direction parameter}
-@d page_direction==dir_par(page_direction_code)
-@d body_direction==dir_par(body_direction_code)
-@d par_direction==dir_par(par_direction_code)
-@d text_direction==dir_par(text_direction_code)
-@d math_direction==dir_par(math_direction_code)
-@d language==int_par(language_code)
-@d cur_lang==int_par(cur_lang_code)
-@d ex_hyphen_char==int_par(ex_hyphen_char_code)
-@d left_hyphen_min==int_par(left_hyphen_min_code)
-@d right_hyphen_min==int_par(right_hyphen_min_code)
-@d holding_inserts==int_par(holding_inserts_code)
-@d error_context_lines==int_par(error_context_lines_code)
-@d luastartup_id==int_par(luastartup_id_code)
-@d disable_lig==int_par(disable_lig_code)
-@d disable_kern==int_par(disable_kern_code)
-@d cat_code_table==int_par(cat_code_table_code)
-@d output_box==int_par(output_box_code)
-@#
-@d pdf_adjust_spacing   == int_par(pdf_adjust_spacing_code)
-@d pdf_protrude_chars   == int_par(pdf_protrude_chars_code)
-@d pdf_tracing_fonts    == int_par(pdf_tracing_fonts_code)
-@d pdf_gen_tounicode    == int_par(pdf_gen_tounicode_code)
-@d pdf_output           == int_par(pdf_output_code)
-@d pdf_compress_level   == int_par(pdf_compress_level_code)
-@d pdf_objcompresslevel == int_par(pdf_objcompresslevel_code)
-@d pdf_decimal_digits   == int_par(pdf_decimal_digits_code)
-@d pdf_move_chars       == int_par(pdf_move_chars_code)
-@d pdf_image_resolution == int_par(pdf_image_resolution_code)
-@d pdf_pk_resolution    == int_par(pdf_pk_resolution_code)
-@d pdf_unique_resname   == int_par(pdf_unique_resname_code)
-@d pdf_minor_version == int_par(pdf_minor_version_code)
-@d pdf_pagebox == int_par(pdf_pagebox_code)
-@d pdf_inclusion_errorlevel == int_par(pdf_inclusion_errorlevel_code)
-@d pdf_gamma            == int_par(pdf_gamma_code)
-@d pdf_image_gamma      == int_par(pdf_image_gamma_code)
-@d pdf_image_hicolor    == int_par(pdf_image_hicolor_code)
-@d pdf_image_apply_gamma == int_par(pdf_image_apply_gamma_code)
-@d pdf_draftmode        == int_par(pdf_draftmode_code)
-@d pdf_inclusion_copy_font == int_par(pdf_inclusion_copy_font_code)
-@d pdf_replace_font == int_par(pdf_replace_font_code)
-@#
-@d tracing_assigns==int_par(tracing_assigns_code)
-@d tracing_groups==int_par(tracing_groups_code)
-@d tracing_ifs==int_par(tracing_ifs_code)
-@d tracing_scan_tokens==int_par(tracing_scan_tokens_code)
-@d tracing_nesting==int_par(tracing_nesting_code)
-@d pre_display_direction==int_par(pre_display_direction_code)
-@d last_line_fit==int_par(last_line_fit_code)
-@d saving_vdiscards==int_par(saving_vdiscards_code)
-@d saving_hyph_codes==int_par(saving_hyph_codes_code)
-@d suppress_fontnotfound_error==int_par(suppress_fontnotfound_error_code)
-@d suppress_long_error==int_par(suppress_long_error_code)
-@d suppress_ifcsname_error==int_par(suppress_ifcsname_error_code)
-@d synctex==int_par(synctex_code)
-
 
 @ The integer parameters should really be initialized by a macro package;
 the following initialization does the minimum to keep \TeX\ from
@@ -720,83 +555,7 @@ is conditionally compiled in the C code.
 /*
 @ The final region of |eqtb| contains the dimension parameters defined
 here, and the |number_regs| \.{\\dimen} registers.
-
-@d dimen(#)==eqtb[scaled_base+#].sc
-@d dimen_par(#)==eqtb[dimen_base+#].sc {a scaled quantity}
-@d par_indent==dimen_par(par_indent_code)
-@d math_surround==dimen_par(math_surround_code)
-@d line_skip_limit==dimen_par(line_skip_limit_code)
-@d hsize==dimen_par(hsize_code)
-@d vsize==dimen_par(vsize_code)
-@d max_depth==dimen_par(max_depth_code)
-@d split_max_depth==dimen_par(split_max_depth_code)
-@d box_max_depth==dimen_par(box_max_depth_code)
-@d hfuzz==dimen_par(hfuzz_code)
-@d vfuzz==dimen_par(vfuzz_code)
-@d delimiter_shortfall==dimen_par(delimiter_shortfall_code)
-@d null_delimiter_space==dimen_par(null_delimiter_space_code)
-@d script_space==dimen_par(script_space_code)
-@d pre_display_size==dimen_par(pre_display_size_code)
-@d display_width==dimen_par(display_width_code)
-@d display_indent==dimen_par(display_indent_code)
-@d overfull_rule==dimen_par(overfull_rule_code)
-@d hang_indent==dimen_par(hang_indent_code)
-@d h_offset==dimen_par(h_offset_code)
-@d v_offset==dimen_par(v_offset_code)
-@d emergency_stretch==dimen_par(emergency_stretch_code)
-@d page_left_offset==dimen_par(page_left_offset_code)
-@d page_top_offset==dimen_par(page_top_offset_code)
-@d page_right_offset==dimen_par(page_right_offset_code)
-@d page_bottom_offset==dimen_par(page_bottom_offset_code)
-@d pdf_h_origin      == dimen_par(pdf_h_origin_code)
-@d pdf_v_origin      == dimen_par(pdf_v_origin_code)
-@d page_width    == dimen_par(page_width_code)
-@d page_height   == dimen_par(page_height_code)
-@d pdf_link_margin   == dimen_par(pdf_link_margin_code)
-@d pdf_dest_margin   == dimen_par(pdf_dest_margin_code)
-@d pdf_thread_margin == dimen_par(pdf_thread_margin_code)
-@d pdf_first_line_height == dimen_par(pdf_first_line_height_code)
-@d pdf_last_line_depth   == dimen_par(pdf_last_line_depth_code)
-@d pdf_each_line_height  == dimen_par(pdf_each_line_height_code)
-@d pdf_each_line_depth   == dimen_par(pdf_each_line_depth_code)
-@d pdf_ignored_dimen     == dimen_par(pdf_ignored_dimen_code)
-@d pdf_px_dimen      == dimen_par(pdf_px_dimen_code)
-
 */
-
-/*
-Control sequences are stored and retrieved by means of a fairly standard hash
-table algorithm called the method of ``coalescing lists'' (cf.\ Algorithm 6.4C
-in {\sl The Art of Computer Programming\/}). Once a control sequence enters the
-table, it is never removed, because there are complicated situations
-involving \.{\\gdef} where the removal of a control sequence at the end of
-a group would be a mistake preventable only by the introduction of a
-complicated reference-count mechanism.
-
-The actual sequence of letters forming a control sequence identifier is
-stored in the |str_pool| array together with all the other strings. An
-auxiliary array |hash| consists of items with two halfword fields per
-word. The first of these, called |next(p)|, points to the next identifier
-belonging to the same coalesced list as the identifier corresponding to~|p|;
-and the other, called |text(p)|, points to the |str_start| entry for
-|p|'s identifier. If position~|p| of the hash table is empty, we have
-|text(p)=0|; if position |p| is either empty or the end of a coalesced
-hash list, we have |next(p)=0|. An auxiliary pointer variable called
-|hash_used| is maintained in such a way that all locations |p>=hash_used|
-are nonempty. The global variable |cs_count| tells how many multiletter
-control sequences have been defined, if statistics are being kept.
-
-A global boolean variable called |no_new_control_sequence| is set to
-|true| during the time that new hash table entries are forbidden.
-*/
-
-two_halves *hash;               /* the hash table */
-halfword hash_used;             /* allocation pointer for |hash| */
-integer hash_extra;             /* |hash_extra=hash| above |eqtb_size| */
-halfword hash_top;              /* maximum of the hash array */
-halfword hash_high;             /* pointer to next high hash location */
-boolean no_new_control_sequence;        /* are new identifiers legal? */
-integer cs_count;               /* total number of known identifiers */
 
 /*
 Each primitive has a corresponding inverse, so that it is possible to
@@ -827,31 +586,6 @@ the `\.\$' that begins a math formula causes a |math_shift_group| to
 be started, and this should be terminated by a matching `\.\$'. Similarly,
 a group that starts with \.{\\left} should end with \.{\\right}, and
 one that starts with \.{\\begingroup} should end with \.{\\endgroup}.
-
-@d bottom_level=0 {group code for the outside world}
-@d simple_group=1 {group code for local structure only}
-@d hbox_group=2 {code for `\.{\\hbox}\grp'}
-@d adjusted_hbox_group=3 {code for `\.{\\hbox}\grp' in vertical mode}
-@d vbox_group=4 {code for `\.{\\vbox}\grp'}
-@d vtop_group=5 {code for `\.{\\vtop}\grp'}
-@d align_group=6 {code for `\.{\\halign}\grp', `\.{\\valign}\grp'}
-@d no_align_group=7 {code for `\.{\\noalign}\grp'}
-@d output_group=8 {code for output routine}
-@d math_group=9 {code for, e.g., `\.{\char'136}\grp'}
-@d disc_group=10 {code for `\.{\\discretionary}\grp\grp\grp'}
-@d insert_group=11 {code for `\.{\\insert}\grp', `\.{\\vadjust}\grp'}
-@d vcenter_group=12 {code for `\.{\\vcenter}\grp'}
-@d math_choice_group=13 {code for `\.{\\mathchoice}\grp\grp\grp\grp'}
-@d semi_simple_group=14 {code for `\.{\\begingroup...\\endgroup}'}
-@d math_shift_group=15 {code for `\.{\$...\$}'}
-@d math_left_group=16 {code for `\.{\\left...\\right}'}
-@d local_box_group=17 {code for `\.{\\localleftbox...\\localrightbox}'}
-@d max_group_code=17
-@d split_off_group=18 {box code for the top part of a \.{\\vsplit}}
-@d split_keep_group=19 {box code for the bottom part of a \.{\\vsplit}}
-@d preamble_group=20 {box code for the preamble processing  in an alignment}
-@d align_set_group=21 {box code for the final item pass in an alignment}
-@d fin_row_group=22 {box code for a provisory line in an alignment}
 
 */
 
@@ -1011,88 +745,8 @@ And the |last_item| command is modified by either |int_val|, |dimen_val|,
 \eTeX\ inserts |last_node_type_code| after |glue_val| and adds
 the codes for its extensions: |eTeX_version_code|, \dots\ .
 
-@d glue_val=3 {this is a temp hack }
-@d last_node_type_code=glue_val+1 {code for \.{\\lastnodetype}}
-@d input_line_no_code=glue_val+2 {code for \.{\\inputlineno}}
-@d badness_code=input_line_no_code+1 {code for \.{\\badness}}
-@#
-@d pdftex_first_rint_code     = badness_code + 1 {base for \pdfTeX's command codes}
-@d pdftex_version_code        = pdftex_first_rint_code + 0 {code for \.{\\pdftexversion}}
-@d pdf_last_obj_code          = pdftex_first_rint_code + 1 {code for \.{\\pdflastobj}}
-@d pdf_last_xform_code        = pdftex_first_rint_code + 2 {code for \.{\\pdflastxform}}
-@d pdf_last_ximage_code       = pdftex_first_rint_code + 3 {code for \.{\\pdflastximage}}
-@d pdf_last_ximage_pages_code = pdftex_first_rint_code + 4 {code for \.{\\pdflastximagepages}}
-@d pdf_last_annot_code        = pdftex_first_rint_code + 5 {code for \.{\\pdflastannot}}
-@d pdf_last_x_pos_code        = pdftex_first_rint_code + 6 {code for \.{\\pdflastxpos}}
-@d pdf_last_y_pos_code        = pdftex_first_rint_code + 7 {code for \.{\\pdflastypos}}
-@d pdf_retval_code            = pdftex_first_rint_code + 8 {global multi-purpose return value}
-@d pdf_last_ximage_colordepth_code = pdftex_first_rint_code + 9 {code for \.{\\pdflastximagecolordepth}}
-@d random_seed_code           = pdftex_first_rint_code + 10 {code for \.{\\pdfrandomseed}}
-@d pdf_last_link_code         = pdftex_first_rint_code + 11 {code for \.{\\pdflastlink}}
-@d luatex_version_code        = pdftex_first_rint_code + 12 {code for \.{\\luatexversion}}
-@d pdftex_last_item_codes     = pdftex_first_rint_code + 12 {end of \pdfTeX's command codes}
-@#
-@d Aleph_int=pdftex_last_item_codes+1 {first of \Aleph\ codes for integers}
-@d Aleph_int_num=5 {number of \Aleph\ integers}
-@d eTeX_int=Aleph_int+Aleph_int_num {first of \eTeX\ codes for integers}
-@d eTeX_dim=eTeX_int+8 {first of \eTeX\ codes for dimensions}
-@d eTeX_glue=eTeX_dim+9 {first of \eTeX\ codes for glue}
-@d eTeX_mu=eTeX_glue+1 {first of \eTeX\ codes for muglue}
-@d eTeX_expr=eTeX_mu+1 {first of \eTeX\ codes for expressions}
-
-@d last_item_lastpenalty_code==int_val_level
-@d last_item_lastkern_code==dimen_val_level
-@d last_item_lastskip_code==glue_val_level
-
 @ Inside an \.{\\output} routine, a user may wish to look at the page totals
 that were present at the moment when output was triggered.
-*/
-
-/*
-@ The primitives \.{\\number}, \.{\\romannumeral}, \.{\\string}, \.{\\meaning},
-\.{\\fontname}, and \.{\\jobname} are defined as follows.
-
-\eTeX\ adds \.{\\eTeXrevision} such that |job_name_code| remains last.
-
-\pdfTeX\ adds \.{\\eTeXrevision}, \.{\\pdftexrevision}, \.{\\pdftexbanner},
-\.{\\pdffontname}, \.{\\pdffontobjnum}, \.{\\pdffontsize}, and \.{\\pdfpageref}
-such that |job_name_code| remains last.
-
-@d number_code=0 {command code for \.{\\number}}
-@d roman_numeral_code=1 {command code for \.{\\romannumeral}}
-@d string_code=2 {command code for \.{\\string}}
-@d meaning_code=3 {command code for \.{\\meaning}}
-@d font_name_code=4 {command code for \.{\\fontname}}
-@d etex_code=5 {command code for \.{\\eTeXVersion}}
-@d omega_code=6 {command code for \.{\\OmegaVersion}}
-@d aleph_code=7 {command code for \.{\\AlephVersion}}
-@d format_name_code=8 {command code for \.{\\AlephVersion}}
-@d pdftex_first_expand_code = 9 {base for \pdfTeX's command codes}
-@d pdftex_revision_code     = pdftex_first_expand_code + 0 {command code for \.{\\pdftexrevision}}
-@d pdftex_banner_code       = pdftex_first_expand_code + 1 {command code for \.{\\pdftexbanner}}
-@d pdf_font_name_code       = pdftex_first_expand_code + 2 {command code for \.{\\pdffontname}}
-@d pdf_font_objnum_code     = pdftex_first_expand_code + 3 {command code for \.{\\pdffontobjnum}}
-@d pdf_font_size_code       = pdftex_first_expand_code + 4 {command code for \.{\\pdffontsize}}
-@d pdf_page_ref_code        = pdftex_first_expand_code + 5 {command code for \.{\\pdfpageref}}
-@d pdf_xform_name_code      = pdftex_first_expand_code + 6 {command code for \.{\\pdfxformname}}
-@d left_margin_kern_code    = pdftex_first_expand_code + 7 {command code for \.{\\leftmarginkern}}
-@d right_margin_kern_code   = pdftex_first_expand_code + 8 {command code for \.{\\rightmarginkern}}
-@d pdf_creation_date_code   = pdftex_first_expand_code + 9 {command code for \.{\\pdfcreationdate}}
-@d uniform_deviate_code     = pdftex_first_expand_code + 10 {command code for \.{\\uniformdeviate}}
-@d normal_deviate_code      = pdftex_first_expand_code + 11 {command code for \.{\\normaldeviate}}
-@d pdf_insert_ht_code       = pdftex_first_expand_code + 12 {command code for \.{\\pdfinsertht}}
-@d pdf_ximage_bbox_code     = pdftex_first_expand_code + 13 {command code for \.{\\pdfximagebbox}}
-@d lua_code                 = pdftex_first_expand_code + 14 {command code for \.{\\directlua}}
-@d lua_escape_string_code   = pdftex_first_expand_code + 15 {command code for \.{\\luaescapestring}}
-@d pdf_colorstack_init_code = pdftex_first_expand_code + 16 {command code for \.{\\pdfcolorstackinit}}
-@d luatex_revision_code     = pdftex_first_expand_code + 17 {command code for \.{\\luatexrevision}}
-@d luatex_date_code         = pdftex_first_expand_code + 18 {command code for \.{\\luatexdate}}
-@d math_style_code          = pdftex_first_expand_code + 19 {command code for \.{\\mathstyle}}
-@d expanded_code            = pdftex_first_expand_code + 20 {command code for \.{\\expanded}}
-@d pdftex_convert_codes     = pdftex_first_expand_code + 21 {end of \pdfTeX's command codes}
-@d job_name_code=pdftex_convert_codes {command code for \.{\\jobname}}
-
-
 */
 
 /*

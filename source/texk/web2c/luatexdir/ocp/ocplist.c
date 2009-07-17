@@ -32,9 +32,7 @@ ocp_lstack_index ocp_lstackmem_run_ptr; /* temp unused word of |ocp_lstack_info|
 internal_ocp_list_number ocp_list_ptr;  /* largest internal ocp list number in use */
 ocp_list_index *ocp_list_list;
 
-#define text(a) hash[(a)].rh
-
-#define ocp_list_id_text(A) text(ocp_list_id_base+(A))
+#define ocp_list_id_text(A) cs_text(ocp_list_id_base+(A))
 
 void initialize_init_ocplists(void)
 {
@@ -181,7 +179,7 @@ void print_ocp_lstack(ocp_lstack_index lstack_entry)
     ocp_lstack_index p;
     p = lstack_entry;
     while (p != 0) {
-        print_esc(text(ocp_id_base + ocp_lstack_ocp(p)));
+        print_esc(cs_text(ocp_id_base + ocp_lstack_ocp(p)));
         p = ocp_lstack_lnext(p);
         if (p != 0)
             print_char(',');
@@ -293,7 +291,7 @@ void new_ocp_list(small_number a)
     get_r_token();
     u = cur_cs;
     if (u >= hash_base)
-        t = text(u);
+        t = cs_text(u);
     else
         t = maketexstring("OCPLIST");
     define(u, set_ocp_list_cmd, null_ocp_list);
@@ -301,7 +299,7 @@ void new_ocp_list(small_number a)
     f = read_ocp_list();
     equiv(u) = f;
     eqtb[ocp_list_id_base + f] = eqtb[u];
-    text(ocp_list_id_base + f) = t;
+    cs_text(ocp_list_id_base + f) = t;
     if (ocp_trace_level == 1) {
         tprint_nl("");
         tprint_esc("ocplist");

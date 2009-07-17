@@ -25,8 +25,6 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define text(a) hash[(a)].rh
-
 memory_word active_info[(active_mem_size + 1)];
 active_index active_min_ptr = 0;        /* first unused word of |active_info| */
 active_index active_max_ptr = 0;        /* last unused word of |active_info| */
@@ -37,7 +35,7 @@ static ocp_list_index holding[(active_mem_size + 1)] = { 0 };
 /* Here we do the main work required for reading and interpreting
    $\Omega$ Compiled Translation Processes.*/
 
-#define ocp_list_id_text(A) text(ocp_list_id_base+(A))
+#define ocp_list_id_text(A) cs_text(ocp_list_id_base+(A))
 
 #define ocp_active_min_ptr_base (ocp_active_number_base+1)
 #define ocp_active_max_ptr_base (ocp_active_min_ptr_base+1)
@@ -905,7 +903,7 @@ void print_active_ocps(void)
         tprint(",");
         print_int(active_counter(i));
         tprint(",");
-        print_esc(text(ocp_id_base + active_ocp(i)));
+        print_esc(cs_text(ocp_id_base + active_ocp(i)));
         tprint(")");
         if (i != (active_max_ptr - 2))
             tprint(",");
