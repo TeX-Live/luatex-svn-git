@@ -2814,7 +2814,8 @@ void assign_internal_value(int a, halfword p, integer cur_val)
 {
     halfword n;
     if ((p >= int_base) && (p < attribute_base)) {
-        if (p == (int_base + cat_code_table_code)) {
+        switch ((p - int_base)) {
+        case cat_code_table_code:
             if (valid_catcode_table(cur_val)) {
                 if (cur_val != int_par(cat_code_table_code))
                     word_define(p, cur_val);
@@ -2825,22 +2826,48 @@ void assign_internal_value(int a, halfword p, integer cur_val)
                      "using \\savecatcodetable or \\initcatcodetable, or to table 0");
                 error();
             }
-        } else if ((p == (int_base + output_box_code)
-                    && ((cur_val > 65535) | (cur_val < 0)))) {
-            print_err("Invalid \\outputbox");
-            help1("The value for \\outputbox has to be between 0 and 65535.");
-            error();
-        } else if (((p == new_line_char) && ((cur_val > 127) || (cur_val < 0)))) {
-            print_err("Invalid \newlinechar");
-            help1("The value for \\newlinechar has to be between 0 and 127.");
-            error();
-        } else if (p == end_line_char) {
+            break;
+        case output_box_code:
+            if ((cur_val > 65535) | (cur_val < 0)) {
+                print_err("Invalid \\outputbox");
+                help1("The value for \\outputbox has to be between 0 and 65535.");
+                error();
+            } else {
+                word_define(p, cur_val);
+            }
+            break;
+        case new_line_char_code:
+            if (cur_val > 127) {
+                print_err("Invalid \\newlinechar");
+                help1("The value for \\newlinechar has to be between 0 and 127.");
+                error();
+            } else if (cur_val < 0) {
+                word_define(p, -1);
+            } else {
+                word_define(p, cur_val);
+            }
+            break;
+        case end_line_char_code:
             if ((cur_val < 0) || (cur_val > biggest_char))
                 word_define(p, -1);
             else
                 word_define(p, 13);
-        } else {
+            break;
+        case pdf_compress_level_code:
+            static_pdf->compress_level = cur_val;
             word_define(p, cur_val);
+            break;
+        case pdf_objcompresslevel_code:
+            static_pdf->objcompresslevel = cur_val;
+            word_define(p, cur_val);
+            break;
+        case language_code:
+            word_define(int_base + cur_lang_code, cur_val);
+            word_define(p, cur_val);
+            break;
+        default:
+            word_define(p, cur_val);
+            break;
         }
         /* If we are defining subparagraph penalty levels while we are
            in hmode, then we put out a whatsit immediately, otherwise
@@ -2856,8 +2883,6 @@ void assign_internal_value(int a, halfword p, integer cur_val)
             eq_word_define(int_base + no_local_whatsits_code,
                            no_local_whatsits + 1);
         }
-        if (p == int_base + language_code)
-            word_define(int_base + cur_lang_code, cur_val);
 
     } else if ((p >= dimen_base) && (p < eqtb_size)) {
         if (p == (dimen_base + page_left_offset_code)) {
