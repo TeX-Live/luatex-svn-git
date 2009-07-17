@@ -152,7 +152,7 @@ int read_font_info(pointer u, str_number nom, scaled s, integer natural_dir)
             "so I will ignore the font specification.",
             "[Wizards can fix TFM files using TFtoPL/PLtoTF.]",
             "You might try inserting a different font spec;",
-            "e.g., type `I\font<same font id>=<substitute font name>'.",
+            "e.g., type `I\\font<same font id>=<substitute font name>'.",
             NULL
         };
         if (int_par(suppress_fontnotfound_error_code) == 0) {
