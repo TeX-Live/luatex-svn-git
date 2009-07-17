@@ -187,9 +187,10 @@ void print_char(int s)
         fix_term_offset(s);
         wterm_char(s);
         incr(term_offset);
-        if (term_offset == max_print_line)
+        if (term_offset == max_print_line) {
             wterm_cr();
-        term_offset = 0;
+            term_offset = 0;
+        }
         break;
     case no_print:
         break;
