@@ -27,10 +27,20 @@ static const char _svn_version[] =
 % pdfTeX is copyright (C) 1996-2006 Han The Thanh, <thanh@@pdftex.org>.
 % e-TeX is copyright (C) 1994,98 by Peter Breitenlohner.
 
+This is LuaTeX, a continuation of $\pdfTeX$ and $\Aleph$.  LuaTeX is a
+document compiler intended to simplify high-quality typesetting for
+many of the world's languages.  It is an extension of D. E. Knuth's
+\TeX, which was designed essentially for the typesetting of languages
+using the Latin alphabet.
+
+The $\Aleph$ subsystem loosens many of the restrictions imposed by~\TeX:
+register numbers are no longer limited to 8~bits;  fonts may have more
+than 256~characters;  more than 256~fonts may be used;  etc.
+
 % This program is directly derived from Donald E. Knuth's TeX;
 % the change history which follows and the reward offered for finders of
 % bugs refer specifically to TeX; they should not be taken as referring
-% to e-TeX, although the change history is relevant in that it
+% to LuaTeX, pdfTeX, nor e-TeX, although the change history is relevant in that it
 % demonstrates the evolutionary path followed.  This program is not TeX;
 % that name is reserved strictly for the program which is the creation
 % and sole responsibility of Professor Knuth.
@@ -80,79 +90,6 @@ static const char _svn_version[] =
 % special, indirect, or consequential damages arising out of or in
 % connection with the use or performance of this software. This work has
 % been a ``labor of love'' and the authors hope that users enjoy it.
-
-% Here is TeX material that gets inserted after \input webmac
-\def\hang{\hangindent 3em\noindent\ignorespaces}
-\def\hangg#1 {\hang\hbox{#1 }}
-\def\textindent#1{\hangindent2.5em\noindent\hbox to2.5em{\hss#1 }\ignorespaces}
-\font\ninerm=cmr9
-\let\mc=\ninerm % medium caps for names like SAIL
-\def\PASCAL{Pascal}
-\def\pdfTeX{pdf\TeX}
-\def\pdfeTeX{pdf\eTeX}
-\def\PDF{PDF}
-\def\Aleph{Aleph}
-\def\eTeX{e\TeX}
-\def\LuaTeX{Lua\TeX}
-\def\THANH{H\`an Th\^e\llap{\raise 0.5ex\hbox{\'{}}} Th\`anh}
-\def\ph{\hbox{Pascal-H}}
-\def\pct!{{\char`\%}} % percent sign in ordinary text
-\def\grp{\.{\char'173...\char'175}}
-\font\logo=logo10 % font used for the METAFONT logo
-\def\MF{{\logo META}\-{\logo FONT}}
-\def\<#1>{$\langle#1\rangle$}
-\def\section{\mathhexbox278}
-
-\def\(#1){} % this is used to make section names sort themselves better
-\def\9#1{} % this is used for sort keys in the index via @@:sort key}{entry@@>
-
-\outer\def\N#1. \[#2]#3.{\MN#1.\vfil\eject % begin starred section
-  \def\rhead{PART #2:\uppercase{#3}} % define running headline
-  \message{*\modno} % progress report
-  \edef\next{\write\cont{\Z{\?#2]#3}{\modno}{\the\pageno}}}\next
-  \ifon\startsection{\bf\ignorespaces#3.\quad}\ignorespaces}
-\let\?=\relax % we want to be able to \write a \?
-
-\def\title{LuaTeX}
-\let\maybe=\iffalse % print only changed modules
-\def\topofcontents{\hsize 5.5in
-  \vglue 0pt plus 1fil minus 1.5in
-  \def\?##1]{\hbox to 1in{\hfil##1.\ }}
-  }
-\def\botofcontents{\vskip 0pt plus 1fil minus 1.5in}
-\pageno=3
-\def\glob{13} % this should be the section number of "<Global...>"
-\def\gglob{20, 26} % this should be the next two sections of "<Global...>"
-
-
-This is LuaTeX, a continuation of $\pdfTeX$ and $\Aleph$.  LuaTeX is a
-document compiler intended to simplify high-quality typesetting for
-many of the world's languages.  It is an extension of D. E. Knuth's
-\TeX, which was designed essentially for the typesetting of languages
-using the Latin alphabet.
-
-The $\Aleph$ subsystem loosens many of the restrictions imposed by~\TeX:
-register numbers are no longer limited to 8~bits;  fonts may have more
-than 256~characters;  more than 256~fonts may be used;  etc.
-
-The \PASCAL\ program that follows is the definition of \TeX82, a standard
-@:PASCAL}{\PASCAL@>
-@!@:TeX82}{\TeX82@>
-version of \TeX\ that is designed to be highly portable so that
-identical output will be obtainable on a great variety of computers.
-
-The main purpose of the following program is to explain the algorithms of \TeX\
-as clearly as possible. As a result, the program will not necessarily be very
-efficient when a particular \PASCAL\ compiler has translated it into a
-particular machine language. However, the program has been written so that it
-can be tuned to run efficiently in a wide variety of operating environments
-by making comparatively few changes. Such flexibility is possible because
-the documentation that follows is written in the \.{WEB} language, which is
-at a higher level than \PASCAL; the preprocessing step that converts \.{WEB}
-to \PASCAL\ is able to introduce most of the necessary refinements.
-Semi-automatic translation to other languages is also feasible, because the
-program below does not make extensive use of features that are peculiar to
-\PASCAL.
 
 A large piece of software like \TeX\ has inherent complexity that cannot
 be reduced below a certain level of difficulty, although each individual
@@ -234,133 +171,6 @@ November 1984].
 A similar test suite called the ``\.{e-TRIP} test'' is available for
 helping to determine whether a particular implementation deserves to be
 known as `\eTeX'.
-		*/
-
-/*
-@ Different \PASCAL s have slightly different conventions, and the present
-@!@:PASCAL H}{\ph@>
-program expresses \TeX\ in terms of the \PASCAL\ that was
-available to the author in 1982. Constructions that apply to
-this particular compiler, which we shall call \ph, should help the
-reader see how to make an appropriate interface for other systems
-if necessary. (\ph\ is Charles Hedrick's modification of a compiler
-@^Hedrick, Charles Locke@>
-for the DECsystem-10 that was originally developed at the University of
-Hamburg; cf.\ {\sl SOFTWARE---Practice \AM\ Experience \bf6} (1976),
-29--42. The \TeX\ program below is intended to be adaptable, without
-extensive changes, to most other versions of \PASCAL, so it does not fully
-use the admirable features of \ph. Indeed, a conscious effort has been
-made here to avoid using several idiosyncratic features of standard
-\PASCAL\ itself, so that most of the code can be translated mechanically
-into other high-level languages. For example, the `\&{with}' and `\\{new}'
-features are not used, nor are pointer types, set types, or enumerated
-scalar types; there are no `\&{var}' parameters, except in the case of files
---- \eTeX, however, does use `\&{var}' parameters for the |reverse| function;
-there are no tag fields on variant records; there are no assignments
-|real:=integer|; no procedures are declared local to other procedures.)
-
-The portions of this program that involve system-dependent code, where
-changes might be necessary because of differences between \PASCAL\ compilers
-and/or differences between
-operating systems, can be identified by looking at the sections whose
-numbers are listed under `system dependencies' in the index. Furthermore,
-the index entries for `dirty \PASCAL' list all places where the restrictions
-of \PASCAL\ have not been followed perfectly, for one reason or another.
-@!@^system dependencies@>
-@!@^dirty \PASCAL@>
-
-Incidentally, \PASCAL's standard |round| function can be problematical,
-because it disagrees with the IEEE floating-point standard.
-Many implementors have
-therefore chosen to substitute their own home-grown rounding procedure.
-
-@ The program begins with a normal \PASCAL\ program heading, whose
-components will be filled in later, using the conventions of \.{WEB}.
-@.WEB@>
-For example, the portion of the program called `\X\glob:Global
-variables\X' below will be replaced by a sequence of variable declarations
-that starts in $\section\glob$ of this documentation. In this way, we are able
-to define each individual global variable when we are prepared to
-understand what it means; we do not have to define all of the globals at
-once.  Cross references in $\section\glob$, where it says ``See also
-sections \gglob, \dots,'' also make it possible to look at the set of
-all global variables, if desired.  Similar remarks apply to the other
-portions of the program heading.
-
-*/
-
-/*
-The overall \TeX\ program begins with the heading just shown, after which
-comes a bunch of procedure declarations and function declarations.
-Finally we will get to the main program, which begins with the
-comment `|start_here|'. If you want to skip down to the
-main program now, you can look up `|start_here|' in the index.
-But the author suggests that the best way to understand this program
-is to follow pretty much the order of \TeX's components as they appear in the
-\.{WEB} description you are now reading, since the present ordering is
-intended to combine the advantages of the ``bottom up'' and ``top down''
-approaches to the problem of understanding a somewhat complicated system.
-
-@ Three labels must be declared in the main program, so we give them
-symbolic names.
-
-@ Some of the code below is intended to be used only when diagnosing the
-strange behavior that sometimes occurs when \TeX\ is being installed or
-when system wizards are fooling around with \TeX\ without quite knowing
-what they are doing. Such code will not normally be compiled; it is
-delimited by the codewords `$|debug|\ldots|gubed|$', with apologies
-to people who wish to preserve the purity of English.
-
-Similarly, there is some conditional code delimited by
-`$|stat|\ldots|tats|$' that is intended for use when statistics are to be
-kept about \TeX's memory usage.  The |stat| $\ldots$ |tats| code also
-implements diagnostic information for \.{\\tracingparagraphs} and
-\.{\\tracingpages}.
-@^debugging@>
-
-*/
-
-/*
-If the first character of a \PASCAL\ comment is a dollar sign,
-\ph\ treats the comment as a list of ``compiler directives'' that will
-affect the translation of this program into machine language.  The
-directives shown below specify full checking and inclusion of the \PASCAL\
-debugger when \TeX\ is being debugged, but they cause range checking and other
-redundant code to be eliminated when the production system is being generated.
-Arithmetic overflow will be detected in all cases.
-@:PASCAL H}{\ph@>
-@^system dependencies@>
-@^overflow in arithmetic@>
-
-@ This \TeX\ implementation conforms to the rules of the {\sl Pascal User
-@:PASCAL}{\PASCAL@>
-@^system dependencies@>
-Manual} published by Jensen and Wirth in 1975, except where system-dependent
-@^Wirth, Niklaus@>
-@^Jensen, Kathleen@>
-code is necessary to make a useful system program, and except in another
-respect where such conformity would unnecessarily obscure the meaning
-and clutter up the code: We assume that |case| statements may include a
-default case that applies if no matching label is found. Thus, we shall use
-constructions like
-$$\vbox{\halign{\ignorespaces#\hfil\cr
-|case x of|\cr
-1: $\langle\,$code for $x=1\,\rangle$;\cr
-3: $\langle\,$code for $x=3\,\rangle$;\cr
-|othercases| $\langle\,$code for |x<>1| and |x<>3|$\,\rangle$\cr
-|endcases|\cr}}$$
-since most \PASCAL\ compilers have plugged this hole in the language by
-incorporating some sort of default mechanism. For example, the \ph\
-compiler allows `|others|:' as a default label, and other \PASCAL s allow
-syntaxes like `\&{else}' or `\&{otherwise}' or `\\{otherwise}:', etc. The
-definitions of |othercases| and |endcases| should be changed to agree with
-local conventions.  Note that no semicolon appears before |endcases| in
-this program, so the definition of |endcases| should include a semicolon
-if the compiler wants one. (Of course, if no default mechanism is
-available, the |case| statements of \TeX\ will have to be laboriously
-extended by listing all remaining cases. People who are stuck with such
-\PASCAL s have, in fact, done this, successfully but not happily!)
-@:PASCAL H}{\ph@>
 */
 
 /*
@@ -374,44 +184,6 @@ defined.
 integer bad;                    /* is some ``constant'' wrong? */
 boolean luainit;                /* are we using lua for initializations  */
 boolean tracefilenames;         /* print file open-close  info? */
-
-/*
-Characters of text that have been converted to \TeX's internal form
-are said to be of type |ASCII_code|, which is a subrange of the integers.
-*/
-
-/*
-The original \PASCAL\ compiler was designed in the late 60s, when six-bit
-character sets were common, so it did not make provision for lowercase
-letters. Nowadays, of course, we need to deal with both capital and small
-letters in a convenient way, especially in a program for typesetting;
-so the present specification of \TeX\ has been written under the assumption
-that the \PASCAL\ compiler and run-time system permit the use of text files
-with more than 64 distinguishable characters. More precisely, we assume that
-the character set contains at least the letters and symbols associated
-with ASCII codes @'40 through @'176; all of these characters are now
-available on most computer terminals.
-
-Since we are dealing with more characters than were present in the first
-\PASCAL\ compilers, we have to decide what to call the associated data
-type. Some \PASCAL s use the original name |char| for the
-characters in text files, even though there now are more than 64 such
-characters, while other \PASCAL s consider |char| to be a 64-element
-subrange of a larger data type that has some other name.
-
-In order to accommodate this difference, we shall use the name |text_char|
-to stand for the data type of the characters that are converted to and
-from |ASCII_code| when they are input and output. We shall also assume
-that |text_char| consists of the elements |chr(first_text_char)| through
-|chr(last_text_char)|, inclusive. The following definitions should be
-adjusted if necessary.
-@^system dependencies@>
-
-We are assuming that our runtime system is able to read and write UTF-8. 
-
-Some of the ASCII codes without visible characters have been given symbolic
-names in this program because they are used with a special meaning.
-*/
 
 /*
 This program has two important variations: (1) There is a long and slow
@@ -460,310 +232,6 @@ int filelineerrorstylep;        /* format messages as file:line:error */
 int haltonerrorp;               /* stop at first error */
 boolean quoted_filename;        /* current filename is quoted */
 
-/*
-In order to make efficient use of storage space, \TeX\ bases its major data
-structures on a |memory_word|, which contains either a (signed) integer,
-possibly scaled, or a (signed) |glue_ratio|, or a small number of
-fields that are one half or one quarter of the size used for storing
-integers.
-
-If |x| is a variable of type |memory_word|, it contains up to four
-fields that can be referred to as follows:
-$$\vbox{\halign{\hfil#&#\hfil&#\hfil\cr
-|x|&.|int|&(an |integer|)\cr
-|x|&.|sc|\qquad&(a |scaled| integer)\cr
-|x|&.|gr|&(a |glue_ratio|)\cr
-|x.hh.lh|, |x.hh|&.|rh|&(two halfword fields)\cr
-|x.hh.b0|, |x.hh.b1|, |x.hh|&.|rh|&(two quarterword fields, one halfword
-  field)\cr
-|x.qqqq.b0|, |x.qqqq.b1|, |x.qqqq|&.|b2|, |x.qqqq.b3|\hskip-100pt
-  &\qquad\qquad\qquad(four quarterword fields)\cr}}$$
-This is somewhat cumbersome to write, and not very readable either, but
-macros will be used to make the notation shorter and more transparent.
-The \PASCAL\ code below gives a formal definition of |memory_word| and
-its subsidiary types, using packed variant records. \TeX\ makes no
-assumptions about the relative positions of the fields within a word.
-
-We are assuming 32-bit integers, a halfword must contain at least
-32 bits, and a quarterword must contain at least 16 bits.
-@^system dependencies@>
-
-N.B.: Valuable memory space will be dreadfully wasted unless \TeX\ is compiled
-by a \PASCAL\ that packs all of the |memory_word| variants into
-the space of a single integer. This means, for example, that |glue_ratio|
-words should be |short_real| instead of |real| on some computers. Some
-\PASCAL\ compilers will pack an integer whose subrange is `|0..255|' into
-an eight-bit field, but others insist on allocating space for an additional
-sign bit; on such systems you can get 256 values into a quarterword only
-if the subrange is `|-128..127|'.
-
-The present implementation tries to accommodate as many variations as possible,
-so it makes few assumptions. If integers having the subrange
-`|min_quarterword..max_quarterword|' can be packed into a quarterword,
-and if integers having the subrange `|min_halfword..max_halfword|'
-can be packed into a halfword, everything should work satisfactorily.
-
-It is usually most efficient to have |min_quarterword=min_halfword=0|,
-so one should try to achieve this unless it causes a severe problem.
-The values defined here are recommended for most 32-bit computers.
-
-We cannot use the full range of 32 bits in a halfword, because we have
-to allow negative values for potential backend tricks like web2c's
-dynamic allocation, and parshapes pointers have to be able to store at
-least twice the value |max_halfword| (see below). Therefore,
-|max_halfword| is $2^{30}-1$
-*/
-
-
-/*
-@ Region 3 of |eqtb| contains the |number_regs| \.{\\skip} registers, as well as the
-glue parameters defined here. It is important that the ``muskip''
-parameters have larger numbers than the others.
-
-@ Region 4 of |eqtb| contains the local quantities defined here. The
-bulk of this region is taken up by five tables that are indexed by eight-bit
-characters; these tables are important to both the syntactic and semantic
-portions of \TeX. There are also a bunch of special things like font and
-token parameters, as well as the tables of \.{\\toks} and \.{\\box}
-registers.
-
-@ Region 5 of |eqtb| contains the integer parameters and registers defined
-here, as well as the |del_code| table. The latter table differs from the
-|cat_code..math_code| tables that precede it, since delimiter codes are
-fullword integers while the other kinds of codes occupy at most a
-halfword. This is what makes region~5 different from region~4. We will
-store the |eq_level| information in an auxiliary array of quarterwords
-that will be defined later.
-
-@ The integer parameters should really be initialized by a macro package;
-the following initialization does the minimum to keep \TeX\ from
-complete failure.
-@^null delimiter@>
-*/
-
-/*
-The following procedure, which is called just before \TeX\ initializes its
-input and output, establishes the initial values of the date and time.
-It calls a macro-defined |date_and_time| routine.  |date_and_time|
-in turn is a C macro, which calls |get_date_and_time|, passing
-it the addresses of the day, month, etc., so they can be set by the
-routine.  |get_date_and_time| also sets up interrupt catching if that
-is conditionally compiled in the C code.
-@^system dependencies@>
-*/
-
-/*
-@ The final region of |eqtb| contains the dimension parameters defined
-here, and the |number_regs| \.{\\dimen} registers.
-*/
-
-/*
-Each primitive has a corresponding inverse, so that it is possible to
-display the cryptic numeric contents of |eqtb| in symbolic form.
-Every call of |primitive| in this program is therefore accompanied by some
-straightforward code that forms part of the |print_cmd_chr| routine
-below.
-
-@ We will deal with the other primitives later, at some point in the program
-where their |eq_type| and |equiv| values are more meaningful.  For example,
-the primitives for math mode will be loaded when we consider the routines
-that deal with formulas. It is easy to find where each particular
-primitive was treated by looking in the index at the end; for example, the
-section where |"radical"| entered |eqtb| is listed under `\.{\\radical}
-primitive'. (Primitives consisting of a single nonalphabetic character,
-@!like `\.{\\/}', are listed under `Single-character primitives'.)
-@!@^Single-character primitives@>
-*/
-
-/*
-@ Here are the group codes that are used to discriminate between different
-kinds of groups. They allow \TeX\ to decide what special actions, if any,
-should be performed when a group ends.
-\def\grp{\.{\char'173...\char'175}}
-
-Some groups are not supposed to be ended by right braces. For example,
-the `\.\$' that begins a math formula causes a |math_shift_group| to
-be started, and this should be terminated by a matching `\.\$'. Similarly,
-a group that starts with \.{\\left} should end with \.{\\right}, and
-one that starts with \.{\\begingroup} should end with \.{\\endgroup}.
-
-*/
-
-/*
-@ Most of the parameters kept in |eqtb| can be changed freely, but there's
-an exception:  The magnification should not be used with two different
-values during any \TeX\ job, since a single magnification is applied to an
-entire run. The global variable |mag_set| is set to the current magnification
-whenever it becomes necessary to ``freeze'' it at a particular value.
-*/
-
-integer mag_set;                /* if nonzero, this magnification should be used henceforth */
-
-/*
-The |prepare_mag| subroutine is called whenever \TeX\ wants to use |mag|
-for magnification.
-*/
-
-#define mag int_par(mag_code)
-
-void prepare_mag(void)
-{
-    if ((mag_set > 0) && (mag != mag_set)) {
-        print_err("Incompatible magnification (");
-        print_int(mag);
-        tprint(");");
-        tprint_nl(" the previous value will be retained");
-        help2("I can handle only one magnification ratio per job. So I've",
-              "reverted to the magnification you used earlier on this run.");
-        int_error(mag_set);
-        geq_word_define(int_base + mag_code, mag_set);  /* |mag:=mag_set| */
-    }
-    if ((mag <= 0) || (mag > 32768)) {
-        print_err("Illegal magnification has been changed to 1000");
-        help1("The magnification ratio must be between 1 and 32768.");
-        int_error(mag);
-        geq_word_define(int_base + mag_code, 1000);
-    }
-    if ((mag_set == 0) && (mag != mag_set)) {
-        if (mag != 1000)
-            one_true_inch = xn_over_d(one_hundred_inch, 10, mag);
-        else
-            one_true_inch = one_inch;
-    }
-    mag_set = mag;
-}
-
-/*
-Let's pause a moment now and try to look at the Big Picture.
-The \TeX\ program consists of three main parts: syntactic routines,
-semantic routines, and output routines. The chief purpose of the
-syntactic routines is to deliver the user's input to the semantic routines,
-one token at a time. The semantic routines act as an interpreter
-responding to these tokens, which may be regarded as commands. And the
-output routines are periodically called on to convert box-and-glue
-lists into a compact set of instructions that will be sent
-to a typesetter. We have discussed the basic data structures and utility
-routines of \TeX, so we are good and ready to plunge into the real activity by
-considering the syntactic routines.
-
-Our current goal is to come to grips with the |get_next| procedure,
-which is the keystone of \TeX's input mechanism. Each call of |get_next|
-sets the value of three variables |cur_cmd|, |cur_chr|, and |cur_cs|,
-representing the next input token.
-$$\vbox{\halign{#\hfil\cr
-  \hbox{|cur_cmd| denotes a command code from the long list of codes
-   given above;}\cr
-  \hbox{|cur_chr| denotes a character code or other modifier of the command
-   code;}\cr
-  \hbox{|cur_cs| is the |eqtb| location of the current control sequence,}\cr
-  \hbox{\qquad if the current token was a control sequence,
-   otherwise it's zero.}\cr}}$$
-Underlying this external behavior of |get_next| is all the machinery
-necessary to convert from character files to tokens. At a given time we
-may be only partially finished with the reading of several files (for
-which \.{\\input} was specified), and partially finished with the expansion
-of some user-defined macros and/or some macro parameters, and partially
-finished with the generation of some text in a template for \.{\\halign},
-and so on. When reading a character file, special characters must be
-classified as math delimiters, etc.; comments and extra blank spaces must
-be removed, paragraphs must be recognized, and control sequences must be
-found in the hash table. Furthermore there are occasions in which the
-scanning routines have looked ahead for a word like `\.{plus}' but only
-part of that word was found, hence a few characters must be put back
-into the input and scanned again.
-
-To handle these situations, which might all be present simultaneously,
-\TeX\ uses various stacks that hold information about the incomplete
-activities, and there is a finite state control for each level of the
-input mechanism. These stacks record the current state of an implicitly
-recursive process, but the |get_next| procedure is not recursive.
-Therefore it will not be difficult to translate these algorithms into
-low-level languages that do not support recursion.
-*/
-
-integer cur_cmd;                /* current command set by |get_next| */
-halfword cur_chr;               /* operand of current command */
-halfword cur_cs;                /* control sequence found here, zero if none found */
-halfword cur_tok;               /* packed representative of |cur_cmd| and |cur_chr| */
-
-/* Here is a procedure that displays the current command. */
-
-#define mode cur_list.mode_field
-
-void show_cur_cmd_chr(void)
-{
-    integer n;                  /* level of \.{\\if...\\fi} nesting */
-    integer l;                  /* line where \.{\\if} started */
-    halfword p;
-    begin_diagnostic();
-    tprint_nl("{");
-    if (mode != shown_mode) {
-        print_mode(mode);
-        tprint(": ");
-        shown_mode = mode;
-    }
-    print_cmd_chr(cur_cmd, cur_chr);
-    if (int_par(tracing_ifs_code) > 0) {
-        if (cur_cmd >= if_test_cmd) {
-            if (cur_cmd <= fi_or_else_cmd) {
-                tprint(": ");
-                if (cur_cmd == fi_or_else_cmd) {
-                    print_cmd_chr(if_test_cmd, cur_if);
-                    print_char(' ');
-                    n = 0;
-                    l = if_line;
-                } else {
-                    n = 1;
-                    l = line;
-                }
-                p = cond_ptr;
-                while (p != null) {
-                    incr(n);
-                    p = vlink(p);
-                }
-                tprint("(level ");
-                print_int(n);
-                print_char(')');
-                print_if_line(l);
-            }
-        }
-    }
-    print_char('}');
-    end_diagnostic(false);
-}
-
-/*
-@ Users refer to `\.{\\the\\spacefactor}' only in horizontal
-mode, and to `\.{\\the\\prevdepth}' only in vertical mode; so we put the
-associated mode in the modifier part of the |set_aux| command.
-The |set_page_int| command has modifier 0 or 1, for `\.{\\deadcycles}' and
-`\.{\\insertpenalties}', respectively. The |set_box_dimen| command is
-modified by either |width_offset|, |height_offset|, or |depth_offset|.
-And the |last_item| command is modified by either |int_val|, |dimen_val|,
-|glue_val|, |input_line_no_code|, or |badness_code|.
-\pdfTeX\ adds the codes for its extensions: |pdftex_version_code|, \dots\ .
-\eTeX\ inserts |last_node_type_code| after |glue_val| and adds
-the codes for its extensions: |eTeX_version_code|, \dots\ .
-
-@ Inside an \.{\\output} routine, a user may wish to look at the page totals
-that were present at the moment when output was triggered.
-*/
-
-/*
-When the user defines \.{\\font\\f}, say, \TeX\ assigns an internal number
-to the user's font~\.{\\f}. Adding this number to |font_id_base| gives the
-|eqtb| location of a ``frozen'' control sequence that will always select
-the font.
-*/
-
-integer font_bytes;
-
-void set_cur_font(internal_font_number f)
-{
-    int a = 0;                  /* never global */
-    define(cur_font_loc, data_cmd, f);
-}
-
 integer get_luatexversion(void)
 {
     return luatex_version;
@@ -780,21 +248,6 @@ integer get_luatex_date_info(void)
 }
 
 /*
-Now we are ready to declare our new procedure |ship_out|.  It will call
-|pdf_ship_out| if the integer parameter |pdf_output| is positive; otherwise it
-will call |dvi_ship_out|, which is the \TeX\ original |ship_out|.
-*/
-
-void ship_out(halfword p)
-{                               /* output the box |p| */
-    fix_pdfoutput();
-    if (int_par(pdf_output_code) > 0)
-        pdf_ship_out(static_pdf, p, true);
-    else
-        dvi_ship_out(p);
-}
-
-/*
 This is it: the part of \TeX\ that executes all those procedures we have
 written.
 
@@ -804,43 +257,7 @@ has to be run first; it initializes everything from scratch, without
 reading a format file, and it has the capability of dumping a format file.
 The other one is called `\.{VIRTEX}'; it is a ``virgin'' program that needs
 @.VIRTEX@>
-to input a format file in order to get started. \.{VIRTEX} typically has
-more memory capacity than \.{INITEX}, because it does not need the space
-consumed by the auxiliary hyphenation tables and the numerous calls on
-|primitive|, etc.
-
-The \.{VIRTEX} program cannot read a format file instantaneously, of course;
-the best implementations therefore allow for production versions of \TeX\ that
-not only avoid the loading routine for \PASCAL\ object code, they also have
-a format file pre-loaded. This is impossible to do if we stick to standard
-\PASCAL; but there is a simple way to fool many systems into avoiding the
-initialization, as follows:\quad(1)~We declare a global integer variable
-called |ready_already|. The probability is negligible that this
-variable holds any particular value like 314159 when \.{VIRTEX} is first
-loaded.\quad(2)~After we have read in a format file and initialized
-everything, we set |ready_already:=314159|.\quad(3)~Soon \.{VIRTEX}
-will print `\.*', waiting for more input; and at this point we
-interrupt the program and save its core image in some form that the
-operating system can reload speedily.\quad(4)~When that core image is
-activated, the program starts again at the beginning; but now
-|ready_already=314159| and all the other global variables have
-their initial values too. The former chastity has vanished!
-
-In other words, if we allow ourselves to test the condition
-|ready_already=314159|, before |ready_already| has been
-assigned a value, we can avoid the lengthy initialization. Dirty tricks
-rarely pay off so handsomely.
-@^dirty \PASCAL@>
-@^system dependencies@>
-*/
-
-/*
-@ Now this is really it: \TeX\ starts and ends here.
-
-The initial test involving |ready_already| should be deleted if the
-\PASCAL\ runtime system is smart enough to detect such a ``mistake.''
-@^system dependencies@>
-
+to input a format file in order to get started.
 */
 
 #define const_chk(A) do {			\
@@ -863,7 +280,7 @@ int ready_already = 0;
 void main_body(void)
 {
 
-    /*Bounds that may be set from the configuration file. We want the user to
+    /* Bounds that may be set from the configuration file. We want the user to
        be able to specify the names with underscores, but \.{TANGLE} removes
        underscores, so we're stuck giving the names twice, once as a string,
        once as the identifier. How ugly. */
@@ -993,9 +410,12 @@ void main_body(void)
     }
     initialize();               /* set global variables to their starting values */
     if (ini_version) {
-        if (!get_strings_started())
-            goto FINAL_END;
-        init_prim();            /* call |primitive| for each primitive */
+	/* initialize all the primitives */
+	no_new_control_sequence = false;
+	first = 0;
+	initialize_commands();
+        initialize_etex_commands();
+	no_new_control_sequence = true;
         init_str_ptr = str_ptr;
         init_pool_ptr = pool_ptr;
         fix_date_and_time();
@@ -1010,11 +430,10 @@ void main_body(void)
        But when we finish this part of the program, \TeX\ is ready to call on the
        |main_control| routine to do its work.
      */
-    initialize_inputstack();
-    enable_etex();
-    if (!no_new_control_sequence)       /* just entered extended mode ? */
-        no_new_control_sequence = true;
-    else if ((format_ident == 0) || (buffer[iloc] == '&') || dump_line) {
+    initialize_inputstack(); /* this copies the command-line */
+    if (buffer[iloc] == '*')
+	incr(iloc);
+    if ((format_ident == 0) || (buffer[iloc] == '&') || dump_line) {
         if (format_ident != 0)
             initialize();       /* erase preloaded format */
         if (!open_fmt_file())
@@ -1229,14 +648,6 @@ void final_cleanup(void)
     }
 }
 
-void init_prim(void)
-{                               /* initialize all the primitives */
-    no_new_control_sequence = false;
-    first = 0;
-    initialize_commands();
-    no_new_control_sequence = true;
-}
-
 /*
 Once \TeX\ is working, you should be able to diagnose most errors with
 the \.{\\show} commands and other diagnostic features. But for the initial
@@ -1326,31 +737,3 @@ void debug_help(void)
 }
 #endif
 
-/*
-This section should be replaced, if necessary, by any special
-modifications of the program
-that are necessary to make \TeX\ work at a particular installation.
-It is usually best to design your change file so that all changes to
-previous sections preserve the section numbering; then everybody's version
-will be consistent with the published program. More extensive changes,
-which introduce new sections, can be inserted here; then only the index
-itself will get a new section number.
-@^system dependencies@>
-*/
-
-/*
-Here is where you can find all uses of each identifier in the program,
-with underlined entries pointing to where the identifier was defined.
-If the identifier is only one letter long, however, you get to see only
-the underlined entries. {\sl All references are to section numbers instead of
-page numbers.}
-
-This index also lists error messages and other aspects of the program
-that you might want to look up some day. For example, the entry
-for ``system dependencies'' lists all sections that should receive
-special attention from people who are installing \TeX\ in a new
-operating environment. A list of various things that can't happen appears
-under ``this can't happen''. Approximately 40 sections are listed under
-``inner loop''; these account for about 60\pct! of \TeX's running time,
-exclusive of input and output.
-*/

@@ -108,7 +108,6 @@ typedef float glue_ratio;       /* one-word representation of a glue expansion f
 
 typedef unsigned short quarterword;
 typedef int halfword;
-#  include "tex/memoryword.h"
 
 typedef unsigned char glue_ord; /* infinity to the 0, 1, 2, 3, or 4 power */
 
@@ -119,9 +118,19 @@ typedef integer font_index;     /* index into |font_info| */
 
 typedef integer save_pointer;
 
+/*
+Characters of text that have been converted to \TeX's internal form
+are said to be of type |ASCII_code|, which is a subrange of the integers.
+
+We are assuming that our runtime system is able to read and write UTF-8. 
+
+Some of the ASCII codes without visible characters have been given symbolic
+names in this program because they are used with a special meaning.
+*/
+
+
 #  define null_code '\0'        /* ASCII code that might disappear */
 #  define carriage_return '\r'  /* ASCII code used at end of line */
-#  define _invalid_code 0177    /* ASCII code that many systems prohibit in text files */
 
 /* Global variables */
 extern integer bad;             /* is some ``constant'' wrong? */
@@ -158,33 +167,86 @@ extern int filelineerrorstylep;
 extern int haltonerrorp;
 extern boolean quoted_filename;
 
+/*
+In order to make efficient use of storage space, \TeX\ bases its major data
+structures on a |memory_word|, which contains either a (signed) integer,
+possibly scaled, or a (signed) |glue_ratio|, or a small number of
+fields that are one half or one quarter of the size used for storing
+integers.
+
+If |x| is a variable of type |memory_word|, it contains up to four
+fields that can be referred to as follows:
+$$\vbox{\halign{\hfil#&#\hfil&#\hfil\cr
+|x|&.|int|&(an |integer|)\cr
+|x|&.|sc|\qquad&(a |scaled| integer)\cr
+|x|&.|gr|&(a |glue_ratio|)\cr
+|x.hh.lh|, |x.hh|&.|rh|&(two halfword fields)\cr
+|x.hh.b0|, |x.hh.b1|, |x.hh|&.|rh|&(two quarterword fields, one halfword
+  field)\cr
+|x.qqqq.b0|, |x.qqqq.b1|, |x.qqqq|&.|b2|, |x.qqqq.b3|\hskip-100pt
+  &\qquad\qquad\qquad(four quarterword fields)\cr}}$$
+This is somewhat cumbersome to write, and not very readable either, but
+macros will be used to make the notation shorter and more transparent.
+The \PASCAL\ code below gives a formal definition of |memory_word| and
+its subsidiary types, using packed variant records. \TeX\ makes no
+assumptions about the relative positions of the fields within a word.
+
+We are assuming 32-bit integers, a halfword must contain at least
+32 bits, and a quarterword must contain at least 16 bits.
+@^system dependencies@>
+
+N.B.: Valuable memory space will be dreadfully wasted unless \TeX\ is compiled
+by a \PASCAL\ that packs all of the |memory_word| variants into
+the space of a single integer. This means, for example, that |glue_ratio|
+words should be |short_real| instead of |real| on some computers. Some
+\PASCAL\ compilers will pack an integer whose subrange is `|0..255|' into
+an eight-bit field, but others insist on allocating space for an additional
+sign bit; on such systems you can get 256 values into a quarterword only
+if the subrange is `|-128..127|'.
+
+The present implementation tries to accommodate as many variations as possible,
+so it makes few assumptions. If integers having the subrange
+`|min_quarterword..max_quarterword|' can be packed into a quarterword,
+and if integers having the subrange `|min_halfword..max_halfword|'
+can be packed into a halfword, everything should work satisfactorily.
+
+It is usually most efficient to have |min_quarterword=min_halfword=0|,
+so one should try to achieve this unless it causes a severe problem.
+The values defined here are recommended for most 32-bit computers.
+
+We cannot use the full range of 32 bits in a halfword, because we have
+to allow negative values for potential backend tricks like web2c's
+dynamic allocation, and parshapes pointers have to be able to store at
+least twice the value |max_halfword| (see below). Therefore,
+|max_halfword| is $2^{30}-1$
+*/
+
+#  include "tex/memoryword.h"
+
 #  define min_quarterword 0     /*smallest allowable value in a |quarterword| */
 #  define max_quarterword 65535 /* largest allowable value in a |quarterword| */
 #  define min_halfword  -0x3FFFFFFF     /* smallest allowable value in a |halfword| */
 #  define max_halfword 0x3FFFFFFF
                                 /* largest allowable value in a |halfword| */
 
+
+/*
+The following procedure, which is called just before \TeX\ initializes its
+input and output, establishes the initial values of the date and time.
+It calls a macro-defined |dateandtime| routine.  |dateandtime| in turn is 
+also a C macro, which calls |get_date_and_time|, passing it the addresses of 
+the day, month, etc., so they can be set by the routine.  
+|get_date_and_time| also sets up interrupt catching if that
+is conditionally compiled in the C code.
+@^system dependencies@>
+*/
+
+
 #  define fix_date_and_time() dateandtime(int_par(time_code),int_par(day_code),int_par(month_code),int_par(year_code))
-
-extern integer mag_set;         /* if nonzero, this magnification should be used henceforth */
-extern void prepare_mag(void);
-
-extern integer cur_cmd;         /* current command set by |get_next| */
-extern halfword cur_chr;        /* operand of current command */
-extern halfword cur_cs;         /* control sequence found here, zero if none found */
-extern halfword cur_tok;        /* packed representative of |cur_cmd| and |cur_chr| */
-
-extern void show_cur_cmd_chr(void);
-
-extern integer font_bytes;
-
-extern void set_cur_font(internal_font_number f);
 
 extern integer get_luatexversion(void);
 extern str_number get_luatexrevision(void);
 extern integer get_luatex_date_info(void);
-
-extern void ship_out(halfword p);
 
 extern int ready_already;
 
@@ -192,7 +254,6 @@ extern void main_body(void);
 
 extern void close_files_and_terminate(void);
 extern void final_cleanup(void);
-extern void init_prim(void);
 extern void debug_help(void);   /* routine to display various things */
 
 /* lazy me */

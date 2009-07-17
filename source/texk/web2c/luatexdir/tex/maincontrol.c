@@ -896,6 +896,21 @@ void main_control(void)
     goto BIG_SWITCH;            /* restart */
 }
 
+/*
+Now we are ready to declare our new procedure |ship_out|.  It will call
+|pdf_ship_out| if the integer parameter |pdf_output| is positive; otherwise it
+will call |dvi_ship_out|, which is the \TeX\ original |ship_out|.
+*/
+
+void ship_out(halfword p)
+{                               /* output the box |p| */
+    fix_pdfoutput();
+    if (int_par(pdf_output_code) > 0)
+        pdf_ship_out(static_pdf, p, true);
+    else
+        dvi_ship_out(p);
+}
+
 
 void app_space(void)
 {                               /* handle spaces when |space_factor<>1000| */

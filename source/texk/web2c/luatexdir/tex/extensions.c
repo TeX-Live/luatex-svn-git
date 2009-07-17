@@ -652,35 +652,6 @@ halfword make_local_par_node(void)
     return p;
 }
 
-/*
-The program has two modes of operation:  (1)~In \TeX\ compatibility mode
-it fully deserves the name \TeX\ and there are neither extended features
-nor additional primitive commands.  There are, however, a few
-modifications that would be legitimate in any implementation of \TeX\
-such as, e.g., preventing inadequate results of the glue to \.{DVI}
-unit conversion during |ship_out|.  (2)~In extended mode there are
-additional primitive commands and the extended features of \eTeX\ are
-available.
-
-The distinction between these two modes of operation initially takes
-place when a `virgin' \.{eINITEX} starts without reading a format file.
-Later on the values of all \eTeX\ state variables are inherited when
-\.{eVIRTEX} (or \.{eINITEX}) reads a format file.
-
-The code below is designed to work for cases where `$|init|\ldots|tini|$'
-is a run-time switch.
-*/
-
-
-void enable_etex(void)
-{
-    if (ini_version) {
-        no_new_control_sequence = false;
-        initialize_etex_commands();
-        if (buffer[iloc] == '*')
-            incr(iloc);
-    }
-}
 
 /*
 The \eTeX\ features available in extended mode are grouped into two

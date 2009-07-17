@@ -72,7 +72,6 @@ distinguished by their |chr_code| values |last_box_code| and
 |copy_code|.
 */
 
-extern void enable_etex(void);
 extern boolean *eof_seen;       /* has eof been seen? */
 extern void print_group(boolean e);
 extern void group_trace(boolean e);

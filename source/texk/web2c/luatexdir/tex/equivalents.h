@@ -95,6 +95,36 @@ locations for control sequences that are perpetually defined
 */
 
 
+
+/*
+@ Region 3 of |eqtb| contains the |number_regs| \.{\\skip} registers, as well as the
+glue parameters defined here. It is important that the ``muskip''
+parameters have larger numbers than the others.
+
+@ Region 4 of |eqtb| contains the local quantities defined here. The
+bulk of this region is taken up by five tables that are indexed by eight-bit
+characters; these tables are important to both the syntactic and semantic
+portions of \TeX. There are also a bunch of special things like font and
+token parameters, as well as the tables of \.{\\toks} and \.{\\box}
+registers.
+
+@ Region 5 of |eqtb| contains the integer parameters and registers defined
+here, as well as the |del_code| table. The latter table differs from the
+|cat_code..math_code| tables that precede it, since delimiter codes are
+fullword integers while the other kinds of codes occupy at most a
+halfword. This is what makes region~5 different from region~4. We will
+store the |eq_level| information in an auxiliary array of quarterwords
+that will be defined later.
+
+@ The integer parameters should really be initialized by a macro package;
+the following initialization does the minimum to keep \TeX\ from
+complete failure.
+@^null delimiter@>
+
+@ The final region of |eqtb| contains the dimension parameters defined
+here, and the |number_regs| \.{\\dimen} registers.
+*/
+
 #  define null_cs 1             /* equivalent of \.{\\csname\\endcsname} */
 #  define hash_base (null_cs+1) /* beginning of region 2, for the hash table */
 #  define frozen_control_sequence (hash_base+hash_size) /* for error recovery */
@@ -418,6 +448,24 @@ extern void print_length_param(integer n);
 #  define glue_par(A)  equiv(glue_base+(A))
 #  define dir_par(A) eqtb[dir_base+(A)].cint    /* a direction parameter */
 
+extern integer mag_set;         /* if nonzero, this magnification should be used henceforth */
+extern void prepare_mag(void);
+
+/*
+@ Here are the group codes that are used to discriminate between different
+kinds of groups. They allow \TeX\ to decide what special actions, if any,
+should be performed when a group ends.
+\def\grp{\.{\char'173...\char'175}}
+
+Some groups are not supposed to be ended by right braces. For example,
+the `\.\$' that begins a math formula causes a |math_shift_group| to
+be started, and this should be terminated by a matching `\.\$'. Similarly,
+a group that starts with \.{\\left} should end with \.{\\right}, and
+one that starts with \.{\\begingroup} should end with \.{\\endgroup}.
+
+*/
+
+
 typedef enum {
     bottom_level = 0,           /* group code for the outside world */
     simple_group,               /* group code for local structure only */
@@ -445,6 +493,13 @@ typedef enum {
 } tex_group_codes;
 
 #  define max_group_code local_box_group        /* which is wrong, but is what the web says */
+
+extern integer cur_cmd;         /* current command set by |get_next| */
+extern halfword cur_chr;        /* operand of current command */
+extern halfword cur_cs;         /* control sequence found here, zero if none found */
+extern halfword cur_tok;        /* packed representative of |cur_cmd| and |cur_chr| */
+
+extern void show_cur_cmd_chr(void);
 
 extern memory_word *save_stack;
 extern integer save_ptr;        /* first unused entry on |save_stack| */

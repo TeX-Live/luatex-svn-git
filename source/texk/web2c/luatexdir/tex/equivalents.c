@@ -869,6 +869,149 @@ void restore_trace(halfword p, char *s)
     end_diagnostic(false);
 }
 
+/*
+@ Most of the parameters kept in |eqtb| can be changed freely, but there's
+an exception:  The magnification should not be used with two different
+values during any \TeX\ job, since a single magnification is applied to an
+entire run. The global variable |mag_set| is set to the current magnification
+whenever it becomes necessary to ``freeze'' it at a particular value.
+*/
+
+integer mag_set;                /* if nonzero, this magnification should be used henceforth */
+
+/*
+The |prepare_mag| subroutine is called whenever \TeX\ wants to use |mag|
+for magnification.
+*/
+
+#define mag int_par(mag_code)
+
+void prepare_mag(void)
+{
+    if ((mag_set > 0) && (mag != mag_set)) {
+        print_err("Incompatible magnification (");
+        print_int(mag);
+        tprint(");");
+        tprint_nl(" the previous value will be retained");
+        help2("I can handle only one magnification ratio per job. So I've",
+              "reverted to the magnification you used earlier on this run.");
+        int_error(mag_set);
+        geq_word_define(int_base + mag_code, mag_set);  /* |mag:=mag_set| */
+    }
+    if ((mag <= 0) || (mag > 32768)) {
+        print_err("Illegal magnification has been changed to 1000");
+        help1("The magnification ratio must be between 1 and 32768.");
+        int_error(mag);
+        geq_word_define(int_base + mag_code, 1000);
+    }
+    if ((mag_set == 0) && (mag != mag_set)) {
+        if (mag != 1000)
+            one_true_inch = xn_over_d(one_hundred_inch, 10, mag);
+        else
+            one_true_inch = one_inch;
+    }
+    mag_set = mag;
+}
+
+/*
+Let's pause a moment now and try to look at the Big Picture.
+The \TeX\ program consists of three main parts: syntactic routines,
+semantic routines, and output routines. The chief purpose of the
+syntactic routines is to deliver the user's input to the semantic routines,
+one token at a time. The semantic routines act as an interpreter
+responding to these tokens, which may be regarded as commands. And the
+output routines are periodically called on to convert box-and-glue
+lists into a compact set of instructions that will be sent
+to a typesetter. We have discussed the basic data structures and utility
+routines of \TeX, so we are good and ready to plunge into the real activity by
+considering the syntactic routines.
+
+Our current goal is to come to grips with the |get_next| procedure,
+which is the keystone of \TeX's input mechanism. Each call of |get_next|
+sets the value of three variables |cur_cmd|, |cur_chr|, and |cur_cs|,
+representing the next input token.
+$$\vbox{\halign{#\hfil\cr
+  \hbox{|cur_cmd| denotes a command code from the long list of codes
+   given above;}\cr
+  \hbox{|cur_chr| denotes a character code or other modifier of the command
+   code;}\cr
+  \hbox{|cur_cs| is the |eqtb| location of the current control sequence,}\cr
+  \hbox{\qquad if the current token was a control sequence,
+   otherwise it's zero.}\cr}}$$
+Underlying this external behavior of |get_next| is all the machinery
+necessary to convert from character files to tokens. At a given time we
+may be only partially finished with the reading of several files (for
+which \.{\\input} was specified), and partially finished with the expansion
+of some user-defined macros and/or some macro parameters, and partially
+finished with the generation of some text in a template for \.{\\halign},
+and so on. When reading a character file, special characters must be
+classified as math delimiters, etc.; comments and extra blank spaces must
+be removed, paragraphs must be recognized, and control sequences must be
+found in the hash table. Furthermore there are occasions in which the
+scanning routines have looked ahead for a word like `\.{plus}' but only
+part of that word was found, hence a few characters must be put back
+into the input and scanned again.
+
+To handle these situations, which might all be present simultaneously,
+\TeX\ uses various stacks that hold information about the incomplete
+activities, and there is a finite state control for each level of the
+input mechanism. These stacks record the current state of an implicitly
+recursive process, but the |get_next| procedure is not recursive.
+Therefore it will not be difficult to translate these algorithms into
+low-level languages that do not support recursion.
+*/
+
+integer cur_cmd;                /* current command set by |get_next| */
+halfword cur_chr;               /* operand of current command */
+halfword cur_cs;                /* control sequence found here, zero if none found */
+halfword cur_tok;               /* packed representative of |cur_cmd| and |cur_chr| */
+
+/* Here is a procedure that displays the current command. */
+
+#define mode cur_list.mode_field
+
+void show_cur_cmd_chr(void)
+{
+    integer n;                  /* level of \.{\\if...\\fi} nesting */
+    integer l;                  /* line where \.{\\if} started */
+    halfword p;
+    begin_diagnostic();
+    tprint_nl("{");
+    if (mode != shown_mode) {
+        print_mode(mode);
+        tprint(": ");
+        shown_mode = mode;
+    }
+    print_cmd_chr(cur_cmd, cur_chr);
+    if (int_par(tracing_ifs_code) > 0) {
+        if (cur_cmd >= if_test_cmd) {
+            if (cur_cmd <= fi_or_else_cmd) {
+                tprint(": ");
+                if (cur_cmd == fi_or_else_cmd) {
+                    print_cmd_chr(if_test_cmd, cur_if);
+                    print_char(' ');
+                    n = 0;
+                    l = if_line;
+                } else {
+                    n = 1;
+                    l = line;
+                }
+                p = cond_ptr;
+                while (p != null) {
+                    incr(n);
+                    p = vlink(p);
+                }
+                tprint("(level ");
+                print_int(n);
+                print_char(')');
+                print_if_line(l);
+            }
+        }
+    }
+    print_char('}');
+    end_diagnostic(false);
+}
+
 
 /* Here is a procedure that displays the contents of |eqtb[n]|
    symbolically. */
