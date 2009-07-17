@@ -1937,15 +1937,16 @@ void make_accent(void)
             delta = round((w - a) / float_constant(2) + h * t - x * s); /* real multiplication */
             r = new_kern(delta);
             subtype(r) = acc_kern;
-            couple_nodes(tail, r);
+            couple_nodes(tail, r); 
             couple_nodes(r, p);
-            tail = new_kern(-a - delta);
-            subtype(tail) = acc_kern;
+            tail = new_kern(-a - delta); 
+            subtype(tail) = acc_kern; 
             couple_nodes(p, tail);
             p = q;
 
         }
         couple_nodes(tail, p);
+        tail = p;
         space_factor = 1000;
     }
 }
