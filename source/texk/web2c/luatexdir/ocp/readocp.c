@@ -23,6 +23,7 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
+#define text(A) hash[(A)].rh    /* string number for control sequence name */
 
 extern int program_name_set;    /* in lkpselib.c */
 
@@ -276,7 +277,7 @@ read_ocp_info(pointer u, str_number nom, str_number aire, str_number ext,
             NULL
         };
         char errmsg[256];
-        char *c = makecstring(zget_cs_text(u));
+        char *c = makecstring(text(u));
         if (file_opened) {
             snprintf(errmsg, 255,
                      "Translation process \\%s=%s not loadable: Bad ocp file",

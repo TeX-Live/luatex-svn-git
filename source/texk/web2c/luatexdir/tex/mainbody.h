@@ -174,8 +174,6 @@ extern halfword hash_high;      /* pointer to next high hash location */
 extern boolean no_new_control_sequence; /* are new identifiers legal? */
 extern integer cs_count;        /* total number of known identifiers */
 
-extern str_number get_cs_text(integer cs);
-
 extern integer mag_set;         /* if nonzero, this magnification should be used henceforth */
 extern void prepare_mag(void);
 
@@ -206,7 +204,6 @@ extern void init_prim(void);
 extern void debug_help(void);   /* routine to display various things */
 
 /* lazy me */
-#  define zget_cs_text get_cs_text
 #  define get_cur_font() equiv(cur_font_loc)
 #  define zset_cur_font set_cur_font
 

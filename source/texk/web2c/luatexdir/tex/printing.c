@@ -574,7 +574,7 @@ they may be unprintable.
 
 void print_cs(integer p)
 {                               /* prints a purported control sequence */
-    str_number t = zget_cs_text(p);
+    str_number t = text(p);
     if (p < hash_base) {        /* nullcs */
         if (p == null_cs) {
             tprint_esc("csname");
@@ -616,7 +616,7 @@ void sprint_cs(pointer p)
         tprint_esc("csname");
         tprint_esc("endcsname");
     } else {
-        t = zget_cs_text(p);
+        t = text(p);
         if (is_active_cs(t))
             print(active_cs_value(t));
         else

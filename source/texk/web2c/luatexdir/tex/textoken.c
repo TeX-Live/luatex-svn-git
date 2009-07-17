@@ -20,7 +20,7 @@
 
 #include <ptexlib.h>
 
-
+#define text(A) hash[(A)].rh    /* string number for control sequence name */
 
 static const char _svn_version[] =
     "$Id$ $URL$";
@@ -579,7 +579,7 @@ char *cs_to_string(halfword p)
         ret[k] = 0;
 
     } else {
-        str_number txt = zget_cs_text(p);
+        str_number txt = text(p);
         s = makecstring(txt);
         if (is_active_cs(txt)) {
             s = s + 3;
@@ -2205,10 +2205,10 @@ str_number tokens_to_string(halfword p)
 
 
 #define make_room(a)                                    \
-  if ((i+a+1)>alloci) {                                 \
-    ret = xrealloc(ret,alloci+64);                      \
-    alloci = alloci + 64;                               \
-  }
+    if ((i+(int)a+1)>alloci) {                          \
+        ret = xrealloc(ret,alloci+64);                  \
+        alloci = alloci + 64;                           \
+    }
 
 
 #define append_i_byte(a) ret[i++] = a
@@ -2239,14 +2239,20 @@ str_number tokens_to_string(halfword p)
 #define Print_esc(b) {                                          \
     char *v = b;                                                \
     if (e>0 && e<STRING_OFFSET) {                               \
-      Print_uchar (e); Print_uchar (e);                         \
+        Print_uchar (e);                                        \
     }                                                           \
-    while (*v) { Print_char(*v); v++; }                         \
+    make_room(strlen(v));                                       \
+    while (*v) { append_i_byte(*v); v++; }                      \
   }
 
 #define is_cat_letter(a)                                                \
   (get_char_cat_code(pool_to_unichar(str_start_macro(a))) == 11)
 
+/* the actual token conversion in this function is now functionally 
+   equivalent to |show_token_list|, except that it always prints the
+   whole token list.
+   TODO: check whether this causes problems in the lua library.
+*/
 
 char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
 {
@@ -2282,17 +2288,19 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
                 q = infop - cs_token_flag;
                 if (q < hash_base) {
                     if (q == null_cs) {
-                        /* Print_esc("csname"); Print_esc("endcsname"); */
+                        Print_esc("csname"); 
+                        Print_esc("endcsname"); 
+                    } else {
+                        Print_esc("IMPOSSIBLE."); 
                     }
                 } else if ((q >= undefined_control_sequence)
                            && ((q <= eqtb_size)
                                || (q > eqtb_size + hash_extra))) {
                     Print_esc("IMPOSSIBLE.");
-                } else if ((zget_cs_text(q) < 0)
-                           || (zget_cs_text(q) >= str_ptr)) {
+                } else if ((text(q) < 0) || (text(q) >= str_ptr)) {
                     Print_esc("NONEXISTENT.");
                 } else {
-                    str_number txt = get_cs_text(q);
+                    str_number txt = text(q);
                     s = makecstring(txt);
                     if (is_active_cs(txt)) {
                         s = s + 3;
@@ -2319,42 +2327,40 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
                 m = token_cmd(infop);
                 c = token_chr(infop);
                 switch (m) {
-                case 10:
-                case 11:
-                case 12:
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                case 7:
-                case 8:
+                case left_brace_cmd:
+                case right_brace_cmd:
+                case math_shift_cmd:
+                case tab_mark_cmd:
+                case sup_mark_cmd:
+                case sub_mark_cmd:
+                case spacer_cmd:
+                case letter_cmd:
+                case other_char_cmd:
                     Print_uchar(c);
                     break;
-                case 6:
-                    /* Print_uchar(c); */
+                case mac_param_cmd:
+                    if (!in_lua_escape)
+                        Print_uchar(c);
                     Print_uchar(c);
                     break;
-                case 5:
+                case out_param_cmd:
                     Print_uchar(match_chr);
                     if (c <= 9) {
                         Print_char(c + '0');
                     } else {
                         Print_char('!');
-                        xfree(ret);
-                        return NULL;
+                        goto EXIT;
                     }
                     break;
-                case 13:
+                case match_cmd:
                     match_chr = c;
                     Print_uchar(c);
                     n++;
                     Print_char(n);
-                    if (n > '9') {
-                        xfree(ret);
-                        return NULL;
-                    }
+                    if (n > '9')
+                        goto EXIT;
                     break;
-                case 14:
+                case end_match_cmd:
                     if (c == 0) {
                         Print_char('-');
                         Print_char('>');
@@ -2368,6 +2374,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
         }
         p = token_link(p);
     }
+ EXIT:
     ret[i] = '\0';
     if (siz != NULL)
         *siz = i;

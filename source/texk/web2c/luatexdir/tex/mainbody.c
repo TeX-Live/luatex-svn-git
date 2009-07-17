@@ -790,9 +790,6 @@ A global boolean variable called |no_new_control_sequence| is set to
 |true| during the time that new hash table entries are forbidden.
 */
 
-#define next(A) hash[(A)].lhfield       /* link for coalesced lists */
-#define text(A) hash[(A)].rh    /* string number for control sequence name */
-
 two_halves *hash;               /* the hash table */
 halfword hash_used;             /* allocation pointer for |hash| */
 integer hash_extra;             /* |hash_extra=hash| above |eqtb_size| */
@@ -800,21 +797,6 @@ halfword hash_top;              /* maximum of the hash array */
 halfword hash_high;             /* pointer to next high hash location */
 boolean no_new_control_sequence;        /* are new identifiers legal? */
 integer cs_count;               /* total number of known identifiers */
-
-/*
-The extra set of functions make sure we can query the
-primitive meanings of thing s from C code
-*/
-
-str_number get_cs_text(integer cs)
-{
-    if (cs == null_cs)
-        return maketexstring("\\csname\\endcsname");
-    else if ((text(cs) < 0) || (text(cs) >= str_ptr))
-        return get_nullstr();
-    else
-        return text(cs);
-}
 
 /*
 Each primitive has a corresponding inverse, so that it is possible to
