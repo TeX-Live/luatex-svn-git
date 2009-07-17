@@ -32,13 +32,13 @@ Hoekwater. Swift progress in that area is made possible
 by a joint grant from Colorado State University and TUG, 
 under the 'Oriental TeX' project.
 
-The final release will contain an embedded MetaPost 
-interpreter for graphics (hence the expected name change).
-
 Further documentation about LuaTeX can be found at 
 http://www.luatex.org 
 
 We have a tracker running at http://tracker.luatex.org 
+
+A mailing list for users of LuaTeX is hosted by TUG,
+see http://www.tug.org/mailman/listinfo/luatex
 
 A mailing list for the development of LuaTeX can be found 
 at http://www.ntg.nl/mailman/listinfo/dev-luatex
