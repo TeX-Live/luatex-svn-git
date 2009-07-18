@@ -34,15 +34,11 @@ void init_col(void);
 #define space_factor    cur_list.aux_field.hh.lhfield
 #define incompleat_noad cur_list.aux_field.cint
 
-#define saved(A) save_stack[save_ptr+(A)].cint
-
 #define every_cr          equiv(every_cr_loc)
 #define display_indent    dimen_par(display_indent_code)
 #define max_depth         dimen_par(max_depth_code)
 #define pdf_ignored_dimen dimen_par(pdf_ignored_dimen_code)
 #define overfull_rule     dimen_par(overfull_rule_code)
-
-#define max_quarterword 65535
 
 static const char _svn_version[] =
     "$Id$ $URL$";
@@ -922,12 +918,12 @@ value is changed to zero and so is the next tabskip.
        overfull or underfull.
      */
 
-    save_ptr = save_ptr - 2;
+    decr(save_ptr);
     pack_begin_line = -cur_list.ml_field;
     if (cur_list.mode_field == -vmode) {
         rule_save = overfull_rule;
         overfull_rule = 0;      /* prevent rule from being packaged */
-        p = hpack(preamble, saved(1), saved(0));
+        p = hpack(preamble, saved_value(0), saved_level(0));
         overfull_rule = rule_save;
     } else {
         q = vlink(preamble);
@@ -936,7 +932,7 @@ value is changed to zero and so is the next tabskip.
             width(q) = 0;
             q = vlink(vlink(q));
         } while (q != null);
-        p = filtered_vpackage(preamble, saved(1), saved(0), max_depth,
+        p = filtered_vpackage(preamble, saved_value(0), saved_level(0), max_depth,
                               preamble_group);
         q = vlink(preamble);
         do {

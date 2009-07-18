@@ -735,18 +735,18 @@ void print_group(boolean e)
     tprint(" group (level ");
     print_int(cur_level);
     print_char(')');
-    if (saved(-1) != 0) {
+    if (saved_value(-1) != 0) { /* saved_line */
         if (e)
             tprint(" entered at line ");
         else
             tprint(" at line ");
-        print_int(saved(-1));
+        print_int(saved_value(-1)); /* saved_line */
     }
 }
 
 /*
 The |group_trace| procedure is called when a new level of grouping
-begins (|e=false|) or ends (|e=true|) with |saved(-1)| containing the
+begins (|e=false|) or ends (|e=true|) with |saved_value(-1)| containing the
 line number.
 */
 
@@ -807,7 +807,7 @@ void group_warning(void)
                 w = true;
         }
 
-        grp_stack[i] = save_index(save_ptr);
+        grp_stack[i] = save_value(save_ptr);
         decr(i);
     }
     if (w) {
@@ -885,7 +885,7 @@ void file_warning(void)
         print_group(true);
         tprint(" is incomplete");
         cur_group = save_level(save_ptr);
-        save_ptr = save_index(save_ptr);
+        save_ptr = save_value(save_ptr);
     }
     save_ptr = p;
     cur_level = l;

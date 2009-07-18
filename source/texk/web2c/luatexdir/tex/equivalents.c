@@ -542,30 +542,49 @@ destroyed.
 
 Entries on the |save_stack| are of type |memory_word|. The top item on
 this stack is |save_stack[p]|, where |p=save_ptr-1|; it contains three
-fields called |save_type|, |save_level|, and |save_index|, and it is
+fields called |save_type|, |save_level|, and |save_value|, and it is
 interpreted in one of four ways:
 
 \yskip\hangg 1) If |save_type(p)=restore_old_value|, then
-|save_index(p)| is a location in |eqtb| whose current value should
+|save_value(p)| is a location in |eqtb| whose current value should
 be destroyed at the end of the current group and replaced by |save_stack[p-1]|.
-Furthermore if |save_index(p)>=int_base|, then |save_level(p)|
+Furthermore if |save_value(p)>=int_base|, then |save_level(p)|
 should replace the corresponding entry in |xeq_level|.
 
-\yskip\hangg 2) If |save_type(p)=restore_zero|, then |save_index(p)|
+\yskip\hangg 2) If |save_type(p)=restore_zero|, then |save_value(p)|
 is a location in |eqtb| whose current value should be destroyed at the end
 of the current group, when it should be
 replaced by the current value of |eqtb[undefined_control_sequence]|.
 
-\yskip\hangg 3) If |save_type(p)=insert_token|, then |save_index(p)|
+\yskip\hangg 3) If |save_type(p)=insert_token|, then |save_value(p)|
 is a token that should be inserted into \TeX's input when the current
 group ends.
 
 \yskip\hangg 4) If |save_type(p)=level_boundary|, then |save_level(p)|
 is a code explaining what kind of group we were previously in, and
-|save_index(p)| points to the level boundary word at the bottom of
-the entries for that group.
-Furthermore, in extended \eTeX\ mode, |save_stack[p-1]| contains the
-source line number at which the current level of grouping was entered.
+|save_value(p)| points to the level boundary word at the bottom of
+the entries for that group. Furthermore, |save_stack[p-1]| contains the
+source line number at which the current level of grouping was entered,
+this field has itself a type: |save_type(p-1)==saved_line|.
+
+
+Besides this `official' use, various subroutines push temporary
+variables on the save stack when it is handy to do so. These all have
+an explicit |save_type|, and they are:
+
+|saved_adjust| signifies an adjustment is beging scanned,
+|saved_insert| an insertion is being scanned,
+|saved_disc| the \.{\\discretionary} sublist we are working on right now,
+|saved_boxtype| whether a \.{\\localbox} is \.{\\left} or \.{\\right},
+|saved_textdir| a text direction to be restored,
+|saved_eqno| diffentiates between \.{\\eqno} and \.{\\leqno},
+|saved_choices| the \.{\\mathchoices} sublist we are working on right now,
+|saved_math| and interrupted math list,
+|saved_boxcontext| the box context value,
+|saved_boxspec| the box \.{to} or \.{spread} specification,
+|saved_boxdir| the box \.{dir} specification,
+|saved_boxattr| the box \.{attr} specification.
+
 */
 
 /*
@@ -621,11 +640,11 @@ called.
 void new_save_level(group_code c)
 {                               /* begin a new level of grouping */
     check_full_save_stack();
-    saved(0) = line;
+    set_saved_record(0,saved_line,0,line);
     incr(save_ptr);
     save_type(save_ptr) = level_boundary;
     save_level(save_ptr) = cur_group;
-    save_index(save_ptr) = cur_boundary;
+    save_value(save_ptr) = cur_boundary;
     if (cur_level == max_quarterword)
         overflow("grouping levels", max_quarterword - min_quarterword);
     /* quit if |(cur_level+1)| is too big to be stored in |eqtb| */
@@ -636,6 +655,220 @@ void new_save_level(group_code c)
     incr(cur_level);
     incr(save_ptr);
 }
+
+
+
+/*
+  The \.{\\showgroups} command displays all currently active grouping
+  levels.
+*/
+
+/*
+  The modifications of \TeX\ required for the display produced by the
+  |show_save_groups| procedure were first discussed by Donald~E. Knuth in
+  {\sl TUGboat\/} {\bf 11}, 165--170 and 499--511, 1990.
+  @^Knuth, Donald Ervin@>
+  
+  In order to understand a group type we also have to know its mode.
+  Since unrestricted horizontal modes are not associated with grouping,
+  they are skipped when traversing the semantic nest.
+*/
+
+void show_save_groups(void)
+{
+    int p;                      /* index into |nest| */
+    integer m;                  /* mode */
+    save_pointer v;             /* saved value of |save_ptr| */
+    quarterword l;              /* saved value of |cur_level| */
+    group_code c;               /* saved value of |cur_group| */
+    int a;                      /* to keep track of alignments */
+    integer i;
+    quarterword j;
+    char *s;
+    p = nest_ptr;
+    nest[p] = cur_list;         /* put the top level into the array */
+    v = save_ptr;
+    l = cur_level;
+    c = cur_group;
+    save_ptr = cur_boundary;
+    decr(cur_level);
+    a = 1;
+    s = NULL;
+    tprint_nl("");
+    print_ln();
+    while (1) {
+        tprint_nl("### ");
+        print_group(true);
+        if (cur_group == bottom_level)
+            goto DONE;
+        do {
+            m = nest[p].mode_field;
+            if (p > 0)
+                decr(p);
+            else
+                m = vmode;
+        } while (m == hmode);
+        tprint(" (");
+        switch (cur_group) {
+        case simple_group:
+            incr(p);
+            goto FOUND2;
+            break;
+        case hbox_group:
+        case adjusted_hbox_group:
+            s = "hbox";
+            break;
+        case vbox_group:
+            s = "vbox";
+            break;
+        case vtop_group:
+            s = "vtop";
+            break;
+        case align_group:
+            if (a == 0) {
+                if (m == -vmode)
+                    s = "halign";
+                else
+                    s = "valign";
+                a = 1;
+                goto FOUND1;
+            } else {
+                if (a == 1)
+                    tprint("align entry");
+                else
+                    tprint_esc("cr");
+                if (p >= a)
+                    p = p - a;
+                a = 0;
+                goto FOUND;
+            }
+            break;
+        case no_align_group:
+            incr(p);
+            a = -1;
+            tprint_esc("noalign");
+            goto FOUND2;
+            break;
+        case output_group:
+            tprint_esc("output");
+            goto FOUND;
+            break;
+        case math_group:
+            goto FOUND2;
+            break;
+        case disc_group:
+	    tprint_esc("discretionary");
+            for (i = 1; i < 3; i++)
+                if (i <= saved_value(-2))
+                    tprint("{}");
+            goto FOUND2;
+            break;
+        case math_choice_group:
+	    tprint_esc("mathchoice");
+            for (i = 1; i < 4; i++)
+                if (i <= saved_value(-3)) /* different offset because -2==saved_textdir*/
+                    tprint("{}");
+            goto FOUND2;
+            break;
+        case insert_group:
+            if (saved_type(-1) == saved_adjust) {
+                tprint_esc("vadjust");
+		if (saved_level(-1) != 0)
+		    tprint(" pre");
+            } else {
+                tprint_esc("insert");
+                print_int(saved_value(-1));
+            }
+            goto FOUND2;
+            break;
+        case vcenter_group:
+            s = "vcenter";
+            goto FOUND1;
+            break;
+        case semi_simple_group:
+            incr(p);
+            tprint_esc("begingroup");
+            goto FOUND;
+            break;
+        case math_shift_group:
+            if (m == mmode) {
+                print_char('$');
+            } else if (nest[p].mode_field == mmode) {
+                print_cmd_chr(eq_no_cmd, saved_value(-2));
+                goto FOUND;
+            }
+            print_char('$');
+            goto FOUND;
+            break;
+        case math_left_group:
+            if (subtype(nest[p + 1].eTeX_aux_field) == left_noad_side)
+                tprint_esc("left");
+            else
+                tprint_esc("middle");
+            goto FOUND;
+            break;
+        default:
+            confusion("showgroups");
+            break;
+        }
+        /* Show the box context */
+        i = saved_value(-5);
+        if (i != 0) {
+            if (i < box_flag) {
+                if (abs(nest[p].mode_field) == vmode)
+                    j = hmove_cmd;
+                else
+                    j = vmove_cmd;
+                if (i > 0)
+                    print_cmd_chr(j, 0);
+                else
+                    print_cmd_chr(j, 1);
+                print_scaled(abs(i));
+                tprint("pt");
+            } else if (i < ship_out_flag) {
+                if (i >= global_box_flag) {
+                    tprint_esc("global");
+                    i = i - (global_box_flag - box_flag);
+                }
+                tprint_esc("setbox");
+                print_int(i - box_flag);
+                print_char('=');
+            } else {
+                print_cmd_chr(leader_ship_cmd, i - (leader_flag - a_leaders));
+            }
+        }
+      FOUND1:
+        tprint_esc(s);
+        /* Show the box packaging info */
+	{
+	    /* offsets may vary */
+	    integer ii = -1;
+	    while (saved_type(ii)!=saved_boxspec)
+		ii--;
+	    if (saved_value(ii) != 0) {
+		print_char(' ');
+		if (saved_level(ii) == exactly)
+		    tprint("to");
+		else
+		    tprint("spread");
+		print_scaled(saved_value(ii));
+		tprint("pt");
+	    }
+	}
+      FOUND2:
+        print_char('{');
+      FOUND:
+        print_char(')');
+        decr(cur_level);
+        cur_group = save_level(save_ptr);
+        save_ptr = save_value(save_ptr);
+    }
+  DONE:
+    save_ptr = v;
+    cur_level = l;
+    cur_group = c;
+}
+
 
 /*
 Just before an entry of |eqtb| is changed, the following procedure should
@@ -687,7 +920,7 @@ void eq_save(halfword p, quarterword l)
         save_type(save_ptr) = restore_old_value;
     }
     save_level(save_ptr) = l;
-    save_index(save_ptr) = p;
+    save_value(save_ptr) = p;
     incr(save_ptr);
 }
 
@@ -774,7 +1007,7 @@ void save_for_after(halfword t)
         check_full_save_stack();
         save_type(save_ptr) = insert_token;
         save_level(save_ptr) = level_zero;
-        save_index(save_ptr) = t;
+        save_value(save_ptr) = t;
         incr(save_ptr);
     }
 }
@@ -803,7 +1036,7 @@ void unsave(void)
             decr(save_ptr);
             if (save_type(save_ptr) == level_boundary)
                 break;
-            p = save_index(save_ptr);
+            p = save_value(save_ptr);
             if (save_type(save_ptr) == insert_token) {
                 a = reinsert_token(a, p);
             } else {
@@ -849,7 +1082,7 @@ void unsave(void)
         if (grp_stack[in_open] == cur_boundary)
             group_warning();    /* groups possibly not properly nested with files */
         cur_group = save_level(save_ptr);
-        cur_boundary = save_index(save_ptr);
+        cur_boundary = save_value(save_ptr);
         decr(save_ptr);
 
     } else {

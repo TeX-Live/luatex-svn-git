@@ -132,7 +132,6 @@ extern void extra_right_brace(void);
 extern void normal_paragraph(void);
 extern void box_end(integer box_context);
 extern void scan_box(integer box_context);
-extern void package(int c);
 extern void new_graf(boolean indented);
 extern void indent_in_hmode(void);
 extern void head_for_vmode(void);
@@ -193,8 +192,6 @@ extern void issue_message(void);
 extern void give_err_help(void);
 extern void shift_case(void);
 extern void show_whatever(void);
-extern void show_save_groups(void);
-
 
 extern void initialize(void);   /* this procedure gets things started properly */
 

@@ -433,12 +433,40 @@ extern void print_length_param(integer n);
 
 #  define save_type(A) save_stack[(A)].hh.b0    /* classifies a |save_stack| entry */
 #  define save_level(A) save_stack[(A)].hh.b1   /* saved level for regions 5 and 6, or group code */
-#  define save_index(A) save_stack[(A)].hh.rh   /* |eqtb| location or token or |save_stack| location */
+#  define save_value(A) save_stack[(A)].hh.rh   /* |eqtb| location or token or |save_stack| location */
+
+/*
+We use the notation |saved(k)| to stand for an item that
+appears in location |save_ptr+k| of the save stack. 
+*/
+
+#  define saved_type(A) save_stack[save_ptr+(A)].hh.b0
+#  define saved_level(A) save_stack[save_ptr+(A)].hh.b1
+#  define saved_value(A) save_stack[save_ptr+(A)].hh.rh
+
+#  define set_saved_record(A,B,C,D) do {	\
+	saved_type(A) = B;			\
+	saved_level(A) = C;			\
+	saved_value(A) = D;			\
+    } while (0)
 
 #  define restore_old_value 0   /* |save_type| when a value should be restored later */
 #  define restore_zero 1        /* |save_type| when an undefined entry should be restored */
 #  define insert_token 2        /* |save_type| when a token is being saved for later use */
 #  define level_boundary 3      /* |save_type| corresponding to beginning of group */
+#  define saved_line 4
+#  define saved_adjust 5
+#  define saved_insert 6
+#  define saved_disc 7
+#  define saved_boxtype 8
+#  define saved_textdir 9
+#  define saved_eqno 10
+#  define saved_choices 11
+#  define saved_math 12
+#  define saved_boxcontext 13
+#  define saved_boxspec 14
+#  define saved_boxdir 15
+#  define saved_boxattr 16
 
 #  define assign_trace(A,B) if (int_par(tracing_assigns_code)>0) restore_trace((A),(B))
 
@@ -518,14 +546,7 @@ extern void geq_word_define(halfword p, integer w);     /* global |eq_word_defin
 extern void save_for_after(halfword t);
 extern void unsave(void);       /* pops the top level off the save stack */
 extern void restore_trace(halfword p, char *s); /* |eqtb[p]| has just been restored or retained */
-
-/*
-We use the notation |saved(k)| to stand for an integer item that
-appears in location |save_ptr+k| of the save stack.
-*/
-
-#  define saved(A) save_stack[save_ptr+(A)].cint
-
+extern void show_save_groups(void);
 
 #  define level_zero 0          /* level for undefined quantities */
 #  define level_one 1           /* outermost level for defined quantities */

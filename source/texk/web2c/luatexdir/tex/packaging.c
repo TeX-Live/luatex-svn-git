@@ -27,7 +27,6 @@ static const char _svn_version[] =
 
 #define scan_normal_dimen() scan_dimen(false,false,false)
 
-#define saved(A) save_stack[save_ptr+(A)].cint
 #define prev_depth      cur_list.aux_field.cint
 #define space_factor    cur_list.aux_field.hh.lhfield
 #define box(A) eqtb[box_base+(A)].hh.rh
@@ -36,6 +35,7 @@ static const char _svn_version[] =
 #define body_direction dir_par(body_direction_code)
 #define every_hbox equiv(every_hbox_loc)
 #define every_vbox equiv(every_vbox_loc)
+#define box_max_depth dimen_par(box_max_depth_code)
 
 /*
 We're essentially done with the parts of \TeX\ that are concerned with
@@ -78,12 +78,21 @@ constructions in the user's input, including the mandatory left brace that
 follows them, and it puts the specification onto |save_stack| so that the
 desired box can later be obtained by executing the following code:
 $$\vbox{\halign{#\hfil\cr
-|save_ptr:=save_ptr-2;|\cr
-|hpack(p,saved(1),saved(0)).|\cr}}$$
+|save_ptr:=save_ptr-1;|\cr
+|hpack(p,saved_value(0),saved_level(0)).|\cr}}$$
+*/
+
+/* 
 Special care is necessary to ensure that the special |save_stack| codes
 are placed just below the new group code, because scanning can change
 |save_stack| when \.{\\csname} appears.
+
+This is signaled by the |three_codes| argument, which coincidentally can
+be used as a flag to decide on scanning |dir| and |attr| keywords, as these
+are exaclty the uses of \.{\\hbox}, \.{\\vbox}, and \.{\\vtop} in the input
+stream (the others are \.{\\vcenter}, \.{\\valign}, and \.{\\halign}).
 */
+
 
 void scan_spec(group_code c, boolean three_codes)
 {                               /* scans a box specification and left brace */
@@ -97,7 +106,8 @@ void scan_spec(group_code c, boolean three_codes)
         update_attribute_cache();
     attr_list = attr_list_cache;
     if (three_codes) {
-        s = saved(0);
+	assert (saved_type(0)==saved_boxcontext);
+        s = saved_value(0); /* the box context */
       CONTINUE:
         if (cur_cmd==relax_cmd || cur_cmd==spacer_cmd)
             get_x_token();
@@ -135,19 +145,17 @@ void scan_spec(group_code c, boolean three_codes)
     scan_normal_dimen();
   FOUND:
     if (three_codes) {
-        saved(0) = s;
-        saved(1) = spec_code;
-        saved(2) = cur_val;
-        saved(3) = spec_direction;
+        set_saved_record(0,saved_boxcontext,0,s);
+        set_saved_record(1,saved_boxspec,spec_code,cur_val);
         /* DIR: Adjust |text_dir_ptr| for |scan_spec| */
         if (spec_direction != -1) {
-            saved(4) = text_dir_ptr;
+	    set_saved_record(2,saved_boxdir,spec_direction,text_dir_ptr);
             text_dir_ptr = new_dir(spec_direction);
         } else {
-            saved(4) = null;
+	    set_saved_record(2,saved_boxdir,spec_direction,null);
         }
-        saved(5) = attr_list;
-        save_ptr = save_ptr + 6;
+        set_saved_record(3,saved_boxattr,0,attr_list);
+        save_ptr += 4;
         new_save_level(c);
         scan_left_brace();
         eq_word_define(dir_base + body_direction_code, spec_direction);
@@ -155,9 +163,8 @@ void scan_spec(group_code c, boolean three_codes)
         eq_word_define(dir_base + text_direction_code, spec_direction);
         eq_word_define(int_base + level_local_dir_code, cur_level);
     } else {
-        saved(0) = spec_code;
-        saved(1) = cur_val;
-        save_ptr = save_ptr + 2;
+        set_saved_record(0,saved_boxspec,spec_code,cur_val);
+        save_ptr++;
         new_save_level(c);
         scan_left_brace();
     }
@@ -1132,6 +1139,63 @@ halfword filtered_vpackage(halfword p, scaled h, int m, scaled l, integer grp)
     return vpackage(q, h, m, l);
 }
 
+void finish_vcenter (void)
+{
+    halfword p;
+    unsave();
+    save_ptr--;
+    p = vpack(vlink(cur_list.head_field), saved_value(0), saved_level(0));
+    pop_nest();
+    p = math_vcenter_group(p);
+    tail_append(p);
+}
+
+void package(int c)
+{
+    scaled h;                   /* height of box */
+    halfword p;                 /* first node in a box */
+    scaled d;                   /* max depth */
+    integer grp;
+    grp = cur_group;
+    d = box_max_depth;
+    unsave();
+    save_ptr -= 4;
+    pack_direction = saved_level(2);
+    if (cur_list.mode_field == -hmode) {
+        cur_box = filtered_hpack(cur_list.head_field, 
+				 cur_list.tail_field, saved_value(1), saved_level(1), grp);
+    } else {
+        cur_box = filtered_vpackage(vlink(cur_list.head_field), 
+				    saved_value(1), saved_level(1), d, grp);
+        if (c == vtop_code) {
+            /* Readjust the height and depth of |cur_box|,  for \.{\\vtop} */
+            /* The height of a `\.{\\vtop}' box is inherited from the first item on its list,
+               if that item is an |hlist_node|, |vlist_node|, or |rule_node|; otherwise
+               the \.{\\vtop} height is zero.
+             */
+
+            h = 0;
+            p = list_ptr(cur_box);
+            if (p != null)
+                if (type(p) <= rule_node)
+                    h = height(p);
+            depth(cur_box) = depth(cur_box) - h + height(cur_box);
+            height(cur_box) = h;
+
+        }
+    }
+    if (saved_value(2) != null) {
+        /* DIR: Adjust back |text_dir_ptr| for |scan_spec| */
+        flush_node_list(text_dir_ptr);
+        text_dir_ptr = saved_value(2);
+
+    }
+    replace_attribute_list(cur_box, saved_value(3));
+    pop_nest();
+    box_end(saved_value(0));
+}
+
+
 /*
 When a box is being appended to the current vertical list, the
 baselineskip calculation is handled by the |append_to_vlist| routine.
@@ -1598,7 +1662,7 @@ void begin_box(integer box_context)
         /* Here is where we enter restricted horizontal mode or internal vertical
            mode, in order to make a box. */
         k = cur_chr - vtop_code;
-        saved(0) = box_context;
+        set_saved_record(0,saved_boxcontext,0,box_context);
         switch (abs(cur_list.mode_field)) {
         case vmode:
             spec_direction = body_direction;

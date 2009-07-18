@@ -50,7 +50,6 @@ static const char _svn_version[] =
 #define err_help equiv(err_help_loc)
 #define text_direction dir_par(text_direction_code)
 #define every_par equiv(every_par_loc)
-#define box_max_depth dimen_par(box_max_depth_code)
 #define pdf_ignored_dimen dimen_par(pdf_ignored_dimen_code)
 #define par_direction dir_par(par_direction_code)
 
@@ -1188,22 +1187,24 @@ void handle_right_brace(void)
         d = split_max_depth;
         f = floating_penalty;
         unsave();
-        save_ptr = save_ptr - 2;
-        /* now |saved(0)| is the insertion number, or |output_box| for |vadjust| */
+        save_ptr--;
+        /* now |saved_value(0)| is the insertion number, or the |vadjust| subtype */
         p = vpack(vlink(head), 0, additional);
         pop_nest();
-        if (saved(0) != output_box) {
-            tail_append(new_node(ins_node, saved(0)));
+        if (saved_type(0) == saved_insert) {
+            tail_append(new_node(ins_node, saved_value(0)));
             height(tail) = height(p) + depth(p);
             ins_ptr(tail) = list_ptr(p);
             split_top_ptr(tail) = q;
             depth(tail) = d;
             float_cost(tail) = f;
-        } else {
-            tail_append(new_node(adjust_node, saved(1)));       /* the |subtype| is used for |adjust_pre| */
+        } else if (saved_type(0) == saved_adjust) {
+            tail_append(new_node(adjust_node, saved_value(0))); 
             adjust_ptr(tail) = list_ptr(p);
             delete_glue_ref(q);
-        }
+        } else {
+	    confusion("insert_group");
+	}
         list_ptr(p) = null;
         flush_node(p);
         if (nest_ptr == 0) {
@@ -1236,12 +1237,7 @@ void handle_right_brace(void)
     case vcenter_group:
         line_break_context = vcenter_group;
         end_graf();
-        unsave();
-        save_ptr = save_ptr - 2;
-        p = vpack(vlink(head), saved(1), saved(0));
-        pop_nest();
-        p = math_vcenter_group(p);
-        tail_append(p);
+        finish_vcenter();
         break;
     case math_choice_group:
         build_choices();
@@ -1408,50 +1404,6 @@ void scan_box(integer box_context)
     }
 }
 
-
-void package(int c)
-{
-    scaled h;                   /* height of box */
-    halfword p;                 /* first node in a box */
-    scaled d;                   /* max depth */
-    integer grp;
-    grp = cur_group;
-    d = box_max_depth;
-    unsave();
-    save_ptr = save_ptr - 6;
-    pack_direction = saved(3);
-    if (mode == -hmode) {
-        cur_box = filtered_hpack(head, tail, saved(2), saved(1), grp);
-    } else {
-        cur_box = filtered_vpackage(vlink(head), saved(2), saved(1), d, grp);
-        if (c == vtop_code) {
-            /* Readjust the height and depth of |cur_box|,  for \.{\\vtop} */
-            /* The height of a `\.{\\vtop}' box is inherited from the first item on its list,
-               if that item is an |hlist_node|, |vlist_node|, or |rule_node|; otherwise
-               the \.{\\vtop} height is zero.
-             */
-
-            h = 0;
-            p = list_ptr(cur_box);
-            if (p != null)
-                if (type(p) <= rule_node)
-                    h = height(p);
-            depth(cur_box) = depth(cur_box) - h + height(cur_box);
-            height(cur_box) = h;
-
-        }
-    }
-    if (saved(4) != null) {
-        /* DIR: Adjust back |text_dir_ptr| for |scan_spec| */
-        flush_node_list(text_dir_ptr);
-        text_dir_ptr = saved(4);
-
-    }
-    replace_attribute_list(cur_box, saved(5));
-    pop_nest();
-    box_end(saved(0));
-}
-
 void new_graf(boolean indented)
 {
     halfword p, q, dir_graf_tmp;
@@ -1552,9 +1504,7 @@ void end_graf(void)
 
 void begin_insert_or_adjust(void)
 {
-    if (cur_cmd == vadjust_cmd) {
-        cur_val = output_box;
-    } else {
+    if (cur_cmd != vadjust_cmd) {
         scan_register_num();
         if (cur_val == output_box) {
             print_err("You can't \\insert");
@@ -1563,13 +1513,13 @@ void begin_insert_or_adjust(void)
             error();
             cur_val = 0;
         }
+	set_saved_record(0, saved_insert, 0, cur_val);
+    } else if (scan_keyword("pre")) {
+	set_saved_record(0, saved_adjust, 0, 1);
+    } else {
+	set_saved_record(0, saved_adjust, 0, 0);
     }
-    saved(0) = cur_val;
-    if ((cur_cmd == vadjust_cmd) && scan_keyword("pre"))
-        saved(1) = 1;
-    else
-        saved(1) = 0;
-    save_ptr = save_ptr + 2;
+    save_ptr++;
     new_save_level(insert_group);
     scan_left_brace();
     normal_paragraph();
@@ -1744,7 +1694,7 @@ void append_italic_correction(void)
 void append_local_box(integer kind)
 {
     incr(save_ptr);
-    saved(-1) = kind;
+    set_saved_record(-1,saved_boxtype,0,kind);
     new_save_level(local_box_group);
     scan_left_brace();
     push_nest();
@@ -1780,7 +1730,7 @@ void append_discretionary(void)
         }
     } else {
         incr(save_ptr);
-        saved(-1) = 0;
+        set_saved_record(-1,saved_disc,0,0);
         new_save_level(disc_group);
         scan_left_brace();
         push_nest();
@@ -1789,10 +1739,8 @@ void append_discretionary(void)
     }
 }
 
-/*
-The three discretionary lists are constructed somewhat as if they were
-hboxes. A~subroutine called |build_discretionary| handles the transitions.
-(This is sort of fun.)
+/* The test for |p != null| ensures that empty \.{\\localleftbox} and
+    \.{\\localrightbox} commands are not applied.
 */
 
 void build_local_box(void)
@@ -1800,7 +1748,8 @@ void build_local_box(void)
     halfword p;
     integer kind;
     unsave();
-    kind = saved(-1);
+    assert (saved_type(-1) == saved_boxtype);
+    kind = saved_value(-1);
     decr(save_ptr);
     p = vlink(head);
     pop_nest();
@@ -1816,6 +1765,13 @@ void build_local_box(void)
     }
     eq_word_define(int_base + no_local_whatsits_code, no_local_whatsits + 1);
 }
+
+/*
+The three discretionary lists are constructed somewhat as if they were
+hboxes. A~subroutine called |build_discretionary| handles the transitions.
+(This is sort of fun.)
+*/
+
 
 void build_discretionary(void)
 {
@@ -1851,7 +1807,8 @@ void build_discretionary(void)
 
     p = vlink(head);
     pop_nest();
-    switch (saved(-1)) {
+    assert (saved_type(-1) == saved_disc);
+    switch (saved_value(-1)) {
     case 0:
         if (n > 0) {
             vlink(pre_break(tail)) = p;
@@ -1886,7 +1843,7 @@ void build_discretionary(void)
         return;
         break;
     }                           /* there are no other cases */
-    incr(saved(-1));
+    set_saved_record(-1,saved_disc,0,(saved_value(-1)+1));
     new_save_level(disc_group);
     scan_left_brace();
     push_nest();
@@ -3462,207 +3419,6 @@ void show_whatever(void)
               "lists on your terminal as well as in the transcript file.");
     }
     error();
-}
-
-
-/*
-  The \.{\\showgroups} command displays all currently active grouping
-  levels.
-*/
-
-/*
-  The modifications of \TeX\ required for the display produced by the
-  |show_save_groups| procedure were first discussed by Donald~E. Knuth in
-  {\sl TUGboat\/} {\bf 11}, 165--170 and 499--511, 1990.
-  @^Knuth, Donald Ervin@>
-  
-  In order to understand a group type we also have to know its mode.
-  Since unrestricted horizontal modes are not associated with grouping,
-  they are skipped when traversing the semantic nest.
-*/
-
-void show_save_groups(void)
-{
-    int p;                      /* index into |nest| */
-    integer m;                  /* mode */
-    save_pointer v;             /* saved value of |save_ptr| */
-    quarterword l;              /* saved value of |cur_level| */
-    group_code c;               /* saved value of |cur_group| */
-    int a;                      /* to keep track of alignments */
-    integer i;
-    quarterword j;
-    char *s;
-    p = nest_ptr;
-    nest[p] = cur_list;         /* put the top level into the array */
-    v = save_ptr;
-    l = cur_level;
-    c = cur_group;
-    save_ptr = cur_boundary;
-    decr(cur_level);
-    a = 1;
-    s = NULL;
-    tprint_nl("");
-    print_ln();
-    while (1) {
-        tprint_nl("### ");
-        print_group(true);
-        if (cur_group == bottom_level)
-            goto DONE;
-        do {
-            m = nest[p].mode_field;
-            if (p > 0)
-                decr(p);
-            else
-                m = vmode;
-        } while (m == hmode);
-        tprint(" (");
-        switch (cur_group) {
-        case simple_group:
-            incr(p);
-            goto FOUND2;
-            break;
-        case hbox_group:
-        case adjusted_hbox_group:
-            s = "hbox";
-            break;
-        case vbox_group:
-            s = "vbox";
-            break;
-        case vtop_group:
-            s = "vtop";
-            break;
-        case align_group:
-            if (a == 0) {
-                if (m == -vmode)
-                    s = "halign";
-                else
-                    s = "valign";
-                a = 1;
-                goto FOUND1;
-            } else {
-                if (a == 1)
-                    tprint("align entry");
-                else
-                    tprint_esc("cr");
-                if (p >= a)
-                    p = p - a;
-                a = 0;
-                goto FOUND;
-            }
-            break;
-        case no_align_group:
-            incr(p);
-            a = -1;
-            tprint_esc("noalign");
-            goto FOUND2;
-            break;
-        case output_group:
-            tprint_esc("output");
-            goto FOUND;
-            break;
-        case math_group:
-            goto FOUND2;
-            break;
-        case disc_group:
-        case math_choice_group:
-            if (cur_group == disc_group)
-                tprint_esc("discretionary");
-            else
-                tprint_esc("mathchoice");
-            for (i = 1; i <= 3; i++)
-                if (i <= saved(-2))
-                    tprint("{}");
-            goto FOUND2;
-            break;
-        case insert_group:
-            if (saved(-2) == output_box) {
-                tprint_esc("vadjust");
-            } else {
-                tprint_esc("insert");
-                print_int(saved(-2));
-            }
-            goto FOUND2;
-            break;
-        case vcenter_group:
-            s = "vcenter";
-            goto FOUND1;
-            break;
-        case semi_simple_group:
-            incr(p);
-            tprint_esc("begingroup");
-            goto FOUND;
-            break;
-        case math_shift_group:
-            if (m == mmode) {
-                print_char('$');
-            } else if (nest[p].mode_field == mmode) {
-                print_cmd_chr(eq_no_cmd, saved(-2));
-                goto FOUND;
-            }
-            print_char('$');
-            goto FOUND;
-            break;
-        case math_left_group:
-            if (subtype(nest[p + 1].eTeX_aux_field) == left_noad_side)
-                tprint_esc("left");
-            else
-                tprint_esc("middle");
-            goto FOUND;
-            break;
-        default:
-            confusion("showgroups");
-            break;
-        }
-        /* Show the box context */
-        i = saved(-4);
-        if (i != 0) {
-            if (i < box_flag) {
-                if (abs(nest[p].mode_field) == vmode)
-                    j = hmove_cmd;
-                else
-                    j = vmove_cmd;
-                if (i > 0)
-                    print_cmd_chr(j, 0);
-                else
-                    print_cmd_chr(j, 1);
-                print_scaled(abs(i));
-                tprint("pt");
-            } else if (i < ship_out_flag) {
-                if (i >= global_box_flag) {
-                    tprint_esc("global");
-                    i = i - (global_box_flag - box_flag);
-                }
-                tprint_esc("setbox");
-                print_int(i - box_flag);
-                print_char('=');
-            } else {
-                print_cmd_chr(leader_ship_cmd, i - (leader_flag - a_leaders));
-            }
-        }
-      FOUND1:
-        tprint_esc(s);
-        /* Show the box packaging info */
-        if (saved(-2) != 0) {
-            print_char(' ');
-            if (saved(-3) == exactly)
-                tprint("to");
-            else
-                tprint("spread");
-            print_scaled(saved(-2));
-            tprint("pt");
-        }
-      FOUND2:
-        print_char('{');
-      FOUND:
-        print_char(')');
-        decr(cur_level);
-        cur_group = save_level(save_ptr);
-        save_ptr = save_index(save_ptr);
-    }
-  DONE:
-    save_ptr = v;
-    cur_level = l;
-    cur_group = c;
 }
 
 
