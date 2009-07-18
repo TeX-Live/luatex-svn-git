@@ -540,16 +540,18 @@ end of a grouping level, i.e., when the right brace is sensed, the
 |save_stack| is used to restore the outer values, and the inner ones are
 destroyed.
 
-Entries on the |save_stack| are of type |memory_word|. The top item on
+Entries on the |save_stack| are of type |save_record|. The top item on
 this stack is |save_stack[p]|, where |p=save_ptr-1|; it contains three
 fields called |save_type|, |save_level|, and |save_value|, and it is
 interpreted in one of four ways:
 
 \yskip\hangg 1) If |save_type(p)=restore_old_value|, then
 |save_value(p)| is a location in |eqtb| whose current value should
-be destroyed at the end of the current group and replaced by |save_stack[p-1]|.
-Furthermore if |save_value(p)>=int_base|, then |save_level(p)|
-should replace the corresponding entry in |xeq_level|.
+be destroyed at the end of the current group and replaced by |save_word(p-1)|
+(|save_type(p-1)==saved_eqtb|).
+Furthermore if |save_value(p)>=int_base|, then |save_level(p)| should 
+replace the corresponding entry in |xeq_level| (if |save_value(p)<int_base|,
+then the level is part of |save_word(p-1)|). 
 
 \yskip\hangg 2) If |save_type(p)=restore_zero|, then |save_value(p)|
 is a location in |eqtb| whose current value should be destroyed at the end
@@ -563,7 +565,7 @@ group ends.
 \yskip\hangg 4) If |save_type(p)=level_boundary|, then |save_level(p)|
 is a code explaining what kind of group we were previously in, and
 |save_value(p)| points to the level boundary word at the bottom of
-the entries for that group. Furthermore, |save_stack[p-1]| contains the
+the entries for that group. Furthermore, |save_value(p-1)| contains the
 source line number at which the current level of grouping was entered,
 this field has itself a type: |save_type(p-1)==saved_line|.
 
@@ -595,7 +597,7 @@ nesting. The routines are designed to preserve the condition that no entry
 in the |save_stack| or in |eqtb| ever has a level greater than |cur_level|.
 */
 
-memory_word *save_stack;
+save_record *save_stack;
 integer save_ptr;               /* first unused entry on |save_stack| */
 integer max_save_stack;         /* maximum usage of save stack */
 quarterword cur_level = level_one;      /* current nesting level for groups */
@@ -915,8 +917,9 @@ void eq_save(halfword p, quarterword l)
     if (l == level_zero) {
         save_type(save_ptr) = restore_zero;
     } else {
-        save_stack[save_ptr] = eqtb[p];
-        incr(save_ptr);
+	save_word(save_ptr) = eqtb[p];
+        save_type(save_ptr) = saved_eqtb;
+	incr(save_ptr);
         save_type(save_ptr) = restore_old_value;
     }
     save_level(save_ptr) = l;
@@ -1044,7 +1047,7 @@ void unsave(void)
                     l = save_level(save_ptr);
                     decr(save_ptr);
                 } else {
-                    save_stack[save_ptr] = eqtb[undefined_control_sequence];
+                    save_word(save_ptr) = eqtb[undefined_control_sequence];
                 }
                 /* Store \(s)|save_stack[save_ptr]| in |eqtb[p]|, unless
                    |eqtb[p]| holds a global value */
@@ -1056,17 +1059,17 @@ void unsave(void)
                  */
                 if (p < int_base || p > eqtb_size) {
                     if (eq_level(p) == level_one) {
-                        eq_destroy(save_stack[save_ptr]);       /* destroy the saved value */
+                        eq_destroy(save_word(save_ptr));       /* destroy the saved value */
                         if (int_par(tracing_restores_code) > 0)
                             restore_trace(p, "retaining");
                     } else {
                         eq_destroy(eqtb[p]);    /* destroy the current value */
-                        eqtb[p] = save_stack[save_ptr]; /* restore the saved value */
+                        eqtb[p] = save_word(save_ptr); /* restore the saved value */
                         if (int_par(tracing_restores_code) > 0)
                             restore_trace(p, "restoring");
                     }
                 } else if (xeq_level[p] != level_one) {
-                    eqtb[p] = save_stack[save_ptr];
+                    eqtb[p] = save_word(save_ptr);
                     xeq_level[p] = l;
                     if (int_par(tracing_restores_code) > 0)
                         restore_trace(p, "restoring");

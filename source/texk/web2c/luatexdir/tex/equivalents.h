@@ -431,18 +431,34 @@ extern void initialize_equivalents(void);
 extern void print_param(integer n);
 extern void print_length_param(integer n);
 
-#  define save_type(A) save_stack[(A)].hh.b0    /* classifies a |save_stack| entry */
-#  define save_level(A) save_stack[(A)].hh.b1   /* saved level for regions 5 and 6, or group code */
-#  define save_value(A) save_stack[(A)].hh.rh   /* |eqtb| location or token or |save_stack| location */
+typedef struct save_record_ {
+    quarterword type_;
+    quarterword level_;
+    memory_word word_;
+} save_record;
+
+
+extern save_record *save_stack;
+extern integer save_ptr;        /* first unused entry on |save_stack| */
+extern integer max_save_stack;  /* maximum usage of save stack */
+extern quarterword cur_level;   /* current nesting level for groups */
+extern group_code cur_group;    /* current group type */
+extern integer cur_boundary;    /* where the current level begins */
+
+
+#  define save_type(A) save_stack[(A)].type_   /* classifies a |save_stack| entry */
+#  define save_level(A) save_stack[(A)].level_ /* saved level for regions 5 and 6, or group code */
+#  define save_value(A) save_stack[(A)].word_.cint /* |eqtb| location or token or |save_stack| location */
+#  define save_word(A) save_stack[(A)].word_  /* |eqtb| entry */
 
 /*
 We use the notation |saved(k)| to stand for an item that
 appears in location |save_ptr+k| of the save stack. 
 */
 
-#  define saved_type(A) save_stack[save_ptr+(A)].hh.b0
-#  define saved_level(A) save_stack[save_ptr+(A)].hh.b1
-#  define saved_value(A) save_stack[save_ptr+(A)].hh.rh
+#  define saved_type(A) save_stack[save_ptr+(A)].type_
+#  define saved_level(A) save_stack[save_ptr+(A)].level_
+#  define saved_value(A) save_stack[save_ptr+(A)].word_.cint
 
 #  define set_saved_record(A,B,C,D) do {	\
 	saved_type(A) = B;			\
@@ -467,6 +483,7 @@ appears in location |save_ptr+k| of the save stack.
 #  define saved_boxspec 14
 #  define saved_boxdir 15
 #  define saved_boxattr 16
+#  define saved_eqtb 17
 
 #  define assign_trace(A,B) if (int_par(tracing_assigns_code)>0) restore_trace((A),(B))
 
@@ -528,13 +545,6 @@ extern halfword cur_cs;         /* control sequence found here, zero if none fou
 extern halfword cur_tok;        /* packed representative of |cur_cmd| and |cur_chr| */
 
 extern void show_cur_cmd_chr(void);
-
-extern memory_word *save_stack;
-extern integer save_ptr;        /* first unused entry on |save_stack| */
-extern integer max_save_stack;  /* maximum usage of save stack */
-extern quarterword cur_level;   /* current nesting level for groups */
-extern group_code cur_group;    /* current group type */
-extern integer cur_boundary;    /* where the current level begins */
 
 extern void new_save_level(group_code c);       /* begin a new level of grouping */
 extern void eq_destroy(memory_word w);  /* gets ready to forget |w| */

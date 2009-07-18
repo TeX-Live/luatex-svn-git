@@ -328,7 +328,7 @@ void main_body(void)
     /* array memory allocation */
     buffer = xmallocarray(packed_ASCII_code, buf_size);
     nest = xmallocarray(list_state_record, nest_size);
-    save_stack = xmallocarray(memory_word, save_size);
+    save_stack = xmallocarray(save_record, save_size);
     input_stack = xmallocarray(in_state_record, stack_size);
     input_file = xmallocarray(alpha_file, max_in_open);
     input_file_callback_id = xmallocarray(integer, max_in_open);
@@ -700,7 +700,9 @@ void debug_help(void)
                 print_word(eqtb[n]);
                 break;
             case 6:
-                print_word(save_stack[n]);
+                print_int(save_type(n));
+                print_int(save_level(n));
+                print_word(save_word(n));
                 break;
             case 7:
                 show_box(n);    /* show a box, abbreviated by |show_box_depth| and |show_box_breadth| */
