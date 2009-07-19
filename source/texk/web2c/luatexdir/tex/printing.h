@@ -108,7 +108,6 @@ extern void short_display(integer p);   /* prints highlights of list |p| */
 extern void print_font_and_char(integer p);     /* prints |char_node| data */
 extern void print_mark(integer p);      /* prints token list data in braces */
 extern void print_rule_dimen(scaled d); /* prints dimension in rule node */
-extern void print_skip_param(integer n);
 extern integer depth_threshold; /* maximum nesting depth in box displays */
 extern integer breadth_max;     /* maximum number of items shown at the same list level */
 extern void show_box(halfword p);

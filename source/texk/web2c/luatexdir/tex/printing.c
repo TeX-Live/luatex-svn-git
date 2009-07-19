@@ -296,19 +296,17 @@ The procedure |print_nl| is like |print|, but it makes sure that the
 string appears at the beginning of a new line. 
 */
 
-void print_nl(str_number s)
-{                               /* prints string |s| at beginning of line */
-    if (((term_offset > 0) && (odd(selector))) ||
-        ((file_offset > 0) && (selector >= log_only)))
-        print_ln();
-    print(s);
-}
-
 void print_nlp(void)
 {                               /* move to beginning of a line */
     if (((term_offset > 0) && (odd(selector))) ||
         ((file_offset > 0) && (selector >= log_only)))
         print_ln();
+}
+
+void print_nl(str_number s)
+{                               /* prints string |s| at beginning of line */
+    print_nlp();
+    print(s);
 }
 
 /* char * versions */
@@ -792,74 +790,6 @@ void print_rule_dimen(scaled d)
         print_char('*');
     else
         print_scaled(d);
-}
-
-/*
-Sometimes we need to convert \TeX's internal code numbers into symbolic
-form. The |print_skip_param| routine gives the symbolic name of a glue
-parameter.
-*/
-
-void print_skip_param(integer n)
-{
-    switch (n) {
-    case line_skip_code:
-        tprint_esc("lineskip");
-        break;
-    case baseline_skip_code:
-        tprint_esc("baselineskip");
-        break;
-    case par_skip_code:
-        tprint_esc("parskip");
-        break;
-    case above_display_skip_code:
-        tprint_esc("abovedisplayskip");
-        break;
-    case below_display_skip_code:
-        tprint_esc("belowdisplayskip");
-        break;
-    case above_display_short_skip_code:
-        tprint_esc("abovedisplayshortskip");
-        break;
-    case below_display_short_skip_code:
-        tprint_esc("belowdisplayshortskip");
-        break;
-    case left_skip_code:
-        tprint_esc("leftskip");
-        break;
-    case right_skip_code:
-        tprint_esc("rightskip");
-        break;
-    case top_skip_code:
-        tprint_esc("topskip");
-        break;
-    case split_top_skip_code:
-        tprint_esc("splittopskip");
-        break;
-    case tab_skip_code:
-        tprint_esc("tabskip");
-        break;
-    case space_skip_code:
-        tprint_esc("spaceskip");
-        break;
-    case xspace_skip_code:
-        tprint_esc("xspaceskip");
-        break;
-    case par_fill_skip_code:
-        tprint_esc("parfillskip");
-        break;
-    case thin_mu_skip_code:
-        tprint_esc("thinmuskip");
-        break;
-    case med_mu_skip_code:
-        tprint_esc("medmuskip");
-        break;
-    case thick_mu_skip_code:
-        tprint_esc("thickmuskip");
-        break;
-    default:
-        tprint("[unknown glue parameter!]");
-    }
 }
 
 /*

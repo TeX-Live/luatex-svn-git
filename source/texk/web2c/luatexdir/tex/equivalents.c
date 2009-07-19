@@ -831,7 +831,10 @@ void show_eqtb(halfword n)
         /* Show equivalent |n|, in region 3 */
         /* All glue parameters and registers are initially `\.{0pt plus0pt minus0pt}'. */
         if (n < skip_base) {
-            print_skip_param(n - glue_base);
+	    if (n < glue_base + thin_mu_skip_code)
+		print_cmd_chr(assign_glue_cmd, n);
+	    else
+		print_cmd_chr(assign_mu_glue_cmd, n);
             print_char('=');
             if (n < glue_base + thin_mu_skip_code)
                 print_spec(equiv(n), "pt");

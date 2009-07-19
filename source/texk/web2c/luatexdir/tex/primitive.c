@@ -614,7 +614,7 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
     case assign_glue_cmd:
     case assign_mu_glue_cmd:
         if (chr_code < skip_base) {
-            print_skip_param(chr_code - glue_base);
+            prim_cmd_chr(cmd, chr_code);        
         } else if (chr_code < mu_skip_base) {
             tprint_esc("skip");
             print_int(chr_code - skip_base);

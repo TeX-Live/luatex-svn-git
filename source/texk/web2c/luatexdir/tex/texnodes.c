@@ -2684,12 +2684,15 @@ void show_node_list(integer p)
                     tprint_esc("glue");
                     if (subtype(p) != normal) {
                         print_char('(');
-                        if (subtype(p) < cond_math_glue)
-                            print_skip_param(subtype(p) - 1);
-                        else if (subtype(p) == cond_math_glue)
+                        if ((subtype(p)-1) < thin_mu_skip_code) {
+                            print_cmd_chr(assign_glue_cmd, glue_base + (subtype(p) - 1));
+			} else if (subtype(p) < cond_math_glue) {
+                            print_cmd_chr(assign_mu_glue_cmd, glue_base + (subtype(p) - 1));
+                        } else if (subtype(p) == cond_math_glue) {
                             tprint_esc("nonscript");
-                        else
+                        } else {
                             tprint_esc("mskip");
+			}
                         print_char(')');
                     }
                     if (subtype(p) != cond_math_glue) {
