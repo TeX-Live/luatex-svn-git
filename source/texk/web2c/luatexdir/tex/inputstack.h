@@ -309,9 +309,8 @@ typedef enum {
     every_job_text = 12,        /* |token_type| code for \.{\\everyjob} */
     every_cr_text = 13,         /* |token_type| code for \.{\\everycr} */
     mark_text = 14,             /* |token_type| code for \.{\\topmark}, etc. */
-    /* TODO: check the next two */
-    every_eof_text = 19,        /* was calculated, value fetched from the generated C */
-    write_text = 20,            /* |token_type| code for \.{\\write} */
+    every_eof_text = 15,        /* |token_type| code for \.{\\everyeof} */
+    write_text = 16,            /* |token_type| code for \.{\\write} */
 } token_types;
 
 extern pointer *param_stack;
