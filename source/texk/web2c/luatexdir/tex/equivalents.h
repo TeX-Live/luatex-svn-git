@@ -313,30 +313,29 @@ here, and the |number_regs| \.{\\dimen} registers.
                                                                 /*compress level of streams */
 #  define pdf_decimal_digits_code (pdftex_first_integer_code + 2)
                                                                 /*digits after the decimal point of numbers */
-#  define pdf_move_chars_code (pdftex_first_integer_code + 3)   /*move chars 0..31 to higher area if possible */
-#  define pdf_image_resolution_code (pdftex_first_integer_code + 4)     /*default image resolution */
-#  define pdf_pk_resolution_code (pdftex_first_integer_code + 5)        /*default resolution of PK font */
-#  define pdf_unique_resname_code (pdftex_first_integer_code + 6)
+#  define pdf_image_resolution_code (pdftex_first_integer_code + 3)     /*default image resolution */
+#  define pdf_pk_resolution_code (pdftex_first_integer_code + 4)        /*default resolution of PK font */
+#  define pdf_unique_resname_code (pdftex_first_integer_code + 5)
                                                                 /*generate unique names for resouces */
-#  define pdf_minor_version_code (pdftex_first_integer_code + 9)        /*fractional part of the PDF version produced */
-#  define pdf_pagebox_code (pdftex_first_integer_code + 11)     /*default pagebox to use for PDF inclusion */
-#  define pdf_inclusion_errorlevel_code (pdftex_first_integer_code + 12)        /*if the PDF inclusion should treat pdfs 
+#  define pdf_minor_version_code (pdftex_first_integer_code + 6)        /*fractional part of the PDF version produced */
+#  define pdf_pagebox_code (pdftex_first_integer_code + 7)     /*default pagebox to use for PDF inclusion */
+#  define pdf_inclusion_errorlevel_code (pdftex_first_integer_code + 8)        /*if the PDF inclusion should treat pdfs 
                                                                                    newer than |pdf_minor_version| as an error */
-#  define pdf_gamma_code (pdftex_first_integer_code + 13)
-#  define pdf_image_gamma_code (pdftex_first_integer_code + 14)
-#  define pdf_image_hicolor_code (pdftex_first_integer_code + 15)
-#  define pdf_image_apply_gamma_code (pdftex_first_integer_code + 16)
-#  define pdf_adjust_spacing_code (pdftex_first_integer_code + 17)      /*level of spacing adjusting */
-#  define pdf_protrude_chars_code (pdftex_first_integer_code + 18)      /*protrude chars at left/right edge of paragraphs */
-#  define pdf_tracing_fonts_code (pdftex_first_integer_code + 19)
+#  define pdf_gamma_code (pdftex_first_integer_code + 9)
+#  define pdf_image_gamma_code (pdftex_first_integer_code + 10)
+#  define pdf_image_hicolor_code (pdftex_first_integer_code + 11)
+#  define pdf_image_apply_gamma_code (pdftex_first_integer_code + 12)
+#  define pdf_adjust_spacing_code (pdftex_first_integer_code + 13)      /*level of spacing adjusting */
+#  define pdf_protrude_chars_code (pdftex_first_integer_code + 14)      /*protrude chars at left/right edge of paragraphs */
+#  define pdf_tracing_fonts_code (pdftex_first_integer_code + 15)
                                                                 /*level of font detail in log */
-#  define pdf_objcompresslevel_code (pdftex_first_integer_code + 20)    /*activate object streams */
-#  define pdf_gen_tounicode_code (pdftex_first_integer_code + 24)
+#  define pdf_objcompresslevel_code (pdftex_first_integer_code + 16)    /*activate object streams */
+#  define pdf_gen_tounicode_code (pdftex_first_integer_code + 17)
                                                                 /*generate ToUnicode for fonts? */
-#  define pdf_draftmode_code (pdftex_first_integer_code + 25)   /*switch on draftmode if positive */
-#  define pdf_replace_font_code (pdftex_first_integer_code + 26)        /*generate ToUnicode for fonts? */
-#  define pdf_inclusion_copy_font_code (pdftex_first_integer_code + 27) /*generate ToUnicode for fonts? */
-#  define pdf_int_pars (pdftex_first_integer_code + 28) /*total number of \pdfTeX's integer parameters */
+#  define pdf_draftmode_code (pdftex_first_integer_code + 18)   /*switch on draftmode if positive */
+#  define pdf_replace_font_code (pdftex_first_integer_code + 19)        /*generate ToUnicode for fonts? */
+#  define pdf_inclusion_copy_font_code (pdftex_first_integer_code + 20) /*generate ToUnicode for fonts? */
+#  define pdf_int_pars (pdftex_first_integer_code + 21) /*total number of \pdfTeX's integer parameters */
 #  define etex_int_base (pdf_int_pars)  /*base for \eTeX's integer parameters */
 #  define tracing_assigns_code (etex_int_base)  /*show assignments */
 #  define tracing_groups_code (etex_int_base+1) /*show save/restore groups */
@@ -427,9 +426,6 @@ extern void initialize_equivalents(void);
 #  define set_eq_level(A,B) eq_level((A)) = (B)
 #  define set_eq_type(A,B) eq_type((A)) = (B)
 #  define set_equiv(A,B) equiv((A)) = (B)
-
-extern void print_param(integer n);
-extern void print_length_param(integer n);
 
 typedef struct save_record_ {
     quarterword type_;

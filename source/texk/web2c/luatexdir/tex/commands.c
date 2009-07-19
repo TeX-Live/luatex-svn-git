@@ -1021,6 +1021,27 @@ void initialize_commands(void)
     primitive_omega("removeafterocplist", ocp_list_op_cmd, remove_after_op, 0);
     primitive_omega("ocptracelevel", ocp_trace_level_cmd, 0, 0);
     set_equiv(ocp_trace_level_base, 0);
+
+    /* some of the internal integer parameters are not associated with actual
+       primitives at all. */
+
+    primitive_no("nolocalwhatsits", assign_int_cmd,
+		 int_base + no_local_whatsits_code, int_base);
+    primitive_no("nolocaldirs", assign_int_cmd,
+		 int_base + no_local_dirs_code, int_base);
+    primitive_no("levellocaldir", assign_int_cmd,
+		 int_base + level_local_dir_code, int_base);
+    primitive_no("pagedirection", assign_int_cmd,
+		 dir_base + page_direction_code, int_base);
+    primitive_no("bodydirection", assign_int_cmd,
+		 dir_base + body_direction_code, int_base);
+    primitive_no("pardirection", assign_int_cmd,
+		 dir_base + par_direction_code, int_base);
+    primitive_no("textdirection", assign_int_cmd,
+		 dir_base + text_direction_code, int_base);
+    primitive_no("mathdirection", assign_int_cmd,
+		 dir_base + math_direction_code, int_base);
+
 }
 
 void initialize_etex_commands(void)

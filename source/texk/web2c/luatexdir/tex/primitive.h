@@ -32,6 +32,7 @@ typedef enum {
     pdftex_command = 16,
     luatex_command = 32,
     core_command = 64,
+    no_command = 128,
 } command_origin;
 
 #  define hash_size 65536       /* maximum number of control sequences; it should be at most about |(fix_mem_max-fix_mem_min)/10| */
@@ -77,6 +78,7 @@ extern void undump_primitives(void);
 #  define primitive_pdftex(a,b,c,d) primitive((a),(b),(c),(d),pdftex_command)
 #  define primitive_luatex(a,b,c,d) primitive((a),(b),(c),(d),luatex_command)
 #  define primitive_core(a,b,c,d)   primitive((a),(b),(c),(d),core_command)
+#  define primitive_no(a,b,c,d)     primitive((a),(b),(c),(d),no_command)
 
 extern void primitive(char *ss, quarterword c, halfword o, halfword off,
                       int cmd_origin);

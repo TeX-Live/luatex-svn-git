@@ -633,8 +633,8 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
         break;
     case assign_int_cmd:
         if (chr_code < count_base) {
-            print_param(chr_code - int_base);
-        } else {
+            prim_cmd_chr(cmd, chr_code);        
+	} else {
             tprint_esc("count");
             print_int(chr_code - count_base);
         }
@@ -645,7 +645,7 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
         break;
     case assign_dimen_cmd:
         if (chr_code < scaled_base) {
-            print_length_param(chr_code - dimen_base);
+            prim_cmd_chr(cmd, chr_code);
         } else {
             tprint_esc("dimen");
             print_int(chr_code - scaled_base);
