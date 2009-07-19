@@ -34,7 +34,7 @@ static const char _svn_version[] =
 #define global_defs int_par(global_defs_code)
 #define cat_code_table int_par(cat_code_table_code)
 #define pdf_output   int_par(pdf_output_code)
-#define par_direction dir_par(par_direction_code)
+#define par_direction int_par(par_direction_code)
 #define toks(A) equiv(toks_base+(A))
 
 #define local_inter_line_penalty int_par(local_inter_line_penalty_code)

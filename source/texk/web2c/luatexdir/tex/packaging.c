@@ -31,8 +31,8 @@ static const char _svn_version[] =
 #define space_factor    cur_list.aux_field.hh.lhfield
 #define box(A) eqtb[box_base+(A)].hh.rh
 
-#define text_direction dir_par(text_direction_code)
-#define body_direction dir_par(body_direction_code)
+#define text_direction int_par(text_direction_code)
+#define body_direction int_par(body_direction_code)
 #define every_hbox equiv(every_hbox_loc)
 #define every_vbox equiv(every_vbox_loc)
 #define box_max_depth dimen_par(box_max_depth_code)
@@ -158,9 +158,9 @@ void scan_spec(group_code c, boolean three_codes)
         save_ptr += 4;
         new_save_level(c);
         scan_left_brace();
-        eq_word_define(dir_base + body_direction_code, spec_direction);
-        eq_word_define(dir_base + par_direction_code, spec_direction);
-        eq_word_define(dir_base + text_direction_code, spec_direction);
+        eq_word_define(int_base + body_direction_code, spec_direction);
+        eq_word_define(int_base + par_direction_code, spec_direction);
+        eq_word_define(int_base + text_direction_code, spec_direction);
         eq_word_define(int_base + level_local_dir_code, cur_level);
     } else {
         set_saved_record(0,saved_boxspec,spec_code,cur_val);

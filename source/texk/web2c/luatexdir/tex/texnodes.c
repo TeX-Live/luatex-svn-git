@@ -31,11 +31,12 @@ static const char _svn_version[] =
 #define adjust_pre subtype
 #define attribute(A) eqtb[attribute_base+(A)].cint
 
-#define text_direction dir_par(text_direction_code)
 #define uc_hyph int_par(uc_hyph_code)
 #define cur_lang int_par(cur_lang_code)
 #define left_hyphen_min int_par(left_hyphen_min_code)
 #define right_hyphen_min int_par(right_hyphen_min_code)
+
+#define text_direction int_par(text_direction_code)
 
 #define MAX_CHAIN_SIZE 13
 

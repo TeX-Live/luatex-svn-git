@@ -912,10 +912,14 @@ void show_eqtb(halfword n)
 
     } else if (n < dimen_base) {
         /* Show equivalent |n|, in region 5 */
-        if (n < count_base) {
-            print_cmd_chr(assign_int_cmd, n);
-            print_char('=');
-            print_int(eqtb[n].cint);
+	if (n<dir_base) {
+	    print_cmd_chr(assign_int_cmd, n);
+	    print_char('=');
+	    print_int(eqtb[n].cint);
+	} else if (n < count_base) {
+	    print_cmd_chr(assign_dir_cmd, n);
+            print_char(' ');
+            print_dir(eqtb[n].cint);
         } else if (n < attribute_base) {
             tprint_esc("count");
             print_int(n - count_base);

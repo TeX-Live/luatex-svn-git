@@ -293,18 +293,7 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define output_box_code 64
 #  define cur_lang_code 65      /* current language id */
 #  define ex_hyphen_char_code 66
-#  define tex_int_pars 67       /* total number of \.{\\TeX} + Aleph integer parameters */
-
-#  define dir_base (int_base+tex_int_pars)
-
-#  define page_direction_code 0
-#  define body_direction_code 1
-#  define par_direction_code 2
-#  define text_direction_code 3
-#  define math_direction_code 4
-#  define dir_pars 5
-
-#  define pdftex_first_integer_code (tex_int_pars+dir_pars)     /*base for \pdfTeX's integer parameters */
+#  define pdftex_first_integer_code 67    /*base for \pdfTeX's integer parameters */
 #  define pdf_output_code (pdftex_first_integer_code + 0)
                                                         /*switch on PDF output if positive */
 #  define pdf_compress_level_code (pdftex_first_integer_code + 1)
@@ -334,25 +323,33 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define pdf_replace_font_code (pdftex_first_integer_code + 19)        /*generate ToUnicode for fonts? */
 #  define pdf_inclusion_copy_font_code (pdftex_first_integer_code + 20) /*generate ToUnicode for fonts? */
 #  define pdf_int_pars (pdftex_first_integer_code + 21) /*total number of \pdfTeX's integer parameters */
-#  define etex_int_base (pdf_int_pars)  /*base for \eTeX's integer parameters */
-#  define tracing_assigns_code (etex_int_base)  /*show assignments */
-#  define tracing_groups_code (etex_int_base+1) /*show save/restore groups */
-#  define tracing_ifs_code (etex_int_base+2)    /*show conditionals */
-#  define tracing_scan_tokens_code (etex_int_base+3)    /*show pseudo file open and close */
-#  define tracing_nesting_code (etex_int_base+4)        /*show incomplete groups and ifs within files */
-#  define pre_display_direction_code (etex_int_base+5)  /*text direction preceding a display */
-#  define last_line_fit_code (etex_int_base+6)  /*adjustment for last line of paragraph */
-#  define saving_vdiscards_code (etex_int_base+7)
+#  define etex_first_integer_code (pdf_int_pars)  /*base for \eTeX's integer parameters */
+#  define tracing_assigns_code (etex_first_integer_code)  /*show assignments */
+#  define tracing_groups_code (etex_first_integer_code+1) /*show save/restore groups */
+#  define tracing_ifs_code (etex_first_integer_code+2)    /*show conditionals */
+#  define tracing_scan_tokens_code (etex_first_integer_code+3)    /*show pseudo file open and close */
+#  define tracing_nesting_code (etex_first_integer_code+4)        /*show incomplete groups and ifs within files */
+#  define pre_display_direction_code (etex_first_integer_code+5)  /*text direction preceding a display */
+#  define last_line_fit_code (etex_first_integer_code+6)  /*adjustment for last line of paragraph */
+#  define saving_vdiscards_code (etex_first_integer_code+7)
                                                 /*save items discarded from vlists */
-#  define saving_hyph_codes_code (etex_int_base+8)      /*save hyphenation codes for languages */
-#  define suppress_fontnotfound_error_code (etex_int_base+9)    /*surpress errors for missing fonts */
-#  define suppress_long_error_code (etex_int_base+10)   /*surpress errors for missing fonts */
-#  define suppress_ifcsname_error_code (etex_int_base+11)
-                                                        /*surpress errors for failed \.{\\ifcsname} */
-#  define suppress_outer_error_code (etex_int_base+12)  /*surpress errors for \.{\\outer} */
-#  define etex_int_pars (etex_int_base+13)      /*total number of \eTeX's integer parameters */
-#  define synctex_code (etex_int_pars)  /* is synctex file generation enabled ?  */
-#  define int_pars (synctex_code+1)     /*total number of integer parameters */
+#  define saving_hyph_codes_code (etex_first_integer_code+8)      /*save hyphenation codes for languages */
+#  define suppress_fontnotfound_error_code (etex_first_integer_code+9)    /*suppress errors for missing fonts */
+#  define suppress_long_error_code (etex_first_integer_code+10)   /*suppress errors for missing fonts */
+#  define suppress_ifcsname_error_code (etex_first_integer_code+11)
+                                                        /*suppress errors for failed \.{\\ifcsname} */
+#  define suppress_outer_error_code (etex_first_integer_code+12)  /*suppress errors for \.{\\outer} */
+#  define synctex_code (etex_first_integer_code+13)  /* is synctex file generation enabled ?  */
+#  define tex_int_pars (synctex_code+1)       /* total number of integer parameters */
+
+#  define page_direction_code (tex_int_pars)
+#  define body_direction_code (tex_int_pars+1)
+#  define par_direction_code (tex_int_pars+2)
+#  define text_direction_code (tex_int_pars+3)
+#  define math_direction_code (tex_int_pars+4)
+#  define int_pars (tex_int_pars+5)     /*total number of integer parameters */
+
+#  define dir_base (int_base+tex_int_pars)
 #  define count_base (int_base+int_pars)        /*|number_regs| user \.{\\count} registers */
 #  define attribute_base (count_base+number_regs)
                                                 /*|number_attrs| user \.{\\attribute} registers */
@@ -485,7 +482,6 @@ appears in location |save_ptr+k| of the save stack.
 #  define dimen_par(A) eqtb[dimen_base+(A)].cint
 #  define loc_par(A)   equiv(local_base+(A))
 #  define glue_par(A)  equiv(glue_base+(A))
-#  define dir_par(A) eqtb[dir_base+(A)].cint    /* a direction parameter */
 
 extern integer mag_set;         /* if nonzero, this magnification should be used henceforth */
 extern void prepare_mag(void);

@@ -48,10 +48,10 @@ static const char _svn_version[] =
 #define no_local_whatsits int_par(no_local_whatsits_code)
 #define no_local_dirs int_par(no_local_dirs_code)
 #define err_help equiv(err_help_loc)
-#define text_direction dir_par(text_direction_code)
+#define text_direction int_par(text_direction_code)
 #define every_par equiv(every_par_loc)
 #define pdf_ignored_dimen dimen_par(pdf_ignored_dimen_code)
-#define par_direction dir_par(par_direction_code)
+#define par_direction int_par(par_direction_code)
 
 #define pdf_first_line_height  dimen_par(pdf_first_line_height_code)
 #define pdf_last_line_depth    dimen_par(pdf_last_line_depth_code)
@@ -2345,19 +2345,19 @@ void prefixed_command(void)
         /* DIR: Assign direction codes */
         scan_direction();
         switch (cur_chr) {
-        case dir_base + page_direction_code:
-            eq_word_define(dir_base + page_direction_code, cur_val);
+        case int_base +page_direction_code:
+            eq_word_define(int_base +page_direction_code, cur_val);
             break;
-        case dir_base + body_direction_code:
-            eq_word_define(dir_base + body_direction_code, cur_val);
+        case int_base +body_direction_code:
+            eq_word_define(int_base +body_direction_code, cur_val);
             break;
-        case dir_base + par_direction_code:
-            eq_word_define(dir_base + par_direction_code, cur_val);
+        case int_base +par_direction_code:
+            eq_word_define(int_base +par_direction_code, cur_val);
             break;
-        case dir_base + math_direction_code:
-            eq_word_define(dir_base + math_direction_code, cur_val);
+        case int_base +math_direction_code:
+            eq_word_define(int_base +math_direction_code, cur_val);
             break;
-        case dir_base + text_direction_code:
+        case int_base +text_direction_code:
             if ((no_local_dirs > 0) && (abs(mode) == hmode)) {
                 /* DIR: Add local dir node */
                 tail_append(new_dir(text_direction));
@@ -2371,7 +2371,7 @@ void prefixed_command(void)
                 text_dir_ptr = text_dir_tmp;
 
             }
-            eq_word_define(dir_base + text_direction_code, cur_val);
+            eq_word_define(int_base +text_direction_code, cur_val);
             /* DIR: Add to |text_dir_ptr| */
             text_dir_tmp = new_dir(text_direction);
             vlink(text_dir_tmp) = text_dir_ptr;
