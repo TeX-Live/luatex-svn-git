@@ -138,8 +138,6 @@ values to distinguish between them: |box_code|, |copy_code|, |last_box_code|,
 where the latter two are used denote \.{\\vbox} and \.{\\hbox}, respectively.
 */
 
-#  define number_regs 65536     /* todo, doesnt belong here */
-
 #  define box_flag 010000000000 /* context code for `\.{\\setbox0}' */
 #  define global_box_flag (box_flag+number_regs)        /* context code for `\.{\\global\\setbox0}' */
 #  define max_global_box_flag (global_box_flag+number_regs)
