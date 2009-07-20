@@ -1210,7 +1210,7 @@ static void cc_init(void)
 #define mark_subr(n)    cs_mark(0, n)
 #define mark_cs(s)      cs_mark(s, 0)
 
-__attribute__ ((format(printf, 3, 4)))
+__attribute__ ((noreturn,format(printf, 3, 4)))
 static void cs_fail(const char *cs_name, int subr, const char *fmt, ...)
 {
     char buf[SMALL_BUF_SIZE];

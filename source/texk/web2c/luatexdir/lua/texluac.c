@@ -58,12 +58,14 @@ static char Output[] = { OUTPUT };      /* default output file name */
 static const char *output = Output;     /* actual output file name */
 static const char *progname = PROGNAME; /* actual program name */
 
+__attribute__ ((noreturn))
 static void fatal(const char *message)
 {
     fprintf(stderr, "%s: %s\n", progname, message);
     exit(EXIT_FAILURE);
 }
 
+__attribute__ ((noreturn))
 static void cannot(const char *what)
 {
     fprintf(stderr, "%s: cannot %s %s: %s\n", progname, what, output,
@@ -71,6 +73,7 @@ static void cannot(const char *what)
     exit(EXIT_FAILURE);
 }
 
+__attribute__ ((noreturn))
 static void usage(const char *message)
 {
     if (*message == '-')
