@@ -2126,6 +2126,9 @@ void write_out(halfword p)
     integer d;                  /* number of characters in incomplete current string */
     boolean clobbered;          /* system string is ok? */
     integer ret;                /* return value from |runsystem| */
+    char *s, *ss;               /* line to be written, as a C string */
+    int callback_id;
+    int lua_retval;
     expand_macros_in_tokenlist(p);
     old_setting = selector;
     j = write_stream(p);
@@ -2138,7 +2141,17 @@ void write_out(halfword p)
             selector = log_only;
         tprint_nl("");
     }
-    token_show(def_ref);
+    s = tokenlist_to_cstring(def_ref, false, NULL);
+    if (selector < no_print) { /* selector is a file */
+        /* fix up the output buffer using callbacks */
+        callback_id = callback_defined(process_output_buffer_callback);
+        if (callback_id > 0) {
+            lua_retval = run_callback(callback_id, "S->S", s, &ss);
+            if ((lua_retval == true) && (ss != NULL)) 
+                s = ss;
+        }
+    }
+    tprint(s);
     print_ln();
     flush_list(def_ref);
     if (j == 18) {

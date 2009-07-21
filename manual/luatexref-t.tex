@@ -3536,6 +3536,26 @@ that.
 
 This callback does not replace any internal code.
 
+\subsubsection{\luatex{process_output_buffer}}
+
+This callback allows you to change the contents of the line output
+buffer just before \LUATEX\ actually starts writing it to a file as the
+result of a \tex{write} command. It is only called for output to an
+actual file (that is, excluding the log, the terminal, and \tex{write18}
+calls).
+
+\startfunctioncall
+function(<string> buffer)
+    return <string> adjusted_buffer
+end
+\stopfunctioncall
+
+If you return \type{nil}, \LUATEX\ will pretend like your callback
+never happened. You can gain a small amount of processing time from
+that.
+
+This callback does not replace any internal code.
+
 \subsubsection{\luatex{token_filter}}
 
 This callback allows you to replace the way \LUATEX\ fetches

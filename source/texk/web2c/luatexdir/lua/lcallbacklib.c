@@ -50,7 +50,7 @@ static const char *const callbacknames[] = {
     "find_sfd_file", "read_sfd_file",
     "find_pk_file", "read_pk_file",
     "show_error_hook",
-    "process_input_buffer",
+    "process_input_buffer", "process_output_buffer",
     "start_page_number", "stop_page_number",
     "start_run", "stop_run",
     "define_font",

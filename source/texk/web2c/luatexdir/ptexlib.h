@@ -325,7 +325,7 @@ typedef enum {
     find_sfd_file_callback, read_sfd_file_callback,
     find_pk_file_callback, read_pk_file_callback,
     show_error_hook_callback,
-    process_input_buffer_callback,
+    process_input_buffer_callback, process_output_buffer_callback,
     start_page_number_callback, stop_page_number_callback,
     start_run_callback, stop_run_callback,
     define_font_callback,
