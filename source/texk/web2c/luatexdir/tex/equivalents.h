@@ -191,7 +191,7 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define every_cr_loc (local_base+8)   /* points to token list for \.{\\everycr} */
 #  define err_help_loc (local_base+9)   /* points to token list for \.{\\errhelp} */
 #  define every_eof_loc (local_base+10) /* points to token list for \.{\\everyeof} */
-#  define tex_toks (local_base+11)  /* end of (e-)\TeX's token list parameters */
+#  define tex_toks (local_base+11)      /* end of (e-)\TeX's token list parameters */
 #  define pdftex_first_loc (tex_toks)   /* base for \pdfTeX's token list parameters */
 #  define pdf_pages_attr_loc (pdftex_first_loc + 0)     /* points to token list for \.{\\pdfpagesattr} */
 #  define pdf_page_attr_loc (pdftex_first_loc + 1)      /* points to token list for \.{\\pdfpageattr} */
@@ -293,7 +293,7 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define output_box_code 64
 #  define cur_lang_code 65      /* current language id */
 #  define ex_hyphen_char_code 66
-#  define pdftex_first_integer_code 67    /*base for \pdfTeX's integer parameters */
+#  define pdftex_first_integer_code 67  /*base for \pdfTeX's integer parameters */
 #  define pdf_output_code (pdftex_first_integer_code + 0)
                                                         /*switch on PDF output if positive */
 #  define pdf_compress_level_code (pdftex_first_integer_code + 1)
@@ -305,9 +305,9 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define pdf_unique_resname_code (pdftex_first_integer_code + 5)
                                                                 /*generate unique names for resouces */
 #  define pdf_minor_version_code (pdftex_first_integer_code + 6)        /*fractional part of the PDF version produced */
-#  define pdf_pagebox_code (pdftex_first_integer_code + 7)     /*default pagebox to use for PDF inclusion */
-#  define pdf_inclusion_errorlevel_code (pdftex_first_integer_code + 8)        /*if the PDF inclusion should treat pdfs 
-                                                                                   newer than |pdf_minor_version| as an error */
+#  define pdf_pagebox_code (pdftex_first_integer_code + 7)      /*default pagebox to use for PDF inclusion */
+#  define pdf_inclusion_errorlevel_code (pdftex_first_integer_code + 8) /*if the PDF inclusion should treat pdfs 
+                                                                           newer than |pdf_minor_version| as an error */
 #  define pdf_gamma_code (pdftex_first_integer_code + 9)
 #  define pdf_image_gamma_code (pdftex_first_integer_code + 10)
 #  define pdf_image_hicolor_code (pdftex_first_integer_code + 11)
@@ -323,24 +323,24 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define pdf_replace_font_code (pdftex_first_integer_code + 19)        /*generate ToUnicode for fonts? */
 #  define pdf_inclusion_copy_font_code (pdftex_first_integer_code + 20) /*generate ToUnicode for fonts? */
 #  define pdf_int_pars (pdftex_first_integer_code + 21) /*total number of \pdfTeX's integer parameters */
-#  define etex_first_integer_code (pdf_int_pars)  /*base for \eTeX's integer parameters */
-#  define tracing_assigns_code (etex_first_integer_code)  /*show assignments */
-#  define tracing_groups_code (etex_first_integer_code+1) /*show save/restore groups */
-#  define tracing_ifs_code (etex_first_integer_code+2)    /*show conditionals */
-#  define tracing_scan_tokens_code (etex_first_integer_code+3)    /*show pseudo file open and close */
-#  define tracing_nesting_code (etex_first_integer_code+4)        /*show incomplete groups and ifs within files */
-#  define pre_display_direction_code (etex_first_integer_code+5)  /*text direction preceding a display */
-#  define last_line_fit_code (etex_first_integer_code+6)  /*adjustment for last line of paragraph */
+#  define etex_first_integer_code (pdf_int_pars)        /*base for \eTeX's integer parameters */
+#  define tracing_assigns_code (etex_first_integer_code)        /*show assignments */
+#  define tracing_groups_code (etex_first_integer_code+1)       /*show save/restore groups */
+#  define tracing_ifs_code (etex_first_integer_code+2)  /*show conditionals */
+#  define tracing_scan_tokens_code (etex_first_integer_code+3)  /*show pseudo file open and close */
+#  define tracing_nesting_code (etex_first_integer_code+4)      /*show incomplete groups and ifs within files */
+#  define pre_display_direction_code (etex_first_integer_code+5)        /*text direction preceding a display */
+#  define last_line_fit_code (etex_first_integer_code+6)        /*adjustment for last line of paragraph */
 #  define saving_vdiscards_code (etex_first_integer_code+7)
                                                 /*save items discarded from vlists */
-#  define saving_hyph_codes_code (etex_first_integer_code+8)      /*save hyphenation codes for languages */
-#  define suppress_fontnotfound_error_code (etex_first_integer_code+9)    /*suppress errors for missing fonts */
-#  define suppress_long_error_code (etex_first_integer_code+10)   /*suppress errors for missing fonts */
+#  define saving_hyph_codes_code (etex_first_integer_code+8)    /*save hyphenation codes for languages */
+#  define suppress_fontnotfound_error_code (etex_first_integer_code+9)  /*suppress errors for missing fonts */
+#  define suppress_long_error_code (etex_first_integer_code+10) /*suppress errors for missing fonts */
 #  define suppress_ifcsname_error_code (etex_first_integer_code+11)
                                                         /*suppress errors for failed \.{\\ifcsname} */
-#  define suppress_outer_error_code (etex_first_integer_code+12)  /*suppress errors for \.{\\outer} */
-#  define synctex_code (etex_first_integer_code+13)  /* is synctex file generation enabled ?  */
-#  define tex_int_pars (synctex_code+1)       /* total number of integer parameters */
+#  define suppress_outer_error_code (etex_first_integer_code+12)        /*suppress errors for \.{\\outer} */
+#  define synctex_code (etex_first_integer_code+13)     /* is synctex file generation enabled ?  */
+#  define tex_int_pars (synctex_code+1) /* total number of integer parameters */
 
 #  define page_direction_code (tex_int_pars)
 #  define body_direction_code (tex_int_pars+1)
@@ -437,10 +437,10 @@ extern group_code cur_group;    /* current group type */
 extern integer cur_boundary;    /* where the current level begins */
 
 
-#  define save_type(A) save_stack[(A)].type_   /* classifies a |save_stack| entry */
-#  define save_level(A) save_stack[(A)].level_ /* saved level for regions 5 and 6, or group code */
-#  define save_value(A) save_stack[(A)].word_.cint /* |eqtb| location or token or |save_stack| location */
-#  define save_word(A) save_stack[(A)].word_  /* |eqtb| entry */
+#  define save_type(A) save_stack[(A)].type_    /* classifies a |save_stack| entry */
+#  define save_level(A) save_stack[(A)].level_  /* saved level for regions 5 and 6, or group code */
+#  define save_value(A) save_stack[(A)].word_.cint      /* |eqtb| location or token or |save_stack| location */
+#  define save_word(A) save_stack[(A)].word_    /* |eqtb| entry */
 
 /*
 We use the notation |saved(k)| to stand for an item that

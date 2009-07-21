@@ -932,8 +932,8 @@ value is changed to zero and so is the next tabskip.
             width(q) = 0;
             q = vlink(vlink(q));
         } while (q != null);
-        p = filtered_vpackage(preamble, saved_value(0), saved_level(0), max_depth,
-                              preamble_group);
+        p = filtered_vpackage(preamble, saved_value(0), saved_level(0),
+                              max_depth, preamble_group);
         q = vlink(preamble);
         do {
             width(q) = height(q);

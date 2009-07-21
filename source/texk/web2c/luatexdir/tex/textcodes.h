@@ -44,4 +44,3 @@ void free_text_codes(void);
 
 
 #endif
-

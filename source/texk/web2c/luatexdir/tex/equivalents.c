@@ -200,7 +200,7 @@ called.
 void new_save_level(group_code c)
 {                               /* begin a new level of grouping */
     check_full_save_stack();
-    set_saved_record(0,saved_line,0,line);
+    set_saved_record(0, saved_line, 0, line);
     incr(save_ptr);
     save_type(save_ptr) = level_boundary;
     save_level(save_ptr) = cur_group;
@@ -317,24 +317,24 @@ void show_save_groups(void)
             goto FOUND2;
             break;
         case disc_group:
-	    tprint_esc("discretionary");
+            tprint_esc("discretionary");
             for (i = 1; i < 3; i++)
                 if (i <= saved_value(-2))
                     tprint("{}");
             goto FOUND2;
             break;
         case math_choice_group:
-	    tprint_esc("mathchoice");
+            tprint_esc("mathchoice");
             for (i = 1; i < 4; i++)
-                if (i <= saved_value(-3)) /* different offset because -2==saved_textdir*/
+                if (i <= saved_value(-3))       /* different offset because -2==saved_textdir */
                     tprint("{}");
             goto FOUND2;
             break;
         case insert_group:
             if (saved_type(-1) == saved_adjust) {
                 tprint_esc("vadjust");
-		if (saved_level(-1) != 0)
-		    tprint(" pre");
+                if (saved_level(-1) != 0)
+                    tprint(" pre");
             } else {
                 tprint_esc("insert");
                 print_int(saved_value(-1));
@@ -400,21 +400,21 @@ void show_save_groups(void)
       FOUND1:
         tprint_esc(s);
         /* Show the box packaging info */
-	{
-	    /* offsets may vary */
-	    integer ii = -1;
-	    while (saved_type(ii)!=saved_boxspec)
-		ii--;
-	    if (saved_value(ii) != 0) {
-		print_char(' ');
-		if (saved_level(ii) == exactly)
-		    tprint("to");
-		else
-		    tprint("spread");
-		print_scaled(saved_value(ii));
-		tprint("pt");
-	    }
-	}
+        {
+            /* offsets may vary */
+            integer ii = -1;
+            while (saved_type(ii) != saved_boxspec)
+                ii--;
+            if (saved_value(ii) != 0) {
+                print_char(' ');
+                if (saved_level(ii) == exactly)
+                    tprint("to");
+                else
+                    tprint("spread");
+                print_scaled(saved_value(ii));
+                tprint("pt");
+            }
+        }
       FOUND2:
         print_char('{');
       FOUND:
@@ -475,9 +475,9 @@ void eq_save(halfword p, quarterword l)
     if (l == level_zero) {
         save_type(save_ptr) = restore_zero;
     } else {
-	save_word(save_ptr) = eqtb[p];
+        save_word(save_ptr) = eqtb[p];
         save_type(save_ptr) = saved_eqtb;
-	incr(save_ptr);
+        incr(save_ptr);
         save_type(save_ptr) = restore_old_value;
     }
     save_level(save_ptr) = l;
@@ -617,12 +617,12 @@ void unsave(void)
                  */
                 if (p < int_base || p > eqtb_size) {
                     if (eq_level(p) == level_one) {
-                        eq_destroy(save_word(save_ptr));       /* destroy the saved value */
+                        eq_destroy(save_word(save_ptr));        /* destroy the saved value */
                         if (int_par(tracing_restores_code) > 0)
                             restore_trace(p, "retaining");
                     } else {
                         eq_destroy(eqtb[p]);    /* destroy the current value */
-                        eqtb[p] = save_word(save_ptr); /* restore the saved value */
+                        eqtb[p] = save_word(save_ptr);  /* restore the saved value */
                         if (int_par(tracing_restores_code) > 0)
                             restore_trace(p, "restoring");
                     }
@@ -831,10 +831,10 @@ void show_eqtb(halfword n)
         /* Show equivalent |n|, in region 3 */
         /* All glue parameters and registers are initially `\.{0pt plus0pt minus0pt}'. */
         if (n < skip_base) {
-	    if (n < glue_base + thin_mu_skip_code)
-		print_cmd_chr(assign_glue_cmd, n);
-	    else
-		print_cmd_chr(assign_mu_glue_cmd, n);
+            if (n < glue_base + thin_mu_skip_code)
+                print_cmd_chr(assign_glue_cmd, n);
+            else
+                print_cmd_chr(assign_mu_glue_cmd, n);
             print_char('=');
             if (n < glue_base + thin_mu_skip_code)
                 print_spec(equiv(n), "pt");
@@ -912,12 +912,12 @@ void show_eqtb(halfword n)
 
     } else if (n < dimen_base) {
         /* Show equivalent |n|, in region 5 */
-	if (n<dir_base) {
-	    print_cmd_chr(assign_int_cmd, n);
-	    print_char('=');
-	    print_int(eqtb[n].cint);
-	} else if (n < count_base) {
-	    print_cmd_chr(assign_dir_cmd, n);
+        if (n < dir_base) {
+            print_cmd_chr(assign_int_cmd, n);
+            print_char('=');
+            print_int(eqtb[n].cint);
+        } else if (n < count_base) {
+            print_cmd_chr(assign_dir_cmd, n);
             print_char(' ');
             print_dir(eqtb[n].cint);
         } else if (n < attribute_base) {

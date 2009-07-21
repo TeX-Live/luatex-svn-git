@@ -1026,11 +1026,11 @@ void initialize_commands(void)
        primitives at all. */
 
     primitive_no("nolocalwhatsits", assign_int_cmd,
-		 int_base + no_local_whatsits_code, int_base);
+                 int_base + no_local_whatsits_code, int_base);
     primitive_no("nolocaldirs", assign_int_cmd,
-		 int_base + no_local_dirs_code, int_base);
+                 int_base + no_local_dirs_code, int_base);
     primitive_no("levellocaldir", assign_int_cmd,
-		 int_base + level_local_dir_code, int_base);
+                 int_base + level_local_dir_code, int_base);
 
 }
 

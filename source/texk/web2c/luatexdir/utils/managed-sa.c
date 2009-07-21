@@ -78,7 +78,7 @@ void set_sa_item(sa_tree head, integer n, sa_tree_item v, integer gl)
     if (head->tree == NULL) {
         head->tree =
             (sa_tree_item ***) Mxcalloc_array(sa_tree_item **, HIGHPART);
-    } 
+    }
     if (head->tree[h] == NULL) {
         head->tree[h] =
             (sa_tree_item **) Mxcalloc_array(sa_tree_item *, MIDPART);
@@ -156,7 +156,8 @@ sa_tree copy_sa_tree(sa_tree b)
                 for (m = 0; m < MIDPART; m++) {
                     if (b->tree[h][m] != NULL) {
                         a->tree[h][m] = Mxmalloc_array(sa_tree_item, LOWPART);
-                        memcpy(a->tree[h][m],b->tree[h][m],sizeof(sa_tree_item)*LOWPART);
+                        memcpy(a->tree[h][m], b->tree[h][m],
+                               sizeof(sa_tree_item) * LOWPART);
                     }
                 }
             }

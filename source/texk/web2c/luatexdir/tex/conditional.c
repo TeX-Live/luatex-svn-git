@@ -224,7 +224,7 @@ An active character will be treated as category 13 following
 \.{\\if\\noexpand} or following \.{\\ifcat\\noexpand}.
 */
 
-#  define get_x_token_or_active_char() do {                             \
+#define get_x_token_or_active_char() do {                             \
         get_x_token();                                                  \
         if (cur_cmd==relax_cmd && cur_chr==no_expand_flag) {            \
             if (is_active_cs(cs_text(cur_cs))) {                        \

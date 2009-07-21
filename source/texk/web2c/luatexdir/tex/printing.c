@@ -401,7 +401,7 @@ void log_banner(char *v, int e)
 
 void print_version_banner(void)
 {
-    fprintf(term_out, ptexbanner);   /* todo: get the extra info in here */
+    fprintf(term_out, ptexbanner);      /* todo: get the extra info in here */
     /* write_svnversion(luatex_svnversion); */
 }
 
@@ -891,7 +891,7 @@ void print_csnames(integer hstart, integer hfinish)
     fprintf(stderr, "fmtdebug:csnames from %d to %d:", (int) hstart,
             (int) hfinish);
     for (h = hstart; h <= hfinish; h++) {
-        if (cs_text(h) > 0) {      /* if have anything at this position */
+        if (cs_text(h) > 0) {   /* if have anything at this position */
             for (c = str_start_macro(cs_text(h));
                  c <= str_start_macro(cs_text(h) + 1) - 1; c++) {
                 fputc(str_pool[c], stderr);     /* print the characters */

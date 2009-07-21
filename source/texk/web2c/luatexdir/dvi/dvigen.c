@@ -2142,12 +2142,12 @@ void write_out(halfword p)
         tprint_nl("");
     }
     s = tokenlist_to_cstring(def_ref, false, NULL);
-    if (selector < no_print) { /* selector is a file */
+    if (selector < no_print) {  /* selector is a file */
         /* fix up the output buffer using callbacks */
         callback_id = callback_defined(process_output_buffer_callback);
         if (callback_id > 0) {
             lua_retval = run_callback(callback_id, "S->S", s, &ss);
-            if ((lua_retval == true) && (ss != NULL)) 
+            if ((lua_retval == true) && (ss != NULL))
                 s = ss;
         }
     }

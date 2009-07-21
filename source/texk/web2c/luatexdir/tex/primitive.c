@@ -371,7 +371,7 @@ static halfword insert_id(halfword p, unsigned char *j, pool_pointer l)
                 if (hash_is_full)
                     overflow("hash size", hash_size + hash_extra);
                 decr(hash_used);
-            } while (cs_text(hash_used) != 0);     /* search for an empty location in |hash| */
+            } while (cs_text(hash_used) != 0);  /* search for an empty location in |hash| */
             cs_next(p) = hash_used;
             p = hash_used;
         }
@@ -614,7 +614,7 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
     case assign_glue_cmd:
     case assign_mu_glue_cmd:
         if (chr_code < skip_base) {
-            prim_cmd_chr(cmd, chr_code);        
+            prim_cmd_chr(cmd, chr_code);
         } else if (chr_code < mu_skip_base) {
             tprint_esc("skip");
             print_int(chr_code - skip_base);
@@ -633,8 +633,8 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
         break;
     case assign_int_cmd:
         if (chr_code < count_base) {
-            prim_cmd_chr(cmd, chr_code);        
-	} else {
+            prim_cmd_chr(cmd, chr_code);
+        } else {
             tprint_esc("count");
             print_int(chr_code - count_base);
         }

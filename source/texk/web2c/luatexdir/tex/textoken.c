@@ -2286,10 +2286,10 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
                 q = infop - cs_token_flag;
                 if (q < hash_base) {
                     if (q == null_cs) {
-                        Print_esc("csname"); 
-                        Print_esc("endcsname"); 
+                        Print_esc("csname");
+                        Print_esc("endcsname");
                     } else {
-                        Print_esc("IMPOSSIBLE."); 
+                        Print_esc("IMPOSSIBLE.");
                     }
                 } else if ((q >= undefined_control_sequence)
                            && ((q <= eqtb_size)
@@ -2372,10 +2372,9 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
         }
         p = token_link(p);
     }
- EXIT:
+  EXIT:
     ret[i] = '\0';
     if (siz != NULL)
         *siz = i;
     return ret;
 }
-

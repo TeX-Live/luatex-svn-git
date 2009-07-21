@@ -410,12 +410,12 @@ void main_body(void)
     }
     initialize();               /* set global variables to their starting values */
     if (ini_version) {
-	/* initialize all the primitives */
-	no_new_control_sequence = false;
-	first = 0;
-	initialize_commands();
+        /* initialize all the primitives */
+        no_new_control_sequence = false;
+        first = 0;
+        initialize_commands();
         initialize_etex_commands();
-	no_new_control_sequence = true;
+        no_new_control_sequence = true;
         init_str_ptr = str_ptr;
         init_pool_ptr = pool_ptr;
         fix_date_and_time();
@@ -430,9 +430,9 @@ void main_body(void)
        But when we finish this part of the program, \TeX\ is ready to call on the
        |main_control| routine to do its work.
      */
-    initialize_inputstack(); /* this copies the command-line */
+    initialize_inputstack();    /* this copies the command-line */
     if (buffer[iloc] == '*')
-	incr(iloc);
+        incr(iloc);
     if ((format_ident == 0) || (buffer[iloc] == '&') || dump_line) {
         if (format_ident != 0)
             initialize();       /* erase preloaded format */
@@ -550,8 +550,7 @@ void close_files_and_terminate(void)
             print_err
                 (" ==> Fatal error occurred, no output PDF file produced!");
         } else {
-            finish_pdf_file(static_pdf, luatex_version,
-                            get_luatexrevision());
+            finish_pdf_file(static_pdf, luatex_version, get_luatexrevision());
         }
     } else {
         finish_dvi_file(luatex_version, get_luatexrevision());
@@ -738,4 +737,3 @@ void debug_help(void)
     }
 }
 #endif
-

@@ -29,7 +29,7 @@
 
 #  define negate(A) (A)=-(A)    /* change the sign of a variable */
 
-#undef half
+#  undef half
 extern integer half(integer x);
 
 /*

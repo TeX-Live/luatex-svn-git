@@ -151,7 +151,7 @@ void unsave_math(void)
     unsave();
     decr(save_ptr);
     flush_node_list(text_dir_ptr);
-    assert (saved_type(0) == saved_textdir);
+    assert(saved_type(0) == saved_textdir);
     text_dir_ptr = saved_value(0);
 }
 
@@ -779,7 +779,7 @@ is about to be processed. The parameter is a code like |math_group|.
 
 void new_save_level_math(group_code c)
 {
-    set_saved_record(0,saved_textdir,0,text_dir_ptr);
+    set_saved_record(0, saved_textdir, 0, text_dir_ptr);
     text_dir_ptr = new_dir(math_direction);
     incr(save_ptr);
     new_save_level(c);
@@ -1255,7 +1255,7 @@ int scan_math(pointer p, int mstyle)
            is being scanned. */
         back_input();
         scan_left_brace();
-        set_saved_record(0,saved_math,0, p);
+        set_saved_record(0, saved_math, 0, p);
         incr(save_ptr);
         push_math(math_group, mstyle);
         return 1;
@@ -1558,7 +1558,7 @@ void append_choices(void)
 {
     tail_append(new_choice());
     incr(save_ptr);
-    set_saved_record(-1,saved_choices,0,0);
+    set_saved_record(-1, saved_choices, 0, 0);
     push_math(math_choice_group, display_style);
     scan_left_brace();
 }
@@ -1587,7 +1587,7 @@ void build_choices(void)
         return;
         break;
     }                           /* there are no other cases */
-    set_saved_record(-1,saved_choices,0,(saved_value(-1)+1));
+    set_saved_record(-1, saved_choices, 0, (saved_value(-1) + 1));
     push_math(math_choice_group, (prev_style + 2));
     scan_left_brace();
 }
@@ -1759,7 +1759,8 @@ void close_math_group(pointer p)
                     type(saved_value(0)) = type(nucleus(p));
                     if (type(nucleus(p)) == math_char_node) {
                         math_fam(saved_value(0)) = math_fam(nucleus(p));
-                        math_character(saved_value(0)) = math_character(nucleus(p));
+                        math_character(saved_value(0)) =
+                            math_character(nucleus(p));
                     } else {
                         math_list(saved_value(0)) = math_list(nucleus(p));
                         math_list(nucleus(p)) = null;

@@ -35,11 +35,11 @@ extern int get_command_id(char *);
 static unsigned char *get_cs_text(integer cs)
 {
     if (cs == null_cs)
-        return (unsigned char *)"\\csname\\endcsname";
+        return (unsigned char *) "\\csname\\endcsname";
     else if ((cs_text(cs) < 0) || (cs_text(cs) >= str_ptr))
-        return (unsigned char *)"";
+        return (unsigned char *) "";
     else
-        return (unsigned char *)makecstring(cs_text(cs));
+        return (unsigned char *) makecstring(cs_text(cs));
 }
 
 
@@ -96,7 +96,7 @@ static int test_activechar(lua_State * L)
             cs = lua_tointeger(L, -1);
         }
         lua_pop(L, 1);
-        if (cs != 0 && ((s = get_cs_text(cs)) != (unsigned char *)NULL)) {
+        if (cs != 0 && ((s = get_cs_text(cs)) != (unsigned char *) NULL)) {
             if (is_active_string(s)) {
                 free(s);
                 lua_pushboolean(L, 1);
@@ -145,7 +145,7 @@ static int run_get_csname_name(lua_State * L)
         }
         lua_pop(L, 1);
 
-        if (cs != 0 && ((s = get_cs_text(cs)) != (unsigned char *)NULL)) {
+        if (cs != 0 && ((s = get_cs_text(cs)) != (unsigned char *) NULL)) {
             if (is_active_string(s))
                 lua_pushstring(L, (char *) (s + 3));
             else

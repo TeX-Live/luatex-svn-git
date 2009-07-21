@@ -740,7 +740,7 @@ void print_group(boolean e)
             tprint(" entered at line ");
         else
             tprint(" at line ");
-        print_int(saved_value(-1)); /* saved_line */
+        print_int(saved_value(-1));     /* saved_line */
     }
 }
 

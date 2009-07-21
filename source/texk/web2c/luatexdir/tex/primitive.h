@@ -47,8 +47,9 @@ extern halfword hash_high;      /* pointer to next high hash location */
 extern boolean no_new_control_sequence; /* are new identifiers legal? */
 extern integer cs_count;        /* total number of known identifiers */
 
-#define cs_next(a) hash[(a)].lhfield       /* link for coalesced lists */
-#define cs_text(a) hash[(a)].rh    /* string number for control sequence name */
+#  define cs_next(a) hash[(a)].lhfield  /* link for coalesced lists */
+#  define cs_text(a) hash[(a)].rh
+                                /* string number for control sequence name */
 
 #  define undefined_primitive 0
 #  define prim_size 2100        /* maximum number of primitives */

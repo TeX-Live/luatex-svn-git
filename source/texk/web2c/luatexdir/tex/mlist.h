@@ -39,4 +39,3 @@ boolean check_necessary_fonts(void);
 void mlist_to_hlist(void);
 
 #endif
-

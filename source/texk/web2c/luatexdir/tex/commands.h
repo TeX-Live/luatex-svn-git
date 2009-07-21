@@ -83,11 +83,11 @@ typedef enum {
 #  define match_cmd par_end_cmd /* match a macro parameter */
     stop_cmd,                   /* end of job ( \.{\\end}, \.{\\dump} ) */
 #  define comment_cmd stop_cmd  /* characters that introduce comments ( \.\% ) */
-#  define end_match_cmd stop_cmd/* end of parameters to macro */
+#  define end_match_cmd stop_cmd        /* end of parameters to macro */
     delim_num_cmd,              /* specify delimiter numerically ( \.{\\delimiter} ) */
-#  define invalid_char_cmd delim_num_cmd/* characters that shouldn't appear ( \.{\^\^?} ) */
+#  define invalid_char_cmd delim_num_cmd        /* characters that shouldn't appear ( \.{\^\^?} ) */
 #  define max_char_code_cmd delim_num_cmd
-                                        /* largest catcode for individual characters */
+    /* largest catcode for individual characters */
     char_num_cmd,               /* character specified numerically ( \.{\\char} ) */
     math_char_num_cmd,          /* explicit math code ( \.{\\mathchar} ) */
     mark_cmd,                   /* mark definition ( \.{\\mark} ) */
@@ -147,7 +147,7 @@ typedef enum {
     assign_local_box_cmd,       /* box for guillemets \.{\\localleftbox} or \.{\\localrightbox} */
     char_given_cmd,             /* character code defined by \.{\\chardef} */
 #  define min_internal_cmd char_given_cmd
-                                        /* the smallest code that can follow \.{\\the} */
+    /* the smallest code that can follow \.{\\the} */
     math_given_cmd,             /* math code defined by \.{\\mathchardef} */
     omath_given_cmd,            /* math code defined by \.{\\omathchardef} */
     xmath_given_cmd,            /* math code defined by \.{\\LuaTeXmathchardef} */
@@ -181,7 +181,7 @@ typedef enum {
     assign_box_dir_cmd,         /* (\.{\\boxdir}) */
     assign_dir_cmd,             /* (\.{\\pagedir}, \.{\\textdir}) */
 #  define max_internal_cmd assign_dir_cmd
-                                        /* the largest code that can follow \.{\\the} */
+    /* the largest code that can follow \.{\\the} */
     advance_cmd,                /* advance a register or parameter ( \.{\\advance} ) */
     multiply_cmd,               /* multiply a register or parameter ( \.{\\multiply} ) */
     divide_cmd,                 /* divide a register or parameter ( \.{\\divide} ) */
@@ -328,9 +328,9 @@ typedef enum {
 #  define eTeX_glue mu_to_glue_code     /* first of \eTeX\ codes for glue */
     glue_to_mu_code,            /* code for \.{\\gluetomu} */
 #  define eTeX_mu glue_to_mu_code
-                                /* first of \eTeX\ codes for muglue */
+    /* first of \eTeX\ codes for muglue */
     numexpr_code,               /* code for \.{\\numexpr} */
-#  define eTeX_expr numexpr_code/* first of \eTeX\ codes for expressions */
+#  define eTeX_expr numexpr_code        /* first of \eTeX\ codes for expressions */
     attrexpr_code,              /* not used */
     dimexpr_code,               /* code for \.{\\dimexpr} */
     glueexpr_code,              /* code for \.{\\glueexpr} */

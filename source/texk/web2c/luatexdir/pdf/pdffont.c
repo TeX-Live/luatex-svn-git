@@ -25,7 +25,7 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-#define font_id_text(A) cs_text(font_id_base+(A))  /* a frozen font identifier's name */
+#define font_id_text(A) cs_text(font_id_base+(A))       /* a frozen font identifier's name */
 
 integer pk_dpi;                 /* PK pixel density value from \.{texmf.cnf} */
 

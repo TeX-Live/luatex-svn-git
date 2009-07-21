@@ -3188,19 +3188,25 @@ baseline of subscripts and superscripts based on the given nucleus.
 */
 
 #ifdef DEBUG
-void dump_simple_field (pointer q)
+void dump_simple_field(pointer q)
 {
     pointer p;
     printf("   [%d,  type=%d, vlink=%d] ", q, type(q), vlink(q));
     switch (type(q)) {
-    case math_char_node: printf("mathchar "); break; 
-    case math_text_char_node: printf("texchar "); break;
-    case sub_box_node: printf("box "); break;
-    case sub_mlist_node: 
-        printf("mlist "); 
+    case math_char_node:
+        printf("mathchar ");
+        break;
+    case math_text_char_node:
+        printf("texchar ");
+        break;
+    case sub_box_node:
+        printf("box ");
+        break;
+    case sub_mlist_node:
+        printf("mlist ");
         p = math_list(q);
-        while (p!=null) {
-            dump_simple_field (p);
+        while (p != null) {
+            dump_simple_field(p);
             p = vlink(p);
         }
         break;
@@ -3208,16 +3214,16 @@ void dump_simple_field (pointer q)
 }
 
 
-void dump_simple_node (pointer q)
+void dump_simple_node(pointer q)
 {
     printf("node %d, type=%d, vlink=%d\n", q, type(q), vlink(q));
-    printf ("nucleus: ");
+    printf("nucleus: ");
     dump_simple_field(nucleus(q));
     printf("\n");
-    printf ("sub: ");
+    printf("sub: ");
     dump_simple_field(subscr(q));
     printf("\n");
-    printf ("sup: ");
+    printf("sup: ");
     dump_simple_field(supscr(q));
     printf("\n\n");
 }

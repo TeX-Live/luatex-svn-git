@@ -106,10 +106,10 @@ void scan_spec(group_code c, boolean three_codes)
         update_attribute_cache();
     attr_list = attr_list_cache;
     if (three_codes) {
-	assert (saved_type(0)==saved_boxcontext);
-        s = saved_value(0); /* the box context */
+        assert(saved_type(0) == saved_boxcontext);
+        s = saved_value(0);     /* the box context */
       CONTINUE:
-        if (cur_cmd==relax_cmd || cur_cmd==spacer_cmd)
+        if (cur_cmd == relax_cmd || cur_cmd == spacer_cmd)
             get_x_token();
         if (scan_keyword("attr")) {
             scan_register_num();
@@ -145,16 +145,16 @@ void scan_spec(group_code c, boolean three_codes)
     scan_normal_dimen();
   FOUND:
     if (three_codes) {
-        set_saved_record(0,saved_boxcontext,0,s);
-        set_saved_record(1,saved_boxspec,spec_code,cur_val);
+        set_saved_record(0, saved_boxcontext, 0, s);
+        set_saved_record(1, saved_boxspec, spec_code, cur_val);
         /* DIR: Adjust |text_dir_ptr| for |scan_spec| */
         if (spec_direction != -1) {
-	    set_saved_record(2,saved_boxdir,spec_direction,text_dir_ptr);
+            set_saved_record(2, saved_boxdir, spec_direction, text_dir_ptr);
             text_dir_ptr = new_dir(spec_direction);
         } else {
-	    set_saved_record(2,saved_boxdir,spec_direction,null);
+            set_saved_record(2, saved_boxdir, spec_direction, null);
         }
-        set_saved_record(3,saved_boxattr,0,attr_list);
+        set_saved_record(3, saved_boxattr, 0, attr_list);
         save_ptr += 4;
         new_save_level(c);
         scan_left_brace();
@@ -163,7 +163,7 @@ void scan_spec(group_code c, boolean three_codes)
         eq_word_define(int_base + text_direction_code, spec_direction);
         eq_word_define(int_base + level_local_dir_code, cur_level);
     } else {
-        set_saved_record(0,saved_boxspec,spec_code,cur_val);
+        set_saved_record(0, saved_boxspec, spec_code, cur_val);
         save_ptr++;
         new_save_level(c);
         scan_left_brace();
@@ -1139,7 +1139,7 @@ halfword filtered_vpackage(halfword p, scaled h, int m, scaled l, integer grp)
     return vpackage(q, h, m, l);
 }
 
-void finish_vcenter (void)
+void finish_vcenter(void)
 {
     halfword p;
     unsave();
@@ -1162,11 +1162,12 @@ void package(int c)
     save_ptr -= 4;
     pack_direction = saved_level(2);
     if (cur_list.mode_field == -hmode) {
-        cur_box = filtered_hpack(cur_list.head_field, 
-				 cur_list.tail_field, saved_value(1), saved_level(1), grp);
+        cur_box = filtered_hpack(cur_list.head_field,
+                                 cur_list.tail_field, saved_value(1),
+                                 saved_level(1), grp);
     } else {
-        cur_box = filtered_vpackage(vlink(cur_list.head_field), 
-				    saved_value(1), saved_level(1), d, grp);
+        cur_box = filtered_vpackage(vlink(cur_list.head_field),
+                                    saved_value(1), saved_level(1), d, grp);
         if (c == vtop_code) {
             /* Readjust the height and depth of |cur_box|,  for \.{\\vtop} */
             /* The height of a `\.{\\vtop}' box is inherited from the first item on its list,
@@ -1662,7 +1663,7 @@ void begin_box(integer box_context)
         /* Here is where we enter restricted horizontal mode or internal vertical
            mode, in order to make a box. */
         k = cur_chr - vtop_code;
-        set_saved_record(0,saved_boxcontext,0,box_context);
+        set_saved_record(0, saved_boxcontext, 0, box_context);
         switch (abs(cur_list.mode_field)) {
         case vmode:
             spec_direction = body_direction;

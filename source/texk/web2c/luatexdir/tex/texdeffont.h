@@ -29,4 +29,3 @@ extern void set_cur_font(internal_font_number f);
 extern void tex_def_font(small_number a);
 
 #endif
-

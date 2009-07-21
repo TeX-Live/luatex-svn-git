@@ -360,8 +360,8 @@ void main_control(void)
     case vmode + stop_cmd:
         if (its_all_over())
             return;             /* this is the only way out */
-	break;
-        /* Math cases in non-math modes */	
+        break;
+        /* Math cases in non-math modes */
     case vmode + math_char_num_cmd:
     case vmode + math_given_cmd:
     case vmode + omath_given_cmd:
@@ -1199,12 +1199,12 @@ void handle_right_brace(void)
             depth(tail) = d;
             float_cost(tail) = f;
         } else if (saved_type(0) == saved_adjust) {
-            tail_append(new_node(adjust_node, saved_value(0))); 
+            tail_append(new_node(adjust_node, saved_value(0)));
             adjust_ptr(tail) = list_ptr(p);
             delete_glue_ref(q);
         } else {
-	    confusion("insert_group");
-	}
+            confusion("insert_group");
+        }
         list_ptr(p) = null;
         flush_node(p);
         if (nest_ptr == 0) {
@@ -1513,11 +1513,11 @@ void begin_insert_or_adjust(void)
             error();
             cur_val = 0;
         }
-	set_saved_record(0, saved_insert, 0, cur_val);
+        set_saved_record(0, saved_insert, 0, cur_val);
     } else if (scan_keyword("pre")) {
-	set_saved_record(0, saved_adjust, 0, 1);
+        set_saved_record(0, saved_adjust, 0, 1);
     } else {
-	set_saved_record(0, saved_adjust, 0, 0);
+        set_saved_record(0, saved_adjust, 0, 0);
     }
     save_ptr++;
     new_save_level(insert_group);
@@ -1694,7 +1694,7 @@ void append_italic_correction(void)
 void append_local_box(integer kind)
 {
     incr(save_ptr);
-    set_saved_record(-1,saved_boxtype,0,kind);
+    set_saved_record(-1, saved_boxtype, 0, kind);
     new_save_level(local_box_group);
     scan_left_brace();
     push_nest();
@@ -1730,7 +1730,7 @@ void append_discretionary(void)
         }
     } else {
         incr(save_ptr);
-        set_saved_record(-1,saved_disc,0,0);
+        set_saved_record(-1, saved_disc, 0, 0);
         new_save_level(disc_group);
         scan_left_brace();
         push_nest();
@@ -1748,7 +1748,7 @@ void build_local_box(void)
     halfword p;
     integer kind;
     unsave();
-    assert (saved_type(-1) == saved_boxtype);
+    assert(saved_type(-1) == saved_boxtype);
     kind = saved_value(-1);
     decr(save_ptr);
     p = vlink(head);
@@ -1807,7 +1807,7 @@ void build_discretionary(void)
 
     p = vlink(head);
     pop_nest();
-    assert (saved_type(-1) == saved_disc);
+    assert(saved_type(-1) == saved_disc);
     switch (saved_value(-1)) {
     case 0:
         if (n > 0) {
@@ -1843,7 +1843,7 @@ void build_discretionary(void)
         return;
         break;
     }                           /* there are no other cases */
-    set_saved_record(-1,saved_disc,0,(saved_value(-1)+1));
+    set_saved_record(-1, saved_disc, 0, (saved_value(-1) + 1));
     new_save_level(disc_group);
     scan_left_brace();
     push_nest();
@@ -1908,10 +1908,10 @@ void make_accent(void)
             delta = round((w - a) / float_constant(2) + h * t - x * s); /* real multiplication */
             r = new_kern(delta);
             subtype(r) = acc_kern;
-            couple_nodes(tail, r); 
+            couple_nodes(tail, r);
             couple_nodes(r, p);
-            tail = new_kern(-a - delta); 
-            subtype(tail) = acc_kern; 
+            tail = new_kern(-a - delta);
+            subtype(tail) = acc_kern;
             couple_nodes(p, tail);
             p = q;
 
@@ -2345,19 +2345,19 @@ void prefixed_command(void)
         /* DIR: Assign direction codes */
         scan_direction();
         switch (cur_chr) {
-        case int_base +page_direction_code:
-            eq_word_define(int_base +page_direction_code, cur_val);
+        case int_base + page_direction_code:
+            eq_word_define(int_base + page_direction_code, cur_val);
             break;
-        case int_base +body_direction_code:
-            eq_word_define(int_base +body_direction_code, cur_val);
+        case int_base + body_direction_code:
+            eq_word_define(int_base + body_direction_code, cur_val);
             break;
-        case int_base +par_direction_code:
-            eq_word_define(int_base +par_direction_code, cur_val);
+        case int_base + par_direction_code:
+            eq_word_define(int_base + par_direction_code, cur_val);
             break;
-        case int_base +math_direction_code:
-            eq_word_define(int_base +math_direction_code, cur_val);
+        case int_base + math_direction_code:
+            eq_word_define(int_base + math_direction_code, cur_val);
             break;
-        case int_base +text_direction_code:
+        case int_base + text_direction_code:
             if ((no_local_dirs > 0) && (abs(mode) == hmode)) {
                 /* DIR: Add local dir node */
                 tail_append(new_dir(text_direction));
@@ -2371,7 +2371,7 @@ void prefixed_command(void)
                 text_dir_ptr = text_dir_tmp;
 
             }
-            eq_word_define(int_base +text_direction_code, cur_val);
+            eq_word_define(int_base + text_direction_code, cur_val);
             /* DIR: Add to |text_dir_ptr| */
             text_dir_tmp = new_dir(text_direction);
             vlink(text_dir_tmp) = text_dir_ptr;
@@ -2801,7 +2801,8 @@ void assign_internal_value(int a, halfword p, integer cur_val)
         case output_box_code:
             if ((cur_val > 65535) | (cur_val < 0)) {
                 print_err("Invalid \\outputbox");
-                help1("The value for \\outputbox has to be between 0 and 65535.");
+                help1
+                    ("The value for \\outputbox has to be between 0 and 65535.");
                 error();
             } else {
                 word_define(p, cur_val);
@@ -2810,7 +2811,8 @@ void assign_internal_value(int a, halfword p, integer cur_val)
         case new_line_char_code:
             if (cur_val > 127) {
                 print_err("Invalid \\newlinechar");
-                help1("The value for \\newlinechar has to be between 0 and 127.");
+                help1
+                    ("The value for \\newlinechar has to be between 0 and 127.");
                 error();
             } else if (cur_val < 0) {
                 word_define(p, -1);
