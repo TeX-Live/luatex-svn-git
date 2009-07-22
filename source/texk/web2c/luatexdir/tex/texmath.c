@@ -1931,7 +1931,7 @@ void after_math(void)
         a = hpack(vlink(temp_head), 0, additional);
         unsave_math();
         decr(save_ptr);         /* now |cur_group=math_shift_group| */
-        assert(save_type(0) == saved_eqno);
+        assert(saved_type(0) == saved_eqno);
         if (saved_type(0) == 1)
             l = true;
         danger = check_necessary_fonts();
