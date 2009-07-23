@@ -2233,7 +2233,7 @@ The |out_what| procedure takes care of outputting whatsit nodes for
 void out_what(PDF pdf, halfword p)
 {
     int j;                      /* write stream number */
-    scaledpos pos;
+    scaledpos pos = { 0, 0 };
     switch (subtype(p)) {
     case open_node:
     case write_node:
@@ -2294,7 +2294,7 @@ void dvi_ship_out(halfword p)
 {
     /* output the box |p| */
     int j, k;                   /* indices to first ten count registers */
-    scaledpos cur;
+    scaledpos cur = { 0, 0 };
     integer page_loc;           /* location of the current |bop| */
     posstructure refpoint;      /* the origin pos. on the page */
     pool_pointer s;             /* index into |str_pool| */
