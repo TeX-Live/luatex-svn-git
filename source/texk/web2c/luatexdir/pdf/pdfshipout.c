@@ -80,7 +80,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 {                               /* output the box |p| */
     integer i, j, kk;           /* general purpose accumulators */
     pdf_object_list *k;
-    scaledpos cur;
+    scaledpos cur = { 0, 0 };
     scaledpos save_cur_page_size;       /* to save |cur_page_size| during flushing pending forms */
     posstructure refpoint;      /* the origin pos. on the page */
     scaled form_margin;

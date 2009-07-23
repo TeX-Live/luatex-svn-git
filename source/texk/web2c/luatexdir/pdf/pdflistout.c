@@ -268,9 +268,9 @@ void hlist_out(PDF pdf)
     real cur_glue;              /* glue seen so far */
     scaled cur_g;               /* rounded equivalent of |cur_glue| times the glue ratio */
     scaled_whd ci;
-    scaledpos size;             /* rule dimensions */
+    scaledpos size = { 0, 0 };  /* rule dimensions */
     int i;                      /* index to scan |pdf_link_stack| */
-    integer save_loc;           /* DVI! \.{DVI} byte location upon entry */
+    integer save_loc = 0;       /* DVI! \.{DVI} byte location upon entry */
     scaledpos save_dvi;         /* DVI! what |dvi| should pop to */
 
     cur_g = 0;
@@ -838,11 +838,11 @@ void vlist_out(PDF pdf)
     real glue_temp;             /* glue value before rounding */
     real cur_glue;              /* glue seen so far */
     scaled cur_g;               /* rounded equivalent of |cur_glue| times the glue ratio */
-    scaledpos size;             /* rule dimensions */
+    scaledpos size = { 0, 0 };  /* rule dimensions */
     scaled effective_vertical;
     scaledpos cur, basepoint;
     scaled edge_v;
-    integer save_loc;           /* DVI! \.{DVI} byte location upon entry */
+    integer save_loc = 0;       /* DVI! \.{DVI} byte location upon entry */
     scaledpos save_dvi;         /* DVI! what |dvi| should pop to */
 
     cur_g = 0;
