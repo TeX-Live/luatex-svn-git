@@ -72,6 +72,8 @@ typedef enum { PMODE_NONE, PMODE_PAGE, PMODE_TEXT, PMODE_CHARARRAY,
     PMODE_CHAR
 } pos_mode;
 
+typedef enum { OMODE_NONE, OMODE_DVI, OMODE_PDF, OMODE_LUA } output_mode;
+
 typedef struct pdf_object_list_ {
     int info;
     struct pdf_object_list_ *link;
@@ -165,6 +167,7 @@ typedef struct pdf_resource_struct_ {
 typedef struct pdf_output_file_ {
     FILE *file;                 /* the PDF output file handle */
     char *file_name;            /* the PDF output file name */
+    output_mode o_mode;         /* output mode (DVI/PDF/...) */
     /* generation parameters */
     int gamma;
     int image_gamma;

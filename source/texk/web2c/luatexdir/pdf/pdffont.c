@@ -1,5 +1,5 @@
 /* pdffont.c
- 
+
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -41,148 +41,127 @@ The |has_packet()| C macro checks for this condition.
 
 /* The following code typesets a character to PDF output */
 
-scaled output_one_char(PDF pdf, internal_font_number ffi, integer c)
+void output_one_char(PDF pdf, internal_font_number ffi, integer c)
 {
     scaled_whd ci;              /* the real width, height and depth of the character */
-    posstructure localpos = *(pdf->posstruct);  /* for the final transform */
-    scaled x = 0;
     ci = get_charinfo_whd(ffi, c);
-
-    switch (box_direction(localpos.dir)) {
+    switch (box_direction(pdf->posstruct->dir)) {
     case dir_TL_:
-        switch (font_direction(localpos.dir)) {
+        switch (font_direction(pdf->posstruct->dir)) {
         case dir__LL:
         case dir__LR:
-            lpos_down((ci.ht - ci.dp) / 2);
+            pos_down((ci.ht - ci.dp) / 2);
             break;
         case dir__LT:
             break;
         case dir__LB:
-            lpos_down(ci.ht);
+            pos_down(ci.ht);
             break;
         }
         break;
     case dir_TR_:
-        lpos_left(ci.wd);
-        switch (font_direction(localpos.dir)) {
+        pos_left(ci.wd);
+        switch (font_direction(pdf->posstruct->dir)) {
         case dir__RL:
         case dir__RR:
-            lpos_down((ci.ht - ci.dp) / 2);
+            pos_down((ci.ht - ci.dp) / 2);
             break;
         case dir__RT:
             break;
         case dir__RB:
-            lpos_down(ci.ht);
+            pos_down(ci.ht);
             break;
         }
         break;
     case dir_BL_:
-        switch (font_direction(localpos.dir)) {
+        switch (font_direction(pdf->posstruct->dir)) {
         case dir__LL:
         case dir__LR:
-            lpos_down((ci.ht - ci.dp) / 2);
+            pos_down((ci.ht - ci.dp) / 2);
             break;
         case dir__LT:
             break;
         case dir__LB:
-            lpos_down(ci.ht);
+            pos_down(ci.ht);
             break;
         }
         break;
     case dir_BR_:
-        lpos_left(ci.wd);
-        switch (font_direction(localpos.dir)) {
+        pos_left(ci.wd);
+        switch (font_direction(pdf->posstruct->dir)) {
         case dir__RL:
         case dir__RR:
-            lpos_down((ci.ht - ci.dp) / 2);
+            pos_down((ci.ht - ci.dp) / 2);
             break;
         case dir__RT:
             break;
         case dir__RB:
-            lpos_down(ci.ht);
+            pos_down(ci.ht);
             break;
         }
         break;
     case dir_LT_:
-        lpos_down(ci.ht);
-        switch (font_direction(localpos.dir)) {
+        pos_down(ci.ht);
+        switch (font_direction(pdf->posstruct->dir)) {
         case dir__TL:
-            lpos_left(ci.wd);
+            pos_left(ci.wd);
             break;
         case dir__TR:
             break;
         case dir__TB:
         case dir__TT:
-            lpos_left(ci.wd / 2);
+            pos_left(ci.wd / 2);
             break;
         }
         break;
     case dir_RT_:
-        lpos_down(ci.ht);
-        switch (font_direction(localpos.dir)) {
+        pos_down(ci.ht);
+        switch (font_direction(pdf->posstruct->dir)) {
         case dir__TL:
-            lpos_left(ci.wd);
+            pos_left(ci.wd);
             break;
         case dir__TR:
             break;
         case dir__TB:
         case dir__TT:
-            lpos_left(ci.wd / 2);
+            pos_left(ci.wd / 2);
             break;
         }
         break;
     case dir_LB_:
-        lpos_up(ci.dp);
-        switch (font_direction(localpos.dir)) {
+        pos_up(ci.dp);
+        switch (font_direction(pdf->posstruct->dir)) {
         case dir__BL:
-            lpos_left(ci.wd);
+            pos_left(ci.wd);
             break;
         case dir__BR:
             break;
         case dir__BB:
         case dir__BT:
-            lpos_left(ci.wd / 2);
+            pos_left(ci.wd / 2);
             break;
         }
         break;
     case dir_RB_:
-        lpos_up(ci.dp);
-        switch (font_direction(localpos.dir)) {
+        pos_up(ci.dp);
+        switch (font_direction(pdf->posstruct->dir)) {
         case dir__BL:
-            lpos_left(ci.wd);
+            pos_left(ci.wd);
             break;
         case dir__BR:
             break;
         case dir__BB:
         case dir__BT:
-            lpos_left(ci.wd / 2);
+            pos_left(ci.wd / 2);
             break;
         }
         break;
     }
-    *(pdf->posstruct) = localpos;
-
-    if (has_packet(ffi, c))
+    if (has_packet(ffi, c)) {
+        assert(pdf->o_mode == OMODE_PDF);
         do_vf_packet(pdf, ffi, c);
-    else
-        pdf_place_glyph(pdf, ffi, c);
-
-    switch (box_direction(localpos.dir)) {
-    case dir_TL_:
-    case dir_TR_:
-    case dir_BL_:
-    case dir_BR_:
-        x = ci.wd;              /* the horizontal movement (in box coordinate system) */
-        break;
-    case dir_LT_:
-    case dir_RT_:
-    case dir_LB_:
-    case dir_RB_:
-        x = ci.ht + ci.dp;
-        break;
-    default:;
-    }
-    return x;
+    } else
+        backend_out[glyph_node] (pdf, ffi, c);  /* pdf_place_glyph(pdf, ffi, c); */
 }
 
 /* mark |f| as a used font; set |font_used(f)|, |pdf_font_size(f)| and |pdf_font_num(f)| */

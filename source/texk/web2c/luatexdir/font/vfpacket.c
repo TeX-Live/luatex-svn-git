@@ -1,7 +1,7 @@
 /* vfpacket.c
-   
+
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -21,7 +21,8 @@
 #include "ptexlib.h"
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+    "$URL$";
 
 /*
   The |do_vf_packet| procedure is called in order to interpret the
@@ -126,7 +127,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
 {
     internal_font_number lf;
     charinfo *co;
-    scaledpos save_cur;
+    scaledpos size, cur;
     eight_bits *vf_packets;
     integer cur_packet_byte;
     integer cmd, fs_f;
@@ -148,12 +149,13 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
         return;
     }
 
+    cur.h = 0;
+    cur.v = 0;
+
     refpos = pdf->posstruct;
     pdf->posstruct = &localpos; /* use local structure for recursion */
+    localpos.pos = refpos->pos;
     localpos.dir = dir_TLT;     /* invariably for vf */
-
-    save_cur = cur;             /* TODO: make cur local */
-    set_to_zero(cur);
 
     cur_packet_byte = 0;
     fs_f = font_size(vf_f);
@@ -185,7 +187,6 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
             if (!char_exists(lf, k)) {
                 char_warning(lf, k);
             } else {
-                (void) new_synch_pos_with_cur(&localpos, refpos, cur);
                 if (has_packet(lf, k))
                     do_vf_packet(pdf, lf, k);
                 else
@@ -195,13 +196,11 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
             cur.h = cur.h + char_width(lf, k);
             break;
         case packet_rule_code:
-            packet_scaled(rule.ht, fs_f);
-            packet_scaled(rule.wd, fs_f);
-            if ((rule.wd > 0) && (rule.ht > 0)) {
-                (void) new_synch_pos_with_cur(&localpos, refpos, cur);
-                pdf_place_rule(pdf, rule.wd, rule.ht);
-            }
-            cur.h = cur.h + rule.wd;
+            packet_scaled(size.v, fs_f);        /* height (where is depth?) */
+            packet_scaled(size.h, fs_f);
+            if (size.h > 0 && size.v > 0)
+                pdf_place_rule(pdf, size);
+            cur.h = cur.h + size.h;
             break;
         case packet_right_code:
             packet_scaled(i, fs_f);
@@ -219,28 +218,25 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
                 append_char(do_packet_byte());
             }
             s = make_string();
-            (void) new_synch_pos_with_cur(&localpos, refpos, cur);
             pdf_literal(pdf, s, scan_special, false);
             flush_str(s);
             break;
         case packet_image_code:
             packet_number(k);
-            (void) new_synch_pos_with_cur(&localpos, refpos, cur);
             vf_out_image(pdf, k);
             break;
         case packet_node_code:
             packet_number(k);
             temp_ptr = k;
-            (void) new_synch_pos_with_cur(&localpos, refpos, cur);
-            pdf_hlist_out(pdf);
+            hlist_out(pdf);
             break;
         case packet_nop_code:
             break;
         default:
             pdf_error("vf", "invalid DVI command (2)");
         }
-    };
-    cur = save_cur;
+        synch_pos_with_cur(&localpos, refpos, cur);     /* trivial case, always TLT */
+    }
     packet_cur_s--;
     pdf->posstruct = refpos;
 }

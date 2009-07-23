@@ -23,21 +23,26 @@
 #  define PDFLISTOUT_H
 
 /* a few small helpers */
-#  define pos_right(A) pos.h = pos.h + (A)
-#  define pos_left(A)  pos.h = pos.h - (A)
-#  define pos_up(A)    pos.v = pos.v + (A)
-#  define pos_down(A)  pos.v = pos.v - (A)
+#  define pos_right(A) pdf->posstruct->pos.h = pdf->posstruct->pos.h + (A)
+#  define pos_left(A)  pdf->posstruct->pos.h = pdf->posstruct->pos.h - (A)
+#  define pos_up(A)    pdf->posstruct->pos.v = pdf->posstruct->pos.v + (A)
+#  define pos_down(A)  pdf->posstruct->pos.v = pdf->posstruct->pos.v - (A)
 
-#  define lpos_right(A) localpos.pos.h = localpos.pos.h + (A)
-#  define lpos_left(A)  localpos.pos.h = localpos.pos.h - (A)
-#  define lpos_up(A)    localpos.pos.v = localpos.pos.v + (A)
-#  define lpos_down(A)  localpos.pos.v = localpos.pos.v - (A)
-
+extern void init_pdf_output_functions(PDF pdf);
+extern void init_dvi_output_functions(PDF pdf);
 extern scaled simple_advance_width(halfword p);
 extern void calculate_width_to_enddir(halfword p, real cur_glue, scaled cur_g,
                                       halfword this_box, scaled * setw,
                                       halfword * settemp_ptr);
-extern void pdf_hlist_out(PDF pdf);
-extern void pdf_vlist_out(PDF pdf);
+extern void hlist_out(PDF pdf);
+extern void vlist_out(PDF pdf);
+
+/**********************************************************************/
+
+typedef void (*node_output_function) ();
+typedef void (*whatsit_output_function) ();
+
+extern node_output_function backend_out[];
+extern whatsit_output_function backend_out_whatsit[];
 
 #endif

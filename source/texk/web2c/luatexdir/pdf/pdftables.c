@@ -257,8 +257,10 @@ void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur,
     else
         ur.v = -alt_rule.ht;
 
-    pos_ll = new_synch_pos_with_cur(&localpos, pdf->posstruct, ll);
-    pos_ur = new_synch_pos_with_cur(&localpos, pdf->posstruct, ur);
+    synch_pos_with_cur(&localpos, pdf->posstruct, ll);
+    pos_ll = localpos.pos;
+    synch_pos_with_cur(&localpos, pdf->posstruct, ur);
+    pos_ur = localpos.pos;
 
     if (pos_ll.h > pos_ur.h) {
         tmp.h = pos_ll.h;
@@ -286,6 +288,7 @@ void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur,
 
 void initialize_pdf_output(PDF pdf)
 {
+    init_pdf_output_functions(pdf);
     if ((pdf_minor_version < 0) || (pdf_minor_version > 9)) {
         char *hlp[] = { "The pdfminorversion must be between 0 and 9.",
             "I changed this to 4.", NULL

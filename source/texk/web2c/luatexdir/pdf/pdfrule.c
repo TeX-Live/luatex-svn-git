@@ -26,27 +26,27 @@ static const char __svn_version[] =
 
 #define lround(a) (long) floor((a) + 0.5)
 
-void pdf_place_rule(PDF pdf, scaled wd, scaled ht)
+void pdf_place_rule(PDF pdf, scaledpos size)
 {
     pdfpos dim;
     pdfstructure *p = pdf->pstruct;
     scaledpos pos = pdf->posstruct->pos;
     pdf_goto_pagemode(pdf);
-    dim.h.m = lround(wd * p->k1);
+    dim.h.m = lround(size.h * p->k1);
     dim.h.e = p->pdf.h.e;
-    dim.v.m = lround(ht * p->k1);
+    dim.v.m = lround(size.v * p->k1);
     dim.v.e = p->pdf.v.e;
     pdf_printf(pdf, "q\n");
-    if (ht <= one_bp) {
-        pos.v += lround(0.5 * ht);
+    if (size.v <= one_bp) {
+        pos.v += lround(0.5 * size.v);
         pdf_set_pos_temp(pdf, pos);
         pdf_printf(pdf, "[]0 d 0 J ");
         print_pdffloat(pdf, dim.v);
         pdf_printf(pdf, " w 0 0 m ");
         print_pdffloat(pdf, dim.h);
         pdf_printf(pdf, " 0 l S\n");
-    } else if (wd <= one_bp) {
-        pos.h += lround(0.5 * wd);
+    } else if (size.h <= one_bp) {
+        pos.h += lround(0.5 * size.h);
         pdf_set_pos_temp(pdf, pos);
         pdf_printf(pdf, "[]0 d 0 J ");
         print_pdffloat(pdf, dim.h);

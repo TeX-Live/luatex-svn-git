@@ -74,8 +74,8 @@ void pdf_page_init(PDF pdf)
 
 /**********************************************************************/
 
-scaledpos new_synch_pos_with_cur(posstructure * pos, posstructure * refpos,
-                                 scaledpos cur)
+void synch_pos_with_cur(posstructure * pos, posstructure * refpos,
+                        scaledpos cur)
 {
     switch (box_direction(pos->dir)) {
     case dir_TL_:
@@ -113,7 +113,6 @@ scaledpos new_synch_pos_with_cur(posstructure * pos, posstructure * refpos,
     default:
         assert(0);
     }
-    return pos->pos;
 }
 
 /**********************************************************************/

@@ -659,7 +659,7 @@ static inline void synctex_record_vlist(halfword p);
  *  address of the vlist We assume that p is really a vlist node! */
 void synctex_vlist(halfword this_box)
 {
-    scaledpos pos;
+    scaledpos pos = static_pdf->posstruct->pos;
 	SYNCTEX_RETURN_IF_DISABLED;
 #if SYNCTEX_DEBUG
     printf("\nSynchronize DEBUG: synctexhlist\n");
@@ -671,7 +671,6 @@ void synctex_vlist(halfword this_box)
     synctex_ctxt.recorder = NULL;   /*  reset  */
     synctex_ctxt.tag = SYNCTEX_TAG_MODEL(this_box,box_node_size);
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(this_box,box_node_size);
-    pos = synch_p_with_c(cur);
 	synctex_ctxt.curh = pos.h - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287);
 	synctex_ctxt.curv = cur_page_size.v - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287) - pos.v;
     synctex_record_vlist(this_box);
@@ -685,7 +684,7 @@ static inline void synctex_record_tsilv(halfword p);
  *  synctex_vlist sent at the beginning of that procedure.    */
 void synctex_tsilv(halfword this_box)
 {
-    scaledpos pos;
+    scaledpos pos = static_pdf->posstruct->pos;
 	SYNCTEX_RETURN_IF_DISABLED;
 #if SYNCTEX_DEBUG
     printf("\nSynchronize DEBUG: synctextsilv\n");
@@ -697,7 +696,6 @@ void synctex_tsilv(halfword this_box)
     synctex_ctxt.node = this_box; /*  0 to reset  */
     synctex_ctxt.tag = SYNCTEX_TAG_MODEL(this_box,box_node_size);
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(this_box,box_node_size);
-    pos = synch_p_with_c(cur);
 	synctex_ctxt.curh = pos.h - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287);
 	synctex_ctxt.curv = cur_page_size.v - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287) - pos.v;
     synctex_ctxt.recorder = NULL;
@@ -710,7 +708,7 @@ static inline void synctex_record_void_vlist(halfword p);
  *  There is no need to balance a void vlist.  */
 void synctex_void_vlist(halfword p, halfword this_box)
 {
-    scaledpos pos;
+    scaledpos pos = static_pdf->posstruct->pos;
     (void)this_box;
 	SYNCTEX_RETURN_IF_DISABLED;
 #if SYNCTEX_DEBUG
@@ -722,7 +720,6 @@ void synctex_void_vlist(halfword p, halfword this_box)
     synctex_ctxt.node = p;          /*  reset  */
     synctex_ctxt.tag = SYNCTEX_TAG_MODEL(p,box_node_size);
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(p,box_node_size);
-    pos = synch_p_with_c(cur);
 	synctex_ctxt.curh = pos.h - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287);
 	synctex_ctxt.curv = cur_page_size.v - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287) - pos.v;
     synctex_ctxt.recorder = NULL;   /*  reset  */
@@ -737,7 +734,7 @@ static inline void synctex_record_hlist(halfword p);
  *  address of the hlist We assume that p is really an hlist node! */
 void synctex_hlist(halfword this_box)
 {
-    scaledpos pos;
+    scaledpos pos = static_pdf->posstruct->pos;
 	SYNCTEX_RETURN_IF_DISABLED;
 #if SYNCTEX_DEBUG
     printf("\nSynchronize DEBUG: synctexhlist\n");
@@ -748,7 +745,6 @@ void synctex_hlist(halfword this_box)
     synctex_ctxt.node = this_box;   /*  0 to reset  */
     synctex_ctxt.tag = SYNCTEX_TAG_MODEL(this_box,box_node_size);
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(this_box,box_node_size);
-    pos = synch_p_with_c(cur);
 	synctex_ctxt.curh = pos.h - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287);
 	synctex_ctxt.curv = cur_page_size.v - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287) - pos.v;
     synctex_ctxt.recorder = NULL;   /*  reset  */
@@ -763,7 +759,7 @@ static inline void synctex_record_tsilh(halfword p);
  *  synctex_hlist sent at the beginning of that procedure.    */
 void synctex_tsilh(halfword this_box)
 {
-    scaledpos pos;
+    scaledpos pos = static_pdf->posstruct->pos;
 	SYNCTEX_RETURN_IF_DISABLED;
 #if SYNCTEX_DEBUG
     printf("\nSynchronize DEBUG: synctextsilh\n");
@@ -775,7 +771,6 @@ void synctex_tsilh(halfword this_box)
     synctex_ctxt.node = this_box;     /*  0 to force next node to be recorded!  */
     synctex_ctxt.tag = SYNCTEX_TAG_MODEL(this_box,box_node_size);
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(this_box,box_node_size);
-    pos = synch_p_with_c(cur);
 	synctex_ctxt.curh = pos.h - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287);
 	synctex_ctxt.curv = cur_page_size.v - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287) - pos.v;
     synctex_ctxt.recorder = NULL;   /*  reset  */
@@ -788,7 +783,7 @@ static inline void synctex_record_void_hlist(halfword p);
  *  There is no need to balance a void hlist.  */
 void synctex_void_hlist(halfword p, halfword this_box)
 {
-    scaledpos pos;
+    scaledpos pos = static_pdf->posstruct->pos;
     (void)this_box;
 	SYNCTEX_RETURN_IF_DISABLED;
 #if SYNCTEX_DEBUG
@@ -805,7 +800,6 @@ void synctex_void_hlist(halfword p, halfword this_box)
     synctex_ctxt.node = p;          /*  0 to reset  */
     synctex_ctxt.tag = SYNCTEX_TAG_MODEL(p,box_node_size);
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(p,box_node_size);
-    pos = synch_p_with_c(cur);
 	synctex_ctxt.curh = pos.h - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287);
 	synctex_ctxt.curv = cur_page_size.v - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287) - pos.v;
     synctex_ctxt.recorder = NULL;   /*  reset  */
@@ -839,7 +833,7 @@ void synctex_math_recorder(halfword p);
         See: @ @<Output the non-|char_node| |p| for...  */
 void synctex_math(halfword p, halfword this_box)
 {
-    scaledpos pos;
+    scaledpos pos = static_pdf->posstruct->pos;
     (void)this_box;
 	SYNCTEX_RETURN_IF_DISABLED;
 #if SYNCTEX_DEBUG
@@ -855,7 +849,6 @@ void synctex_math(halfword p, halfword this_box)
     synctex_ctxt.node = p;
     synctex_ctxt.tag = SYNCTEX_TAG_MODEL(p,medium_node_size);
     synctex_ctxt.line = SYNCTEX_LINE_MODEL(p,medium_node_size);
-    pos = synch_p_with_c(cur);
 	synctex_ctxt.curh = pos.h - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287);
 	synctex_ctxt.curv = cur_page_size.v - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287) - pos.v;
     synctex_ctxt.recorder = NULL;/*  no need to record once more  */
@@ -873,7 +866,7 @@ static inline void synctex_record_rule(halfword p);
                                 || (0 >= SYNCTEX_LINE_MODEL(NODE,rule_node_size))
 void synctex_horizontal_rule_or_glue(halfword p, halfword this_box)
 {
-    scaledpos pos;
+    scaledpos pos = static_pdf->posstruct->pos;
     (void)this_box;
 	SYNCTEX_RETURN_IF_DISABLED;
 #if SYNCTEX_DEBUG
@@ -890,7 +883,6 @@ void synctex_horizontal_rule_or_glue(halfword p, halfword this_box)
 		}
 	}
 	synctex_ctxt.node = p;
-        pos = synch_p_with_c(cur);
 	synctex_ctxt.curh = pos.h - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287);
 	synctex_ctxt.curv = cur_page_size.v - ((SYNCTEX_OFFSET_IS_PDF != 0) ? 0 : 4736287) - pos.v;
 	synctex_ctxt.recorder = NULL;
@@ -1014,7 +1006,7 @@ void synctexnode(halfword p, halfword this_box)
          synchronously for the current location    */
 void synctex_current(void)
 {
-    scaledpos pos;
+    scaledpos pos = static_pdf->posstruct->pos;
 	SYNCTEX_RETURN_IF_DISABLED;
 #if SYNCTEX_DEBUG
     printf("\nSynchronize DEBUG: synctexcurrent\n");
@@ -1023,7 +1015,6 @@ void synctex_current(void)
         return;
     } else {
                 size_t len;
-		pos = synch_p_with_c(cur);
 		len = SYNCTEX_fprintf(SYNCTEX_FILE,"x%i,%i:%i,%i\n",
 			synctex_ctxt.tag,synctex_ctxt.line,
 			pos.h UNIT,pos.v UNIT);

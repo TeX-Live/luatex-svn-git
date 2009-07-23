@@ -248,10 +248,8 @@ void check_running_thread(PDF pdf, halfword this_box, posstructure * refpos,
                           scaledpos cur)
 {
     if ((pdf->last_thread != null) && is_running(pdf->thread.dp)
-        && (pdf->thread_level == cur_s)) {
-        (void) new_synch_pos_with_cur(pdf->posstruct, refpos, cur);
+        && (pdf->thread_level == cur_s))
         append_thread(pdf, this_box, cur);
-    }
 }
 
 void print_beads_list(PDF pdf)

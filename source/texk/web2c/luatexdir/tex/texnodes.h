@@ -300,21 +300,23 @@ typedef enum {
     split_up_node,
     expr_node,
     nesting_node,
-    span_node,
+    span_node,                  /* 45 */
     attribute_node,
     glue_spec_node,
     attribute_list_node,
     action_node,
-    temp_node,
+    temp_node,                  /* 50 */
     align_stack_node,
     movement_node,
     if_node,
     unhyphenated_node,
-    hyphenated_node,
+    hyphenated_node,            /* 55 */
     delta_node,
     passive_node,
     shape_node,
 } node_types;
+
+#  define MAX_NODE_TYPE 58
 
 #  define last_known_node temp_node     /* used by \lastnodetype */
 
@@ -450,6 +452,7 @@ typedef enum {
     user_defined_node           /* 44 */
 } whatsit_types;
 
+#  define MAX_WHATSIT_TYPE 44
 
 #  define  get_node_size(i,j) (i!=whatsit_node ? node_data[i].size : whatsit_node_data[j].size)
 #  define  get_node_name(i,j) (i!=whatsit_node ? node_data[i].name : whatsit_node_data[j].name)

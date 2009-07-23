@@ -24,18 +24,18 @@ static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
-static int findcurv(lua_State * L)
+static int find_pos_h(lua_State * L)
 {
     int j;
-    j = get_cur_v();
+    j = static_pdf->posstruct->pos.h;
     lua_pushnumber(L, j);
     return 1;
 }
 
-static int findcurh(lua_State * L)
+static int find_pos_v(lua_State * L)
 {
     int j;
-    j = get_cur_h();
+    j = static_pdf->posstruct->pos.v;
     lua_pushnumber(L, j);
     return 1;
 }
@@ -85,8 +85,7 @@ int luapdfprint(lua_State * L)
     switch (literal_mode) {
     case (set_origin):
         pdf_goto_pagemode(static_pdf);
-        pos = synch_p_with_c(cur);
-        pdf_set_pos(static_pdf, pos);
+        pdf_set_pos(static_pdf, static_pdf->posstruct->pos);
         break;
     case (direct_page):
         pdf_goto_pagemode(static_pdf);
@@ -300,9 +299,9 @@ static int getpdf(lua_State * L)
         st = (char *) lua_tostring(L, 2);
         if (st && *st) {
             if (*st == 'h')
-                return findcurh(L);
+                return find_pos_h(L);
             else if (*st == 'v')
-                return findcurv(L);
+                return find_pos_v(L);
         }
     }
     lua_pushnil(L);

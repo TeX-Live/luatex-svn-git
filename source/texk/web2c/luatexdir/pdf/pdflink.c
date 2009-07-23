@@ -86,7 +86,7 @@ void end_link(PDF pdf)
     if (is_running(pdf_width(pdf->link_stack[pdf->link_stack_ptr].link_node))) {
         p = pdf->link_stack[pdf->link_stack_ptr].ref_link_node;
         if (is_shipping_page && matrixused()) {
-            matrixrecalculate(cur.h + pdf_link_margin);
+            matrixrecalculate(pos.h + pdf_link_margin);
             pdf_ann_left(p) = getllx() - pdf_link_margin;
             pdf_ann_top(p) = cur_page_size.v - getury() - pdf_link_margin;
             pdf_ann_right(p) = geturx() + pdf_link_margin;

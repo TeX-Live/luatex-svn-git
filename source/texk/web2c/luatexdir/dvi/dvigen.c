@@ -1,5 +1,5 @@
 /* dvigen.c
-   
+
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -25,8 +25,6 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-
-
 #define mode cur_list.mode_field        /* current mode */
 
 #define pdf_output int_par(pdf_output_code)
@@ -45,7 +43,6 @@ static const char __svn_version[] =
 #define v_offset dimen_par(v_offset_code)
 
 #define count(A) eqtb[count_base+(A)].cint
-
 
 /*
 The most important output produced by a run of \TeX\ is the ``device
@@ -1038,33 +1035,10 @@ void prune_movements(integer l)
     }
 }
 
-scaledpos synch_p_with_c(scaledpos cur)
-{
-    scaledpos pos;
-    pos.h = 0;                  /* FIXME: init is only done to silence a compiler warning */
-    pos.v = 0;                  /* FIXME: init is only done to silence a compiler warning */
-    synch_pos_with_cur();
-    return pos;
-}
-
-scaledpos cur;                  /* \TeX\ position relative to origin of the surrounding box, in box coordinate system */
-scaledpos box_pos;              /* position of box origin in page coordinates */
-scaledpos pos;                  /* global position on page, in $\rm sp$, from lower left page corner */
 scaledpos dvi;                  /* a \.{DVI} position in page coordinates, in sync with DVI file */
 internal_font_number dvi_f;     /* the current font */
 
 scaledpos cur_page_size;
-
-integer get_cur_v(void)
-{
-    return (cur_page_size.v - cur.v);
-}
-
-integer get_cur_h(void)
-{
-    return cur.h;
-}
-
 
 /*
 When |hlist_out| is called, its duty is to output the box represented
@@ -1084,6 +1058,43 @@ entering a new level of recursion.  In effect, the value of |save_dvi|
 on \TeX's run-time stack corresponds to the values of |h| and |v|
 that a \.{DVI}-reading program will push onto its coordinate stack.
 */
+
+void dvi_place_rule(PDF pdf, scaledpos size)
+{
+    synch_dvi_with_pos(pdf->posstruct->pos);
+    if (dir_secondary[pdf->posstruct->dir] == dir_L) {
+        dvi_out(set_rule);      /* movement optimization for dir_*L* */
+        dvi.h += size.h;
+    } else
+        dvi_out(put_rule);
+    dvi_four(size.v);
+    dvi_four(size.h);
+}
+
+void dvi_place_glyph(PDF pdf, internal_font_number f, integer c)
+{
+    scaled_whd ci;
+    synch_dvi_with_pos(pdf->posstruct->pos);
+    if (f != dvi_f) {
+        /* Change font |dvi_f| to |f| */
+        if (!font_used(f)) {
+            dvi_font_def(f);
+            set_font_used(f, true);
+        }
+        oval = f - 1;
+        ocmd = fnt1;
+        out_cmd();
+        dvi_f = f;
+    }
+    if (dir_secondary[pdf->posstruct->dir] == dir_L) {
+        ci = get_charinfo_whd(f, c);
+        dvi_set(c, ci.wd);      /* movement optimization for dir_*L* */
+    } else
+        dvi_put(c);
+}
+
+/**********************************************************************/
+#if 0 /* obsolete code, kept for reference */
 
 void hlist_out(void)
 {                               /* output an |hlist_node| box */
@@ -1120,7 +1131,8 @@ void hlist_out(void)
     g_order = glue_order(this_box);
     g_sign = glue_sign(this_box);
     p = list_ptr(this_box);
-    set_to_zero(cur);
+    cur.h = 0;
+    cur.v = 0;
     box_pos = pos;
     save_direction = dvi_direction;
     dvi_direction = box_dir(this_box);
@@ -1157,7 +1169,7 @@ void hlist_out(void)
                     cur.h = cur.h + x_displace(p);
                 if (y_displace(p) != 0)
                     cur.v = cur.v - y_displace(p);
-                synch_pos_with_cur();
+                synch_pos_with_cur();   /* won't work anymore */
                 f = font(p);
                 c = character(p);
                 ci = get_charinfo_whd(f, c);
@@ -1414,9 +1426,10 @@ void hlist_out(void)
                         dir_cur_v(temp_ptr) = cur.v;
                         dir_box_pos_h(temp_ptr) = box_pos.h;
                         dir_box_pos_v(temp_ptr) = box_pos.v;
-                        synch_pos_with_cur();   /* no need for |synch_dvi_with_cur|, as there is no DVI grouping */
+                        synch_pos_with_cur();   /* won't work anymore, no need for |synch_dvi_with_cur|, as there is no DVI grouping */
                         box_pos = pos;  /* fake a nested |hlist_out| */
-                        set_to_zero(cur);
+                        cur.h = 0;
+                        cur.v = 0;
                         dvi_direction = dir_dir(dir_ptr);
                     } else {
                         pop_dir_node();
@@ -1617,7 +1630,7 @@ void hlist_out(void)
             rule.ht = rule.ht + rule.dp;        /* this is the rule thickness */
             if ((rule.ht > 0) && (rule.wd > 0)) {       /* we don't output empty rules */
                 cur.v = base_line + rule.dp;
-                synch_pos_with_cur();
+                synch_pos_with_cur();   /* won't work anymore */
                 switch (box_direction(dvi_direction)) {
                 case dir_TL_:
                     dvi_set_rule(rule.ht, rule.wd);
@@ -1709,7 +1722,8 @@ void vlist_out(void)
     g_order = glue_order(this_box);
     g_sign = glue_sign(this_box);
     p = list_ptr(this_box);
-    set_to_zero(cur);
+    cur.h = 0;
+    cur.v = 0;
     box_pos = pos;
     save_direction = dvi_direction;
     dvi_direction = box_dir(this_box);
@@ -1974,7 +1988,7 @@ void vlist_out(void)
             rule.ht = rule.ht + rule.dp;        /* this is the rule thickness */
             cur.v = cur.v + rule.ht;
             if ((rule.ht > 0) && (rule.wd > 0)) {       /* we don't output empty rules */
-                synch_pos_with_cur();
+                synch_pos_with_cur();   /* won't work anymore */
                 switch (box_direction(dvi_direction)) {
                 case dir_TL_:
                     dvi_put_rule(rule.ht, rule.wd);
@@ -2028,6 +2042,9 @@ void vlist_out(void)
     dvi_direction = save_direction;
 }
 
+#endif /* obsolete code, kept for reference */
+/**********************************************************************/
+
 /*
 Here's an example of how these conventions are used. Whenever it is time to
 ship out a box of stuff, we shall use the macro |ensure_dvi_open|.
@@ -2047,11 +2064,11 @@ void ensure_dvi_open(void)
 }
 
 
-void special_out(halfword p)
+void dvi_special(PDF pdf, halfword p)
 {
     int old_setting;            /* holds print |selector| */
     pool_pointer k;             /* index into |str_pool| */
-    synch_dvi_with_cur();
+    synch_dvi_with_pos(pdf->posstruct->pos);
     old_setting = selector;
     selector = new_string;
     show_token_list(token_link(write_tokens(p)), null, pool_size - pool_ptr);
@@ -2209,14 +2226,11 @@ void write_out(halfword p)
     selector = old_setting;
 }
 
-
-
-
 /*
 The |out_what| procedure takes care of outputting whatsit nodes for
 |vlist_out| and |hlist_out|. */
 
-void out_what(halfword p)
+void out_what(PDF pdf, halfword p)
 {
     int j;                      /* write stream number */
     scaledpos pos;
@@ -2254,11 +2268,9 @@ void out_what(halfword p)
         }
         break;
     case special_node:
-        special_out(p);
+        dvi_special(pdf, p);
         break;
     case pdf_save_pos_node:
-        /* Save current position */
-        pos = synch_p_with_c(cur);
         pdf_last_x_pos = pos.h;
         pdf_last_y_pos = pos.v;
         break;
@@ -2273,9 +2285,6 @@ void out_what(halfword p)
     }
 }
 
-
-
-
 /* 
 The |hlist_out| and |vlist_out| procedures are now complete, so we are
 ready for the |dvi_ship_out| routine that gets them started in the first place.
@@ -2284,13 +2293,17 @@ ready for the |dvi_ship_out| routine that gets them started in the first place.
 void dvi_ship_out(halfword p)
 {
     /* output the box |p| */
-    integer page_loc;           /* location of the current |bop| */
     int j, k;                   /* indices to first ten count registers */
+    scaledpos cur;
+    integer page_loc;           /* location of the current |bop| */
+    posstructure refpoint;      /* the origin pos. on the page */
     pool_pointer s;             /* index into |str_pool| */
     int old_setting;            /* saved |selector| setting */
     integer pre_callback_id;
     integer post_callback_id;
     boolean ret;
+
+    init_dvi_output_functions(static_pdf);
 
     if (half_buf == 0) {
         half_buf = dvi_buf_size / 2;
@@ -2365,14 +2378,14 @@ void dvi_ship_out(halfword p)
         max_h = width(p) + h_offset;
 
     /* Initialize variables as |ship_out| begins */
-    set_to_zero(dvi);
-    set_to_zero(cur);
+    dvi.h = 0;
+    dvi.v = 0;
     dvi_f = null_font;
     /* Calculate DVI page dimensions and margins */
     if (page_width > 0) {
         cur_page_size.h = page_width;
     } else {
-        switch (box_direction(dvi_direction)) {
+        switch (box_direction(page_direction)) {
         case dir_TL_:
         case dir_BL_:
             cur_page_size.h = width(p) + 2 * page_left_offset;
@@ -2393,7 +2406,7 @@ void dvi_ship_out(halfword p)
     if (page_height > 0) {
         cur_page_size.v = page_height;
     } else {
-        switch (box_direction(dvi_direction)) {
+        switch (box_direction(page_direction)) {
         case dir_TL_:
         case dir_TR_:
             cur_page_size.v = height(p) + depth(p) + 2 * page_top_offset;
@@ -2449,15 +2462,16 @@ void dvi_ship_out(halfword p)
         dvi_four(count(k));
     dvi_four(last_bop);
     last_bop = page_loc;
+
     /* Think in upright page/paper coordinates): First preset |pos.h| and |pos.v| to the DVI origin. */
-    pos.h = one_true_inch;
-    pos.v = cur_page_size.v - one_true_inch;
-    box_pos = pos;
-    dvi = pos;
+
+    refpoint.pos.h = one_true_inch;
+    refpoint.pos.v = cur_page_size.v - one_true_inch;
+    dvi = refpoint.pos;
+
     /* Then calculate |cur.h| and |cur.v| within the upright coordinate system
        for the DVI origin depending on the |page_direction|. */
-    dvi_direction = page_direction;
-    switch (box_direction(dvi_direction)) {
+    switch (box_direction(page_direction)) {
     case dir_TL_:
     case dir_LT_:
         cur.h = h_offset;
@@ -2480,20 +2494,24 @@ void dvi_ship_out(halfword p)
         break;
     }
     /* The movement is actually done within the upright page coordinate system. */
-    dvi_direction = dir_TL_;    /* only temporarily for this adjustment */
-    synch_pos_with_cur();
-    box_pos = pos;              /* keep track on page */
+    static_pdf->posstruct->dir = dir_TLT;       /* only temporarily for this adjustment */
+
+    synch_pos_with_cur(static_pdf->posstruct, &refpoint, cur);
+
     /* Then switch to page box coordinate system; do |height(p)| movement. */
-    dvi_direction = page_direction;
+    refpoint.pos = static_pdf->posstruct->pos;
+    static_pdf->posstruct->dir = page_direction;
     cur.h = 0;
     cur.v = height(p);
-    synch_pos_with_cur();
+
+    synch_pos_with_cur(static_pdf->posstruct, &refpoint, cur);
+
     /* Now we are at the point on the page where the origin of the page box should go. */
     temp_ptr = p;
     if (type(p) == vlist_node)
-        vlist_out();
+        vlist_out(static_pdf);
     else
-        hlist_out();
+        hlist_out(static_pdf);
     dvi_out(eop);
     incr(total_pages);
     cur_s = -1;

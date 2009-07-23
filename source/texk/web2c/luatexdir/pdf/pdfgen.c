@@ -53,6 +53,8 @@ PDF initialize_pdf(void)
     pdf = xmalloc(sizeof(pdf_output_file));
     memset(pdf, 0, sizeof(pdf_output_file));
 
+    pdf->o_mode = OMODE_PDF;
+
     pdf->os_obj = xmalloc(pdf_os_max_objs * sizeof(os_obj_data));
     pdf->os_buf_size = inf_pdf_os_buf_size;
     pdf->os_buf = xmalloc(pdf->os_buf_size * sizeof(unsigned char));

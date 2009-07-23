@@ -1,5 +1,5 @@
 /* pdfshipout.c
-   
+
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -17,13 +17,13 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+static const char __svn_version[] =
+    "$Id$"
+    "$URL$";
+
 #include "ptexlib.h"
 
-
-
-
 #define count(A) eqtb[count_base+(A)].cint
-
 
 #define pdf_output int_par(pdf_output_code)
 #define pdf_gen_tounicode int_par(pdf_gen_tounicode_code)
@@ -44,10 +44,6 @@
 #define pdf_page_attr equiv(pdf_page_attr_loc)
 #define pdf_pages_attr equiv(pdf_pages_attr_loc)
 #define pdf_page_resources equiv(pdf_page_resources_loc)
-
-static const char __svn_version[] =
-    "$Id$"
-    "$URL$";
 
 integer page_divert_val;
 
@@ -84,7 +80,9 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 {                               /* output the box |p| */
     integer i, j, kk;           /* general purpose accumulators */
     pdf_object_list *k;
+    scaledpos cur;
     scaledpos save_cur_page_size;       /* to save |cur_page_size| during flushing pending forms */
+    posstructure refpoint;       /* the origin pos. on the page */
     scaled form_margin;
     pdf_resource_struct resources;
     integer pre_callback_id;
@@ -168,7 +166,6 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     last_resources = pdf_new_objnum(pdf);
     reset_resource_lists(&resources);
     pdf->resources = &resources;
-    dvi_direction = page_direction;
 
     /* Calculate PDF page dimensions and margins */
     if (is_shipping_page) {
@@ -177,7 +174,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         if (page_width > 0) {
             cur_page_size.h = page_width;
         } else {
-            switch (box_direction(dvi_direction)) {
+            switch (box_direction(page_direction)) {
             case dir_TL_:
             case dir_BL_:
                 cur_page_size.h = width(p) + 2 * page_left_offset;
@@ -199,7 +196,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         if (page_height > 0) {
             cur_page_size.v = page_height;
         } else {
-            switch (box_direction(dvi_direction)) {
+            switch (box_direction(page_direction)) {
             case dir_TL_:
             case dir_TR_:
                 cur_page_size.v = height(p) + depth(p) + 2 * page_top_offset;
@@ -220,13 +217,13 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         }
 
         /* Think in upright page/paper coordinates: First preset |pos.h| and |pos.v| to the DVI origin. */
-        pos.h = pdf_h_origin;
-        pos.v = cur_page_size.v - pdf_v_origin;
-        box_pos = pos;
+
+        refpoint.pos.h = pdf_h_origin;
+        refpoint.pos.v = cur_page_size.v - pdf_v_origin;
+
         /* Then calculate |cur.h| and |cur.v| within the upright coordinate system
            for the DVI origin depending on the |page_direction|. */
-        dvi_direction = page_direction;
-        switch (box_direction(dvi_direction)) {
+        switch (box_direction(page_direction)) {
         case dir_TL_:
         case dir_LT_:
             cur.h = h_offset;
@@ -249,18 +246,22 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             break;
         }
         /* The movement is actually done within the upright page coordinate system. */
-        dvi_direction = dir_TLT;        /* only temporarily for this adjustment */
-        pos = synch_p_with_c(cur);
-        box_pos = pos;          /* keep track on page */
+        pdf->posstruct->dir = dir_TLT;  /* only temporarily for this adjustment */
+
+        synch_pos_with_cur(pdf->posstruct, &refpoint, cur);
+
         /* Then switch to page box coordinate system; do |height(p)| movement. */
-        dvi_direction = page_direction;
+        refpoint.pos = pdf->posstruct->pos;
+        pdf->posstruct->dir = page_direction;
         cur.h = 0;
         cur.v = height(p);
-        pos = synch_p_with_c(cur);
+
+        synch_pos_with_cur(pdf->posstruct, &refpoint, cur);
+
         /* Now we are at the point on the page where the origin of the page box should go. */
     } else {
-        dvi_direction = box_dir(p);
-        switch (box_direction(dvi_direction)) {
+        pdf->posstruct->dir = box_dir(p);
+        switch (box_direction(pdf->posstruct->dir)) {
         case dir_TL_:
         case dir_TR_:
         case dir_BL_:
@@ -276,44 +277,42 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             cur_page_size.v = width(p);
             break;
         }
-        switch (box_direction(dvi_direction)) {
+        switch (box_direction(pdf->posstruct->dir)) {
         case dir_TL_:
-            pos.h = 0;
-            pos.v = depth(p);
+            pdf->posstruct->pos.h = 0;
+            pdf->posstruct->pos.v = depth(p);
             break;
         case dir_TR_:
-            pos.h = width(p);
-            pos.v = depth(p);
+            pdf->posstruct->pos.h = width(p);
+            pdf->posstruct->pos.v = depth(p);
             break;
         case dir_BL_:
-            pos.h = 0;
-            pos.v = height(p);
+            pdf->posstruct->pos.h = 0;
+            pdf->posstruct->pos.v = height(p);
             break;
         case dir_BR_:
-            pos.h = width(p);
-            pos.v = height(p);
+            pdf->posstruct->pos.h = width(p);
+            pdf->posstruct->pos.v = height(p);
             break;
         case dir_LT_:
-            pos.h = height(p);
-            pos.v = width(p);
+            pdf->posstruct->pos.h = height(p);
+            pdf->posstruct->pos.v = width(p);
             break;
         case dir_RT_:
-            pos.h = depth(p);
-            pos.v = width(p);
+            pdf->posstruct->pos.h = depth(p);
+            pdf->posstruct->pos.v = width(p);
             break;
         case dir_LB_:
-            pos.h = height(p);
-            pos.v = 0;
+            pdf->posstruct->pos.h = height(p);
+            pdf->posstruct->pos.v = 0;
             break;
         case dir_RB_:
-            pos.h = depth(p);
-            pos.v = 0;
+            pdf->posstruct->pos.h = depth(p);
+            pdf->posstruct->pos.v = 0;
             break;
         }
     }
     pdf_page_init(pdf);
-
-    pdf->posstruct->pos = pos;
 
     if (!shipping_page) {
         pdf_begin_dict(pdf, pdf_cur_form, 0);
@@ -364,9 +363,9 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         pdf_out_colorstack_startpage(pdf);
 
     if (type(p) == vlist_node)
-        pdf_vlist_out(pdf);
+        vlist_out(pdf);
     else
-        pdf_hlist_out(pdf);
+        hlist_out(pdf);
     if (shipping_page)
         incr(total_pages);
     cur_s = -1;

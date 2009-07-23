@@ -50,11 +50,10 @@ To put a byte in the buffer without paying the cost of invoking a procedure
 each time, we use the macro |dvi_out|.
 */
 
-#  define dvi_out(A) do {				\
-    dvi_buf[dvi_ptr++]=A;			\
-    if (dvi_ptr==dvi_limit) dvi_swap();		\
+#  define dvi_out(A) do {                       \
+    dvi_buf[dvi_ptr++]=A;                       \
+    if (dvi_ptr==dvi_limit) dvi_swap();         \
   } while (0)
-
 
 extern void dvi_swap(void);
 extern void dvi_four(integer x);
@@ -62,28 +61,13 @@ extern void dvi_pop(integer l);
 extern void out_cmd(void);
 extern void dvi_font_def(internal_font_number f);
 
-#  define dvi_set(A,B)  do {			 \
-    synch_dvi_with_pos();			 \
-    oval=A; ocmd=set1; out_cmd(); dvi.h += (B);	 \
+#  define dvi_set(A,B)  do {                    \
+    oval=A; ocmd=set1; out_cmd(); dvi.h += (B); \
   } while (0)
 
-#  define dvi_put(A)  do {			\
-    synch_dvi_with_pos();			\
-    oval=A; ocmd=put1; out_cmd();		\
+#  define dvi_put(A)  do {                      \
+    oval=A; ocmd=put1; out_cmd();               \
   } while (0)
-
-#  define dvi_set_rule(A,B)  do {			\
-    synch_dvi_with_pos();			\
-    dvi_out(set_rule); dvi_four(A);		\
-    dvi_four(B); dvi.h += (B);			\
-  } while (0)
-
-#  define dvi_put_rule(A,B)  do {	      \
-    synch_dvi_with_pos();	      \
-    dvi_out(put_rule);		      \
-    dvi_four(A); dvi_four(B);	      \
-} while (0)
-
 
 #  define location(A) varmem[(A)+1].cint
 
@@ -165,71 +149,48 @@ this is essentially the depth of |push| commands in the \.{DVI} output.
 
 extern scaled_whd rule;
 
-#  define synch_h() do {				\
-    if (pos.h != dvi.h) {			\
-      movement(pos.h - dvi.h, right1);		\
-      dvi.h = pos.h;				\
-    }						\
+#  define synch_h(p) do {                       \
+    if (p.h != dvi.h) {                         \
+      movement(p.h - dvi.h, right1);            \
+      dvi.h = p.h;                              \
+    }                                           \
   } while (0)
 
-#  define synch_v() do {				\
-    if (pos.v != dvi.v) {			\
-      movement(dvi.v - pos.v, down1);		\
-      dvi.v = pos.v;				\
-    }						\
+#  define synch_v(p) do {                       \
+    if (p.v != dvi.v) {                         \
+      movement(dvi.v - p.v, down1);             \
+      dvi.v = p.v;                              \
+    }                                           \
   } while (0)
 
-#  define synch_dvi_with_pos() do { synch_h(); synch_v(); } while (0)
+#  define synch_dvi_with_pos(p) do {synch_h(p); synch_v(p); } while (0)
 
-#  define synch_pos_with_cur() do {					\
-    switch (box_direction(dvi_direction)) {				\
-    case dir_TL_: pos.h = box_pos.h + cur.h; pos.v = box_pos.v - cur.v; break; \
-    case dir_TR_: pos.h = box_pos.h - cur.h; pos.v = box_pos.v - cur.v; break; \
-    case dir_BL_: pos.h = box_pos.h + cur.h; pos.v = box_pos.v + cur.v; break; \
-    case dir_BR_: pos.h = box_pos.h - cur.h; pos.v = box_pos.v + cur.v; break; \
-    case dir_LT_: pos.h = box_pos.h + cur.v; pos.v = box_pos.v - cur.h; break; \
-    case dir_RT_: pos.h = box_pos.h - cur.v; pos.v = box_pos.v - cur.h; break; \
-    case dir_LB_: pos.h = box_pos.h + cur.v; pos.v = box_pos.v + cur.h; break; \
-    case dir_RB_: pos.h = box_pos.h - cur.v; pos.v = box_pos.v + cur.h; break; \
-    }									\
+#  define synch_dvi_with_cur()  do {            \
+    synch_pos_with_cur();                       \
+    synch_dvi_with_pos();                       \
   } while (0)
 
-#  define synch_dvi_with_cur()  do {		\
-    synch_pos_with_cur();			\
-    synch_dvi_with_pos();			\
-  } while (0)
-
-#  define set_to_zero(A) do { A.h = 0; A.v = 0; } while (0)
-
-extern scaledpos synch_p_with_c(scaledpos cur);
-
-extern scaledpos cur;
-extern scaledpos box_pos;
-extern scaledpos pos;
 extern scaledpos dvi;
 extern internal_font_number dvi_f;
 extern scaledpos cur_page_size; /* width and height of page being shipped */
 
-extern integer get_cur_v(void);
-extern integer get_cur_h(void);
-
 #  define billion 1000000000.0
-#  define vet_glue(A) do { glue_temp=A;		\
-    if (glue_temp>billion)			\
-      glue_temp=billion;			\
-    else if (glue_temp<-billion)		\
-      glue_temp=-billion;			\
+#  define vet_glue(A) do { glue_temp=A;         \
+    if (glue_temp>billion)                      \
+      glue_temp=billion;                        \
+    else if (glue_temp<-billion)                \
+      glue_temp=-billion;                       \
   } while (0)
-
-extern void hlist_out(void);
-extern void vlist_out(void);
 
 extern void expand_macros_in_tokenlist(halfword p);
 extern void write_out(halfword p);
-extern void out_what(halfword p);
-extern void special_out(halfword p);
+extern void out_what(PDF pdf, halfword p);
+extern void dvi_special(PDF pdf, halfword p);
 
 extern void dvi_ship_out(halfword p);
 extern void finish_dvi_file(int version, int revision);
+
+extern void dvi_place_glyph(PDF pdf, internal_font_number f, integer c);
+extern void dvi_place_rule(PDF pdf, scaledpos size);
 
 #endif

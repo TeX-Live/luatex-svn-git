@@ -36,8 +36,8 @@
 
 /**********************************************************************/
 
-scaledpos new_synch_pos_with_cur(posstructure * pos, posstructure * refpos,
-                                 scaledpos cur);
+void synch_pos_with_cur(posstructure * pos, posstructure * refpos,
+                        scaledpos cur);
 
 boolean calc_pdfpos(pdfstructure * p, scaledpos pos);
 void pdf_end_string_nl(PDF pdf);
