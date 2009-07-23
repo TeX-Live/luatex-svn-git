@@ -1094,7 +1094,7 @@ void dvi_place_glyph(PDF pdf, internal_font_number f, integer c)
 }
 
 /**********************************************************************/
-#if 0 /* obsolete code, kept for reference */
+#if 0                           /* obsolete code, kept for reference */
 
 void hlist_out(void)
 {                               /* output an |hlist_node| box */
@@ -2042,7 +2042,7 @@ void vlist_out(void)
     dvi_direction = save_direction;
 }
 
-#endif /* obsolete code, kept for reference */
+#endif                          /* obsolete code, kept for reference */
 /**********************************************************************/
 
 /*
