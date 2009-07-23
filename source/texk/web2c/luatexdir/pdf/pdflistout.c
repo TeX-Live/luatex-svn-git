@@ -1189,7 +1189,7 @@ void vlist_out(PDF pdf)
                 default:;
                 }
                 backend_out[rule_node] (pdf, size);     /* pdf_place_rule(pdf, rule.ht, rule.wd); */
-                cur.v += rule.ht;
+                cur.v += rule.ht + rule.dp;
             }
             goto NEXTP;
           MOVE_PAST:
