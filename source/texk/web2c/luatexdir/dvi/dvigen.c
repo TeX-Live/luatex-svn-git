@@ -2233,7 +2233,6 @@ The |out_what| procedure takes care of outputting whatsit nodes for
 void out_what(PDF pdf, halfword p)
 {
     int j;                      /* write stream number */
-    scaledpos pos = { 0, 0 };
     switch (subtype(p)) {
     case open_node:
     case write_node:
@@ -2271,8 +2270,8 @@ void out_what(PDF pdf, halfword p)
         dvi_special(pdf, p);
         break;
     case pdf_save_pos_node:
-        pdf_last_x_pos = pos.h;
-        pdf_last_y_pos = pos.v;
+        pdf_last_x_pos = pdf->posstruct->pos.h;
+        pdf_last_y_pos = pdf->posstruct->pos.v;
         break;
     case local_par_node:
     case cancel_boundary_node:
