@@ -320,7 +320,7 @@ void hlist_out(PDF pdf)
             do {
                 if (x_displace(p) != 0 || y_displace(p) != 0) {
                     tmpcur.h = cur.h + x_displace(p);
-                    tmpcur.v = cur.h - y_displace(p);
+                    tmpcur.v = cur.v - y_displace(p);
                     synch_pos_with_cur(pdf->posstruct, refpos, tmpcur);
                 }
                 output_one_char(pdf, font(p), character(p));
