@@ -127,7 +127,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
 {
     internal_font_number lf;
     charinfo *co;
-    scaledpos size, cur;
+    scaledpos cur = { 0, 0 }, size;
     eight_bits *vf_packets;
     integer cur_packet_byte;
     integer cmd, fs_f;
@@ -148,9 +148,6 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
         packet_cur_s--;
         return;
     }
-
-    cur.h = 0;
-    cur.v = 0;
 
     refpos = pdf->posstruct;
     pdf->posstruct = &localpos; /* use local structure for recursion */
@@ -191,7 +188,6 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
                     do_vf_packet(pdf, lf, k);
                 else
                     pdf_place_glyph(pdf, lf, k);
-
             }
             cur.h = cur.h + char_width(lf, k);
             break;

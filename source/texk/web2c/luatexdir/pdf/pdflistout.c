@@ -243,18 +243,20 @@ void calculate_width_to_enddir(halfword p, real cur_glue, scaled cur_g,
 
 void hlist_out(PDF pdf)
 {
-    /* label move_past, fin_rule, next_p; */
-    scaled w;                   /*  temporary value for directional width calculation  */
-    scaled edge_h;
 
     posstructure localpos;      /* the position structure local within this function */
     posstructure *refpos;       /* the list origin pos. on the page, provided by the caller */
 
+    scaledpos cur = { 0, 0 }, tmpcur, basepoint;
+    scaledpos size = { 0, 0 };  /* rule dimensions */
     scaled effective_horizontal;
-    scaledpos cur, tmpcur, basepoint;
-    halfword dir_ptr, dir_tmp;
     scaled save_h;              /* what |cur.h| should pop to */
+    scaled edge_h;
+    scaled edge;                /* right edge of sub-box or leader space */
     halfword this_box;          /* pointer to containing box */
+    halfword dir_ptr, dir_tmp;
+    /* label move_past, fin_rule, next_p; */
+    scaled w;                   /*  temporary value for directional width calculation  */
     integer g_order;            /* applicable order of infinity for glue */
     integer g_sign;             /* selects type of glue */
     halfword p, q;              /* current position in the hlist */
@@ -262,26 +264,19 @@ void hlist_out(PDF pdf)
     scaled leader_wd;           /* width of leader box being replicated */
     scaled lx;                  /* extra space between leader boxes */
     boolean outer_doing_leaders;        /* were we doing leaders? */
-    scaled edge;                /* right edge of sub-box or leader space */
     halfword prev_p;            /* one step behind |p| */
     real glue_temp;             /* glue value before rounding */
-    real cur_glue;              /* glue seen so far */
-    scaled cur_g;               /* rounded equivalent of |cur_glue| times the glue ratio */
+    real cur_glue = 0.0;        /* glue seen so far */
+    scaled cur_g = 0;           /* rounded equivalent of |cur_glue| times the glue ratio */
     scaled_whd ci;
-    scaledpos size = { 0, 0 };  /* rule dimensions */
     int i;                      /* index to scan |pdf_link_stack| */
     integer save_loc = 0;       /* DVI! \.{DVI} byte location upon entry */
     scaledpos save_dvi;         /* DVI! what |dvi| should pop to */
 
-    cur_g = 0;
-    cur_glue = 0.0;
     this_box = temp_ptr;
     g_order = glue_order(this_box);
     g_sign = glue_sign(this_box);
     p = list_ptr(this_box);
-
-    cur.h = 0;
-    cur.v = 0;
 
     refpos = pdf->posstruct;
     pdf->posstruct = &localpos; /* use local structure for recursion */
@@ -730,16 +725,16 @@ void hlist_out(PDF pdf)
                     size.v = rule.ht + rule.dp;
                     pos_down(rule.dp);
                     break;
-                case dir_BL_:
-                    size.h = rule.wd;
-                    size.v = rule.ht + rule.dp;
-                    pos_down(rule.ht);
-                    break;
                 case dir_TR_:
                     size.h = rule.wd;
                     size.v = rule.ht + rule.dp;
                     pos_left(size.h);
                     pos_down(rule.dp);
+                    break;
+                case dir_BL_:
+                    size.h = rule.wd;
+                    size.v = rule.ht + rule.dp;
+                    pos_down(rule.ht);
                     break;
                 case dir_BR_:
                     size.h = rule.wd;
@@ -796,22 +791,25 @@ void hlist_out(PDF pdf)
         if (cur_s > 0)          /* DVI! */
             dvi_pop(save_loc);  /* DVI! */
     }
-    decr(cur_s);
     /* DIR: Reset |dir_ptr| */
     while (dir_ptr != null)
         pop_dir_node();
-
+    decr(cur_s);
     pdf->posstruct = refpos;
 }
 
 void vlist_out(PDF pdf)
 {
-    scaled top_edge;            /* the top coordinate for this box */
-
     posstructure localpos;      /* the position structure local within this function */
     posstructure *refpos;       /* the list origin pos. on the page, provided by the caller */
 
+    scaledpos cur, basepoint;
+    scaledpos size = { 0, 0 };  /* rule dimensions */
+    scaled effective_vertical;
     scaled save_v;              /* what |cur.v| should pop to */
+    scaled top_edge;            /* the top coordinate for this box */
+    scaled edge_v;
+    scaled edge;                /* bottom boundary of leader space */
     halfword this_box;          /* pointer to containing box */
     glue_ord g_order;           /* applicable order of infinity for glue */
     integer g_sign;             /* selects type of glue */
@@ -820,19 +818,12 @@ void vlist_out(PDF pdf)
     scaled leader_ht;           /* height of leader box being replicated */
     scaled lx;                  /* extra space between leader boxes */
     boolean outer_doing_leaders;        /* were we doing leaders? */
-    scaled edge;                /* bottom boundary of leader space */
     real glue_temp;             /* glue value before rounding */
-    real cur_glue;              /* glue seen so far */
-    scaled cur_g;               /* rounded equivalent of |cur_glue| times the glue ratio */
-    scaledpos size = { 0, 0 };  /* rule dimensions */
-    scaled effective_vertical;
-    scaledpos cur, basepoint;
-    scaled edge_v;
+    real cur_glue = 0.0;        /* glue seen so far */
+    scaled cur_g = 0;           /* rounded equivalent of |cur_glue| times the glue ratio */
     integer save_loc = 0;       /* DVI! \.{DVI} byte location upon entry */
     scaledpos save_dvi;         /* DVI! what |dvi| should pop to */
 
-    cur_g = 0;
-    cur_glue = 0.0;
     this_box = temp_ptr;
     g_order = glue_order(this_box);
     g_sign = glue_sign(this_box);
@@ -840,13 +831,13 @@ void vlist_out(PDF pdf)
 
     cur.h = 0;
     cur.v = -height(this_box);
+    top_edge = cur.v;
 
     refpos = pdf->posstruct;
     pdf->posstruct = &localpos; /* use local structure for recursion */
     localpos.dir = box_dir(this_box);
     synch_pos_with_cur(pdf->posstruct, refpos, cur);
 
-    top_edge = cur.v;
     incr(cur_s);
 
     if (pdf->o_mode == OMODE_DVI) {
