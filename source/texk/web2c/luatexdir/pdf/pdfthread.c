@@ -19,8 +19,6 @@
 
 #include "ptexlib.h"
 
-
-
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
@@ -244,8 +242,7 @@ void scan_thread_id(void)
     }
 }
 
-void check_running_thread(PDF pdf, halfword this_box, posstructure * refpos,
-                          scaledpos cur)
+void check_running_thread(PDF pdf, halfword this_box, scaledpos cur)
 {
     if ((pdf->last_thread != null) && is_running(pdf->thread.dp)
         && (pdf->thread_level == cur_s))

@@ -853,7 +853,7 @@ void vlist_out(PDF pdf)
         synctex_vlist(this_box);
 
     /* Create thread for the current vbox if needed */
-    check_running_thread(pdf, this_box, refpos, cur);
+    check_running_thread(pdf, this_box, cur);
 
     while (p != null) {
         if (is_char_node(p)) {
