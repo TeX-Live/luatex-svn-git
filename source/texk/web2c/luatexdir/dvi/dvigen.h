@@ -187,7 +187,7 @@ extern void write_out(halfword p);
 extern void out_what(PDF pdf, halfword p);
 extern void dvi_special(PDF pdf, halfword p);
 
-extern void dvi_ship_out(halfword p);
+extern void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page);
 extern void finish_dvi_file(int version, int revision);
 
 extern void dvi_place_glyph(PDF pdf, internal_font_number f, integer c);

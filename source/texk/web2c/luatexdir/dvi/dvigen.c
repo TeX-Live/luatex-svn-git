@@ -2289,7 +2289,7 @@ The |hlist_out| and |vlist_out| procedures are now complete, so we are
 ready for the |dvi_ship_out| routine that gets them started in the first place.
 */
 
-void dvi_ship_out(halfword p)
+void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page)
 {
     /* output the box |p| */
     int j, k;                   /* indices to first ten count registers */
@@ -2302,16 +2302,20 @@ void dvi_ship_out(halfword p)
     integer post_callback_id;
     boolean ret;
 
-    init_dvi_output_functions(static_pdf);
+    assert(shipping_page == true);
+    init_dvi_output_functions(pdf);
 
     if (half_buf == 0) {
         half_buf = dvi_buf_size / 2;
         dvi_limit = dvi_buf_size;
     }
+
+    /* 2 */
     /* Start sheet {\sl Sync\TeX} information record */
     pdf_output_value = pdf_output;      /* {\sl Sync\TeX}: we assume that |pdf_output| is properly set up */
     synctex_sheet(mag);
 
+    /* 3 */
     pre_callback_id = callback_defined(start_page_number_callback);
     post_callback_id = callback_defined(stop_page_number_callback);
     if ((tracing_output > 0) && (pre_callback_id == 0)) {
@@ -2319,21 +2323,24 @@ void dvi_ship_out(halfword p)
         print_ln();
         tprint("Completed box being shipped out");
     }
-    if (pre_callback_id > 0) {
-        ret = run_callback(pre_callback_id, "->");
-    } else if (pre_callback_id == 0) {
-        if (term_offset > max_print_line - 9)
-            print_ln();
-        else if ((term_offset > 0) || (file_offset > 0))
-            print_char(' ');
-        print_char('[');
-        j = 9;
-        while ((count(j) == 0) && (j > 0))
-            decr(j);
-        for (k = 0; k <= j; k++) {
-            print_int(count(k));
-            if (k < j)
-                print_char('.');
+    is_shipping_page = shipping_page;
+    if (shipping_page) {
+        if (pre_callback_id > 0)
+            ret = run_callback(pre_callback_id, "->");
+        else if (pre_callback_id == 0) {
+            if (term_offset > max_print_line - 9)
+                print_ln();
+            else if ((term_offset > 0) || (file_offset > 0))
+                print_char(' ');
+            print_char('[');
+            j = 9;
+            while ((count(j) == 0) && (j > 0))
+                decr(j);
+            for (k = 0; k <= j; k++) {
+                print_int(count(k));
+                if (k < j)
+                    print_char('.');
+            }
         }
     }
     if ((tracing_output > 0) && (post_callback_id == 0)) {
@@ -2343,20 +2350,22 @@ void dvi_ship_out(halfword p)
         show_box(p);
         end_diagnostic(true);
     }
+
+    /* 4 */
     /* Ship box |p| out */
-    if (box_dir(p) != page_direction) {
+    if (shipping_page && box_dir(p) != page_direction)
         pdf_warning("\\shipout",
                     "\\pagedir != \\bodydir; "
                     "\\box\\outputbox may be placed wrongly on the page.",
                     true, true);
-    }
-    /* Update the values of |max_h| and |max_v|; but if the page is too large,
-       |goto done| */
+    /* Update the values of |max_h| and |max_v|; but if the page is too large, |goto done| */
     /* Sometimes the user will generate a huge page because other error messages
        are being ignored. Such pages are not output to the \.{dvi} file, since they
        may confuse the printing software. */
-    if ((height(p) > max_dimen) || (depth(p) > max_dimen) ||
-        (height(p) + depth(p) + v_offset > max_dimen)
+
+    /* 5 */
+    if ((height(p) > max_dimen) || (depth(p) > max_dimen)
+        || (height(p) + depth(p) + v_offset > max_dimen)
         || (width(p) + h_offset > max_dimen)) {
         char *hlp[] = { "The page just created is more than 18 feet tall or",
             "more than 18 feet wide, so I suspect something went wrong.",
@@ -2376,53 +2385,109 @@ void dvi_ship_out(halfword p)
     if (width(p) + h_offset > max_h)
         max_h = width(p) + h_offset;
 
+    /* 6 */
     /* Initialize variables as |ship_out| begins */
+    temp_ptr = p;
     dvi.h = 0;
     dvi.v = 0;
     dvi_f = null_font;
-    /* Calculate DVI page dimensions and margins */
-    if (page_width > 0) {
-        cur_page_size.h = page_width;
-    } else {
+
+    /* 7 */
+    /* Calculate page dimensions and margins */
+    if (is_shipping_page) {
+        if (page_width > 0) {
+            cur_page_size.h = page_width;
+        } else {
+            switch (box_direction(page_direction)) {
+            case dir_TL_:
+            case dir_BL_:
+                cur_page_size.h = width(p) + 2 * page_left_offset;
+                break;
+            case dir_TR_:
+            case dir_BR_:
+                cur_page_size.h = width(p) + 2 * page_right_offset;
+                break;
+            case dir_LT_:
+            case dir_LB_:
+                cur_page_size.h = height(p) + depth(p) + 2 * page_left_offset;
+                break;
+            case dir_RT_:
+            case dir_RB_:
+                cur_page_size.h = height(p) + depth(p) + 2 * page_right_offset;
+                break;
+            }
+        }
+        if (page_height > 0) {
+            cur_page_size.v = page_height;
+        } else {
+            switch (box_direction(page_direction)) {
+            case dir_TL_:
+            case dir_TR_:
+                cur_page_size.v = height(p) + depth(p) + 2 * page_top_offset;
+                break;
+            case dir_BL_:
+            case dir_BR_:
+                cur_page_size.v = height(p) + depth(p) + 2 * page_bottom_offset;
+                break;
+            case dir_LT_:
+            case dir_RT_:
+                cur_page_size.v = width(p) + 2 * page_top_offset;
+                break;
+            case dir_LB_:
+            case dir_RB_:
+                cur_page_size.v = width(p) + 2 * page_bottom_offset;
+                break;
+            }
+        }
+
+        /* 8 */
+        /* Think in upright page/paper coordinates: First preset |pos.h| and |pos.v| to the DVI origin. */
+
+        refpoint.pos.h = one_true_inch;
+        refpoint.pos.v = cur_page_size.v - one_true_inch;
+        dvi = refpoint.pos;
+
+        /* Then calculate |cur.h| and |cur.v| within the upright coordinate system
+           for the DVI origin depending on the |page_direction|. */
         switch (box_direction(page_direction)) {
         case dir_TL_:
-        case dir_BL_:
-            cur_page_size.h = width(p) + 2 * page_left_offset;
+        case dir_LT_:
+            cur.h = h_offset;
+            cur.v = v_offset;
             break;
         case dir_TR_:
-        case dir_BR_:
-            cur_page_size.h = width(p) + 2 * page_right_offset;
-            break;
-        case dir_LT_:
-        case dir_LB_:
-            cur_page_size.h = height(p) + depth(p) + 2 * page_left_offset;
-            break;
         case dir_RT_:
-        case dir_RB_:
-            cur_page_size.h = height(p) + depth(p) + 2 * page_right_offset;
-        }
-    }
-    if (page_height > 0) {
-        cur_page_size.v = page_height;
-    } else {
-        switch (box_direction(page_direction)) {
-        case dir_TL_:
-        case dir_TR_:
-            cur_page_size.v = height(p) + depth(p) + 2 * page_top_offset;
+            cur.h = cur_page_size.h - page_right_offset - one_true_inch;
+            cur.v = v_offset;
             break;
         case dir_BL_:
-        case dir_BR_:
-            cur_page_size.v = height(p) + depth(p) + 2 * page_bottom_offset;
-            break;
-        case dir_LT_:
-        case dir_RT_:
-            cur_page_size.v = width(p) + 2 * page_top_offset;
-            break;
         case dir_LB_:
+            cur.h = h_offset;
+            cur.v = cur_page_size.v - page_bottom_offset - one_true_inch;
+            break;
         case dir_RB_:
-            cur_page_size.v = width(p) + 2 * page_bottom_offset;
+        case dir_BR_:
+            cur.h = cur_page_size.h - page_right_offset - one_true_inch;
+            cur.v = cur_page_size.v - page_bottom_offset - one_true_inch;
+            break;
         }
+        /* The movement is actually done within the upright page coordinate system. */
+        pdf->posstruct->dir = dir_TLT;  /* only temporarily for this adjustment */
+
+        synch_pos_with_cur(pdf->posstruct, &refpoint, cur);
+
+        /* Then switch to page box coordinate system; do |height(p)| movement. */
+        refpoint.pos = pdf->posstruct->pos;
+        pdf->posstruct->dir = page_direction;
+        cur.h = 0;
+        cur.v = height(p);
+
+        synch_pos_with_cur(pdf->posstruct, &refpoint, cur);
     }
+
+    /* 9 */
+    /* Now we are at the point on the page where the origin of the page box should go. */
+
     ensure_dvi_open();
     if (total_pages == 0) {
         dvi_out(pre);
@@ -2462,58 +2527,19 @@ void dvi_ship_out(halfword p)
     dvi_four(last_bop);
     last_bop = page_loc;
 
-    /* Think in upright page/paper coordinates): First preset |pos.h| and |pos.v| to the DVI origin. */
-
-    refpoint.pos.h = one_true_inch;
-    refpoint.pos.v = cur_page_size.v - one_true_inch;
-    dvi = refpoint.pos;
-
-    /* Then calculate |cur.h| and |cur.v| within the upright coordinate system
-       for the DVI origin depending on the |page_direction|. */
-    switch (box_direction(page_direction)) {
-    case dir_TL_:
-    case dir_LT_:
-        cur.h = h_offset;
-        cur.v = v_offset;
-        break;
-    case dir_TR_:
-    case dir_RT_:
-        cur.h = cur_page_size.h - page_right_offset - one_true_inch;
-        cur.v = v_offset;
-        break;
-    case dir_BL_:
-    case dir_LB_:
-        cur.h = h_offset;
-        cur.v = cur_page_size.v - page_bottom_offset - one_true_inch;
-        break;
-    case dir_RB_:
-    case dir_BR_:
-        cur.h = cur_page_size.h - page_right_offset - one_true_inch;
-        cur.v = cur_page_size.v - page_bottom_offset - one_true_inch;
-        break;
-    }
-    /* The movement is actually done within the upright page coordinate system. */
-    static_pdf->posstruct->dir = dir_TLT;       /* only temporarily for this adjustment */
-
-    synch_pos_with_cur(static_pdf->posstruct, &refpoint, cur);
-
-    /* Then switch to page box coordinate system; do |height(p)| movement. */
-    refpoint.pos = static_pdf->posstruct->pos;
-    static_pdf->posstruct->dir = page_direction;
-    cur.h = 0;
-    cur.v = height(p);
-
-    synch_pos_with_cur(static_pdf->posstruct, &refpoint, cur);
-
-    /* Now we are at the point on the page where the origin of the page box should go. */
-    temp_ptr = p;
+    /* 10 */
     if (type(p) == vlist_node)
-        vlist_out(static_pdf);
+        vlist_out(pdf);
     else
-        hlist_out(static_pdf);
-    dvi_out(eop);
-    incr(total_pages);
+        hlist_out(pdf);
+    if (shipping_page)
+        incr(total_pages);
     cur_s = -1;
+
+    /* 11 */
+    /* Finish shipping */
+    dvi_out(eop);
+
 #ifdef IPC
     if (ipcon > 0) {
         if (dvi_limit == half_buf) {
@@ -2533,7 +2559,8 @@ void dvi_ship_out(halfword p)
     }
 #endif                          /* IPC */
   DONE:
-    if ((tracing_output <= 0) && (post_callback_id == 0)) {
+    /* 12 */
+    if ((tracing_output <= 0) && (post_callback_id == 0) && shipping_page) {
         print_char(']');
         update_terminal();
     }
@@ -2554,8 +2581,9 @@ void dvi_ship_out(halfword p)
         print_int(dyn_used);
         print_ln();
     }
-    if (post_callback_id > 0)
+    if (shipping_page && (post_callback_id > 0))
         ret = run_callback(post_callback_id, "->");
+
     /* Finish sheet {\sl Sync\TeX} information record */
     synctex_teehs();
 }

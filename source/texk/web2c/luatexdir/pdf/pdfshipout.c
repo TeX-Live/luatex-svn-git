@@ -77,13 +77,14 @@ otherwise it will be a Page object.
 */
 
 void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
-{                               /* output the box |p| */
-    integer i, j, kk;           /* general purpose accumulators */
-    pdf_object_list *k;
+{
+    /* output the box |p| */
+    integer i, j, k;            /* general purpose accumulators */
+    pdf_object_list *ol;
     scaledpos cur = { 0, 0 };
     scaledpos save_cur_page_size;       /* to save |cur_page_size| during flushing pending forms */
     posstructure refpoint;      /* the origin pos. on the page */
-    scaled form_margin;
+    scaled form_margin = one_bp;
     pdf_resource_struct resources;
     integer pre_callback_id;
     integer post_callback_id;
@@ -91,11 +92,12 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     integer ff;                 /* for use with |set_ff| */
     integer last_resources;
 
+    /* 2 */
     /* Start sheet {\sl Sync\TeX} information record */
     pdf_output_value = pdf_output;      /* {\sl Sync\TeX}: we assume that |pdf_output| is properly set up */
     synctex_sheet(mag);
 
-    form_margin = one_bp;
+    /* 3 */
     pre_callback_id = callback_defined(start_page_number_callback);
     post_callback_id = callback_defined(stop_page_number_callback);
     if ((tracing_output > 0) && (pre_callback_id == 0)) {
@@ -117,9 +119,9 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             j = 9;
             while ((count(j) == 0) && (j > 0))
                 decr(j);
-            for (kk = 0; kk <= j; kk++) {
-                print_int(count(kk));
-                if (kk < j)
+            for (k = 0; k <= j; k++) {
+                print_int(count(k));
+                if (k < j)
                     print_char('.');
             }
         }
@@ -132,16 +134,21 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         end_diagnostic(true);
     }
 
-    /* (\pdfTeX) Ship box |p| out */
-    if (shipping_page && (box_dir(p) != page_direction))
+    /* 4 */
+    /* Ship box |p| out */
+    if (shipping_page && box_dir(p) != page_direction)
         pdf_warning("\\shipout",
-                    "\\pagedir != \\bodydir; \\box255 may be placed wrongly on the page.",
-                    true, true);
+                    "\\pagedir != \\bodydir; "
+                    "\\box255 may be placed wrongly on the page.", true, true);
     /* Update the values of |max_h| and |max_v|; but if the page is too large, |goto done| */
-    /* todo: this can be shared with dvi output */
-    if ((height(p) > max_dimen) || (depth(p) > max_dimen) ||
-        (height(p) + depth(p) + v_offset > max_dimen) ||
-        (width(p) + h_offset > max_dimen)) {
+    /* Sometimes the user will generate a huge page because other error messages
+       are being ignored. Such pages are not output to the \.{dvi} file, since they
+       may confuse the printing software. */
+
+    /* 5 */
+    if ((height(p) > max_dimen) || (depth(p) > max_dimen)
+        || (height(p) + depth(p) + v_offset > max_dimen)
+        || (width(p) + h_offset > max_dimen)) {
         char *hlp[] = { "The page just created is more than 18 feet tall or",
             "more than 18 feet wide, so I suspect something went wrong.",
             NULL
@@ -160,17 +167,17 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     if (width(p) + h_offset > max_h)
         max_h = width(p) + h_offset;
 
-    /* Initialize variables as |pdf_ship_out| begins */
+    /* 6 */
+    /* Initialize variables as |ship_out| begins */
     prepare_mag();
     temp_ptr = p;
     last_resources = pdf_new_objnum(pdf);
     reset_resource_lists(&resources);
     pdf->resources = &resources;
 
-    /* Calculate PDF page dimensions and margins */
+    /* 7 */
+    /* Calculate page dimensions and margins */
     if (is_shipping_page) {
-        /* Calculate DVI page dimensions and margins */
-        /* todo: this can be shared with dvi */
         if (page_width > 0) {
             cur_page_size.h = page_width;
         } else {
@@ -216,6 +223,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             }
         }
 
+        /* 8 */
         /* Think in upright page/paper coordinates: First preset |pos.h| and |pos.v| to the DVI origin. */
 
         refpoint.pos.h = pdf_h_origin;
@@ -257,8 +265,6 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         cur.v = height(p);
 
         synch_pos_with_cur(pdf->posstruct, &refpoint, cur);
-
-        /* Now we are at the point on the page where the origin of the page box should go. */
     } else {
         pdf->posstruct->dir = box_dir(p);
         switch (box_direction(pdf->posstruct->dir)) {
@@ -305,15 +311,17 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         case dir_LB_:
             pdf->posstruct->pos.h = height(p);
             pdf->posstruct->pos.v = 0;
-            break;
         case dir_RB_:
             pdf->posstruct->pos.h = depth(p);
             pdf->posstruct->pos.v = 0;
             break;
         }
     }
-    pdf_page_init(pdf);
 
+    /* 9 */
+    /* Now we are at the point on the page where the origin of the page box should go. */
+
+    pdf_page_init(pdf);
     if (!shipping_page) {
         pdf_begin_dict(pdf, pdf_cur_form, 0);
         pdf->last_stream = pdf_cur_form;
@@ -359,6 +367,8 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         }
     }
     pdfshipoutbegin(shipping_page);
+
+    /* 10 */
     if (shipping_page)
         pdf_out_colorstack_startpage(pdf);
 
@@ -370,6 +380,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         incr(total_pages);
     cur_s = -1;
 
+    /* 11 */
     /* Finish shipping */
     /* Finish stream of page/form contents */
     pdf_goto_pagemode(pdf);
@@ -401,17 +412,17 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         if ((resources.annot_list != NULL)
             || (resources.link_list != NULL)) {
             pdf_printf(pdf, "/Annots [ ");
-            k = resources.annot_list;
-            while (k != NULL) {
-                pdf_print_int(pdf, k->info);
+            ol = resources.annot_list;
+            while (ol != NULL) {
+                pdf_print_int(pdf, ol->info);
                 pdf_printf(pdf, " 0 R ");
-                k = k->link;
+                ol = ol->link;
             }
-            k = resources.link_list;
-            while (k != NULL) {
-                pdf_print_int(pdf, k->info);
+            ol = resources.link_list;
+            while (ol != NULL) {
+                pdf_print_int(pdf, ol->info);
                 pdf_printf(pdf, " 0 R ");
-                k = k->link;
+                ol = ol->link;
             }
             pdf_printf(pdf, "]\n");
         }
@@ -421,11 +432,11 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     }
     /* Write out resource lists */
     /* Write out pending raw objects */
-    if ((k = resources.obj_list) != NULL) {
-        while (k != NULL) {
-            if (!is_obj_written(pdf, k->info))
-                pdf_write_obj(pdf, k->info);
-            k = k->link;
+    if ((ol = resources.obj_list) != NULL) {
+        while (ol != NULL) {
+            if (!is_obj_written(pdf, ol->info))
+                pdf_write_obj(pdf, ol->info);
+            ol = ol->link;
         }
     }
 
@@ -435,49 +446,49 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
        which are also used by page shipping.
        Saving and restoring |cur_page_size| is needed for proper
        writing out pending PDF marks. */
-    if ((k = resources.xform_list) != NULL) {
-        while (k != NULL) {
-            if (!is_obj_written(pdf, k->info)) {
-                pdf_cur_form = k->info;
+    if ((ol = resources.xform_list) != NULL) {
+        while (ol != NULL) {
+            if (!is_obj_written(pdf, ol->info)) {
+                pdf_cur_form = ol->info;
                 save_cur_page_size = cur_page_size;
                 pdf_ship_out(pdf, obj_xform_box(pdf, pdf_cur_form), false);
                 cur_page_size = save_cur_page_size;
                 /* Restore resource lists */
                 pdf->resources = &resources;
             }
-            k = k->link;
+            ol = ol->link;
         }
     }
 
     /* Write out pending images */
-    if ((k = resources.ximage_list) != NULL) {
-        while (k != NULL) {
-            if (!is_obj_written(pdf, k->info))
-                pdf_write_image(pdf, k->info);
-            k = k->link;
+    if ((ol = resources.ximage_list) != NULL) {
+        while (ol != NULL) {
+            if (!is_obj_written(pdf, ol->info))
+                pdf_write_image(pdf, ol->info);
+            ol = ol->link;
         }
     }
 
     if (shipping_page) {
         /* Write out pending PDF marks */
         /* Write out PDF annotations */
-        if ((k = resources.annot_list) != NULL) {
-            while (k != NULL) {
-                i = obj_annot_ptr(pdf, k->info);        /* |i| points to |pdf_annot_node| */
-                pdf_begin_dict(pdf, k->info, 1);
+        if ((ol = resources.annot_list) != NULL) {
+            while (ol != NULL) {
+                i = obj_annot_ptr(pdf, ol->info);       /* |i| points to |pdf_annot_node| */
+                pdf_begin_dict(pdf, ol->info, 1);
                 pdf_printf(pdf, "/Type /Annot\n");
                 pdf_print_toks_ln(pdf, pdf_annot_data(i));
                 pdf_rectangle(pdf, i);
                 pdf_end_dict(pdf);
-                k = k->link;
+                ol = ol->link;
             }
         }
 
         /* Write out PDF link annotations */
-        if ((k = resources.link_list) != NULL) {
-            while (k != NULL) {
-                i = obj_annot_ptr(pdf, k->info);
-                pdf_begin_dict(pdf, k->info, 1);
+        if ((ol = resources.link_list) != NULL) {
+            while (ol != NULL) {
+                i = obj_annot_ptr(pdf, ol->info);
+                pdf_begin_dict(pdf, ol->info, 1);
                 pdf_printf(pdf, "/Type /Annot\n");
                 if (pdf_action_type(pdf_link_action(i)) != pdf_action_user)
                     pdf_printf(pdf, "/Subtype /Link\n");
@@ -488,17 +499,17 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
                     pdf_printf(pdf, "/A ");
                 write_action(pdf, pdf_link_action(i));
                 pdf_end_dict(pdf);
-                k = k->link;
+                ol = ol->link;
             }
             /* Flush |pdf_start_link_node|'s created by |append_link| */
-            k = resources.link_list;
-            while (k != NULL) {
-                i = obj_annot_ptr(pdf, k->info);
+            ol = resources.link_list;
+            while (ol != NULL) {
+                i = obj_annot_ptr(pdf, ol->info);
                 /* nodes with |subtype = pdf_link_data_node| were created by |append_link| and
                    must be flushed here, as they are not linked in any list */
                 if (subtype(i) == pdf_link_data_node)
                     flush_node(i);
-                k = k->link;
+                ol = ol->link;
             }
         }
 
@@ -523,17 +534,17 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     }
 
     /* Generate font resources */
-    if ((k = resources.font_list) != NULL) {
+    if ((ol = resources.font_list) != NULL) {
         pdf_printf(pdf, "/Font << ");
-        while (k != NULL) {
+        while (ol != NULL) {
             pdf_printf(pdf, "/F");
-            set_ff(k->info);
+            set_ff(ol->info);
             pdf_print_int(pdf, ff);
             pdf_print_resname_prefix(pdf);
             pdf_out(pdf, ' ');
             pdf_print_int(pdf, pdf_font_num(ff));
             pdf_printf(pdf, " 0 R ");
-            k = k->link;
+            ol = ol->link;
         }
         pdf_printf(pdf, ">>\n");
         resources.text_procset = true;
@@ -543,27 +554,27 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     if ((resources.xform_list != NULL)
         || (resources.ximage_list != NULL)) {
         pdf_printf(pdf, "/XObject << ");
-        if ((k = resources.xform_list) != NULL) {
-            while (k != NULL) {
+        if ((ol = resources.xform_list) != NULL) {
+            while (ol != NULL) {
                 pdf_printf(pdf, "/Fm");
-                pdf_print_int(pdf, obj_info(pdf, k->info));
+                pdf_print_int(pdf, obj_info(pdf, ol->info));
                 pdf_print_resname_prefix(pdf);
                 pdf_out(pdf, ' ');
-                pdf_print_int(pdf, k->info);
+                pdf_print_int(pdf, ol->info);
                 pdf_printf(pdf, " 0 R ");
-                k = k->link;
+                ol = ol->link;
             }
         }
-        if ((k = resources.ximage_list) != NULL) {
-            while (k != null) {
+        if ((ol = resources.ximage_list) != NULL) {
+            while (ol != null) {
                 pdf_printf(pdf, "/Im");
-                pdf_print_int(pdf, image_index(obj_data_ptr(pdf, k->info)));
+                pdf_print_int(pdf, image_index(obj_data_ptr(pdf, ol->info)));
                 pdf_print_resname_prefix(pdf);
                 pdf_out(pdf, ' ');
-                pdf_print_int(pdf, k->info);
+                pdf_print_int(pdf, ol->info);
                 pdf_printf(pdf, " 0 R ");
-                update_image_procset(obj_data_ptr(pdf, k->info));
-                k = k->link;
+                update_image_procset(obj_data_ptr(pdf, ol->info));
+                ol = ol->link;
             }
         }
         pdf_printf(pdf, ">>\n");
@@ -589,14 +600,13 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     flush_resource_lists(pdf);
 
   DONE:
+    /* 12 */
     if ((tracing_output <= 0) && (post_callback_id == 0) && shipping_page) {
         print_char(']');
         update_terminal();
     }
     dead_cycles = 0;
-
-    /* Flush the box from memory, sho.ing statistics if requested */
-    /* todo: this can be shared with dvi */
+    /* Flush the box from memory, showing statistics if requested */
     if ((tracing_stats > 1) && (pre_callback_id == 0)) {
         tprint_nl("Memory usage before: ");
         print_int(var_used);
@@ -612,8 +622,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         print_int(dyn_used);
         print_ln();
     }
-
-    if (shipping_page && post_callback_id > 0)
+    if (shipping_page && (post_callback_id > 0))
         ret = run_callback(post_callback_id, "->");
 
     /* Finish sheet {\sl Sync\TeX} information record */
