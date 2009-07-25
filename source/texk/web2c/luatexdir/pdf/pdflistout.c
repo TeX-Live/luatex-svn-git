@@ -134,7 +134,7 @@ of that end node, so that when that node is found later in the
 processing, the correct glue correction can be applied.
 */
 
-scaled simple_advance_width(halfword p)
+static scaled simple_advance_width(halfword p)
 {
     halfword q = p;
     scaled w = 0;
@@ -161,7 +161,6 @@ scaled simple_advance_width(halfword p)
     }
     return w;
 }
-
 
 static halfword calculate_width_to_enddir(halfword p, real cur_glue,
                                           scaled cur_g, halfword this_box)
