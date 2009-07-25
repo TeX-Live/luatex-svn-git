@@ -30,10 +30,6 @@
 
 extern void init_pdf_output_functions(PDF pdf);
 extern void init_dvi_output_functions(PDF pdf);
-extern scaled simple_advance_width(halfword p);
-extern void calculate_width_to_enddir(halfword p, real cur_glue, scaled cur_g,
-                                      halfword this_box, scaled * setw,
-                                      halfword * settemp_ptr);
 extern void hlist_out(PDF pdf);
 extern void vlist_out(PDF pdf);
 

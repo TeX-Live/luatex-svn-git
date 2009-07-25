@@ -500,9 +500,9 @@ typedef enum {
 #  define dir_dir(a)       vinfo((a)+2)
 #  define dir_level(a)     vlink((a)+2)
 #  define dir_dvi_ptr(a)   vinfo((a)+3)
-#  define dir_dvi_h(a)     vlink((a)+3)
-#  define dir_box_pos_h(a) vinfo((a)+4)
-#  define dir_box_pos_v(a) vlink((a)+4)
+#  define dir_dvi_h(a)     vlink((a)+3) /* obsolete */
+#  define dir_refpos_h(a)  vinfo((a)+4)
+#  define dir_refpos_v(a)  vlink((a)+4)
 #  define dir_cur_h(a)     vinfo((a)+5)
 #  define dir_cur_v(a)     vlink((a)+5)
 

@@ -163,14 +163,12 @@ scaled simple_advance_width(halfword p)
 }
 
 
-void calculate_width_to_enddir(halfword p, real cur_glue, scaled cur_g,
-                               halfword this_box, scaled * setw,
-                               halfword * settemp_ptr)
+static halfword calculate_width_to_enddir(halfword p, real cur_glue,
+                                          scaled cur_g, halfword this_box)
 {
     int dir_nest = 1;
-    halfword q = p;
+    halfword q = p, enddir_ptr = p;
     scaled w = 0;
-    halfword temp_ptr = *settemp_ptr;
     halfword g;                 /* this is normally a global variable, but that is just too hideous */
     /* to me, it looks like the next is needed. but Aleph doesn't do that, so let us not do it either */
     real glue_temp;             /* glue value before rounding */
@@ -223,8 +221,8 @@ void calculate_width_to_enddir(halfword p, real cur_glue, scaled cur_g,
                     else
                         decr(dir_nest);
                     if (dir_nest == 0) {
-                        dir_dvi_h(q) = w;
-                        temp_ptr = q;
+                        enddir_ptr = q;
+                        dir_cur_h(enddir_ptr) = w;
                         q = null;
                     }
                 } else if ((subtype(q) == pdf_refxform_node) ||
@@ -237,8 +235,8 @@ void calculate_width_to_enddir(halfword p, real cur_glue, scaled cur_g,
             }
         }
     }
-    *setw = w;
-    *settemp_ptr = temp_ptr;
+    assert(dir_dir(enddir_ptr) < 0);    /* must be an |enddir| node */
+    return enddir_ptr;
 }
 
 void hlist_out(PDF pdf)
@@ -254,9 +252,9 @@ void hlist_out(PDF pdf)
     scaled edge_h;
     scaled edge;                /* right edge of sub-box or leader space */
     halfword this_box;          /* pointer to containing box */
-    halfword dir_ptr, dir_tmp;
+    halfword enddir_ptr;        /* temporary pointer to enddir node */
     /* label move_past, fin_rule, next_p; */
-    scaled w;                   /*  temporary value for directional width calculation  */
+    /* scaled w;                     temporary value for directional width calculation  */
     integer g_order;            /* applicable order of infinity for glue */
     integer g_sign;             /* selects type of glue */
     halfword p, q;              /* current position in the hlist */
@@ -283,14 +281,9 @@ void hlist_out(PDF pdf)
     localpos.pos = refpos->pos;
     localpos.dir = box_dir(this_box);
 
-    /* Initialize |dir_ptr| for |ship_out| */
-    dir_ptr = null;
-    push_dir(localpos.dir);     /* macro uses dir_tmp */
-
     incr(cur_s);
 
     if (pdf->o_mode == OMODE_DVI) {
-        dir_dvi_ptr(dir_ptr) = dvi_ptr; /* DVI! */
         if (cur_s > 0)          /* DVI! */
             dvi_out(push);      /* DVI! */
         if (cur_s > max_push)   /* DVI! */
@@ -525,45 +518,36 @@ void hlist_out(PDF pdf)
                     /* Output a reflection instruction if the direction has changed */
                     /* TODO: this whole case code block is the same in DVI mode */
                     if (dir_dir(p) >= 0) {
-                        push_dir_node(p);
-                        /* (PDF) Calculate the needed width to the matching |enddir|, and store it in |w|, as
-                           well as in the enddirs |dir_dvi_h| */
-                        calculate_width_to_enddir(p, cur_glue, cur_g, this_box,
-                                                  &w, &temp_ptr);
-
-                        if ((dir_opposite
-                             (dir_secondary[dir_dir(dir_ptr)],
-                              dir_secondary[localpos.dir]))
-                            ||
-                            (dir_eq
-                             (dir_secondary[dir_dir(dir_ptr)],
-                              dir_secondary[localpos.dir]))) {
-                            dir_cur_h(temp_ptr) = cur.h + w;
+                        /* Calculate the needed width to the matching |enddir|, return the |enddir| node,
+                           with width info */
+                        enddir_ptr =
+                            calculate_width_to_enddir(p, cur_glue, cur_g,
+                                                      this_box);
+                        if (dir_parallel
+                            (dir_secondary[dir_dir(p)],
+                             dir_secondary[localpos.dir])) {
+                            dir_cur_h(enddir_ptr) += cur.h;
                             if (dir_opposite
-                                (dir_secondary[dir_dir(dir_ptr)],
+                                (dir_secondary[dir_dir(p)],
                                  dir_secondary[localpos.dir]))
-                                cur.h += w;
-                        } else {
-                            dir_cur_h(temp_ptr) = cur.h;
-                        }
-                        dir_cur_v(temp_ptr) = cur.v;
-                        dir_box_pos_h(temp_ptr) = refpos->pos.h;
-                        dir_box_pos_v(temp_ptr) = refpos->pos.v;
+                                cur.h = dir_cur_h(enddir_ptr);
+                        } else
+                            dir_cur_h(enddir_ptr) = cur.h;
+                        dir_cur_v(enddir_ptr) = cur.v;
+                        dir_refpos_h(enddir_ptr) = refpos->pos.h;
+                        dir_refpos_v(enddir_ptr) = refpos->pos.v;
+                        dir_dir(enddir_ptr) = localpos.dir - 64;        /* negative: mark it as |enddir| */
                         /* no need for |synch_dvi_with_cur|, as there is no DVI grouping */
                         /* fake a nested |hlist_out| */
                         synch_pos_with_cur(pdf->posstruct, refpos, cur);
                         refpos->pos = pdf->posstruct->pos;
-                        localpos.dir = dir_dir(dir_ptr);
+                        localpos.dir = dir_dir(p);
                         cur.h = 0;
                         cur.v = 0;
                     } else {
-                        pop_dir_node();
-                        refpos->pos.h = dir_box_pos_h(p);
-                        refpos->pos.v = dir_box_pos_v(p);
-                        if (dir_ptr != null)
-                            localpos.dir = dir_dir(dir_ptr);
-                        else
-                            localpos.dir = dir_TLT;
+                        refpos->pos.h = dir_refpos_h(p);
+                        refpos->pos.v = dir_refpos_v(p);
+                        localpos.dir = dir_dir(p) + 64;
                         cur.h = dir_cur_h(p);
                         cur.v = dir_cur_v(p);
                     }
@@ -791,9 +775,6 @@ void hlist_out(PDF pdf)
         if (cur_s > 0)          /* DVI! */
             dvi_pop(save_loc);  /* DVI! */
     }
-    /* DIR: Reset |dir_ptr| */
-    while (dir_ptr != null)
-        pop_dir_node();
     decr(cur_s);
     pdf->posstruct = refpos;
 }
