@@ -224,17 +224,20 @@ static halfword calculate_width_to_enddir(halfword p, real cur_glue,
                         dir_cur_h(enddir_ptr) = w;
                         q = null;
                     }
-                } else if ((subtype(q) == pdf_refxform_node) ||
-                           (subtype(q) == pdf_refximage_node)) {
+                } else if ((subtype(q) == pdf_refxform_node)
+                           || (subtype(q) == pdf_refximage_node))
                     w += pdf_width(q);
-                }
                 break;
             default:
                 break;
             }
         }
     }
-    assert(dir_dir(enddir_ptr) < 0);    /* must be an |enddir| node */
+    if (q != 0 && vlink(q) == null) {   /* no enddir node until end of box: add one */
+        enddir_ptr = new_node(whatsit_node, dir_node);
+        dir_cur_h(enddir_ptr) = w;
+        couple_nodes(q, enddir_ptr);
+    }
     return enddir_ptr;
 }
 
@@ -512,7 +515,6 @@ void hlist_out(PDF pdf, halfword this_box)
                     break;
                 case dir_node:
                     /* Output a reflection instruction if the direction has changed */
-                    /* TODO: this whole case code block is the same in DVI mode */
                     if (dir_dir(p) >= 0) {
                         /* Calculate the needed width to the matching |enddir|, return the |enddir| node,
                            with width info */
