@@ -29,8 +29,8 @@
 
 #  include "cpascal.h"
 
-#  include <kpathsea/c-pathch.h>/* for IS_DIR_SEP, used in the change files */
-#  include <kpathsea/tex-make.h>/* for kpse_make_tex_discard_errors */
+#  include <kpathsea/c-pathch.h>        /* for IS_DIR_SEP, used in the change files */
+#  include <kpathsea/tex-make.h>        /* for kpse_make_tex_discard_errors */
 
 /* If we have these macros, use them, as they provide a better guide to
    the endianess when cross-compiling. */
