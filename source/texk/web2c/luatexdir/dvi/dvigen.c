@@ -2343,7 +2343,7 @@ void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page)
             }
         }
     }
-    if ((tracing_output > 0) && (post_callback_id == 0)) {
+    if ((tracing_output > 0) && shipping_page) {
         print_char(']');
         update_terminal();
         begin_diagnostic();
@@ -2356,8 +2356,8 @@ void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page)
     if (shipping_page && box_dir(p) != page_direction)
         pdf_warning("\\shipout",
                     "\\pagedir != \\bodydir; "
-                    "\\box\\outputbox may be placed wrongly on the page.",
-                    true, true);
+                    "\\box\\outputbox may be placed wrongly on the page.", true,
+                    true);
     /* Update the values of |max_h| and |max_v|; but if the page is too large, |goto done| */
     /* Sometimes the user will generate a huge page because other error messages
        are being ignored. Such pages are not output to the \.{dvi} file, since they

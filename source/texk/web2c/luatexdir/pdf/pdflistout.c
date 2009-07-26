@@ -281,12 +281,12 @@ void hlist_out(PDF pdf)
     localpos.dir = box_dir(this_box);
 
     incr(cur_s);
+    if (cur_s > max_push)
+        max_push = cur_s;
 
     if (pdf->o_mode == OMODE_DVI) {
         if (cur_s > 0)          /* DVI! */
             dvi_out(push);      /* DVI! */
-        if (cur_s > max_push)   /* DVI! */
-            max_push = cur_s;   /* DVI! */
         save_loc = dvi_offset + dvi_ptr /* DVI! */ ;
     }
 
@@ -819,12 +819,12 @@ void vlist_out(PDF pdf)
     synch_pos_with_cur(pdf->posstruct, refpos, cur);
 
     incr(cur_s);
+    if (cur_s > max_push)
+        max_push = cur_s;
 
     if (pdf->o_mode == OMODE_DVI) {
         if (cur_s > 0)          /* DVI! */
             dvi_out(push);      /* DVI! */
-        if (cur_s > max_push)   /* DVI! */
-            max_push = cur_s;   /* DVI! */
         save_loc = dvi_offset + dvi_ptr;        /* DVI! */
     }
 
