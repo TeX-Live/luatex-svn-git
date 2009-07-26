@@ -233,11 +233,8 @@ static halfword calculate_width_to_enddir(halfword p, real cur_glue,
             }
         }
     }
-    if (q != 0 && vlink(q) == null) {   /* no enddir node until end of box: add one */
-        enddir_ptr = new_node(whatsit_node, dir_node);
+    if (enddir_ptr == p)        /* no enddir found, just transport w by begindir */
         dir_cur_h(enddir_ptr) = w;
-        couple_nodes(q, enddir_ptr);
-    }
     return enddir_ptr;
 }
 
@@ -531,11 +528,12 @@ void hlist_out(PDF pdf, halfword this_box)
                                 cur.h = dir_cur_h(enddir_ptr);
                         } else
                             dir_cur_h(enddir_ptr) = cur.h;
-                        dir_cur_v(enddir_ptr) = cur.v;
-                        dir_refpos_h(enddir_ptr) = refpos->pos.h;
-                        dir_refpos_v(enddir_ptr) = refpos->pos.v;
-                        dir_dir(enddir_ptr) = localpos.dir - 64;        /* negative: mark it as |enddir| */
-                        /* no need for |synch_dvi_with_cur|, as there is no DVI grouping */
+                        if (enddir_ptr != p) {  /* only if it is an enddir */
+                            dir_cur_v(enddir_ptr) = cur.v;
+                            dir_refpos_h(enddir_ptr) = refpos->pos.h;
+                            dir_refpos_v(enddir_ptr) = refpos->pos.v;
+                            dir_dir(enddir_ptr) = localpos.dir - 64;    /* negative: mark it as |enddir| */
+                        }
                         /* fake a nested |hlist_out| */
                         synch_pos_with_cur(pdf->posstruct, refpos, cur);
                         refpos->pos = pdf->posstruct->pos;
