@@ -223,8 +223,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
             break;
         case packet_node_code:
             packet_number(k);
-            temp_ptr = k;
-            hlist_out(pdf);
+            hlist_out(pdf, k);
             break;
         case packet_nop_code:
             break;

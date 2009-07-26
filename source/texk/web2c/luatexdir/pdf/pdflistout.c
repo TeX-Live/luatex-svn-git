@@ -238,7 +238,7 @@ static halfword calculate_width_to_enddir(halfword p, real cur_glue,
     return enddir_ptr;
 }
 
-void hlist_out(PDF pdf)
+void hlist_out(PDF pdf, halfword this_box)
 {
 
     posstructure localpos;      /* the position structure local within this function */
@@ -250,7 +250,6 @@ void hlist_out(PDF pdf)
     scaled save_h;              /* what |cur.h| should pop to */
     scaled edge_h;
     scaled edge;                /* right edge of sub-box or leader space */
-    halfword this_box;          /* pointer to containing box */
     halfword enddir_ptr;        /* temporary pointer to enddir node */
     /* label move_past, fin_rule, next_p; */
     /* scaled w;                     temporary value for directional width calculation  */
@@ -265,12 +264,11 @@ void hlist_out(PDF pdf)
     real glue_temp;             /* glue value before rounding */
     real cur_glue = 0.0;        /* glue seen so far */
     scaled cur_g = 0;           /* rounded equivalent of |cur_glue| times the glue ratio */
-    scaled_whd ci;
+    scaled_whd rule, ci;
     int i;                      /* index to scan |pdf_link_stack| */
     integer save_loc = 0;       /* DVI! \.{DVI} byte location upon entry */
     scaledpos save_dvi;         /* DVI! what |dvi| should pop to */
 
-    this_box = temp_ptr;
     g_order = glue_order(this_box);
     g_sign = glue_sign(this_box);
     p = list_ptr(this_box);
@@ -378,16 +376,15 @@ void hlist_out(PDF pdf)
                     }
                     cur.h += effective_horizontal;
                 } else {
-                    temp_ptr = p;
                     edge_h = cur.h;
                     cur.h += basepoint.h;
                     cur.v = basepoint.v;
                     synch_pos_with_cur(pdf->posstruct, refpos, cur);
                     save_dvi = dvi;     /* DVI! */
                     if (type(p) == vlist_node)
-                        vlist_out(pdf);
+                        vlist_out(pdf, p);
                     else
-                        hlist_out(pdf);
+                        hlist_out(pdf, p);
                     dvi = save_dvi;     /* DVI! */
                     cur.h = edge_h + effective_horizontal;
                     cur.v = 0;
@@ -653,7 +650,6 @@ void hlist_out(PDF pdf)
                                 basepoint.v = basepoint.v + shift_amount(leader_box);   /* shift the box `down' */
                             else
                                 basepoint.v = basepoint.v - shift_amount(leader_box);   /* shift the box `up' */
-                            temp_ptr = leader_box;
                             edge_h = cur.h;
                             cur.h += basepoint.h;
                             cur.v = basepoint.v;
@@ -662,9 +658,9 @@ void hlist_out(PDF pdf)
                             doing_leaders = true;
                             save_dvi = dvi;     /* DVI! */
                             if (type(leader_box) == vlist_node)
-                                vlist_out(pdf);
+                                vlist_out(pdf, leader_box);
                             else
-                                hlist_out(pdf);
+                                hlist_out(pdf, leader_box);
                             dvi = save_dvi;     /* DVI! */
                             doing_leaders = outer_doing_leaders;
                             cur.h = edge_h + leader_wd + lx;
@@ -778,7 +774,7 @@ void hlist_out(PDF pdf)
     pdf->posstruct = refpos;
 }
 
-void vlist_out(PDF pdf)
+void vlist_out(PDF pdf, halfword this_box)
 {
     posstructure localpos;      /* the position structure local within this function */
     posstructure *refpos;       /* the list origin pos. on the page, provided by the caller */
@@ -790,7 +786,6 @@ void vlist_out(PDF pdf)
     scaled top_edge;            /* the top coordinate for this box */
     scaled edge_v;
     scaled edge;                /* bottom boundary of leader space */
-    halfword this_box;          /* pointer to containing box */
     glue_ord g_order;           /* applicable order of infinity for glue */
     integer g_sign;             /* selects type of glue */
     halfword p;                 /* current position in the vlist */
@@ -801,10 +796,10 @@ void vlist_out(PDF pdf)
     real glue_temp;             /* glue value before rounding */
     real cur_glue = 0.0;        /* glue seen so far */
     scaled cur_g = 0;           /* rounded equivalent of |cur_glue| times the glue ratio */
+    scaled_whd rule;
     integer save_loc = 0;       /* DVI! \.{DVI} byte location upon entry */
     scaledpos save_dvi;         /* DVI! what |dvi| should pop to */
 
-    this_box = temp_ptr;
     g_order = glue_order(this_box);
     g_sign = glue_sign(this_box);
     p = list_ptr(this_box);
@@ -904,12 +899,11 @@ void vlist_out(PDF pdf)
                     edge_v = cur.v;
                     cur.v += basepoint.v;
                     synch_pos_with_cur(pdf->posstruct, refpos, cur);
-                    temp_ptr = p;
                     save_dvi = dvi;     /* DVI! */
                     if (type(p) == vlist_node)
-                        vlist_out(pdf);
+                        vlist_out(pdf, p);
                     else
-                        hlist_out(pdf);
+                        hlist_out(pdf, p);
                     dvi = save_dvi;     /* DVI! */
                     cur.h = 0;
                     cur.v = edge_v + effective_vertical;
@@ -1084,14 +1078,13 @@ void vlist_out(PDF pdf)
                             cur.v += height(leader_box);
                             save_v = cur.v;
                             synch_pos_with_cur(pdf->posstruct, refpos, cur);
-                            temp_ptr = leader_box;
                             outer_doing_leaders = doing_leaders;
                             doing_leaders = true;
                             save_dvi = dvi;     /* DVI! */
                             if (type(leader_box) == vlist_node)
-                                vlist_out(pdf);
+                                vlist_out(pdf, leader_box);
                             else
-                                hlist_out(pdf);
+                                hlist_out(pdf, leader_box);
                             dvi = save_dvi;     /* DVI! */
                             doing_leaders = outer_doing_leaders;
                             cur.h = 0;

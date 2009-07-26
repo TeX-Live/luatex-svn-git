@@ -30,8 +30,8 @@
 
 extern void init_pdf_output_functions(PDF pdf);
 extern void init_dvi_output_functions(PDF pdf);
-extern void hlist_out(PDF pdf);
-extern void vlist_out(PDF pdf);
+extern void hlist_out(PDF pdf, halfword this_box);
+extern void vlist_out(PDF pdf, halfword this_box);
 
 /**********************************************************************/
 

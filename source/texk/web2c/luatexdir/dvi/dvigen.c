@@ -586,7 +586,6 @@ integer dead_cycles = 0;        /* recent outputs that didn't ship anything out 
 boolean doing_leaders = false;  /* are we inside a leader box? */
 integer c, f;                   /* character and font in current |char_node| */
 integer oval, ocmd;             /* used by |out_cmd| for generating |set|, |fnt| and |fnt_def| commands */
-scaled_whd rule;                /* size of current rule being output */
 pointer g;                      /* current glue specification */
 integer lq, lr;                 /* quantities used in calculations for leaders */
 integer cur_s = -1;             /* current depth of output box nesting, initially $-1$ */
@@ -2387,7 +2386,6 @@ void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     /* 6 */
     /* Initialize variables as |ship_out| begins */
-    temp_ptr = p;
     dvi.h = 0;
     dvi.v = 0;
     dvi_f = null_font;
@@ -2529,9 +2527,9 @@ void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     /* 10 */
     if (type(p) == vlist_node)
-        vlist_out(pdf);
+        vlist_out(pdf, p);
     else
-        hlist_out(pdf);
+        hlist_out(pdf, p);
     if (shipping_page)
         incr(total_pages);
     cur_s = -1;

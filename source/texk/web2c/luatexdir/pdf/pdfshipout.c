@@ -171,7 +171,6 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     /* 6 */
     /* Initialize variables as |ship_out| begins */
     prepare_mag();
-    temp_ptr = p;
     last_resources = pdf_new_objnum(pdf);
     reset_resource_lists(&resources);
     pdf->resources = &resources;
@@ -374,9 +373,9 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         pdf_out_colorstack_startpage(pdf);
 
     if (type(p) == vlist_node)
-        vlist_out(pdf);
+        vlist_out(pdf, p);
     else
-        hlist_out(pdf);
+        hlist_out(pdf, p);
     if (shipping_page)
         incr(total_pages);
     cur_s = -1;

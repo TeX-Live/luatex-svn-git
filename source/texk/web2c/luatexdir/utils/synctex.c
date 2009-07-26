@@ -1365,9 +1365,16 @@ static inline void synctex_record_kern(halfword p)
 static inline void synctex_record_rule(halfword p)
 {
 	size_t len = 0;
+	scaled_whd rule = {0,0,0};
+
+/* TODO: use this function in hlist_out() and vlist_out() */
+
 #if SYNCTEX_DEBUG > 999
     printf("\nSynchronize DEBUG: synctex_record_tsilh\n");
 #endif
+	rulewd = width(p);
+	ruleht = height(p);
+	ruledp = depth(p);
 	len = SYNCTEX_fprintf(SYNCTEX_FILE,"r%i,%i:%i,%i:%i,%i,%i\n",
 				SYNCTEX_TAG_MODEL(p,rule_node_size),
 				SYNCTEX_LINE_MODEL(p,rule_node_size),
