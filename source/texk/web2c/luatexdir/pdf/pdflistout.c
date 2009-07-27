@@ -244,7 +244,7 @@ static halfword calculate_width_to_enddir(halfword p, real cur_glue,
 The |out_what| procedure takes care of outputting whatsit nodes for
 |vlist_out| and |hlist_out|. */
 
-void out_what(PDF pdf, halfword p)
+void out_what(halfword p)
 {
     int j;                      /* write stream number */
     assert(subtype(p) == open_node ||
@@ -598,7 +598,7 @@ void hlist_out(PDF pdf, halfword this_box)
                 case open_node:
                 case write_node:
                 case close_node:
-                    out_what(pdf, p);
+                    out_what(p);
                     break;
                 default:
                     confusion("ext4");
@@ -1074,7 +1074,7 @@ void vlist_out(PDF pdf, halfword this_box)
                 case open_node:
                 case write_node:
                 case close_node:
-                    out_what(pdf, p);
+                    out_what(p);
                     break;
                 default:
                     confusion("ext4");

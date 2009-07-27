@@ -190,7 +190,7 @@ void do_extension(void)
             if (cur_chr <= close_node) {
                 p = tail;
                 do_extension(); /* append a whatsit node */
-                out_what(static_pdf, tail);     /* do the action immediately */
+                out_what(tail); /* do the action immediately */
                 flush_node_list(tail);
                 tail = p;
                 vlink(p) = null;
