@@ -2225,64 +2225,6 @@ void write_out(halfword p)
     selector = old_setting;
 }
 
-/*
-The |out_what| procedure takes care of outputting whatsit nodes for
-|vlist_out| and |hlist_out|. */
-
-void out_what(PDF pdf, halfword p)
-{
-    int j;                      /* write stream number */
-    switch (subtype(p)) {
-    case open_node:
-    case write_node:
-    case close_node:
-        /* Do some work that has been queued up for \.{\\write} */
-        /* We don't implement \.{\\write} inside of leaders. (The reason is that
-           the number of times a leader box appears might be different in different
-           implementations, due to machine-dependent rounding in the glue calculations.)
-           @^leaders@> */
-        if (!doing_leaders) {
-            j = write_stream(p);
-            if (subtype(p) == write_node) {
-                write_out(p);
-            } else {
-                if (write_open[j])
-                    lua_a_close_out(write_file[j]);
-                if (subtype(p) == close_node) {
-                    write_open[j] = false;
-                } else if (j < 16) {
-                    cur_name = open_name(p);
-                    cur_area = open_area(p);
-                    cur_ext = open_ext(p);
-                    if (cur_ext == get_nullstr())
-                        cur_ext = maketexstring(".tex");
-                    pack_file_name(cur_name, cur_area, cur_ext);
-                    while (!lua_a_open_out(write_file[j], (j + 1)))
-                        prompt_file_name("output file name", ".tex");
-                    write_file[j] = name_file_pointer;
-                    write_open[j] = true;
-                }
-            }
-        }
-        break;
-    case special_node:
-        dvi_special(pdf, p);
-        break;
-    case pdf_save_pos_node:
-        pdf_last_x_pos = pdf->posstruct->pos.h;
-        pdf_last_y_pos = pdf->posstruct->pos.v;
-        break;
-    case local_par_node:
-    case cancel_boundary_node:
-    case user_defined_node:
-        break;
-    default:
-        confusion("ext4");
-        /* those will be pdf extension nodes in dvi mode, most likely */
-        break;
-    }
-}
-
 /* 
 The |hlist_out| and |vlist_out| procedures are now complete, so we are
 ready for the |dvi_ship_out| routine that gets them started in the first place.

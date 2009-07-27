@@ -184,7 +184,6 @@ extern scaledpos cur_page_size; /* width and height of page being shipped */
 
 extern void expand_macros_in_tokenlist(halfword p);
 extern void write_out(halfword p);
-extern void out_what(PDF pdf, halfword p);
 extern void dvi_special(PDF pdf, halfword p);
 
 extern void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page);
