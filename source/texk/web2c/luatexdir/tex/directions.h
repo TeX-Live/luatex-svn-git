@@ -27,11 +27,6 @@
 #  define dir_B 2
 #  define dir_R 3
 
-#  define dir_eq(A,B) ((A)==(B))
-#  define dir_opposite(A,B) ((((A)+2) % 4)==((B) % 4))
-#  define dir_parallel(a,b) (((a) % 2)==((b) % 2))
-#  define dir_orthogonal(a,b) (((a) % 2)!=((b) % 2))
-
 #  define dir_TL_ 0
 #  define dir_TR_ 1
 #  define dir_LT_ 2
@@ -61,11 +56,16 @@
 
 #  define dir_TLT  0
 
-#  define is_mirrored(A) (dir_opposite(dir_primary[(A)],dir_tertiary[(A)]))
-#  define font_direction(A) (A % 16)
-#  define box_direction(A) (A / 4)
-#  define is_rotated(a) dir_parallel(dir_secondary[(a)],dir_tertiary[(a)])
-
+#  define box_direction(A)    ((A) / 4)
+#  define font_direction(A)   ((A) % 16)
+#  define dir_eq(A,B)         ((A)==(B))
+#  define dir_opposite(A,B)   ((((A)+2) % 4)==((B) % 4))
+#  define dir_parallel(a,b)   (((a) % 2)==((b) % 2))
+#  define dir_orthogonal(a,b) (!dir_parallel((a),(b)))
+#  define is_mirrored(A)      (dir_opposite(dir_primary[(A)],dir_tertiary[(A)]))
+#  define is_rotated(a)       dir_parallel(dir_secondary[(a)],dir_tertiary[(a)])
+#  define line_horizontal(a)  dir_parallel(dir_secondary[(a)],dir_secondary[dir_TLT])
+#  define line_vertical(a)    (!line_horizontal(a))
 
 #  define push_dir(a)                           \
   { dir_tmp=new_dir((a));                       \
