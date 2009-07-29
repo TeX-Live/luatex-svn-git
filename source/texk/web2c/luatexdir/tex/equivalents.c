@@ -26,6 +26,8 @@ static const char _svn_version[] =
 
 #define par_shape_ptr equiv(par_shape_loc)
 
+void show_eqtb_meaning(halfword n); /* forward */
+
 /*
 Now that we have studied the data structures for \TeX's semantic routines,
 we ought to consider the data structures used by its syntactic routines. In
@@ -217,6 +219,137 @@ void new_save_level(group_code c)
 }
 
 
+char *save_stack_type (int v) 
+{
+    char *s = "";
+    switch (save_type(v)) {
+    case restore_old_value: s="restore_old_value"; break;
+    case restore_zero: s="restore_zero"; break;
+    case insert_token: s="insert_token"; break;
+    case level_boundary: s="level_boundary"; break;
+    case saved_line: s="saved_line"; break;
+    case saved_adjust: s="saved_adjust"; break;
+    case saved_insert: s="saved_insert"; break;
+    case saved_disc: s="saved_disc"; break;
+    case saved_boxtype: s="saved_boxtype"; break;
+    case saved_textdir: s="saved_textdir"; break;
+    case saved_eqno: s="saved_eqno"; break;
+    case saved_choices: s="saved_choices"; break;
+    case saved_math: s="saved_math"; break;
+    case saved_boxcontext: s="saved_boxcontext"; break;
+    case saved_boxspec: s="saved_boxspec"; break;
+    case saved_boxdir: s="saved_boxdir"; break;
+    case saved_boxattr: s="saved_boxattr"; break;
+    case saved_eqtb: s="saved_eqtb"; break;
+    default:  break;
+    }
+    return s;
+}
+
+
+void print_save_stack (void)
+{
+    int i;
+    begin_diagnostic();
+    selector = term_and_log;
+    print_ln();
+    for (i = (save_ptr-1);i>=0;i--) {
+        tprint ("save_stack[");
+        if (i<100) print_char(' ');
+        if (i<10) print_char(' ');
+        print_int(i);
+        tprint ("]: ");
+        tprint(save_stack_type (i));
+        switch (save_type(i)) {
+        case restore_old_value:
+            tprint (", ");
+            show_eqtb_meaning(save_value(i));
+            tprint("=");
+            if (save_value(i)>=int_base) {
+                print_int(save_word(i-1).cint);
+            } else {
+                print_int(eq_type_field(save_word(i-1)));
+                print_char(','); /* print_int(eq_level_field(save_word(i-1))); */
+                print_int(equiv_field(save_word(i-1)));
+            }
+            i--;
+            break;
+        case restore_zero: 
+            tprint (", ");
+            show_eqtb_meaning(save_value(i));
+            break;
+        case insert_token: 
+            tprint (", ");
+            {
+                halfword p = get_avail();
+                set_token_info(p, save_value(i));
+                show_token_list(p,null,1);
+                free_avail(p);
+            }
+            break;
+        case level_boundary: 
+            tprint(", old group=");
+            print_int(save_level(i));
+            tprint(", boundary = ");
+            print_int(save_value(i));
+            tprint(", line = ");
+            print_int(save_value(i-1));
+            i--;
+            break;
+        case saved_adjust: 
+            tprint (", ");
+            print_int(save_level(i)); /* vadjust vs vadjust pre */
+            break;
+        case saved_insert:  
+            tprint (", ");
+            print_int(save_value(i)); /* insert number */
+            break;
+        case saved_boxtype: /* \localleftbox vs \localrightbox */
+            tprint (", ");
+            print_int(save_value(i));
+            break;
+        case saved_eqno: /* \eqno vs \leqno */
+            tprint (", ");
+            print_int(save_value(i));
+            break;
+        case saved_disc: 
+        case saved_choices: 
+            tprint (", ");
+            print_int(save_value(i));
+            break;
+        case saved_math: 
+            tprint (", listptr=");
+            print_int(save_value(i));
+            break;
+        case saved_boxcontext: 
+            tprint (", ");
+            print_int(save_value(i));
+            break;
+        case saved_boxspec: 
+            tprint (", spec=");
+            print_int(save_level(i));
+            tprint (", dimen=");
+            print_int(save_value(i));
+            break;
+        case saved_textdir:
+        case saved_boxdir: 
+            tprint (", ");
+            print_dir(dir_dir(save_value(i)));
+            break;
+        case saved_boxattr: 
+            tprint (", ");
+            print_int(save_value(i));
+            break;
+        case saved_line: 
+        case saved_eqtb: 
+            break;
+        default:  
+            break;
+        }
+        print_ln();
+    }
+    end_diagnostic(true);
+}
 
 /*
   The \.{\\showgroups} command displays all currently active grouping
@@ -245,6 +378,7 @@ void show_save_groups(void)
     integer i;
     quarterword j;
     char *s;
+    /* print_save_stack(); */
     p = nest_ptr;
     nest[p] = cur_list;         /* put the top level into the array */
     v = save_ptr;
@@ -948,3 +1082,89 @@ void show_eqtb(halfword n)
         print_char('?');        /* this can't happen either */
     }
 }
+
+void show_eqtb_meaning(halfword n)
+{
+    if (n < null_cs) {
+        print_char('?');        /* this can't happen */
+    } else if ((n < glue_base) || ((n > eqtb_size) && (n <= eqtb_top))) {
+        /* Show equivalent |n|, in region 1 or 2 */
+        /* Here is a routine that displays the current meaning of an |eqtb| entry
+           in region 1 or~2. (Similar routines for the other regions will appear
+           below.) */
+
+        sprint_cs(n);
+    } else if (n < local_base) {
+        /* Show equivalent |n|, in region 3 */
+        /* All glue parameters and registers are initially `\.{0pt plus0pt minus0pt}'. */
+        if (n < skip_base) {
+            if (n < glue_base + thin_mu_skip_code)
+                print_cmd_chr(assign_glue_cmd, n);
+            else
+                print_cmd_chr(assign_mu_glue_cmd, n);
+        } else if (n < mu_skip_base) {
+            tprint_esc("skip");
+            print_int(n - skip_base);
+        } else {
+            tprint_esc("muskip");
+            print_int(n - mu_skip_base);
+        }
+
+    } else if (n < int_base) {
+        /* Show equivalent |n|, in region 4 */
+        /* We initialize most things to null or undefined values. An undefined font
+           is represented by the internal code |font_base|.
+
+           However, the character code tables are given initial values based on the
+           conventional interpretation of ASCII code. These initial values should
+           not be changed when \TeX\ is adapted for use with non-English languages;
+           all changes to the initialization conventions should be made in format
+           packages, not in \TeX\ itself, so that global interchange of formats is
+           possible. */
+        if ((n == par_shape_loc) || ((n >= etex_pen_base) && (n < etex_pens))) {
+            if (n == par_shape_loc)
+                print_cmd_chr(set_tex_shape_cmd, n);
+            else
+                print_cmd_chr(set_etex_shape_cmd, n);
+        } else if (n < toks_base) {
+            /* TODO make extra cases for ocps here!  */
+            print_cmd_chr(assign_toks_cmd, n);
+        } else if (n < box_base) {
+            tprint_esc("toks");
+            print_int(n - toks_base);
+        } else if (n < cur_font_loc) {
+            tprint_esc("box");
+            print_int(n - box_base);
+        } else if (n == cur_font_loc) {
+            /* Show the font identifier in |eqtb[n]| */
+            tprint("current font");
+        }
+
+    } else if (n < dimen_base) {
+        /* Show equivalent |n|, in region 5 */
+        if (n < dir_base) {
+            print_cmd_chr(assign_int_cmd, n);
+        } else if (n < count_base) {
+            print_cmd_chr(assign_dir_cmd, n);
+        } else if (n < attribute_base) {
+            tprint_esc("count");
+            print_int(n - count_base);
+        } else if (n < del_code_base) {
+            tprint_esc("attribute");
+            print_int(n - attribute_base);
+        }
+
+    } else if (n <= eqtb_size) {
+        /* Show equivalent |n|, in region 6 */
+        if (n < scaled_base) {
+            print_cmd_chr(assign_dimen_cmd, n);
+        } else {
+            tprint_esc("dimen");
+            print_int(n - scaled_base);
+        }
+    } else {
+        print_char('?');        /* this can't happen either */
+    }
+}
+
+
