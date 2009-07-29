@@ -1903,9 +1903,231 @@ static void check_inline_math_end(void)
     }
 }
 
+void resume_after_display(void)
+{
+    if (cur_group != math_shift_group)
+        confusion("display");
+    unsave_math();
+    prev_graf = prev_graf + 3;
+    push_nest();
+    mode = hmode;
+    space_factor = 1000;
+    tail_append(make_local_par_node());
+    get_x_token();
+    if (cur_cmd != spacer_cmd)
+        back_input();
+    if (nest_ptr == 1) {
+        lua_node_filter_s(buildpage_filter_callback, "after_display");
+        build_page();
+    }
+}
 
 
-void finish_displayed_math(boolean l, boolean danger, pointer a);
+/* 
+
+If the inline directions of \.{\\textdir} and \.{\\mathdir} are
+opposite, then this function will return true. Discovering that fact
+is somewhat odd because it needs traversal of the |save_stack|.
+
+The occurance of displayed equations is weird enough that this is
+probably still better than having yet another field in the
+|input_stack| structures.
+
+There is a strong assumption on the |save_stack| layout here, I hope I
+have made no mistakes.
+
+Oh, and none of this makes much sense if the inline direction of
+either one of \.{\\textdir} or \.{\\mathdir} is vertical, but in that
+case the current math machinery is ill suited anyway so I do not 
+bother to test that.
+
+*/
+
+static boolean math_and_text_reversed_p(void)
+{
+    pointer p;
+    int i = save_ptr - 1;
+    while (save_type(i) != level_boundary)
+        i--;
+    i = i - 2;
+    if (save_type(i) == saved_textdir && save_value(i) != null) {
+        p = save_value(i);
+        while (vlink(p) != null)        /* this is probably not needed */
+            p = vlink(p);
+        if (dir_opposite
+            (dir_secondary[text_direction], dir_secondary[dir_dir(p)]))
+            return true;
+    }
+    return false;
+}
+
+
+/*
+  The fussiest part of math mode processing occurs when a displayed formula is 
+  being centered and placed with an optional equation number.
+*/
+
+/* At this time we are in vertical mode (or internal vertical mode).  
+
+  |p| points to the mlist for the formula.
+  |a| is either |null| or it points to a box containing the equation number.
+  |l| is true if there was an \.{\\leqno}/ (so |a| is a horizontal box).
+
+*/
+
+static void finish_displayed_math(boolean l, pointer a, pointer p)
+{
+    pointer eq_box;             /* box containing the equation */
+    scaled eq_w;                /* width of the equation */
+    scaled line_w;              /* width of the line */
+    scaled eqno_w;              /* width of equation number */
+    scaled eqno_w2;             /* width of equation number plus space to separate from equation */
+    scaled line_s;              /* move the line right this much */
+    scaled d;                   /* displacement of equation in the line */
+    small_number g1, g2;        /* glue parameter codes for before and after */
+    pointer r;                  /* kern node used to position the display */
+    pointer t;                  /* tail of adjustment list */
+    pointer pre_t;              /* tail of pre-adjustment list */
+    boolean swap_dir;           /* true if the math and surrounding text dirs are opposed */
+    swap_dir = math_and_text_reversed_p();
+
+    adjust_tail = adjust_head;
+    pre_adjust_tail = pre_adjust_head;
+    eq_box = hpack(p, 0, additional);
+    p = list_ptr(eq_box);
+    t = adjust_tail;
+    adjust_tail = null;
+    pre_t = pre_adjust_tail;
+    pre_adjust_tail = null;
+    eq_w = width(eq_box);
+    line_w = display_width;
+    line_s = display_indent;
+    if (a == null) {
+        eqno_w = 0;
+        eqno_w2 = 0;
+    } else {
+        eqno_w = width(a);
+        eqno_w2 = eqno_w + get_math_quad(text_size);
+    }
+    if (eq_w + eqno_w2 > line_w) {
+        /* The user can force the equation number to go on a separate line
+           by causing its width to be zero. */
+        if ((eqno_w != 0)
+            && ((eq_w - total_shrink[normal] + eqno_w2 <= line_w)
+                || (total_shrink[sfi] != 0) || (total_shrink[fil] != 0)
+                || (total_shrink[fill] != 0)
+                || (total_shrink[filll] != 0))) {
+            list_ptr(eq_box) = null;
+            flush_node(eq_box);
+            eq_box = hpack(p, line_w - eqno_w2, exactly);
+        } else {
+            eqno_w = 0;
+            if (eq_w > line_w) {
+                list_ptr(eq_box) = null;
+                flush_node(eq_box);
+                eq_box = hpack(p, line_w, exactly);
+            }
+        }
+        eq_w = width(eq_box);
+    }
+    /* We try first to center the display without regard to the existence of
+       the equation number. If that would make it too close (where ``too close''
+       means that the space between display and equation number is less than the
+       width of the equation number), we either center it in the remaining space
+       or move it as far from the equation number as possible. The latter alternative
+       is taken only if the display begins with glue, since we assume that the
+       user put glue there to control the spacing precisely.
+     */
+    d = half(line_w - eq_w);
+    if ((eqno_w > 0) && (d < 2 * eqno_w)) {     /* too close */
+        d = half(line_w - eq_w - eqno_w);
+        if (p != null)
+            if (!is_char_node(p))
+                if (type(p) == glue_node)
+                    d = 0;
+    }
+
+    /* If the equation number is set on a line by itself, either before or
+       after the formula, we append an infinite penalty so that no page break will
+       separate the display from its number; and we use the same size and
+       displacement for all three potential lines of the display, even though
+       `\.{\\parshape}' may specify them differently.
+     */
+    tail_append(new_penalty(int_par(pre_display_penalty_code)));
+    if ((d + line_s <= pre_display_size) || l) {        /* not enough clearance */
+        g1 = above_display_skip_code;
+        g2 = below_display_skip_code;
+    } else {
+        g1 = above_display_short_skip_code;
+        g2 = below_display_short_skip_code;
+    }
+
+    if (l && (eqno_w == 0)) {   /* \leqno on a forced single line due to |width=0| */
+        /* it follows that |type(a)=hlist_node| */
+        if (swap_dir) {
+            shift_amount(a) = line_w + line_s;
+        } else {
+            shift_amount(a) = line_s;
+        }
+        append_to_vlist(a);
+        tail_append(new_penalty(inf_penalty));
+    } else {
+        tail_append(new_param_glue(g1));
+    }
+
+    if (eqno_w != 0) {
+        r = new_kern(line_w - eq_w - eqno_w - d);
+        if (l) {
+            vlink(a) = r;
+            vlink(r) = eq_box;
+            eq_box = a;
+            d = 0;
+        } else {
+            vlink(eq_box) = r;
+            vlink(r) = a;
+        }
+        eq_box = hpack(eq_box, 0, additional);
+    }
+    if (swap_dir) {
+        /*    d = line_w - d; */
+        if (eqno_w != 0) {
+            if (l)
+                d = line_w - width(eq_box);
+            else
+                d = 0;
+        } else {
+            d = line_w - eq_w - eqno_w - d;
+        }
+    }
+    shift_amount(eq_box) = line_s + d;
+    append_to_vlist(eq_box);
+
+    if ((a != null) && (eqno_w == 0) && !l) {
+        tail_append(new_penalty(inf_penalty));
+        if (!swap_dir) {
+            shift_amount(a) = line_s + line_w - width(a);
+        } else {
+            shift_amount(a) = line_s;
+        }
+        append_to_vlist(a);
+        g2 = 0;
+    }
+    if (t != adjust_head) {     /* migrating material comes after equation number */
+        vlink(tail) = vlink(adjust_head);
+        tail = t;
+    }
+    if (pre_t != pre_adjust_head) {
+        vlink(tail) = vlink(pre_adjust_head);
+        tail = pre_t;
+    }
+    tail_append(new_penalty(int_par(post_display_penalty_code)));
+    if (g2 > 0)
+        tail_append(new_param_glue(g2));
+
+    resume_after_display();
+}
+
+
 
 void after_math(void)
 {
@@ -1972,185 +2194,9 @@ void after_math(void)
             }
         }
         run_mlist_to_hlist(p, display_style, false);
-        finish_displayed_math(l, danger, a);
+        finish_displayed_math(l, a, vlink(temp_head));
     }
 }
-
-
-void resume_after_display(void)
-{
-    if (cur_group != math_shift_group)
-        confusion("display");
-    unsave_math();
-    prev_graf = prev_graf + 3;
-    push_nest();
-    mode = hmode;
-    space_factor = 1000;
-    tail_append(make_local_par_node());
-    get_x_token();
-    if (cur_cmd != spacer_cmd)
-        back_input();
-    if (nest_ptr == 1) {
-        lua_node_filter_s(buildpage_filter_callback, "after_display");
-        build_page();
-    }
-}
-
-
-/*
-We have saved the worst for last: The fussiest part of math mode processing
-occurs when a displayed formula is being centered and placed with an optional
-equation number.
-*/
-/* At this time |p| points to the mlist for the formula; |a| is either
-   |null| or it points to a box containing the equation number; and we are in
-   vertical mode (or internal vertical mode). 
-*/
-
-void finish_displayed_math(boolean l, boolean danger, pointer a)
-{
-    pointer b;                  /* box containing the equation */
-    scaled w;                   /* width of the equation */
-    scaled z;                   /* width of the line */
-    scaled e;                   /* width of equation number */
-    scaled q;                   /* width of equation number plus space to separate from equation */
-    scaled d;                   /* displacement of equation in the line */
-    scaled s;                   /* move the line right this much */
-    small_number g1, g2;        /* glue parameter codes for before and after */
-    pointer r;                  /* kern node used to position the display */
-    pointer t;                  /* tail of adjustment list */
-    pointer pre_t;              /* tail of pre-adjustment list */
-    pointer p;
-    boolean swap_dir = false;   /* true if the math and surrounding text dirs are opposite */
-    /* find a potential correction for dir */
-    int i = save_ptr-1;
-    while (save_type(i) != level_boundary) 
-        i--;
-    i = i-2;
-    if (save_type(i) == saved_textdir && save_value(i) != null) {
-        p = save_value(i);
-        while (vlink(p)!=null) /* this is probably not needed */
-            p = vlink(p);
-        if (dir_opposite(dir_secondary[text_direction],dir_secondary[dir_dir(p)]))
-            swap_dir = true;
-    }
-
-    p = vlink(temp_head);
-    adjust_tail = adjust_head;
-    pre_adjust_tail = pre_adjust_head;
-    b = hpack(p, 0, additional);
-    p = list_ptr(b);
-    t = adjust_tail;
-    adjust_tail = null;
-    pre_t = pre_adjust_tail;
-    pre_adjust_tail = null;
-    w = width(b);
-    z = display_width;
-    s = display_indent;
-    if ((a == null) || danger) {
-        e = 0;
-        q = 0;
-    } else {
-        e = width(a);
-        q = e + get_math_quad(text_size);
-    }
-    if (w + q > z) {
-        /* The user can force the equation number to go on a separate line
-           by causing its width to be zero. */
-        if ((e != 0) && ((w - total_shrink[normal] + q <= z) ||
-                         (total_shrink[sfi] != 0) || (total_shrink[fil] != 0) ||
-                         (total_shrink[fill] != 0)
-                         || (total_shrink[filll] != 0))) {
-            list_ptr(b) = null;
-            flush_node(b);
-            b = hpack(p, z - q, exactly);
-        } else {
-            e = 0;
-            if (w > z) {
-                list_ptr(b) = null;
-                flush_node(b);
-                b = hpack(p, z, exactly);
-            }
-        }
-        w = width(b);
-    }
-    /* We try first to center the display without regard to the existence of
-       the equation number. If that would make it too close (where ``too close''
-       means that the space between display and equation number is less than the
-       width of the equation number), we either center it in the remaining space
-       or move it as far from the equation number as possible. The latter alternative
-       is taken only if the display begins with glue, since we assume that the
-       user put glue there to control the spacing precisely.
-     */
-    d = half(z - w);
-    if ((e > 0) && (d < 2 * e)) {       /* too close */
-        d = half(z - w - e);
-        if (p != null)
-            if (!is_char_node(p))
-                if (type(p) == glue_node)
-                    d = 0;
-    }
-
-    /* If the equation number is set on a line by itself, either before or
-       after the formula, we append an infinite penalty so that no page break will
-       separate the display from its number; and we use the same size and
-       displacement for all three potential lines of the display, even though
-       `\.{\\parshape}' may specify them differently.
-     */
-    tail_append(new_penalty(int_par(pre_display_penalty_code)));
-    if ((d + s <= pre_display_size) || l) {     /* not enough clearance */
-        g1 = above_display_skip_code;
-        g2 = below_display_skip_code;
-    } else {
-        g1 = above_display_short_skip_code;
-        g2 = below_display_short_skip_code;
-    }
-    if (l && (e == 0)) { /* \leqno on a forced single line due to |width=0|*/
-        /* it follows that |type(a)=hlist_node| */
-        shift_amount(a) = s;
-        append_to_vlist(a);
-        tail_append(new_penalty(inf_penalty));
-    } else {
-        tail_append(new_param_glue(g1));
-    }
-
-    if (e != 0) {
-        r = new_kern(z - w - e - d);
-        if (l) {
-            vlink(a) = r;
-            vlink(r) = b;
-            b = a;
-            d = 0;
-        } else {
-            vlink(b) = r;
-            vlink(r) = a;
-        }
-        b = hpack(b, 0, additional);
-    }
-    shift_amount(b) = s + d;
-    append_to_vlist(b);
-
-    if ((a != null) && (e == 0) && !l) {
-        tail_append(new_penalty(inf_penalty));
-        shift_amount(a) = s + z - width(a);
-        append_to_vlist(a);
-        g2 = 0;
-    }
-    if (t != adjust_head) {     /* migrating material comes after equation number */
-        vlink(tail) = vlink(adjust_head);
-        tail = t;
-    }
-    if (pre_t != pre_adjust_head) {
-        vlink(tail) = vlink(pre_adjust_head);
-        tail = pre_t;
-    }
-    tail_append(new_penalty(int_par(post_display_penalty_code)));
-    if (g2 > 0)
-        tail_append(new_param_glue(g2));
-
-    resume_after_display();
-}
-
 
 /*
  When \.{\\halign} appears in a display, the alignment routines operate
