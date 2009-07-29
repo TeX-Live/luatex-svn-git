@@ -1932,7 +1932,7 @@ void after_math(void)
         unsave_math();
         decr(save_ptr);         /* now |cur_group=math_shift_group| */
         assert(saved_type(0) == saved_eqno);
-        if (saved_type(0) == 1)
+        if (saved_value(0) == 1)
             l = true;
         danger = check_necessary_fonts();
         m = mode;
@@ -2021,6 +2021,20 @@ void finish_displayed_math(boolean l, boolean danger, pointer a)
     pointer t;                  /* tail of adjustment list */
     pointer pre_t;              /* tail of pre-adjustment list */
     pointer p;
+    boolean swap_dir = false;   /* true if the math and surrounding text dirs are opposite */
+    /* find a potential correction for dir */
+    int i = save_ptr-1;
+    while (save_type(i) != level_boundary) 
+        i--;
+    i = i-2;
+    if (save_type(i) == saved_textdir && save_value(i) != null) {
+        p = save_value(i);
+        while (vlink(p)!=null) /* this is probably not needed */
+            p = vlink(p);
+        if (dir_opposite(dir_secondary[text_direction],dir_secondary[dir_dir(p)]))
+            swap_dir = true;
+    }
+
     p = vlink(temp_head);
     adjust_tail = adjust_head;
     pre_adjust_tail = pre_adjust_head;
@@ -2091,7 +2105,8 @@ void finish_displayed_math(boolean l, boolean danger, pointer a)
         g1 = above_display_short_skip_code;
         g2 = below_display_short_skip_code;
     }
-    if (l && (e == 0)) {        /* it follows that |type(a)=hlist_node| */
+    if (l && (e == 0)) { /* \leqno on a forced single line due to |width=0|*/
+        /* it follows that |type(a)=hlist_node| */
         shift_amount(a) = s;
         append_to_vlist(a);
         tail_append(new_penalty(inf_penalty));
