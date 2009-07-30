@@ -884,7 +884,7 @@ scaled_whd natural_sizes (halfword p, halfword pp)
     } else {
         hpack_dir = pack_direction;
     }
-    while (p != pp) {
+    while (p != pp && p != null) {
         while (is_char_node(p)) {
             f = font(p);
             if (is_rotated(hpack_dir)) {
@@ -901,7 +901,7 @@ scaled_whd natural_sizes (halfword p, halfword pp)
             }
             p = vlink(p);
         }
-        if (p != pp) {
+        if (p != pp && p != null) {
             switch (type(p)) {
             case hlist_node:
             case vlist_node:
