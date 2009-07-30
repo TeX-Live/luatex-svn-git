@@ -109,8 +109,11 @@ void scan_spec(group_code c, boolean three_codes)
         assert(saved_type(0) == saved_boxcontext);
         s = saved_value(0);     /* the box context */
       CONTINUE:
-        if (cur_cmd == relax_cmd || cur_cmd == spacer_cmd)
+        while (cur_cmd == relax_cmd || cur_cmd == spacer_cmd) {
             get_x_token();
+            if (cur_cmd != relax_cmd && cur_cmd != spacer_cmd)
+                back_input();
+        }
         if (scan_keyword("attr")) {
             scan_register_num();
             i = cur_val;
