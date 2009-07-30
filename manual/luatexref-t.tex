@@ -2219,6 +2219,19 @@ to \type{nil} beforehand. And in a similar way, calling
 \type{node.free(n)} will invalidate \type{h} as well!
 
 
+\subsubsection{\luatex{node.dimensions}}
+
+\startfunctioncall
+<number> w, <number> h, <number> d,  = node.dimensions(<node> n)
+<number> w, <number> h, <number> d,  = node.dimensions(<node> n, <node> t)
+\stopfunctioncall
+
+This function calculates the natural in-line dimensions of the node
+list starting at node \type{n} and terminating just before node \type{t}
+(or nil, if there is not second arguent). The return values are scaled
+points. 
+
+
 \subsubsection{\luatex{node.mlist_to_hlist}}
 
 \startfunctioncall
