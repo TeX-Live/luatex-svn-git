@@ -868,6 +868,127 @@ halfword filtered_hpack(halfword p, halfword qt, scaled w, int m, integer grp)
     return hpack(q, w, m);
 }
 
+/* here is a function to calculate the natural whd of a (horizontal) node list */
+
+
+scaled_whd natural_sizes (halfword p, halfword pp)
+{
+    scaled s;                   /* shift amount */
+    halfword g;                 /* points to a glue specification */
+    internal_font_number f;     /* the font in a |char_node| */
+    integer hpack_dir;
+    scaled_whd xx; /* for recursion */
+    scaled_whd siz = {0,0,0};
+    if (pack_direction == -1) {
+        hpack_dir = text_direction;
+    } else {
+        hpack_dir = pack_direction;
+    }
+    while (p != pp) {
+        while (is_char_node(p)) {
+            f = font(p);
+            if (is_rotated(hpack_dir)) {
+                siz.wd += (glyph_height(p) + glyph_depth(p));
+                s = glyph_width(p) / 2;
+                if (s > siz.ht) siz.ht = s;
+                if (s > siz.dp) siz.dp = s;
+            } else {
+                siz.wd += glyph_width(p);
+                s = glyph_height(p);
+                if (s > siz.ht) siz.ht = s;
+                s = glyph_depth(p);
+                if (s > siz.dp) siz.dp = s;
+            }
+            p = vlink(p);
+        }
+        if (p != pp) {
+            switch (type(p)) {
+            case hlist_node:
+            case vlist_node:
+            case rule_node:
+            case unset_node:
+                if ((type(p) == hlist_node) || (type(p) == vlist_node)) {
+                    s = shift_amount(p);
+                    if (dir_orthogonal
+                        (dir_primary[box_dir(p)], dir_primary[hpack_dir])) {
+                        siz.wd += (height(p) + depth(p));
+                        if ((width(p) / 2) - s > siz.ht)
+                            siz.ht = (width(p) / 2) - s;
+                        if ((width(p) / 2) + s > siz.dp)
+                            siz.dp = (width(p) / 2) + s;
+
+                    } else if ((type(p) == hlist_node)
+                               && is_mirrored(hpack_dir)) {
+                        siz.wd += width(p);
+                        if (depth(p) - s > siz.ht)
+                            siz.ht = depth(p) - s;
+                        if (height(p) + s > siz.dp)
+                            siz.dp = height(p) + s;
+                    } else {
+                        siz.wd += width(p);
+                        if (height(p) - s > siz.ht)
+                            siz.ht = height(p) - s;
+                        if (depth(p) + s > siz.dp)
+                            siz.dp = depth(p) + s;
+                    }
+                } else {
+                    siz.wd += width(p);
+                    if (type(p) >= rule_node)
+                        s = 0;
+                    else
+                        s = shift_amount(p);
+                    if (height(p) - s > siz.ht)
+                        siz.ht = height(p) - s;
+                    if (depth(p) + s > siz.dp)
+                        siz.dp = depth(p) + s;
+                }
+                break;
+            case whatsit_node:
+                if ((subtype(p) == pdf_refxform_node)
+                    || (subtype(p) == pdf_refximage_node)) {
+                    siz.wd += pdf_width(p);
+                    s = 0;
+                    if (pdf_height(p) - s > siz.ht)
+                        siz.ht = pdf_height(p) - s;
+                    if (pdf_depth(p) + s > siz.dp)
+                        siz.dp = pdf_depth(p) + s;
+                }
+                break;
+            case glue_node:
+                g = glue_ptr(p);
+                siz.wd += width(g);
+                if (subtype(p) >= a_leaders) {
+                    g = leader_ptr(p);
+                    if (height(g) > siz.ht)
+                        siz.ht = height(g);
+                    if (depth(g) > siz.dp)
+                        siz.dp = depth(g);
+                }
+                break;
+            case margin_kern_node:
+            case kern_node:
+                siz.wd += width(p);
+                break;
+            case math_node:
+                siz.wd += surround(p);
+                break;
+            case disc_node:
+                xx = natural_sizes (no_break(p), null);
+                siz.wd += xx.wd;
+                if (xx.ht > siz.ht) siz.ht = xx.ht;
+                if (xx.dp > siz.ht) siz.dp = xx.dp;
+                break;
+            default:
+                break;
+            }
+            p = vlink(p);
+        }
+
+    }
+    return siz;
+}
+
+
 
 /*
 In order to provide a decent indication of where an overfull or underfull

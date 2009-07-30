@@ -509,6 +509,22 @@ static int lua_nodelib_hpack(lua_State * L)
 }
 
 
+static int lua_nodelib_dimensions(lua_State * L)
+{
+    scaled_whd siz;
+    halfword n, p = null;
+    n = *(check_isnode(L, 1));
+    if (lua_gettop(L) > 1) {
+        p = *(check_isnode(L, 2));
+    }
+    siz = natural_sizes(n, p);
+    lua_pushnumber(L,siz.wd);
+    lua_pushnumber(L,siz.ht);
+    lua_pushnumber(L,siz.dp);
+    return 3;
+}
+
+
 /* build a vbox */
 static int lua_nodelib_vpack(lua_State * L)
 {
@@ -3260,6 +3276,7 @@ static const struct luaL_reg nodelib_f[] = {
     {"last_node", lua_nodelib_last_node},
     {"copy", lua_nodelib_copy},
     {"copy_list", lua_nodelib_copy_list},
+    {"dimensions", lua_nodelib_dimensions},
     {"hpack", lua_nodelib_hpack},
     {"vpack", lua_nodelib_vpack},
     {"mlist_to_hlist", lua_nodelib_mlist_to_hlist},
