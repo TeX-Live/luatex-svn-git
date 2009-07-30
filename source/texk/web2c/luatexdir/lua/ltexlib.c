@@ -768,10 +768,12 @@ int settex(lua_State * L)
                 lua_error(L);
             }
         } else {
-            lua_rawset(L, (i - 2));
+            if (lua_istable(L, (i - 2)))
+                lua_rawset(L, (i - 2));
         }
     } else {
-        lua_rawset(L, (i - 2));
+        if (lua_istable(L, (i - 2)))
+            lua_rawset(L, (i - 2));
     }
     return 0;
 }
