@@ -1,4 +1,4 @@
- $Id: mp.w 1098 2009-06-25 08:23:21Z taco $
+ $Id: mp.w 1111 2009-07-31 08:10:35Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -89,13 +89,13 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 1.204" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version 1.206" /* printed when \MP\ starts */
 @d true 1
 @d false 0
 
 @(mpmp.h@>=
-#define metapost_version "1.204"
-#define metapost_magic (('M'*256) + 'P')*65536 + 1204
+#define metapost_version "1.206"
+#define metapost_magic (('M'*256) + 'P')*65536 + 1206
 #define metapost_old_magic (('M'*256) + 'P')*65536 + 1080
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
@@ -1828,14 +1828,31 @@ void mp_print (MP mp, const char *ss) {
   if (ss==NULL) return;
   mp_do_print(mp, ss,strlen(ss));
 }
+
+@ This function is somewhat less trivial than expected
+because it is not safe to directly print data in the
+string pool since |mp_do_print()| can potentially reallocate 
+the whole lot.
+
+@<Basic print...@>=
 void mp_print_str (MP mp, str_number s) {
   pool_pointer j; /* current character code position */
+  char *ss; /* a temporary C string */
+  size_t len; /* its length */
   if ( (s<0)||(s>mp->max_str_ptr) ) {
      mp_do_print(mp,"???",3); /* this can't happen */
 @.???@>
   }
   j=mp->str_start[s];
-  mp_do_print(mp, (char *)(mp->str_pool+j), (size_t)(str_stop(s)-j));
+  len = (str_stop(s)-j);
+  ss = xmalloc(len+1, sizeof(char));
+  if (len > 0) {
+    /* the man page doesnt say whether 0 is allowed */
+    memcpy(ss,(char *)(mp->str_pool+j),len);
+  }
+  ss[len] = '\0';
+  mp_do_print(mp, ss, len);
+  mp_xfree(ss);
 }
 
 
@@ -13199,6 +13216,7 @@ by analogy with |line_stack|.
 @d terminal_input (name==is_term) /* are we reading from the terminal? */
 @d cur_file mp->input_file[iindex] /* the current |void *| variable */
 @d line mp->line_stack[iindex] /* current line number in the current source file */
+@d in_ext mp->inext_stack[iindex] /* a string used to construct \.{MPX} file names */
 @d in_name mp->iname_stack[iindex] /* a string used to construct \.{MPX} file names */
 @d in_area mp->iarea_stack[iindex] /* another string for naming \.{MPX} files */
 @d absent 1 /* |name_field| value for unused |mpx_in_stack| entries */
@@ -13213,6 +13231,7 @@ integer in_open_max; /* highest value of |in_open| ever seen */
 unsigned int open_parens; /* the number of open text files */
 void  * *input_file ;
 integer *line_stack ; /* the line number for each file */
+char *  *inext_stack; /* used for naming \.{MPX} files */
 char *  *iname_stack; /* used for naming \.{MPX} files */
 char *  *iarea_stack; /* used for naming \.{MPX} files */
 halfword*mpx_name  ;
@@ -13220,12 +13239,14 @@ halfword*mpx_name  ;
 @ @<Allocate or ...@>=
 mp->input_file  = xmalloc((mp->max_in_open+1),sizeof(void *));
 mp->line_stack  = xmalloc((mp->max_in_open+1),sizeof(integer));
+mp->inext_stack = xmalloc((mp->max_in_open+1),sizeof(char *));
 mp->iname_stack = xmalloc((mp->max_in_open+1),sizeof(char *));
 mp->iarea_stack = xmalloc((mp->max_in_open+1),sizeof(char *));
 mp->mpx_name    = xmalloc((mp->max_in_open+1),sizeof(halfword));
 {
   int k;
   for (k=0;k<=mp->max_in_open;k++) {
+    mp->inext_stack[k] =NULL;
     mp->iname_stack[k] =NULL;
     mp->iarea_stack[k] =NULL;
   }
@@ -13235,12 +13256,14 @@ mp->mpx_name    = xmalloc((mp->max_in_open+1),sizeof(halfword));
 {
   int l;
   for (l=0;l<=mp->max_in_open;l++) {
+    xfree(mp->inext_stack[l]);
     xfree(mp->iname_stack[l]);
     xfree(mp->iarea_stack[l]);
   }
 }
 xfree(mp->input_file);
 xfree(mp->line_stack);
+xfree(mp->inext_stack);
 xfree(mp->iname_stack);
 xfree(mp->iarea_stack);
 xfree(mp->mpx_name);
@@ -13741,6 +13764,7 @@ off the file stack.
   if ( name>max_spec_src ) {
     (mp->close_file)(mp,cur_file);
     delete_str_ref(name);
+    xfree(in_ext); 
     xfree(in_name); 
     xfree(in_area);
   }
@@ -16471,6 +16495,15 @@ except of course for a short time just after |job_name| has become nonzero.
 
 @<Allocate or ...@>=
 mp->job_name=mp_xstrdup(mp, opt->job_name); 
+if (mp->job_name != NULL) {
+  char *s = mp->job_name+strlen(mp->job_name);
+  while (s>mp->job_name) {
+     if (*s == '.') {
+	*s = '\0';
+     }
+     s--;
+  }
+}
 if (opt->noninteractive && opt->ini_version) {
   if (mp->job_name == NULL)
     mp->job_name=mp_xstrdup(mp,mp->mem_name); 
@@ -16657,8 +16690,9 @@ can't find the file in |cur_area| or the appropriate system area.
 @c
 static boolean mp_try_extension (MP mp, const char *ext) { 
   mp_pack_file_name(mp, mp->cur_name,mp->cur_area, ext);
-  in_name=xstrdup(mp->cur_name); 
+  in_name=xstrdup(mp->cur_name);
   in_area=xstrdup(mp->cur_area);
+  in_ext=xstrdup(ext);
   if ( mp_a_open_in(mp, &cur_file, mp_filetype_program) ) {
     return true;
   } else { 
@@ -16747,9 +16781,11 @@ with the current input file.
 
 @c void mp_start_mpx_input (MP mp) {
   char *origname = NULL; /* a copy of nameoffile */
+  mp_pack_file_name(mp, in_name, "", in_ext);
+  origname = xstrdup(mp->name_of_file);
   mp_pack_file_name(mp, in_name, "", ".mpx");
-  @<Try to make sure |name_of_file| refers to a valid \.{MPX} file and
-    |goto not_found| if there is a problem@>;
+  if (!(mp->run_make_mpx)(mp, origname, mp->name_of_file))
+    goto NOT_FOUND;
   mp_begin_file_reading(mp);
   if ( ! mp_a_open_in(mp, &cur_file, mp_filetype_program) ) {
     mp_end_file_reading(mp);
@@ -16793,13 +16829,6 @@ int mp_run_make_mpx (MP mp, char *origname, char *mtxname) {
   (void)mtxname;
   return false;
 }
-
-@ @<Try to make sure |name_of_file| refers to a valid \.{MPX} file and
-  |goto not_found| if there is a problem@>=
-origname = mp_xstrdup(mp,mp->name_of_file);
-*(origname+strlen(origname)-1)=0; /* drop the x */
-if (!(mp->run_make_mpx)(mp, origname, mp->name_of_file))
-  goto NOT_FOUND
 
 @ @<Explain that the \.{MPX} file can't be read and |succumb|@>=
 if ( mp->interaction==mp_error_stop_mode ) wake_up_terminal;
