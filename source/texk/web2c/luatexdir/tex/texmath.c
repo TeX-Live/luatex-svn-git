@@ -1925,21 +1925,16 @@ void resume_after_display(void)
 
 /* 
 
-If the inline directions of \.{\\textdir} and \.{\\mathdir} are
+If the inline directions of \.{\\pardir} and \.{\\mathdir} are
 opposite, then this function will return true. Discovering that fact
 is somewhat odd because it needs traversal of the |save_stack|.
-
 The occurance of displayed equations is weird enough that this is
-probably still better than having yet another field in the
-|input_stack| structures.
+probably still better than having yet another field in the |input_stack| 
+structures.
 
-There is a strong assumption on the |save_stack| layout here, I hope I
-have made no mistakes.
-
-Oh, and none of this makes much sense if the inline direction of
-either one of \.{\\textdir} or \.{\\mathdir} is vertical, but in that
-case the current math machinery is ill suited anyway so I do not 
-bother to test that.
+None of this makes much sense if the inline direction of either one of 
+\.{\\pardir} or \.{\\mathdir} is vertical, but in that case the current 
+math machinery is ill suited anyway so I do not bother to test that.
 
 */
 
@@ -1949,14 +1944,14 @@ static boolean math_and_text_reversed_p(void)
     int i = save_ptr - 1;
     while (save_type(i) != level_boundary)
         i--;
-    i = i - 2;
-    if (save_type(i) == saved_textdir && save_value(i) != null) {
-        p = save_value(i);
-        while (vlink(p) != null)        /* this is probably not needed */
-            p = vlink(p);
-        if (dir_opposite
-            (dir_secondary[text_direction], dir_secondary[dir_dir(p)]))
-            return true;
+    while (i<save_ptr) {
+        if (save_type(i) == restore_old_value &&
+            save_value(i) == int_base+par_direction_code ) {
+            if (dir_opposite
+                (dir_secondary[math_direction], dir_secondary[save_value(i-1)]))
+                return true;
+        }
+        i++;
     }
     return false;
 }
