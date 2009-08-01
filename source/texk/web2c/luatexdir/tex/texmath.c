@@ -1940,7 +1940,6 @@ math machinery is ill suited anyway so I do not bother to test that.
 
 static boolean math_and_text_reversed_p(void)
 {
-    pointer p;
     int i = save_ptr - 1;
     while (save_type(i) != level_boundary)
         i--;
