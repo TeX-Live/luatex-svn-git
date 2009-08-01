@@ -68,22 +68,24 @@
 #  define line_vertical(a)    (!line_horizontal(a))
 
 #  define push_dir(a)                           \
-  { dir_tmp=new_dir((a));                       \
+   { halfword dir_tmp=new_dir((a));		\
     vlink(dir_tmp)=dir_ptr;			\
     dir_ptr=dir_tmp;                            \
   }
 
 #  define push_dir_node(a)                      \
-   { dir_tmp=copy_node((a));			\
+   { halfword dir_tmp=copy_node((a));		\
      vlink(dir_tmp)=dir_ptr;			\
      dir_ptr=dir_tmp;				\
   }
 
 #  define pop_dir_node()                        \
-  { dir_tmp=dir_ptr;                            \
+   { halfword dir_tmp=dir_ptr;			\
     dir_ptr=vlink(dir_tmp);                     \
     flush_node(dir_tmp);                        \
   }
+
+extern halfword dir_ptr;
 
 extern integer dvi_direction;
 extern int dir_primary[32];
@@ -92,7 +94,6 @@ extern int dir_tertiary[32];
 extern int dir_rearrange[4];
 extern str_number dir_names[4];
 extern halfword text_dir_ptr;
-extern halfword text_dir_tmp;
 
 extern void initialize_directions(void);
 extern halfword new_dir(int s);

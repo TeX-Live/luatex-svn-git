@@ -135,7 +135,7 @@ extern void scan_box(integer box_context);
 extern void new_graf(boolean indented);
 extern void indent_in_hmode(void);
 extern void head_for_vmode(void);
-extern void end_graf(void);
+extern void end_graf(integer);
 extern void begin_insert_or_adjust(void);
 extern void handle_mark(void);
 extern void append_penalty(void);

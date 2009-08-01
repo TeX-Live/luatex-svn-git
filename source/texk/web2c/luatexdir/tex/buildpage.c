@@ -1036,7 +1036,7 @@ void resume_after_output(void)
 
     }
     end_token_list();           /* conserve stack space in case more outputs are triggered */
-    end_graf();
+    end_graf(bottom_level);
     unsave();
     output_active = false;
     insert_penalties = 0;

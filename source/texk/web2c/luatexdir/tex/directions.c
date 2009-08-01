@@ -84,6 +84,8 @@ halfword do_pop_dir_node(halfword p)
     return n;
 }
 
+halfword dir_ptr;
+
 integer dvi_direction;
 int dir_primary[32];
 int dir_secondary[32];
@@ -91,7 +93,6 @@ int dir_tertiary[32];
 int dir_rearrange[4];
 str_number dir_names[4];
 halfword text_dir_ptr;
-halfword text_dir_tmp;
 
 void initialize_directions(void)
 {

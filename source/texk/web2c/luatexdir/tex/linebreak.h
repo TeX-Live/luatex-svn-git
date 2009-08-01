@@ -26,16 +26,8 @@
 #  define right_side 1
 
 extern halfword just_box;       /* the |hlist_node| for the last line of the new paragraph */
-extern integer paragraph_dir;   /* main direction of paragraph */
-extern integer line_break_dir;  /* current direction within paragraph */
-extern integer line_break_context;      /* the surrounding state for |line_break| calls */
-extern int break_c_htdp;        /* height-depth entry in |char_info| */
-extern integer temp_no_whatsits;        /* used when closing group */
-extern integer temp_no_dirs;    /* used when closing group */
-extern integer temporary_dir;
-extern halfword dir_ptr, dir_tmp, dir_rover;
 
-extern void line_break(boolean d);
+extern void line_break(boolean d, integer line_break_context);
 
 #  define inf_bad 10000         /* infinitely bad value */
 #  define awful_bad 07777777777 /* more than a billion demerits */

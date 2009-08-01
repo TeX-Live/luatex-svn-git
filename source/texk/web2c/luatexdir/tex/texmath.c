@@ -900,7 +900,7 @@ void enter_display_math(void)
         pop_nest();
         w = -max_dimen;
     } else {
-        line_break(true);
+        line_break(true, math_shift_group);
         w = actual_box_width(just_box, (2 * quad(get_cur_font())));
     }
     /* now we are in vertical mode, working on the list that will contain the display */

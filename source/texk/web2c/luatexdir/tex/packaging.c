@@ -415,7 +415,8 @@ halfword hpack(halfword p, scaled w, int m)
     halfword g;                 /* points to a glue specification */
     int o;                      /* order of infinity */
     internal_font_number f;     /* the font in a |char_node| */
-    halfword dir_tmp, dir_ptr;  /* for managing the direction stack */
+    halfword dir_ptr;           /* for managing the direction stack */
+                                /* BEWARE: this shadows a global |dir_ptr| */
     integer hpack_dir;          /* the current direction */
     integer disc_level;
     halfword pack_interrupt[8];

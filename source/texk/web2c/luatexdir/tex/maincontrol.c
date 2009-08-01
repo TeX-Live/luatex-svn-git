@@ -601,9 +601,7 @@ void main_control(void)
     case hmode + par_end_cmd:
         if (align_state < 0)
             off_save();         /* this tries to  recover from an alignment that didn't end properly */
-        if ((mode > 0) && (nest[(nest_ptr - 1)].mode_field == vmode))
-            line_break_context = bottom_level;
-        end_graf();             /* this takes us to the enclosing mode, if |mode>0| */
+        end_graf(bottom_level); /* this takes us to the enclosing mode, if |mode>0| */
         if (mode == vmode) {
             check_filter("hmode_par");
             build_page();
@@ -1173,18 +1171,15 @@ void handle_right_brace(void)
         package(0);
         break;
     case vbox_group:
-        line_break_context = vbox_group;
-        end_graf();
+        end_graf(vbox_group);
         package(0);
         break;
     case vtop_group:
-        line_break_context = vtop_group;
-        end_graf();
+        end_graf(vtop_group);
         package(vtop_code);
         break;
     case insert_group:
-        line_break_context = insert_group;
-        end_graf();
+        end_graf(insert_group);
         q = split_top_skip;
         add_glue_ref(q);
         d = split_max_depth;
@@ -1232,14 +1227,12 @@ void handle_right_brace(void)
         ins_error();
         break;
     case no_align_group:
-        line_break_context = no_align_group;
-        end_graf();
+        end_graf(no_align_group);
         unsave();
         align_peek();
         break;
     case vcenter_group:
-        line_break_context = vcenter_group;
-        end_graf();
+        end_graf(vcenter_group);
         finish_vcenter();
         break;
     case math_choice_group:
@@ -1410,6 +1403,7 @@ void scan_box(integer box_context)
 void new_graf(boolean indented)
 {
     halfword p, q, dir_graf_tmp;
+    halfword dir_rover;
     prev_graf = 0;
     if ((mode == vmode) || (head != tail)) {
         tail_append(new_param_glue(par_skip_code));
@@ -1488,13 +1482,13 @@ pretty heavy memory leaks. This means the current code is probably
 wrong in some way that relates to in-paragraph displays.
 */
 
-void end_graf(void)
+void end_graf(integer line_break_context)
 {
     if (mode == hmode) {
         if ((head == tail) || (vlink(head) == tail))
             pop_nest();         /* null paragraphs are ignored, all contain a |local_paragraph| node */
         else
-            line_break(false);
+            line_break(false, line_break_context);
         if (dir_save != null) {
             flush_node_list(dir_save);
             dir_save = null;
@@ -2021,8 +2015,7 @@ void do_endv(void)
         fatal_error("(interwoven alignment preambles are not allowed)");
     /*.interwoven alignment preambles... */
     if (cur_group == align_group) {
-        line_break_context = align_group;
-        end_graf();
+        end_graf(align_group);
         if (fin_col())
             fin_row();
     } else {
@@ -2369,17 +2362,18 @@ void prefixed_command(void)
             }
             if (dir_level(text_dir_ptr) == cur_level) {
                 /* DIR: Remove from |text_dir_ptr| */
-                text_dir_tmp = vlink(text_dir_ptr);
+                halfword text_dir_tmp = vlink(text_dir_ptr);
                 flush_node(text_dir_ptr);
                 text_dir_ptr = text_dir_tmp;
 
             }
             eq_word_define(int_base + text_direction_code, cur_val);
             /* DIR: Add to |text_dir_ptr| */
-            text_dir_tmp = new_dir(text_direction);
-            vlink(text_dir_tmp) = text_dir_ptr;
-            text_dir_ptr = text_dir_tmp;
-
+            {
+		halfword text_dir_tmp = new_dir(text_direction);
+		vlink(text_dir_tmp) = text_dir_ptr;
+		text_dir_ptr = text_dir_tmp;
+	    }
             if (abs(mode) == hmode) {
                 /* DIR: Add local dir node */
                 tail_append(new_dir(text_direction));
@@ -2730,12 +2724,15 @@ void prefixed_command(void)
 
 void fixup_directions(void)
 {
+    integer temp_no_whatsits;
+    integer temp_no_dirs;
+    integer temporary_dir;
     temp_no_whatsits = no_local_whatsits;
     temp_no_dirs = no_local_dirs;
     temporary_dir = text_direction;
     if (dir_level(text_dir_ptr) == cur_level) {
         /* DIR: Remove from |text_dir_ptr| */
-        text_dir_tmp = vlink(text_dir_ptr);
+        halfword text_dir_tmp = vlink(text_dir_ptr);
         flush_node(text_dir_ptr);
         text_dir_ptr = text_dir_tmp;
 
