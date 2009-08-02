@@ -55,6 +55,7 @@
 #  define dir__BR 15
 
 #  define dir_TLT  0
+#  define glyph_dir dir_TLT
 
 #  define box_direction(A)    ((A) / 4)
 #  define font_direction(A)   ((A) % 16)
