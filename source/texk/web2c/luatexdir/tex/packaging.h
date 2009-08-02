@@ -69,7 +69,7 @@ extern halfword hpack(halfword p, scaled w, int m);
 extern halfword filtered_hpack(halfword p, halfword qt, scaled w, int m,
                                integer grp);
 
-extern scaled_whd natural_sizes (halfword p, halfword pp);
+extern scaled_whd natural_sizes(halfword p, halfword pp);
 
 extern integer pack_begin_line;
 

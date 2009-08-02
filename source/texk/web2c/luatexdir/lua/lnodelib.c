@@ -518,9 +518,9 @@ static int lua_nodelib_dimensions(lua_State * L)
         p = *(check_isnode(L, 2));
     }
     siz = natural_sizes(n, p);
-    lua_pushnumber(L,siz.wd);
-    lua_pushnumber(L,siz.ht);
-    lua_pushnumber(L,siz.dp);
+    lua_pushnumber(L, siz.wd);
+    lua_pushnumber(L, siz.ht);
+    lua_pushnumber(L, siz.dp);
     return 3;
 }
 

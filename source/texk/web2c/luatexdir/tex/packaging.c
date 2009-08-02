@@ -416,7 +416,7 @@ halfword hpack(halfword p, scaled w, int m)
     int o;                      /* order of infinity */
     internal_font_number f;     /* the font in a |char_node| */
     halfword dir_ptr;           /* for managing the direction stack */
-                                /* BEWARE: this shadows a global |dir_ptr| */
+    /* BEWARE: this shadows a global |dir_ptr| */
     integer hpack_dir;          /* the current direction */
     integer disc_level;
     halfword pack_interrupt[8];
@@ -872,14 +872,14 @@ halfword filtered_hpack(halfword p, halfword qt, scaled w, int m, integer grp)
 /* here is a function to calculate the natural whd of a (horizontal) node list */
 
 
-scaled_whd natural_sizes (halfword p, halfword pp)
+scaled_whd natural_sizes(halfword p, halfword pp)
 {
     scaled s;                   /* shift amount */
     halfword g;                 /* points to a glue specification */
     internal_font_number f;     /* the font in a |char_node| */
     integer hpack_dir;
-    scaled_whd xx; /* for recursion */
-    scaled_whd siz = {0,0,0};
+    scaled_whd xx;              /* for recursion */
+    scaled_whd siz = { 0, 0, 0 };
     if (pack_direction == -1) {
         hpack_dir = text_direction;
     } else {
@@ -891,14 +891,18 @@ scaled_whd natural_sizes (halfword p, halfword pp)
             if (is_rotated(hpack_dir)) {
                 siz.wd += (glyph_height(p) + glyph_depth(p));
                 s = glyph_width(p) / 2;
-                if (s > siz.ht) siz.ht = s;
-                if (s > siz.dp) siz.dp = s;
+                if (s > siz.ht)
+                    siz.ht = s;
+                if (s > siz.dp)
+                    siz.dp = s;
             } else {
                 siz.wd += glyph_width(p);
                 s = glyph_height(p);
-                if (s > siz.ht) siz.ht = s;
+                if (s > siz.ht)
+                    siz.ht = s;
                 s = glyph_depth(p);
-                if (s > siz.dp) siz.dp = s;
+                if (s > siz.dp)
+                    siz.dp = s;
             }
             p = vlink(p);
         }
@@ -974,10 +978,12 @@ scaled_whd natural_sizes (halfword p, halfword pp)
                 siz.wd += surround(p);
                 break;
             case disc_node:
-                xx = natural_sizes (no_break(p), null);
+                xx = natural_sizes(no_break(p), null);
                 siz.wd += xx.wd;
-                if (xx.ht > siz.ht) siz.ht = xx.ht;
-                if (xx.dp > siz.ht) siz.dp = xx.dp;
+                if (xx.ht > siz.ht)
+                    siz.ht = xx.ht;
+                if (xx.dp > siz.ht)
+                    siz.dp = xx.dp;
                 break;
             default:
                 break;

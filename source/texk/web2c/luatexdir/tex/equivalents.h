@@ -476,7 +476,7 @@ appears in location |save_ptr+k| of the save stack.
 #  define saved_boxattr 16
 #  define saved_eqtb 17
 
-extern void print_save_stack (void);
+extern void print_save_stack(void);
 
 #  define assign_trace(A,B) if (int_par(tracing_assigns_code)>0) restore_trace((A),(B))
 

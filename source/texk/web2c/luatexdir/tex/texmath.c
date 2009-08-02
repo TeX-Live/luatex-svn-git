@@ -1943,11 +1943,12 @@ static boolean math_and_text_reversed_p(void)
     int i = save_ptr - 1;
     while (save_type(i) != level_boundary)
         i--;
-    while (i<save_ptr) {
+    while (i < save_ptr) {
         if (save_type(i) == restore_old_value &&
-            save_value(i) == int_base+par_direction_code ) {
+            save_value(i) == int_base + par_direction_code) {
             if (dir_opposite
-                (dir_secondary[math_direction], dir_secondary[save_value(i-1)]))
+                (dir_secondary[math_direction],
+                 dir_secondary[save_value(i - 1)]))
                 return true;
         }
         i++;

@@ -26,7 +26,7 @@ static const char _svn_version[] =
 
 #define par_shape_ptr equiv(par_shape_loc)
 
-void show_eqtb_meaning(halfword n); /* forward */
+void show_eqtb_meaning(halfword n);     /* forward */
 
 /*
 Now that we have studied the data structures for \TeX's semantic routines,
@@ -219,131 +219,135 @@ void new_save_level(group_code c)
 }
 
 
-char *save_stack_type (int v) 
+char *save_stack_type(int v)
 {
     char *s = "";
     switch (save_type(v)) {
-    case restore_old_value: s="restore_old_value"; break;
-    case restore_zero: s="restore_zero"; break;
-    case insert_token: s="insert_token"; break;
-    case level_boundary: s="level_boundary"; break;
-    case saved_line: s="saved_line"; break;
-    case saved_adjust: s="saved_adjust"; break;
-    case saved_insert: s="saved_insert"; break;
-    case saved_disc: s="saved_disc"; break;
-    case saved_boxtype: s="saved_boxtype"; break;
-    case saved_textdir: s="saved_textdir"; break;
-    case saved_eqno: s="saved_eqno"; break;
-    case saved_choices: s="saved_choices"; break;
-    case saved_math: s="saved_math"; break;
-    case saved_boxcontext: s="saved_boxcontext"; break;
-    case saved_boxspec: s="saved_boxspec"; break;
-    case saved_boxdir: s="saved_boxdir"; break;
-    case saved_boxattr: s="saved_boxattr"; break;
-    case saved_eqtb: s="saved_eqtb"; break;
-    default:  break;
+/* *INDENT-OFF* */
+    case restore_old_value: s = "restore_old_value"; break;
+    case restore_zero:      s = "restore_zero";      break;
+    case insert_token:      s = "insert_token";      break;
+    case level_boundary:    s = "level_boundary";    break;
+    case saved_line:        s = "saved_line";        break;
+    case saved_adjust:      s = "saved_adjust";      break;
+    case saved_insert:      s = "saved_insert";      break;
+    case saved_disc:        s = "saved_disc";        break;
+    case saved_boxtype:     s = "saved_boxtype";     break;
+    case saved_textdir:     s = "saved_textdir";     break;
+    case saved_eqno:        s = "saved_eqno";        break;
+    case saved_choices:     s = "saved_choices";     break;
+    case saved_math:        s = "saved_math";        break;
+    case saved_boxcontext:  s = "saved_boxcontext";  break;
+    case saved_boxspec:     s = "saved_boxspec";     break;
+    case saved_boxdir:      s = "saved_boxdir";      break;
+    case saved_boxattr:     s = "saved_boxattr";     break;
+    case saved_eqtb:        s = "saved_eqtb";        break;
+    default: break;
+/* *INDENT-ON* */
     }
     return s;
 }
 
 
-void print_save_stack (void)
+void print_save_stack(void)
 {
     int i;
     begin_diagnostic();
     selector = term_and_log;
     print_ln();
-    for (i = (save_ptr-1);i>=0;i--) {
-        tprint ("save_stack[");
-        if (i<100) print_char(' ');
-        if (i<10) print_char(' ');
+    for (i = (save_ptr - 1); i >= 0; i--) {
+        tprint("save_stack[");
+        if (i < 100)
+            print_char(' ');
+        if (i < 10)
+            print_char(' ');
         print_int(i);
-        tprint ("]: ");
-        tprint(save_stack_type (i));
+        tprint("]: ");
+        tprint(save_stack_type(i));
         switch (save_type(i)) {
         case restore_old_value:
-            tprint (", ");
+            tprint(", ");
             show_eqtb_meaning(save_value(i));
             tprint("=");
-            if (save_value(i)>=int_base) {
-                print_int(save_word(i-1).cint);
+            if (save_value(i) >= int_base) {
+                print_int(save_word(i - 1).cint);
             } else {
-                print_int(eq_type_field(save_word(i-1)));
-                print_char(','); /* print_int(eq_level_field(save_word(i-1))); */
-                print_int(equiv_field(save_word(i-1)));
+                print_int(eq_type_field(save_word(i - 1)));
+                print_char(',');        /* print_int(eq_level_field(save_word(i-1))); */
+                print_int(equiv_field(save_word(i - 1)));
             }
             i--;
             break;
-        case restore_zero: 
-            tprint (", ");
+        case restore_zero:
+            tprint(", ");
             show_eqtb_meaning(save_value(i));
             break;
-        case insert_token: 
-            tprint (", ");
+        case insert_token:
+            tprint(", ");
             {
                 halfword p = get_avail();
                 set_token_info(p, save_value(i));
-                show_token_list(p,null,1);
+                show_token_list(p, null, 1);
                 free_avail(p);
             }
             break;
-        case level_boundary: 
+        case level_boundary:
             tprint(", old group=");
             print_int(save_level(i));
             tprint(", boundary = ");
             print_int(save_value(i));
             tprint(", line = ");
-            print_int(save_value(i-1));
+            print_int(save_value(i - 1));
             i--;
             break;
-        case saved_adjust: 
-            tprint (", ");
-            print_int(save_level(i)); /* vadjust vs vadjust pre */
+        case saved_adjust:
+            tprint(", ");
+            print_int(save_level(i));   /* vadjust vs vadjust pre */
             break;
-        case saved_insert:  
-            tprint (", ");
-            print_int(save_value(i)); /* insert number */
+        case saved_insert:
+            tprint(", ");
+            print_int(save_value(i));   /* insert number */
             break;
-        case saved_boxtype: /* \localleftbox vs \localrightbox */
-            tprint (", ");
+        case saved_boxtype:    /* \localleftbox vs \localrightbox */
+            tprint(", ");
             print_int(save_value(i));
             break;
-        case saved_eqno: /* \eqno vs \leqno */
-            tprint (", ");
+        case saved_eqno:       /* \eqno vs \leqno */
+            tprint(", ");
             print_int(save_value(i));
             break;
-        case saved_disc: 
-        case saved_choices: 
-            tprint (", ");
+        case saved_disc:
+        case saved_choices:
+            tprint(", ");
             print_int(save_value(i));
             break;
-        case saved_math: 
-            tprint (", listptr=");
+        case saved_math:
+            tprint(", listptr=");
             print_int(save_value(i));
             break;
-        case saved_boxcontext: 
-            tprint (", ");
+        case saved_boxcontext:
+            tprint(", ");
             print_int(save_value(i));
             break;
-        case saved_boxspec: 
-            tprint (", spec=");
+        case saved_boxspec:
+            tprint(", spec=");
             print_int(save_level(i));
-            tprint (", dimen=");
+            tprint(", dimen=");
             print_int(save_value(i));
             break;
         case saved_textdir:
-        case saved_boxdir: 
-            tprint (", ");
+        case saved_boxdir:
+            tprint(", ");
             print_dir(dir_dir(save_value(i)));
             break;
-        case saved_boxattr: 
-            tprint (", ");
+        case saved_boxattr:
+            tprint(", ");
             print_int(save_value(i));
             break;
-        case saved_line: 
-        case saved_eqtb: 
+        case saved_line:
+        case saved_eqtb:
             break;
-        default:  
+        default:
             break;
         }
         print_ln();
@@ -1166,5 +1170,3 @@ void show_eqtb_meaning(halfword n)
         print_char('?');        /* this can't happen either */
     }
 }
-
-

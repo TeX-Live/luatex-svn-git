@@ -99,8 +99,8 @@ Most other processing is delegated to external functions.
 */
 
 static void ext_do_line_break(boolean d,
-			      int paragraph_dir,
-			      int line_break_dir,
+                              int paragraph_dir,
+                              int line_break_dir,
                               int pretolerance,
                               int tracing_paragraphs,
                               int tolerance,
@@ -140,11 +140,11 @@ static void ext_do_line_break(boolean d,
 
 void line_break(boolean d, integer line_break_context)
 {
-    integer paragraph_dir;          /* main direction of paragraph */
+    integer paragraph_dir;      /* main direction of paragraph */
     halfword final_par_glue;
     halfword start_of_par;
     integer callback_id;
-    integer line_break_dir;         /* current direction within paragraph */
+    integer line_break_dir;     /* current direction within paragraph */
     pack_begin_line = cur_list.ml_field;        /* this is for over/underfull box messages */
     vlink(temp_head) = vlink(cur_list.head_field);
     new_hyphenation(temp_head, cur_list.tail_field);
@@ -153,7 +153,7 @@ void line_break(boolean d, integer line_break_context)
             && (subtype(vlink(cur_list.head_field)) == local_par_node)))
         paragraph_dir = local_par_dir(vlink(cur_list.head_field));
     else {
-        assert(0); /* paragraph_dir = 0; */
+        assert(0);              /* paragraph_dir = 0; */
     }
     line_break_dir = paragraph_dir;
     cur_list.tail_field = new_ligkern(temp_head, cur_list.tail_field);
@@ -206,8 +206,8 @@ void line_break(boolean d, integer line_break_context)
     }
     if (callback_id == 0) {
         ext_do_line_break(d,
-			  paragraph_dir,
-			  line_break_dir,
+                          paragraph_dir,
+                          line_break_dir,
                           int_par(pretolerance_code),
                           int_par(tracing_paragraphs_code),
                           int_par(tolerance_code),
@@ -944,7 +944,8 @@ static void sub_from_widths(halfword s, integer line_break_dir,
    line_break_dir
 */
 static void
-compute_break_width(int break_type, int line_break_dir, int pdf_adjust_spacing, halfword p
+compute_break_width(int break_type, int line_break_dir, int pdf_adjust_spacing,
+                    halfword p
                     /*, halfword s */ )
 {
     halfword s;                 /* glue and other 'whitespace' to be skipped after a break
@@ -1146,7 +1147,7 @@ print_feasible_break(halfword cur_p, pointer r, halfword b, integer pi,
 static void
 ext_try_break(integer pi,
               quarterword break_type,
-	      int line_break_dir,
+              int line_break_dir,
               int pdf_adjust_spacing,
               int par_shape_ptr,
               int adj_demerits,
@@ -1228,7 +1229,8 @@ ext_try_break(integer pi,
                 if (no_break_yet) {
                     no_break_yet = false;
                     do_all_eight(set_break_width_to_background);
-                    compute_break_width(break_type, line_break_dir, pdf_adjust_spacing, cur_p);
+                    compute_break_width(break_type, line_break_dir,
+                                        pdf_adjust_spacing, cur_p);
                 }
                 /* @<Insert a delta node to prepare for breaks at |cur_p|@>; */
                 /* We use the fact that |type(active)<>delta_node|. */
@@ -1688,8 +1690,8 @@ ext_try_break(integer pi,
 
 static void
 ext_do_line_break(boolean d,
-		  int paragraph_dir,
-		  int line_break_dir,
+                  int paragraph_dir,
+                  int line_break_dir,
                   int pretolerance,
                   int tracing_paragraphs,
                   int tolerance,
@@ -2022,21 +2024,23 @@ ext_do_line_break(boolean d,
                     s = vlink_pre_break(cur_p);
                     do_one_seven_eight(reset_disc_width);
                     if (s == null) {    /* trivial pre-break */
-                        ext_try_break(actual_penalty, hyphenated_node, line_break_dir, 
-                                      pdf_adjust_spacing, par_shape_ptr,
-                                      adj_demerits, tracing_paragraphs,
-                                      pdf_protrude_chars, line_penalty,
-                                      last_line_fit, double_hyphen_demerits,
+                        ext_try_break(actual_penalty, hyphenated_node,
+                                      line_break_dir, pdf_adjust_spacing,
+                                      par_shape_ptr, adj_demerits,
+                                      tracing_paragraphs, pdf_protrude_chars,
+                                      line_penalty, last_line_fit,
+                                      double_hyphen_demerits,
                                       final_hyphen_demerits, first_p, cur_p);
                     } else {
                         add_to_widths(s, line_break_dir, pdf_adjust_spacing,
                                       disc_width);
                         do_one_seven_eight(add_disc_width_to_active_width);
-                        ext_try_break(actual_penalty, hyphenated_node, line_break_dir, 
-                                      pdf_adjust_spacing, par_shape_ptr,
-                                      adj_demerits, tracing_paragraphs,
-                                      pdf_protrude_chars, line_penalty,
-                                      last_line_fit, double_hyphen_demerits,
+                        ext_try_break(actual_penalty, hyphenated_node,
+                                      line_break_dir, pdf_adjust_spacing,
+                                      par_shape_ptr, adj_demerits,
+                                      tracing_paragraphs, pdf_protrude_chars,
+                                      line_penalty, last_line_fit,
+                                      double_hyphen_demerits,
                                       final_hyphen_demerits, first_p, cur_p);
                         if (subtype(cur_p) == init_disc) {
                             /* we should at two break points after the one we
@@ -2050,9 +2054,10 @@ ext_do_line_break(boolean d,
                             s = vlink_pre_break(vlink(cur_p));
                             add_to_widths(s, line_break_dir, pdf_adjust_spacing,
                                           disc_width);
-                            ext_try_break(actual_penalty, hyphenated_node, line_break_dir, 
-                                          pdf_adjust_spacing, par_shape_ptr,
-                                          adj_demerits, tracing_paragraphs,
+                            ext_try_break(actual_penalty, hyphenated_node,
+                                          line_break_dir, pdf_adjust_spacing,
+                                          par_shape_ptr, adj_demerits,
+                                          tracing_paragraphs,
                                           pdf_protrude_chars, line_penalty,
                                           last_line_fit, double_hyphen_demerits,
                                           final_hyphen_demerits, first_p,
@@ -2067,9 +2072,10 @@ ext_do_line_break(boolean d,
                             s = vlink_no_break(vlink(cur_p));
                             add_to_widths(s, line_break_dir, pdf_adjust_spacing,
                                           disc_width);
-                            ext_try_break(actual_penalty, hyphenated_node, line_break_dir, 
-                                          pdf_adjust_spacing, par_shape_ptr,
-                                          adj_demerits, tracing_paragraphs,
+                            ext_try_break(actual_penalty, hyphenated_node,
+                                          line_break_dir, pdf_adjust_spacing,
+                                          par_shape_ptr, adj_demerits,
+                                          tracing_paragraphs,
                                           pdf_protrude_chars, line_penalty,
                                           last_line_fit, double_hyphen_demerits,
                                           final_hyphen_demerits, first_p,
@@ -2088,7 +2094,7 @@ ext_do_line_break(boolean d,
                 kern_break();
                 break;
             case penalty_node:
-                ext_try_break(penalty(cur_p), unhyphenated_node, line_break_dir, 
+                ext_try_break(penalty(cur_p), unhyphenated_node, line_break_dir,
                               pdf_adjust_spacing, par_shape_ptr, adj_demerits,
                               tracing_paragraphs, pdf_protrude_chars,
                               line_penalty, last_line_fit,
@@ -2127,11 +2133,11 @@ ext_do_line_break(boolean d,
                help determine what is best.
              */
 
-            ext_try_break(eject_penalty, hyphenated_node, line_break_dir,  pdf_adjust_spacing,
-                          par_shape_ptr, adj_demerits, tracing_paragraphs,
-                          pdf_protrude_chars, line_penalty, last_line_fit,
-                          double_hyphen_demerits, final_hyphen_demerits,
-                          first_p, cur_p);
+            ext_try_break(eject_penalty, hyphenated_node, line_break_dir,
+                          pdf_adjust_spacing, par_shape_ptr, adj_demerits,
+                          tracing_paragraphs, pdf_protrude_chars, line_penalty,
+                          last_line_fit, double_hyphen_demerits,
+                          final_hyphen_demerits, first_p, cur_p);
             if (vlink(active) != active) {
                 /* @<Find an active node with fewest demerits@>; */
                 r = vlink(active);
@@ -2235,7 +2241,7 @@ ext_do_line_break(boolean d,
     dir_ptr = null;
 
     ext_post_line_break(d,
-			paragraph_dir,
+                        paragraph_dir,
                         right_skip,
                         left_skip,
                         pdf_protrude_chars,

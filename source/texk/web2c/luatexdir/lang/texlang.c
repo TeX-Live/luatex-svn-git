@@ -787,16 +787,17 @@ int valid_wordend(halfword s)
     if (r == null)
         return 1;
     while ((r != null) && ((type(r) == glyph_node && is_simple_character(r)
-                            && clang == char_lang(r)) || 
-                           (type(r) == kern_node && (subtype(r) == normal)) 
-               )) {
+                            && clang == char_lang(r)) ||
+                           (type(r) == kern_node && (subtype(r) == normal))
+           )) {
         r = vlink(r);
     }
     if (r == null || (type(r) == glyph_node && is_simple_character(r)
                       && clang != char_lang(r)) || type(r) == glue_node
         || type(r) == whatsit_node || type(r) == ins_node
         || type(r) == adjust_node || type(r) == penalty_node
-        || (type(r) == kern_node && (subtype(r) == explicit || subtype(r) == acc_kern)))
+        || (type(r) == kern_node
+            && (subtype(r) == explicit || subtype(r) == acc_kern)))
         return 1;
     return 0;
 }

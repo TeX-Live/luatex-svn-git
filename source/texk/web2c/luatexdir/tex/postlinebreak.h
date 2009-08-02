@@ -31,7 +31,7 @@
 
 
 void ext_post_line_break(boolean d,
-			 int paragraph_dir,
+                         int paragraph_dir,
                          int right_skip,
                          int left_skip,
                          int pdf_protrude_chars,

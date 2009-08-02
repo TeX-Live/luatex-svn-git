@@ -2370,10 +2370,10 @@ void prefixed_command(void)
             eq_word_define(int_base + text_direction_code, cur_val);
             /* DIR: Add to |text_dir_ptr| */
             {
-		halfword text_dir_tmp = new_dir(text_direction);
-		vlink(text_dir_tmp) = text_dir_ptr;
-		text_dir_ptr = text_dir_tmp;
-	    }
+                halfword text_dir_tmp = new_dir(text_direction);
+                vlink(text_dir_tmp) = text_dir_ptr;
+                text_dir_ptr = text_dir_tmp;
+            }
             if (abs(mode) == hmode) {
                 /* DIR: Add local dir node */
                 tail_append(new_dir(text_direction));
