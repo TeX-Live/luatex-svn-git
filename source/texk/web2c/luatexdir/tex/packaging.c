@@ -485,8 +485,8 @@ halfword hpack(halfword p, scaled w, int m)
                 }
             }
             f = font(p);
+            x += pack_width(hpack_dir, glyph_dir, p, true);
             if (is_rotated(hpack_dir)) {
-                x = x + glyph_height(p) + glyph_depth(p);
                 s = glyph_width(p) / 2;
                 if (s > h)
                     h = s;
@@ -495,7 +495,6 @@ halfword hpack(halfword p, scaled w, int m)
             } else
                 if (dir_opposite
                     (dir_tertiary[hpack_dir], dir_tertiary[box_dir(r)])) {
-                x = x + glyph_width(p);
                 s = glyph_depth(p);
                 if (s > h)
                     h = s;
@@ -503,7 +502,6 @@ halfword hpack(halfword p, scaled w, int m)
                 if (s > d)
                     d = s;
             } else {
-                x = x + glyph_width(p);
                 s = glyph_height(p);
                 if (s > h)
                     h = s;
@@ -525,9 +523,9 @@ halfword hpack(halfword p, scaled w, int m)
                    because it is a highly negative number. */
                 if ((type(p) == hlist_node) || (type(p) == vlist_node)) {
                     s = shift_amount(p);
+                    x += pack_width(hpack_dir, box_dir(p), p, false);
                     if (dir_orthogonal
                         (dir_primary[box_dir(p)], dir_primary[hpack_dir])) {
-                        x = x + height(p) + depth(p);
                         if ((width(p) / 2) - s > h)
                             h = (width(p) / 2) - s;
                         if ((width(p) / 2) + s > d)
@@ -535,20 +533,17 @@ halfword hpack(halfword p, scaled w, int m)
 
                     } else if ((type(p) == hlist_node)
                                && is_mirrored(hpack_dir)) {
-                        x = x + width(p);
                         if (depth(p) - s > h)
                             h = depth(p) - s;
                         if (height(p) + s > d)
                             d = height(p) + s;
                     } else {
-                        x = x + width(p);
                         if (height(p) - s > h)
                             h = height(p) - s;
                         if (depth(p) + s > d)
                             d = depth(p) + s;
                     }
                 } else {
-                    x = x + width(p);
                     if (type(p) >= rule_node)
                         s = 0;
                     else
@@ -606,7 +601,7 @@ halfword hpack(halfword p, scaled w, int m)
                 } else {
                     if ((subtype(p) == pdf_refxform_node)
                         || (subtype(p) == pdf_refximage_node)) {
-                        x = x + pdf_width(p);
+                        x += pdf_width(p);
                         s = 0;
                         if (pdf_height(p) - s > h)
                             h = pdf_height(p) - s;
@@ -618,7 +613,7 @@ halfword hpack(halfword p, scaled w, int m)
             case glue_node:
                 /* Incorporate glue into the horizontal totals */
                 g = glue_ptr(p);
-                x = x + width(g);
+                x += width(g);
                 o = stretch_order(g);
                 total_stretch[o] = total_stretch[o] + stretch(g);
                 o = shrink_order(g);
@@ -650,7 +645,7 @@ halfword hpack(halfword p, scaled w, int m)
                     do_subst_font(margin_char(p), font_expand_ratio);
                     width(p) = -char_pw(margin_char(p), subtype(p));
                 }
-                x = x + width(p);
+                x += width(p);
                 break;
             case kern_node:
                 if (subtype(p) == normal) {
@@ -670,10 +665,10 @@ halfword hpack(halfword p, scaled w, int m)
                                                 character(vlink(p)));
                     }
                 }
-                x = x + width(p);
+                x += width(p);
                 break;
             case math_node:
-                x = x + surround(p);
+                x += surround(p);
                 break;
             case disc_node:
                 if (m == subst_ex_font)
@@ -888,15 +883,14 @@ scaled_whd natural_sizes(halfword p, halfword pp)
     while (p != pp && p != null) {
         while (is_char_node(p)) {
             f = font(p);
+            siz.wd += pack_width(hpack_dir, glyph_dir, p, true);
             if (is_rotated(hpack_dir)) {
-                siz.wd += (glyph_height(p) + glyph_depth(p));
                 s = glyph_width(p) / 2;
                 if (s > siz.ht)
                     siz.ht = s;
                 if (s > siz.dp)
                     siz.dp = s;
             } else {
-                siz.wd += glyph_width(p);
                 s = glyph_height(p);
                 if (s > siz.ht)
                     siz.ht = s;
@@ -914,9 +908,9 @@ scaled_whd natural_sizes(halfword p, halfword pp)
             case unset_node:
                 if ((type(p) == hlist_node) || (type(p) == vlist_node)) {
                     s = shift_amount(p);
+                    siz.wd += pack_width(hpack_dir, box_dir(p), p, false);
                     if (dir_orthogonal
                         (dir_primary[box_dir(p)], dir_primary[hpack_dir])) {
-                        siz.wd += (height(p) + depth(p));
                         if ((width(p) / 2) - s > siz.ht)
                             siz.ht = (width(p) / 2) - s;
                         if ((width(p) / 2) + s > siz.dp)
@@ -924,20 +918,17 @@ scaled_whd natural_sizes(halfword p, halfword pp)
 
                     } else if ((type(p) == hlist_node)
                                && is_mirrored(hpack_dir)) {
-                        siz.wd += width(p);
                         if (depth(p) - s > siz.ht)
                             siz.ht = depth(p) - s;
                         if (height(p) + s > siz.dp)
                             siz.dp = height(p) + s;
                     } else {
-                        siz.wd += width(p);
                         if (height(p) - s > siz.ht)
                             siz.ht = height(p) - s;
                         if (depth(p) + s > siz.dp)
                             siz.dp = depth(p) + s;
                     }
                 } else {
-                    siz.wd += width(p);
                     if (type(p) >= rule_node)
                         s = 0;
                     else
@@ -1066,24 +1057,24 @@ halfword vpackage(halfword p, scaled h, int m, scaled l)
                     s = shift_amount(p);
                     if (dir_orthogonal
                         (dir_primary[box_dir(p)], dir_primary[box_dir(r)])) {
-                        x = x + d + (width(p) / 2);
+                        x += d + (width(p) / 2);
                         d = width(p) / 2;
                         if (depth(p) + height(p) + s > w)
                             w = depth(p) + height(p) + s;
                     } else if ((type(p) == hlist_node)
                                && is_mirrored(box_dir(p))) {
-                        x = x + d + depth(p);
+                        x += d + depth(p);
                         d = height(p);
                         if (width(p) + s > w)
                             w = width(p) + s;
                     } else {
-                        x = x + d + height(p);
+                        x += d + height(p);
                         d = depth(p);
                         if (width(p) + s > w)
                             w = width(p) + s;
                     }
                 } else {
-                    x = x + d + height(p);
+                    x += d + height(p);
                     d = depth(p);
                     if (type(p) >= rule_node)
                         s = 0;
@@ -1097,7 +1088,7 @@ halfword vpackage(halfword p, scaled h, int m, scaled l)
                 /* Incorporate a whatsit node into a vbox */
                 if ((subtype(p) == pdf_refxform_node)
                     || (subtype(p) == pdf_refximage_node)) {
-                    x = x + d + pdf_height(p);
+                    x += d + pdf_height(p);
                     d = pdf_depth(p);
                     s = 0;
                     if (pdf_width(p) + s > w)
@@ -1106,10 +1097,10 @@ halfword vpackage(halfword p, scaled h, int m, scaled l)
                 break;
             case glue_node:
                 /* Incorporate glue into the vertical totals */
-                x = x + d;
+                x += d;
                 d = 0;
                 g = glue_ptr(p);
-                x = x + width(g);
+                x += width(g);
                 o = stretch_order(g);
                 total_stretch[o] = total_stretch[o] + stretch(g);
                 o = shrink_order(g);
@@ -1121,7 +1112,7 @@ halfword vpackage(halfword p, scaled h, int m, scaled l)
                 }
                 break;
             case kern_node:
-                x = x + d + width(p);
+                x += d + width(p);
                 d = 0;
                 break;
             default:
@@ -1132,7 +1123,7 @@ halfword vpackage(halfword p, scaled h, int m, scaled l)
     }
     width(r) = w;
     if (d > l) {
-        x = x + d - l;
+        x += d - l;
         depth(r) = l;
     } else {
         depth(r) = d;

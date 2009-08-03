@@ -105,4 +105,6 @@ extern void scan_direction(void);
 extern halfword do_push_dir_node(halfword p, halfword a);
 extern halfword do_pop_dir_node(halfword p);
 
+scaled pack_width(int curdir, int pdir, halfword p, boolean isglyph);
+
 #endif

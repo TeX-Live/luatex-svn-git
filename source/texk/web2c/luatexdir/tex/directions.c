@@ -147,3 +147,23 @@ void print_dir(int d)
     print_char(dir_names[dir_secondary[d]]);
     print_char(dir_names[dir_tertiary[d]]);
 }
+
+/**********************************************************************/
+
+scaled pack_width(int curdir, int pdir, halfword p, boolean isglyph)
+{
+    scaled wd = 0;
+    if (isglyph) {
+        if (dir_parallel(dir_secondary[curdir], dir_secondary[pdir]) ==
+            dir_orthogonal(dir_secondary[pdir], dir_tertiary[pdir]))
+            wd = glyph_width(p);
+        else
+            wd = glyph_depth(p) + glyph_height(p);
+    } else {                    /* hlist, vlist, image, form, rule */
+        if (dir_parallel(dir_secondary[pdir], dir_secondary[curdir]))
+            wd = width(p);
+        else
+            wd = depth(p) + height(p);
+    }
+    return wd;
+}

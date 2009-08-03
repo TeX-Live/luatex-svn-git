@@ -174,15 +174,15 @@ typedef enum {
 #  define synctex_line_kern(a) vlink((a)+3)
 
 #  define box_node_size 9
-#  define width(a)            varmem[(a+2)].cint
-#  define depth(a)            varmem[(a+3)].cint
-#  define height(a)           varmem[(a+4)].cint
+#  define width(a)            varmem[(a)+2].cint
+#  define depth(a)            varmem[(a)+3].cint
+#  define height(a)           varmem[(a)+4].cint
 #  define shift_amount(a)     vlink((a)+5)
 #  define box_dir(a)          vinfo((a)+5)
 #  define list_ptr(a)         vlink((a)+6)
 #  define glue_order(a)       subtype((a)+6)
 #  define glue_sign(a)        type((a)+6)
-#  define glue_set(a)         varmem[(a+7)].gr
+#  define glue_set(a)         varmem[(a)+7].gr
 #  define synctex_tag_box(a)  vinfo((a)+8)
 #  define synctex_line_box(a) vlink((a)+8)
 
@@ -568,9 +568,9 @@ destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinat
 #  define pdf_ann_right(a)     varmem[(a) + 4].cint
 #  define pdf_ann_bottom(a)    varmem[(a) + 5].cint
 
-#  define pdf_width(a)         varmem[(a) + 2].cint
-#  define pdf_height(a)        varmem[(a) + 3].cint
-#  define pdf_depth(a)         varmem[(a) + 4].cint
+#  define pdf_width(a)         width(a)
+#  define pdf_height(a)        height(a)
+#  define pdf_depth(a)         depth(a)
 
 #  define pdf_literal_data(a)  vlink((a)+2)
 #  define pdf_literal_mode(a)  type((a)+2)

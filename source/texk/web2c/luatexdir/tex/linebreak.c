@@ -824,11 +824,7 @@ static void add_to_widths(halfword s, integer line_break_dir,
 {
     while (s != null) {
         if (is_char_node(s)) {
-            if (is_rotated(line_break_dir)) {
-                widths[1] += glyph_height(s) + glyph_depth(s);
-            } else {
-                widths[1] += glyph_width(s);
-            }
+            widths[1] += pack_width(line_break_dir, glyph_dir, s, true);
             if ((pdf_adjust_spacing > 1) && check_expand_pars(font(s))) {
                 set_prev_char_p(s);
                 add_char_stretch(widths[8], s);
@@ -838,11 +834,7 @@ static void add_to_widths(halfword s, integer line_break_dir,
             switch (type(s)) {
             case hlist_node:
             case vlist_node:
-                if (!(dir_orthogonal(dir_primary[box_dir(s)],
-                                     dir_primary[line_break_dir])))
-                    widths[1] += width(s);
-                else
-                    widths[1] += (depth(s) + height(s));
+                widths[1] += pack_width(line_break_dir, box_dir(s), s, false);
                 break;
             case kern_node:
                 if ((pdf_adjust_spacing > 1) && (subtype(s) == normal)) {
@@ -875,11 +867,7 @@ static void sub_from_widths(halfword s, integer line_break_dir,
     while (s != null) {
         /* @<Subtract the width of node |s| from |break_width|@>; */
         if (is_char_node(s)) {
-            if (is_rotated(line_break_dir)) {
-                widths[1] -= (glyph_height(s) + glyph_depth(s));
-            } else {
-                widths[1] -= glyph_width(s);
-            }
+            widths[1] -= pack_width(line_break_dir, glyph_dir, s, true);
             if ((pdf_adjust_spacing > 1) && check_expand_pars(font(s))) {
                 set_prev_char_p(s);
                 sub_char_stretch(widths[8], s);
@@ -889,11 +877,7 @@ static void sub_from_widths(halfword s, integer line_break_dir,
             switch (type(s)) {
             case hlist_node:
             case vlist_node:
-                if (!(dir_orthogonal(dir_primary[box_dir(s)],
-                                     dir_primary[line_break_dir])))
-                    widths[1] -= width(s);
-                else
-                    widths[1] -= (depth(s) + height(s));
+                widths[1] -= pack_width(line_break_dir, box_dir(s), s, false);
                 break;
             case kern_node:
                 if ((pdf_adjust_spacing > 1) && (subtype(s) == normal)) {
@@ -1905,9 +1889,8 @@ ext_do_line_break(boolean d,
                    `\.{\\parfillskip}' glue appears at the end of each paragraph; it is therefore
                    unnecessary to check if |vlink(cur_p)=null| when |cur_p| is a character node.
                  */
-                active_width[1] += (is_rotated(line_break_dir))
-                    ? (glyph_height(cur_p) + glyph_depth(cur_p))
-                    : glyph_width(cur_p);
+                active_width[1] +=
+                    pack_width(line_break_dir, glyph_dir, cur_p, true);
                 if ((pdf_adjust_spacing > 1) && check_expand_pars(font(cur_p))) {
                     set_prev_char_p(cur_p);
                     add_char_stretch(active_width[8], cur_p);
@@ -1933,10 +1916,7 @@ ext_do_line_break(boolean d,
             case hlist_node:
             case vlist_node:
                 active_width[1] +=
-                    (dir_orthogonal
-                     (dir_primary[box_dir(cur_p)], dir_primary[line_break_dir]))
-                    ? (depth(cur_p) + height(cur_p))
-                    : width(cur_p);
+                    pack_width(line_break_dir, box_dir(cur_p), cur_p, false);
                 break;
             case rule_node:
                 active_width[1] += width(cur_p);
