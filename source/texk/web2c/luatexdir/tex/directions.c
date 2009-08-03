@@ -1,5 +1,5 @@
 /* directions.c
-   
+
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -24,7 +24,7 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-/* |scan_direction| has to be defined here because luatangle will output 
+/* |scan_direction| has to be defined here because luatangle will output
    a character constant when it sees a string literal of length 1 */
 
 #define scan_single_dir(A) do {                     \
@@ -166,4 +166,58 @@ scaled pack_width(int curdir, int pdir, halfword p, boolean isglyph)
             wd = depth(p) + height(p);
     }
     return wd;
+}
+
+scaled_whd pack_height_depth(int curdir, int pdir, halfword p, boolean isglyph)
+{
+    scaled_whd whd = { 0, 0, 0 };
+    if (isglyph) {
+        if (is_rotated(curdir)) {
+            if (dir_parallel(dir_secondary[curdir], dir_secondary[pdir]))
+                whd.ht = whd.dp = (glyph_height(p) + glyph_depth(p)) / 2;
+            else
+                whd.ht = whd.dp = glyph_width(p) / 2;
+        } else {
+            if (is_rotated(pdir)) {
+                if (dir_parallel(dir_secondary[curdir], dir_secondary[pdir]))
+                    whd.ht = whd.dp = (glyph_height(p) + glyph_depth(p)) / 2;
+                else {
+                    whd.ht = glyph_width(p);
+                    whd.dp = 0;
+                }
+            } else {
+                if (dir_eq(dir_tertiary[curdir], dir_tertiary[pdir])) {
+                    whd.ht = glyph_height(p);
+                    whd.dp = glyph_depth(p);
+                } else
+                    if (dir_opposite(dir_tertiary[curdir], dir_tertiary[pdir]))
+                {
+                    whd.ht = glyph_depth(p);
+                    whd.dp = glyph_height(p);
+                } else {
+                    whd.ht = glyph_width(p);
+                    whd.dp = 0;
+                }
+            }
+        }
+    } else {
+        if (is_rotated(curdir)) {
+            if (dir_parallel(dir_secondary[curdir], dir_secondary[pdir]))
+                whd.ht = whd.dp = (height(p) + depth(p)) / 2;
+            else
+                whd.ht = whd.dp = width(p) / 2;
+        } else {
+            if (dir_eq(dir_primary[curdir], dir_primary[pdir])) {
+                whd.ht = height(p);
+                whd.dp = depth(p);
+            } else if (dir_opposite(dir_primary[curdir], dir_primary[pdir])) {
+                whd.ht = depth(p);
+                whd.dp = height(p);
+            } else {
+                whd.ht = width(p);
+                whd.dp = 0;
+            }
+        }
+    }
+    return whd;
 }

@@ -57,13 +57,13 @@
 #  define dir_TLT  0
 #  define glyph_dir dir_TLT
 
-#  define box_direction(A)    ((A) / 4)
-#  define font_direction(A)   ((A) % 16)
-#  define dir_eq(A,B)         ((A)==(B))
-#  define dir_opposite(A,B)   ((((A)+2) % 4)==((B) % 4))
+#  define box_direction(a)    ((a) / 4)
+#  define font_direction(a)   ((a) % 16)
+#  define dir_eq(a,b)         ((a)==(b))
+#  define dir_opposite(a,b)   ((((a)+2) % 4)==((b) % 4))
 #  define dir_parallel(a,b)   (((a) % 2)==((b) % 2))
 #  define dir_orthogonal(a,b) (!dir_parallel((a),(b)))
-#  define is_mirrored(A)      (dir_opposite(dir_primary[(A)],dir_tertiary[(A)]))
+#  define is_mirrored(a)      (dir_opposite(dir_primary[(a)],dir_tertiary[(a)]))
 #  define is_rotated(a)       dir_parallel(dir_secondary[(a)],dir_tertiary[(a)])
 #  define line_horizontal(a)  dir_parallel(dir_secondary[(a)],dir_secondary[dir_TLT])
 #  define line_vertical(a)    (!line_horizontal(a))
@@ -106,5 +106,6 @@ extern halfword do_push_dir_node(halfword p, halfword a);
 extern halfword do_pop_dir_node(halfword p);
 
 scaled pack_width(int curdir, int pdir, halfword p, boolean isglyph);
+scaled_whd pack_height_depth(int curdir, int pdir, halfword p, boolean isglyph);
 
 #endif
