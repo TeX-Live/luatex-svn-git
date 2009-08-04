@@ -992,23 +992,20 @@ halfword vpackage(halfword p, scaled h, int m, scaled l)
                 /* Incorporate box dimensions into the dimensions of
                    the vbox that will contain~it */
                 s = shift_amount(p);
+                s += pack_width(box_dir(r), box_dir(p), p, false);
+                if (s > w)
+                    w = s;
                 if (dir_orthogonal
                     (dir_primary[box_dir(p)], dir_primary[box_dir(r)])) {
                     x += d + (width(p) / 2);
                     d = width(p) / 2;
-                    if (depth(p) + height(p) + s > w)
-                        w = depth(p) + height(p) + s;
                 } else if ((type(p) == hlist_node)
                            && is_mirrored(box_dir(p))) {
                     x += d + depth(p);
                     d = height(p);
-                    if (width(p) + s > w)
-                        w = width(p) + s;
                 } else {
                     x += d + height(p);
                     d = depth(p);
-                    if (width(p) + s > w)
-                        w = width(p) + s;
                 }
                 break;
             case rule_node:
