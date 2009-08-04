@@ -91,7 +91,6 @@ are exaclty the uses of \.{\\hbox}, \.{\\vbox}, and \.{\\vtop} in the input
 stream (the others are \.{\\vcenter}, \.{\\valign}, and \.{\\halign}).
 */
 
-
 void scan_spec(group_code c, boolean three_codes)
 {                               /* scans a box specification and left brace */
     integer s;                  /* temporarily saved value */
@@ -263,7 +262,6 @@ scaled char_shrink(halfword p)
     return 0;
 }
 
-
 scaled kern_stretch(halfword p)
 {
     halfword l, r;
@@ -280,7 +278,6 @@ scaled kern_stretch(halfword p)
     return round_xn_over_d(d - width(p),
                            get_ef_code(font(l), character(l)), 1000);
 }
-
 
 scaled kern_shrink(halfword p)
 {
@@ -397,7 +394,6 @@ halfword new_margin_kern(scaled w, halfword p, int side)
     margin_char(k) = q;
     return k;
 }
-
 
 /*
 Here is |hpack|, which is place where we do font substituting when
@@ -833,7 +829,6 @@ halfword filtered_hpack(halfword p, halfword qt, scaled w, int m, integer grp)
 
 /* here is a function to calculate the natural whd of a (horizontal) node list */
 
-
 scaled_whd natural_sizes(halfword p, halfword pp)
 {
     scaled s;                   /* shift amount */
@@ -951,6 +946,7 @@ halfword vpackage(halfword p, scaled h, int m, scaled l)
 {
     halfword r;                 /* the box node that will be returned */
     scaled w, d, x;             /* width, depth, and natural height */
+    scaled_whd whd;
     scaled s;                   /* shift amount */
     halfword g;                 /* points to a glue specification */
     int o;                      /* order of infinity */
@@ -995,18 +991,9 @@ halfword vpackage(halfword p, scaled h, int m, scaled l)
                 s += pack_width(box_dir(r), box_dir(p), p, false);
                 if (s > w)
                     w = s;
-                if (dir_orthogonal
-                    (dir_primary[box_dir(p)], dir_primary[box_dir(r)])) {
-                    x += d + (width(p) / 2);
-                    d = width(p) / 2;
-                } else if ((type(p) == hlist_node)
-                           && is_mirrored(box_dir(p))) {
-                    x += d + depth(p);
-                    d = height(p);
-                } else {
-                    x += d + height(p);
-                    d = depth(p);
-                }
+                whd = pack_height_depth(box_dir(r), box_dir(p), p, false);
+                x += d + whd.ht;
+                d = whd.dp;
                 break;
             case rule_node:
             case unset_node:
