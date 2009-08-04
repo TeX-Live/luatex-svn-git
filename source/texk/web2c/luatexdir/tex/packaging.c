@@ -915,7 +915,7 @@ scaled_whd natural_sizes(halfword p, halfword pp)
                 siz.wd += xx.wd;
                 if (xx.ht > siz.ht)
                     siz.ht = xx.ht;
-                if (xx.dp > siz.ht)
+                if (xx.dp > siz.dp)
                     siz.dp = xx.dp;
                 break;
             default:
