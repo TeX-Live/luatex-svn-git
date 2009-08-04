@@ -176,12 +176,14 @@ static halfword calculate_width_to_enddir(halfword p, real cur_glue,
     integer g_order = glue_order(this_box);
     while ((q != null) && (vlink(q) != null)) {
         q = vlink(q);
-        if (is_char_node(q)) {
-            w += glyph_width(q);        /* TODO no vertical support for now */
-        } else {
+        if (is_char_node(q))
+            w += pack_width(box_dir(this_box), glyph_dir, q, true);
+        else {
             switch (type(q)) {
             case hlist_node:
             case vlist_node:
+                w += pack_width(box_dir(this_box), box_dir(q), q, false);
+                break;
             case rule_node:
             case margin_kern_node:
             case kern_node:
@@ -206,9 +208,8 @@ static halfword calculate_width_to_enddir(halfword p, real cur_glue,
                 w += cur_g;
                 break;
             case disc_node:
-                if (vlink(no_break(q)) != null) {
+                if (vlink(no_break(q)) != null)
                     w += simple_advance_width(no_break(q));
-                }
                 break;
             case math_node:
                 w += surround(q);
