@@ -1,5 +1,5 @@
 /* packaging.c
-   
+
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -22,8 +22,6 @@
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
-
-
 
 #define scan_normal_dimen() scan_dimen(false,false,false)
 
@@ -82,7 +80,7 @@ $$\vbox{\halign{#\hfil\cr
 |hpack(p,saved_value(0),saved_level(0)).|\cr}}$$
 */
 
-/* 
+/*
 Special care is necessary to ensure that the special |save_stack| codes
 are placed just below the new group code, because scanning can change
 |save_stack| when \.{\\csname} appears.
@@ -403,7 +401,7 @@ halfword new_margin_kern(scaled w, halfword p, int side)
 
 /*
 Here is |hpack|, which is place where we do font substituting when
-font expansion is being used. 
+font expansion is being used.
 */
 
 halfword hpack(halfword p, scaled w, int m)
@@ -411,6 +409,7 @@ halfword hpack(halfword p, scaled w, int m)
     halfword r;                 /* the box node that will be returned */
     halfword q;                 /* trails behind |p| */
     scaled h, d, x;             /* height, depth, and natural width */
+    scaled_whd whd;
     scaled s;                   /* shift amount */
     halfword g;                 /* points to a glue specification */
     int o;                      /* order of infinity */
@@ -486,73 +485,39 @@ halfword hpack(halfword p, scaled w, int m)
             }
             f = font(p);
             x += pack_width(hpack_dir, glyph_dir, p, true);
-            if (is_rotated(hpack_dir)) {
-                s = glyph_width(p) / 2;
-                if (s > h)
-                    h = s;
-                if (s > d)
-                    d = s;
-            } else
-                if (dir_opposite
-                    (dir_tertiary[hpack_dir], dir_tertiary[box_dir(r)])) {
-                s = glyph_depth(p);
-                if (s > h)
-                    h = s;
-                s = glyph_height(p);
-                if (s > d)
-                    d = s;
-            } else {
-                s = glyph_height(p);
-                if (s > h)
-                    h = s;
-                s = glyph_depth(p);
-                if (s > d)
-                    d = s;
-            }
+            whd = pack_height_depth(hpack_dir, glyph_dir, p, true);
+            if (whd.ht > h)
+                h = whd.ht;
+            if (whd.dp > d)
+                d = whd.dp;
             p = vlink(p);
         }
         if (p != null) {
             switch (type(p)) {
             case hlist_node:
             case vlist_node:
-            case rule_node:
-            case unset_node:
                 /* Incorporate box dimensions into the dimensions of the hbox that will contain~it */
                 /* The code here implicitly uses the fact that running dimensions are
                    indicated by |null_flag|, which will be ignored in the calculations
                    because it is a highly negative number. */
-                if ((type(p) == hlist_node) || (type(p) == vlist_node)) {
+                s = shift_amount(p);
+                x += pack_width(hpack_dir, box_dir(p), p, false);
+                whd = pack_height_depth(hpack_dir, box_dir(p), p, false);
+                if (whd.ht - s > h)
+                    h = whd.ht;
+                if (whd.dp + s > d)
+                    d = whd.dp;
+                break;
+            case rule_node:
+            case unset_node:
+                if (type(p) >= rule_node)
+                    s = 0;
+                else
                     s = shift_amount(p);
-                    x += pack_width(hpack_dir, box_dir(p), p, false);
-                    if (dir_orthogonal
-                        (dir_primary[box_dir(p)], dir_primary[hpack_dir])) {
-                        if ((width(p) / 2) - s > h)
-                            h = (width(p) / 2) - s;
-                        if ((width(p) / 2) + s > d)
-                            d = (width(p) / 2) + s;
-
-                    } else if ((type(p) == hlist_node)
-                               && is_mirrored(hpack_dir)) {
-                        if (depth(p) - s > h)
-                            h = depth(p) - s;
-                        if (height(p) + s > d)
-                            d = height(p) + s;
-                    } else {
-                        if (height(p) - s > h)
-                            h = height(p) - s;
-                        if (depth(p) + s > d)
-                            d = depth(p) + s;
-                    }
-                } else {
-                    if (type(p) >= rule_node)
-                        s = 0;
-                    else
-                        s = shift_amount(p);
-                    if (height(p) - s > h)
-                        h = height(p) - s;
-                    if (depth(p) + s > d)
-                        d = depth(p) + s;
-                }
+                if (height(p) - s > h)
+                    h = height(p) - s;
+                if (depth(p) + s > d)
+                    d = depth(p) + s;
                 break;
             case ins_node:
             case mark_node:
@@ -686,6 +651,7 @@ halfword hpack(halfword p, scaled w, int m)
         }
 
     }
+
     if (adjust_tail != null)
         vlink(adjust_tail) = null;
     if (pre_adjust_tail != null)
@@ -833,6 +799,7 @@ halfword hpack(halfword p, scaled w, int m)
         }
         print_int(line);
     }
+
     print_ln();
     font_in_short_display = null_font;
     short_display(list_ptr(r));
@@ -874,7 +841,7 @@ scaled_whd natural_sizes(halfword p, halfword pp)
     internal_font_number f;     /* the font in a |char_node| */
     integer hpack_dir;
     scaled_whd xx;              /* for recursion */
-    scaled_whd siz = { 0, 0, 0 };
+    scaled_whd whd, siz = { 0, 0, 0 };
     if (pack_direction == -1) {
         hpack_dir = text_direction;
     } else {
@@ -884,60 +851,35 @@ scaled_whd natural_sizes(halfword p, halfword pp)
         while (is_char_node(p)) {
             f = font(p);
             siz.wd += pack_width(hpack_dir, glyph_dir, p, true);
-            if (is_rotated(hpack_dir)) {
-                s = glyph_width(p) / 2;
-                if (s > siz.ht)
-                    siz.ht = s;
-                if (s > siz.dp)
-                    siz.dp = s;
-            } else {
-                s = glyph_height(p);
-                if (s > siz.ht)
-                    siz.ht = s;
-                s = glyph_depth(p);
-                if (s > siz.dp)
-                    siz.dp = s;
-            }
+            whd = pack_height_depth(hpack_dir, glyph_dir, p, true);
+            if (whd.ht > siz.ht)
+                siz.ht = whd.ht;
+            if (whd.dp > siz.dp)
+                siz.dp = whd.dp;
             p = vlink(p);
         }
         if (p != pp && p != null) {
             switch (type(p)) {
             case hlist_node:
             case vlist_node:
+                s = shift_amount(p);
+                siz.wd += pack_width(hpack_dir, box_dir(p), p, false);
+                whd = pack_height_depth(hpack_dir, box_dir(p), p, false);
+                if (whd.ht - s > siz.ht)
+                    siz.ht = whd.ht;
+                if (whd.dp + s > siz.dp)
+                    siz.dp = whd.dp;
+                break;
             case rule_node:
             case unset_node:
-                if ((type(p) == hlist_node) || (type(p) == vlist_node)) {
+                if (type(p) >= rule_node)
+                    s = 0;
+                else
                     s = shift_amount(p);
-                    siz.wd += pack_width(hpack_dir, box_dir(p), p, false);
-                    if (dir_orthogonal
-                        (dir_primary[box_dir(p)], dir_primary[hpack_dir])) {
-                        if ((width(p) / 2) - s > siz.ht)
-                            siz.ht = (width(p) / 2) - s;
-                        if ((width(p) / 2) + s > siz.dp)
-                            siz.dp = (width(p) / 2) + s;
-
-                    } else if ((type(p) == hlist_node)
-                               && is_mirrored(hpack_dir)) {
-                        if (depth(p) - s > siz.ht)
-                            siz.ht = depth(p) - s;
-                        if (height(p) + s > siz.dp)
-                            siz.dp = height(p) + s;
-                    } else {
-                        if (height(p) - s > siz.ht)
-                            siz.ht = height(p) - s;
-                        if (depth(p) + s > siz.dp)
-                            siz.dp = depth(p) + s;
-                    }
-                } else {
-                    if (type(p) >= rule_node)
-                        s = 0;
-                    else
-                        s = shift_amount(p);
-                    if (height(p) - s > siz.ht)
-                        siz.ht = height(p) - s;
-                    if (depth(p) + s > siz.dp)
-                        siz.dp = depth(p) + s;
-                }
+                if (height(p) - s > siz.ht)
+                    siz.ht = height(p) - s;
+                if (depth(p) + s > siz.dp)
+                    siz.dp = depth(p) + s;
                 break;
             case whatsit_node:
                 if ((subtype(p) == pdf_refxform_node)
@@ -985,8 +927,6 @@ scaled_whd natural_sizes(halfword p, halfword pp)
     }
     return siz;
 }
-
-
 
 /*
 In order to provide a decent indication of where an overfull or underfull

@@ -1912,7 +1912,6 @@ ext_do_line_break(boolean d,
                real width as opposed to glue. */
 
             switch (type(cur_p)) {
-
             case hlist_node:
             case vlist_node:
                 active_width[1] +=
