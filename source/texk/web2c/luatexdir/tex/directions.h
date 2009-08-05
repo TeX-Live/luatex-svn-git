@@ -106,6 +106,7 @@ extern halfword do_push_dir_node(halfword p, halfword a);
 extern halfword do_pop_dir_node(halfword p);
 
 scaled pack_width(int curdir, int pdir, halfword p, boolean isglyph);
-scaled_whd pack_height_depth(int curdir, int pdir, halfword p, boolean isglyph);
+scaled_whd pack_width_height_depth(int curdir, int pdir, halfword p,
+                                   boolean isglyph);
 
 #endif

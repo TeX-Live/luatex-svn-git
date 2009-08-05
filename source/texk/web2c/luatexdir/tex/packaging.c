@@ -480,8 +480,8 @@ halfword hpack(halfword p, scaled w, int m)
                 }
             }
             f = font(p);
-            x += pack_width(hpack_dir, glyph_dir, p, true);
-            whd = pack_height_depth(hpack_dir, glyph_dir, p, true);
+            whd = pack_width_height_depth(hpack_dir, glyph_dir, p, true);
+            x += whd.wd;
             if (whd.ht > h)
                 h = whd.ht;
             if (whd.dp > d)
@@ -497,8 +497,8 @@ halfword hpack(halfword p, scaled w, int m)
                    indicated by |null_flag|, which will be ignored in the calculations
                    because it is a highly negative number. */
                 s = shift_amount(p);
-                x += pack_width(hpack_dir, box_dir(p), p, false);
-                whd = pack_height_depth(hpack_dir, box_dir(p), p, false);
+                whd = pack_width_height_depth(hpack_dir, box_dir(p), p, false);
+                x += whd.wd;
                 if (whd.ht - s > h)
                     h = whd.ht;
                 if (whd.dp + s > d)
@@ -845,8 +845,8 @@ scaled_whd natural_sizes(halfword p, halfword pp)
     while (p != pp && p != null) {
         while (is_char_node(p)) {
             f = font(p);
-            siz.wd += pack_width(hpack_dir, glyph_dir, p, true);
-            whd = pack_height_depth(hpack_dir, glyph_dir, p, true);
+            whd = pack_width_height_depth(hpack_dir, glyph_dir, p, true);
+            siz.wd += whd.wd;
             if (whd.ht > siz.ht)
                 siz.ht = whd.ht;
             if (whd.dp > siz.dp)
@@ -858,8 +858,8 @@ scaled_whd natural_sizes(halfword p, halfword pp)
             case hlist_node:
             case vlist_node:
                 s = shift_amount(p);
-                siz.wd += pack_width(hpack_dir, box_dir(p), p, false);
-                whd = pack_height_depth(hpack_dir, box_dir(p), p, false);
+                whd = pack_width_height_depth(hpack_dir, box_dir(p), p, false);
+                siz.wd += whd.wd;
                 if (whd.ht - s > siz.ht)
                     siz.ht = whd.ht;
                 if (whd.dp + s > siz.dp)
@@ -988,10 +988,9 @@ halfword vpackage(halfword p, scaled h, int m, scaled l)
                 /* Incorporate box dimensions into the dimensions of
                    the vbox that will contain~it */
                 s = shift_amount(p);
-                s += pack_width(box_dir(r), box_dir(p), p, false);
-                if (s > w)
-                    w = s;
-                whd = pack_height_depth(box_dir(r), box_dir(p), p, false);
+                whd = pack_width_height_depth(box_dir(r), box_dir(p), p, false);
+                if (whd.wd + s > w)
+                    w = whd.wd + s;
                 x += d + whd.ht;
                 d = whd.dp;
                 break;

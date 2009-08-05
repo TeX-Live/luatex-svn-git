@@ -168,9 +168,11 @@ scaled pack_width(int curdir, int pdir, halfword p, boolean isglyph)
     return wd;
 }
 
-scaled_whd pack_height_depth(int curdir, int pdir, halfword p, boolean isglyph)
+scaled_whd pack_width_height_depth(int curdir, int pdir, halfword p,
+                                   boolean isglyph)
 {
     scaled_whd whd = { 0, 0, 0 };
+    whd.wd = pack_width(curdir, pdir, p, isglyph);
     if (isglyph) {
         if (is_rotated(curdir)) {
             if (dir_parallel(dir_secondary[curdir], dir_secondary[pdir]))
@@ -181,10 +183,8 @@ scaled_whd pack_height_depth(int curdir, int pdir, halfword p, boolean isglyph)
             if (is_rotated(pdir)) {
                 if (dir_parallel(dir_secondary[curdir], dir_secondary[pdir]))
                     whd.ht = whd.dp = (glyph_height(p) + glyph_depth(p)) / 2;
-                else {
+                else
                     whd.ht = glyph_width(p);
-                    whd.dp = 0;
-                }
             } else {
                 if (dir_eq(dir_tertiary[curdir], dir_tertiary[pdir])) {
                     whd.ht = glyph_height(p);
@@ -194,10 +194,8 @@ scaled_whd pack_height_depth(int curdir, int pdir, halfword p, boolean isglyph)
                 {
                     whd.ht = glyph_depth(p);
                     whd.dp = glyph_height(p);
-                } else {
+                } else
                     whd.ht = glyph_width(p);
-                    whd.dp = 0;
-                }
             }
         }
     } else {
@@ -213,10 +211,8 @@ scaled_whd pack_height_depth(int curdir, int pdir, halfword p, boolean isglyph)
             } else if (dir_opposite(dir_primary[curdir], dir_primary[pdir])) {
                 whd.ht = depth(p);
                 whd.dp = height(p);
-            } else {
+            } else
                 whd.ht = width(p);
-                whd.dp = 0;
-            }
         }
     }
     return whd;
