@@ -354,8 +354,8 @@ void hlist_out(PDF pdf, halfword this_box)
                 }
                 output_one_char(pdf, font(p), character(p));
                 ci = get_charinfo_whd(font(p), character(p));
-                if (!dir_orthogonal
-                    (dir_primary[localpos.dir], dir_primary[dir_TLT]))
+                if (dir_parallel
+                    (dir_secondary[localpos.dir], dir_secondary[dir_TLT]))
                     cur.h += ci.wd;
                 else
                     cur.h += ci.ht + ci.dp;
@@ -372,9 +372,8 @@ void hlist_out(PDF pdf, halfword this_box)
             case hlist_node:
             case vlist_node:
                 /* (\pdfTeX) Output a box in an hlist */
-
-                if (!dir_orthogonal
-                    (dir_primary[box_dir(p)], dir_primary[localpos.dir])) {
+                if (dir_parallel
+                    (dir_secondary[box_dir(p)], dir_secondary[localpos.dir])) {
                     effective_horizontal = width(p);
                     basepoint.v = 0;
                     if (dir_opposite
@@ -446,7 +445,7 @@ void hlist_out(PDF pdf, halfword this_box)
                 }
                 break;
             case rule_node:
-                if (!dir_orthogonal
+                if (dir_parallel
                     (dir_primary[rule_dir(p)], dir_primary[localpos.dir])) {
                     rule.ht = height(p);
                     rule.dp = depth(p);
@@ -634,9 +633,9 @@ void hlist_out(PDF pdf, halfword this_box)
                         rule.dp = depth(leader_box);
                         goto FIN_RULE;
                     }
-                    if (!dir_orthogonal
-                        (dir_primary[box_dir(leader_box)],
-                         dir_primary[localpos.dir]))
+                    if (dir_parallel
+                        (dir_secondary[box_dir(leader_box)],
+                         dir_secondary[localpos.dir]))
                         leader_wd = width(leader_box);
                     else
                         leader_wd = height(leader_box) + depth(leader_box);
@@ -667,7 +666,7 @@ void hlist_out(PDF pdf, halfword this_box)
                             /* (\pdfTeX) Output a leader box at |cur.h|,
                                then advance |cur.h| by |leader_wd+lx| */
 
-                            if (!dir_orthogonal
+                            if (dir_parallel
                                 (dir_primary[box_dir(leader_box)],
                                  dir_primary[localpos.dir])) {
                                 basepoint.v = 0;
@@ -901,7 +900,7 @@ void vlist_out(PDF pdf, halfword this_box)
                    \.{\\pardir TLT} in a document with \.{\\bodydir TRT}, and so it
                    will have to do for now.
                  */
-                if (!dir_orthogonal
+                if (dir_parallel
                     (dir_primary[box_dir(p)], dir_primary[localpos.dir])) {
                     effective_vertical = height(p) + depth(p);
                     if ((type(p) == hlist_node) && is_mirrored(box_dir(p)))
@@ -964,7 +963,7 @@ void vlist_out(PDF pdf, halfword this_box)
                 }
                 break;
             case rule_node:
-                if (!dir_orthogonal
+                if (dir_parallel
                     (dir_primary[rule_dir(p)], dir_primary[localpos.dir])) {
                     rule.ht = height(p);
                     rule.dp = depth(p);
