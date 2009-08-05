@@ -506,6 +506,7 @@ halfword hpack(halfword p, scaled w, int m)
                 break;
             case rule_node:
             case unset_node:
+                x += width(p);
                 if (type(p) >= rule_node)
                     s = 0;
                 else
@@ -867,6 +868,7 @@ scaled_whd natural_sizes(halfword p, halfword pp)
                 break;
             case rule_node:
             case unset_node:
+                siz.wd += width(p);
                 if (type(p) >= rule_node)
                     s = 0;
                 else
