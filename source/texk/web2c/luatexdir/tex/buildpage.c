@@ -412,8 +412,8 @@ void build_page(void)
                then |goto contribute| */
             if ((subtype(p) == pdf_refxform_node)
                 || (subtype(p) == pdf_refximage_node)) {
-                page_total = page_total + page_depth + pdf_height(p);
-                page_depth = pdf_depth(p);
+                page_total = page_total + page_depth + height(p);
+                page_depth = depth(p);
             }
             goto CONTRIBUTE;
 

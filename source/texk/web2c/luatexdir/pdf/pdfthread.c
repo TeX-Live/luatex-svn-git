@@ -64,18 +64,18 @@ void do_thread(PDF pdf, halfword parent_box, halfword p, scaledpos cur)
     if (doing_leaders)
         return;
     if (subtype(p) == pdf_start_thread_node) {
-        pdf->thread.wd = pdf_width(p);
-        pdf->thread.ht = pdf_height(p);
-        pdf->thread.dp = pdf_depth(p);
+        pdf->thread.wd = width(p);
+        pdf->thread.ht = height(p);
+        pdf->thread.dp = depth(p);
         pdf->last_thread_id = pdf_thread_id(p);
         pdf->last_thread_named_id = (pdf_thread_named_id(p) > 0);
         if (pdf->last_thread_named_id)
             add_token_ref(pdf_thread_id(p));
         pdf->thread_level = cur_s;
     }
-    alt_rule.wd = pdf_width(p);
-    alt_rule.ht = pdf_height(p);
-    alt_rule.dp = pdf_depth(p);
+    alt_rule.wd = width(p);
+    alt_rule.ht = height(p);
+    alt_rule.dp = depth(p);
     set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_thread_margin);
     append_bead(pdf, p);
     pdf->last_thread = p;
@@ -86,9 +86,9 @@ void append_thread(PDF pdf, halfword parent_box, scaledpos cur)
     halfword p;
     scaled_whd alt_rule;
     p = new_node(whatsit_node, pdf_thread_data_node);
-    pdf_width(p) = pdf->thread.wd;
-    pdf_height(p) = pdf->thread.ht;
-    pdf_depth(p) = pdf->thread.dp;
+    width(p) = pdf->thread.wd;
+    height(p) = pdf->thread.ht;
+    depth(p) = pdf->thread.dp;
     pdf_thread_attr(p) = null;
     pdf_thread_id(p) = pdf->last_thread_id;
     if (pdf->last_thread_named_id) {
@@ -97,9 +97,9 @@ void append_thread(PDF pdf, halfword parent_box, scaledpos cur)
     } else {
         pdf_thread_named_id(p) = 0;
     }
-    alt_rule.wd = pdf_width(p);
-    alt_rule.ht = pdf_height(p);
-    alt_rule.dp = pdf_depth(p);
+    alt_rule.wd = width(p);
+    alt_rule.ht = height(p);
+    alt_rule.dp = depth(p);
     set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_thread_margin);
     append_bead(pdf, p);
     pdf->last_thread = p;

@@ -562,12 +562,12 @@ halfword hpack(halfword p, scaled w, int m)
                 } else {
                     if ((subtype(p) == pdf_refxform_node)
                         || (subtype(p) == pdf_refximage_node)) {
-                        x += pdf_width(p);
+                        x += width(p);
                         s = 0;
-                        if (pdf_height(p) - s > h)
-                            h = pdf_height(p) - s;
-                        if (pdf_depth(p) + s > d)
-                            d = pdf_depth(p) + s;
+                        if (height(p) - s > h)
+                            h = height(p) - s;
+                        if (depth(p) + s > d)
+                            d = depth(p) + s;
                     }
                 }
                 break;
@@ -879,12 +879,12 @@ scaled_whd natural_sizes(halfword p, halfword pp)
             case whatsit_node:
                 if ((subtype(p) == pdf_refxform_node)
                     || (subtype(p) == pdf_refximage_node)) {
-                    siz.wd += pdf_width(p);
+                    siz.wd += width(p);
                     s = 0;
-                    if (pdf_height(p) - s > siz.ht)
-                        siz.ht = pdf_height(p) - s;
-                    if (pdf_depth(p) + s > siz.dp)
-                        siz.dp = pdf_depth(p) + s;
+                    if (height(p) - s > siz.ht)
+                        siz.ht = height(p) - s;
+                    if (depth(p) + s > siz.dp)
+                        siz.dp = depth(p) + s;
                 }
                 break;
             case glue_node:
@@ -1010,11 +1010,11 @@ halfword vpackage(halfword p, scaled h, int m, scaled l)
                 /* Incorporate a whatsit node into a vbox */
                 if ((subtype(p) == pdf_refxform_node)
                     || (subtype(p) == pdf_refximage_node)) {
-                    x += d + pdf_height(p);
-                    d = pdf_depth(p);
+                    x += d + height(p);
+                    d = depth(p);
                     s = 0;
-                    if (pdf_width(p) + s > w)
-                        w = pdf_width(p) + s;
+                    if (width(p) + s > w)
+                        w = width(p) + s;
                 }
                 break;
             case glue_node:
@@ -1429,8 +1429,8 @@ halfword vert_break(halfword p, scaled h, scaled d)
                 /* Process whatsit |p| in |vert_break| loop, |goto not_found| */
                 if ((subtype(p) == pdf_refxform_node)
                     || (subtype(p) == pdf_refximage_node)) {
-                    cur_height = cur_height + prev_dp + pdf_height(p);
-                    prev_dp = pdf_depth(p);
+                    cur_height = cur_height + prev_dp + height(p);
+                    prev_dp = depth(p);
                 }
                 goto NOT_FOUND;
                 break;

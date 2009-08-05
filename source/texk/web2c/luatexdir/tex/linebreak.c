@@ -1943,7 +1943,7 @@ ext_do_line_break(boolean d,
                     break;
                 case pdf_refxform_node:
                 case pdf_refximage_node:
-                    active_width[1] += pdf_width(cur_p);
+                    active_width[1] += width(cur_p);
                 }
                 /* / Advance \(p)past a whatsit node in the \(l)|line_break| loop/; */
                 break;

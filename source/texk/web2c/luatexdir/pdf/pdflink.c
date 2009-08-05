@@ -60,9 +60,9 @@ void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     if (is_obj_scheduled(pdf, pdf_link_objnum(p)))
         pdf_link_objnum(p) = pdf_new_objnum(pdf);
     push_link_level(pdf, p);
-    alt_rule.wd = pdf_width(p);
-    alt_rule.ht = pdf_height(p);
-    alt_rule.dp = pdf_depth(p);
+    alt_rule.wd = width(p);
+    alt_rule.ht = height(p);
+    alt_rule.dp = depth(p);
     set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_link_margin);
     obj_annot_ptr(pdf, pdf_link_objnum(p)) = p; /* the reference for the pdf annot object must be set here */
     append_object_list(pdf, obj_type_link, pdf_link_objnum(p));
@@ -83,7 +83,7 @@ void end_link(PDF pdf)
     /* N.B.: test for running link must be done on |link_node| and not |ref_link_node|,
        as |ref_link_node| can be set by |do_link| or |append_link| already */
 
-    if (is_running(pdf_width(pdf->link_stack[pdf->link_stack_ptr].link_node))) {
+    if (is_running(width(pdf->link_stack[pdf->link_stack_ptr].link_node))) {
         p = pdf->link_stack[pdf->link_stack_ptr].ref_link_node;
         if (is_shipping_page && matrixused()) {
             matrixrecalculate(pos.h + pdf_link_margin);
@@ -133,9 +133,9 @@ void append_link(PDF pdf, halfword parent_box, scaledpos cur, small_number i)
     p = copy_node(pdf->link_stack[(int) i].link_node);
     pdf->link_stack[(int) i].ref_link_node = p;
     subtype(p) = pdf_link_data_node;    /* this node is not a normal link node */
-    alt_rule.wd = pdf_width(p);
-    alt_rule.ht = pdf_height(p);
-    alt_rule.dp = pdf_depth(p);
+    alt_rule.wd = width(p);
+    alt_rule.ht = height(p);
+    alt_rule.dp = depth(p);
     set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_link_margin);
     pdf_create_obj(pdf, obj_type_others, 0);
     obj_annot_ptr(pdf, pdf->obj_ptr) = p;

@@ -568,10 +568,6 @@ destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinat
 #  define pdf_ann_right(a)     varmem[(a) + 4].cint
 #  define pdf_ann_bottom(a)    varmem[(a) + 5].cint
 
-#  define pdf_width(a)         width(a)
-#  define pdf_height(a)        height(a)
-#  define pdf_depth(a)         depth(a)
-
 #  define pdf_literal_data(a)  vlink((a)+2)
 #  define pdf_literal_mode(a)  type((a)+2)
 #  define pdf_literal_type(a)  subtype((a)+2)

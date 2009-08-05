@@ -2184,11 +2184,11 @@ void print_short_node_contents(halfword p)
 void show_pdftex_whatsit_rule_spec(integer p)
 {
     tprint("(");
-    print_rule_dimen(pdf_height(p));
+    print_rule_dimen(height(p));
     print_char('+');
-    print_rule_dimen(pdf_depth(p));
+    print_rule_dimen(depth(p));
     tprint(")x");
-    print_rule_dimen(pdf_width(p));
+    print_rule_dimen(width(p));
 }
 
 
@@ -2349,11 +2349,11 @@ void show_whatsit_node(integer p)
     case pdf_refximage_node:
         tprint_esc("pdfrefximage");
         tprint("(");
-        print_scaled(pdf_height(p));
+        print_scaled(height(p));
         print_char('+');
-        print_scaled(pdf_depth(p));
+        print_scaled(depth(p));
         tprint(")x");
-        print_scaled(pdf_width(p));
+        print_scaled(width(p));
         break;
     case pdf_annot_node:
         tprint_esc("pdfannot");
@@ -2461,11 +2461,11 @@ void show_whatsit_node(integer p)
         else
             tprint_esc("pdfstartthread");
         tprint("(");
-        print_rule_dimen(pdf_height(p));
+        print_rule_dimen(height(p));
         print_char('+');
-        print_rule_dimen(pdf_depth(p));
+        print_rule_dimen(depth(p));
         tprint(")x");
-        print_rule_dimen(pdf_width(p));
+        print_rule_dimen(width(p));
         if (pdf_thread_attr(p) != null) {
             tprint(" attr");
             print_mark(pdf_thread_attr(p));
@@ -2847,7 +2847,7 @@ pointer actual_box_width(pointer r, scaled base_width)
         case whatsit_node:
             if ((subtype(p) == pdf_refxform_node)
                 || (subtype(p) == pdf_refximage_node))
-                d = pdf_width(p);
+                d = width(p);
             else
                 d = 0;
             break;

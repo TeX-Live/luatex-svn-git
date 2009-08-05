@@ -227,7 +227,7 @@ static halfword calculate_width_to_enddir(halfword p, real cur_glue,
                     }
                 } else if ((subtype(q) == pdf_refxform_node)
                            || (subtype(q) == pdf_refximage_node))
-                    w += pdf_width(q);
+                    w += width(q);
                 break;
             default:
                 break;
@@ -335,7 +335,7 @@ void hlist_out(PDF pdf, halfword this_box)
     prev_p = this_box + list_offset;
     /* Create link annotations for the current hbox if needed */
     for (i = 1; i <= pdf->link_stack_ptr; i++) {
-        assert(is_running(pdf_width(pdf->link_stack[i].link_node)));
+        assert(is_running(width(pdf->link_stack[i].link_node)));
         if (pdf->link_stack[i].nesting_level == cur_s)
             append_link(pdf, this_box, cur, i);
     }
@@ -492,39 +492,39 @@ void hlist_out(PDF pdf, halfword this_box)
                     /* Output an Image node in a hlist */
                     switch (box_direction(localpos.dir)) {
                     case dir_TL_:
-                        pos_down(pdf_depth(p));
+                        pos_down(depth(p));
                         break;
                     case dir_TR_:
-                        pos_left(pdf_width(p));
-                        pos_down(pdf_depth(p));
+                        pos_left(width(p));
+                        pos_down(depth(p));
                         break;
                     case dir_BL_:
-                        pos_down(pdf_height(p));
+                        pos_down(height(p));
                         break;
                     case dir_BR_:
-                        pos_left(pdf_width(p));
-                        pos_down(pdf_height(p));
+                        pos_left(width(p));
+                        pos_down(height(p));
                         break;
                     case dir_LT_:
-                        pos_left(pdf_height(p));
-                        pos_down(pdf_width(p));
+                        pos_left(height(p));
+                        pos_down(width(p));
                         break;
                     case dir_RT_:
-                        pos_left(pdf_depth(p));
-                        pos_down(pdf_width(p));
+                        pos_left(depth(p));
+                        pos_down(width(p));
                         break;
                     case dir_LB_:
-                        pos_left(pdf_height(p));
+                        pos_left(height(p));
                         break;
                     case dir_RB_:
-                        pos_left(pdf_depth(p));
+                        pos_left(depth(p));
                         break;
                     }
                     if (subtype(p) == pdf_refximage_node)
                         backend_out_whatsit[pdf_refximage_node] (pdf, pdf_ximage_idx(p));       /* pdf_place_image(pdf, pdf_ximage_idx(p)); */
                     else
                         backend_out_whatsit[pdf_refxform_node] (pdf, pdf_xform_objnum(p));      /* pdf_place_form(pdf, pdf_xform_objnum(p)); */
-                    cur.h += pdf_width(p);
+                    cur.h += width(p);
                     break;
                 case pdf_annot_node:
                     backend_out_whatsit[pdf_annot_node] (pdf, p, this_box, cur);        /* do_annot(pdf, p, this_box, cur); */
@@ -1010,28 +1010,28 @@ void vlist_out(PDF pdf, halfword this_box)
                     /* Output an Image node in a vlist */
                     switch (box_direction(localpos.dir)) {
                     case dir_TL_:
-                        pos_down(pdf_height(p) + pdf_depth(p));
+                        pos_down(height(p) + depth(p));
                         break;
                     case dir_TR_:
-                        pos_left(pdf_width(p));
-                        pos_down(pdf_height(p) + pdf_depth(p));
+                        pos_left(width(p));
+                        pos_down(height(p) + depth(p));
                         break;
                     case dir_BL_:
                         break;
                     case dir_BR_:
-                        pos_left(pdf_width(p));
+                        pos_left(width(p));
                         break;
                     case dir_LT_:
-                        pos_down(pdf_width(p));
+                        pos_down(width(p));
                         break;
                     case dir_RT_:
-                        pos_left(pdf_height(p) + pdf_depth(p));
-                        pos_down(pdf_width(p));
+                        pos_left(height(p) + depth(p));
+                        pos_down(width(p));
                         break;
                     case dir_LB_:
                         break;
                     case dir_RB_:
-                        pos_left(pdf_height(p) + pdf_depth(p));
+                        pos_left(height(p) + depth(p));
                         break;
                     default:
                         break;
@@ -1040,7 +1040,7 @@ void vlist_out(PDF pdf, halfword this_box)
                         backend_out_whatsit[pdf_refximage_node] (pdf, pdf_ximage_idx(p));       /* pdf_place_image(pdf, pdf_ximage_idx(p)); */
                     else
                         backend_out_whatsit[pdf_refxform_node] (pdf, pdf_xform_objnum(p));      /* pdf_place_form(pdf, pdf_xform_objnum(p)); */
-                    cur.v += pdf_height(p) + pdf_depth(p);
+                    cur.v += height(p) + depth(p);
                     break;
                 case pdf_annot_node:
                     backend_out_whatsit[pdf_annot_node] (pdf, p, this_box, cur);        /* do_annot(pdf, p, this_box, cur); */

@@ -580,9 +580,9 @@ static halfword img_to_node(image * a, integer ref)
     assert(img_objnum(ad) != 0);
     n = new_node(whatsit_node, pdf_refximage_node);
     pdf_ximage_ref(n) = ref;
-    pdf_width(n) = img_width(a);
-    pdf_height(n) = img_height(a);
-    pdf_depth(n) = img_depth(a);
+    width(n) = img_width(a);
+    height(n) = img_height(a);
+    depth(n) = img_depth(a);
     return n;
 }
 

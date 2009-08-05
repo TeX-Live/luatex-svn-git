@@ -99,9 +99,9 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     }
     obj_dest_ptr(pdf, k) = p;
     append_object_list(pdf, obj_type_dest, k);
-    alt_rule.wd = pdf_width(p);
-    alt_rule.ht = pdf_height(p);
-    alt_rule.dp = pdf_depth(p);
+    alt_rule.wd = width(p);
+    alt_rule.ht = height(p);
+    alt_rule.dp = depth(p);
     switch (pdf_dest_type(p)) {
     case pdf_dest_xyz:
         if (matrixused())
