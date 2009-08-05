@@ -372,6 +372,7 @@ void hlist_out(PDF pdf, halfword this_box)
             case hlist_node:
             case vlist_node:
                 /* (\pdfTeX) Output a box in an hlist */
+
                 if (dir_parallel
                     (dir_secondary[box_dir(p)], dir_secondary[localpos.dir])) {
                     effective_horizontal = width(p);
@@ -399,11 +400,28 @@ void hlist_out(PDF pdf, halfword this_box)
                         else
                             basepoint.h = height(p);
                     }
-                    if (dir_eq
-                        (dir_secondary[box_dir(p)], dir_primary[localpos.dir]))
-                        basepoint.v = -(width(p) / 2);
-                    else
-                        basepoint.v = (width(p) / 2);
+                    if (is_rotated(localpos.dir)) {
+                        if (dir_eq
+                            (dir_secondary[box_dir(p)],
+                             dir_primary[localpos.dir]))
+                            basepoint.v = -width(p) / 2;        /* `up' */
+                        else
+                            basepoint.v = width(p) / 2; /* `down' */
+                    } else if (is_mirrored(localpos.dir)) {
+                        if (dir_eq
+                            (dir_secondary[box_dir(p)],
+                             dir_primary[localpos.dir]))
+                            basepoint.v = 0;
+                        else
+                            basepoint.v = width(p);     /* `down' */
+                    } else {
+                        if (dir_eq
+                            (dir_secondary[box_dir(p)],
+                             dir_primary[localpos.dir]))
+                            basepoint.v = -width(p);    /* `up' */
+                        else
+                            basepoint.v = 0;
+                    }
                 }
                 if (!is_mirrored(localpos.dir))
                     basepoint.v = basepoint.v + shift_amount(p);        /* shift the box `down' */
