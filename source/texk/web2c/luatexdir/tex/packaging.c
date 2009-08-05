@@ -500,9 +500,9 @@ halfword hpack(halfword p, scaled w, int m)
                 whd = pack_width_height_depth(hpack_dir, box_dir(p), p, false);
                 x += whd.wd;
                 if (whd.ht - s > h)
-                    h = whd.ht;
+                    h = whd.ht - s;
                 if (whd.dp + s > d)
-                    d = whd.dp;
+                    d = whd.dp + s;
                 break;
             case rule_node:
             case unset_node:
@@ -861,9 +861,9 @@ scaled_whd natural_sizes(halfword p, halfword pp)
                 whd = pack_width_height_depth(hpack_dir, box_dir(p), p, false);
                 siz.wd += whd.wd;
                 if (whd.ht - s > siz.ht)
-                    siz.ht = whd.ht;
+                    siz.ht = whd.ht - s;
                 if (whd.dp + s > siz.dp)
-                    siz.dp = whd.dp;
+                    siz.dp = whd.dp + s;
                 break;
             case rule_node:
             case unset_node:
