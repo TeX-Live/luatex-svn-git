@@ -81,12 +81,11 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     /* output the box |p| */
     boolean ret;                /* DVI, PDF */
     integer ff;                 /* PDF *//* for use with |set_ff| */
-    integer i;                  /* PDF *//* general purpose accumulators */
+    integer j, k;               /* DVI, PDF *//* indices to first ten count registers */
     integer last_resources = 0; /* PDF *//* the 0 to make compiler happy */
     integer page_loc;           /* DVI *//* location of the current |bop| */
     integer post_callback_id;   /* DVI, PDF */
     integer pre_callback_id;    /* DVI, PDF */
-    int j, k;                   /* DVI, PDF *//* indices to first ten count registers */
     int old_setting;            /* DVI *//* saved |selector| setting */
     pdf_object_list *ol;        /* PDF */
     pdf_resource_struct resources;      /* PDF */
@@ -121,13 +120,11 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         assert(0);
     }
 
-    /* 2 */
     /* Start sheet {\sl Sync\TeX} information record */
     pdf_output_value = pdf_output;      /* {\sl Sync\TeX}: we assume that |pdf_output| is properly set up */
     if (synctexoption == 1)
         synctex_sheet(mag);
 
-    /* 3 */
     pre_callback_id = callback_defined(start_page_number_callback);
     post_callback_id = callback_defined(stop_page_number_callback);
     if ((tracing_output > 0) && (pre_callback_id == 0)) {
@@ -163,7 +160,6 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         end_diagnostic(true);
     }
 
-    /* 4 */
     /* Ship box |p| out */
     if (shipping_page && box_dir(p) != page_direction)
         pdf_warning("\\shipout",
@@ -175,7 +171,6 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
        are being ignored. Such pages are not output to the \.{dvi} file, since they
        may confuse the printing software. */
 
-    /* 5 */
     if ((height(p) > max_dimen) || (depth(p) > max_dimen)
         || (height(p) + depth(p) + v_offset > max_dimen)
         || (width(p) + h_offset > max_dimen)) {
@@ -197,9 +192,6 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     if (width(p) + h_offset > max_h)
         max_h = width(p) + h_offset;
 
-    /* 6 */
-
-    /* 7 */
     /* Calculate page dimensions and margins */
     if (is_shipping_page) {
         if (page_width > 0) {
@@ -247,7 +239,6 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             }
         }
 
-        /* 8 */
         /* Think in upright page/paper coordinates:
            First preset |pos.h| and |pos.v| to the DVI origin.
            Then calculate |cur.h| and |cur.v| within the upright coordinate system
@@ -354,7 +345,6 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         }
     }
 
-    /* 9 */
     /* Now we are at the point on the page where the origin of the page box should go. */
 
 /* TODO: remove this from here */
@@ -406,7 +396,13 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         break;
     case OMODE_PDF:
         pdf_page_init(pdf);
-        if (!shipping_page) {
+        if (shipping_page) {
+            pdf->last_page = get_obj(pdf, obj_type_page, total_pages + 1, 0);
+            set_obj_aux(pdf, pdf->last_page, 1);        /* mark that this page has been created */
+            pdf_new_dict(pdf, obj_type_others, 0, 0);
+            pdf->last_stream = pdf->obj_ptr;
+            pdf->last_thread = null;
+        } else {
             pdf_begin_dict(pdf, pdf_cur_form, 0);
             pdf->last_stream = pdf_cur_form;
 
@@ -430,13 +426,6 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             pdf_printf(pdf, "/FormType 1\n");
             pdf_printf(pdf, "/Matrix [1 0 0 1 0 0]\n");
             pdf_indirect_ln(pdf, "Resources", last_resources);
-
-        } else {
-            pdf->last_page = get_obj(pdf, obj_type_page, total_pages + 1, 0);
-            set_obj_aux(pdf, pdf->last_page, 1);        /* mark that this page has been created */
-            pdf_new_dict(pdf, obj_type_others, 0, 0);
-            pdf->last_stream = pdf->obj_ptr;
-            pdf->last_thread = null;
         }
         /* Start stream of page/form contents */
         pdf_begin_stream(pdf);
@@ -452,7 +441,6 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         }
         pdfshipoutbegin(shipping_page);
 
-        /* 10 */
         if (shipping_page)
             pdf_out_colorstack_startpage(pdf);
         break;
@@ -468,7 +456,6 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         incr(total_pages);
     cur_s = -1;
 
-    /* 11 */
     /* Finish shipping */
 
     switch (pdf->o_mode) {
@@ -587,11 +574,11 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             /* Write out PDF annotations */
             if ((ol = resources.annot_list) != NULL) {
                 while (ol != NULL) {
-                    i = obj_annot_ptr(pdf, ol->info);   /* |i| points to |pdf_annot_node| */
+                    j = obj_annot_ptr(pdf, ol->info);   /* |j| points to |pdf_annot_node| */
                     pdf_begin_dict(pdf, ol->info, 1);
                     pdf_printf(pdf, "/Type /Annot\n");
-                    pdf_print_toks_ln(pdf, pdf_annot_data(i));
-                    pdf_rectangle(pdf, i);
+                    pdf_print_toks_ln(pdf, pdf_annot_data(j));
+                    pdf_rectangle(pdf, j);
                     pdf_end_dict(pdf);
                     ol = ol->link;
                 }
@@ -600,28 +587,28 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             /* Write out PDF link annotations */
             if ((ol = resources.link_list) != NULL) {
                 while (ol != NULL) {
-                    i = obj_annot_ptr(pdf, ol->info);
+                    j = obj_annot_ptr(pdf, ol->info);
                     pdf_begin_dict(pdf, ol->info, 1);
                     pdf_printf(pdf, "/Type /Annot\n");
-                    if (pdf_action_type(pdf_link_action(i)) != pdf_action_user)
+                    if (pdf_action_type(pdf_link_action(j)) != pdf_action_user)
                         pdf_printf(pdf, "/Subtype /Link\n");
-                    if (pdf_link_attr(i) != null)
-                        pdf_print_toks_ln(pdf, pdf_link_attr(i));
-                    pdf_rectangle(pdf, i);
-                    if (pdf_action_type(pdf_link_action(i)) != pdf_action_user)
+                    if (pdf_link_attr(j) != null)
+                        pdf_print_toks_ln(pdf, pdf_link_attr(j));
+                    pdf_rectangle(pdf, j);
+                    if (pdf_action_type(pdf_link_action(j)) != pdf_action_user)
                         pdf_printf(pdf, "/A ");
-                    write_action(pdf, pdf_link_action(i));
+                    write_action(pdf, pdf_link_action(j));
                     pdf_end_dict(pdf);
                     ol = ol->link;
                 }
                 /* Flush |pdf_start_link_node|'s created by |append_link| */
                 ol = resources.link_list;
                 while (ol != NULL) {
-                    i = obj_annot_ptr(pdf, ol->info);
+                    j = obj_annot_ptr(pdf, ol->info);
                     /* nodes with |subtype = pdf_link_data_node| were created by |append_link| and
                        must be flushed here, as they are not linked in any list */
-                    if (subtype(i) == pdf_link_data_node)
-                        flush_node(i);
+                    if (subtype(j) == pdf_link_data_node)
+                        flush_node(j);
                     ol = ol->link;
                 }
             }
@@ -718,7 +705,6 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     }
 
   DONE:
-    /* 12 */
     if ((tracing_output <= 0) && (post_callback_id == 0) && shipping_page) {
         print_char(']');
         update_terminal();
