@@ -1,6 +1,6 @@
 /* texnodes.c
-   
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+
+   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -26,7 +26,8 @@
 #define noDEBUG
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+    "$URL$";
 
 #define adjust_pre subtype
 #define attribute(A) eqtb[attribute_base+(A)].cint
@@ -153,27 +154,27 @@ char *node_fields_whatsit_dir[] =
 char *node_fields_whatsit_pdf_literal[] = { "attr", "mode", "data", NULL };
 char *node_fields_whatsit_pdf_refobj[] = { "attr", "objnum", NULL };
 char *node_fields_whatsit_pdf_refxform[] =
-    { "attr", "width", "height", "depth", "objnum", NULL };
+    { "attr", "width", "depth", "height", "objnum", NULL };
 char *node_fields_whatsit_pdf_refximage[] =
-    { "attr", "width", "height", "depth", "objnum", NULL };
+    { "attr", "width", "depth", "height", "objnum", NULL };
 char *node_fields_whatsit_pdf_annot[] =
-    { "attr", "width", "height", "depth", "objnum", "data", NULL };
+    { "attr", "width", "depth", "height", "objnum", "data", NULL };
 char *node_fields_whatsit_pdf_start_link[] =
-    { "attr", "width", "height", "depth",
+    { "attr", "width", "depth", "height",
     "objnum", "link_attr", "action", NULL
 };
 char *node_fields_whatsit_pdf_end_link[] = { "attr", NULL };
 
-char *node_fields_whatsit_pdf_dest[] = { "attr", "width", "height", "depth",
+char *node_fields_whatsit_pdf_dest[] = { "attr", "width", "depth", "height",
     "named_id", "dest_id", "dest_type", "xyz_zoom", "objnum", NULL
 };
 
-char *node_fields_whatsit_pdf_thread[] = { "attr", "width", "height", "depth",
+char *node_fields_whatsit_pdf_thread[] = { "attr", "width", "depth", "height",
     "named_id", "thread_id", "thread_attr", NULL
 };
 
 char *node_fields_whatsit_pdf_start_thread[] =
-    { "attr", "width", "height", "depth",
+    { "attr", "width", "depth", "height",
     "named_id", "thread_id", "thread_attr", NULL
 };
 char *node_fields_whatsit_pdf_end_thread[] = { "attr", NULL };
@@ -336,8 +337,8 @@ halfword new_node(int i, int j)
     s = get_node_size(i, j);
     n = get_node(s);
     /* it should be possible to do this memset at free_node()  */
-    /* type() and subtype() will be set below, and vlink() is 
-       set to null by get_node(), so we can do we clearing one 
+    /* type() and subtype() will be set below, and vlink() is
+       set to null by get_node(), so we can do we clearing one
        word less than |s| */
     (void) memset((void *) (varmem + n + 1), 0,
                   (sizeof(memory_word) * (s - 1)));
@@ -607,7 +608,7 @@ halfword copy_node(const halfword p)
         s = copy_node(delimiter(p));
         delimiter(r) = s;
         break;
-        /* 
+        /*
            case style_node:
            case delim_node:
            case math_char_node:

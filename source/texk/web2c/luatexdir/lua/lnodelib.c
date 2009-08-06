@@ -1149,10 +1149,10 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, int field)
                 lua_pushnumber(L, width(n));
                 break;
             case 5:
-                lua_pushnumber(L, height(n));
+                lua_pushnumber(L, depth(n));
                 break;
             case 6:
-                lua_pushnumber(L, depth(n));
+                lua_pushnumber(L, height(n));
                 break;
             case 7:
                 lua_pushnumber(L, pdf_xform_objnum(n));
@@ -1167,10 +1167,10 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, int field)
                 lua_pushnumber(L, width(n));
                 break;
             case 5:
-                lua_pushnumber(L, height(n));
+                lua_pushnumber(L, depth(n));
                 break;
             case 6:
-                lua_pushnumber(L, depth(n));
+                lua_pushnumber(L, height(n));
                 break;
             case 7:
                 lua_pushnumber(L, pdf_ximage_objnum(n));
@@ -1185,10 +1185,10 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, int field)
                 lua_pushnumber(L, width(n));
                 break;
             case 5:
-                lua_pushnumber(L, height(n));
+                lua_pushnumber(L, depth(n));
                 break;
             case 6:
-                lua_pushnumber(L, depth(n));
+                lua_pushnumber(L, height(n));
                 break;
             case 7:
                 lua_pushnumber(L, pdf_annot_objnum(n));
@@ -1206,10 +1206,10 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, int field)
                 lua_pushnumber(L, width(n));
                 break;
             case 5:
-                lua_pushnumber(L, height(n));
+                lua_pushnumber(L, depth(n));
                 break;
             case 6:
-                lua_pushnumber(L, depth(n));
+                lua_pushnumber(L, height(n));
                 break;
             case 7:
                 lua_pushnumber(L, pdf_link_objnum(n));
@@ -1230,10 +1230,10 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, int field)
                 lua_pushnumber(L, width(n));
                 break;
             case 5:
-                lua_pushnumber(L, height(n));
+                lua_pushnumber(L, depth(n));
                 break;
             case 6:
-                lua_pushnumber(L, depth(n));
+                lua_pushnumber(L, height(n));
                 break;
             case 7:
                 lua_pushnumber(L, pdf_dest_named_id(n));
@@ -1264,10 +1264,10 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, int field)
                 lua_pushnumber(L, width(n));
                 break;
             case 5:
-                lua_pushnumber(L, height(n));
+                lua_pushnumber(L, depth(n));
                 break;
             case 6:
-                lua_pushnumber(L, depth(n));
+                lua_pushnumber(L, height(n));
                 break;
             case 7:
                 lua_pushnumber(L, pdf_thread_named_id(n));
@@ -2221,10 +2221,10 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
             width(n) = lua_tointeger(L, 3);
             break;
         case 5:
-            height(n) = lua_tointeger(L, 3);
+            depth(n) = lua_tointeger(L, 3);
             break;
         case 6:
-            depth(n) = lua_tointeger(L, 3);
+            height(n) = lua_tointeger(L, 3);
             break;
         case 7:
             pdf_xform_objnum(n) = lua_tointeger(L, 3);
@@ -2239,10 +2239,10 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
             width(n) = lua_tointeger(L, 3);
             break;
         case 5:
-            height(n) = lua_tointeger(L, 3);
+            depth(n) = lua_tointeger(L, 3);
             break;
         case 6:
-            depth(n) = lua_tointeger(L, 3);
+            height(n) = lua_tointeger(L, 3);
             break;
         case 7:
             pdf_ximage_objnum(n) = lua_tointeger(L, 3);
@@ -2257,10 +2257,10 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
             width(n) = lua_tointeger(L, 3);
             break;
         case 5:
-            height(n) = lua_tointeger(L, 3);
+            depth(n) = lua_tointeger(L, 3);
             break;
         case 6:
-            depth(n) = lua_tointeger(L, 3);
+            height(n) = lua_tointeger(L, 3);
             break;
         case 7:
             pdf_annot_objnum(n) = lua_tointeger(L, 3);
@@ -2278,10 +2278,10 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
             width(n) = lua_tointeger(L, 3);
             break;
         case 5:
-            height(n) = lua_tointeger(L, 3);
+            depth(n) = lua_tointeger(L, 3);
             break;
         case 6:
-            depth(n) = lua_tointeger(L, 3);
+            height(n) = lua_tointeger(L, 3);
             break;
         case 7:
             pdf_link_objnum(n) = lua_tointeger(L, 3);
@@ -2308,10 +2308,10 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
             width(n) = lua_tointeger(L, 3);
             break;
         case 5:
-            height(n) = lua_tointeger(L, 3);
+            depth(n) = lua_tointeger(L, 3);
             break;
         case 6:
-            depth(n) = lua_tointeger(L, 3);
+            height(n) = lua_tointeger(L, 3);
             break;
         case 7:
             pdf_dest_named_id(n) = lua_tointeger(L, 3);
@@ -2342,10 +2342,10 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
             width(n) = lua_tointeger(L, 3);
             break;
         case 5:
-            height(n) = lua_tointeger(L, 3);
+            depth(n) = lua_tointeger(L, 3);
             break;
         case 6:
-            depth(n) = lua_tointeger(L, 3);
+            height(n) = lua_tointeger(L, 3);
             break;
         case 7:
             pdf_thread_named_id(n) = lua_tointeger(L, 3);
