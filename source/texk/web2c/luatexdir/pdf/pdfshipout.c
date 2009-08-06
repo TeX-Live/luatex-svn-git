@@ -82,7 +82,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     boolean ret;                /* DVI, PDF */
     integer ff;                 /* PDF *//* for use with |set_ff| */
     integer i;                  /* PDF *//* general purpose accumulators */
-    integer last_resources;     /* PDF */
+    integer last_resources = 0; /* PDF *//* the 0 to make compiler happy */
     integer page_loc;           /* DVI *//* location of the current |bop| */
     integer post_callback_id;   /* DVI, PDF */
     integer pre_callback_id;    /* DVI, PDF */
