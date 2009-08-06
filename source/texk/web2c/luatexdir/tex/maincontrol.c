@@ -902,13 +902,11 @@ will call |dvi_ship_out|, which is the \TeX\ original |ship_out|.
 void ship_out(halfword p)
 {                               /* output the box |p| */
     fix_pdfoutput();
-    if (int_par(pdf_output_code) > 0) {
+    if (int_par(pdf_output_code) > 0)
         static_pdf->o_mode = OMODE_PDF;
-        pdf_ship_out(static_pdf, p, true);
-    } else {
+    else
         static_pdf->o_mode = OMODE_DVI;
-        dvi_ship_out(static_pdf, p, true);
-    }
+    pdf_ship_out(static_pdf, p, true);
 }
 
 

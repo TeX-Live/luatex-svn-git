@@ -2230,6 +2230,7 @@ The |hlist_out| and |vlist_out| procedures are now complete, so we are
 ready for the |dvi_ship_out| routine that gets them started in the first place.
 */
 
+#if 0                           /* obsolete, kept for reference; see pdf_ship_out() */
 void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page)
 {
     /* output the box |p| */
@@ -2480,7 +2481,7 @@ void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page)
     /* Finish shipping */
     dvi_out(eop);
 
-#ifdef IPC
+#  ifdef IPC
     if (ipcon > 0) {
         if (dvi_limit == half_buf) {
             write_dvi(half_buf, dvi_buf_size - 1);
@@ -2497,7 +2498,7 @@ void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page)
         dvi_limit = dvi_buf_size;
         ipcpage(dvi_gone);
     }
-#endif                          /* IPC */
+#  endif                        /* IPC */
   DONE:
     /* 12 */
     if ((tracing_output <= 0) && (post_callback_id == 0) && shipping_page) {
@@ -2527,6 +2528,7 @@ void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page)
     /* Finish sheet {\sl Sync\TeX} information record */
     synctex_teehs();
 }
+#endif                          /* obsolete, kept for reference */
 
 /*
 At the end of the program, we must finish things off by writing the
