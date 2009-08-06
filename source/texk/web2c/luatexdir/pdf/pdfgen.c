@@ -342,9 +342,15 @@ void pdf_print_wide_char(PDF pdf, int c)
 
 void pdf_puts(PDF pdf, const char *s)
 {
-    pdf_room(pdf, strlen(s));
-    while (*s != '\0')
-        pdf_quick_out(pdf, *s++);
+    size_t l = strlen(s);
+    if (l < (size_t)pdf->buf_size) {
+        pdf_room(pdf, l);
+        while (*s != '\0')
+            pdf_quick_out(pdf, *s++);
+    } else {
+        while (*s != '\0')
+            pdf_out(pdf, *s++);
+    }
 }
 
 __attribute__ ((format(printf, 2, 3)))
@@ -815,7 +821,7 @@ void pdf_print_toks(PDF pdf, halfword p)
     int len = 0;
     char *s = tokenlist_to_cstring(p, true, &len);
     if (len > 0)
-        pdf_printf(pdf, "%s", s);
+        pdf_puts(pdf, s);
     xfree(s);
 }
 
@@ -824,8 +830,10 @@ void pdf_print_toks_ln(PDF pdf, halfword p)
 {
     int len = 0;
     char *s = tokenlist_to_cstring(p, true, &len);
-    if (len > 0)
-        pdf_printf(pdf, "%s\n", s);
+    if (len > 0) {
+        pdf_puts(pdf, s);
+        pdf_print_nl(pdf);
+    }
     xfree(s);
 }
 

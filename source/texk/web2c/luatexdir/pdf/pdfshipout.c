@@ -714,7 +714,8 @@ void pdf_print_info(PDF pdf, integer luatex_version, str_number luatex_revision)
     }
     if (pdf_info_toks != null) {
         if (len > 0) {
-            pdf_printf(pdf, "%s\n", s);
+            pdf_puts(pdf, s);
+            pdf_print_nl(pdf);
             xfree(s);
         }
         delete_token_ref(pdf_info_toks);
