@@ -161,6 +161,7 @@ typedef struct pdf_resource_struct_ {
     pdf_object_list *bead_list; /* the thread beads */
     integer text_procset;       /* |pdf_text_procset| */
     integer image_procset;      /* |pdf_image_procset| */
+    integer last_resources;     /* halfword to most recently generated Resources object. */
 } pdf_resource_struct;
 
 typedef struct pdf_output_file_ {

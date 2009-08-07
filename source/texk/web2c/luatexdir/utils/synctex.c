@@ -216,9 +216,9 @@ Tue Jul 1 15:23:00 UTC 2008
 
 #   include "luatex.h"
 #    undef  SYNCTEX_OFFSET_IS_PDF
-#    define SYNCTEX_OFFSET_IS_PDF (pdf_output_value>0)
+#    define SYNCTEX_OFFSET_IS_PDF (int_par(pdf_output_code)>0)
 #    undef  SYNCTEX_OUTPUT
-#    define SYNCTEX_OUTPUT ((pdf_output_value>0)?"pdf":"dvi")
+#    define SYNCTEX_OUTPUT ((int_par(pdf_output_code)>0)?"pdf":"dvi")
 
 #define __SyncTeX__ 1
 

@@ -2048,7 +2048,7 @@ Here's an example of how these conventions are used. Whenever it is time to
 ship out a box of stuff, we shall use the macro |ensure_dvi_open|.
 */
 
-void ensure_dvi_open(void)
+static void ensure_dvi_open(void)
 {
     if (output_file_name == 0) {
         if (job_name == 0)
@@ -2243,7 +2243,7 @@ void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page)
     integer post_callback_id;
     boolean ret;
 
-    assert(shipping_page == true);
+    assert(shipping_page);
     init_dvi_output_functions(pdf);
 
     if (half_buf == 0) {
@@ -2528,6 +2528,84 @@ void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page)
     synctex_teehs();
 }
 #endif                          /* obsolete, kept for reference */
+
+/**********************************************************************/
+
+void dvi_begin_page()
+{
+    pool_pointer s;             /* index into |str_pool| */
+    int old_setting;            /* saved |selector| setting */
+    integer k;
+    integer page_loc;           /* location of the current |bop| */
+
+    /* Initialize variables as |ship_out| begins */
+    dvi.h = 0;
+    dvi.v = 0;
+    ensure_dvi_open();
+    if (total_pages == 0) {
+        dvi_out(pre);
+        dvi_out(id_byte);       /* output the preamble */
+        dvi_four(25400000);
+        dvi_four(473628672);    /* conversion ratio for sp */
+        prepare_mag();
+        dvi_four(mag);          /* magnification factor is frozen */
+        if (output_comment) {
+            int l = strlen(output_comment);
+            dvi_out(l);
+            for (s = 0; s <= l - 1; s++)
+                dvi_out(output_comment[s]);
+        } else {                /* the default code is unchanged */
+            old_setting = selector;
+            selector = new_string;
+            tprint(" LuaTeX output ");
+            print_int(int_par(year_code));
+            print_char('.');
+            print_two(int_par(month_code));
+            print_char('.');
+            print_two(int_par(day_code));
+            print_char(':');
+            print_two(int_par(time_code) / 60);
+            print_two(int_par(time_code) % 60);
+            selector = old_setting;
+            dvi_out(cur_length);
+            for (s = str_start_macro(str_ptr); s <= pool_ptr - 1; s++)
+                dvi_out(str_pool[s]);
+            pool_ptr = str_start_macro(str_ptr);        /* flush the current string */
+        }
+    }
+    page_loc = dvi_offset + dvi_ptr;
+    dvi_out(bop);
+    for (k = 0; k <= 9; k++)
+        dvi_four(count(k));
+    dvi_four(last_bop);
+    last_bop = page_loc;
+}
+
+void dvi_end_page()
+{
+    dvi_out(eop);
+
+#ifdef IPC
+    if (ipcon > 0) {
+        if (dvi_limit == half_buf) {
+            write_dvi(half_buf, dvi_buf_size - 1);
+            flush_dvi();
+            dvi_gone = dvi_gone + half_buf;
+        }
+        if (dvi_ptr > 0) {
+            write_dvi(0, dvi_ptr - 1);
+            flush_dvi();
+            dvi_offset = dvi_offset + dvi_ptr;
+            dvi_gone = dvi_gone + dvi_ptr;
+        }
+        dvi_ptr = 0;
+        dvi_limit = dvi_buf_size;
+        ipcpage(dvi_gone);
+    }
+#endif                          /* IPC */
+}
+
+/**********************************************************************/
 
 /*
 At the end of the program, we must finish things off by writing the

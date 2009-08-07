@@ -343,7 +343,7 @@ void pdf_print_wide_char(PDF pdf, int c)
 void pdf_puts(PDF pdf, const char *s)
 {
     size_t l = strlen(s);
-    if (l < (size_t)pdf->buf_size) {
+    if (l < (size_t) pdf->buf_size) {
         pdf_room(pdf, l);
         while (*s != '\0')
             pdf_quick_out(pdf, *s++);
@@ -1473,4 +1473,61 @@ char *get_resname_prefix(PDF pdf)
     }
     prefix[6] = '\0';
     return prefix;
+}
+
+/**********************************************************************/
+
+#define mag int_par(mag_code)
+
+void pdf_begin_page(PDF pdf, boolean shipping_page)
+{
+    scaled form_margin = one_bp;
+
+    pdf_page_init(pdf);
+    if (shipping_page) {
+        pdf->last_page = get_obj(pdf, obj_type_page, total_pages + 1, 0);
+        set_obj_aux(pdf, pdf->last_page, 1);    /* mark that this page has been created */
+        pdf_new_dict(pdf, obj_type_others, 0, 0);
+        pdf->last_stream = pdf->obj_ptr;
+        pdf->last_thread = null;
+    } else {
+        pdf_begin_dict(pdf, pdf_cur_form, 0);
+        pdf->last_stream = pdf_cur_form;
+
+        /* Write out Form stream header */
+        pdf_printf(pdf, "/Type /XObject\n");
+        pdf_printf(pdf, "/Subtype /Form\n");
+        if (obj_xform_attr(pdf, pdf_cur_form) != null) {
+            pdf_print_toks_ln(pdf, obj_xform_attr(pdf, pdf_cur_form));
+            delete_token_ref(obj_xform_attr(pdf, pdf_cur_form));
+            set_obj_xform_attr(pdf, pdf_cur_form, null);
+        }
+        pdf_printf(pdf, "/BBox [");
+        pdf_print_bp(pdf, -form_margin);
+        pdf_out(pdf, ' ');
+        pdf_print_bp(pdf, -form_margin);
+        pdf_out(pdf, ' ');
+        pdf_print_bp(pdf, cur_page_size.h + form_margin);
+        pdf_out(pdf, ' ');
+        pdf_print_bp(pdf, cur_page_size.v + form_margin);
+        pdf_printf(pdf, "]\n");
+        pdf_printf(pdf, "/FormType 1\n");
+        pdf_printf(pdf, "/Matrix [1 0 0 1 0 0]\n");
+        pdf_indirect_ln(pdf, "Resources", pdf->resources->last_resources);
+    }
+    /* Start stream of page/form contents */
+    pdf_begin_stream(pdf);
+    if (shipping_page) {
+        /* Adjust transformation matrix for the magnification ratio */
+        if (mag != 1000) {
+            pdf_print_real(pdf, mag, 3);
+            pdf_printf(pdf, " 0 0 ");
+            pdf_print_real(pdf, mag, 3);
+            pdf_printf(pdf, " 0 0 cm\n");
+        }
+    }
+    pdfshipoutbegin(shipping_page);
+
+    if (shipping_page)
+        pdf_out_colorstack_startpage(pdf);
 }

@@ -191,6 +191,8 @@ extern void finish_dvi_file(int version, int revision);
 
 extern void dvi_place_glyph(PDF pdf, internal_font_number f, integer c);
 extern void dvi_place_rule(PDF pdf, scaledpos size);
-extern void ensure_dvi_open(void);
+
+extern void dvi_begin_page(void);
+extern void dvi_end_page(void);
 
 #endif

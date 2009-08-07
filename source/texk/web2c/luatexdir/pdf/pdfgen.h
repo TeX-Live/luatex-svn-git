@@ -226,5 +226,6 @@ extern void check_pdfoutput(char *s, boolean is_error);
 
 extern void set_job_id(PDF, int, int, int, int);
 extern char *get_resname_prefix(PDF);
+extern void pdf_begin_page(PDF pdf, boolean shipping_page);
 
 #endif

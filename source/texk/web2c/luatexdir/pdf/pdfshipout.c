@@ -82,20 +82,17 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     boolean ret;                /* DVI, PDF */
     integer ff;                 /* PDF *//* for use with |set_ff| */
     integer j, k;               /* DVI, PDF *//* indices to first ten count registers */
-    integer last_resources = 0; /* PDF *//* the 0 to make compiler happy */
-    integer page_loc;           /* DVI *//* location of the current |bop| */
     integer post_callback_id;   /* DVI, PDF */
     integer pre_callback_id;    /* DVI, PDF */
-    int old_setting;            /* DVI *//* saved |selector| setting */
     pdf_object_list *ol;        /* PDF */
     pdf_resource_struct resources;      /* PDF */
     pool_pointer s;             /* DVI *//* index into |str_pool| */
     posstructure refpoint;      /* DVI, PDF *//* the origin pos. on the page */
-    scaled form_margin = one_bp;        /* PDF */
     scaledpos cur = { 0, 0 };   /* DVI, PDF */
     scaledpos save_cur_page_size;       /* PDF *//* to save |cur_page_size| during flushing pending forms */
 
     pdf->f_cur = null_font;
+
     switch (pdf->o_mode) {
     case OMODE_DVI:
         assert(shipping_page == true);
@@ -107,16 +104,16 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         break;
     case OMODE_PDF:
         check_pdfminorversion(pdf);     /* does also prepare_mag() */
-        last_resources = pdf_new_objnum(pdf);
         reset_resource_lists(&resources);
         pdf->resources = &resources;
+        pdf->resources->last_resources = pdf_new_objnum(pdf);
         break;
     default:
         assert(0);
     }
 
     /* Start sheet {\sl Sync\TeX} information record */
-    pdf_output_value = pdf_output;      /* {\sl Sync\TeX}: we assume that |pdf_output| is properly set up */
+    /* {\sl Sync\TeX}: we assume that |pdf_output| is properly set up */
     if (synctexoption == 1)
         synctex_sheet(mag);
 
@@ -344,104 +341,13 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     /* Now we are at the point on the page where the origin of the page box should go. */
 
-/* TODO: remove this from here */
-#define id_byte 2               /* identifies the kind of \.{DVI} files described here */
-#define pre  247                /* preamble */
-#define bop  139                /* beginning of page */
-#define eop  140                /* ending of page */
-
     switch (pdf->o_mode) {
     case OMODE_DVI:
-        /* Initialize variables as |ship_out| begins */
-        dvi.h = 0;
-        dvi.v = 0;
-        ensure_dvi_open();
-        if (total_pages == 0) {
-            dvi_out(pre);
-            dvi_out(id_byte);   /* output the preamble */
-            dvi_four(25400000);
-            dvi_four(473628672);        /* conversion ratio for sp */
-            prepare_mag();
-            dvi_four(mag);      /* magnification factor is frozen */
-            if (output_comment) {
-                int l = strlen(output_comment);
-                dvi_out(l);
-                for (s = 0; s <= l - 1; s++)
-                    dvi_out(output_comment[s]);
-            } else {            /* the default code is unchanged */
-                old_setting = selector;
-                selector = new_string;
-                tprint(" LuaTeX output ");
-                print_int(int_par(year_code));
-                print_char('.');
-                print_two(int_par(month_code));
-                print_char('.');
-                print_two(int_par(day_code));
-                print_char(':');
-                print_two(int_par(time_code) / 60);
-                print_two(int_par(time_code) % 60);
-                selector = old_setting;
-                dvi_out(cur_length);
-                for (s = str_start_macro(str_ptr); s <= pool_ptr - 1; s++)
-                    dvi_out(str_pool[s]);
-                pool_ptr = str_start_macro(str_ptr);    /* flush the current string */
-            }
-        }
-        page_loc = dvi_offset + dvi_ptr;
-        dvi_out(bop);
-        for (k = 0; k <= 9; k++)
-            dvi_four(count(k));
-        dvi_four(last_bop);
-        last_bop = page_loc;
+        assert(shipping_page);
+        dvi_begin_page();
         break;
     case OMODE_PDF:
-        pdf_page_init(pdf);
-        if (shipping_page) {
-            pdf->last_page = get_obj(pdf, obj_type_page, total_pages + 1, 0);
-            set_obj_aux(pdf, pdf->last_page, 1);        /* mark that this page has been created */
-            pdf_new_dict(pdf, obj_type_others, 0, 0);
-            pdf->last_stream = pdf->obj_ptr;
-            pdf->last_thread = null;
-        } else {
-            pdf_begin_dict(pdf, pdf_cur_form, 0);
-            pdf->last_stream = pdf_cur_form;
-
-            /* Write out Form stream header */
-            pdf_printf(pdf, "/Type /XObject\n");
-            pdf_printf(pdf, "/Subtype /Form\n");
-            if (obj_xform_attr(pdf, pdf_cur_form) != null) {
-                pdf_print_toks_ln(pdf, obj_xform_attr(pdf, pdf_cur_form));
-                delete_token_ref(obj_xform_attr(pdf, pdf_cur_form));
-                set_obj_xform_attr(pdf, pdf_cur_form, null);
-            }
-            pdf_printf(pdf, "/BBox [");
-            pdf_print_bp(pdf, -form_margin);
-            pdf_out(pdf, ' ');
-            pdf_print_bp(pdf, -form_margin);
-            pdf_out(pdf, ' ');
-            pdf_print_bp(pdf, cur_page_size.h + form_margin);
-            pdf_out(pdf, ' ');
-            pdf_print_bp(pdf, cur_page_size.v + form_margin);
-            pdf_printf(pdf, "]\n");
-            pdf_printf(pdf, "/FormType 1\n");
-            pdf_printf(pdf, "/Matrix [1 0 0 1 0 0]\n");
-            pdf_indirect_ln(pdf, "Resources", last_resources);
-        }
-        /* Start stream of page/form contents */
-        pdf_begin_stream(pdf);
-        if (shipping_page) {
-            /* Adjust transformation matrix for the magnification ratio */
-            if (mag != 1000) {
-                pdf_print_real(pdf, mag, 3);
-                pdf_printf(pdf, " 0 0 ");
-                pdf_print_real(pdf, mag, 3);
-                pdf_printf(pdf, " 0 0 cm\n");
-            }
-        }
-        pdfshipoutbegin(shipping_page);
-
-        if (shipping_page)
-            pdf_out_colorstack_startpage(pdf);
+        pdf_begin_page(pdf, shipping_page);
         break;
     default:
         assert(0);
@@ -459,26 +365,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     switch (pdf->o_mode) {
     case OMODE_DVI:
-        dvi_out(eop);
-
-#ifdef IPC
-        if (ipcon > 0) {
-            if (dvi_limit == half_buf) {
-                write_dvi(half_buf, dvi_buf_size - 1);
-                flush_dvi();
-                dvi_gone = dvi_gone + half_buf;
-            }
-            if (dvi_ptr > 0) {
-                write_dvi(0, dvi_ptr - 1);
-                flush_dvi();
-                dvi_offset = dvi_offset + dvi_ptr;
-                dvi_gone = dvi_gone + dvi_ptr;
-            }
-            dvi_ptr = 0;
-            dvi_limit = dvi_buf_size;
-            ipcpage(dvi_gone);
-        }
-#endif                          /* IPC */
+        dvi_end_page();
         break;
     case OMODE_PDF:
         /* Finish stream of page/form contents */
@@ -494,7 +381,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
                 pdf_do_page_divert(pdf, pdf->last_page, page_divert_val);
             pdf_printf(pdf, "/Type /Page\n");
             pdf_indirect_ln(pdf, "Contents", pdf->last_stream);
-            pdf_indirect_ln(pdf, "Resources", last_resources);
+            pdf_indirect_ln(pdf, "Resources", pdf->resources->last_resources);
             pdf_printf(pdf, "/MediaBox [0 0 ");
             pdf_print_mag_bp(pdf, cur_page_size.h);
             pdf_out(pdf, ' ');
@@ -619,7 +506,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
         }
         /* Write out resources dictionary */
-        pdf_begin_dict(pdf, last_resources, 1);
+        pdf_begin_dict(pdf, pdf->resources->last_resources, 1);
         /* Print additional resources */
         if (shipping_page) {
             if (pdf_page_resources != null)
