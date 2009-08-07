@@ -45,7 +45,7 @@ static const char __svn_version[] =
 #define pdf_pages_attr equiv(pdf_pages_attr_loc)
 #define pdf_page_resources equiv(pdf_page_resources_loc)
 
-integer page_divert_val;
+static integer page_divert_val = 0;
 
 halfword pdf_info_toks;         /* additional keys of Info dictionary */
 halfword pdf_catalog_toks;      /* additional keys of Catalog dictionary */
@@ -104,14 +104,9 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             half_buf = dvi_buf_size / 2;
             dvi_limit = dvi_buf_size;
         }
-        /* Initialize variables as |ship_out| begins */
-        dvi.h = 0;
-        dvi.v = 0;
         break;
     case OMODE_PDF:
-        check_pdfminorversion(pdf);
-        /* Initialize variables as |ship_out| begins */
-        prepare_mag();
+        check_pdfminorversion(pdf);     /* does also prepare_mag() */
         last_resources = pdf_new_objnum(pdf);
         reset_resource_lists(&resources);
         pdf->resources = &resources;
@@ -357,6 +352,9 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     switch (pdf->o_mode) {
     case OMODE_DVI:
+        /* Initialize variables as |ship_out| begins */
+        dvi.h = 0;
+        dvi.v = 0;
         ensure_dvi_open();
         if (total_pages == 0) {
             dvi_out(pre);
@@ -433,7 +431,6 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         pdf_begin_stream(pdf);
         if (shipping_page) {
             /* Adjust transformation matrix for the magnification ratio */
-            prepare_mag();
             if (mag != 1000) {
                 pdf_print_real(pdf, mag, 3);
                 pdf_printf(pdf, " 0 0 ");

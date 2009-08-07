@@ -22,7 +22,6 @@
 #ifndef PDFSHIPOUT_H
 #  define PDFSHIPOUT_H
 
-extern integer page_divert_val;
 extern halfword pdf_info_toks;  /* additional keys of Info dictionary */
 extern halfword pdf_catalog_toks;       /* additional keys of Catalog dictionary */
 extern halfword pdf_catalog_openaction;
