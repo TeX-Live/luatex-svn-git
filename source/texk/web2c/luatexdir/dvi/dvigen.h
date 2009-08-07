@@ -147,8 +147,6 @@ The depth of nesting of |hlist_out| and |vlist_out| is called |cur_s|;
 this is essentially the depth of |push| commands in the \.{DVI} output.
 */
 
-extern scaled_whd rule;
-
 #  define synch_h(p) do {                       \
     if (p.h != dvi.h) {                         \
       movement(p.h - dvi.h, right1);            \
@@ -165,16 +163,8 @@ extern scaled_whd rule;
 
 #  define synch_dvi_with_pos(p) do {synch_h(p); synch_v(p); } while (0)
 
-#  define synch_dvi_with_cur()  do {            \
-    synch_pos_with_cur();                       \
-    synch_dvi_with_pos();                       \
-  } while (0)
-
-extern scaledpos dvi;
-extern internal_font_number dvi_f;
-extern scaledpos cur_page_size; /* width and height of page being shipped */
-
 #  define billion 1000000000.0
+
 #  define vet_glue(A) do { glue_temp=A;         \
     if (glue_temp>billion)                      \
       glue_temp=billion;                        \
@@ -182,11 +172,14 @@ extern scaledpos cur_page_size; /* width and height of page being shipped */
       glue_temp=-billion;                       \
   } while (0)
 
+extern scaled_whd rule;
+extern scaledpos dvi;
+extern scaledpos cur_page_size; /* width and height of page being shipped */
+
 extern void expand_macros_in_tokenlist(halfword p);
 extern void write_out(halfword p);
 extern void dvi_special(PDF pdf, halfword p);
 
-/* extern void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page); */
 extern void finish_dvi_file(int version, int revision);
 
 extern void dvi_place_glyph(PDF pdf, internal_font_number f, integer c);
