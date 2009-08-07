@@ -1035,7 +1035,6 @@ void prune_movements(integer l)
 }
 
 scaledpos dvi;                  /* a \.{DVI} position in page coordinates, in sync with DVI file */
-internal_font_number dvi_f;     /* the current font */
 
 scaledpos cur_page_size;
 
@@ -1074,8 +1073,8 @@ void dvi_place_glyph(PDF pdf, internal_font_number f, integer c)
 {
     scaled_whd ci;
     synch_dvi_with_pos(pdf->posstruct->pos);
-    if (f != dvi_f) {
-        /* Change font |dvi_f| to |f| */
+    if (f != pdf->f_cur) {
+        /* Change font |f_cur| to |f| */
         if (!font_used(f)) {
             dvi_font_def(f);
             set_font_used(f, true);
@@ -1083,7 +1082,7 @@ void dvi_place_glyph(PDF pdf, internal_font_number f, integer c)
         oval = f - 1;
         ocmd = fnt1;
         out_cmd();
-        dvi_f = f;
+        pdf->f_cur = f;
     }
     if (dir_secondary[pdf->posstruct->dir] == dir_L) {
         ci = get_charinfo_whd(f, c);
@@ -1172,8 +1171,8 @@ void hlist_out(void)
                 f = font(p);
                 c = character(p);
                 ci = get_charinfo_whd(f, c);
-                if (f != dvi_f) {
-                    /* Change font |dvi_f| to |f| */
+                if (f != pdf->f_cur) {
+                    /* Change font |f_cur| to |f| */
                     if (!font_used(f)) {
                         dvi_font_def(f);
                         set_font_used(f, true);
@@ -1181,7 +1180,7 @@ void hlist_out(void)
                     oval = f - 1;
                     ocmd = fnt1;
                     out_cmd();
-                    dvi_f = f;
+                    pdf->f_cur = f;
                 }
                 if (font_natural_dir(f) != -1) {
                     switch (font_direction(dvi_direction)) {
@@ -2331,7 +2330,7 @@ void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page)
     /* Initialize variables as |ship_out| begins */
     dvi.h = 0;
     dvi.v = 0;
-    dvi_f = null_font;
+    pdf->f_cur = null_font;
 
     /* 7 */
     /* Calculate page dimensions and margins */

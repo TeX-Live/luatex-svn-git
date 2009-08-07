@@ -64,7 +64,7 @@ void pdf_page_init(PDF pdf)
     setpdffloat(p->tm[4], 0, decimal_digits);   /* mantissa holds delta from pdf_bt_pos.h */
     setpdffloat(p->tm[5], 0, decimal_digits);   /* mantissa holds delta from pdf_bt_pos.v */
     /*  */
-    p->f_cur = null_font;
+    pdf->f_cur = null_font;
     p->f_pdf = null_font;
     p->wmode = WMODE_H;
     p->mode = PMODE_PAGE;

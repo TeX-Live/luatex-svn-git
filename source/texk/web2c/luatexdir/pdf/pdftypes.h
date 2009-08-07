@@ -95,7 +95,6 @@ typedef struct {
     pdffloat tm[6];             /* Tm array */
     double k1;                  /* conv. factor from TeX sp to PDF page raster */
     double k2;                  /* conv. factor from PDF page raster to TJ array raster */
-    int f_cur;                  /* TeX font number */
     int f_pdf;                  /* /F* font number, of unexpanded base font! */
     writing_mode wmode;         /* PDF writing mode WMode (horizontal/vertical) */
     pos_mode mode;              /* current positioning mode */
@@ -277,6 +276,7 @@ typedef struct pdf_output_file_ {
     int last_thread_named_id;   /* is identifier of the last thread named */
     integer thread_level;       /* depth of nesting of box containing the last thread */
 
+    int f_cur;                  /* TeX font number */
 } pdf_output_file;
 
 typedef pdf_output_file *PDF;

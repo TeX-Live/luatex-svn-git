@@ -95,6 +95,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     scaledpos cur = { 0, 0 };   /* DVI, PDF */
     scaledpos save_cur_page_size;       /* PDF *//* to save |cur_page_size| during flushing pending forms */
 
+    pdf->f_cur = null_font;
     switch (pdf->o_mode) {
     case OMODE_DVI:
         assert(shipping_page == true);
@@ -106,7 +107,6 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         /* Initialize variables as |ship_out| begins */
         dvi.h = 0;
         dvi.v = 0;
-        dvi_f = null_font;
         break;
     case OMODE_PDF:
         check_pdfminorversion(pdf);
