@@ -239,10 +239,8 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             }
         }
 
-        /* Think in upright page/paper coordinates:
-           First preset |pos.h| and |pos.v| to the DVI origin.
-           Then calculate |cur.h| and |cur.v| within the upright coordinate system
-           for the DVI origin depending on the |page_direction|. */
+        /* Think in upright page/paper coordinates (page origin = lower left edge).
+           First preset |refpoint.pos| to the DVI origin (near upper left page edge). */
 
         switch (pdf->o_mode) {
         case OMODE_DVI:
@@ -258,35 +256,39 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
             assert(0);
         }
 
+        /* Then shift |refpoint.pos| of the DVI origin depending on the
+           |page_direction| within the upright (TLT) page coordinate system */
+
         switch (box_direction(page_direction)) {
         case dir_TL_:
         case dir_LT_:
-            cur.h = h_offset;
-            cur.v = v_offset;
+            refpoint.pos.h += h_offset;
+            refpoint.pos.v -= v_offset;
             break;
         case dir_TR_:
         case dir_RT_:
-            cur.h = cur_page_size.h - page_right_offset - one_true_inch;
-            cur.v = v_offset;
+            refpoint.pos.h +=
+                cur_page_size.h - page_right_offset - one_true_inch;
+            refpoint.pos.v -= v_offset;
             break;
         case dir_BL_:
         case dir_LB_:
-            cur.h = h_offset;
-            cur.v = cur_page_size.v - page_bottom_offset - one_true_inch;
+            refpoint.pos.h += h_offset;
+            refpoint.pos.v -=
+                cur_page_size.v - page_bottom_offset - one_true_inch;
             break;
         case dir_RB_:
         case dir_BR_:
-            cur.h = cur_page_size.h - page_right_offset - one_true_inch;
-            cur.v = cur_page_size.v - page_bottom_offset - one_true_inch;
+            refpoint.pos.h +=
+                cur_page_size.h - page_right_offset - one_true_inch;
+            refpoint.pos.v -=
+                cur_page_size.v - page_bottom_offset - one_true_inch;
             break;
         }
-        /* The movement is actually done within the upright page coordinate system. */
-        pdf->posstruct->dir = dir_TLT;  /* only temporarily for this adjustment */
 
-        synch_pos_with_cur(pdf->posstruct, &refpoint, cur);
+        /* Then switch to page box coordinate system; do |height(p)| movement,
+           to get the location of the box origin. */
 
-        /* Then switch to page box coordinate system; do |height(p)| movement. */
-        refpoint.pos = pdf->posstruct->pos;
         pdf->posstruct->dir = page_direction;
         cur.h = 0;
         cur.v = height(p);
