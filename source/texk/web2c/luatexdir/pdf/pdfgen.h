@@ -155,13 +155,6 @@ extern void append_object_list(PDF pdf, pdf_obj_type t, integer f);
 extern pdf_object_list *lookup_object_list(PDF pdf, pdf_obj_type t, integer f);
 void flush_resource_lists(PDF pdf);
 
-#  define set_ff(A)  do {                         \
-        if (pdf_font_num(A) < 0)                \
-            ff = -pdf_font_num(A);              \
-        else                                    \
-            ff = A;                             \
-    } while (0)
-
 #  define pdf_print_resname_prefix(pdf) do {        \
         if (pdf->resname_prefix != NULL)            \
             pdf_puts(pdf,pdf->resname_prefix);      \

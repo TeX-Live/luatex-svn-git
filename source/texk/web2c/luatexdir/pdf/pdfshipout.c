@@ -79,14 +79,12 @@ otherwise it will be a Page object.
 void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
 {
     /* output the box |p| */
-    boolean ret;                /* DVI, PDF */
     integer ff;                 /* PDF *//* for use with |set_ff| */
     integer j, k;               /* DVI, PDF *//* indices to first ten count registers */
     integer post_callback_id;   /* DVI, PDF */
     integer pre_callback_id;    /* DVI, PDF */
     pdf_object_list *ol;        /* PDF */
     pdf_resource_struct resources;      /* PDF */
-    pool_pointer s;             /* DVI *//* index into |str_pool| */
     posstructure refpoint;      /* DVI, PDF *//* the origin pos. on the page */
     scaledpos cur = { 0, 0 };   /* DVI, PDF */
     scaledpos save_cur_page_size;       /* PDF *//* to save |cur_page_size| during flushing pending forms */
@@ -127,7 +125,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
     is_shipping_page = shipping_page;
     if (shipping_page) {
         if (pre_callback_id > 0)
-            ret = run_callback(pre_callback_id, "->");
+            (void) run_callback(pre_callback_id, "->");
         else if (pre_callback_id == 0) {
             if (term_offset > max_print_line - 9)
                 print_ln();
@@ -613,7 +611,7 @@ void pdf_ship_out(PDF pdf, halfword p, boolean shipping_page)
         print_ln();
     }
     if (shipping_page && (post_callback_id > 0))
-        ret = run_callback(post_callback_id, "->");
+        (void) run_callback(post_callback_id, "->");
 
     /* Finish sheet {\sl Sync\TeX} information record */
     if (synctexoption == 1)
