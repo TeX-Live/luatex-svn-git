@@ -310,7 +310,7 @@ void hlist_out(PDF pdf, halfword this_box)
     scaled_whd rule, ci;
     int i;                      /* index to scan |pdf_link_stack| */
     integer save_loc = 0;       /* DVI! \.{DVI} byte location upon entry */
-    scaledpos save_dvi;         /* DVI! what |dvi| should pop to */
+    scaledpos save_dvi = { 0, 0 };      /* DVI! what |dvi| should pop to */
 
     g_order = glue_order(this_box);
     g_sign = glue_sign(this_box);
@@ -853,7 +853,7 @@ void vlist_out(PDF pdf, halfword this_box)
     scaled cur_g = 0;           /* rounded equivalent of |cur_glue| times the glue ratio */
     scaled_whd rule;
     integer save_loc = 0;       /* DVI! \.{DVI} byte location upon entry */
-    scaledpos save_dvi;         /* DVI! what |dvi| should pop to */
+    scaledpos save_dvi = { 0, 0 };      /* DVI! what |dvi| should pop to */
 
     g_order = glue_order(this_box);
     g_sign = glue_sign(this_box);
