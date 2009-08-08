@@ -327,8 +327,10 @@ void hlist_out(PDF pdf, halfword this_box)
         max_push = cur_s;
 
     if (pdf->o_mode == OMODE_DVI) {
-        if (cur_s > 0)          /* DVI! */
+        if (cur_s > 0) {        /* DVI! */
             dvi_out(push);      /* DVI! */
+            save_dvi = dvi;     /* DVI! */
+        }
         save_loc = dvi_offset + dvi_ptr /* DVI! */ ;
     }
 
@@ -441,12 +443,10 @@ void hlist_out(PDF pdf, halfword this_box)
                     cur.h += basepoint.h;
                     cur.v = basepoint.v;
                     synch_pos_with_cur(pdf->posstruct, refpos, cur);
-                    save_dvi = dvi;     /* DVI! */
                     if (type(p) == vlist_node)
                         vlist_out(pdf, p);
                     else
                         hlist_out(pdf, p);
-                    dvi = save_dvi;     /* DVI! */
                     cur.h = edge_h + effective_horizontal;
                     cur.v = 0;
                 }
@@ -727,12 +727,10 @@ void hlist_out(PDF pdf, halfword this_box)
                             synch_pos_with_cur(pdf->posstruct, refpos, cur);
                             outer_doing_leaders = doing_leaders;
                             doing_leaders = true;
-                            save_dvi = dvi;     /* DVI! */
                             if (type(leader_box) == vlist_node)
                                 vlist_out(pdf, leader_box);
                             else
                                 hlist_out(pdf, leader_box);
-                            dvi = save_dvi;     /* DVI! */
                             doing_leaders = outer_doing_leaders;
                             cur.h = edge_h + leader_wd + lx;
                             cur.v = 0;
@@ -838,8 +836,10 @@ void hlist_out(PDF pdf, halfword this_box)
 
     if (pdf->o_mode == OMODE_DVI) {
         prune_movements(save_loc);      /* DVI! */
-        if (cur_s > 0)          /* DVI! */
+        if (cur_s > 0) {        /* DVI! */
             dvi_pop(save_loc);  /* DVI! */
+            dvi = save_dvi;     /* DVI! */
+        }
     }
     decr(cur_s);
     pdf->posstruct = refpos;
@@ -889,8 +889,10 @@ void vlist_out(PDF pdf, halfword this_box)
         max_push = cur_s;
 
     if (pdf->o_mode == OMODE_DVI) {
-        if (cur_s > 0)          /* DVI! */
+        if (cur_s > 0) {        /* DVI! */
             dvi_out(push);      /* DVI! */
+            save_dvi = dvi;     /* DVI! */
+        }
         save_loc = dvi_offset + dvi_ptr;        /* DVI! */
     }
 
@@ -970,12 +972,10 @@ void vlist_out(PDF pdf, halfword this_box)
                     edge_v = cur.v;
                     cur.v += basepoint.v;
                     synch_pos_with_cur(pdf->posstruct, refpos, cur);
-                    save_dvi = dvi;     /* DVI! */
                     if (type(p) == vlist_node)
                         vlist_out(pdf, p);
                     else
                         hlist_out(pdf, p);
-                    dvi = save_dvi;     /* DVI! */
                     cur.h = 0;
                     cur.v = edge_v + effective_vertical;
                 }
@@ -1161,12 +1161,10 @@ void vlist_out(PDF pdf, halfword this_box)
                             synch_pos_with_cur(pdf->posstruct, refpos, cur);
                             outer_doing_leaders = doing_leaders;
                             doing_leaders = true;
-                            save_dvi = dvi;     /* DVI! */
                             if (type(leader_box) == vlist_node)
                                 vlist_out(pdf, leader_box);
                             else
                                 hlist_out(pdf, leader_box);
-                            dvi = save_dvi;     /* DVI! */
                             doing_leaders = outer_doing_leaders;
                             cur.h = 0;
                             cur.v =
@@ -1250,8 +1248,10 @@ void vlist_out(PDF pdf, halfword this_box)
 
     if (pdf->o_mode == OMODE_DVI) {
         prune_movements(save_loc);      /* DVI! */
-        if (cur_s > 0)          /* DVI! */
+        if (cur_s > 0) {        /* DVI! */
             dvi_pop(save_loc);  /* DVI! */
+            dvi = save_dvi;     /* DVI! */
+        }
     }
     decr(cur_s);
     pdf->posstruct = refpos;
