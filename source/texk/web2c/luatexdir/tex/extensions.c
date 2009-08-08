@@ -206,9 +206,8 @@ void do_extension(void)
                 case pdf_xform_code:
                     do_extension();     /* scan form and set |pdf_last_xform| */
                     pdf_cur_form = pdf_last_xform;
-                    pdf_ship_out(static_pdf,
-                                 obj_xform_box(static_pdf, pdf_last_xform),
-                                 false);
+                    ship_out(static_pdf,
+                             obj_xform_box(static_pdf, pdf_last_xform), false);
                     break;
                 case pdf_ximage_code:
                     do_extension();     /* scan image and set |pdf_last_ximage| */

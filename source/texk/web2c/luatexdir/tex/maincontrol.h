@@ -93,7 +93,7 @@ since the following routines test for the \.{\\global} prefix as follows.
 
 extern halfword cur_box;        /* box to be placed into its context */
 
-extern void ship_out(halfword p);
+extern void do_ship_out(halfword p);
 
 
 /*

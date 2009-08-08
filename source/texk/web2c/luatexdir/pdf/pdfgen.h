@@ -222,4 +222,13 @@ extern char *get_resname_prefix(PDF);
 extern void pdf_begin_page(PDF pdf, boolean shipping_page);
 extern void pdf_end_page(PDF pdf, boolean shipping_page);
 
+extern void fix_pdfoutput(void);
+
+extern halfword pdf_info_toks;  /* additional keys of Info dictionary */
+extern halfword pdf_catalog_toks;       /* additional keys of Catalog dictionary */
+extern halfword pdf_catalog_openaction;
+extern halfword pdf_names_toks; /* additional keys of Names dictionary */
+extern halfword pdf_trailer_toks;       /* additional keys of Trailer dictionary */
+extern boolean is_shipping_page;
+
 #endif

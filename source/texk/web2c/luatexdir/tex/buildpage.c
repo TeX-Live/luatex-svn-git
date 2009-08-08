@@ -1010,7 +1010,7 @@ void fire_up(halfword c)
     }
     flush_node_list(page_disc);
     page_disc = null;
-    ship_out(box(output_box));
+    do_ship_out(box(output_box));
     box(output_box) = null;
 
 }

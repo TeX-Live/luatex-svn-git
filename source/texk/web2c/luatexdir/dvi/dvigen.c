@@ -2229,7 +2229,7 @@ The |hlist_out| and |vlist_out| procedures are now complete, so we are
 ready for the |dvi_ship_out| routine that gets them started in the first place.
 */
 
-#if 0                           /* obsolete, kept for reference; see pdf_ship_out() */
+#if 0                           /* obsolete code, kept for reference */
 void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page)
 {
     /* output the box |p| */
@@ -2527,7 +2527,7 @@ void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page)
     /* Finish sheet {\sl Sync\TeX} information record */
     synctex_teehs();
 }
-#endif                          /* obsolete, kept for reference */
+#endif                          /* obsolete code, kept for reference */
 
 /**********************************************************************/
 

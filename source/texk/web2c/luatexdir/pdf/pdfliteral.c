@@ -39,9 +39,9 @@ void pdf_special(PDF pdf, halfword p)
 
 /*
 To ship out a \TeX\ box to PDF page description we need to implement
-|pdf_hlist_out|, |pdf_vlist_out| and |pdf_ship_out|, which are equivalent to
+|hlist_out|, |vlist_out| and |ship_out|, which are equivalent to
 the \TeX' original |hlist_out|, |vlist_out| and |ship_out| resp. But first we
-need to declare some procedures needed in |pdf_hlist_out| and |pdf_vlist_out|.
+need to declare some procedures needed in |hlist_out| and |vlist_out|.
 */
 
 void pdf_out_literal(PDF pdf, halfword p)

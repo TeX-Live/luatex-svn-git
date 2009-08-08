@@ -366,7 +366,7 @@ void hlist_out(PDF pdf, halfword this_box)
             if (synctexoption == 1)
                 synctex_current();
         } else {
-            /* Output the non-|char_node| |p| for |pdf_hlist_out|
+            /* Output the non-|char_node| |p| for |hlist_out|
                and move to the next node */
             switch (type(p)) {
             case hlist_node:
@@ -476,7 +476,7 @@ void hlist_out(PDF pdf, halfword this_box)
                 goto FIN_RULE;
                 break;
             case whatsit_node:
-                /* Output the whatsit node |p| in |pdf_hlist_out| */
+                /* Output the whatsit node |p| in |hlist_out| */
                 switch (subtype(p)) {
                 case pdf_literal_node:
                     backend_out_whatsit[pdf_literal_node] (pdf, p);     /* pdf_out_literal(pdf, p); */
@@ -905,7 +905,7 @@ void vlist_out(PDF pdf, halfword this_box)
         if (is_char_node(p)) {
             confusion("pdfvlistout");   /* this can't happen */
         } else {
-            /* Output the non-|char_node| |p| for |pdf_vlist_out| */
+            /* Output the non-|char_node| |p| for |vlist_out| */
 
             switch (type(p)) {
             case hlist_node:
@@ -994,7 +994,7 @@ void vlist_out(PDF pdf, halfword this_box)
                 goto FIN_RULE;
                 break;
             case whatsit_node:
-                /* Output the whatsit node |p| in |pdf_vlist_out| */
+                /* Output the whatsit node |p| in |vlist_out| */
                 switch (subtype(p)) {
                 case pdf_literal_node:
                     backend_out_whatsit[pdf_literal_node] (pdf, p);     /* pdf_out_literal(pdf, p); */

@@ -187,9 +187,9 @@ void pdf_create_obj(PDF pdf, integer t, integer i)
    |i < 0| indicates that |-i| should be treated as a string number. If no
    such object exists then it will be created. This function is used mainly to
    find destination for link annotations and outlines; however it is also used
-   in |pdf_ship_out| (to check whether a Page object already exists) so we need
-   to declare it together with subroutines needed in |pdf_hlist_out| and
-   |pdf_vlist_out|.
+   in |ship_out| (to check whether a Page object already exists) so we need
+   to declare it together with subroutines needed in |hlist_out| and
+   |vlist_out|.
 */
 
 integer find_obj(PDF pdf, integer t, integer i, boolean byname)
