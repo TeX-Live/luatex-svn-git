@@ -292,7 +292,6 @@ void hlist_out(PDF pdf, halfword this_box)
     scaledpos size = { 0, 0 };  /* rule dimensions */
     scaled effective_horizontal;
     scaled save_h;              /* what |cur.h| should pop to */
-    scaled edge_h;
     scaled edge;                /* right edge of sub-box or leader space */
     halfword enddir_ptr;        /* temporary pointer to enddir node */
     /* label move_past, fin_rule, next_p; */
@@ -437,19 +436,17 @@ void hlist_out(PDF pdf, halfword this_box)
                         else
                             synctex_void_hlist(p, this_box);
                     }
-                    cur.h += effective_horizontal;
                 } else {
-                    edge_h = cur.h;
-                    cur.h += basepoint.h;
-                    cur.v = basepoint.v;
-                    synch_pos_with_cur(pdf->posstruct, refpos, cur);
+                    assert(cur.v == 0);
+                    tmpcur.h = cur.h + basepoint.h;
+                    tmpcur.v = basepoint.v;
+                    synch_pos_with_cur(pdf->posstruct, refpos, tmpcur);
                     if (type(p) == vlist_node)
                         vlist_out(pdf, p);
                     else
                         hlist_out(pdf, p);
-                    cur.h = edge_h + effective_horizontal;
-                    cur.v = 0;
                 }
+                cur.h += effective_horizontal;
                 break;
             case disc_node:
                 if (vlink(no_break(p)) != null) {
@@ -652,23 +649,23 @@ void hlist_out(PDF pdf, halfword this_box)
                         lx = 0;
                         /* Let |cur.h| be the position of the first box, and set |leader_wd+lx|
                            to the spacing between corresponding parts of boxes */
-                        {
-                            if (subtype(p) == a_leaders) {
-                                save_h = cur.h;
-                                cur.h = leader_wd * (cur.h / leader_wd);
-                                if (cur.h < save_h)
-                                    cur.h += leader_wd;
+
+                        if (subtype(p) == a_leaders) {
+                            save_h = cur.h;
+                            cur.h = leader_wd * (cur.h / leader_wd);
+                            if (cur.h < save_h)
+                                cur.h += leader_wd;
+                        } else {
+                            lq = rule.wd / leader_wd;   /* the number of box copies */
+                            lr = rule.wd % leader_wd;   /* the remaining space */
+                            if (subtype(p) == c_leaders) {
+                                cur.h += lr / 2;
                             } else {
-                                lq = rule.wd / leader_wd;       /* the number of box copies */
-                                lr = rule.wd % leader_wd;       /* the remaining space */
-                                if (subtype(p) == c_leaders) {
-                                    cur.h += lr / 2;
-                                } else {
-                                    lx = lr / (lq + 1);
-                                    cur.h += (lr - (lq - 1) * lx) / 2;
-                                }
+                                lx = lr / (lq + 1);
+                                cur.h += (lr - (lq - 1) * lx) / 2;
                             }
                         }
+
                         while (cur.h + leader_wd <= edge) {
                             /* (\pdfTeX) Output a leader box at |cur.h|,
                                then advance |cur.h| by |leader_wd+lx| */
@@ -710,10 +707,10 @@ void hlist_out(PDF pdf, halfword this_box)
                                 basepoint.v = basepoint.v + shift_amount(leader_box);   /* shift the box `down' */
                             else
                                 basepoint.v = basepoint.v - shift_amount(leader_box);   /* shift the box `up' */
-                            edge_h = cur.h;
-                            cur.h += basepoint.h;
-                            cur.v = basepoint.v;
-                            synch_pos_with_cur(pdf->posstruct, refpos, cur);
+                            assert(cur.v == 0);
+                            tmpcur.h = cur.h + basepoint.h;
+                            tmpcur.v = basepoint.v;
+                            synch_pos_with_cur(pdf->posstruct, refpos, tmpcur);
                             outer_doing_leaders = doing_leaders;
                             doing_leaders = true;
                             if (type(leader_box) == vlist_node)
@@ -721,8 +718,7 @@ void hlist_out(PDF pdf, halfword this_box)
                             else
                                 hlist_out(pdf, leader_box);
                             doing_leaders = outer_doing_leaders;
-                            cur.h = edge_h + leader_wd + lx;
-                            cur.v = 0;
+                            cur.h += leader_wd + lx;
                         }
                         cur.h = edge - 10;
                         goto NEXTP;
@@ -839,12 +835,11 @@ void vlist_out(PDF pdf, halfword this_box)
     posstructure localpos;      /* the position structure local within this function */
     posstructure *refpos;       /* the list origin pos. on the page, provided by the caller */
 
-    scaledpos cur, basepoint;
+    scaledpos cur, tmpcur, basepoint;
     scaledpos size = { 0, 0 };  /* rule dimensions */
     scaled effective_vertical;
     scaled save_v;              /* what |cur.v| should pop to */
     scaled top_edge;            /* the top coordinate for this box */
-    scaled edge_v;
     scaled edge;                /* bottom boundary of leader space */
     glue_ord g_order;           /* applicable order of infinity for glue */
     integer g_sign;             /* selects type of glue */
@@ -957,16 +952,15 @@ void vlist_out(PDF pdf, halfword this_box)
                             synctex_void_hlist(p, this_box);
                     }
                 } else {
-                    cur.h = basepoint.h;
-                    edge_v = cur.v;
-                    cur.v += basepoint.v;
-                    synch_pos_with_cur(pdf->posstruct, refpos, cur);
+                    assert(cur.h == 0);
+                    tmpcur.h = basepoint.h;
+                    tmpcur.v = cur.v + basepoint.v;
+                    synch_pos_with_cur(pdf->posstruct, refpos, tmpcur);
                     if (type(p) == vlist_node)
                         vlist_out(pdf, p);
                     else
                         hlist_out(pdf, p);
-                    cur.h = 0;
-                    cur.v = edge_v + effective_vertical;
+                    cur.v += effective_vertical;
                 }
                 break;
             case rule_node:
@@ -1135,10 +1129,10 @@ void vlist_out(PDF pdf, halfword this_box)
                         while (cur.v + leader_ht <= edge) {
                             /* (\pdfTeX) Output a leader box at |cur.v|,
                                then advance |cur.v| by |leader_ht+lx| */
-                            cur.h = shift_amount(leader_box);
-                            cur.v += height(leader_box);
-                            save_v = cur.v;
-                            synch_pos_with_cur(pdf->posstruct, refpos, cur);
+                            assert(cur.h == 0);
+                            tmpcur.h = shift_amount(leader_box);
+                            tmpcur.v = cur.v + height(leader_box);
+                            synch_pos_with_cur(pdf->posstruct, refpos, tmpcur);
                             outer_doing_leaders = doing_leaders;
                             doing_leaders = true;
                             if (type(leader_box) == vlist_node)
@@ -1146,9 +1140,7 @@ void vlist_out(PDF pdf, halfword this_box)
                             else
                                 hlist_out(pdf, leader_box);
                             doing_leaders = outer_doing_leaders;
-                            cur.h = 0;
-                            cur.v =
-                                save_v - height(leader_box) + leader_ht + lx;
+                            cur.v += leader_ht + lx;
                         }
                         cur.v = edge - 10;
                         goto NEXTP;
