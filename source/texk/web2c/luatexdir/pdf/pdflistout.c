@@ -478,23 +478,26 @@ void hlist_out(PDF pdf, halfword this_box)
             case whatsit_node:
                 /* Output the whatsit node |p| in |hlist_out| */
                 switch (subtype(p)) {
-                case pdf_literal_node:
-                    backend_out_whatsit[pdf_literal_node] (pdf, p);     /* pdf_out_literal(pdf, p); */
+                    /* function(pdf) */
+                case pdf_save_node:    /* pdf_out_save(pdf); */
+                case pdf_restore_node: /* pdf_out_restore(pdf); */
+                case pdf_end_link_node:        /* end_link(pdf); */
+                    backend_out_whatsit[subtype(p)] (pdf);
                     break;
-                case pdf_colorstack_node:
-                    backend_out_whatsit[pdf_colorstack_node] (pdf, p);  /* pdf_out_colorstack(pdf, p); */
+                    /* function(pdf, p) */
+                case pdf_literal_node: /* pdf_out_literal(pdf, p); */
+                case pdf_colorstack_node:      /* pdf_out_colorstack(pdf, p); */
+                case pdf_setmatrix_node:       /* pdf_out_setmatrix(pdf, p); */
+                case late_lua_node:    /* do_late_lua(pdf, p); */
+                case special_node:     /* pdf_special(pdf, p); */
+                    backend_out_whatsit[subtype(p)] (pdf, p);
                     break;
-                case pdf_setmatrix_node:
-                    backend_out_whatsit[pdf_setmatrix_node] (pdf, p);   /* pdf_out_setmatrix(pdf, p); */
-                    break;
-                case pdf_save_node:
-                    backend_out_whatsit[pdf_save_node] (pdf);   /* pdf_out_save(pdf); */
-                    break;
-                case pdf_restore_node:
-                    backend_out_whatsit[pdf_restore_node] (pdf);        /* pdf_out_restore(pdf); */
-                    break;
-                case late_lua_node:
-                    backend_out_whatsit[late_lua_node] (pdf, p);        /* do_late_lua(pdf, p); */
+                    /* function(pdf, p, this_box, cur) */
+                case pdf_annot_node:   /* do_annot(pdf, p, this_box, cur); */
+                case pdf_start_link_node:      /* do_link(pdf, p, this_box, cur); */
+                case pdf_dest_node:    /* do_dest(pdf, p, this_box, cur); */
+                case pdf_thread_node:  /* do_thread(pdf, p, this_box, cur); */
+                    backend_out_whatsit[subtype(p)] (pdf, p, this_box, cur);
                     break;
                 case pdf_refobj_node:
                     if (!is_obj_scheduled(pdf, pdf_obj_objnum(p))) {
@@ -537,26 +540,15 @@ void hlist_out(PDF pdf, halfword this_box)
                         pos_left(depth(p));
                         break;
                     }
-                    if (subtype(p) == pdf_refximage_node)
-                        backend_out_whatsit[pdf_refximage_node] (pdf, pdf_ximage_idx(p));       /* pdf_place_image(pdf, pdf_ximage_idx(p)); */
-                    else
-                        backend_out_whatsit[pdf_refxform_node] (pdf, pdf_xform_objnum(p));      /* pdf_place_form(pdf, pdf_xform_objnum(p)); */
+                    if (subtype(p) == pdf_refximage_node)       /* pdf_place_image(pdf, pdf_ximage_idx(p)); */
+                        backend_out_whatsit[pdf_refximage_node] (pdf,
+                                                                 pdf_ximage_idx
+                                                                 (p));
+                    else        /* pdf_place_form(pdf, pdf_xform_objnum(p)); */
+                        backend_out_whatsit[pdf_refxform_node] (pdf,
+                                                                pdf_xform_objnum
+                                                                (p));
                     cur.h += width(p);
-                    break;
-                case pdf_annot_node:
-                    backend_out_whatsit[pdf_annot_node] (pdf, p, this_box, cur);        /* do_annot(pdf, p, this_box, cur); */
-                    break;
-                case pdf_start_link_node:
-                    backend_out_whatsit[pdf_start_link_node] (pdf, p, this_box, cur);   /* do_link(pdf, p, this_box, cur); */
-                    break;
-                case pdf_end_link_node:
-                    backend_out_whatsit[pdf_end_link_node] (pdf);       /* end_link(pdf); */
-                    break;
-                case pdf_dest_node:
-                    backend_out_whatsit[pdf_dest_node] (pdf, p, this_box, cur); /* do_dest(pdf, p, this_box, cur); */
-                    break;
-                case pdf_thread_node:
-                    backend_out_whatsit[pdf_thread_node] (pdf, p, this_box, cur);       /* do_thread(pdf, p, this_box, cur); */
                     break;
                 case pdf_start_thread_node:
                     pdf_error("ext4", "\\pdfstartthread ended up in hlist");
@@ -567,9 +559,6 @@ void hlist_out(PDF pdf, halfword this_box)
                 case pdf_save_pos_node:
                     pdf_last_x_pos = localpos.pos.h;
                     pdf_last_y_pos = localpos.pos.v;
-                    break;
-                case special_node:
-                    backend_out_whatsit[special_node] (pdf, p); /* pdf_special(pdf, p); */
                     break;
                 case dir_node:
                     /* Output a reflection instruction if the direction has changed */
@@ -996,23 +985,26 @@ void vlist_out(PDF pdf, halfword this_box)
             case whatsit_node:
                 /* Output the whatsit node |p| in |vlist_out| */
                 switch (subtype(p)) {
-                case pdf_literal_node:
-                    backend_out_whatsit[pdf_literal_node] (pdf, p);     /* pdf_out_literal(pdf, p); */
+                    /* function(pdf) */
+                case pdf_save_node:    /* pdf_out_save(pdf); */
+                case pdf_restore_node: /* pdf_out_restore(pdf); */
+                case pdf_end_thread_node:      /* end_thread(pdf); */
+                    backend_out_whatsit[subtype(p)] (pdf);
                     break;
-                case pdf_colorstack_node:
-                    backend_out_whatsit[pdf_colorstack_node] (pdf, p);  /* pdf_out_colorstack(pdf, p); */
+                    /* function(pdf, p) */
+                case pdf_literal_node: /* pdf_out_literal(pdf, p); */
+                case pdf_colorstack_node:      /* pdf_out_colorstack(pdf, p); */
+                case pdf_setmatrix_node:       /* pdf_out_setmatrix(pdf, p); */
+                case late_lua_node:    /* do_late_lua(pdf, p); */
+                case special_node:     /* pdf_special(pdf, p); */
+                    backend_out_whatsit[subtype(p)] (pdf, p);
                     break;
-                case pdf_setmatrix_node:
-                    backend_out_whatsit[pdf_setmatrix_node] (pdf, p);   /* pdf_out_setmatrix(pdf, p); */
-                    break;
-                case pdf_save_node:
-                    backend_out_whatsit[pdf_save_node] (pdf);   /* pdf_out_save(pdf); */
-                    break;
-                case pdf_restore_node:
-                    backend_out_whatsit[pdf_restore_node] (pdf);        /* pdf_out_restore(pdf); */
-                    break;
-                case late_lua_node:
-                    backend_out_whatsit[late_lua_node] (pdf, p);        /* do_late_lua(pdf, p); */
+                    /* function(pdf, p, this_box, cur) */
+                case pdf_annot_node:   /* do_annot(pdf, p, this_box, cur); */
+                case pdf_dest_node:    /* do_dest(pdf, p, this_box, cur); */
+                case pdf_start_thread_node:    /* do_thread(pdf, p, this_box, cur); */
+                case pdf_thread_node:
+                    backend_out_whatsit[subtype(p)] (pdf, p, this_box, cur);
                     break;
                 case pdf_refobj_node:
                     if (!is_obj_scheduled(pdf, pdf_obj_objnum(p))) {
@@ -1053,14 +1045,15 @@ void vlist_out(PDF pdf, halfword this_box)
                     default:
                         break;
                     }
-                    if (subtype(p) == pdf_refximage_node)
-                        backend_out_whatsit[pdf_refximage_node] (pdf, pdf_ximage_idx(p));       /* pdf_place_image(pdf, pdf_ximage_idx(p)); */
-                    else
-                        backend_out_whatsit[pdf_refxform_node] (pdf, pdf_xform_objnum(p));      /* pdf_place_form(pdf, pdf_xform_objnum(p)); */
+                    if (subtype(p) == pdf_refximage_node)       /* pdf_place_image(pdf, pdf_ximage_idx(p)); */
+                        backend_out_whatsit[pdf_refximage_node] (pdf,
+                                                                 pdf_ximage_idx
+                                                                 (p));
+                    else        /* pdf_place_form(pdf, pdf_xform_objnum(p)); */
+                        backend_out_whatsit[pdf_refxform_node] (pdf,
+                                                                pdf_xform_objnum
+                                                                (p));
                     cur.v += height(p) + depth(p);
-                    break;
-                case pdf_annot_node:
-                    backend_out_whatsit[pdf_annot_node] (pdf, p, this_box, cur);        /* do_annot(pdf, p, this_box, cur); */
                     break;
                 case pdf_start_link_node:
                     pdf_error("ext4", "\\pdfstartlink ended up in vlist");
@@ -1068,22 +1061,9 @@ void vlist_out(PDF pdf, halfword this_box)
                 case pdf_end_link_node:
                     pdf_error("ext4", "\\pdfendlink ended up in vlist");
                     break;
-                case pdf_dest_node:
-                    backend_out_whatsit[pdf_dest_node] (pdf, p, this_box, cur); /* do_dest(pdf, p, this_box, cur); */
-                    break;
-                case pdf_thread_node:
-                case pdf_start_thread_node:
-                    backend_out_whatsit[pdf_thread_node] (pdf, p, this_box, cur);       /* do_thread(pdf, p, this_box, cur); */
-                    break;
-                case pdf_end_thread_node:
-                    backend_out_whatsit[pdf_end_thread_node] (pdf);     /* end_thread(pdf); */
-                    break;
                 case pdf_save_pos_node:
                     pdf_last_x_pos = localpos.pos.h;
                     pdf_last_y_pos = localpos.pos.v;
-                    break;
-                case special_node:
-                    backend_out_whatsit[special_node] (pdf, p); /* pdf_special(pdf, p); */
                     break;
                 case local_par_node:
                 case cancel_boundary_node:
