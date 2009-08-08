@@ -2539,8 +2539,6 @@ void dvi_begin_page()
     integer page_loc;           /* location of the current |bop| */
 
     /* Initialize variables as |ship_out| begins */
-    dvi.h = 0;
-    dvi.v = 0;
     ensure_dvi_open();
     if (total_pages == 0) {
         dvi_out(pre);
