@@ -2675,10 +2675,19 @@ void show_node_list(integer p)
                 if (subtype(p) >= a_leaders) {
                     /* @<Display leaders |p|@>; */
                     tprint_esc("");
-                    if (subtype(p) == c_leaders)
+                    switch (subtype(p)) {
+                    case c_leaders:
                         print_char('c');
-                    else if (subtype(p) == x_leaders)
+                        break;
+                    case x_leaders:
                         print_char('x');
+                        break;
+                    case g_leaders:
+                        print_char('g');
+                        break;
+                    default:
+                        assert(0);
+                    }
                     tprint("leaders ");
                     print_spec(glue_ptr(p), NULL);
                     node_list_display(leader_ptr(p));   /* recursive call */

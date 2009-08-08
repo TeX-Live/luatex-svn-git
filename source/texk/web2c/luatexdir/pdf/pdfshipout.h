@@ -23,6 +23,7 @@
 #  define PDFSHIPOUT_H
 
 extern boolean is_shipping_page;        /* set to |shipping_page| when |ship_out| starts */
+extern scaledpos shipbox_refpos;        /* for \gleaders */
 
 extern void ship_out(PDF pdf, halfword p, boolean shipping_page);
 

@@ -591,6 +591,7 @@ void initialize_commands(void)
     primitive_tex("leaders", leader_ship_cmd, a_leaders, 0);
     primitive_tex("cleaders", leader_ship_cmd, c_leaders, 0);
     primitive_tex("xleaders", leader_ship_cmd, x_leaders, 0);
+    primitive_luatex("gleaders", leader_ship_cmd, g_leaders, 0);
     primitive_aleph("boxdir", assign_box_dir_cmd, 0, 0);
     primitive_tex("indent", start_par_cmd, 1, 0);
     primitive_tex("noindent", start_par_cmd, 0, 0);

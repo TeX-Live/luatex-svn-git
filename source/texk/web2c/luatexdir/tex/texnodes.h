@@ -117,7 +117,8 @@ typedef enum {
     mu_glue,                    /* |subtype| for math glue */
     a_leaders,                  /* |subtype| for aligned leaders */
     c_leaders,                  /* |subtype| for centered leaders */
-    x_leaders                   /* |subtype| for expanded leaders */
+    x_leaders,                  /* |subtype| for expanded leaders */
+    g_leaders                   /* |subtype| for global (page) leaders */
 } glue_subtype_codes;
 
 /* normal nodes */

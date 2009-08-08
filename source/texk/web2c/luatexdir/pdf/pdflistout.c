@@ -650,7 +650,37 @@ void hlist_out(PDF pdf, halfword this_box)
                         /* Let |cur.h| be the position of the first box, and set |leader_wd+lx|
                            to the spacing between corresponding parts of boxes */
 
-                        if (subtype(p) == a_leaders) {
+                        if (subtype(p) == g_leaders) {
+                            save_h = cur.h;
+                            switch (dir_secondary[localpos.dir]) {
+                            case dir_L:
+                                cur.h += refpos->pos.h - shipbox_refpos.h;
+                                cur.h = leader_wd * (cur.h / leader_wd);
+                                cur.h -= refpos->pos.h - shipbox_refpos.h;
+                                break;
+                            case dir_R:
+                                cur.h =
+                                    refpos->pos.h - shipbox_refpos.h - cur.h;
+                                cur.h = leader_wd * (cur.h / leader_wd);
+                                cur.h =
+                                    refpos->pos.h - shipbox_refpos.h - cur.h;
+                                break;
+                            case dir_T:
+                                cur.h =
+                                    refpos->pos.v - shipbox_refpos.v - cur.h;
+                                cur.h = leader_wd * (cur.h / leader_wd);
+                                cur.h =
+                                    refpos->pos.v - shipbox_refpos.v - cur.h;
+                                break;
+                            case dir_B:
+                                cur.h += refpos->pos.v - shipbox_refpos.v;
+                                cur.h = leader_wd * (cur.h / leader_wd);
+                                cur.h -= refpos->pos.v - shipbox_refpos.v;
+                                break;
+                            }
+                            if (cur.h < save_h)
+                                cur.h += leader_wd;
+                        } else if (subtype(p) == a_leaders) {
                             save_h = cur.h;
                             cur.h = leader_wd * (cur.h / leader_wd);
                             if (cur.h < save_h)
@@ -1107,8 +1137,38 @@ void vlist_out(PDF pdf, halfword this_box)
                         lx = 0;
                         /* Let |cur.v| be the position of the first box, and set |leader_ht+lx|
                            to the spacing between corresponding parts of boxes */
-                        /* TODO: module can be shared with DVI */
-                        if (subtype(p) == a_leaders) {
+
+                        if (subtype(p) == g_leaders) {
+                            save_v = cur.v;
+                            switch (dir_primary[localpos.dir]) {
+                            case dir_L:
+                                cur.v += refpos->pos.h - shipbox_refpos.h;
+                                cur.v = leader_ht * (cur.v / leader_ht);
+                                cur.v -= refpos->pos.h - shipbox_refpos.h;
+                                break;
+                            case dir_R:
+                                cur.v =
+                                    refpos->pos.h - shipbox_refpos.h - cur.v;
+                                cur.v = leader_ht * (cur.v / leader_ht);
+                                cur.v =
+                                    refpos->pos.h - shipbox_refpos.h - cur.v;
+                                break;
+                            case dir_T:
+                                cur.v =
+                                    refpos->pos.v - shipbox_refpos.v - cur.v;
+                                cur.v = leader_ht * (cur.v / leader_ht);
+                                cur.v =
+                                    refpos->pos.v - shipbox_refpos.v - cur.v;
+                                break;
+                            case dir_B:
+                                cur.v += refpos->pos.v - shipbox_refpos.v;
+                                cur.v = leader_ht * (cur.v / leader_ht);
+                                cur.v -= refpos->pos.v - shipbox_refpos.v;
+                                break;
+                            }
+                            if (cur.v < save_v)
+                                cur.v += leader_ht;
+                        } else if (subtype(p) == a_leaders) {
                             save_v = cur.v;
                             cur.v =
                                 top_edge +

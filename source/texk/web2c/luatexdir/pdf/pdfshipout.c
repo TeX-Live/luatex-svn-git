@@ -39,6 +39,8 @@ static const char __svn_version[] =
 #define tracing_stats int_par(tracing_stats_code)
 #define v_offset dimen_par(v_offset_code)
 
+scaledpos shipbox_refpos;
+
 /*
 |ship_out| is used to shipout a box to PDF or DVI mode.
 If |shipping_page| is not set then the output will be a Form object
@@ -304,6 +306,8 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
     }
 
     /* Now we are at the point on the page where the origin of the page box should go. */
+
+    shipbox_refpos = pdf->posstruct->pos;       /* for \gleaders */
 
     switch (pdf->o_mode) {
     case OMODE_DVI:
