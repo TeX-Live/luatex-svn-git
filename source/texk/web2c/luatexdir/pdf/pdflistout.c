@@ -242,41 +242,80 @@ static halfword calculate_width_to_enddir(halfword p, real cur_glue,
 /**********************************************************************/
 
 /*
-The |out_what| procedure takes care of outputting whatsit nodes for
-|vlist_out| and |hlist_out|. */
+The |out_what| procedure takes care of outputting the whatsit nodes for
+|vlist_out| and |hlist_out|, which are similar for either case.
+*/
 
-void out_what(halfword p)
+void out_what(PDF pdf, halfword p)
 {
     int j;                      /* write stream number */
-    assert(subtype(p) == open_node ||
-           subtype(p) == write_node || subtype(p) == close_node);
-    /* Do some work that has been queued up for \.{\\write} */
-    /* We don't implement \.{\\write} inside of leaders. (The reason is that
-       the number of times a leader box appears might be different in different
-       implementations, due to machine-dependent rounding in the glue calculations.)
-       @^leaders@> */
-    if (!doing_leaders) {
-        j = write_stream(p);
-        if (subtype(p) == write_node) {
-            write_out(p);
-        } else {
-            if (write_open[j])
-                lua_a_close_out(write_file[j]);
-            if (subtype(p) == close_node) {
-                write_open[j] = false;
-            } else if (j < 16) {
-                cur_name = open_name(p);
-                cur_area = open_area(p);
-                cur_ext = open_ext(p);
-                if (cur_ext == get_nullstr())
-                    cur_ext = maketexstring(".tex");
-                pack_file_name(cur_name, cur_area, cur_ext);
-                while (!lua_a_open_out(write_file[j], (j + 1)))
-                    prompt_file_name("output file name", ".tex");
-                write_file[j] = name_file_pointer;
-                write_open[j] = true;
+    switch (subtype(p)) {
+        /* function(pdf) */
+    case pdf_save_node:        /* pdf_out_save(pdf); */
+    case pdf_restore_node:     /* pdf_out_restore(pdf); */
+        backend_out_whatsit[subtype(p)] (pdf);
+        break;
+        /* function(pdf, p) */
+    case pdf_end_link_node:    /* end_link(pdf, p); */
+    case pdf_end_thread_node:  /* end_thread(pdf, p); */
+    case pdf_literal_node:     /* pdf_out_literal(pdf, p); */
+    case pdf_colorstack_node:  /* pdf_out_colorstack(pdf, p); */
+    case pdf_setmatrix_node:   /* pdf_out_setmatrix(pdf, p); */
+    case late_lua_node:        /* do_late_lua(pdf, p); */
+    case special_node:         /* pdf_special(pdf, p); */
+        backend_out_whatsit[subtype(p)] (pdf, p);
+        break;
+    case pdf_refobj_node:
+        if (!is_obj_scheduled(pdf, pdf_obj_objnum(p))) {
+            append_object_list(pdf, obj_type_obj, pdf_obj_objnum(p));
+            set_obj_scheduled(pdf, pdf_obj_objnum(p));
+        }
+        break;
+    case pdf_save_pos_node:
+        pdf_last_x_pos = pdf->posstruct->pos.h;
+        pdf_last_y_pos = pdf->posstruct->pos.v;
+        break;
+    case open_node:
+    case write_node:
+    case close_node:
+        /* Do some work that has been queued up for \.{\\write} */
+        /* We don't implement \.{\\write} inside of leaders. (The reason is that
+           the number of times a leader box appears might be different in different
+           implementations, due to machine-dependent rounding in the glue calculations.)
+           @^leaders@> */
+        if (!doing_leaders) {
+            j = write_stream(p);
+            if (subtype(p) == write_node) {
+                write_out(p);
+            } else {
+                if (write_open[j])
+                    lua_a_close_out(write_file[j]);
+                if (subtype(p) == close_node) {
+                    write_open[j] = false;
+                } else if (j < 16) {
+                    cur_name = open_name(p);
+                    cur_area = open_area(p);
+                    cur_ext = open_ext(p);
+                    if (cur_ext == get_nullstr())
+                        cur_ext = maketexstring(".tex");
+                    pack_file_name(cur_name, cur_area, cur_ext);
+                    while (!lua_a_open_out(write_file[j], (j + 1)))
+                        prompt_file_name("output file name", ".tex");
+                    write_file[j] = name_file_pointer;
+                    write_open[j] = true;
+                }
             }
         }
+        break;
+    case dir_node:             /* in a vlist */
+        break;
+    case local_par_node:
+    case cancel_boundary_node:
+    case user_defined_node:
+        break;
+    default:
+        confusion("ext4");
+        /* those will be pdf extension nodes in dvi mode, most likely */
     }
 }
 
@@ -475,33 +514,13 @@ void hlist_out(PDF pdf, halfword this_box)
             case whatsit_node:
                 /* Output the whatsit node |p| in |hlist_out| */
                 switch (subtype(p)) {
-                    /* function(pdf) */
-                case pdf_save_node:    /* pdf_out_save(pdf); */
-                case pdf_restore_node: /* pdf_out_restore(pdf); */
-                case pdf_end_link_node:        /* end_link(pdf); */
-                    backend_out_whatsit[subtype(p)] (pdf);
-                    break;
-                    /* function(pdf, p) */
-                case pdf_literal_node: /* pdf_out_literal(pdf, p); */
-                case pdf_colorstack_node:      /* pdf_out_colorstack(pdf, p); */
-                case pdf_setmatrix_node:       /* pdf_out_setmatrix(pdf, p); */
-                case late_lua_node:    /* do_late_lua(pdf, p); */
-                case special_node:     /* pdf_special(pdf, p); */
-                    backend_out_whatsit[subtype(p)] (pdf, p);
-                    break;
-                    /* function(pdf, p, this_box, cur) */
+                    /* function(pdf, p, this_box, cur); too many args for out_what() */
                 case pdf_annot_node:   /* do_annot(pdf, p, this_box, cur); */
                 case pdf_start_link_node:      /* do_link(pdf, p, this_box, cur); */
                 case pdf_dest_node:    /* do_dest(pdf, p, this_box, cur); */
+                case pdf_start_thread_node:
                 case pdf_thread_node:  /* do_thread(pdf, p, this_box, cur); */
                     backend_out_whatsit[subtype(p)] (pdf, p, this_box, cur);
-                    break;
-                case pdf_refobj_node:
-                    if (!is_obj_scheduled(pdf, pdf_obj_objnum(p))) {
-                        append_object_list(pdf, obj_type_obj,
-                                           pdf_obj_objnum(p));
-                        set_obj_scheduled(pdf, pdf_obj_objnum(p));
-                    }
                     break;
                 case pdf_refxform_node:
                 case pdf_refximage_node:
@@ -547,16 +566,6 @@ void hlist_out(PDF pdf, halfword this_box)
                                                                 (p));
                     cur.h += width(p);
                     break;
-                case pdf_start_thread_node:
-                    pdf_error("ext4", "\\pdfstartthread ended up in hlist");
-                    break;
-                case pdf_end_thread_node:
-                    pdf_error("ext4", "\\pdfendthread ended up in hlist");
-                    break;
-                case pdf_save_pos_node:
-                    pdf_last_x_pos = localpos.pos.h;
-                    pdf_last_y_pos = localpos.pos.v;
-                    break;
                 case dir_node:
                     /* Output a reflection instruction if the direction has changed */
                     if (dir_dir(p) >= 0) {
@@ -595,18 +604,8 @@ void hlist_out(PDF pdf, halfword this_box)
                         cur.v = dir_cur_v(p);
                     }
                     break;
-                case local_par_node:
-                case cancel_boundary_node:
-                case user_defined_node:
-                    break;
-                case open_node:
-                case write_node:
-                case close_node:
-                    out_what(p);
-                    break;
                 default:
-                    confusion("ext4");
-                    /* those will be pdf extension nodes in dvi mode, most likely */
+                    out_what(pdf, p);
                 }
                 break;
             case glue_node:
@@ -1009,33 +1008,13 @@ void vlist_out(PDF pdf, halfword this_box)
             case whatsit_node:
                 /* Output the whatsit node |p| in |vlist_out| */
                 switch (subtype(p)) {
-                    /* function(pdf) */
-                case pdf_save_node:    /* pdf_out_save(pdf); */
-                case pdf_restore_node: /* pdf_out_restore(pdf); */
-                case pdf_end_thread_node:      /* end_thread(pdf); */
-                    backend_out_whatsit[subtype(p)] (pdf);
-                    break;
-                    /* function(pdf, p) */
-                case pdf_literal_node: /* pdf_out_literal(pdf, p); */
-                case pdf_colorstack_node:      /* pdf_out_colorstack(pdf, p); */
-                case pdf_setmatrix_node:       /* pdf_out_setmatrix(pdf, p); */
-                case late_lua_node:    /* do_late_lua(pdf, p); */
-                case special_node:     /* pdf_special(pdf, p); */
-                    backend_out_whatsit[subtype(p)] (pdf, p);
-                    break;
-                    /* function(pdf, p, this_box, cur) */
+                    /* function(pdf, p, this_box, cur); too many args for out_what() */
                 case pdf_annot_node:   /* do_annot(pdf, p, this_box, cur); */
+                case pdf_start_link_node:      /* do_link(pdf, p, this_box, cur); */
                 case pdf_dest_node:    /* do_dest(pdf, p, this_box, cur); */
-                case pdf_start_thread_node:    /* do_thread(pdf, p, this_box, cur); */
-                case pdf_thread_node:
+                case pdf_start_thread_node:
+                case pdf_thread_node:  /* do_thread(pdf, p, this_box, cur); */
                     backend_out_whatsit[subtype(p)] (pdf, p, this_box, cur);
-                    break;
-                case pdf_refobj_node:
-                    if (!is_obj_scheduled(pdf, pdf_obj_objnum(p))) {
-                        append_object_list(pdf, obj_type_obj,
-                                           pdf_obj_objnum(p));
-                        set_obj_scheduled(pdf, pdf_obj_objnum(p));
-                    }
                     break;
                 case pdf_refxform_node:
                 case pdf_refximage_node:
@@ -1079,29 +1058,8 @@ void vlist_out(PDF pdf, halfword this_box)
                                                                 (p));
                     cur.v += height(p) + depth(p);
                     break;
-                case pdf_start_link_node:
-                    pdf_error("ext4", "\\pdfstartlink ended up in vlist");
-                    break;
-                case pdf_end_link_node:
-                    pdf_error("ext4", "\\pdfendlink ended up in vlist");
-                    break;
-                case pdf_save_pos_node:
-                    pdf_last_x_pos = localpos.pos.h;
-                    pdf_last_y_pos = localpos.pos.v;
-                    break;
-                case local_par_node:
-                case cancel_boundary_node:
-                case user_defined_node:
-                    break;
-                case open_node:
-                case write_node:
-                case close_node:
-                    out_what(p);
-                    break;
                 default:
-                    confusion("ext4");
-                    /* those will be pdf extension nodes in dvi mode, most likely */
-
+                    out_what(pdf, p);
                 }
                 break;
             case glue_node:

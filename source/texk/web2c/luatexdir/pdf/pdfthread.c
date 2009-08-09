@@ -61,6 +61,8 @@ void append_bead(PDF pdf, halfword p)
 void do_thread(PDF pdf, halfword parent_box, halfword p, scaledpos cur)
 {
     scaled_whd alt_rule;
+    if ((type(p) == hlist_node) && (subtype(p) == pdf_start_thread_node))
+        pdf_error("ext4", "\\pdfstartthread ended up in hlist");
     if (doing_leaders)
         return;
     if (subtype(p) == pdf_start_thread_node) {
@@ -105,9 +107,11 @@ void append_thread(PDF pdf, halfword parent_box, scaledpos cur)
     pdf->last_thread = p;
 }
 
-void end_thread(PDF pdf)
+void end_thread(PDF pdf, halfword p)
 {
     scaledpos pos = pdf->posstruct->pos;
+    if (type(p) == hlist_node)
+        pdf_error("ext4", "\\pdfendthread ended up in hlist");
     if (pdf->thread_level != cur_s)
         pdf_error("ext4",
                   "\\pdfendthread ended up in different nesting level than \\pdfstartthread");

@@ -54,6 +54,8 @@ void pop_link_level(PDF pdf)
 void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 {
     scaled_whd alt_rule;
+    if (type(p) == vlist_node)
+        pdf_error("ext4", "\\pdfstartlink ended up in vlist");
     if (!is_shipping_page)
         pdf_error("ext4", "link annotations cannot be inside an XForm");
     assert(type(parent_box) == hlist_node);
@@ -69,10 +71,12 @@ void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     set_obj_scheduled(pdf, pdf_link_objnum(p));
 }
 
-void end_link(PDF pdf)
+void end_link(PDF pdf, halfword p)
 {
-    halfword p;
+    halfword q;
     scaledpos pos = pdf->posstruct->pos;
+    if (type(p) == vlist_node)
+        pdf_error("ext4", "\\pdfendlink ended up in vlist");
     if (pdf->link_stack_ptr < 1)
         pdf_error("ext4",
                   "pdf link_stack empty, \\pdfendlink used without \\pdfstartlink?");
@@ -84,30 +88,30 @@ void end_link(PDF pdf)
        as |ref_link_node| can be set by |do_link| or |append_link| already */
 
     if (is_running(width(pdf->link_stack[pdf->link_stack_ptr].link_node))) {
-        p = pdf->link_stack[pdf->link_stack_ptr].ref_link_node;
+        q = pdf->link_stack[pdf->link_stack_ptr].ref_link_node;
         if (is_shipping_page && matrixused()) {
             matrixrecalculate(pos.h + pdf_link_margin);
-            pdf_ann_left(p) = getllx() - pdf_link_margin;
-            pdf_ann_top(p) = cur_page_size.v - getury() - pdf_link_margin;
-            pdf_ann_right(p) = geturx() + pdf_link_margin;
-            pdf_ann_bottom(p) = cur_page_size.v - getlly() + pdf_link_margin;
+            pdf_ann_left(q) = getllx() - pdf_link_margin;
+            pdf_ann_top(q) = cur_page_size.v - getury() - pdf_link_margin;
+            pdf_ann_right(q) = geturx() + pdf_link_margin;
+            pdf_ann_bottom(q) = cur_page_size.v - getlly() + pdf_link_margin;
         } else {
             switch (box_direction(pdf->posstruct->dir)) {
             case dir_TL_:
             case dir_BL_:
-                pdf_ann_right(p) = pos.h + pdf_link_margin;
+                pdf_ann_right(q) = pos.h + pdf_link_margin;
                 break;
             case dir_TR_:
             case dir_BR_:
-                pdf_ann_left(p) = pos.h - pdf_link_margin;
+                pdf_ann_left(q) = pos.h - pdf_link_margin;
                 break;
             case dir_LT_:
             case dir_RT_:
-                pdf_ann_bottom(p) = pos.v - pdf_link_margin;
+                pdf_ann_bottom(q) = pos.v - pdf_link_margin;
                 break;
             case dir_LB_:
             case dir_RB_:
-                pdf_ann_top(p) = pos.v + pdf_link_margin;
+                pdf_ann_top(q) = pos.v + pdf_link_margin;
                 break;
             }
         }

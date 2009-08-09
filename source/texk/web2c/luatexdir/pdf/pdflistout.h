@@ -40,6 +40,6 @@ typedef void (*whatsit_output_function) ();
 
 extern node_output_function backend_out[];
 extern whatsit_output_function backend_out_whatsit[];
-extern void out_what(halfword p);
+extern void out_what(PDF pdf, halfword p);
 
 #endif
