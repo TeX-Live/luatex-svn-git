@@ -62,6 +62,8 @@ static void do_late_lua(PDF pdf, halfword p)
 node_output_function backend_out[MAX_NODE_TYPE + 1];
 whatsit_output_function backend_out_whatsit[MAX_WHATSIT_TYPE + 1];
 
+pos_info_structure pos_info;    /* to be accessed from Lua */
+
 static void missing_node_function()
 {
     pdf_error("pdflistout", "undefined node output function");
@@ -270,10 +272,6 @@ void out_what(PDF pdf, halfword p)
             append_object_list(pdf, obj_type_obj, pdf_obj_objnum(p));
             set_obj_scheduled(pdf, pdf_obj_objnum(p));
         }
-        break;
-    case pdf_save_pos_node:
-        pdf_last_x_pos = pdf->posstruct->pos.h;
-        pdf_last_y_pos = pdf->posstruct->pos.v;
         break;
     case open_node:
     case write_node:
@@ -514,6 +512,16 @@ void hlist_out(PDF pdf, halfword this_box)
             case whatsit_node:
                 /* Output the whatsit node |p| in |hlist_out| */
                 switch (subtype(p)) {
+                case pdf_save_pos_node:
+                    pdf_last_x_pos = pdf->posstruct->pos.h;
+                    pdf_last_y_pos = pdf->posstruct->pos.v;
+                    pos_info.curpos = pdf->posstruct->pos;
+                    pos_info.boxpos.pos = refpos->pos;
+                    pos_info.boxpos.dir = localpos.dir;
+                    pos_info.boxdim.wd = width(this_box);
+                    pos_info.boxdim.ht = height(this_box);
+                    pos_info.boxdim.dp = depth(this_box);
+                    break;
                     /* function(pdf, p, this_box, cur); too many args for out_what() */
                 case pdf_annot_node:   /* do_annot(pdf, p, this_box, cur); */
                 case pdf_start_link_node:      /* do_link(pdf, p, this_box, cur); */
@@ -1008,6 +1016,16 @@ void vlist_out(PDF pdf, halfword this_box)
             case whatsit_node:
                 /* Output the whatsit node |p| in |vlist_out| */
                 switch (subtype(p)) {
+                case pdf_save_pos_node:
+                    pdf_last_x_pos = pdf->posstruct->pos.h;
+                    pdf_last_y_pos = pdf->posstruct->pos.v;
+                    pos_info.curpos = pdf->posstruct->pos;
+                    pos_info.boxpos.pos = refpos->pos;
+                    pos_info.boxpos.dir = localpos.dir;
+                    pos_info.boxdim.wd = width(this_box);
+                    pos_info.boxdim.ht = height(this_box);
+                    pos_info.boxdim.dp = depth(this_box);
+                    break;
                     /* function(pdf, p, this_box, cur); too many args for out_what() */
                 case pdf_annot_node:   /* do_annot(pdf, p, this_box, cur); */
                 case pdf_start_link_node:      /* do_link(pdf, p, this_box, cur); */

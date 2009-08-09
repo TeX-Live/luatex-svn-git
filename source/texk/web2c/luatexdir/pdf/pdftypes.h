@@ -68,6 +68,12 @@ typedef struct posstructure_ {
     int dir;                    /* direction of stuff to be put onto the page */
 } posstructure;
 
+typedef struct {
+    scaledpos curpos;           /* \pdflastpos position */
+    posstructure boxpos;        /* box dir and position of the box origin on the page */
+    scaled_whd boxdim;          /* box dimensions (in hlist/vlist coordinate system) */
+} pos_info_structure;
+
 typedef enum { PMODE_NONE, PMODE_PAGE, PMODE_TEXT, PMODE_CHARARRAY,
     PMODE_CHAR
 } pos_mode;

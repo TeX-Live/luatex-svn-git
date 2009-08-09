@@ -37,6 +37,7 @@ extern void vlist_out(PDF pdf, halfword this_box);
 
 typedef void (*node_output_function) ();
 typedef void (*whatsit_output_function) ();
+extern pos_info_structure pos_info;
 
 extern node_output_function backend_out[];
 extern whatsit_output_function backend_out_whatsit[];
