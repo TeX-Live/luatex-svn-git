@@ -2676,6 +2676,8 @@ void show_node_list(integer p)
                     /* @<Display leaders |p|@>; */
                     tprint_esc("");
                     switch (subtype(p)) {
+                    case a_leaders:
+                        break;
                     case c_leaders:
                         print_char('c');
                         break;
