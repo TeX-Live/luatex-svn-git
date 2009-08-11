@@ -25,7 +25,7 @@ static const char __svn_version[] =
 
 /***********************************************************************/
 
-static void do_late_lua(PDF pdf, halfword p)
+static void do_late_lua(halfword p)
 {
     expand_macros_in_tokenlist(p);      /* sets def_ref */
     luacall(def_ref, late_lua_name(p));
@@ -291,9 +291,12 @@ void out_what(PDF pdf, halfword p)
     case pdf_literal_node:     /* pdf_out_literal(pdf, p); */
     case pdf_colorstack_node:  /* pdf_out_colorstack(pdf, p); */
     case pdf_setmatrix_node:   /* pdf_out_setmatrix(pdf, p); */
-    case late_lua_node:        /* do_late_lua(pdf, p); */
     case special_node:         /* pdf_special(pdf, p); */
         backend_out_whatsit[subtype(p)] (pdf, p);
+        break;
+        /* function(p) */
+    case late_lua_node:        /* do_late_lua(p); */
+        backend_out_whatsit[subtype(p)] (p);
         break;
     case pdf_refobj_node:
         if (!is_obj_scheduled(pdf, pdf_obj_objnum(p))) {

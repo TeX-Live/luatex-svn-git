@@ -544,16 +544,23 @@ void close_files_and_terminate(void)
     wake_up_terminal();
     if (!fixed_pdfoutput_set)   /* else there will be an infinite loop in error case */
         fix_pdfoutput();
-    if (fixed_pdfoutput > 0) {
+    switch (static_pdf->o_mode) {
+    case OMODE_PDF:
         if (history == fatal_error_stop) {
             remove_pdffile(static_pdf);
             print_err
                 (" ==> Fatal error occurred, no output PDF file produced!");
-        } else {
+        } else
             finish_pdf_file(static_pdf, luatex_version, get_luatexrevision());
-        }
-    } else {
+        break;
+    case OMODE_DVI:
         finish_dvi_file(luatex_version, get_luatexrevision());
+        break;
+    case OMODE_LUA:
+        finish_lua_file(static_pdf);
+        break;
+    default:
+        assert(0);
     }
     /* Close {\sl Sync\TeX} file and write status */
     synctex_terminate(log_opened);      /* Let the {\sl Sync\TeX} controller close its files. */

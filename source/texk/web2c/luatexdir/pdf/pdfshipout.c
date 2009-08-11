@@ -75,6 +75,7 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
         pdf->resources->last_resources = pdf_new_objnum(pdf);
         break;
     case OMODE_LUA:
+        init_lua_output_functions(pdf);
         break;
     default:
         assert(0);
