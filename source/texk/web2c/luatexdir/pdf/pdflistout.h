@@ -30,6 +30,7 @@
 
 extern void init_pdf_output_functions(PDF pdf);
 extern void init_dvi_output_functions(PDF pdf);
+extern void init_lua_output_functions(PDF pdf);
 extern void hlist_out(PDF pdf, halfword this_box);
 extern void vlist_out(PDF pdf, halfword this_box);
 
@@ -39,8 +40,8 @@ typedef void (*node_output_function) ();
 typedef void (*whatsit_output_function) ();
 extern pos_info_structure pos_info;
 
-extern node_output_function backend_out[];
-extern whatsit_output_function backend_out_whatsit[];
+extern node_output_function *backend_out;
+extern whatsit_output_function *backend_out_whatsit;
 extern void out_what(PDF pdf, halfword p);
 
 #endif

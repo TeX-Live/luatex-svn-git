@@ -152,9 +152,9 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     /* Calculate page dimensions and margins */
     if (is_shipping_page) {
-        if (page_width > 0) {
+        if (page_width > 0)
             cur_page_size.h = page_width;
-        } else {
+        else {
             switch (box_direction(page_direction)) {
             case dir_TL_:
             case dir_BL_:
@@ -174,9 +174,9 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
                 break;
             }
         }
-        if (page_height > 0) {
+        if (page_height > 0)
             cur_page_size.v = page_height;
-        } else {
+        else {
             switch (box_direction(page_direction)) {
             case dir_TL_:
             case dir_TR_:

@@ -27,19 +27,8 @@ static const char __svn_version[] =
 
 static void do_late_lua(PDF pdf, halfword p)
 {
-    pool_pointer b;             /* current character code position */
     expand_macros_in_tokenlist(p);      /* sets def_ref */
-    b = pool_ptr;
     luacall(def_ref, late_lua_name(p));
-    if (b < pool_ptr) {
-        pdf_goto_pagemode(pdf);
-        while (b < pool_ptr) {
-            pdf_out(pdf, str_pool[b]);
-            incr(b);
-        }
-        pdf_print_nl(pdf);
-        pool_ptr = b;           /* flush string */
-    }
     flush_list(def_ref);
 }
 
@@ -55,8 +44,8 @@ static void do_late_lua(PDF pdf, halfword p)
 
 /***********************************************************************/
 
-node_output_function backend_out[MAX_NODE_TYPE + 1];
-whatsit_output_function backend_out_whatsit[MAX_WHATSIT_TYPE + 1];
+node_output_function *backend_out = NULL;
+whatsit_output_function *backend_out_whatsit = NULL;
 
 pos_info_structure pos_info;    /* to be accessed from Lua */
 
@@ -70,9 +59,26 @@ static void missing_whatsit_function()
     pdf_error("pdflistout", "undefined whatsit node output function");
 }
 
+static node_output_function *new_backend_out()
+{
+    assert(backend_out == NULL);
+    return xmalloc((MAX_NODE_TYPE + 1) * sizeof(node_output_function));
+}
+
+static node_output_function *new_backend_out_whatsit()
+{
+    assert(backend_out_whatsit == NULL);
+    return xmalloc((MAX_WHATSIT_TYPE + 1) * sizeof(whatsit_output_function));
+}
+
 void init_pdf_output_functions(PDF pdf)
 {
     int i;
+
+    if (backend_out == NULL || backend_out_whatsit == NULL) {
+        backend_out = new_backend_out();
+        backend_out_whatsit = new_backend_out_whatsit();
+    }
 
     pdf->o_mode = OMODE_PDF;
 
@@ -107,6 +113,11 @@ void init_dvi_output_functions(PDF pdf)
 {
     int i;
 
+    if (backend_out == NULL || backend_out_whatsit == NULL) {
+        backend_out = new_backend_out();
+        backend_out_whatsit = new_backend_out_whatsit();
+    }
+
     pdf->o_mode = OMODE_DVI;
 
     for (i = 0; i < MAX_NODE_TYPE + 1; i++)
@@ -120,6 +131,26 @@ void init_dvi_output_functions(PDF pdf)
     /* ...these are all (?) */
 
     backend_out_whatsit[special_node] = &dvi_special;   /* 3 */
+}
+
+void init_lua_output_functions(PDF pdf)
+{
+    int i;
+
+    if (backend_out == NULL || backend_out_whatsit == NULL) {
+        backend_out = new_backend_out();
+        backend_out_whatsit = new_backend_out_whatsit();
+    }
+
+    pdf->o_mode = OMODE_LUA;
+
+    for (i = 0; i < MAX_NODE_TYPE + 1; i++)
+        backend_out[i] = &missing_node_function;
+
+    for (i = 0; i < MAX_WHATSIT_TYPE + 1; i++)
+        backend_out_whatsit[i] = &missing_whatsit_function;
+
+    /* TODO */
 }
 
 /***********************************************************************/
