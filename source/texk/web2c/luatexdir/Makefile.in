@@ -96,6 +96,7 @@ lua/luatoken.o \
 lua/luanode.o \
 lua/llanglib.o \
 lua/limglib.o \
+lua/luagen.o \
 lang/hnjalloc.o \
 lang/hyphen.o \
 lang/texlang.o \

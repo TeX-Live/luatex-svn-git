@@ -74,6 +74,8 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
         pdf->resources = &resources;
         pdf->resources->last_resources = pdf_new_objnum(pdf);
         break;
+    case OMODE_LUA:
+        break;
     default:
         assert(0);
     }
@@ -207,6 +209,7 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
             dvi = refpoint.pos;
             break;
         case OMODE_PDF:
+        case OMODE_LUA:
             refpoint.pos.h = pdf_h_origin;
             refpoint.pos.v = cur_page_size.v - pdf_v_origin;
             break;
@@ -317,6 +320,10 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
     case OMODE_PDF:
         pdf_begin_page(pdf, shipping_page);
         break;
+    case OMODE_LUA:
+        assert(shipping_page);
+        lua_begin_page(pdf);
+        break;
     default:
         assert(0);
     }
@@ -344,6 +351,9 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
         break;
     case OMODE_PDF:
         pdf_end_page(pdf, shipping_page);
+        break;
+    case OMODE_LUA:
+        lua_end_page(pdf);
         break;
     default:
         assert(0);

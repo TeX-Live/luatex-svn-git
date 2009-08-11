@@ -150,7 +150,8 @@ void init_lua_output_functions(PDF pdf)
     for (i = 0; i < MAX_WHATSIT_TYPE + 1; i++)
         backend_out_whatsit[i] = &missing_whatsit_function;
 
-    /* TODO */
+    backend_out[rule_node] = &lua_place_rule;   /* 2 */
+    backend_out[glyph_node] = &lua_place_glyph; /* 37 */
 }
 
 /***********************************************************************/

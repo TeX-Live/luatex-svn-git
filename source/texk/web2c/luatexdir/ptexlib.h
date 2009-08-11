@@ -195,6 +195,8 @@ size_t          T##_limit
 #  include "pdf/pdfthread.h"
 #  include "pdf/pdfxform.h"
 
+#  include "lua/luagen.h"
+
 #  include "font/luatexfont.h"
 #  include "font/mapfile.h"
 #  include "utils/utils.h"

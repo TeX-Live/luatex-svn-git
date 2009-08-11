@@ -18,3 +18,9 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 /* $Id$ */
+
+extern void lua_begin_page(PDF pdf);
+extern void lua_end_page(PDF pdf);
+
+extern void lua_place_glyph(PDF pdf, internal_font_number f, integer c);
+extern void lua_place_rule(PDF pdf, scaledpos size);
