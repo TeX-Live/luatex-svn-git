@@ -148,8 +148,9 @@ ff_open (lua_State *L) {
   if ((l = fopen(fontname,"r"))) {
 	fclose(l); 
   } else {
+	lua_pushnil(L);
 	lua_pushfstring(L,"font loading failed for %s (read error)\n", fontname);
-	lua_error(L);
+    return 2;
   }
   args = lua_gettop(L);
   if (args>=2 && lua_isstring(L,2)) {
@@ -167,6 +168,7 @@ ff_open (lua_State *L) {
     gww_error_count=0;
 	sf = ReadSplineFont((char *)s,openflags);
 	if (sf==NULL) {
+      lua_pushnil(L);
 	  lua_pushfstring(L,"font loading failed for %s\n", s);
 	  if (gww_error_count>0) {
 		for (i=0;i<gww_error_count;i++) {
@@ -175,7 +177,6 @@ ff_open (lua_State *L) {
 		}
 		gwwv_errors_free();
       }
-	  lua_error(L);
 	} else {
 	  FVAppend(_FontViewCreate(sf));
 	  lua_ff_pushfont(L,sf);
@@ -191,8 +192,8 @@ ff_open (lua_State *L) {
 	  }
 	}
   } else {
+    lua_pushnil(L);
 	lua_pushfstring(L,"font loading failed: empty string given\n", fontname);
-	lua_error(L);
   }
   return 2;
 }
@@ -2213,21 +2214,23 @@ ff_info (lua_State *L) {
   int openflags = 1;
   fontname = luaL_checkstring(L,1);
   if (!strlen(fontname)) {
+	lua_pushnil(L);
   	lua_pushfstring(L,"font loading failed: empty string given\n", fontname);
-	lua_error(L);
-	return 1;
+    return 2;
   } 
   /* test fontname for existance */
   if ((l = fopen(fontname,"r"))) {
 	fclose(l); 
   } else {
+	lua_pushnil(L);
 	lua_pushfstring(L,"font loading failed for %s (read error)\n", fontname);
-	lua_error(L);
+    return 2;
   }
   sf = ReadSplineFontInfo((char *)fontname,openflags);
   if (sf==NULL) {
+	lua_pushnil(L);
     lua_pushfstring(L,"font loading failed for %s\n", fontname);
-    lua_error(L);
+    return 2;
   } else {
 	if (sf->next != NULL) {
       SplineFont *sf_next;
