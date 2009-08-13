@@ -135,13 +135,16 @@ halfword get_avail(void)
         incr(fix_mem_end);
         p = fix_mem_end;
     } else {
+        smemory_word *new_fixmem;   /* the big dynamic storage area */
         t = (fix_mem_max / 5);
-        fixmem =
+        new_fixmem =
             fixmemcast(realloc
                        (fixmem, sizeof(smemory_word) * (fix_mem_max + t + 1)));
-        if (fixmem == NULL) {
+        if (new_fixmem == NULL) {
             runaway();          /* if memory is exhausted, display possible runaway text */
             overflow("token memory size", fix_mem_max);
+        } else {
+            fixmem = new_fixmem;
         }
         memset(voidcast(fixmem + fix_mem_max + 1), 0, t * sizeof(smemory_word));
         fix_mem_max += t;
