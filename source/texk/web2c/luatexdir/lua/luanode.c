@@ -252,15 +252,21 @@ lua_vpack_filter(halfword head_node, scaled size, int pack_type, scaled maxd,
 int visible_last_node_type(int n)
 {
     int i = type(n);
-    if ((i != math_node) && (i <= unset_node))
-        return i + 1;
-    if (i == glyph_node)
-        return -1;
     if (i == whatsit_node && subtype(n) == local_par_node)
         return -1;
-    if (i == 255)
-        return -1;              /* this is not right, probably dir nodes! */
-    return last_known_node + 1;
+    if (i == glyph_node) {
+        if (is_ligature(n))
+            return 7; /* old ligature value */
+        else
+            return 0; /* old character value */
+    }
+    if (i <= unset_node) {
+        return i + 1;
+    } else if (i <= delim_node) {
+        return 15; /* so-called math nodes */
+    } else {
+        return -1; 
+    }
 }
 
 void lua_pdf_literal(PDF pdf, int i)

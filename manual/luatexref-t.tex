@@ -7186,9 +7186,14 @@ The current return value of \luatex{node.types()} is:
       tex.print('\\type{' .. v .. '} (' .. _ .. '), ')
     end
   end
-} but as already mentioned, the math and alignment nodes
-in this list are not supported at the moment. The useful list
-is described in the next sections.
+}.
+
+NOTE: The \type {\lastnodetype} primitive is \ETEX\ compliant. The valid
+range is still -1 .. 15 and glyph nodes have number 0 (used to be
+char node) and ligature nodes are mapped to 7. That way macro
+packages can use the same symbolic names as in traditional \ETEX.
+Keep in mind that the internal node numbers are different and that
+there are more node types that 15.
 
 \subsection{Auxiliary items}
 
