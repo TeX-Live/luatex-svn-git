@@ -508,17 +508,40 @@ static int lua_nodelib_hpack(lua_State * L)
 
 static int lua_nodelib_dimensions(lua_State * L)
 {
-    scaled_whd siz;
-    halfword n, p = null;
-    n = *(check_isnode(L, 1));
-    if (lua_gettop(L) > 1) {
-        p = *(check_isnode(L, 2));
+    int top;
+    top = lua_gettop(L);
+    if (top > 0) {
+        scaled_whd siz;
+        glue_ratio g_mult = 1.0;
+        int g_sign = normal;
+        int g_order = normal;
+        int i = 1;
+        halfword n, p = null;
+        if (lua_isnumber(L, 1)) {
+            if (top < 4) {
+                lua_pushnil(L);
+                return 1;
+            }
+            i += 3;
+            g_mult = (glue_ratio) lua_tonumber(L, 1);
+            g_sign = lua_tonumber(L, 2);
+            g_order = lua_tonumber(L, 3);
+        }
+        n = *(check_isnode(L, i));
+        if (lua_gettop(L) > i && !lua_isnil(L, (i + 1))) {
+            p = *(check_isnode(L, (i + 1)));
+        }
+        siz = natural_sizes(n, p, g_mult, g_sign, g_order);
+        lua_pushnumber(L, siz.wd);
+        lua_pushnumber(L, siz.ht);
+        lua_pushnumber(L, siz.dp);
+        return 3;
+    } else {
+        lua_pushstring(L,
+                       "missing  argument to 'dimensions' (luatex_node expected)");
+        lua_error(L);
     }
-    siz = natural_sizes(n, p);
-    lua_pushnumber(L, siz.wd);
-    lua_pushnumber(L, siz.ht);
-    lua_pushnumber(L, siz.dp);
-    return 3;
+    return 0;                   /* not reached */
 }
 
 

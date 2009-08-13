@@ -830,7 +830,8 @@ halfword filtered_hpack(halfword p, halfword qt, scaled w, int m, integer grp)
 
 /* here is a function to calculate the natural whd of a (horizontal) node list */
 
-scaled_whd natural_sizes(halfword p, halfword pp)
+scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
+                         integer g_sign, integer g_order)
 {
     scaled s;                   /* shift amount */
     halfword g;                 /* points to a glue specification */
@@ -892,6 +893,16 @@ scaled_whd natural_sizes(halfword p, halfword pp)
             case glue_node:
                 g = glue_ptr(p);
                 siz.wd += width(g);
+                if (g_sign != normal) {
+                    if (g_sign == stretching) {
+                        if (stretch_order(g) == g_order) {
+                            siz.wd +=
+                                float_round(float_cast(g_mult) * stretch(g));
+                        }
+                    } else if (shrink_order(g) == g_order) {
+                        siz.wd += float_round(float_cast(g_mult) * shrink(g));
+                    }
+                }
                 if (subtype(p) >= a_leaders) {
                     g = leader_ptr(p);
                     if (height(g) > siz.ht)
@@ -908,7 +919,7 @@ scaled_whd natural_sizes(halfword p, halfword pp)
                 siz.wd += surround(p);
                 break;
             case disc_node:
-                xx = natural_sizes(no_break(p), null);
+                xx = natural_sizes(no_break(p), null, g_mult, g_sign, g_order);
                 siz.wd += xx.wd;
                 if (xx.ht > siz.ht)
                     siz.ht = xx.ht;

@@ -2222,15 +2222,40 @@ to \type{nil} beforehand. And in a similar way, calling
 \subsubsection{\luatex{node.dimensions}}
 
 \startfunctioncall
-<number> w, <number> h, <number> d,  = node.dimensions(<node> n)
-<number> w, <number> h, <number> d,  = node.dimensions(<node> n, <node> t)
+<number> w, <number> h, <number> d  = node.dimensions(<node> n)
+<number> w, <number> h, <number> d  = node.dimensions(<node> n, <node> t)
 \stopfunctioncall
 
 This function calculates the natural in-line dimensions of the node
 list starting at node \type{n} and terminating just before node \type{t}
-(or nil, if there is not second arguent). The return values are scaled
-points. 
+(or nil, if there is no second argument). The return values are scaled
+points. An alternative format that starts with glue parameters as the 
+first three arguments is also possible:
 
+\startfunctioncall
+<number> w, <number> h, <number> d  = 
+  node.dimensions(<number> glue_set, <number> glue_sign, 
+                 <number> glue_order, <node> n)
+<number> w, <number> h, <number> d  = 
+  node.dimensions(<number> glue_set, <number> glue_sign, 
+                 <number> glue_order, <node> n, <node> t)
+\stopfunctioncall
+
+This calling method takes glue settings into account and is especially
+useful for finding the actual width of a sublist of nodes that are
+already boxed, for example in code like this, which prints the 
+width of the space inbetween the \type{a} and \type{b} as it would 
+be if \type{\box0} was used as-is:
+
+\starttyping
+\setbox0 = \hbox to 20pt {a b}
+
+\directlua{print (node.dimensions(tex.box[0].glue_set,
+                                  tex.box[0].glue_sign,
+                                  tex.box[0].glue_order,
+                                  tex.box[0].list.next,
+                                  node.tail(tex.box[0].list))) }
+\stoptyping
 
 \subsubsection{\luatex{node.mlist_to_hlist}}
 
