@@ -900,7 +900,7 @@ scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
                                 float_round(float_cast(g_mult) * stretch(g));
                         }
                     } else if (shrink_order(g) == g_order) {
-                        siz.wd += float_round(float_cast(g_mult) * shrink(g));
+                        siz.wd -= float_round(float_cast(g_mult) * shrink(g));
                     }
                 }
                 if (subtype(p) >= a_leaders) {
