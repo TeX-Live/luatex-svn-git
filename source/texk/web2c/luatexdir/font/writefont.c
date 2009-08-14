@@ -767,8 +767,13 @@ static int has_ttf_outlines(fm_entry * fm)
     return 0;
 }
 
+/* this function is in luafontloader/fontforge/fontforge/macbinary.c */
+
+extern char *FindResourceTtfFont(char *filename, char *fontname);
+
 void do_pdf_font(PDF pdf, integer font_objnum, internalfontnumber f)
 {
+    int del_file = 0;
     fm_entry *fm;
     /* This is not 100% true: CID is actually needed whenever (and
      * only) there are more than 256 separate glyphs used. But for
@@ -784,8 +789,27 @@ void do_pdf_font(PDF pdf, integer font_objnum, internalfontnumber f)
         fm = new_fm_entry();
         fm->tfm_name = font_name(f);    /* or whatever, not a real tfm */
         fm->ff_name = font_filename(f); /* the actual file */
-        fm->encname = font_encodingname(f);     /* for the CIDSystemInfo */
         fm->ps_name = font_fullname(f); /* the true name */
+        if (fm->ff_name
+            && strlen(fm->ff_name) >= 6
+            && strstr(fm->ff_name,
+                      ".dfont") == (fm->ff_name + strlen(fm->ff_name) - 6)) {
+            /* In case of a .dfont, we will extract the correct ttf here,
+               and adjust fm->ff_name to point to the temporary file.
+               This file will be deleted later. Todo: keep a nicer name
+               somewhere for the terminal message. 
+             */
+            char *s = FindResourceTtfFont(fm->ff_name, fm->ps_name);
+            if (s != NULL) {
+                fm->ff_name = s;
+                del_file = 1;
+            } else {
+                pdftex_fail
+                    ("writefont.c: The file (%s) does not contain font `%s'",
+                     fm->ff_name, fm->ps_name);
+            }
+        }
+        fm->encname = font_encodingname(f);     /* for the CIDSystemInfo */
         fm->slant = font_slant(f);      /* slant factor */
         fm->extend = font_extend(f);    /* extension factor */
         fm->fd_flags = 4;       /* can perhaps be done better */
@@ -819,6 +843,9 @@ void do_pdf_font(PDF pdf, integer font_objnum, internalfontnumber f)
         }
         set_cidkeyed(fm);
         create_cid_fontdictionary(pdf, fm, font_objnum, f);
+
+        if (del_file)
+            unlink(fm->ff_name);
 
     } else {
         fm = hasfmentry(f) ? (fm_entry *) font_map(f) : NULL;
