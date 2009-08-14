@@ -1276,12 +1276,15 @@ static SplineFont *FindResourceFile(char *filename, int flags,
 
 static char *createtmpfile(void)
 {
-    /* todo */
     char tempname[] = "dfontXXXXXX";
+#ifdef HAVE_MKSTEMP
     int i = mkstemp(tempname);
     if (i) {
         close(i);
     }
+#else
+    mktemp(tempname);
+#endif
     return strdup(tempname);
 }
 
