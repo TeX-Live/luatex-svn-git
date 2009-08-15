@@ -1274,9 +1274,22 @@ static SplineFont *FindResourceFile(char *filename, int flags,
 }
 
 
-static char *createtmpfile(void)
+static char *createtmpfile(char *filename)
 {
-    char tempname[] = "dfontXXXXXX";
+    char *p, *tempname;
+    p = rindex(tempname,'/');
+    if (p != NULL) {
+	filename = p;
+    }
+    assert(strlen(filename)>=5);
+    tempname = malloc(strlen(filename)+2);
+    if (tempname == NULL) {
+	LogError(_("Out of memory\n"));
+	exit(1);
+    }
+    strcpy(tempname,filename);
+    strcpy(tempname+strlen(tempname)-5,"XXXXXX"); /* dfont -> XXXXXX */
+
 #ifdef HAVE_MKSTEMP
     int i = mkstemp(tempname);
     if (i) {
@@ -1285,7 +1298,7 @@ static char *createtmpfile(void)
 #else
     mktemp(tempname);
 #endif
-    return strdup(tempname);
+    return tempname;
 }
 
 static char *SearchTtfResourcesFile(FILE * f, long rlistpos, int subcnt,
@@ -1304,32 +1317,26 @@ static char *SearchTtfResourcesFile(FILE * f, long rlistpos, int subcnt,
     char *sf = NULL;
     int which = 0;
     char **names;
+    (void)name_list;
     fseek(f, rlistpos, SEEK_SET);
     if (subcnt > 1) {
         names = gcalloc(subcnt + 1, sizeof(char *));
         for (i = 0; i < subcnt; ++i) {
             /* resource id = */ getushort(f);
-            rname = (short) getushort(f);
+            /* rname = (short) */ getushort(f);
             /* flags = */ getc(f);
-            /* offset */ getc(f);
-            getc(f);
-            getc(f);
+            ch1 = getc(f);
+            ch2 = getc(f);
+            roff = rdata_pos + ((ch1 << 16) | (ch2 << 8) | getc(f));
             /* mbz = */ getlong(f);
             here = ftell(f);
-            {
-                char buffer[256];
-                if (rname == 0xffff) {
-                    sprintf(buffer, "Nameless%d", i);
-                } else {
-                    int l;
-                    fseek(f, (name_list + rname), SEEK_SET);
-                    l = getc(f);
-                    fread(buffer, l, 1, f);
-                    buffer[l] = 0;
-                    fseek(f, here, SEEK_SET);
-                }
+            names[i] = TTFGetPSFontName(f, roff + 4, roff + 4);
+            if (names[i] == NULL) {
+                char buffer[32];
+                sprintf(buffer, "Nameless%d", i);
                 names[i] = copy(buffer);
             }
+            fseek(f, here, SEEK_SET);
         }
         if (1) {
             char *find = fontname;
@@ -1367,7 +1374,7 @@ static char *SearchTtfResourcesFile(FILE * f, long rlistpos, int subcnt,
             continue;
         here = ftell(f);
 
-        sf = createtmpfile();
+        sf = createtmpfile(filename);
         ttf = fopen(sf, "wb");
         if (ttf == NULL) {
             LogError(_("Can't open temporary file for truetype output.\n"));

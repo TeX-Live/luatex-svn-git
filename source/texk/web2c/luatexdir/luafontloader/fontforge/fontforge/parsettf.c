@@ -582,6 +582,57 @@ return( NULL );
 return( _readencstring(ttf,stringoffset+fullstr,fulllen,fullplat,fullspec,fulllang));
 }
 
+
+char *TTFGetPSFontName(FILE *ttf,int32 offset,int32 off2) {
+    int i,num;
+    int32 tag, length, stringoffset;
+    int name, len, off;
+    int32 nameoffset = 0;
+
+    fseek(ttf,offset,SEEK_SET);
+    /* version = */ getlong(ttf);
+    num = getushort(ttf);
+    /* srange = */ getushort(ttf);
+    /* esel = */ getushort(ttf);
+    /* rshift = */ getushort(ttf);
+    for ( i=0; i<num; ++i ) {
+	tag = getlong(ttf);
+	/* checksum = */ getlong(ttf);
+	nameoffset = off2+getlong(ttf);
+	length = getlong(ttf);
+	if ( tag==CHR('n','a','m','e'))
+	    break;
+    }
+    if ( i==num )
+	return( NULL );
+
+    fseek(ttf,nameoffset,SEEK_SET);
+    /* format = */ getushort(ttf);
+    num = getushort(ttf);
+    stringoffset = nameoffset+getushort(ttf);
+
+    for ( i=0; i<num; ++i ) {
+	/* plat */ getushort(ttf);
+	/* spec */ getushort(ttf);
+	/* lang */ getushort(ttf);
+	name = getushort(ttf);
+	len = getushort(ttf);
+	off = getushort(ttf);
+	if (name == 6) {
+	    char *str = malloc(len+1);
+	    if (str) {
+		fseek (ttf, stringoffset+off, SEEK_SET);
+		if(fread(str,1,len,ttf)==(size_t)len) {
+		    str[len] = '\0';
+		    return str;
+		}
+		free(str);
+	    }
+	}
+    }
+    return NULL;
+}
+
 static int PickTTFFont(FILE *ttf,char *filename,char **chosenname) {
     int32 *offsets, cnt, i, choice, j;
     char **names;
