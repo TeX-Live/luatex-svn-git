@@ -1277,7 +1277,7 @@ static SplineFont *FindResourceFile(char *filename, int flags,
 static char *createtmpfile(char *filename)
 {
     char *p, *tempname;
-    p = strrchr(tempname,'/');
+    p = strrchr(filename,'/');
     if (p != NULL) {
 	filename = p;
     }
