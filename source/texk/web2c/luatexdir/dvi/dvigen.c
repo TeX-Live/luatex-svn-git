@@ -2532,7 +2532,7 @@ static void ensure_dvi_open(PDF pdf)
 
 static void ensure_dvi_header_written(PDF pdf)
 {
-    int i, l;
+    int l;
     pool_pointer s;             /* index into |str_pool| */
     int old_setting;            /* saved |selector| setting */
     ensure_dvi_open(pdf);
@@ -2623,7 +2623,7 @@ If |total_pages>=65536|, the \.{DVI} file will lie. And if
 |max_push>=65536|, the user deserves whatever chaos might ensue.
 */
 
-void finish_dvi_file(PDF pdf, int version, int revision)
+void finish_dvi_file(PDF pdf __attribute__ ((unused)), int version, int revision)
 {
     integer k;
     boolean res;

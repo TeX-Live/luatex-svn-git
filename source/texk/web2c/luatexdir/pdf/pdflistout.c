@@ -85,7 +85,7 @@ static backend_node_function *new_backend_out_whatsit()
     return xmalloc((MAX_WHATSIT_TYPE + 1) * sizeof(backend_whatsit_function));
 }
 
-static void init_pdf_backend_functionpointers(PDF pdf)
+static void init_pdf_backend_functionpointers(PDF pdf __attribute__ ((unused)))
 {
     backend_out[rule_node] = &pdf_place_rule;   /* 2 */
     backend_out[glyph_node] = &pdf_place_glyph; /* 37 */
@@ -107,7 +107,7 @@ static void init_pdf_backend_functionpointers(PDF pdf)
     backend_out_whatsit[pdf_restore_node] = &pdf_out_restore;   /* 42 */
 }
 
-static void init_dvi_backend_functionpointers(PDF pdf)
+static void init_dvi_backend_functionpointers(PDF pdf __attribute__ ((unused)))
 {
     backend_out[rule_node] = &dvi_place_rule;   /* 2 */
     backend_out[glyph_node] = &dvi_place_glyph; /* 37 */
@@ -115,7 +115,7 @@ static void init_dvi_backend_functionpointers(PDF pdf)
     backend_out_whatsit[special_node] = &dvi_special;   /* 3 */
 }
 
-static void init_lua_backend_functionpointers(PDF pdf)
+static void init_lua_backend_functionpointers(PDF pdf __attribute__ ((unused)))
 {
     backend_out[rule_node] = &lua_place_rule;   /* 2 */
     backend_out[glyph_node] = &lua_place_glyph; /* 37 */
