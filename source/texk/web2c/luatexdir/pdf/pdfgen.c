@@ -52,9 +52,8 @@ boolean is_shipping_page;       /* set to |shipping_page| when |ship_out| starts
 
 /* init_pdf_struct() is called early, only once, from maincontrol.c */
 
-PDF init_pdf_struct(void)
+PDF init_pdf_struct(PDF pdf)
 {
-    PDF pdf;
     assert(pdf == NULL);
     pdf = xmalloc(sizeof(pdf_output_file));
     memset(pdf, 0, sizeof(pdf_output_file));

@@ -3433,7 +3433,7 @@ void initialize(void)
     initialize_read();
 
     assert(static_pdf == NULL);
-    static_pdf = init_pdf_struct();
+    static_pdf = init_pdf_struct(static_pdf);
 
     format_ident = 0;
     format_name = get_nullstr();

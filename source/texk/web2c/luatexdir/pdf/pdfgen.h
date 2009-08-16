@@ -208,7 +208,7 @@ extern void pdf_end_page(PDF pdf, boolean shipping_page);
 
 extern void fix_o_mode(PDF pdf);
 extern void ensure_pdf_header_written(PDF pdf);
-extern PDF init_pdf_struct(void);
+extern PDF init_pdf_struct(PDF pdf);
 
 extern halfword pdf_info_toks;  /* additional keys of Info dictionary */
 extern halfword pdf_catalog_toks;       /* additional keys of Catalog dictionary */
