@@ -958,8 +958,9 @@ static void ensure_pdf_open(PDF pdf)
 
 void ensure_pdf_header_written(PDF pdf)
 {
+    static boolean header_written = false;      /* kludge, should be in pdf */
     ensure_pdf_open(pdf);
-    if (total_pages == 0) {
+    if (!header_written) {
         /* Initialize variables for \.{PDF} output */
         fix_pdf_minorversion(pdf);
         init_pdf_outputparameters(pdf);
@@ -971,6 +972,7 @@ void ensure_pdf_header_written(PDF pdf)
         pdf_out(pdf, 'E' + 128);
         pdf_out(pdf, 'X' + 128);
         pdf_print_nl(pdf);
+        header_written = true;
     }
 }
 
