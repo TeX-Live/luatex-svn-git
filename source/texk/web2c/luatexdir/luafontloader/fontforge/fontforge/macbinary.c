@@ -1279,7 +1279,7 @@ static char *createtmpfile(char *filename)
     char *p, *tempname;
     p = strrchr(filename,'/');
     if (p != NULL) {
-	filename = p;
+	filename = p+1;
     }
     assert(strlen(filename)>=5);
     tempname = malloc(strlen(filename)+2);
