@@ -195,7 +195,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
             packet_scaled(size.v, fs_f);        /* height (where is depth?) */
             packet_scaled(size.h, fs_f);
             if (size.h > 0 && size.v > 0)
-                pdf_place_rule(static_pdf, 0, size);    /* the 0 is unused */
+                pdf_place_rule(pdf, 0, size);   /* the 0 is unused */
             cur.h = cur.h + size.h;
             break;
         case packet_right_code:
