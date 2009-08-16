@@ -25,12 +25,15 @@ static const char __svn_version[] =
 
 /***********************************************************************/
 
-static void do_late_lua(halfword p)
+static void late_lua(PDF pdf, halfword p)
 {
+    (void) pdf;
     expand_macros_in_tokenlist(p);      /* sets def_ref */
     luacall(def_ref, late_lua_name(p));
     flush_list(def_ref);
 }
+
+pos_info_structure pos_info;    /* to be accessed from Lua */
 
 /***********************************************************************/
 /* TODO: remove these: */
@@ -44,54 +47,49 @@ static void do_late_lua(halfword p)
 
 /***********************************************************************/
 
-node_output_function *backend_out = NULL;
-whatsit_output_function *backend_out_whatsit = NULL;
+backend_node_function *backend_out = NULL;
+backend_whatsit_function *backend_out_whatsit = NULL;
 
-pos_info_structure pos_info;    /* to be accessed from Lua */
-
-static void missing_node_function()
+static void missing_backend_function(PDF pdf, halfword p)
 {
-    pdf_error("pdflistout", "undefined node output function");
+    char *b = NULL, *n, *s;
+    char backend_string[15];
+    char err_string[60];
+    if (type(p) == whatsit_node)
+        s = "whatsit";
+    else
+        s = "node";
+    n = get_node_name(type(p), subtype(p));
+    if (pdf->o_mode == OMODE_DVI)
+        b = "DVI";
+    else if (pdf->o_mode == OMODE_PDF)
+        b = "PDF";
+    else if (pdf->o_mode == OMODE_LUA)
+        b = "Lua";
+    else
+        assert(0);
+    snprintf(backend_string, 14, "%s back-end", b);
+    snprintf(err_string, 59, "no output function for \"%s\" %s", n, s);
+    pdf_error(backend_string, err_string);
 }
 
-static void missing_whatsit_function()
-{
-    pdf_error("pdflistout", "undefined whatsit node output function");
-}
-
-static node_output_function *new_backend_out()
+static backend_node_function *new_backend_out()
 {
     assert(backend_out == NULL);
-    return xmalloc((MAX_NODE_TYPE + 1) * sizeof(node_output_function));
+    return xmalloc((MAX_NODE_TYPE + 1) * sizeof(backend_node_function));
 }
 
-static node_output_function *new_backend_out_whatsit()
+static backend_node_function *new_backend_out_whatsit()
 {
     assert(backend_out_whatsit == NULL);
-    return xmalloc((MAX_WHATSIT_TYPE + 1) * sizeof(whatsit_output_function));
+    return xmalloc((MAX_WHATSIT_TYPE + 1) * sizeof(backend_whatsit_function));
 }
 
-void init_pdf_output_functions(PDF pdf)
+static void init_pdf_backend_functionpointers(PDF pdf)
 {
-    int i;
-
-    if (backend_out == NULL || backend_out_whatsit == NULL) {
-        backend_out = new_backend_out();
-        backend_out_whatsit = new_backend_out_whatsit();
-    }
-
-    pdf->o_mode = OMODE_PDF;
-
-    for (i = 0; i < MAX_NODE_TYPE + 1; i++)
-        backend_out[i] = &missing_node_function;
-
-    for (i = 0; i < MAX_WHATSIT_TYPE + 1; i++)
-        backend_out_whatsit[i] = &missing_whatsit_function;
-
     backend_out[rule_node] = &pdf_place_rule;   /* 2 */
     backend_out[glyph_node] = &pdf_place_glyph; /* 37 */
     /* ...these are all (?) */
-
     backend_out_whatsit[special_node] = &pdf_special;   /* 3 */
     backend_out_whatsit[pdf_literal_node] = &pdf_out_literal;   /* 8 */
     backend_out_whatsit[pdf_refxform_node] = &pdf_place_form;   /* 12 */
@@ -102,56 +100,53 @@ void init_pdf_output_functions(PDF pdf)
     backend_out_whatsit[pdf_dest_node] = &do_dest;      /* 19 */
     backend_out_whatsit[pdf_thread_node] = &do_thread;  /* 20 */
     backend_out_whatsit[pdf_end_thread_node] = &end_thread;     /* 22 */
-    backend_out_whatsit[late_lua_node] = &do_late_lua;  /* 35 */
+    backend_out_whatsit[late_lua_node] = &late_lua;     /* 35 */
     backend_out_whatsit[pdf_colorstack_node] = &pdf_out_colorstack;     /* 39 */
     backend_out_whatsit[pdf_setmatrix_node] = &pdf_out_setmatrix;       /* 40 */
     backend_out_whatsit[pdf_save_node] = &pdf_out_save; /* 41 */
     backend_out_whatsit[pdf_restore_node] = &pdf_out_restore;   /* 42 */
 }
 
-void init_dvi_output_functions(PDF pdf)
+static void init_dvi_backend_functionpointers(PDF pdf)
 {
-    int i;
-
-    if (backend_out == NULL || backend_out_whatsit == NULL) {
-        backend_out = new_backend_out();
-        backend_out_whatsit = new_backend_out_whatsit();
-    }
-
-    pdf->o_mode = OMODE_DVI;
-
-    for (i = 0; i < MAX_NODE_TYPE + 1; i++)
-        backend_out[i] = &missing_node_function;
-
-    for (i = 0; i < MAX_WHATSIT_TYPE + 1; i++)
-        backend_out_whatsit[i] = &missing_whatsit_function;
-
     backend_out[rule_node] = &dvi_place_rule;   /* 2 */
     backend_out[glyph_node] = &dvi_place_glyph; /* 37 */
     /* ...these are all (?) */
-
     backend_out_whatsit[special_node] = &dvi_special;   /* 3 */
 }
 
-void init_lua_output_functions(PDF pdf)
+static void init_lua_backend_functionpointers(PDF pdf)
+{
+    backend_out[rule_node] = &lua_place_rule;   /* 2 */
+    backend_out[glyph_node] = &lua_place_glyph; /* 37 */
+}
+
+void init_backend_functionpointers(PDF pdf)
 {
     int i;
-
     if (backend_out == NULL || backend_out_whatsit == NULL) {
         backend_out = new_backend_out();
         backend_out_whatsit = new_backend_out_whatsit();
     }
-
-    pdf->o_mode = OMODE_LUA;
-
     for (i = 0; i < MAX_NODE_TYPE + 1; i++)
-        backend_out[i] = &missing_node_function;
-
+        backend_out[i] = &missing_backend_function;
     for (i = 0; i < MAX_WHATSIT_TYPE + 1; i++)
-        backend_out_whatsit[i] = &missing_whatsit_function;
-
-    backend_out[rule_node] = &lua_place_rule;   /* 2 */
-    backend_out[glyph_node] = &lua_place_glyph; /* 37 */
+        backend_out_whatsit[i] = &missing_backend_function;
+    switch (pdf->o_mode) {
+    case OMODE_NONE:           /* all node types give errors */
+        break;
+    case OMODE_DVI:
+        init_dvi_backend_functionpointers(pdf);
+        break;
+    case OMODE_PDF:
+        init_pdf_backend_functionpointers(pdf);
+        break;
+    case OMODE_LUA:
+        init_lua_backend_functionpointers(pdf);
+        break;
+    default:
+        assert(0);
+    }
 }
 
 /***********************************************************************/
@@ -280,23 +275,17 @@ void out_what(PDF pdf, halfword p)
 {
     int j;                      /* write stream number */
     switch (subtype(p)) {
-        /* function(pdf) */
-    case pdf_save_node:        /* pdf_out_save(pdf); */
-    case pdf_restore_node:     /* pdf_out_restore(pdf); */
-        backend_out_whatsit[subtype(p)] (pdf);
-        break;
         /* function(pdf, p) */
+    case pdf_save_node:        /* pdf_out_save(pdf, p); */
+    case pdf_restore_node:     /* pdf_out_restore(pdf, p); */
     case pdf_end_link_node:    /* end_link(pdf, p); */
     case pdf_end_thread_node:  /* end_thread(pdf, p); */
     case pdf_literal_node:     /* pdf_out_literal(pdf, p); */
     case pdf_colorstack_node:  /* pdf_out_colorstack(pdf, p); */
     case pdf_setmatrix_node:   /* pdf_out_setmatrix(pdf, p); */
     case special_node:         /* pdf_special(pdf, p); */
+    case late_lua_node:        /* late_lua(pdf, p); */
         backend_out_whatsit[subtype(p)] (pdf, p);
-        break;
-        /* function(p) */
-    case late_lua_node:        /* do_late_lua(p); */
-        backend_out_whatsit[subtype(p)] (p);
         break;
     case pdf_refobj_node:
         if (!is_obj_scheduled(pdf, pdf_obj_objnum(p))) {
@@ -343,8 +332,8 @@ void out_what(PDF pdf, halfword p)
     case user_defined_node:
         break;
     default:
-        confusion("ext4");
-        /* those will be pdf extension nodes in dvi mode, most likely */
+        /* this should give an error about missing whatsit backend function */
+        backend_out_whatsit[subtype(p)] (pdf, p);
     }
 }
 
@@ -596,13 +585,9 @@ void hlist_out(PDF pdf, halfword this_box)
                         break;
                     }
                     if (subtype(p) == pdf_refximage_node)       /* pdf_place_image(pdf, pdf_ximage_idx(p)); */
-                        backend_out_whatsit[pdf_refximage_node] (pdf,
-                                                                 pdf_ximage_idx
-                                                                 (p));
+                        backend_out_whatsit[pdf_refximage_node] (pdf, p);
                     else        /* pdf_place_form(pdf, pdf_xform_objnum(p)); */
-                        backend_out_whatsit[pdf_refxform_node] (pdf,
-                                                                pdf_xform_objnum
-                                                                (p));
+                        backend_out_whatsit[pdf_refxform_node] (pdf, p);
                     cur.h += width(p);
                     break;
                 case dir_node:
@@ -867,7 +852,7 @@ void hlist_out(PDF pdf, halfword this_box)
                     break;
                 default:;
                 }
-                backend_out[rule_node] (pdf, size);     /* pdf_place_rule(pdf, rule.ht + rule.dp, rule.wd); */
+                backend_out[rule_node] (pdf, p, size);  /* pdf_place_rule(pdf, p, rule.ht + rule.dp, rule.wd); */
             }
           MOVE_PAST:
             cur.h += rule.wd;
@@ -1098,13 +1083,9 @@ void vlist_out(PDF pdf, halfword this_box)
                         break;
                     }
                     if (subtype(p) == pdf_refximage_node)       /* pdf_place_image(pdf, pdf_ximage_idx(p)); */
-                        backend_out_whatsit[pdf_refximage_node] (pdf,
-                                                                 pdf_ximage_idx
-                                                                 (p));
+                        backend_out_whatsit[pdf_refximage_node] (pdf, p);
                     else        /* pdf_place_form(pdf, pdf_xform_objnum(p)); */
-                        backend_out_whatsit[pdf_refxform_node] (pdf,
-                                                                pdf_xform_objnum
-                                                                (p));
+                        backend_out_whatsit[pdf_refxform_node] (pdf, p);
                     cur.v += height(p) + depth(p);
                     break;
                 default:
@@ -1270,7 +1251,7 @@ void vlist_out(PDF pdf, halfword this_box)
                     break;
                 default:;
                 }
-                backend_out[rule_node] (pdf, size);     /* pdf_place_rule(pdf, rule.ht, rule.wd); */
+                backend_out[rule_node] (pdf, p, size);  /* pdf_place_rule(pdf, rule.ht, rule.wd); */
                 cur.v += rule.ht + rule.dp;
             }
             goto NEXTP;

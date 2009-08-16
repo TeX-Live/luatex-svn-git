@@ -28,20 +28,18 @@
 #  define pos_up(A)    pdf->posstruct->pos.v = pdf->posstruct->pos.v + (A)
 #  define pos_down(A)  pdf->posstruct->pos.v = pdf->posstruct->pos.v - (A)
 
-extern void init_pdf_output_functions(PDF pdf);
-extern void init_dvi_output_functions(PDF pdf);
-extern void init_lua_output_functions(PDF pdf);
-extern void hlist_out(PDF pdf, halfword this_box);
-extern void vlist_out(PDF pdf, halfword this_box);
+typedef void (*backend_node_function) ();
+typedef void (*backend_whatsit_function) ();
 
-/**********************************************************************/
-
-typedef void (*node_output_function) ();
-typedef void (*whatsit_output_function) ();
 extern pos_info_structure pos_info;
 
-extern node_output_function *backend_out;
-extern whatsit_output_function *backend_out_whatsit;
+extern backend_node_function *backend_out;
+extern backend_whatsit_function *backend_out_whatsit;
+
+extern void init_backend_functionpointers(PDF pdf);
+
+extern void hlist_out(PDF pdf, halfword this_box);
+extern void vlist_out(PDF pdf, halfword this_box);
 extern void out_what(PDF pdf, halfword p);
 
 #endif

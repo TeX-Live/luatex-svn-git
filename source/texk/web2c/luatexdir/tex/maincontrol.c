@@ -1,5 +1,5 @@
 /* maincontrol.c
-   
+
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -17,13 +17,11 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include <ptexlib.h>
-
-
-
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
+
+#include <ptexlib.h>
 
 #define explicit 1
 #define acc_kern 2
@@ -893,21 +891,6 @@ void main_control(void)
     goto BIG_SWITCH;            /* restart */
 }
 
-/*
-Now we are ready to declare our new procedure |do_ship_out|.  It will
-call |ship_out| with the right output mode.
-*/
-
-void do_ship_out(halfword p)
-{                               /* output the box |p| */
-    fix_pdfoutput();
-    if (int_par(pdf_output_code) > 0)
-        static_pdf->o_mode = OMODE_PDF;
-    else
-        static_pdf->o_mode = OMODE_DVI;
-    ship_out(static_pdf, p, true);
-}
-
 void app_space(void)
 {                               /* handle spaces when |space_factor<>1000| */
     halfword q;                 /* glue node */
@@ -1367,9 +1350,8 @@ void box_end(integer box_context)
                 flush_node_list(cur_box);
             }
 
-        } else {
-            do_ship_out(cur_box);
-        }
+        } else
+            ship_out(static_pdf, cur_box, true);
     }
 }
 
@@ -3449,7 +3431,10 @@ void initialize(void)
     mag_set = 0;
     initialize_marks();
     initialize_read();
-    initialize_pdfgen();
+
+    assert(static_pdf == NULL);
+    static_pdf = init_pdf_struct();
+
     format_ident = 0;
     format_name = get_nullstr();
     for (k = 0; k <= 17; k++)

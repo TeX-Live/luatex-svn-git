@@ -67,14 +67,16 @@ static void checkpdfrestore(scaledpos pos)
 }
 
 
-void pdf_out_save(PDF pdf)
+void pdf_out_save(PDF pdf, halfword p)
 {
+    (void) p;
     checkpdfsave(pdf->posstruct->pos);
     pdf_literal(pdf, 'q', set_origin, false);
 }
 
-void pdf_out_restore(PDF pdf)
+void pdf_out_restore(PDF pdf, halfword p)
 {
+    (void) p;
     checkpdfrestore(pdf->posstruct->pos);
     pdf_literal(pdf, 'Q', set_origin, false);
 }

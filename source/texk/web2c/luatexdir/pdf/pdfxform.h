@@ -48,7 +48,7 @@
 
 extern integer pdf_cur_form;    /* the form being output */
 
-void pdf_place_form(PDF pdf, integer i);
+void pdf_place_form(PDF pdf, halfword p);
 
 void scan_pdfxform(PDF pdf);
 void scan_pdfrefxform(PDF pdf);

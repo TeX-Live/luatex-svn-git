@@ -180,12 +180,12 @@ extern void expand_macros_in_tokenlist(halfword p);
 extern void write_out(halfword p);
 extern void dvi_special(PDF pdf, halfword p);
 
-extern void finish_dvi_file(int version, int revision);
+extern void finish_dvi_file(PDF pdf, int version, int revision);
 
 extern void dvi_place_glyph(PDF pdf, internal_font_number f, integer c);
 extern void dvi_place_rule(PDF pdf, scaledpos size);
 
-extern void dvi_begin_page(void);
-extern void dvi_end_page(void);
+extern void dvi_begin_page(PDF pdf);
+extern void dvi_end_page(PDF pdf);
 
 #endif

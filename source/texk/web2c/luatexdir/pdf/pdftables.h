@@ -104,11 +104,6 @@ extern void set_rect_dimens(PDF pdf, halfword p, halfword parent_box,
 
 extern void libpdffinish(PDF);
 
-extern void initialize_pdf_output(PDF);
-
-extern void pdfshipoutbegin(boolean shipping_page);
-extern void pdfshipoutend(boolean shipping_page);
-
 extern void dump_pdftex_data(PDF pdf);
 extern void undump_pdftex_data(PDF pdf);
 

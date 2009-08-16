@@ -201,7 +201,6 @@ integer find_obj(PDF pdf, integer t, integer i, boolean byname)
         return avl_find_int_obj(pdf, t, i);
 }
 
-
 integer get_obj(PDF pdf, integer t, integer i, boolean byname)
 {
     integer r;
@@ -285,105 +284,6 @@ void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur,
     pdf_ann_top(p) = pos_ur.v + margin;
 }
 
-
-void initialize_pdf_output(PDF pdf)
-{
-    init_pdf_output_functions(pdf);
-    if ((pdf_minor_version < 0) || (pdf_minor_version > 9)) {
-        char *hlp[] = { "The pdfminorversion must be between 0 and 9.",
-            "I changed this to 4.", NULL
-        };
-        char msg[256];
-        (void) snprintf(msg, 255, "LuaTeX error (illegal pdfminorversion %d)",
-                        (int) pdf_minor_version);
-        tex_error(msg, hlp);
-        pdf_minor_version = 4;
-    }
-    pdf->minor_version = pdf_minor_version;
-    pdf->compress_level = pdf_compress_level;
-    pdf->decimal_digits = fix_int(pdf_decimal_digits, 0, 4);
-    pdf->gamma = fix_int(pdf_gamma, 0, 1000000);
-    pdf->image_gamma = fix_int(pdf_image_gamma, 0, 1000000);
-    pdf->image_hicolor = fix_int(pdf_image_hicolor, 0, 1);
-    pdf->image_apply_gamma = fix_int(pdf_image_apply_gamma, 0, 1);
-    pdf->objcompresslevel = fix_int(pdf_objcompresslevel, 0, 3);
-    pdf->draftmode = fix_int(pdf_draftmode, 0, 1);
-    pdf->inclusion_copy_font = fix_int(pdf_inclusion_copy_font, 0, 1);
-    pdf->replace_font = fix_int(pdf_replace_font, 0, 1);
-    pdf->pk_resolution = fix_int(pdf_pk_resolution, 72, 8000);
-    if ((pdf->minor_version >= 5) && (pdf->objcompresslevel > 0)) {
-        pdf->os_enable = true;
-    } else {
-        if (pdf->objcompresslevel > 0) {
-            pdf_warning("Object streams",
-                        "\\pdfobjcompresslevel > 0 requires \\pdfminorversion > 4. Object streams disabled now.",
-                        true, true);
-            pdf->objcompresslevel = 0;
-        }
-        pdf->os_enable = false;
-    }
-    if (pdf->pk_resolution == 0)        /* if not set from format file or by user */
-        pdf->pk_resolution = pk_dpi;    /* take it from \.{texmf.cnf} */
-    pdf->pk_scale_factor =
-        divide_scaled(72, pdf->pk_resolution, 5 + pdf->decimal_digits);
-    if (!callback_defined(read_pk_file_callback)) {
-        if (pdf_pk_mode != null) {
-            char *s = tokenlist_to_cstring(pdf_pk_mode, true, NULL);
-            kpseinitprog("PDFTEX", pdf->pk_resolution, s, nil);
-            xfree(s);
-        } else {
-            kpseinitprog("PDFTEX", pdf->pk_resolution, nil, nil);
-        }
-        if (!kpsevarvalue("MKTEXPK"))
-            kpsesetprogramenabled(kpsepkformat, 1, kpsesrccmdline);
-    }
-    set_job_id(pdf, int_par(year_code),
-               int_par(month_code), int_par(day_code), int_par(time_code));
-
-    if ((pdf_unique_resname > 0) && (pdf->resname_prefix == NULL))
-        pdf->resname_prefix = get_resname_prefix(pdf);
-    pdf_page_init(pdf);
-}
-
-/* Checks that we have a name for the generated PDF file and that it's open. */
-
-void ensure_pdf_open(PDF pdf)
-{
-    if (pdf->file_name != NULL)
-        return;
-    if (job_name == 0)
-        open_log_file();
-    pack_job_name(".pdf");
-    if (pdf->draftmode == 0) {
-        while (!lua_b_open_out(pdf->file))
-            prompt_file_name("file name for output", ".pdf");
-    }
-    pdf->file = name_file_pointer;      /* hm ? */
-    pdf->file_name = xstrdup(makecstring(make_name_string()));
-}
-
-
-/* temp here */
-
-void pdfshipoutbegin(boolean shipping_page)
-{
-    pos_stack_used = 0;         /* start with empty stack */
-
-    page_mode = shipping_page;
-    if (shipping_page) {
-        colorstackpagestart();
-    }
-}
-
-void pdfshipoutend(boolean shipping_page)
-{
-    if (pos_stack_used > 0) {
-        pdftex_fail("%u unmatched \\pdfsave after %s shipout",
-                    (unsigned int) pos_stack_used,
-                    ((shipping_page) ? "page" : "form"));
-    }
-}
-
 void libpdffinish(PDF pdf)
 {
     fb_free(pdf);
@@ -397,8 +297,6 @@ void libpdffinish(PDF pdf)
     glyph_unicode_free();
     zip_free(pdf);
 }
-
-
 
 /*
 Store some of the pdftex data structures in the format. The idea here is

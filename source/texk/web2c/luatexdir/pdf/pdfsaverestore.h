@@ -31,7 +31,7 @@ extern pos_entry *pos_stack;    /* the stack */
 extern int pos_stack_size;      /* initially empty */
 extern int pos_stack_used;      /* used entries */
 
-extern void pdf_out_save(PDF pdf);
-extern void pdf_out_restore(PDF pdf);
+extern void pdf_out_save(PDF pdf, halfword p);
+extern void pdf_out_restore(PDF pdf, halfword p);
 
 #endif

@@ -23,7 +23,7 @@
 #  define PDFIMAGE_H
 
 void place_img(PDF, image *);
-void pdf_place_image(PDF pdf, integer idx);
+void pdf_place_image(PDF pdf, halfword p);
 void scan_image(PDF pdf);
 
 #  define set_pdf_ximage_idx(A, B) pdf_ximage_idx(A) = B

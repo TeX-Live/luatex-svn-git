@@ -17,13 +17,11 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include "ptexlib.h"
-
-
-
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
+
+#include "ptexlib.h"
 
 #define pdf_pagebox int_par(pdf_pagebox_code)
 
@@ -149,8 +147,9 @@ void place_img(PDF pdf, image * img)
         img_state(idict) = DICT_OUTIMG;
 }
 
-void pdf_place_image(PDF pdf, integer idx)
+void pdf_place_image(PDF pdf, halfword p)
 {
+    integer idx = pdf_ximage_idx(p);
     pdf_goto_pagemode(pdf);
     place_img(pdf, img_array[idx]);
     if (lookup_object_list(pdf, obj_type_ximage, image_objnum(idx)) == NULL)

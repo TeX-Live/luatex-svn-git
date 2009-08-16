@@ -1,5 +1,5 @@
 /* mainbody.h
-   
+
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -122,7 +122,7 @@ typedef integer save_pointer;
 Characters of text that have been converted to \TeX's internal form
 are said to be of type |ASCII_code|, which is a subrange of the integers.
 
-We are assuming that our runtime system is able to read and write UTF-8. 
+We are assuming that our runtime system is able to read and write UTF-8.
 
 Some of the ASCII codes without visible characters have been given symbolic
 names in this program because they are used with a special meaning.
@@ -233,9 +233,9 @@ least twice the value |max_halfword| (see below). Therefore,
 /*
 The following procedure, which is called just before \TeX\ initializes its
 input and output, establishes the initial values of the date and time.
-It calls a macro-defined |dateandtime| routine.  |dateandtime| in turn is 
-also a C macro, which calls |get_date_and_time|, passing it the addresses of 
-the day, month, etc., so they can be set by the routine.  
+It calls a macro-defined |dateandtime| routine.  |dateandtime| in turn is
+also a C macro, which calls |get_date_and_time|, passing it the addresses of
+the day, month, etc., so they can be set by the routine.
 |get_date_and_time| also sets up interrupt catching if that
 is conditionally compiled in the C code.
 @^system dependencies@>
@@ -251,8 +251,8 @@ extern integer get_luatex_date_info(void);
 extern int ready_already;
 
 extern void main_body(void);
-
 extern void close_files_and_terminate(void);
+
 extern void final_cleanup(void);
 extern void debug_help(void);   /* routine to display various things */
 

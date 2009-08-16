@@ -1,5 +1,5 @@
 /* pdfgen.c
-   
+
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -17,16 +17,15 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include "ptexlib.h"
-#include <ctype.h>
-
-#include "md5.h"
-
-         /* for tokenlist_to_cstring */
-
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
+
+#include "ptexlib.h"
+#include <ctype.h>
+#include "md5.h"
+
+/* for tokenlist_to_cstring */
 
 #define is_hex_char isxdigit
 
@@ -37,9 +36,6 @@ static const char __svn_version[] =
 PDF static_pdf = NULL;
 
 static char *jobname_cstr = NULL;
-
-integer fixed_pdfoutput;        /* fixed output format */
-boolean fixed_pdfoutput_set = false;    /* |fixed_pdfoutput| has been set? */
 
 /* commandline interface */
 integer pdf_output_option;
@@ -54,13 +50,16 @@ halfword pdf_names_toks;        /* additional keys of Names dictionary */
 halfword pdf_trailer_toks;      /* additional keys of Trailer dictionary */
 boolean is_shipping_page;       /* set to |shipping_page| when |ship_out| starts */
 
-PDF initialize_pdf(void)
+/* init_pdf_struct() is called early, only once, from maincontrol.c */
+
+PDF init_pdf_struct(void)
 {
     PDF pdf;
+    assert(pdf == NULL);
     pdf = xmalloc(sizeof(pdf_output_file));
     memset(pdf, 0, sizeof(pdf_output_file));
 
-    pdf->o_mode = OMODE_PDF;
+    pdf->o_mode = OMODE_NONE;   /* will be set by fix_o_mode() */
 
     pdf->os_obj = xmalloc(pdf_os_max_objs * sizeof(os_obj_data));
     pdf->os_buf_size = inf_pdf_os_buf_size;
@@ -108,9 +107,23 @@ PDF initialize_pdf(void)
     return pdf;
 }
 
-void initialize_pdfgen(void)
+static void pdf_shipout_begin(boolean shipping_page)
 {
-    static_pdf = initialize_pdf();
+    pos_stack_used = 0;         /* start with empty stack */
+
+    page_mode = shipping_page;
+    if (shipping_page) {
+        colorstackpagestart();
+    }
+}
+
+static void pdf_shipout_end(boolean shipping_page)
+{
+    if (pos_stack_used > 0) {
+        pdftex_fail("%u unmatched \\pdfsave after %s shipout",
+                    (unsigned int) pos_stack_used,
+                    ((shipping_page) ? "page" : "form"));
+    }
 }
 
 /*
@@ -140,18 +153,25 @@ integer pdf_get_mem(PDF pdf, integer s)
 }
 
 /*
-|fix_pdfoutput| freezes |fixed_pdfoutput| as soon as anything has been written
-to the output file, be it \.{PDF} or \.{DVI}.
+|fix_o_mode| freezes |pdf->o_mode| as soon as anything goes through
+the backend, be it \.{PDF}, \.{DVI}, or \.{Lua}.
 */
 
 #define pdf_output int_par(pdf_output_code)
 
-void fix_pdfoutput(void)
+void fix_o_mode(PDF pdf)
 {
-    if (!fixed_pdfoutput_set) {
-        fixed_pdfoutput = pdf_output;
-        fixed_pdfoutput_set = true;
-    } else if (fixed_pdfoutput != pdf_output) {
+    static int fixed_pdf_output = 0;
+    if (pdf->o_mode == OMODE_NONE) {
+        if (pdf_output > 0) {
+            if (pdf_output == 2009)
+                pdf->o_mode = OMODE_LUA;
+            else
+                pdf->o_mode = OMODE_PDF;
+        } else
+            pdf->o_mode = OMODE_DVI;
+        fixed_pdf_output = pdf_output;
+    } else if (pdf_output != fixed_pdf_output) {
         pdf_error("setup",
                   "\\pdfoutput can only be changed before anything is written to the output");
     }
@@ -164,25 +184,12 @@ been written to the generated \.{PDF} file. Here also all variables for
 and the \.{PDF} header is written.
 */
 
-void do_check_pdfminorversion(PDF pdf)
+void fix_pdf_minorversion(PDF pdf)
 {
-    fix_pdfoutput();
-    assert(fixed_pdfoutput > 0);
+    assert(pdf->o_mode == OMODE_PDF);
     if (!pdf->minor_version_set) {
+        pdf->minor_version = int_par(pdf_minor_version_code);
         pdf->minor_version_set = true;
-        /* Initialize variables for \.{PDF} output */
-        prepare_mag();
-        initialize_pdf_output(pdf);
-        /* Write \.{PDF} header */
-        ensure_pdf_open(pdf);
-        pdf_printf(pdf, "%%PDF-1.%d\n", pdf->minor_version);
-        pdf_out(pdf, '%');
-        pdf_out(pdf, 'P' + 128);
-        pdf_out(pdf, 'T' + 128);
-        pdf_out(pdf, 'E' + 128);
-        pdf_out(pdf, 'X' + 128);
-        pdf_print_nl(pdf);
-
     } else {
         /* Check that variables for \.{PDF} output are unchanged */
         if (pdf->minor_version != int_par(pdf_minor_version_code))
@@ -191,7 +198,6 @@ void do_check_pdfminorversion(PDF pdf)
         if (pdf->draftmode != int_par(pdf_draftmode_code))
             pdf_error("setup",
                       "\\pdfdraftmode cannot be changed after data is written to the PDF file");
-
     }
     if (pdf->draftmode != 0) {
         pdf->compress_level = 0;        /* re-fix it, might have been changed inbetween */
@@ -214,9 +220,9 @@ static void write_pdf(PDF pdf, integer a, int b)
                   (int) ((b) - (a) + 1), pdf->file);
 }
 
-
 void pdf_flush(PDF pdf)
 {                               /* flush out the |pdf_buf| */
+
     off_t saved_pdf_gone;
     if (!pdf->os_mode) {
         saved_pdf_gone = pdf->gone;
@@ -331,7 +337,7 @@ void pdf_room(PDF pdf, integer n)
 
 /* print out a character to PDF buffer; the character will be printed in octal
  * form in the following cases: chars <= 32, backslash (92), left parenthesis
- * (40) and  right parenthesis (41) 
+ * (40) and  right parenthesis (41)
  */
 
 #define pdf_print_escaped(c)                                            \
@@ -361,11 +367,9 @@ void pdf_print_wide_char(PDF pdf, int c)
     pdf_quick_out(pdf, hex[1]);
     pdf_quick_out(pdf, hex[2]);
     pdf_quick_out(pdf, hex[3]);
-}
-
-
-void pdf_puts(PDF pdf, const char *s)
+} void pdf_puts(PDF pdf, const char *s)
 {
+
     size_t l = strlen(s);
     if (l < (size_t) pdf->buf_size) {
         pdf_room(pdf, l);
@@ -566,9 +570,8 @@ scaled one_hundred_bp = (7227 * 65536) / 72;
 scaled one_bp = ((7227 * 65536) / 72 + 50) / 100;
 
 /* $10^0..10^9$ */
-integer ten_pow[10] =
-    { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000,
-    1000000000
+integer ten_pow[10] = {
+    1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
 };
 
 /*
@@ -692,7 +695,7 @@ pdf_object_list *lookup_object_list(PDF pdf, pdf_obj_type t, integer f)
     case obj_type_link:   p = pdf->resources->link_list; break;
     case obj_type_annot:  p = pdf->resources->annot_list; break;
     case obj_type_bead:   p = pdf->resources->bead_list; break;
-    default:              return NULL;  break;  /* shouldnt happen */ 
+    default:              return NULL;  break;  /* shouldnt happen */
     /* *INDENT-ON* */
     }
     while (p != NULL) {
@@ -734,7 +737,7 @@ static void flush_object_list(PDF pdf, pdf_obj_type t)
     case obj_type_link:   pdf->resources->link_list = NULL; break;
     case obj_type_annot:  pdf->resources->annot_list = NULL; break;
     case obj_type_bead:   pdf->resources->bead_list = NULL; break;
-    default:              break; /* cant happen */ 
+    default:              break; /* cant happen */
     /* *INDENT-ON* */
     }
 }
@@ -794,10 +797,9 @@ void pdf_int_entry(PDF pdf, char *s, integer v)
 {
     pdf_printf(pdf, "/%s ", s);
     pdf_print_int(pdf, v);
-}
-
-void pdf_int_entry_ln(PDF pdf, char *s, integer v)
+} void pdf_int_entry_ln(PDF pdf, char *s, integer v)
 {
+
     pdf_int_entry(pdf, s, v);
     pdf_print_nl(pdf);
 }
@@ -806,16 +808,14 @@ void pdf_int_entry_ln(PDF pdf, char *s, integer v)
 void pdf_indirect(PDF pdf, char *s, integer o)
 {
     pdf_printf(pdf, "/%s %d 0 R", s, (int) o);
-}
-
-void pdf_indirect_ln(PDF pdf, char *s, integer o)
+} void pdf_indirect_ln(PDF pdf, char *s, integer o)
 {
+
     pdf_indirect(pdf, s, o);
     pdf_print_nl(pdf);
 }
 
 /* print out |s| as string in PDF output */
-
 void pdf_print_str_ln(PDF pdf, char *s)
 {
     pdf_print_str(pdf, s);
@@ -823,7 +823,6 @@ void pdf_print_str_ln(PDF pdf, char *s)
 }
 
 /* print out an entry in dictionary with string value to PDF buffer */
-
 void pdf_str_entry(PDF pdf, char *s, char *v)
 {
     if (v == 0)
@@ -882,11 +881,103 @@ void pdf_rectangle(PDF pdf, halfword r)
     pdf_puts(pdf, "]\n");
 }
 
+static void init_pdf_outputparameters(PDF pdf)
+{
+    assert(pdf->o_mode = OMODE_PDF);
+    if ((pdf_minor_version < 0) || (pdf_minor_version > 9)) {
+        char *hlp[] = { "The pdfminorversion must be between 0 and 9.",
+            "I changed this to 4.", NULL
+        };
+        char msg[256];
+        (void) snprintf(msg, 255, "LuaTeX error (illegal pdfminorversion %d)",
+                        (int) pdf_minor_version);
+        tex_error(msg, hlp);
+        pdf_minor_version = 4;
+    }
+    pdf->minor_version = fix_int(pdf_minor_version, 0, 9);
+    pdf->draftmode = fix_int(pdf_draftmode, 0, 1);
+    pdf->compress_level = fix_int(pdf_compress_level, 0, 9);
+    pdf->decimal_digits = fix_int(pdf_decimal_digits, 0, 4);
+    pdf->gamma = fix_int(pdf_gamma, 0, 1000000);
+    pdf->image_gamma = fix_int(pdf_image_gamma, 0, 1000000);
+    pdf->image_hicolor = fix_int(pdf_image_hicolor, 0, 1);
+    pdf->image_apply_gamma = fix_int(pdf_image_apply_gamma, 0, 1);
+    pdf->objcompresslevel = fix_int(pdf_objcompresslevel, 0, 3);
+    pdf->inclusion_copy_font = fix_int(pdf_inclusion_copy_font, 0, 1);
+    pdf->replace_font = fix_int(pdf_replace_font, 0, 1);
+    pdf->pk_resolution = fix_int(pdf_pk_resolution, 72, 8000);
+    if ((pdf->minor_version >= 5) && (pdf->objcompresslevel > 0)) {
+        pdf->os_enable = true;
+    } else {
+        if (pdf->objcompresslevel > 0) {
+            pdf_warning("Object streams",
+                        "\\pdfobjcompresslevel > 0 requires \\pdfminorversion > 4. Object streams disabled now.",
+                        true, true);
+            pdf->objcompresslevel = 0;
+        }
+        pdf->os_enable = false;
+    }
+    if (pdf->pk_resolution == 0)        /* if not set from format file or by user */
+        pdf->pk_resolution = pk_dpi;    /* take it from \.{texmf.cnf} */
+    pdf->pk_scale_factor =
+        divide_scaled(72, pdf->pk_resolution, 5 + pdf->decimal_digits);
+    if (!callback_defined(read_pk_file_callback)) {
+        if (pdf_pk_mode != null) {
+            char *s = tokenlist_to_cstring(pdf_pk_mode, true, NULL);
+            kpseinitprog("PDFTEX", pdf->pk_resolution, s, nil);
+            xfree(s);
+        } else {
+            kpseinitprog("PDFTEX", pdf->pk_resolution, nil, nil);
+        }
+        if (!kpsevarvalue("MKTEXPK"))
+            kpsesetprogramenabled(kpsepkformat, 1, kpsesrccmdline);
+    }
+    set_job_id(pdf, int_par(year_code),
+               int_par(month_code), int_par(day_code), int_par(time_code));
+    if ((pdf_unique_resname > 0) && (pdf->resname_prefix == NULL))
+        pdf->resname_prefix = get_resname_prefix(pdf);
+}
+
+/**********************************************************************/
+
+/* Checks that we have a name for the generated PDF file and that it's open. */
+
+static void ensure_pdf_open(PDF pdf)
+{
+    if (pdf->file_name != NULL)
+        return;
+    if (job_name == 0)
+        open_log_file();
+    pack_job_name(".pdf");
+    if (pdf->draftmode == 0) {
+        while (!lua_b_open_out(pdf->file))
+            prompt_file_name("file name for output", ".pdf");
+    }
+    pdf->file = name_file_pointer;      /* hm ? */
+    pdf->file_name = xstrdup(makecstring(make_name_string()));
+}
+
+void ensure_pdf_header_written(PDF pdf)
+{
+    ensure_pdf_open(pdf);
+    if (total_pages == 0) {
+        /* Initialize variables for \.{PDF} output */
+        fix_pdf_minorversion(pdf);
+        init_pdf_outputparameters(pdf);
+        /* Write \.{PDF} header */
+        pdf_printf(pdf, "%%PDF-1.%d\n", pdf->minor_version);
+        pdf_out(pdf, '%');
+        pdf_out(pdf, 'P' + 128);
+        pdf_out(pdf, 'T' + 128);
+        pdf_out(pdf, 'E' + 128);
+        pdf_out(pdf, 'X' + 128);
+        pdf_print_nl(pdf);
+    }
+}
 
 /* begin a PDF dictionary object */
 void pdf_begin_dict(PDF pdf, integer i, integer pdf_os_level)
 {
-    check_pdfminorversion(pdf);
     pdf_os_prepare_obj(pdf, i, pdf_os_level);
     if (!pdf->os_mode) {
         pdf_printf(pdf, "%d 0 obj <<\n", (int) i);
@@ -978,7 +1069,6 @@ void pdf_os_write_objstream(PDF pdf)
 /* begin a PDF object */
 void pdf_begin_obj(PDF pdf, integer i, integer pdf_os_level)
 {
-    check_pdfminorversion(pdf);
     pdf_os_prepare_obj(pdf, i, pdf_os_level);
     if (!pdf->os_mode) {
         pdf_printf(pdf, "%d 0 obj\n", (int) i);
@@ -1188,9 +1278,7 @@ void print_ID(PDF pdf, char *file_name)
   C99 (e.g. newer glibc) with %z, but we have to work with other systems (e.g.
   Solaris 2.5).
 */
-
 #define TIME_STR_SIZE 30        /* minimum size for time_str is 24: "D:YYYYmmddHHMMSS+HH'MM'" */
-
 static void makepdftime(PDF pdf)
 {
     struct tm lt, gmt;
@@ -1348,10 +1436,10 @@ void write_zip(PDF pdf, boolean finish)
     int err;
     int level = pdf->compress_level;
     assert(level > 0);
-    /* This was just to suppress the filename report in |pdftex_fail| 
-       but zlib errors are rare enough (especially now that the 
+    /* This was just to suppress the filename report in |pdftex_fail|
+       but zlib errors are rare enough (especially now that the
        compress level is fixed) that I don't care about the slightly
-       ugly error message that could result. 
+       ugly error message that could result.
      */
     /* cur_file_name = NULL; */
     if (pdf->stream_length == 0) {
@@ -1439,17 +1527,50 @@ void pdf_warning(char *t, char *p, boolean prepend_nl, boolean append_nl)
         history = warning_issued;
 }
 
-void check_pdfoutput(char *s, boolean is_error)
+/**********************************************************************/
+/* Use check_o_mode() in the backend-specific "Implement..." chunks */
+
+void check_o_mode(PDF pdf, char *s, int o_modes)
 {
-    if (int_par(pdf_output_code) <= 0) {
-        if (is_error)
-            pdf_error(s, "not allowed in DVI mode (\\pdfoutput <= 0)");
-        else
-            pdf_warning(s,
-                        "not allowed in DVI mode (\\pdfoutput <= 0); ignoring it",
-                        true, true);
+
+    char warn_string[100];
+    char *m;
+    output_mode o_mode;
+
+    /* only check, don't do fix_o_mode() here! */
+    /* pdf->o_mode is left in possibly wrong state until real output, ok */
+
+    if (pdf->o_mode == OMODE_NONE) {
+        if (pdf_output > 0) {
+            if (pdf_output == 2009)
+                o_mode = OMODE_LUA;
+            else
+                o_mode = OMODE_PDF;
+        } else
+            o_mode = OMODE_DVI;
+    } else
+        o_mode = pdf->o_mode;
+    if ((o_mode & o_modes) == 0) {
+        switch (o_mode) {
+        case OMODE_DVI:        /* quick and dirty, TODO better */
+            m = "DVI";
+            break;
+        case OMODE_PDF:
+            m = "PDF";
+            break;
+        case OMODE_LUA:
+            m = "Lua";
+            break;
+        default:
+            assert(0);
+        }
+        snprintf(warn_string, 99, "not allowed in %s mode (\\pdfpoutput = %d)",
+                 m, pdf_output);
+        pdf_warning(s, warn_string, true, true);
     }
 }
+
+/**********************************************************************/
 
 void set_job_id(PDF pdf, int year, int month, int day, int time)
 {
@@ -1476,10 +1597,9 @@ void set_job_id(PDF pdf, int year, int month, int day, int time)
     xfree(s);
     xfree(name_string);
     xfree(format_string);
-}
-
-char *get_resname_prefix(PDF pdf)
+} char *get_resname_prefix(PDF pdf)
 {
+
 /*     static char name_str[] = */
 /* "!\"$&'*+,-.0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\" */
 /* "^_`abcdefghijklmnopqrstuvwxyz|~"; */
@@ -1499,15 +1619,19 @@ char *get_resname_prefix(PDF pdf)
     return prefix;
 }
 
-/**********************************************************************/
-
 #define mag int_par(mag_code)
 
 void pdf_begin_page(PDF pdf, boolean shipping_page)
 {
     scaled form_margin = one_bp;
+    ensure_pdf_header_written(pdf);
+    init_pdf_pagecalculations(pdf);
 
-    pdf_page_init(pdf);
+    if (pdf->resources == NULL)
+        pdf->resources = xmalloc(sizeof(pdf_resource_struct));
+    reset_resource_lists(pdf->resources);
+    pdf->resources->last_resources = pdf_new_objnum(pdf);
+
     if (shipping_page) {
         pdf->last_page = get_obj(pdf, obj_type_page, total_pages + 1, 0);
         set_obj_aux(pdf, pdf->last_page, 1);    /* mark that this page has been created */
@@ -1550,7 +1674,7 @@ void pdf_begin_page(PDF pdf, boolean shipping_page)
             pdf_printf(pdf, " 0 0 cm\n");
         }
     }
-    pdfshipoutbegin(shipping_page);
+    pdf_shipout_begin(shipping_page);
 
     if (shipping_page)
         pdf_out_colorstack_startpage(pdf);
@@ -1563,13 +1687,14 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
 {
     integer j, ff;
     pdf_resource_struct *res_p = pdf->resources;
+    pdf_resource_struct local_resources;
     pdf_object_list *ol;
     scaledpos save_cur_page_size;       /* to save |cur_page_size| during flushing pending forms */
 
 
     /* Finish stream of page/form contents */
     pdf_goto_pagemode(pdf);
-    pdfshipoutend(shipping_page);
+    pdf_shipout_end(shipping_page);
     pdf_end_stream(pdf);
 
     if (shipping_page) {
@@ -1635,6 +1760,7 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
             if (!is_obj_written(pdf, ol->info)) {
                 pdf_cur_form = ol->info;
                 save_cur_page_size = cur_page_size;
+                pdf->resources = &local_resources;
                 ship_out(pdf, obj_xform_box(pdf, pdf_cur_form), false);
                 cur_page_size = save_cur_page_size;
                 /* Restore resource lists */
@@ -2208,7 +2334,7 @@ void scan_pdfcatalog(PDF pdf)
 {
     halfword p;
     scan_pdf_ext_toks();
-    if (pdf_output > 0)
+    if (pdf->o_mode == OMODE_PDF)
         pdf_catalog_toks = concat_tokens(pdf_catalog_toks, def_ref);
     if (scan_keyword("openaction")) {
         if (pdf_catalog_openaction != 0) {
@@ -2216,7 +2342,7 @@ void scan_pdfcatalog(PDF pdf)
         } else {
             p = scan_action(pdf);
             pdf_new_obj(pdf, obj_type_others, 0, 1);
-            if (pdf_output > 0)
+            if (pdf->o_mode == OMODE_PDF)
                 pdf_catalog_openaction = pdf->obj_ptr;
             write_action(pdf, p);
             pdf_end_obj(pdf);

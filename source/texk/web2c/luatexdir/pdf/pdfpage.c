@@ -35,7 +35,7 @@ static const char __svn_version[] =
 
 /**********************************************************************/
 
-void pdf_page_init(PDF pdf)
+void init_pdf_pagecalculations(PDF pdf)
 {
     pdfstructure *p;
     int decimal_digits = pdf->decimal_digits;
@@ -64,7 +64,6 @@ void pdf_page_init(PDF pdf)
     setpdffloat(p->tm[4], 0, decimal_digits);   /* mantissa holds delta from pdf_bt_pos.h */
     setpdffloat(p->tm[5], 0, decimal_digits);   /* mantissa holds delta from pdf_bt_pos.v */
     /*  */
-    pdf->f_cur = null_font;
     p->f_pdf = null_font;
     p->wmode = WMODE_H;
     p->mode = PMODE_PAGE;

@@ -28,8 +28,9 @@ static const char __svn_version[] =
 
 integer pdf_cur_form;           /* the form being output */
 
-void pdf_place_form(PDF pdf, integer objnum)
+void pdf_place_form(PDF pdf, halfword p)
 {
+    integer objnum = pdf_xform_objnum(p);
     pdf_goto_pagemode(pdf);
     pdf_printf(pdf, "q\n");
     pdf_set_pos_temp(pdf, pdf->posstruct->pos);

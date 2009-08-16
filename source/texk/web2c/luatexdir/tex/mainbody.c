@@ -1,5 +1,5 @@
 /* mainbody.c
-   
+
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -495,10 +495,11 @@ but that can't cause infinite recursion.
 This program doesn't bother to close the input files that may still be open.
 */
 
-void close_files_and_terminate(void)
+void close_files_and_terminate()
 {
     integer k;                  /* all-purpose index */
     integer callback_id;
+    PDF pdf = static_pdf;
     callback_id = callback_defined(stop_run_callback);
     /* Finish the extensions */
     for (k = 0; k <= 15; k++)
@@ -542,22 +543,22 @@ void close_files_and_terminate(void)
         }
     }
     wake_up_terminal();
-    if (!fixed_pdfoutput_set)   /* else there will be an infinite loop in error case */
-        fix_pdfoutput();
-    switch (static_pdf->o_mode) {
+    switch (pdf->o_mode) {
+    case OMODE_NONE:           /* during initex run */
+        break;
     case OMODE_PDF:
         if (history == fatal_error_stop) {
-            remove_pdffile(static_pdf);
+            remove_pdffile(pdf);
             print_err
                 (" ==> Fatal error occurred, no output PDF file produced!");
         } else
-            finish_pdf_file(static_pdf, luatex_version, get_luatexrevision());
+            finish_pdf_file(pdf, luatex_version, get_luatexrevision());
         break;
     case OMODE_DVI:
-        finish_dvi_file(luatex_version, get_luatexrevision());
+        finish_dvi_file(pdf, luatex_version, get_luatexrevision());
         break;
     case OMODE_LUA:
-        finish_lua_file(static_pdf);
+        finish_lua_file(pdf);
         break;
     default:
         assert(0);

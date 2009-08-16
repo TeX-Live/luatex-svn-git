@@ -541,12 +541,13 @@ static void read_scale_img(lua_State * L, image * a)
         if (img_type(ad) == IMG_TYPE_PDFSTREAM)
             check_pdfstream_dict(ad);
         else {
-            /* check_pdfminorversion() should not be here, as it belongs 
-             * to the output functions, and it is too early here to start
-             * already the PDF file only for image file scanning; but 
+            /* fix_o_mode() should not be here, as it belongs to the
+             * output functions, and it is too early here to freeze
+             * the PDF output mode only for image file scanning; but 
              * it's needed as several fixed_* parameters are used early,
              * e. g. by read_png_info(). */
-            check_pdfminorversion(static_pdf);
+            fix_o_mode(static_pdf);
+            fix_pdf_minorversion(static_pdf);
             read_img(static_pdf,
                      ad, pdf_minor_version, pdf_inclusion_errorlevel);
             img_unset_scaled(a);
@@ -564,7 +565,7 @@ static int l_scan_image(lua_State * L)
         (void) l_new_image(L);  /* image --- if everything worked well */
     aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);    /* image */
     a = *aa;
-    check_pdfoutput("img.scan()", true);
+    check_o_mode(static_pdf, "img.scan()", OMODE_PDF);
     flush_str(last_tex_string);
     read_scale_img(L, a);
     return 1;                   /* image */
@@ -597,7 +598,7 @@ static void setup_image(PDF pdf, lua_State * L, image * a, wrtype_e writetype)
     image_dict *ad;
     assert(a != NULL);
     ad = img_dict(a);
-    check_pdfoutput((char *) wrtype_s[writetype], true);
+    check_o_mode(pdf, (char *) wrtype_s[writetype], OMODE_PDF);
     flush_str(last_tex_string);
     read_scale_img(L, a);
     if (img_arrayidx(a) == -1)
@@ -630,7 +631,6 @@ static void write_image_or_node(lua_State * L, wrtype_e writetype)
         tail_append(n);
         break;                  /* image */
     case WR_IMMEDIATEWRITE:
-        check_pdfminorversion(static_pdf);      /* does initialization stuff */
         pdf_begin_dict(static_pdf, img_objnum(ad), 0);
         write_img(static_pdf, ad);
         break;                  /* image */

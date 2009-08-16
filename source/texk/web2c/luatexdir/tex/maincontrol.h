@@ -93,9 +93,6 @@ since the following routines test for the \.{\\global} prefix as follows.
 
 extern halfword cur_box;        /* box to be placed into its context */
 
-extern void do_ship_out(halfword p);
-
-
 /*
 A \.{\\chardef} creates a control sequence whose |cmd| is |char_given|;
 a \.{\\mathchardef} creates a control sequence whose |cmd| is |math_given|;

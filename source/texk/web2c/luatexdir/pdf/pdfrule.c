@@ -26,9 +26,10 @@ static const char __svn_version[] =
 
 #define lround(a) (long) floor((a) + 0.5)
 
-void pdf_place_rule(PDF pdf, scaledpos size)
+void pdf_place_rule(PDF pdf, halfword q, scaledpos size)
 {
     pdfpos dim;
+    (void) q;
     pdfstructure *p = pdf->pstruct;
     scaledpos pos = pdf->posstruct->pos;
     pdf_goto_pagemode(pdf);

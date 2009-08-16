@@ -27,9 +27,6 @@
 
 extern PDF static_pdf;
 
-extern void initialize_pdfgen(void);
-extern PDF initialize_pdf(void);
-
 extern integer pdf_get_mem(PDF pdf, integer s);
 
 /*
@@ -75,9 +72,6 @@ extern integer pdf_output_value;
 extern integer pdf_draftmode_option;
 extern integer pdf_draftmode_value;
 
-extern integer fixed_pdfoutput;
-extern boolean fixed_pdfoutput_set;
-
 extern scaled one_hundred_inch;
 extern scaled one_inch;
 extern scaled one_true_inch;
@@ -88,17 +82,7 @@ extern integer ten_pow[10];
 extern void pdf_flush(PDF);
 extern void pdf_room(PDF, integer);
 
-#  define check_pdfminorversion(A) do {          \
-    if (A==NULL) {                             \
-      static_pdf = initialize_pdf();           \
-      A = static_pdf;                          \
-    }                                          \
-    do_check_pdfminorversion(A);               \
-  } while (0)
-
-extern void do_check_pdfminorversion(PDF);
-
-extern void ensure_pdf_open(PDF);
+extern void fix_pdf_minorversion(PDF);
 
  /* output a byte to PDF buffer without checking of overflow */
 #  define pdf_quick_out(pdf,A) pdf->buf[pdf->ptr++]=A
@@ -215,14 +199,16 @@ extern char *getcreationdate(PDF);
 
 extern void pdf_error(char *t, char *p);
 extern void pdf_warning(char *t, char *p, boolean pr, boolean ap);
-extern void check_pdfoutput(char *s, boolean is_error);
+extern void check_o_mode(PDF pdf, char *s, int o_mode);
 
 extern void set_job_id(PDF, int, int, int, int);
 extern char *get_resname_prefix(PDF);
 extern void pdf_begin_page(PDF pdf, boolean shipping_page);
 extern void pdf_end_page(PDF pdf, boolean shipping_page);
 
-extern void fix_pdfoutput(void);
+extern void fix_o_mode(PDF pdf);
+extern void ensure_pdf_header_written(PDF pdf);
+extern PDF init_pdf_struct(void);
 
 extern halfword pdf_info_toks;  /* additional keys of Info dictionary */
 extern halfword pdf_catalog_toks;       /* additional keys of Catalog dictionary */

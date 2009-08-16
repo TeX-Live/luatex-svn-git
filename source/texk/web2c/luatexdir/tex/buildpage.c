@@ -17,13 +17,11 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include <ptexlib.h>
-
-
-
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
+
+#include <ptexlib.h>
 
 #define box(A) eqtb[box_base+(A)].hh.rh
 #define count(A) eqtb[count_base+(A)].hh.rh
@@ -1010,9 +1008,8 @@ void fire_up(halfword c)
     }
     flush_node_list(page_disc);
     page_disc = null;
-    do_ship_out(box(output_box));
+    ship_out(static_pdf, box(output_box), true);
     box(output_box) = null;
-
 }
 
 /*

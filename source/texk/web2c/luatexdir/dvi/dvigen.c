@@ -2043,25 +2043,6 @@ void vlist_out(void)
 #endif                          /* obsolete code, kept for reference */
 /**********************************************************************/
 
-/*
-Here's an example of how these conventions are used. Whenever it is time to
-ship out a box of stuff, we shall use the macro |ensure_dvi_open|.
-*/
-
-static void ensure_dvi_open(void)
-{
-    if (output_file_name == 0) {
-        if (job_name == 0)
-            open_log_file();
-        pack_job_name(".dvi");
-        while (!lua_b_open_out(dvi_file))
-            prompt_file_name("file name for output", ".dvi");
-        dvi_file = name_file_pointer;
-        output_file_name = make_name_string();
-    }
-}
-
-
 void dvi_special(PDF pdf, halfword p)
 {
     int old_setting;            /* holds print |selector| */
@@ -2224,7 +2205,7 @@ void write_out(halfword p)
     selector = old_setting;
 }
 
-/* 
+/*
 The |hlist_out| and |vlist_out| procedures are now complete, so we are
 ready for the |dvi_ship_out| routine that gets them started in the first place.
 */
@@ -2530,17 +2511,38 @@ void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page)
 #endif                          /* obsolete code, kept for reference */
 
 /**********************************************************************/
+/*
+Here's an example of how these conventions are used. Whenever it is time to
+ship out a box of stuff, we shall use the macro |ensure_dvi_open|.
+*/
 
-void dvi_begin_page()
+static void ensure_dvi_open(PDF pdf)
 {
+    (void) pdf;
+    if (output_file_name == 0) {
+        if (job_name == 0)
+            open_log_file();
+        pack_job_name(".dvi");
+        while (!lua_b_open_out(dvi_file))
+            prompt_file_name("file name for output", ".dvi");
+        dvi_file = name_file_pointer;
+        output_file_name = make_name_string();
+    }
+}
+
+static void ensure_dvi_header_written(PDF pdf)
+{
+    int i, l;
     pool_pointer s;             /* index into |str_pool| */
     int old_setting;            /* saved |selector| setting */
-    integer k;
-    integer page_loc;           /* location of the current |bop| */
-
-    /* Initialize variables as |ship_out| begins */
-    ensure_dvi_open();
+    ensure_dvi_open(pdf);
     if (total_pages == 0) {
+
+        if (half_buf == 0) {
+            half_buf = dvi_buf_size / 2;
+            dvi_limit = dvi_buf_size;
+        }
+
         dvi_out(pre);
         dvi_out(id_byte);       /* output the preamble */
         dvi_four(25400000);
@@ -2548,7 +2550,7 @@ void dvi_begin_page()
         prepare_mag();
         dvi_four(mag);          /* magnification factor is frozen */
         if (output_comment) {
-            int l = strlen(output_comment);
+            l = strlen(output_comment);
             dvi_out(l);
             for (s = 0; s <= l - 1; s++)
                 dvi_out(output_comment[s]);
@@ -2571,6 +2573,14 @@ void dvi_begin_page()
             pool_ptr = str_start_macro(str_ptr);        /* flush the current string */
         }
     }
+}
+
+void dvi_begin_page(PDF pdf)
+{
+    integer k;
+    integer page_loc;           /* location of the current |bop| */
+    ensure_dvi_header_written(pdf);
+    /* Initialize variables as |ship_out| begins */
     page_loc = dvi_offset + dvi_ptr;
     dvi_out(bop);
     for (k = 0; k <= 9; k++)
@@ -2579,8 +2589,9 @@ void dvi_begin_page()
     last_bop = page_loc;
 }
 
-void dvi_end_page()
+void dvi_end_page(PDF pdf)
 {
+    (void) pdf;
     dvi_out(eop);
 
 #ifdef IPC
@@ -2612,7 +2623,7 @@ If |total_pages>=65536|, the \.{DVI} file will lie. And if
 |max_push>=65536|, the user deserves whatever chaos might ensue.
 */
 
-void finish_dvi_file(int version, int revision)
+void finish_dvi_file(PDF pdf, int version, int revision)
 {
     integer k;
     boolean res;

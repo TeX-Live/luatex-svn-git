@@ -41,6 +41,38 @@ static const char __svn_version[] =
 
 scaledpos shipbox_refpos;
 
+/***********************************************************************
+
+current sequence/dependency of function calls for output preparation:
+
+> ensure_dvi_header_written()
+>   ensure_dvi_open()
+> 
+> ensure_pdf_header_written()
+>   ensure_pdf_open()
+>   fix_pdf_minor_version()
+>   init_pdf_outputparameters()
+> 
+> do_extension() -- Implement \pdfximage
+>   fix_o_mode()
+>   fix_pdf_minorversion()
+> 
+> do_extension() -- immediate
+>   fix_o_mode()
+>   ensure_pdf_header_written()
+> 
+> ship_out()
+>   fix_o_mode()
+>   init_backend_functionpointers()
+>   dvi_begin_page()
+>     ensure_dvi_header_written()
+>   pdf_begin_page()
+>     ensure_pdf_header_written()
+>     init_pdf_pagecalculations()
+>   lua_begin_page()
+
+***********************************************************************/
+
 /*
 |ship_out| is used to shipout a box to PDF or DVI mode.
 If |shipping_page| is not set then the output will be a Form object
@@ -50,36 +82,16 @@ If |shipping_page| is not set then the output will be a Form object
 void ship_out(PDF pdf, halfword p, boolean shipping_page)
 {
     /* output the box |p| */
-    integer j, k;               /* DVI, PDF *//* indices to first ten count registers */
-    integer post_callback_id;   /* DVI, PDF */
-    integer pre_callback_id;    /* DVI, PDF */
-    pdf_resource_struct resources;      /* PDF */
-    posstructure refpoint;      /* DVI, PDF *//* the origin pos. on the page */
-    scaledpos cur = { 0, 0 };   /* DVI, PDF */
+    integer j, k;               /* indices to first ten count registers */
+    integer post_callback_id;
+    integer pre_callback_id;
+    posstructure refpoint;      /* the origin pos. on the page */
+    scaledpos cur = { 0, 0 };
+
+    fix_o_mode(pdf);
+    init_backend_functionpointers(pdf);
 
     pdf->f_cur = null_font;
-
-    switch (pdf->o_mode) {
-    case OMODE_DVI:
-        assert(shipping_page == true);
-        init_dvi_output_functions(pdf);
-        if (half_buf == 0) {
-            half_buf = dvi_buf_size / 2;
-            dvi_limit = dvi_buf_size;
-        }
-        break;
-    case OMODE_PDF:
-        check_pdfminorversion(pdf);     /* does also prepare_mag() */
-        reset_resource_lists(&resources);
-        pdf->resources = &resources;
-        pdf->resources->last_resources = pdf_new_objnum(pdf);
-        break;
-    case OMODE_LUA:
-        init_lua_output_functions(pdf);
-        break;
-    default:
-        assert(0);
-    }
 
     /* Start sheet {\sl Sync\TeX} information record */
     /* {\sl Sync\TeX}: we assume that |pdf_output| is properly set up */
@@ -316,7 +328,7 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
     switch (pdf->o_mode) {
     case OMODE_DVI:
         assert(shipping_page);
-        dvi_begin_page();
+        dvi_begin_page(pdf);
         break;
     case OMODE_PDF:
         pdf_begin_page(pdf, shipping_page);
@@ -348,7 +360,7 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     switch (pdf->o_mode) {
     case OMODE_DVI:
-        dvi_end_page();
+        dvi_end_page(pdf);
         break;
     case OMODE_PDF:
         pdf_end_page(pdf, shipping_page);
