@@ -2623,7 +2623,8 @@ If |total_pages>=65536|, the \.{DVI} file will lie. And if
 |max_push>=65536|, the user deserves whatever chaos might ensue.
 */
 
-void finish_dvi_file(PDF pdf __attribute__ ((unused)), int version, int revision)
+void finish_dvi_file(PDF pdf
+                     __attribute__ ((unused)), int version, int revision)
 {
     integer k;
     boolean res;

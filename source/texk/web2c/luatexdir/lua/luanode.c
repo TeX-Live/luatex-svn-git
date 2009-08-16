@@ -256,16 +256,16 @@ int visible_last_node_type(int n)
         return -1;
     if (i == glyph_node) {
         if (is_ligature(n))
-            return 7; /* old ligature value */
+            return 7;           /* old ligature value */
         else
-            return 0; /* old character value */
+            return 0;           /* old character value */
     }
     if (i <= unset_node) {
         return i + 1;
     } else if (i <= delim_node) {
-        return 15; /* so-called math nodes */
+        return 15;              /* so-called math nodes */
     } else {
-        return -1; 
+        return -1;
     }
 }
 

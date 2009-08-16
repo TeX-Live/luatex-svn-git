@@ -135,7 +135,7 @@ halfword get_avail(void)
         incr(fix_mem_end);
         p = fix_mem_end;
     } else {
-        smemory_word *new_fixmem;   /* the big dynamic storage area */
+        smemory_word *new_fixmem;       /* the big dynamic storage area */
         t = (fix_mem_max / 5);
         new_fixmem =
             fixmemcast(realloc

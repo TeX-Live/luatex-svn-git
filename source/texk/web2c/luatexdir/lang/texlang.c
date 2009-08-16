@@ -111,6 +111,7 @@ static int u_strlen(register unichar_t * str)
 #define MAX_TEX_LANGUAGES  32768
 
 static struct tex_language *tex_languages[MAX_TEX_LANGUAGES] = { NULL };
+
 static int next_lang_id = 0;
 
 struct tex_language *new_language(int n)

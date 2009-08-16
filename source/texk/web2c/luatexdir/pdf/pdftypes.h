@@ -78,7 +78,8 @@ typedef enum { PMODE_NONE, PMODE_PAGE, PMODE_TEXT, PMODE_CHARARRAY, PMODE_CHAR
 } pos_mode;
 
 typedef enum { OMODE_NONE = 0, OMODE_DVI = 1, OMODE_PDF = 2, OMODE_LUA =
-        4, OMODE_TBD = 8 } output_mode;
+        4, OMODE_TBD = 8
+} output_mode;
 
 typedef struct pdf_object_list_ {
     int info;
