@@ -1,5 +1,5 @@
 /* pdftables.c
-   
+
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -17,14 +17,11 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include "ptexlib.h"
-
-
-
-
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
+
+#include "ptexlib.h"
 
 integer pdf_box_spec_media = 1;
 integer pdf_box_spec_crop = 2;
@@ -252,7 +249,7 @@ void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur,
     else
         ur.h = alt_rule.wd;
     if (is_running(alt_rule.ht))
-        ur.v = -height(parent_box) + cur.v;
+        ur.v = -height(parent_box) - cur.v;
     else
         ur.v = -alt_rule.ht;
 
