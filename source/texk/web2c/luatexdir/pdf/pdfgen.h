@@ -199,7 +199,7 @@ extern char *getcreationdate(PDF);
 
 extern void pdf_error(char *t, char *p);
 extern void pdf_warning(char *t, char *p, boolean pr, boolean ap);
-extern void check_o_mode(PDF pdf, char *s, int o_mode);
+extern void check_o_mode(PDF pdf, char *s, int o_mode, boolean errorflag);
 
 extern void set_job_id(PDF, int, int, int, int);
 extern char *get_resname_prefix(PDF);

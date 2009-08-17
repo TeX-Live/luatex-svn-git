@@ -638,7 +638,7 @@ void main_control(void)
     case vmode + un_vbox_cmd:
     case hmode + un_hbox_cmd:
     case mmode + un_hbox_cmd:
-        /* The |un_hbox| and |un_vbox| commands unwrap one of the |number_regs| 
+        /* The |un_hbox| and |un_vbox| commands unwrap one of the |number_regs|
            current boxes. */
         unpackage();
         break;
@@ -883,9 +883,8 @@ void main_control(void)
 
         /* Cases of |main_control| that are for extensions to \TeX */
     case any_mode(extension_cmd):
-        do_extension();
+        do_extension(static_pdf);
         break;
-
     }                           /* end of the big |switch| statement */
 
     goto BIG_SWITCH;            /* restart */
@@ -2020,7 +2019,7 @@ void cs_error(void)
   codes, making it possible to accumulate the union of all specified prefixes
   by adding the corresponding codes.  (\PASCAL's |set| operations could also
   have been used.)
-  
+
   Every prefix, and every command code that might or might not be prefixed,
   calls the action procedure |prefixed_command|. This routine accumulates
   a sequence of prefixes until coming to a non-prefix, then it carries out
@@ -2499,7 +2498,7 @@ void prefixed_command(void)
         break;
     case set_box_cmd:
         /* The processing of boxes is somewhat different, because we may need
-           to scan and create an entire box before we actually change the value 
+           to scan and create an entire box before we actually change the value
            of the old one. */
         scan_register_num();
         if (is_global(a))

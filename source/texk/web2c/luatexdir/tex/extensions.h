@@ -1,5 +1,5 @@
 /* extensions.h
-   
+
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -32,7 +32,7 @@ extern scaled neg_ht;
 
 extern halfword write_loc;
 
-extern void do_extension(void);
+extern void do_extension(PDF pdf);
 
 /* Three extra node types carry information from |main_control|. */
 

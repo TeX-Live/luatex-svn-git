@@ -129,7 +129,7 @@ When an |extension| command occurs in |main_control|, in any mode,
 the |do_extension| routine is called.
 */
 
-void do_extension(void)
+void do_extension(PDF pdf)
 {
     integer i, j, k;            /* all-purpose integers */
     halfword p;                 /* all-purpose pointer */
@@ -182,38 +182,43 @@ void do_extension(void)
            The presence of `\.{\\immediate}' causes the |do_extension| procedure
            to descend to one level of recursion. Nothing happens unless \.{\\immediate}
            is followed by `\.{\\openout}', `\.{\\write}', or `\.{\\closeout}'.
-           @^recursion@> 
+           @^recursion@>
          */
         get_x_token();
         if (cur_cmd == extension_cmd) {
             if (cur_chr <= close_node) {
                 p = tail;
                 /* do_extension() and out_what() here can only be open, write, or close */
-                do_extension(); /* append a whatsit node */
-                out_what(static_pdf, tail);     /* do the action immediately */
+                do_extension(pdf);      /* append a whatsit node */
+                out_what(pdf, tail);    /* do the action immediately */
                 flush_node_list(tail);
                 tail = p;
                 vlink(p) = null;
             } else {
-                fix_o_mode(static_pdf);
-                ensure_pdf_header_written(static_pdf);
+                fix_o_mode(pdf);
                 switch (cur_chr) {
                 case pdf_obj_code:
-                    do_extension();     /* scan object and set |pdf_last_obj| */
-                    if (obj_data_ptr(static_pdf, pdf_last_obj) == 0)    /* this object has not been initialized yet */
+                    check_o_mode(pdf, "\\immediate\\pdfobj", OMODE_PDF, true);
+                    ensure_pdf_header_written(pdf);
+                    do_extension(pdf);  /* scan object and set |pdf_last_obj| */
+                    if (obj_data_ptr(pdf, pdf_last_obj) == 0)   /* this object has not been initialized yet */
                         pdf_error("ext1",
                                   "`\\pdfobj reserveobjnum' cannot be used with \\immediate");
-                    pdf_write_obj(static_pdf, pdf_last_obj);
+                    pdf_write_obj(pdf, pdf_last_obj);
                     break;
                 case pdf_xform_code:
-                    do_extension();     /* scan form and set |pdf_last_xform| */
+                    check_o_mode(pdf, "\\immediate\\pdfxform", OMODE_PDF, true);
+                    ensure_pdf_header_written(pdf);
+                    do_extension(pdf);  /* scan form and set |pdf_last_xform| */
                     pdf_cur_form = pdf_last_xform;
-                    ship_out(static_pdf,
-                             obj_xform_box(static_pdf, pdf_last_xform), false);
+                    ship_out(pdf, obj_xform_box(pdf, pdf_last_xform), false);
                     break;
                 case pdf_ximage_code:
-                    do_extension();     /* scan image and set |pdf_last_ximage| */
-                    pdf_write_image(static_pdf, pdf_last_ximage);
+                    check_o_mode(pdf, "\\immediate\\pdfximage", OMODE_PDF,
+                                 true);
+                    ensure_pdf_header_written(pdf);
+                    do_extension(pdf);  /* scan image and set |pdf_last_ximage| */
+                    pdf_write_image(pdf, pdf_last_ximage);
                     break;
                 default:
                     back_input();
@@ -226,29 +231,29 @@ void do_extension(void)
         break;
     case pdf_annot_node:
         /* Implement \.{\\pdfannot} */
-        check_o_mode(static_pdf, "\\pdfannot", OMODE_PDF);
-        scan_annot(static_pdf);
+        check_o_mode(pdf, "\\pdfannot", OMODE_PDF, false);
+        scan_annot(pdf);
         break;
     case pdf_catalog_code:
         /* Implement \.{\\pdfcatalog} */
-        check_o_mode(static_pdf, "\\pdfcatalog", OMODE_PDF);
-        scan_pdfcatalog(static_pdf);
+        check_o_mode(pdf, "\\pdfcatalog", OMODE_PDF, false);
+        scan_pdfcatalog(pdf);
         break;
     case pdf_dest_node:
         /* Implement \.{\\pdfdest} */
-        check_o_mode(static_pdf, "\\pdfdest", OMODE_PDF);
-        scan_pdfdest(static_pdf);
+        check_o_mode(pdf, "\\pdfdest", OMODE_PDF, false);
+        scan_pdfdest(pdf);
         break;
     case pdf_end_link_node:
         /* Implement \.{\\pdfendlink} */
-        check_o_mode(static_pdf, "\\pdfendlink", OMODE_PDF);
+        check_o_mode(pdf, "\\pdfendlink", OMODE_PDF, false);
         if (abs(mode) == vmode)
             pdf_error("ext1", "\\pdfendlink cannot be used in vertical mode");
         new_whatsit(pdf_end_link_node);
         break;
     case pdf_end_thread_node:
         /* Implement \.{\\pdfendthread} */
-        check_o_mode(static_pdf, "\\pdfendthread", OMODE_PDF);
+        check_o_mode(pdf, "\\pdfendthread", OMODE_PDF, false);
         new_whatsit(pdf_end_thread_node);
         break;
     case pdf_font_attr_code:
@@ -258,7 +263,7 @@ void do_extension(void)
            empty \TeX{} string, and surely nobody will want to set
            \.{\\pdffontattr} to a string containing a single zero, as that
            would be nonsensical in the PDF output. */
-        check_o_mode(static_pdf, "\\pdffontattr", OMODE_PDF);
+        check_o_mode(pdf, "\\pdffontattr", OMODE_PDF, false);
         scan_font_ident();
         k = cur_val;
         if (k == null_font)
@@ -276,19 +281,19 @@ void do_extension(void)
         break;
     case pdf_include_chars_code:
         /* Implement \.{\\pdfincludechars} */
-        check_o_mode(static_pdf, "\\pdfincludechars", OMODE_PDF);
-        pdf_include_chars(static_pdf);
+        check_o_mode(pdf, "\\pdfincludechars", OMODE_PDF, false);
+        pdf_include_chars(pdf);
         break;
     case pdf_info_code:
         /* Implement \.{\\pdfinfo} */
-        check_o_mode(static_pdf, "\\pdfinfo", OMODE_PDF);
+        check_o_mode(pdf, "\\pdfinfo", OMODE_PDF, false);
         scan_pdf_ext_toks();
-        if (static_pdf->o_mode == OMODE_PDF)
+        if (pdf->o_mode == OMODE_PDF)
             pdf_info_toks = concat_tokens(pdf_info_toks, def_ref);
         break;
     case pdf_literal_node:
         /* Implement \.{\\pdfliteral} */
-        check_o_mode(static_pdf, "\\pdfliteral", OMODE_PDF);
+        check_o_mode(pdf, "\\pdfliteral", OMODE_PDF, false);
         new_whatsit(pdf_literal_node);
         if (scan_keyword("direct"))
             set_pdf_literal_mode(tail, direct_always);
@@ -302,7 +307,7 @@ void do_extension(void)
         break;
     case pdf_colorstack_node:
         /* Implement \.{\\pdfcolorstack} */
-        check_o_mode(static_pdf, "\\pdfcolorstack", OMODE_PDF);
+        check_o_mode(pdf, "\\pdfcolorstack", OMODE_PDF, false);
         /* Scan and check the stack number and store in |cur_val| */
         scan_int();
         if (cur_val >= colorstackused()) {
@@ -352,71 +357,71 @@ void do_extension(void)
         break;
     case pdf_setmatrix_node:
         /* Implement \.{\\pdfsetmatrix} */
-        check_o_mode(static_pdf, "\\pdfsetmatrix", OMODE_PDF);
+        check_o_mode(pdf, "\\pdfsetmatrix", OMODE_PDF, false);
         new_whatsit(pdf_setmatrix_node);
         scan_pdf_ext_toks();
         set_pdf_setmatrix_data(tail, def_ref);
         break;
     case pdf_save_node:
         /* Implement \.{\\pdfsave} */
-        check_o_mode(static_pdf, "\\pdfsave", OMODE_PDF);
+        check_o_mode(pdf, "\\pdfsave", OMODE_PDF, false);
         new_whatsit(pdf_save_node);
         break;
     case pdf_restore_node:
         /* Implement \.{\\pdfrestore} */
-        check_o_mode(static_pdf, "\\pdfrestore", OMODE_PDF);
+        check_o_mode(pdf, "\\pdfrestore", OMODE_PDF, false);
         new_whatsit(pdf_restore_node);
         break;
     case pdf_map_file_code:
         /* Implement \.{\\pdfmapfile} */
-        check_o_mode(static_pdf, "\\pdfmapfile", OMODE_PDF);
+        check_o_mode(pdf, "\\pdfmapfile", OMODE_PDF, false);
         scan_pdf_ext_toks();
         pdfmapfile(def_ref);
         delete_token_ref(def_ref);
         break;
     case pdf_map_line_code:
         /* Implement \.{\\pdfmapline} */
-        check_o_mode(static_pdf, "\\pdfmapline", OMODE_PDF);
+        check_o_mode(pdf, "\\pdfmapline", OMODE_PDF, false);
         scan_pdf_ext_toks();
         pdfmapline(def_ref);
         delete_token_ref(def_ref);
         break;
     case pdf_names_code:
         /* Implement \.{\\pdfnames} */
-        check_o_mode(static_pdf, "\\pdfnames", OMODE_PDF);
+        check_o_mode(pdf, "\\pdfnames", OMODE_PDF, false);
         scan_pdf_ext_toks();
         pdf_names_toks = concat_tokens(pdf_names_toks, def_ref);
         break;
     case pdf_obj_code:
         /* Implement \.{\\pdfobj} */
-        check_o_mode(static_pdf, "\\pdfobj", OMODE_PDF);
-        scan_obj(static_pdf);
+        check_o_mode(pdf, "\\pdfobj", OMODE_PDF, false);
+        scan_obj(pdf);
         break;
     case pdf_outline_code:
         /* Implement \.{\\pdfoutline} */
-        check_o_mode(static_pdf, "\\pdfoutline", OMODE_PDF);
-        scan_pdfoutline(static_pdf);
+        check_o_mode(pdf, "\\pdfoutline", OMODE_PDF, false);
+        scan_pdfoutline(pdf);
         break;
     case pdf_refobj_node:
         /* Implement \.{\\pdfrefobj} */
-        check_o_mode(static_pdf, "\\pdfrefobj", OMODE_PDF);
+        check_o_mode(pdf, "\\pdfrefobj", OMODE_PDF, false);
         scan_int();
-        pdf_check_obj(static_pdf, obj_type_obj, cur_val);
+        pdf_check_obj(pdf, obj_type_obj, cur_val);
         new_whatsit(pdf_refobj_node);
         set_pdf_obj_objnum(tail, cur_val);
         break;
     case pdf_refxform_node:
         /* Implement \.{\\pdfrefxform} */
-        check_o_mode(static_pdf, "\\pdfrefxform", OMODE_PDF);
-        scan_pdfrefxform(static_pdf);
+        check_o_mode(pdf, "\\pdfrefxform", OMODE_PDF, false);
+        scan_pdfrefxform(pdf);
         break;
     case pdf_refximage_node:
         /* Implement \.{\\pdfrefximage} */
-        check_o_mode(static_pdf, "\\pdfrefximage", OMODE_PDF);
+        check_o_mode(pdf, "\\pdfrefximage", OMODE_PDF, false);
         scan_int();
-        pdf_check_obj(static_pdf, obj_type_ximage, cur_val);
+        pdf_check_obj(pdf, obj_type_ximage, cur_val);
         new_whatsit(pdf_refximage_node);
-        j = obj_data_ptr(static_pdf, cur_val);
+        j = obj_data_ptr(pdf, cur_val);
         set_pdf_ximage_idx(tail, j);
         set_pdf_width(tail, image_width(j));
         set_pdf_height(tail, image_height(j));
@@ -428,39 +433,39 @@ void do_extension(void)
         break;
     case pdf_start_link_node:
         /* Implement \.{\\pdfstartlink} */
-        check_o_mode(static_pdf, "\\pdfstartlink", OMODE_PDF);
-        scan_startlink(static_pdf);
+        check_o_mode(pdf, "\\pdfstartlink", OMODE_PDF, false);
+        scan_startlink(pdf);
         break;
     case pdf_start_thread_node:
         /* Implement \.{\\pdfstartthread} */
-        check_o_mode(static_pdf, "\\pdfstartthread", OMODE_PDF);
+        check_o_mode(pdf, "\\pdfstartthread", OMODE_PDF, false);
         new_annot_whatsit(pdf_start_thread_node);
         scan_thread_id();
         break;
     case pdf_thread_node:
         /* Implement \.{\\pdfthread} */
-        check_o_mode(static_pdf, "\\pdfthread", OMODE_PDF);
+        check_o_mode(pdf, "\\pdfthread", OMODE_PDF, false);
         new_annot_whatsit(pdf_thread_node);
         scan_thread_id();
         break;
     case pdf_trailer_code:
         /* Implement \.{\\pdftrailer} */
-        check_o_mode(static_pdf, "\\pdftrailer", OMODE_PDF);
+        check_o_mode(pdf, "\\pdftrailer", OMODE_PDF, false);
         scan_pdf_ext_toks();
-        if (static_pdf->o_mode == OMODE_PDF)
+        if (pdf->o_mode == OMODE_PDF)
             pdf_trailer_toks = concat_tokens(pdf_trailer_toks, def_ref);
         break;
     case pdf_xform_code:
         /* Implement \.{\\pdfxform} */
-        check_o_mode(static_pdf, "\\pdfxform", OMODE_PDF);
-        scan_pdfxform(static_pdf);
+        check_o_mode(pdf, "\\pdfxform", OMODE_PDF, false);
+        scan_pdfxform(pdf);
         break;
     case pdf_ximage_code:
         /* Implement \.{\\pdfximage} */
-        check_o_mode(static_pdf, "\\pdfximage", OMODE_PDF);
-        fix_o_mode(static_pdf); /* needed for image scanning already */
-        fix_pdf_minorversion(static_pdf);       /* image handling depends on this */
-        scan_image(static_pdf);
+        check_o_mode(pdf, "\\pdfximage", OMODE_PDF, false);
+        /* png, jpeg, and pdf image handling depends on this done so early: */
+        fix_pdf_minorversion(pdf);
+        scan_image(pdf);
         break;
     case save_cat_code_table_code:
         /* Implement \.{\\savecatcodetable} */
@@ -511,7 +516,7 @@ void do_extension(void)
         break;
     case late_lua_node:
         /* Implement \.{\\latelua} */
-        check_o_mode(static_pdf, "\\latelua", OMODE_PDF | OMODE_LUA);
+        check_o_mode(pdf, "\\latelua", OMODE_PDF | OMODE_LUA, false);
         new_whatsit(late_lua_node);
         late_lua_name(tail) = scan_lua_state();
         (void) scan_toks(false, false);

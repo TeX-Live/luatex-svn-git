@@ -50,28 +50,28 @@ current sequence/dependency of function calls for output preparation:
 > 
 > ensure_pdf_header_written()
 >   ensure_pdf_open()
->   fix_pdf_minor_version()
+>   fix_pdf_minorversion()
 >   init_pdf_outputparameters()
 > 
 > do_extension() -- Implement \pdfximage
->   fix_o_mode()
 >   fix_pdf_minorversion()
 > 
 > do_extension() -- immediate
 >   fix_o_mode()
+>   check_o_mode(...,true)
 >   ensure_pdf_header_written()
 > 
 > ship_out()
 >   fix_o_mode()
 >   init_backend_functionpointers()
->   dvi_begin_page()
->     ensure_dvi_header_written()
->   pdf_begin_page()
->     ensure_pdf_header_written()
->     init_pdf_pagecalculations()
->   lua_begin_page()
+>   | dvi_begin_page()
+>       ensure_dvi_header_written()
+>   | pdf_begin_page()
+>       ensure_pdf_header_written()
+>       init_pdf_pagecalculations()
+>   | lua_begin_page()
 
-***********************************************************************/
+/**********************************************************************/
 
 /*
 |ship_out| is used to shipout a box to PDF or DVI mode.

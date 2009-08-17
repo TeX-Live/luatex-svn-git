@@ -86,7 +86,7 @@ PDF init_pdf_struct(PDF pdf)
     pdf->obj_tab = xmalloc((pdf->obj_tab_size + 1) * sizeof(obj_entry));
     memset(pdf->obj_tab, 0, sizeof(obj_entry));
 
-    pdf->minor_version = 4;
+    pdf->minor_version = -1;    /* unset */
     pdf->decimal_digits = 4;
     pdf->gamma = 65536;
     pdf->image_gamma = 65536;
@@ -185,12 +185,19 @@ and the \.{PDF} header is written.
 
 void fix_pdf_minorversion(PDF pdf)
 {
-    if (pdf->o_mode == OMODE_NONE)
-        fix_o_mode(pdf);
-    assert(pdf->o_mode == OMODE_PDF);
-    if (!pdf->minor_version_set) {
-        pdf->minor_version = int_par(pdf_minor_version_code);
-        pdf->minor_version_set = true;
+    if (pdf->minor_version < 0) {       /* unset */
+        if ((pdf_minor_version < 0) || (pdf_minor_version > 9)) {
+            char *hlp[] = { "The pdfminorversion must be between 0 and 9.",
+                "I changed this to 4.", NULL
+            };
+            char msg[256];
+            (void) snprintf(msg, 255,
+                            "LuaTeX error (illegal pdfminorversion %d)",
+                            (int) pdf_minor_version);
+            tex_error(msg, hlp);
+            pdf_minor_version = 4;
+        }
+        pdf->minor_version = pdf_minor_version;
     } else {
         /* Check that variables for \.{PDF} output are unchanged */
         if (pdf->minor_version != int_par(pdf_minor_version_code))
@@ -885,17 +892,6 @@ void pdf_rectangle(PDF pdf, halfword r)
 static void init_pdf_outputparameters(PDF pdf)
 {
     assert(pdf->o_mode = OMODE_PDF);
-    if ((pdf_minor_version < 0) || (pdf_minor_version > 9)) {
-        char *hlp[] = { "The pdfminorversion must be between 0 and 9.",
-            "I changed this to 4.", NULL
-        };
-        char msg[256];
-        (void) snprintf(msg, 255, "LuaTeX error (illegal pdfminorversion %d)",
-                        (int) pdf_minor_version);
-        tex_error(msg, hlp);
-        pdf_minor_version = 4;
-    }
-    pdf->minor_version = fix_int(pdf_minor_version, 0, 9);
     pdf->draftmode = fix_int(pdf_draftmode, 0, 1);
     pdf->compress_level = fix_int(pdf_compress_level, 0, 9);
     pdf->decimal_digits = fix_int(pdf_decimal_digits, 0, 4);
@@ -1533,7 +1529,7 @@ void pdf_warning(char *t, char *p, boolean prepend_nl, boolean append_nl)
 /**********************************************************************/
 /* Use check_o_mode() in the backend-specific "Implement..." chunks */
 
-void check_o_mode(PDF pdf, char *s, int o_modes)
+void check_o_mode(PDF pdf, char *s, int o_modes, boolean errorflag)
 {
 
     char warn_string[100];
@@ -1569,7 +1565,10 @@ void check_o_mode(PDF pdf, char *s, int o_modes)
         }
         snprintf(warn_string, 99, "not allowed in %s mode (\\pdfpoutput = %d)",
                  m, pdf_output);
-        pdf_warning(s, warn_string, true, true);
+        if (errorflag)
+            pdf_error(s, warn_string);
+        else
+            pdf_warning(s, warn_string, true, true);
     }
 }
 
