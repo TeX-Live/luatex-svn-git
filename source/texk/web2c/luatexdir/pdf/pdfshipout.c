@@ -71,7 +71,7 @@ current sequence/dependency of function calls for output preparation:
 >       init_pdf_pagecalculations()
 >   | lua_begin_page()
 
-/**********************************************************************/
+**********************************************************************/
 
 /*
 |ship_out| is used to shipout a box to PDF or DVI mode.
