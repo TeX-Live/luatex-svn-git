@@ -185,6 +185,8 @@ and the \.{PDF} header is written.
 
 void fix_pdf_minorversion(PDF pdf)
 {
+    if (pdf->o_mode == OMODE_NONE)
+        fix_o_mode(pdf);
     assert(pdf->o_mode == OMODE_PDF);
     if (!pdf->minor_version_set) {
         pdf->minor_version = int_par(pdf_minor_version_code);
