@@ -119,6 +119,8 @@ static void init_lua_backend_functionpointers(PDF pdf __attribute__ ((unused)))
 {
     backend_out[rule_node] = &lua_place_rule;   /* 2 */
     backend_out[glyph_node] = &lua_place_glyph; /* 37 */
+    /* ...these are all (?) */
+    backend_out_whatsit[late_lua_node] = &late_lua;     /* 35 */
 }
 
 void init_backend_functionpointers(PDF pdf)
