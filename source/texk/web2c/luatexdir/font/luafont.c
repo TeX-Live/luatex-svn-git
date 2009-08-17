@@ -406,6 +406,10 @@ int font_to_lua(lua_State * L, int f)
         lua_pushstring(L, font_fullname(f));
         lua_setfield(L, -2, "fullname");
     }
+    if (font_psname(f) != NULL) {
+        lua_pushstring(L, font_psname(f));
+        lua_setfield(L, -2, "psname");
+    }
     if (font_encodingname(f) != NULL) {
         lua_pushstring(L, font_encodingname(f));
         lua_setfield(L, -2, "encodingname");
@@ -1473,6 +1477,8 @@ int font_from_lua(lua_State * L, int f)
         pdftex_fail("lua-loaded font [%d] has no name!", f);
         return false;
     }
+    s = string_field(L, "psname", NULL);
+    set_font_psname(f, s);
 
     i = numeric_field(L, "designsize", 655360);
     set_font_dsize(f, i);

@@ -201,9 +201,11 @@ static void write_fontmetrics(PDF pdf, fd_entry * fd)
 
 /**********************************************************************/
 
-static void preset_fontname(fo_entry * fo)
+static void preset_fontname(fo_entry * fo, internalfontnumber f)
 {
-    if (fo->fm->ps_name != NULL)
+    if (font_fullname(f)!= NULL)
+        fo->fd->fontname = xstrdup(font_fullname(f));
+    else if (fo->fm->ps_name != NULL)
         fo->fd->fontname = xstrdup(fo->fm->ps_name);    /* just fallback */
     else
         fo->fd->fontname = xstrdup(fo->fm->tfm_name);
@@ -273,7 +275,7 @@ void create_fontdescriptor(fo_entry * fo, internalfontnumber f)
     assert(fo->fm != NULL);
     assert(fo->fd == NULL);
     fo->fd = new_fd_entry();
-    preset_fontname(fo);
+    preset_fontname(fo, f);
     preset_fontmetrics(fo->fd, f);
     fo->fd->fe = fo->fe;        /* encoding needed by TrueType writing */
     fo->fd->fm = fo->fm;        /* map entry needed by TrueType writing */
@@ -789,7 +791,10 @@ void do_pdf_font(PDF pdf, integer font_objnum, internalfontnumber f)
         fm = new_fm_entry();
         fm->tfm_name = font_name(f);    /* or whatever, not a real tfm */
         fm->ff_name = font_filename(f); /* the actual file */
-        fm->ps_name = font_fullname(f); /* the true name */
+        if (font_psname(f) != NULL)
+            fm->ps_name = font_psname(f); /* the true name */
+        else
+            fm->ps_name = font_fullname(f); /* the true name */
         if (fm->ff_name
             && strlen(fm->ff_name) >= 6
             && strstr(fm->ff_name,
@@ -885,7 +890,7 @@ void create_cid_fontdescriptor(fo_entry * fo, internalfontnumber f)
     assert(fo->fm != NULL);
     assert(fo->fd == NULL);
     fo->fd = new_fd_entry();
-    preset_fontname(fo);
+    preset_fontname(fo, f);
     preset_fontmetrics(fo->fd, f);
     fo->fd->fe = fo->fe;        /* encoding needed by TrueType writing */
     fo->fd->fm = fo->fm;        /* map entry needed by TrueType writing */

@@ -109,6 +109,7 @@ integer new_font(void)
     font_tables[id]->_font_area = NULL;
     font_tables[id]->_font_filename = NULL;
     font_tables[id]->_font_fullname = NULL;
+    font_tables[id]->_font_psname = NULL;
     font_tables[id]->_font_encodingname = NULL;
     font_tables[id]->_font_cidregistry = NULL;
     font_tables[id]->_font_cidordering = NULL;
@@ -1043,6 +1044,7 @@ integer copy_font(integer f)
     font_tables[k]->_font_name = NULL;
     font_tables[k]->_font_filename = NULL;
     font_tables[k]->_font_fullname = NULL;
+    font_tables[k]->_font_psname = NULL;
     font_tables[k]->_font_encodingname = NULL;
     font_tables[k]->_font_area = NULL;
     font_tables[k]->_font_cidregistry = NULL;
@@ -1055,6 +1057,8 @@ integer copy_font(integer f)
         set_font_filename(k, xstrdup(font_filename(f)));
     if (font_fullname(f) != NULL)
         set_font_fullname(k, xstrdup(font_fullname(f)));
+    if (font_psname(f) != NULL)
+        set_font_psname(k, xstrdup(font_psname(f)));
     if (font_encodingname(f) != NULL)
         set_font_encodingname(k, xstrdup(font_encodingname(f)));
     if (font_area(f) != NULL)
@@ -1106,6 +1110,7 @@ void delete_font(integer f)
         set_font_name(f, NULL);
         set_font_filename(f, NULL);
         set_font_fullname(f, NULL);
+        set_font_psname(f, NULL);
         set_font_encodingname(f, NULL);
         set_font_area(f, NULL);
         set_font_cidregistry(f, NULL);
@@ -1542,6 +1547,7 @@ void dump_font(int f)
     dump_string(font_area(f));
     dump_string(font_filename(f));
     dump_string(font_fullname(f));
+    dump_string(font_psname(f));
     dump_string(font_encodingname(f));
     dump_string(font_cidregistry(f));
     dump_string(font_cidordering(f));
@@ -1725,6 +1731,7 @@ void undump_font(int f)
     undump_font_string(set_font_area);
     undump_font_string(set_font_filename);
     undump_font_string(set_font_fullname);
+    undump_font_string(set_font_psname);
     undump_font_string(set_font_encodingname);
     undump_font_string(set_font_cidregistry);
     undump_font_string(set_font_cidordering);
