@@ -42,17 +42,8 @@ void pdf_check_obj(PDF pdf, integer t, integer n)
 /* write a raw PDF object */
 void pdf_write_obj(PDF pdf, integer n)
 {
-    str_number s;
-    byte_file f;
-    integer data_size;          /* total size of the data file */
-    integer data_cur;           /* index into |data_buffer| */
-    eight_bits *data_buffer;    /* byte buffer for data files */
-    boolean file_opened;
-    integer k;
-    boolean res;
-    str_number fnam;
-    integer callback_id;
-    s = tokens_to_string(obj_obj_data(pdf, n));
+    char *s;
+    s = tokenlist_to_cstring(obj_obj_data(pdf, n), true, NULL);
     delete_token_ref(obj_obj_data(pdf, n));
     set_obj_obj_data(pdf, n, null);
     if (obj_obj_is_stream(pdf, n) > 0) {
@@ -67,42 +58,35 @@ void pdf_write_obj(PDF pdf, integer n)
         pdf_begin_obj(pdf, n, 1);
     }
     if (obj_obj_is_file(pdf, n) > 0) {
-        data_size = 0;
-        data_cur = 0;
-        data_buffer = 0;
-        pack_file_name(s, get_nullstr(), get_nullstr());
-        callback_id = callback_defined(find_data_file_callback);
+        integer data_size = 0;  /* total size of the data file */
+        integer data_cur = 0;   /* index into |data_buffer| */
+        eight_bits *data_buffer = NULL; /* byte buffer for data files */
+        boolean res = false;    /* callback status value */
+        char *fnam = NULL;      /* callback found filename */
+        integer callback_id = callback_defined(find_data_file_callback);
         if (callback_id > 0) {
-            res =
-                run_callback(callback_id, "S->s", stringcast(nameoffile + 1),
-                             addressof(fnam));
-            if ((res) && (fnam != 0) && (str_length(fnam) > 0)) {
+            res = run_callback(callback_id, "S->S", s, &fnam);
+            if ((res) && (fnam != NULL) && (strlen(fnam) > 0)) {
                 /* Fixup |nameoffile| after callback */
                 xfree(nameoffile);
-                nameoffile =
-                    xmallocarray(packed_ASCII_code, str_length(fnam) + 2);
-                for (k = str_start_macro(fnam);
-                     k >= str_start_macro(fnam + 1) - 1; k++)
-                    nameoffile[k - str_start_macro(fnam) + 1] = str_pool[k];
-                nameoffile[str_length(fnam) + 1] = 0;
-                namelength = str_length(fnam);
-                flush_string();
+                nameoffile = xmallocarray(packed_ASCII_code, strlen(fnam) + 2);
+                strcpy((char *) (nameoffile + 1), fnam);
+                namelength = strlen(fnam);
+                xfree(fnam);
             }
         }
         callback_id = callback_defined(read_data_file_callback);
         if (callback_id > 0) {
-            file_opened = false;
-            res =
-                run_callback(callback_id, "S->bSd", stringcast(nameoffile + 1),
-                             addressof(file_opened), addressof(data_buffer),
-                             addressof(data_size));
+            boolean file_opened = false;
+            res = run_callback(callback_id, "S->bSd", (char *) (nameoffile + 1),
+                               &file_opened, &data_buffer, &data_size);
             if (!file_opened)
                 pdf_error("ext5", "cannot open file for embedding");
         } else {
+            byte_file f;        /* the data file's FILE* */
             if (!tex_b_open_in(f))
                 pdf_error("ext5", "cannot open file for embedding");
-            res =
-                read_data_file(f, addressof(data_buffer), addressof(data_size));
+            res = read_data_file(f, &data_buffer, &data_size);
             b_close(f);
         }
         if (!data_size)
@@ -110,24 +94,23 @@ void pdf_write_obj(PDF pdf, integer n)
         if (!res)
             pdf_error("ext5", "error reading file for embedding");
         tprint("<<");
-        print(s);
-        while (data_cur < data_size) {
+        tprint(s);
+        for (data_cur = 0; data_cur < data_size; data_cur++) {
             pdf_out(pdf, data_buffer[data_cur]);
-            incr(data_cur);
         }
-        if (data_buffer != 0)
+        if (data_buffer != NULL)
             xfree(data_buffer);
         tprint(">>");
     } else if (obj_obj_is_stream(pdf, n) > 0) {
-        pdf_print(pdf, s);
+        pdf_print_str(pdf, s);
     } else {
-        pdf_print_ln(pdf, s);
+        pdf_print_str_ln(pdf, s);
     }
     if (obj_obj_is_stream(pdf, n) > 0)
         pdf_end_stream(pdf);
     else
         pdf_end_obj(pdf);
-    flush_str(s);
+    xfree(s);
 }
 
 /* The \.{\\pdfobj} primitive is used to create a ``raw'' object in the PDF
