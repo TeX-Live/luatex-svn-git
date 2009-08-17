@@ -288,8 +288,7 @@ void do_extension(PDF pdf)
         /* Implement \.{\\pdfinfo} */
         check_o_mode(pdf, "\\pdfinfo", OMODE_PDF, false);
         scan_pdf_ext_toks();
-        if (pdf->o_mode == OMODE_PDF)
-            pdf_info_toks = concat_tokens(pdf_info_toks, def_ref);
+        pdf_info_toks = concat_tokens(pdf_info_toks, def_ref);
         break;
     case pdf_literal_node:
         /* Implement \.{\\pdfliteral} */
@@ -452,8 +451,7 @@ void do_extension(PDF pdf)
         /* Implement \.{\\pdftrailer} */
         check_o_mode(pdf, "\\pdftrailer", OMODE_PDF, false);
         scan_pdf_ext_toks();
-        if (pdf->o_mode == OMODE_PDF)
-            pdf_trailer_toks = concat_tokens(pdf_trailer_toks, def_ref);
+        pdf_trailer_toks = concat_tokens(pdf_trailer_toks, def_ref);
         break;
     case pdf_xform_code:
         /* Implement \.{\\pdfxform} */
