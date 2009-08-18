@@ -100,9 +100,10 @@ void pdf_write_obj(PDF pdf, integer n)
             xfree(data_buffer);
         tprint(">>");
     } else if (obj_obj_is_stream(pdf, n) > 0) {
-        pdf_print_str(pdf, s);
+        pdf_puts(pdf, s);
     } else {
-        pdf_print_str_ln(pdf, s);
+        pdf_puts(pdf, s);
+        pdf_print_nl(pdf);
     }
     if (obj_obj_is_stream(pdf, n) > 0)
         pdf_end_stream(pdf);
