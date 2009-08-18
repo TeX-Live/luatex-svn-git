@@ -195,11 +195,9 @@ void do_extension(PDF pdf)
                 tail = p;
                 vlink(p) = null;
             } else {
-                fix_o_mode(pdf);
                 switch (cur_chr) {
                 case pdf_obj_code:
                     check_o_mode(pdf, "\\immediate\\pdfobj", OMODE_PDF, true);
-                    ensure_pdf_header_written(pdf);
                     do_extension(pdf);  /* scan object and set |pdf_last_obj| */
                     if (obj_data_ptr(pdf, pdf_last_obj) == 0)   /* this object has not been initialized yet */
                         pdf_error("ext1",
@@ -208,7 +206,6 @@ void do_extension(PDF pdf)
                     break;
                 case pdf_xform_code:
                     check_o_mode(pdf, "\\immediate\\pdfxform", OMODE_PDF, true);
-                    ensure_pdf_header_written(pdf);
                     do_extension(pdf);  /* scan form and set |pdf_last_xform| */
                     pdf_cur_form = pdf_last_xform;
                     ship_out(pdf, obj_xform_box(pdf, pdf_last_xform), false);
@@ -216,7 +213,6 @@ void do_extension(PDF pdf)
                 case pdf_ximage_code:
                     check_o_mode(pdf, "\\immediate\\pdfximage", OMODE_PDF,
                                  true);
-                    ensure_pdf_header_written(pdf);
                     do_extension(pdf);  /* scan image and set |pdf_last_ximage| */
                     pdf_write_image(pdf, pdf_last_ximage);
                     break;
@@ -236,7 +232,7 @@ void do_extension(PDF pdf)
         break;
     case pdf_catalog_code:
         /* Implement \.{\\pdfcatalog} */
-        check_o_mode(pdf, "\\pdfcatalog", OMODE_PDF, false);
+        check_o_mode(pdf, "\\pdfcatalog", OMODE_PDF, true); /* writes an object */
         scan_pdfcatalog(pdf);
         break;
     case pdf_dest_node:
@@ -398,7 +394,7 @@ void do_extension(PDF pdf)
         break;
     case pdf_outline_code:
         /* Implement \.{\\pdfoutline} */
-        check_o_mode(pdf, "\\pdfoutline", OMODE_PDF, false);
+        check_o_mode(pdf, "\\pdfoutline", OMODE_PDF, true);
         scan_pdfoutline(pdf);
         break;
     case pdf_refobj_node:

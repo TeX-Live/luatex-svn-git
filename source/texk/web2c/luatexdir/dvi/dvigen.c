@@ -2530,13 +2530,15 @@ static void ensure_dvi_open(PDF pdf)
     }
 }
 
-static void ensure_dvi_header_written(PDF pdf)
+void ensure_dvi_header_written(PDF pdf)
 {
+    static boolean header_written = false;      /* kludge, should be in pdf */
     int l;
     pool_pointer s;             /* index into |str_pool| */
     int old_setting;            /* saved |selector| setting */
-    ensure_dvi_open(pdf);
-    if (total_pages == 0) {
+    if (!header_written) {
+        assert(pdf->o_mode == OMODE_DVI);
+        ensure_dvi_open(pdf);
 
         if (half_buf == 0) {
             half_buf = dvi_buf_size / 2;
@@ -2572,6 +2574,7 @@ static void ensure_dvi_header_written(PDF pdf)
                 dvi_out(str_pool[s]);
             pool_ptr = str_start_macro(str_ptr);        /* flush the current string */
         }
+        header_written = true;
     }
 }
 

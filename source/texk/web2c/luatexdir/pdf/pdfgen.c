@@ -103,6 +103,8 @@ PDF init_pdf_struct(PDF pdf)
     init_dest_names(pdf);
     pdf->resources = NULL;
 
+    init_pdf_pagecalculations(pdf);
+
     return pdf;
 }
 
@@ -957,9 +959,9 @@ static void ensure_pdf_open(PDF pdf)
 void ensure_pdf_header_written(PDF pdf)
 {
     static boolean header_written = false;      /* kludge, should be in pdf */
-    assert(pdf->o_mode == OMODE_PDF);
-    ensure_pdf_open(pdf);
     if (!header_written) {
+        assert(pdf->o_mode == OMODE_PDF);
+        ensure_pdf_open(pdf);
         /* Initialize variables for \.{PDF} output */
         fix_pdf_minorversion(pdf);
         init_pdf_outputparameters(pdf);
@@ -978,6 +980,7 @@ void ensure_pdf_header_written(PDF pdf)
 /* begin a PDF dictionary object */
 void pdf_begin_dict(PDF pdf, integer i, integer pdf_os_level)
 {
+    ensure_pdf_header_written(pdf);
     pdf_os_prepare_obj(pdf, i, pdf_os_level);
     if (!pdf->os_mode) {
         pdf_printf(pdf, "%d 0 obj <<\n", (int) i);
@@ -1069,6 +1072,7 @@ void pdf_os_write_objstream(PDF pdf)
 /* begin a PDF object */
 void pdf_begin_obj(PDF pdf, integer i, integer pdf_os_level)
 {
+    ensure_pdf_header_written(pdf);
     pdf_os_prepare_obj(pdf, i, pdf_os_level);
     if (!pdf->os_mode) {
         pdf_printf(pdf, "%d 0 obj\n", (int) i);
@@ -1530,15 +1534,17 @@ void pdf_warning(char *t, char *p, boolean prepend_nl, boolean append_nl)
 /**********************************************************************/
 /* Use check_o_mode() in the backend-specific "Implement..." chunks */
 
-void check_o_mode(PDF pdf, char *s, int o_modes, boolean errorflag)
+void check_o_mode(PDF pdf, char *s, int o_modes, boolean strict)
 {
 
     char warn_string[100];
     char *m;
     output_mode o_mode;
 
-    /* only check, don't do fix_o_mode() here! */
-    /* pdf->o_mode is left in possibly wrong state until real output, ok */
+    /* in warn mode (strict == false):
+       only check, don't do fix_o_mode() here! pdf->o_mode is left
+       in possibly wrong state until real output, ok.
+     */
 
     if (pdf->o_mode == OMODE_NONE) {
         if (pdf_output > 0) {
@@ -1550,9 +1556,9 @@ void check_o_mode(PDF pdf, char *s, int o_modes, boolean errorflag)
             o_mode = OMODE_DVI;
     } else
         o_mode = pdf->o_mode;
-    if ((o_mode & o_modes) == 0) {
+    if ((o_mode & o_modes) == 0) {      /* warning or error */
         switch (o_mode) {
-        case OMODE_DVI:        /* quick and dirty, TODO better */
+        case OMODE_DVI:
             m = "DVI";
             break;
         case OMODE_PDF:
@@ -1566,10 +1572,26 @@ void check_o_mode(PDF pdf, char *s, int o_modes, boolean errorflag)
         }
         snprintf(warn_string, 99, "not allowed in %s mode (\\pdfpoutput = %d)",
                  m, pdf_output);
-        if (errorflag)
+        if (strict)
             pdf_error(s, warn_string);
         else
             pdf_warning(s, warn_string, true, true);
+    } else {
+        if (strict) {
+            fix_o_mode(pdf);
+            switch (o_mode) {
+            case OMODE_DVI:
+                ensure_dvi_header_written(pdf);
+                break;
+            case OMODE_PDF:
+                ensure_pdf_header_written(pdf);
+                break;
+            case OMODE_LUA:
+                break;
+            default:
+                assert(0);
+            }
+        }
     }
 }
 
@@ -2340,7 +2362,6 @@ void scan_pdfcatalog(PDF pdf)
         if (pdf_catalog_openaction != 0) {
             pdf_error("ext1", "duplicate of openaction");
         } else {
-            fix_o_mode(pdf);
             check_o_mode(pdf, "\\pdfcatalog", OMODE_PDF, true);
             p = scan_action(pdf);
             pdf_new_obj(pdf, obj_type_others, 0, 1);

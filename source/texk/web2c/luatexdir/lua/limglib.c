@@ -17,6 +17,10 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+static const char _svn_version[] =
+    "$Id$ "
+    "$URL$";
+
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -24,12 +28,6 @@
 #include <../lua51/lauxlib.h>
 #include <ptexlib.h>
 #include "lua/luatex-api.h"
-
-
-
-static const char _svn_version[] =
-    "$Id$ "
-    "$URL$";
 
 /**********************************************************************/
 
@@ -648,9 +646,7 @@ static int l_write_image(lua_State * L)
 
 static int l_immediatewrite_image(lua_State * L)
 {
-    fix_o_mode(static_pdf);
     check_o_mode(static_pdf, "img.immediatewrite()", OMODE_PDF, true);
-    ensure_pdf_header_written(static_pdf);
     write_image_or_node(L, WR_IMMEDIATEWRITE);
     return 1;                   /* image */
 }
