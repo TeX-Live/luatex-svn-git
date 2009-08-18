@@ -2024,7 +2024,6 @@ void pdf_print_info(PDF pdf, integer luatex_version, str_number luatex_revision)
     pdf_end_dict(pdf);
 }
 
-
 void build_free_object_list(PDF pdf)
 {
     integer k, l;
@@ -2332,21 +2331,20 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
     }
 }
 
-
 void scan_pdfcatalog(PDF pdf)
 {
     halfword p;
     scan_pdf_ext_toks();
-    if (pdf->o_mode == OMODE_PDF)
-        pdf_catalog_toks = concat_tokens(pdf_catalog_toks, def_ref);
+    pdf_catalog_toks = concat_tokens(pdf_catalog_toks, def_ref);
     if (scan_keyword("openaction")) {
         if (pdf_catalog_openaction != 0) {
             pdf_error("ext1", "duplicate of openaction");
         } else {
+            fix_o_mode(pdf);
+            check_o_mode(pdf, "\\pdfcatalog", OMODE_PDF, true);
             p = scan_action(pdf);
             pdf_new_obj(pdf, obj_type_others, 0, 1);
-            if (pdf->o_mode == OMODE_PDF)
-                pdf_catalog_openaction = pdf->obj_ptr;
+            pdf_catalog_openaction = pdf->obj_ptr;
             write_action(pdf, p);
             pdf_end_obj(pdf);
             delete_action_ref(p);

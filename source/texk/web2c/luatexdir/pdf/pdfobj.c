@@ -17,13 +17,11 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include "ptexlib.h"
-
-
-
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
+
+#include "ptexlib.h"
 
 integer pdf_last_obj;
 
@@ -167,5 +165,13 @@ void scan_obj(PDF pdf)
         scan_pdf_ext_toks();
         set_obj_obj_data(pdf, k, def_ref);
         pdf_last_obj = k;
+    }
+}
+
+void pdf_ref_obj(PDF pdf __attribute__ ((unused)), halfword p)
+{
+    if (!is_obj_scheduled(pdf, pdf_obj_objnum(p))) {
+        append_object_list(pdf, obj_type_obj, pdf_obj_objnum(p));
+        set_obj_scheduled(pdf, pdf_obj_objnum(p));
     }
 }

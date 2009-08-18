@@ -46,5 +46,6 @@ extern integer pdf_last_obj;
 extern void pdf_check_obj(PDF pdf, integer t, integer n);
 extern void pdf_write_obj(PDF pdf, integer n);
 extern void scan_obj(PDF pdf);
+extern void pdf_ref_obj(PDF pdf, halfword p);
 
 #endif

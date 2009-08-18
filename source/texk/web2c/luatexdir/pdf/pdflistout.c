@@ -97,6 +97,7 @@ static void init_pdf_backend_functionpointers(PDF pdf __attribute__ ((unused)))
     /* ...these are all (?) */
     backend_out_whatsit[special_node] = &pdf_special;   /* 3 */
     backend_out_whatsit[pdf_literal_node] = &pdf_out_literal;   /* 8 */
+    backend_out_whatsit[pdf_refobj_node] = &pdf_ref_obj;        /* 10 */
     backend_out_whatsit[pdf_refxform_node] = &pdf_place_form;   /* 12 */
     backend_out_whatsit[pdf_refximage_node] = &pdf_place_image; /* 14 */
     backend_out_whatsit[pdf_annot_node] = &do_annot;    /* 15 */
@@ -292,13 +293,8 @@ void out_what(PDF pdf, halfword p)
     case pdf_setmatrix_node:   /* pdf_out_setmatrix(pdf, p); */
     case special_node:         /* pdf_special(pdf, p); */
     case late_lua_node:        /* late_lua(pdf, p); */
+    case pdf_refobj_node:      /* pdf_ref_obj(pdf, p) */
         backend_out_whatsit[subtype(p)] (pdf, p);
-        break;
-    case pdf_refobj_node:
-        if (!is_obj_scheduled(pdf, pdf_obj_objnum(p))) {
-            append_object_list(pdf, obj_type_obj, pdf_obj_objnum(p));
-            set_obj_scheduled(pdf, pdf_obj_objnum(p));
-        }
         break;
     case open_node:
     case write_node:
