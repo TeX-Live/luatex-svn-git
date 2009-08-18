@@ -81,6 +81,8 @@ int luapdfprint(lua_State * L)
             lua_error(L);
         }
     }
+    fix_o_mode(static_pdf);
+    check_o_mode(static_pdf, "immediateobj()", OMODE_PDF, true);
     ensure_pdf_header_written(static_pdf);
     switch (literal_mode) {
     case (set_origin):
@@ -123,6 +125,8 @@ static int l_immediateobj(lua_State * L)
     unsigned char *buf;
     const char *st1 = NULL, *st2 = NULL, *st3 = NULL;
     n = lua_gettop(L);
+    fix_o_mode(static_pdf);
+    check_o_mode(static_pdf, "print()", OMODE_PDF, true);
     ensure_pdf_header_written(static_pdf);
     if (n > 0 && lua_type(L, 1) == LUA_TNUMBER) {
         first_arg++;

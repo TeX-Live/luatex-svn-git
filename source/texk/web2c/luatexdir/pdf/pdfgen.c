@@ -161,10 +161,7 @@ the backend, be it \.{PDF}, \.{DVI}, or \.{Lua}.
 void fix_o_mode(PDF pdf)
 {
     static int fixed_pdf_output = 0;
-    static boolean fixed_pdf_output_set = false;
-    if (!fixed_pdf_output_set) {
-        fixed_pdf_output = pdf_output;
-        fixed_pdf_output_set = true;
+    if (pdf->o_mode == OMODE_NONE) {
         if (pdf_output > 0) {
             if (pdf_output == 2009)
                 pdf->o_mode = OMODE_LUA;
@@ -172,9 +169,11 @@ void fix_o_mode(PDF pdf)
                 pdf->o_mode = OMODE_PDF;
         } else
             pdf->o_mode = OMODE_DVI;
-    } else if (pdf_output != fixed_pdf_output)
+        fixed_pdf_output = pdf_output;
+    } else if (pdf_output != fixed_pdf_output) {
         pdf_error("setup",
                   "\\pdfoutput can only be changed before anything is written to the output");
+    }
 }
 
 /*
@@ -892,7 +891,7 @@ void pdf_rectangle(PDF pdf, halfword r)
 
 static void init_pdf_outputparameters(PDF pdf)
 {
-    assert(pdf->o_mode = OMODE_PDF);
+    assert(pdf->o_mode == OMODE_PDF);
     pdf->draftmode = fix_int(pdf_draftmode, 0, 1);
     pdf->compress_level = fix_int(pdf_compress_level, 0, 9);
     pdf->decimal_digits = fix_int(pdf_decimal_digits, 0, 4);
@@ -958,6 +957,7 @@ static void ensure_pdf_open(PDF pdf)
 void ensure_pdf_header_written(PDF pdf)
 {
     static boolean header_written = false;      /* kludge, should be in pdf */
+    assert(pdf->o_mode == OMODE_PDF);
     ensure_pdf_open(pdf);
     if (!header_written) {
         /* Initialize variables for \.{PDF} output */

@@ -60,14 +60,19 @@ static void missing_backend_function(PDF pdf, halfword p)
     else
         s = "node";
     n = get_node_name(type(p), subtype(p));
-    if (pdf->o_mode == OMODE_DVI)
+    switch (pdf->o_mode) {
+    case OMODE_DVI:
         b = "DVI";
-    else if (pdf->o_mode == OMODE_PDF)
+        break;
+    case OMODE_PDF:
         b = "PDF";
-    else if (pdf->o_mode == OMODE_LUA)
+        break;
+    case OMODE_LUA:
         b = "Lua";
-    else
+        break;
+    default:
         assert(0);
+    }
     snprintf(backend_string, 14, "%s back-end", b);
     snprintf(err_string, 59, "no output function for \"%s\" %s", n, s);
     pdf_error(backend_string, err_string);
