@@ -165,7 +165,7 @@ void fix_o_mode(PDF pdf)
     if (!fixed_pdf_output_set) {
         fixed_pdf_output = pdf_output;
         fixed_pdf_output_set = true;
-        if (fixed_pdf_output > 0) {
+        if (pdf_output > 0) {
             if (pdf_output == 2009)
                 pdf->o_mode = OMODE_LUA;
             else
