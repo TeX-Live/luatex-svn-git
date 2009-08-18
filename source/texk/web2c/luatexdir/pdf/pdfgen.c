@@ -161,19 +161,20 @@ the backend, be it \.{PDF}, \.{DVI}, or \.{Lua}.
 void fix_o_mode(PDF pdf)
 {
     static int fixed_pdf_output = 0;
-    if (pdf->o_mode == OMODE_NONE) {
-        if (pdf_output > 0) {
+    static boolean fixed_pdf_output_set = false;
+    if (!fixed_pdf_output_set) {
+        fixed_pdf_output = pdf_output;
+        fixed_pdf_output_set = true;
+        if (fixed_pdf_output > 0) {
             if (pdf_output == 2009)
                 pdf->o_mode = OMODE_LUA;
             else
                 pdf->o_mode = OMODE_PDF;
         } else
             pdf->o_mode = OMODE_DVI;
-        fixed_pdf_output = pdf_output;
-    } else if (pdf_output != fixed_pdf_output) {
+    } else if (pdf_output != fixed_pdf_output)
         pdf_error("setup",
                   "\\pdfoutput can only be changed before anything is written to the output");
-    }
 }
 
 /*
