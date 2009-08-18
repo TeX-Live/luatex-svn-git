@@ -59,6 +59,7 @@ PDF init_pdf_struct(PDF pdf)
     memset(pdf, 0, sizeof(pdf_output_file));
 
     pdf->o_mode = OMODE_NONE;   /* will be set by fix_o_mode() */
+    pdf->o_status = ST_INITIAL;
 
     pdf->os_obj = xmalloc(pdf_os_max_objs * sizeof(os_obj_data));
     pdf->os_buf_size = inf_pdf_os_buf_size;
