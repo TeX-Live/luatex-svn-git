@@ -126,8 +126,6 @@ extern boolean log_opened;      /* has the transcript file been opened? */
 
 #  define pack_cur_name() pack_file_name(cur_name,cur_area,cur_ext)
 
-extern FILE *dvi_file;          /* the device-independent output goes here */
-extern str_number output_file_name;     /* full name of the output file */
 extern str_number texmf_log_name;       /* full name of the log file */
 
 extern void open_log_file(void);

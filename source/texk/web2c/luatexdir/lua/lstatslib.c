@@ -1,6 +1,6 @@
 /* lstatslib.c
    
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -17,12 +17,12 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+static const char _svn_version[] =
+    "$Id$ "
+    "$URL$";
+
 #include "lua/luatex-api.h"
 #include <ptexlib.h>
-
-
-static const char _svn_version[] =
-    "$Id$ $URL$";
 
 typedef struct statistic {
     const char *name;
@@ -47,6 +47,10 @@ char *get_pdftex_banner(void)
     return pdftex_banner;
 }
 
+static char *get_output_file_name(void)
+{
+    return static_pdf->file_name;
+}
 
 char *getfilename(void)
 {
@@ -164,7 +168,7 @@ static struct statistic stats[] = {
     {"dvi_gone", 'g', &dvi_offset},
     {"dvi_ptr", 'g', &dvi_ptr},
     {"total_pages", 'g', &total_pages},
-    {"output_file_name", 's', &output_file_name},
+    {"output_file_name", 'S', &get_output_file_name},
     {"log_name", 's', &texmf_log_name}, /* weird */
     {"banner", 'S', &getbanner},
     {"pdftex_banner", 'S', &get_pdftex_banner},

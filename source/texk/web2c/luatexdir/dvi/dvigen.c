@@ -651,7 +651,7 @@ void write_dvi(dvi_index a, dvi_index b)
 {
     dvi_index k;
     for (k = a; k <= b; k++)
-        fputc(dvi_buf[k], dvi_file);
+        fputc(dvi_buf[k], static_pdf->file);
 }
 
 /* outputs half of the buffer */
@@ -2516,20 +2516,6 @@ Here's an example of how these conventions are used. Whenever it is time to
 ship out a box of stuff, we shall use the macro |ensure_dvi_open|.
 */
 
-void ensure_dvi_open(PDF pdf)
-{
-    (void) pdf;
-    if (output_file_name == 0) {
-        if (job_name == 0)
-            open_log_file();
-        pack_job_name(".dvi");
-        while (!lua_b_open_out(dvi_file))
-            prompt_file_name("file name for output", ".dvi");
-        dvi_file = name_file_pointer;
-        output_file_name = make_name_string();
-    }
-}
-
 void ensure_dvi_header_written(PDF pdf)
 {
     int l;
@@ -2622,8 +2608,7 @@ If |total_pages>=65536|, the \.{DVI} file will lie. And if
 |max_push>=65536|, the user deserves whatever chaos might ensue.
 */
 
-void finish_dvi_file(PDF pdf
-                     __attribute__ ((unused)), int version, int revision)
+void finish_dvi_file(PDF pdf, int version, int revision)
 {
     integer k;
     boolean res;
@@ -2690,7 +2675,7 @@ void finish_dvi_file(PDF pdf
 
         if (callback_id == 0) {
             tprint_nl("Output written on ");
-            print_file_name(0, output_file_name, 0);
+            tprint(pdf->file_name);
             tprint(" (");
             print_int(total_pages);
             tprint(" page");
@@ -2702,6 +2687,6 @@ void finish_dvi_file(PDF pdf
         } else if (callback_id > 0) {
             res = run_callback(callback_id, "->");
         }
-        b_close(dvi_file);
+        b_close(pdf->file);
     }
 }

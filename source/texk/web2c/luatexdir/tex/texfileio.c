@@ -721,8 +721,6 @@ We have |job_name=0| if and only if the `\.{log}' file has not been opened,
 except of course for a short time just after |job_name| has become nonzero.
 */
 
-FILE *dvi_file;                 /* the device-independent output goes here */
-str_number output_file_name;    /* full name of the output file */
 str_number texmf_log_name;      /* full name of the log file */
 
 /*

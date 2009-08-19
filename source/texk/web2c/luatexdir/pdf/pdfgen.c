@@ -942,16 +942,16 @@ static void init_pdf_outputparameters(PDF pdf)
 
 /* Checks that we have a name for the generated PDF file and that it's open. */
 
-static void ensure_pdf_open(PDF pdf)
+static void ensure_output_file_open(PDF pdf, char *s)
 {
     if (pdf->file_name != NULL)
         return;
     if (job_name == 0)
         open_log_file();
-    pack_job_name(".pdf");
-    if (pdf->draftmode == 0) {
+    pack_job_name(s);
+    if (pdf->draftmode == 0 || pdf->o_mode == OMODE_DVI) {
         while (!lua_b_open_out(pdf->file))
-            prompt_file_name("file name for output", ".pdf");
+            prompt_file_name("file name for output", s);
     }
     pdf->file = name_file_pointer;      /* hm ? */
     pdf->file_name = xstrdup(makecstring(make_name_string()));
@@ -986,10 +986,10 @@ void ensure_output_state(PDF pdf, output_state s)
         case ST_OMODE_FIX:
             switch (pdf->o_mode) {
             case OMODE_DVI:
-                ensure_dvi_open(pdf);
+                ensure_output_file_open(pdf, ".dvi");
                 break;
             case OMODE_PDF:
-                ensure_pdf_open(pdf);
+                ensure_output_file_open(pdf, ".pdf");
                 break;
             case OMODE_LUA:
                 break;
