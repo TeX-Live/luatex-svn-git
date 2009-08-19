@@ -1,4 +1,53 @@
 ==============================================================
+Luatex beta-0.43.0 was released 20090819
+==============================================================
+
+New features:
+
+* There is a new allowed key in the table trhat is returned 
+  by lua-loaded fonts: <f>.psname. This value should be set
+  to the original PostScript font name of the font. Fonts inside
+  dfont and ttc collections are fetched using this field
+  (if it is missing, <f>.fullname will be used instead).
+
+* It is now possible to use Apple dfont font files
+  (those that contain at least one outline font).
+
+* \latelua is now allowed inside leaders.
+
+* There is a new callback: process_output_buffer, from Manuel
+  Pégourié-Gonnard. This callback is called just before 
+  \write acts, so it can be used to alter the file encoding
+  of text output files.
+
+* There is a new node.dimensions() function, which calculates
+  the natural size of (part of) a list of nodes.
+
+* The new primitive \gleaders provides 'globally aligned' 
+  leaders.
+
+* The DVI and PDF backends now share much code internally.
+
+* The embedded MPlib is now 1.207.
+
+* libpng is now 1.2.39.
+
+Bugfixes:
+
+* We fixed lots of anonymous bugs introduced in 0.42.0 (as expected)
+
+* fontloader.info() errors are no longer fatal, the function now 
+  just returns a nil,"error string" pair.
+
+* Automatically inserted kerns for \accents are now once again 
+  valid word ends, as in \TEX.
+
+* Fixed the placement of math displays in mixed direction
+  settings.
+
+* The \pdfcompresslevel is now dynamic again.
+
+==============================================================
 Luatex beta-0.42.0 was released 20090717
 ==============================================================
 

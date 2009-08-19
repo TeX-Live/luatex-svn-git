@@ -22,7 +22,7 @@
 
 \setvariables
   [document]
-  [beta=0.42.0]
+  [beta=0.43.0]
 
 \starttext
 
@@ -98,7 +98,7 @@ the possibility to execute lua code via \type{\directlua}, but
 \LUATEX\ also adds functionality via new \TEX-side primitives.
 
 However, starting with beta \type{0.39.0}, most of that functionality
-will be hidden by default. When \LUATEX\ 0.40.0 starts up in
+is hidden by default. When \LUATEX\ 0.40.0 starts up in
 \quote{iniluatex} mode (\type{luatex -ini}), it defines only the
 primitive commands known by \TEX82 and the one extra command
 \type{\directlua}.
@@ -345,13 +345,6 @@ The syntax is
 \directlua <16-bit number> <general text>
 \stopsyntax
 
-{\bf Up until beta 0.36, there was support for multiple lua states,
-and to make that possible, the \type{\directlua} and \type{\latelua}
-command required an integer argument to be given always. Such integer
-values are still accepted for the moment, although they generate a
-(rather pesky) warning.  This backward compatibility support will be
-removed starting with beta \type{0.41.0}.}
-
 The last \syntax{<general text>} is expanded fully, and then fed
 into the \LUA\ interpreter. After reading and expansion has been applied to the
 \syntax{<general text>}, the resulting token list is converted to a
@@ -393,10 +386,6 @@ Likewise, the \syntax{<16-bit number>} designates a name of a \LUA\
 chunk, but in this case the name will be taken from the
 \type{lua.name} array (see the documentation of the \type{lua} table
 further in this manual). This syntax is new in version 0.36.0.
-
-Backward compatibility note: when there is a valid name in
-\type{lua.name[<16-bit number>]}, the potential warning about
-a superfluous integer will be suppressed.
 
 The chunk name should not start with a \type{@}, or it will be displayed
 as a file name (this is a quirk in the current \LUA\ implementation).
@@ -441,13 +430,6 @@ or simply using lua's I/O routines.
 \latelua name <general text> <general text>!crlf
 \latelua <16-bit number> <general text>
 \stopsyntax
-
-{\bf Up until beta 0.36, there was support for multiple lua states,
-and to make that possible, the \type{\directlua} and \type{\latelua}
-command required an integer argument to be given always. Such integer
-values are still accepted for the moment, although they generate a
-(rather pesky) warning.  This backward compatibility support will be
-removed starting with beta \type{0.41.0}.}
 
 Expansion of macros etcetera in the final \type{<general text>} is delayed
 until just before the whatsit is executed (like in \tex{write}). With
@@ -677,6 +659,15 @@ Macro expansion takes place inside the argument.
 
 If \tex{tracingonline} is larger than~2, the node list display will
 also print the node number of the nodes.
+
+\section{Global leaders}
+
+There is a new experimental primitive: \type{\gleaders} (a \LUATEX\
+extension, added in 0.43). This type of leaders is anchored to the
+origin of the box to be shipped out. So they are like normal
+\type{\leaders} in that they align nicely, except that the alignment
+is based on the {\it largest\/} enclosing box instead of the 
+{\it smallest\/}.
 
 \chapter {\LUA\ general}
 
@@ -2219,7 +2210,7 @@ to \type{nil} beforehand. And in a similar way, calling
 \type{node.free(n)} will invalidate \type{h} as well!
 
 
-\subsubsection{\luatex{node.dimensions}}
+\subsubsection{\luatex{node.dimensions} (0.43)}
 
 \startfunctioncall
 <number> w, <number> h, <number> d  = node.dimensions(<node> n)
@@ -3574,7 +3565,7 @@ that.
 
 This callback does not replace any internal code.
 
-\subsubsection{\luatex{process_output_buffer}}
+\subsubsection{\luatex{process_output_buffer} (0.43)}
 
 This callback allows you to change the contents of the line output
 buffer just before \LUATEX\ actually starts writing it to a file as the
@@ -6681,7 +6672,8 @@ The top|-|level keys in the table are as follows:
 \NC encodingbytes      \NC no       \NC no       \NC yes \NC number \NC default: depends on \type {format}\NC\NR
 \NC encodingname       \NC no       \NC no       \NC yes \NC string \NC encoding name\NC\NR
 \NC fonts              \NC yes      \NC no       \NC yes \NC table  \NC locally used fonts\NC \NR
-\NC psname             \NC no       \NC no       \NC yes \NC string \NC actual input (\POSTSCRIPT) name (this is the PS fontname in the incoming font source)\NC\NR
+\NC psname             \NC no       \NC no       \NC yes \NC string
+\NC actual input (\POSTSCRIPT) name (this is the PS fontname in the incoming font source, new in 0.43)\NC\NR
 \NC fullname           \NC no       \NC no       \NC yes \NC string \NC actual output (\POSTSCRIPT) name (this is the PS fontname that will be used in the PDF output)\NC\NR
 \NC header             \NC yes      \NC no       \NC no  \NC string \NC header comments, if any\NC \NR
 \NC hyphenchar         \NC no       \NC no       \NC yes \NC number \NC default: TeX's \tex{hyphenchar} \NC \NR
