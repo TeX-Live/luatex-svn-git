@@ -141,9 +141,8 @@ struct PdfDocument {
 
 /* AVL sort PdfDocument into PdfDocumentTree by file_path */
 
-static int CompPdfDocument(const void *pa, const void *pb, void *p)
+static int CompPdfDocument(const void *pa, const void *pb, void * /*p */ )
 {
-   (void)p;
     return strcmp(((const PdfDocument *) pa)->file_path,
                   ((const PdfDocument *) pb)->file_path);
 }
@@ -1037,10 +1036,9 @@ static void deletePdfDocument(PdfDocument * pdf_doc)
     delete pdf_doc;
 }
 
-static void destroyPdfDocument(void *pa, void *pb)
+static void destroyPdfDocument(void *pa, void * /*pb */ )
 {
     PdfDocument *pdf_doc = (PdfDocument *) pa;
-    (void)pb;
     deletePdfDocument(pdf_doc);
 }
 
