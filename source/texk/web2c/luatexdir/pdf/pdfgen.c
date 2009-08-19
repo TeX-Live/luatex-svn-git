@@ -59,7 +59,7 @@ PDF init_pdf_struct(PDF pdf)
     memset(pdf, 0, sizeof(pdf_output_file));
 
     pdf->o_mode = OMODE_NONE;   /* will be set by fix_o_mode() */
-    pdf->o_status = ST_INITIAL;
+    pdf->o_state = ST_INITIAL;
 
     pdf->os_obj = xmalloc(pdf_os_max_objs * sizeof(os_obj_data));
     pdf->os_buf_size = inf_pdf_os_buf_size;
@@ -957,31 +957,77 @@ static void ensure_pdf_open(PDF pdf)
     pdf->file_name = xstrdup(makecstring(make_name_string()));
 }
 
-void ensure_pdf_header_written(PDF pdf)
+static void ensure_pdf_header_written(PDF pdf)
 {
-    static boolean header_written = false;      /* kludge, should be in pdf */
-    if (!header_written) {
-        assert(pdf->o_mode == OMODE_PDF);
-        ensure_pdf_open(pdf);
-        /* Initialize variables for \.{PDF} output */
-        fix_pdf_minorversion(pdf);
-        init_pdf_outputparameters(pdf);
-        /* Write \.{PDF} header */
-        pdf_printf(pdf, "%%PDF-1.%d\n", pdf->minor_version);
-        pdf_out(pdf, '%');
-        pdf_out(pdf, 'P' + 128);
-        pdf_out(pdf, 'T' + 128);
-        pdf_out(pdf, 'E' + 128);
-        pdf_out(pdf, 'X' + 128);
-        pdf_print_nl(pdf);
-        header_written = true;
+    assert(pdf->o_state == ST_FILE_OPEN);
+    assert(pdf->o_mode == OMODE_PDF);
+    /* Initialize variables for \.{PDF} output */
+    fix_pdf_minorversion(pdf);
+    init_pdf_outputparameters(pdf);
+    /* Write \.{PDF} header */
+    pdf_printf(pdf, "%%PDF-1.%d\n", pdf->minor_version);
+    pdf_out(pdf, '%');
+    pdf_out(pdf, 'P' + 128);
+    pdf_out(pdf, 'T' + 128);
+    pdf_out(pdf, 'E' + 128);
+    pdf_out(pdf, 'X' + 128);
+    pdf_print_nl(pdf);
+}
+
+void ensure_output_state(PDF pdf, output_state s)
+{
+    if (pdf->o_state < s) {
+        if (s > ST_INITIAL)
+            ensure_output_state(pdf, s - 1);
+        switch (s - 1) {
+        case ST_INITIAL:
+            fix_o_mode(pdf);
+            break;
+        case ST_OMODE_FIX:
+            switch (pdf->o_mode) {
+            case OMODE_DVI:
+                ensure_dvi_open(pdf);
+                break;
+            case OMODE_PDF:
+                ensure_pdf_open(pdf);
+                break;
+            case OMODE_LUA:
+                break;
+            default:
+                assert(0);
+            }
+            break;
+        case ST_FILE_OPEN:
+            switch (pdf->o_mode) {
+            case OMODE_DVI:
+                ensure_dvi_header_written(pdf);
+                break;
+            case OMODE_PDF:
+                ensure_pdf_header_written(pdf);
+                break;
+            case OMODE_LUA:
+                break;
+            default:
+                assert(0);
+            }
+            break;
+        case ST_HEADER_WRITTEN:
+            break;
+        case ST_FILE_CLOSED:
+            break;
+        default:
+            assert(0);
+        }
+        pdf->o_state++;
     }
 }
+
+/**********************************************************************/
 
 /* begin a PDF dictionary object */
 void pdf_begin_dict(PDF pdf, integer i, integer pdf_os_level)
 {
-    ensure_pdf_header_written(pdf);
+    ensure_output_state(pdf, ST_HEADER_WRITTEN);
     pdf_os_prepare_obj(pdf, i, pdf_os_level);
     if (!pdf->os_mode) {
         pdf_printf(pdf, "%d 0 obj <<\n", (int) i);
@@ -1073,7 +1119,7 @@ void pdf_os_write_objstream(PDF pdf)
 /* begin a PDF object */
 void pdf_begin_obj(PDF pdf, integer i, integer pdf_os_level)
 {
-    ensure_pdf_header_written(pdf);
+    ensure_output_state(pdf, ST_HEADER_WRITTEN);
     pdf_os_prepare_obj(pdf, i, pdf_os_level);
     if (!pdf->os_mode) {
         pdf_printf(pdf, "%d 0 obj\n", (int) i);
@@ -1577,23 +1623,8 @@ void check_o_mode(PDF pdf, char *s, int o_modes, boolean strict)
             pdf_error(s, warn_string);
         else
             pdf_warning(s, warn_string, true, true);
-    } else {
-        if (strict) {
-            fix_o_mode(pdf);
-            switch (o_mode) {
-            case OMODE_DVI:
-                ensure_dvi_header_written(pdf);
-                break;
-            case OMODE_PDF:
-                ensure_pdf_header_written(pdf);
-                break;
-            case OMODE_LUA:
-                break;
-            default:
-                assert(0);
-            }
-        }
-    }
+    } else if (strict)
+        ensure_output_state(pdf, ST_HEADER_WRITTEN);
 }
 
 /**********************************************************************/
@@ -1650,7 +1681,7 @@ void set_job_id(PDF pdf, int year, int month, int day, int time)
 void pdf_begin_page(PDF pdf, boolean shipping_page)
 {
     scaled form_margin = one_bp;
-    ensure_pdf_header_written(pdf);
+    ensure_output_state(pdf, ST_HEADER_WRITTEN);
     init_pdf_pagecalculations(pdf);
 
     if (pdf->resources == NULL)

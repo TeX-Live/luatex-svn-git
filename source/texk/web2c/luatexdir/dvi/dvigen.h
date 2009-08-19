@@ -180,6 +180,7 @@ extern void expand_macros_in_tokenlist(halfword p);
 extern void write_out(halfword p);
 extern void dvi_special(PDF pdf, halfword p);
 
+extern void ensure_dvi_open(PDF pdf);
 extern void ensure_dvi_header_written(PDF pdf);
 extern void finish_dvi_file(PDF pdf, int version, int revision);
 

@@ -43,36 +43,6 @@ scaledpos shipbox_refpos;
 
 /***********************************************************************
 
-current sequence/dependency of function calls for output preparation:
-
-> ensure_dvi_header_written()
->   ensure_dvi_open()
-> 
-> ensure_pdf_header_written()
->   ensure_pdf_open()
->   fix_pdf_minorversion()
->   init_pdf_outputparameters()
-> 
-> do_extension() -- Implement \pdfximage
->   fix_pdf_minorversion()
-> 
-> do_extension() -- immediate
->   fix_o_mode()
->   check_o_mode(...,true)
->   ensure_pdf_header_written()
-> 
-> ship_out()
->   fix_o_mode()
->   init_backend_functionpointers()
->   | dvi_begin_page()
->       ensure_dvi_header_written()
->   | pdf_begin_page()
->       ensure_pdf_header_written()
->       init_pdf_pagecalculations()
->   | lua_begin_page()
-
-**********************************************************************/
-
 /*
 |ship_out| is used to shipout a box to PDF or DVI mode.
 If |shipping_page| is not set then the output will be a Form object
@@ -88,7 +58,8 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
     posstructure refpoint;      /* the origin pos. on the page */
     scaledpos cur = { 0, 0 };
 
-    fix_o_mode(pdf);
+    ensure_output_state(pdf, ST_HEADER_WRITTEN);
+    fix_o_mode(pdf);            /* this is only for complaining if \pdfoutput has changed */
     init_backend_functionpointers(pdf);
 
     pdf->f_cur = null_font;

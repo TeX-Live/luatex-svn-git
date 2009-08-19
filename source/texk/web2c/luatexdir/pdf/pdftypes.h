@@ -83,7 +83,7 @@ typedef enum { OMODE_NONE = 0, OMODE_DVI = 1, OMODE_PDF = 2, OMODE_LUA =
 
 typedef enum { ST_INITIAL, ST_OMODE_FIX, ST_FILE_OPEN, ST_HEADER_WRITTEN,
     ST_FILE_CLOSED
-} output_status;
+} output_state;
 
 typedef struct pdf_object_list_ {
     int info;
@@ -179,7 +179,7 @@ typedef struct pdf_output_file_ {
     FILE *file;                 /* the PDF output file handle */
     char *file_name;            /* the PDF output file name */
     output_mode o_mode;         /* output mode (DVI/PDF/...) */
-    output_status o_status;
+    output_state o_state;
     /* generation parameters */
     int gamma;
     int image_gamma;

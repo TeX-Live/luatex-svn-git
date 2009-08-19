@@ -2516,7 +2516,7 @@ Here's an example of how these conventions are used. Whenever it is time to
 ship out a box of stuff, we shall use the macro |ensure_dvi_open|.
 */
 
-static void ensure_dvi_open(PDF pdf)
+void ensure_dvi_open(PDF pdf)
 {
     (void) pdf;
     if (output_file_name == 0) {
@@ -2532,49 +2532,45 @@ static void ensure_dvi_open(PDF pdf)
 
 void ensure_dvi_header_written(PDF pdf)
 {
-    static boolean header_written = false;      /* kludge, should be in pdf */
     int l;
     pool_pointer s;             /* index into |str_pool| */
     int old_setting;            /* saved |selector| setting */
-    if (!header_written) {
-        assert(pdf->o_mode == OMODE_DVI);
-        ensure_dvi_open(pdf);
+    assert(pdf->o_mode == OMODE_DVI);
+    assert(pdf->o_state == ST_FILE_OPEN);
 
-        if (half_buf == 0) {
-            half_buf = dvi_buf_size / 2;
-            dvi_limit = dvi_buf_size;
-        }
+    if (half_buf == 0) {
+        half_buf = dvi_buf_size / 2;
+        dvi_limit = dvi_buf_size;
+    }
 
-        dvi_out(pre);
-        dvi_out(id_byte);       /* output the preamble */
-        dvi_four(25400000);
-        dvi_four(473628672);    /* conversion ratio for sp */
-        prepare_mag();
-        dvi_four(mag);          /* magnification factor is frozen */
-        if (output_comment) {
-            l = strlen(output_comment);
-            dvi_out(l);
-            for (s = 0; s <= l - 1; s++)
-                dvi_out(output_comment[s]);
-        } else {                /* the default code is unchanged */
-            old_setting = selector;
-            selector = new_string;
-            tprint(" LuaTeX output ");
-            print_int(int_par(year_code));
-            print_char('.');
-            print_two(int_par(month_code));
-            print_char('.');
-            print_two(int_par(day_code));
-            print_char(':');
-            print_two(int_par(time_code) / 60);
-            print_two(int_par(time_code) % 60);
-            selector = old_setting;
-            dvi_out(cur_length);
-            for (s = str_start_macro(str_ptr); s <= pool_ptr - 1; s++)
-                dvi_out(str_pool[s]);
-            pool_ptr = str_start_macro(str_ptr);        /* flush the current string */
-        }
-        header_written = true;
+    dvi_out(pre);
+    dvi_out(id_byte);           /* output the preamble */
+    dvi_four(25400000);
+    dvi_four(473628672);        /* conversion ratio for sp */
+    prepare_mag();
+    dvi_four(mag);              /* magnification factor is frozen */
+    if (output_comment) {
+        l = strlen(output_comment);
+        dvi_out(l);
+        for (s = 0; s <= l - 1; s++)
+            dvi_out(output_comment[s]);
+    } else {                    /* the default code is unchanged */
+        old_setting = selector;
+        selector = new_string;
+        tprint(" LuaTeX output ");
+        print_int(int_par(year_code));
+        print_char('.');
+        print_two(int_par(month_code));
+        print_char('.');
+        print_two(int_par(day_code));
+        print_char(':');
+        print_two(int_par(time_code) / 60);
+        print_two(int_par(time_code) % 60);
+        selector = old_setting;
+        dvi_out(cur_length);
+        for (s = str_start_macro(str_ptr); s <= pool_ptr - 1; s++)
+            dvi_out(str_pool[s]);
+        pool_ptr = str_start_macro(str_ptr);    /* flush the current string */
     }
 }
 
@@ -2582,7 +2578,7 @@ void dvi_begin_page(PDF pdf)
 {
     integer k;
     integer page_loc;           /* location of the current |bop| */
-    ensure_dvi_header_written(pdf);
+    ensure_output_state(pdf, ST_HEADER_WRITTEN);
     /* Initialize variables as |ship_out| begins */
     page_loc = dvi_offset + dvi_ptr;
     dvi_out(bop);
