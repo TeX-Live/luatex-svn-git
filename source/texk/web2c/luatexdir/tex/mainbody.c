@@ -543,6 +543,7 @@ void close_files_and_terminate()
         }
     }
     wake_up_terminal();
+    ensure_output_state(pdf, ST_OMODE_FIX);
     switch (pdf->o_mode) {
     case OMODE_NONE:           /* during initex run */
         break;
