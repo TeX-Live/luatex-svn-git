@@ -119,6 +119,7 @@ static void init_dvi_backend_functionpointers()
     backend_out[glyph_node] = &dvi_place_glyph; /* 37 */
     /* ...these are all (?) */
     backend_out_whatsit[special_node] = &dvi_special;   /* 3 */
+    backend_out_whatsit[late_lua_node] = &late_lua;     /* 35 */
 }
 
 static void init_lua_backend_functionpointers()
