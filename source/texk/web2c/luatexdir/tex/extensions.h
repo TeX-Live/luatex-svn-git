@@ -56,8 +56,7 @@ extern integer pdf_last_ximage_colordepth;
 extern void flush_str(str_number s);
 extern integer pdf_last_annot;
 extern integer pdf_last_link;
-extern integer pdf_last_x_pos;
-extern integer pdf_last_y_pos;
+extern scaledpos pdf_last_pos;
 extern halfword concat_tokens(halfword q, halfword r);
 extern integer pdf_retval;
 

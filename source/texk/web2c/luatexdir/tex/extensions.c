@@ -232,7 +232,7 @@ void do_extension(PDF pdf)
         break;
     case pdf_catalog_code:
         /* Implement \.{\\pdfcatalog} */
-        check_o_mode(pdf, "\\pdfcatalog", OMODE_PDF, true); /* writes an object */
+        check_o_mode(pdf, "\\pdfcatalog", OMODE_PDF, true);     /* writes an object */
         scan_pdfcatalog(pdf);
         break;
     case pdf_dest_node:
@@ -607,8 +607,7 @@ integer pdf_last_annot;
 /* pdflastlink needs an extra global variable */
 
 integer pdf_last_link;
-integer pdf_last_x_pos;
-integer pdf_last_y_pos;
+scaledpos pdf_last_pos = { 0, 0 };
 
 /*
 To implement primitives as \.{\\pdfinfo}, \.{\\pdfcatalog} or

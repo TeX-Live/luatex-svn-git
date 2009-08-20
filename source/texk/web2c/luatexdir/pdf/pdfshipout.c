@@ -41,7 +41,7 @@ static const char __svn_version[] =
 
 scaledpos shipbox_refpos;
 
-/***********************************************************************/
+/**********************************************************************/
 
 /*
 |ship_out| is used to shipout a box to PDF or DVI mode.
