@@ -17,11 +17,11 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include "ptexlib.h"
-
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
+
+#include "ptexlib.h"
 
 /***********************************************************************/
 
@@ -553,8 +553,8 @@ void hlist_out(PDF pdf, halfword this_box)
                 case pdf_thread_node:  /* do_thread(pdf, p, this_box, cur); */
                     backend_out_whatsit[subtype(p)] (pdf, p, this_box, cur);
                     break;
-                case pdf_refxform_node:
-                case pdf_refximage_node:
+                case pdf_refxform_node:        /* pdf_place_form(pdf, pdf_xform_objnum(p)); */
+                case pdf_refximage_node:       /* pdf_place_image(pdf, pdf_ximage_idx(p)); */
                     /* Output a Form node in a hlist */
                     /* Output an Image node in a hlist */
                     switch (box_direction(localpos.dir)) {
@@ -587,10 +587,7 @@ void hlist_out(PDF pdf, halfword this_box)
                         pos_left(depth(p));
                         break;
                     }
-                    if (subtype(p) == pdf_refximage_node)       /* pdf_place_image(pdf, pdf_ximage_idx(p)); */
-                        backend_out_whatsit[pdf_refximage_node] (pdf, p);
-                    else        /* pdf_place_form(pdf, pdf_xform_objnum(p)); */
-                        backend_out_whatsit[pdf_refxform_node] (pdf, p);
+                    backend_out_whatsit[subtype(p)] (pdf, p);
                     cur.h += width(p);
                     break;
                 case dir_node:
@@ -1052,8 +1049,8 @@ void vlist_out(PDF pdf, halfword this_box)
                 case pdf_thread_node:  /* do_thread(pdf, p, this_box, cur); */
                     backend_out_whatsit[subtype(p)] (pdf, p, this_box, cur);
                     break;
-                case pdf_refxform_node:
-                case pdf_refximage_node:
+                case pdf_refxform_node:        /* pdf_place_form(pdf, pdf_xform_objnum(p)); */
+                case pdf_refximage_node:       /* pdf_place_image(pdf, pdf_ximage_idx(p)); */
                     /* Output a Form node in a vlist */
                     /* Output an Image node in a vlist */
                     switch (box_direction(localpos.dir)) {
@@ -1084,10 +1081,7 @@ void vlist_out(PDF pdf, halfword this_box)
                     default:
                         break;
                     }
-                    if (subtype(p) == pdf_refximage_node)       /* pdf_place_image(pdf, pdf_ximage_idx(p)); */
-                        backend_out_whatsit[pdf_refximage_node] (pdf, p);
-                    else        /* pdf_place_form(pdf, pdf_xform_objnum(p)); */
-                        backend_out_whatsit[pdf_refxform_node] (pdf, p);
+                    backend_out_whatsit[subtype(p)] (pdf, p);
                     cur.v += height(p) + depth(p);
                     break;
                 default:
