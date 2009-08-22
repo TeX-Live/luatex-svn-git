@@ -17,13 +17,13 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include "ptexlib.h"
-
-#undef write_dvi
-
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
+
+#include "ptexlib.h"
+
+#undef write_dvi
 
 #define mode cur_list.mode_field        /* current mode */
 
@@ -696,6 +696,11 @@ routine, which issues a |pop| unless it is possible to cancel a
 `|push| |pop|' pair. The parameter to |dvi_pop| is the byte address
 following the old |push| that matches the new |pop|.
 */
+
+void dvi_push(void)
+{
+    dvi_out(push);
+}
 
 void dvi_pop(integer l)
 {

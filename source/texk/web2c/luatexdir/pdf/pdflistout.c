@@ -25,18 +25,6 @@ static const char __svn_version[] =
 
 pos_info_structure pos_info;    /* to be accessed from Lua */
 
-/***********************************************************************/
-/* TODO: remove these: */
-
-#define push 141
-
-#define dvi_out(A) do {                 \
-    dvi_buf[dvi_ptr++]=A;               \
-    if (dvi_ptr==dvi_limit) dvi_swap(); \
-  } while (0)
-
-/***********************************************************************/
-
 backend_node_function *backend_out = NULL;
 backend_whatsit_function *backend_out_whatsit = NULL;
 
@@ -378,7 +366,7 @@ void hlist_out(PDF pdf, halfword this_box)
 
     if (pdf->o_mode == OMODE_DVI) {
         if (cur_s > 0) {        /* DVI! */
-            dvi_out(push);      /* DVI! */
+            dvi_push();         /* DVI! */
             save_dvi = dvi;     /* DVI! */
         }
         save_loc = dvi_offset + dvi_ptr /* DVI! */ ;
@@ -917,7 +905,7 @@ void vlist_out(PDF pdf, halfword this_box)
 
     if (pdf->o_mode == OMODE_DVI) {
         if (cur_s > 0) {        /* DVI! */
-            dvi_out(push);      /* DVI! */
+            dvi_push();         /* DVI! */
             save_dvi = dvi;     /* DVI! */
         }
         save_loc = dvi_offset + dvi_ptr;        /* DVI! */

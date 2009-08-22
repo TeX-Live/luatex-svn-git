@@ -57,6 +57,7 @@ each time, we use the macro |dvi_out|.
 
 extern void dvi_swap(void);
 extern void dvi_four(integer x);
+extern void dvi_push(void);
 extern void dvi_pop(integer l);
 extern void out_cmd(void);
 extern void dvi_font_def(internal_font_number f);
