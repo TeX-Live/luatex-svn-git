@@ -297,8 +297,8 @@ void vf_out_image(PDF pdf, unsigned i);
 void flush_loggable_info(void);
 
 /* lua/luastuff.c */
-void luacall(int s, int nameptr);
 void luatokencall(int p, int nameptr);
+extern void late_lua(PDF pdf, halfword p);
 
 extern void check_texconfig_init(void);
 

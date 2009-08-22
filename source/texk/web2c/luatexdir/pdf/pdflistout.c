@@ -23,16 +23,6 @@ static const char __svn_version[] =
 
 #include "ptexlib.h"
 
-/***********************************************************************/
-
-static void late_lua(PDF pdf, halfword p)
-{
-    (void) pdf;
-    expand_macros_in_tokenlist(p);      /* sets def_ref */
-    luacall(def_ref, late_lua_name(p));
-    flush_list(def_ref);
-}
-
 pos_info_structure pos_info;    /* to be accessed from Lua */
 
 /***********************************************************************/

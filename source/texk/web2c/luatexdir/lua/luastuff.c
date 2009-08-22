@@ -274,7 +274,9 @@ int lua_traceback(lua_State * L)
     return 1;
 }
 
-void luacall(int p, int nameptr)
+/**********************************************************************/
+
+static void luacall(int p, int nameptr)
 {
     LoadS ls;
     int i, l;
@@ -323,6 +325,16 @@ void luacall(int p, int nameptr)
     }
     lua_active--;
 }
+
+void late_lua(PDF pdf, halfword p)
+{
+    (void) pdf;
+    expand_macros_in_tokenlist(p);      /* sets def_ref */
+    luacall(def_ref, late_lua_name(p));
+    flush_list(def_ref);
+}
+
+/**********************************************************************/
 
 void luatokencall(int p, int nameptr)
 {
