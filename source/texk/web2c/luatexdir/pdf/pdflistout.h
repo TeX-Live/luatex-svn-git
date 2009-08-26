@@ -29,12 +29,11 @@
 #  define pos_down(A)  pdf->posstruct->pos.v = pdf->posstruct->pos.v - (A)
 
 typedef void (*backend_node_function) ();
-typedef void (*backend_whatsit_function) ();
 
 extern pos_info_structure pos_info;
 
 extern backend_node_function *backend_out;
-extern backend_whatsit_function *backend_out_whatsit;
+extern backend_node_function *backend_out_whatsit;
 
 extern void init_backend_functionpointers(PDF pdf);
 

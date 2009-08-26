@@ -25,8 +25,7 @@ static const char __svn_version[] =
 
 pos_info_structure pos_info;    /* to be accessed from Lua */
 
-backend_node_function *backend_out = NULL;
-backend_whatsit_function *backend_out_whatsit = NULL;
+backend_node_function *backend_out = NULL, *backend_out_whatsit = NULL;
 
 static void missing_backend_function(PDF pdf, halfword p)
 {
@@ -54,18 +53,6 @@ static void missing_backend_function(PDF pdf, halfword p)
     snprintf(backend_string, 14, "%s back-end", b);
     snprintf(err_string, 59, "no output function for \"%s\" %s", n, s);
     pdf_error(backend_string, err_string);
-}
-
-static backend_node_function *new_backend_out()
-{
-    assert(backend_out == NULL);
-    return xmalloc((MAX_NODE_TYPE + 1) * sizeof(backend_node_function));
-}
-
-static backend_node_function *new_backend_out_whatsit()
-{
-    assert(backend_out_whatsit == NULL);
-    return xmalloc((MAX_WHATSIT_TYPE + 1) * sizeof(backend_whatsit_function));
 }
 
 static void init_pdf_backend_functionpointers()
@@ -112,8 +99,10 @@ void init_backend_functionpointers(PDF pdf)
 {
     int i;
     if (backend_out == NULL || backend_out_whatsit == NULL) {
-        backend_out = new_backend_out();
-        backend_out_whatsit = new_backend_out_whatsit();
+        backend_out =
+            xmalloc((MAX_NODE_TYPE + 1) * sizeof(backend_node_function));
+        backend_out_whatsit =
+            xmalloc((MAX_WHATSIT_TYPE + 1) * sizeof(backend_node_function));
     }
     for (i = 0; i < MAX_NODE_TYPE + 1; i++)
         backend_out[i] = &missing_backend_function;

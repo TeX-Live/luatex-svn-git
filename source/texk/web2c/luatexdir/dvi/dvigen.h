@@ -185,7 +185,7 @@ extern void ensure_dvi_header_written(PDF pdf);
 extern void finish_dvi_file(PDF pdf, int version, int revision);
 
 extern void dvi_place_glyph(PDF pdf, internal_font_number f, integer c);
-extern void dvi_place_rule(PDF pdf, scaledpos size);
+extern void dvi_place_rule(PDF pdf, halfword q, scaledpos size);
 
 extern void dvi_begin_page(PDF pdf);
 extern void dvi_end_page(PDF pdf);

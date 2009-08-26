@@ -18,6 +18,10 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+static const char _svn_version[] =
+    "$Id$ "
+    "$URL$";
+
 #include <assert.h>
 #include "ptexlib.h"
 #include <kpathsea/c-auto.h>
@@ -33,15 +37,9 @@
 #include <../lua51/lua.h>
 #include <../lua51/lauxlib.h>
 
-
-
 #define pdf_image_resolution int_par(pdf_image_resolution_code)
 
 integer image_orig_x, image_orig_y;     /* origin of cropped PDF images */
-
-static const char _svn_version[] =
-    "$Id$ "
-    "$URL$";
 
 /**********************************************************************/
 /*
@@ -214,6 +212,7 @@ void init_image_dict(image_dict * p)
     memset(p, 0, sizeof(image_dict));
     img_pagenum(p) = 1;
     img_type(p) = IMG_TYPE_NONE;
+    img_xres(p) = img_yres(p) = 0;
     img_pagebox(p) = PDF_BOX_SPEC_MEDIA;
     img_unset_bbox(p);
     img_state(p) = DICT_NEW;

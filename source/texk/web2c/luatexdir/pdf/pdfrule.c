@@ -17,18 +17,18 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include "ptexlib.h"
-#include "pdfpage.h"
-
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
+#include "ptexlib.h"
+#include "pdfpage.h"
+
 #define lround(a) (long) floor((a) + 0.5)
 
-void pdf_place_rule(PDF pdf, halfword q
-                    __attribute__ ((unused)), scaledpos size)
+void pdf_place_rule(PDF pdf, halfword q, scaledpos size)
 {
+    (void) q;
     pdfpos dim;
     pdfstructure *p = pdf->pstruct;
     scaledpos pos = pdf->posstruct->pos;

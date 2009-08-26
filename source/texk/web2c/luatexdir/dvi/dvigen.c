@@ -1062,8 +1062,9 @@ on \TeX's run-time stack corresponds to the values of |h| and |v|
 that a \.{DVI}-reading program will push onto its coordinate stack.
 */
 
-void dvi_place_rule(PDF pdf, scaledpos size)
+void dvi_place_rule(PDF pdf, halfword q, scaledpos size)
 {
+    (void) q;
     synch_dvi_with_pos(pdf->posstruct->pos);
     if (dir_secondary[pdf->posstruct->dir] == dir_L) {
         dvi_out(set_rule);      /* movement optimization for dir_*L* */
