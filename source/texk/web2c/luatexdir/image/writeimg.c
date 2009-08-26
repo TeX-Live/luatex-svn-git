@@ -212,7 +212,6 @@ void init_image_dict(image_dict * p)
     memset(p, 0, sizeof(image_dict));
     img_pagenum(p) = 1;
     img_type(p) = IMG_TYPE_NONE;
-    img_xres(p) = img_yres(p) = 0;
     img_pagebox(p) = PDF_BOX_SPEC_MEDIA;
     img_unset_bbox(p);
     img_state(p) = DICT_NEW;
