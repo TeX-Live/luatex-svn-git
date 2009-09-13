@@ -25,85 +25,80 @@ static const char __svn_version[] =
 
 pos_info_structure pos_info;    /* to be accessed from Lua */
 
-backend_function_struct *backend = NULL;
+static backend_struct *backend = NULL;
 backend_function *backend_out, *backend_out_whatsit;
 
 static void missing_backend_function(PDF pdf, halfword p)
 {
-    char *b = NULL, *n, *s;
+    char *b, *n, *s;
     char backend_string[15];
     char err_string[60];
+    assert(backend != NULL);
     if (type(p) == whatsit_node)
         s = "whatsit";
     else
         s = "node";
     n = get_node_name(type(p), subtype(p));
-    switch (pdf->o_mode) {
-    case OMODE_NONE:
-        b = "(NONE)";
-        break;
-    case OMODE_DVI:
-        b = "DVI";
-        break;
-    case OMODE_PDF:
-        b = "PDF";
-        break;
-    case OMODE_LUA:
-        b = "Lua";
-        break;
-    default:
-        assert(0);
-    }
-    snprintf(backend_string, 14, "%s back-end", b);
+    b = backend[pdf->o_mode].name;
+    snprintf(backend_string, strlen(b) + 10, "%s back-end", b);
     snprintf(err_string, 59, "no output function for \"%s\" %s", n, s);
     pdf_error(backend_string, err_string);
 }
 
-static void init_pdf_backend_functionpointers()
+static void init_none_backend_functions()
 {
-    assert(backend != NULL);
-    backend[OMODE_PDF].node_fu[rule_node] = &pdf_place_rule;    /* 2 */
-    backend[OMODE_PDF].node_fu[glyph_node] = &pdf_place_glyph;  /* 37 */
-    backend[OMODE_PDF].whatsit_fu[special_node] = &pdf_special; /* 3 */
-    backend[OMODE_PDF].whatsit_fu[pdf_literal_node] = &pdf_out_literal; /* 8 */
-    backend[OMODE_PDF].whatsit_fu[pdf_refobj_node] = &pdf_ref_obj;      /* 10 */
-    backend[OMODE_PDF].whatsit_fu[pdf_refxform_node] = &pdf_place_form; /* 12 */
-    backend[OMODE_PDF].whatsit_fu[pdf_refximage_node] = &pdf_place_image;       /* 14 */
-    backend[OMODE_PDF].whatsit_fu[pdf_annot_node] = &do_annot;  /* 15 */
-    backend[OMODE_PDF].whatsit_fu[pdf_start_link_node] = &do_link;      /* 16 */
-    backend[OMODE_PDF].whatsit_fu[pdf_end_link_node] = &end_link;       /* 17 */
-    backend[OMODE_PDF].whatsit_fu[pdf_dest_node] = &do_dest;    /* 19 */
-    backend[OMODE_PDF].whatsit_fu[pdf_thread_node] = &do_thread;        /* 20 */
-    backend[OMODE_PDF].whatsit_fu[pdf_end_thread_node] = &end_thread;   /* 22 */
-    backend[OMODE_PDF].whatsit_fu[late_lua_node] = &late_lua;   /* 35 */
-    backend[OMODE_PDF].whatsit_fu[pdf_colorstack_node] = &pdf_out_colorstack;   /* 39 */
-    backend[OMODE_PDF].whatsit_fu[pdf_setmatrix_node] = &pdf_out_setmatrix;     /* 40 */
-    backend[OMODE_PDF].whatsit_fu[pdf_save_node] = &pdf_out_save;       /* 41 */
-    backend[OMODE_PDF].whatsit_fu[pdf_restore_node] = &pdf_out_restore; /* 42 */
+    backend_struct *p = &backend[OMODE_NONE];
+    p->name = strdup("(None)");
 }
 
-static void init_dvi_backend_functionpointers()
+static void init_pdf_backend_functions()
 {
-    assert(backend != NULL);
-    backend[OMODE_DVI].node_fu[rule_node] = &dvi_place_rule;    /* 2 */
-    backend[OMODE_DVI].node_fu[glyph_node] = &dvi_place_glyph;  /* 37 */
-    backend[OMODE_DVI].whatsit_fu[special_node] = &dvi_special; /* 3 */
-    backend[OMODE_DVI].whatsit_fu[late_lua_node] = &late_lua;   /* 35 */
+    backend_struct *p = &backend[OMODE_PDF];
+    p->name = strdup("PDF");
+    p->node_fu[rule_node] = &pdf_place_rule;    /* 2 */
+    p->node_fu[glyph_node] = &pdf_place_glyph;  /* 37 */
+    p->whatsit_fu[special_node] = &pdf_special; /* 3 */
+    p->whatsit_fu[pdf_literal_node] = &pdf_out_literal; /* 8 */
+    p->whatsit_fu[pdf_refobj_node] = &pdf_ref_obj;      /* 10 */
+    p->whatsit_fu[pdf_refxform_node] = &pdf_place_form; /* 12 */
+    p->whatsit_fu[pdf_refximage_node] = &pdf_place_image;       /* 14 */
+    p->whatsit_fu[pdf_annot_node] = &do_annot;  /* 15 */
+    p->whatsit_fu[pdf_start_link_node] = &do_link;      /* 16 */
+    p->whatsit_fu[pdf_end_link_node] = &end_link;       /* 17 */
+    p->whatsit_fu[pdf_dest_node] = &do_dest;    /* 19 */
+    p->whatsit_fu[pdf_thread_node] = &do_thread;        /* 20 */
+    p->whatsit_fu[pdf_end_thread_node] = &end_thread;   /* 22 */
+    p->whatsit_fu[late_lua_node] = &late_lua;   /* 35 */
+    p->whatsit_fu[pdf_colorstack_node] = &pdf_out_colorstack;   /* 39 */
+    p->whatsit_fu[pdf_setmatrix_node] = &pdf_out_setmatrix;     /* 40 */
+    p->whatsit_fu[pdf_save_node] = &pdf_out_save;       /* 41 */
+    p->whatsit_fu[pdf_restore_node] = &pdf_out_restore; /* 42 */
 }
 
-static void init_lua_backend_functionpointers()
+static void init_dvi_backend_functions()
 {
-    assert(backend != NULL);
-    backend[OMODE_LUA].node_fu[rule_node] = &lua_place_rule;    /* 2 */
-    backend[OMODE_LUA].node_fu[glyph_node] = &lua_place_glyph;  /* 37 */
-    backend[OMODE_LUA].whatsit_fu[late_lua_node] = &late_lua;   /* 35 */
+    backend_struct *p = &backend[OMODE_DVI];
+    p->name = strdup("DVI");
+    p->node_fu[rule_node] = &dvi_place_rule;    /* 2 */
+    p->node_fu[glyph_node] = &dvi_place_glyph;  /* 37 */
+    p->whatsit_fu[special_node] = &dvi_special; /* 3 */
+    p->whatsit_fu[late_lua_node] = &late_lua;   /* 35 */
+}
+
+static void init_lua_backend_functions()
+{
+    backend_struct *p = &backend[OMODE_LUA];
+    p->name = strdup("Lua");
+    p->node_fu[rule_node] = &lua_place_rule;    /* 2 */
+    p->node_fu[glyph_node] = &lua_place_glyph;  /* 37 */
+    p->whatsit_fu[late_lua_node] = &late_lua;   /* 35 */
 }
 
 void init_backend_functionpointers(output_mode o_mode)
 {
     int i, j;
     if (backend == NULL) {
-        backend = xmalloc((MAX_OMODE + 1) * sizeof(backend_function_struct));
+        backend = xmalloc((MAX_OMODE + 1) * sizeof(backend_struct));
         for (i = 0; i <= MAX_OMODE; i++) {
             backend[i].node_fu =
                 xmalloc((MAX_NODE_TYPE + 1) * sizeof(backend_function));
@@ -114,9 +109,10 @@ void init_backend_functionpointers(output_mode o_mode)
             for (j = 0; j < MAX_WHATSIT_TYPE + 1; j++)
                 backend[i].whatsit_fu[j] = &missing_backend_function;
         }
-        init_dvi_backend_functionpointers();
-        init_pdf_backend_functionpointers();
-        init_lua_backend_functionpointers();
+        init_none_backend_functions();
+        init_dvi_backend_functions();
+        init_pdf_backend_functions();
+        init_lua_backend_functions();
     }
     backend_out = backend[o_mode].node_fu;
     backend_out_whatsit = backend[o_mode].whatsit_fu;

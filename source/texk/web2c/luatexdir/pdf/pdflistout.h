@@ -31,9 +31,10 @@
 typedef void (*backend_function) ();
 
 typedef struct {
-    backend_function *node_fu;
-    backend_function *whatsit_fu;
-} backend_function_struct;
+    char *name;                 /* name of the backend */
+    backend_function *node_fu;  /* array of node output functions */
+    backend_function *whatsit_fu;       /* array of whatsit output functions */
+} backend_struct;
 
 extern pos_info_structure pos_info;
 
