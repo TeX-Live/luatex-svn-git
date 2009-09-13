@@ -77,8 +77,9 @@ typedef struct {
 typedef enum { PMODE_NONE, PMODE_PAGE, PMODE_TEXT, PMODE_CHARARRAY, PMODE_CHAR
 } pos_mode;
 
-typedef enum { OMODE_NONE, OMODE_DVI, OMODE_PDF, OMODE_LUA,
-        OMODE_TBD } output_mode;
+typedef enum { OMODE_NONE, OMODE_DVI, OMODE_PDF, OMODE_LUA } output_mode;
+
+#  define MAX_OMODE 3           /* largest index in enum output_mode */
 
 typedef enum { ST_INITIAL, ST_OMODE_FIX, ST_FILE_OPEN, ST_HEADER_WRITTEN,
     ST_FILE_CLOSED

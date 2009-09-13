@@ -60,7 +60,7 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
     fix_o_mode(pdf);            /* this is only for complaining if \pdfoutput has changed */
-    init_backend_functionpointers(pdf);
+    init_backend_functionpointers(pdf->o_mode);
 
     pdf->f_cur = null_font;
 

@@ -28,14 +28,19 @@
 #  define pos_up(A)    pdf->posstruct->pos.v = pdf->posstruct->pos.v + (A)
 #  define pos_down(A)  pdf->posstruct->pos.v = pdf->posstruct->pos.v - (A)
 
-typedef void (*backend_node_function) ();
+typedef void (*backend_function) ();
+
+typedef struct {
+    backend_function *node_fu;
+    backend_function *whatsit_fu;
+} backend_function_struct;
 
 extern pos_info_structure pos_info;
 
-extern backend_node_function *backend_out;
-extern backend_node_function *backend_out_whatsit;
+extern backend_function *backend_out;
+extern backend_function *backend_out_whatsit;
 
-extern void init_backend_functionpointers(PDF pdf);
+extern void init_backend_functionpointers(output_mode o_mode);
 
 extern void hlist_out(PDF pdf, halfword this_box);
 extern void vlist_out(PDF pdf, halfword this_box);
