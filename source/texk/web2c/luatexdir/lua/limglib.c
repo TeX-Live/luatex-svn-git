@@ -557,7 +557,7 @@ static int l_scan_image(lua_State * L)
         (void) l_new_image(L);  /* image --- if everything worked well */
     aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);    /* image */
     a = *aa;
-    check_o_mode(static_pdf, "img.scan()", OMODE_PDF, false);
+    check_o_mode(static_pdf, "img.scan()", 1 << OMODE_PDF, false);
     flush_str(last_tex_string);
     read_scale_img(L, a);
     return 1;                   /* image */
@@ -590,7 +590,7 @@ static void setup_image(PDF pdf, lua_State * L, image * a, wrtype_e writetype)
     image_dict *ad;
     assert(a != NULL);
     ad = img_dict(a);
-    check_o_mode(pdf, (char *) wrtype_s[writetype], OMODE_PDF, false);
+    check_o_mode(pdf, (char *) wrtype_s[writetype], 1 << OMODE_PDF, false);
     flush_str(last_tex_string);
     read_scale_img(L, a);
     if (img_arrayidx(a) == -1)
@@ -646,7 +646,7 @@ static int l_write_image(lua_State * L)
 
 static int l_immediatewrite_image(lua_State * L)
 {
-    check_o_mode(static_pdf, "img.immediatewrite()", OMODE_PDF, true);
+    check_o_mode(static_pdf, "img.immediatewrite()", 1 << OMODE_PDF, true);
     write_image_or_node(L, WR_IMMEDIATEWRITE);
     return 1;                   /* image */
 }

@@ -81,7 +81,7 @@ int luapdfprint(lua_State * L)
             lua_error(L);
         }
     }
-    check_o_mode(static_pdf, "pdf.print()", OMODE_PDF, true);
+    check_o_mode(static_pdf, "pdf.print()", 1 << OMODE_PDF, true);
     switch (literal_mode) {
     case (set_origin):
         pdf_goto_pagemode(static_pdf);
@@ -123,7 +123,7 @@ static int l_immediateobj(lua_State * L)
     unsigned char *buf;
     const char *st1 = NULL, *st2 = NULL, *st3 = NULL;
     n = lua_gettop(L);
-    check_o_mode(static_pdf, "immediateobj()", OMODE_PDF, true);
+    check_o_mode(static_pdf, "immediateobj()", 1 << OMODE_PDF, true);
     if (n > 0 && lua_type(L, 1) == LUA_TNUMBER) {
         first_arg++;
         k = lua_tonumber(L, 1);

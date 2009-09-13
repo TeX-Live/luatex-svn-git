@@ -1581,7 +1581,7 @@ void pdf_warning(char *t, char *p, boolean prepend_nl, boolean append_nl)
 /**********************************************************************/
 /* Use check_o_mode() in the backend-specific "Implement..." chunks */
 
-void check_o_mode(PDF pdf, char *s, int o_modes, boolean strict)
+void check_o_mode(PDF pdf, char *s, int o_mode_bitpattern, boolean strict)
 {
 
     char warn_string[100];
@@ -1603,7 +1603,7 @@ void check_o_mode(PDF pdf, char *s, int o_modes, boolean strict)
             o_mode = OMODE_DVI;
     } else
         o_mode = pdf->o_mode;
-    if ((o_mode & o_modes) == 0) {      /* warning or error */
+    if (!((1 << o_mode) & o_mode_bitpattern)) { /* warning or error */
         switch (o_mode) {
         case OMODE_DVI:
             m = "DVI";
@@ -2394,7 +2394,7 @@ void scan_pdfcatalog(PDF pdf)
         if (pdf_catalog_openaction != 0) {
             pdf_error("ext1", "duplicate of openaction");
         } else {
-            check_o_mode(pdf, "\\pdfcatalog", OMODE_PDF, true);
+            check_o_mode(pdf, "\\pdfcatalog", 1 << OMODE_PDF, true);
             p = scan_action(pdf);
             pdf_new_obj(pdf, obj_type_others, 0, 1);
             pdf_catalog_openaction = pdf->obj_ptr;

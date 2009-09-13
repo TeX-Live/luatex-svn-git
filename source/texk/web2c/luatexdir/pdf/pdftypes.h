@@ -77,9 +77,8 @@ typedef struct {
 typedef enum { PMODE_NONE, PMODE_PAGE, PMODE_TEXT, PMODE_CHARARRAY, PMODE_CHAR
 } pos_mode;
 
-typedef enum { OMODE_NONE = 0, OMODE_DVI = 1, OMODE_PDF = 2, OMODE_LUA =
-        4, OMODE_TBD = 8
-} output_mode;
+typedef enum { OMODE_NONE, OMODE_DVI, OMODE_PDF, OMODE_LUA,
+        OMODE_TBD } output_mode;
 
 typedef enum { ST_INITIAL, ST_OMODE_FIX, ST_FILE_OPEN, ST_HEADER_WRITTEN,
     ST_FILE_CLOSED
