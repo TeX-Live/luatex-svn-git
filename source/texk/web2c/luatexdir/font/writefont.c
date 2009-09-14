@@ -203,7 +203,7 @@ static void write_fontmetrics(PDF pdf, fd_entry * fd)
 
 static void preset_fontname(fo_entry * fo, internalfontnumber f)
 {
-    if (font_fullname(f)!= NULL)
+    if (font_fullname(f) != NULL)
         fo->fd->fontname = xstrdup(font_fullname(f));
     else if (fo->fm->ps_name != NULL)
         fo->fd->fontname = xstrdup(fo->fm->ps_name);    /* just fallback */
@@ -792,9 +792,9 @@ void do_pdf_font(PDF pdf, integer font_objnum, internalfontnumber f)
         fm->tfm_name = font_name(f);    /* or whatever, not a real tfm */
         fm->ff_name = font_filename(f); /* the actual file */
         if (font_psname(f) != NULL)
-            fm->ps_name = font_psname(f); /* the true name */
+            fm->ps_name = font_psname(f);       /* the true name */
         else
-            fm->ps_name = font_fullname(f); /* the true name */
+            fm->ps_name = font_fullname(f);     /* the true name */
         if (fm->ff_name
             && strlen(fm->ff_name) >= 6
             && strstr(fm->ff_name,
