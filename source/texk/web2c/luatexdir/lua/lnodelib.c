@@ -1931,10 +1931,10 @@ static int lua_nodelib_getfield(lua_State * L)
         case 2:
             lua_pushnumber(L, subtype(n));
             break;
-        case 3:
+        case 4:
             lua_pushnumber(L, width(n));
             break;
-        case 4:
+        case 5:
             nodelib_pushlist(L, margin_char(n));
             break;
         default:
@@ -2997,10 +2997,10 @@ static int lua_nodelib_setfield(lua_State * L)
             case 2:
                 subtype(n) = lua_tointeger(L, 3);
                 break;
-            case 3:
+            case 4:
                 width(n) = lua_tointeger(L, 3);
                 break;
-            case 4:
+            case 5:
                 margin_char(n) = nodelib_getlist(L, 3);
                 break;
             default:
