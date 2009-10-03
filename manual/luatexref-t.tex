@@ -2520,25 +2520,29 @@ This contains variables and functions that are related to the \PDF\ backend.
 
 \subsubsubject{\luatex{pdf.h}, \luatex{pdf.v}}
 
-The current \type{h} and \type{v} values
-that define the location on the output page.
-The values can be queried and set using scaled points as units.
+These are the \type{h} and \type{v} values
+that define the current location on the output page,
+measured from its lower left corner.
+The values can be queried % and set
+using scaled points as units.
 
 \starttyping
-pdf.v
 pdf.h
+pdf.v
 \stoptyping
 
-\subsubsubject{\luatex{pdf.seth()}, \luatex{pdf.setv()}}
-
-The function calls associated with \type{pdf.h} and \type{pdf.v} are
-
-\startfunctioncall
-pdf.setv(<number> n)
-<number> n = pdf.getv()
-pdf.seth(<number> n)
-<number> n = pdf.geth()
-\stopfunctioncall
+% not implemented yet:
+% \subsubsubject{\luatex{pdf.seth()}, \luatex{pdf.setv()}}
+%
+% The function calls for position setting,
+% associated with \type{pdf.h} and \type{pdf.v} are
+%
+% \startfunctioncall
+% pdf.seth(<number> n)
+% <number> n = pdf.h
+% pdf.setv(<number> n)
+% <number> n = pdf.v
+% \stopfunctioncall
 
 \subsubsubject{\luatex{pdf.print()}}
 
