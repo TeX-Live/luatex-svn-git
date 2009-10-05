@@ -2255,9 +2255,9 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
                 build_free_object_list(pdf);
                 pdf_printf(pdf, "/Type /XRef\n");
                 pdf_printf(pdf, "/Index [0 ");
-                pdf_print_int(pdf, pdf->obj_ptr);
+                pdf_print_int(pdf, pdf->obj_ptr + 1);
                 pdf_printf(pdf, "]\n");
-                pdf_int_entry_ln(pdf, "Size", pdf->obj_ptr);
+                pdf_int_entry_ln(pdf, "Size", pdf->obj_ptr + 1);
                 pdf_printf(pdf, "/W [1 ");
                 pdf_print_int(pdf, xref_offset_width);
                 pdf_printf(pdf, " 1]\n");
@@ -2289,6 +2289,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
                     }
                 }
                 pdf_end_stream(pdf);
+                /* TODO: generate a debug version of the crossref */
 
                 pdf_flush(pdf);
             } else {
