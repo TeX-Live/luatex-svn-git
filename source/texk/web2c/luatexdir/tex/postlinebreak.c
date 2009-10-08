@@ -405,6 +405,7 @@ void ext_post_line_break(boolean d,
             just_box = hpack(q, cur_width, exactly);
         }
         shift_amount(just_box) = cur_indent;
+        subtype(just_box) = HLIST_SUBTYPE_LINE;
         /* /Call the packaging subroutine, setting |just_box| to the justified box; */
 
         /* Append the new box to the current vertical list, followed by the list of

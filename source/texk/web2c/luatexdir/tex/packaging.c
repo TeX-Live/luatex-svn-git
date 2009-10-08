@@ -1221,6 +1221,7 @@ void package(int c)
         cur_box = filtered_hpack(cur_list.head_field,
                                  cur_list.tail_field, saved_value(1),
                                  saved_level(1), grp);
+        subtype(cur_box) = HLIST_SUBTYPE_HBOX;
     } else {
         cur_box = filtered_vpackage(vlink(cur_list.head_field),
                                     saved_value(1), saved_level(1), d, grp);

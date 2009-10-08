@@ -175,6 +175,11 @@ typedef enum {
 #  define synctex_line_kern(a) vlink((a)+3)
 
 #  define box_node_size 9
+
+#  define HLIST_SUBTYPE_UNKNOWN 0
+#  define HLIST_SUBTYPE_LINE 1
+#  define HLIST_SUBTYPE_HBOX 2
+
 #  define width(a)            varmem[(a)+2].cint
 #  define depth(a)            varmem[(a)+3].cint
 #  define height(a)           varmem[(a)+4].cint

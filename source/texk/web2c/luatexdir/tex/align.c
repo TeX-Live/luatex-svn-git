@@ -955,9 +955,11 @@ value is changed to zero and so is the next tabskip.
 
                 if (cur_list.mode_field == -vmode) {
                     type(q) = hlist_node;
+                    subtype(q) = 0;
                     width(q) = width(p);
                 } else {
                     type(q) = vlist_node;
+                    subtype(q) = 0;
                     height(q) = height(p);
                 }
                 glue_order(q) = glue_order(p);
@@ -1076,6 +1078,7 @@ value is changed to zero and so is the next tabskip.
                         type(r) = vlist_node;
 
                     }
+                    subtype(r) = 0; 
                     shift_amount(r) = 0;
                     if (u != hold_head) {       /* append blank boxes to account for spanned nodes */
                         vlink(u) = vlink(r);
