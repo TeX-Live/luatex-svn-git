@@ -896,7 +896,17 @@ void enter_display_math(void)
     scaled s;                   /* new |display_indent| */
     pointer p;
     integer n;                  /* scope of paragraph shape specification */
-    if (head == tail) {         /* `\.{\\noindent\$\$}' or `\.{\$\${ }\$\$}' */
+    if (head == tail ||          /* `\.{\\noindent\$\$}' or `\.{\$\${ }\$\$}' */
+        (vlink(head) == tail && /* the 2nd of \.{\$\${ }\$\$} \.{\$\${ }\$\$} */
+         type(tail) == whatsit_node &&
+         subtype(tail) == local_par_node &&    
+         vlink(tail) == null)) { 
+        if (vlink(head) == tail) {
+            /* bug \#270: |resume_after_display| inserts a |local_par_node|, but if 
+               there is another display immediately following, we have to get rid
+               of that node */
+            flush_node(tail);
+        }
         pop_nest();
         w = -max_dimen;
     } else {
@@ -1912,7 +1922,8 @@ void resume_after_display(void)
     push_nest();
     mode = hmode;
     space_factor = 1000;
-    tail_append(make_local_par_node());
+    tail_append(make_local_par_node()); /* this needs to be intercepted in 
+                                           the display math start ! */
     get_x_token();
     if (cur_cmd != spacer_cmd)
         back_input();
