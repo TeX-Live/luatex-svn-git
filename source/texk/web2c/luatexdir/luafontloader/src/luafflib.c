@@ -364,6 +364,19 @@ dump_subtable_name (lua_State *L, char *name, struct lookup_subtable *s) {
       next = next->next;                                                \
     } }
 
+#define NESTED_TABLE_SF(a,b,c,d) {                                      \
+    int k = 1;                                                          \
+    next = b;															\
+    while (next != NULL) {                                              \
+      lua_checkstack(L,2);												\
+      lua_pushnumber(L,k); k++;                                         \
+      lua_createtable(L,0,d);                                           \
+      a(L, next, c);                                                    \
+      lua_rawset(L,-3);                                                 \
+      next = next->next;                                                \
+    } }
+
+
 void
 do_handle_scriptlanglist (lua_State *L, struct scriptlanglist *sl) {
   int k;
@@ -460,7 +473,8 @@ handle_lookup_subtable (lua_State *L, struct lookup_subtable *subtable) {
 }
 
 void 
-do_handle_lookup (lua_State *L, struct otlookup *lookup ) {
+do_handle_lookup (lua_State *L, struct otlookup *lookup, SplineFont *sf) {
+  int mc;
 
   dump_enumfield     (L,"type",             lookup->lookup_type, otf_lookup_type_enum); 
 
@@ -477,7 +491,16 @@ do_handle_lookup (lua_State *L, struct otlookup *lookup ) {
   if (lookup->lookup_flags & pst_ignorecombiningmarks) {
     lua_pushstring(L,"ignorecombiningmarks");  lua_pushboolean(L,1);   lua_rawset(L,-3);
   }
+  mc = (lookup->lookup_flags>>8);
+  if (mc > 0 && 
+      mc < sf->mark_class_cnt &&
+      sf->mark_class_names[mc] != NULL) {
+    lua_pushstring(L,"mark_class");
+    lua_pushstring(L,sf->mark_class_names[mc]);
+    lua_rawset(L,-3);
+  }
   lua_setfield(L,-2,"flags");
+
 
 
   dump_stringfield   (L,"name",             lookup->lookup_name); 
@@ -511,9 +534,9 @@ do_handle_lookup (lua_State *L, struct otlookup *lookup ) {
 }
 
 void
-handle_lookup (lua_State *L, struct otlookup *lookup ) {
+handle_lookup (lua_State *L, struct otlookup *lookup, SplineFont *sf) {
   struct otlookup *next;
-  NESTED_TABLE(do_handle_lookup,lookup,18); /* 18 is a guess */
+  NESTED_TABLE_SF(do_handle_lookup,lookup, sf, 18); /* 18 is a guess */
 }
 
 void
@@ -2058,12 +2081,12 @@ handle_splinefont(lua_State *L, struct splinefont *sf) {
   }
   if (sf->gsub_lookups != NULL) {
     lua_newtable(L);
-    handle_lookup(L,sf->gsub_lookups);
+    handle_lookup(L,sf->gsub_lookups, sf);
     lua_setfield(L,-2,"gsub");
   }
   if (sf->gpos_lookups != NULL) {
     lua_newtable(L);
-    handle_lookup(L,sf->gpos_lookups);
+    handle_lookup(L,sf->gpos_lookups, sf);
     lua_setfield(L,-2,"gpos");
   }
 
@@ -2102,20 +2125,14 @@ handle_splinefont(lua_State *L, struct splinefont *sf) {
   
   if (sf->mark_class_cnt>0) {
     lua_newtable(L);
-    for ( k=0; k<sf->mark_class_cnt; ++k ) {
-      lua_pushnumber(L,(k+1));
-      lua_pushstring(L,sf->mark_classes[k]);
-      lua_rawset(L,-3);
+    for ( k=0; k<sf->mark_class_cnt; k++ ) {
+        if (sf->mark_class_names[k] != NULL) {
+            lua_pushstring(L,sf->mark_class_names[k]);
+            lua_pushstring(L,sf->mark_classes[k]);
+            lua_rawset(L,-3);
+        }
     }
-    lua_setfield(L,-1,"mark_classes");
-
-    lua_newtable(L);
-    for ( k=0; k<sf->mark_class_cnt; ++k ) {
-      lua_pushnumber(L,(k+1));
-      lua_pushstring(L,sf->mark_class_names[k]);
-      lua_rawset(L,-3);
-    }
-    lua_setfield(L,-1,"mark_class_names");
+    lua_setfield(L,-2,"mark_classes");
   }
   
   dump_intfield(L,"creationtime",     sf->creationtime);

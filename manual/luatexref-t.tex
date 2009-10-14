@@ -4721,8 +4721,7 @@ this part of the documentation are not yet finished):
 \NC design_range_bottom          \NC number   \NC \NC\NR
 \NC design_range_top             \NC number   \NC \NC\NR
 \NC strokewidth                  \NC float    \NC \NC\NR
-\NC mark_classes                 \NC array    \NC \NC\NR
-\NC mark_class_names             \NC array    \NC \NC\NR
+\NC mark_classes                 \NC table    \NC \NC\NR
 \NC creationtime                 \NC number   \NC \NC\NR
 \NC modificationtime             \NC number   \NC \NC\NR
 \NC os2_version                  \NC number   \NC \NC\NR
@@ -5084,6 +5083,7 @@ actually set:
 \NC ignorebaseglyphs       \NC boolean    \NC \NC\NR
 \NC ignoreligatures        \NC boolean    \NC \NC\NR
 \NC ignorecombiningmarks   \NC boolean    \NC \NC\NR
+\NC mark_class             \NC string    \NC (new in 0.44)\NC\NR
 \stoptabulate
 
 
@@ -5247,6 +5247,14 @@ The \type{named_instances} is an array of instances:
 \NC coords               \NC table  \NC an array of coordinates \NC \NR
 \stoptabulate
 
+
+\subsubsection{mark_classes table (0.44)}
+
+The keys in this table are mark class names, and the values
+are a space-separated string of glyph names in this class.
+
+Note: This table is indeed new in 0.44. The manual said it existed
+before then, but in practise it was missing due to a bug.
 
 \subsubsection{math table}
 
