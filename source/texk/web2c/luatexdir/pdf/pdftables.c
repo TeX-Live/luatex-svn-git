@@ -192,8 +192,10 @@ void pdf_create_obj(PDF pdf, integer t, integer i)
 integer find_obj(PDF pdf, integer t, integer i, boolean byname)
 {
 
-    if (byname)
-        return avl_find_str_obj(pdf, t, makecstring(-i));
+    if (byname) {
+        if (i<0) i = abs(i);
+        return avl_find_str_obj(pdf, t, makecstring(i));
+    }
     else
         return avl_find_int_obj(pdf, t, i);
 }
