@@ -1618,7 +1618,7 @@ void check_o_mode(PDF pdf, char *s, int o_mode_bitpattern, boolean strict)
             assert(0);
         }
         snprintf(warn_string, 99, "not allowed in %s mode (\\pdfpoutput = %d)",
-                 m, pdf_output);
+                 m, (int)pdf_output);
         if (strict)
             pdf_error(s, warn_string);
         else

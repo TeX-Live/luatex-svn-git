@@ -1475,7 +1475,7 @@ static int tex_run_boot (lua_State * L) {
         if (nameoffile)
             xfree(nameoffile);
         nameoffile = xmallocarray(packed_ASCII_code, strlen(format)+2);
-        strcpy(nameoffile+1, format);
+        strcpy((char *)(nameoffile+1), format);
         if (!w_open_in(fmt_file)) {
             lua_pushboolean (L, 0); /* false */
             return 1;
@@ -1514,6 +1514,7 @@ static int tex_run_main (lua_State * L)
 {
     (void)L;
     main_control();
+    return 0;
 }
 
 static int tex_run_end (lua_State * L) 
@@ -1522,6 +1523,7 @@ static int tex_run_end (lua_State * L)
     final_cleanup();            /* prepare for death */
     close_files_and_terminate();
     do_final_end();
+    return 0;
 }
 
 void init_tex_table ( lua_State * L)
