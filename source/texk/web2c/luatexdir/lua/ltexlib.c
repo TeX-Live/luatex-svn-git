@@ -1452,8 +1452,97 @@ static int tex_enableprimitives(lua_State * L)
     return 0;
 }
 
+extern int tex_table_id;
+extern int pdf_table_id;
+extern int token_table_id;
+extern int node_table_id;
+extern int main_initialize(void);
+
+static int tex_run_boot (lua_State * L) {
+    int n = lua_gettop(L);
+    char *format =  NULL;
+    if (n >= 1) {
+        ini_version = 0;
+        format = (char *) luaL_checkstring(L, 1);
+    } else {
+        ini_version = 1;
+    }
+    if (main_initialize()) { /* > 0 = failure */
+        lua_pushboolean (L, 0); /* false */
+        return 1;
+    } 
+    if (format) {
+        if (nameoffile)
+            xfree(nameoffile);
+        nameoffile = xmallocarray(packed_ASCII_code, strlen(format)+2);
+        strcpy(nameoffile+1, format);
+        if (!w_open_in(fmt_file)) {
+            lua_pushboolean (L, 0); /* false */
+            return 1;
+        }
+        if (!load_fmt_file()) {
+            w_close(fmt_file);
+            lua_pushboolean (L, 0); /* false */
+            return 1;
+        }
+        w_close(fmt_file);
+    }
+    fix_date_and_time();
+    if (format == NULL)
+        make_pdftex_banner();
+    random_seed = (microseconds * 1000) + (epochseconds % 1000000);
+    init_randoms(random_seed);
+    initialize_math();
+    fixup_selector(log_opened);
+    check_texconfig_init();
+    text_dir_ptr = new_dir(0);
+    history = spotless;         /* ready to go! */
+    /* Initialize synctex primitive */
+    synctex_init_command();
+    /* tex is ready to go, now */ 
+    unhide_lua_table(Luas, "tex", tex_table_id);
+    unhide_lua_table(Luas, "pdf", pdf_table_id);
+    unhide_lua_table(Luas, "token", token_table_id);
+    unhide_lua_table(Luas, "node", node_table_id);
+
+    lua_pushboolean (L, 1); /* true */
+    return 1;
+
+}
+
+static int tex_run_main (lua_State * L) 
+{
+    (void)L;
+    main_control();
+}
+
+static int tex_run_end (lua_State * L) 
+{
+    (void)L;
+    final_cleanup();            /* prepare for death */
+    close_files_and_terminate();
+    do_final_end();
+}
+
+void init_tex_table ( lua_State * L)
+{
+    lua_createtable (L, 0, 3);
+    lua_pushcfunction(L, tex_run_boot);
+    lua_setfield(L, -2, "initialize");
+    lua_pushcfunction(L, tex_run_main);
+    lua_setfield(L, -2, "run");
+    lua_pushcfunction(L, tex_run_end);
+    lua_setfield(L, -2, "finish");
+    lua_setglobal(L, "tex");
+}
+
+
+
 
 static const struct luaL_reg texlib[] = {
+    {"run", tex_run_main}, /* may be needed  */
+    {"finish", tex_run_end}, /* may be needed  */
+    {"write", luacwrite},
     {"write", luacwrite},
     {"print", luacprint},
     {"sprint", luacsprint},

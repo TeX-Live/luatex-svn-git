@@ -277,9 +277,9 @@ to input a format file in order to get started.
 
 int ready_already = 0;
 
-void main_body(void)
+int main_initialize (void) 
 {
-
+    int bad = 0;
     /* Bounds that may be set from the configuration file. We want the user to
        be able to specify the names with underscores, but \.{TANGLE} removes
        underscores, so we're stuck giving the names twice, once as a string,
@@ -362,13 +362,7 @@ void main_body(void)
         str_pool = xmallocarray(packed_ASCII_code, pool_size);
         memset(str_pool, 0, pool_size * sizeof(packed_ASCII_code));
     }
-
-    history = fatal_error_stop; /* in case we quit during initialization */
-    t_open_out();               /* open the terminal for output */
     /* Check the ``constant'' values... */
-    bad = 0;
-    if (!luainit)
-        tracefilenames = true;
     if ((half_error_line < 30) || (half_error_line > error_line - 15))
         bad = 1;
     if (max_print_line < 60)
@@ -395,33 +389,45 @@ void main_body(void)
         bad = 18;
     if (max_quarterword - min_quarterword < 0xFFFF)
         bad = 19;
-
     if (cs_token_flag + eqtb_size + hash_extra > max_halfword)
         bad = 21;
     if (format_default_length > file_name_size)
         bad = 31;
-
     if (bad > 0) {
         wterm_cr();
         fprintf(term_out,
                 "Ouch---my internal constants have been clobbered! ---case %d",
                 (int) bad);
+    } else {
+        initialize();               /* set global variables to their starting values */
+        if (ini_version) {
+            /* initialize all the primitives */
+            no_new_control_sequence = false;
+            first = 0;
+            initialize_commands();
+            initialize_etex_commands();
+            no_new_control_sequence = true;
+            init_str_ptr = str_ptr;
+            init_pool_ptr = pool_ptr;
+            fix_date_and_time();
+        }
+        ready_already = 314159;
+    }
+    return bad;
+}
+
+void main_body(void)
+{
+    bad = main_initialize () ;
+    history = fatal_error_stop; /* in case we quit during initialization */
+    t_open_out();               /* open the terminal for output */
+    if (!luainit)
+        tracefilenames = true;
+    if (bad > 0) {
         goto FINAL_END;
     }
-    initialize();               /* set global variables to their starting values */
-    if (ini_version) {
-        /* initialize all the primitives */
-        no_new_control_sequence = false;
-        first = 0;
-        initialize_commands();
-        initialize_etex_commands();
-        no_new_control_sequence = true;
-        init_str_ptr = str_ptr;
-        init_pool_ptr = pool_ptr;
-        fix_date_and_time();
-    }
-    ready_already = 314159;
     print_banner(luatex_version_string, luatex_date_info);
+
     /* Get the first line of input and prepare to start */
     /* When we begin the following code, \TeX's tables may still contain garbage;
        the strings might not even be present. Thus we must proceed cautiously to get
