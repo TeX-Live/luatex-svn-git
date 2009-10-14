@@ -363,7 +363,7 @@ void hlist_out(PDF pdf, halfword this_box)
     }
 
     /* Start hlist {\sl Sync\TeX} information record */
-    if (synctexoption == 1)
+    if (int_par(synctex_code))
         synctex_hlist(this_box);
 
     while (p != null) {
@@ -385,7 +385,7 @@ void hlist_out(PDF pdf, halfword this_box)
                 p = vlink(p);
             } while (is_char_node(p));
             /* Record current point {\sl Sync\TeX} information */
-            if (synctexoption == 1)
+            if (int_par(synctex_code))
                 synctex_current();
         } else {
             /* Output the non-|char_node| |p| for |hlist_out|
@@ -451,7 +451,7 @@ void hlist_out(PDF pdf, halfword this_box)
                     basepoint.v = basepoint.v - shift_amount(p);        /* shift the box `up' */
                 if (list_ptr(p) == null) {
                     /* Record void list {\sl Sync\TeX} information */
-                    if (synctexoption == 1) {
+                    if (int_par(synctex_code)) {
                         if (type(p) == vlist_node)
                             synctex_void_vlist(p, this_box);
                         else
@@ -744,13 +744,13 @@ void hlist_out(PDF pdf, halfword this_box)
                 break;
             case kern_node:
                 /* Record |kern_node| {\sl Sync\TeX} information */
-                if (synctexoption == 1)
+                if (int_par(synctex_code))
                     synctex_kern(p, this_box);
                 cur.h += width(p);
                 break;
             case math_node:
                 /* Record |math_node| {\sl Sync\TeX} information */
-                if (synctexoption == 1)
+                if (int_par(synctex_code))
                     synctex_math(p, this_box);
                 cur.h += surround(p);
                 break;
@@ -817,7 +817,7 @@ void hlist_out(PDF pdf, halfword this_box)
           MOVE_PAST:
             cur.h += rule.wd;
             /* Record horizontal |rule_node| or |glue_node| {\sl Sync\TeX} information */
-            if (synctexoption == 1) {
+            if (int_par(synctex_code)) {
                 synch_pos_with_cur(pdf->posstruct, refpos, cur);
                 synctex_horizontal_rule_or_glue(p, this_box);
             }
@@ -829,7 +829,7 @@ void hlist_out(PDF pdf, halfword this_box)
     }
 
     /* Finish hlist {\sl Sync\TeX} information record */
-    if (synctexoption == 1)
+    if (int_par(synctex_code))
         synctex_tsilh(this_box);
 
     if (pdf->o_mode == OMODE_DVI) {
@@ -894,7 +894,7 @@ void vlist_out(PDF pdf, halfword this_box)
     }
 
     /* Start vlist {\sl Sync\TeX} information record */
-    if (synctexoption == 1)
+    if (int_par(synctex_code))
         synctex_vlist(this_box);
 
     /* Create thread for the current vbox if needed */
@@ -957,7 +957,7 @@ void vlist_out(PDF pdf, halfword this_box)
                 if (list_ptr(p) == null) {
                     cur.v += effective_vertical;
                     /* Record void list {\sl Sync\TeX} information */
-                    if (synctexoption == 1) {
+                    if (int_par(synctex_code)) {
                         synch_pos_with_cur(pdf->posstruct, refpos, cur);
                         if (type(p) == vlist_node)
                             synctex_void_vlist(p, this_box);
@@ -1219,7 +1219,7 @@ void vlist_out(PDF pdf, halfword this_box)
         synch_pos_with_cur(pdf->posstruct, refpos, cur);
     }
     /* Finish vlist {\sl Sync\TeX} information record */
-    if (synctexoption == 1)
+    if (int_par(synctex_code))
         synctex_tsilv(this_box);
 
     if (pdf->o_mode == OMODE_DVI) {
