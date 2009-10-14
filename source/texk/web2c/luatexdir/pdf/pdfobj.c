@@ -41,9 +41,16 @@ void pdf_check_obj(PDF pdf, integer t, integer n)
 void pdf_write_obj(PDF pdf, integer n)
 {
     char *s;
+    int saved_compress_level = pdf->compress_level;
+    int saved_objcompresslevel = pdf->objcompresslevel;
+    
     s = tokenlist_to_cstring(obj_obj_data(pdf, n), true, NULL);
     delete_token_ref(obj_obj_data(pdf, n));
     set_obj_obj_data(pdf, n, null);
+    if (obj_obj_uncompressed(pdf, n) > 0) {
+        pdf->compress_level = 0;
+        pdf->objcompresslevel = 0;
+    }
     if (obj_obj_is_stream(pdf, n) > 0) {
         pdf_begin_dict(pdf, n, 0);
         if (obj_obj_stream_attr(pdf, n) != null) {
@@ -110,6 +117,8 @@ void pdf_write_obj(PDF pdf, integer n)
     else
         pdf_end_obj(pdf);
     xfree(s);
+    pdf->compress_level = saved_compress_level;
+    pdf->objcompresslevel = saved_objcompresslevel;
 }
 
 /* The \.{\\pdfobj} primitive is used to create a ``raw'' object in the PDF
@@ -148,6 +157,10 @@ void scan_obj(PDF pdf)
             k = pdf->obj_ptr;
         }
         set_obj_data_ptr(pdf, k, pdf_get_mem(pdf, pdfmem_obj_size));
+        if (scan_keyword("uncompressed"))
+            set_obj_obj_uncompressed(pdf, k, 1);
+        else
+            set_obj_obj_uncompressed(pdf, k, 0);
         if (scan_keyword("stream")) {
             set_obj_obj_is_stream(pdf, k, 1);
             if (scan_keyword("attr")) {

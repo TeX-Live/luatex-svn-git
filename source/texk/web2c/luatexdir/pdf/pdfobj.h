@@ -27,7 +27,7 @@
 #  define set_pdf_obj_objnum(A,B) pdf_obj_objnum(A)=B
 
 
-#  define pdfmem_obj_size          4    /* size of memory in |mem| which |obj_data_ptr| holds */
+#  define pdfmem_obj_size          5    /* size of memory in |mem| which |obj_data_ptr| holds */
 
 #  define obj_obj_data(pdf,A)          pdf->mem[obj_data_ptr(pdf,A) + 0]        /* object data */
 #  define obj_obj_is_stream(pdf,A)     pdf->mem[obj_data_ptr(pdf,A) + 1]        /* will this object
@@ -36,6 +36,9 @@
 #  define obj_obj_is_file(pdf,A)       pdf->mem[obj_data_ptr(pdf,A) + 3]        /* data should be
                                                                                    read from an external file? */
 
+#  define obj_obj_uncompressed(pdf,A)  pdf->mem[obj_data_ptr(pdf,A) + 4]        /* should this object be uncompressed always? */
+
+#  define set_obj_obj_uncompressed(pdf,A,B) obj_obj_uncompressed(pdf,A)=B
 #  define set_obj_obj_is_stream(pdf,A,B) obj_obj_is_stream(pdf,A)=B
 #  define set_obj_obj_stream_attr(pdf,A,B) obj_obj_stream_attr(pdf,A)=B
 #  define set_obj_obj_is_file(pdf,A,B) obj_obj_is_file(pdf,A)=B
