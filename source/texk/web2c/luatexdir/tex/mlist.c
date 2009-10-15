@@ -1849,9 +1849,12 @@ pointer var_delimiter(pointer d, integer s, scaled v)
         if ((char_tag(f, c) == ext_tag) &&
             ((ext = get_charinfo_vert_variants(char_info(f, c))) != NULL)) {
             b = get_delim_vbox(ext, f, v, att);
-            width(b) += char_italic(f, c);
+            if (!is_new_mathfont(f))
+                width(b) += char_italic(f, c);
         } else {
             b = char_box(f, c, att);
+            if (is_new_mathfont(f))
+                width(b) -= char_italic(f,c);
         }
     } else {
         b = new_null_box();
