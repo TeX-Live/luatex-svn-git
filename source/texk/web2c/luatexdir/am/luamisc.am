@@ -23,6 +23,7 @@ libluamisc_a_SOURCES = \
 	luatexdir/luamd5/md5.c \
 	luatexdir/luamd5/md5.h \
 	luatexdir/luamd5/md5lib.c \
+	luatexdir/luamd5/md5_lua.c \
 	luatexdir/luapeg/lpeg.c \
 	luatexdir/luaprofiler/clocks.c \
 	luatexdir/luaprofiler/clocks.h \

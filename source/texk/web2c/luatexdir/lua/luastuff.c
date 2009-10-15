@@ -129,6 +129,8 @@ void luainterpreter(void)
 
     do_openlibs(L);             /* does all the 'simple' libraries */
 
+    luatex_md5_lua_open(L);
+
     open_oslibext(L, safer_option);
 
     lua_getglobal(L, "package");
