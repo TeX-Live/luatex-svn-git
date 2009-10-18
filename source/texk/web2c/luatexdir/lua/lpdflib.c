@@ -217,7 +217,8 @@ const parm_struct obj_parms[] = {
 
 static int table_obj(lua_State * L)
 {
-    int i, k, type, compress_level;
+    int i, k, type;
+    int compress_level = -1;    /* unset */
     int os_level = 1;           /* default: put non-stream objects into object streams */
     int saved_compress_level = static_pdf->compress_level;
     size_t buflen, len, l_attr;
@@ -316,10 +317,6 @@ static int table_obj(lua_State * L)
             luaL_error(L, "pdf.obj(): \"compresslevel\" must be <= 9");
         else if (compress_level < 0)
             luaL_error(L, "pdf.obj(): \"compresslevel\" must be >= 0");
-        if (immediate == 1)
-            static_pdf->compress_level = compress_level;
-        else
-            set_obj_obj_pdfcompresslevel(static_pdf, k, compress_level);
     }
     lua_pop(L, 1);              /* t */
 
@@ -396,9 +393,14 @@ static int table_obj(lua_State * L)
                 if (s_attr[l_attr - 1] != '\n')
                     pdf_puts(static_pdf, "\n");
             }
+            if (compress_level > -1)
+                static_pdf->compress_level = compress_level;
             pdf_begin_stream(static_pdf);
-        } else
+        } else {
+            if (compress_level > -1)
+                set_obj_obj_pdfcompresslevel(static_pdf, k, compress_level);
             set_obj_obj_is_stream(static_pdf, k, 1);
+        }
         if (!lua_isnil(L, -2)) {        /* file-s? string-s? t */
             lua_pop(L, 1);      /* string-s? t */
             if (!lua_isstring(L, -1))   /* !string-s t */
