@@ -98,6 +98,11 @@ void writetype0(PDF pdf, fd_entry * fd)
 
     /* TODO the next 0 is a subfont index */
     cff = read_cff(ttf_buffer + ttf_curbyte, tab->length, 0);
+    if (!is_subsetted(fd_cur->fm)) {
+        /* not subsetted, just do a copy */
+        for (i = tab->length; i > 0; i--)
+            fb_putchar(pdf, ttf_getnum(1));
+    } else {
     if (cff != NULL) {
         if (cff_is_cidfont(cff)) {
             write_cid_cff(pdf, cff, fd_cur);
@@ -107,11 +112,12 @@ void writetype0(PDF pdf, fd_entry * fd)
              */
         } else {
             write_cff(pdf, cff, fd_cur);
-        }
+        }    
     } else {
         /* not understood, just do a copy */
         for (i = tab->length; i > 0; i--)
             fb_putchar(pdf, ttf_getnum(1));
+    }
     }
     xfree(dir_tab);
     xfree(ttf_buffer);
