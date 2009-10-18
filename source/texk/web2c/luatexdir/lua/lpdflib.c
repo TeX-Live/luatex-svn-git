@@ -217,11 +217,11 @@ const parm_struct obj_parms[] = {
 
 static int table_obj(lua_State * L)
 {
-    int i, k, type;
+    int k, type;
     int compress_level = -1;    /* unset */
     int os_level = 1;           /* default: put non-stream objects into object streams */
     int saved_compress_level = static_pdf->compress_level;
-    size_t buflen, len, l_attr;
+    size_t i, buflen, len, l_attr;
     unsigned char *buf;
     const char *s = NULL, *s_attr = NULL;
     int immediate = 0;          /* default: not immediate */
