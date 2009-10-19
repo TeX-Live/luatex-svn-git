@@ -533,7 +533,7 @@ static void write_fontdescriptor(PDF pdf, fd_entry * fd)
     int fd_flags;
     assert(fd != NULL && fd->fm != NULL);
 
-    if (is_fontfile(fd->fm))
+    if (is_fontfile(fd->fm) && is_included(fd->fm))
         write_fontfile(pdf, fd);        /* this will set fd->ff_found if font file is found */
     if (fd->fn_objnum != 0)
         write_fontname_object(pdf, fd);
