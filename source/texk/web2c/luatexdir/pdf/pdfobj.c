@@ -77,6 +77,11 @@ void pdf_write_obj(PDF pdf, integer n)
                 namelength = strlen(fnam);
                 xfree(fnam);
             }
+        } else {
+            xfree(nameoffile);
+            nameoffile = xmallocarray(packed_ASCII_code, strlen(s) + 2);
+            strcpy((char *) (nameoffile + 1), s);
+            namelength = strlen(s);
         }
         callback_id = callback_defined(read_data_file_callback);
         if (callback_id > 0) {
