@@ -1757,8 +1757,11 @@ void handle_base  (lua_State *L, struct Base *Base) {
       dump_intfield(L, "default_baseline", (next->def_baseline+1)) ;
       lua_newtable(L);
       for ( i=0; i<Base->baseline_cnt; i++ ) {
-        lua_pushnumber(L, next->baseline_pos[i]) ;
-        lua_rawseti(L,-2, (i+1));
+          if (next->baseline_pos != NULL) /* default omitted */
+              lua_pushnumber(L, next->baseline_pos[i]) ;
+          else
+              lua_pushnumber(L, 0) ;
+          lua_rawseti(L,-2, (i+1));
       }
       lua_setfield(L, -2, "baseline");
       lua_newtable(L);
