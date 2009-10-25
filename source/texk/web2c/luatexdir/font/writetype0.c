@@ -103,21 +103,21 @@ void writetype0(PDF pdf, fd_entry * fd)
         for (i = tab->length; i > 0; i--)
             fb_putchar(pdf, ttf_getnum(1));
     } else {
-    if (cff != NULL) {
-        if (cff_is_cidfont(cff)) {
-            write_cid_cff(pdf, cff, fd_cur);
-            /*
-               for (i = tab->length; i > 0; i--)
-               fb_putchar (ttf_getnum(1));
-             */
+        if (cff != NULL) {
+            if (cff_is_cidfont(cff)) {
+                write_cid_cff(pdf, cff, fd_cur);
+                /*
+                   for (i = tab->length; i > 0; i--)
+                   fb_putchar (ttf_getnum(1));
+                 */
+            } else {
+                write_cff(pdf, cff, fd_cur);
+            }
         } else {
-            write_cff(pdf, cff, fd_cur);
-        }    
-    } else {
-        /* not understood, just do a copy */
-        for (i = tab->length; i > 0; i--)
-            fb_putchar(pdf, ttf_getnum(1));
-    }
+            /* not understood, just do a copy */
+            for (i = tab->length; i > 0; i--)
+                fb_putchar(pdf, ttf_getnum(1));
+        }
     }
     xfree(dir_tab);
     xfree(ttf_buffer);
