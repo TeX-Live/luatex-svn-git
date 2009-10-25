@@ -11,6 +11,10 @@
    Makefile rule.  */
 #include "luatex.h"
 
+static const char __svn_version[] =
+    "$Id$ "
+    "$URL$";
+
 #define TeX
 
 int luatex_version = 44;        /* \.{\\luatexversion}  */
