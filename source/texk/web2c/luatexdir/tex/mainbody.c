@@ -277,7 +277,7 @@ to input a format file in order to get started.
 
 int ready_already = 0;
 
-int main_initialize (void) 
+int main_initialize(void)
 {
     int bad = 0;
     /* Bounds that may be set from the configuration file. We want the user to
@@ -399,7 +399,7 @@ int main_initialize (void)
                 "Ouch---my internal constants have been clobbered! ---case %d",
                 (int) bad);
     } else {
-        initialize();               /* set global variables to their starting values */
+        initialize();           /* set global variables to their starting values */
         if (ini_version) {
             /* initialize all the primitives */
             no_new_control_sequence = false;
@@ -418,7 +418,7 @@ int main_initialize (void)
 
 void main_body(void)
 {
-    bad = main_initialize () ;
+    bad = main_initialize();
     history = fatal_error_stop; /* in case we quit during initialization */
     t_open_out();               /* open the terminal for output */
     if (!luainit)

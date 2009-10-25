@@ -264,14 +264,14 @@ void print(integer s)
             } else if (s >= 0x110000) {
                 int c = s - 0x110000;
                 if (c >= 256) {
-		    pdf_warning("print", "bad raw byte to print (c=", 
-				true, false);
-		    print_int(c);
-		    tprint("), skipped.");
-		    print_ln();
-		} else {
-		    print_char(c);
-		}
+                    pdf_warning("print", "bad raw byte to print (c=",
+                                true, false);
+                    print_int(c);
+                    tprint("), skipped.");
+                    print_ln();
+                } else {
+                    print_char(c);
+                }
             } else {
                 print_char(0xF0 + (s / 0x40000));
                 print_char(0x80 + ((s % 0x40000) / 0x1000));

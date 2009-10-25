@@ -1078,7 +1078,7 @@ value is changed to zero and so is the next tabskip.
                         type(r) = vlist_node;
 
                     }
-                    subtype(r) = 0; 
+                    subtype(r) = 0;
                     shift_amount(r) = 0;
                     if (u != hold_head) {       /* append blank boxes to account for spanned nodes */
                         vlink(u) = vlink(r);

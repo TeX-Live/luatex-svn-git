@@ -1854,7 +1854,7 @@ pointer var_delimiter(pointer d, integer s, scaled v)
         } else {
             b = char_box(f, c, att);
             if (is_new_mathfont(f))
-                width(b) -= char_italic(f,c);
+                width(b) -= char_italic(f, c);
         }
     } else {
         b = new_null_box();

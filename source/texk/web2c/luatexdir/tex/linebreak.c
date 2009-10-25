@@ -470,7 +470,7 @@ static boolean check_expand_pars(internal_font_number f)
                 if (alink(r) != null) {
                     assert(vlink(alink(r)) == r);
                     r = alink(r);
-                } else { /* this is the input: \leavevmode\penalty-10000\penalty-10000 (bug #268)*/
+                } else {        /* this is the input: \leavevmode\penalty-10000\penalty-10000 (bug #268) */
                     run = false;
                 }
             } else if ((r == l) && (hlist_stack_level == 0))
