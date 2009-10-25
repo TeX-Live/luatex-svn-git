@@ -48,7 +48,7 @@ void gwwv_errors_free(void)
     }
 }
 
-
+__attribute__ ((format(printf, 1, 0)))
 static void LUAUI_IError(const char *format, ...)
 {
     va_list ap;
@@ -58,6 +58,7 @@ static void LUAUI_IError(const char *format, ...)
     va_end(ap);
 }
 
+__attribute__ ((format(printf, 1, 0)))
 static void LUAUI__LogError(const char *format, va_list ap)
 {
     char buffer[400], *str;
@@ -75,6 +76,7 @@ static void LUAUI__LogError(const char *format, va_list ap)
 
 /* this is not static because it is used by gwwiconv.c */
 
+__attribute__ ((format(printf, 1, 2)))
 void LUAUI_LogError(const char *format, ...)
 {
     va_list ap;
@@ -83,6 +85,7 @@ void LUAUI_LogError(const char *format, ...)
     va_end(ap);
 }
 
+__attribute__ ((format(printf, 2, 3)))
 static void LUAUI_post_notice(const char *title, const char *statement, ...)
 {
     va_list ap;
@@ -92,6 +95,7 @@ static void LUAUI_post_notice(const char *title, const char *statement, ...)
     va_end(ap);
 }
 
+__attribute__ ((format(printf, 2, 3)))
 static void LUAUI_post_error(const char *title, const char *statement, ...)
 {
     va_list ap;
