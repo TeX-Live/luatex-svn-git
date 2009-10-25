@@ -474,7 +474,7 @@ int pdf_table_id;
 int token_table_id;
 int node_table_id;
 
-extern void init_tex_table ( lua_State * L);
+extern void init_tex_table(lua_State * L);
 
 void lua_initialize(int ac, char **av)
 {
@@ -545,7 +545,7 @@ void lua_initialize(int ac, char **av)
             exit(1);
         }
         /* */
-        init_tex_table (Luas);
+        init_tex_table(Luas);
         if (lua_pcall(Luas, 0, 0, 0)) {
             fprintf(stdout, "%s\n", lua_tostring(Luas, -1));
             exit(1);

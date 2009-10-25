@@ -49,8 +49,8 @@ char *get_pdftex_banner(void)
 
 static char *get_output_file_name(void)
 {
-    if (static_pdf!=NULL)
-	return static_pdf->file_name;
+    if (static_pdf != NULL)
+        return static_pdf->file_name;
     return NULL;
 }
 

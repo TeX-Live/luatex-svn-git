@@ -339,7 +339,7 @@ int tokenlist_from_lua(lua_State * L)
             if (s[i] == 32) {
                 tok = token_val(10, s[i]);
             } else {
-                int j = str2uni((unsigned char *)s+i);
+                int j = str2uni((unsigned char *) s + i);
                 i = i + utf8_size(j) - 1;
                 tok = token_val(12, j);
             }
