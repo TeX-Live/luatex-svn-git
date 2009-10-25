@@ -193,10 +193,10 @@ integer find_obj(PDF pdf, integer t, integer i, boolean byname)
 {
 
     if (byname) {
-        if (i<0) i = abs(i);
+        if (i < 0)
+            i = abs(i);
         return avl_find_str_obj(pdf, t, makecstring(i));
-    }
-    else
+    } else
         return avl_find_int_obj(pdf, t, i);
 }
 
