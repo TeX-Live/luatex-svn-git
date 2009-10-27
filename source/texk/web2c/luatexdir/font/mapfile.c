@@ -682,6 +682,8 @@ static fm_entry_ptr fmlookup(internalfontnumber f)
     if (tfm_tree == NULL)
         fm_read_info();         /* only to read default map file */
     tfm = font_name(f);
+    if (tfm == NULL)  /* wide, lua loaded fonts may not have a name */
+        return (fm_entry_ptr) dummy_fm_entry();
     assert(strcmp(tfm, nontfm));
 
     /* Look up for full <tfmname>[+-]<expand> */
