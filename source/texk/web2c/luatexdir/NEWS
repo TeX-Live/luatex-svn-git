@@ -1,4 +1,68 @@
 ==============================================================
+Luatex beta-0.44.0 was released 20091027
+==============================================================
+
+New features:
+
+* libpng is now 1.2.40.
+
+* hlist nodes now have a subtype to distinguish hlists generated
+  by the paragraph breaking, explicit \hbox commands, and other
+  (as-yet-undefined) sources.
+
+* \pdfobj now has an extra optional keyword: 'uncompressed',
+  which forces the object to be written to the PDF in plain
+  text (see the manual for the exact details).
+
+* The lua file from the luamd5 library (which provides the
+  md5.hexsuma() function) is now embedded in the executable.
+
+Bug fixes:
+
+* \latelua now works in DVI mode again.
+
+* status.output_file_name could crash when used too soon.
+
+* In 0.43, rules were not output at all in DVI mode.
+
+* \leavevmode\penalty-10000\penalty-10000 crashed luatex.
+
+* the API of margin kern nodes to lua was using the wrong 
+  fields in the nodes.
+
+* A few fixes to the manual.
+
+* PDF Xref stream dicts were slightly non-conformant.
+
+* There was too much space between two consecutive math displays
+  (this bug was inherited from Aleph)
+
+* Synctex was broken (thanks, Akira)
+
+* Font mark classes were handled incorrectly by the fontloader
+  code.
+
+* There was a crash possible with certain types of named PDF
+  destinations.
+
+* Math delimiters and large operators in new MATH fonts no
+  longer apply the italic correction (this fixes placements
+  of super- and subscripts on such items for those fonts).
+
+* The converter from lua strings to token lists (for the node
+  interface) sometimes generated invalid tokens.
+
+* CFF (OpenType) fonts now listen to 'embedding="full"'. TTF 
+  is still todo.
+
+* Font tables with 'embedding="no"' would cause luatex to crash.
+
+* \pdfobj file {} failed to find the file if there was no lua
+  callback in place.
+
+* An optimization in MS Mincho caused luatex to crash.
+
+==============================================================
 Luatex beta-0.43.0 was released 20090819
 ==============================================================
 
