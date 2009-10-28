@@ -817,12 +817,12 @@ read_pdf_info(PDF pdf,
                 copyObject(pdf, &lastGroup);
                 epdf_lastGroupObjectNum =
                     getNewObjectNumber(lastGroup->getRef());
+                pdf_puts(pdf, "\n");
             } else {
                 // make the group an indirect object; copying is done later
                 // by write_additional_epdf_objects after write_epdf
                 epdf_lastGroupObjectNum = pdf_new_objnum(pdf);
             }
-            pdf_puts(pdf, "\n");
         }
     } else {
         epdf_lastGroupObjectNum = 0;
