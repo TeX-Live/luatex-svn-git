@@ -3773,7 +3773,7 @@ static void cfffigure(struct ttfinfo *info, struct topdicts *dict,
 
     info->chars = gcalloc(info->glyph_cnt,sizeof(SplineChar *));
     for ( i=0; i<info->glyph_cnt; ++i ) {
-	info->chars[i] = PSCharStringToSplines(
+	info->chars[i] = PSCharStringToBB(
 		dict->glyphs.values[i], dict->glyphs.lens[i],&pscontext,
 		subrs,gsubrs,FFgetsid(dict->charset[i],strings,scnt,info));
 	info->chars[i]->vwidth = info->emsize;
@@ -3856,7 +3856,7 @@ static void cidfigure(struct ttfinfo *info, struct topdicts *dict,
 	cid = dict->charset[i];
 	/*encmap->map[cid] = cid;*/
 	uni = CID2NameUni(map,cid,buffer,sizeof(buffer));
-	info->chars[i] = PSCharStringToSplines(
+	info->chars[i] = PSCharStringToBB(
 		dict->glyphs.values[i], dict->glyphs.lens[i],&pscontext,
 		subrs,gsubrs,buffer);
 	info->chars[i]->vwidth = sf->ascent+sf->descent;

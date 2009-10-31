@@ -2602,6 +2602,8 @@ struct pscontext {
 extern int UnblendedCompare(real u1[MmMax], real u2[MmMax], int cnt);
 extern SplineChar *PSCharStringToSplines(uint8 *type1, int len, struct pscontext *context,
 	struct pschars *subrs, struct pschars *gsubrs, const char *name);
+extern SplineChar *PSCharStringToBB(uint8 *type1, int len, struct pscontext *context,
+	struct pschars *subrs, struct pschars *gsubrs, const char *name);
 extern void MatMultiply(real m1[6], real m2[6], real to[6]);
 
 extern int NameToEncoding(SplineFont *sf,EncMap *map,const char *uname);
