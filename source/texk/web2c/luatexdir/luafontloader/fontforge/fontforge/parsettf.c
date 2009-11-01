@@ -33,6 +33,11 @@
 #include <gwidget.h>
 #include "ttf.h"
 
+extern char *AdobeStandardEncoding[], *AdobeExpertEncoding[];
+extern const char *ttfstandardnames[];
+extern int ask_user_for_cmap;
+extern char *SaveTablesPref;
+
 #ifdef LUA_FF_LIB
 SplineFont *_SFReadTTFInfo(FILE *ttf, int flags,enum openflags openflags, char *filename,struct fontdict *fd);
 void THPatchSplineChar(SplineChar *sc);
@@ -714,7 +719,6 @@ return( choice );
 }
 
 static void ParseSaveTablesPref(struct ttfinfo *info) {
-    extern char *SaveTablesPref;
     char *pt, *spt;
     int cnt;
 
@@ -3335,7 +3339,6 @@ return( strings[sid-nStdStrings]);
 static void readcffenc(FILE *ttf,struct topdicts *dict,struct ttfinfo *info,
 	char **strings, int scnt) {
     int format, cnt, i, j, pos, first, last, dupenc, sid;
-    extern char *AdobeStandardEncoding[], *AdobeExpertEncoding[];
     const char *name;
     EncMap *map;
 
@@ -4520,7 +4523,6 @@ static void readttfencodings(FILE *ttf,struct ttfinfo *info, int justinuse) {
     Encoding *temp;
     EncMap *map;
     struct cmap_encs *cmap_encs, desired_cmaps[2], *dcmap;
-    extern int ask_user_for_cmap;
 
     fseek(ttf,info->encoding_start,SEEK_SET);
     version = getushort(ttf);
@@ -5149,7 +5151,6 @@ static void readttfpostnames(FILE *ttf,struct ttfinfo *info) {
     const char *name;
     char buffer[30];
     uint16 *indexes;
-    extern const char *ttfstandardnames[];
     int notdefwarned = false;
     int anynames = false;
 
