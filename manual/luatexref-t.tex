@@ -93,7 +93,7 @@ implemented in \LUA\ instead.
 \section{Introduction}
 
 From day one, \LUATEX\ has offered extra functionality when compared
-to the superset of pdftex and Aleph. That has not been limited to
+to the superset of \PDFTEX\ and Aleph. That has not been limited to
 the possibility to execute lua code via \type{\directlua}, but
 \LUATEX\ also adds functionality via new \TEX-side primitives.
 
@@ -8205,6 +8205,9 @@ have been removed since \LUATEX~0.42:
 (high-level support is pending)
 
 \item LFS (\PDF\ Files larger than 2GiB) support is not working yet.
+
+\item \LUATEX~0.44.0 introduces two extra token lists, \tex{pdfxformresources} 
+and \tex{pdfxformattr}, as an alternative to \tex{pdfxform} keywords.
 
 \stopitemize
 
