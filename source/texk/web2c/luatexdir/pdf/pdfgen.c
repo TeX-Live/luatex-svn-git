@@ -1678,6 +1678,9 @@ void set_job_id(PDF pdf, int year, int month, int day, int time)
 
 #define mag int_par(mag_code)
 
+#define pdf_xform_attr equiv(pdf_xform_attr_loc)
+#define pdf_xform_resources equiv(pdf_xform_resources_loc)
+
 void pdf_begin_page(PDF pdf, boolean shipping_page)
 {
     scaled form_margin = one_bp;
@@ -1702,6 +1705,8 @@ void pdf_begin_page(PDF pdf, boolean shipping_page)
         /* Write out Form stream header */
         pdf_printf(pdf, "/Type /XObject\n");
         pdf_printf(pdf, "/Subtype /Form\n");
+        if (pdf_xform_attr != null)
+            pdf_print_toks_ln(pdf, pdf_xform_attr);
         if (obj_xform_attr(pdf, pdf_cur_form) != null) {
             pdf_print_toks_ln(pdf, obj_xform_attr(pdf, pdf_cur_form));
             delete_token_ref(obj_xform_attr(pdf, pdf_cur_form));
@@ -1893,6 +1898,8 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
         if (pdf_page_resources != null)
             pdf_print_toks_ln(pdf, pdf_page_resources);
     } else {
+        if (pdf_xform_resources != null)
+            pdf_print_toks_ln(pdf, pdf_xform_resources);
         if (obj_xform_resources(pdf, pdf_cur_form) != null) {
             pdf_print_toks_ln(pdf, obj_xform_resources(pdf, pdf_cur_form));
             delete_token_ref(obj_xform_resources(pdf, pdf_cur_form));

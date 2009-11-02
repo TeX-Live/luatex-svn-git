@@ -84,6 +84,10 @@ void initialize_commands(void)
                      local_base);
     primitive_pdftex("pdfpageresources", assign_toks_cmd,
                      pdf_page_resources_loc, local_base);
+    primitive_pdftex("pdfxformattr", assign_toks_cmd, pdf_xform_attr_loc,
+                     local_base);
+    primitive_pdftex("pdfxformresources", assign_toks_cmd,
+                     pdf_xform_resources_loc, local_base);
     primitive_pdftex("pdfpkmode", assign_toks_cmd, pdf_pk_mode_loc, local_base);
 
     /* The integer parameter names must be entered into the hash table */
