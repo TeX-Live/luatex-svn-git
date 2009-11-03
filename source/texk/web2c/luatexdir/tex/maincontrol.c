@@ -3159,9 +3159,17 @@ void open_or_close_in(void)
     }
     if (c != 0) {
         scan_optional_equals();
-        scan_file_name();
-        if (cur_ext == get_nullstr())
-            cur_ext = maketexstring(".tex");
+        do {
+            get_x_token();
+        } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
+        back_input();
+        if (cur_cmd != left_brace_cmd) {
+            scan_file_name();           /* set |cur_name| to desired file name */
+            if (cur_ext == get_nullstr())
+                cur_ext = maketexstring(".tex");
+        } else {
+            scan_file_name_toks();
+        }
         pack_cur_name();
         if (lua_a_open_in(read_file[n], (n + 1))) {
             read_file[n] = name_file_pointer;

@@ -23,6 +23,7 @@
 #  define FILENAME_H
 
 extern void scan_file_name(void);
+extern void scan_file_name_toks(void);
 extern void pack_job_name(char *s);
 extern void prompt_file_name(char *s, char *e);
 extern str_number make_name_string(void);

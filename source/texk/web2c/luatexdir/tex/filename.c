@@ -169,6 +169,39 @@ void scan_file_name(void)
     name_in_progress = false;
 }
 
+/* This function constructs a the three file name strings from a token list */
+
+void scan_file_name_toks(void)
+{
+    char *a, *n, *e, *s = NULL;
+    int i, l = 0;
+    (void) scan_toks(false, true);
+    s = tokenlist_to_cstring(def_ref, true, &l);
+    a = n = s;
+    e = NULL;
+    for (i=0; i<l; i++) {
+        if (ISDIRSEP(s[i])) {
+            n = s+i+1;
+            e = NULL;
+        } else if (s[i] == '.') {
+            e = s+i;
+        }
+    }
+    if (n!=s) { /* explicit area */
+        cur_area = maketexlstring(a,(n-a));
+    } else {
+        cur_area = get_nullstr();
+    }
+    if (e != NULL) { /* explicit extension */
+        cur_name = maketexlstring(n,(e-n));
+        cur_ext = maketexstring(e);
+    } else {
+        cur_name = maketexstring(n);
+        cur_ext = get_nullstr();
+    }
+}
+
+
 
 /*
   Here is a routine that manufactures the output file names, assuming that

@@ -787,7 +787,16 @@ when an `\.{\\input}' command is being processed.
 void start_input(void)
 {                               /* \TeX\ will \.{\\input} something */
     str_number temp_str;
-    scan_file_name();           /* set |cur_name| to desired file name */
+    do {
+        get_x_token();
+    } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
+
+    back_input();
+    if (cur_cmd != left_brace_cmd) {
+        scan_file_name();           /* set |cur_name| to desired file name */
+    } else {
+        scan_file_name_toks();
+    }
     pack_cur_name();
     while (1) {
         begin_file_reading();   /* set up |cur_file| and new level of input */
