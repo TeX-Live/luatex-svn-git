@@ -142,11 +142,6 @@ void writetype2(PDF pdf, fd_entry * fd)
     assert(fd_cur->fm != NULL);
     assert(is_truetype(fd_cur->fm));
 
-    if (!is_subsetted(fd_cur->fm)) {
-        writettf(pdf, fd);
-        return;
-    }
-
     assert(is_included(fd_cur->fm));
 
     set_cur_file_name(fd_cur->fm->ff_name);
@@ -238,7 +233,7 @@ static struct {
     "head", 1}, {
     "hhea", 1}, {
     "loca", 1}, {
-    "maxp", 1}, {
+    "maxp", 0}, {
     "name", 1}, {
     "glyf", 1}, {
     "hmtx", 1}, {
@@ -283,7 +278,7 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer,
     unsigned char *cidtogidmap;
     unsigned short num_glyphs, gid;
     struct tt_glyphs *glyphs;
-    char *used_chars;
+    char *used_chars = NULL;
     sfnt *sfont;
     pdf_obj *fontfile;
     int verbose = 0, error = 0;
@@ -303,72 +298,74 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer,
         fprintf(stderr, "Could not parse the ttf directory.\n");
         uexit(1);
     }
+    if (is_subsetted(fd->fm)) {
+        /* rebuild the glyph tables and create a fresh cidmap */
+        glyphs = tt_build_init();
+        
+        last_cid = 0;
 
-    glyphs = tt_build_init();
-
-    last_cid = 0;
-
-    avl_t_init(&t, fd->gl_tree);
-    for (found = (glw_entry *) avl_t_first(&t, fd->gl_tree);
-         found != NULL; found = (glw_entry *) avl_t_next(&t)) {
-        if (found->id > last_cid)
-            last_cid = found->id;
-    }
+        avl_t_init(&t, fd->gl_tree);
+        for (found = (glw_entry *) avl_t_first(&t, fd->gl_tree);
+             found != NULL; found = (glw_entry *) avl_t_next(&t)) {
+            if (found->id > last_cid)
+                last_cid = found->id;
+        }
 
 #ifndef NO_GHOSTSCRIPT_BUG
-    cidtogidmap = NULL;
+        cidtogidmap = NULL;
 #else
-    cidtogidmap = xmalloc(((last_cid + 1) * 2) * sizeof(unsigned char));
-    memset(cidtogidmap, 0, (last_cid + 1) * 2);
+        cidtogidmap = xmalloc(((last_cid + 1) * 2) * sizeof(unsigned char));
+        memset(cidtogidmap, 0, (last_cid + 1) * 2);
 #endif
 
     /* fill used_chars */
-    used_chars = xmalloc((last_cid + 1) * sizeof(char));
-    memset(used_chars, 0, (last_cid + 1));
-    avl_t_init(&t, fd->gl_tree);
-    for (found = (glw_entry *) avl_t_first(&t, fd->gl_tree);
-         found != NULL; found = (glw_entry *) avl_t_next(&t)) {
-        used_chars[found->id] = 1;
-    }
+        used_chars = xmalloc((last_cid + 1) * sizeof(char));
+        memset(used_chars, 0, (last_cid + 1));
+        avl_t_init(&t, fd->gl_tree);
+        for (found = (glw_entry *) avl_t_first(&t, fd->gl_tree);
+             found != NULL; found = (glw_entry *) avl_t_next(&t)) {
+            used_chars[found->id] = 1;
+        }
 
-    /*
-     * Map CIDs to GIDs.
-     */
-
-    num_glyphs = 1;             /* .notdef */
-    for (cid = 1; cid <= (long) last_cid; cid++) {
-        if (used_chars[cid] == 0)
-            continue;
-        gid = cid;
-
+        /*
+         * Map CIDs to GIDs.
+         */
+        
+        num_glyphs = 1;             /* .notdef */
+        for (cid = 1; cid <= (long) last_cid; cid++) {
+            if (used_chars[cid] == 0)
+                continue;
+            gid = cid;
+            
 
 #ifndef NO_GHOSTSCRIPT_BUG
-        gid = tt_add_glyph(glyphs, gid, cid);
+            gid = tt_add_glyph(glyphs, gid, cid);
 #else
-        gid = tt_add_glyph(glyphs, gid, num_glyphs);
-        cidtogidmap[2 * cid] = gid >> 8;
-        cidtogidmap[2 * cid + 1] = gid & 0xff;
+            gid = tt_add_glyph(glyphs, gid, num_glyphs);
+            cidtogidmap[2 * cid] = gid >> 8;
+            cidtogidmap[2 * cid + 1] = gid & 0xff;
 #endif                          /* !NO_GHOSTSCRIPT_BUG */
 
-        num_glyphs++;
-    }
+            num_glyphs++;
+        }
 
-    if (num_glyphs == 1) {
-        fprintf(stderr, "No glyphs in subset?.\n");
-        uexit(1);
-    }
+        if (num_glyphs == 1) {
+            fprintf(stderr, "No glyphs in subset?.\n");
+            uexit(1);
+        }
 
-    if (tt_build_tables(sfont, glyphs) < 0) {
-        fprintf(stderr, "Could not parse the ttf buffer.\n");
-        uexit(1);
-    }
+        if (tt_build_tables(sfont, glyphs) < 0) {
+            fprintf(stderr, "Could not parse the ttf buffer.\n");
+            uexit(1);
+        }
 
-    if (verbose > 1) {
-        fprintf(stdout, "[%u glyphs (Max CID: %u)]", glyphs->num_glyphs,
-                last_cid);
+        if (verbose > 1) {
+            fprintf(stdout, "[%u glyphs (Max CID: %u)]", glyphs->num_glyphs,
+                    last_cid);
+        }
+        
+        tt_build_finish(glyphs);
     }
-
-    tt_build_finish(glyphs);
 
     /* Create font file */
 
