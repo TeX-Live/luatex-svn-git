@@ -515,6 +515,20 @@ differences are:
       conditional is still incomplete.
 \stopitemize
 
+\subsection {Verbose versions of single-character aligments commands (0.45)}
+
+\LUATEX\ defines two new primitives that have the same function as
+\type{#} and \type{&} in aligments:
+
+\starttabulate[|l|l|l|l|]
+\NC \bf primitive         \NC \bf explanation                           \NC\NR
+\NC \tex{alignmark}       \NC Duplicates the functionality of \char`\#~
+                              inside alignment preambles\NC\NR
+\NC \tex{aligntab}        \NC Duplicates the functionality of \char`\&~
+                              inside alignments (and preambles)\NC\NR
+\stoptabulate
+
+
 \subsection{Catcode tables}
 
 Catcode tables are a new feature that allows you to switch to a

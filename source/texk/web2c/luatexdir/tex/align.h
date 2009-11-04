@@ -36,7 +36,8 @@ The |get_x_token| routine converts the first into the second, which has |endv|
 as its command code.
 */
 
-#  define span_code 1114113     /*  {|biggest_char+2|} */
+#  define tab_mark_cmd_code 1114113     /*  {|biggest_char+2|} */
+#  define span_code 1114114     /*  {|biggest_char+3|} */
 #  define cr_code (span_code+1) /* distinct from |span_code| and from any character */
 #  define cr_cr_code (cr_code+1)        /* this distinguishes \.{\\crcr} from \.{\\cr} */
 

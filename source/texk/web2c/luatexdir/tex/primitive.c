@@ -517,7 +517,10 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
         chr_cmd("math shift character ");
         break;
     case mac_param_cmd:
-        chr_cmd("macro parameter character ");
+        if (chr_code == tab_mark_cmd_code)
+            tprint_esc("alignmark");
+        else
+            chr_cmd("macro parameter character ");
         break;
     case sup_mark_cmd:
         chr_cmd("superscript character ");
@@ -540,6 +543,8 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
     case tab_mark_cmd:
         if (chr_code == span_code)
             tprint_esc("span");
+        else if (chr_code == tab_mark_cmd_code)
+            tprint_esc("aligntab");
         else
             chr_cmd("alignment tab character ");
         break;
