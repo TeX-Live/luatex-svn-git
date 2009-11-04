@@ -2788,8 +2788,9 @@ void assign_internal_value(int a, halfword p, integer cur_val)
         case new_line_char_code:
             if (cur_val > 127) {
                 print_err("Invalid \\newlinechar");
-                help1
-                    ("The value for \\newlinechar has to be between 0 and 127.");
+                help2
+                    ("The value for \\newlinechar has to be between 0 and 127.",
+                     "Your invalid assignment will be ignored.");
                 error();
             } else if (cur_val < 0) {
                 word_define(p, -1);
@@ -2798,10 +2799,17 @@ void assign_internal_value(int a, halfword p, integer cur_val)
             }
             break;
         case end_line_char_code:
-            if ((cur_val < 0) || (cur_val > biggest_char))
+            if (cur_val < 0) {
                 word_define(p, -1);
-            else
-                word_define(p, 13);
+            } else if (cur_val > 127) {
+                print_err("Invalid \\endlinechar");
+                help2
+                    ("The value for \\endlinechar has to be no higher than 127.",
+                     "Your invalid assignment will be ignored.");
+                error();
+            } else {
+                word_define(p, cur_val);
+            }
             break;
         case pdf_compress_level_code:
             static_pdf->compress_level = cur_val;
