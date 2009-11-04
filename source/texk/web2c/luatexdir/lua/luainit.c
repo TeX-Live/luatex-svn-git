@@ -469,6 +469,70 @@ void fix_dumpname(void)
     }
 }
 
+/* lua require patch */
+
+/* The search function.
+ * When texconfig.kpse_init is false/zero, then it runs the
+ * normal lua function that is saved in the registry, otherwise
+ * it uses kpathsea.
+ */
+
+/* two registry ref variables are needed: one for the actual lua 
+ *  function, the other for its environment .
+ */
+
+static int lua_loader_function = 0;
+static int lua_loader_env = 0;
+
+static int luatex_kpse_lua_find (lua_State *L) {
+  const char *filename;
+  const char *name;
+  int do_kpse = -1;
+  get_lua_boolean("texconfig", "kpse_init", &do_kpse);
+  name = luaL_checkstring(L, 1);
+  if (do_kpse == 0) {
+      lua_CFunction orig_func;
+      lua_rawgeti(L, LUA_REGISTRYINDEX, lua_loader_function);
+      lua_rawgeti(L, LUA_REGISTRYINDEX, lua_loader_env);
+      lua_replace(L, LUA_ENVIRONINDEX);
+      orig_func = lua_tocfunction(L,-1);
+      lua_pop(L,1);
+      return (orig_func)(L);
+  }
+  if (program_name_set == 0) { /* init kpathsea if not done yet */
+      if (user_progname!=NULL)
+          kpse_set_program_name(argv[0], user_progname); 
+      else
+          kpse_set_program_name(argv[0], cleaned_invocation_name(argv[0])); 
+      program_name_set = 1;
+  }
+  filename = kpse_find_file(name, kpse_lua_format, false);
+  if (filename == NULL) return 1;  /* library not found in this path */
+  if (luaL_loadfile(L, filename) != 0) {
+      luaL_error(L, "error loading module %s from file %s:\n\t%s",
+                 lua_tostring(L, 1), filename, lua_tostring(L, -1));
+  }
+  return 1;  /* library loaded successfully */
+}
+
+/* Setting up the new search function. 
+ * This replaces package.loaders[2] with the function defined above.
+ */
+
+static void setup_lua_path (lua_State *L)
+{
+    lua_getglobal(L, "package");
+    lua_getfield(L, -1, "loaders");
+    lua_rawgeti(L, -1, 2); /* package.loaders[2] */
+    lua_getfenv (L,-1);
+    lua_loader_env = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_loader_function = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_pushcfunction(L, luatex_kpse_lua_find);
+    lua_rawseti(L, -2, 2); /* replace the normal loader */
+    lua_pop(L, 2);         /* pop the array and table */
+}   
+
+/* helper variables for the safe keeping of table ids */
 int tex_table_id;
 int pdf_table_id;
 int token_table_id;
@@ -526,6 +590,7 @@ void lua_initialize(int ac, char **av)
     luainterpreter();
 
     prepare_cmdline(Luas, argv, argc, lua_offset);      /* collect arguments */
+    setup_lua_path (Luas);
 
     if (startup_filename != NULL) {
         given_file = xstrdup(startup_filename);
