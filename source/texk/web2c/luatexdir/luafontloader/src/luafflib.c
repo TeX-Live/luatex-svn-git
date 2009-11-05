@@ -2080,30 +2080,32 @@ void handle_splinefont(lua_State * L, struct splinefont *sf)
             l = sf->glyphcnt;
         }
         for (k = 0; k < l; k++) {
-            lua_pushnumber(L, (k + 1));
-            lua_createtable(L, 0, 12);
             if (sf->glyphs[k]) {
-                handle_splinechar(L, sf->glyphs[k], sf->hasvmetrics);
-            }
-            lua_rawset(L, -3);
+	      lua_pushnumber(L, (k + 1));
+	      lua_createtable(L, 0, 12);
+	      handle_splinechar(L, sf->glyphs[k], sf->hasvmetrics);
+	      lua_rawset(L, -3);
+	    }
         }
         if (sf->glyphs != NULL && l < sf->glyphcnt) {
             lua_pushnumber(L, 0);
-            lua_createtable(L, 0, 12);
             if (sf->glyphs[l]) {
+		lua_createtable(L, 0, 12);
                 handle_splinechar(L, sf->glyphs[l], sf->hasvmetrics);
+	    } else {
+		lua_createtable(L, 0, 0);
             }
             lua_rawset(L, -3);
         }
     }
     if ((l + 1) < sf->glyphcnt) {
         for (k = (l + 1); k < sf->glyphcnt; k++) {
-            lua_pushnumber(L, k);
-            lua_createtable(L, 0, 12);
             if (sf->glyphs[k]) {
+		lua_pushnumber(L, k);
+		lua_createtable(L, 0, 12);
                 handle_splinechar(L, sf->glyphs[k], sf->hasvmetrics);
-            }
-            lua_rawset(L, -3);
+		lua_rawset(L, -3);
+	    }
         }
     }
     lua_setfield(L, -2, "glyphs");
