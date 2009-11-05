@@ -2677,7 +2677,7 @@ static void EntityDefaultStrokeFill(Entity *ent) {
 
 static SplinePointList *SplinesFromEntityChar(EntityChar *ec,int *flags,int is_stroked) {
     Entity *ent, *next;
-    SplinePointList *head=NULL, *last, *new, *nlast, *temp, *each, *transed;
+    SplinePointList *head=NULL, *last=NULL, *new, *nlast=NULL, *temp, *each, *transed;
     StrokeInfo si;
     real inversetrans[6];
     /*SplineSet *spl;*/
