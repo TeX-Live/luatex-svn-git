@@ -4134,7 +4134,6 @@ return( ret );
 /* This finds the 'connect-the-dots' boundingbox of a Type2 charstring */
 /* It is a simplified version of PSCharStringToSplines, above */
 
-#define RINT(A) A
 SplineChar *PSCharStringToBB(uint8 *type1, int len, struct pscontext *context,
 			     struct pschars *subrs, struct pschars *gsubrs, const char *name) {
     real stack[50]; int sp=0, v;		/* Type1 stack is about 25 long, Type2 stack is 48 */
@@ -4417,33 +4416,33 @@ SplineChar *PSCharStringToBB(uint8 *type1, int len, struct pscontext *context,
 		    }
 		    break;
 		}
-		current.x = RINT((current.x+dx)*1024)/1024; current.y = RINT((current.y+dy)*1024)/1024;
+		current.x = current.x+dx; current.y = current.y+dy;
 		if (ll.y>current.y) ll.y = current.y;
 		if (ur.y<current.y) ur.y = current.y;
 		if (ll.x>current.x) ll.x = current.x;
 		if (ur.x<current.x) ur.x = current.x;
-		current.x = RINT((current.x+dx2)*1024)/1024; current.y = RINT((current.y+dy2)*1024)/1024;
+		current.x = current.x+dx2; current.y = current.y+dy2;
 		if (ll.y>current.y) ll.y = current.y;
 		if (ur.y<current.y) ur.y = current.y;
 		if (ll.x>current.x) ll.x = current.x;
 		if (ur.x<current.x) ur.x = current.x;
-		current.x = RINT((current.x+dx3)*1024)/1024; current.y = RINT((current.y+dy3)*1024)/1024;
+		current.x = current.x+dx3; current.y = current.y+dy3;
 		if (ll.y>current.y) ll.y = current.y;
 		if (ur.y<current.y) ur.y = current.y;
 		if (ll.x>current.x) ll.x = current.x;
 		if (ur.x<current.x) ur.x = current.x;
 
-		current.x = RINT((current.x+dx4)*1024)/1024; current.y = RINT((current.y+dy4)*1024)/1024;
+		current.x = current.x+dx4; current.y = current.y+dy4;
 		if (ll.y>current.y) ll.y = current.y;
 		if (ur.y<current.y) ur.y = current.y;
 		if (ll.x>current.x) ll.x = current.x;
 		if (ur.x<current.x) ur.x = current.x;
-		current.x = RINT((current.x+dx5)*1024)/1024; current.y = RINT((current.y+dy5)*1024)/1024;
+		current.x = current.x+dx5; current.y = current.y+dy5;
 		if (ll.y>current.y) ll.y = current.y;
 		if (ur.y<current.y) ur.y = current.y;
 		if (ll.x>current.x) ll.x = current.x;
 		if (ur.x<current.x) ur.x = current.x;
-		current.x = RINT((current.x+dx6)*1024)/1024; current.y = RINT((current.y+dy6)*1024)/1024;
+		current.x = current.x+dx6; current.y = current.y+dy6;
 		if (ll.y>current.y) ll.y = current.y;
 		if (ur.y<current.y) ur.y = current.y;
 		if (ll.x>current.x) ll.x = current.x;
@@ -4587,7 +4586,7 @@ SplineChar *PSCharStringToBB(uint8 *type1, int len, struct pscontext *context,
 			     dy = stack[base++];
 			 }
 			 ++polarity;
-			 current.x = RINT((current.x+dx)*1024)/1024; current.y = RINT((current.y+dy)*1024)/1024;
+			 current.x = current.x+dx; current.y = current.y+dy;
 			 if (ll.y>current.y) ll.y = current.y;
 			 if (ur.y<current.y) ur.y = current.y;
 			 if (ll.x>current.x) ll.x = current.x;
@@ -4604,7 +4603,7 @@ SplineChar *PSCharStringToBB(uint8 *type1, int len, struct pscontext *context,
 		 case 25: /* rlinecurve */
 		     base = 0;
 		     while ( sp>base+6 ) {
-			 current.x = RINT((current.x+stack[base++])*1024)/1024; current.y = RINT((current.y+stack[base++])*1024)/1024;
+			 current.x = current.x+stack[base++]; current.y = current.y+stack[base++];
 			 if (ll.y>current.y) ll.y = current.y;
 			 if (ur.y<current.y) ur.y = current.y;
 			 if (ll.x>current.x) ll.x = current.x;
@@ -4680,24 +4679,24 @@ SplineChar *PSCharStringToBB(uint8 *type1, int len, struct pscontext *context,
 			     }
 			 }
 			 ++polarity;
-			 current.x = RINT((current.x+dx)*1024)/1024; current.y = RINT((current.y+dy)*1024)/1024;
+			 current.x = current.x+dx; current.y = current.y+dy;
 			 if (ll.y>current.y) ll.y = current.y;
 			 if (ur.y<current.y) ur.y = current.y;
 			 if (ll.x>current.x) ll.x = current.x;
 			 if (ur.x<current.x) ur.x = current.x;
-			 current.x = RINT((current.x+dx2)*1024)/1024; current.y = RINT((current.y+dy2)*1024)/1024;
+			 current.x = current.x+dx2; current.y = current.y+dy2;
 			 if (ll.y>current.y) ll.y = current.y;
 			 if (ur.y<current.y) ur.y = current.y;
 			 if (ll.x>current.x) ll.x = current.x;
 			 if (ur.x<current.x) ur.x = current.x;
-			 current.x = RINT((current.x+dx3)*1024)/1024; current.y = RINT((current.y+dy3)*1024)/1024;
+			 current.x = current.x+dx3; current.y = current.y+dy3;
 			 if (ll.y>current.y) ll.y = current.y;
 			 if (ur.y<current.y) ur.y = current.y;
 			 if (ll.x>current.x) ll.x = current.x;
 			 if (ur.x<current.x) ur.x = current.x;
 		     }
 		     if ( v==24 ) {
-			 current.x = RINT((current.x+stack[base++])*1024)/1024; current.y = RINT((current.y+stack[base++])*1024)/1024;
+			 current.x = current.x+stack[base++]; current.y = current.y+stack[base++];
 			 if (ll.y>current.y) ll.y = current.y;
 			 if (ur.y<current.y) ur.y = current.y;
 			 if (ll.x>current.x) ll.x = current.x;
