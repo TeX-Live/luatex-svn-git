@@ -6233,20 +6233,6 @@ static SplineFont *SFFillFromTTF(struct ttfinfo *info) {
 	}
     }
     TTF_PSDupsDefault(sf);
-#if 0
-    if ( info->gsub_start==0 && info->mort_start==0 && info->morx_start==0 ) {
-	/* Get default ligature values, etc. */
-	k=0;
-	do {
-	    _sf = k<sf->subfontcnt?sf->subfonts[k]:sf;
-	    for ( i=0; i<sf->glyphcnt; ++i ) {
-		if ( _sf->glyphs[i]!=NULL )		/* Might be null in ttc files */
-		    SCLigDefault(_sf->glyphs[i]);
-	    }
-	    ++k;
-	} while ( k<sf->subfontcnt );
-    }
-#endif
 
     /* I thought the languages were supposed to be ordered, but it seems */
     /*  that is not always the case. Order everything, just in case */
