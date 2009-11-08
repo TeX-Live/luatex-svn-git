@@ -107,9 +107,9 @@ extern void libpdffinish(PDF);
 extern void dump_pdftex_data(PDF pdf);
 extern void undump_pdftex_data(PDF pdf);
 
-#  define set_pdf_width(A,B) width(A)=B
-#  define set_pdf_height(A,B) height(A)=B
-#  define set_pdf_depth(A,B) depth(A)=B
+#  define set_width(A, B) width(A) = (B)
+#  define set_height(A, B) height(A) = (B)
+#  define set_depth(A, B) depth(A) = (B)
 
 /* interface definitions for eqtb locations */
 #  define pdf_minor_version        int_par(pdf_minor_version_code)

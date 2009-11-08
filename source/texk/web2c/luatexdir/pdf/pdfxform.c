@@ -65,14 +65,11 @@ void scan_pdfxform(PDF pdf)
     p = box(cur_val);
     if (p == null)
         pdf_error("ext1", "\\pdfxform cannot be used with a void box");
-    set_obj_xform_width(pdf, k, width(p));
-    set_obj_xform_height(pdf, k, height(p));
-    set_obj_xform_depth(pdf, k, depth(p));
-    set_obj_xform_box(pdf, k, p);       /* save pointer to the box */
+    set_obj_xform_box(pdf, k, p);       /* save pointer to the box
+                                           (that's all we need) */
     box(cur_val) = null;
     pdf_last_xform = k;
 }
-
 
 void scan_pdfrefxform(PDF pdf)
 {
@@ -80,7 +77,7 @@ void scan_pdfrefxform(PDF pdf)
     pdf_check_obj(pdf, obj_type_xform, cur_val);
     new_whatsit(pdf_refxform_node);
     set_pdf_xform_objnum(cur_list.tail_field, cur_val);
-    set_pdf_width(cur_list.tail_field, obj_xform_width(pdf, cur_val));
-    set_pdf_height(cur_list.tail_field, obj_xform_height(pdf, cur_val));
-    set_pdf_depth(cur_list.tail_field, obj_xform_depth(pdf, cur_val));
+    set_width(cur_list.tail_field, width(obj_xform_box(pdf, cur_val)));
+    set_height(cur_list.tail_field, height(obj_xform_box(pdf, cur_val)));
+    set_depth(cur_list.tail_field, depth(obj_xform_box(pdf, cur_val)));
 }

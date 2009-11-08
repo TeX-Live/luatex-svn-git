@@ -28,9 +28,9 @@
 
 #  define set_pdf_xform_objnum(A,B) pdf_xform_objnum(A)=B
 
-#  define obj_xform_width(pdf,A)       pdf->mem[obj_data_ptr(pdf,A) + 0]
-#  define obj_xform_height(pdf,A)      pdf->mem[obj_data_ptr(pdf,A) + 1]
-#  define obj_xform_depth(pdf,A)       pdf->mem[obj_data_ptr(pdf,A) + 2]
+/* #  define obj_xform_width(pdf,A)       pdf->mem[obj_data_ptr(pdf,A) + 0] */
+/* #  define obj_xform_height(pdf,A)      pdf->mem[obj_data_ptr(pdf,A) + 1] */
+/* #  define obj_xform_depth(pdf,A)       pdf->mem[obj_data_ptr(pdf,A) + 2] */
 #  define obj_xform_box(pdf,A)         pdf->mem[obj_data_ptr(pdf,A) + 3]        /* this field holds
                                                                                    pointer to the corresponding box */
 #  define obj_xform_attr(pdf,A)        pdf->mem[obj_data_ptr(pdf,A) + 4]        /* additional xform
@@ -39,9 +39,9 @@
                                                                                    Resources */
 
 
-#  define set_obj_xform_width(pdf,A,B) obj_xform_width(pdf,A)=B
-#  define set_obj_xform_height(pdf,A,B) obj_xform_height(pdf,A)=B
-#  define set_obj_xform_depth(pdf,A,B) obj_xform_depth(pdf,A)=B
+/* #  define set_obj_xform_width(pdf,A,B) obj_xform_width(pdf,A)=B */
+/* #  define set_obj_xform_height(pdf,A,B) obj_xform_height(pdf,A)=B */
+/* #  define set_obj_xform_depth(pdf,A,B) obj_xform_depth(pdf,A)=B */
 #  define set_obj_xform_box(pdf,A,B) obj_xform_box(pdf,A)=B
 #  define set_obj_xform_attr(pdf,A,B) obj_xform_attr(pdf,A)=B
 #  define set_obj_xform_resources(pdf,A,B) obj_xform_resources(pdf,A)=B

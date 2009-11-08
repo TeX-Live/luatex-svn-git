@@ -420,9 +420,9 @@ void do_extension(PDF pdf)
         new_whatsit(pdf_refximage_node);
         j = obj_data_ptr(pdf, cur_val);
         set_pdf_ximage_idx(tail, j);
-        set_pdf_width(tail, image_width(j));
-        set_pdf_height(tail, image_height(j));
-        set_pdf_depth(tail, image_depth(j));
+        set_width(tail, image_width(j));
+        set_height(tail, image_height(j));
+        set_depth(tail, image_depth(j));
         break;
     case pdf_save_pos_node:
         /* Implement \.{\\pdfsavepos} */

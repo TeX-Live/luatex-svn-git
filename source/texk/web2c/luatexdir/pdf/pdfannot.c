@@ -49,9 +49,9 @@ void new_annot_whatsit(small_number w)
     scaled_whd alt_rule;
     new_whatsit(w);
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
-    set_pdf_width(cur_list.tail_field, alt_rule.wd);
-    set_pdf_height(cur_list.tail_field, alt_rule.ht);
-    set_pdf_depth(cur_list.tail_field, alt_rule.dp);
+    set_width(cur_list.tail_field, alt_rule.wd);
+    set_height(cur_list.tail_field, alt_rule.ht);
+    set_depth(cur_list.tail_field, alt_rule.dp);
     if ((w == pdf_thread_node) || (w == pdf_start_thread_node)) {
         if (scan_keyword("attr")) {
             scan_pdf_ext_toks();

@@ -2339,16 +2339,11 @@ void show_whatsit_node(integer p)
         print_mark(obj_obj_data(static_pdf, pdf_obj_objnum(p)));
         break;
     case pdf_refxform_node:
-        tprint_esc("pdfrefxform");
-        print_char('(');
-        print_scaled(obj_xform_height(static_pdf, pdf_xform_objnum(p)));
-        print_char('+');
-        print_scaled(obj_xform_depth(static_pdf, pdf_xform_objnum(p)));
-        tprint(")x");
-        print_scaled(obj_xform_width(static_pdf, pdf_xform_objnum(p)));
-        break;
     case pdf_refximage_node:
-        tprint_esc("pdfrefximage");
+        if (subtype(p) == pdf_refxform_node)
+            tprint_esc("pdfrefxform");
+        else
+            tprint_esc("pdfrefximage");
         tprint("(");
         print_scaled(height(p));
         print_char('+');
