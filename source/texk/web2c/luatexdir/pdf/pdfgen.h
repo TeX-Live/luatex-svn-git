@@ -215,7 +215,6 @@ extern halfword pdf_catalog_toks;       /* additional keys of Catalog dictionary
 extern halfword pdf_catalog_openaction;
 extern halfword pdf_names_toks; /* additional keys of Names dictionary */
 extern halfword pdf_trailer_toks;       /* additional keys of Trailer dictionary */
-extern void print_pdf_pages_attr(PDF pdf);
 extern void scan_pdfcatalog(PDF pdf);
 extern void finish_pdf_file(PDF pdf, integer luatex_version,
                             str_number luatex_revision);

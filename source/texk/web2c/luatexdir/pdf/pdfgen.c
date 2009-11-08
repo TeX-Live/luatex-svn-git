@@ -1978,7 +1978,6 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
 
 /* Finishing the PDF output file. */
 
-#define pdf_pages_attr equiv(pdf_pages_attr_loc)
 #define pdf_gen_tounicode int_par(pdf_gen_tounicode_code)
 
 /*
@@ -2008,12 +2007,6 @@ void pdf_fix_dest(PDF pdf, integer k)
     pdf_print_int(pdf, pdf->head_tab[obj_type_page]);
     pdf_printf(pdf, " 0 R /Fit]\n");
     pdf_end_obj(pdf);
-}
-
-void print_pdf_pages_attr(PDF pdf)
-{
-    if (pdf_pages_attr != null)
-        pdf_print_toks_ln(pdf, pdf_pages_attr);
 }
 
 /*

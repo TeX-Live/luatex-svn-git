@@ -206,15 +206,18 @@ void pdf_do_page_undivert(integer divnum, integer curdivnum)
 
 /* write a /Pages object */
 
+#define pdf_pages_attr equiv(pdf_pages_attr_loc)
+
 static void write_pages(PDF pdf, pages_entry * p, int parent)
 {
     int i;
     assert(p != NULL);
     pdf_begin_dict(pdf, p->objnum, 1);
     pdf_printf(pdf, "/Type /Pages\n");
-    if (parent == 0)            /* it's root */
-        print_pdf_pages_attr(pdf);
-    else
+    if (parent == 0) {          /* it's root */
+        if (pdf_pages_attr != null)
+            pdf_print_toks_ln(pdf, pdf_pages_attr);
+    } else
         pdf_printf(pdf, "/Parent %d 0 R\n", parent);
     pdf_printf(pdf, "/Count %d\n/Kids [", (int) p->number_of_pages);
     for (i = 0; i < p->number_of_kids; i++)
