@@ -669,6 +669,21 @@ value is 255, and the acceptable range is from 0 to 65535.
 This allows for embedded spaces, without the need for double quotes.
 Macro expansion takes place inside the argument.
 
+\subsection{Images}
+
+\LUATEX\ accepts optional dimensions with \type{\pdfrefximage}
+in the same format as with \type{\pdfximage}.
+These dimensions are then used instead of the ones
+given to \type{\pdfximage}.
+But the original dimensions are not overwritten,
+so that a \type{\pdfrefximage} without dimensions still provides
+the image with dimensions defined by \type{\pdfximage}.
+% \pdfrefxform with dimensions to follow...
+
+\starttyping
+\pdfrefximage width 20mm height 10mm depth 5mm \pdflastximage
+\stoptyping
+
 \section{Debugging}
 
 If \tex{tracingonline} is larger than~2, the node list display will
