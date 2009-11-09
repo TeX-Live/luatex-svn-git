@@ -48,7 +48,6 @@ void read_img(PDF, image_dict *, integer, integer);
 scaled_whd scan_alt_rule(void);
 void scale_img(image *);
 #  define scale_image(a)        scale_img(img_array[a])
-void set_image_dimensions(integer, scaled_whd);
 void undumpimagemeta(PDF, integer, integer);
 void write_img(PDF, image_dict *);
 #  define write_image(a, b)     write_img((a), img_dict(img_array[b]));

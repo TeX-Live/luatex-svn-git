@@ -1,6 +1,6 @@
 /* limglib.c
    
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -563,7 +563,7 @@ static int l_scan_image(lua_State * L)
     return 1;                   /* image */
 }
 
-static halfword img_to_node(image * a, integer ref)
+static halfword img_to_node(image * a, integer idx)
 {
     image_dict *ad;
     halfword n;
@@ -572,7 +572,7 @@ static halfword img_to_node(image * a, integer ref)
     assert(ad != NULL);
     assert(img_objnum(ad) != 0);
     n = new_node(whatsit_node, pdf_refximage_node);
-    pdf_ximage_ref(n) = ref;
+    pdf_ximage_idx(n) = idx;
     width(n) = img_width(a);
     height(n) = img_height(a);
     depth(n) = img_depth(a);
@@ -725,7 +725,7 @@ void vf_out_image(PDF pdf, unsigned i)
     a = *aa;
     setup_image(pdf, L, a, WR_VF_IMG);  /* image ... */
     assert(img_is_refered(a));
-    pdf_place_image(pdf, img_arrayidx(a));
+    pdf_place_image(pdf, img_arrayidx(a));      /* TODO: likely completely broken */
     lua_pop(L, 1);              /* ... */
 }
 

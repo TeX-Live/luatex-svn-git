@@ -726,11 +726,3 @@ scaled_whd scan_alt_rule(void)
     }
     return alt_rule;
 }
-
-void set_image_dimensions(integer ref, scaled_whd dim)
-{
-    image *a = img_array[ref];
-    img_width(a) = dim.wd;
-    img_height(a) = dim.ht;
-    img_depth(a) = dim.dp;
-}

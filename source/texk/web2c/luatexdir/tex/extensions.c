@@ -1,4 +1,4 @@
-/* commands.c
+/* extensions.c
 
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
@@ -17,11 +17,11 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include <ptexlib.h>
-
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
+
+#include <ptexlib.h>
 
 #define mode          cur_list.mode_field
 #define tail          cur_list.tail_field
@@ -415,14 +415,7 @@ void do_extension(PDF pdf)
     case pdf_refximage_node:
         /* Implement \.{\\pdfrefximage} */
         check_o_mode(pdf, "\\pdfrefximage", 1 << OMODE_PDF, false);
-        scan_int();
-        pdf_check_obj(pdf, obj_type_ximage, cur_val);
-        new_whatsit(pdf_refximage_node);
-        j = obj_data_ptr(pdf, cur_val);
-        set_pdf_ximage_idx(tail, j);
-        set_width(tail, image_width(j));
-        set_height(tail, image_height(j));
-        set_depth(tail, image_depth(j));
+        scan_pdfrefximage(pdf);
         break;
     case pdf_save_pos_node:
         /* Implement \.{\\pdfsavepos} */

@@ -24,6 +24,7 @@
 #  define IMAGE_H
 
 #  include <png.h>
+#  include "../pdf/pdftypes.h"  /* for scaled_whd */
 
 #  define JPG_UINT16      unsigned int
 #  define JPG_UINT32      unsigned long
@@ -180,9 +181,7 @@ typedef struct {
 /**********************************************************************/
 
 typedef struct {
-    integer width;              /* requested/actual TeX dimensions */
-    integer height;
-    integer depth;
+    scaled_whd dimen;           /* requested/actual TeX dimensions */
     integer transform;
     integer flags;
     image_dict *dict;
@@ -190,9 +189,10 @@ typedef struct {
     int dict_ref;               /* luaL_ref() reference */
 } image;
 
-#  define img_width(N)          ((N)->width)
-#  define img_height(N)         ((N)->height)
-#  define img_depth(N)          ((N)->depth)
+#  define img_dimen(N)          ((N)->dimen)
+#  define img_width(N)          ((N)->dimen.wd)
+#  define img_height(N)         ((N)->dimen.ht)
+#  define img_depth(N)          ((N)->dimen.dp)
 #  define img_transform(N)      ((N)->transform)
 #  define img_flags(N)          ((N)->flags)
 #  define img_dict(N)           ((N)->dict)
@@ -215,6 +215,7 @@ typedef struct {
 #  define is_ht_running(N)      (img_height(N) == null_flag)
 #  define is_dp_running(N)      (img_depth(N) == null_flag)
 
+#  define image_dimen(a)        img_dimen(img_array[a])
 #  define image_width(a)        img_width(img_array[a])
 #  define image_height(a)       img_height(img_array[a])
 #  define image_depth(a)        img_depth(img_array[a])

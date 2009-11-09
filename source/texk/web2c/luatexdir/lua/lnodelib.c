@@ -17,12 +17,12 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include "lua/luatex-api.h"
-#include <ptexlib.h>
-
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
+
+#include "lua/luatex-api.h"
+#include <ptexlib.h>
 
 #define init_luaS_index(a) do {                                         \
     lua_pushliteral(L,#a);                                              \
@@ -1196,7 +1196,7 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, int field)
                 lua_pushnumber(L, height(n));
                 break;
             case 7:
-                lua_pushnumber(L, pdf_ximage_objnum(n));
+                lua_pushnumber(L, pdf_ximage_idx(n));
                 break;
             default:
                 lua_pushnil(L);
@@ -2268,7 +2268,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
             height(n) = lua_tointeger(L, 3);
             break;
         case 7:
-            pdf_ximage_objnum(n) = lua_tointeger(L, 3);
+            pdf_ximage_idx(n) = lua_tointeger(L, 3);
             break;
         default:
             return nodelib_cantset(L, field, n);

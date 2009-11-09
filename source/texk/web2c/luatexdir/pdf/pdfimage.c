@@ -25,7 +25,7 @@ static const char __svn_version[] =
 
 #define pdf_pagebox int_par(pdf_pagebox_code)
 
-void place_img(PDF pdf, image * img)
+static void place_img(PDF pdf, image * img, scaled_whd dim)
 {
     float a[6];                 /* transformation matrix */
     float xoff, yoff, tmp;
@@ -33,7 +33,6 @@ void place_img(PDF pdf, image * img)
     scaledpos pos = pdf->posstruct->pos;
     int r;                      /* number of digits after the decimal point */
     int k;
-    scaled wd, ht, dp;
     scaledpos tmppos;
     pdffloat cm[6];
     image_dict *idict;
@@ -42,9 +41,6 @@ void place_img(PDF pdf, image * img)
     assert(img != 0);
     idict = img_dict(img);
     assert(idict != 0);
-    wd = img_width(img);
-    ht = img_height(img);
-    dp = img_depth(img);
     a[0] = a[3] = 1.0e6;
     a[1] = a[2] = 0;
     if (img_type(idict) == IMG_TYPE_PDF
@@ -98,12 +94,12 @@ void place_img(PDF pdf, image * img)
         break;
     default:;
     }
-    xoff *= wd;
-    yoff *= ht + dp;
-    a[0] *= wd;
-    a[1] *= ht + dp;
-    a[2] *= wd;
-    a[3] *= ht + dp;
+    xoff *= dim.wd;
+    yoff *= dim.ht + dim.dp;
+    a[0] *= dim.wd;
+    a[1] *= dim.ht + dim.dp;
+    a[2] *= dim.wd;
+    a[3] *= dim.ht + dim.dp;
     a[4] = pos.h - xoff;
     a[5] = pos.v - yoff;
     k = img_transform(img) + img_rotation(idict);
@@ -113,14 +109,14 @@ void place_img(PDF pdf, image * img)
     case 0:                    /* no transform */
         break;
     case 1:                    /* rot. 90 deg. (counterclockwise) */
-        a[4] += wd;
+        a[4] += dim.wd;
         break;
     case 2:                    /* rot. 180 deg. */
-        a[4] += wd;
-        a[5] += ht + dp;
+        a[4] += dim.wd;
+        a[5] += dim.ht + dim.dp;
         break;
     case 3:                    /* rot. 270 deg. */
-        a[5] += ht + dp;
+        a[5] += dim.ht + dim.dp;
         break;
     default:;
     }
@@ -150,8 +146,12 @@ void place_img(PDF pdf, image * img)
 void pdf_place_image(PDF pdf, halfword p)
 {
     integer idx = pdf_ximage_idx(p);
+    scaled_whd dim;
+    dim.wd = width(p);
+    dim.ht = height(p);
+    dim.dp = depth(p);
     pdf_goto_pagemode(pdf);
-    place_img(pdf, img_array[idx]);
+    place_img(pdf, img_array[idx], dim);
     if (lookup_object_list(pdf, obj_type_ximage, image_objnum(idx)) == NULL)
         append_object_list(pdf, obj_type_ximage, image_objnum(idx));
 }
@@ -175,12 +175,12 @@ static integer scan_pdf_box_spec(void)
 void scan_image(PDF pdf)
 {
     scaled_whd alt_rule;
-    integer k, ref;
+    integer idx, objnum;
     integer page, pagebox, colorspace;
     char *named = NULL, *attr = NULL, *s = NULL;
     incr(pdf->ximage_count);
     pdf_create_obj(pdf, obj_type_ximage, pdf->ximage_count);
-    k = pdf->obj_ptr;
+    objnum = pdf->obj_ptr;
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
     attr = 0;
     named = 0;
@@ -213,19 +213,42 @@ void scan_image(PDF pdf)
     delete_token_ref(def_ref);
     if (pagebox == 0)           /* no pagebox specification given */
         pagebox = pdf_box_spec_crop;
-    ref =
-        read_image(pdf,
-                   k, pdf->ximage_count, s, page, named, attr, colorspace,
-                   pagebox, pdf_minor_version, pdf_inclusion_errorlevel);
+    idx =
+        read_image(pdf, objnum, pdf->ximage_count, s, page, named, attr,
+                   colorspace, pagebox, pdf_minor_version,
+                   pdf_inclusion_errorlevel);
     xfree(s);
-    set_obj_data_ptr(pdf, k, ref);
     if (named != NULL)
         xfree(named);
-    set_image_dimensions(ref, alt_rule);
     if (attr != NULL)
         xfree(attr);
-    scale_image(ref);
-    pdf_last_ximage = k;
-    pdf_last_ximage_pages = image_pages(ref);
-    pdf_last_ximage_colordepth = image_colordepth(ref);
+    set_obj_data_ptr(pdf, objnum, idx);
+    image_dimen(idx) = alt_rule;
+    pdf_last_ximage = objnum;
+    pdf_last_ximage_pages = image_pages(idx);
+    pdf_last_ximage_colordepth = image_colordepth(idx);
+}
+
+#define tail          cur_list.tail_field
+
+void scan_pdfrefximage(PDF pdf)
+{
+    integer idx;
+    scaled_whd alt_rule, tmp;
+    alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
+    scan_int();
+    pdf_check_obj(pdf, obj_type_ximage, cur_val);
+    new_whatsit(pdf_refximage_node);
+    idx = obj_data_ptr(pdf, cur_val);
+    set_pdf_ximage_idx(tail, idx);
+    tmp = image_dimen(idx);     /* keep original alt_rule values from \pdfximage */
+    if (alt_rule.wd != null_flag || alt_rule.ht != null_flag
+        || alt_rule.dp != null_flag) {
+        image_dimen(idx) = alt_rule;
+    }
+    scale_image(idx);           /* in-place calculation */
+    set_width(tail, image_width(idx));
+    set_height(tail, image_height(idx));
+    set_depth(tail, image_depth(idx));
+    image_dimen(idx) = tmp;
 }
