@@ -845,7 +845,7 @@ scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
         hpack_dir = pack_direction;
     }
     while (p != pp && p != null) {
-        while (is_char_node(p)) {
+        while (is_char_node(p) && p != pp) {
             f = font(p);
             whd = pack_width_height_depth(hpack_dir, glyph_dir, p, true);
             siz.wd += whd.wd;
