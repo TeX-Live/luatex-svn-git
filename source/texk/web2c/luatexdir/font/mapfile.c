@@ -37,8 +37,8 @@ static unsigned char *fm_buffer = NULL;
 static integer fm_size = 0;
 static integer fm_curbyte = 0;
 
-#define fm_open()       \
-    (fm_file = fopen((char *) nameoffile + 1, FOPEN_RBIN_MODE))
+#define fm_open(a)       \
+    (fm_file = fopen((char *)(a), FOPEN_RBIN_MODE))
 #define fm_read_file()  \
     readbinfile(fm_file,&fm_buffer,&fm_size)
 #define fm_close()      xfclose(fm_file, cur_file_name)
@@ -581,7 +581,7 @@ void fm_read_info(void)
 {
     int callback_id;
     int file_opened = 0;
-    char *ftemp = NULL;
+
     if (tfm_tree == NULL)
         create_avl_trees();
     if (mitem->line == NULL)    /* nothing to do */
@@ -589,75 +589,52 @@ void fm_read_info(void)
     mitem->lineno = 1;
     switch (mitem->type) {
     case MAPFILE:
-        set_cur_file_name(mitem->line);
         if (fm_buffer != NULL) {
             xfree(fm_buffer);
             fm_buffer = NULL;
         }
         fm_curbyte = 0;
         fm_size = 0;
-        callback_id = callback_defined(find_map_file_callback);
-        if (callback_id > 0) {
-            if (run_callback
-                (callback_id, "S->S", (char *) (nameoffile + 1), &ftemp)) {
-                if (ftemp != NULL && strlen(ftemp)) {
-                    free(nameoffile);
-                    namelength = strlen(ftemp);
-                    nameoffile = xmalloc(namelength + 2);
-                    strcpy((char *) (nameoffile + 1), ftemp);
-                    free(ftemp);
-                }
-            }
-        } else {
-            ftemp =
-                kpse_find_file((char *) (nameoffile + 1), kpse_fontmap_format,
-                               0);
-            if (ftemp != NULL) {
-                free(nameoffile);
-                namelength = strlen(ftemp);
-                nameoffile = xmalloc(namelength + 2);
-                strcpy((char *) (nameoffile + 1), ftemp);
-                free(ftemp);
-            }
-        }
-        callback_id = callback_defined(read_map_file_callback);
-        if (callback_id > 0) {
-            if (run_callback(callback_id, "S->bSd", (char *) (nameoffile + 1),
-                             &file_opened, &fm_buffer, &fm_size)) {
-                if (file_opened) {
-                    if (fm_size > 0) {
-                        cur_file_name = (char *) nameoffile + 1;
-                        if (tracefilenames)
-                            tex_printf("{%s", cur_file_name);
-                        while (!fm_eof()) {
+        cur_file_name = luatex_find_file(mitem->line, find_map_file_callback);
+        if (cur_file_name) {
+            callback_id = callback_defined(read_map_file_callback);
+            if (callback_id > 0) {
+                if (run_callback(callback_id, "S->bSd", cur_file_name,
+                                 &file_opened, &fm_buffer, &fm_size)) {
+                    if (file_opened) {
+                        if (fm_size > 0) {
+                            if (tracefilenames)
+                                tex_printf("{%s", cur_file_name);
+                            while (!fm_eof()) {
                             fm_scan_line();
                             mitem->lineno++;
+                            }
+                            if (tracefilenames)
+                                tex_printf("}");
+                            fm_file = NULL;
                         }
-                        if (tracefilenames)
-                            tex_printf("}");
-                        fm_file = NULL;
+                    } else {
+                        pdftex_warn("cannot open font map file");
                     }
                 } else {
                     pdftex_warn("cannot open font map file");
                 }
             } else {
-                pdftex_warn("cannot open font map file");
-            }
-        } else {
-            if (!fm_open()) {
-                pdftex_warn("cannot open font map file");
-            } else {
-                fm_read_file();
-                cur_file_name = (char *) nameoffile + 1;
-                tex_printf("{%s", cur_file_name);
-                while (!fm_eof()) {
+                if (!fm_open(cur_file_name)) {
+                    pdftex_warn("cannot open font map file");
+                } else {
+                    fm_read_file();
+                    tex_printf("{%s", cur_file_name);
+                    while (!fm_eof()) {
                     fm_scan_line();
                     mitem->lineno++;
+                    }
+                    fm_close();
+                    tex_printf("}");
+                    fm_file = NULL;
                 }
-                fm_close();
-                tex_printf("}");
-                fm_file = NULL;
             }
+            cur_file_name = NULL;
         }
         break;
     case MAPLINE:

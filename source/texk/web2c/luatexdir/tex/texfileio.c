@@ -106,6 +106,33 @@ static void fixup_nameoffile(str_number fnam)
     flush_string();
 }
 
+
+char *luatex_find_file (char *s, int callback_index)
+{
+    char *ftemp = NULL;
+    int callback_id = callback_defined(callback_index);
+    if (callback_id > 0) {
+        (void)run_callback (callback_id, "S->S", s, &ftemp);
+    } else {
+        /* use kpathsea here */
+        switch (callback_index) {
+        case find_enc_file_callback:
+            ftemp = kpse_find_file(s, kpse_enc_format, 0);
+            break;
+        case find_sfd_file_callback:
+            ftemp = kpse_find_file(s, kpse_sfd_format, 0);
+            break;
+        case find_map_file_callback:
+            ftemp = kpse_find_file(s, kpse_fontmap_format, 0);
+            break;
+        default:
+            break;
+        }
+    }
+    return ftemp;
+}
+
+
 boolean lua_a_open_in(alpha_file f, quarterword n)
 {
     integer k;

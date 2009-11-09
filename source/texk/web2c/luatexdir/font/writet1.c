@@ -72,8 +72,8 @@ static unsigned char *enc_buffer = NULL;
 static integer enc_size = 0;
 static integer enc_curbyte = 0;
 
-#define enc_open()          \
-    (enc_file = fopen((char *)nameoffile+1, FOPEN_RBIN_MODE))
+#define enc_open(a)          \
+    (enc_file = fopen((char *)(a), FOPEN_RBIN_MODE))
 #define enc_read_file()  \
     readbinfile(enc_file,&enc_buffer,&enc_size)
 #define enc_close()       xfclose(enc_file,cur_file_name)
@@ -266,50 +266,28 @@ char **load_enc_file(char *enc_name)
 {
     int callback_id = 0;
     int file_opened = 0;
-    char *ftemp = NULL;
+
     char buf[ENC_BUF_SIZE], *p, *r;
     int i, names_count;
     char **glyph_names;
-    char *tempname;
-    set_cur_file_name(enc_name);
-    callback_id = callback_defined(find_enc_file_callback);
-    if (callback_id > 0) {
-        if (run_callback
-            (callback_id, "S->S", (char *) (nameoffile + 1), &ftemp)) {
-            if (ftemp != NULL && strlen(ftemp)) {
-                free(nameoffile);
-                namelength = strlen(ftemp);
-                nameoffile = xmalloc(namelength + 2);
-                strcpy((char *) (nameoffile + 1), ftemp);
-                free(ftemp);
-            } else {
-                pdftex_fail("cannot find encoding file for reading");
-            }
-        }
-    } else {
-        ftemp = kpse_find_file((char *) (nameoffile + 1), kpse_enc_format, 0);
-        if (ftemp == NULL) {
-            pdftex_fail("cannot find encoding file for reading");
-        } else {
-            free(nameoffile);
-            namelength = strlen(ftemp);
-            nameoffile = xmalloc(namelength + 2);
-            strcpy((char *) (nameoffile + 1), ftemp);
-            free(ftemp);
-        }
+
+    cur_file_name = luatex_find_file(enc_name, find_enc_file_callback);
+
+    if (cur_file_name == NULL) {
+        pdftex_fail("cannot find encoding file for reading");
     }
     callback_id = callback_defined(read_enc_file_callback);
     enc_curbyte = 0;
     enc_size = 0;
     if (callback_id > 0) {
-        if (run_callback(callback_id, "S->bSd", (char *) (nameoffile + 1),
+        if (run_callback(callback_id, "S->bSd", cur_file_name,
                          &file_opened, &enc_buffer, &enc_size)) {
             if ((!file_opened) || enc_size == 0) {
                 pdftex_fail("cannot open encoding file for reading");
             }
         }
     } else {
-        if (!enc_open()) {
+        if (!enc_open(cur_file_name)) {
             pdftex_fail("cannot open encoding file for reading");
         }
         enc_read_file();
@@ -320,9 +298,6 @@ char **load_enc_file(char *enc_name)
         glyph_names[i] = (char *) notdef;
     t1_log("{");
 
-    tempname = xmalloc(namelength + 2);
-    strcpy(tempname, (char *) (nameoffile + 1));
-    set_cur_file_name(tempname);
     t1_log(cur_file_name);
     enc_getline();
     if (*enc_line != '/' || (r = strchr(enc_line, '[')) == NULL) {
@@ -994,41 +969,32 @@ static boolean t1_open_fontfile(const char *open_name_prefix)
 {
     int callback_id = 0;
     int file_opened = 0;
-    char *ftemp = NULL;
+
     ff_entry *ff;
     ff = check_ff_exist(fd_cur->fm->ff_name, is_truetype(fd_cur->fm));
     t1_curbyte = 0;
     t1_size = 0;
     if (ff->ff_path != NULL) {
-        callback_id = callback_defined(find_type1_file_callback);
-        if (callback_id > 0) {
-            if (run_callback(callback_id, "S->S", ff->ff_path, &ftemp)) {
-                if (ftemp != NULL && strlen(ftemp)) {
-                    strcpy(ff->ff_path, ftemp);
+        cur_file_name = luatex_find_file(ff->ff_path, find_type1_file_callback);
+        if (cur_file_name) {
+            callback_id = callback_defined(read_type1_file_callback);
+            if (callback_id > 0) {
+                if (!run_callback(callback_id, "S->bSd", cur_file_name,
+                                  &file_opened, &t1_buffer, &t1_size)
+                    && file_opened && t1_size > 0) {
+                    pdftex_warn("cannot open Type 1 font file for reading");
+                    return false;
                 }
-            }
-        }
-        callback_id = callback_defined(read_type1_file_callback);
-        if (callback_id > 0) {
-            if (run_callback(callback_id, "S->bSd", ff->ff_path,
-                             &file_opened, &t1_buffer, &t1_size)
-                && file_opened && t1_size > 0) {
-                cur_file_name = ff->ff_path;
             } else {
-                set_cur_file_name(fd_cur->fm->ff_name);
-                pdftex_warn("cannot open Type 1 font file for reading");
-                return false;
+                t1_file = xfopen(cur_file_name, FOPEN_RBIN_MODE);
+                t1_read_file();
+                t1_close();
             }
+            recorder_record_input(cur_file_name);
         } else {
-            t1_file = xfopen(cur_file_name = ff->ff_path, FOPEN_RBIN_MODE);
-            t1_read_file();
-            t1_close();
+            pdftex_fail("cannot open Type 1 font file for reading");
+            return false;
         }
-        recorder_record_input(ff->ff_path);
-    } else {
-        set_cur_file_name(fd_cur->fm->ff_name);
-        pdftex_fail("cannot open Type 1 font file for reading");
-        return false;
     }
     t1_init_params(open_name_prefix);
     return true;

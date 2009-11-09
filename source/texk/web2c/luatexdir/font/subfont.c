@@ -33,7 +33,7 @@ static integer sfd_curbyte = 0;
 #define SFD_BUF_SIZE    SMALL_BUF_SIZE
 
 #define sfd_close()     xfclose(sfd_file, cur_file_name)
-#define sfd_open()      (sfd_file = fopen((char *) nameoffile + 1, FOPEN_RBIN_MODE))
+#define sfd_open(a)      (sfd_file = fopen((char *)(a), FOPEN_RBIN_MODE))
 
 #define sfd_read_file() readbinfile(sfd_file,&sfd_buffer,&sfd_size)
 #define sfd_getchar()   sfd_buffer[sfd_curbyte++]
@@ -119,7 +119,7 @@ static sfd_entry *read_sfd(char *sfd_name)
     void **aa;
     sfd_entry *sfd, tmp_sfd;
     subfont_entry *sf;
-    char *ftemp = NULL;
+
     char buf[SMALL_BUF_SIZE], *p;
     long int i, j, k;
     int n;
@@ -134,7 +134,6 @@ static sfd_entry *read_sfd(char *sfd_name)
     sfd = (sfd_entry *) avl_find(sfd_tree, &tmp_sfd);
     if (sfd != NULL)
         return sfd;
-    set_cur_file_name(sfd_name);
     if (sfd_buffer != NULL) {
         xfree(sfd_buffer);
         sfd_buffer = NULL;
@@ -142,36 +141,26 @@ static sfd_entry *read_sfd(char *sfd_name)
     sfd_curbyte = 0;
     sfd_size = 0;
 
-    callback_id = callback_defined(find_sfd_file_callback);
-    if (callback_id > 0) {
-        if (run_callback(callback_id, "S->S", cur_file_name, &ftemp)) {
-            if (ftemp != NULL && strlen(ftemp)) {
-                if (cur_file_name)
-                    free(cur_file_name);
-                cur_file_name = xstrdup(ftemp);
-                free(ftemp);
+    cur_file_name = luatex_find_file (sfd_name, find_sfd_file_callback) ;
+    if (cur_file_name) {
+        callback_id = callback_defined(read_sfd_file_callback);
+        if (callback_id > 0) {
+            if (!(run_callback(callback_id, "S->bSd", cur_file_name,
+                               &file_opened, &sfd_buffer, &sfd_size) &&
+                  file_opened && sfd_size > 0)) {
+                pdftex_warn("cannot open SFD file for reading");
+                cur_file_name = NULL;
+                return NULL;
             }
+        } else {
+            if (!sfd_open(cur_file_name)) {
+                pdftex_warn("cannot open SFD file for reading");
+                cur_file_name = NULL;
+                return NULL;
+            }
+            sfd_read_file();
+            sfd_close();
         }
-    } else {
-        cur_file_name = kpse_find_file(cur_file_name, kpse_sfd_format, 0);
-    }
-    callback_id = callback_defined(read_sfd_file_callback);
-    if (callback_id > 0) {
-        if (!(run_callback(callback_id, "S->bSd", cur_file_name,
-                           &file_opened, &sfd_buffer, &sfd_size) &&
-              file_opened && sfd_size > 0)) {
-            pdftex_warn("cannot open SFD file for reading");
-            cur_file_name = NULL;
-            return NULL;
-        }
-    } else {
-        if (!sfd_open()) {
-            pdftex_warn("cannot open SFD file for reading");
-            cur_file_name = NULL;
-            return NULL;
-        }
-        sfd_read_file();
-        sfd_close();
     }
     tex_printf("{");
     tex_printf("%s", cur_file_name);

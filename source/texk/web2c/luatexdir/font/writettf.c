@@ -1335,13 +1335,10 @@ void writettf(PDF pdf, fd_entry * fd)
 {
     int callback_id;
     int file_opened = 0;
-    char *ftemp = NULL;
     fd_cur = fd;                /* fd_cur is global inside writettf.c */
     assert(fd_cur->fm != NULL);
     assert(is_truetype(fd_cur->fm));
     assert(is_included(fd_cur->fm));
-
-    set_cur_file_name(fd_cur->fm->ff_name);
 
     if (is_subsetted(fd_cur->fm) && (fd_cur->fe == NULL)
         && !is_subfont(fd_cur->fm)) {
@@ -1349,36 +1346,26 @@ void writettf(PDF pdf, fd_entry * fd)
     }
     ttf_curbyte = 0;
     ttf_size = 0;
-    callback_id = callback_defined(find_truetype_file_callback);
-    if (callback_id > 0) {
-        if (run_callback
-            (callback_id, "S->S", (char *) (nameoffile + 1), &ftemp)) {
-            if (ftemp != NULL && strlen(ftemp)) {
-                free(nameoffile);
-                namelength = strlen(ftemp);
-                nameoffile = xmalloc(namelength + 2);
-                strcpy((char *) (nameoffile + 1), ftemp);
-                free(ftemp);
-            }
-        }
-    }
 
+    cur_file_name = luatex_find_file(fd_cur->fm->ff_name, find_truetype_file_callback);
+    if (cur_file_name == NULL) {
+        pdftex_fail("cannot find TrueType font file for reading");
+    }
     callback_id = callback_defined(read_truetype_file_callback);
     if (callback_id > 0) {
-        if (run_callback(callback_id, "S->bSd", (char *) (nameoffile + 1),
+        if (run_callback(callback_id, "S->bSd", cur_file_name,
                          &file_opened, &ttf_buffer, &ttf_size) &&
             file_opened && ttf_size > 0) {
         } else {
             pdftex_fail("cannot open TrueType font file for reading");
         }
     } else {
-        if (!ttf_open()) {
+        if (!ttf_open(cur_file_name)) {
             pdftex_fail("cannot open TrueType font file for reading");
         }
         ttf_read_file();
         ttf_close();
     }
-    cur_file_name = (char *) nameoffile + 1;
     if (tracefilenames) {
         if (is_subsetted(fd_cur->fm))
             tex_printf("<%s", cur_file_name);
@@ -1455,47 +1442,34 @@ void writeotf(PDF pdf, fd_entry * fd)
 {
     int callback_id;
     int file_opened = 0;
-    char *ftemp = NULL;
-
 
     fd_cur = fd;                /* fd_cur is global inside writettf.c */
     assert(fd_cur->fm != NULL);
     assert(is_opentype(fd_cur->fm));
     assert(is_included(fd_cur->fm));
 
-    set_cur_file_name(fd_cur->fm->ff_name);
     ttf_curbyte = 0;
     ttf_size = 0;
-    callback_id = callback_defined(find_opentype_file_callback);
-    if (callback_id > 0) {
-        if (run_callback
-            (callback_id, "S->S", (char *) (nameoffile + 1), &ftemp)) {
-            if (ftemp != NULL && strlen(ftemp)) {
-                free(nameoffile);
-                namelength = strlen(ftemp);
-                nameoffile = xmalloc(namelength + 2);
-                strcpy((char *) (nameoffile + 1), ftemp);
-                free(ftemp);
-            }
-        }
+    cur_file_name = luatex_find_file(fd_cur->fm->ff_name, find_opentype_file_callback);
+    if (cur_file_name == NULL) {
+        pdftex_fail("cannot find OpenType font file for reading");
     }
     callback_id = callback_defined(read_opentype_file_callback);
     if (callback_id > 0) {
-        if (run_callback(callback_id, "S->bSd", (char *) (nameoffile + 1),
+        if (run_callback(callback_id, "S->bSd", cur_file_name,
                          &file_opened, &ttf_buffer, &ttf_size) &&
             file_opened && ttf_size > 0) {
         } else {
             pdftex_fail("cannot open OpenType font file for reading");
         }
     } else {
-        if (!otf_open()) {
+        if (!otf_open(cur_file_name)) {
             pdftex_fail("cannot open OpenType font file for reading");
         }
         ttf_read_file();
         ttf_close();
     }
 
-    cur_file_name = (char *) nameoffile + 1;
     fd_cur->ff_found = true;
     do_writeotf(pdf, fd);
     xfree(ttf_buffer);

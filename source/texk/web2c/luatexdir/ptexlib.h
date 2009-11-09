@@ -143,10 +143,6 @@ size_t          T##_limit
 #  define xtalloc             XTALLOC
 #  define xretalloc           XRETALLOC
 
-#  define set_cur_file_name(s) \
-    cur_file_name = s;         \
-    pack_file_name(maketexstring(cur_file_name), get_nullstr(), get_nullstr())
-
 #  define cmp_return(a, b) \
     if ((a) > (b))         \
         return 1;          \
