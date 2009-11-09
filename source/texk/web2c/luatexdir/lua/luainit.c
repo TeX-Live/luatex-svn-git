@@ -490,7 +490,7 @@ static int luatex_kpse_lua_find (lua_State *L) {
   int do_kpse = -1;
   get_lua_boolean("texconfig", "kpse_init", &do_kpse);
   name = luaL_checkstring(L, 1);
-  if (do_kpse == 0) {
+  if (program_name_set == 0) {
       lua_CFunction orig_func;
       lua_rawgeti(L, LUA_REGISTRYINDEX, lua_loader_function);
       lua_rawgeti(L, LUA_REGISTRYINDEX, lua_loader_env);
@@ -498,13 +498,6 @@ static int luatex_kpse_lua_find (lua_State *L) {
       orig_func = lua_tocfunction(L,-1);
       lua_pop(L,1);
       return (orig_func)(L);
-  }
-  if (program_name_set == 0) { /* init kpathsea if not done yet */
-      if (user_progname!=NULL)
-          kpse_set_program_name(argv[0], user_progname); 
-      else
-          kpse_set_program_name(argv[0], cleaned_invocation_name(argv[0])); 
-      program_name_set = 1;
   }
   filename = kpse_find_file(name, kpse_lua_format, false);
   if (filename == NULL) return 1;  /* library not found in this path */
