@@ -131,7 +131,7 @@ the |do_extension| routine is called.
 
 void do_extension(PDF pdf)
 {
-    integer i, j, k;            /* all-purpose integers */
+    integer i, k;               /* all-purpose integers */
     halfword p;                 /* all-purpose pointer */
     switch (cur_chr) {
     case open_node:

@@ -24,6 +24,7 @@
 
 void pdf_place_image(PDF pdf, halfword p);
 void scan_image(PDF pdf);
+void scan_pdfrefximage(PDF pdf);
 
 #  define set_pdf_ximage_idx(A, B) pdf_ximage_idx(A) = B
 
