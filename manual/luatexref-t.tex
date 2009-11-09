@@ -818,15 +818,23 @@ version is 1.1.3.  See \hyphenatedurl{http://luajit.org/coco.html} for details. 
 functionality currently (0.45) does not work on non-intel OpenBSD platforms nor on
 powerpc Linux-es.
 
-Starting from version 0.45, \LUATEX\ uses the kpathsea library to find
-\type{require()}d modules, unless using kpathsea is explicitly disabled by the
-user (this can be done by setting \type{texconfig.kpse_init} to
-\type{false}). For this purpose, \type{package.loaders[2]} is replaced
-by a different loader function that decides at runtime whether to use
-kpathsea or the build-in core lua function.
+Starting from version 0.45, \LUATEX\ is able to use the kpathsea
+library to find \type{require()}d module. For this purpose,
+\type{package.loaders[2]} is replaced by a different loader function,
+that decides at runtime whether to use kpathsea or the build-in core
+lua function.  It uses \KPATHSEA\ when that is already initialized at 
+that point in time, otherwise it reverts to using the normal
+\type{package.path} loader.
+
+Initialization of \KPATHSEA\ can happen either implicitly (when
+\LUATEX\ starts up and the startup script has not set
+\type{texconfig.kpse_init} to false), or explicitly by calling the
+\LUA\ function \type{kpse.set_program_name()}.
 
 
-In keeping with the other \TEX-like programs in \TEXLIVE, the two \LUA\ functions
+
+In keeping with the other \TEX-like programs in \TEXLIVE, the two
+\LUA\ functions
 \type{os.execute} and \type{io.popen} (as well as the two new functions \type{os.exec}
 and \type{os.spawn} that are explained below) take the value of \type{shell_escape}
 and/or \type{shell_escape_commands} in account. Whenever \LUATEX\ is run with the
