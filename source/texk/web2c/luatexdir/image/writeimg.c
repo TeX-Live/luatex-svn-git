@@ -363,6 +363,61 @@ integer read_image(PDF pdf,
     return img_arrayidx(a);
 }
 
+/* tex_scale() sequence of decisions:
+wd ht dp : res = tex;
+wd ht --
+wd -- dp
+wd -- --
+-- ht dp
+-- ht --
+-- -- dp
+-- -- -- : res = nat;
+*/
+
+static scaled_whd tex_scale(scaled_whd nat, scaled_whd tex)
+{
+    scaled_whd res;
+    if (!is_running(tex.wd) && !is_running(tex.ht) && !is_running(tex.dp)) {
+        /* width, height, and depth specified */
+        res = tex;
+    } else /* max. 2 dimensions are specified */ if (!is_running(tex.wd)) {
+        res.wd = tex.wd;
+        if (!is_running(tex.ht)) {
+            res.ht = tex.ht;
+            /* width and height specified */
+            res.dp = ext_xn_over_d(tex.ht, nat.dp, nat.ht);
+        } else if (!is_running(tex.dp)) {
+            res.dp = tex.dp;
+            /* width and depth specified */
+            res.ht = ext_xn_over_d(tex.wd, nat.ht + nat.dp, nat.wd) - tex.dp;
+        } else {
+            /* only width specified */
+            res.ht = ext_xn_over_d(tex.wd, nat.ht, nat.wd);
+            res.dp = ext_xn_over_d(tex.wd, nat.dp, nat.wd);
+        }
+    } else if (!is_running(tex.ht)) {
+        res.ht = tex.ht;
+        if (!is_running(tex.dp)) {
+            res.dp = tex.dp;
+            /* height and depth specified */
+            res.wd = ext_xn_over_d(tex.ht + tex.dp, nat.wd, nat.ht + nat.dp);
+        } else {
+            /* only height specified */
+            res.wd = ext_xn_over_d(tex.ht, nat.wd, nat.ht);
+            res.dp = ext_xn_over_d(tex.ht, nat.dp, nat.ht);
+        }
+    } else if (!is_running(tex.dp)) {
+        res.dp = tex.dp;
+        /* only depth specified */
+        res.ht = nat.ht - (tex.dp - nat.dp);
+        res.wd = nat.wd;
+    } else {
+        /* nothing specified */
+        res = nat;
+    }
+    return res;
+}
+
 // Within scale_img() only image width and height matter;
 // the offsets and positioning are not interesting here.
 // But one needs rotation info to swap width and height.
@@ -371,7 +426,7 @@ integer read_image(PDF pdf,
 void scale_img(image * img)
 {
     integer x, y, xr, yr, tmp;  /* size and resolution of image */
-    scaled w = 0, h = 0;        /* indeed size corresponds to image resolution */
+    scaled_whd nat;             /* natural size corresponding to image resolution */
     integer default_res;
     image_dict *idict;
     assert(img != NULL);
@@ -404,63 +459,26 @@ void scale_img(image * img)
         xr = yr;
         yr = tmp;
     }
+    nat.dp = 0;                 /* always for images */
     if (img_type(idict) == IMG_TYPE_PDF
         || img_type(idict) == IMG_TYPE_PDFSTREAM) {
-        w = x;
-        h = y;
+        nat.wd = x;
+        nat.ht = y;
     } else {
         default_res = fix_int(pdf_image_resolution, 0, 65535);
         if (default_res > 0 && (xr == 0 || yr == 0)) {
             xr = default_res;
             yr = default_res;
         }
-        if (is_wd_running(img) && is_ht_running(img)) {
-            if (xr > 0 && yr > 0) {
-                w = ext_xn_over_d(one_hundred_inch, x, 100 * xr);
-                h = ext_xn_over_d(one_hundred_inch, y, 100 * yr);
-            } else {
-                w = ext_xn_over_d(one_hundred_inch, x, 7200);
-                h = ext_xn_over_d(one_hundred_inch, y, 7200);
-            }
-        }
-    }
-    if (is_wd_running(img) && is_ht_running(img) && is_dp_running(img)) {
-        img_width(img) = w;
-        img_height(img) = h;
-        img_depth(img) = 0;
-    } else if (is_wd_running(img)) {
-        /* image depth or height is explicitly specified */
-        if (is_ht_running(img)) {
-            /* image depth is explicitly specified */
-            img_width(img) = ext_xn_over_d(h, x, y);
-            img_height(img) = h - img_depth(img);
-        } else if (is_dp_running(img)) {
-            /* image height is explicitly specified */
-            img_width(img) = ext_xn_over_d(img_height(img), x, y);
-            img_depth(img) = 0;
+        if (xr > 0 && yr > 0) {
+            nat.wd = ext_xn_over_d(one_hundred_inch, x, 100 * xr);
+            nat.ht = ext_xn_over_d(one_hundred_inch, y, 100 * yr);
         } else {
-            /* both image depth and height are explicitly specified */
-            img_width(img) =
-                ext_xn_over_d(img_height(img) + img_depth(img), x, y);
+            nat.wd = ext_xn_over_d(one_hundred_inch, x, 7200);
+            nat.ht = ext_xn_over_d(one_hundred_inch, y, 7200);
         }
-    } else {
-        /* image width is explicitly specified */
-        if (is_ht_running(img) && is_dp_running(img)) {
-            /* both image depth and height are not specified */
-            img_height(img) = ext_xn_over_d(img_width(img), y, x);
-            img_depth(img) = 0;
-        }
-        /* image depth is explicitly specified */
-        else if (is_ht_running(img)) {
-            img_height(img) =
-                ext_xn_over_d(img_width(img), y, x) - img_depth(img);
-        }
-        /* image height is explicitly specified */
-        else if (is_dp_running(img)) {
-            img_depth(img) = 0;
-        }
-        /* else both image depth and height are explicitly specified */
     }
+    img_dimen(img) = tex_scale(nat, img_dimen(img));
     img_set_scaled(img);
 }
 
@@ -585,27 +603,27 @@ integer img_to_array(image * img)
  * makes the code simpler.
  */
 
-#define dumpcharptr(a)				\
-  do {						\
-    integer x;					\
-    if (a!=NULL) {				\
-      x = strlen(a)+1;				\
-      dumpinteger(x);  dump_things(*a, x);	\
-    } else {					\
-      x = 0; dumpinteger(x);			\
-    }						\
+#define dumpcharptr(a)                          \
+  do {                                          \
+    integer x;                                  \
+    if (a!=NULL) {                              \
+      x = strlen(a)+1;                          \
+      dumpinteger(x);  dump_things(*a, x);      \
+    } else {                                    \
+      x = 0; dumpinteger(x);                    \
+    }                                           \
   } while (0)
 
-#define undumpcharptr(s)			\
-  do {						\
-    integer x;					\
-    char *a;					\
-    undumpinteger (x);				\
-    if (x>0) {					\
-      a = malloc(x);				\
-      undump_things(*a,x);			\
-      s = a ;					\
-    } else { s = NULL; }			\
+#define undumpcharptr(s)                        \
+  do {                                          \
+    integer x;                                  \
+    char *a;                                    \
+    undumpinteger (x);                          \
+    if (x>0) {                                  \
+      a = malloc(x);                            \
+      undump_things(*a,x);                      \
+      s = a ;                                   \
+    } else { s = NULL; }                        \
   } while (0)
 
 void dumpimagemeta(void)
