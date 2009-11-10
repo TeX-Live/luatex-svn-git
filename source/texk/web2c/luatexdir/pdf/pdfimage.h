@@ -22,6 +22,7 @@
 #ifndef PDFIMAGE_H
 #  define PDFIMAGE_H
 
+void pdf_place_img(PDF pdf, image * img);
 void pdf_place_image(PDF pdf, halfword p);
 void scan_image(PDF pdf);
 void scan_pdfrefximage(PDF pdf);

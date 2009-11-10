@@ -143,6 +143,8 @@ static void place_img(PDF pdf, image * img, scaled_whd dim)
         img_state(idict) = DICT_OUTIMG;
 }
 
+/* for normal output, see pdflistout.c */
+
 void pdf_place_image(PDF pdf, halfword p)
 {
     integer idx = pdf_ximage_idx(p);
@@ -154,6 +156,20 @@ void pdf_place_image(PDF pdf, halfword p)
     place_img(pdf, img_array[idx], dim);
     if (lookup_object_list(pdf, obj_type_ximage, image_objnum(idx)) == NULL)
         append_object_list(pdf, obj_type_ximage, image_objnum(idx));
+}
+
+/* for images in virtual fonts, see vf_out_image() in limglib.c */
+
+void pdf_place_img(PDF pdf, image * img)
+{
+    integer objnum;
+    assert(img_dict(img) != NULL);
+    objnum = img_objnum(img_dict(img));
+    assert(objnum != 0);
+    pdf_goto_pagemode(pdf);
+    place_img(pdf, img, img_dimen(img));
+    if (lookup_object_list(pdf, obj_type_ximage, objnum) == NULL)
+        append_object_list(pdf, obj_type_ximage, objnum);
 }
 
 /* scans PDF pagebox specification */

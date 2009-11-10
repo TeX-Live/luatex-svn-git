@@ -725,7 +725,7 @@ void vf_out_image(PDF pdf, unsigned i)
     a = *aa;
     setup_image(pdf, L, a, WR_VF_IMG);  /* image ... */
     assert(img_is_refered(a));
-    pdf_place_image(pdf, img_arrayidx(a));      /* TODO: likely completely broken */
+    pdf_place_img(pdf, a);
     lua_pop(L, 1);              /* ... */
 }
 
