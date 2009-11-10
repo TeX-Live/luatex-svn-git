@@ -30,6 +30,8 @@ extern integer *input_file_callback_id;
 extern integer read_file_callback_id[17];
 
 extern char *luatex_find_file (char *s, int callback_index);
+extern boolean
+luatex_open_input (FILE **f_ptr, char *fn, int filefmt, const_string fopen_mode);
 
 extern boolean lua_a_open_in(alpha_file f, quarterword n);
 extern boolean lua_a_open_out(alpha_file f, quarterword n);

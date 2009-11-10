@@ -125,11 +125,102 @@ char *luatex_find_file (char *s, int callback_index)
         case find_map_file_callback:
             ftemp = kpse_find_file(s, kpse_fontmap_format, 0);
             break;
+        case find_type1_file_callback:
+            ftemp = kpse_find_file(s, kpse_type1_format, 0);
+            break;
+        case find_font_file_callback:
+            ftemp = kpse_find_file(s, kpse_ofm_format, 0);
+            if (ftemp == NULL)
+                ftemp = kpse_find_file(s, kpse_tfm_format, 0);
+            break;
+        case find_vf_file_callback:
+            ftemp = kpse_find_file(s, kpse_ovf_format, 0);
+            if (ftemp == NULL)
+                ftemp = kpse_find_file(s, kpse_vf_format, 0);
+            break;
         default:
             break;
         }
     }
     return ftemp;
+}
+
+
+/* Open an input file F, using the kpathsea format FILEFMT and passing
+   FOPEN_MODE to fopen.  The filename is in `nameoffile+1'.  We return
+   whether or not the open succeeded.  If it did, `nameoffile' is set to
+   the full filename opened, and `namelength' to its length.  */
+
+extern string fullnameoffile;
+extern int ocptemp;
+
+boolean
+luatex_open_input (FILE **f_ptr, char *fn, int filefmt, const_string fopen_mode)
+{
+    string fname = NULL;
+    /* We havent found anything yet. */
+    *f_ptr = NULL;
+    if (fullnameoffile)
+        free(fullnameoffile);
+    fullnameoffile = NULL;
+    /* Handle -output-directory.
+       FIXME: We assume that it is OK to look here first.  Possibly it
+       would be better to replace lookups in "." with lookups in the
+       output_directory followed by "." but to do this requires much more
+       invasive surgery in libkpathsea.  */
+    /* FIXME: This code assumes that the filename of the input file is
+       not an absolute filename. */
+    if (output_directory) {
+        fname = concat3(output_directory, DIR_SEP_STRING, fn);
+        *f_ptr = fopen(fname, fopen_mode);
+        if (*f_ptr) {
+            fullnameoffile = fname;
+        } else {
+            free(fname);
+        }
+    }
+    /* No file means do the normal search. */
+    if (*f_ptr == NULL) {
+        /* The only exception to `must_exist' being true is \openin, for
+           which we set `tex_input_type' to 0 in the change file.  */
+        /* According to the pdfTeX people, pounding the disk for .vf files
+           is overkill as well.  A more general solution would be nice. */
+        boolean must_exist = (filefmt != kpse_tex_format || texinputtype)
+            && (filefmt != kpse_vf_format);
+        fname = kpse_find_file (fn, (kpse_file_format_type)filefmt, must_exist);
+        if (fname) {
+            fullnameoffile = xstrdup(fname);
+            /* If we found the file in the current directory, don't leave
+               the `./' at the beginning of `nameoffile', since it looks
+               dumb when `tex foo' says `(./foo.tex ... )'.  On the other
+               hand, if the user said `tex ./foo', and that's what we
+               opened, then keep it -- the user specified it, so we
+               shouldn't remove it.  */
+            if (fname[0] == '.' && IS_DIR_SEP (fname[1])
+                && (fn[0] != '.' || !IS_DIR_SEP (nameoffile[1])))
+            {
+                unsigned i = 0;
+                while (fname[i + 2] != 0) {
+                    fname[i] = fname[i + 2];
+                    i++;
+                }
+                fname[i] = 0;
+            }
+            /* This fopen is not allowed to fail. */
+            *f_ptr = xfopen (fn, fopen_mode);
+        }
+    }
+
+    if (*f_ptr) {
+        recorder_record_input (fn);
+        if (filefmt == kpse_tfm_format || 
+            filefmt == kpse_ofm_format ) {
+            tfmtemp = getc (*f_ptr);
+        } else if (filefmt == kpse_ocp_format) {
+            ocptemp = getc (*f_ptr);
+        }
+    }            
+    return *f_ptr != NULL;
 }
 
 

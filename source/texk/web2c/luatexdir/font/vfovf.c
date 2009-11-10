@@ -287,34 +287,13 @@ int open_vf_file(char *fn, unsigned char **vbuffer, integer * vsize)
 {
     boolean res;                /* was the callback successful? */
     integer callback_id;
-    boolean file_read;          /* was |vf_file| successfully read? */
+    boolean file_read = false;          /* was |vf_file| successfully read? */
     FILE *vf_file;
-    char *fnam = NULL;
-
-
-
-
-    namelength = strlen(fn);
-    nameoffile = xmalloc(namelength + 2);
-    strcpy((char *) (nameoffile + 1), fn);
-
-    callback_id = callback_defined(find_vf_file_callback);
-    if (callback_id > 0) {
-        res = run_callback(callback_id, "S->S", fn, &fnam);
-        if (res && (fnam != NULL) && (strlen(fnam) > 0)) {
-            /* @<Fixup |nameoffile| after callback@>; */
-            free(nameoffile);
-            namelength = strlen(fnam);
-            nameoffile = xmalloc(namelength + 2);
-            strcpy((char *) (nameoffile + 1), fnam);
-        } else {
-            return 0;
-        }
-    }
+    char *fname = luatex_find_file (fn, find_vf_file_callback);
+   
     callback_id = callback_defined(read_vf_file_callback);
-    if (callback_id > 0) {
-        file_read = false;
-        res = run_callback(callback_id, "S->bSd", stringcast(nameoffile + 1),
+    if (fname && callback_id > 0) {
+        res = run_callback(callback_id, "S->bSd", fname,
                            &file_read, vbuffer, vsize);
         if (res && file_read && (*vsize > 0)) {
             return 1;
@@ -322,7 +301,10 @@ int open_vf_file(char *fn, unsigned char **vbuffer, integer * vsize)
         if (!file_read)
             return 0;           /* -1 */
     } else {
-        if (ovf_b_open_in(vf_file) || vf_b_open_in(vf_file)) {
+        if (!fname)
+            fname = fn;
+        if (luatex_open_input (&(vf_file), fname, kpse_ovf_format, FOPEN_RBIN_MODE) ||
+            luatex_open_input (&(vf_file), fname, kpse_vf_format, FOPEN_RBIN_MODE)) {
             res = read_vf_file(vf_file, vbuffer, vsize);
             b_close(vf_file);
             if (res) {
