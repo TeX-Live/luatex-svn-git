@@ -348,7 +348,7 @@ read an integer value |x| that is supposed to be in the range |a<=x<=b|.
     } while (0)
 
 
-boolean load_fmt_file(void)
+boolean load_fmt_file(char *fmtname)
 {
     integer j, k;               /* all-purpose indices */
     halfword p;                 /* all-purpose pointer */
@@ -378,8 +378,7 @@ boolean load_fmt_file(void)
     if (strcmp(engine_name, format_engine)) {
         wake_up_terminal();
         wterm_cr();
-        fprintf(term_out, "---! %s was written by %s",
-                (char *) (nameoffile + 1), format_engine);
+        fprintf(term_out, "---! %s was written by %s",fmtname);
         xfree(format_engine);
         goto BAD_FMT;
     }
@@ -389,8 +388,7 @@ boolean load_fmt_file(void)
     if (x != 0x57325458) {      /* todo: @$ *//* check that strings are the same */
         wake_up_terminal();
         wterm_cr();
-        fprintf(term_out, "---! %s was written by a different version",
-                (char *) (nameoffile + 1));
+        fprintf(term_out, "---! %s was written by a different version",fmtname);
         goto BAD_FMT;
     }
     undump_int(x);

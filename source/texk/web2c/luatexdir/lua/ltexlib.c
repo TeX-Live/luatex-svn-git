@@ -1481,7 +1481,7 @@ static int tex_run_boot(lua_State * L)
             lua_pushboolean(L, 0);      /* false */
             return 1;
         }
-        if (!load_fmt_file()) {
+        if (!load_fmt_file(format)) {
             w_close(fmt_file);
             lua_pushboolean(L, 0);      /* false */
             return 1;
