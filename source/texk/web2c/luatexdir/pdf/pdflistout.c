@@ -275,15 +275,15 @@ void out_what(PDF pdf, halfword p)
                 if (subtype(p) == close_node) {
                     write_open[j] = false;
                 } else if (j < 16) {
+                    char *fn;
                     cur_name = open_name(p);
                     cur_area = open_area(p);
                     cur_ext = open_ext(p);
                     if (cur_ext == get_nullstr())
                         cur_ext = maketexstring(".tex");
-                    pack_file_name(cur_name, cur_area, cur_ext);
-                    while (!lua_a_open_out(write_file[j], (j + 1)))
-                        prompt_file_name("output file name", ".tex");
-                    write_file[j] = name_file_pointer;
+                    fn = pack_file_name(cur_name, cur_area, cur_ext);
+                    while (!lua_a_open_out(&(write_file[j]), fn, (j + 1)))
+                        fn= prompt_file_name("output file name", ".tex");
                     write_open[j] = true;
                 }
             }

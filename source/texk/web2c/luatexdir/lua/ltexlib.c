@@ -1473,11 +1473,7 @@ static int tex_run_boot(lua_State * L)
         return 1;
     }
     if (format) {
-        if (nameoffile)
-            xfree(nameoffile);
-        nameoffile = xmallocarray(packed_ASCII_code, strlen(format) + 2);
-        strcpy((char *) (nameoffile + 1), format);
-        if (!zopen_w_input (&fmt_file, DUMP_FORMAT, FOPEN_RBIN_MODE)) {
+        if (!zopen_w_input (&fmt_file, format, DUMP_FORMAT, FOPEN_RBIN_MODE)) {
             lua_pushboolean(L, 0);      /* false */
             return 1;
         }

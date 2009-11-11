@@ -61,6 +61,7 @@ void store_fmt_file(void)
     halfword p;                 /* all-purpose pointer */
     integer x;                  /* something to dump */
     char *format_engine;
+    char *fmtname = NULL;
     /* If dumping is not allowed, abort */
     /* The user is not allowed to dump a format file unless |save_ptr=0|.
        This condition implies that |cur_level=level_one|, hence
@@ -91,12 +92,14 @@ void store_fmt_file(void)
         selector = log_only;
     else
         selector = term_and_log;
-    pack_job_name(format_extension);
-    while (!zopen_w_output (&fmt_file, FOPEN_WBIN_MODE))
-        prompt_file_name("format file name", format_extension);
-    tprint_nl("Beginning to dump on file ");
-    slow_print(w_make_name_string(fmt_file));
-    flush_string();
+
+    fmtname = pack_job_name(format_extension); 
+    while (!zopen_w_output (&fmt_file, fmtname, FOPEN_WBIN_MODE)) {
+        fmtname = prompt_file_name("format file name", format_extension);
+    }
+    tprint_nl("Beginning to dump on file");
+    tprint(fmtname);
+    free(fmtname);
     tprint_nl("");
     slow_print(format_ident);
 

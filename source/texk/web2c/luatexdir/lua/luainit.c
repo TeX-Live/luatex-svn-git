@@ -458,10 +458,9 @@ void fix_dumpname(void)
         /* adjust array for Pascal and provide extension, if needed */
         dist = strlen(dump_name) - strlen(DUMP_EXT);
         if (strstr(dump_name, DUMP_EXT) == dump_name + dist)
-            DUMP_VAR = concat(" ", dump_name);
+            TEX_format_default = dump_name;
         else
-            DUMP_VAR = concat3(" ", dump_name, DUMP_EXT);
-        DUMP_LENGTH_VAR = strlen(DUMP_VAR + 1);
+            TEX_format_default = concat(dump_name, DUMP_EXT);
     } else {
         /* For dump_name to be NULL is a bug.  */
         if (!ini_version)

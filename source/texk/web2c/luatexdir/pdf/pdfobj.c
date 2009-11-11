@@ -79,7 +79,7 @@ void pdf_write_obj(PDF pdf, integer n)
             byte_file f;        /* the data file's FILE* */
             if (!fnam)
                 fnam = s;
-            if (!open_input (&f, kpse_tex_format, FOPEN_RBIN_MODE))
+            if (!luatex_open_input (&f, fnam, kpse_tex_format, FOPEN_RBIN_MODE, true))
                 pdf_error("ext5", "cannot open file for embedding");
             res = read_data_file(f, &data_buffer, &data_size);
             close_file(f);

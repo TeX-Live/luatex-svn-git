@@ -393,7 +393,7 @@ int open_tfm_file(char *nom, unsigned char **tfm_buf, integer * tfm_siz)
         if (!opened)
             return -1;
     } else {
-        if (luatex_open_input (&(tfm_file), fname, kpse_ofm_format, FOPEN_RBIN_MODE)) {
+        if (luatex_open_input (&(tfm_file), fname, kpse_ofm_format, FOPEN_RBIN_MODE, true)) {
             res = read_tfm_file(tfm_file, tfm_buf, tfm_siz);
             close_file(tfm_file);
             if (res) {

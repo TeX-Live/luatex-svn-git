@@ -22,20 +22,17 @@
 #ifndef TEXFILEIO_H
 #  define TEXFILEIO_H
 
-extern packed_ASCII_code *nameoffile;
-extern int namelength;          /* this many characters are actually  relevant in |nameoffile| */
-extern alpha_file name_file_pointer;
-
 extern integer *input_file_callback_id;
 extern integer read_file_callback_id[17];
 
 extern char *luatex_find_file (char *s, int callback_index);
-extern boolean
-luatex_open_input (FILE **f_ptr, char *fn, int filefmt, const_string fopen_mode);
+extern char *luatex_find_read_file (char *s, int n, int callback_index);
+extern boolean luatex_open_input (FILE **f_ptr, char *fn, int filefmt, const_string fopen_mode, boolean must_exist);
+extern boolean luatex_open_output (FILE **f_ptr, char *fn, const_string fopen_mode);
 
-extern boolean lua_a_open_in(alpha_file f, quarterword n);
-extern boolean lua_a_open_out(alpha_file f, quarterword n);
-extern boolean lua_b_open_out(alpha_file f);
+extern boolean lua_a_open_in(alpha_file *f, char *fn, quarterword n);
+extern boolean lua_a_open_out(alpha_file *f, char *fn, quarterword n);
+extern boolean lua_b_open_out(alpha_file *f, char *fn);
 extern void lua_a_close_in(alpha_file f, quarterword n);
 extern void lua_a_close_out(alpha_file f);
 
@@ -97,15 +94,7 @@ extern str_number cur_ext;
 extern pool_pointer area_delimiter;
 extern pool_pointer ext_delimiter;
 
-#  define append_to_name(A) do {				\
-	c=(A);						\
-	if (c!='"') {					\
-	    incr(k);					\
-	    if (k<=file_name_size) nameoffile[k]=c;	\
-	}						\
-    } while (0)
-
-extern void pack_file_name(str_number n, str_number a, str_number e);
+extern char *pack_file_name(str_number n, str_number a, str_number e);
 
 #  define file_name_size 512
 
@@ -114,21 +103,13 @@ extern void pack_file_name(str_number n, str_number a, str_number e);
 #  define format_extension ".fmt"
                                 /* the extension, as a constant */
 
-extern integer format_default_length;
 extern char *TEX_format_default;
 
-extern void pack_buffered_name(integer n, integer a, integer b);
-extern boolean open_fmt_file(void);
-
-#  define a_make_name_string(A) make_name_string()
-#  define b_make_name_string(A) make_name_string()
-#  define w_make_name_string(A) make_name_string()
+extern char *open_fmt_file(void);
 
 extern boolean name_in_progress;        /* is a file name being scanned? */
 extern str_number job_name;     /* principal file name */
 extern boolean log_opened;      /* has the transcript file been opened? */
-
-#  define pack_cur_name() pack_file_name(cur_name,cur_area,cur_ext)
 
 extern str_number texmf_log_name;       /* full name of the log file */
 
@@ -137,8 +118,8 @@ extern void start_input(void);
 
 extern int open_outfile(FILE ** f, char *name, char *mode);
 
-extern boolean zopen_w_input(FILE **, int, const_string fopen_mode);
-extern boolean zopen_w_output(FILE **, const_string fopen_mode);
+extern boolean zopen_w_input(FILE **, char *, int, const_string fopen_mode);
+extern boolean zopen_w_output(FILE **, char *, const_string fopen_mode);
 extern void zwclose(FILE *);
 
 extern int readbinfile(FILE * f, unsigned char **b, integer * s);
@@ -147,6 +128,13 @@ extern int readbinfile(FILE * f, unsigned char **b, integer * s);
 #  define read_vf_file   readbinfile
 #  define read_ocp_file  readbinfile
 #  define read_data_file readbinfile
+
+extern boolean openinnameok(const_string);
+extern boolean openoutnameok(const_string);
+
+extern boolean open_in_or_pipe(FILE **, char *, int, const_string fopen_mode, boolean must_exist);
+extern boolean open_out_or_pipe(FILE **, char *, const_string fopen_mode);
+extern void close_file_or_pipe(FILE *);
 
 
 #endif

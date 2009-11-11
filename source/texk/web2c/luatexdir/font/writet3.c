@@ -230,15 +230,13 @@ void writet3(PDF pdf, int objnum, internalfontnumber f)
     integer pk_font_scale;
     boolean is_notdef;
 
-
     t3_glyph_num = 0;
     t3_image_used = false;
     for (i = 0; i < 256; i++) {
         t3_char_procs[i] = 0;
         t3_char_widths[i] = 0;
     }
-    pack_file_name(tex_font_name(f), get_nullstr(), maketexlstring(".pgc", 4));
-    cur_file_name = makecstring(make_name_string());
+    cur_file_name = pack_file_name(tex_font_name(f), get_nullstr(), maketexlstring(".pgc", 4));
     is_pk_font = false;
 
     if (t3_buffer != NULL) {

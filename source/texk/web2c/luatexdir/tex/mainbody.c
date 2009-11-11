@@ -391,8 +391,6 @@ int main_initialize(void)
         bad = 19;
     if (cs_token_flag + eqtb_size + hash_extra > max_halfword)
         bad = 21;
-    if (format_default_length > file_name_size)
-        bad = 31;
     if (bad > 0) {
         wterm_cr();
         fprintf(term_out,
@@ -440,11 +438,12 @@ void main_body(void)
     if (buffer[iloc] == '*')
         incr(iloc);
     if ((format_ident == 0) || (buffer[iloc] == '&') || dump_line) {
+        char *fname = NULL;
         if (format_ident != 0)
             initialize();       /* erase preloaded format */
-        if (!open_fmt_file())
+        if ((fname = open_fmt_file()) == NULL)
             goto FINAL_END;
-        if (!load_fmt_file((char *)(nameoffile+1))) {
+        if (!load_fmt_file(fname)) {
             zwclose(fmt_file);
             goto FINAL_END;
         }

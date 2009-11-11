@@ -24,9 +24,8 @@
 
 extern void scan_file_name(void);
 extern void scan_file_name_toks(void);
-extern void pack_job_name(char *s);
-extern void prompt_file_name(char *s, char *e);
-extern str_number make_name_string(void);
+extern char *pack_job_name(char *s);
+extern char *prompt_file_name(char *s, char *e);
 extern void print_file_name(str_number, str_number, str_number);
 
 

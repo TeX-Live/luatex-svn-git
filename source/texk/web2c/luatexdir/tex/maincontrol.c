@@ -3158,6 +3158,7 @@ void open_or_close_in(void)
 {
     int c;                      /* 1 for \.{\\openin}, 0 for \.{\\closein} */
     int n;                      /* stream number */
+    char *fn;
     c = cur_chr;
     scan_four_bit_int();
     n = cur_val;
@@ -3178,9 +3179,8 @@ void open_or_close_in(void)
         } else {
             scan_file_name_toks();
         }
-        pack_cur_name();
-        if (lua_a_open_in(read_file[n], (n + 1))) {
-            read_file[n] = name_file_pointer;
+        fn = pack_file_name(cur_name,cur_area,cur_ext);
+        if (lua_a_open_in(&(read_file[n]), fn, (n + 1))) {
             read_open[n] = just_open;
         }
     }

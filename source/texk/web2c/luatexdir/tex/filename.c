@@ -209,25 +209,24 @@ void scan_file_name_toks(void)
   and |cur_ext|.
 */
 
-#define pack_cur_name() pack_file_name(cur_name,cur_area,cur_ext)
 
-void pack_job_name(char *s)
+char *pack_job_name(char *s)
 {                               /* |s = ".log"|, |".dvi"|, or |format_extension| */
     cur_area = get_nullstr();
     cur_ext = maketexstring(s);
     cur_name = job_name;
-    pack_cur_name();
+    return pack_file_name(cur_name,cur_area,cur_ext);
 }
 
 /* If some trouble arises when \TeX\ tries to open a file, the following
    routine calls upon the user to supply another file name. Parameter~|s|
    is used in the error message to identify the type of file; parameter~|e|
    is the default extension if none is given. Upon exit from the routine,
-   variables |cur_name|, |cur_area|, |cur_ext|, and |nameoffile| are
+   variables |cur_name|, |cur_area|, and |cur_ext| are
    ready for another attempt at file opening.
 */
 
-void prompt_file_name(char *s, char *e)
+char *prompt_file_name(char *s, char *e)
 {
     int k;                      /* index into |buffer| */
     str_number saved_cur_name;  /* to catch empty terminal input */
@@ -273,45 +272,8 @@ void prompt_file_name(char *s, char *e)
         cur_ext = maketexstring(e);
     if (str_length(cur_name) == 0)
         cur_name = saved_cur_name;
-    pack_cur_name();
+   return pack_file_name(cur_name,cur_area,cur_ext);
 }
-
-
-str_number make_name_string(void)
-{
-    int k;                      /* index into |nameoffile| */
-    pool_pointer save_area_delimiter, save_ext_delimiter;
-    boolean save_name_in_progress, save_stop_at_space;
-    str_number ret;
-    if ((pool_ptr + namelength > pool_size) ||
-        (str_ptr == max_strings) || (cur_length > 0)) {
-        ret = maketexstring("?");
-    } else {
-        for (k = 1; k <= namelength; k++)
-            append_char(nameoffile[k]);
-        ret = make_string();
-    }
-    /* At this point we also reset |cur_name|, |cur_ext|, and |cur_area| to
-       match the contents of |nameoffile|. */
-    save_area_delimiter = area_delimiter;
-    save_ext_delimiter = ext_delimiter;
-    save_name_in_progress = name_in_progress;
-    save_stop_at_space = stop_at_space;
-    name_in_progress = true;
-    begin_name();
-    stop_at_space = false;
-    k = 1;
-    while ((k <= namelength) && (more_name(nameoffile[k])))
-        k++;
-    stop_at_space = save_stop_at_space;
-    end_name();
-    name_in_progress = save_name_in_progress;
-    area_delimiter = save_area_delimiter;
-    ext_delimiter = save_ext_delimiter;
-    return ret;
-}
-
-
 
 void print_file_name(str_number n, str_number a, str_number e)
 {

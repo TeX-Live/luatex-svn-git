@@ -942,19 +942,19 @@ static void init_pdf_outputparameters(PDF pdf)
 
 /* Checks that we have a name for the generated PDF file and that it's open. */
 
-static void ensure_output_file_open(PDF pdf, char *s)
+static void ensure_output_file_open(PDF pdf, char *ext)
 {
+    char *fn;
     if (pdf->file_name != NULL)
         return;
     if (job_name == 0)
         open_log_file();
-    pack_job_name(s);
+    fn = pack_job_name(ext);
     if (pdf->draftmode == 0 || pdf->o_mode == OMODE_DVI) {
-        while (!lua_b_open_out(pdf->file))
-            prompt_file_name("file name for output", s);
+        while (!lua_b_open_out(&pdf->file, fn))
+            fn= prompt_file_name("file name for output", ext);
     }
-    pdf->file = name_file_pointer;      /* hm ? */
-    pdf->file_name = xstrdup(makecstring(make_name_string()));
+    pdf->file_name = fn;
 }
 
 static void ensure_pdf_header_written(PDF pdf)

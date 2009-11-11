@@ -70,18 +70,6 @@
 #  define mainbody main_body
 #  define t_open_in topenin
 
-/* Hacks for TeX that are better not to #ifdef, see texmfmp.c.  */
-extern int tfmtemp, texinputtype;
-
-/* TeX, MF and MetaPost use this.  */
-extern boolean openinnameok(const_string);
-extern boolean openoutnameok(const_string);
-
-/* pdfTeX uses these for pipe support */
-extern boolean open_in_or_pipe(FILE **, int, const_string fopen_mode);
-extern boolean open_out_or_pipe(FILE **, const_string fopen_mode);
-extern void close_file_or_pipe(FILE *);
-
 /* Executing shell commands.  */
 extern void mk_shellcmdlist(char *);
 extern void init_shell_escape(void);
@@ -122,8 +110,6 @@ extern boolean input_line(FILE *);
 #  define AUTHOR NULL
 #  define PROGRAM_HELP LUATEXHELP
 #  define BUG_ADDRESS "dev-luatex@ntg.nl"
-#  define DUMP_VAR TEX_format_default
-#  define DUMP_LENGTH_VAR format_default_length
 #  define DUMP_OPTION "fmt"
 #  define DUMP_EXT ".fmt"
 #  define INPUT_FORMAT kpse_tex_format

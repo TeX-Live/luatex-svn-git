@@ -171,7 +171,7 @@ read_ocp_info(pointer u, char *nom, char *aire, char *ext,
             FILE *ocp_file = NULL;
             if (!cnam)
                 cnam = cname;
-            if (!luatex_open_input (&ocp_file, cnam, kpse_ocp_format, FOPEN_RBIN_MODE))
+            if (!luatex_open_input (&ocp_file, cnam, kpse_ocp_format, FOPEN_RBIN_MODE,true))
                 ocp_abort("opening file");
             file_opened = true;
             res = read_ocp_file(ocp_file, &ocp_buffer, &ocp_size);

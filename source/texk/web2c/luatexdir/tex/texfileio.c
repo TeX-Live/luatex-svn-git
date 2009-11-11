@@ -18,8 +18,10 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 #include "lua/luatex-api.h"
+#include <string.h>
 #include <ptexlib.h>
 #include <zlib.h>
+#include <kpathsea/absolute.h>
 
 static const char _svn_version[] =
     "$Id$"
@@ -62,23 +64,12 @@ initialization.  We shall define a word file later; but it will be possible
 for us to specify simple operations on word files before they are defined.
 */
 
-/*
-Most of what we need to do with respect to input and output can be handled
-by the I/O facilities that are standard in \PASCAL, i.e., the routines
-called |get|, |put|, |eof|, and so on. But
-standard \PASCAL\ does not allow file variables to be associated with file
-names that are determined at run time, so it cannot be used to implement
-\TeX; some sort of extension to \PASCAL's ordinary |reset| and |rewrite|
-is crucial for our purposes. We shall assume that |nameoffile| is a variable
-of an appropriate type such that the \PASCAL\ run-time system being used to
-implement \TeX\ can open a file whose external name is specified by
-|nameoffile|.
-@^system dependencies@>
-*/
+/* We finally did away with |nameoffile| and |namelength|, but the variables
+   have to be kept otherwise there will be link errors from |openclose.c| in
+   the web2c library */
 
-packed_ASCII_code *nameoffile;
-int namelength;                 /* this many characters are actually  relevant in |nameoffile| */
-alpha_file name_file_pointer;
+char *nameoffile;
+int namelength;
 
 /*
 When input files are opened via a callback, they will also be read using
@@ -93,18 +84,17 @@ Signalling this fact is achieved by having two arrays of integers.
 integer *input_file_callback_id;
 integer read_file_callback_id[17];
 
-static void fixup_nameoffile(str_number fnam)
+char *luatex_find_read_file (char *s, int n, int callback_index)
 {
-    integer k;
-    xfree(nameoffile);
-    namelength = str_length(fnam);
-    nameoffile = xmallocarray(packed_ASCII_code, namelength + 2);
-    for (k = str_start_macro(fnam); k <= str_start_macro(fnam + 1) - 1; k++)
-        nameoffile[k - str_start_macro(fnam) + 1] = str_pool[k];
-    nameoffile[namelength + 1] = 0;
-    flush_string();
+    char *ftemp = NULL;
+    int callback_id = callback_defined(callback_index);
+    if (callback_id > 0) {
+        (void)run_callback (callback_id, "dS->S", n, s, &ftemp);
+    } else {
+        ftemp = kpse_find_file(s, kpse_tex_format, 0);
+    }
+    return ftemp;
 }
-
 
 char *luatex_find_file (char *s, int callback_index)
 {
@@ -112,9 +102,13 @@ char *luatex_find_file (char *s, int callback_index)
     int callback_id = callback_defined(callback_index);
     if (callback_id > 0) {
         (void)run_callback (callback_id, "S->S", s, &ftemp);
+
     } else {
         /* use kpathsea here */
         switch (callback_index) {
+        case find_read_file_callback:
+            ftemp = kpse_find_file(s, kpse_tex_format, 0);
+            break;
         case find_enc_file_callback:
             ftemp = kpse_find_file(s, kpse_enc_format, 0);
             break;
@@ -144,6 +138,7 @@ char *luatex_find_file (char *s, int callback_index)
                 ftemp = kpse_find_file(s, kpse_vf_format, 0);
             break;
         default:
+            printf ("luatex_find_file(): do not know how to handle file %s of type %d\n",s, callback_index);
             break;
         }
     }
@@ -152,15 +147,14 @@ char *luatex_find_file (char *s, int callback_index)
 
 
 /* Open an input file F, using the kpathsea format FILEFMT and passing
-   FOPEN_MODE to fopen.  The filename is in `nameoffile+1'.  We return
-   whether or not the open succeeded.  If it did, `nameoffile' is set to
-   the full filename opened, and `namelength' to its length.  */
+   FOPEN_MODE to fopen.  The filename is in `fn'.  We return whether or 
+   not the open succeeded.
+ */
 
 extern string fullnameoffile;
-extern int ocptemp;
 
 boolean
-luatex_open_input (FILE **f_ptr, char *fn, int filefmt, const_string fopen_mode)
+luatex_open_input (FILE **f_ptr, char *fn, int filefmt, const_string fopen_mode, boolean must_exist)
 {
     string fname = NULL;
     /* We havent found anything yet. */
@@ -190,19 +184,17 @@ luatex_open_input (FILE **f_ptr, char *fn, int filefmt, const_string fopen_mode)
            which we set `tex_input_type' to 0 in the change file.  */
         /* According to the pdfTeX people, pounding the disk for .vf files
            is overkill as well.  A more general solution would be nice. */
-        boolean must_exist = (filefmt != kpse_tex_format || texinputtype)
-            && (filefmt != kpse_vf_format);
         fname = kpse_find_file (fn, (kpse_file_format_type)filefmt, must_exist);
         if (fname) {
             fullnameoffile = xstrdup(fname);
             /* If we found the file in the current directory, don't leave
-               the `./' at the beginning of `nameoffile', since it looks
+               the `./' at the beginning of `fn', since it looks
                dumb when `tex foo' says `(./foo.tex ... )'.  On the other
                hand, if the user said `tex ./foo', and that's what we
                opened, then keep it -- the user specified it, so we
                shouldn't remove it.  */
             if (fname[0] == '.' && IS_DIR_SEP (fname[1])
-                && (fn[0] != '.' || !IS_DIR_SEP (nameoffile[1])))
+                && (fn[0] != '.' || !IS_DIR_SEP (fn[1])))
             {
                 unsigned i = 0;
                 while (fname[i + 2] != 0) {
@@ -218,124 +210,124 @@ luatex_open_input (FILE **f_ptr, char *fn, int filefmt, const_string fopen_mode)
 
     if (*f_ptr) {
         recorder_record_input (fn);
-        if (filefmt == kpse_tfm_format || 
-            filefmt == kpse_ofm_format ) {
-            tfmtemp = getc (*f_ptr);
-        } else if (filefmt == kpse_ocp_format) {
-            ocptemp = getc (*f_ptr);
-        }
     }            
     return *f_ptr != NULL;
 }
 
+boolean
+luatex_open_output (FILE **f_ptr, char *fn, const_string fopen_mode)
+{
+    string fname;
+    boolean absolute = kpse_absolute_p(fn, false);
 
-boolean lua_a_open_in(alpha_file f, quarterword n)
+    /* If we have an explicit output directory, use it. */
+    if (output_directory && !absolute) {
+        fname = concat3(output_directory, DIR_SEP_STRING, fn);
+    } else {
+        fname = fn;
+    }
+
+    /* Is the filename openable as given?  */
+    *f_ptr = fopen (fname, fopen_mode);
+
+    if (!*f_ptr) {
+        /* Can't open as given.  Try the envvar.  */
+        string texmfoutput = kpse_var_value("TEXMFOUTPUT");
+
+        if (texmfoutput && *texmfoutput && !absolute) {
+            string fname = concat3(texmfoutput, DIR_SEP_STRING, fn);
+            *f_ptr = fopen(fname, fopen_mode);
+        }
+    }
+    if (*f_ptr) {
+        recorder_record_output (fname);
+    }
+    if (fname != fn)
+        free(fname);
+    return *f_ptr != NULL;
+}
+
+
+
+
+
+boolean lua_a_open_in(alpha_file *f, char *fn, quarterword n)
 {
     integer k;
-    str_number fnam;            /* string returned by find callback */
+    char *fnam;            /* string returned by find callback */
     integer callback_id;
     boolean ret = true;         /* return value */
     boolean file_ok = true;     /* the status so far  */
     if (n == 0) {
-        texinputtype = 1;       /* Tell |open_input| we are \.{\\input}. */
         input_file_callback_id[iindex] = 0;
     } else {
-        texinputtype = 0;
         read_file_callback_id[n] = 0;
     }
-    callback_id = callback_defined(find_read_file_callback);
+    fnam = luatex_find_read_file(fn, n, find_read_file_callback);
+    if (!fnam)
+        return false;
+    callback_id = callback_defined(open_read_file_callback);
     if (callback_id > 0) {
-        fnam = 0;
-        file_ok =
-            run_callback(callback_id, "dS->s", n, (char *) (nameoffile + 1),
-                         &fnam);
-        if ((file_ok) && (fnam != 0) && (str_length(fnam) > 0)) {
-            /* Fixup |nameoffile| after callback */
-            fixup_nameoffile(fnam);
+        k = run_and_save_callback(callback_id, "S->",fnam);
+        if (k > 0) {
+            ret = true;
+            if (n == 0)
+                input_file_callback_id[iindex] = k;
+            else
+                read_file_callback_id[n] = k;
         } else {
-            file_ok = false;    /* file not found */
+            file_ok = false;        /* read failed */
         }
-    }
-    if (file_ok) {
-        callback_id = callback_defined(open_read_file_callback);
-        if (callback_id > 0) {
-            k = run_and_save_callback(callback_id, "S->",
-                                      (char *) (nameoffile + 1));
-            if (k > 0) {
-                ret = true;
-                if (n == 0)
-                    input_file_callback_id[iindex] = k;
-                else
-                    read_file_callback_id[n] = k;
-            } else {
-                file_ok = false;        /* read failed */
-            }
-        } else {                /* no read callback */
-            if (openinnameok((char *) (nameoffile + 1))) {
-                ret = open_in_or_pipe(&f,kpse_tex_format,FOPEN_RBIN_MODE);
-                name_file_pointer = f;
-            } else {
-                file_ok = false;        /* open failed */
-            }
+    } else {                /* no read callback */
+        if (openinnameok(fnam)) {
+            ret = open_in_or_pipe(f,fnam, kpse_tex_format,FOPEN_RBIN_MODE,(n==0 ? true : false));
+        } else {
+            file_ok = false;        /* open failed */
         }
     }
     if (!file_ok) {
-        name_file_pointer = 0;
         ret = false;
     }
     return ret;
 }
 
-boolean lua_a_open_out(alpha_file f, quarterword n)
+boolean lua_a_open_out(alpha_file *f, char *fn, quarterword n)
 {
     boolean test;
     str_number fnam;
     integer callback_id;
     boolean ret = false;
-    name_file_pointer = 0;
     callback_id = callback_defined(find_write_file_callback);
     if (callback_id > 0) {
         fnam = 0;
-        test =
-            run_callback(callback_id, "dS->s", n, (char *) (nameoffile + 1),
-                         &fnam);
+        test = run_callback(callback_id, "dS->s", n, fn, &fnam);
         if ((test) && (fnam != 0) && (str_length(fnam) > 0)) {
-            /* Fixup |nameoffile| after callback */
-            fixup_nameoffile(fnam);
-            ret =  open_outfile(&f,(char *)(nameoffile+1),FOPEN_W_MODE);
-            name_file_pointer = f;
+            ret =  open_outfile(f,fn,FOPEN_W_MODE);
         }
     } else {
-        if (openoutnameok((char *) (nameoffile + 1))) {
-            ret = open_out_or_pipe(&f,FOPEN_W_MODE);
-            name_file_pointer = f;
+        if (openoutnameok(fn)) {
+            ret = open_out_or_pipe(f,fn,FOPEN_W_MODE);
         }
     }
     return ret;
 }
 
-boolean lua_b_open_out(alpha_file f)
+boolean lua_b_open_out(alpha_file *f, char *fn)
 {
     boolean test;
     str_number fnam;
     integer callback_id;
     boolean ret = false;
-    name_file_pointer = 0;
     callback_id = callback_defined(find_output_file_callback);
     if (callback_id > 0) {
         fnam = 0;
-        test =
-            run_callback(callback_id, "S->s", (char *) (nameoffile + 1), &fnam);
+        test = run_callback(callback_id, "S->s", fn, &fnam);
         if ((test) && (fnam != 0) && (str_length(fnam) > 0)) {
-            /* Fixup |nameoffile| after callback */
-            fixup_nameoffile(fnam);
-            ret = open_outfile(&f,(char *)(nameoffile+1),FOPEN_WBIN_MODE);
-            name_file_pointer = f;
+            ret = open_outfile(f,fn,FOPEN_WBIN_MODE);
         }
     } else {
-        if (openoutnameok((char *) (nameoffile + 1))) {
-            ret = open_output (&f, FOPEN_WBIN_MODE);
-            name_file_pointer = f;
+        if (openoutnameok(fn)) {
+            ret = luatex_open_output (f, fn, FOPEN_WBIN_MODE);
         }
     }
     return ret;
@@ -669,35 +661,29 @@ are not given explicitly are assumed to appear in a standard system area.
 These system area names will, of course, vary from place to place.
 */
 
-/*
-Another system-dependent routine is needed to convert three internal
-\TeX\ strings
-into the |nameoffile| value that is used to open files. The present code
-allows both lowercase and uppercase letters in the file name.
-*/
+#  define append_to_fn(A) do {                  \
+        c=(A);                                  \
+        if (c!='"') {                           \
+            if (k<file_name_size) fn[k++]=c;    \
+        }                                       \
+    } while (0)
 
-void pack_file_name(str_number n, str_number a, str_number e)
+
+char *pack_file_name(str_number n, str_number a, str_number e)
 {
-    integer k;                  /* number of positions filled in |nameoffile| */
     ASCII_code c;               /* character being packed */
     pool_pointer j;             /* index into |str_pool| */
-    k = 0;
-    if (nameoffile)
-        xfree(nameoffile);
-    nameoffile =
-        xmallocarray(packed_ASCII_code,
-                     str_length(a) + str_length(n) + str_length(e) + 1);
+    integer k = 0;              /* number of positions filled in |fn| */
+    packed_ASCII_code *fn = xmallocarray(packed_ASCII_code,
+                            str_length(a) + str_length(n) + str_length(e) + 1);
     for (j = str_start_macro(a); j <= str_start_macro(a + 1) - 1; j++)
-        append_to_name(str_pool[j]);
+        append_to_fn(str_pool[j]);
     for (j = str_start_macro(n); j <= str_start_macro(n + 1) - 1; j++)
-        append_to_name(str_pool[j]);
+        append_to_fn(str_pool[j]);
     for (j = str_start_macro(e); j <= str_start_macro(e + 1) - 1; j++)
-        append_to_name(str_pool[j]);
-    if (k <= file_name_size)
-        namelength = k;
-    else
-        namelength = file_name_size;
-    nameoffile[namelength + 1] = 0;
+        append_to_fn(str_pool[j]);
+    fn[k] = 0;
+    return (char *)fn;
 }
 
 
@@ -713,66 +699,21 @@ on the path searching that will happen during file opening.  Also, the
 length will be set in the main program.
 */
 
-integer format_default_length;
 char *TEX_format_default;
 
 /*
-We set the name of the default format file and the length of that name
-in C, instead of Pascal, since we want them to depend on the name of the
-program.
-*/
-
-/*
-Here is the messy routine that was just mentioned. It sets |nameoffile|
-from the first |n| characters of |TEX_format_default|, followed by
-|buffer[a..b]|, followed by the last |format_ext_length| characters of
-|TEX_format_default|.
-
-We dare not give error messages here, since \TeX\ calls this routine before
-the |error| routine is ready to roll. Instead, we simply drop excess characters,
-since the error will be detected in another way when a strange file name
-isn't found.
-*/
-
-void pack_buffered_name(integer n, integer a, integer b)
-{
-    integer k;                  /* number of positions filled in |nameoffile| */
-    ASCII_code c;               /* character being packed */
-    integer j;                  /* index into |buffer| or |TEX_format_default| */
-    if (n + b - a + 1 + format_ext_length > file_name_size)
-        b = a + file_name_size - n - 1 - format_ext_length;
-    k = 0;
-    if (nameoffile)
-        xfree(nameoffile);
-    nameoffile =
-        xmallocarray(packed_ASCII_code,
-                     n + (b - a + 1) + format_ext_length + 1);
-    for (j = 1; j <= n; j++)
-        append_to_name(TEX_format_default[j]);
-    for (j = a; j <= b; j++)
-        append_to_name(buffer[j]);
-    for (j = format_default_length - format_ext_length + 1;
-         j <= format_default_length; j++)
-        append_to_name(TEX_format_default[j]);
-    if (k <= file_name_size)
-        namelength = k;
-    else
-        namelength = file_name_size;
-    nameoffile[namelength + 1] = 0;
-}
-
-/*
-Here is the only place we use |pack_buffered_name|. This part of the program
-becomes active when a ``virgin'' \TeX\ is trying to get going, just after
-the preliminary initialization, or when the user is substituting another
+This part of the program becomes active when a ``virgin'' \TeX\ is trying to get going, 
+just after the preliminary initialization, or when the user is substituting another
 format file by typing `\.\&' after the initial `\.{**}' prompt.  The buffer
 contains the first line of input in |buffer[loc..(last-1)]|, where
 |loc<last| and |buffer[loc]<>" "|.
 */
 
-boolean open_fmt_file(void)
+char *open_fmt_file(void)
 {
     int j;                      /* the first space after the format file name */
+    char *fmt = NULL;
+    int dist;
     j = iloc;
     if (buffer[iloc] == '&') {
         incr(iloc);
@@ -780,44 +721,30 @@ boolean open_fmt_file(void)
         buffer[last] = ' ';
         while (buffer[j] != ' ')
             incr(j);
-        pack_buffered_name(0, iloc, j - 1);     /* Kpathsea does everything */
-        if (zopen_w_input (&fmt_file, DUMP_FORMAT, FOPEN_RBIN_MODE))
+        fmt = xmalloc(j-iloc+1);
+        strncpy(fmt,(char *)(buffer+iloc),(j-iloc));
+        fmt[j-iloc] =0;
+        dist = strlen(fmt) - strlen(DUMP_EXT);
+        if (!(strstr(fmt, DUMP_EXT) == fmt + dist))
+            fmt = concat(fmt, DUMP_EXT);
+        if (zopen_w_input (&fmt_file, fmt, DUMP_FORMAT, FOPEN_RBIN_MODE))
             goto FOUND;
         wake_up_terminal();
-        fputs("Sorry, I can't find the format `", stdout);
-        fputs(stringcast(nameoffile + 1), stdout);
-        fputs("'; will try `", stdout);
-        fputs(TEX_format_default + 1, stdout);
-        fputs("'.", stdout);
-        wterm_cr();
+        fprintf(stdout, "Sorry, I can't find the format `%s'; will try `%s'.\n", 
+                fmt,TEX_format_default);
         update_terminal();
     }
     /* now pull out all the stops: try for the system \.{plain} file */
-    pack_buffered_name(format_default_length - format_ext_length, 1, 0);
-    if (!zopen_w_input (&fmt_file, DUMP_FORMAT, FOPEN_RBIN_MODE)) {
+    fmt = TEX_format_default;
+    if (!zopen_w_input (&fmt_file, fmt, DUMP_FORMAT, FOPEN_RBIN_MODE)) {
         wake_up_terminal();
-        fputs("I can't find the format file `", stdout);
-        fputs(TEX_format_default + 1, stdout);
-        fputs("'!", stdout);
-        wterm_cr();
-        return false;
+        fprintf(stdout, "I can't find the format file `%s'!\n", TEX_format_default);
+        return NULL;
     }
   FOUND:
     iloc = j;
-    return true;
+    return fmt;
 }
-
-/*
-Operating systems often make it possible to determine the exact name (and
-possible version number) of a file that has been opened. The following routine,
-which simply makes a \TeX\ string from the value of |nameoffile|, should
-ideally be changed to deduce the full name of file~|f|, which is the file
-most recently opened, if it is possible to do this in a \PASCAL\ program.
-
-
-This routine might be called after string memory has overflowed, hence
-we dare not use `|str_room|'.
-*/
 
 /*
 The global variable |name_in_progress| is used to prevent recursive
@@ -856,13 +783,14 @@ void open_log_file(void)
     int old_setting;            /* previous |selector| setting */
     int k;                      /* index into |buffer| */
     int l;                      /* end of first input line */
+    char *fn;
     old_setting = selector;
     if (job_name == 0)
         job_name = getjobname(maketexstring("texput")); /* TODO */
-    pack_job_name(".fls");
-    recorder_change_filename(stringcast(nameoffile + 1));
-    pack_job_name(".log");
-    while (!lua_a_open_out(log_file, 0)) {
+    fn = pack_job_name(".fls");
+    recorder_change_filename(fn);
+    fn = pack_job_name(".log");
+    while (!lua_a_open_out(&log_file, fn, 0)) {
         /* Try to get a different log file name */
         /* Sometimes |open_log_file| is called at awkward moments when \TeX\ is
            unable to print error messages or even to |show_context|.
@@ -879,10 +807,9 @@ void open_log_file(void)
            this file.
          */
         selector = term_only;
-        prompt_file_name("transcript file name", ".log");
+        fn = prompt_file_name("transcript file name", ".log");
     }
-    log_file = name_file_pointer;
-    texmf_log_name = a_make_name_string(log_file);
+    texmf_log_name = maketexstring(fn);
     selector = log_only;
     log_opened = true;
     if (callback_defined(start_run_callback) == 0) {
@@ -910,6 +837,7 @@ when an `\.{\\input}' command is being processed.
 void start_input(void)
 {                               /* \TeX\ will \.{\\input} something */
     str_number temp_str;
+    char *fn;
     do {
         get_x_token();
     } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
@@ -920,16 +848,15 @@ void start_input(void)
     } else {
         scan_file_name_toks();
     }
-    pack_cur_name();
+    fn = pack_file_name(cur_name,cur_area,cur_ext);
     while (1) {
         begin_file_reading();   /* set up |cur_file| and new level of input */
-        if (lua_a_open_in(cur_file, 0))
+        if (lua_a_open_in(&cur_file, fn, 0))
             break;
         end_file_reading();     /* remove the level that didn't work */
-        prompt_file_name("input file name", "");
+        fn = prompt_file_name("input file name", "");
     }
-    cur_file = name_file_pointer;
-    iname = a_make_name_string(cur_file);
+    iname = maketexstring(fn);
     source_filename_stack[in_open] = iname;
     full_source_filename_stack[in_open] = makefullnamestring();
     if (iname == str_ptr - 1) { /* we can try to conserve string pool space now */
@@ -1015,19 +942,15 @@ void do_zundump(char *p, int item_size, int nitems, FILE * in_file)
 
 #define COMPRESSION "R3"
 
-boolean zopen_w_input(FILE ** f, int format, const_string fopen_mode)
+boolean zopen_w_input(FILE ** f, char *fname, int format, const_string fopen_mode)
 {
     int callbackid;
     int res;
     char *fnam;
     callbackid = callback_defined(find_format_file_callback);
     if (callbackid > 0) {
-        res = run_callback(callbackid, "S->S", (nameoffile + 1), &fnam);
+        res = run_callback(callbackid, "S->S", fname, &fnam);
         if (res && fnam && strlen(fnam) > 0) {
-            xfree(nameoffile);
-            nameoffile = xmalloc(strlen(fnam) + 2);
-            memcpy((nameoffile + 1), fnam, strlen(fnam));
-            *(nameoffile + strlen(fnam) + 1) = 0;
             *f = xfopen(fnam, fopen_mode);
             if (*f == NULL) {
                 return 0;
@@ -1036,7 +959,7 @@ boolean zopen_w_input(FILE ** f, int format, const_string fopen_mode)
             return 0;
         }
     } else {
-        res = open_input(f, format, fopen_mode);
+        res = luatex_open_input(f, fname, format, fopen_mode, true);
     }
     if (res) {
         gz_fmtfile = gzdopen(fileno(*f), "rb" COMPRESSION);
@@ -1044,16 +967,16 @@ boolean zopen_w_input(FILE ** f, int format, const_string fopen_mode)
     return res;
 }
 
-boolean zopen_w_output(FILE ** f, const_string fopen_mode)
+boolean zopen_w_output(FILE ** f, char *s, const_string fopen_mode)
 {
     int res = 1;
     if (luainit) {
-        *f = fopen((const_string) (nameoffile + 1), fopen_mode);
+        *f = fopen(s, fopen_mode);
         if (*f == NULL) {
             return 0;
         }
     } else {
-        res = open_output(f, fopen_mode);
+        res = luatex_open_output(f, s, fopen_mode);
     }
     if (res) {
         gz_fmtfile = gzdopen(fileno(*f), "wb" COMPRESSION);
@@ -1101,4 +1024,263 @@ int readbinfile(FILE * f, unsigned char **tfm_buffer, integer * tfm_size)
         }
     }                           /* seek failed, or zero-sized file */
     return 0;
+}
+
+
+/* Like runsystem(), the runpopen() function is called only when
+   shellenabledp == 1.   Unlike runsystem(), here we write errors to
+   stderr, since we have nowhere better to use; and of course we return
+   a file handle (or NULL) instead of a status indicator.  */
+
+static FILE *runpopen(char *cmd, char *mode)
+{
+    FILE *f = NULL;
+    char *safecmd = NULL;
+    char *cmdname = NULL;
+    int allow;
+
+    /* If restrictedshell == 0, any command is allowed. */
+    if (restrictedshell == 0)
+        allow = 1;
+    else
+        allow = shell_cmd_is_allowed(&cmd, &safecmd, &cmdname);
+
+    if (allow == 1)
+        f = popen(cmd, mode);
+    else if (allow == 2)
+        f = popen(safecmd, mode);
+    else if (allow == -1)
+        fprintf(stderr, "\nrunpopen quotation error in command line: %s\n",
+                cmd);
+    else
+        fprintf(stderr, "\nrunpopen command not allowed: %s\n", cmdname);
+
+    if (safecmd)
+        free(safecmd);
+    if (cmdname)
+        free(cmdname);
+    return f;
+}
+
+/* Return true if FNAME is acceptable as a name for \openout, \openin, or
+   \input.  */
+
+typedef enum ok_type {
+    ok_reading,
+    ok_writing
+} ok_type;
+
+static const_string ok_type_name[] = {
+    "reading",
+    "writing"
+};
+
+static boolean
+opennameok(const_string fname, const_string check_var,
+           const_string default_choice, ok_type action)
+{
+    /* We distinguish three cases:
+       'a' (any)        allows any file to be opened.
+       'r' (restricted) means disallowing special file names.
+       'p' (paranoid)   means being really paranoid: disallowing special file
+       names and restricting output files to be in or below
+       the working directory or $TEXMFOUTPUT, while input files
+       must be below the current directory, $TEXMFOUTPUT, or
+       (implicitly) in the system areas.
+       We default to "paranoid".  The error messages from TeX will be somewhat
+       puzzling...
+       This function contains several return statements...  */
+
+    const_string open_choice = kpse_var_value(check_var);
+
+    if (!open_choice)
+        open_choice = default_choice;
+
+    if (*open_choice == 'a' || *open_choice == 'y' || *open_choice == '1')
+        return true;
+
+#if defined (unix) && !defined (MSDOS)
+    {
+        const_string base = xbasename(fname);
+        /* Disallow .rhosts, .login, etc.  Allow .tex (for LaTeX).  */
+        if (base[0] == 0 ||
+            (base[0] == '.' && !IS_DIR_SEP(base[1]) && !STREQ(base, ".tex"))) {
+            fprintf(stderr, "%s: Not %s to %s (%s = %s).\n",
+                    program_invocation_name, ok_type_name[action], fname,
+                    check_var, open_choice);
+            return false;
+        }
+    }
+#else
+    /* Other OSs don't have special names? */
+#endif
+
+    if (*open_choice == 'r' || *open_choice == 'n' || *open_choice == '0')
+        return true;
+
+    /* Paranoia supplied by Charles Karney...  */
+    if (kpse_absolute_p(fname, false)) {
+        const_string texmfoutput = kpse_var_value("TEXMFOUTPUT");
+        /* Absolute pathname is only OK if TEXMFOUTPUT is set, it's not empty,
+           fname begins the TEXMFOUTPUT, and is followed by / */
+        if (!texmfoutput || *texmfoutput == '\0'
+            || fname != strstr(fname, texmfoutput)
+            || !IS_DIR_SEP(fname[strlen(texmfoutput)])) {
+            fprintf(stderr, "%s: Not %s to %s (%s = %s).\n",
+                    program_invocation_name, ok_type_name[action], fname,
+                    check_var, open_choice);
+            return false;
+        }
+    }
+    /* For all pathnames, we disallow "../" at the beginning or "/../"
+       anywhere.  */
+    if (fname[0] == '.' && fname[1] == '.' && IS_DIR_SEP(fname[2])) {
+        fprintf(stderr, "%s: Not %s to %s (%s = %s).\n",
+                program_invocation_name, ok_type_name[action], fname,
+                check_var, open_choice);
+        return false;
+    } else {
+        /* Check for "/../".  Since more than one characted can be matched
+           by IS_DIR_SEP, we cannot use "/../" itself. */
+        const_string dotpair = strstr(fname, "..");
+        while (dotpair) {
+            /* If dotpair[2] == DIR_SEP, then dotpair[-1] is well-defined,
+               because the "../" case was handled above. */
+            if (IS_DIR_SEP(dotpair[2]) && IS_DIR_SEP(dotpair[-1])) {
+                fprintf(stderr, "%s: Not %s to %s (%s = %s).\n",
+                        program_invocation_name, ok_type_name[action], fname,
+                        check_var, open_choice);
+                return false;
+            }
+            /* Continue after the dotpair. */
+            dotpair = strstr(dotpair + 2, "..");
+        }
+    }
+
+    /* We passed all tests.  */
+    return true;
+}
+
+boolean openinnameok(const_string fname)
+{
+    /* For input default to all. */
+    return opennameok(fname, "openin_any", "a", ok_reading);
+}
+
+boolean openoutnameok(const_string fname)
+{
+    /* For output, default to paranoid. */
+    return opennameok(fname, "openout_any", "p", ok_writing);
+}
+
+/* 
+  piped I/O
+ */
+
+/* The code that implements popen() needs an array for tracking 
+   possible pipe file pointers, because these need to be
+   closed using pclose().
+*/
+
+static FILE *pipes[] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+};
+
+boolean open_in_or_pipe(FILE ** f_ptr, char *fn, int filefmt, const_string fopen_mode, boolean must_exist)
+{
+    string fname = NULL;
+    int i;                      /* iterator */
+
+    /* opening a read pipe is straightforward, only have to
+       skip past the pipe symbol in the file name. filename
+       quoting is assumed to happen elsewhere (it does :-)) */
+
+    if (shellenabledp && *fn == '|') {
+        /* the user requested a pipe */
+        *f_ptr = NULL;
+        fname = (string) xmalloc(strlen(fn) + 1);
+        strcpy(fname, fn);
+        if (fullnameoffile)
+            free(fullnameoffile);
+        fullnameoffile = xstrdup(fname);
+        recorder_record_input(fname + 1);
+        *f_ptr = runpopen(fname + 1, "r");
+        free(fname);
+        for (i = 0; i <= 15; i++) {
+            if (pipes[i] == NULL) {
+                pipes[i] = *f_ptr;
+                break;
+            }
+        }
+        if (*f_ptr)
+            setvbuf(*f_ptr, (char *) NULL, _IOLBF, 0);
+
+        return *f_ptr != NULL;
+    }
+
+    return luatex_open_input(f_ptr, fn, filefmt, fopen_mode, must_exist);
+}
+
+
+boolean open_out_or_pipe(FILE ** f_ptr, char *fn, const_string fopen_mode)
+{
+    string fname;
+    int i;                      /* iterator */
+
+    /* opening a write pipe takes a little bit more work, because TeX
+       will perhaps have appended ".tex".  To avoid user confusion as
+       much as possible, this extension is stripped only when the command
+       is a bare word.  Some small string trickery is needed to make
+       sure the correct number of bytes is free()-d afterwards */
+
+    if (shellenabledp && *fn == '|') {
+        /* the user requested a pipe */
+        fname = (string) xmalloc(strlen(fn) + 1);
+        strcpy(fname, fn);
+        if (strchr(fname, ' ') == NULL && strchr(fname, '>') == NULL) {
+            /* mp and mf currently do not use this code, but it 
+               is better to be prepared */
+            if (STREQ((fname + strlen(fname) - 3), "tex"))
+                *(fname + strlen(fname) - 4) = 0;
+            *f_ptr = runpopen(fname + 1, "w");
+            *(fname + strlen(fname)) = '.';
+        } else {
+            *f_ptr = runpopen(fname + 1, "w");
+        }
+        recorder_record_output(fname + 1);
+        free(fname);
+
+        for (i = 0; i <= 15; i++) {
+            if (pipes[i] == NULL) {
+                pipes[i] = *f_ptr;
+                break;
+            }
+        }
+
+        if (*f_ptr)
+            setvbuf(*f_ptr, (char *) NULL, _IOLBF, 0);
+
+        return *f_ptr != NULL;
+    }
+
+    return luatex_open_output(f_ptr, fn, fopen_mode);
+}
+
+
+void close_file_or_pipe(FILE * f)
+{
+    int i;                      /* iterator */
+
+    if (shellenabledp) {
+        /* if this file was a pipe, pclose() it and return */
+        for (i = 0; i <= 15; i++) {
+            if (pipes[i] == f) {
+                if (f)
+                    pclose(f);
+                pipes[i] = NULL;
+                return;
+            }
+        }
+    }
+    close_file(f);
 }
