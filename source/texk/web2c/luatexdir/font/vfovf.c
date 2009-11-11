@@ -290,9 +290,11 @@ int open_vf_file(char *fn, unsigned char **vbuffer, integer * vsize)
     boolean file_read = false;          /* was |vf_file| successfully read? */
     FILE *vf_file;
     char *fname = luatex_find_file (fn, find_vf_file_callback);
+    if (!fname)
+        fname = fn;
    
     callback_id = callback_defined(read_vf_file_callback);
-    if (fname && callback_id > 0) {
+    if (callback_id > 0) {
         res = run_callback(callback_id, "S->bSd", fname,
                            &file_read, vbuffer, vsize);
         if (res && file_read && (*vsize > 0)) {
@@ -301,8 +303,6 @@ int open_vf_file(char *fn, unsigned char **vbuffer, integer * vsize)
         if (!file_read)
             return 0;           /* -1 */
     } else {
-        if (!fname)
-            fname = fn;
         if (luatex_open_input (&(vf_file), fname, kpse_ovf_format, FOPEN_RBIN_MODE) ||
             luatex_open_input (&(vf_file), fname, kpse_vf_format, FOPEN_RBIN_MODE)) {
             res = read_vf_file(vf_file, vbuffer, vsize);
