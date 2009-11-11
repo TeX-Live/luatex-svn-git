@@ -79,10 +79,10 @@ void pdf_write_obj(PDF pdf, integer n)
             byte_file f;        /* the data file's FILE* */
             if (!fnam)
                 fnam = s;
-            if (!tex_b_open_in(f))
+            if (!open_input (&f, kpse_tex_format, FOPEN_RBIN_MODE))
                 pdf_error("ext5", "cannot open file for embedding");
             res = read_data_file(f, &data_buffer, &data_size);
-            b_close(f);
+            close_file(f);
         }
         if (!data_size)
             pdf_error("ext5", "empty file for embedding");

@@ -2693,6 +2693,6 @@ void finish_dvi_file(PDF pdf, int version, int revision)
         } else if (callback_id > 0) {
             res = run_callback(callback_id, "->");
         }
-        b_close(pdf->file);
+        close_file(pdf->file);
     }
 }

@@ -371,18 +371,6 @@ extern char *get_lua_name(int i);
 /* test whether a char in font is marked */
 #  define pdf_char_marked char_used
 
-#  define tex_b_open_in(f) \
-    open_input (&(f), kpse_tex_format, FOPEN_RBIN_MODE)
-#  define ovf_b_open_in(f) \
-    open_input (&(f), kpse_ovf_format, FOPEN_RBIN_MODE)
-#  define vf_b_open_in(f) \
-    open_input (&(f), kpse_vf_format, FOPEN_RBIN_MODE)
-
-extern int open_outfile(FILE ** f, char *name, char *mode);
-
-#  define do_a_open_out(f) open_outfile(&(f),(char *)(nameoffile+1),FOPEN_W_MODE)
-#  define do_b_open_out(f) open_outfile(&(f),(char *)(nameoffile+1),FOPEN_WBIN_MODE)
-
 #  define pdfassert assert
 #  define voidcast(a) (void *)(a)
 #  define varmemcast(a) (memory_word *)(a)
@@ -397,13 +385,6 @@ extern void dump_node_mem(void);
 extern void undump_node_mem(void);
 
 extern void do_vf(internal_font_number tmp_f);
-
-extern int readbinfile(FILE * f, unsigned char **b, integer * s);
-
-#  define read_tfm_file  readbinfile
-#  define read_vf_file   readbinfile
-#  define read_ocp_file  readbinfile
-#  define read_data_file readbinfile
 
 /* This routine has to return four values.  */
 #  define	dateandtime(i,j,k,l) get_date_and_time (&(i), &(j), &(k), &(l))
@@ -427,38 +408,6 @@ extern void topenin(void);
 
 /* Set an array size from texmf.cnf.  */
 extern void setupboundvariable(integer *, const_string, integer);
-
-/* These defines reroute the file i/o calls to the new pipe-enabled 
-   functions in texmfmp.c*/
-
-#  undef aopenin
-#  undef aopenout
-#  undef aclose
-#  define a_open_in(f,p)  open_in_or_pipe(&(f),p,FOPEN_RBIN_MODE)
-#  define a_open_out(f)   open_out_or_pipe(&(f),FOPEN_W_MODE)
-#  define a_close(f)     close_file_or_pipe(f)
-
-/* `bopenin' (and out) is used only for reading (and writing) .tfm
-   files; `wopenin' (and out) only for dump files.  The filenames are
-   passed in as a global variable, `nameoffile'.  */
-#  define b_open_out(f)	open_output (&(f), FOPEN_WBIN_MODE)
-
-/* Used in tex.ch (section 1338) to get a core dump in debugging mode.  */
-#  ifdef unix
-#    define dumpcore abort
-#  else
-#    define dumpcore uexit (1)
-#  endif
-
-#  define b_close close_file
-/* We define the routines to do the actual work in texmf.c.  */
-#  define w_open_in(f)     zopen_w_input (&(f), DUMP_FORMAT, FOPEN_RBIN_MODE)
-#  define w_open_out(f)    zopen_w_output (&(f), FOPEN_WBIN_MODE)
-#  define w_close         zwclose
-
-extern boolean zopen_w_input(FILE **, int, const_string fopen_mode);
-extern boolean zopen_w_output(FILE **, const_string fopen_mode);
-extern void zwclose(FILE *);
 
 /* here  are a few functions that used to be in coerce.h */
 

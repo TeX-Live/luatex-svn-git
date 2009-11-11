@@ -445,10 +445,10 @@ void main_body(void)
         if (!open_fmt_file())
             goto FINAL_END;
         if (!load_fmt_file((char *)(nameoffile+1))) {
-            w_close(fmt_file);
+            zwclose(fmt_file);
             goto FINAL_END;
         }
-        w_close(fmt_file);
+        zwclose(fmt_file);
         while ((iloc < ilimit) && (buffer[iloc] == ' '))
             incr(iloc);
     }

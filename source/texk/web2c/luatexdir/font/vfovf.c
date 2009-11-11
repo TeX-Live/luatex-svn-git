@@ -306,7 +306,7 @@ int open_vf_file(char *fn, unsigned char **vbuffer, integer * vsize)
         if (luatex_open_input (&(vf_file), fname, kpse_ovf_format, FOPEN_RBIN_MODE) ||
             luatex_open_input (&(vf_file), fname, kpse_vf_format, FOPEN_RBIN_MODE)) {
             res = read_vf_file(vf_file, vbuffer, vsize);
-            b_close(vf_file);
+            close_file(vf_file);
             if (res) {
                 return 1;
             }

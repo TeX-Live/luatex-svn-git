@@ -2355,7 +2355,7 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
         }
         libpdffinish(pdf);
         if (pdf->draftmode == 0)
-            b_close(pdf->file);
+            close_file(pdf->file);
         else
             pdf_warning(NULL,
                         "\\pdfdraftmode enabled, not changing output pdf",

@@ -175,7 +175,7 @@ read_ocp_info(pointer u, char *nom, char *aire, char *ext,
                 ocp_abort("opening file");
             file_opened = true;
             res = read_ocp_file(ocp_file, &ocp_buffer, &ocp_size);
-            b_close(ocp_file);
+            close_file(ocp_file);
             if (!res)
                 ocp_abort("reading file");
         }

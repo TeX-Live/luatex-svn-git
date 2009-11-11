@@ -1477,16 +1477,16 @@ static int tex_run_boot(lua_State * L)
             xfree(nameoffile);
         nameoffile = xmallocarray(packed_ASCII_code, strlen(format) + 2);
         strcpy((char *) (nameoffile + 1), format);
-        if (!w_open_in(fmt_file)) {
+        if (!zopen_w_input (&fmt_file, DUMP_FORMAT, FOPEN_RBIN_MODE)) {
             lua_pushboolean(L, 0);      /* false */
             return 1;
         }
         if (!load_fmt_file(format)) {
-            w_close(fmt_file);
+            zwclose(fmt_file);
             lua_pushboolean(L, 0);      /* false */
             return 1;
         }
-        w_close(fmt_file);
+        zwclose(fmt_file);
     }
     fix_date_and_time();
     if (format == NULL)

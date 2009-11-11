@@ -135,4 +135,18 @@ extern str_number texmf_log_name;       /* full name of the log file */
 extern void open_log_file(void);
 extern void start_input(void);
 
+extern int open_outfile(FILE ** f, char *name, char *mode);
+
+extern boolean zopen_w_input(FILE **, int, const_string fopen_mode);
+extern boolean zopen_w_output(FILE **, const_string fopen_mode);
+extern void zwclose(FILE *);
+
+extern int readbinfile(FILE * f, unsigned char **b, integer * s);
+
+#  define read_tfm_file  readbinfile
+#  define read_vf_file   readbinfile
+#  define read_ocp_file  readbinfile
+#  define read_data_file readbinfile
+
+
 #endif

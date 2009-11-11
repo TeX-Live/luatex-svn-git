@@ -92,7 +92,7 @@ void store_fmt_file(void)
     else
         selector = term_and_log;
     pack_job_name(format_extension);
-    while (!w_open_out(fmt_file))
+    while (!zopen_w_output (&fmt_file, FOPEN_WBIN_MODE))
         prompt_file_name("format file name", format_extension);
     tprint_nl("Beginning to dump on file ");
     slow_print(w_make_name_string(fmt_file));
@@ -304,7 +304,7 @@ void store_fmt_file(void)
     dump_luac_registers();
 
     /* Close the format file */
-    w_close(fmt_file);
+    zwclose(fmt_file);
 }
 
 /*
