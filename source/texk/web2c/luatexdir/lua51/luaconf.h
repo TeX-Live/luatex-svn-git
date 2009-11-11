@@ -519,14 +519,24 @@
 @@ lua_str2number converts a string to a number.
 */
 #define LUA_NUMBER_SCAN		"%lf"
-#define LUA_NUMBER_FMT		"%.14g"
+#define LUA_NUMBER_FMT		"%.14f"
 
-#define lua_number2str(s,n)	  if (((n)<0.000001) && ((n)>-0.000001))  \
-	sprintf((s), "0"); else if (((n)<0.0001) && ((n)>-0.0001)) {      \
-	  sprintf((s), "%.6f", (n));                                      \
-	  if (n>0) { if (s[7] == '0') { s[7] = 0; } }                     \
-	  else     { if (s[8] == '0') { s[8] = 0; } }                     \
-	} else  sprintf((s), LUA_NUMBER_FMT, (n)); 
+#define lua_number2str(s,n)	 do {                           \
+        if ((n)>(double)MAX_INT || (n)<-(double)MAX_INT)    \
+            sprintf((s), "%e", (n));                        \
+        else {                                              \
+            sprintf((s), LUA_NUMBER_FMT, (n));              \
+            if (strchr(s,'.')) {                            \
+                size_t s_l ;                                \
+                s_l = strlen(s);                            \
+                while (s_l>0 && s_l--) {                    \
+                    if (s[s_l] == '0') s[s_l] = '\0';       \
+                    else break;                             \
+                }                                           \
+                if (s[s_l] == '.') s[s_l] = '\0';           \
+            }                                               \
+        }                                                   \
+    } while (0)
 
 
 #define LUAI_MAXNUMBER2STR	32 /* 16 digits, sign, point, and \0 */
