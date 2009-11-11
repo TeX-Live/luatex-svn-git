@@ -156,7 +156,7 @@ char *node_fields_whatsit_pdf_refobj[] = { "attr", "objnum", NULL };
 char *node_fields_whatsit_pdf_refxform[] =
     { "attr", "width", "depth", "height", "objnum", NULL };
 char *node_fields_whatsit_pdf_refximage[] =
-    { "attr", "width", "depth", "height", "objnum", NULL };
+    { "attr", "width", "depth", "height", "index", NULL };
 char *node_fields_whatsit_pdf_annot[] =
     { "attr", "width", "depth", "height", "objnum", "data", NULL };
 char *node_fields_whatsit_pdf_start_link[] =
