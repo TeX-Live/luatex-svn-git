@@ -221,7 +221,7 @@ typedef enum {
 #  define y_displace(a)   vlink((a)+4)
 #  define is_char_node(a) (a!=null && type(a)==glyph_node)
 
-#  define char_lang(a)     ((const int)(((unsigned)lang_data(a) & 0x7FFF0000)>>16))
+#  define char_lang(a)     ((const int)(signed short)(((signed int)((unsigned)lang_data(a)&0x7FFF0000)<<1)>>17))
 #  define char_lhmin(a)    ((const int)(((unsigned)lang_data(a) & 0x0000FF00)>>8))
 #  define char_rhmin(a)    ((const int)(((unsigned)lang_data(a) & 0x000000FF)))
 #  define char_uchyph(a)   ((const int)(((unsigned)lang_data(a) & 0x80000000)>>31))
