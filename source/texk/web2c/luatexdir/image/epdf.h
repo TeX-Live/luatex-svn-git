@@ -52,19 +52,9 @@ extern "C" {
 #define pdf_out(B,A) do { pdf_room(B,1); B->buf[B->ptr++] = A; } while (0)
 
     extern void unrefPdfDocument(char *);
-
-    extern integer epdf_page_box;
     extern void *epdf_xref;
     extern integer epdf_lastGroupObjectNum;
-
-    extern integer pdf_box_spec_media;
-    extern integer pdf_box_spec_crop;
-    extern integer pdf_box_spec_bleed;
-    extern integer pdf_box_spec_trim;
-    extern integer pdf_box_spec_art;
-
     extern integer pool_ptr;
-
     extern char notdef[];
 
     extern int is_subsetable(struct fm_entry *);

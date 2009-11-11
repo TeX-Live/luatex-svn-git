@@ -23,12 +23,6 @@ static const char __svn_version[] =
 
 #include "ptexlib.h"
 
-integer pdf_box_spec_media = 1;
-integer pdf_box_spec_crop = 2;
-integer pdf_box_spec_bleed = 3;
-integer pdf_box_spec_trim = 4;
-integer pdf_box_spec_art = 5;
-
 /**********************************************************************/
 /* One AVL tree for each obj_type 0...pdf_objtype_max */
 

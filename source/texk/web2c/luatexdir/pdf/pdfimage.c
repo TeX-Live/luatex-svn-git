@@ -173,19 +173,19 @@ void pdf_place_img(PDF pdf, image * img)
 }
 
 /* scans PDF pagebox specification */
-static integer scan_pdf_box_spec(void)
+static pdfboxspec_e scan_pdf_box_spec(void)
 {
     if (scan_keyword("mediabox"))
-        return pdf_box_spec_media;
+        return PDF_BOX_SPEC_MEDIA;
     else if (scan_keyword("cropbox"))
-        return pdf_box_spec_crop;
+        return PDF_BOX_SPEC_CROP;
     else if (scan_keyword("bleedbox"))
-        return pdf_box_spec_bleed;
+        return PDF_BOX_SPEC_BLEED;
     else if (scan_keyword("trimbox"))
-        return pdf_box_spec_trim;
+        return PDF_BOX_SPEC_TRIM;
     else if (scan_keyword("artbox"))
-        return pdf_box_spec_art;
-    return 0;
+        return PDF_BOX_SPEC_ART;
+    return PDF_BOX_SPEC_NONE;
 }
 
 void scan_image(PDF pdf)
@@ -221,14 +221,14 @@ void scan_image(PDF pdf)
         colorspace = cur_val;
     }
     pagebox = scan_pdf_box_spec();
-    if (pagebox == 0)
+    if (pagebox == PDF_BOX_SPEC_NONE)
         pagebox = pdf_pagebox;
+    if (pagebox == PDF_BOX_SPEC_NONE)
+        pagebox = PDF_BOX_SPEC_CROP;
     scan_pdf_ext_toks();
     s = tokenlist_to_cstring(def_ref, true, NULL);
     assert(s != NULL);
     delete_token_ref(def_ref);
-    if (pagebox == 0)           /* no pagebox specification given */
-        pagebox = pdf_box_spec_crop;
     idx =
         read_image(pdf, objnum, pdf->ximage_count, s, page, named, attr,
                    colorspace, pagebox, pdf_minor_version,

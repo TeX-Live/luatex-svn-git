@@ -1,7 +1,7 @@
 /* pdftoepdf.cc
    
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -676,23 +676,30 @@ static void writeEncodings(PDF pdf)
     }
 }
 
-// get the pagebox according to the pagebox_spec
+// get the pagebox coordinates according to the pagebox_spec
 
 static PDFRectangle *get_pagebox(Page * page, integer pagebox_spec)
 {
-    if (pagebox_spec == pdf_box_spec_media)
+    switch (pagebox_spec) {
+    case PDF_BOX_SPEC_MEDIA:
         return page->getMediaBox();
-    else if (pagebox_spec == pdf_box_spec_crop)
+        break;
+    case PDF_BOX_SPEC_CROP:
         return page->getCropBox();
-    else if (pagebox_spec == pdf_box_spec_bleed)
+        break;
+    case PDF_BOX_SPEC_BLEED:
         return page->getBleedBox();
-    else if (pagebox_spec == pdf_box_spec_trim)
+        break;
+    case PDF_BOX_SPEC_TRIM:
         return page->getTrimBox();
-    else if (pagebox_spec == pdf_box_spec_art)
+        break;
+    case PDF_BOX_SPEC_ART:
         return page->getArtBox();
-    else
+        break;
+    default:
         pdftex_fail("PDF inclusion: unknown value of pagebox spec (%i)",
                     (int) pagebox_spec);
+    }
     return page->getMediaBox(); // to make the compiler happy
 }
 
@@ -763,7 +770,7 @@ read_pdf_info(PDF pdf,
     // get the required page
     page = pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
 
-    // get the pagebox (media, crop...) to use.
+    // get the pagebox coordinates (media, crop,...) to use.
     pagebox = get_pagebox(page, img_pagebox(idict));
     if (pagebox->x2 > pagebox->x1) {
         xorig = pagebox->x1;
@@ -875,7 +882,7 @@ static void write_epdf1(PDF pdf, image_dict * idict)
         bbox[2] = int2bp(img_bbox(idict)[2]);
         bbox[3] = int2bp(img_bbox(idict)[3]);
     } else {
-        // get the pagebox (media, crop...) to use.
+        // get the pagebox coordinates (media, crop,...) to use.
         pagebox = get_pagebox(page, img_pagebox(idict));
         bbox[0] = pagebox->x1;
         bbox[1] = pagebox->y1;

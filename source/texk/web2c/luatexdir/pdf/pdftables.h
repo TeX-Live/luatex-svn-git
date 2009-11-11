@@ -88,12 +88,6 @@ well.
 #  define sup_pk_dpi 8000       /* max PK pixel density value from \.{texmf.cnf} */
 #  define pdf_objtype_max head_tab_max
 
-extern integer pdf_box_spec_media;
-extern integer pdf_box_spec_crop;
-extern integer pdf_box_spec_bleed;
-extern integer pdf_box_spec_trim;
-extern integer pdf_box_spec_art;
-
 extern void pdf_create_obj(PDF pdf, integer t, integer i);
 extern integer find_obj(PDF pdf, integer t, integer i, boolean byname);
 extern integer get_obj(PDF pdf, integer t, integer i, boolean byname);
