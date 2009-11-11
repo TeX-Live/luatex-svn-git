@@ -444,7 +444,7 @@ void main_body(void)
             initialize();       /* erase preloaded format */
         if (!open_fmt_file())
             goto FINAL_END;
-        if (!load_fmt_file((nameoffile+1))) {
+        if (!load_fmt_file((char *)(nameoffile+1))) {
             w_close(fmt_file);
             goto FINAL_END;
         }

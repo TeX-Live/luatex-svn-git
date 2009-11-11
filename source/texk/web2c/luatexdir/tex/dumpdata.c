@@ -378,7 +378,7 @@ boolean load_fmt_file(char *fmtname)
     if (strcmp(engine_name, format_engine)) {
         wake_up_terminal();
         wterm_cr();
-        fprintf(term_out, "---! %s was written by %s",fmtname);
+        fprintf(term_out, "---! %s was written by %s",fmtname, format_engine);
         xfree(format_engine);
         goto BAD_FMT;
     }
