@@ -204,12 +204,12 @@ luatex_open_input (FILE **f_ptr, char *fn, int filefmt, const_string fopen_mode,
                 fname[i] = 0;
             }
             /* This fopen is not allowed to fail. */
-            *f_ptr = xfopen (fn, fopen_mode);
+            *f_ptr = xfopen (fname, fopen_mode);
         }
     }
 
     if (*f_ptr) {
-        recorder_record_input (fn);
+        recorder_record_input (fname);
     }            
     return *f_ptr != NULL;
 }
