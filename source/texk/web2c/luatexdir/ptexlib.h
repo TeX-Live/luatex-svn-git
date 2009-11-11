@@ -441,9 +441,6 @@ extern void setupboundvariable(integer *, const_string, integer);
 /* `bopenin' (and out) is used only for reading (and writing) .tfm
    files; `wopenin' (and out) only for dump files.  The filenames are
    passed in as a global variable, `nameoffile'.  */
-#  define b_open_in(f)	open_input (&(f), kpse_tfm_format, FOPEN_RBIN_MODE)
-#  define ocp_open_in(f)	open_input (&(f), kpse_ocp_format, FOPEN_RBIN_MODE)
-#  define ofm_open_in(f)	open_input (&(f), kpse_ofm_format, FOPEN_RBIN_MODE)
 #  define b_open_out(f)	open_output (&(f), FOPEN_WBIN_MODE)
 
 /* Used in tex.ch (section 1338) to get a core dump in debugging mode.  */

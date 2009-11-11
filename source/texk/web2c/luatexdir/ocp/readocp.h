@@ -52,8 +52,8 @@ typedef enum {
 #  define ocp_table_base(A) ocp_info(A,offset_ocp_table_base)
 #  define ocp_state_base(A) ocp_info(A,offset_ocp_state_base)
 
-extern internal_ocp_number read_ocp_info(pointer u, str_number nom,
-                                         str_number aire, str_number ext,
+extern internal_ocp_number read_ocp_info(pointer u, char *nom,
+                                         char *aire, char *ext,
                                          boolean external_ocp);
 
 extern void init_null_ocp(str_number a, str_number n);

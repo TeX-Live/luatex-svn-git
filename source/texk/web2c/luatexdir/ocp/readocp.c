@@ -25,24 +25,12 @@ static const char _svn_version[] =
 
 extern int program_name_set;    /* in lkpselib.c */
 
-static void b_test_in(void)
+static char *b_test_in(char *nam)
 {
     if (program_name_set) {
-        string fname = kpse_find_file((char *) (nameoffile + 1),
-                                      kpse_program_binary_format, true);
-        if (fname) {
-            libcfree(nameoffile);
-            nameoffile = xmalloc(2 + strlen(fname));
-            namelength = strlen(fname);
-            strcpy((char *) nameoffile + 1, fname);
-        } else {
-            libcfree(nameoffile);
-            nameoffile = xmalloc(2);
-            namelength = 0;
-            nameoffile[0] = 0;
-            nameoffile[1] = 0;
-        }
+        return (char *)kpse_find_file(nam, kpse_program_binary_format, true);
     }
+    return NULL;
 }
 
 
@@ -115,7 +103,7 @@ information is stored; |null_ocp| is returned in this case.
 
 /* input a \.{OCP} file */
 internal_ocp_number
-read_ocp_info(pointer u, str_number nom, str_number aire, str_number ext,
+read_ocp_info(pointer u, char *nom, char *aire, char *ext,
               boolean external_ocp)
 {
     boolean file_opened;        /* was |ocp_file| successfully opened? */
@@ -136,13 +124,13 @@ read_ocp_info(pointer u, str_number nom, str_number aire, str_number ext,
     g = null_ocp;
     f = null_ocp;
     cnam = NULL;
+    file_opened = false;
     if (external_ocp) {
         /*  @<Check |ocp_file| exists@> */
-        file_opened = false;
-        pack_file_name(nom, aire, ext);
-        cnam = xstrdup((char *) (nameoffile + 1));
-        b_test_in();
-        if (namelength == 0)
+        cnam = xmalloc(strlen(nom)+strlen(aire)+strlen(ext)+1);
+        sprintf (cnam,"%s%s%s",aire,nom,ext);
+        cnam = b_test_in(cnam);
+        if (!cnam)
             ocp_abort("opening file");
         f = ocp_ptr + 1;
         allocate_ocp_table(f, 13);
@@ -163,30 +151,17 @@ read_ocp_info(pointer u, str_number nom, str_number aire, str_number ext,
 
     } else {
         /* @<Open |ocp_file| for input@>; */
-        file_opened = false;
-        pack_file_name(nom, aire, maketexstring(".ocp"));
+        char *cname = xmalloc(strlen(nom)+strlen(aire)+strlen(".ocp")+1);
+        sprintf (cname,"%s%s.ocp",aire,nom);
         if (ocp_buffer != NULL)
             xfree(ocp_buffer);
         ocp_cur = 0;
         ocp_buffer = NULL;
         ocp_size = 0;
-        callback_id = callback_defined(find_ocp_file_callback);
-        if (callback_id > 0) {
-            res =
-                run_callback(callback_id, "S->S", (char *) (nameoffile + 1),
-                             &cnam);
-            if ((res) && (cnam != NULL) && (strlen(cnam) > 0)) {
-                xfree(nameoffile);
-                namelength = strlen(cnam);
-                nameoffile = xmalloc(namelength + 2);
-                strcpy((char *) (nameoffile + 1), cnam);
-            }
-        } else {
-            cnam = xstrdup((char *) (nameoffile + 1));
-        }
+        cnam = luatex_find_file(cname, find_ocp_file_callback);
         callback_id = callback_defined(read_ocp_file_callback);
-        if (callback_id > 0) {
-            res = run_callback(callback_id, "S->bSd", (char *) (nameoffile + 1),
+        if (cnam && callback_id > 0) {
+            res = run_callback(callback_id, "S->bSd", cnam,
                                &file_opened, &ocp_buffer, &ocp_size);
             if (!res)
                 ocp_abort("callback error");
@@ -194,7 +169,9 @@ read_ocp_info(pointer u, str_number nom, str_number aire, str_number ext,
                 ocp_abort("opening file");
         } else {
             FILE *ocp_file = NULL;
-            if (!ocp_open_in(ocp_file))
+            if (!cnam)
+                cnam = cname;
+            if (!luatex_open_input (&ocp_file, cnam, kpse_ocp_format, FOPEN_RBIN_MODE))
                 ocp_abort("opening file");
             file_opened = true;
             res = read_ocp_file(ocp_file, &ocp_buffer, &ocp_size);
@@ -288,7 +265,7 @@ read_ocp_info(pointer u, str_number nom, str_number aire, str_number ext,
         tex_error(errmsg, hlp);
     }
   DONE:
-    ocp_name(f) = nom;
-    ocp_area(f) = aire;
+    ocp_name(f) = maketexstring(nom);
+    ocp_area(f) = maketexstring(aire);
     return g;
 }

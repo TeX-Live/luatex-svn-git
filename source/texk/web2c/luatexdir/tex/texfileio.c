@@ -128,6 +128,9 @@ char *luatex_find_file (char *s, int callback_index)
         case find_type1_file_callback:
             ftemp = kpse_find_file(s, kpse_type1_format, 0);
             break;
+        case find_ocp_file_callback:
+            ftemp = s; /* hm, this is suspicious */
+            break;
         case find_font_file_callback:
             ftemp = kpse_find_file(s, kpse_ofm_format, 0);
             if (ftemp == NULL)

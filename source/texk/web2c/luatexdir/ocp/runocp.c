@@ -775,15 +775,13 @@ void run_ocp(void)
         /* k=0;  ? */
         char *cmd = xstrdup(makecstring(ocp_external(otp_input_ocp)));
         char *arg = xstrdup(makecstring(ocp_external_arg(otp_input_ocp)));
-        if (nameoffile)
-            xfree(nameoffile);
-        nameoffile = xmalloc(strlen(cmd) + strlen(arg) + 3);
-        strcpy((char *) (nameoffile + 1), cmd);
-        strcat((char *) (nameoffile + 1), " ");
-        strcat((char *) (nameoffile + 1), arg);
+        char *cmdline = xmalloc(strlen(cmd) + strlen(arg) + 3);
+        strcpy(cmdline, cmd);
+        strcat(cmdline, " ");
+        strcat(cmdline, arg);
         xfree(cmd);
         xfree(arg);
-        run_external_ocp((char *) (nameoffile + 1));
+        run_external_ocp(cmdline);
     }
 
 
