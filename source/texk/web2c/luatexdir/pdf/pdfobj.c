@@ -66,32 +66,19 @@ void pdf_write_obj(PDF pdf, integer n)
         eight_bits *data_buffer = NULL; /* byte buffer for data files */
         boolean res = false;    /* callback status value */
         char *fnam = NULL;      /* callback found filename */
-        integer callback_id = callback_defined(find_data_file_callback);
-        if (callback_id > 0) {
-            res = run_callback(callback_id, "S->S", s, &fnam);
-            if ((res) && (fnam != NULL) && (strlen(fnam) > 0)) {
-                /* Fixup |nameoffile| after callback */
-                xfree(nameoffile);
-                nameoffile = xmallocarray(packed_ASCII_code, strlen(fnam) + 2);
-                strcpy((char *) (nameoffile + 1), fnam);
-                namelength = strlen(fnam);
-                xfree(fnam);
-            }
-        } else {
-            xfree(nameoffile);
-            nameoffile = xmallocarray(packed_ASCII_code, strlen(s) + 2);
-            strcpy((char *) (nameoffile + 1), s);
-            namelength = strlen(s);
-        }
+        integer callback_id;
+        fnam = luatex_find_file (s, find_data_file_callback);
         callback_id = callback_defined(read_data_file_callback);
-        if (callback_id > 0) {
+        if (fnam && callback_id > 0) {
             boolean file_opened = false;
-            res = run_callback(callback_id, "S->bSd", (char *) (nameoffile + 1),
+            res = run_callback(callback_id, "S->bSd", fnam,
                                &file_opened, &data_buffer, &data_size);
             if (!file_opened)
                 pdf_error("ext5", "cannot open file for embedding");
         } else {
             byte_file f;        /* the data file's FILE* */
+            if (!fnam)
+                fnam = s;
             if (!tex_b_open_in(f))
                 pdf_error("ext5", "cannot open file for embedding");
             res = read_data_file(f, &data_buffer, &data_size);
