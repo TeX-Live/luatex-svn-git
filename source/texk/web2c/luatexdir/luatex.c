@@ -1081,12 +1081,6 @@ void setupboundvariable(integer * var, const_string var_name, integer dflt)
     }
 }
 
-/* FIXME -- some (most?) of this can/should be moved to the Pascal/WEB side. */
-
-str_number makefullnamestring()
-{
-    return maketexstring(fullnameoffile);
-}
 
 /* Get the job name to be used, which may have been set from the
    command line. */

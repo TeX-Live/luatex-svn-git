@@ -924,7 +924,7 @@ void print_file_line(void)
         tprint_nl("! ");
     } else {
         tprint_nl("");
-        print(full_source_filename_stack[level]);
+        tprint(full_source_filename_stack[level]);
         print_char(':');
         if (level == in_open)
             print_int(line);

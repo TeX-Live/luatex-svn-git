@@ -41,7 +41,7 @@ alpha_file *input_file = NULL;
 integer line = 0;               /* current line number in the current source file */
 integer *line_stack = NULL;
 str_number *source_filename_stack = NULL;
-str_number *full_source_filename_stack = NULL;
+char **full_source_filename_stack = NULL;
 
 
 integer scanner_status = 0;     /* can a subfile end now? */
@@ -544,7 +544,7 @@ void begin_file_reading(void)
     push_input();
     iindex = in_open;
     source_filename_stack[iindex] = 0;
-    full_source_filename_stack[iindex] = 0;
+    full_source_filename_stack[iindex] = NULL;
     eof_seen[iindex] = false;
     grp_stack[iindex] = cur_boundary;
     if_stack[iindex] = cond_ptr;
@@ -601,7 +601,7 @@ void initialize_inputstack(void)
     max_in_stack = 0;
     source_filename_stack[0] = 0;
 
-    full_source_filename_stack[0] = 0;
+    full_source_filename_stack[0] = NULL;
     in_open = 0;
     open_parens = 0;
     max_buf_stack = 0;

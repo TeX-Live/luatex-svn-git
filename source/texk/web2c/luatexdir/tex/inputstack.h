@@ -162,7 +162,7 @@ extern alpha_file *input_file;
 extern integer line;
 extern integer *line_stack;
 extern str_number *source_filename_stack;
-extern str_number *full_source_filename_stack;
+extern char **full_source_filename_stack;
 
 /*
 Users of \TeX\ sometimes forget to balance left and right braces properly,

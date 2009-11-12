@@ -337,7 +337,7 @@ int main_initialize(void)
     grp_stack = xmallocarray(save_pointer, max_in_open);
     if_stack = xmallocarray(pointer, max_in_open);
     source_filename_stack = xmallocarray(str_number, max_in_open);
-    full_source_filename_stack = xmallocarray(str_number, max_in_open);
+    full_source_filename_stack = xmallocarray(char *, max_in_open);
     param_stack = xmallocarray(halfword, param_size);
     dvi_buf = xmallocarray(eight_bits, dvi_buf_size);
     initialize_ocplist_arrays(ocp_list_size);

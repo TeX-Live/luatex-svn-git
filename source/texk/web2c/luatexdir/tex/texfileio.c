@@ -71,6 +71,8 @@ for us to specify simple operations on word files before they are defined.
 char *nameoffile;
 int namelength;
 
+extern string fullnameoffile;
+
 /*
 When input files are opened via a callback, they will also be read using
 callbacks. for that purpose, the |open_read_file_callback| returns an
@@ -84,6 +86,30 @@ Signalling this fact is achieved by having two arrays of integers.
 integer *input_file_callback_id;
 integer read_file_callback_id[17];
 
+/* Handle -output-directory.
+   We assume that it is OK to look here first.  Possibly it
+   would be better to replace lookups in "." with lookups in the
+   output_directory followed by "." but to do this requires much more
+   invasive surgery in libkpathsea.  
+*/
+char *find_in_output_directory (char *s) {
+    if (output_directory && !kpse_absolute_p(s, false)) {
+        FILE *f_ptr;
+        char *ftemp = concat3(output_directory, DIR_SEP_STRING, s);
+        f_ptr = fopen(ftemp, "rb"); /* this code is used for input files only */
+        if (f_ptr) {
+            fclose (f_ptr);
+            return ftemp;
+        } else {
+            free(ftemp);
+            
+        }
+    } 
+    return NULL;
+}
+
+/* find an \input or \read file. |n| differentiates between those case. */
+
 char *luatex_find_read_file (char *s, int n, int callback_index)
 {
     char *ftemp = NULL;
@@ -91,11 +117,20 @@ char *luatex_find_read_file (char *s, int n, int callback_index)
     if (callback_id > 0) {
         (void)run_callback (callback_id, "dS->S", n, s, &ftemp);
     } else {
-        ftemp = kpse_find_file(s, kpse_tex_format, 0);
+        /* use kpathsea here */
+        ftemp = find_in_output_directory(s);
+        if (!ftemp)
+            ftemp = kpse_find_file(s, kpse_tex_format, 1);
+    }
+    if (ftemp) {
+        if (fullnameoffile)
+            free(fullnameoffile);
+        fullnameoffile = xstrdup(ftemp);
     }
     return ftemp;
 }
 
+/* find other files types */
 char *luatex_find_file (char *s, int callback_index)
 {
     char *ftemp = NULL;
@@ -106,9 +141,6 @@ char *luatex_find_file (char *s, int callback_index)
     } else {
         /* use kpathsea here */
         switch (callback_index) {
-        case find_read_file_callback:
-            ftemp = kpse_find_file(s, kpse_tex_format, 0);
-            break;
         case find_enc_file_callback:
             ftemp = kpse_find_file(s, kpse_enc_format, 0);
             break;
@@ -122,10 +154,12 @@ char *luatex_find_file (char *s, int callback_index)
             ftemp = kpse_find_file(s, kpse_type1_format, 0);
             break;
         case find_ocp_file_callback:
-            ftemp = s; /* hm, this is suspicious */
+            ftemp = kpse_find_file(s, kpse_ocp_format, 0);
             break;
         case find_data_file_callback:
-            ftemp = s; /* hm, this is suspicious */
+            ftemp = find_in_output_directory(s);
+            if (!ftemp)
+                ftemp = kpse_find_file(s, kpse_tex_format, 0);
             break;
         case find_font_file_callback:
             ftemp = kpse_find_file(s, kpse_ofm_format, 0);
@@ -151,8 +185,6 @@ char *luatex_find_file (char *s, int callback_index)
    not the open succeeded.
  */
 
-extern string fullnameoffile;
-
 boolean
 luatex_open_input (FILE **f_ptr, char *fn, int filefmt, const_string fopen_mode, boolean must_exist)
 {
@@ -162,52 +194,28 @@ luatex_open_input (FILE **f_ptr, char *fn, int filefmt, const_string fopen_mode,
     if (fullnameoffile)
         free(fullnameoffile);
     fullnameoffile = NULL;
-    /* Handle -output-directory.
-       FIXME: We assume that it is OK to look here first.  Possibly it
-       would be better to replace lookups in "." with lookups in the
-       output_directory followed by "." but to do this requires much more
-       invasive surgery in libkpathsea.  */
-    /* FIXME: This code assumes that the filename of the input file is
-       not an absolute filename. */
-    if (output_directory) {
-        fname = concat3(output_directory, DIR_SEP_STRING, fn);
-        *f_ptr = fopen(fname, fopen_mode);
-        if (*f_ptr) {
-            fullnameoffile = fname;
-        } else {
-            free(fname);
-        }
-    }
-    /* No file means do the normal search. */
-    if (*f_ptr == NULL) {
-        /* The only exception to `must_exist' being true is \openin, for
-           which we set `tex_input_type' to 0 in the change file.  */
-        /* According to the pdfTeX people, pounding the disk for .vf files
-           is overkill as well.  A more general solution would be nice. */
-        fname = kpse_find_file (fn, (kpse_file_format_type)filefmt, must_exist);
-        if (fname) {
-            fullnameoffile = xstrdup(fname);
-            /* If we found the file in the current directory, don't leave
-               the `./' at the beginning of `fn', since it looks
-               dumb when `tex foo' says `(./foo.tex ... )'.  On the other
-               hand, if the user said `tex ./foo', and that's what we
-               opened, then keep it -- the user specified it, so we
-               shouldn't remove it.  */
-            if (fname[0] == '.' && IS_DIR_SEP (fname[1])
-                && (fn[0] != '.' || !IS_DIR_SEP (fn[1])))
-            {
-                unsigned i = 0;
-                while (fname[i + 2] != 0) {
-                    fname[i] = fname[i + 2];
-                    i++;
-                }
-                fname[i] = 0;
+    fname = kpse_find_file (fn, (kpse_file_format_type)filefmt, must_exist);
+    if (fname) {
+        fullnameoffile = xstrdup(fname);
+        /* If we found the file in the current directory, don't leave
+           the `./' at the beginning of `fn', since it looks
+           dumb when `tex foo' says `(./foo.tex ... )'.  On the other
+           hand, if the user said `tex ./foo', and that's what we
+           opened, then keep it -- the user specified it, so we
+           shouldn't remove it.  */
+        if (fname[0] == '.' && IS_DIR_SEP (fname[1])
+            && (fn[0] != '.' || !IS_DIR_SEP (fn[1])))
+        {
+            unsigned i = 0;
+            while (fname[i + 2] != 0) {
+                fname[i] = fname[i + 2];
+                i++;
             }
-            /* This fopen is not allowed to fail. */
-            *f_ptr = xfopen (fname, fopen_mode);
+            fname[i] = 0;
         }
+        /* This fopen is not allowed to fail. */
+        *f_ptr = xfopen (fname, fopen_mode);
     }
-
     if (*f_ptr) {
         recorder_record_input (fname);
     }            
@@ -858,7 +866,7 @@ void start_input(void)
     }
     iname = maketexstring(fn);
     source_filename_stack[in_open] = iname;
-    full_source_filename_stack[in_open] = makefullnamestring();
+    full_source_filename_stack[in_open] = xstrdup(fullnameoffile);
     if (iname == str_ptr - 1) { /* we can try to conserve string pool space now */
         temp_str = search_string(iname);
         if (temp_str > 0) {
