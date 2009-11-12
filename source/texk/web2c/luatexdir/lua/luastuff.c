@@ -134,11 +134,6 @@ void luainterpreter(void)
 
     open_oslibext(L, safer_option);
 
-    lua_getglobal(L, "package");
-    lua_pushstring(L, "");
-    lua_setfield(L, -2, "cpath");
-    lua_pop(L, 1);              /* pop the table */
-
     /* luasockets */
     /* socket and mime are a bit tricky to open because
      * they use a load-time  dependency that has to be 
