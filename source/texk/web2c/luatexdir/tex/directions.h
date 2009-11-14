@@ -55,6 +55,10 @@
 #  define dir__BR 15
 
 #  define dir_TLT  0
+#  define dir_TL  0
+#  define dir_TR  4
+#  define dir_LT  8
+#  define dir_RT  24
 #  define glyph_dir dir_TLT
 
 #  define box_direction(a)    ((a) / 4)
@@ -92,7 +96,6 @@ extern integer dvi_direction;
 extern int dir_primary[32];
 extern int dir_secondary[32];
 extern int dir_tertiary[32];
-extern int dir_rearrange[4];
 extern str_number dir_names[4];
 extern halfword text_dir_ptr;
 

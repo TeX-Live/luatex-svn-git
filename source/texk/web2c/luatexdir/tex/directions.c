@@ -24,45 +24,33 @@ static const char __svn_version[] =
     "$Id$"
     "$URL$";
 
-/* |scan_direction| has to be defined here because luatangle will output
-   a character constant when it sees a string literal of length 1 */
-
-#define scan_single_dir(A) do {                     \
-        if (scan_keyword("T")) A=dir_T;             \
-        else if (scan_keyword("L")) A=dir_L;        \
-        else if (scan_keyword("B")) A=dir_B;        \
-        else if (scan_keyword("R")) A=dir_R;        \
-        else {                                      \
-            tex_error("Bad direction", NULL);       \
-            cur_val=0;                              \
-            return;                                 \
-        }                                           \
-    } while (0)
-
 void scan_direction(void)
 {
-    integer d1, d2, d3;
     int save_cur_cmd = cur_cmd;
     int save_cur_chr = cur_chr;
     get_x_token();
     if (cur_cmd == assign_dir_cmd) {
         cur_val = eqtb[cur_chr].cint;
-        return;
+        goto EXIT;
     } else {
         back_input();
     }
-    scan_single_dir(d1);
-    scan_single_dir(d2);
-    if (dir_parallel(d1, d2)) {
+    if (scan_keyword("TLT")) {
+	cur_val = dir_TL;
+    } else if (scan_keyword("TRT")) {
+	cur_val = dir_TR;
+    } else if (scan_keyword("LTT")) {
+	cur_val = dir_LT;
+    } else if (scan_keyword("RTT")) {
+	cur_val = dir_RT;
+    } else {
         tex_error("Bad direction", NULL);
         cur_val = 0;
-        return;
     }
-    scan_single_dir(d3);
     get_x_token();
     if (cur_cmd != spacer_cmd)
         back_input();
-    cur_val = d1 * 8 + dir_rearrange[d2] * 4 + d3;
+EXIT:
     cur_cmd = save_cur_cmd;
     cur_chr = save_cur_chr;
 }
@@ -90,7 +78,6 @@ integer dvi_direction;
 int dir_primary[32];
 int dir_secondary[32];
 int dir_tertiary[32];
-int dir_rearrange[4];
 str_number dir_names[4];
 halfword text_dir_ptr;
 
@@ -121,10 +108,6 @@ void initialize_directions(void)
         dir_tertiary[k * 4 + 2] = dir_B;
         dir_tertiary[k * 4 + 3] = dir_R;
     }
-    dir_rearrange[0] = 0;
-    dir_rearrange[1] = 0;
-    dir_rearrange[2] = 1;
-    dir_rearrange[3] = 1;
     dir_names[0] = 'T';
     dir_names[1] = 'L';
     dir_names[2] = 'B';
@@ -143,9 +126,17 @@ halfword new_dir(int s)
 
 void print_dir(int d)
 {
-    print_char(dir_names[dir_primary[d]]);
-    print_char(dir_names[dir_secondary[d]]);
-    print_char(dir_names[dir_tertiary[d]]);
+    if (d==dir_TL) {
+	tprint("TLT");
+    } else if (d == dir_TR) {
+	tprint("TRT");
+    } else if (d == dir_LT) {
+	tprint("LTT");
+    } else if (d == dir_RT) {
+	tprint("RTT");
+    } else {
+	tprint("???");
+    }
 }
 
 /**********************************************************************/

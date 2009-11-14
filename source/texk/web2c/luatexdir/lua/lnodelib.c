@@ -2027,7 +2027,6 @@ static int nodelib_getdir(lua_State * L, int n)
 {
     char *s = NULL;
     int d = 32;                 /* invalid number */
-    int a = -1, b = -1, c = -1;
     if (lua_type(L, n) == LUA_TSTRING) {
         s = (char *) lua_tostring(L, n);
         if (strlen(s) == 3) {
@@ -2041,33 +2040,15 @@ static int nodelib_getdir(lua_State * L, int n)
             s++;
         }
         if (strlen(s) == 3) {
-            switch (*s) {
-                /*  *INDENT-OFF* */
-                case 'T': a=0; break;
-                case 'L': a=1; break;
-                case 'B': a=2; break;
-                case 'R': a=3; break;
-                /* *INDENT-ON* */
-            }
-            switch (*(s + 1)) {
-                /*  *INDENT-OFF* */
-                case 'T': b=0; break;
-                case 'L': b=1; break;
-                case 'B': b=2; break;
-                case 'R': b=3; break;
-                /* *INDENT-ON* */
-            }
-            switch (*(s + 2)) {
-                /*  *INDENT-OFF* */
-                case 'T': c=0; break;
-                case 'L': c=1; break;
-                case 'B': c=2; break;
-                case 'R': c=3; break;
-                /* *INDENT-ON* */
-            }
-        }
-        if (a != -1 && b != -1 && c != -1 && !dir_parallel(a, b)) {
-            d += (a * 8 + dir_rearrange[b] * 4 + c);
+	    if (strcmp(s,"TLT")==0) {
+		d += dir_TL;
+	    } else if (strcmp(s,"TRT")==0) {
+		d += dir_TR;
+	    } else if (strcmp(s,"LTT")==0) {
+		d += dir_LT;
+	    } else if (strcmp(s,"RTT")==0) {
+		d += dir_RT;
+	    }
         }
     } else if (lua_isnumber(L, n)) {
         d = lua_tonumber(L, n);
