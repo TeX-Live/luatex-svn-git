@@ -1175,8 +1175,150 @@ boolean openinnameok(const_string fname)
     return opennameok(fname, "openin_any", "a", ok_reading);
 }
 
+#if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
+static int
+Isspace (char c)
+{
+    return (c == ' ' || c == '\t');
+}
+
+static void
+mk_suffixlist (char ***ext)
+{
+    char **p;
+    char *q, *r, *v;
+    int  n;
+
+#if defined(__CYGWIN__)
+    v = (char *) xmalloc (71);
+    strcpy (v, ".com;.exe;.bat;.cmd;.vbs;.vbe;.js;.jse;.wsf;.wsh;.ws;.tcl;.py;.pyw");
+#else
+    v = (char *) getenv ("PATHEXT");
+    if (v) /* strlwr() exists also in MingW */
+      (void) strlwr (v);
+    else {
+      v = (char *) xmalloc (71);
+      strcpy (v, ".com;.exe;.bat;.cmd;.vbs;.vbe;.js;.jse;.wsf;.wsh;.ws;.tcl;.py;.pyw");
+    }
+#endif
+
+    q = v;
+    n = 0;
+
+    while ((r = strchr (q, ';')) != 0) {
+      n++;
+      r++;
+      q = r;
+    }
+    if (*q)
+      n++;
+    *ext = (char **) xmalloc ((n + 2) * sizeof (char *));
+    p = *ext;
+    *p = (char *) xmalloc(5);
+    strcpy(*p, ".dll");
+    p++;
+    q = v;
+    while ((r = strchr (q, ';')) != 0) {
+      *r = '\0';
+      *p = (char *) xmalloc (strlen (q) + 1);
+      strcpy (*p, q);
+      *r = ';';
+      r++;
+      q = r;
+      p++;
+    }
+    if (*q) {
+      *p = (char *) xmalloc (strlen (q) + 1);
+      strcpy (*p, q);
+      p++;
+      *p = NULL;
+    } else
+      *p = NULL;
+    free (v);
+}
+
+static void
+free_suffixlist (char ***ext)
+{
+    char **p;
+
+    if (*ext) {
+      p = *ext;
+      while (*p) {
+        free (*p);
+        p++;
+      }
+      free (*ext);
+    }
+}
+
+static boolean
+executable_filep (const_string fname)
+{
+    string p, q, base;
+    string *pp;
+    char   **suffixlist = NULL;
+
+/*  check openout_any */
+    p = kpse_var_value ("openout_any");
+    if (p && *p == 'p') {
+      free (p);
+      mk_suffixlist (&suffixlist);
+/* get base name
+   we cannot use xbasename() for abnormal names.
+*/
+      base = xstrdup (fname);
+      p = strrchr (fname, '/');
+      if (p) {
+        p++;
+        strcpy (base, p);
+      }
+      p = strrchr (base, '\\');
+      if(p) {
+        p++;
+        strcpy (base, p);
+      }
+#if defined(__CYGWIN__)
+      for (p = base; *p; p++)
+        *p = tolower (*p);
+      p = base; 
+#else
+      p = (char *) strlwr (base);
+#endif
+      for (q = p + strlen (p) - 1; 
+           (q >= p) && ((*q == '.') || (Isspace (*q))); q--) {
+        *q = '\0'; /* remove trailing '.' , ' ' and '\t' */
+      }
+      q = strrchr (p, '.'); /* get extension part */
+      pp = suffixlist;
+      if (pp && q) {
+        while (*pp) {
+          if (strchr (fname, ':') || !strcmp (q, *pp)) {
+            fprintf (stderr, "\nThe name %s is forbidden to open for writing.\n",
+                     fname);
+            free (base);
+            free_suffixlist (&suffixlist);
+            return true;
+          }
+          pp++;
+        }
+      }
+      free (base);
+      free_suffixlist (&suffixlist);
+    } else if (p) {
+      free (p);
+    }
+    return false;
+}
+#endif /* WIN32 || __MINGW32__ || __CYGWIN__ */
+
 boolean openoutnameok(const_string fname)
 {
+#if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
+    /* Output of an executable file is restricted on Windows */
+    if (executable_filep (fname))
+      return false;
+#endif /* WIN32 || __MINGW32__ || __CYGWIN__ */
     /* For output, default to paranoid. */
     return opennameok(fname, "openout_any", "p", ok_writing);
 }
