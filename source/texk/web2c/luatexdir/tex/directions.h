@@ -57,7 +57,7 @@
 #  define dir_TLT  0
 #  define dir_TL  0
 #  define dir_TR  4
-#  define dir_LT  8
+#  define dir_LT  9
 #  define dir_RT  24
 #  define glyph_dir dir_TLT
 

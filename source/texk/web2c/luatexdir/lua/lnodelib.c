@@ -2044,7 +2044,7 @@ static int nodelib_getdir(lua_State * L, int n)
 		d += dir_TL;
 	    } else if (strcmp(s,"TRT")==0) {
 		d += dir_TR;
-	    } else if (strcmp(s,"LTT")==0) {
+	    } else if (strcmp(s,"LTL")==0) {
 		d += dir_LT;
 	    } else if (strcmp(s,"RTT")==0) {
 		d += dir_RT;

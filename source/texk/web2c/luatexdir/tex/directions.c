@@ -39,7 +39,7 @@ void scan_direction(void)
 	cur_val = dir_TL;
     } else if (scan_keyword("TRT")) {
 	cur_val = dir_TR;
-    } else if (scan_keyword("LTT")) {
+    } else if (scan_keyword("LTL")) {
 	cur_val = dir_LT;
     } else if (scan_keyword("RTT")) {
 	cur_val = dir_RT;
@@ -131,7 +131,7 @@ void print_dir(int d)
     } else if (d == dir_TR) {
 	tprint("TRT");
     } else if (d == dir_LT) {
-	tprint("LTT");
+	tprint("LTL");
     } else if (d == dir_RT) {
 	tprint("RTT");
     } else {
