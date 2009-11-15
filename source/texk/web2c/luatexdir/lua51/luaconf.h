@@ -521,21 +521,23 @@
 #define LUA_NUMBER_SCAN		"%lf"
 #define LUA_NUMBER_FMT		"%.14g"
 
-#define lua_number2str(s,n) if (abs(n)<0.000001) {			\
-	sprintf((s), "%.14f", (n));					\
-	if (strchr(s,'.')) {						\
-	    size_t s_l ;						\
-	    s_l = strlen(s);						\
-	    while (s_l>0 && s_l--) {					\
-		if (s[s_l] == '0') s[s_l] = '\0';			\
-		else break;						\
+#define lua_number2str(s,n) do {					\
+	if (n<0.000001 && n>=-0.000001) {				\
+	    sprintf((s), "%.14f", (n));					\
+	    if (strchr(s,'.')) {					\
+		size_t s_l ;						\
+		s_l = strlen(s);					\
+		while (s_l>0 && s_l--) {				\
+		    if (s[s_l] == '0') s[s_l] = '\0';			\
+		    else break;						\
+		}							\
+		if (s[s_l] == '.') s[s_l] = '\0';			\
 	    }								\
-	    if (s[s_l] == '.') s[s_l] = '\0';				\
-	}								\
-    } else sprintf((s), LUA_NUMBER_FMT, (n));
+	} else sprintf((s), LUA_NUMBER_FMT, (n));			\
+    } while (0)
 
 
-#define LUAI_MAXNUMBER2STR	32 /* 16 digits, sign, point, and \0 */
+#define LUAI_MAXNUMBER2STR	64 /* 16 digits, sign, point, and \0 */
 #define lua_str2number(s,p)	strtod((s), (p))
 
 
