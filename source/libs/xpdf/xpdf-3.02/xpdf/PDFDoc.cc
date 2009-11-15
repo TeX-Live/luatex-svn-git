@@ -50,7 +50,6 @@
 PDFDoc::PDFDoc(GString *fileNameA, GString *ownerPassword,
 	       GString *userPassword, void *guiDataA) {
   Object obj;
-  GString *fileName1, *fileName2;
 
   ok = gFalse;
   errCode = errNone;
@@ -66,33 +65,13 @@ PDFDoc::PDFDoc(GString *fileNameA, GString *ownerPassword,
 #endif
 
   fileName = fileNameA;
-  fileName1 = fileName;
-
 
   // try to open file
-  fileName2 = NULL;
-#ifdef VMS
-  if (!(file = fopen(fileName1->getCString(), "rb", "ctx=stm"))) {
-    error(-1, "Couldn't open file '%s'", fileName1->getCString());
+  if (!(file = fopen(fileName->getCString(), "rb"))) {
+    error(-1, "Couldn't open file '%s'", fileName->getCString());
     errCode = errOpenFile;
     return;
   }
-#else
-  if (!(file = fopen(fileName1->getCString(), "rb"))) {
-    fileName2 = fileName->copy();
-    fileName2->lowerCase();
-    if (!(file = fopen(fileName2->getCString(), "rb"))) {
-      fileName2->upperCase();
-      if (!(file = fopen(fileName2->getCString(), "rb"))) {
-	error(-1, "Couldn't open file '%s'", fileName->getCString());
-	delete fileName2;
-	errCode = errOpenFile;
-	return;
-      }
-    }
-    delete fileName2;
-  }
-#endif
 
   // create stream
   obj.initNull();
