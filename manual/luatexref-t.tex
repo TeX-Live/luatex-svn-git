@@ -669,19 +669,20 @@ value is 255, and the acceptable range is from 0 to 65535.
 This allows for embedded spaces, without the need for double quotes.
 Macro expansion takes place inside the argument.
 
-\subsection{Images}
+\subsection{Images and Forms}
 
-\LUATEX\ accepts optional dimensions with \type{\pdfrefximage}
-in the same format as with \type{\pdfximage}.
-These dimensions are then used instead of the ones
-given to \type{\pdfximage}.
-But the original dimensions are not overwritten,
+\LUATEX\ accepts optional dimension parameters for \type{\pdfrefximage}
+and \type{\pdfrefxform} in the same format as for \type{\pdfximage}.
+With images, these dimensions are then used
+instead of the ones given to \type{\pdfximage};
+but the original dimensions are not overwritten,
 so that a \type{\pdfrefximage} without dimensions still provides
 the image with dimensions defined by \type{\pdfximage}.
-% \pdfrefxform with dimensions to follow...
+These optional parameters are not implemented for \type{\pdfxform}.
 
 \starttyping
 \pdfrefximage width 20mm height 10mm depth 5mm \pdflastximage
+\pdfrefxform  width 20mm height 10mm depth 5mm \pdflastxform
 \stoptyping
 
 \section{Debugging}
