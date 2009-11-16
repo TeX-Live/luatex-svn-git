@@ -139,6 +139,15 @@ integer new_font(void)
     return id;
 }
 
+void font_malloc_charinfo (internal_font_number f, int num) {
+    int glyph = font_tables[f]->charinfo_size;
+    font_bytes += (num * sizeof(charinfo));
+    do_realloc(font_tables[f]->charinfo, (glyph + num), charinfo);
+    memset(&(font_tables[f]->charinfo[glyph]), 0,
+           (num * sizeof(charinfo)));
+    font_tables[f]->charinfo_size += num;
+}
+
 #define find_charinfo_id(f,c) get_sa_item(font_tables[f]->characters,c)
 
 charinfo *get_charinfo(internal_font_number f, integer c)
@@ -151,11 +160,7 @@ charinfo *get_charinfo(internal_font_number f, integer c)
 
             glyph = ++font_tables[f]->charinfo_count;
             if (glyph >= (unsigned) font_tables[f]->charinfo_size) {
-                font_bytes += (16 * sizeof(charinfo));
-                do_realloc(font_tables[f]->charinfo, (glyph + 16), charinfo);
-                memset(&(font_tables[f]->charinfo[glyph]), 0,
-                       (16 * sizeof(charinfo)));
-                font_tables[f]->charinfo_size += 16;
+                font_malloc_charinfo(f,256);
             }
             font_tables[f]->charinfo[glyph].ef = 1000;  /* init */
             set_sa_item(font_tables[f]->characters, c, glyph, 1);       /* 1= global */
@@ -260,7 +265,6 @@ charinfo *copy_charinfo(charinfo * ci)
         set_charinfo_hor_variants(co,
                                   copy_variants(get_charinfo_hor_variants(ci)));
     }
-    /* TODO: copy mathkerns */
     x = ci->top_left_math_kerns;
     co->top_left_math_kerns = x;
     if (x > 0) {
@@ -1037,6 +1041,7 @@ integer copy_font(integer f)
     integer k = new_font();
     memcpy(font_tables[k], font_tables[f], sizeof(texfont));
 
+    font_malloc_charinfo(k,font_tables[f]->charinfo_size);
     set_font_cache_id(k, 0);
     set_font_used(k, 0);
     set_font_touched(k, 0);
