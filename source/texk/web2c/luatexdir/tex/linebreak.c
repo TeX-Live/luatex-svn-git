@@ -829,7 +829,7 @@ static void add_to_widths(halfword s, integer line_break_dir,
 {
     while (s != null) {
         if (is_char_node(s)) {
-            widths[1] += pack_width(line_break_dir, glyph_dir, s, true);
+            widths[1] += pack_width(line_break_dir, dir_TRT, s, true);
             if ((pdf_adjust_spacing > 1) && check_expand_pars(font(s))) {
                 set_prev_char_p(s);
                 add_char_stretch(widths[8], s);
@@ -872,7 +872,7 @@ static void sub_from_widths(halfword s, integer line_break_dir,
     while (s != null) {
         /* @<Subtract the width of node |s| from |break_width|@>; */
         if (is_char_node(s)) {
-            widths[1] -= pack_width(line_break_dir, glyph_dir, s, true);
+            widths[1] -= pack_width(line_break_dir, dir_TRT, s, true);
             if ((pdf_adjust_spacing > 1) && check_expand_pars(font(s))) {
                 set_prev_char_p(s);
                 sub_char_stretch(widths[8], s);
@@ -1895,7 +1895,7 @@ ext_do_line_break(boolean d,
                    unnecessary to check if |vlink(cur_p)=null| when |cur_p| is a character node.
                  */
                 active_width[1] +=
-                    pack_width(line_break_dir, glyph_dir, cur_p, true);
+                    pack_width(line_break_dir, dir_TRT, cur_p, true);
                 if ((pdf_adjust_spacing > 1) && check_expand_pars(font(cur_p))) {
                     set_prev_char_p(cur_p);
                     add_char_stretch(active_width[8], cur_p);

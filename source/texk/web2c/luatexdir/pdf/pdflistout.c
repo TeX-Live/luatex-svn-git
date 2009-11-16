@@ -171,7 +171,7 @@ static halfword calculate_width_to_enddir(halfword p, real cur_glue,
     while ((q != null) && (vlink(q) != null)) {
         q = vlink(q);
         if (is_char_node(q))
-            w += pack_width(box_dir(this_box), glyph_dir, q, true);
+            w += pack_width(box_dir(this_box), dir_TRT, q, true);
         else {
             switch (type(q)) {
             case hlist_node:
@@ -404,28 +404,28 @@ void hlist_out(PDF pdf, halfword this_box)
                 } else {
                     effective_horizontal = height(p) + depth(p);
                     if (!is_mirrored(box_dir(p))) {
-                        if (topdir_eq(box_dir(p),localpos.dir))
+                        if (partextdir_eq(box_dir(p),localpos.dir))
                             basepoint.h = height(p);
                         else
                             basepoint.h = depth(p);
                     } else {
-                        if (topdir_eq(box_dir(p),localpos.dir))
+                        if (partextdir_eq(box_dir(p),localpos.dir))
                             basepoint.h = depth(p);
                         else
                             basepoint.h = height(p);
                     }
                     if (is_rotated(localpos.dir)) {
-                        if (topdir_eq(localpos.dir,box_dir(p)))
+                        if (partextdir_eq(localpos.dir,box_dir(p)))
                             basepoint.v = -width(p) / 2;        /* `up' */
                         else
                             basepoint.v = width(p) / 2; /* `down' */
                     } else if (is_mirrored(localpos.dir)) {
-                        if (topdir_eq(localpos.dir,box_dir(p)))
+                        if (partextdir_eq(localpos.dir,box_dir(p)))
                             basepoint.v = 0;
                         else
                             basepoint.v = width(p);     /* `down' */
                     } else {
-                        if (topdir_eq(localpos.dir,box_dir(p)))
+                        if (partextdir_eq(localpos.dir,box_dir(p)))
                             basepoint.v = -width(p);    /* `up' */
                         else
                             basepoint.v = 0;
@@ -653,17 +653,17 @@ void hlist_out(PDF pdf, halfword this_box)
                                     basepoint.h = 0;
                             } else {
                                 if (!is_mirrored(box_dir(leader_box))) {
-                                    if (topdir_eq(box_dir(leader_box),localpos.dir))
+                                    if (partextdir_eq(box_dir(leader_box),localpos.dir))
                                         basepoint.h = height(leader_box);
                                     else
                                         basepoint.h = depth(leader_box);
                                 } else {
-                                    if (topdir_eq(box_dir(leader_box),localpos.dir))
+                                    if (partextdir_eq(box_dir(leader_box),localpos.dir))
                                         basepoint.h = depth(leader_box);
                                     else
                                         basepoint.h = height(leader_box);
                                 }
-                                if (topdir_eq(localpos.dir,box_dir(leader_box)))
+                                if (partextdir_eq(localpos.dir,box_dir(leader_box)))
                                     basepoint.v = -(width(leader_box) / 2);
                                 else
                                     basepoint.v = (width(leader_box) / 2);
@@ -861,17 +861,17 @@ void vlist_out(PDF pdf, halfword this_box)
                 } else {
                     effective_vertical = width(p);
                     if (!is_mirrored(box_dir(p))) {
-                        if (topdir_eq(box_dir(p),localpos.dir))
+                        if (partextdir_eq(box_dir(p),localpos.dir))
                             basepoint.h = height(p);
                         else
                             basepoint.h = depth(p);
                     } else {
-                        if (topdir_eq(box_dir(p),localpos.dir))
+                        if (partextdir_eq(box_dir(p),localpos.dir))
                             basepoint.h = depth(p);
                         else
                             basepoint.h = height(p);
                     }
-                    if (topdir_eq(localpos.dir, box_dir(p)))
+                    if (partextdir_eq(localpos.dir, box_dir(p)))
                         basepoint.v = 0;
                     else
                         basepoint.v = width(p);

@@ -1033,20 +1033,20 @@ static void nodelib_pushdir(lua_State * L, int n, boolean dirnode)
     if (dirnode) {
         s[0] = (n < 0 ? '-' : '+'); s[1] = 0;
     } else {
-	s[0] = 0;
+        s[0] = 0;
     }
     if (n < 0)
         n += 64;
     if (n==dir_TLT) {
-	lua_pushfstring(L, "%sTLT", s);
+        lua_pushfstring(L, "%sTLT", s);
     } else if (n == dir_TRT) {
-	lua_pushfstring(L, "%sTRT", s);
+        lua_pushfstring(L, "%sTRT", s);
     } else if (n == dir_LTL) {
-	lua_pushfstring(L, "%sLTL", s);
+        lua_pushfstring(L, "%sLTL", s);
     } else if (n == dir_RTT) {
-	lua_pushfstring(L, "%sRTT", s);
+        lua_pushfstring(L, "%sRTT", s);
     } else {
-	lua_pushstring(L, "???");
+        lua_pushstring(L, "???");
     }
 }
 
@@ -2048,18 +2048,19 @@ static int nodelib_getdir(lua_State * L, int n)
             s++;
         }
         if (strlen(s) == 3) {
-	    if (strcmp(s,"TLT")==0) {
-		d += dir_TLT;
-	    } else if (strcmp(s,"TRT")==0) {
-		d += dir_TRT;
-	    } else if (strcmp(s,"LTL")==0) {
-		d += dir_LTL;
-	    } else if (strcmp(s,"RTT")==0) {
-		d += dir_RTT;
-	    }
+            if (strcmp(s,"TLT")==0) {
+                d += dir_TLT;
+            } else if (strcmp(s,"TRT")==0) {
+                d += dir_TRT;
+            } else if (strcmp(s,"LTL")==0) {
+                d += dir_LTL;
+            } else if (strcmp(s,"RTT")==0) {
+                d += dir_RTT;
+            }
         }
-    } else if (lua_isnumber(L, n)) {
-        d = lua_tonumber(L, n);
+    } else {
+        lua_pushstring(L, "Direction specifiers have to be strings");
+        lua_error(L);
     }
     if ((d > 31) || (d < -64) || (d < 0 && (d + 64) > 31)) {
         d = 0;

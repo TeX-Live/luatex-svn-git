@@ -480,7 +480,7 @@ halfword hpack(halfword p, scaled w, int m)
                 }
             }
             f = font(p);
-            whd = pack_width_height_depth(hpack_dir, glyph_dir, p, true);
+            whd = pack_width_height_depth(hpack_dir, dir_TRT, p, true);
             x += whd.wd;
             if (whd.ht > h)
                 h = whd.ht;
@@ -847,7 +847,7 @@ scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
     while (p != pp && p != null) {
         while (is_char_node(p) && p != pp) {
             f = font(p);
-            whd = pack_width_height_depth(hpack_dir, glyph_dir, p, true);
+            whd = pack_width_height_depth(hpack_dir, dir_TRT, p, true);
             siz.wd += whd.wd;
             if (whd.ht > siz.ht)
                 siz.ht = whd.ht;
