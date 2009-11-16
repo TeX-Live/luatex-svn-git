@@ -579,7 +579,7 @@ static int vsetbox(lua_State * L, int is_global)
             return 0;
     } else {
         j = nodelist_from_lua(L);
-	if (type(j)!= hlist_node && type(j)!= vlist_node) {
+	if (j!=null && type(j)!= hlist_node && type(j)!= vlist_node) {
 	    lua_pushfstring(L, "setbox: incompatible node type (%s)\n", get_node_name(type(j),subtype(j)));
 	    lua_error(L);
 	    return 0;
