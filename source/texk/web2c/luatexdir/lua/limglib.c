@@ -562,7 +562,7 @@ const char *wrtype_s[] =
 
 extern void lua_nodelib_push_fast(lua_State * L, halfword n);
 
-static void setup_image(PDF pdf, lua_State * L __attribute__ ((unused)), image * a, wrtype_e writetype)
+static void setup_image(PDF pdf, image * a, wrtype_e writetype)
 {
     image_dict *ad;
     assert(a != NULL);
@@ -592,7 +592,7 @@ static void write_image_or_node(lua_State * L, wrtype_e writetype)
     aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);    /* image */
     a = *aa;
     ad = img_dict(a);
-    setup_image(static_pdf, L, a, writetype);
+    setup_image(static_pdf, a, writetype);
     switch (writetype) {
     case WR_WRITE:
         n = img_to_node(a);
@@ -702,7 +702,7 @@ void vf_out_image(PDF pdf, unsigned i)
     a = *aa;
     ad = img_dict(a);
     assert(ad != NULL);
-    setup_image(pdf, L, a, WR_VF_IMG);  /* image ... */
+    setup_image(pdf, a, WR_VF_IMG);     /* image ... */
     pdf_place_vf_img(pdf, a);
     lua_pop(L, 1);              /* ... */
 }
