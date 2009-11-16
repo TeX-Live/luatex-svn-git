@@ -578,8 +578,10 @@ destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinat
 #  define pdf_literal_mode(a)  type((a)+2)
 #  define pdf_literal_type(a)  subtype((a)+2)
 
-#  define pdf_ximage_idx(a)    vinfo((a) + 5)   /* image index in array */
-#  define pdf_xform_objnum(a)  vinfo((a) + 5)
+#  define pdf_ximage_index(a)     vinfo((a) + 5)        /* /Im* number and image index in array */
+#  define pdf_ximage_transform(a) vlink((a) + 5)
+#  define pdf_xform_objnum(a)     vinfo((a) + 5)
+#  define pdf_xform_transform(a)  vlink((a) + 5)
 
 #  define pdf_annot_data(a)       vinfo((a) + 6)
 #  define pdf_link_attr(a)        vinfo((a) + 6)

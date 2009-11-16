@@ -1031,13 +1031,14 @@ static void nodelib_pushdir(lua_State * L, int n, boolean dirnode)
 {
     char s[2];
     if (dirnode) {
-        s[0] = (n < 0 ? '-' : '+'); s[1] = 0;
+        s[0] = (n < 0 ? '-' : '+');
+        s[1] = 0;
     } else {
         s[0] = 0;
     }
     if (n < 0)
         n += 64;
-    if (n==dir_TLT) {
+    if (n == dir_TLT) {
         lua_pushfstring(L, "%sTLT", s);
     } else if (n == dir_TRT) {
         lua_pushfstring(L, "%sTRT", s);
@@ -1204,7 +1205,10 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, int field)
                 lua_pushnumber(L, height(n));
                 break;
             case 7:
-                lua_pushnumber(L, pdf_ximage_idx(n));
+                lua_pushnumber(L, pdf_ximage_transform(n));
+                break;
+            case 8:
+                lua_pushnumber(L, pdf_ximage_index(n));
                 break;
             default:
                 lua_pushnil(L);
@@ -2048,13 +2052,13 @@ static int nodelib_getdir(lua_State * L, int n)
             s++;
         }
         if (strlen(s) == 3) {
-            if (strcmp(s,"TLT")==0) {
+            if (strcmp(s, "TLT") == 0) {
                 d += dir_TLT;
-            } else if (strcmp(s,"TRT")==0) {
+            } else if (strcmp(s, "TRT") == 0) {
                 d += dir_TRT;
-            } else if (strcmp(s,"LTL")==0) {
+            } else if (strcmp(s, "LTL") == 0) {
                 d += dir_LTL;
-            } else if (strcmp(s,"RTT")==0) {
+            } else if (strcmp(s, "RTT") == 0) {
                 d += dir_RTT;
             }
         }
@@ -2258,7 +2262,10 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
             height(n) = lua_tointeger(L, 3);
             break;
         case 7:
-            pdf_ximage_idx(n) = lua_tointeger(L, 3);
+            pdf_ximage_transform(n) = lua_tointeger(L, 3);
+            break;
+        case 8:
+            pdf_ximage_index(n) = lua_tointeger(L, 3);
             break;
         default:
             return nodelib_cantset(L, field, n);

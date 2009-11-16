@@ -454,7 +454,7 @@ void do_extension(PDF pdf)
         check_o_mode(pdf, "\\pdfximage", 1 << OMODE_PDF, false);
         /* png, jpeg, and pdf image handling depends on this done so early: */
         fix_pdf_minorversion(pdf);
-        scan_image(pdf);
+        scan_pdfximage(pdf);
         break;
     case save_cat_code_table_code:
         /* Implement \.{\\savecatcodetable} */

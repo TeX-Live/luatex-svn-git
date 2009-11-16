@@ -27,31 +27,25 @@
 #  include "image.h"
 #  include "../pdf/pdfpage.h"
 
-typedef image *img_entry;
-img_entry *img_array;
+typedef image_dict *idict_entry;
+idict_entry *idict_array;
 
-extern integer image_orig_x, image_orig_y;      /* origin of cropped PDF images */
-
-image_dict *new_image_dict(void);
-image *new_image(void);
-integer img_to_array(image *);
-integer read_image(PDF, integer, integer, char *, integer, char *,
-                   char *, integer, integer, integer, integer);
-void check_pdfstream_dict(image_dict *);
-void dumpimagemeta(void);
-void free_image_dict(image_dict * p);
-void init_image_dict(image_dict *);
-void init_image(image *);
 void new_img_pdfstream_struct(image_dict *);
-void pdf_print_resname_prefix(void);
+image *new_image(void);
+/*void init_image_dict(image_dict *);*/
+image_dict *new_image_dict(void);
+void free_image_dict(image_dict * p);
 void read_img(PDF, image_dict *, integer, integer);
-scaled_whd scan_alt_rule(void);
-void scale_img(image *);
-#  define scale_image(a)        scale_img(img_array[a])
-void undumpimagemeta(PDF, integer, integer);
+void scan_pdfximage(PDF pdf);
+void scan_pdfrefximage(PDF pdf);
+scaled_whd scale_img(image_dict *, scaled_whd, integer);
 void write_img(PDF, image_dict *);
-#  define write_image(a, b)     write_img((a), img_dict(img_array[b]));
 void pdf_write_image(PDF pdf, integer n);
+void check_pdfstream_dict(image_dict *);
 void write_pdfstream(PDF, image_dict *);
+void idict_to_array(image_dict *);
+void dumpimagemeta(void);
+void undumpimagemeta(PDF, integer, integer);
+scaled_whd scan_alt_rule(void);
 
 #endif                          /* WRITEIMG_H */

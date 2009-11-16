@@ -952,7 +952,7 @@ static void ensure_output_file_open(PDF pdf, char *ext)
     fn = pack_job_name(ext);
     if (pdf->draftmode == 0 || pdf->o_mode == OMODE_DVI) {
         while (!lua_b_open_out(&pdf->file, fn))
-            fn= prompt_file_name("file name for output", ext);
+            fn = prompt_file_name("file name for output", ext);
     }
     pdf->file_name = fn;
 }
@@ -1942,7 +1942,7 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
         if ((ol = res_p->ximage_list) != NULL) {
             while (ol != null) {
                 pdf_printf(pdf, "/Im");
-                pdf_print_int(pdf, image_index(obj_data_ptr(pdf, ol->info)));
+                pdf_print_int(pdf, obj_data_ptr(pdf, ol->info));
                 pdf_print_resname_prefix(pdf);
                 pdf_out(pdf, ' ');
                 pdf_print_int(pdf, ol->info);

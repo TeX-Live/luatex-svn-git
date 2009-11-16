@@ -86,6 +86,8 @@ typedef enum { PDF_BOX_SPEC_NONE, PDF_BOX_SPEC_MEDIA, PDF_BOX_SPEC_CROP,
 typedef struct {
     integer objnum;
     integer index;              /* /Im1, /Im2, ... */
+    scaled_whd dimen;           /* TeX dimensions given to \pdfximage */
+    integer transform;          /* transform given to \pdfximage */
     integer x_size;             /* dimensions in pixel counts as in JPG/PNG/JBIG2 file */
     integer y_size;
     integer x_orig;             /* origin in sp for PDF files */
@@ -119,6 +121,11 @@ typedef struct {
 
 #  define img_objnum(N)         ((N)->objnum)
 #  define img_index(N)          ((N)->index)
+#  define img_dimen(N)          ((N)->dimen)
+#  define img_width(N)          ((N)->dimen.wd)
+#  define img_height(N)         ((N)->dimen.ht)
+#  define img_depth(N)          ((N)->dimen.dp)
+#  define img_transform(N)      ((N)->transform)
 #  define img_xsize(N)          ((N)->x_size)
 #  define img_ysize(N)          ((N)->y_size)
 #  define img_xorig(N)          ((N)->x_orig)
@@ -141,6 +148,7 @@ typedef struct {
 #  define img_pagebox(N)        ((N)->page_box_spec)
 #  define img_bbox(N)           ((N)->bbox)
 #  define img_state(N)          ((N)->state)
+#  define img_flags(N)          ((N)->flags)
 
 #  define img_pdfstream_ptr(N)  ((N)->img_struct.pdfstream)
 #  define img_pdfstream_stream(N) ((N)->img_struct.pdfstream->stream)
@@ -160,53 +168,33 @@ typedef struct {
 #  define img_unset_bbox(N)     (img_flags(N) &= ~F_FLAG_BBOX)
 #  define img_is_bbox(N)        ((img_flags(N) & F_FLAG_BBOX) != 0)
 
-#  define image_pages(a)        img_totalpages(img_dict(img_array[a]))
-#  define image_colordepth(a)   img_colordepth(img_dict(img_array[a]))
-#  define image_group_ref(a)    img_group_ref(img_dict(img_array[a]))
+#  define epdf_xsize(a)         img_xsize(idict_array[a])
+#  define epdf_ysize(a)         img_ysize(idict_array[a])
+#  define epdf_orig_x(a)        img_xorig(idict_array[a])
+#  define epdf_orig_y(a)        img_yorig(idict_array[a])
 
-#  define epdf_xsize(a)         img_xsize(img_dict(img_array[a]))
-#  define epdf_ysize(a)         img_ysize(img_dict(img_array[a]))
-#  define epdf_orig_x(a)        img_xorig(img_dict(img_array[a]))
-#  define epdf_orig_y(a)        img_yorig(img_dict(img_array[a]))
-#  define is_pdf_image(a)       (img_type(img_dict(img_array[a])) == IMG_TYPE_PDF)
-#  define is_png_image(a)       (img_type(img_dict(img_array[a])) == IMG_TYPE_PNG)
-#  define update_image_procset(a) (pdf->resources->image_procset |= img_color(img_dict(img_array[a])))
+#  define is_pdf_image(a)       (img_type(idict_array[a]) == IMG_TYPE_PDF)
+#  define is_png_image(a)       (img_type(idict_array[a]) == IMG_TYPE_PNG)
+
+#  define update_image_procset(a) (pdf->resources->image_procset |= img_color(idict_array[a]))
 #  define check_image_b(a)      ((a) & IMAGE_COLOR_B)
 #  define check_image_c(a)      ((a) & IMAGE_COLOR_C)
 #  define check_image_i(a)      ((a) & IMAGE_COLOR_I)
 
-#  define image_objnum(a)       img_objnum(img_dict(img_array[a]))
-#  define image_index(a)        img_index(img_dict(img_array[a]))
+#  define img_is_refered(N)     (img_index(N) != -1)
 
 /**********************************************************************/
+/* image structure corresponds to pdfrefximage node */
 
 typedef struct {
     scaled_whd dimen;           /* requested/actual TeX dimensions */
     integer transform;
-    integer flags;
     image_dict *dict;
-    int array_idx;              /* index within img_array */
     int dict_ref;               /* luaL_ref() reference */
 } image;
 
-#  define img_dimen(N)          ((N)->dimen)
-#  define img_width(N)          ((N)->dimen.wd)
-#  define img_height(N)         ((N)->dimen.ht)
-#  define img_depth(N)          ((N)->dimen.dp)
-#  define img_transform(N)      ((N)->transform)
-#  define img_flags(N)          ((N)->flags)
 #  define img_dict(N)           ((N)->dict)
-#  define img_arrayidx(N)       ((N)->array_idx)
 #  define img_dictref(N)        ((N)->dict_ref)
-
-#  define img_is_refered(N)     (img_arrayidx(N) != -1)
-
-#  define F_FLAG_SCALED         (1 << 0)
-
-#  define img_flags(N)          ((N)->flags)
-#  define img_set_scaled(N)     (img_flags(N) |= F_FLAG_SCALED)
-#  define img_unset_scaled(N)   (img_flags(N) &= ~F_FLAG_SCALED)
-#  define img_is_scaled(N)      ((img_flags(N) & F_FLAG_SCALED) != 0)
 
 #  define set_wd_running(N)     (img_width(N) = null_flag)
 #  define set_ht_running(N)     (img_height(N) = null_flag)
@@ -214,10 +202,5 @@ typedef struct {
 #  define is_wd_running(N)      (img_width(N) == null_flag)
 #  define is_ht_running(N)      (img_height(N) == null_flag)
 #  define is_dp_running(N)      (img_depth(N) == null_flag)
-
-#  define image_dimen(a)        img_dimen(img_array[a])
-#  define image_width(a)        img_width(img_array[a])
-#  define image_height(a)       img_height(img_array[a])
-#  define image_depth(a)        img_depth(img_array[a])
 
 #endif                          /* IMAGE_H */
