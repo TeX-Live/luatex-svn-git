@@ -505,7 +505,7 @@ static int l_copy_image(lua_State * L)
     return 1;                   /* image */
 }
 
-static void read_scale_img(lua_State * L, image * a)
+static void read_scale_img(lua_State * L __attribute__ ((unused)), image * a)
 {
     image_dict *ad;
     assert(a != NULL);
