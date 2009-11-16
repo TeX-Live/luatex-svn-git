@@ -522,7 +522,7 @@
 #define LUA_NUMBER_FMT		"%.14g"
 
 #define lua_number2str(s,n) do {					\
-	if (n<0.000001 && n>=-0.000001) {				\
+	if (n<0.0001 && n>=-0.0001) {				\
 	    sprintf((s), "%.14f", (n));					\
 	    if (strchr(s,'.')) {					\
 		size_t s_l ;						\
