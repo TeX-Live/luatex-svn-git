@@ -703,7 +703,7 @@ void vf_out_image(PDF pdf, unsigned i)
     ad = img_dict(a);
     assert(ad != NULL);
     setup_image(pdf, a, WR_VF_IMG);     /* image ... */
-    pdf_place_vf_img(pdf, a);
+    place_img(pdf, ad, img_dimen(a), img_transform(a));
     lua_pop(L, 1);              /* ... */
 }
 

@@ -22,7 +22,7 @@
 #ifndef PDFIMAGE_H
 #  define PDFIMAGE_H
 
-void pdf_place_vf_img(PDF pdf, image * img);
+void place_img(PDF pdf, image_dict * idict, scaled_whd dim, int transform);
 void pdf_place_image(PDF pdf, halfword p);
 
 #endif

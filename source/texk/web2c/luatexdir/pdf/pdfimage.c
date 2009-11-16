@@ -23,8 +23,7 @@ static const char __svn_version[] =
 
 #include "ptexlib.h"
 
-static void place_img(PDF pdf, image_dict * idict, scaled_whd dim,
-                      int transform)
+void place_img(PDF pdf, image_dict * idict, scaled_whd dim, int transform)
 {
     float a[6];                 /* transformation matrix */
     float xoff, yoff, tmp;
@@ -152,15 +151,4 @@ void pdf_place_image(PDF pdf, halfword p)
     dim.ht = height(p);
     dim.dp = depth(p);
     place_img(pdf, idict, dim, pdf_ximage_transform(p));
-}
-
-/* for images in virtual fonts through Lua, see vf_out_image() in limglib.c */
-
-void pdf_place_vf_img(PDF pdf, image * img)
-{
-    image_dict *idict;
-    assert(img != NULL);
-    idict = img_dict(img);
-    assert(idict != NULL);
-    place_img(pdf, idict, img_dimen(img), img_transform(img));
 }
