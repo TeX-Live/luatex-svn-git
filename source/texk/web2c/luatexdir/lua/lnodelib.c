@@ -42,6 +42,8 @@ static const char _svn_version[] =
 
 make_luaS_index(luatex_node);
 
+static int nodelib_getdir(lua_State * L, int n); /* forward */
+
 halfword *check_isnode(lua_State * L, int ud)
 {
     register halfword *p = lua_touserdata(L, ud);
@@ -476,6 +478,7 @@ static int lua_nodelib_hpack(lua_State * L)
     char *s;
     integer w = 0;
     int m = 1;
+    int d = -1;
     n = *(check_isnode(L, 1));
     if (lua_gettop(L) > 1) {
         w = lua_tointeger(L, 2);
@@ -491,16 +494,21 @@ static int lua_nodelib_hpack(lua_State * L)
                                    "3rd argument should be either additional or exactly");
                     lua_error(L);
                 }
-            }
-
-            else if (lua_type(L, 3) == LUA_TNUMBER) {
+            } else if (lua_type(L, 3) == LUA_TNUMBER) {
                 m = lua_tonumber(L, 3);
             } else {
                 lua_pushstring(L, "incorrect 3rd argument");
             }
+            if (lua_gettop(L) > 3) {
+                if (lua_type(L, 4) == LUA_TSTRING) {
+                    d = nodelib_getdir(L, 4);
+                } else {
+                    lua_pushstring(L, "incorrect 4th argument");
+                }
+            }
         }
     }
-    p = hpack(n, w, m);
+    p = hpack(n, w, m, d);
     lua_nodelib_push_fast(L, p);
     return 1;
 }
@@ -516,7 +524,8 @@ static int lua_nodelib_dimensions(lua_State * L)
         int g_sign = normal;
         int g_order = normal;
         int i = 1;
-        halfword n, p = null;
+        int d = -1;
+        halfword n = null, p = null;
         if (lua_isnumber(L, 1)) {
             if (top < 4) {
                 lua_pushnil(L);
@@ -529,9 +538,16 @@ static int lua_nodelib_dimensions(lua_State * L)
         }
         n = *(check_isnode(L, i));
         if (lua_gettop(L) > i && !lua_isnil(L, (i + 1))) {
-            p = *(check_isnode(L, (i + 1)));
+            if (lua_type(L, (i + 1)) == LUA_TSTRING) {
+                d = nodelib_getdir(L, (i + 1));
+            } else {
+                p = *(check_isnode(L, (i + 1)));
+            }
+        } 
+        if (lua_gettop(L) > (i + 1) && lua_type(L, (i + 2)) == LUA_TSTRING) {
+            d = nodelib_getdir(L, (i + 2));
         }
-        siz = natural_sizes(n, p, g_mult, g_sign, g_order);
+        siz = natural_sizes(n, p, g_mult, g_sign, g_order, d);
         lua_pushnumber(L, siz.wd);
         lua_pushnumber(L, siz.ht);
         lua_pushnumber(L, siz.dp);
@@ -552,6 +568,7 @@ static int lua_nodelib_vpack(lua_State * L)
     char *s;
     integer w = 0;
     int m = 1;
+    int d = -1;
     n = *(check_isnode(L, 1));
     if (lua_gettop(L) > 1) {
         w = lua_tointeger(L, 2);
@@ -567,6 +584,13 @@ static int lua_nodelib_vpack(lua_State * L)
                                    "3rd argument should be either additional or exactly");
                     lua_error(L);
                 }
+                if (lua_gettop(L) > 3) {
+                    if (lua_type(L, 4) == LUA_TSTRING) {
+                        d = nodelib_getdir(L, 4);
+                    } else {
+                        lua_pushstring(L, "incorrect 4th argument");
+                    }
+                }
             }
 
             else if (lua_type(L, 3) == LUA_TNUMBER) {
@@ -576,7 +600,7 @@ static int lua_nodelib_vpack(lua_State * L)
             }
         }
     }
-    p = vpackage(n, w, m, max_dimen);
+    p = vpackage(n, w, m, max_dimen, d);
     lua_nodelib_push_fast(L, p);
     return 1;
 }

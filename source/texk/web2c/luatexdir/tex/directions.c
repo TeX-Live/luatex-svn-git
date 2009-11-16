@@ -82,7 +82,6 @@ halfword text_dir_ptr;
 void initialize_directions(void)
 {
     int k;
-    pack_direction = -1;
     for (k = 0; k <= 7; k++) {
         dir_primary[k] = dir_T;
         dir_primary[k + 8] = dir_L;
@@ -118,19 +117,25 @@ halfword new_dir(int s)
     return p;
 }
 
-void print_dir(int d)
+char *string_dir(int d)
 {
     if (d==dir_TLT) {
-	tprint("TLT");
+        return "TLT";
     } else if (d == dir_TRT) {
-	tprint("TRT");
+        return "TRT";
     } else if (d == dir_LTL) {
-	tprint("LTL");
+        return "LTL";
     } else if (d == dir_RTT) {
-	tprint("RTT");
+        return "RTT";
     } else {
-	tprint("???");
+        return "???";
     }
+}
+
+
+void print_dir(int d)
+{
+    tprint(string_dir(d));
 }
 
 /**********************************************************************/

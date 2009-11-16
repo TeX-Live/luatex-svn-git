@@ -850,7 +850,7 @@ void fire_up(halfword c)
                                 ins_ptr(p) =
                                     prune_page_top(broken_ptr(r), false);
                                 if (ins_ptr(p) != null) {
-                                    temp_ptr = vpack(ins_ptr(p), 0, additional);
+                                    temp_ptr = vpack(ins_ptr(p), 0, additional, -1);
                                     height(p) =
                                         height(temp_ptr) + depth(temp_ptr);
                                     list_ptr(temp_ptr) = null;
@@ -864,8 +864,7 @@ void fire_up(halfword c)
                         temp_ptr = list_ptr(box(n));
                         list_ptr(box(n)) = null;
                         flush_node(box(n));
-                        pack_direction = body_direction;
-                        box(n) = vpack(temp_ptr, 0, additional);
+                        box(n) = vpack(temp_ptr, 0, additional, body_direction);
 
                     } else {
                         while (vlink(s) != null)
@@ -932,10 +931,9 @@ void fire_up(halfword c)
     vbadness = inf_bad;
     save_vfuzz = vfuzz;
     vfuzz = max_dimen;          /* inhibit error messages */
-    pack_direction = body_direction;
     box(output_box) =
         filtered_vpackage(vlink(page_head), best_size, exactly, page_max_depth,
-                          output_group);
+                          output_group, body_direction);
     vbadness = save_vbadness;
     vfuzz = save_vfuzz;
     if (last_glue != max_halfword)

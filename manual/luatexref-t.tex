@@ -2237,6 +2237,7 @@ Creates a deep copy of the node list that starts at \type{n}.
 \startfunctioncall
 <node> h = node.hpack(<node> n)
 <node> h = node.hpack(<node> n, <number> w, <string> info)
+<node> h = node.hpack(<node> n, <number> w, <string> info, <string> dir)
 \stopfunctioncall
 
 This function creates a new hlist by packaging the list that begins at  node
@@ -2245,6 +2246,8 @@ is created using the natural width of its components. In the three
 argument form, \type{info} must be either \type{additional} or
 \type{exactly}, and \type{w} is the additional (\tex{hbox spread})
 or exact (\tex{hbox to}) width to be used.
+
+Direction support added in \LUATEX\ 0.45.
 
 Caveat: at this moment, there can be unexpected side|-|effects to this
 function, like updating some of the \tex{marks} and \tex{inserts}.
@@ -2274,7 +2277,13 @@ first three arguments is also possible:
                  <number> glue_order, <node> n)
 <number> w, <number> h, <number> d  = 
   node.dimensions(<number> glue_set, <number> glue_sign, 
+                 <number> glue_order, <node> n, <string> dir)
+<number> w, <number> h, <number> d  = 
+  node.dimensions(<number> glue_set, <number> glue_sign, 
                  <number> glue_order, <node> n, <node> t)
+<number> w, <number> h, <number> d  = 
+  node.dimensions(<number> glue_set, <number> glue_sign, 
+                 <number> glue_order, <node> n, <node> t, <string> dir)
 \stopfunctioncall
 
 This calling method takes glue settings into account and is especially
@@ -2292,6 +2301,8 @@ be if \type{\box0} was used as-is:
                                   tex.box[0].list.next,
                                   node.tail(tex.box[0].list))) }
 \stoptyping
+
+Direction support added in \LUATEX\ 0.45.
 
 \subsubsection{\luatex{node.mlist_to_hlist}}
 
@@ -3790,7 +3801,8 @@ horizontal mode material. Math items and line boxes are ignored
 at the moment.
 
 \startfunctioncall
-function(<node> head, <string> groupcode, <number> size, <string> packtype)
+function(<node> head, <string> groupcode, <number> size, 
+         <string> packtype [, <string> direction])
     return true | false | <node> newhead
 end
 \stopfunctioncall
@@ -3799,6 +3811,10 @@ The \type{packtype} is either \type{additional} or \type{exactly}. If
 \type{additional}, then the \type{size} is a \tex{hbox spread ...}
 argument. If \type{exactly}, then the \type{size} is a \tex{hbox to ...}.
 In both cases, the number is in scaled points.
+
+The \type{direction} is either one of the three-letter direction specifier
+strings, or nil (added in 0.45).
+
 
 This callback does not replace any internal code.
 
@@ -3812,7 +3828,8 @@ the fact that it is called at different moments, there is an extra
 variable that matches \TEX's \tex{maxdepth} setting.
 
 \startfunctioncall
-function(<node> head, <string> groupcode, <number> size, <string> packtype,  <number> maxdepth)
+function(<node> head, <string> groupcode, <number> size, <string>
+         packtype,  <number> maxdepth [, <string> direction])
     return true | false | <node> newhead
 end
 \stopfunctioncall
@@ -3825,7 +3842,8 @@ This callback is called when \TEX\ is ready to start boxing the
 box 255 for \tex{output}.
 
 \startfunctioncall
-function(<node> head, <string> groupcode, <number> size, <string> packtype, <number> maxdepth)
+function(<node> head, <string> groupcode, <number> size, <string> packtype, 
+        <number> maxdepth [, <string> direction])
     return true | false | <node> newhead
 end
 \stopfunctioncall

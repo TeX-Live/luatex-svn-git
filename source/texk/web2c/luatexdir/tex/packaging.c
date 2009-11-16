@@ -64,8 +64,6 @@ box containing the vlist that starts at |p|. In this case |w| represents
 a height instead of a width; the parameter |m| is interpreted as in |hpack|.
 */
 
-integer pack_direction;
-
 /*
 The parameters to |hpack| and |vpack| correspond to \TeX's primitives
 like `\.{\\hbox} \.{to} \.{300pt}', `\.{\\hbox} \.{spread} \.{10pt}'; note
@@ -411,7 +409,7 @@ Here is |hpack|, which is place where we do font substituting when
 font expansion is being used.
 */
 
-halfword hpack(halfword p, scaled w, int m)
+halfword hpack(halfword p, scaled w, int m, int pack_direction)
 {
     halfword r;                 /* the box node that will be returned */
     halfword q;                 /* trails behind |p| */
@@ -822,27 +820,27 @@ halfword hpack(halfword p, scaled w, int m)
         q = list_ptr(r);
         list_ptr(r) = null;
         flush_node(r);
-        r = hpack(q, w, subst_ex_font);
+        r = hpack(q, w, subst_ex_font, hpack_dir);
     }
     while (dir_ptr != null)
         pop_dir_node();
     return r;
 }
 
-halfword filtered_hpack(halfword p, halfword qt, scaled w, int m, integer grp)
+halfword filtered_hpack(halfword p, halfword qt, scaled w, int m, integer grp, int pac)
 {
     halfword q;
     new_hyphenation(p, qt);
     (void) new_ligkern(p, qt);  /* don't care about the tail in this case */
     q = vlink(p);
-    q = lua_hpack_filter(q, w, m, grp);
-    return hpack(q, w, m);
+    q = lua_hpack_filter(q, w, m, grp, pac);
+    return hpack(q, w, m, pac);
 }
 
 /* here is a function to calculate the natural whd of a (horizontal) node list */
 
 scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
-                         integer g_sign, integer g_order)
+                         integer g_sign, integer g_order, int pack_direction)
 {
     scaled s;                   /* shift amount */
     halfword g;                 /* points to a glue specification */
@@ -930,7 +928,7 @@ scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
                 siz.wd += surround(p);
                 break;
             case disc_node:
-                xx = natural_sizes(no_break(p), null, g_mult, g_sign, g_order);
+                xx = natural_sizes(no_break(p), null, g_mult, g_sign, g_order, hpack_dir);
                 siz.wd += xx.wd;
                 if (xx.ht > siz.ht)
                     siz.ht = xx.ht;
@@ -966,7 +964,7 @@ computed by the normal rules; if it exceeds this limit, the reference
 point is simply moved down until the limiting depth is attained.
 */
 
-halfword vpackage(halfword p, scaled h, int m, scaled l)
+halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
 {
     halfword r;                 /* the box node that will be returned */
     scaled w, d, x;             /* width, depth, and natural height */
@@ -980,7 +978,6 @@ halfword vpackage(halfword p, scaled h, int m, scaled l)
         box_dir(r) = body_direction;
     } else {
         box_dir(r) = pack_direction;
-        pack_direction = -1;
     }
     subtype(r) = min_quarterword;
     shift_amount(r) = 0;
@@ -1198,12 +1195,12 @@ halfword vpackage(halfword p, scaled h, int m, scaled l)
     return r;
 }
 
-halfword filtered_vpackage(halfword p, scaled h, int m, scaled l, integer grp)
+halfword filtered_vpackage(halfword p, scaled h, int m, scaled l, integer grp, int pack_direction)
 {
     halfword q;
     q = p;
-    q = lua_vpack_filter(q, h, m, l, grp);
-    return vpackage(q, h, m, l);
+    q = lua_vpack_filter(q, h, m, l, grp, pack_direction);
+    return vpackage(q, h, m, l, pack_direction);
 }
 
 void finish_vcenter(void)
@@ -1211,7 +1208,7 @@ void finish_vcenter(void)
     halfword p;
     unsave();
     save_ptr--;
-    p = vpack(vlink(cur_list.head_field), saved_value(0), saved_level(0));
+    p = vpack(vlink(cur_list.head_field), saved_value(0), saved_level(0), -1);
     pop_nest();
     p = math_vcenter_group(p);
     tail_append(p);
@@ -1227,15 +1224,14 @@ void package(int c)
     d = box_max_depth;
     unsave();
     save_ptr -= 4;
-    pack_direction = saved_level(2);
     if (cur_list.mode_field == -hmode) {
         cur_box = filtered_hpack(cur_list.head_field,
                                  cur_list.tail_field, saved_value(1),
-                                 saved_level(1), grp);
+                                 saved_level(1), grp, saved_level(2));
         subtype(cur_box) = HLIST_SUBTYPE_HBOX;
     } else {
         cur_box = filtered_vpackage(vlink(cur_list.head_field),
-                                    saved_value(1), saved_level(1), d, grp);
+                                    saved_value(1), saved_level(1), d, grp, saved_level(2));
         if (c == vtop_code) {
             /* Readjust the height and depth of |cur_box|,  for \.{\\vtop} */
             /* The height of a `\.{\\vtop}' box is inherited from the first item on its list,
@@ -1645,15 +1641,14 @@ halfword vsplit(halfword n, scaled h)
     p = list_ptr(v);
     list_ptr(v) = null;
     flush_node(v);
-    pack_direction = vdir;
     if (q == null)
         box(n) = null;          /* the |eq_level| of the box stays the same */
     else
         box(n) =
             filtered_vpackage(q, 0, additional, dimen_par(max_depth_code),
-                              split_keep_group);
+                              split_keep_group, vdir);
     return filtered_vpackage(p, h, exactly,
-                             dimen_par(split_max_depth_code), split_off_group);
+                             dimen_par(split_max_depth_code), split_off_group, vdir);
 }
 
 /*

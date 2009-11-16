@@ -1293,8 +1293,7 @@ pointer overbar(pointer b, scaled k, scaled t, scaled ht, pointer att)
     p = new_kern(ht);
     reset_attributes(p, att);
     vlink(p) = q;
-    pack_direction = math_direction;
-    q = vpackage(p, 0, additional, max_dimen);
+    q = vpackage(p, 0, additional, max_dimen, math_direction);
     reset_attributes(q, att);
     return q;
 }
@@ -1982,7 +1981,7 @@ pointer rebox(pointer b, scaled w)
 
     if ((width(b) != w) && (list_ptr(b) != null)) {
         if (type(b) == vlist_node) {
-            p = hpack(b, 0, additional);
+            p = hpack(b, 0, additional, -1);
             reset_attributes(p, node_attr(b));
             b = p;
         }
@@ -2008,7 +2007,7 @@ pointer rebox(pointer b, scaled w)
         q = new_glue(ss_glue);
         reset_attributes(q, att);
         vlink(p) = q;
-        r = hpack(b, w, exactly);
+        r = hpack(b, w, exactly, -1);
         reset_attributes(r, att);
         delete_attribute_ref(att);
         return r;
@@ -2179,12 +2178,12 @@ pointer clean_box(pointer p, integer s)
     setup_cur_size_and_mu();
   FOUND:
     if (is_char_node(q) || (q == null))
-        x = hpack(q, 0, additional);
+        x = hpack(q, 0, additional, -1);
     else if ((vlink(q) == null) && (type(q) <= vlist_node)
              && (shift_amount(q) == 0))
         x = q;                  /* it's already clean */
     else
-        x = hpack(q, 0, additional);
+        x = hpack(q, 0, additional, -1);
     if (x != q && q != null)
         reset_attributes(x, node_attr(q));
     /* Here we save memory space in a common case. */
@@ -2318,8 +2317,7 @@ void make_under(pointer q)
     vlink(x) = p;
     r = do_fraction_rule(underbar_rule(cur_style), node_attr(q));
     vlink(p) = r;
-    pack_direction = math_direction;
-    y = vpackage(x, 0, additional, max_dimen);
+    y = vpackage(x, 0, additional, max_dimen, math_direction);
     reset_attributes(y, node_attr(q));
     delta = height(y) + depth(y) + underbar_kern(cur_style);
     height(y) = height(x);
@@ -2402,7 +2400,7 @@ void make_radical(pointer q)
         math_list(degree(q)) = null;    /* for \Uroot ..{<list>}{} */
         flush_node(degree(q));
     }
-    p = hpack(y, 0, additional);
+    p = hpack(y, 0, additional, -1);
     reset_attributes(p, node_attr(q));
     math_list(nucleus(q)) = p;
     type(nucleus(q)) = sub_box_node;
@@ -2662,8 +2660,7 @@ void do_make_math_accent(pointer q, internal_font_number f, integer c,
         vlink(x) = y;
         y = x;
     }
-    pack_direction = math_direction;
-    r = vpackage(y, 0, additional, max_dimen);
+    r = vpackage(y, 0, additional, max_dimen, math_direction);
     reset_attributes(r, node_attr(q));
     width(r) = width(x);
     y = r;
@@ -2785,7 +2782,7 @@ void make_fraction(pointer q)
     z = var_delimiter(right_delimiter(q), cur_size, delta);
     right_delimiter(q) = null;
     vlink(v) = z;
-    y = hpack(x, 0, additional);
+    y = hpack(x, 0, additional, -1);
     reset_attributes(y, node_attr(q));
     assign_new_hlist(q, y);
 }
@@ -3254,7 +3251,7 @@ void make_scripts(pointer q, pointer p, scaled it)
         shift_up = 0;
         shift_down = 0;
     } else {
-        z = hpack(p, 0, additional);
+        z = hpack(p, 0, additional, -1);
         shift_up = height(z) - sup_shift_drop(cur_style);       /* r18 */
         shift_down = depth(z) + sub_shift_drop(cur_style);      /* r19 */
         list_ptr(z) = null;
@@ -3373,8 +3370,7 @@ void make_scripts(pointer q, pointer p, scaled it)
             reset_attributes(p, node_attr(q));
             vlink(x) = p;
             vlink(p) = y;
-            pack_direction = math_direction;
-            x = vpackage(x, 0, additional, max_dimen);
+            x = vpackage(x, 0, additional, max_dimen, math_direction);
             reset_attributes(x, node_attr(q));
             shift_amount(x) = shift_down;
         }
@@ -3892,7 +3888,7 @@ void mlist_to_hlist(void)
             mlist_to_hlist();   /* recursive call */
             cur_style = save_style;
             setup_cur_size_and_mu();
-            p = hpack(vlink(temp_head), 0, additional);
+            p = hpack(vlink(temp_head), 0, additional, -1);
             reset_attributes(p, node_attr(nucleus(q)));
             break;
         default:
@@ -3904,7 +3900,7 @@ void mlist_to_hlist(void)
         }
         make_scripts(q, p, delta);      /* top, bottom */
       CHECK_DIMENSIONS:
-        z = hpack(new_hlist(q), 0, additional);
+        z = hpack(new_hlist(q), 0, additional, -1);
         if (height(z) > max_hl)
             max_hl = height(z);
         if (depth(z) > max_d)

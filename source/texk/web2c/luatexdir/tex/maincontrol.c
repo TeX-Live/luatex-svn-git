@@ -1165,7 +1165,7 @@ void handle_right_brace(void)
         unsave();
         save_ptr--;
         /* now |saved_value(0)| is the insertion number, or the |vadjust| subtype */
-        p = vpack(vlink(head), 0, additional);
+        p = vpack(vlink(head), 0, additional, -1);
         pop_nest();
         if (saved_type(0) == saved_insert) {
             tail_append(new_node(ins_node, saved_value(0)));
@@ -1728,7 +1728,7 @@ void build_local_box(void)
     p = vlink(head);
     pop_nest();
     if (p != null)
-        p = hpack(p, 0, additional);
+        p = hpack(p, 0, additional, -1);
     if (kind == 0)
         eq_define(local_left_box_base, box_ref_cmd, p);
     else
@@ -1876,7 +1876,7 @@ void make_accent(void)
             w = glyph_width(q);
             h = glyph_height(q);
             if (h != x) {       /* the accent must be shifted up or down */
-                p = hpack(p, 0, additional);
+                p = hpack(p, 0, additional, -1);
                 shift_amount(p) = x - h;
             }
             delta = round((w - a) / float_constant(2) + h * t - x * s); /* real multiplication */

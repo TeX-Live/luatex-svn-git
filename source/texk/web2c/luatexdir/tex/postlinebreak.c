@@ -397,12 +397,11 @@ void ext_post_line_break(boolean d,
             cur_width = varmem[(par_shape_ptr + 2 * cur_line + 1)].cint;
         }
         adjust_tail = adjust_head;
-        pack_direction = paragraph_dir;
         pre_adjust_tail = pre_adjust_head;
         if (pdf_adjust_spacing > 0) {
-            just_box = hpack(q, cur_width, cal_expand_ratio);
+            just_box = hpack(q, cur_width, cal_expand_ratio, paragraph_dir);
         } else {
-            just_box = hpack(q, cur_width, exactly);
+            just_box = hpack(q, cur_width, exactly, paragraph_dir);
         }
         shift_amount(just_box) = cur_indent;
         subtype(just_box) = HLIST_SUBTYPE_LINE;

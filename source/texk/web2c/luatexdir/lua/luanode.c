@@ -158,7 +158,7 @@ lua_linebreak_callback(int is_broken, halfword head_node, halfword * new_head)
 
 
 halfword
-lua_hpack_filter(halfword head_node, scaled size, int pack_type, int extrainfo)
+lua_hpack_filter(halfword head_node, scaled size, int pack_type, int extrainfo, int pack_direction)
 {
     halfword ret;
     lua_State *L = Luas;
@@ -173,7 +173,11 @@ lua_hpack_filter(halfword head_node, scaled size, int pack_type, int extrainfo)
     lua_pushstring(L, group_code_names[extrainfo]);
     lua_pushnumber(L, size);
     lua_pushstring(L, pack_type_name[pack_type]);
-    if (lua_pcall(L, 4, 1, 0) != 0) {   /* no arg, 1 result */
+    if (pack_direction>=0)
+        lua_pushstring(L, string_dir(pack_direction));
+    else
+        lua_pushnil(L);
+    if (lua_pcall(L, 5, 1, 0) != 0) {   /* no arg, 1 result */
         fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
         lua_pop(L, 2);
         error();
@@ -197,7 +201,7 @@ lua_hpack_filter(halfword head_node, scaled size, int pack_type, int extrainfo)
 
 halfword
 lua_vpack_filter(halfword head_node, scaled size, int pack_type, scaled maxd,
-                 int extrainfo)
+                 int extrainfo, int pack_direction)
 {
     halfword ret;
     integer callback_id;
@@ -221,7 +225,11 @@ lua_vpack_filter(halfword head_node, scaled size, int pack_type, scaled maxd,
     lua_pushnumber(L, size);
     lua_pushstring(L, pack_type_name[pack_type]);
     lua_pushnumber(L, maxd);
-    if (lua_pcall(L, 5, 1, 0) != 0) {   /* no arg, 1 result */
+    if (pack_direction>=0)
+        lua_pushstring(L, string_dir(pack_direction));
+    else
+        lua_pushnil(L);
+    if (lua_pcall(L, 6, 1, 0) != 0) {   /* no arg, 1 result */
         fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
         lua_pop(L, 2);
         error();

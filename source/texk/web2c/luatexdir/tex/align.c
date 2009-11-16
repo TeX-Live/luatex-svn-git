@@ -671,7 +671,7 @@ boolean fin_col(void)
             adjust_tail = cur_tail;
             pre_adjust_tail = cur_pre_tail;
             u = filtered_hpack(cur_list.head_field, cur_list.tail_field, 0,
-                               additional, align_set_group);
+                               additional, align_set_group, -1);
             w = width(u);
             cur_tail = adjust_tail;
             adjust_tail = null;
@@ -679,7 +679,7 @@ boolean fin_col(void)
             pre_adjust_tail = null;
         } else {
             u = filtered_vpackage(vlink(cur_list.head_field), 0, additional, 0,
-                                  align_set_group);
+                                  align_set_group, -1);
             w = height(u);
         }
         n = min_quarterword;    /* this represents a span count of 1 */
@@ -772,7 +772,7 @@ void fin_row(void)
     pointer p;                  /* the new unset box */
     if (cur_list.mode_field == -hmode) {
         p = filtered_hpack(cur_list.head_field, cur_list.tail_field, 0,
-                           additional, fin_row_group);
+                           additional, fin_row_group, -1);
         pop_nest();
         if (cur_pre_head != cur_pre_tail)
             append_list(cur_pre_head, cur_pre_tail);
@@ -781,7 +781,7 @@ void fin_row(void)
             append_list(cur_head, cur_tail);
     } else {
         p = filtered_vpackage(vlink(cur_list.head_field), 0, additional,
-                              max_depth, fin_row_group);
+                              max_depth, fin_row_group, -1);
         pop_nest();
         vlink(cur_list.tail_field) = p;
         cur_list.tail_field = p;
@@ -923,7 +923,7 @@ value is changed to zero and so is the next tabskip.
     if (cur_list.mode_field == -vmode) {
         rule_save = overfull_rule;
         overfull_rule = 0;      /* prevent rule from being packaged */
-        p = hpack(preamble, saved_value(0), saved_level(0));
+        p = hpack(preamble, saved_value(0), saved_level(0), -1);
         overfull_rule = rule_save;
     } else {
         q = vlink(preamble);
@@ -933,7 +933,7 @@ value is changed to zero and so is the next tabskip.
             q = vlink(vlink(q));
         } while (q != null);
         p = filtered_vpackage(preamble, saved_value(0), saved_level(0),
-                              max_depth, preamble_group);
+                              max_depth, preamble_group, -1);
         q = vlink(preamble);
         do {
             width(q) = height(q);
@@ -1102,7 +1102,7 @@ value is changed to zero and so is the next tabskip.
                 if (o != 0) {
                     r = vlink(q);
                     vlink(q) = null;
-                    q = hpack(q, 0, additional);
+                    q = hpack(q, 0, additional, -1);
                     shift_amount(q) = o;
                     vlink(q) = r;
                     vlink(s) = q;

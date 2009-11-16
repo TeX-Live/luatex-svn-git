@@ -249,11 +249,11 @@ extern halfword handle_ligaturing(halfword head, halfword tail);
 extern halfword handle_kerning(halfword head, halfword tail);
 
 halfword lua_hpack_filter(halfword head_node, scaled size, int pack_type,
-                          int extrainfo);
+                          int extrainfo, int d);
 void lua_node_filter(int filterid, int extrainfo, halfword head_node,
                      halfword * tail_node);
 halfword lua_vpack_filter(halfword head_node, scaled size, int pack_type,
-                          scaled maxd, int extrainfo);
+                          scaled maxd, int extrainfo, int d);
 void lua_node_filter_s(int filterid, char *extrainfo);
 int lua_linebreak_callback(int is_broken, halfword head_node,
                            halfword * new_head);

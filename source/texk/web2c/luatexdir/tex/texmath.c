@@ -1996,7 +1996,7 @@ static void finish_displayed_math(boolean l, pointer a, pointer p)
 
     adjust_tail = adjust_head;
     pre_adjust_tail = pre_adjust_head;
-    eq_box = hpack(p, 0, additional);
+    eq_box = hpack(p, 0, additional, -1);
     p = list_ptr(eq_box);
     t = adjust_tail;
     adjust_tail = null;
@@ -2022,13 +2022,13 @@ static void finish_displayed_math(boolean l, pointer a, pointer p)
                 || (total_shrink[filll] != 0))) {
             list_ptr(eq_box) = null;
             flush_node(eq_box);
-            eq_box = hpack(p, line_w - eqno_w2, exactly);
+            eq_box = hpack(p, line_w - eqno_w2, exactly, -1);
         } else {
             eqno_w = 0;
             if (eq_w > line_w) {
                 list_ptr(eq_box) = null;
                 flush_node(eq_box);
-                eq_box = hpack(p, line_w, exactly);
+                eq_box = hpack(p, line_w, exactly, -1);
             }
         }
         eq_w = width(eq_box);
@@ -2089,7 +2089,7 @@ static void finish_displayed_math(boolean l, pointer a, pointer p)
             vlink(eq_box) = r;
             vlink(r) = a;
         }
-        eq_box = hpack(eq_box, 0, additional);
+        eq_box = hpack(eq_box, 0, additional, -1);
     }
     if (swap_dir) {
         /*    d = line_w - d; */
@@ -2153,7 +2153,7 @@ void after_math(void)
             check_display_math_end();
         }
         run_mlist_to_hlist(p, text_style, false);
-        a = hpack(vlink(temp_head), 0, additional);
+        a = hpack(vlink(temp_head), 0, additional, -1);
         unsave_math();
         decr(save_ptr);         /* now |cur_group=math_shift_group| */
         assert(saved_type(0) == saved_eqno);

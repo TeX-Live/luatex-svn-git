@@ -34,8 +34,6 @@ typedef enum {
 
 #  define substituted 3         /* |subtype| of kern nodes that should be substituted */
 
-extern integer pack_direction;
-
 extern void scan_spec(group_code c);
 extern void scan_full_spec(group_code c, integer spec_direction);
 
@@ -65,20 +63,20 @@ extern halfword new_margin_kern(scaled w, halfword p, int side);
 	    A = vlink(A);			\
     } while (0)
 
-extern halfword hpack(halfword p, scaled w, int m);
+extern halfword hpack(halfword p, scaled w, int m, int d);
 extern halfword filtered_hpack(halfword p, halfword qt, scaled w, int m,
-                               integer grp);
+                               integer grp, int d);
 
 extern scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
-                                integer g_sign, integer g_order);
+                                integer g_sign, integer g_order, int d);
 
 extern integer pack_begin_line;
 
-#  define vpack(A,B,C) vpackage(A,B,C,max_dimen)        /* special case of unconstrained depth */
+#  define vpack(A,B,C,D) vpackage(A,B,C,max_dimen,D)        /* special case of unconstrained depth */
 
-extern halfword vpackage(halfword p, scaled h, int m, scaled l);
+extern halfword vpackage(halfword p, scaled h, int m, scaled l, int d);
 extern halfword filtered_vpackage(halfword p, scaled h, int m, scaled l,
-                                  integer grp);
+                                  integer grp, int d);
 extern void finish_vcenter(void);
 extern void package(int c);
 extern void append_to_vlist(halfword b);
