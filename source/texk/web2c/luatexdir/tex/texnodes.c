@@ -2242,6 +2242,7 @@ void show_whatsit_node(integer p)
             print_char(' ');
             print_dir(dir_dir(p));
         }
+        break;
     case local_par_node:
         tprint_esc("whatsit");
         append_char('.');
