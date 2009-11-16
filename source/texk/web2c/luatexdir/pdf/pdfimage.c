@@ -158,8 +158,9 @@ void pdf_place_image(PDF pdf, halfword p)
 
 void pdf_place_vf_img(PDF pdf, image * img)
 {
+    image_dict *idict;
     assert(img != NULL);
-    image_dict *idict = img_dict(img);
+    idict = img_dict(img);
     assert(idict != NULL);
     place_img(pdf, idict, img_dimen(img), img_transform(img));
 }
