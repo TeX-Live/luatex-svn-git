@@ -7876,9 +7876,8 @@ These are built up out of three separate items:
 \item the third is the direction of the \quote{top} of glyphs.
 \stopitemize
 
-Each of the three items can have 4 separate values, but the directions
-of the first and second items always have to be perpendicular to
-each other, which limits the total to 16.
+However, only four combinations are accepted: \type{TLT}, \type{TRT},
+\type{RTT}, and \type{LTL}.
 
 Inside actual \type{dir} whatsit nodes, the representation of
 \type{dir} is not a three-letter but a four-letter combination. The
@@ -8267,6 +8266,11 @@ and \tex{pdfxformattr}, as an alternative to \tex{pdfxform} keywords.
 \section{Changes from \ALEPH\ RC4}
 
 \startitemize
+
+\item \LUATEX\ only understands 4~of the 16~direction
+specifiers of \ALEPH: \type{TLT} (latin), \type{TRT} (arabic),
+\type{RTT} (cjk), \type{LTL} (mongolian). All other direction
+specifiers generate an error (\LUATEX\ 0.45).
 
 \item The input translations from \ALEPH\ are not implemented, the
    related primitives are not available:
