@@ -1066,7 +1066,7 @@ void dvi_place_rule(PDF pdf, halfword q, scaledpos size)
 {
     (void) q;
     synch_dvi_with_pos(pdf->posstruct->pos);
-    if (dir_secondary[pdf->posstruct->dir] == dir_L) {
+    if (textdir_is(pdf->posstruct->dir,dir_L)) {
         dvi_out(set_rule);      /* movement optimization for dir_*L* */
         dvi.h += size.h;
     } else
@@ -1090,7 +1090,7 @@ void dvi_place_glyph(PDF pdf, internal_font_number f, integer c)
         out_cmd();
         pdf->f_cur = f;
     }
-    if (dir_secondary[pdf->posstruct->dir] == dir_L) {
+    if (textdir_is(pdf->posstruct->dir,dir_L)) {
         ci = get_charinfo_whd(f, c);
         dvi_set(c, ci.wd);      /* movement optimization for dir_*L* */
     } else
@@ -1376,21 +1376,17 @@ void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page)
         if (page_width > 0) {
             cur_page_size.h = page_width;
         } else {
-            switch (box_direction(page_direction)) {
-            case dir_TL_:
-            case dir_BL_:
+            switch (page_direction) {
+            case dir_TLT:
                 cur_page_size.h = width(p) + 2 * page_left_offset;
                 break;
-            case dir_TR_:
-            case dir_BR_:
+            case dir_TRT:
                 cur_page_size.h = width(p) + 2 * page_right_offset;
                 break;
-            case dir_LT_:
-            case dir_LB_:
+            case dir_LTL:
                 cur_page_size.h = height(p) + depth(p) + 2 * page_left_offset;
                 break;
-            case dir_RT_:
-            case dir_RB_:
+            case dir_RTT:
                 cur_page_size.h = height(p) + depth(p) + 2 * page_right_offset;
                 break;
             }
@@ -1398,22 +1394,14 @@ void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page)
         if (page_height > 0) {
             cur_page_size.v = page_height;
         } else {
-            switch (box_direction(page_direction)) {
-            case dir_TL_:
-            case dir_TR_:
+            switch (page_direction) {
+            case dir_TLT:
+            case dir_TRT:
                 cur_page_size.v = height(p) + depth(p) + 2 * page_top_offset;
                 break;
-            case dir_BL_:
-            case dir_BR_:
-                cur_page_size.v = height(p) + depth(p) + 2 * page_bottom_offset;
-                break;
-            case dir_LT_:
-            case dir_RT_:
+            case dir_LTL:
+            case dir_RTT:
                 cur_page_size.v = width(p) + 2 * page_top_offset;
-                break;
-            case dir_LB_:
-            case dir_RB_:
-                cur_page_size.v = width(p) + 2 * page_bottom_offset;
                 break;
             }
         }
@@ -1427,26 +1415,16 @@ void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page)
 
         /* Then calculate |cur.h| and |cur.v| within the upright coordinate system
            for the DVI origin depending on the |page_direction|. */
-        switch (box_direction(page_direction)) {
-        case dir_TL_:
-        case dir_LT_:
+        switch (page_direction) {
+        case dir_TLT:
+        case dir_LTL:
             cur.h = h_offset;
             cur.v = v_offset;
             break;
-        case dir_TR_:
-        case dir_RT_:
+        case dir_TRT:
+        case dir_RTT:
             cur.h = cur_page_size.h - page_right_offset - one_true_inch;
             cur.v = v_offset;
-            break;
-        case dir_BL_:
-        case dir_LB_:
-            cur.h = h_offset;
-            cur.v = cur_page_size.v - page_bottom_offset - one_true_inch;
-            break;
-        case dir_RB_:
-        case dir_BR_:
-            cur.h = cur_page_size.h - page_right_offset - one_true_inch;
-            cur.v = cur_page_size.v - page_bottom_offset - one_true_inch;
             break;
         }
         /* The movement is actually done within the upright page coordinate system. */

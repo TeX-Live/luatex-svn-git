@@ -76,38 +76,22 @@ void init_pdf_pagecalculations(PDF pdf)
 void synch_pos_with_cur(posstructure * pos, posstructure * refpos,
                         scaledpos cur)
 {
-    switch (box_direction(pos->dir)) {
-    case dir_TL_:
+    switch (pos->dir) {
+    case dir_TLT:
         pos->pos.h = refpos->pos.h + cur.h;
         pos->pos.v = refpos->pos.v - cur.v;
         break;
-    case dir_TR_:
+    case dir_TRT:
         pos->pos.h = refpos->pos.h - cur.h;
         pos->pos.v = refpos->pos.v - cur.v;
         break;
-    case dir_BL_:
-        pos->pos.h = refpos->pos.h + cur.h;
-        pos->pos.v = refpos->pos.v + cur.v;
-        break;
-    case dir_BR_:
-        pos->pos.h = refpos->pos.h - cur.h;
-        pos->pos.v = refpos->pos.v + cur.v;
-        break;
-    case dir_LT_:
+    case dir_LTL:
         pos->pos.h = refpos->pos.h + cur.v;
         pos->pos.v = refpos->pos.v - cur.h;
         break;
-    case dir_RT_:
+    case dir_RTT:
         pos->pos.h = refpos->pos.h - cur.v;
         pos->pos.v = refpos->pos.v - cur.h;
-        break;
-    case dir_LB_:
-        pos->pos.h = refpos->pos.h + cur.v;
-        pos->pos.v = refpos->pos.v + cur.h;
-        break;
-    case dir_RB_:
-        pos->pos.h = refpos->pos.h - cur.v;
-        pos->pos.v = refpos->pos.v + cur.h;
         break;
     default:
         assert(0);

@@ -55,10 +55,9 @@
 #  define dir__BR 15
 
 #  define dir_TLT  0
-#  define dir_TL  0
-#  define dir_TR  4
-#  define dir_LT  9
-#  define dir_RT  24
+#  define dir_TRT  4
+#  define dir_LTL  9
+#  define dir_RTT  24
 #  define glyph_dir dir_TLT
 
 #  define box_direction(a)    ((a) / 4)
@@ -71,6 +70,36 @@
 #  define is_rotated(a)       dir_parallel(dir_secondary[(a)],dir_tertiary[(a)])
 #  define line_horizontal(a)  dir_parallel(dir_secondary[(a)],dir_secondary[dir_TLT])
 #  define line_vertical(a)    (!line_horizontal(a))
+
+#define textdir_parallel(a,b)				\
+   dir_parallel(dir_secondary[(a)], dir_secondary[(b)])
+
+#define pardir_parallel(a,b)				\
+   dir_parallel(dir_primary[(a)], dir_primary[(b)])
+   
+#define pardir_opposite(a,b)				\
+   dir_opposite(dir_primary[(a)], dir_primary[(b)])
+
+#define textdir_opposite(a,b)				\
+   dir_opposite(dir_secondary[(a)], dir_secondary[(b)])
+
+#define glyphdir_opposite(a,b)				\
+   dir_opposite(dir_tertiary[(a)], dir_tertiary[(b)])
+
+#define pardir_eq(a,b)				\
+   dir_eq(dir_primary[(a)], dir_primary[(b)])
+   
+#define textdir_eq(a,b)					\
+   dir_eq(dir_secondary[(a)], dir_secondary[(b)])
+   
+#define glyphdir_eq(a,b)			\
+   dir_eq(dir_tertiary[(a)], dir_tertiary[(b)])
+
+#define topdir_eq(a,b)				\
+   dir_eq(dir_primary[(a)], dir_secondary[(b)])
+
+#define textdir_is(a,b) (dir_secondary[(a)]==(b))
+
 
 #  define push_dir(a)                           \
    { halfword dir_tmp=new_dir((a));		\

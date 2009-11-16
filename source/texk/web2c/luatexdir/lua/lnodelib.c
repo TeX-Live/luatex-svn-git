@@ -1029,17 +1029,25 @@ static int lua_nodelib_count(lua_State * L)
 
 static void nodelib_pushdir(lua_State * L, int n, boolean dirnode)
 {
-    int f = 0;
-    char dirstring[5] = { 0 };
+    char s[2];
     if (dirnode) {
-        dirstring[f++] = (n < 0 ? '-' : '+');
+        s[0] = (n < 0 ? '-' : '+'); s[1] = 0;
+    } else {
+	s[0] = 0;
     }
     if (n < 0)
         n += 64;
-    dirstring[f++] = dir_names[(int) dir_primary[n]];
-    dirstring[f++] = dir_names[(int) dir_secondary[n]];
-    dirstring[f++] = dir_names[(int) dir_tertiary[n]];
-    lua_pushstring(L, dirstring);
+    if (n==dir_TLT) {
+	lua_pushfstring(L, "%sTLT", s);
+    } else if (n == dir_TRT) {
+	lua_pushfstring(L, "%sTRT", s);
+    } else if (n == dir_LTL) {
+	lua_pushfstring(L, "%sLTL", s);
+    } else if (n == dir_RTT) {
+	lua_pushfstring(L, "%sRTT", s);
+    } else {
+	lua_pushstring(L, "???");
+    }
 }
 
 static void lua_nodelib_getfield_whatsit(lua_State * L, int n, int field)
@@ -2041,13 +2049,13 @@ static int nodelib_getdir(lua_State * L, int n)
         }
         if (strlen(s) == 3) {
 	    if (strcmp(s,"TLT")==0) {
-		d += dir_TL;
+		d += dir_TLT;
 	    } else if (strcmp(s,"TRT")==0) {
-		d += dir_TR;
+		d += dir_TRT;
 	    } else if (strcmp(s,"LTL")==0) {
-		d += dir_LT;
+		d += dir_LTL;
 	    } else if (strcmp(s,"RTT")==0) {
-		d += dir_RT;
+		d += dir_RTT;
 	    }
         }
     } else if (lua_isnumber(L, n)) {

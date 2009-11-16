@@ -376,8 +376,7 @@ void hlist_out(PDF pdf, halfword this_box)
                 }
                 output_one_char(pdf, font(p), character(p));
                 ci = get_charinfo_whd(font(p), character(p));
-                if (dir_parallel
-                    (dir_secondary[localpos.dir], dir_secondary[dir_TLT]))
+                if (textdir_parallel(localpos.dir,dir_TLT))
                     cur.h += ci.wd;
                 else
                     cur.h += ci.ht + ci.dp;
@@ -395,51 +394,38 @@ void hlist_out(PDF pdf, halfword this_box)
             case vlist_node:
                 /* (\pdfTeX) Output a box in an hlist */
 
-                if (dir_parallel
-                    (dir_secondary[box_dir(p)], dir_secondary[localpos.dir])) {
+                if (textdir_parallel(box_dir(p), localpos.dir)) {
                     effective_horizontal = width(p);
                     basepoint.v = 0;
-                    if (dir_opposite
-                        (dir_secondary[box_dir(p)],
-                         dir_secondary[localpos.dir]))
+                    if (textdir_opposite(box_dir(p),localpos.dir))
                         basepoint.h = width(p);
                     else
                         basepoint.h = 0;
                 } else {
                     effective_horizontal = height(p) + depth(p);
                     if (!is_mirrored(box_dir(p))) {
-                        if (dir_eq
-                            (dir_primary[box_dir(p)],
-                             dir_secondary[localpos.dir]))
+                        if (topdir_eq(box_dir(p),localpos.dir))
                             basepoint.h = height(p);
                         else
                             basepoint.h = depth(p);
                     } else {
-                        if (dir_eq
-                            (dir_primary[box_dir(p)],
-                             dir_secondary[localpos.dir]))
+                        if (topdir_eq(box_dir(p),localpos.dir))
                             basepoint.h = depth(p);
                         else
                             basepoint.h = height(p);
                     }
                     if (is_rotated(localpos.dir)) {
-                        if (dir_eq
-                            (dir_secondary[box_dir(p)],
-                             dir_primary[localpos.dir]))
+                        if (topdir_eq(localpos.dir,box_dir(p)))
                             basepoint.v = -width(p) / 2;        /* `up' */
                         else
                             basepoint.v = width(p) / 2; /* `down' */
                     } else if (is_mirrored(localpos.dir)) {
-                        if (dir_eq
-                            (dir_secondary[box_dir(p)],
-                             dir_primary[localpos.dir]))
+                        if (topdir_eq(localpos.dir,box_dir(p)))
                             basepoint.v = 0;
                         else
                             basepoint.v = width(p);     /* `down' */
                     } else {
-                        if (dir_eq
-                            (dir_secondary[box_dir(p)],
-                             dir_primary[localpos.dir]))
+                        if (topdir_eq(localpos.dir,box_dir(p)))
                             basepoint.v = -width(p);    /* `up' */
                         else
                             basepoint.v = 0;
@@ -481,8 +467,7 @@ void hlist_out(PDF pdf, halfword this_box)
                 }
                 break;
             case rule_node:
-                if (dir_parallel
-                    (dir_primary[rule_dir(p)], dir_primary[localpos.dir])) {
+                if (pardir_parallel(rule_dir(p), localpos.dir)) {
                     rule.ht = height(p);
                     rule.dp = depth(p);
                     rule.wd = width(p);
@@ -517,34 +502,21 @@ void hlist_out(PDF pdf, halfword this_box)
                 case pdf_refximage_node:       /* pdf_place_image(pdf, pdf_ximage_idx(p)); */
                     /* Output a Form node in a hlist */
                     /* Output an Image node in a hlist */
-                    switch (box_direction(localpos.dir)) {
-                    case dir_TL_:
+                    switch (localpos.dir) {
+                    case dir_TLT:
                         pos_down(depth(p));
                         break;
-                    case dir_TR_:
+                    case dir_TRT:
                         pos_left(width(p));
                         pos_down(depth(p));
                         break;
-                    case dir_BL_:
-                        pos_down(height(p));
-                        break;
-                    case dir_BR_:
-                        pos_left(width(p));
-                        pos_down(height(p));
-                        break;
-                    case dir_LT_:
+                    case dir_LTL:
                         pos_left(height(p));
                         pos_down(width(p));
                         break;
-                    case dir_RT_:
+                    case dir_RTT:
                         pos_left(depth(p));
                         pos_down(width(p));
-                        break;
-                    case dir_LB_:
-                        pos_left(height(p));
-                        break;
-                    case dir_RB_:
-                        pos_left(depth(p));
                         break;
                     }
                     backend_out_whatsit[subtype(p)] (pdf, p);
@@ -558,13 +530,9 @@ void hlist_out(PDF pdf, halfword this_box)
                         enddir_ptr =
                             calculate_width_to_enddir(p, cur_glue, cur_g,
                                                       this_box);
-                        if (dir_parallel
-                            (dir_secondary[dir_dir(p)],
-                             dir_secondary[localpos.dir])) {
+                        if (textdir_parallel(dir_dir(p),localpos.dir)) {
                             dir_cur_h(enddir_ptr) += cur.h;
-                            if (dir_opposite
-                                (dir_secondary[dir_dir(p)],
-                                 dir_secondary[localpos.dir]))
+                            if (textdir_opposite(dir_dir(p), localpos.dir))
                                 cur.h = dir_cur_h(enddir_ptr);
                         } else
                             dir_cur_h(enddir_ptr) = cur.h;
@@ -620,9 +588,7 @@ void hlist_out(PDF pdf, halfword this_box)
                         rule.dp = depth(leader_box);
                         goto FIN_RULE;
                     }
-                    if (dir_parallel
-                        (dir_secondary[box_dir(leader_box)],
-                         dir_secondary[localpos.dir]))
+                    if (textdir_parallel(box_dir(leader_box),localpos.dir))
                         leader_wd = width(leader_box);
                     else
                         leader_wd = height(leader_box) + depth(leader_box);
@@ -635,30 +601,26 @@ void hlist_out(PDF pdf, halfword this_box)
 
                         if (subtype(p) == g_leaders) {
                             save_h = cur.h;
-                            switch (dir_secondary[localpos.dir]) {
-                            case dir_L:
+                            switch (localpos.dir) {
+                            case dir_TLT:
                                 cur.h += refpos->pos.h - shipbox_refpos.h;
                                 cur.h = leader_wd * (cur.h / leader_wd);
                                 cur.h -= refpos->pos.h - shipbox_refpos.h;
                                 break;
-                            case dir_R:
+                            case dir_TRT:
                                 cur.h =
                                     refpos->pos.h - shipbox_refpos.h - cur.h;
                                 cur.h = leader_wd * (cur.h / leader_wd);
                                 cur.h =
                                     refpos->pos.h - shipbox_refpos.h - cur.h;
                                 break;
-                            case dir_T:
+                            case dir_LTL:
+                            case dir_RTT:
                                 cur.h =
                                     refpos->pos.v - shipbox_refpos.v - cur.h;
                                 cur.h = leader_wd * (cur.h / leader_wd);
                                 cur.h =
                                     refpos->pos.v - shipbox_refpos.v - cur.h;
-                                break;
-                            case dir_B:
-                                cur.h += refpos->pos.v - shipbox_refpos.v;
-                                cur.h = leader_wd * (cur.h / leader_wd);
-                                cur.h -= refpos->pos.v - shipbox_refpos.v;
                                 break;
                             }
                             if (cur.h < save_h)
@@ -683,35 +645,25 @@ void hlist_out(PDF pdf, halfword this_box)
                             /* (\pdfTeX) Output a leader box at |cur.h|,
                                then advance |cur.h| by |leader_wd+lx| */
 
-                            if (dir_parallel
-                                (dir_primary[box_dir(leader_box)],
-                                 dir_primary[localpos.dir])) {
+                            if (pardir_parallel(box_dir(leader_box),localpos.dir)) {
                                 basepoint.v = 0;
-                                if (dir_opposite
-                                    (dir_secondary[box_dir(leader_box)],
-                                     dir_secondary[localpos.dir]))
+                                if (textdir_opposite(box_dir(leader_box),localpos.dir))
                                     basepoint.h = width(leader_box);
                                 else
                                     basepoint.h = 0;
                             } else {
                                 if (!is_mirrored(box_dir(leader_box))) {
-                                    if (dir_eq
-                                        (dir_primary[box_dir(leader_box)],
-                                         dir_secondary[localpos.dir]))
+                                    if (topdir_eq(box_dir(leader_box),localpos.dir))
                                         basepoint.h = height(leader_box);
                                     else
                                         basepoint.h = depth(leader_box);
                                 } else {
-                                    if (dir_eq
-                                        (dir_primary[box_dir(leader_box)],
-                                         dir_secondary[localpos.dir]))
+                                    if (topdir_eq(box_dir(leader_box),localpos.dir))
                                         basepoint.h = depth(leader_box);
                                     else
                                         basepoint.h = height(leader_box);
                                 }
-                                if (dir_eq
-                                    (dir_secondary[box_dir(leader_box)],
-                                     dir_primary[localpos.dir]))
+                                if (topdir_eq(localpos.dir,box_dir(leader_box)))
                                     basepoint.v = -(width(leader_box) / 2);
                                 else
                                     basepoint.v = (width(leader_box) / 2);
@@ -765,50 +717,29 @@ void hlist_out(PDF pdf, halfword this_box)
             if (is_running(rule.dp))
                 rule.dp = depth(this_box);
             if ((rule.ht + rule.dp) > 0 && rule.wd > 0) {       /* we don't output empty rules */
-                switch (box_direction(localpos.dir)) {
-                case dir_TL_:
+                switch (localpos.dir) {
+                case dir_TLT:
                     size.h = rule.wd;
                     size.v = rule.ht + rule.dp;
                     pos_down(rule.dp);
                     break;
-                case dir_TR_:
+                case dir_TRT:
                     size.h = rule.wd;
                     size.v = rule.ht + rule.dp;
                     pos_left(size.h);
                     pos_down(rule.dp);
                     break;
-                case dir_BL_:
-                    size.h = rule.wd;
-                    size.v = rule.ht + rule.dp;
-                    pos_down(rule.ht);
-                    break;
-                case dir_BR_:
-                    size.h = rule.wd;
-                    size.v = rule.ht + rule.dp;
-                    pos_left(size.h);
-                    pos_down(rule.ht);
-                    break;
-                case dir_LT_:
+                case dir_LTL:
                     size.h = rule.ht + rule.dp;
                     size.v = rule.wd;
                     pos_left(rule.ht);
                     pos_down(size.v);
                     break;
-                case dir_RT_:
+                case dir_RTT:
                     size.h = rule.ht + rule.dp;
                     size.v = rule.wd;
                     pos_left(rule.dp);
                     pos_down(size.v);
-                    break;
-                case dir_LB_:
-                    size.h = rule.ht + rule.dp;
-                    size.v = rule.wd;
-                    pos_left(rule.ht);
-                    break;
-                case dir_RB_:
-                    size.h = rule.ht + rule.dp;
-                    size.v = rule.wd;
-                    pos_left(rule.dp);
                     break;
                 default:;
                 }
@@ -917,38 +848,30 @@ void vlist_out(PDF pdf, halfword this_box)
                    \.{\\pardir TLT} in a document with \.{\\bodydir TRT}, and so it
                    will have to do for now.
                  */
-                if (dir_parallel
-                    (dir_primary[box_dir(p)], dir_primary[localpos.dir])) {
+                if (pardir_parallel(box_dir(p), localpos.dir)) {
                     effective_vertical = height(p) + depth(p);
                     if ((type(p) == hlist_node) && is_mirrored(box_dir(p)))
                         basepoint.v = depth(p);
                     else
                         basepoint.v = height(p);
-                    if (dir_opposite
-                        (dir_secondary[box_dir(p)],
-                         dir_secondary[localpos.dir]))
+                    if (textdir_opposite(box_dir(p),localpos.dir))
                         basepoint.h = width(p);
                     else
                         basepoint.h = 0;
                 } else {
                     effective_vertical = width(p);
                     if (!is_mirrored(box_dir(p))) {
-                        if (dir_eq
-                            (dir_primary[box_dir(p)],
-                             dir_secondary[localpos.dir]))
+                        if (topdir_eq(box_dir(p),localpos.dir))
                             basepoint.h = height(p);
                         else
                             basepoint.h = depth(p);
                     } else {
-                        if (dir_eq
-                            (dir_primary[box_dir(p)],
-                             dir_secondary[localpos.dir]))
+                        if (topdir_eq(box_dir(p),localpos.dir))
                             basepoint.h = depth(p);
                         else
                             basepoint.h = height(p);
                     }
-                    if (dir_eq
-                        (dir_secondary[box_dir(p)], dir_primary[localpos.dir]))
+                    if (topdir_eq(localpos.dir, box_dir(p)))
                         basepoint.v = 0;
                     else
                         basepoint.v = width(p);
@@ -977,8 +900,7 @@ void vlist_out(PDF pdf, halfword this_box)
                 }
                 break;
             case rule_node:
-                if (dir_parallel
-                    (dir_primary[rule_dir(p)], dir_primary[localpos.dir])) {
+                if (pardir_parallel(rule_dir(p), localpos.dir)) {
                     rule.ht = height(p);
                     rule.dp = depth(p);
                     rule.wd = width(p);
@@ -1013,30 +935,20 @@ void vlist_out(PDF pdf, halfword this_box)
                 case pdf_refximage_node:       /* pdf_place_image(pdf, pdf_ximage_idx(p)); */
                     /* Output a Form node in a vlist */
                     /* Output an Image node in a vlist */
-                    switch (box_direction(localpos.dir)) {
-                    case dir_TL_:
+                    switch (localpos.dir) {
+                    case dir_TLT:
                         pos_down(height(p) + depth(p));
                         break;
-                    case dir_TR_:
+                    case dir_TRT:
                         pos_left(width(p));
                         pos_down(height(p) + depth(p));
                         break;
-                    case dir_BL_:
-                        break;
-                    case dir_BR_:
-                        pos_left(width(p));
-                        break;
-                    case dir_LT_:
+                    case dir_LTL:
                         pos_down(width(p));
                         break;
-                    case dir_RT_:
+                    case dir_RTT:
                         pos_left(height(p) + depth(p));
                         pos_down(width(p));
-                        break;
-                    case dir_LB_:
-                        break;
-                    case dir_RB_:
-                        pos_left(height(p) + depth(p));
                         break;
                     default:
                         break;
@@ -1084,30 +996,26 @@ void vlist_out(PDF pdf, halfword this_box)
 
                         if (subtype(p) == g_leaders) {
                             save_v = cur.v;
-                            switch (dir_primary[localpos.dir]) {
-                            case dir_L:
+                            switch (localpos.dir) {
+                            case dir_LTL:
                                 cur.v += refpos->pos.h - shipbox_refpos.h;
                                 cur.v = leader_ht * (cur.v / leader_ht);
                                 cur.v -= refpos->pos.h - shipbox_refpos.h;
                                 break;
-                            case dir_R:
+                            case dir_RTT:
                                 cur.v =
                                     refpos->pos.h - shipbox_refpos.h - cur.v;
                                 cur.v = leader_ht * (cur.v / leader_ht);
                                 cur.v =
                                     refpos->pos.h - shipbox_refpos.h - cur.v;
                                 break;
-                            case dir_T:
+                            case dir_TLT:
+                            case dir_TRT:
                                 cur.v =
                                     refpos->pos.v - shipbox_refpos.v - cur.v;
                                 cur.v = leader_ht * (cur.v / leader_ht);
                                 cur.v =
                                     refpos->pos.v - shipbox_refpos.v - cur.v;
-                                break;
-                            case dir_B:
-                                cur.v += refpos->pos.v - shipbox_refpos.v;
-                                cur.v = leader_ht * (cur.v / leader_ht);
-                                cur.v -= refpos->pos.v - shipbox_refpos.v;
                                 break;
                             }
                             if (cur.v < save_v)
@@ -1164,46 +1072,28 @@ void vlist_out(PDF pdf, halfword this_box)
             if (is_running(rule.wd))
                 rule.wd = width(this_box);
             if ((rule.ht + rule.dp) > 0 && rule.wd > 0) {       /* we don't output empty rules */
-                switch (box_direction(localpos.dir)) {
-                case dir_TL_:
+                switch (localpos.dir) {
+                case dir_TLT:
                     size.h = rule.wd;
                     size.v = rule.ht + rule.dp;
                     pos_down(size.v);
                     break;
-                case dir_BL_:
-                    size.h = rule.wd;
-                    size.v = rule.ht + rule.dp;
-                    break;
-                case dir_TR_:
+                case dir_TRT:
                     size.h = rule.wd;
                     size.v = rule.ht + rule.dp;
                     pos_left(size.h);
                     pos_down(size.v);
                     break;
-                case dir_BR_:
-                    size.h = rule.wd;
-                    size.v = rule.ht + rule.dp;
-                    pos_left(size.h);
-                    break;
-                case dir_LT_:
+                case dir_LTL:
                     size.h = rule.ht + rule.dp;
                     size.v = rule.wd;
                     pos_down(size.v);
                     break;
-                case dir_RT_:
+                case dir_RTT:
                     size.h = rule.ht + rule.dp;
                     size.v = rule.wd;
                     pos_left(size.h);
                     pos_down(size.v);
-                    break;
-                case dir_LB_:
-                    size.h = rule.ht + rule.dp;
-                    size.v = rule.wd;
-                    break;
-                case dir_RB_:
-                    size.h = rule.ht + rule.dp;
-                    size.v = rule.wd;
-                    pos_left(size.h);
                     break;
                 default:;
                 }

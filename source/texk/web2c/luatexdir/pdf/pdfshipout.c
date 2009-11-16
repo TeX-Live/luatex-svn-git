@@ -141,21 +141,17 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
         if (page_width > 0)
             cur_page_size.h = page_width;
         else {
-            switch (box_direction(page_direction)) {
-            case dir_TL_:
-            case dir_BL_:
+            switch (page_direction) {
+            case dir_TLT:
                 cur_page_size.h = width(p) + 2 * page_left_offset;
                 break;
-            case dir_TR_:
-            case dir_BR_:
+            case dir_TRT:
                 cur_page_size.h = width(p) + 2 * page_right_offset;
                 break;
-            case dir_LT_:
-            case dir_LB_:
+            case dir_LTL:
                 cur_page_size.h = height(p) + depth(p) + 2 * page_left_offset;
                 break;
-            case dir_RT_:
-            case dir_RB_:
+            case dir_RTT:
                 cur_page_size.h = height(p) + depth(p) + 2 * page_right_offset;
                 break;
             }
@@ -163,22 +159,14 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
         if (page_height > 0)
             cur_page_size.v = page_height;
         else {
-            switch (box_direction(page_direction)) {
-            case dir_TL_:
-            case dir_TR_:
+            switch (page_direction) {
+            case dir_TLT:
+            case dir_TRT:
                 cur_page_size.v = height(p) + depth(p) + 2 * page_top_offset;
                 break;
-            case dir_BL_:
-            case dir_BR_:
-                cur_page_size.v = height(p) + depth(p) + 2 * page_bottom_offset;
-                break;
-            case dir_LT_:
-            case dir_RT_:
+            case dir_LTL:
+            case dir_RTT:
                 cur_page_size.v = width(p) + 2 * page_top_offset;
-                break;
-            case dir_LB_:
-            case dir_RB_:
-                cur_page_size.v = width(p) + 2 * page_bottom_offset;
                 break;
             }
         }
@@ -204,30 +192,17 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
         /* Then shift |refpoint.pos| of the DVI origin depending on the
            |page_direction| within the upright (TLT) page coordinate system */
 
-        switch (box_direction(page_direction)) {
-        case dir_TL_:
-        case dir_LT_:
+        switch (page_direction) {
+        case dir_TLT:
+        case dir_LTL:
             refpoint.pos.h += h_offset;
             refpoint.pos.v -= v_offset;
             break;
-        case dir_TR_:
-        case dir_RT_:
+        case dir_TRT:
+        case dir_RTT:
             refpoint.pos.h +=
                 cur_page_size.h - page_right_offset - one_true_inch;
             refpoint.pos.v -= v_offset;
-            break;
-        case dir_BL_:
-        case dir_LB_:
-            refpoint.pos.h += h_offset;
-            refpoint.pos.v -=
-                cur_page_size.v - page_bottom_offset - one_true_inch;
-            break;
-        case dir_RB_:
-        case dir_BR_:
-            refpoint.pos.h +=
-                cur_page_size.h - page_right_offset - one_true_inch;
-            refpoint.pos.v -=
-                cur_page_size.v - page_bottom_offset - one_true_inch;
             break;
         }
 
@@ -241,53 +216,34 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
     } else {                    /* shipping a /Form */
         assert(pdf->o_mode == OMODE_PDF);
         pdf->posstruct->dir = box_dir(p);
-        switch (box_direction(pdf->posstruct->dir)) {
-        case dir_TL_:
-        case dir_TR_:
-        case dir_BL_:
-        case dir_BR_:
+        switch (pdf->posstruct->dir) {
+        case dir_TLT:
+        case dir_TRT:
             cur_page_size.h = width(p);
             cur_page_size.v = height(p) + depth(p);
             break;
-        case dir_LT_:
-        case dir_RT_:
-        case dir_LB_:
-        case dir_RB_:
+        case dir_LTL:
+        case dir_RTT:
             cur_page_size.h = height(p) + depth(p);
             cur_page_size.v = width(p);
             break;
         }
-        switch (box_direction(pdf->posstruct->dir)) {
-        case dir_TL_:
+        switch (pdf->posstruct->dir) {
+        case dir_TLT:
             pdf->posstruct->pos.h = 0;
             pdf->posstruct->pos.v = depth(p);
             break;
-        case dir_TR_:
+        case dir_TRT:
             pdf->posstruct->pos.h = width(p);
             pdf->posstruct->pos.v = depth(p);
             break;
-        case dir_BL_:
-            pdf->posstruct->pos.h = 0;
-            pdf->posstruct->pos.v = height(p);
-            break;
-        case dir_BR_:
-            pdf->posstruct->pos.h = width(p);
-            pdf->posstruct->pos.v = height(p);
-            break;
-        case dir_LT_:
+        case dir_LTL:
             pdf->posstruct->pos.h = height(p);
             pdf->posstruct->pos.v = width(p);
             break;
-        case dir_RT_:
+        case dir_RTT:
             pdf->posstruct->pos.h = depth(p);
             pdf->posstruct->pos.v = width(p);
-            break;
-        case dir_LB_:
-            pdf->posstruct->pos.h = height(p);
-            pdf->posstruct->pos.v = 0;
-        case dir_RB_:
-            pdf->posstruct->pos.h = depth(p);
-            pdf->posstruct->pos.v = 0;
             break;
         }
     }

@@ -96,22 +96,16 @@ void end_link(PDF pdf, halfword p)
             pdf_ann_right(q) = geturx() + pdf_link_margin;
             pdf_ann_bottom(q) = cur_page_size.v - getlly() + pdf_link_margin;
         } else {
-            switch (box_direction(pdf->posstruct->dir)) {
-            case dir_TL_:
-            case dir_BL_:
+            switch (pdf->posstruct->dir) {
+            case dir_TLT:
                 pdf_ann_right(q) = pos.h + pdf_link_margin;
                 break;
-            case dir_TR_:
-            case dir_BR_:
+            case dir_TRT:
                 pdf_ann_left(q) = pos.h - pdf_link_margin;
                 break;
-            case dir_LT_:
-            case dir_RT_:
+            case dir_LTL:
+            case dir_RTT:
                 pdf_ann_bottom(q) = pos.v - pdf_link_margin;
-                break;
-            case dir_LB_:
-            case dir_RB_:
-                pdf_ann_top(q) = pos.v + pdf_link_margin;
                 break;
             }
         }
