@@ -562,7 +562,7 @@ const char *wrtype_s[] =
 
 extern void lua_nodelib_push_fast(lua_State * L, halfword n);
 
-static void setup_image(PDF pdf, lua_State * L, image * a, wrtype_e writetype)
+static void setup_image(PDF pdf, lua_State * L __attribute__ ((unused)), image * a, wrtype_e writetype)
 {
     image_dict *ad;
     assert(a != NULL);
