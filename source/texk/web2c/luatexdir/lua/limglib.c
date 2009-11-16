@@ -505,7 +505,7 @@ static int l_copy_image(lua_State * L)
     return 1;                   /* image */
 }
 
-static void read_scale_img(lua_State * L __attribute__ ((unused)), image * a)
+static void read_scale_img(image * a)
 {
     image_dict *ad;
     assert(a != NULL);
@@ -535,7 +535,7 @@ static int l_scan_image(lua_State * L)
     a = *aa;
     check_o_mode(static_pdf, "img.scan()", 1 << OMODE_PDF, false);
     flush_str(last_tex_string);
-    read_scale_img(L, a);
+    read_scale_img(a);
     return 1;                   /* image */
 }
 
@@ -569,7 +569,7 @@ static void setup_image(PDF pdf, lua_State * L, image * a, wrtype_e writetype)
     ad = img_dict(a);
     check_o_mode(pdf, (char *) wrtype_s[writetype], 1 << OMODE_PDF, false);
     flush_str(last_tex_string);
-    read_scale_img(L, a);
+    read_scale_img(a);
     if (img_objnum(ad) == 0) {  /* latest needed just before out_img() */
         pdf->ximage_count++;
         pdf_create_obj(pdf, obj_type_ximage, pdf->ximage_count);

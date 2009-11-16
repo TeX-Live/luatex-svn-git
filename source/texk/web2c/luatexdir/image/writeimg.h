@@ -38,6 +38,7 @@ void free_image_dict(image_dict * p);
 void read_img(PDF, image_dict *, integer, integer);
 void scan_pdfximage(PDF pdf);
 void scan_pdfrefximage(PDF pdf);
+scaled_whd tex_scale(scaled_whd nat, scaled_whd tex);
 scaled_whd scale_img(image_dict *, scaled_whd, integer);
 void write_img(PDF, image_dict *);
 void pdf_write_image(PDF pdf, integer n);

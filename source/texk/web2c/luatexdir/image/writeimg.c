@@ -468,7 +468,7 @@ wd -- --
 -- -- -- : res = nat;
 */
 
-static scaled_whd tex_scale(scaled_whd nat, scaled_whd tex)
+scaled_whd tex_scale(scaled_whd nat, scaled_whd tex)
 {
     scaled_whd res;
     if (!is_running(tex.wd) && !is_running(tex.ht) && !is_running(tex.dp)) {
