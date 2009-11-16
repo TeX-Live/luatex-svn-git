@@ -65,7 +65,6 @@ a height instead of a width; the parameter |m| is interpreted as in |hpack|.
 */
 
 integer pack_direction;
-integer spec_direction;
 
 /*
 The parameters to |hpack| and |vpack| correspond to \TeX's primitives
@@ -80,18 +79,39 @@ $$\vbox{\halign{#\hfil\cr
 |hpack(p,saved_value(0),saved_level(0)).|\cr}}$$
 */
 
-/*
-Special care is necessary to ensure that the special |save_stack| codes
-are placed just below the new group code, because scanning can change
-|save_stack| when \.{\\csname} appears.
+void scan_spec(group_code c)
+{                               /* scans a box specification and left brace */
+    int spec_code;
+    if (scan_keyword("to")) {
+        spec_code = exactly;
+        scan_normal_dimen();
+    } else if (scan_keyword("spread")) {
+        spec_code = additional;
+        scan_normal_dimen();
+    } else {
+        spec_code = additional;
+        cur_val = 0;
+    }
+    set_saved_record(0, saved_boxspec, spec_code, cur_val);
+    save_ptr++;
+    new_save_level(c);
+    scan_left_brace();
+}
 
-This is signaled by the |three_codes| argument, which coincidentally can
-be used as a flag to decide on scanning |dir| and |attr| keywords, as these
-are exaclty the uses of \.{\\hbox}, \.{\\vbox}, and \.{\\vtop} in the input
-stream (the others are \.{\\vcenter}, \.{\\valign}, and \.{\\halign}).
+/*
+
+When scanning, special care is necessary to ensure that the special
+|save_stack| codes are placed just below the new group code, because
+scanning can change |save_stack| when \.{\\csname} appears.  
+
+This coincides with the text on |dir| and |attr| keywords, as these 
+are exaclty the uses of \.{\\hbox}, \.{\\vbox}, and \.{\\vtop} in the
+input stream (the others are \.{\\vcenter}, \.{\\valign}, and
+\.{\\halign}).
 */
 
-void scan_spec(group_code c, boolean three_codes)
+
+void scan_full_spec(group_code c, integer spec_direction)
 {                               /* scans a box specification and left brace */
     integer s;                  /* temporarily saved value */
     integer i;
@@ -102,36 +122,34 @@ void scan_spec(group_code c, boolean three_codes)
     if (attr_list_cache == cache_disabled)
         update_attribute_cache();
     attr_list = attr_list_cache;
-    if (three_codes) {
-        assert(saved_type(0) == saved_boxcontext);
-        s = saved_value(0);     /* the box context */
-      CONTINUE:
-        while (cur_cmd == relax_cmd || cur_cmd == spacer_cmd) {
-            get_x_token();
-            if (cur_cmd != relax_cmd && cur_cmd != spacer_cmd)
-                back_input();
+    assert(saved_type(0) == saved_boxcontext);
+    s = saved_value(0);     /* the box context */
+CONTINUE:
+    while (cur_cmd == relax_cmd || cur_cmd == spacer_cmd) {
+        get_x_token();
+        if (cur_cmd != relax_cmd && cur_cmd != spacer_cmd)
+            back_input();
+    }
+    if (scan_keyword("attr")) {
+        scan_register_num();
+        i = cur_val;
+        scan_optional_equals();
+        scan_int();
+        v = cur_val;
+        if ((attr_list != null) && (attr_list == attr_list_cache)) {
+            attr_list = copy_attribute_list(attr_list_cache);
+            add_node_attr_ref(attr_list);   /* will be used once */
         }
-        if (scan_keyword("attr")) {
-            scan_register_num();
-            i = cur_val;
-            scan_optional_equals();
-            scan_int();
-            v = cur_val;
-            if ((attr_list != null) && (attr_list == attr_list_cache)) {
-                attr_list = copy_attribute_list(attr_list_cache);
-                add_node_attr_ref(attr_list);   /* will be used once */
-            }
-            attr_list = do_set_attribute(attr_list, i, v);
-            goto CONTINUE;
-        }
-        if (scan_keyword("dir")) {
-            scan_direction();
-            spec_direction = cur_val;
-            goto CONTINUE;
-        }
-        if (attr_list == attr_list_cache) {
-            add_node_attr_ref(attr_list);
-        }
+        attr_list = do_set_attribute(attr_list, i, v);
+        goto CONTINUE;
+    }
+    if (scan_keyword("dir")) {
+        scan_direction();
+        spec_direction = cur_val;
+        goto CONTINUE;
+    }
+    if (attr_list == attr_list_cache) {
+        add_node_attr_ref(attr_list);
     }
     if (scan_keyword("to")) {
         spec_code = exactly;
@@ -144,32 +162,25 @@ void scan_spec(group_code c, boolean three_codes)
     }
     scan_normal_dimen();
   FOUND:
-    if (three_codes) {
-        set_saved_record(0, saved_boxcontext, 0, s);
-        set_saved_record(1, saved_boxspec, spec_code, cur_val);
-        /* DIR: Adjust |text_dir_ptr| for |scan_spec| */
-        if (spec_direction != -1) {
-            set_saved_record(2, saved_boxdir, spec_direction, text_dir_ptr);
-            text_dir_ptr = new_dir(spec_direction);
-        } else {
-            set_saved_record(2, saved_boxdir, spec_direction, null);
-        }
-        set_saved_record(3, saved_boxattr, 0, attr_list);
-        save_ptr += 4;
-        new_save_level(c);
-        scan_left_brace();
-        eq_word_define(int_base + body_direction_code, spec_direction);
-        eq_word_define(int_base + par_direction_code, spec_direction);
-        eq_word_define(int_base + text_direction_code, spec_direction);
-        eq_word_define(int_base + level_local_dir_code, cur_level);
+    set_saved_record(0, saved_boxcontext, 0, s);
+    set_saved_record(1, saved_boxspec, spec_code, cur_val);
+    /* DIR: Adjust |text_dir_ptr| for |scan_spec| */
+    if (spec_direction != -1) {
+        set_saved_record(2, saved_boxdir, spec_direction, text_dir_ptr);
+        text_dir_ptr = new_dir(spec_direction);
     } else {
-        set_saved_record(0, saved_boxspec, spec_code, cur_val);
-        save_ptr++;
-        new_save_level(c);
-        scan_left_brace();
+        set_saved_record(2, saved_boxdir, spec_direction, null);
     }
-    spec_direction = -1;
+    set_saved_record(3, saved_boxattr, 0, attr_list);
+    save_ptr += 4;
+    new_save_level(c);
+    scan_left_brace();
+    eq_word_define(int_base + body_direction_code, spec_direction);
+    eq_word_define(int_base + par_direction_code, spec_direction);
+    eq_word_define(int_base + text_direction_code, spec_direction);
+    eq_word_define(int_base + level_local_dir_code, cur_level);
 }
+
 
 /*
 To figure out the glue setting, |hpack| and |vpack| determine how much
@@ -1657,6 +1668,7 @@ void begin_box(integer box_context)
     halfword q;                 /* run through the current list */
     halfword k;                 /* 0 or |vmode| or |hmode| */
     integer n;                  /* a box number */
+    integer spec_direction = -1;
     switch (cur_chr) {
     case box_code:
         scan_register_num();
@@ -1734,14 +1746,14 @@ void begin_box(integer box_context)
         }
         if (k == hmode) {
             if ((box_context < box_flag) && (abs(cur_list.mode_field) == vmode))
-                scan_spec(adjusted_hbox_group, true);
+                scan_full_spec(adjusted_hbox_group, spec_direction);
             else
-                scan_spec(hbox_group, true);
+                scan_full_spec(hbox_group, spec_direction);
         } else {
             if (k == vmode) {
-                scan_spec(vbox_group, true);
+                scan_full_spec(vbox_group, spec_direction);
             } else {
-                scan_spec(vtop_group, true);
+                scan_full_spec(vtop_group, spec_direction);
                 k = vmode;
             }
             normal_paragraph();

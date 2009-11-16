@@ -763,7 +763,7 @@ void main_control(void)
         math_ac();
         break;
     case mmode + vcenter_cmd:
-        scan_spec(vcenter_group, false);
+        scan_spec(vcenter_group);
         normal_paragraph();
         push_nest();
         mode = -vmode;

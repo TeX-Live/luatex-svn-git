@@ -35,9 +35,9 @@ typedef enum {
 #  define substituted 3         /* |subtype| of kern nodes that should be substituted */
 
 extern integer pack_direction;
-extern integer spec_direction;
 
-extern void scan_spec(group_code c, boolean three_codes);
+extern void scan_spec(group_code c);
+extern void scan_full_spec(group_code c, integer spec_direction);
 
 extern scaled total_stretch[5];
 extern scaled total_shrink[5];  /* glue found by |hpack| or |vpack| */

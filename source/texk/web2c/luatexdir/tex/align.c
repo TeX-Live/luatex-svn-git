@@ -352,7 +352,7 @@ void init_align(void)
     } else if (cur_list.mode_field > 0) {
         cur_list.mode_field = -(cur_list.mode_field);
     }
-    scan_spec(align_group, false);
+    scan_spec(align_group);
     /* Scan the preamble */
     preamble = null;
     cur_align = align_head;
