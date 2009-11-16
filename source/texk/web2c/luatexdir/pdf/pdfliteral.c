@@ -138,9 +138,15 @@ void pdf_literal(PDF pdf, str_number s, integer literal_mode, boolean warn)
         break;
     }
     if (s >= STRING_OFFSET) {
-        while (j < str_start_macro(s + 1))
-            pdf_out(pdf, str_pool[j++]);
+        int l = str_start_macro(s + 1)-j;
+        if (l<max_single_pdf_print) {
+            pdf_out_block(pdf,(str_pool+j), l);
+        } else {
+            while (l--)
+                pdf_out(pdf, str_pool[j++]);
+        }
     } else {
+        assert (s<256);
         pdf_out(pdf, s);
     }
     pdf_print_nl(pdf);

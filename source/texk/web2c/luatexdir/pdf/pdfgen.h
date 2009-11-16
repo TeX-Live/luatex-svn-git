@@ -41,6 +41,9 @@ written bytes.
 #  define sup_pdf_op_buf_size 16384     /* size of the PDF output buffer */
 #  define inf_pdf_os_buf_size 1 /* initial value of |pdf_os_buf_size| */
 #  define sup_pdf_os_buf_size 5000000   /* arbitrary upper hard limit of |pdf_os_buf_size| */
+#  define max_single_pdf_print 8192 /* Max size that can be get from pdf_room() at once. 
+                                       the value is on the conservative side, but should be
+                                       large enough to cover most uses */
 #  define pdf_os_max_objs 100   /* maximum number of objects in object stream */
 
 #  define inf_obj_tab_size 1000 /* min size of the cross-reference table for PDF output */
@@ -89,6 +92,12 @@ extern void fix_pdf_minorversion(PDF);
 
 /* do the same as |pdf_quick_out| and flush the PDF buffer if necessary */
 #  define pdf_out(pdf,A) do { pdf_room(pdf,1); pdf_quick_out(pdf,A); } while (0)
+
+#  define pdf_out_block(pdf,A,n) do {                       \
+        pdf_room(pdf,(n));                                  \
+        (void)memcpy((pdf->buf+pdf->ptr),(A),(n));          \
+        pdf->ptr+=(n);                                      \
+    } while (0)
 
 /*
 Basic printing procedures for PDF output are very similiar to \TeX\ basic

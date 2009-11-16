@@ -275,8 +275,12 @@ void lua_pdf_literal(PDF pdf, int i)
     size_t l = 0;
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, i);
     s = (char *) lua_tolstring(Luas, -1, &l);
-    while (l--) {
-        pdf_out(pdf, *s++);
+    if (l<max_single_pdf_print) {
+        pdf_out_block(pdf,s, l);
+    } else {
+        while (l--) {
+            pdf_out(pdf, *s++);
+        }
     }
     pdf_out(pdf, 10);           /* pdf_print_nl */
     lua_pop(Luas, 1);
