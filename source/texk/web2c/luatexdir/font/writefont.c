@@ -203,10 +203,10 @@ static void write_fontmetrics(PDF pdf, fd_entry * fd)
 
 static void preset_fontname(fo_entry * fo, internalfontnumber f)
 {
-    if (font_fullname(f) != NULL)
-        fo->fd->fontname = xstrdup(font_fullname(f));
-    else if (fo->fm->ps_name != NULL)
+    if (fo->fm->ps_name != NULL)
         fo->fd->fontname = xstrdup(fo->fm->ps_name);    /* just fallback */
+    else if (font_fullname(f) != NULL)
+        fo->fd->fontname = xstrdup(font_fullname(f));
     else
         fo->fd->fontname = xstrdup(fo->fm->tfm_name);
 }
