@@ -1176,80 +1176,12 @@ boolean openinnameok(const_string fname)
 }
 
 #if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
+extern char **suffixlist;
+
 static int
 Isspace (char c)
 {
     return (c == ' ' || c == '\t');
-}
-
-static void
-mk_suffixlist (char ***ext)
-{
-    char **p;
-    char *q, *r, *v;
-    int  n;
-
-#if defined(__CYGWIN__)
-    v = (char *) xmalloc (71);
-    strcpy (v, ".com;.exe;.bat;.cmd;.vbs;.vbe;.js;.jse;.wsf;.wsh;.ws;.tcl;.py;.pyw");
-#else
-    v = (char *) getenv ("PATHEXT");
-    if (v) /* strlwr() exists also in MingW */
-      (void) strlwr (v);
-    else {
-      v = (char *) xmalloc (71);
-      strcpy (v, ".com;.exe;.bat;.cmd;.vbs;.vbe;.js;.jse;.wsf;.wsh;.ws;.tcl;.py;.pyw");
-    }
-#endif
-
-    q = v;
-    n = 0;
-
-    while ((r = strchr (q, ';')) != 0) {
-      n++;
-      r++;
-      q = r;
-    }
-    if (*q)
-      n++;
-    *ext = (char **) xmalloc ((n + 2) * sizeof (char *));
-    p = *ext;
-    *p = (char *) xmalloc(5);
-    strcpy(*p, ".dll");
-    p++;
-    q = v;
-    while ((r = strchr (q, ';')) != 0) {
-      *r = '\0';
-      *p = (char *) xmalloc (strlen (q) + 1);
-      strcpy (*p, q);
-      *r = ';';
-      r++;
-      q = r;
-      p++;
-    }
-    if (*q) {
-      *p = (char *) xmalloc (strlen (q) + 1);
-      strcpy (*p, q);
-      p++;
-      *p = NULL;
-    } else
-      *p = NULL;
-    free (v);
-}
-
-static void
-free_suffixlist (char ***ext)
-{
-    char **p;
-
-    if (*ext) {
-      p = *ext;
-      while (*p) {
-        free (*p);
-        p++;
-      }
-      free (*ext);
-    }
 }
 
 static boolean
@@ -1257,13 +1189,11 @@ executable_filep (const_string fname)
 {
     string p, q, base;
     string *pp;
-    char   **suffixlist = NULL;
 
 /*  check openout_any */
     p = kpse_var_value ("openout_any");
     if (p && *p == 'p') {
       free (p);
-      mk_suffixlist (&suffixlist);
 /* get base name
    we cannot use xbasename() for abnormal names.
 */
@@ -1297,14 +1227,12 @@ executable_filep (const_string fname)
             fprintf (stderr, "\nThe name %s is forbidden to open for writing.\n",
                      fname);
             free (base);
-            free_suffixlist (&suffixlist);
             return true;
           }
           pp++;
         }
       }
       free (base);
-      free_suffixlist (&suffixlist);
     } else if (p) {
       free (p);
     }

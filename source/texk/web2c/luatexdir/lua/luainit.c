@@ -532,6 +532,66 @@ int node_table_id;
 
 extern void init_tex_table(lua_State * L);
 
+#if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
+char **suffixlist;
+
+#define EXE_SUFFIXES ".com;.exe;.bat;.cmd;.vbs;.vbe;.js;.jse;.wsf;.wsh;.ws;.tcl;.py;.pyw"
+
+static void
+mk_suffixlist (void)
+{
+    char **p;
+    char *q, *r, *v;
+    int  n;
+
+#if defined(__CYGWIN__)
+    v = (char *) xmalloc (strlen (EXE_SUFFIXES) + 1);
+    strcpy (v, EXE_SUFFIXES);
+#else
+    v = (char *) getenv ("PATHEXT");
+    if (v) /* strlwr() exists also in MingW */
+      v = (char *) strlwr (v);
+    else {
+      v = (char *) xmalloc (strlen (EXE_SUFFIXES) + 1);
+      strcpy (v, EXE_SUFFIXES);
+    }
+#endif
+
+    q = v;
+    n = 0;
+
+    while ((r = strchr (q, ';')) != 0) {
+      n++;
+      r++;
+      q = r;
+    }
+    if (*q)
+      n++;
+    suffixlist = (char **) xmalloc ((n + 2) * sizeof (char *));
+    p = suffixlist;
+    *p = (char *) xmalloc(5);
+    strcpy(*p, ".dll");
+    p++;
+    q = v;
+    while ((r = strchr (q, ';')) != 0) {
+      *r = '\0';
+      *p = (char *) xmalloc (strlen (q) + 1);
+      strcpy (*p, q);
+      *r = ';';
+      r++;
+      q = r;
+      p++;
+    }
+    if (*q) {
+      *p = (char *) xmalloc (strlen (q) + 1);
+      strcpy (*p, q);
+      p++;
+      *p = NULL;
+    } else
+      *p = NULL;
+}
+#endif /* WIN32 || __MIBGW32__ || __CYGWIN__ */
+
 void lua_initialize(int ac, char **av)
 {
 
@@ -553,6 +613,10 @@ void lua_initialize(int ac, char **av)
          STREQ(argv[1], "--luaconly") || STREQ(argv[1], "--luac"))) {
         exit(luac_main(ac, av));
     }
+
+#if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
+    mk_suffixlist();
+#endif /* WIN32 || __MIBGW32__ || __CYGWIN__ */
 
     /* Must be initialized before options are parsed.  */
     interactionoption = 4;
