@@ -8,6 +8,7 @@
 %\loggingall
 \environment luatexref-env
 
+\logo[DFONT]   {dfont}
 \logo[CFF]     {cff}
 \logo[CMAP]    {CMap}
 \logo[PATGEN]  {patgen}
@@ -4642,14 +4643,19 @@ reported by fontloader while opening the font. In normal typesetting,
 you would probably ignore the second argument, but it can be useful
 for debugging purposes.
 
-For \TRUETYPE\ collections (when filename ends in 'ttc'), you have to
-use a second string argument to specify which font you want from the
-collection.  Use one of the \type{fullname} strings that are returned
-by \type{fontloader.info} for that.
+For \TRUETYPE\ collections (when filename ends in 'ttc') and \DFONT\
+collections, you have to use a second string argument to specify which
+font you want from the collection.  Use the \type{fontname}
+strings that are returned by \type{fontloader.info} for that.
 
 \startfunctioncall
-f, w = fontloader.open('filename','fullname')
+f, w = fontloader.open('filename','fontname')
 \stopfunctioncall
+
+Do not forget to store the \type{fontname} value in the \type{psname}
+field of the metrics table to be returned to \LUATEX, otherwise the
+font inclusion backend will not be able to find the correct font in
+the collection.
 
 
 The font file is parsed and partially interpreted by the font
@@ -4724,7 +4730,7 @@ this part of the documentation are not yet finished):
 \NC \ssbf key                      \NC \bf type \NC \bf explanation \NC\NR
 \NC table_version                \NC number   \NC indicates the metrics version (currently~0.3)\NC\NR
 \NC fontname                     \NC string   \NC \POSTSCRIPT\ font name\NC\NR
-\NC fullname                     \NC string   \NC official font name\NC\NR
+\NC fullname                     \NC string   \NC official (human-oriented) font name\NC\NR
 \NC familyname                   \NC string   \NC family name\NC\NR
 \NC weight                       \NC string   \NC weight indicator\NC\NR
 \NC copyright                    \NC string   \NC copyright information\NC\NR
@@ -6759,8 +6765,9 @@ The top|-|level keys in the table are as follows:
 \NC encodingname       \NC no       \NC no       \NC yes \NC string \NC encoding name\NC\NR
 \NC fonts              \NC yes      \NC no       \NC yes \NC table  \NC locally used fonts\NC \NR
 \NC psname             \NC no       \NC no       \NC yes \NC string
-\NC actual input (\POSTSCRIPT) name (this is the PS fontname in the incoming font source, new in 0.43)\NC\NR
-\NC fullname           \NC no       \NC no       \NC yes \NC string \NC actual output (\POSTSCRIPT) name (this is the PS fontname that will be used in the PDF output)\NC\NR
+\NC actual (\POSTSCRIPT) name (this is the PS fontname in the
+incoming font source, also used as fontname identifier in the \PDF\ output, new in 0.43)\NC\NR
+\NC fullname           \NC no       \NC no       \NC yes \NC string \NC output font name, used as a fallback in the \PDF\ output if the psname is not set\NC\NR
 \NC header             \NC yes      \NC no       \NC no  \NC string \NC header comments, if any\NC \NR
 \NC hyphenchar         \NC no       \NC no       \NC yes \NC number \NC default: TeX's \tex{hyphenchar} \NC \NR
 \NC parameters         \NC no       \NC yes      \NC yes \NC hash   \NC default: 7 parameters, all zero \NC \NR
