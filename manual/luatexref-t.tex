@@ -5139,7 +5139,7 @@ Th gpos table has one array entry for each lookup. (The \type {gpos_} prefix is 
 \NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
 \NC type                  \NC string   \NC one of
   \type {gpos_single}, \type {gpos_pair}, \type {gpos_cursive},
-  \type {gpos_mark2base}, \type {gpos_mark2ligature}, \type {gpos_mark2mark},  \type {gpos_context},
+  \type {gpos_mark2base},\crlf \type {gpos_mark2ligature}, \type {gpos_mark2mark},  \type {gpos_context},\crlf
   \type {gpos_contextchain}
 \NC\NR
 \NC flags                 \NC table  \NC \NC\NR
@@ -5212,7 +5212,7 @@ type:
 \starttabulate[|lT|l|p|]
 \NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
 \NC type                  \NC string   \NC one of  \type {gsub_single}, \type {gsub_multiple}, \type {gsub_alternate},
-  \type {gsub_ligature}, \type {gsub_context},  \type {gsub_contextchain}, \type {gsub_reversecontextchain}
+  \type {gsub_ligature},\crlf \type {gsub_context},  \type {gsub_contextchain}, \type {gsub_reversecontextchain}
 \NC\NR
 \stoptabulate
 
@@ -6035,7 +6035,7 @@ font dimension parameter. For math fonts, this should be set to zero.
 
 \stop
 
-Note 1: \OPENTYPE\ fonts set \tex{Umathfractiondelsize}, \tex{Umathlimitabovekern},
+Note 1: \OPENTYPE\ fonts set \tex{Umathfractiondelsize}, \tex{Umathlimitabovekern},\crlf
 \tex{Umathlimitbelowkern} to zero and set \tex{Umathquad} to the font size of the used font,
 because these are not supported in the MATH table,
 
@@ -6775,7 +6775,7 @@ The top|-|level keys in the table are as follows:
 \NC stretch            \NC no       \NC no       \NC yes \NC number \NC the \quote {stretch} value from \tex{pdffontexpand}\NC\NR
 \NC shrink             \NC no       \NC no       \NC yes \NC number \NC the \quote {shrink} value from \tex{pdffontexpand}\NC\NR
 \NC step               \NC no       \NC no       \NC yes \NC number \NC the \quote {step} value from \tex{pdffontexpand}\NC\NR
-\NC auto_expand        \NC no       \NC no       \NC yes \NC boolean\NC the \quote {autoexpand} keyword from \tex{pdffontexpand}\NC\NR
+\NC auto_expand        \NC no       \NC no       \NC yes \NC boolean\NC the \quote {autoexpand} keyword from\crlf \tex{pdffontexpand}\NC\NR
 \NC expansion_factor   \NC no       \NC no       \NC no  \NC number \NC the actual expansion factor of an expanded font\NC\NR
 \NC attributes         \NC no       \NC no       \NC yes \NC string \NC the \tex{pdffontattr}\NC\NR
 \NC cache              \NC no       \NC no       \NC yes \NC string \NC this key controls caching of the lua table on the \type{tex}
@@ -7697,7 +7697,7 @@ Valid fields: \showfields{noad}
 Operators are a bit special because they occupy three subtypes.
 \type{subtype}.
 
-\starttabulate[|lT|l|p|]
+\starttabulate[|lT|p|]
 \NC \ssbf number     \NC  \bf node sub type         \NC\NR
 \NC 0                \NC  Ord                       \NC\NR
 \NC 1                \NC  Op, \type{\displaylimits} \NC\NR
