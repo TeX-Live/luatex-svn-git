@@ -2478,7 +2478,7 @@ int ff_get_ttc_index(char *ffname, char *psname)
     SplineFont *sf;
     int i = 0;
     int openflags = 1;
-    int index = 0;
+    int index = -1;
 
     sf = ReadSplineFontInfo((char *) ffname, openflags);
     if (sf == NULL) {
