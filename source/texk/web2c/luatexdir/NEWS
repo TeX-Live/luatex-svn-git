@@ -1,4 +1,92 @@
 ==============================================================
+Luatex beta-0.45.0 was released 20091118
+==============================================================
+
+New features:
+
+* Loading big OTF fonts via lua is now much faster than before,
+  at the expense of a bit of precision loss in the calculated 
+  bounding boxes.
+
+* Two new token lists are provided: \pdfxformresources and 
+  \pdfxformattr, as an alternative to \pdfxform keywords.
+
+* \input and \openin now accept braced filenames.
+
+* The \endlinechar can now be set to any value between 0 and 127.
+
+* Luatex can now optionally use kpathsea to find lua require()
+  files.
+
+* The new primitives \aligntab and \alignmark are aliases for
+  the use of & and # in alignments.
+
+* \pdfrefximage [width <dimen>] [height <dimen>] [depth <dimen>] <imageref>
+  overrules settings from \pdfximage for this \pdfrefximage call only
+
+* The print precision for small numbers in lua code (tostring)
+  has been improved.
+
+* Akira Kakuto suppled a patch that restricts writing to files
+  with names such as latex.bat etc. (on windows only)
+
+* (un-feature): from now on luatex now only handles 4 direction 
+  specifiers: TLT (latin), TRT (arabic), RTT (cjk), and LTL 
+  (mongolian). The other directions now generate an error.
+
+* (un-feature): xpdf's automatic lower- and uppercasing retry attempts 
+  for nonfound image pdf files has been removed.
+
+* The callbacks hpack_filter, vpack_filter and pre_output_filter
+  pass on an extra string argument for the direction, when known
+  (nil == use default).
+
+* The lua functions node.hpack(), node.vpack() and node.dimensions() 
+  now accept an optional direction argument (not given == use default).
+
+* \pdfrefxform [width <dimen>] [height <dimen>] [depth <dimen>] <formref>
+  scales a form object; similar principle as with \pdfximage: depth alone
+  doesn't scale, it shifts vertically.
+
+* A change to the relative ordering inside font name discovery for use
+  by the backend: now it tries <f>.psname first, as that is much less 
+  likely to contain spaces.
+
+* For ttc fonts, now the used subfont name and its index id are printed
+  to the terminal, and if the backend cannot find a ttc subfont, the
+  run is aborted.
+
+Bug fixes:
+
+* Prevent crashes for lua-loaded fonts without a (tfm) name.
+
+* Remove spurious newlines in the output pdf that could be the
+  result of using \pdfximage for an included pdf figure too early.
+
+* Full font embedding for wide otf and ttf fonts now really
+  works (older versions only pretended that it did work).
+
+* node.dimensions() sometimes continued past the 'stop' node.
+
+* Images inside virtual fonts were broken.
+
+* The processing of \language=-1 was wrong, resulting in 
+  hyphenation attempts even though there was no proper language
+  set up.
+
+* Fix for finding files in --output-directory.
+
+* Fix for handling of --file-line-error.
+
+* tex.box[] assingments are now checked to make sure the assigned
+  node has the right id (hlist or vlist).
+
+* show_node_list (as in \showbox) produced spurious local_par 
+  whatsit prints in the output after direction nodes.
+
+* The handling of pdf literals has been sped up.
+
+==============================================================
 Luatex beta-0.44.0 was released 20091027
 ==============================================================
 
