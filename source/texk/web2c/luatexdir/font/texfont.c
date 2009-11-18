@@ -1036,12 +1036,21 @@ void set_font_math_params(internal_font_number f, int b)
 
 integer copy_font(integer f)
 {
-    int i;
+    int i, ci_cnt, ci_size;
     charinfo *ci;
     integer k = new_font();
-    memcpy(font_tables[k], font_tables[f], sizeof(texfont));
+    
+    {
+        ci = font_tables[k]->charinfo;
+        ci_cnt = font_tables[k]->charinfo_count;
+        ci_size = font_tables[k]->charinfo_size;
+        memcpy(font_tables[k], font_tables[f], sizeof(texfont));
+        font_tables[k]->charinfo = ci;
+        font_tables[k]->charinfo_count = ci_cnt;
+        font_tables[k]->charinfo_size = ci_size;
+    }
 
-    font_malloc_charinfo(k,font_tables[f]->charinfo_size);
+    font_malloc_charinfo(k,font_tables[f]->charinfo_count);
     set_font_cache_id(k, 0);
     set_font_used(k, 0);
     set_font_touched(k, 0);
@@ -1085,11 +1094,7 @@ integer copy_font(integer f)
         memcpy(math_param_base(k), math_param_base(f), i);
     }
 
-    i = sizeof(charinfo) * (font_tables[f]->charinfo_size + 1);
-    font_bytes += i;
-    font_tables[k]->charinfo = xmalloc(i);
-    memset(font_tables[k]->charinfo, 0, i);
-    for (i = 0; i < font_tables[k]->charinfo_size; i++) {
+    for (i = 0; i < font_tables[f]->charinfo_count; i++) {
         ci = copy_charinfo(&font_tables[f]->charinfo[i]);
         font_tables[k]->charinfo[i] = *ci;
     }
