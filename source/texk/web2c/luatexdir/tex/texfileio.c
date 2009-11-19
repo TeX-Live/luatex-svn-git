@@ -158,6 +158,8 @@ char *luatex_find_file (char *s, int callback_index)
             break;
         case find_opentype_file_callback:
             ftemp = kpse_find_file(s, kpse_opentype_format, 0);
+	    if (ftemp == NULL)
+		ftemp = kpse_find_file(s, kpse_truetype_format, 0);
             break; 
         case find_ocp_file_callback:
             ftemp = kpse_find_file(s, kpse_ocp_format, 0);
