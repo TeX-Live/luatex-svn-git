@@ -24,13 +24,6 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define TIMERS 0
-
-#if TIMERS
-#  include <sys/time.h>
-#endif
-
-
 /* a bit more interfacing is needed for proper error reporting */
 
 static char *font_error_message(pointer u, char *nom, scaled s)
@@ -56,51 +49,20 @@ static int do_define_font(integer f, char *cnom, scaled s, integer natural_dir)
     boolean res;                /* was the callback successful? */
     integer callback_id;
     char *cnam;
-#if TIMERS
-    struct timeval tva;
-    struct timeval tvb;
-    double tvdiff;
-#endif
     int r;
     res = 0;
 
     callback_id = callback_defined(define_font_callback);
     if (callback_id > 0) {
         cnam = xstrdup(cnom);
-#if TIMERS
-        gettimeofday(&tva, NULL);
-#endif
         callback_id = run_and_save_callback(callback_id, "Sdd->", cnam, s, f);
-#if TIMERS
-        gettimeofday(&tvb, NULL);
-        tvdiff = tvb.tv_sec * 1000000.0;
-        tvdiff += (double) tvb.tv_usec;
-        tvdiff -= (tva.tv_sec * 1000000.0);
-        tvdiff -= (double) tva.tv_usec;
-        tvdiff /= 1000000;
-        fprintf(stdout, "\ncallback('define_font',%s,%i): %f seconds\n", cnam,
-                f, tvdiff);
-#endif
         free(cnam);
         if (callback_id > 0) {  /* success */
             luaL_checkstack(Luas, 1, "out of stack space");
             lua_rawgeti(Luas, LUA_REGISTRYINDEX, callback_id);
             if (lua_istable(Luas, -1)) {
-#if TIMERS
-                gettimeofday(&tva, NULL);
-#endif
                 res = font_from_lua(Luas, f);
                 destroy_saved_callback(callback_id);
-#if TIMERS
-                gettimeofday(&tvb, NULL);
-                tvdiff = tvb.tv_sec * 1000000.0;
-                tvdiff += (double) tvb.tv_usec;
-                tvdiff -= (tva.tv_sec * 1000000.0);
-                tvdiff -= (double) tva.tv_usec;
-                tvdiff /= 1000000;
-                fprintf(stdout, "font_from_lua(%s,%i): %f seconds\n",
-                        font_name(f), f, tvdiff);
-#endif
                 /* lua_pop(Luas, 1); *//* done by font_from_lua */
             } else if (lua_isnumber(Luas, -1)) {
                 r = lua_tonumber(Luas, -1);
@@ -120,6 +82,11 @@ static int do_define_font(integer f, char *cnom, scaled s, integer natural_dir)
             set_hyphen_char(f, int_par(default_hyphen_char_code));
             set_skew_char(f, int_par(default_skew_char_code));
         }
+    }
+    if (font_name(f) && strlen(font_name(f))>255) {
+        /* the font name has to fit in the dvi file's single byte storage */
+        /* no need to test area, as we are never using it */
+        res = 0;
     }
     if (res) {
         if (font_type(f) != virtual_font_type) {        /* implies lua */
