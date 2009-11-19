@@ -1,3 +1,10 @@
+2009-11-19  Taco Hoekwater  <taco@luatex.org>
+
+	* types.h, tex-file.c, kpathsea.c: add a new type,
+	kpse_clua_format.
+	* texmf.cnf: search for kpse_clua_format files in a
+	subtree below the binary architecture (for now)
+ 	
 2009-06-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* concatn.[ch], tex-file.[ch]: use ANSI C function declarations

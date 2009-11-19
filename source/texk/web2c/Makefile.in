@@ -95,7 +95,8 @@ DIST_COMMON = README $(am__configure_deps) $(dist_man_MANS) \
 @MP_TRUE@am__append_11 = $(mp_tests)
 @MP_TRUE@am__append_12 = pltotf tftopl
 @LUATEX_TRUE@am__append_13 = luatex
-@MINGW32_FALSE@am__append_14 = -DLUA_USE_POSIX
+@WIN32_FALSE@am__append_14 = -ldl
+@MINGW32_FALSE@am__append_15 = -DLUA_USE_POSIX
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/../../m4/kpse-asm.m4 \
@@ -377,8 +378,12 @@ luatex_OBJECTS = $(am_luatex_OBJECTS)
 am__DEPENDENCIES_2 = libluatex.a libff.a libluamisc.a libzzip.a \
 	libluasocket.a liblua51.a $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) libmd5.a libmplib.a
+	$(am__DEPENDENCIES_1) libmd5.a libmplib.a \
+	$(am__DEPENDENCIES_1)
 am__DEPENDENCIES_3 = $(proglib) $(am__DEPENDENCIES_1)
+luatex_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(luatex_LDFLAGS) $(LDFLAGS) -o $@
 am_md5main_OBJECTS = md5main-md5main.$(OBJEXT)
 md5main_OBJECTS = $(am_md5main_OBJECTS)
 md5main_DEPENDENCIES = libmd5.a
@@ -1007,13 +1012,15 @@ luatex_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(XPDF_INCLUDES) \
 	-I$(srcdir)/mplibdir -Dextra_version_info=`date +-%Y%m%d%H`
 luatex_ldadd = libluatex.a libff.a libluamisc.a libzzip.a \
 	libluasocket.a liblua51.a $(LIBPNG_LIBS) $(ZLIB_LIBS) \
-	$(XPDF_LIBS) $(OBSDCOMPAT_LIBS) libmd5.a libmplib.a
+	$(XPDF_LIBS) $(OBSDCOMPAT_LIBS) libmd5.a libmplib.a \
+	$(am__append_14)
+@WIN32_FALSE@luatex_LDFLAGS = -Wl,-E
 luatex_LDADD = $(luatex_ldadd) $(LDADD) $(lua_socketlibs)
 luatex_DEPENDENCIES = $(proglib) libluatex.a $(LIBPNG_DEPEND) \
 	$(ZLIB_DEPEND) $(XPDF_DEPEND) $(OBSDCOMPAT_DEPEND) libmd5.a \
 	libmplib.a
 luatex_SOURCES = luatexdir/luatex.c luatexdir/luatex.h
-liblua51_a_CPPFLAGS = -I$(top_srcdir)/luatexdir/lua51 $(am__append_14)
+liblua51_a_CPPFLAGS = -I$(top_srcdir)/luatexdir/lua51 $(am__append_15)
 liblua51_a_SOURCES = \
 	luatexdir/lua51/lapi.c \
 	luatexdir/lua51/lapi.h \
@@ -1676,7 +1683,7 @@ gftype$(EXEEXT): $(gftype_OBJECTS) $(gftype_DEPENDENCIES)
 	$(LINK) $(gftype_OBJECTS) $(gftype_LDADD) $(LIBS)
 luatex$(EXEEXT): $(luatex_OBJECTS) $(luatex_DEPENDENCIES) 
 	@rm -f luatex$(EXEEXT)
-	$(CXXLINK) $(luatex_OBJECTS) $(luatex_LDADD) $(LIBS)
+	$(luatex_LINK) $(luatex_OBJECTS) $(luatex_LDADD) $(LIBS)
 md5main$(EXEEXT): $(md5main_OBJECTS) $(md5main_DEPENDENCIES) 
 	@rm -f md5main$(EXEEXT)
 	$(LINK) $(md5main_OBJECTS) $(md5main_LDADD) $(LIBS)

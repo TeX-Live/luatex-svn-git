@@ -470,8 +470,8 @@ void fix_dumpname(void)
 
 /* lua require patch */
 
-/* The search function.
- * When texconfig.kpse_init is false/zero, then it runs the
+/* The lua search function.
+ * When kpathsea is not initialized, then it runs the
  * normal lua function that is saved in the registry, otherwise
  * it uses kpathsea.
  */
@@ -486,8 +486,6 @@ static int lua_loader_env = 0;
 static int luatex_kpse_lua_find (lua_State *L) {
   const char *filename;
   const char *name;
-  int do_kpse = -1;
-  get_lua_boolean("texconfig", "kpse_init", &do_kpse);
   name = luaL_checkstring(L, 1);
   if (program_name_set == 0) {
       lua_CFunction orig_func;
@@ -507,7 +505,43 @@ static int luatex_kpse_lua_find (lua_State *L) {
   return 1;  /* library loaded successfully */
 }
 
-/* Setting up the new search function. 
+/* The lua lib search function.
+ * When kpathsea is not initialized, then it runs the
+ * normal lua function that is saved in the registry, otherwise
+ * it uses kpathsea.
+ */
+
+/* two registry ref variables are needed: one for the actual lua 
+ *  function, the other for its environment .
+ */
+
+static int clua_loader_function = 0;
+static int clua_loader_env = 0;
+
+static int luatex_kpse_clua_find (lua_State *L) {
+  const char *filename;
+  const char *name;
+  if (safer_option) return 1;  /* library not found in this path */
+  name = luaL_checkstring(L, 1);
+  if (program_name_set == 0) {
+      lua_CFunction orig_func;
+      lua_rawgeti(L, LUA_REGISTRYINDEX, clua_loader_function);
+      lua_rawgeti(L, LUA_REGISTRYINDEX, clua_loader_env);
+      lua_replace(L, LUA_ENVIRONINDEX);
+      orig_func = lua_tocfunction(L,-1);
+      lua_pop(L,1);
+      return (orig_func)(L);
+  }
+  filename = kpse_find_file(name, kpse_lua_format, false);
+  if (filename == NULL) return 1;  /* library not found in this path */
+  if (luaL_loadfile(L, filename) != 0) {
+      luaL_error(L, "error loading module %s from file %s:\n\t%s",
+                 lua_tostring(L, 1), filename, lua_tostring(L, -1));
+  }
+  return 1;  /* library loaded successfully */
+}
+
+/* Setting up the new search functions. 
  * This replaces package.loaders[2] with the function defined above.
  */
 
@@ -520,7 +554,14 @@ static void setup_lua_path (lua_State *L)
     lua_loader_env = luaL_ref(L, LUA_REGISTRYINDEX);
     lua_loader_function = luaL_ref(L, LUA_REGISTRYINDEX);
     lua_pushcfunction(L, luatex_kpse_lua_find);
-    lua_rawseti(L, -2, 2); /* replace the normal loader */
+    lua_rawseti(L, -2, 2); /* replace the normal lua loader */
+
+    lua_rawgeti(L, -1, 3); /* package.loaders[3] */
+    lua_getfenv (L,-1);
+    clua_loader_env = luaL_ref(L, LUA_REGISTRYINDEX);
+    clua_loader_function = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_pushcfunction(L, luatex_kpse_clua_find);
+    lua_rawseti(L, -2, 3); /* replace the normal lua lib loader */
     lua_pop(L, 2);         /* pop the array and table */
 }   
 

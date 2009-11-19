@@ -139,6 +139,7 @@ typedef enum
   kpse_cid_format,
   kpse_mlbib_format,
   kpse_mlbst_format,
+  kpse_clua_format,
   kpse_last_format /* one past last index */
 } kpse_file_format_type;
 

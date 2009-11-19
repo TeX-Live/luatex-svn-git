@@ -231,7 +231,8 @@ kpathsea_instance kpse_def_inst = {
         NULL_FORMAT_INFO(kpse_pdftex_config_format),
         NULL_FORMAT_INFO(kpse_lig_format),
         NULL_FORMAT_INFO(kpse_texmfscripts_format),
-        NULL_FORMAT_INFO(kpse_lua_format)
+        NULL_FORMAT_INFO(kpse_lua_format),
+        NULL_FORMAT_INFO(kpse_clua_format)
     },
     false,     /* boolean make_tex_discard_errors */
     NULL,      /* FILE *missfont */

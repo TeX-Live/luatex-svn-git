@@ -83,7 +83,8 @@ static const int filetypes[] = {
     kpse_fea_format,
     kpse_cid_format,
     kpse_mlbib_format,
-    kpse_mlbst_format
+    kpse_mlbst_format,
+    kpse_lua_format
 };
 
 static const char *const filetypenames[] = {
@@ -143,6 +144,7 @@ static const char *const filetypenames[] = {
     "cid maps",
     "mlbib",
     "mlbst",
+    "clua",
     NULL
 };
 
