@@ -518,6 +518,8 @@ static int luatex_kpse_lua_find (lua_State *L) {
 static int clua_loader_function = 0;
 static int clua_loader_env = 0;
 
+extern int loader_C_luatex (lua_State *L, const char *name, const char *filename) ;
+
 static int luatex_kpse_clua_find (lua_State *L) {
   const char *filename;
   const char *name;
@@ -532,13 +534,9 @@ static int luatex_kpse_clua_find (lua_State *L) {
       lua_pop(L,1);
       return (orig_func)(L);
   }
-  filename = kpse_find_file(name, kpse_lua_format, false);
+  filename = kpse_find_file(name, kpse_clua_format, false);
   if (filename == NULL) return 1;  /* library not found in this path */
-  if (luaL_loadfile(L, filename) != 0) {
-      luaL_error(L, "error loading module %s from file %s:\n\t%s",
-                 lua_tostring(L, 1), filename, lua_tostring(L, -1));
-  }
-  return 1;  /* library loaded successfully */
+  return loader_C_luatex (L, name, filename);
 }
 
 /* Setting up the new search functions. 

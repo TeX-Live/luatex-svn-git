@@ -410,6 +410,14 @@ static int loader_C (lua_State *L) {
   return 1;  /* library loaded successfully */
 }
 
+int loader_C_luatex (lua_State *L, const char *name, const char *filename) {
+  const char *funcname;
+  funcname = mkfuncname(L, name);
+  if (ll_loadfunc(L, filename, funcname) != 0)
+    loaderror(L, filename);
+  return 1;  /* library loaded successfully */
+}
+
 
 static int loader_Croot (lua_State *L) {
   const char *funcname;
