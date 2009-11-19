@@ -870,7 +870,7 @@ void start_input(void)
         end_file_reading();     /* remove the level that didn't work */
         fn = prompt_file_name("input file name", "");
     }
-    iname = maketexstring(fn);
+    iname = maketexstring(fullnameoffile);
     source_filename_stack[in_open] = iname;
     full_source_filename_stack[in_open] = xstrdup(fullnameoffile);
     if (iname == str_ptr - 1) { /* we can try to conserve string pool space now */
