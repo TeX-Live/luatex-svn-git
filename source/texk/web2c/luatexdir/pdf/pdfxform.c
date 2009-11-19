@@ -35,9 +35,10 @@ void pdf_place_form(PDF pdf, halfword p)
     pdffloat cm[6];
     pdfstructure *q = pdf->pstruct;
     integer r = 6, objnum = pdf_xform_objnum(p);
-    nat.wd = width(obj_xform_box(pdf, objnum));
-    nat.ht = height(obj_xform_box(pdf, objnum));
-    nat.dp = depth(obj_xform_box(pdf, objnum));
+    nat.wd = obj_xform_width(pdf, objnum);
+    nat.ht = obj_xform_height(pdf, objnum);
+    nat.dp = obj_xform_depth(pdf, objnum);
+    /* no transform yet */
     tex.wd = width(p);
     tex.ht = height(p);
     tex.dp = depth(p);
@@ -87,8 +88,10 @@ void scan_pdfxform(PDF pdf)
     p = box(cur_val);
     if (p == null)
         pdf_error("ext1", "\\pdfxform cannot be used with a void box");
-    set_obj_xform_box(pdf, k, p);       /* save pointer to the box
-                                           (that's all we need) */
+    set_obj_xform_box(pdf, k, p);       /* save pointer to the box */
+    set_obj_xform_width(pdf, k, width(p));
+    set_obj_xform_height(pdf, k, height(p));
+    set_obj_xform_depth(pdf, k, depth(p));
     box(cur_val) = null;
     pdf_last_xform = k;
 }
@@ -103,9 +106,9 @@ void scan_pdfrefxform(PDF pdf)
     scan_int();
     pdf_check_obj(pdf, obj_type_xform, cur_val);
     new_whatsit(pdf_refxform_node);
-    nat.wd = width(obj_xform_box(pdf, cur_val));
-    nat.ht = height(obj_xform_box(pdf, cur_val));
-    nat.dp = depth(obj_xform_box(pdf, cur_val));
+    nat.wd = obj_xform_width(pdf, cur_val);
+    nat.ht = obj_xform_height(pdf, cur_val);
+    nat.dp = obj_xform_depth(pdf, cur_val);
     if (alt_rule.wd != null_flag || alt_rule.ht != null_flag
         || alt_rule.dp != null_flag) {
         dim = tex_scale(nat, alt_rule);
