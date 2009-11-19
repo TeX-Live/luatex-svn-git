@@ -29,29 +29,24 @@ fi
 ONLY_MAKE=FALSE
 STRIP_LUATEX=TRUE
 MINGWCROSS=FALSE
-PPCCROSS=FALSE
+MACCROSS=FALSE
 JOBS_IF_PARALLEL=2
 MAX_LOAD_IF_PARALLEL=3.0
 
 CFLAGS="$CFLAGS -Wdeclaration-after-statement"
 
-while [ "$1" != "" ] ; do
-  if [ "$1" = "--make" ] ;
-  then ONLY_MAKE=TRUE ;
-  elif [ "$1" = "--nostrip" ] ;
-  then STRIP_LUATEX=FALSE ;
-  elif [ "$1" = "--mingw" ] ;
-  then MINGWCROSS=TRUE ;
-  elif [ "$1" = "--ppc" ] ;
-  then PPCCROSS=TRUE ;
-  elif [ "$1" = "--parallel" ] ;
-  then MAKE="$MAKE -j $JOBS_IF_PARALLEL -l $MAX_LOAD_IF_PARALLEL" ;
-  else
-    echo "ERROR: invalid build.sh parameter: $1"
-    exit 1
-  fi ;
-  shift ;
+until [ -z "$1" ]; do
+  case "$1" in
+    --make     ) ONLY_MAKE=TRUE     ;;
+    --nostrip  ) STRIP_LUATEX=FALSE ;;
+    --mingw    ) MINGWCROSS=TRUE    ;;
+    --parallel ) MAKE="$MAKE -j $JOBS_IF_PARALLEL -l $MAX_LOAD_IF_PARALLEL" ;;
+    --arch=*   ) MACCROSS=TRUE; ARCH=`echo $1 | sed 's/--arch=\(.*\)/\1/' ` ;;
+    *          ) echo "ERROR: invalid build.sh parameter: $1"; exit 1       ;;
+  esac
+  shift
 done
+
 #
 STRIP=strip
 LUATEXEXE=luatex
@@ -74,13 +69,18 @@ then
   CONFHOST="--host=mingw32 --build=i686-linux-gnu "
 fi
 
-if [ "$PPCCROSS" = "TRUE" ]
+if [ "$MACCROSS" = "TRUE" ]
 then
-  B=ppc
-  CFLAGS="-arch ppc $CFLAGS"
-  XCFLAGS="-arch ppc $XCFLAGS"
-  CXXFLAGS="-arch ppc $CXXFLAGS"
-  LDFLAGS="-arch ppc $LDFLAGS" 
+  # make sure that architecture parameter is valid
+  case $ARCH in
+    i386 | x86_64 | ppc | ppc64 ) ;;
+    * ) echo "ERROR: architecture $ARCH is not supported"; exit 1;;
+  esac
+  B=build-$ARCH
+  CFLAGS="-arch $ARCH $CFLAGS"
+  XCFLAGS="-arch $ARCH $XCFLAGS"
+  CXXFLAGS="-arch $ARCH $CXXFLAGS"
+  LDFLAGS="-arch $ARCH $LDFLAGS" 
   export CFLAGS CXXFLAGS LDFLAGS XCFLAGS  
 fi
 
