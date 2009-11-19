@@ -275,7 +275,7 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer,
 
     if (sfont->type == SFNT_TYPE_TTC) {
         i = ff_get_ttc_index(fd->fm->ff_name, fd->fm->ps_name);
-        tex_printf("(%s:%d)", (fd->fm->ps_name?fd->fm->ps_name:""), i);
+        tex_printf("(%s:%ld)", (fd->fm->ps_name?fd->fm->ps_name:""), i);
         error = sfnt_read_table_directory(sfont, ttc_read_offset(sfont, i));
     } else {
         error = sfnt_read_table_directory(sfont, 0);
