@@ -76,17 +76,6 @@ KPSE_CHECK_WIN32
 AM_CONDITIONAL([WIN32], [test "x$kpse_cv_have_win32" != xno])
 AM_CONDITIONAL([MINGW32], [test "x$kpse_cv_have_win32" = xmingw32])
 
-AC_CANONICAL_HOST
-
-dnl Set some Platform Specific Variables
-case "$host_os" in
-  *apple* | *darwin*) # For Mac OS X
-    opx="OSX"
-    ;;
-esac
-dnl Set Conditionals
-AM_CONDITIONAL(MACOSX, test x$osx = xOSX)
-
 KPSE_CHECK_SOCKET_LIBS
 AS_IF([test "x$enable_luatex:$enable_ipc" != xno:no],
       [AS_CASE([$ac_cv_search_connect],

@@ -26,7 +26,7 @@ luatex_ldadd += $(OBSDCOMPAT_LIBS) libmd5.a libmplib.a
 if WIN32
 # Windows has its own dynamic loading
 else
-if MACOSX
+if XETEX_MACOSX
 # OSX can do dlopen() without extra options
 else
 # linux, freebsd

@@ -95,7 +95,7 @@ DIST_COMMON = README $(am__configure_deps) $(dist_man_MANS) \
 @MP_TRUE@am__append_11 = $(mp_tests)
 @MP_TRUE@am__append_12 = pltotf tftopl
 @LUATEX_TRUE@am__append_13 = luatex
-@MACOSX_FALSE@@WIN32_FALSE@am__append_14 = -ldl
+@WIN32_FALSE@@XETEX_MACOSX_FALSE@am__append_14 = -ldl
 @MINGW32_FALSE@am__append_15 = -DLUA_USE_POSIX
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -1019,7 +1019,7 @@ luatex_ldadd = libluatex.a libff.a libluamisc.a libzzip.a \
 # Windows has its own dynamic loading
 # OSX can do dlopen() without extra options
 # linux, freebsd
-@MACOSX_FALSE@@WIN32_FALSE@luatex_LDFLAGS = -Wl,-E
+@WIN32_FALSE@@XETEX_MACOSX_FALSE@luatex_LDFLAGS = -Wl,-E
 luatex_LDADD = $(luatex_ldadd) $(LDADD) $(lua_socketlibs)
 luatex_DEPENDENCIES = $(proglib) libluatex.a $(LIBPNG_DEPEND) \
 	$(ZLIB_DEPEND) $(XPDF_DEPEND) $(OBSDCOMPAT_DEPEND) libmd5.a \
