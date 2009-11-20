@@ -22,10 +22,17 @@ luatex_ldadd = libluatex.a libff.a libluamisc.a libzzip.a libluasocket.a liblua5
 luatex_ldadd += $(LIBPNG_LIBS) $(ZLIB_LIBS) $(XPDF_LIBS)
 luatex_ldadd += $(OBSDCOMPAT_LIBS) libmd5.a libmplib.a 
 
+# Dynamic module loading
 if WIN32
+# Windows has its own dynamic loading
 else
+if MACOSX
+# OSX can do dlopen() without extra options
+else
+# linux, freebsd
 luatex_LDFLAGS = -Wl,-E
 luatex_ldadd += -ldl
+endif
 endif
 
 luatex_LDADD = $(luatex_ldadd) $(LDADD) $(lua_socketlibs)
