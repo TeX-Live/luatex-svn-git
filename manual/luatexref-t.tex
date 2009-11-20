@@ -23,7 +23,7 @@
 
 \setvariables
   [document]
-  [beta=0.45.0]
+  [beta=0.46.0]
 
 \starttext
 
@@ -775,6 +775,9 @@ the moment, this switch \type{nil}s the following functions:
 \NC \tt lfs     \NC \tt rmdir mkdir chdir lock touch      \NC \NR
 \stoptabulate
 
+Furthermore, it disables loading of compiled \LUA\ libraries
+(support for these was added in 0.46.0).
+
 And it makes \lua{io.open()} fail on files that are opened for
 anything besides reading.
 
@@ -836,7 +839,7 @@ functionality currently (0.45) does not work on non-intel OpenBSD platforms nor 
 powerpc Linux-es.
 
 Starting from version 0.45, \LUATEX\ is able to use the kpathsea
-library to find \type{require()}d module. For this purpose,
+library to find \type{require()}d modules. For this purpose,
 \type{package.loaders[2]} is replaced by a different loader function,
 that decides at runtime whether to use kpathsea or the build-in core
 lua function.  It uses \KPATHSEA\ when that is already initialized at 
@@ -849,6 +852,37 @@ Initialization of \KPATHSEA\ can happen either implicitly (when
 \LUA\ function \type{kpse.set_program_name()}.
 
 
+Starting from version 0.46.0 (as an experimental feature!) \LUATEX\ is
+also able to use dynamically loadable \LUA\ libraries, unless
+\type{--safer} was given as an option on the command line.  
+
+For this purpose, \type{package.loaders[3]} is replaced by a different
+loader function, that decides at runtime whether to use kpathsea or
+the build-in core lua function.  As in the previous paragraph, it uses
+\KPATHSEA\ when that is already initialized at that point in time,
+otherwise it reverts to using the normal \type{package.cpath} loader.
+
+This functionality required an extension to kpathsea:
+
+\startnarrower
+There is a new kpathsea file format: \type{kpse_clua_format} that
+searches for files with extension \type{.dll} and \type{.so}.  The
+\type{texmf.cnf} setting for this variable \type{is CLUAINPUTS}, and
+by default it has this value:
+
+\starttyping
+CLUAINPUTS=.:$SELFAUTOLOC/lib/{$progname,$engine,}/lua//
+\stoptyping %$
+
+This path is imperfect (it requires a TDS subtree below the binaries
+directory), but the architecture has to be in the path somewhere, and
+the currently simplest way to do that is to search below the binary
+directory only. 
+
+One level up (a \type{lib} directory parallel to \type{bin}) would
+have been nicer, but that is not doable because texlive uses a
+\type{bin/<arch>} structure.
+\stopnarrower
 
 In keeping with the other \TEX-like programs in \TEXLIVE, the two
 \LUA\ functions
