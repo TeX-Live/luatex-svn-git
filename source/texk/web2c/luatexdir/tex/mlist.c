@@ -3229,9 +3229,9 @@ void dump_simple_node(pointer q)
 }
 #endif
 
-void make_scripts(pointer q, pointer p, scaled it)
+void do_make_scripts(pointer q, pointer p, scaled it, int new)
 {
-    pointer x, y, z;            /* temporary registers for box construction */
+    pointer x = null, y, z;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr;   /* dimensions in the calculation */
     scaled delta1, delta2;
     delta1 = it;
@@ -3244,6 +3244,15 @@ void make_scripts(pointer q, pointer p, scaled it)
             reset_attributes(x, node_attr(nucleus(q)));
             vlink(p) = x;
             delta1 = 0;
+        }
+    }
+    if (new && !(subscr(q)==null && supscr(q)!=null)) {
+        if (x==null) {
+            x = new_kern(-it); 
+            reset_attributes(x, node_attr(nucleus(q)));
+            vlink(p) = x;
+        } else {
+            width(x) -= it;
         }
     }
     assign_new_hlist(q, p);
@@ -3397,6 +3406,20 @@ void make_scripts(pointer q, pointer p, scaled it)
     }
 
 }
+
+void make_op_scripts(pointer q, pointer p, scaled it, int new)
+{
+    if (new)
+        do_make_scripts(q,p,it,1);
+    else
+        do_make_scripts(q,p,it,0);
+}
+
+void make_scripts(pointer q, pointer p, scaled it) 
+{
+    do_make_scripts(q,p,it,0);
+}
+
 
 /* 
 The |make_left_right| function constructs a left or right delimiter of
@@ -3653,6 +3676,8 @@ void mlist_to_hlist(void)
     integer s;                  /* the size of a noad to be deleted */
     scaled max_hl, max_d;       /* maximum height and depth of the list translated so far */
     scaled delta;               /* italic correction offset for subscript and superscript */
+    scaled delta1;              /* special version of italic correction for 'new' math ops */
+    int new ;
     mlist = cur_mlist;
     penalties = mlist_penalties;
     style = cur_style;          /* tuck global parameters away as local variables */
@@ -3721,6 +3746,16 @@ void mlist_to_hlist(void)
             case op_noad_type_normal:
             case op_noad_type_limits:
             case op_noad_type_no_limits:
+                new = 0;
+                delta1 = 0;
+                if ((type(nucleus(q))==math_char_node ||
+                     type(nucleus(q))==math_text_char_node) &&
+                    is_new_mathfont(fam_fnt(math_fam(nucleus(q)), cur_size))) {
+                    new = 1;
+                    fetch(nucleus(q));
+                    if (char_exists(cur_f, cur_c))
+                        delta1 = char_italic(cur_f, cur_c);
+                }
                 delta = make_op(q);
                 if (subtype(q) == op_noad_type_limits)
                     goto CHECK_DIMENSIONS;
@@ -3898,7 +3933,10 @@ void mlist_to_hlist(void)
             assign_new_hlist(q, p);
             goto CHECK_DIMENSIONS;
         }
-        make_scripts(q, p, delta);      /* top, bottom */
+        if (new)
+            make_op_scripts(q, p, delta1, new);      /* top, bottom */
+        else
+            make_scripts(q, p, delta);      /* top, bottom */
       CHECK_DIMENSIONS:
         z = hpack(new_hlist(q), 0, additional, -1);
         if (height(z) > max_hl)
