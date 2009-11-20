@@ -44,7 +44,7 @@
 #define LUA_DL_DYLD		/* does not need extra library */
 #endif
 
-#if !defined(__WIN32)
+#if !defined(_WIN32)
 #define LUA_USE_DLOPEN /* needs an extra library: -ldl */
 #endif
 
