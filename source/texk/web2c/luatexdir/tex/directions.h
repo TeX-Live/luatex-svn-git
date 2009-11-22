@@ -38,34 +38,34 @@
 #  define is_mirrored(a)      (dir_opposite(dir_primary[(a)],dir_tertiary[(a)]))
 #  define is_rotated(a)       dir_parallel(dir_secondary[(a)],dir_tertiary[(a)])
 
-#define textdir_parallel(a,b)                           \
+#  define textdir_parallel(a,b)                           \
    dir_parallel(dir_secondary[(a)], dir_secondary[(b)])
 
-#define pardir_parallel(a,b)                        \
+#  define pardir_parallel(a,b)                        \
    dir_parallel(dir_primary[(a)], dir_primary[(b)])
-   
-#define pardir_opposite(a,b)                        \
+
+#  define pardir_opposite(a,b)                        \
    dir_opposite(dir_primary[(a)], dir_primary[(b)])
 
-#define textdir_opposite(a,b)                           \
+#  define textdir_opposite(a,b)                           \
    dir_opposite(dir_secondary[(a)], dir_secondary[(b)])
 
-#define glyphdir_opposite(a,b)                          \
+#  define glyphdir_opposite(a,b)                          \
    dir_opposite(dir_tertiary[(a)], dir_tertiary[(b)])
 
-#define pardir_eq(a,b)                          \
+#  define pardir_eq(a,b)                          \
    (dir_primary[(a)] == dir_primary[(b)])
-   
-#define textdir_eq(a,b)                             \
+
+#  define textdir_eq(a,b)                             \
    (dir_secondary[(a)] == dir_secondary[(b)])
-   
-#define glyphdir_eq(a,b)                        \
+
+#  define glyphdir_eq(a,b)                        \
    (dir_tertiary[(a)] == dir_tertiary[(b)])
 
-#define partextdir_eq(a,b)                      \
+#  define partextdir_eq(a,b)                      \
    (dir_primary[(a)] == dir_secondary[(b)])
 
-#define textdir_is(a,b) (dir_secondary[(a)]==(b))
+#  define textdir_is(a,b) (dir_secondary[(a)]==(b))
 
 
 #  define push_dir(a)                           \
@@ -73,7 +73,7 @@
        vlink(dir_tmp)=dir_ptr;                  \
        dir_ptr=dir_tmp;                         \
    }
-   
+
 #  define push_dir_node(a)                  \
    { halfword dir_tmp=copy_node((a));		\
        vlink(dir_tmp)=dir_ptr;              \
@@ -85,7 +85,7 @@
        dir_ptr=vlink(dir_tmp);                  \
        flush_node(dir_tmp);                     \
    }
-   
+
 extern halfword dir_ptr;
 
 extern int dir_primary[32];

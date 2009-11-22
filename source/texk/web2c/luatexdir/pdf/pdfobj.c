@@ -67,7 +67,7 @@ void pdf_write_obj(PDF pdf, integer n)
         boolean res = false;    /* callback status value */
         char *fnam = NULL;      /* callback found filename */
         integer callback_id;
-        fnam = luatex_find_file (s, find_data_file_callback);
+        fnam = luatex_find_file(s, find_data_file_callback);
         callback_id = callback_defined(read_data_file_callback);
         if (fnam && callback_id > 0) {
             boolean file_opened = false;
@@ -79,7 +79,8 @@ void pdf_write_obj(PDF pdf, integer n)
             byte_file f;        /* the data file's FILE* */
             if (!fnam)
                 fnam = s;
-            if (!luatex_open_input (&f, fnam, kpse_tex_format, FOPEN_RBIN_MODE, true))
+            if (!luatex_open_input
+                (&f, fnam, kpse_tex_format, FOPEN_RBIN_MODE, true))
                 pdf_error("ext5", "cannot open file for embedding");
             res = read_data_file(f, &data_buffer, &data_size);
             close_file(f);

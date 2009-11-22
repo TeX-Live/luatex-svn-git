@@ -141,7 +141,7 @@ static sfd_entry *read_sfd(char *sfd_name)
     sfd_curbyte = 0;
     sfd_size = 0;
 
-    cur_file_name = luatex_find_file (sfd_name, find_sfd_file_callback) ;
+    cur_file_name = luatex_find_file(sfd_name, find_sfd_file_callback);
     if (cur_file_name) {
         callback_id = callback_defined(read_sfd_file_callback);
         if (callback_id > 0) {

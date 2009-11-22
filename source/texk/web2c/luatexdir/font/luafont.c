@@ -1603,7 +1603,7 @@ int font_from_lua(lua_State * L, int f)
     lua_getfield(L, -1, "characters");
     if (lua_istable(L, -1)) {
         /* find the array size values */
-        int num = 0; /* number of charinfo's to add */
+        int num = 0;            /* number of charinfo's to add */
         ec = 0;
         bc = -1;
         lua_pushnil(L);         /* first key */
@@ -1626,7 +1626,7 @@ int font_from_lua(lua_State * L, int f)
         }
         if (bc != -1) {
             /* fprintf(stdout,"defined a font at %d with %d-%d\n",f,bc,ec); */
-            font_malloc_charinfo (f, num);
+            font_malloc_charinfo(f, num);
             set_font_bc(f, bc);
             set_font_ec(f, ec);
             lua_pushnil(L);     /* first key */

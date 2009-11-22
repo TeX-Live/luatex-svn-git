@@ -92,30 +92,31 @@ integer read_file_callback_id[17];
    output_directory followed by "." but to do this requires much more
    invasive surgery in libkpathsea.  
 */
-char *find_in_output_directory (char *s) {
+char *find_in_output_directory(char *s)
+{
     if (output_directory && !kpse_absolute_p(s, false)) {
         FILE *f_ptr;
         char *ftemp = concat3(output_directory, DIR_SEP_STRING, s);
-        f_ptr = fopen(ftemp, "rb"); /* this code is used for input files only */
+        f_ptr = fopen(ftemp, "rb");     /* this code is used for input files only */
         if (f_ptr) {
-            fclose (f_ptr);
+            fclose(f_ptr);
             return ftemp;
         } else {
             free(ftemp);
-            
+
         }
-    } 
+    }
     return NULL;
 }
 
 /* find an \input or \read file. |n| differentiates between those case. */
 
-char *luatex_find_read_file (char *s, int n, int callback_index)
+char *luatex_find_read_file(char *s, int n, int callback_index)
 {
     char *ftemp = NULL;
     int callback_id = callback_defined(callback_index);
     if (callback_id > 0) {
-        (void)run_callback (callback_id, "dS->S", n, s, &ftemp);
+        (void) run_callback(callback_id, "dS->S", n, s, &ftemp);
     } else {
         /* use kpathsea here */
         ftemp = find_in_output_directory(s);
@@ -131,12 +132,12 @@ char *luatex_find_read_file (char *s, int n, int callback_index)
 }
 
 /* find other files types */
-char *luatex_find_file (char *s, int callback_index)
+char *luatex_find_file(char *s, int callback_index)
 {
     char *ftemp = NULL;
     int callback_id = callback_defined(callback_index);
     if (callback_id > 0) {
-        (void)run_callback (callback_id, "S->S", s, &ftemp);
+        (void) run_callback(callback_id, "S->S", s, &ftemp);
 
     } else {
         /* use kpathsea here */
@@ -158,9 +159,9 @@ char *luatex_find_file (char *s, int callback_index)
             break;
         case find_opentype_file_callback:
             ftemp = kpse_find_file(s, kpse_opentype_format, 0);
-	    if (ftemp == NULL)
-		ftemp = kpse_find_file(s, kpse_truetype_format, 0);
-            break; 
+            if (ftemp == NULL)
+                ftemp = kpse_find_file(s, kpse_truetype_format, 0);
+            break;
         case find_ocp_file_callback:
             ftemp = kpse_find_file(s, kpse_ocp_format, 0);
             break;
@@ -180,7 +181,9 @@ char *luatex_find_file (char *s, int callback_index)
                 ftemp = kpse_find_file(s, kpse_vf_format, 0);
             break;
         default:
-            printf ("luatex_find_file(): do not know how to handle file %s of type %d\n",s, callback_index);
+            printf
+                ("luatex_find_file(): do not know how to handle file %s of type %d\n",
+                 s, callback_index);
             break;
         }
     }
@@ -194,7 +197,8 @@ char *luatex_find_file (char *s, int callback_index)
  */
 
 boolean
-luatex_open_input (FILE **f_ptr, char *fn, int filefmt, const_string fopen_mode, boolean must_exist)
+luatex_open_input(FILE ** f_ptr, char *fn, int filefmt, const_string fopen_mode,
+                  boolean must_exist)
 {
     string fname = NULL;
     /* We havent found anything yet. */
@@ -202,7 +206,7 @@ luatex_open_input (FILE **f_ptr, char *fn, int filefmt, const_string fopen_mode,
     if (fullnameoffile)
         free(fullnameoffile);
     fullnameoffile = NULL;
-    fname = kpse_find_file (fn, (kpse_file_format_type)filefmt, must_exist);
+    fname = kpse_find_file(fn, (kpse_file_format_type) filefmt, must_exist);
     if (fname) {
         fullnameoffile = xstrdup(fname);
         /* If we found the file in the current directory, don't leave
@@ -211,9 +215,8 @@ luatex_open_input (FILE **f_ptr, char *fn, int filefmt, const_string fopen_mode,
            hand, if the user said `tex ./foo', and that's what we
            opened, then keep it -- the user specified it, so we
            shouldn't remove it.  */
-        if (fname[0] == '.' && IS_DIR_SEP (fname[1])
-            && (fn[0] != '.' || !IS_DIR_SEP (fn[1])))
-        {
+        if (fname[0] == '.' && IS_DIR_SEP(fname[1])
+            && (fn[0] != '.' || !IS_DIR_SEP(fn[1]))) {
             unsigned i = 0;
             while (fname[i + 2] != 0) {
                 fname[i] = fname[i + 2];
@@ -222,16 +225,15 @@ luatex_open_input (FILE **f_ptr, char *fn, int filefmt, const_string fopen_mode,
             fname[i] = 0;
         }
         /* This fopen is not allowed to fail. */
-        *f_ptr = xfopen (fname, fopen_mode);
+        *f_ptr = xfopen(fname, fopen_mode);
     }
     if (*f_ptr) {
-        recorder_record_input (fname);
-    }            
+        recorder_record_input(fname);
+    }
     return *f_ptr != NULL;
 }
 
-boolean
-luatex_open_output (FILE **f_ptr, char *fn, const_string fopen_mode)
+boolean luatex_open_output(FILE ** f_ptr, char *fn, const_string fopen_mode)
 {
     string fname;
     boolean absolute = kpse_absolute_p(fn, false);
@@ -244,7 +246,7 @@ luatex_open_output (FILE **f_ptr, char *fn, const_string fopen_mode)
     }
 
     /* Is the filename openable as given?  */
-    *f_ptr = fopen (fname, fopen_mode);
+    *f_ptr = fopen(fname, fopen_mode);
 
     if (!*f_ptr) {
         /* Can't open as given.  Try the envvar.  */
@@ -256,7 +258,7 @@ luatex_open_output (FILE **f_ptr, char *fn, const_string fopen_mode)
         }
     }
     if (*f_ptr) {
-        recorder_record_output (fname);
+        recorder_record_output(fname);
     }
     if (fname != fn)
         free(fname);
@@ -267,10 +269,10 @@ luatex_open_output (FILE **f_ptr, char *fn, const_string fopen_mode)
 
 
 
-boolean lua_a_open_in(alpha_file *f, char *fn, quarterword n)
+boolean lua_a_open_in(alpha_file * f, char *fn, quarterword n)
 {
     integer k;
-    char *fnam;            /* string returned by find callback */
+    char *fnam;                 /* string returned by find callback */
     integer callback_id;
     boolean ret = true;         /* return value */
     boolean file_ok = true;     /* the status so far  */
@@ -284,7 +286,7 @@ boolean lua_a_open_in(alpha_file *f, char *fn, quarterword n)
         return false;
     callback_id = callback_defined(open_read_file_callback);
     if (callback_id > 0) {
-        k = run_and_save_callback(callback_id, "S->",fnam);
+        k = run_and_save_callback(callback_id, "S->", fnam);
         if (k > 0) {
             ret = true;
             if (n == 0)
@@ -292,13 +294,15 @@ boolean lua_a_open_in(alpha_file *f, char *fn, quarterword n)
             else
                 read_file_callback_id[n] = k;
         } else {
-            file_ok = false;        /* read failed */
+            file_ok = false;    /* read failed */
         }
-    } else {                /* no read callback */
+    } else {                    /* no read callback */
         if (openinnameok(fnam)) {
-            ret = open_in_or_pipe(f,fnam, kpse_tex_format,FOPEN_RBIN_MODE,(n==0 ? true : false));
+            ret =
+                open_in_or_pipe(f, fnam, kpse_tex_format, FOPEN_RBIN_MODE,
+                                (n == 0 ? true : false));
         } else {
-            file_ok = false;        /* open failed */
+            file_ok = false;    /* open failed */
         }
     }
     if (!file_ok) {
@@ -307,7 +311,7 @@ boolean lua_a_open_in(alpha_file *f, char *fn, quarterword n)
     return ret;
 }
 
-boolean lua_a_open_out(alpha_file *f, char *fn, quarterword n)
+boolean lua_a_open_out(alpha_file * f, char *fn, quarterword n)
 {
     boolean test;
     str_number fnam;
@@ -318,17 +322,17 @@ boolean lua_a_open_out(alpha_file *f, char *fn, quarterword n)
         fnam = 0;
         test = run_callback(callback_id, "dS->s", n, fn, &fnam);
         if ((test) && (fnam != 0) && (str_length(fnam) > 0)) {
-            ret =  open_outfile(f,fn,FOPEN_W_MODE);
+            ret = open_outfile(f, fn, FOPEN_W_MODE);
         }
     } else {
         if (openoutnameok(fn)) {
-            ret = open_out_or_pipe(f,fn,FOPEN_W_MODE);
+            ret = open_out_or_pipe(f, fn, FOPEN_W_MODE);
         }
     }
     return ret;
 }
 
-boolean lua_b_open_out(alpha_file *f, char *fn)
+boolean lua_b_open_out(alpha_file * f, char *fn)
 {
     boolean test;
     str_number fnam;
@@ -339,11 +343,11 @@ boolean lua_b_open_out(alpha_file *f, char *fn)
         fnam = 0;
         test = run_callback(callback_id, "S->s", fn, &fnam);
         if ((test) && (fnam != 0) && (str_length(fnam) > 0)) {
-            ret = open_outfile(f,fn,FOPEN_WBIN_MODE);
+            ret = open_outfile(f, fn, FOPEN_WBIN_MODE);
         }
     } else {
         if (openoutnameok(fn)) {
-            ret = luatex_open_output (f, fn, FOPEN_WBIN_MODE);
+            ret = luatex_open_output(f, fn, FOPEN_WBIN_MODE);
         }
     }
     return ret;
@@ -677,7 +681,7 @@ are not given explicitly are assumed to appear in a standard system area.
 These system area names will, of course, vary from place to place.
 */
 
-#  define append_to_fn(A) do {                  \
+#define append_to_fn(A) do {                  \
         c=(A);                                  \
         if (c!='"') {                           \
             if (k<file_name_size) fn[k++]=c;    \
@@ -691,7 +695,8 @@ char *pack_file_name(str_number n, str_number a, str_number e)
     pool_pointer j;             /* index into |str_pool| */
     integer k = 0;              /* number of positions filled in |fn| */
     packed_ASCII_code *fn = xmallocarray(packed_ASCII_code,
-                            str_length(a) + str_length(n) + str_length(e) + 1);
+                                         str_length(a) + str_length(n) +
+                                         str_length(e) + 1);
     for (j = str_start_macro(a); j <= str_start_macro(a + 1) - 1; j++)
         append_to_fn(str_pool[j]);
     for (j = str_start_macro(n); j <= str_start_macro(n + 1) - 1; j++)
@@ -699,7 +704,7 @@ char *pack_file_name(str_number n, str_number a, str_number e)
     for (j = str_start_macro(e); j <= str_start_macro(e + 1) - 1; j++)
         append_to_fn(str_pool[j]);
     fn[k] = 0;
-    return (char *)fn;
+    return (char *) fn;
 }
 
 
@@ -737,24 +742,25 @@ char *open_fmt_file(void)
         buffer[last] = ' ';
         while (buffer[j] != ' ')
             incr(j);
-        fmt = xmalloc(j-iloc+1);
-        strncpy(fmt,(char *)(buffer+iloc),(j-iloc));
-        fmt[j-iloc] =0;
+        fmt = xmalloc(j - iloc + 1);
+        strncpy(fmt, (char *) (buffer + iloc), (j - iloc));
+        fmt[j - iloc] = 0;
         dist = strlen(fmt) - strlen(DUMP_EXT);
         if (!(strstr(fmt, DUMP_EXT) == fmt + dist))
             fmt = concat(fmt, DUMP_EXT);
-        if (zopen_w_input (&fmt_file, fmt, DUMP_FORMAT, FOPEN_RBIN_MODE))
+        if (zopen_w_input(&fmt_file, fmt, DUMP_FORMAT, FOPEN_RBIN_MODE))
             goto FOUND;
         wake_up_terminal();
-        fprintf(stdout, "Sorry, I can't find the format `%s'; will try `%s'.\n", 
-                fmt,TEX_format_default);
+        fprintf(stdout, "Sorry, I can't find the format `%s'; will try `%s'.\n",
+                fmt, TEX_format_default);
         update_terminal();
     }
     /* now pull out all the stops: try for the system \.{plain} file */
     fmt = TEX_format_default;
-    if (!zopen_w_input (&fmt_file, fmt, DUMP_FORMAT, FOPEN_RBIN_MODE)) {
+    if (!zopen_w_input(&fmt_file, fmt, DUMP_FORMAT, FOPEN_RBIN_MODE)) {
         wake_up_terminal();
-        fprintf(stdout, "I can't find the format file `%s'!\n", TEX_format_default);
+        fprintf(stdout, "I can't find the format file `%s'!\n",
+                TEX_format_default);
         return NULL;
     }
   FOUND:
@@ -860,11 +866,11 @@ void start_input(void)
 
     back_input();
     if (cur_cmd != left_brace_cmd) {
-        scan_file_name();           /* set |cur_name| to desired file name */
+        scan_file_name();       /* set |cur_name| to desired file name */
     } else {
         scan_file_name_toks();
     }
-    fn = pack_file_name(cur_name,cur_area,cur_ext);
+    fn = pack_file_name(cur_name, cur_area, cur_ext);
     while (1) {
         begin_file_reading();   /* set up |cur_file| and new level of input */
         if (lua_a_open_in(&cur_file, fn, 0))
@@ -958,7 +964,8 @@ void do_zundump(char *p, int item_size, int nitems, FILE * in_file)
 
 #define COMPRESSION "R3"
 
-boolean zopen_w_input(FILE ** f, char *fname, int format, const_string fopen_mode)
+boolean zopen_w_input(FILE ** f, char *fname, int format,
+                      const_string fopen_mode)
 {
     int callbackid;
     int res;
@@ -1186,75 +1193,74 @@ boolean openinnameok(const_string fname)
 #if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
 extern char **suffixlist;
 
-static int
-Isspace (char c)
+static int Isspace(char c)
 {
     return (c == ' ' || c == '\t');
 }
 
-static boolean
-executable_filep (const_string fname)
+static boolean executable_filep(const_string fname)
 {
     string p, q, base;
     string *pp;
 
 /*  check openout_any */
-    p = kpse_var_value ("openout_any");
+    p = kpse_var_value("openout_any");
     if (p && *p == 'p') {
-      free (p);
+        free(p);
 /* get base name
    we cannot use xbasename() for abnormal names.
 */
-      base = xstrdup (fname);
-      p = strrchr (fname, '/');
-      if (p) {
-        p++;
-        strcpy (base, p);
-      }
-      p = strrchr (base, '\\');
-      if(p) {
-        p++;
-        strcpy (base, p);
-      }
-#if defined(__CYGWIN__)
-      for (p = base; *p; p++)
-        *p = tolower (*p);
-      p = base; 
-#else
-      p = (char *) strlwr (base);
-#endif
-      for (q = p + strlen (p) - 1; 
-           (q >= p) && ((*q == '.') || (Isspace (*q))); q--) {
-        *q = '\0'; /* remove trailing '.' , ' ' and '\t' */
-      }
-      q = strrchr (p, '.'); /* get extension part */
-      pp = suffixlist;
-      if (pp && q) {
-        while (*pp) {
-          if (strchr (fname, ':') || !strcmp (q, *pp)) {
-            fprintf (stderr, "\nThe name %s is forbidden to open for writing.\n",
-                     fname);
-            free (base);
-            return true;
-          }
-          pp++;
+        base = xstrdup(fname);
+        p = strrchr(fname, '/');
+        if (p) {
+            p++;
+            strcpy(base, p);
         }
-      }
-      free (base);
+        p = strrchr(base, '\\');
+        if (p) {
+            p++;
+            strcpy(base, p);
+        }
+#  if defined(__CYGWIN__)
+        for (p = base; *p; p++)
+            *p = tolower(*p);
+        p = base;
+#  else
+        p = (char *) strlwr(base);
+#  endif
+        for (q = p + strlen(p) - 1;
+             (q >= p) && ((*q == '.') || (Isspace(*q))); q--) {
+            *q = '\0';          /* remove trailing '.' , ' ' and '\t' */
+        }
+        q = strrchr(p, '.');    /* get extension part */
+        pp = suffixlist;
+        if (pp && q) {
+            while (*pp) {
+                if (strchr(fname, ':') || !strcmp(q, *pp)) {
+                    fprintf(stderr,
+                            "\nThe name %s is forbidden to open for writing.\n",
+                            fname);
+                    free(base);
+                    return true;
+                }
+                pp++;
+            }
+        }
+        free(base);
     } else if (p) {
-      free (p);
+        free(p);
     }
     return false;
 }
-#endif /* WIN32 || __MINGW32__ || __CYGWIN__ */
+#endif                          /* WIN32 || __MINGW32__ || __CYGWIN__ */
 
 boolean openoutnameok(const_string fname)
 {
 #if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
     /* Output of an executable file is restricted on Windows */
-    if (executable_filep (fname))
-      return false;
-#endif /* WIN32 || __MINGW32__ || __CYGWIN__ */
+    if (executable_filep(fname))
+        return false;
+#endif                          /* WIN32 || __MINGW32__ || __CYGWIN__ */
     /* For output, default to paranoid. */
     return opennameok(fname, "openout_any", "p", ok_writing);
 }
@@ -1272,7 +1278,8 @@ static FILE *pipes[] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
-boolean open_in_or_pipe(FILE ** f_ptr, char *fn, int filefmt, const_string fopen_mode, boolean must_exist)
+boolean open_in_or_pipe(FILE ** f_ptr, char *fn, int filefmt,
+                        const_string fopen_mode, boolean must_exist)
 {
     string fname = NULL;
     int i;                      /* iterator */

@@ -72,7 +72,7 @@ extern scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
 
 extern integer pack_begin_line;
 
-#  define vpack(A,B,C,D) vpackage(A,B,C,max_dimen,D)        /* special case of unconstrained depth */
+#  define vpack(A,B,C,D) vpackage(A,B,C,max_dimen,D)    /* special case of unconstrained depth */
 
 extern halfword vpackage(halfword p, scaled h, int m, scaled l, int d);
 extern halfword filtered_vpackage(halfword p, scaled h, int m, scaled l,

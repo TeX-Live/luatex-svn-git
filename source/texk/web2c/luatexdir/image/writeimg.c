@@ -437,7 +437,7 @@ void scan_pdfximage(PDF pdf)
 
 void scan_pdfrefximage(PDF pdf)
 {
-    integer transform = 0;       /* one could scan transform as well */
+    integer transform = 0;      /* one could scan transform as well */
     image_dict *idict;
     scaled_whd alt_rule, dim;
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */

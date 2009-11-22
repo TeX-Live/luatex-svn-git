@@ -193,12 +193,12 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define every_eof_loc (local_base+10) /* points to token list for \.{\\everyeof} */
 #  define tex_toks (local_base+11)      /* end of (e-)\TeX's token list parameters */
 #  define pdftex_first_loc (tex_toks)   /* base for \pdfTeX's token list parameters */
-#  define pdf_pages_attr_loc (pdftex_first_loc + 0)      /* points to token list for \.{\\pdfpagesattr} */
-#  define pdf_page_attr_loc (pdftex_first_loc + 1)       /* points to token list for \.{\\pdfpageattr} */
-#  define pdf_page_resources_loc (pdftex_first_loc + 2)  /* points to token list for \.{\\pdfpageresources} */
-#  define pdf_xform_attr_loc (pdftex_first_loc + 3)      /* points to token list for \.{\\pdfxformattr} */
-#  define pdf_xform_resources_loc (pdftex_first_loc + 4) /* points to token list for \.{\\pdfxformresources} */
-#  define pdf_pk_mode_loc (pdftex_first_loc + 5)         /* points to token list for \.{\\pdfpkmode} */
+#  define pdf_pages_attr_loc (pdftex_first_loc + 0)     /* points to token list for \.{\\pdfpagesattr} */
+#  define pdf_page_attr_loc (pdftex_first_loc + 1)      /* points to token list for \.{\\pdfpageattr} */
+#  define pdf_page_resources_loc (pdftex_first_loc + 2) /* points to token list for \.{\\pdfpageresources} */
+#  define pdf_xform_attr_loc (pdftex_first_loc + 3)     /* points to token list for \.{\\pdfxformattr} */
+#  define pdf_xform_resources_loc (pdftex_first_loc + 4)        /* points to token list for \.{\\pdfxformresources} */
+#  define pdf_pk_mode_loc (pdftex_first_loc + 5)        /* points to token list for \.{\\pdfpkmode} */
 #  define pdf_toks (pdftex_first_loc+6) /* end of \pdfTeX's token list parameters */
 #  define ocp_trace_level_base (pdf_toks)
 #  define ocp_active_number_base (ocp_trace_level_base+1)

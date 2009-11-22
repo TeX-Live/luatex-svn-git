@@ -236,7 +236,9 @@ void writet3(PDF pdf, int objnum, internalfontnumber f)
         t3_char_procs[i] = 0;
         t3_char_widths[i] = 0;
     }
-    cur_file_name = pack_file_name(tex_font_name(f), get_nullstr(), maketexlstring(".pgc", 4));
+    cur_file_name =
+        pack_file_name(tex_font_name(f), get_nullstr(),
+                       maketexlstring(".pgc", 4));
     is_pk_font = false;
 
     if (t3_buffer != NULL) {

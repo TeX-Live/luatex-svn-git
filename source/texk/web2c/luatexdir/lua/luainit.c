@@ -483,26 +483,28 @@ void fix_dumpname(void)
 static int lua_loader_function = 0;
 static int lua_loader_env = 0;
 
-static int luatex_kpse_lua_find (lua_State *L) {
-  const char *filename;
-  const char *name;
-  name = luaL_checkstring(L, 1);
-  if (program_name_set == 0) {
-      lua_CFunction orig_func;
-      lua_rawgeti(L, LUA_REGISTRYINDEX, lua_loader_function);
-      lua_rawgeti(L, LUA_REGISTRYINDEX, lua_loader_env);
-      lua_replace(L, LUA_ENVIRONINDEX);
-      orig_func = lua_tocfunction(L,-1);
-      lua_pop(L,1);
-      return (orig_func)(L);
-  }
-  filename = kpse_find_file(name, kpse_lua_format, false);
-  if (filename == NULL) return 1;  /* library not found in this path */
-  if (luaL_loadfile(L, filename) != 0) {
-      luaL_error(L, "error loading module %s from file %s:\n\t%s",
-                 lua_tostring(L, 1), filename, lua_tostring(L, -1));
-  }
-  return 1;  /* library loaded successfully */
+static int luatex_kpse_lua_find(lua_State * L)
+{
+    const char *filename;
+    const char *name;
+    name = luaL_checkstring(L, 1);
+    if (program_name_set == 0) {
+        lua_CFunction orig_func;
+        lua_rawgeti(L, LUA_REGISTRYINDEX, lua_loader_function);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, lua_loader_env);
+        lua_replace(L, LUA_ENVIRONINDEX);
+        orig_func = lua_tocfunction(L, -1);
+        lua_pop(L, 1);
+        return (orig_func) (L);
+    }
+    filename = kpse_find_file(name, kpse_lua_format, false);
+    if (filename == NULL)
+        return 1;               /* library not found in this path */
+    if (luaL_loadfile(L, filename) != 0) {
+        luaL_error(L, "error loading module %s from file %s:\n\t%s",
+                   lua_tostring(L, 1), filename, lua_tostring(L, -1));
+    }
+    return 1;                   /* library loaded successfully */
 }
 
 /* The lua lib search function.
@@ -518,50 +520,54 @@ static int luatex_kpse_lua_find (lua_State *L) {
 static int clua_loader_function = 0;
 static int clua_loader_env = 0;
 
-extern int loader_C_luatex (lua_State *L, const char *name, const char *filename) ;
+extern int loader_C_luatex(lua_State * L, const char *name,
+                           const char *filename);
 
-static int luatex_kpse_clua_find (lua_State *L) {
-  const char *filename;
-  const char *name;
-  if (safer_option) return 1;  /* library not found in this path */
-  name = luaL_checkstring(L, 1);
-  if (program_name_set == 0) {
-      lua_CFunction orig_func;
-      lua_rawgeti(L, LUA_REGISTRYINDEX, clua_loader_function);
-      lua_rawgeti(L, LUA_REGISTRYINDEX, clua_loader_env);
-      lua_replace(L, LUA_ENVIRONINDEX);
-      orig_func = lua_tocfunction(L,-1);
-      lua_pop(L,1);
-      return (orig_func)(L);
-  }
-  filename = kpse_find_file(name, kpse_clua_format, false);
-  if (filename == NULL) return 1;  /* library not found in this path */
-  return loader_C_luatex (L, name, filename);
+static int luatex_kpse_clua_find(lua_State * L)
+{
+    const char *filename;
+    const char *name;
+    if (safer_option)
+        return 1;               /* library not found in this path */
+    name = luaL_checkstring(L, 1);
+    if (program_name_set == 0) {
+        lua_CFunction orig_func;
+        lua_rawgeti(L, LUA_REGISTRYINDEX, clua_loader_function);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, clua_loader_env);
+        lua_replace(L, LUA_ENVIRONINDEX);
+        orig_func = lua_tocfunction(L, -1);
+        lua_pop(L, 1);
+        return (orig_func) (L);
+    }
+    filename = kpse_find_file(name, kpse_clua_format, false);
+    if (filename == NULL)
+        return 1;               /* library not found in this path */
+    return loader_C_luatex(L, name, filename);
 }
 
 /* Setting up the new search functions. 
  * This replaces package.loaders[2] with the function defined above.
  */
 
-static void setup_lua_path (lua_State *L)
+static void setup_lua_path(lua_State * L)
 {
     lua_getglobal(L, "package");
     lua_getfield(L, -1, "loaders");
-    lua_rawgeti(L, -1, 2); /* package.loaders[2] */
-    lua_getfenv (L,-1);
+    lua_rawgeti(L, -1, 2);      /* package.loaders[2] */
+    lua_getfenv(L, -1);
     lua_loader_env = luaL_ref(L, LUA_REGISTRYINDEX);
     lua_loader_function = luaL_ref(L, LUA_REGISTRYINDEX);
     lua_pushcfunction(L, luatex_kpse_lua_find);
-    lua_rawseti(L, -2, 2); /* replace the normal lua loader */
+    lua_rawseti(L, -2, 2);      /* replace the normal lua loader */
 
-    lua_rawgeti(L, -1, 3); /* package.loaders[3] */
-    lua_getfenv (L,-1);
+    lua_rawgeti(L, -1, 3);      /* package.loaders[3] */
+    lua_getfenv(L, -1);
     clua_loader_env = luaL_ref(L, LUA_REGISTRYINDEX);
     clua_loader_function = luaL_ref(L, LUA_REGISTRYINDEX);
     lua_pushcfunction(L, luatex_kpse_clua_find);
-    lua_rawseti(L, -2, 3); /* replace the normal lua lib loader */
-    lua_pop(L, 2);         /* pop the array and table */
-}   
+    lua_rawseti(L, -2, 3);      /* replace the normal lua lib loader */
+    lua_pop(L, 2);              /* pop the array and table */
+}
 
 /* helper variables for the safe keeping of table ids */
 int tex_table_id;
@@ -574,62 +580,61 @@ extern void init_tex_table(lua_State * L);
 #if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
 char **suffixlist;
 
-#define EXE_SUFFIXES ".com;.exe;.bat;.cmd;.vbs;.vbe;.js;.jse;.wsf;.wsh;.ws;.tcl;.py;.pyw"
+#  define EXE_SUFFIXES ".com;.exe;.bat;.cmd;.vbs;.vbe;.js;.jse;.wsf;.wsh;.ws;.tcl;.py;.pyw"
 
-static void
-mk_suffixlist (void)
+static void mk_suffixlist(void)
 {
     char **p;
     char *q, *r, *v;
-    int  n;
+    int n;
 
-#if defined(__CYGWIN__)
-    v = (char *) xmalloc (strlen (EXE_SUFFIXES) + 1);
-    strcpy (v, EXE_SUFFIXES);
-#else
-    v = (char *) getenv ("PATHEXT");
-    if (v) /* strlwr() exists also in MingW */
-      v = (char *) strlwr (v);
+#  if defined(__CYGWIN__)
+    v = (char *) xmalloc(strlen(EXE_SUFFIXES) + 1);
+    strcpy(v, EXE_SUFFIXES);
+#  else
+    v = (char *) getenv("PATHEXT");
+    if (v)                      /* strlwr() exists also in MingW */
+        v = (char *) strlwr(v);
     else {
-      v = (char *) xmalloc (strlen (EXE_SUFFIXES) + 1);
-      strcpy (v, EXE_SUFFIXES);
+        v = (char *) xmalloc(strlen(EXE_SUFFIXES) + 1);
+        strcpy(v, EXE_SUFFIXES);
     }
-#endif
+#  endif
 
     q = v;
     n = 0;
 
-    while ((r = strchr (q, ';')) != 0) {
-      n++;
-      r++;
-      q = r;
+    while ((r = strchr(q, ';')) != 0) {
+        n++;
+        r++;
+        q = r;
     }
     if (*q)
-      n++;
-    suffixlist = (char **) xmalloc ((n + 2) * sizeof (char *));
+        n++;
+    suffixlist = (char **) xmalloc((n + 2) * sizeof(char *));
     p = suffixlist;
     *p = (char *) xmalloc(5);
     strcpy(*p, ".dll");
     p++;
     q = v;
-    while ((r = strchr (q, ';')) != 0) {
-      *r = '\0';
-      *p = (char *) xmalloc (strlen (q) + 1);
-      strcpy (*p, q);
-      *r = ';';
-      r++;
-      q = r;
-      p++;
+    while ((r = strchr(q, ';')) != 0) {
+        *r = '\0';
+        *p = (char *) xmalloc(strlen(q) + 1);
+        strcpy(*p, q);
+        *r = ';';
+        r++;
+        q = r;
+        p++;
     }
     if (*q) {
-      *p = (char *) xmalloc (strlen (q) + 1);
-      strcpy (*p, q);
-      p++;
-      *p = NULL;
+        *p = (char *) xmalloc(strlen(q) + 1);
+        strcpy(*p, q);
+        p++;
+        *p = NULL;
     } else
-      *p = NULL;
+        *p = NULL;
 }
-#endif /* WIN32 || __MIBGW32__ || __CYGWIN__ */
+#endif                          /* WIN32 || __MIBGW32__ || __CYGWIN__ */
 
 void lua_initialize(int ac, char **av)
 {
@@ -652,10 +657,9 @@ void lua_initialize(int ac, char **av)
          STREQ(argv[1], "--luaconly") || STREQ(argv[1], "--luac"))) {
         exit(luac_main(ac, av));
     }
-
 #if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
     mk_suffixlist();
-#endif /* WIN32 || __MIBGW32__ || __CYGWIN__ */
+#endif                          /* WIN32 || __MIBGW32__ || __CYGWIN__ */
 
     /* Must be initialized before options are parsed.  */
     interactionoption = 4;
@@ -685,7 +689,7 @@ void lua_initialize(int ac, char **av)
     luainterpreter();
 
     prepare_cmdline(Luas, argv, argc, lua_offset);      /* collect arguments */
-    setup_lua_path (Luas);
+    setup_lua_path(Luas);
 
     if (startup_filename != NULL) {
         given_file = xstrdup(startup_filename);

@@ -42,7 +42,7 @@ static const char _svn_version[] =
 
 make_luaS_index(luatex_node);
 
-static int nodelib_getdir(lua_State * L, int n); /* forward */
+static int nodelib_getdir(lua_State * L, int n);        /* forward */
 
 halfword *check_isnode(lua_State * L, int ud)
 {
@@ -543,7 +543,7 @@ static int lua_nodelib_dimensions(lua_State * L)
             } else {
                 p = *(check_isnode(L, (i + 1)));
             }
-        } 
+        }
         if (lua_gettop(L) > (i + 1) && lua_type(L, (i + 2)) == LUA_TSTRING) {
             d = nodelib_getdir(L, (i + 2));
         }

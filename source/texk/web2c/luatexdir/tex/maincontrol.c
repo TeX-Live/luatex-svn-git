@@ -3173,13 +3173,13 @@ void open_or_close_in(void)
         } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
         back_input();
         if (cur_cmd != left_brace_cmd) {
-            scan_file_name();           /* set |cur_name| to desired file name */
+            scan_file_name();   /* set |cur_name| to desired file name */
             if (cur_ext == get_nullstr())
                 cur_ext = maketexstring(".tex");
         } else {
             scan_file_name_toks();
         }
-        fn = pack_file_name(cur_name,cur_area,cur_ext);
+        fn = pack_file_name(cur_name, cur_area, cur_ext);
         if (lua_a_open_in(&(read_file[n]), fn, (n + 1))) {
             read_open[n] = just_open;
         }

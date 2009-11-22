@@ -850,7 +850,8 @@ void fire_up(halfword c)
                                 ins_ptr(p) =
                                     prune_page_top(broken_ptr(r), false);
                                 if (ins_ptr(p) != null) {
-                                    temp_ptr = vpack(ins_ptr(p), 0, additional, -1);
+                                    temp_ptr =
+                                        vpack(ins_ptr(p), 0, additional, -1);
                                     height(p) =
                                         height(temp_ptr) + depth(temp_ptr);
                                     list_ptr(temp_ptr) = null;

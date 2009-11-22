@@ -579,12 +579,13 @@ static int vsetbox(lua_State * L, int is_global)
             return 0;
     } else {
         j = nodelist_from_lua(L);
-	if (j!=null && type(j)!= hlist_node && type(j)!= vlist_node) {
-	    lua_pushfstring(L, "setbox: incompatible node type (%s)\n", get_node_name(type(j),subtype(j)));
-	    lua_error(L);
-	    return 0;
-	}
-	    
+        if (j != null && type(j) != hlist_node && type(j) != vlist_node) {
+            lua_pushfstring(L, "setbox: incompatible node type (%s)\n",
+                            get_node_name(type(j), subtype(j)));
+            lua_error(L);
+            return 0;
+        }
+
     }
     err = set_tex_box_register(k, j);
     int_par(global_defs_code) = save_global_defs;
@@ -1479,7 +1480,7 @@ static int tex_run_boot(lua_State * L)
         return 1;
     }
     if (format) {
-        if (!zopen_w_input (&fmt_file, format, DUMP_FORMAT, FOPEN_RBIN_MODE)) {
+        if (!zopen_w_input(&fmt_file, format, DUMP_FORMAT, FOPEN_RBIN_MODE)) {
             lua_pushboolean(L, 0);      /* false */
             return 1;
         }

@@ -283,7 +283,7 @@ void out_what(PDF pdf, halfword p)
                         cur_ext = maketexstring(".tex");
                     fn = pack_file_name(cur_name, cur_area, cur_ext);
                     while (!lua_a_open_out(&(write_file[j]), fn, (j + 1)))
-                        fn= prompt_file_name("output file name", ".tex");
+                        fn = prompt_file_name("output file name", ".tex");
                     write_open[j] = true;
                 }
             }
@@ -376,7 +376,7 @@ void hlist_out(PDF pdf, halfword this_box)
                 }
                 output_one_char(pdf, font(p), character(p));
                 ci = get_charinfo_whd(font(p), character(p));
-                if (textdir_parallel(localpos.dir,dir_TLT))
+                if (textdir_parallel(localpos.dir, dir_TLT))
                     cur.h += ci.wd;
                 else
                     cur.h += ci.ht + ci.dp;
@@ -397,35 +397,35 @@ void hlist_out(PDF pdf, halfword this_box)
                 if (textdir_parallel(box_dir(p), localpos.dir)) {
                     effective_horizontal = width(p);
                     basepoint.v = 0;
-                    if (textdir_opposite(box_dir(p),localpos.dir))
+                    if (textdir_opposite(box_dir(p), localpos.dir))
                         basepoint.h = width(p);
                     else
                         basepoint.h = 0;
                 } else {
                     effective_horizontal = height(p) + depth(p);
                     if (!is_mirrored(box_dir(p))) {
-                        if (partextdir_eq(box_dir(p),localpos.dir))
+                        if (partextdir_eq(box_dir(p), localpos.dir))
                             basepoint.h = height(p);
                         else
                             basepoint.h = depth(p);
                     } else {
-                        if (partextdir_eq(box_dir(p),localpos.dir))
+                        if (partextdir_eq(box_dir(p), localpos.dir))
                             basepoint.h = depth(p);
                         else
                             basepoint.h = height(p);
                     }
                     if (is_rotated(localpos.dir)) {
-                        if (partextdir_eq(localpos.dir,box_dir(p)))
+                        if (partextdir_eq(localpos.dir, box_dir(p)))
                             basepoint.v = -width(p) / 2;        /* `up' */
                         else
                             basepoint.v = width(p) / 2; /* `down' */
                     } else if (is_mirrored(localpos.dir)) {
-                        if (partextdir_eq(localpos.dir,box_dir(p)))
+                        if (partextdir_eq(localpos.dir, box_dir(p)))
                             basepoint.v = 0;
                         else
                             basepoint.v = width(p);     /* `down' */
                     } else {
-                        if (partextdir_eq(localpos.dir,box_dir(p)))
+                        if (partextdir_eq(localpos.dir, box_dir(p)))
                             basepoint.v = -width(p);    /* `up' */
                         else
                             basepoint.v = 0;
@@ -530,7 +530,7 @@ void hlist_out(PDF pdf, halfword this_box)
                         enddir_ptr =
                             calculate_width_to_enddir(p, cur_glue, cur_g,
                                                       this_box);
-                        if (textdir_parallel(dir_dir(p),localpos.dir)) {
+                        if (textdir_parallel(dir_dir(p), localpos.dir)) {
                             dir_cur_h(enddir_ptr) += cur.h;
                             if (textdir_opposite(dir_dir(p), localpos.dir))
                                 cur.h = dir_cur_h(enddir_ptr);
@@ -588,7 +588,7 @@ void hlist_out(PDF pdf, halfword this_box)
                         rule.dp = depth(leader_box);
                         goto FIN_RULE;
                     }
-                    if (textdir_parallel(box_dir(leader_box),localpos.dir))
+                    if (textdir_parallel(box_dir(leader_box), localpos.dir))
                         leader_wd = width(leader_box);
                     else
                         leader_wd = height(leader_box) + depth(leader_box);
@@ -645,25 +645,30 @@ void hlist_out(PDF pdf, halfword this_box)
                             /* (\pdfTeX) Output a leader box at |cur.h|,
                                then advance |cur.h| by |leader_wd+lx| */
 
-                            if (pardir_parallel(box_dir(leader_box),localpos.dir)) {
+                            if (pardir_parallel
+                                (box_dir(leader_box), localpos.dir)) {
                                 basepoint.v = 0;
-                                if (textdir_opposite(box_dir(leader_box),localpos.dir))
+                                if (textdir_opposite
+                                    (box_dir(leader_box), localpos.dir))
                                     basepoint.h = width(leader_box);
                                 else
                                     basepoint.h = 0;
                             } else {
                                 if (!is_mirrored(box_dir(leader_box))) {
-                                    if (partextdir_eq(box_dir(leader_box),localpos.dir))
+                                    if (partextdir_eq
+                                        (box_dir(leader_box), localpos.dir))
                                         basepoint.h = height(leader_box);
                                     else
                                         basepoint.h = depth(leader_box);
                                 } else {
-                                    if (partextdir_eq(box_dir(leader_box),localpos.dir))
+                                    if (partextdir_eq
+                                        (box_dir(leader_box), localpos.dir))
                                         basepoint.h = depth(leader_box);
                                     else
                                         basepoint.h = height(leader_box);
                                 }
-                                if (partextdir_eq(localpos.dir,box_dir(leader_box)))
+                                if (partextdir_eq
+                                    (localpos.dir, box_dir(leader_box)))
                                     basepoint.v = -(width(leader_box) / 2);
                                 else
                                     basepoint.v = (width(leader_box) / 2);
@@ -854,19 +859,19 @@ void vlist_out(PDF pdf, halfword this_box)
                         basepoint.v = depth(p);
                     else
                         basepoint.v = height(p);
-                    if (textdir_opposite(box_dir(p),localpos.dir))
+                    if (textdir_opposite(box_dir(p), localpos.dir))
                         basepoint.h = width(p);
                     else
                         basepoint.h = 0;
                 } else {
                     effective_vertical = width(p);
                     if (!is_mirrored(box_dir(p))) {
-                        if (partextdir_eq(box_dir(p),localpos.dir))
+                        if (partextdir_eq(box_dir(p), localpos.dir))
                             basepoint.h = height(p);
                         else
                             basepoint.h = depth(p);
                     } else {
-                        if (partextdir_eq(box_dir(p),localpos.dir))
+                        if (partextdir_eq(box_dir(p), localpos.dir))
                             basepoint.h = depth(p);
                         else
                             basepoint.h = height(p);

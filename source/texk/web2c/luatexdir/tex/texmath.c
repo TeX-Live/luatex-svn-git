@@ -1956,7 +1956,7 @@ static boolean math_and_text_reversed_p(void)
     while (i < save_ptr) {
         if (save_type(i) == restore_old_value &&
             save_value(i) == int_base + par_direction_code) {
-            if (textdir_opposite(math_direction,save_value(i - 1)))
+            if (textdir_opposite(math_direction, save_value(i - 1)))
                 return true;
         }
         i++;

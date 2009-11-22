@@ -28,7 +28,7 @@ extern int program_name_set;    /* in lkpselib.c */
 static char *b_test_in(char *nam)
 {
     if (program_name_set) {
-        return (char *)kpse_find_file(nam, kpse_program_binary_format, true);
+        return (char *) kpse_find_file(nam, kpse_program_binary_format, true);
     }
     return NULL;
 }
@@ -103,8 +103,7 @@ information is stored; |null_ocp| is returned in this case.
 
 /* input a \.{OCP} file */
 internal_ocp_number
-read_ocp_info(pointer u, char *nom, char *aire, char *ext,
-              boolean external_ocp)
+read_ocp_info(pointer u, char *nom, char *aire, char *ext, boolean external_ocp)
 {
     boolean file_opened;        /* was |ocp_file| successfully opened? */
     boolean res;
@@ -127,8 +126,8 @@ read_ocp_info(pointer u, char *nom, char *aire, char *ext,
     file_opened = false;
     if (external_ocp) {
         /*  @<Check |ocp_file| exists@> */
-        cnam = xmalloc(strlen(nom)+strlen(aire)+strlen(ext)+1);
-        sprintf (cnam,"%s%s%s",aire,nom,ext);
+        cnam = xmalloc(strlen(nom) + strlen(aire) + strlen(ext) + 1);
+        sprintf(cnam, "%s%s%s", aire, nom, ext);
         cnam = b_test_in(cnam);
         if (!cnam)
             ocp_abort("opening file");
@@ -151,8 +150,8 @@ read_ocp_info(pointer u, char *nom, char *aire, char *ext,
 
     } else {
         /* @<Open |ocp_file| for input@>; */
-        char *cname = xmalloc(strlen(nom)+strlen(aire)+strlen(".ocp")+1);
-        sprintf (cname,"%s%s.ocp",aire,nom);
+        char *cname = xmalloc(strlen(nom) + strlen(aire) + strlen(".ocp") + 1);
+        sprintf(cname, "%s%s.ocp", aire, nom);
         if (ocp_buffer != NULL)
             xfree(ocp_buffer);
         ocp_cur = 0;
@@ -171,7 +170,8 @@ read_ocp_info(pointer u, char *nom, char *aire, char *ext,
             FILE *ocp_file = NULL;
             if (!cnam)
                 cnam = cname;
-            if (!luatex_open_input (&ocp_file, cnam, kpse_ocp_format, FOPEN_RBIN_MODE,true))
+            if (!luatex_open_input
+                (&ocp_file, cnam, kpse_ocp_format, FOPEN_RBIN_MODE, true))
                 ocp_abort("opening file");
             file_opened = true;
             res = read_ocp_file(ocp_file, &ocp_buffer, &ocp_size);

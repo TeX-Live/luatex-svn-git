@@ -179,21 +179,21 @@ void scan_file_name_toks(void)
     s = tokenlist_to_cstring(def_ref, true, &l);
     a = n = s;
     e = NULL;
-    for (i=0; i<l; i++) {
+    for (i = 0; i < l; i++) {
         if (ISDIRSEP(s[i])) {
-            n = s+i+1;
+            n = s + i + 1;
             e = NULL;
         } else if (s[i] == '.') {
-            e = s+i;
+            e = s + i;
         }
     }
-    if (n!=s) { /* explicit area */
-        cur_area = maketexlstring(a,(n-a));
+    if (n != s) {               /* explicit area */
+        cur_area = maketexlstring(a, (n - a));
     } else {
         cur_area = get_nullstr();
     }
-    if (e != NULL) { /* explicit extension */
-        cur_name = maketexlstring(n,(e-n));
+    if (e != NULL) {            /* explicit extension */
+        cur_name = maketexlstring(n, (e - n));
         cur_ext = maketexstring(e);
     } else {
         cur_name = maketexstring(n);
@@ -215,7 +215,7 @@ char *pack_job_name(char *s)
     cur_area = get_nullstr();
     cur_ext = maketexstring(s);
     cur_name = job_name;
-    return pack_file_name(cur_name,cur_area,cur_ext);
+    return pack_file_name(cur_name, cur_area, cur_ext);
 }
 
 /* If some trouble arises when \TeX\ tries to open a file, the following
@@ -272,7 +272,7 @@ char *prompt_file_name(char *s, char *e)
         cur_ext = maketexstring(e);
     if (str_length(cur_name) == 0)
         cur_name = saved_cur_name;
-   return pack_file_name(cur_name,cur_area,cur_ext);
+    return pack_file_name(cur_name, cur_area, cur_ext);
 }
 
 void print_file_name(str_number n, str_number a, str_number e)

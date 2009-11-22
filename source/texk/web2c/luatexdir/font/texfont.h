@@ -541,7 +541,7 @@ liginfo get_ligature(internalfontnumber f, integer lc, integer rc);
 extern texfont **font_tables;
 
 integer new_font(void);
-extern void font_malloc_charinfo (internal_font_number f, int num);
+extern void font_malloc_charinfo(internal_font_number f, int num);
 integer copy_font(integer id);
 integer scale_font(integer id, integer atsize);
 integer max_font_id(void);

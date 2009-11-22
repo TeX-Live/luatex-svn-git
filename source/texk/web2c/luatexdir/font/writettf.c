@@ -1347,7 +1347,8 @@ void writettf(PDF pdf, fd_entry * fd)
     ttf_curbyte = 0;
     ttf_size = 0;
 
-    cur_file_name = luatex_find_file(fd_cur->fm->ff_name, find_truetype_file_callback);
+    cur_file_name =
+        luatex_find_file(fd_cur->fm->ff_name, find_truetype_file_callback);
     if (cur_file_name == NULL) {
         pdftex_fail("cannot find TrueType font file for reading");
     }
@@ -1450,7 +1451,8 @@ void writeotf(PDF pdf, fd_entry * fd)
 
     ttf_curbyte = 0;
     ttf_size = 0;
-    cur_file_name = luatex_find_file(fd_cur->fm->ff_name, find_opentype_file_callback);
+    cur_file_name =
+        luatex_find_file(fd_cur->fm->ff_name, find_opentype_file_callback);
     if (cur_file_name == NULL) {
         pdftex_fail("cannot find OpenType font file for reading");
     }

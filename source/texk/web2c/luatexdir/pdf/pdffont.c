@@ -53,11 +53,11 @@ void output_one_char(PDF pdf, internal_font_number ffi, integer c)
         break;
     case dir_LTL:
         pos_down(ci.ht);
-	pos_left(ci.wd);
+        pos_left(ci.wd);
         break;
     case dir_RTT:
         pos_down(ci.ht);
-	pos_left(ci.wd / 2);
+        pos_left(ci.wd / 2);
         break;
     }
     if (has_packet(ffi, c)) {

@@ -83,7 +83,7 @@ static int do_define_font(integer f, char *cnom, scaled s, integer natural_dir)
             set_skew_char(f, int_par(default_skew_char_code));
         }
     }
-    if (font_name(f) && strlen(font_name(f))>255) {
+    if (font_name(f) && strlen(font_name(f)) > 255) {
         /* the font name has to fit in the dvi file's single byte storage */
         /* no need to test area, as we are never using it */
         res = 0;

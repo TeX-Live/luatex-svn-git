@@ -1045,11 +1045,12 @@ void handle_splinechar(lua_State * L, struct splinechar *glyph, int hasvmetrics)
 
 char *panose_values_0[] =
     { "Any", "No Fit", "Text and Display", "Script", "Decorative",
-"Pictorial" };
+    "Pictorial"
+};
 
 char *panose_values_1[] =
     { "Any", "No Fit", "Cove", "Obtuse Cove", "Square Cove",
-"Obtuse Square Cove",
+    "Obtuse Square Cove",
     "Square", "Thin", "Bone", "Exaggerated", "Triangle", "Normal Sans",
     "Obtuse Sans", "Perp Sans", "Flared", "Rounded"
 };
@@ -1071,35 +1072,35 @@ char *panose_values_4[] =
 
 char *panose_values_5[] =
     { "Any", "No Fit", "Gradual/Diagonal", "Gradual/Transitional",
-"Gradual/Vertical",
+    "Gradual/Vertical",
     "Gradual/Horizontal", "Rapid/Vertical", "Rapid/Horizontal",
-        "Instant/Vertical"
+    "Instant/Vertical"
 };
 
 char *panose_values_6[] =
     { "Any", "No Fit", "Straight Arms/Horizontal", "Straight Arms/Wedge",
-"Straight Arms/Vertical",
+    "Straight Arms/Vertical",
     "Straight Arms/Single Serif", "Straight Arms/Double Serif",
-        "Non-Straight Arms/Horizontal",
+    "Non-Straight Arms/Horizontal",
     "Non-Straight Arms/Wedge", "Non-Straight Arms/Vertical",
-        "Non-Straight Arms/Single Serif",
+    "Non-Straight Arms/Single Serif",
     "Non-Straight Arms/Double Serif"
 };
 
 char *panose_values_7[] =
     { "Any", "No Fit", "Normal/Contact", "Normal/Weighted", "Normal/Boxed",
-"Normal/Flattened",
+    "Normal/Flattened",
     "Normal/Rounded", "Normal/Off Center", "Normal/Square", "Oblique/Contact",
-        "Oblique/Weighted",
+    "Oblique/Weighted",
     "Oblique/Boxed", "Oblique/Flattened", "Oblique/Rounded",
-        "Oblique/Off Center", "Oblique/Square"
+    "Oblique/Off Center", "Oblique/Square"
 };
 
 char *panose_values_8[] =
     { "Any", "No Fit", "Standard/Trimmed", "Standard/Pointed",
-"Standard/Serifed", "High/Trimmed",
+    "Standard/Serifed", "High/Trimmed",
     "High/Pointed", "High/Serifed", "Constant/Trimmed", "Constant/Pointed",
-        "Constant/Serifed",
+    "Constant/Serifed",
     "Low/Trimmed", "Low/Pointed", "Low/Serifed"
 };
 
@@ -2081,19 +2082,19 @@ void handle_splinefont(lua_State * L, struct splinefont *sf)
         }
         for (k = 0; k < l; k++) {
             if (sf->glyphs[k]) {
-	      lua_pushnumber(L, (k + 1));
-	      lua_createtable(L, 0, 12);
-	      handle_splinechar(L, sf->glyphs[k], sf->hasvmetrics);
-	      lua_rawset(L, -3);
-	    }
+                lua_pushnumber(L, (k + 1));
+                lua_createtable(L, 0, 12);
+                handle_splinechar(L, sf->glyphs[k], sf->hasvmetrics);
+                lua_rawset(L, -3);
+            }
         }
         if (sf->glyphs != NULL && l < sf->glyphcnt) {
             lua_pushnumber(L, 0);
             if (sf->glyphs[l]) {
-		lua_createtable(L, 0, 12);
+                lua_createtable(L, 0, 12);
                 handle_splinechar(L, sf->glyphs[l], sf->hasvmetrics);
-	    } else {
-		lua_createtable(L, 0, 0);
+            } else {
+                lua_createtable(L, 0, 0);
             }
             lua_rawset(L, -3);
         }
@@ -2101,11 +2102,11 @@ void handle_splinefont(lua_State * L, struct splinefont *sf)
     if ((l + 1) < sf->glyphcnt) {
         for (k = (l + 1); k < sf->glyphcnt; k++) {
             if (sf->glyphs[k]) {
-		lua_pushnumber(L, k);
-		lua_createtable(L, 0, 12);
+                lua_pushnumber(L, k);
+                lua_createtable(L, 0, 12);
                 handle_splinechar(L, sf->glyphs[k], sf->hasvmetrics);
-		lua_rawset(L, -3);
-	    }
+                lua_rawset(L, -3);
+            }
         }
     }
     lua_setfield(L, -2, "glyphs");

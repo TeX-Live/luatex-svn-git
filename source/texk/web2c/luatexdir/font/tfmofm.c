@@ -381,19 +381,22 @@ int open_tfm_file(char *nom, unsigned char **tfm_buf, integer * tfm_siz)
     boolean opened;             /* was |tfm_file| successfully opened? */
     integer callback_id;
     FILE *tfm_file;
-    char *fname = luatex_find_file (nom, find_font_file_callback);
+    char *fname = luatex_find_file(nom, find_font_file_callback);
     if (!fname)
         return -1;
     callback_id = callback_defined(read_font_file_callback);
     if (callback_id > 0) {
-        res = run_callback(callback_id, "S->bSd", fname, &opened, tfm_buf, tfm_siz);
+        res =
+            run_callback(callback_id, "S->bSd", fname, &opened, tfm_buf,
+                         tfm_siz);
         if (res && opened && (*tfm_siz > 0)) {
             return 1;
         }
         if (!opened)
             return -1;
     } else {
-        if (luatex_open_input (&(tfm_file), fname, kpse_ofm_format, FOPEN_RBIN_MODE, true)) {
+        if (luatex_open_input
+            (&(tfm_file), fname, kpse_ofm_format, FOPEN_RBIN_MODE, true)) {
             res = read_tfm_file(tfm_file, tfm_buf, tfm_siz);
             close_file(tfm_file);
             if (res) {

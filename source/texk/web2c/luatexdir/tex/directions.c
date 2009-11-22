@@ -36,13 +36,13 @@ void scan_direction(void)
         back_input();
     }
     if (scan_keyword("TLT")) {
-	cur_val = dir_TLT;
+        cur_val = dir_TLT;
     } else if (scan_keyword("TRT")) {
-	cur_val = dir_TRT;
+        cur_val = dir_TRT;
     } else if (scan_keyword("LTL")) {
-	cur_val = dir_LTL;
+        cur_val = dir_LTL;
     } else if (scan_keyword("RTT")) {
-	cur_val = dir_RTT;
+        cur_val = dir_RTT;
     } else {
         tex_error("Bad direction", NULL);
         cur_val = 0;
@@ -50,7 +50,7 @@ void scan_direction(void)
     get_x_token();
     if (cur_cmd != spacer_cmd)
         back_input();
-EXIT:
+  EXIT:
     cur_cmd = save_cur_cmd;
     cur_chr = save_cur_chr;
 }
@@ -119,7 +119,7 @@ halfword new_dir(int s)
 
 char *string_dir(int d)
 {
-    if (d==dir_TLT) {
+    if (d == dir_TLT) {
         return "TLT";
     } else if (d == dir_TRT) {
         return "TRT";
@@ -179,9 +179,7 @@ scaled_whd pack_width_height_depth(int curdir, int pdir, halfword p,
                 if (glyphdir_eq(curdir, pdir)) {
                     whd.ht = glyph_height(p);
                     whd.dp = glyph_depth(p);
-                } else
-                    if (glyphdir_opposite(curdir, pdir))
-                {
+                } else if (glyphdir_opposite(curdir, pdir)) {
                     whd.ht = glyph_depth(p);
                     whd.dp = glyph_height(p);
                 } else

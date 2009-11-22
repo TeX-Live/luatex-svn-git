@@ -540,8 +540,10 @@ void initialize_commands(void)
     eqtb[frozen_null_ocp_list] = eqtb[cur_val];
 
     primitive_tex("span", tab_mark_cmd, span_code, tab_mark_cmd_code);
-    primitive_luatex("aligntab", tab_mark_cmd, tab_mark_cmd_code, tab_mark_cmd_code);
-    primitive_luatex("alignmark", mac_param_cmd, tab_mark_cmd_code, tab_mark_cmd_code);
+    primitive_luatex("aligntab", tab_mark_cmd, tab_mark_cmd_code,
+                     tab_mark_cmd_code);
+    primitive_luatex("alignmark", mac_param_cmd, tab_mark_cmd_code,
+                     tab_mark_cmd_code);
     primitive_tex("cr", car_ret_cmd, cr_code, cr_code);
     cs_text(frozen_cr) = maketexstring("cr");
     eqtb[frozen_cr] = eqtb[cur_val];

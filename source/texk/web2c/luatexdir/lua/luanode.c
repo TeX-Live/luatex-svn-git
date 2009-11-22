@@ -158,7 +158,8 @@ lua_linebreak_callback(int is_broken, halfword head_node, halfword * new_head)
 
 
 halfword
-lua_hpack_filter(halfword head_node, scaled size, int pack_type, int extrainfo, int pack_direction)
+lua_hpack_filter(halfword head_node, scaled size, int pack_type, int extrainfo,
+                 int pack_direction)
 {
     halfword ret;
     lua_State *L = Luas;
@@ -173,7 +174,7 @@ lua_hpack_filter(halfword head_node, scaled size, int pack_type, int extrainfo, 
     lua_pushstring(L, group_code_names[extrainfo]);
     lua_pushnumber(L, size);
     lua_pushstring(L, pack_type_name[pack_type]);
-    if (pack_direction>=0)
+    if (pack_direction >= 0)
         lua_pushstring(L, string_dir(pack_direction));
     else
         lua_pushnil(L);
@@ -225,7 +226,7 @@ lua_vpack_filter(halfword head_node, scaled size, int pack_type, scaled maxd,
     lua_pushnumber(L, size);
     lua_pushstring(L, pack_type_name[pack_type]);
     lua_pushnumber(L, maxd);
-    if (pack_direction>=0)
+    if (pack_direction >= 0)
         lua_pushstring(L, string_dir(pack_direction));
     else
         lua_pushnil(L);
@@ -283,8 +284,8 @@ void lua_pdf_literal(PDF pdf, int i)
     size_t l = 0;
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, i);
     s = (char *) lua_tolstring(Luas, -1, &l);
-    if (l<max_single_pdf_print) {
-        pdf_out_block(pdf,s, l);
+    if (l < max_single_pdf_print) {
+        pdf_out_block(pdf, s, l);
     } else {
         while (l--) {
             pdf_out(pdf, *s++);

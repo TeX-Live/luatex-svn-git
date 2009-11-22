@@ -606,8 +606,8 @@ void fm_read_info(void)
                             if (tracefilenames)
                                 tex_printf("{%s", cur_file_name);
                             while (!fm_eof()) {
-                            fm_scan_line();
-                            mitem->lineno++;
+                                fm_scan_line();
+                                mitem->lineno++;
                             }
                             if (tracefilenames)
                                 tex_printf("}");
@@ -626,8 +626,8 @@ void fm_read_info(void)
                     fm_read_file();
                     tex_printf("{%s", cur_file_name);
                     while (!fm_eof()) {
-                    fm_scan_line();
-                    mitem->lineno++;
+                        fm_scan_line();
+                        mitem->lineno++;
                     }
                     fm_close();
                     tex_printf("}");
@@ -659,7 +659,7 @@ static fm_entry_ptr fmlookup(internalfontnumber f)
     if (tfm_tree == NULL)
         fm_read_info();         /* only to read default map file */
     tfm = font_name(f);
-    if (tfm == NULL)  /* wide, lua loaded fonts may not have a name */
+    if (tfm == NULL)            /* wide, lua loaded fonts may not have a name */
         return (fm_entry_ptr) dummy_fm_entry();
     assert(strcmp(tfm, nontfm));
 

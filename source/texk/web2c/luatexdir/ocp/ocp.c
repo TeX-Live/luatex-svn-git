@@ -77,7 +77,7 @@ void new_ocp(small_number a)
             goto COMMON_ENDING;
         }
     }
-    f = read_ocp_info(u, makecstring(cur_name), makecstring(cur_area), 
+    f = read_ocp_info(u, makecstring(cur_name), makecstring(cur_area),
                       makecstring(cur_ext), external_ocp);
   COMMON_ENDING:
     equiv(u) = f;

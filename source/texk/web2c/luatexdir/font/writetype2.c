@@ -144,7 +144,8 @@ void writetype2(PDF pdf, fd_entry * fd)
 
     ttf_curbyte = 0;
     ttf_size = 0;
-    cur_file_name = luatex_find_file(fd_cur->fm->ff_name, find_opentype_file_callback);
+    cur_file_name =
+        luatex_find_file(fd_cur->fm->ff_name, find_opentype_file_callback);
     if (cur_file_name == NULL) {
         pdftex_fail("cannot find OpenType font file for reading");
     }
@@ -275,7 +276,7 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer,
 
     if (sfont->type == SFNT_TYPE_TTC) {
         i = ff_get_ttc_index(fd->fm->ff_name, fd->fm->ps_name);
-        tex_printf("(%s:%ld)", (fd->fm->ps_name?fd->fm->ps_name:""), i);
+        tex_printf("(%s:%ld)", (fd->fm->ps_name ? fd->fm->ps_name : ""), i);
         error = sfnt_read_table_directory(sfont, ttc_read_offset(sfont, i));
     } else {
         error = sfnt_read_table_directory(sfont, 0);
@@ -288,7 +289,7 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer,
     if (is_subsetted(fd->fm)) {
         /* rebuild the glyph tables and create a fresh cidmap */
         glyphs = tt_build_init();
-        
+
         last_cid = 0;
 
         avl_t_init(&t, fd->gl_tree);
@@ -305,7 +306,7 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer,
         memset(cidtogidmap, 0, (last_cid + 1) * 2);
 #endif
 
-    /* fill used_chars */
+        /* fill used_chars */
         used_chars = xmalloc((last_cid + 1) * sizeof(char));
         memset(used_chars, 0, (last_cid + 1));
         avl_t_init(&t, fd->gl_tree);
@@ -317,13 +318,13 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer,
         /*
          * Map CIDs to GIDs.
          */
-        
-        num_glyphs = 1;             /* .notdef */
+
+        num_glyphs = 1;         /* .notdef */
         for (cid = 1; cid <= (long) last_cid; cid++) {
             if (used_chars[cid] == 0)
                 continue;
             gid = cid;
-            
+
 
 #ifndef NO_GHOSTSCRIPT_BUG
             gid = tt_add_glyph(glyphs, gid, cid);
@@ -350,7 +351,7 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer,
             fprintf(stdout, "[%u glyphs (Max CID: %u)]", glyphs->num_glyphs,
                     last_cid);
         }
-        
+
         tt_build_finish(glyphs);
     }
 

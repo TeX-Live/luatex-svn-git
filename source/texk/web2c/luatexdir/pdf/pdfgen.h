@@ -41,9 +41,9 @@ written bytes.
 #  define sup_pdf_op_buf_size 16384     /* size of the PDF output buffer */
 #  define inf_pdf_os_buf_size 1 /* initial value of |pdf_os_buf_size| */
 #  define sup_pdf_os_buf_size 5000000   /* arbitrary upper hard limit of |pdf_os_buf_size| */
-#  define max_single_pdf_print 8192 /* Max size that can be get from pdf_room() at once. 
-                                       the value is on the conservative side, but should be
-                                       large enough to cover most uses */
+#  define max_single_pdf_print 8192     /* Max size that can be get from pdf_room() at once. 
+                                           the value is on the conservative side, but should be
+                                           large enough to cover most uses */
 #  define pdf_os_max_objs 100   /* maximum number of objects in object stream */
 
 #  define inf_obj_tab_size 1000 /* min size of the cross-reference table for PDF output */

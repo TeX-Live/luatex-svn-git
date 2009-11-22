@@ -93,8 +93,8 @@ void store_fmt_file(void)
     else
         selector = term_and_log;
 
-    fmtname = pack_job_name(format_extension); 
-    while (!zopen_w_output (&fmt_file, fmtname, FOPEN_WBIN_MODE)) {
+    fmtname = pack_job_name(format_extension);
+    while (!zopen_w_output(&fmt_file, fmtname, FOPEN_WBIN_MODE)) {
         fmtname = prompt_file_name("format file name", format_extension);
     }
     tprint_nl("Beginning to dump on file");
@@ -381,7 +381,7 @@ boolean load_fmt_file(char *fmtname)
     if (strcmp(engine_name, format_engine)) {
         wake_up_terminal();
         wterm_cr();
-        fprintf(term_out, "---! %s was written by %s",fmtname, format_engine);
+        fprintf(term_out, "---! %s was written by %s", fmtname, format_engine);
         xfree(format_engine);
         goto BAD_FMT;
     }
@@ -391,7 +391,8 @@ boolean load_fmt_file(char *fmtname)
     if (x != 0x57325458) {      /* todo: @$ *//* check that strings are the same */
         wake_up_terminal();
         wterm_cr();
-        fprintf(term_out, "---! %s was written by a different version",fmtname);
+        fprintf(term_out, "---! %s was written by a different version",
+                fmtname);
         goto BAD_FMT;
     }
     undump_int(x);

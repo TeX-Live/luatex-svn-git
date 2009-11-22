@@ -25,14 +25,16 @@
 extern integer *input_file_callback_id;
 extern integer read_file_callback_id[17];
 
-extern char *luatex_find_file (char *s, int callback_index);
-extern char *luatex_find_read_file (char *s, int n, int callback_index);
-extern boolean luatex_open_input (FILE **f_ptr, char *fn, int filefmt, const_string fopen_mode, boolean must_exist);
-extern boolean luatex_open_output (FILE **f_ptr, char *fn, const_string fopen_mode);
+extern char *luatex_find_file(char *s, int callback_index);
+extern char *luatex_find_read_file(char *s, int n, int callback_index);
+extern boolean luatex_open_input(FILE ** f_ptr, char *fn, int filefmt,
+                                 const_string fopen_mode, boolean must_exist);
+extern boolean luatex_open_output(FILE ** f_ptr, char *fn,
+                                  const_string fopen_mode);
 
-extern boolean lua_a_open_in(alpha_file *f, char *fn, quarterword n);
-extern boolean lua_a_open_out(alpha_file *f, char *fn, quarterword n);
-extern boolean lua_b_open_out(alpha_file *f, char *fn);
+extern boolean lua_a_open_in(alpha_file * f, char *fn, quarterword n);
+extern boolean lua_a_open_out(alpha_file * f, char *fn, quarterword n);
+extern boolean lua_b_open_out(alpha_file * f, char *fn);
 extern void lua_a_close_in(alpha_file f, quarterword n);
 extern void lua_a_close_out(alpha_file f);
 
@@ -132,7 +134,8 @@ extern int readbinfile(FILE * f, unsigned char **b, integer * s);
 extern boolean openinnameok(const_string);
 extern boolean openoutnameok(const_string);
 
-extern boolean open_in_or_pipe(FILE **, char *, int, const_string fopen_mode, boolean must_exist);
+extern boolean open_in_or_pipe(FILE **, char *, int, const_string fopen_mode,
+                               boolean must_exist);
 extern boolean open_out_or_pipe(FILE **, char *, const_string fopen_mode);
 extern void close_file_or_pipe(FILE *);
 

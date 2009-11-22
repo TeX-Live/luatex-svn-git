@@ -121,8 +121,8 @@ void scan_full_spec(group_code c, integer spec_direction)
         update_attribute_cache();
     attr_list = attr_list_cache;
     assert(saved_type(0) == saved_boxcontext);
-    s = saved_value(0);     /* the box context */
-CONTINUE:
+    s = saved_value(0);         /* the box context */
+  CONTINUE:
     while (cur_cmd == relax_cmd || cur_cmd == spacer_cmd) {
         get_x_token();
         if (cur_cmd != relax_cmd && cur_cmd != spacer_cmd)
@@ -136,7 +136,7 @@ CONTINUE:
         v = cur_val;
         if ((attr_list != null) && (attr_list == attr_list_cache)) {
             attr_list = copy_attribute_list(attr_list_cache);
-            add_node_attr_ref(attr_list);   /* will be used once */
+            add_node_attr_ref(attr_list);       /* will be used once */
         }
         attr_list = do_set_attribute(attr_list, i, v);
         goto CONTINUE;
@@ -827,7 +827,8 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
     return r;
 }
 
-halfword filtered_hpack(halfword p, halfword qt, scaled w, int m, integer grp, int pac)
+halfword filtered_hpack(halfword p, halfword qt, scaled w, int m, integer grp,
+                        int pac)
 {
     halfword q;
     new_hyphenation(p, qt);
@@ -928,7 +929,8 @@ scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
                 siz.wd += surround(p);
                 break;
             case disc_node:
-                xx = natural_sizes(no_break(p), null, g_mult, g_sign, g_order, hpack_dir);
+                xx = natural_sizes(no_break(p), null, g_mult, g_sign, g_order,
+                                   hpack_dir);
                 siz.wd += xx.wd;
                 if (xx.ht > siz.ht)
                     siz.ht = xx.ht;
@@ -1195,7 +1197,8 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
     return r;
 }
 
-halfword filtered_vpackage(halfword p, scaled h, int m, scaled l, integer grp, int pack_direction)
+halfword filtered_vpackage(halfword p, scaled h, int m, scaled l, integer grp,
+                           int pack_direction)
 {
     halfword q;
     q = p;
@@ -1231,7 +1234,8 @@ void package(int c)
         subtype(cur_box) = HLIST_SUBTYPE_HBOX;
     } else {
         cur_box = filtered_vpackage(vlink(cur_list.head_field),
-                                    saved_value(1), saved_level(1), d, grp, saved_level(2));
+                                    saved_value(1), saved_level(1), d, grp,
+                                    saved_level(2));
         if (c == vtop_code) {
             /* Readjust the height and depth of |cur_box|,  for \.{\\vtop} */
             /* The height of a `\.{\\vtop}' box is inherited from the first item on its list,
@@ -1648,7 +1652,8 @@ halfword vsplit(halfword n, scaled h)
             filtered_vpackage(q, 0, additional, dimen_par(max_depth_code),
                               split_keep_group, vdir);
     return filtered_vpackage(p, h, exactly,
-                             dimen_par(split_max_depth_code), split_off_group, vdir);
+                             dimen_par(split_max_depth_code), split_off_group,
+                             vdir);
 }
 
 /*
