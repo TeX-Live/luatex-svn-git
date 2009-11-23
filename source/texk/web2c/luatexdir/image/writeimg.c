@@ -229,18 +229,22 @@ image_dict *new_image_dict(void)
 
 static void free_dict_strings(image_dict * p)
 {
-    if (img_filename(p) != NULL)
+    if (img_filename(p) != NULL) {
         xfree(img_filename(p));
-    img_filename(p) = NULL;
-    if (img_filepath(p) != NULL)
+        img_filename(p) = NULL;
+    }
+    if (img_filepath(p) != NULL) {
         xfree(img_filepath(p));
-    img_filepath(p) = NULL;
-    if (img_attr(p) != NULL)
+        img_filepath(p) = NULL;
+    }
+    if (img_attr(p) != NULL) {
         xfree(img_attr(p));
-    img_attr(p) = NULL;
-    if (img_pagename(p) != NULL)
+        img_attr(p) = NULL;
+    }
+    if (img_pagename(p) != NULL) {
         xfree(img_pagename(p));
-    img_pagename(p) = NULL;
+        img_pagename(p) = NULL;
+    }
 }
 
 void free_image_dict(image_dict * p)
@@ -299,9 +303,9 @@ void read_img(PDF pdf,
         } else
             img_filepath(idict) =
                 kpse_find_file(img_filename(idict), kpse_tex_format, true);
+        if (img_filepath(idict) == NULL)
+            pdftex_fail("cannot find image file");
     }
-    if (img_filepath(idict) == NULL)
-        pdftex_fail("cannot find image file");
     recorder_record_input(img_filename(idict));
     /* type checks */
     check_type_by_header(idict);
@@ -335,8 +339,8 @@ void read_img(PDF pdf,
         img_state(idict) = DICT_FILESCANNED;
 }
 
-static image_dict *read_image(PDF pdf, char *filename, integer page_num,
-                              char *page_name, char *attr, integer colorspace,
+static image_dict *read_image(PDF pdf, char *file_name, integer page_num,
+                              char *page_name, integer colorspace,
                               integer page_box, integer minor_version,
                               integer inclusion_errorlevel)
 {
@@ -348,17 +352,12 @@ static image_dict *read_image(PDF pdf, char *filename, integer page_num,
     img_index(idict) = pdf->ximage_count;
     set_obj_data_ptr(pdf, img_objnum(idict), img_index(idict));
     idict_to_array(idict);
-    /* img_xsize, img_ysize, img_xres, img_yres set by read_img() */
     img_colorspace(idict) = colorspace;
     img_pagenum(idict) = page_num;
-    /* img_totalpages set by read_img() */
-    if (page_name != 0)
-        img_pagename(idict) = xstrdup(page_name);
-    cur_file_name = filename;
-    assert(cur_file_name != NULL);
-    img_filename(idict) = xstrdup(filename);
-    if (attr != 0)
-        img_attr(idict) = xstrdup(attr);
+    img_pagename(idict) = page_name;
+    assert(file_name != NULL);
+    cur_file_name = file_name;
+    img_filename(idict) = file_name;
     img_pagebox(idict) = page_box;
     read_img(pdf, idict, minor_version, inclusion_errorlevel);
     return idict;
@@ -384,13 +383,9 @@ void scan_pdfximage(PDF pdf)
 {
     scaled_whd alt_rule;
     image_dict *idict;
-    integer transform = 0, page, pagebox, colorspace;
-    char *named = NULL, *attr = NULL, *s = NULL;
+    integer transform = 0, page = 1, pagebox, colorspace = 0;
+    char *named = NULL, *attr = NULL, *file_name = NULL;
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
-    attr = 0;
-    named = 0;
-    page = 1;
-    colorspace = 0;
     if (scan_keyword("attr")) {
         scan_pdf_ext_toks();
         attr = tokenlist_to_cstring(def_ref, true, NULL);
@@ -410,22 +405,19 @@ void scan_pdfximage(PDF pdf)
         colorspace = cur_val;
     }
     pagebox = scan_pdf_box_spec();
-    if (pagebox == PDF_BOX_SPEC_NONE)
+    if (pagebox == PDF_BOX_SPEC_NONE) {
         pagebox = pdf_pagebox;
-    if (pagebox == PDF_BOX_SPEC_NONE)
-        pagebox = PDF_BOX_SPEC_CROP;
+        if (pagebox == PDF_BOX_SPEC_NONE)
+            pagebox = PDF_BOX_SPEC_CROP;
+    }
     scan_pdf_ext_toks();
-    s = tokenlist_to_cstring(def_ref, true, NULL);
-    assert(s != NULL);
+    file_name = tokenlist_to_cstring(def_ref, true, NULL);
+    assert(file_name != NULL);
     delete_token_ref(def_ref);
     idict =
-        read_image(pdf, s, page, named, attr, colorspace, pagebox,
+        read_image(pdf, file_name, page, named, colorspace, pagebox,
                    pdf_minor_version, pdf_inclusion_errorlevel);
-    xfree(s);
-    if (named != NULL)
-        xfree(named);
-    if (attr != NULL)
-        xfree(attr);
+    img_attr(idict) = attr;
     img_dimen(idict) = alt_rule;
     img_transform(idict) = transform;
     pdf_last_ximage = img_objnum(idict);
