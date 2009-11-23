@@ -589,22 +589,19 @@ static void mk_suffixlist(void)
     int n;
 
 #  if defined(__CYGWIN__)
-    v = (char *) xmalloc(strlen(EXE_SUFFIXES) + 1);
-    strcpy(v, EXE_SUFFIXES);
+    v = xstrdup(EXE_SUFFIXES);
 #  else
     v = (char *) getenv("PATHEXT");
     if (v)                      /* strlwr() exists also in MingW */
-        v = (char *) strlwr(v);
-    else {
-        v = (char *) xmalloc(strlen(EXE_SUFFIXES) + 1);
-        strcpy(v, EXE_SUFFIXES);
-    }
+        v = (char *) strlwr(xstrdup(v));
+    else
+        v = xstrdup(EXE_SUFFIXES);
 #  endif
 
     q = v;
     n = 0;
 
-    while ((r = strchr(q, ';')) != 0) {
+    while ((r = strchr(q, ';')) != NULL) {
         n++;
         r++;
         q = r;
@@ -613,26 +610,22 @@ static void mk_suffixlist(void)
         n++;
     suffixlist = (char **) xmalloc((n + 2) * sizeof(char *));
     p = suffixlist;
-    *p = (char *) xmalloc(5);
-    strcpy(*p, ".dll");
+    *p = xstrdup(".dll");
     p++;
     q = v;
-    while ((r = strchr(q, ';')) != 0) {
+    while ((r = strchr(q, ';')) != NULL) {
         *r = '\0';
-        *p = (char *) xmalloc(strlen(q) + 1);
-        strcpy(*p, q);
-        *r = ';';
+        *p = xstrdup(q);
+        p++;
         r++;
         q = r;
-        p++;
     }
     if (*q) {
-        *p = (char *) xmalloc(strlen(q) + 1);
-        strcpy(*p, q);
+        *p = xstrdup(q);
         p++;
-        *p = NULL;
-    } else
-        *p = NULL;
+    }
+    *p = NULL;
+    free(v);
 }
 #endif                          /* WIN32 || __MIBGW32__ || __CYGWIN__ */
 
