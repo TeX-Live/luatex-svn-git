@@ -2825,6 +2825,8 @@ scaled make_op(pointer q)
                 small_fam(y) = math_fam(nucleus(q));
                 small_char(y) = math_character(nucleus(q));
                 x = var_delimiter(y, text_size, ok_size, &delta);
+                if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits))
+                    width(x) = width(x) - delta;        /* remove italic correction */
             } else {
                 ok_size = height_plus_depth(cur_f, cur_c) + 1;
                 while ((char_tag(cur_f, cur_c) == list_tag) &&
