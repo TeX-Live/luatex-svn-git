@@ -1756,7 +1756,7 @@ pointer get_delim_hbox(extinfo * ext, internal_font_number f, scaled v,
   will be the height of its topmost component.
 */
 
-void endless_loop_error(internal_font_number g, integer y)
+static void endless_loop_error(internal_font_number g, integer y)
 {
     char s[256];
     char *hlp[] = {
@@ -1770,7 +1770,7 @@ void endless_loop_error(internal_font_number g, integer y)
     tex_error(s, hlp);
 }
 
-pointer var_delimiter(pointer d, integer s, scaled v)
+static pointer var_delimiter(pointer d, integer s, scaled v, scaled *ic)
 {
     /* label found,continue; */
     pointer b;                  /* the box that will be constructed */
@@ -1852,10 +1852,14 @@ pointer var_delimiter(pointer d, integer s, scaled v)
         } else {
             b = char_box(f, c, att);
         }
+        if (ic!=NULL)
+            *ic = char_italic(f, c);
     } else {
         b = new_null_box();
         reset_attributes(b, att);
         width(b) = null_delimiter_space;        /* use this width if no delimiter was found */
+        if (ic!=NULL)
+            *ic = 0;
     }
     shift_amount(b) = half(height(b) - depth(b)) - math_axis(s);
     delete_attribute_ref(att);
@@ -2356,11 +2360,11 @@ void make_radical(pointer q)
     if (theta == undefined_math_parameter) {
         theta = fraction_rule(cur_style);
         y = var_delimiter(left_delimiter(q), cur_size,
-                          height(x) + depth(x) + clr + theta);
+                          height(x) + depth(x) + clr + theta, NULL);
         theta = height(y);
     } else {
         y = var_delimiter(left_delimiter(q), cur_size,
-                          height(x) + depth(x) + clr + theta);
+                          height(x) + depth(x) + clr + theta, NULL);
     }
     left_delimiter(q) = null;
     delta = (depth(y) + height(y) - theta) - (height(x) + depth(x) + clr);
@@ -2773,10 +2777,10 @@ void make_fraction(pointer q)
     /* Put the fraction into a box with its delimiters, and make |new_hlist(q)|
        point to it */
     delta = fraction_del_size(cur_style);
-    x = var_delimiter(left_delimiter(q), cur_size, delta);
+    x = var_delimiter(left_delimiter(q), cur_size, delta, NULL);
     left_delimiter(q) = null;
     vlink(x) = v;
-    z = var_delimiter(right_delimiter(q), cur_size, delta);
+    z = var_delimiter(right_delimiter(q), cur_size, delta, NULL);
     right_delimiter(q) = null;
     vlink(v) = z;
     y = hpack(x, 0, additional, -1);
@@ -2820,8 +2824,7 @@ scaled make_op(pointer q)
                 y = new_node(delim_node, 0);
                 small_fam(y) = math_fam(nucleus(q));
                 small_char(y) = math_character(nucleus(q));
-                x = var_delimiter(y, text_size, ok_size);
-                delta = 0;
+                x = var_delimiter(y, text_size, ok_size, &delta);
             } else {
                 ok_size = height_plus_depth(cur_f, cur_c) + 1;
                 while ((char_tag(cur_f, cur_c) == list_tag) &&
@@ -3233,6 +3236,11 @@ void make_scripts(pointer q, pointer p, scaled it)
     scaled delta1, delta2;
     delta1 = it;
     delta2 = 0;
+#ifdef DEBUG
+    printf("it: %d\n", it);
+    dump_simple_node(q);
+    printf("p: node %d, type=%d, subtype=%d\n", p, type(p), subtype(p));
+#endif
     switch (type(nucleus(q))) {
     case math_char_node:
     case math_text_char_node:
@@ -3417,7 +3425,7 @@ small_number make_left_right(pointer q, integer style, scaled max_d,
     delta2 = delta1 + delta1 - delimiter_shortfall;
     if (delta < delta2)
         delta = delta2;
-    tmp = var_delimiter(delimiter(q), cur_size, delta);
+    tmp = var_delimiter(delimiter(q), cur_size, delta, NULL);
     delimiter(q) = null;
     assign_new_hlist(q, tmp);
     if (subtype(q) == left_noad_side)
