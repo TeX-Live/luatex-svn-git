@@ -1,4 +1,49 @@
 ==============================================================
+Luatex beta-0.46.0 was released 20091126
+==============================================================
+
+New features:
+
+* The build.sh script now has better support for new MacOSX-es
+  (patch from Mojca).
+
+* Luatex now has experimental support for dynamic loading of 
+  external compiled lua libraries. Building luatex and loading
+  external .so/.dll files is reported to work on Windows,
+  linux and osx, other platforms are still unknown.
+
+* pdf.obj{type="stream"} no longer converts its argument to and
+  from a tokenlist. This allows the use of binary data in the
+  "string" argument. Such data does still have to hidden from 
+  the normal file parser by putting the code in a dofile() 
+  or by using string.char(), though.
+  
+Bug fixes:
+
+* Luatex 0.45.0 was not able to find truetype nor opentype fonts
+  if there were no callbacks defined (patch from Pawel).
+
+* 0.45.0 printed the user input instead of the full pathname
+  for \input-ed tex files.
+
+* The TFM reader now rejects fonts with tfm names that are 
+  longer than 255 characters because such font names cannot 
+  be stored in a DVI file.
+
+* The combination of \immediate\pdfxform followed by a later
+  \pdfrefxform could cause broken pdf output files because
+  the box used for the form could have been freed and even
+  reused already at that moment in time, sometimes resulting 
+  in an invalid transformation matrix.
+
+* The placement of super- and subscripts for displaystyle
+  \int's in CambriaMath is now better than before. It still
+  needs a tweak to the metrics though: in the current version,
+  the italic correction has to be substracted from the width
+  of the integral sign to get correct placement (context mkiv
+  does this).  to be continued ...
+
+==============================================================
 Luatex beta-0.45.0 was released 20091118
 ==============================================================
 
