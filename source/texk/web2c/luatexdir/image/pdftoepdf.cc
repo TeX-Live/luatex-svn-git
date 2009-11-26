@@ -459,7 +459,8 @@ static void copyFontResources(PDF pdf, Object * obj)
     pdf_puts(pdf, "/Font << ");
     for (i = 0, l = obj->dictGetLength(); i < l; ++i) {
         obj->dictGetValNF(i, &fontRef);
-        if (fontRef->isRef())
+        if (fontRef->isRef() ||
+            (fontRef->isDict() && (pdf->inclusion_copy_font == 0)))
             copyFont(pdf, obj->dictGetKey(i), &fontRef);
         else
             pdftex_fail("PDF inclusion: invalid font in reference type <%s>",
