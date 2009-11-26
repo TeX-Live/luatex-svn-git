@@ -19,6 +19,7 @@
 
 
 #include <ptexlib.h>
+#include "lua/luatex-api.h"
 
 
 #undef name
@@ -2337,7 +2338,16 @@ void show_whatsit_node(integer p)
         }
         if (obj_obj_is_file(static_pdf, pdf_obj_objnum(p)) > 0)
             tprint(" file");
-        print_mark(obj_obj_data(static_pdf, pdf_obj_objnum(p)));
+        if (obj_obj_is_stream(static_pdf, pdf_obj_objnum(p)) == 2 ||
+            obj_obj_is_file(static_pdf, pdf_obj_objnum(p)) == 2) {
+            lua_rawgeti(Luas, LUA_REGISTRYINDEX, 
+                        obj_obj_data(static_pdf, pdf_obj_objnum(p)));
+            print_char(' ');
+            tprint((char *)lua_tostring(Luas,-1));
+            lua_pop(Luas,1);
+        } else {
+            print_mark(obj_obj_data(static_pdf, pdf_obj_objnum(p)));
+        }
         break;
     case pdf_refxform_node:
     case pdf_refximage_node:

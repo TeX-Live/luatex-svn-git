@@ -22,6 +22,7 @@ static const char __svn_version[] =
     "$URL$";
 
 #include "ptexlib.h"
+#include "lua/luatex-api.h"
 
 integer pdf_last_obj;
 
@@ -42,8 +43,16 @@ void pdf_write_obj(PDF pdf, integer n)
     char *s;
     int saved_compress_level = pdf->compress_level;
     int os_level = 1;           /* gives compressed objects for \pdfobjcompresslevel > 0 */
-    s = tokenlist_to_cstring(obj_obj_data(pdf, n), true, NULL);
-    delete_token_ref(obj_obj_data(pdf, n));
+    int l = 0; /* possibly a lua registry reference */
+    if ((obj_obj_is_stream(pdf, n) == 2) || (obj_obj_is_file(pdf, n) == 2)) {
+        /* this value indicates a lua reference */
+        l = obj_obj_data(pdf, n);
+        lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
+        s = (char *)lua_tostring(Luas,-1);
+    } else {
+        s = tokenlist_to_cstring(obj_obj_data(pdf, n), true, NULL);
+        delete_token_ref(obj_obj_data(pdf, n));
+    }
     set_obj_obj_data(pdf, n, null);
     if (obj_obj_pdfcompresslevel(pdf, n) > -1) {        /* -1 = "unset" */
         pdf->compress_level = obj_obj_pdfcompresslevel(pdf, n);
@@ -107,7 +116,13 @@ void pdf_write_obj(PDF pdf, integer n)
         pdf_end_stream(pdf);
     else
         pdf_end_obj(pdf);
-    xfree(s);
+    if (l>0) {
+        /* doing this here removes the need for |strdup()| earlier */
+        lua_pop(Luas,1);
+        luaL_unref(Luas, LUA_REGISTRYINDEX, l);
+    } else {
+        xfree(s);
+    }
     pdf->compress_level = saved_compress_level;
 }
 

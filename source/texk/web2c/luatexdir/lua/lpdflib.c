@@ -378,8 +378,8 @@ static int table_obj(lua_State * L)
                     pdf_puts(static_pdf, "\n");
                 xfree(buf);
             } else {
-                set_obj_obj_is_file(static_pdf, k, 1);
-                set_obj_obj_data(static_pdf, k, tokenlist_from_lua(L));
+                set_obj_obj_is_file(static_pdf, k, 2); /* 2 = lua generated file name */
+                set_obj_obj_data(static_pdf, k, luaL_ref(L, LUA_REGISTRYINDEX));
             }
         }
         if (immediate == 1)
@@ -399,7 +399,7 @@ static int table_obj(lua_State * L)
         } else {
             if (compress_level > -1)
                 set_obj_obj_pdfcompresslevel(static_pdf, k, compress_level);
-            set_obj_obj_is_stream(static_pdf, k, 1);
+            set_obj_obj_is_stream(static_pdf, k, 2); /* 2 = lua generated stream */
         }
         if (!lua_isnil(L, -2)) {        /* file-s? string-s? t */
             lua_pop(L, 1);      /* string-s? t */
@@ -409,8 +409,9 @@ static int table_obj(lua_State * L)
             if (immediate == 1) {
                 s = (char *) lua_tolstring(L, -1, &len);        /* string-s t */
                 buf_to_pdfbuf_macro(static_pdf, s, len);
-            } else
-                set_obj_obj_data(static_pdf, k, tokenlist_from_lua(L));
+            } else {
+                set_obj_obj_data(static_pdf, k, luaL_ref(L, LUA_REGISTRYINDEX));
+            }
         } else {
             if (!lua_isstring(L, -1))   /* !file-s nil t */
                 luaL_error(L,
@@ -421,8 +422,8 @@ static int table_obj(lua_State * L)
                 buf_to_pdfbuf_macro(static_pdf, buf, buflen);
                 xfree(buf);
             } else {
-                set_obj_obj_is_file(static_pdf, k, 1);
-                set_obj_obj_data(static_pdf, k, tokenlist_from_lua(L));
+                set_obj_obj_is_file(static_pdf, k, 2); /* 2 == lua_generated */
+                set_obj_obj_data(static_pdf, k, luaL_ref(L,LUA_REGISTRYINDEX));
             }
         }
         if (immediate == 1)
@@ -475,7 +476,7 @@ static int orig_obj(lua_State * L)
         if (len1 == 4 && strcmp(st1, "file") == 0) {
             if (n == 3)
                 luaL_error(L, "pdf.obj() 3rd argument forbidden in file mode");
-            set_obj_obj_is_file(static_pdf, k, 1);
+            set_obj_obj_is_file(static_pdf, k, 2);
         } else {
             if (n == 3) {       /* write attr text */
                 if (!lua_isstring(L, (first_arg + 2)))
@@ -484,14 +485,14 @@ static int orig_obj(lua_State * L)
                 lua_pop(L, 1);
             }
             if (len1 == 6 && strcmp(st1, "stream") == 0) {
-                set_obj_obj_is_stream(static_pdf, k, 1);
+                set_obj_obj_is_stream(static_pdf, k, 2);
             } else if (len1 == 10 && strcmp(st1, "streamfile") == 0) {
-                set_obj_obj_is_stream(static_pdf, k, 1);
-                set_obj_obj_is_file(static_pdf, k, 1);
+                set_obj_obj_is_stream(static_pdf, k, 2);
+                set_obj_obj_is_file(static_pdf, k, 2);
             } else
                 luaL_error(L, "pdf.obj() invalid argument");
         }
-        set_obj_obj_data(static_pdf, k, tokenlist_from_lua(L));
+        set_obj_obj_data(static_pdf, k, luaL_ref(L, LUA_REGISTRYINDEX));
         break;
     default:
         luaL_error(L, "pdf.obj() allows max. 3 arguments");
