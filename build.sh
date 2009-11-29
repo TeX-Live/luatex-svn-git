@@ -51,10 +51,9 @@ done
 STRIP=strip
 LUATEXEXE=luatex
 
-if [ `uname` = "Darwin" ] ; 
-then
-   export MACOSX_DEPLOYMENT_TARGET=10.4
-fi;
+case `uname` in
+  MINGW32*    ) LUATEXEXE=luatex.exe ;;
+esac
 
 B=build
 CONFHOST=

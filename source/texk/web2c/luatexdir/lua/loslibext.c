@@ -244,11 +244,44 @@ static int spawn_command(const char *file, char *const *argv, char *const *envp)
 
 extern char **environ;
 
-static char **do_split_command(char *maincmd)
+#ifdef WIN32
+static char *get_command_name(char *maincmd)
 {
+    /* retrieve argv[0] part from the command string, 
+    it will be truncated to MAX_PATH if it's too long */
+    char *cmdname = (char *) malloc(sizeof(char) * MAX_PATH);
+    int i, k, quoted;
+    quoted = k = 0;
+    for (i = 0; (i < MAX_PATH) && maincmd[i] && 
+                (maincmd[i] != ' ' && maincmd[i] != '\t' || quoted); i++) {
+        if (maincmd[i] == '"') {
+            quoted = !quoted;
+        } else {
+            cmdname[k] = maincmd[i];
+            k++;
+        }
+    }
+    cmdname[k] = '\0';
+    return cmdname;
+}
+#endif
+
+static char **do_split_command(char *maincmd, char **runcmd)
+{
+    char **cmdline = NULL;
+#ifdef WIN32
+    /* On WIN32 don't split anything, because 
+    _spawnvpe can't put it back together properly 
+    if there are quoted arguments with spaces. 
+    Instead, dump everything into one argument 
+    and it will be passed through as is */
+    cmdline = malloc(sizeof(char *) * 2);
+    cmdline[0] = xstrdup(maincmd);
+    cmdline[1] = NULL;
+    *runcmd = get_command_name(cmdline[0]);
+#else
     char *piece, *start_piece;
     char *cmd;
-    char **cmdline = NULL;
     unsigned int i, j;
     int ret = 0;
     int in_string = 0;
@@ -298,6 +331,8 @@ static char **do_split_command(char *maincmd)
         quoted = 0;
     }
     xfree(start_piece);
+    *runcmd = cmdline[0];
+#endif
     return cmdline;
 }
 
@@ -339,7 +374,11 @@ static char **do_flatten_command(lua_State * L, char **runcmd)
 
     lua_rawgeti(L, -1, 0);
     if (lua_isnil(L, -1) || (s = (char *) lua_tostring(L, -1)) == NULL) {
+#ifdef WIN32
+        *runcmd = get_command_name(cmdline[0]);
+#else
         *runcmd = cmdline[0];
+#endif
     } else {
         *runcmd = xstrdup(s);
     }
@@ -368,8 +407,7 @@ static int os_exec(lua_State * L)
     }
     if (lua_type(L, 1) == LUA_TSTRING) {
         maincmd = (char *) lua_tostring(L, 1);
-        cmdline = do_split_command(maincmd);
-        runcmd = cmdline[0];
+        cmdline = do_split_command(maincmd, &runcmd);
     } else if (lua_type(L, 1) == LUA_TTABLE) {
         cmdline = do_flatten_command(L, &runcmd);
     }
@@ -447,8 +485,7 @@ static int os_spawn(lua_State * L)
     }
     if (lua_type(L, 1) == LUA_TSTRING) {
         maincmd = (char *) lua_tostring(L, 1);
-        cmdline = do_split_command(maincmd);
-        runcmd = cmdline[0];
+        cmdline = do_split_command(maincmd, &runcmd);
     } else if (lua_type(L, 1) == LUA_TTABLE) {
         cmdline = do_flatten_command(L, &runcmd);
     }
