@@ -22,6 +22,14 @@
 #ifndef STRINGPOOL_H
 #  define STRINGPOOL_H
 
+/* Both lua and tex strings can contains null, but C strings cannot, so: */
+
+typedef struct {
+    char *s;
+    size_t l;
+} lstring;
+
+
 extern packed_ASCII_code *str_pool;
 extern pool_pointer *str_start;
 extern pool_pointer pool_ptr;
@@ -91,7 +99,5 @@ extern integer pool_to_unichar(pool_pointer t);
 extern unsigned char *uni2str(unsigned);
 extern unsigned str2uni(unsigned char *);
 #  define utf8_size(a) (a>0xFFFF ? 4 : (a>0x7FF ? 3 : (a>0x7F? 2 : 1)))
-
-
 
 #endif
