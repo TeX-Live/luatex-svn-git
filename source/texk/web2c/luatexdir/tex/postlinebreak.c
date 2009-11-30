@@ -314,8 +314,8 @@ void ext_post_line_break(boolean d,
                 p = alink(q);   /* get |vlink(p) = q| */
                 assert(vlink(p) == q);
                 ptmp = p;
-                p = find_protchar_right(vlink(temp_head), p);
             }
+            p = find_protchar_right(vlink(temp_head), p);
             w = char_pw(p, right_side);
             if (w != 0) {       /* we have found a marginal kern, append it after |ptmp| */
                 k = new_margin_kern(-w, last_rightmost_char, right_side);
