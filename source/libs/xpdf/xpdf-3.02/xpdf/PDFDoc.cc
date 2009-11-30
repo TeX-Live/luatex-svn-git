@@ -18,6 +18,8 @@
 #include <string.h>
 #ifdef WIN32
 #  include <windows.h>
+#  include <io.h>
+#  include <sys/locking.h>
 #endif
 #include "GString.h"
 #include "config.h"
@@ -72,6 +74,15 @@ PDFDoc::PDFDoc(GString *fileNameA, GString *ownerPassword,
     errCode = errOpenFile;
     return;
   }
+#ifdef WIN32
+  /* block other processes from messing with the file */
+  if(_locking(_fileno(file), _LK_LOCK, 0xFFFFFFFFL)) {
+    fclose(file);
+    error(-1, "Couldn't lock file '%s'", fileName->getCString());
+    errCode = errOpenFile;
+    return;
+  }
+#endif
 
   // create stream
   obj.initNull();
@@ -124,6 +135,13 @@ PDFDoc::PDFDoc(wchar_t *fileNameA, int fileNameLen, GString *ownerPassword,
   }
   if (!file) {
     error(-1, "Couldn't open file '%s'", fileName->getCString());
+    errCode = errOpenFile;
+    return;
+  }
+  /* block other processes from messing with the file */
+  if(_locking(_fileno(file), _LK_LOCK, 0xFFFFFFFFL)) {
+    fclose(file);
+    error(-1, "Couldn't lock file '%s'", fileName->getCString());
     errCode = errOpenFile;
     return;
   }
