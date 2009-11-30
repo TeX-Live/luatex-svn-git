@@ -1395,9 +1395,11 @@ void new_graf(boolean indented)
         p = new_null_box();
         box_dir(p) = par_direction;
         width(p) = par_indent;
+        q = tail;
         tail_append(p);
+    } else {
+        q = tail;
     }
-    q = tail;
     dir_rover = text_dir_ptr;
     while (dir_rover != null) {
         if ((vlink(dir_rover) != null) || (dir_dir(dir_rover) != par_direction)) {
