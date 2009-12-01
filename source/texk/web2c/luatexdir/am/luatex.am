@@ -30,8 +30,13 @@ if XETEX_MACOSX
 # OSX can do dlopen() without extra options
 else
 # linux, freebsd
+# FreeBSD does not need libdl, but still needs the linker flag
 luatex_LDFLAGS = -Wl,-E
+if FREEBSD
+else
+# linux
 luatex_ldadd += -ldl
+endif
 endif
 endif
 
