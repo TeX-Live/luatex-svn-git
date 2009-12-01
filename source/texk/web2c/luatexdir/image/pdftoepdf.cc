@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <sys/stat.h>
 #ifdef POPPLER_VERSION
 #  define GString GooString
 #  include <dirent.h>
@@ -704,11 +705,30 @@ static PDFRectangle *get_pagebox(Page * page, integer pagebox_spec)
     return page->getMediaBox(); // to make the compiler happy
 }
 
+char *
+get_file_checksum (char *a) 
+{
+    struct stat finfo;
+    char *ck = NULL;
+    if (stat(a,&finfo)==0) {
+        int size = finfo.st_size;
+        int mtime = finfo.st_mtime;
+        ck = (char *)malloc(32);
+        if (ck==NULL)
+            pdftex_fail("PDF inclusion: out of memory while processing '%s'", a);
+        sprintf(ck,"%d_%d", size, mtime);        
+    } else {
+        pdftex_fail("PDF inclusion: could not stat() file '%s'", a);
+    }
+    return ck;
+}
+
 // Reads various information about the PDF and sets it up for later inclusion.
 // This will fail if the PDF version of the PDF is higher than
 // minor_pdf_version_wanted or page_name is given and can not be found.
 // It makes no sense to give page_name _and_ page_num.
 // Returns the page number.
+
 
 void
 read_pdf_info(PDF pdf,
@@ -728,6 +748,8 @@ read_pdf_info(PDF pdf,
         globalParams->setErrQuiet(gFalse);
         isInit = gTrue;
     }
+    // calculate a checksum string
+    img_checksum(idict) = get_file_checksum(img_filepath(idict));
     // open PDF file
     pdf_doc = refPdfDocument(img_filepath(idict));
     // check PDF version
@@ -835,7 +857,7 @@ read_pdf_info(PDF pdf,
     } else {
         epdf_lastGroupObjectNum = 0;
     }
-
+    unrefPdfDocument(img_filepath(idict));
 }
 
 // Writes the current epf_doc.
@@ -851,8 +873,15 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     char *key;
     char s[256];
     int i, l;
-    PdfDocument *pdf_doc = (PdfDocument *) findPdfDocument(img_filepath(idict));
-    assert(pdf_doc != NULL);
+    PdfDocument *pdf_doc;
+    // open PDF file
+    if (strcmp(img_checksum(idict),get_file_checksum(img_filepath(idict)))==0) {
+        pdf_doc = refPdfDocument(img_filepath(idict));
+        pdf_doc->xref = pdf_doc->doc->getXRef();
+        (void)pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
+    } else {
+        pdftex_fail("PDF inclusion: file has changed '%s'",img_filename(idict));
+    }
     xref = pdf_doc->xref;
     inObjList = pdf_doc->inObjList;
     encodingList = NULL;

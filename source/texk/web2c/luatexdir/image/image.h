@@ -103,6 +103,7 @@ typedef struct {
     char *filename;             /* requested raw file name */
     char *filepath;             /* full file path after kpathsea */
     char *attr;                 /* additional image dict entries */
+    char *checksum;             /* for reopening */
     FILE *file;
     imgtype_e image_type;
     int color_space;            /* used color space. See JPG_ constants */
@@ -141,6 +142,7 @@ typedef struct {
 #  define img_filename(N)       ((N)->filename)
 #  define img_filepath(N)       ((N)->filepath)
 #  define img_attr(N)           ((N)->attr)
+#  define img_checksum(N)       ((N)->checksum)
 #  define img_file(N)           ((N)->file)
 #  define img_type(N)           ((N)->image_type)
 #  define img_color(N)          ((N)->color_space)
