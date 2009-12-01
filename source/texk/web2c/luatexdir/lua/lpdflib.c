@@ -24,22 +24,6 @@ static const char _svn_version[] =
 #include "lua/luatex-api.h"
 #include <ptexlib.h>
 
-static int find_pos_h(lua_State * L)
-{
-    int j;
-    j = static_pdf->posstruct->pos.h;
-    lua_pushnumber(L, j);
-    return 1;
-}
-
-static int find_pos_v(lua_State * L)
-{
-    int j;
-    j = static_pdf->posstruct->pos.v;
-    lua_pushnumber(L, j);
-    return 1;
-}
-
 #define buf_to_pdfbuf_macro(p, s, l)              \
 for (i = 0; i < (l); i++) {                       \
     if (i % 16 == 0)                              \
@@ -86,9 +70,11 @@ int luapdfprint(lua_State * L)
     case (set_origin):
         pdf_goto_pagemode(static_pdf);
         pdf_set_pos(static_pdf, static_pdf->posstruct->pos);
+        (void)calc_pdfpos(static_pdf->pstruct, static_pdf->posstruct->pos);            
         break;
     case (direct_page):
         pdf_goto_pagemode(static_pdf);
+        (void)calc_pdfpos(static_pdf->pstruct, static_pdf->posstruct->pos);            
         break;
     case (direct_always):
         pdf_end_string_nl(static_pdf);
@@ -546,23 +532,57 @@ static int l_reserveobj(lua_State * L)
 
 static int getpdf(lua_State * L)
 {
-    char *st;
+    char *st, *s;
+    int l;
     if (lua_isstring(L, 2)) {
         st = (char *) lua_tostring(L, 2);
-        if (st && *st) {
-            if (*st == 'h')
-                return find_pos_h(L);
-            else if (*st == 'v')
-                return find_pos_v(L);
+        if (st) {
+            if (strcmp(st,"h")==0) {
+                lua_pushnumber(L, static_pdf->posstruct->pos.h);
+            } else if (strcmp(st,"v")==0) {
+                lua_pushnumber(L, static_pdf->posstruct->pos.v);
+            } else if (strcmp(st,"pdfcatalog")==0) {
+                s = tokenlist_to_cstring(pdf_catalog_toks, true, &l);
+                lua_pushlstring(L,s,l);
+            } else if (strcmp(st,"pdfinfo")==0) {
+                s = tokenlist_to_cstring(pdf_info_toks, true, &l);
+                lua_pushlstring(L,s,l);
+            } else if (strcmp(st,"pdfnames")==0) {
+                s = tokenlist_to_cstring(pdf_names_toks, true, &l);
+                lua_pushlstring(L,s,l);
+            } else if (strcmp(st,"pdftrailer")==0) {
+                s = tokenlist_to_cstring(pdf_trailer_toks, true, &l);
+                lua_pushlstring(L,s,l);
+            } else {
+                lua_pushnil(L);
+            }
+        } else {
+            lua_pushnil(L);
         }
+    }  else {
+        lua_pushnil(L);
     }
-    lua_pushnil(L);
     return 1;
 }
 
 static int setpdf(lua_State * L)
 {
-    return (L == NULL ? 0 : 0); /* for -Wall */
+    char *st;
+    if (lua_gettop(L) != 3) {
+        return 0;
+    } 
+    /* can't set |h| and |v| yet */
+    st = (char *) luaL_checkstring(L, 2);
+    if (strcmp(st,"pdfcatalog")==0) {
+        pdf_catalog_toks = tokenlist_from_lua(L);
+    } else if (strcmp(st,"pdfinfo")==0) {
+        pdf_info_toks = tokenlist_from_lua(L);
+    } else if (strcmp(st,"pdfnames")==0) {
+        pdf_info_toks = tokenlist_from_lua(L);
+    } else if (strcmp(st,"pdftrailer")==0) {
+        pdf_trailer_toks = tokenlist_from_lua(L);
+    }
+    return 0;
 }
 
 static const struct luaL_reg pdflib[] = {
@@ -598,11 +618,9 @@ int luaopen_pdf(lua_State * L)
     lua_pushstring(L, "__index");
     lua_pushcfunction(L, getpdf);
     /* do these later, NYI */
-    if (0) {
-        lua_settable(L, -3);
-        lua_pushstring(L, "__newindex");
-        lua_pushcfunction(L, setpdf);
-    }
+    lua_settable(L, -3);
+    lua_pushstring(L, "__newindex");
+    lua_pushcfunction(L, setpdf);
     lua_settable(L, -3);
     lua_setmetatable(L, -2);    /* meta to itself */
     return 1;
