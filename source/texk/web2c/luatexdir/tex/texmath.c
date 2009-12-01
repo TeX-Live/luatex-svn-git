@@ -786,7 +786,6 @@ void new_save_level_math(group_code c)
     eq_word_define(int_base + body_direction_code, math_direction);
     eq_word_define(int_base + par_direction_code, math_direction);
     eq_word_define(int_base + text_direction_code, math_direction);
-    eq_word_define(int_base + level_local_dir_code, cur_level);
 }
 
 void push_math(group_code c, int mstyle)

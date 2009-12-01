@@ -2360,7 +2360,6 @@ void prefixed_command(void)
                 dir_level(tail) = cur_level;
             }
             eq_word_define(int_base + no_local_dirs_code, no_local_dirs + 1);
-            eq_word_define(int_base + level_local_dir_code, cur_level);
             break;
         }
         break;
@@ -3536,7 +3535,6 @@ void initialize(void)
         max_dead_cycles = 25;
         escape_char = '\\';
         end_line_char = carriage_return;
-        eqtb[int_base + level_local_dir_code].cint = level_one;
         set_del_code('.', tex_mathcode, 0, 0, 0, 0, level_one); /* this null delimiter is used in error recovery */
         ex_hyphen_char = '-';
         output_box = 255;

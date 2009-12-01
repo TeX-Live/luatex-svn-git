@@ -176,7 +176,6 @@ void scan_full_spec(group_code c, integer spec_direction)
     eq_word_define(int_base + body_direction_code, spec_direction);
     eq_word_define(int_base + par_direction_code, spec_direction);
     eq_word_define(int_base + text_direction_code, spec_direction);
-    eq_word_define(int_base + level_local_dir_code, cur_level);
 }
 
 

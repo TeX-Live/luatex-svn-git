@@ -287,7 +287,7 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define local_broken_penalty_code 56  /* local \.{\\brokenpenalty} */
 #  define no_local_whatsits_code 57     /* counts local whatsits */
 #  define no_local_dirs_code 58
-#  define level_local_dir_code 59
+
 #  define luastartup_id_code 60
 #  define disable_lig_code 61
 #  define disable_kern_code 62
