@@ -2336,29 +2336,14 @@ void prefixed_command(void)
             if ((no_local_dirs > 0) && (abs(mode) == hmode)) {
                 /* DIR: Add local dir node */
                 tail_append(new_dir(text_direction));
-
-                dir_dir(tail) = dir_dir(tail);
             }
-            if (dir_level(text_dir_ptr) == cur_level) {
-                /* DIR: Remove from |text_dir_ptr| */
-                halfword text_dir_tmp = vlink(text_dir_ptr);
-                flush_node(text_dir_ptr);
-                text_dir_ptr = text_dir_tmp;
-
-            }
-            eq_word_define(int_base + text_direction_code, cur_val);
-            /* DIR: Add to |text_dir_ptr| */
-            {
-                halfword text_dir_tmp = new_dir(text_direction);
-                vlink(text_dir_tmp) = text_dir_ptr;
-                text_dir_ptr = text_dir_tmp;
-            }
+            update_text_dir_ptr(cur_val);
             if (abs(mode) == hmode) {
                 /* DIR: Add local dir node */
-                tail_append(new_dir(text_direction));
-
+                tail_append(new_dir(cur_val));
                 dir_level(tail) = cur_level;
             }
+            eq_word_define(int_base + text_direction_code, cur_val);
             eq_word_define(int_base + no_local_dirs_code, no_local_dirs + 1);
             break;
         }

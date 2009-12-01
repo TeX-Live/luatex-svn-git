@@ -205,3 +205,16 @@ scaled_whd pack_width_height_depth(int curdir, int pdir, halfword p,
     }
     return whd;
 }
+
+void update_text_dir_ptr (int val)
+{
+    if (dir_level(text_dir_ptr) == cur_level) {
+        /* update */
+        dir_dir(text_dir_ptr) = val;
+    } else {
+        /* addition */
+        halfword text_dir_tmp = new_dir(val);
+        vlink(text_dir_tmp) = text_dir_ptr;
+        text_dir_ptr = text_dir_tmp;
+    }
+}
