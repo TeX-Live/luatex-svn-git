@@ -75,12 +75,18 @@ PDFDoc::PDFDoc(GString *fileNameA, GString *ownerPassword,
     return;
   }
 #ifdef WIN32
-  /* block other processes from messing with the file */
-  if(_locking(_fileno(file), _LK_LOCK, 0xFFFFFFFFL)) {
-    fclose(file);
-    error(-1, "Couldn't lock file '%s'", fileName->getCString());
-    errCode = errOpenFile;
-    return;
+  {
+    /* block other processes from messing with the file */
+    long len;
+    fseek (file, 0L, SEEK_END);
+    len = ftell (file);
+    fseek (file, 0L, SEEK_SET);
+    if(_locking(_fileno(file), _LK_NBLCK, len)) {
+      fclose(file);
+      error(-1, "Couldn't lock file '%s'", fileName->getCString());
+      errCode = errOpenFile;
+      return;
+    }
   }
 #endif
 
@@ -138,12 +144,18 @@ PDFDoc::PDFDoc(wchar_t *fileNameA, int fileNameLen, GString *ownerPassword,
     errCode = errOpenFile;
     return;
   }
-  /* block other processes from messing with the file */
-  if(_locking(_fileno(file), _LK_LOCK, 0xFFFFFFFFL)) {
-    fclose(file);
-    error(-1, "Couldn't lock file '%s'", fileName->getCString());
-    errCode = errOpenFile;
-    return;
+  {
+    /* block other processes from messing with the file */
+    long len;
+    fseek (file, 0L, SEEK_END);
+    len = ftell (file);
+    fseek (file, 0L, SEEK_SET);
+    if(_locking(_fileno(file), _LK_NBLCK, len)) {
+      fclose(file);
+      error(-1, "Couldn't lock file '%s'", fileName->getCString());
+      errCode = errOpenFile;
+      return;
+    }
   }
 
   // create stream
@@ -227,6 +239,13 @@ PDFDoc::~PDFDoc() {
     delete str;
   }
   if (file) {
+#ifdef WIN32
+    long len;
+    fseek (file, 0L, SEEK_END);
+    len = ftell (file);
+    fseek (file, 0L, SEEK_SET);
+    (void)_locking(_fileno(file), _LK_UNLCK, len);
+#endif
     fclose(file);
   }
   if (fileName) {
