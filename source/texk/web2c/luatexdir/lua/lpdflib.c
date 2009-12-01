@@ -578,7 +578,7 @@ static int setpdf(lua_State * L)
     } else if (strcmp(st,"pdfinfo")==0) {
         pdf_info_toks = tokenlist_from_lua(L);
     } else if (strcmp(st,"pdfnames")==0) {
-        pdf_info_toks = tokenlist_from_lua(L);
+        pdf_names_toks = tokenlist_from_lua(L);
     } else if (strcmp(st,"pdftrailer")==0) {
         pdf_trailer_toks = tokenlist_from_lua(L);
     }
