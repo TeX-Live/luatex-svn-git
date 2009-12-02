@@ -918,8 +918,11 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
                                 font_MATH_par(f,
                                               FractionDenominatorDisplayStyleShiftDown),
                                 lvl);
-        DEFINE_MATH_PARAMETERS(math_param_fraction_del_size, size_id, 0, lvl);
-        DEFINE_DMATH_PARAMETERS(math_param_fraction_del_size, size_id, 0, lvl);
+
+        DEFINE_MATH_PARAMETERS(math_param_fraction_del_size, size_id, 
+                               font_MATH_par(f, FractionDelimiterSize), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_fraction_del_size, size_id, 
+                                font_MATH_par(f, FractionDelimiterDisplayStyleSize), lvl);
 
         DEFINE_MATH_PARAMETERS(math_param_space_after_script, size_id,
                                font_MATH_par(f, SpaceAfterScript), lvl);

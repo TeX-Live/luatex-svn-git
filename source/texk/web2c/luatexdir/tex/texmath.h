@@ -318,6 +318,8 @@ typedef enum {
     RadicalDegreeBottomRaisePercent,
     MinConnectorOverlap,
     SubscriptShiftDownWithSuperscript,
+    FractionDelimiterSize,
+    FractionDelimiterDisplayStyleSize,
     MATH_param_last,
 } MATH_param_codes;
 

@@ -97,6 +97,8 @@ const char *MATH_param_names[] = {
     "RadicalDegreeBottomRaisePercent",
     "MinConnectorOverlap",
     "SubscriptShiftDownWithSuperscript",
+    "FractionDelimiterSize",
+    "FractionDelimiterDisplayStyleSize",
     NULL,
 };
 
