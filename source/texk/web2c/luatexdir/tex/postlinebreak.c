@@ -151,6 +151,9 @@ void ext_post_line_break(boolean d,
         for (q = dir_ptr; q != null; q = vlink(q)) {
             halfword tmp = new_dir(dir_dir(q));
             halfword nxt = vlink(temp_head);
+            delete_attribute_ref(node_attr(tmp));
+            node_attr(tmp) = node_attr(temp_head);
+            add_node_attr_ref (node_attr(tmp));
             couple_nodes(temp_head, tmp);
             try_couple_nodes(tmp, nxt); /* \break\par */
         }
@@ -319,6 +322,9 @@ void ext_post_line_break(boolean d,
             w = char_pw(p, right_side);
             if (w != 0) {       /* we have found a marginal kern, append it after |ptmp| */
                 k = new_margin_kern(-w, last_rightmost_char, right_side);
+                delete_attribute_ref(node_attr(k));
+                node_attr(k) = node_attr(p);
+                add_node_attr_ref (node_attr(k));
                 vlink(k) = vlink(ptmp);
                 vlink(ptmp) = k;
                 if (ptmp == q)
@@ -331,6 +337,9 @@ void ext_post_line_break(boolean d,
             /* @<Put the \(r)\.{\\rightskip} glue after node |q|@>; */
             halfword r = new_param_glue(right_skip_code);
             vlink(r) = vlink(q);
+            delete_attribute_ref(node_attr(r));
+            node_attr(r) = node_attr(q);
+            add_node_attr_ref (node_attr(r));
             vlink(q) = r;
             q = r;
         }
@@ -370,12 +379,18 @@ void ext_post_line_break(boolean d,
             w = char_pw(p, left_side);
             if (w != 0) {
                 k = new_margin_kern(-w, last_leftmost_char, left_side);
+                delete_attribute_ref(node_attr(k));
+                node_attr(k) = node_attr(q);
+                add_node_attr_ref (node_attr(k));
                 vlink(k) = q;
                 q = k;
             }
         };
         if (left_skip != zero_glue) {
             r = new_param_glue(left_skip_code);
+            delete_attribute_ref(node_attr(r));
+            node_attr(r) = node_attr(q);
+            add_node_attr_ref (node_attr(r));
             vlink(r) = q;
             q = r;
         }
