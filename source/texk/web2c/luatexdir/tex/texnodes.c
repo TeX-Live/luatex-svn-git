@@ -2088,6 +2088,12 @@ int unset_attribute(halfword n, int i, int val)
     p = node_attr(n);
     if (p == null)
         return UNUSED_ATTRIBUTE;
+    if (attr_list_ref(p) == 0) {
+        fprintf(stdout,
+                "Node %d has an attribute list that is free already\n",
+                (int) n);
+        return UNUSED_ATTRIBUTE;
+    }
     assert(vlink(p) != null);
     while (vlink(p) != null) {
         t = attribute_id(vlink(p));
@@ -2104,17 +2110,13 @@ int unset_attribute(halfword n, int i, int val)
         return UNUSED_ATTRIBUTE;
     /* if we are still here, the attribute exists */
     p = node_attr(n);
-    if (attr_list_ref(p) != 1) {
+    if (attr_list_ref(p) > 1 || p==attr_list_cache) {
+        p = copy_attribute_list(p);
         if (attr_list_ref(p) > 1) {
-            p = copy_attribute_list(p);
             delete_attribute_ref(node_attr(n));
-            node_attr(n) = p;
-        } else {
-            fprintf(stdout,
-                    "Node %d has an attribute list that is free already\n",
-                    (int) n);
         }
         attr_list_ref(p) = 1;
+        node_attr(n) = p;
     }
     p = vlink(p);
     while (j-- > 0)
