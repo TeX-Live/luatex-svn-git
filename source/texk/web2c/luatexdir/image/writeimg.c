@@ -718,7 +718,8 @@ void dumpimagemeta(void)
     int cur_index, i;
     image_dict *idict;
 
-    dumpinteger(idict_limit);
+    i = (int)idict_limit; 
+    dumpinteger(i);
     cur_index = (idict_ptr - idict_array);
     dumpinteger(cur_index);
 
