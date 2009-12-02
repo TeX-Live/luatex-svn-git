@@ -24830,7 +24830,7 @@ IFS=$ac_save_IFS
 case $host_os in *\ *) host_os=`echo "$host_os" | sed 's/ /-/g'`;; esac
 
 
- if case $host_os in *-*-freebsd*) true;; *) false;; esac; then
+ if case $host in *-*-freebsd*) true;; *) false;; esac; then
   FREEBSD_TRUE=
   FREEBSD_FALSE='#'
 else
