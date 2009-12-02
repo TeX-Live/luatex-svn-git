@@ -283,6 +283,9 @@ void ext_post_line_break(boolean d,
             e = vlink(r);
             for (p = dir_ptr; p != null; p = vlink(p)) {
                 halfword s = new_dir(dir_dir(p) - 64);
+                delete_attribute_ref(node_attr(s));
+                node_attr(s) = node_attr(r);
+                add_node_attr_ref (node_attr(s));
                 couple_nodes(r, s);
                 try_couple_nodes(s, e);
                 r = s;
