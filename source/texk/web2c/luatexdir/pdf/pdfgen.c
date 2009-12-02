@@ -1785,7 +1785,10 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
             pdf_printf(pdf, "/Annots [ ");
             ol = res_p->annot_list;
             while (ol != NULL) {
-                pdf_print_int(pdf, ol->info);
+                if (ol->info>0)
+                    pdf_print_int(pdf, ol->info);
+                else
+                    pdf_print_int(pdf, (-ol->info));
                 pdf_printf(pdf, " 0 R ");
                 ol = ol->link;
             }
@@ -1846,12 +1849,14 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
         /* Write out PDF annotations */
         if ((ol = res_p->annot_list) != NULL) {
             while (ol != NULL) {
-                j = obj_annot_ptr(pdf, ol->info);       /* |j| points to |pdf_annot_node| */
-                pdf_begin_dict(pdf, ol->info, 1);
-                pdf_printf(pdf, "/Type /Annot\n");
-                pdf_print_toks_ln(pdf, pdf_annot_data(j));
-                pdf_rectangle(pdf, j);
-                pdf_end_dict(pdf);
+                if (ol->info > 0) {
+                    j = obj_annot_ptr(pdf, ol->info);       /* |j| points to |pdf_annot_node| */
+                    pdf_begin_dict(pdf, ol->info, 1);
+                    pdf_printf(pdf, "/Type /Annot\n");
+                    pdf_print_toks_ln(pdf, pdf_annot_data(j));
+                    pdf_rectangle(pdf, j);
+                    pdf_end_dict(pdf);
+                }
                 ol = ol->link;
             }
         }

@@ -530,6 +530,26 @@ static int l_reserveobj(lua_State * L)
     return 1;
 }
 
+static int l_registerannot(lua_State * L)
+{
+    int n, i;
+    n = lua_gettop(L);
+    switch (n) {
+    case 1:
+        if (!is_shipping_page)
+            luaL_error(L, "pdf.registerannot() can only be used in late lua");
+        i = luaL_checkinteger(L,1);
+        if (i<=0)
+            luaL_error(L, "pdf.registerannot() can only register positive object numbers");
+        append_object_list(static_pdf, obj_type_annot, (-i));
+        break;
+    default:
+        luaL_error(L, "pdf.registerannot() needs exactly 1 argument");
+    }
+    return 0;
+}
+
+
 static int getpdf(lua_State * L)
 {
     char *st, *s;
@@ -589,6 +609,7 @@ static const struct luaL_reg pdflib[] = {
     {"print", luapdfprint},
     {"immediateobj", l_immediateobj},
     {"obj", l_obj},
+    {"registerannot", l_registerannot},
     {"reserveobj", l_reserveobj},
     {NULL, NULL}                /* sentinel */
 };
