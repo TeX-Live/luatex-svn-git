@@ -757,7 +757,7 @@ void undumpimagemeta(PDF pdf, integer pdfversion,
     image_dict *idict;
 
     assert(pdf != NULL);
-    undumpinteger(idict_limit);
+    undumpinteger(i); idict_limit=i;
 
     idict_array = xtalloc(idict_limit, idict_entry);
     undumpinteger(cur_index);
