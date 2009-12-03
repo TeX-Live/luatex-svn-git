@@ -94,7 +94,7 @@ extern integer set_tex_count_register(integer j, scaled v);
 extern integer set_tex_box_register(integer j, scaled v);
 extern integer set_tex_attribute_register(integer j, scaled v);
 extern integer get_tex_toks_register(integer l);
-extern integer set_tex_toks_register(integer j, str_number s);
+extern integer set_tex_toks_register(integer j, lstring s);
 extern scaled get_tex_box_width(integer j);
 extern integer set_tex_box_width(integer j, scaled v);
 extern scaled get_tex_box_height(integer j);

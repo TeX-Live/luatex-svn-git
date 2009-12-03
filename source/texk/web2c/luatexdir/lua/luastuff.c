@@ -384,15 +384,6 @@ void luatokencall(int p, int nameptr)
     lua_active--;
 }
 
-
-
-void luatex_load_init(int s, LoadS * ls)
-{
-    ls->s = (const char *) &(str_pool[str_start[s]]);
-    ls->size = str_start[s + 1] - str_start[s];
-}
-
-
 lua_State *luatex_error(lua_State * L, int is_fatal)
 {
 

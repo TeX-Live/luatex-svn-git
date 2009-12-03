@@ -1049,7 +1049,7 @@ void scan_int(void)
             if (is_active_cs(txt))
                 cur_val = active_cs_value(txt);
             else if (single_letter(txt))
-                cur_val = pool_to_unichar(str_start_macro(txt));
+                cur_val = pool_to_unichar(str_string(txt));
             else
                 cur_val = (biggest_char + 1);
         }
@@ -1646,8 +1646,8 @@ halfword the_toks(void)
 {
     int old_setting;            /* holds |selector| setting */
     halfword p, q, r;           /* used for copying a token list */
-    pool_pointer b;             /* base of temporary string */
     int c;                      /* value of |cur_chr| */
+    str_number s;
     /* Handle \.{\\unexpanded} or \.{\\detokenize} and |return| */
     if (odd(cur_chr)) {
         c = cur_chr;
@@ -1657,13 +1657,13 @@ halfword the_toks(void)
         } else {
             old_setting = selector;
             selector = new_string;
-            b = pool_ptr;
             p = get_avail();
             set_token_link(p, token_link(temp_token_head));
             token_show(p);
             flush_list(p);
             selector = old_setting;
-            return str_toks(b);
+            s = make_string();
+            return str_toks(str_lstring(s));
         }
     }
     get_x_token();
@@ -1685,7 +1685,6 @@ halfword the_toks(void)
     } else {
         old_setting = selector;
         selector = new_string;
-        b = pool_ptr;
         switch (cur_val_level) {
         case int_val_level:
             print_int(cur_val);
@@ -1710,7 +1709,8 @@ halfword the_toks(void)
             break;
         }                       /* there are no other cases */
         selector = old_setting;
-        return str_toks(b);
+        s = make_string();
+        return str_toks(str_lstring(s));
     }
 }
 
@@ -1722,7 +1722,7 @@ str_number the_scanned_result(void)
     selector = new_string;
     if (cur_val_level >= ident_val_level) {
         if (cur_val != null) {
-            show_token_list(token_link(cur_val), null, pool_size - pool_ptr);
+            show_token_list(token_link(cur_val), null, -1);
             r = make_string();
         } else {
             r = get_nullstr();

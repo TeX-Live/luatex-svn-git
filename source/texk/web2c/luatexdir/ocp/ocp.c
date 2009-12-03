@@ -23,8 +23,6 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define flush_string() do { decr(str_ptr); pool_ptr=str_start_macro(str_ptr); } while (0)
-
 int **ocp_tables;
 
 static int ocp_entries = 0;

@@ -254,7 +254,7 @@ vf_def_font(internal_font_number f, unsigned char *vf_buffer, integer * vf_cr)
         tmp_b0--;
         (*vf_cr)++;             /* skip the font path */
     }
-    str_room(tmp_b1);
+    str_room((unsigned)tmp_b1);
     while (tmp_b1 > 0) {
         tmp_b1--;
         junk = vf_buffer[(*vf_cr)];

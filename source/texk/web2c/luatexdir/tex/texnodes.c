@@ -1855,46 +1855,6 @@ halfword new_span_node(halfword n, int s, scaled w)
     return p;
 }
 
-halfword string_to_pseudo(integer l, integer pool_ptr, integer nl)
-{
-    halfword i, r, q = null;
-    four_quarters w;
-    int sz;
-    halfword h = new_node(pseudo_file_node, 0);
-    while (l < pool_ptr) {
-        int m = l;
-        while ((l < pool_ptr) && (str_pool[l] != nl))
-            l++;
-        sz = (l - m + 7) / 4;
-        if (sz == 1)
-            sz = 2;
-        r = new_node(pseudo_line_node, sz);
-        i = r;
-        while (--sz > 1) {
-            w.b0 = str_pool[m++];
-            w.b1 = str_pool[m++];
-            w.b2 = str_pool[m++];
-            w.b3 = str_pool[m++];
-            varmem[++i].qqqq = w;
-        }
-        w.b0 = (l > m ? str_pool[m++] : ' ');
-        w.b1 = (l > m ? str_pool[m++] : ' ');
-        w.b2 = (l > m ? str_pool[m++] : ' ');
-        w.b3 = (l > m ? str_pool[m] : ' ');
-        varmem[++i].qqqq = w;
-        if (pseudo_lines(h) == null) {
-            pseudo_lines(h) = r;
-            q = r;
-        } else {
-            couple_nodes(q, r);
-        }
-        q = vlink(q);
-        if (str_pool[l] == nl)
-            l++;
-    }
-    return h;
-}
-
 /* attribute stuff */
 
 static halfword new_attribute_node(unsigned int i, int v)
@@ -2267,7 +2227,7 @@ void show_whatsit_node(integer p)
         } else {
             append_char('.');
             show_node_list(local_box_left(p));
-            decr(pool_ptr);
+            decr(cur_length);
         }
         print_ln();
         print_current_string();
@@ -2277,9 +2237,9 @@ void show_whatsit_node(integer p)
         } else {
             append_char('.');
             show_node_list(local_box_right(p));
-            decr(pool_ptr);
+            decr(cur_length);
         }
-        decr(pool_ptr);
+        decr(cur_length);
         break;
     case pdf_literal_node:
         show_pdf_literal(p);
@@ -2553,7 +2513,7 @@ void show_node_list(integer p)
 {                               /* prints a node list symbolically */
     integer n;                  /* the number of items already printed at this level */
     real g;                     /* a glue ratio, as a floating point number */
-    if (cur_length > depth_threshold) {
+    if ((int)cur_length > depth_threshold) {
         if (p > null)
             tprint(" []");      /* indicate that there's been some truncation */
         return;

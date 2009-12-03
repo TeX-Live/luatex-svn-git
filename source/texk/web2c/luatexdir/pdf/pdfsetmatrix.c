@@ -78,7 +78,7 @@ void matrix_stack_room(void)
 
 */
 
-void pdfsetmatrix(poolpointer in, scaledpos pos)
+static void pdfsetmatrix(const char *in, scaledpos pos)
 {
     /* Argument of \pdfsetmatrix starts with str_pool[in] and ends
        before str_pool[pool_ptr]. */
@@ -86,10 +86,9 @@ void pdfsetmatrix(poolpointer in, scaledpos pos)
     matrix_entry x, *y, *z;
 
     if (page_mode) {
-        if (sscanf((const char *) &str_pool[in], " %lf %lf %lf %lf ",
+        if (sscanf((const char *) in, " %lf %lf %lf %lf ",
                    &x.a, &x.b, &x.c, &x.d) != 4) {
-            pdftex_warn("Unrecognized format of \\pdfsetmatrix{%s}",
-                        &str_pool[pool_ptr]);
+            pdftex_warn("Unrecognized format of \\pdfsetmatrix{%s}", in);
             return;
         }
         /* calculate this transformation matrix */
@@ -219,20 +218,10 @@ void pdf_out_setmatrix(PDF pdf, halfword p)
     str_number s;
     old_setting = selector;
     selector = new_string;
-    show_token_list(token_link(pdf_setmatrix_data(p)), null,
-                    pool_size - pool_ptr);
+    show_token_list(token_link(pdf_setmatrix_data(p)), null, -1);
+    pdfsetmatrix((char *)cur_string, pos);
+    tprint(" 0 0 cm");
     selector = old_setting;
-    str_room(7);
-    str_pool[pool_ptr] = 0;     /* make C string for pdfsetmatrix  */
-    pdfsetmatrix(str_start_macro(str_ptr), pos);
-    str_room(7);
-    append_char(' ');
-    append_char('0');
-    append_char(' ');
-    append_char('0');
-    append_char(' ');
-    append_char('c');
-    append_char('m');
     s = make_string();
     pdf_literal(pdf, s, set_origin, false);
     flush_str(s);

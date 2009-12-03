@@ -667,7 +667,6 @@ extern void set_attribute(halfword n, int c, int w);
 extern int has_attribute(halfword n, int c, int w);
 
 extern halfword new_span_node(halfword n, int c, scaled w);
-extern halfword string_to_pseudo(integer l, integer pool_ptr, integer nl);
 
 extern void print_short_node_contents(halfword n);
 extern void show_node_list(integer i);

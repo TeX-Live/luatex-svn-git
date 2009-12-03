@@ -996,16 +996,12 @@ integer get_tex_toks_register(integer j)
     return s;
 }
 
-integer set_tex_toks_register(integer j, str_number s)
+integer set_tex_toks_register(integer j, lstring s)
 {
-    pool_pointer s_pool_ptr;
     halfword ref;
     int a;
-    s_pool_ptr = pool_ptr;
-    pool_ptr = str_start_macro(s + 1);
     ref = get_avail();
-    (void) str_toks(str_start_macro(s));
-    pool_ptr = s_pool_ptr;
+    (void) str_toks(s);
     set_token_ref_count(ref, 0);
     set_token_link(ref, token_link(temp_token_head));
     if (global_defs > 0)
@@ -1013,7 +1009,6 @@ integer set_tex_toks_register(integer j, str_number s)
     else
         a = 0;
     define(j + toks_base, call_cmd, ref);
-    flush_str(s);
     return 0;
 }
 

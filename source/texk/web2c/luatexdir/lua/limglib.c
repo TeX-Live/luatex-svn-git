@@ -534,7 +534,7 @@ static int l_scan_image(lua_State * L)
     aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);    /* image */
     a = *aa;
     check_o_mode(static_pdf, "img.scan()", 1 << OMODE_PDF, false);
-    flush_str(last_tex_string);
+    /* flush_str(last_tex_string); */ /* ?? */
     read_scale_img(a);
     return 1;                   /* image */
 }
@@ -568,7 +568,7 @@ static void setup_image(PDF pdf, image * a, wrtype_e writetype)
     assert(a != NULL);
     ad = img_dict(a);
     check_o_mode(pdf, (char *) wrtype_s[writetype], 1 << OMODE_PDF, false);
-    flush_str(last_tex_string);
+    /* flush_str(last_tex_string); */ /* ?? */
     read_scale_img(a);
     if (img_objnum(ad) == 0) {  /* latest needed just before out_img() */
         pdf->ximage_count++;

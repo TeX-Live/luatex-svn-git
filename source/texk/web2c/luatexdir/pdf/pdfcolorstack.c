@@ -153,34 +153,27 @@ int newcolorstack(integer s, integer literal_mode, boolean page_start)
 #define get_colstack(n) (&colstacks[n])
 
 /* Puts a string on top of the string pool and updates pool_ptr. */
-static void put_cstring_on_str_pool(poolpointer start, char *str)
+static void put_cstring_on_str_pool(char *str)
 {
-    size_t len;
-
+    int save_selector = selector;
+    selector = new_string;
     if (str == NULL || *str == 0) {
         return;
     }
-
-    len = strlen(str);
-    pool_ptr = start + len;
-    if (pool_ptr >= pool_size) {
-        pool_ptr = pool_size;
-        /* error by str_toks that calls str_room(1) */
-        return;
-    }
-    memcpy(&str_pool[start], str, len);
+    tprint(str);
+    selector = save_selector;
 }
 
-integer colorstackset(int colstack_no, integer s)
+integer colorstackset(int colstack_no, str_number s)
 {
     colstack_type *colstack = get_colstack(colstack_no);
 
     if (page_mode) {
         xfree(colstack->page_current);
-        colstack->page_current = xstrdup(makecstring(s));
+        colstack->page_current = makecstring(s);
     } else {
         xfree(colstack->form_current);
-        colstack->form_current = xstrdup(makecstring(s));
+        colstack->form_current = makecstring(s);
     }
     return colstack->literal_mode;
 }
@@ -190,18 +183,17 @@ integer colorstackcurrent(int colstack_no)
     colstack_type *colstack = get_colstack(colstack_no);
 
     if (page_mode) {
-        put_cstring_on_str_pool(pool_ptr, colstack->page_current);
+        put_cstring_on_str_pool(colstack->page_current);
     } else {
-        put_cstring_on_str_pool(pool_ptr, colstack->form_current);
+        put_cstring_on_str_pool(colstack->form_current);
     }
     return colstack->literal_mode;
 }
 
-integer colorstackpush(int colstack_no, integer s)
+static integer colorstackpush(int colstack_no, str_number s)
 {
     colstack_type *colstack = get_colstack(colstack_no);
     char *str;
-
     if (page_mode) {
         if (colstack->page_used == colstack->page_size) {
             colstack->page_size += STACK_INCREMENT;
@@ -213,7 +205,7 @@ integer colorstackpush(int colstack_no, integer s)
         if (*str == 0) {
             colstack->page_current = NULL;
         } else {
-            colstack->page_current = xstrdup(str);
+            colstack->page_current = str;
         }
     } else {
         if (colstack->form_used == colstack->form_size) {
@@ -226,7 +218,7 @@ integer colorstackpush(int colstack_no, integer s)
         if (*str == 0) {
             colstack->form_current = NULL;
         } else {
-            colstack->form_current = xstrdup(str);
+            colstack->form_current = str;
         }
     }
     return colstack->literal_mode;
@@ -244,7 +236,7 @@ integer colorstackpop(int colstack_no)
         }
         xfree(colstack->page_current);
         colstack->page_current = colstack->page_stack[--colstack->page_used];
-        put_cstring_on_str_pool(pool_ptr, colstack->page_current);
+        put_cstring_on_str_pool(colstack->page_current);
     } else {
         if (colstack->form_used == 0) {
             pdftex_warn("pop empty color form stack %u",
@@ -253,7 +245,7 @@ integer colorstackpop(int colstack_no)
         }
         xfree(colstack->form_current);
         colstack->form_current = colstack->form_stack[--colstack->form_used];
-        put_cstring_on_str_pool(pool_ptr, colstack->form_current);
+        put_cstring_on_str_pool(colstack->form_current);
     }
     return colstack->literal_mode;
 }
@@ -323,8 +315,7 @@ void pdf_out_colorstack(PDF pdf, halfword p)
     case colorstack_push:
         old_setting = selector;
         selector = new_string;
-        show_token_list(token_link(pdf_colorstack_data(p)), null,
-                        pool_size - pool_ptr);
+        show_token_list(token_link(pdf_colorstack_data(p)), null,-1);
         selector = old_setting;
         s = make_string();
         if (cmd == colorstack_set)

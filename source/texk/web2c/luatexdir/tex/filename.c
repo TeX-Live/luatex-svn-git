@@ -100,26 +100,32 @@ static boolean more_name(ASCII_code c)
 
 static void end_name(void)
 {
+    unsigned char *s;
     if (str_ptr + 3 > (max_strings + STRING_OFFSET))
         overflow("number of strings", max_strings - init_str_ptr);
     /* @:TeX capacity exceeded number of strings}{\quad number of strings@> */
-
+    /* at this point, the full string lives in |cur_string| */
     if (area_delimiter == 0) {
         cur_area = get_nullstr();
     } else {
-        cur_area = str_ptr;
-        str_start_macro(str_ptr + 1) =
-            str_start_macro(str_ptr) + area_delimiter;
-        incr(str_ptr);
+        s = (unsigned char *)xstrdup((char *)(cur_string + area_delimiter));
+        cur_string[area_delimiter] = '\0';
+        cur_length = strlen((char *)cur_string);
+        cur_area = make_string();
+        cur_length = strlen((char *)s);
+        cur_string = s;
     }
     if (ext_delimiter == 0) {
-        cur_ext = get_nullstr();
         cur_name = make_string();
+        cur_ext = get_nullstr();
     } else {
-        cur_name = str_ptr;
-        str_start_macro(str_ptr + 1) =
-            str_start_macro(str_ptr) + ext_delimiter - area_delimiter - 1;
-        incr(str_ptr);
+        int l = (ext_delimiter - area_delimiter -1);
+        s = (unsigned char *)xstrdup((char *)(cur_string + l));
+        cur_string[l] = '\0';
+        cur_length = strlen((char *)cur_string);
+        cur_name = make_string();
+        cur_length = strlen((char *)s);
+        cur_string = s;
         cur_ext = make_string();
     }
 }
@@ -278,27 +284,27 @@ char *prompt_file_name(char *s, char *e)
 void print_file_name(str_number n, str_number a, str_number e)
 {
     boolean must_quote;         /* whether to quote the filename */
-    pool_pointer j;             /* index into |str_pool| */
+    unsigned char *j;             /* index into string */
     must_quote = false;
     if (a != 0) {
-        j = str_start_macro(a);
-        while ((!must_quote) && (j < str_start_macro(a + 1))) {
-            must_quote = (str_pool[j] == ' ');
-            incr(j);
+        j = str_string(a);
+        while ((!must_quote) && (*j)) {
+            must_quote = (*j == ' ');
+            j++;
         }
     }
     if (n != 0) {
-        j = str_start_macro(n);
-        while ((!must_quote) && (j < str_start_macro(n + 1))) {
-            must_quote = (str_pool[j] == ' ');
-            incr(j);
+        j = str_string(n);
+        while ((!must_quote) && (*j)) {
+            must_quote = (*j == ' ');
+            j++;
         }
     }
     if (e != 0) {
-        j = str_start_macro(e);
-        while ((!must_quote) && (j < str_start_macro(e + 1))) {
-            must_quote = (str_pool[j] == ' ');
-            incr(j);
+        j = str_string(e);
+        while ((!must_quote) && (*j)) {
+            must_quote = (*j == ' ');
+            j++;
         }
     }
     /* FIXME: Alternative is to assume that any filename that has to be quoted has
@@ -311,19 +317,19 @@ void print_file_name(str_number n, str_number a, str_number e)
     if (must_quote)
         print_char('"');
     if (a != 0) {
-        for (j = str_start_macro(a); j <= str_start_macro(a + 1) - 1; j++)
-            if (str_pool[j] != '"')
-                print_char(str_pool[j]);
+        for (j = str_string(a); *j; j++)
+            if (*j != '"')
+                print_char(*j);
     }
     if (n != 0) {
-        for (j = str_start_macro(n); j <= str_start_macro(n + 1) - 1; j++)
-            if (str_pool[j] != '"')
-                print_char(str_pool[j]);
+        for (j = str_string(n); *j; j++)
+            if (*j != '"')
+                print_char(*j);
     }
     if (e != 0) {
-        for (j = str_start_macro(e); j <= str_start_macro(e + 1) - 1; j++)
-            if (str_pool[j] != '"')
-                print_char(str_pool[j]);
+        for (j = str_string(e); *j; j++)
+            if (*j != '"')
+                print_char(*j);
     }
     if (must_quote)
         print_char('"');

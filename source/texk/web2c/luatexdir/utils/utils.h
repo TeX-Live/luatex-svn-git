@@ -29,10 +29,6 @@ extern char *pdftex_banner;
 
 void make_subset_tag(fd_entry *);
 
-str_number maketexstring(const char *);
-
-str_number maketexlstring(const char *, size_t);
-void append_string(char *s);
 __attribute__ ((format(printf, 1, 2)))
 void tex_printf(const char *, ...);
 
@@ -41,23 +37,17 @@ void pdftex_fail(const char *, ...);
 __attribute__ ((format(printf, 1, 2)))
 void pdftex_warn(const char *, ...);
 void garbage_warning(void);
-char *makecstring(integer);
-char *makeclstring(integer, size_t *);
 void make_pdftex_banner(void);
 size_t xfwrite(void *, size_t size, size_t nmemb, FILE *);
 int xfflush(FILE *);
 int xgetc(FILE *);
 int xputc(int, FILE *);
 scaled ext_xn_over_d(scaled, scaled, scaled);
-void escapehex(poolpointer in);
-void unescapehex(poolpointer in);
-char *makecfilename(str_number s);
 char *stripzeros(char *);
 void initversionstring(char **versions);
 extern void check_buffer_overflow(int wsize);
 extern void check_pool_overflow(int wsize);
 
-extern str_number last_tex_string;
 extern char *cur_file_name;
 
 #endif                          /* UTILS_H */

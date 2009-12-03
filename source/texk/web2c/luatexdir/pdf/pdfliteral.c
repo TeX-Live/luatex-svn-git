@@ -29,7 +29,7 @@ void pdf_special(PDF pdf, halfword p)
     str_number s;
     old_setting = selector;
     selector = new_string;
-    show_token_list(token_link(write_tokens(p)), null, pool_size - pool_ptr);
+    show_token_list(token_link(write_tokens(p)), null, -1);
     selector = old_setting;
     s = make_string();
     pdf_literal(pdf, s, scan_special, true);
@@ -51,8 +51,7 @@ void pdf_out_literal(PDF pdf, halfword p)
     if (pdf_literal_type(p) == normal) {
         old_setting = selector;
         selector = new_string;
-        show_token_list(token_link(pdf_literal_data(p)), null,
-                        pool_size - pool_ptr);
+        show_token_list(token_link(pdf_literal_data(p)), null, -1);
         selector = old_setting;
         s = make_string();
         pdf_literal(pdf, s, pdf_literal_mode(p), false);
@@ -81,17 +80,14 @@ void pdf_out_literal(PDF pdf, halfword p)
 /* test equality of start of strings */
 static boolean str_in_cstr(str_number s, char *r, unsigned i)
 {
-    pool_pointer j;             /* running indices */
-    unsigned char *k;
+    unsigned char *k, *l;
     if ((unsigned) str_length(s) < i + strlen(r))
         return false;
-    j = i + str_start_macro(s);
     k = (unsigned char *) r;
-    while ((j < str_start_macro(s + 1)) && (*k)) {
-        if (str_pool[j] != *k)
+    l = str_string(s) + i;
+    while ((*l) && (*k)) {
+        if (*l++ != *k++)
             return false;
-        j++;
-        k++;
     }
     return true;
 }
@@ -100,7 +96,7 @@ void pdf_literal(PDF pdf, str_number s, integer literal_mode, boolean warn)
 {
     pool_pointer j = 0;         /* current character code position, initialized to make the compiler happy */
     if (s >= STRING_OFFSET) {   /* needed for |out_save| */
-        j = str_start_macro(s);
+        j = 0;
         if (literal_mode == scan_special) {
             if (!(str_in_cstr(s, "PDF:", 0) || str_in_cstr(s, "pdf:", 0))) {
                 if (warn
@@ -138,12 +134,14 @@ void pdf_literal(PDF pdf, str_number s, integer literal_mode, boolean warn)
         break;
     }
     if (s >= STRING_OFFSET) {
-        int l = str_start_macro(s + 1) - j;
+        unsigned char *ss = str_string(s);
+        int l = str_length(s) - j;
         if (l < max_single_pdf_print) {
-            pdf_out_block(pdf, (str_pool + j), l);
+            pdf_out_block(pdf, (ss+j), l);
         } else {
+            
             while (l--)
-                pdf_out(pdf, str_pool[j++]);
+                pdf_out(pdf, *(ss+j++));
         }
     } else {
         assert(s < 256);

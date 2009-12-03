@@ -174,8 +174,7 @@ int luacstring_input(void)
         last = first;
         ret = last;
         check_buffer_overflow(last + t->tsize);
-        /* make sure it fits in the pool as well (for show_token_list c.s) */
-        check_pool_overflow(pool_ptr + t->tsize);
+
         while (t->tsize-- > 0)
             buffer[last++] = *st++;
         if (!t->partial) {
@@ -482,10 +481,9 @@ static int getattribute(lua_State * L)
 
 int vsettoks(lua_State * L, int is_global)
 {
-    int i, j, err;
-    size_t len;
+    int i, err;
     integer k;
-    char *st;
+    lstring str;
     integer save_global_defs = int_par(global_defs_code);
     if (is_global)
         int_par(global_defs_code) = 1;
@@ -494,14 +492,12 @@ int vsettoks(lua_State * L, int is_global)
         lua_pushstring(L, "unsupported value type");
         lua_error(L);
     }
-    st = (char *) lua_tolstring(L, i, &len);
+    str.s = (unsigned char *) lua_tolstring(L, i, &str.l);
     k = get_item_index(L, (i - 1), toks_base);
     check_index_range(k, "settoks");
-    j = maketexlstring(st, len);
-    err = set_tex_toks_register(k, j);
+    err = set_tex_toks_register(k, str);
     int_par(global_defs_code) = save_global_defs;
     if (err) {
-        flush_str(j);
         lua_pushstring(L, "incorrect value");
         lua_error(L);
     }

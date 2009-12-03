@@ -67,14 +67,6 @@ in production versions of \TeX.
 #  define inf_dvi_buf_size   800
 #  define sup_dvi_buf_size   65536
 
-#  define inf_pool_size   128000
-#  define sup_pool_size   40000000
-#  define inf_pool_free   1000
-#  define sup_pool_free   sup_pool_size
-
-#  define inf_string_vacancies   8000
-#  define sup_string_vacancies   (sup_pool_size - 23000)
-
 #  define sup_hash_extra   sup_max_strings
 #  define inf_hash_extra   0
 
@@ -151,9 +143,6 @@ extern integer ocp_buf_size;
 extern integer ocp_stack_size;
 extern integer max_strings;
 extern integer strings_free;
-extern integer string_vacancies;
-extern integer pool_size;
-extern integer pool_free;
 extern integer font_k;
 extern integer buf_size;
 extern integer stack_size;

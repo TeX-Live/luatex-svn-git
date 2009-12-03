@@ -48,8 +48,6 @@ extern int luaopen_texio(lua_State * L);
 
 extern int luaopen_lang(lua_State * L);
 
-extern void luatex_load_init(int s, LoadS * ls);
-
 extern lua_State *luatex_error(lua_State * L, int fatal);
 
 extern int luaopen_unicode(lua_State * L);

@@ -207,14 +207,6 @@ integer ocp_buf_size;
 integer ocp_stack_size;
 integer max_strings;            /* maximum number of strings; must not exceed |max_halfword| */
 integer strings_free;           /* strings available after format loaded */
-integer string_vacancies;       /* the minimum number of characters that should be
-                                   available for the user's control sequences and font names,
-                                   after \TeX's own error messages are stored */
-integer pool_size;              /* maximum number of characters in strings, including all
-                                   error messages and help texts, and the names of all fonts and
-                                   control sequences; must exceed |string_vacancies| by the total
-                                   length of \TeX's own strings, which is currently about 23000 */
-integer pool_free;              /* pool space free after format loaded */
 integer font_k;                 /* loop variable for initialization */
 integer buf_size;               /* maximum number of characters simultaneously present in
                                    current lines of open files and in control sequences between
@@ -285,9 +277,6 @@ int main_initialize(void)
        underscores, so we're stuck giving the names twice, once as a string,
        once as the identifier. How ugly. */
 
-    setup_bound_var(100000, "pool_size", pool_size);
-    setup_bound_var(75000, "string_vacancies", string_vacancies);
-    setup_bound_var(5000, "pool_free", pool_free);      /* min pool avail after fmt */
     setup_bound_var(15000, "max_strings", max_strings);
     setup_bound_var(100, "strings_free", strings_free);
     setup_bound_var(3000, "buf_size", buf_size);
@@ -315,9 +304,6 @@ int main_initialize(void)
     const_chk(save_size);
     const_chk(stack_size);
     const_chk(dvi_buf_size);
-    const_chk(pool_size);
-    const_chk(string_vacancies);
-    const_chk(pool_free);
     const_chk(max_strings);
     const_chk(strings_free);
     const_chk(hash_extra);
@@ -357,10 +343,8 @@ int main_initialize(void)
         memset(hash, 0, sizeof(two_halves) * (hash_top + 1));
         eqtb = xmallocarray(memory_word, (eqtb_top + 1));
         memset(eqtb, 0, sizeof(memory_word) * (eqtb_top + 1));
-        str_start = xmallocarray(pool_pointer, max_strings);
-        memset(str_start, 0, max_strings * sizeof(pool_pointer));
-        str_pool = xmallocarray(packed_ASCII_code, pool_size);
-        memset(str_pool, 0, pool_size * sizeof(packed_ASCII_code));
+        init_string_pool_array(max_strings);
+        reset_cur_string();
     }
     /* Check the ``constant'' values... */
     if ((half_error_line < 30) || (half_error_line > error_line - 15))
@@ -404,9 +388,8 @@ int main_initialize(void)
             first = 0;
             initialize_commands();
             initialize_etex_commands();
-            no_new_control_sequence = true;
             init_str_ptr = str_ptr;
-            init_pool_ptr = pool_ptr;
+            no_new_control_sequence = true;
             fix_date_and_time();
         }
         ready_already = 314159;
@@ -515,7 +498,7 @@ void close_files_and_terminate()
             /* Output statistics about this job */
             /* The present section goes directly to the log file instead of using
                |print| commands, because there's no need for these strings to take
-               up |str_pool| memory when a non-{\bf stat} version of \TeX\ is being used.
+               up |string_pool| memory when a non-{\bf stat} version of \TeX\ is being used.
              */
 
             if (log_opened) {
@@ -525,9 +508,6 @@ void close_files_and_terminate()
                         (int) (str_ptr - init_str_ptr),
                         (str_ptr == (init_str_ptr + 1) ? "" : "s"),
                         (int) (max_strings - init_str_ptr + STRING_OFFSET));
-                fprintf(log_file, " %d string characters out of %d\n",
-                        (int) (pool_ptr - init_pool_ptr),
-                        (int) (pool_size - init_pool_ptr));
                 fprintf(log_file, " %d,%d words of node,token memory allocated",
                         (int) var_mem_max, (int) fix_mem_max);
                 print_node_mem_stats();
@@ -722,7 +702,7 @@ void debug_help(void)
                 break;
             case 8:
                 breadth_max = 10000;
-                depth_threshold = pool_size - pool_ptr - 10;
+                depth_threshold = 0x7FFFFFFF;
                 show_node_list(n);      /* show a box in its entirety */
                 break;
             case 9:

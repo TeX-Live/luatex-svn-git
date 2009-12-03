@@ -78,7 +78,7 @@ char *getlasterror(void)
 
 char *luatexrevision(void)
 {
-    return makecstring(get_luatexrevision());
+    return makecstring(luatex_revision);
 }
 
 static lua_Number get_pdf_gone(void)
@@ -163,6 +163,11 @@ static int luastate_max = 1;    /* fixed value */
 extern int luastate_bytes;
 extern int callback_count;
 extern int saved_callback_count;
+
+/* temp, for backward compat */
+static int pool_ptr = 0;
+static int init_pool_ptr = 0;
+static int pool_size = 0;
 
 static struct statistic stats[] = {
     {"pdf_gone", 'N', &get_pdf_gone},

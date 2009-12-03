@@ -318,6 +318,8 @@ void show_token_list(integer p, integer q, integer l)
     match_chr = '#';
     n = '0';
     tally = 0;
+    if (l<0)
+        l = 0x3FFFFFFF;
     while ((p != null) && (tally < l)) {
         if (p == q) {
             /* Do magic computation */
@@ -425,17 +427,6 @@ void delete_token_ref(halfword p)
     else
         decr(token_ref_count(p));
 }
-
-
-/* string compare */
-
-boolean str_eq_cstr(str_number r, char *s, size_t l)
-{
-    if (l != (size_t) str_length(r))
-        return false;
-    return (strncmp((const char *) (str_pool + str_start_macro(r)), s, l) == 0);
-}
-
 
 
 int get_char_cat_code(int cur_chr)
@@ -1544,16 +1535,16 @@ at the value |p| that is returned. (If |p=temp_token_head|, the list is empty.)
 symbols that |lua| considers special while scanning a literal string
 */
 
-halfword lua_str_toks(pool_pointer b)
+static halfword lua_str_toks(lstring b)
 {                               /* changes the string |str_pool[b..pool_ptr]| to a token list */
     halfword p;                 /* tail of the token list */
     halfword q;                 /* new node being added to the token list via |store_new_token| */
     halfword t;                 /* token being appended */
-    pool_pointer k;             /* index into |str_pool| */
+    unsigned char *k;             /* index into string */
     p = temp_token_head;
     set_token_link(p, null);
-    k = b;
-    while (k < pool_ptr) {
+    k = (unsigned char *)b.s;
+    while (k < (unsigned char *)b.s+b.l) {
         t = pool_to_unichar(k);
         k += utf8_size(t);
         if (t == ' ') {
@@ -1570,7 +1561,6 @@ halfword lua_str_toks(pool_pointer b)
         }
         fast_store_new_token(t);
     }
-    pool_ptr = b;
     return p;
 }
 
@@ -1580,16 +1570,17 @@ which has similar input/output characteristics.
 */
 
 
-halfword str_toks(pool_pointer b)
+halfword str_toks(lstring s)
 {                               /* changes the string |str_pool[b..pool_ptr]| to a token list */
     halfword p;                 /* tail of the token list */
     halfword q;                 /* new node being added to the token list via |store_new_token| */
     halfword t;                 /* token being appended */
-    pool_pointer k;             /* index into |str_pool| */
+    unsigned char *k, *l;       /* index into string */
     p = temp_token_head;
     set_token_link(p, null);
-    k = b;
-    while (k < pool_ptr) {
+    k = s.s;
+    l = k + s.l;
+    while (k<l) {
         t = pool_to_unichar(k);
         k += utf8_size(t);
         if (t == ' ')
@@ -1598,7 +1589,6 @@ halfword str_toks(pool_pointer b)
             t = other_token + t;
         fast_store_new_token(t);
     }
-    pool_ptr = b;
     return p;
 }
 
@@ -1661,7 +1651,7 @@ static boolean print_convert_string(halfword c, integer i)
         print(job_name);
         break;
     case font_name_code:
-        append_string(font_name(i));
+        append_string((unsigned char *)font_name(i),strlen(font_name(i)));
         if (font_size(i) != font_dsize(i)) {
             tprint(" at ");
             print_scaled(font_size(i));
@@ -1738,7 +1728,7 @@ any pending string in its output. In order to save such a pending string,
 we have to create a temporary string that is destroyed immediately after.
 */
 
-#define save_cur_string() if (str_start_macro(str_ptr)<pool_ptr)  u=make_string()
+#define save_cur_string() if (cur_length>0)  u=make_string()
 #define restore_cur_string() if (u!=0) { decr(str_ptr); u=0; }
 
 void conv_toks(void)
@@ -1749,13 +1739,13 @@ void conv_toks(void)
     halfword save_def_ref;      /* |def_ref| upon entry, important if inside `\.{\\message}' */
     halfword save_warning_index;
     boolean bool;               /* temp boolean */
-    pool_pointer b;             /* base of temporary string */
     str_number s;               /* first temp string */
     integer sn;                 /* lua chunk name */
     str_number u = 0;           /* third temp string, will become non-nil if a string is already being built */
     integer i = 0;              /* first temp integer */
     integer j = 0;              /* second temp integer */
     int c = cur_chr;            /* desired type of conversion */
+    str_number str;
     /* Scan the argument for command |c| */
     switch (c) {
     case number_code:
@@ -1853,25 +1843,25 @@ void conv_toks(void)
     case normal_deviate_code:
         break;
     case lua_escape_string_code:
-        /*  check if a string is already being built */
-        save_cur_string();
-        save_scanner_status = scanner_status;
-        save_def_ref = def_ref;
-        save_warning_index = warning_index;
-        scan_pdf_ext_toks();
-        bool = in_lua_escape;
-        in_lua_escape = true;
-        s = tokens_to_string(def_ref);
-        in_lua_escape = bool;
-        delete_token_ref(def_ref);
-        def_ref = save_def_ref;
-        warning_index = save_warning_index;
-        scanner_status = save_scanner_status;
-        (void) lua_str_toks(str_start_macro(s));
-        ins_list(token_link(temp_token_head));
-        flush_str(s);
-        restore_cur_string();
-        return;
+        {
+            lstring str;
+            save_scanner_status = scanner_status;
+            save_def_ref = def_ref;
+            save_warning_index = warning_index;
+            scan_pdf_ext_toks();
+            bool = in_lua_escape;
+            in_lua_escape = true;
+            str.s = (unsigned char *)tokenlist_to_cstring(def_ref, false, (int *)&str.l);
+            in_lua_escape = bool;
+            delete_token_ref(def_ref);
+            def_ref = save_def_ref;
+            warning_index = save_warning_index;
+            scanner_status = save_scanner_status;
+            (void) lua_str_toks(str);
+            ins_list(token_link(temp_token_head));
+            free(str.s);
+            return;
+        }
         break;
     case math_style_code:
         break;
@@ -1931,7 +1921,6 @@ void conv_toks(void)
 
     old_setting = selector;
     selector = new_string;
-    b = pool_ptr;
 
     /* Print the result of command |c| */
     if (!print_convert_string(c, cur_val)) {
@@ -2020,7 +2009,9 @@ void conv_toks(void)
     }
 
     selector = old_setting;
-    (void) str_toks(b);
+    str = make_string();
+    (void) str_toks(str_lstring(str));
+    flush_str(str);
     ins_list(token_link(temp_token_head));
 }
 
@@ -2199,7 +2190,7 @@ str_number tokens_to_string(halfword p)
                   "tokens_to_string() called while selector = new_string");
     old_setting = selector;
     selector = new_string;
-    show_token_list(token_link(p), null, pool_size - pool_ptr);
+    show_token_list(token_link(p), null, -1);
     selector = old_setting;
     return make_string();
 }
@@ -2247,7 +2238,7 @@ str_number tokens_to_string(halfword p)
   }
 
 #define is_cat_letter(a)                                                \
-  (get_char_cat_code(pool_to_unichar(str_start_macro(a))) == 11)
+    (get_char_cat_code(pool_to_unichar(str_string((a)))) == 11)
 
 /* the actual token conversion in this function is now functionally 
    equivalent to |show_token_list|, except that it always prints the

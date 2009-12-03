@@ -401,7 +401,7 @@ void make_font_copy(small_number a)
 void pdf_include_chars(PDF pdf)
 {
     str_number s;
-    pool_pointer k;             /* running indices */
+    unsigned char *k, *j;   /* running index */
     internal_font_number f;
     scan_font_ident();
     f = cur_val;
@@ -413,10 +413,9 @@ void pdf_include_chars(PDF pdf)
     scan_pdf_ext_toks();
     s = tokens_to_string(def_ref);
     delete_token_ref(def_ref);
-    k = str_start_macro(s);
-    while (k < str_start_macro(s + 1)) {
-        pdf_mark_char(f, str_pool[k]);
-        incr(k);
+    j = str_string(s)+str_length(s);
+    for (k = str_string(s); k < j; k++) {
+        pdf_mark_char(f, *k);
     }
     flush_str(s);
 }

@@ -208,7 +208,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
             break;
         case packet_special_code:
             packet_number(k);
-            str_room(k);
+            str_room((unsigned)k);
             while (k > 0) {
                 k--;
                 append_char(do_packet_byte());

@@ -85,19 +85,19 @@ extern void tprint_esc(char *s);
 extern void prompt_input(char *s);
 
 
-#  define single_letter(A)					\
-  ((str_length(A)==1)||						\
-   ((str_length(A)==4)&&(str_pool[str_start_macro(A)]>=0xF0))||	\
-   ((str_length(A)==3)&&(str_pool[str_start_macro(A)]>=0xE0))||	\
-   ((str_length(A)==2)&&(str_pool[str_start_macro(A)]>=0xC0)))
+#  define single_letter(A)                                              \
+    ((str_length(A)==1)||                                               \
+     ((str_length(A)==4)&&*(str_string((A)))>=0xF0)||                   \
+     ((str_length(A)==3)&&*(str_string((A)))>=0xE0)||                   \
+     ((str_length(A)==2)&&*(str_string((A)))>=0xC0))
 
-#  define is_active_cs(a) (str_length(a)>3 &&			      \
-                         (str_pool[str_start_macro(a)]   == 0xEF) &&  \
-                         (str_pool[str_start_macro(a)+1] == 0xBF) &&  \
-                         (str_pool[str_start_macro(a)+2] == 0xBF))
+#  define is_active_cs(a) (str_length(a)>3 &&                           \
+                           (*str_string(a) == 0xEF) &&                  \
+                           (*(str_string(a)+1) == 0xBF) &&              \
+                           (*(str_string(a)+2) == 0xBF))
 
 
-#  define active_cs_value(A) pool_to_unichar(str_start_macro(A)+3)
+#  define active_cs_value(A) pool_to_unichar((str_string((A))+3))
 
 extern void print_glue(scaled d, integer order, char *s);       /* prints a glue component */
 extern void print_spec(integer p, char *s);     /* prints a glue specification */

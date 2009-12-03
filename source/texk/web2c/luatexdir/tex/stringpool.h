@@ -25,24 +25,19 @@
 /* Both lua and tex strings can contains null, but C strings cannot, so: */
 
 typedef struct {
-    char *s;
+    unsigned char *s;
     size_t l;
 } lstring;
 
+extern lstring *string_pool;
 
-extern packed_ASCII_code *str_pool;
-extern pool_pointer *str_start;
-extern pool_pointer pool_ptr;
 extern str_number str_ptr;
-extern pool_pointer init_pool_ptr;
 extern str_number init_str_ptr;
 
 #  define STRING_OFFSET 0x200000
 #  define STRING_OFFSET_BITS 21
 
 #  define get_nullstr() STRING_OFFSET
-
-#  define str_start_macro(a) str_start[(a) - STRING_OFFSET]
 
 #  define biggest_char 1114111
 #  define number_chars 1114112
@@ -56,11 +51,11 @@ extern str_number init_str_ptr;
   a simple macro that computes the length of a string.
 */
 
-#  define str_length(a) (str_start_macro((a)+1)-str_start_macro(a))
+#  define utf8_size(a) (a>0xFFFF ? 4 : (a>0x7FF ? 3 : (a>0x7F? 2 : 1)))
 
-/* The length of the current string is called |cur_length|: */
-
-#  define cur_length (pool_ptr - str_start_macro(str_ptr))
+#  define str_length(a) string_pool[(a)-STRING_OFFSET].l
+#  define str_string(a) string_pool[(a)-STRING_OFFSET].s
+#  define str_lstring(a) string_pool[(a)-STRING_OFFSET]
 
 /* Strings are created by appending character codes to |str_pool|.
    The |append_char| macro, defined here, does not check to see if the
@@ -73,31 +68,63 @@ extern str_number init_str_ptr;
    apologetic error message if there isn't enough room.
 */
 
+/* The length of the current string is called |cur_length|: */
+
+extern unsigned char *cur_string;
+extern unsigned cur_length;
+extern unsigned cur_string_size;
+
+#define EXTRA_STRING 500
+
 /* put |ASCII_code| \# at the end of |str_pool| */
-#  define append_char(A) str_pool[pool_ptr++]=(A)
+#  define append_char(A) do {                                           \
+        if (cur_string==NULL) reset_cur_string();                       \
+        else str_room(1);                                               \
+        cur_string[cur_length++]=(A);                                   \
+    } while (0)
 
-#  define str_room(A) check_pool_overflow((pool_ptr+(A)))
+#  define str_room(wsize) do {                                          \
+        unsigned nsize;                                                 \
+        if ((cur_length+wsize) > cur_string_size) {                     \
+            nsize = cur_string_size + cur_string_size / 5 + EXTRA_STRING; \
+            if (nsize < (unsigned)(wsize)) {                            \
+                nsize = wsize + EXTRA_STRING;                           \
+            }                                                           \
+            cur_string = (unsigned char *) xreallocarray(cur_string, unsigned char, nsize); \
+            memset (cur_string+cur_length,0,nsize-cur_length); \
+            cur_string_size = nsize;                                    \
+        }                                                               \
+    } while (0)
 
-#  define flush_char() decr(pool_ptr)   /* forget the last character in the pool */
+#  define flush_char() --cur_length /* forget the last character in the pool */
 
 /* To destroy the most recently made string, we say |flush_string|. */
 
-#  define flush_string() do {					\
-     decr(str_ptr);						\
-     pool_ptr=str_start_macro(str_ptr);				\
-   } while (0)
+#  define flush_string() --str_ptr
 
 extern str_number make_string(void);
 extern boolean str_eq_buf(str_number s, integer k);
 extern boolean str_eq_str(str_number s, str_number t);
+extern boolean str_eq_cstr(str_number, char *, size_t);
 extern boolean get_strings_started(void);
+extern void reset_cur_string (void);
 
 extern str_number search_string(str_number search);
-extern str_number slow_make_string(void);
-extern integer pool_to_unichar(pool_pointer t);
+extern integer pool_to_unichar(unsigned char *t);
 
 extern unsigned char *uni2str(unsigned);
 extern unsigned str2uni(unsigned char *);
-#  define utf8_size(a) (a>0xFFFF ? 4 : (a>0x7FF ? 3 : (a>0x7F? 2 : 1)))
+
+extern str_number maketexstring(const char *);
+extern str_number maketexlstring(const char *, size_t);
+extern void append_string(unsigned char *s, unsigned l);
+
+extern char *makecstring(integer);
+extern char *makeclstring(integer, size_t *);
+
+extern int dump_string_pool (void);
+extern int undump_string_pool (void);
+
+extern void init_string_pool_array (int s);
 
 #endif

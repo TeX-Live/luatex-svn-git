@@ -110,7 +110,7 @@ static void do_texio_ini_print(lua_State * L, char *extra)
 
 static int texio_print(lua_State * L)
 {
-    if (ready_already != 314159 || pool_ptr == 0 || job_name == 0) {
+    if (ready_already != 314159 || job_name == 0) {
         do_texio_ini_print(L, "");
         return 0;
     }
@@ -119,7 +119,7 @@ static int texio_print(lua_State * L)
 
 static int texio_printnl(lua_State * L)
 {
-    if (ready_already != 314159 || pool_ptr == 0 || job_name == 0) {
+    if (ready_already != 314159 || job_name == 0) {
         do_texio_ini_print(L, "\n");
         return 0;
     }

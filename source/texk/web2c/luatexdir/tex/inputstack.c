@@ -649,6 +649,51 @@ all the following words contain ASCII codes.
 
 halfword pseudo_files;          /* stack of pseudo files */
 
+static halfword string_to_pseudo(str_number str, integer nl)
+{
+    halfword i, r, q = null;
+    unsigned l, len;
+    four_quarters w;
+    int sz;
+    halfword h = new_node(pseudo_file_node, 0);
+    unsigned char *s = str_string(str);
+    len =  str_length(str);
+    l = 0;
+    while (l<len) {
+        unsigned m = l; /* start of current line */
+        while ((l < len) && (s[l] != nl))
+            l++;
+        sz = (l - m + 7) / 4;
+        if (sz == 1)
+            sz = 2;
+        r = new_node(pseudo_line_node, sz);
+        i = r;
+        while (--sz > 1) {
+            w.b0 = s[m++];
+            w.b1 = s[m++];
+            w.b2 = s[m++];
+            w.b3 = s[m++];
+            varmem[++i].qqqq = w;
+        }
+        w.b0 = (l > m ? s[m++] : ' ');
+        w.b1 = (l > m ? s[m++] : ' ');
+        w.b2 = (l > m ? s[m++] : ' ');
+        w.b3 = (l > m ? s[m] : ' ');
+        varmem[++i].qqqq = w;
+        if (pseudo_lines(h) == null) {
+            pseudo_lines(h) = r;
+            q = r;
+        } else {
+            couple_nodes(q, r);
+        }
+        q = vlink(q);
+        if (s[l] == nl)
+            l++;
+    }
+    return h;
+}
+
+
 /* The |pseudo_start| procedure initiates reading from a pseudo file. */
 
 void pseudo_from_string(void)
@@ -657,9 +702,7 @@ void pseudo_from_string(void)
     halfword p;                 /* for list construction */
     s = make_string();
     /* Convert string |s| into a new pseudo file */
-    str_pool[pool_ptr] = ' ';
-    p = string_to_pseudo(str_start_macro(s), pool_ptr,
-                         int_par(new_line_char_code));
+    p = string_to_pseudo(s, int_par(new_line_char_code));
     vlink(p) = pseudo_files;
     pseudo_files = p;
 

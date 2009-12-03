@@ -610,7 +610,7 @@ distinguished from a missing field, because these are not equivalent
 
 void print_subsidiary_data(pointer p, ASCII_code c)
 {                               /* display a noad field */
-    if (cur_length >= depth_threshold) {
+    if ((int)cur_length >= depth_threshold) {
         if (p != null)
             tprint(" []");
     } else {

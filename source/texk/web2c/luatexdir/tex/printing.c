@@ -198,8 +198,7 @@ void print_char(int s)
             trick_buf[tally % error_line] = s;
         break;
     case new_string:
-        if (pool_ptr < pool_size)
-            append_char(s);
+        append_char(s);
         break;                  /* we drop characters if the string space is full */
     default:
         fprintf(write_file[selector], "%c", s);
@@ -226,7 +225,7 @@ to do the same substraction while typesetting.
 
 void print(integer s)
 {                               /* prints string |s| */
-    pool_pointer j, l;          /* current character code position */
+    unsigned char *j, *l;          /* current character code position */
 
     if (s >= str_ptr) {
         /* this can't happen */
@@ -281,18 +280,22 @@ void print(integer s)
         }
         return;
     }
-    j = str_start_macro(s);
-    l = str_start_macro(s + 1);
+    if (selector == new_string) {
+        append_string(str_string(s), str_length(s));
+        return;
+    }
+    j = str_string(s);
+    l = j+str_length(s);
     while (j < l) {
         /* 0x110000 in utf=8: 0xF4 0x90 0x80 0x80  */
         /* I don't bother checking the last two bytes explicitly */
-        if ((j < l - 4) && (str_pool[j] == 0xF4) && (str_pool[j + 1] == 0x90)) {
-            int c = (str_pool[j + 2] - 128) * 64 + (str_pool[j + 3] - 128);
+        if ((j < l - 4) && (*j == 0xF4) && (*(j + 1) == 0x90)) {
+            int c = (*(j + 2) - 128) * 64 + (*(j + 3) - 128);
             assert(c >= 0 && c < 256);
             print_char(c);
             j = j + 4;
         } else {
-            print_char(str_pool[j]);
+            print_char(*j);
             incr(j);
         }
     }
@@ -320,9 +323,12 @@ void print_nl(str_number s)
 
 void tprint(char *s)
 {
-    unsigned char *ss = (unsigned char *) s;
-    while (*ss)
-        print_char(*ss++);
+    if (selector == new_string) {
+        append_string((unsigned char *)s, strlen(s));
+        return;
+    }
+    while (*s)
+        print_char(*s++);
 }
 
 void tprint_nl(char *s)
@@ -561,10 +567,9 @@ created. The following procedure will.
 
 void print_current_string(void)
 {                               /* prints a yet-unmade string */
-    pool_pointer j;             /* points to current character code */
-    j = str_start_macro(str_ptr);
-    while (j < pool_ptr)
-        print_char(str_pool[j++]);
+    unsigned j = 0;             /* points to current character code */
+    while (j < cur_length)
+        print_char(cur_string[j++]);
 }
 
 /*
@@ -598,8 +603,7 @@ void print_cs(integer p)
             print_esc(t);
             if (single_letter(t)) {
                 if (get_cat_code(int_par(cat_code_table_code),
-                                 pool_to_unichar(str_start_macro(t))) ==
-                    letter_cmd)
+                                 pool_to_unichar(str_string(t))) == letter_cmd)
                     print_char(' ');
             } else {
                 print_char(' ');
@@ -829,9 +833,6 @@ void show_box(halfword p)
 
     if (breadth_max <= 0)
         breadth_max = 5;
-    if (pool_ptr + depth_threshold >= pool_size)
-        depth_threshold = pool_size - pool_ptr - 1;
-    /* now there's enough room for prefix string */
     show_node_list(p);          /* the show starts at |p| */
     print_ln();
 }
@@ -894,14 +895,16 @@ that's a convenient module in which to put it.)
 
 void print_csnames(integer hstart, integer hfinish)
 {
-    integer c, h;
+    integer h;
+    unsigned char *c, *l;
     fprintf(stderr, "fmtdebug:csnames from %d to %d:", (int) hstart,
             (int) hfinish);
     for (h = hstart; h <= hfinish; h++) {
         if (cs_text(h) > 0) {   /* if have anything at this position */
-            for (c = str_start_macro(cs_text(h));
-                 c <= str_start_macro(cs_text(h) + 1) - 1; c++) {
-                fputc(str_pool[c], stderr);     /* print the characters */
+            c = str_string(cs_text(h));
+            l = c + str_length(cs_text(h));
+            while (c<l) {
+                fputc(*c++, stderr);     /* print the characters */
             }
             fprintf(stderr, "|");
         }

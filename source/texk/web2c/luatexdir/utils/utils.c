@@ -57,7 +57,6 @@ static const char __svn_version[] =
         pdftex_fail ("snprintf failed: file %s, line %d", __FILE__, __LINE__);
 
 char *cur_file_name = NULL;
-str_number last_tex_string;
 static char print_buf[PRINTF_BUF_SIZE];
 extern string ptexbanner;       /* from web2c/lib/texmfmp.c */
 extern string versionstring;    /* from web2c/lib/version.c */
@@ -128,35 +127,6 @@ void make_subset_tag(fd_entry * fd)
         pdftex_warn
             ("\nmake_subset_tag(): subset-tag collision, resolved in round %d.\n",
              j);
-}
-
-str_number maketexstring(const char *s)
-{
-    if (s == NULL || *s == 0)
-        return get_nullstr();
-    return maketexlstring(s, strlen(s));
-}
-
-str_number maketexlstring(const char *s, size_t l)
-{
-    if (s == NULL || l == 0)
-        return get_nullstr();
-    check_pool_overflow(pool_ptr + l);
-    while (l-- > 0)
-        str_pool[pool_ptr++] = *s++;
-    last_tex_string = make_string();
-    return last_tex_string;
-}
-
-/* append a C string to a TeX string */
-void append_string(char *s)
-{
-    if (s == NULL || *s == 0)
-        return;
-    check_buf(pool_ptr + strlen(s), pool_size);
-    while (*s)
-        str_pool[pool_ptr++] = *s++;
-    return;
 }
 
 __attribute__ ((format(printf, 1, 2)))
@@ -230,78 +200,6 @@ void garbage_warning(void)
     remove_pdffile(static_pdf);
 }
 
-char *makecstring(integer s)
-{
-    size_t l;
-    return makeclstring(s, &l);
-}
-
-char *makeclstring(integer s, size_t * len)
-{
-    static char *cstrbuf = NULL;
-    char *p;
-    static int allocsize;
-    int allocgrow, i, l;
-    if (s >= 2097152) {
-        s -= 2097152;
-        l = str_start[s + 1] - str_start[s];
-        *len = l;
-        check_buf(l + 1, MAX_CSTRING_LEN);
-        if (cstrbuf == NULL) {
-            allocsize = l + 1;
-            cstrbuf = xmallocarray(char, allocsize);
-        } else if (l + 1 > allocsize) {
-            allocgrow = allocsize * 0.2;
-            if (l + 1 - allocgrow > allocsize)
-                allocsize = l + 1;
-            else if (allocsize < MAX_CSTRING_LEN - allocgrow)
-                allocsize += allocgrow;
-            else
-                allocsize = MAX_CSTRING_LEN;
-            cstrbuf = xreallocarray(cstrbuf, char, allocsize);
-        }
-        p = cstrbuf;
-        for (i = 0; i < l; i++)
-            *p++ = str_pool[i + str_start[s]];
-        *p = 0;
-    } else {
-        if (cstrbuf == NULL) {
-            allocsize = 5;
-            cstrbuf = xmallocarray(char, allocsize);
-        }
-        if (s <= 0x7F) {
-            cstrbuf[0] = s;
-            cstrbuf[1] = 0;
-            *len = 1;
-        } else if (s <= 0x7FF) {
-            cstrbuf[0] = 0xC0 + (s / 0x40);
-            cstrbuf[1] = 0x80 + (s % 0x40);
-            cstrbuf[2] = 0;
-            *len = 2;
-        } else if (s <= 0xFFFF) {
-            cstrbuf[0] = 0xE0 + (s / 0x1000);
-            cstrbuf[1] = 0x80 + ((s % 0x1000) / 0x40);
-            cstrbuf[2] = 0x80 + ((s % 0x1000) % 0x40);
-            cstrbuf[3] = 0;
-            *len = 3;
-        } else {
-            if (s >= 0x10FF00) {
-                cstrbuf[0] = s - 0x10FF00;
-                cstrbuf[1] = 0;
-                *len = 1;
-            } else {
-                cstrbuf[0] = 0xF0 + (s / 0x40000);
-                cstrbuf[1] = 0x80 + ((s % 0x40000) / 0x1000);
-                cstrbuf[2] = 0x80 + (((s % 0x40000) % 0x1000) / 0x40);
-                cstrbuf[3] = 0x80 + (((s % 0x40000) % 0x1000) % 0x40);
-                cstrbuf[4] = 0;
-                *len = 4;
-            }
-        }
-    }
-    return cstrbuf;
-}
-
 char *pdftex_banner = NULL;
 
 void make_pdftex_banner(void)
@@ -364,105 +262,6 @@ scaled ext_xn_over_d(scaled x, scaled n, scaled d)
     if (r >= (double) max_integer || r <= -(double) max_integer)
         pdftex_warn("arithmetic: number too big");
     return (scaled) r;
-}
-
-/* Convert any given string in a PDF hexadecimal string. The
-   result does not include the angle brackets.
-
-   This procedure uses uppercase hexadecimal letters.
-
-   See escapename for description of parameters.
-*/
-void escapehex(poolpointer in)
-{
-    const poolpointer out = pool_ptr;
-    unsigned char ch;
-    int i;
-
-    while (in < out) {
-        if (pool_ptr + 2 >= pool_size) {
-            pool_ptr = pool_size;
-            /* error by str_toks that calls str_room(1) */
-            return;
-        }
-
-        ch = (unsigned char) str_pool[in++];
-
-        i = snprintf((char *) &str_pool[pool_ptr], 3, "%.2X",
-                     (unsigned int) ch);
-        check_nprintf(i, 3);
-        pool_ptr += 2;
-    }
-}
-
-/* Unescape any given hexadecimal string.
-
-   Last hex digit can be omitted, it is replaced by zero, see
-   PDF specification.
-
-   Invalid digits are silently ignored.
-
-   See escapename for description of parameters.
-*/
-void unescapehex(poolpointer in)
-{
-    const poolpointer out = pool_ptr;
-    unsigned char ch;
-    boolean first = true;
-    unsigned char a = 0;        /* to avoid warning about uninitialized use of a */
-    while (in < out) {
-        if (pool_ptr + 1 >= pool_size) {
-            pool_ptr = pool_size;
-            /* error by str_toks that calls str_room(1) */
-            return;
-        }
-
-        ch = (unsigned char) str_pool[in++];
-
-        if ((ch >= '0') && (ch <= '9')) {
-            ch -= '0';
-        } else if ((ch >= 'A') && (ch <= 'F')) {
-            ch -= 'A' - 10;
-        } else if ((ch >= 'a') && (ch <= 'f')) {
-            ch -= 'a' - 10;
-        } else {
-            continue;           /* ignore wrong character */
-        }
-
-        if (first) {
-            a = ch << 4;
-            first = false;
-            continue;
-        }
-
-        str_pool[pool_ptr++] = a + ch;
-        first = true;
-    }
-    if (!first) {               /* last hex digit is omitted */
-        str_pool[pool_ptr++] = a;
-    }
-}
-
-/* makecfilename
-  input/ouput same as makecstring:
-    input: string number
-    output: C string with quotes removed.
-    That means, file names that are legal on some operation systems
-    cannot any more be used since pdfTeX version 1.30.4.
-*/
-char *makecfilename(str_number s)
-{
-    char *name = makecstring(s);
-    char *p = name;
-    char *q = name;
-
-    while (*p) {
-        if (*p != '"')
-            *q++ = *p;
-        p++;
-    }
-    *q = '\0';
-    return name;
 }
 
 /* function strips trailing zeros in string with numbers; */
@@ -554,21 +353,6 @@ void check_buffer_overflow(int wsize)
         }
         buffer = (unsigned char *) xreallocarray(buffer, char, nsize);
         buf_size = nsize;
-    }
-}
-
-#define EXTRA_STRING 500
-
-void check_pool_overflow(int wsize)
-{
-    int nsize;
-    if ((wsize - 1) > pool_size) {
-        nsize = pool_size + pool_size / 5 + EXTRA_STRING;
-        if (nsize < wsize) {
-            nsize = wsize + EXTRA_STRING;
-        }
-        str_pool = (unsigned char *) xreallocarray(str_pool, char, nsize);
-        pool_size = nsize;
     }
 }
 

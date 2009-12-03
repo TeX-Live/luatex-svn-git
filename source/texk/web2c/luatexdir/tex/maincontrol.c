@@ -3190,7 +3190,7 @@ void issue_message(void)
     s = make_string();
     if (c == 0) {
         /* Print string |s| on the terminal */
-        if (term_offset + str_length(s) > max_print_line - 2)
+        if (term_offset + (int)str_length(s) > max_print_line - 2)
             print_ln();
         else if ((term_offset > 0) || (file_offset > 0))
             print_char(' ');

@@ -414,9 +414,10 @@ void pdf_print(PDF pdf, str_number s)
         assert(s < 256);
         pdf_out(pdf, s);
     } else {
-        register pool_pointer j = str_start_macro(s);
-        while (j < str_start_macro(s + 1)) {
-            pdf_out(pdf, str_pool[j++]);
+        unsigned char *k, *j;
+        j = str_string(s)+str_length(s);
+        for (k = str_string(s); k < j; k++) {
+            pdf_out(pdf, *k);
         }
     }
 }

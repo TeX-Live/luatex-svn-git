@@ -33,8 +33,6 @@ extern boolean page_mode;
 
 int newcolorstack(integer s, integer literal_mode, boolean pagestart);
 int colorstackused(void);
-integer colorstackset(int colstack_no, integer s);
-integer colorstackpush(int colstack_no, integer s);
 integer colorstackpop(int colstack_no);
 integer colorstackcurrent(int colstack_no);
 integer colorstackskippagestart(int colstack_no);

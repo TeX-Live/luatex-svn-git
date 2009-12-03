@@ -692,17 +692,17 @@ These system area names will, of course, vary from place to place.
 char *pack_file_name(str_number n, str_number a, str_number e)
 {
     ASCII_code c;               /* character being packed */
-    pool_pointer j;             /* index into |str_pool| */
+    unsigned char *j;             /* index into |str_pool| */
     integer k = 0;              /* number of positions filled in |fn| */
-    packed_ASCII_code *fn = xmallocarray(packed_ASCII_code,
-                                         str_length(a) + str_length(n) +
-                                         str_length(e) + 1);
-    for (j = str_start_macro(a); j <= str_start_macro(a + 1) - 1; j++)
-        append_to_fn(str_pool[j]);
-    for (j = str_start_macro(n); j <= str_start_macro(n + 1) - 1; j++)
-        append_to_fn(str_pool[j]);
-    for (j = str_start_macro(e); j <= str_start_macro(e + 1) - 1; j++)
-        append_to_fn(str_pool[j]);
+    unsigned char *fn = xmallocarray(packed_ASCII_code,
+                                     str_length(a) + str_length(n) +
+                                     str_length(e) + 1);
+    for (j = str_string(a); j < str_string(a)+str_length(a); j++)
+        append_to_fn(*j);
+    for (j = str_string(n); j < str_string(n)+str_length(n); j++)
+        append_to_fn(*j);
+    for (j = str_string(e); j < str_string(e)+str_length(e); j++)
+        append_to_fn(*j);
     fn[k] = 0;
     return (char *) fn;
 }
@@ -895,7 +895,7 @@ void start_input(void)
     /* |open_log_file| doesn't |show_context|, so |limit|
        and |loc| needn't be set to meaningful values yet */
     if (tracefilenames) {
-        if (term_offset + str_length(iname) > max_print_line - 2)
+        if (term_offset + (int)str_length(iname) > max_print_line - 2)
             print_ln();
         else if ((term_offset > 0) || (file_offset > 0))
             print_char(' ');

@@ -38,7 +38,6 @@ extern int matrix_stack_size;
 extern int matrix_stack_used;
 
 
-void pdfsetmatrix(poolpointer in, scaledpos pos);
 scaled getllx(void);
 scaled getlly(void);
 scaled geturx(void);

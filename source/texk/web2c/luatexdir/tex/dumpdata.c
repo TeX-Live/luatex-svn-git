@@ -97,7 +97,7 @@ void store_fmt_file(void)
     while (!zopen_w_output(&fmt_file, fmtname, FOPEN_WBIN_MODE)) {
         fmtname = prompt_file_name("format file name", format_extension);
     }
-    tprint_nl("Beginning to dump on file");
+    tprint_nl("Beginning to dump on file ");
     tprint(fmtname);
     free(fmtname);
     tprint_nl("");
@@ -125,14 +125,10 @@ void store_fmt_file(void)
     dump_int(hash_prime);
 
     /* Dump the string pool */
-    dump_int(pool_ptr);
-    dump_int((str_ptr - STRING_OFFSET));
-    dump_things(str_start[0], (str_ptr - STRING_OFFSET) + 1);
-    dump_things(str_pool[0], pool_ptr);
+    k = dump_string_pool();
     print_ln();
-    print_int(str_ptr - STRING_OFFSET);
-    tprint(" strings of total length ");
-    print_int(pool_ptr);
+    print_int(k);    
+    tprint(" strings ");
 
     /* Dump the dynamic memory */
     /* By sorting the list of available spaces in the variable-size portion of
@@ -359,8 +355,6 @@ boolean load_fmt_file(char *fmtname)
     char *format_engine;
     /* Undump constants for consistency check */
     if (ini_version) {
-        libcfree(str_pool);
-        libcfree(str_start);
         libcfree(hash);
         libcfree(eqtb);
         libcfree(fixmem);
@@ -424,21 +418,7 @@ boolean load_fmt_file(char *fmtname)
         goto BAD_FMT;
 
     /* Undump the string pool */
-    undump_size(0, sup_pool_size - pool_free, "string pool size", pool_ptr);
-    if (pool_size < pool_ptr + pool_free)
-        pool_size = pool_ptr + pool_free;
-    undump_size(0, sup_max_strings - strings_free, "sup strings", str_ptr);
-    if (max_strings < str_ptr + strings_free)
-        max_strings = str_ptr + strings_free;
-    str_start = xmallocarray(pool_pointer, max_strings);
-    str_ptr = str_ptr + STRING_OFFSET;
-    undump_checked_things(0, pool_ptr, str_start[0],
-                          (unsigned) ((str_ptr - STRING_OFFSET) + 1));
-    str_pool = xmallocarray(packed_ASCII_code, pool_size);
-    undump_things(str_pool[0], pool_ptr);
-    init_str_ptr = str_ptr;
-    init_pool_ptr = pool_ptr;
-
+    str_ptr = undump_string_pool();
     /* Undump the dynamic memory */
     undump_node_mem();
     undump_int(temp_token_head);

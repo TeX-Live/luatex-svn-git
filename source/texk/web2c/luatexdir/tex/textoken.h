@@ -42,6 +42,8 @@
 #  define end_match_token 0x1C00000     /* $2^{21}\cdot|end_match|$ */
 #  define protected_token 0x1C00001     /* $2^{21}\cdot|end_match|+1$ */
 
+#include "tex/stringpool.h"
+
 typedef struct smemory_word_ {
     halfword hhrh;
     halfword hhlh;
@@ -119,7 +121,6 @@ extern void make_token_table(lua_State * L, int cmd, int chr, int cs);
 #  define  NO_CAT_TABLE      -2
 #  define  DEFAULT_CAT_TABLE -1
 
-extern boolean str_eq_cstr(str_number, char *, size_t);
 extern void get_next(void);
 extern void check_outer_validity(void);
 extern boolean scan_keyword(char *);
@@ -145,8 +146,7 @@ extern integer luacstrings;
 extern void firm_up_the_line(void);
 extern void get_token(void);
 
-extern halfword lua_str_toks(pool_pointer b);
-extern halfword str_toks(pool_pointer b);
+extern halfword str_toks(lstring b);
 extern void ins_the_toks(void);
 
 extern integer scan_lua_state(void);

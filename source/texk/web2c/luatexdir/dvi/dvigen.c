@@ -1103,13 +1103,12 @@ void dvi_place_glyph(PDF pdf, internal_font_number f, integer c)
 void dvi_special(PDF pdf, halfword p)
 {
     int old_setting;            /* holds print |selector| */
-    pool_pointer k;             /* index into |str_pool| */
+    unsigned k;             /* index into |cur_string| */
     synch_dvi_with_pos(pdf->posstruct->pos);
     old_setting = selector;
     selector = new_string;
-    show_token_list(token_link(write_tokens(p)), null, pool_size - pool_ptr);
+    show_token_list(token_link(write_tokens(p)), null, -1);
     selector = old_setting;
-    str_room(1);
     if (cur_length < 256) {
         dvi_out(xxx1);
         dvi_out(cur_length);
@@ -1117,9 +1116,9 @@ void dvi_special(PDF pdf, halfword p)
         dvi_out(xxx4);
         dvi_four(cur_length);
     }
-    for (k = str_start_macro(str_ptr); k <= pool_ptr - 1; k++)
-        dvi_out(str_pool[k]);
-    pool_ptr = str_start_macro(str_ptr);        /* erase the string */
+    for (k = 0; k < cur_length; k++)
+        dvi_out(cur_string[k]);
+    cur_length = 0;        /* erase the string */
 }
 
 /*
@@ -1176,7 +1175,6 @@ void write_out(halfword p)
 {
     int old_setting;            /* holds print |selector| */
     int j;                      /* write stream number */
-    integer d;                  /* number of characters in incomplete current string */
     boolean clobbered;          /* system string is ok? */
     integer ret;                /* return value from |runsystem| */
     char *s, *ss;               /* line to be written, as a C string */
@@ -1208,6 +1206,7 @@ void write_out(halfword p)
     print_ln();
     flush_list(def_ref);
     if (j == 18) {
+        cur_string[cur_length] = '\0';  /* Convert newline to null. */
         if (tracing_online <= 0)
             selector = log_only;        /* Show what we're doing in the log file. */
         else
@@ -1218,30 +1217,20 @@ void write_out(halfword p)
         if (!log_opened)
             selector = term_only;
         tprint_nl("runsystem(");
-        for (d = 0; d <= cur_length - 1; d++) {
-            /* |print| gives up if passed |str_ptr|, so do it by hand. */
-            print_char(str_pool[str_start_macro(str_ptr) + d]);
-        }
+        tprint((char *)cur_string);
         tprint(")...");
         if (shellenabledp) {
-            str_room(1);
-            append_char(0);     /* Append a null byte to the expansion. */
             clobbered = false;
-            for (d = 0; d <= cur_length - 1; d++) {     /* Convert to external character set. */
-                if ((str_pool[str_start_macro(str_ptr) + d] == 0)
-                    && (d < cur_length - 1))
-                    clobbered = true;
+            if (strlen((char *)cur_string)!=cur_length)
+                clobbered = true;
                 /* minimal checking: NUL not allowed in argument string of |system|() */
-            }
             if (clobbered) {
                 tprint("clobbered");
             } else {
                 /* We have the command.  See if we're allowed to execute it,
                    and report in the log.  We don't check the actual exit status of
                    the command, or do anything with the output. */
-                ret =
-                    runsystem(stringcast
-                              (addressof(str_pool[str_start_macro(str_ptr)])));
+                ret = runsystem((char *)cur_string);
                 if (ret == -1)
                     tprint("quotation error in system command");
                 else if (ret == 0)
@@ -1257,293 +1246,10 @@ void write_out(halfword p)
         print_char('.');
         tprint_nl("");
         print_ln();
-        pool_ptr = str_start_macro(str_ptr);    /* erase the string */
+        cur_length = 0;    /* erase the string */
     }
     selector = old_setting;
 }
-
-/*
-The |hlist_out| and |vlist_out| procedures are now complete, so we are
-ready for the |dvi_ship_out| routine that gets them started in the first place.
-*/
-
-#if 0                           /* obsolete code, kept for reference */
-void dvi_ship_out(PDF pdf, halfword p, boolean shipping_page)
-{
-    /* output the box |p| */
-    int j, k;                   /* indices to first ten count registers */
-    scaledpos cur = { 0, 0 };
-    integer page_loc;           /* location of the current |bop| */
-    posstructure refpoint;      /* the origin pos. on the page */
-    pool_pointer s;             /* index into |str_pool| */
-    int old_setting;            /* saved |selector| setting */
-    integer pre_callback_id;
-    integer post_callback_id;
-    boolean ret;
-
-    assert(shipping_page);
-    init_dvi_output_functions(pdf);
-
-    if (half_buf == 0) {
-        half_buf = dvi_buf_size / 2;
-        dvi_limit = dvi_buf_size;
-    }
-
-    /* 2 */
-    /* Start sheet {\sl Sync\TeX} information record */
-    pdf_output_value = pdf_output;      /* {\sl Sync\TeX}: we assume that |pdf_output| is properly set up */
-    synctex_sheet(mag);
-
-    /* 3 */
-    pre_callback_id = callback_defined(start_page_number_callback);
-    post_callback_id = callback_defined(stop_page_number_callback);
-    if ((tracing_output > 0) && (pre_callback_id == 0)) {
-        tprint_nl("");
-        print_ln();
-        tprint("Completed box being shipped out");
-    }
-    is_shipping_page = shipping_page;
-    if (shipping_page) {
-        if (pre_callback_id > 0)
-            ret = run_callback(pre_callback_id, "->");
-        else if (pre_callback_id == 0) {
-            if (term_offset > max_print_line - 9)
-                print_ln();
-            else if ((term_offset > 0) || (file_offset > 0))
-                print_char(' ');
-            print_char('[');
-            j = 9;
-            while ((count(j) == 0) && (j > 0))
-                decr(j);
-            for (k = 0; k <= j; k++) {
-                print_int(count(k));
-                if (k < j)
-                    print_char('.');
-            }
-        }
-    }
-    if ((tracing_output > 0) && shipping_page) {
-        print_char(']');
-        update_terminal();
-        begin_diagnostic();
-        show_box(p);
-        end_diagnostic(true);
-    }
-
-    /* 4 */
-    /* Ship box |p| out */
-    if (shipping_page && box_dir(p) != page_direction)
-        pdf_warning("\\shipout",
-                    "\\pagedir != \\bodydir; "
-                    "\\box\\outputbox may be placed wrongly on the page.", true,
-                    true);
-    /* Update the values of |max_h| and |max_v|; but if the page is too large, |goto done| */
-    /* Sometimes the user will generate a huge page because other error messages
-       are being ignored. Such pages are not output to the \.{dvi} file, since they
-       may confuse the printing software. */
-
-    /* 5 */
-    if ((height(p) > max_dimen) || (depth(p) > max_dimen)
-        || (height(p) + depth(p) + v_offset > max_dimen)
-        || (width(p) + h_offset > max_dimen)) {
-        char *hlp[] = { "The page just created is more than 18 feet tall or",
-            "more than 18 feet wide, so I suspect something went wrong.",
-            NULL
-        };
-        tex_error("Huge page cannot be shipped out", hlp);
-        if (tracing_output <= 0) {
-            begin_diagnostic();
-            tprint_nl("The following box has been deleted:");
-            show_box(p);
-            end_diagnostic(true);
-        }
-        goto DONE;
-    }
-    if (height(p) + depth(p) + v_offset > max_v)
-        max_v = height(p) + depth(p) + v_offset;
-    if (width(p) + h_offset > max_h)
-        max_h = width(p) + h_offset;
-
-    /* 6 */
-    /* Initialize variables as |ship_out| begins */
-    dvi.h = 0;
-    dvi.v = 0;
-    pdf->f_cur = null_font;
-
-    /* 7 */
-    /* Calculate page dimensions and margins */
-    if (is_shipping_page) {
-        if (page_width > 0) {
-            cur_page_size.h = page_width;
-        } else {
-            switch (page_direction) {
-            case dir_TLT:
-                cur_page_size.h = width(p) + 2 * page_left_offset;
-                break;
-            case dir_TRT:
-                cur_page_size.h = width(p) + 2 * page_right_offset;
-                break;
-            case dir_LTL:
-                cur_page_size.h = height(p) + depth(p) + 2 * page_left_offset;
-                break;
-            case dir_RTT:
-                cur_page_size.h = height(p) + depth(p) + 2 * page_right_offset;
-                break;
-            }
-        }
-        if (page_height > 0) {
-            cur_page_size.v = page_height;
-        } else {
-            switch (page_direction) {
-            case dir_TLT:
-            case dir_TRT:
-                cur_page_size.v = height(p) + depth(p) + 2 * page_top_offset;
-                break;
-            case dir_LTL:
-            case dir_RTT:
-                cur_page_size.v = width(p) + 2 * page_top_offset;
-                break;
-            }
-        }
-
-        /* 8 */
-        /* Think in upright page/paper coordinates: First preset |pos.h| and |pos.v| to the DVI origin. */
-
-        refpoint.pos.h = one_true_inch;
-        refpoint.pos.v = cur_page_size.v - one_true_inch;
-        dvi = refpoint.pos;
-
-        /* Then calculate |cur.h| and |cur.v| within the upright coordinate system
-           for the DVI origin depending on the |page_direction|. */
-        switch (page_direction) {
-        case dir_TLT:
-        case dir_LTL:
-            cur.h = h_offset;
-            cur.v = v_offset;
-            break;
-        case dir_TRT:
-        case dir_RTT:
-            cur.h = cur_page_size.h - page_right_offset - one_true_inch;
-            cur.v = v_offset;
-            break;
-        }
-        /* The movement is actually done within the upright page coordinate system. */
-        pdf->posstruct->dir = dir_TLT;  /* only temporarily for this adjustment */
-
-        synch_pos_with_cur(pdf->posstruct, &refpoint, cur);
-
-        /* Then switch to page box coordinate system; do |height(p)| movement. */
-        refpoint.pos = pdf->posstruct->pos;
-        pdf->posstruct->dir = page_direction;
-        cur.h = 0;
-        cur.v = height(p);
-
-        synch_pos_with_cur(pdf->posstruct, &refpoint, cur);
-    }
-
-    /* 9 */
-    /* Now we are at the point on the page where the origin of the page box should go. */
-
-    ensure_dvi_open();
-    if (total_pages == 0) {
-        dvi_out(pre);
-        dvi_out(id_byte);       /* output the preamble */
-        dvi_four(25400000);
-        dvi_four(473628672);    /* conversion ratio for sp */
-        prepare_mag();
-        dvi_four(mag);          /* magnification factor is frozen */
-        if (output_comment) {
-            int l = strlen(output_comment);
-            dvi_out(l);
-            for (s = 0; s <= l - 1; s++)
-                dvi_out(output_comment[s]);
-        } else {                /* the default code is unchanged */
-            old_setting = selector;
-            selector = new_string;
-            tprint(" LuaTeX output ");
-            print_int(int_par(year_code));
-            print_char('.');
-            print_two(int_par(month_code));
-            print_char('.');
-            print_two(int_par(day_code));
-            print_char(':');
-            print_two(int_par(time_code) / 60);
-            print_two(int_par(time_code) % 60);
-            selector = old_setting;
-            dvi_out(cur_length);
-            for (s = str_start_macro(str_ptr); s <= pool_ptr - 1; s++)
-                dvi_out(str_pool[s]);
-            pool_ptr = str_start_macro(str_ptr);        /* flush the current string */
-        }
-    }
-    page_loc = dvi_offset + dvi_ptr;
-    dvi_out(bop);
-    for (k = 0; k <= 9; k++)
-        dvi_four(count(k));
-    dvi_four(last_bop);
-    last_bop = page_loc;
-
-    /* 10 */
-    if (type(p) == vlist_node)
-        vlist_out(pdf, p);
-    else
-        hlist_out(pdf, p);
-    if (shipping_page)
-        incr(total_pages);
-    cur_s = -1;
-
-    /* 11 */
-    /* Finish shipping */
-    dvi_out(eop);
-
-#  ifdef IPC
-    if (ipcon > 0) {
-        if (dvi_limit == half_buf) {
-            write_dvi(half_buf, dvi_buf_size - 1);
-            flush_dvi();
-            dvi_gone = dvi_gone + half_buf;
-        }
-        if (dvi_ptr > 0) {
-            write_dvi(0, dvi_ptr - 1);
-            flush_dvi();
-            dvi_offset = dvi_offset + dvi_ptr;
-            dvi_gone = dvi_gone + dvi_ptr;
-        }
-        dvi_ptr = 0;
-        dvi_limit = dvi_buf_size;
-        ipcpage(dvi_gone);
-    }
-#  endif                        /* IPC */
-  DONE:
-    /* 12 */
-    if ((tracing_output <= 0) && (post_callback_id == 0) && shipping_page) {
-        print_char(']');
-        update_terminal();
-    }
-    dead_cycles = 0;
-    /* Flush the box from memory, showing statistics if requested */
-    if ((tracing_stats > 1) && (pre_callback_id == 0)) {
-        tprint_nl("Memory usage before: ");
-        print_int(var_used);
-        print_char('&');
-        print_int(dyn_used);
-        print_char(';');
-    }
-    flush_node_list(p);
-    if ((tracing_stats > 1) && (post_callback_id == 0)) {
-        tprint(" after: ");
-        print_int(var_used);
-        print_char('&');
-        print_int(dyn_used);
-        print_ln();
-    }
-    if (shipping_page && (post_callback_id > 0))
-        ret = run_callback(post_callback_id, "->");
-
-    /* Finish sheet {\sl Sync\TeX} information record */
-    synctex_teehs();
-}
-#endif                          /* obsolete code, kept for reference */
 
 /**********************************************************************/
 /*
@@ -1553,8 +1259,8 @@ ship out a box of stuff, we shall use the macro |ensure_dvi_open|.
 
 void ensure_dvi_header_written(PDF pdf)
 {
-    int l;
-    pool_pointer s;             /* index into |str_pool| */
+    unsigned l;
+    unsigned s;             /* index into |str_pool| */
     int old_setting;            /* saved |selector| setting */
     assert(pdf->o_mode == OMODE_DVI);
     assert(pdf->o_state == ST_FILE_OPEN);
@@ -1589,9 +1295,9 @@ void ensure_dvi_header_written(PDF pdf)
         print_two(int_par(time_code) % 60);
         selector = old_setting;
         dvi_out(cur_length);
-        for (s = str_start_macro(str_ptr); s <= pool_ptr - 1; s++)
-            dvi_out(str_pool[s]);
-        pool_ptr = str_start_macro(str_ptr);    /* flush the current string */
+        for (s = 0; s < cur_length; s++)
+            dvi_out(cur_string[s]);
+        cur_length = 0;
     }
 }
 

@@ -142,19 +142,17 @@ pointer prim_lookup(str_number s)
 {
     integer h;                  /* hash code */
     pointer p;                  /* index in |hash| array */
-    pool_pointer j, l;
+    unsigned char *j;
+    unsigned l;
     if (s < STRING_OFFSET) {
         p = s;
         if ((p < 0) || (get_prim_eq_type(p) == undefined_cs_cmd)) {
             p = undefined_primitive;
         }
     } else {
-        j = str_start_macro(s);
-        if (s == str_ptr)
-            l = cur_length;
-        else
-            l = str_length(s);
-        h = compute_hash((char *) (str_pool + j), l, prim_prime);
+        j = str_string(s);
+        l = str_length(s);
+        h = compute_hash((char *) j, l, prim_prime);
         p = h + prim_base;      /* we start searching here; note that |0<=h<hash_prime| */
         while (1) {
             if (prim_text(p) > 0)
@@ -354,7 +352,9 @@ primitive(char *thes, quarterword c, halfword o, halfword off, int cmd_origin)
 
 static halfword insert_id(halfword p, unsigned char *j, pool_pointer l)
 {
-    integer d;
+    unsigned saved_cur_length;
+    unsigned saved_cur_string_size;
+    unsigned char *saved_cur_string;
     unsigned char *k;
     /* This code far from ideal: the existance of |hash_extra| changes
        all the potential (short) coalesced lists into a single (long)
@@ -376,17 +376,16 @@ static halfword insert_id(halfword p, unsigned char *j, pool_pointer l)
             p = hash_used;
         }
     }
-    check_pool_overflow((pool_ptr + l));
-    d = cur_length;
-    while (pool_ptr > str_start_macro(str_ptr)) {
-        /* move current string up to make room for another */
-        decr(pool_ptr);
-        str_pool[pool_ptr + l] = str_pool[pool_ptr];
-    }
+    saved_cur_length      = cur_length;
+    saved_cur_string      = cur_string;
+    saved_cur_string_size = cur_string_size;
+    reset_cur_string();
     for (k = j; k <= j + l - 1; k++)
         append_char(*k);
     cs_text(p) = make_string();
-    pool_ptr = pool_ptr + d;
+    cur_length      = saved_cur_length;
+    cur_string      = saved_cur_string;
+    cur_string_size = saved_cur_string_size;
     incr(cs_count);
     return p;
 }
@@ -422,7 +421,7 @@ pointer id_lookup(integer j, integer l)
     p = h + hash_base;          /* we start searching here; note that |0<=h<hash_prime| */
     while (1) {
         if (cs_text(p) > 0)
-            if (str_length(cs_text(p)) == l)
+            if (str_length(cs_text(p)) == (unsigned)l)
                 if (str_eq_buf(cs_text(p), j))
                     goto FOUND;
         if (cs_next(p) == 0) {

@@ -50,29 +50,45 @@ ASCII code for a period, while \.{WEB} will convert a string like \.{"hello"}
 into some integer greater than~|STRING_OFFSET|.
 */
 
-packed_ASCII_code *str_pool;    /* the characters */
-pool_pointer *str_start;        /* the starting pointers */
+lstring *string_pool;           /* the array of strings */
+lstring *_string_pool;          /* this variable lives STRING_OFFSET below |string_pool| 
+                                   (handy for debugging: 
+                                   |_string_pool[str_ptr] == str_string(str_ptr)| */
+
 pool_pointer pool_ptr;          /* first unused position in |str_pool| */
 str_number str_ptr = (STRING_OFFSET + 1);       /* number of the current string being created */
-pool_pointer init_pool_ptr;     /* the starting value of |pool_ptr| */
 str_number init_str_ptr;        /* the starting value of |str_ptr| */
 
+unsigned char *cur_string;      /*  current string buffer */
+unsigned cur_length;            /* current index in that buffer */
+unsigned cur_string_size;       /*  malloced size of |cur_string| */
 
 /*
-Once a sequence of characters has been appended to |str_pool|, it
+Once a sequence of characters has been appended to |cur_string|, it
 officially becomes a string when the function |make_string| is called.
 This function returns the identification number of the new string as its
 value.
 */
 
+void reset_cur_string (void)
+{
+    cur_length = 0;
+    cur_string_size = 255;
+    cur_string = (unsigned char *)xmalloc(256);
+    memset(cur_string,0,256);
+}
 
 /* current string enters the pool */
 str_number make_string(void)
 {
     if (str_ptr == (max_strings + STRING_OFFSET))
         overflow("number of strings", max_strings - init_str_ptr);
-    incr(str_ptr);
-    str_start_macro(str_ptr) = pool_ptr;
+    str_room(1);
+    cur_string[cur_length] = '\0'; /* now |lstring.s| is always a valid C string */
+    str_string(str_ptr) = (unsigned char *)cur_string;
+    str_length(str_ptr) = cur_length;
+    reset_cur_string();
+    str_ptr++;
     return (str_ptr - 1);
 }
 
@@ -210,9 +226,9 @@ static integer buffer_to_unichar(integer k)
     return a;
 }
 
-integer pool_to_unichar(pool_pointer t)
+integer pool_to_unichar(unsigned char *t)
 {
-    return (integer) str2uni((unsigned char *) (str_pool + t));
+    return (integer) str2uni(t);
 }
 
 
@@ -232,9 +248,10 @@ boolean str_eq_buf(str_number s, integer k)
         if (a != s)
             return false;
     } else {
-        pool_pointer j = str_start_macro(s);
-        while (j < str_start_macro(s + 1)) {
-            if (str_pool[j++] != buffer[k++])
+        unsigned char *j = str_string(s);
+        unsigned char *l = j + str_length(s);
+        while (j < l) {
+            if (*j++ != buffer[k++])
                 return false;
         }
     }
@@ -249,12 +266,13 @@ and it does not assume that they have the same length.
 boolean str_eq_str(str_number s, str_number t)
 {                               /* test equality of strings */
     integer a = 0;              /* a utf char */
+    unsigned char *j, *k, *l;      /* running indices */
     if (s < STRING_OFFSET) {
         if (t >= STRING_OFFSET) {
-            if (s <= 0x7F && (str_length(t) == 1)
-                && str_pool[str_start_macro(t)] == s)
+            k = str_string(t);
+            if (s <= 0x7F && (str_length(t) == 1) && *k == s)
                 return true;
-            a = pool_to_unichar(str_start_macro(t));
+            a = pool_to_unichar(k);
             if (a != s)
                 return false;
         } else {
@@ -262,24 +280,33 @@ boolean str_eq_str(str_number s, str_number t)
                 return false;
         }
     } else if (t < STRING_OFFSET) {
-        if (t <= 0x7F && (str_length(s) == 1)
-            && str_pool[str_start_macro(s)] == t)
+        j = str_string(s);
+        if (t <= 0x7F && (str_length(s) == 1) && *j == t)
             return true;
-        a = pool_to_unichar(str_start_macro(s));
+        a = pool_to_unichar(j);
         if (a != t)
             return false;
     } else {
-        pool_pointer j, k;      /* running indices */
         if (str_length(s) != str_length(t))
             return false;
-        j = str_start_macro(s);
-        k = str_start_macro(t);
-        while (j < str_start_macro(s + 1)) {
-            if (str_pool[j++] != str_pool[k++])
+        k = str_string(t);
+        j = str_string(s);
+        l = j + str_length(s);
+        while (j < l) {
+            if (*j++ != *k++)
                 return false;
         }
     }
     return true;
+}
+
+/* string compare */
+
+boolean str_eq_cstr(str_number r, char *s, size_t l)
+{
+    if (l != (size_t) str_length(r))
+        return false;
+    return (strncmp((const char *) (str_string(r)), s, l) == 0);
 }
 
 /*
@@ -297,9 +324,9 @@ between characters and strings.
 
 
 /* initializes the string pool, but returns |false| if something goes wrong */
-/* this is now a no-op */
 boolean get_strings_started(void)
 {
+    reset_cur_string();
     return true;
 }
 
@@ -317,7 +344,7 @@ boolean get_strings_started(void)
 str_number search_string(str_number search)
 {
     str_number s;               /* running index */
-    integer len;                /* length of searched string */
+    unsigned len;                /* length of searched string */
     len = str_length(search);
     if (len == 0) {
         return get_nullstr();
@@ -334,23 +361,96 @@ str_number search_string(str_number search)
     return 0;
 }
 
-/*
-The following routine is a variant of |make_string|.  It searches
-the whole string pool for a string equal to the string currently built
-and returns a found string.  Otherwise a new string is created and
-returned.  Be cautious, you can not apply |flush_string| to a replaced
-string!
-*/
-
-str_number slow_make_string(void)
+str_number maketexstring(const char *s)
 {
-    str_number s;               /* result of |search_string| */
-    str_number t;               /* new string */
-    t = make_string();
-    s = search_string(t);
-    if (s > 0) {
-        flush_string();
-        return s;
+    if (s == NULL || *s == 0)
+        return get_nullstr();
+    return maketexlstring(s, strlen(s));
+}
+
+str_number maketexlstring(const char *s, size_t l)
+{
+    if (s == NULL || l == 0)
+        return get_nullstr();
+    str_string(str_ptr) = xmalloc(l+1);
+    memcpy(str_string(str_ptr),s,(l+1));
+    str_length(str_ptr) = (unsigned)l;
+    str_ptr++;
+    return (str_ptr -1);
+}
+
+/* append a C string to a TeX string */
+void append_string(unsigned char *s, unsigned l)
+{
+    if (s == NULL || *s == 0)
+        return;
+    l = strlen((char *)s);
+    str_room(l);
+    memcpy(cur_string+cur_length, s, l);
+    cur_length += l;
+    return;
+}
+
+char *makecstring(integer s)
+{
+    size_t l;
+    return makeclstring(s, &l);
+}
+
+char *makeclstring(integer s, size_t * len)
+{
+    if (s<STRING_OFFSET) {
+        *len = utf8_size(s);
+        return (char *)uni2str(s);
+    } else {
+        unsigned l = str_length(s);
+        char *cstrbuf = xmalloc(l+1);
+        memcpy(cstrbuf,str_string(s),l);
+        cstrbuf[l] = '\0';
+        *len = l;
+        return cstrbuf;
     }
-    return t;
+}
+
+int dump_string_pool (void) {
+    int j;
+    int k = str_ptr;
+    dump_int(k-STRING_OFFSET);
+    for (j=STRING_OFFSET;j<k;j++) {
+        dump_int(str_length(j));
+        dump_things(*str_string(j),str_length(j));
+    }
+    return (k-STRING_OFFSET);
+}
+
+int undump_string_pool (void) {
+    int j;
+    integer x;
+    undump_int(str_ptr);
+    if (max_strings < str_ptr + strings_free)
+        max_strings = str_ptr + strings_free;
+    str_ptr += STRING_OFFSET;
+    if (ini_version)
+        libcfree(string_pool);
+    string_pool = xmallocarray(lstring, max_strings);
+    _string_pool = string_pool - STRING_OFFSET;
+    for (j=STRING_OFFSET;j<str_ptr;j++) {
+        undump_int(x);
+        str_length(j) = (unsigned)x;
+        str_string(j) = xmallocarray(unsigned char, (unsigned)(x+1));
+        undump_things(*str_string(j),(unsigned)x);
+        *(str_string(j)+str_length(j)) = '\0';
+    }
+    init_str_ptr = str_ptr;
+    return str_ptr;
+}
+
+void init_string_pool_array (int s)
+{
+    string_pool = xmallocarray(lstring, s);
+    _string_pool = string_pool - STRING_OFFSET;
+    memset(string_pool, 0, s * sizeof(lstring));
+    /* seed the null string */
+    string_pool[0].s = xmalloc(1);
+    string_pool[0].s[0] = '\0';
 }
