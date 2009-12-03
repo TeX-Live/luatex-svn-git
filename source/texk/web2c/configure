@@ -24830,14 +24830,25 @@ IFS=$ac_save_IFS
 case $host_os in *\ *) host_os=`echo "$host_os" | sed 's/ /-/g'`;; esac
 
 
- if case $host in *-*-freebsd*) true;; *) false;; esac; then
+{ $as_echo "$as_me:$LINENO: checking for FreeBSD" >&5
+$as_echo_n "checking for FreeBSD... " >&6; }
+case "$host" in
+	*-*-freebsd*)
+	freebsd_os=yes
+	;;
+	*)
+	freebsd_os=no
+	;;
+esac
+{ $as_echo "$as_me:$LINENO: result: $freebsd_os" >&5
+$as_echo "$freebsd_os" >&6; }
+ if test "x$freebsd_os" = xyes; then
   FREEBSD_TRUE=
   FREEBSD_FALSE='#'
 else
   FREEBSD_TRUE='#'
   FREEBSD_FALSE=
 fi
-
 
 
 cat >confcache <<\_ACEOF

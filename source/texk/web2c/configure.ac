@@ -367,8 +367,16 @@ AC_CONFIG_COMMANDS_POST([AS_IF([test "x$cross_compiling" = xyes],
 
 dnl for luatex on freebsd dlopen support
 AC_CANONICAL_HOST
-AM_CONDITIONAL([FREEBSD],
-   [case $host in *-*-freebsd*) true;; *) false;; esac])
-
+AC_MSG_CHECKING([for FreeBSD])
+case "$host" in
+	*-*-freebsd*)
+	freebsd_os=yes
+	;;
+	*)
+	freebsd_os=no
+	;;
+esac
+AC_MSG_RESULT([$freebsd_os])
+AM_CONDITIONAL([FREEBSD], [test "x$freebsd_os" = xyes])
 
 AC_OUTPUT
