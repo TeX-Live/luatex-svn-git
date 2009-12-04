@@ -1850,13 +1850,15 @@ void conv_toks(void)
     case lua_escape_string_code:
         {
             lstring str;
+	    int l = 0;
             save_scanner_status = scanner_status;
             save_def_ref = def_ref;
             save_warning_index = warning_index;
             scan_pdf_ext_toks();
             bool = in_lua_escape;
             in_lua_escape = true;
-            str.s = (unsigned char *)tokenlist_to_cstring(def_ref, false, (int *)&str.l);
+            str.s = (unsigned char *)tokenlist_to_cstring(def_ref, false, &l);
+	    str.l = (unsigned)l;
             in_lua_escape = bool;
             delete_token_ref(def_ref);
             def_ref = save_def_ref;
