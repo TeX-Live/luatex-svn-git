@@ -51,34 +51,30 @@ structure depending on the object type; however it may be used as a counter as
 well.
 */
 
-#  define obj_info(pdf,A)  pdf->obj_tab[(A)].u.int0     /* information representing identifier of this object */
-#  define obj_start(pdf,A) pdf->obj_tab[(A)].u.str0
-#  define obj_link(pdf,A)  pdf->obj_tab[(A)].int1       /* link to the next entry in linked list */
-#  define obj_offset(pdf,A) pdf->obj_tab[(A)].int2
-                                        /* negative (flags), or byte offset for this object in PDF 
-                                           output file, or object stream number for this object */
-#  define obj_os_idx(pdf,A) pdf->obj_tab[(A)].int3
-                                        /* index of this object in object stream */
-#  define obj_aux(pdf,A)  pdf->obj_tab[(A)].v.int4      /* auxiliary pointer */
-#  define obj_stop(pdf,A) pdf->obj_tab[(A)].v.str4
+#  define obj_info(pdf,A)   pdf->obj_tab[(A)].u.int0    /* information representing identifier of this object */
+#  define obj_start(pdf,A)  pdf->obj_tab[(A)].u.str0
+#  define obj_link(pdf,A)   pdf->obj_tab[(A)].int1      /* link to the next entry in linked list */
+#  define obj_offset(pdf,A) pdf->obj_tab[(A)].int2      /* negative (flags), or byte offset for this object in PDF 
+                                                           output file, or object stream number for this object */
+#  define obj_os_idx(pdf,A) pdf->obj_tab[(A)].int3      /* index of this object in object stream */
+#  define obj_aux(pdf,A)    pdf->obj_tab[(A)].v.int4    /* auxiliary pointer */
+#  define obj_stop(pdf,A)   pdf->obj_tab[(A)].v.str4
+#  define obj_type(pdf,A)   pdf->obj_tab[(A)].objtype
 
-#  define obj_data_ptr             obj_aux      /* pointer to |pdf->mem| */
+#  define obj_data_ptr              obj_aux     /* pointer to |pdf->mem| */
 
-
-#  define set_obj_link(pdf,A,B) obj_link(pdf,A)=B
-#  define set_obj_start(pdf,A,B) obj_start(pdf,A)=B
-#  define set_obj_info(pdf,A,B) obj_info(pdf,A)=B
-#  define set_obj_offset(pdf,A,B) obj_offset(pdf,A)=B
-#  define set_obj_aux(pdf,A,B) obj_aux(pdf,A)=B
-#  define set_obj_stop(pdf,A,B) obj_stop(pdf,A)=B
+#  define set_obj_link(pdf,A,B)     obj_link(pdf,A)=B
+#  define set_obj_start(pdf,A,B)    obj_start(pdf,A)=B
+#  define set_obj_info(pdf,A,B)     obj_info(pdf,A)=B
+#  define set_obj_offset(pdf,A,B)   obj_offset(pdf,A)=B
+#  define set_obj_aux(pdf,A,B)      obj_aux(pdf,A)=B
+#  define set_obj_stop(pdf,A,B)     obj_stop(pdf,A)=B
 #  define set_obj_data_ptr(pdf,A,B) obj_data_ptr(pdf,A)=B
 
 #  define set_obj_fresh(pdf,A)      obj_offset(pdf,(A))=-2
 #  define set_obj_scheduled(pdf,A)  if (intcast(obj_offset(pdf,A))==-2) obj_offset(pdf,A)=-1
-#  define is_obj_scheduled(pdf,A)  (intcast(obj_offset(pdf,A))>-2)
-#  define is_obj_written(pdf,A)    (intcast(obj_offset(pdf,A))>-1)
-
-#  define head_tab_max obj_type_thread  /* max index of |head_tab| */
+#  define is_obj_scheduled(pdf,A)   (intcast(obj_offset(pdf,A))>-2)
+#  define is_obj_written(pdf,A)     (intcast(obj_offset(pdf,A))>-1)
 
 /*  NOTE: The data structure definitions for the nodes on the typesetting side are 
     inside |nodes.h| */
@@ -86,11 +82,11 @@ well.
 /* Some constants */
 #  define inf_pk_dpi 72         /* min PK pixel density value from \.{texmf.cnf} */
 #  define sup_pk_dpi 8000       /* max PK pixel density value from \.{texmf.cnf} */
-#  define pdf_objtype_max head_tab_max
 
-extern void pdf_create_obj(PDF pdf, integer t, integer i);
 extern integer find_obj(PDF pdf, integer t, integer i, boolean byname);
+extern void check_obj_exists(PDF pdf, integer t, integer n);
 extern integer get_obj(PDF pdf, integer t, integer i, boolean byname);
+extern void pdf_create_obj(PDF pdf, integer t, integer i);
 extern integer pdf_new_objnum(PDF pdf);
 
 extern void set_rect_dimens(PDF pdf, halfword p, halfword parent_box,

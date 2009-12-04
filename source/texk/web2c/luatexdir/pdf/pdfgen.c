@@ -293,7 +293,8 @@ void pdf_os_prepare_obj(PDF pdf, integer i, integer pdf_os_level)
                         && (pdf->objcompresslevel >= pdf_os_level)));
     if (pdf->os_mode) {
         if (pdf->os_cur_objnum == 0) {
-            pdf->os_cur_objnum = pdf_new_objnum(pdf);
+            pdf_create_obj(pdf, obj_type_objstm, pdf->sys_obj_ptr + 1);
+            pdf->os_cur_objnum = pdf->sys_obj_ptr;
             pdf->obj_ptr--;     /* object stream is not accessible to user */
             pdf->os_cntr++;     /* only for statistics */
             pdf->os_idx = 0;
@@ -351,15 +352,15 @@ void pdf_room(PDF pdf, integer n)
  * (40) and  right parenthesis (41)
  */
 
-#define pdf_print_escaped(c)                                            \
-  if ((c)<=32||(c)=='\\'||(c)=='('||(c)==')'||(c)>127) {                \
-    pdf_room(pdf,4);                                                    \
-    pdf_quick_out(pdf,'\\');                                                \
-    pdf_quick_out(pdf,'0' + (((c)>>6) & 0x3));                              \
-    pdf_quick_out(pdf,'0' + (((c)>>3) & 0x7));                              \
-    pdf_quick_out(pdf,'0' + ( (c)     & 0x7));                              \
-  } else {                                                              \
-    pdf_out(pdf,(c));                                                       \
+#define pdf_print_escaped(c)                                  \
+  if ((c)<=32||(c)=='\\'||(c)=='('||(c)==')'||(c)>127) {      \
+    pdf_room(pdf,4);                                          \
+    pdf_quick_out(pdf,'\\');                                  \
+    pdf_quick_out(pdf,'0' + (((c)>>6) & 0x3));                \
+    pdf_quick_out(pdf,'0' + (((c)>>3) & 0x7));                \
+    pdf_quick_out(pdf,'0' + ( (c)     & 0x7));                \
+  } else {                                                    \
+    pdf_out(pdf,(c));                                         \
   }
 
 void pdf_print_char(PDF pdf, int c)
@@ -378,7 +379,7 @@ void pdf_print_wide_char(PDF pdf, int c)
     pdf_quick_out(pdf, hex[1]);
     pdf_quick_out(pdf, hex[2]);
     pdf_quick_out(pdf, hex[3]);
-} 
+}
 
 void pdf_puts(PDF pdf, const char *s)
 {
@@ -407,7 +408,6 @@ void pdf_printf(PDF pdf, const char *fmt, ...)
     va_end(args);
 }
 
-
 /* print out a string to PDF buffer */
 
 void pdf_print(PDF pdf, str_number s)
@@ -417,7 +417,7 @@ void pdf_print(PDF pdf, str_number s)
         pdf_out(pdf, s);
     } else {
         unsigned char *k, *j;
-        j = str_string(s)+str_length(s);
+        j = str_string(s) + str_length(s);
         for (k = str_string(s); k < j; k++) {
             pdf_out(pdf, *k);
         }
@@ -458,8 +458,8 @@ void pdf_print_int(PDF pdf, longinteger n)
     }
 }
 
-
 /* print $m/10^d$ as real */
+
 void pdf_print_real(PDF pdf, integer m, integer d)
 {
     if (m < 0) {
@@ -514,8 +514,8 @@ void pdf_print_str(PDF pdf, char *s)
     pdf_puts(pdf, orig);        /* it was a hex string after all  */
 }
 
-
 /* begin a stream */
+
 void pdf_begin_stream(PDF pdf)
 {
     assert(pdf->os_mode == false);
@@ -538,6 +538,7 @@ void pdf_begin_stream(PDF pdf)
 }
 
 /* end a stream */
+
 void pdf_end_stream(PDF pdf)
 {
     if (pdf->zip_write_state == zip_writing)
@@ -559,7 +560,6 @@ void pdf_remove_last_space(PDF pdf)
     if ((pdf->ptr > 0) && (pdf->buf[pdf->ptr - 1] == ' '))
         pdf->ptr--;
 }
-
 
 /*
 To print |scaled| value to PDF output we need some subroutines to ensure
@@ -670,12 +670,12 @@ void reset_resource_lists(pdf_resource_struct * p)
     p->image_procset = 0;
 }
 
-void append_object_list(PDF pdf, pdf_obj_type t, integer f)
+void append_object_list(PDF pdf, pdf_obj_type t, integer objnum)
 {
     pdf_object_list *p;
     pdf_object_list *item = xmalloc(sizeof(pdf_object_list));
     item->link = NULL;
-    item->info = f;
+    item->info = objnum;
     switch (t) {
     /* *INDENT-OFF* */
     case obj_type_obj:    set_p_or_return(pdf->resources->obj_list);    break;
@@ -692,6 +692,7 @@ void append_object_list(PDF pdf, pdf_obj_type t, integer f)
     while (p->link != NULL)
         p = p->link;
     p->link = item;
+    set_obj_scheduled(pdf, objnum);
     return;
 }
 
@@ -1138,7 +1139,6 @@ void pdf_new_obj(PDF pdf, integer t, integer i, integer pdf_os)
     pdf_begin_obj(pdf, pdf->obj_ptr, pdf_os);
 }
 
-
 /* end a PDF object */
 void pdf_end_obj(PDF pdf)
 {
@@ -1150,7 +1150,6 @@ void pdf_end_obj(PDF pdf)
     }
 }
 
-
 void write_stream_length(PDF pdf, integer length, longinteger offset)
 {
     if (jobname_cstr == NULL)
@@ -1161,7 +1160,6 @@ void write_stream_length(PDF pdf, integer length, longinteger offset)
         xfseeko(pdf->file, pdf_offset(pdf), SEEK_SET, jobname_cstr);
     }
 }
-
 
 /* Converts any string given in in in an allowed PDF string which can be
  * handled by printf et.al.: \ is escaped to \\, parenthesis are escaped and
@@ -1788,7 +1786,7 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
             pdf_puts(pdf, "/Annots [ ");
             ol = res_p->annot_list;
             while (ol != NULL) {
-                if (ol->info>0)
+                if (ol->info > 0)
                     pdf_print_int(pdf, ol->info);
                 else
                     pdf_print_int(pdf, (-ol->info));
@@ -1853,7 +1851,7 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
         if ((ol = res_p->annot_list) != NULL) {
             while (ol != NULL) {
                 if (ol->info > 0) {
-                    j = obj_annot_ptr(pdf, ol->info);       /* |j| points to |pdf_annot_node| */
+                    j = obj_annot_ptr(pdf, ol->info);   /* |j| points to |pdf_annot_node| */
                     pdf_begin_dict(pdf, ol->info, 1);
                     pdf_puts(pdf, "/Type /Annot\n");
                     pdf_print_toks_ln(pdf, pdf_annot_data(j));

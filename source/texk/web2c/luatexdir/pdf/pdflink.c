@@ -68,7 +68,6 @@ void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_link_margin);
     obj_annot_ptr(pdf, pdf_link_objnum(p)) = p; /* the reference for the pdf annot object must be set here */
     append_object_list(pdf, obj_type_link, pdf_link_objnum(p));
-    set_obj_scheduled(pdf, pdf_link_objnum(p));
 }
 
 void end_link(PDF pdf, halfword p)

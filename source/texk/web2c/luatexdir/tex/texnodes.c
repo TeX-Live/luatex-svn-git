@@ -17,18 +17,16 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+static const char _svn_version[] =
+    "$Id$ "
+    "$URL$";
 
 #include <ptexlib.h>
 #include "lua/luatex-api.h"
 
-
 #undef name
 
 #define noDEBUG
-
-static const char _svn_version[] =
-    "$Id$ "
-    "$URL$";
 
 #define adjust_pre subtype
 #define attribute(A) eqtb[attribute_base+(A)].cint
@@ -68,7 +66,6 @@ int copy_error(halfword p);     /* define below */
 #define fake_node_name "fake"
 
 #define variable_node_size 2
-
 
 char *node_fields_list[] = { "attr", "width", "depth", "height", "dir", "shift",
     "glue_order", "glue_sign", "glue_set", "list", NULL
@@ -153,7 +150,7 @@ char *node_fields_whatsit_dir[] =
     { "attr", "dir", "level", "dvi_ptr", "dvi_h", NULL };
 
 char *node_fields_whatsit_pdf_literal[] = { "attr", "mode", "data", NULL };
-char *node_fields_whatsit_pdf_refobj[] = { "attr", "objnum", NULL };
+char *node_fields_whatsit_pdf_refobj[] = { "objnum", NULL };
 char *node_fields_whatsit_pdf_refxform[] =
     { "attr", "width", "depth", "height", "objnum", NULL };
 char *node_fields_whatsit_pdf_refximage[] =
@@ -2070,7 +2067,7 @@ int unset_attribute(halfword n, int i, int val)
         return UNUSED_ATTRIBUTE;
     /* if we are still here, the attribute exists */
     p = node_attr(n);
-    if (attr_list_ref(p) > 1 || p==attr_list_cache) {
+    if (attr_list_ref(p) > 1 || p == attr_list_cache) {
         p = copy_attribute_list(p);
         if (attr_list_ref(p) > 1) {
             delete_attribute_ref(node_attr(n));
@@ -2291,24 +2288,25 @@ void show_whatsit_node(integer p)
         break;
     case pdf_refobj_node:
         tprint_esc("pdfrefobj");
-        if (obj_obj_is_stream(static_pdf, pdf_obj_objnum(p)) > 0) {
-            if (obj_obj_stream_attr(static_pdf, pdf_obj_objnum(p)) != null) {
+        if (obj_obj_is_stream(static_pdf, pdf_obj_objnum(p))) {
+            if (obj_obj_stream_attr(static_pdf, pdf_obj_objnum(p)) != LUA_NOREF) {
                 tprint(" attr");
-                print_mark(obj_obj_stream_attr(static_pdf, pdf_obj_objnum(p)));
+                lua_rawgeti(Luas, LUA_REGISTRYINDEX,
+                            obj_obj_stream_attr(static_pdf, pdf_obj_objnum(p)));
+                print_char(' ');
+                tprint((char *) lua_tostring(Luas, -1));
+                lua_pop(Luas, 1);
             }
             tprint(" stream");
         }
-        if (obj_obj_is_file(static_pdf, pdf_obj_objnum(p)) > 0)
+        if (obj_obj_is_file(static_pdf, pdf_obj_objnum(p)))
             tprint(" file");
-        if (obj_obj_is_stream(static_pdf, pdf_obj_objnum(p)) == 2 ||
-            obj_obj_is_file(static_pdf, pdf_obj_objnum(p)) == 2) {
-            lua_rawgeti(Luas, LUA_REGISTRYINDEX, 
+        if (obj_obj_data(static_pdf, pdf_obj_objnum(p)) != LUA_NOREF) {
+            lua_rawgeti(Luas, LUA_REGISTRYINDEX,
                         obj_obj_data(static_pdf, pdf_obj_objnum(p)));
             print_char(' ');
-            tprint((char *)lua_tostring(Luas,-1));
-            lua_pop(Luas,1);
-        } else {
-            print_mark(obj_obj_data(static_pdf, pdf_obj_objnum(p)));
+            tprint((char *) lua_tostring(Luas, -1));
+            lua_pop(Luas, 1);
         }
         break;
     case pdf_refxform_node:
@@ -2513,7 +2511,7 @@ void show_node_list(integer p)
 {                               /* prints a node list symbolically */
     integer n;                  /* the number of items already printed at this level */
     real g;                     /* a glue ratio, as a floating point number */
-    if ((int)cur_length > depth_threshold) {
+    if ((int) cur_length > depth_threshold) {
         if (p > null)
             tprint(" []");      /* indicate that there's been some truncation */
         return;

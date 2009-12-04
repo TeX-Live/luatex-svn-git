@@ -17,11 +17,11 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+static const char _svn_version[] =
+    "$Id$"
+    "$URL$";
 
 #include <ptexlib.h>
-
-static const char _svn_version[] =
-    "$Id$ $URL$";
 
 #define pausing int_par(pausing_code)
 #define cat_code_table int_par(cat_code_table_code)
@@ -40,7 +40,6 @@ static const char _svn_version[] =
     else                                                                \
       a=get_cat_code(cat_code_table,cur_chr);                           \
   } while (0)
-
 
 /* 
 The \TeX\ system does nearly all of its own memory allocation, so that it
@@ -1801,7 +1800,7 @@ void conv_toks(void)
         break;
     case pdf_xform_name_code:
         scan_int();
-        pdf_check_obj(static_pdf, obj_type_xform, cur_val);
+        check_obj_exists(static_pdf, obj_type_xform, cur_val);
         break;
     case pdf_creation_date_code:
         ins_list(string_to_toks(getcreationdate(static_pdf)));
@@ -1909,7 +1908,7 @@ void conv_toks(void)
         break;
     case pdf_ximage_bbox_code:
         scan_int();
-        pdf_check_obj(static_pdf, obj_type_ximage, cur_val);
+        check_obj_exists(static_pdf, obj_type_ximage, cur_val);
         i = obj_data_ptr(static_pdf, cur_val);
         scan_int();
         j = cur_val;
@@ -2380,4 +2379,20 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
     if (siz != NULL)
         *siz = i;
     return ret;
+}
+
+lstring *tokenlist_to_lstring(int pp, int inhibit_par)
+{
+    lstring *ret = xmalloc(sizeof(lstring));
+    ret->s = tokenlist_to_cstring(pp, inhibit_par, &(ret->l));
+    return ret;
+}
+
+void free_lstring(lstring * ls)
+{
+    if (ls == NULL)
+        return;
+    if (ls->s != NULL)
+        free(ls->s);
+    free(ls);
 }

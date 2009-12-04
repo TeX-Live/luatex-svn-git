@@ -402,10 +402,7 @@ void do_extension(PDF pdf)
     case pdf_refobj_node:
         /* Implement \.{\\pdfrefobj} */
         check_o_mode(pdf, "\\pdfrefobj", 1 << OMODE_PDF, false);
-        scan_int();
-        pdf_check_obj(pdf, obj_type_obj, cur_val);
-        new_whatsit(pdf_refobj_node);
-        set_pdf_obj_objnum(tail, cur_val);
+        scan_refobj(pdf);
         break;
     case pdf_refxform_node:
         /* Implement \.{\\pdfrefxform} */

@@ -124,13 +124,13 @@ typedef struct obj_entry_ {
         integer int4;
         char *str4;
     } v;
+    integer objtype;            /* integer int5 */
 } obj_entry;
 
 typedef struct dest_name_entry_ {
     char *objname;              /* destination name */
     integer objnum;             /* destination object number */
 } dest_name_entry;
-
 
 #  define pdf_max_link_level  10        /* maximum depth of link nesting */
 
@@ -142,34 +142,37 @@ typedef struct pdf_link_stack_record {
                                    case of multi-line link */
 } pdf_link_stack_record;
 
-
 /* types of objects */
 typedef enum {
-    obj_type_others = 0,        /* objects which are not linked in any list */
-    obj_type_page = 1,          /* index of linked list of Page objects */
-    obj_type_font = 2,          /* index of linked list of Fonts objects */
-    obj_type_outline = 3,       /* index of linked list of outline objects */
-    obj_type_dest = 4,          /* index of linked list of destination objects */
-    obj_type_obj = 5,           /* index of linked list of raw objects */
-    obj_type_xform = 6,         /* index of linked list of XObject forms */
-    obj_type_ximage = 7,        /* index of linked list of XObject image */
-    obj_type_thread = 8,        /* index of linked list of num article threads */
-    /* |obj_type_thead| is the highest entry in |head_tab|, but there are a few
+    obj_type_page = 0,          /* index of linked list of Page objects */
+    obj_type_font = 1,          /* index of linked list of Fonts objects */
+    obj_type_outline = 2,       /* index of linked list of outline objects */
+    obj_type_dest = 3,          /* index of linked list of destination objects */
+    obj_type_obj = 4,           /* index of linked list of raw objects */
+    obj_type_xform = 5,         /* index of linked list of XObject forms */
+    obj_type_ximage = 6,        /* index of linked list of XObject images */
+    obj_type_thread = 7,        /* index of linked list of num article threads */
+    /* |obj_type_thread| is the highest entry in |head_tab|, but there are a few
        more linked lists that are handy: */
-    obj_type_link = 9,          /* index of linked list of link objects */
-    obj_type_bead = 10,         /* index of linked list of thread bead objects */
-    obj_type_annot = 11,        /* index of linked list of annotation objects */
+    obj_type_link = 8,          /* link objects */
+    obj_type_bead = 9,          /* thread bead objects */
+    obj_type_annot = 10,        /* annotation objects */
+    obj_type_objstm = 11,       /* /ObjStm objects */
+    obj_type_others = 12        /* objects which are not linked in any list */
 } pdf_obj_type;
 
+#  define HEAD_TAB_MAX      7   /* obj_type_thread */
+#  define PDF_OBJ_TYPE_MAX 12   /* obj_type_others */
+
 typedef struct pdf_resource_struct_ {
-    pdf_object_list *obj_list;  /* |pdf_obj_list| */
     pdf_object_list *font_list; /* |font_list| during flushing pending forms */
+    pdf_object_list *dest_list; /* the pdf destinations */
+    pdf_object_list *obj_list;  /* |pdf_obj_list| */
     pdf_object_list *xform_list;        /* |pdf_xform_list| */
     pdf_object_list *ximage_list;       /* |pdf_ximage_list| */
-    pdf_object_list *dest_list; /* the pdf destinations */
     pdf_object_list *link_list; /* the pdf links */
-    pdf_object_list *annot_list;        /* the pdf annotations */
     pdf_object_list *bead_list; /* the thread beads */
+    pdf_object_list *annot_list;        /* the pdf annotations */
     integer text_procset;       /* |pdf_text_procset| */
     integer image_procset;      /* |pdf_image_procset| */
     integer last_resources;     /* halfword to most recently generated Resources object. */
@@ -246,8 +249,8 @@ typedef struct pdf_output_file_ {
 
     int obj_tab_size;           /* allocated size of |obj_tab| array */
     obj_entry *obj_tab;
-    int head_tab[9];            /* heads of the object lists in |obj_tab| */
-    struct avl_table *obj_tree[9];      /* this is useful for finding the objects back */
+    int head_tab[HEAD_TAB_MAX + 1];     /* heads of the object lists in |obj_tab| */
+    struct avl_table *obj_tree[PDF_OBJ_TYPE_MAX + 1];   /* this is useful for finding the objects back */
 
     int pages_tail;
     int obj_ptr;                /* user objects counter */

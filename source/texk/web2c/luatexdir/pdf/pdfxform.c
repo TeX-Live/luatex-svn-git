@@ -17,14 +17,14 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+static const char __svn_version[] =
+    "$Id$"
+    "$URL$";
+
 #include "ptexlib.h"
 #include "pdfpage.h"
 
 #define box(A) eqtb[box_base+(A)].hh.rh
-
-static const char __svn_version[] =
-    "$Id$"
-    "$URL$";
 
 integer pdf_cur_form;           /* the form being output */
 
@@ -104,7 +104,7 @@ void scan_pdfrefxform(PDF pdf)
     scaled_whd alt_rule, dim, nat;
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
     scan_int();
-    pdf_check_obj(pdf, obj_type_xform, cur_val);
+    check_obj_exists(pdf, obj_type_xform, cur_val);
     new_whatsit(pdf_refxform_node);
     nat.wd = obj_xform_width(pdf, cur_val);
     nat.ht = obj_xform_height(pdf, cur_val);

@@ -17,13 +17,13 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include "ptexlib.h"
-
-
-
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
+
+#include "ptexlib.h"
+
+#define tail          cur_list.tail_field
 
 void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 {
@@ -32,15 +32,16 @@ void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
         pdf_error("ext4", "annotations cannot be inside an XForm");
     if (doing_leaders)
         return;
-    if (is_obj_scheduled(pdf, pdf_annot_objnum(p)))
-        pdf_annot_objnum(p) = pdf_new_objnum(pdf);
+    if (is_obj_scheduled(pdf, pdf_annot_objnum(p))) {
+        pdf_create_obj(pdf, obj_type_annot, pdf->sys_obj_ptr + 1);
+        obj_annot_ptr(pdf, pdf_annot_objnum(p)) = p;
+        pdf_annot_objnum(p) = pdf->sys_obj_ptr;
+    }
     alt_rule.wd = width(p);
     alt_rule.ht = height(p);
     alt_rule.dp = depth(p);
     set_rect_dimens(pdf, p, parent_box, cur, alt_rule, 0);
-    obj_annot_ptr(pdf, pdf_annot_objnum(p)) = p;
     append_object_list(pdf, obj_type_annot, pdf_annot_objnum(p));
-    set_obj_scheduled(pdf, pdf_annot_objnum(p));
 }
 
 /* create a new whatsit node for annotation */
@@ -49,15 +50,15 @@ void new_annot_whatsit(small_number w)
     scaled_whd alt_rule;
     new_whatsit(w);
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
-    set_width(cur_list.tail_field, alt_rule.wd);
-    set_height(cur_list.tail_field, alt_rule.ht);
-    set_depth(cur_list.tail_field, alt_rule.dp);
+    set_width(tail, alt_rule.wd);
+    set_height(tail, alt_rule.ht);
+    set_depth(tail, alt_rule.dp);
     if ((w == pdf_thread_node) || (w == pdf_start_thread_node)) {
         if (scan_keyword("attr")) {
             scan_pdf_ext_toks();
-            set_pdf_thread_attr(cur_list.tail_field, def_ref);
+            set_pdf_thread_attr(tail, def_ref);
         } else {
-            set_pdf_thread_attr(cur_list.tail_field, null);
+            set_pdf_thread_attr(tail, null);
         }
     }
 }
@@ -66,7 +67,8 @@ void scan_annot(PDF pdf)
 {
     integer k;
     if (scan_keyword("reserveobjnum")) {
-        pdf_last_annot = pdf_new_objnum(pdf);
+        pdf_create_obj(pdf, obj_type_annot, pdf->sys_obj_ptr + 1);
+        k = pdf->sys_obj_ptr;
         /* Scan an optional space */
         get_x_token();
         if (cur_cmd != spacer_cmd)
@@ -75,15 +77,18 @@ void scan_annot(PDF pdf)
         if (scan_keyword("useobjnum")) {
             scan_int();
             k = cur_val;
-            if ((k <= 0) || (k > pdf->obj_ptr) || (obj_annot_ptr(pdf, k) != 0))
-                pdf_error("ext1", "invalid object number");
+            check_obj_exists(pdf, obj_type_annot, k);
+            if (obj_annot_ptr(pdf, k) != 0)
+                pdf_error("ext1", "annot object in use");
         } else {
-            k = pdf_new_objnum(pdf);
+            pdf_create_obj(pdf, obj_type_annot, pdf->sys_obj_ptr + 1);
+            k = pdf->sys_obj_ptr;
         }
         new_annot_whatsit(pdf_annot_node);
-        set_pdf_annot_objnum(cur_list.tail_field, k);
+        obj_annot_ptr(pdf, k) = tail;
+        set_pdf_annot_objnum(tail, k);
         scan_pdf_ext_toks();
-        set_pdf_annot_data(cur_list.tail_field, def_ref);
-        pdf_last_annot = k;
+        set_pdf_annot_data(tail, def_ref);
     }
+    pdf_last_annot = k;
 }

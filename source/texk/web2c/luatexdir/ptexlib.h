@@ -154,7 +154,6 @@ size_t          T##_limit
 /* that was ptexmac.h */
 
 #  include "tex/mainbody.h"
-#  include "tex/textoken.h"
 #  include "tex/expand.h"
 #  include "tex/conditional.h"
 #  include "pdf/pdftypes.h"
@@ -214,6 +213,7 @@ size_t          T##_limit
 #  include "tex/errors.h"
 #  include "tex/inputstack.h"
 #  include "tex/stringpool.h"
+#  include "tex/textoken.h"
 #  include "tex/printing.h"
 #  include "tex/texfileio.h"
 #  include "tex/arithmetic.h"

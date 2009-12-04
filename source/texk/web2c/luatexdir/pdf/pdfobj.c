@@ -26,104 +26,100 @@ static const char __svn_version[] =
 
 integer pdf_last_obj;
 
-void pdf_check_obj(PDF pdf, integer t, integer n)
-{
-    integer k;
-    k = pdf->head_tab[t];
-    while ((k != 0) && (k != n))
-        k = obj_link(pdf, k);
-    if (k == 0)
-        pdf_error("ext1", "cannot find referenced object");
-}
-
 /* write a raw PDF object */
 
-void pdf_write_obj(PDF pdf, integer n)
+void pdf_write_obj(PDF pdf, integer k)
 {
-    char *s;
+    lstring data, st;
+    data.s = st.s = NULL;
+    integer i;                  /* index into |data.s| */
     int saved_compress_level = pdf->compress_level;
     int os_level = 1;           /* gives compressed objects for \pdfobjcompresslevel > 0 */
-    int l = 0; /* possibly a lua registry reference */
-    if ((obj_obj_is_stream(pdf, n) == 2) || (obj_obj_is_file(pdf, n) == 2)) {
-        /* this value indicates a lua reference */
-        l = obj_obj_data(pdf, n);
-        lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
-        s = (char *)lua_tostring(Luas,-1);
-    } else {
-        s = tokenlist_to_cstring(obj_obj_data(pdf, n), true, NULL);
-        delete_token_ref(obj_obj_data(pdf, n));
-    }
-    set_obj_obj_data(pdf, n, null);
-    if (obj_obj_pdfcompresslevel(pdf, n) > -1) {        /* -1 = "unset" */
-        pdf->compress_level = obj_obj_pdfcompresslevel(pdf, n);
-        if (obj_obj_pdfcompresslevel(pdf, n) == 0)
-            os_level = 0;
-    }
-    if (obj_obj_is_stream(pdf, n) > 0) {
-        pdf_begin_dict(pdf, n, 0);
-        if (obj_obj_stream_attr(pdf, n) != null) {
-            pdf_print_toks_ln(pdf, obj_obj_stream_attr(pdf, n));
-            delete_token_ref(obj_obj_stream_attr(pdf, n));
-            set_obj_obj_stream_attr(pdf, n, null);
+    int l = 0;                  /* possibly a lua registry reference */
+    if (obj_obj_pdfcompresslevel(pdf, k) > -1)  /* -1 = "unset" */
+        pdf->compress_level = obj_obj_pdfcompresslevel(pdf, k);
+    if (obj_obj_pdfoslevel(pdf, k) > -1)        /* -1 = "unset" */
+        os_level = obj_obj_pdfoslevel(pdf, k);
+    if (obj_obj_is_stream(pdf, k)) {
+        pdf_begin_dict(pdf, k, 0);
+        l = obj_obj_stream_attr(pdf, k);
+        if (l != LUA_NOREF) {
+            lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
+            assert(lua_isstring(Luas, -1));
+            st.s = (char *) lua_tolstring(Luas, -1, &st.l);
+            for (i = 0; i < st.l; i++)
+                pdf_out(pdf, st.s[i]);
+            if (st.s[st.l - 1] != '\n')
+                pdf_out(pdf, '\n');
+            luaL_unref(Luas, LUA_REGISTRYINDEX, l);
+            obj_obj_stream_attr(pdf, k) = LUA_NOREF;
         }
         pdf_begin_stream(pdf);
     } else
-        pdf_begin_obj(pdf, n, os_level);
-    if (obj_obj_is_file(pdf, n) > 0) {
-        integer data_size = 0;  /* total size of the data file */
-        integer data_cur = 0;   /* index into |data_buffer| */
-        eight_bits *data_buffer = NULL; /* byte buffer for data files */
+        pdf_begin_obj(pdf, k, os_level);
+    l = obj_obj_data(pdf, k);
+    lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
+    assert(lua_isstring(Luas, -1));
+    st.s = (char *) lua_tolstring(Luas, -1, &st.l);
+    if (obj_obj_is_file(pdf, k)) {
         boolean res = false;    /* callback status value */
         char *fnam = NULL;      /* callback found filename */
         integer callback_id;
-        fnam = luatex_find_file(s, find_data_file_callback);
+        /* st.s is also '\0'-terminated, even as lstring */
+        fnam = luatex_find_file(st.s, find_data_file_callback);
         callback_id = callback_defined(read_data_file_callback);
         if (fnam && callback_id > 0) {
             boolean file_opened = false;
             res = run_callback(callback_id, "S->bSd", fnam,
-                               &file_opened, &data_buffer, &data_size);
+                               &file_opened, &data.s, &data.l);
             if (!file_opened)
                 pdf_error("ext5", "cannot open file for embedding");
         } else {
             byte_file f;        /* the data file's FILE* */
             if (!fnam)
-                fnam = s;
+                fnam = st.s;
             if (!luatex_open_input
                 (&f, fnam, kpse_tex_format, FOPEN_RBIN_MODE, true))
                 pdf_error("ext5", "cannot open file for embedding");
-            res = read_data_file(f, &data_buffer, &data_size);
+            res = read_data_file(f, &data.s, &data.l);
             close_file(f);
         }
-        if (!data_size)
+        if (!data.l)
             pdf_error("ext5", "empty file for embedding");
         if (!res)
             pdf_error("ext5", "error reading file for embedding");
         tprint("<<");
-        tprint(s);
-        for (data_cur = 0; data_cur < data_size; data_cur++) {
-            pdf_out(pdf, data_buffer[data_cur]);
-        }
-        if (data_buffer != NULL)
-            xfree(data_buffer);
+        tprint(st.s);
+        for (i = 0; i < data.l; i++)
+            pdf_out(pdf, data.s[i]);
+        if (!obj_obj_is_stream(pdf, k) && data.s[data.l - 1] != '\n')
+            pdf_out(pdf, '\n');
+        if (data.s != NULL)
+            xfree(data.s);
         tprint(">>");
-    } else if (obj_obj_is_stream(pdf, n) > 0) {
-        pdf_puts(pdf, s);
     } else {
-        pdf_puts(pdf, s);
-        pdf_print_nl(pdf);
+        for (i = 0; i < st.l; i++)
+            pdf_out(pdf, st.s[i]);
+        if (!obj_obj_is_stream(pdf, k) && st.s[st.l - 1] != '\n')
+            pdf_out(pdf, '\n');
     }
-    if (obj_obj_is_stream(pdf, n) > 0)
+    if (obj_obj_is_stream(pdf, k))
         pdf_end_stream(pdf);
     else
         pdf_end_obj(pdf);
-    if (l>0) {
-        /* doing this here removes the need for |strdup()| earlier */
-        lua_pop(Luas,1);
-        luaL_unref(Luas, LUA_REGISTRYINDEX, l);
-    } else {
-        xfree(s);
-    }
+    luaL_unref(Luas, LUA_REGISTRYINDEX, l);
+    obj_obj_data(pdf, k) = LUA_NOREF;
     pdf->compress_level = saved_compress_level;
+}
+
+void init_obj_obj(PDF pdf, integer k)
+{
+    obj_obj_stream_attr(pdf, k) = LUA_NOREF;
+    obj_obj_data(pdf, k) = LUA_NOREF;
+    unset_obj_obj_is_stream(pdf, k);
+    unset_obj_obj_is_file(pdf, k);
+    obj_obj_pdfcompresslevel(pdf, k) = -1;      /* unset */
+    obj_obj_pdfoslevel(pdf, k) = -1;    /* unset */
 }
 
 /* The \.{\\pdfobj} primitive is used to create a ``raw'' object in the PDF
@@ -136,61 +132,70 @@ void pdf_write_obj(PDF pdf, integer n)
 void scan_obj(PDF pdf)
 {
     integer k;
+    lstring *st = NULL;
     if (scan_keyword("reserveobjnum")) {
         /* Scan an optional space */
         get_x_token();
         if (cur_cmd != spacer_cmd)
             back_input();
         incr(pdf->obj_count);
-        pdf_create_obj(pdf, obj_type_obj, pdf->obj_count);
-        pdf_last_obj = pdf->obj_ptr;
+        pdf_create_obj(pdf, obj_type_obj, pdf->sys_obj_ptr + 1);
+        k = pdf->sys_obj_ptr;
     } else {
-        k = -1;
         if (scan_keyword("useobjnum")) {
             scan_int();
             k = cur_val;
-            if ((k <= 0) || (k > pdf->obj_ptr) || (obj_data_ptr(pdf, k) != 0)) {
-                pdf_warning("\\pdfobj",
-                            "invalid object number being ignored", true, true);
-                pdf_retval = -1;        /* signal the problem */
-                k = -1;         /* will be generated again */
-            }
-        }
-        if (k < 0) {
+            check_obj_exists(pdf, obj_type_obj, k);
+            if (is_obj_scheduled(pdf, k) || obj_data_ptr(pdf, k) != 0)
+                luaL_error(Luas, "object in use");
+        } else {
             incr(pdf->obj_count);
-            pdf_create_obj(pdf, obj_type_obj, pdf->obj_count);
-            k = pdf->obj_ptr;
+            pdf_create_obj(pdf, obj_type_obj, pdf->sys_obj_ptr + 1);
+            k = pdf->sys_obj_ptr;
         }
-        set_obj_data_ptr(pdf, k, pdf_get_mem(pdf, pdfmem_obj_size));
-        if (scan_keyword("uncompressed"))
-            set_obj_obj_pdfcompresslevel(pdf, k, 0);
-        else
-            set_obj_obj_pdfcompresslevel(pdf, k, -1);
+        obj_data_ptr(pdf, k) = pdf_get_mem(pdf, pdfmem_obj_size);
+        init_obj_obj(pdf, k);
+        if (scan_keyword("uncompressed")) {
+            obj_obj_pdfcompresslevel(pdf, k) = 0;       /* \pdfcompresslevel = 0 */
+            obj_obj_pdfoslevel(pdf, k) = 0;
+        }
         if (scan_keyword("stream")) {
-            set_obj_obj_is_stream(pdf, k, 1);
+            set_obj_obj_is_stream(pdf, k);
             if (scan_keyword("attr")) {
                 scan_pdf_ext_toks();
-                set_obj_obj_stream_attr(pdf, k, def_ref);
-            } else {
-                set_obj_obj_stream_attr(pdf, k, null);
+                st = tokenlist_to_lstring(def_ref, true);
+                flush_list(def_ref);
+                lua_pushlstring(Luas, st->s, st->l);
+                obj_obj_stream_attr(pdf, k) = luaL_ref(Luas, LUA_REGISTRYINDEX);
+                free_lstring(st);
+                st = NULL;
             }
-        } else {
-            set_obj_obj_is_stream(pdf, k, 0);
         }
         if (scan_keyword("file"))
-            set_obj_obj_is_file(pdf, k, 1);
-        else
-            set_obj_obj_is_file(pdf, k, 0);
+            set_obj_obj_is_file(pdf, k);
         scan_pdf_ext_toks();
-        set_obj_obj_data(pdf, k, def_ref);
-        pdf_last_obj = k;
+        st = tokenlist_to_lstring(def_ref, true);
+        flush_list(def_ref);
+        lua_pushlstring(Luas, st->s, st->l);
+        obj_obj_data(pdf, k) = luaL_ref(Luas, LUA_REGISTRYINDEX);
+        free_lstring(st);
+        st = NULL;
     }
+    pdf_last_obj = k;
 }
 
-void pdf_ref_obj(PDF pdf __attribute__ ((unused)), halfword p)
+#define tail          cur_list.tail_field
+
+void scan_refobj(PDF pdf)
 {
-    if (!is_obj_scheduled(pdf, pdf_obj_objnum(p))) {
+    scan_int();
+    check_obj_exists(pdf, obj_type_obj, cur_val);
+    new_whatsit(pdf_refobj_node);
+    pdf_obj_objnum(tail) = cur_val;
+}
+
+void pdf_ref_obj(PDF pdf, halfword p)
+{
+    if (!is_obj_scheduled(pdf, pdf_obj_objnum(p)))
         append_object_list(pdf, obj_type_obj, pdf_obj_objnum(p));
-        set_obj_scheduled(pdf, pdf_obj_objnum(p));
-    }
 }

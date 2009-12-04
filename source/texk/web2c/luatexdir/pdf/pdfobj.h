@@ -24,28 +24,43 @@
 
 /* data structure for \.{\\pdfobj} and \.{\\pdfrefobj} */
 
-#  define set_pdf_obj_objnum(A,B) pdf_obj_objnum(A)=B
+#  define set_pdf_obj_objnum(A, B) pdf_obj_objnum(A) = (B)
 
-#  define pdfmem_obj_size                 5     /* size of memory in |mem| which |obj_data_ptr| holds */
+#  define pdfmem_obj_size                  5    /* size of memory in |mem| which |obj_data_ptr| holds */
 
-#  define obj_obj_data(pdf,A)             pdf->mem[obj_data_ptr(pdf,A) + 0]     /* object data */
-#  define obj_obj_is_stream(pdf,A)        pdf->mem[obj_data_ptr(pdf,A) + 1]     /* will this object be written as
-                                                                                   a stream instead of a dictionary? */
-#  define obj_obj_stream_attr(pdf,A)      pdf->mem[obj_data_ptr(pdf,A) + 2]     /* additional attributes into stream dict */
-#  define obj_obj_is_file(pdf,A)          pdf->mem[obj_data_ptr(pdf,A) + 3]     /* read data from an external file? */
-#  define obj_obj_pdfcompresslevel(pdf,A) pdf->mem[obj_data_ptr(pdf,A) + 4]     /* overrides \pdfcompresslevel */
+#  define obj_obj_data(pdf, A)             pdf->mem[obj_data_ptr((pdf), (A)) + 0]       /* object data */
+#  define obj_obj_stream_attr(pdf, A)      pdf->mem[obj_data_ptr((pdf), (A)) + 1]       /* additional attributes into stream dict */
+#  define obj_obj_flags(pdf, A)            pdf->mem[obj_data_ptr((pdf), (A)) + 2]       /* stream/file flags */
+#  define obj_obj_pdfcompresslevel(pdf, A) pdf->mem[obj_data_ptr((pdf), (A)) + 3]       /* overrides \pdfcompresslevel */
+#  define obj_obj_pdfoslevel(pdf, A)       pdf->mem[obj_data_ptr((pdf), (A)) + 4]       /* for object stream compression */
 
-#  define set_obj_obj_pdfcompresslevel(pdf, A, B) obj_obj_pdfcompresslevel(pdf, A) = (B)
-#  define set_obj_obj_is_stream(pdf, A, B)        obj_obj_is_stream(pdf, A) = (B)
-#  define set_obj_obj_stream_attr(pdf, A, B)      obj_obj_stream_attr(pdf, A) = (B)
-#  define set_obj_obj_is_file(pdf, A, B)          obj_obj_is_file(pdf, A) = (B)
-#  define set_obj_obj_data(pdf, A, B)             obj_obj_data(pdf, A) = (B)
+/*  define set_obj_obj_data(pdf, A, B)             obj_obj_data((pdf), (A)) = (B) */
+/*  define set_obj_obj_flags(pdf, A, B)            obj_obj_flags((pdf), (A)) = (B) */
+/*  define set_obj_obj_stream_attr(pdf, A, B)      obj_obj_stream_attr((pdf), (A)) = (B) */
+/*  define set_obj_obj_pdfcompresslevel(pdf, A, B) obj_obj_pdfcompresslevel((pdf), (A)) = (B) */
+/*  define set_obj_obj_pdfoslevel(pdf, A, B)       obj_obj_pdfoslevel((pdf), (A)) = (B) */
+
+/**********************************************************************/
+
+#  define OBJ_FLAG_ISSTREAM              (1 << 0)
+#  define OBJ_FLAG_ISFILE                (1 << 1)
+
+#  define obj_obj_is_stream(pdf,A)       ((obj_obj_flags((pdf), (A)) & OBJ_FLAG_ISSTREAM) != 0)
+#  define set_obj_obj_is_stream(pdf,A)   ((obj_obj_flags((pdf), (A)) |= OBJ_FLAG_ISSTREAM))
+#  define unset_obj_obj_is_stream(pdf,A) ((obj_obj_flags((pdf), (A)) &= ~OBJ_FLAG_ISSTREAM))
+
+#  define obj_obj_is_file(pdf,A)         ((obj_obj_flags((pdf), (A)) & OBJ_FLAG_ISFILE) != 0)
+#  define set_obj_obj_is_file(pdf,A)     ((obj_obj_flags((pdf), (A)) |= OBJ_FLAG_ISFILE))
+#  define unset_obj_obj_is_file(pdf,A)   ((obj_obj_flags((pdf), (A)) &= ~OBJ_FLAG_ISFILE))
+
+/**********************************************************************/
 
 extern integer pdf_last_obj;
 
-extern void pdf_check_obj(PDF pdf, integer t, integer n);
+extern void init_obj_obj(PDF pdf, integer k);
 extern void pdf_write_obj(PDF pdf, integer n);
 extern void scan_obj(PDF pdf);
+extern void scan_refobj(PDF pdf);
 extern void pdf_ref_obj(PDF pdf, halfword p);
 
 #endif

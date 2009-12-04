@@ -24,7 +24,25 @@ static const char __svn_version[] =
 #include "ptexlib.h"
 
 /**********************************************************************/
-/* One AVL tree for each obj_type 0...pdf_objtype_max */
+/* One AVL tree each for a few obj_type out of 0...PDF_OBJ_TYPE_MAX */
+
+/* mark which objects should be searchable through AVL tree */
+
+static int obj_in_tree[PDF_OBJ_TYPE_MAX + 1] = {
+    1,                          /* obj_type_page = 0,    */
+    0,                          /* obj_type_font = 1,    */
+    0,                          /* obj_type_outline = 2, */
+    1,                          /* obj_type_dest = 3,    */
+    0,                          /* obj_type_obj = 4,     */
+    0,                          /* obj_type_xform = 5,   */
+    0,                          /* obj_type_ximage = 6,  */
+    1,                          /* obj_type_thread = 7,  */
+    0,                          /* obj_type_link = 8,    */
+    0,                          /* obj_type_bead = 9,    */
+    0,                          /* obj_type_annot = 10,  */
+    0,                          /* obj_type_objstm = 11, */
+    0                           /* obj_type_others = 12  */
+};
 
 typedef enum {
     avl_obj_int_type,
@@ -62,6 +80,7 @@ static int compare_info(const void *pa, const void *pb, void *param)
 void avl_put_obj(PDF pdf, integer t, oentry * oe)
 {
     void **pp;
+    assert(t >= 0 || t <= PDF_OBJ_TYPE_MAX || obj_in_tree[t] == 1);
     if (pdf->obj_tree[t] == NULL) {
         pdf->obj_tree[t] = avl_create(compare_info, NULL, &avl_xallocator);
         if (pdf->obj_tree[t] == NULL)
@@ -92,11 +111,11 @@ void avl_put_str_obj(PDF pdf, char *str0, integer objptr, integer t)
     avl_put_obj(pdf, t, oe);
 }
 
-
-integer avl_find_int_obj(PDF pdf, integer t, integer i)
+static integer avl_find_int_obj(PDF pdf, integer t, integer i)
 {
     oentry *p;
     oentry tmp;
+    assert(t >= 0 || t <= PDF_OBJ_TYPE_MAX || obj_in_tree[t] == 1);
     tmp.int0 = i;
     tmp.objtype = avl_obj_int_type;
     if (pdf->obj_tree[t] == NULL)
@@ -107,10 +126,11 @@ integer avl_find_int_obj(PDF pdf, integer t, integer i)
     return p->objptr;
 }
 
-integer avl_find_str_obj(PDF pdf, integer t, char *i)
+static integer avl_find_str_obj(PDF pdf, integer t, char *i)
 {
     oentry *p;
     oentry tmp;
+    assert(t >= 0 || t <= PDF_OBJ_TYPE_MAX || obj_in_tree[t] == 1);
     tmp.str0 = i;
     tmp.objtype = avl_obj_string_type;
     if (pdf->obj_tree[t] == NULL)
@@ -122,9 +142,8 @@ integer avl_find_str_obj(PDF pdf, integer t, char *i)
 }
 
 /**********************************************************************/
-
-
 /* create an object with type |t| and identifier |i| */
+
 void pdf_create_obj(PDF pdf, integer t, integer i)
 {
     integer a, p, q;
@@ -142,6 +161,7 @@ void pdf_create_obj(PDF pdf, integer t, integer i)
     incr(pdf->sys_obj_ptr);
     pdf->obj_ptr = pdf->sys_obj_ptr;
     obj_info(pdf, pdf->obj_ptr) = i;
+    obj_type(pdf, pdf->obj_ptr) = t;
     set_obj_fresh(pdf, pdf->obj_ptr);
     obj_aux(pdf, pdf->obj_ptr) = 0;
     if (i < 0) {
@@ -151,49 +171,39 @@ void pdf_create_obj(PDF pdf, integer t, integer i)
     } else {
         avl_put_int_obj(pdf, i, pdf->obj_ptr, t);
     }
-    if (t == obj_type_page) {
-        p = pdf->head_tab[t];
-        /* find the right position to insert newly created object */
-        if ((p == 0) || (obj_info(pdf, p) < i)) {
-            obj_link(pdf, pdf->obj_ptr) = p;
-            pdf->head_tab[t] = pdf->obj_ptr;
-        } else {
-            while (p != 0) {
-                if (obj_info(pdf, p) < i)
-                    break;
-                q = p;
-                p = obj_link(pdf, p);
+    if (t <= HEAD_TAB_MAX) {
+        if (t == obj_type_page) {
+            p = pdf->head_tab[t];
+            /* find the right position to insert newly created object */
+            if ((p == 0) || (obj_info(pdf, p) < i)) {
+                obj_link(pdf, pdf->obj_ptr) = p;
+                pdf->head_tab[t] = pdf->obj_ptr;
+            } else {
+                while (p != 0) {
+                    if (obj_info(pdf, p) < i)
+                        break;
+                    q = p;
+                    p = obj_link(pdf, p);
+                }
+                obj_link(pdf, q) = pdf->obj_ptr;
+                obj_link(pdf, pdf->obj_ptr) = p;
             }
-            obj_link(pdf, q) = pdf->obj_ptr;
-            obj_link(pdf, pdf->obj_ptr) = p;
-        }
-    } else if (t != obj_type_others) {
-        obj_link(pdf, pdf->obj_ptr) = pdf->head_tab[t];
-        pdf->head_tab[t] = pdf->obj_ptr;
-        if ((t == obj_type_dest) && (i < 0)) {
-            char *ss = makecstring(-obj_info(pdf, pdf->obj_ptr));
-            append_dest_name(pdf, ss, pdf->obj_ptr);
-            free(ss);
+        } else {
+            obj_link(pdf, pdf->obj_ptr) = pdf->head_tab[t];
+            pdf->head_tab[t] = pdf->obj_ptr;
+            if ((t == obj_type_dest) && (i < 0))
+                append_dest_name(pdf, makecstring(-obj_info(pdf, pdf->obj_ptr)),
+                                 pdf->obj_ptr);
         }
     }
 }
 
-/* The following function finds object with identifier |i| and type |t|.
-   |i < 0| indicates that |-i| should be treated as a string number. If no
-   such object exists then it will be created. This function is used mainly to
-   find destination for link annotations and outlines; however it is also used
-   in |ship_out| (to check whether a Page object already exists) so we need
-   to declare it together with subroutines needed in |hlist_out| and
-   |vlist_out|.
-*/
-
 integer find_obj(PDF pdf, integer t, integer i, boolean byname)
 {
-    int ret;
+    char *ss = NULL;
+    integer ret;
+    assert(i >= 0);             /* no tricks */
     if (byname) {
-        char *ss;
-        if (i < 0)
-            i = abs(i);
         ss = makecstring(i);
         ret = avl_find_str_obj(pdf, t, ss);
         free(ss);
@@ -203,10 +213,20 @@ integer find_obj(PDF pdf, integer t, integer i, boolean byname)
     return ret;
 }
 
+/* The following function finds an object with identifier |i| and type |t|.
+   Identifier |i| is either an integer or a token list index. If no
+   such object exists then it will be created. This function is used mainly to
+   find destination for link annotations and outlines; however it is also used
+   in |ship_out| (to check whether a Page object already exists) so we need
+   to declare it together with subroutines needed in |hlist_out| and
+   |vlist_out|.
+*/
+
 integer get_obj(PDF pdf, integer t, integer i, boolean byname)
 {
     integer r;
     str_number s;
+    assert(i >= 0);
     if (byname > 0) {
         s = tokens_to_string(i);
         r = find_obj(pdf, t, s, true);
@@ -235,6 +255,14 @@ integer pdf_new_objnum(PDF pdf)
 {
     pdf_create_obj(pdf, obj_type_others, 0);
     return pdf->obj_ptr;
+}
+
+void check_obj_exists(PDF pdf, integer t, integer objnum)
+{
+    if (objnum < 0 || objnum > pdf->obj_ptr)
+        pdf_error("ext1", "cannot find referenced object");
+    if (t != obj_type(pdf, objnum))
+        pdf_error("ext1", "referenced object has wrong type");
 }
 
 void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur,
@@ -339,6 +367,8 @@ void dump_pdftex_data(PDF pdf)
         dump_int(x);
         x = obj_aux(pdf, k);
         dump_int(x);
+        x = obj_type(pdf, k);
+        dump_int(x);
     }
     print_ln();
     print_int(pdf->sys_obj_ptr);
@@ -412,6 +442,8 @@ void undump_pdftex_data(PDF pdf)
         obj_os_idx(pdf, k) = x;
         undump_int(x);
         obj_aux(pdf, k) = x;
+        undump_int(x);
+        obj_type(pdf, k) = x;
     }
 
     undump_int(x);
