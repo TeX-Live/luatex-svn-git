@@ -793,7 +793,7 @@ We have |job_name=0| if and only if the `\.{log}' file has not been opened,
 except of course for a short time just after |job_name| has become nonzero.
 */
 
-str_number texmf_log_name;      /* full name of the log file */
+unsigned char *texmf_log_name;      /* full name of the log file */
 
 /*
 The |open_log_file| routine is used to open the transcript file and to help
@@ -831,7 +831,7 @@ void open_log_file(void)
         selector = term_only;
         fn = prompt_file_name("transcript file name", ".log");
     }
-    texmf_log_name = maketexstring(fn);
+    texmf_log_name = (unsigned char *)xstrdup(fn);
     selector = log_only;
     log_opened = true;
     if (callback_defined(start_run_callback) == 0) {
@@ -881,12 +881,11 @@ void start_input(void)
     iname = maketexstring(fullnameoffile);
     source_filename_stack[in_open] = iname;
     full_source_filename_stack[in_open] = xstrdup(fullnameoffile);
-    if (iname == str_ptr - 1) { /* we can try to conserve string pool space now */
-        temp_str = search_string(iname);
-        if (temp_str > 0) {
-            iname = temp_str;
-            flush_string();
-        }
+    /* we can try to conserve string pool space now */
+    temp_str = search_string(iname);
+    if (temp_str > 0) {
+        flush_str(iname);
+        iname = temp_str;
     }
     if (job_name == 0) {
         job_name = getjobname(cur_name);
@@ -900,7 +899,7 @@ void start_input(void)
         else if ((term_offset > 0) || (file_offset > 0))
             print_char(' ');
         print_char('(');
-        print_file_name(0, iname, 0);
+        tprint_file_name(NULL, (unsigned char *)fullnameoffile, NULL);
     }
     incr(open_parens);
     update_terminal();

@@ -265,9 +265,7 @@ void store_fmt_file(void)
         tprint_nl("\\font");
         print_esc(font_id_text(k));
         print_char('=');
-        print_file_name(tex_font_name(k), tex_font_area(k), get_nullstr());
-        flush_string();
-        flush_string();
+        tprint_file_name((unsigned char *)font_name(k), (unsigned char *)font_area(k), NULL);
         if (font_size(k) != font_dsize(k)) {
             tprint(" at ");
             print_scaled(font_size(k));

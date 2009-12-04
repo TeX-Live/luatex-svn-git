@@ -3220,7 +3220,7 @@ void issue_message(void)
         use_err_help = false;
 
     }
-    flush_string();
+    flush_str(s);
 }
 
 /*

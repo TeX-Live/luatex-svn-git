@@ -99,10 +99,6 @@ extern unsigned pool_size;
 
 #  define flush_char() --cur_length /* forget the last character in the pool */
 
-/* To destroy the most recently made string, we say |flush_string|. */
-
-#  define flush_string() --str_ptr
-
 extern str_number make_string(void);
 extern boolean str_eq_buf(str_number s, integer k);
 extern boolean str_eq_str(str_number s, str_number t);
@@ -127,5 +123,6 @@ extern int dump_string_pool (void);
 extern int undump_string_pool (void);
 
 extern void init_string_pool_array (int s);
+extern void flush_str(str_number s);
 
 #endif

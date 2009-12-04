@@ -705,8 +705,7 @@ void pseudo_from_string(void)
     p = string_to_pseudo(s, int_par(new_line_char_code));
     vlink(p) = pseudo_files;
     pseudo_files = p;
-
-    flush_string();
+    flush_str(s);
     /* Initiate input from new pseudo file */
     begin_file_reading();       /* set up |cur_file| and new level of input */
     line = 0;

@@ -559,7 +559,7 @@ void close_files_and_terminate()
         selector = selector - 2;
         if ((selector == term_only) && (callback_id == 0)) {
             tprint_nl("Transcript written on ");
-            print_file_name(0, texmf_log_name, 0);
+            tprint_file_name(NULL, texmf_log_name, NULL);
             print_char('.');
             print_ln();
         }

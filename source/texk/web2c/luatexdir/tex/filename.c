@@ -281,27 +281,27 @@ char *prompt_file_name(char *s, char *e)
     return pack_file_name(cur_name, cur_area, cur_ext);
 }
 
-void print_file_name(str_number n, str_number a, str_number e)
+void tprint_file_name(unsigned char *n, unsigned char *a, unsigned char *e)
 {
     boolean must_quote;         /* whether to quote the filename */
     unsigned char *j;             /* index into string */
     must_quote = false;
-    if (a != 0) {
-        j = str_string(a);
+    if (a != NULL) {
+        j = a;
         while ((!must_quote) && (*j)) {
             must_quote = (*j == ' ');
             j++;
         }
     }
-    if (n != 0) {
-        j = str_string(n);
+    if (n != NULL) {
+        j = n;
         while ((!must_quote) && (*j)) {
             must_quote = (*j == ' ');
             j++;
         }
     }
-    if (e != 0) {
-        j = str_string(e);
+    if (e != NULL) {
+        j = e;
         while ((!must_quote) && (*j)) {
             must_quote = (*j == ' ');
             j++;
@@ -316,21 +316,32 @@ void print_file_name(str_number n, str_number a, str_number e)
 
     if (must_quote)
         print_char('"');
-    if (a != 0) {
-        for (j = str_string(a); *j; j++)
+    if (a != NULL) {
+        for (j = a; *j; j++)
             if (*j != '"')
                 print_char(*j);
     }
-    if (n != 0) {
-        for (j = str_string(n); *j; j++)
+    if (n != NULL) {
+        for (j = n; *j; j++)
             if (*j != '"')
                 print_char(*j);
     }
-    if (e != 0) {
-        for (j = str_string(e); *j; j++)
+    if (e != NULL) {
+        for (j = e; *j; j++)
             if (*j != '"')
                 print_char(*j);
     }
     if (must_quote)
         print_char('"');
+}
+
+
+void print_file_name(str_number n, str_number a, str_number e)
+{
+    char *nam, *are, *ext;
+    nam = makecstring(n);
+    are = makecstring(a);
+    ext = makecstring(e);
+    tprint_file_name((unsigned char *)nam, (unsigned char *)are, (unsigned char *)ext);
+    free(nam); free(are); free(ext);
 }

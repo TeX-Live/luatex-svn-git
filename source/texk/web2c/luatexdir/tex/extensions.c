@@ -269,7 +269,7 @@ void do_extension(PDF pdf)
         scan_pdf_ext_toks();
         set_pdf_font_attr(k, tokens_to_string(def_ref));
         if (str_length(pdf_font_attr(k)) == 0) {
-            flush_string();
+            flush_str((str_ptr-1)); /* from tokens_to_string */
             set_pdf_font_attr(k, 0);
         }
         break;
@@ -590,13 +590,6 @@ integer pdf_last_xform;
 integer pdf_last_ximage;
 integer pdf_last_ximage_pages;
 integer pdf_last_ximage_colordepth;
-
-void flush_str(str_number s)
-{                               /* flush a string if possible */
-    if (flushable(s))
-        flush_string();
-}
-
 integer pdf_last_annot;
 
 /* pdflastlink needs an extra global variable */
@@ -1219,13 +1212,6 @@ The |edit_name_start| will be set to point into |str_pool| somewhere after
 its beginning if \TeX\ is supposed to switch to an editor on exit.
 */
 
-/*
-These are used when we regenerate the representation of the first 256
-strings.
-*/
-
-str_number save_str_ptr;
-pool_pointer save_pool_ptr;
 int shellenabledp;
 int restrictedshell;
 char *output_comment;

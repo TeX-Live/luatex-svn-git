@@ -42,7 +42,6 @@ void new_ocp(small_number a)
     pointer u;                  /* user's ocp identifier */
     internal_ocp_number f;      /* runs through existing ocps */
     str_number t;               /* name for the frozen ocp identifier */
-    str_number flushable_string;        /* string not yet referenced */
     boolean external_ocp = false;       /* external binary file */
     if (job_name == 0)
         open_log_file();
@@ -64,14 +63,13 @@ void new_ocp(small_number a)
        the new name becomes the ocp identifier of record. OCP names `\.{xyz}' and
        `\.{XYZ}' are considered to be different.
      */
-    flushable_string = str_ptr - 1;
     for (f = ocp_base + 1; f <= ocp_ptr; f++) {
         if (str_eq_str(ocp_name(f), cur_name)
             && str_eq_str(ocp_area(f), cur_area)) {
-            if (cur_name == flushable_string) {
-                flush_string();
-                cur_name = ocp_name(f);
-            }
+            flush_str(cur_name);
+            flush_str(cur_area);
+            cur_name = ocp_name(f);
+            cur_area = ocp_area(f);
             goto COMMON_ENDING;
         }
     }

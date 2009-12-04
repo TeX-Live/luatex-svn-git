@@ -456,3 +456,17 @@ void init_string_pool_array (int s)
     string_pool[0].s = xmalloc(1);
     string_pool[0].s[0] = '\0';
 }
+
+/* To destroy an already made string, we say |flush_str|. */
+
+void flush_str(str_number s)
+{
+    if (s > STRING_OFFSET) { /* don't ever delete the null string */
+        pool_size -= str_length(s);
+        str_length(s) = 0;
+        xfree (str_string(s));
+    }
+    while (str_string((str_ptr-1))==NULL)
+        str_ptr--;
+}
+

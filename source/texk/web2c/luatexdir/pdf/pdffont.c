@@ -171,18 +171,13 @@ internal_font_number tfm_lookup(str_number s, scaled fs)
     if (fs != 0) {
         for (k = 1; k <= max_font_id(); k++) {
             if (cmp_font_name(k, s) && (font_size(k) == fs)) {
-                flush_str(s);
                 return k;
             }
         }
     } else {
         for (k = 1; k <= max_font_id(); k++) {
             if (cmp_font_name(k, s)) {
-                flush_string(); /* |font_name| */
-                flush_str(s);
                 return k;
-            } else {
-                flush_string();
             }
         }
     }

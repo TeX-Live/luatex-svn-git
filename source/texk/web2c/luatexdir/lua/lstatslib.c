@@ -169,7 +169,7 @@ static struct statistic stats[] = {
     {"dvi_ptr", 'g', &dvi_ptr},
     {"total_pages", 'g', &total_pages},
     {"output_file_name", 'S', &get_output_file_name},
-    {"log_name", 's', &texmf_log_name}, /* weird */
+    {"log_name", 'S', &texmf_log_name}, /* weird */
     {"banner", 'S', &getbanner},
     {"pdftex_banner", 'S', &get_pdftex_banner},
     {"luatex_version", 'G', &get_luatexversion},

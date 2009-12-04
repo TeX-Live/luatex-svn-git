@@ -43,8 +43,6 @@ typesetting engine itself. Each has an id, a type, and a value. The
 type of the value depends on the |user_node_type| field.
 */
 
-#  define flushable(A)  ((A) == str_ptr - 1)
-
 extern void new_whatsit(int s);
 extern void new_write_whatsit(int w);
 extern void scan_pdf_ext_toks(void);
@@ -53,7 +51,6 @@ extern integer pdf_last_xform;
 extern integer pdf_last_ximage;
 extern integer pdf_last_ximage_pages;
 extern integer pdf_last_ximage_colordepth;
-extern void flush_str(str_number s);
 extern integer pdf_last_annot;
 extern integer pdf_last_link;
 extern scaledpos pdf_last_pos;
@@ -113,8 +110,6 @@ extern pool_pointer edit_name_start;
 extern integer edit_name_length, edit_line;
 extern int ipcon;
 extern boolean stop_at_space;
-extern str_number save_str_ptr;
-extern pool_pointer save_pool_ptr;
 extern int shellenabledp;
 extern int restrictedshell;
 extern char *output_comment;

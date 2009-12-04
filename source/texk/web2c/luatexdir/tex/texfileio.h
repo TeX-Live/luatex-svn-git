@@ -113,7 +113,7 @@ extern boolean name_in_progress;        /* is a file name being scanned? */
 extern str_number job_name;     /* principal file name */
 extern boolean log_opened;      /* has the transcript file been opened? */
 
-extern str_number texmf_log_name;       /* full name of the log file */
+extern unsigned char *texmf_log_name;       /* full name of the log file */
 
 extern void open_log_file(void);
 extern void start_input(void);
