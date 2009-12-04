@@ -323,7 +323,7 @@ void print_nl(str_number s)
 
 void tprint(char *s)
 {
-    unsigned char *ss = s;
+    unsigned char *ss = (unsigned char *)s;
     if (selector == new_string) {
         append_string(ss, strlen(s));
         return;
