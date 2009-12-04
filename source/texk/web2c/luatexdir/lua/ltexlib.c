@@ -520,10 +520,13 @@ static int gettoks(lua_State * L)
 {
     integer k;
     str_number t;
+    char *ss;
     k = get_item_index(L, lua_gettop(L), toks_base);
     check_index_range(k, "gettoks");
     t = get_tex_toks_register(k);
-    lua_pushstring(L, makecstring(t));
+    ss = makecstring(t);
+    lua_pushstring(L, ss);
+    free(ss);
     flush_str(t);
     return 1;
 }
@@ -781,22 +784,6 @@ int settex(lua_State * L)
     return 0;
 }
 
-char *get_something_internal(int cur_cmd, int cur_code)
-{
-    int texstr;
-    char *str;
-    int save_cur_val, save_cur_val_level;
-    save_cur_val = cur_val;
-    save_cur_val_level = cur_val_level;
-    scan_something_simple(cur_cmd, cur_code);
-    texstr = the_scanned_result();
-    cur_val = save_cur_val;
-    cur_val_level = save_cur_val_level;
-    str = makecstring(texstr);
-    flush_str(texstr);
-    return str;
-}
-
 int do_convert(lua_State * L, int cur_code)
 {
     int texstr;
@@ -838,10 +825,12 @@ int do_convert(lua_State * L, int cur_code)
             flush_str(texstr);
         }
     }
-    if (str)
+    if (str) {
         lua_pushstring(L, str);
-    else
+        free(str);
+    } else {
         lua_pushnil(L);
+    }
     return 1;
 }
 
@@ -863,10 +852,12 @@ int do_scan_internal(lua_State * L, int cur_cmd, int cur_code)
     } else {                    /* dir_val_level, mu_val_level, tok_val_level */
         texstr = the_scanned_result();
         str = makecstring(texstr);
-        if (str)
+        if (str) {
             lua_pushstring(L, str);
-        else
+            free(str);
+        } else {
             lua_pushnil(L);
+        }
         flush_str(texstr);
     }
     cur_val = save_cur_val;
@@ -1316,7 +1307,9 @@ static int tex_hashpairs(lua_State * L)
     while (cs < eqtb_size) {
         s = hash_text(cs);
         if (s > 0) {
-            lua_pushstring(L, makecstring(s));
+            char *ss = makecstring(s);
+            lua_pushstring(L, ss);
+            free(ss);
             cmd = eq_type(cs);
             chr = equiv(cs);
             make_token_table(L, cmd, chr, cs);
@@ -1336,7 +1329,9 @@ static int tex_primitives(lua_State * L)
     while (cs < prim_size) {
         s = get_prim_text(cs);
         if (s > 0) {
-            lua_pushstring(L, makecstring(s));
+            char *ss = makecstring(s);
+            lua_pushstring(L, ss);
+            free(ss);
             cmd = get_prim_eq_type(cs);
             chr = get_prim_equiv(cs);
             make_token_table(L, cmd, chr, 0);
@@ -1385,7 +1380,9 @@ static int tex_extraprimitives(lua_State * L)
         s = get_prim_text(cs);
         if (s > 0) {
             if (get_prim_origin(cs) & mask) {
-                lua_pushstring(L, makecstring(s));
+                char *ss = makecstring(s);
+                lua_pushstring(L, ss);
+                free(ss);
                 lua_rawseti(L, -2, i++);
             }
         }

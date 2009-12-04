@@ -242,9 +242,9 @@ char *prompt_file_name(char *s, char *e)
     if (interaction == scroll_mode) {
         wake_up_terminal();
     }
-    ar = xstrdup(makecstring(cur_area));
-    na = xstrdup(makecstring(cur_name));
-    ex = xstrdup(makecstring(cur_ext));
+    ar = makecstring(cur_area);
+    na = makecstring(cur_name);
+    ex = makecstring(cur_ext);
     if (strcmp(s, "input file name") == 0) {    /* @.I can't find file x@> */
         snprintf(prompt, 255, "I can't find file `%s%s%s'.", ar, na, ex);
     } else {                    /*@.I can't write on file x@> */

@@ -1186,6 +1186,7 @@ boolean cmp_font_name(integer id, str_number t)
         return 1;
     if (tt == NULL || tid == NULL || strcmp(tid, tt) != 0)
         return 0;
+    free(tt);
     return 1;
 }
 
@@ -1204,6 +1205,7 @@ boolean cmp_font_area(integer id, str_number t)
         return 1;
     if (tt == NULL || strcmp(tid, tt) != 0)
         return 0;
+    free(tt);
     return 1;
 }
 

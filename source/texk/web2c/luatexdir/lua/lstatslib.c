@@ -61,14 +61,9 @@ char *getfilename(void)
     while ((level > 0)) {
         t = input_stack[level--].name_field;
         if (t >= STRING_OFFSET)
-            break;
+            return (char *)str_string(t);
     }
-    /* the outermost level could be terminal input, 
-       so this test is still needed */
-    if (t >= STRING_OFFSET)
-        return makecstring(t);
-    else
-        return xstrdup("");
+    return xstrdup("");
 }
 
 char *getlasterror(void)
@@ -78,7 +73,7 @@ char *getlasterror(void)
 
 char *luatexrevision(void)
 {
-    return makecstring(luatex_revision);
+    return (strrchr(luatex_version_string,'.')+1);
 }
 
 static lua_Number get_pdf_gone(void)
@@ -272,7 +267,9 @@ static int do_getstat(lua_State * L, int i)
     case 's':
         str = *(integer *) (stats[i].value);
         if (str) {
-            lua_pushstring(L, makecstring(str));
+            char *ss = makecstring(str);
+            lua_pushstring(L, ss);
+            free(ss);
         } else {
             lua_pushnil(L);
         }

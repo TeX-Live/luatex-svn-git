@@ -189,8 +189,11 @@ pointer prim_lookup(str_number s)
 boolean is_primitive(str_number csname)
 {
     integer n, m;
+    char *ss;
     m = prim_lookup(csname);
-    n = string_lookup(makecstring(csname), str_length(csname));
+    ss = makecstring(csname);
+    n = string_lookup(ss, str_length(csname));
+    free(ss);
     return ((n != undefined_cs_cmd) &&
             (m != undefined_primitive) &&
             (eq_type(n) == prim_eq_type(m)) && (equiv(n) == prim_equiv(m)));

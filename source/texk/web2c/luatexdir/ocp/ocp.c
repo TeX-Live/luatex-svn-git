@@ -75,8 +75,13 @@ void new_ocp(small_number a)
             goto COMMON_ENDING;
         }
     }
-    f = read_ocp_info(u, makecstring(cur_name), makecstring(cur_area),
-                      makecstring(cur_ext), external_ocp);
+    {
+        char *nam = makecstring(cur_name);
+        char *are = makecstring(cur_area);
+        char *ext = makecstring(cur_ext);
+        f = read_ocp_info(u, nam, are, ext, external_ocp);
+        free(nam); free(are); free(ext);
+    }
   COMMON_ENDING:
     equiv(u) = f;
     eqtb[ocp_id_base + f] = eqtb[u];

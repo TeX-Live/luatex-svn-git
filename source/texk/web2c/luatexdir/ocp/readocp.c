@@ -262,6 +262,7 @@ read_ocp_info(pointer u, char *nom, char *aire, char *ext, boolean external_ocp)
                      "Translation process \\%s=%s not loadable: ocp file not found",
                      c, cnam);
         }
+        free(c);
         tex_error(errmsg, hlp);
     }
   DONE:

@@ -35,9 +35,9 @@ extern int get_command_id(char *);
 static unsigned char *get_cs_text(integer cs)
 {
     if (cs == null_cs)
-        return (unsigned char *) "\\csname\\endcsname";
+        return (unsigned char *) xstrdup("\\csname\\endcsname");
     else if ((cs_text(cs) < 0) || (cs_text(cs) >= str_ptr))
-        return (unsigned char *) "";
+        return (unsigned char *) xstrdup("");
     else
         return (unsigned char *) makecstring(cs_text(cs));
 }

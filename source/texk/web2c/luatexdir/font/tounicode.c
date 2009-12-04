@@ -65,7 +65,7 @@ void glyph_unicode_free(void)
 
 void def_tounicode(str_number glyph, str_number unistr)
 {
-    char buf[SMALL_BUF_SIZE], *p;
+    char buf[SMALL_BUF_SIZE], *p ,*ph;
     char buf2[SMALL_BUF_SIZE], *q;
     int valid_unistr;           /* 0: invalid; 1: unicode value; 2: string */
     int i, l;
@@ -74,8 +74,10 @@ void def_tounicode(str_number glyph, str_number unistr)
 
     p = makecstring(glyph);
     assert(strlen(p) < SMALL_BUF_SIZE);
-    strcpy(buf, p);             /* copy the result to buf before next call of makecstring() */
+    strcpy(buf, p);
+    free(p);
     p = makecstring(unistr);
+    ph = p;
     while (*p == ' ')
         p++;                    /* ignore leading spaces */
     l = strlen(p);
@@ -125,6 +127,7 @@ void def_tounicode(str_number glyph, str_number unistr)
     }
     aa = avl_probe(glyph_unicode_tree, gu);
     assert(aa != NULL);
+    free(ph);
 }
 
 

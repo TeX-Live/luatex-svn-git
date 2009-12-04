@@ -554,7 +554,7 @@ halfword active_to_cs(int curchr, int force)
 
 char *cs_to_string(halfword p)
 {                               /* prints a control sequence */
-    char *s;
+    char *s, *sh;
     int k = 0;
     static char ret[256] = { 0 };
     if (p == null_cs) {
@@ -572,7 +572,8 @@ char *cs_to_string(halfword p)
 
     } else {
         str_number txt = cs_text(p);
-        s = makecstring(txt);
+        sh = makecstring(txt);
+        s = sh;
         if (is_active_cs(txt)) {
             s = s + 3;
             while (*s) {
@@ -586,6 +587,7 @@ char *cs_to_string(halfword p)
             }
             ret[k] = 0;
         }
+        free(sh);
     }
     return (char *) ret;
 }
@@ -788,13 +790,16 @@ void check_outer_validity(void)
                 NULL
             };
             char **errhlp = (char **) errhlp_no;
+            char *ss;
             if (cur_cs != 0) {
                 errhlp = errhlp_cs;
                 cur_cs = 0;
             }
+            ss = cmd_chr_to_string(if_test_cmd, cur_if);
             snprintf(errmsg, 255,
                      "Incomplete %s; all text was ignored after line %d",
-                     cmd_chr_to_string(if_test_cmd, cur_if), (int) skip_line);
+                     ss, (int) skip_line);
+            free(ss);
             /* @.Incomplete \\if...@> */
             cur_tok = cs_token_flag + frozen_fi;
             /* back up one inserted token and call |error| */
@@ -2251,7 +2256,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
     register integer p, c, m;
     integer q;
     integer infop;
-    char *s;
+    char *s, *sh;
     int e;
     char *ret;
     int match_chr = '#';
@@ -2293,7 +2298,8 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
                     Print_esc("NONEXISTENT.");
                 } else {
                     str_number txt = cs_text(q);
-                    s = makecstring(txt);
+                    sh = makecstring(txt);
+                    s = sh;
                     if (is_active_cs(txt)) {
                         s = s + 3;
                         while (*s) {
@@ -2310,6 +2316,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
                             Print_char(' ');
                         }
                     }
+                    free(sh);
                 }
             }
         } else {

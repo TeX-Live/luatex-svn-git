@@ -1152,7 +1152,7 @@ void pdf_end_obj(PDF pdf)
 void write_stream_length(PDF pdf, integer length, longinteger offset)
 {
     if (jobname_cstr == NULL)
-        jobname_cstr = xstrdup(makecstring(job_name));
+        jobname_cstr = makecstring(job_name);
     if (pdf->draftmode == 0) {
         xfseeko(pdf->file, (off_t) offset, SEEK_SET, jobname_cstr);
         fprintf(pdf->file, "%li", (long int) length);
@@ -1639,8 +1639,8 @@ void set_job_id(PDF pdf, int year, int month, int day, int time)
     if (pdf->job_id_string != NULL)
         return;
 
-    name_string = xstrdup(makecstring(job_name));
-    format_string = xstrdup(makecstring(format_ident));
+    name_string = makecstring(job_name);
+    format_string = makecstring(format_ident);
     make_pdftex_banner();
     slen = SMALL_BUF_SIZE +
         strlen(name_string) + strlen(format_string) + strlen(pdftex_banner);

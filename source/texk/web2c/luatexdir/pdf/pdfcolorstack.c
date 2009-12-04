@@ -147,6 +147,7 @@ int newcolorstack(integer s, integer literal_mode, boolean page_start)
         colstack->form_current = xstrdup(str);
         colstack->form_init = xstrdup(str);
     }
+    free(str);
     return colstack_num;
 }
 
@@ -207,6 +208,7 @@ static integer colorstackpush(int colstack_no, str_number s)
         } else {
             colstack->page_current = str;
         }
+        free(str);
     } else {
         if (colstack->form_used == colstack->form_size) {
             colstack->form_size += STACK_INCREMENT;
@@ -220,6 +222,7 @@ static integer colorstackpush(int colstack_no, str_number s)
         } else {
             colstack->form_current = str;
         }
+        free(str);
     }
     return colstack->literal_mode;
 }

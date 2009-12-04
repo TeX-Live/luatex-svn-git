@@ -40,6 +40,7 @@ static char *font_error_message(pointer u, char *nom, scaled s)
     } else {
         snprintf(str, 255, "Font \\%s=%s not loadable: %s", c, nom, extra);
     }
+    free(c);
     return str;
 }
 
@@ -106,7 +107,7 @@ int read_font_info(pointer u, str_number nom, scaled s, integer natural_dir)
     integer f;
     char *cnom;
     char *msg;
-    cnom = xstrdup(makecstring(nom));
+    cnom = makecstring(nom);
 
     f = new_font();
     if ((f = do_define_font(f, cnom, s, natural_dir))) {

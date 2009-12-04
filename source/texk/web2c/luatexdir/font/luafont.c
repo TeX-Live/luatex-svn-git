@@ -487,7 +487,9 @@ int font_to_lua(lua_State * L, int f)
         lua_setfield(L, -2, "auto_expand");
     }
     if (pdf_font_attr(f) != 0) {
-        lua_pushstring(L, makecstring(pdf_font_attr(f)));
+        char *s = makecstring(pdf_font_attr(f));
+        lua_pushstring(L, s);
+        free(s);
         lua_setfield(L, -2, "attributes");
     }
 

@@ -773,8 +773,8 @@ void run_ocp(void)
             run_otp();
     } else {
         /* k=0;  ? */
-        char *cmd = xstrdup(makecstring(ocp_external(otp_input_ocp)));
-        char *arg = xstrdup(makecstring(ocp_external_arg(otp_input_ocp)));
+        char *cmd = makecstring(ocp_external(otp_input_ocp));
+        char *arg = makecstring(ocp_external_arg(otp_input_ocp));
         char *cmdline = xmalloc(strlen(cmd) + strlen(arg) + 3);
         strcpy(cmdline, cmd);
         strcat(cmdline, " ");

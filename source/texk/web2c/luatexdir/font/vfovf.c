@@ -1422,7 +1422,6 @@ boolean auto_expand_vf(internal_font_number f)
     return true;
 }
 
-/* this function is not always safe, because it needs makecstring() */
 str_number expand_font_name(internal_font_number f, integer e)
 {
     int old_setting;

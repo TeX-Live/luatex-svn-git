@@ -1049,7 +1049,7 @@ static int lua_nodelib_count(lua_State * L)
 #define nodelib_pushattr(L,n) { lua_pushnumber(L,n); lua_nodelib_push(L); }
 #define nodelib_pushspec(L,n) { lua_pushnumber(L,n); lua_nodelib_push(L); }
 #define nodelib_pushaction(L,n) { lua_pushnumber(L,n); lua_nodelib_push(L); }
-#define nodelib_pushstring(L,n) { lua_pushstring(L,makecstring(n)); }
+#define nodelib_pushstring(L,n) { char *ss=makecstring(n); lua_pushstring(L,ss); free(ss); }
 
 static void nodelib_pushdir(lua_State * L, int n, boolean dirnode)
 {

@@ -145,7 +145,9 @@ void pdf_create_obj(PDF pdf, integer t, integer i)
     set_obj_fresh(pdf, pdf->obj_ptr);
     obj_aux(pdf, pdf->obj_ptr) = 0;
     if (i < 0) {
-        avl_put_str_obj(pdf, makecstring(-i), pdf->obj_ptr, t);
+        char *ss = makecstring(-i);
+        avl_put_str_obj(pdf, ss, pdf->obj_ptr, t);
+        free(ss);
     } else {
         avl_put_int_obj(pdf, i, pdf->obj_ptr, t);
     }
@@ -168,9 +170,11 @@ void pdf_create_obj(PDF pdf, integer t, integer i)
     } else if (t != obj_type_others) {
         obj_link(pdf, pdf->obj_ptr) = pdf->head_tab[t];
         pdf->head_tab[t] = pdf->obj_ptr;
-        if ((t == obj_type_dest) && (i < 0))
-            append_dest_name(pdf, makecstring(-obj_info(pdf, pdf->obj_ptr)),
-                             pdf->obj_ptr);
+        if ((t == obj_type_dest) && (i < 0)) {
+            char *ss = makecstring(-obj_info(pdf, pdf->obj_ptr));
+            append_dest_name(pdf, ss, pdf->obj_ptr);
+            free(ss);
+        }
     }
 }
 
@@ -185,13 +189,18 @@ void pdf_create_obj(PDF pdf, integer t, integer i)
 
 integer find_obj(PDF pdf, integer t, integer i, boolean byname)
 {
-
+    int ret;
     if (byname) {
+        char *ss;
         if (i < 0)
             i = abs(i);
-        return avl_find_str_obj(pdf, t, makecstring(i));
-    } else
-        return avl_find_int_obj(pdf, t, i);
+        ss = makecstring(i);
+        ret = avl_find_str_obj(pdf, t, ss);
+        free(ss);
+    } else {
+        ret = avl_find_int_obj(pdf, t, i);
+    }
+    return ret;
 }
 
 integer get_obj(PDF pdf, integer t, integer i, boolean byname)
