@@ -73,6 +73,7 @@ extern str_number init_str_ptr;
 extern unsigned char *cur_string;
 extern unsigned cur_length;
 extern unsigned cur_string_size;
+extern unsigned pool_size; 
 
 #define EXTRA_STRING 500
 

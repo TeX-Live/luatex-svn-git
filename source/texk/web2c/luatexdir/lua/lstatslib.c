@@ -160,9 +160,7 @@ extern int callback_count;
 extern int saved_callback_count;
 
 /* temp, for backward compat */
-static int pool_ptr = 0;
 static int init_pool_ptr = 0;
-static int pool_size = 0;
 
 static struct statistic stats[] = {
     {"pdf_gone", 'N', &get_pdf_gone},
@@ -188,7 +186,7 @@ static struct statistic stats[] = {
     {"str_ptr", 'g', &str_ptr},
     {"init_str_ptr", 'g', &init_str_ptr},
     {"max_strings", 'g', &max_strings},
-    {"pool_ptr", 'g', &pool_ptr},
+    {"pool_ptr", 'g', &pool_size},
     {"init_pool_ptr", 'g', &init_pool_ptr},
     {"pool_size", 'g', &pool_size},
     {"var_mem_max", 'g', &var_mem_max},

@@ -55,13 +55,13 @@ lstring *_string_pool;          /* this variable lives STRING_OFFSET below |stri
                                    (handy for debugging: 
                                    |_string_pool[str_ptr] == str_string(str_ptr)| */
 
-pool_pointer pool_ptr;          /* first unused position in |str_pool| */
 str_number str_ptr = (STRING_OFFSET + 1);       /* number of the current string being created */
 str_number init_str_ptr;        /* the starting value of |str_ptr| */
 
 unsigned char *cur_string;      /*  current string buffer */
 unsigned cur_length;            /* current index in that buffer */
 unsigned cur_string_size;       /*  malloced size of |cur_string| */
+unsigned pool_size;              /* occupied byte count */
 
 /*
 Once a sequence of characters has been appended to |cur_string|, it
@@ -87,6 +87,7 @@ str_number make_string(void)
     cur_string[cur_length] = '\0'; /* now |lstring.s| is always a valid C string */
     str_string(str_ptr) = (unsigned char *)cur_string;
     str_length(str_ptr) = cur_length;
+    pool_size += cur_length;
     reset_cur_string();
     str_ptr++;
     return (str_ptr - 1);
@@ -437,6 +438,7 @@ int undump_string_pool (void) {
     for (j=STRING_OFFSET;j<str_ptr;j++) {
         undump_int(x);
         str_length(j) = (unsigned)x;
+        pool_size += x;
         str_string(j) = xmallocarray(unsigned char, (unsigned)(x+1));
         undump_things(*str_string(j),(unsigned)x);
         *(str_string(j)+str_length(j)) = '\0';

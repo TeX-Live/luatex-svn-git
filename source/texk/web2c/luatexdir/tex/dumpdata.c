@@ -128,7 +128,9 @@ void store_fmt_file(void)
     k = dump_string_pool();
     print_ln();
     print_int(k);    
-    tprint(" strings ");
+    tprint(" strings using ");
+    print_int(pool_size); 
+    tprint(" bytes");
 
     /* Dump the dynamic memory */
     /* By sorting the list of available spaces in the variable-size portion of
