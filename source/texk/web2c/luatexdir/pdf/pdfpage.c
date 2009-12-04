@@ -160,14 +160,14 @@ void print_pdffloat(PDF pdf, pdffloat f)
     int e = f.e, i, j;
     long l, m = f.m;
     if (m < 0) {
-        pdf_printf(pdf, "-");
+        pdf_puts(pdf, "-");
         m *= -1;
     }
     l = m / ten_pow[e];
     pdf_print_int(pdf, l);
     l = m % ten_pow[e];
     if (l != 0) {
-        pdf_printf(pdf, ".");
+        pdf_puts(pdf, ".");
         j = snprintf(a, 23, "%ld", l + ten_pow[e]);
         assert(j < 23);
         for (i = e; i > 0; i--) {
@@ -175,7 +175,7 @@ void print_pdffloat(PDF pdf, pdffloat f)
                 break;
             a[i] = '\0';
         }
-        pdf_printf(pdf, "%s", a + 1);
+        pdf_puts(pdf, (a + 1));
     }
 }
 
@@ -184,7 +184,7 @@ void print_pdf_matrix(PDF pdf, pdffloat * tm)
     int i;
     for (i = 0; i < 5; i++) {
         print_pdffloat(pdf, tm[i]);
-        pdf_printf(pdf, " ");
+        pdf_puts(pdf, " ");
     }
     print_pdffloat(pdf, tm[i]);
 }
@@ -192,7 +192,7 @@ void print_pdf_matrix(PDF pdf, pdffloat * tm)
 void pdf_print_cm(PDF pdf, pdffloat * cm)
 {
     print_pdf_matrix(pdf, cm);
-    pdf_printf(pdf, " cm\n");
+    pdf_puts(pdf, " cm\n");
 }
 
 void pdf_set_pos(PDF pdf, scaledpos pos)
@@ -225,7 +225,7 @@ static void begin_text(PDF pdf)
     pdfstructure *p = pdf->pstruct;
     assert(is_pagemode(p));
     p->pdf_bt_pos = p->pdf;
-    pdf_printf(pdf, "BT\n");
+    pdf_puts(pdf, "BT\n");
     p->mode = PMODE_TEXT;
 }
 
@@ -233,7 +233,7 @@ static void end_text(PDF pdf)
 {
     pdfstructure *p = pdf->pstruct;
     assert(is_textmode(p));
-    pdf_printf(pdf, "ET\n");
+    pdf_puts(pdf, "ET\n");
     p->pdf = p->pdf_bt_pos;
     p->mode = PMODE_PAGE;
 }
