@@ -31,6 +31,9 @@
 #  define F_OTF               0x40
 #  define F_CIDKEYED          0x80
 
+typedef enum { MAPFILE, MAPLINE } maptype;
+extern void process_map_item(char *s, int type);
+
 #  define set_included(fm)    ((fm)->type |= F_INCLUDED)
 #  define set_subsetted(fm)   ((fm)->type |= F_SUBSETTED)
 #  define set_std_t1font(fm)  ((fm)->type |= F_STDT1FONT)

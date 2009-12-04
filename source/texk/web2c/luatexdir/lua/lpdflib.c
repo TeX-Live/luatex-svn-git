@@ -601,6 +601,12 @@ static int setpdf(lua_State * L)
         pdf_names_toks = tokenlist_from_lua(L);
     } else if (strcmp(st,"pdftrailer")==0) {
         pdf_trailer_toks = tokenlist_from_lua(L);
+    } else if (strcmp(st,"pdfmapline")==0) {
+        char *s = (char *)lua_tostring(L, -1);
+        process_map_item(s, MAPLINE);
+    } else if (strcmp(st,"pdfmapfile")==0) {
+        char *s = (char *)lua_tostring(L, -1);
+        process_map_item(s, MAPFILE);
     }
     return 0;
 }

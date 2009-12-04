@@ -48,7 +48,6 @@ static integer fm_curbyte = 0;
     (c == 10 || c == '*' || c == '#' || c == ';' || c == '%')
 
 typedef enum { FM_DUPIGNORE, FM_REPLACE, FM_DELETE } updatemode;
-typedef enum { MAPFILE, MAPLINE } maptype;
 
 typedef struct mitem {
     updatemode mode;            /* FM_DUPIGNORE or FM_REPLACE or FM_DELETE */
