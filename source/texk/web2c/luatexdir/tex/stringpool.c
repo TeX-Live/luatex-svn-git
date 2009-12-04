@@ -416,10 +416,15 @@ char *makeclstring(integer s, size_t * len)
 int dump_string_pool (void) {
     int j;
     int k = str_ptr;
+    unsigned l;
     dump_int(k-STRING_OFFSET);
-    for (j=STRING_OFFSET;j<k;j++) {
-        dump_int(str_length(j));
-        dump_things(*str_string(j),str_length(j));
+    for (j=STRING_OFFSET+1;j<k;j++) {
+        l = str_length(j);
+        if (str_string(j)==NULL)
+            l=-1;
+        dump_int(l);
+        if (l>0)
+            dump_things(*str_string(j),str_length(j));
     }
     return (k-STRING_OFFSET);
 }
@@ -433,15 +438,18 @@ int undump_string_pool (void) {
     str_ptr += STRING_OFFSET;
     if (ini_version)
         libcfree(string_pool);
-    string_pool = xmallocarray(lstring, max_strings);
-    _string_pool = string_pool - STRING_OFFSET;
-    for (j=STRING_OFFSET;j<str_ptr;j++) {
+    init_string_pool_array (max_strings);
+    for (j=STRING_OFFSET+1;j<str_ptr;j++) {
         undump_int(x);
-        str_length(j) = (unsigned)x;
-        pool_size += x;
-        str_string(j) = xmallocarray(unsigned char, (unsigned)(x+1));
-        undump_things(*str_string(j),(unsigned)x);
-        *(str_string(j)+str_length(j)) = '\0';
+        if (x>=0) {
+            str_length(j) = (unsigned)x;
+            pool_size += x;
+            str_string(j) = xmallocarray(unsigned char, (unsigned)(x+1));
+            undump_things(*str_string(j),(unsigned)x);
+            *(str_string(j)+str_length(j)) = '\0';
+        } else {
+            str_length(j) = 0;
+        }
     }
     init_str_ptr = str_ptr;
     return str_ptr;
