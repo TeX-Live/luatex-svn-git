@@ -42,6 +42,11 @@ char *getbanner(void)
     return ptexbanner;
 }
 
+char *getlogname(void)
+{
+    return (char *)texmf_log_name;
+}
+
 char *get_pdftex_banner(void)
 {
     return pdftex_banner;
@@ -169,7 +174,7 @@ static struct statistic stats[] = {
     {"dvi_ptr", 'g', &dvi_ptr},
     {"total_pages", 'g', &total_pages},
     {"output_file_name", 'S', &get_output_file_name},
-    {"log_name", 'S', &texmf_log_name}, /* weird */
+    {"log_name", 's', &getlogname}, /* weird */
     {"banner", 'S', &getbanner},
     {"pdftex_banner", 'S', &get_pdftex_banner},
     {"luatex_version", 'G', &get_luatexversion},
