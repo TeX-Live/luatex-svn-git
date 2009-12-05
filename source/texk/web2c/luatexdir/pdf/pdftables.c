@@ -95,7 +95,7 @@ static void avl_put_str_obj(PDF pdf, char *str0, integer objptr, integer t)
 {
     oentry *oe;
     oe = xtalloc(1, oentry);
-    oe->u.str0 = str0;          /* no strcpy() here */
+    oe->u.str0 = str0;          /* no xstrdup() here */
     oe->u_type = union_type_cstring;
     oe->objptr = objptr;
     avl_put_obj(pdf, t, oe);
