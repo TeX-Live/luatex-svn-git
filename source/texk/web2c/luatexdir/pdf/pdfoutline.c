@@ -97,7 +97,9 @@ void scan_pdfoutline(PDF pdf)
 {
     halfword p, q, r;
     integer i, j, k;
+    halfword save_cs = cur_cs;
     if (scan_keyword("attr")) {
+	cur_cs = save_cs;
         scan_pdf_ext_toks();
         r = def_ref;
     } else {
@@ -110,6 +112,7 @@ void scan_pdfoutline(PDF pdf)
     } else {
         i = 0;
     }
+    cur_cs = save_cs;
     scan_pdf_ext_toks();
     q = def_ref;
     pdf_new_obj(pdf, obj_type_others, 0, 1);
