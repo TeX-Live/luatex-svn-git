@@ -31,11 +31,11 @@ integer pdf_last_obj;
 void pdf_write_obj(PDF pdf, integer k)
 {
     lstring data, st;
-    data.s = st.s = NULL;
     integer i;                  /* index into |data.s| */
     int saved_compress_level = pdf->compress_level;
     int os_level = 1;           /* gives compressed objects for \pdfobjcompresslevel > 0 */
     int l = 0;                  /* possibly a lua registry reference */
+    data.s = st.s = NULL;
     if (obj_obj_pdfcompresslevel(pdf, k) > -1)  /* -1 = "unset" */
         pdf->compress_level = obj_obj_pdfcompresslevel(pdf, k);
     if (obj_obj_pdfoslevel(pdf, k) > -1)        /* -1 = "unset" */

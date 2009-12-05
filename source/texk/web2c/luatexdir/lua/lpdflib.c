@@ -36,8 +36,8 @@ int luapdfprint(lua_State * L)
     int n;
     unsigned i;
     lstring st, modestr;
-    st.s = modestr.s = NULL;
     ctm_transform_modes literal_mode;
+    st.s = modestr.s = NULL;
     n = lua_gettop(L);
     if (!lua_isstring(L, -1)) {
         lua_pushstring(L, "no string to print");
@@ -210,9 +210,9 @@ static int table_obj(lua_State * L)
     int os_level = 1;           /* default: put non-stream objects into object streams */
     int saved_compress_level = static_pdf->compress_level;
     lstring attr, st, buf;
-    attr.s = st.s = buf.s = NULL;
     size_t i;
     int immediate = 0;          /* default: not immediate */
+    attr.s = st.s = buf.s = NULL;
     assert(lua_istable(L, 1));  /* t */
 
     /* get object "type" */
