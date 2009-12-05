@@ -67,7 +67,7 @@ static int compare_info(const void *pa, const void *pb, void *param)
         return 1;
 }
 
-void avl_put_obj(PDF pdf, integer t, oentry * oe)
+static void avl_put_obj(PDF pdf, integer t, oentry * oe)
 {
     void **pp;
     assert(t >= 0 || t <= PDF_OBJ_TYPE_MAX || obj_in_tree[t] == 1);
@@ -81,7 +81,7 @@ void avl_put_obj(PDF pdf, integer t, oentry * oe)
         pdftex_fail("avlstuff.c: avl_probe() out of memory in insertion");
 }
 
-void avl_put_int_obj(PDF pdf, integer int0, integer objptr, integer t)
+static void avl_put_int_obj(PDF pdf, integer int0, integer objptr, integer t)
 {
     oentry *oe;
     oe = xtalloc(1, oentry);
@@ -91,11 +91,11 @@ void avl_put_int_obj(PDF pdf, integer int0, integer objptr, integer t)
     avl_put_obj(pdf, t, oe);
 }
 
-void avl_put_str_obj(PDF pdf, char *str0, integer objptr, integer t)
+static void avl_put_str_obj(PDF pdf, char *str0, integer objptr, integer t)
 {
     oentry *oe;
     oe = xtalloc(1, oentry);
-    oe->u.str0 = xstrdup(str0);
+    oe->u.str0 = str0;          /* no strcpy() here */
     oe->u_type = union_type_cstring;
     oe->objptr = objptr;
     avl_put_obj(pdf, t, oe);
@@ -116,12 +116,12 @@ static integer avl_find_int_obj(PDF pdf, integer t, integer i)
     return p->objptr;
 }
 
-static integer avl_find_str_obj(PDF pdf, integer t, char *i)
+static integer avl_find_str_obj(PDF pdf, integer t, char *s)
 {
     oentry *p;
     oentry tmp;
     assert(t >= 0 || t <= PDF_OBJ_TYPE_MAX || obj_in_tree[t] == 1);
-    tmp.u.str0 = i;
+    tmp.u.str0 = s;
     tmp.u_type = union_type_cstring;
     if (pdf->obj_tree[t] == NULL)
         return 0;
@@ -137,6 +137,7 @@ static integer avl_find_str_obj(PDF pdf, integer t, char *i)
 void pdf_create_obj(PDF pdf, integer t, integer i)
 {
     integer a, p, q;
+    char *ss = NULL;
     if (pdf->sys_obj_ptr == sup_obj_tab_size)
         overflow("indirect objects table size", pdf->obj_tab_size);
     if (pdf->sys_obj_ptr == pdf->obj_tab_size) {
@@ -155,9 +156,8 @@ void pdf_create_obj(PDF pdf, integer t, integer i)
     set_obj_fresh(pdf, pdf->obj_ptr);
     obj_aux(pdf, pdf->obj_ptr) = 0;
     if (i < 0) {
-        char *ss = makecstring(-i);
+        ss = makecstring(-i);
         avl_put_str_obj(pdf, ss, pdf->obj_ptr, t);
-        free(ss);
     } else
         avl_put_int_obj(pdf, i, pdf->obj_ptr, t);
     if (t <= HEAD_TAB_MAX) {
