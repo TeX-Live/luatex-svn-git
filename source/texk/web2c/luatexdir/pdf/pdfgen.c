@@ -1696,7 +1696,7 @@ void pdf_begin_page(PDF pdf, boolean shipping_page)
     if (shipping_page) {
         pdf->last_page = get_obj(pdf, obj_type_page, total_pages + 1, 0);
         set_obj_aux(pdf, pdf->last_page, 1);    /* mark that this page has been created */
-        pdf_new_dict(pdf, obj_type_others, 0, 0);
+        pdf_new_dict(pdf, obj_type_pagestream, 0, 0);
         pdf->last_stream = pdf->obj_ptr;
         pdf->last_thread = null;
     } else {

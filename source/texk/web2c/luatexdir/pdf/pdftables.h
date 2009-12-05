@@ -22,10 +22,17 @@
 #ifndef PDFTABLES_H
 #  define PDFTABLES_H
 
-typedef struct oentry_ {
-    integer int0;
-    char *str0;
-    int objtype;
+typedef enum {
+    union_type_int,
+    union_type_cstring,
+} union_type;
+
+typedef struct {
+    union {
+        integer int0;
+        char *str0;
+    } u;
+    union_type u_type;          /* integer or char * in union above */
     integer objptr;
 } oentry;
 

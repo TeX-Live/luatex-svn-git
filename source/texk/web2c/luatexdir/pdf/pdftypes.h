@@ -153,17 +153,18 @@ typedef enum {
     obj_type_thread = 6,        /* index of linked list of num article threads */
     /* |obj_type_thread| is the highest entry in |head_tab|, but there are a few
        more linked lists that are handy: */
-    obj_type_page = 7,          /* index of linked list of Page objects */
-    obj_type_pages = 8,         /* index of linked list of Pages objects */
-    obj_type_link = 9,          /* link objects */
-    obj_type_bead = 10,         /* thread bead objects */
-    obj_type_annot = 11,        /* annotation objects */
-    obj_type_objstm = 12,       /* /ObjStm objects */
-    obj_type_others = 13        /* objects which are not linked in any list */
+    obj_type_pagestream = 7,    /* Page stream objects */
+    obj_type_page = 8,          /* Page objects */
+    obj_type_pages = 9,         /* Pages objects */
+    obj_type_link = 10,         /* link objects */
+    obj_type_bead = 11,         /* thread bead objects */
+    obj_type_annot = 12,        /* annotation objects */
+    obj_type_objstm = 13,       /* /ObjStm objects */
+    obj_type_others = 14        /* any other objects (also not linked in any list) */
 } pdf_obj_type;
 
 #  define HEAD_TAB_MAX      6   /* obj_type_thread */
-#  define PDF_OBJ_TYPE_MAX 13   /* obj_type_others */
+#  define PDF_OBJ_TYPE_MAX 14   /* obj_type_others */
 
 typedef struct pdf_resource_struct_ {
     pdf_object_list *font_list; /* |font_list| during flushing pending forms */
