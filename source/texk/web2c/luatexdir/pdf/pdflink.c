@@ -143,15 +143,13 @@ void scan_startlink(PDF pdf)
 {
     integer k;
     halfword r;
-    halfword save_cs = cur_cs;
     if (abs(cur_list.mode_field) == vmode)
         pdf_error("ext1", "\\pdfstartlink cannot be used in vertical mode");
     k = pdf_new_objnum(pdf);
     new_annot_whatsit(pdf_start_link_node);
     set_pdf_link_attr(cur_list.tail_field, null);
     if (scan_keyword("attr")) {
-	cur_cs = save_cs;
-        scan_pdf_ext_toks();
+	scan_pdf_ext_toks();
         set_pdf_link_attr(cur_list.tail_field, def_ref);
     }
     r = scan_action(pdf);

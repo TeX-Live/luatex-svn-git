@@ -517,7 +517,8 @@ boolean scan_keyword(char *s)
         }
         flush_list(token_link(backup_head));
     }
-    return true;
+   cur_cs = save_cur_cs;
+   return true;
 }
 
 /* We can not return |undefined_control_sequence| under some conditions

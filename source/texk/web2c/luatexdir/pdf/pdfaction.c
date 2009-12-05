@@ -52,7 +52,6 @@ void delete_action_node(halfword a)
 halfword scan_action(PDF pdf)
 {
     integer p;
-    halfword save_cs = cur_cs;
     (void) pdf;
     p = new_action_node();
     if (scan_keyword("user"))
@@ -64,13 +63,11 @@ halfword scan_action(PDF pdf)
     else
         pdf_error("ext1", "action type missing");
     if (pdf_action_type(p) == pdf_action_user) {
-	cur_cs = save_cs;
         scan_pdf_ext_toks();
         set_pdf_action_tokens(p, def_ref);
         return p;
     }
     if (scan_keyword("file")) {
-	cur_cs = save_cs;
         scan_pdf_ext_toks();
         set_pdf_action_file(p, def_ref);
     }
@@ -83,11 +80,9 @@ halfword scan_action(PDF pdf)
             pdf_error("ext1", "page number must be positive");
         set_pdf_action_id(p, cur_val);
         set_pdf_action_named_id(p, 0);
-        cur_cs = save_cs;
 	scan_pdf_ext_toks();
         set_pdf_action_tokens(p, def_ref);
     } else if (scan_keyword("name")) {
-        cur_cs = save_cs;
 	scan_pdf_ext_toks();
         set_pdf_action_named_id(p, 1);
         set_pdf_action_id(p, def_ref);

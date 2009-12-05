@@ -2395,12 +2395,10 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
 void scan_pdfcatalog(PDF pdf)
 {
     halfword p;
-    halfword save_cs = cur_cs;
     scan_pdf_ext_toks();
     pdf_catalog_toks = concat_tokens(pdf_catalog_toks, def_ref);
     if (scan_keyword("openaction")) {
-	cur_cs = save_cs;
-        if (pdf_catalog_openaction != 0) {
+	if (pdf_catalog_openaction != 0) {
             pdf_error("ext1", "duplicate of openaction");
         } else {
             check_o_mode(pdf, "\\pdfcatalog", 1 << OMODE_PDF, true);
