@@ -556,7 +556,7 @@ char *cs_to_string(halfword p)
     char *s, *sh;
     int k = 0;
     static char ret[256] = { 0 };
-    if (p == null_cs) {
+    if (p == 0 || p == null_cs) {
         ret[k++] = '\\';
         s = "csname";
         while (*s) {
