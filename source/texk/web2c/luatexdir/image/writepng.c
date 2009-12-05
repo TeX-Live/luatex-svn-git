@@ -176,7 +176,7 @@ static void write_png_palette(PDF pdf, image_dict * idict)
     if (img_colorspace(idict) != 0) {
         pdf_printf(pdf, "%i 0 R\n", (int) img_colorspace(idict));
     } else {
-        pdf_create_obj(pdf, 0, 0);
+        pdf_create_obj(pdf, obj_type_others, 0);
         palette_objnum = pdf->obj_ptr;
         pdf_printf(pdf, "[/Indexed /DeviceRGB %i %i 0 R]\n",
                    (int) (info_p->num_palette - 1), (int) palette_objnum);
@@ -257,7 +257,7 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
     } else {
         pdf_puts(pdf, "/DeviceGray\n");
     }
-    pdf_create_obj(pdf, 0, 0);
+    pdf_create_obj(pdf, obj_type_others, 0);
     smask_objnum = pdf->obj_ptr;
     pdf_printf(pdf, "/SMask %i 0 R\n", (int) smask_objnum);
     smask_size = (info_p->rowbytes / 2) * info_p->height;
@@ -356,7 +356,7 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
     } else {
         pdf_puts(pdf, "/DeviceRGB\n");
     }
-    pdf_create_obj(pdf, 0, 0);
+    pdf_create_obj(pdf, obj_type_others, 0);
     smask_objnum = pdf->obj_ptr;
     pdf_printf(pdf, "/SMask %i 0 R\n", (int) smask_objnum);
     smask_size = (info_p->rowbytes / 2) * info_p->height;
@@ -566,7 +566,7 @@ void write_png(PDF pdf, image_dict * idict)
         } else {
             switch (info_p->color_type) {
             case PNG_COLOR_TYPE_PALETTE:
-                pdf_create_obj(pdf, 0, 0);
+                pdf_create_obj(pdf, obj_type_others, 0);
                 palette_objnum = pdf->obj_ptr;
                 pdf_printf(pdf, "[/Indexed /DeviceRGB %i %i 0 R]\n",
                            (int) (info_p->num_palette - 1),
