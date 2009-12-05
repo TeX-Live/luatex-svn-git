@@ -69,7 +69,7 @@ static pages_entry *new_pages_entry(PDF pdf)
     for (i = 0; i < PAGES_TREE_KIDSMAX; i++)
         p->kids[i] = 0;
     p->next = NULL;
-    pdf_create_obj(pdf, 0, 0);
+    pdf_create_obj(pdf, obj_type_pages, 0);
     p->objnum = pdf->obj_ptr;
     return p;
 }

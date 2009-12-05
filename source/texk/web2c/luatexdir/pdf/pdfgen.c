@@ -1989,30 +1989,51 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
 /*
 Destinations that have been referenced but don't exists have
 |obj_dest_ptr=null|. Leaving them undefined might cause troubles for
-PDF browsers, so we need to fix them.
+PDF browsers, so we need to fix them; they point to the last page.
 */
 
-void pdf_fix_dest(PDF pdf, integer k)
+static void check_nonexisting_destinations(PDF pdf)
 {
-    if (obj_dest_ptr(pdf, k) != null)
-        return;
-    pdf_warning("dest", NULL, false, false);
-    if (obj_info(pdf, k) < 0) {
-        tprint("name{");
-        print(-obj_info(pdf, k));
-        tprint("}");
-    } else {
-        tprint("num");
-        print_int(obj_info(pdf, k));
+    integer k;
+    for (k = pdf->head_tab[obj_type_dest]; k != 0; k = obj_link(pdf, k)) {
+        if (obj_dest_ptr(pdf, k) == null) {
+            pdf_warning("dest", NULL, false, false);
+            if (obj_info(pdf, k) < 0) {
+                tprint("name{");
+                print(-obj_info(pdf, k));
+                tprint("}");
+            } else {
+                tprint("num");
+                print_int(obj_info(pdf, k));
+            }
+            tprint
+                (" has been referenced but does not exist, replaced by a fixed one");
+            print_ln();
+            print_ln();
+            pdf_begin_obj(pdf, k, 1);
+            pdf_out(pdf, '[');
+            pdf_print_int(pdf, pdf->last_page);
+            pdf_puts(pdf, " 0 R /Fit]\n");
+            pdf_end_obj(pdf);
+        }
     }
-    tprint(" has been referenced but does not exist, replaced by a fixed one");
-    print_ln();
-    print_ln();
-    pdf_begin_obj(pdf, k, 1);
-    pdf_out(pdf, '[');
-    pdf_print_int(pdf, pdf->head_tab[obj_type_page]);
-    pdf_puts(pdf, " 0 R /Fit]\n");
-    pdf_end_obj(pdf);
+}
+
+static void check_nonexisting_pages(PDF pdf)
+{
+    struct avl_traverser t;
+    oentry *p;
+    struct avl_table *page_tree = pdf->obj_tree[obj_type_page];
+    avl_t_init(&t, page_tree);
+    /* search from the end backward until the last real page is found */
+    for (p = avl_t_last(&t, page_tree);
+         p != NULL && obj_aux(pdf, p->objptr) == 0; p = avl_t_prev(&t)) {
+        pdf_warning("dest", "Page ", false, false);
+        print_int(obj_info(pdf, p->objptr));
+        tprint(" has been referenced but does not exist!");
+        print_ln();
+        print_ln();
+    }
 }
 
 /*
@@ -2098,6 +2119,8 @@ void build_free_object_list(PDF pdf)
     set_obj_link(pdf, l, 0);
 }
 
+/**********************************************************************/
+
 /*
 Now the finish of PDF output file. At this moment all Page objects
 are already written completely to PDF output file.
@@ -2124,24 +2147,9 @@ void finish_pdf_file(PDF pdf, integer luatex_version,
         if (pdf->draftmode == 0) {
             pdf_flush(pdf);     /* to make sure that the output file name has been already created */
             flush_jbig2_page0_objects(pdf);     /* flush page 0 objects from JBIG2 images, if any */
-            /* Check for non-existing pages */
-            k = pdf->head_tab[obj_type_page];
-            while (obj_aux(pdf, k) == 0) {
-                pdf_warning("dest", "Page ", false, false);
-                print_int(obj_info(pdf, k));
-                tprint(" has been referenced but does not exist!");
-                print_ln();
-                print_ln();
-                k = obj_link(pdf, k);
-            }
-            pdf->head_tab[obj_type_page] = k;
 
-            /* Check for non-existing destinations */
-            k = pdf->head_tab[obj_type_dest];
-            while (k != 0) {
-                pdf_fix_dest(pdf, k);
-                k = obj_link(pdf, k);
-            }
+            check_nonexisting_pages(pdf);
+            check_nonexisting_destinations(pdf);
 
             /* Output fonts definition */
             for (k = 1; k <= max_font_id(); k++) {
@@ -2398,7 +2406,7 @@ void scan_pdfcatalog(PDF pdf)
     scan_pdf_ext_toks();
     pdf_catalog_toks = concat_tokens(pdf_catalog_toks, def_ref);
     if (scan_keyword("openaction")) {
-	if (pdf_catalog_openaction != 0) {
+        if (pdf_catalog_openaction != 0) {
             pdf_error("ext1", "duplicate of openaction");
         } else {
             check_o_mode(pdf, "\\pdfcatalog", 1 << OMODE_PDF, true);

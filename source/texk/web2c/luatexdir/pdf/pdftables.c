@@ -29,32 +29,27 @@ static const char __svn_version[] =
 /* mark which objects should be searchable through AVL tree */
 
 static int obj_in_tree[PDF_OBJ_TYPE_MAX + 1] = {
-    1,                          /* obj_type_page = 0,    */
-    0,                          /* obj_type_font = 1,    */
-    0,                          /* obj_type_outline = 2, */
-    1,                          /* obj_type_dest = 3,    */
-    0,                          /* obj_type_obj = 4,     */
-    0,                          /* obj_type_xform = 5,   */
-    0,                          /* obj_type_ximage = 6,  */
-    1,                          /* obj_type_thread = 7,  */
-    0,                          /* obj_type_link = 8,    */
-    0,                          /* obj_type_bead = 9,    */
-    0,                          /* obj_type_annot = 10,  */
-    0,                          /* obj_type_objstm = 11, */
-    0                           /* obj_type_others = 12  */
+    0,                          /* obj_type_font = 0,    */
+    0,                          /* obj_type_outline = 1, */
+    1,                          /* obj_type_dest = 2,    */
+    0,                          /* obj_type_obj = 3,     */
+    0,                          /* obj_type_xform = 4,   */
+    0,                          /* obj_type_ximage = 5,  */
+    1,                          /* obj_type_thread = 6,  */
+    /* the ones below don't go into a linked list */
+    1,                          /* obj_type_page = 7,    */
+    0,                          /* obj_type_pages = 8,   */
+    0,                          /* obj_type_link = 9,    */
+    0,                          /* obj_type_bead = 10,   */
+    0,                          /* obj_type_annot = 11,  */
+    0,                          /* obj_type_objstm = 12, */
+    0                           /* obj_type_others = 13  */
 };
 
 typedef enum {
     avl_obj_int_type,
     avl_obj_string_type,
 } avl_obj_types;
-
-typedef struct oentry_ {
-    integer int0;
-    char *str0;
-    int objtype;
-    integer objptr;
-} oentry;
 
 /* AVL sort oentry into avl_table[] */
 
@@ -168,33 +163,14 @@ void pdf_create_obj(PDF pdf, integer t, integer i)
         char *ss = makecstring(-i);
         avl_put_str_obj(pdf, ss, pdf->obj_ptr, t);
         free(ss);
-    } else {
+    } else
         avl_put_int_obj(pdf, i, pdf->obj_ptr, t);
-    }
     if (t <= HEAD_TAB_MAX) {
-        if (t == obj_type_page) {
-            p = pdf->head_tab[t];
-            /* find the right position to insert newly created object */
-            if ((p == 0) || (obj_info(pdf, p) < i)) {
-                obj_link(pdf, pdf->obj_ptr) = p;
-                pdf->head_tab[t] = pdf->obj_ptr;
-            } else {
-                while (p != 0) {
-                    if (obj_info(pdf, p) < i)
-                        break;
-                    q = p;
-                    p = obj_link(pdf, p);
-                }
-                obj_link(pdf, q) = pdf->obj_ptr;
-                obj_link(pdf, pdf->obj_ptr) = p;
-            }
-        } else {
-            obj_link(pdf, pdf->obj_ptr) = pdf->head_tab[t];
-            pdf->head_tab[t] = pdf->obj_ptr;
-            if ((t == obj_type_dest) && (i < 0))
-                append_dest_name(pdf, makecstring(-obj_info(pdf, pdf->obj_ptr)),
-                                 pdf->obj_ptr);
-        }
+        obj_link(pdf, pdf->obj_ptr) = pdf->head_tab[t];
+        pdf->head_tab[t] = pdf->obj_ptr;
+        if ((t == obj_type_dest) && (i < 0))
+            append_dest_name(pdf, makecstring(-obj_info(pdf, pdf->obj_ptr)),
+                             pdf->obj_ptr);
     }
 }
 

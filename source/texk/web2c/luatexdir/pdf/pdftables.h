@@ -22,6 +22,13 @@
 #ifndef PDFTABLES_H
 #  define PDFTABLES_H
 
+typedef struct oentry_ {
+    integer int0;
+    char *str0;
+    int objtype;
+    integer objptr;
+} oentry;
+
 /*
 The cross-reference table |obj_tab| is an array of |obj_tab_size| of
 |obj_entry|. Each entry contains five integer fields and represents an object

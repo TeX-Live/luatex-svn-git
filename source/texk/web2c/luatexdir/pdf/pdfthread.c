@@ -166,7 +166,7 @@ void pdf_fix_thread(PDF pdf, integer t)
     pdf_indirect_ln(pdf, "T", t);
     pdf_indirect_ln(pdf, "V", a);
     pdf_indirect_ln(pdf, "N", a);
-    pdf_indirect_ln(pdf, "P", pdf->head_tab[obj_type_page]);
+    pdf_indirect_ln(pdf, "P", pdf->last_page);
     pdf_printf(pdf, "/R [0 0 ");
     pdf_print_bp(pdf, page_width);
     pdf_out(pdf, ' ');
