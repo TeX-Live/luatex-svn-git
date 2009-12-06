@@ -705,18 +705,20 @@ static PDFRectangle *get_pagebox(Page * page, integer pagebox_spec)
     return page->getMediaBox(); // to make the compiler happy
 }
 
-char *
-get_file_checksum (char *a) 
+#define PDF_CHECKSUM_SIZE 32
+char *get_file_checksum(char *a)
 {
     struct stat finfo;
     char *ck = NULL;
-    if (stat(a,&finfo)==0) {
-        int size = finfo.st_size;
-        int mtime = finfo.st_mtime;
-        ck = (char *)malloc(32);
-        if (ck==NULL)
-            pdftex_fail("PDF inclusion: out of memory while processing '%s'", a);
-        sprintf(ck,"%d_%d", size, mtime);        
+    if (stat(a, &finfo) == 0) {
+        off_t size = finfo.st_size;
+        time_t mtime = finfo.st_mtime;
+        ck = (char *) malloc(PDF_CHECKSUM_SIZE);
+        if (ck == NULL)
+            pdftex_fail("PDF inclusion: out of memory while processing '%s'",
+                        a);
+        snprintf(ck, PDF_CHECKSUM_SIZE, "%llu_%llu", (unsigned long long) size,
+                 (unsigned long long) mtime);
     } else {
         pdftex_fail("PDF inclusion: could not stat() file '%s'", a);
     }
@@ -875,12 +877,15 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     int i, l;
     PdfDocument *pdf_doc;
     // open PDF file
-    if (strcmp(img_checksum(idict),get_file_checksum(img_filepath(idict)))==0) {
+    if (strncmp
+        (img_checksum(idict), get_file_checksum(img_filepath(idict)),
+         PDF_CHECKSUM_SIZE) == 0) {
         pdf_doc = refPdfDocument(img_filepath(idict));
         pdf_doc->xref = pdf_doc->doc->getXRef();
-        (void)pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
+        (void) pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
     } else {
-        pdftex_fail("PDF inclusion: file has changed '%s'",img_filename(idict));
+        pdftex_fail("PDF inclusion: file has changed '%s'",
+                    img_filename(idict));
     }
     xref = pdf_doc->xref;
     inObjList = pdf_doc->inObjList;
