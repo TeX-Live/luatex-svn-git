@@ -2068,12 +2068,12 @@ int unset_attribute(halfword n, int i, int val)
     /* if we are still here, the attribute exists */
     p = node_attr(n);
     if (attr_list_ref(p) > 1 || p == attr_list_cache) {
-        p = copy_attribute_list(p);
+        halfword q = copy_attribute_list(p);
         if (attr_list_ref(p) > 1) {
             delete_attribute_ref(node_attr(n));
         }
-        attr_list_ref(p) = 1;
-        node_attr(n) = p;
+        attr_list_ref(q) = 1;
+        node_attr(n) = q;
     }
     p = vlink(p);
     while (j-- > 0)
