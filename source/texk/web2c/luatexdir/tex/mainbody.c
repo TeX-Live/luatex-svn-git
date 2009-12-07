@@ -461,6 +461,7 @@ void main_body(void)
     /* Initialize synctex primitive */
     synctex_init_command();
     main_control();             /* come to life */
+    flush_node(text_dir_ptr);
     final_cleanup();            /* prepare for death */
     close_files_and_terminate();
   FINAL_END:
