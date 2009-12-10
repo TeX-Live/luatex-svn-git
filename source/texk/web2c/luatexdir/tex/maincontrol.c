@@ -1464,10 +1464,13 @@ wrong in some way that relates to in-paragraph displays.
 void end_graf(integer line_break_context)
 {
     if (mode == hmode) {
-        if ((head == tail) || (vlink(head) == tail))
+        if ((head == tail) || (vlink(head) == tail)) {
+            if (vlink(head) == tail)
+                flush_node(vlink(head));
             pop_nest();         /* null paragraphs are ignored, all contain a |local_paragraph| node */
-        else
+        } else {
             line_break(false, line_break_context);
+        }
         if (dir_save != null) {
             flush_node_list(dir_save);
             dir_save = null;
