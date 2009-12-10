@@ -65,7 +65,10 @@ then
   LUATEXEXE=luatex.exe
   OLDPATH=$PATH
   PATH=/usr/mingw32/bin:$PATH
+  CFLAGS="-mtune=pentiumpro -msse2 -g -O2 $CFLAGS"
+  CXXFLAGS="-mtune=pentiumpro -msse2 -g -O2 $CXXFLAGS"
   CONFHOST="--host=mingw32 --build=i686-linux-gnu "
+  export CFLAGS CXXFLAGS
 fi
 
 if [ "$MACCROSS" = "TRUE" ]
