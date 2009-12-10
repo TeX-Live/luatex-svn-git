@@ -706,8 +706,8 @@ static boolean fm_valid_for_font_replacement(fm_entry * fm)
 fm_entry *lookup_fontmap(char *ps_name)
 {
     fm_entry *fm, *fm2, tmp;
-    char *a, *b, *c, *d, *e, *s;
-    int i, sl, ex;
+    char *a, *b, *e, *s;
+    int i, ex;
     struct avl_traverser t, t2;
     if (tfm_tree == NULL)
         fm_read_info();         /* only to read default map file */

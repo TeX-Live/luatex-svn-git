@@ -136,7 +136,7 @@ static integer avl_find_str_obj(PDF pdf, integer t, char *s)
 
 void pdf_create_obj(PDF pdf, integer t, integer i)
 {
-    integer a, p, q;
+    integer a;
     char *ss = NULL;
     if (pdf->sys_obj_ptr == sup_obj_tab_size)
         overflow("indirect objects table size", pdf->obj_tab_size);

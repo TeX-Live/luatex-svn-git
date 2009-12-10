@@ -50,9 +50,11 @@ int luapdfprint(lua_State * L)
             lua_error(L);
         } else {
             modestr.s = (char *) lua_tolstring(L, -2, &modestr.l);
-            if (modestr.l == 6 && strncmp(modestr.s, "direct", 6) == 0)
+            if (modestr.l == 6
+                && strncmp((const char *) modestr.s, "direct", 6) == 0)
                 literal_mode = direct_always;
-            else if (modestr.l == 4 && strncmp(modestr.s, "page", 4) == 0)
+            else if (modestr.l == 4
+                     && strncmp((const char *) modestr.s, "page", 4) == 0)
                 literal_mode = direct_page;
             else {
                 lua_pushstring(L, "invalid argument for print literal mode");
@@ -143,7 +145,7 @@ static int l_immediateobj(lua_State * L)
             luaL_error(L, "pdf.immediateobj() 2nd argument must be string");
         st1.s = (char *) lua_tolstring(L, first_arg, &st1.l);
         st2.s = (char *) lua_tolstring(L, first_arg + 1, &st2.l);
-        if (st1.l == 4 && strncmp(st1.s, "file", 4) == 0) {
+        if (st1.l == 4 && strncmp((const char *) st1.s, "file", 4) == 0) {
             if (n == first_arg + 2)
                 luaL_error(L,
                            "pdf.immediateobj() 3rd argument forbidden in file mode");
@@ -166,9 +168,11 @@ static int l_immediateobj(lua_State * L)
                     pdf_puts(static_pdf, "\n");
             }
             pdf_begin_stream(static_pdf);
-            if (st1.l == 6 && strncmp(st1.s, "stream", 6) == 0) {
+            if (st1.l == 6 && strncmp((const char *) st1.s, "stream", 6) == 0) {
                 buf_to_pdfbuf_macro(static_pdf, st2.s, st2.l);
-            } else if (st1.l == 10 && strncmp(st1.s, "streamfile", 10) == 0) {
+            } else if (st1.l == 10
+                       && strncmp((const char *) st1.s, "streamfile",
+                                  10) == 0) {
                 buf.s = fread_to_buf(L, (char *) st2.s, &buf.l);
                 buf_to_pdfbuf_macro(static_pdf, buf.s, buf.l);
                 xfree(buf.s);
@@ -465,7 +469,7 @@ static int orig_obj(lua_State * L)
         if (!lua_isstring(L, first_arg + 1))
             luaL_error(L, "pdf.obj() 2nd argument must be string");
         st.s = (char *) lua_tolstring(L, first_arg, &st.l);
-        if (st.l == 4 && strncmp(st.s, "file", 4) == 0) {
+        if (st.l == 4 && strncmp((const char *) st.s, "file", 4) == 0) {
             if (n == first_arg + 2)
                 luaL_error(L, "pdf.obj() 3rd argument forbidden in file mode");
             set_obj_obj_is_file(static_pdf, k);
@@ -476,9 +480,10 @@ static int orig_obj(lua_State * L)
                 obj_obj_stream_attr(static_pdf, k) =
                     luaL_ref(Luas, LUA_REGISTRYINDEX);
             }
-            if (st.l == 6 && strncmp(st.s, "stream", 6) == 0) {
+            if (st.l == 6 && strncmp((const char *) st.s, "stream", 6) == 0) {
                 set_obj_obj_is_stream(static_pdf, k);
-            } else if (st.l == 10 && strncmp(st.s, "streamfile", 10) == 0) {
+            } else if (st.l == 10
+                       && strncmp((const char *) st.s, "streamfile", 10) == 0) {
                 set_obj_obj_is_stream(static_pdf, k);
                 set_obj_obj_is_file(static_pdf, k);
             } else
@@ -521,7 +526,7 @@ static int l_reserveobj(lua_State * L)
         if (!lua_isstring(L, -1))
             luaL_error(L, "pdf.reserveobj() optional argument must be string");
         st.s = (char *) lua_tolstring(L, 1, &st.l);
-        if (st.l == 5 && strncmp(st.s, "annot", 5) == 0) {
+        if (st.l == 5 && strncmp((const char *) st.s, "annot", 5) == 0) {
             pdf_create_obj(static_pdf, obj_type_annot, 0);
             pdf_last_annot = static_pdf->sys_obj_ptr;
         } else {
@@ -607,11 +612,11 @@ static int setpdf(lua_State * L)
         pdf_names_toks = tokenlist_from_lua(L);
     } else if (strcmp(st, "pdftrailer") == 0) {
         pdf_trailer_toks = tokenlist_from_lua(L);
-    } else if (strcmp(st,"pdfmapline")==0) {
-        char *s = (char *)lua_tostring(L, -1);
+    } else if (strcmp(st, "pdfmapline") == 0) {
+        char *s = (char *) lua_tostring(L, -1);
         process_map_item(s, MAPLINE);
-    } else if (strcmp(st,"pdfmapfile")==0) {
-        char *s = (char *)lua_tostring(L, -1);
+    } else if (strcmp(st, "pdfmapfile") == 0) {
+        char *s = (char *) lua_tostring(L, -1);
         process_map_item(s, MAPFILE);
     }
     return 0;
