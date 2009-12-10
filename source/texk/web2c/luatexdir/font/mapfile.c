@@ -86,7 +86,7 @@ fm_entry *new_fm_entry(void)
     fm->encname = NULL;
     fm->type = 0;
     fm->slant = 0;
-    fm->extend = 0;
+    fm->extend = 1000;
     fm->links = 0;
     fm->pid = -1;
     fm->eid = -1;
@@ -142,7 +142,7 @@ static int comp_fm_entry_tfm(const void *pa, const void *pb, void *p)
                   ((const fm_entry *) pb)->tfm_name);
 }
 
-/* AVL sort fm_entry into ps_tree by ps_name, slant, and extend */
+/* AVL sort fm_entry into ps_tree by ps_name and extend */
 
 static int comp_fm_entry_ps(const void *pa, const void *pb, void *p)
 {
@@ -152,7 +152,6 @@ static int comp_fm_entry_ps(const void *pa, const void *pb, void *p)
     assert(p1->ps_name != NULL && p2->ps_name != NULL);
     if ((i = strcmp(p1->ps_name, p2->ps_name)))
         return i;
-    cmp_return(p1->slant, p2->slant);
     cmp_return(p1->extend, p2->extend);
     return 0;
 }
@@ -319,12 +318,11 @@ int check_fm_entry(fm_entry * fm, boolean warn)
         a += 2;
     }
 
-    /* SlantFont and ExtendFont can be used only with Type1 fonts */
-    if ((fm->slant != 0 || fm->extend != 0)
-        && !(is_t1fontfile(fm) && is_included(fm))) {
+    /* ExtendFont can be used only with Type1 fonts */
+    if (fm->extend != 1000 && !(is_t1fontfile(fm) && is_included(fm))) {
         if (warn)
             pdftex_warn
-                ("invalid entry for `%s': SlantFont/ExtendFont can be used only with embedded Type1 fonts",
+                ("invalid entry for `%s': ExtendFont can be used only with embedded Type1 fonts",
                  fm->tfm_name);
         a += 4;
     }
@@ -481,8 +479,8 @@ static void fm_scan_line(void)
                     } else if (str_prefix(s, "ExtendFont")) {
                         d *= 1000.0;
                         fm->extend = (integer) (d > 0 ? d + 0.5 : d - 0.5);
-                        if (fm->extend == 1000)
-                            fm->extend = 0;
+                        if (fm->extend == 0)    /* special user case... */
+                            fm->extend = 1000;  /* ...mapped to natural internal representation */
                         r = s + strlen("ExtendFont");
                     } else {    /* unknown name */
                         for (r = s; *r != ' ' && *r != '"' && *r != '\0'; r++); /* jump over name */
@@ -677,6 +675,8 @@ boolean hasfmentry(internalfontnumber f)
     if (font_map(f) == NULL)
         set_font_map(f, (fm_entry_ptr) fmlookup(f));
     assert(font_map(f) != NULL);
+    font_slant(f) = ((fm_entry *) font_map(f))->slant;
+    font_extend(f) = ((fm_entry *) font_map(f))->extend;
     return font_map(f) != (fm_entry_ptr) dummy_fm_entry();
 }
 
@@ -724,43 +724,17 @@ fm_entry *lookup_fontmap(char *ps_name)
     }
 
     /*
-     * Scan -Slant_<slant> and -Extend_<extend> font name extensions;
-     * three valid formats:
-     * <fontname>-Slant_<slant>
-     * <fontname>-Slant_<slant>-Extend_<extend>
+     * Scan -Extend_<extend> font name extensions; format:
      * <fontname>-Extend_<extend>
-     * Slant entry must come _before_ Extend entry
      */
 
-    tmp.slant = 0;
-    tmp.extend = 0;
-    if ((a = strstr(s, "-Slant_")) != NULL) {
-        b = a + strlen("-Slant_");
-        sl = (int) strtol(b, &e, 10);
+    tmp.extend = 1000;
+    if ((a = strstr(s, "-Extend_")) != NULL) {
+        b = a + strlen("-Extend_");
+        ex = (int) strtol(b, &e, 10);
         if ((e != b) && (e == strend(b))) {
-            tmp.slant = sl;
-            *a = '\0';          /* ps_name string ends before "-Slant_" */
-        } else {
-            if (e != b) {       /* only if <slant> is valid number */
-                if ((c = strstr(e, "-Extend_")) != NULL) {
-                    d = c + strlen("-Extend_");
-                    ex = (int) strtol(d, &e, 10);
-                    if ((e != d) && (e == strend(d))) {
-                        tmp.slant = sl;
-                        tmp.extend = ex;
-                        *a = '\0';      /* ps_name string ends before "-Slant_" */
-                    }
-                }
-            }
-        }
-    } else {
-        if ((a = strstr(s, "-Extend_")) != NULL) {
-            b = a + strlen("-Extend_");
-            ex = (int) strtol(b, &e, 10);
-            if ((e != b) && (e == strend(b))) {
-                tmp.extend = ex;
-                *a = '\0';      /* ps_name string ends before "-Extend_" */
-            }
+            tmp.extend = ex;
+            *a = '\0';          /* ps_name string ends before "-Extend_" */
         }
     }
     tmp.ps_name = s;

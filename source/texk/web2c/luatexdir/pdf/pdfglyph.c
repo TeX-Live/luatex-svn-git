@@ -31,9 +31,6 @@ static const char __svn_version[] =
 #define one_bp ((double) 65536 * (double) 72.27 / 72)   /* number of sp per 1bp */
 #define e_tj 3                  /* must be 3; movements in []TJ are in fontsize/10^3 units */
 
-/* definitions from luatex.web */
-#define pdf_font_blink(a) font_tables[a]->_pdf_font_blink
-
 /**********************************************************************/
 
 static long pdf_char_width(pdfstructure * p, internal_font_number f, int i)
@@ -71,6 +68,7 @@ static void setup_fontparameters(PDF pdf, internal_font_number f)
     p->hz.m = pdf_font_expand_ratio(f) + ten_pow[p->hz.e];
     p->tm[0].m =
         lround(pdf2double(p->hz) * pdf2double(p->ext) * ten_pow[p->tm[0].e]);
+    p->tm[2].m = lround(font_slant(f) * (font_extend(f) / 1000.0));     /* tm[2].e = 3 */
     p->k2 =
         ten_pow[e_tj +
                 p->cw.e] / (ten_pow[p->pdf.h.e] * pdf2double(p->fs) *

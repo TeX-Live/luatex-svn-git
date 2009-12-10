@@ -159,7 +159,7 @@ void writetype0(PDF pdf, fd_entry * fd);
 
 /* writefont.c */
 void do_pdf_font(PDF, integer, internalfontnumber);
-fd_entry *lookup_fd_entry(char *, integer, integer);
+fd_entry *lookup_fd_entry(char *, integer);
 fd_entry *new_fd_entry(void);
 void write_fontstuff(PDF);
 integer get_fd_objnum(fd_entry * fd);

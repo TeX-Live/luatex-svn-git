@@ -65,7 +65,6 @@ static int comp_fd_entry(const void *pa, const void *pb, void *p)
            p2->fm != NULL && is_fontfile(p2->fm));
     if ((i = strcmp(p1->fm->ff_name, p2->fm->ff_name)) != 0)
         return i;
-    cmp_return(p1->fm->slant, p2->fm->slant);
     cmp_return(p1->fm->extend, p2->fm->extend);
     return 0;
 }
@@ -127,9 +126,7 @@ fd_entry *new_fd_entry(void)
 static void preset_fontmetrics(fd_entry * fd, internalfontnumber f)
 {
     int i;
-    fd->font_dim[ITALIC_ANGLE_CODE].val =
-        divide_scaled(-atan(get_slant(f) / 65536.0) * (180 / M_PI),
-                      pdf_font_size(f), 3);
+    fd->font_dim[ITALIC_ANGLE_CODE].val = 0;
     fd->font_dim[ASCENT_CODE].val =
         divide_scaled(char_height(f, 'h'), pdf_font_size(f), 3);
     fd->font_dim[CAPHEIGHT_CODE].val =
@@ -232,13 +229,12 @@ static void write_fontname_object(PDF pdf, fd_entry * fd)
 
 /**********************************************************************/
 
-fd_entry *lookup_fd_entry(char *s, integer slant, integer extend)
+fd_entry *lookup_fd_entry(char *s, integer extend)
 {
     fd_entry fd;
     fm_entry fm;
     assert(s != NULL);
     fm.ff_name = s;
-    fm.slant = slant;
     fm.extend = extend;
     fd.fm = &fm;
     if (fd_tree == NULL) {
@@ -253,7 +249,7 @@ fd_entry *lookup_fontdescriptor(fo_entry * fo)
     assert(fo != NULL);
     assert(fo->fm != NULL);
     assert(is_fontfile(fo->fm));
-    return lookup_fd_entry(fo->fm->ff_name, fo->fm->slant, fo->fm->extend);
+    return lookup_fd_entry(fo->fm->ff_name, fo->fm->extend);
 }
 
 void register_fd_entry(fd_entry * fd)
@@ -264,7 +260,7 @@ void register_fd_entry(fd_entry * fd)
         assert(fd_tree != NULL);
     }
     assert(fd != NULL && fd->fm != NULL && is_fontfile(fd->fm));
-    assert(lookup_fd_entry(fd->fm->ff_name, fd->fm->slant, fd->fm->extend) == NULL);    /* font descriptor not yet registered */
+    assert(lookup_fd_entry(fd->fm->ff_name, fd->fm->extend) == NULL);   /* font descriptor not yet registered */
     aa = avl_probe(fd_tree, fd);
     assert(aa != NULL);
 }
@@ -856,8 +852,11 @@ void do_pdf_font(PDF pdf, integer font_objnum, internalfontnumber f)
         fm = hasfmentry(f) ? (fm_entry *) font_map(f) : NULL;
         if (fm == NULL || (fm->ps_name == NULL && fm->ff_name == NULL))
             writet3(pdf, font_objnum, f);
-        else
+        else {
+            font_slant(f) = fm->slant;  /* slant factor */
+            font_extend(f) = fm->extend;        /* extend factor */
             create_fontdictionary(pdf, fm, font_objnum, f);
+        }
     }
 }
 

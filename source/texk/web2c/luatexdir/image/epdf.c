@@ -29,7 +29,7 @@ static const char _svn_version[] =
 fd_entry *epdf_create_fontdescriptor(fm_entry * fm, int stemV, int obj_num)
 {
     fd_entry *fd;
-    if ((fd = lookup_fd_entry(fm->ff_name, fm->slant, fm->extend)) == NULL) {
+    if ((fd = lookup_fd_entry(fm->ff_name, fm->extend)) == NULL) {
         fm->in_use = true;
         fd = new_fd_entry();
         fd->fm = fm;

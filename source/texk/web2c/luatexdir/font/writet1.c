@@ -685,9 +685,7 @@ static void t1_modify_fm(void)
         a[i] = t1_scan_num(p, &q);
         p = q;
     }
-    if (fm_slant(fd_cur->fm) != 0)
-        do_slant(a, fm_slant(fd_cur->fm) * 1E-3);
-    if (fm_extend(fd_cur->fm) != 0)
+    if (fm_extend(fd_cur->fm) != 1000)
         do_extend(a, fm_extend(fd_cur->fm) * 1E-3);
     for (i = 0; i < 6; i++) {
         sprintf(r, "%g ", a[i]);
@@ -711,36 +709,14 @@ static void t1_modify_fm(void)
     t1_line_ptr = eol(t1_line_array);
 }
 
-static void t1_modify_italic(void)
-{
-    float a;
-    char *p, *r;
-    if (fm_slant(fd_cur->fm) == 0)
-        return;
-    p = strchr(t1_line_array, ' ');
-    strncpy(t1_buf_array, t1_line_array, (size_t) (p - t1_line_array + 1));
-    a = t1_scan_num(p + 1, &r);
-    a -= atan(fm_slant(fd_cur->fm) * 1E-3) * (180 / M_PI);
-    sprintf(t1_buf_array + (p - t1_line_array + 1), "%g", a);
-    strcpy(strend(t1_buf_array), r);
-    strcpy(t1_line_array, t1_buf_array);
-    t1_line_ptr = eol(t1_line_array);
-    fd_cur->font_dim[ITALIC_ANGLE_CODE].val = round(a);
-    fd_cur->font_dim[ITALIC_ANGLE_CODE].set = true;
-}
-
 static void t1_scan_keys(PDF pdf)
 {
     int i, k;
     char *p, *q, *r;
     key_entry *key;
-    if (fm_extend(fd_cur->fm) != 0 || fm_slant(fd_cur->fm) != 0) {
+    if (fm_extend(fd_cur->fm) != 1000) {
         if (t1_prefix("/FontMatrix")) {
             t1_modify_fm();
-            return;
-        }
-        if (t1_prefix("/ItalicAngle")) {
-            t1_modify_italic();
             return;
         }
     }
@@ -767,11 +743,7 @@ static void t1_scan_keys(PDF pdf)
         r = ++p;                /* skip the slash */
         for (q = t1_buf_array; *p != ' ' && *p != 10; *q++ = *p++);
         *q = 0;
-        if (fm_slant(fd_cur->fm) != 0) {
-            sprintf(q, "-Slant_%i", (int) fm_slant(fd_cur->fm));
-            q = strend(q);
-        }
-        if (fm_extend(fd_cur->fm) != 0) {
+        if (fm_extend(fd_cur->fm) != 1000) {
             sprintf(q, "-Extend_%i", (int) fm_extend(fd_cur->fm));
         }
         xfree(fd_cur->fontname);
