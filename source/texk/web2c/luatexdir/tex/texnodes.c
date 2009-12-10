@@ -27,6 +27,7 @@ static const char _svn_version[] =
 #undef name
 
 #define noDEBUG
+#define DEBUG_OUT stdout
 
 #define adjust_pre subtype
 #define attribute(A) eqtb[attribute_base+(A)].cint
@@ -423,7 +424,7 @@ halfword new_node(int i, int j)
     type(n) = i;
     subtype(n) = j;
 #ifdef DEBUG
-    fprintf(stderr, "Alloc-ing %s node %d\n",
+    fprintf(DEBUG_OUT, "Alloc-ing %s node %d\n",
             get_node_name(type(n), subtype(n)), (int) n);
 #endif
     return n;
@@ -697,7 +698,7 @@ halfword copy_node(const halfword p)
         break;
     }
 #ifdef DEBUG
-    fprintf(stderr, "Alloc-ing %s node %d (copy of %d)\n",
+    fprintf(DEBUG_OUT, "Alloc-ing %s node %d (copy of %d)\n",
             get_node_name(type(r), subtype(r)), (int) r, (int) p);
 #endif
     return r;
@@ -872,7 +873,7 @@ void flush_node(halfword p)
         return;
 
 #ifdef DEBUG
-    fprintf(stderr, "Free-ing %s node %d\n", get_node_name(type(p), subtype(p)),
+    fprintf(DEBUG_OUT, "Free-ing %s node %d\n", get_node_name(type(p), subtype(p)),
             (int) p);
 #endif
     if (free_error(p))
@@ -1916,7 +1917,7 @@ void build_attribute_list(halfword b)
         attr_list_ref(attr_list_cache)++;
         node_attr(b) = attr_list_cache;
 #ifdef DEBUG
-        fprintf(stderr, "Added attrlist (%d) to node %d (count=%d)\n",
+        fprintf(DEBUG_OUT, "Added attrlist (%d) to node %d (count=%d)\n",
                 node_attr(b), b, attr_list_ref(attr_list_cache));
 #endif
     }
@@ -1928,7 +1929,7 @@ void delete_attribute_ref(halfword b)
         assert(type(b) == attribute_list_node);
         attr_list_ref(b)--;
 #ifdef DEBUG
-        fprintf(stderr, "Removed attrlistref (%d) (count=%d)\n", b,
+        fprintf(DEBUG_OUT, "Removed attrlistref (%d) (count=%d)\n", b,
                 attr_list_ref(b));
 #endif
         if (attr_list_ref(b) == 0) {
