@@ -49,7 +49,7 @@ int luapdfprint(lua_State * L)
             lua_pushstring(L, "invalid argument for print literal mode");
             lua_error(L);
         } else {
-            modestr.s = (char *) lua_tolstring(L, -2, &modestr.l);
+            modestr.s = (unsigned char *) lua_tolstring(L, -2, &modestr.l);
             if (modestr.l == 6
                 && strncmp((const char *) modestr.s, "direct", 6) == 0)
                 literal_mode = direct_always;
@@ -84,7 +84,7 @@ int luapdfprint(lua_State * L)
     default:
         assert(0);
     }
-    st.s = (char *) lua_tolstring(L, n, &st.l);
+    st.s = (unsigned char *) lua_tolstring(L, n, &st.l);
     buf_to_pdfbuf_macro(static_pdf, st.s, st.l);
     return 0;
 }
@@ -131,7 +131,7 @@ static int l_immediateobj(lua_State * L)
         if (!lua_isstring(L, first_arg))
             luaL_error(L, "pdf.immediateobj() 1st argument must be string");
         pdf_begin_obj(static_pdf, k, 1);
-        st1.s = (char *) lua_tolstring(L, first_arg, &st1.l);
+        st1.s = (unsigned char *) lua_tolstring(L, first_arg, &st1.l);
         buf_to_pdfbuf_macro(static_pdf, st1.s, st1.l);
         if (st1.s[st1.l - 1] != '\n')
             pdf_puts(static_pdf, "\n");
@@ -143,8 +143,8 @@ static int l_immediateobj(lua_State * L)
             luaL_error(L, "pdf.immediateobj() 1st argument must be string");
         if (!lua_isstring(L, first_arg + 1))
             luaL_error(L, "pdf.immediateobj() 2nd argument must be string");
-        st1.s = (char *) lua_tolstring(L, first_arg, &st1.l);
-        st2.s = (char *) lua_tolstring(L, first_arg + 1, &st2.l);
+        st1.s = (unsigned char *) lua_tolstring(L, first_arg, &st1.l);
+        st2.s = (unsigned char *) lua_tolstring(L, first_arg + 1, &st2.l);
         if (st1.l == 4 && strncmp((const char *) st1.s, "file", 4) == 0) {
             if (n == first_arg + 2)
                 luaL_error(L,
@@ -162,7 +162,7 @@ static int l_immediateobj(lua_State * L)
                 if (!lua_isstring(L, first_arg + 2))
                     luaL_error(L,
                                "pdf.immediateobj() 3rd argument must be string");
-                st3.s = (char *) lua_tolstring(L, first_arg + 2, &st3.l);
+                st3.s = (unsigned char *) lua_tolstring(L, first_arg + 2, &st3.l);
                 buf_to_pdfbuf_macro(static_pdf, st3.s, st3.l);
                 if (st3.s[st3.l - 1] != '\n')
                     pdf_puts(static_pdf, "\n");
@@ -288,7 +288,7 @@ static int table_obj(lua_State * L)
         if (!lua_isstring(L, -1))       /* !attr-s t */
             luaL_error(L, "pdf.obj(): object \"attr\" must be string");
         if (immediate == 1) {
-            attr.s = (char *) lua_tolstring(L, -1, &attr.l);    /* attr-s t */
+            attr.s = (unsigned char *) lua_tolstring(L, -1, &attr.l);    /* attr-s t */
             lua_pop(L, 1);      /* t */
         } else
             obj_obj_stream_attr(static_pdf, k) = luaL_ref(Luas, LUA_REGISTRYINDEX);     /* t */
@@ -355,7 +355,7 @@ static int table_obj(lua_State * L)
                 luaL_error(L,
                            "pdf.obj(): \"string\" must be string for raw object");
             if (immediate == 1) {
-                st.s = (char *) lua_tolstring(L, -1, &st.l);
+                st.s = (unsigned char *) lua_tolstring(L, -1, &st.l);
                 buf_to_pdfbuf_macro(static_pdf, st.s, st.l);
                 if (st.s[st.l - 1] != '\n')
                     pdf_puts(static_pdf, "\n");
@@ -367,7 +367,7 @@ static int table_obj(lua_State * L)
                 luaL_error(L,
                            "pdf.obj(): \"file\" name must be string for raw object");
             if (immediate == 1) {
-                st.s = (char *) lua_tolstring(L, -1, &st.l);    /* file-s nil t */
+                st.s = (unsigned char *) lua_tolstring(L, -1, &st.l);    /* file-s nil t */
                 buf.s = fread_to_buf(L, (char *) st.s, &buf.l);
                 buf_to_pdfbuf_macro(static_pdf, buf.s, buf.l);
                 if (buf.s[buf.l - 1] != '\n')
@@ -404,7 +404,7 @@ static int table_obj(lua_State * L)
                 luaL_error(L,
                            "pdf.obj(): \"string\" must be string for stream object");
             if (immediate == 1) {
-                st.s = (char *) lua_tolstring(L, -1, &st.l);    /* string-s t */
+                st.s = (unsigned char *) lua_tolstring(L, -1, &st.l);    /* string-s t */
                 buf_to_pdfbuf_macro(static_pdf, st.s, st.l);
             } else
                 obj_obj_data(static_pdf, k) = luaL_ref(L, LUA_REGISTRYINDEX);   /* t */
@@ -414,7 +414,7 @@ static int table_obj(lua_State * L)
                 luaL_error(L,
                            "pdf.obj(): \"file\" name must be string for stream object");
             if (immediate == 1) {
-                st.s = (char *) lua_tolstring(L, -1, &st.l);    /* file-s nil t */
+                st.s = (unsigned char *) lua_tolstring(L, -1, &st.l);    /* file-s nil t */
                 buf.s = fread_to_buf(L, (char *) st.s, &buf.l);
                 buf_to_pdfbuf_macro(static_pdf, buf.s, buf.l);
                 xfree(buf.s);
@@ -468,7 +468,7 @@ static int orig_obj(lua_State * L)
             luaL_error(L, "pdf.obj() 1st argument must be string");
         if (!lua_isstring(L, first_arg + 1))
             luaL_error(L, "pdf.obj() 2nd argument must be string");
-        st.s = (char *) lua_tolstring(L, first_arg, &st.l);
+        st.s = (unsigned char *) lua_tolstring(L, first_arg, &st.l);
         if (st.l == 4 && strncmp((const char *) st.s, "file", 4) == 0) {
             if (n == first_arg + 2)
                 luaL_error(L, "pdf.obj() 3rd argument forbidden in file mode");
@@ -525,7 +525,7 @@ static int l_reserveobj(lua_State * L)
     case 1:
         if (!lua_isstring(L, -1))
             luaL_error(L, "pdf.reserveobj() optional argument must be string");
-        st.s = (char *) lua_tolstring(L, 1, &st.l);
+        st.s = (unsigned char *) lua_tolstring(L, 1, &st.l);
         if (st.l == 5 && strncmp((const char *) st.s, "annot", 5) == 0) {
             pdf_create_obj(static_pdf, obj_type_annot, 0);
             pdf_last_annot = static_pdf->sys_obj_ptr;

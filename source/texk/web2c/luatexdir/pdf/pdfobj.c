@@ -46,7 +46,7 @@ void pdf_write_obj(PDF pdf, integer k)
         if (l != LUA_NOREF) {
             lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
             assert(lua_isstring(Luas, -1));
-            st.s = (char *) lua_tolstring(Luas, -1, &st.l);
+            st.s = (unsigned char *) lua_tolstring(Luas, -1, &st.l);
             for (i = 0; i < st.l; i++)
                 pdf_out(pdf, st.s[i]);
             if (st.s[st.l - 1] != '\n')
@@ -60,13 +60,13 @@ void pdf_write_obj(PDF pdf, integer k)
     l = obj_obj_data(pdf, k);
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
     assert(lua_isstring(Luas, -1));
-    st.s = (char *) lua_tolstring(Luas, -1, &st.l);
+    st.s = (unsigned char *) lua_tolstring(Luas, -1, &st.l);
     if (obj_obj_is_file(pdf, k)) {
         boolean res = false;    /* callback status value */
         char *fnam = NULL;      /* callback found filename */
         integer callback_id;
         /* st.s is also '\0'-terminated, even as lstring */
-        fnam = luatex_find_file(st.s, find_data_file_callback);
+        fnam = luatex_find_file((char *)st.s, find_data_file_callback);
         callback_id = callback_defined(read_data_file_callback);
         if (fnam && callback_id > 0) {
             boolean file_opened = false;
@@ -77,11 +77,11 @@ void pdf_write_obj(PDF pdf, integer k)
         } else {
             byte_file f;        /* the data file's FILE* */
             if (!fnam)
-                fnam = st.s;
+                fnam = (char *)st.s;
             if (!luatex_open_input
                 (&f, fnam, kpse_tex_format, FOPEN_RBIN_MODE, true))
                 pdf_error("ext5", "cannot open file for embedding");
-            res = read_data_file(f, &data.s, &data.l);
+            res = read_data_file(f, (unsigned char **)&data.s, (integer *)&data.l);
             close_file(f);
         }
         if (!data.l)
@@ -89,7 +89,7 @@ void pdf_write_obj(PDF pdf, integer k)
         if (!res)
             pdf_error("ext5", "error reading file for embedding");
         tprint("<<");
-        tprint(st.s);
+        tprint((char *)st.s);
         for (i = 0; i < data.l; i++)
             pdf_out(pdf, data.s[i]);
         if (!obj_obj_is_stream(pdf, k) && data.s[data.l - 1] != '\n')
@@ -165,7 +165,7 @@ void scan_obj(PDF pdf)
                 scan_pdf_ext_toks();
                 st = tokenlist_to_lstring(def_ref, true);
                 flush_list(def_ref);
-                lua_pushlstring(Luas, st->s, st->l);
+                lua_pushlstring(Luas, (char *)st->s, st->l);
                 obj_obj_stream_attr(pdf, k) = luaL_ref(Luas, LUA_REGISTRYINDEX);
                 free_lstring(st);
                 st = NULL;
@@ -176,7 +176,7 @@ void scan_obj(PDF pdf)
         scan_pdf_ext_toks();
         st = tokenlist_to_lstring(def_ref, true);
         flush_list(def_ref);
-        lua_pushlstring(Luas, st->s, st->l);
+        lua_pushlstring(Luas, (char *)st->s, st->l);
         obj_obj_data(pdf, k) = luaL_ref(Luas, LUA_REGISTRYINDEX);
         free_lstring(st);
         st = NULL;
