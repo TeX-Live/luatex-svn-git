@@ -941,33 +941,33 @@ static boolean t1_open_fontfile(const char *open_name_prefix)
 {
     int callback_id = 0;
     int file_opened = 0;
-
-    ff_entry *ff;
-    ff = check_ff_exist(fd_cur->fm->ff_name, is_truetype(fd_cur->fm));
     t1_curbyte = 0;
     t1_size = 0;
-    if (ff->ff_path != NULL) {
-        cur_file_name = luatex_find_file(ff->ff_path, find_type1_file_callback);
-        if (cur_file_name) {
-            callback_id = callback_defined(read_type1_file_callback);
-            if (callback_id > 0) {
-                if (!run_callback(callback_id, "S->bSd", cur_file_name,
-                                  &file_opened, &t1_buffer, &t1_size)
-                    && file_opened && t1_size > 0) {
-                    pdftex_warn("cannot open Type 1 font file for reading");
-                    return false;
-                }
-            } else {
-                t1_file = xfopen(cur_file_name, FOPEN_RBIN_MODE);
-                t1_read_file();
-                t1_close();
-            }
-            recorder_record_input(cur_file_name);
-        } else {
-            pdftex_fail("cannot open Type 1 font file for reading");
+    ff_entry *ff;
+    ff = check_ff_exist(fd_cur->fm->ff_name, is_truetype(fd_cur->fm));
+    if (ff->ff_path == NULL) {
+        pdftex_fail("cannot open Type 1 font file for reading");
+        return false;
+    }
+    cur_file_name = luatex_find_file(ff->ff_path, find_type1_file_callback);
+    if (cur_file_name == NULL) {
+        pdftex_fail("cannot open Type 1 font file for reading");
+        return false;
+    }
+    callback_id = callback_defined(read_type1_file_callback);
+    if (callback_id > 0) {
+        if (!run_callback(callback_id, "S->bSd", cur_file_name,
+                          &file_opened, &t1_buffer, &t1_size)
+            && file_opened && t1_size > 0) {
+            pdftex_warn("cannot open Type 1 font file for reading");
             return false;
         }
+    } else {
+        t1_file = xfopen(cur_file_name, FOPEN_RBIN_MODE);
+        t1_read_file();
+        t1_close();
     }
+    recorder_record_input(cur_file_name);
     t1_init_params(open_name_prefix);
     return true;
 }
