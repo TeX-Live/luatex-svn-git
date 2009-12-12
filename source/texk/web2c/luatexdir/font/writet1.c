@@ -939,11 +939,11 @@ static void t1_check_end(PDF pdf)
 
 static boolean t1_open_fontfile(const char *open_name_prefix)
 {
+    ff_entry *ff;
     int callback_id = 0;
     int file_opened = 0;
     t1_curbyte = 0;
     t1_size = 0;
-    ff_entry *ff;
     ff = check_ff_exist(fd_cur->fm->ff_name, is_truetype(fd_cur->fm));
     if (ff->ff_path == NULL) {
         pdftex_fail("cannot open Type 1 font file for reading");
