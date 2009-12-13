@@ -866,7 +866,7 @@ read_pdf_info(PDF pdf,
 // Here the included PDF is copied, so most errors that can happen during PDF
 // inclusion will arise here.
 
-static void write_epdf1(PDF pdf, image_dict * idict)
+void write_epdf(PDF pdf, image_dict * idict)
 {
     Page *page;
     PdfObject contents, obj1, obj2;
@@ -876,6 +876,7 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     char s[256];
     int i, l;
     PdfDocument *pdf_doc;
+    assert(idict != NULL);
     // open PDF file
     if (strncmp
         (img_checksum(idict), get_file_checksum(img_filepath(idict)),
@@ -1052,12 +1053,6 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     // save object list
     pdf_doc->inObjList = inObjList;
     assert(xref == pdf_doc->xref);      // xref should be unchanged
-}
-
-void write_epdf(PDF pdf, image_dict * idict)
-{
-    assert(idict != NULL);
-    write_epdf1(pdf, idict);
     unrefPdfDocument(img_filepath(idict));
 }
 
