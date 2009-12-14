@@ -256,6 +256,31 @@ static int getfont(lua_State * L)
 }
 
 
+static int getfontid(lua_State * L)
+{
+    char *s;
+    size_t ff;
+    int cur_cs;
+    integer f;
+    if (lua_type(L, 1) == LUA_TSTRING) {
+        s = (char *) lua_tolstring(L, 1, &ff);
+        cur_cs = string_lookup(s, ff);
+        if (cur_cs == undefined_control_sequence || cur_cs == undefined_cs_cmd
+            || eq_type(cur_cs) != set_font_cmd) {
+            lua_pushstring(L, "not a valid font csname");
+            f = -1;
+        } else {
+            f = equiv(cur_cs);
+        }
+        lua_pushnumber(L, f);
+    } else {
+        lua_pushstring(L, "expected font csname string as argument");
+        lua_error(L);
+    }
+    return 1;
+}
+
+
 static const struct luaL_reg fontlib[] = {
     {"read_tfm", font_read_tfm},
     {"read_vf", font_read_vf},
@@ -266,6 +291,7 @@ static const struct luaL_reg fontlib[] = {
     {"setfont", setfont},
     {"define", deffont},
     {"nextid", nextfontid},
+    {"id", getfontid},
     {"frozen", frozenfont},
     {NULL, NULL}                /* sentinel */
 };

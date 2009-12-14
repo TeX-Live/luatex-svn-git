@@ -4571,7 +4571,7 @@ raised. The table is a font structure, as explained in
 \subsection{Projected next font id}
 
 \startfunctioncall
-number i = font.nextid();
+<number> i = font.nextid();
 \stopfunctioncall
 
 This returns the font id number that would be returned by a
@@ -4579,7 +4579,14 @@ This returns the font id number that would be returned by a
 flow. This is useful for virtual fonts that need to reference
 themselves.
 
+\subsection{Font id (0.47)}
 
+\startfunctioncall
+<number> i = font.id(<string> csname);
+\stopfunctioncall
+
+This returns the font id associated with \type{csname} string, or $-1$
+if \type{csname} is not defined, new in 0.47.
 
 \subsection{Currently active font}
 
