@@ -38,9 +38,6 @@ in production versions of \TeX.
 
 #  define ssup_max_strings 262143
 
-#  define inf_main_memory   2000000
-#  define sup_main_memory   32000000
-
 #  define inf_max_strings   100000
 #  define sup_max_strings   ssup_max_strings
 #  define inf_strings_free   100
