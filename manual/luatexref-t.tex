@@ -23,7 +23,7 @@
 
 \setvariables
   [document]
-  [beta=0.46.0]
+  [beta=0.47.0]
 
 \starttext
 
@@ -907,9 +907,6 @@ The \lua{tostring()} printer for numbers has been changed so that it
 returns~\type{0} instead of something like~\hbox{\type{2e-5}} (which confused \TEX\
 enormously) when the value is so small that \TEX\ cannot distinguish
 it from zero.
-
-Dynamic loading of \type{.so} and \type{.dll} files is disabled on
-all platforms.
 
 \lua{luafilesystem} has been extended with two extra boolean functions
 (\luatex{isdir(filename)} and \luatex{isfile(filename)}) and one extra
@@ -2610,6 +2607,19 @@ if you only want to move to the next line.
 
 This contains variables and functions that are related to the \PDF\ backend.
 
+\subsubsubject{\luatex{pdf.pdfmapline}, \luatex{pdf.pdfmapfile} (new in 0.47.0)}
+
+These two variables can be used to replace \type{\pdfmapline} and
+\type{\pdfmapfile} from \PDFTEX. The values are write-only: when
+queried they return \type{nil}.
+
+\subsubsubject{\luatex{pdf.pdfcatalog}, \luatex{pdf.pdfinfo},
+    \luatex{pdf.pdfnames}, \luatex{pdf.pdftrailer}  (new in 0.47.0)}
+
+These variable offer a read-write interface to the corresponding
+\PDFTEX\ token lists. The value types are strings.
+
+
 \subsubsubject{\luatex{pdf.h}, \luatex{pdf.v}}
 
 These are the \type{h} and \type{v} values
@@ -2722,6 +2732,17 @@ This function creates an empty \PDF\ object and returns its number.
 n = pdf.reserveobj()
 n = pdf.reserveobj("annot")
 \stopfunctioncall
+
+\subsubsubject{\luatex{pdf.registerannot()} (new in 0.47.0)}
+
+This function adds an object number to the \type{/Annots} array for the
+current page without doing anything else. 
+
+\startfunctioncall
+pdf.registerannot (<number> objnum)
+\stopfunctioncall
+
+
 
 %***********************************************************************
 
@@ -5437,6 +5458,8 @@ before then, but in practise it was missing due to a bug.
 \NC RadicalKernAfterDegree \NC \NC \NR
 \NC RadicalDegreeBottomRaisePercent \NC \NC \NR
 \NC MinConnectorOverlap \NC \NC \NR
+\NC FractionDelimiterSize \NC (new in 0.47.0)\NC \NR
+\NC FractionDelimiterDisplayStyleSize \NC (new in 0.47.0)\NC \NR
 \stoptabulate
 
 \subsubsection{validation_state table}
@@ -6837,6 +6860,8 @@ incoming font source, also used as fontname identifier in the \PDF\ output, new 
 \NC nomath              \NC no       \NC no       \NC yes \NC boolean\NC this key allows a minor speedup for text fonts. if it is
                                                                          present and true, then \LUATEX\ will not check the
                                                                          character enties for math-specific keys. (0.42.0)\NC\NR
+\NC slant               \NC no       \NC no       \NC yes \NC number \NC This has the same semantics as the \type{SlantFont} operator
+                                                                         in font map files. (0.47.0)\NC\NR
 \stoptabulate
 
 The key \type{name} is always required. The keys \type{stretch},
