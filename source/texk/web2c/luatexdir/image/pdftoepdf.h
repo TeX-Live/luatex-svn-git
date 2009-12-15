@@ -25,9 +25,9 @@
 
 #  include "image.h"
 
-void read_pdf_info(PDF, image_dict *, integer, integer);
+void read_pdf_info(PDF, image_dict *, integer, integer, img_readtype_e);
 void unrefPdfDocument(char *);
-void write_additional_epdf_objects(PDF);
+void write_additional_epdf_objects(PDF, char *);
 void write_epdf(PDF, image_dict *);
 void epdf_check_mem(void);
 

@@ -314,7 +314,8 @@ void read_img(PDF pdf,
     switch (img_type(idict)) {
     case IMG_TYPE_PDF:
         assert(pdf != NULL);    /* TODO! */
-        read_pdf_info(pdf, idict, minor_version, inclusion_errorlevel);
+        read_pdf_info(pdf, idict, minor_version, inclusion_errorlevel,
+                      IMG_CLOSEINBETWEEN);
         img_group_ref(idict) = epdf_lastGroupObjectNum;
         break;
     case IMG_TYPE_PNG:
@@ -593,7 +594,7 @@ void write_img(PDF pdf, image_dict * idict)
         if (tracefilenames)
             tex_printf(">");
         if (img_type(idict) == IMG_TYPE_PDF) {
-            write_additional_epdf_objects(pdf);
+            write_additional_epdf_objects(pdf, img_filepath(idict));
         } else {
             if (img_type(idict) == IMG_TYPE_PNG) {
                 write_additional_png_objects(pdf);
@@ -718,7 +719,7 @@ void dumpimagemeta(void)
     int cur_index, i;
     image_dict *idict;
 
-    i = (int)idict_limit; 
+    i = (int) idict_limit;
     dumpinteger(i);
     cur_index = (idict_ptr - idict_array);
     dumpinteger(cur_index);
@@ -757,7 +758,8 @@ void undumpimagemeta(PDF pdf, integer pdfversion,
     image_dict *idict;
 
     assert(pdf != NULL);
-    undumpinteger(i); idict_limit=i;
+    undumpinteger(i);
+    idict_limit = i;
 
     idict_array = xtalloc(idict_limit, idict_entry);
     undumpinteger(cur_index);

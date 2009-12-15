@@ -28,7 +28,6 @@ extern "C" {
 
 /* the following code is extremly ugly but needed for including web2c/config.h */
 
-
     typedef const char *const_string;   /* including kpathsea/types.h doesn't work on some systems */
 
 #define KPATHSEA_CONFIG_H       /* avoid including other kpathsea header files */
@@ -62,7 +61,8 @@ extern "C" {
     extern integer get_fontfile(struct fm_entry *);
     extern integer get_fontname(struct fm_entry *);
     extern integer pdf_new_objnum(PDF);
-    extern void read_pdf_info(PDF, image_dict *, integer, integer);
+    extern void read_pdf_info(PDF, image_dict *, integer, integer,
+                              img_readtype_e);
     extern void embed_whole_font(struct fd_entry *);
     extern void epdf_check_mem(void);
     extern void epdf_free(void);
@@ -79,7 +79,7 @@ extern "C" {
     extern void pdftex_warn(const char *fmt, ...);
 
     extern void write_epdf(PDF, image_dict *);
-    extern void write_additional_epdf_objects(PDF);
+    extern void write_additional_epdf_objects(PDF, char *);
     extern void pdf_begin_obj(PDF, integer, bool);
 
 /* epdf.c */

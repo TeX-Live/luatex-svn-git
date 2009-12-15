@@ -1,5 +1,5 @@
 /* pdftoepdf.cc
-   
+
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
    Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
@@ -17,6 +17,10 @@
 
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+
+static const char _svn_version[] =
+    "$Id$ "
+    "$URL$";
 
 #include <stdlib.h>
 #include <math.h>
@@ -54,11 +58,7 @@
 
 #include "epdf.h"
 
-static const char _svn_version[] =
-    "$Id$ "
-    "$URL$";
-
-#define one_hundred_bp  6578176 /* 7227 * 65536 / 72 */
+#define one_hundred_bp  6578176 // one_hundred_bp = 7227 * 65536 / 72
 
 // This file is mostly C and not very much C++; it's just used to interface
 // the functions of xpdf, which happens to be written in C++.
@@ -96,11 +96,14 @@ class PdfObject {
 };
 /* *INDENT-ON* */
 
-// When copying the Resources of the selected page, all objects are copied
-// recusively top-down. Indirect objects however are not fetched during
-// copying, but get a new object number from pdfTeX and then will be
-// appended into a linked list. Duplicates are checked and removed from the
-// list of indirect objects during appending.
+// When copying the Resources of the selected page, all objects are
+// copied recusively top-down.  The findObjMap() function checks if an
+// object has already been copied; if so, instead of copying just the
+// new object number will be referenced.  The ObjMapTree guarantees,
+// that during the entire LuaTeX run any object from any embedded PDF
+// file will end up max. once in the output PDF file.  Indirect objects
+// are not fetched during copying, but get a new object number from
+// LuaTeX and then will be appended into a linked list.
 
 enum InObjType { objFont, objFontDesc, objOther };
 
@@ -110,7 +113,6 @@ struct InObj {
     integer num;                // new object number in output PDF
     fd_entry *fd;               // pointer to /FontDescriptor object structure
     integer enc_objnum;         // Encoding for objFont
-    int written;                // has it been written to output PDF?
     InObj *next;                // next entry in list of indirect objects
 };
 
@@ -120,8 +122,6 @@ struct UsedEncoding {
     UsedEncoding *next;
 };
 
-static XRef *xref = NULL;
-static InObj *inObjList = NULL;
 static UsedEncoding *encodingList;
 static GBool isInit = gFalse;
 static bool groupIsIndirect;
@@ -134,13 +134,15 @@ static avl_table *PdfDocumentTree = NULL;
 
 struct PdfDocument {
     char *file_path;            // full file name including path
+    char *checksum;             // for reopening
     PDFDoc *doc;
     XRef *xref;
     InObj *inObjList;
+    avl_table *ObjMapTree;
     int occurences;             // number of references to the PdfDocument; it can be deleted when occurences == 0
 };
 
-/* AVL sort PdfDocument into PdfDocumentTree by file_path */
+// AVL sort PdfDocument into PdfDocumentTree by file_path
 
 static int CompPdfDocument(const void *pa, const void *pb, void * /*p */ )
 {
@@ -155,8 +157,7 @@ static PdfDocument *findPdfDocument(char *file_path)
     PdfDocument *pdf_doc, tmp;
     assert(file_path != NULL);
     if (PdfDocumentTree == NULL)
-        PdfDocumentTree = avl_create(CompPdfDocument, NULL, &avl_xallocator);
-    assert(PdfDocumentTree != NULL);
+        return NULL;
     tmp.file_path = file_path;
     pdf_doc = (PdfDocument *) avl_find(PdfDocumentTree, &tmp);
     return pdf_doc;
@@ -165,14 +166,24 @@ static PdfDocument *findPdfDocument(char *file_path)
 // Returns pointer to PdfDocument structure for PDF file.
 // Creates a new structure if it doesn't exist yet.
 
+char *get_file_checksum(char *a);
+
 static PdfDocument *refPdfDocument(char *file_path)
 {
     PdfDocument *pdf_doc = findPdfDocument(file_path);
     if (pdf_doc == NULL) {
+        if (PdfDocumentTree == NULL)
+            PdfDocumentTree =
+                avl_create(CompPdfDocument, NULL, &avl_xallocator);
         pdf_doc = new PdfDocument;
         pdf_doc->file_path = xstrdup(file_path);
+        pdf_doc->checksum = get_file_checksum(file_path);
         void **aa = avl_probe(PdfDocumentTree, pdf_doc);
         assert(aa != NULL);
+        pdf_doc->ObjMapTree = NULL;
+        pdf_doc->doc = NULL;
+    }
+    if (pdf_doc->doc == NULL) {
         GString *docName = new GString(pdf_doc->file_path);
         pdf_doc->doc = new PDFDoc(docName);     // takes ownership of docName
         if (!pdf_doc->doc->isOk() || !pdf_doc->doc->okToPrint())
@@ -180,11 +191,11 @@ static PdfDocument *refPdfDocument(char *file_path)
         pdf_doc->xref = NULL;
         pdf_doc->inObjList = NULL;
         pdf_doc->occurences = 0;        // 0 = unreferenced
-#ifdef DEBUG
-        fprintf(stderr, "\nluatex Debug: Creating %s (%d)\n",
-                pdf_doc->file_path, pdf_doc->occurences);
-#endif
     }
+#ifdef DEBUG
+    fprintf(stderr, "\nluatex Debug: Creating %s (%d)\n",
+            pdf_doc->file_path, pdf_doc->occurences);
+#endif
     pdf_doc->occurences++;
 #ifdef DEBUG
     fprintf(stderr, "\nluatex Debug: Incrementing %s (%d)\n",
@@ -193,29 +204,53 @@ static PdfDocument *refPdfDocument(char *file_path)
     return pdf_doc;
 }
 
-static void deletePdfDocument(PdfDocument *);
+//**********************************************************************
+// keep the ObjMap struct small, as these are accumulated until the end
 
-// Called when an image has been written and its resources in image_tab are
-// freed and it's not referenced anymore.
+struct ObjMap {
+    Ref in;                     // object num/gen in orig. PDF file
+    int out_num;                // object num after embedding (gen == 0)
+};
 
-void unrefPdfDocument(char *file_path)
+// AVL sort ObjMap into ObjMapTree by object number and generation
+
+static int CompObjMap(const void *pa, const void *pb, void * /*p */ )
 {
-    PdfDocument *pdf_doc = findPdfDocument(file_path);
+    const Ref *a = &(((const ObjMap *) pa)->in);
+    const Ref *b = &(((const ObjMap *) pb)->in);
+    if (a->num > b->num)
+        return 1;
+    if (a->num < b->num)
+        return -1;
+    if (a->gen > b->gen)
+        return 1;
+    if (a->gen < b->gen)
+        return -1;
+    return 0;
+}
+
+static ObjMap *findObjMap(PdfDocument * pdf_doc, Ref in)
+{
+    ObjMap *obj_map, tmp;
     assert(pdf_doc != NULL);
-    assert(pdf_doc->occurences > 0);    // aim for point landing
-    pdf_doc->occurences--;
-#ifdef DEBUG
-    fprintf(stderr, "\nluatex Debug: Decrementing %s (%d)\n",
-            pdf_doc->file_path, pdf_doc->occurences);
-#endif
-    if (pdf_doc->occurences == 0) {
-#ifdef DEBUG
-        fprintf(stderr, "\nluatex Debug: Deleting %s\n", pdf_doc->file_path);
-#endif
-        void *a = avl_delete(PdfDocumentTree, pdf_doc);
-        assert((PdfDocument *) a == pdf_doc);
-        deletePdfDocument(pdf_doc);
-    }
+    if (pdf_doc->ObjMapTree == NULL)
+        return NULL;
+    tmp.in = in;
+    obj_map = (ObjMap *) avl_find(pdf_doc->ObjMapTree, &tmp);
+    return obj_map;
+}
+
+static void addObjMap(PdfDocument * pdf_doc, Ref in, int out_num)
+{
+    ObjMap *obj_map = NULL;
+    assert(findObjMap(pdf_doc, in) == NULL);
+    if (pdf_doc->ObjMapTree == NULL)
+        pdf_doc->ObjMapTree = avl_create(CompObjMap, NULL, &avl_xallocator);
+    obj_map = new ObjMap;
+    obj_map->in = in;
+    obj_map->out_num = out_num;
+    void **aa = avl_probe(pdf_doc->ObjMapTree, obj_map);
+    assert(aa != NULL);
 }
 
 //**********************************************************************
@@ -223,9 +258,10 @@ void unrefPdfDocument(char *file_path)
 // Replacement for
 //      Object *initDict(Dict *dict1){ initObj(objDict); dict = dict1; return this; }
 
-static void initDictFromDict(PdfObject & obj, Dict * dict)
+static void initDictFromDict(PdfDocument * pdf_doc, PdfObject & obj,
+                             Dict * dict)
 {
-    obj->initDict(xref);
+    obj->initDict(pdf_doc->xref);
     for (int i = 0, l = dict->getLength(); i < l; i++) {
         Object obj1;
         obj->dictAdd(copyString(dict->getKey(i)), dict->getValNF(i, &obj1));
@@ -244,47 +280,46 @@ static int addEncoding(GfxFont * gfont, int obj_num)
 }
 
 #define addFont(ref, fd, enc_objnum) \
-    addInObj(pdf,objFont, ref, fd, enc_objnum)
+    addInObj(pdf, pdf_doc, objFont, ref, fd, enc_objnum)
 
 // addFontDesc is only used to avoid writing the original FontDescriptor
 // from the PDF file.
 
 #define addFontDesc(ref, fd) \
-    addInObj(pdf, objFontDesc, ref, fd, 0)
+    addInObj(pdf, pdf_doc, objFontDesc, ref, fd, 0)
 
 #define addOther(ref) \
-    addInObj(pdf, objOther, ref, NULL, 0)
+    addInObj(pdf, pdf_doc, objOther, ref, NULL, 0)
 
-static int addInObj(PDF pdf, InObjType type, Ref ref, fd_entry * fd, integer e)
+static int addInObj(PDF pdf, PdfDocument * pdf_doc, InObjType type, Ref ref,
+                    fd_entry * fd, integer e)
 {
-    InObj *p, *q, *n = new InObj;
-    if (ref.num == 0)
-        pdftex_fail("PDF inclusion: invalid reference");
+    ObjMap *obj_map;
+    InObj *p, *q, *n;
+    assert(ref.num != 0);
+    if ((obj_map = findObjMap(pdf_doc, ref)) != NULL)
+        return obj_map->out_num;
+    n = new InObj;
     n->ref = ref;
     n->type = type;
     n->next = NULL;
     n->fd = fd;
     n->enc_objnum = e;
-    n->written = 0;
-    if (inObjList == NULL)
-        inObjList = n;
-    else {
-        for (p = inObjList; p != NULL; p = p->next) {
-            if (p->ref.num == ref.num && p->ref.gen == ref.gen) {
-                delete n;
-                return p->num;
-            }
-            q = p;
-        }
-        // it is important to add new objects at the end of the list,
-        // because new objects are being added while the list is being
-        // written out by writeRefs().
-        q->next = n;
-    }
     if (type == objFontDesc)
         n->num = get_fd_objnum(fd);
     else
         n->num = pdf_new_objnum(pdf);
+    addObjMap(pdf_doc, ref, n->num);
+    if (pdf_doc->inObjList == NULL)
+        pdf_doc->inObjList = n;
+    else {
+        // it is important to add new objects at the end of the list,
+        // because new objects are being added while the list is being
+        // written out by writeRefs().
+        for (p = pdf_doc->inObjList; p != NULL; p = p->next)
+            q = p;
+        q->next = n;
+    }
     return n->num;
 }
 
@@ -300,44 +335,39 @@ static void copyName(PDF pdf, char *s)
     }
 }
 
-static int getNewObjectNumber(Ref ref)
+static int getNewObjectNumber(PdfDocument * pdf_doc, Ref ref)
 {
-    InObj *p;
-    if (inObjList == 0) {
-        pdftex_fail("No objects copied yet");
-    } else {
-        for (p = inObjList; p != 0; p = p->next) {
-            if (p->ref.num == ref.num && p->ref.gen == ref.gen) {
-                return p->num;
-            }
-        }
-        pdftex_fail("Object not yet copied: %i %i", ref.num, ref.gen);
-    }
+    ObjMap *obj_map;
+    if ((obj_map = findObjMap(pdf_doc, ref)) != NULL)
+        return obj_map->out_num;
+    pdftex_fail("Object not yet copied: %i %i", ref.num, ref.gen);
+    return 0;
 }
 
-static void copyObject(PDF, Object *);
+static void copyObject(PDF, PdfDocument *, Object *);
 
-static void copyDictEntry(PDF pdf, Object * obj, int i)
+static void copyDictEntry(PDF pdf, PdfDocument * pdf_doc, Object * obj, int i)
 {
     PdfObject obj1;
     copyName(pdf, obj->dictGetKey(i));
     pdf_puts(pdf, " ");
     obj->dictGetValNF(i, &obj1);
-    copyObject(pdf, &obj1);
+    copyObject(pdf, pdf_doc, &obj1);
     pdf_puts(pdf, "\n");
 }
 
-static void copyDict(PDF pdf, Object * obj)
+static void copyDict(PDF pdf, PdfDocument * pdf_doc, Object * obj)
 {
     int i, l;
     if (!obj->isDict())
         pdftex_fail("PDF inclusion: invalid dict type <%s>",
                     obj->getTypeName());
     for (i = 0, l = obj->dictGetLength(); i < l; ++i)
-        copyDictEntry(pdf, obj, i);
+        copyDictEntry(pdf, pdf_doc, obj, i);
 }
 
-static void copyFontDict(PDF pdf, Object * obj, InObj * r)
+static void copyFontDict(PDF pdf, PdfDocument * pdf_doc, Object * obj,
+                         InObj * r)
 {
     int i, l;
     char *key;
@@ -352,7 +382,7 @@ static void copyFontDict(PDF pdf, Object * obj, InObj * r)
             || strncmp("BaseFont", key, strlen("BaseFont")) == 0
             || strncmp("Encoding", key, strlen("Encoding")) == 0)
             continue;           // skip original values
-        copyDictEntry(pdf, obj, i);
+        copyDictEntry(pdf, pdf_doc, obj, i);
     }
     // write new FontDescriptor, BaseFont, and Encoding
     pdf_printf(pdf, "/FontDescriptor %d 0 R\n", (int) get_fd_objnum(r->fd));
@@ -392,33 +422,32 @@ static void copyProcSet(PDF pdf, Object * obj)
 
 #define REPLACE_TYPE1C true
 
-static void copyFont(PDF pdf, char *tag, Object * fontRef)
+static void copyFont(PDF pdf, PdfDocument * pdf_doc, char *tag,
+                     Object * fontRef)
 {
+    ObjMap *obj_map;
     PdfObject fontdict, subtype, basefont, fontdescRef, fontdesc, charset,
         fontfile, ffsubtype, stemV;
     GfxFont *gfont;
     fd_entry *fd;
     fm_entry *fontmap;
     // Check whether the font has already been embedded before analysing it.
-    InObj *p;
     Ref ref = fontRef->getRef();
-    for (p = inObjList; p; p = p->next) {
-        if (p->ref.num == ref.num && p->ref.gen == ref.gen) {
-            copyName(pdf, tag);
-            pdf_printf(pdf, " %d 0 R ", (int) p->num);
-            return;
-        }
+    if ((obj_map = findObjMap(pdf_doc, ref)) != NULL) {
+        copyName(pdf, tag);
+        pdf_printf(pdf, " %d 0 R ", obj_map->out_num);
+        return;
     }
     // Only handle included Type1 (and Type1C) fonts; anything else will be copied.
     // Type1C fonts are replaced by Type1 fonts, if REPLACE_TYPE1C is true.
     if ((pdf->inclusion_copy_font != 0)
-        && fontRef->fetch(xref, &fontdict)->isDict()
+        && fontRef->fetch(pdf_doc->xref, &fontdict)->isDict()
         && fontdict->dictLookup((char *) "Subtype", &subtype)->isName()
         && !strcmp(subtype->getName(), "Type1")
         && fontdict->dictLookup((char *) "BaseFont", &basefont)->isName()
         && fontdict->dictLookupNF((char *) "FontDescriptor",
                                   &fontdescRef)->isRef()
-        && fontdescRef->fetch(xref, &fontdesc)->isDict()
+        && fontdescRef->fetch(pdf_doc->xref, &fontdesc)->isDict()
         && (fontdesc->dictLookup((char *) "FontFile", &fontfile)->isStream()
             || (REPLACE_TYPE1C
                 && fontdesc->dictLookup((char *) "FontFile3",
@@ -438,7 +467,7 @@ static void copyFont(PDF pdf, char *tag, Object * fontRef)
             embed_whole_font(fd);
         addFontDesc(fontdescRef->getRef(), fd);
         copyName(pdf, tag);
-        gfont = GfxFont::makeFont(xref, tag, fontRef->getRef(),
+        gfont = GfxFont::makeFont(pdf_doc->xref, tag, fontRef->getRef(),
                                   fontdict->getDict());
         pdf_printf(pdf, " %d 0 R ", addFont(fontRef->getRef(), fd,
                                             addEncoding(gfont,
@@ -446,11 +475,11 @@ static void copyFont(PDF pdf, char *tag, Object * fontRef)
     } else {
         copyName(pdf, tag);
         pdf_puts(pdf, " ");
-        copyObject(pdf, fontRef);
+        copyObject(pdf, pdf_doc, fontRef);
     }
 }
 
-static void copyFontResources(PDF pdf, Object * obj)
+static void copyFontResources(PDF pdf, PdfDocument * pdf_doc, Object * obj)
 {
     PdfObject fontRef;
     int i, l;
@@ -462,7 +491,7 @@ static void copyFontResources(PDF pdf, Object * obj)
         obj->dictGetValNF(i, &fontRef);
         if (fontRef->isRef() ||
             (fontRef->isDict() && (pdf->inclusion_copy_font == 0)))
-            copyFont(pdf, obj->dictGetKey(i), &fontRef);
+            copyFont(pdf, pdf_doc, obj->dictGetKey(i), &fontRef);
         else
             pdftex_fail("PDF inclusion: invalid font in reference type <%s>",
                         fontRef->getTypeName());
@@ -470,7 +499,8 @@ static void copyFontResources(PDF pdf, Object * obj)
     pdf_puts(pdf, ">>\n");
 }
 
-static void copyOtherResources(PDF pdf, Object * obj, char *key)
+static void copyOtherResources(PDF pdf, PdfDocument * pdf_doc, Object * obj,
+                               char *key)
 {
     // copies all other resources (write_epdf handles Fonts and ProcSets),
     // but gives a warning if an object is not a dictionary.
@@ -482,7 +512,7 @@ static void copyOtherResources(PDF pdf, Object * obj, char *key)
                     key, obj->getTypeName());
     copyName(pdf, key);
     pdf_puts(pdf, " ");
-    copyObject(pdf, obj);
+    copyObject(pdf, pdf_doc, obj);
 }
 
 // Function onverts double to string; very small and very large numbers
@@ -543,7 +573,7 @@ static char *convertNumToPDF(double n)
     return (char *) buf;
 }
 
-static void copyObject(PDF pdf, Object * obj)
+static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
 {
     PdfObject obj1;
     int i, l, c;
@@ -592,18 +622,18 @@ static void copyObject(PDF pdf, Object * obj)
             obj->arrayGetNF(i, &obj1);
             if (!obj1->isName())
                 pdf_puts(pdf, " ");
-            copyObject(pdf, &obj1);
+            copyObject(pdf, pdf_doc, &obj1);
         }
         pdf_puts(pdf, "]");
     } else if (obj->isDict()) {
         pdf_puts(pdf, "<<\n");
-        copyDict(pdf, obj);
+        copyDict(pdf, pdf_doc, obj);
         pdf_puts(pdf, ">>");
     } else if (obj->isStream()) {
-        initDictFromDict(obj1, obj->streamGetDict());
+        initDictFromDict(pdf_doc, obj1, obj->streamGetDict());
         obj->streamGetDict()->incRef();
         pdf_puts(pdf, "<<\n");
-        copyDict(pdf, &obj1);
+        copyDict(pdf, pdf_doc, &obj1);
         pdf_puts(pdf, ">>\n");
         pdf_puts(pdf, "stream\n");
         copyStream(pdf, obj->getStream()->getUndecodedStream());
@@ -624,31 +654,31 @@ static void copyObject(PDF pdf, Object * obj)
     }
 }
 
-static void writeRefs(PDF pdf)
+static void writeRefs(PDF pdf, PdfDocument * pdf_doc)
 {
-    InObj *r;
-    for (r = inObjList; r != NULL; r = r->next) {
-        if (!r->written) {
-            Object obj1;
-            r->written = 1;
-            xref->fetch(r->ref.num, r->ref.gen, &obj1);
-            if (r->type == objFont) {
-                assert(!obj1.isStream());
+    InObj *r, *n;
+    for (r = pdf_doc->inObjList; r != NULL;) {
+        Object obj1;
+        pdf_doc->xref->fetch(r->ref.num, r->ref.gen, &obj1);
+        if (r->type == objFont) {
+            assert(!obj1.isStream());
+            pdf_begin_obj(pdf, r->num, 2);      // \pdfobjcompresslevel = 2 is for this
+            copyFontDict(pdf, pdf_doc, &obj1, r);
+            pdf_puts(pdf, "\n");
+            pdf_end_obj(pdf);
+        } else if (r->type != objFontDesc) {    // /FontDescriptor is written via write_fontdescriptor()
+            if (obj1.isStream())
+                pdf_begin_obj(pdf, r->num, 0);
+            else
                 pdf_begin_obj(pdf, r->num, 2);  // \pdfobjcompresslevel = 2 is for this
-                copyFontDict(pdf, &obj1, r);
-                pdf_puts(pdf, "\n");
-                pdf_end_obj(pdf);
-            } else if (r->type != objFontDesc) {        // /FontDescriptor is written via write_fontdescriptor()
-                if (obj1.isStream())
-                    pdf_begin_obj(pdf, r->num, 0);
-                else
-                    pdf_begin_obj(pdf, r->num, 2);      // \pdfobjcompresslevel = 2 is for this
-                copyObject(pdf, &obj1);
-                pdf_puts(pdf, "\n");
-                pdf_end_obj(pdf);
-            }
-            obj1.free();
+            copyObject(pdf, pdf_doc, &obj1);
+            pdf_puts(pdf, "\n");
+            pdf_end_obj(pdf);
         }
+        obj1.free();
+        n = r->next;
+        delete r;
+        pdf_doc->inObjList = r = n;
     }
 }
 
@@ -731,19 +761,20 @@ char *get_file_checksum(char *a)
 // It makes no sense to give page_name _and_ page_num.
 // Returns the page number.
 
-
 void
 read_pdf_info(PDF pdf,
               image_dict * idict, integer minor_pdf_version_wanted,
-              integer pdf_inclusion_errorlevel)
+              integer pdf_inclusion_errorlevel, img_readtype_e readtype)
 {
     PdfDocument *pdf_doc;
     Page *page;
     int rotate;
+    char *checksum;
     PDFRectangle *pagebox;
     float pdf_version_found, pdf_version_wanted, xsize, ysize, xorig, yorig;
     assert(idict != NULL);
     assert(img_type(idict) == IMG_TYPE_PDF);
+    assert(readtype == IMG_CLOSEINBETWEEN);     // only this is implemented
     // initialize
     if (isInit == gFalse) {
         globalParams = new GlobalParams();
@@ -751,9 +782,14 @@ read_pdf_info(PDF pdf,
         isInit = gTrue;
     }
     // calculate a checksum string
-    img_checksum(idict) = get_file_checksum(img_filepath(idict));
+    checksum = get_file_checksum(img_filepath(idict));
     // open PDF file
     pdf_doc = refPdfDocument(img_filepath(idict));
+    if (strncmp(pdf_doc->checksum, checksum, PDF_CHECKSUM_SIZE) != 0) {
+        pdftex_fail("PDF inclusion: file has changed '%s'",
+                    img_filename(idict));
+    }
+    free(checksum);
     // check PDF version
     // this works only for PDF 1.x -- but since any versions of PDF newer
     // than 1.x will not be backwards compatible to PDF 1.x, pdfTeX will
@@ -839,16 +875,16 @@ read_pdf_info(PDF pdf,
              "/Rotate parameter in PDF file not multiple of 90 degrees.");
     }
     if (page->getGroup() != NULL) {
-        initDictFromDict(lastGroup, page->getGroup());
+        initDictFromDict(pdf_doc, lastGroup, page->getGroup());
         if (lastGroup->dictGetLength() > 0) {
             groupIsIndirect = lastGroup->isRef();
             if (groupIsIndirect) {
                 // FIXME: Here we already copy the object. It would be
                 // better to do this only after write_epdf, otherwise we
                 // may copy ununsed /Group objects
-                copyObject(pdf, &lastGroup);
+                copyObject(pdf, pdf_doc, &lastGroup);
                 epdf_lastGroupObjectNum =
-                    getNewObjectNumber(lastGroup->getRef());
+                    getNewObjectNumber(pdf_doc, lastGroup->getRef());
                 pdf_puts(pdf, "\n");
             } else {
                 // make the group an indirect object; copying is done later
@@ -859,7 +895,8 @@ read_pdf_info(PDF pdf,
     } else {
         epdf_lastGroupObjectNum = 0;
     }
-    unrefPdfDocument(img_filepath(idict));
+    if (readtype == IMG_CLOSEINBETWEEN)
+        unrefPdfDocument(img_filepath(idict));
 }
 
 // Writes the current epf_doc.
@@ -872,23 +909,22 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     PdfObject contents, obj1, obj2;
     PdfObject metadata, pieceinfo, separationInfo;
     Object info;
-    char *key;
+    char *key, *checksum;
     char s[256];
     int i, l;
     PdfDocument *pdf_doc;
+    assert(idict != NULL);
+    // calculate a checksum string
+    checksum = get_file_checksum(img_filepath(idict));
     // open PDF file
-    if (strncmp
-        (img_checksum(idict), get_file_checksum(img_filepath(idict)),
-         PDF_CHECKSUM_SIZE) == 0) {
-        pdf_doc = refPdfDocument(img_filepath(idict));
-        pdf_doc->xref = pdf_doc->doc->getXRef();
-        (void) pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
-    } else {
+    pdf_doc = refPdfDocument(img_filepath(idict));
+    if (strncmp(pdf_doc->checksum, checksum, PDF_CHECKSUM_SIZE) != 0) {
         pdftex_fail("PDF inclusion: file has changed '%s'",
                     img_filename(idict));
     }
-    xref = pdf_doc->xref;
-    inObjList = pdf_doc->inObjList;
+    free(checksum);
+    pdf_doc->xref = pdf_doc->doc->getXRef();
+    (void) pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
     encodingList = NULL;
     page = pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
     PDFRectangle *pagebox;
@@ -932,7 +968,7 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     // write the page Group if it's there
     if (epdf_lastGroupObjectNum > 0) {
         if (page->getGroup() != NULL) {
-            initDictFromDict(lastGroup, page->getGroup());
+            initDictFromDict(pdf_doc, lastGroup, page->getGroup());
             if (lastGroup->dictGetLength() > 0) {
                 pdf_puts(pdf, "/Group ");
                 groupIsIndirect = lastGroup->isRef();
@@ -945,15 +981,15 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     if (page->getMetadata() != NULL) {
         metadata->initStream(page->getMetadata());
         pdf_puts(pdf, "/Metadata ");
-        copyObject(pdf, &metadata);
+        copyObject(pdf, pdf_doc, &metadata);
         pdf_puts(pdf, "\n");
     }
     // write the page PieceInfo if it's there
     if (page->getPieceInfo() != NULL) {
-        initDictFromDict(pieceinfo, page->getPieceInfo());
+        initDictFromDict(pdf_doc, pieceinfo, page->getPieceInfo());
         if (pieceinfo->dictGetLength() > 0) {
             pdf_puts(pdf, "/PieceInfo ");
-            copyObject(pdf, &pieceinfo);
+            copyObject(pdf, pdf_doc, &pieceinfo);
             pdf_puts(pdf, "\n");
         }
     }
@@ -964,10 +1000,10 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     }
     // write the page SeparationInfo if it's there
     if (page->getSeparationInfo() != NULL) {
-        initDictFromDict(separationInfo, page->getSeparationInfo());
+        initDictFromDict(pdf_doc, separationInfo, page->getSeparationInfo());
         if (separationInfo->dictGetLength() > 0) {
             pdf_puts(pdf, "/SeparationInfo ");
-            copyObject(pdf, &separationInfo);
+            copyObject(pdf, pdf_doc, &separationInfo);
             pdf_puts(pdf, "\n");
         }
     }
@@ -979,7 +1015,7 @@ static void write_epdf1(PDF pdf, image_dict * idict)
         pdftex_warn
             ("PDF inclusion: /Resources missing. 'This practice is not recommended' (PDF Ref)");
     } else {
-        initDictFromDict(obj1, page->getResourceDict());
+        initDictFromDict(pdf_doc, obj1, page->getResourceDict());
         page->getResourceDict()->incRef();
         if (!obj1->isDict())
             pdftex_fail("PDF inclusion: invalid resources dict type <%s>",
@@ -989,11 +1025,11 @@ static void write_epdf1(PDF pdf, image_dict * idict)
             obj1->dictGetVal(i, &obj2);
             key = obj1->dictGetKey(i);
             if (strcmp("Font", key) == 0)
-                copyFontResources(pdf, &obj2);
+                copyFontResources(pdf, pdf_doc, &obj2);
             else if (strcmp("ProcSet", key) == 0)
                 copyProcSet(pdf, &obj2);
             else
-                copyOtherResources(pdf, &obj2, key);
+                copyOtherResources(pdf, pdf_doc, &obj2, key);
         }
         pdf_puts(pdf, ">>\n");
     }
@@ -1016,17 +1052,17 @@ static void write_epdf1(PDF pdf, image_dict * idict)
         contents->streamGetDict()->lookup((char *) "Length", &obj1);
         assert(!obj1->isNull());
         pdf_puts(pdf, "/Length ");
-        copyObject(pdf, &obj1);
+        copyObject(pdf, pdf_doc, &obj1);
         pdf_puts(pdf, "\n");
         contents->streamGetDict()->lookup((char *) "Filter", &obj1);
         if (!obj1->isNull()) {
             pdf_puts(pdf, "/Filter ");
-            copyObject(pdf, &obj1);
+            copyObject(pdf, pdf_doc, &obj1);
             pdf_puts(pdf, "\n");
             contents->streamGetDict()->lookup((char *) "DecodeParms", &obj1);
             if (!obj1->isNull()) {
                 pdf_puts(pdf, "/DecodeParms ");
-                copyObject(pdf, &obj1);
+                copyObject(pdf, pdf_doc, &obj1);
                 pdf_puts(pdf, "\n");
             }
         }
@@ -1046,17 +1082,15 @@ static void write_epdf1(PDF pdf, image_dict * idict)
         pdf_end_stream(pdf);
     }
     // write out all indirect objects
-    writeRefs(pdf);
+    writeRefs(pdf, pdf_doc);
     // write out all used encodings (and delete list)
     writeEncodings(pdf);
-    // save object list
-    pdf_doc->inObjList = inObjList;
-    assert(xref == pdf_doc->xref);      // xref should be unchanged
 }
+
+// this relay function is needed to keep some destructor quiet (???)
 
 void write_epdf(PDF pdf, image_dict * idict)
 {
-    assert(idict != NULL);
     write_epdf1(pdf, idict);
     unrefPdfDocument(img_filepath(idict));
 }
@@ -1064,24 +1098,46 @@ void write_epdf(PDF pdf, image_dict * idict)
 //**********************************************************************
 // Deallocate a PdfDocument with all its resources
 
-static void deletePdfDocument(PdfDocument * pdf_doc)
+static void deletePdfDocumentPdfDoc(PdfDocument * pdf_doc)
 {
-    assert(pdf_doc != NULL);
-    // free PdfDocument's resources
     InObj *r, *n;
+    assert(pdf_doc != NULL);
+    // this may be probably needed for an emergency destroyPdfDocument()
     for (r = pdf_doc->inObjList; r != NULL; r = n) {
         n = r->next;
         delete r;
     }
     delete pdf_doc->doc;
-    xfree(pdf_doc->file_path);
-    delete pdf_doc;
+    pdf_doc->doc = NULL;
 }
 
 static void destroyPdfDocument(void *pa, void * /*pb */ )
 {
     PdfDocument *pdf_doc = (PdfDocument *) pa;
-    deletePdfDocument(pdf_doc);
+    deletePdfDocumentPdfDoc(pdf_doc);
+    // TODO: delete rest of pdf_doc
+}
+
+// Called when an image has been written and its resources in image_tab are
+// freed and it's not referenced anymore.
+
+void unrefPdfDocument(char *file_path)
+{
+    PdfDocument *pdf_doc = findPdfDocument(file_path);
+    assert(pdf_doc != NULL);
+    assert(pdf_doc->occurences > 0);    // aim for point landing
+    pdf_doc->occurences--;
+#ifdef DEBUG
+    fprintf(stderr, "\nluatex Debug: Decrementing %s (%d)\n",
+            pdf_doc->file_path, pdf_doc->occurences);
+#endif
+    if (pdf_doc->occurences == 0) {
+#ifdef DEBUG
+        fprintf(stderr, "\nluatex Debug: Deleting %s\n", pdf_doc->file_path);
+#endif
+        assert(pdf_doc->inObjList == NULL);     // should be eaten up already
+        deletePdfDocumentPdfDoc(pdf_doc);
+    }
 }
 
 // Called when PDF embedding system is finalized.
@@ -1099,11 +1155,13 @@ void epdf_check_mem()
 
 // Called after the xobject generated by write_epdf has been finished; used to
 // write out objects that have been made indirect
-void write_additional_epdf_objects(PDF pdf)
+
+void write_additional_epdf_objects(PDF pdf, char *file_path)
 {
+    PdfDocument *pdf_doc = findPdfDocument(file_path);
     if ((epdf_lastGroupObjectNum > 0) && !groupIsIndirect) {
         pdf_begin_obj(pdf, epdf_lastGroupObjectNum, 2);
-        copyObject(pdf, &lastGroup);
+        copyObject(pdf, pdf_doc, &lastGroup);
         pdf_end_obj(pdf);
     }
 }
