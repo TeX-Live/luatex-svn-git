@@ -97,7 +97,7 @@ class PdfObject {
 /* *INDENT-ON* */
 
 // When copying the Resources of the selected page, all objects are
-// copied recusively top-down.  The findObjMap() function checks if an
+// copied recursively top-down.  The findObjMap() function checks if an
 // object has already been copied; if so, instead of copying just the
 // new object number will be referenced.  The ObjMapTree guarantees,
 // that during the entire LuaTeX run any object from any embedded PDF
@@ -222,11 +222,11 @@ static int CompObjMap(const void *pa, const void *pb, void * /*p */ )
         return 1;
     if (a->num < b->num)
         return -1;
-    if (a->gen > b->gen)
-        return 1;
+    if (a->gen == b->gen)       // most likely gen == 0 anyway
+        return 0;
     if (a->gen < b->gen)
         return -1;
-    return 0;
+    return 1;
 }
 
 static ObjMap *findObjMap(PdfDocument * pdf_doc, Ref in)
