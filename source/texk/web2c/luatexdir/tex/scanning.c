@@ -1648,6 +1648,7 @@ halfword the_toks(void)
     halfword p, q, r;           /* used for copying a token list */
     int c;                      /* value of |cur_chr| */
     str_number s;
+    halfword retval;
     /* Handle \.{\\unexpanded} or \.{\\detokenize} and |return| */
     if (odd(cur_chr)) {
         c = cur_chr;
@@ -1663,7 +1664,9 @@ halfword the_toks(void)
             flush_list(p);
             selector = old_setting;
             s = make_string();
-            return str_toks(str_lstring(s));
+            retval = str_toks(str_lstring(s));
+            flush_str(s);
+            return retval;
         }
     }
     get_x_token();
@@ -1710,7 +1713,9 @@ halfword the_toks(void)
         }                       /* there are no other cases */
         selector = old_setting;
         s = make_string();
-        return str_toks(str_lstring(s));
+        retval = str_toks(str_lstring(s));
+        flush_str(s);
+        return retval;
     }
 }
 

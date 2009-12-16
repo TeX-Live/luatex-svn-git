@@ -82,13 +82,14 @@ void reset_cur_string (void)
 str_number make_string(void)
 {
     if (str_ptr == (max_strings + STRING_OFFSET))
-        overflow("number of strings", max_strings - init_str_ptr);
+        overflow("number of strings", max_strings - init_str_ptr + STRING_OFFSET);
     str_room(1);
     cur_string[cur_length] = '\0'; /* now |lstring.s| is always a valid C string */
     str_string(str_ptr) = (unsigned char *)cur_string;
     str_length(str_ptr) = cur_length;
     pool_size += cur_length;
     reset_cur_string();
+    /* printf("Made a string: %s (s=%d)\n", (char *)str_string(str_ptr), (int)str_ptr); */
     str_ptr++;
     return (str_ptr - 1);
 }
@@ -469,10 +470,12 @@ void init_string_pool_array (int s)
 
 void flush_str(str_number s)
 {
+    /* printf("Flushing a string: %s (s=%d,str_ptr=%d)\n", (char *)str_string(s), (int)s, (int)str_ptr); */
     if (s > STRING_OFFSET) { /* don't ever delete the null string */
         pool_size -= str_length(s);
         str_length(s) = 0;
         xfree (str_string(s));
+        str_string(s) = NULL;
     }
     while (str_string((str_ptr-1))==NULL)
         str_ptr--;

@@ -102,7 +102,7 @@ static void end_name(void)
 {
     unsigned char *s;
     if (str_ptr + 3 > (max_strings + STRING_OFFSET))
-        overflow("number of strings", max_strings - init_str_ptr);
+        overflow("number of strings", max_strings - init_str_ptr + STRING_OFFSET);
     /* @:TeX capacity exceeded number of strings}{\quad number of strings@> */
     /* at this point, the full string lives in |cur_string| */
     if (area_delimiter == 0) {
