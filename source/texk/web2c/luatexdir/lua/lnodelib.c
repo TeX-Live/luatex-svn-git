@@ -617,10 +617,7 @@ static int lua_nodelib_mlist_to_hlist(lua_State * L)
     w = luaL_checkoption(L, 2, "text", math_style_names);
     luaL_checkany(L, 3);
     m = lua_toboolean(L, 3);
-    cur_mlist = n;
-    cur_style = w;
-    mlist_penalties = m;
-    mlist_to_hlist();
+    mlist_to_hlist_args(n, w, m);
     lua_nodelib_push_fast(L, vlink(temp_head));
     return 1;
 }

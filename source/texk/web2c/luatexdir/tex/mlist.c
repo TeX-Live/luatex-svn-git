@@ -673,13 +673,6 @@ static scaled space_after_script(int var)
 }
 
 
-/* This function is no longer useful */
-
-boolean check_necessary_fonts(void)
-{
-    return false;               /* temp */
-}
-
 void fixup_math_parameters(int fam_id, int size_id, int f, int lvl)
 {
     if (is_new_mathfont(f)) {   /* fix all known parameters */
@@ -1399,9 +1392,33 @@ void add_delim_hkern(pointer b, scaled s)
 
 
 
+/*
+ \TeX's most important routine for dealing with formulas is called
+ |mlist_to_hlist|.  After a formula has been scanned and represented
+ as an mlist, this routine converts it to an hlist that can be placed
+ into a box or incorporated into the text of a paragraph. There is one
+ implicit parameter, passed in a global variable: |cur_style| is a
+ style code.  The explicit parameter |cur_mlist| points to the first
+ node or noad in the given mlist (and it might be |null|); the
+ parameter |penalties| is |true| if penalty nodes for potential line
+ breaks are to be inserted into the resulting hlist. After
+ |mlist_to_hlist| has acted, |vlink(temp_head)| points to the
+ translated hlist.
+
+Since mlists can be inside mlists, the procedure is recursive. And since this
+is not part of \TeX's inner loop, the program has been written in a manner
+that stresses compactness over efficiency.
+@^recursion@>
+*/
+
+static int cur_style = 0;       /* style code at current place in the list */
+int cur_size;                   /* size code corresponding to |cur_style|  */
+scaled cur_mu;                  /* the math unit width corresponding to |cur_size| */
+
+
 /* */
 
-pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
+static pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
                       pointer att, int boxtype)
 {
     pointer b;
@@ -1729,13 +1746,13 @@ pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
     return b;
 }
 
-pointer get_delim_vbox(extinfo * ext, internal_font_number f, scaled v,
+static pointer get_delim_vbox(extinfo * ext, internal_font_number f, scaled v,
                        pointer att)
 {
     return get_delim_box(ext, f, v, att, vlist_node);
 }
 
-pointer get_delim_hbox(extinfo * ext, internal_font_number f, scaled v,
+static pointer get_delim_hbox(extinfo * ext, internal_font_number f, scaled v,
                        pointer att)
 {
     return get_delim_box(ext, f, v, att, hlist_node);
@@ -1870,7 +1887,7 @@ static pointer var_delimiter(pointer d, int s, scaled v, scaled * ic)
     return b;
 }
 
-pointer flat_var_delimiter(pointer d, int s, scaled v)
+static pointer flat_var_delimiter(pointer d, int s, scaled v)
 {
     /* label found,continue; */
     pointer b;                  /* the box that will be constructed */
@@ -1978,7 +1995,7 @@ has been added to the width of the box; in this case a compensating
 kern is inserted.
 */
 
-pointer rebox(pointer b, scaled w)
+static pointer rebox(pointer b, scaled w)
 {
     pointer p, q, r, att;       /* temporary registers for list manipulation */
     internal_font_number f;     /* font in a one-character box */
@@ -2029,7 +2046,7 @@ one that is expressed in `\.{mu}', given the value of the math unit.
 
 #define mu_mult(A) mult_and_add(n,(A),xn_over_d((A),f,unity),max_dimen)
 
-pointer math_glue(pointer g, scaled m)
+static pointer math_glue(pointer g, scaled m)
 {
     pointer p;                  /* the new glue specification */
     int n;                      /* integer part of |m| */
@@ -2060,7 +2077,7 @@ The |math_kern| subroutine removes |mu_glue| from a kern node, given
 the value of the math unit.
 */
 
-void math_kern(pointer p, scaled m)
+static void math_kern(pointer p, scaled m)
 {
     int n;                      /* integer part of |m| */
     scaled f;                   /* fraction part of |m| */
@@ -2075,29 +2092,6 @@ void math_kern(pointer p, scaled m)
         subtype(p) = explicit;
     }
 }
-
-/*
- \TeX's most important routine for dealing with formulas is called
-|mlist_to_hlist|.  After a formula has been scanned and represented as an
-mlist, this routine converts it to an hlist that can be placed into a box
-or incorporated into the text of a paragraph. There are three implicit
-parameters, passed in global variables: |cur_mlist| points to the first
-node or noad in the given mlist (and it might be |null|); |cur_style| is a
-style code; and |mlist_penalties| is |true| if penalty nodes for potential
-line breaks are to be inserted into the resulting hlist. After
-|mlist_to_hlist| has acted, |vlink(temp_head)| points to the translated hlist.
-
-Since mlists can be inside mlists, the procedure is recursive. And since this
-is not part of \TeX's inner loop, the program has been written in a manner
-that stresses compactness over efficiency.
-@^recursion@>
-*/
-
-pointer cur_mlist;              /* beginning of mlist to be translated */
-int cur_style;                  /* style code at current place in the list */
-int cur_size;                   /* size code corresponding to |cur_style|  */
-scaled cur_mu;                  /* the math unit width corresponding to |cur_size| */
-boolean mlist_penalties;        /* should |mlist_to_hlist| insert penalties? */
 
 void run_mlist_to_hlist(halfword p, int mstyle, boolean penalties)
 {
@@ -2129,15 +2123,11 @@ void run_mlist_to_hlist(halfword p, int mstyle, boolean penalties)
         lua_settop(L, sfix);
         vlink(temp_head) = a;
     } else if (callback_id == 0) {
-        cur_mlist = p;
-        cur_style = mstyle;
-        mlist_penalties = penalties;
-        mlist_to_hlist();
+        mlist_to_hlist_args(p, mstyle, penalties);
     } else {
         vlink(temp_head) = null;
     }
 }
-
 
 /*
 @ The recursion in |mlist_to_hlist| is due primarily to a subroutine
@@ -2151,33 +2141,32 @@ The box returned by |clean_box| is ``clean'' in the
 sense that its |shift_amount| is zero.
 */
 
-pointer clean_box(pointer p, int s)
+static pointer clean_box(pointer p, int s)
 {
     pointer q;                  /* beginning of a list to be boxed */
     int save_style;             /* |cur_style| to be restored */
     pointer x;                  /* box to be returned */
     pointer r;                  /* temporary pointer */
+    pointer mlist = null;       /* beginning of mlist to be translated */
     switch (type(p)) {
     case math_char_node:
-        cur_mlist = new_noad();
+        mlist = new_noad();
         r = math_clone(p);
-        nucleus(cur_mlist) = r;
+        nucleus(mlist) = r;
         break;
     case sub_box_node:
         q = math_list(p);
         goto FOUND;
         break;
     case sub_mlist_node:
-        cur_mlist = math_list(p);
+        mlist = math_list(p);
         break;
     default:
         q = new_null_box();
         goto FOUND;
     }
     save_style = cur_style;
-    cur_style = s;
-    mlist_penalties = false;
-    mlist_to_hlist();
+    mlist_to_hlist_args(mlist, s, false);
     q = vlink(temp_head);       /* recursive call */
     cur_style = save_style;     /* restore the style */
     setup_cur_size_and_mu();
@@ -2223,7 +2212,7 @@ after |fetch| has acted, and the field will also have been reset to |null|.
 internal_font_number cur_f;     /* the |font| field of a |math_char| */
 int cur_c;                      /* the |character| field of a |math_char| */
 
-void fetch(pointer a)
+static void fetch(pointer a)
 {                               /* unpack the |math_char| field |a| */
     cur_c = math_character(a);
     cur_f = fam_fnt(math_fam(a), cur_size);
@@ -2267,7 +2256,7 @@ The second pass eliminates all noads and inserts the correct glue and
 penalties between nodes.
 */
 
-void assign_new_hlist(pointer q, pointer r)
+static void assign_new_hlist(pointer q, pointer r)
 {
     switch (type(q)) {
     case fraction_noad:
@@ -2301,7 +2290,7 @@ the general setup of such procedures, let's begin with a couple of
 simple ones.
 */
 
-void make_over(pointer q)
+static void make_over(pointer q)
 {
     pointer p;
     p = overbar(clean_box(nucleus(q), cramped_style(cur_style)),
@@ -2312,7 +2301,7 @@ void make_over(pointer q)
     type(nucleus(q)) = sub_box_node;
 }
 
-void make_under(pointer q)
+static void make_under(pointer q)
 {
     pointer p, x, y, r;         /* temporary registers for box construction */
     scaled delta;               /* overall height plus depth */
@@ -2331,7 +2320,7 @@ void make_under(pointer q)
     type(nucleus(q)) = sub_box_node;
 }
 
-void make_vcenter(pointer q)
+static void make_vcenter(pointer q)
 {
     pointer v;                  /* the box that should be centered vertically */
     scaled delta;               /* its height plus depth */
@@ -2354,7 +2343,7 @@ of the nucleus plus a certain minimum clearance~|psi|. The symbol will be
 placed so that the actual clearance is |psi| plus half the excess.
 */
 
-void make_radical(pointer q)
+static void make_radical(pointer q)
 {
     pointer x, y, p;            /* temporary registers for box construction */
     scaled delta, clr, theta, h;        /* dimensions involved in the calculation */
@@ -2441,7 +2430,7 @@ wrapup_delimiter(pointer x, pointer y, pointer q,
 
 /* this has the |nucleus| box |x| as a limit above an extensible delimiter |y| */
 
-void make_over_delimiter(pointer q)
+static void make_over_delimiter(pointer q)
 {
     pointer x, y, v;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
@@ -2464,7 +2453,7 @@ void make_over_delimiter(pointer q)
 
 /* this has the extensible delimiter |x| as a limit above |nucleus| box |y|  */
 
-void make_delimiter_over(pointer q)
+static void make_delimiter_over(pointer q)
 {
     pointer x, y, v;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
@@ -2490,7 +2479,7 @@ void make_delimiter_over(pointer q)
 
 /* this has the extensible delimiter |y| as a limit below a |nucleus| box |x| */
 
-void make_delimiter_under(pointer q)
+static void make_delimiter_under(pointer q)
 {
     pointer x, y, v;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
@@ -2516,7 +2505,7 @@ void make_delimiter_under(pointer q)
 
 /* this has the extensible delimiter |x| as a limit below |nucleus| box |y| */
 
-void make_under_delimiter(pointer q)
+static void make_under_delimiter(pointer q)
 {
     pointer x, y, v;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
@@ -2547,7 +2536,7 @@ respect to the size of the final box.
 #define TOP_CODE 1
 #define BOT_CODE 2
 
-void do_make_math_accent(pointer q, internal_font_number f, int c,
+static void do_make_math_accent(pointer q, internal_font_number f, int c,
                          int top_or_bot)
 {
     pointer p, r, x, y;         /* temporary registers for box construction */
@@ -2685,7 +2674,7 @@ void do_make_math_accent(pointer q, internal_font_number f, int c,
     type(nucleus(q)) = sub_box_node;
 }
 
-void make_math_accent(pointer q)
+static void make_math_accent(pointer q)
 {
     if (accent_chr(q) != null) {
         fetch(accent_chr(q));
@@ -2710,7 +2699,7 @@ The |make_fraction| procedure is a bit different because it sets
 |new_hlist(q)| directly rather than making a sub-box.
 */
 
-void make_fraction(pointer q)
+static void make_fraction(pointer q)
 {
     pointer p, v, x, y, z;      /* temporary registers for box construction */
     scaled delta, delta1, delta2, shift_up, shift_down, clr;
@@ -2810,7 +2799,7 @@ the limits have been set above and below the operator. In that case,
 |new_hlist(q)| will already contain the desired final box.
 */
 
-scaled make_op(pointer q)
+static scaled make_op(pointer q)
 {
     scaled delta;               /* offset between subscript and superscript */
     pointer p, v, x, y, z;      /* temporary registers for box construction */
@@ -2957,7 +2946,7 @@ to a math font (i.e., a font with |space=0|).
 No boundary characters enter into these ligatures.
 */
 
-void make_ord(pointer q)
+static void make_ord(pointer q)
 {
     int a;                      /* the left-side character for lig/kern testing */
     pointer p, r, s;            /* temporary registers for list manipulation */
@@ -3067,7 +3056,7 @@ void make_ord(pointer q)
    actual images say 
 */
 
-scaled math_kern_at(internal_font_number f, int c, int side, int v)
+static scaled math_kern_at(internal_font_number f, int c, int side, int v)
 {
     int h, k, numkerns;
     scaled *kerns_heights;
@@ -3111,7 +3100,7 @@ scaled math_kern_at(internal_font_number f, int c, int side, int v)
 }
 
 
-scaled
+static scaled
 find_math_kern(internal_font_number l_f, int l_c,
                internal_font_number r_f, int r_c, int cmd, scaled shift)
 {
@@ -3165,7 +3154,8 @@ find_math_kern(internal_font_number l_f, int l_c,
 }
 
 /* just a small helper */
-pointer attach_hkern_to_new_hlist(pointer q, scaled delta2)
+static pointer
+attach_hkern_to_new_hlist(pointer q, scaled delta2)
 {
     pointer y;
     pointer z = new_kern(delta2);
@@ -3235,7 +3225,7 @@ void dump_simple_node(pointer q)
 }
 #endif
 
-void make_scripts(pointer q, pointer p, scaled it)
+static void make_scripts(pointer q, pointer p, scaled it)
 {
     pointer x, y, z;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr;   /* dimensions in the calculation */
@@ -3416,7 +3406,7 @@ the required size and returns the value |open_noad| or |close_noad|. The
 so they will have consistent sizes.
 */
 
-small_number make_left_right(pointer q, int style, scaled max_d, scaled max_hv)
+static small_number make_left_right(pointer q, int style, scaled max_d, scaled max_hv)
 {
     scaled delta, delta1, delta2;       /* dimensions used in the calculation */
     pointer tmp;
@@ -3545,7 +3535,7 @@ void initialize_math_spacing(void)
 
 #define both_types(A,B) ((A)*16+(B))
 
-pointer math_spacing_glue(int l_type, int r_type, int mstyle)
+static pointer math_spacing_glue(int l_type, int r_type, int mstyle)
 {
     int x = -1;
     pointer z = null;
@@ -3641,19 +3631,55 @@ pointer math_spacing_glue(int l_type, int r_type, int mstyle)
 }
 
 
+static pointer check_nucleus_complexity (halfword q, scaled *delta)
+{
+    int save_style;             /* holds |cur_style| during recursion */
+    pointer p = null;
+    switch (type(nucleus(q))) {
+    case math_char_node:
+    case math_text_char_node:
+        fetch(nucleus(q));
+        if (char_exists(cur_f, cur_c)) {
+            *delta = char_italic(cur_f, cur_c);
+            p = new_glyph(cur_f, cur_c);
+            reset_attributes(p, node_attr(nucleus(q)));
+            if ((type(nucleus(q)) == math_text_char_node)
+                && (space(cur_f) != 0))
+                *delta = 0;  /* no italic correction in mid-word of text font */
+            if ((subscr(q) == null) && (supscr(q) == null) && (*delta != 0)) {
+                pointer x = new_kern(*delta);
+                reset_attributes(x, node_attr(nucleus(q)));
+                vlink(p) = x;
+                *delta = 0;
+            }
+        }
+        break;
+    case sub_box_node:
+        p = math_list(nucleus(q));
+        break;
+    case sub_mlist_node:
+        save_style = cur_style;
+        mlist_to_hlist_args(math_list(nucleus(q)), cur_style, false);   /* recursive call */
+        cur_style = save_style;
+        setup_cur_size_and_mu();
+        p = hpack(vlink(temp_head), 0, additional, -1);
+        reset_attributes(p, node_attr(nucleus(q)));
+        break;
+    default:
+        confusion("mlist2");        /* this can't happen mlist2 */
+    }
+    return p;
+}
 
 /* Here is the overall plan of |mlist_to_hlist|, and the list of its
    local variables.
 */
 
-void mlist_to_hlist(void)
+static void mlist_to_hlist(pointer mlist, boolean penalties)
 {
-    pointer mlist;              /* beginning of the given list */
-    boolean penalties;          /* should penalty nodes be inserted? */
-    int style;                  /* the given style */
-    int save_style;             /* holds |cur_style| during recursion */
     pointer q;                  /* runs through the mlist */
     pointer r;                  /* the most recent noad preceding |q| */
+    int style;
     int r_type;                 /* the |type| of noad |r|, or |op_noad| if |r=null| */
     int r_subtype;              /* the |subtype| of noad |r| if |r_type| is |fence_noad| */
     int t;                      /* the effective |type| of noad |q| during the second pass */
@@ -3663,9 +3689,7 @@ void mlist_to_hlist(void)
     int s;                      /* the size of a noad to be deleted */
     scaled max_hl, max_d;       /* maximum height and depth of the list translated so far */
     scaled delta;               /* italic correction offset for subscript and superscript */
-    mlist = cur_mlist;
-    penalties = mlist_penalties;
-    style = cur_style;          /* tuck global parameters away as local variables */
+    style = cur_style;          /* tuck global parameter away as local variable */
     q = mlist;
     r = null;
     r_type = simple_noad;
@@ -3867,48 +3891,13 @@ void mlist_to_hlist(void)
            @^subscripts@>
            @^superscripts@>
          */
-        switch (type(nucleus(q))) {
-        case math_char_node:
-        case math_text_char_node:
-            fetch(nucleus(q));
-            if (char_exists(cur_f, cur_c)) {
-                delta = char_italic(cur_f, cur_c);
-                p = new_glyph(cur_f, cur_c);
-                reset_attributes(p, node_attr(nucleus(q)));
-                if ((type(nucleus(q)) == math_text_char_node)
-                    && (space(cur_f) != 0))
-                    delta = 0;  /* no italic correction in mid-word of text font */
-                if ((subscr(q) == null) && (supscr(q) == null) && (delta != 0)) {
-                    x = new_kern(delta);
-                    reset_attributes(x, node_attr(nucleus(q)));
-                    vlink(p) = x;
-                    delta = 0;
-                }
-            } else {
-                p = null;
-            }
-            break;
-        case sub_box_node:
-            p = math_list(nucleus(q));
-            break;
-        case sub_mlist_node:
-            cur_mlist = math_list(nucleus(q));
-            save_style = cur_style;
-            mlist_penalties = false;
-            mlist_to_hlist();   /* recursive call */
-            cur_style = save_style;
-            setup_cur_size_and_mu();
-            p = hpack(vlink(temp_head), 0, additional, -1);
-            reset_attributes(p, node_attr(nucleus(q)));
-            break;
-        default:
-            confusion("mlist2");        /* this can't happen mlist2 */
-        }
+        p = check_nucleus_complexity(q, &delta);
+
         if ((subscr(q) == null) && (supscr(q) == null)) {
             assign_new_hlist(q, p);
-            goto CHECK_DIMENSIONS;
+        } else {
+            make_scripts(q, p, delta);      /* top, bottom */
         }
-        make_scripts(q, p, delta);      /* top, bottom */
       CHECK_DIMENSIONS:
         z = hpack(new_hlist(q), 0, additional, -1);
         if (height(z) > max_hl)
@@ -4070,3 +4059,11 @@ void mlist_to_hlist(void)
         free_node(r, get_node_size(type(r), subtype(r)));
     }
 }
+
+void mlist_to_hlist_args(pointer n, int w, boolean m)
+{
+    cur_style = w;
+    mlist_to_hlist(n, m);
+}
+
+

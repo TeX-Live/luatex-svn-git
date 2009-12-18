@@ -23,18 +23,13 @@
 #ifndef MLIST_H
 #  define MLIST_H 1
 
-extern pointer cur_mlist;
-extern int cur_style;
-extern boolean mlist_penalties;
 extern int cur_size;
 
-void run_mlist_to_hlist(halfword, int, boolean);
-void fixup_math_parameters(int fam_id, int size_id, int f, int lvl);
+extern void run_mlist_to_hlist(halfword, int, boolean);
+extern void fixup_math_parameters(int fam_id, int size_id, int f, int lvl);
 
+extern scaled get_math_quad(int a);
 
-scaled get_math_quad(int a);
-boolean check_necessary_fonts(void);
-
-void mlist_to_hlist(void);
+extern void mlist_to_hlist_args(halfword, int, boolean);
 
 #endif
