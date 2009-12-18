@@ -1,4 +1,83 @@
 ==============================================================
+Luatex beta-0.47.0 was released 20091218
+==============================================================
+
+New features:
+
+* New read-write lua variables pdf.pdfcatalog, pdf.pdfnames, 
+  pdf.pdfinfo, pdf.pdftrailer
+
+* The horizontal mode nodes that are added to lines during line 
+  breaking now inherit the attributes from the first and last node 
+  inside the created line.
+
+* The new function pdf.registerannot(<number>) registers an 
+  annotation object number to be included in the current 
+  page's /Annots list.
+
+* The variables <metrics>.Mathconstants.FractionDelimiterSize 
+  and <metrics>.Mathconstants.FractionDelimiterDisplayStyleSize
+  are added to the font table. This allows proper setting of the 
+  size parameters for TeX's ...withdelims math primitives.
+
+* The internal representation of the string pool is reorganized
+  (the pool of string characters is now allocated dynamically),
+  and as a side-effect the lua variable status.init_pool_ptr
+  is deprecated and will be removed in a later version. Also,
+  status.pool_ptr now simply returns the current number of bytes
+  in use for string characters.
+
+* There are new lua variables pdf.pdfmapline and pdf.pdfmapfile 
+  (write-only strings that mimic \pdfmapline and \pdfmapfile).
+
+* \pdfobj data and attribute are now stored as C strings instead
+  of as token lists (this should speed up cases with a lot of data).
+
+* Artificially slanted fonts now work via the pdf text matrix
+  (instead of adjusting the actual font) so that it now also
+  works for non-Type1 fonts. The lua <metrics>.slant font key is 
+  now obeyed in all cases.
+
+* The lua function font.id(<string>) returns the internal font id 
+  number belonging to a control sequence name.
+
+* Pdf image inclusion is optimized such that objects from an
+  external pdf will now be included only once even if they are 
+  referenced from multiple inclusions.
+
+Bug fixes:
+
+* Protrusion for non-TLT documents did not work properly for
+  the hyphenation character.
+
+* \lastbox could not remove the paragraph indent box for non-TLT 
+  documents.
+
+* Pdf images (\pdfximage) are no longer kept open during the
+  whole run, but closed and reopened. An error is raised if
+  the file has changed between \pdfximage and \pdfrefximage.
+  This prevents the 'too many open files' error when lots of
+  images are included.
+
+* On Win32 Pdf image files are locked during the time that it is 
+  open, to prevent unnoticed file changes by external sources.
+
+* Compilation now again works on FreeBSD.
+
+* Format sharing between 32-bit and 64-bit architectures was 
+  broken.
+
+* Unsetting attributes from lua could sometimes result in
+  the unset state persisting beyond the current group level. 
+ 
+* If something went wrong in the scanning of pdf action items,
+  the error message reported the current primitive name 
+  incorrectly.
+
+* Luatex would crash on non-existant pdfs that were referenced
+  from map file entries.
+
+==============================================================
 Luatex beta-0.46.0 was released 20091126
 ==============================================================
 
