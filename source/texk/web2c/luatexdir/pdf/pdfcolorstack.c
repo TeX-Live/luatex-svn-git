@@ -206,7 +206,7 @@ static int colorstackpush(int colstack_no, str_number s)
         if (*str == 0) {
             colstack->page_current = NULL;
         } else {
-            colstack->page_current = str;
+            colstack->page_current = xstrdup(str);
         }
         free(str);
     } else {
@@ -220,7 +220,7 @@ static int colorstackpush(int colstack_no, str_number s)
         if (*str == 0) {
             colstack->form_current = NULL;
         } else {
-            colstack->form_current = str;
+            colstack->form_current = xstrdup(str);
         }
         free(str);
     }
