@@ -1857,7 +1857,7 @@ void math_left_right(void)
             unsave_math();
         }
         if (t != right_noad_side) {
-            push_math(math_left_group, cur_style);
+            push_math(math_left_group, m_style);
             vlink(head) = q;
             tail = p;
             delim_ptr = p;
