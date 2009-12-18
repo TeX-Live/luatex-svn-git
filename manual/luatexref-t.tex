@@ -7482,7 +7482,8 @@ Valid fields: \showfields{hlist}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
-\NC subtype    \NC number  \NC  unused\NC\NR
+\NC subtype    \NC number  \NC  0 = unknown origin, 1 = created by
+linebreaking, 2 = explict box command. (0.46.0)\NC\NR
 \NC attr       \NC \syntax{<node>}    \NC  The head of the associated attribute list \NC\NR
 \NC width      \NC number  \NC  \NC\NR
 \NC height     \NC number  \NC  \NC\NR
