@@ -2133,12 +2133,10 @@ static void finish_displayed_math(boolean l, pointer a, pointer p)
 
 void after_math(void)
 {
-    boolean danger;             /* not enough symbol fonts are present */
     int m;                      /* |mmode| or |-mmode| */
     pointer p;                  /* the formula */
     pointer a = null;           /* box containing equation number */
     boolean l = false;          /* `\.{\\leqno}' instead of `\.{\\eqno}' */
-    danger = check_necessary_fonts();
     m = mode;
     p = fin_mlist(null);        /* this pops the nest */
     if (cur_cmd == math_shift_cs_cmd &&
@@ -2158,7 +2156,6 @@ void after_math(void)
         assert(saved_type(0) == saved_eqno);
         if (saved_value(0) == 1)
             l = true;
-        danger = check_necessary_fonts();
         m = mode;
         p = fin_mlist(null);
     }
