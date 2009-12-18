@@ -26,7 +26,7 @@ static const char _svn_version[] =
 int **ocp_tables;
 
 static int ocp_entries = 0;
-integer ocp_maxint = 10000000;
+int ocp_maxint = 10000000;
 
 /*
 When the user defines \.{\\ocp\\f}, say, \TeX\ assigns an internal number
@@ -141,7 +141,7 @@ static void dump_ocp_table(int ocp_number)
 
 void dump_ocp_info(void)
 {
-    integer k;
+    int k;
     dump_int(123456);
     dump_int(ocp_ptr);
     for (k = null_ocp; k <= ocp_ptr; k++) {
@@ -182,8 +182,8 @@ static void undump_ocp_table(int ocp_number)
 
 void undump_ocp_info(void)
 {
-    integer k;
-    integer x;
+    int k;
+    int x;
     undump_int(x);
     assert(x == 123456);
     undump_int(ocp_ptr);

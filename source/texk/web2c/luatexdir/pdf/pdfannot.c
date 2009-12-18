@@ -65,7 +65,7 @@ void new_annot_whatsit(small_number w)
 
 void scan_annot(PDF pdf)
 {
-    integer k;
+    int k;
     if (scan_keyword("reserveobjnum")) {
         pdf_create_obj(pdf, obj_type_annot, pdf->sys_obj_ptr + 1);
         k = pdf->sys_obj_ptr;

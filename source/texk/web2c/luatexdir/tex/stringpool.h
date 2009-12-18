@@ -73,9 +73,9 @@ extern str_number init_str_ptr;
 extern unsigned char *cur_string;
 extern unsigned cur_length;
 extern unsigned cur_string_size;
-extern unsigned pool_size; 
+extern unsigned pool_size;
 
-#define EXTRA_STRING 500
+#  define EXTRA_STRING 500
 
 /* put |ASCII_code| \# at the end of |str_pool| */
 #  define append_char(A) do {                                           \
@@ -97,17 +97,17 @@ extern unsigned pool_size;
         }                                                               \
     } while (0)
 
-#  define flush_char() --cur_length /* forget the last character in the pool */
+#  define flush_char() --cur_length     /* forget the last character in the pool */
 
 extern str_number make_string(void);
-extern boolean str_eq_buf(str_number s, integer k);
+extern boolean str_eq_buf(str_number s, int k);
 extern boolean str_eq_str(str_number s, str_number t);
 extern boolean str_eq_cstr(str_number, char *, size_t);
 extern boolean get_strings_started(void);
-extern void reset_cur_string (void);
+extern void reset_cur_string(void);
 
 extern str_number search_string(str_number search);
-extern integer pool_to_unichar(unsigned char *t);
+extern int pool_to_unichar(unsigned char *t);
 
 extern unsigned char *uni2str(unsigned);
 extern unsigned str2uni(unsigned char *);
@@ -116,13 +116,13 @@ extern str_number maketexstring(const char *);
 extern str_number maketexlstring(const char *, size_t);
 extern void append_string(unsigned char *s, unsigned l);
 
-extern char *makecstring(integer);
-extern char *makeclstring(integer, size_t *);
+extern char *makecstring(int);
+extern char *makeclstring(int, size_t *);
 
-extern int dump_string_pool (void);
-extern int undump_string_pool (void);
+extern int dump_string_pool(void);
+extern int undump_string_pool(void);
 
-extern void init_string_pool_array (int s);
+extern void init_string_pool_array(int s);
 extern void flush_str(str_number s);
 
 #endif

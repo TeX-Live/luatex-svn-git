@@ -27,7 +27,7 @@ static const char __svn_version[] =
 
 #define font_id_text(A) cs_text(font_id_base+(A))       /* a frozen font identifier's name */
 
-integer pk_dpi;                 /* PK pixel density value from \.{texmf.cnf} */
+int pk_dpi;                     /* PK pixel density value from \.{texmf.cnf} */
 
 /*
 As \pdfTeX{} should also act as a back-end driver, it needs to support virtual
@@ -41,7 +41,7 @@ The |has_packet()| C macro checks for this condition.
 
 /* The following code typesets a character to PDF output */
 
-void output_one_char(PDF pdf, internal_font_number ffi, integer c)
+void output_one_char(PDF pdf, internal_font_number ffi, int c)
 {
     scaled_whd ci;              /* the real width, height and depth of the character */
     ci = get_charinfo_whd(ffi, c);
@@ -68,7 +68,7 @@ void output_one_char(PDF pdf, internal_font_number ffi, integer c)
 }
 
 /* mark |f| as a used font; set |font_used(f)|, |pdf_font_size(f)| and |pdf_font_num(f)| */
-void pdf_use_font(internal_font_number f, integer fontnum)
+void pdf_use_font(internal_font_number f, int fontnum)
 {
     set_pdf_font_size(f, font_size(f));
     set_font_used(f, true);
@@ -88,7 +88,7 @@ indicates that the corresponding font shares the font resource with the font
 void pdf_init_font(PDF pdf, internal_font_number f)
 {
     internal_font_number k, b;
-    integer i;
+    int i;
     assert(!font_used(f));
 
     /* if |f| is auto expanded then ensure the base font is initialized */
@@ -132,7 +132,7 @@ internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
 {
     pdf_object_list *p;
     internal_font_number k;
-    integer ff;                 /* for use with |set_ff| */
+    int ff;                     /* for use with |set_ff| */
 
     if (!font_used(f))
         pdf_init_font(pdf, f);
@@ -155,8 +155,7 @@ internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
 
 /* Here come some subroutines to deal with expanded fonts for HZ-algorithm. */
 
-void copy_expand_params(internal_font_number k, internal_font_number f,
-                        integer e)
+void copy_expand_params(internal_font_number k, internal_font_number f, int e)
 {                               /* set expansion-related parameters for an expanded font |k|, based on the base
                                    font |f| and the expansion amount |e| */
     set_pdf_font_expand_ratio(k, e);
@@ -184,7 +183,7 @@ internal_font_number tfm_lookup(str_number s, scaled fs)
     return null_font;
 }
 
-internal_font_number load_expand_font(internal_font_number f, integer e)
+internal_font_number load_expand_font(internal_font_number f, int e)
 {                               /* loads font |f| expanded by |e| thousandths into font memory; |e| is nonzero
                                    and is a multiple of |pdf_font_step(f)| */
     str_number s;               /* font name */
@@ -203,10 +202,10 @@ internal_font_number load_expand_font(internal_font_number f, integer e)
     return k;
 }
 
-integer fix_expand_value(internal_font_number f, integer e)
+int fix_expand_value(internal_font_number f, int e)
 {                               /* return the multiple of |pdf_font_step(f)| that is nearest to |e| */
-    integer step;
-    integer max_expand;
+    int step;
+    int max_expand;
     boolean neg;
     if (e == 0)
         return 0;
@@ -230,7 +229,7 @@ integer fix_expand_value(internal_font_number f, integer e)
     return e;
 }
 
-internal_font_number get_expand_font(internal_font_number f, integer e)
+internal_font_number get_expand_font(internal_font_number f, int e)
 {                               /* look up and create if not found an expanded version of |f|; |f| is an
                                    expandable font; |e| is nonzero and is a multiple of |pdf_font_step(f)| */
     internal_font_number k;
@@ -246,7 +245,7 @@ internal_font_number get_expand_font(internal_font_number f, integer e)
     return k;
 }
 
-internal_font_number expand_font(internal_font_number f, integer e)
+internal_font_number expand_font(internal_font_number f, int e)
 {                               /* looks up for font |f| expanded by |e| thousandths, |e| is an arbitrary value
                                    between max stretch and max shrink of |f|; if not found then creates it */
     if (e == 0)
@@ -260,8 +259,8 @@ internal_font_number expand_font(internal_font_number f, integer e)
 }
 
 void set_expand_params(internal_font_number f, boolean auto_expand,
-                       integer stretch_limit, integer shrink_limit,
-                       integer font_step, integer expand_ratio)
+                       int stretch_limit, int shrink_limit,
+                       int font_step, int expand_ratio)
 {                               /* expand a font with given parameters */
     set_pdf_font_step(f, font_step);
     set_pdf_font_auto_expand(f, auto_expand);
@@ -275,7 +274,7 @@ void set_expand_params(internal_font_number f, boolean auto_expand,
 
 void read_expand_font(void)
 {                               /* read font expansion spec and load expanded font */
-    integer shrink_limit, stretch_limit, font_step;
+    int shrink_limit, stretch_limit, font_step;
     internal_font_number f;
     boolean auto_expand;
     /* read font expansion parameters */
@@ -396,7 +395,7 @@ void make_font_copy(small_number a)
 void pdf_include_chars(PDF pdf)
 {
     str_number s;
-    unsigned char *k, *j;   /* running index */
+    unsigned char *k, *j;       /* running index */
     internal_font_number f;
     scan_font_ident();
     f = cur_val;
@@ -408,7 +407,7 @@ void pdf_include_chars(PDF pdf)
     scan_pdf_ext_toks();
     s = tokens_to_string(def_ref);
     delete_token_ref(def_ref);
-    j = str_string(s)+str_length(s);
+    j = str_string(s) + str_length(s);
     for (k = str_string(s); k < j; k++) {
         pdf_mark_char(f, *k);
     }

@@ -23,12 +23,12 @@
 
 #  define OCP_H 1
 
-typedef integer internal_ocp_number;
-typedef integer ocp_index;
+typedef int internal_ocp_number;
+typedef int ocp_index;
 
 extern int **ocp_tables;
 
-extern integer ocp_maxint;
+extern int ocp_maxint;
 
 extern internal_ocp_number ocp_ptr;     /* largest internal ocp number in use */
 

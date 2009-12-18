@@ -89,9 +89,9 @@ typedef struct {
     char *tfm_name;             /* TFM file name (1st field in map line) */
     char *sfd_name;             /* subfont directory name, like @sfd_name@ */
     char *ps_name;              /* PostScript name (optional 2nd field in map line) */
-    integer fd_flags;           /* font descriptor /Flags (PDF Ref. section 5.7.1) */
-    integer slant;              /* SlantFont */
-    integer extend;             /* ExtendFont */
+    int fd_flags;               /* font descriptor /Flags (PDF Ref. section 5.7.1) */
+    int slant;                  /* SlantFont */
+    int extend;                 /* ExtendFont */
     char *encname;              /* encoding file name */
     char *ff_name;              /* font file name */
     unsigned short type;        /* various flags */
@@ -115,8 +115,8 @@ boolean hasfmentry(internalfontnumber);
 void fm_free(void);
 void fm_read_info(void);
 ff_entry *check_ff_exist(char *, boolean);
-void pdfmapfile(integer);
-void pdfmapline(integer);
+void pdfmapfile(int);
+void pdfmapline(int);
 void pdf_init_map_file(string map_name);
 fm_entry *new_fm_entry(void);
 void delete_fm_entry(fm_entry *);

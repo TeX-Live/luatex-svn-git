@@ -35,18 +35,18 @@ image *new_image(void);
 /*void init_image_dict(image_dict *);*/
 image_dict *new_image_dict(void);
 void free_image_dict(image_dict * p);
-void read_img(PDF, image_dict *, integer, integer);
+void read_img(PDF, image_dict *, int, int);
 void scan_pdfximage(PDF pdf);
 void scan_pdfrefximage(PDF pdf);
 scaled_whd tex_scale(scaled_whd nat, scaled_whd tex);
-scaled_whd scale_img(image_dict *, scaled_whd, integer);
+scaled_whd scale_img(image_dict *, scaled_whd, int);
 void write_img(PDF, image_dict *);
-void pdf_write_image(PDF pdf, integer n);
+void pdf_write_image(PDF pdf, int n);
 void check_pdfstream_dict(image_dict *);
 void write_pdfstream(PDF, image_dict *);
 void idict_to_array(image_dict *);
 void dumpimagemeta(void);
-void undumpimagemeta(PDF, integer, integer);
+void undumpimagemeta(PDF, int, int);
 scaled_whd scan_alt_rule(void);
 
 #endif                          /* WRITEIMG_H */

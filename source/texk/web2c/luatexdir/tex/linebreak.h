@@ -27,7 +27,7 @@
 
 extern halfword just_box;       /* the |hlist_node| for the last line of the new paragraph */
 
-extern void line_break(boolean d, integer line_break_context);
+extern void line_break(boolean d, int line_break_context);
 
 #  define inf_bad 10000         /* infinitely bad value */
 #  define awful_bad 07777777777 /* more than a billion demerits */

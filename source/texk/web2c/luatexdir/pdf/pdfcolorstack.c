@@ -107,7 +107,7 @@ int colorstackused(void)
     A new color stack is setup with the given parameters.
     The stack number is returned or -1 in case of error (no room).
 */
-int newcolorstack(integer s, integer literal_mode, boolean page_start)
+int newcolorstack(int s, int literal_mode, boolean page_start)
 {
     colstack_type *colstack;
     int colstack_num;
@@ -165,7 +165,7 @@ static void put_cstring_on_str_pool(char *str)
     selector = save_selector;
 }
 
-integer colorstackset(int colstack_no, str_number s)
+int colorstackset(int colstack_no, str_number s)
 {
     colstack_type *colstack = get_colstack(colstack_no);
 
@@ -179,7 +179,7 @@ integer colorstackset(int colstack_no, str_number s)
     return colstack->literal_mode;
 }
 
-integer colorstackcurrent(int colstack_no)
+int colorstackcurrent(int colstack_no)
 {
     colstack_type *colstack = get_colstack(colstack_no);
 
@@ -191,7 +191,7 @@ integer colorstackcurrent(int colstack_no)
     return colstack->literal_mode;
 }
 
-static integer colorstackpush(int colstack_no, str_number s)
+static int colorstackpush(int colstack_no, str_number s)
 {
     colstack_type *colstack = get_colstack(colstack_no);
     char *str;
@@ -227,7 +227,7 @@ static integer colorstackpush(int colstack_no, str_number s)
     return colstack->literal_mode;
 }
 
-integer colorstackpop(int colstack_no)
+int colorstackpop(int colstack_no)
 {
     colstack_type *colstack = get_colstack(colstack_no);
 
@@ -278,7 +278,7 @@ void colorstackpagestart(void)
     }
 }
 
-integer colorstackskippagestart(int colstack_no)
+int colorstackskippagestart(int colstack_no)
 {
     colstack_type *colstack = get_colstack(colstack_no);
 
@@ -297,11 +297,11 @@ integer colorstackskippagestart(int colstack_no)
 
 void pdf_out_colorstack(PDF pdf, halfword p)
 {
-    integer old_setting;
+    int old_setting;
     str_number s;
-    integer cmd;
-    integer stack_no;
-    integer literal_mode;
+    int cmd;
+    int stack_no;
+    int literal_mode;
     cmd = pdf_colorstack_cmd(p);
     stack_no = pdf_colorstack_stack(p);
     literal_mode = 0;
@@ -318,7 +318,7 @@ void pdf_out_colorstack(PDF pdf, halfword p)
     case colorstack_push:
         old_setting = selector;
         selector = new_string;
-        show_token_list(token_link(pdf_colorstack_data(p)), null,-1);
+        show_token_list(token_link(pdf_colorstack_data(p)), null, -1);
         selector = old_setting;
         s = make_string();
         if (cmd == colorstack_set)
@@ -348,10 +348,10 @@ void pdf_out_colorstack(PDF pdf, halfword p)
 
 void pdf_out_colorstack_startpage(PDF pdf)
 {
-    integer i;
-    integer max;
-    integer start_status;
-    integer literal_mode;
+    int i;
+    int max;
+    int start_status;
+    int literal_mode;
     str_number s;
     i = 0;
     max = colorstackused();

@@ -55,7 +55,7 @@ extern void synctex_start_input(void);
 /*  Recording the "{..." line.  In *tex.web, use synctex_sheet(pdf_output) at
  *  the very beginning of the ship_out procedure.
 */
-extern void synctex_sheet(integer mag);
+extern void synctex_sheet(int mag);
 
 /*  Recording the "}..." line.  In *tex.web, use synctex_teehs at
  *  the very end of the ship_out procedure.

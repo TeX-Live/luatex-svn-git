@@ -38,7 +38,6 @@ extern "C" {
 #endif
 
 #include <web2c/c-auto.h>       /* define SIZEOF_LONG */
-#include <web2c/config.h>       /* define type integer */
 
 #define xfree(p)            do { if (p != NULL) free(p); p = NULL; } while (0)
 
@@ -47,22 +46,21 @@ extern "C" {
 #include "../utils/avlstuff.h"
 #include "../pdf/pdftypes.h"
 
-    extern void pdf_room(PDF, integer);
+    extern void pdf_room(PDF, int);
 #define pdf_out(B,A) do { pdf_room(B,1); B->buf[B->ptr++] = A; } while (0)
 
     extern void unrefPdfDocument(char *);
     extern void *epdf_xref;
-    extern integer epdf_lastGroupObjectNum;
-    extern integer pool_ptr;
+    extern int epdf_lastGroupObjectNum;
+    extern int pool_ptr;
     extern char notdef[];
 
     extern int is_subsetable(struct fm_entry *);
     extern struct fm_entry *lookup_fontmap(char *);
-    extern integer get_fontfile(struct fm_entry *);
-    extern integer get_fontname(struct fm_entry *);
-    extern integer pdf_new_objnum(PDF);
-    extern void read_pdf_info(PDF, image_dict *, integer, integer,
-                              img_readtype_e);
+    extern int get_fontfile(struct fm_entry *);
+    extern int get_fontname(struct fm_entry *);
+    extern int pdf_new_objnum(PDF);
+    extern void read_pdf_info(PDF, image_dict *, int, int, img_readtype_e);
     extern void embed_whole_font(struct fd_entry *);
     extern void epdf_check_mem(void);
     extern void epdf_free(void);
@@ -80,7 +78,7 @@ extern "C" {
 
     extern void write_epdf(PDF, image_dict *);
     extern void write_additional_epdf_objects(PDF, char *);
-    extern void pdf_begin_obj(PDF, integer, bool);
+    extern void pdf_begin_obj(PDF, int, bool);
 
 /* epdf.c */
     extern void epdf_mark_glyphs(struct fd_entry *, char *);
@@ -90,7 +88,7 @@ extern "C" {
     extern int get_fn_objnum(PDF, struct fd_entry *);
 
 /* write_enc.c */
-    extern void epdf_write_enc(PDF, char **, integer);
+    extern void epdf_write_enc(PDF, char **, int);
 
 /* utils.c */
     extern char *convertStringToPDFString(char *in, int len);

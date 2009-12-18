@@ -65,7 +65,7 @@ void glyph_unicode_free(void)
 
 void def_tounicode(str_number glyph, str_number unistr)
 {
-    char buf[SMALL_BUF_SIZE], *p ,*ph;
+    char buf[SMALL_BUF_SIZE], *p, *ph;
     char buf2[SMALL_BUF_SIZE], *q;
     int valid_unistr;           /* 0: invalid; 1: unicode value; 2: string */
     int i, l;
@@ -310,13 +310,13 @@ static void set_cid_glyph_unicode(long index, glyph_unicode_entry * gp,
 }
 
 
-integer write_tounicode(PDF pdf, char **glyph_names, char *name)
+int write_tounicode(PDF pdf, char **glyph_names, char *name)
 {
     char buf[SMALL_BUF_SIZE], *p;
     static char builtin_suffix[] = "-builtin";
     short range_size[257];
     glyph_unicode_entry gtab[257];
-    integer objnum;
+    int objnum;
     int i, j;
     int bfchar_count, bfrange_count, subrange_count;
     assert(strlen(name) + strlen(builtin_suffix) < SMALL_BUF_SIZE);
@@ -458,12 +458,12 @@ integer write_tounicode(PDF pdf, char **glyph_names, char *name)
     return objnum;
 }
 
-integer write_cid_tounicode(PDF pdf, fo_entry * fo, internalfontnumber f)
+int write_cid_tounicode(PDF pdf, fo_entry * fo, internalfontnumber f)
 {
 
     int range_size[65537];
     glyph_unicode_entry gtab[65537];
-    integer objnum;
+    int objnum;
     int i, j, k;
     int bfchar_count, bfrange_count, subrange_count;
     char *buf;

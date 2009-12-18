@@ -181,7 +181,7 @@ This is the first of many sections of \TeX\ where global variables are
 defined.
 */
 
-integer bad;                    /* is some ``constant'' wrong? */
+int bad;                        /* is some ``constant'' wrong? */
 boolean luainit;                /* are we using lua for initializations  */
 boolean tracefilenames;         /* print file open-close  info? */
 
@@ -196,35 +196,35 @@ production version, which cuts the initialization to a bare minimum.
 boolean ini_version;            /* are we \.{INITEX}? */
 boolean dump_option;            /* was the dump name option used? */
 boolean dump_line;              /* was a \.{\%\AM format} line seen? */
-integer bound_default;          /* temporary for setup */
+int bound_default;              /* temporary for setup */
 char *bound_name;               /* temporary for setup */
-integer error_line;             /* width of context lines on terminal error messages */
-integer half_error_line;        /* width of first lines of contexts in terminal
+int error_line;                 /* width of context lines on terminal error messages */
+int half_error_line;            /* width of first lines of contexts in terminal
                                    error messages; should be between 30 and |error_line-15| */
-integer max_print_line;         /* width of longest text lines output; should be at least 60 */
-integer ocp_list_size;
-integer ocp_buf_size;
-integer ocp_stack_size;
-integer max_strings;            /* maximum number of strings; must not exceed |max_halfword| */
-integer strings_free;           /* strings available after format loaded */
-integer font_k;                 /* loop variable for initialization */
-integer buf_size;               /* maximum number of characters simultaneously present in
+int max_print_line;             /* width of longest text lines output; should be at least 60 */
+int ocp_list_size;
+int ocp_buf_size;
+int ocp_stack_size;
+int max_strings;                /* maximum number of strings; must not exceed |max_halfword| */
+int strings_free;               /* strings available after format loaded */
+int font_k;                     /* loop variable for initialization */
+int buf_size;                   /* maximum number of characters simultaneously present in
                                    current lines of open files and in control sequences between
                                    \.{\\csname} and \.{\\endcsname}; must not exceed |max_halfword| */
-integer stack_size;             /* maximum number of simultaneous input sources */
-integer max_in_open;            /* maximum number of input files and error insertions that
+int stack_size;                 /* maximum number of simultaneous input sources */
+int max_in_open;                /* maximum number of input files and error insertions that
                                    can be going on simultaneously */
-integer param_size;             /* maximum number of simultaneous macro parameters */
-integer nest_size;              /* maximum number of semantic levels simultaneously active */
-integer save_size;              /* space for saving values outside of current group; must be
+int param_size;                 /* maximum number of simultaneous macro parameters */
+int nest_size;                  /* maximum number of semantic levels simultaneously active */
+int save_size;                  /* space for saving values outside of current group; must be
                                    at most |max_halfword| */
-integer expand_depth;           /* limits recursive calls of the |expand| procedure */
+int expand_depth;               /* limits recursive calls of the |expand| procedure */
 int parsefirstlinep;            /* parse the first line for options */
 int filelineerrorstylep;        /* format messages as file:line:error */
 int haltonerrorp;               /* stop at first error */
 boolean quoted_filename;        /* current filename is quoted */
 
-integer get_luatexversion(void)
+int get_luatexversion(void)
 {
     return luatex_version;
 }
@@ -234,7 +234,7 @@ str_number get_luatexrevision(void)
     return luatex_revision;
 }
 
-integer get_luatex_date_info(void)
+int get_luatex_date_info(void)
 {
     return luatex_date_info;    /* todo, silly value */
 }
@@ -317,8 +317,8 @@ int main_initialize(void)
     save_stack = xmallocarray(save_record, save_size);
     input_stack = xmallocarray(in_state_record, stack_size);
     input_file = xmallocarray(alpha_file, max_in_open);
-    input_file_callback_id = xmallocarray(integer, max_in_open);
-    line_stack = xmallocarray(integer, max_in_open);
+    input_file_callback_id = xmallocarray(int, max_in_open);
+    line_stack = xmallocarray(int, max_in_open);
     eof_seen = xmallocarray(boolean, max_in_open);
     grp_stack = xmallocarray(save_pointer, max_in_open);
     if_stack = xmallocarray(pointer, max_in_open);
@@ -486,8 +486,8 @@ This program doesn't bother to close the input files that may still be open.
 
 void close_files_and_terminate()
 {
-    integer k;                  /* all-purpose index */
-    integer callback_id;
+    int k;                      /* all-purpose index */
+    int callback_id;
     PDF pdf = static_pdf;
     callback_id = callback_defined(stop_run_callback);
     /* Finish the extensions */
@@ -667,7 +667,7 @@ program below. (If |m=13|, there is an additional argument, |l|.)
 #ifdef DEBUG
 void debug_help(void)
 {                               /* routine to display various things */
-    integer k;
+    int k;
     int m = 0, n = 0, l = 0;
     while (1) {
         wake_up_terminal();

@@ -31,7 +31,7 @@ static const char __svn_version[] =
 
 void append_bead(PDF pdf, halfword p)
 {
-    integer a, b, c, t;
+    int a, b, c, t;
     if (!is_shipping_page)
         pdf_error("ext4", "threads cannot be inside an XForm");
     t = get_obj(pdf, obj_type_thread, pdf_thread_id(p), pdf_thread_named_id(p));
@@ -136,7 +136,7 @@ void end_thread(PDF pdf, halfword p)
 
 /* The following function are needed for outputing article thread. */
 
-void thread_title(PDF pdf, integer t)
+void thread_title(PDF pdf, int t)
 {
     pdf_printf(pdf, "/Title (");
     if (obj_info(pdf, t) < 0)
@@ -146,7 +146,7 @@ void thread_title(PDF pdf, integer t)
     pdf_printf(pdf, ")\n");
 }
 
-void pdf_fix_thread(PDF pdf, integer t)
+void pdf_fix_thread(PDF pdf, int t)
 {
     halfword a;
     pdf_warning("thread", "destination", false, false);
@@ -181,10 +181,10 @@ void pdf_fix_thread(PDF pdf, integer t)
     pdf_end_dict(pdf);
 }
 
-void out_thread(PDF pdf, integer t)
+void out_thread(PDF pdf, int t)
 {
     halfword a, b;
-    integer last_attr;
+    int last_attr;
     if (obj_thread_first(pdf, t) == 0) {
         pdf_fix_thread(pdf, t);
         return;

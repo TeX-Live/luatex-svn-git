@@ -44,7 +44,7 @@ the initial setting of |100| should be enough to prevent problems.
 @^system dependencies@>
 */
 
-static integer expand_depth_count = 0;
+static int expand_depth_count = 0;
 
 /*
 The |expand| subroutine is used when |cur_cmd>max_command|. It removes a
@@ -67,8 +67,8 @@ void expand(void)
     halfword t;                 /* token that is being ``expanded after'' */
     halfword p;                 /* for list manipulation */
     halfword cur_ptr;           /* for a local token list pointer */
-    integer cv_backup;          /* to save the global quantity |cur_val| */
-    integer cvl_backup, radix_backup, co_backup;        /* to save |cur_val_level|, etc. */
+    int cv_backup;              /* to save the global quantity |cur_val| */
+    int cvl_backup, radix_backup, co_backup;    /* to save |cur_val_level|, etc. */
     halfword backup_backup;     /* to save |link(backup_head)| */
     int save_scanner_status;    /* temporary storage of |scanner_status| */
     incr(expand_depth_count);
@@ -318,8 +318,8 @@ void complain_missing_csname(void)
 void manufacture_csname(void)
 {
     halfword p, q, r;
-    integer j;                  /* index into |buffer| */
-    integer s;                  /* a character */
+    int j;                      /* index into |buffer| */
+    int s;                      /* a character */
     r = get_avail();
     p = r;                      /* head of the list of characters */
     is_in_csname = true;

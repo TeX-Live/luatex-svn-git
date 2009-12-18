@@ -157,7 +157,7 @@ extern int put_big_endian(void *s, LONG q, int n);
 #  ifdef XETEX
 extern sfnt *sfnt_open(FT_Face face, int accept_types);
 #  elif defined(pdfTeX)
-extern sfnt *sfnt_open(unsigned char *buffer, integer buflen);
+extern sfnt *sfnt_open(unsigned char *buffer, int buflen);
 #  else
 extern sfnt *sfnt_open(FILE * fp);
 #  endif

@@ -83,9 +83,9 @@ typedef struct {
 
 typedef struct {
 #  ifdef WORDS_BIGENDIAN
-    integer CINT0, CINT1;
+    int CINT0, CINT1;
 #  else
-    integer CINT1, CINT0;
+    int CINT1, CINT0;
 #  endif
 } two_ints;
 

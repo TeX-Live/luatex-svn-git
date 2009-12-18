@@ -115,7 +115,7 @@ boolean deletions_allowed;      /* is it safe for |error| to call |get_token|? *
 boolean set_box_allowed;        /* is it safe to do a \.{\\setbox} assignment? */
 int history;                    /* has the source input been clean so far? */
 int error_count;                /* the number of scrolled errors since the last paragraph ended */
-integer interrupt;              /* should \TeX\ pause for instructions? */
+int interrupt;                  /* should \TeX\ pause for instructions? */
 boolean OK_to_interrupt;        /* should interrupts be observed? */
 
 
@@ -175,8 +175,8 @@ void jump_out(void)
 void error(void)
 {                               /* completes the job of error reporting */
     ASCII_code c;               /* what the user types */
-    integer callback_id;
-    integer s1, s2, s3, s4;     /* used to save global variables when deleting tokens */
+    int callback_id;
+    int s1, s2, s3, s4;         /* used to save global variables when deleting tokens */
     boolean t;
     int i;
     if (history < error_message_issued)
@@ -386,7 +386,7 @@ A dozen or so error messages end with a parenthesized integer, so we
 save a teeny bit of program space by declaring the following procedure:
 */
 
-void int_error(integer n)
+void int_error(int n)
 {
     tprint(" (");
     print_int(n);
@@ -438,7 +438,7 @@ void fatal_error(char *s)
 
 void lua_norm_error(char *s)
 {                               /* lua found a problem */
-    integer saved_new_line_char;
+    int saved_new_line_char;
     saved_new_line_char = new_line_char;
     new_line_char = 10;
     print_err("LuaTeX error ");
@@ -460,7 +460,7 @@ void lua_fatal_error(char *s)
 
 /* Here is the most dreaded error message */
 
-void overflow(char *s, integer n)
+void overflow(char *s, int n)
 {                               /* stop due to finiteness */
     normalize_selector();
     print_err("TeX capacity exceeded, sorry [");
@@ -589,9 +589,9 @@ that characters exist when it sees them. The following procedure
 prints a warning message unless the user has suppressed it.
 */
 
-void char_warning(internal_font_number f, integer c)
+void char_warning(internal_font_number f, int c)
 {
-    integer old_setting;        /* saved value of |tracing_online| */
+    int old_setting;            /* saved value of |tracing_online| */
     int k;                      /* index to current digit; we assume that $0\L n<16^{22}$ */
     if (int_par(tracing_lost_chars_code) > 0) {
         old_setting = int_par(tracing_online_code);

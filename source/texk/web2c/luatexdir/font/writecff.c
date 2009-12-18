@@ -3390,7 +3390,7 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
  * I have defined a utility function in luafflib.c that does exactly that.
  * If it works out ok, I will clean up this code.
  */
-extern int ff_createcff(char *, unsigned char **, integer *);   /* libs/luafontforge/src/luafflib.c */
+extern int ff_createcff(char *, unsigned char **, int *);       /* libs/luafontforge/src/luafflib.c */
 
 void writetype1w(PDF pdf, fd_entry * fd)
 {
@@ -3399,7 +3399,7 @@ void writetype1w(PDF pdf, fd_entry * fd)
     FILE *fp;
     ff_entry *ff;
     unsigned char *tfm_buffer = NULL;
-    integer tfm_size = 0;
+    int tfm_size = 0;
 
     ff = check_ff_exist(fd->fm->ff_name, 0);
 

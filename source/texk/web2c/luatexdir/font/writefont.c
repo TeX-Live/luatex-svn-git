@@ -27,7 +27,7 @@ static const char _svn_version[] =
 
 void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internalfontnumber f);
 void create_cid_fontdictionary(PDF pdf,
-                               fm_entry * fm, integer font_objnum,
+                               fm_entry * fm, int font_objnum,
                                internalfontnumber f);
 
 const key_entry font_key[FONT_KEYS_NUM] = {
@@ -229,7 +229,7 @@ static void write_fontname_object(PDF pdf, fd_entry * fd)
 
 /**********************************************************************/
 
-fd_entry *lookup_fd_entry(char *s, integer extend)
+fd_entry *lookup_fd_entry(char *s, int extend)
 {
     fd_entry fd;
     fm_entry fm;
@@ -279,13 +279,13 @@ void create_fontdescriptor(fo_entry * fo, internalfontnumber f)
     assert(fo->fd->gl_tree != NULL);
 }
 
-integer get_fd_objnum(fd_entry * fd)
+int get_fd_objnum(fd_entry * fd)
 {
     assert(fd->fd_objnum != 0);
     return fd->fd_objnum;
 }
 
-integer get_fn_objnum(PDF pdf, fd_entry * fd)
+int get_fn_objnum(PDF pdf, fd_entry * fd)
 {
     if (fd->fn_objnum == 0)
         fd->fn_objnum = pdf_new_objnum(pdf);
@@ -686,7 +686,7 @@ void write_fontstuff(PDF pdf)
 
 /**********************************************************************/
 
-void create_fontdictionary(PDF pdf, fm_entry * fm, integer font_objnum,
+void create_fontdictionary(PDF pdf, fm_entry * fm, int font_objnum,
                            internalfontnumber f)
 {
     fo_entry *fo = new_fo_entry();
@@ -769,7 +769,7 @@ static int has_ttf_outlines(fm_entry * fm)
 
 extern char *FindResourceTtfFont(char *filename, char *fontname);
 
-void do_pdf_font(PDF pdf, integer font_objnum, internalfontnumber f)
+void do_pdf_font(PDF pdf, int font_objnum, internalfontnumber f)
 {
     int del_file = 0;
     fm_entry *fm;
@@ -984,7 +984,7 @@ static void write_cid_charwidth_array(PDF pdf, fo_entry * fo)
 
 
 void create_cid_fontdictionary(PDF pdf,
-                               fm_entry * fm, integer font_objnum,
+                               fm_entry * fm, int font_objnum,
                                internalfontnumber f)
 {
     fo_entry *fo = new_fo_entry();

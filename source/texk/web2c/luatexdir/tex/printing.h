@@ -38,12 +38,12 @@ typedef enum {
 extern alpha_file log_file;
 extern int selector;
 extern int dig[23];
-extern integer tally;
+extern int tally;
 extern int term_offset;
 extern int file_offset;
 extern packed_ASCII_code trick_buf[(ssup_error_line + 1)];
-extern integer trick_count;
-extern integer first_count;
+extern int trick_count;
+extern int first_count;
 extern boolean inhibit_par_tokens;
 
 /*
@@ -59,24 +59,24 @@ by changing |wterm|, |wterm_ln|, and |wterm_cr| in this section.
 
 extern void print_ln(void);
 extern void print_char(int s);
-extern void print(integer s);
+extern void print(int s);
 extern void print_nl(str_number s);
 extern void print_nlp(void);
-extern void slow_print(integer s);
+extern void slow_print(int s);
 extern void print_banner(char *, int);
 extern void log_banner(char *, int);
 extern void print_version_banner(void);
 extern void print_esc(str_number s);
 extern void print_the_digs(eight_bits k);
 extern void print_int(longinteger n);
-extern void print_two(integer n);
-extern void print_hex(integer n);
-extern void print_roman_int(integer n);
+extern void print_two(int n);
+extern void print_hex(int n);
+extern void print_roman_int(int n);
 extern void print_current_string(void);
 
 #  define print_font_name(A) tprint(font_name(A))
 
-extern void print_cs(integer p);
+extern void print_cs(int p);
 extern void sprint_cs(pointer p);
 extern void tprint(char *s);
 extern void tprint_nl(char *s);
@@ -99,21 +99,21 @@ extern void prompt_input(char *s);
 
 #  define active_cs_value(A) pool_to_unichar((str_string((A))+3))
 
-extern void print_glue(scaled d, integer order, char *s);       /* prints a glue component */
-extern void print_spec(integer p, char *s);     /* prints a glue specification */
+extern void print_glue(scaled d, int order, char *s);   /* prints a glue component */
+extern void print_spec(int p, char *s); /* prints a glue specification */
 
-extern integer font_in_short_display;   /* an internal font number */
+extern int font_in_short_display;       /* an internal font number */
 extern void print_font_identifier(internal_font_number f);
-extern void short_display(integer p);   /* prints highlights of list |p| */
-extern void print_font_and_char(integer p);     /* prints |char_node| data */
-extern void print_mark(integer p);      /* prints token list data in braces */
+extern void short_display(int p);       /* prints highlights of list |p| */
+extern void print_font_and_char(int p); /* prints |char_node| data */
+extern void print_mark(int p);  /* prints token list data in braces */
 extern void print_rule_dimen(scaled d); /* prints dimension in rule node */
-extern integer depth_threshold; /* maximum nesting depth in box displays */
-extern integer breadth_max;     /* maximum number of items shown at the same list level */
+extern int depth_threshold;     /* maximum nesting depth in box displays */
+extern int breadth_max;         /* maximum number of items shown at the same list level */
 extern void show_box(halfword p);
-extern void short_display_n(integer p, integer m);      /* prints highlights of list |p| */
+extern void short_display_n(int p, int m);      /* prints highlights of list |p| */
 
-extern void print_csnames(integer hstart, integer hfinish);
+extern void print_csnames(int hstart, int hfinish);
 extern void print_file_line(void);
 
 extern void begin_diagnostic(void);

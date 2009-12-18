@@ -45,12 +45,12 @@ static sa_tree sfcode_head = NULL;
 #define CATCODEDEFAULT 12
 
 
-void set_lc_code(integer n, halfword v, quarterword gl)
+void set_lc_code(int n, halfword v, quarterword gl)
 {
     set_sa_item(lccode_head, n, v, gl);
 }
 
-halfword get_lc_code(integer n)
+halfword get_lc_code(int n)
 {
     return (halfword) get_sa_item(lccode_head, n);
 }
@@ -75,12 +75,12 @@ static void undumplccodes(void)
     lccode_head = undump_sa_tree();
 }
 
-void set_uc_code(integer n, halfword v, quarterword gl)
+void set_uc_code(int n, halfword v, quarterword gl)
 {
     set_sa_item(uccode_head, n, v, gl);
 }
 
-halfword get_uc_code(integer n)
+halfword get_uc_code(int n)
 {
     return (halfword) get_sa_item(uccode_head, n);
 }
@@ -105,12 +105,12 @@ static void undumpuccodes(void)
     uccode_head = undump_sa_tree();
 }
 
-void set_sf_code(integer n, halfword v, quarterword gl)
+void set_sf_code(int n, halfword v, quarterword gl)
 {
     set_sa_item(sfcode_head, n, v, gl);
 }
 
-halfword get_sf_code(integer n)
+halfword get_sf_code(int n)
 {
     return (halfword) get_sa_item(sfcode_head, n);
 }
@@ -137,14 +137,14 @@ static void undumpsfcodes(void)
 
 
 static sa_tree *catcode_heads = NULL;
-static integer catcode_max = 0;
+static int catcode_max = 0;
 static unsigned char *catcode_valid = NULL;
 
 #define CATCODE_MAX 65535
 
 #define update_catcode_max(h)  if (h > catcode_max)  catcode_max = h
 
-void set_cat_code(integer h, integer n, halfword v, quarterword gl)
+void set_cat_code(int h, int n, halfword v, quarterword gl)
 {
     sa_tree s = catcode_heads[h];
     update_catcode_max(h);
@@ -155,7 +155,7 @@ void set_cat_code(integer h, integer n, halfword v, quarterword gl)
     set_sa_item(s, n, v, gl);
 }
 
-halfword get_cat_code(integer h, integer n)
+halfword get_cat_code(int h, int n)
 {
     sa_tree s = catcode_heads[h];
     update_catcode_max(h);
@@ -166,7 +166,7 @@ halfword get_cat_code(integer h, integer n)
     return (halfword) get_sa_item(s, n);
 }
 
-void unsave_cat_codes(integer h, quarterword gl)
+void unsave_cat_codes(int h, quarterword gl)
 {
     int k;
     update_catcode_max(h);
@@ -176,7 +176,7 @@ void unsave_cat_codes(integer h, quarterword gl)
     }
 }
 
-void clearcatcodestack(integer h)
+void clearcatcodestack(int h)
 {
     clear_sa_stack(catcode_heads[h]);
 }
@@ -215,7 +215,7 @@ static void dumpcatcodes(void)
 
 static void undumpcatcodes(void)
 {
-    integer total, k, x;
+    int total, k, x;
     xfree(catcode_heads);
     xfree(catcode_valid);
     catcode_heads = Mxmalloc_array(sa_tree, (CATCODE_MAX + 1));

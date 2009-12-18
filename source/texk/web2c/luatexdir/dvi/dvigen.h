@@ -22,28 +22,28 @@
 #ifndef DVIGEN_H
 #  define DVIGEN_H
 
-extern integer total_pages;
+extern int total_pages;
 extern scaled max_v;
 extern scaled max_h;
-extern integer max_push;
-extern integer last_bop;
-extern integer dead_cycles;
+extern int max_push;
+extern int last_bop;
+extern int dead_cycles;
 extern boolean doing_leaders;
-extern integer c, f;
-extern integer oval, ocmd;
+extern int c, f;
+extern int oval, ocmd;
 extern halfword g;
-extern integer lq, lr;
-extern integer cur_s;
+extern int lq, lr;
+extern int cur_s;
 
 typedef int dvi_index;          /* an index into the output buffer */
 
-extern integer dvi_buf_size;
+extern int dvi_buf_size;
 extern eight_bits *dvi_buf;     /* 0 is unused */
 extern dvi_index half_buf;
 extern dvi_index dvi_limit;
 extern dvi_index dvi_ptr;
-extern integer dvi_offset;
-extern integer dvi_gone;
+extern int dvi_offset;
+extern int dvi_gone;
 
 /*
 To put a byte in the buffer without paying the cost of invoking a procedure
@@ -56,9 +56,9 @@ each time, we use the macro |dvi_out|.
   } while (0)
 
 extern void dvi_swap(void);
-extern void dvi_four(integer x);
+extern void dvi_four(int x);
 extern void dvi_push(void);
-extern void dvi_pop(integer l);
+extern void dvi_pop(int l);
 extern void out_cmd(void);
 extern void dvi_font_def(internal_font_number f);
 
@@ -121,7 +121,7 @@ typedef enum {
 #  define z_seen 12             /* we have seen |z_here| but not |y_here| */
 
 extern void movement(scaled w, eight_bits o);
-extern void prune_movements(integer l);
+extern void prune_movements(int l);
 
 /*
 The actual distances by which we want to move might be computed as the
@@ -184,7 +184,7 @@ extern void dvi_special(PDF pdf, halfword p);
 extern void ensure_dvi_header_written(PDF pdf);
 extern void finish_dvi_file(PDF pdf, int version, int revision);
 
-extern void dvi_place_glyph(PDF pdf, internal_font_number f, integer c);
+extern void dvi_place_glyph(PDF pdf, internal_font_number f, int c);
 extern void dvi_place_rule(PDF pdf, halfword q, scaledpos size);
 
 extern void dvi_begin_page(PDF pdf);

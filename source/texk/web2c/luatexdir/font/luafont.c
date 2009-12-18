@@ -527,7 +527,7 @@ int font_to_lua(lua_State * L, int f)
     lua_setfield(L, -2, "characters");
 
     if (font_cache_id(f) == 0) {        /* renew */
-        integer r;
+        int r;
         lua_pushvalue(L, -1);
         r = luaL_ref(Luas, LUA_REGISTRYINDEX);  /* pops the table */
         set_font_cache_id(f, r);
@@ -870,7 +870,7 @@ scaled sp_to_dvi(halfword sp, halfword atsize)
 
 
 static void
-read_char_packets(lua_State * L, integer * l_fonts, charinfo * co, int atsize)
+read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
 {
     int i, n, m;
     size_t l;
@@ -1172,8 +1172,8 @@ static void store_math_kerns(lua_State * L, charinfo * co, int id)
 }
 
 void
-font_char_from_lua(lua_State * L, internal_font_number f, integer i,
-                   integer * l_fonts, boolean has_math)
+font_char_from_lua(lua_State * L, internal_font_number f, int i,
+                   int *l_fonts, boolean has_math)
 {
     int k, r, t;
     charinfo *co;
@@ -1377,7 +1377,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, integer i,
             lua_pushnil(L);     /* first key */
             if (lua_next(L, -2) != 0) {
                 lua_pop(L, 2);
-                read_char_packets(L, (integer *) l_fonts, co, atsize);
+                read_char_packets(L, (int *) l_fonts, co, atsize);
             }
         }
         lua_pop(L, 1);
@@ -1451,8 +1451,8 @@ int font_from_lua(lua_State * L, int f)
     int bc;                     /* first char index */
     int ec;                     /* last char index */
     char *s;
-    integer *l_fonts = NULL;
-    integer save_ref = 1;       /* unneeded, really */
+    int *l_fonts = NULL;
+    int save_ref = 1;           /* unneeded, really */
     boolean no_math = false;
 
     /* will we save a cache of the luat table? */
@@ -1545,8 +1545,8 @@ int font_from_lua(lua_State * L, int f)
     /* now fetch the base fonts, if needed */
     n = count_hash_items(L, luaS_index(fonts));
     if (n > 0) {
-        l_fonts = xmalloc((n + 2) * sizeof(integer));
-        memset(l_fonts, 0, (n + 2) * sizeof(integer));
+        l_fonts = xmalloc((n + 2) * sizeof(int));
+        memset(l_fonts, 0, (n + 2) * sizeof(int));
         lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(fonts));
         lua_rawget(L, -2);
         for (i = 1; i <= n; i++) {
@@ -1592,7 +1592,7 @@ int font_from_lua(lua_State * L, int f)
         if (font_type(f) == virtual_font_type) {
             pdftex_fail("Invalid local fonts in font %s!\n", font_name(f));
         } else {
-            l_fonts = xmalloc(3 * sizeof(integer));
+            l_fonts = xmalloc(3 * sizeof(int));
             l_fonts[0] = 0;
             l_fonts[1] = f;
             l_fonts[2] = 0;

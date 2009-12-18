@@ -149,9 +149,9 @@ halfword otp_second_arg;
 halfword otp_input_ocp;
 
 boolean otp_finished;
-integer otp_ext_str;
-integer otp_ext_str_arg;
-integer otp_ext_i;
+int otp_ext_str;
+int otp_ext_str_arg;
+int otp_ext_i;
 
 #define otp_set_instruction() do {					\
     if (otp_pc>=ocp_state_no(otp_input_ocp,otp_cur_state)) {		\
@@ -708,7 +708,7 @@ void run_external_ocp(char *external_ocp_name)
 
 void run_ocp(void)
 {
-    integer t = 0;
+    int t = 0;
     halfword otp_i;
     halfword otp_counter;
     /* The OTP input buffer is an array of 16-bit values.
@@ -863,7 +863,7 @@ void run_ocp(void)
 }
 
 
-void initialize_ocp_buffers(integer ocp_buf_size, integer ocp_stack_size)
+void initialize_ocp_buffers(int ocp_buf_size, int ocp_stack_size)
 {
     otp_init_input_buf = xmallocarray(quarterword, ocp_buf_size);
     otp_input_buf = xmallocarray(quarterword, ocp_buf_size);
@@ -873,7 +873,7 @@ void initialize_ocp_buffers(integer ocp_buf_size, integer ocp_stack_size)
     otp_states = xmallocarray(halfword, ocp_stack_size);
 }
 
-boolean is_last_ocp(scaled llstack_no, integer counter)
+boolean is_last_ocp(scaled llstack_no, int counter)
 {
     active_min_ptr = equiv(ocp_active_min_ptr_base);
     active_max_ptr = equiv(ocp_active_max_ptr_base);
@@ -892,7 +892,7 @@ boolean is_last_ocp(scaled llstack_no, integer counter)
 
 void print_active_ocps(void)
 {
-    integer i;
+    int i;
     tprint_nl("Active ocps: [");
     i = active_min_ptr;
     while (i < active_max_ptr) {
@@ -910,11 +910,11 @@ void print_active_ocps(void)
     tprint("]");
 }
 
-void add_ocp_stack(integer min_index, scaled min_value)
+void add_ocp_stack(int min_index, scaled min_value)
 {
     ocp_lstack_index p;
     scaled llstack_no;
-    integer counter;
+    int counter;
     scaled m;
     m = min_value;              /* TH: whatever this is .. */
     p = ocp_list_lstack(holding[min_index]);
@@ -932,11 +932,11 @@ void add_ocp_stack(integer min_index, scaled min_value)
 
 void active_compile(void)
 {
-    integer i;
-    integer min_index;
+    int i;
+    int min_index;
     scaled min_stack_ocp;
     scaled old_min;
-    integer max_active;
+    int max_active;
     scaled stack_value;
     active_min_ptr = active_max_ptr;
     min_stack_ocp = ocp_maxint;
@@ -972,7 +972,7 @@ void do_push_ocp_list(small_number a)
 {
     halfword ocp_list_no;
     halfword old_number;
-    integer i;
+    int i;
     scan_ocp_list_ident();
     ocp_list_no = cur_val;
     old_number = equiv(ocp_active_number_base);
@@ -997,7 +997,7 @@ void do_push_ocp_list(small_number a)
 void do_pop_ocp_list(small_number a)
 {
     halfword old_number;
-    integer i;
+    int i;
     old_number = equiv(ocp_active_number_base);
     if (old_number == 0) {
         print_err("No active ocp lists to be popped");
@@ -1031,7 +1031,7 @@ void do_clear_ocp_lists(small_number a)
 
 void dump_active_ocp_info(void)
 {
-    integer k;
+    int k;
     dump_int(active_min_ptr);
     dump_int(active_max_ptr);
     for (k = 0; k <= active_max_ptr - 1; k++)
@@ -1045,7 +1045,7 @@ void dump_active_ocp_info(void)
 
 void undump_active_ocp_info(void)
 {
-    integer k;
+    int k;
     undump_int(active_min_ptr);
     /* undump_size(0)(active_mem_size)('active start point')(active_min_ptr); */
     undump_int(active_max_ptr);

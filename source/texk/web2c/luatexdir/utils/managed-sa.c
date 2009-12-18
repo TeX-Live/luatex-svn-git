@@ -23,7 +23,7 @@
 static const char __svn_version[] =
     "$Id$ $URL$";
 
-static void store_sa_stack(sa_tree a, integer n, integer v, integer gl)
+static void store_sa_stack(sa_tree a, int n, int v, int gl)
 {
     sa_stack_item st;
     st.code = n;
@@ -39,7 +39,7 @@ static void store_sa_stack(sa_tree a, integer n, integer v, integer gl)
     a->stack[a->stack_ptr] = st;
 }
 
-static void skip_in_stack(sa_tree a, integer n)
+static void skip_in_stack(sa_tree a, int n)
 {
     int p = a->stack_ptr;
     if (a->stack == NULL)
@@ -52,7 +52,7 @@ static void skip_in_stack(sa_tree a, integer n)
     }
 }
 
-sa_tree_item get_sa_item(const sa_tree head, const integer n)
+sa_tree_item get_sa_item(const sa_tree head, const int n)
 {
     register int h;
     register int m;
@@ -68,7 +68,7 @@ sa_tree_item get_sa_item(const sa_tree head, const integer n)
     return head->dflt;
 }
 
-void set_sa_item(sa_tree head, integer n, sa_tree_item v, integer gl)
+void set_sa_item(sa_tree head, int n, sa_tree_item v, int gl)
 {
     int h, m, l;
     int i;
@@ -98,7 +98,7 @@ void set_sa_item(sa_tree head, integer n, sa_tree_item v, integer gl)
     head->tree[h][m][l] = v;
 }
 
-void rawset_sa_item(sa_tree head, integer n, integer v)
+void rawset_sa_item(sa_tree head, int n, int v)
 {
     head->tree[HIGHPART_PART(n)][MIDPART_PART(n)][LOWPART_PART(n)] = v;
 }
@@ -173,7 +173,7 @@ Allocating those here immediately improves the chance of the structure
 |a->tree[0][0][x]| being close together in actual memory locations 
 */
 
-sa_tree new_sa_tree(integer size, sa_tree_item dflt)
+sa_tree new_sa_tree(int size, sa_tree_item dflt)
 {
     sa_tree_head *a;
     a = (sa_tree_head *) xmalloc(sizeof(sa_tree_head));
@@ -187,7 +187,7 @@ sa_tree new_sa_tree(integer size, sa_tree_item dflt)
     return (sa_tree) a;
 }
 
-void restore_sa_stack(sa_tree head, integer gl)
+void restore_sa_stack(sa_tree head, int gl)
 {
     sa_stack_item st;
     if (head->stack == NULL)
@@ -242,7 +242,7 @@ void dump_sa_tree(sa_tree a)
 
 sa_tree undump_sa_tree(void)
 {
-    integer x;
+    int x;
     int h, m, l;
     boolean f;
     sa_tree a = (sa_tree) Mxmalloc_array(sa_tree_head, 1);

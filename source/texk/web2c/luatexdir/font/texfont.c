@@ -46,8 +46,8 @@ static const char _svn_version[] =
 
 texfont **font_tables = NULL;
 
-static integer font_arr_max = 0;
-static integer font_id_maxval = 0;
+static int font_arr_max = 0;
+static int font_id_maxval = 0;
 
 extern extinfo *get_charinfo_vert_variants(charinfo * ci);
 extern extinfo *get_charinfo_hor_variants(charinfo * ci);
@@ -57,7 +57,7 @@ extern void set_charinfo_vert_variants(charinfo * ci, extinfo * ext);
 extern extinfo *copy_variants(extinfo * o);
 
 
-static void grow_font_table(integer id)
+static void grow_font_table(int id)
 {
     int j;
     if (id >= font_arr_max) {
@@ -71,7 +71,7 @@ static void grow_font_table(integer id)
     }
 }
 
-integer new_font_id(void)
+int new_font_id(void)
 {
     int i;
     for (i = 0; i < font_arr_max; i++) {
@@ -86,17 +86,17 @@ integer new_font_id(void)
     return i;
 }
 
-integer max_font_id(void)
+int max_font_id(void)
 {
     return font_id_maxval;
 }
 
-void set_max_font_id(integer i)
+void set_max_font_id(int i)
 {
     font_id_maxval = i;
 }
 
-integer new_font(void)
+int new_font(void)
 {
     int k;
     int id;
@@ -150,7 +150,7 @@ void font_malloc_charinfo(internal_font_number f, int num)
 
 #define find_charinfo_id(f,c) get_sa_item(font_tables[f]->characters,c)
 
-charinfo *get_charinfo(internal_font_number f, integer c)
+charinfo *get_charinfo(internal_font_number f, int c)
 {
     sa_tree_item glyph;
     charinfo *ci;
@@ -184,7 +184,7 @@ charinfo *get_charinfo(internal_font_number f, integer c)
     return &(font_tables[f]->charinfo[0]);
 }
 
-void set_charinfo(internal_font_number f, integer c, charinfo * ci)
+void set_charinfo(internal_font_number f, int c, charinfo * ci)
 {
     sa_tree_item glyph;
     if (proper_char_index(c)) {
@@ -314,7 +314,7 @@ charinfo *copy_charinfo(charinfo * ci)
     return co;
 }
 
-charinfo *char_info(internal_font_number f, integer c)
+charinfo *char_info(internal_font_number f, int c)
 {
     if (f > font_id_maxval)
         return 0;
@@ -329,7 +329,7 @@ charinfo *char_info(internal_font_number f, integer c)
     return &(font_tables[f]->charinfo[0]);
 }
 
-scaled_whd get_charinfo_whd(internal_font_number f, integer c)
+scaled_whd get_charinfo_whd(internal_font_number f, int c)
 {
     scaled_whd s;
     charinfo *i;
@@ -340,7 +340,7 @@ scaled_whd get_charinfo_whd(internal_font_number f, integer c)
     return s;
 }
 
-integer char_exists(internal_font_number f, integer c)
+int char_exists(internal_font_number f, int c)
 {
     if (f > font_id_maxval)
         return 0;
@@ -354,9 +354,9 @@ integer char_exists(internal_font_number f, integer c)
     return 0;
 }
 
-int lua_char_exists_callback(internal_font_number f, integer c)
+int lua_char_exists_callback(internal_font_number f, int c)
 {
-    integer callback_id;
+    int callback_id;
     lua_State *L = Luas;
     int ret = 0;
     callback_id = callback_defined(char_exists_callback);
@@ -420,7 +420,7 @@ void dump_variant(extinfo * ext)
 
 extinfo *undump_variant(void)
 {
-    integer x;
+    int x;
     extinfo *ext;
     undump_int(x);
     if (x == 0)
@@ -683,7 +683,7 @@ void add_charinfo_math_kern(charinfo * ci, int id, scaled ht, scaled krn)
 
 static void dump_math_kerns(charinfo * ci)
 {
-    integer k, l;
+    int k, l;
     l = ci->top_left_math_kerns;
     dump_int(l);
     for (k = 0; k < l; k++) {
@@ -713,7 +713,7 @@ static void dump_math_kerns(charinfo * ci)
 static void undump_math_kerns(charinfo * ci)
 {
     int k;
-    integer x;
+    int x;
     undump_int(x);
     ci->top_left_math_kerns = (int) x;
     if (x > 0)
@@ -834,7 +834,7 @@ char get_charinfo_tag(charinfo * ci)
     return ci->tag;
 }
 
-integer get_charinfo_remainder(charinfo * ci)
+int get_charinfo_remainder(charinfo * ci)
 {
     return ci->remainder;
 }
@@ -844,7 +844,7 @@ char get_charinfo_used(charinfo * ci)
     return ci->used;
 }
 
-integer get_charinfo_index(charinfo * ci)
+int get_charinfo_index(charinfo * ci)
 {
     return ci->index;
 }
@@ -874,17 +874,17 @@ eight_bits *get_charinfo_packets(charinfo * ci)
     return ci->packets;
 }
 
-integer get_charinfo_ef(charinfo * ci)
+int get_charinfo_ef(charinfo * ci)
 {
     return ci->ef;
 }
 
-integer get_charinfo_rp(charinfo * ci)
+int get_charinfo_rp(charinfo * ci)
 {
     return ci->rp;
 }
 
-integer get_charinfo_lp(charinfo * ci)
+int get_charinfo_lp(charinfo * ci)
 {
     return ci->lp;
 }
@@ -906,7 +906,7 @@ extinfo *get_charinfo_hor_variants(charinfo * ci)
 }
 
 
-scaled char_width(internal_font_number f, integer c)
+scaled char_width(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     scaled w = get_charinfo_width(ci);
@@ -914,7 +914,7 @@ scaled char_width(internal_font_number f, integer c)
     return w;
 }
 
-scaled char_depth(internal_font_number f, integer c)
+scaled char_depth(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     scaled w = get_charinfo_depth(ci);
@@ -922,7 +922,7 @@ scaled char_depth(internal_font_number f, integer c)
     return w;
 }
 
-scaled char_height(internal_font_number f, integer c)
+scaled char_height(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     scaled w = get_charinfo_height(ci);
@@ -930,68 +930,68 @@ scaled char_height(internal_font_number f, integer c)
     return w;
 }
 
-scaled char_italic(internal_font_number f, integer c)
+scaled char_italic(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     return get_charinfo_italic(ci);
 }
 
-scaled char_top_accent(internal_font_number f, integer c)
+scaled char_top_accent(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     return get_charinfo_top_accent(ci);
 }
 
-scaled char_bot_accent(internal_font_number f, integer c)
+scaled char_bot_accent(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     return get_charinfo_bot_accent(ci);
 }
 
 
-integer char_remainder(internal_font_number f, integer c)
+int char_remainder(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     return get_charinfo_remainder(ci);
 }
 
-char char_tag(internal_font_number f, integer c)
+char char_tag(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     return get_charinfo_tag(ci);
 }
 
-char char_used(internal_font_number f, integer c)
+char char_used(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     return get_charinfo_used(ci);
 }
 
-char *char_name(internal_font_number f, integer c)
+char *char_name(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     return get_charinfo_name(ci);
 }
 
-integer char_index(internal_font_number f, integer c)
+int char_index(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     return get_charinfo_index(ci);
 }
 
-liginfo *char_ligatures(internal_font_number f, integer c)
+liginfo *char_ligatures(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     return get_charinfo_ligatures(ci);
 }
 
-kerninfo *char_kerns(internal_font_number f, integer c)
+kerninfo *char_kerns(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     return get_charinfo_kerns(ci);
 }
 
-eight_bits *char_packets(internal_font_number f, integer c)
+eight_bits *char_packets(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     return get_charinfo_packets(ci);
@@ -1004,7 +1004,7 @@ void set_font_params(internal_font_number f, int b)
     i = font_params(f);
     if (i != b) {
         font_bytes += (b - font_params(f) + 1) * sizeof(scaled);
-        do_realloc(param_base(f), (b + 2), integer);
+        do_realloc(param_base(f), (b + 2), int);
         font_params(f) = b;
         if (b > i) {
             while (i < b) {
@@ -1021,7 +1021,7 @@ void set_font_math_params(internal_font_number f, int b)
     i = font_math_params(f);
     if (i != b) {
         font_bytes += (b - font_math_params(f) + 1) * sizeof(scaled);
-        do_realloc(math_param_base(f), (b + 2), integer);
+        do_realloc(math_param_base(f), (b + 2), int);
         font_math_params(f) = b;
         if (b > i) {
             while (i < b) {
@@ -1034,11 +1034,11 @@ void set_font_math_params(internal_font_number f, int b)
 
 
 
-integer copy_font(integer f)
+int copy_font(int f)
 {
     int i, ci_cnt, ci_size;
     charinfo *ci;
-    integer k = new_font();
+    int k = new_font();
 
     {
         ci = font_tables[k]->charinfo;
@@ -1111,7 +1111,7 @@ integer copy_font(integer f)
     return k;
 }
 
-void delete_font(integer f)
+void delete_font(int f)
 {
     int i;
     charinfo *co;
@@ -1166,7 +1166,7 @@ void create_null_font(void)
     set_font_touched(i, 1);
 }
 
-boolean is_valid_font(integer id)
+boolean is_valid_font(int id)
 {
     int ret = 0;
     if (id >= 0 && id <= font_id_maxval && font_tables[id] != NULL)
@@ -1175,7 +1175,7 @@ boolean is_valid_font(integer id)
 }
 
 /* return 1 == identical */
-boolean cmp_font_name(integer id, str_number t)
+boolean cmp_font_name(int id, str_number t)
 {
     char *tid, *tt;
     if (!is_valid_font(id))
@@ -1190,7 +1190,7 @@ boolean cmp_font_name(integer id, str_number t)
     return 1;
 }
 
-boolean cmp_font_area(integer id, str_number t)
+boolean cmp_font_area(int id, str_number t)
 {
     char *tt = NULL;
     char *tid = font_area(id);
@@ -1210,7 +1210,7 @@ boolean cmp_font_area(integer id, str_number t)
 }
 
 
-static boolean same_font_name(integer id, integer t)
+static boolean same_font_name(int id, int t)
 {
     int ret = 0;
     if (font_name(t) == NULL ||
@@ -1257,9 +1257,9 @@ boolean font_shareable(internal_font_number f, internal_font_number k)
     return ret;
 }
 
-integer test_no_ligatures(internal_font_number f)
+int test_no_ligatures(internal_font_number f)
 {
-    integer c;
+    int c;
     for (c = font_bc(f); c <= font_ec(f); c++) {
         if (has_lig(f, c))      /* char_exists(f,c) */
             return 0;
@@ -1267,7 +1267,7 @@ integer test_no_ligatures(internal_font_number f)
     return 1;
 }
 
-integer get_tag_code(internal_font_number f, integer c)
+int get_tag_code(internal_font_number f, int c)
 {
     small_number i;
     if (char_exists(f, c)) {
@@ -1284,27 +1284,27 @@ integer get_tag_code(internal_font_number f, integer c)
     return -1;
 }
 
-integer get_lp_code(internal_font_number f, integer c)
+int get_lp_code(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     return get_charinfo_lp(ci);
 }
 
-integer get_rp_code(internal_font_number f, integer c)
+int get_rp_code(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     return get_charinfo_rp(ci);
 }
 
-integer get_ef_code(internal_font_number f, integer c)
+int get_ef_code(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     return get_charinfo_ef(ci);
 }
 
-void set_tag_code(internal_font_number f, integer c, integer i)
+void set_tag_code(internal_font_number f, int c, int i)
 {
-    integer fixedi;
+    int fixedi;
     charinfo *co;
     if (char_exists(f, c)) {
         /* abs(fix_int(i-7,0)) */
@@ -1330,7 +1330,7 @@ void set_tag_code(internal_font_number f, integer c, integer i)
 }
 
 
-void set_lp_code(internal_font_number f, integer c, integer i)
+void set_lp_code(internal_font_number f, int c, int i)
 {
     charinfo *co;
     if (char_exists(f, c)) {
@@ -1339,7 +1339,7 @@ void set_lp_code(internal_font_number f, integer c, integer i)
     }
 }
 
-void set_rp_code(internal_font_number f, integer c, integer i)
+void set_rp_code(internal_font_number f, int c, int i)
 {
     charinfo *co;
     if (char_exists(f, c)) {
@@ -1348,7 +1348,7 @@ void set_rp_code(internal_font_number f, integer c, integer i)
     }
 }
 
-void set_ef_code(internal_font_number f, integer c, integer i)
+void set_ef_code(internal_font_number f, int c, int i)
 {
     charinfo *co;
     if (char_exists(f, c)) {
@@ -1359,7 +1359,7 @@ void set_ef_code(internal_font_number f, integer c, integer i)
 
 void set_no_ligatures(internal_font_number f)
 {
-    integer c;
+    int c;
     charinfo *co;
 
     if (font_tables[f]->ligatures_disabled)
@@ -1376,7 +1376,7 @@ void set_no_ligatures(internal_font_number f)
     font_tables[f]->ligatures_disabled = 1;
 }
 
-liginfo get_ligature(internal_font_number f, integer lc, integer rc)
+liginfo get_ligature(internal_font_number f, int lc, int rc)
 {
     int k;
     liginfo t, u;
@@ -1405,9 +1405,9 @@ liginfo get_ligature(internal_font_number f, integer lc, integer rc)
 }
 
 
-scaled raw_get_kern(internal_font_number f, integer lc, integer rc)
+scaled raw_get_kern(internal_font_number f, int lc, int rc)
 {
-    integer k;
+    int k;
     kerninfo u;
     charinfo *co;
     if (lc == non_boundarychar || rc == non_boundarychar)
@@ -1430,7 +1430,7 @@ scaled raw_get_kern(internal_font_number f, integer lc, integer rc)
 }
 
 
-scaled get_kern(internal_font_number f, integer lc, integer rc)
+scaled get_kern(internal_font_number f, int lc, int rc)
 {
     if (lc == non_boundarychar || rc == non_boundarychar || (!has_kern(f, lc)))
         return 0;
@@ -1451,7 +1451,7 @@ scaled get_kern(internal_font_number f, integer lc, integer rc)
 void dump_charinfo(int f, int c)
 {
     charinfo *co;
-    integer x;
+    int x;
     liginfo *lig;
     kerninfo *kern;
     dump_int(c);
@@ -1550,7 +1550,7 @@ void dump_font_entry(texfont * f)
 
 void dump_font(int f)
 {
-    integer i, x;
+    int i, x;
 
     set_font_used(f, 0);
     font_tables[f]->charinfo_cache = NULL;
@@ -1592,7 +1592,7 @@ void dump_font(int f)
 int undump_charinfo(int f)
 {
     charinfo *co;
-    integer x, i;
+    int x, i;
     char *s = NULL;
     liginfo *lig = NULL;
     kerninfo *kern = NULL;
@@ -1686,7 +1686,7 @@ int undump_charinfo(int f)
 
 void undump_font_entry(texfont * f)
 {
-    integer x = 0;
+    int x = 0;
     /* *INDENT-OFF* */  
     undump_int(x); f->_font_size = x;
     undump_int(x); f->_font_dsize = x;
@@ -1728,7 +1728,7 @@ void undump_font_entry(texfont * f)
 
 void undump_font(int f)
 {
-    integer x, i;
+    int x, i;
     texfont *tt;
     charinfo *ci;
     char *s;

@@ -34,8 +34,8 @@ static const char _svn_version[] =
 static FILE *fm_file;
 
 static unsigned char *fm_buffer = NULL;
-static integer fm_size = 0;
-static integer fm_curbyte = 0;
+static int fm_size = 0;
+static int fm_curbyte = 0;
 
 #define fm_open(a)       \
     (fm_file = fopen((char *)(a), FOPEN_RBIN_MODE))
@@ -474,11 +474,11 @@ static void fm_scan_line(void)
                         s--;    /* e. g. 0.5ExtendFont: %f = 0.5E */
                     if (str_prefix(s, "SlantFont")) {
                         d *= 1000.0;    /* correct rounding also for neg. numbers */
-                        fm->slant = (integer) (d > 0 ? d + 0.5 : d - 0.5);
+                        fm->slant = (int) (d > 0 ? d + 0.5 : d - 0.5);
                         r = s + strlen("SlantFont");
                     } else if (str_prefix(s, "ExtendFont")) {
                         d *= 1000.0;
-                        fm->extend = (integer) (d > 0 ? d + 0.5 : d - 0.5);
+                        fm->extend = (int) (d > 0 ? d + 0.5 : d - 0.5);
                         if (fm->extend == 0)    /* special user case... */
                             fm->extend = 1000;  /* ...mapped to natural internal representation */
                         r = s + strlen("ExtendFont");
@@ -822,14 +822,14 @@ void process_map_item(char *s, int type)
     }
 }
 
-void pdfmapfile(integer t)
+void pdfmapfile(int t)
 {
     char *s = tokenlist_to_cstring(t, true, NULL);
     process_map_item(s, MAPFILE);
     free(s);
 }
 
-void pdfmapline(integer t)
+void pdfmapline(int t)
 {
     char *s = tokenlist_to_cstring(t, true, NULL);
     process_map_item(s, MAPLINE);

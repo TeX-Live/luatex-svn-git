@@ -36,8 +36,8 @@ typedef enum {
 extern void scan_left_brace(void);
 extern void scan_optional_equals(void);
 
-extern integer cur_val;         /* value returned by numeric scanners */
-extern integer cur_val1;        /* delcodes are sometimes 51 digits */
+extern int cur_val;             /* value returned by numeric scanners */
+extern int cur_val1;            /* delcodes are sometimes 51 digits */
 extern int cur_val_level;       /* the ``level'' of this value */
 
 extern void scan_something_simple(halfword cmd, halfword subitem);
@@ -101,10 +101,9 @@ extern halfword scan_toks(boolean macrodef, boolean xpand);
 extern void scan_normal_glue(void);
 extern void scan_mu_glue(void);
 
-extern integer add_or_sub(integer x, integer y, integer max_answer,
-                          boolean negative);
-extern integer quotient(integer n, integer d);
-extern integer fract(integer x, integer n, integer d, integer max_answer);
+extern int add_or_sub(int x, int y, int max_answer, boolean negative);
+extern int quotient(int n, int d);
+extern int fract(int x, int n, int d, int max_answer);
 extern void scan_expr(void);
 
 

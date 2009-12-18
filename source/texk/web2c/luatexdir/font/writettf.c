@@ -35,8 +35,8 @@ static const char _svn_version[] =
            /* #define INFILE ttf_file */
 
 unsigned char *ttf_buffer = NULL;
-integer ttf_size = 0;
-integer ttf_curbyte = 0;
+int ttf_size = 0;
+int ttf_curbyte = 0;
 
 typedef struct {
     char *name;                 /* name of glyph */
@@ -94,7 +94,7 @@ fd_entry *fd_cur;               /* pointer to the current font descriptor */
 
 static struct avl_table *ttf_cmap_tree = NULL;
 
-integer ttf_length;
+int ttf_length;
 
 #include "macnames.c"
 
@@ -926,7 +926,7 @@ static void ttf_write_dirtab(PDF pdf)
     dirtab_entry *tab;
     TTF_ULONG i, k;
     char *p;
-    const integer save_offset = ttf_offset();
+    const int save_offset = ttf_offset();
     ttf_seek_outbuf(TABDIR_OFF);
     if (is_subsetted(fd_cur->fm)) {
         for (i = 0; i < DEFAULT_NTABS; i++) {

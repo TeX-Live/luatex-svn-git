@@ -67,7 +67,7 @@ static int compare_info(const void *pa, const void *pb, void *param)
         return 1;
 }
 
-static void avl_put_obj(PDF pdf, integer t, oentry * oe)
+static void avl_put_obj(PDF pdf, int t, oentry * oe)
 {
     void **pp;
     assert(t >= 0 || t <= PDF_OBJ_TYPE_MAX || obj_in_tree[t] == 1);
@@ -81,7 +81,7 @@ static void avl_put_obj(PDF pdf, integer t, oentry * oe)
         pdftex_fail("avlstuff.c: avl_probe() out of memory in insertion");
 }
 
-static void avl_put_int_obj(PDF pdf, integer int0, integer objptr, integer t)
+static void avl_put_int_obj(PDF pdf, int int0, int objptr, int t)
 {
     oentry *oe;
     oe = xtalloc(1, oentry);
@@ -91,7 +91,7 @@ static void avl_put_int_obj(PDF pdf, integer int0, integer objptr, integer t)
     avl_put_obj(pdf, t, oe);
 }
 
-static void avl_put_str_obj(PDF pdf, char *str0, integer objptr, integer t)
+static void avl_put_str_obj(PDF pdf, char *str0, int objptr, int t)
 {
     oentry *oe;
     oe = xtalloc(1, oentry);
@@ -101,7 +101,7 @@ static void avl_put_str_obj(PDF pdf, char *str0, integer objptr, integer t)
     avl_put_obj(pdf, t, oe);
 }
 
-static integer avl_find_int_obj(PDF pdf, integer t, integer i)
+static int avl_find_int_obj(PDF pdf, int t, int i)
 {
     oentry *p;
     oentry tmp;
@@ -116,7 +116,7 @@ static integer avl_find_int_obj(PDF pdf, integer t, integer i)
     return p->objptr;
 }
 
-static integer avl_find_str_obj(PDF pdf, integer t, char *s)
+static int avl_find_str_obj(PDF pdf, int t, char *s)
 {
     oentry *p;
     oentry tmp;
@@ -134,9 +134,9 @@ static integer avl_find_str_obj(PDF pdf, integer t, char *s)
 /**********************************************************************/
 /* create an object with type |t| and identifier |i| */
 
-void pdf_create_obj(PDF pdf, integer t, integer i)
+void pdf_create_obj(PDF pdf, int t, int i)
 {
-    integer a;
+    int a;
     char *ss = NULL;
     if (pdf->sys_obj_ptr == sup_obj_tab_size)
         overflow("indirect objects table size", pdf->obj_tab_size);
@@ -169,10 +169,10 @@ void pdf_create_obj(PDF pdf, integer t, integer i)
     }
 }
 
-integer find_obj(PDF pdf, integer t, integer i, boolean byname)
+int find_obj(PDF pdf, int t, int i, boolean byname)
 {
     char *ss = NULL;
-    integer ret;
+    int ret;
     assert(i >= 0);             /* no tricks */
     if (byname) {
         ss = makecstring(i);
@@ -193,9 +193,9 @@ integer find_obj(PDF pdf, integer t, integer i, boolean byname)
    |vlist_out|.
 */
 
-integer get_obj(PDF pdf, integer t, integer i, boolean byname)
+int get_obj(PDF pdf, int t, int i, boolean byname)
 {
-    integer r;
+    int r;
     str_number s;
     assert(i >= 0);
     if (byname > 0) {
@@ -222,13 +222,13 @@ integer get_obj(PDF pdf, integer t, integer i, boolean byname)
 }
 
 /* create a new object and return its number */
-integer pdf_new_objnum(PDF pdf)
+int pdf_new_objnum(PDF pdf)
 {
     pdf_create_obj(pdf, obj_type_others, 0);
     return pdf->obj_ptr;
 }
 
-void check_obj_exists(PDF pdf, integer t, integer objnum)
+void check_obj_exists(PDF pdf, int t, int objnum)
 {
     if (objnum < 0 || objnum > pdf->obj_ptr)
         pdf_error("ext1", "cannot find referenced object");
@@ -311,7 +311,7 @@ possible to, say, load an image in the \.{INITEX} run and then reference it in a
 
 void dump_pdftex_data(PDF pdf)
 {
-    integer k, x;
+    int k, x;
     pdf_object_list *l;
     dumpimagemeta();            /* the image information array */
     dump_int(pdf->mem_size);
@@ -388,7 +388,7 @@ already in an earlier module.
 
 void undump_pdftex_data(PDF pdf)
 {
-    integer k, x;
+    int k, x;
     undumpimagemeta(pdf, pdf_minor_version, pdf_inclusion_errorlevel);  /* the image information array */
     undump_int(pdf->mem_size);
     pdf->mem = xreallocarray(pdf->mem, int, pdf->mem_size);

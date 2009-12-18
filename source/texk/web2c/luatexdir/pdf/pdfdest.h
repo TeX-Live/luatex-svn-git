@@ -51,15 +51,15 @@ typedef enum {
 #  define inf_dest_names_size 1000      /* min size of the destination names table for PDF output */
 #  define sup_dest_names_size 131072    /* max size of the destination names table for PDF output */
 
-extern void append_dest_name(PDF, char *, integer);
+extern void append_dest_name(PDF, char *, int);
 extern void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur);
-extern void warn_dest_dup(integer id, small_number byname, char *s1, char *s2);
+extern void warn_dest_dup(int id, small_number byname, char *s1, char *s2);
 
 extern void write_out_pdf_mark_destinations(PDF);
 extern void scan_pdfdest(PDF);
 extern void init_dest_names(PDF);
 extern void sort_dest_names(PDF);
-extern integer output_name_tree(PDF);
+extern int output_name_tree(PDF);
 
 
 #endif

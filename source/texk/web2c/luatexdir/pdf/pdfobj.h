@@ -55,10 +55,10 @@
 
 /**********************************************************************/
 
-extern integer pdf_last_obj;
+extern int pdf_last_obj;
 
-extern void init_obj_obj(PDF pdf, integer k);
-extern void pdf_write_obj(PDF pdf, integer n);
+extern void init_obj_obj(PDF pdf, int k);
+extern void pdf_write_obj(PDF pdf, int n);
 extern void scan_obj(PDF pdf);
 extern void scan_refobj(PDF pdf);
 extern void pdf_ref_obj(PDF pdf, halfword p);

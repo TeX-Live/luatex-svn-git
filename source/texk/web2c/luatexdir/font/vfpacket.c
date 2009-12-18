@@ -59,7 +59,7 @@ static packet_stack_index packet_stack_ptr = 0; /* pointer into |packet_stack| *
   fw = fw*256 + do_packet_byte();         \
   fw = fw*256 + do_packet_byte(); }
 
-#define packet_scaled(a,fs) { integer fw; \
+#define packet_scaled(a,fs) { int fw; \
   fw = do_packet_byte();                  \
   if (fw>127) fw = fw - 256;              \
   fw = fw*256 + do_packet_byte();         \
@@ -72,7 +72,7 @@ static packet_stack_index packet_stack_ptr = 0; /* pointer into |packet_stack| *
 int vf_packet_bytes(charinfo * co)
 {
     eight_bits *vf_packets;
-    integer cur_packet_byte;
+    int cur_packet_byte;
     unsigned k;
     int cmd;
 
@@ -123,14 +123,14 @@ char *packet_command_names[] = {
 };
 
 
-void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
+void do_vf_packet(PDF pdf, internal_font_number vf_f, int c)
 {
     internal_font_number lf;
     charinfo *co;
     scaledpos cur = { 0, 0 }, size;
     eight_bits *vf_packets;
-    integer cur_packet_byte;
-    integer cmd, fs_f;
+    int cur_packet_byte;
+    int cmd, fs_f;
     scaled i;
     unsigned k;
     str_number s;
@@ -208,7 +208,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
             break;
         case packet_special_code:
             packet_number(k);
-            str_room((unsigned)k);
+            str_room((unsigned) k);
             while (k > 0) {
                 k--;
                 append_char(do_packet_byte());
@@ -236,11 +236,11 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c)
     pdf->posstruct = refpos;
 }
 
-integer *packet_local_fonts(internal_font_number f, integer * num)
+int *packet_local_fonts(internal_font_number f, int *num)
 {
     int c, cmd, cur_packet_byte, lf, k, l, i;
-    integer localfonts[256] = { 0 };
-    integer *lfs;
+    int localfonts[256] = { 0 };
+    int *lfs;
     charinfo *co;
 
     eight_bits *vf_packets;
@@ -295,8 +295,8 @@ integer *packet_local_fonts(internal_font_number f, integer * num)
     }
     *num = k;
     if (k > 0) {
-        lfs = xmalloc(k * sizeof(integer));
-        memcpy(lfs, localfonts, k * sizeof(integer));
+        lfs = xmalloc(k * sizeof(int));
+        memcpy(lfs, localfonts, k * sizeof(int));
         return lfs;
     }
     return NULL;
@@ -304,8 +304,8 @@ integer *packet_local_fonts(internal_font_number f, integer * num)
 
 
 void
-replace_packet_fonts(internal_font_number f, integer * old_fontid,
-                     integer * new_fontid, int count)
+replace_packet_fonts(internal_font_number f, int *old_fontid,
+                     int *new_fontid, int count)
 {
     int c, cmd, cur_packet_byte, lf, k, l;
     charinfo *co;

@@ -214,12 +214,12 @@ void matrixrecalculate(scaled urx)
 void pdf_out_setmatrix(PDF pdf, halfword p)
 {
     scaledpos pos = pdf->posstruct->pos;
-    integer old_setting;        /* holds print |selector| */
+    int old_setting;            /* holds print |selector| */
     str_number s;
     old_setting = selector;
     selector = new_string;
     show_token_list(token_link(pdf_setmatrix_data(p)), null, -1);
-    pdfsetmatrix((char *)cur_string, pos);
+    pdfsetmatrix((char *) cur_string, pos);
     tprint(" 0 0 cm");
     selector = old_setting;
     s = make_string();

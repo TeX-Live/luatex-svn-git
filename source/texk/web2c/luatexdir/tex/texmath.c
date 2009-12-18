@@ -40,7 +40,7 @@ static const char _svn_version[] =
 
 #define var_code 7
 
-extern void rawset_sa_item(sa_tree hed, integer n, integer v);
+extern void rawset_sa_item(sa_tree hed, int n, int v);
 
 /* TODO: not sure if this is the right order */
 #define back_error(A,B) do {                    \
@@ -177,15 +177,15 @@ void flush_math(void)
 
 static sa_tree math_fam_head = NULL;
 
-integer fam_fnt(integer fam_id, integer size_id)
+int fam_fnt(int fam_id, int size_id)
 {
-    integer n = fam_id + (256 * size_id);
-    return (integer) get_sa_item(math_fam_head, n);
+    int n = fam_id + (256 * size_id);
+    return (int) get_sa_item(math_fam_head, n);
 }
 
-void def_fam_fnt(integer fam_id, integer size_id, integer f, integer lvl)
+void def_fam_fnt(int fam_id, int size_id, int f, int lvl)
 {
-    integer n = fam_id + (256 * size_id);
+    int n = fam_id + (256 * size_id);
     set_sa_item(math_fam_head, n, f, lvl);
     fixup_math_parameters(fam_id, size_id, f, lvl);
     if (int_par(tracing_assigns_code) > 0) {
@@ -201,14 +201,14 @@ void def_fam_fnt(integer fam_id, integer size_id, integer f, integer lvl)
     }
 }
 
-void unsave_math_fam_data(integer gl)
+void unsave_math_fam_data(int gl)
 {
     sa_stack_item st;
     if (math_fam_head->stack == NULL)
         return;
     while (math_fam_head->stack_ptr > 0 &&
            abs(math_fam_head->stack[math_fam_head->stack_ptr].level)
-           >= (integer) gl) {
+           >= (int) gl) {
         st = math_fam_head->stack[math_fam_head->stack_ptr];
         if (st.level > 0) {
             rawset_sa_item(math_fam_head, st.code, st.value);
@@ -242,7 +242,7 @@ static sa_tree math_param_head = NULL;
 
 void def_math_param(int param_id, int style_id, scaled value, int lvl)
 {
-    integer n = param_id + (256 * style_id);
+    int n = param_id + (256 * style_id);
     set_sa_item(math_param_head, n, value, lvl);
     if (int_par(tracing_assigns_code) > 0) {
         begin_diagnostic();
@@ -259,19 +259,19 @@ void def_math_param(int param_id, int style_id, scaled value, int lvl)
 
 scaled get_math_param(int param_id, int style_id)
 {
-    integer n = param_id + (256 * style_id);
+    int n = param_id + (256 * style_id);
     return (scaled) get_sa_item(math_param_head, n);
 }
 
 
-void unsave_math_param_data(integer gl)
+void unsave_math_param_data(int gl)
 {
     sa_stack_item st;
     if (math_param_head->stack == NULL)
         return;
     while (math_param_head->stack_ptr > 0 &&
            abs(math_param_head->stack[math_param_head->stack_ptr].level)
-           >= (integer) gl) {
+           >= (int) gl) {
         st = math_param_head->stack[math_param_head->stack_ptr];
         if (st.level > 0) {
             rawset_sa_item(math_param_head, st.code, st.value);
@@ -297,7 +297,7 @@ void unsave_math_param_data(integer gl)
 
 /* saving and unsaving of both */
 
-void unsave_math_data(integer gl)
+void unsave_math_data(int gl)
 {
     unsave_math_fam_data(gl);
     unsave_math_param_data(gl);
@@ -575,7 +575,7 @@ void print_fam_and_char(pointer p)
 
 void print_delimiter(pointer p)
 {
-    integer a;
+    int a;
     if (small_fam(p) < 0) {
         print_int(-1);          /* this should never happen */
     } else if (small_fam(p) < 16 && large_fam(p) < 16 &&
@@ -610,7 +610,7 @@ distinguished from a missing field, because these are not equivalent
 
 void print_subsidiary_data(pointer p, ASCII_code c)
 {                               /* display a noad field */
-    if ((int)cur_length >= depth_threshold) {
+    if ((int) cur_length >= depth_threshold) {
         if (p != null)
             tprint(" []");
     } else {
@@ -894,7 +894,7 @@ void enter_display_math(void)
     scaled l;                   /* new |display_width| */
     scaled s;                   /* new |display_indent| */
     pointer p;
-    integer n;                  /* scope of paragraph shape specification */
+    int n;                      /* scope of paragraph shape specification */
     if (head == tail ||         /* `\.{\\noindent\$\$}' or `\.{\$\${ }\$\$}' */
         (vlink(head) == tail && /* the 2nd of \.{\$\${ }\$\$} \.{\$\${ }\$\$} */
          type(tail) == whatsit_node &&
@@ -967,8 +967,8 @@ delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
         NULL
     };
     delcodeval d;
-    integer cur_val1;           /* and the global |cur_val| */
-    integer mcls, msfam = 0, mschr = 0, mlfam = 0, mlchr = 0;
+    int cur_val1;               /* and the global |cur_val| */
+    int mcls, msfam = 0, mschr = 0, mlfam = 0, mlchr = 0;
     mcls = 0;
     if (extcode == tex_mathcode) {      /* \delcode, this is the easiest */
         scan_int();
@@ -1054,7 +1054,7 @@ delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
 void scan_extdef_del_code(int level, int extcode)
 {
     delcodeval d;
-    integer p;
+    int p;
     scan_char_num();
     p = cur_val;
     scan_optional_equals();
@@ -1070,7 +1070,7 @@ mathcodeval scan_mathchar(int extcode)
         NULL
     };
     mathcodeval d;
-    integer mcls = 0, mfam = 0, mchr = 0;
+    int mcls = 0, mfam = 0, mchr = 0;
     if (extcode == tex_mathcode) {      /* \mathcode */
         /* "TFCC */
         scan_int();
@@ -1137,7 +1137,7 @@ mathcodeval scan_mathchar(int extcode)
 void scan_extdef_math_code(int level, int extcode)
 {
     mathcodeval d;
-    integer p;
+    int p;
     scan_char_num();
     p = cur_val;
     scan_optional_equals();
@@ -1165,7 +1165,7 @@ mathcodeval scan_delimiter_as_mathchar(int extcode)
  * where the |\Umathchardef| is executed 
  */
 
-mathcodeval mathchar_from_integer(integer value, int extcode)
+mathcodeval mathchar_from_integer(int value, int extcode)
 {
     mathcodeval mval;
     mval.origin_value = extcode;
@@ -1388,7 +1388,7 @@ delimiter is to be placed; the second tells if this delimiter follows
 */
 
 
-void scan_delimiter(pointer p, integer r)
+void scan_delimiter(pointer p, int r)
 {
     delcodeval dval;
     if (r == tex_mathcode) {    /* \radical */
@@ -2134,7 +2134,7 @@ static void finish_displayed_math(boolean l, pointer a, pointer p)
 void after_math(void)
 {
     boolean danger;             /* not enough symbol fonts are present */
-    integer m;                  /* |mmode| or |-mmode| */
+    int m;                      /* |mmode| or |-mmode| */
     pointer p;                  /* the formula */
     pointer a = null;           /* box containing equation number */
     boolean l = false;          /* `\.{\\leqno}' instead of `\.{\\eqno}' */

@@ -35,15 +35,15 @@ static const char __svn_version[] =
 static struct avl_table *divert_list_tree = NULL;
 
 typedef struct pages_entry_ {
-    integer objnum;             /* object number of this /Pages object */
-    integer number_of_pages;    /* total number of all pages below */
-    integer number_of_kids;     /* number of direct kid objects */
-    integer kids[PAGES_TREE_KIDSMAX];   /* array of kid object numbers */
+    int objnum;                 /* object number of this /Pages object */
+    int number_of_pages;        /* total number of all pages below */
+    int number_of_kids;         /* number of direct kid objects */
+    int kids[PAGES_TREE_KIDSMAX];       /* array of kid object numbers */
     struct pages_entry_ *next;
 } pages_entry;
 
 typedef struct divert_list_entry_ {
-    integer divnum;
+    int divnum;
     pages_entry *first;
     pages_entry *last;
 } divert_list_entry;
@@ -91,7 +91,7 @@ static void ensure_list_tree(void)
     }
 }
 
-static divert_list_entry *get_divert_list(integer divnum)
+static divert_list_entry *get_divert_list(int divnum)
 {
     divert_list_entry *d, tmp;
     void **aa;
@@ -108,7 +108,7 @@ static divert_list_entry *get_divert_list(integer divnum)
 
 /* pdf_do_page_divert() returns the current /Parent object number */
 
-integer pdf_do_page_divert(PDF pdf, integer objnum, integer divnum)
+int pdf_do_page_divert(PDF pdf, int objnum, int divnum)
 {
     divert_list_entry *d;
     pages_entry *p;
@@ -165,7 +165,7 @@ static void movelist(divert_list_entry * d, divert_list_entry * dto)
 
 /* undivert from diversion <divnum> into diversion <curdivnum> */
 
-void pdf_do_page_undivert(integer divnum, integer curdivnum)
+void pdf_do_page_undivert(int divnum, int curdivnum)
 {
     divert_list_entry *d, *dto, tmp;
     struct avl_traverser t;
@@ -230,7 +230,7 @@ static void write_pages(PDF pdf, pages_entry * p, int parent)
 /* loop over all /Pages objects, output them, create their parents,
  * recursing bottom up, return the /Pages root object number */
 
-static integer output_pages_list(PDF pdf, pages_entry * pe)
+static int output_pages_list(PDF pdf, pages_entry * pe)
 {
     pages_entry *p, *q, *r;
     assert(pe != NULL);
@@ -251,7 +251,7 @@ static integer output_pages_list(PDF pdf, pages_entry * pe)
     return output_pages_list(pdf, r);   /* recurse through next higher level */
 }
 
-integer output_pages_tree(PDF pdf)
+int output_pages_tree(PDF pdf)
 {
     divert_list_entry *d;
     pdf_do_page_undivert(0, 0); /* concatenate all diversions into diversion 0 */

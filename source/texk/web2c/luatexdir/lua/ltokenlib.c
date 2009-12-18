@@ -32,7 +32,7 @@ extern int get_command_id(char *);
 #define  is_active_string(s) (strlen((char *)s)>3 && *s==0xEF && *(s+1)==0xBF && *(s+2)==0xBF)
 
 
-static unsigned char *get_cs_text(integer cs)
+static unsigned char *get_cs_text(int cs)
 {
     if (cs == null_cs)
         return (unsigned char *) xstrdup("\\csname\\endcsname");
@@ -45,7 +45,7 @@ static unsigned char *get_cs_text(integer cs)
 
 static int test_expandable(lua_State * L)
 {
-    integer cmd = -1;
+    int cmd = -1;
     if (is_valid_token(L, -1)) {
         get_token_cmd(L, -1);
         if (lua_isnumber(L, -1)) {
@@ -67,7 +67,7 @@ static int test_expandable(lua_State * L)
 
 static int test_protected(lua_State * L)
 {
-    integer chr = -1;
+    int chr = -1;
     if (is_valid_token(L, -1)) {
         get_token_chr(L, -1);
         if (lua_isnumber(L, -1)) {
@@ -90,7 +90,7 @@ static int test_activechar(lua_State * L)
 {
     if (is_valid_token(L, -1)) {
         unsigned char *s;
-        integer cs = 0;
+        int cs = 0;
         get_token_cs(L, -1);
         if (lua_isnumber(L, -1)) {
             cs = lua_tointeger(L, -1);
@@ -217,7 +217,7 @@ static int run_lookup(lua_State * L)
 {
     char *s;
     size_t l;
-    integer cs, cmd, chr;
+    int cs, cmd, chr;
     int save_nncs;
     if (lua_isstring(L, -1)) {
         s = (char *) lua_tolstring(L, -1, &l);
@@ -239,7 +239,7 @@ static int run_lookup(lua_State * L)
 
 static int run_build(lua_State * L)
 {
-    integer cmd, chr, cs;
+    int cmd, chr, cs;
     if (lua_isnumber(L, 1)) {
         cs = 0;
         chr = lua_tointeger(L, 1);

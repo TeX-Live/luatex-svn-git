@@ -110,14 +110,14 @@ enum InObjType { objFont, objFontDesc, objOther };
 struct InObj {
     Ref ref;                    // ref in original PDF
     InObjType type;             // object type
-    integer num;                // new object number in output PDF
+    int num;                    // new object number in output PDF
     fd_entry *fd;               // pointer to /FontDescriptor object structure
-    integer enc_objnum;         // Encoding for objFont
+    int enc_objnum;             // Encoding for objFont
     InObj *next;                // next entry in list of indirect objects
 };
 
 struct UsedEncoding {
-    integer enc_objnum;
+    int enc_objnum;
     GfxFont *font;
     UsedEncoding *next;
 };
@@ -292,7 +292,7 @@ static int addEncoding(GfxFont * gfont, int obj_num)
     addInObj(pdf, pdf_doc, objOther, ref, NULL, 0)
 
 static int addInObj(PDF pdf, PdfDocument * pdf_doc, InObjType type, Ref ref,
-                    fd_entry * fd, integer e)
+                    fd_entry * fd, int e)
 {
     ObjMap *obj_map;
     InObj *p, *q, *n;
@@ -710,7 +710,7 @@ static void writeEncodings(PDF pdf)
 
 // get the pagebox coordinates according to the pagebox_spec
 
-static PDFRectangle *get_pagebox(Page * page, integer pagebox_spec)
+static PDFRectangle *get_pagebox(Page * page, int pagebox_spec)
 {
     switch (pagebox_spec) {
     case PDF_BOX_SPEC_MEDIA:
@@ -763,8 +763,8 @@ char *get_file_checksum(char *a)
 
 void
 read_pdf_info(PDF pdf,
-              image_dict * idict, integer minor_pdf_version_wanted,
-              integer pdf_inclusion_errorlevel, img_readtype_e readtype)
+              image_dict * idict, int minor_pdf_version_wanted,
+              int pdf_inclusion_errorlevel, img_readtype_e readtype)
 {
     PdfDocument *pdf_doc;
     Page *page;

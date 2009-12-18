@@ -30,7 +30,7 @@
 #  define negate(A) (A)=-(A)    /* change the sign of a variable */
 
 #  undef half
-extern integer half(integer x);
+extern int half(int x);
 
 /*
 Fixed-point arithmetic is done on {\sl scaled integers\/} that are multiples
@@ -49,13 +49,13 @@ extern void print_scaled(scaled s);
 extern boolean arith_error;
 extern scaled tex_remainder;
 
-extern scaled mult_and_add(integer n, scaled x, scaled y, scaled max_answer);
+extern scaled mult_and_add(int n, scaled x, scaled y, scaled max_answer);
 
 #  define nx_plus_y(A,B,C) mult_and_add((A),(B),(C),07777777777)
 #  define mult_integers(A,B) mult_and_add((A),(B),0,017777777777)
 
-extern scaled x_over_n(scaled x, integer n);
-extern scaled xn_over_d(scaled x, integer n, integer d);
+extern scaled x_over_n(scaled x, int n);
+extern scaled xn_over_d(scaled x, int n, int d);
 
 #  define inf_bad 10000         /* infinitely bad value */
 
@@ -72,10 +72,10 @@ extern void initialize_arithmetic(void);
 
 extern scaled random_seed;      /* the default random seed */
 
-extern void init_randoms(integer seed);
-extern integer unif_rand(integer x);
-extern integer norm_rand(void);
+extern void init_randoms(int seed);
+extern int unif_rand(int x);
+extern int norm_rand(void);
 
-extern integer fix_int(integer val, integer min, integer max);
+extern int fix_int(int val, int min, int max);
 
 #endif

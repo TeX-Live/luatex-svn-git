@@ -50,14 +50,14 @@ corresponding |if_line|.
 halfword cond_ptr;              /* top of the condition stack */
 int if_limit;                   /* upper bound on |fi_or_else| codes */
 int cur_if;                     /* type of conditional being worked on */
-integer if_line;                /* line where that conditional began */
+int if_line;                    /* line where that conditional began */
 
 /*
 When we skip conditional text, we keep track of the line number
 where skipping began, for use in error messages.
 */
 
-integer skip_line;              /* skipping began here */
+int skip_line;                  /* skipping began here */
 
 /*
 Here is a procedure that ignores text until coming to an \.{\\or},
@@ -69,7 +69,7 @@ procedure run faster).
 
 void pass_text(void)
 {
-    integer l;                  /* level of $\.{\\if}\ldots\.{\\fi}$ nesting */
+    int l;                      /* level of $\.{\\if}\ldots\.{\\fi}$ nesting */
     int save_scanner_status;    /* |scanner_status| upon entry */
     save_scanner_status = scanner_status;
     scanner_status = skipping;
@@ -160,7 +160,7 @@ preceding the mandatory \.{\\endcsname} have been expanded).
 static boolean test_for_cs(void)
 {
     boolean b;                  /*is the condition true? */
-    integer m, s;               /*to be tested against the second operand */
+    int m, s;                   /*to be tested against the second operand */
     halfword n, p, q;           /*for traversing token lists in \.{\\ifx} tests */
     n = get_avail();
     p = n;                      /*head of the list of characters */
@@ -248,7 +248,7 @@ void conditional(void)
 {
     boolean b;                  /*is the condition true? */
     int r;                      /*relation to be evaluated */
-    integer m, n;               /*to be tested against the second operand */
+    int m, n;                   /*to be tested against the second operand */
     halfword p, q;              /*for traversing token lists in \.{\\ifx} tests */
     int save_scanner_status;    /*|scanner_status| upon entry */
     halfword save_cond_ptr;     /*|cond_ptr| corresponding to this conditional */

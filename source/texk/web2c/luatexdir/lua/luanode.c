@@ -205,7 +205,7 @@ lua_vpack_filter(halfword head_node, scaled size, int pack_type, scaled maxd,
                  int extrainfo, int pack_direction)
 {
     halfword ret;
-    integer callback_id;
+    int callback_id;
     lua_State *L = Luas;
     if (head_node == null)
         return head_node;

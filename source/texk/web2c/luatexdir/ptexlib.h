@@ -274,13 +274,13 @@ void undump_luac_registers(void);
 /* lua/ltexlib.c */
 void luacstring_start(int n);
 void luacstring_close(int n);
-integer luacstring_cattable(void);
+int luacstring_cattable(void);
 int luacstring_input(void);
 int luacstring_partial(void);
 int luacstring_final_line(void);
 
 /* lua/luatoken.c */
-void do_get_token_lua(integer callback_id);
+void do_get_token_lua(int callback_id);
 
 /* lua/luanode.c */
 int visible_last_node_type(int n);
@@ -298,7 +298,7 @@ extern void late_lua(PDF pdf, halfword p);
 
 extern void check_texconfig_init(void);
 
-scaled divide_scaled(scaled s, scaled m, integer dd);
+scaled divide_scaled(scaled s, scaled m, int dd);
 scaled divide_scaled_n(double s, double m, double d);
 
 #  include "tex/texdeffont.h"
@@ -354,11 +354,11 @@ extern void destroy_saved_callback(int i);
 extern boolean get_callback(lua_State * L, int i);
 
 extern void get_saved_lua_boolean(int i, char *name, boolean * target);
-extern void get_saved_lua_number(int i, char *name, integer * target);
+extern void get_saved_lua_number(int i, char *name, int * target);
 extern void get_saved_lua_string(int i, char *name, char **target);
 
 extern void get_lua_boolean(char *table, char *name, boolean * target);
-extern void get_lua_number(char *table, char *name, integer * target);
+extern void get_lua_number(char *table, char *name, int * target);
 extern void get_lua_string(char *table, char *name, char **target);
 
 extern char *get_lua_name(int i);
@@ -378,9 +378,9 @@ extern char *get_lua_name(int i);
 extern volatile memory_word *varmem;
 extern halfword var_mem_min;
 extern halfword var_mem_max;
-extern halfword get_node(integer s);
-extern void free_node(halfword p, integer s);
-extern void init_node_mem(integer s);
+extern halfword get_node(int s);
+extern void free_node(halfword p, int s);
+extern void init_node_mem(int s);
 extern void dump_node_mem(void);
 extern void undump_node_mem(void);
 
@@ -388,14 +388,14 @@ extern void do_vf(internal_font_number tmp_f);
 
 /* This routine has to return four values.  */
 #  define	dateandtime(i,j,k,l) get_date_and_time (&(i), &(j), &(k), &(l))
-extern void get_date_and_time(integer *, integer *, integer *, integer *);
+extern void get_date_and_time(int *, int *, int *, int *);
 
 /* Get high-res time info. */
 #  define seconds_and_micros(i,j) get_seconds_and_micros (&(i), &(j))
-extern void get_seconds_and_micros(integer *, integer *);
+extern void get_seconds_and_micros(int *, int *);
 
 /* This routine has to return a scaled value. */
-extern integer getrandomseed(void);
+extern int getrandomseed(void);
 
 /* Copy command-line arguments into the buffer, despite the name.  */
 extern void topenin(void);
@@ -407,7 +407,7 @@ extern void topenin(void);
 /* extern void calledit (); */
 
 /* Set an array size from texmf.cnf.  */
-extern void setupboundvariable(integer *, const_string, integer);
+extern void setupboundvariable(int *, const_string, int);
 
 /* here  are a few functions that used to be in coerce.h */
 

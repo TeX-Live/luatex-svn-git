@@ -669,7 +669,7 @@ extern int has_attribute(halfword n, int c, int w);
 extern halfword new_span_node(halfword n, int c, scaled w);
 
 extern void print_short_node_contents(halfword n);
-extern void show_node_list(integer i);
+extern void show_node_list(int i);
 extern pointer actual_box_width(pointer r, scaled base_width);
 
 /* TH: these two defines still need checking. The node ordering in luatex is not 
@@ -739,19 +739,19 @@ typedef enum {
 extern halfword tail_of_list(halfword p);
 extern void delete_glue_ref(halfword p);
 
-extern integer var_used;
+extern int var_used;
 extern halfword temp_ptr;
 
 #  define cache_disabled max_halfword
 
-extern integer max_used_attr;
+extern int max_used_attr;
 extern halfword attr_list_cache;
 
 extern halfword new_null_box(void);
 extern halfword new_rule(void);
-extern halfword new_glyph(integer f, integer c);
-extern quarterword norm_min(integer h);
-extern halfword new_char(integer f, integer c);
+extern halfword new_glyph(int f, int c);
+extern quarterword norm_min(int h);
+extern halfword new_char(int f, int c);
 extern scaled glyph_width(halfword p);
 extern scaled glyph_height(halfword p);
 extern scaled glyph_depth(halfword p);
@@ -762,6 +762,6 @@ extern halfword new_param_glue(int n);
 extern halfword new_glue(halfword q);
 extern halfword new_skip_param(int n);
 extern halfword new_kern(scaled w);
-extern halfword new_penalty(integer m);
+extern halfword new_penalty(int m);
 
 #endif

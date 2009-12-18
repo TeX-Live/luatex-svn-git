@@ -725,8 +725,8 @@ static RETSIGTYPE catch_interrupt(int arg)
    good a place as any.  */
 
 void
-get_date_and_time(integer * minutes, integer * day,
-                  integer * month, integer * year)
+get_date_and_time(int * minutes, int * day,
+                  int * month, int * year)
 {
     time_t myclock = time((time_t *) 0);
     struct tm *tmptr = localtime(&myclock);
@@ -770,7 +770,7 @@ get_date_and_time(integer * minutes, integer * day,
 /*
  Getting a high resolution time.
  */
-void get_seconds_and_micros(integer * seconds, integer * micros)
+void get_seconds_and_micros(int * seconds, int * micros)
 {
 #if defined (HAVE_GETTIMEOFDAY)
     struct timeval tv;
@@ -792,7 +792,7 @@ void get_seconds_and_micros(integer * seconds, integer * micros)
 /*
   Generating a better seed numbers
   */
-integer getrandomseed()
+int getrandomseed()
 {
 #if defined (HAVE_GETTIMEOFDAY)
     struct timeval tv;
@@ -866,7 +866,7 @@ static const_string edit_value = EDITOR;
 
 void
 calledit(packedASCIIcode * filename,
-         poolpointer fnstart, integer fnlength, integer linenumber)
+         poolpointer fnstart, int fnlength, int linenumber)
 {
     char *temp, *command;
     char c;
@@ -1060,13 +1060,13 @@ void do_undump(char *p, int item_size, int nitems, FILE * in_file)
 /* Look up VAR_NAME in texmf.cnf; assign either the value found there or
    DFLT to *VAR.  */
 
-void setupboundvariable(integer * var, const_string var_name, integer dflt)
+void setupboundvariable(int * var, const_string var_name, int dflt)
 {
     string expansion = kpse_var_value(var_name);
     *var = dflt;
 
     if (expansion) {
-        integer conf_val = atoi(expansion);
+        int conf_val = atoi(expansion);
         /* It's ok if the cnf file specifies 0 for extra_mem_{top,bot}, etc.
            But negative numbers are always wrong.  */
         if (conf_val < 0 || (conf_val == 0 && dflt > 0)) {

@@ -35,7 +35,7 @@ extern void lua_nodelib_push_fast(lua_State * L, halfword n);
 
 typedef char *(*charfunc) (void);
 typedef lua_Number(*numfunc) (void);
-typedef integer(*intfunc) (void);
+typedef int(*intfunc) (void);
 
 char *getbanner(void)
 {
@@ -61,7 +61,7 @@ static char *get_output_file_name(void)
 
 char *getfilename(void)
 {
-    integer t = 0;
+    int t = 0;
     int level = in_open;
     while ((level > 0)) {
         t = input_stack[level--].name_field;
@@ -268,7 +268,7 @@ static int do_getstat(lua_State * L, int i)
         lua_pushstring(L, st);
         break;
     case 's':
-        str = *(integer *) (stats[i].value);
+        str = *(int *) (stats[i].value);
         if (str) {
             char *ss = makecstring(str);
             lua_pushstring(L, ss);
@@ -286,7 +286,7 @@ static int do_getstat(lua_State * L, int i)
         lua_pushnumber(L, g());
         break;
     case 'g':
-        lua_pushnumber(L, *(integer *) (stats[i].value));
+        lua_pushnumber(L, *(int *) (stats[i].value));
         break;
     case 'B':
         g = stats[i].value;
@@ -299,7 +299,7 @@ static int do_getstat(lua_State * L, int i)
             lua_pushnil(L);
         break;
     case 'b':
-        lua_pushboolean(L, *(integer *) (stats[i].value));
+        lua_pushboolean(L, *(int *) (stats[i].value));
         break;
     default:
         lua_pushnil(L);

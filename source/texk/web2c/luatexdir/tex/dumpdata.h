@@ -88,7 +88,7 @@ extern void do_zundump(char *, int, int, FILE *);
 #  define	dump_int(x)							\
   do									\
     {									\
-      integer x_val = (x);						\
+      int x_val = (x);					     	        \
       generic_dump (x_val);						\
     }									\
   while (0)
@@ -100,7 +100,7 @@ extern void do_zundump(char *, int, int, FILE *);
 #    define undump_int(x)							\
   do									\
     {									\
-      integer x_val;							\
+      int x_val;							\
       generic_undump (x_val);						\
       x = x_val;							\
     }									\

@@ -30,7 +30,7 @@ extern halfword page_tail;      /* the final node on the current page */
 extern int page_contents;       /* what is on the current page so far? */
 extern scaled page_max_depth;   /* maximum box depth on page being built */
 extern halfword best_page_break;        /* break here to get the best page known so far */
-extern integer least_page_cost; /* the score for this currently best page */
+extern int least_page_cost;     /* the score for this currently best page */
 extern scaled best_size;        /* its |page_goal| */
 
 /*
@@ -53,10 +53,10 @@ extern void initialize_buildpage(void);
 
 extern scaled page_so_far[8];   /* height and glue of the current page */
 extern halfword last_glue;      /* used to implement \.{\\lastskip */
-extern integer last_penalty;    /* used to implement \.{\\lastpenalty} */
+extern int last_penalty;        /* used to implement \.{\\lastpenalty} */
 extern scaled last_kern;        /* used to implement \.{\\lastkern} */
-extern integer last_node_type;  /* used to implement \.{\\lastnodetype} */
-extern integer insert_penalties;        /* sum of the penalties for held-over insertions */
+extern int last_node_type;      /* used to implement \.{\\lastnodetype} */
+extern int insert_penalties;    /* sum of the penalties for held-over insertions */
 
 extern void print_totals(void);
 extern void freeze_page_specs(int s);

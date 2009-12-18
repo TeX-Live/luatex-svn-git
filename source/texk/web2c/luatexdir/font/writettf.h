@@ -146,8 +146,8 @@ typedef struct {
 
 extern fd_entry *fd_cur;        /* pointer to the current font descriptor */
 extern unsigned char *ttf_buffer;
-extern integer ttf_size;
-extern integer ttf_curbyte;
+extern int ttf_size;
+extern int ttf_curbyte;
 extern glyph_entry *glyph_tab;
 extern dirtab_entry *dir_tab;
 extern dirtab_entry *ttf_name_lookup(const char *s, boolean required);

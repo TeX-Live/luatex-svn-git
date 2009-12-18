@@ -22,6 +22,6 @@
 extern void lua_begin_page(PDF pdf);
 extern void lua_end_page(PDF pdf);
 
-extern void lua_place_glyph(PDF pdf, internal_font_number f, integer c);
+extern void lua_place_glyph(PDF pdf, internal_font_number f, int c);
 extern void lua_place_rule(PDF pdf, scaledpos size);
 extern void finish_lua_file(PDF pdf);

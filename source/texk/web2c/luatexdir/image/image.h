@@ -34,8 +34,8 @@
 #  define IMAGE_COLOR_C   2
 #  define IMAGE_COLOR_I   4
 
-extern integer zround(double);  /* from zround.c */
-#  define bp2int(p)       zround(p * (one_hundred_bp / 100.0))
+extern int do_zround (double r); /* from utils.c */
+#  define bp2int(p)       do_zround(p * (one_hundred_bp / 100.0))
 #  define int2bp(i)       (i * 100.0 / one_hundred_bp)
 
 #  define TYPE_IMG        "image"
@@ -84,21 +84,21 @@ typedef enum { PDF_BOX_SPEC_NONE, PDF_BOX_SPEC_MEDIA, PDF_BOX_SPEC_CROP,
 /**********************************************************************/
 
 typedef struct {
-    integer objnum;
-    integer index;              /* /Im1, /Im2, ... */
+    int objnum;
+    int index;                  /* /Im1, /Im2, ... */
     scaled_whd dimen;           /* TeX dimensions given to \pdfximage */
-    integer transform;          /* transform given to \pdfximage */
-    integer x_size;             /* dimensions in pixel counts as in JPG/PNG/JBIG2 file */
-    integer y_size;
-    integer x_orig;             /* origin in sp for PDF files */
-    integer y_orig;
-    integer x_res;              /* pixel resolution as in JPG/PNG/JBIG2 file */
-    integer y_res;
-    integer rotation;           /* rotation (multiples of 90 deg.) for PDF files */
-    integer colorspace;         /* number of /ColorSpace object */
-    integer group_ref;          /* if it's <=0, the page has no group */
-    integer total_pages;
-    integer page_num;           /* requested page (by number) */
+    int transform;              /* transform given to \pdfximage */
+    int x_size;                 /* dimensions in pixel counts as in JPG/PNG/JBIG2 file */
+    int y_size;
+    int x_orig;                 /* origin in sp for PDF files */
+    int y_orig;
+    int x_res;                  /* pixel resolution as in JPG/PNG/JBIG2 file */
+    int y_res;
+    int rotation;               /* rotation (multiples of 90 deg.) for PDF files */
+    int colorspace;             /* number of /ColorSpace object */
+    int group_ref;              /* if it's <=0, the page has no group */
+    int total_pages;
+    int page_num;               /* requested page (by number) */
     char *pagename;             /* requested page (by name) */
     char *filename;             /* requested raw file name */
     char *filepath;             /* full file path after kpathsea */
@@ -108,9 +108,9 @@ typedef struct {
     int color_space;            /* used color space. See JPG_ constants */
     int color_depth;            /* color depth */
     pdfboxspec_e page_box_spec; /* PDF page box spec.: media/crop/bleed/trim/art */
-    integer bbox[4];
+    int bbox[4];
     dict_state state;
-    integer flags;
+    int flags;
     union {
         pdf_stream_struct *pdfstream;
         png_img_struct *png;
@@ -188,7 +188,7 @@ typedef struct {
 
 typedef struct {
     scaled_whd dimen;           /* requested/actual TeX dimensions */
-    integer transform;
+    int transform;
     image_dict *dict;
     int dict_ref;               /* luaL_ref() reference */
 } image;

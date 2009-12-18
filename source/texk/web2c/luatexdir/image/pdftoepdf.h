@@ -25,15 +25,15 @@
 
 #  include "image.h"
 
-void read_pdf_info(PDF, image_dict *, integer, integer, img_readtype_e);
+void read_pdf_info(PDF, image_dict *, int, int, img_readtype_e);
 void unrefPdfDocument(char *);
 void write_additional_epdf_objects(PDF, char *);
 void write_epdf(PDF, image_dict *);
 void epdf_check_mem(void);
 
 /* epdf.c --- this should go in an own header file */
-extern integer get_fontfile_num(int);
-extern integer get_fontname_num(int);
+extern int get_fontfile_num(int);
+extern int get_fontname_num(int);
 extern void epdf_free(void);
 
 #endif                          /* PDFTOEPDF_H */

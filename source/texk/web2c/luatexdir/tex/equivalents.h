@@ -432,11 +432,11 @@ typedef struct save_record_ {
 
 
 extern save_record *save_stack;
-extern integer save_ptr;        /* first unused entry on |save_stack| */
-extern integer max_save_stack;  /* maximum usage of save stack */
+extern int save_ptr;            /* first unused entry on |save_stack| */
+extern int max_save_stack;      /* maximum usage of save stack */
 extern quarterword cur_level;   /* current nesting level for groups */
 extern group_code cur_group;    /* current group type */
-extern integer cur_boundary;    /* where the current level begins */
+extern int cur_boundary;        /* where the current level begins */
 
 
 #  define save_type(A) save_stack[(A)].type_    /* classifies a |save_stack| entry */
@@ -487,7 +487,7 @@ extern void print_save_stack(void);
 #  define loc_par(A)   equiv(local_base+(A))
 #  define glue_par(A)  equiv(glue_base+(A))
 
-extern integer mag_set;         /* if nonzero, this magnification should be used henceforth */
+extern int mag_set;             /* if nonzero, this magnification should be used henceforth */
 extern void prepare_mag(void);
 
 /*
@@ -533,7 +533,7 @@ typedef enum {
 
 #  define max_group_code local_box_group        /* which is wrong, but is what the web says */
 
-extern integer cur_cmd;         /* current command set by |get_next| */
+extern int cur_cmd;             /* current command set by |get_next| */
 extern halfword cur_chr;        /* operand of current command */
 extern halfword cur_cs;         /* control sequence found here, zero if none found */
 extern halfword cur_tok;        /* packed representative of |cur_cmd| and |cur_chr| */
@@ -544,9 +544,9 @@ extern void new_save_level(group_code c);       /* begin a new level of grouping
 extern void eq_destroy(memory_word w);  /* gets ready to forget |w| */
 extern void eq_save(halfword p, quarterword l); /* saves |eqtb[p]| */
 extern void eq_define(halfword p, quarterword t, halfword e);   /* new data for |eqtb| */
-extern void eq_word_define(halfword p, integer w);
+extern void eq_word_define(halfword p, int w);
 extern void geq_define(halfword p, quarterword t, halfword e);  /* global |eq_define| */
-extern void geq_word_define(halfword p, integer w);     /* global |eq_word_define| */
+extern void geq_word_define(halfword p, int w); /* global |eq_word_define| */
 extern void save_for_after(halfword t);
 extern void unsave(void);       /* pops the top level off the save stack */
 extern void restore_trace(halfword p, char *s); /* |eqtb[p]| has just been restored or retained */

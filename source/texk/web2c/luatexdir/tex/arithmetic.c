@@ -49,7 +49,7 @@ unambiguous convention with respect to signed odd numbers.
 */
 
 
-integer half(integer x)
+int half(int x)
 {
     if (odd(x))
         return ((x + 1) / 2);
@@ -65,7 +65,7 @@ given in |dig[i]|, and the calculation produces a correctly rounded result.
 
 scaled round_decimals(int k)
 {                               /* converts a decimal fraction */
-    integer a;                  /* the accumulator */
+    int a;                      /* the accumulator */
     a = 0;
     while (k-- > 0) {
         a = (a + dig[k] * two) / 10;
@@ -143,7 +143,7 @@ and~|y| are |scaled| and |n| is an integer. We will also use it to
 multiply integers.
 */
 
-scaled mult_and_add(integer n, scaled x, scaled y, scaled max_answer)
+scaled mult_and_add(int n, scaled x, scaled y, scaled max_answer)
 {
     if (n == 0)
         return y;
@@ -161,7 +161,7 @@ scaled mult_and_add(integer n, scaled x, scaled y, scaled max_answer)
 
 /* We also need to divide scaled dimensions by integers. */
 
-scaled x_over_n(scaled x, integer n)
+scaled x_over_n(scaled x, int n)
 {
     boolean negative;           /* should |tex_remainder| be negated? */
     negative = false;
@@ -198,7 +198,7 @@ would be too inaccurate to divide by |d| and then multiply by |n|. Hence
 this subroutine simulates 1.5-precision arithmetic.
 */
 
-scaled xn_over_d(scaled x, integer n, integer d)
+scaled xn_over_d(scaled x, int n, int d)
 {
     nonnegative_integer t, u, v;        /* intermediate quantities */
     boolean positive = true;    /* was |x>=0|? */
@@ -245,7 +245,7 @@ computing at most 1095 distinct values, but that is plenty.
 
 halfword badness(scaled t, scaled s)
 {                               /* compute badness, given |t>=0| */
-    integer r;                  /* approximation to $\alpha t/s$, where $\alpha^3\approx
+    int r;                      /* approximation to $\alpha t/s$, where $\alpha^3\approx
                                    100\cdot2^{18}$ */
     if (t == 0) {
         return 0;
@@ -313,7 +313,7 @@ The global variable |j_random| tells which element has most recently
 been consumed.
 */
 
-static integer randoms[55];     /* the last 55 random values generated */
+static int randoms[55];         /* the last 55 random values generated */
 static int j_random;            /* the number of unused |randoms| */
 scaled random_seed;             /* the default random seed */
 
@@ -366,11 +366,11 @@ preferable to trickery, unless the cost is too high.
 */
 
 
-static integer make_frac(integer p, integer q)
+static int make_frac(int p, int q)
 {
-    integer f;                  /* the fraction bits, with a leading 1 bit */
-    integer n;                  /* the integer part of $\vert p/q\vert$ */
-    register integer be_careful;        /* disables certain compiler optimizations */
+    int f;                      /* the fraction bits, with a leading 1 bit */
+    int n;                      /* the integer part of $\vert p/q\vert$ */
+    register int be_careful;    /* disables certain compiler optimizations */
     boolean negative = false;   /* should the result be negated? */
     if (p < 0) {
         negate(p);
@@ -430,11 +430,11 @@ static integer make_frac(integer p, integer q)
     }
 }
 
-static integer take_frac(integer q, integer f)
+static int take_frac(int q, int f)
 {
-    integer p;                  /* the fraction so far */
-    integer n;                  /* additional multiple of $q$ */
-    register integer be_careful;        /* disables certain compiler optimizations */
+    int p;                      /* the fraction so far */
+    int n;                      /* additional multiple of $q$ */
+    register int be_careful;    /* disables certain compiler optimizations */
     boolean negative = false;   /* should the result be negated? */
     /* Reduce to the case that |f>=0| and |q>0| */
     if (f < 0) {
@@ -504,8 +504,8 @@ a bit more calculation, which the author claims to have done correctly:
 nearest integer.
 */
 
-static integer two_to_the[31];  /* powers of two */
-static integer spec_log[29];    /* special logarithms */
+static int two_to_the[31];      /* powers of two */
+static int spec_log[29];        /* special logarithms */
 
 void initialize_arithmetic(void)
 {
@@ -532,10 +532,10 @@ void initialize_arithmetic(void)
 }
 
 
-static integer m_log(integer x)
+static int m_log(int x)
 {
-    integer y, z;               /* auxiliary registers */
-    integer k;                  /* iteration counter */
+    int y, z;                   /* auxiliary registers */
+    int k;                      /* iteration counter */
     if (x <= 0) {
         /* Handle non-positive logarithm */
         print_err("Logarithm of ");
@@ -579,9 +579,9 @@ given integers $(a,b,c,d)$. In most cases a quick decision is reached.
 The result is $+1$, 0, or~$-1$ in the three respective cases.
 */
 
-static integer ab_vs_cd(integer a, integer b, integer c, integer d)
+static int ab_vs_cd(int a, int b, int c, int d)
 {
-    integer q, r;               /* temporary registers */
+    int q, r;                   /* temporary registers */
     /* Reduce to the case that |a,c>=0|, |b,d>0| */
     if (a < 0) {
         negate(a);
@@ -639,7 +639,7 @@ and then it will fetch |randoms[j_random]|.
 static void new_randoms(void)
 {
     int k;                      /* index into |randoms| */
-    integer x;                  /* accumulator */
+    int x;                      /* accumulator */
     for (k = 0; k <= 23; k++) {
         x = randoms[k] - randoms[k + 31];
         if (x < 0)
@@ -658,9 +658,9 @@ static void new_randoms(void)
 
 /* To initialize the |randoms| table, we call the following routine. */
 
-void init_randoms(integer seed)
+void init_randoms(int seed)
 {
-    integer j, jj, k;           /* more or less random integers */
+    int j, jj, k;               /* more or less random integers */
     int i;                      /* index into |randoms| */
     j = abs(seed);
     while (j >= fraction_one)
@@ -688,9 +688,9 @@ with about half the probability that it will produce any other particular
 values between 0 and~|x|, because it rounds its answers.
 */
 
-integer unif_rand(integer x)
+int unif_rand(int x)
 {
-    integer y;                  /* trial value */
+    int y;                      /* trial value */
     next_random();
     y = take_frac(abs(x), randoms[j_random]);
     if (y == abs(x))
@@ -707,9 +707,9 @@ can readily be obtained with the ratio method (Algorithm 3.4.1R in
 {\sl The Art of Computer Programming\/}).
 */
 
-integer norm_rand(void)
+int norm_rand(void)
 {
-    integer x, u, l;            /* what the book would call $2^{16}X$, $2^{28}U$, and $-2^{24}\ln U$ */
+    int x, u, l;                /* what the book would call $2^{16}X$, $2^{28}U$, and $-2^{24}\ln U$ */
     do {
         do {
             next_random();
@@ -728,7 +728,7 @@ integer norm_rand(void)
    breakpoint for debugging.
 */
 
-integer fix_int(integer val, integer min, integer max)
+int fix_int(int val, int min, int max)
 {
     return (val < min ? min : (val > max ? max : val));
 }

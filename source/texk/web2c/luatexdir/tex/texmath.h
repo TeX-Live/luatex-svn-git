@@ -78,12 +78,11 @@ extern void after_math(void);
 extern void scan_extdef_del_code(int level, int extcode);
 extern void scan_extdef_math_code(int level, int extcode);
 
-extern integer fam_fnt(integer fam_id, integer size_id);
-extern void def_fam_fnt(integer fam_id, integer size_id, integer f,
-                        integer lvl);
+extern int fam_fnt(int fam_id, int size_id);
+extern void def_fam_fnt(int fam_id, int size_id, int f, int lvl);
 extern void dump_math_data(void);
 extern void undump_math_data(void);
-void unsave_math_data(integer lvl);
+void unsave_math_data(int lvl);
 
 /*
   @ We also need to compute the change in style between mlists and their

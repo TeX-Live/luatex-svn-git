@@ -38,10 +38,10 @@ PDF static_pdf = NULL;
 static char *jobname_cstr = NULL;
 
 /* commandline interface */
-integer pdf_output_option;
-integer pdf_output_value;
-integer pdf_draftmode_option;
-integer pdf_draftmode_value;
+int pdf_output_option;
+int pdf_output_value;
+int pdf_draftmode_option;
+int pdf_draftmode_value;
 
 halfword pdf_info_toks;         /* additional keys of Info dictionary */
 halfword pdf_catalog_toks;      /* additional keys of Catalog dictionary */
@@ -132,10 +132,10 @@ static void pdf_shipout_end(boolean shipping_page)
   We use |pdf_get_mem| to allocate memory in |mem|
 */
 
-integer pdf_get_mem(PDF pdf, integer s)
+int pdf_get_mem(PDF pdf, int s)
 {                               /* allocate |s| words in |mem| */
-    integer a;
-    integer ret;
+    int a;
+    int ret;
     if (s > sup_pdf_mem_size - pdf->mem_ptr)
         overflow("PDF memory size (pdf_mem_size)", pdf->mem_size);
     if (pdf->mem_ptr + s > pdf->mem_size) {
@@ -225,7 +225,7 @@ to finish it. The stream contents will be compressed if compression is turn on.
 
 /* writepdf() always writes by fwrite() */
 
-static void write_pdf(PDF pdf, integer a, int b)
+static void write_pdf(PDF pdf, int a, int b)
 {
     (void) fwrite((char *) &pdf->buf[a], sizeof(pdf->buf[a]),
                   (int) ((b) - (a) + 1), pdf->file);
@@ -287,7 +287,7 @@ void pdf_os_switch(PDF pdf, boolean pdf_os)
 }
 
 /* create new \.{/ObjStm} object if required, and set up cross reference info */
-void pdf_os_prepare_obj(PDF pdf, integer i, integer pdf_os_level)
+void pdf_os_prepare_obj(PDF pdf, int i, int pdf_os_level)
 {
     pdf_os_switch(pdf, ((pdf_os_level > 0)
                         && (pdf->objcompresslevel >= pdf_os_level)));
@@ -315,9 +315,9 @@ void pdf_os_prepare_obj(PDF pdf, integer i, integer pdf_os_level)
 /* low-level buffer checkers */
 
 /* check that |s| bytes more fit into |pdf_os_buf|; increase it if required */
-static void pdf_os_get_os_buf(PDF pdf, integer s)
+static void pdf_os_get_os_buf(PDF pdf, int s)
 {
-    integer a;
+    int a;
     if (s > sup_pdf_os_buf_size - pdf->ptr)
         overflow("PDF object stream buffer", pdf->os_buf_size);
     if (pdf->ptr + s > pdf->os_buf_size) {
@@ -336,7 +336,7 @@ static void pdf_os_get_os_buf(PDF pdf, integer s)
 }
 
 /* make sure that there are at least |n| bytes free in PDF buffer */
-void pdf_room(PDF pdf, integer n)
+void pdf_room(PDF pdf, int n)
 {
     if (pdf->os_mode && (n + pdf->ptr > pdf->buf_size))
         pdf_os_get_os_buf(pdf, n);
@@ -428,8 +428,8 @@ void pdf_print(PDF pdf, str_number s)
 
 void pdf_print_int(PDF pdf, longinteger n)
 {
-    register integer k = 0;     /*  current digit; we assume that $|n|<10^{23}$ */
-    integer dig[24];
+    register int k = 0;         /*  current digit; we assume that $|n|<10^{23}$ */
+    int dig[24];
     if (n < 0) {
         pdf_out(pdf, '-');
         if (n < -0x7FFFFFFF) {  /* need to negate |n| more carefully */
@@ -460,7 +460,7 @@ void pdf_print_int(PDF pdf, longinteger n)
 
 /* print $m/10^d$ as real */
 
-void pdf_print_real(PDF pdf, integer m, integer d)
+void pdf_print_real(PDF pdf, int m, int d)
 {
     if (m < 0) {
         pdf_out(pdf, '-');
@@ -584,7 +584,7 @@ scaled one_hundred_bp = (7227 * 65536) / 72;
 scaled one_bp = ((7227 * 65536) / 72 + 50) / 100;
 
 /* $10^0..10^9$ */
-integer ten_pow[10] = {
+int ten_pow[10] = {
     1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
 };
 
@@ -594,7 +594,7 @@ digits of precision. It is defined in C because it is a good candidate
 for optimizations that are not possible in pascal.
 */
 
-scaled round_xn_over_d(scaled x, integer n, integer d)
+scaled round_xn_over_d(scaled x, int n, int d)
 {
     boolean positive;           /* was |x>=0|? */
     unsigned t, u, v;           /* intermediate quantities */
@@ -670,7 +670,7 @@ void reset_resource_lists(pdf_resource_struct * p)
     p->image_procset = 0;
 }
 
-void append_object_list(PDF pdf, pdf_obj_type t, integer objnum)
+void append_object_list(PDF pdf, pdf_obj_type t, int objnum)
 {
     pdf_object_list *p;
     pdf_object_list *item = xmalloc(sizeof(pdf_object_list));
@@ -697,7 +697,7 @@ void append_object_list(PDF pdf, pdf_obj_type t, integer objnum)
 }
 
 /* return zero on failure, or the object  */
-pdf_object_list *lookup_object_list(PDF pdf, pdf_obj_type t, integer f)
+pdf_object_list *lookup_object_list(PDF pdf, pdf_obj_type t, int f)
 {
     pdf_object_list *p;
     switch (t) {
@@ -775,10 +775,10 @@ void flush_resource_lists(PDF pdf)
 /* Subroutines to print out various PDF objects */
 
 /* print out an integer with fixed width; used for outputting cross-reference table */
-void pdf_print_fw_int(PDF pdf, longinteger n, integer w)
+void pdf_print_fw_int(PDF pdf, longinteger n, int w)
 {
-    integer k;                  /* $0\le k\le23$ */
-    integer dig[24];
+    int k;                      /* $0\le k\le23$ */
+    int dig[24];
     k = 0;
     do {
         dig[k] = n % 10;
@@ -791,10 +791,10 @@ void pdf_print_fw_int(PDF pdf, longinteger n, integer w)
 }
 
 /* print out an integer as a number of bytes; used for outputting \.{/XRef} cross-reference stream */
-void pdf_out_bytes(PDF pdf, longinteger n, integer w)
+void pdf_out_bytes(PDF pdf, longinteger n, int w)
 {
-    integer k;
-    integer bytes[8];           /* digits in a number being output */
+    int k;
+    int bytes[8];               /* digits in a number being output */
     k = 0;
     do {
         bytes[k] = n % 256;
@@ -808,11 +808,11 @@ void pdf_out_bytes(PDF pdf, longinteger n, integer w)
 
 /* print out an entry in dictionary with integer value to PDF buffer */
 
-void pdf_int_entry(PDF pdf, char *s, integer v)
+void pdf_int_entry(PDF pdf, char *s, int v)
 {
     pdf_printf(pdf, "/%s ", s);
     pdf_print_int(pdf, v);
-} void pdf_int_entry_ln(PDF pdf, char *s, integer v)
+} void pdf_int_entry_ln(PDF pdf, char *s, int v)
 {
 
     pdf_int_entry(pdf, s, v);
@@ -820,10 +820,10 @@ void pdf_int_entry(PDF pdf, char *s, integer v)
 }
 
 /* print out an indirect entry in dictionary */
-void pdf_indirect(PDF pdf, char *s, integer o)
+void pdf_indirect(PDF pdf, char *s, int o)
 {
     pdf_printf(pdf, "/%s %d 0 R", s, (int) o);
-} void pdf_indirect_ln(PDF pdf, char *s, integer o)
+} void pdf_indirect_ln(PDF pdf, char *s, int o)
 {
 
     pdf_indirect(pdf, s, o);
@@ -1029,7 +1029,7 @@ void ensure_output_state(PDF pdf, output_state s)
 /**********************************************************************/
 
 /* begin a PDF dictionary object */
-void pdf_begin_dict(PDF pdf, integer i, integer pdf_os_level)
+void pdf_begin_dict(PDF pdf, int i, int pdf_os_level)
 {
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
     pdf_os_prepare_obj(pdf, i, pdf_os_level);
@@ -1043,7 +1043,7 @@ void pdf_begin_dict(PDF pdf, integer i, integer pdf_os_level)
 }
 
 /* begin a new PDF dictionary object */
-void pdf_new_dict(PDF pdf, integer t, integer i, integer pdf_os)
+void pdf_new_dict(PDF pdf, int t, int i, int pdf_os)
 {
     pdf_create_obj(pdf, t, i);
     pdf_begin_dict(pdf, pdf->obj_ptr, pdf_os);
@@ -1121,7 +1121,7 @@ void pdf_os_write_objstream(PDF pdf)
 }
 
 /* begin a PDF object */
-void pdf_begin_obj(PDF pdf, integer i, integer pdf_os_level)
+void pdf_begin_obj(PDF pdf, int i, int pdf_os_level)
 {
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
     pdf_os_prepare_obj(pdf, i, pdf_os_level);
@@ -1133,7 +1133,7 @@ void pdf_begin_obj(PDF pdf, integer i, integer pdf_os_level)
 }
 
 /* begin a new PDF object */
-void pdf_new_obj(PDF pdf, integer t, integer i, integer pdf_os)
+void pdf_new_obj(PDF pdf, int t, int i, int pdf_os)
 {
     pdf_create_obj(pdf, t, i);
     pdf_begin_obj(pdf, pdf->obj_ptr, pdf_os);
@@ -1150,7 +1150,7 @@ void pdf_end_obj(PDF pdf)
     }
 }
 
-void write_stream_length(PDF pdf, integer length, longinteger offset)
+void write_stream_length(PDF pdf, int length, longinteger offset)
 {
     if (jobname_cstr == NULL)
         jobname_cstr = makecstring(job_name);
@@ -1436,12 +1436,12 @@ static void realloc_fb(PDF pdf)
     }
 }
 
-integer fb_offset(PDF pdf)
+int fb_offset(PDF pdf)
 {
     return pdf->fb_ptr - pdf->fb_array;
 }
 
-void fb_seek(PDF pdf, integer offset)
+void fb_seek(PDF pdf, int offset)
 {
     pdf->fb_ptr = pdf->fb_array + offset;
 }
@@ -1457,7 +1457,7 @@ void fb_putchar(PDF pdf, eight_bits b)
 void fb_flush(PDF pdf)
 {
     char *p;
-    integer n;
+    int n;
     for (p = pdf->fb_array; p < pdf->fb_ptr;) {
         n = pdf->buf_size - pdf->ptr;
         if (pdf->fb_ptr - p < n)
@@ -1748,7 +1748,7 @@ void pdf_begin_page(PDF pdf, boolean shipping_page)
 
 void pdf_end_page(PDF pdf, boolean shipping_page)
 {
-    integer j, ff;
+    int j, ff;
     pdf_resource_struct *res_p = pdf->resources;
     pdf_resource_struct local_resources;
     pdf_object_list *ol;
@@ -1994,7 +1994,7 @@ PDF browsers, so we need to fix them; they point to the last page.
 
 static void check_nonexisting_destinations(PDF pdf)
 {
-    integer k;
+    int k;
     for (k = pdf->head_tab[obj_type_dest]; k != 0; k = obj_link(pdf, k)) {
         if (obj_dest_ptr(pdf, k) == null) {
             pdf_warning("dest", NULL, false, false);
@@ -2050,7 +2050,7 @@ boolean substr_of_str(char *s, char *t)
     return true;
 }
 
-void pdf_print_info(PDF pdf, integer luatex_version, str_number luatex_revision)
+void pdf_print_info(PDF pdf, int luatex_version, str_number luatex_revision)
 {                               /* print info object */
     boolean creator_given, producer_given, creationdate_given, moddate_given,
         trapped_given;
@@ -2107,7 +2107,7 @@ void pdf_print_info(PDF pdf, integer luatex_version, str_number luatex_revision)
 
 void build_free_object_list(PDF pdf)
 {
-    integer k, l;
+    int k, l;
     l = 0;
     set_obj_fresh(pdf, l);      /* null object at begin of list of free objects */
     for (k = 1; k <= pdf->sys_obj_ptr; k++) {
@@ -2126,14 +2126,13 @@ Now the finish of PDF output file. At this moment all Page objects
 are already written completely to PDF output file.
 */
 
-void finish_pdf_file(PDF pdf, integer luatex_version,
-                     str_number luatex_revision)
+void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
 {
     boolean res;
-    integer i, j, k;
-    integer root, outlines, threads, names_tree;
-    integer xref_offset_width;
-    integer callback_id = callback_defined(stop_run_callback);
+    int i, j, k;
+    int root, outlines, threads, names_tree;
+    int xref_offset_width;
+    int callback_id = callback_defined(stop_run_callback);
 
     if (total_pages == 0) {
         if (callback_id == 0) {

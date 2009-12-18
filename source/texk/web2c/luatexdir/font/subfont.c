@@ -27,8 +27,8 @@ static const char _svn_version[] =
 static struct avl_table *sfd_tree = NULL;
 
 static unsigned char *sfd_buffer = NULL;
-static integer sfd_size = 0;
-static integer sfd_curbyte = 0;
+static int sfd_size = 0;
+static int sfd_curbyte = 0;
 
 #define SFD_BUF_SIZE    SMALL_BUF_SIZE
 

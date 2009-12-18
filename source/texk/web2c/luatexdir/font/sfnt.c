@@ -162,7 +162,7 @@ sfnt *sfnt_open(FT_Face face, int accept_types)
 }
 #else                           /* not XETEX */
 #  ifdef pdfTeX
-sfnt *sfnt_open(unsigned char *buffer, integer buflen)
+sfnt *sfnt_open(unsigned char *buffer, int buflen)
 {
     sfnt *sfont;
     ULONG type;

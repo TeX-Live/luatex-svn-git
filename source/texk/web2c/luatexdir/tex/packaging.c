@@ -109,11 +109,11 @@ input stream (the others are \.{\\vcenter}, \.{\\valign}, and
 */
 
 
-void scan_full_spec(group_code c, integer spec_direction)
+void scan_full_spec(group_code c, int spec_direction)
 {                               /* scans a box specification and left brace */
-    integer s;                  /* temporarily saved value */
-    integer i;
-    integer v;
+    int s;                      /* temporarily saved value */
+    int i;
+    int v;
     int spec_code;
     halfword attr_list;
     s = 0;
@@ -200,7 +200,7 @@ to implement \.{\\badness}.
 
 scaled total_stretch[5];
 scaled total_shrink[5];         /* glue found by |hpack| or |vpack| */
-integer last_badness;           /* badness of the most recently packaged box */
+int last_badness;               /* badness of the most recently packaged box */
 
 /*
 If the global variable |adjust_tail| is non-null, the |hpack| routine
@@ -218,7 +218,7 @@ Materials in \.{\\vadjust} used with \.{pre} keyword will be appended to
 
 halfword pre_adjust_tail;
 
-integer font_expand_ratio;      /* current expansion ratio */
+int font_expand_ratio;          /* current expansion ratio */
 halfword last_leftmost_char;
 halfword last_rightmost_char;
 
@@ -236,9 +236,9 @@ scaled char_stretch(halfword p)
 {
     internal_font_number k;
     scaled dw;
-    integer ef;
+    int ef;
     internal_font_number f;
-    integer c;
+    int c;
     f = font(p);
     c = character(p);
     k = pdf_font_stretch(f);
@@ -255,9 +255,9 @@ scaled char_shrink(halfword p)
 {
     internal_font_number k;
     scaled dw;
-    integer ef;
+    int ef;
     internal_font_number f;
-    integer c;
+    int c;
     f = font(p);
     c = character(p);
     k = pdf_font_shrink(f);
@@ -304,11 +304,11 @@ scaled kern_shrink(halfword p)
                            get_ef_code(font(l), character(l)), 1000);
 }
 
-void do_subst_font(halfword p, integer ex_ratio)
+void do_subst_font(halfword p, int ex_ratio)
 {
     internal_font_number f, k;
     halfword r;
-    integer ef;
+    int ef;
     if (type(p) == disc_node) {
         r = vlink(pre_break(p));
         while (r != null) {
@@ -369,7 +369,7 @@ void do_subst_font(halfword p, integer ex_ratio)
 scaled char_pw(halfword p, int side)
 {
     internal_font_number f;
-    integer c;
+    int c;
     if (side == left_side)
         last_leftmost_char = null;
     else
@@ -420,8 +420,8 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
     internal_font_number f;     /* the font in a |char_node| */
     halfword dir_ptr;           /* for managing the direction stack */
     /* BEWARE: this shadows a global |dir_ptr| */
-    integer hpack_dir;          /* the current direction */
-    integer disc_level;
+    int hpack_dir;              /* the current direction */
+    int disc_level;
     halfword pack_interrupt[8];
     scaled font_stretch;
     scaled font_shrink;
@@ -826,7 +826,7 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
     return r;
 }
 
-halfword filtered_hpack(halfword p, halfword qt, scaled w, int m, integer grp,
+halfword filtered_hpack(halfword p, halfword qt, scaled w, int m, int grp,
                         int pac)
 {
     halfword q;
@@ -840,12 +840,12 @@ halfword filtered_hpack(halfword p, halfword qt, scaled w, int m, integer grp,
 /* here is a function to calculate the natural whd of a (horizontal) node list */
 
 scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
-                         integer g_sign, integer g_order, int pack_direction)
+                         int g_sign, int g_order, int pack_direction)
 {
     scaled s;                   /* shift amount */
     halfword g;                 /* points to a glue specification */
     internal_font_number f;     /* the font in a |char_node| */
-    integer hpack_dir;
+    int hpack_dir;
     scaled_whd xx;              /* for recursion */
     scaled_whd whd, siz = { 0, 0, 0 };
     if (pack_direction == -1) {
@@ -953,7 +953,7 @@ set nonzero only when |hpack| is being called by the paragraph builder
 or the alignment finishing routine.
 */
 
-integer pack_begin_line;        /* source file line where the current paragraph
+int pack_begin_line;            /* source file line where the current paragraph
                                    or alignment began; a negative value denotes alignment */
 
 /*
@@ -1196,7 +1196,7 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
     return r;
 }
 
-halfword filtered_vpackage(halfword p, scaled h, int m, scaled l, integer grp,
+halfword filtered_vpackage(halfword p, scaled h, int m, scaled l, int grp,
                            int pack_direction)
 {
     halfword q;
@@ -1221,7 +1221,7 @@ void package(int c)
     scaled h;                   /* height of box */
     halfword p;                 /* first node in a box */
     scaled d;                   /* max depth */
-    integer grp;
+    int grp;
     grp = cur_group;
     d = box_max_depth;
     unsave();
@@ -1413,9 +1413,9 @@ halfword vert_break(halfword p, scaled h, scaled d)
     halfword prev_p;            /* if |p| is a glue node, |type(prev_p)| determines
                                    whether |p| is a legal breakpoint */
     halfword q, r;              /* glue specifications */
-    integer pi;                 /* penalty value */
-    integer b;                  /* badness at a trial breakpoint */
-    integer least_cost;         /* the smallest badness plus penalties found so far */
+    int pi;                     /* penalty value */
+    int b;                      /* badness at a trial breakpoint */
+    int least_cost;             /* the smallest badness plus penalties found so far */
     halfword best_place;        /* the most recent break that leads to |least_cost| */
     scaled prev_dp;             /* depth of previous box in the list */
     int t;                      /* |type| of the node following a kern */
@@ -1583,7 +1583,7 @@ box was void (or if it was, erroneously, an hlist box).
 halfword vsplit(halfword n, scaled h)
 {                               /* extracts a page of height |h| from box |n| */
     halfword v;                 /* the box to be split */
-    integer vdir;               /* the direction of the box to be split */
+    int vdir;                   /* the direction of the box to be split */
     halfword p;                 /* runs through the vlist */
     halfword q;                 /* points to where the break occurs */
     halfword i;                 /* for traversing marks lists */
@@ -1662,12 +1662,12 @@ the first steps in their creation. The |begin_box| routine is called when
 box desired, and |cur_cmd=make_box|.
 */
 
-void begin_box(integer box_context)
+void begin_box(int box_context)
 {
     halfword q;                 /* run through the current list */
     halfword k;                 /* 0 or |vmode| or |hmode| */
-    integer n;                  /* a box number */
-    integer spec_direction = -1;
+    int n;                      /* a box number */
+    int spec_direction = -1;
     switch (cur_chr) {
     case box_code:
         scan_register_num();

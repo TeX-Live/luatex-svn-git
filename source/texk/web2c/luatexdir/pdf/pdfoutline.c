@@ -56,10 +56,10 @@ will store data of outline entries in |pdf->mem| instead of |mem|
 #define set_obj_outline_parent(pdf,A,B) obj_outline_parent(pdf,A)=B
 #define set_obj_outline_attr(pdf,A,B) obj_outline_attr(pdf,A)=B
 
-static integer open_subentries(PDF pdf, halfword p)
+static int open_subentries(PDF pdf, halfword p)
 {
-    integer k, c;
-    integer l, r;
+    int k, c;
+    int l, r;
     k = 0;
     if (obj_outline_first(pdf, p) != 0) {
         l = obj_outline_first(pdf, p);
@@ -83,9 +83,9 @@ static integer open_subentries(PDF pdf, halfword p)
 }
 
 /* return number of outline entries in the same level with |p| */
-static integer outline_list_count(PDF pdf, pointer p)
+static int outline_list_count(PDF pdf, pointer p)
 {
-    integer k = 1;
+    int k = 1;
     while (obj_outline_prev(pdf, p) != 0) {
         incr(k);
         p = obj_outline_prev(pdf, p);
@@ -96,9 +96,9 @@ static integer outline_list_count(PDF pdf, pointer p)
 void scan_pdfoutline(PDF pdf)
 {
     halfword p, q, r;
-    integer i, j, k;
+    int i, j, k;
     if (scan_keyword("attr")) {
-	scan_pdf_ext_toks();
+        scan_pdf_ext_toks();
         r = def_ref;
     } else {
         r = 0;
@@ -173,10 +173,10 @@ void scan_pdfoutline(PDF pdf)
 /* In the end we must flush PDF objects that cannot be written out
    immediately after shipping out pages. */
 
-integer print_outlines(PDF pdf)
+int print_outlines(PDF pdf)
 {
-    integer k, l, a;
-    integer outlines;
+    int k, l, a;
+    int outlines;
     if (pdf->first_outline != 0) {
         pdf_new_dict(pdf, obj_type_others, 0, 1);
         outlines = pdf->obj_ptr;

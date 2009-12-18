@@ -41,11 +41,11 @@ typedef enum {
 
 extern two_halves *hash;        /* the hash table */
 extern halfword hash_used;      /* allocation pointer for |hash| */
-extern integer hash_extra;      /* |hash_extra=hash| above |eqtb_size| */
+extern int hash_extra;          /* |hash_extra=hash| above |eqtb_size| */
 extern halfword hash_top;       /* maximum of the hash array */
 extern halfword hash_high;      /* pointer to next high hash location */
 extern boolean no_new_control_sequence; /* are new identifiers legal? */
-extern integer cs_count;        /* total number of known identifiers */
+extern int cs_count;            /* total number of known identifiers */
 
 #  define cs_next(a) hash[(a)].lhfield  /* link for coalesced lists */
 #  define cs_text(a) hash[(a)].rh
@@ -64,10 +64,10 @@ extern pointer prim_lookup(str_number s);
 
 extern boolean is_primitive(str_number csname);
 
-extern quarterword get_prim_eq_type(integer p);
-extern halfword get_prim_equiv(integer p);
-extern str_number get_prim_text(integer p);
-extern quarterword get_prim_origin(integer p);
+extern quarterword get_prim_eq_type(int p);
+extern halfword get_prim_equiv(int p);
+extern str_number get_prim_text(int p);
+extern quarterword get_prim_origin(int p);
 
 extern void dump_primitives(void);
 extern void undump_primitives(void);
@@ -87,6 +87,6 @@ extern void primitive_def(char *s, size_t l, quarterword c, halfword o);
 extern void print_cmd_chr(quarterword cmd, halfword chr_code);
 
 extern pointer string_lookup(char *s, size_t l);
-extern pointer id_lookup(integer j, integer l);
+extern pointer id_lookup(int j, int l);
 
 #endif                          /* LUATEX_PRIMITIVE_H */

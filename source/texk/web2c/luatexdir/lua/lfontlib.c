@@ -51,7 +51,7 @@ static int font_read_tfm(lua_State * L)
     if (lua_isstring(L, 1)) {
         cnom = (char *) lua_tostring(L, 1);
         if (lua_isnumber(L, 2)) {
-            s = (integer) lua_tonumber(L, 2);
+            s = (int) lua_tonumber(L, 2);
             if (strlen(cnom)) {
                 f = get_fontid();
                 if (read_tfm_info(f, cnom, s)) {
@@ -261,7 +261,7 @@ static int getfontid(lua_State * L)
     char *s;
     size_t ff;
     int cur_cs;
-    integer f;
+    int f;
     if (lua_type(L, 1) == LUA_TSTRING) {
         s = (char *) lua_tolstring(L, 1, &ff);
         cur_cs = string_lookup(s, ff);

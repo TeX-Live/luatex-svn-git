@@ -39,9 +39,9 @@ void init_dest_names(PDF pdf)
     pdf->dest_names = xmallocarray(dest_name_entry, inf_dest_names_size);       /* will grow dynamically */
 }
 
-void append_dest_name(PDF pdf, char *s, integer n)
+void append_dest_name(PDF pdf, char *s, int n)
 {
-    integer a;
+    int a;
     if (pdf->dest_names_ptr == sup_dest_names_size)
         overflow("number of destination names (dest_names_size)",
                  pdf->dest_names_size);
@@ -65,7 +65,7 @@ When a destination is created we need to check whether another destination
 with the same identifier already exists and give a warning if needed.
 */
 
-void warn_dest_dup(integer id, small_number byname, char *s1, char *s2)
+void warn_dest_dup(int id, small_number byname, char *s1, char *s2)
 {
     pdf_warning(s1, "destination with the same identifier (", false, false);
     if (byname > 0) {
@@ -86,7 +86,7 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 {
     scaledpos pos = pdf->posstruct->pos;
     scaled_whd alt_rule;
-    integer k;
+    int k;
     if (!is_shipping_page)
         pdf_error("ext4", "destinations cannot be inside an XForm");
     if (doing_leaders)
@@ -142,7 +142,7 @@ void write_out_pdf_mark_destinations(PDF pdf)
                 pdf_error("ext5",
                           "destination has been already written (this shouldn't happen)");
             } else {
-                integer i;
+                int i;
                 i = obj_dest_ptr(pdf, k->info);
                 if (pdf_dest_named_id(i) > 0) {
                     pdf_begin_dict(pdf, k->info, 1);
@@ -213,7 +213,7 @@ void write_out_pdf_mark_destinations(PDF pdf)
 void scan_pdfdest(PDF pdf)
 {
     halfword q;
-    integer k;
+    int k;
     str_number i;
     scaled_whd alt_rule;
     q = cur_list.tail_field;
@@ -311,15 +311,15 @@ pointers.
 */
 
 
-integer output_name_tree(PDF pdf)
+int output_name_tree(PDF pdf)
 {
     boolean is_names = true;    /* flag for name tree output: is it Names or Kids? */
-    integer b = 0, j, l;
-    integer k = 0;              /* index of current child of |l|; if |k < pdf_dest_names_ptr|
+    int b = 0, j, l;
+    int k = 0;                  /* index of current child of |l|; if |k < pdf_dest_names_ptr|
                                    then this is pointer to |dest_names| array;
                                    otherwise it is the pointer to |obj_tab| (object number) */
-    integer dests = 0;
-    integer names_head = 0, names_tail = 0;
+    int dests = 0;
+    int names_head = 0, names_tail = 0;
     if (pdf->dest_names_ptr == 0) {
         goto DONE;
     }

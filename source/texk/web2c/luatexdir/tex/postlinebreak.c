@@ -100,7 +100,7 @@ void ext_post_line_break(boolean d,
     boolean post_disc_break;    /*and did it have a nonempty post-break part? */
     scaled cur_width;           /*width of line number |cur_line| */
     scaled cur_indent;          /*left margin of line number |cur_line| */
-    integer pen;                /*use when calculating penalties between lines */
+    int pen;                    /*use when calculating penalties between lines */
     halfword cur_p;             /* cur_p, but localized */
     halfword cur_line;          /*the current line number being justified */
 
@@ -153,7 +153,7 @@ void ext_post_line_break(boolean d,
             halfword nxt = vlink(temp_head);
             delete_attribute_ref(node_attr(tmp));
             node_attr(tmp) = node_attr(temp_head);
-            add_node_attr_ref (node_attr(tmp));
+            add_node_attr_ref(node_attr(tmp));
             couple_nodes(temp_head, tmp);
             try_couple_nodes(tmp, nxt); /* \break\par */
         }
@@ -285,7 +285,7 @@ void ext_post_line_break(boolean d,
                 halfword s = new_dir(dir_dir(p) - 64);
                 delete_attribute_ref(node_attr(s));
                 node_attr(s) = node_attr(r);
-                add_node_attr_ref (node_attr(s));
+                add_node_attr_ref(node_attr(s));
                 couple_nodes(r, s);
                 try_couple_nodes(s, e);
                 r = s;
@@ -327,7 +327,7 @@ void ext_post_line_break(boolean d,
                 k = new_margin_kern(-w, last_rightmost_char, right_side);
                 delete_attribute_ref(node_attr(k));
                 node_attr(k) = node_attr(p);
-                add_node_attr_ref (node_attr(k));
+                add_node_attr_ref(node_attr(k));
                 vlink(k) = vlink(ptmp);
                 vlink(ptmp) = k;
                 if (ptmp == q)
@@ -342,7 +342,7 @@ void ext_post_line_break(boolean d,
             vlink(r) = vlink(q);
             delete_attribute_ref(node_attr(r));
             node_attr(r) = node_attr(q);
-            add_node_attr_ref (node_attr(r));
+            add_node_attr_ref(node_attr(r));
             vlink(q) = r;
             q = r;
         }
@@ -384,7 +384,7 @@ void ext_post_line_break(boolean d,
                 k = new_margin_kern(-w, last_leftmost_char, left_side);
                 delete_attribute_ref(node_attr(k));
                 node_attr(k) = node_attr(q);
-                add_node_attr_ref (node_attr(k));
+                add_node_attr_ref(node_attr(k));
                 vlink(k) = q;
                 q = k;
             }
@@ -393,7 +393,7 @@ void ext_post_line_break(boolean d,
             r = new_param_glue(left_skip_code);
             delete_attribute_ref(node_attr(r));
             node_attr(r) = node_attr(q);
-            add_node_attr_ref (node_attr(r));
+            add_node_attr_ref(node_attr(r));
             vlink(r) = q;
             q = r;
         }

@@ -42,7 +42,7 @@
 #  define end_match_token 0x1C00000     /* $2^{21}\cdot|end_match|$ */
 #  define protected_token 0x1C00001     /* $2^{21}\cdot|end_match|+1$ */
 
-#include "tex/stringpool.h"
+#  include "tex/stringpool.h"
 
 typedef struct smemory_word_ {
     halfword hhrh;
@@ -64,7 +64,7 @@ extern halfword backup_head;    /* head of token list built by |scan_keyword| */
 
 extern void initialize_tokens(void);
 
-extern integer dyn_used;
+extern int dyn_used;
 
 #  define token_info(a)    fixmem[(a)].hhlh
 #  define token_link(a)    fixmem[(a)].hhrh
@@ -99,7 +99,7 @@ the places that would otherwise account for the most calls of |get_avail|.
 extern void print_meaning(void);
 
 extern void flush_list(halfword p);
-extern void show_token_list(integer p, integer q, integer l);
+extern void show_token_list(int p, int q, int l);
 extern void token_show(halfword p);
 
 #  define token_ref_count(a) token_info((a))    /* reference count preceding a token list */
@@ -141,7 +141,7 @@ extern boolean end_line_char_inactive(void);
 extern halfword par_loc;
 extern halfword par_token;
 extern boolean force_eof;
-extern integer luacstrings;
+extern int luacstrings;
 
 extern void firm_up_the_line(void);
 extern void get_token(void);
@@ -149,12 +149,12 @@ extern void get_token(void);
 extern halfword str_toks(lstring b);
 extern void ins_the_toks(void);
 
-extern integer scan_lua_state(void);
+extern int scan_lua_state(void);
 extern void conv_toks(void);
 
 extern boolean in_lua_escape;
 extern boolean is_convert(halfword c);
-extern str_number the_convert_string(halfword c, integer i);
+extern str_number the_convert_string(halfword c, int i);
 
 #  define closed 2              /* not open, or at end of file */
 #  define just_open 1           /* newly opened, first line not yet read */
@@ -164,7 +164,7 @@ extern int read_open[17];       /* state of |read_file[n]| */
 
 extern void initialize_read(void);
 
-extern void read_toks(integer n, halfword r, halfword j);
+extern void read_toks(int n, halfword r, halfword j);
 
 extern str_number tokens_to_string(halfword p); /* return a string from tokens list */
 

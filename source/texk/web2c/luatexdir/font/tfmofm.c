@@ -375,11 +375,11 @@ additional parameter information, which is explained later.
           xfree(xligs);  xfree(xkerns); return 1; }
 
 
-int open_tfm_file(char *nom, unsigned char **tfm_buf, integer * tfm_siz)
+int open_tfm_file(char *nom, unsigned char **tfm_buf, int *tfm_siz)
 {
     boolean res;                /* was the callback successful? */
     boolean opened;             /* was |tfm_file| successfully opened? */
-    integer callback_id;
+    int callback_id;
     FILE *tfm_file;
     char *fname = luatex_find_file(nom, find_font_file_callback);
     if (!fname)
@@ -517,7 +517,7 @@ scaled store_scaled_f(scaled sq, scaled z_in)
 {
     eight_bits a, b, c, d;
     scaled sw;
-    static integer alpha, beta; /* beta:1..16 */
+    static int alpha, beta;     /* beta:1..16 */
     static scaled z, z_prev = 0;
     /* @<Replace |z| by $|z|^\prime$ and compute $\alpha,\beta$@>; */
     if (z_in != z_prev || z_prev == 0) {
@@ -564,46 +564,46 @@ scaled store_scaled_f(scaled sq, scaled z_in)
   }
 
 typedef struct tfmcharacterinfo {
-    integer _kern_index;
-    integer _lig_index;
-    integer _width_index;
-    integer _height_index;
-    integer _depth_index;
-    integer _italic_index;
-    integer _remainder;
+    int _kern_index;
+    int _lig_index;
+    int _width_index;
+    int _height_index;
+    int _depth_index;
+    int _italic_index;
+    int _remainder;
     unsigned char _tag;
 } tfmcharacterinfo;
 
 int read_tfm_info(internalfontnumber f, char *cnom, scaled s)
 {
-    integer k;                  /* index into |font_info| */
+    int k;                      /* index into |font_info| */
     halfword lf, lh, bc, ec, nw, nh, nd, ni, nl, nk, ne, np, slh;       /* sizes of subfiles */
     scaled *widths, *heights, *depths, *italics, *kerns;
     halfword font_dir;
-    integer a, b, c, d;         /* byte variables */
-    integer i;                  /* counter */
-    integer font_level, header_length;
-    integer nco, ncw, npc, nlw, neew;
+    int a, b, c, d;             /* byte variables */
+    int i;                      /* counter */
+    int font_level, header_length;
+    int nco, ncw, npc, nlw, neew;
     tfmcharacterinfo ci;
     charinfo *co;
     four_quarters qw;
     four_quarters *lig_kerns, *extens;
     scaled sw;                  /* accumulators */
-    integer bch_label;          /* left boundary start location, or infinity */
+    int bch_label;              /* left boundary start location, or infinity */
     int bchar;                  /* :0..too_big_char; *//* right boundary character, or |too_big_char| */
-    integer first_two;
+    int first_two;
     scaled z;                   /* the design size or the ``at'' size */
-    integer alpha;
+    int alpha;
     char beta;                  /* :1..16 */
-    integer *xligs, *xkerns;    /* aux. for ligkern processing */
+    int *xligs, *xkerns;        /* aux. for ligkern processing */
     liginfo *cligs;
     kerninfo *ckerns;
     int fligs, fkerns;
     char *tmpnam;
-    integer tfm_byte = 0;       /* index into |tfm_buffer| */
-    integer saved_tfm_byte = 0; /* saved index into |tfm_buffer| */
+    int tfm_byte = 0;           /* index into |tfm_buffer| */
+    int saved_tfm_byte = 0;     /* saved index into |tfm_buffer| */
     unsigned char *tfm_buffer = NULL;   /* byte buffer for tfm files */
-    integer tfm_size = 0;       /* total size of the tfm file */
+    int tfm_size = 0;           /* total size of the tfm file */
 
     widths = NULL;
     heights = NULL;
@@ -1001,8 +1001,8 @@ int read_tfm_info(internalfontnumber f, char *cnom, scaled s)
 
     /* first pass: count ligs and kerns */
 
-    xligs = xcalloc((ec + 1), sizeof(integer));
-    xkerns = xcalloc((ec + 1), sizeof(integer));
+    xligs = xcalloc((ec + 1), sizeof(int));
+    xkerns = xcalloc((ec + 1), sizeof(int));
 
     for (i = bc; i <= ec; i++) {
         if (char_tag(f, i) == lig_tag) {

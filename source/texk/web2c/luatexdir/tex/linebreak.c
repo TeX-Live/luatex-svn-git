@@ -138,13 +138,13 @@ static void ext_do_line_break(boolean d,
 
 
 
-void line_break(boolean d, integer line_break_context)
+void line_break(boolean d, int line_break_context)
 {
-    integer paragraph_dir;      /* main direction of paragraph */
+    int paragraph_dir;          /* main direction of paragraph */
     halfword final_par_glue;
     halfword start_of_par;
-    integer callback_id;
-    integer line_break_dir;     /* current direction within paragraph */
+    int callback_id;
+    int line_break_dir;         /* current direction within paragraph */
     pack_begin_line = cur_list.ml_field;        /* this is for over/underfull box messages */
     vlink(temp_head) = vlink(cur_list.head_field);
     new_hyphenation(temp_head, cur_list.tail_field);
@@ -310,7 +310,7 @@ static halfword finite_shrink(halfword p)
 
 static boolean second_pass;     /* is this our second attempt to break this paragraph? */
 static boolean final_pass;      /*is this our final attempt to break this paragraph? */
-static integer threshold;       /* maximum badness on feasible lines */
+static int threshold;           /* maximum badness on feasible lines */
 
 /* skipable nodes at the margins during character protrusion */
 
@@ -367,9 +367,9 @@ static halfword pop_node(void)
     return hlist_stack[--hlist_stack_level];
 }
 
-static integer max_stretch_ratio = 0;   /*maximal stretch ratio of expanded fonts */
-static integer max_shrink_ratio = 0;    /*maximal shrink ratio of expanded fonts */
-static integer cur_font_step = 0;       /*the current step of expanded fonts */
+static int max_stretch_ratio = 0;       /*maximal stretch ratio of expanded fonts */
+static int max_shrink_ratio = 0;        /*maximal shrink ratio of expanded fonts */
+static int cur_font_step = 0;   /*the current step of expanded fonts */
 
 
 static boolean check_expand_pars(internal_font_number f)
@@ -683,14 +683,14 @@ static boolean auto_breaking;   /*make |auto_breaking| accessible out of |line_b
 
 
 
-static integer internal_pen_inter;      /* running \.{\\localinterlinepenalty} */
-static integer internal_pen_broken;     /* running \.{\\localbrokenpenalty} */
+static int internal_pen_inter;  /* running \.{\\localinterlinepenalty} */
+static int internal_pen_broken; /* running \.{\\localbrokenpenalty} */
 static halfword internal_left_box;      /* running \.{\\localleftbox} */
-static integer internal_left_box_width; /* running \.{\\localleftbox} width */
+static int internal_left_box_width;     /* running \.{\\localleftbox} width */
 static halfword init_internal_left_box; /* running \.{\\localleftbox} */
-static integer init_internal_left_box_width;    /* running \.{\\localleftbox} width */
+static int init_internal_left_box_width;        /* running \.{\\localleftbox} width */
 static halfword internal_right_box;     /* running \.{\\localrightbox} */
-static integer internal_right_box_width;        /* running \.{\\localrightbox} width */
+static int internal_right_box_width;    /* running \.{\\localrightbox} width */
 
 static scaled disc_width[10] = { 0 };   /* the length of discretionary material preceding a break */
 
@@ -708,10 +708,10 @@ static scaled disc_width[10] = { 0 };   /* the length of discretionary material 
 */
 
 
-static integer minimal_demerits[4];     /* best total demerits known for current 
-                                           line class and position, given the fitness */
-static integer minimum_demerits;        /* best total demerits known for current line class
-                                           and position */
+static int minimal_demerits[4]; /* best total demerits known for current 
+                                   line class and position, given the fitness */
+static int minimum_demerits;    /* best total demerits known for current line class
+                                   and position */
 static halfword best_place[4];  /* how to achieve  |minimal_demerits| */
 static halfword best_pl_line[4];        /*corresponding line number */
 
@@ -743,11 +743,11 @@ static scaled first_indent;     /*left margin to go with |first_width| */
 static scaled second_indent;    /*left margin to go with |second_width| */
 
 static halfword best_bet;       /*use this passive node and its predecessors */
-static integer fewest_demerits; /*the demerits associated with |best_bet| */
+static int fewest_demerits;     /*the demerits associated with |best_bet| */
 static halfword best_line;      /*line number following the last line of the new paragraph */
-static integer actual_looseness;        /*the difference between |line_number(best_bet)|
-                                           and the optimum |best_line| */
-static integer line_diff;       /*the difference between the current line number and
+static int actual_looseness;    /*the difference between |line_number(best_bet)|
+                                   and the optimum |best_line| */
+static int line_diff;           /*the difference between the current line number and
                                    the optimum |best_line| */
 
 
@@ -824,8 +824,8 @@ static scaled best_pl_glue[4];  /*corresponding glue stretch or shrink */
  * only character nodes, kern nodes, and box or rule nodes. 
  */
 
-static void add_to_widths(halfword s, integer line_break_dir,
-                          integer pdf_adjust_spacing, scaled * widths)
+static void add_to_widths(halfword s, int line_break_dir,
+                          int pdf_adjust_spacing, scaled * widths)
 {
     while (s != null) {
         if (is_char_node(s)) {
@@ -866,8 +866,8 @@ static void add_to_widths(halfword s, integer line_break_dir,
  * with the |add_to_widths| function.
  */
 
-static void sub_from_widths(halfword s, integer line_break_dir,
-                            integer pdf_adjust_spacing, scaled * widths)
+static void sub_from_widths(halfword s, int line_break_dir,
+                            int pdf_adjust_spacing, scaled * widths)
 {
     while (s != null) {
         /* @<Subtract the width of node |s| from |break_width|@>; */
@@ -1045,8 +1045,8 @@ print_break_node(halfword q, fitness_value fit_class,
 
 
 static void
-print_feasible_break(halfword cur_p, pointer r, halfword b, integer pi,
-                     integer d, boolean artificial_demerits)
+print_feasible_break(halfword cur_p, pointer r, halfword b, int pi,
+                     int d, boolean artificial_demerits)
 {
     /* @<Print a symbolic description of this feasible break@>; */
     if (printed_node != cur_p) {
@@ -1134,7 +1134,7 @@ print_feasible_break(halfword cur_p, pointer r, halfword b, integer pi,
   }
 
 static void
-ext_try_break(integer pi,
+ext_try_break(int pi,
               quarterword break_type,
               int line_break_dir,
               int pdf_adjust_spacing,
@@ -1162,7 +1162,7 @@ ext_try_break(integer pi,
     scaled line_width;          /*the current line will be justified to this width */
     fitness_value fit_class;    /*possible fitness class of test line */
     halfword b;                 /*badness of test line */
-    integer d;                  /*demerits of test line */
+    int d;                      /*demerits of test line */
     boolean artificial_demerits;        /*has |d| been forced to zero? */
 
     scaled shortfall;           /*used in badness calculations */

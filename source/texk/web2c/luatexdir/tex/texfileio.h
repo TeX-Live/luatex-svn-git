@@ -22,8 +22,8 @@
 #ifndef TEXFILEIO_H
 #  define TEXFILEIO_H
 
-extern integer *input_file_callback_id;
-extern integer read_file_callback_id[17];
+extern int *input_file_callback_id;
+extern int read_file_callback_id[17];
 
 extern char *luatex_find_file(char *s, int callback_index);
 extern char *luatex_find_read_file(char *s, int n, int callback_index);
@@ -39,9 +39,9 @@ extern void lua_a_close_in(alpha_file f, quarterword n);
 extern void lua_a_close_out(alpha_file f);
 
 extern packed_ASCII_code *buffer;
-extern integer first;
-extern integer last;
-extern integer max_buf_stack;
+extern int first;
+extern int last;
+extern int max_buf_stack;
 
 extern boolean lua_input_ln(alpha_file f, quarterword n, boolean bypass_eoln);
 
@@ -113,7 +113,7 @@ extern boolean name_in_progress;        /* is a file name being scanned? */
 extern str_number job_name;     /* principal file name */
 extern boolean log_opened;      /* has the transcript file been opened? */
 
-extern unsigned char *texmf_log_name;       /* full name of the log file */
+extern unsigned char *texmf_log_name;   /* full name of the log file */
 
 extern void open_log_file(void);
 extern void start_input(void);
@@ -124,7 +124,7 @@ extern boolean zopen_w_input(FILE **, char *, int, const_string fopen_mode);
 extern boolean zopen_w_output(FILE **, char *, const_string fopen_mode);
 extern void zwclose(FILE *);
 
-extern int readbinfile(FILE * f, unsigned char **b, integer * s);
+extern int readbinfile(FILE * f, unsigned char **b, int *s);
 
 #  define read_tfm_file  readbinfile
 #  define read_vf_file   readbinfile

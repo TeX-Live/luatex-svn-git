@@ -23,15 +23,15 @@
 #  define TEXTCODES_H
 
 
-void set_lc_code(integer n, halfword v, quarterword gl);
-halfword get_lc_code(integer n);
-void set_uc_code(integer n, halfword v, quarterword gl);
-halfword get_uc_code(integer n);
-void set_sf_code(integer n, halfword v, quarterword gl);
-halfword get_sf_code(integer n);
-void set_cat_code(integer h, integer n, halfword v, quarterword gl);
-halfword get_cat_code(integer h, integer n);
-void unsave_cat_codes(integer h, quarterword gl);
+void set_lc_code(int n, halfword v, quarterword gl);
+halfword get_lc_code(int n);
+void set_uc_code(int n, halfword v, quarterword gl);
+halfword get_uc_code(int n);
+void set_sf_code(int n, halfword v, quarterword gl);
+halfword get_sf_code(int n);
+void set_cat_code(int h, int n, halfword v, quarterword gl);
+halfword get_cat_code(int h, int n);
+void unsave_cat_codes(int h, quarterword gl);
 int valid_catcode_table(int h);
 void initex_cat_codes(int h);
 void unsave_text_codes(quarterword grouplevel);

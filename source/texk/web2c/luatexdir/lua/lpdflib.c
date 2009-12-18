@@ -96,7 +96,7 @@ unsigned char *fread_to_buf(lua_State * L, char *filename, size_t * len)
     unsigned char *buf = NULL;
     if ((f = fopen(filename, "rb")) == NULL)
         luaL_error(L, "pdf.immediateobj() cannot open input file");
-    if ((i = readbinfile(f, &buf, (integer *) len)) == 0)
+    if ((i = readbinfile(f, &buf, (int *)len)) == 0)
         luaL_error(L, "pdf.immediateobj() cannot read input file");
     fclose(f);
     return buf;
@@ -106,7 +106,7 @@ static int l_immediateobj(lua_State * L)
 {
     int n, first_arg = 1;
     unsigned i;
-    integer k;
+    int k;
     lstring buf, st1, st2, st3;
     buf.s = st1.s = st2.s = st3.s = NULL;
     check_o_mode(static_pdf, "immediateobj()", 1 << OMODE_PDF, true);
@@ -436,7 +436,7 @@ static int table_obj(lua_State * L)
 static int orig_obj(lua_State * L)
 {
     int n, first_arg = 1;
-    integer k;
+    int k;
     lstring st;
     st.s = NULL;
     n = lua_gettop(L);
@@ -500,7 +500,7 @@ static int orig_obj(lua_State * L)
 static int l_obj(lua_State * L)
 {
     int n;
-    integer k;
+    int k;
     n = lua_gettop(L);
     if (n == 1 && lua_istable(L, 1))
         k = table_obj(L);       /* new */

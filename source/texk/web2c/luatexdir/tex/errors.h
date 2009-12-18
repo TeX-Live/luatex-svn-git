@@ -48,7 +48,7 @@ extern boolean deletions_allowed;
 extern boolean set_box_allowed;
 extern int history;
 extern int error_count;
-extern integer interrupt;
+extern int interrupt;
 extern boolean OK_to_interrupt;
 
 typedef enum {
@@ -81,13 +81,13 @@ extern boolean use_err_help;    /* should the |err_help| list be shown? */
 extern void do_final_end(void);
 extern void jump_out(void);
 extern void error(void);
-extern void int_error(integer n);
+extern void int_error(int n);
 extern void normalize_selector(void);
 extern void succumb(void);
 extern void fatal_error(char *s);
 extern void lua_norm_error(char *s);
 extern void lua_fatal_error(char *s);
-extern void overflow(char *s, integer n);
+extern void overflow(char *s, int n);
 extern void confusion(char *s);
 extern void check_interrupt(void);
 extern void pause_for_instructions(void);
@@ -97,6 +97,6 @@ extern void tex_error(char *msg, char **hlp);
 extern void back_error(void);
 extern void ins_error(void);
 
-extern void char_warning(internal_font_number f, integer c);
+extern void char_warning(internal_font_number f, int c);
 
 #endif

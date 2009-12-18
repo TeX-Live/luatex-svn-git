@@ -88,7 +88,7 @@ fe_entry *get_fe_entry(char *s)
 
 /**********************************************************************/
 
-void epdf_write_enc(PDF pdf, char **glyph_names, integer fe_objnum)
+void epdf_write_enc(PDF pdf, char **glyph_names, int fe_objnum)
 {
     int i, i_old;
     assert(glyph_names != NULL);
@@ -113,7 +113,7 @@ void epdf_write_enc(PDF pdf, char **glyph_names, integer fe_objnum)
 }
 
 void write_enc(PDF pdf, char **glyph_names, struct avl_table *tx_tree,
-               integer fe_objnum)
+               int fe_objnum)
 {
     int i_old, *p;
     struct avl_traverser t;

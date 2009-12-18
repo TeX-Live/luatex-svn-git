@@ -94,7 +94,7 @@ halfword page_tail;             /* the final node on the current page */
 int page_contents;              /* what is on the current page so far? */
 scaled page_max_depth;          /* maximum box depth on page being built */
 halfword best_page_break;       /* break here to get the best page known so far */
-integer least_page_cost;        /* the score for this currently best page */
+int least_page_cost;            /* the score for this currently best page */
 scaled best_size;               /* its |page_goal| */
 
 /*
@@ -192,10 +192,10 @@ all split and floating insertions.
 
 scaled page_so_far[8];          /* height and glue of the current page */
 halfword last_glue;             /* used to implement \.{\\lastskip */
-integer last_penalty;           /* used to implement \.{\\lastpenalty} */
+int last_penalty;               /* used to implement \.{\\lastpenalty} */
 scaled last_kern;               /* used to implement \.{\\lastkern} */
-integer last_node_type;         /* used to implement \.{\\lastnodetype} */
-integer insert_penalties;       /* sum of the penalties for held-over insertions */
+int last_node_type;             /* used to implement \.{\\lastnodetype} */
+int insert_penalties;           /* sum of the penalties for held-over insertions */
 
 #define print_plus(A,B) do {			\
 	if (page_so_far[(A)]!=0) {		\
@@ -277,7 +277,7 @@ If not, an error message is printed, and the following subroutine
 flushes the unwanted contents, reporting them to the user.
 */
 
-static void box_error(integer n)
+static void box_error(int n)
 {
     error();
     begin_diagnostic();
@@ -293,7 +293,7 @@ The following procedure guarantees that a given box register
 does not contain an \.{\\hbox}.
 */
 
-static void ensure_vbox(integer n)
+static void ensure_vbox(int n)
 {
     halfword p;                 /* the box register contents */
     p = box(n);
@@ -318,8 +318,8 @@ void build_page(void)
 {                               /* append contributions to the current page */
     halfword p;                 /* the node being appended */
     halfword q, r;              /* nodes being examined */
-    integer b, c;               /* badness and cost of current page */
-    integer pi;                 /* penalty to be added to the badness */
+    int b, c;                   /* badness and cost of current page */
+    int pi;                     /* penalty to be added to the badness */
     int n;                      /* insertion box number */
     scaled delta, h, w;         /* sizes used for insertion calculations */
     pi = 0;
@@ -744,7 +744,7 @@ void fire_up(halfword c)
     halfword prev_p;            /* predecessor of |p| */
     int n;                      /* insertion box number */
     boolean wait;               /* should the present insertion be held over? */
-    integer save_vbadness;      /* saved value of |vbadness| */
+    int save_vbadness;          /* saved value of |vbadness| */
     scaled save_vfuzz;          /* saved value of |vfuzz| */
     halfword save_split_top_skip;       /* saved value of |split_top_skip| */
     halfword i;                 /* for looping through the marks */

@@ -55,15 +55,15 @@ extern void clear_hyphenation(struct tex_language *lang);
 extern char *clean_hyphenation(char *buffer, char **cleaned);
 extern void hnj_hyphenation(halfword head, halfword tail);
 
-extern void set_pre_hyphen_char(integer lan, integer val);
-extern void set_post_hyphen_char(integer lan, integer val);
-extern integer get_pre_hyphen_char(integer lan);
-extern integer get_post_hyphen_char(integer lan);
+extern void set_pre_hyphen_char(int lan, int val);
+extern void set_post_hyphen_char(int lan, int val);
+extern int get_pre_hyphen_char(int lan);
+extern int get_post_hyphen_char(int lan);
 
-extern void set_pre_exhyphen_char(integer lan, integer val);
-extern void set_post_exhyphen_char(integer lan, integer val);
-extern integer get_pre_exhyphen_char(integer lan);
-extern integer get_post_exhyphen_char(integer lan);
+extern void set_pre_exhyphen_char(int lan, int val);
+extern void set_post_exhyphen_char(int lan, int val);
+extern int get_pre_exhyphen_char(int lan);
+extern int get_post_exhyphen_char(int lan);
 extern halfword compound_word_break(halfword t, int clang);
 
 extern void dump_language_data(void);

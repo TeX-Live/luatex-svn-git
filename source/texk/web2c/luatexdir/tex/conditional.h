@@ -69,8 +69,8 @@ typedef enum {
 extern halfword cond_ptr;       /* top of the condition stack */
 extern int if_limit;            /* upper bound on |fi_or_else| codes */
 extern int cur_if;              /* type of conditional being worked on */
-extern integer if_line;         /* line where that conditional began */
-extern integer skip_line;       /* skipping began here */
+extern int if_line;             /* line where that conditional began */
+extern int skip_line;           /* skipping began here */
 
 extern void pass_text(void);
 extern void push_condition_stack(void);

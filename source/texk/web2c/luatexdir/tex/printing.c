@@ -75,12 +75,12 @@ terminal or to the transcript file, respectively.
 alpha_file log_file;            /* transcript of \TeX\ session */
 int selector = term_only;       /* where to print a message */
 int dig[23];                    /* digits in a number being output */
-integer tally = 0;              /* the number of characters recently printed */
+int tally = 0;                  /* the number of characters recently printed */
 int term_offset = 0;            /* the number of characters on the current terminal line */
 int file_offset = 0;            /* the number of characters on the current file line */
 packed_ASCII_code trick_buf[(ssup_error_line + 1)];     /* circular buffer for pseudoprinting */
-integer trick_count;            /* threshold for pseudoprinting, explained later */
-integer first_count;            /* another variable for pseudoprinting */
+int trick_count;                /* threshold for pseudoprinting, explained later */
+int first_count;                /* another variable for pseudoprinting */
 boolean inhibit_par_tokens = false;     /*  for minor adjustments to |show_token_list|  */
 
 /* To end a line of text output, we call |print_ln| */
@@ -223,9 +223,9 @@ from that value. This allows byte-oriented output to things like
 to do the same substraction while typesetting.
 */
 
-void print(integer s)
+void print(int s)
 {                               /* prints string |s| */
-    unsigned char *j, *l;          /* current character code position */
+    unsigned char *j, *l;       /* current character code position */
 
     if (s >= str_ptr) {
         /* this can't happen */
@@ -285,7 +285,7 @@ void print(integer s)
         return;
     }
     j = str_string(s);
-    l = j+str_length(s);
+    l = j + str_length(s);
     while (j < l) {
         /* 0x110000 in utf=8: 0xF4 0x90 0x80 0x80  */
         /* I don't bother checking the last two bytes explicitly */
@@ -323,7 +323,7 @@ void print_nl(str_number s)
 
 void tprint(char *s)
 {
-    unsigned char *ss = (unsigned char *)s;
+    unsigned char *ss = (unsigned char *) s;
     if (selector == new_string) {
         append_string(ss, strlen(s));
         return;
@@ -340,7 +340,7 @@ void tprint_nl(char *s)
 
 /* |slow_print| is the same as |print| nowadays, but the name is kept for now. */
 
-void slow_print(integer s)
+void slow_print(int s)
 {                               /* prints string |s| */
     print(s);
 }
@@ -356,7 +356,7 @@ character positions.
 void print_banner(char *v, int e)
 {
     boolean res;
-    integer callback_id;
+    int callback_id;
     callback_id = callback_defined(start_run_callback);
     if (callback_id == 0) {
         fprintf(term_out, "This is LuaTeX, Version %s-%d", v, e);
@@ -426,7 +426,7 @@ the user's escape character (which is usually a backslash).
 
 void print_esc(str_number s)
 {                               /* prints escape character, then |s| */
-    integer c;                  /* the escape character code */
+    int c;                      /* the escape character code */
     /* Set variable |c| to the current escape character */
     c = int_par(escape_char_code);
     if (c >= 0 && c < STRING_OFFSET)
@@ -436,7 +436,7 @@ void print_esc(str_number s)
 
 void tprint_esc(char *s)
 {                               /* prints escape character, then |s| */
-    integer c;                  /* the escape character code */
+    int c;                      /* the escape character code */
     /* Set variable |c| to the current escape character */
     c = int_par(escape_char_code);
     if (c >= 0 && c < STRING_OFFSET)
@@ -500,7 +500,7 @@ Here is a trivial procedure to print two digits; it is usually called with
 a parameter in the range |0<=n<=99|.
 */
 
-void print_two(integer n)
+void print_two(int n)
 {                               /* prints two least significant digits */
     n = abs(n) % 100;
     print_char('0' + (n / 10));
@@ -511,7 +511,7 @@ void print_two(integer n)
 Hexadecimal printing of nonnegative integers is accomplished by |print_hex|.
 */
 
-void print_hex(integer n)
+void print_hex(int n)
 {                               /* prints a positive integer in hexadecimal form */
     int k;                      /* index to current digit; we assume that $0\L n<16^{22}$ */
     k = 0;
@@ -531,7 +531,7 @@ works; therefore no explanation will be given. Notice that 1990 yields
 \.{mcmxc}, not \.{mxm}.
 */
 
-void print_roman_int(integer n)
+void print_roman_int(int n)
 {
     char *j, *k;                /* mysterious indices */
     nonnegative_integer u, v;   /* mysterious numbers */
@@ -582,7 +582,7 @@ individual characters must be printed one at a time using |print|, since
 they may be unprintable.
 */
 
-void print_cs(integer p)
+void print_cs(int p)
 {                               /* prints a purported control sequence */
     str_number t = cs_text(p);
     if (p < hash_base) {        /* nullcs */
@@ -648,7 +648,7 @@ Then there is a subroutine that prints glue stretch and shrink, possibly
 followed by the name of finite units:
 */
 
-void print_glue(scaled d, integer order, char *s)
+void print_glue(scaled d, int order, char *s)
 {                               /* prints a glue component */
     print_scaled(d);
     if ((order < normal) || (order > filll)) {
@@ -666,7 +666,7 @@ void print_glue(scaled d, integer order, char *s)
 
 /*  The next subroutine prints a whole glue specification */
 
-void print_spec(integer p, char *s)
+void print_spec(int p, char *s)
 {                               /* prints a glue specification */
     if (p < 0) {
         print_char('*');
@@ -704,7 +704,7 @@ is assumed to be present when |short_display| begins; deviations from this
 font will be printed.
 */
 
-integer font_in_short_display;  /* an internal font number */
+int font_in_short_display;      /* an internal font number */
 
 /*
 Boxes, rules, inserts, whatsits, marks, and things in general that are
@@ -745,7 +745,7 @@ void print_font_identifier(internal_font_number f)
     }
 }
 
-void short_display(integer p)
+void short_display(int p)
 {                               /* prints highlights of list |p| */
     while (p != null) {
         if (is_char_node(p)) {
@@ -776,7 +776,7 @@ print a font-and-character combination, one to print a token list without
 its reference count, and one to print a rule dimension.
 */
 
-void print_font_and_char(integer p)
+void print_font_and_char(int p)
 {                               /* prints |char_node| data */
     if (!is_valid_font(font(p)))
         print_char('*');
@@ -786,7 +786,7 @@ void print_font_and_char(integer p)
     print(character(p));
 }
 
-void print_mark(integer p)
+void print_mark(int p)
 {                               /* prints token list data in braces */
     print_char('{');
     if ((p < fix_mem_min) || (p > fix_mem_end))
@@ -819,8 +819,8 @@ be given and no sublists will be traversed. Another global variable, called
 |breadth_max| had better be positive, or you won't see anything.
 */
 
-integer depth_threshold;        /* maximum nesting depth in box displays */
-integer breadth_max;            /* maximum number of items shown at the same list level */
+int depth_threshold;            /* maximum nesting depth in box displays */
+int breadth_max;                /* maximum number of items shown at the same list level */
 
 
 /* The recursive machinery is started by calling |show_box|. */
@@ -841,9 +841,9 @@ void show_box(halfword p)
 
 /* Helper for debugging purposes */
 
-void short_display_n(integer p, integer m)
+void short_display_n(int p, int m)
 {                               /* prints highlights of list |p| */
-    integer i = 0;
+    int i = 0;
     font_in_short_display = null_font;
     if (p == null)
         return;
@@ -894,9 +894,9 @@ they came from.  (This isn't a truly ``basic'' printing procedure, but
 that's a convenient module in which to put it.)
 */
 
-void print_csnames(integer hstart, integer hfinish)
+void print_csnames(int hstart, int hfinish)
 {
-    integer h;
+    int h;
     unsigned char *c, *l;
     fprintf(stderr, "fmtdebug:csnames from %d to %d:", (int) hstart,
             (int) hfinish);
@@ -904,8 +904,8 @@ void print_csnames(integer hstart, integer hfinish)
         if (cs_text(h) > 0) {   /* if have anything at this position */
             c = str_string(cs_text(h));
             l = c + str_length(cs_text(h));
-            while (c<l) {
-                fputc(*c++, stderr);     /* print the characters */
+            while (c < l) {
+                fputc(*c++, stderr);    /* print the characters */
             }
             fprintf(stderr, "|");
         }

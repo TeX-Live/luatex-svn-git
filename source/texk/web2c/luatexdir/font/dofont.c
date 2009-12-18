@@ -44,11 +44,11 @@ static char *font_error_message(pointer u, char *nom, scaled s)
     return str;
 }
 
-static int do_define_font(integer f, char *cnom, scaled s, integer natural_dir)
+static int do_define_font(int f, char *cnom, scaled s, int natural_dir)
 {
 
     boolean res;                /* was the callback successful? */
-    integer callback_id;
+    int callback_id;
     char *cnam;
     int r;
     res = 0;
@@ -102,9 +102,9 @@ static int do_define_font(integer f, char *cnom, scaled s, integer natural_dir)
 
 }
 
-int read_font_info(pointer u, str_number nom, scaled s, integer natural_dir)
+int read_font_info(pointer u, str_number nom, scaled s, int natural_dir)
 {
-    integer f;
+    int f;
     char *cnom;
     char *msg;
     cnom = makecstring(nom);
@@ -137,7 +137,7 @@ int read_font_info(pointer u, str_number nom, scaled s, integer natural_dir)
 
 int find_font_id(char *nom, scaled s)
 {
-    integer f;
+    int f;
     f = new_font();
     if ((f = do_define_font(f, nom, s, -1))) {
         return f;

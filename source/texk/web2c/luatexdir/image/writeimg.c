@@ -122,7 +122,7 @@ static const char _svn_version[] =
 #define HEADER_PDF "%PDF-1."
 #define MAX_HEADER (sizeof(HEADER_PNG)-1)
 
-integer epdf_lastGroupObjectNum;
+int epdf_lastGroupObjectNum;
 
 static void check_type_by_header(image_dict * idict)
 {
@@ -285,8 +285,7 @@ void free_image_dict(image_dict * p)
 /**********************************************************************/
 
 void read_img(PDF pdf,
-              image_dict * idict, integer minor_version,
-              integer inclusion_errorlevel)
+              image_dict * idict, int minor_version, int inclusion_errorlevel)
 {
     char *filepath;
     int callback_id;
@@ -340,10 +339,10 @@ void read_img(PDF pdf,
         img_state(idict) = DICT_FILESCANNED;
 }
 
-static image_dict *read_image(PDF pdf, char *file_name, integer page_num,
-                              char *page_name, integer colorspace,
-                              integer page_box, integer minor_version,
-                              integer inclusion_errorlevel)
+static image_dict *read_image(PDF pdf, char *file_name, int page_num,
+                              char *page_name, int colorspace,
+                              int page_box, int minor_version,
+                              int inclusion_errorlevel)
 {
     image *a = new_image();
     image_dict *idict = img_dict(a) = new_image_dict();
@@ -384,7 +383,7 @@ void scan_pdfximage(PDF pdf)
 {
     scaled_whd alt_rule;
     image_dict *idict;
-    integer transform = 0, page = 1, pagebox, colorspace = 0;
+    int transform = 0, page = 1, pagebox, colorspace = 0;
     char *named = NULL, *attr = NULL, *file_name = NULL;
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
     if (scan_keyword("attr")) {
@@ -430,7 +429,7 @@ void scan_pdfximage(PDF pdf)
 
 void scan_pdfrefximage(PDF pdf)
 {
-    integer transform = 0;      /* one could scan transform as well */
+    int transform = 0;          /* one could scan transform as well */
     image_dict *idict;
     scaled_whd alt_rule, dim;
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
@@ -510,11 +509,11 @@ scaled_whd tex_scale(scaled_whd nat, scaled_whd tex)
 // But one needs rotation info to swap width and height.
 // img_rotation() comes from the optional /Rotate key in the PDF file.
 
-scaled_whd scale_img(image_dict * idict, scaled_whd alt_rule, integer transform)
+scaled_whd scale_img(image_dict * idict, scaled_whd alt_rule, int transform)
 {
-    integer x, y, xr, yr, tmp;  /* size and resolution of image */
+    int x, y, xr, yr, tmp;      /* size and resolution of image */
     scaled_whd nat;             /* natural size corresponding to image resolution */
-    integer default_res;
+    int default_res;
     assert(idict != NULL);
     if ((img_type(idict) == IMG_TYPE_PDF
          || img_type(idict) == IMG_TYPE_PDFSTREAM) && img_is_bbox(idict)) {
@@ -606,7 +605,7 @@ void write_img(PDF pdf, image_dict * idict)
 }
 
 /* write an image */
-void pdf_write_image(PDF pdf, integer n)
+void pdf_write_image(PDF pdf, int n)
 {
     pdf_begin_dict(pdf, n, 0);
     if (pdf->draftmode == 0)
@@ -693,7 +692,7 @@ void idict_to_array(image_dict * idict)
 
 #define dumpcharptr(a)                          \
   do {                                          \
-    integer x;                                  \
+    int x;                                      \
     if (a!=NULL) {                              \
       x = strlen(a)+1;                          \
       dumpinteger(x);  dump_things(*a, x);      \
@@ -704,7 +703,7 @@ void idict_to_array(image_dict * idict)
 
 #define undumpcharptr(s)                        \
   do {                                          \
-    integer x;                                  \
+    int x;                                      \
     char *a;                                    \
     undumpinteger (x);                          \
     if (x>0) {                                  \
@@ -751,8 +750,7 @@ void dumpimagemeta(void)
     }
 }
 
-void undumpimagemeta(PDF pdf, integer pdfversion,
-                     integer pdfinclusionerrorlevel)
+void undumpimagemeta(PDF pdf, int pdfversion, int pdfinclusionerrorlevel)
 {
     int cur_index, i;
     image_dict *idict;

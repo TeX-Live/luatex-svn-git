@@ -35,7 +35,7 @@ void lua_end_page(PDF pdf __attribute__ ((unused)))
 }
 
 void lua_place_glyph(PDF pdf __attribute__ ((unused)), internal_font_number f
-                     __attribute__ ((unused)), integer c)
+                     __attribute__ ((unused)), int c)
 {
     printf("%c", (int) c);
 }

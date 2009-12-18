@@ -22,8 +22,8 @@
 #ifndef PAGETREE_H
 #  define PAGETREE_H
 
-integer output_pages_tree(PDF);
-integer pdf_do_page_divert(PDF, integer, integer);
-void pdf_do_page_undivert(integer, integer);
+int output_pages_tree(PDF);
+int pdf_do_page_divert(PDF, int, int);
+void pdf_do_page_undivert(int, int);
 
 #endif

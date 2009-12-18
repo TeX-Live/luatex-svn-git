@@ -23,8 +23,8 @@
 #ifndef UTILS_H
 #  define UTILS_H
 
-extern integer epochseconds;
-extern integer microseconds;
+extern int epochseconds;
+extern int microseconds;
 extern char *pdftex_banner;
 
 void make_subset_tag(fd_entry *);

@@ -25,7 +25,7 @@
 
 #  define active_mem_size 50000 /* number of words of |active_info| for active ocps */
 
-typedef integer active_index;
+typedef int active_index;
 
 extern memory_word active_info[(active_mem_size + 1)];
 extern active_index active_min_ptr;
@@ -36,10 +36,10 @@ extern active_index active_real;
 #  define active_counter(A)   active_info[(A)].hh.u.B1
 #  define active_lstack_no(A) active_info[(A)+1].cint
 
-extern boolean is_last_ocp(scaled llstack_no, integer counter);
+extern boolean is_last_ocp(scaled llstack_no, int counter);
 
 extern void print_active_ocps(void);
-extern void add_ocp_stack(integer min_index, scaled min_value);
+extern void add_ocp_stack(int min_index, scaled min_value);
 extern void active_compile(void);
 
 extern void run_ocp(void);
@@ -52,10 +52,10 @@ extern void do_clear_ocp_lists(small_number a);
 extern void dump_active_ocp_info(void);
 extern void undump_active_ocp_info(void);
 
-extern void initialize_ocp_buffers(integer ocp_buf_size,
-                                   integer ocp_stack_size);
+extern void initialize_ocp_buffers(int ocp_buf_size,
+                                   int ocp_stack_size);
 
 /* for ocplist.h */
-/* typedef integer ocp_list_index ; */
+/* typedef int ocp_list_index ; */
 
 #endif

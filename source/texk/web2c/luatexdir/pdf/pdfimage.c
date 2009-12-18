@@ -33,7 +33,7 @@ void place_img(PDF pdf, image_dict * idict, scaled_whd dim, int transform)
     int k;
     scaledpos tmppos;
     pdffloat cm[6];
-    integer groupref;           /* added from web for 1.40.8 */
+    int groupref;               /* added from web for 1.40.8 */
     assert(idict != 0);
     assert(p != NULL);
     a[0] = a[3] = 1.0e6;

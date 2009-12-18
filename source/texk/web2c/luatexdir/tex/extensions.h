@@ -47,15 +47,15 @@ extern void new_whatsit(int s);
 extern void new_write_whatsit(int w);
 extern void scan_pdf_ext_toks(void);
 extern halfword prev_rightmost(halfword s, halfword e);
-extern integer pdf_last_xform;
-extern integer pdf_last_ximage;
-extern integer pdf_last_ximage_pages;
-extern integer pdf_last_ximage_colordepth;
-extern integer pdf_last_annot;
-extern integer pdf_last_link;
+extern int pdf_last_xform;
+extern int pdf_last_ximage;
+extern int pdf_last_ximage_pages;
+extern int pdf_last_ximage_colordepth;
+extern int pdf_last_annot;
+extern int pdf_last_link;
 extern scaledpos pdf_last_pos;
 extern halfword concat_tokens(halfword q, halfword r);
-extern integer pdf_retval;
+extern int pdf_retval;
 
 extern halfword make_local_par_node(void);
 
@@ -85,29 +85,29 @@ extern halfword last_line_fill; /* the |par_fill_skip| glue node of the new para
 #  define get_tex_attribute_register(j) attribute(j)
 #  define get_tex_box_register(j) box(j)
 
-extern integer set_tex_dimen_register(integer j, scaled v);
-extern integer set_tex_skip_register(integer j, halfword v);
-extern integer set_tex_count_register(integer j, scaled v);
-extern integer set_tex_box_register(integer j, scaled v);
-extern integer set_tex_attribute_register(integer j, scaled v);
-extern integer get_tex_toks_register(integer l);
-extern integer set_tex_toks_register(integer j, lstring s);
-extern scaled get_tex_box_width(integer j);
-extern integer set_tex_box_width(integer j, scaled v);
-extern scaled get_tex_box_height(integer j);
-extern integer set_tex_box_height(integer j, scaled v);
-extern scaled get_tex_box_depth(integer j);
-extern integer set_tex_box_depth(integer j, scaled v);
+extern int set_tex_dimen_register(int j, scaled v);
+extern int set_tex_skip_register(int j, halfword v);
+extern int set_tex_count_register(int j, scaled v);
+extern int set_tex_box_register(int j, scaled v);
+extern int set_tex_attribute_register(int j, scaled v);
+extern int get_tex_toks_register(int l);
+extern int set_tex_toks_register(int j, lstring s);
+extern scaled get_tex_box_width(int j);
+extern int set_tex_box_width(int j, scaled v);
+extern scaled get_tex_box_height(int j);
+extern int set_tex_box_height(int j, scaled v);
+extern scaled get_tex_box_depth(int j);
+extern int set_tex_box_depth(int j, scaled v);
 
 /* Synctex variables */
 
-extern integer synctexoption;
-extern integer synctexoffset;
+extern int synctexoption;
+extern int synctexoffset;
 
 /* Here are extra variables for Web2c. */
 
 extern pool_pointer edit_name_start;
-extern integer edit_name_length, edit_line;
+extern int edit_name_length, edit_line;
 extern int ipcon;
 extern boolean stop_at_space;
 extern int shellenabledp;

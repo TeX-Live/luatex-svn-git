@@ -172,7 +172,7 @@ static void write_png_palette(PDF pdf, image_dict * idict)
     png_structp png_p = img_png_png_ptr(idict);
     png_infop info_p = img_png_info_ptr(idict);
     png_bytep row, r, *rows;
-    integer palette_objnum = 0;
+    int palette_objnum = 0;
     if (img_colorspace(idict) != 0) {
         pdf_printf(pdf, "%i 0 R\n", (int) img_colorspace(idict));
     } else {
@@ -247,10 +247,10 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
     png_structp png_p = img_png_png_ptr(idict);
     png_infop info_p = img_png_info_ptr(idict);
     png_bytep row, r, *rows;
-    integer smask_objnum = 0;
+    int smask_objnum = 0;
     png_bytep smask;
-    integer smask_ptr = 0;
-    integer smask_size = 0;
+    int smask_ptr = 0;
+    int smask_size = 0;
     int bitdepth;
     if (img_colorspace(idict) != 0) {
         pdf_printf(pdf, "%i 0 R\n", (int) img_colorspace(idict));
@@ -346,10 +346,10 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
     png_structp png_p = img_png_png_ptr(idict);
     png_infop info_p = img_png_info_ptr(idict);
     png_bytep row, r, *rows;
-    integer smask_objnum = 0;
+    int smask_objnum = 0;
     png_bytep smask;
-    integer smask_ptr = 0;
-    integer smask_size = 0;
+    int smask_ptr = 0;
+    int smask_size = 0;
     int bitdepth;
     if (img_colorspace(idict) != 0) {
         pdf_printf(pdf, "%i 0 R\n", (int) img_colorspace(idict));
@@ -509,7 +509,7 @@ static void copy_png(PDF pdf, image_dict * idict)
 
 static void reopen_png(PDF pdf, image_dict * idict)
 {
-    integer width, height, xres, yres;
+    int width, height, xres, yres;
     width = img_xsize(idict);   /* do consistency check */
     height = img_ysize(idict);
     xres = img_xres(idict);
@@ -526,7 +526,7 @@ void write_png(PDF pdf, image_dict * idict)
 {
     double gamma, checked_gamma;
     int i;
-    integer palette_objnum = 0;
+    int palette_objnum = 0;
     png_structp png_p;
     png_infop info_p;
     assert(idict != NULL);

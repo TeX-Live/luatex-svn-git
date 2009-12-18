@@ -52,14 +52,14 @@ halfword rover = 0;
 
 halfword free_chain[MAX_CHAIN_SIZE] = { null };
 
-static integer my_prealloc = 0;
+static int my_prealloc = 0;
 
 int fix_node_lists = 1;
 
 int free_error_seen = 0;
 int copy_error_seen = 0;
 
-halfword slow_get_node(integer s);      /* defined below */
+halfword slow_get_node(int s);  /* defined below */
 int copy_error(halfword p);     /* define below */
 
 #define fake_node 100
@@ -873,8 +873,8 @@ void flush_node(halfword p)
         return;
 
 #ifdef DEBUG
-    fprintf(DEBUG_OUT, "Free-ing %s node %d\n", get_node_name(type(p), subtype(p)),
-            (int) p);
+    fprintf(DEBUG_OUT, "Free-ing %s node %d\n",
+            get_node_name(type(p), subtype(p)), (int) p);
 #endif
     if (free_error(p))
         return;
@@ -1389,7 +1389,7 @@ void fix_node_list(halfword head)
     }
 }
 
-halfword get_node(integer s)
+halfword get_node(int s)
 {
     register halfword r;
 
@@ -1421,7 +1421,7 @@ void print_free_chain(int c)
     fprintf(stdout, "null;\n");
 }
 
-void free_node(halfword p, integer s)
+void free_node(halfword p, int s)
 {
 
     if (p <= my_prealloc) {
@@ -1447,7 +1447,7 @@ void free_node(halfword p, integer s)
     var_used -= s;              /* maintain statistics */
 }
 
-void free_node_chain(halfword q, integer s)
+void free_node_chain(halfword q, int s)
 {
     register halfword p = q;
     while (vlink(p) != null) {
@@ -1466,7 +1466,7 @@ void free_node_chain(halfword q, integer s)
 }
 
 
-void init_node_mem(integer t)
+void init_node_mem(int t)
 {
     my_prealloc = var_mem_stat_max;
     assert(whatsit_node_data[user_defined_node].id == user_defined_node);
@@ -1611,7 +1611,7 @@ void dump_node_mem(void)
 
 void undump_node_mem(void)
 {
-    integer x;
+    int x;
     undump_int(x);
     undump_int(rover);
     var_mem_max = (x < 100000 ? 100000 : x);
@@ -1655,7 +1655,7 @@ void test_rovers(char *s)
 #  define test_rovers(a)
 #endif
 
-halfword slow_get_node(integer s)
+halfword slow_get_node(int s)
 {
     register int t;
 
@@ -1818,7 +1818,7 @@ void print_node_mem_stats(void)
     halfword j;
     char msg[256];
     char *s;
-    integer free_chain_counts[MAX_CHAIN_SIZE] = { 0 };
+    int free_chain_counts[MAX_CHAIN_SIZE] = { 0 };
     snprintf(msg, 255, " %d words of node memory still in use:",
              (int) (var_used + my_prealloc));
     tprint_nl(msg);
@@ -2143,7 +2143,7 @@ void print_short_node_contents(halfword p)
 }
 
 
-void show_pdftex_whatsit_rule_spec(integer p)
+void show_pdftex_whatsit_rule_spec(int p)
 {
     tprint("(");
     print_rule_dimen(height(p));
@@ -2174,7 +2174,7 @@ void print_write_whatsit(char *s, pointer p)
 }
 
 
-void show_whatsit_node(integer p)
+void show_whatsit_node(int p)
 {
     switch (subtype(p)) {
     case open_node:
@@ -2508,9 +2508,9 @@ void show_whatsit_node(integer p)
     flush_char();                               \
 } while (0)
 
-void show_node_list(integer p)
+void show_node_list(int p)
 {                               /* prints a node list symbolically */
-    integer n;                  /* the number of items already printed at this level */
+    int n;                      /* the number of items already printed at this level */
     real g;                     /* a glue ratio, as a floating point number */
     if ((int) cur_length > depth_threshold) {
         if (p > null)
@@ -2879,7 +2879,7 @@ void delete_glue_ref(halfword p)
     fast_delete_glue_ref(p);
 }
 
-integer var_used;
+int var_used;
 halfword temp_ptr;              /* a pointer variable for occasional emergency use */
 
 /*
@@ -2891,7 +2891,7 @@ trusted: after an assignment to an attribute register, and after a group has
 ended.
 */
 
-integer max_used_attr;          /* maximum assigned attribute id  */
+int max_used_attr;              /* maximum assigned attribute id  */
 halfword attr_list_cache;
 
 /*
@@ -3060,7 +3060,7 @@ conversion from |mlist| to |hlist|).
 @d y_displace(#)==vlink(#+4) { vertical displacement  }
 */
 
-halfword new_glyph(integer f, integer c)
+halfword new_glyph(int f, int c)
 {
     halfword p = null;          /* the new node */
     if ((f == 0) || (char_exists(f, c))) {
@@ -3093,7 +3093,7 @@ kerning steps of the program.
 |subtype_normal| by |new_ligkern|.
 */
 
-quarterword norm_min(integer h)
+quarterword norm_min(int h)
 {
     if (h <= 0)
         return 1;
@@ -3103,7 +3103,7 @@ quarterword norm_min(integer h)
         return h;
 }
 
-halfword new_char(integer f, integer c)
+halfword new_char(int f, int c)
 {
     halfword p;                 /* the new node */
     p = new_glyph_node();
@@ -3421,7 +3421,7 @@ break will be forced.
 be able to guess what comes next.
 */
 
-halfword new_penalty(integer m)
+halfword new_penalty(int m)
 {
     halfword p;                 /* the new node */
     p = new_node(penalty_node, 0);      /* the |subtype| is not used */

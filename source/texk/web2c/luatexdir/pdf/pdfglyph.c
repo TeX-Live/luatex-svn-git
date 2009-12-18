@@ -151,7 +151,7 @@ void end_chararray(PDF pdf)
 
 /**********************************************************************/
 
-void pdf_place_glyph(PDF pdf, internal_font_number f, integer c)
+void pdf_place_glyph(PDF pdf, internal_font_number f, int c)
 {
     boolean move;
     pdfstructure *p = pdf->pstruct;

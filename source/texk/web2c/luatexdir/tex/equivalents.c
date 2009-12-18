@@ -84,7 +84,7 @@ quarterword xeq_level[(eqtb_size + 1)];
 
 void initialize_equivalents(void)
 {
-    integer k;
+    int k;
     for (k = int_base; k <= eqtb_size; k++)
         xeq_level[k] = level_one;
 }
@@ -158,11 +158,11 @@ in the |save_stack| or in |eqtb| ever has a level greater than |cur_level|.
 */
 
 save_record *save_stack;
-integer save_ptr;               /* first unused entry on |save_stack| */
-integer max_save_stack;         /* maximum usage of save stack */
+int save_ptr;                   /* first unused entry on |save_stack| */
+int max_save_stack;             /* maximum usage of save stack */
 quarterword cur_level = level_one;      /* current nesting level for groups */
 group_code cur_group = bottom_level;    /* current group type */
-integer cur_boundary;           /* where the current level begins */
+int cur_boundary;               /* where the current level begins */
 
 /*
 At this time it might be a good idea for the reader to review the introduction
@@ -374,12 +374,12 @@ void print_save_stack(void)
 void show_save_groups(void)
 {
     int p;                      /* index into |nest| */
-    integer m;                  /* mode */
+    int m;                      /* mode */
     save_pointer v;             /* saved value of |save_ptr| */
     quarterword l;              /* saved value of |cur_level| */
     group_code c;               /* saved value of |cur_group| */
     int a;                      /* to keep track of alignments */
-    integer i;
+    int i;
     quarterword j;
     char *s;
     /* print_save_stack(); */
@@ -540,7 +540,7 @@ void show_save_groups(void)
         /* Show the box packaging info */
         {
             /* offsets may vary */
-            integer ii = -1;
+            int ii = -1;
             while (saved_type(ii) != saved_boxspec)
                 ii--;
             if (saved_value(ii) != 0) {
@@ -657,7 +657,7 @@ The counterpart of |eq_define| for the remaining (fullword) positions in
 |p|, a `|restore_zero|' will never be used in this case.
 */
 
-void eq_word_define(halfword p, integer w)
+void eq_word_define(halfword p, int w)
 {
     if (eqtb[p].cint == w) {
         assign_trace(p, "reassigning");
@@ -689,7 +689,7 @@ void geq_define(halfword p, quarterword t, halfword e)
     assign_trace(p, "into");
 }
 
-void geq_word_define(halfword p, integer w)
+void geq_word_define(halfword p, int w)
 {                               /* global |eq_word_define| */
     assign_trace(p, "globally changing");
     eqtb[p].cint = w;
@@ -809,7 +809,7 @@ entire run. The global variable |mag_set| is set to the current magnification
 whenever it becomes necessary to ``freeze'' it at a particular value.
 */
 
-integer mag_set;                /* if nonzero, this magnification should be used henceforth */
+int mag_set;                    /* if nonzero, this magnification should be used henceforth */
 
 /*
 The |prepare_mag| subroutine is called whenever \TeX\ wants to use |mag|
@@ -893,7 +893,7 @@ Therefore it will not be difficult to translate these algorithms into
 low-level languages that do not support recursion.
 */
 
-integer cur_cmd;                /* current command set by |get_next| */
+int cur_cmd;                    /* current command set by |get_next| */
 halfword cur_chr;               /* operand of current command */
 halfword cur_cs;                /* control sequence found here, zero if none found */
 halfword cur_tok;               /* packed representative of |cur_cmd| and |cur_chr| */
@@ -904,8 +904,8 @@ halfword cur_tok;               /* packed representative of |cur_cmd| and |cur_c
 
 void show_cur_cmd_chr(void)
 {
-    integer n;                  /* level of \.{\\if...\\fi} nesting */
-    integer l;                  /* line where \.{\\if} started */
+    int n;                      /* level of \.{\\if...\\fi} nesting */
+    int l;                      /* line where \.{\\if} started */
     halfword p;
     begin_diagnostic();
     tprint_nl("{");

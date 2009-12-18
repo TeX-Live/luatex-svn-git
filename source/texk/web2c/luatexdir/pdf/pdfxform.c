@@ -26,7 +26,7 @@ static const char __svn_version[] =
 
 #define box(A) eqtb[box_base+(A)].hh.rh
 
-integer pdf_cur_form;           /* the form being output */
+int pdf_cur_form;               /* the form being output */
 
 void pdf_place_form(PDF pdf, halfword p)
 {
@@ -34,7 +34,7 @@ void pdf_place_form(PDF pdf, halfword p)
     scaled x, y;
     pdffloat cm[6];
     pdfstructure *q = pdf->pstruct;
-    integer r = 6, objnum = pdf_xform_objnum(p);
+    int r = 6, objnum = pdf_xform_objnum(p);
     nat.wd = obj_xform_width(pdf, objnum);
     nat.ht = obj_xform_height(pdf, objnum);
     nat.dp = obj_xform_depth(pdf, objnum);
@@ -66,7 +66,7 @@ void pdf_place_form(PDF pdf, halfword p)
 
 void scan_pdfxform(PDF pdf)
 {
-    integer k;
+    int k;
     halfword p;
     incr(pdf->xform_count);
     pdf_create_obj(pdf, obj_type_xform, pdf->xform_count);
@@ -100,7 +100,7 @@ void scan_pdfxform(PDF pdf)
 
 void scan_pdfrefxform(PDF pdf)
 {
-    integer transform = 0;
+    int transform = 0;
     scaled_whd alt_rule, dim, nat;
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
     scan_int();

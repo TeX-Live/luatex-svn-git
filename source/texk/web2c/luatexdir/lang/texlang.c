@@ -157,14 +157,14 @@ struct tex_language *get_language(int n)
     }
 }
 
-void set_pre_hyphen_char(integer n, integer v)
+void set_pre_hyphen_char(int n, int v)
 {
     struct tex_language *l = get_language((int) n);
     if (l != NULL)
         l->pre_hyphen_char = (int) v;
 }
 
-void set_post_hyphen_char(integer n, integer v)
+void set_post_hyphen_char(int n, int v)
 {
     struct tex_language *l = get_language((int) n);
     if (l != NULL)
@@ -172,14 +172,14 @@ void set_post_hyphen_char(integer n, integer v)
 }
 
 
-void set_pre_exhyphen_char(integer n, integer v)
+void set_pre_exhyphen_char(int n, int v)
 {
     struct tex_language *l = get_language((int) n);
     if (l != NULL)
         l->pre_exhyphen_char = (int) v;
 }
 
-void set_post_exhyphen_char(integer n, integer v)
+void set_post_exhyphen_char(int n, int v)
 {
     struct tex_language *l = get_language((int) n);
     if (l != NULL)
@@ -188,37 +188,37 @@ void set_post_exhyphen_char(integer n, integer v)
 
 
 
-integer get_pre_hyphen_char(integer n)
+int get_pre_hyphen_char(int n)
 {
     struct tex_language *l = get_language((int) n);
     if (l == NULL)
         return -1;
-    return (integer) l->pre_hyphen_char;
+    return (int) l->pre_hyphen_char;
 }
 
-integer get_post_hyphen_char(integer n)
+int get_post_hyphen_char(int n)
 {
     struct tex_language *l = get_language((int) n);
     if (l == NULL)
         return -1;
-    return (integer) l->post_hyphen_char;
+    return (int) l->post_hyphen_char;
 }
 
 
-integer get_pre_exhyphen_char(integer n)
+int get_pre_exhyphen_char(int n)
 {
     struct tex_language *l = get_language((int) n);
     if (l == NULL)
         return -1;
-    return (integer) l->pre_exhyphen_char;
+    return (int) l->pre_exhyphen_char;
 }
 
-integer get_post_exhyphen_char(integer n)
+int get_post_exhyphen_char(int n)
 {
     struct tex_language *l = get_language((int) n);
     if (l == NULL)
         return -1;
-    return (integer) l->post_exhyphen_char;
+    return (int) l->post_exhyphen_char;
 }
 
 void load_patterns(struct tex_language *lang, unsigned char *buffer)
@@ -950,7 +950,7 @@ void new_hyphenation(halfword head, halfword tail)
 void dump_one_language(int i)
 {
     char *s = NULL;
-    integer x = 0;
+    int x = 0;
     struct tex_language *lang;
     lang = tex_languages[i];
     dump_int(lang->id);
@@ -977,7 +977,7 @@ void dump_one_language(int i)
 
 void dump_language_data(void)
 {
-    integer i;
+    int i;
     dump_int(next_lang_id);
     for (i = 0; i < next_lang_id; i++) {
         if (tex_languages[i]) {
@@ -993,7 +993,7 @@ void dump_language_data(void)
 void undump_one_language(int i)
 {
     char *s = NULL;
-    integer x = 0;
+    int x = 0;
     struct tex_language *lang = get_language(i);
     undump_int(x);
     lang->id = x;
@@ -1025,7 +1025,7 @@ void undump_one_language(int i)
 
 void undump_language_data(void)
 {
-    integer i, x, numlangs;
+    int i, x, numlangs;
     undump_int(numlangs);
     next_lang_id = numlangs;
     for (i = 0; i < numlangs; i++) {

@@ -31,42 +31,42 @@
 #  define xetexnum_mathcode 22
 
 typedef struct mathcodeval {
-    integer class_value;
-    integer origin_value;
-    integer family_value;
-    integer character_value;
+    int class_value;
+    int origin_value;
+    int family_value;
+    int character_value;
 } mathcodeval;
 
-void set_math_code(integer n,
-                   integer commandorigin,
-                   integer mathclass,
-                   integer mathfamily, integer mathcharacter, quarterword gl);
+void set_math_code(int n,
+                   int commandorigin,
+                   int mathclass,
+                   int mathfamily, int mathcharacter, quarterword gl);
 
-mathcodeval get_math_code(integer n);
-integer get_math_code_num(integer n);
-integer get_del_code_num(integer n);
+mathcodeval get_math_code(int n);
+int get_math_code_num(int n);
+int get_del_code_num(int n);
 mathcodeval scan_mathchar(int extcode);
 mathcodeval scan_delimiter_as_mathchar(int extcode);
 
-mathcodeval mathchar_from_integer(integer value, int extcode);
+mathcodeval mathchar_from_integer(int value, int extcode);
 void show_mathcode_value(mathcodeval d);
 
 typedef struct delcodeval {
-    integer class_value;
-    integer origin_value;
-    integer small_family_value;
-    integer small_character_value;
-    integer large_family_value;
-    integer large_character_value;
+    int class_value;
+    int origin_value;
+    int small_family_value;
+    int small_character_value;
+    int large_family_value;
+    int large_character_value;
 } delcodeval;
 
-void set_del_code(integer n,
-                  integer commandorigin,
-                  integer smathfamily,
-                  integer smathcharacter,
-                  integer lmathfamily, integer lmathcharacter, quarterword gl);
+void set_del_code(int n,
+                  int commandorigin,
+                  int smathfamily,
+                  int smathcharacter,
+                  int lmathfamily, int lmathcharacter, quarterword gl);
 
-delcodeval get_del_code(integer n);
+delcodeval get_del_code(int n);
 
 void unsave_math_codes(quarterword grouplevel);
 void initialize_math_codes(void);

@@ -166,8 +166,8 @@ static halfword calculate_width_to_enddir(halfword p, real cur_glue,
     /* to me, it looks like the next is needed. but Aleph doesn't do that, so let us not do it either */
     real glue_temp;             /* glue value before rounding */
     /* |w:=w-cur_g; cur_glue:=0;| */
-    integer g_sign = glue_sign(this_box);
-    integer g_order = glue_order(this_box);
+    int g_sign = glue_sign(this_box);
+    int g_order = glue_order(this_box);
     while ((q != null) && (vlink(q) != null)) {
         q = vlink(q);
         if (is_char_node(q))
@@ -317,8 +317,8 @@ void hlist_out(PDF pdf, halfword this_box)
     halfword enddir_ptr;        /* temporary pointer to enddir node */
     /* label move_past, fin_rule, next_p; */
     /* scaled w;                     temporary value for directional width calculation  */
-    integer g_order;            /* applicable order of infinity for glue */
-    integer g_sign;             /* selects type of glue */
+    int g_order;                /* applicable order of infinity for glue */
+    int g_sign;                 /* selects type of glue */
     halfword p, q;              /* current position in the hlist */
     halfword leader_box;        /* the leader box being replicated */
     scaled leader_wd;           /* width of leader box being replicated */
@@ -330,7 +330,7 @@ void hlist_out(PDF pdf, halfword this_box)
     scaled cur_g = 0;           /* rounded equivalent of |cur_glue| times the glue ratio */
     scaled_whd rule, ci;
     int i;                      /* index to scan |pdf_link_stack| */
-    integer save_loc = 0;       /* DVI! \.{DVI} byte location upon entry */
+    int save_loc = 0;           /* DVI! \.{DVI} byte location upon entry */
     scaledpos save_dvi = { 0, 0 };      /* DVI! what |dvi| should pop to */
 
     g_order = glue_order(this_box);
@@ -791,7 +791,7 @@ void vlist_out(PDF pdf, halfword this_box)
     scaled top_edge;            /* the top coordinate for this box */
     scaled edge;                /* bottom boundary of leader space */
     glue_ord g_order;           /* applicable order of infinity for glue */
-    integer g_sign;             /* selects type of glue */
+    int g_sign;                 /* selects type of glue */
     halfword p;                 /* current position in the vlist */
     halfword leader_box;        /* the leader box being replicated */
     scaled leader_ht;           /* height of leader box being replicated */
@@ -801,7 +801,7 @@ void vlist_out(PDF pdf, halfword this_box)
     real cur_glue = 0.0;        /* glue seen so far */
     scaled cur_g = 0;           /* rounded equivalent of |cur_glue| times the glue ratio */
     scaled_whd rule;
-    integer save_loc = 0;       /* DVI! \.{DVI} byte location upon entry */
+    int save_loc = 0;           /* DVI! \.{DVI} byte location upon entry */
     scaledpos save_dvi = { 0, 0 };      /* DVI! what |dvi| should pop to */
 
     g_order = glue_order(this_box);

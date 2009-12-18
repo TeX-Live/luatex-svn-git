@@ -27,7 +27,7 @@
 
 extern PDF static_pdf;
 
-extern integer pdf_get_mem(PDF pdf, integer s);
+extern int pdf_get_mem(PDF pdf, int s);
 
 /*
 We use the similiar subroutines to handle the output buffer for
@@ -70,20 +70,20 @@ typedef enum {
     zip_finish = 2              /* finish \.{ZIP} compression */
 } zip_write_states;
 
-extern integer pdf_output_option;
-extern integer pdf_output_value;
-extern integer pdf_draftmode_option;
-extern integer pdf_draftmode_value;
+extern int pdf_output_option;
+extern int pdf_output_value;
+extern int pdf_draftmode_option;
+extern int pdf_draftmode_value;
 
 extern scaled one_hundred_inch;
 extern scaled one_inch;
 extern scaled one_true_inch;
 extern scaled one_hundred_bp;
 extern scaled one_bp;
-extern integer ten_pow[10];
+extern int ten_pow[10];
 
 extern void pdf_flush(PDF);
-extern void pdf_room(PDF, integer);
+extern void pdf_room(PDF, int);
 
 extern void fix_pdf_minorversion(PDF);
 
@@ -130,7 +130,7 @@ extern void pdf_print_char(PDF, int);
 extern void pdf_print_wide_char(PDF, int);
 extern void pdf_print(PDF, str_number);
 extern void pdf_print_int(PDF, longinteger);
-extern void pdf_print_real(PDF, integer, integer);
+extern void pdf_print_real(PDF, int, int);
 extern void pdf_print_str(PDF, char *);
 
 extern void pdf_begin_stream(PDF);
@@ -144,8 +144,8 @@ extern void pdf_print_mag_bp(PDF, scaled);
 /* This is for the resource lists */
 
 extern void reset_resource_lists(pdf_resource_struct * p);
-extern void append_object_list(PDF pdf, pdf_obj_type t, integer f);
-extern pdf_object_list *lookup_object_list(PDF pdf, pdf_obj_type t, integer f);
+extern void append_object_list(PDF pdf, pdf_obj_type t, int f);
+extern pdf_object_list *lookup_object_list(PDF pdf, pdf_obj_type t, int f);
 void flush_resource_lists(PDF pdf);
 
 #  define pdf_print_resname_prefix(pdf) do {        \
@@ -153,12 +153,12 @@ void flush_resource_lists(PDF pdf);
             pdf_puts(pdf,pdf->resname_prefix);      \
     } while (0)
 
-extern void pdf_print_fw_int(PDF, longinteger, integer);
-extern void pdf_out_bytes(PDF, longinteger, integer);
-extern void pdf_int_entry(PDF, char *, integer);
-extern void pdf_int_entry_ln(PDF, char *, integer);
-extern void pdf_indirect(PDF, char *, integer);
-extern void pdf_indirect_ln(PDF, char *, integer);
+extern void pdf_print_fw_int(PDF, longinteger, int);
+extern void pdf_out_bytes(PDF, longinteger, int);
+extern void pdf_int_entry(PDF, char *, int);
+extern void pdf_int_entry_ln(PDF, char *, int);
+extern void pdf_indirect(PDF, char *, int);
+extern void pdf_indirect_ln(PDF, char *, int);
 extern void pdf_print_str_ln(PDF, char *);
 extern void pdf_str_entry(PDF, char *, char *);
 extern void pdf_str_entry_ln(PDF, char *, char *);
@@ -169,19 +169,19 @@ extern void pdf_print_toks_ln(PDF, halfword);
 extern void pdf_print_rect_spec(PDF, halfword);
 extern void pdf_rectangle(PDF, halfword);
 
-extern void pdf_begin_obj(PDF, integer, integer);
-extern void pdf_new_obj(PDF, integer, integer, integer);
+extern void pdf_begin_obj(PDF, int, int);
+extern void pdf_new_obj(PDF, int, int, int);
 extern void pdf_end_obj(PDF);
 
-extern void pdf_begin_dict(PDF, integer, integer);
-extern void pdf_new_dict(PDF, integer, integer, integer);
+extern void pdf_begin_dict(PDF, int, int);
+extern void pdf_new_dict(PDF, int, int, int);
 extern void pdf_end_dict(PDF);
 
 extern void pdf_os_switch(PDF pdf, boolean pdf_os);
-extern void pdf_os_prepare_obj(PDF pdf, integer i, integer pdf_os_level);
+extern void pdf_os_prepare_obj(PDF pdf, int i, int pdf_os_level);
 extern void pdf_os_write_objstream(PDF);
 
-extern void write_stream_length(PDF, integer, longinteger);
+extern void write_stream_length(PDF, int, longinteger);
 
 extern void print_creation_date(PDF);
 extern void print_mod_date(PDF);
@@ -189,10 +189,10 @@ extern void print_ID(PDF, char *);
 
 extern void remove_pdffile(PDF);
 
-extern integer fb_offset(PDF);
+extern int fb_offset(PDF);
 extern void fb_flush(PDF);
 extern void fb_putchar(PDF, eight_bits);
-extern void fb_seek(PDF, integer);
+extern void fb_seek(PDF, int);
 extern void fb_free(PDF);
 
 extern void write_zip(PDF, boolean);
@@ -200,7 +200,7 @@ extern void zip_free(PDF);
 
 /* functions that do not output stuff */
 
-extern scaled round_xn_over_d(scaled x, integer n, integer d);
+extern scaled round_xn_over_d(scaled x, int n, int d);
 extern char *convertStringToPDFString(const char *in, int len);
 
 extern void init_start_time(PDF);
@@ -225,7 +225,7 @@ extern halfword pdf_catalog_openaction;
 extern halfword pdf_names_toks; /* additional keys of Names dictionary */
 extern halfword pdf_trailer_toks;       /* additional keys of Trailer dictionary */
 extern void scan_pdfcatalog(PDF pdf);
-extern void finish_pdf_file(PDF pdf, integer luatex_version,
+extern void finish_pdf_file(PDF pdf, int luatex_version,
                             str_number luatex_revision);
 
 extern boolean is_shipping_page;

@@ -25,7 +25,7 @@ static const char __svn_version[] =
 
 void pdf_special(PDF pdf, halfword p)
 {
-    integer old_setting;        /* holds print |selector| */
+    int old_setting;            /* holds print |selector| */
     str_number s;
     old_setting = selector;
     selector = new_string;
@@ -46,7 +46,7 @@ need to declare some procedures needed in |hlist_out| and |vlist_out|.
 
 void pdf_out_literal(PDF pdf, halfword p)
 {
-    integer old_setting;        /* holds print |selector| */
+    int old_setting;            /* holds print |selector| */
     str_number s;
     if (pdf_literal_type(p) == normal) {
         old_setting = selector;
@@ -92,7 +92,7 @@ static boolean str_in_cstr(str_number s, char *r, unsigned i)
     return true;
 }
 
-void pdf_literal(PDF pdf, str_number s, integer literal_mode, boolean warn)
+void pdf_literal(PDF pdf, str_number s, int literal_mode, boolean warn)
 {
     pool_pointer j = 0;         /* current character code position, initialized to make the compiler happy */
     if (s >= STRING_OFFSET) {   /* needed for |out_save| */
@@ -137,11 +137,11 @@ void pdf_literal(PDF pdf, str_number s, integer literal_mode, boolean warn)
         unsigned char *ss = str_string(s);
         int l = str_length(s) - j;
         if (l < max_single_pdf_print) {
-            pdf_out_block(pdf, (ss+j), l);
+            pdf_out_block(pdf, (ss + j), l);
         } else {
-            
+
             while (l--)
-                pdf_out(pdf, *(ss+j++));
+                pdf_out(pdf, *(ss + j++));
         }
     } else {
         assert(s < 256);

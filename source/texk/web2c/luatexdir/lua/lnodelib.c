@@ -167,7 +167,7 @@ void lua_nodelib_push_fast(lua_State * L, halfword n)
 
 static int lua_nodelib_id(lua_State * L)
 {
-    integer i = get_node_type_id(L, 1);
+    int i = get_node_type_id(L, 1);
     if (i >= 0) {
         lua_pushnumber(L, i);
     } else {
@@ -179,7 +179,7 @@ static int lua_nodelib_id(lua_State * L)
 
 static int lua_nodelib_subtype(lua_State * L)
 {
-    integer i = get_node_subtype_id(L, 1);
+    int i = get_node_subtype_id(L, 1);
     if (i >= 0) {
         lua_pushnumber(L, i);
     } else {
@@ -192,7 +192,7 @@ static int lua_nodelib_subtype(lua_State * L)
 
 static int lua_nodelib_type(lua_State * L)
 {
-    integer i = get_node_type_id(L, 1);
+    int i = get_node_type_id(L, 1);
     if (i >= 0) {
         lua_pushstring(L, node_data[i].name);
     } else {
@@ -476,7 +476,7 @@ static int lua_nodelib_hpack(lua_State * L)
 {
     halfword n, p;
     char *s;
-    integer w = 0;
+    int w = 0;
     int m = 1;
     int d = -1;
     n = *(check_isnode(L, 1));
@@ -566,7 +566,7 @@ static int lua_nodelib_vpack(lua_State * L)
 {
     halfword n, p;
     char *s;
-    integer w = 0;
+    int w = 0;
     int m = 1;
     int d = -1;
     n = *(check_isnode(L, 1));

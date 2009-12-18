@@ -44,13 +44,13 @@ static const char _svn_version[] =
     strncpy(pdf->fb_array + t1_fontname_offset, fm_cur->subset_tag, 6)
 #define fixedcontent        false
 
-integer t1_length1, t1_length2, t1_length3;
-static integer t1_save_offset;
-static integer t1_fontname_offset;
+int t1_length1, t1_length2, t1_length3;
+static int t1_save_offset;
+static int t1_fontname_offset;
 
 static unsigned char *t1_buffer = NULL;
-static integer t1_size = 0;
-static integer t1_curbyte = 0;
+static int t1_size = 0;
+static int t1_curbyte = 0;
 
 #define t1_read_file()  \
     readbinfile(t1_file,&t1_buffer,&t1_size)
@@ -69,8 +69,8 @@ static integer t1_curbyte = 0;
 #define t1_cleartomark()    t1_prefix("cleartomark")
 
 static unsigned char *enc_buffer = NULL;
-static integer enc_size = 0;
-static integer enc_curbyte = 0;
+static int enc_size = 0;
+static int enc_curbyte = 0;
 
 #define enc_open(a)          \
     (enc_file = fopen((char *)(a), FOPEN_RBIN_MODE))
@@ -1062,7 +1062,7 @@ static void cs_store(boolean is_subr)
 
 #define CC_STACK_SIZE       24
 
-static integer cc_stack[CC_STACK_SIZE], *stack_ptr = cc_stack;
+static int cc_stack[CC_STACK_SIZE], *stack_ptr = cc_stack;
 static cc_entry cc_tab[CS_MAX];
 static boolean is_cc_init = false;
 
@@ -1077,22 +1077,6 @@ static boolean is_cc_init = false;
                  (int) N, (int)(stack_ptr - cc_stack));                  \
     goto cs_error;                    \
 }
-
-/*
-static integer cc_get(integer index)
-{
-    if (index <  0) {
-        if (stack_ptr + index < cc_stack )
-            stack_error(stack_ptr - cc_stack + index);
-        return *(stack_ptr + index);
-    }
-    else {
-        if (cc_stack  + index >= stack_ptr)
-            stack_error(index);
-        return cc_stack[index];
-    }
-}
-*/
 
 #define cc_get(N)   ((N) < 0 ? *(stack_ptr + (N)) : *(cc_stack + (N)))
 
@@ -1200,10 +1184,10 @@ static void cs_mark(const char *cs_name, int subr)
     byte *data;
     int i, b, cs_len;
     int last_cmd = 0;
-    integer a, a1, a2;
+    int a, a1, a2;
     unsigned short cr;
-    static integer lastargOtherSubr3 = 3;       /* the argument of last call to
-                                                   OtherSubrs[3] */
+    static int lastargOtherSubr3 = 3;   /* the argument of last call to
+                                           OtherSubrs[3] */
     cs_entry *ptr;
     cc_entry *cc;
     if (cs_name == NULL) {
@@ -1255,7 +1239,7 @@ static void cs_mark(const char *cs_name, int subr)
                 a |= (cs_getchar() & 0xff) << 16;
                 a |= (cs_getchar() & 0xff) << 8;
                 a |= (cs_getchar() & 0xff) << 0;
-                if (sizeof(integer) > 4 && (a & 0x80000000))
+                if (sizeof(int) > 4 && (a & 0x80000000))
                     a |= ~0x7FFFFFFF;
             }
             cc_push(a);

@@ -35,14 +35,14 @@ typedef enum {
 #  define substituted 3         /* |subtype| of kern nodes that should be substituted */
 
 extern void scan_spec(group_code c);
-extern void scan_full_spec(group_code c, integer spec_direction);
+extern void scan_full_spec(group_code c, int spec_direction);
 
 extern scaled total_stretch[5];
 extern scaled total_shrink[5];  /* glue found by |hpack| or |vpack| */
-extern integer last_badness;    /* badness of the most recently packaged box */
+extern int last_badness;        /* badness of the most recently packaged box */
 extern halfword adjust_tail;    /* tail of adjustment list */
 extern halfword pre_adjust_tail;
-extern integer font_expand_ratio;       /* current expansion ratio */
+extern int font_expand_ratio;   /* current expansion ratio */
 extern halfword last_leftmost_char;
 extern halfword last_rightmost_char;
 extern halfword next_char_p;    /* pointer to the next char of an implicit kern */
@@ -53,7 +53,7 @@ extern scaled char_stretch(halfword p);
 extern scaled char_shrink(halfword p);
 extern scaled kern_stretch(halfword p);
 extern scaled kern_shrink(halfword p);
-extern void do_subst_font(halfword p, integer ex_ratio);
+extern void do_subst_font(halfword p, int ex_ratio);
 extern scaled char_pw(halfword p, int side);
 extern halfword new_margin_kern(scaled w, halfword p, int side);
 
@@ -65,18 +65,18 @@ extern halfword new_margin_kern(scaled w, halfword p, int side);
 
 extern halfword hpack(halfword p, scaled w, int m, int d);
 extern halfword filtered_hpack(halfword p, halfword qt, scaled w, int m,
-                               integer grp, int d);
+                               int grp, int d);
 
 extern scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
-                                integer g_sign, integer g_order, int d);
+                                int g_sign, int g_order, int d);
 
-extern integer pack_begin_line;
+extern int pack_begin_line;
 
 #  define vpack(A,B,C,D) vpackage(A,B,C,max_dimen,D)    /* special case of unconstrained depth */
 
 extern halfword vpackage(halfword p, scaled h, int m, scaled l, int d);
 extern halfword filtered_vpackage(halfword p, scaled h, int m, scaled l,
-                                  integer grp, int d);
+                                  int grp, int d);
 extern void finish_vcenter(void);
 extern void package(int c);
 extern void append_to_vlist(halfword b);
@@ -145,6 +145,6 @@ where the latter two are used denote \.{\\vbox} and \.{\\hbox}, respectively.
 #  define ship_out_flag (max_global_box_flag+1) /* context code for `\.{\\shipout}' */
 #  define leader_flag ship_out_flag+1   /* context code for `\.{\\leaders}' */
 
-extern void begin_box(integer box_context);
+extern void begin_box(int box_context);
 
 #endif

@@ -449,11 +449,11 @@ void copy_image(lua_State * L, lua_Number scale)
     lua_setmetatable(L, -2);    /* b */
     b = *bb = new_image();
     if (!is_wd_running(a))
-        img_width(b) = zround(img_width(a) * scale);
+        img_width(b) = do_zround(img_width(a) * scale);
     if (!is_ht_running(a))
-        img_height(b) = zround(img_height(a) * scale);
+        img_height(b) = do_zround(img_height(a) * scale);
     if (!is_dp_running(a))
-        img_depth(b) = zround(img_depth(a) * scale);
+        img_depth(b) = do_zround(img_depth(a) * scale);
     img_transform(b) = img_transform(a);
     img_dict(b) = img_dict(a);
     if (img_dictref(a) != LUA_NOREF) {

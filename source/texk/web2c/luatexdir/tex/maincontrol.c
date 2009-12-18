@@ -192,9 +192,9 @@ mode by mistake. \TeX\ will insert a dollar sign and rescan the current token.
 
 void main_control(void)
 {                               /* governs \TeX's activities */
-    integer t;                  /* general-purpose temporary variable */
+    int t;                      /* general-purpose temporary variable */
     halfword p;                 /* for whatsit nodes and testing whether an auto kern should be inserted */
-    integer chr_stack;          /* to temporarily save an |cur_chr| to be appended */
+    int chr_stack;              /* to temporarily save an |cur_chr| to be appended */
     mathcodeval mval;           /* to build up an argument to |set_math_char| */
     t = 0;                      /* for -Wall */
     chr_stack = -1;
@@ -1120,7 +1120,7 @@ void handle_right_brace(void)
 {
     halfword p, q;              /* for short-term use */
     scaled d;                   /* holds |split_max_depth| in |insert_group| */
-    integer f;                  /* holds |floating_penalty| in |insert_group| */
+    int f;                      /* holds |floating_penalty| in |insert_group| */
     p = null;
     switch (cur_group) {
     case simple_group:
@@ -1281,7 +1281,7 @@ The |box_end| procedure does the right thing with |cur_box|, if
 |box_context| represents the context as explained above.
 */
 
-void box_end(integer box_context)
+void box_end(int box_context)
 {
     if (box_context < box_flag) {
         /* Append box |cur_box| to the current list, shifted by |box_context| */
@@ -1355,7 +1355,7 @@ void box_end(integer box_context)
 }
 
 /* the next input should specify a box or perhaps a rule */
-void scan_box(integer box_context)
+void scan_box(int box_context)
 {
     /* Get the next non-blank non-relax... */
     do {
@@ -1461,7 +1461,7 @@ pretty heavy memory leaks. This means the current code is probably
 wrong in some way that relates to in-paragraph displays.
 */
 
-void end_graf(integer line_break_context)
+void end_graf(int line_break_context)
 {
     if (mode == hmode) {
         if ((head == tail) || (vlink(head) == tail)) {
@@ -1670,7 +1670,7 @@ void append_italic_correction(void)
 }
 
 
-void append_local_box(integer kind)
+void append_local_box(int kind)
 {
     incr(save_ptr);
     set_saved_record(-1, saved_boxtype, 0, kind);
@@ -1691,7 +1691,7 @@ but it starts out as 1000 in the subsidiary lists.
 
 void append_discretionary(void)
 {
-    integer c;
+    int c;
     tail_append(new_disc());
     subtype(tail) = cur_chr;
     if (cur_chr == explicit_disc) {
@@ -1725,7 +1725,7 @@ void append_discretionary(void)
 void build_local_box(void)
 {
     halfword p;
-    integer kind;
+    int kind;
     unsave();
     assert(saved_type(-1) == saved_boxtype);
     kind = saved_value(-1);
@@ -1755,7 +1755,7 @@ hboxes. A~subroutine called |build_discretionary| handles the transitions.
 void build_discretionary(void)
 {
     halfword p, q;              /* for link manipulation */
-    integer n;                  /* length of discretionary list */
+    int n;                      /* length of discretionary list */
     unsave();
     /* Prune the current list, if necessary, until it contains only
        |char_node|, |kern_node|, |hlist_node|, |vlist_node| and
@@ -2064,7 +2064,7 @@ void prefixed_command(void)
     internal_font_number f;     /* identifies a font */
     halfword j;                 /* index into a \.{\\parshape} specification */
     halfword p, q;              /* for temporary short-term use */
-    integer n;                  /* ditto */
+    int n;                      /* ditto */
     boolean e;                  /* should a definition be expanded? or was \.{\\let} not done? */
     mathcodeval mval;           /* for handling of \.{\\mathchardef}s */
     a = 0;
@@ -2690,9 +2690,9 @@ void prefixed_command(void)
 
 void fixup_directions(void)
 {
-    integer temp_no_whatsits;
-    integer temp_no_dirs;
-    integer temporary_dir;
+    int temp_no_whatsits;
+    int temp_no_dirs;
+    int temporary_dir;
     temp_no_whatsits = no_local_whatsits;
     temp_no_dirs = no_local_dirs;
     temporary_dir = text_direction;
@@ -2747,7 +2747,7 @@ void get_r_token(void)
     }
 }
 
-void assign_internal_value(int a, halfword p, integer cur_val)
+void assign_internal_value(int a, halfword p, int cur_val)
 {
     halfword n;
     if ((p >= int_base) && (p < attribute_base)) {
@@ -2875,7 +2875,7 @@ void trap_zero_glue(void)
 void do_register_command(int a)
 {
     halfword l, q, r, s;        /* for list manipulation */
-    integer p;                  /* type of register involved */
+    int p;                      /* type of register involved */
     q = cur_cmd;
     /* Compute the register location |l| and its type |p|; but |return| if invalid */
     /* Here we use the fact that the consecutive codes |int_val..mu_val| and
@@ -3092,7 +3092,7 @@ void alter_integer(void)
 void alter_box_dimen(void)
 {
     int c;                      /* |width_offset| or |height_offset| or |depth_offset| */
-    integer b;                  /* box number */
+    int b;                      /* box number */
     c = cur_chr;
     scan_register_num();
     b = cur_val;
@@ -3193,7 +3193,7 @@ void issue_message(void)
     s = make_string();
     if (c == 0) {
         /* Print string |s| on the terminal */
-        if (term_offset + (int)str_length(s) > max_print_line - 2)
+        if (term_offset + (int) str_length(s) > max_print_line - 2)
             print_ln();
         else if ((term_offset > 0) || (file_offset > 0))
             print_char(' ');
@@ -3292,8 +3292,8 @@ void show_whatever(void)
     halfword p;                 /* tail of a token list to show */
     int t;                      /* type of conditional being shown */
     int m;                      /* upper bound on |fi_or_else| codes */
-    integer l;                  /* line where that conditional began */
-    integer n;                  /* level of \.{\\if...\\fi} nesting */
+    int l;                      /* line where that conditional began */
+    int n;                      /* level of \.{\\if...\\fi} nesting */
     switch (cur_chr) {
     case show_lists:
         begin_diagnostic();
@@ -3408,7 +3408,7 @@ void show_whatever(void)
 
 void initialize(void)
 {                               /* this procedure gets things started properly */
-    integer k;                  /* index into |mem|, |eqtb|, etc. */
+    int k;                      /* index into |mem|, |eqtb|, etc. */
     /* Initialize whatever \TeX\ might access */
     /* Set initial values of key variables */
     initialize_errors();

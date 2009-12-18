@@ -577,18 +577,18 @@ values of these variables are not needed during recursive calls.
 @^recursion@>
 */
 
-integer total_pages = 0;        /* the number of pages that have been shipped out */
+int total_pages = 0;            /* the number of pages that have been shipped out */
 scaled max_v = 0;               /* maximum height-plus-depth of pages shipped so far */
 scaled max_h = 0;               /* maximum width of pages shipped so far */
-integer max_push = 0;           /* deepest nesting of |push| commands encountered so far */
-integer last_bop = -1;          /* location of previous |bop| in the \.{DVI} output */
-integer dead_cycles = 0;        /* recent outputs that didn't ship anything out */
+int max_push = 0;               /* deepest nesting of |push| commands encountered so far */
+int last_bop = -1;              /* location of previous |bop| in the \.{DVI} output */
+int dead_cycles = 0;            /* recent outputs that didn't ship anything out */
 boolean doing_leaders = false;  /* are we inside a leader box? */
-integer c, f;                   /* character and font in current |char_node| */
-integer oval, ocmd;             /* used by |out_cmd| for generating |set|, |fnt| and |fnt_def| commands */
+int c, f;                       /* character and font in current |char_node| */
+int oval, ocmd;                 /* used by |out_cmd| for generating |set|, |fnt| and |fnt_def| commands */
 pointer g;                      /* current glue specification */
-integer lq, lr;                 /* quantities used in calculations for leaders */
-integer cur_s = -1;             /* current depth of output box nesting, initially $-1$ */
+int lq, lr;                     /* quantities used in calculations for leaders */
+int cur_s = -1;                 /* current depth of output box nesting, initially $-1$ */
 
 /*
 @ The \.{DVI} bytes are output to a buffer instead of being written directly
@@ -626,13 +626,13 @@ Initially the buffer is all in one piece; we will output half of it only
 after it first fills up.
 */
 
-integer dvi_buf_size = 800;     /* size of the output buffer; must be a multiple of 8 */
+int dvi_buf_size = 800;         /* size of the output buffer; must be a multiple of 8 */
 eight_bits *dvi_buf;            /* buffer for \.{DVI} output */
 dvi_index half_buf = 0;         /* half of |dvi_buf_size| */
 dvi_index dvi_limit = 0;        /* end of the current half buffer */
 dvi_index dvi_ptr = 0;          /* the next available buffer address */
-integer dvi_offset = 0;         /* |dvi_buf_size| times the number of times the output buffer has been fully emptied */
-integer dvi_gone = 0;           /* the number of bytes already output to |dvi_file| */
+int dvi_offset = 0;             /* |dvi_buf_size| times the number of times the output buffer has been fully emptied */
+int dvi_gone = 0;               /* the number of bytes already output to |dvi_file| */
 
 /*
 The actual output of |dvi_buf[a..b]| to |dvi_file| is performed by calling
@@ -674,7 +674,7 @@ The |dvi_four| procedure outputs four bytes in two's complement notation,
 without risking arithmetic overflow.
 */
 
-void dvi_four(integer x)
+void dvi_four(int x)
 {
     if (x >= 0) {
         dvi_out(x / 0100000000);
@@ -702,7 +702,7 @@ void dvi_push(void)
     dvi_out(push);
 }
 
-void dvi_pop(integer l)
+void dvi_pop(int l)
 {
     if ((l == dvi_offset + dvi_ptr) && (dvi_ptr > 0))
         decr(dvi_ptr);
@@ -854,7 +854,7 @@ void movement(scaled w, eight_bits o)
 {
     small_number mstate;        /* have we seen a |y| or |z|? */
     halfword p, q;              /* current and top nodes on the stack */
-    integer k;                  /* index into |dvi_buf|, modulo |dvi_buf_size| */
+    int k;                      /* index into |dvi_buf|, modulo |dvi_buf_size| */
     if (false) {                /* TODO: HUH? */
         q = new_node(movement_node, 0); /* new node for the top of the stack */
         width(q) = w;
@@ -1020,7 +1020,7 @@ except that some |vinfo|'s may have become more restrictive.
 */
 
 /* delete movement nodes with |location>=l| */
-void prune_movements(integer l)
+void prune_movements(int l)
 {
     pointer p;                  /* node being deleted */
     while (down_ptr != null) {
@@ -1075,7 +1075,7 @@ void dvi_place_rule(PDF pdf, halfword q, scaledpos size)
     dvi_four(size.h);
 }
 
-void dvi_place_glyph(PDF pdf, internal_font_number f, integer c)
+void dvi_place_glyph(PDF pdf, internal_font_number f, int c)
 {
     scaled_whd ci;
     synch_dvi_with_pos(pdf->posstruct->pos);
@@ -1103,7 +1103,7 @@ void dvi_place_glyph(PDF pdf, internal_font_number f, integer c)
 void dvi_special(PDF pdf, halfword p)
 {
     int old_setting;            /* holds print |selector| */
-    unsigned k;             /* index into |cur_string| */
+    unsigned k;                 /* index into |cur_string| */
     synch_dvi_with_pos(pdf->posstruct->pos);
     old_setting = selector;
     selector = new_string;
@@ -1118,7 +1118,7 @@ void dvi_special(PDF pdf, halfword p)
     }
     for (k = 0; k < cur_length; k++)
         dvi_out(cur_string[k]);
-    cur_length = 0;        /* erase the string */
+    cur_length = 0;             /* erase the string */
 }
 
 /*
@@ -1136,7 +1136,7 @@ single page, the stack would overflow.
 
 void expand_macros_in_tokenlist(halfword p)
 {
-    integer old_mode;           /* saved |mode| */
+    int old_mode;               /* saved |mode| */
     pointer q, r;               /* temporary variables for list manipulation */
     q = get_avail();
     token_info(q) = right_brace_token + '}';
@@ -1176,7 +1176,7 @@ void write_out(halfword p)
     int old_setting;            /* holds print |selector| */
     int j;                      /* write stream number */
     boolean clobbered;          /* system string is ok? */
-    integer ret;                /* return value from |runsystem| */
+    int ret;                    /* return value from |runsystem| */
     char *s, *ss;               /* line to be written, as a C string */
     int callback_id;
     int lua_retval;
@@ -1217,20 +1217,20 @@ void write_out(halfword p)
         if (!log_opened)
             selector = term_only;
         tprint_nl("runsystem(");
-        tprint((char *)cur_string);
+        tprint((char *) cur_string);
         tprint(")...");
         if (shellenabledp) {
             clobbered = false;
-            if (strlen((char *)cur_string)!=cur_length)
+            if (strlen((char *) cur_string) != cur_length)
                 clobbered = true;
-                /* minimal checking: NUL not allowed in argument string of |system|() */
+            /* minimal checking: NUL not allowed in argument string of |system|() */
             if (clobbered) {
                 tprint("clobbered");
             } else {
                 /* We have the command.  See if we're allowed to execute it,
                    and report in the log.  We don't check the actual exit status of
                    the command, or do anything with the output. */
-                ret = runsystem((char *)cur_string);
+                ret = runsystem((char *) cur_string);
                 if (ret == -1)
                     tprint("quotation error in system command");
                 else if (ret == 0)
@@ -1246,7 +1246,7 @@ void write_out(halfword p)
         print_char('.');
         tprint_nl("");
         print_ln();
-        cur_length = 0;    /* erase the string */
+        cur_length = 0;         /* erase the string */
     }
     selector = old_setting;
 }
@@ -1260,7 +1260,7 @@ ship out a box of stuff, we shall use the macro |ensure_dvi_open|.
 void ensure_dvi_header_written(PDF pdf)
 {
     unsigned l;
-    unsigned s;             /* index into |str_pool| */
+    unsigned s;                 /* index into |str_pool| */
     int old_setting;            /* saved |selector| setting */
     assert(pdf->o_mode == OMODE_DVI);
     assert(pdf->o_state == ST_FILE_OPEN);
@@ -1303,8 +1303,8 @@ void ensure_dvi_header_written(PDF pdf)
 
 void dvi_begin_page(PDF pdf)
 {
-    integer k;
-    integer page_loc;           /* location of the current |bop| */
+    int k;
+    int page_loc;               /* location of the current |bop| */
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
     /* Initialize variables as |ship_out| begins */
     page_loc = dvi_offset + dvi_ptr;
@@ -1351,9 +1351,9 @@ If |total_pages>=65536|, the \.{DVI} file will lie. And if
 
 void finish_dvi_file(PDF pdf, int version, int revision)
 {
-    integer k;
+    int k;
     boolean res;
-    integer callback_id = callback_defined(stop_run_callback);
+    int callback_id = callback_defined(stop_run_callback);
     (void) version;
     (void) revision;
     while (cur_s > -1) {

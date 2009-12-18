@@ -35,24 +35,24 @@ define_array(t3_line);
 FILE *t3_file;
 static boolean t3_image_used;
 
-static integer t3_char_procs[256];
+static int t3_char_procs[256];
 static float t3_char_widths[256];
 static int t3_glyph_num;
 static float t3_font_scale;
-static integer t3_b0, t3_b1, t3_b2, t3_b3;
+static int t3_b0, t3_b1, t3_b2, t3_b3;
 static boolean is_pk_font;
 
 /* not static because used by pkin.c  */
 unsigned char *t3_buffer = NULL;
-integer t3_size = 0;
-integer t3_curbyte = 0;
+int t3_size = 0;
+int t3_curbyte = 0;
 
 #define t3_check_eof()                                     \
     if (t3_eof())                                          \
         pdftex_fail("unexpected end of file");
 
 
-static void update_bbox(integer llx, integer lly, integer urx, integer ury,
+static void update_bbox(int llx, int lly, int urx, int ury,
                         boolean is_first_glyph)
 {
     if (is_first_glyph) {
@@ -72,8 +72,8 @@ static void update_bbox(integer llx, integer lly, integer urx, integer ury,
     }
 }
 
-static integer get_pk_font_scale(internalfontnumber f, int precision,
-                                 int scale_factor)
+static int get_pk_font_scale(internalfontnumber f, int precision,
+                             int scale_factor)
 {
     return
         divide_scaled(scale_factor,
@@ -81,8 +81,8 @@ static integer get_pk_font_scale(internalfontnumber f, int precision,
                                     precision + 2), 0);
 }
 
-static integer pk_char_width(internalfontnumber f, scaled w, int precision,
-                             int scale_factor)
+static int pk_char_width(internalfontnumber f, scaled w, int precision,
+                         int scale_factor)
 {
     return
         divide_scaled(divide_scaled(w, pdf_font_size(f), 7),
@@ -92,14 +92,14 @@ static integer pk_char_width(internalfontnumber f, scaled w, int precision,
 static boolean writepk(PDF pdf, internal_font_number f)
 {
     kpse_glyph_file_type font_ret;
-    integer llx, lly, urx, ury;
-    integer cw, rw, i, j;
+    int llx, lly, urx, ury;
+    int cw, rw, i, j;
     halfword *row;
     char *name;
     char *ftemp = NULL;
     chardesc cd;
     boolean is_null_glyph, check_preamble;
-    integer dpi;
+    int dpi;
     int callback_id = 0;
     int file_opened = 0;
     int mallocsize = 0;
@@ -225,9 +225,9 @@ void writet3(PDF pdf, int objnum, internalfontnumber f)
 {
 
     int i;
-    integer wptr, eptr, cptr;
+    int wptr, eptr, cptr;
     int first_char, last_char;
-    integer pk_font_scale;
+    int pk_font_scale;
     boolean is_notdef;
 
     t3_glyph_num = 0;

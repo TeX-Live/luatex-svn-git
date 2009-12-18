@@ -60,10 +60,10 @@ typedef struct {
 
 typedef sa_tree_head *sa_tree;
 
-extern sa_tree_item get_sa_item(const sa_tree head, const integer n);
-extern void set_sa_item(sa_tree head, integer n, sa_tree_item v, integer gl);
+extern sa_tree_item get_sa_item(const sa_tree head, const int n);
+extern void set_sa_item(sa_tree head, int n, sa_tree_item v, int gl);
 
-extern sa_tree new_sa_tree(integer size, sa_tree_item dflt);
+extern sa_tree new_sa_tree(int size, sa_tree_item dflt);
 
 extern sa_tree copy_sa_tree(sa_tree head);
 extern void destroy_sa_tree(sa_tree head);
@@ -71,7 +71,7 @@ extern void destroy_sa_tree(sa_tree head);
 extern void dump_sa_tree(sa_tree a);
 extern sa_tree undump_sa_tree(void);
 
-extern void restore_sa_stack(sa_tree a, integer gl);
+extern void restore_sa_stack(sa_tree a, int gl);
 extern void clear_sa_stack(sa_tree a);
 
 #endif

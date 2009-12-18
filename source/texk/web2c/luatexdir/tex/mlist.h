@@ -24,13 +24,12 @@
 #  define MLIST_H 1
 
 extern pointer cur_mlist;
-extern integer cur_style;
+extern int cur_style;
 extern boolean mlist_penalties;
-extern integer cur_size;
+extern int cur_size;
 
-void run_mlist_to_hlist(halfword, integer, boolean);
-void fixup_math_parameters(integer fam_id, integer size_id, integer f,
-                           integer lvl);
+void run_mlist_to_hlist(halfword, int, boolean);
+void fixup_math_parameters(int fam_id, int size_id, int f, int lvl);
 
 
 scaled get_math_quad(int a);

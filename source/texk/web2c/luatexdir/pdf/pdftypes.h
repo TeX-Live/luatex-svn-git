@@ -50,7 +50,7 @@ typedef struct {
     pdffloat v;
 } pdfpos;
 
-#  define scaled integer
+#  define scaled int
 
 typedef struct scaledpos_ {
     scaled h;
@@ -114,30 +114,30 @@ typedef struct {
 
 typedef struct obj_entry_ {
     union {
-        integer int0;
+        int int0;
         char *str0;
     } u;
-    integer int1;
+    int int1;
     off_t int2;
-    integer int3;
+    int int3;
     union {
-        integer int4;
+        int int4;
         char *str4;
     } v;
-    integer objtype;            /* integer int5 */
+    int objtype;                /* integer int5 */
 } obj_entry;
 
 typedef struct dest_name_entry_ {
     char *objname;              /* destination name */
-    integer objnum;             /* destination object number */
+    int objnum;                 /* destination object number */
 } dest_name_entry;
 
 #  define pdf_max_link_level  10        /* maximum depth of link nesting */
 
 typedef struct pdf_link_stack_record {
-    integer nesting_level;
-    integer link_node;          /* holds a copy of the corresponding |pdf_start_link_node| */
-    integer ref_link_node;      /* points to original |pdf_start_link_node|, or a
+    int nesting_level;
+    int link_node;              /* holds a copy of the corresponding |pdf_start_link_node| */
+    int ref_link_node;          /* points to original |pdf_start_link_node|, or a
                                    copy of |link_node| created by |append_link| in
                                    case of multi-line link */
 } pdf_link_stack_record;
@@ -175,9 +175,9 @@ typedef struct pdf_resource_struct_ {
     pdf_object_list *link_list; /* the pdf links */
     pdf_object_list *bead_list; /* the thread beads */
     pdf_object_list *annot_list;        /* the pdf annotations */
-    integer text_procset;       /* |pdf_text_procset| */
-    integer image_procset;      /* |pdf_image_procset| */
-    integer last_resources;     /* halfword to most recently generated Resources object. */
+    int text_procset;           /* |pdf_text_procset| */
+    int image_procset;          /* |pdf_image_procset| */
+    int last_resources;         /* halfword to most recently generated Resources object. */
 } pdf_resource_struct;
 
 typedef struct pdf_output_file_ {
@@ -269,29 +269,29 @@ typedef struct pdf_output_file_ {
        TH: this used to be a local in pdf_shipout, but I would like to 
        be able to split that function into a pre- and post part */
 
-    integer obj_count;
-    integer xform_count;
-    integer ximage_count;
+    int obj_count;
+    int xform_count;
+    int ximage_count;
 
     pdf_resource_struct *resources;
 
     /* the variables from pdfdest */
-    integer dest_names_size;
-    integer dest_names_ptr;
+    int dest_names_size;
+    int dest_names_ptr;
     dest_name_entry *dest_names;
     /* the (static) variables from pdfoutline */
-    integer first_outline;
-    integer last_outline;
-    integer parent_outline;
+    int first_outline;
+    int last_outline;
+    int parent_outline;
     /* the pdf link stack */
     pdf_link_stack_record link_stack[(pdf_max_link_level + 1)];
-    integer link_stack_ptr;
+    int link_stack_ptr;
     /* the thread data */
-    integer last_thread;        /* pointer to the last thread */
+    int last_thread;            /* pointer to the last thread */
     scaled_whd thread;
-    integer last_thread_id;     /* identifier of the last thread */
+    int last_thread_id;         /* identifier of the last thread */
     int last_thread_named_id;   /* is identifier of the last thread named */
-    integer thread_level;       /* depth of nesting of box containing the last thread */
+    int thread_level;           /* depth of nesting of box containing the last thread */
 
     int f_cur;                  /* TeX font number */
 } pdf_output_file;

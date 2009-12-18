@@ -244,7 +244,7 @@ static int get_cur_cs(lua_State * L)
     char *s;
     unsigned j;
     size_t l;
-    integer cs;
+    int cs;
     int save_nncs;
     int ret;
     ret = 0;
@@ -352,7 +352,7 @@ int tokenlist_from_lua(lua_State * L)
     }
 }
 
-void do_get_token_lua(integer callback_id)
+void do_get_token_lua(int callback_id)
 {
     lua_State *L = Luas;
     while (1) {
@@ -369,7 +369,7 @@ void do_get_token_lua(integer callback_id)
         if (lua_istable(L, -1)) {
             lua_rawgeti(L, -1, 1);
             if (lua_istable(L, -1)) {   /* container, result, result[1] */
-                integer p, q, r;
+                int p, q, r;
                 int i, j;
                 lua_pop(L, 1);  /* container, result */
                 /* build a token list */

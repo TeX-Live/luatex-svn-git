@@ -54,11 +54,11 @@ A global boolean variable called |no_new_control_sequence| is set to
 
 two_halves *hash;               /* the hash table */
 halfword hash_used;             /* allocation pointer for |hash| */
-integer hash_extra;             /* |hash_extra=hash| above |eqtb_size| */
+int hash_extra;                 /* |hash_extra=hash| above |eqtb_size| */
 halfword hash_top;              /* maximum of the hash array */
 halfword hash_high;             /* pointer to next high hash location */
 boolean no_new_control_sequence;        /* are new identifiers legal? */
-integer cs_count;               /* total number of known identifiers */
+int cs_count;                   /* total number of known identifiers */
 
 #define hash_is_full (hash_used==hash_base)     /* test if all positions are occupied */
 
@@ -140,7 +140,7 @@ static halfword compute_hash(char *j, pool_pointer l, halfword prime_number)
 
 pointer prim_lookup(str_number s)
 {
-    integer h;                  /* hash code */
+    int h;                      /* hash code */
     pointer p;                  /* index in |hash| array */
     unsigned char *j;
     unsigned l;
@@ -188,7 +188,7 @@ pointer prim_lookup(str_number s)
 
 boolean is_primitive(str_number csname)
 {
-    integer n, m;
+    int n, m;
     char *ss;
     m = prim_lookup(csname);
     ss = makecstring(csname);
@@ -202,22 +202,22 @@ boolean is_primitive(str_number csname)
 
 /* a few simple accessors */
 
-quarterword get_prim_eq_type(integer p)
+quarterword get_prim_eq_type(int p)
 {
     return prim_eq_type(p);
 }
 
-quarterword get_prim_origin(integer p)
+quarterword get_prim_origin(int p)
 {
     return prim_origin(p);
 }
 
-halfword get_prim_equiv(integer p)
+halfword get_prim_equiv(int p)
 {
     return prim_equiv(p);
 }
 
-str_number get_prim_text(integer p)
+str_number get_prim_text(int p)
 {
     return prim_text(p);
 }
@@ -334,7 +334,7 @@ store_primitive_name(str_number s, quarterword c, halfword o, halfword offset)
 void
 primitive(char *thes, quarterword c, halfword o, halfword off, int cmd_origin)
 {
-    integer prim_val;           /* needed to fill |prim_eqtb| */
+    int prim_val;               /* needed to fill |prim_eqtb| */
     str_number ss;
     assert(o >= off);
     ss = maketexstring(thes);
@@ -379,15 +379,15 @@ static halfword insert_id(halfword p, unsigned char *j, pool_pointer l)
             p = hash_used;
         }
     }
-    saved_cur_length      = cur_length;
-    saved_cur_string      = cur_string;
+    saved_cur_length = cur_length;
+    saved_cur_string = cur_string;
     saved_cur_string_size = cur_string_size;
     reset_cur_string();
     for (k = j; k <= j + l - 1; k++)
         append_char(*k);
     cs_text(p) = make_string();
-    cur_length      = saved_cur_length;
-    cur_string      = saved_cur_string;
+    cur_length = saved_cur_length;
+    cur_string = saved_cur_string;
     cur_string_size = saved_cur_string_size;
     incr(cs_count);
     return p;
@@ -405,9 +405,9 @@ static halfword insert_id(halfword p, unsigned char *j, pool_pointer l)
 */
 
 
-pointer id_lookup(integer j, integer l)
+pointer id_lookup(int j, int l)
 {                               /* search the hash table */
-    integer h;                  /* hash code */
+    int h;                      /* hash code */
     pointer p;                  /* index in |hash| array */
 
     h = compute_hash((char *) (buffer + j), l, hash_prime);
@@ -424,7 +424,7 @@ pointer id_lookup(integer j, integer l)
     p = h + hash_base;          /* we start searching here; note that |0<=h<hash_prime| */
     while (1) {
         if (cs_text(p) > 0)
-            if (str_length(cs_text(p)) == (unsigned)l)
+            if (str_length(cs_text(p)) == (unsigned) l)
                 if (str_eq_buf(cs_text(p), j))
                     goto FOUND;
         if (cs_next(p) == 0) {
@@ -449,7 +449,7 @@ pointer id_lookup(integer j, integer l)
 
 pointer string_lookup(char *s, size_t l)
 {                               /* search the hash table */
-    integer h;                  /* hash code */
+    int h;                      /* hash code */
     pointer p;                  /* index in |hash| array */
     h = compute_hash(s, l, hash_prime);
     p = h + hash_base;          /* we start searching here; note that |0<=h<hash_prime| */
@@ -507,7 +507,7 @@ void prim_cmd_chr(quarterword cmd, halfword chr_code)
 
 void print_cmd_chr(quarterword cmd, halfword chr_code)
 {
-    integer n;                  /* temp variable */
+    int n;                      /* temp variable */
     switch (cmd) {
     case left_brace_cmd:
         chr_cmd("begin-group character ");

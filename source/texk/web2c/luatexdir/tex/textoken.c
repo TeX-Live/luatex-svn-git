@@ -74,7 +74,7 @@ maximum memory usage. When code between the delimiters |@!stat| $\ldots$
 report these statistics when |tracing_stats| is sufficiently large.
 */
 
-integer var_used, dyn_used;     /* how much memory is in use */
+int var_used, dyn_used;         /* how much memory is in use */
 
 halfword avail;                 /* head of the list of available one-word nodes */
 halfword fix_mem_end;           /* the last one-word node used in |mem| */
@@ -126,7 +126,7 @@ If, that doesn't work, we have to quit.
 halfword get_avail(void)
 {                               /* single-word node allocation */
     halfword p;                 /* the new node being got */
-    integer t;
+    int t;
     p = avail;                  /* get top location in the |avail| stack */
     if (p != null) {
         avail = token_link(avail);      /* and pop it off */
@@ -309,15 +309,15 @@ form of control sequences that are not followed by a blank space, e.g.,
 a real control sequence named \.{BAD} would come out `\.{\\BAD\ }'.
 */
 
-void show_token_list(integer p, integer q, integer l)
+void show_token_list(int p, int q, int l)
 {
-    integer m, c;               /* pieces of a token */
+    int m, c;                   /* pieces of a token */
     ASCII_code match_chr;       /* character used in a `|match|' */
     ASCII_code n;               /* the highest parameter number, as an ASCII digit */
     match_chr = '#';
     n = '0';
     tally = 0;
-    if (l<0)
+    if (l < 0)
         l = 0x3FFFFFFF;
     while ((p != null) && (tally < l)) {
         if (p == q) {
@@ -517,8 +517,8 @@ boolean scan_keyword(char *s)
         }
         flush_list(token_link(backup_head));
     }
-   cur_cs = save_cur_cs;
-   return true;
+    cur_cs = save_cur_cs;
+    return true;
 }
 
 /* We can not return |undefined_control_sequence| under some conditions
@@ -656,7 +656,7 @@ statements waiting to be input, it is changed by |luatokencall|.
 */
 
 boolean force_eof;              /* should the next \.{\\input} be aborted early? */
-integer luacstrings;            /* how many lua strings are waiting to be input? */
+int luacstrings;                /* how many lua strings are waiting to be input? */
 
 /*
 If the user has set the |pausing| parameter to some positive value,
@@ -669,7 +669,7 @@ used instead of the line in the file.
 
 void firm_up_the_line(void)
 {
-    integer k;                  /* an index into |buffer| */
+    int k;                      /* an index into |buffer| */
     ilimit = last;
     if (pausing > 0) {
         if (interaction > nonstop_mode) {
@@ -1090,7 +1090,7 @@ static boolean process_sup_mark(void)
    buffer and the process is repeated, slowly but surely.
 */
 
-static boolean check_expanded_code(integer * kk);       /* below */
+static boolean check_expanded_code(int *kk);    /* below */
 
 static int scan_control_sequence(void)
 {
@@ -1100,7 +1100,7 @@ static int scan_control_sequence(void)
     } else {
         register int cat;       /* |cat_code(cur_chr)|, usually */
         while (1) {
-            integer k = iloc;
+            int k = iloc;
             do_buffer_to_unichar(cur_chr, k);
             do_get_cat_code(cat);
             if (cat != letter_cmd || k > ilimit) {
@@ -1144,7 +1144,7 @@ static int scan_control_sequence(void)
    the buffer left two or three places.
 */
 
-static boolean check_expanded_code(integer * kk)
+static boolean check_expanded_code(int *kk)
 {
     int l;
     int k = *kk;
@@ -1545,11 +1545,11 @@ static halfword lua_str_toks(lstring b)
     halfword p;                 /* tail of the token list */
     halfword q;                 /* new node being added to the token list via |store_new_token| */
     halfword t;                 /* token being appended */
-    unsigned char *k;             /* index into string */
+    unsigned char *k;           /* index into string */
     p = temp_token_head;
     set_token_link(p, null);
-    k = (unsigned char *)b.s;
-    while (k < (unsigned char *)b.s+b.l) {
+    k = (unsigned char *) b.s;
+    while (k < (unsigned char *) b.s + b.l) {
         t = pool_to_unichar(k);
         k += utf8_size(t);
         if (t == ' ') {
@@ -1585,7 +1585,7 @@ halfword str_toks(lstring s)
     set_token_link(p, null);
     k = s.s;
     l = k + s.l;
-    while (k<l) {
+    while (k < l) {
         t = pool_to_unichar(k);
         k += utf8_size(t);
         if (t == ' ')
@@ -1611,9 +1611,9 @@ void ins_the_toks(void)
    the code |c|. The function exists because lua code and tex code can
    both call it to convert something. */
 
-static boolean print_convert_string(halfword c, integer i)
+static boolean print_convert_string(halfword c, int i)
 {
-    integer ff;                 /* for use with |set_ff| */
+    int ff;                     /* for use with |set_ff| */
     boolean ret = true;
     switch (c) {
     case number_code:
@@ -1656,7 +1656,7 @@ static boolean print_convert_string(halfword c, integer i)
         print(job_name);
         break;
     case font_name_code:
-        append_string((unsigned char *)font_name(i),strlen(font_name(i)));
+        append_string((unsigned char *) font_name(i), strlen(font_name(i)));
         if (font_size(i) != font_dsize(i)) {
             tprint(" at ");
             print_scaled(font_size(i));
@@ -1701,9 +1701,9 @@ static boolean print_convert_string(halfword c, integer i)
 }
 
 
-integer scan_lua_state(void)
+int scan_lua_state(void)
 {
-    integer sn = 0;
+    int sn = 0;
     if (scan_keyword("name")) {
         scan_pdf_ext_toks();
         sn = def_ref;
@@ -1745,10 +1745,10 @@ void conv_toks(void)
     halfword save_warning_index;
     boolean bool;               /* temp boolean */
     str_number s;               /* first temp string */
-    integer sn;                 /* lua chunk name */
+    int sn;                     /* lua chunk name */
     str_number u = 0;           /* third temp string, will become non-nil if a string is already being built */
-    integer i = 0;              /* first temp integer */
-    integer j = 0;              /* second temp integer */
+    int i = 0;                  /* first temp integer */
+    int j = 0;                  /* second temp integer */
     int c = cur_chr;            /* desired type of conversion */
     str_number str;
     /* Scan the argument for command |c| */
@@ -1850,15 +1850,15 @@ void conv_toks(void)
     case lua_escape_string_code:
         {
             lstring str;
-	    int l = 0;
+            int l = 0;
             save_scanner_status = scanner_status;
             save_def_ref = def_ref;
             save_warning_index = warning_index;
             scan_pdf_ext_toks();
             bool = in_lua_escape;
             in_lua_escape = true;
-            str.s = (unsigned char *)tokenlist_to_cstring(def_ref, false, &l);
-	    str.l = (unsigned)l;
+            str.s = (unsigned char *) tokenlist_to_cstring(def_ref, false, &l);
+            str.l = (unsigned) l;
             in_lua_escape = bool;
             delete_token_ref(def_ref);
             def_ref = save_def_ref;
@@ -2033,7 +2033,7 @@ boolean is_convert(halfword c)
     return (c == convert_cmd);
 }
 
-str_number the_convert_string(halfword c, integer i)
+str_number the_convert_string(halfword c, int i)
 {
     int old_setting;            /* saved |selector| setting */
     str_number ret = 0;
@@ -2075,11 +2075,11 @@ macro definition, and makes |cur_val| point to it. Parameter |r| points
 to the control sequence that will receive this token list.
 */
 
-void read_toks(integer n, halfword r, halfword j)
+void read_toks(int n, halfword r, halfword j)
 {
     halfword p;                 /* tail of the token list */
     halfword q;                 /* new node being added to the token list via |store_new_token| */
-    integer s;                  /* saved value of |align_state| */
+    int s;                      /* saved value of |align_state| */
     int m;                      /* stream number */
     scanner_status = defining;
     warning_index = r;
@@ -2255,9 +2255,9 @@ str_number tokens_to_string(halfword p)
 
 char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
 {
-    register integer p, c, m;
-    integer q;
-    integer infop;
+    register int p, c, m;
+    int q;
+    int infop;
     char *s, *sh;
     int e;
     char *ret;
@@ -2385,7 +2385,9 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
 lstring *tokenlist_to_lstring(int pp, int inhibit_par)
 {
     lstring *ret = xmalloc(sizeof(lstring));
-    ret->s = (unsigned char *)tokenlist_to_cstring(pp, inhibit_par, (int *) &(ret->l));
+    ret->s =
+        (unsigned char *) tokenlist_to_cstring(pp, inhibit_par,
+                                               (int *) &(ret->l));
     return ret;
 }
 

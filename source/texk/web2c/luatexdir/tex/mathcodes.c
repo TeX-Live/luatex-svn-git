@@ -22,7 +22,7 @@
 
 
 
-extern void rawset_sa_item(sa_tree head, integer n, integer v);
+extern void rawset_sa_item(sa_tree head, int n, int v);
 
 static const char __svn_version[] =
     "$Id$ $URL$";
@@ -34,8 +34,8 @@ static sa_tree mathcode_head = NULL;
 #define MATHCODEHEAP 8
 
 static mathcodeval *mathcode_heap = NULL;
-static integer mathcode_heapsize = MATHCODEHEAP;
-static integer mathcode_heapptr = 0;
+static int mathcode_heapsize = MATHCODEHEAP;
+static int mathcode_heapptr = 0;
 
 /* the 0xFFFFFFFF is a flag value */
 #define MATHCODESTACK 8
@@ -48,8 +48,8 @@ static sa_tree delcode_head = NULL;
 #define DELCODEHEAP 8
 
 static delcodeval *delcode_heap = NULL;
-static integer delcode_heapsize = DELCODEHEAP;
-static integer delcode_heapptr = 0;
+static int delcode_heapsize = DELCODEHEAP;
+static int delcode_heapptr = 0;
 
 #define DELCODESTACK 4
 #define DELCODEDEFAULT 0xFFFFFFFF
@@ -105,7 +105,7 @@ void show_mathcode_value(mathcodeval c)
 }
 
 
-void show_mathcode(integer n)
+void show_mathcode(int n)
 {
     mathcodeval c = get_math_code(n);
     if (c.origin_value == aleph_mathcode) {
@@ -129,7 +129,7 @@ void unsavemathcode(quarterword gl)
         return;
     while (mathcode_head->stack_ptr > 0 &&
            abs(mathcode_head->stack[mathcode_head->stack_ptr].level)
-           >= (integer) gl) {
+           >= (int) gl) {
         st = mathcode_head->stack[mathcode_head->stack_ptr];
         if (st.level > 0) {
             rawset_sa_item(mathcode_head, st.code, st.value);
@@ -148,10 +148,10 @@ void unsavemathcode(quarterword gl)
     }
 }
 
-void set_math_code(integer n,
-                   integer commandorigin,
-                   integer mathclass,
-                   integer mathfamily, integer mathcharacter, quarterword level)
+void set_math_code(int n,
+                   int commandorigin,
+                   int mathclass,
+                   int mathfamily, int mathcharacter, quarterword level)
 {
     mathcodeval d;
     d.origin_value = commandorigin;
@@ -177,7 +177,7 @@ void set_math_code(integer n,
     }
 }
 
-mathcodeval get_math_code(integer n)
+mathcodeval get_math_code(int n)
 {
     unsigned int ret;
     ret = get_sa_item(mathcode_head, n);
@@ -195,7 +195,7 @@ mathcodeval get_math_code(integer n)
 }
 
 
-integer get_math_code_num(integer n)
+int get_math_code_num(int n)
 {
     mathcodeval mval;
     mval = get_math_code(n);
@@ -221,7 +221,7 @@ void initializemathcode(void)
 
 void dumpmathcode(void)
 {
-    integer k;
+    int k;
     mathcodeval d;
     dump_sa_tree(mathcode_head);
     dump_int(mathcode_heapsize);
@@ -237,7 +237,7 @@ void dumpmathcode(void)
 
 void undumpmathcode(void)
 {
-    integer k, x;
+    int k, x;
     mathcodeval d;
     mathcode_head = undump_sa_tree();
     undump_int(mathcode_heapsize);
@@ -264,7 +264,7 @@ void undumpmathcode(void)
 }
 
 
-void show_delcode(integer n)
+void show_delcode(int n)
 {
     delcodeval c;
     c = get_del_code(n);
@@ -319,7 +319,7 @@ void unsavedelcode(quarterword gl)
         return;
     while (delcode_head->stack_ptr > 0 &&
            abs(delcode_head->stack[delcode_head->stack_ptr].level)
-           >= (integer) gl) {
+           >= (int) gl) {
         st = delcode_head->stack[delcode_head->stack_ptr];
         if (st.level > 0) {
             rawset_sa_item(delcode_head, st.code, st.value);
@@ -339,11 +339,11 @@ void unsavedelcode(quarterword gl)
 
 }
 
-void set_del_code(integer n,
-                  integer commandorigin,
-                  integer smathfamily,
-                  integer smathcharacter,
-                  integer lmathfamily, integer lmathcharacter, quarterword gl)
+void set_del_code(int n,
+                  int commandorigin,
+                  int smathfamily,
+                  int smathcharacter,
+                  int lmathfamily, int lmathcharacter, quarterword gl)
 {
     delcodeval d;
     d.class_value = 0;
@@ -371,7 +371,7 @@ void set_del_code(integer n,
     delcode_heapptr++;
 }
 
-delcodeval get_del_code(integer n)
+delcodeval get_del_code(int n)
 {
     unsigned ret;
     ret = get_sa_item(delcode_head, n);
@@ -390,7 +390,7 @@ delcodeval get_del_code(integer n)
 }
 
 /* this really only works for old-style delcodes! */
-integer get_del_code_num(integer n)
+int get_del_code_num(int n)
 {
     unsigned ret;
     ret = get_sa_item(delcode_head, n);
@@ -417,7 +417,7 @@ void initializedelcode(void)
 
 void dumpdelcode(void)
 {
-    integer k;
+    int k;
     delcodeval d;
     dump_sa_tree(delcode_head);
     dump_int(delcode_heapsize);
@@ -435,7 +435,7 @@ void dumpdelcode(void)
 
 void undumpdelcode(void)
 {
-    integer k;
+    int k;
     delcodeval d;
     delcode_head = undump_sa_tree();
     undump_int(delcode_heapsize);

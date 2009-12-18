@@ -34,9 +34,9 @@ typedef struct in_state_record {
     halfword limit_field;
     halfword name_field;
     halfword ocp_lstack_field;  /* used for omega translation processes */
-    integer synctex_tag_field;  /* stack the tag of the current file */
+    int synctex_tag_field;      /* stack the tag of the current file */
     halfword ocp_no_field:16;   /* used for omega translation processes */
-    integer cattable_field:16;  /* category table used by the current line (see textoken.c) */
+    int cattable_field:16;      /* category table used by the current line (see textoken.c) */
     quarterword state_field:8;
     quarterword index_field:8;
     boolean partial_field:8;    /* is the current line partial? (see textoken.c) */
@@ -44,8 +44,8 @@ typedef struct in_state_record {
 } in_state_record;
 
 extern in_state_record *input_stack;
-extern integer input_ptr;
-extern integer max_in_stack;
+extern int input_ptr;
+extern int max_in_stack;
 extern in_state_record cur_input;       /* the ``top'' input state */
 
 #  define  iloc cur_input.loc_field     /* location of first unread character in |buffer| */
@@ -156,11 +156,11 @@ by analogy with |line_stack|.
 #  define terminal_input (iname==0)     /* are we reading from the terminal? */
 #  define cur_file input_file[iindex]   /* the current |alpha_file| variable */
 
-extern integer in_open;
-extern integer open_parens;
+extern int in_open;
+extern int open_parens;
 extern alpha_file *input_file;
-extern integer line;
-extern integer *line_stack;
+extern int line;
+extern int *line_stack;
 extern str_number *source_filename_stack;
 extern char **full_source_filename_stack;
 
@@ -204,7 +204,7 @@ typedef enum {
     absorbing = 5,              /* |scanner_status| when reading a balanced text */
 } scanner_states;
 
-extern integer scanner_status;
+extern int scanner_status;
 extern pointer warning_index;
 extern pointer def_ref;
 
@@ -314,12 +314,12 @@ typedef enum {
 } token_types;
 
 extern pointer *param_stack;
-extern integer param_ptr;
-extern integer max_param_stack;
+extern int param_ptr;
+extern int max_param_stack;
 
-extern integer align_state;
+extern int align_state;
 
-extern integer base_ptr;
+extern int base_ptr;
 
 extern void show_context(void);
 extern void set_trick_count(void);

@@ -178,7 +178,7 @@ void math_param_error(char *param, int style)
 }
 
 
-static scaled accent_base_height(integer f)
+static scaled accent_base_height(int f)
 {
     scaled a;
     a = x_height(f);
@@ -680,8 +680,7 @@ boolean check_necessary_fonts(void)
     return false;               /* temp */
 }
 
-void fixup_math_parameters(integer fam_id, integer size_id, integer f,
-                           integer lvl)
+void fixup_math_parameters(int fam_id, int size_id, int f, int lvl)
 {
     if (is_new_mathfont(f)) {   /* fix all known parameters */
 
@@ -919,10 +918,12 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
                                               FractionDenominatorDisplayStyleShiftDown),
                                 lvl);
 
-        DEFINE_MATH_PARAMETERS(math_param_fraction_del_size, size_id, 
+        DEFINE_MATH_PARAMETERS(math_param_fraction_del_size, size_id,
                                font_MATH_par(f, FractionDelimiterSize), lvl);
-        DEFINE_DMATH_PARAMETERS(math_param_fraction_del_size, size_id, 
-                                font_MATH_par(f, FractionDelimiterDisplayStyleSize), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_fraction_del_size, size_id,
+                                font_MATH_par(f,
+                                              FractionDelimiterDisplayStyleSize),
+                                lvl);
 
         DEFINE_MATH_PARAMETERS(math_param_space_after_script, size_id,
                                font_MATH_par(f, SpaceAfterScript), lvl);
@@ -1177,7 +1178,7 @@ void fixup_math_parameters(integer fam_id, integer size_id, integer f,
 /* this needs to be called just at the start of |mlist_to_hlist| */
 void finalize_math_parameters(void)
 {
-    integer saved_trace = int_par(tracing_assigns_code);
+    int saved_trace = int_par(tracing_assigns_code);
     int_par(tracing_assigns_code) = 0;
     if (get_math_param(math_param_space_after_script, display_style) ==
         undefined_math_parameter) {
@@ -1215,7 +1216,7 @@ larger as the type gets smaller.)
 */
 
 
-char *math_size_string(integer s)
+char *math_size_string(int s)
 {
     if (s == text_size)
         return "textfont";
@@ -1309,7 +1310,7 @@ pointer overbar(pointer b, scaled k, scaled t, scaled ht, pointer att)
   may deliver a slightly different result than |hpack| would produce.
 */
 
-static pointer char_box(internal_font_number f, integer c, pointer bb)
+static pointer char_box(internal_font_number f, int c, pointer bb)
 {
     pointer b, p;               /* the new box and its character node */
     b = new_null_box();
@@ -1328,7 +1329,7 @@ static pointer char_box(internal_font_number f, integer c, pointer bb)
  a given character:
 */
 
-scaled height_plus_depth(internal_font_number f, integer c)
+scaled height_plus_depth(internal_font_number f, int c)
 {
     return (char_height(f, c) + char_depth(f, c));
 }
@@ -1340,7 +1341,7 @@ scaled height_plus_depth(internal_font_number f, integer c)
   of the characters already in box |b|:
 */
 
-scaled stack_into_box(pointer b, internal_font_number f, integer c)
+scaled stack_into_box(pointer b, internal_font_number f, int c)
 {
     pointer p;                  /* new node placed into |b| */
     p = char_box(f, c, node_attr(b));
@@ -1351,7 +1352,7 @@ scaled stack_into_box(pointer b, internal_font_number f, integer c)
 }
 
 
-scaled stack_into_hbox(pointer b, internal_font_number f, integer c)
+scaled stack_into_hbox(pointer b, internal_font_number f, int c)
 {
     pointer p, q;               /* new node placed into |b| */
     p = char_box(f, c, node_attr(b));
@@ -1409,8 +1410,8 @@ pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
     scaled b_max;               /* natural (maximum) height of the stack */
     scaled s_max;               /* amount of possible shrink in the stack */
     scaled a, wd, ht, dp, last_ht;
-    integer cc;                 /* a temporary character code for extensibles  */
-    integer i;                  /* a temporary counter number of extensible pieces */
+    int cc;                     /* a temporary character code for extensibles  */
+    int i;                      /* a temporary counter number of extensible pieces */
     int with_extenders;
     int num_extenders, num_normal, num_total;
     scaled c, d, u;
@@ -1759,7 +1760,7 @@ pointer get_delim_hbox(extinfo * ext, internal_font_number f, scaled v,
   will be the height of its topmost component.
 */
 
-static void endless_loop_error(internal_font_number g, integer y)
+static void endless_loop_error(internal_font_number g, int y)
 {
     char s[256];
     char *hlp[] = {
@@ -1773,15 +1774,15 @@ static void endless_loop_error(internal_font_number g, integer y)
     tex_error(s, hlp);
 }
 
-static pointer var_delimiter(pointer d, integer s, scaled v, scaled *ic)
+static pointer var_delimiter(pointer d, int s, scaled v, scaled * ic)
 {
     /* label found,continue; */
     pointer b;                  /* the box that will be constructed */
     internal_font_number f, g;  /* best-so-far and tentative font codes */
-    integer c, i, x, y;         /* best-so-far and tentative character codes */
+    int c, i, x, y;             /* best-so-far and tentative character codes */
     scaled u;                   /* height-plus-depth of a tentative character */
     scaled w;                   /* largest height-plus-depth so far */
-    integer z;                  /* runs through font family members */
+    int z;                      /* runs through font family members */
     boolean large_attempt;      /* are we trying the ``large'' variant? */
     pointer att;                /* to save the current attribute list */
     extinfo *ext;
@@ -1855,13 +1856,13 @@ static pointer var_delimiter(pointer d, integer s, scaled v, scaled *ic)
         } else {
             b = char_box(f, c, att);
         }
-        if (ic!=NULL)
+        if (ic != NULL)
             *ic = char_italic(f, c);
     } else {
         b = new_null_box();
         reset_attributes(b, att);
         width(b) = null_delimiter_space;        /* use this width if no delimiter was found */
-        if (ic!=NULL)
+        if (ic != NULL)
             *ic = 0;
     }
     shift_amount(b) = half(height(b) - depth(b)) - math_axis(s);
@@ -1869,15 +1870,15 @@ static pointer var_delimiter(pointer d, integer s, scaled v, scaled *ic)
     return b;
 }
 
-pointer flat_var_delimiter(pointer d, integer s, scaled v)
+pointer flat_var_delimiter(pointer d, int s, scaled v)
 {
     /* label found,continue; */
     pointer b;                  /* the box that will be constructed */
     internal_font_number f, g;  /* best-so-far and tentative font codes */
-    integer c, i, x, y;         /* best-so-far and tentative character codes */
+    int c, i, x, y;             /* best-so-far and tentative character codes */
     scaled u;                   /* height-plus-depth of a tentative character */
     scaled w;                   /* largest height-plus-depth so far */
-    integer z;                  /* runs through font family members */
+    int z;                      /* runs through font family members */
     boolean large_attempt;      /* are we trying the ``large'' variant? */
     pointer att;                /* to save the current attribute list */
     extinfo *ext;
@@ -2031,7 +2032,7 @@ one that is expressed in `\.{mu}', given the value of the math unit.
 pointer math_glue(pointer g, scaled m)
 {
     pointer p;                  /* the new glue specification */
-    integer n;                  /* integer part of |m| */
+    int n;                      /* integer part of |m| */
     scaled f;                   /* fraction part of |m| */
     n = x_over_n(m, unity);
     f = tex_remainder;
@@ -2061,7 +2062,7 @@ the value of the math unit.
 
 void math_kern(pointer p, scaled m)
 {
-    integer n;                  /* integer part of |m| */
+    int n;                      /* integer part of |m| */
     scaled f;                   /* fraction part of |m| */
     if (subtype(p) == mu_glue) {
         n = x_over_n(m, unity);
@@ -2093,12 +2094,12 @@ that stresses compactness over efficiency.
 */
 
 pointer cur_mlist;              /* beginning of mlist to be translated */
-integer cur_style;              /* style code at current place in the list */
-integer cur_size;               /* size code corresponding to |cur_style|  */
+int cur_style;                  /* style code at current place in the list */
+int cur_size;                   /* size code corresponding to |cur_style|  */
 scaled cur_mu;                  /* the math unit width corresponding to |cur_size| */
 boolean mlist_penalties;        /* should |mlist_to_hlist| insert penalties? */
 
-void run_mlist_to_hlist(halfword p, integer mstyle, boolean penalties)
+void run_mlist_to_hlist(halfword p, int mstyle, boolean penalties)
 {
     int callback_id;
     int a, sfix;
@@ -2150,10 +2151,10 @@ The box returned by |clean_box| is ``clean'' in the
 sense that its |shift_amount| is zero.
 */
 
-pointer clean_box(pointer p, integer s)
+pointer clean_box(pointer p, int s)
 {
     pointer q;                  /* beginning of a list to be boxed */
-    integer save_style;         /* |cur_style| to be restored */
+    int save_style;             /* |cur_style| to be restored */
     pointer x;                  /* box to be returned */
     pointer r;                  /* temporary pointer */
     switch (type(p)) {
@@ -2220,7 +2221,7 @@ after |fetch| has acted, and the field will also have been reset to |null|.
 /* The outputs of |fetch| are placed in global variables. */
 
 internal_font_number cur_f;     /* the |font| field of a |math_char| */
-integer cur_c;                  /* the |character| field of a |math_char| */
+int cur_c;                      /* the |character| field of a |math_char| */
 
 void fetch(pointer a)
 {                               /* unpack the |math_char| field |a| */
@@ -2546,7 +2547,7 @@ respect to the size of the final box.
 #define TOP_CODE 1
 #define BOT_CODE 2
 
-void do_make_math_accent(pointer q, internal_font_number f, integer c,
+void do_make_math_accent(pointer q, internal_font_number f, int c,
                          int top_or_bot)
 {
     pointer p, r, x, y;         /* temporary registers for box construction */
@@ -2599,7 +2600,7 @@ void do_make_math_accent(pointer q, internal_font_number f, integer c,
         } else if (char_tag(f, c) != list_tag) {
             break;
         } else {
-            integer yy = char_remainder(f, c);
+            int yy = char_remainder(f, c);
             if (!char_exists(f, yy))
                 break;
             if (char_width(f, yy) > w)
@@ -2813,7 +2814,7 @@ scaled make_op(pointer q)
 {
     scaled delta;               /* offset between subscript and superscript */
     pointer p, v, x, y, z;      /* temporary registers for box construction */
-    integer c;                  /* register for character examination */
+    int c;                      /* register for character examination */
     scaled shift_up, shift_down;        /* dimensions for box calculation */
     scaled ok_size;
     if ((subtype(q) == op_noad_type_normal) && (cur_style < text_style))
@@ -2958,7 +2959,7 @@ No boundary characters enter into these ligatures.
 
 void make_ord(pointer q)
 {
-    integer a;                  /* the left-side character for lig/kern testing */
+    int a;                      /* the left-side character for lig/kern testing */
     pointer p, r, s;            /* temporary registers for list manipulation */
     scaled k;                   /* a kern */
     liginfo lig;                /* a ligature */
@@ -3066,7 +3067,7 @@ void make_ord(pointer q)
    actual images say 
 */
 
-scaled math_kern_at(internal_font_number f, integer c, int side, int v)
+scaled math_kern_at(internal_font_number f, int c, int side, int v)
 {
     int h, k, numkerns;
     scaled *kerns_heights;
@@ -3111,8 +3112,8 @@ scaled math_kern_at(internal_font_number f, integer c, int side, int v)
 
 
 scaled
-find_math_kern(internal_font_number l_f, integer l_c,
-               internal_font_number r_f, integer r_c, int cmd, scaled shift)
+find_math_kern(internal_font_number l_f, int l_c,
+               internal_font_number r_f, int r_c, int cmd, scaled shift)
 {
     scaled corr_height_top = 0, corr_height_bot = 0;
     scaled krn_l = 0, krn_r = 0, krn = 0;
@@ -3415,8 +3416,7 @@ the required size and returns the value |open_noad| or |close_noad|. The
 so they will have consistent sizes.
 */
 
-small_number make_left_right(pointer q, integer style, scaled max_d,
-                             scaled max_hv)
+small_number make_left_right(pointer q, int style, scaled max_d, scaled max_hv)
 {
     scaled delta, delta1, delta2;       /* dimensions used in the calculation */
     pointer tmp;
@@ -3650,17 +3650,17 @@ void mlist_to_hlist(void)
 {
     pointer mlist;              /* beginning of the given list */
     boolean penalties;          /* should penalty nodes be inserted? */
-    integer style;              /* the given style */
-    integer save_style;         /* holds |cur_style| during recursion */
+    int style;                  /* the given style */
+    int save_style;             /* holds |cur_style| during recursion */
     pointer q;                  /* runs through the mlist */
     pointer r;                  /* the most recent noad preceding |q| */
-    integer r_type;             /* the |type| of noad |r|, or |op_noad| if |r=null| */
-    integer r_subtype;          /* the |subtype| of noad |r| if |r_type| is |fence_noad| */
-    integer t;                  /* the effective |type| of noad |q| during the second pass */
-    integer t_subtype;          /* the effective |subtype| of noad |q| during the second pass */
+    int r_type;                 /* the |type| of noad |r|, or |op_noad| if |r=null| */
+    int r_subtype;              /* the |subtype| of noad |r| if |r_type| is |fence_noad| */
+    int t;                      /* the effective |type| of noad |q| during the second pass */
+    int t_subtype;              /* the effective |subtype| of noad |q| during the second pass */
     pointer p, x, y, z;         /* temporary registers for list construction */
-    integer pen;                /* a penalty to be inserted */
-    integer s;                  /* the size of a noad to be deleted */
+    int pen;                    /* a penalty to be inserted */
+    int s;                      /* the size of a noad to be deleted */
     scaled max_hl, max_d;       /* maximum height and depth of the list translated so far */
     scaled delta;               /* italic correction offset for subscript and superscript */
     mlist = cur_mlist;

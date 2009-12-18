@@ -86,11 +86,11 @@ typedef unsigned char eight_bits;       /* unsigned one-byte quantity */
 typedef FILE *alpha_file;       /* files that contain textual data */
 typedef FILE *byte_file;        /* files that contain binary data */
 
-typedef integer str_number;
-typedef integer pool_pointer;
+typedef int str_number;
+typedef int pool_pointer;
 typedef unsigned char packed_ASCII_code;
 
-typedef integer scaled;         /* this type is used for scaled integers */
+typedef int scaled;             /* this type is used for scaled integers */
 typedef char small_number;      /* this type is self-explanatory */
 
 typedef float glue_ratio;       /* one-word representation of a glue expansion factor */
@@ -103,9 +103,9 @@ typedef unsigned char glue_ord; /* infinity to the 0, 1, 2, 3, or 4 power */
 typedef unsigned char group_code;       /* |save_level| for a level boundary */
 
 typedef int internal_font_number;       /* |font| in a |char_node| */
-typedef integer font_index;     /* index into |font_info| */
+typedef int font_index;         /* index into |font_info| */
 
-typedef integer save_pointer;
+typedef int save_pointer;
 
 /*
 Characters of text that have been converted to \TeX's internal form
@@ -122,7 +122,7 @@ names in this program because they are used with a special meaning.
 #  define carriage_return '\r'  /* ASCII code used at end of line */
 
 /* Global variables */
-extern integer bad;             /* is some ``constant'' wrong? */
+extern int bad;                 /* is some ``constant'' wrong? */
 extern boolean luainit;         /* are we using lua for initializations  */
 extern boolean tracefilenames;  /* print file open-close  info? */
 
@@ -130,24 +130,24 @@ extern boolean tracefilenames;  /* print file open-close  info? */
 extern boolean ini_version;     /* are we \.{INITEX}? */
 extern boolean dump_option;
 extern boolean dump_line;
-extern integer bound_default;
+extern int bound_default;
 extern char *bound_name;
-extern integer error_line;
-extern integer half_error_line;
-extern integer max_print_line;
-extern integer ocp_list_size;
-extern integer ocp_buf_size;
-extern integer ocp_stack_size;
-extern integer max_strings;
-extern integer strings_free;
-extern integer font_k;
-extern integer buf_size;
-extern integer stack_size;
-extern integer max_in_open;
-extern integer param_size;
-extern integer nest_size;
-extern integer save_size;
-extern integer expand_depth;
+extern int error_line;
+extern int half_error_line;
+extern int max_print_line;
+extern int ocp_list_size;
+extern int ocp_buf_size;
+extern int ocp_stack_size;
+extern int max_strings;
+extern int strings_free;
+extern int font_k;
+extern int buf_size;
+extern int stack_size;
+extern int max_in_open;
+extern int param_size;
+extern int nest_size;
+extern int save_size;
+extern int expand_depth;
 extern int parsefirstlinep;
 extern int filelineerrorstylep;
 extern int haltonerrorp;
@@ -230,9 +230,9 @@ is conditionally compiled in the C code.
 
 #  define fix_date_and_time() dateandtime(int_par(time_code),int_par(day_code),int_par(month_code),int_par(year_code))
 
-extern integer get_luatexversion(void);
+extern int get_luatexversion(void);
 extern str_number get_luatexrevision(void);
-extern integer get_luatex_date_info(void);
+extern int get_luatex_date_info(void);
 
 extern int ready_already;
 

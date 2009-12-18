@@ -23,6 +23,6 @@
 #  define PDFOUTLINE_H
 
 extern void scan_pdfoutline(PDF pdf);
-extern integer print_outlines(PDF pdf);
+extern int print_outlines(PDF pdf);
 
 #endif

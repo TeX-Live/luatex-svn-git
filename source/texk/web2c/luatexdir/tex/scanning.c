@@ -144,8 +144,8 @@ its reference count, but in this case the count will not have been updated.
 Otherwise |cur_val| will contain the integer or scaled value in question.
 */
 
-integer cur_val;                /* value returned by numeric scanners */
-integer cur_val1;               /* delcodes are sometimes 51 digits */
+int cur_val;                    /* value returned by numeric scanners */
+int cur_val1;                   /* delcodes are sometimes 51 digits */
 int cur_val_level;              /* the ``level'' of this value */
 
 #define scanned_result(A,B) do {		\
@@ -207,7 +207,7 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
     halfword m;                 /* |chr_code| part of the operand token */
     halfword q;                 /* general purpose index */
     int p;                      /* index into |nest| */
-    integer save_cur_chr;
+    int save_cur_chr;
     boolean succeeded = true;
     m = chr;
     switch (cmd) {
@@ -641,7 +641,7 @@ void scan_something_internal(int level, boolean negative)
 {
     /* fetch an internal parameter */
     halfword m;                 /* |chr_code| part of the operand token */
-    integer n, k;               /* accumulators */
+    int n, k;                   /* accumulators */
   RESTART:
     m = cur_chr;
     if (!short_scan_something_internal(cur_cmd, cur_chr, level, negative)) {
@@ -913,7 +913,7 @@ void scan_fifteen_bit_int(void)
 
 void scan_fifty_one_bit_int(void)
 {
-    integer iiii;
+    int iiii;
     scan_int();
     if ((cur_val < 0) || (cur_val > 0777777777)) {
         print_err("Bad delimiter code");
@@ -960,7 +960,7 @@ void scan_four_bit_int_or_18(void)
 
 void scan_string_argument(void)
 {
-    integer s;
+    int s;
     scan_left_brace();
     get_x_token();
     while ((cur_cmd != right_brace_cmd)) {
@@ -1011,7 +1011,7 @@ int radix;                      /* |scan_int| sets this to 8, 10, 16, or zero */
 void scan_int(void)
 {                               /* sets |cur_val| to an integer */
     boolean negative;           /* should the answer be negated? */
-    integer m;                  /* |$2^{31}$ / radix|, the threshold of danger */
+    int m;                      /* |$2^{31}$ / radix|, the threshold of danger */
     int d;                      /* the digit just scanned */
     boolean vacuous;            /* have no digits appeared? */
     boolean OK_so_far;          /* has an error message been issued? */
@@ -1163,7 +1163,7 @@ of ``muglue.''
 
 static void coerce_glue(void)
 {
-    integer v;
+    int v;
     if (cur_val_level >= glue_val_level) {
         v = width(cur_val);
         delete_glue_ref(cur_val);
@@ -1206,13 +1206,13 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
 /* sets |cur_val| to a dimension */
 {
     boolean negative;           /* should the answer be negated? */
-    integer f;                  /* numerator of a fraction whose denominator is $2^{16}$ */
+    int f;                      /* numerator of a fraction whose denominator is $2^{16}$ */
     /* Local variables for dimension calculations */
     int num, denom;             /* conversion ratio for the scanned units */
     int k, kk;                  /* number of digits in a decimal fraction */
     halfword p, q;              /* top of decimal digit stack */
     scaled v;                   /* an internal dimension */
-    integer save_cur_val;       /* temporary storage of |cur_val| */
+    int save_cur_val;           /* temporary storage of |cur_val| */
 
     f = 0;
     arith_error = false;
@@ -1555,7 +1555,7 @@ void scan_glue(int level)
 void scan_scaled(void)
 {                               /* sets |cur_val| to a scaled value */
     boolean negative;           /* should the answer be negated? */
-    integer f;                  /* numerator of a fraction whose denominator is $2^{16}$ */
+    int f;                      /* numerator of a fraction whose denominator is $2^{16}$ */
     int k, kk;                  /* number of digits in a decimal fraction */
     halfword p, q;              /* top of decimal digit stack */
     f = 0;
@@ -1769,7 +1769,7 @@ The boolean parameter |writing| is set |true| if the calling program
 intends to change the parameter value.
 */
 
-static void font_param_error(integer f)
+static void font_param_error(int f)
 {
     print_err("Font ");
     print_esc(font_id_text(f));
@@ -1784,7 +1784,7 @@ static void font_param_error(integer f)
 void set_font_dimen(void)
 {
     internal_font_number f;
-    integer n;                  /* the parameter number */
+    int n;                      /* the parameter number */
     scan_int();
     n = cur_val;
     scan_font_ident();
@@ -1811,7 +1811,7 @@ void set_font_dimen(void)
 void get_font_dimen(void)
 {
     internal_font_number f;
-    integer n;                  /* the parameter number */
+    int n;                      /* the parameter number */
     scan_int();
     n = cur_val;
     scan_font_ident();
@@ -2246,9 +2246,9 @@ numerator for a combined multiplication and division, if any.
   |max_answer|.
 */
 
-integer add_or_sub(integer x, integer y, integer max_answer, boolean negative)
+int add_or_sub(int x, int y, int max_answer, boolean negative)
 {
-    integer a;                  /* the answer */
+    int a;                      /* the answer */
     if (negative)
         negate(y);
     if (x >= 0) {
@@ -2274,10 +2274,10 @@ The function |quotient(n,d)| computes the rounded quotient
 $q=\lfloor n/d+{1\over2}\rfloor$, when $n$ and $d$ are positive.
 */
 
-integer quotient(integer n, integer d)
+int quotient(int n, int d)
 {
     boolean negative;           /* should the answer be negated? */
-    integer a;                  /* the answer */
+    int a;                      /* the answer */
     if (d == 0) {
         num_error(a);
     } else {
@@ -2315,14 +2315,14 @@ this subroutine simulates double precision arithmetic, somewhat
 analogous to \MF's |make_fraction| and |take_fraction| routines.
 */
 
-integer fract(integer x, integer n, integer d, integer max_answer)
+int fract(int x, int n, int d, int max_answer)
 {
     boolean negative;           /* should the answer be negated? */
-    integer a;                  /* the answer */
-    integer f;                  /* a proper fraction */
-    integer h;                  /* smallest integer such that |2*h>=d| */
-    integer r;                  /* intermediate remainder */
-    integer t;                  /* temp variable */
+    int a;                      /* the answer */
+    int f;                      /* a proper fraction */
+    int h;                      /* smallest integer such that |2*h>=d| */
+    int r;                      /* intermediate remainder */
+    int t;                      /* temp variable */
     if (d == 0)
         goto TOO_BIG;
     a = 0;
@@ -2423,10 +2423,10 @@ void scan_expr(void)
     int r;                      /* state of expression so far */
     int s;                      /* state of term so far */
     int o;                      /* next operation or type of next factor */
-    integer e;                  /* expression so far */
-    integer t;                  /* term so far */
-    integer f;                  /* current factor */
-    integer n;                  /* numerator of combined multiplication and division */
+    int e;                      /* expression so far */
+    int t;                      /* term so far */
+    int f;                      /* current factor */
+    int n;                      /* numerator of combined multiplication and division */
     halfword p;                 /* top of expression stack */
     halfword q;                 /* for stack manipulations */
     l = cur_val_level;

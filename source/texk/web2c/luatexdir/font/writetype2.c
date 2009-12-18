@@ -28,8 +28,7 @@ static const char _svn_version[] =
     "$Id$ $URL$";
 
 /* forward*/
-void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer,
-                    integer buflen);
+void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen);
 
 unsigned long cidtogid_obj = 0;
 
@@ -254,8 +253,7 @@ unsigned long ttc_read_offset(sfnt * sfont, int ttc_idx)
 
 extern int ff_get_ttc_index(char *ffname, char *psname);        /* libs/luafontforge/src/luafflib.c */
 
-void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer,
-                    integer buflen)
+void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
 {
 
     long i, cid;

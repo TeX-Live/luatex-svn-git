@@ -37,8 +37,8 @@ static char *b_test_in(char *nam)
 
 
 static unsigned char *ocp_buffer = NULL;        /* byte buffer for ocp files */
-static integer ocp_size = 0;    /* total size of the ocp file */
-static integer ocp_cur = 0;     /* index into |ocp_buffer| */
+static int ocp_size = 0;    /* total size of the ocp file */
+static int ocp_cur = 0;     /* index into |ocp_buffer| */
 
 void init_null_ocp(str_number a, str_number n)
 {
@@ -107,19 +107,19 @@ read_ocp_info(pointer u, char *nom, char *aire, char *ext, boolean external_ocp)
 {
     boolean file_opened;        /* was |ocp_file| successfully opened? */
     boolean res;
-    integer callback_id;
+    int callback_id;
     char *cnam;                 /* C version of file name */
     internal_ocp_number f;      /* the new ocp's number */
     internal_ocp_number g;      /* the number to return */
-    integer ocpword;
+    int ocpword;
     ocp_index ocpmem_run_ptr;
-    integer ocp_length, real_ocp_length;        /* length of ocp file */
+    int ocp_length, real_ocp_length;        /* length of ocp file */
     ocp_index previous_address;
-    integer temp_ocp_input;
-    integer temp_ocp_output;
-    integer temp_ocp_no_tables;
-    integer temp_ocp_no_states;
-    integer i, new_offset, room_for_tables, room_for_states;
+    int temp_ocp_input;
+    int temp_ocp_output;
+    int temp_ocp_no_tables;
+    int temp_ocp_no_states;
+    int i, new_offset, room_for_tables, room_for_states;
     g = null_ocp;
     f = null_ocp;
     cnam = NULL;

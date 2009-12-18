@@ -29,11 +29,11 @@ typedef enum {
 
 typedef struct {
     union {
-        integer int0;
+        int int0;
         char *str0;
     } u;
     union_type u_type;          /* integer or char * in union above */
-    integer objptr;
+    int objptr;
 } oentry;
 
 /*
@@ -97,11 +97,11 @@ well.
 #  define inf_pk_dpi 72         /* min PK pixel density value from \.{texmf.cnf} */
 #  define sup_pk_dpi 8000       /* max PK pixel density value from \.{texmf.cnf} */
 
-extern integer find_obj(PDF pdf, integer t, integer i, boolean byname);
-extern void check_obj_exists(PDF pdf, integer t, integer n);
-extern integer get_obj(PDF pdf, integer t, integer i, boolean byname);
-extern void pdf_create_obj(PDF pdf, integer t, integer i);
-extern integer pdf_new_objnum(PDF pdf);
+extern int find_obj(PDF pdf, int t, int i, boolean byname);
+extern void check_obj_exists(PDF pdf, int t, int n);
+extern int get_obj(PDF pdf, int t, int i, boolean byname);
+extern void pdf_create_obj(PDF pdf, int t, int i);
+extern int pdf_new_objnum(PDF pdf);
 
 extern void set_rect_dimens(PDF pdf, halfword p, halfword parent_box,
                             scaledpos cur, scaled_whd alt_rule, scaled margin);

@@ -34,7 +34,7 @@ to the user's font~\.{\\f}. Adding this number to |font_id_base| gives the
 the font.
 */
 
-integer font_bytes;
+int font_bytes;
 
 void set_cur_font(internal_font_number f)
 {
@@ -86,9 +86,9 @@ void tex_def_font(small_number a)
     internal_font_number f;     /* runs through existing fonts */
     str_number t;               /* name for the frozen font identifier */
     int old_setting;            /* holds |selector| setting */
-    integer offset = 0;
+    int offset = 0;
     scaled s = -1000;           /* stated ``at'' size, or negative of scaled magnification */
-    integer natural_dir = -1;   /* the natural direction of the font */
+    int natural_dir = -1;       /* the natural direction of the font */
     if (job_name == 0)
         open_log_file();        /* avoid confusing \.{texput} with the font name */
     get_r_token();

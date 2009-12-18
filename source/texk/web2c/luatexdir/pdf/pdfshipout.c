@@ -52,9 +52,9 @@ If |shipping_page| is not set then the output will be a Form object
 void ship_out(PDF pdf, halfword p, boolean shipping_page)
 {
     /* output the box |p| */
-    integer j, k;               /* indices to first ten count registers */
-    integer post_callback_id;
-    integer pre_callback_id;
+    int j, k;                   /* indices to first ten count registers */
+    int post_callback_id;
+    int pre_callback_id;
     posstructure refpoint;      /* the origin pos. on the page */
     scaledpos cur = { 0, 0 };
 

@@ -57,9 +57,9 @@ FILE *fmt_file;                 /* for input or output of format information */
 
 void store_fmt_file(void)
 {
-    integer j, k, l;            /* all-purpose indices */
+    int j, k, l;                /* all-purpose indices */
     halfword p;                 /* all-purpose pointer */
-    integer x;                  /* something to dump */
+    int x;                      /* something to dump */
     char *format_engine;
     char *fmtname = NULL;
     /* If dumping is not allowed, abort */
@@ -127,9 +127,9 @@ void store_fmt_file(void)
     /* Dump the string pool */
     k = dump_string_pool();
     print_ln();
-    print_int(k);    
+    print_int(k);
     tprint(" strings using ");
-    print_int(pool_size); 
+    print_int(pool_size);
     tprint(" bytes");
 
     /* Dump the dynamic memory */
@@ -265,7 +265,8 @@ void store_fmt_file(void)
         tprint_nl("\\font");
         print_esc(font_id_text(k));
         print_char('=');
-        tprint_file_name((unsigned char *)font_name(k), (unsigned char *)font_area(k), NULL);
+        tprint_file_name((unsigned char *) font_name(k),
+                         (unsigned char *) font_area(k), NULL);
         if (font_size(k) != font_dsize(k)) {
             tprint(" at ");
             print_scaled(font_size(k));
@@ -349,9 +350,9 @@ read an integer value |x| that is supposed to be in the range |a<=x<=b|.
 
 boolean load_fmt_file(char *fmtname)
 {
-    integer j, k;               /* all-purpose indices */
+    int j, k;                   /* all-purpose indices */
     halfword p;                 /* all-purpose pointer */
-    integer x;                  /* something undumped */
+    int x;                      /* something undumped */
     char *format_engine;
     /* Undump constants for consistency check */
     if (ini_version) {

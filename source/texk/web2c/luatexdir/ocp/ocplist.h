@@ -28,9 +28,9 @@
 #  define number_ocp_lists 32768
 #  define null_ocp_list ocp_list_base
 
-typedef integer internal_ocp_list_number;
-typedef integer ocp_list_index; /* index into |ocp_list_info| */
-typedef integer ocp_lstack_index;       /* index into |ocp_lstack_info| */
+typedef int internal_ocp_list_number;
+typedef int ocp_list_index; /* index into |ocp_list_info| */
+typedef int ocp_lstack_index;       /* index into |ocp_lstack_info| */
 
 extern memory_word *ocp_list_info;
 extern memory_word *ocp_lstack_info;
@@ -57,7 +57,7 @@ typedef enum {
 
 
 extern void initialize_init_ocplists(void);
-extern void initialize_ocplist_arrays(integer ocp_list_size);
+extern void initialize_ocplist_arrays(int ocp_list_size);
 
 extern ocp_list_index make_ocp_list_node(ocp_lstack_index llstack,
                                          scaled llstack_no,

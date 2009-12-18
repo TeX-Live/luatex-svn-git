@@ -61,8 +61,8 @@ static char print_buf[PRINTF_BUF_SIZE];
 extern string ptexbanner;       /* from web2c/lib/texmfmp.c */
 extern string versionstring;    /* from web2c/lib/version.c */
 extern KPSEDLL string kpathsea_version_string;  /* from kpathsea/version.c */
-integer epochseconds;
-integer microseconds;
+int epochseconds;
+int microseconds;
 
 extern PDF static_pdf;
 
@@ -362,7 +362,7 @@ void check_buffer_overflow(int wsize)
    |scaled_out| is the number of scaled points corresponding to that.
 */
 
-scaled divide_scaled(scaled s, scaled m, integer dd)
+scaled divide_scaled(scaled s, scaled m, int dd)
 {
     register scaled q;
     register scaled r;
@@ -408,6 +408,23 @@ scaled divide_scaled_n(double sd, double md, double n)
     return (scaled) di;
 }
 
+int
+do_zround (double r)
+{
+  int i;
+
+  if (r > 2147483647.0)
+    i = 2147483647;
+  else if (r < -2147483647.0)
+    i = -2147483647;
+  else if (r >= 0.0)
+    i = (int)(r + 0.5);
+  else
+    i = (int)(r - 0.5);
+
+  return i;
+}
+
 
 #ifdef MSVC
 
@@ -427,3 +444,4 @@ double rint(double x)
 }
 
 #endif
+

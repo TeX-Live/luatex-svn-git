@@ -46,7 +46,7 @@
 #  define set_obj_xform_attr(pdf,A,B) obj_xform_attr(pdf,A)=B
 #  define set_obj_xform_resources(pdf,A,B) obj_xform_resources(pdf,A)=B
 
-extern integer pdf_cur_form;    /* the form being output */
+extern int pdf_cur_form;        /* the form being output */
 
 void pdf_place_form(PDF pdf, halfword p);
 

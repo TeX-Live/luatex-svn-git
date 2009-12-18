@@ -42,7 +42,7 @@ typedef struct {
     unsigned int tsize;
     void *next;
     boolean partial;
-    integer cattable;
+    int cattable;
 } rope;
 
 typedef struct {
@@ -61,7 +61,7 @@ static int spindle_size = 0;
 static spindle *spindles = NULL;
 static int spindle_index = 0;
 
-static void luac_store(lua_State * L, int i, int partial, integer cattable)
+static void luac_store(lua_State * L, int i, int partial, int cattable)
 {
     char *st, *sttemp;
     size_t tsize;
@@ -92,7 +92,7 @@ static void luac_store(lua_State * L, int i, int partial, integer cattable)
 static int do_luacprint(lua_State * L, int partial, int deftable)
 {
     int i, n;
-    integer cattable = (integer) deftable;
+    int cattable = deftable;
     int startstrings = 1;
     n = lua_gettop(L);
     if (cattable != NO_CAT_TABLE) {
@@ -138,9 +138,9 @@ int luacsprint(lua_State * L)
     return do_luacprint(L, PARTIAL_LINE, DEFAULT_CAT_TABLE);
 }
 
-integer luacstring_cattable(void)
+int luacstring_cattable(void)
 {
-    return (integer) read_spindle.tail->cattable;
+    return (int) read_spindle.tail->cattable;
 }
 
 int luacstring_partial(void)
@@ -273,10 +273,10 @@ int dimen_to_number(lua_State * L, char *s)
 }
 
 
-integer get_item_index(lua_State * L, int i, integer base)
+int get_item_index(lua_State * L, int i, int base)
 {
     size_t kk;
-    integer k;
+    int k;
     int cur_cs;
     char *s;
     if (lua_type(L, i) == LUA_TSTRING) {
@@ -288,7 +288,7 @@ integer get_item_index(lua_State * L, int i, integer base)
             k = (equiv(cur_cs) - base);
         }
     } else {
-        k = (integer) luaL_checkinteger(L, i);
+        k = (int) luaL_checkinteger(L, i);
     }
     return k;
 }
@@ -297,8 +297,8 @@ integer get_item_index(lua_State * L, int i, integer base)
 static int vsetdimen(lua_State * L, int is_global)
 {
     int i, j, err;
-    integer k;
-    integer save_global_defs = int_par(global_defs_code);
+    int k;
+    int save_global_defs = int_par(global_defs_code);
     if (is_global)
         int_par(global_defs_code) = 1;
     i = lua_gettop(L);
@@ -338,7 +338,7 @@ static int setdimen(lua_State * L)
 static int getdimen(lua_State * L)
 {
     int j;
-    integer k;
+    int k;
     k = get_item_index(L, lua_gettop(L), scaled_base);
     check_index_range(k, "getdimen");
     j = get_tex_dimen_register(k);
@@ -350,8 +350,8 @@ static int vsetskip(lua_State * L, int is_global)
 {
     int i, err;
     halfword *j;
-    integer k;
-    integer save_global_defs = int_par(global_defs_code);
+    int k;
+    int save_global_defs = int_par(global_defs_code);
     if (is_global)
         int_par(global_defs_code) = 1;
     i = lua_gettop(L);
@@ -382,7 +382,7 @@ static int setskip(lua_State * L)
 int getskip(lua_State * L)
 {
     halfword j;
-    integer k;
+    int k;
     k = get_item_index(L, lua_gettop(L), skip_base);
     check_index_range(k, "getskip");
     j = get_tex_skip_register(k);
@@ -395,8 +395,8 @@ int getskip(lua_State * L)
 static int vsetcount(lua_State * L, int is_global)
 {
     int i, j, err;
-    integer k;
-    integer save_global_defs = int_par(global_defs_code);
+    int k;
+    int save_global_defs = int_par(global_defs_code);
     if (is_global)
         int_par(global_defs_code) = 1;
     i = lua_gettop(L);
@@ -427,7 +427,7 @@ static int setcount(lua_State * L)
 static int getcount(lua_State * L)
 {
     int j;
-    integer k;
+    int k;
     k = get_item_index(L, lua_gettop(L), count_base);
     check_index_range(k, "getcount");
     j = get_tex_count_register(k);
@@ -439,8 +439,8 @@ static int getcount(lua_State * L)
 static int vsetattribute(lua_State * L, int is_global)
 {
     int i, j, err;
-    integer k;
-    integer save_global_defs = int_par(global_defs_code);
+    int k;
+    int save_global_defs = int_par(global_defs_code);
     if (is_global)
         int_par(global_defs_code) = 1;
     i = lua_gettop(L);
@@ -471,7 +471,7 @@ static int setattribute(lua_State * L)
 static int getattribute(lua_State * L)
 {
     int j;
-    integer k;
+    int k;
     k = get_item_index(L, lua_gettop(L), attribute_base);
     check_index_range(k, "getattribute");
     j = get_tex_attribute_register(k);
@@ -482,9 +482,9 @@ static int getattribute(lua_State * L)
 int vsettoks(lua_State * L, int is_global)
 {
     int i, err;
-    integer k;
+    int k;
     lstring str;
-    integer save_global_defs = int_par(global_defs_code);
+    int save_global_defs = int_par(global_defs_code);
     if (is_global)
         int_par(global_defs_code) = 1;
     i = lua_gettop(L);
@@ -518,7 +518,7 @@ static int settoks(lua_State * L)
 
 static int gettoks(lua_State * L)
 {
-    integer k;
+    int k;
     str_number t;
     char *ss;
     k = get_item_index(L, lua_gettop(L), toks_base);
@@ -534,7 +534,7 @@ static int gettoks(lua_State * L)
 static int get_box_id(lua_State * L, int i)
 {
     char *s;
-    integer cur_cs, cur_cmd;
+    int cur_cs, cur_cmd;
     size_t k = 0;
     int j = -1;
     if (lua_type(L, i) == LUA_TSTRING) {
@@ -564,7 +564,7 @@ static int getbox(lua_State * L)
 static int vsetbox(lua_State * L, int is_global)
 {
     int i, j, k, err;
-    integer save_global_defs = int_par(global_defs_code);
+    int save_global_defs = int_par(global_defs_code);
     if (is_global)
         int_par(global_defs_code) = 1;
     k = get_box_id(L, -2);
@@ -648,7 +648,7 @@ int getboxdp(lua_State * L)
 static int vsetboxdim(lua_State * L, int whichdim, int is_global)
 {
     int i, j, k, err;
-    integer save_global_defs = int_par(global_defs_code);
+    int save_global_defs = int_par(global_defs_code);
     if (is_global)
         int_par(global_defs_code) = 1;
     i = lua_gettop(L);
@@ -787,7 +787,7 @@ int settex(lua_State * L)
 int do_convert(lua_State * L, int cur_code)
 {
     int texstr;
-    integer i = -1;
+    int i = -1;
     char *str = NULL;
     switch (cur_code) {
     case pdf_creation_date_code:       /* ? */
@@ -1413,7 +1413,7 @@ static int tex_enableprimitives(lua_State * L)
                     halfword prim_val = prim_lookup(s);
                     if (prim_val != undefined_primitive) {
                         char *newprim;
-                        integer val;
+                        int val;
                         size_t newl;
                         halfword cur_cmd = get_prim_eq_type(prim_val);
                         halfword cur_chr = get_prim_equiv(prim_val);

@@ -83,8 +83,8 @@ in the traditional sense.
 Signalling this fact is achieved by having two arrays of integers.
 */
 
-integer *input_file_callback_id;
-integer read_file_callback_id[17];
+int *input_file_callback_id;
+int read_file_callback_id[17];
 
 /* Handle -output-directory.
    We assume that it is OK to look here first.  Possibly it
@@ -271,9 +271,9 @@ boolean luatex_open_output(FILE ** f_ptr, char *fn, const_string fopen_mode)
 
 boolean lua_a_open_in(alpha_file * f, char *fn, quarterword n)
 {
-    integer k;
+    int k;
     char *fnam;                 /* string returned by find callback */
-    integer callback_id;
+    int callback_id;
     boolean ret = true;         /* return value */
     boolean file_ok = true;     /* the status so far  */
     if (n == 0) {
@@ -315,7 +315,7 @@ boolean lua_a_open_out(alpha_file * f, char *fn, quarterword n)
 {
     boolean test;
     str_number fnam;
-    integer callback_id;
+    int callback_id;
     boolean ret = false;
     callback_id = callback_defined(find_write_file_callback);
     if (callback_id > 0) {
@@ -336,7 +336,7 @@ boolean lua_b_open_out(alpha_file * f, char *fn)
 {
     boolean test;
     str_number fnam;
-    integer callback_id;
+    int callback_id;
     boolean ret = false;
     callback_id = callback_defined(find_output_file_callback);
     if (callback_id > 0) {
@@ -356,7 +356,7 @@ boolean lua_b_open_out(alpha_file * f, char *fn)
 void lua_a_close_in(alpha_file f, quarterword n)
 {                               /* close a text file */
     boolean ret;
-    integer callback_id;
+    int callback_id;
     if (n == 0)
         callback_id = input_file_callback_id[iindex];
     else
@@ -396,9 +396,9 @@ representing the beginning and ending of a line of text.
 */
 
 packed_ASCII_code *buffer;      /* lines of characters being read */
-integer first;                  /* the first unused position in |buffer| */
-integer last;                   /* end of the line just input to |buffer| */
-integer max_buf_stack;          /* largest index used in |buffer| */
+int first;                      /* the first unused position in |buffer| */
+int last;                       /* end of the line just input to |buffer| */
+int max_buf_stack;              /* largest index used in |buffer| */
 
 /*
 The |lua_input_ln| function brings the next line of input from the specified
@@ -445,8 +445,8 @@ finer tuning is often possible at well-developed \PASCAL\ sites.
 boolean lua_input_ln(alpha_file f, quarterword n, boolean bypass_eoln)
 {
     boolean lua_result;
-    integer last_ptr;
-    integer callback_id;
+    int last_ptr;
+    int callback_id;
     (void) bypass_eoln;         /* todo: variable can be removed */
     if (n == 0)
         callback_id = input_file_callback_id[iindex];
@@ -593,7 +593,7 @@ The input is placed into locations |first| through |last-1| of the
 
 void term_input(void)
 {                               /* gets a line from the terminal */
-    integer k;                  /* index into |buffer| */
+    int k;                      /* index into |buffer| */
     update_terminal();          /* now the user sees the prompt for sure */
     if (!input_ln(term_in, true))
         fatal_error("End of file on the terminal!");
@@ -692,16 +692,16 @@ These system area names will, of course, vary from place to place.
 char *pack_file_name(str_number n, str_number a, str_number e)
 {
     ASCII_code c;               /* character being packed */
-    unsigned char *j;             /* index into |str_pool| */
-    integer k = 0;              /* number of positions filled in |fn| */
+    unsigned char *j;           /* index into |str_pool| */
+    int k = 0;                  /* number of positions filled in |fn| */
     unsigned char *fn = xmallocarray(packed_ASCII_code,
                                      str_length(a) + str_length(n) +
                                      str_length(e) + 1);
-    for (j = str_string(a); j < str_string(a)+str_length(a); j++)
+    for (j = str_string(a); j < str_string(a) + str_length(a); j++)
         append_to_fn(*j);
-    for (j = str_string(n); j < str_string(n)+str_length(n); j++)
+    for (j = str_string(n); j < str_string(n) + str_length(n); j++)
         append_to_fn(*j);
-    for (j = str_string(e); j < str_string(e)+str_length(e); j++)
+    for (j = str_string(e); j < str_string(e) + str_length(e); j++)
         append_to_fn(*j);
     fn[k] = 0;
     return (char *) fn;
@@ -793,7 +793,7 @@ We have |job_name=0| if and only if the `\.{log}' file has not been opened,
 except of course for a short time just after |job_name| has become nonzero.
 */
 
-unsigned char *texmf_log_name;      /* full name of the log file */
+unsigned char *texmf_log_name;  /* full name of the log file */
 
 /*
 The |open_log_file| routine is used to open the transcript file and to help
@@ -831,7 +831,7 @@ void open_log_file(void)
         selector = term_only;
         fn = prompt_file_name("transcript file name", ".log");
     }
-    texmf_log_name = (unsigned char *)xstrdup(fn);
+    texmf_log_name = (unsigned char *) xstrdup(fn);
     selector = log_only;
     log_opened = true;
     if (callback_defined(start_run_callback) == 0) {
@@ -894,12 +894,12 @@ void start_input(void)
     /* |open_log_file| doesn't |show_context|, so |limit|
        and |loc| needn't be set to meaningful values yet */
     if (tracefilenames) {
-        if (term_offset + (int)str_length(iname) > max_print_line - 2)
+        if (term_offset + (int) str_length(iname) > max_print_line - 2)
             print_ln();
         else if ((term_offset > 0) || (file_offset > 0))
             print_char(' ');
         print_char('(');
-        tprint_file_name(NULL, (unsigned char *)fullnameoffile, NULL);
+        tprint_file_name(NULL, (unsigned char *) fullnameoffile, NULL);
     }
     incr(open_parens);
     update_terminal();
@@ -1028,7 +1028,7 @@ int open_outfile(FILE ** f, char *name, char *mode)
 
 /* the caller sets tfm_buffer=NULL and tfm_size=0 */
 
-int readbinfile(FILE * f, unsigned char **tfm_buffer, integer * tfm_size)
+int readbinfile(FILE * f, unsigned char **tfm_buffer, int *tfm_size)
 {
     void *buf;
     int size;
@@ -1039,7 +1039,7 @@ int readbinfile(FILE * f, unsigned char **tfm_buffer, integer * tfm_size)
             if (fseek(f, 0, SEEK_SET) == 0) {
                 if (fread((void *) buf, size, 1, f) == 1) {
                     *tfm_buffer = (unsigned char *) buf;
-                    *tfm_size = (integer) size;
+                    *tfm_size = (int) size;
                     return 1;
                 }
             }

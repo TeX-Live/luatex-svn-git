@@ -22,7 +22,7 @@
 #ifndef TEXDEFFONT_H
 #  define TEXDEFFONT_H
 
-extern integer font_bytes;
+extern int font_bytes;
 
 extern void set_cur_font(internal_font_number f);
 

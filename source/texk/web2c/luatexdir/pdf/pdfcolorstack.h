@@ -31,11 +31,11 @@ extern boolean page_mode;
 
 #  define STACK_INCREMENT 8
 
-int newcolorstack(integer s, integer literal_mode, boolean pagestart);
+int newcolorstack(int s, int literal_mode, boolean pagestart);
 int colorstackused(void);
-integer colorstackpop(int colstack_no);
-integer colorstackcurrent(int colstack_no);
-integer colorstackskippagestart(int colstack_no);
+int colorstackpop(int colstack_no);
+int colorstackcurrent(int colstack_no);
+int colorstackskippagestart(int colstack_no);
 void colorstackpagestart(void);
 
 extern void pdf_out_colorstack(PDF pdf, halfword p);

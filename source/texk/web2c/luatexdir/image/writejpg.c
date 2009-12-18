@@ -234,7 +234,7 @@ void read_jpg_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
 
 static void reopen_jpg(PDF pdf, image_dict * idict)
 {
-    integer width, height, xres, yres;
+    int width, height, xres, yres;
     width = img_xsize(idict);
     height = img_ysize(idict);
     xres = img_xres(idict);

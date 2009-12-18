@@ -46,7 +46,7 @@ void initialize_init_ocplists(void)
 }
 
 
-void initialize_ocplist_arrays(integer ocp_list_size)
+void initialize_ocplist_arrays(int ocp_list_size)
 {
     ocp_list_info = xmallocarray(memory_word, ocp_list_size);
     memset(ocp_list_info, 0, sizeof(memory_word) * ocp_list_size);
@@ -311,7 +311,7 @@ void new_ocp_list(small_number a)
 
 void dump_ocplist_info(void)
 {
-    integer k;
+    int k;
     dump_int(ocp_listmem_ptr);
     for (k = 0; k <= ocp_listmem_ptr - 1; k++)
         dump_wd(ocp_list_info[k]);
@@ -332,7 +332,7 @@ void dump_ocplist_info(void)
 
 void undump_ocplist_info(void)
 {
-    integer k;
+    int k;
     initialize_ocplist_arrays(ocp_list_size);
     undump_int(ocp_listmem_ptr);
     for (k = 0; k <= ocp_listmem_ptr - 1; k++)

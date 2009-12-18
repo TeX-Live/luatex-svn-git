@@ -30,21 +30,21 @@ static const char _svn_version[] =
 
 
 in_state_record *input_stack = NULL;
-integer input_ptr = 0;          /* first unused location of |input_stack| */
-integer max_in_stack = 0;       /* largest value of |input_ptr| when pushing */
+int input_ptr = 0;              /* first unused location of |input_stack| */
+int max_in_stack = 0;           /* largest value of |input_ptr| when pushing */
 in_state_record cur_input;      /* the ``top'' input state */
 
 
-integer in_open = 0;            /* the number of lines in the buffer, less one */
-integer open_parens = 0;        /* the number of open text files */
+int in_open = 0;                /* the number of lines in the buffer, less one */
+int open_parens = 0;            /* the number of open text files */
 alpha_file *input_file = NULL;
-integer line = 0;               /* current line number in the current source file */
-integer *line_stack = NULL;
+int line = 0;                   /* current line number in the current source file */
+int *line_stack = NULL;
 str_number *source_filename_stack = NULL;
 char **full_source_filename_stack = NULL;
 
 
-integer scanner_status = 0;     /* can a subfile end now? */
+int scanner_status = 0;         /* can a subfile end now? */
 pointer warning_index = null;   /* identifier relevant to non-|normal| scanner status */
 pointer def_ref = null;         /* reference count of token list being defined */
 
@@ -92,8 +92,8 @@ rate from the others.
 */
 
 pointer *param_stack = NULL;    /* token list pointers for parameters */
-integer param_ptr = 0;          /* first unused entry in |param_stack| */
-integer max_param_stack = 0;    /* largest value of |param_ptr|, will be |<=param_size+9| */
+int param_ptr = 0;              /* first unused entry in |param_stack| */
+int max_param_stack = 0;        /* largest value of |param_ptr|, will be |<=param_size+9| */
 
 /*
 The input routines must also interact with the processing of
@@ -107,7 +107,7 @@ is nonzero during the \<u_j> template, after which it is set to zero; the
 |align_state=0|.
 */
 
-integer align_state = 0;        /* group level with respect to current alignment */
+int align_state = 0;            /* group level with respect to current alignment */
 
 /*
 Thus, the ``current input state'' can be very complicated indeed; there
@@ -119,7 +119,7 @@ The global variable |base_ptr| contains the lowest level that was
 displayed by this procedure.
 */
 
-integer base_ptr = 0;           /* shallowest level shown by |show_context| */
+int base_ptr = 0;               /* shallowest level shown by |show_context| */
 
 /*
 The status at each level is indicated by printing two lines, where the first
@@ -257,16 +257,16 @@ void set_trick_count(void)
 
 void show_context(void)
 {                               /* prints where the scanner is */
-    integer old_setting;        /* saved |selector| setting */
-    integer nn;                 /* number of contexts shown so far, less one */
+    int old_setting;            /* saved |selector| setting */
+    int nn;                     /* number of contexts shown so far, less one */
     boolean bottom_line;        /* have we reached the final context to be shown? */
-    integer i;                  /* index into |buffer| */
-    integer j;                  /* end of current line in |buffer| */
-    integer l;                  /* length of descriptive information on line 1 */
-    integer m;                  /* context information gathered for line 2 */
-    integer n;                  /* length of line 1 */
-    integer p;                  /* starting or ending place in |trick_buf| */
-    integer q;                  /* temporary index */
+    int i;                      /* index into |buffer| */
+    int j;                      /* end of current line in |buffer| */
+    int l;                      /* length of descriptive information on line 1 */
+    int m;                      /* context information gathered for line 2 */
+    int n;                      /* length of line 1 */
+    int p;                      /* starting or ending place in |trick_buf| */
+    int q;                      /* temporary index */
 
     base_ptr = input_ptr;
     input_stack[base_ptr] = cur_input;
@@ -649,7 +649,7 @@ all the following words contain ASCII codes.
 
 halfword pseudo_files;          /* stack of pseudo files */
 
-static halfword string_to_pseudo(str_number str, integer nl)
+static halfword string_to_pseudo(str_number str, int nl)
 {
     halfword i, r, q = null;
     unsigned l, len;
@@ -657,10 +657,10 @@ static halfword string_to_pseudo(str_number str, integer nl)
     int sz;
     halfword h = new_node(pseudo_file_node, 0);
     unsigned char *s = str_string(str);
-    len =  str_length(str);
+    len = str_length(str);
     l = 0;
-    while (l<len) {
-        unsigned m = l; /* start of current line */
+    while (l < len) {
+        unsigned m = l;         /* start of current line */
         while ((l < len) && (s[l] != nl))
             l++;
         sz = (l - m + 7) / 4;
@@ -755,7 +755,7 @@ void lua_string_start(void)
 boolean pseudo_input(void)
 {                               /* inputs the next line or returns |false| */
     halfword p;                 /* current line from pseudo file */
-    integer sz;                 /* size of node |p| */
+    int sz;                     /* size of node |p| */
     four_quarters w;            /* four ASCII codes */
     halfword r;                 /* loop index */
     last = first;               /* cf.\ Matthew 19\thinspace:\thinspace30 */

@@ -33,13 +33,13 @@
 #  define pointer halfword
 
 typedef struct liginfo {
-    integer adj;
-    integer lig;
+    int adj;
+    int lig;
     char type;
 } liginfo;
 
 typedef struct kerninfo {
-    integer adj;
+    int adj;
     scaled sc;
 } kerninfo;
 
@@ -58,16 +58,16 @@ typedef struct charinfo {
     kerninfo *kerns;            /* kern items */
     eight_bits *packets;        /* virtual commands.  */
     unsigned short index;       /* CID index */
-    integer remainder;          /* spare value for odd items, could be union-ed with extensible */
+    int remainder;              /* spare value for odd items, could be union-ed with extensible */
     scaled width;               /* width */
     scaled height;              /* height */
     scaled depth;               /* depth */
     scaled italic;              /* italic correction */
     scaled top_accent;          /* top accent alignment */
     scaled bot_accent;          /* bot accent alignment */
-    integer ef;                 /* font expansion factor */
-    integer lp;                 /* left protruding factor */
-    integer rp;                 /* right protruding factor */
+    int ef;                     /* font expansion factor */
+    int lp;                     /* left protruding factor */
+    int rp;                     /* right protruding factor */
     char tag;                   /* list / ext taginfo */
     char used;                  /* char is typeset ? */
     char *tounicode;            /* unicode equivalent */
@@ -98,13 +98,13 @@ extern extinfo *copy_variants(extinfo * o);
 extern extinfo *new_variant(int glyph, int startconnect, int endconnect,
                             int advance, int repeater);
 
-extern scaled_whd get_charinfo_whd(internal_font_number f, integer c);
+extern scaled_whd get_charinfo_whd(internal_font_number f, int c);
 
 
 
 typedef struct texfont {
-    integer _font_size;
-    integer _font_dsize;
+    int _font_size;
+    int _font_dsize;
     char *_font_name;
     char *_font_area;
     char *_font_filename;
@@ -113,51 +113,51 @@ typedef struct texfont {
     char *_font_encodingname;
     char *_font_cidregistry;
     char *_font_cidordering;
-    integer _font_cidversion;
-    integer _font_cidsupplement;
+    int _font_cidversion;
+    int _font_cidsupplement;
 
-    integer _font_ec;
+    int _font_ec;
     unsigned _font_checksum;    /* internal information */
     char _font_used;            /* internal information */
     char _font_touched;         /* internal information */
-    integer _font_cache_id;     /* internal information */
+    int _font_cache_id;         /* internal information */
     char _font_encodingbytes;   /* 1 or 2 bytes */
-    integer _font_slant;        /* a slant in ppt */
-    integer _font_extend;       /* an extension in ppt, or 1000 */
+    int _font_slant;            /* a slant in ppt */
+    int _font_extend;           /* an extension in ppt, or 1000 */
     char _font_tounicode;       /* 1 if info is present */
     fm_entry_ptr _font_map;
-    integer _font_type;
-    integer _font_format;
-    integer _font_embedding;
-    integer _font_bc;
-    integer _hyphen_char;
-    integer _skew_char;
-    integer _font_natural_dir;
+    int _font_type;
+    int _font_format;
+    int _font_embedding;
+    int _font_bc;
+    int _hyphen_char;
+    int _skew_char;
+    int _font_natural_dir;
 
     charinfo *_left_boundary;
     charinfo *_right_boundary;
 
-    integer _font_params;
+    int _font_params;
     scaled *_param_base;
 
-    integer _font_math_params;
+    int _font_math_params;
     scaled *_math_param_base;
 
     sa_tree characters;
-    integer charinfo_count;
-    integer charinfo_size;
+    int charinfo_count;
+    int charinfo_size;
     charinfo *charinfo;
     int *charinfo_cache;
-    integer ligatures_disabled;
+    int ligatures_disabled;
 
-    integer _pdf_font_num;      /* maps to a PDF resource ID */
+    int _pdf_font_num;          /* maps to a PDF resource ID */
     scaled _pdf_font_size;      /* maps to a PDF font size */
     internal_font_number _pdf_font_blink;       /* link to  base font for expanded fonts */
     internal_font_number _pdf_font_elink;       /* link to expanded fonts for base font */
-    integer _pdf_font_expand_ratio;     /* expansion ratio of a particular font */
+    int _pdf_font_expand_ratio; /* expansion ratio of a particular font */
     internal_font_number _pdf_font_shrink;      /* font at limit of shrinking */
     internal_font_number _pdf_font_stretch;     /* font at limit of stretching */
-    integer _pdf_font_step;     /* amount of one step of expansion */
+    int _pdf_font_step;         /* amount of one step of expansion */
     boolean _pdf_font_auto_expand;      /* this font is auto-expanded? */
     str_number _pdf_font_attr;  /* pointer to additional attributes */
 } texfont;
@@ -206,14 +206,14 @@ extern char *font_embedding_strings[];
 #  define set_font_name(f,b)        font_name(f) = b
 #  define tex_font_name(a)          maketexstring(font_name(a))
 
-boolean cmp_font_name(integer, str_number);
+boolean cmp_font_name(int, str_number);
 
 #  define font_area(a)              font_tables[a]->_font_area
 #  define get_font_area(a)          (unsigned char *)font_area(a)
 #  define set_font_area(f,b)        font_area(f) = b
 #  define tex_font_area(a)          maketexstring(font_area(a))
 
-boolean cmp_font_area(integer, str_number);
+boolean cmp_font_area(int, str_number);
 
 #  define font_reassign(a,b)            { if (a!=NULL) free(a); a = b; }
 
@@ -400,9 +400,9 @@ typedef enum {
     top_left_kern = 4
 } font_math_kern_codes;
 
-extern charinfo *get_charinfo(internal_font_number f, integer c);
-extern integer char_exists(internal_font_number f, integer c);
-extern charinfo *char_info(internal_font_number f, integer c);
+extern charinfo *get_charinfo(internal_font_number f, int c);
+extern int char_exists(internal_font_number f, int c);
+extern charinfo *char_info(internal_font_number f, int c);
 
 /* Here is a quick way to test if a glyph exists, when you are
 already certain the font |f| exists, and that the |c| is a regular
@@ -446,23 +446,23 @@ extern scaled get_charinfo_italic(charinfo * ci);
 extern scaled get_charinfo_top_accent(charinfo * ci);
 extern scaled get_charinfo_bot_accent(charinfo * ci);
 extern char get_charinfo_tag(charinfo * ci);
-extern integer get_charinfo_remainder(charinfo * ci);
+extern int get_charinfo_remainder(charinfo * ci);
 extern char get_charinfo_used(charinfo * ci);
-extern integer get_charinfo_index(charinfo * ci);
+extern int get_charinfo_index(charinfo * ci);
 extern char *get_charinfo_name(charinfo * ci);
 extern char *get_charinfo_tounicode(charinfo * ci);
 extern liginfo *get_charinfo_ligatures(charinfo * ci);
 extern kerninfo *get_charinfo_kerns(charinfo * ci);
 extern eight_bits *get_charinfo_packets(charinfo * ci);
-extern integer get_charinfo_ef(charinfo * ci);
-extern integer get_charinfo_rp(charinfo * ci);
-extern integer get_charinfo_lp(charinfo * ci);
-extern integer get_charinfo_extensible(charinfo * ci, int which);
+extern int get_charinfo_ef(charinfo * ci);
+extern int get_charinfo_rp(charinfo * ci);
+extern int get_charinfo_lp(charinfo * ci);
+extern int get_charinfo_extensible(charinfo * ci, int which);
 
-extern integer ext_top(internal_font_number f, integer c);
-extern integer ext_bot(internal_font_number f, integer c);
-extern integer ext_rep(internal_font_number f, integer c);
-extern integer ext_mid(internal_font_number f, integer c);
+extern int ext_top(internal_font_number f, int c);
+extern int ext_bot(internal_font_number f, int c);
+extern int ext_rep(internal_font_number f, int c);
+extern int ext_mid(internal_font_number f, int c);
 
 #  define set_ligature_item(f,b,c,d)  { f.type = b; f.adj = c;  f.lig = d; }
 
@@ -508,30 +508,30 @@ extern integer ext_mid(internal_font_number f, integer c);
 #  define list_tag 2            /* character has a successor in a charlist */
 #  define ext_tag 3             /* character is extensible */
 
-extern scaled char_height(internal_font_number f, integer c);
-extern scaled char_width(internal_font_number f, integer c);
-extern scaled char_depth(internal_font_number f, integer c);
-extern scaled char_italic(internal_font_number f, integer c);
-extern scaled char_top_accent(internal_font_number f, integer c);
-extern scaled char_bot_accent(internal_font_number f, integer c);
+extern scaled char_height(internal_font_number f, int c);
+extern scaled char_width(internal_font_number f, int c);
+extern scaled char_depth(internal_font_number f, int c);
+extern scaled char_italic(internal_font_number f, int c);
+extern scaled char_top_accent(internal_font_number f, int c);
+extern scaled char_bot_accent(internal_font_number f, int c);
 
-extern liginfo *char_ligatures(internal_font_number f, integer c);
-extern kerninfo *char_kerns(internal_font_number f, integer c);
-extern eight_bits *char_packets(internal_font_number f, integer c);
+extern liginfo *char_ligatures(internal_font_number f, int c);
+extern kerninfo *char_kerns(internal_font_number f, int c);
+extern eight_bits *char_packets(internal_font_number f, int c);
 
 #  define has_lig(f,b)          (char_exists(f,b) &&( char_ligatures(f,b) != NULL))
 #  define has_kern(f,b)         (char_exists(f,b) && (char_kerns(f,b) != NULL))
 #  define has_packet(f,b)       (char_exists(f,b) && (char_packets(f,b) != NULL))
 
-extern integer char_remainder(internal_font_number f, integer c);
-extern char char_tag(internal_font_number f, integer c);
-extern char char_used(internal_font_number f, integer c);
-extern char *char_name(internal_font_number f, integer c);
-extern integer char_index(internal_font_number f, integer c);
+extern int char_remainder(internal_font_number f, int c);
+extern char char_tag(internal_font_number f, int c);
+extern char char_used(internal_font_number f, int c);
+extern char *char_name(internal_font_number f, int c);
+extern int char_index(internal_font_number f, int c);
 
-scaled raw_get_kern(internalfontnumber f, integer lc, integer rc);
-scaled get_kern(internalfontnumber f, integer lc, integer rc);
-liginfo get_ligature(internalfontnumber f, integer lc, integer rc);
+scaled raw_get_kern(internalfontnumber f, int lc, int rc);
+scaled get_kern(internalfontnumber f, int lc, int rc);
+liginfo get_ligature(internalfontnumber f, int lc, int rc);
 
 #  define EXT_TOP 0
 #  define EXT_BOT 1
@@ -540,39 +540,39 @@ liginfo get_ligature(internalfontnumber f, integer lc, integer rc);
 
 extern texfont **font_tables;
 
-integer new_font(void);
+int new_font(void);
 extern void font_malloc_charinfo(internal_font_number f, int num);
-integer copy_font(integer id);
-integer scale_font(integer id, integer atsize);
-integer max_font_id(void);
-void set_max_font_id(integer id);
-integer new_font_id(void);
+int copy_font(int id);
+int scale_font(int id, int atsize);
+int max_font_id(void);
+void set_max_font_id(int id);
+int new_font_id(void);
 void create_null_font(void);
-void delete_font(integer id);
-boolean is_valid_font(integer id);
+void delete_font(int id);
+boolean is_valid_font(int id);
 
 void dump_font(int font_number);
 void undump_font(int font_number);
 
-integer test_no_ligatures(internal_font_number f);
+int test_no_ligatures(internal_font_number f);
 void set_no_ligatures(internal_font_number f);
 
-extern integer get_tag_code(internal_font_number f, integer c);
-extern integer get_lp_code(internal_font_number f, integer c);
-extern integer get_rp_code(internal_font_number f, integer c);
-extern integer get_ef_code(internal_font_number f, integer c);
+extern int get_tag_code(internal_font_number f, int c);
+extern int get_lp_code(internal_font_number f, int c);
+extern int get_rp_code(internal_font_number f, int c);
+extern int get_ef_code(internal_font_number f, int c);
 
-extern void set_tag_code(internal_font_number f, integer c, integer i);
-extern void set_lp_code(internal_font_number f, integer c, integer i);
-extern void set_rp_code(internal_font_number f, integer c, integer i);
-extern void set_ef_code(internal_font_number f, integer c, integer i);
+extern void set_tag_code(internal_font_number f, int c, int i);
+extern void set_lp_code(internal_font_number f, int c, int i);
+extern void set_rp_code(internal_font_number f, int c, int i);
+extern void set_ef_code(internal_font_number f, int c, int i);
 
 int read_tfm_info(internal_font_number f, char *nom, scaled s);
 
 
 /* from dofont.c */
 
-extern int read_font_info(pointer u, str_number nom, scaled s, integer ndir);
+extern int read_font_info(pointer u, str_number nom, scaled s, int ndir);
 extern int find_font_id(char *nom, scaled s);
 
 /* for and from vfpacket.c */
@@ -591,9 +591,9 @@ typedef enum { packet_char_code,
     packet_end_code
 } packet_command_codes;
 
-extern scaled store_scaled_f(scaled sq, integer fw);
+extern scaled store_scaled_f(scaled sq, int fw);
 
-extern void do_vf_packet(PDF pdf, internal_font_number vf_f, integer c);
+extern void do_vf_packet(PDF pdf, internal_font_number vf_f, int c);
 extern int vf_packet_bytes(charinfo * co);
 
 charinfo *copy_charinfo(charinfo * ci);

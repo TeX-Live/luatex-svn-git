@@ -239,18 +239,18 @@ static struct {
 	synctex_fprintf_t fprintf;  /*  either fprintf or gzprintf */
     char *busy_name;            /*  the real "foo.synctex(busy)" or "foo.synctex.gz(busy)" name  */
     char *root_name;            /*  in general jobname.tex  */
-    integer count;              /*  The number of interesting records in "foo.synctex"  */
+    int count;              /*  The number of interesting records in "foo.synctex"  */
     /*  next concern the last sync record encountered  */
     halfword node;              /*  the last synchronized node, must be set 
                                  *  before the recorder */
     synctex_recorder_t recorder;/*  the recorder of the node above, the
                                  *  routine that knows how to record the 
                                  *  node to the .synctex file */
-    integer tag, line;          /*  current tag and line  */
-    integer curh, curv;         /*  current point  */
-    integer magnification;      /*  The magnification as given by \mag */
-    integer unit;               /*  The unit, defaults to 1, use 8192 to produce shorter but less accurate info */
-    integer total_length;       /*  The total length of the bytes written since the last check point  */
+    int tag, line;          /*  current tag and line  */
+    int curh, curv;         /*  current point  */
+    int magnification;      /*  The magnification as given by \mag */
+    int unit;               /*  The unit, defaults to 1, use 8192 to produce shorter but less accurate info */
+    int total_length;       /*  The total length of the bytes written since the last check point  */
     struct _flags {
         unsigned int option_read:1; /*  Command line option read (in case of problem or at the end) */
         unsigned int off:1;         /*  Definitely turn off synctex, corresponds to cli option -synctex=0 */
@@ -321,7 +321,7 @@ void synctex_abort(void)
 }
 
 static inline int synctex_record_preamble(void);
-static inline int synctex_record_input(integer tag, char *name);
+static inline int synctex_record_input(int tag, char *name);
 
 static char *synctex_suffix = ".synctex";
 static char *synctex_suffix_gz = ".gz";
@@ -587,12 +587,12 @@ void synctex_terminate(boolean log_opened)
 
 static inline int synctex_record_content(void);
 static inline int synctex_record_settings(void);
-static inline int synctex_record_sheet(integer sheet);
+static inline int synctex_record_sheet(int sheet);
 
 /*  Recording the "{..." line.  In *tex.web, use synctex_sheet(pdf_output) at
  *  the very beginning of the ship_out procedure.
 */
-void synctex_sheet(integer mag)
+void synctex_sheet(int mag)
 {
 	SYNCTEX_RETURN_IF_DISABLED;
 #if SYNCTEX_DEBUG
@@ -630,7 +630,7 @@ void synctex_sheet(integer mag)
     return;
 }
 
-static inline int synctex_record_teehs(integer sheet);
+static inline int synctex_record_teehs(int sheet);
 
 /*  Recording the "}..." line.  In *tex.web, use synctex_teehs at
  *  the very end of the ship_out procedure.
@@ -1067,7 +1067,7 @@ static inline int synctex_record_preamble(void)
 }
 
 /*  Recording a "Input:..." line  */
-static inline int synctex_record_input(integer tag, char *name)
+static inline int synctex_record_input(int tag, char *name)
 {
 	size_t len = 0;
 #if SYNCTEX_DEBUG > 999
@@ -1116,7 +1116,7 @@ static inline int synctex_record_content(void)
 }
 
 /*  Recording a "{..." line  */
-static inline int synctex_record_sheet(integer sheet)
+static inline int synctex_record_sheet(int sheet)
 {
 #if SYNCTEX_DEBUG > 999
     printf("\nSynchronize DEBUG: synctex_record_sheet\n");
@@ -1134,7 +1134,7 @@ static inline int synctex_record_sheet(integer sheet)
 }
 
 /*  Recording a "}..." line  */
-static inline int synctex_record_teehs(integer sheet)
+static inline int synctex_record_teehs(int sheet)
 {
 #if SYNCTEX_DEBUG > 999
     printf("\nSynchronize DEBUG: synctex_record_teehs\n");

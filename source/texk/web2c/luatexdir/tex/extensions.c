@@ -131,7 +131,7 @@ the |do_extension| routine is called.
 
 void do_extension(PDF pdf)
 {
-    integer i, k;               /* all-purpose integers */
+    int i, k;                   /* all-purpose integers */
     halfword p;                 /* all-purpose pointer */
     switch (cur_chr) {
     case open_node:
@@ -269,7 +269,7 @@ void do_extension(PDF pdf)
         scan_pdf_ext_toks();
         set_pdf_font_attr(k, tokens_to_string(def_ref));
         if (str_length(pdf_font_attr(k)) == 0) {
-            flush_str((str_ptr-1)); /* from tokens_to_string */
+            flush_str((str_ptr - 1));   /* from tokens_to_string */
             set_pdf_font_attr(k, 0);
         }
         break;
@@ -577,21 +577,21 @@ halfword prev_rightmost(halfword s, halfword e)
   \.{\\pdfrefobj}
 */
 
-integer pdf_last_xform;
+int pdf_last_xform;
 
 /* \.{\\pdfximage} and \.{\\pdfrefximage} are similiar to \.{\\pdfxform} and
   \.{\\pdfrefxform}. As we have to scan |<rule spec>| quite often, it is better
   have a |rule_node| that holds the most recently scanned |<rule spec>|.
 */
 
-integer pdf_last_ximage;
-integer pdf_last_ximage_pages;
-integer pdf_last_ximage_colordepth;
-integer pdf_last_annot;
+int pdf_last_ximage;
+int pdf_last_ximage_pages;
+int pdf_last_ximage_colordepth;
+int pdf_last_annot;
 
 /* pdflastlink needs an extra global variable */
 
-integer pdf_last_link;
+int pdf_last_link;
 scaledpos pdf_last_pos = { 0, 0 };
 
 /*
@@ -612,7 +612,7 @@ halfword concat_tokens(halfword q, halfword r)
     return q;
 }
 
-integer pdf_retval;             /* global multi-purpose return value */
+int pdf_retval;                 /* global multi-purpose return value */
 
 
 halfword make_local_par_node(void)
@@ -858,7 +858,7 @@ void file_warning(void)
     halfword p;                 /* saved value of |save_ptr| or |cond_ptr| */
     quarterword l;              /* saved value of |cur_level| or |if_limit| */
     quarterword c;              /* saved value of |cur_group| or |cur_if| */
-    integer i;                  /* saved value of |if_line| */
+    int i;                      /* saved value of |if_line| */
     p = save_ptr;
     l = cur_level;
     c = cur_group;
@@ -916,7 +916,7 @@ pascal defines are not available.
 #define get_tex_attribute_register(j) attribute(j)
 #define get_tex_box_register(j) box(j)
 
-integer set_tex_dimen_register(integer j, scaled v)
+int set_tex_dimen_register(int j, scaled v)
 {
     int a;                      /* return non-nil for error */
     if (global_defs > 0)
@@ -927,7 +927,7 @@ integer set_tex_dimen_register(integer j, scaled v)
     return 0;
 }
 
-integer set_tex_skip_register(integer j, halfword v)
+int set_tex_skip_register(int j, halfword v)
 {
     int a;                      /* return non-nil for error */
     if (global_defs > 0)
@@ -940,7 +940,7 @@ integer set_tex_skip_register(integer j, halfword v)
     return 0;
 }
 
-integer set_tex_count_register(integer j, scaled v)
+int set_tex_count_register(int j, scaled v)
 {
     int a;                      /* return non-nil for error */
     if (global_defs > 0)
@@ -951,7 +951,7 @@ integer set_tex_count_register(integer j, scaled v)
     return 0;
 }
 
-integer set_tex_box_register(integer j, scaled v)
+int set_tex_box_register(int j, scaled v)
 {
     int a;                      /* return non-nil for error */
     if (global_defs > 0)
@@ -962,7 +962,7 @@ integer set_tex_box_register(integer j, scaled v)
     return 0;
 }
 
-integer set_tex_attribute_register(integer j, scaled v)
+int set_tex_attribute_register(int j, scaled v)
 {
     int a;                      /* return non-nil for error */
     if (global_defs > 0)
@@ -976,7 +976,7 @@ integer set_tex_attribute_register(integer j, scaled v)
     return 0;
 }
 
-integer get_tex_toks_register(integer j)
+int get_tex_toks_register(int j)
 {
     str_number s;
     s = get_nullstr();
@@ -986,7 +986,7 @@ integer get_tex_toks_register(integer j)
     return s;
 }
 
-integer set_tex_toks_register(integer j, lstring s)
+int set_tex_toks_register(int j, lstring s)
 {
     halfword ref;
     int a;
@@ -1002,7 +1002,7 @@ integer set_tex_toks_register(integer j, lstring s)
     return 0;
 }
 
-scaled get_tex_box_width(integer j)
+scaled get_tex_box_width(int j)
 {
     halfword q = box(j);
     if (q != null)
@@ -1010,7 +1010,7 @@ scaled get_tex_box_width(integer j)
     return 0;
 }
 
-integer set_tex_box_width(integer j, scaled v)
+int set_tex_box_width(int j, scaled v)
 {
     halfword q = box(j);
     if (q == null)
@@ -1019,7 +1019,7 @@ integer set_tex_box_width(integer j, scaled v)
     return 0;
 }
 
-scaled get_tex_box_height(integer j)
+scaled get_tex_box_height(int j)
 {
     halfword q = box(j);
     if (q != null)
@@ -1027,7 +1027,7 @@ scaled get_tex_box_height(integer j)
     return 0;
 }
 
-integer set_tex_box_height(integer j, scaled v)
+int set_tex_box_height(int j, scaled v)
 {
     halfword q = box(j);
     if (q == null)
@@ -1037,7 +1037,7 @@ integer set_tex_box_height(integer j, scaled v)
 }
 
 
-scaled get_tex_box_depth(integer j)
+scaled get_tex_box_depth(int j)
 {
     halfword q = box(j);
     if (q != null)
@@ -1045,7 +1045,7 @@ scaled get_tex_box_depth(integer j)
     return 0;
 }
 
-integer set_tex_box_depth(integer j, scaled v)
+int set_tex_box_depth(int j, scaled v)
 {
     halfword q = box(j);
     if (q == null)
@@ -1086,7 +1086,7 @@ This is just a placeholder where the command line controller will put
 the {\sl Sync\TeX} related options, and the {\sl Sync\TeX} controller will read them.
 */
 
-integer synctexoption;
+int synctexoption;
 
 /*
 @ A convenient primitive is provided:
@@ -1103,7 +1103,7 @@ the same memory storage. |synctexoffset| is initialized to
 the correct value when quite everything is initialized.
 */
 
-integer synctexoffset;          /* holds the true value of |synctex_code| */
+int synctexoffset;              /* holds the true value of |synctex_code| */
 
 /*
 Synchronization is achieved with the help of an auxiliary file named
@@ -1200,7 +1200,7 @@ system-dependent section allows easy integration of Web2c and e-\TeX, etc.)
 */
 
 pool_pointer edit_name_start;   /* where the filename to switch to starts */
-integer edit_name_length, edit_line;    /* what line to start editing at */
+int edit_name_length, edit_line;        /* what line to start editing at */
 int ipcon;                      /* level of IPC action, 0 for none [default] */
 boolean stop_at_space;          /* whether |more_name| returns false for space */
 

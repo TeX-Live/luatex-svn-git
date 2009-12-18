@@ -155,10 +155,10 @@ boolean auto_expand_vf(internal_font_number f); /* forward */
 
 #define vf_read(k, l)                            \
 {                                                \
-    integer itmp = 0, dtmp = k, jtmp = 0;        \
+    int itmp = 0, dtmp = k, jtmp = 0;            \
     while (dtmp > 0) {                           \
         vf_byte(jtmp);                           \
-        if ((dtmp == (integer) k) && jtmp > 127) \
+        if ((dtmp == (int) k) && jtmp > 127)     \
             jtmp = jtmp - 256;                   \
         itmp = itmp * 256 + jtmp;                \
         decr(dtmp);                              \
@@ -184,7 +184,7 @@ void pdf_check_vf(internal_font_number f)
 
 static void
 vf_local_font_warning(internal_font_number f, internal_font_number k, char *s,
-                      integer a, integer b)
+                      int a, int b)
 {
     print_nlp();
     tprint(s);
@@ -203,14 +203,14 @@ vf_local_font_warning(internal_font_number f, internal_font_number k, char *s,
 /* process a local font in \.{VF} file */
 
 internal_font_number
-vf_def_font(internal_font_number f, unsigned char *vf_buffer, integer * vf_cr)
+vf_def_font(internal_font_number f, unsigned char *vf_buffer, int *vf_cr)
 {
     internal_font_number k;
     str_number s;
     scaled ds, fs;
     four_quarters cs;
     memory_word tmp_w;          /* accumulator */
-    integer junk;
+    int junk;
     unsigned long checksum;
     cs.b0 = vf_buffer[(*vf_cr)];
     cs.b1 = vf_buffer[(*vf_cr) + 1];
@@ -254,7 +254,7 @@ vf_def_font(internal_font_number f, unsigned char *vf_buffer, integer * vf_cr)
         tmp_b0--;
         (*vf_cr)++;             /* skip the font path */
     }
-    str_room((unsigned)tmp_b1);
+    str_room((unsigned) tmp_b1);
     while (tmp_b1 > 0) {
         tmp_b1--;
         junk = vf_buffer[(*vf_cr)];
@@ -283,10 +283,10 @@ vf_def_font(internal_font_number f, unsigned char *vf_buffer, integer * vf_cr)
 }
 
 
-int open_vf_file(char *fn, unsigned char **vbuffer, integer * vsize)
+int open_vf_file(char *fn, unsigned char **vbuffer, int *vsize)
 {
     boolean res;                /* was the callback successful? */
-    integer callback_id;
+    int callback_id;
     boolean file_read = false;  /* was |vf_file| successfully read? */
     FILE *vf_file;
     char *fname = luatex_find_file(fn, find_vf_file_callback);
@@ -647,27 +647,27 @@ int count_packet_bytes(eight_bits * vf_buf, int cur_bute, int count)
 
 void do_vf(internal_font_number f)
 {
-    integer k, i;
+    int k, i;
     unsigned cmd, n;
     scaled x, y, w, z, h, v;
-    integer cc, cmd_length, packet_length;
+    int cc, cmd_length, packet_length;
     charinfo *co;
     scaled tfm_width;
-    integer save_cur_byte;
+    int save_cur_byte;
     vf_stack_index stack_level;
-    integer vf_z;               /* multiplier */
-    integer vf_alpha;           /* correction for negative values */
+    int vf_z;                   /* multiplier */
+    int vf_alpha;               /* correction for negative values */
     char vf_beta;               /* divisor */
-    integer vf_np;
+    int vf_np;
     eight_bits *vpackets;
     memory_word tmp_w;          /* accumulator */
     vf_stack_record vf_stack[256];
-    integer junk;
+    int junk;
     unsigned char *vf_buffer;
-    integer vf_size;
-    integer vf_cur;
-    integer *vf_local_fnts = NULL;      /* external font ids */
-    integer *vf_real_fnts = NULL;       /* internal font ids */
+    int vf_size;
+    int vf_cur;
+    int *vf_local_fnts = NULL;  /* external font ids */
+    int *vf_real_fnts = NULL;   /* internal font ids */
     unsigned vf_nf = 0;         /* local font counter */
 
     if (font_type(f) != unknown_font_type)
@@ -721,7 +721,7 @@ void do_vf(internal_font_number f)
     vf_byte(cmd);
     /* malloc and fill the local font arrays */
     if (vf_nf > 0) {
-        i = vf_nf * sizeof(integer);
+        i = vf_nf * sizeof(int);
         vf_local_fnts = xmalloc(i);
         memset(vf_local_fnts, 0, i);
         vf_real_fnts = xmalloc(i);
@@ -1031,25 +1031,25 @@ void do_vf(internal_font_number f)
 
 int make_vf_table(lua_State * L, char *cnom, scaled atsize)
 {
-    integer cmd, k, i;
-    integer cc, cmd_length, packet_length;
+    int cmd, k, i;
+    int cc, cmd_length, packet_length;
     scaled tfm_width;
     vf_stack_index stack_level;
-    integer vf_z;               /* multiplier */
-    integer vf_alpha;           /* correction for negative values */
+    int vf_z;                   /* multiplier */
+    int vf_alpha;               /* correction for negative values */
     char vf_beta;               /* divisor */
     char *s;
     scaled h, v;
     scaled w, x, y, z;
-    integer s_top;              /* lua stack */
-    integer vf_nf;              /* local font counter */
+    int s_top;                  /* lua stack */
+    int vf_nf;                  /* local font counter */
     scaled ds, fs;
     four_quarters cs;
     memory_word tmp_w;          /* accumulator */
     vf_stack_record vf_stack[256];
     unsigned char *vf_buffer;
-    integer vf_size;
-    integer vf_cur;
+    int vf_size;
+    int vf_cur;
 
 
     stack_level = 0;
@@ -1394,9 +1394,9 @@ boolean auto_expand_vf(internal_font_number f)
 {
 
     internal_font_number bf;
-    integer e, k;
-    integer *vf_old_fonts, *vf_new_fonts;
-    integer num = 0;
+    int e, k;
+    int *vf_old_fonts, *vf_new_fonts;
+    int num = 0;
 
     if ((!pdf_font_auto_expand(f)) || (pdf_font_blink(f) == null_font))
         return false;           /* not an auto-expanded font */
@@ -1409,7 +1409,7 @@ boolean auto_expand_vf(internal_font_number f)
 
     vf_old_fonts = packet_local_fonts(bf, &num);
     if (num > 0) {
-        vf_new_fonts = xmalloc(num * sizeof(integer));
+        vf_new_fonts = xmalloc(num * sizeof(int));
         for (k = 0; k < num; k++) {
             vf_new_fonts[k] = auto_expand_font(vf_old_fonts[k], e);
             copy_expand_params(vf_new_fonts[k], vf_old_fonts[k], e);
@@ -1422,7 +1422,7 @@ boolean auto_expand_vf(internal_font_number f)
     return true;
 }
 
-str_number expand_font_name(internal_font_number f, integer e)
+str_number expand_font_name(internal_font_number f, int e)
 {
     int old_setting;
     old_setting = selector;
@@ -1437,13 +1437,13 @@ str_number expand_font_name(internal_font_number f, integer e)
 }
 
 
-internal_font_number auto_expand_font(internal_font_number f, integer e)
+internal_font_number auto_expand_font(internal_font_number f, int e)
 {
     internal_font_number k;
     kerninfo *krn;
     charinfo *co;
     char *fn;
-    integer i;
+    int i;
     scaled w;
     k = copy_font(f);
     i = strlen(font_name(f)) + 12;
@@ -1473,8 +1473,8 @@ internal_font_number auto_expand_font(internal_font_number f, integer e)
 void vf_expand_local_fonts(internal_font_number f)
 {
     internal_font_number lf;
-    integer k, num;
-    integer *vf_old_fonts;
+    int k, num;
+    int *vf_old_fonts;
     pdfassert(font_type(f) == virtual_font_type);
     num = 0;
     vf_old_fonts = packet_local_fonts(f, &num);
@@ -1493,15 +1493,15 @@ void vf_expand_local_fonts(internal_font_number f)
 }
 
 internal_font_number
-letter_space_font(halfword u, internal_font_number f, integer e)
+letter_space_font(halfword u, internal_font_number f, int e)
 {
     internal_font_number k;
     scaled w, r;
 
     char *new_font_name;
-    integer vf_z;
-    integer vf_alpha;
-    integer vf_beta;
+    int vf_z;
+    int vf_alpha;
+    int vf_beta;
     memory_word tmp_w;          /* accumulator */
 
 

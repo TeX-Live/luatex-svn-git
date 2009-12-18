@@ -64,7 +64,7 @@ do by computing the value |abs(mode)+cur_cmd|, where |mode| is the current
 mode and |cur_cmd| is the current command code.
 */
 
-void print_mode(integer m)
+void print_mode(int m)
 {                               /* prints the mode represented by |m| */
     if (m > 0) {
         switch (m / (max_command_cmd + 1)) {
@@ -101,7 +101,7 @@ void print_mode(integer m)
     }
 }
 
-void print_in_mode(integer m)
+void print_in_mode(int m)
 {                               /* prints the mode represented by |m| */
     if (m > 0) {
         switch (m / (max_command_cmd + 1)) {
@@ -138,9 +138,9 @@ void print_in_mode(integer m)
     }
 }
 
-integer get_mode_id(void)
+int get_mode_id(void)
 {                               /* returns the mode represented by |m| */
-    integer m = cur_list.mode_field;
+    int m = cur_list.mode_field;
     if (m > 0) {
         switch (m / (max_command_cmd + 1)) {
         case 0:
@@ -250,7 +250,7 @@ list_state_record *nest;
 int nest_ptr;                   /* first unused location of |nest| */
 int max_nest_stack;             /* maximum of |nest_ptr| when pushing */
 list_state_record cur_list;     /* the ``top'' semantic state */
-integer shown_mode;             /* most recent mode shown by \.{\\tracingcommands} */
+int shown_mode;                 /* most recent mode shown by \.{\\tracingcommands} */
 halfword save_tail;             /* save |tail| so we can examine whether we have an auto
                                    kern before a glue */
 
@@ -356,10 +356,10 @@ void pop_nest(void)
 void show_activities(void)
 {
     int p;                      /* index into |nest| */
-    integer m;                  /* mode */
+    int m;                      /* mode */
     memory_word a;              /* auxiliary */
     halfword q, r;              /* for showing the current page */
-    integer t;                  /* ditto */
+    int t;                      /* ditto */
     nest[nest_ptr] = cur_list;  /* put the top level into the array */
     tprint_nl("");
     print_ln();

@@ -61,7 +61,7 @@ str_number init_str_ptr;        /* the starting value of |str_ptr| */
 unsigned char *cur_string;      /*  current string buffer */
 unsigned cur_length;            /* current index in that buffer */
 unsigned cur_string_size;       /*  malloced size of |cur_string| */
-unsigned pool_size;              /* occupied byte count */
+unsigned pool_size;             /* occupied byte count */
 
 /*
 Once a sequence of characters has been appended to |cur_string|, it
@@ -70,22 +70,23 @@ This function returns the identification number of the new string as its
 value.
 */
 
-void reset_cur_string (void)
+void reset_cur_string(void)
 {
     cur_length = 0;
     cur_string_size = 255;
-    cur_string = (unsigned char *)xmalloc(256);
-    memset(cur_string,0,256);
+    cur_string = (unsigned char *) xmalloc(256);
+    memset(cur_string, 0, 256);
 }
 
 /* current string enters the pool */
 str_number make_string(void)
 {
     if (str_ptr == (max_strings + STRING_OFFSET))
-        overflow("number of strings", max_strings - init_str_ptr + STRING_OFFSET);
+        overflow("number of strings",
+                 max_strings - init_str_ptr + STRING_OFFSET);
     str_room(1);
-    cur_string[cur_length] = '\0'; /* now |lstring.s| is always a valid C string */
-    str_string(str_ptr) = (unsigned char *)cur_string;
+    cur_string[cur_length] = '\0';      /* now |lstring.s| is always a valid C string */
+    str_string(str_ptr) = (unsigned char *) cur_string;
     str_length(str_ptr) = cur_length;
     pool_size += cur_length;
     reset_cur_string();
@@ -184,10 +185,10 @@ UTF-8 encoding.
   } while (0)
 
 
-static integer buffer_to_unichar(integer k)
+static int buffer_to_unichar(int k)
 {
-    integer a;                  /* a utf char */
-    integer b;                  /* a utf nibble */
+    int a;                      /* a utf char */
+    int b;                      /* a utf nibble */
     b = buffer[k];
     if (b < 0x80) {
         a = b;
@@ -228,9 +229,9 @@ static integer buffer_to_unichar(integer k)
     return a;
 }
 
-integer pool_to_unichar(unsigned char *t)
+int pool_to_unichar(unsigned char *t)
 {
-    return (integer) str2uni(t);
+    return (int) str2uni(t);
 }
 
 
@@ -242,9 +243,9 @@ Empirical tests indicate that |str_eq_buf| is used in such a way that
 it tends to return |true| about 80 percent of the time.
 */
 
-boolean str_eq_buf(str_number s, integer k)
+boolean str_eq_buf(str_number s, int k)
 {                               /* test equality of strings */
-    integer a;                  /* a unicode character */
+    int a;                      /* a unicode character */
     if (s < STRING_OFFSET) {
         a = buffer_to_unichar(k);
         if (a != s)
@@ -267,8 +268,8 @@ and it does not assume that they have the same length.
 
 boolean str_eq_str(str_number s, str_number t)
 {                               /* test equality of strings */
-    integer a = 0;              /* a utf char */
-    unsigned char *j, *k, *l;      /* running indices */
+    int a = 0;                  /* a utf char */
+    unsigned char *j, *k, *l;   /* running indices */
     if (s < STRING_OFFSET) {
         if (t >= STRING_OFFSET) {
             k = str_string(t);
@@ -346,7 +347,7 @@ boolean get_strings_started(void)
 str_number search_string(str_number search)
 {
     str_number s;               /* running index */
-    unsigned len;                /* length of searched string */
+    unsigned len;               /* length of searched string */
     len = str_length(search);
     if (len == 0) {
         return get_nullstr();
@@ -374,11 +375,11 @@ str_number maketexlstring(const char *s, size_t l)
 {
     if (s == NULL || l == 0)
         return get_nullstr();
-    str_string(str_ptr) = xmalloc(l+1);
-    memcpy(str_string(str_ptr),s,(l+1));
-    str_length(str_ptr) = (unsigned)l;
+    str_string(str_ptr) = xmalloc(l + 1);
+    memcpy(str_string(str_ptr), s, (l + 1));
+    str_length(str_ptr) = (unsigned) l;
     str_ptr++;
-    return (str_ptr -1);
+    return (str_ptr - 1);
 }
 
 /* append a C string to a TeX string */
@@ -386,68 +387,70 @@ void append_string(unsigned char *s, unsigned l)
 {
     if (s == NULL || *s == 0)
         return;
-    l = strlen((char *)s);
+    l = strlen((char *) s);
     str_room(l);
-    memcpy(cur_string+cur_length, s, l);
+    memcpy(cur_string + cur_length, s, l);
     cur_length += l;
     return;
 }
 
-char *makecstring(integer s)
+char *makecstring(int s)
 {
     size_t l;
     return makeclstring(s, &l);
 }
 
-char *makeclstring(integer s, size_t * len)
+char *makeclstring(int s, size_t * len)
 {
-    if (s<STRING_OFFSET) {
+    if (s < STRING_OFFSET) {
         *len = utf8_size(s);
-        return (char *)uni2str(s);
+        return (char *) uni2str(s);
     } else {
         unsigned l = str_length(s);
-        char *cstrbuf = xmalloc(l+1);
-        memcpy(cstrbuf,str_string(s),l);
+        char *cstrbuf = xmalloc(l + 1);
+        memcpy(cstrbuf, str_string(s), l);
         cstrbuf[l] = '\0';
         *len = l;
         return cstrbuf;
     }
 }
 
-int dump_string_pool (void) {
+int dump_string_pool(void)
+{
     int j;
     int k = str_ptr;
     unsigned l;
-    dump_int(k-STRING_OFFSET);
-    for (j=STRING_OFFSET+1;j<k;j++) {
+    dump_int(k - STRING_OFFSET);
+    for (j = STRING_OFFSET + 1; j < k; j++) {
         l = str_length(j);
-        if (str_string(j)==NULL)
-            l=-1;
+        if (str_string(j) == NULL)
+            l = -1;
         dump_int(l);
-        if (l>0)
-            dump_things(*str_string(j),str_length(j));
+        if (l > 0)
+            dump_things(*str_string(j), str_length(j));
     }
-    return (k-STRING_OFFSET);
+    return (k - STRING_OFFSET);
 }
 
-int undump_string_pool (void) {
+int undump_string_pool(void)
+{
     int j;
-    integer x;
+    int x;
     undump_int(str_ptr);
     if (max_strings < str_ptr + strings_free)
         max_strings = str_ptr + strings_free;
     str_ptr += STRING_OFFSET;
     if (ini_version)
         libcfree(string_pool);
-    init_string_pool_array (max_strings);
-    for (j=STRING_OFFSET+1;j<str_ptr;j++) {
+    init_string_pool_array(max_strings);
+    for (j = STRING_OFFSET + 1; j < str_ptr; j++) {
         undump_int(x);
-        if (x>=0) {
-            str_length(j) = (unsigned)x;
+        if (x >= 0) {
+            str_length(j) = (unsigned) x;
             pool_size += x;
-            str_string(j) = xmallocarray(unsigned char, (unsigned)(x+1));
-            undump_things(*str_string(j),(unsigned)x);
-            *(str_string(j)+str_length(j)) = '\0';
+            str_string(j) = xmallocarray(unsigned char, (unsigned) (x + 1));
+            undump_things(*str_string(j), (unsigned) x);
+            *(str_string(j) + str_length(j)) = '\0';
         } else {
             str_length(j) = 0;
         }
@@ -456,7 +459,7 @@ int undump_string_pool (void) {
     return str_ptr;
 }
 
-void init_string_pool_array (int s)
+void init_string_pool_array(int s)
 {
     string_pool = xmallocarray(lstring, s);
     _string_pool = string_pool - STRING_OFFSET;
@@ -471,13 +474,12 @@ void init_string_pool_array (int s)
 void flush_str(str_number s)
 {
     /* printf("Flushing a string: %s (s=%d,str_ptr=%d)\n", (char *)str_string(s), (int)s, (int)str_ptr); */
-    if (s > STRING_OFFSET) { /* don't ever delete the null string */
+    if (s > STRING_OFFSET) {    /* don't ever delete the null string */
         pool_size -= str_length(s);
         str_length(s) = 0;
-        xfree (str_string(s));
+        xfree(str_string(s));
         str_string(s) = NULL;
     }
-    while (str_string((str_ptr-1))==NULL)
+    while (str_string((str_ptr - 1)) == NULL)
         str_ptr--;
 }
-
