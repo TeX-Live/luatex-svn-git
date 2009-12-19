@@ -1094,7 +1094,7 @@ int copy_font(int f)
         memcpy(math_param_base(k), math_param_base(f), i);
     }
 
-    for (i = 0; i < font_tables[f]->charinfo_count; i++) {
+    for (i = 0; i <= font_tables[f]->charinfo_count; i++) {
         ci = copy_charinfo(&font_tables[f]->charinfo[i]);
         font_tables[k]->charinfo[i] = *ci;
     }
