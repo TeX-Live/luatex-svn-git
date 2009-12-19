@@ -68,7 +68,9 @@ static void setup_fontparameters(PDF pdf, internal_font_number f)
     p->hz.m = pdf_font_expand_ratio(f) + ten_pow[p->hz.e];
     p->tm[0].m =
         lround(pdf2double(p->hz) * pdf2double(p->ext) * ten_pow[p->tm[0].e]);
-    p->tm[2].m = lround(font_slant(f) * (font_extend(f) / 1000.0));     /* tm[2].e = 3 */
+    p->tm[2].m =
+        lround((font_slant(f) / 1000.0) * (font_extend(f) / 1000.0) *
+               ten_pow[p->tm[2].e]);
     p->k2 =
         ten_pow[e_tj +
                 p->cw.e] / (ten_pow[p->pdf.h.e] * pdf2double(p->fs) *
