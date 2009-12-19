@@ -121,6 +121,8 @@ int new_font(void)
     set_font_bc(id, 1);         /* ec = 0 */
     set_hyphen_char(id, '-');
     set_skew_char(id, -1);
+    font_slant(id) = 0;         /* vertical */
+    font_extend(id) = 1000;     /* normal width */
 
     /* allocate eight values including 0 */
     set_font_params(id, 7);

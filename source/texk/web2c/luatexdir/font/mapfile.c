@@ -91,7 +91,9 @@ fm_entry *new_fm_entry(void)
     fm->pid = -1;
     fm->eid = -1;
     fm->subfont = NULL;
-    fm->in_use = false;
+    unset_slantset(fm);
+    unset_extendset(fm);
+    unset_inuse(fm);
     return fm;
 }
 
@@ -208,7 +210,7 @@ int avl_do_entry(fm_entry * fm, int mode)
                 break;
             case FM_REPLACE:
             case FM_DELETE:
-                if (p->in_use) {
+                if (is_inuse(p)) {
                     pdftex_warn
                         ("fontmap entry for `%s' has been used, replace/delete not allowed",
                          fm->tfm_name);
@@ -242,7 +244,7 @@ int avl_do_entry(fm_entry * fm, int mode)
                 break;
             case FM_REPLACE:
             case FM_DELETE:
-                if (p->in_use)
+                if (is_inuse(p))
                     goto exit;
                 a = avl_delete(ps_tree, p);
                 assert(a != NULL);
@@ -475,10 +477,12 @@ static void fm_scan_line(void)
                     if (str_prefix(s, "SlantFont")) {
                         d *= 1000.0;    /* correct rounding also for neg. numbers */
                         fm->slant = (int) (d > 0 ? d + 0.5 : d - 0.5);
+                        set_slantset(fm);
                         r = s + strlen("SlantFont");
                     } else if (str_prefix(s, "ExtendFont")) {
                         d *= 1000.0;
                         fm->extend = (int) (d > 0 ? d + 0.5 : d - 0.5);
+                        set_extendset(fm);
                         if (fm->extend == 0)    /* special user case... */
                             fm->extend = 1000;  /* ...mapped to natural internal representation */
                         r = s + strlen("ExtendFont");
@@ -664,7 +668,7 @@ static fm_entry_ptr fmlookup(internalfontnumber f)
     tmp.tfm_name = tfm;
     fm = (fm_entry *) avl_find(tfm_tree, &tmp);
     if (fm != NULL) {
-        fm->in_use = true;
+        set_inuse(fm);
         return (fm_entry_ptr) fm;
     }
     return (fm_entry_ptr) dummy_fm_entry();
@@ -675,8 +679,11 @@ boolean hasfmentry(internalfontnumber f)
     if (font_map(f) == NULL)
         set_font_map(f, (fm_entry_ptr) fmlookup(f));
     assert(font_map(f) != NULL);
-    font_slant(f) = ((fm_entry *) font_map(f))->slant;
-    font_extend(f) = ((fm_entry *) font_map(f))->extend;
+    /* TODO: this still overrides already set font_slant(f) */
+    if (is_slantset((fm_entry *) font_map(f)))
+        font_slant(f) = ((fm_entry *) font_map(f))->slant;
+    if (is_extendset((fm_entry *) font_map(f)))
+        font_extend(f) = ((fm_entry *) font_map(f))->extend;
     return font_map(f) != (fm_entry_ptr) dummy_fm_entry();
 }
 

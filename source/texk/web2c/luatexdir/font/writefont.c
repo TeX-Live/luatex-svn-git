@@ -812,9 +812,11 @@ void do_pdf_font(PDF pdf, int font_objnum, internalfontnumber f)
         }
         fm->encname = font_encodingname(f);     /* for the CIDSystemInfo */
         fm->slant = font_slant(f);      /* slant factor */
+        set_slantset(fm);
         fm->extend = font_extend(f);    /* extension factor */
+        set_extendset(fm);
         fm->fd_flags = 4;       /* can perhaps be done better */
-        fm->in_use = true;
+        set_inuse(fm);
 
         switch (font_format(f)) {
         case opentype_format:
@@ -852,11 +854,8 @@ void do_pdf_font(PDF pdf, int font_objnum, internalfontnumber f)
         fm = hasfmentry(f) ? (fm_entry *) font_map(f) : NULL;
         if (fm == NULL || (fm->ps_name == NULL && fm->ff_name == NULL))
             writet3(pdf, font_objnum, f);
-        else {
-            font_slant(f) = fm->slant;  /* slant factor */
-            font_extend(f) = fm->extend;        /* extend factor */
+        else
             create_fontdictionary(pdf, fm, font_objnum, f);
-        }
     }
 }
 
