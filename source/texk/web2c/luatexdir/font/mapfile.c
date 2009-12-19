@@ -18,16 +18,15 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+static const char _svn_version[] =
+    "$Id$ "
+    "$URL$";
+
 #include <math.h>
 #include "ptexlib.h"
 #include <kpathsea/c-auto.h>
 #include <kpathsea/c-memstr.h>
 #include <string.h>
-
-
-static const char _svn_version[] =
-    "$Id$ "
-    "$URL$";
 
 #define FM_BUF_SIZE     1024
 
@@ -483,8 +482,6 @@ static void fm_scan_line(void)
                         d *= 1000.0;
                         fm->extend = (int) (d > 0 ? d + 0.5 : d - 0.5);
                         set_extendset(fm);
-                        if (fm->extend == 0)    /* special user case... */
-                            fm->extend = 1000;  /* ...mapped to natural internal representation */
                         r = s + strlen("ExtendFont");
                     } else {    /* unknown name */
                         for (r = s; *r != ' ' && *r != '"' && *r != '\0'; r++); /* jump over name */

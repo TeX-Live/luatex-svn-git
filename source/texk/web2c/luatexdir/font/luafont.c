@@ -436,13 +436,8 @@ int font_to_lua(lua_State * L, int f)
     lua_setfield(L, -2, "checksum");
     lua_pushnumber(L, font_slant(f));
     lua_setfield(L, -2, "slant");
-
-    if (font_extend(f) == 1000)
-        lua_pushnumber(L, 0);   /* maybe this special case should be removed,... */
-    else
-        lua_pushnumber(L, font_extend(f));      /* ...better 1000 = nonextended/natural */
+    lua_pushnumber(L, font_extend(f));
     lua_setfield(L, -2, "extend");
-
     lua_pushnumber(L, font_natural_dir(f));
     lua_setfield(L, -2, "direction");
     lua_pushnumber(L, font_encodingbytes(f));
@@ -1507,8 +1502,6 @@ int font_from_lua(lua_State * L, int f)
         i = -2000;
     if (i > 2000)
         i = 2000;
-    if (i == 0)
-        i = 1000;
     set_font_extend(f, i);
     i = numeric_field(L, "slant", 0);
     if (i < -1000)
