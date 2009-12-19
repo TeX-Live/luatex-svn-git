@@ -2076,7 +2076,7 @@ int unset_attribute(halfword n, int i, int val)
         attr_list_ref(q) = 1;
         node_attr(n) = q;
     }
-    p = vlink(p);
+    p = vlink(node_attr(n));
     while (j-- > 0)
         p = vlink(p);
     t = attribute_value(p);
