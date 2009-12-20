@@ -1496,7 +1496,7 @@ int font_from_lua(lua_State * L, int f)
     i = numeric_field(L, "tounicode", 0);
     set_font_tounicode(f, i);
 
-    i = numeric_field(L, "extend", 0);
+    i = numeric_field(L, "extend", 1000);
     if (i < FONT_EXTEND_MIN)
         i = FONT_EXTEND_MIN;
     if (i > FONT_EXTEND_MAX)
