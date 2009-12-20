@@ -100,11 +100,13 @@ typedef struct {
                                    cw.e = fractional digits in /Widths array */
     pdffloat tj_delta;          /* rel. movement in [(..)..]TJ array (glyph raster) */
     pdffloat fs;                /* font size in PDF units */
+    pdffloat fs_cur;            /* to check if fs.m has changed and Tf needed */
     pdffloat cm[6];             /* cm array */
     pdffloat tm[6];             /* Tm array */
     double k1;                  /* conv. factor from TeX sp to PDF page raster */
     double k2;                  /* conv. factor from PDF page raster to TJ array raster */
     int f_pdf;                  /* /F* font number, of unexpanded base font! */
+    int f_pdf_cur;              /* to check if f_pdf has changed and Tf needed */
     writing_mode wmode;         /* PDF writing mode WMode (horizontal/vertical) */
     pos_mode mode;              /* current positioning mode */
     int ishex;                  /* Whether the current char string is <> or () */

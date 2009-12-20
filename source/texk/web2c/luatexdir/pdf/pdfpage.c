@@ -46,7 +46,7 @@ void init_pdf_pagecalculations(PDF pdf)
     setpdffloat(p->pdf.h, 0, decimal_digits);
     setpdffloat(p->pdf.v, 0, decimal_digits);
     p->cw.e = 1;
-    p->fs.e = decimal_digits + 2;       /* "+ 2" makes less corrections inside []TJ */
+    p->fs_cur.e = p->fs.e = decimal_digits + 2; /* "+ 2" makes less corrections inside []TJ */
     /* for placement outside BT...ET */
     setpdffloat(p->cm[0], 1, 0);
     setpdffloat(p->cm[1], 0, 0);
@@ -62,7 +62,8 @@ void init_pdf_pagecalculations(PDF pdf)
     setpdffloat(p->tm[4], 0, decimal_digits);   /* mantissa holds delta from pdf_bt_pos.h */
     setpdffloat(p->tm[5], 0, decimal_digits);   /* mantissa holds delta from pdf_bt_pos.v */
     /*  */
-    p->f_pdf = null_font;
+    p->f_pdf_cur = p->f_pdf = null_font;
+    p->fs_cur.m = p->fs.m = 0;
     p->wmode = WMODE_H;
     p->mode = PMODE_PAGE;
     p->ishex = 0;
@@ -225,6 +226,8 @@ static void begin_text(PDF pdf)
     p->pdf_bt_pos = p->pdf;
     pdf_puts(pdf, "BT\n");
     p->mode = PMODE_TEXT;
+    p->f_pdf_cur = null_font;   /* forces Tf operator */
+    p->fs_cur.m = 0;
 }
 
 static void end_text(PDF pdf)

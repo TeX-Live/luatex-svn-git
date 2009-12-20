@@ -85,6 +85,8 @@ static void set_font(PDF pdf)
     pdf_printf(pdf, " ");
     print_pdffloat(pdf, p->fs);
     pdf_printf(pdf, " Tf ");
+    p->f_pdf_cur = p->f_pdf;
+    p->fs_cur.m = p->fs.m;
 }
 
 static void print_tm(PDF pdf, pdffloat * tm)
@@ -164,7 +166,8 @@ void pdf_place_glyph(PDF pdf, internal_font_number f, int c)
         pdf_goto_textmode(pdf);
         if (f != pdf->f_cur)
             setup_fontparameters(pdf, f);
-        set_font(pdf);
+        if (p->f_pdf != p->f_pdf_cur || p->fs.m != p->fs_cur.m)
+            set_font(pdf);
         set_textmatrix(pdf, pos);
         begin_chararray(pdf);
     }
