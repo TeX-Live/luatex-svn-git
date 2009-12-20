@@ -1,5 +1,5 @@
 /* writet1.c
-   
+
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
    Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
@@ -18,12 +18,12 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+static const char _svn_version[] =
+    "$Id$ "
+    "$URL$";
+
 #include "ptexlib.h"
 #include <string.h>
-
-
-static const char _svn_version[] =
-    "$Id$ $URL$";
 
 #define t1_log(str)      if(tracefilenames) tex_printf("%s", str)
 #define get_length1()    t1_length1 = t1_offset() - t1_save_offset
@@ -627,17 +627,18 @@ static void t1_stop_eexec(PDF pdf)
     t1_in_eexec = 2;
 }
 
-/* macros for various transforms; currently only slant and extend are used */
+/* macros for various transforms; unused, left for reference */
 
-#define do_xshift(x,a) {x[4]+=a;}
-#define do_yshift(x,a) {x[5]+=a;}
-#define do_xscale(x,a) {x[0]*=a; x[2]*=a; x[4]*=a;}
-#define do_yscale(x,a) {x[1]*=a; x[3]*=a; x[5]*=a;}
-#define do_extend(x,a) {do_xscale(x,a);}
-#define do_scale(x,a)  {do_xscale(x,a); do_yscale(x,a);}
-#define do_slant(x,a)  {x[0]+=x[1]*(a); x[2]+=x[3]*(a); x[4]+=x[5]*(a);}
-#define do_shear(x,a)  {x[1]+=x[0]*(a); x[3]+=x[2]*(a); x[5]+=x[4]*(a);}
-#define do_rotate(x,a)          \
+#ifdef T1TRANSFORMMACROS
+#  define do_xshift(x,a) {x[4]+=a;}
+#  define do_yshift(x,a) {x[5]+=a;}
+#  define do_xscale(x,a) {x[0]*=a; x[2]*=a; x[4]*=a;}
+#  define do_yscale(x,a) {x[1]*=a; x[3]*=a; x[5]*=a;}
+#  define do_extend(x,a) {do_xscale(x,a);}
+#  define do_scale(x,a)  {do_xscale(x,a); do_yscale(x,a);}
+#  define do_slant(x,a)  {x[0]+=x[1]*(a); x[2]+=x[3]*(a); x[4]+=x[5]*(a);}
+#  define do_shear(x,a)  {x[1]+=x[0]*(a); x[3]+=x[2]*(a); x[5]+=x[4]*(a);}
+#  define do_rotate(x,a)          \
   {float t, u=cos(a), v=sin(a); \
   t    =x[0]*u+x[1]*-v;         \
   x[1] =x[0]*v+x[1]* u; x[0]=t; \
@@ -645,81 +646,13 @@ static void t1_stop_eexec(PDF pdf)
   x[3] =x[2]*v+x[3]* u; x[2]=t; \
   t    =x[4]*u+x[5]*-v;         \
   x[5] =x[4]*v+x[5]* u; x[4]=t;}
-
-static void t1_modify_fm(void)
-{
-    /*
-     * font matrix is given as six numbers a0..a5, which stands for the matrix
-     *
-     *           a0 a1 0
-     *     M =   a2 a3 0
-     *           a4 a5 1
-     *
-     * ExtendFont is given as
-     *
-     *           e 0 0
-     *     E =   0 1 0
-     *           0 0 1
-     *
-     * SlantFont is given as
-     *
-     *           1 0 0
-     *     S =   s 1 0
-     *           0 0 1
-     *
-     * The slant transform must be done _before_ the extend transform
-     * for compatibility!
-     */
-    float a[6];
-    int i, c;
-    char *p, *q, *r;
-    if ((p = strchr(t1_line_array, '[')) == 0)
-        if ((p = strchr(t1_line_array, '{')) == 0) {
-            remove_eol(p, t1_line_array);
-            pdftex_fail("FontMatrix: an array expected: `%s'", t1_line_array);
-        }
-    c = *p++;                   /* save the character '[' resp. '{' */
-    strncpy(t1_buf_array, t1_line_array, (size_t) (p - t1_line_array));
-    r = t1_buf_array + (p - t1_line_array);
-    for (i = 0; i < 6; i++) {
-        a[i] = t1_scan_num(p, &q);
-        p = q;
-    }
-    if (fm_extend(fd_cur->fm) != 1000)
-        do_extend(a, fm_extend(fd_cur->fm) * 1E-3);
-    for (i = 0; i < 6; i++) {
-        sprintf(r, "%g ", a[i]);
-        r = strend(r);
-    }
-    if (c == '[') {
-        while (*p != ']' && *p != 0)
-            p++;
-    } else {
-        while (*p != '}' && *p != 0)
-            p++;
-    }
-    if (*p == 0) {
-        remove_eol(p, t1_line_array);
-        pdftex_fail
-            ("FontMatrix: cannot find the corresponding character to '%c': `%s'",
-             c, t1_line_array);
-    }
-    strcpy(r, p);
-    strcpy(t1_line_array, t1_buf_array);
-    t1_line_ptr = eol(t1_line_array);
-}
+#endif
 
 static void t1_scan_keys(PDF pdf)
 {
     int i, k;
     char *p, *q, *r;
     key_entry *key;
-    if (fm_extend(fd_cur->fm) != 1000) {
-        if (t1_prefix("/FontMatrix")) {
-            t1_modify_fm();
-            return;
-        }
-    }
     if (t1_prefix("/FontType")) {
         p = t1_line_array + strlen("FontType") + 1;
         if ((i = t1_scan_num(p, 0)) != 1)
@@ -743,9 +676,6 @@ static void t1_scan_keys(PDF pdf)
         r = ++p;                /* skip the slash */
         for (q = t1_buf_array; *p != ' ' && *p != 10; *q++ = *p++);
         *q = 0;
-        if (fm_extend(fd_cur->fm) != 1000) {
-            sprintf(q, "-Extend_%i", (int) fm_extend(fd_cur->fm));
-        }
         xfree(fd_cur->fontname);
         fd_cur->fontname = xstrdup(t1_buf_array);
         /* at this moment we cannot call make_subset_tag() yet, as the encoding
@@ -760,8 +690,7 @@ static void t1_scan_keys(PDF pdf)
         }
         return;
     }
-    if ((k == STEMV_CODE || k == FONTBBOX1_CODE)
-        && (*p == '[' || *p == '{'))
+    if ((k == STEMV_CODE || k == FONTBBOX1_CODE) && (*p == '[' || *p == '{'))
         p++;
     if (k == FONTBBOX1_CODE) {
         for (i = 0; i < 4; i++, k++) {
@@ -857,8 +786,7 @@ char **t1_builtin_enc(void)
                 counter++;
             }
             if (*r != 10 && *r != '%') {
-                if (str_prefix(r, "] def")
-                    || str_prefix(r, "] readonly def"))
+                if (str_prefix(r, "] def") || str_prefix(r, "] readonly def"))
                     break;
                 else {
                     remove_eol(r, t1_line_array);
@@ -1562,7 +1490,7 @@ static void t1_flush_cs(PDF pdf, boolean is_subr)
     if (is_subr) {
         cr = 4330;
         cs_len = 0;
-        /* at this point we have t1_lenIV >= 0; 
+        /* at this point we have t1_lenIV >= 0;
          * a negative value would be caught in t1_scan_param() */
         return_cs = xtalloc(t1_lenIV + 1, byte);
         for (cs_len = 0, r = return_cs; cs_len < t1_lenIV; cs_len++, r++)
@@ -1644,8 +1572,9 @@ static void t1_mark_glyphs(void)
 static void t1_subset_charstrings(PDF pdf)
 {
     cs_entry *ptr;
-    cs_size_pos = strstr(t1_line_array, charstringname) + strlen(charstringname)
-        - t1_line_array + 1;
+    cs_size_pos =
+        strstr(t1_line_array,
+               charstringname) + strlen(charstringname) - t1_line_array + 1;
     /* cs_size_pos points to the number indicating
        dict size after "/CharStrings" */
     cs_size = t1_scan_num(t1_line_array + cs_size_pos, 0);

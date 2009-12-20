@@ -18,18 +18,17 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include "ptexlib.h"
-
-#include <string.h>
-
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
+#include "ptexlib.h"
+#include <string.h>
+
 fd_entry *epdf_create_fontdescriptor(fm_entry * fm, int stemV, int obj_num)
 {
     fd_entry *fd;
-    if ((fd = lookup_fd_entry(fm->ff_name, fm->extend)) == NULL) {
+    if ((fd = lookup_fd_entry(fm->ff_name)) == NULL) {
         set_inuse(fm);
         fd = new_fd_entry();
         fd->fm = fm;

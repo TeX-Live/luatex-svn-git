@@ -30,7 +30,7 @@ Because this structure interfaces with C++, it is not wise to use |boolean|
 here (C++ has a boolean type built-in that is not compatible). Also, I have
 plans to convert the backend code into a C library for use with e.g. standalone
 lua. Together, this means that it is best only to use the standard C types and
-the types explicitly defined in this header, and stay away from types like 
+the types explicitly defined in this header, and stay away from types like
 |integer| and |eight_bits| that are used elsewhere in the \LUATEX\ sources.
 
  */
@@ -100,8 +100,6 @@ typedef struct {
                                    cw.e = fractional digits in /Widths array */
     pdffloat tj_delta;          /* rel. movement in [(..)..]TJ array (glyph raster) */
     pdffloat fs;                /* font size in PDF units */
-    pdffloat hz;                /* HZ expansion factor */
-    pdffloat ext;               /* ExtendFont factor */
     pdffloat cm[6];             /* cm array */
     pdffloat tm[6];             /* Tm array */
     double k1;                  /* conv. factor from TeX sp to PDF page raster */
@@ -236,7 +234,7 @@ typedef struct pdf_output_file_ {
     z_stream c_stream;          /* compression stream */
     int zip_write_state;        /* which state of compression we are in */
 
-    int pk_scale_factor;        /* this is just a preprocessed value that depends on 
+    int pk_scale_factor;        /* this is just a preprocessed value that depends on
                                    |pk_resolution| and |decimal_digits| */
 
     int img_page_group_val;     /* page group information pointer from included pdf or png images */
@@ -266,7 +264,7 @@ typedef struct pdf_output_file_ {
     int last_byte;              /* byte most recently written to PDF file; for \.{endstream} in new line */
 
     /* integer last_resources;     halfword to most recently generated Resources object.
-       TH: this used to be a local in pdf_shipout, but I would like to 
+       TH: this used to be a local in pdf_shipout, but I would like to
        be able to split that function into a pre- and post part */
 
     int obj_count;

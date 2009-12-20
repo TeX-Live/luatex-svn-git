@@ -1,5 +1,5 @@
 /* pdfglyph.c
-   
+
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -17,12 +17,12 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include "ptexlib.h"
-#include "pdfpage.h"
-
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
+
+#include "ptexlib.h"
+#include "pdfpage.h"
 
 #define lround(a) (long) floor((a) + 0.5)
 #define pdf2double(a) ((double) (a).m / ten_pow[(a).e])
@@ -55,22 +55,22 @@ void pdf_print_charwidth(PDF pdf, internal_font_number f, int i)
 
 static void setup_fontparameters(PDF pdf, internal_font_number f)
 {
+    float slant, extend, expand;
     pdfstructure *p = pdf->pstruct;
     pdf->f_cur = f;
     p->f_pdf = pdf_set_font(pdf, f);
+    p->fs.m = lround(font_size(f) / one_bp * ten_pow[p->fs.e]);
+    slant = font_slant(f) / 1000.0;
+    extend = font_extend(f) / 1000.0;
+    expand = 1.0 + pdf_font_expand_ratio(f) / 1000.0;
     p->tj_delta.e = p->cw.e - 1;        /* "- 1" makes less corrections inside []TJ */
     /* no need to be more precise than TeX (1sp) */
     while (p->tj_delta.e > 0
            && (double) font_size(f) / ten_pow[p->tj_delta.e + e_tj] < 0.5)
         p->tj_delta.e--;        /* happens for very tiny fonts */
     assert(p->cw.e >= p->tj_delta.e);   /* else we would need, e. g., ten_pow[-1] */
-    p->fs.m = lround(font_size(f) / one_bp * ten_pow[p->fs.e]);
-    p->hz.m = pdf_font_expand_ratio(f) + ten_pow[p->hz.e];
-    p->tm[0].m =
-        lround(pdf2double(p->hz) * pdf2double(p->ext) * ten_pow[p->tm[0].e]);
-    p->tm[2].m =
-        lround((font_slant(f) / 1000.0) * (font_extend(f) / 1000.0) *
-               ten_pow[p->tm[2].e]);
+    p->tm[0].m = lround(expand * extend * ten_pow[p->tm[0].e]);
+    p->tm[2].m = lround(slant * ten_pow[p->tm[2].e]);
     p->k2 =
         ten_pow[e_tj +
                 p->cw.e] / (ten_pow[p->pdf.h.e] * pdf2double(p->fs) *

@@ -22,7 +22,7 @@
 #ifndef MAPFILE_H
 #  define MAPFILE_H
 
-#  define F_INCLUDED          (1 << 0) 
+#  define F_INCLUDED          (1 << 0)
 #  define F_SUBSETTED         (1 << 1)
 #  define F_STDT1FONT         (1 << 2)
 #  define F_SUBFONT           (1 << 3)
@@ -115,6 +115,13 @@ typedef struct {
     char *ff_name;              /* base name of font file */
     char *ff_path;              /* full path to font file */
 } ff_entry;
+
+/**********************************************************************/
+
+#  define FONT_SLANT_MIN   -2000
+#  define FONT_SLANT_MAX    2000
+#  define FONT_EXTEND_MIN  -5000
+#  define FONT_EXTEND_MAX   5000
 
 /**********************************************************************/
 

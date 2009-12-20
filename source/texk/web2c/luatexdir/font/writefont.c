@@ -1,5 +1,5 @@
 /* writefont.c
-   
+
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
    Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
@@ -18,12 +18,12 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include "ptexlib.h"
-#include "luatexfont.h"
-
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
+
+#include "ptexlib.h"
+#include "luatexfont.h"
 
 void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internalfontnumber f);
 void create_cid_fontdictionary(PDF pdf,
@@ -63,10 +63,7 @@ static int comp_fd_entry(const void *pa, const void *pb, void *p)
     (void) p;
     assert(p1->fm != NULL && is_fontfile(p1->fm) &&
            p2->fm != NULL && is_fontfile(p2->fm));
-    if ((i = strcmp(p1->fm->ff_name, p2->fm->ff_name)) != 0)
-        return i;
-    cmp_return(p1->fm->extend, p2->fm->extend);
-    return 0;
+    return strcmp(p1->fm->ff_name, p2->fm->ff_name);
 }
 
 /**********************************************************************/
@@ -229,13 +226,12 @@ static void write_fontname_object(PDF pdf, fd_entry * fd)
 
 /**********************************************************************/
 
-fd_entry *lookup_fd_entry(char *s, int extend)
+fd_entry *lookup_fd_entry(char *s)
 {
     fd_entry fd;
     fm_entry fm;
     assert(s != NULL);
     fm.ff_name = s;
-    fm.extend = extend;
     fd.fm = &fm;
     if (fd_tree == NULL) {
         fd_tree = avl_create(comp_fd_entry, NULL, &avl_xallocator);
@@ -249,7 +245,7 @@ fd_entry *lookup_fontdescriptor(fo_entry * fo)
     assert(fo != NULL);
     assert(fo->fm != NULL);
     assert(is_fontfile(fo->fm));
-    return lookup_fd_entry(fo->fm->ff_name, fo->fm->extend);
+    return lookup_fd_entry(fo->fm->ff_name);
 }
 
 void register_fd_entry(fd_entry * fd)
@@ -260,7 +256,7 @@ void register_fd_entry(fd_entry * fd)
         assert(fd_tree != NULL);
     }
     assert(fd != NULL && fd->fm != NULL && is_fontfile(fd->fm));
-    assert(lookup_fd_entry(fd->fm->ff_name, fd->fm->extend) == NULL);   /* font descriptor not yet registered */
+    assert(lookup_fd_entry(fd->fm->ff_name) == NULL);   /* font descriptor not yet registered */
     aa = avl_probe(fd_tree, fd);
     assert(aa != NULL);
 }
@@ -505,7 +501,7 @@ static void write_fontfile(PDF pdf, fd_entry * fd)
 static void write_fontdescriptor(PDF pdf, fd_entry * fd)
 {
     static const int std_flags[] = {
-        /* indices for << start with 0, but bits start with 1, so the numbers 
+        /* indices for << start with 0, but bits start with 1, so the numbers
          * for << are 1 lower than the bits in table 5.20 */
         /* *INDENT-OFF* */
         1 + 2 + (1 << 5),                       /* Courier */
@@ -585,7 +581,7 @@ static void write_fontdescriptor(PDF pdf, fd_entry * fd)
                 assert(0);
         }
     }
-    /* TODO: Optional keys for CID fonts. 
+    /* TODO: Optional keys for CID fonts.
 
        The most interesting ones are
        /Style << /Panose <12-byte string>>>
@@ -798,7 +794,7 @@ void do_pdf_font(PDF pdf, int font_objnum, internalfontnumber f)
             /* In case of a .dfont, we will extract the correct ttf here,
                and adjust fm->ff_name to point to the temporary file.
                This file will be deleted later. Todo: keep a nicer name
-               somewhere for the terminal message. 
+               somewhere for the terminal message.
              */
             char *s = FindResourceTtfFont(fm->ff_name, fm->ps_name);
             if (s != NULL) {
@@ -862,7 +858,7 @@ void do_pdf_font(PDF pdf, int font_objnum, internalfontnumber f)
 /**********************************************************************/
 
 
-/* 
+/*
    The glyph width is included in |glw_entry|, because that width
    depends on the value it has in the font where it is actually
    typeset from, not the font that is the 'owner' of the fd entry.
@@ -897,7 +893,7 @@ void create_cid_fontdescriptor(fo_entry * fo, internalfontnumber f)
 }
 
 /*
-   The values |font_bc()| and |font_ec()| are potentially large 
+   The values |font_bc()| and |font_ec()| are potentially large
    character ids, but the strings that are written out use CID
    indexes, and those are limited to 16-bit values.
 */
@@ -927,13 +923,13 @@ static void mark_cid_subset_glyphs(fo_entry * fo, internal_font_number f)
     }
 }
 
-/* 
+/*
    It is possible to compress the widths array even better, by using the
-   alternate 'range' syntax and possibly even using /DW to set 
+   alternate 'range' syntax and possibly even using /DW to set
    a default value.
-  
+
    There is a some optimization here already: glyphs that are
-   not used do not appear in the widths array at all. 
+   not used do not appear in the widths array at all.
 
    We have to make sure that we do not output an (incorrect!)
    width for a character that exists in the font, but is not used
@@ -995,7 +991,7 @@ void create_cid_fontdictionary(PDF pdf,
     create_cid_fontdescriptor(fo, f);
     mark_cid_subset_glyphs(fo, f);
     if (is_subsetted(fo->fm)) {
-        /* 
+        /*
            this is a bit sneaky. |make_subset_tag()| actually expects the glyph tree
            to contain strings instead of |glw_entry| items. However, all calculations
            are done using explicit typecasts, so it works out ok.
@@ -1048,7 +1044,7 @@ void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internalfontnumber f)
     pdf_printf(pdf, ">>\n");
 
     /* I doubt there is anything useful that could be written here */
-    /*      
+    /*
        if (pdf_font_attr(fo->tex_font) != get_nullstr()) {
        pdf_print(pdf_font_attr(fo->tex_font));
        pdf_puts(pdf,"\n");

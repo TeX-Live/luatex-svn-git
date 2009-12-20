@@ -1,5 +1,5 @@
 /* luafont.c
-   
+
    Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -17,13 +17,12 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+static const char _svn_version[] =
+    "$Id$ "
+    "$URL$";
 
 #include <ptexlib.h>
-
 #include "lua/luatex-api.h"
-
-static const char _svn_version[] =
-    "$Id$ $URL$";
 
 #define noVERBOSE
 
@@ -385,7 +384,7 @@ int font_to_lua(lua_State * L, int f)
     int k;
     charinfo *co;
     if (font_cache_id(f) > 0) {
-        /* fetch the table from the registry if  it was 
+        /* fetch the table from the registry if it was
            saved there by font_from_lua() */
         lua_rawgeti(L, LUA_REGISTRYINDEX, font_cache_id(f));
         /* fontdimens can be changed from tex code */
@@ -1296,7 +1295,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
                ["bottom_right"]={ { ["height"]=0,   ["kern"]=48  } },
                ["top_left"]    ={ { ["height"]=620, ["kern"]=0   }, { ["height"]=720,  ["kern"]=-80 } },
                ["top_right"]   ={ { ["height"]=676, ["kern"]=115 }, { ["height"]=776,  ["kern"]=45  } },
-               } 
+               }
              */
             lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_mathkern_index);
             lua_rawget(L, -2);
@@ -1498,16 +1497,16 @@ int font_from_lua(lua_State * L, int f)
     set_font_tounicode(f, i);
 
     i = numeric_field(L, "extend", 0);
-    if (i < -2000)
-        i = -2000;
-    if (i > 2000)
-        i = 2000;
+    if (i < FONT_EXTEND_MIN)
+        i = FONT_EXTEND_MIN;
+    if (i > FONT_EXTEND_MAX)
+        i = FONT_EXTEND_MAX;
     set_font_extend(f, i);
     i = numeric_field(L, "slant", 0);
-    if (i < -1000)
-        i = -1000;
-    if (i > 1000)
-        i = 1000;
+    if (i < FONT_SLANT_MIN)
+        i = FONT_SLANT_MIN;
+    if (i > FONT_SLANT_MAX)
+        i = FONT_SLANT_MAX;
     set_font_slant(f, i);
 
     i = numeric_field(L, "hyphenchar", int_par(default_hyphen_char_code));
@@ -1566,8 +1565,8 @@ int font_from_lua(lua_State * L, int f)
                 t = (lua_isnumber(L, -1) ? lua_roundnumber(L, -1) : -1000);
                 lua_pop(L, 1);
 
-                /* TODO: the stack is messed up, otherwise this 
-                 * explicit resizing would not be needed 
+                /* TODO: the stack is messed up, otherwise this
+                 * explicit resizing would not be needed
                  */
                 s_top = lua_gettop(L);
                 if (strcmp(font_name(f), s) == 0)
@@ -1652,7 +1651,7 @@ int font_from_lua(lua_State * L, int f)
             }
             lua_pop(L, 1);
 
-            /* handle font expansion last: the |copy_font| routine is called eventually, 
+            /* handle font expansion last: the |copy_font| routine is called eventually,
                and that needs to know |bc| and |ec|. */
             if (font_type(f) != virtual_font_type) {
                 int fstep = numeric_field(L, "step", 0);

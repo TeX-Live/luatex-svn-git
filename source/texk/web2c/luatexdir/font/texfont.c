@@ -17,6 +17,10 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+static const char _svn_version[] =
+    "$Id$ "
+    "$URL$";
+
 /* Main font API implementation for the pascal parts */
 
 /* stuff to watch out for: 
@@ -32,13 +36,9 @@
  */
 
 #include "ptexlib.h"
-
 #include "lua/luatex-api.h"
 
 #define noDEBUG
-
-static const char _svn_version[] =
-    "$Id$ $URL$";
 
 #define proper_char_index(c) (c<=font_ec(f) && c>=font_bc(f))
 #define dxfree(a,b) { xfree(a); a = b ; }

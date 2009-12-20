@@ -143,7 +143,7 @@ static int comp_fm_entry_tfm(const void *pa, const void *pb, void *p)
                   ((const fm_entry *) pb)->tfm_name);
 }
 
-/* AVL sort fm_entry into ps_tree by ps_name and extend */
+/* AVL sort fm_entry into ps_tree by ps_name */
 
 static int comp_fm_entry_ps(const void *pa, const void *pb, void *p)
 {
@@ -151,10 +151,7 @@ static int comp_fm_entry_ps(const void *pa, const void *pb, void *p)
     const fm_entry *p1 = (const fm_entry *) pa, *p2 = (const fm_entry *) pb;
     (void) p;
     assert(p1->ps_name != NULL && p2->ps_name != NULL);
-    if ((i = strcmp(p1->ps_name, p2->ps_name)))
-        return i;
-    cmp_return(p1->extend, p2->extend);
-    return 0;
+    return strcmp(p1->ps_name, p2->ps_name);
 }
 
 /* AVL sort ff_entry into ff_tree by ff_name */
@@ -319,24 +316,15 @@ int check_fm_entry(fm_entry * fm, boolean warn)
         a += 2;
     }
 
-    /* ExtendFont can be used only with Type1 fonts */
-    if (fm->extend != 1000 && !(is_t1fontfile(fm) && is_included(fm))) {
-        if (warn)
-            pdftex_warn
-                ("invalid entry for `%s': ExtendFont can be used only with embedded Type1 fonts",
-                 fm->tfm_name);
-        a += 4;
-    }
-
     /* the value of SlantFont and ExtendFont must be reasonable */
-    if (abs(fm->slant) > 1000) {
+    if (fm->slant < FONT_SLANT_MIN || fm->slant > FONT_SLANT_MAX) {
         if (warn)
             pdftex_warn
                 ("invalid entry for `%s': too big value of SlantFont (%g)",
                  fm->tfm_name, fm->slant / 1000.0);
         a += 8;
     }
-    if (abs(fm->extend) > 2000) {
+    if (fm->extend < FONT_EXTEND_MIN || fm->extend > FONT_EXTEND_MAX) {
         if (warn)
             pdftex_warn
                 ("invalid entry for `%s': too big value of ExtendFont (%g)",
@@ -727,20 +715,6 @@ fm_entry *lookup_fontmap(char *ps_name)
             s = ps_name;
     }
 
-    /*
-     * Scan -Extend_<extend> font name extensions; format:
-     * <fontname>-Extend_<extend>
-     */
-
-    tmp.extend = 1000;
-    if ((a = strstr(s, "-Extend_")) != NULL) {
-        b = a + strlen("-Extend_");
-        ex = (int) strtol(b, &e, 10);
-        if ((e != b) && (e == strend(b))) {
-            tmp.extend = ex;
-            *a = '\0';          /* ps_name string ends before "-Extend_" */
-        }
-    }
     tmp.ps_name = s;
 
     fm = (fm_entry *) avl_t_find(&t, ps_tree, &tmp);

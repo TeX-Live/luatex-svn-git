@@ -1,5 +1,5 @@
 /* pdfpage.c
-   
+
    Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -17,16 +17,16 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+static const char __svn_version[] =
+    "$Id$ "
+    "$URL$";
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
 
 #include "ptexlib.h"
-
-static const char __svn_version[] =
-    "$Id$ "
-    "$URL$";
 
 #define lround(a) (long) floor((a) + 0.5)
 
@@ -47,8 +47,6 @@ void init_pdf_pagecalculations(PDF pdf)
     setpdffloat(p->pdf.v, 0, decimal_digits);
     p->cw.e = 1;
     p->fs.e = decimal_digits + 2;       /* "+ 2" makes less corrections inside []TJ */
-    setpdffloat(p->hz, 1000, 3);        /* m = 1000 = default = unexpanded, e must be 3 */
-    setpdffloat(p->ext, 1000, 3);       /* m = 1000 = default = unextended, e must be 3 */
     /* for placement outside BT...ET */
     setpdffloat(p->cm[0], 1, 0);
     setpdffloat(p->cm[1], 0, 0);
