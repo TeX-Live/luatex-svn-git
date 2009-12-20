@@ -58,7 +58,6 @@ static int comp_fo_entry(const void *pa, const void *pb, void *p)
 
 static int comp_fd_entry(const void *pa, const void *pb, void *p)
 {
-    int i;
     const fd_entry *p1 = (const fd_entry *) pa, *p2 = (const fd_entry *) pb;
     (void) p;
     assert(p1->fm != NULL && is_fontfile(p1->fm) &&

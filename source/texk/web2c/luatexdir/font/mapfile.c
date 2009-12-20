@@ -147,7 +147,6 @@ static int comp_fm_entry_tfm(const void *pa, const void *pb, void *p)
 
 static int comp_fm_entry_ps(const void *pa, const void *pb, void *p)
 {
-    int i;
     const fm_entry *p1 = (const fm_entry *) pa, *p2 = (const fm_entry *) pb;
     (void) p;
     assert(p1->ps_name != NULL && p2->ps_name != NULL);
@@ -698,8 +697,8 @@ static boolean fm_valid_for_font_replacement(fm_entry * fm)
 fm_entry *lookup_fontmap(char *ps_name)
 {
     fm_entry *fm, *fm2, tmp;
-    char *a, *b, *e, *s;
-    int i, ex;
+    char *s;
+    int i;
     struct avl_traverser t, t2;
     if (tfm_tree == NULL)
         fm_read_info();         /* only to read default map file */
