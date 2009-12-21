@@ -56,7 +56,6 @@ extern "C" {
     extern char notdef[];
 
     extern int is_subsetable(struct fm_entry *);
-    extern struct fm_entry *lookup_fontmap(char *);
     extern int get_fontfile(struct fm_entry *);
     extern int get_fontname(struct fm_entry *);
     extern int pdf_new_objnum(PDF);
@@ -81,9 +80,6 @@ extern "C" {
     extern void pdf_begin_obj(PDF, int, bool);
 
 /* epdf.c */
-    extern void epdf_mark_glyphs(struct fd_entry *, char *);
-    extern struct fd_entry *epdf_create_fontdescriptor(struct fm_entry *, int,
-                                                       int);
     extern int get_fd_objnum(struct fd_entry *);
     extern int get_fn_objnum(PDF, struct fd_entry *);
 

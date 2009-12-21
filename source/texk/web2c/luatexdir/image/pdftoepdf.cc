@@ -116,13 +116,6 @@ struct InObj {
     InObj *next;                // next entry in list of indirect objects
 };
 
-struct UsedEncoding {
-    int enc_objnum;
-    GfxFont *font;
-    UsedEncoding *next;
-};
-
-static UsedEncoding *encodingList;
 static GBool isInit = gFalse;
 static bool groupIsIndirect;
 static PdfObject lastGroup;
@@ -268,26 +261,6 @@ static void initDictFromDict(PdfDocument * pdf_doc, PdfObject & obj,
     }
 }
 
-static int addEncoding(GfxFont * gfont, int obj_num)
-{
-    UsedEncoding *n;
-    n = new UsedEncoding;
-    n->next = encodingList;
-    encodingList = n;
-    n->font = gfont;
-    n->enc_objnum = obj_num;
-    return n->enc_objnum;
-}
-
-#define addFont(ref, fd, enc_objnum) \
-    addInObj(pdf, pdf_doc, objFont, ref, fd, enc_objnum)
-
-// addFontDesc is only used to avoid writing the original FontDescriptor
-// from the PDF file.
-
-#define addFontDesc(ref, fd) \
-    addInObj(pdf, pdf_doc, objFontDesc, ref, fd, 0)
-
 #define addOther(ref) \
     addInObj(pdf, pdf_doc, objOther, ref, NULL, 0)
 
@@ -420,17 +393,10 @@ static void copyProcSet(PDF pdf, Object * obj)
     pdf_puts(pdf, "]\n");
 }
 
-#define REPLACE_TYPE1C true
-
 static void copyFont(PDF pdf, PdfDocument * pdf_doc, char *tag,
                      Object * fontRef)
 {
     ObjMap *obj_map;
-    PdfObject fontdict, subtype, basefont, fontdescRef, fontdesc, charset,
-        fontfile, ffsubtype, stemV;
-    GfxFont *gfont;
-    fd_entry *fd;
-    fm_entry *fontmap;
     // Check whether the font has already been embedded before analysing it.
     Ref ref = fontRef->getRef();
     if ((obj_map = findObjMap(pdf_doc, ref)) != NULL) {
@@ -438,45 +404,9 @@ static void copyFont(PDF pdf, PdfDocument * pdf_doc, char *tag,
         pdf_printf(pdf, " %d 0 R ", obj_map->out_num);
         return;
     }
-    // Only handle included Type1 (and Type1C) fonts; anything else will be copied.
-    // Type1C fonts are replaced by Type1 fonts, if REPLACE_TYPE1C is true.
-    if ((pdf->inclusion_copy_font != 0)
-        && fontRef->fetch(pdf_doc->xref, &fontdict)->isDict()
-        && fontdict->dictLookup((char *) "Subtype", &subtype)->isName()
-        && !strcmp(subtype->getName(), "Type1")
-        && fontdict->dictLookup((char *) "BaseFont", &basefont)->isName()
-        && fontdict->dictLookupNF((char *) "FontDescriptor",
-                                  &fontdescRef)->isRef()
-        && fontdescRef->fetch(pdf_doc->xref, &fontdesc)->isDict()
-        && (fontdesc->dictLookup((char *) "FontFile", &fontfile)->isStream()
-            || (REPLACE_TYPE1C
-                && fontdesc->dictLookup((char *) "FontFile3",
-                                        &fontfile)->isStream()
-                && fontfile->streamGetDict()->lookup((char *) "Subtype",
-                                                     &ffsubtype)->isName()
-                && !strcmp(ffsubtype->getName(), "Type1C")))
-        && (fontmap = lookup_fontmap(basefont->getName())) != NULL) {
-        // copy the value of /StemV
-        fontdesc->dictLookup((char *) "StemV", &stemV);
-        fd = epdf_create_fontdescriptor(fontmap, stemV->getInt(),
-                                        pdf_new_objnum(pdf));
-        if (fontdesc->dictLookup((char *) "CharSet", &charset)
-            && charset->isString() && is_subsetable(fontmap))
-            epdf_mark_glyphs(fd, charset->getString()->getCString());
-        else
-            embed_whole_font(fd);
-        addFontDesc(fontdescRef->getRef(), fd);
-        copyName(pdf, tag);
-        gfont = GfxFont::makeFont(pdf_doc->xref, tag, fontRef->getRef(),
-                                  fontdict->getDict());
-        pdf_printf(pdf, " %d 0 R ", addFont(fontRef->getRef(), fd,
-                                            addEncoding(gfont,
-                                                        pdf_new_objnum(pdf))));
-    } else {
-        copyName(pdf, tag);
-        pdf_puts(pdf, " ");
-        copyObject(pdf, pdf_doc, fontRef);
-    }
+    copyName(pdf, tag);
+    pdf_puts(pdf, " ");
+    copyObject(pdf, pdf_doc, fontRef);
 }
 
 static void copyFontResources(PDF pdf, PdfDocument * pdf_doc, Object * obj)
@@ -679,32 +609,6 @@ static void writeRefs(PDF pdf, PdfDocument * pdf_doc)
         n = r->next;
         delete r;
         pdf_doc->inObjList = r = n;
-    }
-}
-
-static void writeEncodings(PDF pdf)
-{
-    UsedEncoding *r, *n;
-    char *glyphNames[256], *s;
-    int i;
-    for (r = encodingList; r != NULL; r = r->next) {
-        for (i = 0; i < 256; i++) {
-            if (r->font->isCIDFont()) {
-                pdftex_fail
-                    ("PDF inclusion: CID fonts are not supported"
-                     " (try to disable font replacement to fix this)");
-            }
-            if ((s = ((Gfx8BitFont *) r->font)->getCharName(i)) != NULL)
-                glyphNames[i] = s;
-            else
-                glyphNames[i] = notdef;
-        }
-        epdf_write_enc(pdf, glyphNames, r->enc_objnum);
-    }
-    for (r = encodingList; r != NULL; r = n) {
-        n = r->next;
-        delete r->font;
-        delete r;
     }
 }
 
@@ -925,7 +829,6 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     free(checksum);
     pdf_doc->xref = pdf_doc->doc->getXRef();
     (void) pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
-    encodingList = NULL;
     page = pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
     PDFRectangle *pagebox;
     float bbox[4];
@@ -1083,8 +986,6 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     }
     // write out all indirect objects
     writeRefs(pdf, pdf_doc);
-    // write out all used encodings (and delete list)
-    writeEncodings(pdf);
 }
 
 // this relay function is needed to keep some destructor quiet (???)
