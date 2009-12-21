@@ -151,7 +151,7 @@ char *node_fields_whatsit_dir[] =
     { "attr", "dir", "level", "dvi_ptr", "dvi_h", NULL };
 
 char *node_fields_whatsit_pdf_literal[] = { "attr", "mode", "data", NULL };
-char *node_fields_whatsit_pdf_refobj[] = { "objnum", NULL };
+char *node_fields_whatsit_pdf_refobj[] = { "attr", "objnum", NULL };
 char *node_fields_whatsit_pdf_refxform[] =
     { "attr", "width", "depth", "height", "objnum", NULL };
 char *node_fields_whatsit_pdf_refximage[] =
