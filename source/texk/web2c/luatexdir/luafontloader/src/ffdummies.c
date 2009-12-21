@@ -52,10 +52,22 @@ __attribute__ ((format(printf, 1, 0)))
 static void LUAUI_IError(const char *format, ...)
 {
     va_list ap;
+    size_t l;
+    char buffer[400], *str;
+    l = strlen("Internal Error: ");
+    snprintf(buffer, sizeof(buffer), "Internal Error: ");
     va_start(ap, format);
-    fprintf(stderr, "Internal Error: ");
-    vfprintf(stderr, format, ap);
+    vsnprintf(buffer+l, sizeof(buffer)-l, format, ap);
     va_end(ap);
+    str = xstrdup((char *) buffer);
+    gww_errors = realloc(gww_errors, (gww_error_count + 2) * sizeof(char *));
+    if (gww_errors == NULL) {
+        perror("memory allocation failed");
+        exit(EXIT_FAILURE);
+    }
+    gww_errors[gww_error_count] = str;
+    gww_error_count++;
+    gww_errors[gww_error_count] = NULL;
 }
 
 __attribute__ ((format(printf, 1, 0)))
