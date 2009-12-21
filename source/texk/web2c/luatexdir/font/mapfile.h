@@ -83,13 +83,9 @@ extern void process_map_item(char *s, int type);
 #  define is_builtin(fm)      (!is_fontfile(fm))
 
 #  define LINK_TFM            0x01
-#  define LINK_PS             0x02
 #  define set_tfmlink(fm)     ((fm)->links |= LINK_TFM)
-#  define set_pslink(fm)      ((fm)->links |= LINK_PS)
 #  define unset_tfmlink(fm)   ((fm)->links &= ~LINK_TFM)
-#  define unset_pslink(fm)    ((fm)->links &= ~LINK_PS)
 #  define has_tfmlink(fm)     ((fm)->links & LINK_TFM)
-#  define has_pslink(fm)      ((fm)->links & LINK_PS)
 
 /**********************************************************************/
 
@@ -125,7 +121,6 @@ typedef struct {
 
 /**********************************************************************/
 
-fm_entry *lookup_fontmap(char *);
 boolean hasfmentry(internalfontnumber);
 void fm_free(void);
 void fm_read_info(void);

@@ -88,30 +88,6 @@ fe_entry *get_fe_entry(char *s)
 
 /**********************************************************************/
 
-void epdf_write_enc(PDF pdf, char **glyph_names, int fe_objnum)
-{
-    int i, i_old;
-    assert(glyph_names != NULL);
-    assert(fe_objnum != 0);
-    pdf_begin_dict(pdf, fe_objnum, 1);
-    pdf_puts(pdf, "/Type /Encoding\n");
-    pdf_puts(pdf, "/Differences [");
-    for (i = 0, i_old = -2; i < 256; i++)
-        if (glyph_names[i] != notdef) {
-            if (i == i_old + 1) /* no gap */
-                pdf_printf(pdf, "/%s", glyph_names[i]);
-            else {
-                if (i_old == -2)
-                    pdf_printf(pdf, "%i/%s", i, glyph_names[i]);
-                else
-                    pdf_printf(pdf, " %i/%s", i, glyph_names[i]);
-            }
-            i_old = i;
-        }
-    pdf_puts(pdf, "]\n");
-    pdf_end_dict(pdf);
-}
-
 void write_enc(PDF pdf, char **glyph_names, struct avl_table *tx_tree,
                int fe_objnum)
 {

@@ -25,54 +25,6 @@ static const char _svn_version[] =
 #include "ptexlib.h"
 #include <string.h>
 
-fd_entry *epdf_create_fontdescriptor(fm_entry * fm, int stemV, int obj_num)
-{
-    fd_entry *fd;
-    if ((fd = lookup_fd_entry(fm->ff_name)) == NULL) {
-        set_inuse(fm);
-        fd = new_fd_entry();
-        fd->fm = fm;
-        register_fd_entry(fd);
-        fd->fd_objnum = obj_num;
-        assert(fm->ps_name != NULL);
-        fd->fontname = xstrdup(fm->ps_name);    /* just fallback */
-        // stemV must be copied
-        fd->font_dim[STEMV_CODE].val = stemV;
-        fd->font_dim[STEMV_CODE].set = true;
-        fd->gl_tree = avl_create(comp_string_entry, NULL, &avl_xallocator);
-        assert(fd->gl_tree != NULL);
-    }
-    return fd;
-}
-
-/***********************************************************************
- * Mark glyphs used by embedded PDF file:
- * 1. build fontdescriptor, if not yet existing
- * 2. mark glyphs directly there
- *
- * Input charset from xpdf is a string of glyph names including
- * leading slashes, but without blanks between them, like: /a/b/c
-***********************************************************************/
-
-void epdf_mark_glyphs(fd_entry * fd, char *charset)
-{
-    char *p, *q, *s;
-    char *glyph;
-    void **aa;
-    if (charset == NULL)
-        return;
-    assert(fd != NULL);
-    for (s = charset + 1, q = charset + strlen(charset); s < q; s = p + 1) {
-        for (p = s; *p != '\0' && *p != '/'; p++);
-        *p = '\0';
-        if ((char *) avl_find(fd->gl_tree, s) == NULL) {
-            glyph = xstrdup(s);
-            aa = avl_probe(fd->gl_tree, glyph);
-            assert(aa != NULL);
-        }
-    }
-}
-
 void epdf_free(void)
 {
     epdf_check_mem();

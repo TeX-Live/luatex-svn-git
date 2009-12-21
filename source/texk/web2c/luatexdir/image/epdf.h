@@ -83,9 +83,6 @@ extern "C" {
     extern int get_fd_objnum(struct fd_entry *);
     extern int get_fn_objnum(PDF, struct fd_entry *);
 
-/* write_enc.c */
-    extern void epdf_write_enc(PDF, char **, int);
-
 /* utils.c */
     extern char *convertStringToPDFString(char *in, int len);
     extern char *stripzeros(char *a);
