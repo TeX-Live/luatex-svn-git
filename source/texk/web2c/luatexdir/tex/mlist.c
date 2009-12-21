@@ -1686,7 +1686,9 @@ static pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
         height(b) = ht;
         depth(b) = 0;
         /* the next correction is needed for radicals */
-        if (list_ptr(b) != null && type(list_ptr(b)) == hlist_node && list_ptr(list_ptr(b)) != null && type(list_ptr(list_ptr(b))) == glyph_node) {     /* and it should be */
+        if (list_ptr(b) != null && type(list_ptr(b)) == hlist_node && 
+            list_ptr(list_ptr(b)) != null && 
+            type(list_ptr(list_ptr(b))) == glyph_node) {     /* and it should be */
             last_ht =
                 char_height(font(list_ptr(list_ptr(b))),
                             character(list_ptr(list_ptr(b))));
@@ -1777,6 +1779,8 @@ static pointer get_delim_hbox(extinfo * ext, internal_font_number f, scaled v,
   will be the height of its topmost component.
 */
 
+
+
 static void endless_loop_error(internal_font_number g, int y)
 {
     char s[256];
@@ -1791,7 +1795,7 @@ static void endless_loop_error(internal_font_number g, int y)
     tex_error(s, hlp);
 }
 
-static pointer var_delimiter(pointer d, int s, scaled v, scaled * ic)
+static pointer do_var_delimiter(pointer d, int s, scaled v, scaled * ic, boolean flat)
 {
     /* label found,continue; */
     pointer b;                  /* the box that will be constructed */
@@ -1829,7 +1833,10 @@ static pointer var_delimiter(pointer d, int s, scaled v, scaled * ic)
                         c = y;
                         goto FOUND;
                     }
-                    u = height_plus_depth(g, y);
+                    if (flat)
+                        u = char_width(g, y);
+                    else
+                        u = height_plus_depth(g, y);
                     if (u > w) {
                         f = g;
                         c = y;
@@ -1867,117 +1874,49 @@ static pointer var_delimiter(pointer d, int s, scaled v, scaled * ic)
          */
         ext = NULL;
         if ((char_tag(f, c) == ext_tag) &&
-            ((ext = get_charinfo_vert_variants(char_info(f, c))) != NULL)) {
-            b = get_delim_vbox(ext, f, v, att);
-            width(b) += char_italic(f, c);
+            ((!flat && (ext = get_charinfo_vert_variants(char_info(f, c))) != NULL) ||
+             (flat && (ext = get_charinfo_hor_variants(char_info(f, c))) != NULL))) {
+            b = (flat ? get_delim_hbox(ext, f, v, att) : get_delim_vbox(ext, f, v, att));
         } else {
             b = char_box(f, c, att);
+        }
+        /* This next test is because for OT MATH fonts, the italic correction of an 
+           extensible character is only used for the placement  of a subscript 
+           (in negated form), and it is not supposed to be added to the
+           width of the character box at all. 
+           
+           This has an effect later on in |make_op| as well, where it has to do
+           an extra correction for |make_script|'s addition of yet another italic
+           correction.
+        */
+        if (!is_new_mathfont(f)) {
+            width(b) += char_italic(f, c);
         }
         if (ic != NULL)
             *ic = char_italic(f, c);
     } else {
         b = new_null_box();
         reset_attributes(b, att);
-        width(b) = null_delimiter_space;        /* use this width if no delimiter was found */
+        width(b) = ( flat ? 0 : null_delimiter_space);        /* use this width if no delimiter was found */
         if (ic != NULL)
             *ic = 0;
     }
-    shift_amount(b) = half(height(b) - depth(b)) - math_axis(s);
+    if (!flat)
+        shift_amount(b) = half(height(b) - depth(b)) - math_axis(s);
     delete_attribute_ref(att);
     return b;
 }
 
-static pointer flat_var_delimiter(pointer d, int s, scaled v)
+
+static pointer var_delimiter(pointer d, int s, scaled v, scaled * ic)
 {
-    /* label found,continue; */
-    pointer b;                  /* the box that will be constructed */
-    internal_font_number f, g;  /* best-so-far and tentative font codes */
-    int c, i, x, y;             /* best-so-far and tentative character codes */
-    scaled u;                   /* height-plus-depth of a tentative character */
-    scaled w;                   /* largest height-plus-depth so far */
-    int z;                      /* runs through font family members */
-    boolean large_attempt;      /* are we trying the ``large'' variant? */
-    pointer att;                /* to save the current attribute list */
-    extinfo *ext;
-    f = null_font;
-    c = 0;
-    w = 0;
-    att = null;
-    large_attempt = false;
-    if (d == null)
-        goto FOUND;
-    z = small_fam(d);
-    x = small_char(d);
-    i = 0;
-    while (true) {
-        /* The search process is complicated slightly by the facts that some of the
-           characters might not be present in some of the fonts, and they might not
-           be probed in increasing order of height. */
-        if ((z != 0) || (x != 0)) {
-            g = fam_fnt(z, s);
-            if (g != null_font) {
-                y = x;
-              CONTINUE:
-                i++;
-                if (char_exists(g, y)) {
-                    if (char_tag(g, y) == ext_tag) {
-                        f = g;
-                        c = y;
-                        goto FOUND;
-                    }
-                    u = char_width(g, y);
-                    if (u > w) {
-                        f = g;
-                        c = y;
-                        w = u;
-                        if (u >= v)
-                            goto FOUND;
-                    }
-                    if (i > 10000) {
-                        /* endless loop */
-                        endless_loop_error(g, y);
-                        goto FOUND;
-                    }
-                    if (char_tag(g, y) == list_tag) {
-                        y = char_remainder(g, y);
-                        goto CONTINUE;
-                    }
-                }
-            }
-        }
-        if (large_attempt)
-            goto FOUND;         /* there were none large enough */
-        large_attempt = true;
-        z = large_fam(d);
-        x = large_char(d);
-    }
-  FOUND:
-    if (d != null) {
-        att = node_attr(d);
-        node_attr(d) = null;
-        flush_node(d);
-    }
-    if (f != null_font) {
-        /* When the following code is executed, |char_tag(q)| will be equal to
-           |ext_tag| if and only if a built-up symbol is supposed to be returned.
-         */
-        ext = NULL;
-        if ((char_tag(f, c) == ext_tag) &&
-            ((ext = get_charinfo_hor_variants(char_info(f, c))) != NULL)) {
-            b = get_delim_hbox(ext, f, v, att);
-            width(b) += char_italic(f, c);
-        } else {
-            b = char_box(f, c, att);
-        }
-    } else {
-        b = new_null_box();
-        reset_attributes(b, att);
-        width(b) = 0;           /* use this width if no delimiter was found */
-    }
-    delete_attribute_ref(att);
-    return b;
+    return do_var_delimiter(d, s, v, ic, false);
 }
 
+static pointer flat_delimiter(pointer d, int s, scaled v)
+{
+    return do_var_delimiter(d, s, v, NULL, true);
+}
 
 /*
 The next subroutine is much simpler; it is used for numerators and
@@ -2435,7 +2374,7 @@ static void make_over_delimiter(pointer q)
     pointer x, y, v;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
     x = clean_box(nucleus(q), sub_style(cur_style));
-    y = flat_var_delimiter(left_delimiter(q), cur_size, width(x));
+    y = flat_delimiter(left_delimiter(q), cur_size, width(x));
     left_delimiter(q) = null;
     fixup_widths(x, y);
     shift_up = over_delimiter_bgap(cur_style);
@@ -2458,7 +2397,7 @@ static void make_delimiter_over(pointer q)
     pointer x, y, v;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
     y = clean_box(nucleus(q), cur_style);
-    x = flat_var_delimiter(left_delimiter(q),
+    x = flat_delimiter(left_delimiter(q),
                            cur_size + (cur_size == script_script_size ? 0 : 1),
                            width(y));
     left_delimiter(q) = null;
@@ -2484,7 +2423,7 @@ static void make_delimiter_under(pointer q)
     pointer x, y, v;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
     x = clean_box(nucleus(q), cur_style);
-    y = flat_var_delimiter(left_delimiter(q),
+    y = flat_delimiter(left_delimiter(q),
                            cur_size + (cur_size == script_script_size ? 0 : 1),
                            width(x));
     left_delimiter(q) = null;
@@ -2510,7 +2449,7 @@ static void make_under_delimiter(pointer q)
     pointer x, y, v;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
     y = clean_box(nucleus(q), sup_style(cur_style));
-    x = flat_var_delimiter(left_delimiter(q), cur_size, width(y));
+    x = flat_delimiter(left_delimiter(q), cur_size, width(y));
     left_delimiter(q) = null;
     fixup_widths(x, y);
     shift_up = 0;               /* over_delimiter_bgap(cur_style); */
@@ -2818,8 +2757,19 @@ static scaled make_op(pointer q)
                 small_fam(y) = math_fam(nucleus(q));
                 small_char(y) = math_character(nucleus(q));
                 x = var_delimiter(y, text_size, ok_size, &delta);
-                if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits))
-                    width(x) = width(x) - delta;        /* remove italic correction */
+                if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits)) {
+                    width(x) -= delta;        /* remove italic correction */
+                }
+                /* For an OT MATH font, we may have to get rid of yet another italic
+                   correction because make_scripts() will add one.
+                   This test is somewhat more complicated because |x| can be a null 
+                   delimiter */
+                if ((subscr(q) != null || supscr(q) != null)
+                    && (subtype(q) != op_noad_type_limits) 
+                    && ((list_ptr(x) != null) && (type(list_ptr(x)) == glyph_node)
+                        && is_new_mathfont(font(list_ptr(x))))) {
+                    width(x) -= delta; /* remove another italic correction */
+                }
             } else {
                 ok_size = height_plus_depth(cur_f, cur_c) + 1;
                 while ((char_tag(cur_f, cur_c) == list_tag) &&
