@@ -30,7 +30,7 @@ void md5 (const char *message, long len, char *output);
 ** Realiza a rotacao no sentido horario dos bits da variavel 'D' do tipo WORD32.
 ** Os bits sao deslocados de 'num' posicoes
 */
-#define rotate(D, num)  (D<<num) | (D>>(WORD-num))
+#define rotate(D, num)  ((D<<num) & MASK) | (((D & MASK)>>(WORD-num)) & MASK)
 
 /*Macros que definem operacoes relizadas pelo algoritmo  md5 */
 #define F(x, y, z) (((x) & (y)) | ((~(x)) & (z)))
@@ -64,6 +64,7 @@ static void word32tobytes (const WORD32 *input, char *output) {
   int j = 0;
   while (j<4*4) {
     WORD32 v = *input++;
+    v &= MASK;
     output[j++] = (char)(v & 0xff); v >>= 8;
     output[j++] = (char)(v & 0xff); v >>= 8;
     output[j++] = (char)(v & 0xff); v >>= 8;
