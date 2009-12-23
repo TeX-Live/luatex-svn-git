@@ -105,14 +105,9 @@ class PdfObject {
 // are not fetched during copying, but get a new object number from
 // LuaTeX and then will be appended into a linked list.
 
-enum InObjType { objFont, objFontDesc, objOther };
-
 struct InObj {
     Ref ref;                    // ref in original PDF
-    InObjType type;             // object type
     int num;                    // new object number in output PDF
-    fd_entry *fd;               // pointer to /FontDescriptor object structure
-    int enc_objnum;             // Encoding for objFont
     InObj *next;                // next entry in list of indirect objects
 };
 
@@ -130,8 +125,8 @@ struct PdfDocument {
     char *checksum;             // for reopening
     PDFDoc *doc;
     XRef *xref;
-    InObj *inObjList;
-    avl_table *ObjMapTree;
+    InObj *inObjList;           // temporary linked list
+    avl_table *ObjMapTree;      // permanent over luatex run
     int occurences;             // number of references to the PdfDocument; it can be deleted when occurences == 0
 };
 
@@ -261,11 +256,7 @@ static void initDictFromDict(PdfDocument * pdf_doc, PdfObject & obj,
     }
 }
 
-#define addOther(ref) \
-    addInObj(pdf, pdf_doc, objOther, ref, NULL, 0)
-
-static int addInObj(PDF pdf, PdfDocument * pdf_doc, InObjType type, Ref ref,
-                    fd_entry * fd, int e)
+static int addInObj(PDF pdf, PdfDocument * pdf_doc, Ref ref)
 {
     ObjMap *obj_map;
     InObj *p, *q, *n;
@@ -274,14 +265,8 @@ static int addInObj(PDF pdf, PdfDocument * pdf_doc, InObjType type, Ref ref,
         return obj_map->out_num;
     n = new InObj;
     n->ref = ref;
-    n->type = type;
     n->next = NULL;
-    n->fd = fd;
-    n->enc_objnum = e;
-    if (type == objFontDesc)
-        n->num = get_fd_objnum(fd);
-    else
-        n->num = pdf_new_objnum(pdf);
+    n->num = pdf_new_objnum(pdf);
     addObjMap(pdf_doc, ref, n->num);
     if (pdf_doc->inObjList == NULL)
         pdf_doc->inObjList = n;
@@ -337,31 +322,6 @@ static void copyDict(PDF pdf, PdfDocument * pdf_doc, Object * obj)
                     obj->getTypeName());
     for (i = 0, l = obj->dictGetLength(); i < l; ++i)
         copyDictEntry(pdf, pdf_doc, obj, i);
-}
-
-static void copyFontDict(PDF pdf, PdfDocument * pdf_doc, Object * obj,
-                         InObj * r)
-{
-    int i, l;
-    char *key;
-    if (!obj->isDict())
-        pdftex_fail("PDF inclusion: invalid dict type <%s>",
-                    obj->getTypeName());
-    pdf_puts(pdf, "<<\n");
-    assert(r->type == objFont); // FontDescriptor is in fd_tree
-    for (i = 0, l = obj->dictGetLength(); i < l; ++i) {
-        key = obj->dictGetKey(i);
-        if (strncmp("FontDescriptor", key, strlen("FontDescriptor")) == 0
-            || strncmp("BaseFont", key, strlen("BaseFont")) == 0
-            || strncmp("Encoding", key, strlen("Encoding")) == 0)
-            continue;           // skip original values
-        copyDictEntry(pdf, pdf_doc, obj, i);
-    }
-    // write new FontDescriptor, BaseFont, and Encoding
-    pdf_printf(pdf, "/FontDescriptor %d 0 R\n", (int) get_fd_objnum(r->fd));
-    pdf_printf(pdf, "/BaseFont %d 0 R\n", (int) get_fn_objnum(pdf, r->fd));
-    pdf_printf(pdf, "/Encoding %d 0 R\n", (int) r->enc_objnum);
-    pdf_puts(pdf, ">>");
 }
 
 static void copyStream(PDF pdf, Stream * str)
@@ -577,7 +537,7 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
                 ("PDF inclusion: reference to invalid object"
                  " (is the included pdf broken?)");
         } else
-            pdf_printf(pdf, "%d 0 R", addOther(ref));
+            pdf_printf(pdf, "%d 0 R", addInObj(pdf, pdf_doc, ref));
     } else {
         pdftex_fail("PDF inclusion: type <%s> cannot be copied",
                     obj->getTypeName());
@@ -590,21 +550,13 @@ static void writeRefs(PDF pdf, PdfDocument * pdf_doc)
     for (r = pdf_doc->inObjList; r != NULL;) {
         Object obj1;
         pdf_doc->xref->fetch(r->ref.num, r->ref.gen, &obj1);
-        if (r->type == objFont) {
-            assert(!obj1.isStream());
+        if (obj1.isStream())
+            pdf_begin_obj(pdf, r->num, 0);
+        else
             pdf_begin_obj(pdf, r->num, 2);      // \pdfobjcompresslevel = 2 is for this
-            copyFontDict(pdf, pdf_doc, &obj1, r);
-            pdf_puts(pdf, "\n");
-            pdf_end_obj(pdf);
-        } else if (r->type != objFontDesc) {    // /FontDescriptor is written via write_fontdescriptor()
-            if (obj1.isStream())
-                pdf_begin_obj(pdf, r->num, 0);
-            else
-                pdf_begin_obj(pdf, r->num, 2);  // \pdfobjcompresslevel = 2 is for this
-            copyObject(pdf, pdf_doc, &obj1);
-            pdf_puts(pdf, "\n");
-            pdf_end_obj(pdf);
-        }
+        copyObject(pdf, pdf_doc, &obj1);
+        pdf_puts(pdf, "\n");
+        pdf_end_obj(pdf);
         obj1.free();
         n = r->next;
         delete r;
@@ -848,7 +800,7 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     if (info.isRef()) {
         // the info dict must be indirect (PDF Ref p. 61)
         pdf_printf(pdf, "/%s.InfoDict ", pdfkeyprefix);
-        pdf_printf(pdf, "%d 0 R\n", addOther(info.getRef()));
+        pdf_printf(pdf, "%d 0 R\n", addInObj(pdf, pdf_doc, info.getRef()));
     }
     if (img_is_bbox(idict)) {
         bbox[0] = int2bp(img_bbox(idict)[0]);

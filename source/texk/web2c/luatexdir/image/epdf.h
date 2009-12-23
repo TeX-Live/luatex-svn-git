@@ -60,7 +60,6 @@ extern "C" {
     extern int get_fontname(struct fm_entry *);
     extern int pdf_new_objnum(PDF);
     extern void read_pdf_info(PDF, image_dict *, int, int, img_readtype_e);
-    extern void embed_whole_font(struct fd_entry *);
     extern void epdf_check_mem(void);
     extern void epdf_free(void);
     __attribute__ ((format(printf, 2, 3)))
@@ -78,10 +77,6 @@ extern "C" {
     extern void write_epdf(PDF, image_dict *);
     extern void write_additional_epdf_objects(PDF, char *);
     extern void pdf_begin_obj(PDF, int, bool);
-
-/* epdf.c */
-    extern int get_fd_objnum(struct fd_entry *);
-    extern int get_fn_objnum(PDF, struct fd_entry *);
 
 /* utils.c */
     extern char *convertStringToPDFString(char *in, int len);

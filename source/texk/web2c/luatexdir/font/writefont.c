@@ -274,24 +274,6 @@ void create_fontdescriptor(fo_entry * fo, internalfontnumber f)
     assert(fo->fd->gl_tree != NULL);
 }
 
-int get_fd_objnum(fd_entry * fd)
-{
-    assert(fd->fd_objnum != 0);
-    return fd->fd_objnum;
-}
-
-int get_fn_objnum(PDF pdf, fd_entry * fd)
-{
-    if (fd->fn_objnum == 0)
-        fd->fn_objnum = pdf_new_objnum(pdf);
-    return fd->fn_objnum;
-}
-
-void embed_whole_font(fd_entry * fd)
-{
-    fd->all_glyphs = true;
-}
-
 /**********************************************************************/
 /*
  * For all used characters of TeX font f, get corresponding glyph names
