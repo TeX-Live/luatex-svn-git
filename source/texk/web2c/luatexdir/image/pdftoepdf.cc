@@ -260,7 +260,10 @@ static int addInObj(PDF pdf, PdfDocument * pdf_doc, Ref ref)
 {
     ObjMap *obj_map;
     InObj *p, *q, *n;
-    assert(ref.num != 0);
+    if (ref.num == 0) {
+        pdftex_fail("PDF inclusion: reference to invalid object"
+                    " (is the included pdf broken?)");
+    }
     if ((obj_map = findObjMap(pdf_doc, ref)) != NULL)
         return obj_map->out_num;
     n = new InObj;
@@ -467,7 +470,6 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
 {
     PdfObject obj1;
     int i, l, c;
-    Ref ref;
     char *p;
     GString *s;
     if (obj->isBool()) {
@@ -531,13 +533,7 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
             pdf_puts(pdf, "\n");
         pdf_puts(pdf, "endstream");     // can't simply write pdf_end_stream()
     } else if (obj->isRef()) {
-        ref = obj->getRef();
-        if (ref.num == 0) {
-            pdftex_fail
-                ("PDF inclusion: reference to invalid object"
-                 " (is the included pdf broken?)");
-        } else
-            pdf_printf(pdf, "%d 0 R", addInObj(pdf, pdf_doc, ref));
+        pdf_printf(pdf, "%d 0 R", addInObj(pdf, pdf_doc, obj->getRef()));
     } else {
         pdftex_fail("PDF inclusion: type <%s> cannot be copied",
                     obj->getTypeName());
@@ -737,7 +733,7 @@ read_pdf_info(PDF pdf,
             if (groupIsIndirect) {
                 // FIXME: Here we already copy the object. It would be
                 // better to do this only after write_epdf, otherwise we
-                // may copy ununsed /Group objects
+                // may copy unused /Group objects
                 copyObject(pdf, pdf_doc, &lastGroup);
                 epdf_lastGroupObjectNum =
                     getNewObjectNumber(pdf_doc, lastGroup->getRef());
