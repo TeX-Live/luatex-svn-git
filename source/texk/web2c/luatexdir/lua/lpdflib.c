@@ -585,7 +585,7 @@ static int getpdf(lua_State * L)
                 s = tokenlist_to_cstring(pdf_trailer_toks, true, &l);
                 lua_pushlstring(L, s, l);
             } else {
-                lua_pushnil(L);
+                lua_rawget(L,-2);
             }
         } else {
             lua_pushnil(L);
@@ -618,6 +618,8 @@ static int setpdf(lua_State * L)
     } else if (strcmp(st, "pdfmapfile") == 0) {
         char *s = (char *) lua_tostring(L, -1);
         process_map_item(s, MAPFILE);
+    } else {
+        lua_rawset(L,-3);
     }
     return 0;
 }
