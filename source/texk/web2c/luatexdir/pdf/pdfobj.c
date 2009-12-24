@@ -46,10 +46,10 @@ void pdf_write_obj(PDF pdf, int k)
         if (l != LUA_NOREF) {
             lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
             assert(lua_isstring(Luas, -1));
-            st.s = (unsigned char *) lua_tolstring(Luas, -1, &st.l);
-            for (i = 0; i < st.l; i++)
+            st.s = (unsigned char *) lua_tolstring(Luas, -1, (int *) &st.l);
+            for (i = 0; i < (int) st.l; i++)
                 pdf_out(pdf, st.s[i]);
-            if (st.s[st.l - 1] != '\n')
+            if (st.s[(int) st.l - 1] != '\n')
                 pdf_out(pdf, '\n');
             luaL_unref(Luas, LUA_REGISTRYINDEX, l);
             obj_obj_stream_attr(pdf, k) = LUA_NOREF;
@@ -60,7 +60,7 @@ void pdf_write_obj(PDF pdf, int k)
     l = obj_obj_data(pdf, k);
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
     assert(lua_isstring(Luas, -1));
-    st.s = (unsigned char *) lua_tolstring(Luas, -1, &st.l);
+    st.s = (unsigned char *) lua_tolstring(Luas, -1, (int *) &st.l);
     if (obj_obj_is_file(pdf, k)) {
         boolean res = false;    /* callback status value */
         char *fnam = NULL;      /* callback found filename */
@@ -71,7 +71,7 @@ void pdf_write_obj(PDF pdf, int k)
         if (fnam && callback_id > 0) {
             boolean file_opened = false;
             res = run_callback(callback_id, "S->bSd", fnam,
-                               &file_opened, &data.s, &data.l);
+                               &file_opened, &data.s, (int *) &data.l);
             if (!file_opened)
                 pdf_error("ext5", "cannot open file for embedding");
         } else {
@@ -99,9 +99,9 @@ void pdf_write_obj(PDF pdf, int k)
             xfree(data.s);
         tprint(">>");
     } else {
-        for (i = 0; i < st.l; i++)
+        for (i = 0; i < (int) st.l; i++)
             pdf_out(pdf, st.s[i]);
-        if (!obj_obj_is_stream(pdf, k) && st.s[st.l - 1] != '\n')
+        if (!obj_obj_is_stream(pdf, k) && st.s[(int) st.l - 1] != '\n')
             pdf_out(pdf, '\n');
     }
     if (obj_obj_is_stream(pdf, k))
