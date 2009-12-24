@@ -46,8 +46,8 @@ void pdf_write_obj(PDF pdf, int k)
         if (l != LUA_NOREF) {
             lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
             assert(lua_isstring(Luas, -1));
-            st.s = (unsigned char *) lua_tolstring(Luas, -1, (int *) &st.l);
-            for (i = 0; i < (int) st.l; i++)
+            st.s = (unsigned char *) lua_tolstring(Luas, -1, &st.l);
+            for (i = 0; i < st.l; i++)
                 pdf_out(pdf, st.s[i]);
             if (st.s[(int) st.l - 1] != '\n')
                 pdf_out(pdf, '\n');
@@ -60,7 +60,7 @@ void pdf_write_obj(PDF pdf, int k)
     l = obj_obj_data(pdf, k);
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
     assert(lua_isstring(Luas, -1));
-    st.s = (unsigned char *) lua_tolstring(Luas, -1, (int *) &st.l);
+    st.s = (unsigned char *) lua_tolstring(Luas, -1, &st.l);
     if (obj_obj_is_file(pdf, k)) {
         boolean res = false;    /* callback status value */
         char *fnam = NULL;      /* callback found filename */
@@ -71,7 +71,7 @@ void pdf_write_obj(PDF pdf, int k)
         if (fnam && callback_id > 0) {
             boolean file_opened = false;
             res = run_callback(callback_id, "S->bSd", fnam,
-                               &file_opened, &data.s, (int *) &data.l);
+                               &file_opened, &data.s, &data.l);
             if (!file_opened)
                 pdf_error("ext5", "cannot open file for embedding");
         } else {
@@ -81,8 +81,7 @@ void pdf_write_obj(PDF pdf, int k)
             if (!luatex_open_input
                 (&f, fnam, kpse_tex_format, FOPEN_RBIN_MODE, true))
                 pdf_error("ext5", "cannot open file for embedding");
-            res =
-                read_data_file(f, (unsigned char **) &data.s, (int *) &data.l);
+            res = read_data_file(f, &data.s, (int *) &data.l);
             close_file(f);
         }
         if ((int) data.l == 0)
@@ -91,7 +90,7 @@ void pdf_write_obj(PDF pdf, int k)
             pdf_error("ext5", "error reading file for embedding");
         tprint("<<");
         tprint((char *) st.s);
-        for (i = 0; i < (int) data.l; i++)
+        for (i = 0; i < data.l; i++)
             pdf_out(pdf, data.s[i]);
         if (!obj_obj_is_stream(pdf, k) && data.s[(int) data.l - 1] != '\n')
             pdf_out(pdf, '\n');
@@ -99,7 +98,7 @@ void pdf_write_obj(PDF pdf, int k)
             xfree(data.s);
         tprint(">>");
     } else {
-        for (i = 0; i < (int) st.l; i++)
+        for (i = 0; i < st.l; i++)
             pdf_out(pdf, st.s[i]);
         if (!obj_obj_is_stream(pdf, k) && st.s[(int) st.l - 1] != '\n')
             pdf_out(pdf, '\n');
