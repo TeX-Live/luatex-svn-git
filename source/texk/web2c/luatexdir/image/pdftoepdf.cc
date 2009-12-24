@@ -337,65 +337,10 @@ static void copyStream(PDF pdf, Stream * str)
     }
 }
 
-static void copyProcSet(PDF pdf, Object * obj)
-{
-    int i, l;
-    PdfObject procset;
-    if (!obj->isArray())
-        pdftex_fail("PDF inclusion: invalid ProcSet array type <%s>",
-                    obj->getTypeName());
-    pdf_puts(pdf, "/ProcSet [ ");
-    for (i = 0, l = obj->arrayGetLength(); i < l; ++i) {
-        obj->arrayGetNF(i, &procset);
-        if (!procset->isName())
-            pdftex_fail("PDF inclusion: invalid ProcSet entry type <%s>",
-                        procset->getTypeName());
-        copyName(pdf, procset->getName());
-        pdf_puts(pdf, " ");
-    }
-    pdf_puts(pdf, "]\n");
-}
-
-static void copyFont(PDF pdf, PdfDocument * pdf_doc, char *tag,
-                     Object * fontRef)
-{
-    ObjMap *obj_map;
-    // Check whether the font has already been embedded before analysing it.
-    Ref ref = fontRef->getRef();
-    if ((obj_map = findObjMap(pdf_doc, ref)) != NULL) {
-        copyName(pdf, tag);
-        pdf_printf(pdf, " %d 0 R ", obj_map->out_num);
-        return;
-    }
-    copyName(pdf, tag);
-    pdf_puts(pdf, " ");
-    copyObject(pdf, pdf_doc, fontRef);
-}
-
-static void copyFontResources(PDF pdf, PdfDocument * pdf_doc, Object * obj)
-{
-    PdfObject fontRef;
-    int i, l;
-    if (!obj->isDict())
-        pdftex_fail("PDF inclusion: invalid font resources dict type <%s>",
-                    obj->getTypeName());
-    pdf_puts(pdf, "/Font << ");
-    for (i = 0, l = obj->dictGetLength(); i < l; ++i) {
-        obj->dictGetValNF(i, &fontRef);
-        if (fontRef->isRef() ||
-            (fontRef->isDict() && (pdf->inclusion_copy_font == 0)))
-            copyFont(pdf, pdf_doc, obj->dictGetKey(i), &fontRef);
-        else
-            pdftex_fail("PDF inclusion: invalid font in reference type <%s>",
-                        fontRef->getTypeName());
-    }
-    pdf_puts(pdf, ">>\n");
-}
-
 static void copyOtherResources(PDF pdf, PdfDocument * pdf_doc, Object * obj,
                                char *key)
 {
-    // copies all other resources (write_epdf handles Fonts and ProcSets),
+    // copies all other resources,
     // but gives a warning if an object is not a dictionary.
 
     if (!obj->isDict())
@@ -875,12 +820,7 @@ static void write_epdf1(PDF pdf, image_dict * idict)
         for (i = 0, l = obj1->dictGetLength(); i < l; ++i) {
             obj1->dictGetVal(i, &obj2);
             key = obj1->dictGetKey(i);
-            if (strcmp("Font", key) == 0)
-                copyFontResources(pdf, pdf_doc, &obj2);
-            else if (strcmp("ProcSet", key) == 0)
-                copyProcSet(pdf, &obj2);
-            else
-                copyOtherResources(pdf, pdf_doc, &obj2, key);
+            copyOtherResources(pdf, pdf_doc, &obj2, key);
         }
         pdf_puts(pdf, ">>\n");
     }
