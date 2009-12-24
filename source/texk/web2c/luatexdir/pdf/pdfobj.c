@@ -48,6 +48,7 @@ void pdf_write_obj(PDF pdf, int k)
             lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
             assert(lua_isstring(Luas, -1));
             st.s = (unsigned char *) lua_tolstring(Luas, -1, &li);
+            st.l = (unsigned)li;
             for (i = 0; i < st.l; i++)
                 pdf_out(pdf, st.s[i]);
             if (st.s[(int) st.l - 1] != '\n')
@@ -62,7 +63,7 @@ void pdf_write_obj(PDF pdf, int k)
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
     assert(lua_isstring(Luas, -1));
     st.s = (unsigned char *) lua_tolstring(Luas, -1, &li);
-    st.l = (unsigned)ll;
+    st.l = (unsigned)li;
     if (obj_obj_is_file(pdf, k)) {
         boolean res = false;    /* callback status value */
         char *fnam = NULL;      /* callback found filename */
