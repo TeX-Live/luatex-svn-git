@@ -340,14 +340,6 @@ static void copyStream(PDF pdf, Stream * str)
 static void copyOtherResources(PDF pdf, PdfDocument * pdf_doc, Object * obj,
                                char *key)
 {
-    // copies all other resources,
-    // but gives a warning if an object is not a dictionary.
-
-    if (!obj->isDict())
-        //FIXME: Write the message only to the log file
-        pdftex_warn("PDF inclusion: invalid other resource which is no dict"
-                    " (key '%s', type <%s>); copying it anyway.",
-                    key, obj->getTypeName());
     copyName(pdf, key);
     pdf_puts(pdf, " ");
     copyObject(pdf, pdf_doc, obj);
