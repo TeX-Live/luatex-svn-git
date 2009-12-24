@@ -85,15 +85,15 @@ void pdf_write_obj(PDF pdf, int k)
                 read_data_file(f, (unsigned char **) &data.s, (int *) &data.l);
             close_file(f);
         }
-        if (!data.l)
+        if ((int) data.l == 0)
             pdf_error("ext5", "empty file for embedding");
         if (!res)
             pdf_error("ext5", "error reading file for embedding");
         tprint("<<");
         tprint((char *) st.s);
-        for (i = 0; i < data.l; i++)
+        for (i = 0; i < (int) data.l; i++)
             pdf_out(pdf, data.s[i]);
-        if (!obj_obj_is_stream(pdf, k) && data.s[data.l - 1] != '\n')
+        if (!obj_obj_is_stream(pdf, k) && data.s[(int) data.l - 1] != '\n')
             pdf_out(pdf, '\n');
         if (data.s != NULL)
             xfree(data.s);
