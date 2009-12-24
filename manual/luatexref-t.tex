@@ -7498,6 +7498,11 @@ linebreaking, 2 = explict box command. (0.46.0)\NC\NR
 \NC dir        \NC string  \NC  the direction of this box. see~\in{}[dirnodes]\NC\NR
 \stoptabulate
 
+A warning: never assign a node list to the list field
+unless you are sure its internal link structure is correct, otherwise
+an error may be result.
+
+
 \subsubsection{vlist nodes}
 
 Valid fields: As for hlist, except that \quote{shift} is a displacement
@@ -7533,6 +7538,11 @@ Valid fields: \showfields{ins}
 \NC spec       \NC \syntax{<node>}    \NC a pointer to the \tex{splittopskip} glue spec\NC\NR
 \stoptabulate
 
+A warning: never assign a node list to the list field
+unless you are sure its internal link structure is correct, otherwise
+an error may be result.
+
+
 \subsubsection{mark nodes}
 
 Valid fields: \showfields{mark}
@@ -7556,6 +7566,12 @@ Valid fields: \showfields{adjust}
 \NC list       \NC \syntax{<node>}    \NC  adjusted material\NC\NR
 \stoptabulate
 
+
+A warning: never assign a node list to the list field
+unless you are sure its internal link structure is correct, otherwise
+an error may be result.
+
+
 \subsubsection{disc nodes}
 
 Valid fields: \showfields{disc}
@@ -7576,6 +7592,10 @@ Valid fields: \showfields{disc}
 \stoptabulate
 
 The subtype numbers~4 and~5 belong to the \quote{of-f-ice} explanation given elsewhere.
+
+A warning: never assign a node list to the pre, post or replace field
+unless you are sure its internal link structure is correct, otherwise
+an error may be result.
 
 \subsubsection{math nodes}
 
@@ -7647,6 +7667,10 @@ Valid fields: \showfields{glyph}
 \NC xoffset    \NC number             \NC \NC\NR
 \NC yoffset    \NC number             \NC \NC\NR
 \stoptabulate
+
+A warning: never assign a node list to the components field
+unless you are sure its internal link structure is correct, otherwise
+an error may be result.
 
 Valid bits for the \type{subtype} field are:
 
@@ -7724,6 +7748,10 @@ These two subnode types are used for subsidiary list items. For
 \type{sub_box}, the \type{list} points to a \quote{normal} vbox or
 hbox. For \type{sub_mlist}, the \type{list} points to a math list
 that is yet to be converted.
+
+A warning: never assign a node list to the components field
+unless you are sure its internal link structure is correct, otherwise
+an error may be result.
 
 \subsubsection{Math delimiter subnode}
 
@@ -7829,6 +7857,10 @@ Valid fields: \showfields{choice}
 \NC scriptscript \NC \syntax{<node>}\NC          \NC\NR
 \stoptabulate
 
+A warning: never assign a node list to the display, text, script, or
+scriptscript field unless you are sure its internal link structure is
+correct, otherwise an error may be result.
+
 \subsubsubsection{radical nodes}
 
 Valid fields: \showfields{radical}
@@ -7842,6 +7874,11 @@ Valid fields: \showfields{radical}
 \NC left       \NC \syntax{<delim>}\NC          \NC \NR
 \NC degree     \NC \syntax{<kernel>}\NC Only set by \type{\Uroot} \NC \NR
 \stoptabulate
+
+A warning: never assign a node list to the nucleus, sub, sup, left, or
+degree field
+unless you are sure its internal link structure is correct, otherwise
+an error may be result.
 
 \subsubsubsection{fraction nodes}
 
@@ -7857,6 +7894,10 @@ Valid fields: \showfields{fraction}
 \NC right      \NC \syntax{<delim>}\NC          \NC \NR
 \stoptabulate
 
+A warning: never assign a node list to the num, or denom field
+unless you are sure its internal link structure is correct, otherwise
+an error may be result.
+
 \subsubsubsection{fence nodes}
 
 Valid fields: \showfields{fence}
@@ -7869,7 +7910,6 @@ Valid fields: \showfields{fence}
 \NC attr       \NC \syntax{<node>}\NC          \NC\NR
 \NC delim       \NC \syntax{<delim>}\NC          \NC \NR
 \stoptabulate
-
 
 \subsection{whatsit nodes}
 
@@ -7945,6 +7985,13 @@ Valid fields: \showfields{whatsit,local_par}
 \NC box_right  \NC \syntax{<node>}      \NC the \tex{localrightbox}\NC\NR
 \NC box_right_width\NC number\NC width of the \tex{localrightbox}\NC\NR
 \stoptabulate
+
+A warning: never assign a node list to the box_left or box_right field
+unless you are sure its internal link structure is correct, otherwise
+an error may be result.
+
+
+
 
 \subsubsection[dirnodes]{dir nodes}
 
