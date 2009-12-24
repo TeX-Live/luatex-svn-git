@@ -1,4 +1,4 @@
-% $Id: mpxout.w 1061 2009-05-27 13:01:37Z taco $
+% $Id: mpxout.w 1124 2009-12-20 23:32:42Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -260,6 +260,8 @@ static void mpx_abort(MPX mpx, char *msg, ...) {
   va_start(ap, msg);
   fprintf(stderr, "fatal: ");
   (void)vfprintf(stderr, msg, ap);
+  va_end(ap);
+  va_start(ap, msg);
   mpx_printf(mpx, "fatal", msg, ap);
   va_end(ap);
   mpx->history=mpx_fatal_error;

@@ -1,4 +1,4 @@
-% $Id: psout.w 1098 2009-06-25 08:23:21Z taco $
+% $Id: psout.w 1129 2009-12-22 16:41:37Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -3695,20 +3695,31 @@ boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr)
         break;
       case CS_HMOVETO: /* |- dx HMOVETO  |- */
         cs_debug(CS_HMOVETO);
-        finish_subpath();
-        start_subpath(f,cc_get(-1),0);
+	/* treating in-line moves as 'line segments' work better than attempting 
+           to split the path up in two separate sections, at least for now. */
+        if (f->pp == NULL) { /* this is the first */
+           start_subpath(f,cc_get(-1),0);
+        } else {  
+           add_line_segment(f,cc_get(-1),0);
+        }
         cc_clear ();
         break;
       case CS_RMOVETO:  /* |- dx dy RMOVETO |- */
         cs_debug(CS_RMOVETO);
-        finish_subpath();
-        start_subpath(f,cc_get(-2),cc_get(-1));
+        if (f->pp == NULL) { /* this is the first */
+           start_subpath(f,cc_get(-2),cc_get(-1));
+        } else {  
+           add_line_segment(f,cc_get(-2),cc_get(-1));
+        }
         cc_clear ();
         break;
       case CS_VMOVETO: /* |- dy VMOVETO |- */
         cs_debug(CS_VMOVETO);
-        finish_subpath();
-        start_subpath(f,0,cc_get(-1));
+        if (f->pp == NULL) { /* this is the first */
+           start_subpath(f,0,cc_get(-1));
+        } else {  
+           add_line_segment(f,0,cc_get(-1));
+        }
         cc_clear ();
         break;
         /* hinting commands */
@@ -3812,9 +3823,7 @@ boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr)
         break;
       case CS_SETCURRENTPOINT: /* |- x y SETCURRENTPOINT |- */
         cs_debug(CS_SETCURRENTPOINT);
-        f->cur_x = cc_get(-2);
-        f->cur_y = cc_get(-1);
-        f->pp = NULL;
+	/* totally ignoring setcurrentpoint actually works better for most fonts ? */
         cc_clear ();
         break;
       default:
@@ -4671,7 +4680,7 @@ void mp_print_prologue (MP mp, mp_edge_object *h, int prologues, int procset) {
   font_number ldf ;
   ldf = mp_print_font_comments (mp, h, prologues);
   mp_ps_print_ln(mp);
-  if ( (prologues==1) && (mp->last_ps_fnum<mp->last_fnum) )
+  if ( (prologues==1) && mp->ps->tfm_tree == NULL && (mp->last_ps_fnum<mp->last_fnum) )
     mp_read_psname_table(mp);
   mp_ps_print(mp, "%%BeginProlog"); mp_ps_print_ln(mp);
   if ( (prologues>0)||(procset>0) ) {
@@ -5722,6 +5731,7 @@ static void mp_gr_stroke_ellipse (MP mp,  mp_graphic_object *h, boolean fill_als
       mp_ps_pair_out(mp, txy,tyy);
       mp_ps_print(mp, "0 0] t");
     } else if ((txx!=unity)||(tyy!=unity) )  {
+      mp_ps_print(mp, " ");
       mp_ps_pair_out(mp,txx,tyy);
       mp_ps_print(mp, " s");
     };

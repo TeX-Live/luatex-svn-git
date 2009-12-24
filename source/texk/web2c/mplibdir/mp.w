@@ -1,4 +1,4 @@
- $Id: mp.w 1115 2009-08-12 08:39:15Z taco $
+% $Id: mp.w 1133 2009-12-24 09:44:29Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -89,13 +89,13 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 1.207" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version 1.209" /* printed when \MP\ starts */
 @d true 1
 @d false 0
 
 @(mpmp.h@>=
-#define metapost_version "1.207"
-#define metapost_magic (('M'*256) + 'P')*65536 + 1207
+#define metapost_version "1.209"
+#define metapost_magic (('M'*256) + 'P')*65536 + 1209
 #define metapost_old_magic (('M'*256) + 'P')*65536 + 1080
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
@@ -16498,7 +16498,11 @@ if (mp->job_name != NULL) {
   char *s = mp->job_name+strlen(mp->job_name);
   while (s>mp->job_name) {
      if (*s == '.') {
-	*s = '\0';
+         if(strcasecmp(s, ".mp") == 0 || strcasecmp(s, ".mem") == 0 ||
+            strcasecmp(s, ".mf") == 0) {
+ 	         *s = '\0';
+	         break;
+	     }
      }
      s--;
   }
@@ -21673,7 +21677,6 @@ static void mp_set_up_glyph_infont (MP mp, pointer p) {
       }
     } else {
       n = mp_str(mp, value(p));
-      delete_str_ref(value(p));
       h = mp_ps_do_font_charstring (mp,f,n);
       free(n);
     }
