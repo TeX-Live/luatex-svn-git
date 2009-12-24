@@ -1,4 +1,4 @@
-% $Id: mpost.w 1133 2009-12-24 09:44:29Z taco $
+% $Id: mpost.w 1135 2009-12-24 18:40:38Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -35,9 +35,6 @@ have our customary command-line interface.
  
 @c
 #include "config.h"
-#ifndef __MINGW32__
-#include "getopt.h"
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
