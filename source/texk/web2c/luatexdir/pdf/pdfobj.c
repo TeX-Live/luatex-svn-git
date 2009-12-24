@@ -31,10 +31,11 @@ int pdf_last_obj;
 void pdf_write_obj(PDF pdf, int k)
 {
     lstring data, st;
-    size_t i;                   /* index into |data.s| */
+    size_t i, li;               /* index into |data.s| */
     int saved_compress_level = pdf->compress_level;
     int os_level = 1;           /* gives compressed objects for \pdfobjcompresslevel > 0 */
     int l = 0;                  /* possibly a lua registry reference */
+    int ll = 0;
     data.s = st.s = NULL;
     if (obj_obj_pdfcompresslevel(pdf, k) > -1)  /* -1 = "unset" */
         pdf->compress_level = obj_obj_pdfcompresslevel(pdf, k);
@@ -46,7 +47,7 @@ void pdf_write_obj(PDF pdf, int k)
         if (l != LUA_NOREF) {
             lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
             assert(lua_isstring(Luas, -1));
-            st.s = (unsigned char *) lua_tolstring(Luas, -1, &st.l);
+            st.s = (unsigned char *) lua_tolstring(Luas, -1, &li);
             for (i = 0; i < st.l; i++)
                 pdf_out(pdf, st.s[i]);
             if (st.s[(int) st.l - 1] != '\n')
@@ -60,7 +61,8 @@ void pdf_write_obj(PDF pdf, int k)
     l = obj_obj_data(pdf, k);
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
     assert(lua_isstring(Luas, -1));
-    st.s = (unsigned char *) lua_tolstring(Luas, -1, &st.l);
+    st.s = (unsigned char *) lua_tolstring(Luas, -1, &li);
+    st.l = (unsigned)ll;
     if (obj_obj_is_file(pdf, k)) {
         boolean res = false;    /* callback status value */
         char *fnam = NULL;      /* callback found filename */
@@ -71,7 +73,8 @@ void pdf_write_obj(PDF pdf, int k)
         if (fnam && callback_id > 0) {
             boolean file_opened = false;
             res = run_callback(callback_id, "S->bSd", fnam,
-                               &file_opened, &data.s, &data.l);
+                               &file_opened, &data.s, &ll);
+            data.l = (unsigned)ll;
             if (!file_opened)
                 pdf_error("ext5", "cannot open file for embedding");
         } else {
@@ -81,7 +84,8 @@ void pdf_write_obj(PDF pdf, int k)
             if (!luatex_open_input
                 (&f, fnam, kpse_tex_format, FOPEN_RBIN_MODE, true))
                 pdf_error("ext5", "cannot open file for embedding");
-            res = read_data_file(f, &data.s, (int *) &data.l);
+            res = read_data_file(f, &data.s, &ll);
+            data.l = (unsigned)ll;
             close_file(f);
         }
         if ((int) data.l == 0)
