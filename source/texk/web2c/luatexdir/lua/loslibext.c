@@ -81,6 +81,9 @@ static const char _svn_version[] =
 #  elif defined(__MACH__) && defined(__APPLE__)
 #    undef OS_PLATNAME
 #    define OS_PLATNAME "macosx"
+#  elif defined(__GNU__)
+#    undef OS_PLATNAME
+#    define OS_PLATNAME "gnu"
 #  endif
 #endif
 
@@ -117,7 +120,7 @@ static const char _svn_version[] =
 
 static int exec_command(const char *file, char *const *argv, char *const *envp)
 {
-    char path[PATH_MAX];
+    char *path;
     const char *searchpath, *esp;
     size_t prefixlen, filelen, totallen;
 
@@ -125,6 +128,7 @@ static int exec_command(const char *file, char *const *argv, char *const *envp)
         return execve(file, argv, envp);
 
     filelen = strlen(file);
+    path = NULL;
 
     searchpath = getenv("PATH");
     if (!searchpath)
@@ -141,14 +145,20 @@ static int exec_command(const char *file, char *const *argv, char *const *envp)
 
         if (prefixlen == 0 || searchpath[prefixlen - 1] == '/') {
             totallen = prefixlen + filelen;
+#ifdef PATH_MAX
             if (totallen >= PATH_MAX)
                 continue;
+#endif
+            path = malloc(totallen + 1);
             memcpy(path, searchpath, prefixlen);
             memcpy(path + prefixlen, file, filelen);
         } else {
             totallen = prefixlen + filelen + 1;
+#ifdef PATH_MAX
             if (totallen >= PATH_MAX)
                 continue;
+#endif
+            path = malloc(totallen + 1);
             memcpy(path, searchpath, prefixlen);
             path[prefixlen] = '/';
             memcpy(path + prefixlen + 1, file, filelen);
@@ -156,6 +166,8 @@ static int exec_command(const char *file, char *const *argv, char *const *envp)
         path[totallen] = '\0';
 
         execve(path, argv, envp);
+        free(path);
+        path = NULL;
         if (errno == E2BIG || errno == ENOEXEC ||
             errno == ENOMEM || errno == ETXTBSY)
             break;              /* Report this as an error, no more search */
