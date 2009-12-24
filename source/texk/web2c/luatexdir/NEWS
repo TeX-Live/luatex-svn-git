@@ -1,4 +1,60 @@
 ==============================================================
+Luatex beta-0.50.0 was released 20091224
+==============================================================
+
+New features:
+
+* Fonts now listen also to the 'extend' key in the lua font 
+  metrics table, and the processing for this is done via de
+  pdf text matrix instead of via the font matrix, which means
+  it now works for all font types.  
+
+* The embedded Metapost library is now at version 1.209.
+
+Dropped features:
+
+* It is no longer possible for fonts from embedded pdf files
+  to be replaced by / merged with the document fonts of the
+  enveloping pdf. This regression may be temporary, depending
+  on how the rewritten font backend will look after beta 0.60.
+
+Bug fixes:
+
+* Use of \middle confused the \mathstyle operation.
+
+* \pdfcolorstack handling was broken.
+
+* node.unset_attribute() had a bug whereby it inverted the 
+  requested result in some cases (the node on which the unset
+  was called was sometimes the only node at the current level
+  that *kept* the attribute).
+
+* During font expansion, the internal font copy had one character 
+  information object less than the original, resulting in the
+  disappearance of a glyph in some fonts when font expansion
+  was active.
+
+* Placement of operator scripts of OT MATH fonts is adjusted 
+  to be conformant with Word's logic where the italic correction 
+  is only used to tuck in the subscript and for nothing else.
+
+* luafontloader.open() no longer writes directly to stderr in
+  case of internal font errors.
+
+* Any <pdf_refobj_node>.objnum could not be assigned to.
+
+* The lua 'pdf' table could not be assigned to.
+
+* The lua 'md5' library was returning incorrect results on 
+  64-bit architectures.
+
+* Luatex now compiles on GNU Hurd systems.
+
+* Fix segfault when embedding stream file object (these 
+  backend segfaults were a side-effect of the string pool
+  patches).
+
+==============================================================
 Luatex beta-0.47.0 was released 20091218
 ==============================================================
 

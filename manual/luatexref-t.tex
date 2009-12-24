@@ -23,7 +23,7 @@
 
 \setvariables
   [document]
-  [beta=0.47.0]
+  [beta=0.50.0]
 
 \starttext
 
@@ -59,11 +59,11 @@ notice.
 
 \blank
 
-\bf If you are not willing to deal with this situation, you should
+{\bf If you are not willing to deal with this situation, you should
 wait for the stable version. Currently we expect the first release
 with (some) fixed interfaces to be available sometime in the autumn
 of~2008. Full stabilization will not happen soon, the TODO list is
-still very large.
+still very large.}
 
 \stopframedtext
 
@@ -73,8 +73,8 @@ still very large.
 distinguishable parts:
 
 \startitemize[packed]
-\item \PDFTEX\ version 1.40.9
-\item \ALEPH\ RC4 (from the \TEXLIVE\ repository)
+\item \PDFTEX\ version 1.40.9, converted to C.
+\item \ALEPH\ RC4 converted to C.
 \item \LUA\ 5.1.4 ($+$ coco 1.1.5 $+$ portable bytecode)
 \item dedicated \LUA\ libraries
 \item various \TEX\ extensions
@@ -124,8 +124,8 @@ so it may be needed to put these assignments
 
 before the above line.
 More fine-grained primitives control is possible, you can look the details in
-\in{section}[luaprimitives]. For simplicity's sake, this manual
-assumes that you have executed the lua command given above.
+\in{section}[luaprimitives]. For simplicity's sake, this manual assumes 
+that you have executed the \type{\directlua} command as given above.
 
 \section{Version information}
 
@@ -148,7 +148,7 @@ The official \LUATEX\ version is defined follows:
 
 \startitemize
 \item The major version is the integer result of \tex{luatexversion} divided by 100.
- The primitive is and \quote{internal variable}, so you may need to prefix it
+ The primitive is an \quote{internal variable}, so you may need to prefix its
   use with \type{\the} depending on the context.
 \item The minor version is the two-digit result of \tex{luatexversion} modulo 100.
 \item The revision is the given by \tex{luatexrevision}. This primitive expands to a
@@ -159,7 +159,7 @@ The official \LUATEX\ version is defined follows:
 
 
 Note that the \tex{luatexdatestamp} depends on both the compilation
-time and compilation place of the current executable, it is defined in
+time and compilation place of the current executable; it is defined in
 terms of the local time. The purpose of this primitive is solely to be
 an aid in the development process, do not use it for anything besides
 debugging.
@@ -354,10 +354,10 @@ side, each \type{\directlua} block is treated as a separate chunk. In
 such a chunk you can use the \type {local} directive to keep your variables
 from interfering with those used by the macro package.
 
-The conversion from and to a token list means that you normally can
+The conversion to and from a token list means that you normally can
 not use \LUA\ line comments (starting with \type{--}) within the
-argument, as there typically will be only one \quote{line}, so that comment
-will then run on until the end of the input. You will either need to
+argument. As there typically will be only one \quote{line} the first 
+line comment will run on until the end of the input. You will either need to
 use \TEX-style line comments (starting with \%), or change the \TEX\
 category codes locally. Another possibility is to say:
 
@@ -408,7 +408,7 @@ will result in
 Because the \syntax{<general text>} is a chunk, the normal \LUA\ error
 handling is triggered if there is a problem in the included code. The
 \LUA\ error messages should be clear enough, but the contextual
-information is still pretty bad. Typically, you will only see the line
+information is still pretty bad. Often, you will only see the line
 number of the right brace at the end of the code.
 
 While on the subject of errors: some of the things you can do inside
@@ -670,6 +670,18 @@ value is 255, and the acceptable range is from 0 to 65535.
 This allows for embedded spaces, without the need for double quotes.
 Macro expansion takes place inside the argument.
 
+\subsection{File syntax (0.45)}
+
+\LUATEX\ will accept a braced argument as a file name:
+
+\starttyping
+\input {plain}
+\openin 0 {plain}
+\stoptyping
+
+This allows for embedded spaces, without the need for double quotes.
+Macro expansion takes place inside the argument.
+
 \subsection{Images and Forms}
 
 \LUATEX\ accepts optional dimension parameters for \type{\pdfrefximage}
@@ -834,7 +846,7 @@ needs to check \type{--progname} (and \type{--ini} and \type{--fmt}, if
 \section{\LUA\ changes}
 
 The C coroutine (\COCO) patches from luajit are applied to the \LUA\ core, the used
-version is 1.1.3.  See \hyphenatedurl{http://luajit.org/coco.html} for details. This
+version is 1.1.5.  See \hyphenatedurl{http://luajit.org/coco.html} for details. This
 functionality currently (0.45) does not work on non-intel OpenBSD platforms nor on
 powerpc Linux-es.
 
@@ -852,7 +864,7 @@ Initialization of \KPATHSEA\ can happen either implicitly (when
 \LUA\ function \type{kpse.set_program_name()}.
 
 
-Starting from version 0.46.0 (as an experimental feature!) \LUATEX\ is
+Starting from version 0.46.0 (as an {\bf experimental} feature!) \LUATEX\ is
 also able to use dynamically loadable \LUA\ libraries, unless
 \type{--safer} was given as an option on the command line.  
 
@@ -904,9 +916,9 @@ adjusted so that it is line|-|ending neutral: any of \type{LF}, \type
 {CR} or \type{CR+LF} are acceptable line endings.
 
 The \lua{tostring()} printer for numbers has been changed so that it
-returns~\type{0} instead of something like~\hbox{\type{2e-5}} (which confused \TEX\
-enormously) when the value is so small that \TEX\ cannot distinguish
-it from zero.
+returns~\type{0.00000000000001} instead of~\hbox{\type{1e-14}} (which
+confused \TEX\ enormously). Even values with an even smaller exponent
+print simply as~\type{0}.
 
 \lua{luafilesystem} has been extended with two extra boolean functions
 (\luatex{isdir(filename)} and \luatex{isfile(filename)}) and one extra
@@ -1582,6 +1594,12 @@ tex.setboxwd('global',<number> n, <number> n)
 In the function-based interface, it is possible to define values
 globally by using the string \type{'global'} as the first function argument.
 
+Note: the above functions and tables are likely to go away in a future
+version because one can just as well use the direct interface to the 
+box node via \type{tex.box} as documented below.
+
+\blank
+
 It is also possible to set and query actual boxes, using the node
 interface as defined in the \luatex{node} library:
 
@@ -1818,6 +1836,11 @@ rounded number that is in the range of a valid \TEX\ register value.
 In the table version, it creates a copy of the table with all numeric
 top||level values scaled in that manner. If the multiplied number(s) are
 of range, it generates \quote{number to big} error(s) as well.
+
+Note: the precision of the output of this function will depend on your
+computer's architecture and operating system, so use with care! An
+interface to \TEX's internal, 100\% portable scale function will be
+added at a later date.
 
 \subsubsection{\luatex{tex.definefont}}
 
@@ -2613,12 +2636,15 @@ These two variables can be used to replace \type{\pdfmapline} and
 \type{\pdfmapfile} from \PDFTEX. The values are write-only: when
 queried they return \type{nil}.
 
+Note: this interface will almost certainly change in the future.
+
 \subsubsubject{\luatex{pdf.pdfcatalog}, \luatex{pdf.pdfinfo},
     \luatex{pdf.pdfnames}, \luatex{pdf.pdftrailer}  (new in 0.47.0)}
 
 These variable offer a read-write interface to the corresponding
 \PDFTEX\ token lists. The value types are strings.
 
+Note: this interface will almost certainly change in the future.
 
 \subsubsubject{\luatex{pdf.h}, \luatex{pdf.v}}
 
@@ -2632,6 +2658,8 @@ using scaled points as units.
 pdf.h
 pdf.v
 \stoptyping
+
+Note: this interface will almost certainly change in the future.
 
 % not implemented yet:
 % \subsubsubject{\luatex{pdf.seth()}, \luatex{pdf.setv()}}
@@ -2703,9 +2731,11 @@ n = pdf.immediateobj(<integer n>, "streamfile", <string> filename, {, <string> a
 
 This function creates a \PDF\ object,
 which is written to the \PDF\ file only when referenced.
-It is modelled after \PDFTEX's \tex{pdfobj} primitive.
-All function variants return the object number
-of the newly generated object.
+
+All function variants return the object number of the newly generated
+object, and there are two separate calling modes.
+
+The first mode is modelled after \PDFTEX's \tex{pdfobj} primitive.
 
 \startfunctioncall
 n = pdf.obj(<string> objtext)
@@ -2724,6 +2754,28 @@ n = pdf.obj(<integer> n, "stream", <string> streamtext {, <string> attrtext})
 n = pdf.obj(<integer> n, "streamfile", <string> filename, {, <string> attrtext})
 \stopfunctioncall
 
+The second mode accepts a single argument table with key--value pairs.
+
+\startfunctioncall
+n = pdf.obj{ type = <string>,
+             immmediate = <boolean>,
+             objnum = <number>,
+             attr = <string>,
+             compresslevel = <number>,
+             objcompression = <boolean>,
+             file = <string>,
+             string = <string>}
+\stopfunctioncall
+
+The \type{string} field can have the values \type{raw} and
+\type{stream}, this field is required, the others are optional
+(within constraints).
+
+Note: this mode makes \type{pdf.obj} look more flexible than it
+actually is: the constraints from the separate parameter version
+still apply, so for example you can't have both \type{string} and
+\type{file} at the same time.
+
 \subsubsubject{\luatex{pdf.reserveobj()}}
 
 This function creates an empty \PDF\ object and returns its number.
@@ -2736,12 +2788,12 @@ n = pdf.reserveobj("annot")
 \subsubsubject{\luatex{pdf.registerannot()} (new in 0.47.0)}
 
 This function adds an object number to the \type{/Annots} array for the
-current page without doing anything else. 
+current page without doing anything else. This function can only be
+used from within \type{\latelua}.
 
 \startfunctioncall
 pdf.registerannot (<number> objnum)
 \stopfunctioncall
-
 
 
 %***********************************************************************
@@ -4092,9 +4144,8 @@ This library contains one read|-|only  item:
 <string> s = lua.version
 \stoptyping
 
-This returns a \LUATEX\ version identifier string. The value is
-currently \directlua {tex.print('lua.version')}, but it is soon to be
-replaced by something more elaborate.
+This returns the \LUA\ version identifier string. The value is
+currently \directlua {tex.print('lua.version')}.
 
 \subsection{\LUA\ bytecode registers}
 
@@ -6043,9 +6094,9 @@ font dimension parameter. For math fonts, this should be set to zero.
 \starttabulate[|l|l|l|p|]
 \NC \bf variable                \NC \bf style             \NC \bf default value opentype               \NC \bf default value tfm \NC\NR
 \NC \tex{Umathaxis}             \NC --                    \NC AxisHeight                               \NC axis_height \NC\NR
-\NC \tex{Umathoperatorsize}     \NC D, D'                 \NC DisplayOperatorMinHeight             \NC $^6$ \NC\NR
-\NC \tex{Umathfractiondelsize}  \NC D, D'                 \NC 0$^1$                                    \NC delim1 \NC\NR
-\NC "                           \NC T, T', S, S', SS, SS' \NC 0$^1$                                    \NC delim2 \NC\NR
+\NC \tex{Umathoperatorsize}     \NC D, D'                 \NC DisplayOperatorMinHeight                 \NC $^6$ \NC\NR
+\NC \tex{Umathfractiondelsize}  \NC D, D'                 \NC FractionDelimiterDisplaySize$^9$         \NC delim1 \NC\NR
+\NC "                           \NC T, T', S, S', SS, SS' \NC FractionDelimiterSize$^9$                \NC delim2 \NC\NR
 \NC \tex{Umathfractiondenomdown}\NC D, D'                 \NC FractionDenominatorDisplayStyleShiftDown \NC denom1 \NC\NR
 \NC "                           \NC T, T', S, S', SS, SS' \NC FractionDenominatorShiftDown             \NC denom2 \NC\NR
 \NC \tex{Umathfractiondenomvgap}\NC D, D'                 \NC FractionDenominatorDisplayStyleGapMin    \NC 3*default_rule_thickness \NC\NR
@@ -6105,7 +6156,7 @@ font dimension parameter. For math fonts, this should be set to zero.
 
 \stop
 
-Note 1: \OPENTYPE\ fonts set \tex{Umathfractiondelsize}, \tex{Umathlimitabovekern},\crlf
+Note 1: \OPENTYPE\ fonts set \tex{Umathlimitabovekern} and
 \tex{Umathlimitbelowkern} to zero and set \tex{Umathquad} to the font size of the used font,
 because these are not supported in the MATH table,
 
@@ -6136,6 +6187,10 @@ expressed in a percentage instead of as a number of scaled points.
 
 Note 8: \type{SubscriptShiftDownWithSuperscript} does not actually exist in the \quote{standard}
 Opentype Math font Cambria, but it is useful enough to be added. New in version 0.38.
+
+Note 9: \type{FractionDelimiterDisplaySize} and \type{FractionDelimiterSize} do not actually exist in the \quote{standard}
+Opentype Math font Cambria, but were useful enough to be added. New in version 0.47.
+
 
 \section{Math spacing setting}
 
@@ -6862,6 +6917,8 @@ incoming font source, also used as fontname identifier in the \PDF\ output, new 
                                                                          character enties for math-specific keys. (0.42.0)\NC\NR
 \NC slant               \NC no       \NC no       \NC yes \NC number \NC This has the same semantics as the \type{SlantFont} operator
                                                                          in font map files. (0.47.0)\NC\NR
+\NC extent              \NC no       \NC no       \NC yes \NC number \NC This has the same semantics as the \type{ExtendFont} operator
+                                                                         in font map files. (0.50.0)\NC\NR
 \stoptabulate
 
 The key \type{name} is always required. The keys \type{stretch},
@@ -8400,6 +8457,12 @@ have been removed since \LUATEX~0.42:
 
 \item \LUATEX~0.45.0 introduces two extra token lists, \tex{pdfxformresources} 
 and \tex{pdfxformattr}, as an alternative to \tex{pdfxform} keywords.
+
+\item As of \LUATEX~0.50.0 is no longer possible for fonts from embedded pdf files
+  to be replaced by / merged with the document fonts of the enveloping
+  pdf document. This regression may be temporary, depending on how the
+  rewritten font backend will look after beta 0.60.
+
 
 \stopitemize
 
