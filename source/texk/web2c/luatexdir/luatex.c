@@ -724,9 +724,7 @@ static RETSIGTYPE catch_interrupt(int arg)
    ``Get the first line of input and prepare to start''), this is as
    good a place as any.  */
 
-void
-get_date_and_time(int * minutes, int * day,
-                  int * month, int * year)
+void get_date_and_time(int *minutes, int *day, int *month, int *year)
 {
     time_t myclock = time((time_t *) 0);
     struct tm *tmptr = localtime(&myclock);
@@ -770,7 +768,7 @@ get_date_and_time(int * minutes, int * day,
 /*
  Getting a high resolution time.
  */
-void get_seconds_and_micros(int * seconds, int * micros)
+void get_seconds_and_micros(int *seconds, int *micros)
 {
 #if defined (HAVE_GETTIMEOFDAY)
     struct timeval tv;
@@ -1060,7 +1058,7 @@ void do_undump(char *p, int item_size, int nitems, FILE * in_file)
 /* Look up VAR_NAME in texmf.cnf; assign either the value found there or
    DFLT to *VAR.  */
 
-void setupboundvariable(int * var, const_string var_name, int dflt)
+void setupboundvariable(int *var, const_string var_name, int dflt)
 {
     string expansion = kpse_var_value(var_name);
     *var = dflt;

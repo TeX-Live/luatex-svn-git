@@ -34,7 +34,7 @@
 #  define IMAGE_COLOR_C   2
 #  define IMAGE_COLOR_I   4
 
-extern int do_zround (double r); /* from utils.c */
+extern int do_zround(double r); /* from utils.c */
 #  define bp2int(p)       do_zround(p * (one_hundred_bp / 100.0))
 #  define int2bp(i)       (i * 100.0 / one_hundred_bp)
 

@@ -145,19 +145,19 @@ static int exec_command(const char *file, char *const *argv, char *const *envp)
 
         if (prefixlen == 0 || searchpath[prefixlen - 1] == '/') {
             totallen = prefixlen + filelen;
-#ifdef PATH_MAX
+#  ifdef PATH_MAX
             if (totallen >= PATH_MAX)
                 continue;
-#endif
+#  endif
             path = malloc(totallen + 1);
             memcpy(path, searchpath, prefixlen);
             memcpy(path + prefixlen, file, filelen);
         } else {
             totallen = prefixlen + filelen + 1;
-#ifdef PATH_MAX
+#  ifdef PATH_MAX
             if (totallen >= PATH_MAX)
                 continue;
-#endif
+#  endif
             path = malloc(totallen + 1);
             memcpy(path, searchpath, prefixlen);
             path[prefixlen] = '/';
@@ -260,12 +260,12 @@ extern char **environ;
 static char *get_command_name(char *maincmd)
 {
     /* retrieve argv[0] part from the command string, 
-    it will be truncated to MAX_PATH if it's too long */
+       it will be truncated to MAX_PATH if it's too long */
     char *cmdname = (char *) malloc(sizeof(char) * MAX_PATH);
     int i, k, quoted;
     quoted = k = 0;
-    for (i = 0; (i < MAX_PATH) && maincmd[i] && 
-                (maincmd[i] != ' ' && maincmd[i] != '\t' || quoted); i++) {
+    for (i = 0; (i < MAX_PATH) && maincmd[i] &&
+         (maincmd[i] != ' ' && maincmd[i] != '\t' || quoted); i++) {
         if (maincmd[i] == '"') {
             quoted = !quoted;
         } else {
@@ -283,10 +283,10 @@ static char **do_split_command(char *maincmd, char **runcmd)
     char **cmdline = NULL;
 #ifdef WIN32
     /* On WIN32 don't split anything, because 
-    _spawnvpe can't put it back together properly 
-    if there are quoted arguments with spaces. 
-    Instead, dump everything into one argument 
-    and it will be passed through as is */
+       _spawnvpe can't put it back together properly 
+       if there are quoted arguments with spaces. 
+       Instead, dump everything into one argument 
+       and it will be passed through as is */
     cmdline = malloc(sizeof(char *) * 2);
     cmdline[0] = xstrdup(maincmd);
     cmdline[1] = NULL;

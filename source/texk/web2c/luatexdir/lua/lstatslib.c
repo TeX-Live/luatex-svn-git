@@ -35,7 +35,7 @@ extern void lua_nodelib_push_fast(lua_State * L, halfword n);
 
 typedef char *(*charfunc) (void);
 typedef lua_Number(*numfunc) (void);
-typedef int(*intfunc) (void);
+typedef int (*intfunc) (void);
 
 char *getbanner(void)
 {
@@ -44,7 +44,7 @@ char *getbanner(void)
 
 char *getlogname(void)
 {
-    return (char *)texmf_log_name;
+    return (char *) texmf_log_name;
 }
 
 char *get_pdftex_banner(void)
@@ -66,7 +66,7 @@ char *getfilename(void)
     while ((level > 0)) {
         t = input_stack[level--].name_field;
         if (t >= STRING_OFFSET)
-            return (char *)str_string(t);
+            return (char *) str_string(t);
     }
     return xstrdup("");
 }
@@ -78,7 +78,7 @@ char *getlasterror(void)
 
 char *luatexrevision(void)
 {
-    return (strrchr(luatex_version_string,'.')+1);
+    return (strrchr(luatex_version_string, '.') + 1);
 }
 
 static lua_Number get_pdf_gone(void)

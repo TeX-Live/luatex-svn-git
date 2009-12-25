@@ -102,29 +102,30 @@ static void end_name(void)
 {
     unsigned char *s;
     if (str_ptr + 3 > (max_strings + STRING_OFFSET))
-        overflow("number of strings", max_strings - init_str_ptr + STRING_OFFSET);
+        overflow("number of strings",
+                 max_strings - init_str_ptr + STRING_OFFSET);
     /* @:TeX capacity exceeded number of strings}{\quad number of strings@> */
     /* at this point, the full string lives in |cur_string| */
     if (area_delimiter == 0) {
         cur_area = get_nullstr();
     } else {
-        s = (unsigned char *)xstrdup((char *)(cur_string + area_delimiter));
+        s = (unsigned char *) xstrdup((char *) (cur_string + area_delimiter));
         cur_string[area_delimiter] = '\0';
-        cur_length = strlen((char *)cur_string);
+        cur_length = strlen((char *) cur_string);
         cur_area = make_string();
-        cur_length = strlen((char *)s);
+        cur_length = strlen((char *) s);
         cur_string = s;
     }
     if (ext_delimiter == 0) {
         cur_name = make_string();
         cur_ext = get_nullstr();
     } else {
-        int l = (ext_delimiter - area_delimiter -1);
-        s = (unsigned char *)xstrdup((char *)(cur_string + l));
+        int l = (ext_delimiter - area_delimiter - 1);
+        s = (unsigned char *) xstrdup((char *) (cur_string + l));
         cur_string[l] = '\0';
-        cur_length = strlen((char *)cur_string);
+        cur_length = strlen((char *) cur_string);
         cur_name = make_string();
-        cur_length = strlen((char *)s);
+        cur_length = strlen((char *) s);
         cur_string = s;
         cur_ext = make_string();
     }
@@ -284,7 +285,7 @@ char *prompt_file_name(char *s, char *e)
 void tprint_file_name(unsigned char *n, unsigned char *a, unsigned char *e)
 {
     boolean must_quote;         /* whether to quote the filename */
-    unsigned char *j;             /* index into string */
+    unsigned char *j;           /* index into string */
     must_quote = false;
     if (a != NULL) {
         j = a;
@@ -342,6 +343,9 @@ void print_file_name(str_number n, str_number a, str_number e)
     nam = makecstring(n);
     are = makecstring(a);
     ext = makecstring(e);
-    tprint_file_name((unsigned char *)nam, (unsigned char *)are, (unsigned char *)ext);
-    free(nam); free(are); free(ext);
+    tprint_file_name((unsigned char *) nam, (unsigned char *) are,
+                     (unsigned char *) ext);
+    free(nam);
+    free(are);
+    free(ext);
 }

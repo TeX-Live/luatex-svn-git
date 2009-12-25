@@ -107,7 +107,7 @@ void get_saved_lua_boolean(int r, char *name, boolean * target)
     return;
 }
 
-void get_lua_number(char *table, char *name, int * target)
+void get_lua_number(char *table, char *name, int *target)
 {
     int stacktop;
     stacktop = lua_gettop(Luas);
@@ -123,7 +123,7 @@ void get_lua_number(char *table, char *name, int * target)
     return;
 }
 
-void get_saved_lua_number(int r, char *name, int * target)
+void get_saved_lua_number(int r, char *name, int *target)
 {
     int stacktop;
     stacktop = lua_gettop(Luas);

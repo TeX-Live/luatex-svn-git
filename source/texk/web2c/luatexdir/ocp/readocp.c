@@ -37,8 +37,8 @@ static char *b_test_in(char *nam)
 
 
 static unsigned char *ocp_buffer = NULL;        /* byte buffer for ocp files */
-static int ocp_size = 0;    /* total size of the ocp file */
-static int ocp_cur = 0;     /* index into |ocp_buffer| */
+static int ocp_size = 0;        /* total size of the ocp file */
+static int ocp_cur = 0;         /* index into |ocp_buffer| */
 
 void init_null_ocp(str_number a, str_number n)
 {
@@ -113,7 +113,7 @@ read_ocp_info(pointer u, char *nom, char *aire, char *ext, boolean external_ocp)
     internal_ocp_number g;      /* the number to return */
     int ocpword;
     ocp_index ocpmem_run_ptr;
-    int ocp_length, real_ocp_length;        /* length of ocp file */
+    int ocp_length, real_ocp_length;    /* length of ocp file */
     ocp_index previous_address;
     int temp_ocp_input;
     int temp_ocp_output;

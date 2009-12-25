@@ -96,7 +96,7 @@ unsigned char *fread_to_buf(lua_State * L, char *filename, size_t * len)
     unsigned char *buf = NULL;
     if ((f = fopen(filename, "rb")) == NULL)
         luaL_error(L, "pdf.immediateobj() cannot open input file");
-    if ((i = readbinfile(f, &buf, (int *)len)) == 0)
+    if ((i = readbinfile(f, &buf, (int *) len)) == 0)
         luaL_error(L, "pdf.immediateobj() cannot read input file");
     fclose(f);
     return buf;
@@ -162,7 +162,8 @@ static int l_immediateobj(lua_State * L)
                 if (!lua_isstring(L, first_arg + 2))
                     luaL_error(L,
                                "pdf.immediateobj() 3rd argument must be string");
-                st3.s = (unsigned char *) lua_tolstring(L, first_arg + 2, &st3.l);
+                st3.s =
+                    (unsigned char *) lua_tolstring(L, first_arg + 2, &st3.l);
                 buf_to_pdfbuf_macro(static_pdf, st3.s, st3.l);
                 if (st3.s[st3.l - 1] != '\n')
                     pdf_puts(static_pdf, "\n");
@@ -288,7 +289,7 @@ static int table_obj(lua_State * L)
         if (!lua_isstring(L, -1))       /* !attr-s t */
             luaL_error(L, "pdf.obj(): object \"attr\" must be string");
         if (immediate == 1) {
-            attr.s = (unsigned char *) lua_tolstring(L, -1, &attr.l);    /* attr-s t */
+            attr.s = (unsigned char *) lua_tolstring(L, -1, &attr.l);   /* attr-s t */
             lua_pop(L, 1);      /* t */
         } else
             obj_obj_stream_attr(static_pdf, k) = luaL_ref(Luas, LUA_REGISTRYINDEX);     /* t */
@@ -367,7 +368,7 @@ static int table_obj(lua_State * L)
                 luaL_error(L,
                            "pdf.obj(): \"file\" name must be string for raw object");
             if (immediate == 1) {
-                st.s = (unsigned char *) lua_tolstring(L, -1, &st.l);    /* file-s nil t */
+                st.s = (unsigned char *) lua_tolstring(L, -1, &st.l);   /* file-s nil t */
                 buf.s = fread_to_buf(L, (char *) st.s, &buf.l);
                 buf_to_pdfbuf_macro(static_pdf, buf.s, buf.l);
                 if (buf.s[buf.l - 1] != '\n')
@@ -404,7 +405,7 @@ static int table_obj(lua_State * L)
                 luaL_error(L,
                            "pdf.obj(): \"string\" must be string for stream object");
             if (immediate == 1) {
-                st.s = (unsigned char *) lua_tolstring(L, -1, &st.l);    /* string-s t */
+                st.s = (unsigned char *) lua_tolstring(L, -1, &st.l);   /* string-s t */
                 buf_to_pdfbuf_macro(static_pdf, st.s, st.l);
             } else
                 obj_obj_data(static_pdf, k) = luaL_ref(L, LUA_REGISTRYINDEX);   /* t */
@@ -414,7 +415,7 @@ static int table_obj(lua_State * L)
                 luaL_error(L,
                            "pdf.obj(): \"file\" name must be string for stream object");
             if (immediate == 1) {
-                st.s = (unsigned char *) lua_tolstring(L, -1, &st.l);    /* file-s nil t */
+                st.s = (unsigned char *) lua_tolstring(L, -1, &st.l);   /* file-s nil t */
                 buf.s = fread_to_buf(L, (char *) st.s, &buf.l);
                 buf_to_pdfbuf_macro(static_pdf, buf.s, buf.l);
                 xfree(buf.s);
@@ -585,7 +586,7 @@ static int getpdf(lua_State * L)
                 s = tokenlist_to_cstring(pdf_trailer_toks, true, &l);
                 lua_pushlstring(L, s, l);
             } else {
-                lua_rawget(L,-2);
+                lua_rawget(L, -2);
             }
         } else {
             lua_pushnil(L);
@@ -619,7 +620,7 @@ static int setpdf(lua_State * L)
         char *s = (char *) lua_tostring(L, -1);
         process_map_item(s, MAPFILE);
     } else {
-        lua_rawset(L,-3);
+        lua_rawset(L, -3);
     }
     return 0;
 }

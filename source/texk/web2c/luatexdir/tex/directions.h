@@ -108,6 +108,6 @@ scaled pack_width(int curdir, int pdir, halfword p, boolean isglyph);
 scaled_whd pack_width_height_depth(int curdir, int pdir, halfword p,
                                    boolean isglyph);
 
-void update_text_dir_ptr (int val);
+void update_text_dir_ptr(int val);
 
 #endif

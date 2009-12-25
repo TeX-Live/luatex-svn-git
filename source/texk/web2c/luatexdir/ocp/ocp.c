@@ -78,7 +78,9 @@ void new_ocp(small_number a)
         char *are = makecstring(cur_area);
         char *ext = makecstring(cur_ext);
         f = read_ocp_info(u, nam, are, ext, external_ocp);
-        free(nam); free(are); free(ext);
+        free(nam);
+        free(are);
+        free(ext);
     }
   COMMON_ENDING:
     equiv(u) = f;

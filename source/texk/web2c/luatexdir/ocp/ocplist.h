@@ -29,8 +29,8 @@
 #  define null_ocp_list ocp_list_base
 
 typedef int internal_ocp_list_number;
-typedef int ocp_list_index; /* index into |ocp_list_info| */
-typedef int ocp_lstack_index;       /* index into |ocp_lstack_info| */
+typedef int ocp_list_index;     /* index into |ocp_list_info| */
+typedef int ocp_lstack_index;   /* index into |ocp_lstack_info| */
 
 extern memory_word *ocp_list_info;
 extern memory_word *ocp_lstack_info;

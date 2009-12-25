@@ -48,7 +48,7 @@ void pdf_write_obj(PDF pdf, int k)
             lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
             assert(lua_isstring(Luas, -1));
             st.s = (unsigned char *) lua_tolstring(Luas, -1, &li);
-            st.l = (unsigned)li;
+            st.l = (unsigned) li;
             for (i = 0; i < st.l; i++)
                 pdf_out(pdf, st.s[i]);
             if (st.s[(int) st.l - 1] != '\n')
@@ -63,7 +63,7 @@ void pdf_write_obj(PDF pdf, int k)
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
     assert(lua_isstring(Luas, -1));
     st.s = (unsigned char *) lua_tolstring(Luas, -1, &li);
-    st.l = (unsigned)li;
+    st.l = (unsigned) li;
     if (obj_obj_is_file(pdf, k)) {
         boolean res = false;    /* callback status value */
         char *fnam = NULL;      /* callback found filename */
@@ -75,7 +75,7 @@ void pdf_write_obj(PDF pdf, int k)
             boolean file_opened = false;
             res = run_callback(callback_id, "S->bSd", fnam,
                                &file_opened, &data.s, &ll);
-            data.l = (unsigned)ll;
+            data.l = (unsigned) ll;
             if (!file_opened)
                 pdf_error("ext5", "cannot open file for embedding");
         } else {
@@ -86,7 +86,7 @@ void pdf_write_obj(PDF pdf, int k)
                 (&f, fnam, kpse_tex_format, FOPEN_RBIN_MODE, true))
                 pdf_error("ext5", "cannot open file for embedding");
             res = read_data_file(f, &data.s, &ll);
-            data.l = (unsigned)ll;
+            data.l = (unsigned) ll;
             close_file(f);
         }
         if ((int) data.l == 0)

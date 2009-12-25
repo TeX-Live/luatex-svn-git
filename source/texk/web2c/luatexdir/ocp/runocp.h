@@ -52,8 +52,7 @@ extern void do_clear_ocp_lists(small_number a);
 extern void dump_active_ocp_info(void);
 extern void undump_active_ocp_info(void);
 
-extern void initialize_ocp_buffers(int ocp_buf_size,
-                                   int ocp_stack_size);
+extern void initialize_ocp_buffers(int ocp_buf_size, int ocp_stack_size);
 
 /* for ocplist.h */
 /* typedef int ocp_list_index ; */

@@ -408,21 +408,20 @@ scaled divide_scaled_n(double sd, double md, double n)
     return (scaled) di;
 }
 
-int
-do_zround (double r)
+int do_zround(double r)
 {
-  int i;
+    int i;
 
-  if (r > 2147483647.0)
-    i = 2147483647;
-  else if (r < -2147483647.0)
-    i = -2147483647;
-  else if (r >= 0.0)
-    i = (int)(r + 0.5);
-  else
-    i = (int)(r - 0.5);
+    if (r > 2147483647.0)
+        i = 2147483647;
+    else if (r < -2147483647.0)
+        i = -2147483647;
+    else if (r >= 0.0)
+        i = (int) (r + 0.5);
+    else
+        i = (int) (r - 0.5);
 
-  return i;
+    return i;
 }
 
 
@@ -444,4 +443,3 @@ double rint(double x)
 }
 
 #endif
-
