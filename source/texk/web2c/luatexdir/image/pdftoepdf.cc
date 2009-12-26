@@ -541,8 +541,7 @@ char *get_file_checksum(char *a)
 // Returns the page number.
 
 void
-read_pdf_info(PDF pdf,
-              image_dict * idict, int minor_pdf_version_wanted,
+read_pdf_info(image_dict * idict, int minor_pdf_version_wanted,
               int pdf_inclusion_errorlevel, img_readtype_e readtype)
 {
     PdfDocument *pdf_doc;
@@ -673,7 +672,7 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     PdfObject contents, obj1, obj2;
     PdfObject metadata;
     Object info, *metadataNF, *resourcesNF;
-    char *key, *checksum;
+    char *checksum;
     char s[256];
     int i, l;
     PdfDocument *pdf_doc;

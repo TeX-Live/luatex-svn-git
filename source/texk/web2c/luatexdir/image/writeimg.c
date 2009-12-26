@@ -312,7 +312,7 @@ void read_img(PDF pdf,
     switch (img_type(idict)) {
     case IMG_TYPE_PDF:
         assert(pdf != NULL);    /* TODO! */
-        read_pdf_info(pdf, idict, minor_version, inclusion_errorlevel,
+        read_pdf_info(idict, minor_version, inclusion_errorlevel,
                       IMG_CLOSEINBETWEEN);
         break;
     case IMG_TYPE_PNG:

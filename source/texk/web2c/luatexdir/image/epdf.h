@@ -59,7 +59,7 @@ extern "C" {
     extern int get_fontfile(struct fm_entry *);
     extern int get_fontname(struct fm_entry *);
     extern int pdf_new_objnum(PDF);
-    extern void read_pdf_info(PDF, image_dict *, int, int, img_readtype_e);
+    extern void read_pdf_info(image_dict *, int, int, img_readtype_e);
     extern void epdf_check_mem(void);
     extern void epdf_free(void);
     __attribute__ ((format(printf, 2, 3)))
