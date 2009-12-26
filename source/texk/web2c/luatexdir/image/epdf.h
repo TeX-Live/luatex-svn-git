@@ -75,7 +75,6 @@ extern "C" {
     extern void pdftex_warn(const char *fmt, ...);
 
     extern void write_epdf(PDF, image_dict *);
-    extern void write_additional_epdf_objects(PDF, char *);
     extern void pdf_begin_obj(PDF, int, bool);
 
 /* utils.c */

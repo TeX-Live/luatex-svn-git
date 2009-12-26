@@ -74,7 +74,7 @@ static const char _svn_version[] =
 // and &obj to get a pointer to the object.
 // It is no longer necessary to call Object::free explicitely.
 
-/* *INDENT-OFF* */
+// *INDENT-OFF*
 class PdfObject {
   public:
     PdfObject() {               // nothing
@@ -94,7 +94,7 @@ class PdfObject {
   public:
     Object iObject;
 };
-/* *INDENT-ON* */
+// *INDENT-ON*
 
 // When copying the Resources of the selected page, all objects are
 // copied recursively top-down.  The findObjMap() function checks if an
@@ -112,11 +112,9 @@ struct InObj {
 };
 
 static GBool isInit = gFalse;
-static bool groupIsIndirect;
-static PdfObject lastGroup;
 
 //**********************************************************************
-// Maintain AVL tree of open embedded PDF files
+// Maintain AVL tree of all PDF files for embedding
 
 static avl_table *PdfDocumentTree = NULL;
 
@@ -193,14 +191,14 @@ static PdfDocument *refPdfDocument(char *file_path)
 }
 
 //**********************************************************************
+// AVL sort ObjMap into ObjMapTree by object number and generation
+
 // keep the ObjMap struct small, as these are accumulated until the end
 
 struct ObjMap {
     Ref in;                     // object num/gen in orig. PDF file
     int out_num;                // object num after embedding (gen == 0)
 };
-
-// AVL sort ObjMap into ObjMapTree by object number and generation
 
 static int CompObjMap(const void *pa, const void *pb, void * /*p */ )
 {
@@ -241,21 +239,6 @@ static void addObjMap(PdfDocument * pdf_doc, Ref in, int out_num)
     assert(aa != NULL);
 }
 
-//**********************************************************************
-
-// Replacement for
-//      Object *initDict(Dict *dict1){ initObj(objDict); dict = dict1; return this; }
-
-static void initDictFromDict(PdfDocument * pdf_doc, PdfObject & obj,
-                             Dict * dict)
-{
-    obj->initDict(pdf_doc->xref);
-    for (int i = 0, l = dict->getLength(); i < l; i++) {
-        Object obj1;
-        obj->dictAdd(copyString(dict->getKey(i)), dict->getValNF(i, &obj1));
-    }
-}
-
 static int addInObj(PDF pdf, PdfDocument * pdf_doc, Ref ref)
 {
     ObjMap *obj_map;
@@ -284,67 +267,7 @@ static int addInObj(PDF pdf, PdfDocument * pdf_doc, Ref ref)
     return n->num;
 }
 
-static void copyName(PDF pdf, char *s)
-{
-    pdf_puts(pdf, "/");
-    for (; *s != 0; s++) {
-        if (isdigit(*s) || isupper(*s) || islower(*s) || *s == '_' ||
-            *s == '.' || *s == '-' || *s == '+')
-            pdf_out(pdf, *s);
-        else
-            pdf_printf(pdf, "#%.2X", *s & 0xFF);
-    }
-}
-
-static int getNewObjectNumber(PdfDocument * pdf_doc, Ref ref)
-{
-    ObjMap *obj_map;
-    if ((obj_map = findObjMap(pdf_doc, ref)) != NULL)
-        return obj_map->out_num;
-    pdftex_fail("Object not yet copied: %i %i", ref.num, ref.gen);
-    return 0;
-}
-
-static void copyObject(PDF, PdfDocument *, Object *);
-
-static void copyDictEntry(PDF pdf, PdfDocument * pdf_doc, Object * obj, int i)
-{
-    PdfObject obj1;
-    copyName(pdf, obj->dictGetKey(i));
-    pdf_puts(pdf, " ");
-    obj->dictGetValNF(i, &obj1);
-    copyObject(pdf, pdf_doc, &obj1);
-    pdf_puts(pdf, "\n");
-}
-
-static void copyDict(PDF pdf, PdfDocument * pdf_doc, Object * obj)
-{
-    int i, l;
-    if (!obj->isDict())
-        pdftex_fail("PDF inclusion: invalid dict type <%s>",
-                    obj->getTypeName());
-    for (i = 0, l = obj->dictGetLength(); i < l; ++i)
-        copyDictEntry(pdf, pdf_doc, obj, i);
-}
-
-static void copyStream(PDF pdf, Stream * str)
-{
-    int c;
-    str->reset();
-    while ((c = str->getChar()) != EOF) {
-        pdf_out(pdf, c);
-        pdf->last_byte = c;
-    }
-}
-
-static void copyOtherResources(PDF pdf, PdfDocument * pdf_doc, Object * obj,
-                               char *key)
-{
-    copyName(pdf, key);
-    pdf_puts(pdf, " ");
-    copyObject(pdf, pdf_doc, obj);
-}
-
+//**********************************************************************
 // Function onverts double to string; very small and very large numbers
 // are NOT converted to scientific notation.
 // n must be a number or real conforming to the implementation limits
@@ -403,12 +326,99 @@ static char *convertNumToPDF(double n)
     return (char *) buf;
 }
 
+static void copyObject(PDF, PdfDocument *, Object *);
+
+static void copyString(PDF pdf, GString * string)
+{
+    char c, *p;
+    size_t i, l;
+    p = string->getCString();
+    l = (size_t) string->getLength();
+    if (strlen(p) == (unsigned int) l) {
+        pdf_puts(pdf, "(");
+        for (; *p != 0; p++) {
+            c = (unsigned char) *p;
+            if (c == '(' || c == ')' || c == '\\')
+                pdf_printf(pdf, "\\%c", c);
+            else if (c < 0x20 || c > 0x7F)
+                pdf_printf(pdf, "\\%03o", c);
+            else
+                pdf_out(pdf, c);
+        }
+        pdf_puts(pdf, ")");
+    } else {
+        pdf_puts(pdf, "<");
+        for (i = 0; i < l; i++) {
+            c = string->getChar(i) & 0xFF;
+            pdf_printf(pdf, "%.2x", c);
+        }
+        pdf_puts(pdf, ">");
+    }
+}
+
+static void copyName(PDF pdf, char *s)
+{
+    pdf_puts(pdf, "/");
+    for (; *s != 0; s++) {
+        if (isdigit(*s) || isupper(*s) || islower(*s) || *s == '_' ||
+            *s == '.' || *s == '-' || *s == '+')
+            pdf_out(pdf, *s);
+        else
+            pdf_printf(pdf, "#%.2X", *s & 0xFF);
+    }
+}
+
+static void copyArray(PDF pdf, PdfDocument * pdf_doc, Array * array)
+{
+    int i, l;
+    PdfObject obj1;
+    pdf_puts(pdf, "[");
+    for (i = 0, l = array->getLength(); i < l; ++i) {
+        array->getNF(i, &obj1);
+        if (!obj1->isName())
+            pdf_puts(pdf, " ");
+        copyObject(pdf, pdf_doc, &obj1);
+    }
+    pdf_puts(pdf, "]");
+}
+
+static void copyDict(PDF pdf, PdfDocument * pdf_doc, Dict * dict)
+{
+    int i, l;
+    PdfObject obj1;
+    pdf_puts(pdf, "<<");
+    for (i = 0, l = dict->getLength(); i < l; ++i) {
+        copyName(pdf, dict->getKey(i));
+        pdf_puts(pdf, " ");
+        dict->getValNF(i, &obj1);
+        copyObject(pdf, pdf_doc, &obj1);
+        pdf_puts(pdf, "\n");
+    }
+    pdf_puts(pdf, ">>");
+}
+
+static void copyStreamStream(PDF pdf, Stream * str)
+{
+    int c;
+    str->reset();
+    while ((c = str->getChar()) != EOF) {
+        pdf_out(pdf, c);
+        pdf->last_byte = c;
+    }
+}
+
+static void copyStream(PDF pdf, PdfDocument * pdf_doc, Stream * stream)
+{
+    copyDict(pdf, pdf_doc, stream->getDict());
+    pdf_puts(pdf, "stream\n");
+    copyStreamStream(pdf, stream->getUndecodedStream());
+    if (pdf->last_byte != '\n')
+        pdf_puts(pdf, "\n");
+    pdf_puts(pdf, "endstream"); // can't simply write pdf_end_stream()
+}
+
 static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
 {
-    PdfObject obj1;
-    int i, l, c;
-    char *p;
-    GString *s;
     if (obj->isBool()) {
         pdf_printf(pdf, "%s", obj->getBool()? "true" : "false");
     } else if (obj->isInt()) {
@@ -418,57 +428,17 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
     } else if (obj->isNum()) {
         pdf_printf(pdf, "%s", convertNumToPDF(obj->getNum()));
     } else if (obj->isString()) {
-        s = obj->getString();
-        p = s->getCString();
-        l = s->getLength();
-        if (strlen(p) == (unsigned int) l) {
-            pdf_puts(pdf, "(");
-            for (; *p != 0; p++) {
-                c = (unsigned char) *p;
-                if (c == '(' || c == ')' || c == '\\')
-                    pdf_printf(pdf, "\\%c", c);
-                else if (c < 0x20 || c > 0x7F)
-                    pdf_printf(pdf, "\\%03o", c);
-                else
-                    pdf_out(pdf, c);
-            }
-            pdf_puts(pdf, ")");
-        } else {
-            pdf_puts(pdf, "<");
-            for (i = 0; i < l; i++) {
-                c = s->getChar(i) & 0xFF;
-                pdf_printf(pdf, "%.2x", c);
-            }
-            pdf_puts(pdf, ">");
-        }
+        copyString(pdf, obj->getString());
     } else if (obj->isName()) {
         copyName(pdf, obj->getName());
     } else if (obj->isNull()) {
         pdf_puts(pdf, "null");
     } else if (obj->isArray()) {
-        pdf_puts(pdf, "[");
-        for (i = 0, l = obj->arrayGetLength(); i < l; ++i) {
-            obj->arrayGetNF(i, &obj1);
-            if (!obj1->isName())
-                pdf_puts(pdf, " ");
-            copyObject(pdf, pdf_doc, &obj1);
-        }
-        pdf_puts(pdf, "]");
+        copyArray(pdf, pdf_doc, obj->getArray());
     } else if (obj->isDict()) {
-        pdf_puts(pdf, "<<\n");
-        copyDict(pdf, pdf_doc, obj);
-        pdf_puts(pdf, ">>");
+        copyDict(pdf, pdf_doc, obj->getDict());
     } else if (obj->isStream()) {
-        initDictFromDict(pdf_doc, obj1, obj->streamGetDict());
-        obj->streamGetDict()->incRef();
-        pdf_puts(pdf, "<<\n");
-        copyDict(pdf, pdf_doc, &obj1);
-        pdf_puts(pdf, ">>\n");
-        pdf_puts(pdf, "stream\n");
-        copyStream(pdf, obj->getStream()->getUndecodedStream());
-        if (pdf->last_byte != '\n')
-            pdf_puts(pdf, "\n");
-        pdf_puts(pdf, "endstream");     // can't simply write pdf_end_stream()
+        copyStream(pdf, pdf_doc, obj->getStream());
     } else if (obj->isRef()) {
         pdf_printf(pdf, "%d 0 R", addInObj(pdf, pdf_doc, obj->getRef()));
     } else {
@@ -476,6 +446,8 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
                     obj->getTypeName());
     }
 }
+
+//**********************************************************************
 
 static void writeRefs(PDF pdf, PdfDocument * pdf_doc)
 {
@@ -663,41 +635,26 @@ read_pdf_info(PDF pdf,
             ("PDF inclusion: "
              "/Rotate parameter in PDF file not multiple of 90 degrees.");
     }
-    if (page->getGroup() != NULL) {
-        initDictFromDict(pdf_doc, lastGroup, page->getGroup());
-        if (lastGroup->dictGetLength() > 0) {
-            groupIsIndirect = lastGroup->isRef();
-            if (groupIsIndirect) {
-                // FIXME: Here we already copy the object. It would be
-                // better to do this only after write_epdf, otherwise we
-                // may copy unused /Group objects
-                copyObject(pdf, pdf_doc, &lastGroup);
-                epdf_lastGroupObjectNum =
-                    getNewObjectNumber(pdf_doc, lastGroup->getRef());
-                pdf_puts(pdf, "\n");
-            } else {
-                // make the group an indirect object; copying is done later
-                // by write_additional_epdf_objects after write_epdf
-                epdf_lastGroupObjectNum = pdf_new_objnum(pdf);
-            }
-        }
-    } else {
-        epdf_lastGroupObjectNum = 0;
-    }
+
+    // currently unused info whether PDF contains a /Group
+    if (page->getGroup() != NULL)
+        img_set_group(idict);
+
     if (readtype == IMG_CLOSEINBETWEEN)
         unrefPdfDocument(img_filepath(idict));
 }
 
+//**********************************************************************
 // Writes the current epf_doc.
-// Here the included PDF is copied, so most errors that can happen during PDF
-// inclusion will arise here.
+// Here the included PDF is copied, so most errors that can happen
+// during PDF inclusion will arise here.
 
 static void write_epdf1(PDF pdf, image_dict * idict)
 {
     Page *page;
     PdfObject contents, obj1, obj2;
-    PdfObject metadata, pieceinfo, separationInfo;
-    Object info;
+    PdfObject metadata;
+    Object info, *metadataNF, *resourcesNF;
     char *key, *checksum;
     char s[256];
     int i, l;
@@ -753,68 +710,49 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     pdf_puts(pdf, stripzeros(s));
     // The /Matrix calculation is replaced by transforms in out_img().
 
-    // write the page Group if it's there
-    if (epdf_lastGroupObjectNum > 0) {
-        if (page->getGroup() != NULL) {
-            initDictFromDict(pdf_doc, lastGroup, page->getGroup());
-            if (lastGroup->dictGetLength() > 0) {
-                pdf_puts(pdf, "/Group ");
-                groupIsIndirect = lastGroup->isRef();
-                pdf_printf(pdf, "%d 0 R", (int) epdf_lastGroupObjectNum);
-                pdf_puts(pdf, "\n");
-            }
-        }
-    }
-    // write the page Metadata if it's there
-    if (page->getMetadata() != NULL) {
-        metadata->initStream(page->getMetadata());
-        pdf_puts(pdf, "/Metadata ");
-        copyObject(pdf, pdf_doc, &metadata);
-        pdf_puts(pdf, "\n");
-    }
-    // write the page PieceInfo if it's there
-    if (page->getPieceInfo() != NULL) {
-        initDictFromDict(pdf_doc, pieceinfo, page->getPieceInfo());
-        if (pieceinfo->dictGetLength() > 0) {
-            pdf_puts(pdf, "/PieceInfo ");
-            copyObject(pdf, pdf_doc, &pieceinfo);
-            pdf_puts(pdf, "\n");
-        }
-    }
-    // copy LastModified (needed when PieceInfo is there)
-    if (page->getLastModified() != NULL) {
-        pdf_printf(pdf, "/LastModified (%s)\n",
-                   page->getLastModified()->getCString());
-    }
-    // write the page SeparationInfo if it's there
-    if (page->getSeparationInfo() != NULL) {
-        initDictFromDict(pdf_doc, separationInfo, page->getSeparationInfo());
-        if (separationInfo->dictGetLength() > 0) {
-            pdf_puts(pdf, "/SeparationInfo ");
-            copyObject(pdf, pdf_doc, &separationInfo);
-            pdf_puts(pdf, "\n");
-        }
-    }
-    // write the Resources dictionary
+    // Now all relevant parts of the /Page dictionary are copied:
+
+    // write the /Resources dictionary
     if (page->getResourceDict() == NULL) {
         // Resources can be missing (files without them have been spotted
         // in the wild); in which case the /Resouces of the /Page will be used.
         // "This practice is not recommended".
         pdftex_warn
-            ("PDF inclusion: /Resources missing. 'This practice is not recommended' (PDF Ref)");
+            ("PDF inclusion: /Resources missing. 'This practice is not recommended' (PDF Ref.)");
     } else {
-        initDictFromDict(pdf_doc, obj1, page->getResourceDict());
-        page->getResourceDict()->incRef();
-        if (!obj1->isDict())
-            pdftex_fail("PDF inclusion: invalid resources dict type <%s>",
-                        obj1->getTypeName());
-        pdf_puts(pdf, "/Resources <<\n");
-        for (i = 0, l = obj1->dictGetLength(); i < l; ++i) {
-            obj1->dictGetVal(i, &obj2);
-            key = obj1->dictGetKey(i);
-            copyOtherResources(pdf, pdf_doc, &obj2, key);
+        resourcesNF = page->getResourcesNF();
+        pdf_puts(pdf, "/Resources ");
+        copyObject(pdf, pdf_doc, resourcesNF);
+    }
+    // write the page /Metadata if it's there (as a stream it must be indirect)
+    metadataNF = page->getMetadataNF(); // *NF = "don't resolve indirects"
+    if (metadataNF != NULL) {
+        if (!metadataNF->isRef())
+            pdftex_warn("PDF inclusion: /Metadata must be indirect object");
+        else {
+            pdf_printf(pdf, "/Metadata %d 0 R",
+                       addInObj(pdf, pdf_doc, metadataNF->getRef()));
         }
-        pdf_puts(pdf, ">>\n");
+    }
+    // write the page /Group if it's there
+    if (page->getGroup() != NULL) {
+        pdf_puts(pdf, "/Group ");
+        copyDict(pdf, pdf_doc, page->getGroup());
+    }
+    // write the page /PieceInfo if it's there
+    if (page->getPieceInfo() != NULL) {
+        pdf_puts(pdf, "/PieceInfo ");
+        copyDict(pdf, pdf_doc, page->getPieceInfo());
+    }
+    // write the page /SeparationInfo if it's there
+    if (page->getSeparationInfo() != NULL) {
+        pdf_puts(pdf, "/SeparationInfo ");
+        copyDict(pdf, pdf_doc, page->getSeparationInfo());
+    }
+    // copy LastModified (needed when PieceInfo is there)
+    if (page->getLastModified() != NULL) {
+        pdf_printf(pdf, "/LastModified (%s)\n",
+                   page->getLastModified()->getCString());
     }
     // write the page contents
     page->getContents(&contents);
@@ -823,7 +761,7 @@ static void write_epdf1(PDF pdf, image_dict * idict)
         // of \pdfcompresslevel
         //
         // pdfbeginstream();
-        // copyStream(contents->getStream());
+        // copyStreamStream(contents->getStream());
         // pdfendstream();
 
         // Variant B: copy stream without recompressing
@@ -850,13 +788,15 @@ static void write_epdf1(PDF pdf, image_dict * idict)
             }
         }
         pdf_puts(pdf, ">>\nstream\n");
-        copyStream(pdf, contents->getStream()->getBaseStream());
+        copyStreamStream(pdf, contents->getStream()->getBaseStream());
         pdf_end_stream(pdf);
     } else if (contents->isArray()) {
         pdf_begin_stream(pdf);
         for (i = 0, l = contents->arrayGetLength(); i < l; ++i) {
             Object contentsobj;
-            copyStream(pdf, (contents->arrayGet(i, &contentsobj))->getStream());
+            copyStreamStream(pdf,
+                             (contents->
+                              arrayGet(i, &contentsobj))->getStream());
             contentsobj.free();
         }
         pdf_end_stream(pdf);
@@ -932,17 +872,4 @@ void epdf_check_mem()
     if (isInit == gTrue)
         delete globalParams;
     isInit = gFalse;
-}
-
-// Called after the xobject generated by write_epdf has been finished; used to
-// write out objects that have been made indirect
-
-void write_additional_epdf_objects(PDF pdf, char *file_path)
-{
-    PdfDocument *pdf_doc = findPdfDocument(file_path);
-    if ((epdf_lastGroupObjectNum > 0) && !groupIsIndirect) {
-        pdf_begin_obj(pdf, epdf_lastGroupObjectNum, 2);
-        copyObject(pdf, pdf_doc, &lastGroup);
-        pdf_end_obj(pdf);
-    }
 }

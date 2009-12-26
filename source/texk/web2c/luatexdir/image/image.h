@@ -163,10 +163,15 @@ typedef struct {
 #  define img_jb2_ptr(N)        ((N)->img_struct.jb2)
 
 #  define F_FLAG_BBOX           (1 << 0)
+#  define F_FLAG_GROUP          (1 << 1)
 
 #  define img_set_bbox(N)       (img_flags(N) |= F_FLAG_BBOX)
 #  define img_unset_bbox(N)     (img_flags(N) &= ~F_FLAG_BBOX)
 #  define img_is_bbox(N)        ((img_flags(N) & F_FLAG_BBOX) != 0)
+
+#  define img_set_group(N)      (img_flags(N) |= F_FLAG_GROUP)
+#  define img_unset_group(N)    (img_flags(N) &= ~F_FLAG_GROUP)
+#  define img_is_group(N)       ((img_flags(N) & F_FLAG_GROUP) != 0)
 
 #  define epdf_xsize(a)         img_xsize(idict_array[a])
 #  define epdf_ysize(a)         img_ysize(idict_array[a])

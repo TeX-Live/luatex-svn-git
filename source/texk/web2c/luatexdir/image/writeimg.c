@@ -122,8 +122,6 @@ static const char _svn_version[] =
 #define HEADER_PDF "%PDF-1."
 #define MAX_HEADER (sizeof(HEADER_PNG)-1)
 
-int epdf_lastGroupObjectNum;
-
 static void check_type_by_header(image_dict * idict)
 {
     int i;
@@ -216,6 +214,7 @@ static void init_image_dict(image_dict * p)
     img_type(p) = IMG_TYPE_NONE;
     img_pagebox(p) = PDF_BOX_SPEC_MEDIA;
     img_unset_bbox(p);
+    img_unset_group(p);
     img_state(p) = DICT_NEW;
     img_index(p) = -1;          /* -1 = unused, used count from 0 */
 }
@@ -315,7 +314,6 @@ void read_img(PDF pdf,
         assert(pdf != NULL);    /* TODO! */
         read_pdf_info(pdf, idict, minor_version, inclusion_errorlevel,
                       IMG_CLOSEINBETWEEN);
-        img_group_ref(idict) = epdf_lastGroupObjectNum;
         break;
     case IMG_TYPE_PNG:
         read_png_info(pdf, idict, IMG_CLOSEINBETWEEN);
@@ -582,7 +580,6 @@ void write_img(PDF pdf, image_dict * idict)
             break;
         case IMG_TYPE_PDF:
             write_epdf(pdf, idict);
-            epdf_lastGroupObjectNum = img_group_ref(idict);
             break;
         case IMG_TYPE_PDFSTREAM:
             write_pdfstream(pdf, idict);
@@ -592,12 +589,8 @@ void write_img(PDF pdf, image_dict * idict)
         }
         if (tracefilenames)
             tex_printf(">");
-        if (img_type(idict) == IMG_TYPE_PDF) {
-            write_additional_epdf_objects(pdf, img_filepath(idict));
-        } else {
-            if (img_type(idict) == IMG_TYPE_PNG) {
-                write_additional_png_objects(pdf);
-            }
+        if (img_type(idict) == IMG_TYPE_PNG) {
+            write_additional_png_objects(pdf);
         }
     }
     if (img_state(idict) < DICT_WRITTEN)
@@ -735,7 +728,6 @@ void dumpimagemeta(void)
         dumpinteger(img_yres(idict));
         dumpinteger(img_totalpages(idict));
         dumpinteger(img_colorspace(idict));
-        dumpinteger(img_group_ref(idict));
 
         /* the image_struct is not dumped at all, except for a few
            variables that are needed to restore the contents */
@@ -777,7 +769,6 @@ void undumpimagemeta(PDF pdf, int pdfversion, int pdfinclusionerrorlevel)
         undumpinteger(img_yres(idict));
         undumpinteger(img_totalpages(idict));
         undumpinteger(img_colorspace(idict));
-        undumpinteger(img_group_ref(idict));
 
         switch (img_type(idict)) {
         case IMG_TYPE_PDF:
