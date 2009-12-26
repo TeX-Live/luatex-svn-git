@@ -2384,10 +2384,10 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
 
 lstring *tokenlist_to_lstring(int pp, int inhibit_par)
 {
+    int siz;
     lstring *ret = xmalloc(sizeof(lstring));
-    ret->s =
-        (unsigned char *) tokenlist_to_cstring(pp, inhibit_par,
-                                               (int *) &(ret->l));
+    ret->s = (unsigned char *) tokenlist_to_cstring(pp, inhibit_par, &siz);
+    ret->l = (size_t) siz;
     return ret;
 }
 
