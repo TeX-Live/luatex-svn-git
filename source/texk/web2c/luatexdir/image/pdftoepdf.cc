@@ -419,31 +419,48 @@ static void copyStream(PDF pdf, PdfDocument * pdf_doc, Stream * stream)
 
 static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
 {
-    if (obj->isBool()) {
+    switch (obj->getType()) {
+    case objBool:
         pdf_printf(pdf, "%s", obj->getBool()? "true" : "false");
-    } else if (obj->isInt()) {
+        break;
+    case objInt:
         pdf_printf(pdf, "%i", obj->getInt());
-    } else if (obj->isReal()) {
+        break;
+    case objReal:
         pdf_printf(pdf, "%s", convertNumToPDF(obj->getReal()));
-    } else if (obj->isNum()) {
-        pdf_printf(pdf, "%s", convertNumToPDF(obj->getNum()));
-    } else if (obj->isString()) {
+        break;
+        // not needed:
+        // GBool isNum() { return type == objInt || type == objReal; }
+    case objString:
         copyString(pdf, obj->getString());
-    } else if (obj->isName()) {
+        break;
+    case objName:
         copyName(pdf, obj->getName());
-    } else if (obj->isNull()) {
+        break;
+    case objNull:
         pdf_puts(pdf, "null");
-    } else if (obj->isArray()) {
+        break;
+    case objArray:
         copyArray(pdf, pdf_doc, obj->getArray());
-    } else if (obj->isDict()) {
+        break;
+    case objDict:
         copyDict(pdf, pdf_doc, obj->getDict());
-    } else if (obj->isStream()) {
+        break;
+    case objStream:
         copyStream(pdf, pdf_doc, obj->getStream());
-    } else if (obj->isRef()) {
+        break;
+    case objRef:
         pdf_printf(pdf, "%d 0 R", addInObj(pdf, pdf_doc, obj->getRef()));
-    } else {
+        break;
+    case objCmd:
+    case objError:
+    case objEOF:
+    case objNone:
         pdftex_fail("PDF inclusion: type <%s> cannot be copied",
                     obj->getTypeName());
+        break;
+    default:
+        assert(0);              // xpdf doesn't have any no other types
     }
 }
 
@@ -795,8 +812,8 @@ static void write_epdf1(PDF pdf, image_dict * idict)
         for (i = 0, l = contents->arrayGetLength(); i < l; ++i) {
             Object contentsobj;
             copyStreamStream(pdf,
-                             (contents->
-                              arrayGet(i, &contentsobj))->getStream());
+                             (contents->arrayGet(i, &contentsobj))->
+                             getStream());
             contentsobj.free();
         }
         pdf_end_stream(pdf);
