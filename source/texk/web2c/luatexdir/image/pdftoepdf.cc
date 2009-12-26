@@ -330,18 +330,19 @@ static void copyObject(PDF, PdfDocument *, Object *);
 
 static void copyString(PDF pdf, GString * string)
 {
-    char c, *p;
+    char *p;
+    unsigned char c;
     size_t i, l;
     p = string->getCString();
     l = (size_t) string->getLength();
-    if (strlen(p) == (unsigned int) l) {
+    if (strlen(p) == l) {
         pdf_puts(pdf, "(");
         for (; *p != 0; p++) {
             c = (unsigned char) *p;
             if (c == '(' || c == ')' || c == '\\')
                 pdf_printf(pdf, "\\%c", c);
             else if (c < 0x20 || c > 0x7F)
-                pdf_printf(pdf, "\\%03o", c);
+                pdf_printf(pdf, "\\%03o", (int) c);
             else
                 pdf_out(pdf, c);
         }
@@ -349,8 +350,8 @@ static void copyString(PDF pdf, GString * string)
     } else {
         pdf_puts(pdf, "<");
         for (i = 0; i < l; i++) {
-            c = string->getChar(i) & 0xFF;
-            pdf_printf(pdf, "%.2x", c);
+            c = (unsigned char) string->getChar(i);
+            pdf_printf(pdf, "%.2x", (int) c);
         }
         pdf_puts(pdf, ">");
     }
