@@ -461,7 +461,7 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
                     obj->getTypeName());
         break;
     default:
-        assert(0);              // xpdf doesn't have any no other types
+        assert(0);              // xpdf doesn't have any other types
     }
 }
 
