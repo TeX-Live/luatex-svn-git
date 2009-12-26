@@ -1,7 +1,7 @@
 /* writet3.c
-   
+
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -18,14 +18,15 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+static const char _svn_version[] =
+    "$Id$ "
+    "$URL$";
+
 #include "ptexlib.h"
 #include <kpathsea/tex-glyph.h>
 #include <kpathsea/magstep.h>
 #include <string.h>
 #include "luatexfont.h"
-
-static const char _svn_version[] =
-    "$Id$ $URL$";
 
 #define T3_BUF_SIZE   1024
 
@@ -262,7 +263,7 @@ void writet3(PDF pdf, int objnum, internalfontnumber f)
     pdf_begin_dict(pdf, objnum, 1);     /* Type 3 font dictionary */
     pdf_puts(pdf, "/Type /Font\n/Subtype /Type3\n");
     pdf_printf(pdf, "/Name /F%i\n", (int) f);
-    if (pdf_font_attr(f) != get_nullstr()) {
+    if (pdf_font_attr(f) != get_nullstr() && pdf_font_attr(f) != 0) {
         pdf_print(pdf, pdf_font_attr(f));
         pdf_puts(pdf, "\n");
     }
