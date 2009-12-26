@@ -725,8 +725,8 @@ static void write_epdf1(PDF pdf, image_dict * idict)
         copyObject(pdf, pdf_doc, resourcesNF);
     }
     // write the page /Metadata if it's there (as a stream it must be indirect)
-    metadataNF = page->getMetadataNF(); // *NF = "don't resolve indirects"
-    if (metadataNF != NULL) {
+    if (page->getMetadata() != NULL) {
+        metadataNF = page->getMetadataNF();     // *NF = "don't resolve indirects"
         if (!metadataNF->isRef())
             pdftex_warn("PDF inclusion: /Metadata must be indirect object");
         else {
