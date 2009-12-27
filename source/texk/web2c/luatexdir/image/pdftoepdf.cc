@@ -457,16 +457,15 @@ static void writeRefs(PDF pdf, PdfDocument * pdf_doc)
     XRef *xref;
     xref = pdf_doc->doc->getXRef();
     for (r = pdf_doc->inObjList; r != NULL;) {
-        Object obj1;
+        PdfObject obj1;
         xref->fetch(r->ref.num, r->ref.gen, &obj1);
-        if (obj1.isStream())
+        if (obj1->isStream())
             pdf_begin_obj(pdf, r->num, 0);
         else
             pdf_begin_obj(pdf, r->num, 2);      // \pdfobjcompresslevel = 2 is for this
         copyObject(pdf, pdf_doc, &obj1);
         pdf_puts(pdf, "\n");
         pdf_end_obj(pdf);
-        obj1.free();
         n = r->next;
         delete r;
         pdf_doc->inObjList = r = n;
@@ -653,14 +652,13 @@ read_pdf_info(image_dict * idict, int minor_pdf_version_wanted,
 
 static void write_epdf1(PDF pdf, image_dict * idict)
 {
+    PdfDocument *pdf_doc;
     Page *page;
-    PdfObject contents, obj1, obj2;
-    PdfObject metadata;
-    Object info, *metadataNF, *resourcesNF;
+    PdfObject info, contents, metadata, obj1;
+    Object *metadataNF, *resourcesNF;
     char *checksum;
     char s[256];
     int i, l;
-    PdfDocument *pdf_doc;
     assert(idict != NULL);
     // calculate a checksum string
     checksum = get_file_checksum(img_filepath(idict));
@@ -688,10 +686,10 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     pdf_printf(pdf, "/%s.PageNumber %i\n", pdfkeyprefix,
                (int) img_pagenum(idict));
     pdf_doc->doc->getDocInfoNF(&info);
-    if (info.isRef()) {
+    if (info->isRef()) {
         // the info dict must be indirect (PDF Ref p. 61)
         pdf_printf(pdf, "/%s.InfoDict ", pdfkeyprefix);
-        pdf_printf(pdf, "%d 0 R\n", addInObj(pdf, pdf_doc, info.getRef()));
+        pdf_printf(pdf, "%d 0 R\n", addInObj(pdf, pdf_doc, info->getRef()));
     }
     if (img_is_bbox(idict)) {
         bbox[0] = int2bp(img_bbox(idict)[0]);
@@ -794,11 +792,10 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     } else if (contents->isArray()) {
         pdf_begin_stream(pdf);
         for (i = 0, l = contents->arrayGetLength(); i < l; ++i) {
-            Object contentsobj;
+            PdfObject contentsobj;
             copyStreamStream(pdf,
-                             (contents->
-                              arrayGet(i, &contentsobj))->getStream());
-            contentsobj.free();
+                             (contents->arrayGet(i, &contentsobj))->
+                             getStream());
         }
         pdf_end_stream(pdf);
     } else {                    // the contents are optional, but we need to include an empty stream
