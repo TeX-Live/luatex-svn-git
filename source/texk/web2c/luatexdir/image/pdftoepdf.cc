@@ -122,7 +122,6 @@ struct PdfDocument {
     char *file_path;            // full file name including path
     char *checksum;             // for reopening
     PDFDoc *doc;
-    XRef *xref;
     InObj *inObjList;           // temporary linked list
     avl_table *ObjMapTree;      // permanent over luatex run
     int occurences;             // number of references to the PdfDocument; it can be deleted when occurences == 0
@@ -174,7 +173,6 @@ static PdfDocument *refPdfDocument(char *file_path)
         pdf_doc->doc = new PDFDoc(docName);     // takes ownership of docName
         if (!pdf_doc->doc->isOk() || !pdf_doc->doc->okToPrint())
             pdftex_fail("xpdf: reading PDF image failed");
-        pdf_doc->xref = NULL;
         pdf_doc->inObjList = NULL;
         pdf_doc->occurences = 0;        // 0 = unreferenced
     }
@@ -268,7 +266,7 @@ static int addInObj(PDF pdf, PdfDocument * pdf_doc, Ref ref)
 }
 
 //**********************************************************************
-// Function onverts double to string; very small and very large numbers
+// Function converts double to string; very small and very large numbers
 // are NOT converted to scientific notation.
 // n must be a number or real conforming to the implementation limits
 // of PDF as specified in appendix C.1 of the PDF Ref.
@@ -470,9 +468,11 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
 static void writeRefs(PDF pdf, PdfDocument * pdf_doc)
 {
     InObj *r, *n;
+    XRef *xref;
+    xref = pdf_doc->doc->getXRef();
     for (r = pdf_doc->inObjList; r != NULL;) {
         Object obj1;
-        pdf_doc->xref->fetch(r->ref.num, r->ref.gen, &obj1);
+        xref->fetch(r->ref.num, r->ref.gen, &obj1);
         if (obj1.isStream())
             pdf_begin_obj(pdf, r->num, 0);
         else
@@ -605,7 +605,6 @@ read_pdf_info(image_dict * idict, int minor_pdf_version_wanted,
             pdftex_fail("PDF inclusion: required page <%i> does not exist",
                         (int) img_pagenum(idict));
     }
-    pdf_doc->xref = pdf_doc->doc->getXRef();
     // get the required page
     page = pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
 
@@ -686,7 +685,6 @@ static void write_epdf1(PDF pdf, image_dict * idict)
                     img_filename(idict));
     }
     free(checksum);
-    pdf_doc->xref = pdf_doc->doc->getXRef();
     (void) pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
     page = pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
     PDFRectangle *pagebox;
@@ -812,8 +810,8 @@ static void write_epdf1(PDF pdf, image_dict * idict)
         for (i = 0, l = contents->arrayGetLength(); i < l; ++i) {
             Object contentsobj;
             copyStreamStream(pdf,
-                             (contents->arrayGet(i, &contentsobj))->
-                             getStream());
+                             (contents->
+                              arrayGet(i, &contentsobj))->getStream());
             contentsobj.free();
         }
         pdf_end_stream(pdf);
