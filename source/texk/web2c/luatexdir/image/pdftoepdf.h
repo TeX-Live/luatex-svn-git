@@ -22,6 +22,8 @@
 #ifndef PDFTOEPDF_H
 #  define PDFTOEPDF_H
 
+#  include "image.h"
+
 struct InObj {
     Ref ref;                    // ref in original PDF
     int num;                    // new object number in output PDF
@@ -38,5 +40,13 @@ struct PdfDocument {
 };
 
 PdfDocument *refPdfDocument(char *file_path);
+void read_pdf_info(PDF, image_dict *, int, int);
+void unrefPdfDocument(char *);
+void write_epdf(PDF, image_dict *);
+void epdf_check_mem(void);
+
+/* epdf.c --- this should go in an own header file */
+
+extern void epdf_free(void);
 
 #endif                          /* PDFTOEPDF_H */
