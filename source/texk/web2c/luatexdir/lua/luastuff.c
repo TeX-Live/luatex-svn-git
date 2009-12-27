@@ -191,6 +191,11 @@ void luainterpreter(void)
     lua_pushstring(L, "img");
     lua_call(L, 1, 0);
 
+    /* luaopen_epd(L); */
+    lua_pushcfunction(L, luaopen_epd);
+    lua_pushstring(L, "epd");
+    lua_call(L, 1, 0);
+
     lua_createtable(L, 0, 0);
     lua_setglobal(L, "texconfig");
 
