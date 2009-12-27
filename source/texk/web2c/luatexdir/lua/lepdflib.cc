@@ -56,13 +56,6 @@ static const char _svn_version[] =
 #include "Error.h"
 
 #include "../image/epdf.h"
-#include "../image/pdftoepdf.h"
-
-extern "C" {
-#include "lua/luatex-api.h"
-#include <../lua51/lua.h>
-#include <../lua51/lauxlib.h>
-};
 
 //**********************************************************************
 

@@ -25,23 +25,7 @@
 
 #  include "image.h"
 
-struct InObj {
-    Ref ref;                    // ref in original PDF
-    int num;                    // new object number in output PDF
-    InObj *next;                // next entry in list of indirect objects
-};
-
-struct PdfDocument {
-    char *file_path;            // full file name including path
-    char *checksum;             // for reopening
-    PDFDoc *doc;
-    InObj *inObjList;           // temporary linked list
-    avl_table *ObjMapTree;      // permanent over luatex run
-    int occurences;             // number of references to the PdfDocument; it can be deleted when occurences == 0
-};
-
-PdfDocument *refPdfDocument(char *file_path);
-void read_pdf_info(PDF, image_dict *, int, int);
+void read_pdf_info(image_dict *, int, int, img_readtype_e);
 void unrefPdfDocument(char *);
 void write_epdf(PDF, image_dict *);
 void epdf_check_mem(void);

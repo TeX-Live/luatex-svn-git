@@ -48,6 +48,9 @@ extern "C" {
 #  include "../utils/avlstuff.h"
 #  include "../pdf/pdftypes.h"
 
+#  include <../lua51/lua.h>
+#  include <../lua51/lauxlib.h>
+
     extern void pdf_room(PDF, int);
 #  define pdf_out(B,A) do { pdf_room(B,1); B->buf[B->ptr++] = A; } while (0)
 
@@ -79,10 +82,32 @@ extern "C" {
     extern void write_epdf(PDF, image_dict *);
     extern void pdf_begin_obj(PDF, int, bool);
 
-/* utils.c */
+    /* utils.c */
     extern char *convertStringToPDFString(char *in, int len);
     extern char *stripzeros(char *a);
 
+    /* lepdflib.c */
+    int luaopen_epdf(lua_State * L);
+
 };
+
+/**********************************************************************/
+
+struct InObj {
+    Ref ref;                    // ref in original PDF
+    int num;                    // new object number in output PDF
+    InObj *next;                // next entry in list of indirect objects
+};
+
+struct PdfDocument {
+    char *file_path;            // full file name including path
+    char *checksum;             // for reopening
+    PDFDoc *doc;
+    InObj *inObjList;           // temporary linked list
+    avl_table *ObjMapTree;      // permanent over luatex run
+    int occurences;             // number of references to the PdfDocument; it can be deleted when occurences == 0
+};
+
+PdfDocument *refPdfDocument(char *file_path);
 
 #endif                          /* EPDF_H */

@@ -57,7 +57,6 @@ static const char _svn_version[] =
 #include "Error.h"
 
 #include "epdf.h"
-#include "pdftoepdf.h"
 
 #define one_hundred_bp  6578176 // one_hundred_bp = 7227 * 65536 / 72
 
