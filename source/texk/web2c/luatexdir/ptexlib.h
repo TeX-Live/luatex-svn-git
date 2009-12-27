@@ -196,7 +196,6 @@ size_t          T##_limit
 #  include "font/mapfile.h"
 #  include "utils/utils.h"
 #  include "image/writejbig2.h"
-#  include "image/pdftoepdf.h"
 
 #  include "ocp/ocp.h"
 #  include "ocp/ocplist.h"

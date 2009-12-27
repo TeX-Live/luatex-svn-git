@@ -2,7 +2,6 @@
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
    Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
-
    This file is part of LuaTeX.
 
    LuaTeX is free software; you can redistribute it and/or modify it under
@@ -20,9 +19,12 @@
 
 /* $Id$ */
 
+#ifndef EPDF_H
+#  define EPDF_H
+
 extern "C" {
 
-#include <kpathsea/c-auto.h>
+#  include <kpathsea/c-auto.h>
 
     extern char *xstrdup(const char *);
 
@@ -30,24 +32,24 @@ extern "C" {
 
     typedef const char *const_string;   /* including kpathsea/types.h doesn't work on some systems */
 
-#define KPATHSEA_CONFIG_H       /* avoid including other kpathsea header files */
+#  define KPATHSEA_CONFIG_H     /* avoid including other kpathsea header files */
     /* from web2c/config.h */
 
-#ifdef CONFIG_H                 /* CONFIG_H has been defined by some xpdf */
-#  undef CONFIG_H               /* header file */
-#endif
+#  ifdef CONFIG_H               /* CONFIG_H has been defined by some xpdf */
+#    undef CONFIG_H             /* header file */
+#  endif
 
-#include <web2c/c-auto.h>       /* define SIZEOF_LONG */
+#  include <web2c/c-auto.h>     /* define SIZEOF_LONG */
 
-#define xfree(p)            do { if (p != NULL) free(p); p = NULL; } while (0)
+#  define xfree(p)            do { if (p != NULL) free(p); p = NULL; } while (0)
 
-#include "openbsd-compat.h"
-#include "image.h"
-#include "../utils/avlstuff.h"
-#include "../pdf/pdftypes.h"
+#  include "openbsd-compat.h"
+#  include "image.h"
+#  include "../utils/avlstuff.h"
+#  include "../pdf/pdftypes.h"
 
     extern void pdf_room(PDF, int);
-#define pdf_out(B,A) do { pdf_room(B,1); B->buf[B->ptr++] = A; } while (0)
+#  define pdf_out(B,A) do { pdf_room(B,1); B->buf[B->ptr++] = A; } while (0)
 
     extern void unrefPdfDocument(char *);
     extern void *epdf_xref;
@@ -81,4 +83,6 @@ extern "C" {
     extern char *convertStringToPDFString(char *in, int len);
     extern char *stripzeros(char *a);
 
-}
+};
+
+#endif                          /* EPDF_H */

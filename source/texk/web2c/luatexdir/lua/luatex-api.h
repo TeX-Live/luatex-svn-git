@@ -68,7 +68,7 @@ extern void luatex_socketlua_open(lua_State * L);
 
 extern int luaopen_img(lua_State * L);
 extern int l_new_image(lua_State * L);
-extern int luaopen_epd(lua_State * L);
+extern int luaopen_epdf(lua_State * L);
 extern int luaopen_mplib(lua_State * L);
 
 extern void open_oslibext(lua_State * L, int safer_option);

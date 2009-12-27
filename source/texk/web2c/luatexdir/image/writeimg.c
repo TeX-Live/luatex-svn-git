@@ -32,7 +32,6 @@ static const char _svn_version[] =
 #include "writejpg.h"
 #include "writepng.h"
 #include "writejbig2.h"
-#include "pdftoepdf.h"
 
 #include <../lua51/lua.h>       /* for LUA_NOREF */
 #include <../lua51/lauxlib.h>

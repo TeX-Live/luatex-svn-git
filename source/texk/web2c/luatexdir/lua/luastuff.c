@@ -191,9 +191,9 @@ void luainterpreter(void)
     lua_pushstring(L, "img");
     lua_call(L, 1, 0);
 
-    /* luaopen_epd(L); */
-    lua_pushcfunction(L, luaopen_epd);
-    lua_pushstring(L, "epd");
+    /* luaopen_epdf(L); */
+    lua_pushcfunction(L, luaopen_epdf);
+    lua_pushstring(L, "epdf");
     lua_call(L, 1, 0);
 
     lua_createtable(L, 0, 0);

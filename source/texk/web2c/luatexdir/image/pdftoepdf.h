@@ -1,7 +1,6 @@
 /* pdftoepdf.h
 
-   Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -23,16 +22,21 @@
 #ifndef PDFTOEPDF_H
 #  define PDFTOEPDF_H
 
-#  include "image.h"
+struct InObj {
+    Ref ref;                    // ref in original PDF
+    int num;                    // new object number in output PDF
+    InObj *next;                // next entry in list of indirect objects
+};
 
-void read_pdf_info(image_dict *, int, int, img_readtype_e);
-void unrefPdfDocument(char *);
-void write_epdf(PDF, image_dict *);
-void epdf_check_mem(void);
+struct PdfDocument {
+    char *file_path;            // full file name including path
+    char *checksum;             // for reopening
+    PDFDoc *doc;
+    InObj *inObjList;           // temporary linked list
+    avl_table *ObjMapTree;      // permanent over luatex run
+    int occurences;             // number of references to the PdfDocument; it can be deleted when occurences == 0
+};
 
-/* epdf.c --- this should go in an own header file */
-extern int get_fontfile_num(int);
-extern int get_fontname_num(int);
-extern void epdf_free(void);
+PdfDocument *refPdfDocument(char *file_path);
 
 #endif                          /* PDFTOEPDF_H */
