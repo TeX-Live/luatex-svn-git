@@ -294,8 +294,8 @@ int shell_cmd_is_allowed(char **cmd, char **safecmd, char **cmdname)
                 s++;
 
                 while (*s != '"') {
-                    /* Closing quotation mark is missing */
-                    if (*s == '\0')
+                    /* Illegal use of ', or closing quotation mark is missing */
+                    if (*s == '\'' || *s == '\0')
                         return -1;
 #  ifdef WIN32
                     if (char_needs_quote(*s))
