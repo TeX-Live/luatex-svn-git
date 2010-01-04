@@ -1238,7 +1238,7 @@ void write_out(halfword p)
                 else if (ret == 1)
                     tprint("executed");
                 else if (ret == 2)
-                    tprint("executed (allowed)");
+                    tprint("executed safely (allowed)");
             }
         } else {
             tprint("disabled"); /* |shellenabledp| false */
