@@ -22,40 +22,6 @@ static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
-#include <stdlib.h>
-#include <math.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-#include <sys/stat.h>
-#ifdef POPPLER_VERSION
-#  define GString GooString
-#  include <dirent.h>
-#  include <poppler-config.h>
-#  include <goo/GooString.h>
-#  include <goo/gmem.h>
-#  include <goo/gfile.h>
-#else
-#  include <aconf.h>
-#  include <GString.h>
-#  include <gmem.h>
-#  include <gfile.h>
-#  include <assert.h>
-#endif
-#include "Object.h"
-#include "Stream.h"
-#include "Array.h"
-#include "Dict.h"
-#include "XRef.h"
-#include "Catalog.h"
-#include "Link.h"
-#include "Page.h"
-#include "GfxFont.h"
-#include "PDFDoc.h"
-#include "GlobalParams.h"
-#include "Error.h"
-
 #include "epdf.h"
 
 #define one_hundred_bp  6578176 // one_hundred_bp = 7227 * 65536 / 72
@@ -67,43 +33,6 @@ static const char _svn_version[] =
 // this has been registered with Adobe by Hans Hagen.
 
 #define pdfkeyprefix "PTEX"
-
-// PdfObject encapsulates the xpdf Object type,
-// and properly frees its resources on destruction.
-// Use obj-> to access members of the Object,
-// and &obj to get a pointer to the object.
-// It is no longer necessary to call Object::free explicitely.
-
-// *INDENT-OFF*
-class PdfObject {
-  public:
-    PdfObject() {               // nothing
-    }
-    ~PdfObject() {
-        iObject.free();
-    }
-    Object *operator->() {
-        return &iObject;
-    }
-    Object *operator&() {
-        return &iObject;
-    }
-  private:                     // no copying or assigning
-    PdfObject(const PdfObject &);
-    void operator=(const PdfObject &);
-  public:
-    Object iObject;
-};
-// *INDENT-ON*
-
-// When copying the Resources of the selected page, all objects are
-// copied recursively top-down.  The findObjMap() function checks if an
-// object has already been copied; if so, instead of copying just the
-// new object number will be referenced.  The ObjMapTree guarantees,
-// that during the entire LuaTeX run any object from any embedded PDF
-// file will end up max. once in the output PDF file.  Indirect objects
-// are not fetched during copying, but get a new object number from
-// LuaTeX and then will be appended into a linked list.
 
 static GBool isInit = gFalse;
 
@@ -221,6 +150,15 @@ static void addObjMap(PdfDocument * pdf_doc, Ref in, int out_num)
     void **aa = avl_probe(pdf_doc->ObjMapTree, obj_map);
     assert(aa != NULL);
 }
+
+// When copying the Resources of the selected page, all objects are
+// copied recursively top-down.  The findObjMap() function checks if an
+// object has already been copied; if so, instead of copying just the
+// new object number will be referenced.  The ObjMapTree guarantees,
+// that during the entire LuaTeX run any object from any embedded PDF
+// file will end up max. once in the output PDF file.  Indirect objects
+// are not fetched during copying, but get a new object number from
+// LuaTeX and then will be appended into a linked list.
 
 static int addInObj(PDF pdf, PdfDocument * pdf_doc, Ref ref)
 {
