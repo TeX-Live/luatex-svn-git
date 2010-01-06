@@ -47,7 +47,7 @@ void stackDump(lua_State * L, char *s)
             printf(lua_toboolean(L, i) ? "true" : "false");
             break;
         case LUA_TNUMBER:      /* numbers */
-            printf("%g", lua_tonumber(L, i));
+            printf("%g", (double) lua_tonumber(L, i));
             break;
         default:               /* other values */
             printf("%s", lua_typename(L, t));

@@ -495,7 +495,7 @@ static int lua_nodelib_hpack(lua_State * L)
                     lua_error(L);
                 }
             } else if (lua_type(L, 3) == LUA_TNUMBER) {
-                m = lua_tonumber(L, 3);
+                m = (int) lua_tonumber(L, 3);
             } else {
                 lua_pushstring(L, "incorrect 3rd argument");
             }
@@ -533,8 +533,8 @@ static int lua_nodelib_dimensions(lua_State * L)
             }
             i += 3;
             g_mult = (glue_ratio) lua_tonumber(L, 1);
-            g_sign = lua_tonumber(L, 2);
-            g_order = lua_tonumber(L, 3);
+            g_sign = (int) lua_tonumber(L, 2);
+            g_order = (int) lua_tonumber(L, 3);
         }
         n = *(check_isnode(L, i));
         if (lua_gettop(L) > i && !lua_isnil(L, (i + 1))) {
@@ -594,7 +594,7 @@ static int lua_nodelib_vpack(lua_State * L)
             }
 
             else if (lua_type(L, 3) == LUA_TNUMBER) {
-                m = lua_tonumber(L, 3);
+                m = (int) lua_tonumber(L, 3);
             } else {
                 lua_pushstring(L, "incorrect 3rd argument");
             }

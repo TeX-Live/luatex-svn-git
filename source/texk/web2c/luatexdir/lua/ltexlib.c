@@ -97,7 +97,7 @@ static int do_luacprint(lua_State * L, int partial, int deftable)
     n = lua_gettop(L);
     if (cattable != NO_CAT_TABLE) {
         if (lua_type(L, 1) == LUA_TNUMBER && n > 1) {
-            cattable = lua_tonumber(L, 1);
+            cattable = (int)lua_tonumber(L, 1);
             startstrings = 2;
         }
     }
@@ -817,7 +817,7 @@ int do_convert(lua_State * L, int cur_code)
         if (lua_gettop(L) < 1) {
             /* error */
         }
-        i = lua_tonumber(L, 1); /* these fall through! */
+        i = (int) lua_tonumber(L, 1); /* these fall through! */
     default:
         texstr = the_convert_string(cur_code, i);
         if (texstr) {
@@ -1223,7 +1223,7 @@ static int do_integer_error(double m)
 
 static int tex_roundnumber(lua_State * L)
 {
-    double m = lua_tonumber(L, 1) + 0.5;
+    double m = (double) lua_tonumber(L, 1) + 0.5;
     if (abs(m) > (double) infinity)
         lua_pushnumber(L, do_integer_error(m));
     else
@@ -1241,7 +1241,7 @@ static int tex_scaletable(lua_State * L)
             lua_pushvalue(L, -2);
             lua_insert(L, -2);
             if (lua_isnumber(L, -1)) {
-                double m = lua_tonumber(L, -1) * delta + 0.5;
+                double m = (double) lua_tonumber(L, -1) * delta + 0.5;
                 lua_pop(L, 1);
                 if (abs(m) > (double) infinity)
                     lua_pushnumber(L, do_integer_error(m));
@@ -1251,7 +1251,7 @@ static int tex_scaletable(lua_State * L)
             lua_rawset(L, 3);
         }
     } else if (lua_isnumber(L, 1)) {
-        double m = lua_tonumber(L, 1) * delta + 0.5;
+        double m = (double) lua_tonumber(L, 1) * delta + 0.5;
         if (abs(m) > (double) infinity)
             lua_pushnumber(L, do_integer_error(m));
         else

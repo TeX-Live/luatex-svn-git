@@ -126,7 +126,7 @@ static int lang_pre_hyphen_char(lua_State * L)
                            "lang.prehyphenchar(): argument should be a character number");
             return lua_error(L);
         }
-        (*lang_ptr)->pre_hyphen_char = lua_tonumber(L, 2);
+        (*lang_ptr)->pre_hyphen_char = (int) lua_tonumber(L, 2);
         return 0;
     } else {
         lua_pushnumber(L, (*lang_ptr)->pre_hyphen_char);
@@ -144,7 +144,7 @@ static int lang_post_hyphen_char(lua_State * L)
                            "lang.posthyphenchar(): argument should be a character number");
             return lua_error(L);
         }
-        (*lang_ptr)->post_hyphen_char = lua_tonumber(L, 2);
+        (*lang_ptr)->post_hyphen_char = (int) lua_tonumber(L, 2);
         return 0;
     } else {
         lua_pushnumber(L, (*lang_ptr)->post_hyphen_char);
@@ -163,7 +163,7 @@ static int lang_pre_exhyphen_char(lua_State * L)
                            "lang.preexhyphenchar(): argument should be a character number");
             return lua_error(L);
         }
-        (*lang_ptr)->pre_exhyphen_char = lua_tonumber(L, 2);
+        (*lang_ptr)->pre_exhyphen_char = (int) lua_tonumber(L, 2);
         return 0;
     } else {
         lua_pushnumber(L, (*lang_ptr)->pre_exhyphen_char);
@@ -181,7 +181,7 @@ static int lang_post_exhyphen_char(lua_State * L)
                            "lang.postexhyphenchar(): argument should be a character number");
             return lua_error(L);
         }
-        (*lang_ptr)->post_exhyphen_char = lua_tonumber(L, 2);
+        (*lang_ptr)->post_exhyphen_char = (int) lua_tonumber(L, 2);
         return 0;
     } else {
         lua_pushnumber(L, (*lang_ptr)->post_exhyphen_char);

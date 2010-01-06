@@ -87,7 +87,7 @@ static int font_read_vf(lua_State * L)
         cnom = (char *) lua_tostring(L, 1);
         if (strlen(cnom)) {
             if (lua_isnumber(L, 2)) {
-                s = lua_tonumber(L, 2);
+                s = (scaled) lua_tonumber(L, 2);
                 return make_vf_table(L, cnom, s);
             } else {
                 lua_pushstring(L,
@@ -131,8 +131,8 @@ static int tex_max_font(lua_State * L)
 static int tex_each_font_next(lua_State * L)
 {
     int i, m;                   /* id */
-    m = lua_tonumber(L, 1);
-    i = lua_tonumber(L, 2);
+    m = (int) lua_tonumber(L, 1);
+    i = (int) lua_tonumber(L, 2);
     i++;
     while (i <= m && !is_valid_font(i))
         i++;
