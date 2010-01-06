@@ -693,7 +693,7 @@ extern halfword new_node(int i, int j);
 extern void flush_node_list(halfword);
 extern void flush_node(halfword);
 extern halfword copy_node_list(halfword);
-extern halfword copy_node(halfword);
+extern halfword copy_node(const halfword);
 extern void check_node(halfword);
 extern void check_node_mem(void);
 extern void fix_node_list(halfword);
