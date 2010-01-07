@@ -344,6 +344,7 @@ void ext_post_line_break(boolean d,
             node_attr(r) = node_attr(q);
             add_node_attr_ref(node_attr(r));
             vlink(q) = r;
+            alink(r) = q;
             q = r;
         }
 
@@ -395,6 +396,7 @@ void ext_post_line_break(boolean d,
             node_attr(r) = node_attr(q);
             add_node_attr_ref(node_attr(r));
             vlink(r) = q;
+            alink(q) = r;
             q = r;
         }
         /* /Put the \(l)\.{\\leftskip} glue at the left and detach this line; */
