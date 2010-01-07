@@ -1,6 +1,6 @@
 /* pdflink.c
-   
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -17,13 +17,11 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include "ptexlib.h"
-
-
-
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
+
+#include "ptexlib.h"
 
 #define pdf_link_margin          dimen_par(pdf_link_margin_code)
 
@@ -67,7 +65,7 @@ void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     alt_rule.dp = depth(p);
     set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_link_margin);
     obj_annot_ptr(pdf, pdf_link_objnum(p)) = p; /* the reference for the pdf annot object must be set here */
-    append_object_list(pdf, obj_type_link, pdf_link_objnum(p));
+    addto_page_resources(pdf, obj_type_link, pdf_link_objnum(p));
 }
 
 void end_link(PDF pdf, halfword p)
@@ -136,7 +134,7 @@ void append_link(PDF pdf, halfword parent_box, scaledpos cur, small_number i)
     set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_link_margin);
     pdf_create_obj(pdf, obj_type_others, 0);
     obj_annot_ptr(pdf, pdf->obj_ptr) = p;
-    append_object_list(pdf, obj_type_link, pdf->obj_ptr);
+    addto_page_resources(pdf, obj_type_link, pdf->obj_ptr);
 }
 
 void scan_startlink(PDF pdf)

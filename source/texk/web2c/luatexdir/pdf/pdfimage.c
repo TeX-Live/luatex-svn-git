@@ -1,6 +1,6 @@
 /* pdfimage.c
-   
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -134,8 +134,7 @@ void place_img(PDF pdf, image_dict * idict, scaled_whd dim, int transform)
     pdf_print_int(pdf, img_index(idict));
     pdf_print_resname_prefix(pdf);
     pdf_printf(pdf, " Do\nQ\n");
-    if (lookup_object_list(pdf, obj_type_ximage, img_objnum(idict)) == NULL)
-        append_object_list(pdf, obj_type_ximage, img_objnum(idict));
+    addto_page_resources(pdf, obj_type_ximage, img_objnum(idict));
     if (img_state(idict) < DICT_OUTIMG)
         img_state(idict) = DICT_OUTIMG;
 }

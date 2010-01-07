@@ -1,7 +1,7 @@
 /* image.h
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -181,7 +181,7 @@ typedef struct {
 #  define is_pdf_image(a)       (img_type(idict_array[a]) == IMG_TYPE_PDF)
 #  define is_png_image(a)       (img_type(idict_array[a]) == IMG_TYPE_PNG)
 
-#  define update_image_procset(a) (pdf->resources->image_procset |= img_color(idict_array[a]))
+#  define update_image_procset(a) (pdf->page_resources->image_procset |= img_color(idict_array[a]))
 #  define check_image_b(a)      ((a) & IMAGE_COLOR_B)
 #  define check_image_c(a)      ((a) & IMAGE_COLOR_C)
 #  define check_image_i(a)      ((a) & IMAGE_COLOR_I)

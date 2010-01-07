@@ -1,6 +1,6 @@
 /* pdfthread.c
-   
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -17,11 +17,11 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include "ptexlib.h"
-
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
+
+#include "ptexlib.h"
 
 #define pdf_thread_margin        dimen_par(pdf_thread_margin_code)
 #define page_width dimen_par(page_width_code)
@@ -55,7 +55,7 @@ void append_bead(PDF pdf, halfword p)
         set_obj_bead_prev(pdf, a, b);
         set_obj_bead_next(pdf, c, b);
     }
-    append_object_list(pdf, obj_type_bead, b);
+    addto_page_resources(pdf, obj_type_bead, b);
 }
 
 void do_thread(PDF pdf, halfword parent_box, halfword p, scaledpos cur)
@@ -250,7 +250,7 @@ void check_running_thread(PDF pdf, halfword this_box, scaledpos cur)
 void print_beads_list(PDF pdf)
 {
     pdf_object_list *k;
-    if ((k = pdf->resources->bead_list) != NULL) {
+    if ((k = get_page_resources_list(pdf, obj_type_bead)) != NULL) {
         pdf_printf(pdf, "/B [ ");
         while (k != NULL) {
             pdf_print_int(pdf, k->info);
@@ -265,7 +265,7 @@ void print_bead_rectangles(PDF pdf)
 {
     halfword i;
     pdf_object_list *k;
-    if ((k = pdf->resources->bead_list) != NULL) {
+    if ((k = get_page_resources_list(pdf, obj_type_bead)) != NULL) {
         while (k != NULL) {
             pdf_new_obj(pdf, obj_type_others, 0, 1);
             pdf_out(pdf, '[');

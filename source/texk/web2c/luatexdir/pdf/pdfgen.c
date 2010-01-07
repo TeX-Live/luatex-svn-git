@@ -1,6 +1,6 @@
 /* pdfgen.c
 
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -102,7 +102,7 @@ PDF init_pdf_struct(PDF pdf)
     pdf->pk_scale_factor = 0;
 
     init_dest_names(pdf);
-    pdf->resources = NULL;
+    pdf->page_resources = NULL;
 
     init_pdf_pagecalculations(pdf);
 
@@ -262,7 +262,6 @@ void pdf_flush(PDF pdf)
                       "File size exceeds architectural limits (pdf_gone wraps around)");
     }
 }
-
 
 /* switch between PDF stream and object stream mode */
 void pdf_os_switch(PDF pdf, boolean pdf_os)
@@ -655,119 +654,118 @@ void pdf_print_mag_bp(PDF pdf, scaled s)
 
 
 /**********************************************************************/
+/* handling page resources */
 
-void reset_resource_lists(pdf_resource_struct * p)
+typedef struct {
+    int obj_type;
+    pdf_object_list *list;
+} pr_entry;
+
+static int comp_page_resources(const void *pa, const void *pb, void *p)
 {
-    p->obj_list = NULL;
-    p->font_list = NULL;
-    p->xform_list = NULL;
-    p->ximage_list = NULL;
-    p->dest_list = NULL;
-    p->link_list = NULL;
-    p->annot_list = NULL;
-    p->bead_list = NULL;
-    p->text_procset = false;
-    p->image_procset = 0;
+    (void) p;
+    int a = ((const pr_entry *) pa)->obj_type;
+    int b = ((const pr_entry *) pb)->obj_type;
+    if (a > b)
+        return 1;
+    if (a < b)
+        return -1;
+    return 0;
 }
 
-void append_object_list(PDF pdf, pdf_obj_type t, int objnum)
+void addto_page_resources(PDF pdf, pdf_obj_type t, int k)
 {
-    pdf_object_list *p;
-    pdf_object_list *item = xmalloc(sizeof(pdf_object_list));
-    item->link = NULL;
-    item->info = objnum;
-    switch (t) {
-    /* *INDENT-OFF* */
-    case obj_type_obj:    set_p_or_return(pdf->resources->obj_list);    break;
-    case obj_type_font:   set_p_or_return(pdf->resources->font_list);   break;
-    case obj_type_xform:  set_p_or_return(pdf->resources->xform_list);  break;
-    case obj_type_ximage: set_p_or_return(pdf->resources->ximage_list); break;
-    case obj_type_dest:   set_p_or_return(pdf->resources->dest_list);   break;
-    case obj_type_link:   set_p_or_return(pdf->resources->link_list);   break;
-    case obj_type_annot:  set_p_or_return(pdf->resources->annot_list);  break;
-    case obj_type_bead:   set_p_or_return(pdf->resources->bead_list);   break;
-    default:              assert(0);                         break;
-    /* *INDENT-ON* */
+    pdf_resource_struct *re;
+    pr_entry *pr, tmp;
+    void **pp;
+    pdf_object_list *p, *item = NULL;
+    assert(pdf != NULL);
+    re = pdf->page_resources;
+    assert(re != NULL);
+    assert(t >= 0 && t <= PDF_OBJ_TYPE_MAX);
+    if (re->resources_tree == NULL) {
+        re->resources_tree =
+            avl_create(comp_page_resources, NULL, &avl_xallocator);
+        if (re->resources_tree == NULL)
+            pdftex_fail
+                ("addto_page_resources(): avl_create() page_resource_tree failed");
     }
-    while (p->link != NULL)
-        p = p->link;
-    p->link = item;
-    set_obj_scheduled(pdf, objnum);
-    return;
-}
-
-/* return zero on failure, or the object  */
-pdf_object_list *lookup_object_list(PDF pdf, pdf_obj_type t, int f)
-{
-    pdf_object_list *p;
-    switch (t) {
-    /* *INDENT-OFF* */
-    case obj_type_obj:    p = pdf->resources->obj_list; break;
-    case obj_type_font:   p = pdf->resources->font_list; break;
-    case obj_type_xform:  p = pdf->resources->xform_list; break;
-    case obj_type_ximage: p = pdf->resources->ximage_list; break;
-    case obj_type_dest:   p = pdf->resources->dest_list; break;
-    case obj_type_link:   p = pdf->resources->link_list; break;
-    case obj_type_annot:  p = pdf->resources->annot_list; break;
-    case obj_type_bead:   p = pdf->resources->bead_list; break;
-    default:              return NULL;  break;  /* shouldnt happen */
-    /* *INDENT-ON* */
+    tmp.obj_type = t;
+    pr = (pr_entry *) avl_find(re->resources_tree, &tmp);
+    if (pr == NULL) {
+        pr = xtalloc(1, pr_entry);
+        pr->obj_type = t;
+        pr->list = NULL;
+        pp = avl_probe(re->resources_tree, pr);
+        if (pp == NULL)
+            pdftex_fail
+                ("addto_page_resources(): avl_probe() out of memory in insertion");
     }
-    while (p != NULL) {
-        if (p->info == f)
-            return p;
-        p = p->link;
-    }
-    return NULL;
-}
-
-static void flush_object_list(PDF pdf, pdf_obj_type t)
-{
-    pdf_object_list *q, *p;
-    switch (t) {
-    /* *INDENT-OFF* */
-    case obj_type_obj:    p = pdf->resources->obj_list; break;
-    case obj_type_font:   p = pdf->resources->font_list; break;
-    case obj_type_xform:  p = pdf->resources->xform_list; break;
-    case obj_type_ximage: p = pdf->resources->ximage_list; break;
-    case obj_type_dest:   p = pdf->resources->dest_list; break;
-    case obj_type_link:   p = pdf->resources->link_list; break;
-    case obj_type_annot:  p = pdf->resources->annot_list; break;
-    case obj_type_bead:   p = pdf->resources->bead_list; break;
-    default:              return;  break;
-    /* *INDENT-ON* */
-    }
-    while (p != NULL) {
-        q = p;
-        p = p->link;
-        free(q);
-    }
-    switch (t) {
-    /* *INDENT-OFF* */
-    case obj_type_obj:    pdf->resources->obj_list = NULL; break;
-    case obj_type_font:   pdf->resources->font_list = NULL; break;
-    case obj_type_xform:  pdf->resources->xform_list = NULL; break;
-    case obj_type_ximage: pdf->resources->ximage_list = NULL; break;
-    case obj_type_dest:   pdf->resources->dest_list = NULL; break;
-    case obj_type_link:   pdf->resources->link_list = NULL; break;
-    case obj_type_annot:  pdf->resources->annot_list = NULL; break;
-    case obj_type_bead:   pdf->resources->bead_list = NULL; break;
-    default:              break; /* cant happen */
-    /* *INDENT-ON* */
+    if (pr->list == NULL) {
+        item = xmalloc(sizeof(pdf_object_list));
+        item->link = NULL;
+        item->info = k;
+        pr->list = item;
+        set_obj_scheduled(pdf, k);
+    } else {
+        for (p = pr->list; p->info != k && p->link != NULL; p = p->link);
+        if (p->info != k) {
+            item = xmalloc(sizeof(pdf_object_list));
+            item->link = NULL;
+            item->info = k;
+            p->link = item;
+            set_obj_scheduled(pdf, k);
+        }
     }
 }
 
-void flush_resource_lists(PDF pdf)
+pdf_object_list *get_page_resources_list(PDF pdf, pdf_obj_type t)
 {
-    flush_object_list(pdf, obj_type_font);
-    flush_object_list(pdf, obj_type_obj);
-    flush_object_list(pdf, obj_type_xform);
-    flush_object_list(pdf, obj_type_ximage);
-    /* the following lists are nonzero only if shipping_page */
-    flush_object_list(pdf, obj_type_annot);
-    flush_object_list(pdf, obj_type_link);
-    flush_object_list(pdf, obj_type_dest);
-    flush_object_list(pdf, obj_type_bead);
+    pdf_resource_struct *re = pdf->page_resources;
+    pr_entry *pr, tmp;
+    if (re == NULL || re->resources_tree == NULL)
+        return NULL;
+    tmp.obj_type = t;
+    pr = (pr_entry *) avl_find(re->resources_tree, &tmp);
+    if (pr == NULL)
+        return NULL;
+    return pr->list;
+}
+
+static void reset_page_resources(PDF pdf)
+{
+    pdf_resource_struct *re = pdf->page_resources;
+    pr_entry *p;
+    struct avl_traverser t;
+    pdf_object_list *l1, *l2;
+    if (re == NULL || re->resources_tree == NULL)
+        return;
+    avl_t_init(&t, re->resources_tree);
+    for (p = avl_t_first(&t, re->resources_tree); p != NULL; p = avl_t_next(&t)) {
+        if (p->list != NULL) {
+            for (l1 = p->list; l1 != NULL; l1 = l2) {
+                l2 = l1->link;
+                free(l1);
+            }
+            p->list = NULL;     /* but the AVL tree remains */
+        }
+    }
+}
+
+static void destroy_pg_res_tree(void *pa, void *param)
+{
+    (void *) param;
+    if (pa != NULL)
+        xfree(pa);
+}
+
+static void destroy_page_resources_tree(PDF pdf)
+{
+    pdf_resource_struct *re = pdf->page_resources;
+    reset_page_resources(pdf);
+    if (re->resources_tree != NULL)
+        avl_destroy(re->resources_tree, destroy_pg_res_tree);
+    re->resources_tree = NULL;
 }
 
 /**********************************************************************/
@@ -812,7 +810,9 @@ void pdf_int_entry(PDF pdf, char *s, int v)
 {
     pdf_printf(pdf, "/%s ", s);
     pdf_print_int(pdf, v);
-} void pdf_int_entry_ln(PDF pdf, char *s, int v)
+}
+
+void pdf_int_entry_ln(PDF pdf, char *s, int v)
 {
 
     pdf_int_entry(pdf, s, v);
@@ -823,7 +823,9 @@ void pdf_int_entry(PDF pdf, char *s, int v)
 void pdf_indirect(PDF pdf, char *s, int o)
 {
     pdf_printf(pdf, "/%s %d 0 R", s, (int) o);
-} void pdf_indirect_ln(PDF pdf, char *s, int o)
+}
+
+void pdf_indirect_ln(PDF pdf, char *s, int o)
 {
 
     pdf_indirect(pdf, s, o);
@@ -862,7 +864,6 @@ void pdf_print_toks(PDF pdf, halfword p)
         pdf_puts(pdf, s);
     xfree(s);
 }
-
 
 void pdf_print_toks_ln(PDF pdf, halfword p)
 {
@@ -1061,7 +1062,6 @@ void pdf_end_dict(PDF pdf)
     }
 }
 
-
 /*
 Write out an accumulated object stream.
 First the object number and byte offset pairs are generated
@@ -1167,6 +1167,7 @@ void write_stream_length(PDF pdf, int length, longinteger offset)
  * This assumes that the string does not contain any already escaped
  * characters!
  */
+
 char *convertStringToPDFString(const char *in, int len)
 {
     static char pstrbuf[MAX_PSTRING_LEN];
@@ -1253,6 +1254,7 @@ static void convertStringToHexString(const char *in, char *out, int lin)
   scanning the info dict is also difficult, we start with a simpler
   implementation using just the first two items.
  */
+
 void print_ID(PDF pdf, char *file_name)
 {
     time_t t;
@@ -1330,7 +1332,9 @@ void print_ID(PDF pdf, char *file_name)
   C99 (e.g. newer glibc) with %z, but we have to work with other systems (e.g.
   Solaris 2.5).
 */
+
 #define TIME_STR_SIZE 30        /* minimum size for time_str is 24: "D:YYYYmmddHHMMSS+HH'MM'" */
+
 static void makepdftime(PDF pdf)
 {
     struct tm lt, gmt;
@@ -1446,7 +1450,6 @@ void fb_seek(PDF pdf, int offset)
     pdf->fb_ptr = pdf->fb_array + offset;
 }
 
-
 void fb_putchar(PDF pdf, eight_bits b)
 {
     if ((size_t) (pdf->fb_ptr - pdf->fb_array + 1) > pdf->fb_limit)
@@ -1475,7 +1478,6 @@ void fb_free(PDF pdf)
 {
     xfree(pdf->fb_array);
 }
-
 
 #define ZIP_BUF_SIZE  32768
 
@@ -1655,9 +1657,10 @@ void set_job_id(PDF pdf, int year, int month, int day, int time)
     xfree(s);
     xfree(name_string);
     xfree(format_string);
-} char *get_resname_prefix(PDF pdf)
-{
+}
 
+char *get_resname_prefix(PDF pdf)
+{
 /*     static char name_str[] = */
 /* "!\"$&'*+,-.0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\" */
 /* "^_`abcdefghijklmnopqrstuvwxyz|~"; */
@@ -1688,10 +1691,12 @@ void pdf_begin_page(PDF pdf, boolean shipping_page)
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
     init_pdf_pagecalculations(pdf);
 
-    if (pdf->resources == NULL)
-        pdf->resources = xmalloc(sizeof(pdf_resource_struct));
-    reset_resource_lists(pdf->resources);
-    pdf->resources->last_resources = pdf_new_objnum(pdf);
+    if (pdf->page_resources == NULL) {
+        pdf->page_resources = xmalloc(sizeof(pdf_resource_struct));
+        pdf->page_resources->resources_tree = NULL;
+    }
+    pdf->page_resources->last_resources = pdf_new_objnum(pdf);
+    reset_page_resources(pdf);
 
     if (shipping_page) {
         pdf->last_page = get_obj(pdf, obj_type_page, total_pages + 1, 0);
@@ -1724,7 +1729,7 @@ void pdf_begin_page(PDF pdf, boolean shipping_page)
         pdf_puts(pdf, "]\n");
         pdf_puts(pdf, "/FormType 1\n");
         pdf_puts(pdf, "/Matrix [1 0 0 1 0 0]\n");
-        pdf_indirect_ln(pdf, "Resources", pdf->resources->last_resources);
+        pdf_indirect_ln(pdf, "Resources", pdf->page_resources->last_resources);
     }
     /* Start stream of page/form contents */
     pdf_begin_stream(pdf);
@@ -1749,11 +1754,10 @@ void pdf_begin_page(PDF pdf, boolean shipping_page)
 void pdf_end_page(PDF pdf, boolean shipping_page)
 {
     int j, ff;
-    pdf_resource_struct *res_p = pdf->resources;
-    pdf_resource_struct local_resources;
-    pdf_object_list *ol;
+    pdf_resource_struct *res_p = pdf->page_resources;
+    pdf_resource_struct local_page_resources;
+    pdf_object_list *ol, *ol1;
     scaledpos save_cur_page_size;       /* to save |cur_page_size| during flushing pending forms */
-
 
     /* Finish stream of page/form contents */
     pdf_goto_pagemode(pdf);
@@ -1781,10 +1785,9 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
             pdf->img_page_group_val = 0;
         }
         /* Generate array of annotations or beads in page */
-        if ((res_p->annot_list != NULL)
-            || (res_p->link_list != NULL)) {
+        if ((ol = get_page_resources_list(pdf, obj_type_annot)) != NULL
+            || (ol1 = get_page_resources_list(pdf, obj_type_link)) != NULL) {
             pdf_puts(pdf, "/Annots [ ");
-            ol = res_p->annot_list;
             while (ol != NULL) {
                 if (ol->info > 0)
                     pdf_print_int(pdf, ol->info);
@@ -1793,11 +1796,10 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
                 pdf_puts(pdf, " 0 R ");
                 ol = ol->link;
             }
-            ol = res_p->link_list;
-            while (ol != NULL) {
-                pdf_print_int(pdf, ol->info);
+            while (ol1 != NULL) {
+                pdf_print_int(pdf, ol1->info);
                 pdf_puts(pdf, " 0 R ");
-                ol = ol->link;
+                ol1 = ol1->link;
             }
             pdf_puts(pdf, "]\n");
         }
@@ -1807,63 +1809,60 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
     }
     /* Write out resource lists */
     /* Write out pending raw objects */
-    if ((ol = res_p->obj_list) != NULL) {
-        while (ol != NULL) {
-            if (!is_obj_written(pdf, ol->info))
-                pdf_write_obj(pdf, ol->info);
-            ol = ol->link;
-        }
+    ol = get_page_resources_list(pdf, obj_type_obj);
+    while (ol != NULL) {
+        if (!is_obj_written(pdf, ol->info))
+            pdf_write_obj(pdf, ol->info);
+        ol = ol->link;
     }
 
     /* Write out pending forms */
     /* When flushing pending forms we need to save and restore resource lists
-       (|font_list|, |pdf_obj_list|, |pdf_xform_list| and |pdf_ximage_list|),
        which are also used by page shipping.
        Saving and restoring |cur_page_size| is needed for proper
        writing out pending PDF marks. */
-    if ((ol = res_p->xform_list) != NULL) {
-        while (ol != NULL) {
-            if (!is_obj_written(pdf, ol->info)) {
-                pdf_cur_form = ol->info;
-                save_cur_page_size = cur_page_size;
-                pdf->resources = &local_resources;
-                ship_out(pdf, obj_xform_box(pdf, pdf_cur_form), false);
-                cur_page_size = save_cur_page_size;
-                /* Restore resource lists */
-                pdf->resources = res_p;
-            }
-            ol = ol->link;
+    ol = get_page_resources_list(pdf, obj_type_xform);
+    while (ol != NULL) {
+        if (!is_obj_written(pdf, ol->info)) {
+            pdf_cur_form = ol->info;
+            save_cur_page_size = cur_page_size;
+            pdf->page_resources = &local_page_resources;
+            local_page_resources.resources_tree = NULL;
+            ship_out(pdf, obj_xform_box(pdf, pdf_cur_form), false);
+            /* Restore page size and page resources */
+            cur_page_size = save_cur_page_size;
+            destroy_page_resources_tree(pdf);
+            pdf->page_resources = res_p;
         }
+        ol = ol->link;
     }
 
     /* Write out pending images */
-    if ((ol = res_p->ximage_list) != NULL) {
-        while (ol != NULL) {
-            if (!is_obj_written(pdf, ol->info))
-                pdf_write_image(pdf, ol->info);
-            ol = ol->link;
-        }
+    ol = get_page_resources_list(pdf, obj_type_ximage);
+    while (ol != NULL) {
+        if (!is_obj_written(pdf, ol->info))
+            pdf_write_image(pdf, ol->info);
+        ol = ol->link;
     }
 
     if (shipping_page) {
         /* Write out pending PDF marks */
         /* Write out PDF annotations */
-        if ((ol = res_p->annot_list) != NULL) {
-            while (ol != NULL) {
-                if (ol->info > 0) {
-                    j = obj_annot_ptr(pdf, ol->info);   /* |j| points to |pdf_annot_node| */
-                    pdf_begin_dict(pdf, ol->info, 1);
-                    pdf_puts(pdf, "/Type /Annot\n");
-                    pdf_print_toks_ln(pdf, pdf_annot_data(j));
-                    pdf_rectangle(pdf, j);
-                    pdf_end_dict(pdf);
-                }
-                ol = ol->link;
+        ol = get_page_resources_list(pdf, obj_type_annot);
+        while (ol != NULL) {
+            if (ol->info > 0) {
+                j = obj_annot_ptr(pdf, ol->info);       /* |j| points to |pdf_annot_node| */
+                pdf_begin_dict(pdf, ol->info, 1);
+                pdf_puts(pdf, "/Type /Annot\n");
+                pdf_print_toks_ln(pdf, pdf_annot_data(j));
+                pdf_rectangle(pdf, j);
+                pdf_end_dict(pdf);
             }
+            ol = ol->link;
         }
 
         /* Write out PDF link annotations */
-        if ((ol = res_p->link_list) != NULL) {
+        if ((ol = get_page_resources_list(pdf, obj_type_link)) != NULL) {
             while (ol != NULL) {
                 j = obj_annot_ptr(pdf, ol->info);
                 pdf_begin_dict(pdf, ol->info, 1);
@@ -1880,7 +1879,7 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
                 ol = ol->link;
             }
             /* Flush |pdf_start_link_node|'s created by |append_link| */
-            ol = res_p->link_list;
+            ol = get_page_resources_list(pdf, obj_type_link);
             while (ol != NULL) {
                 j = obj_annot_ptr(pdf, ol->info);
                 /* nodes with |subtype = pdf_link_data_node| were created by |append_link| and
@@ -1914,7 +1913,7 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
     }
 
     /* Generate font resources */
-    if ((ol = res_p->font_list) != NULL) {
+    if ((ol = get_page_resources_list(pdf, obj_type_font)) != NULL) {
         pdf_puts(pdf, "/Font << ");
         while (ol != NULL) {
             pdf_puts(pdf, "/F");
@@ -1931,31 +1930,27 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
     }
 
     /* Generate XObject resources */
-    if ((res_p->xform_list != NULL)
-        || (res_p->ximage_list != NULL)) {
+    if ((ol = get_page_resources_list(pdf, obj_type_xform)) != NULL
+        || (ol1 = get_page_resources_list(pdf, obj_type_ximage)) != NULL) {
         pdf_puts(pdf, "/XObject << ");
-        if ((ol = res_p->xform_list) != NULL) {
-            while (ol != NULL) {
-                pdf_printf(pdf, "/Fm");
-                pdf_print_int(pdf, obj_info(pdf, ol->info));
-                pdf_print_resname_prefix(pdf);
-                pdf_out(pdf, ' ');
-                pdf_print_int(pdf, ol->info);
-                pdf_puts(pdf, " 0 R ");
-                ol = ol->link;
-            }
+        while (ol != NULL) {
+            pdf_printf(pdf, "/Fm");
+            pdf_print_int(pdf, obj_info(pdf, ol->info));
+            pdf_print_resname_prefix(pdf);
+            pdf_out(pdf, ' ');
+            pdf_print_int(pdf, ol->info);
+            pdf_puts(pdf, " 0 R ");
+            ol = ol->link;
         }
-        if ((ol = res_p->ximage_list) != NULL) {
-            while (ol != null) {
-                pdf_puts(pdf, "/Im");
-                pdf_print_int(pdf, obj_data_ptr(pdf, ol->info));
-                pdf_print_resname_prefix(pdf);
-                pdf_out(pdf, ' ');
-                pdf_print_int(pdf, ol->info);
-                pdf_puts(pdf, " 0 R ");
-                update_image_procset(obj_data_ptr(pdf, ol->info));
-                ol = ol->link;
-            }
+        while (ol1 != null) {
+            pdf_puts(pdf, "/Im");
+            pdf_print_int(pdf, obj_data_ptr(pdf, ol1->info));
+            pdf_print_resname_prefix(pdf);
+            pdf_out(pdf, ' ');
+            pdf_print_int(pdf, ol1->info);
+            pdf_puts(pdf, " 0 R ");
+            update_image_procset(obj_data_ptr(pdf, ol1->info));
+            ol1 = ol1->link;
         }
         pdf_puts(pdf, ">>\n");
     }
@@ -1973,11 +1968,6 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
     pdf_puts(pdf, " ]\n");
 
     pdf_end_dict(pdf);
-
-    /* In the end of shipping out a page we reset all the lists holding objects
-       have been created during the page shipping. */
-
-    flush_resource_lists(pdf);
 }
 
 /**********************************************************************/

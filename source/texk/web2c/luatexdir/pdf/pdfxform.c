@@ -1,6 +1,6 @@
 /* pdfxform.c
-   
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -60,8 +60,7 @@ void pdf_place_form(PDF pdf, halfword p)
     pdf_printf(pdf, "/Fm%d", (int) obj_info(pdf, objnum));
     pdf_print_resname_prefix(pdf);
     pdf_printf(pdf, " Do\nQ\n");
-    if (lookup_object_list(pdf, obj_type_xform, objnum) == NULL)
-        append_object_list(pdf, obj_type_xform, objnum);
+    addto_page_resources(pdf, obj_type_xform, objnum);
 }
 
 void scan_pdfxform(PDF pdf)

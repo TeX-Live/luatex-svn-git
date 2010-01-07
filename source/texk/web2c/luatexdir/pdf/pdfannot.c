@@ -1,6 +1,6 @@
 /* pdfannot.c
 
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -42,7 +42,7 @@ void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     alt_rule.dp = depth(p);
     set_rect_dimens(pdf, p, parent_box, cur, alt_rule, 0);
     obj_annot_ptr(pdf, pdf_annot_objnum(p)) = p;
-    append_object_list(pdf, obj_type_annot, pdf_annot_objnum(p));
+    addto_page_resources(pdf, obj_type_annot, pdf_annot_objnum(p));
 }
 
 /* create a new whatsit node for annotation */

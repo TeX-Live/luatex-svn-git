@@ -1,6 +1,6 @@
 /* lpdflib.c
 
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -113,7 +113,7 @@ static int l_immediateobj(lua_State * L)
     n = lua_gettop(L);
     if (n > 0 && lua_type(L, 1) == LUA_TNUMBER) {
         first_arg++;
-        k = (int)lua_tonumber(L, 1);
+        k = (int) lua_tonumber(L, 1);
         check_obj_exists(static_pdf, obj_type_obj, k);
         if (is_obj_scheduled(static_pdf, k) || obj_data_ptr(static_pdf, k) != 0)
             luaL_error(L, "pdf.immediateobj() object in use");
@@ -443,7 +443,7 @@ static int orig_obj(lua_State * L)
     n = lua_gettop(L);
     if (n > 0 && lua_type(L, 1) == LUA_TNUMBER) {
         first_arg++;
-        k = (int)lua_tonumber(L, 1);
+        k = (int) lua_tonumber(L, 1);
         check_obj_exists(static_pdf, obj_type_obj, k);
         if (is_obj_scheduled(static_pdf, k) || obj_data_ptr(static_pdf, k) != 0)
             luaL_error(L, "pdf.obj() object in use");
@@ -554,7 +554,7 @@ static int l_registerannot(lua_State * L)
         if (i <= 0)
             luaL_error(L,
                        "pdf.registerannot() can only register positive object numbers");
-        append_object_list(static_pdf, obj_type_annot, (-i));
+        addto_page_resources(static_pdf, obj_type_annot, -i);
         break;
     default:
         luaL_error(L, "pdf.registerannot() needs exactly 1 argument");

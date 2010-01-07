@@ -1,6 +1,6 @@
 /* pdftypes.h
 
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -32,8 +32,7 @@ plans to convert the backend code into a C library for use with e.g. standalone
 lua. Together, this means that it is best only to use the standard C types and
 the types explicitly defined in this header, and stay away from types like
 |integer| and |eight_bits| that are used elsewhere in the \LUATEX\ sources.
-
- */
+*/
 
 typedef struct os_obj_data_ {
     int num;
@@ -167,14 +166,7 @@ typedef enum {
 #  define PDF_OBJ_TYPE_MAX 14   /* obj_type_others */
 
 typedef struct pdf_resource_struct_ {
-    pdf_object_list *font_list; /* |font_list| during flushing pending forms */
-    pdf_object_list *dest_list; /* the pdf destinations */
-    pdf_object_list *obj_list;  /* |pdf_obj_list| */
-    pdf_object_list *xform_list;        /* |pdf_xform_list| */
-    pdf_object_list *ximage_list;       /* |pdf_ximage_list| */
-    pdf_object_list *link_list; /* the pdf links */
-    pdf_object_list *bead_list; /* the thread beads */
-    pdf_object_list *annot_list;        /* the pdf annotations */
+    struct avl_table *resources_tree;
     int text_procset;           /* |pdf_text_procset| */
     int image_procset;          /* |pdf_image_procset| */
     int last_resources;         /* halfword to most recently generated Resources object. */
@@ -273,7 +265,7 @@ typedef struct pdf_output_file_ {
     int xform_count;
     int ximage_count;
 
-    pdf_resource_struct *resources;
+    pdf_resource_struct *page_resources;
 
     /* the variables from pdfdest */
     int dest_names_size;
@@ -298,4 +290,4 @@ typedef struct pdf_output_file_ {
 
 typedef pdf_output_file *PDF;
 
-#endif
+#endif                          /* PDFTYPES_H */

@@ -1,6 +1,6 @@
 /* pdftables.c
 
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -347,28 +347,27 @@ void dump_pdftex_data(PDF pdf)
     dump_int(pdf->obj_count);
     dump_int(pdf->xform_count);
     dump_int(pdf->ximage_count);
-    if (pdf->resources != NULL && (l = pdf->resources->obj_list) != NULL) {
+    if ((l = get_page_resources_list(pdf, obj_type_obj)) != NULL) {
         while (l != NULL) {
             dump_int(l->info);
             l = l->link;
         }
     }
     dump_int(0);                /* signal end of obj_list */
-    if (pdf->resources != NULL && (l = pdf->resources->xform_list) != NULL) {
+    if ((l = get_page_resources_list(pdf, obj_type_xform)) != NULL) {
         while (l != NULL) {
             dump_int(l->info);
             l = l->link;
         }
     }
     dump_int(0);                /* signal end of xform_list */
-    if (pdf->resources != NULL && (l = pdf->resources->ximage_list) != NULL) {
+    if ((l = get_page_resources_list(pdf, obj_type_ximage)) != NULL) {
         while (l != NULL) {
             dump_int(l->info);
             l = l->link;
         }
     }
     dump_int(0);                /* signal end of ximage_list */
-
     x = pdf->head_tab[obj_type_obj];
     dump_int(x);
     x = pdf->head_tab[obj_type_xform];
@@ -423,21 +422,20 @@ void undump_pdftex_data(PDF pdf)
     pdf->xform_count = x;
     undump_int(x);
     pdf->ximage_count = x;
-
     /* todo : the next 3 loops can be done much more efficiently */
     undump_int(x);
     while (x != 0) {
-        append_object_list(pdf, obj_type_obj, x);
+        addto_page_resources(pdf, obj_type_obj, x);
         undump_int(x);
     }
     undump_int(x);
     while (x != 0) {
-        append_object_list(pdf, obj_type_xform, x);
+        addto_page_resources(pdf, obj_type_xform, x);
         undump_int(x);
     }
     undump_int(x);
     while (x != 0) {
-        append_object_list(pdf, obj_type_ximage, x);
+        addto_page_resources(pdf, obj_type_ximage, x);
         undump_int(x);
     }
 

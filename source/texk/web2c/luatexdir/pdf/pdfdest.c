@@ -1,6 +1,6 @@
 /* pdfdest.c
-   
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -17,13 +17,11 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include "ptexlib.h"
-
-
-
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
+
+#include "ptexlib.h"
 
 #define pdf_dest_margin          dimen_par(pdf_dest_margin_code)
 
@@ -98,7 +96,7 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
         return;
     }
     obj_dest_ptr(pdf, k) = p;
-    append_object_list(pdf, obj_type_dest, k);
+    addto_page_resources(pdf, obj_type_dest, k);
     alt_rule.wd = width(p);
     alt_rule.ht = height(p);
     alt_rule.dp = depth(p);
@@ -136,7 +134,7 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 void write_out_pdf_mark_destinations(PDF pdf)
 {
     pdf_object_list *k;
-    if ((k = pdf->resources->dest_list) != NULL) {
+    if ((k = get_page_resources_list(pdf, obj_type_dest)) != NULL) {
         while (k != NULL) {
             if (is_obj_written(pdf, k->info)) {
                 pdf_error("ext5",
@@ -208,7 +206,6 @@ void write_out_pdf_mark_destinations(PDF pdf)
         }
     }
 }
-
 
 void scan_pdfdest(PDF pdf)
 {
@@ -303,10 +300,10 @@ void sort_dest_names(PDF pdf)
           dest_cmp);
 }
 
-/* 
+/*
 Output the name tree. The tree nature of the destination list forces the
-storing of intermediate data in |obj_info| and |obj_aux| fields, which 
-is further uglified by the fact that |obj_tab| entries do not accept char 
+storing of intermediate data in |obj_info| and |obj_aux| fields, which
+is further uglified by the fact that |obj_tab| entries do not accept char
 pointers.
 */
 

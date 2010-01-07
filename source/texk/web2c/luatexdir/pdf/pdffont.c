@@ -1,6 +1,6 @@
 /* pdffont.c
 
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -17,13 +17,11 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include "ptexlib.h"
-
-
-
 static const char __svn_version[] =
     "$Id$"
     "$URL$";
+
+#include "ptexlib.h"
 
 #define font_id_text(A) cs_text(font_id_base+(A))       /* a frozen font identifier's name */
 
@@ -140,7 +138,7 @@ internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
                                    with |f|; |ff| is either |f| or some font with the same tfm name
                                    at different size and/or expansion */
     k = ff;
-    p = pdf->resources->font_list;
+    p = get_page_resources_list(pdf, obj_type_font);
     while (p != NULL) {
         set_ff(p->info);
         if (ff == k)
@@ -148,7 +146,7 @@ internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
         p = p->link;
     }
     /* |f| not found in |font_list|, append it now */
-    append_object_list(pdf, obj_type_font, f);
+    addto_page_resources(pdf, obj_type_font, f);
     return k;
 }
 
@@ -390,7 +388,6 @@ void make_font_copy(small_number a)
     eqtb[font_id_base + f] = eqtb[u];
     font_id_text(f) = t;
 }
-
 
 void pdf_include_chars(PDF pdf)
 {

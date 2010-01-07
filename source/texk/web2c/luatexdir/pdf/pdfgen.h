@@ -1,6 +1,6 @@
 /* pdfgen.h
 
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -41,7 +41,7 @@ written bytes.
 #  define sup_pdf_op_buf_size 16384     /* size of the PDF output buffer */
 #  define inf_pdf_os_buf_size 1 /* initial value of |pdf_os_buf_size| */
 #  define sup_pdf_os_buf_size 5000000   /* arbitrary upper hard limit of |pdf_os_buf_size| */
-#  define max_single_pdf_print 8192     /* Max size that can be get from pdf_room() at once. 
+#  define max_single_pdf_print 8192     /* Max size that can be get from pdf_room() at once.
                                            the value is on the conservative side, but should be
                                            large enough to cover most uses */
 #  define pdf_os_max_objs 100   /* maximum number of objects in object stream */
@@ -140,13 +140,10 @@ extern void pdf_remove_last_space(PDF);
 extern void pdf_print_bp(PDF, scaled);
 extern void pdf_print_mag_bp(PDF, scaled);
 
-
 /* This is for the resource lists */
 
-extern void reset_resource_lists(pdf_resource_struct * p);
-extern void append_object_list(PDF pdf, pdf_obj_type t, int f);
-extern pdf_object_list *lookup_object_list(PDF pdf, pdf_obj_type t, int f);
-void flush_resource_lists(PDF pdf);
+extern void addto_page_resources(PDF pdf, pdf_obj_type t, int k);
+extern pdf_object_list *get_page_resources_list(PDF pdf, pdf_obj_type t);
 
 #  define pdf_print_resname_prefix(pdf) do {        \
         if (pdf->resname_prefix != NULL)            \
@@ -230,4 +227,4 @@ extern void finish_pdf_file(PDF pdf, int luatex_version,
 
 extern boolean is_shipping_page;
 
-#endif
+#endif                          /* PDFGEN_H */
