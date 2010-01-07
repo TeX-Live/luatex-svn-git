@@ -663,9 +663,10 @@ typedef struct {
 
 static int comp_page_resources(const void *pa, const void *pb, void *p)
 {
+    int a,b;
     (void) p;
-    int a = ((const pr_entry *) pa)->obj_type;
-    int b = ((const pr_entry *) pb)->obj_type;
+    a = ((const pr_entry *) pa)->obj_type;
+    b = ((const pr_entry *) pb)->obj_type;
     if (a > b)
         return 1;
     if (a < b)
@@ -1756,7 +1757,7 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
     int j, ff;
     pdf_resource_struct *res_p = pdf->page_resources;
     pdf_resource_struct local_page_resources;
-    pdf_object_list *ol, *ol1;
+    pdf_object_list *ol, *ol1 = NULL;
     scaledpos save_cur_page_size;       /* to save |cur_page_size| during flushing pending forms */
 
     /* Finish stream of page/form contents */
