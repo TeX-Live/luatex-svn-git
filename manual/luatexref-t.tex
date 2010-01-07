@@ -7673,12 +7673,37 @@ Valid fields: \showfields{glue}
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
 \NC subtype    \NC number  \NC  0 = \tex{skip},
                                 1--18 = internal glue parameters,
-                                100 = \tex{leaders},
-                                101 = \tex{cleaders},
-                                102 = \tex{xleaders}  \NC\NR
+                                100-103 = \quote{leader} subtypes \NC\NR
 \NC attr       \NC \syntax{<node>}    \NC  \NC\NR
 \NC spec       \NC \syntax{<node>}    \NC  pointer to a glue\_spec item \NC\NR
 \NC leader     \NC \syntax{<node>}    \NC  pointer to a box or rule for leaders\NC\NR
+\stoptabulate
+
+The exact meanings of the subtypes are as follows:
+
+\starttabulate[|rT|l|]
+\NC  1  \NC \tex{lineskip}                 \NC \NR 
+\NC  2  \NC \tex{baselineskip}             \NC \NR 
+\NC  3  \NC \tex{parskip}                  \NC \NR 
+\NC  4  \NC \tex{abovedisplayskip}         \NC \NR 
+\NC  5  \NC \tex{belowdisplayskip}         \NC \NR 
+\NC  6  \NC \tex{abovedisplayshortskip}    \NC \NR 
+\NC  7  \NC \tex{belowdisplayshortskip}    \NC \NR 
+\NC  8  \NC \tex{leftskip}                 \NC \NR 
+\NC  9  \NC \tex{rightskip}                \NC \NR 
+\NC 10  \NC \tex{topskip}                  \NC \NR 
+\NC 11  \NC \tex{splittopskip}             \NC \NR 
+\NC 12  \NC \tex{tabskip}                  \NC \NR 
+\NC 13  \NC \tex{spaceskip}                \NC \NR 
+\NC 14  \NC \tex{xspaceskip}               \NC \NR 
+\NC 15  \NC \tex{parfillskip}              \NC \NR 
+\NC 16  \NC \tex{thinmuskip}               \NC \NR 
+\NC 17  \NC \tex{medmuskip}                \NC \NR 
+\NC 18  \NC \tex{thickmuskip}              \NC \NR 
+\NC 100 \NC \tex{leaders}                  \NC \NR 
+\NC 101 \NC \tex{cleaders}                 \NC \NR 
+\NC 102 \NC \tex{xleaders}                 \NC \NR 
+\NC 103 \NC \tex{aleaders}                 \NC \NR
 \stoptabulate
 
 \subsubsection{kern nodes}
