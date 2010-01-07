@@ -663,7 +663,7 @@ typedef struct {
 
 static int comp_page_resources(const void *pa, const void *pb, void *p)
 {
-    int a,b;
+    int a, b;
     (void) p;
     a = ((const pr_entry *) pa)->obj_type;
     b = ((const pr_entry *) pb)->obj_type;
@@ -683,7 +683,7 @@ void addto_page_resources(PDF pdf, pdf_obj_type t, int k)
     assert(pdf != NULL);
     re = pdf->page_resources;
     assert(re != NULL);
-    assert(t >= 0 && t <= PDF_OBJ_TYPE_MAX);
+    assert(t <= PDF_OBJ_TYPE_MAX);
     if (re->resources_tree == NULL) {
         re->resources_tree =
             avl_create(comp_page_resources, NULL, &avl_xallocator);
@@ -755,7 +755,7 @@ static void reset_page_resources(PDF pdf)
 
 static void destroy_pg_res_tree(void *pa, void *param)
 {
-    (void *) param;
+    (void) param;
     if (pa != NULL)
         xfree(pa);
 }
