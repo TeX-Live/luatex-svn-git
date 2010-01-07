@@ -11,6 +11,12 @@
 #      --mingw     : crosscompile for mingw32 from i-386linux
 #      --ppc       : crosscompile for ppc
       
+# try to find bash, in case the standard shell is not capable of
+# handling the generated configure's += variable assignments
+if which bash >/dev/null
+then
+	export CONFIG_SHELL=`which bash`
+fi
 
 # try to find gnu make; we may need it
 MAKE=make;
