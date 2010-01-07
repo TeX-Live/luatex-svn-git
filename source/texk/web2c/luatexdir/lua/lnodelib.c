@@ -151,6 +151,29 @@ void lua_nodelib_push(lua_State * L)
     return;
 }
 
+/* |spec_ptr| fields can legally be zero, which is why there is a special function. */
+
+static void lua_nodelib_push_spec(lua_State * L)
+{
+    halfword n;
+    halfword *a;
+    n = -1;
+    if (lua_isnumber(L, -1)) {
+        n = lua_tointeger(L, -1);
+    }
+    lua_pop(L, 1);
+    if ((n < 0) || (n > var_mem_max)) {
+        lua_pushnil(L);
+    } else {
+        a = lua_newuserdata(L, sizeof(halfword));
+        *a = n;
+        lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(luatex_node));
+        lua_gettable(L, LUA_REGISTRYINDEX);
+        lua_setmetatable(L, -2);
+    }
+    return;
+}
+
 void lua_nodelib_push_fast(lua_State * L, halfword n)
 {
     halfword *a;
@@ -1044,7 +1067,7 @@ static int lua_nodelib_count(lua_State * L)
 
 #define nodelib_pushlist(L,n) { lua_pushnumber(L,n); lua_nodelib_push(L); }
 #define nodelib_pushattr(L,n) { lua_pushnumber(L,n); lua_nodelib_push(L); }
-#define nodelib_pushspec(L,n) { lua_pushnumber(L,n); lua_nodelib_push(L); }
+#define nodelib_pushspec(L,n) { lua_pushnumber(L,n); lua_nodelib_push_spec(L); }
 #define nodelib_pushaction(L,n) { lua_pushnumber(L,n); lua_nodelib_push(L); }
 #define nodelib_pushstring(L,n) { char *ss=makecstring(n); lua_pushstring(L,ss); free(ss); }
 
