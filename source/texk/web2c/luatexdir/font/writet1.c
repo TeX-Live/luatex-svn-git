@@ -874,12 +874,12 @@ static boolean t1_open_fontfile(const char *open_name_prefix)
     t1_size = 0;
     ff = check_ff_exist(fd_cur->fm->ff_name, is_truetype(fd_cur->fm));
     if (ff->ff_path == NULL) {
-        pdftex_fail("cannot open Type 1 font file for reading");
+        pdftex_fail("cannot open Type 1 font file for reading (%s)", fd_cur->fm->ff_name);
         return false;
     }
     cur_file_name = luatex_find_file(ff->ff_path, find_type1_file_callback);
     if (cur_file_name == NULL) {
-        pdftex_fail("cannot open Type 1 font file for reading");
+        pdftex_fail("cannot open Type 1 font file for reading (%s)", ff->ff_path);
         return false;
     }
     callback_id = callback_defined(read_type1_file_callback);
@@ -887,7 +887,7 @@ static boolean t1_open_fontfile(const char *open_name_prefix)
         if (!run_callback(callback_id, "S->bSd", cur_file_name,
                           &file_opened, &t1_buffer, &t1_size)
             && file_opened && t1_size > 0) {
-            pdftex_warn("cannot open Type 1 font file for reading");
+            pdftex_warn("cannot open Type 1 font file for reading (%s)", cur_file_name);
             return false;
         }
     } else {
