@@ -872,16 +872,16 @@ char *math_size_string(int s)
   information:
 */
 
-#define setup_cur_size_and_mu() do {                                    \
-    if (cur_style==script_style ||                                      \
-        cur_style==cramped_script_style)                                \
-      cur_size=script_size;                                             \
-    else if (cur_style==script_script_style ||                          \
-             cur_style==cramped_script_script_style)                    \
-      cur_size=script_script_size;                                      \
-    else cur_size=text_size;                                            \
-    cur_mu=x_over_n(get_math_quad(cur_size),18);                        \
-  } while (0)
+#define setup_cur_size_and_mu(a) do {                                   \
+        if (a==script_style ||                                          \
+            a==cramped_script_style)                                    \
+            cur_size=script_size;                                       \
+        else if (a==script_script_style ||                              \
+                 a==cramped_script_script_style)                        \
+            cur_size=script_script_size;                                \
+        else cur_size=text_size;                                        \
+        cur_mu=x_over_n(get_math_quad(cur_size),18);                    \
+    } while (0)
 
 /* a simple routine that creates a flat copy of a nucleus */
 
@@ -1044,22 +1044,20 @@ void add_delim_hkern(pointer b, scaled s)
  \TeX's most important routine for dealing with formulas is called
  |mlist_to_hlist|.  After a formula has been scanned and represented
  as an mlist, this routine converts it to an hlist that can be placed
- into a box or incorporated into the text of a paragraph. There is one
- implicit parameter, passed in a global variable: |cur_style| is a
- style code.  The explicit parameter |cur_mlist| points to the first
- node or noad in the given mlist (and it might be |null|); the
- parameter |penalties| is |true| if penalty nodes for potential line
- breaks are to be inserted into the resulting hlist. After
- |mlist_to_hlist| has acted, |vlink(temp_head)| points to the
- translated hlist.
+ into a box or incorporated into the text of a paragraph.  The
+ explicit parameter |cur_mlist| points to the first node or noad in
+ the given mlist (and it might be |null|); the parameter |penalties|
+ is |true| if penalty nodes for potential line breaks are to be
+ inserted into the resulting hlist, the parameter |cur_style| is a
+ style code.  After |mlist_to_hlist| has acted, |vlink(temp_head)|
+ points to the translated hlist.
 
-Since mlists can be inside mlists, the procedure is recursive. And since this
-is not part of \TeX's inner loop, the program has been written in a manner
-that stresses compactness over efficiency.
+ Since mlists can be inside mlists, the procedure is recursive. And since this
+ is not part of \TeX's inner loop, the program has been written in a manner
+ that stresses compactness over efficiency.
 @^recursion@>
 */
 
-static int cur_style = 0;       /* style code at current place in the list */
 int cur_size;                   /* size code corresponding to |cur_style|  */
 scaled cur_mu;                  /* the math unit width corresponding to |cur_size| */
 
@@ -1067,7 +1065,7 @@ scaled cur_mu;                  /* the math unit width corresponding to |cur_siz
 /* */
 
 static pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
-                             pointer att, int boxtype)
+                             pointer att, int boxtype, int cur_style)
 {
     pointer b;
     extinfo *cur;
@@ -1395,15 +1393,15 @@ static pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
 }
 
 static pointer get_delim_vbox(extinfo * ext, internal_font_number f, scaled v,
-                              pointer att)
+                              pointer att, int cur_style)
 {
-    return get_delim_box(ext, f, v, att, vlist_node);
+    return get_delim_box(ext, f, v, att, vlist_node, cur_style);
 }
 
 static pointer get_delim_hbox(extinfo * ext, internal_font_number f, scaled v,
-                              pointer att)
+                              pointer att, int cur_style)
 {
-    return get_delim_box(ext, f, v, att, hlist_node);
+    return get_delim_box(ext, f, v, att, hlist_node, cur_style);
 }
 
 
@@ -1442,7 +1440,7 @@ static void endless_loop_error(internal_font_number g, int y)
 }
 
 static pointer do_var_delimiter(pointer d, int s, scaled v, scaled * ic,
-                                boolean flat)
+                                boolean flat, int cur_style)
 {
     /* label found,continue; */
     pointer b;                  /* the box that will be constructed */
@@ -1526,8 +1524,8 @@ static pointer do_var_delimiter(pointer d, int s, scaled v, scaled * ic,
              || (flat
                  && (ext =
                      get_charinfo_hor_variants(char_info(f, c))) != NULL))) {
-            b = (flat ? get_delim_hbox(ext, f, v, att) :
-                 get_delim_vbox(ext, f, v, att));
+            b = (flat ? get_delim_hbox(ext, f, v, att, cur_style) :
+                 get_delim_vbox(ext, f, v, att, cur_style));
         } else {
             b = char_box(f, c, att);
         }
@@ -1559,14 +1557,14 @@ static pointer do_var_delimiter(pointer d, int s, scaled v, scaled * ic,
 }
 
 
-static pointer var_delimiter(pointer d, int s, scaled v, scaled * ic)
+static pointer var_delimiter(pointer d, int s, scaled v, scaled * ic, int cur_style)
 {
-    return do_var_delimiter(d, s, v, ic, false);
+    return do_var_delimiter(d, s, v, ic, false, cur_style);
 }
 
-static pointer flat_delimiter(pointer d, int s, scaled v)
+static pointer flat_delimiter(pointer d, int s, scaled v, int cur_style)
 {
-    return do_var_delimiter(d, s, v, NULL, true);
+    return do_var_delimiter(d, s, v, NULL, true, cur_style);
 }
 
 /*
@@ -1731,10 +1729,9 @@ The box returned by |clean_box| is ``clean'' in the
 sense that its |shift_amount| is zero.
 */
 
-static pointer clean_box(pointer p, int s)
+static pointer clean_box(pointer p, int s, int cur_style)
 {
     pointer q;                  /* beginning of a list to be boxed */
-    int save_style;             /* |cur_style| to be restored */
     pointer x;                  /* box to be returned */
     pointer r;                  /* temporary pointer */
     pointer mlist = null;       /* beginning of mlist to be translated */
@@ -1755,11 +1752,9 @@ static pointer clean_box(pointer p, int s)
         q = new_null_box();
         goto FOUND;
     }
-    save_style = cur_style;
     mlist_to_hlist_args(mlist, s, false);
     q = vlink(temp_head);       /* recursive call */
-    cur_style = save_style;     /* restore the style */
-    setup_cur_size_and_mu();
+    setup_cur_size_and_mu(cur_style);
   FOUND:
     if (is_char_node(q) || (q == null))
         x = hpack(q, 0, additional, -1);
@@ -1880,10 +1875,10 @@ the general setup of such procedures, let's begin with a couple of
 simple ones.
 */
 
-static void make_over(pointer q)
+static void make_over(pointer q, int cur_style)
 {
     pointer p;
-    p = overbar(clean_box(nucleus(q), cramped_style(cur_style)),
+    p = overbar(clean_box(nucleus(q), cramped_style(cur_style), cur_style),
                 overbar_vgap(cur_style),
                 overbar_rule(cur_style),
                 overbar_kern(cur_style), node_attr(nucleus(q)));
@@ -1891,11 +1886,11 @@ static void make_over(pointer q)
     type(nucleus(q)) = sub_box_node;
 }
 
-static void make_under(pointer q)
+static void make_under(pointer q, int cur_style)
 {
     pointer p, x, y, r;         /* temporary registers for box construction */
     scaled delta;               /* overall height plus depth */
-    x = clean_box(nucleus(q), cur_style);
+    x = clean_box(nucleus(q), cur_style, cur_style);
     p = new_kern(underbar_vgap(cur_style));
     reset_attributes(p, node_attr(q));
     vlink(x) = p;
@@ -1933,21 +1928,21 @@ of the nucleus plus a certain minimum clearance~|psi|. The symbol will be
 placed so that the actual clearance is |psi| plus half the excess.
 */
 
-static void make_radical(pointer q)
+static void make_radical(pointer q, int cur_style)
 {
     pointer x, y, p;            /* temporary registers for box construction */
     scaled delta, clr, theta, h;        /* dimensions involved in the calculation */
-    x = clean_box(nucleus(q), cramped_style(cur_style));
+    x = clean_box(nucleus(q), cramped_style(cur_style), cur_style);
     clr = radical_vgap(cur_style);
     theta = radical_rule(cur_style);
     if (theta == undefined_math_parameter) {
         theta = fraction_rule(cur_style);
         y = var_delimiter(left_delimiter(q), cur_size,
-                          height(x) + depth(x) + clr + theta, NULL);
+                          height(x) + depth(x) + clr + theta, NULL, cur_style);
         theta = height(y);
     } else {
         y = var_delimiter(left_delimiter(q), cur_size,
-                          height(x) + depth(x) + clr + theta, NULL);
+                          height(x) + depth(x) + clr + theta, NULL, cur_style);
     }
     left_delimiter(q) = null;
     delta = (depth(y) + height(y) - theta) - (height(x) + depth(x) + clr);
@@ -1959,7 +1954,7 @@ static void make_radical(pointer q)
     vlink(y) = p;
     if (degree(q) != null) {
         scaled wr, br, ar;
-        pointer r = clean_box(degree(q), script_script_style);
+        pointer r = clean_box(degree(q), script_script_style, cur_style);
         reset_attributes(r, node_attr(degree(q)));
         wr = width(r);
         if (wr == 0) {
@@ -2020,12 +2015,12 @@ wrapup_delimiter(pointer x, pointer y, pointer q,
 
 /* this has the |nucleus| box |x| as a limit above an extensible delimiter |y| */
 
-static void make_over_delimiter(pointer q)
+static void make_over_delimiter(pointer q, int cur_style)
 {
     pointer x, y, v;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
-    x = clean_box(nucleus(q), sub_style(cur_style));
-    y = flat_delimiter(left_delimiter(q), cur_size, width(x));
+    x = clean_box(nucleus(q), sub_style(cur_style), cur_style);
+    y = flat_delimiter(left_delimiter(q), cur_size, width(x), cur_style);
     left_delimiter(q) = null;
     fixup_widths(x, y);
     shift_up = over_delimiter_bgap(cur_style);
@@ -2043,14 +2038,14 @@ static void make_over_delimiter(pointer q)
 
 /* this has the extensible delimiter |x| as a limit above |nucleus| box |y|  */
 
-static void make_delimiter_over(pointer q)
+static void make_delimiter_over(pointer q, int cur_style)
 {
     pointer x, y, v;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
-    y = clean_box(nucleus(q), cur_style);
+    y = clean_box(nucleus(q), cur_style, cur_style);
     x = flat_delimiter(left_delimiter(q),
                        cur_size + (cur_size == script_script_size ? 0 : 1),
-                       width(y));
+                       width(y), cur_style);
     left_delimiter(q) = null;
     fixup_widths(x, y);
     shift_up = over_delimiter_bgap(cur_style);
@@ -2069,14 +2064,14 @@ static void make_delimiter_over(pointer q)
 
 /* this has the extensible delimiter |y| as a limit below a |nucleus| box |x| */
 
-static void make_delimiter_under(pointer q)
+static void make_delimiter_under(pointer q, int cur_style)
 {
     pointer x, y, v;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
-    x = clean_box(nucleus(q), cur_style);
+    x = clean_box(nucleus(q), cur_style, cur_style);
     y = flat_delimiter(left_delimiter(q),
                        cur_size + (cur_size == script_script_size ? 0 : 1),
-                       width(x));
+                       width(x), cur_style);
     left_delimiter(q) = null;
     fixup_widths(x, y);
     shift_up = 0;               /* over_delimiter_bgap(cur_style); */
@@ -2095,12 +2090,12 @@ static void make_delimiter_under(pointer q)
 
 /* this has the extensible delimiter |x| as a limit below |nucleus| box |y| */
 
-static void make_under_delimiter(pointer q)
+static void make_under_delimiter(pointer q, int cur_style)
 {
     pointer x, y, v;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta;
-    y = clean_box(nucleus(q), sup_style(cur_style));
-    x = flat_delimiter(left_delimiter(q), cur_size, width(y));
+    y = clean_box(nucleus(q), sup_style(cur_style), cur_style);
+    x = flat_delimiter(left_delimiter(q), cur_size, width(y), cur_style);
     left_delimiter(q) = null;
     fixup_widths(x, y);
     shift_up = 0;               /* over_delimiter_bgap(cur_style); */
@@ -2127,7 +2122,7 @@ respect to the size of the final box.
 #define BOT_CODE 2
 
 static void do_make_math_accent(pointer q, internal_font_number f, int c,
-                                int top_or_bot)
+                                int top_or_bot, int cur_style)
 {
     pointer p, r, x, y;         /* temporary registers for box construction */
     scaled s;                   /* amount to skew the accent to the right */
@@ -2162,7 +2157,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
             }
         }
     }
-    x = clean_box(nucleus(q), cramped_style(cur_style));
+    x = clean_box(nucleus(q), cramped_style(cur_style), cur_style);
     w = width(x);
     h = height(x);
     /* Switch to a larger accent if available and appropriate */
@@ -2174,7 +2169,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
             scaled w1 = xn_over_d(w, delimiter_factor, 1000);
             if (w - w1 > delimiter_shortfall)
                 w1 = w - delimiter_shortfall;
-            y = get_delim_hbox(ext, f, w1, node_attr(attr_p));
+            y = get_delim_hbox(ext, f, w1, node_attr(attr_p), cur_style);
             break;
         } else if (char_tag(f, c) != list_tag) {
             break;
@@ -2211,7 +2206,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
             subscr(q) = null;
             type(nucleus(q)) = sub_mlist_node;
             math_list(nucleus(q)) = x;
-            x = clean_box(nucleus(q), cur_style);
+            x = clean_box(nucleus(q), cur_style, cur_style);
             delta = delta + height(x) - h;
             h = height(x);
         }
@@ -2264,12 +2259,12 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
     type(nucleus(q)) = sub_box_node;
 }
 
-static void make_math_accent(pointer q)
+static void make_math_accent(pointer q, int cur_style)
 {
     if (accent_chr(q) != null) {
         fetch(accent_chr(q));
         if (char_exists(cur_f, cur_c)) {
-            do_make_math_accent(q, cur_f, cur_c, TOP_CODE);
+            do_make_math_accent(q, cur_f, cur_c, TOP_CODE, cur_style);
         }
         flush_node(accent_chr(q));
         accent_chr(q) = null;
@@ -2277,7 +2272,7 @@ static void make_math_accent(pointer q)
     if (bot_accent_chr(q) != null) {
         fetch(bot_accent_chr(q));
         if (char_exists(cur_f, cur_c)) {
-            do_make_math_accent(q, cur_f, cur_c, BOT_CODE);
+            do_make_math_accent(q, cur_f, cur_c, BOT_CODE, cur_style);
         }
         flush_node(bot_accent_chr(q));
         bot_accent_chr(q) = null;
@@ -2289,7 +2284,7 @@ The |make_fraction| procedure is a bit different because it sets
 |new_hlist(q)| directly rather than making a sub-box.
 */
 
-static void make_fraction(pointer q)
+static void make_fraction(pointer q, int cur_style)
 {
     pointer p, v, x, y, z;      /* temporary registers for box construction */
     scaled delta, delta1, delta2, shift_up, shift_down, clr;
@@ -2299,8 +2294,8 @@ static void make_fraction(pointer q)
     /* Create equal-width boxes |x| and |z| for the numerator and denominator,
        and compute the default amounts |shift_up| and |shift_down| by which they
        are displaced from the baseline */
-    x = clean_box(numerator(q), num_style(cur_style));
-    z = clean_box(denominator(q), denom_style(cur_style));
+    x = clean_box(numerator(q), num_style(cur_style), cur_style);
+    z = clean_box(denominator(q), denom_style(cur_style), cur_style);
     if (width(x) < width(z))
         x = rebox(x, width(z));
     else
@@ -2360,10 +2355,10 @@ static void make_fraction(pointer q)
     /* Put the fraction into a box with its delimiters, and make |new_hlist(q)|
        point to it */
     delta = fraction_del_size(cur_style);
-    x = var_delimiter(left_delimiter(q), cur_size, delta, NULL);
+    x = var_delimiter(left_delimiter(q), cur_size, delta, NULL, cur_style);
     left_delimiter(q) = null;
     vlink(x) = v;
-    z = var_delimiter(right_delimiter(q), cur_size, delta, NULL);
+    z = var_delimiter(right_delimiter(q), cur_size, delta, NULL, cur_style);
     right_delimiter(q) = null;
     vlink(v) = z;
     y = hpack(x, 0, additional, -1);
@@ -2389,7 +2384,7 @@ the limits have been set above and below the operator. In that case,
 |new_hlist(q)| will already contain the desired final box.
 */
 
-static scaled make_op(pointer q)
+static scaled make_op(pointer q, int cur_style)
 {
     scaled delta;               /* offset between subscript and superscript */
     pointer p, v, x, y, z;      /* temporary registers for box construction */
@@ -2407,7 +2402,7 @@ static scaled make_op(pointer q)
                 y = new_node(delim_node, 0);
                 small_fam(y) = math_fam(nucleus(q));
                 small_char(y) = math_character(nucleus(q));
-                x = var_delimiter(y, text_size, ok_size, &delta);
+                x = var_delimiter(y, text_size, ok_size, &delta, cur_style);
                 if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits)) {
                     width(x) -= delta;  /* remove italic correction */
                 }
@@ -2433,7 +2428,7 @@ static scaled make_op(pointer q)
                     math_character(nucleus(q)) = c;
                 }
                 delta = char_italic(cur_f, cur_c);
-                x = clean_box(nucleus(q), cur_style);
+                x = clean_box(nucleus(q), cur_style, cur_style);
                 if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits))
                     width(x) = width(x) - delta;        /* remove italic correction */
                 shift_amount(x) =
@@ -2445,7 +2440,7 @@ static scaled make_op(pointer q)
 
         } else {                /* normal size */
             delta = char_italic(cur_f, cur_c);
-            x = clean_box(nucleus(q), cur_style);
+            x = clean_box(nucleus(q), cur_style, cur_style);
             if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits))
                 width(x) = width(x) - delta;    /* remove italic correction */
             shift_amount(x) = half(height(x) - depth(x)) - math_axis(cur_size);
@@ -2459,9 +2454,9 @@ static scaled make_op(pointer q)
     if (subtype(q) == op_noad_type_limits) {
         /* The following program builds a vlist box |v| for displayed limits. The
            width of the box is not affected by the fact that the limits may be skewed. */
-        x = clean_box(supscr(q), sup_style(cur_style));
-        y = clean_box(nucleus(q), cur_style);
-        z = clean_box(subscr(q), sub_style(cur_style));
+        x = clean_box(supscr(q), sup_style(cur_style), cur_style);
+        y = clean_box(nucleus(q), cur_style, cur_style);
+        z = clean_box(subscr(q), sub_style(cur_style), cur_style);
         v = new_null_box();
         reset_attributes(v, node_attr(q));
         type(v) = vlist_node;
@@ -2826,7 +2821,7 @@ void dump_simple_node(pointer q)
 }
 #endif
 
-static void make_scripts(pointer q, pointer p, scaled it)
+static void make_scripts(pointer q, pointer p, scaled it, int cur_style)
 {
     pointer x, y, z;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr;   /* dimensions in the calculation */
@@ -2863,7 +2858,7 @@ static void make_scripts(pointer q, pointer p, scaled it)
         /* Construct a subscript box |x| when there is no superscript */
         /* When there is a subscript without a superscript, the top of the subscript
            should not exceed the baseline plus four-fifths of the x-height. */
-        x = clean_box(subscr(q), sub_style(cur_style));
+        x = clean_box(subscr(q), sub_style(cur_style), cur_style);
         width(x) = width(x) + space_after_script(cur_style);
         if (shift_down < sub_shift_down(cur_style))
             shift_down = sub_shift_down(cur_style);
@@ -2890,7 +2885,7 @@ static void make_scripts(pointer q, pointer p, scaled it)
         /* Construct a superscript box |x| */
         /*The bottom of a superscript should never descend below the baseline plus
            one-fourth of the x-height. */
-        x = clean_box(supscr(q), sup_style(cur_style));
+        x = clean_box(supscr(q), sup_style(cur_style), cur_style);
         width(x) = width(x) + space_after_script(cur_style);
         clr = sup_shift_up(cur_style);
         if (shift_up < clr)
@@ -2922,7 +2917,7 @@ static void make_scripts(pointer q, pointer p, scaled it)
                both subscript and superscript move up so that the bottom of the superscript
                is at least as high as the baseline plus four-fifths of the x-height. */
 
-            y = clean_box(subscr(q), sub_style(cur_style));
+            y = clean_box(subscr(q), sub_style(cur_style), cur_style);
             width(y) = width(y) + space_after_script(cur_style);
             if (shift_down < sub_sup_shift_down(cur_style))
                 shift_down = sub_sup_shift_down(cur_style);
@@ -3012,8 +3007,7 @@ static small_number make_left_right(pointer q, int style, scaled max_d,
 {
     scaled delta, delta1, delta2;       /* dimensions used in the calculation */
     pointer tmp;
-    cur_style = style;
-    setup_cur_size_and_mu();
+    setup_cur_size_and_mu(style);
     delta2 = max_d + math_axis(cur_size);
     delta1 = max_hv + max_d - delta2;
     if (delta2 > delta1)
@@ -3022,7 +3016,7 @@ static small_number make_left_right(pointer q, int style, scaled max_d,
     delta2 = delta1 + delta1 - delimiter_shortfall;
     if (delta < delta2)
         delta = delta2;
-    tmp = var_delimiter(delimiter(q), cur_size, delta, NULL);
+    tmp = var_delimiter(delimiter(q), cur_size, delta, NULL, style);
     delimiter(q) = null;
     assign_new_hlist(q, tmp);
     if (subtype(q) == left_noad_side)
@@ -3137,7 +3131,7 @@ void initialize_math_spacing(void)
 
 #define both_types(A,B) ((A)*16+(B))
 
-static pointer math_spacing_glue(int l_type, int r_type, int mstyle)
+static pointer math_spacing_glue(int l_type, int r_type, int mstyle, scaled mmu)
 {
     int x = -1;
     pointer z = null;
@@ -3219,12 +3213,12 @@ static pointer math_spacing_glue(int l_type, int r_type, int mstyle)
     if (x != 0) {
         pointer y;
         if (x <= thick_mu_skip_code) {  /* trap thin/med/thick settings cf. old TeX */
-            y = math_glue(glue_par(x), cur_mu);
+            y = math_glue(glue_par(x), mmu);
             z = new_glue(y);
             glue_ref_count(y) = null;
             subtype(z) = x + 1; /* store a symbolic subtype */
         } else {
-            y = math_glue(x, cur_mu);
+            y = math_glue(x, mmu);
             z = new_glue(y);
             glue_ref_count(y) = null;
         }
@@ -3233,9 +3227,8 @@ static pointer math_spacing_glue(int l_type, int r_type, int mstyle)
 }
 
 
-static pointer check_nucleus_complexity(halfword q, scaled * delta)
+static pointer check_nucleus_complexity(halfword q, scaled * delta, int cur_style)
 {
-    int save_style;             /* holds |cur_style| during recursion */
     pointer p = null;
     switch (type(nucleus(q))) {
     case math_char_node:
@@ -3260,10 +3253,8 @@ static pointer check_nucleus_complexity(halfword q, scaled * delta)
         p = math_list(nucleus(q));
         break;
     case sub_mlist_node:
-        save_style = cur_style;
         mlist_to_hlist_args(math_list(nucleus(q)), cur_style, false);   /* recursive call */
-        cur_style = save_style;
-        setup_cur_size_and_mu();
+        setup_cur_size_and_mu(cur_style);
         p = hpack(vlink(temp_head), 0, additional, -1);
         reset_attributes(p, node_attr(nucleus(q)));
         break;
@@ -3277,7 +3268,7 @@ static pointer check_nucleus_complexity(halfword q, scaled * delta)
    local variables.
 */
 
-static void mlist_to_hlist(pointer mlist, boolean penalties)
+static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
 {
     pointer q;                  /* runs through the mlist */
     pointer r;                  /* the most recent noad preceding |q| */
@@ -3300,7 +3291,7 @@ static void mlist_to_hlist(pointer mlist, boolean penalties)
     max_d = 0;
     x = null;
     p = null;
-    setup_cur_size_and_mu();
+    setup_cur_size_and_mu(cur_style);
     while (q != null) {
         /* We use the fact that no character nodes appear in an mlist, hence
            the field |type(q)| is always present. */
@@ -3338,10 +3329,10 @@ static void mlist_to_hlist(pointer mlist, boolean penalties)
                 }
                 break;
             case over_noad_type:
-                make_over(q);
+                make_over(q, cur_style);
                 break;
             case under_noad_type:
-                make_under(q);
+                make_under(q, cur_style);
                 break;
             case vcenter_noad_type:
                 make_vcenter(q);
@@ -3357,7 +3348,7 @@ static void mlist_to_hlist(pointer mlist, boolean penalties)
             case op_noad_type_normal:
             case op_noad_type_limits:
             case op_noad_type_no_limits:
-                delta = make_op(q);
+                delta = make_op(q, cur_style);
                 if (subtype(q) == op_noad_type_limits)
                     goto CHECK_DIMENSIONS;
                 break;
@@ -3378,27 +3369,27 @@ static void mlist_to_hlist(pointer mlist, boolean penalties)
             goto DONE_WITH_NOAD;
             break;
         case fraction_noad:
-            make_fraction(q);
+            make_fraction(q, cur_style);
             goto CHECK_DIMENSIONS;
             break;
         case radical_noad:
             if (subtype(q) == 4)
-                make_under_delimiter(q);
+                make_under_delimiter(q, cur_style);
             else if (subtype(q) == 5)
-                make_over_delimiter(q);
+                make_over_delimiter(q, cur_style);
             else if (subtype(q) == 6)
-                make_delimiter_under(q);
+                make_delimiter_under(q, cur_style);
             else if (subtype(q) == 7)
-                make_delimiter_over(q);
+                make_delimiter_over(q, cur_style);
             else
-                make_radical(q);
+                make_radical(q, cur_style);
             break;
         case accent_noad:
-            make_math_accent(q);
+            make_math_accent(q, cur_style);
             break;
         case style_node:
             cur_style = subtype(q);
-            setup_cur_size_and_mu();
+            setup_cur_size_and_mu(cur_style);
             goto DONE_WITH_NODE;
             break;
         case choice_node:
@@ -3493,12 +3484,12 @@ static void mlist_to_hlist(pointer mlist, boolean penalties)
            @^subscripts@>
            @^superscripts@>
          */
-        p = check_nucleus_complexity(q, &delta);
+        p = check_nucleus_complexity(q, &delta, cur_style);
 
         if ((subscr(q) == null) && (supscr(q) == null)) {
             assign_new_hlist(q, p);
         } else {
-            make_scripts(q, p, delta);  /* top, bottom */
+            make_scripts(q, p, delta, cur_style);  /* top, bottom */
         }
       CHECK_DIMENSIONS:
         z = hpack(new_hlist(q), 0, additional, -1);
@@ -3515,7 +3506,7 @@ static void mlist_to_hlist(pointer mlist, boolean penalties)
         if (r_type == fence_noad) {
             r_subtype = left_noad_side;
             cur_style = style;
-            setup_cur_size_and_mu();
+            setup_cur_size_and_mu(cur_style);
         }
       DONE_WITH_NODE:
         q = vlink(q);
@@ -3539,7 +3530,7 @@ static void mlist_to_hlist(pointer mlist, boolean penalties)
     r_type = 0;
     r_subtype = 0;
     cur_style = style;
-    setup_cur_size_and_mu();
+    setup_cur_size_and_mu(cur_style);
   NEXT_NODE:
     while (q != null) {
         /* If node |q| is a style node, change the style and |goto delete_q|;
@@ -3587,7 +3578,7 @@ static void mlist_to_hlist(pointer mlist, boolean penalties)
             /* Change the current style and |goto delete_q| */
             cur_style = subtype(q);
             s = style_node_size;
-            setup_cur_size_and_mu();
+            setup_cur_size_and_mu(cur_style);
             goto DELETE_Q;
             break;
         case whatsit_node:
@@ -3610,7 +3601,7 @@ static void mlist_to_hlist(pointer mlist, boolean penalties)
         }
         /* Append inter-element spacing based on |r_type| and |t| */
         if (r_type > 0) {       /* not the first noad */
-            z = math_spacing_glue(r_subtype, t_subtype, cur_style);
+            z = math_spacing_glue(r_subtype, t_subtype, cur_style, cur_mu);
             if (z != null) {
                 reset_attributes(z, node_attr(p));
                 vlink(p) = z;
@@ -3664,6 +3655,5 @@ static void mlist_to_hlist(pointer mlist, boolean penalties)
 
 void mlist_to_hlist_args(pointer n, int w, boolean m)
 {
-    cur_style = w;
-    mlist_to_hlist(n, m);
+    mlist_to_hlist(n, m, w);
 }
