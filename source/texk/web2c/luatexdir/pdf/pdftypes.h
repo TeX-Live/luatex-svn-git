@@ -167,8 +167,6 @@ typedef enum {
 
 typedef struct pdf_resource_struct_ {
     struct avl_table *resources_tree;
-    int text_procset;           /* |pdf_text_procset| */
-    int image_procset;          /* |pdf_image_procset| */
     int last_resources;         /* halfword to most recently generated Resources object. */
 } pdf_resource_struct;
 

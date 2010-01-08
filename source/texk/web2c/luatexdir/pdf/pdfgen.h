@@ -22,6 +22,12 @@
 #ifndef PDFGEN_H
 #  define PDFGEN_H
 
+#  define PROCSET_PDF     (1 << 0)
+#  define PROCSET_TEXT    (1 << 1)
+#  define PROCSET_IMAGE_B (1 << 2)
+#  define PROCSET_IMAGE_C (1 << 3)
+#  define PROCSET_IMAGE_I (1 << 4)
+
 #  define inf_pdf_mem_size 10000        /* min size of the |mem| array */
 #  define sup_pdf_mem_size 10000000     /* max size of the |mem| array */
 

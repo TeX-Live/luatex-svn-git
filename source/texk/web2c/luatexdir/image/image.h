@@ -30,10 +30,6 @@
 #  define JPG_UINT32      unsigned long
 #  define JPG_UINT8       unsigned char
 
-#  define IMAGE_COLOR_B   1
-#  define IMAGE_COLOR_C   2
-#  define IMAGE_COLOR_I   4
-
 extern int do_zround(double r); /* from utils.c */
 #  define bp2int(p)       do_zround(p * (one_hundred_bp / 100.0))
 #  define int2bp(i)       (i * 100.0 / one_hundred_bp)
@@ -105,7 +101,7 @@ typedef struct {
     char *attr;                 /* additional image dict entries */
     FILE *file;
     imgtype_e image_type;
-    int color_space;            /* used color space. See JPG_ constants */
+    int procset;                /* /ProcSet flags */
     int color_depth;            /* color depth */
     pdfboxspec_e page_box_spec; /* PDF page box spec.: media/crop/bleed/trim/art */
     int bbox[4];
@@ -143,7 +139,7 @@ typedef struct {
 #  define img_attr(N)           ((N)->attr)
 #  define img_file(N)           ((N)->file)
 #  define img_type(N)           ((N)->image_type)
-#  define img_color(N)          ((N)->color_space)
+#  define img_procset(N)        ((N)->procset)
 #  define img_colordepth(N)     ((N)->color_depth)
 #  define img_pagebox(N)        ((N)->page_box_spec)
 #  define img_bbox(N)           ((N)->bbox)
@@ -180,11 +176,6 @@ typedef struct {
 
 #  define is_pdf_image(a)       (img_type(idict_array[a]) == IMG_TYPE_PDF)
 #  define is_png_image(a)       (img_type(idict_array[a]) == IMG_TYPE_PNG)
-
-#  define update_image_procset(a) (pdf->page_resources->image_procset |= img_color(idict_array[a]))
-#  define check_image_b(a)      ((a) & IMAGE_COLOR_B)
-#  define check_image_c(a)      ((a) & IMAGE_COLOR_C)
-#  define check_image_i(a)      ((a) & IMAGE_COLOR_I)
 
 #  define img_is_refered(N)     (img_index(N) != -1)
 

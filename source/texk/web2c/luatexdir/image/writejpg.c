@@ -1,7 +1,7 @@
 /* writejpg.c
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -18,13 +18,13 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include <assert.h>
-#include "ptexlib.h"
-#include "image.h"
-
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
+
+#include <assert.h>
+#include "ptexlib.h"
+#include "image.h"
 
 #define JPG_GRAY  1             /* Gray color space, use /DeviceGray    */
 #define JPG_RGB   3             /* RGB color space, use /DeviceRGB      */
@@ -196,13 +196,13 @@ void read_jpg_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
             xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
             switch (img_jpg_color(idict)) {
             case JPG_GRAY:
-                img_color(idict) = IMAGE_COLOR_B;
+                img_procset(idict) |= PROCSET_IMAGE_B;
                 break;
             case JPG_RGB:
-                img_color(idict) = IMAGE_COLOR_C;
+                img_procset(idict) |= PROCSET_IMAGE_C;
                 break;
             case JPG_CMYK:
-                img_color(idict) = IMAGE_COLOR_C;
+                img_procset(idict) |= PROCSET_IMAGE_C;
                 break;
             default:
                 pdftex_fail("Unsupported color space %i",

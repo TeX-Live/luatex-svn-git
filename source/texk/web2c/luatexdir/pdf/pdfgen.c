@@ -1759,6 +1759,7 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
     pdf_resource_struct local_page_resources;
     pdf_object_list *ol, *ol1;
     scaledpos save_cur_page_size;       /* to save |cur_page_size| during flushing pending forms */
+    int procset = PROCSET_PDF;
 
     /* Finish stream of page/form contents */
     pdf_goto_pagemode(pdf);
@@ -1807,8 +1808,8 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
         }
         print_beads_list(pdf);
         pdf_end_dict(pdf);
-
     }
+
     /* Write out resource lists */
     /* Write out pending raw objects */
     ol = get_page_resources_list(pdf, obj_type_obj);
@@ -1928,7 +1929,7 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
             ol = ol->link;
         }
         pdf_puts(pdf, ">>\n");
-        res_p->text_procset = true;
+        procset |= PROCSET_TEXT;
     }
 
     /* Generate XObject resources */
@@ -1952,21 +1953,23 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
             pdf_out(pdf, ' ');
             pdf_print_int(pdf, ol1->info);
             pdf_puts(pdf, " 0 R ");
-            update_image_procset(obj_data_ptr(pdf, ol1->info));
+            procset |= img_procset(idict_array[obj_data_ptr(pdf, ol1->info)]);
             ol1 = ol1->link;
         }
         pdf_puts(pdf, ">>\n");
     }
 
     /* Generate ProcSet */
-    pdf_puts(pdf, "/ProcSet [ /PDF");
-    if (res_p->text_procset)
+    pdf_puts(pdf, "/ProcSet [");
+    if ((procset & PROCSET_PDF) != 0)
+        pdf_puts(pdf, " /PDF");
+    if ((procset & PROCSET_TEXT) != 0)
         pdf_puts(pdf, " /Text");
-    if (check_image_b(res_p->image_procset))
+    if ((procset & PROCSET_IMAGE_B) != 0)
         pdf_puts(pdf, " /ImageB");
-    if (check_image_c(res_p->image_procset))
+    if ((procset & PROCSET_IMAGE_C) != 0)
         pdf_puts(pdf, " /ImageC");
-    if (check_image_i(res_p->image_procset))
+    if ((procset & PROCSET_IMAGE_I) != 0)
         pdf_puts(pdf, " /ImageI");
     pdf_puts(pdf, " ]\n");
 

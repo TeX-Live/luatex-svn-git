@@ -720,7 +720,7 @@ void dumpimagemeta(void)
         assert(idict != NULL);
         dumpcharptr(img_filename(idict));
         dumpinteger(img_type(idict));
-        dumpinteger(img_color(idict));
+        dumpinteger(img_procset(idict));
         dumpinteger(img_xsize(idict));
         dumpinteger(img_ysize(idict));
         dumpinteger(img_xres(idict));
@@ -761,7 +761,7 @@ void undumpimagemeta(PDF pdf, int pdfversion, int pdfinclusionerrorlevel)
         idict_to_array(idict);
         undumpcharptr(img_filename(idict));
         undumpinteger(img_type(idict));
-        undumpinteger(img_color(idict));
+        undumpinteger(img_procset(idict));
         undumpinteger(img_xsize(idict));
         undumpinteger(img_ysize(idict));
         undumpinteger(img_xres(idict));

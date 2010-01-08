@@ -1,7 +1,7 @@
 /* writepng.c
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -18,13 +18,13 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include <assert.h>
-#include "ptexlib.h"
-#include "image.h"
-
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
+
+#include <assert.h>
+#include "ptexlib.h"
+#include "image.h"
 
 static int transparent_page_group = -1;
 
@@ -100,15 +100,15 @@ void read_png_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
     }
     switch (info_p->color_type) {
     case PNG_COLOR_TYPE_PALETTE:
-        img_color(idict) = IMAGE_COLOR_C | IMAGE_COLOR_I;
+        img_procset(idict) |= PROCSET_IMAGE_C | PROCSET_IMAGE_I;
         break;
     case PNG_COLOR_TYPE_GRAY:
     case PNG_COLOR_TYPE_GRAY_ALPHA:
-        img_color(idict) = IMAGE_COLOR_B;
+        img_procset(idict) |= PROCSET_IMAGE_B;
         break;
     case PNG_COLOR_TYPE_RGB:
     case PNG_COLOR_TYPE_RGB_ALPHA:
-        img_color(idict) = IMAGE_COLOR_C;
+        img_procset(idict) |= PROCSET_IMAGE_C;
         break;
     default:
         pdftex_fail("unsupported type of color_type <%i>", info_p->color_type);
