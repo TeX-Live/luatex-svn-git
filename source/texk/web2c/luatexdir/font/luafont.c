@@ -597,7 +597,7 @@ static int enum_field(lua_State * L, char *name, int dflt, char **values)
     lua_pushstring(L, name);
     lua_rawget(L, -2);
     if (lua_isnumber(L, -1)) {
-        i = (int) lua_tonumber(L, -1);
+        lua_number2int(i, lua_tonumber(L, -1));
     } else if (lua_isstring(L, -1)) {
         s = (char *) lua_tostring(L, -1);
         k = 0;
@@ -1059,7 +1059,7 @@ static void read_lua_parameters(lua_State * L, int f)
         lua_pushnil(L);         /* first key */
         while (lua_next(L, -2) != 0) {
             if (lua_isnumber(L, -2)) {
-                i = (int) lua_tonumber(L, -2);
+                lua_number2int(i, lua_tonumber(L, -2));
                 if (i > n)
                     n = i;
             }
@@ -1118,11 +1118,11 @@ static void read_lua_math_parameters(lua_State * L, int f)
         lua_pushnil(L);
         while (lua_next(L, -2) != 0) {
             if (lua_isnumber(L, -2)) {
-                i = (int) lua_tonumber(L, -2);
+                lua_number2int(i, lua_tonumber(L, -2));
             } else if (lua_isstring(L, -2)) {
                 i = luaL_checkoption(L, -2, NULL, MATH_param_names);
             }
-            n = (int) lua_tonumber(L, -1);
+            lua_number2int(n, lua_tonumber(L, -1));
             if (i != 0) {
                 set_font_math_param(f, i, n);
             }
@@ -1137,7 +1137,7 @@ static void read_lua_math_parameters(lua_State * L, int f)
 
 static void store_math_kerns(lua_State * L, charinfo * co, int id)
 {
-    int l, k;
+    int l, k, i;
     scaled ht, krn;
     if (lua_istable(L, -1) && ((k = lua_objlen(L, -1)) > 0)) {
         for (l = 0; l < k; l++) {
@@ -1145,14 +1145,16 @@ static void store_math_kerns(lua_State * L, charinfo * co, int id)
             if (lua_istable(L, -1)) {
                 lua_getfield(L, -1, "height");
                 if (lua_isnumber(L, -1)) {
-                    ht = (scaled) lua_tonumber(L, -1);
+                    lua_number2int(i, lua_tonumber(L, -1));
+                    ht = (scaled) i;
                 } else {
                     ht = MIN_INF;
                 }
                 lua_pop(L, 1);
                 lua_getfield(L, -1, "kern");
                 if (lua_isnumber(L, -1)) {
-                    krn = (scaled) lua_tonumber(L, -1);
+                    lua_number2int(i, lua_tonumber(L, -1));
+                    krn = (scaled) i;
                 } else {
                     krn = MIN_INF;
                 }
@@ -1327,7 +1329,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
                 while (lua_next(L, -2) != 0) {
                     k = non_boundarychar;
                     if (lua_isnumber(L, -2)) {
-                        k = (int) lua_tonumber(L, -2);        /* adjacent char */
+                        lua_number2int(k, lua_tonumber(L, -2)); /* adjacent char */
                         if (k < 0)
                             k = non_boundarychar;
                     } else if (lua_isstring(L, -2)) {
@@ -1389,7 +1391,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
                 while (lua_next(L, -2) != 0) {
                     k = non_boundarychar;
                     if (lua_isnumber(L, -2)) {
-                        k = (int) lua_tonumber(L, -2);        /* adjacent char */
+                        lua_number2int(k, lua_tonumber(L, -2)); /* adjacent char */
                         if (k < 0) {
                             k = non_boundarychar;
                         }
@@ -1546,7 +1548,7 @@ int font_from_lua(lua_State * L, int f)
             if (lua_istable(L, -1)) {
                 lua_getfield(L, -1, "id");
                 if (lua_isnumber(L, -1)) {
-                    l_fonts[i] = (int) lua_tonumber(L, -1);
+                    lua_number2int(l_fonts[i], lua_tonumber(L, -1));
                     lua_pop(L, 2);      /* pop id  and entry */
                     continue;
                 }
@@ -1633,7 +1635,7 @@ int font_from_lua(lua_State * L, int f)
             lua_pushnil(L);     /* first key */
             while (lua_next(L, -2) != 0) {
                 if (lua_isnumber(L, -2)) {
-                    i = (int) lua_tonumber(L, -2);
+                    lua_number2int(i, lua_tonumber(L, -2));
                     if (i >= 0) {
                         font_char_from_lua(L, f, i, l_fonts, !no_math);
                     }

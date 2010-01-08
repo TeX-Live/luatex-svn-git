@@ -80,9 +80,9 @@ void get_lua_boolean(char *table, char *name, boolean * target)
     if (lua_istable(Luas, -1)) {
         lua_getfield(Luas, -1, name);
         if (lua_isboolean(Luas, -1)) {
-            *target = (boolean)(lua_toboolean(Luas, -1));
+            *target = (boolean) (lua_toboolean(Luas, -1));
         } else if (lua_isnumber(Luas, -1)) {
-            *target = (boolean)(lua_tonumber(Luas, -1) == 0 ? 0 : 1);
+            *target = (boolean) (lua_tonumber(Luas, -1) == 0 ? 0 : 1);
         }
     }
     lua_settop(Luas, stacktop);
@@ -98,9 +98,9 @@ void get_saved_lua_boolean(int r, char *name, boolean * target)
     if (lua_istable(Luas, -1)) {
         lua_getfield(Luas, -1, name);
         if (lua_isboolean(Luas, -1)) {
-            *target = (boolean)lua_toboolean(Luas, -1);
+            *target = (boolean) lua_toboolean(Luas, -1);
         } else if (lua_isnumber(Luas, -1)) {
-            *target = (boolean)(lua_tonumber(Luas, -1) == 0 ? 0 : 1);
+            *target = (boolean) (lua_tonumber(Luas, -1) == 0 ? 0 : 1);
         }
     }
     lua_settop(Luas, stacktop);
@@ -116,7 +116,7 @@ void get_lua_number(char *table, char *name, int *target)
     if (lua_istable(Luas, -1)) {
         lua_getfield(Luas, -1, name);
         if (lua_isnumber(Luas, -1)) {
-            *target = (int)lua_tonumber(Luas, -1);
+            lua_number2int(*target, lua_tonumber(Luas, -1));
         }
     }
     lua_settop(Luas, stacktop);
@@ -132,7 +132,7 @@ void get_saved_lua_number(int r, char *name, int *target)
     if (lua_istable(Luas, -1)) {
         lua_getfield(Luas, -1, name);
         if (lua_isnumber(Luas, -1)) {
-            *target = (int)lua_tonumber(Luas, -1);
+            lua_number2int(*target, lua_tonumber(Luas, -1));
         }
     }
     lua_settop(Luas, stacktop);
@@ -320,7 +320,8 @@ int do_run_callback(int special, char *values, va_list vl)
              * TeX initialization is complete 
              */
             if (!log_opened) {
-                fprintf(stderr, "This went wrong: %s\n", (char *)lua_tostring(L, -1));
+                fprintf(stderr, "This went wrong: %s\n",
+                        (char *) lua_tostring(L, -1));
                 error();
             } else {
                 lua_gc(L, LUA_GCCOLLECT, 0);
@@ -351,7 +352,7 @@ int do_run_callback(int special, char *values, va_list vl)
                         lua_typename(L, lua_type(L, nres)));
                 goto EXIT;
             }
-            b = (int)lua_tonumber(L, nres);
+            lua_number2int(b, lua_tonumber(L, nres));
             *va_arg(vl, int *) = b;
             break;
         case CALLBACK_LINE:    /* TeX line */

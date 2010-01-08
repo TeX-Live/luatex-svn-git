@@ -51,7 +51,7 @@ static int font_read_tfm(lua_State * L)
     if (lua_isstring(L, 1)) {
         cnom = (char *) lua_tostring(L, 1);
         if (lua_isnumber(L, 2)) {
-            s = (int) lua_tonumber(L, 2);
+            lua_number2int(s, lua_tonumber(L, 2));
             if (strlen(cnom)) {
                 f = get_fontid();
                 if (read_tfm_info(f, cnom, s)) {
@@ -81,14 +81,14 @@ static int font_read_tfm(lua_State * L)
 
 static int font_read_vf(lua_State * L)
 {
-    scaled s;
+    int i;
     char *cnom;
     if (lua_isstring(L, 1)) {
         cnom = (char *) lua_tostring(L, 1);
         if (strlen(cnom)) {
             if (lua_isnumber(L, 2)) {
-                s = (scaled) lua_tonumber(L, 2);
-                return make_vf_table(L, cnom, s);
+                lua_number2int(i, lua_tonumber(L, 2));
+                return make_vf_table(L, cnom, (scaled) i);
             } else {
                 lua_pushstring(L,
                                "expected an integer size as second argument");
@@ -131,8 +131,8 @@ static int tex_max_font(lua_State * L)
 static int tex_each_font_next(lua_State * L)
 {
     int i, m;                   /* id */
-    m = (int) lua_tonumber(L, 1);
-    i = (int) lua_tonumber(L, 2);
+    lua_number2int(m, lua_tonumber(L, 1));
+    lua_number2int(i, lua_tonumber(L, 2));
     i++;
     while (i <= m && !is_valid_font(i))
         i++;

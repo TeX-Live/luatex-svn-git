@@ -179,7 +179,7 @@ static int find_file(lua_State * L)
         if (lua_isboolean(L, i)) {
             mexist = lua_toboolean(L, i);
         } else if (lua_isnumber(L, i)) {
-            mexist = (int) lua_tonumber(L, i);
+            lua_number2int(mexist, lua_tonumber(L, i));
         } else if (lua_isstring(L, i)) {
             int op = luaL_checkoption(L, i, NULL, filetypenames);
             ftype = filetypes[op];
@@ -214,7 +214,7 @@ static int lua_kpathsea_find_file(lua_State * L)
         if (lua_isboolean(L, i)) {
             mexist = lua_toboolean(L, i);
         } else if (lua_isnumber(L, i)) {
-            mexist = (int) lua_tonumber(L, i);
+            lua_number2int(mexist, lua_tonumber(L, i));
         } else if (lua_isstring(L, i)) {
             int op = luaL_checkoption(L, i, NULL, filetypenames);
             ftype = filetypes[op];

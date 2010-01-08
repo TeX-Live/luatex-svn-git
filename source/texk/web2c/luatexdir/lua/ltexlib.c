@@ -97,7 +97,7 @@ static int do_luacprint(lua_State * L, int partial, int deftable)
     n = lua_gettop(L);
     if (cattable != NO_CAT_TABLE) {
         if (lua_type(L, 1) == LUA_TNUMBER && n > 1) {
-            cattable = (int)lua_tonumber(L, 1);
+            lua_number2int(cattable, lua_tonumber(L, 1));
             startstrings = 2;
         }
     }
@@ -304,14 +304,16 @@ static int vsetdimen(lua_State * L, int is_global)
     i = lua_gettop(L);
     j = 0;
     /* find the value */
-    if (!lua_isnumber(L, i))
+    if (!lua_isnumber(L, i)) {
         if (lua_isstring(L, i)) {
             j = dimen_to_number(L, (char *) lua_tostring(L, i));
         } else {
             lua_pushstring(L, "unsupported value type");
             lua_error(L);
-    } else
-        j = (int) lua_tonumber(L, i);
+        }
+    } else {
+        lua_number2int(j, lua_tonumber(L, i));
+    }
     k = get_item_index(L, (i - 1), scaled_base);
     check_index_range(k, "setdimen");
     err = set_tex_dimen_register(k, j);
@@ -546,7 +548,7 @@ static int get_box_id(lua_State * L, int i)
             j = equiv(cur_cs);
         }
     } else {
-        j = (int) lua_tonumber(L, (i));
+        lua_number2int(j, lua_tonumber(L, (i)));
     }
     return j;
 }
@@ -655,7 +657,7 @@ static int vsetboxdim(lua_State * L, int whichdim, int is_global)
     if (!lua_isnumber(L, i)) {
         j = dimen_to_number(L, (char *) lua_tostring(L, i));
     } else {
-        j = (int) lua_tonumber(L, i);
+        lua_number2int(j, lua_tonumber(L, i));
     }
     k = get_box_id(L, (i - 1));
     lua_settop(L, (i - 3));     /* table at -2 */
@@ -756,7 +758,7 @@ int settex(lua_State * L)
                         lua_error(L);
                     }
                 } else {
-                    j = (int) lua_tonumber(L, i);
+                    lua_number2int(j, lua_tonumber(L, i));
                 }
                 assign_internal_value((isglobal ? 4 : 0), equiv(cur_cs), j);
             } else if (is_toks_assign(cur_cmd)) {
@@ -817,7 +819,7 @@ int do_convert(lua_State * L, int cur_code)
         if (lua_gettop(L) < 1) {
             /* error */
         }
-        i = (int) lua_tonumber(L, 1); /* these fall through! */
+        lua_number2int(i, lua_tonumber(L, 1));  /* these fall through! */
     default:
         texstr = the_convert_string(cur_code, i);
         if (texstr) {
@@ -945,7 +947,7 @@ int do_lastitem(lua_State * L, int cur_code)
 static int tex_setmathparm(lua_State * L)
 {
     int i, j;
-    scaled k;
+    int k;
     int n;
     int l = cur_level;
     n = lua_gettop(L);
@@ -958,8 +960,8 @@ static int tex_setmathparm(lua_State * L)
         }
         i = luaL_checkoption(L, (n - 2), NULL, math_param_names);
         j = luaL_checkoption(L, (n - 1), NULL, math_style_names);
-        k = (scaled) lua_tonumber(L, n);
-        def_math_param(i, j, k, l);
+        lua_number2int(k, lua_tonumber(L, n));
+        def_math_param(i, j, (scaled) k, l);
     }
     return 0;
 }
