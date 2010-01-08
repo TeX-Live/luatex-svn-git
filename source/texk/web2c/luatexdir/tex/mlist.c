@@ -252,425 +252,73 @@ static scaled radical_rule(int var)
     return a;
 }
 
-static scaled radical_degree_before(int var)
+/* now follow all the trivial math parameters */
+
+#define get_math_param_or_error(a,b) do_get_math_param_or_error(a, math_param_##b, #b)
+
+static scaled do_get_math_param_or_error (int var, int param, char *name)
 {
-    scaled a = get_math_param(math_param_radical_degree_before, var);
+    scaled a = get_math_param(param, var);
     if (a == undefined_math_parameter) {
-        math_param_error("radicaldegreebefore", var);
+        math_param_error(name, var);
         a = 0;
     }
     return a;
 }
 
-static scaled connector_overlap_min(int var)
-{
-    scaled a = get_math_param(math_param_connector_overlap_min, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("connectoroverlapmin", var);
-        a = 0;
-    }
-    return a;
-}
+#define radical_degree_before(a) get_math_param_or_error(a, radical_degree_before)
+#define radical_degree_after(a)  get_math_param_or_error(a, radical_degree_after)
+#define radical_degree_raise(a)  get_math_param_or_error(a, radical_degree_raise)
 
+#define connector_overlap_min(a) get_math_param_or_error(a, connector_overlap_min)
 
-static scaled radical_degree_after(int var)
-{
-    scaled a = get_math_param(math_param_radical_degree_after, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("radicaldegreeafter", var);
-        a = 0;
-    }
-    return a;
-}
+#define overbar_rule(a)          get_math_param_or_error(a, overbar_rule)
+#define overbar_kern(a)          get_math_param_or_error(a, overbar_kern)
+#define overbar_vgap(a)          get_math_param_or_error(a, overbar_vgap)
 
-static scaled radical_degree_raise(int var)
-{
-    scaled a = get_math_param(math_param_radical_degree_raise, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("radicaldegreeraise", var);
-        a = 0;
-    }
-    return a;
-}
+#define underbar_rule(a)         get_math_param_or_error(a, underbar_rule)
+#define underbar_kern(a)         get_math_param_or_error(a, underbar_kern)
+#define underbar_vgap(a)         get_math_param_or_error(a, underbar_vgap)
 
+#define under_delimiter_vgap(a)  get_math_param_or_error(a, under_delimiter_vgap)
+#define under_delimiter_bgap(a)  get_math_param_or_error(a, under_delimiter_bgap)
 
-/* now follow all the trivial functions for the math parameters */
+#define over_delimiter_vgap(a)   get_math_param_or_error(a, over_delimiter_vgap)
+#define over_delimiter_bgap(a)   get_math_param_or_error(a, over_delimiter_bgap)
 
-static scaled overbar_kern(int var)
-{
-    scaled a = get_math_param(math_param_overbar_kern, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("overbarkern", var);
-        a = 0;
-    }
-    return a;
-}
+#define radical_vgap(a)          get_math_param_or_error(a, radical_vgap)
+#define radical_kern(a)          get_math_param_or_error(a, radical_kern)
 
-static scaled overbar_rule(int var)
-{
-    scaled a = get_math_param(math_param_overbar_rule, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("overbarrule", var);
-        a = 0;
-    }
-    return a;
-}
+#define stack_vgap(a)            get_math_param_or_error(a, stack_vgap)
+#define stack_num_up(a)          get_math_param_or_error(a, stack_num_up)
+#define stack_denom_down(a)      get_math_param_or_error(a, stack_denom_down)
 
-static scaled overbar_vgap(int var)
-{
-    scaled a = get_math_param(math_param_overbar_vgap, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("overbarvgap", var);
-        a = 0;
-    }
-    return a;
-}
+#define fraction_rule(a)         get_math_param_or_error(a, fraction_rule)
+#define fraction_num_vgap(a)     get_math_param_or_error(a, fraction_num_vgap)
+#define fraction_denom_vgap(a)   get_math_param_or_error(a, fraction_denom_vgap)
+#define fraction_num_up(a)       get_math_param_or_error(a, fraction_num_up)
+#define fraction_denom_down(a)   get_math_param_or_error(a, fraction_denom_down)
+#define fraction_del_size(a)     get_math_param_or_error(a, fraction_del_size)
 
-static scaled underbar_rule(int var)
-{
-    scaled a = get_math_param(math_param_underbar_rule, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("underbarrule", var);
-        a = 0;
-    }
-    return a;
-}
+#define limit_above_vgap(a)      get_math_param_or_error(a, limit_above_vgap)
+#define limit_above_bgap(a)      get_math_param_or_error(a, limit_above_bgap)
+#define limit_above_kern(a)      get_math_param_or_error(a, limit_above_kern)
 
-static scaled underbar_vgap(int var)
-{
-    scaled a = get_math_param(math_param_underbar_vgap, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("underbarvgap", var);
-        a = 0;
-    }
-    return a;
-}
+#define limit_below_vgap(a)      get_math_param_or_error(a, limit_below_vgap)
+#define limit_below_bgap(a)      get_math_param_or_error(a, limit_below_bgap)
+#define limit_below_kern(a)      get_math_param_or_error(a, limit_below_kern)
 
-static scaled underbar_kern(int var)
-{
-    scaled a = get_math_param(math_param_underbar_kern, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("underbarkern", var);
-        a = 0;
-    }
-    return a;
-}
+#define sub_shift_drop(a)        get_math_param_or_error(a, sub_shift_drop)
+#define sup_shift_drop(a)        get_math_param_or_error(a, sup_shift_drop)
+#define sub_shift_down(a)        get_math_param_or_error(a, sub_shift_down)
+#define sub_sup_shift_down(a)    get_math_param_or_error(a, sub_sup_shift_down)
+#define sup_shift_up(a)          get_math_param_or_error(a, sup_shift_up)
+#define sub_top_max(a)           get_math_param_or_error(a, sub_top_max)
+#define sup_bottom_min(a)        get_math_param_or_error(a, sup_bottom_min)
+#define sup_sub_bottom_max(a)    get_math_param_or_error(a, sup_sub_bottom_max)
+#define subsup_vgap(a)           get_math_param_or_error(a, subsup_vgap)
 
-static scaled under_delimiter_vgap(int var)
-{
-    scaled a = get_math_param(math_param_under_delimiter_vgap, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("underdelimitervgap", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled under_delimiter_bgap(int var)
-{
-    scaled a = get_math_param(math_param_under_delimiter_bgap, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("underdelimiterbgap", var);
-        a = 0;
-    }
-    return a;
-}
-
-
-static scaled over_delimiter_vgap(int var)
-{
-    scaled a = get_math_param(math_param_over_delimiter_vgap, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("overdelimitervgap", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled over_delimiter_bgap(int var)
-{
-    scaled a = get_math_param(math_param_over_delimiter_bgap, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("overdelimiterbgap", var);
-        a = 0;
-    }
-    return a;
-}
-
-
-
-static scaled radical_vgap(int var)
-{
-    scaled a = get_math_param(math_param_radical_vgap, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("radicalvgap", var);
-        a = 0;
-    }
-    return a;
-}
-
-
-static scaled radical_kern(int var)
-{
-    scaled a = get_math_param(math_param_radical_kern, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("radicalkern", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled stack_vgap(int var)
-{
-    scaled a = get_math_param(math_param_stack_vgap, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("stackvgap", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled stack_num_up(int var)
-{
-    scaled a = get_math_param(math_param_stack_num_up, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("stacknumup", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled stack_denom_down(int var)
-{
-    scaled a = get_math_param(math_param_stack_denom_down, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("stackdenomdown", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled fraction_rule(int var)
-{
-    scaled a = get_math_param(math_param_fraction_rule, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("fractionrule", var);
-        a = 0;
-    }
-    return a;
-}
-
-
-static scaled fraction_num_vgap(int var)
-{
-    scaled a = get_math_param(math_param_fraction_num_vgap, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("fractionnumvgap", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled fraction_denom_vgap(int var)
-{
-    scaled a = get_math_param(math_param_fraction_denom_vgap, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("fractiondenomvgap", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled fraction_num_up(int var)
-{
-    scaled a = get_math_param(math_param_fraction_num_up, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("fractionnumup", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled fraction_denom_down(int var)
-{
-    scaled a = get_math_param(math_param_fraction_denom_down, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("fractiondenomdown", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled fraction_del_size(int var)
-{
-    scaled a = get_math_param(math_param_fraction_del_size, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("fractiondelsize", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled limit_above_vgap(int var)
-{
-    scaled a = get_math_param(math_param_limit_above_vgap, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("limitabovevgap", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled limit_above_bgap(int var)
-{
-    scaled a = get_math_param(math_param_limit_above_bgap, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("limitabovebgap", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled limit_above_kern(int var)
-{
-    scaled a = get_math_param(math_param_limit_above_kern, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("limitabovekern", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled limit_below_vgap(int var)
-{
-    scaled a = get_math_param(math_param_limit_below_vgap, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("limitbelowvgap", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled limit_below_bgap(int var)
-{
-    scaled a = get_math_param(math_param_limit_below_bgap, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("limitbelowbgap", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled limit_below_kern(int var)
-{
-    scaled a = get_math_param(math_param_limit_below_kern, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("limitbelowkern", var);
-        a = 0;
-    }
-    return a;
-}
-
-
-static scaled sub_shift_drop(int var)
-{
-    scaled a = get_math_param(math_param_sub_shift_drop, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("subshiftdrop", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled sup_shift_drop(int var)
-{
-    scaled a = get_math_param(math_param_sup_shift_drop, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("supshiftdrop", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled sub_shift_down(int var)
-{
-    scaled a = get_math_param(math_param_sub_shift_down, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("subshiftdown", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled sub_sup_shift_down(int var)
-{
-    scaled a = get_math_param(math_param_sub_sup_shift_down, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("subsupshiftdown", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled sub_top_max(int var)
-{
-    scaled a = get_math_param(math_param_sub_top_max, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("subtopmax", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled sup_shift_up(int var)
-{
-    scaled a = get_math_param(math_param_sup_shift_up, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("supshiftup", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled sup_bottom_min(int var)
-{
-    scaled a = get_math_param(math_param_sup_bottom_min, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("supbottommin", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled sup_sub_bottom_max(int var)
-{
-    scaled a = get_math_param(math_param_sup_sub_bottom_max, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("supsubbottommax", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled subsup_vgap(int var)
-{
-    scaled a = get_math_param(math_param_subsup_vgap, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("subsupvgap", var);
-        a = 0;
-    }
-    return a;
-}
-
-static scaled space_after_script(int var)
-{
-    scaled a = get_math_param(math_param_space_after_script, var);
-    if (a == undefined_math_parameter) {
-        math_param_error("spaceafterscript", var);
-        a = 0;
-    }
-    return a;
-}
+#define space_after_script(a)    get_math_param_or_error(a, space_after_script)
 
 
 void fixup_math_parameters(int fam_id, int size_id, int f, int lvl)
