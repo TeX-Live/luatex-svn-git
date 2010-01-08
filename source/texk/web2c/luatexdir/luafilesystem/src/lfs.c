@@ -566,7 +566,7 @@ static void push_st_size (lua_State *L, STAT_STRUCT *info) {
 	lua_pushnumber (L, (lua_Number)info->st_size);
 }
 /* permssions string */
-static void push_st_perm (lua_State *L, struct stat *info) {
+static void push_st_perm (lua_State *L, STAT_STRUCT *info) {
 	lua_pushstring (L, perm2string (info->st_mode));
 }
 #ifndef _WIN32
