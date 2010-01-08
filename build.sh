@@ -15,7 +15,8 @@
 # handling the generated configure's += variable assignments
 if which bash >/dev/null
 then
-	export CONFIG_SHELL=`which bash`
+ CONFIG_SHELL=`which bash`
+ export CONFIG_SHELL
 fi
 
 # try to find gnu make; we may need it
