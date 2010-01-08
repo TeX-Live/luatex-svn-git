@@ -1757,7 +1757,7 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
     int j, ff;
     pdf_resource_struct *res_p = pdf->page_resources;
     pdf_resource_struct local_page_resources;
-    pdf_object_list *ol, *ol1 = NULL;
+    pdf_object_list *ol, *ol1;
     scaledpos save_cur_page_size;       /* to save |cur_page_size| during flushing pending forms */
 
     /* Finish stream of page/form contents */
@@ -1786,8 +1786,9 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
             pdf->img_page_group_val = 0;
         }
         /* Generate array of annotations or beads in page */
-        if ((ol = get_page_resources_list(pdf, obj_type_annot)) != NULL
-            || (ol1 = get_page_resources_list(pdf, obj_type_link)) != NULL) {
+        ol = get_page_resources_list(pdf, obj_type_annot);
+        ol1 = get_page_resources_list(pdf, obj_type_link);
+        if (ol != NULL || ol1 != NULL) {
             pdf_puts(pdf, "/Annots [ ");
             while (ol != NULL) {
                 if (ol->info > 0)
@@ -1931,8 +1932,9 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
     }
 
     /* Generate XObject resources */
-    if ((ol = get_page_resources_list(pdf, obj_type_xform)) != NULL
-        || (ol1 = get_page_resources_list(pdf, obj_type_ximage)) != NULL) {
+    ol = get_page_resources_list(pdf, obj_type_xform);
+    ol1 = get_page_resources_list(pdf, obj_type_ximage);
+    if (ol != NULL || ol1 != NULL) {
         pdf_puts(pdf, "/XObject << ");
         while (ol != NULL) {
             pdf_printf(pdf, "/Fm");
