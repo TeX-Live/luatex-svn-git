@@ -872,7 +872,7 @@ char *math_size_string(int s)
   information:
 */
 
-#define setup_cur_size_and_mu(a) do {                                   \
+#define setup_cur_size(a) do {                                   \
         if (a==script_style ||                                          \
             a==cramped_script_style)                                    \
             cur_size=script_size;                                       \
@@ -880,8 +880,8 @@ char *math_size_string(int s)
                  a==cramped_script_script_style)                        \
             cur_size=script_script_size;                                \
         else cur_size=text_size;                                        \
-        cur_mu=x_over_n(get_math_quad(cur_size),18);                    \
     } while (0)
+
 
 /* a simple routine that creates a flat copy of a nucleus */
 
@@ -1059,8 +1059,6 @@ void add_delim_hkern(pointer b, scaled s)
 */
 
 int cur_size;                   /* size code corresponding to |cur_style|  */
-scaled cur_mu;                  /* the math unit width corresponding to |cur_size| */
-
 
 /* */
 
@@ -1754,7 +1752,7 @@ static pointer clean_box(pointer p, int s, int cur_style)
     }
     mlist_to_hlist_args(mlist, s, false);
     q = vlink(temp_head);       /* recursive call */
-    setup_cur_size_and_mu(cur_style);
+    setup_cur_size(cur_style);
   FOUND:
     if (is_char_node(q) || (q == null))
         x = hpack(q, 0, additional, -1);
@@ -3007,7 +3005,7 @@ static small_number make_left_right(pointer q, int style, scaled max_d,
 {
     scaled delta, delta1, delta2;       /* dimensions used in the calculation */
     pointer tmp;
-    setup_cur_size_and_mu(style);
+    setup_cur_size(style);
     delta2 = max_d + math_axis(cur_size);
     delta1 = max_hv + max_d - delta2;
     if (delta2 > delta1)
@@ -3254,7 +3252,7 @@ static pointer check_nucleus_complexity(halfword q, scaled * delta, int cur_styl
         break;
     case sub_mlist_node:
         mlist_to_hlist_args(math_list(nucleus(q)), cur_style, false);   /* recursive call */
-        setup_cur_size_and_mu(cur_style);
+        setup_cur_size(cur_style);
         p = hpack(vlink(temp_head), 0, additional, -1);
         reset_attributes(p, node_attr(nucleus(q)));
         break;
@@ -3282,6 +3280,7 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
     int s;                      /* the size of a noad to be deleted */
     scaled max_hl, max_d;       /* maximum height and depth of the list translated so far */
     scaled delta;               /* italic correction offset for subscript and superscript */
+    scaled cur_mu;              /* the math unit width corresponding to |cur_size| */
     style = cur_style;          /* tuck global parameter away as local variable */
     q = mlist;
     r = null;
@@ -3291,7 +3290,8 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
     max_d = 0;
     x = null;
     p = null;
-    setup_cur_size_and_mu(cur_style);
+    setup_cur_size(cur_style);
+    cur_mu=x_over_n(get_math_quad(cur_size),18);
     while (q != null) {
         /* We use the fact that no character nodes appear in an mlist, hence
            the field |type(q)| is always present. */
@@ -3389,7 +3389,8 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
             break;
         case style_node:
             cur_style = subtype(q);
-            setup_cur_size_and_mu(cur_style);
+            setup_cur_size(cur_style);
+            cur_mu=x_over_n(get_math_quad(cur_size),18);
             goto DONE_WITH_NODE;
             break;
         case choice_node:
@@ -3506,7 +3507,8 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
         if (r_type == fence_noad) {
             r_subtype = left_noad_side;
             cur_style = style;
-            setup_cur_size_and_mu(cur_style);
+            setup_cur_size(cur_style);
+            cur_mu=x_over_n(get_math_quad(cur_size),18);
         }
       DONE_WITH_NODE:
         q = vlink(q);
@@ -3530,7 +3532,8 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
     r_type = 0;
     r_subtype = 0;
     cur_style = style;
-    setup_cur_size_and_mu(cur_style);
+    setup_cur_size(cur_style);
+    cur_mu=x_over_n(get_math_quad(cur_size),18);
   NEXT_NODE:
     while (q != null) {
         /* If node |q| is a style node, change the style and |goto delete_q|;
@@ -3578,7 +3581,8 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
             /* Change the current style and |goto delete_q| */
             cur_style = subtype(q);
             s = style_node_size;
-            setup_cur_size_and_mu(cur_style);
+            setup_cur_size(cur_style);
+            cur_mu=x_over_n(get_math_quad(cur_size),18);
             goto DELETE_Q;
             break;
         case whatsit_node:
