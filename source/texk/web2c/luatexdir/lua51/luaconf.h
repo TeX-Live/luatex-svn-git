@@ -579,7 +579,8 @@
 /* On a Microsoft compiler, use assembler */
 #if defined(_MSC_VER)
 
-#define lua_number2int(i,d)   __asm fld d   __asm fistp i
+#define lua_number2int(i,d) \
+{int N__; double D__=d; {__asm fld D__ __asm fistp N__} i = N__;}
 #define lua_number2integer(i,n)		lua_number2int(i, n)
 
 /* the next trick should work on any Pentium, but sometimes clashes
