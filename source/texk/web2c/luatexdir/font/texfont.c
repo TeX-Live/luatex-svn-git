@@ -1,6 +1,6 @@
 /* texfont.c Main font API implementation for the pascal parts
    
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -61,7 +61,7 @@ static void grow_font_table(int id)
 {
     int j;
     if (id >= font_arr_max) {
-        font_bytes += (font_arr_max - id + 8) * sizeof(texfont *);
+        font_bytes += (id + 8 - font_arr_max) * sizeof(texfont *);
         font_tables = xrealloc(font_tables, (id + 8) * sizeof(texfont *));
         j = 8;
         while (j--) {
