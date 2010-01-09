@@ -82,7 +82,52 @@ number of font resource. A negative value of an entry of |pdf_font_num|
 indicates that the corresponding font shares the font resource with the font
 */
 
+static boolean same_font_name(int id, int t)
+{
+    if (font_name(t) != NULL &&
+        font_name(id) != NULL && strcmp(font_name(t), font_name(id)) == 0)
+        return 1;
+    else
+        return 0;
+}
+
+static boolean font_shareable(internal_font_number f, internal_font_number k)
+{
+    int ret = 0;
+    /* For some lua-loaded (for instance AFM) fonts, it is normal to have 
+       a zero cidregistry,  and such fonts do not have a fontmap entry yet
+       at this point, so the test shoulh use the other branch  */
+    if (font_cidregistry(f) == NULL && font_cidregistry(k) == NULL &&
+        font_encodingbytes(f) != 2 && font_encodingbytes(k) != 2) {
+        if (hasfmentry(k)
+            && (font_map(k) == font_map(f))
+            && (same_font_name(k, f)
+                || (pdf_font_auto_expand(f)
+                    && (pdf_font_blink(f) != 0) /* 0 = nullfont */
+                    &&same_font_name(k, pdf_font_blink(f))))) {
+            ret = 1;
+        }
+    } else {
+        if ((font_filename(k) != NULL && font_filename(f) != NULL &&
+             strcmp(font_filename(k), font_filename(f)) == 0 &&
+             font_fullname(k) != NULL && font_fullname(f) != NULL &&
+             strcmp(font_fullname(k), font_fullname(f)) == 0)
+            || (pdf_font_auto_expand(f)
+                && (pdf_font_blink(f) != 0)     /* 0 = nullfont */
+                &&same_font_name(k, pdf_font_blink(f)))) {
+            ret = 1;
+        }
+#ifdef DEBUG
+        printf("font_shareable(%d:%s:%s,%d:%s:%s): => %d\n",
+               f, font_filename(f), font_fullname(f),
+               k, font_filename(k), font_fullname(k), ret);
+#endif
+    }
+    return ret;
+}
+
 /* create a font object */
+
 void pdf_init_font(PDF pdf, internal_font_number f)
 {
     internal_font_number k, b;
@@ -149,7 +194,6 @@ internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
     addto_page_resources(pdf, obj_type_font, f);
     return k;
 }
-
 
 /* Here come some subroutines to deal with expanded fonts for HZ-algorithm. */
 

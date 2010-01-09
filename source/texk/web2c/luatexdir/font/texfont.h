@@ -229,8 +229,6 @@ boolean cmp_font_area(int, str_number);
 #  define font_encodingname(a)        font_tables[a]->_font_encodingname
 #  define set_font_encodingname(f,b)  font_reassign(font_encodingname(f),b)
 
-boolean font_shareable(internal_font_number, internal_font_number);
-
 #  define cmp_font_filename(a,b)      (!(font_filename(a)!=NULL || font_filename(b)!=NULL || \
                                        strcmp(font_filename(a),font_filename(b))))
 #  define cmp_font_fullname(a,b)      (!(font_fullname(a)!=NULL || font_fullname(b)!=NULL || \
