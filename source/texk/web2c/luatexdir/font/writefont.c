@@ -124,19 +124,19 @@ static void preset_fontmetrics(fd_entry * fd, internalfontnumber f)
     int i;
     fd->font_dim[ITALIC_ANGLE_CODE].val = 0;
     fd->font_dim[ASCENT_CODE].val =
-        divide_scaled(char_height(f, 'h'), pdf_font_size(f), 3);
+        divide_scaled(char_height(f, 'h'), font_size(f), 3);
     fd->font_dim[CAPHEIGHT_CODE].val =
-        divide_scaled(char_height(f, 'H'), pdf_font_size(f), 3);
-    i = -divide_scaled(char_depth(f, 'y'), pdf_font_size(f), 3);
+        divide_scaled(char_height(f, 'H'), font_size(f), 3);
+    i = -divide_scaled(char_depth(f, 'y'), font_size(f), 3);
     fd->font_dim[DESCENT_CODE].val = i < 0 ? i : 0;
     fd->font_dim[STEMV_CODE].val =
-        divide_scaled(char_width(f, '.') / 3, pdf_font_size(f), 3);
+        divide_scaled(char_width(f, '.') / 3, font_size(f), 3);
     fd->font_dim[XHEIGHT_CODE].val =
-        divide_scaled(get_x_height(f), pdf_font_size(f), 3);
+        divide_scaled(get_x_height(f), font_size(f), 3);
     fd->font_dim[FONTBBOX1_CODE].val = 0;
     fd->font_dim[FONTBBOX2_CODE].val = fd->font_dim[DESCENT_CODE].val;
     fd->font_dim[FONTBBOX3_CODE].val =
-        divide_scaled(get_quad(f), pdf_font_size(f), 3);
+        divide_scaled(get_quad(f), font_size(f), 3);
     fd->font_dim[FONTBBOX4_CODE].val =
         fd->font_dim[CAPHEIGHT_CODE].val > fd->font_dim[ASCENT_CODE].val ?
         fd->font_dim[CAPHEIGHT_CODE].val : fd->font_dim[ASCENT_CODE].val;
@@ -886,7 +886,7 @@ static void mark_cid_subset_glyphs(fo_entry * fo, internal_font_number f)
     void *aa;
     for (k = 1; k <= max_font_id(); k++) {
         if (k == f || -f == pdf_font_num(k)) {
-            l = pdf_font_size(k);
+            l = font_size(k);
             for (i = font_bc(k); i <= font_ec(k); i++) {
                 if (quick_char_exists(k, i) && char_used(k, i)) {
                     j = xtalloc(1, glw_entry);

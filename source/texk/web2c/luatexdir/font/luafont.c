@@ -447,10 +447,6 @@ int font_to_lua(lua_State * L, int f)
     /* pdf parameters */
     /* skip the first four for now, that are very much interal */
     /*
-       if (pdf_font_size(f) != 0) {
-       lua_pushnumber(L,pdf_font_size(f));
-       lua_setfield(L,-2,"pdf_size");
-       }
        if (pdf_font_num(f) != 0) {
        lua_pushnumber(L,pdf_font_num(f));
        lua_setfield(L,-2,"pdf_num");

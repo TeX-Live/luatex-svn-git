@@ -78,7 +78,7 @@ static int get_pk_font_scale(internalfontnumber f, int precision,
 {
     return
         divide_scaled(scale_factor,
-                      divide_scaled(pdf_font_size(f), one_hundred_bp,
+                      divide_scaled(font_size(f), one_hundred_bp,
                                     precision + 2), 0);
 }
 
@@ -86,7 +86,7 @@ static int pk_char_width(internalfontnumber f, scaled w, int precision,
                          int scale_factor)
 {
     return
-        divide_scaled(divide_scaled(w, pdf_font_size(f), 7),
+        divide_scaled(divide_scaled(w, font_size(f), 7),
                       get_pk_font_scale(f, precision, scale_factor), 0);
 }
 
@@ -115,7 +115,7 @@ static boolean writepk(PDF pdf, internal_font_number f)
 
     if (callback_id > 0) {
         dpi = round(pdf->pk_resolution *
-                    (((float) pdf_font_size(f)) / font_dsize(f)));
+                    (((float) font_size(f)) / font_dsize(f)));
         /* <base>.dpi/<fontname>.<tdpi>pk */
         cur_file_name = font_name(f);
         mallocsize = strlen(cur_file_name) + 24 + 9;
@@ -133,7 +133,7 @@ static boolean writepk(PDF pdf, internal_font_number f)
         dpi =
             kpse_magstep_fix(round
                              (pdf->pk_resolution *
-                              (((float) pdf_font_size(f)) / font_dsize(f))),
+                              (((float) font_size(f)) / font_dsize(f))),
                              pdf->pk_resolution, NULL);
         cur_file_name = font_name(f);
         name = kpse_find_pk(cur_file_name, (unsigned) dpi, &font_ret);

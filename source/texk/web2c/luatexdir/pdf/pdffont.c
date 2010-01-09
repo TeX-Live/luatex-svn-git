@@ -66,9 +66,8 @@ void output_one_char(PDF pdf, internal_font_number ffi, int c)
 }
 
 /* mark |f| as a used font; set |font_used(f)|, |pdf_font_size(f)| and |pdf_font_num(f)| */
-void pdf_use_font(internal_font_number f, int fontnum)
+static void pdf_use_font(internal_font_number f, int fontnum)
 {
-    set_pdf_font_size(f, font_size(f));
     set_font_used(f, true);
     assert((fontnum > 0) || ((fontnum < 0) && (pdf_font_num(-fontnum) > 0)));
     set_pdf_font_num(f, fontnum);

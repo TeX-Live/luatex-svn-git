@@ -151,7 +151,6 @@ typedef struct texfont {
     int ligatures_disabled;
 
     int _pdf_font_num;          /* maps to a PDF resource ID */
-    scaled _pdf_font_size;      /* maps to a PDF font size */
     internal_font_number _pdf_font_blink;       /* link to  base font for expanded fonts */
     internal_font_number _pdf_font_elink;       /* link to expanded fonts for base font */
     int _pdf_font_expand_ratio; /* expansion ratio of a particular font */
@@ -297,9 +296,6 @@ boolean cmp_font_area(int, str_number);
 
 #  define font_natural_dir(a)         font_tables[a]->_font_natural_dir
 #  define set_font_natural_dir(a,b)   font_natural_dir(a) = b
-
-#  define pdf_font_size(a)            font_tables[a]->_pdf_font_size
-#  define set_pdf_font_size(a,b)      pdf_font_size(a) = b
 
 #  define pdf_font_num(a)             font_tables[a]->_pdf_font_num
 #  define set_pdf_font_num(a,b)       pdf_font_num(a) = b

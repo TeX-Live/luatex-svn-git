@@ -1489,7 +1489,6 @@ void dump_font_entry(texfont * f)
     dump_int(f->_font_math_params);
     dump_int(f->ligatures_disabled);
     dump_int(f->_pdf_font_num);
-    dump_int(f->_pdf_font_size);
     dump_int(f->_pdf_font_blink);
     dump_int(f->_pdf_font_elink);
     dump_int(f->_pdf_font_expand_ratio);
@@ -1664,7 +1663,6 @@ void undump_font_entry(texfont * f)
     undump_int(x); f->_font_math_params = x;
     undump_int(x); f->ligatures_disabled = x;
     undump_int(x); f->_pdf_font_num = x;
-    undump_int(x); f->_pdf_font_size = x;
     undump_int(x); f->_pdf_font_blink = x;
     undump_int(x); f->_pdf_font_elink = x;
     undump_int(x); f->_pdf_font_expand_ratio = x;

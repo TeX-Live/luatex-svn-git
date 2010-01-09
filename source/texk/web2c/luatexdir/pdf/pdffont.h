@@ -24,7 +24,6 @@
 
 extern void output_one_char(PDF pdf, internal_font_number ffi, int c);
 
-extern void pdf_use_font(internal_font_number f, int fontnum);
 extern void pdf_init_font(PDF pdf, internal_font_number f);
 extern internal_font_number pdf_set_font(PDF pdf, internal_font_number f);
 
