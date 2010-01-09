@@ -1754,7 +1754,7 @@ void pdf_begin_page(PDF pdf, boolean shipping_page)
 
 void pdf_end_page(PDF pdf, boolean shipping_page)
 {
-    int j, ff;
+    int j;
     pdf_resource_struct *res_p = pdf->page_resources;
     pdf_resource_struct local_page_resources;
     pdf_object_list *ol, *ol1;
@@ -1919,12 +1919,12 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
     if ((ol = get_page_resources_list(pdf, obj_type_font)) != NULL) {
         pdf_puts(pdf, "/Font << ");
         while (ol != NULL) {
+            assert(pdf_font_num(ol->info) > 0); /* always base font: an object number */
             pdf_puts(pdf, "/F");
-            set_ff(ol->info);
-            pdf_print_int(pdf, ff);
+            pdf_print_int(pdf, ol->info);
             pdf_print_resname_prefix(pdf);
             pdf_out(pdf, ' ');
-            pdf_print_int(pdf, pdf_font_num(ff));
+            pdf_print_int(pdf, pdf_font_num(ol->info));
             pdf_puts(pdf, " 0 R ");
             ol = ol->link;
         }

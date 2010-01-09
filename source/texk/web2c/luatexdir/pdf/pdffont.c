@@ -93,7 +93,7 @@ static boolean same_font_name(int id, int t)
 static boolean font_shareable(internal_font_number f, internal_font_number k)
 {
     int ret = 0;
-    /* For some lua-loaded (for instance AFM) fonts, it is normal to have 
+    /* For some lua-loaded (for instance AFM) fonts, it is normal to have
        a zero cidregistry,  and such fonts do not have a fontmap entry yet
        at this point, so the test shoulh use the other branch  */
     if (font_cidregistry(f) == NULL && font_cidregistry(k) == NULL &&
@@ -170,28 +170,20 @@ void pdf_init_font(PDF pdf, internal_font_number f)
 }
 
 /* set the actual font on PDF page */
+
 internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
 {
-    pdf_object_list *p;
-    internal_font_number k;
     int ff;                     /* for use with |set_ff| */
-
     if (!font_used(f))
         pdf_init_font(pdf, f);
-    set_ff(f);                  /* set |ff| to the tfm number of the font sharing the font object
-                                   with |f|; |ff| is either |f| or some font with the same tfm name
-                                   at different size and/or expansion */
-    k = ff;
-    p = get_page_resources_list(pdf, obj_type_font);
-    while (p != NULL) {
-        set_ff(p->info);
-        if (ff == k)
-            return k;
-        p = p->link;
-    }
-    /* |f| not found in |font_list|, append it now */
-    addto_page_resources(pdf, obj_type_font, f);
-    return k;
+    /*
+       set |ff| to the tfm number of the base font sharing the font object with |f|;
+       |ff| is either |f| itself (then it is its own base font),
+       or some font with the same tfm name at different size and/or expansion.
+     */
+    ff = pdf_font_num(f) < 0 ? -pdf_font_num(f) : f;    /* aka set_ff(f) */
+    addto_page_resources(pdf, obj_type_font, ff);
+    return ff;
 }
 
 /* Here come some subroutines to deal with expanded fonts for HZ-algorithm. */
