@@ -461,24 +461,24 @@ int font_to_lua(lua_State * L, int f)
        }
      */
     /* the next one is read only */
-    if (pdf_font_expand_ratio(f) != 0) {
-        lua_pushnumber(L, pdf_font_expand_ratio(f));
+    if (font_expand_ratio(f) != 0) {
+        lua_pushnumber(L, font_expand_ratio(f));
         lua_setfield(L, -2, "expand_ratio");
     }
-    if (pdf_font_shrink(f) != 0) {
-        lua_pushnumber(L, pdf_font_shrink(f));
+    if (font_shrink(f) != 0) {
+        lua_pushnumber(L, font_shrink(f));
         lua_setfield(L, -2, "shrink");
     }
-    if (pdf_font_stretch(f) != 0) {
-        lua_pushnumber(L, pdf_font_stretch(f));
+    if (font_stretch(f) != 0) {
+        lua_pushnumber(L, font_stretch(f));
         lua_setfield(L, -2, "stretch");
     }
-    if (pdf_font_step(f) != 0) {
-        lua_pushnumber(L, pdf_font_step(f));
+    if (font_step(f) != 0) {
+        lua_pushnumber(L, font_step(f));
         lua_setfield(L, -2, "step");
     }
-    if (pdf_font_auto_expand(f) != 0) {
-        lua_pushboolean(L, pdf_font_auto_expand(f));
+    if (font_auto_expand(f) != 0) {
+        lua_pushboolean(L, font_auto_expand(f));
         lua_setfield(L, -2, "auto_expand");
     }
     if (pdf_font_attr(f) != 0) {

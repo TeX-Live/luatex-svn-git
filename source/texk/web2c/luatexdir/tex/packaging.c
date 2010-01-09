@@ -1,6 +1,6 @@
 /* packaging.c
 
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -100,9 +100,9 @@ void scan_spec(group_code c)
 
 When scanning, special care is necessary to ensure that the special
 |save_stack| codes are placed just below the new group code, because
-scanning can change |save_stack| when \.{\\csname} appears.  
+scanning can change |save_stack| when \.{\\csname} appears.
 
-This coincides with the text on |dir| and |attr| keywords, as these 
+This coincides with the text on |dir| and |attr| keywords, as these
 are exaclty the uses of \.{\\hbox}, \.{\\vbox}, and \.{\\vtop} in the
 input stream (the others are \.{\\vcenter}, \.{\\valign}, and
 \.{\\halign}).
@@ -241,7 +241,7 @@ scaled char_stretch(halfword p)
     int c;
     f = font(p);
     c = character(p);
-    k = pdf_font_stretch(f);
+    k = font_stretch(f);
     ef = get_ef_code(f, c);
     if ((k != null_font) && (ef > 0)) {
         dw = char_width(k, c) - char_width(f, c);
@@ -260,7 +260,7 @@ scaled char_shrink(halfword p)
     int c;
     f = font(p);
     c = character(p);
-    k = pdf_font_shrink(f);
+    k = font_shrink(f);
     ef = get_ef_code(f, c);
     if ((k != null_font) && (ef > 0)) {
         dw = char_width(f, c) - char_width(k, c);
@@ -280,9 +280,9 @@ scaled kern_stretch(halfword p)
     l = prev_char_p;
     r = vlink(p);
     if (!((is_char_node(l) && is_char_node(r) &&
-           (font(l) == font(r)) && (pdf_font_stretch(font(l)) != null_font))))
+           (font(l) == font(r)) && (font_stretch(font(l)) != null_font))))
         return 0;
-    d = get_kern(pdf_font_stretch(font(l)), character(l), character(r));
+    d = get_kern(font_stretch(font(l)), character(l), character(r));
     return round_xn_over_d(d - width(p),
                            get_ef_code(font(l), character(l)), 1000);
 }
@@ -297,9 +297,9 @@ scaled kern_shrink(halfword p)
     l = prev_char_p;
     r = vlink(p);
     if (!((is_char_node(l) && is_char_node(r) &&
-           (font(l) == font(r)) && (pdf_font_shrink(font(l)) != null_font))))
+           (font(l) == font(r)) && (font_shrink(font(l)) != null_font))))
         return 0;
-    d = get_kern(pdf_font_shrink(font(l)), character(l), character(r));
+    d = get_kern(font_shrink(font(l)), character(l), character(r));
     return round_xn_over_d(width(p) - d,
                            get_ef_code(font(l), character(l)), 1000);
 }
@@ -340,17 +340,18 @@ void do_subst_font(halfword p, int ex_ratio)
     ef = get_ef_code(f, character(r));
     if (ef == 0)
         return;
-    if ((pdf_font_expand_ratio(f) == 0) &&
-        (pdf_font_stretch(f) != null_font) && (ex_ratio > 0)) {
-        k = expand_font(f, ext_xn_over_d(ex_ratio * ef,
-                                         pdf_font_expand_ratio(pdf_font_stretch
-                                                               (f)), 1000000));
-    } else if ((pdf_font_expand_ratio(f) == 0)
-               && (pdf_font_shrink(f) != null_font) && (ex_ratio < 0)) {
+    if ((font_expand_ratio(f) == 0) &&
+        (font_stretch(f) != null_font) && (ex_ratio > 0)) {
         k = expand_font(f,
                         ext_xn_over_d(ex_ratio * ef,
-                                      -pdf_font_expand_ratio(pdf_font_shrink
-                                                             (f)), 1000000));
+                                      font_expand_ratio(font_stretch(f)),
+                                      1000000));
+    } else if ((font_expand_ratio(f) == 0)
+               && (font_shrink(f) != null_font) && (ex_ratio < 0)) {
+        k = expand_font(f,
+                        ext_xn_over_d(ex_ratio * ef,
+                                      -font_expand_ratio(font_shrink(f)),
+                                      1000000));
     } else {
         k = f;
     }

@@ -1,6 +1,6 @@
 /* printing.c
-   
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -303,7 +303,7 @@ void print(int s)
 
 /*
 The procedure |print_nl| is like |print|, but it makes sure that the
-string appears at the beginning of a new line. 
+string appears at the beginning of a new line.
 */
 
 void print_nlp(void)
@@ -736,11 +736,11 @@ void print_font_identifier(internal_font_number f)
             tprint("pt");
         }
         print_char(')');
-    } else if (pdf_font_expand_ratio(f) != 0) {
+    } else if (font_expand_ratio(f) != 0) {
         tprint(" (");
-        if (pdf_font_expand_ratio(f) > 0)
+        if (font_expand_ratio(f) > 0)
             print_char('+');
-        print_int(pdf_font_expand_ratio(f));
+        print_int(font_expand_ratio(f));
         print_char(')');
     }
 }

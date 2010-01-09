@@ -1,6 +1,6 @@
 /* texfont.h Main font API implementation for the pascal parts
    
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -122,8 +122,15 @@ typedef struct texfont {
     char _font_touched;         /* internal information */
     int _font_cache_id;         /* internal information */
     char _font_encodingbytes;   /* 1 or 2 bytes */
+
     int _font_slant;            /* a slant in ppt */
     int _font_extend;           /* an extension in ppt, or 1000 */
+    int _font_expand_ratio;     /* expansion ratio of a particular font */
+    internal_font_number _font_shrink;  /* font at limit of shrinking */
+    internal_font_number _font_stretch; /* font at limit of stretching */
+    int _font_step;             /* amount of one step of expansion */
+    boolean _font_auto_expand;  /* this font is auto-expanded? */
+
     char _font_tounicode;       /* 1 if info is present */
     fm_entry_ptr _font_map;
     int _font_type;
@@ -153,11 +160,6 @@ typedef struct texfont {
     int _pdf_font_num;          /* maps to a PDF resource ID */
     internal_font_number _pdf_font_blink;       /* link to  base font for expanded fonts */
     internal_font_number _pdf_font_elink;       /* link to expanded fonts for base font */
-    int _pdf_font_expand_ratio; /* expansion ratio of a particular font */
-    internal_font_number _pdf_font_shrink;      /* font at limit of shrinking */
-    internal_font_number _pdf_font_stretch;     /* font at limit of stretching */
-    int _pdf_font_step;         /* amount of one step of expansion */
-    boolean _pdf_font_auto_expand;      /* this font is auto-expanded? */
     str_number _pdf_font_attr;  /* pointer to additional attributes */
 } texfont;
 
@@ -285,6 +287,21 @@ boolean cmp_font_area(int, str_number);
 #  define font_extend(a)              font_tables[a]->_font_extend
 #  define set_font_extend(a,b)        font_extend(a) = b
 
+#  define font_expand_ratio(a)        font_tables[a]->_font_expand_ratio
+#  define set_font_expand_ratio(a,b)  font_expand_ratio(a) = b
+
+#  define font_shrink(a)              font_tables[a]->_font_shrink
+#  define set_font_shrink(a,b)        font_shrink(a) = b
+
+#  define font_stretch(a)             font_tables[a]->_font_stretch
+#  define set_font_stretch(a,b)       font_stretch(a) = b
+
+#  define font_step(a)                font_tables[a]->_font_step
+#  define set_font_step(a,b)          font_step(a) = b
+
+#  define font_auto_expand(a)         font_tables[a]->_font_auto_expand
+#  define set_font_auto_expand(a,b)   font_auto_expand(a) = b
+
 #  define font_tounicode(a)           font_tables[a]->_font_tounicode
 #  define set_font_tounicode(a,b)     font_tounicode(a) = b
 
@@ -300,26 +317,11 @@ boolean cmp_font_area(int, str_number);
 #  define pdf_font_num(a)             font_tables[a]->_pdf_font_num
 #  define set_pdf_font_num(a,b)       pdf_font_num(a) = b
 
-#  define pdf_font_blink(a)            font_tables[a]->_pdf_font_blink
-#  define set_pdf_font_blink(a,b)      pdf_font_blink(a) = b
+#  define pdf_font_blink(a)           font_tables[a]->_pdf_font_blink
+#  define set_pdf_font_blink(a,b)     pdf_font_blink(a) = b
 
-#  define pdf_font_elink(a)            font_tables[a]->_pdf_font_elink
-#  define set_pdf_font_elink(a,b)      pdf_font_elink(a) = b
-
-#  define pdf_font_expand_ratio(a)            font_tables[a]->_pdf_font_expand_ratio
-#  define set_pdf_font_expand_ratio(a,b)      pdf_font_expand_ratio(a) = b
-
-#  define pdf_font_shrink(a)            font_tables[a]->_pdf_font_shrink
-#  define set_pdf_font_shrink(a,b)      pdf_font_shrink(a) = b
-
-#  define pdf_font_stretch(a)            font_tables[a]->_pdf_font_stretch
-#  define set_pdf_font_stretch(a,b)      pdf_font_stretch(a) = b
-
-#  define pdf_font_step(a)            font_tables[a]->_pdf_font_step
-#  define set_pdf_font_step(a,b)      pdf_font_step(a) = b
-
-#  define pdf_font_auto_expand(a)            font_tables[a]->_pdf_font_auto_expand
-#  define set_pdf_font_auto_expand(a,b)      pdf_font_auto_expand(a) = b
+#  define pdf_font_elink(a)           font_tables[a]->_pdf_font_elink
+#  define set_pdf_font_elink(a,b)     pdf_font_elink(a) = b
 
 #  define pdf_font_attr(a)            font_tables[a]->_pdf_font_attr
 #  define set_pdf_font_attr(a,b)      pdf_font_attr(a) = b

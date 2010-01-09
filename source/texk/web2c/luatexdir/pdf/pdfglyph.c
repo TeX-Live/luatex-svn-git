@@ -62,7 +62,7 @@ static void setup_fontparameters(PDF pdf, internal_font_number f)
     p->fs.m = lround(font_size(f) / one_bp * ten_pow[p->fs.e]);
     slant = font_slant(f) / 1000.0;
     extend = font_extend(f) / 1000.0;
-    expand = 1.0 + pdf_font_expand_ratio(f) / 1000.0;
+    expand = 1.0 + font_expand_ratio(f) / 1000.0;
     p->tj_delta.e = p->cw.e - 1;        /* "- 1" makes less corrections inside []TJ */
     /* no need to be more precise than TeX (1sp) */
     while (p->tj_delta.e > 0

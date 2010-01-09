@@ -65,7 +65,7 @@ void output_one_char(PDF pdf, internal_font_number ffi, int c)
         backend_out[glyph_node] (pdf, ffi, c);  /* pdf_place_glyph(pdf, ffi, c); */
 }
 
-/* mark |f| as a used font; set |font_used(f)|, |pdf_font_size(f)| and |pdf_font_num(f)| */
+/* mark |f| as a used font; set |font_used(f)|, |font_size(f)| and |pdf_font_num(f)| */
 static void pdf_use_font(internal_font_number f, int fontnum)
 {
     set_font_used(f, true);
@@ -101,7 +101,7 @@ static boolean font_shareable(internal_font_number f, internal_font_number k)
         if (hasfmentry(k)
             && (font_map(k) == font_map(f))
             && (same_font_name(k, f)
-                || (pdf_font_auto_expand(f)
+                || (font_auto_expand(f)
                     && (pdf_font_blink(f) != 0) /* 0 = nullfont */
                     &&same_font_name(k, pdf_font_blink(f))))) {
             ret = 1;
@@ -111,7 +111,7 @@ static boolean font_shareable(internal_font_number f, internal_font_number k)
              strcmp(font_filename(k), font_filename(f)) == 0 &&
              font_fullname(k) != NULL && font_fullname(f) != NULL &&
              strcmp(font_fullname(k), font_fullname(f)) == 0)
-            || (pdf_font_auto_expand(f)
+            || (font_auto_expand(f)
                 && (pdf_font_blink(f) != 0)     /* 0 = nullfont */
                 &&same_font_name(k, pdf_font_blink(f)))) {
             ret = 1;
@@ -134,7 +134,7 @@ void pdf_init_font(PDF pdf, internal_font_number f)
     assert(!font_used(f));
 
     /* if |f| is auto expanded then ensure the base font is initialized */
-    if (pdf_font_auto_expand(f) && (pdf_font_blink(f) != null_font)) {
+    if (font_auto_expand(f) && (pdf_font_blink(f) != null_font)) {
         b = pdf_font_blink(f);
         /* TODO: reinstate this check. disabled because wide fonts font have fmentries */
         if (false && (!hasfmentry(b)))
@@ -199,9 +199,9 @@ internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
 void copy_expand_params(internal_font_number k, internal_font_number f, int e)
 {                               /* set expansion-related parameters for an expanded font |k|, based on the base
                                    font |f| and the expansion amount |e| */
-    set_pdf_font_expand_ratio(k, e);
-    set_pdf_font_step(k, pdf_font_step(f));
-    set_pdf_font_auto_expand(k, pdf_font_auto_expand(f));
+    set_font_expand_ratio(k, e);
+    set_font_step(k, font_step(f));
+    set_font_auto_expand(k, font_auto_expand(f));
     set_pdf_font_blink(k, f);
 }
 
@@ -226,13 +226,13 @@ internal_font_number tfm_lookup(str_number s, scaled fs)
 
 internal_font_number load_expand_font(internal_font_number f, int e)
 {                               /* loads font |f| expanded by |e| thousandths into font memory; |e| is nonzero
-                                   and is a multiple of |pdf_font_step(f)| */
+                                   and is a multiple of |font_step(f)| */
     str_number s;               /* font name */
     internal_font_number k;
     s = expand_font_name(f, e);
     k = tfm_lookup(s, font_size(f));
     if (k == null_font) {
-        if (pdf_font_auto_expand(f)) {
+        if (font_auto_expand(f)) {
             k = auto_expand_font(f, e);
             font_id_text(k) = font_id_text(f);
         } else {
@@ -244,7 +244,7 @@ internal_font_number load_expand_font(internal_font_number f, int e)
 }
 
 int fix_expand_value(internal_font_number f, int e)
-{                               /* return the multiple of |pdf_font_step(f)| that is nearest to |e| */
+{                               /* return the multiple of |font_step(f)| that is nearest to |e| */
     int step;
     int max_expand;
     boolean neg;
@@ -253,15 +253,15 @@ int fix_expand_value(internal_font_number f, int e)
     if (e < 0) {
         e = -e;
         neg = true;
-        max_expand = -pdf_font_expand_ratio(pdf_font_shrink(f));
+        max_expand = -font_expand_ratio(font_shrink(f));
     } else {
         neg = false;
-        max_expand = pdf_font_expand_ratio(pdf_font_stretch(f));
+        max_expand = font_expand_ratio(font_stretch(f));
     }
     if (e > max_expand) {
         e = max_expand;
     } else {
-        step = pdf_font_step(f);
+        step = font_step(f);
         if (e % step > 0)
             e = step * round_xn_over_d(e, 1, step);
     }
@@ -272,11 +272,11 @@ int fix_expand_value(internal_font_number f, int e)
 
 internal_font_number get_expand_font(internal_font_number f, int e)
 {                               /* look up and create if not found an expanded version of |f|; |f| is an
-                                   expandable font; |e| is nonzero and is a multiple of |pdf_font_step(f)| */
+                                   expandable font; |e| is nonzero and is a multiple of |font_step(f)| */
     internal_font_number k;
     k = pdf_font_elink(f);
     while (k != null_font) {
-        if (pdf_font_expand_ratio(k) == e)
+        if (font_expand_ratio(k) == e)
             return k;
         k = pdf_font_elink(k);
     }
@@ -303,14 +303,14 @@ void set_expand_params(internal_font_number f, boolean auto_expand,
                        int stretch_limit, int shrink_limit,
                        int font_step, int expand_ratio)
 {                               /* expand a font with given parameters */
-    set_pdf_font_step(f, font_step);
-    set_pdf_font_auto_expand(f, auto_expand);
+    set_font_step(f, font_step);
+    set_font_auto_expand(f, auto_expand);
     if (stretch_limit > 0)
-        set_pdf_font_stretch(f, get_expand_font(f, stretch_limit));
+        set_font_stretch(f, get_expand_font(f, stretch_limit));
     if (shrink_limit > 0)
-        set_pdf_font_shrink(f, get_expand_font(f, -shrink_limit));
+        set_font_shrink(f, get_expand_font(f, -shrink_limit));
     if (expand_ratio != 0)
-        set_pdf_font_expand_ratio(f, expand_ratio);
+        set_font_expand_ratio(f, expand_ratio);
 }
 
 void read_expand_font(void)
@@ -353,28 +353,28 @@ void read_expand_font(void)
     }
 
     /* check if the font can be expanded */
-    if (pdf_font_expand_ratio(f) != 0)
+    if (font_expand_ratio(f) != 0)
         pdf_error("font expansion",
                   "this font has been expanded by another font so it cannot be used now");
-    if (pdf_font_step(f) != 0) {
+    if (font_step(f) != 0) {
         /* this font has been expanded, ensure the expansion parameters are identical */
-        if (pdf_font_step(f) != font_step)
+        if (font_step(f) != font_step)
             pdf_error("font expansion",
                       "font has been expanded with different expansion step");
 
-        if (((pdf_font_stretch(f) == null_font) && (stretch_limit != 0)) ||
-            ((pdf_font_stretch(f) != null_font)
-             && (pdf_font_expand_ratio(pdf_font_stretch(f)) != stretch_limit)))
+        if (((font_stretch(f) == null_font) && (stretch_limit != 0)) ||
+            ((font_stretch(f) != null_font)
+             && (font_expand_ratio(font_stretch(f)) != stretch_limit)))
             pdf_error("font expansion",
                       "font has been expanded with different stretch limit");
 
-        if (((pdf_font_shrink(f) == null_font) && (shrink_limit != 0)) ||
-            ((pdf_font_shrink(f) != null_font)
-             && (-pdf_font_expand_ratio(pdf_font_shrink(f)) != shrink_limit)))
+        if (((font_shrink(f) == null_font) && (shrink_limit != 0)) ||
+            ((font_shrink(f) != null_font)
+             && (-font_expand_ratio(font_shrink(f)) != shrink_limit)))
             pdf_error("font expansion",
                       "font has been expanded with different shrink limit");
 
-        if (pdf_font_auto_expand(f) != auto_expand)
+        if (font_auto_expand(f) != auto_expand)
             pdf_error("font expansion",
                       "font has been expanded with different auto expansion value");
     } else {

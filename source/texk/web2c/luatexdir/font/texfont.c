@@ -1477,6 +1477,11 @@ void dump_font_entry(texfont * f)
     dump_int(f->_font_encodingbytes);
     dump_int(f->_font_slant);
     dump_int(f->_font_extend);
+    dump_int(f->_font_expand_ratio);
+    dump_int(f->_font_shrink);
+    dump_int(f->_font_stretch);
+    dump_int(f->_font_step);
+    dump_int(f->_font_auto_expand);
     dump_int(f->_font_tounicode);
     dump_int(f->_font_type);
     dump_int(f->_font_format);
@@ -1491,11 +1496,6 @@ void dump_font_entry(texfont * f)
     dump_int(f->_pdf_font_num);
     dump_int(f->_pdf_font_blink);
     dump_int(f->_pdf_font_elink);
-    dump_int(f->_pdf_font_expand_ratio);
-    dump_int(f->_pdf_font_shrink);
-    dump_int(f->_pdf_font_stretch);
-    dump_int(f->_pdf_font_step);
-    dump_int(f->_pdf_font_auto_expand);
     dump_int(f->_pdf_font_attr);
 }
 
@@ -1651,6 +1651,11 @@ void undump_font_entry(texfont * f)
     undump_int(x); f->_font_encodingbytes = x;
     undump_int(x); f->_font_slant = x;
     undump_int(x); f->_font_extend = x;
+    undump_int(x); f->_font_expand_ratio = x;
+    undump_int(x); f->_font_shrink = x;
+    undump_int(x); f->_font_stretch = x;
+    undump_int(x); f->_font_step = x;
+    undump_int(x); f->_font_auto_expand = x;
     undump_int(x); f->_font_tounicode = x;
     undump_int(x); f->_font_type = x;
     undump_int(x); f->_font_format = x;
@@ -1665,11 +1670,6 @@ void undump_font_entry(texfont * f)
     undump_int(x); f->_pdf_font_num = x;
     undump_int(x); f->_pdf_font_blink = x;
     undump_int(x); f->_pdf_font_elink = x;
-    undump_int(x); f->_pdf_font_expand_ratio = x;
-    undump_int(x); f->_pdf_font_shrink = x;
-    undump_int(x); f->_pdf_font_stretch = x;
-    undump_int(x); f->_pdf_font_step = x;
-    undump_int(x); f->_pdf_font_auto_expand = x;
     undump_int(x); f->_pdf_font_attr = x;
     /* *INDENT-ON* */  
 }
