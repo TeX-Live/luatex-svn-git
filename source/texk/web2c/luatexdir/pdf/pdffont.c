@@ -154,7 +154,7 @@ void pdf_init_font(PDF pdf, internal_font_number f)
        expanded from |k|
      */
     if ((fm = getfontmap(font_name(f))) != NULL || true) {
-        if (font_map(f) == NULL) {
+        if (font_map(f) == NULL && fm != NULL) {
             font_map(f) = fm;
             if (is_slantset(fm))
                 font_slant(f) = fm->slant;
