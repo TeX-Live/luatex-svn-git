@@ -1,7 +1,7 @@
 /* mapfile.c
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -56,8 +56,6 @@ typedef struct mitem {
 } mapitem;
 mapitem *mitem = NULL;
 
-static const char nontfm[] = "<nontfm>";
-
 #define read_field(r, q, buf) do {  \
     q = buf;                        \
     while (*r != ' ' && *r != '<' && *r != '"' && *r != '\0') \
@@ -86,7 +84,6 @@ fm_entry *new_fm_entry(void)
     fm->type = 0;
     fm->slant = 0;
     fm->extend = 1000;
-    fm->links = 0;
     fm->pid = -1;
     fm->eid = -1;
     fm->subfont = NULL;
@@ -169,44 +166,39 @@ int avl_do_entry(fm_entry * fm, int mode)
     fm_entry *p;
     void *a;
     void **aa;
-    if (strcmp(fm->tfm_name, nontfm)) {
-        p = (fm_entry *) avl_find(tfm_tree, fm);
-        if (p != NULL) {
-            switch (mode) {
-            case FM_DUPIGNORE:
+    int delete_new = 0;
+    p = (fm_entry *) avl_find(tfm_tree, fm);
+    if (p != NULL) {
+        switch (mode) {
+        case FM_DUPIGNORE:
+            pdftex_warn
+                ("fontmap entry for `%s' already exists, duplicates ignored",
+                 fm->tfm_name);
+            delete_new = 1;
+            break;
+        case FM_REPLACE:
+        case FM_DELETE:
+            if (is_inuse(p)) {
                 pdftex_warn
-                    ("fontmap entry for `%s' already exists, duplicates ignored",
+                    ("fontmap entry for `%s' has been used, replace/delete not allowed",
                      fm->tfm_name);
-                goto exit;
-                break;
-            case FM_REPLACE:
-            case FM_DELETE:
-                if (is_inuse(p)) {
-                    pdftex_warn
-                        ("fontmap entry for `%s' has been used, replace/delete not allowed",
-                         fm->tfm_name);
-                    goto exit;
-                }
+                delete_new = 1;
+            } else {
                 a = avl_delete(tfm_tree, p);
                 assert(a != NULL);
-                unset_tfmlink(p);
                 delete_fm_entry(p);
-                break;
-            default:
-                assert(0);
             }
-        }
-        if (mode != FM_DELETE) {
-            aa = avl_probe(tfm_tree, fm);
-            assert(aa != NULL);
-            set_tfmlink(fm);
+            break;
+        default:
+            assert(0);
         }
     }
-  exit:
-    if (!has_tfmlink(fm))       /* e. g. after FM_DELETE */
-        return 1;               /* deallocation of fm_entry structure required */
-    else
-        return 0;
+    if ((mode == FM_DUPIGNORE || mode == FM_REPLACE) && delete_new == 0) {
+        aa = avl_probe(tfm_tree, fm);
+        assert(aa != NULL);
+    } else
+        delete_new = 1;
+    return delete_new;
 }
 
 /* add the encoding name to an AVL tree. this has nothing to do with writeenc.c */
@@ -499,7 +491,7 @@ static void fm_scan_line(void)
      */
     if (handle_subfont_fm(fm, mitem->mode))     /* is this a subfont? */
         return;
-    if (avl_do_entry(fm, mitem->mode) == 0)     /* if success */
+    if (avl_do_entry(fm, mitem->mode) == 0)
         return;
   bad_line:
     delete_fm_entry(fm);
@@ -591,7 +583,6 @@ static fm_entry_ptr fmlookup(internalfontnumber f)
     tfm = font_name(f);
     if (tfm == NULL)            /* wide, lua loaded fonts may not have a name */
         return (fm_entry_ptr) dummy_fm_entry();
-    assert(strcmp(tfm, nontfm));
 
     /* Look up for tfmname */
     tmp.tfm_name = tfm;

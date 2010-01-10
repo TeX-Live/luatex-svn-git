@@ -82,11 +82,6 @@ extern void process_map_item(char *s, int type);
 #  define is_t1fontfile(fm)   (is_fontfile(fm) && is_type1(fm))
 #  define is_builtin(fm)      (!is_fontfile(fm))
 
-#  define LINK_TFM            0x01
-#  define set_tfmlink(fm)     ((fm)->links |= LINK_TFM)
-#  define unset_tfmlink(fm)   ((fm)->links &= ~LINK_TFM)
-#  define has_tfmlink(fm)     ((fm)->links & LINK_TFM)
-
 /**********************************************************************/
 
 typedef struct {
@@ -104,7 +99,6 @@ typedef struct {
     short eid;                  /* Eid for truetype fonts */
     /* parameters NOT scanned from the map file: */
     subfont_entry *subfont;     /* subfont mapping */
-    unsigned short links;       /* link flags from tfm_tree and ps_tree */
 } fm_entry;
 
 typedef struct {
