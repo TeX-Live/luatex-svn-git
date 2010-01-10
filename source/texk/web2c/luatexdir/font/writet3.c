@@ -1,7 +1,7 @@
 /* writet3.c
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -73,7 +73,7 @@ static void update_bbox(int llx, int lly, int urx, int ury,
     }
 }
 
-static int get_pk_font_scale(internalfontnumber f, int precision,
+static int get_pk_font_scale(internal_font_number f, int precision,
                              int scale_factor)
 {
     return
@@ -82,7 +82,7 @@ static int get_pk_font_scale(internalfontnumber f, int precision,
                                     precision + 2), 0);
 }
 
-static int pk_char_width(internalfontnumber f, scaled w, int precision,
+static int pk_char_width(internal_font_number f, scaled w, int precision,
                          int scale_factor)
 {
     return
@@ -222,7 +222,7 @@ static boolean writepk(PDF pdf, internal_font_number f)
     return true;
 }
 
-void writet3(PDF pdf, int objnum, internalfontnumber f)
+void writet3(PDF pdf, int objnum, internal_font_number f)
 {
 
     int i;

@@ -1,6 +1,6 @@
 /* luatexfont.h --- General font definitions
 
-   Copyright 2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2008-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -108,7 +108,7 @@ typedef struct fd_entry_ {
 
 typedef struct fo_entry_ {
     int fo_objnum;              /* object number of the font dictionary */
-    internalfontnumber tex_font;        /* needed only for \pdffontattr{} */
+    internal_font_number tex_font; /* needed only for \pdffontattr{} */
     fm_entry *fm;               /* pointer to font map structure for this font dictionary */
     fd_entry *fd;               /* pointer to /FontDescriptor object structure */
     fe_entry *fe;               /* pointer to encoding structure */
@@ -158,7 +158,7 @@ void writetype1w(PDF pdf, fd_entry * fd);
 void writetype0(PDF pdf, fd_entry * fd);
 
 /* writefont.c */
-void do_pdf_font(PDF, int, internalfontnumber);
+void do_pdf_font(PDF, int, internal_font_number);
 fd_entry *lookup_fd_entry(char *);
 fd_entry *new_fd_entry(void);
 void write_fontstuff(PDF);
@@ -210,7 +210,7 @@ internal_font_number copy_font_info(internal_font_number f);
 
 /* writet3.c */
 extern FILE *t3_file;
-void writet3(PDF, int, internalfontnumber);
+void writet3(PDF, int, internal_font_number);
 
 extern unsigned char *t3_buffer;
 extern int t3_size;

@@ -25,10 +25,10 @@ static const char _svn_version[] =
 #include "ptexlib.h"
 #include "luatexfont.h"
 
-void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internalfontnumber f);
+void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internal_font_number f);
 void create_cid_fontdictionary(PDF pdf,
                                fm_entry * fm, int font_objnum,
-                               internalfontnumber f);
+                               internal_font_number f);
 
 const key_entry font_key[FONT_KEYS_NUM] = {
     {"Ascent", "Ascender", 1}
@@ -119,7 +119,7 @@ fd_entry *new_fd_entry(void)
  * these values are replaced by metrics from the font, if available.
  */
 
-static void preset_fontmetrics(fd_entry * fd, internalfontnumber f)
+static void preset_fontmetrics(fd_entry * fd, internal_font_number f)
 {
     int i;
     fd->font_dim[ITALIC_ANGLE_CODE].val = 0;
@@ -194,7 +194,7 @@ static void write_fontmetrics(PDF pdf, fd_entry * fd)
 
 /**********************************************************************/
 
-static void preset_fontname(fo_entry * fo, internalfontnumber f)
+static void preset_fontname(fo_entry * fo, internal_font_number f)
 {
     if (fo->fm->ps_name != NULL)
         fo->fd->fontname = xstrdup(fo->fm->ps_name);    /* just fallback */
@@ -260,7 +260,7 @@ void register_fd_entry(fd_entry * fd)
     assert(aa != NULL);
 }
 
-void create_fontdescriptor(fo_entry * fo, internalfontnumber f)
+void create_fontdescriptor(fo_entry * fo, internal_font_number f)
 {
     assert(fo != NULL);
     assert(fo->fm != NULL);
@@ -281,7 +281,7 @@ void create_fontdescriptor(fo_entry * fo, internalfontnumber f)
  * tree gl_tree of font descriptor fd referenced by font dictionary fo.
  */
 
-void mark_reenc_glyphs(fo_entry * fo, internalfontnumber f)
+void mark_reenc_glyphs(fo_entry * fo, internal_font_number f)
 {
     int i;
     char **g;
@@ -308,7 +308,7 @@ void mark_reenc_glyphs(fo_entry * fo, internalfontnumber f)
  */
 
 struct avl_table *mark_chars(fo_entry * fo, struct avl_table *tx_tree,
-                             internalfontnumber f)
+                             internal_font_number f)
 {
     int i, *j;
     void **aa;
@@ -329,7 +329,7 @@ struct avl_table *mark_chars(fo_entry * fo, struct avl_table *tx_tree,
 
 /**********************************************************************/
 
-void get_char_range(fo_entry * fo, internalfontnumber f)
+void get_char_range(fo_entry * fo, internal_font_number f)
 {
     int i;
     assert(fo != NULL);
@@ -348,7 +348,7 @@ void get_char_range(fo_entry * fo, internalfontnumber f)
     }
 }
 
-static int font_has_subset(internalfontnumber f)
+static int font_has_subset(internal_font_number f)
 {
     int i, s;
     for (i = font_bc(f); i <= font_ec(f); i++)  /* search for first_char and last_char */
@@ -364,7 +364,7 @@ static int font_has_subset(internalfontnumber f)
         return 1;
 }
 
-static void write_charwidth_array(PDF pdf, fo_entry * fo, internalfontnumber f)
+static void write_charwidth_array(PDF pdf, fo_entry * fo, internal_font_number f)
 {
     int i, j, *ip, *fip;
     struct avl_traverser t;
@@ -664,7 +664,7 @@ void write_fontstuff(PDF pdf)
 /**********************************************************************/
 
 void create_fontdictionary(PDF pdf, fm_entry * fm, int font_objnum,
-                           internalfontnumber f)
+                           internal_font_number f)
 {
     fo_entry *fo = new_fo_entry();
     get_char_range(fo, f);      /* set fo->first_char and fo->last_char from f */
@@ -746,7 +746,7 @@ static int has_ttf_outlines(fm_entry * fm)
 
 extern char *FindResourceTtfFont(char *filename, char *fontname);
 
-void do_pdf_font(PDF pdf, int font_objnum, internalfontnumber f)
+void do_pdf_font(PDF pdf, int font_objnum, internal_font_number f)
 {
     int del_file = 0;
     fm_entry *fm;
@@ -866,7 +866,7 @@ int comp_glw_entry(const void *pa, const void *pb, void *p)
     return 0;
 }
 
-void create_cid_fontdescriptor(fo_entry * fo, internalfontnumber f)
+void create_cid_fontdescriptor(fo_entry * fo, internal_font_number f)
 {
     assert(fo != NULL);
     assert(fo->fm != NULL);
@@ -966,7 +966,7 @@ static void write_cid_charwidth_array(PDF pdf, fo_entry * fo)
 
 void create_cid_fontdictionary(PDF pdf,
                                fm_entry * fm, int font_objnum,
-                               internalfontnumber f)
+                               internal_font_number f)
 {
     fo_entry *fo = new_fo_entry();
     get_char_range(fo, f);      /* set fo->first_char and fo->last_char from f */
@@ -991,7 +991,7 @@ void create_cid_fontdictionary(PDF pdf,
     xfree(fo);
 }
 
-void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internalfontnumber f)
+void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internal_font_number f)
 {
     int i;
 

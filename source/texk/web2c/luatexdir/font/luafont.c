@@ -1,6 +1,6 @@
 /* luafont.c
 
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -134,7 +134,7 @@ void dump_math_kerns(lua_State * L, charinfo * co, int l, int id)
 }
 
 
-void font_char_to_lua(lua_State * L, internalfontnumber f, charinfo * co)
+void font_char_to_lua(lua_State * L, internal_font_number f, charinfo * co)
 {
     int i, j;
     liginfo *l;

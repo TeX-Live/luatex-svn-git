@@ -1,6 +1,6 @@
 /* tfmofm.c
    
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -574,7 +574,7 @@ typedef struct tfmcharacterinfo {
     unsigned char _tag;
 } tfmcharacterinfo;
 
-int read_tfm_info(internalfontnumber f, char *cnom, scaled s)
+int read_tfm_info(internal_font_number f, char *cnom, scaled s)
 {
     int k;                      /* index into |font_info| */
     halfword lf, lh, bc, ec, nw, nh, nd, ni, nl, nk, ne, np, slh;       /* sizes of subfiles */

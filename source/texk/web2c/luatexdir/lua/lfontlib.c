@@ -1,6 +1,6 @@
 /* lfontlib.c
    
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -44,7 +44,7 @@ static int get_fontid(void)
 
 static int font_read_tfm(lua_State * L)
 {
-    internalfontnumber f;
+    internal_font_number f;
     scaled s;
     int k;
     char *cnom;

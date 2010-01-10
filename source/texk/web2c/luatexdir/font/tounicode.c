@@ -1,6 +1,6 @@
 /* tounicode.c
    Copyright 2006 Han The Thanh, <thanh@pdftex.org>
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -458,7 +458,7 @@ int write_tounicode(PDF pdf, char **glyph_names, char *name)
     return objnum;
 }
 
-int write_cid_tounicode(PDF pdf, fo_entry * fo, internalfontnumber f)
+int write_cid_tounicode(PDF pdf, fo_entry * fo, internal_font_number f)
 {
 
     int range_size[65537];

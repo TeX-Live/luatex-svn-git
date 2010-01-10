@@ -525,9 +525,9 @@ extern char char_used(internal_font_number f, int c);
 extern char *char_name(internal_font_number f, int c);
 extern int char_index(internal_font_number f, int c);
 
-scaled raw_get_kern(internalfontnumber f, int lc, int rc);
-scaled get_kern(internalfontnumber f, int lc, int rc);
-liginfo get_ligature(internalfontnumber f, int lc, int rc);
+scaled raw_get_kern(internal_font_number f, int lc, int rc);
+scaled get_kern(internal_font_number f, int lc, int rc);
+liginfo get_ligature(internal_font_number f, int lc, int rc);
 
 #  define EXT_TOP 0
 #  define EXT_BOT 1

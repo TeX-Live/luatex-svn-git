@@ -1,6 +1,6 @@
 /* memoryword.h
    
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -116,7 +116,6 @@ typedef union {
 /* the next five defines are needed for the prototypes in web2c's coerce.h */
 
 #  define memoryword memory_word
-#  define internalfontnumber internal_font_number
 #  define strnumber str_number
 #  define packedASCIIcode packed_ASCII_code
 #  define poolpointer pool_pointer
