@@ -35,7 +35,6 @@
 #  define F_INUSE             (1 << 10)
 
 typedef enum { MAPFILE, MAPLINE } maptype;
-extern void process_map_item(char *s, int type);
 
 #  define set_included(fm)    ((fm)->type |= F_INCLUDED)
 #  define set_subsetted(fm)   ((fm)->type |= F_SUBSETTED)
@@ -117,7 +116,6 @@ typedef struct {
 
 boolean hasfmentry(internalfontnumber);
 void fm_free(void);
-void fm_read_info(void);
 ff_entry *check_ff_exist(char *, boolean);
 void pdfmapfile(int);
 void pdfmapline(int);
@@ -127,5 +125,6 @@ void delete_fm_entry(fm_entry *);
 int avl_do_entry(fm_entry *, int);
 int check_std_t1font(char *s);
 int is_subsetable(fm_entry * fm);
+void process_map_item(char *s, int type);
 
 #endif                          /* MAPFILE_H */

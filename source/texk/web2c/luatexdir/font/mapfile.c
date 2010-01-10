@@ -36,10 +36,8 @@ static unsigned char *fm_buffer = NULL;
 static int fm_size = 0;
 static int fm_curbyte = 0;
 
-#define fm_open(a)       \
-    (fm_file = fopen((char *)(a), FOPEN_RBIN_MODE))
-#define fm_read_file()  \
-    readbinfile(fm_file,&fm_buffer,&fm_size)
+#define fm_open(a)      (fm_file = fopen((char *)(a), FOPEN_RBIN_MODE))
+#define fm_read_file()  readbinfile(fm_file,&fm_buffer,&fm_size)
 #define fm_close()      xfclose(fm_file, cur_file_name)
 #define fm_getchar()    fm_buffer[fm_curbyte++]
 #define fm_eof()        (fm_curbyte>fm_size)
@@ -126,9 +124,9 @@ static fm_entry *dummy_fm_entry(void)
 
 /**********************************************************************/
 
-struct avl_table *tfm_tree = NULL;
-struct avl_table *ff_tree = NULL;
-struct avl_table *encname_tree = NULL;
+static struct avl_table *tfm_tree = NULL;
+static struct avl_table *ff_tree = NULL;
+static struct avl_table *encname_tree = NULL;
 
 /* AVL sort fm_entry into tfm_tree by tfm_name */
 
@@ -203,7 +201,7 @@ int avl_do_entry(fm_entry * fm, int mode)
 
 /* add the encoding name to an AVL tree. this has nothing to do with writeenc.c */
 
-char *add_encname(char *s)
+static char *add_encname(char *s)
 {
     char *p;
     void **aa;
@@ -220,7 +218,7 @@ char *add_encname(char *s)
 /**********************************************************************/
 /* consistency check for map entry, with warn flag */
 
-int check_fm_entry(fm_entry * fm, boolean warn)
+static int check_fm_entry(fm_entry * fm, boolean warn)
 {
     int a = 0;
     assert(fm != NULL);
@@ -332,7 +330,6 @@ int check_std_t1font(char *s)
         return k;
     return -1;
 };
-
 
 /**********************************************************************/
 
@@ -499,7 +496,7 @@ static void fm_scan_line(void)
 
 /**********************************************************************/
 
-void fm_read_info(void)
+static void fm_read_info(void)
 {
     int callback_id;
     int file_opened = 0;
@@ -776,6 +773,3 @@ void fm_free(void)
         ff_tree = NULL;
     }
 }
-
-/**********************************************************************/
-/* end of mapfile.c */
