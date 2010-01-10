@@ -159,6 +159,8 @@ int avl_do_entry(fm_entry * fm, int mode)
     void *a;
     void **aa;
     int delete_new = 0;
+    if (tfm_tree == NULL)
+        create_avl_trees();
     p = (fm_entry *) avl_find(tfm_tree, fm);
     if (p != NULL) {
         switch (mode) {
