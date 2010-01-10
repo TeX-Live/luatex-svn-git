@@ -114,7 +114,7 @@ typedef struct {
 
 /**********************************************************************/
 
-boolean hasfmentry(internalfontnumber);
+fm_entry *getfontmap(char *tfm_name);
 void fm_free(void);
 ff_entry *check_ff_exist(char *, boolean);
 void pdfmapfile(int);

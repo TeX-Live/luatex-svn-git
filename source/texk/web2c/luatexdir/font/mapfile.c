@@ -116,12 +116,6 @@ static void delete_ff_entry(ff_entry * ff)
     xfree(ff);
 }
 
-static fm_entry *dummy_fm_entry(void)
-{
-    static const fm_entry const_fm_entry;
-    return (fm_entry *) & const_fm_entry;
-}
-
 /**********************************************************************/
 
 static struct avl_table *tfm_tree = NULL;
@@ -570,38 +564,20 @@ static void fm_read_info(void)
 
 /**********************************************************************/
 
-static fm_entry_ptr fmlookup(internalfontnumber f)
+fm_entry *getfontmap(char *tfm_name)
 {
-    char *tfm;
     fm_entry *fm;
     fm_entry tmp;
+    if (tfm_name == NULL)       /* wide, lua loaded fonts may not have a name */
+        return NULL;
     if (tfm_tree == NULL)
         fm_read_info();         /* only to read default map file */
-    tfm = font_name(f);
-    if (tfm == NULL)            /* wide, lua loaded fonts may not have a name */
-        return (fm_entry_ptr) dummy_fm_entry();
-
-    /* Look up for tfmname */
-    tmp.tfm_name = tfm;
+    tmp.tfm_name = tfm_name;    /* Look up for tfmname */
     fm = (fm_entry *) avl_find(tfm_tree, &tmp);
-    if (fm != NULL) {
-        set_inuse(fm);
-        return (fm_entry_ptr) fm;
-    }
-    return (fm_entry_ptr) dummy_fm_entry();
-}
-
-boolean hasfmentry(internalfontnumber f)
-{
-    if (font_map(f) == NULL)
-        set_font_map(f, (fm_entry_ptr) fmlookup(f));
-    assert(font_map(f) != NULL);
-    /* TODO: this still overrides already set font_slant(f) */
-    if (is_slantset((fm_entry *) font_map(f)))
-        font_slant(f) = ((fm_entry *) font_map(f))->slant;
-    if (is_extendset((fm_entry *) font_map(f)))
-        font_extend(f) = ((fm_entry *) font_map(f))->extend;
-    return font_map(f) != (fm_entry_ptr) dummy_fm_entry();
+    if (fm == NULL)
+        return NULL;
+    set_inuse(fm);
+    return fm;
 }
 
 /**********************************************************************/

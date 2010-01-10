@@ -93,17 +93,24 @@ static boolean same_font_name(int id, int t)
 static boolean font_shareable(internal_font_number f, internal_font_number k)
 {
     int ret = 0;
+    fm_entry *fm;
     /* For some lua-loaded (for instance AFM) fonts, it is normal to have
        a zero cidregistry,  and such fonts do not have a fontmap entry yet
-       at this point, so the test shoulh use the other branch  */
+       at this point, so the test should use the other branch  */
     if (font_cidregistry(f) == NULL && font_cidregistry(k) == NULL &&
         font_encodingbytes(f) != 2 && font_encodingbytes(k) != 2) {
-        if (hasfmentry(k)
-            && (font_map(k) == font_map(f))
+        if ((fm = getfontmap(font_name(k))) != NULL && (fm == font_map(f))
             && (same_font_name(k, f)
                 || (font_auto_expand(f)
                     && (pdf_font_blink(f) != 0) /* 0 = nullfont */
                     &&same_font_name(k, pdf_font_blink(f))))) {
+            if (font_map(k) == NULL) {
+                font_map(k) = fm;
+                if (is_slantset(fm))
+                    font_slant(k) = fm->slant;
+                if (is_extendset(fm))
+                    font_extend(k) = fm->extend;
+            }
             ret = 1;
         }
     } else {
@@ -130,16 +137,13 @@ static boolean font_shareable(internal_font_number f, internal_font_number k)
 void pdf_init_font(PDF pdf, internal_font_number f)
 {
     internal_font_number k, b;
+    fm_entry *fm;
     int i;
     assert(!font_used(f));
 
     /* if |f| is auto expanded then ensure the base font is initialized */
     if (font_auto_expand(f) && (pdf_font_blink(f) != null_font)) {
         b = pdf_font_blink(f);
-        /* TODO: reinstate this check. disabled because wide fonts font have fmentries */
-        if (false && (!hasfmentry(b)))
-            pdf_error("font expansion",
-                      "auto expansion is only possible with scalable fonts");
         if (!font_used(b))
             pdf_init_font(pdf, b);
         set_font_map(f, font_map(b));
@@ -149,7 +153,14 @@ void pdf_init_font(PDF pdf, internal_font_number f)
        different sizes, eg 'cmr10' and 'cmr10 at 11pt'); 2) |f| has been auto
        expanded from |k|
      */
-    if (hasfmentry(f) || true) {
+    if ((fm = getfontmap(font_name(f))) != NULL || true) {
+        if (font_map(f) == NULL) {
+            font_map(f) = fm;
+            if (is_slantset(fm))
+                font_slant(f) = fm->slant;
+            if (is_extendset(fm))
+                font_extend(f) = fm->extend;
+        }
         i = pdf->head_tab[obj_type_font];
         while (i != 0) {
             k = obj_info(pdf, i);

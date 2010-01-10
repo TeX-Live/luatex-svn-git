@@ -1,7 +1,7 @@
 /* writefont.c
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -828,16 +828,23 @@ void do_pdf_font(PDF pdf, int font_objnum, internalfontnumber f)
             unlink(fm->ff_name);
 
     } else {
-        fm = hasfmentry(f) ? (fm_entry *) font_map(f) : NULL;
+        fm = getfontmap(font_name(f));
         if (fm == NULL || (fm->ps_name == NULL && fm->ff_name == NULL))
             writet3(pdf, font_objnum, f);
-        else
+        else {
+            if (font_map(f) == NULL) {
+                font_map(f) = fm;
+                if (is_slantset(fm))
+                    font_slant(f) = fm->slant;
+                if (is_extendset(fm))
+                    font_extend(f) = fm->extend;
+            }
             create_fontdictionary(pdf, fm, font_objnum, f);
+        }
     }
 }
 
 /**********************************************************************/
-
 
 /*
    The glyph width is included in |glw_entry|, because that width
@@ -917,7 +924,6 @@ static void mark_cid_subset_glyphs(fo_entry * fo, internal_font_number f)
    in typesetting. An enormous negative width is used as sentinel value
 */
 
-
 static void write_cid_charwidth_array(PDF pdf, fo_entry * fo)
 {
     int i, j;
@@ -957,7 +963,6 @@ static void write_cid_charwidth_array(PDF pdf, fo_entry * fo)
     pdf_puts(pdf, "]]\n");
     pdf_end_obj(pdf);
 }
-
 
 void create_cid_fontdictionary(PDF pdf,
                                fm_entry * fm, int font_objnum,
@@ -1032,5 +1037,4 @@ void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internalfontnumber f)
        }
      */
     pdf_end_dict(pdf);
-
 }

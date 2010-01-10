@@ -132,7 +132,7 @@ typedef struct texfont {
     boolean _font_auto_expand;  /* this font is auto-expanded? */
 
     char _font_tounicode;       /* 1 if info is present */
-    fm_entry_ptr _font_map;
+    fm_entry *_font_map;
     int _font_type;
     int _font_format;
     int _font_embedding;
