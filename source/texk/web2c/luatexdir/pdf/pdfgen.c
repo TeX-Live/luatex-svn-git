@@ -1792,10 +1792,8 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
         if (ol != NULL || ol1 != NULL) {
             pdf_puts(pdf, "/Annots [ ");
             while (ol != NULL) {
-                if (ol->info > 0)
-                    pdf_print_int(pdf, ol->info);
-                else
-                    pdf_print_int(pdf, (-ol->info));
+                assert(ol->info > 0);
+                pdf_print_int(pdf, ol->info);
                 pdf_puts(pdf, " 0 R ");
                 ol = ol->link;
             }
