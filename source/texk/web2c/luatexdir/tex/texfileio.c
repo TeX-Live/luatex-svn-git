@@ -269,7 +269,7 @@ boolean luatex_open_output(FILE ** f_ptr, char *fn, const_string fopen_mode)
 
 
 
-boolean lua_a_open_in(alpha_file * f, char *fn, quarterword n)
+boolean lua_a_open_in(alpha_file * f, char *fn, int n)
 {
     int k;
     char *fnam;                 /* string returned by find callback */
@@ -311,7 +311,7 @@ boolean lua_a_open_in(alpha_file * f, char *fn, quarterword n)
     return ret;
 }
 
-boolean lua_a_open_out(alpha_file * f, char *fn, quarterword n)
+boolean lua_a_open_out(alpha_file * f, char *fn, int n)
 {
     boolean test;
     str_number fnam;
@@ -353,7 +353,7 @@ boolean lua_b_open_out(alpha_file * f, char *fn)
     return ret;
 }
 
-void lua_a_close_in(alpha_file f, quarterword n)
+void lua_a_close_in(alpha_file f, int n)
 {                               /* close a text file */
     boolean ret;
     int callback_id;
@@ -442,7 +442,7 @@ finer tuning is often possible at well-developed \PASCAL\ sites.
 @^inner loop@>
 */
 
-boolean lua_input_ln(alpha_file f, quarterword n, boolean bypass_eoln)
+boolean lua_input_ln(alpha_file f, int n, boolean bypass_eoln)
 {
     boolean lua_result;
     int last_ptr;
@@ -681,11 +681,11 @@ are not given explicitly are assumed to appear in a standard system area.
 These system area names will, of course, vary from place to place.
 */
 
-#define append_to_fn(A) do {                  \
-        c=(A);                                  \
-        if (c!='"') {                           \
-            if (k<file_name_size) fn[k++]=c;    \
-        }                                       \
+#define append_to_fn(A) do {                                    \
+        c=(A);                                                  \
+        if (c!='"') {                                           \
+            if (k<file_name_size) fn[k++]=(unsigned char)(c);   \
+        }                                                       \
     } while (0)
 
 
@@ -920,7 +920,7 @@ void start_input(void)
     if (end_line_char_inactive())
         decr(ilimit);
     else
-        buffer[ilimit] = end_line_char;
+        buffer[ilimit] = (packed_ASCII_code)end_line_char;
     first = ilimit + 1;
     iloc = istart;
 }

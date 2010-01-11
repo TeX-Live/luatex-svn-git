@@ -32,10 +32,10 @@ extern boolean luatex_open_input(FILE ** f_ptr, char *fn, int filefmt,
 extern boolean luatex_open_output(FILE ** f_ptr, char *fn,
                                   const_string fopen_mode);
 
-extern boolean lua_a_open_in(alpha_file * f, char *fn, quarterword n);
-extern boolean lua_a_open_out(alpha_file * f, char *fn, quarterword n);
+extern boolean lua_a_open_in(alpha_file * f, char *fn, int n);
+extern boolean lua_a_open_out(alpha_file * f, char *fn, int n);
 extern boolean lua_b_open_out(alpha_file * f, char *fn);
-extern void lua_a_close_in(alpha_file f, quarterword n);
+extern void lua_a_close_in(alpha_file f, int n);
 extern void lua_a_close_out(alpha_file f);
 
 extern packed_ASCII_code *buffer;
@@ -43,7 +43,7 @@ extern int first;
 extern int last;
 extern int max_buf_stack;
 
-extern boolean lua_input_ln(alpha_file f, quarterword n, boolean bypass_eoln);
+extern boolean lua_input_ln(alpha_file f, int n, boolean bypass_eoln);
 
 /*
 The user's terminal acts essentially like other files of text, except

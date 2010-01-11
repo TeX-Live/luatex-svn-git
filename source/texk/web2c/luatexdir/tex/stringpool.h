@@ -81,7 +81,7 @@ extern unsigned pool_size;
 #  define append_char(A) do {                                           \
         if (cur_string==NULL) reset_cur_string();                       \
         else str_room(1);                                               \
-        cur_string[cur_length++]=(A);                                   \
+        cur_string[cur_length++]=(unsigned char)(A);                    \
     } while (0)
 
 #  define str_room(wsize) do {                                          \

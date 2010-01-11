@@ -342,7 +342,7 @@ primitive(char *thes, quarterword c, halfword o, halfword off, int cmd_origin)
         primitive_def(thes, strlen(thes), c, o);
     }
     prim_val = prim_lookup(ss);
-    prim_origin(prim_val) = cmd_origin;
+    prim_origin(prim_val) = (quarterword)cmd_origin;
     prim_eq_type(prim_val) = c;
     prim_equiv(prim_val) = o;
     store_primitive_name(ss, c, o, off);

@@ -144,16 +144,16 @@ unsigned char *uni2str(unsigned unic)
     unsigned char *buf = xmalloc(5);
     unsigned char *pt = buf;
     if (unic < 0x80)
-        *pt++ = unic;
+        *pt++ = (unsigned char)unic;
     else if (unic < 0x800) {
-        *pt++ = 0xc0 | (unic >> 6);
-        *pt++ = 0x80 | (unic & 0x3f);
+        *pt++ = (unsigned char)(0xc0 | (unic >> 6));
+        *pt++ = (unsigned char)(0x80 | (unic & 0x3f));
     } else if (unic >= 0x110000) {
-        *pt++ = unic - 0x110000;
+        *pt++ = (unsigned char)(unic - 0x110000);
     } else if (unic < 0x10000) {
-        *pt++ = 0xe0 | (unic >> 12);
-        *pt++ = 0x80 | ((unic >> 6) & 0x3f);
-        *pt++ = 0x80 | (unic & 0x3f);
+        *pt++ = (unsigned char)(0xe0 | (unic >> 12));
+        *pt++ = (unsigned char)(0x80 | ((unic >> 6) & 0x3f));
+        *pt++ = (unsigned char)(0x80 | (unic & 0x3f));
     } else {
         int u, z, y, x;
         unsigned val = unic - 0x10000;
@@ -161,10 +161,10 @@ unsigned char *uni2str(unsigned unic)
         z = (val & 0x0f000) >> 12;
         y = (val & 0x00fc0) >> 6;
         x = val & 0x0003f;
-        *pt++ = 0xf0 | (u >> 2);
-        *pt++ = 0x80 | ((u & 3) << 4) | z;
-        *pt++ = 0x80 | y;
-        *pt++ = 0x80 | x;
+        *pt++ = (unsigned char)(0xf0 | (u >> 2));
+        *pt++ = (unsigned char)(0x80 | ((u & 3) << 4) | z);
+        *pt++ = (unsigned char)(0x80 | y);
+        *pt++ = (unsigned char)(0x80 | x);
     }
     *pt = '\0';
     return buf;
@@ -418,11 +418,11 @@ char *makeclstring(int s, size_t * len)
 int dump_string_pool(void)
 {
     int j;
+    int l;
     int k = str_ptr;
-    unsigned l;
     dump_int(k - STRING_OFFSET);
     for (j = STRING_OFFSET + 1; j < k; j++) {
-        l = str_length(j);
+        l = (int)str_length(j);
         if (str_string(j) == NULL)
             l = -1;
         dump_int(l);

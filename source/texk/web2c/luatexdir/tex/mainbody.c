@@ -442,7 +442,7 @@ void main_body(void)
     if (end_line_char_inactive())
         decr(ilimit);
     else
-        buffer[ilimit] = int_par(end_line_char_code);
+        buffer[ilimit] = (packed_ASCII_code)int_par(end_line_char_code);
     fix_date_and_time();
     if (ini_version)
         make_pdftex_banner();
@@ -484,7 +484,7 @@ but that can't cause infinite recursion.
 This program doesn't bother to close the input files that may still be open.
 */
 
-void close_files_and_terminate()
+void close_files_and_terminate(void)
 {
     int k;                      /* all-purpose index */
     int callback_id;

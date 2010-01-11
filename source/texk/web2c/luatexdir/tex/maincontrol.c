@@ -772,7 +772,7 @@ void main_control(void)
             begin_token_list(every_vbox, every_vbox_text);
         break;
     case mmode + math_style_cmd:
-        tail_append(new_style(cur_chr));
+        tail_append(new_style((small_number)cur_chr));
         break;
     case mmode + non_script_cmd:
         tail_append(new_glue(zero_glue));
@@ -935,7 +935,7 @@ is illegal in the current mode; it identifies these things symbolically.
 void you_cant(void)
 {
     print_err("You can't use `");
-    print_cmd_chr(cur_cmd, cur_chr);
+    print_cmd_chr((quarterword)cur_cmd, cur_chr);
     print_in_mode(mode);
 }
 
@@ -1041,7 +1041,7 @@ void append_kern(void)
     s = cur_chr;
     scan_dimen((s == mu_glue), false, false);
     tail_append(new_kern(cur_val));
-    subtype(tail) = s;
+    subtype(tail) = (quarterword)s;
 }
 
 /*
@@ -1062,7 +1062,7 @@ void off_save(void)
     if (cur_group == bottom_level) {
         /* Drop current token and complain that it was unmatched */
         print_err("Extra ");
-        print_cmd_chr(cur_cmd, cur_chr);
+        print_cmd_chr((quarterword)cur_cmd, cur_chr);
         help1("Things are pretty mixed up, but I think the worst is over.");
         error();
 
@@ -1337,7 +1337,7 @@ void box_end(int box_context)
             if (((cur_cmd == hskip_cmd) && (abs(mode) != vmode)) ||
                 ((cur_cmd == vskip_cmd) && (abs(mode) == vmode))) {
                 append_glue();
-                subtype(tail) = box_context - (leader_flag - a_leaders);
+                subtype(tail) = (quarterword)(box_context - (leader_flag - a_leaders));
                 leader_ptr(tail) = cur_box;
             } else {
                 print_err("Leaders not followed by proper glue");
@@ -1693,7 +1693,7 @@ void append_discretionary(void)
 {
     int c;
     tail_append(new_disc());
-    subtype(tail) = cur_chr;
+    subtype(tail) = (quarterword)cur_chr;
     if (cur_chr == explicit_disc) {
         c = get_pre_hyphen_char(cur_lang);
         if (c != 0) {
@@ -1916,7 +1916,7 @@ void align_error(void)
     if (abs(align_state) > 2) {
         /* Express consternation over the fact that no alignment is in progress */
         print_err("Misplaced ");
-        print_cmd_chr(cur_cmd, cur_chr);
+        print_cmd_chr((quarterword)cur_cmd, cur_chr);
         if (cur_tok == tab_token + '&') {
             help6("I can't figure out why you would want to use a tab mark",
                   "here. If you just want an ampersand, the remedy is",
@@ -2079,7 +2079,7 @@ void prefixed_command(void)
         if (cur_cmd <= max_non_prefixed_command) {
             /* Discard erroneous prefixes and |return| */
             print_err("You can't use a prefix with `");
-            print_cmd_chr(cur_cmd, cur_chr);
+            print_cmd_chr((quarterword)cur_cmd, cur_chr);
             print_char('\'');
             help2
                 ("I'll pretend you didn't say \\long or \\outer or \\global or",
@@ -2099,7 +2099,7 @@ void prefixed_command(void)
     }
     if ((cur_cmd != def_cmd) && ((a % 4 != 0) || (j != 0))) {
         print_err("You can't use `\\long' or `\\outer' with `");
-        print_cmd_chr(cur_cmd, cur_chr);
+        print_cmd_chr((quarterword)cur_cmd, cur_chr);
         print_char('\'');
         help1("I'll pretend you didn't say \\long or \\outer here.");
         error();
@@ -2630,13 +2630,13 @@ void prefixed_command(void)
         break;
     case def_font_cmd:
         /* Here is where the information for a new font gets loaded. */
-        tex_def_font(a);
+        tex_def_font((small_number)a);
         break;
     case letterspace_font_cmd:
-        new_letterspaced_font(a);
+        new_letterspaced_font((small_number)a);
         break;
     case pdf_copy_font_cmd:
-        make_font_copy(a);
+        make_font_copy((small_number)a);
         break;
     case set_interaction_cmd:
         new_interaction();
@@ -2646,23 +2646,23 @@ void prefixed_command(void)
         print_ln();
         break;
     case def_ocp_cmd:
-        new_ocp(a);
+        new_ocp((small_number)a);
         break;
     case set_ocp_list_cmd:
         print_err("To use ocp lists, use the \\pushocplist primitive");
         print_ln();
         break;
     case def_ocp_list_cmd:
-        new_ocp_list(a);
+        new_ocp_list((small_number)a);
         break;
     case push_ocp_list_cmd:
-        do_push_ocp_list(a);
+        do_push_ocp_list((small_number)a);
         break;
     case pop_ocp_list_cmd:
-        do_pop_ocp_list(a);
+        do_pop_ocp_list((small_number)a);
         break;
     case clear_ocp_lists_cmd:
-        do_clear_ocp_lists(a);
+        do_clear_ocp_lists((small_number)a);
         break;
     case ocp_list_op_cmd:
         print_err("To build ocp lists, use the \\ocplist primitive");
@@ -2890,9 +2890,9 @@ void do_register_command(int a)
         }
         if (cur_cmd != register_cmd) {
             print_err("You can't use `");
-            print_cmd_chr(cur_cmd, cur_chr);
+            print_cmd_chr((quarterword)cur_cmd, cur_chr);
             tprint("' after ");
-            print_cmd_chr(q, 0);
+            print_cmd_chr((quarterword)q, 0);
             help1("I'm forgetting what you said and not changing anything.");
             error();
             return;

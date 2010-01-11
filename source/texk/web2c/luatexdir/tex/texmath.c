@@ -1060,7 +1060,7 @@ void scan_extdef_del_code(int level, int extcode)
     scan_optional_equals();
     d = do_scan_extdef_del_code(extcode, false);
     set_del_code(p, extcode, d.small_family_value, d.small_character_value,
-                 d.large_family_value, d.large_character_value, level);
+                 d.large_family_value, d.large_character_value, (quarterword)(level));
 }
 
 mathcodeval scan_mathchar(int extcode)
@@ -1143,7 +1143,7 @@ void scan_extdef_math_code(int level, int extcode)
     scan_optional_equals();
     d = scan_mathchar(extcode);
     set_math_code(p, extcode, d.class_value,
-                  d.family_value, d.character_value, level);
+                  d.family_value, d.character_value, (quarterword)(level));
 }
 
 
@@ -1201,7 +1201,7 @@ that subformula into a given word of |mem|.
 int scan_math(pointer p, int mstyle)
 {
     /* label restart,reswitch,exit; */
-    mathcodeval mval;
+    mathcodeval mval = {0,0,0,0};
     assert(p != null);
   RESTART:
     get_next_nb_nr();
@@ -1355,7 +1355,7 @@ void math_math_comp(void)
 {
     pointer q;
     tail_append(new_noad());
-    subtype(tail) = cur_chr;
+    subtype(tail) = (quarterword)cur_chr;
     q = new_node(math_char_node, 0);
     nucleus(tail) = q;
     if (cur_chr == over_noad_type)
@@ -1373,7 +1373,7 @@ void math_limit_switch(void)
     };
     if (head != tail) {
         if (type(tail) == simple_noad) {
-            subtype(tail) = cur_chr;
+            subtype(tail) = (quarterword)cur_chr;
             return;
         }
     }
@@ -1390,7 +1390,7 @@ delimiter is to be placed; the second tells if this delimiter follows
 
 void scan_delimiter(pointer p, int r)
 {
-    delcodeval dval;
+    delcodeval dval = {0,0,0,0,0,0};
     if (r == tex_mathcode) {    /* \radical */
         dval = do_scan_extdef_del_code(tex_mathcode, true);
     } else if (r == aleph_mathcode) {   /* \oradical */
@@ -1495,11 +1495,7 @@ void math_radical(void)
 void math_ac(void)
 {
     halfword q;
-    mathcodeval t, b;
-    t.character_value = 0;
-    t.family_value = 0;
-    b.character_value = 0;
-    b.family_value = 0;
+    mathcodeval t = {0,0,0,0}, b = {0,0,0,0};
     if (cur_cmd == accent_cmd) {
         char *hlp[] = {
             "I'm changing \\accent to \\mathaccent here; wish me luck.",

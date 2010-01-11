@@ -619,7 +619,7 @@ void scan_something_simple(halfword cmd, halfword subitem)
     if (!short_scan_something_internal(cmd, subitem, tok_val_level, false)) {
         /* Complain that |texlib| can not do this; give zero result */
         print_err("You can't use `");
-        print_cmd_chr(cmd, subitem);
+        print_cmd_chr((quarterword)cmd, subitem);
         tprint("' as tex library index");
         help1("I'm forgetting what you said and using zero instead.");
         error();
@@ -842,7 +842,7 @@ void scan_something_internal(int level, boolean negative)
         default:
             /* Complain that \.{\\the} can not do this; give zero result */
             print_err("You can't use `");
-            print_cmd_chr(cur_cmd, cur_chr);
+            print_cmd_chr((quarterword)cur_cmd, cur_chr);
             tprint("' after \\the");
             help1("I'm forgetting what you said and using zero instead.");
             error();
@@ -1540,12 +1540,12 @@ void scan_glue(int level)
     if (scan_keyword("plus")) {
         scan_dimen(mu, true, false);
         stretch(q) = cur_val;
-        stretch_order(q) = cur_order;
+        stretch_order(q) = (quarterword)cur_order;
     }
     if (scan_keyword("minus")) {
         scan_dimen(mu, true, false);
         shrink(q) = cur_val;
-        shrink_order(q) = cur_order;
+        shrink_order(q) = (quarterword)cur_order;
     }
     cur_val = q;
 }
@@ -2455,8 +2455,8 @@ void scan_expr(void)
         /* Push the expression stack and |goto restart| */
         q = new_node(expr_node, 0);
         vlink(q) = p;
-        expr_type(q) = l;
-        expr_state(q) = 4 * s + r;
+        expr_type(q) = (quarterword)l;
+        expr_state(q) = (quarterword)(4 * s + r);
         expr_e_field(q) = e;
         expr_t_field(q) = t;
         expr_n_field(q) = n;

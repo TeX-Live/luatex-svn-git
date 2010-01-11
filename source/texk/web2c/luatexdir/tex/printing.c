@@ -195,7 +195,7 @@ void print_char(int s)
         break;
     case pseudo:
         if (tally < trick_count)
-            trick_buf[tally % error_line] = s;
+            trick_buf[tally % error_line] = (packed_ASCII_code)s;
         break;
     case new_string:
         append_char(s);
@@ -492,7 +492,7 @@ void print_int(longinteger n)
         n = n / 10;
         incr(k);
     } while (n != 0);
-    print_the_digs(k);
+    print_the_digs((eight_bits)k);
 }
 
 /*
@@ -521,7 +521,7 @@ void print_hex(int n)
         n = n / 16;
         incr(k);
     } while (n != 0);
-    print_the_digs(k);
+    print_the_digs((eight_bits)k);
 }
 
 /*

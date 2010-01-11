@@ -707,7 +707,7 @@ boolean fin_col(void)
             width(cur_align) = w;
         }
         type(u) = unset_node;
-        span_count(u) = n;
+        span_count(u) = (quarterword)n;
         determine_stretch_order();
         glue_order(u) = o;
         glue_stretch(u) = total_stretch[o];

@@ -454,9 +454,9 @@ appears in location |save_ptr+k| of the save stack.
 #  define saved_value(A) save_stack[save_ptr+(A)].word_.cint
 
 #  define set_saved_record(A,B,C,D) do {	\
-	saved_type(A) = B;			\
-	saved_level(A) = C;			\
-	saved_value(A) = D;			\
+        saved_type(A) = (quarterword)(B);   \
+        saved_level(A) = (quarterword)(C);  \
+        saved_value(A) = (D);               \
     } while (0)
 
 #  define restore_old_value 0   /* |save_type| when a value should be restored later */

@@ -542,7 +542,7 @@ void begin_file_reading(void)
         check_buffer_overflow(first);
     incr(in_open);
     push_input();
-    iindex = in_open;
+    iindex = (quarterword)in_open;
     source_filename_stack[iindex] = 0;
     full_source_filename_stack[iindex] = NULL;
     eof_seen[iindex] = false;
@@ -770,10 +770,10 @@ boolean pseudo_input(void)
         last = first;
         for (r = p + 1; r <= p + sz - 1; r++) {
             w = varmem[r].qqqq;
-            buffer[last] = w.b0;
-            buffer[last + 1] = w.b1;
-            buffer[last + 2] = w.b2;
-            buffer[last + 3] = w.b3;
+            buffer[last] = (packed_ASCII_code)w.b0;
+            buffer[last + 1] = (packed_ASCII_code)w.b1;
+            buffer[last + 2] = (packed_ASCII_code)w.b2;
+            buffer[last + 3] = (packed_ASCII_code)w.b3;
             last += 4;
         }
         if (last >= max_buf_stack)

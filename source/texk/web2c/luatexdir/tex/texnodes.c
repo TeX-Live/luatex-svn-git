@@ -421,8 +421,8 @@ halfword new_node(int i, int j)
     if (nodetype_has_attributes(i)) {
         build_attribute_list(n);
     }
-    type(n) = i;
-    subtype(n) = j;
+    type(n) = (quarterword)i;
+    subtype(n) = (quarterword)j;
 #ifdef DEBUG
     fprintf(DEBUG_OUT, "Alloc-ing %s node %d\n",
             get_node_name(type(n), subtype(n)), (int) n);
@@ -1400,7 +1400,7 @@ halfword get_node(int s)
     if (r != null) {
         free_chain[s] = vlink(r);
 #ifndef NDEBUG
-        varmem_sizes[r] = s;
+        varmem_sizes[r] = (char)s;
 #endif
         vlink(r) = null;
         var_used += s;          /* maintain usage statistics */
@@ -1683,7 +1683,7 @@ halfword slow_get_node(int s)
         test_rovers("taken");
         assert(vlink(rover) < var_mem_max);
 #ifndef NDEBUG
-        varmem_sizes[r] = (s > 127 ? 127 : s);
+        varmem_sizes[r] = (char)(s > 127 ? 127 : s);
 #endif
         vlink(r) = null;
         var_used += s;          /* maintain usage statistics */
@@ -3100,7 +3100,7 @@ quarterword norm_min(int h)
     else if (h >= 255)
         return 255;
     else
-        return h;
+        return (quarterword)h;
 }
 
 halfword new_char(int f, int c)
@@ -3357,7 +3357,7 @@ halfword new_skip_param(int n)
     temp_ptr = new_spec(glue_par(n));
     p = new_glue(temp_ptr);
     glue_ref_count(temp_ptr) = null;
-    subtype(p) = n + 1;
+    subtype(p) = (quarterword)(n + 1);
     return p;
 }
 

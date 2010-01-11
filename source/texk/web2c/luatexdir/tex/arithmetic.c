@@ -217,8 +217,9 @@ scaled xn_over_d(scaled x, int n, int d)
         tex_remainder = v % d;
         return u;
     } else {
-        tex_remainder = -(v % d);
-        return -u;
+        /* casts are for ms cl */
+        tex_remainder = -(int)(v % d);
+        return -(int)(u);
     }
 }
 

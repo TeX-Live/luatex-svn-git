@@ -140,7 +140,7 @@ static void ext_do_line_break(boolean d,
 
 void line_break(boolean d, int line_break_context)
 {
-    int paragraph_dir;          /* main direction of paragraph */
+    int paragraph_dir = 0;          /* main direction of paragraph */
     halfword final_par_glue;
     halfword start_of_par;
     int callback_id;

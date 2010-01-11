@@ -136,7 +136,7 @@ void expand(void)
                     goto RESWITCH;
                 }
                 print_err("You can't use `\\unless' before `");
-                print_cmd_chr(cur_cmd, cur_chr);
+                print_cmd_chr((quarterword)cur_cmd, cur_chr);
                 print_char('\'');
                 help1("Continue, and I'll forget that it ever happened.");
                 back_error();
@@ -344,19 +344,19 @@ void manufacture_csname(void)
         }
         s = token_chr(token_info(p));
         if (s <= 0x7F) {
-            buffer[j++] = s;
+            buffer[j++] = (packed_ASCII_code)s;
         } else if (s <= 0x7FF) {
-            buffer[j++] = 0xC0 + s / 0x40;
-            buffer[j++] = 0x80 + s % 0x40;
+            buffer[j++] = (packed_ASCII_code)(0xC0 + s / 0x40);
+            buffer[j++] = (packed_ASCII_code)(0x80 + s % 0x40);
         } else if (s <= 0xFFFF) {
-            buffer[j++] = 0xE0 + s / 0x1000;
-            buffer[j++] = 0x80 + (s % 0x1000) / 0x40;
-            buffer[j++] = 0x80 + (s % 0x1000) % 0x40;
+            buffer[j++] = (packed_ASCII_code)(0xE0 + s / 0x1000);
+            buffer[j++] = (packed_ASCII_code)(0x80 + (s % 0x1000) / 0x40);
+            buffer[j++] = (packed_ASCII_code)(0x80 + (s % 0x1000) % 0x40);
         } else {
-            buffer[j++] = 0xF0 + s / 0x40000;
-            buffer[j++] = 0x80 + (s % 0x40000) / 0x1000;
-            buffer[j++] = 0x80 + ((s % 0x40000) % 0x1000) / 0x40;
-            buffer[j++] = 0x80 + ((s % 0x40000) % 0x1000) % 0x40;
+            buffer[j++] = (packed_ASCII_code)(0xF0 + s / 0x40000);
+            buffer[j++] = (packed_ASCII_code)(0x80 + (s % 0x40000) / 0x1000);
+            buffer[j++] = (packed_ASCII_code)(0x80 + ((s % 0x40000) % 0x1000) / 0x40);
+            buffer[j++] = (packed_ASCII_code)(0x80 + ((s % 0x40000) % 0x1000) % 0x40);
         }
         p = token_link(p);
     }

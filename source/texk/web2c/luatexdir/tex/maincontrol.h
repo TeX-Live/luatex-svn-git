@@ -37,9 +37,9 @@ since the following routines test for the \.{\\global} prefix as follows.
 
 #  define define(A,B,C) do {			\
      if (is_global(a))				\
-       geq_define((A),(B),(C));			\
+         geq_define((A),(quarterword)(B),(C)); \
      else					\
-       eq_define((A),(B),(C));			\
+       eq_define((A),(quarterword)(B),(C));			\
    } while (0)
 
 #  define word_define(A,B) do {			\

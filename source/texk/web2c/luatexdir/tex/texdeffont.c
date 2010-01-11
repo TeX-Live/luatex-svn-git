@@ -58,7 +58,7 @@ char *scaled_to_string(scaled s)
         n = s / unity;
         /* process the integer part */
         do {
-            dig[l++] = n % 10;
+            dig[l++] = (char)(n % 10);
             n = n / 10;;
         } while (n > 0);
         while (l > 0) {
@@ -71,7 +71,7 @@ char *scaled_to_string(scaled s)
     do {
         if (delta > unity)
             s = s + 0100000 - 050000;   /* round the last digit */
-        result[k++] = '0' + (s / unity);
+        result[k++] = (char)('0' + (s / unity));
         s = 10 * (s % unity);
         delta = delta * 10;
     } while (s > delta);

@@ -613,7 +613,7 @@ void char_warning(internal_font_number f, int c)
             c = c / 16;
             incr(k);
         } while (c != 0);
-        print_the_digs(k);
+        print_the_digs((eight_bits)k);
         tprint(") in font ");
         print_font_name(f);
         print_char('!');

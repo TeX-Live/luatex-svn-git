@@ -28,7 +28,7 @@
 #  define pos_up(A)    pdf->posstruct->pos.v = pdf->posstruct->pos.v + (A)
 #  define pos_down(A)  pdf->posstruct->pos.v = pdf->posstruct->pos.v - (A)
 
-typedef void (*backend_function) ();
+typedef void (*backend_function) (); /* variadic arguments  */
 
 typedef struct {
     char *name;                 /* name of the backend */

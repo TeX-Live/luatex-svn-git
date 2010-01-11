@@ -412,6 +412,6 @@ extern void setupboundvariable(int *, const_string, int);
 /* here  are a few functions that used to be in coerce.h */
 
 extern str_number getjobname(str_number);
-extern str_number makefullnamestring();
+extern str_number makefullnamestring(void);
 
 #endif                          /* PTEXLIB_H */

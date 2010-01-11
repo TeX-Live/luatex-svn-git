@@ -248,7 +248,7 @@ symbolic form, including the expansion of a macro or mark.
 
 void print_meaning(void)
 {
-    print_cmd_chr(cur_cmd, cur_chr);
+    print_cmd_chr((quarterword)cur_cmd, cur_chr);
     if (cur_cmd >= call_cmd) {
         print_char(':');
         print_ln();
@@ -600,7 +600,7 @@ char *cmd_chr_to_string(int cmd, int chr)
     str_number str;
     int sel = selector;
     selector = new_string;
-    print_cmd_chr(cmd, chr);
+    print_cmd_chr((quarterword)cmd, chr);
     str = make_string();
     s = makecstring(str);
     selector = sel;
@@ -849,7 +849,7 @@ static boolean get_next_file(void)
         case mid_line + escape_cmd:
         case new_line + escape_cmd:
         case skip_blanks + escape_cmd: /* @<Scan a control sequence ...@>; */
-            istate = scan_control_sequence();
+            istate = (quarterword)scan_control_sequence();
             if (cur_cmd >= outer_call_cmd)
                 check_outer_validity();
             break;
@@ -1199,31 +1199,31 @@ static boolean check_expanded_code(int *kk)
         else
             d++;
         if (cur_chr <= 0x7F) {
-            buffer[k - 1] = cur_chr;
+            buffer[k - 1] = (packed_ASCII_code)cur_chr;
         } else if (cur_chr <= 0x7FF) {
-            buffer[k - 1] = 0xC0 + cur_chr / 0x40;
+            buffer[k - 1] = (packed_ASCII_code)(0xC0 + cur_chr / 0x40);
             k++;
             d--;
-            buffer[k - 1] = 0x80 + cur_chr % 0x40;
+            buffer[k - 1] = (packed_ASCII_code)(0x80 + cur_chr % 0x40);
         } else if (cur_chr <= 0xFFFF) {
-            buffer[k - 1] = 0xE0 + cur_chr / 0x1000;
+            buffer[k - 1] = (packed_ASCII_code)(0xE0 + cur_chr / 0x1000);
             k++;
             d--;
-            buffer[k - 1] = 0x80 + (cur_chr % 0x1000) / 0x40;
+            buffer[k - 1] = (packed_ASCII_code)(0x80 + (cur_chr % 0x1000) / 0x40);
             k++;
             d--;
-            buffer[k - 1] = 0x80 + (cur_chr % 0x1000) % 0x40;
+            buffer[k - 1] = (packed_ASCII_code)(0x80 + (cur_chr % 0x1000) % 0x40);
         } else {
-            buffer[k - 1] = 0xF0 + cur_chr / 0x40000;
+            buffer[k - 1] = (packed_ASCII_code)(0xF0 + cur_chr / 0x40000);
             k++;
             d--;
-            buffer[k - 1] = 0x80 + (cur_chr % 0x40000) / 0x1000;
+            buffer[k - 1] = (packed_ASCII_code)(0x80 + (cur_chr % 0x40000) / 0x1000);
             k++;
             d--;
-            buffer[k - 1] = 0x80 + ((cur_chr % 0x40000) % 0x1000) / 0x40;
+            buffer[k - 1] = (packed_ASCII_code)(0x80 + ((cur_chr % 0x40000) % 0x1000) / 0x40);
             k++;
             d--;
-            buffer[k - 1] = 0x80 + ((cur_chr % 0x40000) % 0x1000) % 0x40;
+            buffer[k - 1] = (packed_ASCII_code)(0x80 + ((cur_chr % 0x40000) % 0x1000) % 0x40);
         }
         l = k;
         ilimit = ilimit - d;
@@ -1305,7 +1305,7 @@ static next_line_retval next_line(void)
             if (tracing_nesting > 0)
                 if ((grp_stack[in_open] != cur_boundary)
                     || (if_stack[in_open] != cond_ptr))
-                    if (!((iname == 19) || (iname = 21)))
+                    if (!((iname == 19) || (iname == 21)))
                         file_warning(); /* give warning for some unfinished groups and/or conditionals */
             if ((iname > 21) || (iname == 20)) {
                 if (tracefilenames)
@@ -1326,7 +1326,7 @@ static next_line_retval next_line(void)
         if (inhibit_eol || end_line_char_inactive())
             ilimit--;
         else
-            buffer[ilimit] = end_line_char;
+            buffer[ilimit] = (packed_ASCII_code)end_line_char;
         first = ilimit + 1;
         iloc = istart;          /* ready to read */
     } else {
@@ -1354,7 +1354,7 @@ static next_line_retval next_line(void)
             if (end_line_char_inactive())
                 ilimit--;
             else
-                buffer[ilimit] = end_line_char;
+                buffer[ilimit] = (packed_ASCII_code)end_line_char;
             first = ilimit + 1;
             iloc = istart;
         } else {
@@ -2149,7 +2149,7 @@ void read_toks(int n, halfword r, halfword j)
         if (end_line_char_inactive())
             decr(ilimit);
         else
-            buffer[ilimit] = int_par(end_line_char_code);
+            buffer[ilimit] = (packed_ASCII_code)int_par(end_line_char_code);
         first = ilimit + 1;
         iloc = istart;
         istate = new_line;
@@ -2210,7 +2210,7 @@ str_number tokens_to_string(halfword p)
     }
 
 
-#define append_i_byte(a) ret[i++] = a
+#define append_i_byte(a) ret[i++] = (char)a
 
 #define Print_char(a) make_room(1); append_i_byte(a)
 
@@ -2259,7 +2259,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
     int q;
     int infop;
     char *s, *sh;
-    int e;
+    int e = 0;
     char *ret;
     int match_chr = '#';
     int n = '0';
