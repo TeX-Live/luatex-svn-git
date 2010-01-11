@@ -318,8 +318,7 @@ void complain_missing_csname(void)
 void manufacture_csname(void)
 {
     halfword p, q, r;
-    int j;                      /* index into |buffer| */
-    int s;                      /* a character */
+    lstring *ss;
     r = get_avail();
     p = r;                      /* head of the list of characters */
     is_in_csname = true;
@@ -334,40 +333,16 @@ void manufacture_csname(void)
     }
     is_in_csname = false;
     /* Look up the characters of list |r| in the hash table, and set |cur_cs| */
-    j = first;
-    p = token_link(r);
-    while (p != null) {
-        if (j >= max_buf_stack) {
-            max_buf_stack = j + 4;
-            if (max_buf_stack == buf_size)
-                check_buffer_overflow(max_buf_stack);
-        }
-        s = token_chr(token_info(p));
-        if (s <= 0x7F) {
-            buffer[j++] = (packed_ASCII_code)s;
-        } else if (s <= 0x7FF) {
-            buffer[j++] = (packed_ASCII_code)(0xC0 + s / 0x40);
-            buffer[j++] = (packed_ASCII_code)(0x80 + s % 0x40);
-        } else if (s <= 0xFFFF) {
-            buffer[j++] = (packed_ASCII_code)(0xE0 + s / 0x1000);
-            buffer[j++] = (packed_ASCII_code)(0x80 + (s % 0x1000) / 0x40);
-            buffer[j++] = (packed_ASCII_code)(0x80 + (s % 0x1000) % 0x40);
-        } else {
-            buffer[j++] = (packed_ASCII_code)(0xF0 + s / 0x40000);
-            buffer[j++] = (packed_ASCII_code)(0x80 + (s % 0x40000) / 0x1000);
-            buffer[j++] = (packed_ASCII_code)(0x80 + ((s % 0x40000) % 0x1000) / 0x40);
-            buffer[j++] = (packed_ASCII_code)(0x80 + ((s % 0x40000) % 0x1000) % 0x40);
-        }
-        p = token_link(p);
-    }
-    if (j > first) {
-        no_new_control_sequence = false;
-        cur_cs = id_lookup(first, j - first);
-        no_new_control_sequence = true;
-    } else if (j == first) {
-        cur_cs = null_cs;       /* the list is empty */
-    }
 
+    ss = tokenlist_to_lstring(r,true);
+    if (ss->l>0) {
+        no_new_control_sequence = false;
+        cur_cs = string_lookup((char *)ss->s, ss->l);
+        no_new_control_sequence = true;
+    } else {
+        cur_cs = null_cs;       /* the list is empty */
+    }        
+    xfree(ss->s);
     flush_list(r);
     if (eq_type(cur_cs) == undefined_cs_cmd) {
         eq_define(cur_cs, relax_cmd, too_big_char);     /* N.B.: The |save_stack| might change */
