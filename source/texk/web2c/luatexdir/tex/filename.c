@@ -139,6 +139,7 @@ static void end_name(void)
 void scan_file_name(void)
 {
     name_in_progress = true;
+    str_number u = 0;
     begin_name();
     /* @<Get the next non-blank non-call token@>; */
     do {
@@ -170,7 +171,9 @@ void scan_file_name(void)
             if (!more_name(cur_chr))
                 break;
         }
+        u = save_cur_string();
         get_x_token();
+        restore_cur_string(u);
     }
     end_name();
     name_in_progress = false;

@@ -1733,9 +1733,6 @@ any pending string in its output. In order to save such a pending string,
 we have to create a temporary string that is destroyed immediately after.
 */
 
-#define save_cur_string() if (cur_length>0)  u=make_string()
-#define restore_cur_string() if (u!=0) { decr(str_ptr); u=0; }
-
 void conv_toks(void)
 {
     int old_setting;            /* holds |selector| setting */
@@ -1823,7 +1820,7 @@ void conv_toks(void)
         save_scanner_status = scanner_status;
         save_warning_index = warning_index;
         save_def_ref = def_ref;
-        save_cur_string();
+        u = save_cur_string();
         scan_pdf_ext_toks();
         s = tokens_to_string(def_ref);
         delete_token_ref(def_ref);
@@ -1839,7 +1836,7 @@ void conv_toks(void)
                   "I'll use the default color stack 0 here.");
             error();
             cur_val = 0;
-            restore_cur_string();
+            restore_cur_string(u);
         }
         break;
     case uniform_deviate_code:
@@ -1876,17 +1873,17 @@ void conv_toks(void)
         save_scanner_status = scanner_status;
         save_warning_index = warning_index;
         save_def_ref = def_ref;
-        save_cur_string();
+        u = save_cur_string();
         scan_pdf_ext_toks();
         warning_index = save_warning_index;
         scanner_status = save_scanner_status;
         ins_list(token_link(def_ref));
         def_ref = save_def_ref;
-        restore_cur_string();
+        restore_cur_string(u);
         return;
         break;
     case lua_code:
-        save_cur_string();
+        u = save_cur_string();
         save_scanner_status = scanner_status;
         save_def_ref = def_ref;
         save_warning_index = warning_index;
@@ -1899,7 +1896,7 @@ void conv_toks(void)
         luacstrings = 0;
         luatokencall(s, sn);
         delete_token_ref(s);
-        restore_cur_string();   /* TODO: check this, was different */
+        restore_cur_string(u);   /* TODO: check this, was different */
         if (luacstrings > 0)
             lua_string_start();
         return;
