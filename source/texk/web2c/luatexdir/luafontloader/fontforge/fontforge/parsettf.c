@@ -2252,7 +2252,7 @@ return( sc );
       if ( start>end ) {
 	LogError(_("Bad glyph (%d), disordered 'loca' table (start comes after end)\n"), gid );
 	info->bad_glyph_data = true;
-      } else if ( ftell(ttf)>info->glyph_start+end ) {
+      } else if ( ftell(ttf)>(long)(info->glyph_start+end) ) {
 	LogError(_("Bad glyph (%d), its definition extends beyond the space allowed for it\n"), gid );
 	info->bad_glyph_data = true;
       }
@@ -6425,11 +6425,13 @@ return( SFFillFromTTFInfo(&info));
 SplineFont *SFReadTTFInfo(char *filename, int flags, enum openflags openflags) {
     FILE *ttf;
     SplineFont *sf;
-    char *temp=filename, *pt, *lparen;
+    char *temp=filename, *pt, *lparen, *rparen;
 
     pt = strrchr(filename,'/');
     if ( pt==NULL ) pt = filename;
-    if ( (lparen=strchr(pt,'('))!=NULL && strchr(lparen,')')!=NULL ) {
+    if ( (lparen = strrchr(pt,'('))!=NULL &&
+	    (rparen = strrchr(lparen,')'))!=NULL &&
+	    rparen[1]=='\0' ) {
 	temp = copy(filename);
 	pt = temp + (lparen-filename);
 	*pt = '\0';
