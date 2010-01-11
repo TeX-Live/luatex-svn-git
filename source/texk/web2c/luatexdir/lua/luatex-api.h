@@ -19,6 +19,9 @@
 
 /* $Id$ */
 
+#ifndef LUATEX_API_H
+#define LUATEX_API_H 1
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -126,3 +129,5 @@ extern command_item command_names[];
 extern int callback_callbacks_id;
 
 extern void luainterpreter(void);
+
+#endif
