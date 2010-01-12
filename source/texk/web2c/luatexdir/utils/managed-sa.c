@@ -20,7 +20,7 @@
 
 #include <ptexlib.h>
 
-static const char __svn_version[] =
+static const char _svn_version[] =
     "$Id$ $URL$";
 
 static void store_sa_stack(sa_tree a, int n, int v, int gl)

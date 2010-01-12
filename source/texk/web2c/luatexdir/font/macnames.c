@@ -1,7 +1,7 @@
 /* macnames.c
    
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -18,8 +18,9 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-static const char __svn_version[] =
-    "$Id$ $URL$";
+/* $Id$ */
+
+/* should be better macnames.h */
 
 const char notdef[] = ".notdef";
 

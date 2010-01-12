@@ -48,7 +48,7 @@
 #  include "xpdf/config.h"      /* just to get the xpdf version */
 #endif
 
-static const char __svn_version[] =
+static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 

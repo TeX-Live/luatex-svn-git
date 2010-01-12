@@ -22,7 +22,7 @@
          /* for tokenlist_to_cstring */
 
 
-static const char __svn_version[] =
+static const char _svn_version[] =
     "$Id$"
     "$URL$";
 

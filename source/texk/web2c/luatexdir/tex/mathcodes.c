@@ -24,7 +24,7 @@
 
 extern void rawset_sa_item(sa_tree head, int n, int v);
 
-static const char __svn_version[] =
+static const char _svn_version[] =
     "$Id$ $URL$";
 
 /* math codes */

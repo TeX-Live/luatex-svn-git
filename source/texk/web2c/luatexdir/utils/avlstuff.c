@@ -21,7 +21,7 @@
 #include "ptexlib.h"
 #include "avl.h"
 
-static const char __svn_version[] =
+static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
