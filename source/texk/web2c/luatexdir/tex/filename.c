@@ -138,8 +138,8 @@ static void end_name(void)
 
 void scan_file_name(void)
 {
-    name_in_progress = true;
     str_number u = 0;
+    name_in_progress = true;
     begin_name();
     /* @<Get the next non-blank non-call token@>; */
     do {
