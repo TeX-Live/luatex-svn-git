@@ -1,6 +1,6 @@
 /* luastuff.c
-   
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -136,8 +136,8 @@ void luainterpreter(void)
 
     /* luasockets */
     /* socket and mime are a bit tricky to open because
-     * they use a load-time  dependency that has to be 
-     * worked around for luatex, where the C module is 
+     * they use a load-time  dependency that has to be
+     * worked around for luatex, where the C module is
      * loaded way before the lua module.
      */
     if (!nosocket_option) {
@@ -401,8 +401,8 @@ lua_State *luatex_error(lua_State * L, int is_fatal)
         len = snprintf(err, (len + 1), "%s", luaerr);
     }
     if (is_fatal > 0) {
-        /* Normally a memory error from lua. 
-           The pool may overflow during the maketexlstring(), but we 
+        /* Normally a memory error from lua.
+           The pool may overflow during the maketexlstring(), but we
            are crashing anyway so we may as well abort on the pool size */
         lua_fatal_error(err);
         /* never reached */
@@ -414,4 +414,18 @@ lua_State *luatex_error(lua_State * L, int is_fatal)
         xfree(err);
         return L;
     }
+}
+
+void preset_environment(lua_State * L, const parm_struct * p)
+{
+    int i;
+    assert(L != NULL);
+    lua_newtable(L);            /* t */
+    for (i = 1, ++p; p->name != NULL; i++, p++) {
+        assert(i == p->idx);
+        lua_pushstring(L, p->name);     /* k t */
+        lua_pushinteger(L, p->idx);     /* v k t */
+        lua_settable(L, -3);    /* t */
+    }
+    lua_replace(L, LUA_ENVIRONINDEX);   /* - */
 }

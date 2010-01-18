@@ -194,12 +194,7 @@ static int l_immediateobj(lua_State * L)
 
 typedef enum { P__ZERO, P_RAW, P_STREAM, P__SENTINEL } parm_idx;
 
-typedef struct {
-    const char *name;           /* parameter name */
-    parm_idx idx;               /* index within img_parms array */
-} parm_struct;
-
-const parm_struct obj_parms[] = {
+static const parm_struct obj_parms[] = {
     {NULL, P__ZERO},            /* dummy; lua indices run from 1 */
     {"raw", P_RAW},
     {"stream", P_STREAM},
@@ -635,20 +630,6 @@ static const struct luaL_reg pdflib[] = {
 };
 
 /**********************************************************************/
-
-static void preset_environment(lua_State * L, const parm_struct * p)
-{
-    int i;
-    assert(L != NULL);
-    lua_newtable(L);            /* t */
-    for (i = 1, ++p; p->name != NULL; i++, p++) {
-        assert(i == (int) p->idx);
-        lua_pushstring(L, p->name);     /* k t */
-        lua_pushinteger(L, (int) p->idx);       /* v k t */
-        lua_settable(L, -3);    /* t */
-    }
-    lua_replace(L, LUA_ENVIRONINDEX);   /* - */
-}
 
 int luaopen_pdf(lua_State * L)
 {

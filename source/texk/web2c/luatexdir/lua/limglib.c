@@ -1,6 +1,6 @@
 /* limglib.c
    
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -67,12 +67,7 @@ typedef enum { P__ZERO, P_ATTR, P_BBOX, P_COLORDEPTH, P_COLORSPACE, P_DEPTH,
     P_WIDTH, P_XRES, P_XSIZE, P_YRES, P_YSIZE, P__SENTINEL
 } parm_idx;
 
-typedef struct {
-    const char *name;           /* parameter name */
-    parm_idx idx;               /* index within img_parms array */
-} parm_struct;
-
-const parm_struct img_parms[] = {
+static const parm_struct img_parms[] = {
     {NULL, P__ZERO},            /* dummy; lua indices run from 1 */
     {"attr", P_ATTR},
     {"bbox", P_BBOX},
@@ -802,19 +797,6 @@ static const struct luaL_Reg img_dict_m[] = {
 };
 
 /**********************************************************************/
-
-void preset_environment(lua_State * L, const parm_struct * p)
-{
-    int i;
-    lua_newtable(L);            /* t */
-    for (i = 1, ++p; p->name != NULL; i++, p++) {
-        assert(i == (int) p->idx);
-        lua_pushstring(L, p->name);     /* k t */
-        lua_pushinteger(L, (int) p->idx);       /* v k t */
-        lua_settable(L, -3);    /* t */
-    }
-    lua_replace(L, LUA_ENVIRONINDEX);   /* - */
-}
 
 int luaopen_img(lua_State * L)
 {

@@ -1,6 +1,6 @@
 /* luatex-api.h
-   
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -20,15 +20,14 @@
 /* $Id$ */
 
 #ifndef LUATEX_API_H
-#define LUATEX_API_H 1
+#  define LUATEX_API_H 1
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <../lua51/lua.h>
-#include <../lua51/lauxlib.h>
-#include <../lua51/lualib.h>
-
+#  include <stdlib.h>
+#  include <stdio.h>
+#  include <stdarg.h>
+#  include <../lua51/lua.h>
+#  include <../lua51/lauxlib.h>
+#  include <../lua51/lualib.h>
 
 typedef struct LoadS {
     const char *s;
@@ -45,7 +44,7 @@ extern int luaopen_tex(lua_State * L);
 
 extern int luaopen_pdf(lua_State * L);
 
-#define LUA_TEXFILEHANDLE               "TEXFILE*"
+#  define LUA_TEXFILEHANDLE               "TEXFILE*"
 
 extern int luaopen_texio(lua_State * L);
 
@@ -138,5 +137,14 @@ extern int callback_count;
 extern int saved_callback_count;
 
 extern char *ptexbanner;
+
+/* luastuff.h */
+
+typedef struct {
+    const char *name;           /* parameter name */
+    int idx;                    /* index within img_parms array */
+} parm_struct;
+
+extern void preset_environment(lua_State * L, const parm_struct * p);
 
 #endif
