@@ -30,7 +30,6 @@ typedef struct statistic {
     void *value;
 } statistic;
 
-extern char *ptexbanner;
 extern void lua_nodelib_push_fast(lua_State * L, halfword n);
 
 typedef char *(*charfunc) (void);
@@ -157,12 +156,7 @@ static int get_hash_size(void)
     return hash_size;           /* is a #define */
 }
 
-extern int luabytecode_max;
-extern int luabytecode_bytes;
 static int luastate_max = 1;    /* fixed value */
-extern int luastate_bytes;
-extern int callback_count;
-extern int saved_callback_count;
 
 /* temp, for backward compat */
 static int init_pool_ptr = 0;

@@ -38,6 +38,8 @@
 #include "ptexlib.h"
 #include "md5.h"
 
+#include "lua/luatex-api.h" /* for ptexbanner */
+
 #include "png.h"
 #ifdef POPPLER_VERSION
 #  define xpdfString "poppler"
@@ -58,7 +60,6 @@ static const char _svn_version[] =
 
 char *cur_file_name = NULL;
 static char print_buf[PRINTF_BUF_SIZE];
-extern string ptexbanner;       /* from web2c/lib/texmfmp.c */
 extern string versionstring;    /* from web2c/lib/version.c */
 extern KPSEDLL string kpathsea_version_string;  /* from kpathsea/version.c */
 int epochseconds;

@@ -130,4 +130,13 @@ extern int callback_callbacks_id;
 
 extern void luainterpreter(void);
 
+extern int luabytecode_max;
+extern unsigned int luabytecode_bytes;
+extern int luastate_bytes;
+
+extern int callback_count;
+extern int saved_callback_count;
+
+extern char *ptexbanner;
+
 #endif

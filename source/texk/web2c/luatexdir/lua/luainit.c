@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include <sys/stat.h>
+#include <kpathsea/c-stat.h>
 
 #include "lua/luatex-api.h"
 #include <ptexlib.h>
@@ -126,7 +126,6 @@ string input_name = NULL;
 
 static string user_progname = NULL;
 
-extern char *ptexbanner;
 extern int program_name_set;    /* in lkpselib.c */
 
 /* for topenin() */

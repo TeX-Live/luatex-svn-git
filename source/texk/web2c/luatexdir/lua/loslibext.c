@@ -20,8 +20,7 @@
 #include "lua/luatex-api.h"
 #include <ptexlib.h>
 
-#include <sys/stat.h>
-#include <sys/types.h>
+#include <kpathsea/c-stat.h>
 #include <time.h>
 
 static const char _svn_version[] =

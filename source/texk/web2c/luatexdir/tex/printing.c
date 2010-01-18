@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-
+#include "lua/luatex-api.h" /* for ptexbanner */
 #include <ptexlib.h>
 
 static const char _svn_version[] =
@@ -28,8 +28,6 @@ static const char _svn_version[] =
 
 #define wlog(A)      fputc(A,log_file)
 #define wterm(A)     fputc(A,term_out)
-
-extern char *ptexbanner;
 
 /*
 Messages that are sent to a user's terminal and to the transcript-log file
