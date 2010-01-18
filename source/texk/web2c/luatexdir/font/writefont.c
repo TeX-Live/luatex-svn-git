@@ -97,7 +97,6 @@ fd_entry *new_fd_entry(void)
     fd->subset_tag = NULL;
     fd->ff_found = false;
     fd->ff_objnum = 0;
-    fd->fn_objnum = 0;
     fd->all_glyphs = false;
     fd->write_ttf_glyph_names = false;
     for (i = 0; i < FONT_KEYS_NUM; i++) {
@@ -213,14 +212,6 @@ static void write_fontname(PDF pdf, fd_entry * fd, char *key)
     if (fd->subset_tag != NULL)
         pdf_printf(pdf, "%s+", fd->subset_tag);
     pdf_printf(pdf, "%s\n", fd->fontname);
-}
-
-static void write_fontname_object(PDF pdf, fd_entry * fd)
-{
-    assert(fd->fn_objnum != 0);
-    pdf_begin_obj(pdf, fd->fn_objnum, 1);
-    write_fontname(pdf, fd, NULL);
-    pdf_end_obj(pdf);
 }
 
 /**********************************************************************/
@@ -508,8 +499,6 @@ static void write_fontdescriptor(PDF pdf, fd_entry * fd)
 
     if (is_fontfile(fd->fm) && is_included(fd->fm))
         write_fontfile(pdf, fd);        /* this will set fd->ff_found if font file is found */
-    if (fd->fn_objnum != 0)
-        write_fontname_object(pdf, fd);
     if (fd->fd_objnum == 0)
         fd->fd_objnum = pdf_new_objnum(pdf);
     pdf_begin_dict(pdf, fd->fd_objnum, 1);

@@ -95,7 +95,6 @@ typedef struct fd_entry_ {
     char *subset_tag;           /* 6-character subset tag */
     boolean ff_found;
     int ff_objnum;              /* object number of the font program stream */
-    int fn_objnum;              /* font name object number (embedded PDF) */
     boolean all_glyphs;         /* embed all glyphs? */
     boolean write_ttf_glyph_names;
     intparm font_dim[FONT_KEYS_NUM];
