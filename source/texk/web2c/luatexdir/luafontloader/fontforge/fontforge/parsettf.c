@@ -5999,56 +5999,6 @@ return;
 		map->backmap[map->map[i]] = i;
 }
 
-void TTF_PSDupsDefault(SplineFont *sf) {
-    struct ttflangname *english;
-    char versionbuf[40];
-
-    /* Ok, if we've just loaded a ttf file then we've got a bunch of langnames*/
-    /*  we copied some of them (copyright, family, fullname, etc) into equiv */
-    /*  postscript entries in the sf. If we then use FontInfo and change the */
-    /*  obvious postscript entries we are left with the old ttf entries. If */
-    /*  we generate a ttf file and then load it the old values pop up. */
-    /* Solution: Anything we can generate by default should be set to NULL */
-    for ( english=sf->names; english!=NULL && english->lang!=0x409; english=english->next );
-    if ( english==NULL )
-return;
-    if ( english->names[ttf_family]!=NULL &&
-	    strcmp(english->names[ttf_family],sf->familyname)==0 ) {
-	free(english->names[ttf_family]);
-	english->names[ttf_family]=NULL;
-    }
-    if ( english->names[ttf_copyright]!=NULL &&
-	    strcmp(english->names[ttf_copyright],sf->copyright)==0 ) {
-	free(english->names[ttf_copyright]);
-	english->names[ttf_copyright]=NULL;
-    }
-    if ( english->names[ttf_fullname]!=NULL &&
-	    strcmp(english->names[ttf_fullname],sf->fullname)==0 ) {
-	free(english->names[ttf_fullname]);
-	english->names[ttf_fullname]=NULL;
-    }
-    if ( sf->subfontcnt!=0 || sf->version!=NULL ) {
-	if ( sf->subfontcnt!=0 )
-	    sprintf( versionbuf, "Version %f", sf->cidversion );
-	else
-	    sprintf(versionbuf,"Version %.20s ", sf->version);
-	if ( english->names[ttf_version]!=NULL &&
-		strcmp(english->names[ttf_version],versionbuf)==0 ) {
-	    free(english->names[ttf_version]);
-	    english->names[ttf_version]=NULL;
-	}
-    }
-    if ( english->names[ttf_subfamily]!=NULL &&
-	    strcmp(english->names[ttf_subfamily],SFGetModifiers(sf))==0 ) {
-	free(english->names[ttf_subfamily]);
-	english->names[ttf_subfamily]=NULL;
-    }
-
-    /* User should not be allowed any access to this one, not ever */
-    free(english->names[ttf_postscriptname]);
-    english->names[ttf_postscriptname]=NULL;
-}
-
 static SplineFont *SFFillFromTTF(struct ttfinfo *info) {
     SplineFont *sf, *_sf;
     int i,k;
@@ -6232,7 +6182,6 @@ static SplineFont *SFFillFromTTF(struct ttfinfo *info) {
 	    sf->subfonts[i]->hasvmetrics = sf->hasvmetrics;
 	}
     }
-    TTF_PSDupsDefault(sf);
 
     /* I thought the languages were supposed to be ordered, but it seems */
     /*  that is not always the case. Order everything, just in case */
