@@ -21,7 +21,7 @@ static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
-#include "../image/epdf.h"
+#include "image/epdf.h"
 
 //**********************************************************************
 

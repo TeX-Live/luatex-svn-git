@@ -34,16 +34,16 @@
 #define luac_c
 #define LUA_CORE
 
-#include <../lua51/lua.h>
-#include <../lua51/lauxlib.h>
+#include "lua51/lua.h"
+#include "lua51/lauxlib.h"
 
-#include <../lua51/ldo.h>
-#include <../lua51/lfunc.h>
-#include <../lua51/lmem.h>
-#include <../lua51/lobject.h>
-#include <../lua51/lopcodes.h>
-#include <../lua51/lstring.h>
-#include <../lua51/lundump.h>
+#include "lua51/ldo.h"
+#include "lua51/lfunc.h"
+#include "lua51/lmem.h"
+#include "lua51/lobject.h"
+#include "lua51/lopcodes.h"
+#include "lua51/lstring.h"
+#include "lua51/lundump.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";

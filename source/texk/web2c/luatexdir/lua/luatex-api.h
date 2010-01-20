@@ -25,9 +25,9 @@
 #  include <stdlib.h>
 #  include <stdio.h>
 #  include <stdarg.h>
-#  include <../lua51/lua.h>
-#  include <../lua51/lauxlib.h>
-#  include <../lua51/lualib.h>
+#  include "lua51/lua.h"
+#  include "lua51/lauxlib.h"
+#  include "lua51/lualib.h"
 
 typedef struct LoadS {
     const char *s;

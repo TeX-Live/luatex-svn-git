@@ -22,7 +22,7 @@ static const char _svn_version[] =
     "$URL$";
 
 #include "ptexlib.h"
-#include "../pdf/pdfpage.h"
+#include "pdf/pdfpage.h"
 
 /**********************************************************************/
 

@@ -81,11 +81,11 @@ extern "C" {
 
 #  include "openbsd-compat.h"
 #  include "image.h"
-#  include "../utils/avlstuff.h"
-#  include "../pdf/pdftypes.h"
+#  include "utils/avlstuff.h"
+#  include "pdf/pdftypes.h"
 
-#  include <../lua51/lua.h>
-#  include <../lua51/lauxlib.h>
+#  include "lua51/lua.h"
+#  include "lua51/lauxlib.h"
 
     /* pdfgen.c */
     __attribute__ ((format(printf, 2, 3)))

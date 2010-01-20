@@ -23,9 +23,9 @@
 #ifndef WRITEIMG_H
 #  define WRITEIMG_H
 
-#  include "../dvi/dvigen.h"    /* for scaled_whd only */
+#  include "dvi/dvigen.h"    /* for scaled_whd only */
 #  include "image.h"
-#  include "../pdf/pdfpage.h"
+#  include "pdf/pdfpage.h"
 
 typedef image_dict *idict_entry;
 idict_entry *idict_array;

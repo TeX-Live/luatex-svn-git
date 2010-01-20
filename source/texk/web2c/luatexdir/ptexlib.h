@@ -53,7 +53,7 @@ extern double rint(double x);
 #  define pdftex_version 200    /* \.{\\pdftexversion} */
 #  define pdftex_revision "0"   /* \.{\\pdftexrevision} */
 
-#  include <../lua51/lua.h>
+#  include "lua51/lua.h"
 
 
 /* pdftexlib macros from ptexmac.h */
