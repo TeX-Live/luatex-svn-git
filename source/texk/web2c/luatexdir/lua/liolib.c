@@ -22,7 +22,7 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
-#include <ptexlib.h>
+#include "ptexlib.h"
 
 #define IO_INPUT	1
 #define IO_OUTPUT	2

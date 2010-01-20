@@ -18,7 +18,7 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 #include "lua/luatex-api.h"
-#include <ptexlib.h>
+#include "ptexlib.h"
 #include <kpathsea/expand.h>
 #include <kpathsea/variable.h>
 #include <kpathsea/tex-glyph.h>

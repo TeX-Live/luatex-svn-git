@@ -21,7 +21,7 @@ static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
-#include <ptexlib.h>
+#include "ptexlib.h"
 
 #define pausing int_par(pausing_code)
 #define cat_code_table int_par(cat_code_table_code)

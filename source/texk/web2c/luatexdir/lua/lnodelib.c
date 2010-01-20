@@ -22,7 +22,7 @@ static const char _svn_version[] =
     "$URL$";
 
 #include "lua/luatex-api.h"
-#include <ptexlib.h>
+#include "ptexlib.h"
 
 #define init_luaS_index(a) do {                                         \
     lua_pushliteral(L,#a);                                              \

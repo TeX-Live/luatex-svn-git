@@ -22,7 +22,7 @@ static const char _svn_version[] =
     "$URL$";
 
 #include "lua/luatex-api.h"
-#include <ptexlib.h>
+#include "ptexlib.h"
 
 #define buf_to_pdfbuf_macro(p, s, l)              \
 for (i = 0; i < (l); i++) {                       \

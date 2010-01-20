@@ -18,7 +18,7 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 
-#include <ptexlib.h>
+#include "ptexlib.h"
 
 #include <string.h>
 
