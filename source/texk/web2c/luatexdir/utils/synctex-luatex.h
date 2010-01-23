@@ -34,7 +34,7 @@ authorization from the copyright holder.
 
 */
 
-/* $Id $ */
+/* $Id$ */
 
 #undef synchronization_field_size
 #   define synchronization_field_size 1
