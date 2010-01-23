@@ -372,7 +372,7 @@ void print_banner(const char *v, int e)
     }
 }
 
-void log_banner(char *v, int e)
+void log_banner(const char *v, int e)
 {
     char *months[] = { "   ",
         "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
