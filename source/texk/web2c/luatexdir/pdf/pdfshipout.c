@@ -67,7 +67,7 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
     /* Start sheet {\sl Sync\TeX} information record */
     /* {\sl Sync\TeX}: we assume that |pdf_output| is properly set up */
     if (int_par(synctex_code))
-        synctex_sheet(mag);
+        synctexsheet(mag);
 
     pre_callback_id = callback_defined(start_page_number_callback);
     post_callback_id = callback_defined(stop_page_number_callback);
@@ -326,5 +326,5 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     /* Finish sheet {\sl Sync\TeX} information record */
     if (int_par(synctex_code))
-        synctex_teehs();
+        synctexteehs();
 }

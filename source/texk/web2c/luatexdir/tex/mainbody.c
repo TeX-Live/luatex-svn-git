@@ -459,7 +459,7 @@ void main_body(void)
 
     history = spotless;         /* ready to go! */
     /* Initialize synctex primitive */
-    synctex_init_command();
+    synctexinitcommand();
     main_control();             /* come to life */
     flush_node(text_dir_ptr);
     final_cleanup();            /* prepare for death */
@@ -551,7 +551,7 @@ void close_files_and_terminate(void)
         assert(0);
     }
     /* Close {\sl Sync\TeX} file and write status */
-    synctex_terminate(log_opened);      /* Let the {\sl Sync\TeX} controller close its files. */
+    synctexterminate(log_opened);      /* Let the {\sl Sync\TeX} controller close its files. */
 
     free_text_codes();
     free_math_codes();

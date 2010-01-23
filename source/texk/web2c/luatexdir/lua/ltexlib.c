@@ -1497,7 +1497,7 @@ static int tex_run_boot(lua_State * L)
     text_dir_ptr = new_dir(0);
     history = spotless;         /* ready to go! */
     /* Initialize synctex primitive */
-    synctex_init_command();
+    synctexinitcommand();
     /* tex is ready to go, now */
     unhide_lua_table(Luas, "tex", tex_table_id);
     unhide_lua_table(Luas, "pdf", pdf_table_id);
