@@ -1,6 +1,6 @@
 /* ltexiolib.c
    
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -23,7 +23,7 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-typedef void (*texio_printer) (char *);
+typedef void (*texio_printer) (const char *);
 
 static char *loggable_info = NULL;
 

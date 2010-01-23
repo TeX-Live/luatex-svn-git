@@ -351,7 +351,7 @@ and format identifier together will occupy at most |max_print_line|
 character positions.
 */
 
-void print_banner(char *v, int e)
+void print_banner(const char *v, int e)
 {
     boolean res;
     int callback_id;

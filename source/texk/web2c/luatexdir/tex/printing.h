@@ -63,7 +63,7 @@ extern void print(int s);
 extern void print_nl(str_number s);
 extern void print_nlp(void);
 extern void slow_print(int s);
-extern void print_banner(char *, int);
+extern void print_banner(const char *, int);
 extern void log_banner(char *, int);
 extern void print_version_banner(void);
 extern void print_esc(str_number s);
