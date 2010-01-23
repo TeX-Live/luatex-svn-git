@@ -1548,7 +1548,7 @@ void zip_free(PDF pdf)
     }
 }
 
-void pdf_error(char *t, char *p)
+void pdf_error(const char *t, const char *p)
 {
     normalize_selector();
     print_err("LuaTeX error");
@@ -1563,7 +1563,7 @@ void pdf_error(char *t, char *p)
     succumb();
 }
 
-void pdf_warning(char *t, char *p, boolean prepend_nl, boolean append_nl)
+void pdf_warning(const char *t, const char *p, boolean prepend_nl, boolean append_nl)
 {
     if (prepend_nl)
         print_ln();

@@ -20,8 +20,8 @@ static const char _svn_version[] =
 int luatex_version = 50;        /* \.{\\luatexversion}  */
 int luatex_revision = '0';      /* \.{\\luatexrevision}  */
 int luatex_date_info = -extra_version_info;     /* the compile date is negated */
-char *luatex_version_string = "beta-0.50.0";
-char *engine_name = "luatex";   /* the name of this engine */
+const char *luatex_version_string = "beta-0.50.0";
+const char *engine_name = "luatex";   /* the name of this engine */
 
 
 
@@ -105,7 +105,7 @@ void mk_shellcmdlist(char *v)
 {
     char **p;
     char *q, *r;
-    int n;
+    unsigned int n;
 
     q = v;
     n = 0;
@@ -120,12 +120,12 @@ void mk_shellcmdlist(char *v)
     }
     if (*q)
         n++;
-    cmdlist = (char **) xmalloc((n + 1) * sizeof(char *));
+    cmdlist = (char **) xmalloc((unsigned)((n + 1) * sizeof(char *)));
     p = cmdlist;
     q = v;
     while ((r = strchr(q, ',')) != 0) {
         *r = '\0';
-        *p = (char *) xmalloc(strlen(q) + 1);
+        *p = (char *) xmalloc((unsigned)strlen(q) + 1);
         strcpy(*p, q);
         *r = ',';
         r++;
@@ -133,7 +133,7 @@ void mk_shellcmdlist(char *v)
         p++;
     }
     if (*q) {
-        *p = (char *) xmalloc(strlen(q) + 1);
+        *p = (char *) xmalloc((unsigned)strlen(q) + 1);
         strcpy(*p, q);
         p++;
         *p = NULL;
@@ -209,12 +209,13 @@ int shell_cmd_is_allowed(char **cmd, char **safecmd, char **cmdname)
     char **p;
     char *buf;
     char *s, *d;
-    int pre, spaces;
+    int pre;
+    unsigned spaces;
     int allow = 0;
 
     /* pre == 1 means that the previous character is a white space
        pre == 0 means that the previous character is not a white space */
-    buf = (char *) xmalloc(strlen(*cmd) + 1);
+    buf = (char *) xmalloc((unsigned)strlen(*cmd) + 1);
     strcpy(buf, *cmd);
     s = buf;
     while (Isspace(*s))
@@ -254,9 +255,9 @@ int shell_cmd_is_allowed(char **cmd, char **safecmd, char **cmdname)
 
         /* allocate enough memory (too much?) */
 #  ifdef WIN32
-        *safecmd = (char *) xmalloc(2 * strlen(*cmd) + 3 + 2 * spaces);
+        *safecmd = (char *) xmalloc(2 * (unsigned)strlen(*cmd) + 3 + 2 * spaces);
 #  else
-        *safecmd = (char *) xmalloc(strlen(*cmd) + 3 + 2 * spaces);
+        *safecmd = (char *) xmalloc((unsigned)strlen(*cmd) + 3 + 2 * spaces);
 #  endif
 
         /* make a safe command line *safecmd */
@@ -454,7 +455,7 @@ void topenin(void)
             /* Don't use strcat, since in Aleph the buffer elements aren't
                single bytes.  */
             while (*ptr) {
-                buffer[k++] = *(ptr++);
+                buffer[k++] = (packed_ASCII_code)*(ptr++);
             }
             buffer[k++] = ' ';
         }
@@ -666,7 +667,7 @@ string normalize_quotes(const_string name, const_string mesg)
     boolean quoted = false;
     boolean must_quote = (strchr(name, ' ') != NULL);
     /* Leave room for quotes and NUL. */
-    string ret = (string) xmalloc(strlen(name) + 3);
+    string ret = (string) xmalloc((unsigned)strlen(name) + 3);
     string p;
     const_string q;
     p = ret;
@@ -782,7 +783,7 @@ void get_seconds_and_micros(int *seconds, int *micros)
     *micros = tb.millitm * 1000;
 #else
     time_t myclock = time((time_t *) NULL);
-    *seconds = myclock;
+    *seconds = (int)myclock;
     *micros = 0;
 #endif
 }
@@ -819,7 +820,7 @@ boolean input_line(FILE * f)
     /* Recognize either LF or CR as a line terminator.  */
     last = first;
     while (last < buf_size && (i = getc(f)) != EOF && i != '\n' && i != '\r')
-        buffer[last++] = i;
+        buffer[last++] = (packed_ASCII_code)i;
 
     if (i == EOF && errno != EINTR && last == first)
         return false;
@@ -885,7 +886,7 @@ calledit(packedASCIIcode * filename,
 
     /* Construct the command string.  The `11' is the maximum length an
        integer might be.  */
-    command = (string) xmalloc(strlen(edit_value) + fnlength + 11);
+    command = (string) xmalloc((unsigned)strlen(edit_value) + (unsigned)fnlength + 11);
 
     /* So we can construct it as we go.  */
     temp = command;
@@ -906,7 +907,7 @@ calledit(packedASCIIcode * filename,
                 if (sdone)
                     FATAL("call_edit: `%%s' appears twice in editor command");
                 for (i = 0; i < fnlength; i++)
-                    *temp++ = Xchr(filename[i]);
+                    *temp++ = (char)Xchr(filename[i]);
                 sdone = 1;
                 break;
 
@@ -1029,7 +1030,7 @@ void do_dump(char *p, int item_size, int nitems, FILE * out_file)
     swap_items(p, nitems, item_size);
 #endif
 
-    if (fwrite(p, item_size, nitems, out_file) != (unsigned) nitems) {
+    if (fwrite(p, (size_t)item_size, (size_t)nitems, out_file) != (unsigned) nitems) {
         fprintf(stderr, "! Could not write %d %d-byte item(s).\n",
                 nitems, item_size);
         uexit(1);
@@ -1047,7 +1048,7 @@ void do_dump(char *p, int item_size, int nitems, FILE * out_file)
 
 void do_undump(char *p, int item_size, int nitems, FILE * in_file)
 {
-    if (fread(p, item_size, nitems, in_file) != (size_t) nitems)
+    if (fread(p, (size_t)item_size, (size_t)nitems, in_file) != (size_t) nitems)
         FATAL2("Could not undump %d %d-byte item(s)", nitems, item_size);
 
 #if !defined (WORDS_BIGENDIAN) && !defined (NO_DUMP_SHARE)

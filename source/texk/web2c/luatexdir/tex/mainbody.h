@@ -25,8 +25,8 @@
 extern int luatex_version;
 extern int luatex_revision;
 extern int luatex_date_info;
-extern char *luatex_version_string;
-extern char *engine_name;
+extern const char *luatex_version_string;
+extern const char *engine_name;
 
 /*
 The following parameters can be changed at compile time to extend or

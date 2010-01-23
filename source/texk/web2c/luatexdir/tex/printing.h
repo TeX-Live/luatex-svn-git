@@ -78,9 +78,9 @@ extern void print_current_string(void);
 
 extern void print_cs(int p);
 extern void sprint_cs(pointer p);
-extern void tprint(char *s);
-extern void tprint_nl(char *s);
-extern void tprint_esc(char *s);
+extern void tprint(const char *s);
+extern void tprint_nl(const char *s);
+extern void tprint_esc(const char *s);
 
 extern void prompt_input(char *s);
 

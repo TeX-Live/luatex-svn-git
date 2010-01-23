@@ -319,7 +319,7 @@ void print_nl(str_number s)
 
 /* char * versions */
 
-void tprint(char *s)
+void tprint(const char *s)
 {
     unsigned char *ss = (unsigned char *) s;
     if (selector == new_string) {
@@ -330,7 +330,7 @@ void tprint(char *s)
         print_char(*ss++);
 }
 
-void tprint_nl(char *s)
+void tprint_nl(const char *s)
 {
     print_nlp();
     tprint(s);
@@ -432,7 +432,7 @@ void print_esc(str_number s)
     print(s);
 }
 
-void tprint_esc(char *s)
+void tprint_esc(const char *s)
 {                               /* prints escape character, then |s| */
     int c;                      /* the escape character code */
     /* Set variable |c| to the current escape character */
