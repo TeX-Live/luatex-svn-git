@@ -73,7 +73,7 @@ authorization from the copyright holder.
 #define CURH static_pdf->posstruct->pos.h
 
 #define GETJOBNAME() makecstring(job_name)
-#define GETLOGNAME() (char *)xstrdup(texmf_log_name)
+#define GETLOGNAME() (char *)xstrdup((const char*)texmf_log_name)
 #define gettexstring(a) makecstring(a)
 
 #define rulewd width(p)
