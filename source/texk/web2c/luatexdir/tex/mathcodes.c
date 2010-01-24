@@ -20,10 +20,6 @@
 
 #include "ptexlib.h"
 
-
-
-extern void rawset_sa_item(sa_tree head, int n, int v);
-
 static const char _svn_version[] =
     "$Id$ $URL$";
 

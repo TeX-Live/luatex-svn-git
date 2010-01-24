@@ -33,9 +33,9 @@
 #  define MIDPART_PART(a)  (((a)>>7)&127)
 #  define LOWPART_PART(a)  ((a)&127)
 
-#  define Mxmalloc_array(a,b)  xmalloc((b)*sizeof(a))
+#  define Mxmalloc_array(a,b)  xmalloc((unsigned)((unsigned)(b)*sizeof(a)))
 #  define Mxcalloc_array(a,b)  xcalloc((b),sizeof(a))
-#  define Mxrealloc_array(a,b,c)  xrealloc((a),(c)*sizeof(b))
+#  define Mxrealloc_array(a,b,c)  xrealloc((a),(unsigned)((unsigned)(c)*sizeof(b)))
 #  define Mxfree(a) free(a); a=NULL
 
 
@@ -53,7 +53,7 @@ typedef struct {
     int stack_size;             /* initial stack size   */
     int stack_step;             /* increment stack step */
     int stack_ptr;              /* current stack point  */
-    int dflt;                   /* default item value   */
+    sa_tree_item dflt;          /* default item value   */
     sa_tree_item ***tree;       /* item tree head       */
     sa_stack_item *stack;       /* stack tree head      */
 } sa_tree_head;
@@ -62,6 +62,7 @@ typedef sa_tree_head *sa_tree;
 
 extern sa_tree_item get_sa_item(const sa_tree head, const int n);
 extern void set_sa_item(sa_tree head, int n, sa_tree_item v, int gl);
+extern void rawset_sa_item(sa_tree head, int n, sa_tree_item v);
 
 extern sa_tree new_sa_tree(int size, sa_tree_item dflt);
 

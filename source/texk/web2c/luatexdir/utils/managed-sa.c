@@ -23,7 +23,7 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-static void store_sa_stack(sa_tree a, int n, int v, int gl)
+static void store_sa_stack(sa_tree a, int n, sa_tree_item v, int gl)
 {
     sa_stack_item st;
     st.code = n;
@@ -98,7 +98,7 @@ void set_sa_item(sa_tree head, int n, sa_tree_item v, int gl)
     head->tree[h][m][l] = v;
 }
 
-void rawset_sa_item(sa_tree head, int n, int v)
+void rawset_sa_item(sa_tree head, int n, sa_tree_item v)
 {
     head->tree[HIGHPART_PART(n)][MIDPART_PART(n)][LOWPART_PART(n)] = v;
 }
@@ -205,11 +205,11 @@ void restore_sa_stack(sa_tree head, int gl)
 void dump_sa_tree(sa_tree a)
 {
     boolean f;
-    unsigned int x;
+    int x;
     int h, m, l;
     assert(a != NULL);
     dump_int(a->stack_step);
-    dump_int(a->dflt);
+    x = (int)a->dflt; dump_int(x);
     if (a->tree != NULL) {
         dump_int(1);
         for (h = 0; h < HIGHPART; h++) {
@@ -221,7 +221,7 @@ void dump_sa_tree(sa_tree a)
                         f = 1;
                         dump_qqqq(f);
                         for (l = 0; l < LOWPART; l++) {
-                            x = a->tree[h][m][l];
+                            x = (int)a->tree[h][m][l];
                             dump_int(x);
                         }
                     } else {
@@ -250,7 +250,7 @@ sa_tree undump_sa_tree(void)
     a->stack_step = x;
     a->stack_size = x;
     undump_int(x);
-    a->dflt = x;
+    a->dflt = (sa_tree_item)x;
     a->stack = Mxmalloc_array(sa_stack_item, a->stack_size);
     a->stack_ptr = 0;
     a->tree = NULL;
