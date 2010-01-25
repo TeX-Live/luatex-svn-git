@@ -23,7 +23,7 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-extern int do_run_callback(int special, char *values, va_list vl);
+extern int do_run_callback(int special, const char *values, va_list vl);
 extern int lua_traceback(lua_State * L);
 
 int callback_count = 0;
@@ -181,7 +181,7 @@ void get_saved_lua_string(int r, char *name, char **target)
 #define CALLBACK_CHARNUM        'c'
 
 
-int run_saved_callback(int r, char *name, char *values, ...)
+int run_saved_callback(int r, const char *name, const char *values, ...)
 {
     va_list args;
     int ret = 0;
@@ -216,7 +216,7 @@ boolean get_callback(lua_State * L, int i)
     }
 }
 
-int run_and_save_callback(int i, char *values, ...)
+int run_and_save_callback(int i, const char *values, ...)
 {
     va_list args;
     int ret = 0;
@@ -235,7 +235,7 @@ int run_and_save_callback(int i, char *values, ...)
 }
 
 
-int run_callback(int i, char *values, ...)
+int run_callback(int i, const char *values, ...)
 {
     va_list args;
     int ret = 0;
@@ -250,7 +250,7 @@ int run_callback(int i, char *values, ...)
     return ret;
 }
 
-int do_run_callback(int special, char *values, va_list vl)
+int do_run_callback(int special, const char *values, va_list vl)
 {
     int ret;
     size_t len;

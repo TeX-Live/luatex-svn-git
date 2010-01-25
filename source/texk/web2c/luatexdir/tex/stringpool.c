@@ -83,7 +83,7 @@ str_number make_string(void)
 {
     if (str_ptr == (max_strings + STRING_OFFSET))
         overflow("number of strings",
-                 max_strings - init_str_ptr + STRING_OFFSET);
+                 (unsigned)(max_strings - init_str_ptr + STRING_OFFSET));
     str_room(1);
     cur_string[cur_length] = '\0';      /* now |lstring.s| is always a valid C string */
     str_string(str_ptr) = (unsigned char *) cur_string;
@@ -98,7 +98,7 @@ str_number make_string(void)
 
 static void utf_error(void)
 {
-    char *hlp[] = { "A funny symbol that I can't read has just been (re)read.",
+    const char *hlp[] = { "A funny symbol that I can't read has just been (re)read.",
         "Just continue, I'll change it to 0xFFFD.",
         NULL
     };
@@ -113,21 +113,21 @@ unsigned str2uni(unsigned char *k)
     unsigned val = 0xFFFD;
     unsigned char *text = k;
     if ((ch = *text++) < 0x80) {
-        val = ch;
+        val = (unsigned)ch;
     } else if (ch <= 0xbf) {    /* error */
     } else if (ch <= 0xdf) {
         if (*text >= 0x80 && *text < 0xc0)
-            val = ((ch & 0x1f) << 6) | (*text++ & 0x3f);
+            val = (unsigned)(((ch & 0x1f) << 6) | (*text++ & 0x3f));
     } else if (ch <= 0xef) {
         if (*text >= 0x80 && *text < 0xc0 && text[1] >= 0x80 && text[1] < 0xc0) {
-            val =
-                ((ch & 0xf) << 12) | ((text[0] & 0x3f) << 6) | (text[1] & 0x3f);
+            val =(unsigned)
+                (((ch & 0xf) << 12) | ((text[0] & 0x3f) << 6) | (text[1] & 0x3f));
         }
     } else {
         int w = (((ch & 0x7) << 2) | ((text[0] & 0x30) >> 4)) - 1, w2;
         w = (w << 6) | ((text[0] & 0xf) << 2) | ((text[1] & 0x30) >> 4);
         w2 = ((text[1] & 0xf) << 6) | (text[2] & 0x3f);
-        val = w * 0x400 + w2 + 0x10000;
+        val = (unsigned)(w * 0x400 + w2 + 0x10000);
         if (*text < 0x80 || text[1] < 0x80 || text[2] < 0x80 ||
             *text >= 0xc0 || text[1] >= 0xc0 || text[2] >= 0xc0)
             val = 0xFFFD;
@@ -157,10 +157,10 @@ unsigned char *uni2str(unsigned unic)
     } else {
         int u, z, y, x;
         unsigned val = unic - 0x10000;
-        u = ((val & 0xf0000) >> 16) + 1;
-        z = (val & 0x0f000) >> 12;
-        y = (val & 0x00fc0) >> 6;
-        x = val & 0x0003f;
+        u = (int)(((val & 0xf0000) >> 16) + 1);
+        z = (int)((val & 0x0f000) >> 12);
+        y = (int)((val & 0x00fc0) >> 6);
+        x = (int)(val & 0x0003f);
         *pt++ = (unsigned char)(0xf0 | (u >> 2));
         *pt++ = (unsigned char)(0x80 | ((u & 3) << 4) | z);
         *pt++ = (unsigned char)(0x80 | y);
@@ -383,11 +383,11 @@ str_number maketexlstring(const char *s, size_t l)
 }
 
 /* append a C string to a TeX string */
-void append_string(unsigned char *s, unsigned l)
+void append_string(const unsigned char *s, unsigned l)
 {
     if (s == NULL || *s == 0)
         return;
-    l = strlen((char *) s);
+    l = strlen((const char *) s);
     str_room(l);
     memcpy(cur_string + cur_length, s, l);
     cur_length += l;
@@ -403,14 +403,14 @@ char *makecstring(int s)
 char *makeclstring(int s, size_t * len)
 {
     if (s < STRING_OFFSET) {
-        *len = utf8_size(s);
-        return (char *) uni2str(s);
+        *len = (size_t)utf8_size(s);
+        return (char *) uni2str((unsigned)s);
     } else {
         unsigned l = str_length(s);
         char *cstrbuf = xmalloc(l + 1);
         memcpy(cstrbuf, str_string(s), l);
         cstrbuf[l] = '\0';
-        *len = l;
+        *len = (size_t)l;
         return cstrbuf;
     }
 }
@@ -442,12 +442,12 @@ int undump_string_pool(void)
     str_ptr += STRING_OFFSET;
     if (ini_version)
         libcfree(string_pool);
-    init_string_pool_array(max_strings);
+    init_string_pool_array((unsigned)max_strings);
     for (j = STRING_OFFSET + 1; j < str_ptr; j++) {
         undump_int(x);
         if (x >= 0) {
             str_length(j) = (unsigned) x;
-            pool_size += x;
+            pool_size += (unsigned)x;
             str_string(j) = xmallocarray(unsigned char, (unsigned) (x + 1));
             undump_things(*str_string(j), (unsigned) x);
             *(str_string(j) + str_length(j)) = '\0';
@@ -459,7 +459,7 @@ int undump_string_pool(void)
     return str_ptr;
 }
 
-void init_string_pool_array(int s)
+void init_string_pool_array(unsigned s)
 {
     string_pool = xmallocarray(lstring, s);
     _string_pool = string_pool - STRING_OFFSET;

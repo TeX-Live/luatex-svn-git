@@ -53,7 +53,7 @@ static char *group_code_names[] = {
 char *pack_type_name[] = { "exactly", "additional" };
 
 
-void lua_node_filter_s(int filterid, char *extrainfo)
+void lua_node_filter_s(int filterid, const char *extrainfo)
 {
     lua_State *L = Luas;
     int s_top = lua_gettop(L);

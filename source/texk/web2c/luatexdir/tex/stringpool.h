@@ -127,7 +127,7 @@ extern unsigned str2uni(unsigned char *);
 
 extern str_number maketexstring(const char *);
 extern str_number maketexlstring(const char *, size_t);
-extern void append_string(unsigned char *s, unsigned l);
+extern void append_string(const unsigned char *s, unsigned l);
 
 extern char *makecstring(int);
 extern char *makeclstring(int, size_t *);
@@ -135,7 +135,7 @@ extern char *makeclstring(int, size_t *);
 extern int dump_string_pool(void);
 extern int undump_string_pool(void);
 
-extern void init_string_pool_array(int s);
+extern void init_string_pool_array(unsigned s);
 extern void flush_str(str_number s);
 
 #endif

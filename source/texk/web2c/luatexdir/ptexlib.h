@@ -254,7 +254,7 @@ void lua_node_filter(int filterid, int extrainfo, halfword head_node,
                      halfword * tail_node);
 halfword lua_vpack_filter(halfword head_node, scaled size, int pack_type,
                           scaled maxd, int extrainfo, int d);
-void lua_node_filter_s(int filterid, char *extrainfo);
+void lua_node_filter_s(int filterid, const char *extrainfo);
 int lua_linebreak_callback(int is_broken, halfword head_node,
                            halfword * new_head);
 
@@ -347,9 +347,9 @@ extern int lua_active;
 
 #  define callback_defined(a) callback_set[a]
 
-extern int run_callback(int i, char *values, ...);
-extern int run_saved_callback(int i, char *name, char *values, ...);
-extern int run_and_save_callback(int i, char *values, ...);
+extern int run_callback(int i, const char *values, ...);
+extern int run_saved_callback(int i, const char *name, const char *values, ...);
+extern int run_and_save_callback(int i, const char *values, ...);
 extern void destroy_saved_callback(int i);
 extern boolean get_callback(lua_State * L, int i);
 
@@ -373,16 +373,7 @@ extern char *get_lua_name(int i);
 
 #  define pdfassert assert
 #  define voidcast(a) (void *)(a)
-#  define varmemcast(a) (memory_word *)(a)
 #  define fixmemcast(a) (smemory_word *)(a)
-extern volatile memory_word *varmem;
-extern halfword var_mem_min;
-extern halfword var_mem_max;
-extern halfword get_node(int s);
-extern void free_node(halfword p, int s);
-extern void init_node_mem(int s);
-extern void dump_node_mem(void);
-extern void undump_node_mem(void);
 
 extern void do_vf(internal_font_number tmp_f);
 

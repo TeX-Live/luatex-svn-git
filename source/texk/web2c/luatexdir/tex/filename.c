@@ -220,7 +220,7 @@ void scan_file_name_toks(void)
 */
 
 
-char *pack_job_name(char *s)
+char *pack_job_name(const char *s)
 {                               /* |s = ".log"|, |".dvi"|, or |format_extension| */
     cur_area = get_nullstr();
     cur_ext = maketexstring(s);
@@ -236,7 +236,7 @@ char *pack_job_name(char *s)
    ready for another attempt at file opening.
 */
 
-char *prompt_file_name(char *s, char *e)
+char *prompt_file_name(const char *s, const char *e)
 {
     int k;                      /* index into |buffer| */
     str_number saved_cur_name;  /* to catch empty terminal input */

@@ -882,7 +882,7 @@ the same except for the upper limit and the error message, so it makes
 sense to combine these all into one function. 
 */
 
-void scan_limited_int(int max, char *name)
+void scan_limited_int(int max, const char *name)
 {
     char hlp[80];
     scan_int();

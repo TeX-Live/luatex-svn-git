@@ -63,8 +63,8 @@ Locations in |fixmem| are used for storing one-word records; a conventional
 */
 
 smemory_word *fixmem;           /* the big dynamic storage area */
-halfword fix_mem_min;           /* the smallest location of one-word memory in use */
-halfword fix_mem_max;           /* the largest location of one-word memory in use */
+unsigned fix_mem_min;           /* the smallest location of one-word memory in use */
+unsigned fix_mem_max;           /* the largest location of one-word memory in use */
 
 /*
 In order to study the memory requirements of particular applications, it
@@ -77,7 +77,7 @@ report these statistics when |tracing_stats| is sufficiently large.
 int var_used, dyn_used;         /* how much memory is in use */
 
 halfword avail;                 /* head of the list of available one-word nodes */
-halfword fix_mem_end;           /* the last one-word node used in |mem| */
+unsigned fix_mem_end;           /* the last one-word node used in |mem| */
 
 halfword garbage;               /* head of a junk list, write only */
 halfword temp_token_head;       /* head of a temporary list of some kind */
@@ -125,9 +125,9 @@ If, that doesn't work, we have to quit.
 
 halfword get_avail(void)
 {                               /* single-word node allocation */
-    halfword p;                 /* the new node being got */
-    int t;
-    p = avail;                  /* get top location in the |avail| stack */
+    unsigned p;                 /* the new node being got */
+    unsigned t;
+    p = (unsigned)avail;        /* get top location in the |avail| stack */
     if (p != null) {
         avail = token_link(avail);      /* and pop it off */
     } else if (fix_mem_end < fix_mem_max) {     /* or go into virgin territory */
@@ -151,7 +151,7 @@ halfword get_avail(void)
     }
     token_link(p) = null;       /* provide an oft-desired initialization of the new node */
     incr(dyn_used);             /* maintain statistics */
-    return p;
+    return (halfword)p;
 }
 
 /*
@@ -325,7 +325,7 @@ void show_token_list(int p, int q, int l)
             set_trick_count();
         }
         /* Display token |p|, and |return| if there are problems */
-        if ((p < fix_mem_min) || (p > fix_mem_end)) {
+        if ((p < (int)fix_mem_min) || (p > (int)fix_mem_end)) {
             tprint_esc("CLOBBERED.");
             return;
         }
@@ -393,7 +393,7 @@ void show_token_list(int p, int q, int l)
 }
 
 #define do_buffer_to_unichar(a,b)  do {                         \
-        a = str2uni(buffer+b);                                  \
+        a = (halfword)str2uni(buffer+b);                        \
         b += utf8_size(a);                                      \
     } while (0)
 
@@ -437,7 +437,7 @@ int get_char_cat_code(int cur_chr)
 
 static void invalid_character_error(void)
 {
-    char *hlp[] = { "A funny symbol that I can't read has just been input.",
+    const char *hlp[] = { "A funny symbol that I can't read has just been input.",
         "Continue, and I'll forget that it ever happened.",
         NULL
     };
@@ -473,11 +473,11 @@ static next_line_retval next_line(void);        /* below */
    @^inner loop@>
 */
 
-boolean scan_keyword(char *s)
+boolean scan_keyword(const char *s)
 {                               /* look for a given string */
     halfword p;                 /* tail of the backup list */
     halfword q;                 /* new node being added to the token list via |store_new_token| */
-    char *k;                    /* index into |str_pool| */
+    const char *k;              /* index into |str_pool| */
     halfword save_cur_cs = cur_cs;
     if (strlen(s) == 1) {
         /* @<Get the next non-blank non-call token@>; */
@@ -536,7 +536,7 @@ halfword active_to_cs(int curchr, int force)
     if (force)
         no_new_control_sequence = false;
     if (curchr > 0) {
-        b = (char *) uni2str(curchr);
+        b = (char *) uni2str((unsigned)curchr);
         utfbytes = strcat(utfbytes, b);
         free(b);
         curcs = string_lookup(utfbytes, strlen(utfbytes));
@@ -554,7 +554,8 @@ halfword active_to_cs(int curchr, int force)
 
 char *cs_to_string(halfword p)
 {                               /* prints a control sequence */
-    char *s, *sh;
+    const char *s;
+    char *sh;
     int k = 0;
     static char ret[256] = { 0 };
     if (p == 0 || p == null_cs) {
@@ -719,14 +720,15 @@ void check_outer_validity(void)
             cur_chr = ' ';      /* replace it by a space */
         }
         if (scanner_status > skipping) {
-            char *errhlp[] = { "I suspect you have forgotten a `}', causing me",
+            const char *errhlp[] = { "I suspect you have forgotten a `}', causing me",
                 "to read past where you wanted me to stop.",
                 "I'll try to recover; but if the error is serious,",
                 "you'd better type `E' or `X' now and fix your file.",
                 NULL
             };
             char errmsg[256];
-            char *startmsg, *scannermsg;
+            const char *startmsg;
+            const char *scannermsg;
             /* @<Tell the user what has run away and try to recover@> */
             runaway();          /* print a definition, argument, or preamble */
             if (cur_cs == 0) {
@@ -777,19 +779,19 @@ void check_outer_validity(void)
             tex_error(errmsg, errhlp);
         } else {
             char errmsg[256];
-            char *errhlp_no[] =
+            const char *errhlp_no[] =
                 { "The file ended while I was skipping conditional text.",
                 "This kind of error happens when you say `\\if...' and forget",
                 "the matching `\\fi'. I've inserted a `\\fi'; this might work.",
                 NULL
             };
-            char *errhlp_cs[] =
+            const char *errhlp_cs[] =
                 { "A forbidden control sequence occurred in skipped text.",
                 "This kind of error happens when you say `\\if...' and forget",
                 "the matching `\\fi'. I've inserted a `\\fi'; this might work.",
                 NULL
             };
-            char **errhlp = (char **) errhlp_no;
+            const char **errhlp = (const char **) errhlp_no;
             char *ss;
             if (cur_cs != 0) {
                 errhlp = errhlp_cs;
@@ -849,7 +851,7 @@ static boolean get_next_file(void)
         case mid_line + escape_cmd:
         case new_line + escape_cmd:
         case skip_blanks + escape_cmd: /* @<Scan a control sequence ...@>; */
-            istate = (quarterword)scan_control_sequence();
+            istate = (unsigned char)scan_control_sequence();
             if (cur_cmd >= outer_call_cmd)
                 check_outer_validity();
             break;
@@ -1276,8 +1278,8 @@ static next_line_retval next_line(void)
                 if (iname == 21) {
                     if (luacstring_input()) {   /* not end of strings  */
                         firm_up_the_line();
-                        line_catcode_table = luacstring_cattable();
-                        line_partial = luacstring_partial();
+                        line_catcode_table = (short)luacstring_cattable();
+                        line_partial = (signed char)luacstring_partial();
                         if (luacstring_final_line() || line_partial
                             || line_catcode_table == NO_CAT_TABLE)
                             inhibit_eol = true;
@@ -1513,7 +1515,7 @@ halfword string_to_toks(char *ss)
     p = temp_token_head;
     set_token_link(p, null);
     while (s < se) {
-        t = str2uni((unsigned char *) s);
+        t = (halfword)str2uni((unsigned char *) s);
         s += utf8_size(t);
         if (t == ' ')
             t = space_token;
@@ -2201,13 +2203,13 @@ str_number tokens_to_string(halfword p)
 
 
 #define make_room(a)                                    \
-    if ((i+(int)a+1)>alloci) {                          \
-        ret = xrealloc(ret,alloci+64);                  \
+    if ((unsigned)i+a+1>alloci) {                      \
+        ret = xrealloc(ret,(alloci+64));                \
         alloci = alloci + 64;                           \
     }
 
 
-#define append_i_byte(a) ret[i++] = (char)a
+#define append_i_byte(a) ret[i++] = (char)(a)
 
 #define Print_char(a) make_room(1); append_i_byte(a)
 
@@ -2233,7 +2235,7 @@ str_number tokens_to_string(halfword p)
 
 
 #define Print_esc(b) {                                          \
-    char *v = b;                                                \
+    const char *v = b;                                          \
     if (e>0 && e<STRING_OFFSET) {                               \
         Print_uchar (e);                                        \
     }                                                           \
@@ -2260,7 +2262,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
     char *ret;
     int match_chr = '#';
     int n = '0';
-    int alloci = 1024;
+    unsigned alloci = 1024;
     int i = 0;
     p = pp;
     if (p == null) {
@@ -2274,7 +2276,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
         e = int_par(escape_char_code);
     }
     while (p != null) {
-        if (p < fix_mem_min || p > fix_mem_end) {
+        if (p < (int)fix_mem_min || p > (int)fix_mem_end) {
             Print_esc("CLOBBERED.");
             break;
         }

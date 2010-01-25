@@ -321,7 +321,7 @@ void print_nl(str_number s)
 
 void tprint(const char *s)
 {
-    unsigned char *ss = (unsigned char *) s;
+    const unsigned char *ss = (const unsigned char *) s;
     if (selector == new_string) {
         append_string(ss, strlen(s));
         return;
@@ -374,7 +374,7 @@ void print_banner(const char *v, int e)
 
 void log_banner(const char *v, int e)
 {
-    char *months[] = { "   ",
+    const char *months[] = { "   ",
         "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
         "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
     };
@@ -539,7 +539,7 @@ void print_roman_int(int n)
     while (1) {
         while (n >= (int) v) {
             print_char(*j);
-            n = n - v;
+            n = n - (int)v;
         }
         if (n <= 0)
             return;             /* nonpositive input produces no output */
@@ -549,9 +549,9 @@ void print_roman_int(int n)
             k = k + 2;
             u = u / (*(k - 1) - '0');
         }
-        if (n + u >= v) {
+        if (n + (int)u >= (int)v) {
             print_char(*k);
-            n = n + u;
+            n = n + (int)u;
         } else {
             j = j + 2;
             v = v / (*(j - 1) - '0');
@@ -634,7 +634,7 @@ void sprint_cs(pointer p)
 
 /* This procedure is never called when |interaction<scroll_mode|. */
 
-void prompt_input(char *s)
+void prompt_input(const char *s)
 {
     wake_up_terminal();
     tprint(s);
@@ -646,7 +646,7 @@ Then there is a subroutine that prints glue stretch and shrink, possibly
 followed by the name of finite units:
 */
 
-void print_glue(scaled d, int order, char *s)
+void print_glue(scaled d, int order, const char *s)
 {                               /* prints a glue component */
     print_scaled(d);
     if ((order < normal) || (order > filll)) {
@@ -664,7 +664,7 @@ void print_glue(scaled d, int order, char *s)
 
 /*  The next subroutine prints a whole glue specification */
 
-void print_spec(int p, char *s)
+void print_spec(int p, const char *s)
 {                               /* prints a glue specification */
     if (p < 0) {
         print_char('*');
@@ -787,7 +787,7 @@ void print_font_and_char(int p)
 void print_mark(int p)
 {                               /* prints token list data in braces */
     print_char('{');
-    if ((p < fix_mem_min) || (p > fix_mem_end))
+    if ((p < (int)fix_mem_min) || (p > (int)fix_mem_end))
         tprint_esc("CLOBBERED.");
     else
         show_token_list(token_link(p), null, max_print_line - 10);

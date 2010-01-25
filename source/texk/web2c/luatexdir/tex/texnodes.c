@@ -68,125 +68,125 @@ int copy_error(halfword p);     /* define below */
 
 #define variable_node_size 2
 
-char *node_fields_list[] = { "attr", "width", "depth", "height", "dir", "shift",
+const char *node_fields_list[] = { "attr", "width", "depth", "height", "dir", "shift",
     "glue_order", "glue_sign", "glue_set", "list", NULL
 };
-char *node_fields_rule[] = { "attr", "width", "depth", "height", "dir", NULL };
-char *node_fields_insert[] =
+const char *node_fields_rule[] = { "attr", "width", "depth", "height", "dir", NULL };
+const char *node_fields_insert[] =
     { "attr", "cost", "depth", "height", "spec", "list", NULL };
-char *node_fields_mark[] = { "attr", "class", "mark", NULL };
-char *node_fields_adjust[] = { "attr", "list", NULL };
-char *node_fields_disc[] = { "attr", "pre", "post", "replace", NULL };
-char *node_fields_math[] = { "attr", "surround", NULL };
-char *node_fields_glue[] = { "attr", "spec", "leader", NULL };
-char *node_fields_kern[] = { "attr", "kern", NULL };
-char *node_fields_penalty[] = { "attr", "penalty", NULL };
+const char *node_fields_mark[] = { "attr", "class", "mark", NULL };
+const char *node_fields_adjust[] = { "attr", "list", NULL };
+const char *node_fields_disc[] = { "attr", "pre", "post", "replace", NULL };
+const char *node_fields_math[] = { "attr", "surround", NULL };
+const char *node_fields_glue[] = { "attr", "spec", "leader", NULL };
+const char *node_fields_kern[] = { "attr", "kern", NULL };
+const char *node_fields_penalty[] = { "attr", "penalty", NULL };
 
-char *node_fields_unset[] =
+const char *node_fields_unset[] =
     { "attr", "width", "depth", "height", "dir", "shrink",
     "glue_order", "glue_sign", "stretch", "span", "list", NULL
 };
-char *node_fields_margin_kern[] = { "attr", "width", "glyph", NULL };
+const char *node_fields_margin_kern[] = { "attr", "width", "glyph", NULL };
 
-char *node_fields_glyph[] =
+const char *node_fields_glyph[] =
     { "attr", "char", "font", "lang", "left", "right", "uchyph",
     "components", "xoffset", "yoffset", NULL
 };
-char *node_fields_style[] = { "attr", "style", NULL };
-char *node_fields_choice[] =
+const char *node_fields_style[] = { "attr", "style", NULL };
+const char *node_fields_choice[] =
     { "attr", "display", "text", "script", "scriptscript", NULL };
-char *node_fields_ord[] = { "attr", "nucleus", "sub", "sup", NULL };
-char *node_fields_op[] = { "attr", "nucleus", "sub", "sup", NULL };
-char *node_fields_bin[] = { "attr", "nucleus", "sub", "sup", NULL };
-char *node_fields_rel[] = { "attr", "nucleus", "sub", "sup", NULL };
-char *node_fields_open[] = { "attr", "nucleus", "sub", "sup", NULL };
-char *node_fields_close[] = { "attr", "nucleus", "sub", "sup", NULL };
-char *node_fields_punct[] = { "attr", "nucleus", "sub", "sup", NULL };
-char *node_fields_inner[] = { "attr", "nucleus", "sub", "sup", NULL };
-char *node_fields_under[] = { "attr", "nucleus", "sub", "sup", NULL };
-char *node_fields_over[] = { "attr", "nucleus", "sub", "sup", NULL };
-char *node_fields_vcenter[] = { "attr", "nucleus", "sub", "sup", NULL };
-char *node_fields_radical[] =
+const char *node_fields_ord[] = { "attr", "nucleus", "sub", "sup", NULL };
+const char *node_fields_op[] = { "attr", "nucleus", "sub", "sup", NULL };
+const char *node_fields_bin[] = { "attr", "nucleus", "sub", "sup", NULL };
+const char *node_fields_rel[] = { "attr", "nucleus", "sub", "sup", NULL };
+const char *node_fields_open[] = { "attr", "nucleus", "sub", "sup", NULL };
+const char *node_fields_close[] = { "attr", "nucleus", "sub", "sup", NULL };
+const char *node_fields_punct[] = { "attr", "nucleus", "sub", "sup", NULL };
+const char *node_fields_inner[] = { "attr", "nucleus", "sub", "sup", NULL };
+const char *node_fields_under[] = { "attr", "nucleus", "sub", "sup", NULL };
+const char *node_fields_over[] = { "attr", "nucleus", "sub", "sup", NULL };
+const char *node_fields_vcenter[] = { "attr", "nucleus", "sub", "sup", NULL };
+const char *node_fields_radical[] =
     { "attr", "nucleus", "sub", "sup", "left", "degree", NULL };
-char *node_fields_fraction[] =
+const char *node_fields_fraction[] =
     { "attr", "width", "num", "denom", "left", "right", NULL };
-char *node_fields_accent[] =
+const char *node_fields_accent[] =
     { "attr", "nucleus", "sub", "sup", "accent", "bot_accent", NULL };
-char *node_fields_fence[] = { "attr", "delim", NULL };
-char *node_fields_math_char[] = { "attr", "fam", "char", NULL };
-char *node_fields_sub_box[] = { "attr", "list", NULL };
-char *node_fields_sub_mlist[] = { "attr", "list", NULL };
-char *node_fields_math_text_char[] = { "attr", "fam", "char", NULL };
-char *node_fields_delim[] =
+const char *node_fields_fence[] = { "attr", "delim", NULL };
+const char *node_fields_math_char[] = { "attr", "fam", "char", NULL };
+const char *node_fields_sub_box[] = { "attr", "list", NULL };
+const char *node_fields_sub_mlist[] = { "attr", "list", NULL };
+const char *node_fields_math_text_char[] = { "attr", "fam", "char", NULL };
+const char *node_fields_delim[] =
     { "attr", "small_fam", "small_char", "large_fam", "large_char", NULL };
 
-char *node_fields_inserting[] =
+const char *node_fields_inserting[] =
     { "height", "last_ins_ptr", "best_ins_ptr", NULL };
 
-char *node_fields_splitup[] = { "height", "last_ins_ptr", "best_ins_ptr",
+const char *node_fields_splitup[] = { "height", "last_ins_ptr", "best_ins_ptr",
     "broken_ptr", "broken_ins", NULL
 };
 
-char *node_fields_action[] = { "action_type", "named_id", "action_id",
+const char *node_fields_action[] = { "action_type", "named_id", "action_id",
     "file", "new_window", "data", "ref_count", NULL
 };
-char *node_fields_attribute[] = { "number", "value", NULL };
+const char *node_fields_attribute[] = { "number", "value", NULL };
 
-char *node_fields_glue_spec[] = { "width", "stretch", "shrink",
+const char *node_fields_glue_spec[] = { "width", "stretch", "shrink",
     "stretch_order", "shrink_order", "ref_count", NULL
 };
-char *node_fields_attribute_list[] = { NULL };
+const char *node_fields_attribute_list[] = { NULL };
 
-char *node_fields_whatsit_open[] =
+const char *node_fields_whatsit_open[] =
     { "attr", "stream", "name", "area", "ext", NULL };
-char *node_fields_whatsit_write[] = { "attr", "stream", "data", NULL };
-char *node_fields_whatsit_close[] = { "attr", "stream", NULL };
-char *node_fields_whatsit_special[] = { "attr", "data", NULL };
+const char *node_fields_whatsit_write[] = { "attr", "stream", "data", NULL };
+const char *node_fields_whatsit_close[] = { "attr", "stream", NULL };
+const char *node_fields_whatsit_special[] = { "attr", "data", NULL };
 
-char *node_fields_whatsit_local_par[] =
+const char *node_fields_whatsit_local_par[] =
     { "attr", "pen_inter", "pen_broken", "dir",
     "box_left", "box_left_width", "box_right", "box_right_width", NULL
 };
-char *node_fields_whatsit_dir[] =
+const char *node_fields_whatsit_dir[] =
     { "attr", "dir", "level", "dvi_ptr", "dvi_h", NULL };
 
-char *node_fields_whatsit_pdf_literal[] = { "attr", "mode", "data", NULL };
-char *node_fields_whatsit_pdf_refobj[] = { "attr", "objnum", NULL };
-char *node_fields_whatsit_pdf_refxform[] =
+const char *node_fields_whatsit_pdf_literal[] = { "attr", "mode", "data", NULL };
+const char *node_fields_whatsit_pdf_refobj[] = { "attr", "objnum", NULL };
+const char *node_fields_whatsit_pdf_refxform[] =
     { "attr", "width", "depth", "height", "objnum", NULL };
-char *node_fields_whatsit_pdf_refximage[] =
+const char *node_fields_whatsit_pdf_refximage[] =
     { "attr", "width", "depth", "height", "transform", "index", NULL };
-char *node_fields_whatsit_pdf_annot[] =
+const char *node_fields_whatsit_pdf_annot[] =
     { "attr", "width", "depth", "height", "objnum", "data", NULL };
-char *node_fields_whatsit_pdf_start_link[] =
+const char *node_fields_whatsit_pdf_start_link[] =
     { "attr", "width", "depth", "height",
     "objnum", "link_attr", "action", NULL
 };
-char *node_fields_whatsit_pdf_end_link[] = { "attr", NULL };
+const char *node_fields_whatsit_pdf_end_link[] = { "attr", NULL };
 
-char *node_fields_whatsit_pdf_dest[] = { "attr", "width", "depth", "height",
+const char *node_fields_whatsit_pdf_dest[] = { "attr", "width", "depth", "height",
     "named_id", "dest_id", "dest_type", "xyz_zoom", "objnum", NULL
 };
 
-char *node_fields_whatsit_pdf_thread[] = { "attr", "width", "depth", "height",
+const char *node_fields_whatsit_pdf_thread[] = { "attr", "width", "depth", "height",
     "named_id", "thread_id", "thread_attr", NULL
 };
 
-char *node_fields_whatsit_pdf_start_thread[] =
+const char *node_fields_whatsit_pdf_start_thread[] =
     { "attr", "width", "depth", "height",
     "named_id", "thread_id", "thread_attr", NULL
 };
-char *node_fields_whatsit_pdf_end_thread[] = { "attr", NULL };
-char *node_fields_whatsit_pdf_save_pos[] = { "attr", NULL };
-char *node_fields_whatsit_late_lua[] = { "attr", "reg", "data", "name", NULL };
-char *node_fields_whatsit_close_lua[] = { "attr", "reg", NULL };
-char *node_fields_whatsit_pdf_colorstack[] =
+const char *node_fields_whatsit_pdf_end_thread[] = { "attr", NULL };
+const char *node_fields_whatsit_pdf_save_pos[] = { "attr", NULL };
+const char *node_fields_whatsit_late_lua[] = { "attr", "reg", "data", "name", NULL };
+const char *node_fields_whatsit_close_lua[] = { "attr", "reg", NULL };
+const char *node_fields_whatsit_pdf_colorstack[] =
     { "attr", "stack", "cmd", "data", NULL };
-char *node_fields_whatsit_pdf_setmatrix[] = { "attr", "data", NULL };
-char *node_fields_whatsit_pdf_save[] = { "attr", NULL };
-char *node_fields_whatsit_pdf_restore[] = { "attr", NULL };
-char *node_fields_whatsit_cancel_boundary[] = { "attr", NULL };
-char *node_fields_whatsit_user_defined[] =
+const char *node_fields_whatsit_pdf_setmatrix[] = { "attr", "data", NULL };
+const char *node_fields_whatsit_pdf_save[] = { "attr", NULL };
+const char *node_fields_whatsit_pdf_restore[] = { "attr", NULL };
+const char *node_fields_whatsit_cancel_boundary[] = { "attr", NULL };
+const char *node_fields_whatsit_user_defined[] =
     { "attr", "user_id", "type", "value", NULL };
 
 node_info node_data[] = {
@@ -331,8 +331,8 @@ node_info whatsit_node_data[] = {
 
 halfword new_node(int i, int j)
 {
-    register int s;
-    register halfword n;
+    int s;
+    halfword n;
     s = get_node_size(i, j);
     n = get_node(s);
     /* it should be possible to do this memset at free_node()  */
@@ -340,7 +340,7 @@ halfword new_node(int i, int j)
        set to null by get_node(), so we can do we clearing one
        word less than |s| */
     (void) memset((void *) (varmem + n + 1), 0,
-                  (sizeof(memory_word) * (s - 1)));
+                  (sizeof(memory_word) * ((unsigned)s - 1)));
     switch (i) {
     case glyph_node:
         init_lang_data(n);
@@ -384,7 +384,7 @@ halfword new_node(int i, int j)
         free_node(n, variable_node_size);
         n = slow_get_node(j);
         (void) memset((void *) (varmem + n + 1), 0,
-                      (sizeof(memory_word) * (j - 1)));
+                      (sizeof(memory_word) * ((unsigned)j - 1)));
         break;
     default:
         break;
@@ -489,7 +489,7 @@ halfword copy_node(const halfword p)
     r = get_node(i);
 
     (void) memcpy((void *) (varmem + r), (void *) (varmem + p),
-                  (sizeof(memory_word) * i));
+                  (sizeof(memory_word) * (unsigned)i));
 
     /* handle synctex extension */
     switch (type(p)) {
@@ -723,7 +723,7 @@ static void do_free_error(halfword p)
 {
     halfword r;
     char errstr[255] = { 0 };
-    char *errhlp[] = {
+    const char *errhlp[] = {
         "When I tried to free the node mentioned in the error message, it turned",
         "out it was not (or no longer) actually in use.",
         "Errors such as these are often caused by Lua node list alteration,",
@@ -827,7 +827,7 @@ int free_error(halfword p)
 static void do_copy_error(halfword p)
 {
     char errstr[255] = { 0 };
-    char *errhlp[] = {
+    const char *errhlp[] = {
         "When I tried to copy the node mentioned in the error message, it turned",
         "out it was not (or no longer) actually in use.",
         "Errors such as these are often caused by Lua node list alteration,",
@@ -987,7 +987,7 @@ void flush_node(halfword p)
                 break;
             default:
                 {
-                    char *hlp[] = {
+                    const char *hlp[] = {
                         "The type of the value in a user defined whatsit node should be one",
                         "of 'a' (attribute list), 'd' (number), 'n' (node list), 's' (string),",
                         "or 't' (tokenlist). Yours has an unknown type, and therefore I don't",
@@ -1472,18 +1472,18 @@ void init_node_mem(int t)
     assert(whatsit_node_data[user_defined_node].id == user_defined_node);
     assert(node_data[passive_node].id == passive_node);
 
-    varmem = (memory_word *) realloc((void *) varmem, sizeof(memory_word) * t);
+    varmem = (memory_word *) realloc((void *) varmem, sizeof(memory_word) * (unsigned)t);
     if (varmem == NULL) {
-        overflow("node memory size", var_mem_max);
+        overflow("node memory size", (unsigned)var_mem_max);
     }
-    memset((void *) (varmem), 0, t * sizeof(memory_word));
+    memset((void *) (varmem), 0, (unsigned)t * sizeof(memory_word));
 
 #ifndef NDEBUG
-    varmem_sizes = (char *) realloc(varmem_sizes, sizeof(char) * t);
+    varmem_sizes = (char *) realloc(varmem_sizes, sizeof(char) * (unsigned)t);
     if (varmem_sizes == NULL) {
-        overflow("node memory size", var_mem_max);
+        overflow("node memory size", (unsigned)var_mem_max);
     }
-    memset((void *) varmem_sizes, 0, sizeof(char) * t);
+    memset((void *) varmem_sizes, 0, sizeof(char) * (unsigned)t);
 #endif
     var_mem_max = t;
     rover = var_mem_stat_max + 1;
@@ -1615,12 +1615,12 @@ void undump_node_mem(void)
     undump_int(x);
     undump_int(rover);
     var_mem_max = (x < 100000 ? 100000 : x);
-    varmem = xmallocarray(memory_word, var_mem_max);
+    varmem = xmallocarray(memory_word, (unsigned)var_mem_max);
     /*memset ((void *)varmem,0,x*sizeof(memory_word)); */
     undump_things(varmem[0], x);
 #ifndef NDEBUG
-    varmem_sizes = xmallocarray(char, var_mem_max);
-    memset((void *) varmem_sizes, 0, var_mem_max * sizeof(char));
+    varmem_sizes = xmallocarray(char, (unsigned)var_mem_max);
+    memset((void *) varmem_sizes, 0, (unsigned)var_mem_max * sizeof(char));
     undump_things(varmem_sizes[0], x);
 #endif
     undump_things(free_chain[0], MAX_CHAIN_SIZE);
@@ -1717,19 +1717,19 @@ halfword slow_get_node(int s)
         x = (var_mem_max >> 2) + s;
         varmem =
             (memory_word *) realloc((void *) varmem,
-                                    sizeof(memory_word) * (var_mem_max + x));
+                                    sizeof(memory_word) * (unsigned)(var_mem_max + x));
         if (varmem == NULL) {
-            overflow("node memory size", var_mem_max);
+            overflow("node memory size", (unsigned)var_mem_max);
         }
-        memset((void *) (varmem + var_mem_max), 0, x * sizeof(memory_word));
+        memset((void *) (varmem + var_mem_max), 0, (unsigned)x * sizeof(memory_word));
 
 #ifndef NDEBUG
         varmem_sizes =
-            (char *) realloc(varmem_sizes, sizeof(char) * (var_mem_max + x));
+            (char *) realloc(varmem_sizes, sizeof(char) * (unsigned)(var_mem_max + x));
         if (varmem_sizes == NULL) {
-            overflow("node memory size", var_mem_max);
+            overflow("node memory size", (unsigned)var_mem_max);
         }
-        memset((void *) (varmem_sizes + var_mem_max), 0, x * sizeof(char));
+        memset((void *) (varmem_sizes + var_mem_max), 0, (unsigned)(x) * sizeof(char));
 #endif
 
         /* todo ? it is perhaps possible to merge the new memory with an existing rover */
@@ -1794,8 +1794,8 @@ halfword list_node_mem_usage(void)
     halfword i, j;
     halfword p = null, q = null;
 #ifndef NDEBUG
-    char *saved_varmem_sizes = xmallocarray(char, var_mem_max);
-    memcpy(saved_varmem_sizes, varmem_sizes, var_mem_max);
+    char *saved_varmem_sizes = xmallocarray(char, (unsigned)var_mem_max);
+    memcpy(saved_varmem_sizes, varmem_sizes, (size_t)var_mem_max);
     for (i = my_prealloc + 1; i < (var_mem_max - 1); i++) {
         if (saved_varmem_sizes[i] > 0) {
             j = copy_node(i);
@@ -1859,7 +1859,7 @@ static halfword new_attribute_node(unsigned int i, int v)
 {
     register halfword r = get_node(attribute_node_size);
     type(r) = attribute_node;
-    attribute_id(r) = i;
+    attribute_id(r) = (halfword)i;
     attribute_value(r) = v;
     return r;
 }
@@ -1894,7 +1894,7 @@ void update_attribute_cache(void)
     for (i = 0; i <= max_used_attr; i++) {
         register int v = attribute(i);
         if (v > UNUSED_ATTRIBUTE) {
-            register halfword r = new_attribute_node(i, v);
+            register halfword r = new_attribute_node((unsigned)i, v);
             vlink(p) = r;
             p = r;
         }
@@ -1953,7 +1953,7 @@ halfword do_set_attribute(halfword p, int i, int val)
         q = get_node(attribute_node_size);
         type(q) = attribute_list_node;
         attr_list_ref(q) = 1;
-        p = new_attribute_node(i, val);
+        p = new_attribute_node((unsigned)i, val);
         vlink(q) = p;
         return q;
     }
@@ -1975,7 +1975,7 @@ halfword do_set_attribute(halfword p, int i, int val)
     if (attribute_id(vlink(p)) == i) {
         attribute_value(vlink(p)) = val;
     } else {                    /* add a new node */
-        halfword r = new_attribute_node(i, val);
+        halfword r = new_attribute_node((unsigned)i, val);
         vlink(r) = vlink(p);
         vlink(p) = r;
     }
@@ -1994,7 +1994,7 @@ void set_attribute(halfword n, int i, int val)
         type(p) = attribute_list_node;
         attr_list_ref(p) = 1;
         node_attr(n) = p;
-        p = new_attribute_node(i, val);
+        p = new_attribute_node((unsigned)i, val);
         vlink(node_attr(n)) = p;
         return;
     }
@@ -2027,7 +2027,7 @@ void set_attribute(halfword n, int i, int val)
     if (attribute_id(vlink(p)) == i) {
         attribute_value(vlink(p)) = val;
     } else {                    /* add a new node */
-        halfword r = new_attribute_node(i, val);
+        halfword r = new_attribute_node((unsigned)i, val);
         vlink(r) = vlink(p);
         vlink(p) = r;
     }
@@ -2162,7 +2162,7 @@ other extensions might, of course, involve more subtlety here.
 */
 
 
-void print_write_whatsit(char *s, pointer p)
+static void print_write_whatsit(const char *s, pointer p)
 {
     tprint_esc(s);
     if (write_stream(p) < 16)
@@ -2295,7 +2295,7 @@ void show_whatsit_node(int p)
                 lua_rawgeti(Luas, LUA_REGISTRYINDEX,
                             obj_obj_stream_attr(static_pdf, pdf_obj_objnum(p)));
                 print_char(' ');
-                tprint((char *) lua_tostring(Luas, -1));
+                tprint((const char *) lua_tostring(Luas, -1));
                 lua_pop(Luas, 1);
             }
             tprint(" stream");
@@ -2306,7 +2306,7 @@ void show_whatsit_node(int p)
             lua_rawgeti(Luas, LUA_REGISTRYINDEX,
                         obj_obj_data(static_pdf, pdf_obj_objnum(p)));
             print_char(' ');
-            tprint((char *) lua_tostring(Luas, -1));
+            tprint((const char *) lua_tostring(Luas, -1));
             lua_pop(Luas, 1);
         }
         break;

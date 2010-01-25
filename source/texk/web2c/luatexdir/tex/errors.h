@@ -40,7 +40,7 @@ extern int interactionoption;   /* set from command line */
 extern char *last_error;
 
 extern void initialize_errors(void);
-extern void print_err(char *s);
+extern void print_err(const char *s);
 
 extern void fixup_selector(boolean log_opened);
 
@@ -58,7 +58,7 @@ typedef enum {
     fatal_error_stop = 3,       /* |history| value when termination was premature */
 } error_states;
 
-extern char *help_line[7];      /* helps for the next |error| */
+extern const char *help_line[7];      /* helps for the next |error| */
 extern boolean use_err_help;    /* should the |err_help| list be shown? */
 
 /* these macros are just temporary, until everything is in C */
@@ -84,15 +84,15 @@ extern void error(void);
 extern void int_error(int n);
 extern void normalize_selector(void);
 extern void succumb(void);
-extern void fatal_error(char *s);
-extern void lua_norm_error(char *s);
-extern void lua_fatal_error(char *s);
-extern void overflow(char *s, int n);
-extern void confusion(char *s);
+extern void fatal_error(const char *s);
+extern void lua_norm_error(const char *s);
+extern void lua_fatal_error(const char *s);
+extern void overflow(const char *s, unsigned int n);
+extern void confusion(const char *s);
 extern void check_interrupt(void);
 extern void pause_for_instructions(void);
 
-extern void tex_error(char *msg, char **hlp);
+extern void tex_error(const char *msg, const char **hlp);
 
 extern void back_error(void);
 extern void ins_error(void);

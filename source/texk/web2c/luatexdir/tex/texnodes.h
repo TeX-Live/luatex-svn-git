@@ -40,6 +40,16 @@ extern halfword insert_complex_discretionary(halfword t, lang_variables * lan,
 extern halfword insert_character(halfword t, int n);
 extern void set_disc_field(halfword f, halfword t);
 
+#  define varmemcast(a) (memory_word *)(a)
+extern volatile memory_word *varmem;
+extern halfword var_mem_max;
+
+extern halfword get_node(int s);
+extern void free_node(halfword p, int s);
+extern void init_node_mem(int s);
+extern void dump_node_mem(void);
+extern void undump_node_mem(void);
+
 
 #  define max_halfword  0x3FFFFFFF
 #  define max_dimen     0x3FFFFFFF
@@ -489,10 +499,10 @@ typedef enum {
 #  define set_is_ligature(p)      subtype(p) |= GLYPH_LIGATURE
 #  define set_is_ghost(p)         subtype(p) |= GLYPH_GHOST
 
-#  define set_to_glyph(p)         subtype(p) = (subtype(p) & 0xFF00)
-#  define set_to_character(p)     subtype(p) = (subtype(p) & 0xFF00) | GLYPH_CHARACTER
-#  define set_to_ligature(p)      subtype(p) = (subtype(p) & 0xFF00) | GLYPH_LIGATURE
-#  define set_to_ghost(p)         subtype(p) = (subtype(p) & 0xFF00) | GLYPH_GHOST
+#  define set_to_glyph(p)         subtype(p) = (quarterword)(subtype(p) & 0xFF00)
+#  define set_to_character(p)     subtype(p) = (quarterword)((subtype(p) & 0xFF00) | GLYPH_CHARACTER)
+#  define set_to_ligature(p)      subtype(p) = (quarterword)((subtype(p) & 0xFF00) | GLYPH_LIGATURE)
+#  define set_to_ghost(p)         subtype(p) = (quarterword)((subtype(p) & 0xFF00) | GLYPH_GHOST)
 
 #  define set_is_leftboundary(p)  { set_to_ligature(p); subtype(p) |= GLYPH_LEFT;  }
 #  define set_is_rightboundary(p) { set_to_ligature(p); subtype(p) |= GLYPH_RIGHT; }
@@ -683,8 +693,8 @@ extern pointer actual_box_width(pointer r, scaled base_width);
 typedef struct _node_info {
     int id;
     int size;
-    char **fields;
-    char *name;
+    const char **fields;
+    const char *name;
 } node_info;
 
 extern node_info node_data[];

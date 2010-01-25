@@ -740,10 +740,10 @@ char *open_fmt_file(void)
         buffer[last] = ' ';
         while (buffer[j] != ' ')
             incr(j);
-        fmt = xmalloc(j - iloc + 1);
-        strncpy(fmt, (char *) (buffer + iloc), (j - iloc));
+        fmt = xmalloc((unsigned)(j - iloc + 1));
+        strncpy(fmt, (char *) (buffer + iloc), (size_t)(j - iloc));
         fmt[j - iloc] = 0;
-        dist = strlen(fmt) - strlen(DUMP_EXT);
+        dist = (int)(strlen(fmt) - strlen(DUMP_EXT));
         if (!(strstr(fmt, DUMP_EXT) == fmt + dist))
             fmt = concat(fmt, DUMP_EXT);
         if (zopen_w_input(&fmt_file, fmt, DUMP_FORMAT, FOPEN_RBIN_MODE))
@@ -938,7 +938,7 @@ void do_zdump(char *p, int item_size, int nitems, FILE * out_file)
     (void) out_file;
     if (nitems == 0)
         return;
-    if (gzwrite(gz_fmtfile, (void *) p, item_size * nitems) !=
+    if (gzwrite(gz_fmtfile, (void *) p, (unsigned)(item_size * nitems)) !=
         item_size * nitems) {
         fprintf(stderr, "! Could not write %d %d-byte item(s): %s.\n", nitems,
                 item_size, gzerror(gz_fmtfile, &err));
@@ -952,7 +952,7 @@ void do_zundump(char *p, int item_size, int nitems, FILE * in_file)
     (void) in_file;
     if (nitems == 0)
         return;
-    if (gzread(gz_fmtfile, (void *) p, item_size * nitems) <= 0) {
+    if (gzread(gz_fmtfile, (void *) p, (unsigned)(item_size * nitems)) <= 0) {
         fprintf(stderr, "Could not undump %d %d-byte item(s): %s.\n",
                 nitems, item_size, gzerror(gz_fmtfile, &err));
         uexit(1);
@@ -1012,7 +1012,7 @@ void zwclose(FILE * f)
 
 /* create the dvi or pdf file */
 
-int open_outfile(FILE ** f, char *name, char *mode)
+int open_outfile(FILE ** f, const char *name, const char *mode)
 {
     FILE *res;
     res = fopen(name, mode);
@@ -1033,11 +1033,11 @@ int readbinfile(FILE * f, unsigned char **tfm_buffer, int *tfm_size)
     if (fseek(f, 0, SEEK_END) == 0) {
         size = ftell(f);
         if (size > 0) {
-            buf = xmalloc(size);
+            buf = xmalloc((unsigned)size);
             if (fseek(f, 0, SEEK_SET) == 0) {
-                if (fread((void *) buf, size, 1, f) == 1) {
+                if (fread((void *) buf, (size_t)size, 1, f) == 1) {
                     *tfm_buffer = (unsigned char *) buf;
-                    *tfm_size = (int) size;
+                    *tfm_size = size;
                     return 1;
                 }
             }
@@ -1052,7 +1052,7 @@ int readbinfile(FILE * f, unsigned char **tfm_buffer, int *tfm_size)
    stderr, since we have nowhere better to use; and of course we return
    a file handle (or NULL) instead of a status indicator.  */
 
-static FILE *runpopen(char *cmd, char *mode)
+static FILE *runpopen(char *cmd, const char *mode)
 {
     FILE *f = NULL;
     char *safecmd = NULL;

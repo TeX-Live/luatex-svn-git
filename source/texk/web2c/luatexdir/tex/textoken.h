@@ -52,8 +52,8 @@ typedef struct smemory_word_ {
 #  define fix_mem_init 10000
 
 extern smemory_word *fixmem;
-extern halfword fix_mem_min;
-extern halfword fix_mem_max;
+extern unsigned fix_mem_min;
+extern unsigned fix_mem_max;
 
 extern halfword garbage;        /* head of a junk list, write only */
 extern halfword temp_token_head;        /* head of a temporary list of some kind */
@@ -72,7 +72,7 @@ extern int dyn_used;
 #  define set_token_link(a,b) fixmem[(a)].hhrh=(b)
 
 extern halfword avail;          /* head of the list of available one-word nodes */
-extern halfword fix_mem_end;    /* the last one-word node used in |mem| */
+extern unsigned fix_mem_end;    /* the last one-word node used in |mem| */
 
 extern halfword get_avail(void);
 
@@ -123,7 +123,7 @@ extern void make_token_table(lua_State * L, int cmd, int chr, int cs);
 
 extern void get_next(void);
 extern void check_outer_validity(void);
-extern boolean scan_keyword(char *);
+extern boolean scan_keyword(const char *);
 extern halfword active_to_cs(int, int);
 extern void get_token_lua(void);
 halfword string_to_toks(char *);

@@ -118,7 +118,7 @@ extern unsigned char *texmf_log_name;   /* full name of the log file */
 extern void open_log_file(void);
 extern void start_input(void);
 
-extern int open_outfile(FILE ** f, char *name, char *mode);
+extern int open_outfile(FILE ** f, const char *name, const char *mode);
 
 extern boolean zopen_w_input(FILE **, char *, int, const_string fopen_mode);
 extern boolean zopen_w_output(FILE **, char *, const_string fopen_mode);

@@ -55,7 +55,7 @@ int interaction;                /* current level of interaction */
 int interactionoption;          /* set from command line */
 char *last_error;
 
-void print_err(char *s)
+void print_err(const char *s)
 {
     if (interaction == error_stop_mode) {
         wake_up_terminal();
@@ -65,7 +65,7 @@ void print_err(char *s)
     else
         tprint_nl("! ");
     tprint(s);
-    last_error = s;
+    last_error = (char *)s;
 }
 
 /*
@@ -148,7 +148,7 @@ is never more than two levels deep.
 Individual lines of help are recorded in the array |help_line|. 
 */
 
-char *help_line[7];             /* helps for the next |error| */
+const char *help_line[7];             /* helps for the next |error| */
 boolean use_err_help;           /* should the |err_help| list be shown? */
 
 /*
@@ -428,7 +428,7 @@ void succumb(void)
     jump_out();                 /* irrecoverable error */
 }
 
-void fatal_error(char *s)
+void fatal_error(const char *s)
 {                               /* prints |s|, and that's it */
     normalize_selector();
     print_err("Emergency stop");
@@ -436,7 +436,7 @@ void fatal_error(char *s)
     succumb();
 }
 
-void lua_norm_error(char *s)
+void lua_norm_error(const char *s)
 {                               /* lua found a problem */
     int saved_new_line_char;
     saved_new_line_char = new_line_char;
@@ -449,7 +449,7 @@ void lua_norm_error(char *s)
     new_line_char = saved_new_line_char;
 }
 
-void lua_fatal_error(char *s)
+void lua_fatal_error(const char *s)
 {                               /* lua found a problem */
     new_line_char = 10;
     normalize_selector();
@@ -460,13 +460,13 @@ void lua_fatal_error(char *s)
 
 /* Here is the most dreaded error message */
 
-void overflow(char *s, int n)
+void overflow(const char *s, unsigned int n)
 {                               /* stop due to finiteness */
     normalize_selector();
     print_err("TeX capacity exceeded, sorry [");
     tprint(s);
     print_char('=');
-    print_int(n);
+    print_int((int)n);
     print_char(']');
     help2("If you really absolutely need more capacity,",
           "you can ask a wizard to enlarge me.");
@@ -483,7 +483,7 @@ help to pinpoint the problem.
 @^dry rot@>
 */
 
-void confusion(char *s)
+void confusion(const char *s)
 {                               /* consistency check violated; |s| tells where */
     normalize_selector();
     if (history < error_message_issued) {
@@ -542,7 +542,7 @@ void pause_for_instructions(void)
 
 
 
-void tex_error(char *msg, char **hlp)
+void tex_error(const char *msg, const char **hlp)
 {
     print_err(msg);
     if (hlp != NULL) {
