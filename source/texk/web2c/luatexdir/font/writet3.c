@@ -104,10 +104,7 @@ static boolean writepk(PDF pdf, internal_font_number f)
     int callback_id = 0;
     int file_opened = 0;
     int mallocsize = 0;
-    if (t3_buffer != NULL) {
-        xfree(t3_buffer);
-        t3_buffer = NULL;
-    }
+    xfree(t3_buffer);
     t3_curbyte = 0;
     t3_size = 0;
 
@@ -242,10 +239,7 @@ void writet3(PDF pdf, int objnum, internal_font_number f)
                        maketexlstring(".pgc", 4));
     is_pk_font = false;
 
-    if (t3_buffer != NULL) {
-        xfree(t3_buffer);
-        t3_buffer = NULL;
-    }
+    xfree(t3_buffer);
     t3_curbyte = 0;
     t3_size = 0;
     if (!writepk(pdf, f)) {

@@ -152,10 +152,8 @@ read_ocp_info(pointer u, char *nom, char *aire, char *ext, boolean external_ocp)
         /* @<Open |ocp_file| for input@>; */
         char *cname = xmalloc(strlen(nom) + strlen(aire) + strlen(".ocp") + 1);
         sprintf(cname, "%s%s.ocp", aire, nom);
-        if (ocp_buffer != NULL)
-            xfree(ocp_buffer);
+        xfree(ocp_buffer);
         ocp_cur = 0;
-        ocp_buffer = NULL;
         ocp_size = 0;
         cnam = luatex_find_file(cname, find_ocp_file_callback);
         callback_id = callback_defined(read_ocp_file_callback);

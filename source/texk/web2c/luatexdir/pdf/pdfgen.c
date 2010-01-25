@@ -756,8 +756,7 @@ static void reset_page_resources(PDF pdf)
 static void destroy_pg_res_tree(void *pa, void *param)
 {
     (void) param;
-    if (pa != NULL)
-        xfree(pa);
+    xfree(pa);
 }
 
 static void destroy_page_resources_tree(PDF pdf)

@@ -99,8 +99,7 @@ void pdf_write_obj(PDF pdf, int k)
             pdf_out(pdf, data.s[i]);
         if (!obj_obj_is_stream(pdf, k) && data.s[data.l - 1] != '\n')
             pdf_out(pdf, '\n');
-        if (data.s != NULL)
-            xfree(data.s);
+        xfree(data.s);
         tprint(">>");
     } else {
         for (i = 0; i < st.l; i++)

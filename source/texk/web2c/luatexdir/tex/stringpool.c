@@ -478,7 +478,6 @@ void flush_str(str_number s)
         pool_size -= str_length(s);
         str_length(s) = 0;
         xfree(str_string(s));
-        str_string(s) = NULL;
     }
     while (str_string((str_ptr - 1)) == NULL)
         str_ptr--;

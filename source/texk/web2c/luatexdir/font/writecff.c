@@ -399,8 +399,7 @@ void cff_close(cff_font * cff)
     card16 i;
 
     if (cff) {
-        if (cff->fontname)
-            xfree(cff->fontname);
+        xfree(cff->fontname);
         if (cff->name)
             cff_release_index(cff->name);
         if (cff->topdict)
@@ -1459,9 +1458,7 @@ void cff_dict_remove(cff_dict * dict, const char *key)
     for (i = 0; i < dict->count; i++) {
         if (key && strcmp(key, (dict->entries)[i].key) == 0) {
             (dict->entries)[i].count = 0;
-            if ((dict->entries)[i].values)
-                xfree((dict->entries)[i].values);
-            (dict->entries)[i].values = NULL;
+            xfree((dict->entries)[i].values);
         }
     }
 }

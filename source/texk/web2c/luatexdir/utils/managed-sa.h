@@ -1,6 +1,6 @@
 /* managed-sa.h
-   
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -36,9 +36,6 @@
 #  define Mxmalloc_array(a,b)  xmalloc((unsigned)((unsigned)(b)*sizeof(a)))
 #  define Mxcalloc_array(a,b)  xcalloc((b),sizeof(a))
 #  define Mxrealloc_array(a,b,c)  xrealloc((a),(unsigned)((unsigned)(c)*sizeof(b)))
-#  define Mxfree(a) free(a); a=NULL
-
-
 
 typedef unsigned int sa_tree_item;
 

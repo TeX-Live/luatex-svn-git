@@ -138,7 +138,8 @@ extern double rint(double x);
 T##_entry      *T##_ptr, *T##_array = NULL; \
 size_t          T##_limit
 
-#  define xfree(p)            do { if (p != NULL) free(p); p = NULL; } while (0)
+#  define dxfree(a,b)         do { if (a != NULL) { free(a); a = b; } } while (0)
+#  define xfree(p)            dxfree(p, NULL)
 #  define strend(s)           strchr(s, 0)
 #  define xtalloc             XTALLOC
 #  define xretalloc           XRETALLOC

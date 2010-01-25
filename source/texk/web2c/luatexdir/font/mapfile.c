@@ -504,10 +504,7 @@ static void fm_read_info(void)
     mitem->lineno = 1;
     switch (mitem->type) {
     case MAPFILE:
-        if (fm_buffer != NULL) {
-            xfree(fm_buffer);
-            fm_buffer = NULL;
-        }
+        xfree(fm_buffer);
         fm_curbyte = 0;
         fm_size = 0;
         cur_file_name = luatex_find_file(mitem->line, find_map_file_callback);

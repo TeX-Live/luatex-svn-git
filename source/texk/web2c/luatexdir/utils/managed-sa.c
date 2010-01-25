@@ -105,10 +105,7 @@ void rawset_sa_item(sa_tree head, int n, sa_tree_item v)
 
 void clear_sa_stack(sa_tree a)
 {
-    if (a->stack != NULL) {
-        Mxfree(a->stack);
-    }
-    a->stack = NULL;
+    xfree(a->stack);
     a->stack_ptr = 0;
     a->stack_size = a->stack_step;
 }
@@ -122,21 +119,16 @@ void destroy_sa_tree(sa_tree a)
         for (h = 0; h < HIGHPART; h++) {
             if (a->tree[h] != NULL) {
                 for (m = 0; m < MIDPART; m++) {
-                    if (a->tree[h][m] != NULL) {
-                        Mxfree(a->tree[h][m]);
-                    }
+                    xfree(a->tree[h][m]);
                 }
-                Mxfree(a->tree[h]);
+                xfree(a->tree[h]);
             }
         }
-        Mxfree(a->tree);
+        xfree(a->tree);
     }
-    if (a->stack != NULL) {
-        Mxfree(a->stack);
-    }
-    Mxfree(a);
+    xfree(a->stack);
+    xfree(a);
 }
-
 
 sa_tree copy_sa_tree(sa_tree b)
 {

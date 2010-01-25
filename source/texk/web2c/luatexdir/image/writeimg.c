@@ -1,7 +1,7 @@
 /* writeimg.c
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -227,22 +227,10 @@ image_dict *new_image_dict(void)
 
 static void free_dict_strings(image_dict * p)
 {
-    if (img_filename(p) != NULL) {
-        xfree(img_filename(p));
-        img_filename(p) = NULL;
-    }
-    if (img_filepath(p) != NULL) {
-        xfree(img_filepath(p));
-        img_filepath(p) = NULL;
-    }
-    if (img_attr(p) != NULL) {
-        xfree(img_attr(p));
-        img_attr(p) = NULL;
-    }
-    if (img_pagename(p) != NULL) {
-        xfree(img_pagename(p));
-        img_pagename(p) = NULL;
-    }
+    xfree(img_filename(p));
+    xfree(img_filepath(p));
+    xfree(img_attr(p));
+    xfree(img_pagename(p));
 }
 
 void free_image_dict(image_dict * p)
@@ -265,8 +253,7 @@ void free_image_dict(image_dict * p)
         break;
     case IMG_TYPE_PDFSTREAM:
         if (img_pdfstream_ptr(p) != NULL) {
-            if (img_pdfstream_stream(p) != NULL)
-                xfree(img_pdfstream_stream(p));
+            xfree(img_pdfstream_stream(p));
             xfree(img_pdfstream_ptr(p));
         }
         break;

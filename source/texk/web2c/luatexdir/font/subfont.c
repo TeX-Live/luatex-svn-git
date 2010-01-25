@@ -134,10 +134,7 @@ static sfd_entry *read_sfd(char *sfd_name)
     sfd = (sfd_entry *) avl_find(sfd_tree, &tmp_sfd);
     if (sfd != NULL)
         return sfd;
-    if (sfd_buffer != NULL) {
-        xfree(sfd_buffer);
-        sfd_buffer = NULL;
-    }
+    xfree(sfd_buffer);
     sfd_curbyte = 0;
     sfd_size = 0;
 
@@ -239,7 +236,6 @@ boolean handle_subfont_fm(fm_entry * fm, int mode)
     /* at this point we know fm is a subfont */
     set_subfont(fm);
     xfree(fm->ps_name);
-    fm->ps_name = NULL;
     /* set default values for PidEid */
     if (fm->pid == -1) {
         fm->pid = 3;

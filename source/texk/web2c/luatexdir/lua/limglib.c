@@ -324,8 +324,7 @@ static void lua_to_image(lua_State * L, image * a)
         if (img_type(d) == IMG_TYPE_PDFSTREAM)
             luaL_error(L, "image.filename can't be used with image.stream");
         if (lua_isstring(L, -1)) {
-            if (img_filename(d) != NULL)
-                xfree(img_filename(d));
+            xfree(img_filename(d));
             img_filename(d) = xstrdup(lua_tostring(L, -1));
         } else
             luaL_error(L, "image.filename needs string value");
@@ -334,8 +333,7 @@ static void lua_to_image(lua_State * L, image * a)
         if (img_state(d) >= DICT_FILESCANNED)
             luaL_error(L, "image.attr is now read-only");
         if (lua_isstring(L, -1) || lua_isnil(L, -1)) {
-            if (img_attr(d) != NULL)
-                xfree(img_attr(d));
+            xfree(img_attr(d));
             if (lua_isstring(L, -1))
                 img_attr(d) = xstrdup(lua_tostring(L, -1));
         } else
@@ -345,15 +343,12 @@ static void lua_to_image(lua_State * L, image * a)
         if (img_state(d) >= DICT_FILESCANNED)
             luaL_error(L, "image.page is now read-only");
         if (lua_type(L, -1) == LUA_TSTRING) {
-            if (img_pagename(d) != NULL)
-                xfree(img_pagename(d));
+            xfree(img_pagename(d));
             img_pagename(d) = xstrdup(lua_tostring(L, -1));
             img_pagenum(d) = 0;
         } else if (lua_type(L, -1) == LUA_TNUMBER) {
             img_pagenum(d) = lua_tointeger(L, -1);
-            if (img_pagename(d) != NULL)
-                xfree(img_pagename(d));
-            img_pagename(d) = NULL;
+            xfree(img_pagename(d));
         } else
             luaL_error(L, "image.page needs integer or string value");
         break;
@@ -406,8 +401,7 @@ static void lua_to_image(lua_State * L, image * a)
             luaL_error(L, "image.stream is now read-only");
         if (img_pdfstream_ptr(d) == NULL)
             new_img_pdfstream_struct(d);
-        if (img_pdfstream_stream(d) != NULL)
-            xfree(img_pdfstream_stream(d));
+        xfree(img_pdfstream_stream(d));
         img_pdfstream_stream(d) = xstrdup(lua_tostring(L, -1));
         img_type(d) = IMG_TYPE_PDFSTREAM;
         break;

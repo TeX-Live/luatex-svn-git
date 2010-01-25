@@ -41,7 +41,6 @@ static const char _svn_version[] =
 #define noDEBUG
 
 #define proper_char_index(c) (c<=font_ec(f) && c>=font_bc(f))
-#define dxfree(a,b) { xfree(a); a = b ; }
 #define do_realloc(a,b,d)    a = xrealloc(a,(b)*sizeof(d))
 
 texfont **font_tables = NULL;

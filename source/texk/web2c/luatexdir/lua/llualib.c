@@ -248,7 +248,6 @@ int set_bytecode(lua_State * L)
     if (lua_bytecode_registers[k].buf != NULL) {
         xfree(lua_bytecode_registers[k].buf);
         luabytecode_bytes -= lua_bytecode_registers[k].size;
-        lua_bytecode_registers[k].buf = NULL;
         lua_bytecode_registers[k].size = 0;
         lua_bytecode_registers[k].done = 0;
         lua_pushnil(L);

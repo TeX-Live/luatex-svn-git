@@ -77,8 +77,6 @@ extern "C" {
 
 #  include <web2c/c-auto.h>     /* define SIZEOF_LONG */
 
-#  define xfree(p)            do { if (p != NULL) free(p); p = NULL; } while (0)
-
 #  include "openbsd-compat.h"
 #  include "image.h"
 #  include "utils/avlstuff.h"
