@@ -1214,7 +1214,8 @@ int setlist(lua_State * L)
 
 static int do_integer_error(double m)
 {
-    const char *help[] = { "I can only go up to 2147483647='17777777777=" "7FFFFFFF,",
+    const char *help[] =
+        { "I can only go up to 2147483647='17777777777=" "7FFFFFFF,",
         "so I'm using that number instead of yours.",
         NULL
     };

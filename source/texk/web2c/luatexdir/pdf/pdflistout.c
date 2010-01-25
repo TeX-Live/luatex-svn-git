@@ -839,7 +839,7 @@ void vlist_out(PDF pdf, halfword this_box)
 
     while (p != null) {
         if (is_char_node(p)) {
-            confusion("vlistout");   /* this can't happen */
+            confusion("vlistout");      /* this can't happen */
         } else {
             /* Output the non-|char_node| |p| for |vlist_out| */
 

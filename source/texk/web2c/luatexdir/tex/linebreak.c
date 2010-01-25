@@ -140,7 +140,7 @@ static void ext_do_line_break(boolean d,
 
 void line_break(boolean d, int line_break_context)
 {
-    int paragraph_dir = 0;          /* main direction of paragraph */
+    int paragraph_dir = 0;      /* main direction of paragraph */
     halfword final_par_glue;
     halfword start_of_par;
     int callback_id;
@@ -377,7 +377,7 @@ static boolean check_expand_pars(internal_font_number f)
     internal_font_number k;
 
     if ((font_step(f) == 0) || ((font_stretch(f) == null_font) &&
-                                    (font_shrink(f) == null_font)))
+                                (font_shrink(f) == null_font)))
         return false;
     if (cur_font_step < 0)
         cur_font_step = font_step(f);

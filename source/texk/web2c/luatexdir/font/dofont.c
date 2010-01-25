@@ -114,7 +114,8 @@ int read_font_info(pointer u, str_number nom, scaled s, int natural_dir)
         free(cnom);
         return f;
     } else {
-        const char *help[] = { "I wasn't able to read the size data for this font,",
+        const char *help[] =
+            { "I wasn't able to read the size data for this font,",
             "so I will ignore the font specification.",
             "[Wizards can fix TFM files using TFtoPL/PLtoTF.]",
             "You might try inserting a different font spec;",

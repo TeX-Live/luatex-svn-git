@@ -278,13 +278,13 @@ void tokenlist_to_lua(lua_State * L, int p)
     int v;
     int i = 1;
     v = p;
-    while (v != null && v < (int)fix_mem_end) {
+    while (v != null && v < (int) fix_mem_end) {
         i++;
         v = token_link(v);
     }
     i = 1;
     lua_createtable(L, i, 0);
-    while (p != null && p < (int)fix_mem_end) {
+    while (p != null && p < (int) fix_mem_end) {
         if (token_info(p) >= cs_token_flag) {
             cs = token_info(p) - cs_token_flag;
             cmd = eq_type(cs);
