@@ -1,6 +1,6 @@
 /* ltexlib.c
    
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -1214,7 +1214,7 @@ int setlist(lua_State * L)
 
 static int do_integer_error(double m)
 {
-    char *help[] = { "I can only go up to 2147483647='17777777777=" "7FFFFFFF,",
+    const char *help[] = { "I can only go up to 2147483647='17777777777=" "7FFFFFFF,",
         "so I'm using that number instead of yours.",
         NULL
     };
@@ -1275,7 +1275,7 @@ static int tex_definefont(lua_State * L)
     int i = 1;
     int a = 0;
     if (!no_new_control_sequence) {
-        char *help[] =
+        const char *help[] =
             { "You can't create a new font inside a \\csname\\endcsname pair",
             NULL
         };

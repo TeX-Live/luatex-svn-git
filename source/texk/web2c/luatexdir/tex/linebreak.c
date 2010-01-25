@@ -267,7 +267,7 @@ static boolean no_shrink_error_yet;     /*have we complained about infinite shri
 static halfword finite_shrink(halfword p)
 {                               /* recovers from infinite shrinkage */
     halfword q;                 /*new glue specification */
-    char *hlp[] = {
+    const char *hlp[] = {
         "The paragraph just ended includes some glue that has",
         "infinite shrinkability, e.g., `\\hskip 0pt minus 1fil'.",
         "Such glue doesn't belong there---it allows a paragraph",

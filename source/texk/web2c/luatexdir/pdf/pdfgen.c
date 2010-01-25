@@ -190,7 +190,7 @@ void fix_pdf_minorversion(PDF pdf)
 {
     if (pdf->minor_version < 0) {       /* unset */
         if ((pdf_minor_version < 0) || (pdf_minor_version > 9)) {
-            char *hlp[] = { "The pdfminorversion must be between 0 and 9.",
+            const char *hlp[] = { "The pdfminorversion must be between 0 and 9.",
                 "I changed this to 4.", NULL
             };
             char msg[256];

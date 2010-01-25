@@ -1,6 +1,6 @@
 /* readocp.c
    
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -244,7 +244,7 @@ read_ocp_info(pointer u, char *nom, char *aire, char *ext, boolean external_ocp)
         /* @<Report that the ocp won't be loaded@>; */
         /* $\Omega$ does not give precise details about why it
            rejects a particular \.{OCP} file. */
-        char *hlp[] = {
+        const char *hlp[] = {
             "I wasn't able to read the data for this ocp,",
             "so I will ignore the ocp specification.",
             NULL

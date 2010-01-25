@@ -1,6 +1,6 @@
 /* lnodelib.c
    
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -744,7 +744,7 @@ static int get_node_field_id(lua_State * L, int n, int node)
         return 2;
     } else {
         int j;
-        char **fields = node_data[t].fields;
+        const char **fields = node_data[t].fields;
         if (t == whatsit_node)
             fields = whatsit_node_data[subtype(node)].fields;
         for (j = 0; fields[j] != NULL; j++) {
@@ -809,7 +809,7 @@ static int lua_nodelib_whatsits(lua_State * L)
 static int lua_nodelib_fields(lua_State * L)
 {
     int i = -1;
-    char **fields;
+    const char **fields;
     int t = get_valid_node_type_id(L, 1);
     if (t == whatsit_node) {
         t = get_valid_node_subtype_id(L, 2);

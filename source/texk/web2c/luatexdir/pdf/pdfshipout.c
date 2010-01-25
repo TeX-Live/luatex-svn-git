@@ -118,7 +118,7 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
     if ((height(p) > max_dimen) || (depth(p) > max_dimen)
         || (height(p) + depth(p) + v_offset > max_dimen)
         || (width(p) + h_offset > max_dimen)) {
-        char *hlp[] = { "The page just created is more than 18 feet tall or",
+        const char *hlp[] = { "The page just created is more than 18 feet tall or",
             "more than 18 feet wide, so I suspect something went wrong.",
             NULL
         };

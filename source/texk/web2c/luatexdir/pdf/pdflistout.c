@@ -1,6 +1,6 @@
 /* pdflistout.c
 
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -30,7 +30,8 @@ backend_function *backend_out, *backend_out_whatsit;
 
 static void missing_backend_function(PDF pdf, halfword p)
 {
-    char *b, *n, *s;
+    char *b, *s;
+    const char *n;
     char backend_string[15];
     char err_string[60];
     assert(backend != NULL);

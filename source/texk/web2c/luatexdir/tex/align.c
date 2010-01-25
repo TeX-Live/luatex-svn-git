@@ -332,7 +332,7 @@ void init_align(void)
     if ((cur_list.mode_field == mmode)
         && ((cur_list.tail_field != cur_list.head_field)
             || (incompleat_noad != null))) {
-        char *hlp[] =
+        const char *hlp[] =
             { "Displays can use special alignments (like \\eqalignno)",
             "only if nothing but the alignment itself is between $$'s.",
             "So I've deleted the formulas that preceded this alignment.",
@@ -386,7 +386,7 @@ void init_align(void)
                     && (cur_cmd == tab_mark_cmd)) {
                     cur_loop = cur_align;
                 } else {
-                    char *hlp[] =
+                    const char *hlp[] =
                         { "There should be exactly one # between &'s, when an",
                         "\\halign or \\valign is being set up. In this case you had",
                         "none, so I've put one in; maybe that will work.",
@@ -420,7 +420,7 @@ void init_align(void)
                 && (align_state == -1000000))
                 break;
             if (cur_cmd == mac_param_cmd) {
-                char *hlp[] =
+                const char *hlp[] =
                     { "There should be exactly one # between &'s, when an",
                     "\\halign or \\valign is being set up. In this case you had",
                     "more than one, so I'm ignoring all but the first.",
@@ -653,7 +653,7 @@ boolean fin_col(void)
             r = new_glue(glue_ptr(cur_loop));
             vlink(p) = r;
         } else {
-            char *hlp[] =
+            const char *hlp[] =
                 { "You have given more \\span or & marks than there were",
                 "in the preamble to the \\halign or \\valign now in progress.",
                 "So I'll assume that you meant to type \\cr instead.",

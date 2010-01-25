@@ -1,6 +1,6 @@
 /* ocplist.c
    
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -215,7 +215,7 @@ ocp_list_index scan_ocp_list(void)
     if (cur_cmd == set_ocp_list_cmd) {
         return copy_ocp_list(ocp_list_list[cur_chr]);
     } else if (cur_cmd != ocp_list_op_cmd) {
-        char *hlp[] = { "I was looking for a ocp list specification.", NULL };
+        const char *hlp[] = { "I was looking for a ocp list specification.", NULL };
         tex_error("Bad ocp list specification", hlp);
         return make_null_ocp_list();
     } else {
@@ -269,7 +269,7 @@ void scan_ocp_list_ident(void)
     if (cur_cmd == set_ocp_list_cmd) {
         f = cur_chr;
     } else {
-        char *hlp[] = { "I was looking for a control sequence whose",
+        const char *hlp[] = { "I was looking for a control sequence whose",
             "current meaning has been defined by \\ocplist.",
             NULL
         };

@@ -1,6 +1,6 @@
 /* dvigen.c
 
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -1158,7 +1158,7 @@ void expand_macros_in_tokenlist(halfword p)
     get_token();
     if (cur_tok != end_write_token) {
         /* Recover from an unbalanced write command */
-        char *hlp[] = {
+        const char *hlp[] = {
             "On this page there's a \\write with fewer real {'s than }'s.",
             "I can't handle that very well; good luck.", NULL
         };

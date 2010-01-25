@@ -1,6 +1,6 @@
 /* ocp.c
    
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -108,7 +108,7 @@ void scan_ocp_ident(void)
     if (cur_cmd == set_ocp_cmd) {
         f = cur_chr;
     } else {
-        char *hlp[] = { "I was looking for a control sequence whose",
+        const char *hlp[] = { "I was looking for a control sequence whose",
             "current meaning has been defined by \\ocp.",
             NULL
         };

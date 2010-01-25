@@ -1,6 +1,6 @@
 /* texlang.c
    
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -598,7 +598,7 @@ int count_exception_part(unsigned int *j, int *uword, int len)
 }
 
 
-static char *PAT_ERROR[] = {
+static const char *PAT_ERROR[] = {
     "Exception discretionaries should contain three pairs of braced items.",
     "No intervening spaces are allowed.",
     NULL
