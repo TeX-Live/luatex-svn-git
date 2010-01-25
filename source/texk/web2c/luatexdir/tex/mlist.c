@@ -1,6 +1,6 @@
 /* mlist.c
 
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -163,7 +163,7 @@ Also still TODO for OpenType Math:
 void math_param_error(char *param, int style)
 {
     char s[256];
-    char *hlp[] = {
+    const char *hlp[] = {
         "Sorry, but I can't typeset math unless various parameters have",
         "been set. This is normally done by loading special math fonts",
         "into the math family slots. Your font set is lacking at least",
@@ -1089,7 +1089,7 @@ static pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
     cur = ext;
     while (cur != NULL) {
         if (!char_exists(f, cur->glyph)) {
-            char *hlp[] = {
+            const char *hlp[] = {
                 "Each glyph part in an extensible item should exist in the font.",
                 "I will give up trying to find a suitable size for now. Fix your font!",
                 NULL
@@ -1104,7 +1104,7 @@ static pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
             num_normal++;
         /* no negative overlaps or advances are allowed */
         if (cur->start_overlap < 0 || cur->end_overlap < 0 || cur->advance < 0) {
-            char *hlp[] = {
+            const char *hlp[] = {
                 "All measurements in extensible items should be positive.",
                 "To get around this problem, I have changed the font metrics.",
                 "Fix your font!",
@@ -1121,7 +1121,7 @@ static pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
         cur = cur->next;
     }
     if (num_normal == 0) {
-        char *hlp[] = {
+        const char *hlp[] = {
             "Each extensible recipe should have at least one non-repeatable part.",
             "To get around this problem, I have changed the first part to be",
             "non-repeatable. Fix your font!",
@@ -1426,7 +1426,7 @@ static pointer get_delim_hbox(extinfo * ext, internal_font_number f, scaled v,
 static void endless_loop_error(internal_font_number g, int y)
 {
     char s[256];
-    char *hlp[] = {
+    const char *hlp[] = {
         "You managed to create a seemingly endless charlist chain in the current",
         "font. I have counted until 10000 already and still have not escaped, so"
             "I will jump out of the loop all by myself now. Fix your font!",
@@ -1801,7 +1801,7 @@ static void fetch(pointer a)
     cur_f = fam_fnt(math_fam(a), cur_size);
     if (cur_f == null_font) {
         char *msg;
-        char *hlp[] = {
+        const char *hlp[] = {
             "Somewhere in the math formula just ended, you used the",
             "stated character from an undefined font family. For example,",
             "plain TeX doesn't allow \\it or \\sl in subscripts. Proceed,",
