@@ -234,18 +234,13 @@ void writet3(PDF pdf, int objnum, internal_font_number f)
         t3_char_procs[i] = 0;
         t3_char_widths[i] = 0;
     }
-    cur_file_name =
-        pack_file_name(tex_font_name(f), get_nullstr(),
-                       maketexlstring(".pgc", 4));
     is_pk_font = false;
 
     xfree(t3_buffer);
     t3_curbyte = 0;
     t3_size = 0;
-    if (!writepk(pdf, f)) {
-        cur_file_name = NULL;
+    if (!writepk(pdf, f))
         return;
-    }
     for (i = font_bc(f); i <= font_ec(f); i++)
         if (pdf_char_marked(f, i))
             break;
