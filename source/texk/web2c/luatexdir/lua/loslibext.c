@@ -639,7 +639,7 @@ static int ex_sleep(lua_State * L)
 #ifdef WIN32
     Sleep(1e3 * interval / units);
 #else                           /* assumes posix or bsd */
-    usleep((__useconds_t) (1e6 * interval / units));
+    usleep((1e6 * interval / units));
 #endif
     return 0;
 }
