@@ -41,9 +41,9 @@ void matrix_stack_room(void)
 
     if (matrix_stack_used >= matrix_stack_size) {
         matrix_stack_size += STACK_INCREMENT;
-        new_stack = xtalloc(matrix_stack_size, matrix_entry);
+        new_stack = xtalloc((unsigned) matrix_stack_size, matrix_entry);
         memcpy((void *) new_stack, (void *) matrix_stack,
-               matrix_stack_used * sizeof(matrix_entry));
+               (unsigned) matrix_stack_used * sizeof(matrix_entry));
         xfree(matrix_stack);
         matrix_stack = new_stack;
     }

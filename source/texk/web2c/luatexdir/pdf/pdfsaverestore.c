@@ -33,9 +33,9 @@ static void checkpdfsave(scaledpos pos)
 
     if (pos_stack_used >= pos_stack_size) {
         pos_stack_size += STACK_INCREMENT;
-        new_stack = xtalloc(pos_stack_size, pos_entry);
+        new_stack = xtalloc((unsigned) pos_stack_size, pos_entry);
         memcpy((void *) new_stack, (void *) pos_stack,
-               pos_stack_used * sizeof(pos_entry));
+               (unsigned) pos_stack_used * sizeof(pos_entry));
         xfree(pos_stack);
         pos_stack = new_stack;
     }

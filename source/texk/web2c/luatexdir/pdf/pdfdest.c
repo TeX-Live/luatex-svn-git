@@ -42,16 +42,16 @@ void append_dest_name(PDF pdf, char *s, int n)
     int a;
     if (pdf->dest_names_ptr == sup_dest_names_size)
         overflow("number of destination names (dest_names_size)",
-                 pdf->dest_names_size);
+                 (unsigned) pdf->dest_names_size);
     if (pdf->dest_names_ptr == pdf->dest_names_size) {
-        a = 0.2 * pdf->dest_names_size;
+        a = pdf->dest_names_size / 5;
         if (pdf->dest_names_size < sup_dest_names_size - a)
             pdf->dest_names_size = pdf->dest_names_size + a;
         else
             pdf->dest_names_size = sup_dest_names_size;
         pdf->dest_names =
             xreallocarray(pdf->dest_names, dest_name_entry,
-                          pdf->dest_names_size);
+                          (unsigned) pdf->dest_names_size);
     }
     pdf->dest_names[pdf->dest_names_ptr].objname = xstrdup(s);
     pdf->dest_names[pdf->dest_names_ptr].objnum = n;
@@ -63,7 +63,7 @@ When a destination is created we need to check whether another destination
 with the same identifier already exists and give a warning if needed.
 */
 
-void warn_dest_dup(int id, small_number byname, char *s1, char *s2)
+void warn_dest_dup(int id, small_number byname, const char *s1, const char *s2)
 {
     pdf_warning(s1, "destination with the same identifier (", false, false);
     if (byname > 0) {
@@ -91,7 +91,7 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
         return;
     k = get_obj(pdf, obj_type_dest, pdf_dest_id(p), pdf_dest_named_id(p));
     if (obj_dest_ptr(pdf, k) != null) {
-        warn_dest_dup(pdf_dest_id(p), pdf_dest_named_id(p),
+        warn_dest_dup(pdf_dest_id(p), (small_number) pdf_dest_named_id(p),
                       "ext4", "has been already used, duplicate ignored");
         return;
     }
@@ -278,7 +278,7 @@ void scan_pdfdest(PDF pdf)
     }
     if ((k != 0) && (obj_dest_ptr(pdf, k) != null)) {
         warn_dest_dup(pdf_dest_id(cur_list.tail_field),
-                      pdf_dest_named_id(cur_list.tail_field),
+                      (small_number) pdf_dest_named_id(cur_list.tail_field),
                       "ext4", "has been already used, duplicate ignored");
         flush_node_list(cur_list.tail_field);
         cur_list.tail_field = q;
@@ -289,15 +289,15 @@ void scan_pdfdest(PDF pdf)
 /* sorts |dest_names| by names */
 static int dest_cmp(const void *a, const void *b)
 {
-    dest_name_entry aa = *(dest_name_entry *) a;
-    dest_name_entry bb = *(dest_name_entry *) b;
+    dest_name_entry aa = *(const dest_name_entry *) a;
+    dest_name_entry bb = *(const dest_name_entry *) b;
     return strcmp(aa.objname, bb.objname);
 }
 
 void sort_dest_names(PDF pdf)
 {
-    qsort(pdf->dest_names, pdf->dest_names_ptr, sizeof(dest_name_entry),
-          dest_cmp);
+    qsort(pdf->dest_names, (size_t) pdf->dest_names_ptr,
+          sizeof(dest_name_entry), dest_cmp);
 }
 
 /*

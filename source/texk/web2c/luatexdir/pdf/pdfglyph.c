@@ -60,17 +60,17 @@ static void setup_fontparameters(PDF pdf, internal_font_number f)
     pdf->f_cur = f;
     p->f_pdf = pdf_set_font(pdf, f);
     p->fs.m = lround(font_size(f) / one_bp * ten_pow[p->fs.e]);
-    slant = font_slant(f) / 1000.0;
-    extend = font_extend(f) / 1000.0;
-    expand = 1.0 + font_expand_ratio(f) / 1000.0;
+    slant = (float) font_slant(f) / (float) 1000.0;
+    extend = (float) font_extend(f) / (float) 1000.0;
+    expand = (float) 1.0 + (float) font_expand_ratio(f) / (float) 1000.0;
     p->tj_delta.e = p->cw.e - 1;        /* "- 1" makes less corrections inside []TJ */
     /* no need to be more precise than TeX (1sp) */
     while (p->tj_delta.e > 0
            && (double) font_size(f) / ten_pow[p->tj_delta.e + e_tj] < 0.5)
         p->tj_delta.e--;        /* happens for very tiny fonts */
     assert(p->cw.e >= p->tj_delta.e);   /* else we would need, e. g., ten_pow[-1] */
-    p->tm[0].m = lround(expand * extend * ten_pow[p->tm[0].e]);
-    p->tm[2].m = lround(slant * ten_pow[p->tm[2].e]);
+    p->tm[0].m = lround(expand * extend * (float) ten_pow[p->tm[0].e]);
+    p->tm[2].m = lround(slant * (float) ten_pow[p->tm[2].e]);
     p->k2 =
         ten_pow[e_tj +
                 p->cw.e] / (ten_pow[p->pdf.h.e] * pdf2double(p->fs) *

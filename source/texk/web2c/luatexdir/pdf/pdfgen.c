@@ -63,9 +63,9 @@ PDF init_pdf_struct(PDF pdf)
 
     pdf->os_obj = xmalloc(pdf_os_max_objs * sizeof(os_obj_data));
     pdf->os_buf_size = inf_pdf_os_buf_size;
-    pdf->os_buf = xmalloc(pdf->os_buf_size * sizeof(unsigned char));
+    pdf->os_buf = xmalloc((unsigned) pdf->os_buf_size * sizeof(unsigned char));
     pdf->op_buf_size = inf_pdf_op_buf_size;
-    pdf->op_buf = xmalloc(pdf->op_buf_size * sizeof(unsigned char));
+    pdf->op_buf = xmalloc((unsigned) pdf->op_buf_size * sizeof(unsigned char));
 
     pdf->buf_size = pdf->op_buf_size;
     pdf->buf = pdf->op_buf;
@@ -73,7 +73,7 @@ PDF init_pdf_struct(PDF pdf)
     /* Sometimes it is neccesary to allocate memory for PDF output that cannot
        be deallocated then, so we use |mem| for this purpose. */
     pdf->mem_size = inf_pdf_mem_size;   /* allocated size of |mem| array */
-    pdf->mem = xmalloc(pdf->mem_size * sizeof(int));
+    pdf->mem = xmalloc((unsigned) pdf->mem_size * sizeof(int));
     pdf->mem_ptr = 1;           /* the first word is not used so we can use zero as a value for testing
                                    whether a pointer to |mem| is valid  */
     pdf->pstruct = NULL;
@@ -83,8 +83,9 @@ PDF init_pdf_struct(PDF pdf)
     pdf->posstruct->pos.v = 0;
     pdf->posstruct->dir = dir_TLT;
 
-    pdf->obj_tab_size = inf_obj_tab_size;       /* allocated size of |obj_tab| array */
-    pdf->obj_tab = xmalloc((pdf->obj_tab_size + 1) * sizeof(obj_entry));
+    pdf->obj_tab_size = (unsigned) inf_obj_tab_size;    /* allocated size of |obj_tab| array */
+    pdf->obj_tab =
+        xmalloc((unsigned) (pdf->obj_tab_size + 1) * sizeof(obj_entry));
     memset(pdf->obj_tab, 0, sizeof(obj_entry));
 
     pdf->minor_version = -1;    /* unset */
@@ -137,9 +138,9 @@ int pdf_get_mem(PDF pdf, int s)
     int a;
     int ret;
     if (s > sup_pdf_mem_size - pdf->mem_ptr)
-        overflow("PDF memory size (pdf_mem_size)", pdf->mem_size);
+        overflow("PDF memory size (pdf_mem_size)", (unsigned) pdf->mem_size);
     if (pdf->mem_ptr + s > pdf->mem_size) {
-        a = 0.2 * pdf->mem_size;
+        a = pdf->mem_size / 5;
         if (pdf->mem_ptr + s > pdf->mem_size + a) {
             pdf->mem_size = pdf->mem_ptr + s;
         } else if (pdf->mem_size < sup_pdf_mem_size - a) {
@@ -147,7 +148,7 @@ int pdf_get_mem(PDF pdf, int s)
         } else {
             pdf->mem_size = sup_pdf_mem_size;
         }
-        pdf->mem = xreallocarray(pdf->mem, int, pdf->mem_size);
+        pdf->mem = xreallocarray(pdf->mem, int, (unsigned) pdf->mem_size);
     }
     ret = pdf->mem_ptr;
     pdf->mem_ptr = pdf->mem_ptr + s;
@@ -229,7 +230,7 @@ to finish it. The stream contents will be compressed if compression is turn on.
 static void write_pdf(PDF pdf, int a, int b)
 {
     (void) fwrite((char *) &pdf->buf[a], sizeof(pdf->buf[a]),
-                  (int) ((b) - (a) + 1), pdf->file);
+                  (size_t) ((b) - (a) + 1), pdf->file);
 }
 
 void pdf_flush(PDF pdf)
@@ -319,9 +320,9 @@ static void pdf_os_get_os_buf(PDF pdf, int s)
 {
     int a;
     if (s > sup_pdf_os_buf_size - pdf->ptr)
-        overflow("PDF object stream buffer", pdf->os_buf_size);
+        overflow("PDF object stream buffer", (unsigned) pdf->os_buf_size);
     if (pdf->ptr + s > pdf->os_buf_size) {
-        a = 0.2 * pdf->os_buf_size;
+        a = pdf->os_buf_size / 5;
         if (pdf->ptr + s > pdf->os_buf_size + a)
             pdf->os_buf_size = pdf->ptr + s;
         else if (pdf->os_buf_size < sup_pdf_os_buf_size - a)
@@ -329,7 +330,8 @@ static void pdf_os_get_os_buf(PDF pdf, int s)
         else
             pdf->os_buf_size = sup_pdf_os_buf_size;
         pdf->os_buf =
-            xreallocarray(pdf->os_buf, unsigned char, pdf->os_buf_size);
+            xreallocarray(pdf->os_buf, unsigned char,
+                          (unsigned) pdf->os_buf_size);
         pdf->buf = pdf->os_buf;
         pdf->buf_size = pdf->os_buf_size;
     }
@@ -341,7 +343,7 @@ void pdf_room(PDF pdf, int n)
     if (pdf->os_mode && (n + pdf->ptr > pdf->buf_size))
         pdf_os_get_os_buf(pdf, n);
     else if ((!pdf->os_mode) && (n > pdf->buf_size))
-        overflow("PDF output buffer", pdf->op_buf_size);
+        overflow("PDF output buffer", (unsigned) pdf->op_buf_size);
     else if ((!pdf->os_mode) && (n + pdf->ptr > pdf->buf_size))
         pdf_flush(pdf);
 }
@@ -356,9 +358,9 @@ void pdf_room(PDF pdf, int n)
   if ((c)<=32||(c)=='\\'||(c)=='('||(c)==')'||(c)>127) {      \
     pdf_room(pdf,4);                                          \
     pdf_quick_out(pdf,'\\');                                  \
-    pdf_quick_out(pdf,'0' + (((c)>>6) & 0x3));                \
-    pdf_quick_out(pdf,'0' + (((c)>>3) & 0x7));                \
-    pdf_quick_out(pdf,'0' + ( (c)     & 0x7));                \
+    pdf_quick_out(pdf,(unsigned char)('0' + (((c)>>6) & 0x3)));         \
+    pdf_quick_out(pdf,(unsigned char)('0' + (((c)>>3) & 0x7)));         \
+    pdf_quick_out(pdf,(unsigned char)('0' + ( (c)     & 0x7)));         \
   } else {                                                    \
     pdf_out(pdf,(c));                                         \
   }
@@ -375,10 +377,10 @@ void pdf_print_wide_char(PDF pdf, int c)
     char hex[5];
     snprintf(hex, 5, "%04X", c);
     pdf_room(pdf, 4);
-    pdf_quick_out(pdf, hex[0]);
-    pdf_quick_out(pdf, hex[1]);
-    pdf_quick_out(pdf, hex[2]);
-    pdf_quick_out(pdf, hex[3]);
+    pdf_quick_out(pdf, (unsigned char) hex[0]);
+    pdf_quick_out(pdf, (unsigned char) hex[1]);
+    pdf_quick_out(pdf, (unsigned char) hex[2]);
+    pdf_quick_out(pdf, (unsigned char) hex[3]);
 }
 
 void pdf_puts(PDF pdf, const char *s)
@@ -386,7 +388,7 @@ void pdf_puts(PDF pdf, const char *s)
 
     size_t l = strlen(s);
     if (l < (size_t) pdf->buf_size) {
-        pdf_room(pdf, l);
+        pdf_room(pdf, (int) l);
         while (*s != '\0')
             pdf_quick_out(pdf, *s++);
     } else {
@@ -454,7 +456,7 @@ void pdf_print_int(PDF pdf, longinteger n)
     } while (n != 0);
     pdf_room(pdf, k);
     while (k-- > 0) {
-        pdf_quick_out(pdf, '0' + dig[k]);
+        pdf_quick_out(pdf, (unsigned char) ('0' + dig[k]));
     }
 }
 
@@ -483,10 +485,10 @@ void pdf_print_real(PDF pdf, int m, int d)
 
 /* print out |s| as string in PDF output */
 
-void pdf_print_str(PDF pdf, char *s)
+void pdf_print_str(PDF pdf, const char *s)
 {
-    char *orig = s;
-    int l = strlen(s) - 1;      /* last string index */
+    const char *orig = s;
+    int l = (int) strlen(s) - 1;        /* last string index */
     if (l < 0) {
         pdf_puts(pdf, "()");
         return;
@@ -604,8 +606,8 @@ scaled round_xn_over_d(scaled x, int n, int d)
         x = -(x);
         positive = false;
     }
-    t = (x % 0100000) * n;
-    u = (x / 0100000) * n + (t / 0100000);
+    t = (unsigned) ((x % 0100000) * n);
+    u = (unsigned) (((unsigned) (x) / 0100000) * (unsigned) n + (t / 0100000));
     v = (u % d) * 0100000 + (t % 0100000);
     if (u / d >= 0100000)
         arith_error = true;
@@ -615,9 +617,9 @@ scaled round_xn_over_d(scaled x, int n, int d)
     if (2 * v >= (unsigned) d)
         u++;
     if (positive)
-        return u;
+        return (scaled) u;
     else
-        return (-u);
+        return (-(scaled) u);
 }
 
 #define lround(a) (long) floor((a) + 0.5)
@@ -786,7 +788,7 @@ void pdf_print_fw_int(PDF pdf, longinteger n, int w)
     } while (k != w);
     pdf_room(pdf, k);
     while (k-- > 0)
-        pdf_quick_out(pdf, '0' + dig[k]);
+        pdf_quick_out(pdf, (unsigned char) ('0' + dig[k]));
 }
 
 /* print out an integer as a number of bytes; used for outputting \.{/XRef} cross-reference stream */
@@ -807,13 +809,13 @@ void pdf_out_bytes(PDF pdf, longinteger n, int w)
 
 /* print out an entry in dictionary with integer value to PDF buffer */
 
-void pdf_int_entry(PDF pdf, char *s, int v)
+void pdf_int_entry(PDF pdf, const char *s, int v)
 {
     pdf_printf(pdf, "/%s ", s);
     pdf_print_int(pdf, v);
 }
 
-void pdf_int_entry_ln(PDF pdf, char *s, int v)
+void pdf_int_entry_ln(PDF pdf, const char *s, int v)
 {
 
     pdf_int_entry(pdf, s, v);
@@ -821,12 +823,12 @@ void pdf_int_entry_ln(PDF pdf, char *s, int v)
 }
 
 /* print out an indirect entry in dictionary */
-void pdf_indirect(PDF pdf, char *s, int o)
+void pdf_indirect(PDF pdf, const char *s, int o)
 {
     pdf_printf(pdf, "/%s %d 0 R", s, (int) o);
 }
 
-void pdf_indirect_ln(PDF pdf, char *s, int o)
+void pdf_indirect_ln(PDF pdf, const char *s, int o)
 {
 
     pdf_indirect(pdf, s, o);
@@ -834,14 +836,14 @@ void pdf_indirect_ln(PDF pdf, char *s, int o)
 }
 
 /* print out |s| as string in PDF output */
-void pdf_print_str_ln(PDF pdf, char *s)
+void pdf_print_str_ln(PDF pdf, const char *s)
 {
     pdf_print_str(pdf, s);
     pdf_print_nl(pdf);
 }
 
 /* print out an entry in dictionary with string value to PDF buffer */
-void pdf_str_entry(PDF pdf, char *s, char *v)
+void pdf_str_entry(PDF pdf, const char *s, const char *v)
 {
     if (v == 0)
         return;
@@ -849,7 +851,7 @@ void pdf_str_entry(PDF pdf, char *s, char *v)
     pdf_print_str(pdf, v);
 }
 
-void pdf_str_entry_ln(PDF pdf, char *s, char *v)
+void pdf_str_entry_ln(PDF pdf, const char *s, const char *v)
 {
     if (v == 0)
         return;
@@ -930,10 +932,10 @@ static void init_pdf_outputparameters(PDF pdf)
     if (!callback_defined(read_pk_file_callback)) {
         if (pdf_pk_mode != null) {
             char *s = tokenlist_to_cstring(pdf_pk_mode, true, NULL);
-            kpseinitprog("PDFTEX", pdf->pk_resolution, s, nil);
+            kpseinitprog("PDFTEX", (unsigned) pdf->pk_resolution, s, nil);
             xfree(s);
         } else {
-            kpseinitprog("PDFTEX", pdf->pk_resolution, nil, nil);
+            kpseinitprog("PDFTEX", (unsigned) pdf->pk_resolution, nil, nil);
         }
         if (!kpsevarvalue("MKTEXPK"))
             kpsesetprogramenabled(kpsepkformat, 1, kpsesrccmdline);
@@ -948,7 +950,7 @@ static void init_pdf_outputparameters(PDF pdf)
 
 /* Checks that we have a name for the generated PDF file and that it's open. */
 
-static void ensure_output_file_open(PDF pdf, char *ext)
+static void ensure_output_file_open(PDF pdf, const char *ext)
 {
     char *fn;
     if (pdf->file_name != NULL)
@@ -1177,7 +1179,7 @@ char *convertStringToPDFString(const char *in, int len)
     char buf[5];
     j = 0;
     for (i = 0; i < len; i++) {
-        check_buf(j + sizeof(buf), MAX_PSTRING_LEN);
+        check_buf((unsigned) j + sizeof(buf), MAX_PSTRING_LEN);
         if (((unsigned char) in[i] < '!') || ((unsigned char) in[i] > '~')) {
             /* convert control characters into oct */
             k = snprintf(buf, sizeof(buf),
@@ -1256,7 +1258,7 @@ static void convertStringToHexString(const char *in, char *out, int lin)
   implementation using just the first two items.
  */
 
-void print_ID(PDF pdf, char *file_name)
+void print_ID(PDF pdf, const char *file_name)
 {
     time_t t;
     size_t size;
@@ -1270,13 +1272,13 @@ void print_ID(PDF pdf, char *file_name)
     /* get the time */
     t = time(NULL);
     size = strftime(time_str, sizeof(time_str), "%Y%m%dT%H%M%SZ", gmtime(&t));
-    md5_append(&state, (const md5_byte_t *) time_str, size);
+    md5_append(&state, (const md5_byte_t *) time_str, (int) size);
     /* get the file name */
     if (getcwd(pwd, sizeof(pwd)) == NULL)
         pdftex_fail("getcwd() failed (%s), (path too long?)", strerror(errno));
-    md5_append(&state, (const md5_byte_t *) pwd, strlen(pwd));
+    md5_append(&state, (const md5_byte_t *) pwd, (int) strlen(pwd));
     md5_append(&state, (const md5_byte_t *) "/", 1);
-    md5_append(&state, (const md5_byte_t *) file_name, strlen(file_name));
+    md5_append(&state, (const md5_byte_t *) file_name, (int) strlen(file_name));
     /* finish md5 */
     md5_finish(&state, digest);
     /* write the IDs */
@@ -1432,10 +1434,10 @@ static void realloc_fb(PDF pdf)
         pdf->fb_array = xtalloc(pdf->fb_limit, char);
         pdf->fb_ptr = pdf->fb_array;
     } else if ((size_t) (pdf->fb_ptr - pdf->fb_array + 1) > pdf->fb_limit) {
-        size_t last_ptr_index = pdf->fb_ptr - pdf->fb_array;
+        size_t last_ptr_index = (size_t) (pdf->fb_ptr - pdf->fb_array);
         pdf->fb_limit *= 2;
         if ((size_t) (pdf->fb_ptr - pdf->fb_array + 1) > pdf->fb_limit)
-            pdf->fb_limit = pdf->fb_ptr - pdf->fb_array + 1;
+            pdf->fb_limit = (size_t) (pdf->fb_ptr - pdf->fb_array + 1);
         xretalloc(pdf->fb_array, pdf->fb_limit, char);
         pdf->fb_ptr = pdf->fb_array + last_ptr_index;
     }
@@ -1455,7 +1457,7 @@ void fb_putchar(PDF pdf, eight_bits b)
 {
     if ((size_t) (pdf->fb_ptr - pdf->fb_array + 1) > pdf->fb_limit)
         realloc_fb(pdf);
-    *(pdf->fb_ptr)++ = b;
+    *(pdf->fb_ptr)++ = (char) b;
 }
 
 void fb_flush(PDF pdf)
@@ -1512,10 +1514,12 @@ void write_zip(PDF pdf, boolean finish)
     }
     assert(pdf->zipbuf != NULL);
     pdf->c_stream.next_in = pdf->buf;
-    pdf->c_stream.avail_in = pdf->ptr;
+    pdf->c_stream.avail_in = (uInt) pdf->ptr;
     for (;;) {
         if (pdf->c_stream.avail_out == 0) {
-            pdf->gone += xfwrite(pdf->zipbuf, 1, ZIP_BUF_SIZE, pdf->file);
+            pdf->gone =
+                pdf->gone + (off_t) xfwrite(pdf->zipbuf, 1, ZIP_BUF_SIZE,
+                                            pdf->file);
             pdf->last_byte = pdf->zipbuf[ZIP_BUF_SIZE - 1];     /* not needed */
             pdf->c_stream.next_out = (Bytef *) pdf->zipbuf;
             pdf->c_stream.avail_out = ZIP_BUF_SIZE;
@@ -1529,15 +1533,16 @@ void write_zip(PDF pdf, boolean finish)
     }
     if (finish) {
         if (pdf->c_stream.avail_out < ZIP_BUF_SIZE) {   /* at least one byte has been output */
-            pdf->gone +=
-                xfwrite(pdf->zipbuf, 1, ZIP_BUF_SIZE - pdf->c_stream.avail_out,
-                        pdf->file);
+            pdf->gone = pdf->gone +
+                (off_t) xfwrite(pdf->zipbuf, 1,
+                                (size_t) (ZIP_BUF_SIZE -
+                                          pdf->c_stream.avail_out), pdf->file);
             pdf->last_byte =
                 pdf->zipbuf[ZIP_BUF_SIZE - pdf->c_stream.avail_out - 1];
         }
         xfflush(pdf->file);
     }
-    pdf->stream_length = pdf->c_stream.total_out;
+    pdf->stream_length = (off_t) pdf->c_stream.total_out;
 }
 
 void zip_free(PDF pdf)
@@ -1590,7 +1595,7 @@ void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
 {
 
     char warn_string[100];
-    char *m;
+    const char *m;
     output_mode o_mode;
 
     /* in warn mode (strict == false):
@@ -2038,7 +2043,7 @@ defined which value is choosen by an application.  Therefore the keys
 |pdf_info_toks| converted to a string does not contain these key strings.
 */
 
-boolean substr_of_str(char *s, char *t)
+static boolean substr_of_str(const char *s, const char *t)
 {
     if (strstr(t, s) == NULL)
         return false;

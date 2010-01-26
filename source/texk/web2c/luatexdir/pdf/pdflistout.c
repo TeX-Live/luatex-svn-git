@@ -30,7 +30,8 @@ backend_function *backend_out, *backend_out_whatsit;
 
 static void missing_backend_function(PDF pdf, halfword p)
 {
-    char *b, *s;
+    char *b;
+    const char *s;
     const char *n;
     char backend_string[15];
     char err_string[60];
@@ -360,7 +361,7 @@ void hlist_out(PDF pdf, halfword this_box)
     for (i = 1; i <= pdf->link_stack_ptr; i++) {
         assert(is_running(width(pdf->link_stack[i].link_node)));
         if (pdf->link_stack[i].nesting_level == cur_s)
-            append_link(pdf, this_box, cur, i);
+            append_link(pdf, this_box, cur, (small_number) i);
     }
 
     /* Start hlist {\sl Sync\TeX} information record */
@@ -805,7 +806,7 @@ void vlist_out(PDF pdf, halfword this_box)
     int save_loc = 0;           /* DVI! \.{DVI} byte location upon entry */
     scaledpos save_dvi = { 0, 0 };      /* DVI! what |dvi| should pop to */
 
-    g_order = glue_order(this_box);
+    g_order = (glue_ord) glue_order(this_box);
     g_sign = glue_sign(this_box);
     p = list_ptr(this_box);
 

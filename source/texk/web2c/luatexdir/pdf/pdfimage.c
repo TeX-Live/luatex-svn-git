@@ -40,10 +40,10 @@ void place_img(PDF pdf, image_dict * idict, scaled_whd dim, int transform)
     a[1] = a[2] = 0;
     if (img_type(idict) == IMG_TYPE_PDF
         || img_type(idict) == IMG_TYPE_PDFSTREAM) {
-        a[0] /= img_xsize(idict);
-        a[3] /= img_ysize(idict);
-        xoff = (float) img_xorig(idict) / img_xsize(idict);
-        yoff = (float) img_yorig(idict) / img_ysize(idict);
+        a[0] /= (float) img_xsize(idict);
+        a[3] /= (float) img_ysize(idict);
+        xoff = (float) img_xorig(idict) / (float) img_xsize(idict);
+        yoff = (float) img_yorig(idict) / (float) img_ysize(idict);
         r = 6;
     } else {
         /* added from web for 1.40.8 */
@@ -53,7 +53,7 @@ void place_img(PDF pdf, image_dict * idict, scaled_whd dim, int transform)
                 pdf->img_page_group_val = groupref;
         }
         /* /added from web */
-        a[0] /= one_hundred_bp;
+        a[0] /= (float) one_hundred_bp;
         a[3] = a[0];
         xoff = yoff = 0;
         r = 4;
@@ -89,14 +89,14 @@ void place_img(PDF pdf, image_dict * idict, scaled_whd dim, int transform)
         break;
     default:;
     }
-    xoff *= dim.wd;
-    yoff *= dim.ht + dim.dp;
-    a[0] *= dim.wd;
-    a[1] *= dim.ht + dim.dp;
-    a[2] *= dim.wd;
-    a[3] *= dim.ht + dim.dp;
-    a[4] = pos.h - xoff;
-    a[5] = pos.v - yoff;
+    xoff *= (float) dim.wd;
+    yoff *= (float) (dim.ht + dim.dp);
+    a[0] *= (float) dim.wd;
+    a[1] *= (float) (dim.ht + dim.dp);
+    a[2] *= (float) dim.wd;
+    a[3] *= (float) (dim.ht + dim.dp);
+    a[4] = (float) pos.h - xoff;
+    a[5] = (float) pos.v - yoff;
     k = transform + img_rotation(idict);
     if ((transform & 7) > 3)
         k++;
@@ -104,14 +104,14 @@ void place_img(PDF pdf, image_dict * idict, scaled_whd dim, int transform)
     case 0:                    /* no transform */
         break;
     case 1:                    /* rot. 90 deg. (counterclockwise) */
-        a[4] += dim.wd;
+        a[4] += (float) dim.wd;
         break;
     case 2:                    /* rot. 180 deg. */
-        a[4] += dim.wd;
-        a[5] += dim.ht + dim.dp;
+        a[4] += (float) dim.wd;
+        a[5] += (float) (dim.ht + dim.dp);
         break;
     case 3:                    /* rot. 270 deg. */
-        a[5] += dim.ht + dim.dp;
+        a[5] += (float) (dim.ht + dim.dp);
         break;
     default:;
     }

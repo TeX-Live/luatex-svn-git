@@ -53,7 +53,8 @@ typedef enum {
 
 extern void append_dest_name(PDF, char *, int);
 extern void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur);
-extern void warn_dest_dup(int id, small_number byname, char *s1, char *s2);
+extern void warn_dest_dup(int id, small_number byname, const char *s1,
+                          const char *s2);
 
 extern void write_out_pdf_mark_destinations(PDF);
 extern void scan_pdfdest(PDF);

@@ -139,15 +139,16 @@ void pdf_create_obj(PDF pdf, int t, int i)
     int a;
     char *ss = NULL;
     if (pdf->sys_obj_ptr == sup_obj_tab_size)
-        overflow("indirect objects table size", pdf->obj_tab_size);
+        overflow("indirect objects table size", (unsigned) pdf->obj_tab_size);
     if (pdf->sys_obj_ptr == pdf->obj_tab_size) {
-        a = 0.2 * pdf->obj_tab_size;
+        a = pdf->obj_tab_size / 5;
         if (pdf->obj_tab_size < sup_obj_tab_size - a)
             pdf->obj_tab_size = pdf->obj_tab_size + a;
         else
             pdf->obj_tab_size = sup_obj_tab_size;
         pdf->obj_tab =
-            xreallocarray(pdf->obj_tab, obj_entry, pdf->obj_tab_size);
+            xreallocarray(pdf->obj_tab, obj_entry,
+                          (unsigned) pdf->obj_tab_size);
     }
     incr(pdf->sys_obj_ptr);
     pdf->obj_ptr = pdf->sys_obj_ptr;
@@ -390,7 +391,7 @@ void undump_pdftex_data(PDF pdf)
     int k, x;
     undumpimagemeta(pdf, pdf_minor_version, pdf_inclusion_errorlevel);  /* the image information array */
     undump_int(pdf->mem_size);
-    pdf->mem = xreallocarray(pdf->mem, int, pdf->mem_size);
+    pdf->mem = xreallocarray(pdf->mem, int, (unsigned) pdf->mem_size);
     undump_int(pdf->mem_ptr);
     for (k = 1; k <= pdf->mem_ptr - 1; k++) {
         undump_int(x);

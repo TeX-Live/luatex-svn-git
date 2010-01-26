@@ -82,7 +82,7 @@ static int colstacks_used = 0;
 void colstacks_first_init(void)
 {
     colstacks_size = STACK_INCREMENT;
-    colstacks = xtalloc(colstacks_size, colstack_type);
+    colstacks = xtalloc((unsigned) colstacks_size, colstack_type);
     colstacks_used = 1;
     colstacks[0].page_stack = NULL;
     colstacks[0].form_stack = NULL;
@@ -123,7 +123,8 @@ int newcolorstack(int s, int literal_mode, boolean page_start)
         colstacks_size += STACK_INCREMENT;
         /* If (MAX_COLORSTACKS mod STACK_INCREMENT = 0) then we don't
            need to check the case that size overruns MAX_COLORSTACKS. */
-        colstacks = xreallocarray(colstacks, colstack_type, colstacks_size);
+        colstacks =
+            xreallocarray(colstacks, colstack_type, (unsigned) colstacks_size);
     }
     /* claim new color stack */
     colstack_num = colstacks_used++;
@@ -199,7 +200,8 @@ static int colorstackpush(int colstack_no, str_number s)
         if (colstack->page_used == colstack->page_size) {
             colstack->page_size += STACK_INCREMENT;
             colstack->page_stack = xretalloc(colstack->page_stack,
-                                             colstack->page_size, char *);
+                                             (unsigned) colstack->page_size,
+                                             char *);
         }
         colstack->page_stack[colstack->page_used++] = colstack->page_current;
         str = makecstring(s);
@@ -213,7 +215,8 @@ static int colorstackpush(int colstack_no, str_number s)
         if (colstack->form_used == colstack->form_size) {
             colstack->form_size += STACK_INCREMENT;
             colstack->form_stack = xretalloc(colstack->form_stack,
-                                             colstack->form_size, char *);
+                                             (unsigned) colstack->form_size,
+                                             char *);
         }
         colstack->form_stack[colstack->form_used++] = colstack->form_current;
         str = makecstring(s);

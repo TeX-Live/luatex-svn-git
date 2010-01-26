@@ -78,12 +78,12 @@ void pdf_out_literal(PDF pdf, halfword p)
 }
 
 /* test equality of start of strings */
-static boolean str_in_cstr(str_number s, char *r, unsigned i)
+static boolean str_in_cstr(str_number s, const char *r, unsigned i)
 {
-    unsigned char *k, *l;
+    const unsigned char *k, *l;
     if ((unsigned) str_length(s) < i + strlen(r))
         return false;
-    k = (unsigned char *) r;
+    k = (const unsigned char *) r;
     l = str_string(s) + i;
     while ((*l) && (*k)) {
         if (*l++ != *k++)
@@ -106,12 +106,12 @@ void pdf_literal(PDF pdf, str_number s, int literal_mode, boolean warn)
                     tprint_nl("Non-PDF special ignored!");
                 return;
             }
-            j = j + strlen("PDF:");
+            j = j + (pool_pointer) strlen("PDF:");
             if (str_in_cstr(s, "direct:", strlen("PDF:"))) {
-                j = j + strlen("direct:");
+                j = j + (pool_pointer) strlen("direct:");
                 literal_mode = direct_always;
             } else if (str_in_cstr(s, "page:", strlen("PDF:"))) {
-                j = j + strlen("page:");
+                j = j + (pool_pointer) strlen("page:");
                 literal_mode = direct_page;
             } else {
                 literal_mode = set_origin;
@@ -135,7 +135,7 @@ void pdf_literal(PDF pdf, str_number s, int literal_mode, boolean warn)
     }
     if (s >= STRING_OFFSET) {
         unsigned char *ss = str_string(s);
-        int l = str_length(s) - j;
+        size_t l = str_length(s) - (size_t) j;
         if (l < max_single_pdf_print) {
             pdf_out_block(pdf, (ss + j), l);
         } else {

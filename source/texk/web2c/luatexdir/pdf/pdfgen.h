@@ -94,15 +94,15 @@ extern void pdf_room(PDF, int);
 extern void fix_pdf_minorversion(PDF);
 
  /* output a byte to PDF buffer without checking of overflow */
-#  define pdf_quick_out(pdf,A) pdf->buf[pdf->ptr++]=A
+#  define pdf_quick_out(pdf,A) pdf->buf[pdf->ptr++]=(unsigned char)A
 
 /* do the same as |pdf_quick_out| and flush the PDF buffer if necessary */
 #  define pdf_out(pdf,A) do { pdf_room(pdf,1); pdf_quick_out(pdf,A); } while (0)
 
 #  define pdf_out_block(pdf,A,n) do {                       \
-        pdf_room(pdf,(n));                                  \
-        (void)memcpy((pdf->buf+pdf->ptr),(A),(n));          \
-        pdf->ptr+=(n);                                      \
+        pdf_room(pdf,(int)(n));                             \
+        (void)memcpy((pdf->buf+pdf->ptr),(A),(size_t)(n));  \
+        pdf->ptr+=(int)(n);                                 \
     } while (0)
 
 /*
@@ -137,7 +137,7 @@ extern void pdf_print_wide_char(PDF, int);
 extern void pdf_print(PDF, str_number);
 extern void pdf_print_int(PDF, longinteger);
 extern void pdf_print_real(PDF, int, int);
-extern void pdf_print_str(PDF, char *);
+extern void pdf_print_str(PDF, const char *);
 
 extern void pdf_begin_stream(PDF);
 extern void pdf_end_stream(PDF);
@@ -158,13 +158,13 @@ extern pdf_object_list *get_page_resources_list(PDF pdf, pdf_obj_type t);
 
 extern void pdf_print_fw_int(PDF, longinteger, int);
 extern void pdf_out_bytes(PDF, longinteger, int);
-extern void pdf_int_entry(PDF, char *, int);
-extern void pdf_int_entry_ln(PDF, char *, int);
-extern void pdf_indirect(PDF, char *, int);
-extern void pdf_indirect_ln(PDF, char *, int);
-extern void pdf_print_str_ln(PDF, char *);
-extern void pdf_str_entry(PDF, char *, char *);
-extern void pdf_str_entry_ln(PDF, char *, char *);
+extern void pdf_int_entry(PDF, const char *, int);
+extern void pdf_int_entry_ln(PDF, const char *, int);
+extern void pdf_indirect(PDF, const char *, int);
+extern void pdf_indirect_ln(PDF, const char *, int);
+extern void pdf_print_str_ln(PDF, const char *);
+extern void pdf_str_entry(PDF, const char *, const char *);
+extern void pdf_str_entry_ln(PDF, const char *, const char *);
 
 extern void pdf_print_toks(PDF, halfword);
 extern void pdf_print_toks_ln(PDF, halfword);
@@ -188,7 +188,7 @@ extern void write_stream_length(PDF, int, longinteger);
 
 extern void print_creation_date(PDF);
 extern void print_mod_date(PDF);
-extern void print_ID(PDF, char *);
+extern void print_ID(PDF, const char *);
 
 extern void remove_pdffile(PDF);
 
