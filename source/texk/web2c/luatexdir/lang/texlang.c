@@ -42,7 +42,7 @@ typedef unsigned int uint32;
 
 static unichar_t *utf82u_strcpy(unichar_t * ubuf, const char *utf8buf)
 {
-    int len = strlen(utf8buf) + 1;
+    int len = (int)strlen(utf8buf) + 1;
     unichar_t *upt = ubuf, *uend = ubuf + len - 1;
     const uint8 *pt = (const uint8 *) utf8buf, *end = pt + strlen(utf8buf);
     int w, w2;
@@ -51,16 +51,16 @@ static unichar_t *utf82u_strcpy(unichar_t * ubuf, const char *utf8buf)
         if (*pt <= 127)
             *upt = *pt++;
         else if (*pt <= 0xdf) {
-            *upt = ((*pt & 0x1f) << 6) | (pt[1] & 0x3f);
+            *upt = (unichar_t)(((*pt & 0x1f) << 6) | (pt[1] & 0x3f));
             pt += 2;
         } else if (*pt <= 0xef) {
-            *upt = ((*pt & 0xf) << 12) | ((pt[1] & 0x3f) << 6) | (pt[2] & 0x3f);
+            *upt = (unichar_t)(((*pt & 0xf) << 12) | ((pt[1] & 0x3f) << 6) | (pt[2] & 0x3f));
             pt += 3;
         } else {
             w = (((*pt & 0x7) << 2) | ((pt[1] & 0x30) >> 4)) - 1;
             w = (w << 6) | ((pt[1] & 0xf) << 2) | ((pt[2] & 0x30) >> 4);
             w2 = ((pt[2] & 0xf) << 6) | (pt[3] & 0x3f);
-            *upt = w * 0x400 + w2 + 0x10000;
+            *upt = (unichar_t)(w * 0x400 + w2 + 0x10000);
             pt += 4;
         }
         ++upt;
@@ -76,22 +76,22 @@ static char *utf8_idpb(char *utf8_text, uint32 ch)
         return (utf8_text);
 
     if (ch <= 127)
-        *utf8_text++ = ch;
+        *utf8_text++ = (char)ch;
     else if (ch <= 0x7ff) {
-        *utf8_text++ = 0xc0 | (ch >> 6);
-        *utf8_text++ = 0x80 | (ch & 0x3f);
+        *utf8_text++ = (char)(0xc0 | (ch >> 6));
+        *utf8_text++ = (char)(0x80 | (ch & 0x3f));
     } else if (ch <= 0xffff) {
-        *utf8_text++ = 0xe0 | (ch >> 12);
-        *utf8_text++ = 0x80 | ((ch >> 6) & 0x3f);
-        *utf8_text++ = 0x80 | (ch & 0x3f);
+        *utf8_text++ = (char)(0xe0 | (ch >> 12));
+        *utf8_text++ = (char)(0x80 | ((ch >> 6) & 0x3f));
+        *utf8_text++ = (char)(0x80 | (ch & 0x3f));
     } else {
         uint32 val = ch - 0x10000;
-        int u = ((val & 0xf0000) >> 16) + 1, z = (val & 0x0f000) >> 12, y =
+        uint32 u = ((val & 0xf0000) >> 16) + 1, z = (val & 0x0f000) >> 12, y =
             (val & 0x00fc0) >> 6, x = val & 0x0003f;
-        *utf8_text++ = 0xf0 | (u >> 2);
-        *utf8_text++ = 0x80 | ((u & 3) << 4) | z;
-        *utf8_text++ = 0x80 | y;
-        *utf8_text++ = 0x80 | x;
+        *utf8_text++ = (char)(0xf0 | (u >> 2));
+        *utf8_text++ = (char)(0x80 | ((u & 3) << 4) | z);
+        *utf8_text++ = (char)(0x80 | y);
+        *utf8_text++ = (char)(0x80 | x);
     }
     return (utf8_text);
 }
@@ -126,12 +126,12 @@ struct tex_language *new_language(int n)
     } else {
         while (tex_languages[next_lang_id] != NULL)
             next_lang_id++;
-        l = next_lang_id++;
+        l = (unsigned)next_lang_id++;
     }
     if (l < (MAX_TEX_LANGUAGES - 1) && tex_languages[l] == NULL) {
         lang = xmalloc(sizeof(struct tex_language));
         tex_languages[l] = lang;
-        lang->id = l;
+        lang->id = (int)l;
         lang->exceptions = 0;
         lang->patterns = NULL;
         lang->pre_hyphen_char = '-';
@@ -223,7 +223,7 @@ int get_post_exhyphen_char(int n)
 
 void load_patterns(struct tex_language *lang, const unsigned char *buffer)
 {
-    if (lang == NULL || buffer == NULL || strlen(buffer) == 0)
+    if (lang == NULL || buffer == NULL || strlen((const char *)buffer) == 0)
         return;
     if (lang->patterns == NULL) {
         lang->patterns = hnj_hyphen_new();
@@ -248,13 +248,13 @@ void load_tex_patterns(int curlang, halfword head)
 
 
 #define STORE_CHAR(x) do {                          \
-        word[w] = x;                                \
+        word[w] = (unsigned char)x;                 \
         if (w<MAX_WORD_LEN) w++;                    \
     } while (0)
 
 /* todo change this! */
 
-char *clean_hyphenation(const char *buffer, char **cleaned)
+const char *clean_hyphenation(const char *buffer, char **cleaned)
 {
     int items;
     unsigned char word[MAX_WORD_LEN + 1];
@@ -313,7 +313,8 @@ char *clean_hyphenation(const char *buffer, char **cleaned)
 void load_hyphenation(struct tex_language *lang, const unsigned char *buffer)
 {
     const char *s;
-    char *value, *cleaned;
+    const char *value;
+    char *cleaned;
     lua_State *L = Luas;
     if (lang == NULL)
         return;
@@ -332,7 +333,7 @@ void load_hyphenation(struct tex_language *lang, const unsigned char *buffer)
             if (cleaned != NULL) {
                 if ((s - value) > 0) {
                     lua_pushstring(L, cleaned);
-                    lua_pushlstring(L, value, (s - value));
+                    lua_pushlstring(L, value, (size_t)(s - value));
                     lua_rawset(L, -3);
                 }
                 free(cleaned);
@@ -522,7 +523,7 @@ char *hyphenation_exception(int exceptions, char *w)
         lua_pushstring(L, w);   /* word table */
         lua_rawget(L, -2);
         if (lua_isstring(L, -1)) {
-            ret = xstrdup((char *) lua_tostring(L, -1));
+            ret = xstrdup(lua_tostring(L, -1));
         }
         lua_pop(L, 2);
     } else {
@@ -534,7 +535,7 @@ char *hyphenation_exception(int exceptions, char *w)
 
 char *exception_strings(struct tex_language *lang)
 {
-    char *value;
+    const char *value;
     size_t size = 0, current = 0;
     size_t l = 0;
     char *ret = NULL;
@@ -547,10 +548,10 @@ char *exception_strings(struct tex_language *lang)
         /* iterate and join */
         lua_pushnil(L);         /* first key */
         while (lua_next(L, -2) != 0) {
-            value = (char *) lua_tolstring(L, -1, &l);
+            value = lua_tolstring(L, -1, &l);
             if (current + 2 + l > size) {
-                ret = xrealloc(ret, (1.2 * size) + current + l + 1024);
-                size = (1.2 * size) + current + l + 1024;
+                ret = xrealloc(ret, (size + size / 5) + current + l + 1024);
+                size = (size + size / 5) + current + l + 1024;
             }
             *(ret + current) = ' ';
             strcpy(ret + current + 1, value);
@@ -568,9 +569,9 @@ char *exception_strings(struct tex_language *lang)
 halfword find_exception_part(unsigned int *j, int *uword, int len)
 {
     halfword g = null, gg = null;
-    register int i = *j;
+    register unsigned i = *j;
     i++;                        /* this puts uword[i] on the '{' */
-    while (i < len && uword[i + 1] != '}') {
+    while (i < (unsigned)len && uword[i + 1] != '}') {
         if (g == null) {
             gg = new_char(0, uword[i + 1]);
             g = gg;
@@ -588,9 +589,9 @@ halfword find_exception_part(unsigned int *j, int *uword, int len)
 int count_exception_part(unsigned int *j, int *uword, int len)
 {
     int ret = 0;
-    register int i = *j;
+    register unsigned i = *j;
     i++;                        /* this puts uword[i] on the '{' */
-    while (i < len && uword[i + 1] != '}') {
+    while (i < (unsigned)len && uword[i + 1] != '}') {
         ret++;
         i++;
     }
@@ -614,7 +615,7 @@ void do_exception(halfword wordstart, halfword r, char *replacement)
     lang_variables langdata;
     int uword[MAX_WORD_LEN + 1] = { 0 };
     (void) utf82u_strcpy((unsigned int *) uword, replacement);
-    len = u_strlen((unsigned int *) uword);
+    len = (unsigned)u_strlen((unsigned int *) uword);
     i = 0;
     t = wordstart;
     clang = char_lang(wordstart);
@@ -636,15 +637,15 @@ void do_exception(halfword wordstart, halfword r, char *replacement)
         } else if (uword[i + 1] == '{') {
             halfword gg, hh, replace = null;
             int repl;
-            gg = find_exception_part(&i, uword, len);
+            gg = find_exception_part(&i, uword, (int)len);
             if (i == len || uword[i + 1] != '{') {
                 tex_error("broken pattern 1", PAT_ERROR);
             }
-            hh = find_exception_part(&i, uword, len);
+            hh = find_exception_part(&i, uword, (int)len);
             if (i == len || uword[i + 1] != '{') {
                 tex_error("broken pattern 2", PAT_ERROR);
             }
-            repl = count_exception_part(&i, uword, len);
+            repl = count_exception_part(&i, uword, (int)len);
             if (i == len) {
                 tex_error("broken pattern 3", PAT_ERROR);
             }
@@ -857,7 +858,7 @@ void hnj_hyphenation(halfword head, halfword tail)
                clang == char_lang(r) &&
                (lchar = get_lc_code(character(r))) > 0) {
             wordlen++;
-            hy = utf8_idpb(hy, lchar);
+            hy = utf8_idpb(hy, (uint32)lchar);
             /* this should not be needed  any more */
             /*if (vlink(r)!=null) alink(vlink(r))=r; */
             end_word = r;
@@ -941,7 +942,7 @@ void new_hyphenation(halfword head, halfword tail)
 
 #define dump_string(a)                          \
   if (a!=NULL) {                                \
-    x = strlen(a)+1;                            \
+      x = (int)strlen(a)+1;                     \
     dump_int(x);  dump_things(*a, x);           \
   } else {                                      \
     x = 0; dump_int(x);                         \
@@ -1009,7 +1010,7 @@ void undump_one_language(int i)
     /* patterns */
     undump_int(x);
     if (x > 0) {
-        s = xmalloc(x);
+        s = xmalloc((unsigned)x);
         undump_things(*s, x);
         load_patterns(lang, (unsigned char *) s);
         free(s);
@@ -1017,7 +1018,7 @@ void undump_one_language(int i)
     /* exceptions */
     undump_int(x);
     if (x > 0) {
-        s = xmalloc(x);
+        s = xmalloc((unsigned)x);
         undump_things(*s, x);
         load_hyphenation(lang, (unsigned char *) s);
         free(s);
