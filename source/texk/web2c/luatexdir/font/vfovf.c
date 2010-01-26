@@ -1029,7 +1029,7 @@ void do_vf(internal_font_number f)
     K++; }
 
 
-int make_vf_table(lua_State * L, char *cnom, scaled atsize)
+int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
 {
     int cmd, k, i;
     int cc, cmd_length, packet_length;

@@ -138,7 +138,7 @@ static int exec_command(const char *file, char *const *argv, char *const *envp)
     do {
         esp = strchr(searchpath, ':');
         if (esp)
-            prefixlen = esp - searchpath;
+            prefixlen = (size_t) (esp - searchpath);
         else
             prefixlen = strlen(searchpath);
 
@@ -277,7 +277,7 @@ static char *get_command_name(char *maincmd)
 }
 #endif
 
-static char **do_split_command(char *maincmd, char **runcmd)
+static char **do_split_command(const char *maincmd, char **runcmd)
 {
     char **cmdline = NULL;
 #ifdef WIN32
@@ -292,7 +292,7 @@ static char **do_split_command(char *maincmd, char **runcmd)
     *runcmd = get_command_name(cmdline[0]);
 #else
     char *piece, *start_piece;
-    char *cmd;
+    const char *cmd;
     unsigned int i, j;
     int ret = 0;
     int in_string = 0;
@@ -349,8 +349,9 @@ static char **do_split_command(char *maincmd, char **runcmd)
 
 static char **do_flatten_command(lua_State * L, char **runcmd)
 {
-    unsigned int i, j;
-    char *s;
+    unsigned int i;
+    int j;
+    const char *s;
     char **cmdline = NULL;
     *runcmd = NULL;
 
@@ -364,11 +365,11 @@ static char **do_flatten_command(lua_State * L, char **runcmd)
     }
     if (j == 1)
         return NULL;
-    cmdline = malloc(sizeof(char *) * (j + 1));
-    for (i = 1; i <= j; i++) {
+    cmdline = malloc(sizeof(char *) * (unsigned) (j + 1));
+    for (i = 1; i <= (unsigned) j; i++) {
         cmdline[i] = NULL;
-        lua_rawgeti(L, -1, i);
-        if (lua_isnil(L, -1) || (s = (char *) lua_tostring(L, -1)) == NULL) {
+        lua_rawgeti(L, -1, (int) i);
+        if (lua_isnil(L, -1) || (s = lua_tostring(L, -1)) == NULL) {
             lua_pop(L, 1);
             if (i == 1) {
                 xfree(cmdline);
@@ -384,7 +385,7 @@ static char **do_flatten_command(lua_State * L, char **runcmd)
     cmdline[i] = NULL;
 
     lua_rawgeti(L, -1, 0);
-    if (lua_isnil(L, -1) || (s = (char *) lua_tostring(L, -1)) == NULL) {
+    if (lua_isnil(L, -1) || (s = lua_tostring(L, -1)) == NULL) {
 #ifdef WIN32
         *runcmd = get_command_name(cmdline[0]);
 #else
@@ -402,7 +403,8 @@ static char **do_flatten_command(lua_State * L, char **runcmd)
 static int os_exec(lua_State * L)
 {
     int allow = 0;
-    char *maincmd = NULL, *runcmd = NULL;
+    const char *maincmd = NULL;
+    char *runcmd = NULL;
     char *safecmd = NULL, *cmdname = NULL;
     char **cmdline = NULL;
 
@@ -417,7 +419,7 @@ static int os_exec(lua_State * L)
         return 2;
     }
     if (lua_type(L, 1) == LUA_TSTRING) {
-        maincmd = (char *) lua_tostring(L, 1);
+        maincmd = lua_tostring(L, 1);
         cmdline = do_split_command(maincmd, &runcmd);
     } else if (lua_type(L, 1) == LUA_TTABLE) {
         cmdline = do_flatten_command(L, &runcmd);
@@ -428,10 +430,12 @@ static int os_exec(lua_State * L)
      * but I am not so eager to attempt to fix that. Just document
      * that os.exec() checks only the command name.
      */
-    if (restrictedshell == 0)
+    if (restrictedshell == 0) {
         allow = 1;
-    else
-        allow = shell_cmd_is_allowed(&runcmd, &safecmd, &cmdname);
+    } else {
+        const char *theruncmd = runcmd;
+        allow = shell_cmd_is_allowed(&theruncmd, &safecmd, &cmdname);
+    }
 
     if (allow > 0 && cmdline != NULL && runcmd != NULL) {
 #if defined(WIN32) && DONT_REALLY_EXIT
@@ -479,7 +483,8 @@ static int os_exec(lua_State * L)
 static int os_spawn(lua_State * L)
 {
     int allow = 0;
-    char *maincmd = NULL, *runcmd = NULL;
+    const char *maincmd = NULL;
+    char *runcmd = NULL;
     char *safecmd = NULL, *cmdname = NULL;
     char **cmdline = NULL;
     int i;
@@ -495,7 +500,7 @@ static int os_spawn(lua_State * L)
         return 2;
     }
     if (lua_type(L, 1) == LUA_TSTRING) {
-        maincmd = (char *) lua_tostring(L, 1);
+        maincmd = lua_tostring(L, 1);
         cmdline = do_split_command(maincmd, &runcmd);
     } else if (lua_type(L, 1) == LUA_TTABLE) {
         cmdline = do_flatten_command(L, &runcmd);
@@ -506,10 +511,12 @@ static int os_spawn(lua_State * L)
      * but I am not so eager to attempt to fix that. Just document
      * that os.exec() checks only the command name.
      */
-    if (restrictedshell == 0)
+    if (restrictedshell == 0) {
         allow = 1;
-    else
-        allow = shell_cmd_is_allowed(&runcmd, &safecmd, &cmdname);
+    } else {
+        const char *theruncmd = runcmd;
+        allow = shell_cmd_is_allowed(&theruncmd, &safecmd, &cmdname);
+    }
     if (allow > 0 && cmdline != NULL && runcmd != NULL) {
         if (allow == 2)
             i = spawn_command(safecmd, cmdline, environ);
@@ -564,9 +571,10 @@ static int os_spawn(lua_State * L)
 
 static int os_setenv(lua_State * L)
 {
-    char *value, *key, *val;
-    key = (char *) luaL_optstring(L, 1, NULL);
-    val = (char *) luaL_optstring(L, 2, NULL);
+    const char *key, *val;
+    char *value;
+    key = luaL_optstring(L, 1, NULL);
+    val = luaL_optstring(L, 2, NULL);
     if (key) {
         if (val) {
             value = xmalloc(strlen(key) + strlen(val) + 2);
@@ -631,7 +639,7 @@ static int ex_sleep(lua_State * L)
 #ifdef WIN32
     Sleep(1e3 * interval / units);
 #else                           /* assumes posix or bsd */
-    usleep(1e6 * interval / units);
+    usleep((__useconds_t) (1e6 * interval / units));
 #endif
     return 0;
 }
@@ -871,7 +879,7 @@ char *do_mkdtemp(char *tmpl)
     char *xes = &tmpl[strlen(tmpl) - 6];
     /* this is not really all that random, but it will do */
     if (dirs_made == 0) {
-        srand(time(NULL));
+        srand((unsigned) time(NULL));
     }
     value = rand();
     for (count = 0; count < MAXTRIES; value += 8413, ++count) {
@@ -900,7 +908,7 @@ char *do_mkdtemp(char *tmpl)
 static int os_tmpdir(lua_State * L)
 {
     char *s, *tempdir;
-    char *tmp = (char *) luaL_optstring(L, 1, "luatex.XXXXXX");
+    const char *tmp = luaL_optstring(L, 1, "luatex.XXXXXX");
     if (tmp == NULL ||
         strlen(tmp) < 6 || (strcmp(tmp + strlen(tmp) - 6, "XXXXXX") != 0)) {
         lua_pushnil(L);
@@ -932,7 +940,7 @@ static int os_execute(lua_State * L)
     int ret = 1;
     char *safecmd = NULL;
     char *cmdname = NULL;
-    char *cmd = (char *) luaL_optstring(L, 1, NULL);
+    const char *cmd = luaL_optstring(L, 1, NULL);
 
     if (shellenabledp <= 0) {
         lua_pushnil(L);

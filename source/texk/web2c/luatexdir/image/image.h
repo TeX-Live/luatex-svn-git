@@ -24,7 +24,7 @@
 #  define IMAGE_H
 
 #  include <png.h>
-#  include "pdf/pdftypes.h"  /* for scaled_whd */
+#  include "pdf/pdftypes.h"     /* for scaled_whd */
 
 #  define JPG_UINT16      unsigned int
 #  define JPG_UINT32      unsigned long

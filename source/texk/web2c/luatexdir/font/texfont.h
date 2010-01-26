@@ -563,7 +563,7 @@ extern void set_lp_code(internal_font_number f, int c, int i);
 extern void set_rp_code(internal_font_number f, int c, int i);
 extern void set_ef_code(internal_font_number f, int c, int i);
 
-int read_tfm_info(internal_font_number f, char *nom, scaled s);
+int read_tfm_info(internal_font_number f, const char *nom, scaled s);
 
 
 /* from dofont.c */
@@ -592,7 +592,10 @@ extern scaled store_scaled_f(scaled sq, int fw);
 extern void do_vf_packet(PDF pdf, internal_font_number vf_f, int c);
 extern int vf_packet_bytes(charinfo * co);
 
-charinfo *copy_charinfo(charinfo * ci);
+extern charinfo *copy_charinfo(charinfo * ci);
+
+/* this function is in vfovf.c for the moment */
+extern int make_vf_table(lua_State * L, const char *name, scaled s);
 
 /* some bits of the old interface, used by e.g. writet3.c */
 

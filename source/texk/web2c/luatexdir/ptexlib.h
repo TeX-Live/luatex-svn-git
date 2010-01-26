@@ -358,7 +358,8 @@ extern void get_saved_lua_boolean(int i, const char *name, boolean * target);
 extern void get_saved_lua_number(int i, const char *name, int *target);
 extern void get_saved_lua_string(int i, const char *name, char **target);
 
-extern void get_lua_boolean(const char *table, const char *name, boolean * target);
+extern void get_lua_boolean(const char *table, const char *name,
+                            boolean * target);
 extern void get_lua_number(const char *table, const char *name, int *target);
 extern void get_lua_string(const char *table, const char *name, char **target);
 

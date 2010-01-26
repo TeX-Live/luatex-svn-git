@@ -31,9 +31,6 @@ static const char _svn_version[] =
 #endif
 
 
-/* this function is in vfovf.c for the moment */
-extern int make_vf_table(lua_State * L, char *name, scaled s);
-
 static int get_fontid(void)
 {
     if (font_tables == NULL || font_tables[0] == NULL) {
@@ -47,9 +44,9 @@ static int font_read_tfm(lua_State * L)
     internal_font_number f;
     scaled s;
     int k;
-    char *cnom;
+    const char *cnom;
     if (lua_isstring(L, 1)) {
-        cnom = (char *) lua_tostring(L, 1);
+        cnom = lua_tostring(L, 1);
         if (lua_isnumber(L, 2)) {
             lua_number2int(s, lua_tonumber(L, 2));
             if (strlen(cnom)) {
@@ -82,9 +79,9 @@ static int font_read_tfm(lua_State * L)
 static int font_read_vf(lua_State * L)
 {
     int i;
-    char *cnom;
+    const char *cnom;
     if (lua_isstring(L, 1)) {
-        cnom = (char *) lua_tostring(L, 1);
+        cnom = lua_tostring(L, 1);
         if (strlen(cnom)) {
             if (lua_isnumber(L, 2)) {
                 lua_number2int(i, lua_tonumber(L, 2));
@@ -258,12 +255,12 @@ static int getfont(lua_State * L)
 
 static int getfontid(lua_State * L)
 {
-    char *s;
+    const char *s;
     size_t ff;
     int cur_cs;
     int f;
     if (lua_type(L, 1) == LUA_TSTRING) {
-        s = (char *) lua_tolstring(L, 1, &ff);
+        s = lua_tolstring(L, 1, &ff);
         cur_cs = string_lookup(s, ff);
         if (cur_cs == undefined_control_sequence || cur_cs == undefined_cs_cmd
             || eq_type(cur_cs) != set_font_cmd) {

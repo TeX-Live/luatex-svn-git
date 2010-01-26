@@ -149,7 +149,7 @@ void get_lua_string(const char *table, const char *name, char **target)
     if (lua_istable(Luas, -1)) {
         lua_getfield(Luas, -1, name);
         if (lua_isstring(Luas, -1)) {
-            *target = (char *) lua_tostring(Luas, -1);
+            *target = xstrdup(lua_tostring(Luas, -1));
         }
     }
     lua_settop(Luas, stacktop);
@@ -165,7 +165,7 @@ void get_saved_lua_string(int r, const char *name, char **target)
     if (lua_istable(Luas, -1)) {
         lua_getfield(Luas, -1, name);
         if (lua_isstring(Luas, -1)) {
-            *target = (char *) lua_tostring(Luas, -1);
+            *target = xstrdup(lua_tostring(Luas, -1));
         }
     }
     lua_settop(Luas, stacktop);
@@ -290,7 +290,8 @@ int do_run_callback(int special, const char *values, va_list vl)
             lua_pushboolean(L, va_arg(vl, int));
             break;
         case CALLBACK_LINE:    /* a buffer section, with implied start */
-            lua_pushlstring(L, (char *) (buffer + first), va_arg(vl, int));
+            lua_pushlstring(L, (char *) (buffer + first),
+                            (size_t) va_arg(vl, int));
             break;
         case '-':
             narg--;
@@ -302,7 +303,7 @@ int do_run_callback(int special, const char *values, va_list vl)
         }
     }
   ENDARGS:
-    nres = strlen(values);
+    nres = (int) strlen(values);
     if (special == 1) {
         nres++;
     }
@@ -320,8 +321,7 @@ int do_run_callback(int special, const char *values, va_list vl)
              * TeX initialization is complete 
              */
             if (!log_opened) {
-                fprintf(stderr, "This went wrong: %s\n",
-                        (char *) lua_tostring(L, -1));
+                fprintf(stderr, "This went wrong: %s\n", lua_tostring(L, -1));
                 error();
             } else {
                 lua_gc(L, LUA_GCCOLLECT, 0);
@@ -367,9 +367,9 @@ int do_run_callback(int special, const char *values, va_list vl)
                 bufloc = va_arg(vl, int *);
                 if (len != 0) {
                     ret = *bufloc;
-                    check_buffer_overflow(ret + len);
+                    check_buffer_overflow(ret + (int) len);
                     strncpy((char *) (buffer + ret), s, len);
-                    *bufloc += len;
+                    *bufloc += (int) len;
                     /* while (len--) {  buffer[(*bufloc)++] = *s++; } */
                     while ((*bufloc) - 1 > ret && buffer[(*bufloc) - 1] == ' ')
                         (*bufloc)--;
@@ -430,7 +430,7 @@ void destroy_saved_callback(int i)
 static int callback_register(lua_State * L)
 {
     int cb;
-    char *s;
+    const char *s;
     if (!lua_isstring(L, 1) ||
         ((!lua_isfunction(L, 2)) &&
          (!lua_isnil(L, 2)) &&
@@ -439,7 +439,7 @@ static int callback_register(lua_State * L)
         lua_pushstring(L, "Invalid arguments to callback.register.");
         return 2;
     }
-    s = (char *) lua_tostring(L, 1);
+    s = lua_tostring(L, 1);
     for (cb = 0; cb < total_callbacks; cb++) {
         if (strcmp(callbacknames[cb], s) == 0)
             break;
@@ -468,13 +468,13 @@ static int callback_register(lua_State * L)
 static int callback_find(lua_State * L)
 {
     int cb;
-    char *s;
+    const char *s;
     if (!lua_isstring(L, 1)) {
         lua_pushnil(L);
         lua_pushstring(L, "Invalid arguments to callback.find.");
         return 2;
     }
-    s = (char *) lua_tostring(L, 1);
+    s = lua_tostring(L, 1);
     for (cb = 0; cb < total_callbacks; cb++) {
         if (strcmp(callbacknames[cb], s) == 0)
             break;

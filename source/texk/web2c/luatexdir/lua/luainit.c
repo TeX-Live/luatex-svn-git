@@ -381,7 +381,7 @@ static void parse_options(int argc, char **argv)
 #define is_readable(a) (stat(a,&finfo)==0) && S_ISREG(finfo.st_mode) &&  \
   (f=fopen(a,"r")) != NULL && !fclose(f)
 
-char *find_filename(char *name, char *envkey)
+static char *find_filename(char *name, const char *envkey)
 {
     struct stat finfo;
     char *dirname = NULL;
@@ -455,7 +455,7 @@ void fix_dumpname(void)
     int dist;
     if (dump_name) {
         /* adjust array for Pascal and provide extension, if needed */
-        dist = strlen(dump_name) - strlen(DUMP_EXT);
+        dist = (int) (strlen(dump_name) - strlen(DUMP_EXT));
         if (strstr(dump_name, DUMP_EXT) == dump_name + dist)
             TEX_format_default = dump_name;
         else
@@ -671,12 +671,12 @@ void lua_initialize(int ac, char **av)
         shellenabledp = true;
 
     /* make sure that the locale is 'sane' (for lua) */
-    putenv("LC_CTYPE=C");
-    putenv("LC_COLLATE=C");
-    putenv("LC_NUMERIC=C");
+    putenv(xstrdup("LC_CTYPE=C"));
+    putenv(xstrdup("LC_COLLATE=C"));
+    putenv(xstrdup("LC_NUMERIC=C"));
 
     /* this is sometimes needed */
-    putenv("engine=luatex");
+    putenv(xstrdup("engine=luatex"));
 
     luainterpreter();
 

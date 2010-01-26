@@ -21,7 +21,7 @@ int luatex_version = 50;        /* \.{\\luatexversion}  */
 int luatex_revision = '0';      /* \.{\\luatexrevision}  */
 int luatex_date_info = -extra_version_info;     /* the compile date is negated */
 const char *luatex_version_string = "beta-0.50.0";
-const char *engine_name = "luatex";   /* the name of this engine */
+const char *engine_name = "luatex";     /* the name of this engine */
 
 
 
@@ -120,12 +120,12 @@ void mk_shellcmdlist(char *v)
     }
     if (*q)
         n++;
-    cmdlist = (char **) xmalloc((unsigned)((n + 1) * sizeof(char *)));
+    cmdlist = (char **) xmalloc((unsigned) ((n + 1) * sizeof(char *)));
     p = cmdlist;
     q = v;
     while ((r = strchr(q, ',')) != 0) {
         *r = '\0';
-        *p = (char *) xmalloc((unsigned)strlen(q) + 1);
+        *p = (char *) xmalloc((unsigned) strlen(q) + 1);
         strcpy(*p, q);
         *r = ',';
         r++;
@@ -133,7 +133,7 @@ void mk_shellcmdlist(char *v)
         p++;
     }
     if (*q) {
-        *p = (char *) xmalloc((unsigned)strlen(q) + 1);
+        *p = (char *) xmalloc((unsigned) strlen(q) + 1);
         strcpy(*p, q);
         p++;
         *p = NULL;
@@ -204,18 +204,19 @@ static int Isspace(char c)
    should get executed.  And we set CMDNAME to its first word; this is
    what is checked against the shell_escape_commands list.  */
 
-int shell_cmd_is_allowed(char **cmd, char **safecmd, char **cmdname)
+int shell_cmd_is_allowed(const char **cmd, char **safecmd, char **cmdname)
 {
     char **p;
     char *buf;
     char *s, *d;
+    const char *ss;
     int pre;
     unsigned spaces;
     int allow = 0;
 
     /* pre == 1 means that the previous character is a white space
        pre == 0 means that the previous character is not a white space */
-    buf = (char *) xmalloc((unsigned)strlen(*cmd) + 1);
+    buf = (char *) xmalloc((unsigned) strlen(*cmd) + 1);
     strcpy(buf, *cmd);
     s = buf;
     while (Isspace(*s))
@@ -248,36 +249,37 @@ int shell_cmd_is_allowed(char **cmd, char **safecmd, char **cmdname)
     }
     if (allow == 2) {
         spaces = 0;
-        for (s = *cmd; *s; s++) {
-            if (Isspace(*s))
+        for (ss = *cmd; *ss; ss++) {
+            if (Isspace(*ss))
                 spaces++;
         }
 
         /* allocate enough memory (too much?) */
 #  ifdef WIN32
-        *safecmd = (char *) xmalloc(2 * (unsigned)strlen(*cmd) + 3 + 2 * spaces);
+        *safecmd =
+            (char *) xmalloc(2 * (unsigned) strlen(*cmd) + 3 + 2 * spaces);
 #  else
-        *safecmd = (char *) xmalloc((unsigned)strlen(*cmd) + 3 + 2 * spaces);
+        *safecmd = (char *) xmalloc((unsigned) strlen(*cmd) + 3 + 2 * spaces);
 #  endif
 
         /* make a safe command line *safecmd */
-        s = *cmd;
-        while (Isspace(*s))
-            s++;
+        ss = *cmd;
+        while (Isspace(*ss))
+            ss++;
         d = *safecmd;
-        while (!Isspace(*s) && *s)
-            *d++ = *s++;
+        while (!Isspace(*ss) && *ss)
+            *d++ = *ss++;
 
         pre = 1;
-        while (*s) {
+        while (*ss) {
             /* Quotation given by a user.  " should always be used; we
                transform it below.  On Unix, if ' is used, simply immediately
                return a quotation error.  */
-            if (*s == '\'') {
+            if (*ss == '\'') {
                 return -1;
             }
 
-            if (*s == '"') {
+            if (*ss == '"') {
                 /* All arguments are quoted as 'foo' (Unix) or "foo" (Windows)
                    before calling system(). Therefore closing QUOTE is necessary
                    if the previous character is not a white space.
@@ -292,51 +294,51 @@ int shell_cmd_is_allowed(char **cmd, char **safecmd, char **cmdname)
                 pre = 0;
                 /* output the quotation mark for the quoted argument */
                 *d++ = QUOTE;
-                s++;
+                ss++;
 
-                while (*s != '"') {
+                while (*ss != '"') {
                     /* Illegal use of ', or closing quotation mark is missing */
-                    if (*s == '\'' || *s == '\0')
+                    if (*ss == '\'' || *ss == '\0')
                         return -1;
 #  ifdef WIN32
-                    if (char_needs_quote(*s))
+                    if (char_needs_quote(*ss))
                         *d++ = '^';
 #  endif
-                    *d++ = *s++;
+                    *d++ = *ss++;
                 }
 
                 /* Closing quotation mark will be output afterwards, so
                    we do nothing here */
-                s++;
+                ss++;
 
                 /* The character after the closing quotation mark
                    should be a white space or NULL */
-                if (!Isspace(*s) && *s)
+                if (!Isspace(*ss) && *ss)
                     return -1;
 
                 /* Beginning of a usual argument */
-            } else if (pre == 1 && !Isspace(*s)) {
+            } else if (pre == 1 && !Isspace(*ss)) {
                 pre = 0;
                 *d++ = QUOTE;
 #  ifdef WIN32
-                if (char_needs_quote(*s))
+                if (char_needs_quote(*ss))
                     *d++ = '^';
 #  endif
-                *d++ = *s++;
+                *d++ = *ss++;
                 /* Ending of a usual argument */
 
-            } else if (pre == 0 && Isspace(*s)) {
+            } else if (pre == 0 && Isspace(*ss)) {
                 pre = 1;
                 /* Closing quotation mark */
                 *d++ = QUOTE;
-                *d++ = *s++;
+                *d++ = *ss++;
             } else {
                 /* Copy a character from *cmd to *safecmd. */
 #  ifdef WIN32
-                if (char_needs_quote(*s))
+                if (char_needs_quote(*ss))
                     *d++ = '^';
 #  endif
-                *d++ = *s++;
+                *d++ = *ss++;
             }
         }
         /* End of the command line */
@@ -368,10 +370,12 @@ int runsystem(char *cmd)
     }
 
     /* If restrictedshell == 0, any command is allowed. */
-    if (restrictedshell == 0)
+    if (restrictedshell == 0) {
         allow = 1;
-    else
-        allow = shell_cmd_is_allowed(&cmd, &safecmd, &cmdname);
+    } else {
+        const char *thecmd = cmd;
+        allow = shell_cmd_is_allowed(&thecmd, &safecmd, &cmdname);
+    }
 
     if (allow == 1)
         (void) system(cmd);
@@ -455,7 +459,7 @@ void topenin(void)
             /* Don't use strcat, since in Aleph the buffer elements aren't
                single bytes.  */
             while (*ptr) {
-                buffer[k++] = (packed_ASCII_code)*(ptr++);
+                buffer[k++] = (packed_ASCII_code) * (ptr++);
             }
             buffer[k++] = ' ';
         }
@@ -667,7 +671,7 @@ string normalize_quotes(const_string name, const_string mesg)
     boolean quoted = false;
     boolean must_quote = (strchr(name, ' ') != NULL);
     /* Leave room for quotes and NUL. */
-    string ret = (string) xmalloc((unsigned)strlen(name) + 3);
+    string ret = (string) xmalloc((unsigned) strlen(name) + 3);
     string p;
     const_string q;
     p = ret;
@@ -783,7 +787,7 @@ void get_seconds_and_micros(int *seconds, int *micros)
     *micros = tb.millitm * 1000;
 #else
     time_t myclock = time((time_t *) NULL);
-    *seconds = (int)myclock;
+    *seconds = (int) myclock;
     *micros = 0;
 #endif
 }
@@ -820,7 +824,7 @@ boolean input_line(FILE * f)
     /* Recognize either LF or CR as a line terminator.  */
     last = first;
     while (last < buf_size && (i = getc(f)) != EOF && i != '\n' && i != '\r')
-        buffer[last++] = (packed_ASCII_code)i;
+        buffer[last++] = (packed_ASCII_code) i;
 
     if (i == EOF && errno != EINTR && last == first)
         return false;
@@ -886,7 +890,9 @@ calledit(packedASCIIcode * filename,
 
     /* Construct the command string.  The `11' is the maximum length an
        integer might be.  */
-    command = (string) xmalloc((unsigned)strlen(edit_value) + (unsigned)fnlength + 11);
+    command =
+        (string) xmalloc((unsigned) strlen(edit_value) + (unsigned) fnlength +
+                         11);
 
     /* So we can construct it as we go.  */
     temp = command;
@@ -907,7 +913,7 @@ calledit(packedASCIIcode * filename,
                 if (sdone)
                     FATAL("call_edit: `%%s' appears twice in editor command");
                 for (i = 0; i < fnlength; i++)
-                    *temp++ = (char)Xchr(filename[i]);
+                    *temp++ = (char) Xchr(filename[i]);
                 sdone = 1;
                 break;
 
@@ -1030,9 +1036,10 @@ void do_dump(char *p, int item_size, int nitems, FILE * out_file)
     swap_items(p, nitems, item_size);
 #endif
 
-    if (fwrite(p, (size_t)item_size, (size_t)nitems, out_file) != (unsigned) nitems) {
-        fprintf(stderr, "! Could not write %d %d-byte item(s).\n",
-                nitems, item_size);
+    if (fwrite(p, (size_t) item_size, (size_t) nitems, out_file) !=
+        (unsigned) nitems) {
+        fprintf(stderr, "! Could not write %d %d-byte item(s).\n", nitems,
+                item_size);
         uexit(1);
     }
 
@@ -1048,7 +1055,8 @@ void do_dump(char *p, int item_size, int nitems, FILE * out_file)
 
 void do_undump(char *p, int item_size, int nitems, FILE * in_file)
 {
-    if (fread(p, (size_t)item_size, (size_t)nitems, in_file) != (size_t) nitems)
+    if (fread(p, (size_t) item_size, (size_t) nitems, in_file) !=
+        (size_t) nitems)
         FATAL2("Could not undump %d %d-byte item(s)", nitems, item_size);
 
 #if !defined (WORDS_BIGENDIAN) && !defined (NO_DUMP_SHARE)

@@ -107,7 +107,7 @@ typedef struct fd_entry_ {
 
 typedef struct fo_entry_ {
     int fo_objnum;              /* object number of the font dictionary */
-    internal_font_number tex_font; /* needed only for \pdffontattr{} */
+    internal_font_number tex_font;      /* needed only for \pdffontattr{} */
     fm_entry *fm;               /* pointer to font map structure for this font dictionary */
     fd_entry *fd;               /* pointer to /FontDescriptor object structure */
     fe_entry *fe;               /* pointer to encoding structure */

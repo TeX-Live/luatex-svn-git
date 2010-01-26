@@ -176,7 +176,7 @@ command_item command_names[] = {
 };
 
 
-int get_command_id(char *s)
+int get_command_id(const char *s)
 {
     int i;
     int cmd = -1;
@@ -193,7 +193,7 @@ int get_command_id(char *s)
 static int get_cur_cmd(lua_State * L)
 {
     int r = 0;
-    int len = lua_objlen(L, -1);
+    size_t len = lua_objlen(L, -1);
     cur_cs = 0;
     if (len == 3 || len == 2) {
         r = 1;
@@ -205,7 +205,7 @@ static int get_cur_cmd(lua_State * L)
             lua_rawgeti(L, -3, 3);
             cur_cs = lua_tointeger(L, -1);
         }
-        lua_pop(L, len);
+        lua_pop(L, (int) len);
         if (cur_cs == 0)
             cur_tok = token_val(cur_cmd, cur_chr);
         else
@@ -219,7 +219,7 @@ static int token_from_lua(lua_State * L)
 {
     int cmd, chr;
     int cs = 0;
-    int len = lua_objlen(L, -1);
+    size_t len = lua_objlen(L, -1);
     if (len == 3 || len == 2) {
         lua_rawgeti(L, -1, 1);
         cmd = lua_tointeger(L, -1);
@@ -229,7 +229,7 @@ static int token_from_lua(lua_State * L)
             lua_rawgeti(L, -3, 3);
             cs = lua_tointeger(L, -1);
         }
-        lua_pop(L, len);
+        lua_pop(L, (int) len);
         if (cs == 0) {
             return token_val(cmd, chr);
         } else {
@@ -241,7 +241,7 @@ static int token_from_lua(lua_State * L)
 
 static int get_cur_cs(lua_State * L)
 {
-    char *s;
+    const char *s;
     unsigned j;
     size_t l;
     int cs;
@@ -251,16 +251,16 @@ static int get_cur_cs(lua_State * L)
     cur_cs = 0;
     lua_getfield(L, -1, "name");
     if (lua_isstring(L, -1)) {
-        s = (char *) lua_tolstring(L, -1, &l);
+        s = lua_tolstring(L, -1, &l);
         if (l > 0) {
-            if ((int) (last + l) > buf_size)
-                check_buffer_overflow(last + l);
+            if ((last + (int) l) > buf_size)
+                check_buffer_overflow((last + (int) l));
             for (j = 0; j < l; j++) {
-                buffer[last + 1 + j] = *s++;
+                buffer[(unsigned) last + 1 + j] = (packed_ASCII_code) * s++;
             }
             save_nncs = no_new_control_sequence;
             no_new_control_sequence = false;
-            cs = id_lookup((last + 1), l);
+            cs = id_lookup((last + 1), (int) l);
             cur_tok = cs_token_flag + cs;
             cur_cmd = eq_type(cs);
             cur_chr = equiv(cs);
@@ -306,13 +306,13 @@ void tokenlist_to_luastring(lua_State * L, int p)
     int l;
     char *s;
     s = tokenlist_to_cstring(p, 1, &l);
-    lua_pushlstring(L, s, l);
+    lua_pushlstring(L, s, (size_t) l);
 }
 
 
 int tokenlist_from_lua(lua_State * L)
 {
-    char *s;
+    const char *s;
     int tok;
     size_t i, j;
     halfword p, q, r;
@@ -324,7 +324,7 @@ int tokenlist_from_lua(lua_State * L)
         j = lua_objlen(L, -1);
         if (j > 0) {
             for (i = 1; i <= j; i++) {
-                lua_rawgeti(L, -1, i);
+                lua_rawgeti(L, -1, (int) i);
                 tok = token_from_lua(L);
                 if (tok >= 0) {
                     store_new_token(tok);
@@ -334,13 +334,13 @@ int tokenlist_from_lua(lua_State * L)
         }
         return r;
     } else if (lua_isstring(L, -1)) {
-        s = (char *) lua_tolstring(L, -1, &j);
+        s = lua_tolstring(L, -1, &j);
         for (i = 0; i < j; i++) {
             if (s[i] == 32) {
                 tok = token_val(10, s[i]);
             } else {
-                int j = str2uni((unsigned char *) s + i);
-                i = i + utf8_size(j) - 1;
+                int j = (int) str2uni((const unsigned char *) (s + i));
+                i = i + (size_t) (utf8_size(j) - 1);
                 tok = token_val(12, j);
             }
             store_new_token(tok);
@@ -362,7 +362,7 @@ void do_get_token_lua(int callback_id)
             break;
         }
         if (lua_pcall(L, 0, 1, 0) != 0) {       /* no arg, 1 result */
-            tex_error((char *) lua_tostring(L, -1), NULL);
+            tex_error(lua_tostring(L, -1), NULL);
             lua_pop(L, 2);      /* container and result */
             break;
         }
@@ -370,7 +370,7 @@ void do_get_token_lua(int callback_id)
             lua_rawgeti(L, -1, 1);
             if (lua_istable(L, -1)) {   /* container, result, result[1] */
                 int p, q, r;
-                int i, j;
+                size_t i, j;
                 lua_pop(L, 1);  /* container, result */
                 /* build a token list */
                 r = get_avail();
@@ -378,7 +378,7 @@ void do_get_token_lua(int callback_id)
                 j = lua_objlen(L, -1);
                 if (j > 0) {
                     for (i = 1; i <= j; i++) {
-                        lua_rawgeti(L, -1, i);
+                        lua_rawgeti(L, -1, (int) i);
                         if (get_cur_cmd(L) || get_cur_cs(L)) {
                             store_new_token(cur_tok);
                         }

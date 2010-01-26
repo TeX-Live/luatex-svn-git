@@ -108,11 +108,11 @@ static void utf_error(void)
     deletions_allowed = true;
 }
 
-unsigned str2uni(unsigned char *k)
+unsigned str2uni(const unsigned char *k)
 {
     register int ch;
     unsigned val = 0xFFFD;
-    unsigned char *text = k;
+    const unsigned char *text = k;
     if ((ch = *text++) < 0x80) {
         val = (unsigned) ch;
     } else if (ch <= 0xbf) {    /* error */

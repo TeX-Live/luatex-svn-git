@@ -45,14 +45,15 @@ struct tex_language {
 
 extern struct tex_language *new_language(int n);
 extern struct tex_language *get_language(int n);
-extern void load_patterns(struct tex_language *lang, unsigned char *buf);
-extern void load_hyphenation(struct tex_language *lang, unsigned char *buf);
+extern void load_patterns(struct tex_language *lang, const unsigned char *buf);
+extern void load_hyphenation(struct tex_language *lang,
+                             const unsigned char *buf);
 extern int hyphenate_string(struct tex_language *lang, char *w, char **ret);
 
 extern void new_hyphenation(halfword h, halfword t);
 extern void clear_patterns(struct tex_language *lang);
 extern void clear_hyphenation(struct tex_language *lang);
-extern char *clean_hyphenation(char *buffer, char **cleaned);
+extern char *clean_hyphenation(const char *buffer, char **cleaned);
 extern void hnj_hyphenation(halfword head, halfword tail);
 
 extern void set_pre_hyphen_char(int lan, int val);

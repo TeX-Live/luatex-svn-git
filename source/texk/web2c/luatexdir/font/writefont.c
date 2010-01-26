@@ -355,7 +355,8 @@ static int font_has_subset(internal_font_number f)
         return 1;
 }
 
-static void write_charwidth_array(PDF pdf, fo_entry * fo, internal_font_number f)
+static void write_charwidth_array(PDF pdf, fo_entry * fo,
+                                  internal_font_number f)
 {
     int i, j, *ip, *fip;
     struct avl_traverser t;

@@ -23,8 +23,6 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-extern int get_command_id(char *);
-
 #define  is_valid_token(L,i)  (lua_istable(L,i) && lua_objlen(L,i)==3)
 #define  get_token_cmd(L,i)  lua_rawgeti(L,i,1)
 #define  get_token_chr(L,i)  lua_rawgeti(L,i,2)
@@ -51,7 +49,7 @@ static int test_expandable(lua_State * L)
         if (lua_isnumber(L, -1)) {
             cmd = lua_tointeger(L, -1);
         } else if (lua_isstring(L, -1)) {
-            cmd = get_command_id((char *) lua_tostring(L, -1));
+            cmd = get_command_id(lua_tostring(L, -1));
         }
         if (cmd > max_command_cmd) {
             lua_pushboolean(L, 1);
@@ -73,7 +71,7 @@ static int test_protected(lua_State * L)
         if (lua_isnumber(L, -1)) {
             chr = lua_tointeger(L, -1);
         } else if (lua_isstring(L, -1)) {
-            chr = get_command_id((char *) lua_tostring(L, -1));
+            chr = get_command_id(lua_tostring(L, -1));
         }
         if (token_info(token_link(chr)) == protected_token) {
             lua_pushboolean(L, 1);
@@ -163,7 +161,7 @@ static int run_get_command_id(lua_State * L)
 {
     int cs = -1;
     if (lua_isstring(L, -1)) {
-        cs = get_command_id((char *) lua_tostring(L, -1));
+        cs = get_command_id(lua_tostring(L, -1));
     }
     lua_pushnumber(L, cs);
     return 1;
@@ -172,11 +170,11 @@ static int run_get_command_id(lua_State * L)
 
 static int run_get_csname_id(lua_State * L)
 {
-    char *s;
+    const char *s;
     size_t k, cs = 0;
     if (lua_isstring(L, -1)) {
-        s = (char *) lua_tolstring(L, -1, &k);
-        cs = string_lookup(s, k);
+        s = lua_tolstring(L, -1, &k);
+        cs = (size_t) string_lookup(s, k);
     }
     lua_pushnumber(L, cs);
     return 1;
@@ -215,16 +213,16 @@ static int run_expand(lua_State * L)
 
 static int run_lookup(lua_State * L)
 {
-    char *s;
+    const char *s;
     size_t l;
     int cs, cmd, chr;
     int save_nncs;
     if (lua_isstring(L, -1)) {
-        s = (char *) lua_tolstring(L, -1, &l);
+        s = lua_tolstring(L, -1, &l);
         if (l > 0) {
             save_nncs = no_new_control_sequence;
             no_new_control_sequence = true;
-            cs = id_lookup((last + 1), l);      /* cleans up the lookup buffer */
+            cs = id_lookup((last + 1), (int) l);        /* cleans up the lookup buffer */
             cs = string_lookup(s, l);
             cmd = eq_type(cs);
             chr = equiv(cs);

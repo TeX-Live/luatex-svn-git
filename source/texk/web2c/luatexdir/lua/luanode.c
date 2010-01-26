@@ -24,7 +24,7 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-static char *group_code_names[] = {
+static const char *group_code_names[] = {
     "",
     "simple",
     "hbox",
@@ -50,7 +50,7 @@ static char *group_code_names[] = {
     "fin_row"
 };
 
-char *pack_type_name[] = { "exactly", "additional" };
+const char *pack_type_name[] = { "exactly", "additional" };
 
 
 void lua_node_filter_s(int filterid, const char *extrainfo)
@@ -82,7 +82,7 @@ lua_node_filter(int filterid, int xextrainfo, halfword head_node,
     halfword ret;
     int a;
     lua_State *L = Luas;
-    char *extrainfo = group_code_names[xextrainfo];
+    const char *extrainfo = group_code_names[xextrainfo];
     int callback_id = callback_defined(filterid);
     if (head_node == null || vlink(head_node) == null || callback_id <= 0)
         return;
@@ -280,10 +280,10 @@ int visible_last_node_type(int n)
 
 void lua_pdf_literal(PDF pdf, int i)
 {
-    char *s = NULL;
+    const char *s = NULL;
     size_t l = 0;
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, i);
-    s = (char *) lua_tolstring(Luas, -1, &l);
+    s = lua_tolstring(Luas, -1, &l);
     if (l < max_single_pdf_print) {
         pdf_out_block(pdf, s, l);
     } else {
@@ -338,7 +338,7 @@ void show_pdf_literal(pointer p)
         print_mark(pdf_literal_data(p));
     } else {
         lua_rawgeti(Luas, LUA_REGISTRYINDEX, pdf_literal_data(p));
-        tprint((char *) lua_tostring(Luas, -1));
+        tprint(lua_tostring(Luas, -1));
         lua_pop(Luas, 1);
     }
 }

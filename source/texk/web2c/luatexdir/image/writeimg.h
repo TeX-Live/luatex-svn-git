@@ -23,7 +23,7 @@
 #ifndef WRITEIMG_H
 #  define WRITEIMG_H
 
-#  include "dvi/dvigen.h"    /* for scaled_whd only */
+#  include "dvi/dvigen.h"       /* for scaled_whd only */
 #  include "image.h"
 #  include "pdf/pdfpage.h"
 

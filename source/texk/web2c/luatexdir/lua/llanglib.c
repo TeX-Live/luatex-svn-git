@@ -43,8 +43,10 @@ static int lang_new(lua_State * L)
             return lua_error(L);
         }
     } else {
+        int lualang;
         lang = lua_newuserdata(L, sizeof(struct tex_language *));
-        *lang = get_language(lua_tonumber(L, 1));
+        lua_number2int(lualang, lua_tonumber(L, 1));
+        *lang = get_language(lualang);
         if (!*lang) {
             lua_pushfstring(L, "lang.new(%d): undefined language",
                             lua_tonumber(L, 1));
@@ -73,7 +75,7 @@ static int lang_patterns(lua_State * L)
             lua_pushstring(L, "lang.patterns(): argument should be a string");
             return lua_error(L);
         }
-        load_patterns(*lang_ptr, (unsigned char *) lua_tostring(L, 2));
+        load_patterns(*lang_ptr, (const unsigned char *) lua_tostring(L, 2));
         return 0;
     } else {
         if ((*lang_ptr)->patterns != NULL) {
@@ -104,7 +106,7 @@ static int lang_hyphenation(lua_State * L)
                            "lang.hyphenation(): argument should be a string");
             return lua_error(L);
         }
-        load_hyphenation(*lang_ptr, (unsigned char *) lua_tostring(L, 2));
+        load_hyphenation(*lang_ptr, (const unsigned char *) lua_tostring(L, 2));
         return 0;
     } else {
         if ((*lang_ptr)->exceptions != 0) {
@@ -206,7 +208,7 @@ static int do_lang_clean(lua_State * L)
         lua_pushstring(L, "lang.clean(): argument should be a string");
         return lua_error(L);
     }
-    (void) clean_hyphenation((char *) lua_tostring(L, 1), &cleaned);
+    (void) clean_hyphenation(lua_tostring(L, 1), &cleaned);
     lua_pushstring(L, cleaned);
     return 1;
 }

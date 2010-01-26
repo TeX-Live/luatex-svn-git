@@ -221,9 +221,9 @@ int get_post_exhyphen_char(int n)
     return (int) l->post_exhyphen_char;
 }
 
-void load_patterns(struct tex_language *lang, unsigned char *buffer)
+void load_patterns(struct tex_language *lang, const unsigned char *buffer)
 {
-    if (lang == NULL || buffer == NULL || strlen((char *) buffer) == 0)
+    if (lang == NULL || buffer == NULL || strlen(buffer) == 0)
         return;
     if (lang->patterns == NULL) {
         lang->patterns = hnj_hyphen_new();
@@ -254,12 +254,12 @@ void load_tex_patterns(int curlang, halfword head)
 
 /* todo change this! */
 
-char *clean_hyphenation(char *buffer, char **cleaned)
+char *clean_hyphenation(const char *buffer, char **cleaned)
 {
     int items;
     unsigned char word[MAX_WORD_LEN + 1];
     int w = 0;
-    char *s = buffer;
+    const char *s = buffer;
     while (*s && !isspace(*s)) {
         if (*s == '-') {        /* skip */
         } else if (*s == '=') {
@@ -310,9 +310,10 @@ char *clean_hyphenation(char *buffer, char **cleaned)
     return s;
 }
 
-void load_hyphenation(struct tex_language *lang, unsigned char *buffer)
+void load_hyphenation(struct tex_language *lang, const unsigned char *buffer)
 {
-    char *s, *value, *cleaned;
+    const char *s;
+    char *value, *cleaned;
     lua_State *L = Luas;
     if (lang == NULL)
         return;
@@ -321,7 +322,7 @@ void load_hyphenation(struct tex_language *lang, unsigned char *buffer)
         lang->exceptions = luaL_ref(L, LUA_REGISTRYINDEX);
     }
     lua_rawgeti(L, LUA_REGISTRYINDEX, lang->exceptions);
-    s = (char *) buffer;
+    s = (const char *) buffer;
     while (*s) {
         while (isspace(*s))
             s++;

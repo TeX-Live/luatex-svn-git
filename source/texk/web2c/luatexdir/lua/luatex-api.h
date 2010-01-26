@@ -36,7 +36,8 @@ typedef struct LoadS {
 
 extern lua_State *Luas;
 
-extern void make_table(lua_State * L, char *tab, char *getfunc, char *setfunc);
+extern void make_table(lua_State * L, const char *tab, const char *getfunc,
+                       const char *setfunc);
 
 extern int luac_main(int argc, char *argv[]);
 
@@ -105,23 +106,26 @@ extern int luaopen_node(lua_State * L);
 extern void nodelist_to_lua(lua_State * L, int n);
 extern int nodelist_from_lua(lua_State * L);
 
-extern int dimen_to_number(lua_State * L, char *s);
+extern int dimen_to_number(lua_State * L, const char *s);
+
+extern int get_command_id(const char *s);
 
 extern void dump_luac_registers(void);
 
 extern void undump_luac_registers(void);
 
 
-extern void unhide_lua_table(lua_State * lua, char *name, int r);
-extern int hide_lua_table(lua_State * lua, char *name);
+extern void unhide_lua_table(lua_State * lua, const char *name, int r);
+extern int hide_lua_table(lua_State * lua, const char *name);
 
-extern void unhide_lua_value(lua_State * lua, char *name, char *item, int r);
-extern int hide_lua_value(lua_State * lua, char *name, char *item);
+extern void unhide_lua_value(lua_State * lua, const char *name,
+                             const char *item, int r);
+extern int hide_lua_value(lua_State * lua, const char *name, const char *item);
 
 typedef struct command_item_ {
-    char *cmd_name;
+    const char *cmd_name;
     int command_offset;
-    char **commands;
+    const char **commands;
 } command_item;
 
 extern command_item command_names[];

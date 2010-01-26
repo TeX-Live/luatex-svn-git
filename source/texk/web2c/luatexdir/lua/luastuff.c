@@ -34,7 +34,8 @@ int luastate_bytes = 0;
 
 int lua_active = 0;
 
-void make_table(lua_State * L, char *tab, char *getfunc, char *setfunc)
+void make_table(lua_State * L, const char *tab, const char *getfunc,
+                const char *setfunc)
 {
     /* make the table *//* [{<tex>}] */
     lua_pushstring(L, tab);     /* [{<tex>},"dimen"] */
@@ -77,7 +78,7 @@ void *my_luaalloc(void *ud, void *ptr, size_t osize, size_t nsize)
         free(ptr);
     else
         ret = realloc(ptr, nsize);
-    luastate_bytes += (nsize - osize);
+    luastate_bytes += (int) (nsize - osize);
     return ret;
 }
 
@@ -221,7 +222,7 @@ void luainterpreter(void)
     Luas = L;
 }
 
-int hide_lua_table(lua_State * L, char *name)
+int hide_lua_table(lua_State * L, const char *name)
 {
     int r = 0;
     lua_getglobal(L, name);
@@ -233,14 +234,14 @@ int hide_lua_table(lua_State * L, char *name)
     return r;
 }
 
-void unhide_lua_table(lua_State * L, char *name, int r)
+void unhide_lua_table(lua_State * L, const char *name, int r)
 {
     lua_rawgeti(L, LUA_REGISTRYINDEX, r);
     lua_setglobal(L, name);
     luaL_unref(L, LUA_REGISTRYINDEX, r);
 }
 
-int hide_lua_value(lua_State * L, char *name, char *item)
+int hide_lua_value(lua_State * L, const char *name, const char *item)
 {
     int r = 0;
     lua_getglobal(L, name);
@@ -253,7 +254,7 @@ int hide_lua_value(lua_State * L, char *name, char *item)
     return r;
 }
 
-void unhide_lua_value(lua_State * L, char *name, char *item, int r)
+void unhide_lua_value(lua_State * L, const char *name, const char *item, int r)
 {
     lua_getglobal(L, name);
     if (lua_istable(L, -1)) {
@@ -298,7 +299,7 @@ static void luacall(int p, int nameptr)
     lua_active++;
     s = tokenlist_to_cstring(p, 1, &l);
     ls.s = s;
-    ls.size = l;
+    ls.size = (size_t) l;
 
     if (ls.size > 0) {
         if (nameptr > 0) {
@@ -355,7 +356,7 @@ void luatokencall(int p, int nameptr)
     lua_active++;
     s = tokenlist_to_cstring(p, 1, &l);
     ls.s = s;
-    ls.size = l;
+    ls.size = (size_t) l;
     if (ls.size > 0) {
         if (nameptr > 0) {
             lua_id = tokenlist_to_cstring(nameptr, 1, &l);
@@ -398,7 +399,7 @@ lua_State *luatex_error(lua_State * L, int is_fatal)
     if (lua_isstring(L, -1)) {
         luaerr = lua_tolstring(L, -1, &len);
         err = (char *) xmalloc(len + 1);
-        len = snprintf(err, (len + 1), "%s", luaerr);
+        len = (size_t) snprintf(err, (len + 1), "%s", luaerr);
     }
     if (is_fatal > 0) {
         /* Normally a memory error from lua.

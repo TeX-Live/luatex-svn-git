@@ -195,8 +195,8 @@ char *luatex_find_file(char *s, int callback_index)
  */
 
 boolean
-luatex_open_input(FILE ** f_ptr, char *fn, int filefmt, const_string fopen_mode,
-                  boolean must_exist)
+luatex_open_input(FILE ** f_ptr, const char *fn, int filefmt,
+                  const_string fopen_mode, boolean must_exist)
 {
     string fname = NULL;
     /* We havent found anything yet. */
@@ -231,16 +231,17 @@ luatex_open_input(FILE ** f_ptr, char *fn, int filefmt, const_string fopen_mode,
     return *f_ptr != NULL;
 }
 
-boolean luatex_open_output(FILE ** f_ptr, char *fn, const_string fopen_mode)
+boolean luatex_open_output(FILE ** f_ptr, const char *fn,
+                           const_string fopen_mode)
 {
-    string fname;
+    char *fname;
     boolean absolute = kpse_absolute_p(fn, false);
 
     /* If we have an explicit output directory, use it. */
     if (output_directory && !absolute) {
         fname = concat3(output_directory, DIR_SEP_STRING, fn);
     } else {
-        fname = fn;
+        fname = xstrdup(fn);
     }
 
     /* Is the filename openable as given?  */
@@ -251,15 +252,14 @@ boolean luatex_open_output(FILE ** f_ptr, char *fn, const_string fopen_mode)
         string texmfoutput = kpse_var_value("TEXMFOUTPUT");
 
         if (texmfoutput && *texmfoutput && !absolute) {
-            string fname = concat3(texmfoutput, DIR_SEP_STRING, fn);
+            fname = concat3(texmfoutput, DIR_SEP_STRING, fn);
             *f_ptr = fopen(fname, fopen_mode);
         }
     }
     if (*f_ptr) {
         recorder_record_output(fname);
     }
-    if (fname != fn)
-        free(fname);
+    free(fname);
     return *f_ptr != NULL;
 }
 
@@ -961,7 +961,7 @@ void do_zundump(char *p, int item_size, int nitems, FILE * in_file)
 
 #define COMPRESSION "R3"
 
-boolean zopen_w_input(FILE ** f, char *fname, int format,
+boolean zopen_w_input(FILE ** f, const char *fname, int format,
                       const_string fopen_mode)
 {
     int callbackid;
@@ -987,7 +987,7 @@ boolean zopen_w_input(FILE ** f, char *fname, int format,
     return res;
 }
 
-boolean zopen_w_output(FILE ** f, char *s, const_string fopen_mode)
+boolean zopen_w_output(FILE ** f, const char *s, const_string fopen_mode)
 {
     int res = 1;
     if (luainit) {
@@ -1060,11 +1060,12 @@ static FILE *runpopen(char *cmd, const char *mode)
     int allow;
 
     /* If restrictedshell == 0, any command is allowed. */
-    if (restrictedshell == 0)
+    if (restrictedshell == 0) {
         allow = 1;
-    else
-        allow = shell_cmd_is_allowed(&cmd, &safecmd, &cmdname);
-
+    } else {
+        const char *thecmd = cmd;
+        allow = shell_cmd_is_allowed(&thecmd, &safecmd, &cmdname);
+    }
     if (allow == 1)
         f = popen(cmd, mode);
     else if (allow == 2)

@@ -123,7 +123,7 @@ extern str_number search_string(str_number search);
 extern int pool_to_unichar(unsigned char *t);
 
 extern unsigned char *uni2str(unsigned);
-extern unsigned str2uni(unsigned char *);
+extern unsigned str2uni(const unsigned char *);
 
 extern str_number maketexstring(const char *);
 extern str_number maketexlstring(const char *, size_t);

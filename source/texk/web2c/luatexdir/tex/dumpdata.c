@@ -351,7 +351,7 @@ read an integer value |x| that is supposed to be in the range |a<=x<=b|.
     } while (0)
 
 
-boolean load_fmt_file(char *fmtname)
+boolean load_fmt_file(const char *fmtname)
 {
     int j, k;                   /* all-purpose indices */
     halfword p;                 /* all-purpose pointer */

@@ -73,7 +73,8 @@
 /* Executing shell commands.  */
 extern void mk_shellcmdlist(char *);
 extern void init_shell_escape(void);
-extern int shell_cmd_is_allowed(char **cmd, char **safecmd, char **cmdname);
+extern int shell_cmd_is_allowed(const char **cmd, char **safecmd,
+                                char **cmdname);
 extern int runsystem(char *cmd);
 
 #  ifndef GLUERATIO_TYPE

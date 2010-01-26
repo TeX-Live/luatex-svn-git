@@ -574,7 +574,7 @@ typedef struct tfmcharacterinfo {
     unsigned char _tag;
 } tfmcharacterinfo;
 
-int read_tfm_info(internal_font_number f, char *cnom, scaled s)
+int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
 {
     int k;                      /* index into |font_info| */
     halfword lf, lh, bc, ec, nw, nh, nd, ni, nl, nk, ne, np, slh;       /* sizes of subfiles */

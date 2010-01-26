@@ -284,7 +284,7 @@ static void lua_to_image(lua_State * L, image * a)
         else if (lua_type(L, -1) == LUA_TNUMBER)
             img_width(a) = lua_tointeger(L, -1);
         else if (lua_type(L, -1) == LUA_TSTRING)
-            img_width(a) = dimen_to_number(L, (char *) lua_tostring(L, -1));
+            img_width(a) = dimen_to_number(L, lua_tostring(L, -1));
         else
             luaL_error(L,
                        "image.width needs integer or nil value or dimension string");
@@ -295,7 +295,7 @@ static void lua_to_image(lua_State * L, image * a)
         else if (lua_type(L, -1) == LUA_TNUMBER)
             img_height(a) = lua_tointeger(L, -1);
         else if (lua_type(L, -1) == LUA_TSTRING)
-            img_height(a) = dimen_to_number(L, (char *) lua_tostring(L, -1));
+            img_height(a) = dimen_to_number(L, lua_tostring(L, -1));
         else
             luaL_error(L,
                        "image.height needs integer or nil value or dimension string");
@@ -306,7 +306,7 @@ static void lua_to_image(lua_State * L, image * a)
         else if (lua_type(L, -1) == LUA_TNUMBER)
             img_depth(a) = lua_tointeger(L, -1);
         else if (lua_type(L, -1) == LUA_TSTRING)
-            img_depth(a) = dimen_to_number(L, (char *) lua_tostring(L, -1));
+            img_depth(a) = dimen_to_number(L, lua_tostring(L, -1));
         else
             luaL_error(L,
                        "image.depth needs integer or nil value or dimension string");
@@ -385,8 +385,7 @@ static void lua_to_image(lua_State * L, image * a)
             if (lua_type(L, -1) == LUA_TNUMBER)
                 img_bbox(d)[i - 1] = lua_tointeger(L, -1);
             else if (lua_type(L, -1) == LUA_TSTRING)
-                img_bbox(d)[i - 1] =
-                    dimen_to_number(L, (char *) lua_tostring(L, -1));
+                img_bbox(d)[i - 1] = dimen_to_number(L, lua_tostring(L, -1));
             else
                 luaL_error(L,
                            "image.bbox table needs integer value or dimension string elements");
@@ -556,7 +555,7 @@ static void setup_image(PDF pdf, image * a, wrtype_e writetype)
     image_dict *ad;
     assert(a != NULL);
     ad = img_dict(a);
-    check_o_mode(pdf, (char *) wrtype_s[writetype], 1 << OMODE_PDF, false);
+    check_o_mode(pdf, wrtype_s[writetype], 1 << OMODE_PDF, false);
     /* flush_str(last_tex_string); *//* ?? */
     read_scale_img(a);
     if (img_objnum(ad) == 0) {  /* latest needed just before out_img() */
@@ -639,11 +638,11 @@ static int l_image_keys(lua_State * L)
 static int l_image_types(lua_State * L)
 {
     int i;
-    char **p;
+    const char **p;
     if (lua_gettop(L) != 0)
         luaL_error(L, "img.types() goes without argument");
     lua_newtable(L);            /* t */
-    for (i = 1, p = (char **) (imgtype_s + 1); *p != NULL; p++, i++) {
+    for (i = 1, p = (const char **) (imgtype_s + 1); *p != NULL; p++, i++) {
         lua_pushinteger(L, (int) i);    /* k t */
         lua_pushstring(L, *p);  /* v k t */
         lua_settable(L, -3);    /* t */
@@ -654,11 +653,11 @@ static int l_image_types(lua_State * L)
 static int l_image_boxes(lua_State * L)
 {
     int i;
-    char **p;
+    const char **p;
     if (lua_gettop(L) != 0)
         luaL_error(L, "img.boxes() goes without argument");
     lua_newtable(L);            /* t */
-    for (i = 1, p = (char **) (pdfboxspec_s + 1); *p != NULL; p++, i++) {
+    for (i = 1, p = (const char **) (pdfboxspec_s + 1); *p != NULL; p++, i++) {
         lua_pushinteger(L, (int) i);    /* k t */
         lua_pushstring(L, *p);  /* v k t */
         lua_settable(L, -3);    /* t */
@@ -686,7 +685,7 @@ void vf_out_image(PDF pdf, unsigned i)
     image *a, **aa;
     image_dict *ad;
     lua_State *L = Luas;        /* ... */
-    lua_rawgeti(L, LUA_GLOBALSINDEX, i);        /* image ... */
+    lua_rawgeti(L, LUA_GLOBALSINDEX, (int) i);  /* image ... */
     aa = (image **) luaL_checkudata(L, -1, TYPE_IMG);
     a = *aa;
     ad = img_dict(a);

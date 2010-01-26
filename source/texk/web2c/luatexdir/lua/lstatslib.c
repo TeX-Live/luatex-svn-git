@@ -70,7 +70,7 @@ char *getfilename(void)
     return xstrdup("");
 }
 
-char *getlasterror(void)
+const char *getlasterror(void)
 {
     return last_error;
 }
@@ -236,7 +236,7 @@ static struct statistic stats[] = {
     {NULL, 0, 0}
 };
 
-static int stats_name_to_id(char *name)
+static int stats_name_to_id(const char *name)
 {
     int i;
     for (i = 0; stats[i].name != NULL; i++) {
@@ -303,10 +303,10 @@ static int do_getstat(lua_State * L, int i)
 
 static int getstats(lua_State * L)
 {
-    char *st;
+    const char *st;
     int i;
     if (lua_isstring(L, -1)) {
-        st = (char *) lua_tostring(L, -1);
+        st = lua_tostring(L, -1);
         i = stats_name_to_id(st);
         if (i > 0) {
             return do_getstat(L, i);
