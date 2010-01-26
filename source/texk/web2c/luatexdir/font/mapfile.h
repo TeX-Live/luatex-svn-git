@@ -119,7 +119,7 @@ void fm_free(void);
 ff_entry *check_ff_exist(char *, boolean);
 void pdfmapfile(int);
 void pdfmapline(int);
-void pdf_init_map_file(string map_name);
+void pdf_init_map_file(const char *map_name);
 fm_entry *new_fm_entry(void);
 void delete_fm_entry(fm_entry *);
 int avl_do_entry(fm_entry *, int);

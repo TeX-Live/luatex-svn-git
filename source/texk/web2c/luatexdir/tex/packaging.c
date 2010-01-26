@@ -700,7 +700,7 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
             font_expand_ratio = divide_scaled_n(x, font_stretch, 1000.0);
             goto EXIT;
         }
-        glue_order(r) = (quarterword)o;
+        glue_order(r) = (quarterword) o;
         glue_sign(r) = stretching;
         if (total_stretch[o] != 0) {
             glue_set(r) = unfloat((double) x / total_stretch[o]);
@@ -744,7 +744,7 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
             font_expand_ratio = divide_scaled_n(x, font_shrink, 1000.0);
             goto EXIT;
         }
-        glue_order(r) = (quarterword)o;
+        glue_order(r) = (quarterword) o;
         glue_sign(r) = shrinking;
         if (total_shrink[o] != 0) {
             glue_set(r) = unfloat((double) (-x) / (double) total_shrink[o]);
@@ -907,10 +907,13 @@ scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
                     if (g_sign == stretching) {
                         if (stretch_order(g) == g_order) {
                             siz.wd +=
-                                float_round(float_cast(g_mult) * stretch(g));
+                                float_round(float_cast(g_mult) *
+                                            float_cast(stretch(g)));
                         }
                     } else if (shrink_order(g) == g_order) {
-                        siz.wd -= float_round(float_cast(g_mult) * shrink(g));
+                        siz.wd -=
+                            float_round(float_cast(g_mult) *
+                                        float_cast(shrink(g)));
                     }
                 }
                 if (subtype(p) >= a_leaders) {
@@ -1100,7 +1103,7 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
         else
             o = normal;
 
-        glue_order(r) = (quarterword)o;
+        glue_order(r) = (quarterword) o;
         glue_sign(r) = stretching;
         if (total_stretch[o] != 0) {
             glue_set(r) = unfloat((double) x / total_stretch[o]);
@@ -1141,7 +1144,7 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
         else
             o = normal;
 
-        glue_order(r) = (quarterword)o;
+        glue_order(r) = (quarterword) o;
         glue_sign(r) = shrinking;
         if (total_shrink[o] != 0) {
             glue_set(r) = unfloat((double) (-x) / total_shrink[o]);

@@ -160,7 +160,7 @@ void set_math_code(int n,
             Mxrealloc_array(mathcode_heap, mathcodeval, mathcode_heapsize);
     }
     mathcode_heap[mathcode_heapptr] = d;
-    set_sa_item(mathcode_head, n, mathcode_heapptr, level);
+    set_sa_item(mathcode_head, n, (sa_tree_item) mathcode_heapptr, level);
     mathcode_heapptr++;
     if (int_par(tracing_assigns_code) > 0) {
         begin_diagnostic();
@@ -354,7 +354,7 @@ void set_del_code(int n,
             Mxrealloc_array(delcode_heap, delcodeval, delcode_heapsize);
     }
     delcode_heap[delcode_heapptr] = d;
-    set_sa_item(delcode_head, n, delcode_heapptr, gl);
+    set_sa_item(delcode_head, n, (sa_tree_item) delcode_heapptr, gl);
     if (int_par(tracing_assigns_code) > 0) {
         begin_diagnostic();
         print_char('{');

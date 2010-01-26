@@ -96,7 +96,7 @@ extern halfword text_dir_ptr;
 extern void initialize_directions(void);
 extern halfword new_dir(int s);
 
-extern char *string_dir(int d);
+extern const char *string_dir(int d);
 extern void print_dir(int d);
 
 extern void scan_direction(void);

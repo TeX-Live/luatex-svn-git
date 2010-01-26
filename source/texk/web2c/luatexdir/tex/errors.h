@@ -37,7 +37,7 @@ typedef enum {
 
 extern int interaction;         /* current level of interaction */
 extern int interactionoption;   /* set from command line */
-extern char *last_error;
+extern const char *last_error;
 
 extern void initialize_errors(void);
 extern void print_err(const char *s);
@@ -58,7 +58,7 @@ typedef enum {
     fatal_error_stop = 3,       /* |history| value when termination was premature */
 } error_states;
 
-extern const char *help_line[7];      /* helps for the next |error| */
+extern const char *help_line[7];        /* helps for the next |error| */
 extern boolean use_err_help;    /* should the |err_help| list be shown? */
 
 /* these macros are just temporary, until everything is in C */

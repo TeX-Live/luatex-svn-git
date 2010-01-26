@@ -24,8 +24,8 @@
 
 /* |incr| and |decr| are in texmfmp.h */
 
-/* #define incr(A) (A)++ */ /* increase a variable by unity */
-/* #define decr(A) (A)-- */ /* decrease a variable by unity */
+                            /* #define incr(A) (A)++ *//* increase a variable by unity */
+                            /* #define decr(A) (A)-- *//* decrease a variable by unity */
 
 #  define negate(A) (A)=-(A)    /* change the sign of a variable */
 

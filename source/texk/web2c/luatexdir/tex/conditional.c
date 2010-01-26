@@ -103,8 +103,8 @@ void push_condition_stack(void)
 {
     halfword p = new_node(if_node, 0);
     vlink(p) = cond_ptr;
-    if_limit_type(p) = (quarterword)if_limit;
-    if_limit_subtype(p) = (quarterword)cur_if;
+    if_limit_type(p) = (quarterword) if_limit;
+    if_limit_subtype(p) = (quarterword) cur_if;
     if_line_field(p) = if_line;
     cond_ptr = p;
     cur_if = cur_chr;
@@ -142,7 +142,7 @@ void change_if_limit(int l, halfword p)
             if (q == null)
                 confusion("if");
             if (vlink(q) == p) {
-                if_limit_type(q) = (quarterword)l;
+                if_limit_type(q) = (quarterword) l;
                 return;
             }
             q = vlink(q);
@@ -193,19 +193,21 @@ static boolean test_for_cs(void)
         }
         s = token_chr(token_info(p));
         if (s <= 0x7F) {
-            buffer[m++] = (packed_ASCII_code)s;
+            buffer[m++] = (packed_ASCII_code) s;
         } else if (s <= 0x7FF) {
-            buffer[m++] = (packed_ASCII_code)(0xC0 + s / 0x40);
-            buffer[m++] = (packed_ASCII_code)(0x80 + s % 0x40);
+            buffer[m++] = (packed_ASCII_code) (0xC0 + s / 0x40);
+            buffer[m++] = (packed_ASCII_code) (0x80 + s % 0x40);
         } else if (s <= 0xFFFF) {
-            buffer[m++] = (packed_ASCII_code)(0xE0 + s / 0x1000);
-            buffer[m++] = (packed_ASCII_code)(0x80 + (s % 0x1000) / 0x40);
-            buffer[m++] = (packed_ASCII_code)(0x80 + (s % 0x1000) % 0x40);
+            buffer[m++] = (packed_ASCII_code) (0xE0 + s / 0x1000);
+            buffer[m++] = (packed_ASCII_code) (0x80 + (s % 0x1000) / 0x40);
+            buffer[m++] = (packed_ASCII_code) (0x80 + (s % 0x1000) % 0x40);
         } else {
-            buffer[m++] = (packed_ASCII_code)(0xF0 + s / 0x40000);
-            buffer[m++] = (packed_ASCII_code)(0x80 + (s % 0x40000) / 0x1000);
-            buffer[m++] = (packed_ASCII_code)(0x80 + ((s % 0x40000) % 0x1000) / 0x40);
-            buffer[m++] = (packed_ASCII_code)(0x80 + ((s % 0x40000) % 0x1000) % 0x40);
+            buffer[m++] = (packed_ASCII_code) (0xF0 + s / 0x40000);
+            buffer[m++] = (packed_ASCII_code) (0x80 + (s % 0x40000) / 0x1000);
+            buffer[m++] =
+                (packed_ASCII_code) (0x80 + ((s % 0x40000) % 0x1000) / 0x40);
+            buffer[m++] =
+                (packed_ASCII_code) (0x80 + ((s % 0x40000) % 0x1000) % 0x40);
         }
         p = token_link(p);
     }

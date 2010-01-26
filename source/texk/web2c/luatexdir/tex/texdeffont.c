@@ -58,11 +58,11 @@ char *scaled_to_string(scaled s)
         n = s / unity;
         /* process the integer part */
         do {
-            dig[l++] = (char)(n % 10);
+            dig[l++] = (char) (n % 10);
             n = n / 10;;
         } while (n > 0);
         while (l > 0) {
-            result[k++] = (char)(dig[--l] + '0');
+            result[k++] = (char) (dig[--l] + '0');
         }
     }
     result[k++] = '.';
@@ -71,7 +71,7 @@ char *scaled_to_string(scaled s)
     do {
         if (delta > unity)
             s = s + 0100000 - 050000;   /* round the last digit */
-        result[k++] = (char)('0' + (s / unity));
+        result[k++] = (char) ('0' + (s / unity));
         s = 10 * (s % unity);
         delta = delta * 10;
     } while (s > delta);
@@ -182,7 +182,8 @@ void tex_def_font(small_number a)
         offset = cur_val;
         if (cur_val < 0) {
             char err[256];
-            const char *errhelp[] = { "The offset must be bigger than 0.", NULL };
+            const char *errhelp[] =
+                { "The offset must be bigger than 0.", NULL };
             snprintf(err, 255, "Illegal offset has been changed to 0 (%d)",
                      (int) cur_val);
             tex_error(err, errhelp);

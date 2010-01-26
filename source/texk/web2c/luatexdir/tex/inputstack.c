@@ -392,7 +392,7 @@ void push_input(void)
     if (input_ptr > max_in_stack) {
         max_in_stack = input_ptr;
         if (input_ptr == stack_size)
-            overflow("input stack size", stack_size);
+            overflow("input stack size", (unsigned) stack_size);
     }
     input_stack[input_ptr] = cur_input; /* stack the record */
     nofilter = false;
@@ -410,7 +410,7 @@ void begin_token_list(halfword p, quarterword t)
     push_input();
     istate = token_list;
     istart = p;
-    token_type = t;
+    token_type = (unsigned char) t;
     if (t >= macro) {           /* the token list starts with a reference count */
         add_token_ref(p);
         if (t == macro) {
@@ -537,12 +537,12 @@ or |limit| or |line|.
 void begin_file_reading(void)
 {
     if (in_open == max_in_open)
-        overflow("text input levels", max_in_open);
+        overflow("text input levels", (unsigned) max_in_open);
     if (first == buf_size)
         check_buffer_overflow(first);
     incr(in_open);
     push_input();
-    iindex = (quarterword)in_open;
+    iindex = (unsigned char) in_open;
     source_filename_stack[iindex] = 0;
     full_source_filename_stack[iindex] = NULL;
     eof_seen[iindex] = false;
@@ -663,7 +663,7 @@ static halfword string_to_pseudo(str_number str, int nl)
         unsigned m = l;         /* start of current line */
         while ((l < len) && (s[l] != nl))
             l++;
-        sz = (l - m + 7) / 4;
+        sz = (int) (l - m + 7) / 4;
         if (sz == 1)
             sz = 2;
         r = new_node(pseudo_line_node, sz);
@@ -675,10 +675,10 @@ static halfword string_to_pseudo(str_number str, int nl)
             w.b3 = s[m++];
             varmem[++i].qqqq = w;
         }
-        w.b0 = (l > m ? s[m++] : ' ');
-        w.b1 = (l > m ? s[m++] : ' ');
-        w.b2 = (l > m ? s[m++] : ' ');
-        w.b3 = (l > m ? s[m] : ' ');
+        w.b0 = (quarterword) (l > m ? s[m++] : ' ');
+        w.b1 = (quarterword) (l > m ? s[m++] : ' ');
+        w.b2 = (quarterword) (l > m ? s[m++] : ' ');
+        w.b3 = (quarterword) (l > m ? s[m] : ' ');
         varmem[++i].qqqq = w;
         if (pseudo_lines(h) == null) {
             pseudo_lines(h) = r;
@@ -770,10 +770,10 @@ boolean pseudo_input(void)
         last = first;
         for (r = p + 1; r <= p + sz - 1; r++) {
             w = varmem[r].qqqq;
-            buffer[last] = (packed_ASCII_code)w.b0;
-            buffer[last + 1] = (packed_ASCII_code)w.b1;
-            buffer[last + 2] = (packed_ASCII_code)w.b2;
-            buffer[last + 3] = (packed_ASCII_code)w.b3;
+            buffer[last] = (packed_ASCII_code) w.b0;
+            buffer[last + 1] = (packed_ASCII_code) w.b1;
+            buffer[last + 2] = (packed_ASCII_code) w.b2;
+            buffer[last + 3] = (packed_ASCII_code) w.b3;
             last += 4;
         }
         if (last >= max_buf_stack)

@@ -1586,7 +1586,7 @@ void pdf_warning(const char *t, const char *p, boolean prepend_nl,
 /**********************************************************************/
 /* Use check_o_mode() in the backend-specific "Implement..." chunks */
 
-void check_o_mode(PDF pdf, char *s, int o_mode_bitpattern, boolean strict)
+void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
 {
 
     char warn_string[100];

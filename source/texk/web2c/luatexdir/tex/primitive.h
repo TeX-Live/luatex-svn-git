@@ -81,12 +81,12 @@ extern void undump_primitives(void);
 #  define primitive_core(a,b,c,d)   primitive((a),(b),(c),(d),core_command)
 #  define primitive_no(a,b,c,d)     primitive((a),(b),(c),(d),no_command)
 
-extern void primitive(char *ss, quarterword c, halfword o, halfword off,
+extern void primitive(const char *ss, quarterword c, halfword o, halfword off,
                       int cmd_origin);
-extern void primitive_def(char *s, size_t l, quarterword c, halfword o);
+extern void primitive_def(const char *s, size_t l, quarterword c, halfword o);
 extern void print_cmd_chr(quarterword cmd, halfword chr_code);
 
-extern pointer string_lookup(char *s, size_t l);
+extern pointer string_lookup(const char *s, size_t l);
 extern pointer id_lookup(int j, int l);
 
 #endif                          /* LUATEX_PRIMITIVE_H */

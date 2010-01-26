@@ -160,7 +160,7 @@ Also still TODO for OpenType Math:
 
 /* this is not really a math parameter at all */
 
-void math_param_error(char *param, int style)
+static void math_param_error(const char *param, int style)
 {
     char s[256];
     const char *hlp[] = {
@@ -256,7 +256,7 @@ static scaled radical_rule(int var)
 
 #define get_math_param_or_error(a,b) do_get_math_param_or_error(a, math_param_##b, #b)
 
-static scaled do_get_math_param_or_error (int var, int param, char *name)
+static scaled do_get_math_param_or_error(int var, int param, const char *name)
 {
     scaled a = get_math_param(param, var);
     if (a == undefined_math_parameter) {
@@ -857,7 +857,7 @@ larger as the type gets smaller.)
 */
 
 
-char *math_size_string(int s)
+const char *math_size_string(int s)
 {
     if (s == text_size)
         return "textfont";
@@ -1079,7 +1079,7 @@ static pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
     scaled *max_shrinks = NULL;
     assert(ext != NULL);
     b = new_null_box();
-    type(b) = boxtype;
+    type(b) = (quarterword) boxtype;
     reset_attributes(b, att);
     min_overlap = connector_overlap_min(cur_style);
     assert(min_overlap >= 0);
@@ -1244,7 +1244,7 @@ static pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
         depth(b) = char_depth(f, cc);
         return b;
     }
-    max_shrinks = xcalloc(num_total, sizeof(scaled));
+    max_shrinks = xcalloc((unsigned) num_total, sizeof(scaled));
     cur = ext;
     prev_overlap = -1;
     c = 0;
@@ -1555,7 +1555,8 @@ static pointer do_var_delimiter(pointer d, int s, scaled v, scaled * ic,
 }
 
 
-static pointer var_delimiter(pointer d, int s, scaled v, scaled * ic, int cur_style)
+static pointer var_delimiter(pointer d, int s, scaled v, scaled * ic,
+                             int cur_style)
 {
     return do_var_delimiter(d, s, v, ic, false, cur_style);
 }
@@ -3214,7 +3215,7 @@ static pointer math_spacing_glue(int l_type, int r_type, int mstyle, scaled mmu)
             y = math_glue(glue_par(x), mmu);
             z = new_glue(y);
             glue_ref_count(y) = null;
-            subtype(z) = x + 1; /* store a symbolic subtype */
+            subtype(z) = (quarterword) (x + 1); /* store a symbolic subtype */
         } else {
             y = math_glue(x, mmu);
             z = new_glue(y);
@@ -3225,7 +3226,8 @@ static pointer math_spacing_glue(int l_type, int r_type, int mstyle, scaled mmu)
 }
 
 
-static pointer check_nucleus_complexity(halfword q, scaled * delta, int cur_style)
+static pointer check_nucleus_complexity(halfword q, scaled * delta,
+                                        int cur_style)
 {
     pointer p = null;
     switch (type(nucleus(q))) {
@@ -3291,7 +3293,7 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
     x = null;
     p = null;
     setup_cur_size(cur_style);
-    cur_mu=x_over_n(get_math_quad(cur_size),18);
+    cur_mu = x_over_n(get_math_quad(cur_size), 18);
     while (q != null) {
         /* We use the fact that no character nodes appear in an mlist, hence
            the field |type(q)| is always present. */
@@ -3390,7 +3392,7 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
         case style_node:
             cur_style = subtype(q);
             setup_cur_size(cur_style);
-            cur_mu=x_over_n(get_math_quad(cur_size),18);
+            cur_mu = x_over_n(get_math_quad(cur_size), 18);
             goto DONE_WITH_NODE;
             break;
         case choice_node:
@@ -3413,7 +3415,7 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
             flush_node_list(script_mlist(q));
             flush_node_list(script_script_mlist(q));
             type(q) = style_node;
-            subtype(q) = cur_style;
+            subtype(q) = (quarterword) cur_style;
             if (p != null) {
                 z = vlink(q);
                 vlink(q) = p;
@@ -3490,7 +3492,7 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
         if ((subscr(q) == null) && (supscr(q) == null)) {
             assign_new_hlist(q, p);
         } else {
-            make_scripts(q, p, delta, cur_style);  /* top, bottom */
+            make_scripts(q, p, delta, cur_style);       /* top, bottom */
         }
       CHECK_DIMENSIONS:
         z = hpack(new_hlist(q), 0, additional, -1);
@@ -3508,7 +3510,7 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
             r_subtype = left_noad_side;
             cur_style = style;
             setup_cur_size(cur_style);
-            cur_mu=x_over_n(get_math_quad(cur_size),18);
+            cur_mu = x_over_n(get_math_quad(cur_size), 18);
         }
       DONE_WITH_NODE:
         q = vlink(q);
@@ -3533,7 +3535,7 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
     r_subtype = 0;
     cur_style = style;
     setup_cur_size(cur_style);
-    cur_mu=x_over_n(get_math_quad(cur_size),18);
+    cur_mu = x_over_n(get_math_quad(cur_size), 18);
   NEXT_NODE:
     while (q != null) {
         /* If node |q| is a style node, change the style and |goto delete_q|;
@@ -3582,7 +3584,7 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
             cur_style = subtype(q);
             s = style_node_size;
             setup_cur_size(cur_style);
-            cur_mu=x_over_n(get_math_quad(cur_size),18);
+            cur_mu = x_over_n(get_math_quad(cur_size), 18);
             goto DELETE_Q;
             break;
         case whatsit_node:

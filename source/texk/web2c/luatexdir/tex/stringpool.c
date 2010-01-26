@@ -83,7 +83,7 @@ str_number make_string(void)
 {
     if (str_ptr == (max_strings + STRING_OFFSET))
         overflow("number of strings",
-                 (unsigned)(max_strings - init_str_ptr + STRING_OFFSET));
+                 (unsigned) (max_strings - init_str_ptr + STRING_OFFSET));
     str_room(1);
     cur_string[cur_length] = '\0';      /* now |lstring.s| is always a valid C string */
     str_string(str_ptr) = (unsigned char *) cur_string;
@@ -98,7 +98,8 @@ str_number make_string(void)
 
 static void utf_error(void)
 {
-    const char *hlp[] = { "A funny symbol that I can't read has just been (re)read.",
+    const char *hlp[] =
+        { "A funny symbol that I can't read has just been (re)read.",
         "Just continue, I'll change it to 0xFFFD.",
         NULL
     };
@@ -113,21 +114,22 @@ unsigned str2uni(unsigned char *k)
     unsigned val = 0xFFFD;
     unsigned char *text = k;
     if ((ch = *text++) < 0x80) {
-        val = (unsigned)ch;
+        val = (unsigned) ch;
     } else if (ch <= 0xbf) {    /* error */
     } else if (ch <= 0xdf) {
         if (*text >= 0x80 && *text < 0xc0)
-            val = (unsigned)(((ch & 0x1f) << 6) | (*text++ & 0x3f));
+            val = (unsigned) (((ch & 0x1f) << 6) | (*text++ & 0x3f));
     } else if (ch <= 0xef) {
         if (*text >= 0x80 && *text < 0xc0 && text[1] >= 0x80 && text[1] < 0xc0) {
-            val =(unsigned)
-                (((ch & 0xf) << 12) | ((text[0] & 0x3f) << 6) | (text[1] & 0x3f));
+            val = (unsigned)
+                (((ch & 0xf) << 12) | ((text[0] & 0x3f) << 6) |
+                 (text[1] & 0x3f));
         }
     } else {
         int w = (((ch & 0x7) << 2) | ((text[0] & 0x30) >> 4)) - 1, w2;
         w = (w << 6) | ((text[0] & 0xf) << 2) | ((text[1] & 0x30) >> 4);
         w2 = ((text[1] & 0xf) << 6) | (text[2] & 0x3f);
-        val = (unsigned)(w * 0x400 + w2 + 0x10000);
+        val = (unsigned) (w * 0x400 + w2 + 0x10000);
         if (*text < 0x80 || text[1] < 0x80 || text[2] < 0x80 ||
             *text >= 0xc0 || text[1] >= 0xc0 || text[2] >= 0xc0)
             val = 0xFFFD;
@@ -144,27 +146,27 @@ unsigned char *uni2str(unsigned unic)
     unsigned char *buf = xmalloc(5);
     unsigned char *pt = buf;
     if (unic < 0x80)
-        *pt++ = (unsigned char)unic;
+        *pt++ = (unsigned char) unic;
     else if (unic < 0x800) {
-        *pt++ = (unsigned char)(0xc0 | (unic >> 6));
-        *pt++ = (unsigned char)(0x80 | (unic & 0x3f));
+        *pt++ = (unsigned char) (0xc0 | (unic >> 6));
+        *pt++ = (unsigned char) (0x80 | (unic & 0x3f));
     } else if (unic >= 0x110000) {
-        *pt++ = (unsigned char)(unic - 0x110000);
+        *pt++ = (unsigned char) (unic - 0x110000);
     } else if (unic < 0x10000) {
-        *pt++ = (unsigned char)(0xe0 | (unic >> 12));
-        *pt++ = (unsigned char)(0x80 | ((unic >> 6) & 0x3f));
-        *pt++ = (unsigned char)(0x80 | (unic & 0x3f));
+        *pt++ = (unsigned char) (0xe0 | (unic >> 12));
+        *pt++ = (unsigned char) (0x80 | ((unic >> 6) & 0x3f));
+        *pt++ = (unsigned char) (0x80 | (unic & 0x3f));
     } else {
         int u, z, y, x;
         unsigned val = unic - 0x10000;
-        u = (int)(((val & 0xf0000) >> 16) + 1);
-        z = (int)((val & 0x0f000) >> 12);
-        y = (int)((val & 0x00fc0) >> 6);
-        x = (int)(val & 0x0003f);
-        *pt++ = (unsigned char)(0xf0 | (u >> 2));
-        *pt++ = (unsigned char)(0x80 | ((u & 3) << 4) | z);
-        *pt++ = (unsigned char)(0x80 | y);
-        *pt++ = (unsigned char)(0x80 | x);
+        u = (int) (((val & 0xf0000) >> 16) + 1);
+        z = (int) ((val & 0x0f000) >> 12);
+        y = (int) ((val & 0x00fc0) >> 6);
+        x = (int) (val & 0x0003f);
+        *pt++ = (unsigned char) (0xf0 | (u >> 2));
+        *pt++ = (unsigned char) (0x80 | ((u & 3) << 4) | z);
+        *pt++ = (unsigned char) (0x80 | y);
+        *pt++ = (unsigned char) (0x80 | x);
     }
     *pt = '\0';
     return buf;
@@ -305,7 +307,7 @@ boolean str_eq_str(str_number s, str_number t)
 
 /* string compare */
 
-boolean str_eq_cstr(str_number r, char *s, size_t l)
+boolean str_eq_cstr(str_number r, const char *s, size_t l)
 {
     if (l != (size_t) str_length(r))
         return false;
@@ -403,14 +405,14 @@ char *makecstring(int s)
 char *makeclstring(int s, size_t * len)
 {
     if (s < STRING_OFFSET) {
-        *len = (size_t)utf8_size(s);
-        return (char *) uni2str((unsigned)s);
+        *len = (size_t) utf8_size(s);
+        return (char *) uni2str((unsigned) s);
     } else {
         unsigned l = str_length(s);
         char *cstrbuf = xmalloc(l + 1);
         memcpy(cstrbuf, str_string(s), l);
         cstrbuf[l] = '\0';
-        *len = (size_t)l;
+        *len = (size_t) l;
         return cstrbuf;
     }
 }
@@ -422,7 +424,7 @@ int dump_string_pool(void)
     int k = str_ptr;
     dump_int(k - STRING_OFFSET);
     for (j = STRING_OFFSET + 1; j < k; j++) {
-        l = (int)str_length(j);
+        l = (int) str_length(j);
         if (str_string(j) == NULL)
             l = -1;
         dump_int(l);
@@ -442,12 +444,12 @@ int undump_string_pool(void)
     str_ptr += STRING_OFFSET;
     if (ini_version)
         libcfree(string_pool);
-    init_string_pool_array((unsigned)max_strings);
+    init_string_pool_array((unsigned) max_strings);
     for (j = STRING_OFFSET + 1; j < str_ptr; j++) {
         undump_int(x);
         if (x >= 0) {
             str_length(j) = (unsigned) x;
-            pool_size += (unsigned)x;
+            pool_size += (unsigned) x;
             str_string(j) = xmallocarray(unsigned char, (unsigned) (x + 1));
             undump_things(*str_string(j), (unsigned) x);
             *(str_string(j) + str_length(j)) = '\0';

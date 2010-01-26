@@ -855,10 +855,10 @@ file are still incomplete.
 
 void file_warning(void)
 {
-    halfword p;         /* saved value of |save_ptr| or |cond_ptr| */
-    int l;              /* saved value of |cur_level| or |if_limit| */
-    int c;              /* saved value of |cur_group| or |cur_if| */
-    int i;              /* saved value of |if_line| */
+    halfword p;                 /* saved value of |save_ptr| or |cond_ptr| */
+    int l;                      /* saved value of |cur_level| or |if_limit| */
+    int c;                      /* saved value of |cur_group| or |cur_if| */
+    int i;                      /* saved value of |if_line| */
     p = save_ptr;
     l = cur_level;
     c = cur_group;
@@ -872,8 +872,8 @@ void file_warning(void)
         save_ptr = save_value(save_ptr);
     }
     save_ptr = p;
-    cur_level = l;
-    cur_group = c;              /* restore old values */
+    cur_level = (quarterword) l;
+    cur_group = (group_code) c; /* restore old values */
     p = cond_ptr;
     l = if_limit;
     c = cur_if;

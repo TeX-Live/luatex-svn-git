@@ -993,11 +993,13 @@ value is changed to zero and so is the next tabskip.
                         if (glue_sign(p) == stretching) {
                             if (stretch_order(v) == glue_order(p))
                                 t = t +
-                                    round(float_cast(glue_set(p)) * stretch(v));
+                                    round(float_cast(glue_set(p)) *
+                                          float_cast(stretch(v)));
                         } else if (glue_sign(p) == shrinking) {
                             if (shrink_order(v) == glue_order(p))
                                 t = t -
-                                    round(float_cast(glue_set(p)) * shrink(v));
+                                    round(float_cast(glue_set(p)) *
+                                          float_cast(shrink(v)));
                         }
                         s = vlink(s);
                         rr = new_null_box();

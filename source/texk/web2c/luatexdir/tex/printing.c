@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-#include "lua/luatex-api.h" /* for ptexbanner */
+#include "lua/luatex-api.h"     /* for ptexbanner */
 #include "ptexlib.h"
 
 static const char _svn_version[] =
@@ -193,7 +193,7 @@ void print_char(int s)
         break;
     case pseudo:
         if (tally < trick_count)
-            trick_buf[tally % error_line] = (packed_ASCII_code)s;
+            trick_buf[tally % error_line] = (packed_ASCII_code) s;
         break;
     case new_string:
         append_char(s);
@@ -490,7 +490,7 @@ void print_int(longinteger n)
         n = n / 10;
         incr(k);
     } while (n != 0);
-    print_the_digs((eight_bits)k);
+    print_the_digs((eight_bits) k);
 }
 
 /*
@@ -519,7 +519,7 @@ void print_hex(int n)
         n = n / 16;
         incr(k);
     } while (n != 0);
-    print_the_digs((eight_bits)k);
+    print_the_digs((eight_bits) k);
 }
 
 /*
@@ -539,7 +539,7 @@ void print_roman_int(int n)
     while (1) {
         while (n >= (int) v) {
             print_char(*j);
-            n = n - (int)v;
+            n = n - (int) v;
         }
         if (n <= 0)
             return;             /* nonpositive input produces no output */
@@ -549,9 +549,9 @@ void print_roman_int(int n)
             k = k + 2;
             u = u / (*(k - 1) - '0');
         }
-        if (n + (int)u >= (int)v) {
+        if (n + (int) u >= (int) v) {
             print_char(*k);
-            n = n + (int)u;
+            n = n + (int) u;
         } else {
             j = j + 2;
             v = v / (*(j - 1) - '0');
@@ -787,7 +787,7 @@ void print_font_and_char(int p)
 void print_mark(int p)
 {                               /* prints token list data in braces */
     print_char('{');
-    if ((p < (int)fix_mem_min) || (p > (int)fix_mem_end))
+    if ((p < (int) fix_mem_min) || (p > (int) fix_mem_end))
         tprint_esc("CLOBBERED.");
     else
         show_token_list(token_link(p), null, max_print_line - 10);

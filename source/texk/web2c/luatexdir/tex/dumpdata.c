@@ -109,9 +109,9 @@ void store_fmt_file(void)
 
     dump_int(0x57325458);       /* Web2C \TeX's magic constant: "W2TX" */
     /* Align engine to 4 bytes with one or more trailing NUL */
-    x = strlen(engine_name);
-    format_engine = xmalloc(x + 4);
-    strcpy(format_engine, stringcast(engine_name));
+    x = (int) strlen(engine_name);
+    format_engine = xmalloc((unsigned) (x + 4));
+    strcpy(format_engine, engine_name);
     for (k = x; k <= x + 3; k++)
         format_engine[k] = 0;
     x = x + 4 - (x % 4);
@@ -129,7 +129,7 @@ void store_fmt_file(void)
     print_ln();
     print_int(k);
     tprint(" strings using ");
-    print_int(pool_size);
+    print_int((longinteger) pool_size);
     tprint(" bytes");
 
     /* Dump the dynamic memory */
@@ -147,13 +147,16 @@ void store_fmt_file(void)
     dump_int(null_list);
     dump_int(backup_head);
     dump_int(garbage);
-    dump_int(fix_mem_min);
-    dump_int(fix_mem_max);
-    dump_int(fix_mem_end);
+    x = (int) fix_mem_min;
+    dump_int(x);
+    x = (int) fix_mem_max;
+    dump_int(x);
+    x = (int) fix_mem_end;
+    dump_int(x);
     dump_int(avail);
-    dyn_used = fix_mem_end + 1;
+    dyn_used = (int) fix_mem_end + 1;
     dump_things(fixmem[fix_mem_min], fix_mem_end - fix_mem_min + 1);
-    x = x + (fix_mem_end + 1 - fix_mem_min);
+    x = x + (int) (fix_mem_end + 1 - fix_mem_min);
     p = avail;
     while (p != null) {
         decr(dyn_used);
@@ -359,7 +362,7 @@ boolean load_fmt_file(char *fmtname)
         libcfree(hash);
         libcfree(eqtb);
         libcfree(fixmem);
-        libcfree(varmemcast(varmem));
+        libcfree(varmem);
     }
     undump_int(x);
     format_debug("format magic number", x);
@@ -370,7 +373,7 @@ boolean load_fmt_file(char *fmtname)
     if ((x < 0) || (x > 256))
         goto BAD_FMT;           /* corrupted format file */
 
-    format_engine = xmalloc(x);
+    format_engine = xmalloc((unsigned) x);
     undump_things(format_engine[0], x);
     format_engine[x - 1] = 0;   /* force string termination, just in case */
     if (strcmp(engine_name, format_engine)) {
@@ -403,9 +406,9 @@ boolean load_fmt_file(char *fmtname)
         hash_top = undefined_control_sequence;
     else
         hash_top = eqtb_top;
-    hash = xmallocarray(two_halves, 1 + hash_top);
-    memset(hash, 0, sizeof(two_halves) * (hash_top + 1));
-    eqtb = xmallocarray(memory_word, eqtb_top + 1);
+    hash = xmallocarray(two_halves, (unsigned) (1 + hash_top));
+    memset(hash, 0, sizeof(two_halves) * (unsigned) (hash_top + 1));
+    eqtb = xmallocarray(memory_word, (unsigned) (eqtb_top + 1));
     set_eq_type(undefined_control_sequence, undefined_cs_cmd);
     set_equiv(undefined_control_sequence, null);
     set_eq_level(undefined_control_sequence, level_zero);

@@ -184,7 +184,7 @@ int fam_fnt(int fam_id, int size_id)
 void def_fam_fnt(int fam_id, int size_id, int f, int lvl)
 {
     int n = fam_id + (256 * size_id);
-    set_sa_item(math_fam_head, n, (sa_tree_item)f, lvl);
+    set_sa_item(math_fam_head, n, (sa_tree_item) f, lvl);
     fixup_math_parameters(fam_id, size_id, f, lvl);
     if (int_par(tracing_assigns_code) > 0) {
         begin_diagnostic();
@@ -241,7 +241,7 @@ static sa_tree math_param_head = NULL;
 void def_math_param(int param_id, int style_id, scaled value, int lvl)
 {
     int n = param_id + (256 * style_id);
-    set_sa_item(math_param_head, n, (sa_tree_item)value, lvl);
+    set_sa_item(math_param_head, n, (sa_tree_item) value, lvl);
     if (int_par(tracing_assigns_code) > 0) {
         begin_diagnostic();
         tprint("{assigning");
@@ -1058,7 +1058,8 @@ void scan_extdef_del_code(int level, int extcode)
     scan_optional_equals();
     d = do_scan_extdef_del_code(extcode, false);
     set_del_code(p, extcode, d.small_family_value, d.small_character_value,
-                 d.large_family_value, d.large_character_value, (quarterword)(level));
+                 d.large_family_value, d.large_character_value,
+                 (quarterword) (level));
 }
 
 mathcodeval scan_mathchar(int extcode)
@@ -1141,7 +1142,7 @@ void scan_extdef_math_code(int level, int extcode)
     scan_optional_equals();
     d = scan_mathchar(extcode);
     set_math_code(p, extcode, d.class_value,
-                  d.family_value, d.character_value, (quarterword)(level));
+                  d.family_value, d.character_value, (quarterword) (level));
 }
 
 
@@ -1199,7 +1200,7 @@ that subformula into a given word of |mem|.
 int scan_math(pointer p, int mstyle)
 {
     /* label restart,reswitch,exit; */
-    mathcodeval mval = {0,0,0,0};
+    mathcodeval mval = { 0, 0, 0, 0 };
     assert(p != null);
   RESTART:
     get_next_nb_nr();
@@ -1353,7 +1354,7 @@ void math_math_comp(void)
 {
     pointer q;
     tail_append(new_noad());
-    subtype(tail) = (quarterword)cur_chr;
+    subtype(tail) = (quarterword) cur_chr;
     q = new_node(math_char_node, 0);
     nucleus(tail) = q;
     if (cur_chr == over_noad_type)
@@ -1371,7 +1372,7 @@ void math_limit_switch(void)
     };
     if (head != tail) {
         if (type(tail) == simple_noad) {
-            subtype(tail) = (quarterword)cur_chr;
+            subtype(tail) = (quarterword) cur_chr;
             return;
         }
     }
@@ -1388,7 +1389,7 @@ delimiter is to be placed; the second tells if this delimiter follows
 
 void scan_delimiter(pointer p, int r)
 {
-    delcodeval dval = {0,0,0,0,0,0};
+    delcodeval dval = { 0, 0, 0, 0, 0, 0 };
     if (r == tex_mathcode) {    /* \radical */
         dval = do_scan_extdef_del_code(tex_mathcode, true);
     } else if (r == aleph_mathcode) {   /* \oradical */
@@ -1493,7 +1494,8 @@ void math_radical(void)
 void math_ac(void)
 {
     halfword q;
-    mathcodeval t = {0,0,0,0}, b = {0,0,0,0};
+    mathcodeval t = { 0, 0, 0, 0 }, b = {
+    0, 0, 0, 0};
     if (cur_cmd == accent_cmd) {
         const char *hlp[] = {
             "I'm changing \\accent to \\mathaccent here; wish me luck.",
@@ -1648,7 +1650,7 @@ delimiters.
 
 void math_fraction(void)
 {
-    halfword c;             /* the type of generalized fraction we are scanning */
+    halfword c;                 /* the type of generalized fraction we are scanning */
     pointer q;
     c = cur_chr;
     if (incompleat_noad != null) {
@@ -1813,7 +1815,7 @@ delimiters to appear between \.{\\left} and \.{\\right}.
 
 void math_left_right(void)
 {
-    halfword t;             /* |left_noad_side| .. |right_noad_side| */
+    halfword t;                 /* |left_noad_side| .. |right_noad_side| */
     pointer p;                  /* new noad */
     pointer q;                  /* resulting mlist */
     pointer r;                  /* temporary */
@@ -1840,7 +1842,7 @@ void math_left_right(void)
     } else {
         p = new_noad();
         type(p) = fence_noad;
-        subtype(p) = (quarterword)t;
+        subtype(p) = (quarterword) t;
         r = new_node(delim_node, 0);
         delimiter(p) = r;
         scan_delimiter(delimiter(p), no_mathcode);

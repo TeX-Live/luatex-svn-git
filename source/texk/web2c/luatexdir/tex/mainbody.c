@@ -312,20 +312,20 @@ int main_initialize(void)
         error_line = ssup_error_line;
 
     /* array memory allocation */
-    buffer = xmallocarray(packed_ASCII_code, buf_size);
-    nest = xmallocarray(list_state_record, nest_size);
-    save_stack = xmallocarray(save_record, save_size);
-    input_stack = xmallocarray(in_state_record, stack_size);
-    input_file = xmallocarray(alpha_file, max_in_open);
-    input_file_callback_id = xmallocarray(int, max_in_open);
-    line_stack = xmallocarray(int, max_in_open);
-    eof_seen = xmallocarray(boolean, max_in_open);
-    grp_stack = xmallocarray(save_pointer, max_in_open);
-    if_stack = xmallocarray(pointer, max_in_open);
-    source_filename_stack = xmallocarray(str_number, max_in_open);
-    full_source_filename_stack = xmallocarray(char *, max_in_open);
-    param_stack = xmallocarray(halfword, param_size);
-    dvi_buf = xmallocarray(eight_bits, dvi_buf_size);
+    buffer = xmallocarray(packed_ASCII_code, (unsigned) buf_size);
+    nest = xmallocarray(list_state_record, (unsigned) nest_size);
+    save_stack = xmallocarray(save_record, (unsigned) save_size);
+    input_stack = xmallocarray(in_state_record, (unsigned) stack_size);
+    input_file = xmallocarray(alpha_file, (unsigned) max_in_open);
+    input_file_callback_id = xmallocarray(int, (unsigned) max_in_open);
+    line_stack = xmallocarray(int, (unsigned) max_in_open);
+    eof_seen = xmallocarray(boolean, (unsigned) max_in_open);
+    grp_stack = xmallocarray(save_pointer, (unsigned) max_in_open);
+    if_stack = xmallocarray(pointer, (unsigned) max_in_open);
+    source_filename_stack = xmallocarray(str_number, (unsigned) max_in_open);
+    full_source_filename_stack = xmallocarray(char *, (unsigned) max_in_open);
+    param_stack = xmallocarray(halfword, (unsigned) param_size);
+    dvi_buf = xmallocarray(eight_bits, (unsigned) dvi_buf_size);
     initialize_ocplist_arrays(ocp_list_size);
     initialize_ocp_buffers(ocp_buf_size, ocp_stack_size);
 
@@ -339,11 +339,11 @@ int main_initialize(void)
             hash_top = undefined_control_sequence;
         else
             hash_top = eqtb_top;
-        hash = xmallocarray(two_halves, (hash_top + 1));
-        memset(hash, 0, sizeof(two_halves) * (hash_top + 1));
-        eqtb = xmallocarray(memory_word, (eqtb_top + 1));
-        memset(eqtb, 0, sizeof(memory_word) * (eqtb_top + 1));
-        init_string_pool_array(max_strings);
+        hash = xmallocarray(two_halves, (unsigned) (hash_top + 1));
+        memset(hash, 0, sizeof(two_halves) * (unsigned) (hash_top + 1));
+        eqtb = xmallocarray(memory_word, (unsigned) (eqtb_top + 1));
+        memset(eqtb, 0, sizeof(memory_word) * (unsigned) (eqtb_top + 1));
+        init_string_pool_array((unsigned) max_strings);
         reset_cur_string();
     }
     /* Check the ``constant'' values... */
@@ -442,7 +442,7 @@ void main_body(void)
     if (end_line_char_inactive())
         decr(ilimit);
     else
-        buffer[ilimit] = (packed_ASCII_code)int_par(end_line_char_code);
+        buffer[ilimit] = (packed_ASCII_code) int_par(end_line_char_code);
     fix_date_and_time();
     if (ini_version)
         make_pdftex_banner();
@@ -551,7 +551,7 @@ void close_files_and_terminate(void)
         assert(0);
     }
     /* Close {\sl Sync\TeX} file and write status */
-    synctexterminate(log_opened);      /* Let the {\sl Sync\TeX} controller close its files. */
+    synctexterminate(log_opened);       /* Let the {\sl Sync\TeX} controller close its files. */
 
     free_text_codes();
     free_math_codes();

@@ -102,13 +102,13 @@ extern unsigned pool_size;
 extern str_number make_string(void);
 extern boolean str_eq_buf(str_number s, int k);
 extern boolean str_eq_str(str_number s, str_number t);
-extern boolean str_eq_cstr(str_number, char *, size_t);
+extern boolean str_eq_cstr(str_number, const char *, size_t);
 extern boolean get_strings_started(void);
 extern void reset_cur_string(void);
 
-#define save_cur_string() (cur_length>0 ? make_string() : 0)
+#  define save_cur_string() (cur_length>0 ? make_string() : 0)
 
-#define restore_cur_string(u) if (u!=0) {                   \
+#  define restore_cur_string(u) if (u!=0) {                   \
         unsigned l = str_length(u);                         \
         reset_cur_string();                                 \
         str_room(l);                                        \

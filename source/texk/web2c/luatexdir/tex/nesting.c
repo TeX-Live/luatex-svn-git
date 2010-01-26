@@ -324,7 +324,7 @@ void push_nest(void)
     if (nest_ptr > max_nest_stack) {
         max_nest_stack = nest_ptr;
         if (nest_ptr == nest_size)
-            overflow("semantic nest size", nest_size);
+            overflow("semantic nest size", (unsigned) nest_size);
     }
     nest[nest_ptr] = cur_list;  /* stack the record */
     incr(nest_ptr);

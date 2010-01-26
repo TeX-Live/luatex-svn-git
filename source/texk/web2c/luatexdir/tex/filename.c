@@ -85,10 +85,10 @@ static boolean more_name(ASCII_code c)
         str_room(1);
         append_char(c);         /* contribute |c| to the current string */
         if (ISDIRSEP(c)) {
-            area_delimiter = cur_length;
+            area_delimiter = (pool_pointer) cur_length;
             ext_delimiter = 0;
         } else if (c == '.')
-            ext_delimiter = cur_length;
+            ext_delimiter = (pool_pointer) cur_length;
         return true;
     }
 }
@@ -103,7 +103,7 @@ static void end_name(void)
     unsigned char *s;
     if (str_ptr + 3 > (max_strings + STRING_OFFSET))
         overflow("number of strings",
-                 max_strings - init_str_ptr + STRING_OFFSET);
+                 (unsigned) (max_strings - init_str_ptr + STRING_OFFSET));
     /* @:TeX capacity exceeded number of strings}{\quad number of strings@> */
     /* at this point, the full string lives in |cur_string| */
     if (area_delimiter == 0) {
@@ -160,7 +160,7 @@ void scan_file_name(void)
         if (cur_chr > 127) {
             unsigned char *bytes;
             unsigned char thebytes[5] = { 0 };
-            utf8_idpb((char *) thebytes, cur_chr);
+            utf8_idpb((char *) thebytes, (unsigned) cur_chr);
             bytes = thebytes;
             while (*bytes) {
                 if (!more_name(*bytes))
@@ -198,12 +198,12 @@ void scan_file_name_toks(void)
         }
     }
     if (n != s) {               /* explicit area */
-        cur_area = maketexlstring(a, (n - a));
+        cur_area = maketexlstring(a, (size_t) (n - a));
     } else {
         cur_area = get_nullstr();
     }
     if (e != NULL) {            /* explicit extension */
-        cur_name = maketexlstring(n, (e - n));
+        cur_name = maketexlstring(n, (size_t) (e - n));
         cur_ext = maketexstring(e);
     } else {
         cur_name = maketexstring(n);

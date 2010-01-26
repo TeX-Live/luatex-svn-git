@@ -47,7 +47,7 @@ static sa_tree sfcode_head = NULL;
 
 void set_lc_code(int n, halfword v, quarterword gl)
 {
-    set_sa_item(lccode_head, n, (sa_tree_item)v, gl);
+    set_sa_item(lccode_head, n, (sa_tree_item) v, gl);
 }
 
 halfword get_lc_code(int n)
@@ -77,7 +77,7 @@ static void undumplccodes(void)
 
 void set_uc_code(int n, halfword v, quarterword gl)
 {
-    set_sa_item(uccode_head, n, (sa_tree_item)v, gl);
+    set_sa_item(uccode_head, n, (sa_tree_item) v, gl);
 }
 
 halfword get_uc_code(int n)
@@ -107,7 +107,7 @@ static void undumpuccodes(void)
 
 void set_sf_code(int n, halfword v, quarterword gl)
 {
-    set_sa_item(sfcode_head, n, (sa_tree_item)v, gl);
+    set_sa_item(sfcode_head, n, (sa_tree_item) v, gl);
 }
 
 halfword get_sf_code(int n)
@@ -152,7 +152,7 @@ void set_cat_code(int h, int n, halfword v, quarterword gl)
         s = new_sa_tree(CATCODESTACK, CATCODEDEFAULT);
         catcode_heads[h] = s;
     }
-    set_sa_item(s, n, (sa_tree_item)v, gl);
+    set_sa_item(s, n, (sa_tree_item) v, gl);
 }
 
 halfword get_cat_code(int h, int n)

@@ -127,7 +127,7 @@ halfword get_avail(void)
 {                               /* single-word node allocation */
     unsigned p;                 /* the new node being got */
     unsigned t;
-    p = (unsigned)avail;        /* get top location in the |avail| stack */
+    p = (unsigned) avail;       /* get top location in the |avail| stack */
     if (p != null) {
         avail = token_link(avail);      /* and pop it off */
     } else if (fix_mem_end < fix_mem_max) {     /* or go into virgin territory */
@@ -151,7 +151,7 @@ halfword get_avail(void)
     }
     token_link(p) = null;       /* provide an oft-desired initialization of the new node */
     incr(dyn_used);             /* maintain statistics */
-    return (halfword)p;
+    return (halfword) p;
 }
 
 /*
@@ -248,7 +248,7 @@ symbolic form, including the expansion of a macro or mark.
 
 void print_meaning(void)
 {
-    print_cmd_chr((quarterword)cur_cmd, cur_chr);
+    print_cmd_chr((quarterword) cur_cmd, cur_chr);
     if (cur_cmd >= call_cmd) {
         print_char(':');
         print_ln();
@@ -325,7 +325,7 @@ void show_token_list(int p, int q, int l)
             set_trick_count();
         }
         /* Display token |p|, and |return| if there are problems */
-        if ((p < (int)fix_mem_min) || (p > (int)fix_mem_end)) {
+        if ((p < (int) fix_mem_min) || (p > (int) fix_mem_end)) {
             tprint_esc("CLOBBERED.");
             return;
         }
@@ -437,7 +437,8 @@ int get_char_cat_code(int cur_chr)
 
 static void invalid_character_error(void)
 {
-    const char *hlp[] = { "A funny symbol that I can't read has just been input.",
+    const char *hlp[] =
+        { "A funny symbol that I can't read has just been input.",
         "Continue, and I'll forget that it ever happened.",
         NULL
     };
@@ -536,7 +537,7 @@ halfword active_to_cs(int curchr, int force)
     if (force)
         no_new_control_sequence = false;
     if (curchr > 0) {
-        b = (char *) uni2str((unsigned)curchr);
+        b = (char *) uni2str((unsigned) curchr);
         utfbytes = strcat(utfbytes, b);
         free(b);
         curcs = string_lookup(utfbytes, strlen(utfbytes));
@@ -601,7 +602,7 @@ char *cmd_chr_to_string(int cmd, int chr)
     str_number str;
     int sel = selector;
     selector = new_string;
-    print_cmd_chr((quarterword)cmd, chr);
+    print_cmd_chr((quarterword) cmd, chr);
     str = make_string();
     s = makecstring(str);
     selector = sel;
@@ -720,7 +721,8 @@ void check_outer_validity(void)
             cur_chr = ' ';      /* replace it by a space */
         }
         if (scanner_status > skipping) {
-            const char *errhlp[] = { "I suspect you have forgotten a `}', causing me",
+            const char *errhlp[] =
+                { "I suspect you have forgotten a `}', causing me",
                 "to read past where you wanted me to stop.",
                 "I'll try to recover; but if the error is serious,",
                 "you'd better type `E' or `X' now and fix your file.",
@@ -851,7 +853,7 @@ static boolean get_next_file(void)
         case mid_line + escape_cmd:
         case new_line + escape_cmd:
         case skip_blanks + escape_cmd: /* @<Scan a control sequence ...@>; */
-            istate = (unsigned char)scan_control_sequence();
+            istate = (unsigned char) scan_control_sequence();
             if (cur_cmd >= outer_call_cmd)
                 check_outer_validity();
             break;
@@ -1201,31 +1203,38 @@ static boolean check_expanded_code(int *kk)
         else
             d++;
         if (cur_chr <= 0x7F) {
-            buffer[k - 1] = (packed_ASCII_code)cur_chr;
+            buffer[k - 1] = (packed_ASCII_code) cur_chr;
         } else if (cur_chr <= 0x7FF) {
-            buffer[k - 1] = (packed_ASCII_code)(0xC0 + cur_chr / 0x40);
+            buffer[k - 1] = (packed_ASCII_code) (0xC0 + cur_chr / 0x40);
             k++;
             d--;
-            buffer[k - 1] = (packed_ASCII_code)(0x80 + cur_chr % 0x40);
+            buffer[k - 1] = (packed_ASCII_code) (0x80 + cur_chr % 0x40);
         } else if (cur_chr <= 0xFFFF) {
-            buffer[k - 1] = (packed_ASCII_code)(0xE0 + cur_chr / 0x1000);
+            buffer[k - 1] = (packed_ASCII_code) (0xE0 + cur_chr / 0x1000);
             k++;
             d--;
-            buffer[k - 1] = (packed_ASCII_code)(0x80 + (cur_chr % 0x1000) / 0x40);
+            buffer[k - 1] =
+                (packed_ASCII_code) (0x80 + (cur_chr % 0x1000) / 0x40);
             k++;
             d--;
-            buffer[k - 1] = (packed_ASCII_code)(0x80 + (cur_chr % 0x1000) % 0x40);
+            buffer[k - 1] =
+                (packed_ASCII_code) (0x80 + (cur_chr % 0x1000) % 0x40);
         } else {
-            buffer[k - 1] = (packed_ASCII_code)(0xF0 + cur_chr / 0x40000);
+            buffer[k - 1] = (packed_ASCII_code) (0xF0 + cur_chr / 0x40000);
             k++;
             d--;
-            buffer[k - 1] = (packed_ASCII_code)(0x80 + (cur_chr % 0x40000) / 0x1000);
+            buffer[k - 1] =
+                (packed_ASCII_code) (0x80 + (cur_chr % 0x40000) / 0x1000);
             k++;
             d--;
-            buffer[k - 1] = (packed_ASCII_code)(0x80 + ((cur_chr % 0x40000) % 0x1000) / 0x40);
+            buffer[k - 1] =
+                (packed_ASCII_code) (0x80 +
+                                     ((cur_chr % 0x40000) % 0x1000) / 0x40);
             k++;
             d--;
-            buffer[k - 1] = (packed_ASCII_code)(0x80 + ((cur_chr % 0x40000) % 0x1000) % 0x40);
+            buffer[k - 1] =
+                (packed_ASCII_code) (0x80 +
+                                     ((cur_chr % 0x40000) % 0x1000) % 0x40);
         }
         l = k;
         ilimit = ilimit - d;
@@ -1278,8 +1287,8 @@ static next_line_retval next_line(void)
                 if (iname == 21) {
                     if (luacstring_input()) {   /* not end of strings  */
                         firm_up_the_line();
-                        line_catcode_table = (short)luacstring_cattable();
-                        line_partial = (signed char)luacstring_partial();
+                        line_catcode_table = (short) luacstring_cattable();
+                        line_partial = (signed char) luacstring_partial();
                         if (luacstring_final_line() || line_partial
                             || line_catcode_table == NO_CAT_TABLE)
                             inhibit_eol = true;
@@ -1328,7 +1337,7 @@ static next_line_retval next_line(void)
         if (inhibit_eol || end_line_char_inactive())
             ilimit--;
         else
-            buffer[ilimit] = (packed_ASCII_code)end_line_char;
+            buffer[ilimit] = (packed_ASCII_code) end_line_char;
         first = ilimit + 1;
         iloc = istart;          /* ready to read */
     } else {
@@ -1356,7 +1365,7 @@ static next_line_retval next_line(void)
             if (end_line_char_inactive())
                 ilimit--;
             else
-                buffer[ilimit] = (packed_ASCII_code)end_line_char;
+                buffer[ilimit] = (packed_ASCII_code) end_line_char;
             first = ilimit + 1;
             iloc = istart;
         } else {
@@ -1515,7 +1524,7 @@ halfword string_to_toks(char *ss)
     p = temp_token_head;
     set_token_link(p, null);
     while (s < se) {
-        t = (halfword)str2uni((unsigned char *) s);
+        t = (halfword) str2uni((unsigned char *) s);
         s += utf8_size(t);
         if (t == ' ')
             t = space_token;
@@ -1898,7 +1907,7 @@ void conv_toks(void)
         luacstrings = 0;
         luatokencall(s, sn);
         delete_token_ref(s);
-        restore_cur_string(u);   /* TODO: check this, was different */
+        restore_cur_string(u);  /* TODO: check this, was different */
         if (luacstrings > 0)
             lua_string_start();
         return;
@@ -2148,7 +2157,7 @@ void read_toks(int n, halfword r, halfword j)
         if (end_line_char_inactive())
             decr(ilimit);
         else
-            buffer[ilimit] = (packed_ASCII_code)int_par(end_line_char_code);
+            buffer[ilimit] = (packed_ASCII_code) int_par(end_line_char_code);
         first = ilimit + 1;
         iloc = istart;
         istate = new_line;
@@ -2276,7 +2285,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
         e = int_par(escape_char_code);
     }
     while (p != null) {
-        if (p < (int)fix_mem_min || p > (int)fix_mem_end) {
+        if (p < (int) fix_mem_min || p > (int) fix_mem_end) {
             Print_esc("CLOBBERED.");
             break;
         }

@@ -181,7 +181,7 @@ get by with testing for overflow in only a few places.
 	if (save_ptr>max_save_stack) {			\
 	    max_save_stack=save_ptr;			\
 	    if (max_save_stack>save_size-8)		\
-		overflow("save size",save_size);	\
+            overflow("save size",(unsigned)save_size);	\
 	}						\
     } while (0)
 
@@ -219,9 +219,9 @@ void new_save_level(group_code c)
 }
 
 
-char *save_stack_type(int v)
+static const char *save_stack_type(int v)
 {
-    char *s = "";
+    const char *s = "";
     switch (save_type(v)) {
 /* *INDENT-OFF* */
     case restore_old_value: s = "restore_old_value"; break;
@@ -381,7 +381,7 @@ void show_save_groups(void)
     int a;                      /* to keep track of alignments */
     int i;
     quarterword j;
-    char *s;
+    const char *s;
     /* print_save_stack(); */
     p = nest_ptr;
     nest[p] = cur_list;         /* put the top level into the array */
@@ -790,7 +790,7 @@ void unsave(void)
     attr_list_cache = cache_disabled;
 }
 
-void restore_trace(halfword p, char *s)
+void restore_trace(halfword p, const char *s)
 {                               /* |eqtb[p]| has just been restored or retained */
     begin_diagnostic();
     print_char('{');
@@ -914,7 +914,7 @@ void show_cur_cmd_chr(void)
         tprint(": ");
         shown_mode = mode;
     }
-    print_cmd_chr(cur_cmd, cur_chr);
+    print_cmd_chr((quarterword) cur_cmd, cur_chr);
     if (int_par(tracing_ifs_code) > 0) {
         if (cur_cmd >= if_test_cmd) {
             if (cur_cmd <= fi_or_else_cmd) {

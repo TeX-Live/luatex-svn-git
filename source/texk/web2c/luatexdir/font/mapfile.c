@@ -648,7 +648,7 @@ void pdfmapline(int t)
     free(s);
 }
 
-void pdf_init_map_file(string map_name)
+void pdf_init_map_file(const char *map_name)
 {
     assert(mitem == NULL);
     mitem = xtalloc(1, mapitem);

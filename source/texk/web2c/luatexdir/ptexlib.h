@@ -354,13 +354,13 @@ extern int run_and_save_callback(int i, const char *values, ...);
 extern void destroy_saved_callback(int i);
 extern boolean get_callback(lua_State * L, int i);
 
-extern void get_saved_lua_boolean(int i, char *name, boolean * target);
-extern void get_saved_lua_number(int i, char *name, int *target);
-extern void get_saved_lua_string(int i, char *name, char **target);
+extern void get_saved_lua_boolean(int i, const char *name, boolean * target);
+extern void get_saved_lua_number(int i, const char *name, int *target);
+extern void get_saved_lua_string(int i, const char *name, char **target);
 
-extern void get_lua_boolean(char *table, char *name, boolean * target);
-extern void get_lua_number(char *table, char *name, int *target);
-extern void get_lua_string(char *table, char *name, char **target);
+extern void get_lua_boolean(const char *table, const char *name, boolean * target);
+extern void get_lua_number(const char *table, const char *name, int *target);
+extern void get_lua_string(const char *table, const char *name, char **target);
 
 extern char *get_lua_name(int i);
 

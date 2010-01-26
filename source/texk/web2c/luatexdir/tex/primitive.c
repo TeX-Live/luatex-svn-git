@@ -123,7 +123,8 @@ void ini_init_primitives(void)
    @^Vitter, Jeffrey Scott@>
 */
 
-static halfword compute_hash(char *j, unsigned int l, halfword prime_number)
+static halfword compute_hash(const char *j, unsigned int l,
+                             halfword prime_number)
 {
     unsigned int k;
     halfword h = (unsigned char) *j;
@@ -254,7 +255,7 @@ void undump_primitives(void)
         undump_int(prim_data[p].subids);
         if (prim_data[p].subids > 0) {
             prim_data[p].names =
-                (str_number *) xcalloc((unsigned)prim_data[p].subids,
+                (str_number *) xcalloc((unsigned) prim_data[p].subids,
                                        sizeof(str_number *));
         }
         for (q = 0; q < prim_data[p].subids; q++) {
@@ -276,7 +277,7 @@ void undump_primitives(void)
    is needed that does nothing except creating the control sequence name. 
 */
 
-void primitive_def(char *s, size_t l, quarterword c, halfword o)
+void primitive_def(const char *s, size_t l, quarterword c, halfword o)
 {
     int nncs = no_new_control_sequence;
     no_new_control_sequence = false;
@@ -313,11 +314,11 @@ store_primitive_name(str_number s, quarterword c, halfword o, halfword offset)
     assert(idx <= 0xFFFF);
     if (prim_data[c].subids < (idx + 1)) {
         str_number *new =
-            (str_number *) xcalloc((unsigned)(idx + 1), sizeof(str_number *));
+            (str_number *) xcalloc((unsigned) (idx + 1), sizeof(str_number *));
         if (prim_data[c].names != NULL) {
             assert(prim_data[c].subids);
             memcpy(new, (prim_data[c].names),
-                   (unsigned)(prim_data[c].subids) * sizeof(str_number));
+                   (unsigned) (prim_data[c].subids) * sizeof(str_number));
             free(prim_data[c].names);
         }
         prim_data[c].names = new;
@@ -332,7 +333,8 @@ store_primitive_name(str_number s, quarterword c, halfword o, halfword offset)
 */
 
 void
-primitive(char *thes, quarterword c, halfword o, halfword off, int cmd_origin)
+primitive(const char *thes, quarterword c, halfword o, halfword off,
+          int cmd_origin)
 {
     int prim_val;               /* needed to fill |prim_eqtb| */
     str_number ss;
@@ -342,7 +344,7 @@ primitive(char *thes, quarterword c, halfword o, halfword off, int cmd_origin)
         primitive_def(thes, strlen(thes), c, o);
     }
     prim_val = prim_lookup(ss);
-    prim_origin(prim_val) = (quarterword)cmd_origin;
+    prim_origin(prim_val) = (quarterword) cmd_origin;
     prim_eq_type(prim_val) = c;
     prim_equiv(prim_val) = o;
     store_primitive_name(ss, c, o, off);
@@ -353,12 +355,12 @@ primitive(char *thes, quarterword c, halfword o, halfword off, int cmd_origin)
  * Here is a helper that does the actual hash insertion.
  */
 
-static halfword insert_id(halfword p, unsigned char *j, unsigned int l)
+static halfword insert_id(halfword p, const unsigned char *j, unsigned int l)
 {
     unsigned saved_cur_length;
     unsigned saved_cur_string_size;
     unsigned char *saved_cur_string;
-    unsigned char *k;
+    const unsigned char *k;
     /* This code far from ideal: the existance of |hash_extra| changes
        all the potential (short) coalesced lists into a single (long)
        one. This will create a slowdown. */
@@ -372,7 +374,7 @@ static halfword insert_id(halfword p, unsigned char *j, unsigned int l)
         } else {
             do {
                 if (hash_is_full)
-                    overflow("hash size", (unsigned)(hash_size + hash_extra));
+                    overflow("hash size", (unsigned) (hash_size + hash_extra));
                 decr(hash_used);
             } while (cs_text(hash_used) != 0);  /* search for an empty location in |hash| */
             cs_next(p) = hash_used;
@@ -410,7 +412,7 @@ pointer id_lookup(int j, int l)
     int h;                      /* hash code */
     pointer p;                  /* index in |hash| array */
 
-    h = compute_hash((char *) (buffer + j), (unsigned)l, hash_prime);
+    h = compute_hash((char *) (buffer + j), (unsigned) l, hash_prime);
 #ifdef VERBOSE
     {
         unsigned char *todo = xmalloc(l + 2);
@@ -431,7 +433,7 @@ pointer id_lookup(int j, int l)
             if (no_new_control_sequence) {
                 p = undefined_control_sequence;
             } else {
-                p = insert_id(p, (buffer + j), (unsigned)l);
+                p = insert_id(p, (buffer + j), (unsigned) l);
             }
             goto FOUND;
         }
@@ -447,11 +449,11 @@ pointer id_lookup(int j, int l)
  */
 
 
-pointer string_lookup(char *s, size_t l)
+pointer string_lookup(const char *s, size_t l)
 {                               /* search the hash table */
     int h;                      /* hash code */
     pointer p;                  /* index in |hash| array */
-    h = compute_hash(s, (unsigned)l, hash_prime);
+    h = compute_hash(s, (unsigned) l, hash_prime);
     p = h + hash_base;          /* we start searching here; note that |0<=h<hash_prime| */
     while (1) {
         if (cs_text(p) > 0)
@@ -461,7 +463,7 @@ pointer string_lookup(char *s, size_t l)
             if (no_new_control_sequence) {
                 p = undefined_control_sequence;
             } else {
-                p = insert_id(p, (unsigned char *) s, (unsigned)l);
+                p = insert_id(p, (const unsigned char *) s, (unsigned) l);
             }
             goto FOUND;
         }

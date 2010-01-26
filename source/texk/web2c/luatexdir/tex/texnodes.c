@@ -68,10 +68,12 @@ int copy_error(halfword p);     /* define below */
 
 #define variable_node_size 2
 
-const char *node_fields_list[] = { "attr", "width", "depth", "height", "dir", "shift",
+const char *node_fields_list[] =
+    { "attr", "width", "depth", "height", "dir", "shift",
     "glue_order", "glue_sign", "glue_set", "list", NULL
 };
-const char *node_fields_rule[] = { "attr", "width", "depth", "height", "dir", NULL };
+const char *node_fields_rule[] =
+    { "attr", "width", "depth", "height", "dir", NULL };
 const char *node_fields_insert[] =
     { "attr", "cost", "depth", "height", "spec", "list", NULL };
 const char *node_fields_mark[] = { "attr", "class", "mark", NULL };
@@ -150,7 +152,8 @@ const char *node_fields_whatsit_local_par[] =
 const char *node_fields_whatsit_dir[] =
     { "attr", "dir", "level", "dvi_ptr", "dvi_h", NULL };
 
-const char *node_fields_whatsit_pdf_literal[] = { "attr", "mode", "data", NULL };
+const char *node_fields_whatsit_pdf_literal[] =
+    { "attr", "mode", "data", NULL };
 const char *node_fields_whatsit_pdf_refobj[] = { "attr", "objnum", NULL };
 const char *node_fields_whatsit_pdf_refxform[] =
     { "attr", "width", "depth", "height", "objnum", NULL };
@@ -164,11 +167,13 @@ const char *node_fields_whatsit_pdf_start_link[] =
 };
 const char *node_fields_whatsit_pdf_end_link[] = { "attr", NULL };
 
-const char *node_fields_whatsit_pdf_dest[] = { "attr", "width", "depth", "height",
+const char *node_fields_whatsit_pdf_dest[] =
+    { "attr", "width", "depth", "height",
     "named_id", "dest_id", "dest_type", "xyz_zoom", "objnum", NULL
 };
 
-const char *node_fields_whatsit_pdf_thread[] = { "attr", "width", "depth", "height",
+const char *node_fields_whatsit_pdf_thread[] =
+    { "attr", "width", "depth", "height",
     "named_id", "thread_id", "thread_attr", NULL
 };
 
@@ -178,7 +183,8 @@ const char *node_fields_whatsit_pdf_start_thread[] =
 };
 const char *node_fields_whatsit_pdf_end_thread[] = { "attr", NULL };
 const char *node_fields_whatsit_pdf_save_pos[] = { "attr", NULL };
-const char *node_fields_whatsit_late_lua[] = { "attr", "reg", "data", "name", NULL };
+const char *node_fields_whatsit_late_lua[] =
+    { "attr", "reg", "data", "name", NULL };
 const char *node_fields_whatsit_close_lua[] = { "attr", "reg", NULL };
 const char *node_fields_whatsit_pdf_colorstack[] =
     { "attr", "stack", "cmd", "data", NULL };
@@ -340,7 +346,7 @@ halfword new_node(int i, int j)
        set to null by get_node(), so we can do we clearing one
        word less than |s| */
     (void) memset((void *) (varmem + n + 1), 0,
-                  (sizeof(memory_word) * ((unsigned)s - 1)));
+                  (sizeof(memory_word) * ((unsigned) s - 1)));
     switch (i) {
     case glyph_node:
         init_lang_data(n);
@@ -384,7 +390,7 @@ halfword new_node(int i, int j)
         free_node(n, variable_node_size);
         n = slow_get_node(j);
         (void) memset((void *) (varmem + n + 1), 0,
-                      (sizeof(memory_word) * ((unsigned)j - 1)));
+                      (sizeof(memory_word) * ((unsigned) j - 1)));
         break;
     default:
         break;
@@ -421,8 +427,8 @@ halfword new_node(int i, int j)
     if (nodetype_has_attributes(i)) {
         build_attribute_list(n);
     }
-    type(n) = (quarterword)i;
-    subtype(n) = (quarterword)j;
+    type(n) = (quarterword) i;
+    subtype(n) = (quarterword) j;
 #ifdef DEBUG
     fprintf(DEBUG_OUT, "Alloc-ing %s node %d\n",
             get_node_name(type(n), subtype(n)), (int) n);
@@ -489,7 +495,7 @@ halfword copy_node(const halfword p)
     r = get_node(i);
 
     (void) memcpy((void *) (varmem + r), (void *) (varmem + p),
-                  (sizeof(memory_word) * (unsigned)i));
+                  (sizeof(memory_word) * (unsigned) i));
 
     /* handle synctex extension */
     switch (type(p)) {
@@ -1400,7 +1406,7 @@ halfword get_node(int s)
     if (r != null) {
         free_chain[s] = vlink(r);
 #ifndef NDEBUG
-        varmem_sizes[r] = (char)s;
+        varmem_sizes[r] = (char) s;
 #endif
         vlink(r) = null;
         var_used += s;          /* maintain usage statistics */
@@ -1472,18 +1478,20 @@ void init_node_mem(int t)
     assert(whatsit_node_data[user_defined_node].id == user_defined_node);
     assert(node_data[passive_node].id == passive_node);
 
-    varmem = (memory_word *) realloc((void *) varmem, sizeof(memory_word) * (unsigned)t);
+    varmem =
+        (memory_word *) realloc((void *) varmem,
+                                sizeof(memory_word) * (unsigned) t);
     if (varmem == NULL) {
-        overflow("node memory size", (unsigned)var_mem_max);
+        overflow("node memory size", (unsigned) var_mem_max);
     }
-    memset((void *) (varmem), 0, (unsigned)t * sizeof(memory_word));
+    memset((void *) (varmem), 0, (unsigned) t * sizeof(memory_word));
 
 #ifndef NDEBUG
-    varmem_sizes = (char *) realloc(varmem_sizes, sizeof(char) * (unsigned)t);
+    varmem_sizes = (char *) realloc(varmem_sizes, sizeof(char) * (unsigned) t);
     if (varmem_sizes == NULL) {
-        overflow("node memory size", (unsigned)var_mem_max);
+        overflow("node memory size", (unsigned) var_mem_max);
     }
-    memset((void *) varmem_sizes, 0, sizeof(char) * (unsigned)t);
+    memset((void *) varmem_sizes, 0, sizeof(char) * (unsigned) t);
 #endif
     var_mem_max = t;
     rover = var_mem_stat_max + 1;
@@ -1615,12 +1623,12 @@ void undump_node_mem(void)
     undump_int(x);
     undump_int(rover);
     var_mem_max = (x < 100000 ? 100000 : x);
-    varmem = xmallocarray(memory_word, (unsigned)var_mem_max);
+    varmem = xmallocarray(memory_word, (unsigned) var_mem_max);
     /*memset ((void *)varmem,0,x*sizeof(memory_word)); */
     undump_things(varmem[0], x);
 #ifndef NDEBUG
-    varmem_sizes = xmallocarray(char, (unsigned)var_mem_max);
-    memset((void *) varmem_sizes, 0, (unsigned)var_mem_max * sizeof(char));
+    varmem_sizes = xmallocarray(char, (unsigned) var_mem_max);
+    memset((void *) varmem_sizes, 0, (unsigned) var_mem_max * sizeof(char));
     undump_things(varmem_sizes[0], x);
 #endif
     undump_things(free_chain[0], MAX_CHAIN_SIZE);
@@ -1683,7 +1691,7 @@ halfword slow_get_node(int s)
         test_rovers("taken");
         assert(vlink(rover) < var_mem_max);
 #ifndef NDEBUG
-        varmem_sizes[r] = (char)(s > 127 ? 127 : s);
+        varmem_sizes[r] = (char) (s > 127 ? 127 : s);
 #endif
         vlink(r) = null;
         var_used += s;          /* maintain usage statistics */
@@ -1717,19 +1725,23 @@ halfword slow_get_node(int s)
         x = (var_mem_max >> 2) + s;
         varmem =
             (memory_word *) realloc((void *) varmem,
-                                    sizeof(memory_word) * (unsigned)(var_mem_max + x));
+                                    sizeof(memory_word) *
+                                    (unsigned) (var_mem_max + x));
         if (varmem == NULL) {
-            overflow("node memory size", (unsigned)var_mem_max);
+            overflow("node memory size", (unsigned) var_mem_max);
         }
-        memset((void *) (varmem + var_mem_max), 0, (unsigned)x * sizeof(memory_word));
+        memset((void *) (varmem + var_mem_max), 0,
+               (unsigned) x * sizeof(memory_word));
 
 #ifndef NDEBUG
         varmem_sizes =
-            (char *) realloc(varmem_sizes, sizeof(char) * (unsigned)(var_mem_max + x));
+            (char *) realloc(varmem_sizes,
+                             sizeof(char) * (unsigned) (var_mem_max + x));
         if (varmem_sizes == NULL) {
-            overflow("node memory size", (unsigned)var_mem_max);
+            overflow("node memory size", (unsigned) var_mem_max);
         }
-        memset((void *) (varmem_sizes + var_mem_max), 0, (unsigned)(x) * sizeof(char));
+        memset((void *) (varmem_sizes + var_mem_max), 0,
+               (unsigned) (x) * sizeof(char));
 #endif
 
         /* todo ? it is perhaps possible to merge the new memory with an existing rover */
@@ -1794,8 +1806,8 @@ halfword list_node_mem_usage(void)
     halfword i, j;
     halfword p = null, q = null;
 #ifndef NDEBUG
-    char *saved_varmem_sizes = xmallocarray(char, (unsigned)var_mem_max);
-    memcpy(saved_varmem_sizes, varmem_sizes, (size_t)var_mem_max);
+    char *saved_varmem_sizes = xmallocarray(char, (unsigned) var_mem_max);
+    memcpy(saved_varmem_sizes, varmem_sizes, (size_t) var_mem_max);
     for (i = my_prealloc + 1; i < (var_mem_max - 1); i++) {
         if (saved_varmem_sizes[i] > 0) {
             j = copy_node(i);
@@ -1859,7 +1871,7 @@ static halfword new_attribute_node(unsigned int i, int v)
 {
     register halfword r = get_node(attribute_node_size);
     type(r) = attribute_node;
-    attribute_id(r) = (halfword)i;
+    attribute_id(r) = (halfword) i;
     attribute_value(r) = v;
     return r;
 }
@@ -1894,7 +1906,7 @@ void update_attribute_cache(void)
     for (i = 0; i <= max_used_attr; i++) {
         register int v = attribute(i);
         if (v > UNUSED_ATTRIBUTE) {
-            register halfword r = new_attribute_node((unsigned)i, v);
+            register halfword r = new_attribute_node((unsigned) i, v);
             vlink(p) = r;
             p = r;
         }
@@ -1953,7 +1965,7 @@ halfword do_set_attribute(halfword p, int i, int val)
         q = get_node(attribute_node_size);
         type(q) = attribute_list_node;
         attr_list_ref(q) = 1;
-        p = new_attribute_node((unsigned)i, val);
+        p = new_attribute_node((unsigned) i, val);
         vlink(q) = p;
         return q;
     }
@@ -1975,7 +1987,7 @@ halfword do_set_attribute(halfword p, int i, int val)
     if (attribute_id(vlink(p)) == i) {
         attribute_value(vlink(p)) = val;
     } else {                    /* add a new node */
-        halfword r = new_attribute_node((unsigned)i, val);
+        halfword r = new_attribute_node((unsigned) i, val);
         vlink(r) = vlink(p);
         vlink(p) = r;
     }
@@ -1994,7 +2006,7 @@ void set_attribute(halfword n, int i, int val)
         type(p) = attribute_list_node;
         attr_list_ref(p) = 1;
         node_attr(n) = p;
-        p = new_attribute_node((unsigned)i, val);
+        p = new_attribute_node((unsigned) i, val);
         vlink(node_attr(n)) = p;
         return;
     }
@@ -2027,7 +2039,7 @@ void set_attribute(halfword n, int i, int val)
     if (attribute_id(vlink(p)) == i) {
         attribute_value(vlink(p)) = val;
     } else {                    /* add a new node */
-        halfword r = new_attribute_node((unsigned)i, val);
+        halfword r = new_attribute_node((unsigned) i, val);
         vlink(r) = vlink(p);
         vlink(p) = r;
     }
@@ -3100,7 +3112,7 @@ quarterword norm_min(int h)
     else if (h >= 255)
         return 255;
     else
-        return (quarterword)h;
+        return (quarterword) h;
 }
 
 halfword new_char(int f, int c)
@@ -3357,7 +3369,7 @@ halfword new_skip_param(int n)
     temp_ptr = new_spec(glue_par(n));
     p = new_glue(temp_ptr);
     glue_ref_count(temp_ptr) = null;
-    subtype(p) = (quarterword)(n + 1);
+    subtype(p) = (quarterword) (n + 1);
     return p;
 }
 

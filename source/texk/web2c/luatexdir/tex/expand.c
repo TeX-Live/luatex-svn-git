@@ -73,7 +73,7 @@ void expand(void)
     int save_scanner_status;    /* temporary storage of |scanner_status| */
     incr(expand_depth_count);
     if (expand_depth_count >= expand_depth)
-        overflow("expansion depth", expand_depth);
+        overflow("expansion depth", (unsigned) expand_depth);
     cv_backup = cur_val;
     cvl_backup = cur_val_level;
     radix_backup = radix;
@@ -136,7 +136,7 @@ void expand(void)
                     goto RESWITCH;
                 }
                 print_err("You can't use `\\unless' before `");
-                print_cmd_chr((quarterword)cur_cmd, cur_chr);
+                print_cmd_chr((quarterword) cur_cmd, cur_chr);
                 print_char('\'');
                 help1("Continue, and I'll forget that it ever happened.");
                 back_error();
@@ -334,14 +334,14 @@ void manufacture_csname(void)
     is_in_csname = false;
     /* Look up the characters of list |r| in the hash table, and set |cur_cs| */
 
-    ss = tokenlist_to_lstring(r,true);
-    if (ss->l>0) {
+    ss = tokenlist_to_lstring(r, true);
+    if (ss->l > 0) {
         no_new_control_sequence = false;
-        cur_cs = string_lookup((char *)ss->s, ss->l);
+        cur_cs = string_lookup((char *) ss->s, ss->l);
         no_new_control_sequence = true;
     } else {
         cur_cs = null_cs;       /* the list is empty */
-    }        
+    }
     xfree(ss->s);
     flush_list(r);
     if (eq_type(cur_cs) == undefined_cs_cmd) {
@@ -760,7 +760,7 @@ void macro_call(void)
         if (param_ptr + n > max_param_stack) {
             max_param_stack = param_ptr + n;
             if (max_param_stack > param_size)
-                overflow("parameter stack size", param_size);
+                overflow("parameter stack size", (unsigned) param_size);
         }
         for (m = 0; m <= n - 1; m++)
             param_stack[param_ptr + m] = pstack[m];

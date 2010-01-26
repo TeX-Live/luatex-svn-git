@@ -53,7 +53,7 @@ message may be printed.
 
 int interaction;                /* current level of interaction */
 int interactionoption;          /* set from command line */
-char *last_error;
+const char *last_error;
 
 void print_err(const char *s)
 {
@@ -65,7 +65,7 @@ void print_err(const char *s)
     else
         tprint_nl("! ");
     tprint(s);
-    last_error = (char *)s;
+    last_error = (const char *) s;
 }
 
 /*
@@ -148,7 +148,7 @@ is never more than two levels deep.
 Individual lines of help are recorded in the array |help_line|. 
 */
 
-const char *help_line[7];             /* helps for the next |error| */
+const char *help_line[7];       /* helps for the next |error| */
 boolean use_err_help;           /* should the |err_help| list be shown? */
 
 /*
@@ -466,7 +466,7 @@ void overflow(const char *s, unsigned int n)
     print_err("TeX capacity exceeded, sorry [");
     tprint(s);
     print_char('=');
-    print_int((int)n);
+    print_int((int) n);
     print_char(']');
     help2("If you really absolutely need more capacity,",
           "you can ask a wizard to enlarge me.");
@@ -613,7 +613,7 @@ void char_warning(internal_font_number f, int c)
             c = c / 16;
             incr(k);
         } while (c != 0);
-        print_the_digs((eight_bits)k);
+        print_the_digs((eight_bits) k);
         tprint(") in font ");
         print_font_name(f);
         print_char('!');

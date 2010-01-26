@@ -99,8 +99,8 @@ extern void prompt_input(const char *s);
 
 #  define active_cs_value(A) pool_to_unichar((str_string((A))+3))
 
-extern void print_glue(scaled d, int order, const char *s);   /* prints a glue component */
-extern void print_spec(int p, const char *s); /* prints a glue specification */
+extern void print_glue(scaled d, int order, const char *s);     /* prints a glue component */
+extern void print_spec(int p, const char *s);   /* prints a glue specification */
 
 extern int font_in_short_display;       /* an internal font number */
 extern void print_font_identifier(internal_font_number f);

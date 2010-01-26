@@ -200,26 +200,28 @@ this subroutine simulates 1.5-precision arithmetic.
 
 scaled xn_over_d(scaled x, int n, int d)
 {
-    nonnegative_integer t, u, v;        /* intermediate quantities */
+    nonnegative_integer t, u, v, xx, dd;        /* intermediate quantities */
     boolean positive = true;    /* was |x>=0|? */
     if (x < 0) {
         negate(x);
         positive = false;
     }
-    t = (x % 0100000) * n;
-    u = (x / 0100000) * n + (t / 0100000);
-    v = (u % d) * 0100000 + (t % 0100000);
-    if (u / d >= 0100000)
+    xx = (nonnegative_integer) x;
+    dd = (nonnegative_integer) d;
+    t = ((xx % 0100000) * (nonnegative_integer) n);
+    u = ((xx / 0100000) * (nonnegative_integer) n + (t / 0100000));
+    v = (u % dd) * 0100000 + (t % 0100000);
+    if (u / dd >= 0100000)
         arith_error = true;
     else
-        u = 0100000 * (u / d) + (v / d);
+        u = 0100000 * (u / dd) + (v / dd);
     if (positive) {
-        tex_remainder = v % d;
-        return u;
+        tex_remainder = (int) (v % dd);
+        return (scaled) u;
     } else {
         /* casts are for ms cl */
-        tex_remainder = -(int)(v % d);
-        return -(int)(u);
+        tex_remainder = -(int) (v % dd);
+        return -(scaled) (u);
     }
 }
 

@@ -117,7 +117,7 @@ halfword new_dir(int s)
     return p;
 }
 
-char *string_dir(int d)
+const char *string_dir(int d)
 {
     if (d == dir_TLT) {
         return "TLT";
