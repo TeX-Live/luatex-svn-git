@@ -129,7 +129,8 @@ void allocate_ocp_table(int ocp_number, int ocp_size)
         ocp_tables = xrealloc(ocp_tables, 65536);
         ocp_entries = 65536;
     }
-    ocp_tables[ocp_number] = (int *) xmalloc((1 + ocp_size) * sizeof(int));
+    ocp_tables[ocp_number] =
+        (int *) xmalloc((unsigned) (1 + ocp_size) * sizeof(int));
     ocp_tables[ocp_number][0] = ocp_size;
     for (i = 1; i <= ocp_size; i++) {
         ocp_tables[ocp_number][i] = 0;
@@ -176,7 +177,8 @@ static void undump_ocp_table(int ocp_number)
         ocp_entries = 65536;
     }
     undump_things(sizeword, 1);
-    ocp_tables[ocp_number] = (int *) xmalloc((1 + sizeword) * sizeof(int));
+    ocp_tables[ocp_number] =
+        (int *) xmalloc((unsigned) (1 + sizeword) * sizeof(int));
     ocp_tables[ocp_number][0] = sizeword;
     undump_things(ocp_tables[ocp_number][1], sizeword);
 }

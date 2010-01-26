@@ -48,11 +48,11 @@ void initialize_init_ocplists(void)
 
 void initialize_ocplist_arrays(int ocp_list_size)
 {
-    ocp_list_info = xmallocarray(memory_word, ocp_list_size);
-    memset(ocp_list_info, 0, sizeof(memory_word) * ocp_list_size);
-    ocp_lstack_info = xmallocarray(memory_word, ocp_list_size);
-    memset(ocp_lstack_info, 0, sizeof(memory_word) * ocp_list_size);
-    ocp_list_list = xmallocarray(ocp_list_index, ocp_list_size);
+    ocp_list_info = xmallocarray(memory_word, (unsigned) ocp_list_size);
+    memset(ocp_list_info, 0, sizeof(memory_word) * (unsigned) ocp_list_size);
+    ocp_lstack_info = xmallocarray(memory_word, (unsigned) ocp_list_size);
+    memset(ocp_lstack_info, 0, sizeof(memory_word) * (unsigned) ocp_list_size);
+    ocp_list_list = xmallocarray(ocp_list_index, (unsigned) ocp_list_size);
 }
 
 
@@ -61,12 +61,12 @@ ocp_list_index make_ocp_list_node(ocp_lstack_index llstack,
 {
     ocp_list_index p;
     p = ocp_listmem_run_ptr;
-    ocp_list_lstack(p) = llstack;
+    ocp_list_lstack(p) = (quarterword) llstack;
     ocp_list_lstack_no(p) = llstack_no;
-    ocp_list_lnext(p) = llnext;
+    ocp_list_lnext(p) = (quarterword) llnext;
     ocp_listmem_run_ptr = ocp_listmem_run_ptr + 2;
     if (ocp_listmem_run_ptr >= ocp_list_size)
-        overflow("ocp_list_size", ocp_list_size);
+        overflow("ocp_list_size", (unsigned) ocp_list_size);
     return p;
 }
 
@@ -75,11 +75,11 @@ ocp_lstack_index make_ocp_lstack_node(internal_ocp_number locp,
 {
     ocp_lstack_index p;
     p = ocp_lstackmem_run_ptr;
-    ocp_lstack_ocp(p) = locp;
-    ocp_lstack_lnext(p) = llnext;
+    ocp_lstack_ocp(p) = (quarterword) locp;
+    ocp_lstack_lnext(p) = (quarterword) llnext;
     incr(ocp_lstackmem_run_ptr);
     if (ocp_lstackmem_run_ptr >= ocp_stack_size)
-        overflow("ocp_stack_size", ocp_stack_size);
+        overflow("ocp_stack_size", (unsigned) ocp_stack_size);
     return p;
 }
 
@@ -109,9 +109,9 @@ ocp_list_index ocp_ensure_lstack(ocp_list_index list, scaled llstack_no)
     p = list;
     if (is_null_ocp_list(p)) {
         ocp_list_lstack_no(p) = llstack_no;
-        ocp_list_lnext(p) = make_null_ocp_list();
+        ocp_list_lnext(p) = (quarterword) make_null_ocp_list();
     } else if (ocp_list_lstack_no(p) > llstack_no) {
-        ocp_list_lnext(p) =
+        ocp_list_lnext(p) = (quarterword)
             make_ocp_list_node(ocp_list_lstack(p),
                                ocp_list_lstack_no(p), ocp_list_lnext(p));
         ocp_list_lstack(p) = 0;
@@ -123,7 +123,8 @@ ocp_list_index ocp_ensure_lstack(ocp_list_index list, scaled llstack_no)
             q = ocp_list_lnext(q);
         }
         if (ocp_list_lstack_no(p) < llstack_no) {
-            ocp_list_lnext(p) = make_ocp_list_node(0, llstack_no, q);
+            ocp_list_lnext(p) =
+                (quarterword) make_ocp_list_node(0, llstack_no, q);
             p = ocp_list_lnext(p);
         }
     }
@@ -137,14 +138,15 @@ void ocp_apply_add(ocp_list_index list_entry,
     ocp_lstack_index q;
     p = ocp_list_lstack(list_entry);
     if (lbefore || (p == 0)) {
-        ocp_list_lstack(list_entry) = make_ocp_lstack_node(locp, p);
+        ocp_list_lstack(list_entry) =
+            (quarterword) make_ocp_lstack_node(locp, p);
     } else {
         q = ocp_lstack_lnext(p);
         while (q != 0) {
             p = q;
             q = ocp_lstack_lnext(q);
         }
-        ocp_lstack_lnext(p) = make_ocp_lstack_node(locp, 0);
+        ocp_lstack_lnext(p) = (quarterword) make_ocp_lstack_node(locp, 0);
     }
 }
 
@@ -160,7 +162,7 @@ void ocp_apply_remove(ocp_list_index list_entry, boolean lbefore)
     } else {
         q = ocp_lstack_lnext(p);
         if (lbefore || (q == 0)) {
-            ocp_list_lstack(list_entry) = q;
+            ocp_list_lstack(list_entry) = (quarterword) q;
         } else {
             r = ocp_lstack_lnext(q);
             while (r != 0) {
@@ -220,7 +222,7 @@ ocp_list_index scan_ocp_list(void)
         tex_error("Bad ocp list specification", hlp);
         return make_null_ocp_list();
     } else {
-        lop = cur_chr;
+        lop = (quarterword) cur_chr;
         scan_scaled();
         llstack_no = cur_val;
         if ((llstack_no <= 0) || (llstack_no >= ocp_maxint)) {

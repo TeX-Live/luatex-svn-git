@@ -182,12 +182,12 @@ int otp_ext_i;
 
 void overflow_ocp_buf_size(void)
 {
-    overflow("ocp_buf_size", ocp_buf_size);
+    overflow("ocp_buf_size", (unsigned) ocp_buf_size);
 }
 
 void overflow_ocp_stack_size(void)
 {
-    overflow("ocp_stack_size", ocp_stack_size);
+    overflow("ocp_stack_size", (unsigned) ocp_stack_size);
 }
 
 void run_otp(void)
@@ -200,7 +200,7 @@ void run_otp(void)
         incr(otp_output_end);
         if (otp_output_end > ocp_buf_size)
             overflow_ocp_buf_size();
-        otp_output_buf[otp_output_end] = otp_calcs[otp_calc_ptr];
+        otp_output_buf[otp_output_end] = (quarterword) otp_calcs[otp_calc_ptr];
         decr(otp_calc_ptr);
         incr(otp_pc);
         break;
@@ -208,7 +208,7 @@ void run_otp(void)
         incr(otp_output_end);
         if (otp_output_end > ocp_buf_size)
             overflow_ocp_buf_size();
-        otp_output_buf[otp_output_end] = otp_arg;
+        otp_output_buf[otp_output_end] = (quarterword) otp_arg;
         incr(otp_pc);
         break;
     case otp_right_char:
@@ -216,7 +216,7 @@ void run_otp(void)
         incr(otp_output_end);
         if (otp_output_end > ocp_buf_size)
             overflow_ocp_buf_size();
-        otp_output_buf[otp_output_end] = otp_calculated_char;
+        otp_output_buf[otp_output_end] = (quarterword) otp_calculated_char;
         incr(otp_pc);
         break;
     case otp_right_lchar:
@@ -224,7 +224,7 @@ void run_otp(void)
         incr(otp_output_end);
         if (otp_output_end > ocp_buf_size)
             overflow_ocp_buf_size();
-        otp_output_buf[otp_output_end] = otp_calculated_char;
+        otp_output_buf[otp_output_end] = (quarterword) otp_calculated_char;
         incr(otp_pc);
         break;
     case otp_right_some:
@@ -238,7 +238,7 @@ void run_otp(void)
             incr(otp_output_end);
             if (otp_output_end > ocp_buf_size)
                 overflow_ocp_buf_size();
-            otp_output_buf[otp_output_end] = otp_calculated_char;
+            otp_output_buf[otp_output_end] = (quarterword) otp_calculated_char;
         }
         incr(otp_pc);
         break;
@@ -248,7 +248,7 @@ void run_otp(void)
         incr(otp_stack_new);
         if (otp_stack_new >= ocp_stack_size)
             overflow_ocp_stack_size();
-        otp_stack_buf[otp_stack_new] = otp_calcs[otp_calc_ptr];
+        otp_stack_buf[otp_stack_new] = (quarterword) otp_calcs[otp_calc_ptr];
         decr(otp_calc_ptr);
         incr(otp_pc);
         break;
@@ -256,7 +256,7 @@ void run_otp(void)
         incr(otp_stack_new);
         if (otp_stack_new >= ocp_stack_size)
             overflow_ocp_stack_size();
-        otp_stack_buf[otp_stack_new] = otp_arg;
+        otp_stack_buf[otp_stack_new] = (quarterword) otp_arg;
         incr(otp_pc);
         break;
     case otp_pback_char:
@@ -264,7 +264,7 @@ void run_otp(void)
         incr(otp_stack_new);
         if (otp_stack_new >= ocp_stack_size)
             overflow_ocp_stack_size();
-        otp_stack_buf[otp_stack_new] = otp_calculated_char;
+        otp_stack_buf[otp_stack_new] = (quarterword) otp_calculated_char;
         incr(otp_pc);
         break;
     case otp_pback_lchar:
@@ -272,7 +272,7 @@ void run_otp(void)
         incr(otp_stack_new);
         if (otp_stack_new >= ocp_stack_size)
             overflow_ocp_stack_size();
-        otp_stack_buf[otp_stack_new] = otp_calculated_char;
+        otp_stack_buf[otp_stack_new] = (quarterword) otp_calculated_char;
         incr(otp_pc);
         break;
     case otp_pback_some:
@@ -286,7 +286,7 @@ void run_otp(void)
             incr(otp_stack_new);
             if (otp_stack_new >= ocp_stack_size)
                 overflow_ocp_stack_size();
-            otp_stack_buf[otp_stack_new] = otp_calculated_char;
+            otp_stack_buf[otp_stack_new] = (quarterword) otp_calculated_char;
         }
         incr(otp_pc);
         break;
@@ -562,6 +562,8 @@ void run_otp(void)
     }
 }
 
+#define FPUTC(a,b) fputc((int)(a),b)
+
 void run_external_ocp(char *external_ocp_name)
 {
     char *in_file_name;
@@ -603,32 +605,32 @@ void run_external_ocp(char *external_ocp_name)
             exit(1);
         }
         if (c > 0x4000000) {
-            fputc(0xfc | ((c >> 30) & 0x1), in_file);
-            fputc(0x80 | ((c >> 24) & 0x3f), in_file);
-            fputc(0x80 | ((c >> 18) & 0x3f), in_file);
-            fputc(0x80 | ((c >> 12) & 0x3f), in_file);
-            fputc(0x80 | ((c >> 6) & 0x3f), in_file);
-            fputc(0x80 | (c & 0x3f), in_file);
+            FPUTC(0xfc | ((c >> 30) & 0x1), in_file);
+            FPUTC(0x80 | ((c >> 24) & 0x3f), in_file);
+            FPUTC(0x80 | ((c >> 18) & 0x3f), in_file);
+            FPUTC(0x80 | ((c >> 12) & 0x3f), in_file);
+            FPUTC(0x80 | ((c >> 6) & 0x3f), in_file);
+            FPUTC(0x80 | (c & 0x3f), in_file);
         } else if (c > 0x200000) {
-            fputc(0xf8 | ((c >> 24) & 0x3), in_file);
-            fputc(0x80 | ((c >> 18) & 0x3f), in_file);
-            fputc(0x80 | ((c >> 12) & 0x3f), in_file);
-            fputc(0x80 | ((c >> 6) & 0x3f), in_file);
-            fputc(0x80 | (c & 0x3f), in_file);
+            FPUTC(0xf8 | ((c >> 24) & 0x3), in_file);
+            FPUTC(0x80 | ((c >> 18) & 0x3f), in_file);
+            FPUTC(0x80 | ((c >> 12) & 0x3f), in_file);
+            FPUTC(0x80 | ((c >> 6) & 0x3f), in_file);
+            FPUTC(0x80 | (c & 0x3f), in_file);
         } else if (c > 0x10000) {
-            fputc(0xf0 | ((c >> 18) & 0x7), in_file);
-            fputc(0x80 | ((c >> 12) & 0x3f), in_file);
-            fputc(0x80 | ((c >> 6) & 0x3f), in_file);
-            fputc(0x80 | (c & 0x3f), in_file);
+            FPUTC(0xf0 | ((c >> 18) & 0x7), in_file);
+            FPUTC(0x80 | ((c >> 12) & 0x3f), in_file);
+            FPUTC(0x80 | ((c >> 6) & 0x3f), in_file);
+            FPUTC(0x80 | (c & 0x3f), in_file);
         } else if (c > 0x800) {
-            fputc(0xe0 | ((c >> 12) & 0xf), in_file);
-            fputc(0x80 | ((c >> 6) & 0x3f), in_file);
-            fputc(0x80 | (c & 0x3f), in_file);
+            FPUTC(0xe0 | ((c >> 12) & 0xf), in_file);
+            FPUTC(0x80 | ((c >> 6) & 0x3f), in_file);
+            FPUTC(0x80 | (c & 0x3f), in_file);
         } else if (c > 0x80) {
-            fputc(0xc0 | ((c >> 6) & 0x1f), in_file);
-            fputc(0x80 | (c & 0x3f), in_file);
+            FPUTC(0xc0 | ((c >> 6) & 0x1f), in_file);
+            FPUTC(0x80 | (c & 0x3f), in_file);
         } else {
-            fputc(c & 0x7f, in_file);
+            FPUTC(c & 0x7f, in_file);
         }
     }
     fclose(in_file);
@@ -653,9 +655,9 @@ void run_external_ocp(char *external_ocp_name)
     system(command_line);
     otp_output_end = 0;
     otp_output_buf[otp_output_end] = 0;
-    while ((c_in = fgetc(out_file)) != -1) {
+    while ((c_in = (int) fgetc(out_file)) != -1) {
         if (c_in >= 0xfc) {
-            c = (c_in & 0x1) << 30;
+            c = (unsigned) (c_in & 0x1) << 30;
             advance_cin;
             c |= (c_in & 0x3f) << 24;
             advance_cin;
@@ -665,9 +667,9 @@ void run_external_ocp(char *external_ocp_name)
             advance_cin;
             c |= (c_in & 0x3f) << 6;
             advance_cin;
-            c |= c_in & 0x3f;
+            c |= (c_in & 0x3f);
         } else if (c_in >= 0xf8) {
-            c = (c_in & 0x3) << 24;
+            c = (unsigned) (c_in & 0x3) << 24;
             advance_cin;
             c |= (c_in & 0x3f) << 18;
             advance_cin;
@@ -675,29 +677,29 @@ void run_external_ocp(char *external_ocp_name)
             advance_cin;
             c |= (c_in & 0x3f) << 6;
             advance_cin;
-            c |= c_in & 0x3f;
+            c |= (c_in & 0x3f);
         } else if (c_in >= 0xf0) {
-            c = (c_in & 0x7) << 18;
+            c = (unsigned) (c_in & 0x7) << 18;
             advance_cin;
             c |= (c_in & 0x3f) << 12;
             advance_cin;
             c |= (c_in & 0x3f) << 6;
             advance_cin;
-            c |= c_in & 0x3f;
+            c |= (c_in & 0x3f);
         } else if (c_in >= 0xe0) {
-            c = (c_in & 0xf) << 12;
+            c = (unsigned) (c_in & 0xf) << 12;
             advance_cin;
             c |= (c_in & 0x3f) << 6;
             advance_cin;
-            c |= c_in & 0x3f;
+            c |= (c_in & 0x3f);
         } else if (c_in >= 0x80) {
-            c = (c_in & 0x1f) << 6;
+            c = (unsigned) (c_in & 0x1f) << 6;
             advance_cin;
-            c |= c_in & 0x3f;
+            c |= (c_in & 0x3f);
         } else {
-            c = c_in & 0x7f;
+            c = (unsigned) (c_in & 0x7f);
         }
-        otp_output_buf[++otp_output_end] = c;
+        otp_output_buf[++otp_output_end] = (quarterword) c;
     }
     fclose(out_file);
 
@@ -725,15 +727,15 @@ void run_ocp(void)
             overflow_ocp_buf_size();
         /* |cur_chr| can cover the full range |0..0x10FFFF| */
         if (cur_chr < 0x10000) {
-            otp_init_input_buf[otp_init_input_end] = cur_chr;
+            otp_init_input_buf[otp_init_input_end] = (quarterword) cur_chr;
         } else {
-            otp_init_input_buf[otp_init_input_end] =
-                ((cur_chr - 0x10000) / 0x400) + 0xD800;
+            otp_init_input_buf[otp_init_input_end] = (quarterword)
+                (((cur_chr - 0x10000) / 0x400) + 0xD800);
             incr(otp_init_input_end);
             if (otp_init_input_end > ocp_buf_size)
                 overflow_ocp_buf_size();
-            otp_init_input_buf[otp_init_input_end] =
-                ((cur_chr - 0x10000) % 0x400) + 0xDC00;
+            otp_init_input_buf[otp_init_input_end] = (quarterword)
+                (((cur_chr - 0x10000) % 0x400) + 0xDC00);
         }
         get_token();
         if ((cur_cmd != letter_cmd) && (cur_cmd != other_char_cmd) &&
@@ -793,7 +795,7 @@ void run_ocp(void)
         overflow_ocp_buf_size();
     push_input();
     current_ocp_lstack = active_lstack_no(active_real);
-    current_ocp_no = active_counter(active_real);
+    current_ocp_no = (short) active_counter(active_real);
     istate = mid_line;
     istart = first;
     last = istart;
@@ -822,31 +824,33 @@ void run_ocp(void)
             }
         }
         if (t <= 0x7F) {
-            buffer[last] = t;
+            buffer[last] = (packed_ASCII_code) t;
         } else if (t <= 0x7FF) {
-            buffer[last] = 0xC0 + t / 0x40;
+            buffer[last] = (packed_ASCII_code) (0xC0 + t / 0x40);
             incr(last);
             check_buffer();
-            buffer[last] = 0x80 + t % 0x40;
+            buffer[last] = (packed_ASCII_code) (0x80 + t % 0x40);
         } else if (t <= 0xFFFF) {
-            buffer[last] = 0xE0 + t / 0x1000;
+            buffer[last] = (packed_ASCII_code) (0xE0 + t / 0x1000);
             incr(last);
             check_buffer();
-            buffer[last] = 0x80 + (t % 0x1000) / 0x40;
+            buffer[last] = (packed_ASCII_code) (0x80 + (t % 0x1000) / 0x40);
             incr(last);
             check_buffer();
-            buffer[last] = 0x80 + (t % 0x1000) % 0x40;
+            buffer[last] = (packed_ASCII_code) (0x80 + (t % 0x1000) % 0x40);
         } else {
-            buffer[last] = 0xF0 + t / 0x40000;
+            buffer[last] = (packed_ASCII_code) (0xF0 + t / 0x400000);
             incr(last);
             check_buffer();
-            buffer[last] = 0x80 + (t % 0x40000) / 0x1000;
+            buffer[last] = (packed_ASCII_code) (0x80 + (t % 0x40000) / 0x1000);
             incr(last);
             check_buffer();
-            buffer[last] = 0x80 + ((t % 0x40000) % 0x1000) / 0x40;
+            buffer[last] =
+                (packed_ASCII_code) (0x80 + ((t % 0x40000) % 0x1000) / 0x40);
             incr(last);
             check_buffer();
-            buffer[last] = 0x80 + ((t % 0x40000) % 0x1000) % 0x40;
+            buffer[last] =
+                (packed_ASCII_code) (0x80 + ((t % 0x40000) % 0x1000) % 0x40);
         }
         incr(last);
         check_buffer();
@@ -865,12 +869,12 @@ void run_ocp(void)
 
 void initialize_ocp_buffers(int ocp_buf_size, int ocp_stack_size)
 {
-    otp_init_input_buf = xmallocarray(quarterword, ocp_buf_size);
-    otp_input_buf = xmallocarray(quarterword, ocp_buf_size);
-    otp_output_buf = xmallocarray(quarterword, ocp_buf_size);
-    otp_stack_buf = xmallocarray(quarterword, ocp_stack_size);
-    otp_calcs = xmallocarray(halfword, ocp_stack_size);
-    otp_states = xmallocarray(halfword, ocp_stack_size);
+    otp_init_input_buf = xmallocarray(quarterword, (unsigned) ocp_buf_size);
+    otp_input_buf = xmallocarray(quarterword, (unsigned) ocp_buf_size);
+    otp_output_buf = xmallocarray(quarterword, (unsigned) ocp_buf_size);
+    otp_stack_buf = xmallocarray(quarterword, (unsigned) ocp_stack_size);
+    otp_calcs = xmallocarray(halfword, (unsigned) ocp_stack_size);
+    otp_states = xmallocarray(halfword, (unsigned) ocp_stack_size);
 }
 
 boolean is_last_ocp(scaled llstack_no, int counter)
@@ -922,7 +926,7 @@ void add_ocp_stack(int min_index, scaled min_value)
     counter = 0;
     while (!(is_null_ocp_lstack(p))) {
         active_ocp(active_max_ptr) = ocp_lstack_ocp(p);
-        active_counter(active_max_ptr) = counter;
+        active_counter(active_max_ptr) = (quarterword) counter;
         active_lstack_no(active_max_ptr) = llstack_no;
         p = ocp_lstack_lnext(p);
         active_max_ptr = active_max_ptr + 2;
