@@ -190,7 +190,7 @@ static int io_popen(lua_State * L)
     char *safecmd = NULL;
     char *cmdname = NULL;
     int allow = 0;
-    char *cmd = (char *) luaL_checkstring(L, 1);
+    const char *cmd = luaL_checkstring(L, 1);
     const char *mode = luaL_optstring(L, 2, "r");
     FILE **pf = newfile(L);
 
@@ -415,16 +415,16 @@ static int read_chars(lua_State * L, FILE * f, size_t n)
 static int read_all(lua_State * L, FILE * f)
 {
     /* attempt to speed up reading whole files */
-    size_t rlen;                /* how much to read */
+    long rlen;                /* how much to read */
     size_t nr;                  /* number of chars actually read */
-    size_t old;                 /* old file location */
+    long old;                 /* old file location */
     char *p;
     old = ftell(f);
     if (old > 0 && (fseek(f, 0, SEEK_END) >= 0) && ((rlen = ftell(f)) > 0) && rlen < 1000 * 1000 * 100) {       /* 100 MB */
         fseek(f, old, SEEK_SET);
-        p = malloc(rlen);
+        p = malloc((size_t)rlen);
         if (p != NULL) {
-            nr = fread(p, sizeof(char), rlen, f);
+            nr = fread(p, sizeof(char), (size_t)rlen, f);
             lua_pushlstring(L, p, nr);
             free(p);
             return 1;
@@ -565,12 +565,13 @@ static int f_seek(lua_State * L)
 
 static int f_setvbuf(lua_State * L)
 {
+    int sz, op ,res;
     static const int mode[] = { _IONBF, _IOFBF, _IOLBF };
     static const char *const modenames[] = { "no", "full", "line", NULL };
     FILE *f = tofile(L);
-    int op = luaL_checkoption(L, 2, NULL, modenames);
-    lua_Integer sz = luaL_optinteger(L, 3, LUAL_BUFFERSIZE);
-    int res = setvbuf(f, NULL, mode[op], sz);
+    op = luaL_checkoption(L, 2, NULL, modenames);
+    lua_number2int(sz, luaL_optinteger(L, 3, LUAL_BUFFERSIZE));
+    res = setvbuf(f, NULL, mode[op], (size_t)sz);
     return pushresult(L, res == 0, NULL);
 }
 
