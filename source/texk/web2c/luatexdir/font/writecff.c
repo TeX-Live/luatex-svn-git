@@ -162,7 +162,7 @@ cff_index *cff_get_index_header(cff_font * cff)
         if (idx->offsize < 1 || idx->offsize > 4)
             CFF_ERROR("invalid offsize data");
 
-        idx->offset = xcalloc((unsigned) (count + 1), sizeof(l_offset));
+        idx->offset = xmalloc((unsigned) (count + 1) * sizeof(l_offset));
         for (i = 0; i < count + 1; i++) {
             (idx->offset)[i] = get_offset(cff, idx->offsize);
         }
@@ -196,7 +196,7 @@ cff_index *cff_get_index(cff_font * cff)
         if (idx->offsize < 1 || idx->offsize > 4)
             CFF_ERROR("invalid offsize data");
 
-        idx->offset = xcalloc((unsigned) (count + 1), sizeof(l_offset));
+        idx->offset = xmalloc((unsigned) (count + 1) * sizeof(l_offset));
         for (i = 0; i < count + 1; i++) {
             idx->offset[i] = get_offset(cff, idx->offsize);
         }
@@ -206,7 +206,7 @@ cff_index *cff_get_index(cff_font * cff)
 
         length = (size_t) (idx->offset[count] - idx->offset[0]);
 
-        idx->data = xcalloc((unsigned) length, sizeof(card8));
+        idx->data = xmalloc((unsigned) length * sizeof(card8));
         memcpy(idx->data, &cff->stream[cff->offset], length);
         cff->offset += length;
 
@@ -478,7 +478,7 @@ long cff_set_name(cff_font * cff, char *name)
     idx->offset = xmalloc(2 * sizeof(l_offset));
     (idx->offset)[0] = 1;
     (idx->offset)[1] = strlen(name) + 1;
-    idx->data = xcalloc((unsigned) strlen(name), sizeof(card8));
+    idx->data = xmalloc((unsigned) strlen(name) * sizeof(card8));
     memmove(idx->data, name, strlen(name));     /* no trailing '\0' */
 
     return (long) (5 + strlen(name));
@@ -776,7 +776,7 @@ static void add_dict(cff_dict * dict,
         if (stack_top > 0) {
             (dict->entries)[dict->count].count = stack_top;
             (dict->entries)[dict->count].values =
-                xcalloc((unsigned) stack_top, sizeof(double));
+                xmalloc((unsigned) stack_top * sizeof(double));
             while (stack_top > 0) {
                 stack_top--;
                 (dict->entries)[dict->count].values[stack_top] =
@@ -987,7 +987,7 @@ long cff_read_fdarray(cff_font * cff)
     cff->offset = (l_offset) offset;
     idx = cff_get_index(cff);
     cff->num_fds = (card8) idx->count;
-    cff->fdarray = xcalloc(idx->count, sizeof(cff_dict *));
+    cff->fdarray = xmalloc(idx->count * sizeof(cff_dict *));
     for (i = 0; i < idx->count; i++) {
         card8 *data = idx->data + (idx->offset)[i] - 1;
         size = (long) ((idx->offset)[i + 1] - (idx->offset)[i]);
@@ -1016,7 +1016,7 @@ long cff_read_private(cff_font * cff)
         if (cff->fdarray == NULL)
             cff_read_fdarray(cff);
 
-        cff->private = xcalloc(cff->num_fds, sizeof(cff_dict *));
+        cff->private = xmalloc(cff->num_fds * sizeof(cff_dict *));
         for (i = 0; i < cff->num_fds; i++) {
             if (cff->fdarray[i] != NULL &&
                 cff_dict_known(cff->fdarray[i], "Private") &&
@@ -1024,7 +1024,7 @@ long cff_read_private(cff_font * cff)
                 > 0) {
                 offset = (long) cff_dict_get(cff->fdarray[i], "Private", 1);
                 cff->offset = (l_offset) offset;
-                data = xcalloc((unsigned) size, sizeof(card8));
+                data = xmalloc((unsigned) size * sizeof(card8));
                 memcpy(data, &cff->stream[cff->offset], (size_t) size);
                 cff->offset = (l_offset) size;
                 (cff->private)[i] = cff_dict_unpack(data, data + size);
@@ -1036,12 +1036,12 @@ long cff_read_private(cff_font * cff)
         }
     } else {
         cff->num_fds = 1;
-        cff->private = xcalloc(1, sizeof(cff_dict *));
+        cff->private = xmalloc(sizeof(cff_dict *));
         if (cff_dict_known(cff->topdict, "Private") &&
             (size = (long) cff_dict_get(cff->topdict, "Private", 0)) > 0) {
             offset = (long) cff_dict_get(cff->topdict, "Private", 1);
             cff->offset = (l_offset) offset;
-            data = xcalloc((unsigned) size, sizeof(card8));
+            data = xmalloc((unsigned) size * sizeof(card8));
             memcpy(data, &cff->stream[cff->offset], (size_t) size);
             cff->offset = (l_offset) size;
             cff->private[0] = cff_dict_unpack(data, data + size);
@@ -1448,8 +1448,6 @@ void cff_dict_add(cff_dict * dict, const char *key, int count)
     if (count > 0) {
         (dict->entries)[dict->count].values =
             xcalloc((unsigned) count, sizeof(double));
-        memset((dict->entries)[dict->count].values, 0,
-               (unsigned) (sizeof(double) * (unsigned) count));
     } else {
         (dict->entries)[dict->count].values = NULL;
     }
@@ -1499,7 +1497,7 @@ char *cff_get_string(cff_font * cff, s_SID id)
 
     if (id < CFF_STDSTR_MAX) {
         len = strlen(cff_stdstr[id]);
-        result = xcalloc((unsigned) (len + 1), sizeof(char));
+        result = xmalloc((unsigned) (len + 1) * sizeof(char));
         memcpy(result, cff_stdstr[id], len);
         result[len] = '\0';
     } else if (cff && cff->string) {
@@ -1507,7 +1505,7 @@ char *cff_get_string(cff_font * cff, s_SID id)
         id = (s_SID) (id - CFF_STDSTR_MAX);
         if (id < strings->count) {
             len = (strings->offset)[id + 1] - (strings->offset)[id];
-            result = xcalloc((unsigned) (len + 1), sizeof(char));
+            result = xmalloc((unsigned) (len + 1) * sizeof(char));
             memmove(result, strings->data + (strings->offset)[id] - 1, len);
             result[len] = '\0';
         }
@@ -1671,7 +1669,7 @@ long cff_read_charsets(cff_font * cff)
     switch (charset->format) {
     case 0:
         charset->num_entries = (card16) (cff->num_glyphs - 1);  /* no .notdef */
-        charset->data.glyphs = xcalloc(charset->num_entries, sizeof(s_SID));
+        charset->data.glyphs = xmalloc(charset->num_entries * sizeof(s_SID));
         length += (charset->num_entries) * 2;
         for (i = 0; i < (charset->num_entries); i++) {
             charset->data.glyphs[i] = get_card16(cff);
@@ -2608,7 +2606,7 @@ long cff_read_encoding(cff_font * cff)
     switch (encoding->format & (~0x80)) {
     case 0:
         encoding->num_entries = get_card8(cff);
-        (encoding->data).codes = xcalloc(encoding->num_entries, sizeof(card8));
+        (encoding->data).codes = xmalloc(encoding->num_entries * sizeof(card8));
         for (i = 0; i < (encoding->num_entries); i++) {
             (encoding->data).codes[i] = get_card8(cff);
         }
@@ -2727,7 +2725,7 @@ long cff_read_fdselect(cff_font * cff)
     switch (fdsel->format) {
     case 0:
         fdsel->num_entries = cff->num_glyphs;
-        (fdsel->data).fds = xcalloc(fdsel->num_entries, sizeof(card8));
+        (fdsel->data).fds = xmalloc(fdsel->num_entries * sizeof(card8));
         for (i = 0; i < (fdsel->num_entries); i++) {
             (fdsel->data).fds[i] = get_card8(cff);
         }

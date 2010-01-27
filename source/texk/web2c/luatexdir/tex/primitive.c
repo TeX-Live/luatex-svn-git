@@ -255,11 +255,10 @@ void undump_primitives(void)
         undump_int(prim_data[p].subids);
         if (prim_data[p].subids > 0) {
             prim_data[p].names =
-                (str_number *) xcalloc((unsigned) prim_data[p].subids,
+                (str_number *) xmalloc((unsigned) prim_data[p].subids *
                                        sizeof(str_number *));
-        }
-        for (q = 0; q < prim_data[p].subids; q++) {
-            undump_int(prim_data[p].names[q]);
+            for (q = 0; q < prim_data[p].subids; q++)
+                undump_int(prim_data[p].names[q]);
         }
     }
 }
