@@ -204,7 +204,7 @@ static void preset_fontname(fo_entry * fo, internal_font_number f)
         fo->fd->fontname = xstrdup(fo->fm->tfm_name);
 }
 
-static void write_fontname(PDF pdf, fd_entry * fd, char *key)
+static void write_fontname(PDF pdf, fd_entry * fd, const char *key)
 {
     assert(fd->fontname != NULL);
     pdf_puts(pdf, "/");
@@ -843,12 +843,13 @@ void do_pdf_font(PDF pdf, int font_objnum, internal_font_number f)
    at this point in the program.
 */
 
-int comp_glw_entry(const void *pa, const void *pb, void *p)
+int comp_glw_entry(const void *pa, const void *pb, void *p
+                   __attribute__ ((unused)))
 {
     unsigned short i, j;
-    (void) p;
-    i = (*(glw_entry *) pa).id;
-    j = (*(glw_entry *) pb).id;
+
+    i = (unsigned short) (*(const glw_entry *) pa).id;
+    j = (unsigned short) (*(const glw_entry *) pb).id;
     cmp_return(i, j);
     return 0;
 }
@@ -884,7 +885,7 @@ static void mark_cid_subset_glyphs(fo_entry * fo, internal_font_number f)
             for (i = font_bc(k); i <= font_ec(k); i++) {
                 if (quick_char_exists(k, i) && char_used(k, i)) {
                     j = xtalloc(1, glw_entry);
-                    j->id = char_index(k, i);
+                    j->id = (unsigned) char_index(k, i);
                     j->wd = divide_scaled_n(char_width(k, i), l, 10000.0);
                     if ((glw_entry *) avl_find(fo->fd->gl_tree, j) == NULL) {
                         aa = avl_probe(fo->fd->gl_tree, j);
@@ -923,7 +924,7 @@ static void write_cid_charwidth_array(PDF pdf, fo_entry * fo)
     avl_t_init(&t, fo->fd->gl_tree);
     glyph = (glw_entry *) avl_t_first(&t, fo->fd->gl_tree);
     assert(glyph != NULL);
-    i = glyph->id;
+    i = (int) glyph->id;
     pdf_printf(pdf, "[ %i [", i);
     for (; glyph != NULL; glyph = (glw_entry *) avl_t_next(&t)) {
         j = glyph->wd;
@@ -945,7 +946,7 @@ static void write_cid_charwidth_array(PDF pdf, fo_entry * fo)
         if ((j % 10) != 0)
             pdf_printf(pdf, ".%i", (j % 10));
 
-        i = glyph->id;
+        i = (int) glyph->id;
     }
     pdf_puts(pdf, "]]\n");
     pdf_end_obj(pdf);

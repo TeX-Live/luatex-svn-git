@@ -196,7 +196,7 @@ extern int ttf_length;
 int readchar(boolean, chardesc *);
 
 /* macnames.c */
-extern const char notdef[];
+extern char notdef[];
 
 /* vfovf.c */
 void vf_expand_local_fonts(internal_font_number f);

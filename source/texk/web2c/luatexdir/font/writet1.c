@@ -205,11 +205,11 @@ static short t1_lenIV;
 static char enc_line[ENC_BUF_SIZE];
 
 /* define t1_line_ptr, t1_line_array & t1_line_limit */
-typedef char t1_line_entry;
+#define t1_line_entry char
 define_array(t1_line);
 
 /* define t1_buf_ptr, t1_buf_array & t1_buf_limit */
-typedef char t1_buf_entry;
+#define t1_buf_entry char
 define_array(t1_buf);
 
 static int cs_start;
@@ -245,13 +245,13 @@ static FILE *enc_file;
 static void enc_getline(void)
 {
     char *p;
-    int c;
+    char c;
   restart:
     if (enc_eof())
         pdftex_fail("unexpected end of file");
     p = enc_line;
     do {
-        c = enc_getchar();
+        c = (char) enc_getchar();
         append_char_to_buf(c, p, enc_line, ENC_BUF_SIZE);
     }
     while (c != 10 && !enc_eof());
@@ -399,32 +399,33 @@ static byte edecrypt(byte cipher)
     byte plain;
     if (t1_pfa) {
         while (cipher == 10 || cipher == 13)
-            cipher = t1_getbyte();
-        last_hexbyte = cipher = (hexval(cipher) << 4) + hexval(t1_getbyte());
+            cipher = (byte) t1_getbyte();
+        last_hexbyte = cipher =
+            (byte) ((hexval(cipher) << 4) + hexval(t1_getbyte()));
     }
-    plain = (cipher ^ (t1_dr >> 8));
-    t1_dr = (cipher + t1_dr) * t1_c1 + t1_c2;
+    plain = (byte) (cipher ^ (t1_dr >> 8));
+    t1_dr = (unsigned short) ((cipher + t1_dr) * t1_c1 + t1_c2);
     return plain;
 }
 
 static byte cdecrypt(byte cipher, unsigned short *cr)
 {
-    const byte plain = (cipher ^ (*cr >> 8));
-    *cr = (cipher + *cr) * t1_c1 + t1_c2;
+    const byte plain = (byte) (cipher ^ (*cr >> 8));
+    *cr = (unsigned short) ((cipher + *cr) * t1_c1 + t1_c2);
     return plain;
 }
 
 static byte eencrypt(byte plain)
 {
-    const byte cipher = (plain ^ (t1_er >> 8));
-    t1_er = (cipher + t1_er) * t1_c1 + t1_c2;
+    const byte cipher = (byte) (plain ^ (t1_er >> 8));
+    t1_er = (unsigned short) ((cipher + t1_er) * t1_c1 + t1_c2);
     return cipher;
 }
 
 static byte cencrypt(byte plain, unsigned short *cr)
 {
-    const byte cipher = (plain ^ (*cr >> 8));
-    *cr = (cipher + *cr) * t1_c1 + t1_c2;
+    const byte cipher = (byte) (plain ^ (*cr >> 8));
+    *cr = (unsigned short) ((cipher + *cr) * t1_c1 + t1_c2);
     return cipher;
 }
 
@@ -485,9 +486,12 @@ static void t1_getline(void)
         goto exit;
     while (!t1_eof()) {
         if (t1_in_eexec == 1)
-            c = edecrypt(c);
+            c = edecrypt((byte) c);
         alloc_array(t1_line, 1, T1_BUF_SIZE);
-        append_char_to_buf(c, t1_line_ptr, t1_line_array, t1_line_limit);
+        {
+            char cc = (char) c;
+            append_char_to_buf(cc, t1_line_ptr, t1_line_array, t1_line_limit);
+        }
         if (t1_in_eexec == 0 && eexec_scan >= 0 && eexec_scan < eexec_len) {
             if (t1_line_array[eexec_scan] == eexec_str[eexec_scan])
                 eexec_scan++;
@@ -501,11 +505,12 @@ static void t1_getline(void)
             p = t1_line_ptr - 5;
             while (*p != ' ')
                 p--;
-            t1_cslen = l = t1_scan_num(p + 1, 0);
-            cs_start = t1_line_ptr - t1_line_array;     /* cs_start is an index now */
+            l = (int) t1_scan_num(p + 1, 0);
+            t1_cslen = (unsigned short) l;
+            cs_start = (int) (t1_line_ptr - t1_line_array);     /* cs_start is an index now */
             alloc_array(t1_line, l, T1_BUF_SIZE);
             while (l-- > 0)
-                *t1_line_ptr++ = edecrypt(t1_getbyte());
+                *t1_line_ptr++ = (t1_line_entry) edecrypt((byte) t1_getbyte());
         }
         c = t1_getbyte();
     }
@@ -528,10 +533,10 @@ static void t1_putline(PDF pdf)
         return;
     if (t1_eexec_encrypt) {
         while (p < t1_line_ptr)
-            t1_putchar(eencrypt(*p++));
+            t1_putchar((eight_bits) eencrypt((byte) * p++));
     } else
         while (p < t1_line_ptr)
-            t1_putchar(*p++);
+            t1_putchar((eight_bits) * p++);
 }
 
 static void t1_puts(PDF pdf, const char *s)
@@ -581,8 +586,8 @@ static void t1_check_block_len(boolean decrypt)
         return;
     c = t1_getbyte();
     if (decrypt)
-        c = edecrypt(c);
-    l = t1_block_length;
+        c = edecrypt((byte) c);
+    l = (int) t1_block_length;
     if (!(l == 0 && (c == 10 || c == 13))) {
         pdftex_fail("%i bytes more than expected were ignored", l + 1);
     }
@@ -598,7 +603,7 @@ static void t1_start_eexec(PDF pdf)
     if (!t1_pfa)
         t1_check_block_len(false);
     for (t1_line_ptr = t1_line_array, i = 0; i < 4; i++) {
-        edecrypt(t1_getbyte());
+        edecrypt((byte) t1_getbyte());
         *t1_line_ptr++ = 0;
     }
     t1_eexec_encrypt = true;
@@ -615,7 +620,7 @@ static void t1_stop_eexec(PDF pdf)
     if (!t1_pfa)
         t1_check_block_len(true);
     else {
-        c = edecrypt(t1_getbyte());
+        c = edecrypt((byte) t1_getbyte());
         if (!(c == 10 || c == 13)) {
             if (last_hexbyte == 0)
                 t1_puts(pdf, "00");
@@ -652,23 +657,24 @@ static void t1_scan_keys(PDF pdf)
 {
     int i, k;
     char *p, *q, *r;
-    key_entry *key;
+    const key_entry *key;
     if (t1_prefix("/FontType")) {
         p = t1_line_array + strlen("FontType") + 1;
-        if ((i = t1_scan_num(p, 0)) != 1)
+        if ((i = (int) t1_scan_num(p, 0)) != 1)
             pdftex_fail("Type%d fonts unsupported by pdfTeX", i);
         return;
     }
-    for (key = (key_entry *) font_key; key - font_key < FONT_KEYS_NUM; key++) {
-        if (key->t1name[0] != '\0' &&
-            str_prefix(t1_line_array + 1, key->t1name))
+    for (key = (const key_entry *) font_key; key - font_key < FONT_KEYS_NUM;
+         key++) {
+        if (key->t1name[0] != '\0'
+            && str_prefix(t1_line_array + 1, key->t1name))
             break;
     }
     if (key - font_key == FONT_KEYS_NUM)
         return;
     p = t1_line_array + strlen(key->t1name) + 1;
     skip(p, ' ');
-    if ((k = key - font_key) == FONTNAME_CODE) {
+    if ((k = (int) (key - font_key)) == FONTNAME_CODE) {
         if (*p != '/') {
             remove_eol(p, t1_line_array);
             pdftex_fail("a name expected: `%s'", t1_line_array);
@@ -683,7 +689,7 @@ static void t1_scan_keys(PDF pdf)
          * later */
         if (is_subsetted(fd_cur->fm)) {
             assert(is_included(fd_cur->fm));
-            t1_fontname_offset = t1_offset() + (r - t1_line_array);
+            t1_fontname_offset = (int) (t1_offset() + (r - t1_line_array));
             strcpy(t1_buf_array, p);
             sprintf(r, "ABCDEF+%s%s", fd_cur->fontname, t1_buf_array);
             t1_line_ptr = eol(r);
@@ -694,13 +700,13 @@ static void t1_scan_keys(PDF pdf)
         p++;
     if (k == FONTBBOX1_CODE) {
         for (i = 0; i < 4; i++, k++) {
-            fd_cur->font_dim[k].val = t1_scan_num(p, &r);
+            fd_cur->font_dim[k].val = (int) t1_scan_num(p, &r);
             fd_cur->font_dim[k].set = true;
             p = r;
         }
         return;
     }
-    fd_cur->font_dim[k].val = t1_scan_num(p, 0);
+    fd_cur->font_dim[k].val = (int) t1_scan_num(p, 0);
     fd_cur->font_dim[k].set = true;
 }
 
@@ -710,7 +716,7 @@ static void t1_scan_param(PDF pdf)
     if (!t1_scan || *t1_line_array != '/')
         return;
     if (t1_prefix(lenIV)) {
-        t1_lenIV = t1_scan_num(t1_line_array + strlen(lenIV), 0);
+        t1_lenIV = (short) t1_scan_num(t1_line_array + strlen(lenIV), 0);
         if (t1_lenIV < 0)
             pdftex_fail("negative value of lenIV is not supported");
         return;
@@ -958,7 +964,7 @@ static void cs_store(boolean is_subr)
          *t1_buf_ptr++ = *p++);
     *t1_buf_ptr = 0;
     if (is_subr) {
-        subr = t1_scan_num(p + 1, 0);
+        subr = (int) t1_scan_num(p + 1, 0);
         check_subr(subr);
         ptr = subr_tab + subr;
     } else {
@@ -980,7 +986,7 @@ static void cs_store(boolean is_subr)
     *t1_buf_ptr++ = 10;
     if (is_subr && cs_token_pair == NULL)
         cs_token_pair = check_cs_token_pair();
-    ptr->len = t1_buf_ptr - t1_buf_array;
+    ptr->len = (unsigned short) (t1_buf_ptr - t1_buf_array);
     ptr->cslen = t1_cslen;
     xfree(ptr->data);           /* mem leak? */
     ptr->data = xtalloc(ptr->len, byte);
@@ -1094,14 +1100,14 @@ static void append_cs_return(cs_entry * ptr)
     *p = CS_RETURN;
 
     /* encrypt the new cs data to new_data */
-    new_data = xtalloc(ptr->len + 1, byte);
+    new_data = xtalloc((unsigned) (ptr->len + 1), byte);
     memcpy(new_data, ptr->data, 4);
     p = new_data + 4;
     q = (byte *) t1_buf_array;
     cr = 4330;
     for (i = 0; i < ptr->cslen + 1; i++)
         *p++ = cencrypt(*q++, &cr);
-    memcpy(p, ptr->data + 4 + ptr->cslen, ptr->len - ptr->cslen - 4);
+    memcpy(p, ptr->data + 4 + ptr->cslen, (size_t) (ptr->len - ptr->cslen - 4));
 
     /* update *ptr */
     xfree(ptr->data);
@@ -1256,10 +1262,10 @@ static void cs_mark(const char *cs_name, int subr)
 /**********************************************************************/
 /* AVL search tree for glyph code by glyph name */
 
-static int comp_t1_glyphs(const void *pa, const void *pb, void *p)
+static int comp_t1_glyphs(const void *pa, const void *pb, void *p
+                          __attribute__ ((unused)))
 {
-    (void) p;
-    return strcmp(*((const char **) pa), *((const char **) pb));
+    return strcmp(*(const char *const *) pa, *(const char *const *) pb);
 }
 
 struct avl_table *create_t1_glyph_tree(char **glyph_names)
@@ -1398,13 +1404,13 @@ static void t1_read_subrs(PDF pdf)
         return;
     subr_size_pos = strlen("/Subrs") + 1;
     /* subr_size_pos points to the number indicating dict size after "/Subrs" */
-    subr_size = t1_scan_num(t1_line_array + subr_size_pos, 0);
+    subr_size = (int) t1_scan_num(t1_line_array + subr_size_pos, 0);
     if (subr_size == 0) {
         while (!t1_charstrings())
             t1_getline();
         return;
     }
-    subr_tab = xtalloc(subr_size, cs_entry);
+    subr_tab = xtalloc((unsigned) subr_size, cs_entry);
     for (ptr = subr_tab; ptr - subr_tab < subr_size; ptr++)
         init_cs_entry(ptr);
     subr_array_start = xstrdup(t1_line_array);
@@ -1429,7 +1435,7 @@ static void t1_read_subrs(PDF pdf)
     for (i = 0; i < POST_SUBRS_SCAN; i++) {
         if (t1_charstrings())
             break;
-        s += t1_line_ptr - t1_line_array;
+        s = (int) (s + t1_line_ptr - t1_line_array);
         alloc_array(t1_buf, s, T1_BUF_SIZE);
         strcat(t1_buf_array, t1_line_array);
         t1_getline();
@@ -1495,7 +1501,7 @@ static void t1_flush_cs(PDF pdf, boolean is_subr)
         cs_len = 0;
         /* at this point we have t1_lenIV >= 0;
          * a negative value would be caught in t1_scan_param() */
-        return_cs = xtalloc(t1_lenIV + 1, byte);
+        return_cs = xtalloc((unsigned) (t1_lenIV + 1), byte);
         for (cs_len = 0, r = return_cs; cs_len < t1_lenIV; cs_len++, r++)
             *r = cencrypt(0x00, &cr);
         *r = cencrypt(CS_RETURN, &cr);
@@ -1568,20 +1574,20 @@ static void t1_mark_glyphs(void)
     if (subr_tab != NULL)
         for (subr_max = -1, ptr = subr_tab; ptr - subr_tab < subr_size; ptr++)
             if (ptr->used && ptr - subr_tab > subr_max)
-                subr_max = ptr - subr_tab;
+                subr_max = (int) (ptr - subr_tab);
 }
 
 
 static void t1_subset_charstrings(PDF pdf)
 {
     cs_entry *ptr;
-    cs_size_pos =
-        strstr(t1_line_array,
-               charstringname) + strlen(charstringname) - t1_line_array + 1;
+    cs_size_pos = (int) (strstr(t1_line_array,
+                                charstringname) + strlen(charstringname) -
+                         t1_line_array + 1);
     /* cs_size_pos points to the number indicating
        dict size after "/CharStrings" */
-    cs_size = t1_scan_num(t1_line_array + cs_size_pos, 0);
-    cs_ptr = cs_tab = xtalloc(cs_size, cs_entry);
+    cs_size = (int) t1_scan_num(t1_line_array + cs_size_pos, 0);
+    cs_ptr = cs_tab = xtalloc((unsigned) cs_size, cs_entry);
     for (ptr = cs_tab; ptr - cs_tab < cs_size; ptr++)
         init_cs_entry(ptr);
     cs_notdef = NULL;

@@ -99,7 +99,7 @@ extern char **suffixlist;
         c = 10;                                        \
     if (c != ' ' || (p > buf && p[-1] != 32)) {        \
         check_buf(p - buf + 1, (buf_size));            \
-        *p++ = c;                                      \
+        *p++ = c;				       \
     }                                                  \
 } while (0)
 
@@ -122,23 +122,23 @@ extern char **suffixlist;
 
 #  define skip(p, c)   if (*p == c)  p++
 
-#  define alloc_array(T, n, s) do {                    \
-    if (T##_array == NULL) {                           \
-        T##_limit = (s);                               \
-        if ((unsigned)(n) > T##_limit)                 \
-            T##_limit = (n);                           \
-        T##_array = xtalloc(T##_limit, T##_entry);     \
-        T##_ptr = T##_array;                           \
-    }                                                  \
-    else if ((unsigned)(T##_ptr - T##_array + (n)) > (unsigned)(T##_limit)) { \
-        size_t last_ptr_index = (size_t)(T##_ptr - T##_array);		\
-        T##_limit *= 2;                                \
-        if ((unsigned)(T##_ptr - T##_array + (n)) > (unsigned)(T##_limit)) \
-            T##_limit = (size_t)(T##_ptr - T##_array + (n));		\
-        xretalloc(T##_array, T##_limit, T##_entry);    \
-        T##_ptr = T##_array + last_ptr_index;          \
-    }                                                  \
-} while (0)
+#  define alloc_array(T, n, s) do {					\
+	if (T##_array == NULL) {					\
+	    T##_limit = (size_t)(s);					\
+	    if ((unsigned)(n) > (unsigned)T##_limit)			\
+		T##_limit = (size_t)(n);				\
+	    T##_array = xtalloc((unsigned)T##_limit, T##_entry);	\
+	    T##_ptr = T##_array;					\
+	}								\
+	else if ((unsigned)(T##_ptr - T##_array + (unsigned)(n)) > (unsigned)(T##_limit)) { \
+	    size_t last_ptr_index = (size_t)(T##_ptr - T##_array);	\
+	    T##_limit *= 2;						\
+	    if ((unsigned)(T##_ptr - T##_array + (unsigned)(n)) > (unsigned)(T##_limit)) \
+		T##_limit = (size_t)(T##_ptr - T##_array + (unsigned)(n));	\
+	    xretalloc(T##_array, (unsigned)T##_limit, T##_entry);	\
+	    T##_ptr = T##_array + last_ptr_index;			\
+	}								\
+    } while (0)
 
 #  define define_array(T)                   \
 T##_entry      *T##_ptr, *T##_array = NULL; \

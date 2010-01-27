@@ -22,7 +22,7 @@
 
 /* should be better macnames.h */
 
-const char notdef[] = ".notdef";
+char notdef[] = ".notdef";
 
 const char *mac_glyph_names[] = {
 /* 0x00 */

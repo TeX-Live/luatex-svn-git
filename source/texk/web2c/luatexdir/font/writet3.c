@@ -103,7 +103,7 @@ static boolean writepk(PDF pdf, internal_font_number f)
     int dpi;
     int callback_id = 0;
     int file_opened = 0;
-    int mallocsize = 0;
+    unsigned mallocsize = 0;
     xfree(t3_buffer);
     t3_curbyte = 0;
     t3_size = 0;
@@ -111,14 +111,14 @@ static boolean writepk(PDF pdf, internal_font_number f)
     callback_id = callback_defined(find_pk_file_callback);
 
     if (callback_id > 0) {
-        dpi = round(pdf->pk_resolution *
-                    (((float) font_size(f)) / font_dsize(f)));
+        dpi = round((float) pdf->pk_resolution *
+                    (((float) font_size(f)) / (float) font_dsize(f)));
         /* <base>.dpi/<fontname>.<tdpi>pk */
         cur_file_name = font_name(f);
-        mallocsize = strlen(cur_file_name) + 24 + 9;
+        mallocsize = (unsigned) (strlen(cur_file_name) + 24 + 9);
         name = xmalloc(mallocsize);
-        snprintf(name, mallocsize, "%ddpi/%s.%dpk", (int) pdf->pk_resolution,
-                 cur_file_name, (int) dpi);
+        snprintf(name, (size_t) mallocsize, "%ddpi/%s.%dpk",
+                 (int) pdf->pk_resolution, cur_file_name, (int) dpi);
         if (run_callback(callback_id, "S->S", name, &ftemp)) {
             if (ftemp != NULL && strlen(ftemp)) {
                 free(name);
@@ -127,11 +127,11 @@ static boolean writepk(PDF pdf, internal_font_number f)
             }
         }
     } else {
-        dpi =
-            kpse_magstep_fix(round
-                             (pdf->pk_resolution *
-                              (((float) font_size(f)) / font_dsize(f))),
-                             pdf->pk_resolution, NULL);
+        dpi = (int)
+            kpse_magstep_fix((unsigned) round
+                             ((float) pdf->pk_resolution *
+                              ((float) font_size(f) / (float) font_dsize(f))),
+                             (unsigned) pdf->pk_resolution, NULL);
         cur_file_name = font_name(f);
         name = kpse_find_pk(cur_file_name, (unsigned) dpi, &font_ret);
         if (name == NULL ||
@@ -161,13 +161,13 @@ static boolean writepk(PDF pdf, internal_font_number f)
     if (tracefilenames)
         tex_printf(" <%s", (char *) name);
     cd.rastersize = 256;
-    cd.raster = xtalloc(cd.rastersize, halfword);
+    cd.raster = xtalloc((unsigned long) cd.rastersize, halfword);
     check_preamble = true;
     while (readchar(check_preamble, &cd) != 0) {
         check_preamble = false;
         if (!pdf_char_marked(f, cd.charcode))
             continue;
-        t3_char_widths[cd.charcode] =
+        t3_char_widths[cd.charcode] = (float)
             pk_char_width(f, get_charwidth(f, cd.charcode),
                           pdf->decimal_digits, pdf->pk_scale_factor);
         if (cd.cwidth < 1 || cd.cheight < 1) {
@@ -187,7 +187,7 @@ static boolean writepk(PDF pdf, internal_font_number f)
         pdf_new_dict(pdf, obj_type_others, 0, 0);
         t3_char_procs[cd.charcode] = pdf->obj_ptr;
         pdf_begin_stream(pdf);
-        pdf_print_real(pdf, t3_char_widths[cd.charcode], 2);
+        pdf_print_real(pdf, (int) t3_char_widths[cd.charcode], 2);
         pdf_printf(pdf, " 0 %i %i %i %i d1\n",
                    (int) llx, (int) lly, (int) urx, (int) ury);
         if (is_null_glyph)
@@ -201,13 +201,13 @@ static boolean writepk(PDF pdf, internal_font_number f)
         row = cd.raster;
         for (i = 0; i < cd.cheight; i++) {
             for (j = 0; j < rw - 1; j++) {
-                pdf_out(pdf, *row / 256);
-                pdf_out(pdf, *row % 256);
+                pdf_out(pdf, (unsigned char) (*row / 256));
+                pdf_out(pdf, (unsigned char) (*row % 256));
                 row++;
             }
-            pdf_out(pdf, *row / 256);
+            pdf_out(pdf, (unsigned char) (*row / 256));
             if (2 * rw == cw)
-                pdf_out(pdf, *row % 256);
+                pdf_out(pdf, (unsigned char) (*row % 256));
             row++;
         }
         pdf_puts(pdf, "\nEI\nQ\n");
@@ -283,7 +283,7 @@ void writet3(PDF pdf, int objnum, internal_font_number f)
     pdf_puts(pdf, "[");
     if (is_pk_font)
         for (i = first_char; i <= last_char; i++) {
-            pdf_print_real(pdf, t3_char_widths[i], 2);
+            pdf_print_real(pdf, (int) t3_char_widths[i], 2);
             pdf_puts(pdf, " ");
     } else
         for (i = first_char; i <= last_char; i++)

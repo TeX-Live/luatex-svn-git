@@ -59,7 +59,7 @@ USHORT get_unsigned_pair(sfnt * f)
     USHORT l;
     test_loc(2);
     l = f->buffer[(f->loc++)];
-    l = l * 0x100 + f->buffer[(f->loc++)];
+    l = (USHORT) (l * 0x100 + f->buffer[(f->loc++)]);
     return l;
 };
 
@@ -71,7 +71,7 @@ SHORT get_signed_pair(sfnt * f)
     if (l > 0x80)
         l -= 0x100;
     l = l * 0x100 + f->buffer[(f->loc++)];
-    return l;
+    return (SHORT) l;
 };
 
 ULONG get_unsigned_quad(sfnt * f)
@@ -109,14 +109,15 @@ void pdf_add_stream(pdf_obj * stream, unsigned char *buf, long len)
     int i;
     assert(stream != NULL);
     if (stream->data == NULL) {
-        stream->data = xmalloc(len);
+        stream->data = xmalloc((unsigned) len);
     } else {
-        stream->data = xrealloc(stream->data, len + stream->length);
+        stream->data =
+            xrealloc(stream->data, (unsigned) len + (unsigned) stream->length);
     }
     for (i = 0; i < len; i++) {
         *(stream->data + stream->length + i) = *(buf + i);
     }
-    stream->length += len;
+    stream->length += (unsigned) len;
 };
 
 void pdf_release_obj(pdf_obj * stream)
@@ -234,7 +235,7 @@ static struct {
 
 unsigned long ttc_read_offset(sfnt * sfont, int ttc_idx)
 {
-    long version;
+    ULONG version;
     unsigned long offset = 0;
     unsigned long num_dirs = 0;
 
@@ -274,7 +275,8 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
     if (sfont->type == SFNT_TYPE_TTC) {
         i = ff_get_ttc_index(fd->fm->ff_name, fd->fm->ps_name);
         tex_printf("(%s:%ld)", (fd->fm->ps_name ? fd->fm->ps_name : ""), i);
-        error = sfnt_read_table_directory(sfont, ttc_read_offset(sfont, i));
+        error =
+            sfnt_read_table_directory(sfont, ttc_read_offset(sfont, (int) i));
     } else {
         error = sfnt_read_table_directory(sfont, 0);
     }
@@ -320,13 +322,13 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
         for (cid = 1; cid <= (long) last_cid; cid++) {
             if (used_chars[cid] == 0)
                 continue;
-            gid = cid;
+            gid = (short unsigned) cid;
 
 
 #ifndef NO_GHOSTSCRIPT_BUG
-            gid = tt_add_glyph(glyphs, gid, cid);
+            gid = tt_add_glyph(glyphs, (USHORT) gid, (USHORT) cid);
 #else
-            gid = tt_add_glyph(glyphs, gid, num_glyphs);
+            gid = tt_add_glyph(glyphs, (USHORT) gid, (USHORT) num_glyphs);
             cidtogidmap[2 * cid] = gid >> 8;
             cidtogidmap[2 * cid + 1] = gid & 0xff;
 #endif                          /* !NO_GHOSTSCRIPT_BUG */
@@ -371,12 +373,12 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
 
     /* squeeze in the cidgidmap */
     if (cidtogidmap != NULL) {
-        cidtogid_obj = pdf_new_objnum(pdf);
-        pdf_begin_dict(pdf, cidtogid_obj, 0);
+        cidtogid_obj = (unsigned long) pdf_new_objnum(pdf);
+        pdf_begin_dict(pdf, (int) cidtogid_obj, 0);
         pdf_printf(pdf, "/Length %i\n", ((last_cid + 1) * 2));
         pdf_end_dict(pdf);
         pdf_printf(pdf, "stream\n");
-        pdf_room(pdf, (last_cid + 1) * 2);
+        pdf_room(pdf, (int) ((last_cid + 1) * 2));
         for (i = 0; i < ((int) (last_cid + 1) * 2); i++) {
             pdf_quick_out(pdf, cidtogidmap[i]);
         }

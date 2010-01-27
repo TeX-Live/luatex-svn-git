@@ -27,8 +27,8 @@ static const char _svn_version[] =
     "$URL$";
 
 #define get_offset(s,n) get_unsigned(s, (n))
-#define get_card8(a)  a->stream[a->offset++]
-#define get_card16(a) get_unsigned(a,2)
+#define get_card8(a)  (card8)(a->stream[a->offset++])
+#define get_card16(a) (card16)(get_unsigned(a,2))
 
 #undef b0
 #undef b1
@@ -162,7 +162,7 @@ cff_index *cff_get_index_header(cff_font * cff)
         if (idx->offsize < 1 || idx->offsize > 4)
             CFF_ERROR("invalid offsize data");
 
-        idx->offset = xcalloc(count + 1, sizeof(l_offset));
+        idx->offset = xcalloc((unsigned) (count + 1), sizeof(l_offset));
         for (i = 0; i < count + 1; i++) {
             (idx->offset)[i] = get_offset(cff, idx->offsize);
         }
@@ -186,7 +186,7 @@ cff_index *cff_get_index(cff_font * cff)
 {
     cff_index *idx;
     card16 i, count;
-    long length;
+    size_t length;
 
     idx = xcalloc(1, sizeof(cff_index));
 
@@ -196,7 +196,7 @@ cff_index *cff_get_index(cff_font * cff)
         if (idx->offsize < 1 || idx->offsize > 4)
             CFF_ERROR("invalid offsize data");
 
-        idx->offset = xcalloc((count + 1), sizeof(l_offset));
+        idx->offset = xcalloc((unsigned) (count + 1), sizeof(l_offset));
         for (i = 0; i < count + 1; i++) {
             idx->offset[i] = get_offset(cff, idx->offsize);
         }
@@ -204,9 +204,9 @@ cff_index *cff_get_index(cff_font * cff)
         if (idx->offset[0] != 1)
             CFF_ERROR("Invalid CFF Index offset data");
 
-        length = idx->offset[count] - idx->offset[0];
+        length = (size_t) (idx->offset[count] - idx->offset[0]);
 
-        idx->data = xcalloc(length, sizeof(card8));
+        idx->data = xcalloc((unsigned) length, sizeof(card8));
         memcpy(idx->data, &cff->stream[cff->offset], length);
         cff->offset += length;
 
@@ -238,8 +238,8 @@ long cff_pack_index(cff_index * idx, card8 * dest, long destlen)
     if (destlen < len)
         CFF_ERROR("Not enough space available...");
 
-    *(dest++) = (idx->count >> 8) & 0xff;
-    *(dest++) = idx->count & 0xff;
+    *(dest++) = (card8) ((idx->count >> 8) & 0xff);
+    *(dest++) = (card8) (idx->count & 0xff);
 
     if (datalen < 0xffUL) {
         idx->offsize = 1;
@@ -293,7 +293,7 @@ long cff_index_size(cff_index * idx)
         } else {
             idx->offsize = 4;
         }
-        return (3 + (idx->offsize) * (idx->count + 1) + datalen);
+        return (3 + (idx->offsize) * (idx->count + 1) + (long) datalen);
     } else {
         return 2;
     }
@@ -308,7 +308,7 @@ cff_index *cff_new_index(card16 count)
     idx->offsize = 0;
 
     if (count > 0) {
-        idx->offset = xcalloc(count + 1, sizeof(l_offset));
+        idx->offset = xcalloc((unsigned) (count + 1), sizeof(l_offset));
         (idx->offset)[0] = 1;
     } else {
         idx->offset = NULL;
@@ -454,7 +454,7 @@ char *cff_get_name(cff_font * cff)
 
     idx = cff->name;
     len = idx->offset[cff->index + 1] - idx->offset[cff->index];
-    fontname = xmalloc((len + 1) * sizeof(char));
+    fontname = xmalloc((unsigned) (len + 1) * sizeof(char));
     memcpy(fontname, idx->data + idx->offset[cff->index] - 1, len);
     fontname[len] = '\0';
 
@@ -478,10 +478,10 @@ long cff_set_name(cff_font * cff, char *name)
     idx->offset = xmalloc(2 * sizeof(l_offset));
     (idx->offset)[0] = 1;
     (idx->offset)[1] = strlen(name) + 1;
-    idx->data = xcalloc(strlen(name), sizeof(card8));
+    idx->data = xcalloc((unsigned) strlen(name), sizeof(card8));
     memmove(idx->data, name, strlen(name));     /* no trailing '\0' */
 
-    return 5 + strlen(name);
+    return (long) (5 + strlen(name));
 }
 
 long cff_put_header(cff_font * cff, card8 * dest, long destlen)
@@ -516,7 +516,7 @@ cff_dict *cff_new_dict(void)
     dict = xcalloc(1, sizeof(cff_dict));
     dict->max = DICT_ENTRY_MAX;
     dict->count = 0;
-    dict->entries = xcalloc(dict->max, sizeof(cff_dict_entry));
+    dict->entries = xcalloc((unsigned) dict->max, sizeof(cff_dict_entry));
     return dict;
 }
 
@@ -684,7 +684,7 @@ static double get_real(card8 ** data, card8 * endptr, int *status)
             nibble = (**data >> 4) & 0x0f;
         }
         if (nibble >= 0x00 && nibble <= 0x09) {
-            work_buffer[len++] = nibble + '0';
+            work_buffer[len++] = (char) (nibble + '0');
         } else if (nibble == 0x0a) {    /* . */
             work_buffer[len++] = '.';
         } else if (nibble == 0x0b || nibble == 0x0c) {  /* E, E- */
@@ -750,11 +750,13 @@ static void add_dict(cff_dict * dict,
         dict->max += DICT_ENTRY_MAX;
         /* not zeroed! */
         dict->entries =
-            xrealloc(dict->entries, dict->max * sizeof(cff_dict_entry));
+            xrealloc(dict->entries,
+                     (unsigned) ((unsigned) dict->max *
+                                 sizeof(cff_dict_entry)));
     }
 
     (dict->entries)[dict->count].id = id;
-    (dict->entries)[dict->count].key = (char *) dict_operator[id].opname;
+    (dict->entries)[dict->count].key = dict_operator[id].opname;
     if (argtype == CFF_TYPE_NUMBER ||
         argtype == CFF_TYPE_BOOLEAN ||
         argtype == CFF_TYPE_SID || argtype == CFF_TYPE_OFFSET) {
@@ -774,7 +776,7 @@ static void add_dict(cff_dict * dict,
         if (stack_top > 0) {
             (dict->entries)[dict->count].count = stack_top;
             (dict->entries)[dict->count].values =
-                xcalloc(stack_top, sizeof(double));
+                xcalloc((unsigned) stack_top, sizeof(double));
             while (stack_top > 0) {
                 stack_top--;
                 (dict->entries)[dict->count].values[stack_top] =
@@ -945,7 +947,7 @@ long cff_read_subrs(cff_font * cff)
             } else {
                 offset = (long) cff_dict_get(cff->fdarray[i], "Private", 1);
                 offset += (long) cff_dict_get(cff->private[i], "Subrs", 0);
-                cff->offset = offset;
+                cff->offset = (l_offset) offset;
                 (cff->subrs)[i] = cff_get_index(cff);
                 len += cff_index_size((cff->subrs)[i]);
             }
@@ -957,7 +959,7 @@ long cff_read_subrs(cff_font * cff)
         } else {
             offset = (long) cff_dict_get(cff->topdict, "Private", 1);
             offset += (long) cff_dict_get(cff->private[0], "Subrs", 0);
-            cff->offset = offset;
+            cff->offset = (l_offset) offset;
             (cff->subrs)[0] = cff_get_index(cff);
             len += cff_index_size((cff->subrs)[0]);
         }
@@ -982,13 +984,13 @@ long cff_read_fdarray(cff_font * cff)
 
     /* must exist */
     offset = (long) cff_dict_get(cff->topdict, "FDArray", 0);
-    cff->offset = offset;
+    cff->offset = (l_offset) offset;
     idx = cff_get_index(cff);
     cff->num_fds = (card8) idx->count;
     cff->fdarray = xcalloc(idx->count, sizeof(cff_dict *));
     for (i = 0; i < idx->count; i++) {
         card8 *data = idx->data + (idx->offset)[i] - 1;
-        size = (idx->offset)[i + 1] - (idx->offset)[i];
+        size = (long) ((idx->offset)[i + 1] - (idx->offset)[i]);
         if (size > 0) {
             (cff->fdarray)[i] = cff_dict_unpack(data, data + size);
         } else {
@@ -1021,10 +1023,10 @@ long cff_read_private(cff_font * cff)
                 (size = (long) cff_dict_get(cff->fdarray[i], "Private", 0))
                 > 0) {
                 offset = (long) cff_dict_get(cff->fdarray[i], "Private", 1);
-                cff->offset = offset;
-                data = xcalloc(size, sizeof(card8));
-                memcpy(data, &cff->stream[cff->offset], size);
-                cff->offset = size;
+                cff->offset = (l_offset) offset;
+                data = xcalloc((unsigned) size, sizeof(card8));
+                memcpy(data, &cff->stream[cff->offset], (size_t) size);
+                cff->offset = (l_offset) size;
                 (cff->private)[i] = cff_dict_unpack(data, data + size);
                 xfree(data);
                 len += size;
@@ -1038,10 +1040,10 @@ long cff_read_private(cff_font * cff)
         if (cff_dict_known(cff->topdict, "Private") &&
             (size = (long) cff_dict_get(cff->topdict, "Private", 0)) > 0) {
             offset = (long) cff_dict_get(cff->topdict, "Private", 1);
-            cff->offset = offset;
-            data = xcalloc(size, sizeof(card8));
-            memcpy(data, &cff->stream[cff->offset], size);
-            cff->offset = size;
+            cff->offset = (l_offset) offset;
+            data = xcalloc((unsigned) size, sizeof(card8));
+            memcpy(data, &cff->stream[cff->offset], (size_t) size);
+            cff->offset = (l_offset) size;
             cff->private[0] = cff_dict_unpack(data, data + size);
             xfree(data);
             len += size;
@@ -1065,7 +1067,7 @@ cff_font *read_cff(unsigned char *buf, long buflength, int n)
     cff = xcalloc(1, sizeof(cff_font));
 
     cff->stream = buf;
-    cff->stream_size = buflength;
+    cff->stream_size = (l_offset) buflength;
     cff->index = n;
 
     cff->header_major = get_card8(cff);
@@ -1133,7 +1135,7 @@ cff_font *read_cff(unsigned char *buf, long buflength, int n)
 
     /* Number of glyphs */
     offset = (long) cff_dict_get(cff->topdict, "CharStrings", 0);
-    cff->offset = offset;
+    cff->offset = (l_offset) offset;
     cff->num_glyphs = get_card16(cff);
 
     /* Check for font type */
@@ -1172,37 +1174,37 @@ static long pack_integer(card8 * dest, long destlen, long value)
     if (value >= -107 && value <= 107) {
         if (destlen < 1)
             CFF_ERROR("Buffer overflow.");
-        dest[0] = (value + 139) & 0xff;
+        dest[0] = (card8) ((value + 139) & 0xff);
         len = 1;
     } else if (value >= 108 && value <= 1131) {
         if (destlen < 2)
             CFF_ERROR("Buffer overflow.");
         value = 0xf700u + value - 108;
-        dest[0] = (value >> 8) & 0xff;
-        dest[1] = value & 0xff;
+        dest[0] = (card8) ((value >> 8) & 0xff);
+        dest[1] = (card8) (value & 0xff);
         len = 2;
     } else if (value >= -1131 && value <= -108) {
         if (destlen < 2)
             CFF_ERROR("Buffer overflow.");
         value = 0xfb00u - value - 108;
-        dest[0] = (value >> 8) & 0xff;
-        dest[1] = value & 0xff;
+        dest[0] = (card8) ((value >> 8) & 0xff);
+        dest[1] = (card8) (value & 0xff);
         len = 2;
     } else if (value >= -32768 && value <= 32767) {     /* shortint */
         if (destlen < 3)
             CFF_ERROR("Buffer overflow.");
         dest[0] = 28;
-        dest[1] = (value >> 8) & 0xff;
-        dest[2] = value & 0xff;
+        dest[1] = (card8) ((value >> 8) & 0xff);
+        dest[2] = (card8) (value & 0xff);
         len = 3;
     } else {                    /* longint */
         if (destlen < 5)
             CFF_ERROR("Buffer overflow.");
         dest[0] = 29;
-        dest[1] = (value >> 24) & 0xff;
-        dest[2] = (value >> 16) & 0xff;
-        dest[3] = (value >> 8) & 0xff;
-        dest[4] = value & 0xff;
+        dest[1] = (card8) ((value >> 24) & 0xff);
+        dest[2] = (card8) ((value >> 16) & 0xff);
+        dest[3] = (card8) ((value >> 8) & 0xff);
+        dest[4] = (card8) (value & 0xff);
         len = 5;
     }
     return len;
@@ -1251,7 +1253,7 @@ static long pack_real(card8 * dest, long destlen, double value)
         } else if (work_buffer[i] == '.') {
             ch = 0x0a;
         } else if (work_buffer[i] >= '0' && work_buffer[i] <= '9') {
-            ch = work_buffer[i] - '0';
+            ch = (unsigned char) (work_buffer[i] - '0');
         } else {
             CFF_ERROR("Invalid character.");
         }
@@ -1260,29 +1262,29 @@ static long pack_real(card8 * dest, long destlen, double value)
             CFF_ERROR("Buffer overflow.");
 
         if (pos % 2) {
-            dest[pos / 2] += ch;
+            dest[pos / 2] = (card8) (dest[pos / 2] + ch);
         } else {
-            dest[pos / 2] = (ch << 4);
+            dest[pos / 2] = (card8) (ch << 4);
         }
         pos++;
     }
 
     if (e > 0) {
         if (pos % 2) {
-            dest[pos / 2] += 0x0b;
+            dest[pos / 2] = (card8) (dest[pos / 2] + 0x0b);
         } else {
             if (destlen < pos / 2 + 1)
                 CFF_ERROR("Buffer overflow.");
-            dest[pos / 2] = 0xb0;
+            dest[pos / 2] = (card8) (0xb0);
         }
         pos++;
     } else if (e < 0) {
         if (pos % 2) {
-            dest[pos / 2] += 0x0c;
+            dest[pos / 2] = (card8) (dest[pos / 2] + 0x0c);
         } else {
             if (destlen < pos / 2 + 1)
                 CFF_ERROR("Buffer overflow.");
-            dest[pos / 2] = 0xc0;
+            dest[pos / 2] = (card8) (0xc0);
         }
         e *= -1;
         pos++;
@@ -1297,7 +1299,7 @@ static long pack_real(card8 * dest, long destlen, double value)
             } else if (work_buffer[i] == '.') {
                 ch = 0x0a;
             } else if (work_buffer[i] >= '0' && work_buffer[i] <= '9') {
-                ch = work_buffer[i] - '0';
+                ch = (unsigned char) (work_buffer[i] - '0');
             } else {
                 CFF_ERROR("Invalid character.");
             }
@@ -1306,21 +1308,21 @@ static long pack_real(card8 * dest, long destlen, double value)
                 CFF_ERROR("Buffer overflow.");
 
             if (pos % 2) {
-                dest[pos / 2] += ch;
+                dest[pos / 2] = (card8) (dest[pos / 2] + ch);
             } else {
-                dest[pos / 2] = (ch << 4);
+                dest[pos / 2] = (card8) (ch << 4);
             }
             pos++;
         }
     }
 
     if (pos % 2) {
-        dest[pos / 2] += 0x0f;
+        dest[pos / 2] = (card8) (dest[pos / 2] + 0x0f);
         pos++;
     } else {
         if (destlen < pos / 2 + 1)
             CFF_ERROR("Buffer overflow.");
-        dest[pos / 2] = 0xff;
+        dest[pos / 2] = (card8) (0xff);
         pos += 2;
     }
 
@@ -1342,10 +1344,10 @@ static long cff_dict_put_number(double value,
         if (destlen < 5)
             CFF_ERROR("Buffer overflow.");
         dest[0] = 29;
-        dest[1] = (lvalue >> 24) & 0xff;
-        dest[2] = (lvalue >> 16) & 0xff;
-        dest[3] = (lvalue >> 8) & 0xff;
-        dest[4] = lvalue & 0xff;
+        dest[1] = (card8) ((lvalue >> 24) & 0xff);
+        dest[2] = (card8) ((lvalue >> 16) & 0xff);
+        dest[3] = (card8) ((lvalue >> 8) & 0xff);
+        dest[4] = (card8) (lvalue & 0xff);
         len = 5;
     } else if (value > CFF_INT_MAX || value < CFF_INT_MIN || (fabs(value - nearint) > 1.0e-5)) {        /* real */
         len = pack_real(dest, destlen, value);
@@ -1376,12 +1378,12 @@ static long put_dict_entry(cff_dict_entry * de, card8 * dest, long destlen)
         if (id >= 0 && id < CFF_LAST_DICT_OP1) {
             if (len + 1 > destlen)
                 CFF_ERROR("Buffer overflow.");
-            dest[len++] = id;
+            dest[len++] = (card8) id;
         } else if (id >= 0 && id < CFF_LAST_DICT_OP) {
             if (len + 2 > destlen)
                 CFF_ERROR("in cff_dict_pack(): Buffer overflow");
             dest[len++] = 12;
-            dest[len++] = id - CFF_LAST_DICT_OP1;
+            dest[len++] = (card8) (id - CFF_LAST_DICT_OP1);
         } else {
             CFF_ERROR("Invalid CFF DICT operator ID.");
         }
@@ -1435,15 +1437,19 @@ void cff_dict_add(cff_dict * dict, const char *key, int count)
     if (dict->count + 1 >= dict->max) {
         dict->max += 8;
         dict->entries =
-            xrealloc(dict->entries, (dict->max) * sizeof(cff_dict_entry));
+            xrealloc(dict->entries,
+                     (unsigned) ((unsigned) dict->max *
+                                 sizeof(cff_dict_entry)));
     }
 
     (dict->entries)[dict->count].id = id;
-    (dict->entries)[dict->count].key = (char *) dict_operator[id].opname;
+    (dict->entries)[dict->count].key = dict_operator[id].opname;
     (dict->entries)[dict->count].count = count;
     if (count > 0) {
-        (dict->entries)[dict->count].values = xcalloc(count, sizeof(double));
-        memset((dict->entries)[dict->count].values, 0, sizeof(double) * count);
+        (dict->entries)[dict->count].values =
+            xcalloc((unsigned) count, sizeof(double));
+        memset((dict->entries)[dict->count].values, 0,
+               (unsigned) (sizeof(double) * (unsigned) count));
     } else {
         (dict->entries)[dict->count].values = NULL;
     }
@@ -1489,19 +1495,19 @@ void cff_dict_set(cff_dict * dict, const char *key, int idx, double value)
 char *cff_get_string(cff_font * cff, s_SID id)
 {
     char *result = NULL;
-    long len;
+    size_t len;
 
     if (id < CFF_STDSTR_MAX) {
         len = strlen(cff_stdstr[id]);
-        result = xcalloc(len + 1, sizeof(char));
+        result = xcalloc((unsigned) (len + 1), sizeof(char));
         memcpy(result, cff_stdstr[id], len);
         result[len] = '\0';
     } else if (cff && cff->string) {
         cff_index *strings = cff->string;
-        id -= CFF_STDSTR_MAX;
+        id = (s_SID) (id - CFF_STDSTR_MAX);
         if (id < strings->count) {
             len = (strings->offset)[id + 1] - (strings->offset)[id];
-            result = xcalloc(len + 1, sizeof(char));
+            result = xcalloc((unsigned) (len + 1), sizeof(char));
             memmove(result, strings->data + (strings->offset)[id] - 1, len);
             result[len] = '\0';
         }
@@ -1510,7 +1516,7 @@ char *cff_get_string(cff_font * cff, s_SID id)
     return result;
 }
 
-long cff_get_sid(cff_font * cff, char *str)
+long cff_get_sid(cff_font * cff, const char *str)
 {
     card16 i;
 
@@ -1548,7 +1554,7 @@ void cff_update_string(cff_font * cff)
 }
 
 
-s_SID cff_add_string(cff_font * cff, char *str)
+s_SID cff_add_string(cff_font * cff, const char *str)
 {
     card16 idx;
     cff_index *strings;
@@ -1566,7 +1572,7 @@ s_SID cff_add_string(cff_font * cff, char *str)
         offset = strings->offset[idx];
         if (size == strlen(str) &&
             !memcmp(strings->data + offset - 1, str, strlen(str)))
-            return (idx + CFF_STDSTR_MAX);
+            return (s_SID) (idx + CFF_STDSTR_MAX);
     }
 
     for (idx = 0; idx < CFF_STDSTR_MAX; idx++) {
@@ -1575,17 +1581,20 @@ s_SID cff_add_string(cff_font * cff, char *str)
     }
     offset = (strings->count > 0) ? strings->offset[strings->count] : 1;
     strings->offset =
-        xrealloc(strings->offset, (strings->count + 2) * sizeof(l_offset));
+        xrealloc(strings->offset,
+                 (unsigned) (((unsigned) strings->count +
+                              2) * sizeof(l_offset)));
     if (strings->count == 0)
         strings->offset[0] = 1;
     idx = strings->count;
-    strings->count += 1;
+    strings->count = (card16) (strings->count + 1);
     strings->offset[strings->count] = offset + strlen(str);
     strings->data =
-        xrealloc(strings->data, (offset + strlen(str) - 1) * sizeof(card8));
+        xrealloc(strings->data,
+                 (unsigned) ((offset + strlen(str) - 1) * sizeof(card8)));
     memcpy(strings->data + offset - 1, str, strlen(str));
 
-    return (idx + CFF_STDSTR_MAX);
+    return (s_SID) (idx + CFF_STDSTR_MAX);
 }
 
 
@@ -1601,14 +1610,14 @@ void cff_dict_update(cff_dict * dict, cff_font * cff)
             id = (dict->entries)[i].id;
 
             if (dict_operator[id].argtype == CFF_TYPE_SID) {
-                str = cff_get_string(cff, (dict->entries)[i].values[0]);
+                str = cff_get_string(cff, (s_SID) (dict->entries)[i].values[0]);
                 (dict->entries)[i].values[0] = cff_add_string(cff, str);
                 xfree(str);
             } else if (dict_operator[id].argtype == CFF_TYPE_ROS) {
-                str = cff_get_string(cff, (dict->entries)[i].values[0]);
+                str = cff_get_string(cff, (s_SID) (dict->entries)[i].values[0]);
                 (dict->entries)[i].values[0] = cff_add_string(cff, str);
                 xfree(str);
-                str = cff_get_string(cff, (dict->entries)[i].values[1]);
+                str = cff_get_string(cff, (s_SID) (dict->entries)[i].values[1]);
                 (dict->entries)[i].values[1] = cff_add_string(cff, str);
                 xfree(str);
             }
@@ -1650,18 +1659,18 @@ long cff_read_charsets(cff_font * cff)
         return 0;
     }
 
-    cff->offset = offset;
+    cff->offset = (l_offset) offset;
     cff->charsets = charset = xcalloc(1, sizeof(cff_charsets));
     charset->format = get_card8(cff);
     charset->num_entries = 0;
 
-    count = cff->num_glyphs - 1;
+    count = (card16) (cff->num_glyphs - 1);
     length = 1;
 
     /* Not sure. Not well documented. */
     switch (charset->format) {
     case 0:
-        charset->num_entries = cff->num_glyphs - 1;     /* no .notdef */
+        charset->num_entries = (card16) (cff->num_glyphs - 1);  /* no .notdef */
         charset->data.glyphs = xcalloc(charset->num_entries, sizeof(s_SID));
         length += (charset->num_entries) * 2;
         for (i = 0; i < (charset->num_entries); i++) {
@@ -1675,11 +1684,12 @@ long cff_read_charsets(cff_font * cff)
             while (count > 0 && charset->num_entries < cff->num_glyphs) {
                 ranges =
                     xrealloc(ranges,
-                             (charset->num_entries + 1) * sizeof(cff_range1));
+                             (unsigned) (((unsigned) charset->num_entries +
+                                          1) * sizeof(cff_range1)));
                 ranges[charset->num_entries].first = get_card16(cff);
                 ranges[charset->num_entries].n_left = get_card8(cff);
-                count -= ranges[charset->num_entries].n_left + 1;       /* no-overrap */
-                charset->num_entries += 1;
+                count = (card16) (count - ranges[charset->num_entries].n_left + 1);     /* no-overrap */
+                charset->num_entries++;
                 charset->data.range1 = ranges;
             }
             length += (charset->num_entries) * 3;
@@ -1691,11 +1701,12 @@ long cff_read_charsets(cff_font * cff)
             while (count > 0 && charset->num_entries < cff->num_glyphs) {
                 ranges =
                     xrealloc(ranges,
-                             (charset->num_entries + 1) * sizeof(cff_range2));
+                             (unsigned) (((unsigned) charset->num_entries +
+                                          1) * sizeof(cff_range2)));
                 ranges[charset->num_entries].first = get_card16(cff);
                 ranges[charset->num_entries].n_left = get_card16(cff);
-                count -= ranges[charset->num_entries].n_left + 1;       /* non-overrapping */
-                charset->num_entries += 1;
+                count = (card16) (count - ranges[charset->num_entries].n_left + 1);     /* non-overrapping */
+                charset->num_entries++;
             }
             charset->data.range2 = ranges;
             length += (charset->num_entries) * 4;
@@ -1734,8 +1745,8 @@ long cff_pack_charsets(cff_font * cff, card8 * dest, long destlen)
             CFF_ERROR("in cff_pack_charsets(): Buffer overflow");
         for (i = 0; i < (charset->num_entries); i++) {
             s_SID sid = (charset->data).glyphs[i];      /* or CID */
-            dest[len++] = (sid >> 8) & 0xff;
-            dest[len++] = sid & 0xff;
+            dest[len++] = (card8) ((sid >> 8) & 0xff);
+            dest[len++] = (card8) (sid & 0xff);
         }
         break;
     case 1:
@@ -1743,9 +1754,10 @@ long cff_pack_charsets(cff_font * cff, card8 * dest, long destlen)
             if (destlen < len + (charset->num_entries) * 3)
                 CFF_ERROR("in cff_pack_charsets(): Buffer overflow");
             for (i = 0; i < (charset->num_entries); i++) {
-                dest[len++] = ((charset->data).range1[i].first >> 8) & 0xff;
-                dest[len++] = (charset->data).range1[i].first & 0xff;
-                dest[len++] = (charset->data).range1[i].n_left;
+                dest[len++] =
+                    (card8) (((charset->data).range1[i].first >> 8) & 0xff);
+                dest[len++] = (card8) ((charset->data).range1[i].first & 0xff);
+                dest[len++] = (card8) ((charset->data).range1[i].n_left);
             }
         }
         break;
@@ -1754,10 +1766,12 @@ long cff_pack_charsets(cff_font * cff, card8 * dest, long destlen)
             if (destlen < len + (charset->num_entries) * 4)
                 CFF_ERROR("in cff_pack_charsets(): Buffer overflow");
             for (i = 0; i < (charset->num_entries); i++) {
-                dest[len++] = ((charset->data).range2[i].first >> 8) & 0xff;
-                dest[len++] = (charset->data).range2[i].first & 0xff;
-                dest[len++] = ((charset->data).range2[i].n_left >> 8) & 0xff;
-                dest[len++] = (charset->data).range2[i].n_left & 0xff;
+                dest[len++] =
+                    (card8) (((charset->data).range2[i].first >> 8) & 0xff);
+                dest[len++] = (card8) ((charset->data).range2[i].first & 0xff);
+                dest[len++] =
+                    (card8) (((charset->data).range2[i].n_left >> 8) & 0xff);
+                dest[len++] = (card8) ((charset->data).range2[i].n_left & 0xff);
             }
         }
         break;
@@ -1947,35 +1961,35 @@ static void clear_stack(card8 ** dest, card8 * limit)
              * We must use `a b mul ...' or `a c div' to represent large values.
              */
             CFF_ERROR("Argument value too large. (This is bug)");
-        } else if (fabs(value - ivalue) > 3.0e-5) {
+        } else if (fabs(value - (double) ivalue) > 3.0e-5) {
             /* 16.16-bit signed fixed value  */
             DST_NEED(limit, *dest + 5);
             *(*dest)++ = 255;
             ivalue = (long) floor(value);       /* mantissa */
-            *(*dest)++ = (ivalue >> 8) & 0xff;
-            *(*dest)++ = ivalue & 0xff;
-            ivalue = (long) ((value - ivalue) * 0x10000l);      /* fraction */
-            *(*dest)++ = (ivalue >> 8) & 0xff;
-            *(*dest)++ = ivalue & 0xff;
+            *(*dest)++ = (card8) ((ivalue >> 8) & 0xff);
+            *(*dest)++ = (card8) (ivalue & 0xff);
+            ivalue = (long) ((value - (double) ivalue) * 0x10000l);     /* fraction */
+            *(*dest)++ = (card8) ((ivalue >> 8) & 0xff);
+            *(*dest)++ = (card8) (ivalue & 0xff);
             /* Everything else are integers. */
         } else if (ivalue >= -107 && ivalue <= 107) {
             DST_NEED(limit, *dest + 1);
-            *(*dest)++ = ivalue + 139;
+            *(*dest)++ = (card8) (ivalue + 139);
         } else if (ivalue >= 108 && ivalue <= 1131) {
             DST_NEED(limit, *dest + 2);
             ivalue = 0xf700u + ivalue - 108;
-            *(*dest)++ = (ivalue >> 8) & 0xff;
-            *(*dest)++ = ivalue & 0xff;
+            *(*dest)++ = (card8) ((ivalue >> 8) & 0xff);
+            *(*dest)++ = (card8) (ivalue & 0xff);
         } else if (ivalue >= -1131 && ivalue <= -108) {
             DST_NEED(limit, *dest + 2);
             ivalue = 0xfb00u - ivalue - 108;
-            *(*dest)++ = (ivalue >> 8) & 0xff;
-            *(*dest)++ = ivalue & 0xff;
+            *(*dest)++ = (card8) ((ivalue >> 8) & 0xff);
+            *(*dest)++ = (card8) (ivalue & 0xff);
         } else if (ivalue >= -32768 && ivalue <= 32767) {       /* shortint */
             DST_NEED(limit, *dest + 3);
             *(*dest)++ = 28;
-            *(*dest)++ = (ivalue >> 8) & 0xff;
-            *(*dest)++ = (ivalue) & 0xff;
+            *(*dest)++ = (card8) ((ivalue >> 8) & 0xff);
+            *(*dest)++ = (card8) ((ivalue) & 0xff);
         } else {                /* Shouldn't come here */
             CFF_ERROR("Unexpected error.");
         }
@@ -2035,7 +2049,7 @@ do_operator1(card8 ** dest, card8 * limit, card8 ** data, card8 * endptr)
             int masklen = (num_stems + 7) / 8;
             DST_NEED(limit, *dest + masklen);
             SRC_NEED(endptr, *data + masklen);
-            memmove(*dest, *data, masklen);
+            memmove(*dest, *data, (size_t) masklen);
             *data += masklen;
             *dest += masklen;
         }
@@ -2384,7 +2398,7 @@ static void get_fixed(card8 ** data, card8 * endptr)
     SRC_NEED(endptr, *data + 4);
 
     ivalue = *(*data) * 0x100 + *(*data + 1);
-    rvalue = (ivalue > 0x7fffL) ? (ivalue - 0x10000L) : ivalue;
+    rvalue = (double) ((ivalue > 0x7fffL) ? (ivalue - 0x10000L) : ivalue);
     ivalue = *(*data + 2) * 0x100 + *(*data + 3);
     rvalue += ((double) ivalue) / 0x10000L;
 
@@ -2427,7 +2441,7 @@ static void get_subr(card8 ** subr, long *len, cff_index * subr_idx, long id)
         CFF_ERROR("%s: Invalid Subr index: %ld (max=%u)", CS_TYPE2_DEBUG_STR,
                   id, count);
 
-    *len = (subr_idx->offset)[id + 1] - (subr_idx->offset)[id];
+    *len = (long) ((subr_idx->offset)[id + 1] - (subr_idx->offset)[id]);
     *subr = subr_idx->data + (subr_idx->offset)[id] - 1;
 
     return;
@@ -2586,7 +2600,7 @@ long cff_read_encoding(cff_font * cff)
         return 0;
     }
 
-    cff->offset = offset;
+    cff->offset = (l_offset) offset;
     cff->encoding = encoding = xcalloc(1, sizeof(cff_encoding));
     encoding->format = get_card8(cff);
     length = 1;
@@ -2666,8 +2680,8 @@ long cff_pack_encoding(cff_font * cff, card8 * dest, long destlen)
             if (destlen < len + (encoding->num_entries) * 2)
                 CFF_ERROR("in cff_pack_encoding(): Buffer overflow");
             for (i = 0; i < (encoding->num_entries); i++) {
-                dest[len++] = (encoding->data).range1[i].first & 0xff;
-                dest[len++] = (encoding->data).range1[i].n_left;
+                dest[len++] = (card8) ((encoding->data).range1[i].first & 0xff);
+                dest[len++] = (card8) ((encoding->data).range1[i].n_left);
             }
         }
         break;
@@ -2681,9 +2695,9 @@ long cff_pack_encoding(cff_font * cff, card8 * dest, long destlen)
             CFF_ERROR("in cff_pack_encoding(): Buffer overflow");
         dest[len++] = encoding->num_supps;
         for (i = 0; i < (encoding->num_supps); i++) {
-            dest[len++] = (encoding->supp)[i].code;
-            dest[len++] = ((encoding->supp)[i].glyph >> 8) & 0xff;
-            dest[len++] = (encoding->supp)[i].glyph & 0xff;
+            dest[len++] = (card8) ((encoding->supp)[i].code);
+            dest[len++] = (card8) (((encoding->supp)[i].glyph >> 8) & 0xff);
+            dest[len++] = (card8) ((encoding->supp)[i].glyph & 0xff);
         }
     }
 
@@ -2704,7 +2718,7 @@ long cff_read_fdselect(cff_font * cff)
         return 0;
 
     offset = (long) cff_dict_get(cff->topdict, "FDSelect", 0);
-    cff->offset = offset;
+    cff->offset = (l_offset) offset;
     cff->fdselect = fdsel = xcalloc(1, sizeof(cff_fdselect));
     fdsel->format = get_card8(cff);
 
@@ -2779,16 +2793,17 @@ long cff_pack_fdselect(cff_font * cff, card8 * dest, long destlen)
             for (i = 0; i < (fdsel->num_entries); i++) {
                 if (destlen < len + 3)
                     CFF_ERROR("in cff_pack_fdselect(): Buffer overflow");
-                dest[len++] = ((fdsel->data).ranges[i].first >> 8) & 0xff;
-                dest[len++] = (fdsel->data).ranges[i].first & 0xff;
-                dest[len++] = (fdsel->data).ranges[i].fd;
+                dest[len++] =
+                    (card8) (((fdsel->data).ranges[i].first >> 8) & 0xff);
+                dest[len++] = (card8) ((fdsel->data).ranges[i].first & 0xff);
+                dest[len++] = (card8) ((fdsel->data).ranges[i].fd);
             }
             if (destlen < len + 2)
                 CFF_ERROR("in cff_pack_fdselect(): Buffer overflow");
-            dest[len++] = (cff->num_glyphs >> 8) & 0xff;
-            dest[len++] = cff->num_glyphs & 0xff;
-            dest[1] = ((len / 3 - 1) >> 8) & 0xff;
-            dest[2] = (len / 3 - 1) & 0xff;
+            dest[len++] = (card8) ((cff->num_glyphs >> 8) & 0xff);
+            dest[len++] = (card8) (cff->num_glyphs & 0xff);
+            dest[1] = (card8) (((len / 3 - 1) >> 8) & 0xff);
+            dest[2] = (card8) ((len / 3 - 1) & 0xff);
         }
         break;
     default:
@@ -2821,9 +2836,9 @@ static void write_fontfile(PDF pdf, cff_font * cffont, char *fullname)
     cff_dict_remove(cffont->topdict, "Private");        /* some bad font may have */
     cff_dict_remove(cffont->topdict, "Encoding");       /* some bad font may have */
 
-    topdict->offset[1] = cff_dict_pack(cffont->topdict,
-                                       (card8 *) work_buffer,
-                                       WORK_BUFFER_SIZE) + 1;
+    topdict->offset[1] = (l_offset) cff_dict_pack(cffont->topdict,
+                                                  (card8 *) work_buffer,
+                                                  WORK_BUFFER_SIZE) + 1;
     for (i = 0; i < cffont->num_fds; i++) {
         size = 0;
         if (cffont->private && cffont->private[i]) {
@@ -2833,10 +2848,13 @@ static void write_fontfile(PDF pdf, cff_font * cffont, char *fullname)
                 cff_dict_remove(cffont->fdarray[i], "Private");
             }
         }
-        (private->offset)[i + 1] = (private->offset)[i] + size;
-        (fdarray->offset)[i + 1] = (fdarray->offset)[i] +
-            cff_dict_pack(cffont->fdarray[i],
-                          (card8 *) work_buffer, WORK_BUFFER_SIZE);
+        (private->offset)[i + 1] =
+            (unsigned long) ((private->offset)[i] + (unsigned) size);
+        (fdarray->offset)[i + 1] =
+            (unsigned long) ((fdarray->offset)[i] + (unsigned)
+                             cff_dict_pack(cffont->fdarray[i],
+                                           (card8 *) work_buffer,
+                                           WORK_BUFFER_SIZE));
     }
 
     destlen = 4;                /* header size */
@@ -2848,9 +2866,9 @@ static void write_fontfile(PDF pdf, cff_font * cffont, char *fullname)
     destlen += (cffont->fdselect->num_entries) * 3 + 5; /* fdselect format 3 */
     destlen += cff_index_size(cffont->cstrings);
     destlen += cff_index_size(fdarray);
-    destlen += private->offset[private->count] - 1;     /* Private is not INDEX */
+    destlen = (long) (destlen + (long) private->offset[private->count] - 1);    /* Private is not INDEX */
 
-    dest = xcalloc(destlen, sizeof(card8));
+    dest = xcalloc((unsigned) destlen, sizeof(card8));
 
     offset = 0;
     /* Header */
@@ -2866,36 +2884,38 @@ static void write_fontfile(PDF pdf, cff_font * cffont, char *fullname)
     offset += cff_pack_index(cffont->gsubr, dest + offset, destlen - offset);
 
     /* charset */
-    cff_dict_set(cffont->topdict, "charset", 0, offset);
+    cff_dict_set(cffont->topdict, "charset", 0, (double) offset);
     offset += cff_pack_charsets(cffont, dest + offset, destlen - offset);
 
     /* FDSelect */
-    cff_dict_set(cffont->topdict, "FDSelect", 0, offset);
+    cff_dict_set(cffont->topdict, "FDSelect", 0, (double) offset);
     offset += cff_pack_fdselect(cffont, dest + offset, destlen - offset);
 
     /* CharStrings */
-    cff_dict_set(cffont->topdict, "CharStrings", 0, offset);
+    cff_dict_set(cffont->topdict, "CharStrings", 0, (double) offset);
     offset += cff_pack_index(cffont->cstrings,
                              dest + offset, cff_index_size(cffont->cstrings));
     cff_release_index(cffont->cstrings);
     cffont->cstrings = NULL;    /* Charstrings cosumes huge memory */
 
     /* FDArray and Private */
-    cff_dict_set(cffont->topdict, "FDArray", 0, offset);
+    cff_dict_set(cffont->topdict, "FDArray", 0, (double) offset);
     fdarray_offset = offset;
     offset += cff_index_size(fdarray);
 
-    fdarray->data = xcalloc(fdarray->offset[fdarray->count] - 1, sizeof(card8));
+    fdarray->data =
+        xcalloc((unsigned) (fdarray->offset[fdarray->count] - 1),
+                sizeof(card8));
     for (i = 0; i < cffont->num_fds; i++) {
-        size = private->offset[i + 1] - private->offset[i];
+        size = (long) (private->offset[i + 1] - private->offset[i]);
         if (cffont->private[i] && size > 0) {
             cff_dict_pack(cffont->private[i], dest + offset, size);
-            cff_dict_set(cffont->fdarray[i], "Private", 0, size);
-            cff_dict_set(cffont->fdarray[i], "Private", 1, offset);
+            cff_dict_set(cffont->fdarray[i], "Private", 0, (double) size);
+            cff_dict_set(cffont->fdarray[i], "Private", 1, (double) offset);
         }
         cff_dict_pack(cffont->fdarray[i],
                       fdarray->data + (fdarray->offset)[i] - 1,
-                      fdarray->offset[fdarray->count] - 1);
+                      (unsigned) (fdarray->offset[fdarray->count] - 1));
         offset += size;
     }
 
@@ -2904,9 +2924,11 @@ static void write_fontfile(PDF pdf, cff_font * cffont, char *fullname)
     cff_release_index(private);
 
     /* Finally Top DICT */
-    topdict->data = xcalloc(topdict->offset[topdict->count] - 1, sizeof(card8));
-    cff_dict_pack(cffont->topdict,
-                  topdict->data, topdict->offset[topdict->count] - 1);
+    topdict->data =
+        xcalloc((unsigned) (topdict->offset[topdict->count] - 1),
+                sizeof(card8));
+    cff_dict_pack(cffont->topdict, topdict->data,
+                  (long) (topdict->offset[topdict->count] - 1));
     cff_pack_index(topdict, dest + topdict_offset, cff_index_size(topdict));
     cff_release_index(topdict);
 
@@ -2923,19 +2945,19 @@ static void write_fontfile(PDF pdf, cff_font * cffont, char *fullname)
 
 #define DO_COPY_CHARSTRING()                                                   \
   if ((avl_find(fd->gl_tree,glyph) != NULL)) {                                 \
-    size = cs_idx->offset[code+1] - cs_idx->offset[code];                      \
+      size = (long)(cs_idx->offset[code+1] - cs_idx->offset[code]);	\
     if (size > CS_STR_LEN_MAX) {                                               \
       pdftex_fail("Charstring too long: gid=%u, %ld bytes", code, size);       \
     }                                                                          \
     if (charstring_len + CS_STR_LEN_MAX >= max_len) {                          \
-      max_len = charstring_len + 2 * CS_STR_LEN_MAX;                           \
-      charstrings->data = xrealloc(charstrings->data, max_len*sizeof(card8));  \
+	max_len = (long)(charstring_len + 2 * CS_STR_LEN_MAX);		\
+	charstrings->data = xrealloc(charstrings->data, (unsigned)((unsigned)max_len*sizeof(card8))); \
     }                                                                          \
-    (charstrings->offset)[gid] = charstring_len + 1;                           \
-    cffont->offset= offset + (cs_idx->offset)[code] - 1;                       \
-    memcpy(data,&cffont->stream[cffont->offset],size);                         \
+    (charstrings->offset)[gid] = (unsigned)(charstring_len + 1);	\
+    cffont->offset= (l_offset)((unsigned)offset + (cs_idx->offset)[code] - 1);	\
+    memcpy(data,&cffont->stream[cffont->offset],(size_t)size);		\
     charstring_len += cs_copy_charstring(charstrings->data + charstring_len,   \
-                                         max_len - charstring_len,             \
+                                         max_len - charstring_len,	\
                                          data, size,                           \
                                          cffont->gsubr, (cffont->subrs)[0],    \
                                          default_width, nominal_width, NULL);  \
@@ -2959,7 +2981,7 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     glw_entry *glyph, *found;
     struct avl_traverser t;
 
-    fullname = xcalloc(8 + strlen(fd->fontname), 1);
+    fullname = xcalloc((unsigned) (8 + strlen(fd->fontname)), 1);
     sprintf(fullname, "%s+%s", fd->subset_tag, fd->fontname);
 
     /* finish parsing the CFF */
@@ -2999,7 +3021,7 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     for (found = (glw_entry *) avl_t_first(&t, fd->gl_tree);
          found != NULL; found = (glw_entry *) avl_t_next(&t)) {
         if (found->id > last_cid)
-            last_cid = found->id;
+            last_cid = (card16) found->id;
         num_glyphs++;
     }
 
@@ -3020,7 +3042,7 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
 
         charset = xcalloc(1, sizeof(cff_charsets));
         charset->format = 0;
-        charset->num_entries = num_glyphs - 1;
+        charset->num_entries = (card16) (num_glyphs - 1);
         charset->data.glyphs = xcalloc(num_glyphs, sizeof(s_SID));
 
         gid = 0;
@@ -3029,7 +3051,7 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
         for (found = (glw_entry *) avl_t_first(&t, fd->gl_tree);
              found != NULL; found = (glw_entry *) avl_t_next(&t)) {
             if (found->id != 0) {
-                charset->data.glyphs[gid] = found->id;
+                charset->data.glyphs[gid] = (s_SID) found->id;
                 gid++;
             }
         }
@@ -3058,19 +3080,19 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     cff_dict_remove(cffont->topdict, "Private");
     cff_dict_remove(cffont->topdict, "Encoding");
 
-    cffont->offset = cff_dict_get(cffont->topdict, "CharStrings", 0);
+    cffont->offset = (l_offset) cff_dict_get(cffont->topdict, "CharStrings", 0);
     cs_idx = cff_get_index_header(cffont);
 
-    offset = cffont->offset;
+    offset = (long) cffont->offset;
     cs_count = cs_idx->count;
     if (cs_count < 2) {
         CFF_ERROR("No valid charstring data found.");
     }
 
     /* build the new charstrings entry */
-    charstrings = cff_new_index(cs_count + 1);
+    charstrings = cff_new_index((card16) (cs_count + 1));
     max_len = 2 * CS_STR_LEN_MAX;
-    charstrings->data = xcalloc(max_len, sizeof(card8));
+    charstrings->data = xcalloc((unsigned) max_len, sizeof(card8));
     charstring_len = 0;
 
     gid = 0;
@@ -3079,7 +3101,7 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     {
         int i;
         for (i = 0; i < cs_count; i++) {
-            code = i;
+            code = (card16) i;
             glyph->id = code;
             DO_COPY_CHARSTRING();
         }
@@ -3094,7 +3116,7 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     xfree(data);
     cff_release_index(cs_idx);
 
-    (charstrings->offset)[num_glyphs] = charstring_len + 1;
+    (charstrings->offset)[num_glyphs] = (l_offset) (charstring_len + 1);
     charstrings->count = num_glyphs;
     cffont->num_glyphs = num_glyphs;
     cffont->cstrings = charstrings;
@@ -3114,8 +3136,8 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
         cff_dict_remove((cffont->private)[0], "Subrs"); /* no Subrs */
     }
 
-    cff_add_string(cffont, (char *) "Adobe");
-    cff_add_string(cffont, (char *) "Identity");
+    cff_add_string(cffont, "Adobe");
+    cff_add_string(cffont, "Identity");
 
     cff_dict_update(cffont->topdict, cffont);
     cff_dict_update(cffont->private[0], cffont);
@@ -3124,9 +3146,9 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     /* CFF code need to be rewrote... */
     cff_dict_add(cffont->topdict, "ROS", 3);
     cff_dict_set(cffont->topdict, "ROS", 0,
-                 (double) cff_get_sid(cffont, (char *) "Adobe"));
+                 (double) cff_get_sid(cffont, "Adobe"));
     cff_dict_set(cffont->topdict, "ROS", 1,
-                 (double) cff_get_sid(cffont, (char *) "Identity"));
+                 (double) cff_get_sid(cffont, "Identity"));
     cff_dict_set(cffont->topdict, "ROS", 2, 0.0);
 
     write_fontfile(pdf, cffont, fullname);
@@ -3164,7 +3186,7 @@ card16 cff_charsets_lookup(cff_font * cff, card16 cid)
     case 0:
         for (i = 0; i < charset->num_entries; i++) {
             if (cid == charset->data.glyphs[i]) {
-                gid = i + 1;
+                gid = (card16) (i + 1);
                 return gid;
             }
         }
@@ -3175,10 +3197,10 @@ card16 cff_charsets_lookup(cff_font * cff, card16 cid)
                 cid <=
                 charset->data.range1[i].first +
                 charset->data.range1[i].n_left) {
-                gid += cid - charset->data.range1[i].first + 1;
+                gid = (card16) (gid + cid - charset->data.range1[i].first + 1);
                 return gid;
             }
-            gid += charset->data.range1[i].n_left + 1;
+            gid = (card16) (gid + charset->data.range1[i].n_left + 1);
         }
         break;
     case 2:
@@ -3187,10 +3209,10 @@ card16 cff_charsets_lookup(cff_font * cff, card16 cid)
                 cid <=
                 charset->data.range2[i].first +
                 charset->data.range2[i].n_left) {
-                gid += cid - charset->data.range2[i].first + 1;
+                gid = (card16) (gid + cid - charset->data.range2[i].first + 1);
                 return gid;
             }
-            gid += charset->data.range2[i].n_left + 1;
+            gid = (card16) (gid + charset->data.range2[i].n_left + 1);
         }
         break;
     default:
@@ -3231,7 +3253,7 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
         return;
     }
 
-    fullname = xcalloc(8 + strlen(fd->fontname), 1);
+    fullname = xcalloc((unsigned) (8 + strlen(fd->fontname)), 1);
     sprintf(fullname, "%s+%s", fd->subset_tag, fd->fontname);
 
     /* finish parsing the CFF */
@@ -3242,8 +3264,10 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
         cid_count = CFF_CIDCOUNT_DEFAULT;
     }
     cff_read_charsets(cffont);
-    CIDToGIDMap = xmalloc((2 * cid_count) * sizeof(unsigned char));
-    memset(CIDToGIDMap, 0, 2 * cid_count);
+    CIDToGIDMap =
+        xmalloc((unsigned)
+                ((2 * (unsigned) cid_count) * sizeof(unsigned char)));
+    memset(CIDToGIDMap, 0, (size_t) (2 * cid_count));
 
 
     glyph = xtalloc(1, glw_entry);
@@ -3258,12 +3282,12 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     last_cid = 0;
     num_glyphs = 0;
     for (cid = 0; cid <= CID_MAX; cid++) {
-        glyph->id = cid;
+        glyph->id = (unsigned) cid;
         if (avl_find(fd->gl_tree, glyph) != NULL) {
-            gid = cff_charsets_lookup(cffont, cid);
-            CIDToGIDMap[2 * cid] = (gid >> 8) & 0xff;
-            CIDToGIDMap[2 * cid + 1] = gid & 0xff;
-            last_cid = cid;
+            gid = (card16) cff_charsets_lookup(cffont, (card16) cid);
+            CIDToGIDMap[2 * cid] = (unsigned char) ((gid >> 8) & 0xff);
+            CIDToGIDMap[2 * cid + 1] = (unsigned char) (gid & 0xff);
+            last_cid = (card16) cid;
             num_glyphs++;
         }
     }
@@ -3275,10 +3299,10 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     cff_read_subrs(cffont);
 
 
-    cffont->offset = cff_dict_get(cffont->topdict, "CharStrings", 0);
+    cffont->offset = (l_offset) cff_dict_get(cffont->topdict, "CharStrings", 0);
     cs_idx = cff_get_index_header(cffont);
 
-    offset = cffont->offset;
+    offset = (long) cffont->offset;
     cs_count = cs_idx->count;
     if (cs_count < 2) {
         CFF_ERROR("No valid charstring data found.");
@@ -3294,9 +3318,9 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     fdselect->num_entries = 0;
     fdselect->data.ranges = xcalloc(num_glyphs, sizeof(cff_range3));
 
-    charstrings = cff_new_index(cs_count + 1);
+    charstrings = cff_new_index((card16) (cs_count + 1));
     max_len = 2 * CS_STR_LEN_MAX;
-    charstrings->data = xcalloc(max_len, sizeof(card8));
+    charstrings->data = xcalloc((unsigned) max_len, sizeof(card8));
     charstring_len = 0;
 
     prev_fd = -1;
@@ -3305,23 +3329,27 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     for (cid = 0; cid <= last_cid; cid++) {
         unsigned short gid_org;
 
-        glyph->id = cid;
+        glyph->id = (unsigned) cid;
         if (avl_find(fd->gl_tree, glyph) == NULL)
             continue;
 
-        gid_org = (CIDToGIDMap[2 * cid] << 8) | (CIDToGIDMap[2 * cid + 1]);
-        size = cs_idx->offset[gid_org + 1] - cs_idx->offset[gid_org];
+        gid_org =
+            (short unsigned) ((CIDToGIDMap[2 * cid] << 8) |
+                              (CIDToGIDMap[2 * cid + 1]));
+        size = (long) (cs_idx->offset[gid_org + 1] - cs_idx->offset[gid_org]);
         if (size > CS_STR_LEN_MAX) {
             pdftex_fail("Charstring too long: gid=%u, %ld bytes", cid, size);
         }
         if (charstring_len + CS_STR_LEN_MAX >= max_len) {
             max_len = charstring_len + 2 * CS_STR_LEN_MAX;
             charstrings->data =
-                xrealloc(charstrings->data, max_len * sizeof(card8));
+                xrealloc(charstrings->data,
+                         (unsigned) ((unsigned) max_len * sizeof(card8)));
         }
-        (charstrings->offset)[gid] = charstring_len + 1;
-        cffont->offset = offset + (cs_idx->offset)[gid_org] - 1;
-        memcpy(data, &cffont->stream[cffont->offset], size);
+        (charstrings->offset)[gid] = (l_offset) (charstring_len + 1);
+        cffont->offset =
+            (l_offset) ((unsigned) offset + (cs_idx->offset)[gid_org] - 1);
+        memcpy(data, &cffont->stream[cffont->offset], (size_t) size);
         fdsel = cff_fdselect_lookup(cffont, gid_org);
         charstring_len += cs_copy_charstring(charstrings->data + charstring_len,
                                              max_len - charstring_len,
@@ -3331,13 +3359,13 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
                                              NULL);
 
         if (cid > 0 && gid_org > 0) {
-            charset->data.glyphs[charset->num_entries] = cid;
-            charset->num_entries += 1;
+            charset->data.glyphs[charset->num_entries] = (s_SID) cid;
+            charset->num_entries++;
         }
         if (fdsel != prev_fd) {
             fdselect->data.ranges[fdselect->num_entries].first = gid;
-            fdselect->data.ranges[fdselect->num_entries].fd = fdsel;
-            fdselect->num_entries += 1;
+            fdselect->data.ranges[fdselect->num_entries].fd = (card8) fdsel;
+            fdselect->num_entries++;
             prev_fd = fdsel;
         }
         gid++;
@@ -3350,7 +3378,7 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
 
     xfree(CIDToGIDMap);
 
-    (charstrings->offset)[num_glyphs] = charstring_len + 1;
+    (charstrings->offset)[num_glyphs] = (l_offset) (charstring_len + 1);
     charstrings->count = num_glyphs;
     cffont->num_glyphs = num_glyphs;
     cffont->cstrings = charstrings;
