@@ -100,7 +100,7 @@ typedef enum {                  /* JPEG marker codes                    */
 static JPG_UINT16 read2bytes(FILE * f)
 {
     int c = xgetc(f);
-    return (c << 8) + xgetc(f);
+    return (JPG_UINT16)((c << 8) + (int)xgetc(f));
 }
 
 static void close_and_cleanup_jpg(image_dict * idict)
@@ -143,14 +143,14 @@ void read_jpg_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
         if (i == 5) {           /* it's JFIF */
             read2bytes(img_file(idict));
             units = xgetc(img_file(idict));
-            img_xres(idict) = read2bytes(img_file(idict));
-            img_yres(idict) = read2bytes(img_file(idict));
+            img_xres(idict) = (int)read2bytes(img_file(idict));
+            img_yres(idict) = (int)read2bytes(img_file(idict));
             switch (units) {
             case 1:
                 break;          /* pixels per inch */
             case 2:
-                img_xres(idict) *= 2.54;
-                img_yres(idict) *= 2.54;
+                img_xres(idict) = (int)((double)img_xres(idict) * 2.54);
+                img_yres(idict) = (int)((double)img_yres(idict) * 2.54);
                 break;          /* pixels per cm */
             default:
                 img_xres(idict) = img_yres(idict) = 0;
@@ -190,8 +190,8 @@ void read_jpg_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
         case M_SOF3:
             (void) read2bytes(img_file(idict)); /* read segment length  */
             img_colordepth(idict) = xgetc(img_file(idict));
-            img_ysize(idict) = read2bytes(img_file(idict));
-            img_xsize(idict) = read2bytes(img_file(idict));
+            img_ysize(idict) = (int)read2bytes(img_file(idict));
+            img_xsize(idict) = (int)read2bytes(img_file(idict));
             img_jpg_color(idict) = xgetc(img_file(idict));
             xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
             switch (img_jpg_color(idict)) {

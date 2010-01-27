@@ -131,10 +131,10 @@ extern char **suffixlist;
         T##_ptr = T##_array;                           \
     }                                                  \
     else if ((unsigned)(T##_ptr - T##_array + (n)) > (unsigned)(T##_limit)) { \
-        size_t last_ptr_index = T##_ptr - T##_array;          \
+        size_t last_ptr_index = (size_t)(T##_ptr - T##_array);		\
         T##_limit *= 2;                                \
         if ((unsigned)(T##_ptr - T##_array + (n)) > (unsigned)(T##_limit)) \
-            T##_limit = T##_ptr - T##_array + (n);     \
+            T##_limit = (size_t)(T##_ptr - T##_array + (n));		\
         xretalloc(T##_array, T##_limit, T##_entry);    \
         T##_ptr = T##_array + last_ptr_index;          \
     }                                                  \

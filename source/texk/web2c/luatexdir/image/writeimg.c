@@ -133,7 +133,7 @@ static void check_type_by_header(image_dict * idict)
     /* read the header */
     file = xfopen(img_filepath(idict), FOPEN_RBIN_MODE);
     for (i = 0; (unsigned) i < MAX_HEADER; i++) {
-        header[i] = xgetc(file);
+        header[i] = (char)xgetc(file);
         if (feof(file))
             pdftex_fail("reading image file failed");
     }
@@ -673,7 +673,7 @@ void idict_to_array(image_dict * idict)
   do {                                          \
     int x;                                      \
     if (a!=NULL) {                              \
-      x = strlen(a)+1;                          \
+	x = (int)strlen(a)+1;			\
       dumpinteger(x);  dump_things(*a, x);      \
     } else {                                    \
       x = 0; dumpinteger(x);                    \
@@ -686,7 +686,7 @@ void idict_to_array(image_dict * idict)
     char *a;                                    \
     undumpinteger (x);                          \
     if (x>0) {                                  \
-      a = malloc(x);                            \
+      a = xmalloc((unsigned)x);  		\
       undump_things(*a,x);                      \
       s = a ;                                   \
     } else { s = NULL; }                        \
@@ -699,7 +699,7 @@ void dumpimagemeta(void)
 
     i = (int) idict_limit;
     dumpinteger(i);
-    cur_index = (idict_ptr - idict_array);
+    cur_index = (int)(idict_ptr - idict_array);
     dumpinteger(cur_index);
 
     for (i = 1; i < cur_index; i++) {
@@ -735,7 +735,7 @@ void undumpimagemeta(PDF pdf, int pdfversion, int pdfinclusionerrorlevel)
 
     assert(pdf != NULL);
     undumpinteger(i);
-    idict_limit = i;
+    idict_limit = (size_t)i;
 
     idict_array = xtalloc(idict_limit, idict_entry);
     undumpinteger(cur_index);
