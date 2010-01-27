@@ -1,6 +1,6 @@
 /* writecff.c
    
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -18,6 +18,7 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 #include "ptexlib.h"
+#include "lua/luatex-api.h"
 
 #include "writecff.h"
 
