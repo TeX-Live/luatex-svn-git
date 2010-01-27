@@ -494,10 +494,10 @@ typedef enum {
 #  define is_leftghost(p)            (is_ghost(p)    && ((subtype(p)) & GLYPH_LEFT  ))
 #  define is_rightghost(p)           (is_ghost(p)    && ((subtype(p)) & GLYPH_RIGHT ))
 
-#  define set_is_glyph(p)         subtype(p) &= ~GLYPH_CHARACTER
-#  define set_is_character(p)     subtype(p) |= GLYPH_CHARACTER
-#  define set_is_ligature(p)      subtype(p) |= GLYPH_LIGATURE
-#  define set_is_ghost(p)         subtype(p) |= GLYPH_GHOST
+#  define set_is_glyph(p)         subtype(p) = (quarterword) (subtype(p) & ~GLYPH_CHARACTER)
+#  define set_is_character(p)     subtype(p) = (quarterword) (subtype(p) | GLYPH_CHARACTER)
+#  define set_is_ligature(p)      subtype(p) = (quarterword) (subtype(p) | GLYPH_LIGATURE)
+#  define set_is_ghost(p)         subtype(p) = (quarterword) (subtype(p) |GLYPH_GHOST)
 
 #  define set_to_glyph(p)         subtype(p) = (quarterword)(subtype(p) & 0xFF00)
 #  define set_to_character(p)     subtype(p) = (quarterword)((subtype(p) & 0xFF00) | GLYPH_CHARACTER)

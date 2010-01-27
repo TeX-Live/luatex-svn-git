@@ -136,7 +136,7 @@ int read_font_info(pointer u, str_number nom, scaled s, int natural_dir)
    the |font_tables| array, and we could attempt to reuse those
 */
 
-int find_font_id(char *nom, scaled s)
+int find_font_id(const char *nom, scaled s)
 {
     int f;
     f = new_font();
