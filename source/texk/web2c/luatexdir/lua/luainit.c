@@ -42,8 +42,6 @@ static const char _svn_version[] =
  *
  */
 
-extern string normalize_quotes(const_string name, const_string mesg);
-
 const_string LUATEX_IHELP[] = {
     "Usage: luatex --lua=FILE [OPTION]... [TEXNAME[.tex]] [COMMANDS]",
     "   or: luatex --lua=FILE [OPTION]... \\FIRST-LINE",
@@ -117,20 +115,9 @@ prepare_cmdline(lua_State * L, char **argv, int argc, int zero_offset)
     return;
 }
 
-extern string dump_name;
-extern const_string c_job_name;
-extern char *last_source_name;
-extern int last_lineno;
-
 string input_name = NULL;
 
 static string user_progname = NULL;
-
-extern int program_name_set;    /* in lkpselib.c */
-
-/* for topenin() */
-extern char **argv;
-extern int argc;
 
 char *startup_filename = NULL;
 int lua_only = 0;
@@ -234,12 +221,12 @@ static void parse_options(int argc, char **argv)
             output_directory = optarg;
 
         } else if (ARGUMENT_IS("output-comment")) {
-            unsigned len = strlen(optarg);
+            size_t len = strlen(optarg);
             if (len < 256) {
                 output_comment = optarg;
             } else {
                 WARNING2("Comment truncated to 255 characters from %d. (%s)",
-                         len, optarg);
+                         (int)len, optarg);
                 output_comment = (string) xmalloc(256);
                 strncpy(output_comment, optarg, 255);
                 output_comment[255] = 0;
@@ -396,7 +383,7 @@ static char *find_filename(char *name, const char *envkey)
             if (*(dirname + strlen(dirname) - 1) == '/') {
                 *(dirname + strlen(dirname) - 1) = 0;
             }
-            filename = xmalloc(strlen(dirname) + strlen(name) + 2);
+            filename = xmalloc((unsigned)(strlen(dirname) + strlen(name) + 2));
             filename = concat3(dirname, "/", name);
             if (is_readable(filename)) {
                 xfree(dirname);
@@ -519,9 +506,6 @@ static int luatex_kpse_lua_find(lua_State * L)
 static int clua_loader_function = 0;
 static int clua_loader_env = 0;
 
-extern int loader_C_luatex(lua_State * L, const char *name,
-                           const char *filename);
-
 static int luatex_kpse_clua_find(lua_State * L)
 {
     const char *filename;
@@ -574,7 +558,6 @@ int pdf_table_id;
 int token_table_id;
 int node_table_id;
 
-extern void init_tex_table(lua_State * L);
 
 #if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
 char **suffixlist;
@@ -633,6 +616,10 @@ void lua_initialize(int ac, char **av)
 
     char *given_file = NULL;
     int kpse_init;
+    static char LC_CTYPE_C[] = "LC_CTYPE=C";
+    static char LC_COLLATE_C[] = "LC_COLLATE=C";
+    static char LC_NUMERIC_C[] = "LC_NUMERIC=C";
+    static char engine_luatex[] = "engine=luatex";
     /* Save to pass along to topenin.  */
     argc = ac;
     argv = av;
@@ -671,12 +658,13 @@ void lua_initialize(int ac, char **av)
         shellenabledp = true;
 
     /* make sure that the locale is 'sane' (for lua) */
-    putenv(xstrdup("LC_CTYPE=C"));
-    putenv(xstrdup("LC_COLLATE=C"));
-    putenv(xstrdup("LC_NUMERIC=C"));
+
+    putenv(LC_CTYPE_C);
+    putenv(LC_COLLATE_C);
+    putenv(LC_NUMERIC_C);
 
     /* this is sometimes needed */
-    putenv(xstrdup("engine=luatex"));
+    putenv(engine_luatex);
 
     luainterpreter();
 

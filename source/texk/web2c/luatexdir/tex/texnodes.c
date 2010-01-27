@@ -1787,7 +1787,7 @@ char *sprint_node_mem_usage(void)
             snprintf(msg, 255, "%s%d %s", (b ? ", " : ""), (int) node_counts[i],
                      get_node_name((i > last_normal_node ? whatsit_node : i),
                                    j));
-            ss = xmalloc(strlen(s) + strlen(msg) + 1);
+            ss = xmalloc((unsigned)(strlen(s) + strlen(msg) + 1));
             strcpy(ss, s);
             strcat(ss, msg);
             free(s);

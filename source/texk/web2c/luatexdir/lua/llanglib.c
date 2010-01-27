@@ -29,9 +29,6 @@ static const char _svn_version[] =
 
 #define check_islang(L,b) (struct tex_language **)luaL_checkudata(L,b,LANG_METATABLE)
 
-extern halfword *check_isnode(lua_State * L, int ud);
-
-
 static int lang_new(lua_State * L)
 {
     struct tex_language **lang;

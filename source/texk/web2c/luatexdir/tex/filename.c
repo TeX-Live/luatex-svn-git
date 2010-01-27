@@ -25,11 +25,6 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-/* for use by |scan_file_name|, it comes from fontforge's Unicode library */
-
-extern char *utf8_idpb(char *w, unsigned int i);
-
-
 /*
   In order to isolate the system-dependent aspects of file names, the
   @^system dependencies@>
@@ -111,9 +106,9 @@ static void end_name(void)
     } else {
         s = (unsigned char *) xstrdup((char *) (cur_string + area_delimiter));
         cur_string[area_delimiter] = '\0';
-        cur_length = strlen((char *) cur_string);
+        cur_length = (unsigned)strlen((char *) cur_string);
         cur_area = make_string();
-        cur_length = strlen((char *) s);
+        cur_length = (unsigned)strlen((char *) s);
         cur_string = s;
     }
     if (ext_delimiter == 0) {
@@ -123,9 +118,9 @@ static void end_name(void)
         int l = (ext_delimiter - area_delimiter - 1);
         s = (unsigned char *) xstrdup((char *) (cur_string + l));
         cur_string[l] = '\0';
-        cur_length = strlen((char *) cur_string);
+        cur_length = (unsigned)strlen((char *) cur_string);
         cur_name = make_string();
-        cur_length = strlen((char *) s);
+        cur_length = (unsigned)strlen((char *) s);
         cur_string = s;
         cur_ext = make_string();
     }
@@ -159,14 +154,15 @@ void scan_file_name(void)
             break;
         if (cur_chr > 127) {
             unsigned char *bytes;
-            unsigned char thebytes[5] = { 0 };
-            utf8_idpb((char *) thebytes, (unsigned) cur_chr);
+            unsigned char *thebytes;
+            thebytes = uni2str((unsigned)cur_chr);
             bytes = thebytes;
             while (*bytes) {
                 if (!more_name(*bytes))
                     break;
                 bytes++;
             }
+	    xfree(thebytes);
         } else {
             if (!more_name(cur_chr))
                 break;

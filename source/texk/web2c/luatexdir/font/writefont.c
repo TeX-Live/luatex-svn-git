@@ -732,10 +732,6 @@ static int has_ttf_outlines(fm_entry * fm)
     return 0;
 }
 
-/* this function is in luafontloader/fontforge/fontforge/macbinary.c */
-
-extern char *FindResourceTtfFont(char *filename, char *fontname);
-
 void do_pdf_font(PDF pdf, int font_objnum, internal_font_number f)
 {
     int del_file = 0;

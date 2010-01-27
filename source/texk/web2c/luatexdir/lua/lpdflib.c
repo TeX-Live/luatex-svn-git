@@ -31,12 +31,6 @@ for (i = 0; i < (l); i++) {                       \
     pdf_quick_out(p, ((const unsigned char *) (s))[i]); \
 }
 
-typedef struct {
-    const char *s;
-    size_t l;
-} const_lstring;
-
-
 int luapdfprint(lua_State * L)
 {
     int n;
@@ -233,7 +227,7 @@ static int table_obj(lua_State * L)
     if (!lua_isnumber(L, -1))   /* !i vs t */
         luaL_error(L, "pdf.obj(): \"%s\" is not a valid object type",
                    lua_tostring(L, -2));
-    type = lua_tointeger(L, -1);        /* i vs t */
+    type = (int)lua_tointeger(L, -1);        /* i vs t */
     lua_pop(L, 1);              /* vs t */
     switch (type) {
     case P_RAW:
@@ -262,7 +256,7 @@ static int table_obj(lua_State * L)
     if (!lua_isnil(L, -1)) {    /* vi? t */
         if (!lua_isnumber(L, -1))       /* !vi t */
             luaL_error(L, "pdf.obj(): \"objnum\" must be integer");
-        k = lua_tointeger(L, -1);       /* vi t */
+        k = (int)lua_tointeger(L, -1);       /* vi t */
         check_obj_exists(static_pdf, obj_type_obj, k);
         if (is_obj_scheduled(static_pdf, k) || obj_data_ptr(static_pdf, k) != 0)
             luaL_error(L, "pdf.obj() object in use");
@@ -306,7 +300,7 @@ static int table_obj(lua_State * L)
                        "pdf.obj(): \"compresslevel\" key not allowed for raw object");
         if (!lua_isnumber(L, -1))       /* !vi t */
             luaL_error(L, "pdf.obj(): \"compresslevel\" must be integer");
-        compress_level = lua_tointeger(L, -1);  /* vi t */
+        compress_level = (int)lua_tointeger(L, -1);  /* vi t */
         if (compress_level > 9)
             luaL_error(L, "pdf.obj(): \"compresslevel\" must be <= 9");
         else if (compress_level < 0)
@@ -550,7 +544,7 @@ static int l_registerannot(lua_State * L)
     case 1:
         if (!is_shipping_page)
             luaL_error(L, "pdf.registerannot() can only be used in late lua");
-        i = luaL_checkinteger(L, 1);
+        i = (int)luaL_checkinteger(L, 1);
         if (i <= 0)
             luaL_error(L,
                        "pdf.registerannot() can only register positive object numbers");

@@ -29,6 +29,11 @@ typedef struct {
     size_t l;
 } lstring;
 
+typedef struct {
+    const char *s;
+    size_t l;
+} const_lstring;
+
 extern lstring *string_pool;
 
 extern str_number str_ptr;
@@ -109,7 +114,7 @@ extern void reset_cur_string(void);
 #  define save_cur_string() (cur_length>0 ? make_string() : 0)
 
 #  define restore_cur_string(u) if (u!=0) {                   \
-        unsigned l = str_length(u);                         \
+        unsigned l = (unsigned)str_length(u);		      \
         reset_cur_string();                                 \
         str_room(l);                                        \
         memcpy(cur_string, str_string(u),l);                \

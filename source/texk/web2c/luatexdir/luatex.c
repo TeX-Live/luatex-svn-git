@@ -401,7 +401,7 @@ char **argv;
 int argc;
 
 /* The C version of what might wind up in |TEX_format_default|.  */
-const_string dump_name;
+string dump_name;
 
 /* The C version of the jobname, if given. */
 const_string c_job_name;

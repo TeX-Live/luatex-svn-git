@@ -152,7 +152,7 @@ pointer prim_lookup(str_number s)
         }
     } else {
         j = str_string(s);
-        l = str_length(s);
+        l = (unsigned)str_length(s);
         h = compute_hash((char *) j, l, prim_prime);
         p = h + prim_base;      /* we start searching here; note that |0<=h<hash_prime| */
         while (1) {

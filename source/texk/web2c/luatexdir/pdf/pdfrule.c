@@ -39,7 +39,7 @@ void pdf_place_rule(PDF pdf, halfword q
     dim.v.e = p->pdf.v.e;
     pdf_printf(pdf, "q\n");
     if (size.v <= one_bp) {
-        pos.v += lround(0.5 * size.v);
+        pos.v += (int)lround(0.5 * size.v);
         pdf_set_pos_temp(pdf, pos);
         pdf_printf(pdf, "[]0 d 0 J ");
         print_pdffloat(pdf, dim.v);
@@ -47,7 +47,7 @@ void pdf_place_rule(PDF pdf, halfword q
         print_pdffloat(pdf, dim.h);
         pdf_printf(pdf, " 0 l S\n");
     } else if (size.h <= one_bp) {
-        pos.h += lround(0.5 * size.h);
+        pos.h += (int)lround(0.5 * size.h);
         pdf_set_pos_temp(pdf, pos);
         pdf_printf(pdf, "[]0 d 0 J ");
         print_pdffloat(pdf, dim.h);

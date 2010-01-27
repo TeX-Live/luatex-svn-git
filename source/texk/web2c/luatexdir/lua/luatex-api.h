@@ -151,4 +151,47 @@ typedef struct {
 
 extern void preset_environment(lua_State * L, const parm_struct * p);
 
+extern char *startup_filename;
+extern int safer_option;
+extern int nosocket_option;
+
+extern char *last_source_name;
+extern int last_lineno;
+
+extern int program_name_set;    /* in lkpselib.c */
+
+/* for topenin() */
+extern char **argv;
+extern int argc;
+
+
+extern int loader_C_luatex(lua_State * L, const char *name,
+                           const char *filename);
+
+
+extern void init_tex_table(lua_State * L);
+
+extern int tex_table_id;
+extern int pdf_table_id;
+extern int token_table_id;
+extern int node_table_id;
+extern int main_initialize(void);
+
+extern int do_run_callback(int special, const char *values, va_list vl);
+extern int lua_traceback(lua_State * L);
+
+extern int luainit;
+
+extern char *luanames[];
+
+extern int ff_get_ttc_index(char *ffname, char *psname);        /* luafontloader/src/luafflib.c */
+extern int ff_createcff(char *, unsigned char **, int *);       /* luafontloader/src/luafflib.c */
+
+extern char *FindResourceTtfFont(char *filename, char *fontname); /* luafontloader/fontforge/fontforge/macbinary.c */
+
+extern char charsetstr[];       /* from mpdir/psout.w */
+
+extern char **environ;
+
+
 #endif

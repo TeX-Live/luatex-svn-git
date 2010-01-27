@@ -253,8 +253,6 @@ static int spawn_command(const char *file, char *const *argv, char *const *envp)
 
 #endif
 
-extern char **environ;
-
 #ifdef WIN32
 static char *get_command_name(char *maincmd)
 {
@@ -577,7 +575,7 @@ static int os_setenv(lua_State * L)
     val = luaL_optstring(L, 2, NULL);
     if (key) {
         if (val) {
-            value = xmalloc(strlen(key) + strlen(val) + 2);
+            value = xmalloc((unsigned)(strlen(key) + strlen(val) + 2));
             sprintf(value, "%s=%s", key, val);
             if (putenv(value)) {
                 return luaL_error(L, "unable to change environment");

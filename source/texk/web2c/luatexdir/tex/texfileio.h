@@ -25,8 +25,8 @@
 extern int *input_file_callback_id;
 extern int read_file_callback_id[17];
 
-extern char *luatex_find_file(char *s, int callback_index);
-extern char *luatex_find_read_file(char *s, int n, int callback_index);
+extern char *luatex_find_file(const char *s, int callback_index);
+extern char *luatex_find_read_file(const char *s, int n, int callback_index);
 extern boolean luatex_open_input(FILE ** f_ptr, const char *fn, int filefmt,
                                  const_string fopen_mode, boolean must_exist);
 extern boolean luatex_open_output(FILE ** f_ptr, const char *fn,

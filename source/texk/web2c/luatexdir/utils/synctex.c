@@ -395,7 +395,7 @@ static void *synctex_dot_open(void)
 		size_t len;
 		char *tmp = GETJOBNAME();
 		/*  jobname was set by the \jobname command on the *TeX side  */
-		char * the_busy_name = xmalloc(strlen(tmp) + strlen(synctex_suffix) + strlen(synctex_suffix_gz) + strlen(synctex_suffix_busy) + 1);
+		char * the_busy_name = xmalloc((unsigned)(strlen(tmp) + strlen(synctex_suffix) + strlen(synctex_suffix_gz) + strlen(synctex_suffix_busy) + 1));
 		if(!the_busy_name) {
 			SYNCTEX_FREE(tmp);
 			synctexabort(0);
@@ -585,7 +585,7 @@ void synctexterminate(boolean log_opened)
 #endif
        if(log_opened && (tmp = GETLOGNAME())) {
 		/* In version 1, the jobname was used but it caused problems regarding spaces in file names. */
-		the_real_syncname = xmalloc(strlen(tmp) + strlen(synctex_suffix) + strlen(synctex_suffix_gz) + 1);
+	   the_real_syncname = xmalloc((unsigned)(strlen(tmp) + strlen(synctex_suffix) + strlen(synctex_suffix_gz) + 1));
 		if(!the_real_syncname) {
 			SYNCTEX_FREE(tmp);
 			synctexabort(0);
@@ -654,7 +654,7 @@ void synctexterminate(boolean log_opened)
 		/*  There was a problem with the output.
 		    We just try to remove existing synctex output files
 			including the busy one. */
-		the_real_syncname = xmalloc(strlen(tmp) + strlen(synctex_suffix) + strlen(synctex_suffix_gz) + 1);
+		the_real_syncname = xmalloc((unsigned)(strlen(tmp) + strlen(synctex_suffix) + strlen(synctex_suffix_gz) + 1));
 		if(!the_real_syncname) {
 			SYNCTEX_FREE(tmp);
 			synctexabort(0);

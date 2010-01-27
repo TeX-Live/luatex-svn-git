@@ -28,48 +28,7 @@
 static const char _svn_version[] =
     "$Id$ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lang/texlang.c $";
 
-/* functions from the fontforge unicode library */
-
-#if 0
-extern unsigned int *utf82u_strcpy(unsigned int *ubuf, const char *utf8buf);
-extern unsigned int u_strlen(unsigned int *ubuf);
-extern char *utf8_idpb(char *w, unsigned int i);
-#else
-
-typedef unsigned int unichar_t;
-typedef unsigned char uint8;
-typedef unsigned int uint32;
-
-static unichar_t *utf82u_strcpy(unichar_t * ubuf, const char *utf8buf)
-{
-    int len = (int)strlen(utf8buf) + 1;
-    unichar_t *upt = ubuf, *uend = ubuf + len - 1;
-    const uint8 *pt = (const uint8 *) utf8buf, *end = pt + strlen(utf8buf);
-    int w, w2;
-
-    while (pt < end && *pt != '\0' && upt < uend) {
-        if (*pt <= 127)
-            *upt = *pt++;
-        else if (*pt <= 0xdf) {
-            *upt = (unichar_t)(((*pt & 0x1f) << 6) | (pt[1] & 0x3f));
-            pt += 2;
-        } else if (*pt <= 0xef) {
-            *upt = (unichar_t)(((*pt & 0xf) << 12) | ((pt[1] & 0x3f) << 6) | (pt[2] & 0x3f));
-            pt += 3;
-        } else {
-            w = (((*pt & 0x7) << 2) | ((pt[1] & 0x30) >> 4)) - 1;
-            w = (w << 6) | ((pt[1] & 0xf) << 2) | ((pt[2] & 0x30) >> 4);
-            w2 = ((pt[2] & 0xf) << 6) | (pt[3] & 0x3f);
-            *upt = (unichar_t)(w * 0x400 + w2 + 0x10000);
-            pt += 4;
-        }
-        ++upt;
-    }
-    *upt = '\0';
-    return (ubuf);
-}
-
-static char *utf8_idpb(char *utf8_text, uint32 ch)
+static char *uni2string(char *utf8_text, unsigned ch)
 {
     /* Increment and deposit character */
     if (ch >= 17 * 65536)
@@ -85,8 +44,8 @@ static char *utf8_idpb(char *utf8_text, uint32 ch)
         *utf8_text++ = (char)(0x80 | ((ch >> 6) & 0x3f));
         *utf8_text++ = (char)(0x80 | (ch & 0x3f));
     } else {
-        uint32 val = ch - 0x10000;
-        uint32 u = ((val & 0xf0000) >> 16) + 1, z = (val & 0x0f000) >> 12, y =
+        unsigned val = ch - 0x10000;
+        unsigned u = ((val & 0xf0000) >> 16) + 1, z = (val & 0x0f000) >> 12, y =
             (val & 0x00fc0) >> 6, x = val & 0x0003f;
         *utf8_text++ = (char)(0xf0 | (u >> 2));
         *utf8_text++ = (char)(0x80 | ((u & 3) << 4) | z);
@@ -96,15 +55,43 @@ static char *utf8_idpb(char *utf8_text, uint32 ch)
     return (utf8_text);
 }
 
-static int u_strlen(register unichar_t * str)
+static unsigned u_length(register unsigned int * str)
 {
-    register int len = 0;
+    register unsigned len = 0;
     while (*str++ != '\0')
         ++len;
     return (len);
 }
 
-#endif
+
+static void utf82u_strcpy(unsigned int * ubuf, const char *utf8buf)
+{
+    int len = (int)strlen(utf8buf) + 1;
+    unsigned int *upt = ubuf, *uend = ubuf + len - 1;
+    const unsigned char *pt = (const unsigned char *) utf8buf, *end = pt + strlen(utf8buf);
+    int w, w2;
+
+    while (pt < end && *pt != '\0' && upt < uend) {
+        if (*pt <= 127)
+            *upt = *pt++;
+        else if (*pt <= 0xdf) {
+            *upt = (unsigned int)(((*pt & 0x1f) << 6) | (pt[1] & 0x3f));
+            pt += 2;
+        } else if (*pt <= 0xef) {
+            *upt = (unsigned int)(((*pt & 0xf) << 12) | ((pt[1] & 0x3f) << 6) | (pt[2] & 0x3f));
+            pt += 3;
+        } else {
+            w = (((*pt & 0x7) << 2) | ((pt[1] & 0x30) >> 4)) - 1;
+            w = (w << 6) | ((pt[1] & 0xf) << 2) | ((pt[2] & 0x30) >> 4);
+            w2 = ((pt[2] & 0xf) << 6) | (pt[3] & 0x3f);
+            *upt = (unsigned int)(w * 0x400 + w2 + 0x10000);
+            pt += 4;
+        }
+        ++upt;
+    }
+    *upt = '\0';
+}
+
 
 #define noVERBOSE
 
@@ -550,7 +537,7 @@ char *exception_strings(struct tex_language *lang)
         while (lua_next(L, -2) != 0) {
             value = lua_tolstring(L, -1, &l);
             if (current + 2 + l > size) {
-                ret = xrealloc(ret, (size + size / 5) + current + l + 1024);
+                ret = xrealloc(ret, (unsigned)((size + size / 5) + current + l + 1024));
                 size = (size + size / 5) + current + l + 1024;
             }
             *(ret + current) = ' ';
@@ -566,17 +553,17 @@ char *exception_strings(struct tex_language *lang)
 /* the sequence from |wordstart| to |r| can contain only normal characters */
 /* it could be faster to modify a halfword pointer and return an integer */
 
-halfword find_exception_part(unsigned int *j, int *uword, int len)
+halfword find_exception_part(unsigned int *j, unsigned int *uword, int len)
 {
     halfword g = null, gg = null;
     register unsigned i = *j;
     i++;                        /* this puts uword[i] on the '{' */
     while (i < (unsigned)len && uword[i + 1] != '}') {
         if (g == null) {
-            gg = new_char(0, uword[i + 1]);
+            gg = new_char(0, (int)uword[i + 1]);
             g = gg;
         } else {
-            halfword s = new_char(0, uword[i + 1]);
+            halfword s = new_char(0, (int)uword[i + 1]);
             couple_nodes(g, s);
             g = vlink(g);
         }
@@ -586,7 +573,7 @@ halfword find_exception_part(unsigned int *j, int *uword, int len)
     return gg;
 }
 
-int count_exception_part(unsigned int *j, int *uword, int len)
+int count_exception_part(unsigned int *j, unsigned int *uword, int len)
 {
     int ret = 0;
     register unsigned i = *j;
@@ -613,9 +600,9 @@ void do_exception(halfword wordstart, halfword r, char *replacement)
     unsigned len;
     int clang;
     lang_variables langdata;
-    int uword[MAX_WORD_LEN + 1] = { 0 };
-    (void) utf82u_strcpy((unsigned int *) uword, replacement);
-    len = (unsigned)u_strlen((unsigned int *) uword);
+    unsigned uword[MAX_WORD_LEN + 1] = { 0 };
+    utf82u_strcpy(uword, replacement);
+    len = u_length(uword);
     i = 0;
     t = wordstart;
     clang = char_lang(wordstart);
@@ -858,7 +845,7 @@ void hnj_hyphenation(halfword head, halfword tail)
                clang == char_lang(r) &&
                (lchar = get_lc_code(character(r))) > 0) {
             wordlen++;
-            hy = utf8_idpb(hy, (uint32)lchar);
+            hy = uni2string(hy, (unsigned)lchar);
             /* this should not be needed  any more */
             /*if (vlink(r)!=null) alink(vlink(r))=r; */
             end_word = r;

@@ -31,6 +31,12 @@
 extern double rint(double x);
 #  endif
 
+extern string fullnameoffile;
+#if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
+extern char **suffixlist;
+#endif
+
+
 /* Replicate these here. They are hardcoded anyway */
 
 #  define eTeX_version_string "2.2"     /* current \eTeX\ version */
@@ -406,5 +412,35 @@ extern void setupboundvariable(int *, const_string, int);
 
 extern str_number getjobname(str_number);
 extern str_number makefullnamestring(void);
+
+
+extern string versionstring;    /* from web2c/lib/version.c */
+extern KPSEDLL string kpathsea_version_string;  /* from kpathsea/version.c */
+
+extern PDF static_pdf;
+
+extern string normalize_quotes(const_string name, const_string mesg);
+extern string dump_name;
+extern const_string c_job_name;
+
+extern halfword *check_isnode(lua_State * L, int ud);
+extern void lua_nodelib_push_fast(lua_State * L, halfword n);
+
+extern void lua_nodelib_push_fast(lua_State * L, halfword n);
+
+extern halfword list_node_mem_usage(void);
+
+extern halfword *check_isnode(lua_State * L, int ud);
+
+extern extinfo *get_charinfo_vert_variants(charinfo * ci);
+extern extinfo *get_charinfo_hor_variants(charinfo * ci);
+extern void set_charinfo_hor_variants(charinfo * ci, extinfo * ext);
+extern void set_charinfo_vert_variants(charinfo * ci, extinfo * ext);
+
+extern extinfo *copy_variants(extinfo * o);
+
+extern int program_name_set;    /* in lkpselib.c */
+
+
 
 #endif                          /* PTEXLIB_H */

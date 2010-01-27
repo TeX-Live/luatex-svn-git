@@ -657,7 +657,7 @@ static halfword string_to_pseudo(str_number str, int nl)
     int sz;
     halfword h = new_node(pseudo_file_node, 0);
     unsigned char *s = str_string(str);
-    len = str_length(str);
+    len = (unsigned)str_length(str);
     l = 0;
     while (l < len) {
         unsigned m = l;         /* start of current line */

@@ -30,8 +30,6 @@ typedef struct statistic {
     void *value;
 } statistic;
 
-extern void lua_nodelib_push_fast(lua_State * L, halfword n);
-
 typedef char *(*charfunc) (void);
 typedef lua_Number(*numfunc) (void);
 typedef int (*intfunc) (void);

@@ -349,7 +349,7 @@ boolean get_strings_started(void)
 str_number search_string(str_number search)
 {
     str_number s;               /* running index */
-    unsigned len;               /* length of searched string */
+    size_t len;               /* length of searched string */
     len = str_length(search);
     if (len == 0) {
         return get_nullstr();
@@ -377,7 +377,7 @@ str_number maketexlstring(const char *s, size_t l)
 {
     if (s == NULL || l == 0)
         return get_nullstr();
-    str_string(str_ptr) = xmalloc(l + 1);
+    str_string(str_ptr) = xmalloc((unsigned)(l + 1));
     memcpy(str_string(str_ptr), s, (l + 1));
     str_length(str_ptr) = (unsigned) l;
     str_ptr++;
@@ -389,7 +389,7 @@ void append_string(const unsigned char *s, unsigned l)
 {
     if (s == NULL || *s == 0)
         return;
-    l = strlen((const char *) s);
+    l = (unsigned)strlen((const char *) s);
     str_room(l);
     memcpy(cur_string + cur_length, s, l);
     cur_length += l;
@@ -408,7 +408,7 @@ char *makeclstring(int s, size_t * len)
         *len = (size_t) utf8_size(s);
         return (char *) uni2str((unsigned) s);
     } else {
-        unsigned l = str_length(s);
+        unsigned l = (unsigned)str_length(s);
         char *cstrbuf = xmalloc(l + 1);
         memcpy(cstrbuf, str_string(s), l);
         cstrbuf[l] = '\0';
@@ -477,7 +477,7 @@ void flush_str(str_number s)
 {
     /* printf("Flushing a string: %s (s=%d,str_ptr=%d)\n", (char *)str_string(s), (int)s, (int)str_ptr); */
     if (s > STRING_OFFSET) {    /* don't ever delete the null string */
-        pool_size -= str_length(s);
+        pool_size -= (unsigned)str_length(s);
         str_length(s) = 0;
         xfree(str_string(s));
     }

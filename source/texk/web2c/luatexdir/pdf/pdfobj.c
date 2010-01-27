@@ -30,13 +30,14 @@ int pdf_last_obj;
 
 void pdf_write_obj(PDF pdf, int k)
 {
-    lstring data, st;
+    lstring data;
+    const_lstring st;
     size_t i, li;               /* index into |data.s| */
     int saved_compress_level = pdf->compress_level;
     int os_level = 1;           /* gives compressed objects for \pdfobjcompresslevel > 0 */
     int l = 0;                  /* possibly a lua registry reference */
     int ll = 0;
-    data.s = st.s = NULL;
+    data.s = NULL;
     if (obj_obj_pdfcompresslevel(pdf, k) > -1)  /* -1 = "unset" */
         pdf->compress_level = obj_obj_pdfcompresslevel(pdf, k);
     if (obj_obj_pdfoslevel(pdf, k) > -1)        /* -1 = "unset" */
@@ -47,8 +48,8 @@ void pdf_write_obj(PDF pdf, int k)
         if (l != LUA_NOREF) {
             lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
             assert(lua_isstring(Luas, -1));
-            st.s = (unsigned char *) lua_tolstring(Luas, -1, &li);
-            st.l = (size_t) li;
+            st.s = lua_tolstring(Luas, -1, &li);
+            st.l = li;
             for (i = 0; i < st.l; i++)
                 pdf_out(pdf, st.s[i]);
             if (st.s[st.l - 1] != '\n')
@@ -62,14 +63,14 @@ void pdf_write_obj(PDF pdf, int k)
     l = obj_obj_data(pdf, k);
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
     assert(lua_isstring(Luas, -1));
-    st.s = (unsigned char *) lua_tolstring(Luas, -1, &li);
-    st.l = (size_t) li;
+    st.s = lua_tolstring(Luas, -1, &li);
+    st.l = li;
     if (obj_obj_is_file(pdf, k)) {
         boolean res = false;    /* callback status value */
-        char *fnam = NULL;      /* callback found filename */
+        const char *fnam = NULL;      /* callback found filename */
         int callback_id;
         /* st.s is also '\0'-terminated, even as lstring */
-        fnam = luatex_find_file((char *) st.s, find_data_file_callback);
+        fnam = luatex_find_file(st.s, find_data_file_callback);
         callback_id = callback_defined(read_data_file_callback);
         if (fnam && callback_id > 0) {
             boolean file_opened = false;
@@ -81,7 +82,7 @@ void pdf_write_obj(PDF pdf, int k)
         } else {
             byte_file f;        /* the data file's FILE* */
             if (!fnam)
-                fnam = (char *) st.s;
+                fnam = st.s;
             if (!luatex_open_input
                 (&f, fnam, kpse_tex_format, FOPEN_RBIN_MODE, true))
                 pdf_error("ext5", "cannot open file for embedding");
@@ -94,7 +95,7 @@ void pdf_write_obj(PDF pdf, int k)
         if (!res)
             pdf_error("ext5", "error reading file for embedding");
         tprint("<<");
-        tprint((char *) st.s);
+        tprint(st.s);
         for (i = 0; i < data.l; i++)
             pdf_out(pdf, data.s[i]);
         if (!obj_obj_is_stream(pdf, k) && data.s[data.l - 1] != '\n')

@@ -777,7 +777,7 @@ void run_ocp(void)
         /* k=0;  ? */
         char *cmd = makecstring(ocp_external(otp_input_ocp));
         char *arg = makecstring(ocp_external_arg(otp_input_ocp));
-        char *cmdline = xmalloc(strlen(cmd) + strlen(arg) + 3);
+        char *cmdline = xmalloc((unsigned)(strlen(cmd) + strlen(arg) + 3));
         strcpy(cmdline, cmd);
         strcat(cmdline, " ");
         strcat(cmdline, arg);

@@ -98,8 +98,6 @@ int ttf_length;
 
 #include "macnames.c"
 
-extern char charsetstr[];       /* from mpdir/psout.w */
-
 static const char *newtabnames[] = {
     "OS/2",
     "PCLT",

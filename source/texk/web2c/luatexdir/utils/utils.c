@@ -60,13 +60,8 @@ static const char _svn_version[] =
 
 char *cur_file_name = NULL;
 static char print_buf[PRINTF_BUF_SIZE];
-extern string versionstring;    /* from web2c/lib/version.c */
-extern KPSEDLL string kpathsea_version_string;  /* from kpathsea/version.c */
 int epochseconds;
 int microseconds;
-
-extern PDF static_pdf;
-
 
 /* define char_ptr, char_array & char_limit */
 typedef char char_entry;

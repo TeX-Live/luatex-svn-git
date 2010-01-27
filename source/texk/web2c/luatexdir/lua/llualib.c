@@ -40,8 +40,6 @@ unsigned int luabytecode_bytes = 0;
 
 char *luanames[65536] = { NULL };
 
-extern char *luanames[];
-
 char *get_lua_name(int i)
 {
     if (i < 0 || i > 65535)
@@ -97,7 +95,7 @@ void undump_luac_registers(void)
             lua_fatal_error("Corrupt format file");
         }
         lua_bytecode_registers = xmalloc((unsigned) (i * sizeof(bytecode)));
-        luabytecode_bytes = i * sizeof(bytecode);
+        luabytecode_bytes = (unsigned)(i * sizeof(bytecode));
         for (i = 0; i <= (unsigned) luabytecode_max; i++) {
             lua_bytecode_registers[i].done = 0;
             lua_bytecode_registers[i].size = 0;
@@ -171,7 +169,7 @@ int writer(lua_State * L, const void *b, size_t size, void *B)
     }
     memcpy(buf->buf + buf->size, b, size);
     buf->size += (int) size;
-    luabytecode_bytes += size;
+    luabytecode_bytes += (unsigned)size;
     return 0;
 }
 
@@ -233,13 +231,12 @@ int set_bytecode(lua_State * L)
         lua_error(L);
     }
     if (k > luabytecode_max) {
-        i = sizeof(bytecode) * ((unsigned) k + 1);
+        i = (unsigned)(sizeof(bytecode) * ((unsigned) k + 1));
         lua_bytecode_registers = xrealloc(lua_bytecode_registers, i);
         if (luabytecode_max == -1) {
-            luabytecode_bytes += (sizeof(bytecode) * (unsigned) (k + 1));
+            luabytecode_bytes += (unsigned)(sizeof(bytecode) * (unsigned) (k + 1));
         } else {
-            luabytecode_bytes +=
-                (sizeof(bytecode) * (unsigned) (k + 1 - luabytecode_max));
+            luabytecode_bytes += (unsigned)(sizeof(bytecode) * (unsigned) (k + 1 - luabytecode_max));
         }
         for (i = (unsigned) (luabytecode_max + 1); i <= (unsigned) k; i++) {
             lua_bytecode_registers[i].buf = NULL;

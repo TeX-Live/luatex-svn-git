@@ -213,8 +213,8 @@ extern KPSEDLL address xrealloc (address old_address, unsigned new_size);
 extern KPSEDLL address xcalloc (unsigned nelem, unsigned elsize);
 
 /* (Re)Allocate N items of type T using xmalloc/xrealloc.  */
-#define XTALLOC(n, t) ((t *) xmalloc ((n) * sizeof (t)))
+#define XTALLOC(n, t) ((t *) xmalloc ((unsigned)((n) * sizeof (t))))
 #define XTALLOC1(t) XTALLOC (1, t)
-#define XRETALLOC(addr, n, t) ((addr) = (t *) xrealloc (addr, (n) * sizeof(t)))
+#define XRETALLOC(addr, n, t) ((addr) = (t *) xrealloc (addr, (unsigned)((n) * sizeof(t))))
 
 #endif /* not KPATHSEA_LIB_H */

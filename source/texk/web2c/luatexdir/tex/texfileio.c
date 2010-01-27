@@ -69,8 +69,6 @@ for us to specify simple operations on word files before they are defined.
 char *nameoffile;
 int namelength;
 
-extern string fullnameoffile;
-
 /*
 When input files are opened via a callback, they will also be read using
 callbacks. for that purpose, the |open_read_file_callback| returns an
@@ -90,7 +88,7 @@ int read_file_callback_id[17];
    output_directory followed by "." but to do this requires much more
    invasive surgery in libkpathsea.  
 */
-char *find_in_output_directory(char *s)
+static char *find_in_output_directory(const char *s)
 {
     if (output_directory && !kpse_absolute_p(s, false)) {
         FILE *f_ptr;
@@ -109,7 +107,7 @@ char *find_in_output_directory(char *s)
 
 /* find an \input or \read file. |n| differentiates between those case. */
 
-char *luatex_find_read_file(char *s, int n, int callback_index)
+char *luatex_find_read_file(const char *s, int n, int callback_index)
 {
     char *ftemp = NULL;
     int callback_id = callback_defined(callback_index);
@@ -130,7 +128,7 @@ char *luatex_find_read_file(char *s, int n, int callback_index)
 }
 
 /* find other files types */
-char *luatex_find_file(char *s, int callback_index)
+char *luatex_find_file(const char *s, int callback_index)
 {
     char *ftemp = NULL;
     int callback_id = callback_defined(callback_index);
@@ -1031,7 +1029,7 @@ int readbinfile(FILE * f, unsigned char **tfm_buffer, int *tfm_size)
     void *buf;
     int size;
     if (fseek(f, 0, SEEK_END) == 0) {
-        size = ftell(f);
+        size = (int)ftell(f);
         if (size > 0) {
             buf = xmalloc((unsigned) size);
             if (fseek(f, 0, SEEK_SET) == 0) {
@@ -1189,7 +1187,6 @@ boolean openinnameok(const_string fname)
 }
 
 #if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
-extern char **suffixlist;
 
 static int Isspace(char c)
 {
@@ -1289,7 +1286,7 @@ boolean open_in_or_pipe(FILE ** f_ptr, char *fn, int filefmt,
     if (shellenabledp && *fn == '|') {
         /* the user requested a pipe */
         *f_ptr = NULL;
-        fname = (string) xmalloc(strlen(fn) + 1);
+        fname = (string) xmalloc((unsigned)(strlen(fn) + 1));
         strcpy(fname, fn);
         if (fullnameoffile)
             free(fullnameoffile);
@@ -1326,7 +1323,7 @@ boolean open_out_or_pipe(FILE ** f_ptr, char *fn, const_string fopen_mode)
 
     if (shellenabledp && *fn == '|') {
         /* the user requested a pipe */
-        fname = (string) xmalloc(strlen(fn) + 1);
+        fname = (string) xmalloc((unsigned)(strlen(fn) + 1));
         strcpy(fname, fn);
         if (strchr(fname, ' ') == NULL && strchr(fname, '>') == NULL) {
             /* mp and mf currently do not use this code, but it 

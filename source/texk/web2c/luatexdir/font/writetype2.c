@@ -251,8 +251,6 @@ unsigned long ttc_read_offset(sfnt * sfont, int ttc_idx)
     return offset;
 }
 
-extern int ff_get_ttc_index(char *ffname, char *psname);        /* libs/luafontforge/src/luafflib.c */
-
 void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
 {
 

@@ -636,7 +636,7 @@ void hnj_hyphen_load(HyphenDict * dict, const unsigned char *f)
         org[j + 1] = 0;
         hyppat_insert(dict->patterns, pat, org);
     }
-    dict->pat_length += (f - begin) + 2;        /* 2 for spurious spaces */
+    dict->pat_length += (int)((f - begin) + 2);  /* 2 for spurious spaces */
     init_hash(&dict->merged);
     v = new_HashIter(dict->patterns);
     while (nextHash(v, &word)) {

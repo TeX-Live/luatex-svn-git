@@ -26,10 +26,6 @@ static const char _svn_version[] =
 
 lua_State *Luas = NULL;
 
-extern char *startup_filename;
-extern int safer_option;
-extern int nosocket_option;
-
 int luastate_bytes = 0;
 
 int lua_active = 0;
@@ -398,7 +394,7 @@ lua_State *luatex_error(lua_State * L, int is_fatal)
     char *err = NULL;
     if (lua_isstring(L, -1)) {
         luaerr = lua_tolstring(L, -1, &len);
-        err = (char *) xmalloc(len + 1);
+        err = (char *) xmalloc((unsigned)(len + 1));
         len = (size_t) snprintf(err, (len + 1), "%s", luaerr);
     }
     if (is_fatal > 0) {

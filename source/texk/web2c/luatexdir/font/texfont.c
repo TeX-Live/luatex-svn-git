@@ -48,14 +48,6 @@ texfont **font_tables = NULL;
 static int font_arr_max = 0;
 static int font_id_maxval = 0;
 
-extern extinfo *get_charinfo_vert_variants(charinfo * ci);
-extern extinfo *get_charinfo_hor_variants(charinfo * ci);
-extern void set_charinfo_hor_variants(charinfo * ci, extinfo * ext);
-extern void set_charinfo_vert_variants(charinfo * ci, extinfo * ext);
-
-extern extinfo *copy_variants(extinfo * o);
-
-
 static void grow_font_table(int id)
 {
     int j;

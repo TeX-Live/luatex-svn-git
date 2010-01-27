@@ -156,9 +156,9 @@ typedef unsigned char *pointertobyte;
 /* Allocate an array of a given type. Add 1 to size to account for the
    fact that Pascal arrays are used from [1..size], unlike C arrays which
    use [0..size). */
-#define xmallocarray(type,size) ((type*)xmalloc((size+1)*sizeof(type)))
+#define xmallocarray(type,size) ((type*)xmalloc((unsigned)((size+1)*sizeof(type))))
 /* Same for reallocating an array. */
-#define xreallocarray(ptr,type,size) ((type*)xrealloc(ptr,(size+1)*sizeof(type)))
+#define xreallocarray(ptr,type,size) ((type*)xrealloc(ptr,(unsigned)((size+1)*sizeof(type))))
 
 /* BibTeX needs this to dynamically reallocate arrays.  Too bad we can't
    rely on stringification, or we could avoid the ARRAY_NAME arg.

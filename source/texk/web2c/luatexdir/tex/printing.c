@@ -279,7 +279,7 @@ void print(int s)
         return;
     }
     if (selector == new_string) {
-        append_string(str_string(s), str_length(s));
+        append_string(str_string(s), (unsigned)str_length(s));
         return;
     }
     j = str_string(s);
@@ -323,7 +323,7 @@ void tprint(const char *s)
 {
     const unsigned char *ss = (const unsigned char *) s;
     if (selector == new_string) {
-        append_string(ss, strlen(s));
+        append_string(ss, (unsigned)strlen(s));
         return;
     }
     while (*ss)
@@ -478,7 +478,7 @@ void print_int(longinteger n)
             m = (m % 10) + 1;
             k = 1;
             if (m < 10)
-                dig[0] = m;
+                dig[0] = (int)m;
             else {
                 dig[0] = 0;
                 incr(n);
@@ -486,7 +486,7 @@ void print_int(longinteger n)
         }
     }
     do {
-        dig[k] = n % 10;
+        dig[k] = (int)(n % 10);
         n = n / 10;
         incr(k);
     } while (n != 0);
