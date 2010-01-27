@@ -338,7 +338,7 @@ static int hnj_get_state(HyphenDict * dict,
     /* predicate is true if dict->num_states is a power of two */
     if (!(dict->num_states & (dict->num_states - 1))) {
         dict->states = hnj_realloc(dict->states,
-                                   (int)(dict->num_states << 1 *
+                                   (int)((dict->num_states << 1) *
                                          sizeof(HyphenState)));
     }
     dict->states[dict->num_states].match = NULL;
