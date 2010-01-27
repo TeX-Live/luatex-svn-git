@@ -1,5 +1,5 @@
 /* texfont.c Main font API implementation for the pascal parts
-   
+
    Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -23,7 +23,7 @@ static const char _svn_version[] =
 
 /* Main font API implementation for the pascal parts */
 
-/* stuff to watch out for: 
+/* stuff to watch out for:
  *
  * - Knuth had a 'null_character' that was used when a character could
  * not be found by the fetch() routine, to signal an error. This has
@@ -551,12 +551,14 @@ void set_charinfo_index(charinfo * ci, scaled val)
 
 void set_charinfo_name(charinfo * ci, const char *val)
 {
-    dxfree(ci->name, val);
+    xfree(ci->name);
+    ci->name = (char *) val;
 }
 
 void set_charinfo_tounicode(charinfo * ci, const char *val)
 {
-    dxfree(ci->tounicode, val);
+    xfree(ci->tounicode);
+    ci->tounicode = (char *) val;
 }
 
 void set_charinfo_ligatures(charinfo * ci, liginfo * val)
@@ -748,13 +750,13 @@ static void undump_math_kerns(charinfo * ci)
 }
 
 
-/* In TeX, extensibles were fairly simple things. 
+/* In TeX, extensibles were fairly simple things.
    This function squeezes a TFM extensible into the vertical extender structures.
-   |advance==0| is a special case for TFM fonts, because finding the proper 
-   advance width during tfm reading can be tricky 
+   |advance==0| is a special case for TFM fonts, because finding the proper
+   advance width during tfm reading can be tricky
 */
 
-/* a small complication arises if |rep| is the only non-zero: it needs to be 
+/* a small complication arises if |rep| is the only non-zero: it needs to be
   doubled as a non-repeatable to avoid mayhem */
 
 void set_charinfo_extensible(charinfo * ci, int top, int bot, int mid, int rep)
@@ -1629,7 +1631,7 @@ int undump_charinfo(int f)
 void undump_font_entry(texfont * f)
 {
     int x = 0;
-    /* *INDENT-OFF* */  
+    /* *INDENT-OFF* */
     undump_int(x); f->_font_size = x;
     undump_int(x); f->_font_dsize = x;
     undump_int(x); f->_font_cidversion = x;
@@ -1662,7 +1664,7 @@ void undump_font_entry(texfont * f)
     undump_int(x); f->_pdf_font_blink = x;
     undump_int(x); f->_pdf_font_elink = x;
     undump_int(x); f->_pdf_font_attr = x;
-    /* *INDENT-ON* */  
+    /* *INDENT-ON* */
 }
 
 
