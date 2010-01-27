@@ -1,6 +1,6 @@
 /* writetype0.c
    
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -20,6 +20,7 @@
 #include "ptexlib.h"
 #include "writettf.h"
 #include "writecff.h"
+#include "lua/luatex-api.h"
 
 #include "sfnt.h"
 #include "tt_glyf.h"
