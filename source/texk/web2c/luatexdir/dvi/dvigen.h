@@ -51,7 +51,7 @@ each time, we use the macro |dvi_out|.
 */
 
 #  define dvi_out(A) do {                       \
-    dvi_buf[dvi_ptr++]=A;                       \
+	dvi_buf[dvi_ptr++]=(eight_bits)(A);	\
     if (dvi_ptr==dvi_limit) dvi_swap();         \
   } while (0)
 

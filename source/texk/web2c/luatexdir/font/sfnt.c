@@ -296,7 +296,7 @@ static unsigned max2floor(unsigned n)
         val *= 2;
     }
 
-    return val;
+    return (unsigned) val;
 }
 
 /*
@@ -318,12 +318,12 @@ static ULONG sfnt_calc_checksum(void *data, ULONG length)
 {
     ULONG chksum = 0;
     BYTE *p, *endptr;
-    int count = 0;
+    ULONG count = 0;
 
     p = (BYTE *) data;
     endptr = p + length;
     while (p < endptr) {
-        chksum += (p[0] << (8 * (3 - count)));
+        chksum = chksum + (ULONG) (p[0] << (8 * (3 - count)));
         count = ((count + 1) & 3);
         p++;
     }
@@ -419,7 +419,7 @@ ULONG sfnt_locate_table(sfnt * sfont, const char *tag)
     if (offset == 0)
         TT_ERROR("sfnt: table not found...");
 
-    sfnt_seek_set(sfont, offset);
+    sfnt_seek_set(sfont, (long) offset);
 
     return offset;
 }
@@ -443,7 +443,7 @@ int sfnt_read_table_directory(sfnt * sfont, ULONG offset)
     ASSERT(sfont->stream);
 #endif
 
-    sfnt_seek_set(sfont, offset);
+    sfnt_seek_set(sfont, (long) offset);
 
     td->version = sfnt_get_ulong(sfont);
     td->num_tables = sfnt_get_ushort(sfont);
@@ -534,9 +534,9 @@ pdf_obj *sfnt_create_FontFile_stream(sfnt * sfont)
 
     /* Header */
     p = (char *) wbuf;
-    p += sfnt_put_ulong(p, td->version);
+    p += sfnt_put_ulong(p, (LONG) td->version);
     p += sfnt_put_ushort(p, td->num_kept_tables);
-    sr = max2floor(td->num_kept_tables) * 16;
+    sr = (int) (max2floor(td->num_kept_tables) * 16);
     p += sfnt_put_ushort(p, sr);
     p += sfnt_put_ushort(p, log2floor(td->num_kept_tables));
     p += sfnt_put_ushort(p, td->num_kept_tables * 16 - sr);
@@ -557,12 +557,12 @@ pdf_obj *sfnt_create_FontFile_stream(sfnt * sfont)
             p = (char *) wbuf;
             memcpy(p, td->tables[i].tag, 4);
             p += 4;
-            p += sfnt_put_ulong(p, td->tables[i].check_sum);
+            p += sfnt_put_ulong(p, (LONG) td->tables[i].check_sum);
             p += sfnt_put_ulong(p, offset);
-            p += sfnt_put_ulong(p, td->tables[i].length);
+            p += sfnt_put_ulong(p, (LONG) td->tables[i].length);
             pdf_add_stream(stream, wbuf, 16);
 
-            offset += td->tables[i].length;
+            offset = (long) (offset + (long) td->tables[i].length);
         }
     }
 
@@ -588,10 +588,10 @@ pdf_obj *sfnt_create_FontFile_stream(sfnt * sfont)
                     return NULL;
                 }
 
-                length = td->tables[i].length;
-                sfnt_seek_set(sfont, td->tables[i].offset);
+                length = (long) td->tables[i].length;
+                sfnt_seek_set(sfont, (long) td->tables[i].offset);
                 while (length > 0) {
-                    nb_read = sfnt_read(wbuf, MIN(length, 1024), sfont);
+                    nb_read = sfnt_read(wbuf, (int) MIN(length, 1024), sfont);
                     if (nb_read < 0) {
                         pdf_release_obj(stream);
                         TT_ERROR("Reading file failed...");
@@ -604,12 +604,12 @@ pdf_obj *sfnt_create_FontFile_stream(sfnt * sfont)
             } else {
                 pdf_add_stream(stream,
                                (unsigned char *) td->tables[i].data,
-                               td->tables[i].length);
+                               (long) td->tables[i].length);
                 RELEASE(td->tables[i].data);
                 td->tables[i].data = NULL;
             }
             /* Set offset for next table */
-            offset += td->tables[i].length;
+            offset = (long) (offset + (long) td->tables[i].length);
         }
     }
 

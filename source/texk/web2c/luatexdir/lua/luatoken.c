@@ -198,12 +198,12 @@ static int get_cur_cmd(lua_State * L)
     if (len == 3 || len == 2) {
         r = 1;
         lua_rawgeti(L, -1, 1);
-        cur_cmd = (int)lua_tointeger(L, -1);
+        cur_cmd = (int) lua_tointeger(L, -1);
         lua_rawgeti(L, -2, 2);
-        cur_chr = (halfword)lua_tointeger(L, -1);
+        cur_chr = (halfword) lua_tointeger(L, -1);
         if (len == 3) {
             lua_rawgeti(L, -3, 3);
-            cur_cs = (halfword)lua_tointeger(L, -1);
+            cur_cs = (halfword) lua_tointeger(L, -1);
         }
         lua_pop(L, (int) len);
         if (cur_cs == 0)
@@ -222,12 +222,12 @@ static int token_from_lua(lua_State * L)
     size_t len = lua_objlen(L, -1);
     if (len == 3 || len == 2) {
         lua_rawgeti(L, -1, 1);
-        cmd = (int)lua_tointeger(L, -1);
+        cmd = (int) lua_tointeger(L, -1);
         lua_rawgeti(L, -2, 2);
-        chr = (int)lua_tointeger(L, -1);
+        chr = (int) lua_tointeger(L, -1);
         if (len == 3) {
             lua_rawgeti(L, -3, 3);
-            cs = (int)lua_tointeger(L, -1);
+            cs = (int) lua_tointeger(L, -1);
         }
         lua_pop(L, (int) len);
         if (cs == 0) {

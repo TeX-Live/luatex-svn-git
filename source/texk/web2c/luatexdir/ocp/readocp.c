@@ -124,7 +124,8 @@ read_ocp_info(pointer u, char *nom, char *aire, char *ext, boolean external_ocp)
     file_opened = false;
     if (external_ocp) {
         /*  @<Check |ocp_file| exists@> */
-        cnam = xmalloc((unsigned)(strlen(nom) + strlen(aire) + strlen(ext) + 1));
+        cnam =
+            xmalloc((unsigned) (strlen(nom) + strlen(aire) + strlen(ext) + 1));
         sprintf(cnam, "%s%s%s", aire, nom, ext);
         cnam = b_test_in(cnam);
         if (!cnam)
@@ -148,7 +149,9 @@ read_ocp_info(pointer u, char *nom, char *aire, char *ext, boolean external_ocp)
 
     } else {
         /* @<Open |ocp_file| for input@>; */
-        char *cname = xmalloc((unsigned)(strlen(nom) + strlen(aire) + strlen(".ocp") + 1));
+        char *cname =
+            xmalloc((unsigned)
+                    (strlen(nom) + strlen(aire) + strlen(".ocp") + 1));
         sprintf(cname, "%s%s.ocp", aire, nom);
         xfree(ocp_buffer);
         ocp_cur = 0;

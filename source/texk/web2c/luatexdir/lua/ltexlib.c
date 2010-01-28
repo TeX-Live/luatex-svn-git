@@ -65,13 +65,13 @@ static void luac_store(lua_State * L, int i, int partial, int cattable)
     size_t tsize;
     rope *rn = NULL;
     sttemp = lua_tolstring(L, i, &tsize);
-    st = xmalloc((unsigned)(tsize + 1));
+    st = xmalloc((unsigned) (tsize + 1));
     memcpy(st, sttemp, (tsize + 1));
     if (st) {
         luacstrings++;
         rn = (rope *) xmalloc(sizeof(rope));
         rn->text = st;
-        rn->tsize = (unsigned)tsize;
+        rn->tsize = (unsigned) tsize;
         rn->partial = partial;
         rn->cattable = cattable;
         rn->next = NULL;
@@ -197,7 +197,9 @@ void luacstring_start(int n)
     spindle_index++;
     if (spindle_size == spindle_index) {        /* add a new one */
         spindles =
-            xrealloc(spindles, (unsigned)(sizeof(spindle) * (unsigned) (spindle_size + 1)));
+            xrealloc(spindles,
+                     (unsigned) (sizeof(spindle) *
+                                 (unsigned) (spindle_size + 1)));
         spindles[spindle_index].head = NULL;
         spindles[spindle_index].tail = NULL;
         spindles[spindle_index].complete = 0;
@@ -1166,9 +1168,9 @@ int setlist(lua_State * L)
     if (lua_isstring(L, 2)) {
         str = lua_tostring(L, 2);
         if (strcmp(str, "best_size") == 0) {
-            best_size = (int)lua_tointeger(L, 3);
+            best_size = (int) lua_tointeger(L, 3);
         } else if (strcmp(str, "least_page_cost") == 0) {
-            least_page_cost = (int)lua_tointeger(L, 3);
+            least_page_cost = (int) lua_tointeger(L, 3);
         } else {
             if (!lua_isnil(L, 3)) {
                 n_ptr = check_isnode(L, 3);
@@ -1289,7 +1291,7 @@ static int tex_definefont(lua_State * L)
         i = 2;
     }
     csname = luaL_checklstring(L, i, &l);
-    f = (int)luaL_checkinteger(L, (i + 1));
+    f = (int) luaL_checkinteger(L, (i + 1));
     t = maketexlstring(csname, l);
     no_new_control_sequence = 0;
     u = string_lookup(csname, l);
@@ -1424,12 +1426,12 @@ static int tex_enableprimitives(lua_State * L)
                         halfword cur_chr = get_prim_equiv(prim_val);
                         if (strncmp(pre, prim, l) != 0) {       /* not a prefix */
                             newl = strlen(prim) + l;
-                            newprim = (char *) xmalloc((unsigned)(newl + 1));
+                            newprim = (char *) xmalloc((unsigned) (newl + 1));
                             strcpy(newprim, pre);
                             strcat(newprim + l, prim);
                         } else {
                             newl = strlen(prim);
-                            newprim = (char *) xmalloc((unsigned)(newl + 1));
+                            newprim = (char *) xmalloc((unsigned) (newl + 1));
                             strcpy(newprim, prim);
                         }
                         val = string_lookup(newprim, newl);

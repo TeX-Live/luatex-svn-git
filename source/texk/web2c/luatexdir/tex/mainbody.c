@@ -399,6 +399,7 @@ int main_initialize(void)
 
 void main_body(void)
 {
+    static char pdftex_map[] = "pdftex.map";
     bad = main_initialize();
     history = fatal_error_stop; /* in case we quit during initialization */
     t_open_out();               /* open the terminal for output */
@@ -438,7 +439,7 @@ void main_body(void)
         int_par(pdf_output_code) = pdf_output_value;
     if (pdf_draftmode_option != 0)
         int_par(pdf_draftmode_code) = pdf_draftmode_value;
-    pdf_init_map_file("pdftex.map");
+    pdf_init_map_file((char *) pdftex_map);
     if (end_line_char_inactive())
         decr(ilimit);
     else

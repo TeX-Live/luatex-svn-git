@@ -36,29 +36,29 @@
 
 typedef enum { MAPFILE, MAPLINE } maptype;
 
-#  define set_included(fm)    ((fm)->type |= F_INCLUDED)
-#  define set_subsetted(fm)   ((fm)->type |= F_SUBSETTED)
-#  define set_std_t1font(fm)  ((fm)->type |= F_STDT1FONT)
-#  define set_subfont(fm)     ((fm)->type |= F_SUBFONT)
-#  define set_type1(fm)       ((fm)->type |= F_TYPE1)
-#  define set_truetype(fm)    ((fm)->type |= F_TRUETYPE)
-#  define set_opentype(fm)    ((fm)->type |= F_OTF)
-#  define set_cidkeyed(fm)    ((fm)->type |= F_CIDKEYED)
-#  define set_slantset(fm)    ((fm)->type |= F_SLANTSET)
-#  define set_extendset(fm)   ((fm)->type |= F_EXTENDSET)
-#  define set_inuse(fm)       ((fm)->type |= F_INUSE)
+#  define set_included(fm)    ((fm)->type =  (unsigned short)((fm)->type | F_INCLUDED))
+#  define set_subsetted(fm)   ((fm)->type =  (unsigned short)((fm)->type | F_SUBSETTED))
+#  define set_std_t1font(fm)  ((fm)->type =  (unsigned short)((fm)->type | F_STDT1FONT))
+#  define set_subfont(fm)     ((fm)->type =  (unsigned short)((fm)->type | F_SUBFONT))
+#  define set_type1(fm)       ((fm)->type =  (unsigned short)((fm)->type | F_TYPE1))
+#  define set_truetype(fm)    ((fm)->type =  (unsigned short)((fm)->type | F_TRUETYPE))
+#  define set_opentype(fm)    ((fm)->type =  (unsigned short)((fm)->type | F_OTF))
+#  define set_cidkeyed(fm)    ((fm)->type =  (unsigned short)((fm)->type | F_CIDKEYED))
+#  define set_slantset(fm)    ((fm)->type =  (unsigned short)((fm)->type | F_SLANTSET))
+#  define set_extendset(fm)   ((fm)->type =  (unsigned short)((fm)->type | F_EXTENDSET))
+#  define set_inuse(fm)       ((fm)->type =  (unsigned short)((fm)->type | F_INUSE))
 
-#  define unset_included(fm)  ((fm)->type &= ~F_INCLUDED)
-#  define unset_subsetted(fm) ((fm)->type &= ~F_SUBSETTED)
-#  define unset_std_t1font(fm)((fm)->type &= ~F_STDT1FONT)
-#  define unset_subfont(fm)   ((fm)->type &= ~F_SUBFONT)
-#  define unset_type1(fm)     ((fm)->type &= ~F_TYPE1)
-#  define unset_truetype(fm)  ((fm)->type &= ~F_TRUETYPE)
-#  define unset_opentype(fm)  ((fm)->type &= ~F_OTF)
-#  define unset_cidkeyed(fm)  ((fm)->type &= ~F_CIDKEYED)
-#  define unset_slantset(fm)  ((fm)->type &= ~F_SLANTSET)
-#  define unset_extendset(fm) ((fm)->type &= ~F_EXTENDSET)
-#  define unset_inuse(fm)     ((fm)->type &= ~F_INUSE)
+#  define unset_included(fm)  ((fm)->type = (unsigned short)((fm)->type & ~F_INCLUDED))
+#  define unset_subsetted(fm) ((fm)->type = (unsigned short)((fm)->type & ~F_SUBSETTED))
+#  define unset_std_t1font(fm)((fm)->type = (unsigned short)((fm)->type & ~F_STDT1FONT))
+#  define unset_subfont(fm)   ((fm)->type = (unsigned short)((fm)->type & ~F_SUBFONT))
+#  define unset_type1(fm)     ((fm)->type = (unsigned short)((fm)->type & ~F_TYPE1))
+#  define unset_truetype(fm)  ((fm)->type = (unsigned short)((fm)->type & ~F_TRUETYPE))
+#  define unset_opentype(fm)  ((fm)->type = (unsigned short)((fm)->type & ~F_OTF))
+#  define unset_cidkeyed(fm)  ((fm)->type = (unsigned short)((fm)->type & ~F_CIDKEYED))
+#  define unset_slantset(fm)  ((fm)->type = (unsigned short)((fm)->type & ~F_SLANTSET))
+#  define unset_extendset(fm) ((fm)->type = (unsigned short)((fm)->type & ~F_EXTENDSET))
+#  define unset_inuse(fm)     ((fm)->type = (unsigned short)((fm)->type & ~F_INUSE))
 
 #  define is_included(fm)     (((fm)->type & F_INCLUDED) != 0)
 #  define is_subsetted(fm)    (((fm)->type & F_SUBSETTED) != 0)
@@ -119,7 +119,7 @@ void fm_free(void);
 ff_entry *check_ff_exist(char *, boolean);
 void pdfmapfile(int);
 void pdfmapline(int);
-void pdf_init_map_file(const char *map_name);
+void pdf_init_map_file(char *map_name);
 fm_entry *new_fm_entry(void);
 void delete_fm_entry(fm_entry *);
 int avl_do_entry(fm_entry *, int);

@@ -31,7 +31,7 @@ static const char _svn_version[] =
 static void *avl_xmalloc(struct libavl_allocator *allocator, size_t size)
 {
     assert(allocator != NULL && size > 0);
-    return xmalloc((unsigned)size);
+    return xmalloc((unsigned) size);
 }
 
 static void avl_xfree(struct libavl_allocator *allocator, void *block)

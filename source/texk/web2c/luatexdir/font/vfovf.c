@@ -146,8 +146,8 @@ boolean auto_expand_vf(internal_font_number f); /* forward */
         vf_z = vf_z / 2;                         \
         vf_alpha += vf_alpha;                    \
     }                                            \
-    vf_beta = 256 / vf_alpha;                    \
-    vf_alpha = vf_alpha * vf_z;                  \
+    vf_beta = (char)(256 / vf_alpha);		 \
+    vf_alpha = (vf_alpha * vf_z);		 \
 }
 
 /* read |k| bytes as an integer from \.{VF} file */
@@ -155,7 +155,7 @@ boolean auto_expand_vf(internal_font_number f); /* forward */
 
 #define vf_read(k, l)                            \
 {                                                \
-    int itmp = 0, dtmp = k, jtmp = 0;            \
+    int itmp = 0, dtmp = (int)(k), jtmp = 0;	 \
     while (dtmp > 0) {                           \
         vf_byte(jtmp);                           \
         if ((dtmp == (int) k) && jtmp > 127)     \
@@ -168,7 +168,8 @@ boolean auto_expand_vf(internal_font_number f); /* forward */
 
 #define vf_read_u(k, l)                          \
 {                                                \
-    unsigned int dtmp = k, itmp = 0, jtmp = 0;   \
+    int dtmp = (int)(k);			 \
+    unsigned int itmp = 0, jtmp = 0;		 \
     while (dtmp-- > 0) {                         \
         vf_byte(jtmp);                           \
         itmp = itmp * 256 + jtmp;                \
@@ -183,8 +184,8 @@ void pdf_check_vf(internal_font_number f)
 }
 
 static void
-vf_local_font_warning(internal_font_number f, internal_font_number k, char *s,
-                      int a, int b)
+vf_local_font_warning(internal_font_number f, internal_font_number k,
+                      const char *s, int a, int b)
 {
     print_nlp();
     tprint(s);
@@ -217,8 +218,8 @@ vf_def_font(internal_font_number f, unsigned char *vf_buffer, int *vf_cr)
     cs.b2 = vf_buffer[(*vf_cr) + 2];
     cs.b3 = vf_buffer[(*vf_cr) + 3];
     (*vf_cr) += 4;
-    checksum =
-        cs.b0 * 256 * 256 * 256 + cs.b1 * 256 * 256 + cs.b2 * 256 + cs.b3;
+    checksum = (unsigned)
+        (cs.b0 * 256 * 256 * 256 + cs.b1 * 256 * 256 + cs.b2 * 256 + cs.b3);
     k = vf_buffer[(*vf_cr)];
     (*vf_cr)++;
     if (k > 127)
@@ -268,8 +269,8 @@ vf_def_font(internal_font_number f, unsigned char *vf_buffer, int *vf_cr)
     if (k != null_font) {
         if (checksum != 0 && font_checksum(k) != 0
             && checksum != font_checksum(k))
-            vf_local_font_warning(f, k, "checksum mismatch", checksum,
-                                  font_checksum(k));
+            vf_local_font_warning(f, k, "checksum mismatch", (int) checksum,
+                                  (int) font_checksum(k));
         if (ds != font_dsize(k))
             vf_local_font_warning(f, k, "design size mismatch", ds,
                                   font_dsize(k));
@@ -283,13 +284,13 @@ vf_def_font(internal_font_number f, unsigned char *vf_buffer, int *vf_cr)
 }
 
 
-int open_vf_file(char *fn, unsigned char **vbuffer, int *vsize)
+static int open_vf_file(const char *fn, unsigned char **vbuffer, int *vsize)
 {
     boolean res;                /* was the callback successful? */
     int callback_id;
     boolean file_read = false;  /* was |vf_file| successfully read? */
     FILE *vf_file;
-    char *fname = luatex_find_file(fn, find_vf_file_callback);
+    const char *fname = luatex_find_file(fn, find_vf_file_callback);
     if (!fname)
         fname = fn;
 
@@ -328,7 +329,7 @@ int open_vf_file(char *fn, unsigned char **vbuffer, int *vsize)
   process font definitions in virtual font we call |vf_def_font|.
 */
 
-#define append_packet(k) vpackets[vf_np++] = k
+#define append_packet(k) vpackets[vf_np++] = (eight_bits)(k)
 
 /* life is easier if all internal font commands are fnt4 and
    all character commands are set4 or put4 */
@@ -376,13 +377,13 @@ int open_vf_file(char *fn, unsigned char **vbuffer, int *vsize)
 
 int count_packet_bytes(eight_bits * vf_buf, int cur_bute, int count)
 {
-    int k = 0;
+    unsigned k = 0;
     int ff = 0;
     int acc = 0;
     unsigned int cmd = 0;
     unsigned int d = 0;
-    while (k < count) {
-        cmd = vf_buf[cur_bute + k];
+    while (k < (unsigned) count) {
+        cmd = vf_buf[cur_bute + (int) k];
         k++;
         if (cmd < set1) {
             if (ff == 0) {
@@ -584,40 +585,40 @@ int count_packet_bytes(eight_bits * vf_buf, int cur_bute, int count)
                 k += 4;
                 break;
             case xxx1:
-                d = vf_buf[cur_bute + k];
+                d = vf_buf[cur_bute + (int) k];
                 k++;
                 k += d;
-                acc += 5 + d;
+                acc += 5 + (int) d;
                 break;
             case xxx2:
-                d = vf_buf[cur_bute + k];
+                d = vf_buf[cur_bute + (int) k];
                 k++;
-                d = d * 256 + vf_buf[cur_bute + k];
+                d = d * 256 + vf_buf[cur_bute + (int) k];
                 k++;
                 k += d;
-                acc += 5 + d;
+                acc += 5 + (int) d;
                 break;
             case xxx3:
-                d = vf_buf[cur_bute + k];
+                d = vf_buf[cur_bute + (int) k];
                 k++;
-                d = d * 256 + vf_buf[cur_bute + k];
+                d = d * 256 + vf_buf[cur_bute + (int) k];
                 k++;
-                d = d * 256 + vf_buf[cur_bute + k];
+                d = d * 256 + vf_buf[cur_bute + (int) k];
                 k++;
                 k += d;
-                acc += 5 + d;
+                acc += 5 + (int) d;
                 break;
             case xxx4:
-                d = vf_buf[cur_bute + k];
+                d = vf_buf[cur_bute + (int) k];
                 k++;
-                d = d * 256 + vf_buf[cur_bute + k];
+                d = d * 256 + vf_buf[cur_bute + (int) k];
                 k++;
-                d = d * 256 + vf_buf[cur_bute + k];
+                d = d * 256 + vf_buf[cur_bute + (int) k];
                 k++;
-                d = d * 256 + vf_buf[cur_bute + k];
+                d = d * 256 + vf_buf[cur_bute + (int) k];
                 k++;
                 k += d;
-                acc += 5 + d;
+                acc += 5 + (int) d;
                 break;
             case w0:
                 acc += 5;
@@ -650,7 +651,8 @@ void do_vf(internal_font_number f)
     int k, i;
     unsigned cmd, n;
     scaled x, y, w, z, h, v;
-    int cc, cmd_length, packet_length;
+    int cc, cmd_length;
+    unsigned packet_length;
     charinfo *co;
     scaled tfm_width;
     int save_cur_byte;
@@ -663,11 +665,12 @@ void do_vf(internal_font_number f)
     memory_word tmp_w;          /* accumulator */
     vf_stack_record vf_stack[256];
     int junk;
+    unsigned utmp;
     unsigned char *vf_buffer;
     int vf_size;
     int vf_cur;
-    int *vf_local_fnts = NULL;  /* external font ids */
-    int *vf_real_fnts = NULL;   /* internal font ids */
+    unsigned *vf_local_fnts = NULL;     /* external font ids */
+    unsigned *vf_real_fnts = NULL;      /* internal font ids */
     unsigned vf_nf = 0;         /* local font counter */
 
     if (font_type(f) != unknown_font_type)
@@ -704,7 +707,7 @@ void do_vf(internal_font_number f)
     save_cur_byte = vf_cur;
     vf_byte(cmd);
     while ((cmd >= fnt_def1) && (cmd <= (fnt_def1 + 3))) {
-        vf_read_u((cmd - fnt_def1 + 1), junk);
+        vf_read_u((cmd - fnt_def1 + 1), utmp);
         vf_read(4, junk);
         vf_read(4, junk);
         vf_read(4, junk);
@@ -721,15 +724,15 @@ void do_vf(internal_font_number f)
     vf_byte(cmd);
     /* malloc and fill the local font arrays */
     if (vf_nf > 0) {
-        i = vf_nf * sizeof(int);
-        vf_local_fnts = xmalloc(i);
-        memset(vf_local_fnts, 0, i);
-        vf_real_fnts = xmalloc(i);
-        memset(vf_real_fnts, 0, i);
+        unsigned ii = (unsigned) ((unsigned) vf_nf * sizeof(int));
+        vf_local_fnts = xmalloc(ii);
+        memset(vf_local_fnts, 0, ii);
+        vf_real_fnts = xmalloc(ii);
+        memset(vf_real_fnts, 0, ii);
         vf_nf = 0;
         while ((cmd >= fnt_def1) && (cmd <= (fnt_def1 + 3))) {
             vf_read_u((cmd - fnt_def1 + 1), vf_local_fnts[vf_nf]);
-            vf_real_fnts[vf_nf] = vf_def_font(f, vf_buffer, &vf_cur);
+            vf_real_fnts[vf_nf] = (unsigned) vf_def_font(f, vf_buffer, &vf_cur);
             incr(vf_nf);
             vf_byte(cmd);
         }
@@ -741,7 +744,8 @@ void do_vf(internal_font_number f)
         vf_np = 0;
         if (cmd == long_char) {
             vf_read_u(4, packet_length);
-            vf_read_u(4, cc);
+            vf_read_u(4, utmp);
+            cc = (int) utmp;
             if (!char_exists(f, cc)) {
                 bad_vf("invalid character code");
             }
@@ -753,11 +757,12 @@ void do_vf(internal_font_number f)
             if (!char_exists(f, cc)) {
                 bad_vf("invalid character code");
             }
-            vf_read_u(3, k);    /* cf. vftovp.web, line 1028 */
+            vf_read_u(3, utmp);
+            k = (int) utmp;     /* cf. vftovp.web, line 1028 */
             tfm_width = store_scaled_f(k, font_size(f));
         }
-        if (packet_length < 0)
-            bad_vf("negative packet length");
+
+
         if (tfm_width != char_width(f, cc)) {
             if (tfm_width != char_width(f, cc)) {
                 print_nlp();
@@ -766,8 +771,8 @@ void do_vf(internal_font_number f)
                 tprint(".vf ignored");
             }
         }
-        k = count_packet_bytes(vf_buffer, vf_cur, packet_length);
-        vpackets = xmalloc(k + 1);      /* need one extra extra for packet_end */
+        k = count_packet_bytes(vf_buffer, vf_cur, (int) packet_length);
+        vpackets = xmalloc((unsigned) (k + 1)); /* need one extra extra for packet_end */
         co = get_charinfo(f, cc);
         k = 0;
         w = 0;
@@ -780,7 +785,7 @@ void do_vf(internal_font_number f)
 
             if (cmd < set1) {
                 if (k == 0) {
-                    k = vf_real_fnts[0];
+                    k = (int) vf_real_fnts[0];
                     append_fnt_set(k);
                 }
                 append_packet(packet_char_code);
@@ -791,20 +796,21 @@ void do_vf(internal_font_number f)
             } else if (((fnt_num_0 <= cmd) && (cmd <= fnt_num_0 + 63)) ||
                        ((fnt1 <= cmd) && (cmd <= fnt1 + 3))) {
                 if (cmd >= fnt1) {
-                    vf_read_u((cmd - fnt1 + 1), k);
+                    vf_read_u((cmd - fnt1 + 1), utmp);
+                    k = (int) utmp;
                     packet_length -= (cmd - fnt1 + 1);
                 } else {
-                    k = cmd - fnt_num_0;
+                    k = (int) cmd - fnt_num_0;
                 }
 
                 /*  change from local to external font id */
                 n = 0;
-                while ((n < vf_nf) && (vf_local_fnts[n] != k))
+                while ((n < vf_nf) && (vf_local_fnts[n] != (unsigned) k))
                     n++;
                 if (n == vf_nf)
                     bad_vf("undefined local font");
 
-                k = vf_real_fnts[n];
+                k = (int) vf_real_fnts[n];
                 append_fnt_set(k);
                 cmd_length = 0;
                 cmd = nop;
@@ -833,10 +839,11 @@ void do_vf(internal_font_number f)
                 case set3:
                 case set4:
                     if (k == 0) {
-                        k = vf_real_fnts[0];
+                        k = (int) vf_real_fnts[0];
                         append_fnt_set(k);
                     }
-                    vf_read_u((cmd - set1 + 1), i);
+                    vf_read_u((cmd - set1 + 1), utmp);
+                    i = (int) utmp;
                     append_packet(packet_char_code);
                     append_four(i);
                     packet_length -= (cmd - set1 + 1);
@@ -846,10 +853,11 @@ void do_vf(internal_font_number f)
                 case put3:
                 case put4:
                     if (k == 0) {
-                        k = vf_real_fnts[0];
+                        k = (int) vf_real_fnts[0];
                         append_fnt_set(k);
                     }
-                    vf_read_u((cmd - put1 + 1), i);
+                    vf_read_u((cmd - put1 + 1), utmp);
+                    i = (int) utmp;
                     append_packet(packet_push_code);
                     append_packet(packet_char_code);
                     append_four(i);
@@ -914,11 +922,12 @@ void do_vf(internal_font_number f)
                 case xxx2:
                 case xxx3:
                 case xxx4:
-                    vf_read_u((cmd - xxx1 + 1), cmd_length);
+                    vf_read_u((cmd - xxx1 + 1), utmp);
+                    cmd_length = (int) utmp;
                     packet_length -= (cmd - xxx1 + 1);
                     if (cmd_length <= 0)
                         bad_vf("special of negative length");
-                    packet_length -= cmd_length;
+                    packet_length -= (unsigned) cmd_length;
 
                     append_packet(packet_special_code);
                     append_four(cmd_length);
@@ -1032,13 +1041,14 @@ void do_vf(internal_font_number f)
 int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
 {
     int cmd, k, i;
-    int cc, cmd_length, packet_length;
+    int cc;
+    unsigned cmd_length, packet_length;
     scaled tfm_width;
     vf_stack_index stack_level;
     int vf_z;                   /* multiplier */
     int vf_alpha;               /* correction for negative values */
     char vf_beta;               /* divisor */
-    char *s;
+    eight_bits *s;
     scaled h, v;
     scaled w, x, y, z;
     int s_top;                  /* lua stack */
@@ -1050,6 +1060,7 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
     unsigned char *vf_buffer;
     int vf_size;
     int vf_cur;
+    unsigned utmp;
 
 
     stack_level = 0;
@@ -1076,10 +1087,10 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
     vf_byte(cmd_length);
 
     s = xmalloc(cmd_length);
-    for (k = 1; k <= cmd_length; k++)
+    for (k = 1; k <= (int) cmd_length; k++)
         vf_byte(s[(k - 1)]);
 
-    lua_pushlstring(L, s, cmd_length);
+    lua_pushlstring(L, (char *) s, (size_t) cmd_length);
     free(s);
     lua_setfield(L, -2, "header");
 
@@ -1088,8 +1099,8 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
     vf_byte(cs.b2);
     vf_byte(cs.b3);
     lua_pushnumber(L,
-                   (unsigned long) (cs.b0 << 24) + (cs.b1 << 16) +
-                   (cs.b2 << 8) + cs.b3);
+                   (lua_Number) ((cs.b0 << 24) + (cs.b1 << 16) +
+                                 (cs.b2 << 8) + cs.b3));
     lua_setfield(L, -2, "checksum");
 
     vf_read(4, k);
@@ -1116,7 +1127,8 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
     while ((cmd >= fnt_def1) && (cmd <= fnt_def1 + 3)) {
 
         lua_newtable(L);
-        vf_read_u((cmd - fnt_def1 + 1), vf_nf);
+        vf_read_u((cmd - fnt_def1 + 1), utmp);
+        vf_nf = (int) utmp;
         vf_nf++;
         /* checksum */
         vf_byte(cs.b0);
@@ -1140,13 +1152,13 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
             vf_byte(k);
         }                       /* skip the font path */
 
-        s = xmalloc(tmp_b1 + 1);
+        s = xmalloc((unsigned) (tmp_b1 + 1));
         k = 0;
         while (tmp_b1-- > 0)
             vf_byte(s[k++]);
         s[k] = 0;
         lua_pushstring(L, "name");
-        lua_pushstring(L, xstrdup(s));
+        lua_pushstring(L, xstrdup((char *) s));
         free(s);
         lua_rawset(L, -3);
 
@@ -1166,15 +1178,17 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
         /* @<Build a character packet@>;@/ */
         if (cmd == long_char) {
             vf_read_u(4, packet_length);
-            vf_read_u(4, cc);
+            vf_read_u(4, utmp);
+            cc = (int) utmp;
             vf_read(4, tfm_width);
         } else {
-            packet_length = cmd;
+            packet_length = (unsigned) cmd;
             vf_byte(cc);
-            vf_read_u(3, tfm_width);
+            vf_read_u(3, utmp);
+            tfm_width = (int) utmp;
         }
-        if (packet_length < 0)
-            lua_bad_vf("negative packet length");
+
+
 
         lua_newtable(L);        /* for this character */
 
@@ -1203,9 +1217,10 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
             } else if (((fnt_num_0 <= cmd) && (cmd <= fnt_num_0 + 63)) ||
                        ((fnt1 <= cmd) && (cmd <= fnt1 + 3))) {
                 if (cmd >= fnt1) {
-                    vf_read_u((cmd - fnt1 + 1), vf_nf);
+                    vf_read_u((cmd - fnt1 + 1), utmp);
+                    vf_nf = (int) utmp;
                     vf_nf++;
-                    packet_length -= (cmd - fnt1 + 1);
+                    packet_length -= (unsigned) (cmd - fnt1 + 1);
                 } else {
                     vf_nf = cmd - fnt_num_0 + 1;
                 }
@@ -1236,9 +1251,10 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
                         vf_nf = 1;
                         make_command1("font", vf_nf, k);
                     }
-                    vf_read_u((cmd - set1 + 1), i);
+                    vf_read_u((cmd - set1 + 1), utmp);
+                    i = (int) utmp;
                     make_command1("char", i, k);
-                    packet_length -= (cmd - set1 + 1);
+                    packet_length -= (unsigned) (cmd - set1 + 1);
                     break;
                 case put1:
                 case put2:
@@ -1248,11 +1264,12 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
                         vf_nf = 1;
                         make_command1("font", vf_nf, k);
                     }
-                    vf_read_u((cmd - put1 + 1), i);
+                    vf_read_u((cmd - put1 + 1), utmp);
+                    i = (int) utmp;
                     make_command0("push", k);
                     make_command1("char", i, k);
                     make_command0("pop", k);
-                    packet_length -= (cmd - put1 + 1);
+                    packet_length -= (unsigned) (cmd - put1 + 1);
                     break;
                 case right1:
                 case right2:
@@ -1260,7 +1277,7 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
                 case right4:
                     vf_read((cmd - right1 + 1), i);
                     make_command1("right", store_scaled_f(i, atsize), k);
-                    packet_length -= (cmd - right1 + 1);
+                    packet_length -= (unsigned) (cmd - right1 + 1);
                     break;
                 case w1:
                 case w2:
@@ -1268,7 +1285,7 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
                 case w4:
                     vf_read((cmd - w1 + 1), w);
                     make_command1("right", store_scaled_f(w, atsize), k);
-                    packet_length -= (cmd - w1 + 1);
+                    packet_length -= (unsigned) (cmd - w1 + 1);
                     break;
                 case x1:
                 case x2:
@@ -1276,7 +1293,7 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
                 case x4:
                     vf_read((cmd - x1 + 1), x);
                     make_command1("right", store_scaled_f(x, atsize), k);
-                    packet_length -= (cmd - x1 + 1);
+                    packet_length -= (unsigned) (cmd - x1 + 1);
                     break;
                 case down1:
                 case down2:
@@ -1284,7 +1301,7 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
                 case down4:
                     vf_read((cmd - down1 + 1), i);
                     make_command1("down", store_scaled_f(i, atsize), k);
-                    packet_length -= (cmd - down1 + 1);
+                    packet_length -= (unsigned) (cmd - down1 + 1);
                     break;
                 case y1:
                 case y2:
@@ -1292,7 +1309,7 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
                 case y4:
                     vf_read((cmd - y1 + 1), y);
                     make_command1("down", store_scaled_f(y, atsize), k);
-                    packet_length -= (cmd - y1 + 1);
+                    packet_length -= (unsigned) (cmd - y1 + 1);
                     break;
                 case z1:
                 case z2:
@@ -1300,19 +1317,19 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
                 case z4:
                     vf_read((cmd - z1 + 1), z);
                     make_command1("down", store_scaled_f(z, atsize), k);
-                    packet_length -= (cmd - z1 + 1);
+                    packet_length -= (unsigned) (cmd - z1 + 1);
                     break;
                 case xxx1:
                 case xxx2:
                 case xxx3:
                 case xxx4:
                     vf_read_u((cmd - xxx1 + 1), cmd_length);
-                    packet_length -= (cmd - xxx1 + 1);
+                    packet_length -= (unsigned) (cmd - xxx1 + 1);
                     if (cmd_length <= 0)
                         lua_bad_vf("special of negative length");
                     packet_length -= cmd_length;
 
-                    s = xmalloc(cmd_length + 1);
+                    s = xmalloc((cmd_length + 1));
                     i = 0;
                     while (cmd_length > 0) {
                         cmd_length--;
@@ -1320,7 +1337,8 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
                         i++;
                     }
                     s[i] = 0;
-                    make_commands("special", strdup(s), i, k);
+                    make_commands("special", xstrdup((char *) s), (size_t) i,
+                                  k);
                     free(s);
                     break;
                 case w0:
@@ -1409,7 +1427,7 @@ boolean auto_expand_vf(internal_font_number f)
 
     vf_old_fonts = packet_local_fonts(bf, &num);
     if (num > 0) {
-        vf_new_fonts = xmalloc(num * sizeof(int));
+        vf_new_fonts = xmalloc((unsigned) ((unsigned) num * sizeof(int)));
         for (k = 0; k < num; k++) {
             vf_new_fonts[k] = auto_expand_font(vf_old_fonts[k], e);
             copy_expand_params(vf_new_fonts[k], vf_old_fonts[k], e);
@@ -1446,9 +1464,10 @@ internal_font_number auto_expand_font(internal_font_number f, int e)
     int i;
     scaled w;
     k = copy_font(f);
-    i = strlen(font_name(f)) + 12;
-    fn = xmalloc(i);
-    snprintf(fn, i, "%s%s%d", font_name(f), (e > 0 ? "+" : ""), (int) e);
+    i = (int) strlen(font_name(f)) + 12;
+    fn = xmalloc((unsigned) i);
+    snprintf(fn, (size_t) i, "%s%s%d", font_name(f), (e > 0 ? "+" : ""),
+             (int) e);
     set_font_name(k, fn);
     for (i = font_bc(k); i <= font_ec(k); i++) {
         if (quick_char_exists(k, i)) {
@@ -1514,7 +1533,7 @@ letter_space_font(halfword u, internal_font_number f, int e)
   }
 */
     /* append eg '+100ls' to font name */
-    new_font_name = xmalloc(strlen(font_name(k)) + 8);  /* |abs(e) <= 1000| */
+    new_font_name = xmalloc((unsigned) (strlen(font_name(k)) + 8));     /* |abs(e) <= 1000| */
     if (e > 0) {
         sprintf(new_font_name, "%s+%ils", font_name(k), (int) e);
     } else {
@@ -1536,20 +1555,20 @@ letter_space_font(halfword u, internal_font_number f, int e)
         w = vf_alpha + w;
     }
     r = w * vf_beta;
-    tmp_b1 = r / vf_z;
+    tmp_b1 = (quarterword) (r / vf_z);
     r = r % vf_z;
     if (r == 0) {
         tmp_b2 = 0;
     } else {
         r = r * 256;
-        tmp_b2 = r / vf_z;
+        tmp_b2 = (quarterword) (r / vf_z);
         r = r % vf_z;
     }
     if (r == 0) {
         tmp_b3 = 0;
     } else {
         r = r * 256;
-        tmp_b3 = r / vf_z;
+        tmp_b3 = (quarterword) (r / vf_z);
     }
     /*
        vf_packet_base[k] = new_vf_packet(k);

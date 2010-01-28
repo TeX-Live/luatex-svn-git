@@ -41,7 +41,7 @@ static const char _svn_version[] =
 #define noDEBUG
 
 #define proper_char_index(c) (c<=font_ec(f) && c>=font_bc(f))
-#define do_realloc(a,b,d)    a = xrealloc(a,(b)*sizeof(d))
+#define do_realloc(a,b,d)    a = xrealloc(a,(unsigned)((unsigned)(b)*sizeof(d)))
 
 texfont **font_tables = NULL;
 
@@ -52,8 +52,11 @@ static void grow_font_table(int id)
 {
     int j;
     if (id >= font_arr_max) {
-        font_bytes += (id + 8 - font_arr_max) * sizeof(texfont *);
-        font_tables = xrealloc(font_tables, (id + 8) * sizeof(texfont *));
+        font_bytes +=
+            (int) (((id + 8 - font_arr_max) * (int) sizeof(texfont *)));
+        font_tables =
+            xrealloc(font_tables,
+                     (unsigned) (((unsigned) id + 8) * sizeof(texfont *)));
         j = 8;
         while (j--) {
             font_tables[id + j] = NULL;
@@ -93,7 +96,7 @@ int new_font(void)
     int id;
     charinfo *ci;
     id = new_font_id();
-    font_bytes += sizeof(texfont);
+    font_bytes += (int) sizeof(texfont);
     /* most stuff is zero */
     font_tables[id] = xcalloc(1, sizeof(texfont));
     font_tables[id]->_font_name = NULL;
@@ -135,9 +138,10 @@ int new_font(void)
 void font_malloc_charinfo(internal_font_number f, int num)
 {
     int glyph = font_tables[f]->charinfo_size;
-    font_bytes += (num * sizeof(charinfo));
-    do_realloc(font_tables[f]->charinfo, (glyph + num), charinfo);
-    memset(&(font_tables[f]->charinfo[glyph]), 0, (num * sizeof(charinfo)));
+    font_bytes += (int) (num * (int) sizeof(charinfo));
+    do_realloc(font_tables[f]->charinfo, (unsigned) (glyph + num), charinfo);
+    memset(&(font_tables[f]->charinfo[glyph]), 0,
+           (size_t) (num * (int) sizeof(charinfo)));
     font_tables[f]->charinfo_size += num;
 }
 
@@ -151,25 +155,26 @@ charinfo *get_charinfo(internal_font_number f, int c)
         glyph = get_sa_item(font_tables[f]->characters, c);
         if (!glyph) {
 
-            glyph = ++font_tables[f]->charinfo_count;
-            if (glyph >= (unsigned) font_tables[f]->charinfo_size) {
+            int tglyph = ++font_tables[f]->charinfo_count;
+            if (tglyph >= font_tables[f]->charinfo_size) {
                 font_malloc_charinfo(f, 256);
             }
-            font_tables[f]->charinfo[glyph].ef = 1000;  /* init */
-            set_sa_item(font_tables[f]->characters, c, glyph, 1);       /* 1= global */
+            font_tables[f]->charinfo[tglyph].ef = 1000; /* init */
+            set_sa_item(font_tables[f]->characters, c, (sa_tree_item) tglyph, 1);       /* 1= global */
+            glyph = (sa_tree_item) tglyph;
         }
         return &(font_tables[f]->charinfo[glyph]);
     } else if (c == left_boundarychar) {
         if (left_boundary(f) == NULL) {
             ci = xcalloc(1, sizeof(charinfo));
-            font_bytes += sizeof(charinfo);
+            font_bytes += (int) sizeof(charinfo);
             set_left_boundary(f, ci);
         }
         return left_boundary(f);
     } else if (c == right_boundarychar) {
         if (right_boundary(f) == NULL) {
             ci = xcalloc(1, sizeof(charinfo));
-            font_bytes += sizeof(charinfo);
+            font_bytes += (int) sizeof(charinfo);
             set_right_boundary(f, ci);
         }
         return right_boundary(f);
@@ -226,8 +231,8 @@ charinfo *copy_charinfo(charinfo * ci)
             x++;
         }
         x++;
-        co->kerns = xmalloc(x * sizeof(kerninfo));
-        memcpy(co->kerns, ci->kerns, (x * sizeof(kerninfo)));
+        co->kerns = xmalloc((unsigned) (x * (int) sizeof(kerninfo)));
+        memcpy(co->kerns, ci->kerns, (size_t) (x * (int) sizeof(kerninfo)));
     }
     /* ligs */
     if ((lig = get_charinfo_ligatures(ci)) != NULL) {
@@ -236,14 +241,15 @@ charinfo *copy_charinfo(charinfo * ci)
             x++;
         }
         x++;
-        co->ligatures = xmalloc(x * sizeof(liginfo));
-        memcpy(co->ligatures, ci->ligatures, (x * sizeof(liginfo)));
+        co->ligatures = xmalloc((unsigned) (x * (int) sizeof(liginfo)));
+        memcpy(co->ligatures, ci->ligatures,
+               (size_t) (x * (int) sizeof(liginfo)));
     }
     /* packets */
     if ((packet = get_charinfo_packets(ci)) != NULL) {
         x = vf_packet_bytes(ci);
-        co->packets = xmalloc(x);
-        memcpy(co->packets, ci->packets, x);
+        co->packets = xmalloc((unsigned) x);
+        memcpy(co->packets, ci->packets, (size_t) x);
     }
 
     /* horizontal and vertical extenders */
@@ -259,7 +265,8 @@ charinfo *copy_charinfo(charinfo * ci)
     x = ci->top_left_math_kerns;
     co->top_left_math_kerns = x;
     if (x > 0) {
-        co->top_left_math_kern_array = xmalloc(2 * sizeof(scaled) * x);
+        co->top_left_math_kern_array =
+            xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
         for (k = 0; k < co->top_left_math_kerns; k++) {
             co->top_left_math_kern_array[(2 * k)] =
                 ci->top_left_math_kern_array[(2 * k)];
@@ -270,7 +277,8 @@ charinfo *copy_charinfo(charinfo * ci)
     x = ci->top_right_math_kerns;
     co->top_right_math_kerns = x;
     if (x > 0) {
-        co->top_right_math_kern_array = xmalloc(2 * sizeof(scaled) * x);
+        co->top_right_math_kern_array =
+            xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
         for (k = 0; k < co->top_right_math_kerns; k++) {
             co->top_right_math_kern_array[(2 * k)] =
                 ci->top_right_math_kern_array[(2 * k)];
@@ -281,7 +289,8 @@ charinfo *copy_charinfo(charinfo * ci)
     x = ci->bottom_right_math_kerns;
     co->bottom_right_math_kerns = x;
     if (x > 0) {
-        co->bottom_right_math_kern_array = xmalloc(2 * sizeof(scaled) * x);
+        co->bottom_right_math_kern_array =
+            xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
         for (k = 0; k < co->bottom_right_math_kerns; k++) {
             co->bottom_right_math_kern_array[(2 * k)] =
                 ci->bottom_right_math_kern_array[(2 * k)];
@@ -292,7 +301,8 @@ charinfo *copy_charinfo(charinfo * ci)
     x = ci->bottom_left_math_kerns;
     co->bottom_left_math_kerns = x;
     if (x > 0) {
-        co->bottom_left_math_kern_array = xmalloc(2 * sizeof(scaled) * x);
+        co->bottom_left_math_kern_array =
+            xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
         for (k = 0; k < co->bottom_left_math_kerns; k++) {
             co->bottom_left_math_kern_array[(2 * k)] =
                 ci->bottom_left_math_kern_array[(2 * k)];
@@ -310,7 +320,7 @@ charinfo *char_info(internal_font_number f, int c)
     if (f > font_id_maxval)
         return 0;
     if (proper_char_index(c)) {
-        register int glyph = find_charinfo_id(f, c);
+        register int glyph = (int) find_charinfo_id(f, c);
         return &(font_tables[f]->charinfo[glyph]);
     } else if (c == left_boundarychar && left_boundary(f) != NULL) {
         return left_boundary(f);
@@ -336,7 +346,7 @@ int char_exists(internal_font_number f, int c)
     if (f > font_id_maxval)
         return 0;
     if (proper_char_index(c)) {
-        return find_charinfo_id(f, c);
+        return (int) find_charinfo_id(f, c);
     } else if ((c == left_boundarychar) && has_left_boundary(f)) {
         return 1;
     } else if ((c == right_boundarychar) && has_right_boundary(f)) {
@@ -531,7 +541,7 @@ void set_charinfo_bot_accent(charinfo * ci, scaled val)
 
 void set_charinfo_tag(charinfo * ci, scaled val)
 {
-    ci->tag = val;
+    ci->tag = (char) val;
 }
 
 void set_charinfo_remainder(charinfo * ci, scaled val)
@@ -541,24 +551,24 @@ void set_charinfo_remainder(charinfo * ci, scaled val)
 
 void set_charinfo_used(charinfo * ci, scaled val)
 {
-    ci->used = val;
+    ci->used = (char) val;
 }
 
 void set_charinfo_index(charinfo * ci, scaled val)
 {
-    ci->index = val;
+    ci->index = (unsigned short) val;
 }
 
-void set_charinfo_name(charinfo * ci, const char *val)
+void set_charinfo_name(charinfo * ci, char *val)
 {
     xfree(ci->name);
-    ci->name = (char *) val;
+    ci->name = val;
 }
 
-void set_charinfo_tounicode(charinfo * ci, const char *val)
+void set_charinfo_tounicode(charinfo * ci, char *val)
 {
     xfree(ci->tounicode);
-    ci->tounicode = (char *) val;
+    ci->tounicode = val;
 }
 
 void set_charinfo_ligatures(charinfo * ci, liginfo * val)
@@ -708,9 +718,10 @@ static void undump_math_kerns(charinfo * ci)
     int k;
     int x;
     undump_int(x);
-    ci->top_left_math_kerns = (int) x;
+    ci->top_left_math_kerns = x;
     if (x > 0)
-        ci->top_left_math_kern_array = xmalloc(2 * sizeof(scaled) * x);
+        ci->top_left_math_kern_array =
+            xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
     for (k = 0; k < ci->top_left_math_kerns; k++) {
         undump_int(x);
         ci->top_left_math_kern_array[(2 * k)] = (scaled) x;
@@ -718,9 +729,10 @@ static void undump_math_kerns(charinfo * ci)
         ci->top_left_math_kern_array[(2 * k) + 1] = (scaled) x;
     }
     undump_int(x);
-    ci->bottom_left_math_kerns = (int) x;
+    ci->bottom_left_math_kerns = x;
     if (x > 0)
-        ci->bottom_left_math_kern_array = xmalloc(2 * sizeof(scaled) * x);
+        ci->bottom_left_math_kern_array =
+            xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
     for (k = 0; k < ci->bottom_left_math_kerns; k++) {
         undump_int(x);
         ci->bottom_left_math_kern_array[(2 * k)] = (scaled) x;
@@ -728,9 +740,10 @@ static void undump_math_kerns(charinfo * ci)
         ci->bottom_left_math_kern_array[(2 * k) + 1] = (scaled) x;
     }
     undump_int(x);
-    ci->bottom_right_math_kerns = (int) x;
+    ci->bottom_right_math_kerns = x;
     if (x > 0)
-        ci->bottom_right_math_kern_array = xmalloc(2 * sizeof(scaled) * x);
+        ci->bottom_right_math_kern_array =
+            xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
     for (k = 0; k < ci->bottom_right_math_kerns; k++) {
         undump_int(x);
         ci->bottom_right_math_kern_array[(2 * k)] = (scaled) x;
@@ -738,9 +751,10 @@ static void undump_math_kerns(charinfo * ci)
         ci->bottom_right_math_kern_array[(2 * k) + 1] = (scaled) x;
     }
     undump_int(x);
-    ci->top_right_math_kerns = (int) x;
+    ci->top_right_math_kerns = x;
     if (x > 0)
-        ci->top_right_math_kern_array = xmalloc(2 * sizeof(scaled) * x);
+        ci->top_right_math_kern_array =
+            xmalloc((unsigned) (2 * (int) sizeof(scaled) * x));
     for (k = 0; k < ci->top_right_math_kerns; k++) {
         undump_int(x);
         ci->top_right_math_kern_array[(2 * k)] = (scaled) x;
@@ -996,7 +1010,8 @@ void set_font_params(internal_font_number f, int b)
     int i;
     i = font_params(f);
     if (i != b) {
-        font_bytes += (b - font_params(f) + 1) * sizeof(scaled);
+        font_bytes +=
+            (int) ((b - (int) font_params(f) + 1) * (int) sizeof(scaled));
         do_realloc(param_base(f), (b + 2), int);
         font_params(f) = b;
         if (b > i) {
@@ -1013,7 +1028,8 @@ void set_font_math_params(internal_font_number f, int b)
     int i;
     i = font_math_params(f);
     if (i != b) {
-        font_bytes += (b - font_math_params(f) + 1) * sizeof(scaled);
+        font_bytes +=
+            ((b - (int) font_math_params(f) + 1) * (int) sizeof(scaled));
         do_realloc(math_param_base(f), (b + 2), int);
         font_math_params(f) = b;
         if (b > i) {
@@ -1075,16 +1091,17 @@ int copy_font(int f)
     if (font_cidordering(f) != NULL)
         set_font_cidordering(k, xstrdup(font_cidordering(f)));
 
-    i = sizeof(*param_base(f)) * font_params(f);
+    i = (int) (sizeof(*param_base(f)) * (unsigned) font_params(f));
     font_bytes += i;
-    param_base(k) = xmalloc(i);
-    memcpy(param_base(k), param_base(f), i);
+    param_base(k) = xmalloc((unsigned) i);
+    memcpy(param_base(k), param_base(f), (size_t) i);
 
     if (font_math_params(f) > 0) {
-        i = sizeof(*math_param_base(f)) * font_math_params(f);
+        i = (int) (sizeof(*math_param_base(f)) *
+                   (unsigned) font_math_params(f));
         font_bytes += i;
-        math_param_base(k) = xmalloc(i);
-        memcpy(math_param_base(k), math_param_base(f), i);
+        math_param_base(k) = xmalloc((unsigned) i);
+        memcpy(math_param_base(k), math_param_base(f), (size_t) i);
     }
 
     for (i = 0; i <= font_tables[f]->charinfo_count; i++) {
@@ -1385,13 +1402,13 @@ scaled get_kern(internal_font_number f, int lc, int rc)
 
 /* dumping and undumping fonts */
 
-#define dump_string(a)        \
-  if (a!=NULL) {        \
-    x = strlen(a)+1;        \
-    dump_int(x);  dump_things(*a, x);   \
-  } else {          \
-    x = 0; dump_int(x);       \
-  }
+#define dump_string(a)			\
+    if (a!=NULL) {			\
+      x = (int)(strlen(a)+1);		\
+      dump_int(x);  dump_things(*a, x);	\
+    } else {				\
+	x = 0; dump_int(x);		\
+    }
 
 void dump_charinfo(int f, int c)
 {
@@ -1458,12 +1475,14 @@ void dump_charinfo(int f, int c)
 
 void dump_font_entry(texfont * f)
 {
+    int x;
     dump_int(f->_font_size);
     dump_int(f->_font_dsize);
     dump_int(f->_font_cidversion);
     dump_int(f->_font_cidsupplement);
     dump_int(f->_font_ec);
-    dump_int(f->_font_checksum);
+    x = (int) f->_font_checksum;
+    dump_int(x);
     dump_int(f->_font_used);
     dump_int(f->_font_touched);
     dump_int(f->_font_cache_id);
@@ -1575,7 +1594,7 @@ int undump_charinfo(int f)
     undump_int(x);
     if (x > 0) {
         font_bytes += x;
-        s = xmalloc(x);
+        s = xmalloc((unsigned) x);
         undump_things(*s, x);
     }
     set_charinfo_name(co, s);
@@ -1583,23 +1602,23 @@ int undump_charinfo(int f)
     undump_int(x);
     if (x > 0) {
         font_bytes += x;
-        s = xmalloc(x);
+        s = xmalloc((unsigned) x);
         undump_things(*s, x);
     }
     set_charinfo_tounicode(co, s);
     /* ligatures */
     undump_int(x);
     if (x > 0) {
-        font_bytes += x * sizeof(liginfo);
-        lig = xmalloc(x * sizeof(liginfo));
+        font_bytes += (int) ((unsigned) x * sizeof(liginfo));
+        lig = xmalloc((unsigned) ((unsigned) x * sizeof(liginfo)));
         undump_things(*lig, x);
     }
     set_charinfo_ligatures(co, lig);
     /* kerns */
     undump_int(x);
     if (x > 0) {
-        font_bytes += x * sizeof(kerninfo);
-        kern = xmalloc(x * sizeof(kerninfo));
+        font_bytes += (int) ((unsigned) x * sizeof(kerninfo));
+        kern = xmalloc((unsigned) ((unsigned) x * sizeof(kerninfo)));
         undump_things(*kern, x);
     }
     set_charinfo_kerns(co, kern);
@@ -1608,7 +1627,7 @@ int undump_charinfo(int f)
     undump_int(x);
     if (x > 0) {
         font_bytes += x;
-        packet = xmalloc(x);
+        packet = xmalloc((unsigned) x);
         undump_things(*packet, x);
     }
     set_charinfo_packets(co, packet);
@@ -1621,10 +1640,10 @@ int undump_charinfo(int f)
     return i;
 }
 
-#define undump_font_string(a)   undump_int (x); \
-  if (x>0) {          \
-    font_bytes += x;        \
-    s = xmalloc(x); undump_things(*s,x);  \
+#define undump_font_string(a)   undump_int (x);		\
+    if (x>0) {						\
+	font_bytes += x;				\
+    s = xmalloc((unsigned)x); undump_things(*s,x);	\
     a(f,s); }
 
 
@@ -1637,11 +1656,11 @@ void undump_font_entry(texfont * f)
     undump_int(x); f->_font_cidversion = x;
     undump_int(x); f->_font_cidsupplement = x;
     undump_int(x); f->_font_ec = x;
-    undump_int(x); f->_font_checksum = x;
-    undump_int(x); f->_font_used = x;
-    undump_int(x); f->_font_touched = x;
+    undump_int(x); f->_font_checksum = (unsigned)x;
+    undump_int(x); f->_font_used = (char)x;
+    undump_int(x); f->_font_touched = (char)x;
     undump_int(x); f->_font_cache_id = x;
-    undump_int(x); f->_font_encodingbytes = x;
+    undump_int(x); f->_font_encodingbytes = (char)x;
     undump_int(x); f->_font_slant = x;
     undump_int(x); f->_font_extend = x;
     undump_int(x); f->_font_expand_ratio = x;
@@ -1649,7 +1668,7 @@ void undump_font_entry(texfont * f)
     undump_int(x); f->_font_stretch = x;
     undump_int(x); f->_font_step = x;
     undump_int(x); f->_font_auto_expand = x;
-    undump_int(x); f->_font_tounicode = x;
+    undump_int(x); f->_font_tounicode = (char)x;
     undump_int(x); f->_font_type = x;
     undump_int(x); f->_font_format = x;
     undump_int(x); f->_font_embedding = x;
@@ -1678,7 +1697,7 @@ void undump_font(int f)
     grow_font_table(f);
     tt = xmalloc(sizeof(texfont));
     memset(tt, 0, sizeof(texfont));
-    font_bytes += sizeof(texfont);
+    font_bytes += (int) sizeof(texfont);
     undump_font_entry(tt);
     font_tables[f] = tt;
 
@@ -1691,15 +1710,16 @@ void undump_font(int f)
     undump_font_string(set_font_cidregistry);
     undump_font_string(set_font_cidordering);
 
-    i = sizeof(*param_base(f)) * (font_params(f) + 1);
+    i = (int) (sizeof(*param_base(f)) * ((unsigned) font_params(f) + 1));
     font_bytes += i;
-    param_base(f) = xmalloc(i);
+    param_base(f) = xmalloc((unsigned) i);
     undump_things(*param_base(f), (font_params(f) + 1));
 
     if (font_math_params(f) > 0) {
-        i = sizeof(*math_param_base(f)) * (font_math_params(f) + 1);
+        i = (int) (sizeof(*math_param_base(f)) *
+                   ((unsigned) font_math_params(f) + 1));
         font_bytes += i;
-        math_param_base(f) = xmalloc(i);
+        math_param_base(f) = xmalloc((unsigned) i);
         undump_things(*math_param_base(f), (font_math_params(f) + 1));
     }
 

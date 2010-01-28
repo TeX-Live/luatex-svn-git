@@ -75,7 +75,7 @@ int do_get_node_type_id(lua_State * L, int n, node_info * data)
                 return j;
         }
     } else if (lua_type(L, n) == LUA_TNUMBER) {
-        register int i = (int)lua_tointeger(L, n);
+        register int i = (int) lua_tointeger(L, n);
         for (j = 0; data[j].id != -1; j++) {
             if (data[j].id == i)
                 return j;
@@ -134,7 +134,7 @@ void lua_nodelib_push(lua_State * L)
     halfword *a;
     n = -1;
     if (lua_isnumber(L, -1)) {
-        n = (int)lua_tointeger(L, -1);
+        n = (int) lua_tointeger(L, -1);
     }
     lua_pop(L, 1);
     if ((n == null) || (n < 0) || (n > var_mem_max)) {
@@ -157,7 +157,7 @@ static void lua_nodelib_push_spec(lua_State * L)
     halfword *a;
     n = -1;
     if (lua_isnumber(L, -1)) {
-        n = (halfword)lua_tointeger(L, -1);
+        n = (halfword) lua_tointeger(L, -1);
     }
     lua_pop(L, 1);
     if ((n < 0) || (n > var_mem_max)) {
@@ -244,7 +244,7 @@ static int lua_nodelib_new(lua_State * L)
     } else {
         j = 0;
         if (lua_gettop(L) > 1) {
-            j = (int)lua_tointeger(L, 2);
+            j = (int) lua_tointeger(L, 2);
         }
     }
     n = new_node(i, j);
@@ -502,7 +502,7 @@ static int lua_nodelib_hpack(lua_State * L)
     int d = -1;
     n = *(check_isnode(L, 1));
     if (lua_gettop(L) > 1) {
-        w = (int)lua_tointeger(L, 2);
+        w = (int) lua_tointeger(L, 2);
         if (lua_gettop(L) > 2) {
             if (lua_type(L, 3) == LUA_TSTRING) {
                 s = lua_tostring(L, 3);
@@ -592,7 +592,7 @@ static int lua_nodelib_vpack(lua_State * L)
     int d = -1;
     n = *(check_isnode(L, 1));
     if (lua_gettop(L) > 1) {
-        w = (int)lua_tointeger(L, 2);
+        w = (int) lua_tointeger(L, 2);
         if (lua_gettop(L) > 2) {
             if (lua_type(L, 3) == LUA_TSTRING) {
                 s = lua_tostring(L, 3);
@@ -646,9 +646,9 @@ static int lua_nodelib_mlist_to_hlist(lua_State * L)
 static int lua_nodelib_mfont(lua_State * L)
 {
     int f, s;
-    f = (int)luaL_checkinteger(L, 1);
+    f = (int) luaL_checkinteger(L, 1);
     if (lua_gettop(L) == 2)
-        s = (int)lua_tointeger(L, 2);        /* this should be a multiple of 256 ! */
+        s = (int) lua_tointeger(L, 2);  /* this should be a multiple of 256 ! */
     else
         s = 0;
     lua_pushnumber(L, fam_fnt(f, s));
@@ -881,8 +881,8 @@ static int lua_nodelib_has_attribute(lua_State * L)
     int i, val;
     n = check_isnode(L, 1);
     if (n != NULL) {
-        i = (int)lua_tointeger(L, 2);
-        val = (int)luaL_optinteger(L, 3, UNUSED_ATTRIBUTE);
+        i = (int) lua_tointeger(L, 2);
+        val = (int) luaL_optinteger(L, 3, UNUSED_ATTRIBUTE);
         if ((val = has_attribute(*n, i, val)) > UNUSED_ATTRIBUTE) {
             lua_pushnumber(L, val);
             return 1;
@@ -897,8 +897,8 @@ static int lua_nodelib_set_attribute(lua_State * L)
     halfword *n;
     int i, val;
     if (lua_gettop(L) == 3) {
-        i = (int)lua_tointeger(L, 2);
-        val = (int)lua_tointeger(L, 3);
+        i = (int) lua_tointeger(L, 2);
+        val = (int) lua_tointeger(L, 3);
         n = check_isnode(L, 1);
         if (val == UNUSED_ATTRIBUTE) {
             (void) unset_attribute(*n, i, val);
@@ -946,7 +946,7 @@ static int nodelib_aux_nil(lua_State * L)
 static int nodelib_aux_next_filtered(lua_State * L)
 {
     register halfword t;        /* traverser */
-    register int i = (int)lua_tointeger(L, lua_upvalueindex(1));
+    register int i = (int) lua_tointeger(L, lua_upvalueindex(1));
     if (lua_isnil(L, 2)) {      /* first call */
         t = *check_isnode(L, 1);
     } else {
@@ -1050,7 +1050,7 @@ static int lua_nodelib_count(lua_State * L)
     halfword n;
     halfword m = null;
     int i = -1;
-    i = (int)lua_tointeger(L, 1);
+    i = (int) lua_tointeger(L, 1);
     if (lua_isnil(L, 2)) {
         lua_pushnumber(L, 0);
         return 1;
@@ -2156,7 +2156,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
     case open_node:
         switch (field) {
         case 4:
-            write_stream(n) = (halfword)lua_tointeger(L, 3);
+            write_stream(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 5:
             open_name(n) = nodelib_getstring(L, 3);
@@ -2174,7 +2174,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
     case write_node:
         switch (field) {
         case 4:
-            write_stream(n) = (halfword)lua_tointeger(L, 3);
+            write_stream(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 5:
             write_tokens(n) = nodelib_gettoks(L, 3);
@@ -2186,7 +2186,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
     case close_node:
         switch (field) {
         case 4:
-            write_stream(n) = (halfword)lua_tointeger(L, 3);
+            write_stream(n) = (halfword) lua_tointeger(L, 3);
             break;
         default:
             return nodelib_cantset(L, field, n);
@@ -2204,10 +2204,10 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
     case local_par_node:
         switch (field) {
         case 4:
-            local_pen_inter(n) = (halfword)lua_tointeger(L, 3);
+            local_pen_inter(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 5:
-            local_pen_broken(n) = (halfword)lua_tointeger(L, 3);
+            local_pen_broken(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 6:
             local_par_dir(n) = nodelib_getdir(L, 3);
@@ -2216,13 +2216,13 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
             local_box_left(n) = nodelib_getlist(L, 3);
             break;
         case 8:
-            local_box_left_width(n) = (halfword)lua_tointeger(L, 3);
+            local_box_left_width(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 9:
             local_box_right(n) = nodelib_getlist(L, 3);
             break;
         case 10:
-            local_box_right_width(n) = (halfword)lua_tointeger(L, 3);
+            local_box_right_width(n) = (halfword) lua_tointeger(L, 3);
             break;
         default:
             return nodelib_cantset(L, field, n);
@@ -2234,13 +2234,13 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
             dir_dir(n) = nodelib_getdir(L, 3);
             break;
         case 5:
-            dir_level(n) = (halfword)lua_tointeger(L, 3);
+            dir_level(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 6:
-            dir_dvi_ptr(n) = (halfword)lua_tointeger(L, 3);
+            dir_dvi_ptr(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 7:
-            dir_dvi_h(n) = (halfword)lua_tointeger(L, 3);
+            dir_dvi_h(n) = (halfword) lua_tointeger(L, 3);
             break;
         default:
             return nodelib_cantset(L, field, n);
@@ -2267,7 +2267,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
     case pdf_refobj_node:
         switch (field) {
         case 4:
-            pdf_obj_objnum(n) = (halfword)lua_tointeger(L, 3);
+            pdf_obj_objnum(n) = (halfword) lua_tointeger(L, 3);
             break;
         default:
             return nodelib_cantset(L, field, n);
@@ -2276,16 +2276,16 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
     case pdf_refxform_node:
         switch (field) {
         case 4:
-            width(n) = (halfword)lua_tointeger(L, 3);
+            width(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 5:
-            depth(n) = (halfword)lua_tointeger(L, 3);
+            depth(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 6:
-            height(n) = (halfword)lua_tointeger(L, 3);
+            height(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 7:
-            pdf_xform_objnum(n) = (halfword)lua_tointeger(L, 3);
+            pdf_xform_objnum(n) = (halfword) lua_tointeger(L, 3);
             break;
         default:
             return nodelib_cantset(L, field, n);
@@ -2294,19 +2294,19 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
     case pdf_refximage_node:
         switch (field) {
         case 4:
-            width(n) = (halfword)lua_tointeger(L, 3);
+            width(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 5:
-            depth(n) = (halfword)lua_tointeger(L, 3);
+            depth(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 6:
-            height(n) = (halfword)lua_tointeger(L, 3);
+            height(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 7:
-            pdf_ximage_transform(n) = (halfword)lua_tointeger(L, 3);
+            pdf_ximage_transform(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 8:
-            pdf_ximage_index(n) = (halfword)lua_tointeger(L, 3);
+            pdf_ximage_index(n) = (halfword) lua_tointeger(L, 3);
             break;
         default:
             return nodelib_cantset(L, field, n);
@@ -2315,16 +2315,16 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
     case pdf_annot_node:
         switch (field) {
         case 4:
-            width(n) = (halfword)lua_tointeger(L, 3);
+            width(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 5:
-            depth(n) = (halfword)lua_tointeger(L, 3);
+            depth(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 6:
-            height(n) = (halfword)lua_tointeger(L, 3);
+            height(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 7:
-            pdf_annot_objnum(n) = (halfword)lua_tointeger(L, 3);
+            pdf_annot_objnum(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 8:
             pdf_annot_data(n) = nodelib_gettoks(L, 3);
@@ -2336,16 +2336,16 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
     case pdf_start_link_node:
         switch (field) {
         case 4:
-            width(n) = (halfword)lua_tointeger(L, 3);
+            width(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 5:
-            depth(n) = (halfword)lua_tointeger(L, 3);
+            depth(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 6:
-            height(n) = (halfword)lua_tointeger(L, 3);
+            height(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 7:
-            pdf_link_objnum(n) = (halfword)lua_tointeger(L, 3);
+            pdf_link_objnum(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 8:
             pdf_link_attr(n) = nodelib_gettoks(L, 3);
@@ -2366,13 +2366,13 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
     case pdf_dest_node:
         switch (field) {
         case 4:
-            width(n) = (halfword)lua_tointeger(L, 3);
+            width(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 5:
-            depth(n) = (halfword)lua_tointeger(L, 3);
+            depth(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 6:
-            height(n) = (halfword)lua_tointeger(L, 3);
+            height(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 7:
             pdf_dest_named_id(n) = (quarterword) lua_tointeger(L, 3);
@@ -2381,16 +2381,16 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
             if (pdf_dest_named_id(n) == 1)
                 pdf_dest_id(n) = nodelib_gettoks(L, 3);
             else
-                pdf_dest_id(n) = (halfword)lua_tointeger(L, 3);
+                pdf_dest_id(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 9:
             pdf_dest_type(n) = (quarterword) lua_tointeger(L, 3);
             break;
         case 10:
-            pdf_dest_xyz_zoom(n) = (halfword)lua_tointeger(L, 3);
+            pdf_dest_xyz_zoom(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 11:
-            pdf_dest_objnum(n) = (halfword)lua_tointeger(L, 3);
+            pdf_dest_objnum(n) = (halfword) lua_tointeger(L, 3);
             break;
         default:
             return nodelib_cantset(L, field, n);
@@ -2400,13 +2400,13 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
     case pdf_start_thread_node:
         switch (field) {
         case 4:
-            width(n) = (halfword)lua_tointeger(L, 3);
+            width(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 5:
-            depth(n) = (halfword)lua_tointeger(L, 3);
+            depth(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 6:
-            height(n) = (halfword)lua_tointeger(L, 3);
+            height(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 7:
             pdf_thread_named_id(n) = (quarterword) lua_tointeger(L, 3);
@@ -2415,7 +2415,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
             if (pdf_thread_named_id(n) == 1)
                 pdf_thread_id(n) = nodelib_gettoks(L, 3);
             else
-                pdf_thread_id(n) = (halfword)lua_tointeger(L, 3);
+                pdf_thread_id(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 9:
             pdf_thread_attr(n) = nodelib_gettoks(L, 3);
@@ -2431,7 +2431,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
     case late_lua_node:
         switch (field) {
         case 4:
-            late_lua_reg(n) = (halfword)lua_tointeger(L, 3);
+            late_lua_reg(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 5:
             late_lua_data(n) = nodelib_gettoks(L, 3);
@@ -2446,7 +2446,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
     case close_lua_node:
         switch (field) {
         case 4:
-            late_lua_reg(n) = (halfword)lua_tointeger(L, 3);
+            late_lua_reg(n) = (halfword) lua_tointeger(L, 3);
             break;
         default:
             return nodelib_cantset(L, field, n);
@@ -2455,10 +2455,10 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
     case pdf_colorstack_node:
         switch (field) {
         case 4:
-            pdf_colorstack_stack(n) = (halfword)lua_tointeger(L, 3);
+            pdf_colorstack_stack(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 5:
-            pdf_colorstack_cmd(n) = (halfword)lua_tointeger(L, 3);
+            pdf_colorstack_cmd(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 6:
             pdf_colorstack_data(n) = nodelib_gettoks(L, 3);
@@ -2484,10 +2484,10 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
     case user_defined_node:
         switch (field) {
         case 4:
-            user_node_id(n) = (halfword)lua_tointeger(L, 3);
+            user_node_id(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 5:
-            user_node_type(n) = (halfword)lua_tointeger(L, 3);
+            user_node_type(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 6:
             switch (user_node_type(n)) {
@@ -2495,7 +2495,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
                 user_node_value(n) = nodelib_getlist(L, 3);
                 break;
             case 'd':
-                user_node_value(n) = (halfword)lua_tointeger(L, 3);
+                user_node_value(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 'n':
                 user_node_value(n) = nodelib_getlist(L, 3);
@@ -2507,7 +2507,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
                 user_node_value(n) = nodelib_gettoks(L, 3);
                 break;
             default:
-                user_node_value(n) = (halfword)lua_tointeger(L, 3);
+                user_node_value(n) = (halfword) lua_tointeger(L, 3);
                 break;
             }
             break;
@@ -2542,31 +2542,31 @@ static int lua_nodelib_setfield(lua_State * L)
             subtype(n) = (quarterword) lua_tointeger(L, 3);
             break;
         case 4:
-            character(n) = (halfword)lua_tointeger(L, 3);
+            character(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 5:
-            font(n) = (halfword)lua_tointeger(L, 3);
+            font(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 6:
-            set_char_lang(n, (halfword)lua_tointeger(L, 3));
+            set_char_lang(n, (halfword) lua_tointeger(L, 3));
             break;
         case 7:
-            set_char_lhmin(n, (halfword)lua_tointeger(L, 3));
+            set_char_lhmin(n, (halfword) lua_tointeger(L, 3));
             break;
         case 8:
-            set_char_rhmin(n, (halfword)lua_tointeger(L, 3));
+            set_char_rhmin(n, (halfword) lua_tointeger(L, 3));
             break;
         case 9:
-            set_char_uchyph(n, (halfword)lua_tointeger(L, 3));
+            set_char_uchyph(n, (halfword) lua_tointeger(L, 3));
             break;
         case 10:
             lig_ptr(n) = nodelib_getlist(L, 3);
             break;
         case 11:
-            x_displace(n) = (halfword)lua_tointeger(L, 3);
+            x_displace(n) = (halfword) lua_tointeger(L, 3);
             break;
         case 12:
-            y_displace(n) = (halfword)lua_tointeger(L, 3);
+            y_displace(n) = (halfword) lua_tointeger(L, 3);
             break;
         default:
             return nodelib_cantset(L, field, n);
@@ -2580,19 +2580,19 @@ static int lua_nodelib_setfield(lua_State * L)
                 subtype(n) = (quarterword) lua_tointeger(L, 3);
                 break;
             case 4:
-                width(n) = (halfword)lua_tointeger(L, 3);
+                width(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 5:
-                depth(n) = (halfword)lua_tointeger(L, 3);
+                depth(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 6:
-                height(n) = (halfword)lua_tointeger(L, 3);
+                height(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 7:
                 box_dir(n) = nodelib_getdir(L, 3);
                 break;
             case 8:
-                shift_amount(n) = (halfword)lua_tointeger(L, 3);
+                shift_amount(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 9:
                 glue_order(n) = (quarterword) lua_tointeger(L, 3);
@@ -2615,19 +2615,19 @@ static int lua_nodelib_setfield(lua_State * L)
             case 2:            /* dummy subtype */
                 break;
             case 4:
-                width(n) = (halfword)lua_tointeger(L, 3);
+                width(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 5:
-                depth(n) = (halfword)lua_tointeger(L, 3);
+                depth(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 6:
-                height(n) = (halfword)lua_tointeger(L, 3);
+                height(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 7:
-                box_dir(n) = (halfword)lua_tointeger(L, 3);
+                box_dir(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 8:
-                glue_shrink(n) = (halfword)lua_tointeger(L, 3);
+                glue_shrink(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 9:
                 glue_order(n) = (quarterword) lua_tointeger(L, 3);
@@ -2636,7 +2636,7 @@ static int lua_nodelib_setfield(lua_State * L)
                 glue_sign(n) = (quarterword) lua_tointeger(L, 3);
                 break;
             case 11:
-                glue_stretch(n) = (halfword)lua_tointeger(L, 3);
+                glue_stretch(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 12:
                 span_count(n) = (quarterword) lua_tointeger(L, 3);
@@ -2653,13 +2653,13 @@ static int lua_nodelib_setfield(lua_State * L)
             case 2:            /* dummy subtype */
                 break;
             case 4:
-                width(n) = (halfword)lua_tointeger(L, 3);
+                width(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 5:
-                depth(n) = (halfword)lua_tointeger(L, 3);
+                depth(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 6:
-                height(n) = (halfword)lua_tointeger(L, 3);
+                height(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 7:
                 rule_dir(n) = nodelib_getdir(L, 3);
@@ -2674,13 +2674,13 @@ static int lua_nodelib_setfield(lua_State * L)
                 subtype(n) = (quarterword) lua_tointeger(L, 3);
                 break;
             case 4:
-                float_cost(n) = (halfword)lua_tointeger(L, 3);
+                float_cost(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 5:
-                depth(n) = (halfword)lua_tointeger(L, 3);
+                depth(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 6:
-                height(n) = (halfword)lua_tointeger(L, 3);
+                height(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 7:
                 split_top_ptr(n) = nodelib_getspec(L, 3);
@@ -2698,7 +2698,7 @@ static int lua_nodelib_setfield(lua_State * L)
                 subtype(n) = (quarterword) lua_tointeger(L, 3);
                 break;
             case 4:
-                mark_class(n) = (halfword)lua_tointeger(L, 3);
+                mark_class(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 5:
                 mark_ptr(n) = nodelib_gettoks(L, 3);
@@ -2743,7 +2743,7 @@ static int lua_nodelib_setfield(lua_State * L)
                 subtype(n) = (quarterword) lua_tointeger(L, 3);
                 break;
             case 4:
-                surround(n) = (halfword)lua_tointeger(L, 3);
+                surround(n) = (halfword) lua_tointeger(L, 3);
                 break;
             default:
                 return nodelib_cantset(L, field, n);
@@ -2769,13 +2769,13 @@ static int lua_nodelib_setfield(lua_State * L)
             case 2:            /* dummy subtype */
                 break;
             case 3:
-                width(n) = (halfword)lua_tointeger(L, 3);
+                width(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 4:
-                stretch(n) = (halfword)lua_tointeger(L, 3);
+                stretch(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 5:
-                shrink(n) = (halfword)lua_tointeger(L, 3);
+                shrink(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 6:
                 stretch_order(n) = (quarterword) lua_tointeger(L, 3);
@@ -2784,7 +2784,7 @@ static int lua_nodelib_setfield(lua_State * L)
                 shrink_order(n) = (quarterword) lua_tointeger(L, 3);
                 break;
             case 8:
-                glue_ref_count(n) = (halfword)lua_tointeger(L, 3);
+                glue_ref_count(n) = (halfword) lua_tointeger(L, 3);
                 break;
             default:
                 return nodelib_cantset(L, field, n);
@@ -2796,7 +2796,7 @@ static int lua_nodelib_setfield(lua_State * L)
                 subtype(n) = (quarterword) lua_tointeger(L, 3);
                 break;
             case 4:
-                width(n) = (halfword)lua_tointeger(L, 3);
+                width(n) = (halfword) lua_tointeger(L, 3);
                 break;
             default:
                 return nodelib_cantset(L, field, n);
@@ -2807,7 +2807,7 @@ static int lua_nodelib_setfield(lua_State * L)
             case 2:            /* dummy subtype */
                 break;
             case 4:
-                penalty(n) = (halfword)lua_tointeger(L, 3);
+                penalty(n) = (halfword) lua_tointeger(L, 3);
                 break;
             default:
                 return nodelib_cantset(L, field, n);
@@ -2827,20 +2827,20 @@ static int lua_nodelib_setfield(lua_State * L)
                 if (pdf_action_named_id(n) == 1) {
                     pdf_action_id(n) = nodelib_gettoks(L, 3);
                 } else {
-                    pdf_action_id(n) = (halfword)lua_tointeger(L, 3);
+                    pdf_action_id(n) = (halfword) lua_tointeger(L, 3);
                 }
                 break;
             case 6:
                 pdf_action_file(n) = nodelib_gettoks(L, 3);
                 break;
             case 7:
-                pdf_action_new_window(n) = (halfword)lua_tointeger(L, 3);
+                pdf_action_new_window(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 8:
                 pdf_action_tokens(n) = nodelib_gettoks(L, 3);
                 break;
             case 9:
-                pdf_action_refcount(n) = (halfword)lua_tointeger(L, 3);
+                pdf_action_refcount(n) = (halfword) lua_tointeger(L, 3);
                 break;
             default:
                 return nodelib_cantset(L, field, n);
@@ -2928,7 +2928,7 @@ static int lua_nodelib_setfield(lua_State * L)
                 subtype(n) = (quarterword) lua_tointeger(L, 3);
                 break;
             case 4:
-                thickness(n) = (halfword)lua_tointeger(L, 3);
+                thickness(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 5:
                 numerator(n) = nodelib_getlist(L, 3);
@@ -2989,10 +2989,10 @@ static int lua_nodelib_setfield(lua_State * L)
                 subtype(n) = (quarterword) lua_tointeger(L, 3);
                 break;
             case 4:
-                math_fam(n) = (halfword)lua_tointeger(L, 3);
+                math_fam(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 5:
-                math_character(n) = (halfword)lua_tointeger(L, 3);
+                math_character(n) = (halfword) lua_tointeger(L, 3);
                 break;
             default:
                 return nodelib_cantset(L, field, n);
@@ -3017,16 +3017,16 @@ static int lua_nodelib_setfield(lua_State * L)
                 subtype(n) = (quarterword) lua_tointeger(L, 3);
                 break;
             case 4:
-                small_fam(n) = (halfword)lua_tointeger(L, 3);
+                small_fam(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 5:
-                small_char(n) = (halfword)lua_tointeger(L, 3);
+                small_char(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 6:
-                large_fam(n) = (halfword)lua_tointeger(L, 3);
+                large_fam(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 7:
-                large_char(n) = (halfword)lua_tointeger(L, 3);
+                large_char(n) = (halfword) lua_tointeger(L, 3);
                 break;
             default:
                 return nodelib_cantset(L, field, n);
@@ -3038,7 +3038,7 @@ static int lua_nodelib_setfield(lua_State * L)
                 subtype(n) = (quarterword) lua_tointeger(L, 3);
                 break;
             case 4:
-                width(n) = (halfword)lua_tointeger(L, 3);
+                width(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 5:
                 margin_char(n) = nodelib_getlist(L, 3);
@@ -3096,10 +3096,10 @@ static int lua_nodelib_setfield(lua_State * L)
             case 2:            /* dummy subtype */
                 break;
             case 3:
-                attribute_id(n) = (halfword)lua_tointeger(L, 3);
+                attribute_id(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 4:
-                attribute_value(n) = (halfword)lua_tointeger(L, 3);
+                attribute_value(n) = (halfword) lua_tointeger(L, 3);
                 break;
             default:
                 return nodelib_cantset(L, field, n);

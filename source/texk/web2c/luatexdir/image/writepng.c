@@ -90,13 +90,13 @@ void read_png_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
     /* reset structure */
     png_read_update_info(png_p, info_p);
     /* resolution support */
-    img_xsize(idict) = (int)info_p->width;
-    img_ysize(idict) = (int)info_p->height;
+    img_xsize(idict) = (int) info_p->width;
+    img_ysize(idict) = (int) info_p->height;
     if (info_p->valid & PNG_INFO_pHYs) {
-        img_xres(idict) = 
-            round(0.0254 * (double)png_get_x_pixels_per_meter(png_p, info_p));
-        img_yres(idict) = 
-            round(0.0254 * (double)png_get_y_pixels_per_meter(png_p, info_p));
+        img_xres(idict) =
+            round(0.0254 * (double) png_get_x_pixels_per_meter(png_p, info_p));
+        img_yres(idict) =
+            round(0.0254 * (double) png_get_y_pixels_per_meter(png_p, info_p));
     }
     switch (info_p->color_type) {
     case PNG_COLOR_TYPE_PALETTE:
@@ -260,8 +260,8 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
     pdf_create_obj(pdf, obj_type_others, 0);
     smask_objnum = pdf->obj_ptr;
     pdf_printf(pdf, "/SMask %i 0 R\n", (int) smask_objnum);
-    smask_size = (int)((info_p->rowbytes / 2) * info_p->height);
-    smask = xtalloc((unsigned)smask_size, png_byte);
+    smask_size = (int) ((info_p->rowbytes / 2) * info_p->height);
+    smask = xtalloc((unsigned) smask_size, png_byte);
     pdf_begin_stream(pdf);
     if (info_p->interlace_type == PNG_INTERLACE_NONE) {
         row = xtalloc(info_p->rowbytes, png_byte);
@@ -359,8 +359,8 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
     pdf_create_obj(pdf, obj_type_others, 0);
     smask_objnum = pdf->obj_ptr;
     pdf_printf(pdf, "/SMask %i 0 R\n", (int) smask_objnum);
-    smask_size = (int)((info_p->rowbytes / 2) * info_p->height);
-    smask = xtalloc((unsigned)smask_size, png_byte);
+    smask_size = (int) ((info_p->rowbytes / 2) * info_p->height);
+    smask = xtalloc((unsigned) smask_size, png_byte);
     pdf_begin_stream(pdf);
     if (info_p->interlace_type == PNG_INTERLACE_NONE) {
         row = xtalloc(info_p->rowbytes, png_byte);
@@ -487,7 +487,7 @@ static void copy_png(PDF pdf, image_dict * idict)
             while (len > 0) {
                 i = (len > pdf->buf_size) ? pdf->buf_size : len;
                 pdf_room(pdf, i);
-                fread(&pdf->buf[pdf->ptr], 1, (size_t)i, fp);
+                fread(&pdf->buf[pdf->ptr], 1, (size_t) i, fp);
                 pdf->ptr += i;
                 len -= i;
             }

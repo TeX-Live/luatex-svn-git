@@ -99,7 +99,7 @@ int vf_packet_bytes(charinfo * co)
             break;
         case packet_special_code:
             packet_number(k);   /* +4 */
-            cur_packet_byte += k;
+            cur_packet_byte = (cur_packet_byte + (int) k);
             break;
         case packet_image_code:
             cur_packet_byte += 4;
@@ -117,7 +117,7 @@ int vf_packet_bytes(charinfo * co)
 /* typeset the \.{DVI} commands in the
    character packet for character |c| in current font |f| */
 
-char *packet_command_names[] = {
+const char *packet_command_names[] = {
     "char", "font", "pop", "push", "special", "image",
     "right", "down", "rule", "node", "nop", "end", NULL
 };
@@ -181,15 +181,15 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c)
             break;
         case packet_char_code:
             packet_number(k);
-            if (!char_exists(lf, k)) {
-                char_warning(lf, k);
+            if (!char_exists(lf, (int) k)) {
+                char_warning(lf, (int) k);
             } else {
-                if (has_packet(lf, k))
-                    do_vf_packet(pdf, lf, k);
+                if (has_packet(lf, (int) k))
+                    do_vf_packet(pdf, lf, (int) k);
                 else
-                    pdf_place_glyph(pdf, lf, k);
+                    pdf_place_glyph(pdf, lf, (int) k);
             }
-            cur.h = cur.h + char_width(lf, k);
+            cur.h = cur.h + char_width(lf, (int) k);
             break;
         case packet_rule_code:
             packet_scaled(size.v, fs_f);        /* height (where is depth?) */
@@ -223,7 +223,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c)
             break;
         case packet_node_code:
             packet_number(k);
-            hlist_out(pdf, k);
+            hlist_out(pdf, (halfword) k);
             break;
         case packet_nop_code:
             break;
@@ -295,8 +295,8 @@ int *packet_local_fonts(internal_font_number f, int *num)
     }
     *num = k;
     if (k > 0) {
-        lfs = xmalloc(k * sizeof(int));
-        memcpy(lfs, localfonts, k * sizeof(int));
+        lfs = xmalloc((unsigned) ((unsigned) k * sizeof(int)));
+        memcpy(lfs, localfonts, (size_t) ((unsigned) k * sizeof(int)));
         return lfs;
     }
     return NULL;
@@ -331,13 +331,14 @@ replace_packet_fonts(internal_font_number f, int *old_fontid,
                     }
                     if (l < count) {
                         k = new_fontid[l];
-                        vf_packets[(cur_packet_byte - 4)] =
-                            (k & 0xFF000000) >> 24;
-                        vf_packets[(cur_packet_byte - 3)] =
-                            (k & 0x00FF0000) >> 16;
-                        vf_packets[(cur_packet_byte - 2)] =
-                            (k & 0x0000FF00) >> 8;
-                        vf_packets[(cur_packet_byte - 1)] = (k & 0x000000FF);
+                        vf_packets[(cur_packet_byte - 4)] = (eight_bits)
+                            ((k & 0xFF000000) >> 24);
+                        vf_packets[(cur_packet_byte - 3)] = (eight_bits)
+                            ((k & 0x00FF0000) >> 16);
+                        vf_packets[(cur_packet_byte - 2)] = (eight_bits)
+                            ((k & 0x0000FF00) >> 8);
+                        vf_packets[(cur_packet_byte - 1)] =
+                            (eight_bits) (k & 0x000000FF);
                     }
                     break;
                 case packet_push_code:

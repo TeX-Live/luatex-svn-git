@@ -162,7 +162,8 @@ cff_index *cff_get_index_header(cff_font * cff)
         if (idx->offsize < 1 || idx->offsize > 4)
             CFF_ERROR("invalid offsize data");
 
-        idx->offset = xmalloc((unsigned) (count + 1) * sizeof(l_offset));
+        idx->offset =
+            xmalloc((unsigned) (((unsigned) count + 1) * sizeof(l_offset)));
         for (i = 0; i < count + 1; i++) {
             (idx->offset)[i] = get_offset(cff, idx->offsize);
         }
@@ -196,7 +197,8 @@ cff_index *cff_get_index(cff_font * cff)
         if (idx->offsize < 1 || idx->offsize > 4)
             CFF_ERROR("invalid offsize data");
 
-        idx->offset = xmalloc((unsigned) (count + 1) * sizeof(l_offset));
+        idx->offset =
+            xmalloc((unsigned) (((unsigned) count + 1) * sizeof(l_offset)));
         for (i = 0; i < count + 1; i++) {
             idx->offset[i] = get_offset(cff, idx->offsize);
         }
@@ -776,7 +778,7 @@ static void add_dict(cff_dict * dict,
         if (stack_top > 0) {
             (dict->entries)[dict->count].count = stack_top;
             (dict->entries)[dict->count].values =
-                xmalloc((unsigned) stack_top * sizeof(double));
+                xmalloc((unsigned) ((unsigned) stack_top * sizeof(double)));
             while (stack_top > 0) {
                 stack_top--;
                 (dict->entries)[dict->count].values[stack_top] =
@@ -987,7 +989,7 @@ long cff_read_fdarray(cff_font * cff)
     cff->offset = (l_offset) offset;
     idx = cff_get_index(cff);
     cff->num_fds = (card8) idx->count;
-    cff->fdarray = xmalloc(idx->count * sizeof(cff_dict *));
+    cff->fdarray = xmalloc((unsigned) (idx->count * sizeof(cff_dict *)));
     for (i = 0; i < idx->count; i++) {
         card8 *data = idx->data + (idx->offset)[i] - 1;
         size = (long) ((idx->offset)[i + 1] - (idx->offset)[i]);
@@ -1016,7 +1018,7 @@ long cff_read_private(cff_font * cff)
         if (cff->fdarray == NULL)
             cff_read_fdarray(cff);
 
-        cff->private = xmalloc(cff->num_fds * sizeof(cff_dict *));
+        cff->private = xmalloc((unsigned) (cff->num_fds * sizeof(cff_dict *)));
         for (i = 0; i < cff->num_fds; i++) {
             if (cff->fdarray[i] != NULL &&
                 cff_dict_known(cff->fdarray[i], "Private") &&
@@ -1669,7 +1671,8 @@ long cff_read_charsets(cff_font * cff)
     switch (charset->format) {
     case 0:
         charset->num_entries = (card16) (cff->num_glyphs - 1);  /* no .notdef */
-        charset->data.glyphs = xmalloc(charset->num_entries * sizeof(s_SID));
+        charset->data.glyphs =
+            xmalloc((unsigned) (charset->num_entries * sizeof(s_SID)));
         length += (charset->num_entries) * 2;
         for (i = 0; i < (charset->num_entries); i++) {
             charset->data.glyphs[i] = get_card16(cff);
@@ -3262,9 +3265,8 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
         cid_count = CFF_CIDCOUNT_DEFAULT;
     }
     cff_read_charsets(cffont);
-    CIDToGIDMap =
-        xmalloc((unsigned)
-                ((2 * (unsigned) cid_count) * sizeof(unsigned char)));
+    CIDToGIDMap = xmalloc((unsigned)
+                          ((2 * (unsigned) cid_count) * sizeof(unsigned char)));
     memset(CIDToGIDMap, 0, (size_t) (2 * cid_count));
 
 

@@ -394,7 +394,7 @@ lua_State *luatex_error(lua_State * L, int is_fatal)
     char *err = NULL;
     if (lua_isstring(L, -1)) {
         luaerr = lua_tolstring(L, -1, &len);
-        err = (char *) xmalloc((unsigned)(len + 1));
+        err = (char *) xmalloc((unsigned) (len + 1));
         len = (size_t) snprintf(err, (len + 1), "%s", luaerr);
     }
     if (is_fatal > 0) {

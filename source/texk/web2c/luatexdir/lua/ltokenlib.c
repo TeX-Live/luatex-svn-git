@@ -47,7 +47,7 @@ static int test_expandable(lua_State * L)
     if (is_valid_token(L, -1)) {
         get_token_cmd(L, -1);
         if (lua_isnumber(L, -1)) {
-            cmd = (int)lua_tointeger(L, -1);
+            cmd = (int) lua_tointeger(L, -1);
         } else if (lua_isstring(L, -1)) {
             cmd = get_command_id(lua_tostring(L, -1));
         }
@@ -69,7 +69,7 @@ static int test_protected(lua_State * L)
     if (is_valid_token(L, -1)) {
         get_token_chr(L, -1);
         if (lua_isnumber(L, -1)) {
-            chr = (int)lua_tointeger(L, -1);
+            chr = (int) lua_tointeger(L, -1);
         } else if (lua_isstring(L, -1)) {
             chr = get_command_id(lua_tostring(L, -1));
         }
@@ -91,7 +91,7 @@ static int test_activechar(lua_State * L)
         int cs = 0;
         get_token_cs(L, -1);
         if (lua_isnumber(L, -1)) {
-            cs = (int)lua_tointeger(L, -1);
+            cs = (int) lua_tointeger(L, -1);
         }
         lua_pop(L, 1);
         if (cs != 0 && ((s = get_cs_text(cs)) != (unsigned char *) NULL)) {
@@ -114,7 +114,7 @@ static int run_get_command_name(lua_State * L)
     if (is_valid_token(L, -1)) {
         get_token_cmd(L, -1);
         if (lua_isnumber(L, -1)) {
-            cs = (int)lua_tointeger(L, -1);
+            cs = (int) lua_tointeger(L, -1);
             lua_pushstring(L, command_names[cs].cmd_name);
         } else {
             lua_pushstring(L, "");
@@ -133,13 +133,13 @@ static int run_get_csname_name(lua_State * L)
     if (is_valid_token(L, -1)) {
         get_token_cmd(L, -1);
         if (lua_isnumber(L, -1)) {
-            cmd = (int)lua_tointeger(L, -1);
+            cmd = (int) lua_tointeger(L, -1);
         }
         lua_pop(L, 1);
         cs = 0;
         get_token_cs(L, -1);
         if (lua_isnumber(L, -1)) {
-            cs = (int)lua_tointeger(L, -1);
+            cs = (int) lua_tointeger(L, -1);
         }
         lua_pop(L, 1);
 
@@ -176,7 +176,7 @@ static int run_get_csname_id(lua_State * L)
         s = lua_tolstring(L, -1, &k);
         cs = (size_t) string_lookup(s, k);
     }
-    lua_pushnumber(L, (lua_Number)cs);
+    lua_pushnumber(L, (lua_Number) cs);
     return 1;
 }
 
@@ -240,8 +240,8 @@ static int run_build(lua_State * L)
     int cmd, chr, cs;
     if (lua_isnumber(L, 1)) {
         cs = 0;
-        chr = (int)lua_tointeger(L, 1);
-        cmd = (int)luaL_optinteger(L, 2, get_char_cat_code(chr));
+        chr = (int) lua_tointeger(L, 1);
+        cmd = (int) luaL_optinteger(L, 2, get_char_cat_code(chr));
         if (cmd == 0 || cmd == 9 || cmd == 14 || cmd == 15) {
             fprintf(stdout,
                     "\n\nluatex error: not a good token.\nCatcode %i can not be returned, so I replaced it by 12 (other)",

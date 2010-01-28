@@ -63,7 +63,7 @@ static unsigned char *hnj_strdup(const unsigned char *s)
     size_t l;
 
     l = strlen((const char *) s);
-    new = hnj_malloc((int)l + 1);
+    new = hnj_malloc((int) l + 1);
     memcpy(new, s, l);
     new[l] = 0;
     return new;
@@ -252,7 +252,7 @@ static void state_insert(HashTab * hashtab, unsigned char *key, int state)
     int i;
     HashEntry *e;
 
-    i = (int)(hnj_string_hash(key) % HASH_SIZE);
+    i = (int) (hnj_string_hash(key) % HASH_SIZE);
     e = hnj_malloc(sizeof(HashEntry));
     e->next = hashtab->entries[i];
     e->key = key;
@@ -267,7 +267,7 @@ static void hyppat_insert(HashTab * hashtab, unsigned char *key, char *hyppat)
     int i;
     HashEntry *e;
 
-    i = (int)(hnj_string_hash(key) % HASH_SIZE);
+    i = (int) (hnj_string_hash(key) % HASH_SIZE);
     for (e = hashtab->entries[i]; e; e = e->next) {
         if (strcmp((char *) e->key, (char *) key) == 0) {
             if (e->u.hyppat) {
@@ -297,7 +297,7 @@ static int state_lookup(HashTab * hashtab, const unsigned char *key)
     int i;
     HashEntry *e;
 
-    i = (int)(hnj_string_hash(key) % HASH_SIZE);
+    i = (int) (hnj_string_hash(key) % HASH_SIZE);
     for (e = hashtab->entries[i]; e; e = e->next) {
         if (!strcmp((const char *) key, (const char *) e->key)) {
             return e->u.state;
@@ -313,9 +313,9 @@ static char *hyppat_lookup(HashTab * hashtab, const unsigned char *chars, int l)
     int i;
     HashEntry *e;
     unsigned char key[128];     /* should be ample */
-    strncpy((char *) key, (const char *) chars, (size_t)l);
+    strncpy((char *) key, (const char *) chars, (size_t) l);
     key[l] = 0;
-    i = (int)(hnj_string_hash(key) % HASH_SIZE);
+    i = (int) (hnj_string_hash(key) % HASH_SIZE);
     for (e = hashtab->entries[i]; e; e = e->next) {
         if (!strcmp((char *) key, (char *) e->key)) {
             return e->u.hyppat;
@@ -338,7 +338,8 @@ static int hnj_get_state(HyphenDict * dict,
     /* predicate is true if dict->num_states is a power of two */
     if (!(dict->num_states & (dict->num_states - 1))) {
         dict->states = hnj_realloc(dict->states,
-                                   (int)((dict->num_states << 1) * (int)sizeof(HyphenState)));
+                                   (int) ((dict->num_states << 1) *
+                                          (int) sizeof(HyphenState)));
     }
     dict->states[dict->num_states].match = NULL;
     dict->states[dict->num_states].fallback_state = -1;
@@ -367,8 +368,8 @@ static void hnj_add_trans(HyphenDict * dict, int state1, int state2, int uni_ch)
         dict->states[state1].trans = hnj_malloc(sizeof(HyphenTrans));
     } else if (!(num_trans & (num_trans - 1))) {
         dict->states[state1].trans = hnj_realloc(dict->states[state1].trans,
-                                                 (int)(num_trans << 1 *
-                                                       sizeof(HyphenTrans)));
+                                                 (int) (num_trans << 1 *
+                                                        sizeof(HyphenTrans)));
     }
     dict->states[state1].trans[num_trans].uni_ch = uni_ch;
     dict->states[state1].trans[num_trans].new_state = state2;
@@ -405,13 +406,13 @@ static const unsigned char *next_pattern(size_t * length,
     here = rover;
     while (*rover) {
         if (isspace(*rover)) {
-            *length = (size_t)(rover - here);
+            *length = (size_t) (rover - here);
             *buf = rover;
             return here;
         }
         rover++;
     }
-    *length = (size_t)(rover - here);
+    *length = (size_t) (rover - here);
     *buf = rover;
     return *length ? here : NULL;       /* zero sensed */
 }
@@ -616,8 +617,8 @@ void hnj_hyphen_load(HyphenDict * dict, const unsigned char *f)
         /* l-e   => number of _characters_ not _bytes_ */
         /* l-j   => number of pattern bytes */
         /* l-e-j => number of pattern characters */
-        pat = (unsigned char *) malloc((1 + l - (size_t)j));
-        org = (char *) malloc((size_t)(2 + l - (size_t)e - (size_t)j));
+        pat = (unsigned char *) malloc((1 + l - (size_t) j));
+        org = (char *) malloc((size_t) (2 + l - (size_t) e - (size_t) j));
         /* remove hyphenation encoders (digits) from pat */
         org[0] = '0';
         for (i = 0, j = 0, e = 0; (unsigned) i < l; i++) {
@@ -628,18 +629,18 @@ void hnj_hyphen_load(HyphenDict * dict, const unsigned char *f)
                 pat[e + j++] = c;
                 org[j] = '0';
             } else {
-                org[j] = (char)c;
+                org[j] = (char) c;
             }
         }
         pat[e + j] = 0;
         org[j + 1] = 0;
         hyppat_insert(dict->patterns, pat, org);
     }
-    dict->pat_length += (int)((f - begin) + 2);  /* 2 for spurious spaces */
+    dict->pat_length += (int) ((f - begin) + 2);        /* 2 for spurious spaces */
     init_hash(&dict->merged);
     v = new_HashIter(dict->patterns);
     while (nextHash(v, &word)) {
-        int wordsize = (int)strlen((char *) word);
+        int wordsize = (int) strlen((char *) word);
         int j, l;
         for (l = 1; l <= wordsize; l++) {
             if (is_utf8_follow(word[l]))
@@ -656,14 +657,14 @@ void hnj_hyphen_load(HyphenDict * dict, const unsigned char *f)
                          hyppat_lookup(dict->merged, word, l)) == NULL) {
                         char *neworg;
                         unsigned char *newword =
-                            (unsigned char *) malloc((size_t)(l + 1));
+                            (unsigned char *) malloc((size_t) (l + 1));
                         int e = 0;
-                        strncpy((char *) newword, (char *) word, (size_t)l);
+                        strncpy((char *) newword, (char *) word, (size_t) l);
                         newword[l] = 0;
                         for (i = 0; i < l; i++)
                             if (is_utf8_follow(newword[i]))
                                 e++;
-                        neworg = malloc((size_t)(l + 2 - e));
+                        neworg = malloc((size_t) (l + 2 - e));
                         sprintf(neworg, "%0*d", l + 1 - e, 0);  /* fill with right amount of '0' */
                         hyppat_insert(dict->merged, newword,
                                       combine(neworg, subpat_pat));
@@ -681,7 +682,7 @@ void hnj_hyphen_load(HyphenDict * dict, const unsigned char *f)
     v = new_HashIter(dict->merged);
     while (nextHashStealPattern(v, &word, &pattern)) {
         static unsigned char mask[] = { 0x3F, 0x1F, 0xF, 0x7 };
-        int j = (int)strlen((char *) word);
+        int j = (int) strlen((char *) word);
 #ifdef VERBOSE
         printf("word %s pattern %s, j = %d\n", word, pattern, j);
 #endif
@@ -798,7 +799,7 @@ void hnj_hyphen_hyphenate(HyphenDict * dict,
                          *  1 string length is one bigger than offset
                          *  1 hyphenation starts before first character
                          */
-                        int offset = (int)(char_num + 2 - (int)strlen(match));
+                        int offset = (int) (char_num + 2 - (int) strlen(match));
                         /*         printf ("%*s%s\n", offset,"", match); */
                         int m;
                         for (m = 0; match[m]; m++) {

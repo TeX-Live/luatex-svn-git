@@ -73,7 +73,7 @@ PDF init_pdf_struct(PDF pdf)
     /* Sometimes it is neccesary to allocate memory for PDF output that cannot
        be deallocated then, so we use |mem| for this purpose. */
     pdf->mem_size = inf_pdf_mem_size;   /* allocated size of |mem| array */
-    pdf->mem = xmalloc((unsigned) ((unsigned)pdf->mem_size * sizeof(int)));
+    pdf->mem = xmalloc((unsigned) ((unsigned) pdf->mem_size * sizeof(int)));
     pdf->mem_ptr = 1;           /* the first word is not used so we can use zero as a value for testing
                                    whether a pointer to |mem| is valid  */
     pdf->pstruct = NULL;
@@ -85,7 +85,8 @@ PDF init_pdf_struct(PDF pdf)
 
     pdf->obj_tab_size = (unsigned) inf_obj_tab_size;    /* allocated size of |obj_tab| array */
     pdf->obj_tab =
-        xmalloc((unsigned) ((unsigned)(pdf->obj_tab_size + 1) * sizeof(obj_entry)));
+        xmalloc((unsigned)
+                ((unsigned) (pdf->obj_tab_size + 1) * sizeof(obj_entry)));
     memset(pdf->obj_tab, 0, sizeof(obj_entry));
 
     pdf->minor_version = -1;    /* unset */
@@ -441,7 +442,7 @@ void pdf_print_int(PDF pdf, longinteger n)
             n = m / 10;
             m = (m % 10) + 1;
             if (m < 10) {
-                dig[0] = (int)m;
+                dig[0] = (int) m;
             } else {
                 dig[0] = 0;
                 n++;
@@ -451,7 +452,7 @@ void pdf_print_int(PDF pdf, longinteger n)
         }
     }
     do {
-        dig[k++] = (int)(n % 10);
+        dig[k++] = (int) (n % 10);
         n = n / 10;
     } while (n != 0);
     pdf_room(pdf, k);
@@ -549,7 +550,8 @@ void pdf_end_stream(PDF pdf)
         pdf->stream_length = pdf_offset(pdf) - pdf_saved_offset(pdf);
     pdf_flush(pdf);
     if (pdf->seek_write_length)
-        write_stream_length(pdf, (int)pdf->stream_length, pdf->stream_length_offset);
+        write_stream_length(pdf, (int) pdf->stream_length,
+                            pdf->stream_length_offset);
     pdf->seek_write_length = false;
     if (pdf->last_byte != pdf_new_line_char)
         pdf_out(pdf, pdf_new_line_char);
@@ -782,7 +784,7 @@ void pdf_print_fw_int(PDF pdf, longinteger n, int w)
     int dig[24];
     k = 0;
     do {
-        dig[k] = (int)(n % 10);
+        dig[k] = (int) (n % 10);
         n = n / 10;
         k++;
     } while (k != w);
@@ -798,7 +800,7 @@ void pdf_out_bytes(PDF pdf, longinteger n, int w)
     int bytes[8];               /* digits in a number being output */
     k = 0;
     do {
-        bytes[k] = (int)(n % 256);
+        bytes[k] = (int) (n % 256);
         n = n / 256;
         k++;
     } while (k != w);
@@ -1445,7 +1447,7 @@ static void realloc_fb(PDF pdf)
 
 int fb_offset(PDF pdf)
 {
-    return (int)(pdf->fb_ptr - pdf->fb_array);
+    return (int) (pdf->fb_ptr - pdf->fb_array);
 }
 
 void fb_seek(PDF pdf, int offset)
@@ -1467,7 +1469,7 @@ void fb_flush(PDF pdf)
     for (p = pdf->fb_array; p < pdf->fb_ptr;) {
         n = pdf->buf_size - pdf->ptr;
         if (pdf->fb_ptr - p < n)
-            n = (int)(pdf->fb_ptr - p);
+            n = (int) (pdf->fb_ptr - p);
         memcpy(pdf->buf + pdf->ptr, p, (unsigned) n);
         pdf->ptr += n;
         if (pdf->ptr == pdf->buf_size)
@@ -1678,7 +1680,9 @@ char *get_resname_prefix(PDF pdf)
     short i;
     size_t base = strlen(name_str);
     crc = crc32(0L, Z_NULL, 0);
-    crc = crc32(crc, (Bytef *) pdf->job_id_string, (uInt)strlen(pdf->job_id_string));
+    crc =
+        crc32(crc, (Bytef *) pdf->job_id_string,
+              (uInt) strlen(pdf->job_id_string));
     for (i = 0; i < 6; i++) {
         prefix[i] = name_str[crc % base];
         crc /= base;

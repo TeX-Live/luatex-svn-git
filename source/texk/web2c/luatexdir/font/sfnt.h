@@ -181,8 +181,8 @@ typedef struct {
 
 #    define ASSERT(a) assert(a)
 #    define RELEASE(a) free(a)
-#    define NEW(a,b) xmalloc((a)*sizeof(b))
-#    define RENEW(a,b,c) xrealloc(a, ((b)*sizeof(c)))
+#    define NEW(a,b) xmalloc((unsigned)((unsigned)(a)*sizeof(b)))
+#    define RENEW(a,b,c) xrealloc(a, (unsigned)((unsigned)(b)*sizeof(c)))
 #    define TT_ERROR pdftex_fail
 #    define WARN printf
 

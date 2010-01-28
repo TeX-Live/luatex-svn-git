@@ -375,7 +375,7 @@ additional parameter information, which is explained later.
           xfree(xligs);  xfree(xkerns); return 1; }
 
 
-int open_tfm_file(char *nom, unsigned char **tfm_buf, int *tfm_siz)
+static int open_tfm_file(const char *nom, unsigned char **tfm_buf, int *tfm_siz)
 {
     boolean res;                /* was the callback successful? */
     boolean opened;             /* was |tfm_file| successfully opened? */
@@ -455,7 +455,7 @@ int open_tfm_file(char *nom, unsigned char **tfm_buf, int *tfm_siz)
       ci._depth_index=b%256;            \
       fget; read_sixteen_unsigned(c);         \
       ci._italic_index=c>>8;            \
-      ci._tag=c%4;              \
+      ci._tag=(unsigned char)(c%4);	      \
       fget; read_sixteen_unsigned(d);         \
       ci._remainder=d;              \
     } else {                                                            \
@@ -466,22 +466,22 @@ int open_tfm_file(char *nom, unsigned char **tfm_buf, int *tfm_siz)
       ci._depth_index=b%16;           \
       c=tfm_buffer[++tfm_byte];           \
       ci._italic_index=c>>2;            \
-      ci._tag=c%4;              \
+      ci._tag=(unsigned char)(c%4);	  \
       d=tfm_buffer[++tfm_byte];           \
       ci._remainder=d;              \
     } }
 
 #define read_four_quarters(q)           \
-  { if (font_level!=-1) {                                               \
-      fget; read_sixteen_unsigned(a); q.b0=a;       \
-      fget; read_sixteen_unsigned(b); q.b1=b;       \
-      fget; read_sixteen_unsigned(c); q.b2=c;       \
-      fget; read_sixteen_unsigned(d); q.b3=d;       \
-    } else {                                                            \
-      a=tfm_buffer[++tfm_byte]; q.b0=a;         \
-      b=tfm_buffer[++tfm_byte]; q.b1=b;         \
-      c=tfm_buffer[++tfm_byte]; q.b2=c;         \
-      d=tfm_buffer[++tfm_byte]; q.b3=d;                                \
+  { if (font_level!=-1) {                                        \
+      fget; read_sixteen_unsigned(a); q.b0=(quarterword)a;	 \
+      fget; read_sixteen_unsigned(b); q.b1=(quarterword)b;       \
+      fget; read_sixteen_unsigned(c); q.b2=(quarterword)c;       \
+      fget; read_sixteen_unsigned(d); q.b3=(quarterword)d;       \
+      } else {							 \
+      a=tfm_buffer[++tfm_byte]; q.b0=(quarterword)a;         \
+      b=tfm_buffer[++tfm_byte]; q.b1=(quarterword)b;         \
+      c=tfm_buffer[++tfm_byte]; q.b2=(quarterword)c;         \
+      d=tfm_buffer[++tfm_byte]; q.b3=(quarterword)d;	     \
     } }
 
 #define check_byte_range(z)  { if ((z<bc)||(z>ec)) tfm_abort ; }
@@ -531,22 +531,22 @@ scaled store_scaled_f(scaled sq, scaled z_in)
         alpha *= z;
     };
     if (sq >= 0) {
-        d = sq % 256;           /* any "mod 256" not really needed, would typecast alone be safe? */
+        d = (eight_bits) (sq % 256);
         sq = sq / 256;
-        c = sq % 256;
+        c = (eight_bits) (sq % 256);
         sq = sq / 256;
-        b = sq % 256;
+        b = (eight_bits) (sq % 256);
         sq = sq / 256;
-        a = sq % 256;
+        a = (eight_bits) (sq % 256);
     } else {
         sq = (sq + 1073741824) + 1073741824;    /* braces for optimizing compiler */
-        d = sq % 256;
+        d = (eight_bits) (sq % 256);
         sq = sq / 256;
-        c = sq % 256;
+        c = (eight_bits) (sq % 256);
         sq = sq / 256;
-        b = sq % 256;
+        b = (eight_bits) (sq % 256);
         sq = sq / 256;
-        a = (sq + 128) % 256;
+        a = (eight_bits) ((sq + 128) % 256);
     }
     sw = (((((d * z) >> 8) + (c * z)) >> 8) + (b * z)) / beta;
     if (a == 0)
@@ -604,6 +604,7 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
     int saved_tfm_byte = 0;     /* saved index into |tfm_buffer| */
     unsigned char *tfm_buffer = NULL;   /* byte buffer for tfm files */
     int tfm_size = 0;           /* total size of the tfm file */
+    int tmp;
 
     widths = NULL;
     heights = NULL;
@@ -722,13 +723,13 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
     set_font_ec(f, ec);
 
     /* read the arrays first */
-    widths = xmalloc(nw * sizeof(scaled));
-    heights = xmalloc(nh * sizeof(scaled));
-    depths = xmalloc(nd * sizeof(scaled));
-    italics = xmalloc(ni * sizeof(scaled));
-    extens = xmalloc(ne * sizeof(four_quarters));
-    lig_kerns = xmalloc(nl * sizeof(four_quarters));
-    kerns = xmalloc(nk * sizeof(scaled));
+    widths = xmalloc((unsigned) ((unsigned) nw * sizeof(scaled)));
+    heights = xmalloc((unsigned) ((unsigned) nh * sizeof(scaled)));
+    depths = xmalloc((unsigned) ((unsigned) nd * sizeof(scaled)));
+    italics = xmalloc((unsigned) ((unsigned) ni * sizeof(scaled)));
+    extens = xmalloc((unsigned) ((unsigned) ne * sizeof(four_quarters)));
+    lig_kerns = xmalloc((unsigned) ((unsigned) nl * sizeof(four_quarters)));
+    kerns = xmalloc((unsigned) ((unsigned) nk * sizeof(scaled)));
 
     /* @<Read the {\.{TFM}} header@>; */
 
@@ -736,7 +737,8 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
     slh = lh;
     if (lh < 2)
         tfm_abort;
-    store_four_bytes(font_checksum(f));
+    store_four_bytes(tmp);
+    font_checksum(f) = (unsigned) tmp;
     fget;
     read_sixteen(z);            /* this rejects a negative design size */
     fget;
@@ -774,7 +776,7 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
         z = z >> 1;
         alpha = alpha + alpha;
     };
-    beta = 256 / alpha;
+    beta = (char) (256 / alpha);
     alpha = alpha * z;
 
     /* @<Read box dimensions@>; */
@@ -898,9 +900,9 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
     }
     if (fkerns > 0 || fligs > 0) {
         if (fligs > 0)
-            cligs = xcalloc((fligs + 1), sizeof(liginfo));
+            cligs = xcalloc((unsigned) (fligs + 1), sizeof(liginfo));
         if (fkerns > 0)
-            ckerns = xcalloc((fkerns + 1), sizeof(kerninfo));
+            ckerns = xcalloc((unsigned) (fkerns + 1), sizeof(kerninfo));
         fligs = 0;
         fkerns = 0;
         k = bch_label;
@@ -916,7 +918,7 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
                                         rem_byte(k)]);
                     fkerns++;
                 } else {        /* lig */
-                    set_ligature_item(cligs[fligs], (op_byte(k) * 2 + 1),
+                    set_ligature_item(cligs[fligs], (char) (op_byte(k) * 2 + 1),
                                       next_char(k), rem_byte(k));
                     fligs++;
                 }
@@ -1001,8 +1003,8 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
 
     /* first pass: count ligs and kerns */
 
-    xligs = xcalloc((ec + 1), sizeof(int));
-    xkerns = xcalloc((ec + 1), sizeof(int));
+    xligs = xcalloc((unsigned) (ec + 1), sizeof(int));
+    xkerns = xcalloc((unsigned) (ec + 1), sizeof(int));
 
     for (i = bc; i <= ec; i++) {
         if (char_tag(f, i) == lig_tag) {
@@ -1045,9 +1047,9 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
                 k = lig_kern_restart(k);
             /* now k is the start index */
             if (xligs[i] > 0)
-                cligs = xcalloc((xligs[i] + 1), sizeof(liginfo));
+                cligs = xcalloc((unsigned) (xligs[i] + 1), sizeof(liginfo));
             if (xkerns[i] > 0)
-                ckerns = xcalloc((xkerns[i] + 1), sizeof(kerninfo));
+                ckerns = xcalloc((unsigned) (xkerns[i] + 1), sizeof(kerninfo));
             while (1) {
                 if (skip_byte(k) <= stop_flag) {
                     if (op_byte(k) >= kern_flag) {      /* kern */
@@ -1064,11 +1066,12 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
                     } else {    /* lig */
                         if (next_char(k) == bchar) {
                             set_ligature_item(cligs[fligs],
-                                              (op_byte(k) * 2 + 1),
+                                              (char) (op_byte(k) * 2 + 1),
                                               right_boundarychar, rem_byte(k));
                             fligs++;
                         }
-                        set_ligature_item(cligs[fligs], (op_byte(k) * 2 + 1),
+                        set_ligature_item(cligs[fligs],
+                                          (char) (op_byte(k) * 2 + 1),
                                           next_char(k), rem_byte(k));
                         fligs++;
                     }

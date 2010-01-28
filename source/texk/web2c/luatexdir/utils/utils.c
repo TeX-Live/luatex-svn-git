@@ -38,7 +38,7 @@
 #include "ptexlib.h"
 #include "md5.h"
 
-#include "lua/luatex-api.h" /* for ptexbanner */
+#include "lua/luatex-api.h"     /* for ptexbanner */
 
 #include "png.h"
 #ifdef POPPLER_VERSION
@@ -93,17 +93,18 @@ void make_subset_tag(fd_entry * fd)
                  glw_glyph != NULL; glw_glyph = (glw_entry *) avl_t_next(&t)) {
                 glyph = malloc(24);
                 sprintf(glyph, "%05u%05u ", glw_glyph->id, glw_glyph->wd);
-                md5_append(&pms, (md5_byte_t *) glyph, (int)strlen(glyph));
+                md5_append(&pms, (md5_byte_t *) glyph, (int) strlen(glyph));
                 free(glyph);
             }
         } else {
             for (glyph = (char *) avl_t_first(&t, fd->gl_tree); glyph != NULL;
                  glyph = (char *) avl_t_next(&t)) {
-                md5_append(&pms, (md5_byte_t *) glyph, (int)strlen(glyph));
+                md5_append(&pms, (md5_byte_t *) glyph, (int) strlen(glyph));
                 md5_append(&pms, (const md5_byte_t *) " ", 1);
             }
         }
-        md5_append(&pms, (md5_byte_t *) fd->fontname, (int)strlen(fd->fontname));
+        md5_append(&pms, (md5_byte_t *) fd->fontname,
+                   (int) strlen(fd->fontname));
         md5_append(&pms, (md5_byte_t *) & j, sizeof(int));      /* to resolve collision */
         md5_finish(&pms, digest);
         for (a[0] = 0, i = 0; i < 13; i++)
@@ -111,7 +112,7 @@ void make_subset_tag(fd_entry * fd)
         for (i = 1; i < SUBSET_TAG_LENGTH; i++)
             a[i] = a[i - 1] - digest[i - 1] + digest[(i + 12) % 16];
         for (i = 0; i < SUBSET_TAG_LENGTH; i++)
-            fd->subset_tag[i] = (char)(a[i] % 26 + 'A');
+            fd->subset_tag[i] = (char) (a[i] % 26 + 'A');
         fd->subset_tag[SUBSET_TAG_LENGTH] = '\0';
         j++;
         assert(j < 100);
@@ -207,9 +208,10 @@ void make_pdftex_banner(void)
     if (pdftex_banner != NULL)
         return;
 
-    slen = (unsigned int)(SMALL_BUF_SIZE +
-			  strlen(ptexbanner) +
-			  strlen(versionstring) + strlen(kpathsea_version_string));
+    slen = (unsigned int) (SMALL_BUF_SIZE +
+                           strlen(ptexbanner) +
+                           strlen(versionstring) +
+                           strlen(kpathsea_version_string));
     s = xtalloc(slen, char);
     /* The Web2c version string starts with a space.  */
     i = snprintf(s, slen,
@@ -342,11 +344,12 @@ void initversionstring(char **versions)
 void check_buffer_overflow(int wsize)
 {
     if (wsize > buf_size) {
-	int nsize = buf_size + buf_size / 5 + 5;
+        int nsize = buf_size + buf_size / 5 + 5;
         if (nsize < wsize) {
             nsize = wsize + 5;
         }
-        buffer = (unsigned char *) xreallocarray(buffer, char, (unsigned)nsize);
+        buffer =
+            (unsigned char *) xreallocarray(buffer, char, (unsigned) nsize);
         buf_size = nsize;
     }
 }

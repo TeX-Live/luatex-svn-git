@@ -96,7 +96,7 @@ void sfd_free(void)
 static void sfd_getline(boolean expect_eof)
 {
     char *p;
-    int c;
+    char c;
   restart:
     if (sfd_eof()) {
         if (expect_eof)
@@ -106,7 +106,7 @@ static void sfd_getline(boolean expect_eof)
     }
     p = sfd_line;
     do {
-        c = sfd_getchar();
+        c = (char) sfd_getchar();
         append_char_to_buf(c, p, sfd_line, SFD_BUF_SIZE);
     } while (c != 10 && !sfd_eof());
     append_eol(p, sfd_line, SFD_BUF_SIZE);
@@ -225,7 +225,7 @@ boolean handle_subfont_fm(fm_entry * fm, int mode)
     if (q <= p || r <= q + 1    /* prefix or sfd name is empty */
         || r - p != (int) strlen(p) - 1)        /* or the second '@' is not the last char yet */
         return false;
-    l = r - (q + 1);            /* length of sfd name */
+    l = (size_t) (r - (q + 1)); /* length of sfd name */
     strncpy(buf, q + 1, l);
     buf[l] = 0;
     check_buf(strlen(buf) + 4, SMALL_BUF_SIZE);
@@ -241,7 +241,7 @@ boolean handle_subfont_fm(fm_entry * fm, int mode)
         fm->pid = 3;
         fm->eid = 1;
     }
-    l = q - p;                  /* length of base tfm name (prefix) */
+    l = (size_t) (q - p);       /* length of base tfm name (prefix) */
     for (sf = sfd->subfont; sf != NULL; sf = sf->next) {
         strncpy(buf, p, l);
         buf[l] = 0;

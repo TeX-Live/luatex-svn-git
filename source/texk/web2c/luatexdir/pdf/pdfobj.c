@@ -67,7 +67,7 @@ void pdf_write_obj(PDF pdf, int k)
     st.l = li;
     if (obj_obj_is_file(pdf, k)) {
         boolean res = false;    /* callback status value */
-        const char *fnam = NULL;      /* callback found filename */
+        const char *fnam = NULL;        /* callback found filename */
         int callback_id;
         /* st.s is also '\0'-terminated, even as lstring */
         fnam = luatex_find_file(st.s, find_data_file_callback);

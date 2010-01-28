@@ -124,7 +124,7 @@ static shalfword getnyb(void)
         bitweight = 0;
         temp = inputbyte & 15;
     }
-    return (temp);
+    return (shalfword) (temp);
 }
 
 static boolean getbit(void)
@@ -191,7 +191,7 @@ static halfword rest(void)
             pk_remainder = 4000 - pk_remainder;
             return (4000);
         } else {
-            i = pk_remainder;
+            i = (halfword) pk_remainder;
             pk_remainder = 0;
             realfunc = pkpackednum;
             return (i);
@@ -234,14 +234,14 @@ static void unpack(chardesc * cd)
     halfword count;
     shalfword wordwidth;
 
-    wordwidth = (cd->cwidth + 15) / 16;
-    i = 2 * cd->cheight * (long) wordwidth;
+    wordwidth = (shalfword) ((cd->cwidth + 15) / 16);
+    i = (int) (2 * cd->cheight * (long) wordwidth);
     if (i <= 0)
         i = 2;
     if (i > cd->rastersize) {
         xfree(cd->raster);
         cd->rastersize = i;
-        cd->raster = xtalloc(cd->rastersize, halfword);
+        cd->raster = xtalloc((unsigned) cd->rastersize, halfword);
     }
     raster = cd->raster;
     realfunc = pkpackednum;
@@ -266,8 +266,8 @@ static void unpack(chardesc * cd)
                 *raster++ = word;
         }
     } else {
-        rowsleft = cd->cheight;
-        hbit = cd->cwidth;
+        rowsleft = (shalfword) cd->cheight;
+        hbit = (shalfword) cd->cwidth;
         repeatcount = 0;
         wordweight = 16;
         word = 0;
@@ -284,7 +284,7 @@ static void unpack(chardesc * cd)
                 if ((count < wordweight) && (count < hbit)) {
                     if (turnon)
                         word += gpower[wordweight] - gpower[wordweight - count];
-                    hbit -= count;
+                    hbit = (shalfword) (hbit - count);
                     wordweight -= count;
                     count = 0;
                 } else if ((count >= hbit) && (hbit <= wordweight)) {
@@ -297,19 +297,19 @@ static void unpack(chardesc * cd)
                             raster++;
                         }
                     }
-                    rowsleft -= repeatcount + 1;
+                    rowsleft = (shalfword) (rowsleft - repeatcount + 1);
                     repeatcount = 0;
                     word = 0;
                     wordweight = 16;
                     count -= hbit;
-                    hbit = cd->cwidth;
+                    hbit = (shalfword) cd->cwidth;
                 } else {
                     if (turnon)
                         word += gpower[wordweight];
                     *raster++ = word;
                     word = 0;
                     count -= wordweight;
-                    hbit -= wordweight;
+                    hbit = (shalfword) (hbit - wordweight);
                     wordweight = 16;
                 }
             }
@@ -380,8 +380,8 @@ int readchar(boolean check_preamble, chardesc * cd)
             case 4:
             case 5:
             case 6:
-                length = (flagbyte & 3) * 65536L + pkbyte() * 256L;
-                length = length + pkbyte() - 4L;
+                length = (int) ((flagbyte & 3) * 65536L + pkbyte() * 256L);
+                length = (int) (length + pkbyte() - 4L);
                 cd->charcode = pkbyte();
                 (void) pktrio();        /* TFMwidth */
                 cd->xescape = pkduo();  /* pixelwidth */
@@ -391,7 +391,7 @@ int readchar(boolean check_preamble, chardesc * cd)
                 cd->yoff = pkduo();
                 break;
             case 7:
-                length = pkquad() - 9L;
+                length = (int) (pkquad() - 9L);
                 cd->charcode = pkquad();
                 (void) pkquad();        /* TFMwidth */
                 cd->xescape = pkquad(); /* pixelwidth */

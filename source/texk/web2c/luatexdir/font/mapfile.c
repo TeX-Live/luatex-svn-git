@@ -332,6 +332,7 @@ int check_std_t1font(char *s)
 static void fm_scan_line(void)
 {
     int a, b, c, j, u = 0, v = 0;
+    char cc;
     float d;
     fm_entry *fm;
     char fm_line[FM_BUF_SIZE], buf[FM_BUF_SIZE];
@@ -342,12 +343,12 @@ static void fm_scan_line(void)
         while (!fm_eof()) {
             if (fm_curbyte == fm_size) {
                 fm_curbyte++;
-                c = 10;
+                cc = 10;
             } else {
-                c = fm_getchar();
+                cc = (char) fm_getchar();
             }
-            append_char_to_buf(c, p, fm_line, FM_BUF_SIZE);
-            if (c == 10)
+            append_char_to_buf(cc, p, fm_line, FM_BUF_SIZE);
+            if (cc == 10)
                 break;
         }
         *(--p) = '\0';
@@ -391,12 +392,12 @@ static void fm_scan_line(void)
                     if (*(s - 1) == 'E' || *(s - 1) == 'e')
                         s--;    /* e. g. 0.5ExtendFont: %f = 0.5E */
                     if (str_prefix(s, "SlantFont")) {
-                        d *= 1000.0;    /* correct rounding also for neg. numbers */
+                        d *= (float) 1000.0;    /* correct rounding also for neg. numbers */
                         fm->slant = (int) (d > 0 ? d + 0.5 : d - 0.5);
                         set_slantset(fm);
                         r = s + strlen("SlantFont");
                     } else if (str_prefix(s, "ExtendFont")) {
-                        d *= 1000.0;
+                        d *= (float) 1000.0;
                         fm->extend = (int) (d > 0 ? d + 0.5 : d - 0.5);
                         set_extendset(fm);
                         r = s + strlen("ExtendFont");
@@ -407,7 +408,7 @@ static void fm_scan_line(void)
                         pdftex_warn
                             ("invalid entry for `%s': unknown name `%s' ignored",
                              fm->tfm_name, s);
-                        *r = c;
+                        *r = (char) c;
                     }
                 } else
                     for (; *r != ' ' && *r != '"' && *r != '\0'; r++);
@@ -424,8 +425,8 @@ static void fm_scan_line(void)
             break;
         case 'P':              /* handle cases for subfonts like 'PidEid=3,1' */
             if (sscanf(r, "PidEid=%i, %i %n", &a, &b, &c) >= 2) {
-                fm->pid = a;
-                fm->eid = b;
+                fm->pid = (short) a;
+                fm->eid = (short) b;
                 r += c;
                 break;
             }
@@ -648,7 +649,7 @@ void pdfmapline(int t)
     free(s);
 }
 
-void pdf_init_map_file(const char *map_name)
+void pdf_init_map_file(char *map_name)
 {
     assert(mitem == NULL);
     mitem = xtalloc(1, mapitem);

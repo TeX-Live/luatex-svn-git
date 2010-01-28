@@ -97,15 +97,18 @@ USHORT tt_add_glyph(struct tt_glyphs * g, USHORT gid, USHORT new_gid)
             TT_ERROR("Too many glyphs.");
 
         if (g->num_glyphs >= g->max_glyphs) {
-            g->max_glyphs += GLYPH_ARRAY_ALLOC_SIZE;
+            g->max_glyphs = (USHORT) (g->max_glyphs + GLYPH_ARRAY_ALLOC_SIZE);
             g->gd = RENEW(g->gd, g->max_glyphs, struct tt_glyph_desc);
         }
         g->gd[g->num_glyphs].gid = new_gid;
         g->gd[g->num_glyphs].ogid = gid;
         g->gd[g->num_glyphs].length = 0;
         g->gd[g->num_glyphs].data = NULL;
-        g->used_slot[new_gid / 8] |= (1 << (7 - (new_gid % 8)));
-        g->num_glyphs += 1;
+        g->used_slot[new_gid / 8] =
+            (unsigned char) (g->
+                             used_slot[new_gid /
+                                       8] | (1 << (7 - (new_gid % 8))));
+        g->num_glyphs++;
     }
 
     if (new_gid > g->last_gid) {
@@ -158,10 +161,10 @@ void tt_build_finish(struct tt_glyphs *g)
 static int glyf_cmp(const void *v1, const void *v2)
 {
     int cmp = 0;
-    struct tt_glyph_desc *sv1, *sv2;
+    const struct tt_glyph_desc *sv1, *sv2;
 
-    sv1 = (struct tt_glyph_desc *) v1;
-    sv2 = (struct tt_glyph_desc *) v2;
+    sv1 = (const struct tt_glyph_desc *) v1;
+    sv2 = (const struct tt_glyph_desc *) v2;
 
     if (sv1->gid == sv2->gid)
         cmp = 0;
@@ -219,8 +222,8 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
 
     os2 = tt_read_os2__table(sfont);
     if (os2) {
-        g->default_advh = os2->sTypoAscender - os2->sTypoDescender;
-        g->default_tsb = g->default_advh - os2->sTypoAscender;
+        g->default_advh = (USHORT) (os2->sTypoAscender - os2->sTypoDescender);
+        g->default_tsb = (SHORT) (g->default_advh - os2->sTypoAscender);
 
         /* dvipdfmx does this elsewhere! */
         fd_cur->font_dim[STEMV_CODE].val =
@@ -252,7 +255,8 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
     }
 
     w_stat = NEW(g->emsize + 2, USHORT);
-    memset(w_stat, 0, sizeof(USHORT) * (g->emsize + 2));
+    memset(w_stat, 0,
+           (size_t) (sizeof(USHORT) * ((long unsigned) g->emsize + 2)));
     /*
      * Read glyf table.
      */
@@ -291,9 +295,9 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
         g->gd[i].length = len;
         g->gd[i].data = NULL;
         if (g->gd[i].advw <= g->emsize) {
-            w_stat[g->gd[i].advw] += 1;
+            w_stat[g->gd[i].advw]++;
         } else {
-            w_stat[g->emsize + 1] += 1; /* larger than em */
+            w_stat[g->emsize + 1]++;    /* larger than em */
         }
 
         if (len == 0) {         /* Does not contains any data. */
@@ -305,7 +309,7 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
         g->gd[i].data = p = NEW(len, BYTE);
         endptr = p + len;
 
-        sfnt_seek_set(sfont, offset + loc);
+        sfnt_seek_set(sfont, (long) (offset + loc));
         number_of_contours = sfnt_get_short(sfont);
         p += sfnt_put_short(p, number_of_contours);
 
@@ -317,7 +321,8 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
         /* _FIXME_ */
 #if  1
         if (!vmtx)              /* vertOriginY == sTypeAscender */
-            g->gd[i].tsb = g->default_advh - g->default_tsb - g->gd[i].ury;
+            g->gd[i].tsb =
+                (SHORT) (g->default_advh - g->default_tsb - g->gd[i].ury);
 #endif
         p += sfnt_put_short(p, g->gd[i].llx);
         p += sfnt_put_short(p, g->gd[i].lly);
@@ -325,7 +330,7 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
         p += sfnt_put_short(p, g->gd[i].ury);
 
         /* Read evrything else. */
-        sfnt_read(p, len - 10, sfont);
+        sfnt_read(p, (int) len - 10, sfont);
         /*
          * Fix GIDs of composite glyphs.
          */
@@ -338,9 +343,9 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
                 /*
                  * Flags and gid of component glyph are both USHORT.
                  */
-                flags = ((*p) << 8) | *(p + 1);
+                flags = (USHORT) (((*p) << 8) | *(p + 1));
                 p += 2;
-                cgid = ((*p) << 8) | *(p + 1);
+                cgid = (USHORT) (((*p) << 8) | *(p + 1));
                 if (cgid >= maxp->numGlyphs) {
                     TT_ERROR("Invalid gid (%u > %u) in composite glyph %u.",
                              cgid, maxp->numGlyphs, gid);
@@ -380,7 +385,7 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
         for (i = 0; i < g->emsize + 1; i++) {
             if (w_stat[i] > max_count) {
                 max_count = w_stat[i];
-                g->dw = i;
+                g->dw = (USHORT) i;
             }
         }
     }
@@ -396,10 +401,11 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
         num_hm_known = 0;
         last_advw = g->gd[g->num_glyphs - 1].advw;
         for (i = g->num_glyphs - 1; i >= 0; i--) {
-            padlen = (g->gd[i].length % 4) ? (4 - (g->gd[i].length % 4)) : 0;
-            glyf_table_size += g->gd[i].length + padlen;
+            padlen =
+                (int) ((g->gd[i].length % 4) ? (4 - (g->gd[i].length % 4)) : 0);
+            glyf_table_size += (ULONG) (g->gd[i].length + (ULONG) padlen);
             if (!num_hm_known && last_advw != g->gd[i].advw) {
-                hhea->numberOfHMetrics = g->gd[i].gid + 2;
+                hhea->numberOfHMetrics = (USHORT) (g->gd[i].gid + 2);
                 num_hm_known = 1;
             }
         }
@@ -407,7 +413,8 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
         if (!num_hm_known) {
             hhea->numberOfHMetrics = 1;
         }
-        hmtx_table_size = hhea->numberOfHMetrics * 2 + (g->last_gid + 1) * 2;
+        hmtx_table_size =
+            (ULONG) (hhea->numberOfHMetrics * 2 + (g->last_gid + 1) * 2);
 
         /*
          * Choosing short format does not always give good result
@@ -415,10 +422,10 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
          */
         if (glyf_table_size < 0x20000UL) {
             head->indexToLocFormat = 0;
-            loca_table_size = (g->last_gid + 2) * 2;
+            loca_table_size = (ULONG) ((g->last_gid + 2) * 2);
         } else {
             head->indexToLocFormat = 1;
-            loca_table_size = (g->last_gid + 2) * 4;
+            loca_table_size = (ULONG) ((g->last_gid + 2) * 4);
         }
 
         hmtx_table_data = p = NEW(hmtx_table_size, char);
@@ -440,10 +447,11 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
                 if (head->indexToLocFormat == 0) {
                     q += sfnt_put_ushort(q, (USHORT) (offset / 2));
                 } else {
-                    q += sfnt_put_ulong(q, offset);
+                    q += sfnt_put_ulong(q, (LONG) offset);
                 }
             }
-            padlen = (g->gd[i].length % 4) ? (4 - (g->gd[i].length % 4)) : 0;
+            padlen =
+                (int) ((g->gd[i].length % 4) ? (4 - (g->gd[i].length % 4)) : 0);
             if (g->gd[i].gid < hhea->numberOfHMetrics) {
                 p += sfnt_put_ushort(p, g->gd[i].advw);
             }
@@ -451,11 +459,12 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
             if (head->indexToLocFormat == 0) {
                 q += sfnt_put_ushort(q, (USHORT) (offset / 2));
             } else {
-                q += sfnt_put_ulong(q, offset);
+                q += sfnt_put_ulong(q, (LONG) offset);
             }
-            memset(glyf_table_data + offset, 0, g->gd[i].length + padlen);
+            memset(glyf_table_data + offset, 0,
+                   (size_t) (g->gd[i].length + (ULONG) padlen));
             memcpy(glyf_table_data + offset, g->gd[i].data, g->gd[i].length);
-            offset += g->gd[i].length + padlen;
+            offset += (g->gd[i].length + (ULONG) padlen);
             prev = g->gd[i].gid;
             /* free data here since it consume much memory */
             RELEASE(g->gd[i].data);
@@ -465,7 +474,7 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
         if (head->indexToLocFormat == 0) {
             q += sfnt_put_ushort(q, (USHORT) (offset / 2));
         } else {
-            q += sfnt_put_ulong(q, offset);
+            q += sfnt_put_ulong(q, (LONG) offset);
         }
 
         sfnt_set_table(sfont, "hmtx", (char *) hmtx_table_data,
@@ -477,7 +486,7 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
     }
 
     head->checkSumAdjustment = 0;
-    maxp->numGlyphs = g->last_gid + 1;
+    maxp->numGlyphs = (USHORT) (g->last_gid + 1);
 
     /* TODO */
     sfnt_set_table(sfont, "maxp", tt_pack_maxp_table(maxp), TT_MAXP_TABLE_SIZE);
@@ -541,8 +550,8 @@ int tt_get_metrics(sfnt * sfont, struct tt_glyphs *g)
     hmtx = tt_read_longMetrics(sfont, maxp->numGlyphs, hhea->numberOfHMetrics);
 
     os2 = tt_read_os2__table(sfont);
-    g->default_advh = os2->sTypoAscender - os2->sTypoDescender;
-    g->default_tsb = g->default_advh - os2->sTypoAscender;
+    g->default_advh = (USHORT) (os2->sTypoAscender - os2->sTypoDescender);
+    g->default_tsb = (SHORT) (g->default_advh - os2->sTypoAscender);
 
     if (sfnt_find_table_pos(sfont, "vmtx") > 0) {
         struct tt_vhea_table *vhea;
@@ -569,7 +578,7 @@ int tt_get_metrics(sfnt * sfont, struct tt_glyphs *g)
     }
 
     w_stat = NEW(g->emsize + 2, USHORT);
-    memset(w_stat, 0, sizeof(USHORT) * (g->emsize + 2));
+    memset(w_stat, 0, (size_t) ((int) sizeof(USHORT) * (g->emsize + 2)));
     /*
      * Read glyf table.
      */
@@ -598,9 +607,9 @@ int tt_get_metrics(sfnt * sfont, struct tt_glyphs *g)
         g->gd[i].data = NULL;
 
         if (g->gd[i].advw <= g->emsize) {
-            w_stat[g->gd[i].advw] += 1;
+            w_stat[g->gd[i].advw]++;
         } else {
-            w_stat[g->emsize + 1] += 1; /* larger than em */
+            w_stat[g->emsize + 1]++;    /* larger than em */
         }
 
         if (len == 0) {         /* Does not contains any data. */
@@ -609,7 +618,7 @@ int tt_get_metrics(sfnt * sfont, struct tt_glyphs *g)
             TT_ERROR("Invalid TrueType glyph data (gid %u).", gid);
         }
 
-        sfnt_seek_set(sfont, offset + loc);
+        sfnt_seek_set(sfont, (long) (offset + loc));
         number_of_contours = sfnt_get_short(sfont);
 
         /* BoundingBox: FWord x 4 */
@@ -620,7 +629,8 @@ int tt_get_metrics(sfnt * sfont, struct tt_glyphs *g)
         /* _FIXME_ */
 #if  1
         if (!vmtx)              /* vertOriginY == sTypeAscender */
-            g->gd[i].tsb = g->default_advh - g->default_tsb - g->gd[i].ury;
+            g->gd[i].tsb =
+                (SHORT) (g->default_advh - g->default_tsb - g->gd[i].ury);
 #endif
     }
     RELEASE(location);
@@ -640,7 +650,7 @@ int tt_get_metrics(sfnt * sfont, struct tt_glyphs *g)
         for (i = 0; i < g->emsize + 1; i++) {
             if (w_stat[i] > max_count) {
                 max_count = w_stat[i];
-                g->dw = i;
+                g->dw = (USHORT) i;
             }
         }
     }

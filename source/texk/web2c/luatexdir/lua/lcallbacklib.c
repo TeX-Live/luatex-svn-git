@@ -264,7 +264,7 @@ int do_run_callback(int special, const char *values, va_list vl)
     }
     ss = index(values, '>');
     assert(ss);
-    luaL_checkstack(L, (int)(ss - values + 1), "out of stack space");
+    luaL_checkstack(L, (int) (ss - values + 1), "out of stack space");
     ss = NULL;
     for (narg = 0; *values; narg++) {
         switch (*values++) {
@@ -403,7 +403,7 @@ int do_run_callback(int special, const char *values, va_list vl)
             if (s == NULL)      /* |len| can be zero */
                 *va_arg(vl, int *) = 0;
             else {
-                ss = xmalloc((unsigned)(len + 1));
+                ss = xmalloc((unsigned) (len + 1));
                 (void) memcpy(ss, s, (len + 1));
                 *va_arg(vl, char **) = ss;
             }

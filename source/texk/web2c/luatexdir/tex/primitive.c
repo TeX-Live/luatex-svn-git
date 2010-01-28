@@ -152,7 +152,7 @@ pointer prim_lookup(str_number s)
         }
     } else {
         j = str_string(s);
-        l = (unsigned)str_length(s);
+        l = (unsigned) str_length(s);
         h = compute_hash((char *) j, l, prim_prime);
         p = h + prim_base;      /* we start searching here; note that |0<=h<hash_prime| */
         while (1) {
@@ -255,8 +255,10 @@ void undump_primitives(void)
         undump_int(prim_data[p].subids);
         if (prim_data[p].subids > 0) {
             prim_data[p].names =
-                (str_number *) xmalloc((unsigned) prim_data[p].subids *
-                                       sizeof(str_number *));
+                (str_number *)
+                xmalloc((unsigned)
+                        ((unsigned) prim_data[p].subids *
+                         sizeof(str_number *)));
             for (q = 0; q < prim_data[p].subids; q++)
                 undump_int(prim_data[p].names[q]);
         }

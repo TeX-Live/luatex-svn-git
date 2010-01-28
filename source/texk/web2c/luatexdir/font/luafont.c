@@ -29,7 +29,8 @@ static const char _svn_version[] =
 const char *font_type_strings[] = { "unknown", "virtual", "real", NULL };
 const char *font_format_strings[] =
     { "unknown", "type1", "type3", "truetype", "opentype", NULL };
-const char *font_embedding_strings[] = { "unknown", "no", "subset", "full", NULL };
+const char *font_embedding_strings[] =
+    { "unknown", "no", "subset", "full", NULL };
 
 const char *ligature_type_strings[] =
     { "=:", "=:|", "|=:", "|=:|", "", "=:|>", "|=:>", "|=:|>", "", "", "",
@@ -585,7 +586,8 @@ static int n_numeric_field(lua_State * L, int name_index, int dflt)
 }
 
 
-static int enum_field(lua_State * L, const char *name, int dflt, const char **values)
+static int enum_field(lua_State * L, const char *name, int dflt,
+                      const char **values)
 {
     int k;
     const char *s;
@@ -831,7 +833,7 @@ static int count_char_packet_bytes(lua_State * L)
                     (void) lua_tolstring(L, -1, &len);
                     lua_pop(L, 1);
                     if (len > 0) {
-                        l = (int)(l + 5 + (int)len);
+                        l = (int) (l + 5 + (int) len);
                     }
                 } else if (luaS_ptr_eq(s, image)) {
                     l += 5;
@@ -878,7 +880,7 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
     while (l_fonts[(max_f + 1)] != 0)
         max_f++;
 
-    cpackets = xmalloc((unsigned)(pc + 1));
+    cpackets = xmalloc((unsigned) (pc + 1));
     for (i = 1; i <= (int) lua_objlen(L, -1); i++) {
         lua_rawgeti(L, -1, i);
         if (lua_istable(L, -1)) {
@@ -899,10 +901,10 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
                 } else if (luaS_ptr_eq(s, slot)) {
                     cmd = packet_nop_code;
                     lua_rawgeti(L, -2, 2);
-                    n = (int)lua_tointeger(L, -1);
+                    n = (int) lua_tointeger(L, -1);
                     ff = (n > max_f ? l_fonts[1] : l_fonts[n]);
                     lua_rawgeti(L, -3, 3);
-                    n = (int)lua_tointeger(L, -1);
+                    n = (int) lua_tointeger(L, -1);
                     lua_pop(L, 2);
                     append_packet(packet_font_code);
                     do_store_four(ff);
@@ -936,7 +938,7 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
                 case packet_font_code:
                     append_packet(cmd);
                     lua_rawgeti(L, -2, 2);
-                    n = (int)lua_tointeger(L, -1);
+                    n = (int) lua_tointeger(L, -1);
                     ff = (n > max_f ? l_fonts[1] : l_fonts[n]);
                     do_store_four(ff);
                     lua_pop(L, 1);
@@ -951,7 +953,7 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
                 case packet_char_code:
                     append_packet(cmd);
                     lua_rawgeti(L, -2, 2);
-                    n = (int)lua_tointeger(L, -1);
+                    n = (int) lua_tointeger(L, -1);
                     do_store_four(n);
                     lua_pop(L, 1);
                     break;
@@ -959,17 +961,17 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
                 case packet_down_code:
                     append_packet(cmd);
                     lua_rawgeti(L, -2, 2);
-                    n = (int)lua_tointeger(L, -1);
+                    n = (int) lua_tointeger(L, -1);
                     do_store_four(sp_to_dvi(n, atsize));
                     lua_pop(L, 1);
                     break;
                 case packet_rule_code:
                     append_packet(cmd);
                     lua_rawgeti(L, -2, 2);
-                    n = (int)lua_tointeger(L, -1);
+                    n = (int) lua_tointeger(L, -1);
                     do_store_four(sp_to_dvi(n, atsize));
                     lua_rawgeti(L, -3, 3);
-                    n = (int)lua_tointeger(L, -1);
+                    n = (int) lua_tointeger(L, -1);
                     do_store_four(sp_to_dvi(n, atsize));
                     lua_pop(L, 2);
                     break;
@@ -1075,7 +1077,7 @@ static void read_lua_parameters(lua_State * L, int f)
         lua_pushnil(L);         /* first key */
         while (lua_next(L, -2) != 0) {
             if (lua_isnumber(L, -2)) {
-                i = (int)lua_tointeger(L, -2);
+                i = (int) lua_tointeger(L, -2);
                 if (i >= 8) {
                     n = (lua_isnumber(L, -1) ? lua_roundnumber(L, -1) : 0);
                     set_font_param(f, i, n);
@@ -1135,7 +1137,7 @@ static void store_math_kerns(lua_State * L, charinfo * co, int id)
 {
     int l, k, i;
     scaled ht, krn;
-    if (lua_istable(L, -1) && ((k = (int)lua_objlen(L, -1)) > 0)) {
+    if (lua_istable(L, -1) && ((k = (int) lua_objlen(L, -1)) > 0)) {
         for (l = 0; l < k; l++) {
             lua_rawgeti(L, -1, (l + 1));
             if (lua_istable(L, -1)) {
@@ -1199,9 +1201,15 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
         k = n_boolean_field(L, luaS_used_index, 0);
         set_charinfo_used(co, k);
         s = n_string_field(L, luaS_name_index, NULL);
-        set_charinfo_name(co, s);
+        if (s != NULL)
+            set_charinfo_name(co, xstrdup(s));
+        else
+            set_charinfo_name(co, NULL);
         s = n_string_field(L, luaS_tounicode_index, NULL);
-        set_charinfo_tounicode(co, s);
+        if (s != NULL)
+            set_charinfo_tounicode(co, xstrdup(s));
+        else
+            set_charinfo_tounicode(co, NULL);
 
         if (has_math) {
             j = n_numeric_field(L, luaS_top_accent_index, 0);
@@ -1316,7 +1324,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
         /* end of |has_math| */
         nk = count_hash_items(L, luaS_index(kerns));
         if (nk > 0) {
-            ckerns = xcalloc((unsigned)(nk + 1), sizeof(kerninfo));
+            ckerns = xcalloc((unsigned) (nk + 1), sizeof(kerninfo));
             lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(kerns));
             lua_rawget(L, -2);
             if (lua_istable(L, -1)) {   /* there are kerns */
@@ -1378,7 +1386,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
         nl = count_hash_items(L, luaS_index(ligatures));
 
         if (nl > 0) {
-            cligs = xcalloc((unsigned)(nl + 1), sizeof(liginfo));
+            cligs = xcalloc((unsigned) (nl + 1), sizeof(liginfo));
             lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(ligatures));
             lua_rawget(L, -2);
             if (lua_istable(L, -1)) {   /* do ligs */
@@ -1407,7 +1415,8 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
                     }
                     if (r != -1 && k != non_boundarychar) {
                         t = enum_field(L, "type", 0, ligature_type_strings);
-                        set_ligature_item(cligs[ctr], (char)((t * 2) + 1), k, r);
+                        set_ligature_item(cligs[ctr], (char) ((t * 2) + 1), k,
+                                          r);
                         ctr++;
                     } else {
                         pdftex_warn
@@ -1487,13 +1496,13 @@ int font_from_lua(lua_State * L, int f)
     i = numeric_field(L, "size", font_dsize(f));
     set_font_size(f, i);
     i = numeric_field(L, "checksum", 0);
-    set_font_checksum(f, (unsigned)i);
+    set_font_checksum(f, (unsigned) i);
     i = numeric_field(L, "direction", 0);
     set_font_natural_dir(f, i);
     i = numeric_field(L, "encodingbytes", 0);
-    set_font_encodingbytes(f, (char)i);
+    set_font_encodingbytes(f, (char) i);
     i = numeric_field(L, "tounicode", 0);
-    set_font_tounicode(f, (char)i);
+    set_font_tounicode(f, (char) i);
 
     i = numeric_field(L, "extend", 1000);
     if (i < FONT_EXTEND_MIN)
@@ -1513,7 +1522,7 @@ int font_from_lua(lua_State * L, int f)
     i = numeric_field(L, "skewchar", int_par(default_skew_char_code));
     set_skew_char(f, i);
     i = boolean_field(L, "used", 0);
-    set_font_used(f, (char)i);
+    set_font_used(f, (char) i);
 
     s = string_field(L, "attributes", NULL);
     if (s != NULL && strlen(s) > 0) {
@@ -1536,8 +1545,8 @@ int font_from_lua(lua_State * L, int f)
     /* now fetch the base fonts, if needed */
     n = count_hash_items(L, luaS_index(fonts));
     if (n > 0) {
-        l_fonts = xmalloc((unsigned)((unsigned)(n + 2) * sizeof(int)));
-        memset(l_fonts, 0, (size_t)((unsigned)(n + 2) * sizeof(int)));
+        l_fonts = xmalloc((unsigned) ((unsigned) (n + 2) * sizeof(int)));
+        memset(l_fonts, 0, (size_t) ((unsigned) (n + 2) * sizeof(int)));
         lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(fonts));
         lua_rawget(L, -2);
         for (i = 1; i <= n; i++) {
@@ -1609,7 +1618,7 @@ int font_from_lua(lua_State * L, int f)
         lua_pushnil(L);         /* first key */
         while (lua_next(L, -2) != 0) {
             if (lua_isnumber(L, -2)) {
-                i = (int)lua_tointeger(L, -2);
+                i = (int) lua_tointeger(L, -2);
                 if (i >= 0) {
                     if (lua_istable(L, -1)) {
                         num++;

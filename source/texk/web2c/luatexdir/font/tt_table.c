@@ -53,17 +53,17 @@ char *tt_pack_head_table(struct tt_head_table *table)
         TT_ERROR("passed NULL pointer\n");
 
     p = data = NEW(TT_HEAD_TABLE_SIZE, char);
-    p += sfnt_put_ulong(p, table->version);
-    p += sfnt_put_ulong(p, table->fontRevision);
-    p += sfnt_put_ulong(p, table->checkSumAdjustment);
-    p += sfnt_put_ulong(p, table->magicNumber);
+    p += sfnt_put_ulong(p, (LONG) table->version);
+    p += sfnt_put_ulong(p, (LONG) table->fontRevision);
+    p += sfnt_put_ulong(p, (LONG) table->checkSumAdjustment);
+    p += sfnt_put_ulong(p, (LONG) table->magicNumber);
     p += sfnt_put_ushort(p, table->flags);
     p += sfnt_put_ushort(p, table->unitsPerEm);
     for (i = 0; i < 8; i++) {
-        *(p++) = (table->created)[i];
+        *(p++) = (char) (table->created)[i];
     }
     for (i = 0; i < 8; i++) {
-        *(p++) = (table->modified)[i];
+        *(p++) = (char) (table->modified)[i];
     }
     p += sfnt_put_short(p, table->xMin);
     p += sfnt_put_short(p, table->yMin);
@@ -103,8 +103,8 @@ struct tt_head_table *tt_read_head_table(sfnt * sfont)
     table->yMin = sfnt_get_short(sfont);
     table->xMax = sfnt_get_short(sfont);
     table->yMax = sfnt_get_short(sfont);
-    table->macStyle = sfnt_get_short(sfont);
-    table->lowestRecPPEM = sfnt_get_short(sfont);
+    table->macStyle = (USHORT) sfnt_get_short(sfont);
+    table->lowestRecPPEM = (USHORT) sfnt_get_short(sfont);
     table->fontDirectionHint = sfnt_get_short(sfont);
     table->indexToLocFormat = sfnt_get_short(sfont);
     table->glyphDataFormat = sfnt_get_short(sfont);
@@ -117,7 +117,7 @@ char *tt_pack_maxp_table(struct tt_maxp_table *table)
     char *p, *data;
 
     p = data = NEW(TT_MAXP_TABLE_SIZE, char);
-    p += sfnt_put_ulong(p, table->version);
+    p += sfnt_put_ulong(p, (LONG) table->version);
     p += sfnt_put_ushort(p, table->numGlyphs);
     p += sfnt_put_ushort(p, table->maxPoints);
     p += sfnt_put_ushort(p, table->maxContours);
@@ -168,7 +168,7 @@ char *tt_pack_hhea_table(struct tt_hhea_table *table)
     char *p, *data;
 
     p = data = NEW(TT_HHEA_TABLE_SIZE, char);
-    p += sfnt_put_ulong(p, table->version);
+    p += sfnt_put_ulong(p, (LONG) table->version);
     p += sfnt_put_short(p, table->Ascender);
     p += sfnt_put_short(p, table->Descender);
     p += sfnt_put_short(p, table->LineGap);
@@ -223,7 +223,7 @@ char *tt_pack_vhea_table(struct tt_vhea_table *table)
     char *p, *data;
 
     p = data = NEW(TT_VHEA_TABLE_SIZE, char);
-    p += sfnt_put_ulong(p, table->version);
+    p += sfnt_put_ulong(p, (LONG) table->version);
     p += sfnt_put_short(p, table->vertTypoAscender);
     p += sfnt_put_short(p, table->vertTypoDescender);
     p += sfnt_put_short(p, table->vertTypoLineGap);
@@ -420,9 +420,9 @@ tt_get_name(sfnt * sfont, char *dest, USHORT destlen,
             if (length > destlen - 1) {
                 fprintf(stderr,
                         "\n** Notice: Name string too long. Truncating **\n");
-                length = destlen - 1;
+                length = (USHORT) (destlen - 1);
             }
-            sfnt_seek_set(sfont, name_offset + string_offset + offset);
+            sfnt_seek_set(sfont, (long) (name_offset + string_offset + offset));
             sfnt_read((unsigned char *) dest, length, sfont);
             dest[length] = '\0';
             break;

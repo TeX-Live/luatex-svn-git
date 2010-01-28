@@ -1029,7 +1029,7 @@ int readbinfile(FILE * f, unsigned char **tfm_buffer, int *tfm_size)
     void *buf;
     int size;
     if (fseek(f, 0, SEEK_END) == 0) {
-        size = (int)ftell(f);
+        size = (int) ftell(f);
         if (size > 0) {
             buf = xmalloc((unsigned) size);
             if (fseek(f, 0, SEEK_SET) == 0) {
@@ -1286,7 +1286,7 @@ boolean open_in_or_pipe(FILE ** f_ptr, char *fn, int filefmt,
     if (shellenabledp && *fn == '|') {
         /* the user requested a pipe */
         *f_ptr = NULL;
-        fname = (string) xmalloc((unsigned)(strlen(fn) + 1));
+        fname = (string) xmalloc((unsigned) (strlen(fn) + 1));
         strcpy(fname, fn);
         if (fullnameoffile)
             free(fullnameoffile);
@@ -1323,7 +1323,7 @@ boolean open_out_or_pipe(FILE ** f_ptr, char *fn, const_string fopen_mode)
 
     if (shellenabledp && *fn == '|') {
         /* the user requested a pipe */
-        fname = (string) xmalloc((unsigned)(strlen(fn) + 1));
+        fname = (string) xmalloc((unsigned) (strlen(fn) + 1));
         strcpy(fname, fn);
         if (strchr(fname, ' ') == NULL && strchr(fname, '>') == NULL) {
             /* mp and mf currently do not use this code, but it 

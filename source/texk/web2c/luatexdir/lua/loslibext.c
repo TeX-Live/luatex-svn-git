@@ -575,7 +575,7 @@ static int os_setenv(lua_State * L)
     val = luaL_optstring(L, 2, NULL);
     if (key) {
         if (val) {
-            value = xmalloc((unsigned)(strlen(key) + strlen(val) + 2));
+            value = xmalloc((unsigned) (strlen(key) + strlen(val) + 2));
             sprintf(value, "%s=%s", key, val);
             if (putenv(value)) {
                 return luaL_error(L, "unable to change environment");
@@ -637,7 +637,7 @@ static int ex_sleep(lua_State * L)
 #ifdef WIN32
     Sleep(1e3 * interval / units);
 #else                           /* assumes posix or bsd */
-    usleep((unsigned)(1e6 * interval / units));
+    usleep((unsigned) (1e6 * interval / units));
 #endif
     return 0;
 }

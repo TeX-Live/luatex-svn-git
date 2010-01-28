@@ -80,7 +80,7 @@ void def_tounicode(str_number glyph, str_number unistr)
     ph = p;
     while (*p == ' ')
         p++;                    /* ignore leading spaces */
-    l = strlen(p);
+    l = (int) strlen(p);
     while (l > 0 && p[l - 1] == ' ')
         l--;                    /* ignore traling spaces */
     valid_unistr = 1;           /* a unicode value is the most common case */
@@ -133,7 +133,7 @@ void def_tounicode(str_number glyph, str_number unistr)
 
 static long check_unicode_value(char *s, boolean multiple_value)
 {
-    int l = strlen(s);
+    int l = (int) strlen(s);
     int i;
     long code;
 
@@ -180,8 +180,8 @@ static char *utf16be_str(long code)
         sprintf(buf, "%04lX", code);
     else {
         v = code - 0x10000;
-        vh = v / 0x400 + 0xD800;
-        vl = v % 0x400 + 0xDC00;
+        vh = (unsigned) (v / 0x400 + 0xD800);
+        vl = (unsigned) (v % 0x400 + 0xDC00);
         sprintf(buf, "%04X%04X", vh, vl);
     }
     return buf;
@@ -206,7 +206,7 @@ static void set_glyph_unicode(char *s, glyph_unicode_entry * gp)
     p = strchr(s, '.');
     if (p != NULL) {
         *buf = 0;
-        strncat(buf, s, p - s);
+        strncat(buf, s, (size_t) (p - s));
         s = buf;
     }
 
@@ -301,7 +301,7 @@ static void set_cid_glyph_unicode(long index, glyph_unicode_entry * gp,
 {
     char *s;
     if (font_tounicode(f) &&
-        (s = get_charinfo_tounicode(char_info(f, index))) != NULL) {
+        (s = get_charinfo_tounicode(char_info(f, (int) index))) != NULL) {
         gp->code = UNI_EXTRA_STRING;
         gp->unicode_seq = xstrdup(s);
     } else {
@@ -376,7 +376,7 @@ int write_tounicode(PDF pdf, char **glyph_names, char *name)
                 i++;
             /* at this point i is the last entry of the subrange */
             i++;                /* move i to the next entry */
-            range_size[j] = i - j;
+            range_size[j] = (short) (i - j);
         }
     }
 
@@ -469,7 +469,7 @@ int write_cid_tounicode(PDF pdf, fo_entry * fo, internal_font_number f)
     char *buf;
 
     assert(fo->fd->fontname);
-    buf = xmalloc(strlen(fo->fd->fontname) + 8);
+    buf = xmalloc((unsigned) (strlen(fo->fd->fontname) + 8));
     sprintf(buf, "%s-%s",
             (fo->fd->subset_tag != NULL ? fo->fd->subset_tag : "UCS"),
             fo->fd->fontname);

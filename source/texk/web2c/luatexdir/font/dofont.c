@@ -30,7 +30,7 @@ static char *font_error_message(pointer u, char *nom, scaled s)
 {
     char *str = xmalloc(256);
     char *c = makecstring(cs_text(u));
-    char *extra = "metric data not found or bad";
+    const char *extra = "metric data not found or bad";
     if (s >= 0) {
         snprintf(str, 255, "Font \\%s=%s at %gpt not loadable: %s", c, nom,
                  (double) s / 65536, extra);
@@ -44,7 +44,7 @@ static char *font_error_message(pointer u, char *nom, scaled s)
     return str;
 }
 
-static int do_define_font(int f, char *cnom, scaled s, int natural_dir)
+static int do_define_font(int f, const char *cnom, scaled s, int natural_dir)
 {
 
     boolean res;                /* was the callback successful? */

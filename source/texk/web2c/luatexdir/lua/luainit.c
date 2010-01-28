@@ -226,7 +226,7 @@ static void parse_options(int argc, char **argv)
                 output_comment = optarg;
             } else {
                 WARNING2("Comment truncated to 255 characters from %d. (%s)",
-                         (int)len, optarg);
+                         (int) len, optarg);
                 output_comment = (string) xmalloc(256);
                 strncpy(output_comment, optarg, 255);
                 output_comment[255] = 0;
@@ -383,7 +383,7 @@ static char *find_filename(char *name, const char *envkey)
             if (*(dirname + strlen(dirname) - 1) == '/') {
                 *(dirname + strlen(dirname) - 1) = 0;
             }
-            filename = xmalloc((unsigned)(strlen(dirname) + strlen(name) + 2));
+            filename = xmalloc((unsigned) (strlen(dirname) + strlen(name) + 2));
             filename = concat3(dirname, "/", name);
             if (is_readable(filename)) {
                 xfree(dirname);

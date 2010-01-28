@@ -114,7 +114,7 @@ static void image_to_lua(lua_State * L, image * a)
     if (!lua_isnumber(L, -1))   /* !i k u ... */
         luaL_error(L, "image_to_lua(): %s is not a valid image key",
                    lua_tostring(L, -2));
-    i = (int)lua_tointeger(L, -1);   /* i k u ... */
+    i = (int) lua_tointeger(L, -1);     /* i k u ... */
     lua_pop(L, 2);              /* u ... */
     switch (i) {
     case P_WIDTH:
@@ -275,14 +275,14 @@ static void lua_to_image(lua_State * L, image * a)
     if (!lua_isnumber(L, -1))   /* !i v k t ... */
         luaL_error(L, "lua_to_image(): %s is not a valid image key",
                    lua_tostring(L, -3));
-    i = (int)lua_tointeger(L, -1);   /* i v k t ... */
+    i = (int) lua_tointeger(L, -1);     /* i v k t ... */
     lua_pop(L, 1);              /* v k t ... */
     switch (i) {
     case P_WIDTH:
         if (lua_isnil(L, -1))
             set_wd_running(a);
         else if (lua_type(L, -1) == LUA_TNUMBER)
-            img_width(a) = (int)lua_tointeger(L, -1);
+            img_width(a) = (int) lua_tointeger(L, -1);
         else if (lua_type(L, -1) == LUA_TSTRING)
             img_width(a) = dimen_to_number(L, lua_tostring(L, -1));
         else
@@ -293,7 +293,7 @@ static void lua_to_image(lua_State * L, image * a)
         if (lua_isnil(L, -1))
             set_ht_running(a);
         else if (lua_type(L, -1) == LUA_TNUMBER)
-            img_height(a) = (int)lua_tointeger(L, -1);
+            img_height(a) = (int) lua_tointeger(L, -1);
         else if (lua_type(L, -1) == LUA_TSTRING)
             img_height(a) = dimen_to_number(L, lua_tostring(L, -1));
         else
@@ -304,7 +304,7 @@ static void lua_to_image(lua_State * L, image * a)
         if (lua_isnil(L, -1))
             set_dp_running(a);
         else if (lua_type(L, -1) == LUA_TNUMBER)
-            img_depth(a) = (int)lua_tointeger(L, -1);
+            img_depth(a) = (int) lua_tointeger(L, -1);
         else if (lua_type(L, -1) == LUA_TSTRING)
             img_depth(a) = dimen_to_number(L, lua_tostring(L, -1));
         else
@@ -313,7 +313,7 @@ static void lua_to_image(lua_State * L, image * a)
         break;
     case P_TRANSFORM:
         if (lua_isnumber(L, -1))
-            img_transform(a) = (int)lua_tointeger(L, -1);
+            img_transform(a) = (int) lua_tointeger(L, -1);
         else
             luaL_error(L, "image.transform needs integer value");
         break;
@@ -347,7 +347,7 @@ static void lua_to_image(lua_State * L, image * a)
             img_pagename(d) = xstrdup(lua_tostring(L, -1));
             img_pagenum(d) = 0;
         } else if (lua_type(L, -1) == LUA_TNUMBER) {
-            img_pagenum(d) = (int)lua_tointeger(L, -1);
+            img_pagenum(d) = (int) lua_tointeger(L, -1);
             xfree(img_pagename(d));
         } else
             luaL_error(L, "image.page needs integer or string value");
@@ -358,7 +358,7 @@ static void lua_to_image(lua_State * L, image * a)
         if (lua_isnil(L, -1))
             img_colorspace(d) = 0;
         else if (lua_isnumber(L, -1))
-            img_colorspace(d) = (int)lua_tointeger(L, -1);
+            img_colorspace(d) = (int) lua_tointeger(L, -1);
         else
             luaL_error(L, "image.colorspace needs integer or nil value");
         break;
@@ -383,7 +383,7 @@ static void lua_to_image(lua_State * L, image * a)
             lua_pushinteger(L, i);      /* idx v k t ... */
             lua_gettable(L, -2);        /* int v k t ... */
             if (lua_type(L, -1) == LUA_TNUMBER)
-                img_bbox(d)[i - 1] = (int)lua_tointeger(L, -1);
+                img_bbox(d)[i - 1] = (int) lua_tointeger(L, -1);
             else if (lua_type(L, -1) == LUA_TSTRING)
                 img_bbox(d)[i - 1] = dimen_to_number(L, lua_tostring(L, -1));
             else

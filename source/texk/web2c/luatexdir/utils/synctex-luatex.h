@@ -37,7 +37,7 @@ authorization from the copyright holder.
 /* $Id$ */
 
 #undef synchronization_field_size
-#   define synchronization_field_size 1
+#define synchronization_field_size 1
 
 #undef width_offset
 #undef height_offset
@@ -56,17 +56,17 @@ authorization from the copyright holder.
 #undef SYNCTEX_LINE_MODEL
 #undef SYNCTEX_VALUE
 
-#   define SYNCTEX_TAG_MODEL(NODE,SIZE)\
+#define SYNCTEX_TAG_MODEL(NODE,SIZE)\
                     vinfo(NODE+SIZE-synchronization_field_size)
-#   define SYNCTEX_LINE_MODEL(NODE,SIZE)\
+#define SYNCTEX_LINE_MODEL(NODE,SIZE)\
                     vlink(NODE+SIZE-synchronization_field_size)
 
-#   define SYNCTEX_TYPE(NODE) type(NODE)
-#   define SYNCTEX_SUBTYPE(NODE) subtype(NODE)
-#   define SYNCTEX_WIDTH(NODE) width(NODE)
-#   define SYNCTEX_DEPTH(NODE) depth(NODE)
-#   define SYNCTEX_HEIGHT(NODE) height(NODE)
-#   define SYNCTEX_VALUE int_par(synctex_code)
+#define SYNCTEX_TYPE(NODE) type(NODE)
+#define SYNCTEX_SUBTYPE(NODE) subtype(NODE)
+#define SYNCTEX_WIDTH(NODE) width(NODE)
+#define SYNCTEX_DEPTH(NODE) depth(NODE)
+#define SYNCTEX_HEIGHT(NODE) height(NODE)
+#define SYNCTEX_VALUE int_par(synctex_code)
 
 
 #define CURV static_pdf->posstruct->pos.v
@@ -85,16 +85,15 @@ authorization from the copyright holder.
 #define synctextagfield synctex_tag_field
 #define namefield name_field
 
-#    include "ptexlib.h"
+#include "ptexlib.h"
 
 /*   We observe pdfoutputvalue in order to determine whether output mode is
  *   pdf or dvi.
  *   We will assume that pdf_output_value equals pdf_output before entering
  *   the synctex_sheet function below.  */
-#    undef  SYNCTEX_OFFSET_IS_PDF
-#    define SYNCTEX_OFFSET_IS_PDF (pdf_output_value>0)
-#    undef  SYNCTEX_OUTPUT
-#    define SYNCTEX_OUTPUT ((pdf_output_value>0)?"pdf":"dvi")
+#undef  SYNCTEX_OFFSET_IS_PDF
+#define SYNCTEX_OFFSET_IS_PDF (pdf_output_value>0)
+#undef  SYNCTEX_OUTPUT
+#define SYNCTEX_OUTPUT ((pdf_output_value>0)?"pdf":"dvi")
 
-# define __SyncTeX__ 1
-
+#define __SyncTeX__ 1

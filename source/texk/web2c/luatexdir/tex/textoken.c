@@ -1667,7 +1667,8 @@ static boolean print_convert_string(halfword c, int i)
         print(job_name);
         break;
     case font_name_code:
-        append_string((unsigned char *) font_name(i), (unsigned)strlen(font_name(i)));
+        append_string((unsigned char *) font_name(i),
+                      (unsigned) strlen(font_name(i)));
         if (font_size(i) != font_dsize(i)) {
             tprint(" at ");
             print_scaled(font_size(i));

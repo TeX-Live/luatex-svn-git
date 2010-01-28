@@ -201,7 +201,8 @@ void dump_sa_tree(sa_tree a)
     int h, m, l;
     assert(a != NULL);
     dump_int(a->stack_step);
-    x = (int)a->dflt; dump_int(x);
+    x = (int) a->dflt;
+    dump_int(x);
     if (a->tree != NULL) {
         dump_int(1);
         for (h = 0; h < HIGHPART; h++) {
@@ -213,7 +214,7 @@ void dump_sa_tree(sa_tree a)
                         f = 1;
                         dump_qqqq(f);
                         for (l = 0; l < LOWPART; l++) {
-                            x = (int)a->tree[h][m][l];
+                            x = (int) a->tree[h][m][l];
                             dump_int(x);
                         }
                     } else {
@@ -242,7 +243,7 @@ sa_tree undump_sa_tree(void)
     a->stack_step = x;
     a->stack_size = x;
     undump_int(x);
-    a->dflt = (sa_tree_item)x;
+    a->dflt = (sa_tree_item) x;
     a->stack = Mxmalloc_array(sa_stack_item, a->stack_size);
     a->stack_ptr = 0;
     a->tree = NULL;

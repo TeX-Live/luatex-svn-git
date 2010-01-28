@@ -889,7 +889,7 @@ void movement(scaled w, eight_bits o)
                         k = location(p) - dvi_offset;
                         if (k < 0)
                             k = k + dvi_buf_size;
-                        dvi_buf[k] = dvi_buf[k] + y1 - down1;
+                        dvi_buf[k] = (eight_bits) (dvi_buf[k] + y1 - down1);
                         vinfo(p) = y_here;
                         goto FOUND;
                     }
@@ -904,7 +904,7 @@ void movement(scaled w, eight_bits o)
                         k = location(p) - dvi_offset;
                         if (k < 0)
                             k = k + dvi_buf_size;
-                        dvi_buf[k] = dvi_buf[k] + z1 - down1;
+                        dvi_buf[k] = (eight_bits) (dvi_buf[k] + z1 - down1);
                         vinfo(p) = z_here;
                         goto FOUND;
                     }
@@ -1114,7 +1114,7 @@ void dvi_special(PDF pdf, halfword p)
         dvi_out(cur_length);
     } else {
         dvi_out(xxx4);
-        dvi_four(cur_length);
+        dvi_four((int) cur_length);
     }
     for (k = 0; k < cur_length; k++)
         dvi_out(cur_string[k]);
@@ -1277,7 +1277,7 @@ void ensure_dvi_header_written(PDF pdf)
     prepare_mag();
     dvi_four(mag);              /* magnification factor is frozen */
     if (output_comment) {
-        l = strlen(output_comment);
+        l = (unsigned) strlen(output_comment);
         dvi_out(l);
         for (s = 0; s <= l - 1; s++)
             dvi_out(output_comment[s]);
