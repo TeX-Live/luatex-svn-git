@@ -565,7 +565,7 @@ boolean init_terminal(void)
         update_terminal();
         if (!input_ln(term_in, true)) {
             /* this shouldn't happen */
-            fputs("! End of file on the terminal... why?\n", term_out);
+            fputs("\n! End of file on the terminal... why?\n", term_out);
             return false;
         }
         iloc = first;
