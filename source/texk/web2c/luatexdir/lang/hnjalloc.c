@@ -42,7 +42,7 @@ void *hnj_malloc(int size)
 {
     void *p;
 
-    p = malloc(size);
+    p = malloc((size_t)size);
     if (p == NULL) {
         fprintf(stderr, "can't allocate %d bytes\n", size);
         exit(1);
@@ -52,7 +52,7 @@ void *hnj_malloc(int size)
 
 void *hnj_realloc(void *p, int size)
 {
-    p = realloc(p, size);
+    p = realloc(p, (size_t)size);
     if (p == NULL) {
         fprintf(stderr, "can't allocate %d bytes\n", size);
         exit(1);

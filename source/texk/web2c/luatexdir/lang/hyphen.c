@@ -46,7 +46,7 @@
 #  include <unistd.h>           /* for exit */
 #endif
 
-#include <ctype.h>
+#include <kpathsea/c-ctype.h>
 
 /*#define VERBOSE*/
 

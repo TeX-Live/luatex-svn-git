@@ -29,7 +29,7 @@
 #  include <stddef.h>
 #  include <stdio.h>
 #  include <string.h>
-#  include <ctype.h>
+#  include <kpathsea/c-ctype.h>
 #  include <sys/stat.h>
 #  ifdef POPPLER_VERSION
 #    define GString GooString

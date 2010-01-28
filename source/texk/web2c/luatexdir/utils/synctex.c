@@ -136,7 +136,7 @@ Latest Revision: Wed Jul  1 08:15:44 UTC 2009
  *  and *tex.web for details, the synctex_ prefix prevents name conflicts, it
  *  is some kind of namespace
 */
-#warning These structures MUST be kept in synchronization with the main program
+
 /*  synctexoption is a global integer variable defined in *tex.web
  *  it is set to 1 by texmfmp.c if the command line has the '-synctex=1'
  *  option.  */
@@ -1146,9 +1146,6 @@ void synctexcurrent(void)
     return;
 }
 
-#  pragma mark -
-#  pragma mark Glue code Recorders
-
 /*  Recording the settings  */
 static inline int synctex_record_settings(void)
 {
@@ -1502,9 +1499,6 @@ static inline void synctex_record_rule(halfword p)
     return;
 }
 
-
-#  pragma mark -
-#  pragma mark Recorders
 
 /*  Recording a "$..." line  */
 void synctex_math_recorder(halfword p)
