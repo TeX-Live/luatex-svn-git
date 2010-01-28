@@ -212,6 +212,7 @@ static int table_obj(lua_State * L)
     size_t i;
     int immediate = 0;          /* default: not immediate */
     attr.s = st.s = NULL;
+    attr.l = 0;
     assert(lua_istable(L, 1));  /* t */
 
     /* get object "type" */

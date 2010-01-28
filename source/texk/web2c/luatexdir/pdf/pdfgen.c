@@ -1598,8 +1598,8 @@ void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
 {
 
     char warn_string[100];
-    const char *m;
     output_mode o_mode;
+    const char *m = NULL;
 
     /* in warn mode (strict == false):
        only check, don't do fix_o_mode() here! pdf->o_mode is left

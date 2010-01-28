@@ -26,25 +26,30 @@ static const char _svn_version[] =
 
 /**********************************************************************/
 
-void lua_begin_page(PDF pdf __attribute__ ((unused)))
+void lua_begin_page(PDF pdf)
 {
+    (void)pdf;
 }
 
-void lua_end_page(PDF pdf __attribute__ ((unused)))
+void lua_end_page(PDF pdf)
 {
+    (void)pdf;
 }
 
-void lua_place_glyph(PDF pdf __attribute__ ((unused)), internal_font_number f
-                     __attribute__ ((unused)), int c)
+void lua_place_glyph(PDF pdf, internal_font_number f, int c)
 {
+    (void)pdf;
+    (void)f;
     printf("%c", (int) c);
 }
 
-void lua_place_rule(PDF pdf __attribute__ ((unused)), scaledpos size
-                    __attribute__ ((unused)))
+void lua_place_rule(PDF pdf, scaledpos size)
 {
+    (void)pdf;
+    (void)size;
 }
 
-void finish_lua_file(PDF pdf __attribute__ ((unused)))
+void finish_lua_file(PDF pdf)
 {
+    (void)pdf;
 }

@@ -488,10 +488,11 @@ scaled_whd tex_scale(scaled_whd nat, scaled_whd tex)
     return res;
 }
 
-// Within scale_img() only image width and height matter;
-// the offsets and positioning are not interesting here.
-// But one needs rotation info to swap width and height.
-// img_rotation() comes from the optional /Rotate key in the PDF file.
+/* Within scale_img() only image width and height matter;
+ * the offsets and positioning are not interesting here.
+ * But one needs rotation info to swap width and height.
+ * img_rotation() comes from the optional /Rotate key in the PDF file.
+ */
 
 scaled_whd scale_img(image_dict * idict, scaled_whd alt_rule, int transform)
 {

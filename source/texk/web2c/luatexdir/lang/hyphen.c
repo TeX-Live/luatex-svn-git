@@ -237,7 +237,7 @@ static unsigned int hnj_string_hash(const unsigned char *s)
 
     for (p = s; *p != '\0'; p += 1) {
         h = (h << 4) + *p;
-        if ((g = h & 0xf0000000)) {
+        if ((g = (h & 0xf0000000))) {
             h = h ^ (g >> 24);
             h = h ^ g;
         }
@@ -327,14 +327,14 @@ static char *hyppat_lookup(HashTab * hashtab, const unsigned char *chars, int l)
 
 /* Get the state number, allocating a new state if necessary. */
 static int hnj_get_state(HyphenDict * dict,
-                         const unsigned char *string, int *state_num)
+                         const unsigned char *str, int *state_num)
 {
-    *state_num = state_lookup(dict->state_num, string);
+    *state_num = state_lookup(dict->state_num, str);
 
     if (*state_num >= 0)
         return *state_num;
 
-    state_insert(dict->state_num, hnj_strdup(string), dict->num_states);
+    state_insert(dict->state_num, hnj_strdup(str), dict->num_states);
     /* predicate is true if dict->num_states is a power of two */
     if (!(dict->num_states & (dict->num_states - 1))) {
         dict->states = hnj_realloc(dict->states,

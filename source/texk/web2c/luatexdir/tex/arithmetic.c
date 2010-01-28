@@ -326,7 +326,7 @@ scaled random_seed;             /* the default random seed */
 #define fraction_one 02000000000        /* $2^{28}$, represents 1.00000000 */
 #define fraction_four 010000000000      /* $2^{30}$, represents 4.00000000 */
 #define el_gordo 017777777777   /* $2^{31}-1$, the largest value that \MP\ likes */
-// #define halfp(A) (A)/2 /* in cpascal.h */
+/* #define halfp(A) (A)/2 */ /* in cpascal.h */
 
 /*
 The |make_frac| routine produces the |fraction| equivalent of

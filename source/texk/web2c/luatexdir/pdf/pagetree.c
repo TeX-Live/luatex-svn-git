@@ -117,7 +117,7 @@ int pdf_do_page_divert(PDF pdf, int objnum, int divnum)
     struct avl_traverser t;
     int i;
 #endif
-    // initialize the tree
+    /* initialize the tree */
     ensure_list_tree();
     // make sure we have a list for this diversion
     d = get_divert_list(divnum);

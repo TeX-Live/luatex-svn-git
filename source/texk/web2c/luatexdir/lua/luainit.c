@@ -81,9 +81,6 @@ char *ex_selfdir(char *argv0)
     /* SearchPath() always gives back an absolute directory */
     if (SearchPath(NULL, argv0, ".exe", PATH_MAX, short_path, &fp) == 0)
         FATAL1("Can't determine where the executable %s is.\n", argv0);
-    if (!win32_get_long_filename(short_path, path, sizeof(path))) {
-        FATAL1("This path points to an invalid file : %s\n", short_path);
-    }
     /* slashify the dirname */
     for (fp = path; fp && *fp; fp++)
         if (IS_DIR_SEP(*fp))

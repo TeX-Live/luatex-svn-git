@@ -654,7 +654,11 @@ static boolean transparent_page_group_was_written = false;
 
 void write_additional_png_objects(PDF pdf)
 {
+    (void)pdf;
+    (void)transparent_page_group;
+    (void)transparent_page_group_was_written;
     return;                     /* this interferes with current macro-based usage and cannot be configured */
+#if 0
     if (last_png_needs_page_group) {
         if (!transparent_page_group_was_written && transparent_page_group > 1) {
             /* create new group object */
@@ -669,4 +673,5 @@ void write_additional_png_objects(PDF pdf)
             pdf_end_obj(pdf);
         }
     }
+#endif
 }

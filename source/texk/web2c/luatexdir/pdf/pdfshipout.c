@@ -57,6 +57,8 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
     int pre_callback_id;
     posstructure refpoint;      /* the origin pos. on the page */
     scaledpos cur = { 0, 0 };
+    refpoint.pos.h = 0;
+    refpoint.pos.v = 0;
 
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
     fix_o_mode(pdf);            /* this is only for complaining if \pdfoutput has changed */

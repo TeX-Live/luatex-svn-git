@@ -570,8 +570,6 @@ void run_external_ocp(char *external_ocp_name)
     char *out_file_name;
     FILE *in_file;
     FILE *out_file;
-    int in_file_fd;
-    int out_file_fd;
     char command_line[400];
     int i;
     unsigned c;
@@ -592,6 +590,8 @@ void run_external_ocp(char *external_ocp_name)
     mktemp(in_file_name);
     in_file = fopen(in_file_name, FOPEN_WBIN_MODE);
 #else
+    int in_file_fd;
+    int out_file_fd;
     in_file_name = strdup("/tmp/__aleph__in__XXXXXX");
     in_file_fd = mkstemp(in_file_name);
     in_file = fdopen(in_file_fd, FOPEN_WBIN_MODE);

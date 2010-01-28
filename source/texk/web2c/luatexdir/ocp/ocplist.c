@@ -212,7 +212,7 @@ ocp_list_index scan_ocp_list(void)
     quarterword lop;
     ocp_list_index lstack_entry;
     ocp_list_index other_list;
-    internal_ocp_number ocp_ident;
+    internal_ocp_number ocp_ident = 0;
     get_r_token();
     if (cur_cmd == set_ocp_list_cmd) {
         return copy_ocp_list(ocp_list_list[cur_chr]);
