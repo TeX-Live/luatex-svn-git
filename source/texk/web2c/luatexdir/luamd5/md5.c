@@ -8,7 +8,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "md5.h"
+#include "luamd5.h"
 
 
 #define WORD 32

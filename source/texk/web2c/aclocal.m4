@@ -21,7 +21,7 @@ To do so, use the procedure documented by the package, typically `autoreconf'.])
 
 # libtool.m4 - Configure libtool for the host system. -*-Autoconf-*-
 
-# serial 52 Debian 1.5.26-4 AC_PROG_LIBTOOL
+# serial 52 AC_PROG_LIBTOOL
 
 
 # AC_PROVIDE_IFELSE(MACRO-NAME, IF-PROVIDED, IF-NOT-PROVIDED)
@@ -1708,10 +1708,28 @@ linux* | k*bsd*-gnu)
   # before this can be enabled.
   hardcode_into_libs=yes
 
+  # find out which ABI we are using
+  libsuff=
+  case "$host_cpu" in
+  x86_64*|s390x*|powerpc64*)
+    echo '[#]line __oline__ "configure"' > conftest.$ac_ext
+    if AC_TRY_EVAL(ac_compile); then
+      case `/usr/bin/file conftest.$ac_objext` in
+      *64-bit*)
+        libsuff=64
+        ;;
+      esac
+    fi
+    rm -rf conftest*
+    ;;
+  esac
+
+  sys_lib_dlsearch_path_spec="/lib${libsuff} /usr/lib${libsuff}"
+
   # Append ld.so.conf contents to the search path
   if test -f /etc/ld.so.conf; then
     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \[$]2)); skip = 1; } { if (!skip) print \[$]0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[ 	]*hwcap[ 	]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
-    sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
+    sys_lib_dlsearch_path_spec="$sys_lib_dlsearch_path_spec $lt_ld_extra"
   fi
 
   # We used to test for /lib/ld.so.1 and disable shared libraries on
@@ -1721,18 +1739,6 @@ linux* | k*bsd*-gnu)
   # people can always --disable-shared, the test was removed, and we
   # assume the GNU/Linux dynamic linker is in use.
   dynamic_linker='GNU/Linux ld.so'
-  ;;
-
-netbsdelf*-gnu)
-  version_type=linux
-  need_lib_prefix=no
-  need_version=no
-  library_names_spec='${libname}${release}${shared_ext}$versuffix ${libname}${release}${shared_ext}$major ${libname}${shared_ext}'
-  soname_spec='${libname}${release}${shared_ext}$major'
-  shlibpath_var=LD_LIBRARY_PATH
-  shlibpath_overrides_runpath=no
-  hardcode_into_libs=yes
-  dynamic_linker='NetBSD ld.elf_so'
   ;;
 
 netbsd*)
@@ -2516,7 +2522,7 @@ linux* | k*bsd*-gnu)
   lt_cv_deplibs_check_method=pass_all
   ;;
 
-netbsd* | netbsdelf*-gnu)
+netbsd*)
   if echo __ELF__ | $CC -E - | grep __ELF__ > /dev/null; then
     lt_cv_deplibs_check_method='match_pattern /lib[[^/]]+(\.so\.[[0-9]]+\.[[0-9]]+|_pic\.a)$'
   else
@@ -3523,7 +3529,7 @@ case $host_os in
 	;;
     esac
     ;;
-  netbsd* | netbsdelf*-gnu)
+  netbsd*)
     if echo __ELF__ | $CC -E - | grep __ELF__ >/dev/null; then
       _LT_AC_TAGVAR(archive_cmds, $1)='$LD -Bshareable  -o $lib $predep_objects $libobjs $deplibs $postdep_objects $linker_flags'
       wlarc=
@@ -4221,6 +4227,7 @@ CC=${GCJ-"gcj"}
 compiler=$CC
 _LT_AC_TAGVAR(compiler, $1)=$CC
 _LT_CC_BASENAME([$compiler])
+_LT_AC_TAGVAR(LD, $1)="$LD"
 
 # GCJ did not exist at the time GCC didn't implicitly link libc in.
 _LT_AC_TAGVAR(archive_cmds_need_lc, $1)=no
@@ -5215,7 +5222,7 @@ AC_MSG_CHECKING([for $compiler option to produce PIC])
 	    ;;
 	esac
 	;;
-      netbsd* | netbsdelf*-gnu)
+      netbsd*)
 	;;
       osf3* | osf4* | osf5*)
 	case $cc_basename in
@@ -5809,7 +5816,7 @@ EOF
       fi
       ;;
 
-    netbsd* | netbsdelf*-gnu)
+    netbsd*)
       if echo __ELF__ | $CC -E - | grep __ELF__ >/dev/null; then
 	_LT_AC_TAGVAR(archive_cmds, $1)='$LD -Bshareable $libobjs $deplibs $linker_flags -o $lib'
 	wlarc=
@@ -6240,7 +6247,7 @@ _LT_EOF
       _LT_AC_TAGVAR(link_all_deplibs, $1)=yes
       ;;
 
-    netbsd* | netbsdelf*-gnu)
+    netbsd*)
       if echo __ELF__ | $CC -E - | grep __ELF__ >/dev/null; then
 	_LT_AC_TAGVAR(archive_cmds, $1)='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'  # a.out
       else
@@ -6669,116 +6676,6 @@ done
 SED=$lt_cv_path_SED
 AC_SUBST([SED])
 AC_MSG_RESULT([$SED])
-])
-
-# longlong.m4 serial 13
-dnl Copyright (C) 1999-2007 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-dnl From Paul Eggert.
-
-# Define HAVE_LONG_LONG_INT if 'long long int' works.
-# This fixes a bug in Autoconf 2.61, but can be removed once we
-# assume 2.62 everywhere.
-
-# Note: If the type 'long long int' exists but is only 32 bits large
-# (as on some very old compilers), HAVE_LONG_LONG_INT will not be
-# defined. In this case you can treat 'long long int' like 'long int'.
-
-AC_DEFUN([AC_TYPE_LONG_LONG_INT],
-[
-  AC_CACHE_CHECK([for long long int], [ac_cv_type_long_long_int],
-    [AC_LINK_IFELSE(
-       [_AC_TYPE_LONG_LONG_SNIPPET],
-       [dnl This catches a bug in Tandem NonStop Kernel (OSS) cc -O circa 2004.
-	dnl If cross compiling, assume the bug isn't important, since
-	dnl nobody cross compiles for this platform as far as we know.
-	AC_RUN_IFELSE(
-	  [AC_LANG_PROGRAM(
-	     [[@%:@include <limits.h>
-	       @%:@ifndef LLONG_MAX
-	       @%:@ define HALF \
-			(1LL << (sizeof (long long int) * CHAR_BIT - 2))
-	       @%:@ define LLONG_MAX (HALF - 1 + HALF)
-	       @%:@endif]],
-	     [[long long int n = 1;
-	       int i;
-	       for (i = 0; ; i++)
-		 {
-		   long long int m = n << i;
-		   if (m >> i != n)
-		     return 1;
-		   if (LLONG_MAX / 2 < m)
-		     break;
-		 }
-	       return 0;]])],
-	  [ac_cv_type_long_long_int=yes],
-	  [ac_cv_type_long_long_int=no],
-	  [ac_cv_type_long_long_int=yes])],
-       [ac_cv_type_long_long_int=no])])
-  if test $ac_cv_type_long_long_int = yes; then
-    AC_DEFINE([HAVE_LONG_LONG_INT], 1,
-      [Define to 1 if the system has the type `long long int'.])
-  fi
-])
-
-# Define HAVE_UNSIGNED_LONG_LONG_INT if 'unsigned long long int' works.
-# This fixes a bug in Autoconf 2.61, but can be removed once we
-# assume 2.62 everywhere.
-
-# Note: If the type 'unsigned long long int' exists but is only 32 bits
-# large (as on some very old compilers), AC_TYPE_UNSIGNED_LONG_LONG_INT
-# will not be defined. In this case you can treat 'unsigned long long int'
-# like 'unsigned long int'.
-
-AC_DEFUN([AC_TYPE_UNSIGNED_LONG_LONG_INT],
-[
-  AC_CACHE_CHECK([for unsigned long long int],
-    [ac_cv_type_unsigned_long_long_int],
-    [AC_LINK_IFELSE(
-       [_AC_TYPE_LONG_LONG_SNIPPET],
-       [ac_cv_type_unsigned_long_long_int=yes],
-       [ac_cv_type_unsigned_long_long_int=no])])
-  if test $ac_cv_type_unsigned_long_long_int = yes; then
-    AC_DEFINE([HAVE_UNSIGNED_LONG_LONG_INT], 1,
-      [Define to 1 if the system has the type `unsigned long long int'.])
-  fi
-])
-
-# Expands to a C program that can be used to test for simultaneous support
-# of 'long long' and 'unsigned long long'. We don't want to say that
-# 'long long' is available if 'unsigned long long' is not, or vice versa,
-# because too many programs rely on the symmetry between signed and unsigned
-# integer types (excluding 'bool').
-AC_DEFUN([_AC_TYPE_LONG_LONG_SNIPPET],
-[
-  AC_LANG_PROGRAM(
-    [[/* Test preprocessor.  */
-      #if ! (-9223372036854775807LL < 0 && 0 < 9223372036854775807ll)
-        error in preprocessor;
-      #endif
-      #if ! (18446744073709551615ULL <= -1ull)
-        error in preprocessor;
-      #endif
-      /* Test literals.  */
-      long long int ll = 9223372036854775807ll;
-      long long int nll = -9223372036854775807LL;
-      unsigned long long int ull = 18446744073709551615ULL;
-      /* Test constant expressions.   */
-      typedef int a[((-9223372036854775807LL < 0 && 0 < 9223372036854775807ll)
-		     ? 1 : -1)];
-      typedef int b[(18446744073709551615ULL <= (unsigned long long int) -1
-		     ? 1 : -1)];
-      int i = 63;]],
-    [[/* Test availability of runtime routines for shift and division.  */
-      long long int llmax = 9223372036854775807ll;
-      unsigned long long int ullmax = 18446744073709551615ull;
-      return ((ll << 63) | (ll >> 63) | (ll < i) | (ll > i)
-	      | (llmax / ll) | (llmax % ll)
-	      | (ull << 63) | (ull >> 63) | (ull << i) | (ull >> i)
-	      | (ullmax / ull) | (ullmax % ull));]])
 ])
 
 # Copyright (C) 2002, 2003, 2005, 2006, 2007  Free Software Foundation, Inc.
