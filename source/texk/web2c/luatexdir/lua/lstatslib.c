@@ -30,50 +30,50 @@ typedef struct statistic {
     void *value;
 } statistic;
 
-typedef char *(*charfunc) (void);
+typedef const char *(*charfunc) (void);
 typedef lua_Number(*numfunc) (void);
 typedef int (*intfunc) (void);
 
-char *getbanner(void)
+static const char *getbanner(void)
 {
     return ptexbanner;
 }
 
-char *getlogname(void)
+static const char *getlogname(void)
 {
     return (char *) texmf_log_name;
 }
 
-char *get_pdftex_banner(void)
+static const char *get_pdftex_banner(void)
 {
     return pdftex_banner;
 }
 
-static char *get_output_file_name(void)
+static const char *get_output_file_name(void)
 {
     if (static_pdf != NULL)
         return static_pdf->file_name;
     return NULL;
 }
 
-char *getfilename(void)
+static const char *getfilename(void)
 {
     int t = 0;
     int level = in_open;
     while ((level > 0)) {
         t = input_stack[level--].name_field;
         if (t >= STRING_OFFSET)
-            return (char *) str_string(t);
+            return (const char *) str_string(t);
     }
-    return xstrdup("");
+    return "";
 }
 
-const char *getlasterror(void)
+static const char *getlasterror(void)
 {
     return last_error;
 }
 
-char *luatexrevision(void)
+static const char *luatexrevision(void)
 {
     return (strrchr(luatex_version_string, '.') + 1);
 }
@@ -247,7 +247,7 @@ static int stats_name_to_id(const char *name)
 static int do_getstat(lua_State * L, int i)
 {
     int t;
-    char *st;
+    const char *st;
     charfunc f;
     intfunc g;
     numfunc n;

@@ -46,13 +46,13 @@ BYTE get_unsigned_byte(sfnt * f)
 {
     test_loc(1);
     return (BYTE) f->buffer[(f->loc++)];
-};
+}
 
 ICHAR get_signed_byte(sfnt * f)
 {
     test_loc(1);
     return (ICHAR) f->buffer[(f->loc++)];
-};
+}
 
 USHORT get_unsigned_pair(sfnt * f)
 {
@@ -61,7 +61,7 @@ USHORT get_unsigned_pair(sfnt * f)
     l = f->buffer[(f->loc++)];
     l = (USHORT) (l * 0x100 + f->buffer[(f->loc++)]);
     return l;
-};
+}
 
 SHORT get_signed_pair(sfnt * f)
 {
@@ -72,7 +72,7 @@ SHORT get_signed_pair(sfnt * f)
         l -= 0x100;
     l = l * 0x100 + f->buffer[(f->loc++)];
     return (SHORT) l;
-};
+}
 
 ULONG get_unsigned_quad(sfnt * f)
 {
@@ -83,7 +83,7 @@ ULONG get_unsigned_quad(sfnt * f)
     l = l * 0x100 + f->buffer[(f->loc++)];
     l = l * 0x100 + f->buffer[(f->loc++)];
     return l;
-};
+}
 
 int do_sfnt_read(unsigned char *dest, int len, sfnt * f)
 {
@@ -94,7 +94,7 @@ int do_sfnt_read(unsigned char *dest, int len, sfnt * f)
     }
     f->loc += len;
     return len;
-};
+}
 
 pdf_obj *pdf_new_stream(void)
 {
@@ -102,7 +102,7 @@ pdf_obj *pdf_new_stream(void)
     stream->length = 0;
     stream->data = NULL;
     return stream;
-};
+}
 
 void pdf_add_stream(pdf_obj * stream, unsigned char *buf, long len)
 {
@@ -118,7 +118,7 @@ void pdf_add_stream(pdf_obj * stream, unsigned char *buf, long len)
         *(stream->data + stream->length + i) = *(buf + i);
     }
     stream->length += (unsigned) len;
-};
+}
 
 void pdf_release_obj(pdf_obj * stream)
 {
@@ -128,7 +128,7 @@ void pdf_release_obj(pdf_obj * stream)
         }
         xfree(stream);
     }
-};
+}
 
 
 void writetype2(PDF pdf, fd_entry * fd)
