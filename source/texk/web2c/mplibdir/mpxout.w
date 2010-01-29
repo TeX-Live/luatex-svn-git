@@ -1,4 +1,4 @@
-% $Id: mpxout.w 1124 2009-12-20 23:32:42Z taco $
+% $Id: mpxout.w 1139 2010-01-21 14:35:21Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -206,7 +206,7 @@ int lnno ;           /* current line number */
 @ A set of basic reporting functions. 
 
 @c
-static void mpx_printf(MPX mpx, char *header, char *msg, va_list ap) {
+static void mpx_printf(MPX mpx, const char *header, const char *msg, va_list ap) {
   fprintf(mpx->errfile, "makempx %s: %s:", header, mpx->mpname);
   if (mpx->lnno!=0)
     fprintf(mpx->errfile, "%d:", mpx->lnno);
@@ -216,7 +216,7 @@ static void mpx_printf(MPX mpx, char *header, char *msg, va_list ap) {
 }
 
 @ @c
-static void mpx_report(MPX mpx, char *msg, ...) {
+static void mpx_report(MPX mpx, const char *msg, ...) {
   va_list ap;
   if (mpx->debug==0) return;
   va_start(ap, msg);
@@ -227,7 +227,7 @@ static void mpx_report(MPX mpx, char *msg, ...) {
 }
  
 @ @c
-static void mpx_warn(MPX mpx, char *msg, ...) {
+static void mpx_warn(MPX mpx, const char *msg, ...) {
   va_list ap;
   va_start(ap, msg);
   mpx_printf(mpx, "warning", msg, ap);
@@ -237,7 +237,7 @@ static void mpx_warn(MPX mpx, char *msg, ...) {
 }
 
 @ @c
-static void mpx_error(MPX mpx, char *msg, ...) {
+static void mpx_error(MPX mpx, const char *msg, ...) {
   va_list ap;
   va_start(ap, msg);
   mpx_printf(mpx, "error", msg, ap);
@@ -255,7 +255,7 @@ jmp_buf jump_buf;
 
 @ 
 @c
-static void mpx_abort(MPX mpx, char *msg, ...) {
+static void mpx_abort(MPX mpx, const char *msg, ...) {
   va_list ap;
   va_start(ap, msg);
   fprintf(stderr, "fatal: ");
@@ -281,7 +281,7 @@ if (setjmp(mpx->jump_buf) != 0) {
 }
 
 @ @c
-static FILE *mpx_xfopen (MPX mpx, char *fname, char *fmode) {
+static FILE *mpx_xfopen (MPX mpx, const char *fname, const char *fmode) {
   FILE *f  = fopen(fname,fmode);
   if (f == NULL)
     mpx_abort(mpx,"File open error for %s in mode %s", fname, fmode);
@@ -402,7 +402,7 @@ static char *mpx_getline(MPX mpx, FILE *mpfile) {
     if (mpx->buf==NULL)
       mpx->buf = xmalloc(mpx->bufsize,1);
     while ((c = getc(mpfile)) != EOF && c != '\n' && c != '\r') {
-      mpx->buf[loc++] = c;
+      mpx->buf[loc++] = (char)c;
       if (loc == mpx->bufsize) {
         char *temp = mpx->buf;
         unsigned n = mpx->bufsize + (mpx->bufsize>>4);
@@ -429,7 +429,7 @@ static char *mpx_getline(MPX mpx, FILE *mpfile) {
 and the next character is not a letter or an underscore.
 
 @c
-static int mpx_match_str(char *s, char *t) {
+static int mpx_match_str(const char *s, const char *t) {
     while (*t != 0) {
         if (*s != *t)
             return 0;
@@ -1093,7 +1093,7 @@ n=mpx_get_byte(mpx);  /* that is the area */
 n=n+mpx_get_byte(mpx);
 mpx->font_name[mpx->nfonts]=xmalloc((size_t)(n+1),1);
 for (k=0;k<n;k++)
-   mpx->font_name[mpx->nfonts][k]=mpx_get_byte(mpx);
+   mpx->font_name[mpx->nfonts][k]=(char)mpx_get_byte(mpx);
 mpx->font_name[mpx->nfonts][k]=0
 
 @ The scaled size and design size are stored in \.{DVI} units divided by $2^{20}$.
@@ -1187,7 +1187,7 @@ static void mpx_in_TFM (MPX mpx,web_integer f) {
   web_integer k; /* index for loops */
   int lh; /* length of the header data, in four-byte words */
   int nw; /* number of words in the width table */
-  unsigned wp; /* new value of |info_ptr| after successful input */
+  unsigned int wp; /* new value of |info_ptr| after successful input */
   @<Read past the header data; |abort| if there is a problem@>;
   @<Store character-width indices at the end of the |width| table@>;
   @<Read the width values into the |in_width| table@>;
@@ -1203,10 +1203,10 @@ mpx_read_tfm_word(mpx);
 mpx->font_bc[f]=mpx->b0*(int)(256)+mpx->b1; 
 mpx->font_ec[f]=mpx->b2*(int)(256)+mpx->b3;
 if ( mpx->font_ec[f]<mpx->font_bc[f] ) mpx->font_bc[f]=mpx->font_ec[f]+1;
-if ( mpx->info_ptr+mpx->font_ec[f]-mpx->font_bc[f]+1>max_widths )
+if ( mpx->info_ptr+(unsigned int)mpx->font_ec[f]-(unsigned int)mpx->font_bc[f]+1>max_widths )
   mpx_abort(mpx,"DVItoMP capacity exceeded (width table size=%d)!",max_widths);
 @.DVItoMP capacity exceeded...@>
-wp=mpx->info_ptr+mpx->font_ec[f]-mpx->font_bc[f]+1;
+wp=mpx->info_ptr+(unsigned int)mpx->font_ec[f]-(unsigned int)mpx->font_bc[f]+1;
 mpx_read_tfm_word(mpx); nw=mpx->b0*256+mpx->b1;
 if ( (nw==0)||(nw>256) ) 
   font_abort("Bad TFM file for ",f);
@@ -1272,7 +1272,7 @@ floor(mpx->dvi_scale*mpx->font_scaled_size[cur_font]*char_width(cur_font,p))
 if ( mpx->in_width[0]!=0 )
   font_abort("Bad TFM file for ",f);  /* the first width should be zero */
 @.Bad TFM file@>
-mpx->info_base[f]=(int)(mpx->info_ptr-mpx->font_bc[f]);
+mpx->info_base[f]=(int)(mpx->info_ptr-(unsigned int)mpx->font_bc[f]);
 if ( wp>0 ) {
   for (k=(int)mpx->info_ptr;k<=(int)wp-1;k++) {
     mpx->width[k]=mpx->in_width[mpx->width[k]];
@@ -1360,7 +1360,7 @@ if ( c>mpx->font_ec[f] ) mpx->font_ec[f]=c;
 char_width(f,c)=w
 
 @ @<Store the character packet in |cmd_buf|@>=
-if ( mpx->n_cmds+p>=virtual_space )
+if ( mpx->n_cmds+(unsigned int)p>=virtual_space )
   mpx_abort(mpx,"DVItoMP capacity exceeded (virtual font space=%d)",virtual_space);
 @.DVItoMP capacity exceeded...@>
 start_cmd(f,c)=(web_integer)mpx->n_cmds;
@@ -2160,8 +2160,8 @@ name, and decorate the relevant drawing commands with ``\.{withcolor
 
 @<Types...@>=
 typedef struct named_color_record {
-  char *name; /* color name */
-  char *value; /* text to pass to MetaPost */
+  const char *name; /* color name */
+  const char *value; /* text to pass to MetaPost */
 } named_color_record;
 
 @ Declare the named-color array itself.
@@ -2174,7 +2174,7 @@ web_integer num_named_colors; /* number of elements of |named_colors| that are v
 @ This function, used only during initialization, defines a named color.
 
 @c
-static void mpx_def_named_color (MPX mpx, char *n, char *v) {
+static void mpx_def_named_color (MPX mpx, const char *n, const char *v) {
   mpx->num_named_colors++;
   assert(mpx->num_named_colors<max_named_colors);
   mpx->named_colors[mpx->num_named_colors].name = n;
@@ -2182,7 +2182,7 @@ static void mpx_def_named_color (MPX mpx, char *n, char *v) {
 }
 
 @ @<Declarations@>=
-static void mpx_def_named_color (MPX mpx, char *n, char *v);
+static void mpx_def_named_color (MPX mpx, const char *n, const char *v);
 
 @ During the initialization phase, we define values for all the named
 colors defined in \.{colordvi.tex}. CMYK-to-RGB conversion by GhostScript.
@@ -2558,10 +2558,10 @@ static char *mpx_find_file (MPX mpx, const char *nam, const char *mode, int ftyp
 mpx->find_file = mpx_find_file;
 
 @ @<Declarations@>=
-static FILE *mpx_fsearch(MPX mpx, char *nam, int format);
+static FILE *mpx_fsearch(MPX mpx, const char *nam, int format);
 
 @ @c
-static FILE *mpx_fsearch(MPX mpx, char *nam, int format) {
+static FILE *mpx_fsearch(MPX mpx, const char *nam, int format) {
 	FILE *f = NULL;
 	char *fname = (mpx->find_file)(mpx, nam, "r", format);
 	if (fname) {
@@ -2593,8 +2593,9 @@ static void *destroy_avl_entry (void *pa) {
     return NULL;
 }
 static void *copy_avl_entry (const void *pa) { /* never used */
-    avl_entry *p, *q;
-    p = (avl_entry *) pa;
+    const avl_entry *p;
+    avl_entry *q;
+    p = (const avl_entry *) pa;
     q = malloc(sizeof(avl_entry));
     if (q!=NULL) {
       q->name = strdup(p->name);
@@ -2672,7 +2673,7 @@ static int mpx_get_int_map(MPX mpx, char *s) {
   register int i;
   if (s == NULL)
 	goto BAD;
-  i = strtol(s, &(mpx->arg_tail), 0);
+  i = (int)strtol(s, &(mpx->arg_tail), 0);
   if (s == mpx->arg_tail)
 	goto BAD;
   return i;
@@ -2701,15 +2702,15 @@ static float mpx_get_float(MPX mpx, char *s) {
     }
 	x = 0.0;
 	while (d = *s - '0', 0 <= d && d <= 9) {
-      x = 10.0 * x + d;
+      x = (float)10.0 * x + (float)d;
 	  digits++;
 	  s++;
 	}
 	if (*s == '.') {
 	  y = 1.0;
 	  while (d = *++s - '0', 0 <= d && d <= 9) {
-	    y /= 10.0;
-		x += y * d;
+	    y /= (float)10.0;
+		x += y * (float)d;
 		digits++;
 	  }
 	}
@@ -2754,7 +2755,7 @@ if the \TeX\ name matches the PostScript name. (|\t| means one or more tabs.)
 avl_tree trfonts;
 
 @ @c
-static void mpx_read_fmap(MPX mpx, char *dbase) {
+static void mpx_read_fmap(MPX mpx, const char *dbase) {
     FILE *fin;
     avl_entry *tmp;
     char *nam;			/* a font name being read */
@@ -2774,8 +2775,8 @@ static void mpx_read_fmap(MPX mpx, char *dbase) {
       if (nam==buf)
         continue;
       tmp = xmalloc(sizeof(avl_entry),1);
-      tmp->name = xmalloc (1,(buf-nam)+1);
-      strncpy(tmp->name,nam,(buf-nam));
+      tmp->name = xmalloc (1,(size_t)(buf-nam)+1);
+      strncpy(tmp->name,nam,(unsigned int)(buf-nam));
       tmp->name[(buf-nam)] = '\0';
       tmp->num = (int)mpx->nfonts++;
       assert(avl_ins (tmp, mpx->trfonts, avl_false) > 0);
@@ -2810,7 +2811,7 @@ becomes redundant.  Simply keeping an empty "trchars.adj" file
 around will do fine without requiring any changes to this program.
 
 @c 
-static void mpx_read_char_adj(MPX mpx, char *adjfile) {
+static void mpx_read_char_adj(MPX mpx, const char *adjfile) {
     FILE *fin;
     char buf[200];
     avl_entry tmp, *p;
@@ -3077,7 +3078,7 @@ static void mpx_set_num_char(MPX mpx, int f, int c) {
 	  mpx->str_size = mpx->cursize;
     }
     mpx_print_char(mpx, (unsigned char)c);
-    mpx->dmp_str_h2 = hh + char_width(f,c);
+    mpx->dmp_str_h2 = hh + (float)char_width(f,c);
 }
 
 @ Output a string. 
@@ -3090,10 +3091,10 @@ static void mpx_set_string(MPX mpx, char *cname) {
 	  return;
     hh = (float)mpx->h;
     mpx_set_num_char(mpx,(int)mpx->curfont, *cname);
-    hh +=  char_width(mpx->curfont,(int)*cname);
+    hh +=  (float)char_width(mpx->curfont,(int)*cname);
     while (*++cname) {
 	  mpx_print_char(mpx,(unsigned char)*cname);
-	  hh += char_width(mpx->curfont,(int)*cname);
+	  hh += (float)char_width(mpx->curfont,(int)*cname);
     }
     mpx->h = (web_integer)floor(hh+0.5);
     mpx_finish_last_char(mpx);
@@ -3153,7 +3154,7 @@ static char *mpx_copy_spec_char(MPX mpx, char *cname) {
 	if (c == EOF)
 	  mpx_abort(mpx, "vardef in charlib/%s has no arguments", cname);
 	putc(c, mpx->mpxfile);
-	*t++ = c;
+	*t++ = (char)c;
   }
   putc(c, mpx->mpxfile);
   *t++ = '\0';
@@ -3227,7 +3228,7 @@ OUT_LABEL:
 	fprintf(mpx->mpxfile, "_s(%s(_n%d)", sp->mac,f);
 	fprintf(mpx->mpxfile, ",%.5f,%.4f,%.4f)",
 		(mpx->cursize/mpx->font_design_size[f])*1.00375, 
-         (double)((mpx->h*mpx->unit)/100.0), YCORR-mpx->v*mpx->unit);
+         (double)(((float)mpx->h*mpx->unit)/100.0), YCORR-(float)mpx->v*mpx->unit);
 	mpx_slant_and_ht(mpx);
 	fprintf(mpx->mpxfile, ";\n");
   }
@@ -3289,13 +3290,13 @@ The tables below give the Bezier control points for MetaPost's cubic
 approximation to the first octant of a unit circle.
 
 @c
-static const float xx[] = { 1.0, 1.0, 0.8946431597,  0.7071067812 };
-static const float yy[] = { 0.0, 0.2652164899, 0.5195704026, 0.7071067812 };
+static const float xx[] = { 1.0, 1.0, (float)0.8946431597,  (float)0.7071067812 };
+static const float yy[] = { 0.0, (float)0.2652164899, (float)0.5195704026, (float)0.7071067812 };
 
 @ @c
 static float mpx_circangle(float t) {
     float ti;
-    ti = floor(t);
+    ti = (float)floor(t);
     t -= ti;
     return (float) atan(mpx_b_eval(yy, t) / 
                         mpx_b_eval(xx, t)) + ti * Speed;
@@ -3406,10 +3407,10 @@ static
 void mpx_do_arc(MPX mpx, float cx, float cy, float ax, float ay, float bx, float by) {
   float t1, t2;
 
-  t1 = mpx_circtime(atan2(ay, ax));
-  t2 = mpx_circtime(atan2(by, bx));
+  t1 = mpx_circtime((float)atan2(ay, ax));
+  t2 = mpx_circtime((float)atan2(by, bx));
   if (t2 < t1)
-	t2 += 8.0;
+	t2 += (float)8.0;
   fprintf(mpx->mpxfile, "subpath (%.5f,%.5f) of\n", t1, t2);
   fprintf(mpx->mpxfile,
 	    " makepath(pencircle scaled %.3f shifted (%.3f,%.3f));\n",
@@ -3433,7 +3434,7 @@ static void mpx_do_graphic(MPX mpx, char *s) {
   if (s[0] == 'F' && s[1] == 'd')
 	return;
   mpx->gx = (float) mpx->h;
-  mpx->gy = YCORR / mpx->unit - ((float) mpx->v);
+  mpx->gy = (float)YCORR / mpx->unit - ((float) mpx->v);
   if (!mpx->graphics_used)
 	mpx_prepare_graphics(mpx);
   fprintf(mpx->mpxfile, "D(%.4f) ", LWscale * mpx->cursize);
@@ -3524,7 +3525,7 @@ static int mpx_do_x_cmd(MPX mpx, char *s0)
 	mpx->unit = mpx_get_float(mpx,s);
 	if (mpx->unit <= 0.0)
 	    mpx_abort(mpx,"Bad resolution: x %s", s0);
-	mpx->unit = 72.0 / mpx->unit;
+	mpx->unit = (float)72.0 / mpx->unit;
 	break;
     case 'f':
 	while (*s != ' ' && *s != '\t')
@@ -3562,11 +3563,11 @@ static int mpx_do_x_cmd(MPX mpx, char *s0)
     case 'S':
 	while (*s != ' ' && *s != '\t')
 	    s++;
-	mpx->Xslant = mpx_get_float(mpx,s) * (PI / 180.0);
-	x = cos(mpx->Xslant);
+	mpx->Xslant = mpx_get_float(mpx,s) * ((float)PI / (float)180.0);
+	x = (float)cos(mpx->Xslant);
 	if (-1e-4 < x && x < 1e-4)
 	    mpx_abort(mpx,"Excessive slant");
-	mpx->Xslant = sin(mpx->Xslant) / x;
+	mpx->Xslant = (float)sin(mpx->Xslant) / x;
 	break;
     default:
 	/* do nothing */ ;
@@ -3807,7 +3808,7 @@ There is a -debug switch, preventing the removal of tmp files
 #define TROFF_OUTERR "mpxerr.t"
 
 @ @c 
-static void mpx_rename (MPX mpx, char *a, char *b) {
+static void mpx_rename (MPX mpx, const char *a, const char *b) {
   mpx_report(mpx,"renaming %s to %s",a,b); 
   rename(a,b); 
 }
@@ -3815,7 +3816,7 @@ static void mpx_rename (MPX mpx, char *a, char *b) {
 @ @<Globals@>=
 char tex[15] ;
 int debug ;
-char *progname;
+const char *progname;
 
 @ Cleaning up
 @c
@@ -3918,7 +3919,8 @@ First, here is a helper for messaging.
 @c
 static char *mpx_print_command (MPX mpx, int cmdlength, char **cmdline) {
   char *s, *t;
-  int i,l;
+  int i;
+  size_t l;
   (void)mpx;
   l = 0;
   for (i = 0; i < cmdlength ; i++) {

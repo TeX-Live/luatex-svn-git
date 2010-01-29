@@ -53,7 +53,7 @@
 #include <string.h>
 #include "mplib.h"
 #include "mpmp.h"
-static void swap_items (char *p,  int nitems,  int size);
+static void swap_items (char *p,  int nitems,  size_t size);
 /* If we have these macros, use them, as they provide a better guide to
    the endianess when cross-compiling. */
 #if defined (BYTE_ORDER) && defined (BIG_ENDIAN) && defined (LITTLE_ENDIAN)
@@ -131,7 +131,7 @@ Make the NITEMS items pointed at by P, each of size SIZE, be the
 
 @c
 static void
-swap_items (char *p,  int nitems,  int size)
+swap_items (char *p,  int nitems,  size_t size)
 {
   char temp;
 #if !defined (WORDS_BIGENDIAN)

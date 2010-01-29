@@ -96,7 +96,7 @@ line. It could also be a boolean because right now the only interesting
 thing it does is keep track of whether or not we are start-of-line.
 
 @<Globals@>=
-integer file_offset;
+size_t file_offset;
 
 @ @<Set initial values@>=
 mp->svg->file_offset = 0;
@@ -114,7 +114,7 @@ static void mp_svg_print_ln (MP mp) {
 @c
 static void mp_svg_print_char (MP mp, int s) {
   char ss[2]; 
-  ss[0]=s; ss[1]=0; 
+  ss[0]=(char)s; ss[1]=0; 
   (mp->write_ascii_file)(mp,mp->output_file,(char *)ss); 
   mp->svg->file_offset ++;
 }
@@ -128,7 +128,7 @@ not be an issue to any respectable XML processing tool.
 
 @c
 static void mp_svg_print (MP mp, const char *ss) {
-  (mp->write_ascii_file)(mp,mp->output_file,(char *)ss); 
+  (mp->write_ascii_file)(mp,mp->output_file,ss); 
   mp->svg->file_offset += strlen(ss);
 }
 
@@ -149,8 +149,8 @@ strings in before feeding the attribute value to |mp_svg_attribute|.
 
 @<Globals...@>=
 char *buf;
-int loc;
-int bufsize;
+unsigned loc;
+unsigned bufsize;
 
 @ Start with a modest size of 256. the buffer will grow automatically
 when needed.
@@ -175,7 +175,7 @@ the end of the buffer.
     }
     buffer = mp_xmalloc(mp,l,1);
     memset (buffer,0,l);
-    memcpy(buffer,mp->svg->buf,mp->svg->bufsize);
+    memcpy(buffer,mp->svg->buf,(size_t)mp->svg->bufsize);
     mp_xfree(mp->svg->buf);
     mp->svg->buf = buffer ;
     mp->svg->bufsize = l;    
@@ -184,7 +184,7 @@ the end of the buffer.
 } while (0)
 
 @d append_string(A) do {
-   char *ss = (A);
+   const char *ss = (A);
    while (*ss != '\0') { append_char(*ss); ss++ ;}
 } while (0)
 
@@ -233,7 +233,7 @@ static void mp_svg_store_int (MP mp,integer n) {
   } while (n!=0);
   /* print the digits */
   while ( k-->0 ){ 
-    append_char('0'+mp->dig[k]);
+    append_char((char)('0'+mp->dig[k]));
   }
 }
 
@@ -244,9 +244,9 @@ are printed, just in case.
 
 @c 
 static void mp_svg_store_dd (MP mp,integer n) {
-  n=abs(n) % 100; 
-  append_char('0'+(n / 10));
-  append_char('0'+(n % 10));
+  char nn=(char)abs(n) % 100; 
+  append_char((char)('0'+(nn / 10)));
+  append_char((char)('0'+(nn % 10)));
 }
 
 @ Conversely, here is a procedure analogous to |mp_svg_store_int|. 
@@ -276,7 +276,7 @@ static void mp_svg_store_scaled (MP mp,scaled s) {
     do {  
       if ( delta>unity )
         s=s+0100000-(delta / 2); /* round the final digit */
-      append_char('0'+(s / unity)); 
+      append_char((char)('0'+(s / unity))); 
       s=10*(s % unity); 
       delta=delta*10;
     } while (s>delta);
@@ -303,7 +303,7 @@ The close function is trivial of course, but it looks nicer in the source.
 @d mp_svg_starttag(A,B) { mp_svg_open_starttag (A,B); mp_svg_close_starttag(A); }
 
 @c 
-static void mp_svg_open_starttag (MP mp, char *s) { 
+static void mp_svg_open_starttag (MP mp, const char *s) { 
   int l = mp->svg->level * 2;
   mp_svg_print_ln(mp);
   while (l-->0) {
@@ -326,7 +326,7 @@ level. If it is false, the end tag will appear immediatelu after the
 preceding output.
 
 @c
-static void mp_svg_endtag (MP mp, char *s, boolean indent) { 
+static void mp_svg_endtag (MP mp, const char *s, boolean indent) { 
   mp->svg->level--;
   if (indent) {
     int l = mp->svg->level * 2;
@@ -345,7 +345,7 @@ static void mp_svg_endtag (MP mp, char *s, boolean indent) {
 that that is the |v| argument.
 
 @c
-static void mp_svg_attribute (MP mp, char *s, char *v) { 
+static void mp_svg_attribute (MP mp, const char *s, const char *v) { 
   mp_svg_print_char(mp, ' ');
   mp_svg_print(mp, s);
   mp_svg_print(mp,"=\"");
@@ -795,7 +795,8 @@ static void mp_svg_font_path_out (MP mp, mp_knot *h) {
 @c
 void mp_svg_print_glyph_defs (MP mp, mp_edge_object *h) {
   mp_graphic_object *p; /* object index */
-  int k, l; /* general purpose indices */
+  int k; /* general purpose index */
+  size_t l; /* a string length */
   int **mp_chars = NULL; /* a twodimensional array of used glyphs */
   mp_ps_font *f = NULL; 
   mp_edge_object *ch;
@@ -852,12 +853,12 @@ void mp_svg_print_glyph_defs (MP mp, mp_edge_object *h) {
                append_string("GLYPH");
                append_string(mp->font_name[k]);
                append_char('_');
-               mp_svg_store_int(mp,l);
+               mp_svg_store_int(mp, (int)l);
                mp_svg_attribute(mp, "id", mp->svg->buf);
                mp_svg_reset_buf(mp);
                mp_svg_close_starttag(mp);
                if (f != NULL) {
-                 ch = mp_ps_font_charstring(mp,f,l);
+                 ch = mp_ps_font_charstring(mp,f,(int)l);
                  if (ch != NULL) {
                    p = ch->body;
                    mp_svg_open_starttag(mp,"path");
@@ -901,7 +902,7 @@ void mp_svg_text_out (MP mp, mp_text_object *p, int prologues) {
   char *fname;
   unsigned char *s;
   int k; /* a character */
-  int l; /* string length */
+  size_t l; /* string length */
   boolean transformed ;
   scaled ds; /* design size and scale factor for a text node */
   fname = mp->font_ps_name[gr_font_n(p)];
@@ -976,7 +977,7 @@ void mp_svg_text_out (MP mp, mp_text_object *p, int prologues) {
         mp_svg_store_int(mp,k);
         append_char(';');
       } else {
-        append_char(k);
+        append_char((char)k);
       }
     }
     mp_svg_print_buf(mp);
