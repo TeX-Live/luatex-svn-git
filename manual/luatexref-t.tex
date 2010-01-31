@@ -8000,8 +8000,11 @@ Valid fields: \showfields{fence}
 
 Whatsit nodes come in many subtypes that you can ask for by running
 \luatex{node.whatsits()}:
-\ctxlua {for _,v in pairs(node.whatsits()) do
-tex.print('\\type{' .. v .. '} (' .. _ .. '), ') end }
+\ctxlua {for n,name in table.sortedpairs(node.whatsits()) do 
+  if (n<100) then 
+     if (n>0) then tex.sprint (', ') end
+     tex.sprint('\\type{' .. name .. '} (' .. n .. ')') end 
+end }
 
 \subsubsection{open nodes}
 
