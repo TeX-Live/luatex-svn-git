@@ -85,9 +85,9 @@ PDF init_pdf_struct(PDF pdf)
     pdf->posstruct->dir = dir_TLT;
 
     pdf->obj_tab_size = (unsigned) inf_obj_tab_size;    /* allocated size of |obj_tab| array */
-    pdf->obj_tab =
-        xmalloc((unsigned)
-                ((unsigned) (pdf->obj_tab_size + 1) * sizeof(obj_entry)));
+    pdf->obj_tab = xmalloc((unsigned)
+                           ((unsigned) (pdf->obj_tab_size + 1) *
+                            sizeof(obj_entry)));
     memset(pdf->obj_tab, 0, sizeof(obj_entry));
 
     pdf->minor_version = -1;    /* unset */

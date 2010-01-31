@@ -149,9 +149,9 @@ read_ocp_info(pointer u, char *nom, char *aire, char *ext, boolean external_ocp)
 
     } else {
         /* @<Open |ocp_file| for input@>; */
-        char *cname =
-            xmalloc((unsigned)
-                    (strlen(nom) + strlen(aire) + strlen(".ocp") + 1));
+        char *cname = xmalloc((unsigned)
+                              (strlen(nom) + strlen(aire) + strlen(".ocp") +
+                               1));
         sprintf(cname, "%s%s.ocp", aire, nom);
         xfree(ocp_buffer);
         ocp_cur = 0;

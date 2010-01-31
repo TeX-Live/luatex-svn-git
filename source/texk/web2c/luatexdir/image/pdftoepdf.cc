@@ -731,8 +731,8 @@ static void write_epdf1(PDF pdf, image_dict * idict)
         for (i = 0, l = contents->arrayGetLength(); i < l; ++i) {
             PdfObject contentsobj;
             copyStreamStream(pdf,
-                             (contents->arrayGet(i, &contentsobj))->
-                             getStream());
+                             (contents->
+                              arrayGet(i, &contentsobj))->getStream());
         }
         pdf_end_stream(pdf);
     } else {                    // the contents are optional, but we need to include an empty stream

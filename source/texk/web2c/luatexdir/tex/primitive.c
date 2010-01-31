@@ -254,8 +254,7 @@ void undump_primitives(void)
         undump_int(prim_data[p].offset);
         undump_int(prim_data[p].subids);
         if (prim_data[p].subids > 0) {
-            prim_data[p].names =
-                (str_number *)
+            prim_data[p].names = (str_number *)
                 xmalloc((unsigned)
                         ((unsigned) prim_data[p].subids *
                          sizeof(str_number *)));

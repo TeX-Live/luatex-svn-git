@@ -105,9 +105,8 @@ USHORT tt_add_glyph(struct tt_glyphs * g, USHORT gid, USHORT new_gid)
         g->gd[g->num_glyphs].length = 0;
         g->gd[g->num_glyphs].data = NULL;
         g->used_slot[new_gid / 8] =
-            (unsigned char) (g->
-                             used_slot[new_gid /
-                                       8] | (1 << (7 - (new_gid % 8))));
+            (unsigned char) (g->used_slot[new_gid /
+                                          8] | (1 << (7 - (new_gid % 8))));
         g->num_glyphs++;
     }
 

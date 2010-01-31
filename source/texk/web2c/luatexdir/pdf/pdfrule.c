@@ -31,7 +31,7 @@ void pdf_place_rule(PDF pdf, halfword q, scaledpos size)
     pdfpos dim;
     pdfstructure *p = pdf->pstruct;
     scaledpos pos = pdf->posstruct->pos;
-    (void)q;
+    (void) q;
     pdf_goto_pagemode(pdf);
     dim.h.m = lround(size.h * p->k1);
     dim.h.e = p->pdf.h.e;

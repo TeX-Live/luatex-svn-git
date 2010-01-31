@@ -32,9 +32,9 @@ extern double rint(double x);
 #  endif
 
 extern string fullnameoffile;
-#if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
+#  if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
 extern char **suffixlist;
-#endif
+#  endif
 
 
 /* Replicate these here. They are hardcoded anyway */

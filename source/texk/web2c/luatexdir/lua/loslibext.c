@@ -636,7 +636,7 @@ static int ex_sleep(lua_State * L)
     lua_Number interval = luaL_checknumber(L, 1);
     lua_Number units = luaL_optnumber(L, 2, 1);
 #ifdef WIN32
-    Sleep((DWORD)(1e3 * interval / units));
+    Sleep((DWORD) (1e3 * interval / units));
 #else                           /* assumes posix or bsd */
     usleep((unsigned) (1e6 * interval / units));
 #endif
