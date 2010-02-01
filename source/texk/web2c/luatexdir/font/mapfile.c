@@ -325,7 +325,7 @@ int check_std_t1font(char *s)
     if (k > -1 && !strcmp(std_t1font_names[k], s))
         return k;
     return -1;
-};
+}
 
 /**********************************************************************/
 
