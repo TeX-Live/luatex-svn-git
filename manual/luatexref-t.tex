@@ -844,10 +844,13 @@ needs to check \type{--progname} (and \type{--ini} and \type{--fmt}, if
 
 \section{\LUA\ changes}
 
-The C coroutine (\COCO) patches from luajit are applied to the \LUA\ core, the used
-version is 1.1.5.  See \hyphenatedurl{http://luajit.org/coco.html} for details. This
-functionality currently (0.45) does not work on non-intel OpenBSD platforms nor on
-powerpc Linux-es.
+The C coroutine (\COCO) patches from luajit are applied to the \LUA\
+core, the used version is 1.1.5.  See \hyphenatedurl{http://luajit.org/coco.html} 
+for details. This functionality currently (0.45) does not work on
+non-intel OpenBSD platforms nor on powerpc Linux-es. Additional note:
+\type{coroutines.wrap()} under Windows does not inherit the state 
+of the random generator, it always has an implicit
+\type{math.randomseed(1)} that is added by the Windows kernel.
 
 Starting from version 0.45, \LUATEX\ is able to use the kpathsea
 library to find \type{require()}d modules. For this purpose,
