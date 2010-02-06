@@ -497,6 +497,7 @@ static int l_obj(lua_State * L)
 {
     int n;
     int k;
+    ensure_output_state(static_pdf, ST_HEADER_WRITTEN);
     n = lua_gettop(L);
     if (n == 1 && lua_istable(L, 1))
         k = table_obj(L);       /* new */
