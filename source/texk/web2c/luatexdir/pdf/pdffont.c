@@ -86,28 +86,31 @@ indicates that the corresponding font shares the font resource with the font
 static boolean font_shareable(internal_font_number f, internal_font_number k)
 {
     int ret = 0;
-    fm_entry *fm;
+    internal_font_number b;
     /* For some lua-loaded (for instance AFM) fonts, it is normal to have
        a zero cidregistry,  and such fonts do not have a fontmap entry yet
        at this point, so the test should use the other branch  */
     if (font_cidregistry(f) == NULL && font_cidregistry(k) == NULL &&
         font_encodingbytes(f) != 2 && font_encodingbytes(k) != 2) {
-        if ((fm = getfontmap(font_name(k))) != NULL && (fm == font_map(f))
-            && (same(font_name, k, f)
-                || (font_auto_expand(f)
-                    && (pdf_font_blink(f) != 0)
-                    && same(font_name, k, pdf_font_blink(f))))) {
-            ret = 1;
-        }
-    } else {
-        if ((same(font_filename, k, f) && same(font_fullname, k, f))
-            || (font_auto_expand(f)
-                && (pdf_font_blink(f) != 0)
-                && same(font_name, k, pdf_font_blink(f)))) {
+        if (font_map(k) != NULL &&
+            font_map(f) != NULL &&
+            (same(font_name, k, f) ||
+             (font_auto_expand(f) &&
+              (b = pdf_font_blink(f)) != 0 && same(font_name, k, b)))) {
             ret = 1;
         }
 #ifdef DEBUG
-        printf("font_shareable(%d:%s:%s,%d:%s:%s): => %d\n",
+        printf("\nfont_shareable(%d:%d, %d:%d): => %d\n", f, pdf_font_blink(f),
+               k, pdf_font_blink(k), ret);
+#endif
+    } else {
+        if ((same(font_filename, k, f) && same(font_fullname, k, f))
+            || (font_auto_expand(f)
+                && (b = pdf_font_blink(f)) != 0 && same(font_name, k, b))) {
+            ret = 1;
+        }
+#ifdef DEBUG
+        printf("\nfont_shareable(%d:%s:%s,%d:%s:%s): => %d\n",
                f, font_filename(f), font_fullname(f),
                k, font_filename(k), font_fullname(k), ret);
 #endif
