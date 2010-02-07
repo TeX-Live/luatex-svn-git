@@ -219,7 +219,7 @@ internal_font_number tfm_lookup(str_number s, scaled fs)
     return null_font;
 }
 
-internal_font_number load_expand_font(internal_font_number f, int e)
+static internal_font_number load_expand_font(internal_font_number f, int e)
 {                               /* loads font |f| expanded by |e| thousandths into font memory; |e| is nonzero
                                    and is a multiple of |font_step(f)| */
     str_number s;               /* font name */
@@ -238,7 +238,7 @@ internal_font_number load_expand_font(internal_font_number f, int e)
     return k;
 }
 
-int fix_expand_value(internal_font_number f, int e)
+static int fix_expand_value(internal_font_number f, int e)
 {                               /* return the multiple of |font_step(f)| that is nearest to |e| */
     int step;
     int max_expand;
@@ -265,7 +265,7 @@ int fix_expand_value(internal_font_number f, int e)
     return e;
 }
 
-internal_font_number get_expand_font(internal_font_number f, int e)
+static internal_font_number get_expand_font(internal_font_number f, int e)
 {                               /* look up and create if not found an expanded version of |f|; |f| is an
                                    expandable font; |e| is nonzero and is a multiple of |font_step(f)| */
     internal_font_number k;

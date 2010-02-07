@@ -32,9 +32,6 @@ extern int pk_dpi;              /* PK pixel density value from \.{texmf.cnf} */
 extern void copy_expand_params(internal_font_number k, internal_font_number f,
                                int e);
 extern internal_font_number tfm_lookup(str_number s, scaled fs);
-extern internal_font_number load_expand_font(internal_font_number f, int e);
-extern int fix_expand_value(internal_font_number f, int e);
-extern internal_font_number get_expand_font(internal_font_number f, int e);
 extern internal_font_number expand_font(internal_font_number f, int e);
 
 extern void set_expand_params(internal_font_number f, boolean auto_expand,
