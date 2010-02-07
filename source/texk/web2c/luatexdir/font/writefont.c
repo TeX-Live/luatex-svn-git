@@ -815,19 +815,12 @@ void do_pdf_font(PDF pdf, int font_objnum, internal_font_number f)
             unlink(fm->ff_name);
 
     } else {
-        fm = getfontmap(font_name(f));
+        /* by now font_map(f), if any, should have been set via pdf_init_font() */
+        fm = font_map(f);
         if (fm == NULL || (fm->ps_name == NULL && fm->ff_name == NULL))
             writet3(pdf, font_objnum, f);
-        else {
-            if (font_map(f) == NULL) {
-                font_map(f) = fm;
-                if (is_slantset(fm))
-                    font_slant(f) = fm->slant;
-                if (is_extendset(fm))
-                    font_extend(f) = fm->extend;
-            }
+        else
             create_fontdictionary(pdf, fm, font_objnum, f);
-        }
     }
 }
 

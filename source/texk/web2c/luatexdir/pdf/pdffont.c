@@ -97,13 +97,6 @@ static boolean font_shareable(internal_font_number f, internal_font_number k)
                 || (font_auto_expand(f)
                     && (pdf_font_blink(f) != 0)
                     && same(font_name, k, pdf_font_blink(f))))) {
-            if (font_map(k) == NULL) {
-                font_map(k) = fm;
-                if (is_slantset(fm))
-                    font_slant(k) = fm->slant;
-                if (is_extendset(fm))
-                    font_extend(k) = fm->extend;
-            }
             ret = 1;
         }
     } else {
@@ -132,17 +125,24 @@ void pdf_init_font(PDF pdf, internal_font_number f)
     assert(!font_used(f));
 
     /* if |f| is auto expanded then ensure the base font is initialized */
-    if (font_auto_expand(f) && (pdf_font_blink(f) != null_font)) {
-        b = pdf_font_blink(f);
+
+    if (font_auto_expand(f) && ((b = pdf_font_blink(f)) != 0)) {
         if (!font_used(b))
             pdf_init_font(pdf, b);
         set_font_map(f, font_map(b));
+        /* propagate slant and extend from unexpanded base font */
+        set_font_slant(f, font_slant(b));
+        set_font_extend(f, font_extend(b));
     }
     /* check whether |f| can share the font object with some |k|: we have 2 cases
        here: 1) |f| and |k| have the same tfm name (so they have been loaded at
        different sizes, eg 'cmr10' and 'cmr10 at 11pt'); 2) |f| has been auto
        expanded from |k|
      */
+
+    /* take over slant and extend from map entry, if not already set;
+       this should also be the only place where getfontmap() may be called. */
+
     fm = getfontmap(font_name(f));
     if (font_map(f) == NULL && fm != NULL) {
         font_map(f) = fm;
