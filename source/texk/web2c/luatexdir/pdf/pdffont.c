@@ -81,14 +81,7 @@ number of font resource. A negative value of an entry of |pdf_font_num|
 indicates that the corresponding font shares the font resource with the font
 */
 
-static boolean same_font_name(int id, int t)
-{
-    if (font_name(t) != NULL &&
-        font_name(id) != NULL && strcmp(font_name(t), font_name(id)) == 0)
-        return 1;
-    else
-        return 0;
-}
+#define same(n,f,k) (n(f) != NULL && n(k) != NULL && strcmp(n(f), n(k)) == 0)
 
 static boolean font_shareable(internal_font_number f, internal_font_number k)
 {
@@ -100,10 +93,10 @@ static boolean font_shareable(internal_font_number f, internal_font_number k)
     if (font_cidregistry(f) == NULL && font_cidregistry(k) == NULL &&
         font_encodingbytes(f) != 2 && font_encodingbytes(k) != 2) {
         if ((fm = getfontmap(font_name(k))) != NULL && (fm == font_map(f))
-            && (same_font_name(k, f)
+            && (same(font_name, k, f)
                 || (font_auto_expand(f)
-                    && (pdf_font_blink(f) != 0) /* 0 = nullfont */
-                    &&same_font_name(k, pdf_font_blink(f))))) {
+                    && (pdf_font_blink(f) != 0)
+                    && same(font_name, k, pdf_font_blink(f))))) {
             if (font_map(k) == NULL) {
                 font_map(k) = fm;
                 if (is_slantset(fm))
@@ -114,13 +107,10 @@ static boolean font_shareable(internal_font_number f, internal_font_number k)
             ret = 1;
         }
     } else {
-        if ((font_filename(k) != NULL && font_filename(f) != NULL &&
-             strcmp(font_filename(k), font_filename(f)) == 0 &&
-             font_fullname(k) != NULL && font_fullname(f) != NULL &&
-             strcmp(font_fullname(k), font_fullname(f)) == 0)
+        if ((same(font_filename, k, f) && same(font_fullname, k, f))
             || (font_auto_expand(f)
-                && (pdf_font_blink(f) != 0)     /* 0 = nullfont */
-                &&same_font_name(k, pdf_font_blink(f)))) {
+                && (pdf_font_blink(f) != 0)
+                && same(font_name, k, pdf_font_blink(f)))) {
             ret = 1;
         }
 #ifdef DEBUG
