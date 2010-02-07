@@ -297,7 +297,7 @@ static void unpack(chardesc * cd)
                             raster++;
                         }
                     }
-                    rowsleft = (shalfword) (rowsleft - repeatcount + 1);
+                    rowsleft = (shalfword) (rowsleft - repeatcount - 1);
                     repeatcount = 0;
                     word = 0;
                     wordweight = 16;
