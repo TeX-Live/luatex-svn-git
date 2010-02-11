@@ -1184,22 +1184,6 @@ boolean is_valid_font(int id)
     return ret;
 }
 
-/* return 1 == identical */
-boolean cmp_font_name(int id, str_number t)
-{
-    char *tid, *tt;
-    if (!is_valid_font(id))
-        return 0;
-    tt = makecstring(t);
-    tid = font_name(id);
-    if (tt == NULL && tid == NULL)
-        return 1;
-    if (tt == NULL || tid == NULL || strcmp(tid, tt) != 0)
-        return 0;
-    free(tt);
-    return 1;
-}
-
 boolean cmp_font_area(int id, str_number t)
 {
     char *tt = NULL;

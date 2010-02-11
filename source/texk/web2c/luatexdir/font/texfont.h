@@ -1,5 +1,5 @@
 /* texfont.h Main font API implementation for the pascal parts
-   
+
    Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -24,7 +24,7 @@
    keep web2c happy */
 
 /* this file is read at the end of ptexlib.h, which is called for at
-   the end of luatexcoerce.h, as well as from the C sources 
+   the end of luatexcoerce.h, as well as from the C sources
 */
 
 #ifndef TEXFONT_H
@@ -206,8 +206,6 @@ extern const char *font_embedding_strings[];
 #  define get_font_name(a)          (unsigned char *)font_name(a)
 #  define set_font_name(f,b)        font_name(f) = b
 #  define tex_font_name(a)          maketexstring(font_name(a))
-
-boolean cmp_font_name(int, str_number);
 
 #  define font_area(a)              font_tables[a]->_font_area
 #  define get_font_area(a)          (unsigned char *)font_area(a)
@@ -568,7 +566,7 @@ int read_tfm_info(internal_font_number f, const char *nom, scaled s);
 
 /* from dofont.c */
 
-extern int read_font_info(pointer u, str_number nom, scaled s, int ndir);
+extern int read_font_info(pointer u, char *cnom, scaled s, int ndir);
 extern int find_font_id(const char *nom, scaled s);
 
 /* for and from vfpacket.c */

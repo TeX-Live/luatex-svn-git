@@ -208,6 +208,7 @@ vf_def_font(internal_font_number f, unsigned char *vf_buffer, int *vf_cr)
 {
     internal_font_number k;
     str_number s;
+    char *st;
     scaled ds, fs;
     four_quarters cs;
     memory_word tmp_w;          /* accumulator */
@@ -263,9 +264,11 @@ vf_def_font(internal_font_number f, unsigned char *vf_buffer, int *vf_cr)
         append_char(junk);
     }
     s = make_string();
-    k = tfm_lookup(s, fs);
+    st = makecstring(s);
+    k = tfm_lookup(st, fs, font_expand_ratio(f));
     if (k == null_font)
-        k = read_font_info(null_cs, s, fs, -1);
+        k = read_font_info(null_cs, st, fs, -1);
+    free(st);
     if (k != null_font) {
         if (checksum != 0 && font_checksum(k) != 0
             && checksum != font_checksum(k))
@@ -1440,35 +1443,16 @@ boolean auto_expand_vf(internal_font_number f)
     return true;
 }
 
-str_number expand_font_name(internal_font_number f, int e)
-{
-    int old_setting;
-    old_setting = selector;
-    selector = new_string;
-    tprint(font_name(f));
-    if (e > 0) {
-        print_char('+');
-    }
-    print_int(e);
-    selector = old_setting;
-    return make_string();
-}
-
-
 internal_font_number auto_expand_font(internal_font_number f, int e)
 {
     internal_font_number k;
     kerninfo *krn;
     charinfo *co;
-    char *fn;
     int i;
     scaled w;
     k = copy_font(f);
-    i = (int) strlen(font_name(f)) + 12;
-    fn = xmalloc((unsigned) i);
-    snprintf(fn, (size_t) i, "%s%s%d", font_name(f), (e > 0 ? "+" : ""),
-             (int) e);
-    set_font_name(k, fn);
+    set_font_name(k, font_name(f));
+    set_font_expand_ratio(k, e);
     for (i = font_bc(k); i <= font_ec(k); i++) {
         if (quick_char_exists(k, i)) {
             co = get_charinfo(k, i);
@@ -1525,7 +1509,7 @@ letter_space_font(halfword u, internal_font_number f, int e)
 
 
     /* read a new font and expand the character widths */
-    k = read_font_info(u, tex_font_name(f), font_size(f), font_natural_dir(f));
+    k = read_font_info(u, font_name(f), font_size(f), font_natural_dir(f));
     set_no_ligatures(k);        /* disable ligatures for letter-spaced fonts */
 /*
   for (i = 0;i <= font_widths(k);i++) {

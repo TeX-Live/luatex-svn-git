@@ -200,18 +200,33 @@ void copy_expand_params(internal_font_number k, internal_font_number f, int e)
     set_pdf_font_blink(k, f);
 }
 
-internal_font_number tfm_lookup(str_number s, scaled fs)
+/* return 1 == identical */
+static boolean cmp_font_name(int id, char *tt)
+{
+    char *tid;
+    if (!is_valid_font(id))
+        return 0;
+    tid = font_name(id);
+    if (tt == NULL && tid == NULL)
+        return 1;
+    if (tt == NULL || tid == NULL || strcmp(tid, tt) != 0)
+        return 0;
+    return 1;
+}
+
+internal_font_number tfm_lookup(char *s, scaled fs, int e)
 {                               /* looks up for a TFM with name |s| loaded at |fs| size; if found then flushes |s| */
     internal_font_number k;
     if (fs != 0) {
         for (k = 1; k <= max_font_id(); k++) {
-            if (cmp_font_name(k, s) && (font_size(k) == fs)) {
+            if (cmp_font_name(k, s) && font_size(k) == fs
+                && font_expand_ratio(k) == e) {
                 return k;
             }
         }
     } else {
         for (k = 1; k <= max_font_id(); k++) {
-            if (cmp_font_name(k, s)) {
+            if (cmp_font_name(k, s) && font_expand_ratio(k) == e) {
                 return k;
             }
         }
@@ -222,16 +237,15 @@ internal_font_number tfm_lookup(str_number s, scaled fs)
 static internal_font_number load_expand_font(internal_font_number f, int e)
 {                               /* loads font |f| expanded by |e| thousandths into font memory; |e| is nonzero
                                    and is a multiple of |font_step(f)| */
-    str_number s;               /* font name */
     internal_font_number k;
-    s = expand_font_name(f, e);
-    k = tfm_lookup(s, font_size(f));
+    k = tfm_lookup(font_name(f), font_size(f), e);
     if (k == null_font) {
         if (font_auto_expand(f)) {
             k = auto_expand_font(f, e);
             font_id_text(k) = font_id_text(f);
         } else {
-            k = read_font_info(null_cs, s, font_size(f), font_natural_dir(f));
+            k = read_font_info(null_cs, font_name(f), font_size(f),
+                               font_natural_dir(f));
         }
     }
     copy_expand_params(k, f, e);

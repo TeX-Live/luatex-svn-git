@@ -1,6 +1,6 @@
 /* texdeffont.c
 
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -89,6 +89,7 @@ void tex_def_font(small_number a)
     int offset = 0;
     scaled s = -1000;           /* stated ``at'' size, or negative of scaled magnification */
     int natural_dir = -1;       /* the natural direction of the font */
+    char *fn;
     if (job_name == 0)
         open_log_file();        /* avoid confusing \.{texput} with the font name */
     get_r_token();
@@ -195,7 +196,9 @@ void tex_def_font(small_number a)
         natural_dir = cur_val;
     }
     name_in_progress = false;
-    f = read_font_info(u, cur_name, s, natural_dir);
+    fn = makecstring(cur_name);
+    f = read_font_info(u, fn, s, natural_dir);
+    xfree(fn);
     equiv(u) = f;
     eqtb[font_id_base + f] = eqtb[u];
     cs_text(font_id_base + f) = t;

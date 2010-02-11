@@ -1,6 +1,6 @@
 /* pdffont.h
 
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -31,7 +31,7 @@ extern int pk_dpi;              /* PK pixel density value from \.{texmf.cnf} */
 
 extern void copy_expand_params(internal_font_number k, internal_font_number f,
                                int e);
-extern internal_font_number tfm_lookup(str_number s, scaled fs);
+extern internal_font_number tfm_lookup(char *s, scaled fs, int e);
 extern internal_font_number expand_font(internal_font_number f, int e);
 
 extern void set_expand_params(internal_font_number f, boolean auto_expand,

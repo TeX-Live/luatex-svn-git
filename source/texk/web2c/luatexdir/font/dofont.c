@@ -1,5 +1,5 @@
 /* dofont.c
-   
+
    Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -22,7 +22,8 @@
 #include "lua/luatex-api.h"
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+    "$URL$";
 
 /* a bit more interfacing is needed for proper error reporting */
 
@@ -102,16 +103,13 @@ static int do_define_font(int f, const char *cnom, scaled s, int natural_dir)
 
 }
 
-int read_font_info(pointer u, str_number nom, scaled s, int natural_dir)
+int read_font_info(pointer u, char *cnom, scaled s, int natural_dir)
 {
     int f;
-    char *cnom;
     char *msg;
-    cnom = makecstring(nom);
 
     f = new_font();
     if ((f = do_define_font(f, cnom, s, natural_dir))) {
-        free(cnom);
         return f;
     } else {
         const char *help[] =
@@ -127,12 +125,11 @@ int read_font_info(pointer u, str_number nom, scaled s, int natural_dir)
             tex_error(msg, help);
             free(msg);
         }
-        free(cnom);
         return 0;
     }
 }
 
-/* TODO This function is a placeholder. There can easily appears holes in 
+/* TODO This function is a placeholder. There can easily appears holes in
    the |font_tables| array, and we could attempt to reuse those
 */
 
