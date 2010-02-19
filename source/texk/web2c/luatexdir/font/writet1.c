@@ -498,8 +498,9 @@ static void t1_getline(void)
             else
                 eexec_scan = -1;
         }
-        if (c == 10 || (t1_pfa && eexec_scan == eexec_len && c == 32))
+        if (c == 10 || c == 13 ||(t1_pfa && eexec_scan == eexec_len && c == 32)) {
             break;
+        }
         if (t1_cs && t1_cslen == 0 && (t1_line_ptr - t1_line_array > 4) &&
             (t1_suffix(" RD ") || t1_suffix(" -| "))) {
             p = t1_line_ptr - 5;
