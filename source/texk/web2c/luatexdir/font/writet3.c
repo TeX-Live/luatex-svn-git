@@ -219,7 +219,7 @@ static boolean writepk(PDF pdf, internal_font_number f)
     return true;
 }
 
-void writet3(PDF pdf, int objnum, internal_font_number f)
+void writet3(PDF pdf, internal_font_number f)
 {
 
     int i;
@@ -249,7 +249,7 @@ void writet3(PDF pdf, int objnum, internal_font_number f)
         if (pdf_char_marked(f, i))
             break;
     last_char = i;
-    pdf_begin_dict(pdf, objnum, 1);     /* Type 3 font dictionary */
+    pdf_begin_dict(pdf, pdf_font_num(f), 1);    /* Type 3 font dictionary */
     pdf_puts(pdf, "/Type /Font\n/Subtype /Type3\n");
     pdf_printf(pdf, "/Name /F%i\n", (int) f);
     if (pdf_font_attr(f) != get_nullstr() && pdf_font_attr(f) != 0) {

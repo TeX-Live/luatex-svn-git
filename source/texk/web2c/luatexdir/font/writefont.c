@@ -27,9 +27,7 @@ static const char _svn_version[] =
 #include "lua/luatex-api.h"
 
 void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internal_font_number f);
-void create_cid_fontdictionary(PDF pdf,
-                               fm_entry * fm, int font_objnum,
-                               internal_font_number f);
+void create_cid_fontdictionary(PDF pdf, fm_entry * fm, internal_font_number f);
 
 const key_entry font_key[FONT_KEYS_NUM] = {
     {"Ascent", "Ascender", 1}
@@ -654,8 +652,7 @@ void write_fontstuff(PDF pdf)
 
 /**********************************************************************/
 
-void create_fontdictionary(PDF pdf, fm_entry * fm, int font_objnum,
-                           internal_font_number f)
+void create_fontdictionary(PDF pdf, fm_entry * fm, internal_font_number f)
 {
     fo_entry *fo = new_fo_entry();
     get_char_range(fo, f);      /* set fo->first_char and fo->last_char from f */
@@ -663,7 +660,7 @@ void create_fontdictionary(PDF pdf, fm_entry * fm, int font_objnum,
         fo->last_char = 255;    /* added 9-4-2008, mantis #25 */
     assert(fo->last_char >= fo->first_char);
     fo->fm = fm;
-    fo->fo_objnum = font_objnum;
+    fo->fo_objnum = pdf_font_num(f);
     fo->tex_font = f;
     if (is_reencoded(fo->fm)) { /* at least the map entry tells so */
         fo->fe = get_fe_entry(fo->fm->encname); /* returns NULL if .enc file couldn't be opened */
@@ -733,7 +730,7 @@ static int has_ttf_outlines(fm_entry * fm)
     return 0;
 }
 
-void do_pdf_font(PDF pdf, int font_objnum, internal_font_number f)
+void do_pdf_font(PDF pdf, internal_font_number f)
 {
     int del_file = 0;
     fm_entry *fm;
@@ -809,7 +806,7 @@ void do_pdf_font(PDF pdf, int font_objnum, internal_font_number f)
             }
         }
         set_cidkeyed(fm);
-        create_cid_fontdictionary(pdf, fm, font_objnum, f);
+        create_cid_fontdictionary(pdf, fm, f);
 
         if (del_file)
             unlink(fm->ff_name);
@@ -818,9 +815,9 @@ void do_pdf_font(PDF pdf, int font_objnum, internal_font_number f)
         /* by now font_map(f), if any, should have been set via pdf_init_font() */
         fm = font_map(f);
         if (fm == NULL || (fm->ps_name == NULL && fm->ff_name == NULL))
-            writet3(pdf, font_objnum, f);
+            writet3(pdf, f);
         else
-            create_fontdictionary(pdf, fm, font_objnum, f);
+            create_fontdictionary(pdf, fm, f);
     }
 }
 
@@ -945,15 +942,13 @@ static void write_cid_charwidth_array(PDF pdf, fo_entry * fo)
     pdf_end_obj(pdf);
 }
 
-void create_cid_fontdictionary(PDF pdf,
-                               fm_entry * fm, int font_objnum,
-                               internal_font_number f)
+void create_cid_fontdictionary(PDF pdf, fm_entry * fm, internal_font_number f)
 {
     fo_entry *fo = new_fo_entry();
     get_char_range(fo, f);      /* set fo->first_char and fo->last_char from f */
     assert(fo->last_char >= fo->first_char);
     fo->fm = fm;
-    fo->fo_objnum = font_objnum;
+    fo->fo_objnum = pdf_font_num(f);
     fo->tex_font = f;
     create_cid_fontdescriptor(fo, f);
     mark_cid_subset_glyphs(fo, f);

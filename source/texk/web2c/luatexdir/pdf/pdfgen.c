@@ -2190,7 +2190,8 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             while (k != 0) {
                 f = obj_info(pdf, k);
                 assert(pdf_font_num(f) > 0);
-                do_pdf_font(pdf, k, f);
+                assert(pdf_font_num(f) == k);
+                do_pdf_font(pdf, f);
                 k = obj_link(pdf, k);
             }
             write_fontstuff(pdf);
