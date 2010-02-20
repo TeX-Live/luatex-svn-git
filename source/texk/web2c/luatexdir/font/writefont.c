@@ -27,7 +27,7 @@ static const char _svn_version[] =
 #include "lua/luatex-api.h"
 
 void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internal_font_number f);
-void create_cid_fontdictionary(PDF pdf, fm_entry * fm, internal_font_number f);
+static void create_cid_fontdictionary(PDF pdf, internal_font_number f);
 
 const key_entry font_key[FONT_KEYS_NUM] = {
     {"Ascent", "Ascender", 1}
@@ -652,9 +652,10 @@ void write_fontstuff(PDF pdf)
 
 /**********************************************************************/
 
-void create_fontdictionary(PDF pdf, fm_entry * fm, internal_font_number f)
+static void create_fontdictionary(PDF pdf, internal_font_number f)
 {
     fo_entry *fo = new_fo_entry();
+    fm_entry *fm = font_map(f);
     get_char_range(fo, f);      /* set fo->first_char and fo->last_char from f */
     if (fo->last_char > 255)
         fo->last_char = 255;    /* added 9-4-2008, mantis #25 */
@@ -745,7 +746,7 @@ void do_pdf_font(PDF pdf, internal_font_number f)
         /* Create a virtual font map entry, as this is needed by the
          * rest of the font inclusion mechanism.
          */
-        fm = new_fm_entry();
+        fm = font_map(f) = new_fm_entry();
         fm->tfm_name = font_name(f);    /* or whatever, not a real tfm */
         fm->ff_name = font_filename(f); /* the actual file */
         if (font_psname(f) != NULL)
@@ -806,18 +807,18 @@ void do_pdf_font(PDF pdf, internal_font_number f)
             }
         }
         set_cidkeyed(fm);
-        create_cid_fontdictionary(pdf, fm, f);
+        create_cid_fontdictionary(pdf, f);
 
         if (del_file)
             unlink(fm->ff_name);
 
     } else {
         /* by now font_map(f), if any, should have been set via pdf_init_font() */
-        fm = font_map(f);
-        if (fm == NULL || (fm->ps_name == NULL && fm->ff_name == NULL))
+        if ((fm = font_map(f)) == NULL
+            || (fm->ps_name == NULL && fm->ff_name == NULL))
             writet3(pdf, f);
         else
-            create_fontdictionary(pdf, fm, f);
+            create_fontdictionary(pdf, f);
     }
 }
 
@@ -942,8 +943,9 @@ static void write_cid_charwidth_array(PDF pdf, fo_entry * fo)
     pdf_end_obj(pdf);
 }
 
-void create_cid_fontdictionary(PDF pdf, fm_entry * fm, internal_font_number f)
+static void create_cid_fontdictionary(PDF pdf, internal_font_number f)
 {
+    fm_entry *fm = font_map(f);
     fo_entry *fo = new_fo_entry();
     get_char_range(fo, f);      /* set fo->first_char and fo->last_char from f */
     assert(fo->last_char >= fo->first_char);
