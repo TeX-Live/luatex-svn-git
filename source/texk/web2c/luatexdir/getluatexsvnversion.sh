@@ -10,8 +10,9 @@ fi
 FILE="source/texk/web2c/luatexdir/luatex_svnversion.h"
 
 LANG=C
-if [[ -x `svnversion` ]]
+if [[ -x `which svnversion` ]]
 then
+  svn up > /dev/null
   svnversion | sed -ne "s/^\([0-9]*\).*$/\#define luatex_svn_revision \1/p" > $FILE
 else
    if [[ ! -r $FILE ]]
