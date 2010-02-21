@@ -7,14 +7,12 @@ then
   a=trunk
 fi
 
-URL="http://foundry.supelec.fr/svn/luatex"
 FILE="source/texk/web2c/luatexdir/luatex_svnversion.h"
 
 LANG=C
-if [[ -x `which svn` ]]
+if [[ -x `svnversion` ]]
 then
-  svn info "$URL/$a/source" | 
-    sed -ne "s/^Last Changed Rev:/\#define luatex_svn_revision/p" > $FILE
+  svnversion | sed -ne "s/^\([0-9]*\).*$/\#define luatex_svn_revision \1/p" > $FILE
 else
    if [[ ! -r $FILE ]]
    then
