@@ -1,4 +1,5 @@
 #! /bin/sh
+$DEBUG
 a=$1
 shift
 if [ "x$a" = "x" ] 
@@ -9,6 +10,7 @@ fi
 URL="http://foundry.supelec.fr/svn/luatex"
 FILE="source/texk/web2c/luatexdir/luatex_svnversion.h"
 
+LANG=C
 if [[ -x `which svn` ]]
 then
   svn info "$URL/$a/source" | 
