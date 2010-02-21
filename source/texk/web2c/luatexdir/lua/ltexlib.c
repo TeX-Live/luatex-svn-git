@@ -237,42 +237,310 @@ void luacstring_close(int n)
      lua_error(L);  }
 
 
+static const char *scan_integer_part (lua_State *L, const char *ss, int *ret, int *radix_ret)
+{
+    boolean negative = false;   /* should the answer be negated? */
+    int m;                      /* |$2^{31}$ / radix|, the threshold of danger */
+    int d;                      /* the digit just scanned */
+    boolean vacuous;            /* have no digits appeared? */
+    boolean OK_so_far;          /* has an error message been issued? */
+    int radix = 0;              /* the radix of the integer */
+    int c = 0;                  /* the current character */
+    const char *s;              /* where we stopped in the string |ss| */
+    integer cur_val = 0;        /* return value */
+    s = ss;
+    do {
+        do {
+            c = *s++;
+        } while (c && c == ' ');
+        if (c == '-') {
+            negative = !negative;
+            c = '+';
+        }
+    } while (c == '+');
+
+
+    radix = 10;
+    m = 214748364;
+    if (c == '\'') {
+	radix = 8;
+	m = 02000000000;
+	c = *s++;
+    } else if (c == '"') {
+	radix = 16;
+	m = 01000000000;
+	c = *s++;
+    }
+    vacuous = true;
+    cur_val = 0;      
+    
+    /* Accumulate the constant until |cur_tok| is not a suitable digit */
+    while (1) {
+	if ((c < '0' + radix) && (c >= '0') && (c <= '0' + 9)) {
+	    d = c - '0';
+	} else if (radix == 16) {
+	    if ((c <= 'A' + 5) && (c >= 'A')) {
+		d = c - 'A' + 10;
+	    } else if ((c <= 'a' + 5)  && (c >= 'a')) {
+		d = c - 'a' + 10;
+	    } else {
+		break;
+	    }
+	} else {
+	    break;
+	}
+	vacuous = false;
+	if ((cur_val >= m) && ((cur_val > m) || (d > 7) || (radix != 10))) {
+	    if (OK_so_far) {
+		lua_pushstring(L, "Number too big");
+		lua_error(L);
+		cur_val = infinity;
+		OK_so_far = false;
+	    }
+	} else {
+	    cur_val = cur_val * radix + d;
+	}
+	c=*s++;
+    }
+    if (vacuous) {
+	/* Express astonishment that no number was here */
+	lua_pushstring(L, "Missing number, treated as zero");
+	lua_error(L);
+    }
+    if (negative)
+        cur_val = -cur_val;
+    *ret = cur_val;
+    *radix_ret = radix;
+    if (c != ' ' && s>ss)
+        s--;
+    return s;
+}
+
+#define set_conversion(A,B) do { num=(A); denom=(B); } while(0)
+
+
+static const char *scan_dimen_part(lua_State *L, const char *ss, int *ret)
+/* sets |cur_val| to a dimension */
+{
+    boolean negative = false;   /* should the answer be negated? */
+    int f = 0;                  /* numerator of a fraction whose denominator is $2^{16}$ */
+    int num, denom;             /* conversion ratio for the scanned units */
+    int k;                      /* number of digits in a decimal fraction */
+    scaled v;                   /* an internal dimension */
+    int save_cur_val;           /* temporary storage of |cur_val| */
+    int arith_error = false;    
+    int c;                      /* the current character */
+    const char *s = ss;         /* where we are in the string */
+    int radix = 0;              /* the current radix */
+    int rdig[18];               /* to save the |dig[]| array */
+    int saved_tex_remainder;    /* to save |tex_remainder|  */
+    int saved_arith_error;      /* to save |arith_error|  */
+    int saved_cur_val;          /* to save the global |cur_val| */
+    saved_tex_remainder = tex_remainder;
+    saved_arith_error = arith_error;
+    saved_cur_val = cur_val;
+    /* Get the next non-blank non-sign... */
+    do {
+	/* Get the next non-blank non-call token */
+	do {
+	    c = *s++;
+	} while (c && c == ' ');
+	if (c == '-') {
+	    negative = !negative;
+	    c = '+';
+	}
+    } while (c == '+');
+    
+    if (c == ',') {
+	c = '.';
+    }
+    if (c != '.') {
+	s = scan_integer_part(L,(s>ss?(s-1):ss), &cur_val, &radix);
+        c = *s;
+    } else {
+	radix = 10;
+	cur_val = 0;
+        c = *(--s);
+    }
+    if (c == ',')
+	c = '.';
+    if ((radix == 10) && (c == '.')) {
+	/* Scan decimal fraction */ 
+        for (k=0;k<18;k++)
+	    rdig[k] = dig[k];
+	k = 0;
+        s++; /* get rid of the '.' */
+	while (1) {
+	    c = *s++;
+	    if ((c > '0' + 9) || (c < '0'))
+		break;
+	    if (k < 17) {       /* digits for |k>=17| cannot affect the result */
+		dig[k++] = c - '0';
+	    }
+	}
+	f = round_decimals(k);
+	if (c != ' ')
+	    c = *(--s);
+        for (k=0;k<18;k++)
+	    dig[k] = rdig[k];
+    }
+    if (cur_val < 0) {          /* in this case |f=0| */
+        negative = !negative;
+        cur_val = -cur_val;
+    }
+
+    /* Scan for (u)units that are internal dimensions;
+       |goto attach_sign| with |cur_val| set if found */
+    save_cur_val = cur_val;
+    /* Get the next non-blank non-call... */
+    do {
+        c = *s++;
+    } while (c && c == ' ');
+    if (c != ' ')
+        c = *(--s);
+    if (strncmp(s,"em",2)==0) {
+        s+=2;
+        v = (quad(get_cur_font()));
+    } else if (strncmp(s,"ex",2)==0) {
+        s+=2;
+        v = (x_height(get_cur_font()));
+    } else if (strncmp(s,"px",2)==0) {
+        s+=2;
+        v = dimen_par(pdf_px_dimen_code);
+    } else {
+        goto NOT_FOUND;
+    }
+    c= *s++;
+    if (c != ' ') {  c= *(--s); }
+    cur_val = nx_plus_y(save_cur_val, v, xn_over_d(v, f, 0200000));
+    goto ATTACH_SIGN;
+  NOT_FOUND:
+
+    /* Scan for (m)\.{mu} units and |goto attach_fraction| */
+    if (strncmp(s,"mu",2)==0) {
+        s+=2;
+	goto ATTACH_FRACTION;
+    }
+    if (strncmp(s,"true",4)==0) {
+        /* Adjust (f)for the magnification ratio */
+        s+=4;
+        prepare_mag();
+        if (int_par(mag_code) != 1000) {
+            cur_val = xn_over_d(cur_val, 1000, int_par(mag_code));
+            f = (1000 * f + 0200000 * tex_remainder) / int_par(mag_code);
+            cur_val = cur_val + (f / 0200000);
+            f = f % 0200000;
+        }
+        do {
+            c = *s++;
+        } while (c && c == ' ');
+        c = *(--s);
+    }
+    if (strncmp(s,"pt",2)==0) {
+        s+=2;
+        goto ATTACH_FRACTION;   /* the easy case */
+    }
+    /* Scan for (a)all other units and adjust |cur_val| and |f| accordingly;
+       |goto done| in the case of scaled points */
+
+    if (strncmp(s,"in",2)==0) {
+        s+=2;
+        set_conversion(7227, 100);
+    } else if (strncmp(s,"pc",2)==0) {
+        s+=2;
+        set_conversion(12, 1);
+    } else if (strncmp(s,"cm",2)==0) {
+        s+=2;
+        set_conversion(7227, 254);
+    } else if (strncmp(s,"mm",2)==0) {
+        s+=2;
+        set_conversion(7227, 2540);
+    } else if (strncmp(s,"bp",2)==0) {
+        s+=2;
+        set_conversion(7227, 7200);
+    } else if (strncmp(s,"dd",2)==0) {
+        s+=2;
+        set_conversion(1238, 1157);
+    } else if (strncmp(s,"cc",2)==0) {
+        s+=2;
+        set_conversion(14856, 1157);
+    } else if (strncmp(s,"nd",2)==0) {
+        s+=2;
+        set_conversion(685, 642);
+    } else if (strncmp(s,"nc",2)==0) {
+        s+=2;
+        set_conversion(1370, 107);
+    } else if (strncmp(s,"sp",2)==0) {
+        s+=2;
+        goto DONE;
+    } else {
+        /* Complain about unknown unit and |goto done2| */
+        lua_pushstring(L, "Illegal unit of measure (pt inserted)");
+        lua_error(L);
+        goto DONE2;
+    }
+    cur_val = xn_over_d(cur_val, num, denom);
+    f = (num * f + 0200000 * tex_remainder) / denom;
+    cur_val = cur_val + (f / 0200000);
+    f = f % 0200000;
+  DONE2:
+  ATTACH_FRACTION:
+    if (cur_val >= 040000)
+        arith_error = true;
+    else
+        cur_val = cur_val * 65536 + f;
+  DONE:
+    /* Scan an optional space */
+    c = *s++;
+    if (c != ' ')
+        s--;
+  ATTACH_SIGN:
+    if (arith_error || (abs(cur_val) >= 010000000000)) {
+        /* Report that this dimension is out of range */
+        lua_pushstring(L, "Dimension too large");
+        lua_error(L);
+        cur_val = max_dimen;
+    }
+    if (negative)
+        cur_val = -cur_val;
+    *ret = cur_val;
+    tex_remainder = saved_tex_remainder;
+    arith_error = saved_arith_error;
+    cur_val = saved_cur_val;
+    return s;
+}
+
 int dimen_to_number(lua_State * L, const char *s)
 {
-    double v;
-    char *d;
-    int j;
-    v = strtod(s, &d);
-    if (strcmp(d, "in") == 0) {
-        j = (int) (((v * 7227) / 100) * 65536);
-    } else if (strcmp(d, "pc") == 0) {
-        j = (int) ((v * 12) * 65536);
-    } else if (strcmp(d, "cm") == 0) {
-        j = (int) (((v * 7227) / 254) * 65536);
-    } else if (strcmp(d, "mm") == 0) {
-        j = (int) (((v * 7227) / 2540) * 65536);
-    } else if (strcmp(d, "bp") == 0) {
-        j = (int) (((v * 7227) / 7200) * 65536);
-    } else if (strcmp(d, "dd") == 0) {
-        j = (int) (((v * 1238) / 1157) * 65536);
-    } else if (strcmp(d, "cc") == 0) {
-        j = (int) (((v * 14856) / 1157) * 65536);
-    } else if (strcmp(d, "nd") == 0) {
-        j = (int) (((v * 21681) / 20320) * 65536);
-    } else if (strcmp(d, "nc") == 0) {
-        j = (int) (((v * 65043) / 5080) * 65536);
-    } else if (strcmp(d, "pt") == 0) {
-        j = (int) (v * 65536);
-    } else if (strcmp(d, "sp") == 0) {
-        j = (int) (v);
-    } else {
-        lua_pushstring(L, "unknown dimension specifier");
+    int j = 0;
+    const char *d = scan_dimen_part(L, s, &j);
+    if (*d) {
+        lua_pushstring(L, "conversion failed (trailing junk?)");
         lua_error(L);
         j = 0;
     }
     return j;
 }
 
+
+static int tex_scaledimen(lua_State * L) /* following vsetdimen() */
+{
+    int sp;
+    if (!lua_isnumber(L, 1)) {
+        if (lua_isstring(L, 1)) {
+            sp = dimen_to_number(L, lua_tostring(L, 1));
+        } else {
+            lua_pushstring(L, "argument must be a string or a number");
+            lua_error(L);
+            return 0;
+        }
+    } else {
+        lua_number2int(sp, lua_tonumber(L, 1));
+    }
+    lua_pushnumber(L, sp);
+    return 1;
+}
+ 
 
 int get_item_index(lua_State * L, int i, int base)
 {
@@ -1571,6 +1839,7 @@ static const struct luaL_reg texlib[] = {
     {"getboxdp", getboxdp},
     {"round", tex_roundnumber},
     {"scale", tex_scaletable},
+    {"sp", tex_scaledimen}, 
     {"fontname", getfontname},
     {"fontidentifier", getfontidentifier},
     {"pdffontname", getpdffontname},
