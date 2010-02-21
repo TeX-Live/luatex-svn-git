@@ -108,6 +108,9 @@ then
   mkdir "$B"
 fi
 #
+# get a new svn version header
+./source/texk/web2c/luatexdir/getluatexsvnversion.sh
+
 cd "$B"
 
 if [ "$ONLY_MAKE" = "FALSE" ]

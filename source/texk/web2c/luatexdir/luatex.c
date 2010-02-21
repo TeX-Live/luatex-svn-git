@@ -11,16 +11,19 @@
    Makefile rule.  */
 #include "luatex.h"
 
+#include "luatex_svnversion.h"
+
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
 #define TeX
 
-int luatex_version = 50;        /* \.{\\luatexversion}  */
+int luatex_svn = luatex_svn_revision;
+int luatex_version = 51;        /* \.{\\luatexversion}  */
 int luatex_revision = '0';      /* \.{\\luatexrevision}  */
 int luatex_date_info = -extra_version_info;     /* the compile date is negated */
-const char *luatex_version_string = "beta-0.50.0";
+const char *luatex_version_string = "beta-0.51.0";
 const char *engine_name = "luatex";     /* the name of this engine */
 
 

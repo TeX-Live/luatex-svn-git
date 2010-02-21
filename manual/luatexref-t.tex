@@ -22,7 +22,7 @@
 
 \setvariables
   [document]
-  [beta=0.50.0]
+  [beta=0.51.0]
 
 \starttext
 
@@ -4739,6 +4739,7 @@ The current list is:
 \NC callbacks\NC                 total number of executed callbacks so far\NC \NR
 \NC indirect_callbacks\NC        number of those that were themselves
                                  a result of other callbacks (e.g. file readers)\NC \NR
+\NC luatex_svn\NC                the luatex repository id  (added in 0.51)\NC\NR
 \NC luatex_version\NC            the luatex version number (added in 0.38)\NC\NR
 \NC luatex_revision\NC           the luatex revision string (added in 0.38)\NC\NR
 \NC ini_version\NC               \type{true} if this is an \INITEX\ run (added in 0.38)\NC\NR
@@ -5468,8 +5469,29 @@ of range, it generates \quote{number to big} error(s) as well.
 
 Note: the precision of the output of this function will depend on your
 computer's architecture and operating system, so use with care! An
-interface to \TEX's internal, 100\% portable scale function will be
+interface to \LUATEX's internal, 100\% portable scale function will be
 added at a later date.
+
+\subsubsection{\luatex{tex.sp}}
+
+\startfunctioncall
+<number> n = tex.sp(<number> o)
+<number> n = tex.sp(<string> s)
+\stopfunctioncall
+
+Converts the number \type{o} or a string \type{s} that represents 
+an explicit dimension into an integer number of scaled points.
+
+For parsing the string, the same scanning and conversion rules are used
+that \LUATEX\ would use if it was scanning a dimension specifier in 
+its \TEX-like input language (this includes generating errors for bad 
+values), expect for the following: 
+
+\startitemize[n]
+\item only explicit values are allowed, control sequences are not handled
+\item infinite dimension units (\type{fil...}) are forbidden
+\item \type{mu} units do not generate an error (but may not be useful either)
+\stopitemize
 
 \subsubsection{\luatex{tex.definefont}}
 

@@ -169,6 +169,7 @@ static struct statistic stats[] = {
     {"log_name", 'S', (void *)&getlogname},
     {"banner", 'S', (void *)&getbanner},
     {"pdftex_banner", 'S', (void *)&get_pdftex_banner},
+    {"luatex_svn", 'G', &get_luatexsvn},
     {"luatex_version", 'G', &get_luatexversion},
     {"luatex_revision", 'S', (void *)&luatexrevision},
     {"ini_version", 'b', &ini_version},

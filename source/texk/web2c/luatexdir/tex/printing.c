@@ -351,13 +351,16 @@ and format identifier together will occupy at most |max_print_line|
 character positions.
 */
 
-void print_banner(const char *v, int e)
+void print_banner(const char *v, int e, int ver)
 {
     boolean res;
     int callback_id;
     callback_id = callback_defined(start_run_callback);
     if (callback_id == 0) {
-        fprintf(term_out, "This is LuaTeX, Version %s-%d", v, e);
+        if (ver<0)
+	    fprintf(term_out, "This is LuaTeX, Version %s-%d ", v, e);
+        else
+	    fprintf(term_out, "This is LuaTeX, Version %s-%d (rev %d) ", v, e, ver);
         if (format_ident > 0)
             slow_print(format_ident);
         print_ln();
@@ -372,7 +375,7 @@ void print_banner(const char *v, int e)
     }
 }
 
-void log_banner(const char *v, int e)
+void log_banner(const char *v, int e, int ver)
 {
     const char *months[] = { "   ",
         "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
@@ -381,7 +384,10 @@ void log_banner(const char *v, int e)
     unsigned month = (unsigned) int_par(month_code);
     if (month > 12)
         month = 0;
-    fprintf(log_file, "This is LuaTeX, Version %s-%d", v, e);
+    if (ver<0)
+	fprintf(log_file, "This is LuaTeX, Version %s-%d ", v, e);
+    else
+	fprintf(log_file, "This is LuaTeX, Version %s-%d (rev %d) ", v, e, ver);
     slow_print(format_ident);
     print_char(' ');
     print_char(' ');

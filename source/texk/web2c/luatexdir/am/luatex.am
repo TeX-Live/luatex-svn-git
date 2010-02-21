@@ -48,7 +48,7 @@ luatex_DEPENDENCIES += $(OBSDCOMPAT_DEPEND) libmd5.a libmplib.a
 
 $(luatex_OBJECTS): libluatex.a libmplib.a
 
-luatex_SOURCES = luatexdir/luatex.c luatexdir/luatex.h
+luatex_SOURCES = luatexdir/luatex_svnversion.h luatexdir/luatex.c luatexdir/luatex.h
 
 # Double-colon rules since we do something similar in mplibdir (maybe others).
 if LUATEX
