@@ -109,7 +109,7 @@ then
 fi
 #
 # get a new svn version header
-./source/texk/web2c/luatexdir/getluatexsvnversion.sh
+( cd source  ; ./texk/web2c/luatexdir/getluatexsvnversion.sh )
 
 cd "$B"
 
