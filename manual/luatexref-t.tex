@@ -755,29 +755,68 @@ and that it accepts (but ignores) the \type{--luaconly} switch.
 When the \LUATEX\ executable starts, it looks for the \type{--lua}
 commandline option. If there is no \type{--lua} option, the
 commandline is interpreted in a similar fashion as in traditional
-\PDFTEX\ and \ALEPH. But if the option is present, \LUATEX\ will enter an
-alternative mode of commandline parsing in comparison to the standard
-web2c programs.
+\PDFTEX\ and \ALEPH. 
 
-In this mode, a small series of actions is taken in order. At first,
-it will only interpret a small subset of the commandline directly:
+The following command-line switches are understood.
 
 \starttabulate[|lT|p|]
-\NC --lua=s    \NC load and execute a \LUA\ initialization script      \NC\NR
+\NC --fmt=FORMAT \NC load the format file FORMAT             \NC\NR
+\NC --lua=s    \NC load and execute a \LUA\ initialization script\NC\NR
 \NC --safer    \NC disable easily exploitable \LUA\ commands \NC\NR
 \NC --nosocket \NC disable the \LUA\ socket library          \NC\NR
 \NC --help     \NC display help and exit                     \NC\NR
-\NC --version  \NC display version and exit                  \NC\NR
+\NC --ini      \NC be iniluatex, for dumping formats         \NC\NR
+\NC --interaction=STRING      \NC  set interaction mode (STRING=batchmode/nonstopmode/\crlf
+                                   scrollmode/errorstopmode) \NC \NR
+\NC --halt-on-error           \NC  stop processing at the first error\NC \NR
+\NC --kpathsea-debug=NUMBER   \NC set path searching debugging flags according to
+                                  the bits of NUMBER  \NC \NR
+\NC --progname=STRING         \NC set the program name to STRING \NC \NR
+\NC --version                 \NC display version and exit                  \NC\NR
+\NC --credits                 \NC display credits and exit                  \NC\NR
+\NC --recorder                \NC enable filename recorder \NC \NR
+\NC --etex                    \NC ignored\NC \NR
+\NC --output-comment=STRING   \NC use STRING for DVI file comment instead of date
+                                (no effect for PDF)\NC \NR
+\NC --output-directory=DIR    \NC use DIR as the directory to write files to \NC \NR
+\NC --draftmode               \NC  switch on draft mode (generates no output PDF)\NC \NR
+\NC --output-format=FORMAT     \NC use FORMAT for job output; FORMAT is 'dvi' or 'pdf' \NC \NR
+\NC --[no-]shell-escape       \NC disable/enable \type{\write18{SHELL COMMAND}} \NC \NR
+\NC --enable-write18          \NC enable \type{\write18{SHELL COMMAND}} \NC \NR
+\NC --disable-write18         \NC disable \type{\write18{SHELL COMMAND}} \NC \NR
+\NC --shell-restricted        \NC restrict \type{\write18} to a list of commands 
+                                  given in texmf.cnf \NC \NR
+\NC --debug-format            \NC enable format debugging \NC \NR
+\NC --[no-]file-line-error       \NC disable/enable file:line:error style messages  \NC \NR
+\NC --[no-]file-line-error-style \NC  aliases of --[no-]file-line-error \NC \NR
+\NC --jobname=STRING          \NC set the job name to STRING \NC \NR
+\NC --[no-]parse-first-line   \NC disable/enable parsing of the first line of the
+                                  input file \NC \NR
+\NC --translate-file=         \NC ignored \NC \NR
+\NC --default-translate-file= \NC ignored \NC \NR
+\NC --8bit                    \NC ignored \NC \NR
+\NC --[no-]mktex=FMT         \NC  disable/enable mktexFMT generation (FMT=tex/tfm)\NC \NR
+\NC --synctex=NUMBER          \NC enable synctex \NC \NR
 \stoptabulate
+
+But if the option is present, \LUATEX\ will enter an alternative mode
+of commandline processing in comparison to the standard web2c
+programs.
+
+In this mode, a small series of actions is taken in order. First,
+it will parse the commandline as usual, but it will only interpret 
+a small subset of the options immediately: \type{--safer}, \type{--nosocket}, 
+\type{--[no-]shell-escape}, \type{--enable-write18}, \type{--disable-write18},
+\type{--shell-restricted}, \type{--help}, \type{--version}, and \type{--credits}.
 
 Now it searches for the requested \LUA\ initialization script. If it
 can not be found using the actual name given on the commandline, a
 second attempt is made by prepending the value of the environment
 variable \type{LUATEXDIR}, if that variable is defined.
 
-Then it checks the \type{--safer} switch. You can use that to disable
+Then it checks the various safety switches. You can use those to disable
 some \LUA\ commands that can easily be abused by a malicious document. At
-the moment, this switch \type{nil}s the following functions:
+the moment, \type{--safer} \type{nil}s the following functions:
 
 \starttabulate[|l|l|]
 \NC \bf library \NC \bf functions                         \NC \NR
@@ -786,11 +825,18 @@ the moment, this switch \type{nil}s the following functions:
 \NC \tt lfs     \NC \tt rmdir mkdir chdir lock touch      \NC \NR
 \stoptabulate
 
-Furthermore, it disables loading of compiled \LUA\ libraries
-(support for these was added in 0.46.0).
+Furthermore, it disables loading of compiled \LUA\ libraries (support
+for these was added in 0.46.0), and it makes \lua{io.open()} fail on
+files that are opened for anything besides reading.
 
-And it makes \lua{io.open()} fail on files that are opened for
-anything besides reading.
+\type{--nosocket} makes the socket library unavailable, so that
+\LUA\ cannot use networking.
+
+The switches \type{--[no-]shell-escape}, \type{--[enable|disable]-write18}, and
+\type{--shell-restricted} have the same
+effects as in \PDFTEX, and additionally make
+\type{io.popen()}, \type{os.execute}, \type{os.exec} and \type{os.spawn}
+adhere to the requested option.
 
 Next the initialization script is loaded and executed. From within the
 script, the entire commandline is available in the \LUA\ table
@@ -800,8 +846,7 @@ Commandline processing happens very early on. So early, in fact, that
 none of \TEX's initializations have taken place yet. For that reason,
 the tables that deal with typesetting, like \luatex{tex}, \luatex{token},
 \luatex{node} and \luatex{pdf}, are off|-|limits during the execution
-of the startup file (they are
-nilled). Special care is taken that \luatex{texio.write} and
+of the startup file (they are nilled). Special care is taken that \luatex{texio.write} and
 \luatex{texio.write_nl} function properly, so that you can at least
 report your actions to the log file when (and if) it eventually
 becomes opened (note that \TEX\ does not even know its \tex{jobname}
@@ -820,8 +865,10 @@ four global names, as they will be overwritten completely.
 We recommend you use the startup file only for your own
 \TEX|-|independent initializations (if you need any), to parse the
 commandline, set values in the \luatex{texconfig} table, and register
-the callbacks you need. \LUATEX\ will fetch some of the other
-commandline options from the \luatex{texconfig} table at the end of
+the callbacks you need. 
+
+\LUATEX\ allows some of the commandline opiotns to be overridden
+by reading values from the \luatex{texconfig} table at the end of
 script execution (see the description of the \luatex{texconfig} table
 later on in this document for more details on which ones exactly).
 
@@ -830,17 +877,10 @@ Unless the \luatex{texconfig} table tells \LUATEX\ not to initialize
 \LUATEX\ acts on three more commandline options after the
 initialization script is finished:
 
-\starttabulate[|l|l|]
-\NC \bf flag         \NC \bf meaning                           \NC \NR
-\NC \tt --fmt=s      \NC set the format name                   \NC \NR
-\NC \tt --progname=s \NC set the progname (only for \KPATHSEA) \NC \NR
-\NC \tt --ini        \NC enable \INITEX\ mode                  \NC \NR
-\stoptabulate
-
-In order to initialize the built|-|in \KPATHSEA\ library properly,
-\LUATEX\ needs to know the correct \type{progname} to use, and for that it
-needs to check \type{--progname} (and \type{--ini} and \type{--fmt}, if
-\type{--progname} is missing).
+in order to initialize the built|-|in \KPATHSEA\ library properly,
+\LUATEX\ needs to know the correct program name to use, and for that it
+needs to check \type{--progname}, or \type{--ini} and \type{--fmt}, if
+\type{--progname} is missing.
 
 \section{\LUA\ changes}
 
@@ -5472,7 +5512,7 @@ computer's architecture and operating system, so use with care! An
 interface to \LUATEX's internal, 100\% portable scale function will be
 added at a later date.
 
-\subsubsection{\luatex{tex.sp}}
+\subsubsection{\luatex{tex.sp} (0.51)}
 
 \startfunctioncall
 <number> n = tex.sp(<number> o)
