@@ -510,6 +510,10 @@ static int lua_nodelib_hpack(lua_State * L)
                     m = 1;
                 else if (strcmp(s, "exactly") == 0)
                     m = 0;
+                else if (strcmp(s, "cal_expand_ratio") == 0)
+                    m = 2;
+                else if (strcmp(s, "subst_ex_font") == 0)
+                    m = 3;
                 else {
                     lua_pushstring(L,
                                    "3rd argument should be either additional or exactly");
