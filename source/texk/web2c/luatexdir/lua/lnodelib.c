@@ -436,13 +436,19 @@ static int lua_nodelib_insert_after(lua_State * L)
 
 static int lua_nodelib_copy_list(lua_State * L)
 {
-    halfword *n;
+    halfword *n, *s;
     halfword m;
     if (lua_isnil(L, 1))
         return 1;               /* the nil itself */
     n = check_isnode(L, 1);
-    m = copy_node_list(*n);
-    lua_nodelib_push_fast(L, m);
+    if (lua_gettop(L) > 1) {
+      s = check_isnode(L, 2);  
+      m = do_copy_node_list(*n, *s);
+    } else {
+      m = do_copy_node_list(*n, null);
+    }
+    lua_pushnumber(L, m);
+    lua_nodelib_push(L);
     return 1;
 }
 

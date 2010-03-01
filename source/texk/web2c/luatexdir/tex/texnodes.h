@@ -702,6 +702,7 @@ extern node_info whatsit_node_data[];
 extern halfword new_node(int i, int j);
 extern void flush_node_list(halfword);
 extern void flush_node(halfword);
+extern halfword do_copy_node_list(halfword, halfword);
 extern halfword copy_node_list(halfword);
 extern halfword copy_node(const halfword);
 extern void check_node(halfword);

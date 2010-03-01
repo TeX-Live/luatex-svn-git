@@ -463,12 +463,12 @@ halfword new_glyph_node(void)
 /* makes a duplicate of the node list that starts at |p| and returns a
    pointer to the new list */
 
-halfword copy_node_list(halfword p)
+halfword do_copy_node_list(halfword p, halfword end)
 {
     halfword q = null;          /* previous position in new list */
     halfword h = null;          /* head of the list */
     copy_error_seen = 0;
-    while (p != null) {
+    while (p != end) {
         register halfword s = copy_node(p);
         if (h == null) {
             h = s;
@@ -479,6 +479,11 @@ halfword copy_node_list(halfword p)
         p = vlink(p);
     }
     return h;
+}
+
+halfword copy_node_list(halfword p)
+{
+    return do_copy_node_list(p, null);
 }
 
  /* make a dupe of a single node */
