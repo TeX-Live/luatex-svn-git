@@ -535,7 +535,8 @@ static int lua_nodelib_hpack(lua_State * L)
     }
     p = hpack(n, w, m, d);
     lua_nodelib_push_fast(L, p);
-    return 1;
+    lua_pushnumber(L, last_badness);
+    return 2;
 }
 
 
@@ -627,7 +628,8 @@ static int lua_nodelib_vpack(lua_State * L)
     }
     p = vpackage(n, w, m, max_dimen, d);
     lua_nodelib_push_fast(L, p);
-    return 1;
+    lua_pushnumber(L, last_badness);
+    return 2;
 }
 
 
