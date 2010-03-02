@@ -653,6 +653,28 @@ static int _file_info_ (lua_State *L, int (*st)(const char*, STAT_STRUCT*)) {
 	return 1;
 }
 
+#ifndef WIN32
+static int pusherror(lua_State *L, const char *info)
+{
+	lua_pushnil(L);
+	if (info==NULL)
+		lua_pushstring(L, strerror(errno));
+	else
+		lua_pushfstring(L, "%s: %s", info, strerror(errno));
+	lua_pushinteger(L, errno);
+	return 3;
+}
+
+static int Preadlink(lua_State *L)		/** readlink(path) */
+{
+	char b[PATH_MAX];
+	const char *path = luaL_checkstring(L, 1);
+	int n = readlink(path, b, sizeof(b));
+	if (n==-1) return pusherror(L, path);
+	lua_pushlstring(L, b, n);
+	return 1;
+}
+#endif
 
 /*
 ** Get file information using stat.
@@ -661,7 +683,6 @@ static int file_info (lua_State *L) {
 	return _file_info_ (L, STAT_FUNC);
 }
 
-
 /*
 ** Get symbolic link information using lstat.
 */
@@ -669,10 +690,18 @@ static int file_info (lua_State *L) {
 static int link_info (lua_State *L) {
 	return _file_info_ (L, LSTAT_FUNC);
 }
+static int read_link (lua_State *L) {
+	return Preadlink (L);
+}
 #else
-static int link_info (lua_State *L) {
+static int read_info (lua_State *L) {
   lua_pushboolean(L, 0);
   lua_pushliteral(L, "symlinkattributes not supported on this platform");
+  return 2;
+}
+static int read_link (lua_State *L) {
+  lua_pushboolean(L, 0);
+  lua_pushliteral(L, "readlink not supported on this platform");
   return 2;
 }
 #endif
@@ -744,6 +773,7 @@ static const struct luaL_reg fslib[] = {
 	{"mkdir", make_dir},
 	{"rmdir", remove_dir},
 	{"symlinkattributes", link_info},
+	{"readlink", read_link},
 	{"setmode", lfs_f_setmode},
 	{"touch", file_utime},
 	{"unlock", file_unlock},
