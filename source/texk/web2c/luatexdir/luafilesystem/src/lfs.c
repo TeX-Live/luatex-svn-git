@@ -694,7 +694,7 @@ static int read_link (lua_State *L) {
 	return Preadlink (L);
 }
 #else
-static int read_info (lua_State *L) {
+static int link_info (lua_State *L) {
   lua_pushboolean(L, 0);
   lua_pushliteral(L, "symlinkattributes not supported on this platform");
   return 2;
