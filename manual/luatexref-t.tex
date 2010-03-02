@@ -999,11 +999,21 @@ number as its second return value if the string length was odd.
 The \luatex{string.characterpairs()} and \luatex{string.bytepairs()}
 are useful especially in the conversion of UTF-16 encoded data into UTF-8.
 
-Note: The \lua{string} library functions \luatex{find} etc. are not
-\UNICODE|-|aware. In cases where this is required (i.\,e.\ because the
-pattern used for searching contains characters above code point 127),
-the corresponding functions from \lua{unicode.utf8} should be used.
-
+Note: The \lua{string} library functions \luatex{len}, \luatex{lower},
+\luatex{sub} etc. are not \UNICODE|-|aware.  For strings in the UTF-8
+encoding, i.e., strings containing characters above code point 127, the
+corresponding functions from the \lua{slnunicode} library can be used,
+e.g., \luatex{unicode.utf8.len}, \luatex{unicode.utf8.lower} etc.  The
+exceptions are \luatex{unicode.utf8.find}, that always returns byte
+positions in a string, and \luatex{unicode.utf8.match} and
+\luatex{unicode.utf8.gmatch}.  While the latter two functions in general
+{\it are} \UNICODE|-|aware, they fall-back to non|-|\UNICODE|-|aware
+behaviour when using the empty capture \lua{()} (other captures work as
+expected).  For the interpretation of character classes in
+\luatex{unicode.utf8} functions refer to the library sources at
+\hyphenatedurl{http://luaforge.net/projects/sln}.  The \lua{slnunicode}
+library will be replaced by an internal \UNICODE\ library in a future
+\LUATEX\ version. 
 \blank
 
 The \lua{os} library has a few extra functions and variables:
