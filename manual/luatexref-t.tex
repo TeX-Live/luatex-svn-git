@@ -4245,9 +4245,9 @@ Creates a deep copy of the node list that starts at \type{n}.
 \subsubsection{\luatex{node.hpack}}
 
 \startfunctioncall
-<node> h = node.hpack(<node> n)
-<node> h = node.hpack(<node> n, <number> w, <string> info)
-<node> h = node.hpack(<node> n, <number> w, <string> info, <string> dir)
+<node> h, <number> b = node.hpack(<node> n)
+<node> h, <number> b = node.hpack(<node> n, <number> w, <string> info)
+<node> h, <number> b = node.hpack(<node> n, <number> w, <string> info, <string> dir)
 \stopfunctioncall
 
 This function creates a new hlist by packaging the list that begins at  node
@@ -4259,6 +4259,9 @@ or exact (\tex{hbox to}) width to be used.
 
 Direction support added in \LUATEX\ 0.45.
 
+The second return value is the badness of the generated box,
+this extension was added in 0.51.
+
 Caveat: at this moment, there can be unexpected side|-|effects to this
 function, like updating some of the \tex{marks} and \tex{inserts}.
 Also note that the content of \type{h} is the original node list
@@ -4267,14 +4270,27 @@ node list itself, unless you explicitly set the \type{list} field
 to \type{nil} beforehand. And in a similar way, calling
 \type{node.free(n)} will invalidate \type{h} as well!
 
-\subsubsection{\luatex{node.vpack}}
+\subsubsection{\luatex{node.vpack} (since 0.36)}
 
 \startfunctioncall
-<node> h = node.vpack(<node> n)
-<node> h = node.hpack(<node> n, <number> w, <string> info)
+<node> h, <number> b = node.vpack(<node> n)
+<node> h, <number> b = node.vpack(<node> n, <number> w, <string> info)
+<node> h, <number> b = node.vpack(<node> n, <number> w, <string> info, <string> dir)
 \stopfunctioncall
 
+This function creates a new vlist by packaging the list that begins at  node
+\type{n} into a vertical box. With only a single argument, this box
+is created using the natural width of its components. In the three
+argument form, \type{info} must be either \type{additional} or
+\type{exactly}, and \type{w} is the additional (\tex{vbox spread}) or exact (\tex{vbox to}) height to be used.
 
+Direction support added in \LUATEX\ 0.45.
+
+The second return value is the badness of the generated box,
+this extension was added in 0.51.
+
+See the description of \type{node.hpack()} for a few memory allocation 
+caveats.
 
 \subsubsection{\luatex{node.dimensions} (0.43)}
 
