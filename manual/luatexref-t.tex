@@ -1,4 +1,4 @@
-﻿% engine=luatex language=uk
+% engine=luatex language=uk
 
 % TODO: fix layout of function legend descriptions
 % check numbers
@@ -4267,6 +4267,14 @@ node list itself, unless you explicitly set the \type{list} field
 to \type{nil} beforehand. And in a similar way, calling
 \type{node.free(n)} will invalidate \type{h} as well!
 
+\subsubsection{\luatex{node.vpack}}
+
+\startfunctioncall
+<node> h = node.vpack(<node> n)
+<node> h = node.hpack(<node> n, <number> w, <string> info)
+\stopfunctioncall
+
+
 
 \subsubsection{\luatex{node.dimensions} (0.43)}
 
@@ -5428,7 +5436,11 @@ will stop the printing process).  This syntax was added in 0.36.
 
 
 The optional parameter can be used to print the strings using the
-catcode regime defined by \tex{catcodetable}~\type{n}. If \type{n} is not
+catcode regime defined by \tex{catcodetable}~\type{n}. If \type{n} is 
+$-1$, the currently active catcode regime is used. If \type{n} is
+$-2$, the resulting catcodes are in the result of \type{\the}: all
+category codes are 12 (other) except for the space character, that has
+category code 10 (space). Otherwise, if \type{n} is not
 a valid catcode table, then it is ignored, and the currently
 active catcode regime is used instead.
 
