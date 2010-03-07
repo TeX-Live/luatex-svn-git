@@ -1866,8 +1866,11 @@ struct findsel;
 struct charprocs;
 struct enc;
 
-extern void *chunkalloc(int size);
-extern void chunkfree(void *, int size);
+/* extern void *chunkalloc(int size); */
+/* extern void chunkfree(void *, int size); */
+
+#define chunkalloc(size)	gcalloc(1,size)
+#define chunkfree(item,size)	free(item)
 
 extern char *strconcat(const char *str, const char *str2);
 extern char *strconcat3(const char *str, const char *str2, const char *str3);

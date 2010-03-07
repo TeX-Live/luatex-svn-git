@@ -237,7 +237,12 @@ static int ff_close(lua_State * L)
     /*fputs("ff_close called",stderr); */
     sf = check_isfont(L, 1);
     if (*sf != NULL) {
-        SplineFontFree(*sf);
+        if ((*sf)->fv) { // condition might be improved
+            FontViewClose((*sf)->fv);
+        } else {
+            EncMapFree((*sf)->map);
+            SplineFontFree(*sf);
+        }
         *sf = NULL;
     }
     return 0;
@@ -2414,11 +2419,13 @@ static int ff_info(lua_State * L)
                 lua_rawseti(L, -2, i);
                 i++;
                 sf_next = sf->next;
+                EncMapFree(sf->map);
                 SplineFontFree(sf);
                 sf = sf_next;
             }
         } else {
             do_ff_info(L, sf);
+            EncMapFree(sf->map);
             SplineFontFree(sf);
         }
     }
@@ -2469,6 +2476,7 @@ int ff_createcff(char *file, unsigned char **buf, int *bufsiz)
             }
         }
         remove(s);
+        EncMapFree(sf->map);
         SplineFontFree(sf);
     }
     return notdefpos;
