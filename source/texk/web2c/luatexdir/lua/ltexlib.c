@@ -136,6 +136,44 @@ int luacsprint(lua_State * L)
     return do_luacprint(L, PARTIAL_LINE, DEFAULT_CAT_TABLE);
 }
 
+int luactprint(lua_State * L)
+{
+    int i, j, n;
+    int cattable, startstrings;
+    n = lua_gettop(L);
+    for (i=1;i<=n;i++) {
+	cattable = DEFAULT_CAT_TABLE;
+	startstrings = 1;
+	if (lua_type(L, i) != LUA_TTABLE) {
+	    lua_pushstring(L, "no string to print");
+	    lua_error(L);
+	}
+        lua_pushvalue(L,i); /* push the table */
+	lua_pushnumber(L,1);
+	lua_gettable(L,-2);
+        if (lua_type(L, -11) == LUA_TNUMBER) {
+            lua_number2int(cattable, lua_tonumber(L, -11));
+            startstrings = 2;
+        }
+	lua_pop(L,1);
+	
+        for (j = startstrings; ; j++) {
+	    lua_pushnumber(L,j);
+	    lua_gettable(L,-2);
+	    if (lua_type(L, -1) == LUA_TSTRING) {
+		luac_store(L, -1, PARTIAL_LINE, cattable);
+		lua_pop(L,1);
+	    } else {
+		lua_pop(L,1);
+		break;
+	    }
+	}
+	lua_pop (L, 1); /* pop the table */
+    }
+    return 0;
+}
+
+
 int luacstring_cattable(void)
 {
     return (int) read_spindle.tail->cattable;
@@ -1814,6 +1852,7 @@ static const struct luaL_reg texlib[] = {
     {"write", luacwrite},
     {"write", luacwrite},
     {"print", luacprint},
+    {"tprint", luactprint},
     {"sprint", luacsprint},
     {"set", settex},
     {"get", gettex},
