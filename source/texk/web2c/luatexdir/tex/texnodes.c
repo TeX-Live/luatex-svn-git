@@ -41,7 +41,7 @@ static const char _svn_version[] =
 
 #define MAX_CHAIN_SIZE 13
 
-volatile memory_word *varmem = NULL;
+memory_word * volatile varmem = NULL;
 
 #ifndef NDEBUG
 char *varmem_sizes = NULL;

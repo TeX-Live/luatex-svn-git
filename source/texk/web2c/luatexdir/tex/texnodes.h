@@ -41,7 +41,7 @@ extern halfword insert_character(halfword t, int n);
 extern void set_disc_field(halfword f, halfword t);
 
 #  define varmemcast(a) (memory_word *)(a)
-extern volatile memory_word *varmem;
+extern memory_word * volatile varmem;
 extern halfword var_mem_max;
 
 extern halfword get_node(int s);
