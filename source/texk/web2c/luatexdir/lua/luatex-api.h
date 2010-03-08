@@ -102,6 +102,8 @@ extern void tokenlist_to_luastring(lua_State * L, int p);
 extern int tokenlist_from_lua(lua_State * L);
 
 extern void lua_nodelib_push(lua_State * L);
+extern int nodelib_getdir(lua_State * L, int n);
+
 extern int luaopen_node(lua_State * L);
 extern void nodelist_to_lua(lua_State * L, int n);
 extern int nodelist_from_lua(lua_State * L);

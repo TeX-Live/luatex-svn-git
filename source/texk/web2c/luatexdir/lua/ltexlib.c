@@ -151,8 +151,8 @@ int luactprint(lua_State * L)
         lua_pushvalue(L,i); /* push the table */
 	lua_pushnumber(L,1);
 	lua_gettable(L,-2);
-        if (lua_type(L, -11) == LUA_TNUMBER) {
-            lua_number2int(cattable, lua_tonumber(L, -11));
+        if (lua_type(L, -1) == LUA_TNUMBER) {
+            lua_number2int(cattable, lua_tonumber(L, -1));
             startstrings = 2;
         }
 	lua_pop(L,1);
@@ -1766,6 +1766,160 @@ static int tex_enableprimitives(lua_State * L)
     return 0;
 }
 
+#define prev_depth      cur_list.aux_field.cint
+
+#define get_int_par(A,B,C)  do {			\
+    	lua_pushstring(L,(A));				\
+	lua_gettable(L,-2);				\
+	if (lua_type(L, -1) == LUA_TNUMBER) {		\
+	    lua_number2int(B,lua_tonumber(L, -1));	\
+	} else {					\
+	    B = (C);					\
+	}						\
+	lua_pop(L,1);					\
+    } while (0)
+
+#define get_dimen_par(A,B,C)  do {			\
+    	lua_pushstring(L,(A));				\
+	lua_gettable(L,-2);				\
+	if (lua_type(L, -1) == LUA_TNUMBER) {		\
+	    lua_number2int(B,lua_tonumber(L, -1));	\
+	} else {					\
+	    B = (C);					\
+	}						\
+	lua_pop(L,1);					\
+    } while (0)
+
+
+#define get_glue_par(A,B,C)  do {			\
+    	lua_pushstring(L,(A));				\
+	lua_gettable(L,-2);				\
+	if (lua_type(L, -1) != LUA_TNIL) {		\
+	    B = *check_isnode(L, -1);			\
+	} else {					\
+	    B = (C);					\
+	}						\
+	lua_pop(L,1);					\
+    } while (0)
+
+
+static int tex_run_linebreak (lua_State *L)
+{
+    
+    halfword *j;
+    halfword p;
+    halfword save_vlink_temp_head, save_vlink_cur_head;
+    list_state_record save_cur_list;
+    halfword final_par_glue;
+    boolean d = false;
+    int line_break_dir, paragraph_dir = 0;
+    /* locally initialized parameters for line breaking */
+    int pretolerance, tracingparagraphs,tolerance,looseness,hyphenpenalty,
+	exhyphenpenalty, pdfadjustspacing, adjdemerits, pdfprotrudechars,
+	linepenalty,lastlinefit,doublehyphendemerits,finalhyphendemerits,
+	hangafter,interlinepenalty,clubpenalty,displaywidowpenalty,widowpenalty,
+	brokenpenalty;
+    halfword emergencystretch,hangindent,hsize,leftskip,rightskip,pdfeachlineheight,
+	pdfeachlinedepth,pdffirstlineheight,pdflastlinedepth,pdfignoreddimen;
+
+    /* save some stuff */
+    save_vlink_temp_head = vlink(temp_head);
+    save_cur_list = cur_list;
+    save_vlink_cur_head = vlink(cur_list.head_field);
+
+    j = check_isnode(L, 1);     /* the value */
+    vlink(temp_head) = *j;
+    p = *j;
+    if ((!is_char_node(vlink(*j)))
+        && ((type(vlink(*j)) == whatsit_node)
+            && (subtype(vlink(*j)) == local_par_node))) {
+        paragraph_dir = local_par_dir(vlink(*j));
+    }
+
+    while (vlink(p)!=null)
+	p = vlink(p);
+    final_par_glue = p;
+
+    /* initialize local parameters */
+
+    if (lua_gettop(L)==2 && lua_type(L, 2) == LUA_TTABLE) {
+	lua_pushstring(L,"pardir");
+	lua_gettable(L,-2);
+	if (lua_type(L, -1) == LUA_TSTRING) {
+	    paragraph_dir = nodelib_getdir(L, -1);
+	}
+	lua_pop(L,1); 
+	lua_pushstring(L,"d");
+	lua_gettable(L,-2);
+	if (lua_type(L, -1) == LUA_TBOOLEAN) {
+	    d = lua_toboolean(L,-1);
+	}
+	lua_pop(L,1);
+
+	get_int_par("pretolerance", pretolerance, int_par(pretolerance_code));
+	get_int_par("tracingparagraphs", tracingparagraphs, int_par(tracing_paragraphs_code));
+	get_int_par("tolerance", tolerance, int_par(tolerance_code));
+	get_int_par("looseness", looseness, int_par(looseness_code));
+	get_int_par("hyphenpenalty", hyphenpenalty, int_par(hyphen_penalty_code));
+	get_int_par("exhyphenpenalty", exhyphenpenalty, int_par(ex_hyphen_penalty_code));
+	get_int_par("pdfadjustspacing", pdfadjustspacing, int_par(pdf_adjust_spacing_code));
+	get_int_par("adjdemerits", adjdemerits, int_par(adj_demerits_code));
+	get_int_par("pdfprotrudechars", pdfprotrudechars, int_par(pdf_protrude_chars_code));
+	get_int_par("linepenalty", linepenalty, int_par(line_penalty_code));
+	get_int_par("lastlinefit", lastlinefit, int_par(last_line_fit_code));
+	get_int_par("doublehyphendemerits", doublehyphendemerits, int_par(double_hyphen_demerits_code));
+	get_int_par("finalhyphendemerits", finalhyphendemerits, int_par(final_hyphen_demerits_code));
+	get_int_par("hangafter", hangafter, int_par(hang_after_code));
+	get_int_par("interlinepenalty", interlinepenalty, int_par(inter_line_penalty_code));
+	get_int_par("clubpenalty", clubpenalty, int_par(club_penalty_code));
+	get_int_par("displaywidowpenalty", displaywidowpenalty, int_par(display_widow_penalty_code));
+	get_int_par("widowpenalty", widowpenalty, int_par(widow_penalty_code));
+	get_int_par("brokenpenalty", brokenpenalty, int_par(broken_penalty_code));
+	get_dimen_par("emergencystretch", emergencystretch, dimen_par(emergency_stretch_code));
+	get_dimen_par("hangindent", hangindent, dimen_par(hang_indent_code));
+	get_dimen_par("hsize", hsize, dimen_par(hsize_code));
+	get_glue_par("leftskip", leftskip, glue_par(left_skip_code));
+	get_glue_par("rightskip", rightskip, glue_par(right_skip_code));
+	get_dimen_par("pdfeachlineheight", pdfeachlineheight, dimen_par(pdf_each_line_height_code));
+	get_dimen_par("pdfeachlinedepth", pdfeachlinedepth, dimen_par(pdf_each_line_depth_code));
+	get_dimen_par("pdffirstlineheight", pdffirstlineheight, dimen_par(pdf_first_line_height_code));
+	get_dimen_par("pdflastlinedepth", pdflastlinedepth, dimen_par(pdf_last_line_depth_code));
+	get_dimen_par("pdfignoreddimen", pdfignoreddimen, dimen_par(pdf_ignored_dimen_code));
+    }
+
+    line_break_dir = paragraph_dir;
+    ext_do_line_break(d, paragraph_dir, line_break_dir,
+		      pretolerance, tracingparagraphs, tolerance,
+		      emergencystretch,
+		      looseness,hyphenpenalty, exhyphenpenalty,
+		      pdfadjustspacing,
+		      equiv(par_shape_loc),
+		      adjdemerits, pdfprotrudechars,
+		      linepenalty, lastlinefit,
+		      doublehyphendemerits,finalhyphendemerits,
+		      hangindent, hsize, hangafter, leftskip,   rightskip,
+		      pdfeachlineheight, pdfeachlinedepth,
+		      pdffirstlineheight, pdflastlinedepth,
+		      equiv(inter_line_penalties_loc),
+		      interlinepenalty, clubpenalty,
+		      equiv(club_penalties_loc),
+		      equiv(display_widow_penalties_loc),
+		      equiv(widow_penalties_loc),
+		      displaywidowpenalty, widowpenalty, brokenpenalty,
+		      final_par_glue, pdfignoreddimen);
+
+    /* return the generated list, and its prevdepth */
+    lua_nodelib_push_fast(L,vlink(save_cur_list.tail_field));
+    lua_pushnumber(L, prev_depth);
+
+    /* restore various globals */
+    cur_list = save_cur_list;
+    vlink(cur_list.head_field) = save_vlink_cur_head;
+    vlink(temp_head) = save_vlink_temp_head;
+    
+    return 2;
+}
+
 static int tex_run_boot(lua_State * L)
 {
     int n = lua_gettop(L);
@@ -1896,6 +2050,7 @@ static const struct luaL_reg texlib[] = {
     {"enableprimitives", tex_enableprimitives},
     {"setmath", tex_setmathparm},
     {"getmath", tex_getmathparm},
+    {"linebreak", tex_run_linebreak},
     {NULL, NULL}                /* sentinel */
 };
 

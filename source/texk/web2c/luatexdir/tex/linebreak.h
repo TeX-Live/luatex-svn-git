@@ -32,7 +32,45 @@ extern void line_break(boolean d, int line_break_context);
 #  define inf_bad 10000         /* infinitely bad value */
 #  define awful_bad 07777777777 /* more than a billion demerits */
 
-void initialize_active(void);
+extern void initialize_active(void);
+
+extern void ext_do_line_break(boolean d,
+                              int paragraph_dir,
+                              int line_break_dir,
+                              int pretolerance,
+                              int tracing_paragraphs,
+                              int tolerance,
+                              scaled emergency_stretch,
+                              int looseness,
+                              int hyphen_penalty,
+                              int ex_hyphen_penalty,
+                              int pdf_adjust_spacing,
+                              halfword par_shape_ptr,
+                              int adj_demerits,
+                              int pdf_protrude_chars,
+                              int line_penalty,
+                              int last_line_fit,
+                              int double_hyphen_demerits,
+                              int final_hyphen_demerits,
+                              int hang_indent,
+                              int hsize,
+                              int hang_after,
+                              halfword left_skip,
+                              halfword right_skip,
+                              int pdf_each_line_height,
+                              int pdf_each_line_depth,
+                              int pdf_first_line_height,
+                              int pdf_last_line_depth,
+                              halfword inter_line_penalties_ptr,
+                              int inter_line_penalty,
+                              int club_penalty,
+                              halfword club_penalties_ptr,
+                              halfword display_widow_penalties_ptr,
+                              halfword widow_penalties_ptr,
+                              int display_widow_penalty,
+                              int widow_penalty,
+                              int broken_penalty, halfword final_par_glue,
+                              halfword pdf_ignored_dimen);
 
 halfword find_protchar_left(halfword l, boolean d);
 halfword find_protchar_right(halfword l, halfword r);

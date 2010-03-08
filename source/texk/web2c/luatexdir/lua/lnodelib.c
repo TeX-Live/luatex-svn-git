@@ -42,8 +42,6 @@ static const char _svn_version[] =
 
 make_luaS_index(luatex_node);
 
-static int nodelib_getdir(lua_State * L, int n);        /* forward */
-
 halfword *check_isnode(lua_State * L, int ud)
 {
     register halfword *p = lua_touserdata(L, ud);
@@ -2089,7 +2087,7 @@ static int nodelib_getlist(lua_State * L, int n)
     }
 }
 
-static int nodelib_getdir(lua_State * L, int n)
+int nodelib_getdir(lua_State * L, int n)
 {
     const char *s = NULL;
     int d = 32;                 /* invalid number */
