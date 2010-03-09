@@ -12104,7 +12104,7 @@ y3l=half(y2l+y2r); y1r=y3l;
 set_min_max(yl_packet); set_min_max(yr_packet);
 mp->uv=l_packets; mp->xy=l_packets;
 mp->delx += mp->delx; mp->dely+=mp->dely;
-mp->tol -= mp->tol- mp->three_l+(integer)mp->tol_step; 
+mp->tol = mp->tol- mp->three_l+(integer)mp->tol_step; 
 mp->tol += mp->tol; mp->three_l=mp->three_l+(integer)mp->tol_step
 
 @ @<Advance to the next pair |(cur_t,cur_tt)|@>=
