@@ -33,8 +33,8 @@ static const char _svn_version[] =
 #define no_lig_code 6
 
 
-#define prev_depth cur_list.aux_field.cint
-#define space_factor cur_list.aux_field.hh.lhfield
+#define prev_depth cur_list.prev_depth_field
+#define space_factor cur_list.space_factor_field
 #define par_shape_ptr  equiv(par_shape_loc)
 
 #define cur_lang int_par(cur_lang_code)

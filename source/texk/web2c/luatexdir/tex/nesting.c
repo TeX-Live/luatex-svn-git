@@ -275,7 +275,9 @@ void initialize_nesting(void)
     cur_list.head_field = contrib_head;
     cur_list.tail_field = contrib_head;
     cur_list.eTeX_aux_field = null;
-    cur_list.aux_field.cint = ignore_depth;
+    cur_list.prev_depth_field = ignore_depth;
+    cur_list.space_factor_field = 1000;
+    cur_list.incompleat_noad_field = null;
     cur_list.ml_field = 0;
     cur_list.pg_field = 0;
     cur_list.dirs_field = null;
@@ -334,6 +336,9 @@ void push_nest(void)
     cur_list.ml_field = line;
     cur_list.pg_field = 0;
     cur_list.dirs_field = null;
+    cur_list.prev_depth_field = ignore_depth;
+    cur_list.space_factor_field = 1000;
+    cur_list.incompleat_noad_field = null;
     init_math_fields();
 }
 
@@ -357,7 +362,6 @@ void show_activities(void)
 {
     int p;                      /* index into |nest| */
     int m;                      /* mode */
-    memory_word a;              /* auxiliary */
     halfword q, r;              /* for showing the current page */
     int t;                      /* ditto */
     nest[nest_ptr] = cur_list;  /* put the top level into the array */
@@ -365,7 +369,6 @@ void show_activities(void)
     print_ln();
     for (p = nest_ptr; p >= 0; p--) {
         m = nest[p].mode_field;
-        a = nest[p].aux_field;
         tprint_nl("### ");
         print_mode(m);
         tprint(" entered at line ");
@@ -431,10 +434,10 @@ void show_activities(void)
         switch (abs(m) / (max_command_cmd + 1)) {
         case 0:
             tprint_nl("prevdepth ");
-            if (a.cint <= pdf_ignored_dimen)
+            if (nest[p].prev_depth_field <= pdf_ignored_dimen)
                 tprint("ignored");
             else
-                print_scaled(a.cint);
+                print_scaled(nest[p].prev_depth_field);
             if (nest[p].pg_field != 0) {
                 tprint(", prevgraf ");
                 print_int(nest[p].pg_field);
@@ -446,18 +449,21 @@ void show_activities(void)
             break;
         case 1:
             tprint_nl("spacefactor ");
-            print_int(a.hh.lhfield);
+            print_int(nest[p].space_factor_field);
+	    /* we dont do this any more, this was aux.rh originally */
+	    /*
             if (m > 0) {
-                if (a.hh.rh > 0) {
+                if (nest[p].current_language_field > 0) {
                     tprint(", current language ");
-                    print_int(a.hh.rh);
+                    print_int(nest[p].current_language_field);
                 }
             }
+	    */
             break;
         case 2:
-            if (a.cint != null) {
+            if (nest[p].incompleat_noad_field != null) {
                 tprint("this will be denominator of:");
-                show_box(a.cint);
+                show_box(nest[p].incompleat_noad_field);
             }
         }                       /* there are no other cases */
 

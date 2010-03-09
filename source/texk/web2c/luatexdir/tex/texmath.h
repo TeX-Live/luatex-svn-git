@@ -30,7 +30,7 @@ extern pointer new_noad(void);
 extern void show_math_node(halfword);
 extern void flush_math(void);
 extern void math_left_brace(void);
-extern void finish_display_alignment(halfword, halfword, memory_word);
+extern void finish_display_alignment(halfword, halfword, halfword);
 extern halfword new_sub_box(halfword);
 
 #  define math_reset(p) do { if (p!=null) flush_node(p); p = null; } while (0)

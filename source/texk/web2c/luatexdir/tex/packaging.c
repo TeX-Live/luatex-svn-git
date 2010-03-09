@@ -25,8 +25,8 @@ static const char _svn_version[] =
 
 #define scan_normal_dimen() scan_dimen(false,false,false)
 
-#define prev_depth      cur_list.aux_field.cint
-#define space_factor    cur_list.aux_field.hh.lhfield
+#define prev_depth      cur_list.prev_depth_field
+#define space_factor    cur_list.space_factor_field
 #define box(A) eqtb[box_base+(A)].hh.rh
 
 #define text_direction int_par(text_direction_code)

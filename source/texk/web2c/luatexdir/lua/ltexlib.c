@@ -1766,8 +1766,6 @@ static int tex_enableprimitives(lua_State * L)
     return 0;
 }
 
-#define prev_depth      cur_list.aux_field.cint
-
 #define get_int_par(A,B,C)  do {			\
     	lua_pushstring(L,(A));				\
 	lua_gettable(L,-2);				\
@@ -1910,7 +1908,7 @@ static int tex_run_linebreak (lua_State *L)
 
     /* return the generated list, and its prevdepth */
     lua_nodelib_push_fast(L,vlink(save_cur_list.tail_field));
-    lua_pushnumber(L, prev_depth);
+    lua_pushnumber(L, cur_list.prev_depth_field);
 
     /* restore various globals */
     cur_list = save_cur_list;

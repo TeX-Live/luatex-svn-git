@@ -30,10 +30,8 @@ static const char _svn_version[] =
 #define prev_graf     cur_list.pg_field
 #define eTeX_aux      cur_list.eTeX_aux_field
 #define delim_ptr     eTeX_aux
-#define aux           cur_list.aux_field
-#define prev_depth    aux.cint
-#define space_factor  aux.hh.lhfield
-#define incompleat_noad aux.cint
+#define space_factor  cur_list.space_factor_field
+#define incompleat_noad cur_list.incompleat_noad_field
 
 #define cur_fam int_par(cur_fam_code)
 #define text_direction int_par(text_direction_code)
@@ -2201,7 +2199,7 @@ resulting list, and with |aux_save| holding the |prev_depth| value.
 */
 
 
-void finish_display_alignment(pointer p, pointer q, memory_word aux_save)
+void finish_display_alignment(pointer p, pointer q, halfword saved_prevdepth)
 {
     do_assignments();
     if (cur_cmd != math_shift_cmd) {
@@ -2222,7 +2220,7 @@ void finish_display_alignment(pointer p, pointer q, memory_word aux_save)
         tail = q;
     tail_append(new_penalty(int_par(post_display_penalty_code)));
     tail_append(new_param_glue(below_display_skip_code));
-    prev_depth = aux_save.cint;
+    cur_list.prev_depth_field = saved_prevdepth;
     resume_after_display();
 }
 

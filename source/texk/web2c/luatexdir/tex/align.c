@@ -30,9 +30,9 @@ void init_col(void);
 
 #define end_template_token (cs_token_flag+frozen_end_template)
 
-#define prev_depth      cur_list.aux_field.cint
-#define space_factor    cur_list.aux_field.hh.lhfield
-#define incompleat_noad cur_list.aux_field.cint
+#define prev_depth      cur_list.prev_depth_field
+#define space_factor    cur_list.space_factor_field
+#define incompleat_noad cur_list.incompleat_noad_field
 
 #define every_cr          equiv(every_cr_loc)
 #define display_indent    dimen_par(display_indent_code)
@@ -348,7 +348,7 @@ void init_align(void)
        correct baseline calculations. */
     if (cur_list.mode_field == mmode) {
         cur_list.mode_field = -vmode;
-        prev_depth = nest[nest_ptr - 2].aux_field.cint;
+        prev_depth = nest[nest_ptr - 2].prev_depth_field;
     } else if (cur_list.mode_field > 0) {
         cur_list.mode_field = -(cur_list.mode_field);
     }
@@ -808,7 +808,7 @@ void fin_align(void)
     scaled o;                   /* shift offset for unset boxes */
     halfword n;                 /* matching span amount */
     scaled rule_save;           /* temporary storage for |overfull_rule| */
-    memory_word aux_save;       /* temporary storage for |aux| */
+    halfword pd;                /* temporary storage for |prev_depth| */
     if (cur_group != align_group)
         confusion("align1");
     unsave();                   /* that |align_group| was for individual entries */
@@ -1123,22 +1123,21 @@ value is changed to zero and so is the next tabskip.
        we will need to insert glue before and after the display; that part of the
        program will be deferred until we're more familiar with such operations.) 
      */
-    aux_save = cur_list.aux_field;
+    pd = cur_list.prev_depth_field;
     p = vlink(cur_list.head_field);
     q = cur_list.tail_field;
     pop_nest();
     if (cur_list.mode_field == mmode) {
-        finish_display_alignment(p, q, aux_save);
+	finish_display_alignment(p, q, pd);
     } else {
-        cur_list.aux_field = aux_save;
-        vlink(cur_list.tail_field) = p;
-        if (p != null)
-            cur_list.tail_field = q;
-        if (cur_list.mode_field == vmode) {
-            if (!output_active)
-                lua_node_filter_s(buildpage_filter_callback, "alignment");
-            build_page();
-        }
+	vlink(cur_list.tail_field) = p;
+	if (p != null)
+	    cur_list.tail_field = q;
+	if (cur_list.mode_field == vmode) {
+	    if (!output_active)
+		lua_node_filter_s(buildpage_filter_callback, "alignment");
+	    build_page();
+	}
     }
 }
 

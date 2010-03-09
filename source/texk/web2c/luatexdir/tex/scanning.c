@@ -26,8 +26,8 @@ static const char _svn_version[] =
 
 
 
-#define prev_depth cur_list.aux_field.cint
-#define space_factor cur_list.aux_field.hh.lhfield
+#define prev_depth cur_list.prev_depth_field
+#define space_factor cur_list.space_factor_field
 #define par_shape_ptr  equiv(par_shape_loc)
 #define font_id_text(A) cs_text(font_id_base+(A))
 
@@ -249,7 +249,7 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                 scanned_result(0, dimen_val_level);
             else
                 scanned_result(0, int_val_level);
-        } else if (m == vmode) {
+	} else if (m == vmode) {
             scanned_result(prev_depth, dimen_val_level);
         } else {
             scanned_result(space_factor, int_val_level);

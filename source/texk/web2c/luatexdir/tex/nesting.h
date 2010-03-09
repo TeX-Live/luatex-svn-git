@@ -41,7 +41,9 @@ typedef struct list_state_record_ {
     halfword eTeX_aux_field;
     int pg_field;
     int ml_field;
-    memory_word aux_field;
+    halfword prev_depth_field;
+    halfword space_factor_field;
+    halfword incompleat_noad_field;
     halfword dirs_field;
     int math_field;
     int math_style_field;

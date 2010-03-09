@@ -24,7 +24,7 @@ static const char _svn_version[] =
     "$URL$";
 
 #define font_id_text(A) cs_text(font_id_base+(A))
-#define prev_depth cur_list.aux_field.cint
+#define prev_depth cur_list.prev_depth_field
 
 /*
 After \.{INITEX} has seen a collection of fonts and macros, it
