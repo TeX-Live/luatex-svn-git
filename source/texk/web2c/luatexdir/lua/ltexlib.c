@@ -1494,10 +1494,7 @@ int setlist(lua_State * L)
             } else if (strcmp(str, "contrib_head") == 0) {
                 vlink(contrib_head) = n;
                 if (n == 0) {
-                    if (nest_ptr == 0)
-                        cur_list.tail_field = contrib_head;     /* vertical mode */
-                    else
-                        nest[0].tail_field = contrib_head;      /* other modes */
+                    contrib_tail = contrib_head;
                 }
             } else if (strcmp(str, "best_page_break") == 0) {
                 best_page_break = n;

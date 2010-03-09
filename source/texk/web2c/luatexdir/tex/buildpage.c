@@ -713,10 +713,7 @@ void build_page(void)
         ;
     } while (vlink(contrib_head) != null);
     /* Make the contribution list empty by setting its tail to |contrib_head| */
-    if (nest_ptr == 0)
-        tail = contrib_head;    /* vertical mode */
-    else
-        contrib_tail = contrib_head;    /* other modes */
+    contrib_tail = contrib_head; 
   EXIT:
     ;
 }
@@ -919,10 +916,7 @@ void fire_up(halfword c)
 
     if (p != null) {
         if (vlink(contrib_head) == null) {
-            if (nest_ptr == 0)
-                tail = page_tail;
-            else
-                contrib_tail = page_tail;
+           contrib_tail = page_tail;
         }
         vlink(page_tail) = vlink(contrib_head);
         vlink(contrib_head) = p;
@@ -994,10 +988,7 @@ void fire_up(halfword c)
        specified no output routine. */
     if (vlink(page_head) != null) {
         if (vlink(contrib_head) == null) {
-            if (nest_ptr == 0)
-                tail = page_tail;
-            else
-                contrib_tail = page_tail;
+            contrib_tail = page_tail;
         } else {
             vlink(page_tail) = vlink(contrib_head);
         }

@@ -3056,7 +3056,6 @@ void alter_aux(void)
 void alter_prev_graf(void)
 {
     int p;                      /* index into |nest| */
-    nest[nest_ptr] = cur_list;
     p = nest_ptr;
     while (abs(nest[p].mode_field) != vmode)
         decr(p);
@@ -3068,7 +3067,6 @@ void alter_prev_graf(void)
         int_error(cur_val);
     } else {
         nest[p].pg_field = cur_val;
-        cur_list = nest[nest_ptr];
     }
 }
 

@@ -249,7 +249,6 @@ is treated this way, as we have seen.
 list_state_record *nest;
 int nest_ptr;                   /* first unused location of |nest| */
 int max_nest_stack;             /* maximum of |nest_ptr| when pushing */
-list_state_record cur_list;     /* the ``top'' semantic state */
 int shown_mode;                 /* most recent mode shown by \.{\\tracingcommands} */
 halfword save_tail;             /* save |tail| so we can examine whether we have an auto
                                    kern before a glue */
@@ -328,17 +327,17 @@ void push_nest(void)
         if (nest_ptr == nest_size)
             overflow("semantic nest size", (unsigned) nest_size);
     }
-    nest[nest_ptr] = cur_list;  /* stack the record */
     incr(nest_ptr);
+    cur_list.mode_field = nest[nest_ptr-1].mode_field;
     cur_list.head_field = new_node(temp_node, 0);
     cur_list.tail_field = cur_list.head_field;
     cur_list.eTeX_aux_field = null;
     cur_list.ml_field = line;
     cur_list.pg_field = 0;
     cur_list.dirs_field = null;
-    cur_list.prev_depth_field = ignore_depth;
-    cur_list.space_factor_field = 1000;
-    cur_list.incompleat_noad_field = null;
+    cur_list.prev_depth_field = nest[nest_ptr-1].prev_depth_field;
+    cur_list.space_factor_field = nest[nest_ptr-1].space_factor_field;
+    cur_list.incompleat_noad_field = nest[nest_ptr-1].incompleat_noad_field;
     init_math_fields();
 }
 
@@ -353,7 +352,6 @@ void pop_nest(void)
 {                               /* leave a semantic level, re-enter the old */
     flush_node(cur_list.head_field);
     decr(nest_ptr);
-    cur_list = nest[nest_ptr];
 }
 
 /* Here is a procedure that displays what \TeX\ is working on, at all levels. */
@@ -364,7 +362,6 @@ void show_activities(void)
     int m;                      /* mode */
     halfword q, r;              /* for showing the current page */
     int t;                      /* ditto */
-    nest[nest_ptr] = cur_list;  /* put the top level into the array */
     tprint_nl("");
     print_ln();
     for (p = nest_ptr; p >= 0; p--) {

@@ -384,7 +384,6 @@ void show_save_groups(void)
     const char *s;
     /* print_save_stack(); */
     p = nest_ptr;
-    nest[p] = cur_list;         /* put the top level into the array */
     v = save_ptr;
     l = cur_level;
     c = cur_group;

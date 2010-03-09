@@ -260,7 +260,6 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
         if (cur_list.mode_field == 0) {
             scanned_result(0, int_val_level);   /* |prev_graf=0| within \.{\\write} */
         } else {
-            nest[nest_ptr] = cur_list;
             p = nest_ptr;
             while (abs(nest[p].mode_field) != vmode)
                 decr(p);
