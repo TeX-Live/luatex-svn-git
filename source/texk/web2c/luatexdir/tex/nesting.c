@@ -64,78 +64,51 @@ do by computing the value |abs(mode)+cur_cmd|, where |mode| is the current
 mode and |cur_cmd| is the current command code.
 */
 
-void print_mode(int m)
+const char *string_mode(int m)
 {                               /* prints the mode represented by |m| */
     if (m > 0) {
         switch (m / (max_command_cmd + 1)) {
         case 0:
-            tprint("vertical mode");
+            return "vertical mode";
             break;
         case 1:
-            tprint("horizontal mode");
+            return "horizontal mode";
             break;
         case 2:
-            tprint("display math mode");
+            return "display math mode";
             break;
         default:
-            tprint("unknown mode");
             break;
         }
     } else if (m == 0) {
-        tprint("no mode");
+        return "no mode";
     } else {
         switch ((-m) / (max_command_cmd + 1)) {
         case 0:
-            tprint("internal vertical mode");
+            return "internal vertical mode";
             break;
         case 1:
-            tprint("restricted horizontal mode");
+            return "restricted horizontal mode";
             break;
         case 2:
-            tprint("math mode");
+            return "math mode";
             break;
         default:
-            tprint("unknown mode");
             break;
         }
     }
+    return "unknown mode";
+}
+
+void print_mode(int m)
+{                               /* prints the mode represented by |m| */
+    tprint(string_mode(m));
 }
 
 void print_in_mode(int m)
 {                               /* prints the mode represented by |m| */
-    if (m > 0) {
-        switch (m / (max_command_cmd + 1)) {
-        case 0:
-            tprint("' in vertical mode");
-            break;
-        case 1:
-            tprint("' in horizontal mode");
-            break;
-        case 2:
-            tprint("' in display math mode");
-            break;
-        default:
-            tprint("' in unknown mode");
-            break;
-        }
-    } else if (m == 0) {
-        tprint("' in no mode");
-    } else {
-        switch ((-m) / (max_command_cmd + 1)) {
-        case 0:
-            tprint("' in internal vertical mode");
-            break;
-        case 1:
-            tprint("' in restricted horizontal mode");
-            break;
-        case 2:
-            tprint("' in math mode");
-            break;
-        default:
-            tprint("' in unknown mode");
-            break;
-        }
-    }
+    tprint("' in ");
+    tprint(string_mode(m));
 }
 
 int get_mode_id(void)
@@ -370,6 +343,8 @@ void show_activities(void)
         print_mode(m);
         tprint(" entered at line ");
         print_int(abs(nest[p].ml_field));
+	/* we dont do this any more */
+	/*
         if (m == hmode)
             if (nest[p].pg_field != 040600000) {
                 tprint(" (language");
@@ -380,6 +355,7 @@ void show_activities(void)
                 print_int((nest[p].pg_field / 0200000) % 0100);
                 print_char(')');
             }
+	*/
         if (nest[p].ml_field < 0)
             tprint(" (\\output routine)");
         if (p == 0) {
