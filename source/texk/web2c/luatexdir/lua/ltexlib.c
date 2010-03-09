@@ -1966,51 +1966,53 @@ static int tex_run_linebreak (lua_State *L)
 
     /* initialize local parameters */
 
-    if (lua_gettop(L)==2 && lua_type(L, 2) == LUA_TTABLE) {
-	lua_pushstring(L,"pardir");
-	lua_gettable(L,-2);
-	if (lua_type(L, -1) == LUA_TSTRING) {
-	    paragraph_dir = nodelib_getdir(L, -1);
-	}
-	lua_pop(L,1); 
-	lua_pushstring(L,"d");
-	lua_gettable(L,-2);
-	if (lua_type(L, -1) == LUA_TBOOLEAN) {
-	    d = lua_toboolean(L,-1);
-	}
-	lua_pop(L,1);
-
-	get_int_par("pretolerance", pretolerance, int_par(pretolerance_code));
-	get_int_par("tracingparagraphs", tracingparagraphs, int_par(tracing_paragraphs_code));
-	get_int_par("tolerance", tolerance, int_par(tolerance_code));
-	get_int_par("looseness", looseness, int_par(looseness_code));
-	get_int_par("hyphenpenalty", hyphenpenalty, int_par(hyphen_penalty_code));
-	get_int_par("exhyphenpenalty", exhyphenpenalty, int_par(ex_hyphen_penalty_code));
-	get_int_par("pdfadjustspacing", pdfadjustspacing, int_par(pdf_adjust_spacing_code));
-	get_int_par("adjdemerits", adjdemerits, int_par(adj_demerits_code));
-	get_int_par("pdfprotrudechars", pdfprotrudechars, int_par(pdf_protrude_chars_code));
-	get_int_par("linepenalty", linepenalty, int_par(line_penalty_code));
-	get_int_par("lastlinefit", lastlinefit, int_par(last_line_fit_code));
-	get_int_par("doublehyphendemerits", doublehyphendemerits, int_par(double_hyphen_demerits_code));
-	get_int_par("finalhyphendemerits", finalhyphendemerits, int_par(final_hyphen_demerits_code));
-	get_int_par("hangafter", hangafter, int_par(hang_after_code));
-	get_int_par("interlinepenalty", interlinepenalty, int_par(inter_line_penalty_code));
-	get_int_par("clubpenalty", clubpenalty, int_par(club_penalty_code));
-	get_int_par("displaywidowpenalty", displaywidowpenalty, int_par(display_widow_penalty_code));
-	get_int_par("widowpenalty", widowpenalty, int_par(widow_penalty_code));
-	get_int_par("brokenpenalty", brokenpenalty, int_par(broken_penalty_code));
-	get_dimen_par("emergencystretch", emergencystretch, dimen_par(emergency_stretch_code));
-	get_dimen_par("hangindent", hangindent, dimen_par(hang_indent_code));
-	get_dimen_par("hsize", hsize, dimen_par(hsize_code));
-	get_glue_par("leftskip", leftskip, glue_par(left_skip_code));
-	get_glue_par("rightskip", rightskip, glue_par(right_skip_code));
-	get_dimen_par("pdfeachlineheight", pdfeachlineheight, dimen_par(pdf_each_line_height_code));
-	get_dimen_par("pdfeachlinedepth", pdfeachlinedepth, dimen_par(pdf_each_line_depth_code));
-	get_dimen_par("pdffirstlineheight", pdffirstlineheight, dimen_par(pdf_first_line_height_code));
-	get_dimen_par("pdflastlinedepth", pdflastlinedepth, dimen_par(pdf_last_line_depth_code));
-	get_dimen_par("pdfignoreddimen", pdfignoreddimen, dimen_par(pdf_ignored_dimen_code));
+    if (lua_gettop(L)!=2 || lua_type(L, 2) != LUA_TTABLE) {
+	lua_checkstack(L,3);
+	lua_newtable(L);
     }
-
+    lua_pushstring(L,"pardir");
+    lua_gettable(L,-2);
+    if (lua_type(L, -1) == LUA_TSTRING) {
+	paragraph_dir = nodelib_getdir(L, -1);
+    }
+    lua_pop(L,1); 
+    lua_pushstring(L,"d");
+    lua_gettable(L,-2);
+    if (lua_type(L, -1) == LUA_TBOOLEAN) {
+	d = lua_toboolean(L,-1);
+    }
+    lua_pop(L,1);
+    
+    get_int_par("pretolerance", pretolerance, int_par(pretolerance_code));
+    get_int_par("tracingparagraphs", tracingparagraphs, int_par(tracing_paragraphs_code));
+    get_int_par("tolerance", tolerance, int_par(tolerance_code));
+    get_int_par("looseness", looseness, int_par(looseness_code));
+    get_int_par("hyphenpenalty", hyphenpenalty, int_par(hyphen_penalty_code));
+    get_int_par("exhyphenpenalty", exhyphenpenalty, int_par(ex_hyphen_penalty_code));
+    get_int_par("pdfadjustspacing", pdfadjustspacing, int_par(pdf_adjust_spacing_code));
+    get_int_par("adjdemerits", adjdemerits, int_par(adj_demerits_code));
+    get_int_par("pdfprotrudechars", pdfprotrudechars, int_par(pdf_protrude_chars_code));
+    get_int_par("linepenalty", linepenalty, int_par(line_penalty_code));
+    get_int_par("lastlinefit", lastlinefit, int_par(last_line_fit_code));
+    get_int_par("doublehyphendemerits", doublehyphendemerits, int_par(double_hyphen_demerits_code));
+    get_int_par("finalhyphendemerits", finalhyphendemerits, int_par(final_hyphen_demerits_code));
+    get_int_par("hangafter", hangafter, int_par(hang_after_code));
+    get_int_par("interlinepenalty", interlinepenalty, int_par(inter_line_penalty_code));
+    get_int_par("clubpenalty", clubpenalty, int_par(club_penalty_code));
+    get_int_par("displaywidowpenalty", displaywidowpenalty, int_par(display_widow_penalty_code));
+    get_int_par("widowpenalty", widowpenalty, int_par(widow_penalty_code));
+    get_int_par("brokenpenalty", brokenpenalty, int_par(broken_penalty_code));
+    get_dimen_par("emergencystretch", emergencystretch, dimen_par(emergency_stretch_code));
+    get_dimen_par("hangindent", hangindent, dimen_par(hang_indent_code));
+    get_dimen_par("hsize", hsize, dimen_par(hsize_code));
+    get_glue_par("leftskip", leftskip, glue_par(left_skip_code));
+    get_glue_par("rightskip", rightskip, glue_par(right_skip_code));
+    get_dimen_par("pdfeachlineheight", pdfeachlineheight, dimen_par(pdf_each_line_height_code));
+    get_dimen_par("pdfeachlinedepth", pdfeachlinedepth, dimen_par(pdf_each_line_depth_code));
+    get_dimen_par("pdffirstlineheight", pdffirstlineheight, dimen_par(pdf_first_line_height_code));
+    get_dimen_par("pdflastlinedepth", pdflastlinedepth, dimen_par(pdf_last_line_depth_code));
+    get_dimen_par("pdfignoreddimen", pdfignoreddimen, dimen_par(pdf_ignored_dimen_code));
+    
     line_break_dir = paragraph_dir;
     ext_do_line_break(d, paragraph_dir, line_break_dir,
 		      pretolerance, tracingparagraphs, tolerance,
