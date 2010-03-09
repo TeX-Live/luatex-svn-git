@@ -5420,6 +5420,52 @@ registers that keep track of building page lists.
 % \NC align_head         \NC  \NC \NR
 \stoptabulate
 
+\subsection{Semantic nest levels (0.51)}
+
+The virtual table \luatex{tex.nest} contains the currently active
+semantic nesting state. It has two main parts: an zero-based array of
+userdata for the semantic nest itself, and the numerical value
+\type{tex.nest.ptr}, which gives the highest available index. Neither
+the array items in \type{tex.nest[]} nor \type{tex.nest.ptr} can be
+assigned to (as this would confuse the typesetting engine beyond
+repair), but you can assing to the individual values inside the array
+items, e.g. \type{tex.nest[tex.nest.ptr].prevdepth}. 
+
+\type{tex.nest[tex.nest.ptr]} is the current nest state, \type{tex.nest[0]}
+the outermost (main vertical list) level.
+
+The known fields are:
+
+\starttabulate[|lT|l|l|p|]
+\NC \ssbf key   \NC \bf type  \NC \bf modes  \NC \bf explanation \NC\NR
+\NC mode        \NC number    \NC all        \NC The current mode. This is a number representing the
+                                                 main mode at this level:\crlf 
+                                                 0 == no mode (this happens during \type{\write})\crlf
+                                                 1 == vertical,\crlf 
+                                                 127 = horizontal,\crlf 
+                                                 253 = display math.\crlf
+                                                 $-1$ == internal vertical,\crlf 
+                                                 $-127$ = restricted horizontal,\crlf 
+                                                 $-253$ = inline math.\NC\NR
+\NC modeline    \NC number    \NC all        \NC source input line where this mode was entered in,
+                                                 negative inside the output routine.\NC\NR
+\NC head        \NC node      \NC all        \NC the head of the current list\NC\NR
+\NC tail        \NC node      \NC all        \NC the tail of the current list\NC\NR
+\NC prevgraf    \NC number    \NC vmode      \NC number of lines in the previous paragraph\NC\NR
+\NC prevdepth   \NC number    \NC vmode      \NC depth of the previous paragraph (equal to \type{\pdfignoreddimen}
+                                                 when it is to be ignored)\NC\NR
+\NC spacefactor \NC number    \NC hmode      \NC the current space factor\NC\NR
+\NC dirs        \NC node      \NC hmode      \NC used for temporary storage by the line break algorithm\NC\NR
+\NC noad        \NC node      \NC mmode      \NC used for temporary storage of a pending fraction numerator, 
+                                                 for \type{\over} etc.\NC\NR
+\NC delimptr    \NC node      \NC mmode      \NC used for temporary storage of the previous math delimiter, 
+                                                 for \type{\middle}.\NC\NR
+\NC mathdir     \NC boolean   \NC mmode      \NC true when during math processing the \type{\mathdir} is not 
+                                                 the same as the surrounding \type{\textdir}\NC\NR
+\NC mathstyle   \NC number    \NC mmode      \NC the current \type{\mathstyle} \NC\NR
+\stoptabulate
+
+
 \subsection{Print functions}
 
 The \luatex{tex} table also contains the three print functions that

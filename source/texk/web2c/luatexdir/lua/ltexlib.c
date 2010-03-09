@@ -1519,6 +1519,135 @@ int setlist(lua_State * L)
     return 0;
 }
 
+#define NEST_METATABLE "luatex.nest"
+
+static int lua_nest_getfield (lua_State *L) {
+    list_state_record *r, **rv = lua_touserdata(L,-2);
+    const char *field = lua_tostring(L,-1);
+    r = *rv;
+    if (strcmp(field,"mode")==0) {
+	lua_pushnumber(L, r->mode_field);
+    } else if (strcmp(field,"head")==0) {
+	lua_nodelib_push_fast(L, r->head_field);
+    } else if (strcmp(field,"tail")==0) {
+	lua_nodelib_push_fast(L, r->tail_field);
+    } else if (strcmp(field,"delimptr")==0) {
+	lua_pushnumber(L, r->eTeX_aux_field);
+	lua_nodelib_push(L);
+    } else if (strcmp(field,"prevgraf")==0) {
+	lua_pushnumber(L, r->pg_field);
+    } else if (strcmp(field,"modeline")==0) {
+	lua_pushnumber(L, r->ml_field);
+    } else if (strcmp(field,"prevdepth")==0) {
+	lua_pushnumber(L, r->prev_depth_field);
+    } else if (strcmp(field,"spacefactor")==0) {
+	lua_pushnumber(L, r->space_factor_field);
+    } else if (strcmp(field,"noad")==0) {
+	lua_pushnumber(L, r->incompleat_noad_field);
+	lua_nodelib_push(L);
+    } else if (strcmp(field,"dirs")==0) {
+	lua_pushnumber(L, r->dirs_field);
+	lua_nodelib_push(L);
+    } else if (strcmp(field,"mathdir")==0) {
+	lua_pushboolean(L, r->math_field);
+    } else if (strcmp(field,"mathstyle")==0) {
+	lua_pushnumber(L, r->math_style_field);
+    } else {
+	lua_pushnil(L);
+    }
+    return 1;
+}
+
+static int lua_nest_setfield (lua_State *L) {
+    halfword *n;
+    int i;
+    list_state_record *r, **rv = lua_touserdata(L,-3);
+    const char *field = lua_tostring(L,-2);
+    r = *rv;
+    if (strcmp(field,"mode")==0) {
+	lua_number2int(i, lua_tonumber(L,-1));
+	r->mode_field = i;
+    } else if (strcmp(field,"head")==0) {
+        n = check_isnode(L,-1);
+	r->head_field = *n;
+    } else if (strcmp(field,"tail")==0) {
+        n = check_isnode(L,-1);
+	r->tail_field = *n;
+    } else if (strcmp(field,"delimptr")==0) {
+        n = check_isnode(L,-1);
+	r->eTeX_aux_field = *n;
+    } else if (strcmp(field,"prevgraf")==0) {
+	lua_number2int(i, lua_tonumber(L,-1));
+	r->pg_field = i;
+    } else if (strcmp(field,"modeline")==0) {
+	lua_number2int(i, lua_tonumber(L,-1));
+	r->ml_field = i;
+    } else if (strcmp(field,"prevdepth")==0) {
+	lua_number2int(i, lua_tonumber(L,-1));
+	r->prev_depth_field = i;
+    } else if (strcmp(field,"spacefactor")==0) {
+	lua_number2int(i, lua_tonumber(L,-1));
+	r->space_factor_field = i;
+    } else if (strcmp(field,"noad")==0) {
+        n = check_isnode(L,-1);
+	r->incompleat_noad_field = *n;
+    } else if (strcmp(field,"dirs")==0) {
+        n = check_isnode(L,-1);
+	r->dirs_field = *n;
+    } else if (strcmp(field,"mathdir")==0) {
+	r->math_field = lua_toboolean(L,-1);
+    } else if (strcmp(field,"mathstyle")==0) {
+	lua_number2int(i, lua_tonumber(L,-1));
+	r->math_style_field = i;
+    }
+    return 0;
+}
+
+static const struct luaL_reg nest_m[] = {
+    {"__index",    lua_nest_getfield},
+    {"__newindex", lua_nest_setfield},
+    {NULL, NULL}                /* sentinel */
+};
+
+static void init_nest_lib (lua_State *L) {
+    luaL_newmetatable(L, NEST_METATABLE);
+    luaL_register(L, NULL, nest_m);
+    lua_pop(L,1);
+}
+
+static int getnest(lua_State * L)
+{
+    int ptr;
+    list_state_record **nestitem;
+    if (lua_isnumber(L, 2)) {
+	lua_number2int(ptr,lua_tonumber(L,2));
+	if (ptr>=0 && ptr<=nest_ptr) {
+	    nestitem = lua_newuserdata(L, sizeof(list_state_record *));
+	    *nestitem = &nest[ptr];
+	    luaL_getmetatable(L, NEST_METATABLE);
+	    lua_setmetatable(L, -2);      
+	} else {
+	    lua_pushnil(L);
+	}
+    } else if (lua_isstring(L, 2)) {
+	const char *s  = lua_tostring(L, 2);
+	if (strcmp(s,"ptr") == 0) {
+	    lua_pushnumber(L,nest_ptr);
+	} else {
+	    lua_pushnil(L);
+	}
+    } else {
+	lua_pushnil(L);
+    }
+    return 1;
+}
+
+static int setnest(lua_State * L) {
+    lua_pushstring(L, "You can't modify the semantic nest array directly");
+    lua_error(L);
+    return 2;
+}
+
 static int do_integer_error(double m)
 {
     const char *help[] =
@@ -2025,6 +2154,8 @@ static const struct luaL_reg texlib[] = {
     {"getboxht", getboxht},
     {"setboxdp", setboxdp},
     {"getboxdp", getboxdp},
+    {"setnest", setnest},
+    {"getnest", getnest},
     {"round", tex_roundnumber},
     {"scale", tex_scaletable},
     {"sp", tex_scaledimen}, 
@@ -2063,7 +2194,9 @@ int luaopen_tex(lua_State * L)
     make_table(L, "ht",         "getboxht",     "setboxht");
     make_table(L, "dp",         "getboxdp",     "setboxdp");
     make_table(L, "lists",      "getlist",      "setlist");
+    make_table(L, "nest",       "getnest",      "setnest");
     /* *INDENT-ON* */
+    init_nest_lib(L);
     /* make the meta entries */
     /* fetch it back */
     luaL_newmetatable(L, "tex_meta");
