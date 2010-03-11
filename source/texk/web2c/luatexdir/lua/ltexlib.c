@@ -2104,6 +2104,8 @@ static int tex_run_linebreak (lua_State *L)
 
     /* restore nest stack */
     pop_nest();    
+    if (parshape != equiv(par_shape_loc))    
+	flush_node(parshape);
     return 2;
 }
 
