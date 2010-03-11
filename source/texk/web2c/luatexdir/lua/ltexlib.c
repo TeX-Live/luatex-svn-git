@@ -1927,13 +1927,68 @@ static int tex_enableprimitives(lua_State * L)
     } while (0)
 
 
+/*
+  scan_int();
+  n = cur_val;
+  if (n <= 0)  p = null;
+  else {
+  p = new_node(shape_node, 2 * (n + 1) + 1);
+  vinfo(p + 1) = n;
+  for (j = 1; j <= n; j++) {
+  scan_normal_dimen();
+  varmem[p + 2 * j].cint = cur_val;
+  scan_normal_dimen();
+  varmem[p + 2 * j + 1].cint = cur_val;
+  }}
+
+  parshape = {{0, tex.sp"6in"}, {...}}
+*/
+
+static halfword nodelib_toparshape (lua_State *L, int i)
+{
+    halfword p;
+    int n = 0;
+    int width,indent, j;
+    /* find |n| */
+    lua_pushnil(L);
+    while (lua_next(L, i) != 0) {
+	n++;
+	lua_pop(L,1);
+    }
+    if (n==0) 
+	return null;
+    p = new_node(shape_node, 2 * (n + 1) + 1);
+    vinfo(p + 1) = n;
+    /* fill |p| */
+    lua_pushnil(L);
+    j = 0;
+    while (lua_next(L, i) != 0) {
+	/* don't give an error for non-tables, we may add special syntaxes at some point */
+	j++;
+	if (lua_type(L, i) == LUA_TTABLE) {
+	    lua_rawgeti(L,-1,1); /* indent */
+	    if (lua_type(L, -1) == LUA_TNUMBER) {
+		lua_number2int(indent,lua_tonumber(L,-1));
+		lua_pop(L,1);
+		lua_rawgeti(L,-1,2); /* width */
+		if (lua_type(L, -1) == LUA_TNUMBER) {
+		    lua_number2int(width,lua_tonumber(L,-1));
+		    lua_pop(L,1);
+		    varmem[p + 2 * j].cint = indent;
+		    varmem[p + 2 * j + 1].cint = width;
+		}
+	    }
+	}
+	lua_pop(L,1);
+    }
+    return p;    
+}
+
 static int tex_run_linebreak (lua_State *L)
 {
     
     halfword *j;
     halfword p;
-    halfword save_vlink_temp_head, save_vlink_cur_head;
-    list_state_record save_cur_list;
     halfword final_par_glue;
     boolean d = false;
     int line_break_dir, paragraph_dir = 0;
@@ -1944,12 +1999,11 @@ static int tex_run_linebreak (lua_State *L)
 	hangafter,interlinepenalty,clubpenalty,displaywidowpenalty,widowpenalty,
 	brokenpenalty;
     halfword emergencystretch,hangindent,hsize,leftskip,rightskip,pdfeachlineheight,
-	pdfeachlinedepth,pdffirstlineheight,pdflastlinedepth,pdfignoreddimen;
+	pdfeachlinedepth,pdffirstlineheight,pdflastlinedepth,pdfignoreddimen, parshape;
 
-    /* save some stuff */
-    save_vlink_temp_head = vlink(temp_head);
-    save_cur_list = cur_list;
-    save_vlink_cur_head = vlink(cur_list.head_field);
+    /* push a new nest level */
+    push_nest();
+    /* save_vlink_cur_head = vlink(cur_list.head_field); */
 
     j = check_isnode(L, 1);     /* the value */
     vlink(temp_head) = *j;
@@ -1976,6 +2030,16 @@ static int tex_run_linebreak (lua_State *L)
 	paragraph_dir = nodelib_getdir(L, -1);
     }
     lua_pop(L,1); 
+
+    lua_pushstring(L,"parshape");
+    lua_gettable(L,-2);
+    if (lua_type(L, -1) == LUA_TTABLE) {
+	parshape = nodelib_toparshape(L,lua_gettop(L));
+    } else {
+	parshape = equiv(par_shape_loc);
+    }
+    lua_pop(L,1);     
+
     lua_pushstring(L,"d");
     lua_gettable(L,-2);
     if (lua_type(L, -1) == LUA_TBOOLEAN) {
@@ -2019,7 +2083,7 @@ static int tex_run_linebreak (lua_State *L)
 		      emergencystretch,
 		      looseness,hyphenpenalty, exhyphenpenalty,
 		      pdfadjustspacing,
-		      equiv(par_shape_loc),
+		      parshape,
 		      adjdemerits, pdfprotrudechars,
 		      linepenalty, lastlinefit,
 		      doublehyphendemerits,finalhyphendemerits,
@@ -2035,14 +2099,11 @@ static int tex_run_linebreak (lua_State *L)
 		      final_par_glue, pdfignoreddimen);
 
     /* return the generated list, and its prevdepth */
-    lua_nodelib_push_fast(L,vlink(save_cur_list.tail_field));
+    lua_nodelib_push_fast(L,vlink(cur_list.head_field));
     lua_pushnumber(L, cur_list.prev_depth_field);
 
-    /* restore various globals */
-    cur_list = save_cur_list;
-    vlink(cur_list.head_field) = save_vlink_cur_head;
-    vlink(temp_head) = save_vlink_temp_head;
-    
+    /* restore nest stack */
+    pop_nest();    
     return 2;
 }
 
