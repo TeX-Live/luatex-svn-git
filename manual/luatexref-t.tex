@@ -7068,7 +7068,9 @@ incoming font source, also used as fontname identifier in the \PDF\ output, new 
                                                                         \type{renew}: don't store the table reference, but
                                                                         save a reference to the table that is created at the
                                                                         first access to one of its fields in font.fonts. 
-                                                                        (new in 0.40.0, before that caching was always \type{yes})\NC\NR
+                                                                        (new in 0.40.0, before that caching was always \type{yes}). 
+Note: the saved reference is thread-local, so be careful when you are using coroutines: an error will be thrown if the table
+has been cached in one thread, but you reference it from another thread ($\approx$ coroutine)\NC\NR
 \NC nomath              \NC no       \NC no       \NC yes \NC boolean\NC this key allows a minor speedup for text fonts. if it is
                                                                          present and true, then \LUATEX\ will not check the
                                                                          character enties for math-specific keys. (0.42.0)\NC\NR
