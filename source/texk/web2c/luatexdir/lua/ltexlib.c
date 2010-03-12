@@ -2109,6 +2109,14 @@ static int tex_run_linebreak (lua_State *L)
     return 2;
 }
 
+static int tex_shipout (lua_State *L)
+{
+    int boxnum = get_box_id(L,1);
+    ship_out(static_pdf,box(boxnum),true);
+    box(boxnum) = null;
+    return 0;
+}
+
 static int tex_run_boot(lua_State * L)
 {
     int n = lua_gettop(L);
@@ -2239,6 +2247,7 @@ static const struct luaL_reg texlib[] = {
     {"primitives", tex_primitives},
     {"extraprimitives", tex_extraprimitives},
     {"enableprimitives", tex_enableprimitives},
+    {"shipout", tex_shipout},
     {"setmath", tex_setmathparm},
     {"getmath", tex_getmathparm},
     {"linebreak", tex_run_linebreak},
