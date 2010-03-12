@@ -138,7 +138,8 @@ static int tex_each_font_next(lua_State * L)
         return 1;
     } else {
         lua_pushnumber(L, i);
-        font_to_lua(L, i);
+        if (!font_to_lua(L, i))
+	    lua_pushnil(L);
         return 2;
     }
 }
