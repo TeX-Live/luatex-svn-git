@@ -975,9 +975,17 @@ returns~\type{0.00000000000001} instead of~\hbox{\type{1e-14}} (which
 confused \TEX\ enormously). Even values with an even smaller exponent
 print simply as~\type{0}.
 
-\lua{luafilesystem} has been extended with two extra boolean functions
-(\luatex{isdir(filename)} and \luatex{isfile(filename)}) and one extra
-string field in its attributes table (\type{permissions}).
+\lua{luafilesystem} has been extended: there are two extra boolean functions
+(\luatex{lfs.isdir(filename)} and \luatex{lfs.isfile(filename)}) and
+one extra string field in its attributes table
+(\type{permissions}). There is an additional function (added in 0.51)
+\type{lfs.shortname()} which takes a file name and returns its short
+name on WIN32 platforms. On other platforms, it just returns the given
+argument. The file name is not tested for existence. Finally, for
+non-WIN32 platforms only, there is the new function
+\type{lfs.readlink()} (added in 0.51) that takes an existing symbolic
+link as argument and returns its content. It returns an error on
+WIN32.
 
 The \lua{string} library has an extra function:
 \luatex{string.explode(s[,m])}. This function returns an array containing

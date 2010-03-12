@@ -34,6 +34,7 @@
 #include <sys/locking.h>
 #include <sys/utime.h>
 #include <fcntl.h>
+#include <windows.h>
 #else
 #include <unistd.h>
 #include <dirent.h>
@@ -693,6 +694,10 @@ static int link_info (lua_State *L) {
 static int read_link (lua_State *L) {
 	return Preadlink (L);
 }
+static int get_short_name (lua_State *L) {
+    /* simply do nothing */
+  return 1;
+}
 #else
 static int link_info (lua_State *L) {
   lua_pushboolean(L, 0);
@@ -703,6 +708,26 @@ static int read_link (lua_State *L) {
   lua_pushboolean(L, 0);
   lua_pushliteral(L, "readlink not supported on this platform");
   return 2;
+}
+static int get_short_name (lua_State *L) {
+    long     length = 0;
+    TCHAR*   buffer = NULL;
+    const char *lpszPath = luaL_checkstring (L, 1);
+    length = GetShortPathName(lpszPath, NULL, 0);
+    if (length == 0) {
+	lua_pushnil(L);
+	lua_pushfstring(L, "operating system error: %d", (int)GetLastError());
+	return 2;
+    }
+    buffer = (TCHAR *)xmalloc(length * sizeof(TCHAR));
+    length = GetShortPathName(lpszPath, buffer, length);
+    if (length == 0) {
+	lua_pushnil(L);
+	lua_pushfstring(L, "operating system error: %d", (int)GetLastError());
+	return 2;
+    }
+    lua_pushlstring(L, (const char *)buffer, (size_t)length);
+    return 1;
 }
 #endif
 
@@ -774,6 +799,7 @@ static const struct luaL_reg fslib[] = {
 	{"rmdir", remove_dir},
 	{"symlinkattributes", link_info},
 	{"readlink", read_link},
+	{"shortname", get_short_name},
 	{"setmode", lfs_f_setmode},
 	{"touch", file_utime},
 	{"unlock", file_unlock},
