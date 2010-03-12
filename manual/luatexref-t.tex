@@ -3488,6 +3488,7 @@ standalone \type{kpsewhich} program:
 'cid maps',
 'mlbib',
 'mlbst',
+'clua',
 \stoptyping
 \stopsimplecolumns
 
@@ -3508,6 +3509,34 @@ will search the disk as well as the \type {ls-R} databases.
 
 This is used for the size argument of the formats \type{pk}, \type{gf}, and \type{bitmap font}.
 \stopitemize
+
+\subsection{\luatex{lookup}}
+
+A more powerful (but slower) generic method for finding files is also 
+available.
+
+\startfunctioncall
+<string> f, ... = kpse.lookup(<string> filename, <table> options)
+\stopfunctioncall
+
+The options match commandline arguments from \type{kpsewhich}:
+
+\starttabulate[|l|l|p|]
+\NC \ssbf key \NC \ssbf type \NC \ssbf description \NC \NR
+\NC debug     \NC number     \NC set debugging flags for this lookup\NC     \NR
+\NC format    \NC string     \NC use specific file type (see list above)\NC \NR
+\NC dpi       \NC number     \NC use this resolution for this lookup; default 600\NC \NR
+\NC path      \NC string     \NC search in the given path\NC \NR
+\NC all       \NC boolean    \NC output all matches, not just the first\NC \NR
+\NC must-exist\NC boolean    \NC search the disk as well as ls-R if necessary\NC \NR
+\NC mktexpk   \NC boolean    \NC disable/enable mktexpk generation for this lookup\NC \NR
+\NC mktextex  \NC boolean    \NC disable/enable mktextex generation for this lookup\NC \NR
+\NC mktexmf   \NC boolean    \NC disable/enable mktexmf generation for this lookup\NC \NR
+\NC mktextfm  \NC boolean    \NC disable/enable mktextfm generation for this lookup\NC \NR
+\NC subdir    \NC string 
+                  or table   \NC only output matches whose directory part
+                                 ends with the given string(s) \NC \NR
+\stoptabulate
 
 \subsection{\luatex{init_prog}}
 
