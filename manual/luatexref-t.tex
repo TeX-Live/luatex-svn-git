@@ -3513,7 +3513,7 @@ This is used for the size argument of the formats \type{pk}, \type{gf}, and \typ
 \subsection{\luatex{lookup}}
 
 A more powerful (but slower) generic method for finding files is also 
-available.
+available (since 0.51).
 
 \startfunctioncall
 <string> f, ... = kpse.lookup(<string> filename, <table> options)
@@ -3602,6 +3602,15 @@ Like kpsewhich's \type{-var-value}:
 \startfunctioncall
 <string> r = kpse.var_value(<string> s)
 \stopfunctioncall
+
+\subsection{\luatex{version}}
+
+Returns the kpathsea version string (new in 0.51)
+
+\startfunctioncall
+<string> r = kpse.version()
+\stopfunctioncall
+
 
 \section{The \luatex{lang} library}
 

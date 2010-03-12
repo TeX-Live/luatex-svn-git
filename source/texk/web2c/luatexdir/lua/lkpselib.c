@@ -745,6 +745,12 @@ static int lua_kpathsea_init_prog(lua_State * L)
     return 0;
 }
 
+static int lua_kpse_version (lua_State *L) 
+{
+    lua_pushstring(L, kpathsea_version_string);
+    return 1;
+}
+
 static int readable_file(lua_State * L)
 {
     const char *name = luaL_checkstring(L, 1);
@@ -795,6 +801,7 @@ static const struct luaL_reg kpselib_m[] = {
     {"var_value", lua_kpathsea_var_value},
     {"show_path", lua_kpathsea_show_path},
     {"lookup", lua_kpathsea_lookup},
+    {"version", lua_kpse_version},
     {NULL, NULL}                /* sentinel */
 };
 
@@ -810,6 +817,7 @@ static const struct luaL_reg kpselib_l[] = {
     {"var_value", var_value},
     {"show_path", show_path},
     {"lookup", lua_kpse_lookup},
+    {"version", lua_kpse_version},
     {NULL, NULL}                /* sentinel */
 };
 
