@@ -129,8 +129,8 @@ boolean calc_pdfpos(pdfstructure * p, scaledpos pos)
             new.v = lround(pos.v * p->k1);
             p->tj_delta.m = -lround((double)
                                     ((new.h - p->cw.m) / ten_pow[p->cw.e -
-                                                                 p->tj_delta.
-                                                                 e]));
+                                                                 p->
+                                                                 tj_delta.e]));
             p->tm[5].m = new.v - p->pdf_bt_pos.v.m;     /* p->tm[4] is meaningless */
             if (p->tj_delta.m != 0 || new.v != p->pdf.v.m)
                 move_pdfpos = TRUE;
@@ -142,8 +142,8 @@ boolean calc_pdfpos(pdfstructure * p, scaledpos pos)
             p->tm[4].m = new.h - p->pdf_bt_pos.h.m;     /* p->tm[5] is meaningless */
             p->tj_delta.m = -lround((double)
                                     ((new.v - p->cw.m) / ten_pow[p->cw.e -
-                                                                 p->tj_delta.
-                                                                 e]));
+                                                                 p->
+                                                                 tj_delta.e]));
             if (p->tj_delta.m != 0 || new.h != p->pdf.h.m)
                 move_pdfpos = TRUE;
             break;
