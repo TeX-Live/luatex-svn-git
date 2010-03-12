@@ -59,10 +59,9 @@ notice.
 \blank
 
 {\bf If you are not willing to deal with this situation, you should
-wait for the stable version. Currently we expect the first release
-with (some) fixed interfaces to be available sometime in the autumn
-of~2008. Full stabilization will not happen soon, the TODO list is
-still very large.}
+wait for the stable version. Currently we expect the 1.0 release to
+happen in spring 2012. Full stabilization will not happen soon, the
+TODO list is still large.}
 
 \stopframedtext
 
@@ -125,6 +124,9 @@ before the above line.
 More fine-grained primitives control is possible, you can look the details in
 \in{section}[luaprimitives]. For simplicity's sake, this manual assumes 
 that you have executed the \type{\directlua} command as given above.
+
+The startup behavior documented above is considered stable in the sense
+that there will not be backward-incompatible changes any more.
 
 \section{Version information}
 
@@ -245,7 +247,11 @@ The glyph properties (like \type {\efcode}) introduced in \PDFTEX\
 that deal with font expansion (hz) and character protruding are
 also 16~bit. Because font memory management has been rewritten,
 these character properties are no longer shared among fonts
-instances that originate from the same metric file
+instances that originate from the same metric file.
+
+The behavior documented in the above section is considered stable
+in the sense that there will not be backward-incompatible changes any
+more.
 
 \section{Attribute registers}
 
@@ -273,10 +279,13 @@ Attributes can be used as extra counter values, but their usefulness
 comes mostly from the fact that the numbers and values of all \quote{set}
 attributes are attached to all nodes created in their scope. These can
 then be queried from any \LUA\ code that deals with node
-processing. Future versions of
-\LUATEX\ will probably be using specific negative attribute ids for
-internal use. Further information about how to use attributes for node
+processing. Further information about how to use attributes for node
 list processing from \LUA\ is given in~\in{chapter}[nodes].
+
+The behavior documented in the above subsection is considered stable
+in the sense that there will not be backward-incompatible changes any
+more.
+
 
 \subsection{Box attributes}
 
@@ -414,6 +423,10 @@ While on the subject of errors: some of the things you can do inside
 \LUA\ code can break up \LUATEX\ pretty bad. If you are not careful
 while working with the node list interface, you may even end up with
 assertion errors from within the \TEX\ portion of the executable.
+
+The behavior documented in the above subsection is considered stable
+in the sense that there will not be backward-incompatible changes any
+more.
 
 \subsection{\tex{latelua}}
 
@@ -1217,6 +1230,9 @@ If the callback is not set, \luatex{callback.find} returns \type{nil}.
 
 \subsection{File discovery callbacks}
 
+The behavior documented in this subsection is considered stable in the
+sense that there will not be backward-incompatible changes any more.
+
 \subsubsection{\luatex{find_read_file} and \luatex{find_write_file}}
 
 Your callback function should have the following conventions:
@@ -1362,6 +1378,9 @@ open a file from the harddisk, so make sure you return something that
 is considered the name of a valid file by your operating system.
 
 \subsection[iocallback]{File reading callbacks}
+
+The behavior documented in this subsection is considered stable in the
+sense that there will not be backward-incompatible changes any more.
 
 \subsubsection{\luatex{open_read_file}}
 
@@ -1916,6 +1935,9 @@ the next section.
 
 \subsection{Loading a \TFM\ file}
 
+The behavior documented in this subsection is considered stable in the
+sense that there will not be backward-incompatible changes any more.
+
 \startfunctioncall
 <table> fnt = font.read_tfm(<string> name, <number> s)
 \stopfunctioncall
@@ -1932,6 +1954,9 @@ The internal structure of the metrics font table that is returned is
 explained in \in{chapter}[fonts].
 
 \subsection{Loading a \VF\ file}
+
+The behavior documented in this subsection is considered stable in the
+sense that there will not be backward-incompatible changes any more.
 
 \startfunctioncall
 <table> vf_fnt = font.read_vf(<string> name, <number> s)
