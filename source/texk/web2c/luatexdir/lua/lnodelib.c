@@ -440,10 +440,10 @@ static int lua_nodelib_copy_list(lua_State * L)
         return 1;               /* the nil itself */
     n = check_isnode(L, 1);
     if (lua_gettop(L) > 1) {
-      s = check_isnode(L, 2);  
-      m = do_copy_node_list(*n, *s);
+        s = check_isnode(L, 2);
+        m = do_copy_node_list(*n, *s);
     } else {
-      m = do_copy_node_list(*n, null);
+        m = do_copy_node_list(*n, null);
     }
     lua_pushnumber(L, m);
     lua_nodelib_push(L);

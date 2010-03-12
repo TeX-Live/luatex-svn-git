@@ -139,7 +139,7 @@ static int tex_each_font_next(lua_State * L)
     } else {
         lua_pushnumber(L, i);
         if (!font_to_lua(L, i))
-	    lua_pushnil(L);
+            lua_pushnil(L);
         return 2;
     }
 }

@@ -1181,14 +1181,14 @@ static long pack_integer(card8 * dest, long destlen, long value)
     } else if (value >= 108 && value <= 1131) {
         if (destlen < 2)
             CFF_ERROR("Buffer overflow.");
-        value = (long)0xf700u + value - 108;
+        value = (long) 0xf700u + value - 108;
         dest[0] = (card8) ((value >> 8) & 0xff);
         dest[1] = (card8) (value & 0xff);
         len = 2;
     } else if (value >= -1131 && value <= -108) {
         if (destlen < 2)
             CFF_ERROR("Buffer overflow.");
-        value = (long)0xfb00u - value - 108;
+        value = (long) 0xfb00u - value - 108;
         dest[0] = (card8) ((value >> 8) & 0xff);
         dest[1] = (card8) (value & 0xff);
         len = 2;
@@ -1706,7 +1706,7 @@ long cff_read_charsets(cff_font * cff)
                                           1) * sizeof(cff_range2)));
                 ranges[charset->num_entries].first = get_card16(cff);
                 ranges[charset->num_entries].n_left = get_card16(cff);
-                count = (card16) (count - (ranges[charset->num_entries].n_left + 1));     /* non-overrapping */
+                count = (card16) (count - (ranges[charset->num_entries].n_left + 1));   /* non-overrapping */
                 charset->num_entries++;
             }
             charset->data.range2 = ranges;
@@ -1980,12 +1980,12 @@ static void clear_stack(card8 ** dest, card8 * limit)
             *(*dest)++ = (card8) (ivalue + 139);
         } else if (ivalue >= 108 && ivalue <= 1131) {
             DST_NEED(limit, *dest + 2);
-            ivalue = (long)0xf700u + ivalue - 108;
+            ivalue = (long) 0xf700u + ivalue - 108;
             *(*dest)++ = (card8) ((ivalue >> 8) & 0xff);
             *(*dest)++ = (card8) (ivalue & 0xff);
         } else if (ivalue >= -1131 && ivalue <= -108) {
             DST_NEED(limit, *dest + 2);
-            ivalue = (long)0xfb00u - ivalue - 108;
+            ivalue = (long) 0xfb00u - ivalue - 108;
             *(*dest)++ = (card8) ((ivalue >> 8) & 0xff);
             *(*dest)++ = (card8) (ivalue & 0xff);
         } else if (ivalue >= -32768 && ivalue <= 32767) {       /* shortint */

@@ -713,7 +713,7 @@ void build_page(void)
         ;
     } while (vlink(contrib_head) != null);
     /* Make the contribution list empty by setting its tail to |contrib_head| */
-    contrib_tail = contrib_head; 
+    contrib_tail = contrib_head;
   EXIT:
     ;
 }
@@ -916,7 +916,7 @@ void fire_up(halfword c)
 
     if (p != null) {
         if (vlink(contrib_head) == null) {
-           contrib_tail = page_tail;
+            contrib_tail = page_tail;
         }
         vlink(page_tail) = vlink(contrib_head);
         vlink(contrib_head) = p;

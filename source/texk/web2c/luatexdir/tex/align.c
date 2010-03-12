@@ -1128,16 +1128,16 @@ value is changed to zero and so is the next tabskip.
     q = cur_list.tail_field;
     pop_nest();
     if (cur_list.mode_field == mmode) {
-	finish_display_alignment(p, q, pd);
+        finish_display_alignment(p, q, pd);
     } else {
-	vlink(cur_list.tail_field) = p;
-	if (p != null)
-	    cur_list.tail_field = q;
-	if (cur_list.mode_field == vmode) {
-	    if (!output_active)
-		lua_node_filter_s(buildpage_filter_callback, "alignment");
-	    build_page();
-	}
+        vlink(cur_list.tail_field) = p;
+        if (p != null)
+            cur_list.tail_field = q;
+        if (cur_list.mode_field == vmode) {
+            if (!output_active)
+                lua_node_filter_s(buildpage_filter_callback, "alignment");
+            build_page();
+        }
     }
 }
 

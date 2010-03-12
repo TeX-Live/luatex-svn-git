@@ -520,7 +520,7 @@ int font_to_lua(lua_State * L, int f)
     if (font_cache_id(f) == 0) {        /* renew */
         int r;
         lua_pushvalue(L, -1);
-        r = luaL_ref(L, LUA_REGISTRYINDEX);  /* pops the table */
+        r = luaL_ref(L, LUA_REGISTRYINDEX);     /* pops the table */
         set_font_cache_id(f, r);
     }
     return 1;
@@ -1695,7 +1695,7 @@ int font_from_lua(lua_State * L, int f)
         }
 
         if (save_ref > 0) {
-            r = luaL_ref(L, LUA_REGISTRYINDEX);      /* pops the table */
+            r = luaL_ref(L, LUA_REGISTRYINDEX); /* pops the table */
             set_font_cache_id(f, r);
         } else {
             lua_pop(L, 1);

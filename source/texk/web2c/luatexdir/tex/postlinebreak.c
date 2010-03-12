@@ -441,17 +441,21 @@ void ext_post_line_break(boolean d,
             depth(just_box) = pdf_last_line_depth;
 
         if ((vlink(contrib_head) != null))
-            if (!output_active) lua_node_filter_s(buildpage_filter_callback,"pre_box");
+            if (!output_active)
+                lua_node_filter_s(buildpage_filter_callback, "pre_box");
         if (pre_adjust_head != pre_adjust_tail) {
             append_list(pre_adjust_head, pre_adjust_tail);
-            if (!output_active) lua_node_filter_s(buildpage_filter_callback,"pre_adjust");
+            if (!output_active)
+                lua_node_filter_s(buildpage_filter_callback, "pre_adjust");
         }
         pre_adjust_tail = null;
         append_to_vlist(just_box);
-        if (!output_active) lua_node_filter_s(buildpage_filter_callback,"box");
+        if (!output_active)
+            lua_node_filter_s(buildpage_filter_callback, "box");
         if (adjust_head != adjust_tail) {
             append_list(adjust_head, adjust_tail);
-            if (!output_active) lua_node_filter_s(buildpage_filter_callback,"adjust");
+            if (!output_active)
+                lua_node_filter_s(buildpage_filter_callback, "adjust");
         }
         adjust_tail = null;
 

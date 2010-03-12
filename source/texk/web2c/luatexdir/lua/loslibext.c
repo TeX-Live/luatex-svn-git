@@ -63,7 +63,7 @@ static const char _svn_version[] =
 #  elif defined(__FREEBSD__) || defined(__FreeBSD__) || defined(__FreeBSD)
 #    undef OS_PLATNAME
 #    define OS_PLATNAME "freebsd"
-#  elif defined(__FreeBSD_kernel__) 
+#  elif defined(__FreeBSD_kernel__)
 #    undef OS_PLATNAME
 #    define OS_PLATNAME "kfreebsd"
 #  elif defined(__OPENBSD__)  || defined(__OpenBSD)

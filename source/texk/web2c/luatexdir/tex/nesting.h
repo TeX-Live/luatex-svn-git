@@ -52,7 +52,8 @@ typedef struct list_state_record_ {
 extern list_state_record *nest;
 extern int nest_ptr;
 extern int max_nest_stack;
-#define cur_list nest[nest_ptr] /* the ``top'' semantic state */
+#  define cur_list nest[nest_ptr]
+                                /* the ``top'' semantic state */
 extern int shown_mode;
 extern halfword save_tail;
 

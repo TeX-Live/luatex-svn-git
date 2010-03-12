@@ -301,16 +301,16 @@ void push_nest(void)
             overflow("semantic nest size", (unsigned) nest_size);
     }
     incr(nest_ptr);
-    cur_list.mode_field = nest[nest_ptr-1].mode_field;
+    cur_list.mode_field = nest[nest_ptr - 1].mode_field;
     cur_list.head_field = new_node(temp_node, 0);
     cur_list.tail_field = cur_list.head_field;
     cur_list.eTeX_aux_field = null;
     cur_list.ml_field = line;
     cur_list.pg_field = 0;
     cur_list.dirs_field = null;
-    cur_list.prev_depth_field = nest[nest_ptr-1].prev_depth_field;
-    cur_list.space_factor_field = nest[nest_ptr-1].space_factor_field;
-    cur_list.incompleat_noad_field = nest[nest_ptr-1].incompleat_noad_field;
+    cur_list.prev_depth_field = nest[nest_ptr - 1].prev_depth_field;
+    cur_list.space_factor_field = nest[nest_ptr - 1].space_factor_field;
+    cur_list.incompleat_noad_field = nest[nest_ptr - 1].incompleat_noad_field;
     init_math_fields();
 }
 
@@ -343,19 +343,19 @@ void show_activities(void)
         print_mode(m);
         tprint(" entered at line ");
         print_int(abs(nest[p].ml_field));
-	/* we dont do this any more */
-	/*
-        if (m == hmode)
-            if (nest[p].pg_field != 040600000) {
-                tprint(" (language");
-                print_int(nest[p].pg_field % 0200000);
-                tprint(":hyphenmin");
-                print_int(nest[p].pg_field / 020000000);
-                print_char(',');
-                print_int((nest[p].pg_field / 0200000) % 0100);
-                print_char(')');
-            }
-	*/
+        /* we dont do this any more */
+        /*
+           if (m == hmode)
+           if (nest[p].pg_field != 040600000) {
+           tprint(" (language");
+           print_int(nest[p].pg_field % 0200000);
+           tprint(":hyphenmin");
+           print_int(nest[p].pg_field / 020000000);
+           print_char(',');
+           print_int((nest[p].pg_field / 0200000) % 0100);
+           print_char(')');
+           }
+         */
         if (nest[p].ml_field < 0)
             tprint(" (\\output routine)");
         if (p == 0) {
@@ -423,15 +423,15 @@ void show_activities(void)
         case 1:
             tprint_nl("spacefactor ");
             print_int(nest[p].space_factor_field);
-	    /* we dont do this any more, this was aux.rh originally */
-	    /*
-            if (m > 0) {
-                if (nest[p].current_language_field > 0) {
-                    tprint(", current language ");
-                    print_int(nest[p].current_language_field);
-                }
-            }
-	    */
+            /* we dont do this any more, this was aux.rh originally */
+            /*
+               if (m > 0) {
+               if (nest[p].current_language_field > 0) {
+               tprint(", current language ");
+               print_int(nest[p].current_language_field);
+               }
+               }
+             */
             break;
         case 2:
             if (nest[p].incompleat_noad_field != null) {

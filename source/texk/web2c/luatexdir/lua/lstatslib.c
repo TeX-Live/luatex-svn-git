@@ -165,13 +165,13 @@ static struct statistic stats[] = {
     {"dvi_gone", 'g', &dvi_offset},
     {"dvi_ptr", 'g', &dvi_ptr},
     {"total_pages", 'g', &total_pages},
-    {"output_file_name", 'S', (void *)&get_output_file_name},
-    {"log_name", 'S', (void *)&getlogname},
-    {"banner", 'S', (void *)&getbanner},
-    {"pdftex_banner", 'S', (void *)&get_pdftex_banner},
+    {"output_file_name", 'S', (void *) &get_output_file_name},
+    {"log_name", 'S', (void *) &getlogname},
+    {"banner", 'S', (void *) &getbanner},
+    {"pdftex_banner", 'S', (void *) &get_pdftex_banner},
     {"luatex_svn", 'G', &get_luatexsvn},
     {"luatex_version", 'G', &get_luatexversion},
-    {"luatex_revision", 'S', (void *)&luatexrevision},
+    {"luatex_revision", 'S', (void *) &luatexrevision},
     {"ini_version", 'b', &ini_version},
     /*
      * mem stat 
@@ -218,10 +218,10 @@ static struct statistic stats[] = {
 
     {"largest_used_mark", 'g', &biggest_used_mark},
 
-    {"filename", 'S', (void *)&getfilename},
+    {"filename", 'S', (void *) &getfilename},
     {"inputid", 'g', &(iname)},
     {"linenumber", 'g', &line},
-    {"lasterrorstring", 'S', (void *)&getlasterror},
+    {"lasterrorstring", 'S', (void *) &getlasterror},
 
     {"luabytecodes", 'g', &luabytecode_max},
     {"luabytecode_bytes", 'g', &luabytecode_bytes},
