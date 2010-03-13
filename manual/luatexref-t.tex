@@ -22,7 +22,7 @@
 
 \setvariables
   [document]
-  [beta=0.51.0]
+  [beta=0.52.0]
 
 \starttext
 
@@ -5348,29 +5348,9 @@ tex.ht
 tex.dp
 \stoptyping
 
-Boxes are indexed by number or by name. In macro packages
-\type {chardef} is normally used to refer to allocated box registers and
-\LUATEX\ is able to deal with these symbolic names.
-
-The box size registers accept \LUA\ numbers (in scaled points)
-or strings (with included dimension). The result is always a number
-in scaled points.
-
-As an alternative to array addressing, there are also three sets of
-accessor functions defined (like above):
-
-\startfunctioncall
-tex.setboxwd(<number> n, <number> n)
-tex.setboxwd('global',<number> n, <number> n)
-<number> n = tex.getboxwd(<number> n)
-\stopfunctioncall
-
-In the function-based interface, it is possible to define values
-globally by using the string \type{'global'} as the first function argument.
-
-Note: the above functions and tables are likely to go away in a future
-version because one can just as well use the direct interface to the 
-box node via \type{tex.box} as documented below.
+{\bf note: these three virtual tables are deprecated and will
+be removed in luatex 0.70. You should switch to using \type{tex.box[].width}
+etc. instead, see below.}
 
 \blank
 
