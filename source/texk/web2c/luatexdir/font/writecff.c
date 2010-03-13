@@ -728,7 +728,6 @@ static void add_dict(cff_dict * dict,
                      card8 ** data, card8 * endptr, int *status)
 {
     int id, argtype;
-    int fontmatrix_found = 0;
 
     id = **data;
     if (id == 0x0c) {
@@ -760,8 +759,6 @@ static void add_dict(cff_dict * dict,
 
     (dict->entries)[dict->count].id = id;
     (dict->entries)[dict->count].key = dict_operator[id].opname;
-    if (strcmp(dict_operator[id].opname, "FontMatrix") == 0)
-        fontmatrix_found = 1;
     if (argtype == CFF_TYPE_NUMBER ||
         argtype == CFF_TYPE_BOOLEAN ||
         argtype == CFF_TYPE_SID || argtype == CFF_TYPE_OFFSET) {
@@ -784,18 +781,14 @@ static void add_dict(cff_dict * dict,
                 xmalloc((unsigned) ((unsigned) stack_top * sizeof(double)));
             while (stack_top > 0) {
                 stack_top--;
-                if (fontmatrix_found == 0)
-                    (dict->entries)[dict->count].values[stack_top] =
-                        arg_stack[stack_top];
-                else {
-                    /* reset FontMatrix to [0.001 * * 0.001 * *],
-                       fix mantis bug # 0000200 (acroread "feature") */
-                    if (stack_top == 0 || stack_top == 3)
-                        (dict->entries)[dict->count].values[stack_top] = 0.001;
-                    else
-                        (dict->entries)[dict->count].values[stack_top] =
-                            arg_stack[stack_top];
-                }
+                (dict->entries)[dict->count].values[stack_top] =
+                    arg_stack[stack_top];
+            }
+            if (strcmp(dict_operator[id].opname, "FontMatrix") == 0) {
+                /* reset FontMatrix to [0.001 * * 0.001 * *],
+                   fix mantis bug # 0000200 (acroread "feature") */
+                (dict->entries)[dict->count].values[0] = 0.001;
+                (dict->entries)[dict->count].values[3] = 0.001;
             }
             dict->count += 1;
         }
