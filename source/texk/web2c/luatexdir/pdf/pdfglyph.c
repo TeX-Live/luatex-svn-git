@@ -58,7 +58,8 @@ static void setup_fontparameters(PDF pdf, internal_font_number f)
     float slant, extend, expand;
     float u = 1.0;
     pdfstructure *p = pdf->pstruct;
-    if (font_units_per_em(f) > 0)
+    /* fix mantis bug # 0000200 (acroread "feature") */
+    if (font_format(f) == opentype_format && font_units_per_em(f) > 0)
         u = (float) font_units_per_em(f) / 1000.0;
     pdf->f_cur = f;
     p->f_pdf = pdf_set_font(pdf, f);

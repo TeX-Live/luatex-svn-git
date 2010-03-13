@@ -788,7 +788,8 @@ static void add_dict(cff_dict * dict,
                     (dict->entries)[dict->count].values[stack_top] =
                         arg_stack[stack_top];
                 else {
-                    /* reset FontMatrix to [0.001 0 0 0.001 0 0] */
+                    /* reset FontMatrix to [0.001 * * 0.001 * *],
+                       fix mantis bug # 0000200 (acroread "feature") */
                     if (stack_top == 0 || stack_top == 3)
                         (dict->entries)[dict->count].values[stack_top] = 0.001;
                     else
