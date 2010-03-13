@@ -727,7 +727,7 @@ static double get_real(card8 ** data, card8 * endptr, int *status)
 static void add_dict(cff_dict * dict,
                      card8 ** data, card8 * endptr, int *status)
 {
-    int id, argtype;
+    int id, argtype, t;
 
     id = **data;
     if (id == 0x0c) {
@@ -775,7 +775,7 @@ static void add_dict(cff_dict * dict,
     } else {
         /* just ignore operator if there were no operands provided;
            don't treat this as underflow (e.g. StemSnapV in TemporaLGCUni-Italic.otf) */
-        if (stack_top > 0) {
+        if ((t = stack_top) > 0) {
             (dict->entries)[dict->count].count = stack_top;
             (dict->entries)[dict->count].values =
                 xmalloc((unsigned) ((unsigned) stack_top * sizeof(double)));
@@ -784,7 +784,7 @@ static void add_dict(cff_dict * dict,
                 (dict->entries)[dict->count].values[stack_top] =
                     arg_stack[stack_top];
             }
-            if (strcmp(dict_operator[id].opname, "FontMatrix") == 0) {
+            if (t > 3 && strcmp(dict_operator[id].opname, "FontMatrix") == 0) {
                 /* reset FontMatrix to [0.001 * * 0.001 * *],
                    fix mantis bug # 0000200 (acroread "feature") */
                 (dict->entries)[dict->count].values[0] = 0.001;
