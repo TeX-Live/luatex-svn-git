@@ -1,5 +1,5 @@
 /* writecff.c
-   
+
    Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -728,6 +728,7 @@ static void add_dict(cff_dict * dict,
                      card8 ** data, card8 * endptr, int *status)
 {
     int id, argtype;
+    int fontmatrix_found = 0;
 
     id = **data;
     if (id == 0x0c) {
@@ -759,6 +760,8 @@ static void add_dict(cff_dict * dict,
 
     (dict->entries)[dict->count].id = id;
     (dict->entries)[dict->count].key = dict_operator[id].opname;
+    if (strcmp(dict_operator[id].opname, "FontMatrix") == 0)
+        fontmatrix_found = 1;
     if (argtype == CFF_TYPE_NUMBER ||
         argtype == CFF_TYPE_BOOLEAN ||
         argtype == CFF_TYPE_SID || argtype == CFF_TYPE_OFFSET) {
@@ -781,8 +784,17 @@ static void add_dict(cff_dict * dict,
                 xmalloc((unsigned) ((unsigned) stack_top * sizeof(double)));
             while (stack_top > 0) {
                 stack_top--;
-                (dict->entries)[dict->count].values[stack_top] =
-                    arg_stack[stack_top];
+                if (fontmatrix_found == 0)
+                    (dict->entries)[dict->count].values[stack_top] =
+                        arg_stack[stack_top];
+                else {
+                    /* reset FontMatrix to [0.001 0 0 0.001 0 0] */
+                    if (stack_top == 0 || stack_top == 3)
+                        (dict->entries)[dict->count].values[stack_top] = 0.001;
+                    else
+                        (dict->entries)[dict->count].values[stack_top] =
+                            arg_stack[stack_top];
+                }
             }
             dict->count += 1;
         }
@@ -3413,8 +3425,7 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
 
 }
 
-
-/* here is a sneaky trick: fontforge knows how to convert Type1 to CFF, so 
+/* here is a sneaky trick: fontforge knows how to convert Type1 to CFF, so
  * I have defined a utility function in luafflib.c that does exactly that.
  * If it works out ok, I will clean up this code.
  */
