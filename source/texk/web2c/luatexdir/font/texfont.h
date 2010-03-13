@@ -105,6 +105,7 @@ extern scaled_whd get_charinfo_whd(internal_font_number f, int c);
 typedef struct texfont {
     int _font_size;
     int _font_dsize;
+    int _font_units_per_em;
     char *_font_name;
     char *_font_area;
     char *_font_filename;
@@ -201,6 +202,9 @@ extern const char *font_embedding_strings[];
 #  define set_font_size(a,b)        font_size(a) = b
 #  define font_dsize(a)             font_tables[a]->_font_dsize
 #  define set_font_dsize(a,b)       font_dsize(a) = b
+
+#  define font_units_per_em(a)             font_tables[a]->_font_units_per_em
+#  define set_font_units_per_em(a,b)       font_units_per_em(a) = b
 
 #  define font_name(a)              font_tables[a]->_font_name
 #  define get_font_name(a)          (unsigned char *)font_name(a)

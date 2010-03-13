@@ -428,6 +428,8 @@ int font_to_lua(lua_State * L, int f)
     lua_pushstring(L, font_embedding_strings[font_embedding(f)]);
     lua_setfield(L, -2, "embedding");
 
+    lua_pushnumber(L, font_units_per_em(f));
+    lua_setfield(L, -2, "units_per_em");
     lua_pushnumber(L, font_size(f));
     lua_setfield(L, -2, "size");
     lua_pushnumber(L, font_dsize(f));
@@ -1491,6 +1493,8 @@ int font_from_lua(lua_State * L, int f)
     s = string_field(L, "psname", NULL);
     set_font_psname(f, s);
 
+    i = numeric_field(L, "units_per_em", 0);
+    set_font_units_per_em(f, i);
     i = numeric_field(L, "designsize", 655360);
     set_font_dsize(f, i);
     i = numeric_field(L, "size", font_dsize(f));
