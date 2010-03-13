@@ -56,10 +56,13 @@ void pdf_print_charwidth(PDF pdf, internal_font_number f, int i)
 static void setup_fontparameters(PDF pdf, internal_font_number f)
 {
     float slant, extend, expand;
+    float u = 1.0;
     pdfstructure *p = pdf->pstruct;
+    if (font_units_per_em(f) > 0)
+        u = (float) font_units_per_em(f) / 1000.0;
     pdf->f_cur = f;
     p->f_pdf = pdf_set_font(pdf, f);
-    p->fs.m = lround(font_size(f) / one_bp * ten_pow[p->fs.e]);
+    p->fs.m = lround(font_size(f) / u / one_bp * ten_pow[p->fs.e]);
     slant = (float) font_slant(f) / (float) 1000.0;
     extend = (float) font_extend(f) / (float) 1000.0;
     expand = (float) 1.0 + (float) font_expand_ratio(f) / (float) 1000.0;
