@@ -3238,9 +3238,11 @@ static pointer check_nucleus_complexity(halfword q, scaled * delta,
             *delta = char_italic(cur_f, cur_c);
             p = new_glyph(cur_f, cur_c);
             reset_attributes(p, node_attr(nucleus(q)));
-            if ((type(nucleus(q)) == math_text_char_node)
-                && (space(cur_f) != 0))
+            if ((is_new_mathfont(cur_f) && get_char_cat_code(cur_c) == 11) ||
+                (!is_new_mathfont(cur_f) && type(nucleus(q)) == math_text_char_node && space(cur_f)) != 0) {
+		printf ("killed italic correction\n");
                 *delta = 0;     /* no italic correction in mid-word of text font */
+	    }
             if ((subscr(q) == null) && (supscr(q) == null) && (*delta != 0)) {
                 pointer x = new_kern(*delta);
                 reset_attributes(x, node_attr(nucleus(q)));
