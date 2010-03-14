@@ -1,6 +1,6 @@
 /* pdfglyph.c
 
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -60,12 +60,12 @@ static void setup_fontparameters(PDF pdf, internal_font_number f)
     pdfstructure *p = pdf->pstruct;
     /* fix mantis bug # 0000200 (acroread "feature") */
     if ((font_format(f) == opentype_format ||
-	 (font_format(f) == type1_format && font_encodingbytes(f) == 2))
-	&& font_units_per_em(f) > 0)
+         (font_format(f) == type1_format && font_encodingbytes(f) == 2))
+        && font_units_per_em(f) > 0)
         u = (float) (font_units_per_em(f) / 1000.0);
     pdf->f_cur = f;
     p->f_pdf = pdf_set_font(pdf, f);
-    p->fs.m = lround(font_size(f) / u / one_bp * ten_pow[p->fs.e]);
+    p->fs.m = lround((float) font_size(f) / u / one_bp * ten_pow[p->fs.e]);
     slant = (float) font_slant(f) / (float) 1000.0;
     extend = (float) font_extend(f) / (float) 1000.0;
     expand = (float) 1.0 + (float) font_expand_ratio(f) / (float) 1000.0;
