@@ -5,6 +5,10 @@
 // Copyright 1996-2003 Glyph & Cog, LLC
 //
 //========================================================================
+//
+// Copyright 2009 Hartmut Henkel <hartmut_henkel@gmx.de>
+// for added metadataNF, resourcesNF, getMetadataNF, and getResourcesNF
+// needed by luatex
 
 #ifndef PAGE_H
 #define PAGE_H

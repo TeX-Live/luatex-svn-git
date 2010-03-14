@@ -5,6 +5,9 @@
 // Copyright 1996-2007 Glyph & Cog, LLC
 //
 //========================================================================
+//
+// Copyright 2009 Hartmut Henkel <hartmut_henkel@gmx.de>
+// for added metadataNF and resourcesNF needed by luatex
 
 #include <aconf.h>
 
