@@ -59,8 +59,10 @@ static void setup_fontparameters(PDF pdf, internal_font_number f)
     float u = 1.0;
     pdfstructure *p = pdf->pstruct;
     /* fix mantis bug # 0000200 (acroread "feature") */
-    if (font_format(f) == opentype_format && font_units_per_em(f) > 0)
-        u = (float) font_units_per_em(f) / 1000.0;
+    if ((font_format(f) == opentype_format ||
+	 (font_format(f) == type1_format && font_encodingbytes(f) == 2))
+	&& font_units_per_em(f) > 0)
+        u = (float) (font_units_per_em(f) / 1000.0);
     pdf->f_cur = f;
     p->f_pdf = pdf_set_font(pdf, f);
     p->fs.m = lround(font_size(f) / u / one_bp * ten_pow[p->fs.e]);
