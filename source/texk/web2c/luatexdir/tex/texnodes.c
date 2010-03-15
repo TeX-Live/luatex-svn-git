@@ -725,7 +725,7 @@ int valid_node(halfword p)
                 return 1;
         }
     } else {
-        return 1;
+        return 0;
     }
     return 0;
 }
