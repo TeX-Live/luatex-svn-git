@@ -1705,6 +1705,9 @@ static int lua_nodelib_getfield(lua_State * L)
         case 8:
             lua_pushnumber(L, glue_ref_count(n));
             break;
+        case 9:
+            lua_pushboolean(L, valid_node(n));
+            break;
         default:
             lua_pushnil(L);
         }
@@ -2538,9 +2541,9 @@ static int lua_nodelib_setfield(lua_State * L)
     register int field;
     n = *((halfword *) lua_touserdata(L, 1));
     if (!valid_node(n)) {
-        lua_pushfstring(L, "You can't assign to this glue_spec (%d)\n", n);
-        lua_error(L);
-        /* return implied */
+	lua_pushfstring(L, "You can't assign to this glue_spec (%d)\n", n);
+	lua_error(L);
+	/* return implied */
     }
     field = get_valid_node_field_id(L, 2, n);
     if (field < -1)

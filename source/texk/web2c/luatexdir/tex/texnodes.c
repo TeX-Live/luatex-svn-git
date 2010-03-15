@@ -135,7 +135,7 @@ const char *node_fields_action[] = { "action_type", "named_id", "action_id",
 const char *node_fields_attribute[] = { "number", "value", NULL };
 
 const char *node_fields_glue_spec[] = { "width", "stretch", "shrink",
-    "stretch_order", "shrink_order", "ref_count", NULL
+    "stretch_order", "shrink_order", "ref_count", "writable", NULL
 };
 const char *node_fields_attribute_list[] = { NULL };
 
