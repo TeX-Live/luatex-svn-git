@@ -985,7 +985,8 @@ argument. The file name is not tested for existence. Finally, for
 non-WIN32 platforms only, there is the new function
 \type{lfs.readlink()} (added in 0.51) that takes an existing symbolic
 link as argument and returns its content. It returns an error on
-WIN32.
+WIN32. \type{lfs.realpath()} (added in 0.52) return the canonical 
+representation of a path specifier (win32 only, for now).
 
 The \lua{string} library has an extra function:
 \luatex{string.explode(s[,m])}. This function returns an array containing
@@ -7669,6 +7670,8 @@ accessible fields:
 \NC stretch_order  \NC number  \NC \NC\NR
 \NC shrink         \NC number  \NC \NC\NR
 \NC shrink_order   \NC number  \NC \NC\NR
+\NC writable       \NC boolean \NC If this is true, you can't assign to this \type{glue_spec} 
+                                   because it is one of the preallocated special cases. New in 0.52\NC\NR
 \stoptabulate
 
 These objects are reference counted, so there is actually an extra
