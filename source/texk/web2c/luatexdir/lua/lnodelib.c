@@ -2537,6 +2537,11 @@ static int lua_nodelib_setfield(lua_State * L)
     register halfword n;
     register int field;
     n = *((halfword *) lua_touserdata(L, 1));
+    if (!valid_node(n)) {
+        lua_pushfstring(L, "You can't assign to this glue_spec (%d)\n", n);
+        lua_error(L);
+        /* return implied */
+    }
     field = get_valid_node_field_id(L, 2, n);
     if (field < -1)
         return 0;
@@ -2798,6 +2803,7 @@ static int lua_nodelib_setfield(lua_State * L)
                 break;
             default:
                 return nodelib_cantset(L, field, n);
+
             }
             break;
         case kern_node:
