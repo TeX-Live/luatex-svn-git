@@ -2025,7 +2025,7 @@ static halfword handle_lig_word(halfword cur)
             assert_disc(cur);
             /* If {?}{x}{?} or {?}{?}{y} then ... */
             if (vlink_no_break(cur) != null || vlink_post_break(cur) != null) {
-                halfword prev;
+                halfword prev = 0;
                 halfword fwd;
                 liginfo lig;
                 if (subtype(cur) == select_disc) {
