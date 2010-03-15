@@ -1909,7 +1909,6 @@ static halfword handle_lig_nest(halfword root, halfword cur)
 static halfword handle_lig_word(halfword cur)
 {
     halfword right = null;
-
     if (type(cur) == whatsit_node && subtype(cur) == cancel_boundary_node) {
         halfword prev = alink(cur);
         halfword fwd = vlink(cur);
@@ -1933,7 +1932,6 @@ static halfword handle_lig_word(halfword cur)
     if (has_right_boundary(font(cur))) {
         right = new_glyph(font(cur), right_boundarychar);
     }
-
     while (1) {
         /* A glyph followed by ... */
         if (type(cur) == glyph_node) {
@@ -2027,8 +2025,19 @@ static halfword handle_lig_word(halfword cur)
             assert_disc(cur);
             /* If {?}{x}{?} or {?}{?}{y} then ... */
             if (vlink_no_break(cur) != null || vlink_post_break(cur) != null) {
+                halfword prev;
                 halfword fwd;
                 liginfo lig;
+                if (subtype(cur) == select_disc) {
+                    prev = alink(cur);
+                    assert(type(prev) == disc_node
+                           && subtype(prev) == init_disc);
+                    if (vlink_post_break(cur) != null)
+                        handle_lig_nest(post_break(prev),
+                                        vlink_post_break(prev));
+                    if (vlink_no_break(cur) != null)
+                        handle_lig_nest(no_break(prev), vlink_no_break(prev));
+                }
                 if (vlink_post_break(cur) != null)
                     handle_lig_nest(post_break(cur), vlink_post_break(cur));
                 if (vlink_no_break(cur) != null)
@@ -2037,13 +2046,40 @@ static halfword handle_lig_word(halfword cur)
                     halfword nob, pst, next;
                     if (type(fwd) != glyph_node)
                         break;
-                    nob = tlink_no_break(cur);
-                    pst = tlink_post_break(cur);
-                    if ((nob == null || !test_ligature(&lig, nob, fwd)) &&
-                        (pst == null || !test_ligature(&lig, pst, fwd)))
-                        break;
-                    nesting_append(no_break(cur), copy_node(fwd));
-                    handle_lig_nest(no_break(cur), nob);
+                    if (subtype(cur) != select_disc) {
+                        nob = tlink_no_break(cur);
+                        pst = tlink_post_break(cur);
+                        if ((nob == null || !test_ligature(&lig, nob, fwd)) &&
+                            (pst == null || !test_ligature(&lig, pst, fwd)))
+                            break;
+                        nesting_append(no_break(cur), copy_node(fwd));
+                        handle_lig_nest(no_break(cur), nob);
+                    } else {
+                        int dobreak = 0;
+                        nob = tlink_no_break(prev);
+                        pst = tlink_post_break(prev);
+                        if ((nob == null || !test_ligature(&lig, nob, fwd)) &&
+                            (pst == null || !test_ligature(&lig, pst, fwd)))
+                            dobreak = 1;
+                        if (!dobreak) {
+                            nesting_append(no_break(prev), copy_node(fwd));
+                            handle_lig_nest(no_break(prev), nob);
+                            nesting_append(post_break(prev), copy_node(fwd));
+                            handle_lig_nest(post_break(prev), pst);
+                        }
+                        dobreak = 0;
+                        nob = tlink_no_break(cur);
+                        pst = tlink_post_break(cur);
+                        if ((nob == null || !test_ligature(&lig, nob, fwd)) &&
+                            (pst == null || !test_ligature(&lig, pst, fwd)))
+                            dobreak = 1;
+                        if (!dobreak) {
+                            nesting_append(no_break(cur), copy_node(fwd));
+                            handle_lig_nest(no_break(cur), nob);
+                        }
+                        if (dobreak)
+                            break;
+                    }
                     next = vlink(fwd);
                     uncouple_node(fwd);
                     try_couple_nodes(cur, next);
