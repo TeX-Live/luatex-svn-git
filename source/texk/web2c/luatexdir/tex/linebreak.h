@@ -34,9 +34,7 @@ extern void line_break(boolean d, int line_break_context);
 
 extern void initialize_active(void);
 
-extern void ext_do_line_break(boolean d,
-                              int paragraph_dir,
-                              int line_break_dir,
+extern void ext_do_line_break(int paragraph_dir,
                               int pretolerance,
                               int tracing_paragraphs,
                               int tolerance,
@@ -65,9 +63,7 @@ extern void ext_do_line_break(boolean d,
                               int inter_line_penalty,
                               int club_penalty,
                               halfword club_penalties_ptr,
-                              halfword display_widow_penalties_ptr,
                               halfword widow_penalties_ptr,
-                              int display_widow_penalty,
                               int widow_penalty,
                               int broken_penalty, halfword final_par_glue,
                               halfword pdf_ignored_dimen);

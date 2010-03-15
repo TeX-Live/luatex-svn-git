@@ -1997,14 +1997,12 @@ static int tex_run_linebreak(lua_State * L)
     halfword *j;
     halfword p;
     halfword final_par_glue;
-    boolean d = false;
-    int line_break_dir, paragraph_dir = 0;
+    int paragraph_dir = 0;
     /* locally initialized parameters for line breaking */
     int pretolerance, tracingparagraphs, tolerance, looseness, hyphenpenalty,
         exhyphenpenalty, pdfadjustspacing, adjdemerits, pdfprotrudechars,
         linepenalty, lastlinefit, doublehyphendemerits, finalhyphendemerits,
-        hangafter, interlinepenalty, clubpenalty, displaywidowpenalty,
-        widowpenalty, brokenpenalty;
+        hangafter, interlinepenalty, widowpenalty, clubpenalty, brokenpenalty;
     halfword emergencystretch, hangindent, hsize, leftskip, rightskip,
         pdfeachlineheight, pdfeachlinedepth, pdffirstlineheight,
         pdflastlinedepth, pdfignoreddimen, parshape;
@@ -2048,13 +2046,6 @@ static int tex_run_linebreak(lua_State * L)
     }
     lua_pop(L, 1);
 
-    lua_pushstring(L, "d");
-    lua_gettable(L, -2);
-    if (lua_type(L, -1) == LUA_TBOOLEAN) {
-        d = lua_toboolean(L, -1);
-    }
-    lua_pop(L, 1);
-
     get_int_par("pretolerance", pretolerance, int_par(pretolerance_code));
     get_int_par("tracingparagraphs", tracingparagraphs,
                 int_par(tracing_paragraphs_code));
@@ -2078,8 +2069,6 @@ static int tex_run_linebreak(lua_State * L)
     get_int_par("interlinepenalty", interlinepenalty,
                 int_par(inter_line_penalty_code));
     get_int_par("clubpenalty", clubpenalty, int_par(club_penalty_code));
-    get_int_par("displaywidowpenalty", displaywidowpenalty,
-                int_par(display_widow_penalty_code));
     get_int_par("widowpenalty", widowpenalty, int_par(widow_penalty_code));
     get_int_par("brokenpenalty", brokenpenalty, int_par(broken_penalty_code));
     get_dimen_par("emergencystretch", emergencystretch,
@@ -2099,8 +2088,7 @@ static int tex_run_linebreak(lua_State * L)
     get_dimen_par("pdfignoreddimen", pdfignoreddimen,
                   dimen_par(pdf_ignored_dimen_code));
 
-    line_break_dir = paragraph_dir;
-    ext_do_line_break(d, paragraph_dir, line_break_dir,
+    ext_do_line_break(paragraph_dir,
                       pretolerance, tracingparagraphs, tolerance,
                       emergencystretch,
                       looseness, hyphenpenalty, exhyphenpenalty,
@@ -2115,9 +2103,8 @@ static int tex_run_linebreak(lua_State * L)
                       equiv(inter_line_penalties_loc),
                       interlinepenalty, clubpenalty,
                       equiv(club_penalties_loc),
-                      equiv(display_widow_penalties_loc),
                       equiv(widow_penalties_loc),
-                      displaywidowpenalty, widowpenalty, brokenpenalty,
+                      widowpenalty, brokenpenalty,
                       final_par_glue, pdfignoreddimen);
 
     /* return the generated list, and its prevdepth */

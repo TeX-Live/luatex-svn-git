@@ -30,8 +30,7 @@
    } while (0)
 
 
-void ext_post_line_break(boolean d,
-                         int paragraph_dir,
+void ext_post_line_break(int paragraph_dir,
                          int right_skip,
                          int left_skip,
                          int pdf_protrude_chars,
@@ -45,9 +44,7 @@ void ext_post_line_break(boolean d,
                          int inter_line_penalty,
                          int club_penalty,
                          halfword club_penalties_ptr,
-                         halfword display_widow_penalties_ptr,
                          halfword widow_penalties_ptr,
-                         int display_widow_penalty,
                          int widow_penalty,
                          int broken_penalty,
                          halfword final_par_glue,

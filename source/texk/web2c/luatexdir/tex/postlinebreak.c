@@ -61,8 +61,7 @@ and begin direction instructions at the beginnings of lines.
 #define next_break prev_break   /*new name for |prev_break| after links are reversed */
 
 /* the ints are actually halfwords */
-void ext_post_line_break(boolean d,
-                         int paragraph_dir,
+void ext_post_line_break(int paragraph_dir,
                          int right_skip,
                          int left_skip,
                          int pdf_protrude_chars,
@@ -76,9 +75,7 @@ void ext_post_line_break(boolean d,
                          int inter_line_penalty,
                          int club_penalty,
                          halfword club_penalties_ptr,
-                         halfword display_widow_penalties_ptr,
                          halfword widow_penalties_ptr,
-                         int display_widow_penalty,
                          int widow_penalty,
                          int broken_penalty,
                          halfword final_par_glue,
@@ -492,20 +489,14 @@ void ext_post_line_break(boolean d,
             } else if (cur_line == cur_list.pg_field + 1) {     /* prevgraf */
                 pen += club_penalty;
             }
-            if (d)
-                q = display_widow_penalties_ptr;
-            else
-                q = widow_penalties_ptr;
+	    q = widow_penalties_ptr;
             if (q != null) {
                 r = best_line - cur_line - 1;
                 if (r > penalty(q))
                     r = penalty(q);
                 pen += penalty(q + r);
             } else if (cur_line + 2 == best_line) {
-                if (d)
-                    pen += display_widow_penalty;
-                else
-                    pen += widow_penalty;
+		pen += widow_penalty;
             }
             if (disc_break) {
                 if (passive_pen_broken(cur_p) != 0) {

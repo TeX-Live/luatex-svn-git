@@ -104,7 +104,6 @@ void line_break(boolean d, int line_break_context)
     halfword final_par_glue;
     halfword start_of_par;
     int callback_id;
-    int line_break_dir;         /* current direction within paragraph */
     pack_begin_line = cur_list.ml_field;        /* this is for over/underfull box messages */
     vlink(temp_head) = vlink(cur_list.head_field);
     new_hyphenation(temp_head, cur_list.tail_field);
@@ -115,7 +114,6 @@ void line_break(boolean d, int line_break_context)
     else {
         assert(0);              /* paragraph_dir = 0; */
     }
-    line_break_dir = paragraph_dir;
     cur_list.tail_field = new_ligkern(temp_head, cur_list.tail_field);
     if (is_char_node(cur_list.tail_field)) {
         tail_append(new_penalty(inf_penalty));
@@ -165,9 +163,7 @@ void line_break(boolean d, int line_break_context)
         }
     }
     if (callback_id == 0) {
-        ext_do_line_break(d,
-                          paragraph_dir,
-                          line_break_dir,
+        ext_do_line_break(paragraph_dir,
                           int_par(pretolerance_code),
                           int_par(tracing_paragraphs_code),
                           int_par(tolerance_code),
@@ -196,10 +192,8 @@ void line_break(boolean d, int line_break_context)
                           int_par(inter_line_penalty_code),
                           int_par(club_penalty_code),
                           equiv(club_penalties_loc),
-                          equiv(display_widow_penalties_loc),
-                          equiv(widow_penalties_loc),
-                          int_par(display_widow_penalty_code),
-                          int_par(widow_penalty_code),
+			  (d ? equiv(display_widow_penalties_loc) : equiv(widow_penalties_loc)),
+			  (d ? int_par(display_widow_penalty_code) : int_par(widow_penalty_code)),
                           int_par(broken_penalty_code),
                           final_par_glue, dimen_par(pdf_ignored_dimen_code));
     }
@@ -1638,9 +1632,7 @@ ext_try_break(int pi,
 }
 
 void
-ext_do_line_break(boolean d,
-                  int paragraph_dir,
-                  int line_break_dir,
+ext_do_line_break(int paragraph_dir,
                   int pretolerance,
                   int tracing_paragraphs,
                   int tolerance,
@@ -1669,15 +1661,14 @@ ext_do_line_break(boolean d,
                   int inter_line_penalty,
                   int club_penalty,
                   halfword club_penalties_ptr,
-                  halfword display_widow_penalties_ptr,
                   halfword widow_penalties_ptr,
-                  int display_widow_penalty,
                   int widow_penalty,
                   int broken_penalty,
                   halfword final_par_glue, halfword pdf_ignored_dimen)
 {
     /* DONE,DONE1,DONE2,DONE3,DONE4,DONE5,CONTINUE; */
     halfword cur_p, q, r, s;    /* miscellaneous nodes of temporary interest */
+    int line_break_dir = paragraph_dir;
 
     /* Get ready to start ... */
     minimum_demerits = awful_bad;
@@ -1685,7 +1676,7 @@ ext_do_line_break(boolean d,
     minimal_demerits[decent_fit] = awful_bad;
     minimal_demerits[loose_fit] = awful_bad;
     minimal_demerits[very_loose_fit] = awful_bad;
-
+                  
     /* We compute the values of |easy_line| and the other local variables relating
        to line length when the |line_break| procedure is initializing itself. */
     if (par_shape_ptr == null) {
@@ -2183,9 +2174,7 @@ ext_do_line_break(boolean d,
     /* first thing |ext_post_line_break| does is reset |dir_ptr| */
     flush_node_list(dir_ptr);
     dir_ptr = null;
-
-    ext_post_line_break(d,
-                        paragraph_dir,
+    ext_post_line_break(paragraph_dir,
                         right_skip,
                         left_skip,
                         pdf_protrude_chars,
@@ -2199,9 +2188,7 @@ ext_do_line_break(boolean d,
                         inter_line_penalty,
                         club_penalty,
                         club_penalties_ptr,
-                        display_widow_penalties_ptr,
                         widow_penalties_ptr,
-                        display_widow_penalty,
                         widow_penalty,
                         broken_penalty,
                         final_par_glue,
