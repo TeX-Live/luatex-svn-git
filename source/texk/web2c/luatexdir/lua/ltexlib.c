@@ -1910,6 +1910,23 @@ static int tex_enableprimitives(lua_State * L)
 	lua_pop(L,1);					\
     } while (0)
 
+
+#define get_intx_par(A,B,C,D,E)  do {			\
+    	lua_pushstring(L,(A));				\
+	lua_gettable(L,-2);				\
+	if (lua_type(L, -1) == LUA_TNUMBER) {		\
+	    lua_number2int(B,lua_tonumber(L, -1));	\
+	    D = null;					\
+	} else if (lua_type(L, -1) == LUA_TTABLE){	\
+	    B = 0;					\
+	    D = nodelib_topenalties(L, lua_gettop(L));	\
+	} else {					\
+	    B = (C);					\
+	    D = (E);					\
+	}						\
+	lua_pop(L,1);					\
+    } while (0)
+
 #define get_dimen_par(A,B,C)  do {			\
     	lua_pushstring(L,(A));				\
 	lua_gettable(L,-2);				\
@@ -1933,23 +1950,6 @@ static int tex_enableprimitives(lua_State * L)
 	lua_pop(L,1);					\
     } while (0)
 
-
-/*
-  scan_int();
-  n = cur_val;
-  if (n <= 0)  p = null;
-  else {
-  p = new_node(shape_node, 2 * (n + 1) + 1);
-  vinfo(p + 1) = n;
-  for (j = 1; j <= n; j++) {
-  scan_normal_dimen();
-  varmem[p + 2 * j].cint = cur_val;
-  scan_normal_dimen();
-  varmem[p + 2 * j + 1].cint = cur_val;
-  }}
-
-  parshape = {{0, tex.sp"6in"}, {...}}
-*/
 
 static halfword nodelib_toparshape(lua_State * L, int i)
 {
@@ -1991,6 +1991,42 @@ static halfword nodelib_toparshape(lua_State * L, int i)
     return p;
 }
 
+/* penalties */
+
+static halfword nodelib_topenalties(lua_State * L, int i)
+{
+    halfword p;
+    int n = 0;
+    int j;
+    /* find |n| */
+    lua_pushnil(L);
+    while (lua_next(L, i) != 0) {
+        n++;
+        lua_pop(L, 1);
+    }
+    if (n == 0)
+        return null;
+    p = new_node(shape_node, 2 * ((n / 2) + 1) + 1 + 1);
+    vinfo(p + 1) = (n / 2) + 1;
+    varmem[p + 2].cint = n;
+    lua_pushnil(L);
+    j = 2;
+    while (lua_next(L, i) != 0) {
+	j++;
+	if (lua_isnumber(L, -1)) {
+	    int pen = 0;
+	    lua_number2int(pen, lua_tonumber(L, -1));
+	    varmem[p+j].cint = pen;
+	}
+	lua_pop(L, 1);
+    }
+    if (!odd(n))
+	varmem[p+j+1].cint = 0;
+    return p;
+}
+
+
+
 static int tex_run_linebreak(lua_State * L)
 {
 
@@ -2007,6 +2043,7 @@ static int tex_run_linebreak(lua_State * L)
         pdfeachlineheight, pdfeachlinedepth, pdffirstlineheight,
         pdflastlinedepth, pdfignoreddimen, parshape;
     int fewest_demerits = 0, actual_looseness = 0;
+    halfword clubpenalties, interlinepenalties, widowpenalties;
 
     /* push a new nest level */
     push_nest();
@@ -2067,10 +2104,12 @@ static int tex_run_linebreak(lua_State * L)
     get_int_par("finalhyphendemerits", finalhyphendemerits,
                 int_par(final_hyphen_demerits_code));
     get_int_par("hangafter", hangafter, int_par(hang_after_code));
-    get_int_par("interlinepenalty", interlinepenalty,
-                int_par(inter_line_penalty_code));
-    get_int_par("clubpenalty", clubpenalty, int_par(club_penalty_code));
-    get_int_par("widowpenalty", widowpenalty, int_par(widow_penalty_code));
+    get_intx_par("interlinepenalty", interlinepenalty,int_par(inter_line_penalty_code), 
+		 interlinepenalties, equiv(inter_line_penalties_loc));
+    get_intx_par("clubpenalty", clubpenalty, int_par(club_penalty_code), 
+		 clubpenalties, equiv(club_penalties_loc));
+    get_intx_par("widowpenalty", widowpenalty, int_par(widow_penalty_code), 
+		 widowpenalties, equiv(widow_penalties_loc));
     get_int_par("brokenpenalty", brokenpenalty, int_par(broken_penalty_code));
     get_dimen_par("emergencystretch", emergencystretch,
                   dimen_par(emergency_stretch_code));
@@ -2101,10 +2140,10 @@ static int tex_run_linebreak(lua_State * L)
                       hangindent, hsize, hangafter, leftskip, rightskip,
                       pdfeachlineheight, pdfeachlinedepth,
                       pdffirstlineheight, pdflastlinedepth,
-                      equiv(inter_line_penalties_loc),
+                      interlinepenalties,
                       interlinepenalty, clubpenalty,
-                      equiv(club_penalties_loc),
-                      equiv(widow_penalties_loc),
+                      clubpenalties,
+                      widowpenalties,
                       widowpenalty, brokenpenalty,
                       final_par_glue, pdfignoreddimen);
 
