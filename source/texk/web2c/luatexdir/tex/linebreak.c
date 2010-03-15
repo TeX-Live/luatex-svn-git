@@ -2201,3 +2201,9 @@ ext_do_line_break(int paragraph_dir,
     /* Clean up the memory by removing the break nodes; */
     clean_up_the_memory();
 }
+
+void get_linebreak_info (int *f, int *a) 
+{
+    *f = fewest_demerits;
+    *a = actual_looseness;
+}

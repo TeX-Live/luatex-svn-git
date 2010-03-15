@@ -2006,6 +2006,7 @@ static int tex_run_linebreak(lua_State * L)
     halfword emergencystretch, hangindent, hsize, leftskip, rightskip,
         pdfeachlineheight, pdfeachlinedepth, pdffirstlineheight,
         pdflastlinedepth, pdfignoreddimen, parshape;
+    int fewest_demerits = 0, actual_looseness = 0;
 
     /* push a new nest level */
     push_nest();
@@ -2108,8 +2109,21 @@ static int tex_run_linebreak(lua_State * L)
                       final_par_glue, pdfignoreddimen);
 
     /* return the generated list, and its prevdepth */
+    get_linebreak_info (&fewest_demerits, &actual_looseness) ;
     lua_nodelib_push_fast(L, vlink(cur_list.head_field));
+    lua_newtable(L);
+    lua_pushstring(L, "demerits");
+    lua_pushnumber(L, fewest_demerits);
+    lua_settable(L, -3);
+    lua_pushstring(L, "looseness");
+    lua_pushnumber(L, actual_looseness);
+    lua_settable(L, -3);
+    lua_pushstring(L, "prevdepth");
     lua_pushnumber(L, cur_list.prev_depth_field);
+    lua_settable(L, -3);
+    lua_pushstring(L, "prevgraf");
+    lua_pushnumber(L, cur_list.pg_field);
+    lua_settable(L, -3);
 
     /* restore nest stack */
     pop_nest();

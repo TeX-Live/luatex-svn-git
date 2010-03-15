@@ -68,7 +68,8 @@ extern void ext_do_line_break(int paragraph_dir,
                               int broken_penalty, halfword final_par_glue,
                               halfword pdf_ignored_dimen);
 
-halfword find_protchar_left(halfword l, boolean d);
-halfword find_protchar_right(halfword l, halfword r);
+extern void  get_linebreak_info (int *, int *) ;
+extern halfword find_protchar_left(halfword l, boolean d);
+extern halfword find_protchar_right(halfword l, halfword r);
 
 #endif
