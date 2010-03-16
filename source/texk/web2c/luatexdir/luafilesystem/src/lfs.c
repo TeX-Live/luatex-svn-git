@@ -698,10 +698,6 @@ static int get_short_name (lua_State *L) {
     /* simply do nothing */
   return 1;
 }
-static int get_real_path (lua_State *L) {
-    /* to be implemented */
-  return 1;
-}
 #else
 static int link_info (lua_State *L) {
   lua_pushboolean(L, 0);
@@ -725,26 +721,6 @@ static int get_short_name (lua_State *L) {
     }
     buffer = (TCHAR *)xmalloc(length * sizeof(TCHAR));
     length = GetShortPathName(lpszPath, buffer, length);
-    if (length == 0) {
-	lua_pushnil(L);
-	lua_pushfstring(L, "operating system error: %d", (int)GetLastError());
-	return 2;
-    }
-    lua_pushlstring(L, (const char *)buffer, (size_t)length);
-    return 1;
-}
-static int get_real_path (lua_State *L) {
-    long     length = 0;
-    TCHAR*   buffer = NULL;
-    const char *lpszPath = luaL_checkstring (L, 1);
-    length = GetFullPathName(lpszPath, 0, NULL, NULL);
-    if (length == 0) {
-	lua_pushnil(L);
-	lua_pushfstring(L, "operating system error: %d", (int)GetLastError());
-	return 2;
-    }
-    buffer = (TCHAR *)xmalloc(length * sizeof(TCHAR));
-    length = GetFullPathName(lpszPath, length, buffer, NULL);
     if (length == 0) {
 	lua_pushnil(L);
 	lua_pushfstring(L, "operating system error: %d", (int)GetLastError());
@@ -824,7 +800,6 @@ static const struct luaL_reg fslib[] = {
 	{"symlinkattributes", link_info},
 	{"readlink", read_link},
 	{"shortname", get_short_name},
-	{"realpath", get_real_path},
 	{"setmode", lfs_f_setmode},
 	{"touch", file_utime},
 	{"unlock", file_unlock},
