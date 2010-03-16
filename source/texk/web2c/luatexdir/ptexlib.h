@@ -406,7 +406,7 @@ extern void topenin(void);
 /* extern void calledit (); */
 
 /* Set an array size from texmf.cnf.  */
-extern void setupboundvariable(int *, const_string, int);
+extern void setupboundvariable(integer *, const_string, integer);
 
 /* here  are a few functions that used to be in coerce.h */
 
@@ -414,7 +414,6 @@ extern str_number getjobname(str_number);
 extern str_number makefullnamestring(void);
 
 
-extern string versionstring;    /* from web2c/lib/version.c */
 extern KPSEDLL string kpathsea_version_string;  /* from kpathsea/version.c */
 
 extern PDF static_pdf;

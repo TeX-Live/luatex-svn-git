@@ -55,7 +55,7 @@
 #define COPYRIGHT_HOLDER "D.E. Knuth"
 #define AUTHOR NULL
 #define PROGRAM_HELP TEXHELP
-#define BUG_ADDRESS "tex-k@mail.tug.org"
+#define BUG_ADDRESS "tex-k@tug.org"
 #define DUMP_VAR TEXformatdefault
 #define DUMP_LENGTH_VAR formatdefaultlength
 #define DUMP_OPTION "fmt"
@@ -71,7 +71,7 @@
 #define COPYRIGHT_HOLDER "D.E. Knuth"
 #define AUTHOR NULL
 #define PROGRAM_HELP MFHELP
-#define BUG_ADDRESS "tex-k@mail.tug.org"
+#define BUG_ADDRESS "tex-k@tug.org"
 #define DUMP_VAR MFbasedefault
 #define DUMP_LENGTH_VAR basedefaultlength
 #define DUMP_OPTION "base"
@@ -136,10 +136,11 @@
 static char **cmdlist = NULL;
 
 void 
-mk_shellcmdlist (char *v)
+mk_shellcmdlist (const char *v)
 {
   char **p;
-  char *q, *r;
+  const char *q, *r1;
+  char *r;
   int  n;
 
   q = v;
@@ -148,10 +149,10 @@ mk_shellcmdlist (char *v)
 /* analyze the variable shell_escape_commands = foo,bar,...
    spaces before and after (,) are not allowed. */
 
-  while ((r = strchr (q, ',')) != 0) {
+  while ((r1 = strchr (q, ',')) != 0) {
     n++;
-    r++;
-    q = r;
+    r1++;
+    q = r1;
   }
   if (*q)
     n++;
@@ -203,7 +204,7 @@ init_shell_escape (void)
     if (shellenabledp && restrictedshell == 1) {
       char *v2 = kpse_var_value ("shell_escape_commands");
       if (v2) {
-        mk_shellcmdlist (v2);
+        mk_shellcmdlist ((const char *)v2);
         free (v2);
       }
     }
@@ -263,22 +264,23 @@ free_shellcmdlist (void)
    what is checked against the shell_escape_commands list.  */
 
 int
-shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname)
+shell_cmd_is_allowed (const char *cmd, char **safecmd, char **cmdname)
 {
   char **p;
   char *buf;
-  char *s, *d;
+  char *c, *d;
+  const char *s;
   int  pre, spaces;
   int  allow = 0;
 
   /* pre == 1 means that the previous character is a white space
      pre == 0 means that the previous character is not a white space */
-  buf = (char *) xmalloc (strlen (*cmd) + 1);
-  strcpy (buf, *cmd);
-  s = buf;
-  while (Isspace (*s))
-    s++;
-  d = s;
+  buf = (char *) xmalloc (strlen (cmd) + 1);
+  strcpy (buf, cmd);
+  c = buf;
+  while (Isspace (*c))
+    c++;
+  d = c;
   while (!Isspace(*d) && *d)
     d++;
   *d = '\0';
@@ -287,7 +289,7 @@ shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname)
      *cmdname == "kpsewhich" for
      \write18{kpsewhich --progname=dvipdfm --format="other text files" config}
   */
-  *cmdname = xstrdup (s);
+  *cmdname = xstrdup (c);
   free (buf);
 
   /* Is *cmdname listed in a texmf.cnf vriable as
@@ -306,20 +308,20 @@ shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname)
   }
   if (allow == 2) {
     spaces = 0;
-    for (s = *cmd; *s; s++) {
+    for (s = cmd; *s; s++) {
       if (Isspace (*s))
         spaces++;
     }
 
     /* allocate enough memory (too much?) */
 #ifdef WIN32
-    *safecmd = (char *) xmalloc (2 * strlen (*cmd) + 3 + 2 * spaces);
+    *safecmd = (char *) xmalloc (2 * strlen (cmd) + 3 + 2 * spaces);
 #else
-    *safecmd = (char *) xmalloc (strlen (*cmd) + 3 + 2 * spaces);
+    *safecmd = (char *) xmalloc (strlen (cmd) + 3 + 2 * spaces);
 #endif
 
     /* make a safe command line *safecmd */
-    s = *cmd;
+    s = cmd;
     while (Isspace (*s))
       s++;
     d = *safecmd;
@@ -329,7 +331,7 @@ shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname)
     pre = 1;
     while (*s) {
       /* Quotation given by a user.  " should always be used; we
-         transform it below.  On Unix, if ' is used, simply immediately
+         transform it below.  If ' is used, simply immediately
          return a quotation error.  */
       if (*s == '\'') {
         return -1;
@@ -342,7 +344,7 @@ shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname)
            example:
            --format="other text files" becomes
            '--format=''other text files' (Unix)
-           "--format=""other test files" (Windows) */
+           "--format=""other text files" (Windows) */
 
         if (pre == 0)
           *d++ = QUOTE;
@@ -353,8 +355,8 @@ shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname)
         s++;
 
         while (*s != '"') {
-          /* Closing quotation mark is missing */
-          if (*s == '\0')
+          /* Illegal use of ', or closing quotation mark is missing */
+          if (*s == '\'' || *s == '\0')
             return -1;
 #ifdef WIN32
           if (char_needs_quote (*s))
@@ -389,7 +391,7 @@ shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname)
         *d++ = QUOTE;
         *d++ = *s++;
       } else {
-        /* Copy a character from *cmd to *safecmd. */
+        /* Copy a character from cmd to *safecmd. */
 #ifdef WIN32
         if (char_needs_quote (*s))
           *d++ = '^';
@@ -413,10 +415,11 @@ shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname)
    0 if CMD is not allowed; given shellenabledp==1, this is because
       shell escapes are restricted and CMD is not allowed.
    1 if shell escapes are not restricted, hence any command is allowed.
-   2 if shell escapes are restricted and CMD is allowed.  */
+   2 if shell escapes are restricted and CMD is allowed (possibly after
+      quoting).  */
    
 int
-runsystem (char *cmd)
+runsystem (const char *cmd)
 {
   int allow = 0;
   char *safecmd = NULL;
@@ -430,7 +433,7 @@ runsystem (char *cmd)
   if (restrictedshell == 0)
     allow = 1;
   else
-    allow = shell_cmd_is_allowed (&cmd, &safecmd, &cmdname);
+    allow = shell_cmd_is_allowed (cmd, &safecmd, &cmdname);
 
   if (allow == 1)
     (void) system (cmd);
@@ -445,13 +448,14 @@ runsystem (char *cmd)
   return allow;
 }
 
+#if defined(pdfTeX) || defined(luaTeX)
 /* Like runsystem(), the runpopen() function is called only when
    shellenabledp == 1.   Unlike runsystem(), here we write errors to
    stderr, since we have nowhere better to use; and of course we return
    a file handle (or NULL) instead of a status indicator.  */
 
 static FILE *
-runpopen (char *cmd, char *mode)
+runpopen (const char *cmd, const char *mode)
 {
   FILE *f = NULL;
   char *safecmd = NULL;
@@ -462,7 +466,7 @@ runpopen (char *cmd, char *mode)
   if (restrictedshell == 0)
     allow = 1;
   else
-    allow = shell_cmd_is_allowed (&cmd, &safecmd, &cmdname);
+    allow = shell_cmd_is_allowed (cmd, &safecmd, &cmdname);
 
   if (allow == 1)
     f = popen (cmd, mode);
@@ -480,7 +484,8 @@ runpopen (char *cmd, char *mode)
     free (cmdname);
   return f;
 }
-#endif
+#endif /* pdfTeX || luaTeX */
+#endif /* TeX */
 
 /* The main program, etc.  */
 
@@ -516,11 +521,15 @@ extern string fullnameoffile;
 string translate_filename;
 string default_translate_filename;
 
+#if defined(TeX)
 /* Needed for --src-specials option. */
 MAYBE_STATIC char *last_source_name;
-static int last_lineno;
-MAYBE_STATIC boolean srcspecialsoption = false;
-MAYBE_STATIC void parse_src_specials_option (const_string);
+MAYBE_STATIC int last_lineno;
+#if !defined (luaTeX)
+static boolean srcspecialsoption = false;
+static void parse_src_specials_option (const_string);
+#endif
+#endif
 
 /* The main body of the WEB is transformed into this procedure.  */
 extern TEXDLL void mainbody (void);
@@ -540,10 +549,6 @@ static string get_input_file_name (void);
  */
 static int eightbitp;
 #endif /* Aleph */
-
-#if defined(pdfTeX) || defined(luaTeX)
-char *ptexbanner;
-#endif
 
 /* Get a true/false value for a variable from texmf.cnf and the environment. */
 static boolean
@@ -577,6 +582,10 @@ texmf_yesno(const_string var)
 #define poolsize pool_size
 #endif
 
+#if defined(pdfTeX) || defined(luaTeX)
+const char *ptexbanner = BANNER;
+#endif
+
 /* The entry point: set up for reading the command line, which will
    happen in `topenin', then call the main body.  */
 
@@ -608,13 +617,9 @@ maininit (int ac, string *av)
   synctexoption = SYNCTEX_NO_OPTION;
 #else
 # /* Omit warning for Aleph and non-TeX.  */
-# if defined(TeX) && !defined(Aleph)
+# if defined(TeX) && !defined(Aleph) && !defined(luaTeX)
 #  warning SyncTeX: -synctex command line option NOT available
 # endif
-#endif
-
-#if defined(pdfTeX) || defined(luaTeX)
-  ptexbanner = BANNER;
 #endif
 
   /* If the user says --help or --version, we need to notice early.  And
@@ -879,6 +884,9 @@ topenin (void)
    incrementally.  Shamim Mohamed adapted it for Web2c.  */
 #if defined (TeX) && defined (IPC)
 
+#ifdef WIN32
+#include <winsock2.h>
+#else
 #include <sys/socket.h>
 #include <fcntl.h>
 #ifndef O_NONBLOCK /* POSIX */
@@ -892,6 +900,7 @@ what the fcntl? cannot implement IPC without equivalent for O_NONBLOCK.
 #endif /* no FNDELAY */
 #endif /* no O_NDELAY */
 #endif /* no O_NONBLOCK */
+#endif /* !WIN32 */
 
 #ifndef IPC_PIPE_NAME /* $HOME is prepended to this.  */
 #define IPC_PIPE_NAME "/.TeXview_Pipe"
@@ -942,6 +951,12 @@ ipc_is_open (void)
 
 static void
 ipc_open_out (void) {
+#ifdef WIN32
+  u_long mode = 1;
+#define SOCK_NONBLOCK(s) ioctlsocket (s, FIONBIO, &mode)
+#else
+#define SOCK_NONBLOCK(s) fcntl (s, F_SETFL, O_NONBLOCK)
+#endif
 #ifdef IPC_DEBUG
   fputs ("tex: Opening socket for IPC output ...\n", stderr);
 #endif
@@ -957,7 +972,7 @@ ipc_open_out (void) {
   sock = socket (PF_UNIX, SOCK_STREAM, 0);
   if (sock >= 0) {
     if (connect (sock, ipc_addr, ipc_addr_len) != 0
-        || fcntl (sock, F_SETFL, O_NONBLOCK) < 0) {
+        || SOCK_NONBLOCK (sock) < 0) {
       close (sock);
       sock = -1;
       return;
@@ -1026,7 +1041,7 @@ ipcpage (int is_eof)
 {
   static boolean begun = false;
   unsigned len = 0;
-  string p = (string)"";
+  string p = NULL;
 
   if (!begun) {
     string name; /* Just the filename.  */
@@ -1061,7 +1076,7 @@ ipcpage (int is_eof)
   }
   ipc_snd (len, is_eof, p);
   
-  if (len > 0) {
+  if (p) {
     free (p);
   }
 }
@@ -1178,7 +1193,7 @@ string
 normalize_quotes (const_string name, const_string mesg)
 {
     int quote_char = 0;
-    boolean must_quote = (strchr(name, ' ') != NULL);
+    boolean must_quote = false;
     int len = strlen(name);
     /* Leave room for quotes and NUL. */
     string ret;
@@ -1439,7 +1454,11 @@ parse_options (int argc, string *argv)
         if (system (IPC_SERVER_CMD) == 0) {
           unsigned i;
           for (i = 0; i < 20 && !ipc_is_open (); i++) {
+#ifdef WIN32
+            Sleep (2000);
+#else
             sleep (2);
+#endif
             ipc_open_out ();
           }
         }
@@ -1639,6 +1658,7 @@ parse_first_line (const_string filename)
       /* The tcx stuff, if any.  Should we support the -translate-file
          form as well as --translate-file?  */
       if (*parse) {
+        s = NULL;
         if (translate_filename) {
           /* TCX file already set, do nothing. */
         } else if (STREQ (*parse, "--translate-file")) {
@@ -1662,115 +1682,6 @@ parse_first_line (const_string filename)
   }
 }
 
-/* Return true if FNAME is acceptable as a name for \openout, \openin, or
-   \input.  */
-
-typedef enum ok_type {
-    ok_reading,
-    ok_writing
-} ok_type;
-
-static const_string ok_type_name[] = {
-    "reading",
-    "writing"
-};
-
-static boolean
-opennameok (const_string fname, const_string check_var,
-            const_string default_choice, ok_type action)
-{
-  /* We distinguish three cases:
-     'a' (any)        allows any file to be opened.
-     'r' (restricted) means disallowing special file names.
-     'p' (paranoid)   means being really paranoid: disallowing special file
-                      names and restricting output files to be in or below
-                      the working directory or $TEXMFOUTPUT, while input files
-                      must be below the current directory, $TEXMFOUTPUT, or
-                      (implicitly) in the system areas.
-     We default to "paranoid".  The error messages from TeX will be somewhat
-     puzzling...
-     This function contains several return statements...  */
-
-  const_string open_choice = kpse_var_value (check_var);
-
-  if (!open_choice) open_choice = default_choice;
-
-  if (*open_choice == 'a' || *open_choice == 'y' || *open_choice == '1')
-    return true;
-
-#if defined (unix) && !defined (MSDOS)
-  {
-    const_string base = xbasename (fname);
-    /* Disallow .rhosts, .login, etc.  Allow .tex (for LaTeX).  */
-    if (base[0] == 0 ||
-        (base[0] == '.' && !IS_DIR_SEP(base[1]) && !STREQ (base, ".tex"))) {
-      fprintf(stderr, "%s: Not %s to %s (%s = %s).\n",
-              program_invocation_name, ok_type_name[action], fname,
-              check_var, open_choice);
-      return false;
-    }
-  }
-#else
-  /* Other OSs don't have special names? */
-#endif
-
-  if (*open_choice == 'r' || *open_choice == 'n' || *open_choice == '0')
-    return true;
-
-  /* Paranoia supplied by Charles Karney...  */
-  if (kpse_absolute_p (fname, false)) {
-    const_string texmfoutput = kpse_var_value ("TEXMFOUTPUT");
-    /* Absolute pathname is only OK if TEXMFOUTPUT is set, it's not empty,
-       fname begins the TEXMFOUTPUT, and is followed by / */
-    if (!texmfoutput || *texmfoutput == '\0'
-        || fname != strstr (fname, texmfoutput)
-        || !IS_DIR_SEP(fname[strlen(texmfoutput)])) {
-      fprintf(stderr, "%s: Not %s to %s (%s = %s).\n",
-              program_invocation_name, ok_type_name[action], fname,
-              check_var, open_choice);
-      return false;
-    }
-  }
-  /* For all pathnames, we disallow "../" at the beginning or "/../"
-     anywhere.  */
-  if (fname[0] == '.' && fname[1] == '.' && IS_DIR_SEP(fname[2])) {
-    fprintf(stderr, "%s: Not %s to %s (%s = %s).\n",
-            program_invocation_name, ok_type_name[action], fname,
-            check_var, open_choice);
-    return false;
-  } else {
-    /* Check for "/../".  Since more than one characted can be matched
-       by IS_DIR_SEP, we cannot use "/../" itself. */
-    const_string dotpair = strstr(fname, "..");
-    while (dotpair) {
-      /* If dotpair[2] == DIR_SEP, then dotpair[-1] is well-defined,
-         because the "../" case was handled above. */
-      if (IS_DIR_SEP(dotpair[2]) && IS_DIR_SEP(dotpair[-1])) {
-        fprintf(stderr, "%s: Not %s to %s (%s = %s).\n",
-                program_invocation_name, ok_type_name[action], fname,
-                check_var, open_choice);
-        return false;
-      }
-      /* Continue after the dotpair. */
-      dotpair = strstr(dotpair+2, "..");
-    }
-  }
-
-  /* We passed all tests.  */
-  return true;
-}
-
-boolean openinnameok (const_string fname)
-{
-    /* For input default to all. */
-    return opennameok (fname, "openin_any", "a", ok_reading);
-}
-
-boolean openoutnameok (const_string fname)
-{
-    /* For output, default to paranoid. */
-    return opennameok (fname, "openout_any", "p", ok_writing);
-}
 /* 
   piped I/O
  */
@@ -1894,7 +1805,7 @@ close_file_or_pipe (FILE *f)
    variable `interrupt'; then they will do everything needed.  */
 #ifdef WIN32
 /* Win32 doesn't set SIGINT ... */
-BOOL WINAPI
+static BOOL WINAPI
 catch_interrupt (DWORD arg)
 {
   switch (arg) {
@@ -1996,7 +1907,7 @@ get_seconds_and_micros (integer *seconds,  integer *micros)
   Generating a better seed numbers
   */
 integer
-getrandomseed()
+getrandomseed(void)
 {
 #if defined (HAVE_GETTIMEOFDAY)
   struct timeval tv;
@@ -2151,7 +2062,7 @@ calledit (packedASCIIcode *filename,
   *temp = 0;
 
   /* Execute the command.  */
-#ifdef WIN32
+#ifdef __MINGW32__
   /* Win32 reimplementation of the system() command
      provides opportunity to call it asynchronously */
   if (win32_system(command, true) != 0 )
@@ -2266,11 +2177,11 @@ do_dump (char *p, int item_size, int nitems,  FILE *out_file)
 #ifdef XeTeX
   if (gzwrite (out_file, p, item_size * nitems) != item_size * nitems)
 #else
-  if (fwrite (p, item_size, nitems, out_file) != (unsigned)nitems)
+  if (fwrite (p, item_size, nitems, out_file) != nitems)
 #endif
     {
-      fprintf (stderr, "! Could not write %d %d-byte item(s).\n",
-               nitems, item_size);
+      fprintf (stderr, "! Could not write %d %d-byte item(s) to %s.\n",
+               nitems, item_size, nameoffile+1);
       uexit (1);
     }
 
@@ -2296,36 +2207,12 @@ do_undump (char *p, int item_size, int nitems, FILE *in_file)
 #else
   if (fread (p, item_size, nitems, in_file) != (size_t) nitems)
 #endif
-    FATAL2 ("Could not undump %d %d-byte item(s)", nitems, item_size);
+    FATAL3 ("Could not undump %d %d-byte item(s) from %s",
+            nitems, item_size, nameoffile+1);
 
 #if !defined (WORDS_BIGENDIAN) && !defined (NO_DUMP_SHARE)
   swap_items (p, nitems, item_size);
 #endif
-}
-
-/* Look up VAR_NAME in texmf.cnf; assign either the value found there or
-   DFLT to *VAR.  */
-
-void
-setupboundvariable (integer *var, const_string var_name, integer dflt)
-{
-  string expansion = kpse_var_value (var_name);
-  *var = dflt;
-
-  if (expansion) {
-    integer conf_val = atoi (expansion);
-    /* It's ok if the cnf file specifies 0 for extra_mem_{top,bot}, etc.
-       But negative numbers are always wrong.  */
-    if (conf_val < 0 || (conf_val == 0 && dflt > 0)) {
-      fprintf (stderr,
-               "%s: Bad value (%ld) in texmf.cnf for %s, keeping %ld.\n",
-               program_invocation_name,
-               (long) conf_val, var_name + 1, (long) dflt);
-    } else {
-      *var = conf_val; /* We'll make further checks later.  */
-    }
-    free (expansion);
-  }
 }
 
 /* FIXME -- some (most?) of this can/should be moved to the Pascal/WEB side. */
@@ -2350,7 +2237,7 @@ maketexstring(const_string s)
   size_t len;
 #ifdef XeTeX
   UInt32 rval;
-  unsigned char* cp = (unsigned char*)s;
+  const unsigned char* cp = (const unsigned char*)s;
 #endif
   assert (s != 0);
   len = strlen(s);
@@ -2385,7 +2272,7 @@ maketexstring(const_string s)
 #endif /* !pdfTeX */
 
 strnumber
-makefullnamestring()
+makefullnamestring(void)
 {
   return maketexstring(fullnameoffile);
 }
@@ -2403,7 +2290,7 @@ getjobname(strnumber name)
 #endif
 
 #if defined(TeX)
-int
+static int
 compare_paths (const_string p1, const_string p2)
 {
   int ret;
@@ -2467,6 +2354,9 @@ gettexstring (strnumber s)
 
 #else
 
+#ifdef luaTeX
+static
+#endif
 string
 gettexstring (strnumber s)
 {
@@ -2744,77 +2634,9 @@ zmakescaled (integer p, integer q)		/* Approximate 2^16*p/q */
 #undef X11WIN
 #endif
 
-#ifdef AMIGAWIN
-extern int mf_amiga_initscreen (void);
-extern void mf_amiga_updatescreen (void);
-extern void mf_amiga_blankrectangle (screencol, screencol, screenrow, screenrow);
-extern void mf_amiga_paintrow (screenrow, pixelcolor, transspec, screencol);
-#endif
-#ifdef EPSFWIN
-extern int mf_epsf_initscreen (void);
-extern void mf_epsf_updatescreen (void);
-extern void mf_epsf_blankrectangle (screencol, screencol, screenrow, screenrow);
-extern void mf_epsf_paintrow (screenrow, pixelcolor, transspec, screencol);
-#endif
-#ifdef HP2627WIN
-extern int mf_hp2627_initscreen (void);
-extern void mf_hp2627_updatescreen (void);
-extern void mf_hp2627_blankrectangle (screencol, screencol, screenrow, screenrow);
-extern void mf_hp2627_paintrow (screenrow, pixelcolor, transspec, screencol);
-#endif
-#ifdef MFTALKWIN
-extern int mf_mftalk_initscreen (void);
-extern void mf_mftalk_updatescreen (void);
-extern void mf_mftalk_blankrectangle (screencol, screencol, screenrow, screenrow);
-extern void mf_mftalk_paintrow (screenrow, pixelcolor, transspec, screencol);
-#endif
-#ifdef NEXTWIN
-extern int mf_next_initscreen (void);
-extern void mf_next_updatescreen (void);
-extern void mf_next_blankrectangle (screencol, screencol, screenrow, screenrow);
-extern void mf_next_paintrow (screenrow, pixelcolor, transspec, screencol);
-#endif
-#ifdef REGISWIN
-extern int mf_regis_initscreen (void);
-extern void mf_regis_updatescreen (void);
-extern void mf_regis_blankrectangle (screencol, screencol, screenrow, screenrow);
-extern void mf_regis_paintrow (screenrow, pixelcolor, transspec, screencol);
-#endif
-#ifdef SUNWIN
-extern int mf_sun_initscreen (void);
-extern void mf_sun_updatescreen (void);
-extern void mf_sun_blankrectangle (screencol, screencol, screenrow, screenrow);
-extern void mf_sun_paintrow (screenrow, pixelcolor, transspec, screencol);
-#endif
-#ifdef TEKTRONIXWIN
-extern int mf_tektronix_initscreen (void);
-extern void mf_tektronix_updatescreen (void);
-extern void mf_tektronix_blankrectangle (screencol, screencol, screenrow, screenrow);
-extern void mf_tektronix_paintrow (screenrow, pixelcolor, transspec, screencol);
-#endif
-#ifdef UNITERMWIN
-extern int mf_uniterm_initscreen (void);
-extern void mf_uniterm_updatescreen (void);
-extern void mf_uniterm_blankrectangle (screencol, screencol, screenrow, screenrow);
-extern void mf_uniterm_paintrow (screenrow, pixelcolor, transspec, screencol);
-#endif
-#ifdef WIN32WIN
-extern int mf_win32_initscreen (void);
-extern void mf_win32_updatescreen (void);
-extern void mf_win32_blankrectangle (screencol, screencol, screenrow, screenrow);
-extern void mf_win32_paintrow (screenrow, pixelcolor, transspec, screencol);
-#endif
-#ifdef X11WIN
-extern int mf_x11_initscreen (void);
-extern void mf_x11_updatescreen (void);
-extern void mf_x11_blankrectangle (screencol, screencol, screenrow, screenrow);
-extern void mf_x11_paintrow (screenrow, pixelcolor, transspec, screencol);
-#endif
-extern int mf_trap_initscreen (void);
-extern void mf_trap_updatescreen (void);
-extern void mf_trap_blankrectangle (screencol, screencol, screenrow, screenrow);
-extern void mf_trap_paintrow (screenrow, pixelcolor, transspec, screencol);
-
+/* Prototypes for Metafont display routines: mf_XXX_initscreen,
+   mf_XXX_updatescreen, mf_XXX_blankrectangle, and mf_XXX_paintrow.  */
+#include <window/mfdisplay.h>
 
 /* This variable, `mfwsw', contains the dispatch tables for each
    terminal.  We map the Pascal calls to the routines `init_screen',
@@ -2824,7 +2646,7 @@ extern void mf_trap_paintrow (screenrow, pixelcolor, transspec, screencol);
 
 struct mfwin_sw
 {
-  char *mfwsw_type;		/* Name of terminal a la TERMCAP.  */
+  const char *mfwsw_type;	/* Name of terminal a la TERMCAP.  */
   int (*mfwsw_initscreen) (void);
   void (*mfwsw_updatescrn) (void);
   void (*mfwsw_blankrect) (screencol, screencol, screenrow, screenrow);
@@ -2931,7 +2753,7 @@ initscreen (void)
      under Emacs, the first one.  */
   for (mfwp = mfwsw; mfwp->mfwsw_type != NULL; mfwp++) {
     if (!strncmp (mfwp->mfwsw_type, tty_type, strlen (mfwp->mfwsw_type))
-	|| STREQ (tty_type, "emacs"))
+	|| STREQ (tty_type, "emacs")) {
       if (mfwp->mfwsw_initscreen)
 	return ((*mfwp->mfwsw_initscreen) ());
       else {
@@ -2939,6 +2761,7 @@ initscreen (void)
                  tty_type);
         break;
       }
+    }
   }
   
   /* We disable X support by default, since most sites don't use it, and

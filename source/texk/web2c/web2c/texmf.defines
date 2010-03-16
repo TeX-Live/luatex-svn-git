@@ -32,8 +32,6 @@
 @define function makesrcspecial ();
 @define function ocpopenin ();
 @define function ofmopenin ();
-@define function openinnameok ();
-@define function openoutnameok ();
 @define function roundfraction ();
 @define function roundunscaled ();
 @define function runsystem ();
@@ -59,7 +57,6 @@
 @define procedure put4bytes ();
 @define procedure readtcxfile;
 @define procedure remembersourceinfo ();
-@define procedure setupboundvariable ();
 @define procedure topenin;
 @define procedure undumphh ();
 @define procedure undumpint ();

@@ -1,6 +1,6 @@
 /* hash.h: declarations for a hash table.
 
-   Copyright 1994, 1995, 2008 Karl Berry.
+   Copyright 1994, 1995, 2008, 2010 Karl Berry.
    Copyright 1999, 2005 Olaf Weber.
 
    This library is free software; you can redistribute it and/or
@@ -59,14 +59,18 @@ extern KPSEDLL void hash_insert_normalized (hash_table_type *table,
 extern KPSEDLL void hash_remove (hash_table_type *table,  const_string key,
                                     const_string value);
 
-/* Look up KEY in MAP, and return NULL-terminated list of all matching
+/* Look up KEY in TABLE, and return NULL-terminated list of all matching
    values (not copies), in insertion order.  If none, return NULL.  */
 extern KPSEDLL string *hash_lookup (hash_table_type table, const_string key);
+
+#ifdef MAKE_KPSE_DLL /* libkpathsea internal only */
 
 /* Print TABLE to stderr.  */
 extern void hash_print (hash_table_type table, boolean summary_only);
 
 /* Drop the TABLE */
 extern void hash_free (hash_table_type table);
+
+#endif /* MAKE_KPSE_DLL */
 
 #endif /* not HASH_H */

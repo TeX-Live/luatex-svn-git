@@ -34,19 +34,24 @@ host_triplet = @host@
 @WEB_TRUE@am__append_1 = $(web_man_sources)
 @TEX_TRUE@am__append_2 = tex.man
 @MF_TRUE@am__append_3 = mf.man
-@MFN_TRUE@@MF_TRUE@am__append_4 = 
+@MFN_TRUE@@MF_TRUE@am__append_4 = mf:mf-nowin
 @MP_TRUE@am__append_5 = mpost.man
 @ETEX_TRUE@am__append_6 = etex.man
 @PDFTEX_TRUE@am__append_7 = $(pdftex_man_sources)
-@LUATEX_TRUE@am__append_8 = 
-@XETEX_TRUE@am__append_9 = 
-@OTANGLE_TRUE@am__append_10 = 
-@ALEPH_TRUE@am__append_11 = aleph.man
+@PDFTEX_TRUE@am__append_8 = pdftex:pdflatex
+@LUATEX_TRUE@am__append_9 = luatex.man
+@LUATEX_TRUE@am__append_10 = tangle:luatangle
+@XETEX_TRUE@am__append_11 = # xetex.man
+@OTANGLE_TRUE@am__append_12 = $(otangle_man_sources)
+@OTANGLE_TRUE@am__append_13 = dvicopy:odvicopy dvitype:odvitype tangle:otangle
+@ALEPH_TRUE@am__append_14 = aleph.man
+@ALEPH_TRUE@am__append_15 = aleph:lambda
 DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/../am/man.am ChangeLog
 subdir = man
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/../../m4/kpse-asm.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/web2c-disable.m4 \
+	$(top_srcdir)/../../m4/kpse-asm.m4 \
 	$(top_srcdir)/../../m4/kpse-common.m4 \
 	$(top_srcdir)/../../m4/kpse-cross.m4 \
 	$(top_srcdir)/../../m4/kpse-cxx-hack.m4 \
@@ -57,6 +62,7 @@ am__aclocal_m4_deps = $(top_srcdir)/../../m4/kpse-asm.m4 \
 	$(top_srcdir)/../../m4/kpse-kpathsea-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-lex.m4 \
 	$(top_srcdir)/../../m4/kpse-libpng-flags.m4 \
+	$(top_srcdir)/../../m4/kpse-lt-hack.m4 \
 	$(top_srcdir)/../../m4/kpse-macos-framework.m4 \
 	$(top_srcdir)/../../m4/kpse-obsdcompat-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-socket-libs.m4 \
@@ -66,6 +72,7 @@ am__aclocal_m4_deps = $(top_srcdir)/../../m4/kpse-asm.m4 \
 	$(top_srcdir)/../../m4/kpse-win32.m4 \
 	$(top_srcdir)/../../m4/kpse-xpdf-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-zlib-flags.m4 \
+	$(top_srcdir)/../../m4/kpse-zziplib-flags.m4 \
 	$(top_srcdir)/../../m4/libtool.m4 \
 	$(top_srcdir)/../../m4/ltoptions.m4 \
 	$(top_srcdir)/../../m4/ltsugar.m4 \
@@ -87,6 +94,7 @@ DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AR = @AR@
+AS = @AS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -103,11 +111,10 @@ CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
 CXXLD = @CXXLD@
-CXX_HACK_DEPS = @CXX_HACK_DEPS@
-CXX_HACK_LIBS = @CXX_HACK_LIBS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
 ECHO_C = @ECHO_C@
@@ -159,6 +166,8 @@ MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
 NM = @NM@
 NMEDIT = @NMEDIT@
+OBJCXX = @OBJCXX@
+OBJCXXFLAGS = @OBJCXXFLAGS@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 OBSDCOMPAT_DEPEND = @OBSDCOMPAT_DEPEND@
@@ -172,6 +181,7 @@ PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
 PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
+PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
@@ -189,6 +199,7 @@ TIE = @TIE@
 VERSION = @VERSION@
 WARNING_CFLAGS = @WARNING_CFLAGS@
 WARNING_CXXFLAGS = @WARNING_CXXFLAGS@
+WARNING_OBJCXXFLAGS = @WARNING_OBJCXXFLAGS@
 WEB2CVERSION = @WEB2CVERSION@
 XMKMF = @XMKMF@
 XPDF_DEPEND = @XPDF_DEPEND@
@@ -203,6 +214,9 @@ YFLAGS = @YFLAGS@
 ZLIB_DEPEND = @ZLIB_DEPEND@
 ZLIB_INCLUDES = @ZLIB_INCLUDES@
 ZLIB_LIBS = @ZLIB_LIBS@
+ZZIPLIB_DEPEND = @ZZIPLIB_DEPEND@
+ZZIPLIB_INCLUDES = @ZZIPLIB_INCLUDES@
+ZZIPLIB_LIBS = @ZZIPLIB_LIBS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -210,6 +224,7 @@ abs_top_srcdir = @abs_top_srcdir@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
 ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
+ac_ct_OBJCXX = @ac_ct_OBJCXX@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
@@ -263,22 +278,25 @@ wlibs = @wlibs@
 x_ext_lib = @x_ext_lib@
 x_tool_libs = @x_tool_libs@
 man_sources = $(bootstrap_man_sources) $(am__append_1) $(am__append_2) \
-	$(am__append_3) $(am__append_4) $(am__append_5) \
-	$(am__append_6) $(am__append_7) $(am__append_8) \
-	$(am__append_9) $(am__append_10) $(am__append_11) \
-	$(misc_man_sources)
-EXTRA_DIST = $(bootstrap_man_sources) $(web_man_sources) \
-	$(mpware_man_sources) tex.man mf.man mpost.man etex.man \
-	$(pdftex_man_sources) aleph.man $(misc_man_sources) \
-	amslatex.min initex.min lamstex.min pdftexman.m4 slitex.min \
-	spell.add virtex.min
+	$(am__append_3) $(am__append_5) $(am__append_6) \
+	$(am__append_7) $(am__append_9) $(am__append_11) \
+	$(am__append_12) $(am__append_14) $(misc_man_sources)
+EXTRA_DIST = $(bootstrap_man_sources) $(web_man_sources) tex.man \
+	mf.man mpost.man etex.man $(pdftex_man_sources) luatex.man \
+	$(otangle_man_sources) aleph.man $(misc_man_sources) \
+	amslatex.min initex.min lamstex.min slitex.min spell.add \
+	virtex.min
 bootstrap_man_sources = cweb.man tangle.man
+
+# Symlinks within $(man1dir): FILE:LINK indicates LINK.1->FILE.1
+man1_links = cweb:ctangle cweb:cweave $(am__append_4) $(am__append_8) \
+	$(am__append_10) $(am__append_13) $(am__append_15)
 web_man_sources = bibtex.man dvicopy.man dvitomp.man dvitype.man gftodvi.man \
 	gftopk.man gftype.man mft.man patgen.man pktogf.man pktype.man \
 	pltotf.man pooltype.man tftopl.man vftovp.man vptovf.man weave.man
 
-mpware_man_sources = dmp.man makempx.man mpto.man newer.man
-pdftex_man_sources = pdftex.man pdftosrc.man
+pdftex_man_sources = pdftex.man pdftosrc.man ttf2afm.man
+otangle_man_sources = ofm2opl.man opl2ofm.man ovf2ovp.man ovp2ovf.man
 misc_man_sources = \
 	amstex.man \
 	eplain.man \
@@ -460,6 +478,8 @@ info: info-am
 info-am:
 
 install-data-am: install-man
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) install-data-hook
 
 install-dvi: install-dvi-am
 
@@ -494,22 +514,25 @@ ps: ps-am
 ps-am:
 
 uninstall-am: uninstall-man
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) uninstall-hook
 
 uninstall-man: uninstall-man1
 
-.MAKE: install-am install-strip
+.MAKE: install-am install-data-am install-strip uninstall-am
 
 .PHONY: all all-am check check-am clean clean-generic clean-libtool \
 	distclean distclean-generic distclean-libtool distdir dvi \
 	dvi-am html html-am info info-am install install-am \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-man1 \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	uninstall uninstall-am uninstall-man uninstall-man1
+	install-data install-data-am install-data-hook install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am install-man \
+	install-man1 install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
+	ps ps-am uninstall uninstall-am uninstall-hook uninstall-man \
+	uninstall-man1
 
 
 .man.1:
@@ -543,6 +566,22 @@ sedscript: $(KPATHSEA_PATHS_H)/kpathsea/paths.h
 
 .1.ps:
 	$(DITROFF) -Tps -man $< >$@
+
+install-data-hook:
+	@cd $(DESTDIR)$(man1dir) && \
+	  for s in $(man1_links); do \
+	    link=`echo $$s | sed 's,.*:,,'`; \
+	    file=`echo $$s | sed 's,:.*,,'`; \
+	    rm -f $$link.1; \
+	    echo "creating link '$$link.1' -> '$$file.1'"; \
+	    $(LN_S) $$file.1 $$link.1; \
+	  done
+
+uninstall-hook:
+	@for s in $(man1_links); do \
+	  link=`echo $$s | sed 's,.*:,,'`; \
+	  rm -f $(DESTDIR)$(man1dir)/$$link.1; \
+	done
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

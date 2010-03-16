@@ -44,6 +44,16 @@
 \def\title{TANGLE changes for C}
 @z
 
+@x [2] Eliminate the |end_of_TANGLE| label.
+@d end_of_TANGLE = 9999 {go here to wrap it up}
+
+@y
+@z
+@x
+label end_of_TANGLE; {go here to finish}
+@y
+@z
+
 @x [2] Define and call parse_arguments.
 procedure initialize;
   var @<Local variables for initialization@>@/
@@ -53,7 +63,7 @@ procedure initialize;
 procedure initialize;
   var @<Local variables for initialization@>@/
   begin
-    kpse_set_progname (argv[0]);
+    kpse_set_program_name (argv[0], nil);
     parse_arguments;
     @<Set initial values@>@/
 @z
@@ -175,7 +185,7 @@ rewrite (Pascal_file, pascal_name);
       begin while not eoln(f) do vgetc(f);
 @z
 
-@x [??] Fix `jump_out'.
+@x [35] Fix `jump_out'.
 @d fatal_error(#)==begin new_line; print(#); error; mark_fatal; jump_out;
   end
 
@@ -617,6 +627,11 @@ print (banner); {print a ``banner line''}
 print_ln (version_string);
 @z
 
+@x Eliminate the |end_of_TANGLE| label.
+end_of_TANGLE:
+@y
+@z
+
 @x
 @<Print the job |history|@>;
 @y
@@ -814,7 +829,7 @@ long_options[current_option].val := 0;
 @ Global filenames.
 
 @<Globals...@>=
-@!web_name,@!chg_name,@!pascal_name,@!pool_name:c_string;
+@!web_name,@!chg_name,@!pascal_name,@!pool_name:const_c_string;
 @!force_uppercase,@!force_lowercase,@!allow_underlines,@!strict_mode:boolean;
 @!unambig_length:0..max_id_length;
 @z

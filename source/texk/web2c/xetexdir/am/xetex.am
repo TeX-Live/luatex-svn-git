@@ -1,0 +1,241 @@
+## texk/web2c/xetexdir/am/xetex.am: Makefile fragment for XeTeX.
+##
+## Copyright (C) 2009 Peter Breitenlohner <tex-live@tug.org>
+## You may freely use, modify and/or distribute this file.
+
+## XeTeX
+##
+if XETEX
+bin_PROGRAMS += xetex
+endif XETEX
+EXTRA_PROGRAMS += xetex
+
+# Force Automake to use CXXLD for linking
+nodist_EXTRA_xetex_SOURCES = dummy.cxx
+
+libxetex = libxetex.a
+
+xetex_cppflags = -I$(srcdir)/xetexdir
+## Must add icu first to avoid an installed version.
+xetex_cppflags += $(ICU_INCLUDES)
+## Must add freetype2 includes early to avoid
+## freetype1/freetype2 confusion -- what a mess.
+xetex_cppflags += $(FREETYPE2_INCLUDES)
+xetex_cppflags += $(TECKIT_INCLUDES)
+xetex_ldadd = $(libxetex) $(ICU_LIBS) $(TECKIT_LIBS)
+xetex_dependencies = $(proglib) $(KPATHSEA_DEPEND)
+xetex_dependencies += $(ICU_DEPEND) $(TECKIT_DEPEND)
+
+if XETEX_MACOSX
+
+xetex_cppflags += -DXETEX_MAC
+xetex_LDFLAGS = -framework Carbon -framework Cocoa -framework QuickTime
+
+## Extra library for the Objective C++ file xetexdir/XeTeXFontMgr_Mac.mm.
+libxetex += libxetexmm.a
+
+else !XETEX_MACOSX
+
+xetex_cppflags += -DXETEX_OTHER
+xetex_cppflags += $(XPDF_INCLUDES) $(LIBPNG_INCLUDES) $(FONTCONFIG_INCLUDES)
+xetex_ldadd += $(XPDF_LIBS) $(LIBPNG_LIBS) $(FONTCONFIG_LIBS)
+xetex_dependencies += $(XPDF_DEPEND) $(LIBPNG_DEPEND)
+
+endif !XETEX_MACOSX
+
+if XETEX_GRAPHITE
+
+xetex_cppflags += -DXETEX_GRAPHITE $(GRAPHITE_INCLUDES)
+xetex_ldadd += $(GRAPHITE_LIBS)
+xetex_dependencies += $(GRAPHITE_DEPEND)
+
+endif XETEX_GRAPHITE
+
+xetex_cppflags += $(ZLIB_INCLUDES)
+xetex_ldadd += $(FREETYPE2_LIBS) $(ZLIB_LIBS)
+xetex_dependencies += $(FREETYPE2_DEPEND) $(ZLIB_DEPEND)
+
+xetex_CPPFLAGS = $(xetex_cppflags)
+xetex_CFLAGS = # $(WARNING_CFLAGS)
+xetex_CXXFLAGS = # $(WARNING_CXXFLAGS)
+
+## With --enable-ipc, XeTeX may need to link with -lsocket.
+xetex_LDADD = $(xetex_ldadd) $(LDADD) $(ipc_socketlibs)
+
+xetex_prereq = $(libxetex)
+$(xetex_OBJECTS): $(xetex_prereq)
+
+## XeTeX C sources
+xetex_c_h = xetexini.c xetex0.c xetexcoerce.h xetexd.h
+nodist_xetex_SOURCES = $(xetex_c_h) xetex_pool.c xetexextra.c xetexdir/xetexextra.h
+
+$(xetex_c_h): xetex-web2c
+	@$(web2c) xetex
+xetex-web2c: xetex.p $(web2c_texmf) xetexdir/xetex.defines
+	@$(web2c) xetex
+
+xetex_pool.c: xetex.pool xetexd.h
+	perl $(srcdir)/xetexdir/pool2c.pl $< $@
+
+xetexextra.c: xetexdir/xetexextra.h lib/texmfmp.c xetexd.h
+	sed s/TEX-OR-MF-OR-MP/xetex/ $(srcdir)/lib/texmfmp.c >$@
+
+xetexdir/xetexextra.h: xetexdir/xetexextra.in xetexdir/xetex.version xetexdir/etex.version
+	$(MKDIR_P) xetexdir
+	sed -e s/XETEX-VERSION/`cat xetexdir/xetex.version`/ \
+	    -e s/ETEX-VERSION/`cat xetexdir/etex.version`/ \
+	  $(srcdir)/xetexdir/xetexextra.in >$@
+
+## Tangling XeTeX
+xetex.p xetex.pool: xetex-tangle
+	@$(o_tangle) xetex
+xetex-tangle: ./otangle$(EXEEXT) xetex.web tangle-sh
+	@$(o_tangle) xetex
+
+## Extract etex version
+xetexdir/etex.version: etexdir/etex.ch
+	$(MKDIR_P) xetexdir
+	grep '^@d eTeX_version_string==' $(srcdir)/etexdir/etex.ch \
+	  | sed "s/^.*'-//;s/'.*$$//" >$@
+
+## Extract xetex version
+xetexdir/xetex.version: xetexdir/xetex.ch
+	$(MKDIR_P) xetexdir
+	grep '^@d XeTeX_version_string==' $(srcdir)/xetexdir/xetex.ch \
+	  | sed "s/^.*'-//;s/'.*$$//" >$@
+
+## Generate xetex.web
+xetex.web: tie$(EXEEXT) $(xetex_web_srcs)
+	$(tie) -m xetex.web $(xetex_web_srcs)
+
+xetex_web_srcs = \
+	tex.web \
+	etexdir/etex.ch \
+	etexdir/tex.ch0 \
+	tex.ch \
+	etexdir/tex.ch1 \
+	etexdir/tex.ech \
+	$(xetex_ch_synctex) \
+	xetexdir/xetex.ch \
+	xetexdir/xetex-latex3.ch \
+	$(xetex_post_ch_synctex)
+##
+EXTRA_DIST += $(xetex_web_srcs) xetexdir/xetex.defines xetexdir/xetexextra.in
+
+DISTCLEANFILES += $(nodist_xetex_SOURCES) xetex.web xetex-web2c \
+	xetex.p xetex.pool xetex-tangle xetexdir/etex.version xetexdir/xetex.version
+
+EXTRA_DIST += \
+	xetexdir/pool2c.pl \
+	xetexdir/unicode-char-prep.pl
+
+## libxetex
+##
+EXTRA_LIBRARIES += libxetex.a
+
+libxetex_a_CPPFLAGS = $(xetex_cppflags)
+libxetex_a_CFLAGS = # $(WARNING_CFLAGS)
+libxetex_a_CXXFLAGS = # $(WARNING_CXXFLAGS)
+## Not yet for ObjC++ (not yet implemented)
+libxetex_a_OBJCXXFLAGS = ## $(WARNING_OBJCXXFLAGS)
+
+libxetex_a_SOURCES = \
+	xetexdir/MathTable.h \
+	xetexdir/FontTableCache.cpp \
+	xetexdir/FontTableCache.h \
+	xetexdir/XeTeXFontInst.cpp \
+	xetexdir/XeTeXFontInst.h \
+	xetexdir/XeTeXFontInst_FT2.cpp \
+	xetexdir/XeTeXFontInst_FT2.h \
+	xetexdir/XeTeXFontMgr.cpp \
+	xetexdir/XeTeXFontMgr.h \
+	xetexdir/XeTeXLayoutInterface.cpp \
+	xetexdir/XeTeXLayoutInterface.h \
+	xetexdir/XeTeXOTLayoutEngine.cpp \
+	xetexdir/XeTeXOTLayoutEngine.h \
+	xetexdir/XeTeXOTMath.cpp \
+	xetexdir/XeTeXOTMath.h \
+	xetexdir/XeTeX_ext.c \
+	xetexdir/XeTeX_ext.h \
+	xetexdir/XeTeXswap.h \
+	xetexdir/cmaps.cpp \
+	xetexdir/cmaps.h \
+	xetexdir/sfnt.h \
+	xetexdir/trans.c \
+	xetexdir/trans.h \
+	xetexdir/xetex.h
+
+## included by xetexdir/XeTeXLayoutInterface.cpp
+EXTRA_DIST += xetexdir/appleGlyphNames.c
+
+if XETEX_MACOSX
+
+libxetex_a_SOURCES += \
+	xetexdir/XeTeXFontInst_Mac.cpp \
+	xetexdir/XeTeXFontInst_Mac.h \
+	xetexdir/XeTeX_mac.c
+
+else !XETEX_MACOSX
+
+libxetex_a_SOURCES += \
+	xetexdir/XeTeXFontMgr_FC.cpp \
+	xetexdir/XeTeXFontMgr_FC.h \
+	xetexdir/XeTeX_pic.c \
+	xetexdir/bmpimage.c \
+	xetexdir/bmpimage.h \
+	xetexdir/jpegimage.c \
+	xetexdir/jpegimage.h \
+	xetexdir/mfileio.c \
+	xetexdir/mfileio.h \
+	xetexdir/numbers.c \
+	xetexdir/numbers.h \
+	xetexdir/pdfimage.cpp \
+	xetexdir/pdfimage.h \
+	xetexdir/pngimage.c \
+	xetexdir/pngimage.h
+
+endif !XETEX_MACOSX
+
+if XETEX_GRAPHITE
+
+libxetex_a_SOURCES += \
+	xetexdir/XeTeXGrLayout.cpp \
+	xetexdir/XeTeXGrLayout.h
+
+endif XETEX_GRAPHITE
+
+# We must create xetexd.h etc. before building the libxetex_a_OBJECTS.
+libxetex_prereq = xetexd.h $(xetex_dependencies)
+$(libxetex_a_OBJECTS): $(libxetex_prereq)
+
+## libxetexmm (Mac OS X only)
+##
+## Automake (1.10.2) does not generate a rule to compile
+## the Objective C++ file xetexdir/XeTeXFontMgr_Mac.mm.
+## Since this file is to be compiled with '$(CXX) -ObjC++' we provide a
+## C++ wrapper xetexdir/XeTeXFontMgr_Mac.cpp including the Objective C++ file.
+## Since Automake does not allow to specify CXXFLAGS for individual objects,
+## we use an additional library libxetexmm.a.
+EXTRA_LIBRARIES += libxetexmm.a
+
+libxetexmm_a_CPPFLAGS = $(xetex_cppflags)
+
+libxetexmm_a_CXXFLAGS = -ObjC++
+
+libxetexmm_a_SOURCES = \
+	xetexdir/XeTeXFontMgr_Mac.cpp \
+	xetexdir/XeTeXFontMgr_Mac.h
+
+## included by xetexdir/XeTeXFontMgr_Mac.cpp
+EXTRA_DIST += xetexdir/XeTeXFontMgr_Mac.mm
+
+EXTRA_DIST += xetexdir/ChangeLog
+
+## Not used
+##
+EXTRA_DIST += xetexdir/LICENSE.txt
+
+## Eventually delete these files
+##
+EXTRA_DIST += xetexdir/xetex.mk
+

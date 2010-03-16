@@ -29,18 +29,41 @@
 #include <kpathsea/tex-glyph.h>
 #include <kpathsea/variable.h>
 #include <kpathsea/progname.h>
+#include <kpathsea/version.h>
 
-
-/* Base resolution. (-D, -dpi) */
-unsigned dpi = 600;
 
 /* For variable and path expansion.  (-expand-var, -expand-path,
-   -show-path, -separator) */
+   -show-path) */
 string var_to_expand = NULL;
 string braces_to_expand = NULL;
 string path_to_expand = NULL;
 string path_to_show = NULL;
 string var_to_value = NULL;
+
+/* Base resolution. (-D, -dpi) */
+unsigned dpi = 600;
+
+/* The engine name, for '$engine' construct in texmf.cnf.  (-engine) */
+string engine = NULL;
+
+/* Interactively ask for names to look up?  (-interactive) */
+boolean interactive = false;
+
+/* The device name, for $MAKETEX_MODE.  (-mode) */
+string mode = NULL;
+
+/* Search the disk as well as ls-R?  (-must-exist, -mktex) */
+boolean must_exist = false;
+
+/* The program name, for `.PROG' construct in texmf.cnf.  (-program) */
+string progname = NULL;
+
+/* Safe input and output names to check.  (-safe-in-name and -safe-out-name) */
+string safe_in_name = NULL;
+string safe_out_name = NULL;
+
+/* Return all matches, not just the first one?  (-all) */
+boolean show_all = false;
 
 /* Only match files in given subdirs.  (-subdir) */
 str_list_type subdir_paths;
@@ -49,24 +72,6 @@ str_list_type subdir_paths;
 kpse_file_format_type user_format = kpse_last_format;
 string user_format_string;
 string user_path;
-
-/* Interactively ask for names to look up?  (-interactive) */
-boolean interactive = false;
-
-/* Search the disk as well as ls-R?  (-must-exist) */
-boolean must_exist = false;
-
-/* Return all matches, not just the first one?  (-all) */
-boolean show_all = false;
-
-/* The device name, for $MAKETEX_MODE.  (-mode) */
-string mode = NULL;
-
-/* The program name, for `.PROG' construct in texmf.cnf.  (-program) */
-string progname = NULL;
-
-/* The engine name, for '$engine' construct in texmf.cnf.  (-engine) */
-string engine = NULL;
 
 /* Return the <number> substring in `<name>.<number><stuff>', if S has
    that form.  If it doesn't, return 0.  */
@@ -101,8 +106,6 @@ find_format (kpathsea kpse, string name, boolean is_filename)
     ret = user_format;
   } else if (FILESTRCASEEQ (name, "config.ps")) {
     ret = kpse_dvips_config_format;
-  } else if (FILESTRCASEEQ (name, "dvipdfmx.cfg")) {
-    ret = kpse_program_text_format;
   } else if (FILESTRCASEEQ (name, "fmtutil.cnf")) {
     ret = kpse_web2c_format;
   } else if (FILESTRCASEEQ (name, "glyphlist.txt")) {
@@ -113,6 +116,8 @@ find_format (kpathsea kpse, string name, boolean is_filename)
     ret = kpse_fontmap_format;
   } else if (FILESTRCASEEQ (name, "pdftex.cfg")) {
     ret = kpse_pdftex_config_format;
+  } else if (FILESTRCASEEQ (name, "texglyphlist.txt")) {
+    ret = kpse_fontmap_format;
   } else if (FILESTRCASEEQ (name, "texmf.cnf")) {
     ret = kpse_cnf_format;
   } else if (FILESTRCASEEQ (name, "updmap.cfg")) {
@@ -148,30 +153,15 @@ find_format (kpathsea kpse, string name, boolean is_filename)
       for (ext = kpse->format_info[f].suffix; !found && ext && *ext; ext++) {
         found = TRY_SUFFIX (*ext);
       }      
-      for (ext = kpse->format_info[f].alt_suffix; !found && ext && *ext; ext++){
+      for (ext=kpse->format_info[f].alt_suffix; !found && ext && *ext; ext++) {
         found = TRY_SUFFIX (*ext);
       }
 
       if (found)
         break;
-
-      /* Some trickery here: the extensions for kpse_fmt_format can
-       * clash with other extensions in use, and we prefer for those
-       * others to be preferred.  And we don't want to change the
-       * integer value of kpse_fmt_format.  So skip it when first
-       * enountered, then use it when we've done everything else,
-       * and use it as the end-guard.
-       */
-      if (f == kpse_fmt_format) {
-        f = kpse_last_format;
-      } else if (++f == kpse_fmt_format) {
-        f++;
-      } else if (f == kpse_last_format) {
-        f = kpse_fmt_format;
-      }
+      f++;
     }
 
-    /* If there was a match, f will be one past the correct value.  */
     ret = f;
   }
   
@@ -256,7 +246,7 @@ lookup (kpathsea kpse, string name)
     
   } else {
     /* No user-specified search path, check user format or guess from NAME.  */
-      kpse_file_format_type fmt = find_format (kpse, name, true);
+    kpse_file_format_type fmt = find_format (kpse, name, true);
 
     switch (fmt) {
       case kpse_pk_format:
@@ -268,8 +258,8 @@ lookup (kpathsea kpse, string name)
           unsigned local_dpi = find_dpi (name);
           if (!local_dpi)
             local_dpi = dpi;
-          ret = kpathsea_find_glyph (kpse, remove_suffix (name), local_dpi, fmt,
-                                     &glyph_ret);
+          ret = kpathsea_find_glyph (kpse, remove_suffix (name),
+                                     local_dpi, fmt, &glyph_ret);
         }
         break;
 
@@ -280,7 +270,8 @@ lookup (kpathsea kpse, string name)
 
       default:
         if (show_all) {
-          ret_list = kpathsea_find_file_generic (kpse, name, fmt, must_exist, true);
+          ret_list = kpathsea_find_file_generic (kpse, name, fmt,
+                                                 must_exist, true);
         } else {
           ret = kpathsea_find_file (kpse, name, fmt, must_exist);
         }
@@ -339,6 +330,8 @@ will return matching format files for any engine.\n\
 -must-exist            search the disk as well as ls-R if necessary.\n\
 -path=STRING           search in the path STRING.\n\
 -progname=STRING       set program name to STRING.\n\
+-safe-in-name=STRING   check if STRING is ok to open for input.\n\
+-safe-out-name=STRING  check if STRING is ok to open for output.\n\
 -show-path=NAME        output search path for file type NAME (list below).\n\
 -subdir=STRING         only output matches whose directory ends with STRING.\n\
 -var-value=STRING      output the value of variable $STRING.\n\
@@ -369,7 +362,8 @@ static struct option long_options[]
       { "path",			1, 0, 0 },
       { "no-mktex",		1, 0, 0 },
       { "progname",		1, 0, 0 },
-      { "separator",		1, 0, 0 },
+      { "safe-in-name",		1, 0, 0 },
+      { "safe-out-name",		1, 0, 0 },
       { "subdir",		1, 0, 0 },
       { "show-path",		1, 0, 0 },
       { "var-value",		1, 0, 0 },
@@ -416,7 +410,6 @@ read_command_line (kpathsea kpse, int argc,  string *argv)
 
     } else if (ARGUMENT_IS ("help")) {
       int f; /* kpse_file_format_type */
-      extern KPSEDLL char *kpathsea_bug_address; /* from version.c */
       
       printf ("Usage: %s [OPTION]... [FILENAME]...\n", argv[0]);
       fputs (USAGE, stdout);
@@ -445,23 +438,30 @@ read_command_line (kpathsea kpse, int argc,  string *argv)
         }
         putchar ('\n');
       }
-
       exit (0);
 
     } else if (ARGUMENT_IS ("mktex")) {
       kpathsea_maketex_option (kpse, optarg, true);
+      must_exist = 1;  /* otherwise it never gets called */
 
     } else if (ARGUMENT_IS ("mode")) {
       mode = optarg;
 
     } else if (ARGUMENT_IS ("no-mktex")) {
       kpathsea_maketex_option (kpse, optarg, false);
+      must_exist = 0;
 
     } else if (ARGUMENT_IS ("path")) {
       user_path = optarg;
 
     } else if (ARGUMENT_IS ("progname")) {
       progname = optarg;
+
+    } else if (ARGUMENT_IS ("safe-in-name")) {
+      safe_in_name = optarg;
+
+    } else if (ARGUMENT_IS ("safe-out-name")) {
+      safe_out_name = optarg;
 
     } else if (ARGUMENT_IS ("show-path")) {
       path_to_show = optarg;
@@ -474,7 +474,6 @@ read_command_line (kpathsea kpse, int argc,  string *argv)
       var_to_value = optarg;
 
     } else if (ARGUMENT_IS ("version")) {
-      extern KPSEDLL char *kpathsea_version_string; /* from version.c */
       puts (kpathsea_version_string);
       puts ("Copyright 2009 Karl Berry & Olaf Weber.\n\
 License LGPLv2.1+: GNU Lesser GPL version 2.1 or later <http://gnu.org/licenses/lgpl.html>\n\
@@ -493,41 +492,71 @@ There is NO WARRANTY, to the extent permitted by law.\n");
     exit (1);
   }
 
-  if (optind == argc && !var_to_expand && !braces_to_expand && !path_to_expand
-                     && !path_to_show && !var_to_value) {
+  if (optind == argc
+      && !var_to_expand && !braces_to_expand && !path_to_expand
+      && !path_to_show && !var_to_value
+      && !safe_in_name && !safe_out_name) {
     fputs ("Missing argument. Try `kpsewhich --help' for more information.\n",
            stderr);
     exit (1);
   }
 }
+
+
+
+/* Initializations that may depend on the options.  */
+
+static void
+init_more (kpathsea kpse)
+{
+  if (engine)
+    kpathsea_xputenv (kpse, "engine", engine);
+  
+  /* Disable all mktex programs unless they were explicitly enabled on our
+     command line.  */
+#define DISABLE_MKTEX(fmt) \
+kpathsea_set_program_enabled (kpse, fmt, false, kpse_src_cmdline - 1)
+  DISABLE_MKTEX (kpse_pk_format);
+  DISABLE_MKTEX (kpse_mf_format);
+  DISABLE_MKTEX (kpse_tex_format);
+  DISABLE_MKTEX (kpse_tfm_format);
+  DISABLE_MKTEX (kpse_fmt_format);
+  DISABLE_MKTEX (kpse_ofm_format);
+  DISABLE_MKTEX (kpse_ocp_format);
+
+  /* NULL for no fallback font.  */
+  kpathsea_init_prog (kpse, uppercasify (kpse->program_name), dpi, mode, NULL);
+  
+  /* Have to do this after setting the program name.  */
+  if (user_format_string) {  
+    user_format = find_format (kpse, user_format_string, false);
+    if (user_format == kpse_last_format) {
+      WARNING1 ("kpsewhich: Ignoring unknown file type `%s'",
+                user_format_string);
+    }
+  }
+}
+
+
 
 int
 main (int argc,  string *argv)
 {
   unsigned unfound = 0;
   kpathsea kpse = kpathsea_new();
+  
+  /* Read options, then dependent initializations.  */
   read_command_line (kpse, argc, argv);
 
   kpathsea_set_program_name (kpse, argv[0], progname);
+  init_more (kpse);
+  
 
-  if (engine)
-      kpathsea_xputenv (kpse, "engine", engine);
-  
-  /* NULL for no fallback font.  */
-  kpathsea_init_prog (kpse, uppercasify (kpse->program_name), dpi, mode, NULL);
-  
-  /* Have to do this after setting the program name.  */
-  if (user_format_string) {  
-      user_format = find_format (kpse, user_format_string, false);
-    if (user_format == kpse_last_format) {
-      WARNING1 ("kpsewhich: Ignoring unknown file type `%s'",
-                user_format_string);
-    }
-  }
+  /* Perform actions.  */
   
   /* Variable expansion.  */
   if (var_to_expand)
-      puts (kpathsea_var_expand (kpse, var_to_expand));
+    puts (kpathsea_var_expand (kpse, var_to_expand));
 
   /* Brace expansion. */
   if (braces_to_expand)
@@ -553,9 +582,19 @@ main (int argc,  string *argv)
     const_string value = kpathsea_var_value (kpse, var_to_value);
     if (!value) {
       unfound++;
-      value="";
+      value = "";
     }
     puts (value);
+  }
+  
+  if (safe_in_name) {
+    if (!kpathsea_in_name_ok_silent (kpse, safe_in_name))
+      unfound++;
+  }
+  
+  if (safe_out_name) {
+    if (!kpathsea_out_name_ok_silent (kpse, safe_out_name))
+      unfound++;
   }
   
   /* --subdir must imply --all, since we filter here after doing the
@@ -564,18 +603,21 @@ main (int argc,  string *argv)
     show_all = 1;
   }
   
+  /* Usual case: look up each given filename.  */
   for (; optind < argc; optind++) {
-      unfound += lookup (kpse, argv[optind]);
+    unfound += lookup (kpse, argv[optind]);
   }
 
   if (interactive) {
     for (;;) {
       string name = read_line (stdin);
-      if (!name || STREQ (name, "q") || STREQ (name, "quit")) break;
+      if (!name || STREQ (name, "q") || STREQ (name, "quit"))
+        break;
       unfound += lookup (kpse, name);
       free (name);
     }
   }
-  kpathsea_finish(kpse);
+
+  kpathsea_finish (kpse);
   return unfound > 255 ? 1 : unfound;
 }

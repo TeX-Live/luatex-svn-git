@@ -1,5 +1,5 @@
 # Private macros for the TeX Live (TL) tree.
-# Copyright (C) 2009 Peter Breitenlohner <tex-live@tug.org>
+# Copyright (C) 2009, 2010 Peter Breitenlohner <tex-live@tug.org>
 #
 # This file is free software; the copyright holder
 # gives unlimited permission to copy and/or distribute it,
@@ -20,9 +20,9 @@ m4_define([KPSE_WITH_MKTEX],
                AS_HELP_STRING([--]m4_if($2, [yes], [dis], [en])[able-$1-default],
                               m4_if($2, [yes],
                                     [do not ])[run $1 if $3 missing],
-                              kpse_indent_26+2))[]dnl
+                              m4_eval(kpse_indent_26+2)))[]dnl
 AS_CASE([$enable_$1_default], [yes|no], ,
-                            [enable_$1_default=$2])[]dnl
+                            [enable_$1_default=$2])
 ]) # KPSE_WITH_MKTEX
 
 # KPSE_MKTEX_DEFINE(PROG, YES-OR-NO, TEXT, STEM)
@@ -33,7 +33,7 @@ m4_define([KPSE_MKTEX_DEFINE],
        [AC_DEFINE([MAKE_$4_BY_DEFAULT], 1,
                   [Define to 1 if you want to run $1 if $3 is missing,
                    and to 0 if you don't])],
-       [AC_DEFINE([MAKE_$4_BY_DEFAULT], 0)])[]dnl
+       [AC_DEFINE([MAKE_$4_BY_DEFAULT], 0)])
 ]) # KPSE_MKTEX_DEFINE
 
 # KPSE_WITH_XTEX(PROG, BUILD-OR-NO, SYNC-OR-NO, TEXT, REQUIRED-LIBS)
@@ -44,9 +44,9 @@ m4_define([KPSE_WITH_XTEX],
                AS_HELP_STRING([--]m4_if($2, [yes], [dis], [en])[able-$1],
                               m4_if($2, [yes],
                                     [do not ])[compile and install $4],
-                              kpse_indent_26+2))[]dnl
+                              kpse_indent_26))[]dnl
 AS_CASE([$enable_$1], [yes|no], ,
-                    [enable_$1=$2])[]dnl
+                    [enable_$1=$2])
 m4_ifval([$5], [
 test "x$enable_web2c:$enable_$1" = xyes:yes && {
 AC_FOREACH([Kpse_Lib], [$5], [  need_[]AS_TR_SH(Kpse_Lib)=yes
@@ -69,7 +69,7 @@ m4_define([KPSE_WITH_MFWIN],
 [AC_ARG_ENABLE([$1win],
                AS_HELP_STRING([--enable-$1win],
                               [include $3 window support],
-                              kpse_indent_26+2))[]dnl
+                              m4_eval(kpse_indent_26+2)))[]dnl
 ]) # KPSE_WITH_MFWIN
 
 # KPSE_MFWIN_DEFINE(WINDOW, DEFINE, TEXT)
@@ -78,5 +78,5 @@ m4_define([KPSE_WITH_MFWIN],
 m4_define([KPSE_MFWIN_DEFINE],
 [AS_IF([test "x$enable_$1win" = xyes],
        [AC_DEFINE([$2WIN], ,
-                  [metafont: Define to include $3 window support.])])[]dnl
+                  [metafont: Define to include $3 window support.])])
 ]) # KPSE_MFWIN_DEFINE

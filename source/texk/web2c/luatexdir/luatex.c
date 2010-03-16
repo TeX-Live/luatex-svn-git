@@ -781,8 +781,8 @@ void get_seconds_and_micros(int *seconds, int *micros)
 #if defined (HAVE_GETTIMEOFDAY)
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    *seconds = tv.tv_sec;
-    *micros = tv.tv_usec;
+    *seconds = (int)tv.tv_sec;
+    *micros = (int)tv.tv_usec;
 #elif defined (HAVE_FTIME)
     struct timeb tb;
     ftime(&tb);
@@ -803,7 +803,7 @@ int getrandomseed()
 #if defined (HAVE_GETTIMEOFDAY)
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    return (tv.tv_usec + 1000000 * tv.tv_usec);
+    return (int)(tv.tv_usec + 1000000 * tv.tv_usec);
 #elif defined (HAVE_FTIME)
     struct timeb tb;
     ftime(&tb);
@@ -1065,30 +1065,6 @@ void do_undump(char *p, int item_size, int nitems, FILE * in_file)
 #if !defined (WORDS_BIGENDIAN) && !defined (NO_DUMP_SHARE)
     swap_items(p, nitems, item_size);
 #endif
-}
-
-/* Look up VAR_NAME in texmf.cnf; assign either the value found there or
-   DFLT to *VAR.  */
-
-void setupboundvariable(int *var, const_string var_name, int dflt)
-{
-    string expansion = kpse_var_value(var_name);
-    *var = dflt;
-
-    if (expansion) {
-        int conf_val = atoi(expansion);
-        /* It's ok if the cnf file specifies 0 for extra_mem_{top,bot}, etc.
-           But negative numbers are always wrong.  */
-        if (conf_val < 0 || (conf_val == 0 && dflt > 0)) {
-            fprintf(stderr,
-                    "%s: Bad value (%ld) in texmf.cnf for %s, keeping %ld.\n",
-                    program_invocation_name,
-                    (long) conf_val, var_name + 1, (long) dflt);
-        } else {
-            *var = conf_val;    /* We'll make further checks later.  */
-        }
-        free(expansion);
-    }
 }
 
 

@@ -1,7 +1,7 @@
 /* lib.h: declarations for common, low-level routines in kpathsea.
 
+   Copyright 1992, 1993, 1994, 1995, 1996, 2008, 2009 Karl Berry.
    Copyright 1999, 2000, 2003, 2005 Olaf Weber.
-   Copyright 1992, 1993, 1994, 1995, 1996, 2008 Karl Berry.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -100,13 +100,13 @@
 /* Support for FAT/ISO-9660 filesystems.  Theoretically this should be
    done at runtime, per filesystem, but that's painful to program.  */
 #ifdef MONOCASE_FILENAMES
-#define FILESTRCASEEQ(s1, s2) ((s1) && (s2) && (strcasecmp (s1, s2) == 0))
-#define FILESTRNCASEEQ(s1, s2, l) ((s1) && (s2) && (strncasecmp (s1, s2, l) == 0))
-#define FILECHARCASEEQ(c1, c2) (toupper (c1) == toupper (c2))
+#define FILESTRCASEEQ(s1,s2) ((s1) && (s2) && (strcasecmp (s1, s2) == 0))
+#define FILESTRNCASEEQ(s1,s2,l) ((s1) && (s2) && (strncasecmp (s1,s2,l) == 0))
+#define FILECHARCASEEQ(c1,c2) (toupper (c1) == toupper (c2))
 #else
 #define FILESTRCASEEQ STREQ
 #define FILESTRNCASEEQ STRNEQ
-#define FILECHARCASEEQ(c1, c2) ((c1) == (c2))
+#define FILECHARCASEEQ(c1,c2) ((c1) == (c2))
 #endif
 
 /* This is the maximum number of numerals that result when a 64-bit
@@ -173,8 +173,10 @@ extern KPSEDLL string extend_filename (const_string name,
                                             const_string suffix);
 
 /* Call putenv with the string `VAR=VALUE' and abort on error.  */
-extern KPSEDLL void kpathsea_xputenv (kpathsea kpse, const_string var, const_string value);
-extern KPSEDLL void kpathsea_xputenv_int (kpathsea kpse, const_string var, int value);
+extern KPSEDLL void kpathsea_xputenv (kpathsea kpse, const_string var,
+                                      const_string value); 
+extern KPSEDLL void kpathsea_xputenv_int (kpathsea kpse, const_string var,
+                                          int value); 
 #if defined (KPSE_COMPAT_API)
 extern KPSEDLL void xputenv (const_string var, const_string value);
 extern KPSEDLL void xputenv_int (const_string var, int value);
@@ -194,16 +196,17 @@ extern KPSEDLL boolean dir_p (const_string fn);
 #if defined (KPSE_COMPAT_API)
 extern KPSEDLL int dir_links (const_string fn, long nlinks);
 #endif
-extern KPSEDLL int kpathsea_dir_links (kpathsea kpse, const_string fn, long nlinks);
+extern KPSEDLL int kpathsea_dir_links (kpathsea kpse, const_string fn,
+                                       long nlinks); 
 
 /* Like their stdio counterparts, but abort on error, after calling
    perror(3) with FILENAME as its argument.  */
 extern KPSEDLL FILE *xfopen (const_string filename, const_string mode);
 extern KPSEDLL void xfclose (FILE *, const_string filename);
-extern KPSEDLL void xfseek (FILE *, long, int, string filename);
-extern KPSEDLL void xfseeko (FILE *, off_t, int, string filename);
-extern KPSEDLL unsigned long xftell (FILE *, string filename);
-extern KPSEDLL off_t xftello (FILE *, string filename);
+extern KPSEDLL void xfseek (FILE *, long, int, const_string filename);
+extern KPSEDLL void xfseeko (FILE *, off_t, int, const_string filename);
+extern KPSEDLL unsigned long xftell (FILE *, const_string filename);
+extern KPSEDLL off_t xftello (FILE *, const_string filename);
 
 /* These call the corresponding function in the standard library, and
    abort if those routines fail.  Also, `xrealloc' calls `xmalloc' if
@@ -213,8 +216,8 @@ extern KPSEDLL address xrealloc (address old_address, unsigned new_size);
 extern KPSEDLL address xcalloc (unsigned nelem, unsigned elsize);
 
 /* (Re)Allocate N items of type T using xmalloc/xrealloc.  */
-#define XTALLOC(n, t) ((t *) xmalloc ((unsigned)((n) * sizeof (t))))
+#define XTALLOC(n, t) ((t *) xmalloc ((n) * sizeof (t)))
 #define XTALLOC1(t) XTALLOC (1, t)
-#define XRETALLOC(addr, n, t) ((addr) = (t *) xrealloc (addr, (unsigned)((n) * sizeof(t))))
+#define XRETALLOC(addr, n, t) ((addr) = (t *) xrealloc (addr, (n) * sizeof(t)))
 
 #endif /* not KPATHSEA_LIB_H */

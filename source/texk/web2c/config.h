@@ -1,6 +1,6 @@
 /* config.h: All .c files include this first.
 
-Copyright (C) 1995, 1996, 2006, 2007 Karl Berry.
+Copyright 1995, 1996, 2006, 2007, 2009 Karl Berry.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/.  */
 
 /* The stuff from the path searching library.  */
 #include <kpathsea/config.h>
-#include <web2c/c-auto.h>
+#include <c-auto.h>
 #include <stdarg.h>
 
 /* How to open a binary file.  */
@@ -108,8 +108,15 @@ typedef off_t longinteger;
 extern long strtol (const char *, char **, int);
 #endif
 
+#if defined __GNUC__ && __GNUC__ >=3
+#define WEB2C_NORETURN __attribute__((__noreturn__))
+#else
+#define WEB2C_NORETURN
+#endif
+
 /* From uexit.c.  This is here because the lib/ and web2c/ routines
    themselves can use it, but they don't need cpascal.h.  */
+WEB2C_NORETURN
 extern void uexit (int status);
 
 /* usage.c */

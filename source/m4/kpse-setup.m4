@@ -1,5 +1,5 @@
 # Private macros for the TeX Live (TL) tree.
-# Copyright (C) 2009 Peter Breitenlohner <tex-live@tug.org>
+# Copyright (C) 2009, 2010 Peter Breitenlohner <tex-live@tug.org>
 #
 # This file is free software; the copyright holder
 # gives unlimited permission to copy and/or distribute it,
@@ -41,6 +41,13 @@ if test "x$enable_native_texlive_build" = xyes; then
           [enable_cxx_runtime_hack=yes
            ac_configure_args="$ac_configure_args '--enable-cxx-runtime-hack'"])
 fi
+AS_CASE([$enable_libtool_hack],
+        [yes | no], [:],
+        [AS_CASE([$host_os],
+                 [do-not-match],
+                   [enable_libtool_hack=no],
+                 [enable_libtool_hack=yes])
+         ac_configure_args="$ac_configure_args '--enable-libtool-hack=$enable_libtool_hack'"])
 AS_CASE([$enable_shared],
         [no], [:],
         [yes ], [AS_IF([test "x$enable_native_texlive_build" = xyes],
@@ -55,6 +62,7 @@ AS_CASE([$enable_texlive_build],
          ac_configure_args="$ac_configure_args '--enable-texlive-build'"])
 KPSE_OPTIONS
 KPSE_ENABLE_CXX_HACK
+KPSE_ENABLE_LT_HACK
 KPSE_LIBS_PREPARE
 KPSE_WEB2C_PREPARE
 AS_CASE([$with_x],
@@ -75,6 +83,7 @@ KPSE_FOR_PKGS([libs], [m4_sinclude(kpse_TL[libs/]Kpse_Pkg[/ac/withenable.ac])])
 # Define the list of libraries required from the TL tree (if any).
 # Options:
 #          disable - do not build by default
+#          native - impossible to cross compile
 AC_DEFUN([KPSE_ENABLE_PROG],
 [m4_pushdef([Kpse_enable], m4_if(m4_index([ $3 ], [ disable ]), [-1], [yes], [no]))[]dnl
 AC_ARG_ENABLE([$1],
@@ -82,12 +91,21 @@ AC_ARG_ENABLE([$1],
                               m4_if(Kpse_enable, [yes],
                                     [do not ])[build the $1 ]m4_ifval([$4],
                                                                       [($4) ])[package]))[]dnl
-case $enable_[]AS_TR_SH($1) in #(
-  yes|no);; #(
-  *) enable_[]AS_TR_SH($1)=m4_if(Kpse_enable, [yes], [$enable_all_pkgs], [no])
+AS_CASE([$enable_[]AS_TR_SH($1)],
+  m4_if(m4_index([ $3 ], [ native ]), [-1],
+        [[yes|no], []],
+        [[yes], [AS_IF([test "x$cross_compiling" = xyes],
+                       [AC_MSG_ERROR([Unable to cross compile $1])])],
+         [no], []]),
+  [m4_if(m4_index([ $3 ], [ native ]), [-1], ,
+         [if test "x$cross_compiling" = xyes; then
+            enable_[]AS_TR_SH($1)=no
+            AC_MSG_NOTICE([Cross compiling -> `--disable-$1'])
+          else])
+   enable_[]AS_TR_SH($1)=m4_if(Kpse_enable, [yes], [$enable_all_pkgs], [no])
      AC_MSG_NOTICE([Assuming `--enable-$1=$enable_]AS_TR_SH($1)['])
-     ac_configure_args="$ac_configure_args '--enable-$1=$enable_[]AS_TR_SH($1)'";;
-esac
+     ac_configure_args="$ac_configure_args '--enable-$1=$enable_[]AS_TR_SH($1)'"
+   m4_if(m4_index([ $3 ], [ native ]), [-1], , [fi])])
 m4_popdef([Kpse_enable])[]dnl
 m4_ifval([$2], [
 test "x$enable_[]AS_TR_SH($1)" = xno || {
@@ -153,29 +171,30 @@ AC_FOREACH([Kpse_Lib], [$2], [  need_[]AS_TR_SH(Kpse_Lib)=yes
 # Initialize the list of potential system libraries.
 m4_define([kpse_syslib_pkgs], [])
 
-# KPSE_CHECK_LIB(LIB, REQUIRED-FUNCTION..., REQUIRED-HEADER...)
-# -------------------------------------------------------------
+# KPSE_TRY_LIB(LIB, PROLOGUE, BODY)
+# ---------------------------------
 # When the user requests to use an installed version of a required library,
 # check that the flags derived from --with-LIB-includes and --with-LIB-libdir
-# provide the required functions and headers.
-AC_DEFUN([KPSE_CHECK_LIB],
-[if test "x$need_[]AS_TR_SH($1):$with_system_[]AS_TR_SH($1)" = 'xyes:yes'; then
-  AC_MSG_NOTICE([checking requested system `$1' library...])
+# or determined otherwise provide the required functionality.
+AC_DEFUN([KPSE_TRY_LIB],
+[if test "x$need_[]AS_TR_SH($1):$with_system_[]AS_TR_SH($1)" = xyes:yes; then
+  AC_MSG_CHECKING([requested system `$1' library])
   CPPFLAGS="$AS_TR_CPP($1)_INCLUDES $CPPFLAGS"
   LIBS="$AS_TR_CPP($1)_LIBS $LIBS"
-  AC_CHECK_FUNCS([$2], , [syslib_status=no])
-  AC_CHECK_HEADERS([$3], , [syslib_status=no])
-  syslib_used=yes
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[$2]], [[$3]])],
+                 [syslib_used=yes kpse_res=ok],
+                 [syslib_status=no kpse_res=failed])
+  AC_MSG_RESULT([$kpse_res])
 fi
-]) # KPSE_CHECK_LIB
+]) # KPSE_TRY_LIB
 
-# KPSE_CHECK_LIBXX(LIB, REQUIRED-FUNCTION..., REQUIRED-HEADER...)
-# -------------------------------------------------------------
+# KPSE_TRY_LIBXX(LIB, PROLOGUE, BODY)
+# -----------------------------------
 # As above, but for C++.
-AC_DEFUN([KPSE_CHECK_LIBXX],
+AC_DEFUN([KPSE_TRY_LIBXX],
 [AC_REQUIRE([AC_PROG_CXX])[]dnl
 AC_LANG_PUSH([C++])[]dnl
-KPSE_CHECK_LIB($@)[]dnl
+KPSE_TRY_LIB($@)[]dnl
 AC_LANG_POP([C++])[]dnl
-]) # KPSE_CHECK_LIBXX
+]) # KPSE_TRY_LIBXX
 

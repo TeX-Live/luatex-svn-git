@@ -1,4 +1,4 @@
-$Id: README 13864 2009-06-21 23:28:40Z karl $
+$Id: README 16003 2009-11-13 14:43:15Z peter $
 Copyright 2006, 2007, 2008, 2009 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -24,6 +24,9 @@ afm2pl 0.7.03 - checked 28apr08
 
 bibtex8 - ?
 
+bibtexu - ?
+  http://omega.enstb.org/yannis/bibtexu/
+
 cjkutils - Werner Lemberg
   ctan
 
@@ -42,9 +45,9 @@ dvidvi - ?
 
 dviljk - maintained here, by Joachim Schrod
 
-dvipdfmx - checked 26may09
+dvipdfmx - checked 17jul09
   http://project.ktug.or.kr/dvipdfmx/snapshot/latest/
-  http://project.ktug.or.kr/dvipdfmx/snapshot/latest/dvipdfmx-20090522.tar.gz
+  http://project.ktug.or.kr/dvipdfmx/snapshot/latest/dvipdfmx-20090708.tar.gz
   dvipdfmx@project.ktug.or.kr (ChoF, Hirata, Matthias)
 
 dvipng - checked 12apr09
@@ -55,6 +58,9 @@ dvipng - checked 12apr09
 dvipos - ?
 
 dvipsk - maintained here by Tom Rokicki, Karl Berry, Akira Kakuto, ...
+
+dvisvgm - checked 13nov09
+  http://downloads.sourceforge.net/dvisvgm/dvisvgm-0.8.7.tar.gz
 
 gsftopk - from Paul Vojta's xdvi?
 

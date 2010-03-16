@@ -267,7 +267,9 @@ to input a format file in order to get started.
 	    get_lua_number("texconfig",B,&C);			\
 	    if (C==0) C=A;					\
 	} else {						\
-	    setupboundvariable(&C, B, A);			\
+	    integer x;						\
+	    setupboundvariable(&x, B, A);			\
+	    C = (int)x;						\
 	}							\
     } while (0)
 

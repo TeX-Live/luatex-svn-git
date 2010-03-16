@@ -1,6 +1,6 @@
 /* tex-make.h: declarations for executing external scripts.
 
-   Copyright 1993, 1994, 2008 Karl Berry.
+   Copyright 1993, 1994, 2008, 2010 Karl Berry.
    Copyright 1999, 2005 Olaf Weber.
 
    This library is free software; you can redistribute it and/or
@@ -28,12 +28,12 @@
    the file is passed through environment variables.  See the mktexpk
    stuff in `tex-make.c' for an example. */
 
-extern string kpathsea_make_tex (kpathsea kpse, 
+extern KPSEDLL string kpathsea_make_tex (kpathsea kpse, 
                                  kpse_file_format_type format,
                                  const_string base_file);
 
 #if defined (KPSE_COMPAT_API)
-extern string kpse_make_tex (kpse_file_format_type format,
+extern KPSEDLL string kpse_make_tex (kpse_file_format_type format,
                              const_string base_file);
 #endif
 

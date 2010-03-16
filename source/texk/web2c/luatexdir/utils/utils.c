@@ -18,6 +18,8 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+#include <kpathsea/config.h> /* this is a trick to load mingw32's io.h early,
+				using a macro redefinition of eof(). */
 #include "openbsd-compat.h"
 #ifdef HAVE_ASPRINTF            /* asprintf is not defined in openbsd-compat.h, but in stdio.h */
 #  include <stdio.h>

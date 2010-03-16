@@ -11,16 +11,17 @@ m4_define([zlib_minor], [2])[]dnl
 m4_define([zlib_micro], [3])[]dnl using unmodified zlib-1.2.3 source tree
 m4_define([zlib_version], zlib_major.zlib_minor.zlib_micro)[]dnl
 AC_INIT([zlib for TeX Live], zlib_version, [tex-k@tug.org])
-AC_PREREQ([2.63])
+AC_PREREQ([2.65])
 AC_CONFIG_SRCDIR([zlib-]zlib_version[/zconf.in.h])
 AC_CONFIG_AUX_DIR([../../build-aux])
 AC_CONFIG_MACRO_DIR([../../m4])
 
-AM_INIT_AUTOMAKE([foreign dist-bzip2])
+AM_INIT_AUTOMAKE([foreign])
 AM_MAINTAINER_MODE
 
 AC_PROG_CC
 AC_PROG_RANLIB
+AC_PROG_LN_S
 
 AC_CONFIG_HEADERS([config.h])[]dnl unused, to avoid zillions of -D' on command line
 
@@ -61,9 +62,6 @@ if test -f $srcdir/$ZLIB_TREE/zconf.h; then
   AC_MSG_ERROR([Sorry, you must remove the file $ZLIB_TREE/zconf.h])
 fi
 
-dnl Use $ZLIB_TREE to exclude $ZLIB_TREE/zlib.h from DIST_COMMON
-AC_CONFIG_LINKS([zlib.h:$ZLIB_TREE/zlib.h])
-
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile include/Makefile])
 
 AC_OUTPUT

@@ -985,8 +985,7 @@ argument. The file name is not tested for existence. Finally, for
 non-WIN32 platforms only, there is the new function
 \type{lfs.readlink()} (added in 0.51) that takes an existing symbolic
 link as argument and returns its content. It returns an error on
-WIN32. \type{lfs.realpath()} (added in 0.52) return the canonical 
-representation of a path specifier (win32 only, for now).
+WIN32. 
 
 The \lua{string} library has an extra function:
 \luatex{string.explode(s[,m])}. This function returns an array containing
@@ -1121,11 +1120,18 @@ system. These possible values are not yet fixed, and for \type{os.type} values
 \type{windows} and \type{msdos}
 
 The list for the type \type{unix} is more precise: \type{linux},
-\type{freebsd}, \type{openbsd}, \type{solaris}, \type{sunos} (pre-solaris),
+\type{freebsd}, \type{kfreebsd} (since 0.51), \type{openbsd}, \type{solaris}, \type{sunos} (pre-solaris),
 \type{hpux}, \type{irix}, \type{macosx}, \type{gnu} (hurd), \type{bsd} (unknown, but \BSD|-|like),
 \type{sysv} (unknown, but \SYSV|-|like), \type{generic} (unknown).
 
 (\type{os.version} is planned as a future extension)
+
+\item \luatex{os.uname()}
+This function returns a table with specific operating system
+information acquired at runtime. The keys in the returned table are
+all string valued, and their names are: \type{sysname}, \type{machine},
+\type{release}, \type{version}, and \type{nodename}.
+
 
 \stopitemize
 
@@ -4310,9 +4316,11 @@ copied.
 
 \startfunctioncall
 <node> m = node.copy_list(<node> n)
+<node> m = node.copy_list(<node> n, <node> m)
 \stopfunctioncall
 
-Creates a deep copy of the node list that starts at \type{n}.
+Creates a deep copy of the node list that starts at \type{n}. If
+\type{m} is also given, the copy stops just before node \type{m}.
 
 \subsubsection{\luatex{node.hpack}}
 

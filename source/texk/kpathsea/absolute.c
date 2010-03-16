@@ -1,6 +1,6 @@
 /* absolute.c: test if a filename is absolute or explicitly relative.
 
-   Copyright 1993, 1994, 1995, 2008 Karl Berry.
+   Copyright 1993, 1994, 1995, 2008, 2009, 2010 Karl Berry.
    Copyright 1997, 2002, 2005 Olaf Weber.
 
    This library is free software; you can redistribute it and/or
@@ -25,11 +25,11 @@
    to usefully generalize.  */
 
 boolean
-kpathsea_absolute_p (kpathsea kpse, const_string filename,  boolean relative_ok)
+kpathsea_absolute_p (kpathsea kpse, const_string filename, boolean relative_ok)
 {
-/*    (void)kpse; */ /* currenty not used */
 #ifdef VMS
 #include <string.h>
+  (void)kpse; /* currenty not used */
   return strcspn (filename, "]>:") != strlen (filename);
 #else /* not VMS */
   boolean absolute = IS_DIR_SEP (*filename)
@@ -53,6 +53,7 @@ kpathsea_absolute_p (kpathsea kpse, const_string filename,  boolean relative_ok)
       && (*filename == '.' && (IS_DIR_SEP (filename[1])
                          || (filename[1] == '.' && IS_DIR_SEP (filename[2]))));
 
+  (void)kpse; /* currenty not used */
   /* FIXME: On UNIX an IS_DIR_SEP of any but the last character in the name
      implies relative.  */
   return absolute || explicit_relative;
@@ -74,7 +75,8 @@ int main()
   char *t[] = { "./foo", "\\\\server\\foo\\bar", "ftp://localhost/foo" };
 
   for (name = t; name - t < sizeof(t)/sizeof(char*); name++) {
-    printf("Path `%s' %s absolute.\n", *name, (kpse_absolute_p(*name, true) ? "is" : "is not"));
+    printf ("Path `%s' %s absolute.\n", *name,
+            kpse_absolute_p(*name, true) ? "is" : "is not");
   }
 }
 #endif /* TEST */

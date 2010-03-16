@@ -1,21 +1,22 @@
 ## texk/web2c/luatexdir/am/luamisc.am: Makefile fragment for libluamisc
 ## (luafilesystem, luamd5, luapeg, luazip, luazlib, luaprofiler, and slnunicode)
 ##
-## Copyright (C) 2009 Peter Breitenlohner <tex-live@tug.org>
+## Copyright (C) 2009, 2010 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 
 ## libluamisc (luafilesystem, luamd5, luapeg, luazip, luazlib, luaprofiler,
 ## and slnunicode)
 EXTRA_LIBRARIES += libluamisc.a
 
-libluamisc_a_DEPENDENCIES = libluasocket.a
+libluamisc_a_DEPENDENCIES = $(ZZIPLIB_DEPEND) libluasocket.a
 
-$(libluamisc_a_OBJECTS): libluasocket.a
+$(libluamisc_a_OBJECTS): $(libluamisc_a_DEPENDENCIES)
 
 libluamisc_a_CPPFLAGS = \
 	$(ZLIB_INCLUDES) \
-	-I$(top_srcdir)/luatexdir/lua51 \
-	-I$(top_srcdir)/luatexdir/zziplib
+	$(ZZIPLIB_INCLUDES) \
+	-I$(top_srcdir)/luatexdir/lua51
+libluamisc_a_CFLAGS = # $(WARNING_CFLAGS)
 
 libluamisc_a_SOURCES = \
 	luatexdir/luafilesystem/src/lfs.c \

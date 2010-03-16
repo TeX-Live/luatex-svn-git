@@ -100,10 +100,6 @@ typedef void* voidpointer;
 /* Hacks for TeX that are better not to #ifdef, see texmfmp.c.  */
 extern int tfmtemp, texinputtype;
 
-/* TeX, MF and MetaPost use this.  */
-extern boolean openinnameok (const_string);
-extern boolean openoutnameok (const_string);
-
 /* pdfTeX uses these for pipe support */
 #if defined(pdfTeX)
 extern boolean open_in_or_pipe (FILE **, int, const_string fopen_mode);
@@ -112,10 +108,13 @@ extern void close_file_or_pipe (FILE *);
 #endif
 
 /* Executing shell commands.  */
-extern void mk_shellcmdlist (char *);
+extern void mk_shellcmdlist (const char *);
 extern void init_shell_escape (void);
-extern int shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname);
-extern int runsystem (char *cmd);
+extern int shell_cmd_is_allowed (const char *cmd, char **safecmd, char **cmdname);
+extern int runsystem (const char *cmd);
+
+/* The entry point.  */
+extern void TEXDLL maininit (int ac, string *av);
 
 /* All but the Omega family use this. */
 #if !defined(Aleph)
@@ -123,6 +122,8 @@ extern void readtcxfile (void);
 extern string translate_filename;
 #define translatefilename translate_filename
 #endif
+
+extern string normalize_quotes (const_string name, const_string mesg);
 
 #ifdef TeX
 /* The type `glueratio' should be a floating point type which won't
@@ -199,9 +200,6 @@ extern void topenin (void);
 /* Therefore the department of ugly hacks decided to move this declaration
    to the *coerce.h files. */
 /* extern void calledit (); */
-
-/* Set an array size from texmf.cnf.  */
-extern void setupboundvariable (integer *, const_string, integer);
 
 /* These defines reroute the file i/o calls to the new pipe-enabled 
    functions in texmfmp.c*/
@@ -352,6 +350,12 @@ extern void do_undump (char *, int, int, FILE *);
 #define	undumpint generic_undump
 #endif
 
+/* Handle SyncTeX, if requested */
+#if defined(TeX) || defined(eTeX) || defined(pdfTeX) || defined(XeTeX)
+# if defined(__SyncTeX__)
+#  include "synctexdir/synctex-common.h"
+# endif
+#endif
 
 #else  /* this is for luaTeX */
 
@@ -375,20 +379,26 @@ extern void do_undump (char *, int, int, FILE *);
 /* Hacks for TeX that are better not to #ifdef, see texmfmp.c.  */
 extern int tfmtemp, texinputtype;
 
-/* TeX, MF and MetaPost use this.  */
-extern boolean openinnameok (const_string);
-extern boolean openoutnameok (const_string);
-
 /* pdfTeX uses these for pipe support */
 extern boolean open_in_or_pipe (FILE **, int, const_string fopen_mode);
 extern boolean open_out_or_pipe (FILE **, const_string fopen_mode);
 extern void close_file_or_pipe (FILE *);
 
 /* Executing shell commands.  */
-extern void mk_shellcmdlist (char *);
+extern void mk_shellcmdlist (const char *);
 extern void init_shell_escape (void);
-extern int shell_cmd_is_allowed (char **cmd, char **safecmd, char **cmdname);
-extern int runsystem (char *cmd);
+extern int shell_cmd_is_allowed (const char *cmd, char **safecmd, char **cmdname);
+extern int runsystem (const char *cmd);
+
+extern const_string dump_name;
+extern const_string c_job_name;
+extern char *last_source_name;
+extern int last_lineno;
+
+/* The entry point.  */
+extern void TEXDLL maininit (int ac, string *av);
+
+extern string normalize_quotes (const_string name, const_string mesg);
 
 #ifndef GLUERATIO_TYPE
 #define GLUERATIO_TYPE double
@@ -467,6 +477,11 @@ extern void setupboundvariable (integer *, const_string, integer);
 #endif
 
 #define b_close close_file
+/* (Un)dumping.  These are called from the change file.  */
+#define        dump_things(base, len) \
+  do_zdump ((char *) &(base), sizeof (base), (int) (len), DUMP_FILE)
+#define        undump_things(base, len) \
+  do_zundump ((char *) &(base), sizeof (base), (int) (len), DUMP_FILE)
 /* We define the routines to do the actual work in texmf.c.  */
 #define w_open_in(f)     zopen_w_input (&(f), DUMP_FORMAT, FOPEN_RBIN_MODE)
 #define w_open_out(f)    zopen_w_output (&(f), FOPEN_WBIN_MODE)
@@ -474,6 +489,83 @@ extern void setupboundvariable (integer *, const_string, integer);
 
 extern boolean zopen_w_input (FILE **, int, const_string fopen_mode);
 extern boolean zopen_w_output (FILE **, const_string fopen_mode);
+extern void do_zdump (char *, int, int, FILE *);
+extern void do_zundump (char *, int, int, FILE *);
 extern void zwclose (FILE *);
+
+/* Like do_undump, but check each value against LOW and HIGH.  The
+   slowdown isn't significant, and this improves the chances of
+   detecting incompatible format files.  In fact, Knuth himself noted
+   this problem with Web2c some years ago, so it seems worth fixing.  We
+   can't make this a subroutine because then we lose the type of BASE.  */
+#define undump_checked_things(low, high, base, len)						\
+  do {                                                                  \
+    unsigned i;                                                         \
+    undump_things (base, len);                                           \
+    for (i = 0; i < (len); i++) {                                       \
+      if ((&(base))[i] < (low) || (&(base))[i] > (high)) {              \
+        FATAL5 ("Item %u (=%ld) of .fmt array at %lx <%ld or >%ld",     \
+                i, (unsigned long) (&(base))[i], (unsigned long) &(base),     \
+                (unsigned long) low, (integer) high);                         \
+      }                                                                 \
+    }																	\
+  } while (0)
+
+/* Like undump_checked_things, but only check the upper value. We use
+   this when the base type is unsigned, and thus all the values will be
+   greater than zero by definition.  */
+#define undump_upper_check_things(high, base, len)							\
+  do {                                                                  \
+    unsigned i;                                                         \
+    undump_things (base, len);                                           \
+    for (i = 0; i < (len); i++) {                                       \
+      if ((&(base))[i] > (high)) {										\
+        FATAL4 ("Item %u (=%ld) of .fmt array at %lx >%ld",				\
+                i, (unsigned long) (&(base))[i], (unsigned long) &(base),		\
+                (unsigned long) high);										\
+      }                                                                 \
+    }																	\
+  } while (0)
+
+/* We define the routines to do the actual work in texmf.c.  */
+extern void do_dump (char *, int, int, FILE *);
+extern void do_undump (char *, int, int, FILE *);
+
+/* Use the above for all the other dumping and undumping.  */
+#define generic_dump(x) dump_things (x, 1)
+#define generic_undump(x) undump_things (x, 1)
+
+#define dump_wd   generic_dump
+#define dump_hh   generic_dump
+#define dump_qqqq generic_dump
+#define undump_wd   generic_undump
+#define undump_hh   generic_undump
+#define	undump_qqqq generic_undump
+
+/* `dump_int' is called with constant integers, so we put them into a
+   variable first.  */
+#define	dump_int(x)							\
+  do									\
+    {									\
+      integer x_val = (x);						\
+      generic_dump (x_val);						\
+    }									\
+  while (0)
+
+/* web2c/regfix puts variables in the format file loading into
+   registers.  Some compilers aren't willing to take addresses of such
+   variables.  So we must kludge.  */
+#if defined(REGFIX) || defined(WIN32)
+#define undump_int(x)							\
+  do									\
+    {									\
+      integer x_val;							\
+      generic_undump (x_val);						\
+      x = x_val;							\
+    }									\
+  while (0)
+#else
+#define	undump_int generic_undump
+#endif /* not (REGFIX || WIN32) */
 
 #endif /* luaTeX */

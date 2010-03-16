@@ -4,9 +4,6 @@
 #include "config.h"
 #include <kpathsea/c-pathmx.h>
 
-int argc;
-char **gargv;
-
 char buf[BUFSIZ], filename[PATH_MAX], args[100];
 char *file, *argp, *as, *cmd;
 
@@ -189,7 +186,7 @@ main (int argc,  string *argv)
 {
   register char *cp;
   int blanks_done, indent, i;
-  char *program_name = "";
+  const char *program_name = "";
 
   for (i = 1; i < argc; i++)
     {
@@ -361,7 +358,7 @@ main (int argc,  string *argv)
                   && (STREQ (program_name, "vptovf")
                       || STREQ (program_name, "pltotf")
                       || STREQ (program_name, "ovp2ovf")
-                      || STREQ (program_name, "ofm2opl")))
+                      || STREQ (program_name, "opl2ofm")))
               || (((strncmp (cp, "buf", 3) == 0
 		    || strncmp (cp, "xdig", 4) == 0
 		    || strncmp (cp, "xext", 4) == 0
@@ -440,7 +437,7 @@ main (int argc,  string *argv)
 	  *as = '\0';
 	  printf ("putc (%s, %s);\n", argp, filename);
 	}
-      else if (STREQ (args, "%s"))
+      else if (strcmp (args, "%s") == 0)
         printf ("Fputs (%s, %s\n", filename, argp);
       else
         printf ("fprintf (%s, \"%s\", %s\n", filename, args, argp);

@@ -142,7 +142,7 @@ extern int luastate_bytes;
 extern int callback_count;
 extern int saved_callback_count;
 
-extern char *ptexbanner;
+extern const char *ptexbanner;
 
 /* luastuff.h */
 

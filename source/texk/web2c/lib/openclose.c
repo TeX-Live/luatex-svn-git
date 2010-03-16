@@ -72,28 +72,28 @@ recorder_change_filename (string new_name)
 
 /* helper for recorder_record_* */
 static void
-recorder_record_name (string prefix, const_string nameoffile)
+recorder_record_name (const_string prefix, const_string name)
 {
     if (recorder_enabled) {
         if (!recorder_file)
             recorder_start();
-        fprintf(recorder_file, "%s %s\n", prefix, nameoffile);
+        fprintf(recorder_file, "%s %s\n", prefix, name);
         fflush(recorder_file);
     }
 }
 
-/* record an input file */
+/* record an input file name */
 void
-recorder_record_input (const_string nameoffile)
+recorder_record_input (const_string name)
 {
-    recorder_record_name ("INPUT", nameoffile);
+    recorder_record_name ("INPUT", name);
 }
 
-/* record an output file */
+/* record an output file name */
 void
-recorder_record_output (const_string nameoffile)
+recorder_record_output (const_string name)
 {
-    recorder_record_name ("OUTPUT", nameoffile);
+    recorder_record_name ("OUTPUT", name);
 }
 
 /* Open an input file F, using the kpathsea format FILEFMT and passing
@@ -121,24 +121,21 @@ open_input (FILE **f_ptr, int filefmt, const_string fopen_mode)
         free(fullnameoffile);
     fullnameoffile = NULL;
     
-    /* Handle -output-directory.
-       FIXME: We assume that it is OK to look here first.  Possibly it
-       would be better to replace lookups in "." with lookups in the
-       output_directory followed by "." but to do this requires much more
-       invasive surgery in libkpathsea.  */
-    /* FIXME: This code assumes that the filename of the input file is
-       not an absolute filename. */
-    if (output_directory) {
-        fname = concat3(output_directory, DIR_SEP_STRING, nameoffile + 1);
-        *f_ptr = fopen(fname, fopen_mode);
+    /* Look in -output-directory first, if the filename is not
+       absolute.  This is because .aux and other such files will get
+       written to the output directory, and we have to be able to read
+       them from there.  We only look for the name as-is.  */
+    if (output_directory && kpse_absolute_p (nameoffile+1, false)) {
+        fname = concat3 (output_directory, DIR_SEP_STRING, nameoffile + 1);
+        *f_ptr = fopen (fname, fopen_mode);
         if (*f_ptr) {
-            free(nameoffile);
+            free (nameoffile);
             namelength = strlen (fname);
-            nameoffile = (string)xmalloc (namelength + 2);
+            nameoffile = (string) xmalloc (namelength + 2);
             strcpy (nameoffile + 1, fname);
             fullnameoffile = fname;
         } else {
-            free(fname);
+            free (fname);
         }
     }
 
@@ -241,7 +238,9 @@ open_output (FILE **f_ptr, const_string fopen_mode)
         string texmfoutput = kpse_var_value("TEXMFOUTPUT");
 
         if (texmfoutput && *texmfoutput && !absolute) {
-            string fname = concat3(texmfoutput, DIR_SEP_STRING, nameoffile+1);
+            if (fname != nameoffile + 1)
+                free(fname);
+            fname = concat3(texmfoutput, DIR_SEP_STRING, nameoffile+1);
             *f_ptr = fopen(fname, fopen_mode);
         }
     }

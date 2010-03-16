@@ -1,6 +1,6 @@
 /* mingw32.c: bits and pieces for mingw32
 
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>.
+   Copyright 2009, 2010 Taco Hoekwater <taco@luatex.org>.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -42,7 +42,8 @@ typedef HRESULT (WINAPI * pSHGetSpecialFolderPathA)(HWND, LPSTR, int, BOOL);
 extern int __cdecl _set_osfhnd (int fd, long h);
 extern int __cdecl _free_osfhnd (int fd);
 
-int _parse_root (char * name, char ** pPath);
+static char *get_home_directory (void);
+static int _parse_root (char * name, char ** pPath);
 
 void
 init_user_info (void)
@@ -73,14 +74,8 @@ init_user_info (void)
   }
 }
 
-/* This function could go away */
-void 
-set_home_warning (void) 
-{
-}
-
 /* Returns the home directory, in external format */
-char *
+static char *
 get_home_directory (void)
 {
     char *found_home_directory = NULL;
@@ -163,7 +158,7 @@ get_home_directory (void)
    drive specifier or double path separator.
 */
 
-int
+static int
 normalize_filename (char *fp, char path_sep)
 {
   char *p;
@@ -218,7 +213,7 @@ dostounix_filename (char *p)
 }
 
 /* Destructively turn slashes into backslashes.  */
-void
+static void
 unixtodos_filename (char *p)
 {
   normalize_filename (p, '\\');
@@ -227,7 +222,8 @@ unixtodos_filename (char *p)
 /* Remove all CR's that are followed by a LF.
    (From msdos.c...probably should figure out a way to share it,
    although this code isn't going to ever change.)  */
-int
+#if 0 /* unused */
+static int
 crlf_to_lf (int n, unsigned char *buf, unsigned *lf_count)
 {
   unsigned char *np = buf;
@@ -256,10 +252,11 @@ crlf_to_lf (int n, unsigned char *buf, unsigned *lf_count)
     }
   return np - startp;
 }
+#endif
 
 /* Parse the root part of file name, if present.  Return length and
     optionally store pointer to char after root.  */
-int
+static int
 _parse_root (char * name, char ** pPath)
 {
   char * start = name;
@@ -389,8 +386,8 @@ win32_get_long_filename (char * name, char * buf, int size)
   This does make sense only under WIN32.
   Functions:
     - look_for_cmd() : locates an executable file
-    - parse_cmd_line() : splits a command with pipes and redirections
-    - build_cmd_line() : builds a command with pipes and redirections (useful ?)
+    - parse_cmdline() : splits a command with pipes and redirections
+    - build_cmdline() : builds a command with pipes and redirections (useful ?)
   */
 
 /*
@@ -403,16 +400,16 @@ BOOL
 look_for_cmd(const char *cmd, char **app)
 {
   char *env_path;
-  char *p, *q;
+  const char *p, *q;
   char pname[MAXPATHLEN], *fp;
-  char *suffixes[] = { ".bat", ".cmd", ".com", ".exe", NULL };
-  char **s;
-  char *app_name, *new_cmd;
+  const char *suffixes[] = { ".bat", ".cmd", ".com", ".exe", NULL };
+  const char **s;
+  char *app_name;
 
   BOOL go_on;
 
   *app = NULL;
-  new_cmd = app_name = NULL;
+  app_name = NULL;
 
   /* We should look for the application name along the PATH,
      and decide to prepend "%COMSPEC% /c " or not to the command line.
@@ -424,7 +421,7 @@ look_for_cmd(const char *cmd, char **app)
   */
 
   /* Look for the application name */
-  for (p = (char *)cmd; *p && isspace(*p); p++);
+  for (p = cmd; *p && isspace(*p); p++);
   if (*p == '"') {
     q = ++p;
     while(*p && *p != '"') p++;
@@ -466,7 +463,6 @@ look_for_cmd(const char *cmd, char **app)
 #ifdef TRACE
       fprintf(stderr, "%s found with suffix %s\nin %s\n", app_name, *s, pname);
 #endif
-      new_cmd = xstrdup(cmd);
       free(app_name);
       app_name = xstrdup(pname);
       break;
@@ -478,11 +474,8 @@ look_for_cmd(const char *cmd, char **app)
 #ifdef TRACE
     fprintf(stderr, "%s not found, concatenating comspec\n", app_name);
 #endif
-    new_cmd = concatn(getenv("COMSPEC"), " /c ", cmd, NULL);
     free(app_name);
     app_name = NULL;
-  }
-  else {
   }
   if (env_path) free(env_path);
 
@@ -641,7 +634,8 @@ get_sym (char *s, char **beg, char **end)
   What we allow :
   [cmd] [arg1] ... [argn] < [redinput] | [cmd2] | ... | [cmdn] > [redoutput]
 */
-void *parse_cmdline(char *line, char **input, char **output)
+static void *
+parse_cmdline(char *line, char **input, char **output)
 {
   BOOL again, needcmd = TRUE, bSuccess = TRUE, append_out = FALSE;
   char *beg = line, *end, *new_end;
@@ -813,7 +807,7 @@ quote_elt(char *elt)
   return xstrdup(elt);
 }
 
-/* static (commented out for mingw; SK) */ char *
+char *
 quote_args(char **argv)
 {
   int i;
@@ -835,7 +829,7 @@ quote_args(char **argv)
   return line;
 }
 
-char *
+static char *
 build_cmdline(char ***cmd, char *input, char *output)
 {
   int ncmd;
@@ -870,7 +864,8 @@ build_cmdline(char ***cmd, char *input, char *output)
   under Win9x. This is a workaround for this bug.
 */
 
-int win32_system(const char *cmd, int async)
+int
+win32_system(const char *cmd, int async)
 {
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
@@ -896,13 +891,7 @@ int win32_system(const char *cmd, int async)
     return 1;
   }
 
-#if 0
-  if (look_for_cmd(cmd, &app_name, &new_cmd) == FALSE) {
-#else
-  new_cmd = xstrdup(cmd);
   if (look_for_cmd(cmd, &app_name) == FALSE) {
-    if (new_cmd) free(new_cmd);
-#endif
     /* Failed to find the command or malformed cmd */
     errno = ENOEXEC;
 #ifdef _TRACE
@@ -911,6 +900,7 @@ int win32_system(const char *cmd, int async)
     return -1;
   }
 
+  new_cmd = xstrdup(cmd);
   cmd_pipe = parse_cmdline(new_cmd, &red_input, &red_output);
 
   for (i = 0; cmd_pipe[i]; i++) {

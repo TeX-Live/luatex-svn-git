@@ -1,6 +1,6 @@
 /* Declarations for getopt.
 
-   Copyright 2008 Karl Berry.
+   Copyright 2008, 2010 Karl Berry.
    Copyright 1989,90,91,92,93,94,96,97,2000,05 Free Software Foundation, Inc.
 
    The original version of this file was part of the GNU C Library.
@@ -24,11 +24,9 @@
 #ifndef _GETOPT_H
 #define _GETOPT_H 1
 
-#if defined(WIN32)
-#ifndef __STDC__
-#define __STDC__ 1
-#endif
-#endif
+#if defined (WIN32) && !defined(__MINGW32__)
+#define KPSE_DLL 1
+#endif /* WIN32 && ! __MINGW32__ */
 
 #if defined (KPSE_DLL) && (defined (WIN32) || defined (__CYGWIN__))
 #ifdef MAKE_KPSE_DLL
@@ -98,11 +96,7 @@ extern KPSEDLL int optopt;
 
 struct option
 {
-#if defined (__STDC__) && __STDC__
   const char *name;
-#else
-  char *name;
-#endif
   /* has_arg can't be an enum because some compilers complain about
      type mismatches in all the code that assumes it is an int.  */
   int has_arg;
@@ -133,17 +127,25 @@ extern KPSEDLL int getopt_long_only (int argc, char *const *argv,
 			     const char *shortopts,
 		             const struct option *longopts, int *longind);
 
+#ifdef MAKE_KPSE_DLL /* libkpathsea internal only */
+
 /* Internal only.  Users should not call this directly.  */
 extern int _getopt_internal (int argc, char *const *argv,
 			     const char *shortopts,
 		             const struct option *longopts, int *longind,
 			     int long_only);
+
+#endif /* MAKE_KPSE_DLL */
 #else /* not __STDC__ */
 extern KPSEDLL int getopt ();
 extern KPSEDLL int getopt_long ();
 extern KPSEDLL int getopt_long_only ();
 
+#ifdef MAKE_KPSE_DLL /* libkpathsea internal only */
+
 extern int _getopt_internal ();
+
+#endif /* MAKE_KPSE_DLL */
 #endif /* __STDC__ */
 
 #ifdef	__cplusplus

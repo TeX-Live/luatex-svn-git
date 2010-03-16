@@ -1,3 +1,44 @@
+2010-03-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* bibtex.man: Version 0.99d.
+
+2010-02-01  Karl Berry  <karl@tug.org>
+
+	* etex.man,
+	* aleph.man,
+	* bibtex.man,
+	* pdftex.man,
+	* tex.man: say a few more words about TEXMFOUTPUT.
+	* pdfetex.man: just refer to pdftex.man.
+
+	* Makefile.am (EXTRA_DIST): rm pdftexman.m4.
+
+2009-10-24  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (man1_links): New list of symlinks within man1dir.
+	Moved handling of lambda, ctangle, cweave, odvicopy, odvitype,
+	mf-nowin, and pdflatex symlinks from ../../tetex/ to here.
+	(install-data-hook, uninstall-hook): Use `man1_links'.
+
+	* ofm2opl.man, opl2ofm.man, ovf2ovp.man, ovp2ovf.man,
+	ttf2afm.man: New files moved from ../../tetex/ to here.
+	* Makefile.am (man_sources): Adjusted.
+
+2009-07-09  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: distribute luatex.man.
+	
+2009-07-09  Taco Hoekwater <taco@luatex.org>
+	
+	* luatex.man (new): man page for Luatex 0.40 by Khaled Hosny
+	<dr.khaled.hosny@gmail.com>
+	* Makefile.am: add luatex.man
+
+2009-06-26  Han The Thanh <hanthethanh@gmail.com>
+
+	* pdftex.man: bugfix from Török Edwin <edwintorok@gmail.com>
+
+
 2009-04-05  Karl Berry  <karl@tug.org>
 
 	* aleph.man: some minor content updates.
@@ -42,6 +83,7 @@
 	AUTHORS for eTeX contributions.
 
 2007-01-08  Martin SchrÃ¶der <martin@pdftex.org>
+
         * pdfetex.man, pdftex.man: Document -etex and -draftmode switches.
 
         * pdftosrc.man: New man page for pdftosrc

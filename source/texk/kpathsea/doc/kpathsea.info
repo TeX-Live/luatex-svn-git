@@ -1,6 +1,5 @@
-This is ../../../../source/texk/kpathsea/doc/kpathsea.info, produced by
-makeinfo version 4.13 from
-../../../../source/texk/kpathsea/doc/kpathsea.texi.
+This is ../../../../texk/kpathsea/doc/kpathsea.info, produced by
+makeinfo version 4.13 from ../../../../texk/kpathsea/doc/kpathsea.texi.
 
 This file documents the Kpathsea library for path searching.
 
@@ -40,7 +39,7 @@ Kpathsea library
 ****************
 
 This manual documents how to install and use the Kpathsea library for
-filename lookup.  It corresponds to version 5.0.0, released in
+filename lookup.  It corresponds to version 5.1.0, released in
 June 2009.
 
 * Menu:
@@ -61,7 +60,7 @@ File: kpathsea.info,  Node: Introduction,  Next: Installation,  Prev: Top,  Up: 
 1 Introduction
 **************
 
-This manual corresponds to version 5.0.0 of the Kpathsea library,
+This manual corresponds to version 5.1.0 of the Kpathsea library,
 released in June 2009.
 
    The library's fundamental purpose is to return a filename from a
@@ -455,7 +454,7 @@ before installation, or the installed `texmf.cnf', and remove the
 
    *Note TeX directory structure: TeX directory structure, for a
 description of the default arrangement of the input files that comprise
-the TeX system.  The file `kpathsea/HIER' is a copy of that section.
+the TeX system.
 
 
 File: kpathsea.info,  Node: Default path generation,  Prev: Default path features,  Up: Changing search paths
@@ -1875,7 +1874,7 @@ the Pascal arrays have a lower index other than 0, and the C code will
 take the pointer to the allocated memory, subtract the lower index, and
 use the resulting pointer for the array.  While this trick often works,
 ANSI C doesn't guarantee that it will.  It it known to fail on HP-UX 10
-mchines when the native compiler is used, unless the `+u' compiler
+machines when the native compiler is used, unless the `+u' compiler
 switch was specified.  Using GCC will work on this platform as well.
 
 
@@ -2740,12 +2739,12 @@ filename, and returns the first file found.
      After processing the command line, read additional filenames to
      look up from standard input.
 
-`-mktex=FILETYPE'
-`-no-mktex=FILETYPE'
-     Turn on or off the `mktex' script associated with FILETYPE.  The
-     only values that make sense for FILETYPE are `pk', `mf', `tex',
-     and `tfm'. By default, all are off in Kpsewhich.  *Note mktex
-     scripts::.
+`--mktex=FILETYPE'
+`--no-mktex=FILETYPE'
+     Turn on or off the `mktex' script associated with FILETYPE.  Usual
+     values for FILETYPE are `pk', `mf', `tex', and `tfm'.  By default,
+     all are off in Kpsewhich, even if they are enabled for TeX.  This
+     option implies setting `--must-exist'.  *Note mktex scripts::.
 
 `--mode=STRING'
      Set the mode name to STRING; this also only affects `gf' and `pk'
@@ -2754,8 +2753,8 @@ filename, and returns the first file found.
 
 `--must-exist'
      Do everything possible to find the files, notably including
-     searching the disk.  By default, only the `ls-R' database is
-     checked, in the interest of efficiency.
+     searching the disk and running the `mktex' scripts.  By default,
+     only the `ls-R' database is checked, in the interest of efficiency.
 
 `--path=STRING'
      Search along the path STRING (colon-separated as usual), instead
@@ -2770,6 +2769,13 @@ filename, and returns the first file found.
      Set the program name to NAME; default is `kpsewhich'.  This can
      affect the search paths via the `.PROGNAM' feature in
      configuration files (*note Config files::).
+
+`--safe-in-name=NAME'
+`--safe-out-name=NAME'
+     Exit successfully if NAME is safe to open for reading or writing,
+     respectively, else unsuccessfully.  No output is written.  These
+     tests take account of the related Kpathsea configuration settings
+     (*note Calling sequence::).
 
 `--subdir=STRING'
      Report only those matches whose directory part _ends_ with STRING
@@ -3596,7 +3602,32 @@ this:
      etc.).  In other words, if you are looking up a VF or some other
      file that need not exist, don't use this.
 
-  9. To close the kpathsea library instance you are using, call
+  9. TeX can write output files, via the `\openout' primitive; this
+     opens a security hole vulnerable to Trojan horse attack: an
+     unwitting user could run a TeX program that overwrites, say,
+     `~/.rhosts'.  Analogous security holes exist for many other
+     programs.  To alleviate this, there is a configuration variable
+     `openout_any', which selects one of three levels of security.
+     When it is set to `a' (for "any"), no restrictions are imposed.
+     When it is set to `r' (for "restricted"), filenames beginning with
+     `.' are disallowed (except `.tex' because LaTeX needs it).  When
+     it is set to `p' (for "paranoid") additional restrictions are
+     imposed: an absolute filename must refer to a file in (a
+     subdirectory) of `TEXMFOUTPUT', and any attempt to go up a
+     directory level is forbidden (that is, paths may not contain a
+     `..' component).  The paranoid setting is the default.  (For
+     backwards compatibility, `y' and `1' are synonyms of `a', while
+     `n' and `0' are synonyms for `r'.) The function
+     `kpathsea_out_name_ok', with a filename as second argument,
+     returns `true' if that filename is acceptable to be opend for
+     output or `false' otherwise.
+
+ 10. Similarly, the function `kpathsea_in_name_ok', with a filename as
+     second argument, returns `true' if that filename is acceptable to
+     be opend for input or `false' otherwise, depending on the value of
+     the configuration variable `openin_any' (with `a' as default).
+
+ 11. To close the kpathsea library instance you are using, call
      `kpathsea_finish'.  This function closes any open log files and
      frees the memory used by the instance.
 
@@ -3609,10 +3640,10 @@ calls, etc. (Perhaps someday I'll move the former to a separate
 library.)
 
    The `c-*.h' header files can also help your program adapt to many
-different systems.  You will almost certainly want to use Autoconf for
-configuring your software if you use Kpathsea; I strongly recommend
-using Autoconf regardless.  It is available from
-`ftp://prep.ai.mit.edu/pub/gnu/'.
+different systems.  You will almost certainly want to use Autoconf and
+probably Automake for configuring and building your software if you use
+Kpathsea; I strongly recommend using Autoconf and Automake regardless.
+They are available from `ftp://ftp.gnu.og/pub/gnu/'.
 
 
 File: kpathsea.info,  Node: Program-specific files,  Next: Programming with config files,  Prev: Calling sequence,  Up: Programming
@@ -3699,19 +3730,27 @@ Index
 * --help:                                Standard options.    (line   8)
 * --interactive:                         Path searching options.
                                                               (line 110)
+* --mktex=FILETYPE:                      Path searching options.
+                                                              (line 115)
 * --mode=STRING:                         Path searching options.
                                                               (line 121)
 * --must-exist:                          Path searching options.
                                                               (line 126)
+* --no-mktex=FILETYPE:                   Path searching options.
+                                                              (line 115)
 * --path=STRING:                         Path searching options.
                                                               (line 131)
 * --progname=NAME:                       Path searching options.
                                                               (line 140)
+* --safe-in-name=NAME:                   Path searching options.
+                                                              (line 146)
+* --safe-out-name=NAME:                  Path searching options.
+                                                              (line 146)
 * --show-path=NAME:                      Auxiliary tasks.     (line  41)
 * --srcdir, for building multiple architectures: configure scenarios.
                                                               (line  18)
 * --subdir=STRING:                       Path searching options.
-                                                              (line 145)
+                                                              (line 152)
 * --var-value=VARIABLE:                  Auxiliary tasks.     (line  12)
 * --version:                             Standard options.    (line  10)
 * --with options:                        configure options.   (line  16)
@@ -3731,10 +3770,6 @@ Index
 * -dynamic:                              ShellWidgetClass.    (line  43)
 * -g, compiling without:                 configure scenarios. (line  32)
 * -L option to ls:                       ls-R.                (line  38)
-* -mktex=FILETYPE:                       Path searching options.
-                                                              (line 115)
-* -no-mktex=FILETYPE:                    Path searching options.
-                                                              (line 115)
 * -O, compiling with:                    configure scenarios. (line  32)
 * -static:                               ShellWidgetClass.    (line  43)
 * . directories, ignored:                ls-R.                (line  33)
@@ -3876,7 +3911,7 @@ Index
                                                               (line   6)
 * argv[0]:                               Calling sequence.    (line  14)
 * ash, losing with configure:            configure shells.    (line  19)
-* autoconf, recommended:                 Calling sequence.    (line  94)
+* autoconf, recommended:                 Calling sequence.    (line 119)
 * automounter, and configuration:        configure scenarios. (line  29)
 * automounter, and ls-R:                 ls-R.                (line  40)
 * auxiliary tasks:                       Auxiliary tasks.     (line   6)
@@ -3904,7 +3939,7 @@ Index
 * bug checklist:                         Bug checklist.       (line   6)
 * bug mailing list:                      Mailing lists.       (line   6)
 * bugs, reporting:                       Reporting bugs.      (line   6)
-* c-*.h:                                 Calling sequence.    (line  94)
+* c-*.h:                                 Calling sequence.    (line 119)
 * c-auto.h:                              Programming overview.
                                                               (line  33)
 * c-auto.in:                             Running configure.   (line   6)
@@ -4177,11 +4212,9 @@ Index
 * group-writable directories:            Security.            (line  40)
 * GSFTOPK_DEBUG (128):                   Debugging.           (line  88)
 * hash table buckets, printing:          Debugging.           (line 105)
-* hash table routines:                   Calling sequence.    (line  87)
+* hash table routines:                   Calling sequence.    (line 112)
 * hash_summary_only variable for debugging: Debugging.        (line 105)
 * help, mailing list for general TeX:    Mailing lists.       (line  25)
-* HIER:                                  Default path features.
-                                                              (line  41)
 * history of Kpathsea:                   History.             (line   6)
 * home directories in paths:             Tilde expansion.     (line   6)
 * HOME, as ~ expansion:                  Tilde expansion.     (line   6)
@@ -4194,7 +4227,7 @@ Index
 * INDEXSTYLE:                            Supported file formats.
                                                               (line  74)
 * info-tex@shsu.edu:                     Mailing lists.       (line  25)
-* input lines, reading:                  Calling sequence.    (line  87)
+* input lines, reading:                  Calling sequence.    (line 112)
 * install-data Make target:              Installing files.    (line  28)
 * install-exec Make target:              Installing files.    (line  23)
 * installation:                          Installation.        (line   6)
@@ -4228,8 +4261,6 @@ Index
                                                               (line   6)
 * kpathsea.h:                            Programming overview.
                                                               (line  24)
-* kpathsea/HIER:                         Default path features.
-                                                              (line  41)
 * kpathsea/README.CONFIGURE:             Running configure.   (line  15)
 * kpathsea_cnf_get:                      Programming with config files.
                                                               (line  23)
@@ -4238,11 +4269,13 @@ Index
 * kpathsea_find_file <1>:                Calling sequence.    (line  62)
 * kpathsea_find_file:                    File lookup.         (line  37)
 * kpathsea_find_glyph:                   Glyph lookup.        (line  26)
-* kpathsea_finish:                       Calling sequence.    (line  82)
+* kpathsea_finish:                       Calling sequence.    (line 107)
+* kpathsea_in_name_ok:                   Calling sequence.    (line 102)
 * kpathsea_init_prog <1>:                Calling sequence.    (line  53)
 * kpathsea_init_prog:                    Fallback font.       (line  15)
 * kpathsea_new:                          Calling sequence.    (line   9)
 * kpathsea_open_file:                    Calling sequence.    (line  74)
+* kpathsea_out_name_ok:                  Calling sequence.    (line  82)
 * kpathsea_set_program_name:             Calling sequence.    (line  14)
 * KPATHSEA_WARNING:                      Config files.        (line  18)
 * kpse->debug:                           Debugging.           (line   6)
@@ -4289,7 +4322,7 @@ Index
 * license for using the library:         Introduction.        (line  31)
 * LIGFONTS:                              Supported file formats.
                                                               (line  78)
-* lines, reading arbitrary-length:       Calling sequence.    (line  87)
+* lines, reading arbitrary-length:       Calling sequence.    (line 112)
 * Linux File System Standard:            mktex configuration. (line 114)
 * Linux shells and configure:            configure shells.    (line  19)
 * Linux, using Web2c:                    CD-ROM distribution. (line  16)
@@ -4325,7 +4358,7 @@ Index
 * MAKETEX_FINE_DEBUG (1024):             Debugging.           (line 100)
 * MAKETEX_MODE:                          Default path features.
                                                               (line  19)
-* memory allocation routines:            Calling sequence.    (line  87)
+* memory allocation routines:            Calling sequence.    (line 112)
 * metafont driver files:                 mktex configuration. (line  94)
 * Metafont failures:                     TeX or Metafont failing.
                                                               (line   6)
@@ -4517,7 +4550,7 @@ Index
                                                               (line  16)
 * readable:                              Suppressing warnings.
                                                               (line  26)
-* reading arbitrary-length lines:        Calling sequence.    (line  87)
+* reading arbitrary-length lines:        Calling sequence.    (line 112)
 * README.CONFIGURE:                      Running configure.   (line  15)
 * README.mirrors:                        Electronic distribution.
                                                               (line  13)
@@ -4584,7 +4617,7 @@ Index
 * startup time, excessive:               Slow path searching. (line   6)
 * static linking:                        ShellWidgetClass.    (line  39)
 * static linking and dlsym:              dlopen.              (line   6)
-* string routines:                       Calling sequence.    (line  87)
+* string routines:                       Calling sequence.    (line 112)
 * strip:                                 mktex configuration. (line 108)
 * stripsupplier:                         mktex configuration. (line 102)
 * striptypeface:                         mktex configuration. (line 105)
@@ -4617,14 +4650,18 @@ Index
                                                               (line 204)
 * tcfmgr.map:                            Specially-recognized files.
                                                               (line  47)
-* TDS:                                   TeX directory structure.
+* TDS <1>:                               TeX directory structure.
                                                               (line   6)
+* TDS:                                   Default path features.
+                                                              (line  41)
 * testing, post-installation:            Installation testing.
                                                               (line   6)
 * tests, simple:                         Simple installation. (line  79)
 * teTeX:                                 Other TeX packages.  (line  13)
-* TeX directory structure:               TeX directory structure.
+* TeX directory structure <1>:           TeX directory structure.
                                                               (line   6)
+* TeX directory structure:               Default path features.
+                                                              (line  41)
 * TeX distributions besides Web2c:       Other TeX packages.  (line   6)
 * TeX environment variables:             Supported file formats.
                                                               (line   6)
@@ -4808,86 +4845,86 @@ Index
 
 
 Tag Table:
-Node: Top1623
-Node: Introduction2266
-Node: History4088
-Node: Installation8180
-Node: Simple installation8970
-Node: Custom installation12553
-Node: Disk space13727
-Node: Kpathsea application distributions14611
-Node: Changing search paths15726
-Node: Default path features16908
-Node: Default path generation19044
-Node: Running configure20487
-Node: configure shells21538
-Node: configure options22590
-Node: configure environment24097
-Node: configure scenarios25899
-Node: Shared library27485
-Node: Running make28499
-Node: Installing files30546
-Node: Cleaning up32493
-Node: Filename database generation33541
-Node: mktex scripts34108
-Node: mktex configuration35385
-Node: mktex script names41204
-Node: mktex script arguments42595
-Node: Installation testing43485
-Node: Security43849
-Node: TeX directory structure46416
-Node: unixtex.ftp50838
-Node: Electronic distribution52848
-Node: CD-ROM distribution55613
-Node: Other TeX packages56428
-Node: Reporting bugs57724
-Node: Bug checklist58459
-Node: Mailing lists62156
-Node: Debugging63365
-Node: Logging68443
-Node: Common problems70313
-Node: Unable to find files71144
-Node: Slow path searching73555
-Node: Unable to generate fonts74932
-Node: TeX or Metafont failing77441
-Node: Empty Makefiles79319
-Node: XtStrings80549
-Node: dlopen81385
-Node: ShellWidgetClass82203
-Node: Pointer combination warnings83835
-Node: Path searching84224
-Node: Searching overview84871
-Node: Path sources88267
-Node: Config files89338
-Node: Path expansion92983
-Node: Default expansion93932
-Node: Variable expansion96002
-Node: Tilde expansion97405
-Node: Brace expansion98385
-Node: KPSE_DOT expansion99490
-Node: Subdirectory expansion100003
-Node: Filename database102354
-Node: ls-R103408
-Node: Filename aliases106302
-Node: Database format107480
-Node: Invoking kpsewhich108493
-Node: Path searching options109438
-Node: Specially-recognized files116713
-Node: Auxiliary tasks118069
-Node: Standard options119894
-Node: TeX support120214
-Node: Supported file formats121505
-Node: File lookup129021
-Node: Glyph lookup130753
-Node: Basic glyph lookup131877
-Node: Fontmap132756
-Node: Fallback font135373
-Node: Suppressing warnings136286
-Node: Programming137391
-Node: Programming overview137904
-Node: Calling sequence140598
-Node: Program-specific files145566
-Node: Programming with config files146608
-Node: Index147920
+Node: Top1609
+Node: Introduction2252
+Node: History4074
+Node: Installation8166
+Node: Simple installation8956
+Node: Custom installation12539
+Node: Disk space13713
+Node: Kpathsea application distributions14597
+Node: Changing search paths15712
+Node: Default path features16894
+Node: Default path generation18977
+Node: Running configure20420
+Node: configure shells21471
+Node: configure options22523
+Node: configure environment24030
+Node: configure scenarios25832
+Node: Shared library27418
+Node: Running make28432
+Node: Installing files30479
+Node: Cleaning up32426
+Node: Filename database generation33474
+Node: mktex scripts34041
+Node: mktex configuration35318
+Node: mktex script names41137
+Node: mktex script arguments42528
+Node: Installation testing43418
+Node: Security43782
+Node: TeX directory structure46349
+Node: unixtex.ftp50771
+Node: Electronic distribution52781
+Node: CD-ROM distribution55546
+Node: Other TeX packages56361
+Node: Reporting bugs57657
+Node: Bug checklist58392
+Node: Mailing lists62089
+Node: Debugging63298
+Node: Logging68376
+Node: Common problems70246
+Node: Unable to find files71077
+Node: Slow path searching73488
+Node: Unable to generate fonts74865
+Node: TeX or Metafont failing77374
+Node: Empty Makefiles79253
+Node: XtStrings80483
+Node: dlopen81319
+Node: ShellWidgetClass82137
+Node: Pointer combination warnings83769
+Node: Path searching84158
+Node: Searching overview84805
+Node: Path sources88201
+Node: Config files89272
+Node: Path expansion92917
+Node: Default expansion93866
+Node: Variable expansion95936
+Node: Tilde expansion97339
+Node: Brace expansion98319
+Node: KPSE_DOT expansion99424
+Node: Subdirectory expansion99937
+Node: Filename database102288
+Node: ls-R103342
+Node: Filename aliases106236
+Node: Database format107414
+Node: Invoking kpsewhich108427
+Node: Path searching options109372
+Node: Specially-recognized files117033
+Node: Auxiliary tasks118389
+Node: Standard options120214
+Node: TeX support120534
+Node: Supported file formats121825
+Node: File lookup129341
+Node: Glyph lookup131073
+Node: Basic glyph lookup132197
+Node: Fontmap133076
+Node: Fallback font135693
+Node: Suppressing warnings136606
+Node: Programming137711
+Node: Programming overview138224
+Node: Calling sequence140918
+Node: Program-specific files147441
+Node: Programming with config files148483
+Node: Index149795
 
 End Tag Table

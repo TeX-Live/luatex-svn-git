@@ -167,6 +167,9 @@ then
     --disable-web-progs \
     --disable-xdv2pdf \
     --disable-xdvipdfmx \
+    --disable-xetex \
+    --without-graphite \
+    --without-system-icu \
     --without-system-kpathsea \
     --without-system-freetype2 \
     --without-system-gd \

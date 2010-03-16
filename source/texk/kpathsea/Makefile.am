@@ -1,13 +1,17 @@
 ## Makefile.am for the TeX Live subdirectory texk/kpathsea/
 ##
-## Copyright (C) 2009 Peter Breitenlohner <tex-live@tug.org>
+## Copyright (C) 2009, 2010 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
 ACLOCAL_AMFLAGS = -I ../../m4
 
+# Rebuild
+.PHONY: rebuild
+rebuild: all
+
 SUBDIRS = . doc man
 
-EXTRA_DIST = BUGS HIER PROJECTS README.CONFIGURE
+EXTRA_DIST = BUGS PROJECTS
 
 INCLUDES = -I$(top_builddir)/.. -I$(top_srcdir)/..
 AM_CFLAGS = $(WARNING_CFLAGS)
@@ -148,6 +152,8 @@ kpseinclude_HEADERS = \
 	truncate.h \
 	types.h \
 	variable.h \
+	version.h \
+	win32lib.h \
 	xopendir.h \
 	xstat.h
 
@@ -159,20 +165,20 @@ kpseinclude_HEADERS = \
 ## (but = and surrounding spaces are optional, hence can't remove all spaces).
 ## Change this to #ifndef DEFAULT_name@#define DEFAULT_name "value"@#endif,
 ## then change the @'s to newlines (sed isn't good at multiline replacements).
-## 
+##
 ## No backslash-newline escapes in the long sed replacement because that
 ## will turn into a space in the output.
-## 
+##
 ## We replace the $TEXMF* references with nonexisting directories.  These
 ## are the compile-time defaults and are not useful in the native TL
 ## builds; we rely completely on the self-location.  (Previously, the
 ## random build-time paths would get included in the binaries, to
 ## consequent confusion.)
-## 
+##
 ## We preserve the $SELFAUTO* references, since the selfauto-using
 ## compile-time path for cnf files is how texmf.cnf gets found, which
 ## determines everything else.
-## 
+##
 ## The definition of DEFAULT_TEXMF (and other variables)
 ## that winds up in the final paths.h will not be used.
 #
@@ -212,7 +218,7 @@ stamp-paths: texmf.cnf
 	rm -f paths.tmp
 	date >$@
 
-kpathsea.h: paths.h
+kpathsea.h: Makefile paths.h
 	rm -f $@
 	echo '/* This is a generated file */' >$@
 	echo '/* collecting all kpathsea headers. */' >>$@
@@ -220,8 +226,12 @@ kpathsea.h: paths.h
 	echo '#include <kpathsea/c-auto.h>' >>$@
 	echo '#include <kpathsea/paths.h>' >>$@
 	(cd $(srcdir) && ls -1 *.h) \
-	  | grep -v '\(config\|paths\|kpathsea\|mingw32\|win32lib\)\.h' \
-	  | sed -e 's,^,#include <kpathsea/,' -e s',$$,>,' >>$@
+	| sed -e '/^config\.h/d' \
+	      -e '/^paths\.h/d' \
+	      -e '/^kpathsea\.h/d' \
+	      -e '/^mingw32\.h/d' \
+	      -e '/^win32lib\.h/d' \
+	      -e 's,^,#include <kpathsea/,' -e s',$$,>,' >>$@
 
 DISTCLEANFILES = paths.h stamp-paths kpathsea.h
 
@@ -245,6 +255,10 @@ dist_noinst_SCRIPTS = mktexlsr mktexmf mktexpk mktextfm
 
 dist_noinst_DATA = texmf.cnf
 
+# Symlinks within $(bindir): FILE:LINK indicates LINK->FILE
+bin_links = \
+	mktexlsr:texhash
+
 install-exec-hook:
 	@for f in $(dist_noinst_SCRIPTS); do \
 	  if grep "original $$f --" "$(DESTDIR)$(bindir)/$$f" >/dev/null 2>&1 \
@@ -253,6 +267,15 @@ install-exec-hook:
 	    $(INSTALL_SCRIPT) "$(srcdir)/$$f" "$(DESTDIR)$(bindir)/$$f"; \
 	  else :; fi; \
 	done
+	@cd $(DESTDIR)$(bindir) && \
+	  for s in $(bin_links); do \
+	    link=`echo $$s | sed 's,.*:,,'`; \
+	    file=`echo $$s | sed 's,:.*,,'`; \
+	    rm -f $$link; \
+	    echo "creating link '$$link' -> '$$file'"; \
+	    $(LN_S) $$file $$link; \
+	  done
+
 
 install-data-hook:
 	@for f in $(dist_noinst_DATA); do \
@@ -270,6 +293,10 @@ uninstall-hook:
 	    echo " rm -f '$(DESTDIR)$(bindir)/$$f'"; \
 	    rm -f "$(DESTDIR)$(bindir)/$$f"; \
 	  else :; fi; \
+	done
+	@for s in $(bin_links); do \
+	  link=`echo $$s | sed 's,.*:,,'`; \
+	  rm -f $(DESTDIR)$(bindir)/$$link; \
 	done
 	@for f in $(dist_noinst_DATA); do \
 	  if grep "original $$f --" "$(DESTDIR)$(web2cdir)/$$f" >/dev/null 2>&1 \

@@ -16,14 +16,15 @@
    You should have received a copy of the GNU Lesser General Public License
    along with this library; if not, see <http://www.gnu.org/licenses/>.  */
 
-#include "c-auto.h"
-#include <kpathsea/c-proto.h>
+#include <kpathsea/config.h>
 
-KPSEDLL char *kpathsea_version_string = (char *) KPSEVERSION;
+#include <kpathsea/version.h>
+
+const char *kpathsea_version_string = KPSEVERSION;
 
 /* If you are redistributing a modified version of the original
    distribution, please change this address here, among many other
    places.  Thanks.  */
 
-KPSEDLL char *kpathsea_bug_address = (char *) 
+const char *kpathsea_bug_address = 
   "Email bug reports to tex-k@tug.org.\n";

@@ -42,10 +42,16 @@
                             && IS_DIR_SEP(*(name+1)) && isalnum(*(name+2)))
 #endif
 
-void init_user_info (void);
-void set_home_warning (void);
-char *get_home_directory (void);
-BOOL look_for_cmd (const char *, char **);
-BOOL win32_get_long_filename (char *, char *, int);
+#ifdef MAKE_KPSE_DLL /* libkpathsea internal only */
+
+extern void init_user_info (void);
+extern BOOL look_for_cmd (const char *, char **);
+extern char *quote_args(char **);
+
+#endif /* MAKE_KPSE_DLL */
+
+extern KPSEDLL BOOL win32_get_long_filename (char *, char *, int);
+extern KPSEDLL int win32_system(const char *, int);
+extern KPSEDLL void dostounix_filename (char *p);
 
 #endif

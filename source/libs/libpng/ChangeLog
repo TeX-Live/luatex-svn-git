@@ -1,10 +1,16 @@
-2009-09-16  Martin Schröder <martin@oneiros.de>
+2010-03-03  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
-	Import libpng-1.2.40
+	* Makefile.am, libpng-*-PATCHES/TL-Changes: Remove ltmain.sh.
+	* configure.ac: Remove libpng_major, libpng_minor, and
+	libpng_micro, we only use libpng_version.
+
+2009-11-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import libpng-1.2.40.
 
 2009-08-13  Martin Schröder <martin@oneiros.de>
 
-	Import libpng-1.2.39
+	Import libpng-1.2.39.
 
 	* libpng-1.2.38-PATCHES: Remove our one patch
 
@@ -59,4 +65,3 @@
 
 	Adapt to TL2009 build system.
 
-# vim: noexpandtab
