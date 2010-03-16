@@ -1,15 +1,16 @@
-$Id: README 13865 2009-06-21 23:42:52Z karl $
+$Id: README 17148 2010-02-22 22:53:00Z karl $
 Copyright 2005, 2006, 2007, 2008, 2009 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
 Extra utilities we (optionally) compile for TeX Live.
 See comments in ../texk/README.
 
-asymptote 1.77 - checked 22jun09
-  get from CTAN, to include prebuilt doc.
+asymptote 1.88 - checked 2oct09
+  update to TL from CTAN, to include prebuilt doc.
   see http://tug.org/texlive/build.html#asymptote
+  and tlpkg/bin/tl-update/asy
 
-dialog 1.1-20080819 - checked 20mar09
+dialog 1.1-20100119 - checked 21jan10
   ftp://invisible-island.net/dialog/dialog.tar.gz
 
 pdfopen 0.5 - checked 26nov06
@@ -32,12 +33,6 @@ tpic2pdftex
 vlna 1.2 - checked 26jun08
   ftp://math.feld.cvut.cz/pub/olsak/vlna
 
-xz 4.999.8beta - checked 16may09
-  not done as part of normal build, here to provide sources for the
-  binaries we distribute.  Also so we can provide exactly the same
-  version on all platforms; even if a newer version has been released,
-  it should not be used without discussion.
-
 
 xindy 2.3 - checked 24mar08
   (with numerous adaptations for TL by Vladimir)
@@ -57,9 +52,9 @@ clisp_builddir=$clisp_basedir/clisp-build
 mkdir $clisp_toolsdir
 
 cd $clisp_basedir
-wget http://ftp.gnu.org/gnu/libsigsegv/libsigsegv-2.6.tar.gz
-gzip -dc libsigsegv-2.6.tar.gz | tar xf -
-cd libsigsegv-2.6
+wget http://ftp.gnu.org/gnu/libsigsegv/libsigsegv-2.8.tar.gz
+gzip -dc libsigsegv-2.8.tar.gz | tar xf -
+cd libsigsegv-2.8
 ./configure --prefix=$clisp_toolsdir && make && make check && make install
 
 cd $clisp_basedir
@@ -73,9 +68,10 @@ cd ffcall-1.10
 ln -s lib $clisp_toolsdir/lib64
 
 cd $clisp_basedir
-wget http://ftp.gnu.org/gnu/clisp/release/2.47/clisp-2.47.tar.gz
-gzip -dc clisp-2.47.tar.gz | tar xf -
-cd clisp-2.47
+wget http://ftp.gnu.org/gnu/clisp/release/2.48/clisp-2.48.tar.gz
+gzip -dc clisp-2.48.tar.gz | tar xf -
+cd clisp-2.48
+# On FreeBSD/amd64, add --disable-mmap.
 ./configure --with-ffcall --with-libffcall-prefix=$clisp_toolsdir \
   --with-libsigsegv-prefix=$clisp_toolsdir --without-readline \
   $clisp_builddir \

@@ -744,9 +744,7 @@ ac_includes_default="\
 #endif"
 
 enable_option_checking=no
-ac_subst_vars='am__EXEEXT_FALSE
-am__EXEEXT_TRUE
-LTLIBOBJS
+ac_subst_vars='LTLIBOBJS
 LIBOBJS
 subdirs
 cross_compiling_FALSE
@@ -889,19 +887,6 @@ enable_native_texlive_build
 enable_multiplatform
 enable_cxx_runtime_hack
 enable_libtool_hack
-enable_dialog
-enable_pdfopen
-enable_ps2eps
-enable_psutils
-enable_t1utils
-enable_tpic2pdftex
-enable_vlna
-enable_xindy_new
-enable_xindy_rules
-enable_xindy_docs
-with_clisp_runtime
-with_xindy_recode
-enable_xindy
 enable_web2c
 with_tex_banner
 with_editor
@@ -928,55 +913,6 @@ enable_tektronixwin
 enable_unitermwin
 enable_mp
 enable_web_progs
-enable_afm2pl
-enable_bibtex8
-enable_bibtexu
-enable_cjkutils
-enable_detex
-enable_devnag
-enable_dtl
-enable_dvi2tty
-enable_dvidvi
-enable_dviljk
-enable_dvipdfmx
-enable_dvipng
-enable_debug
-enable_timing
-with_gs
-enable_dvipos
-enable_dvipsk
-enable_dvisvgm
-with_system_libgs
-with_libgs_includes
-with_libgs_libdir
-enable_gsftopk
-enable_lacheck
-enable_lcdf_typetools
-enable_cfftot1
-enable_mmafm
-enable_mmpfb
-enable_otfinfo
-enable_otftotfm
-enable_t1dotlessj
-enable_t1lint
-enable_t1rawafm
-enable_t1reencode
-enable_t1testpage
-enable_ttftotype42
-enable_updmap
-enable_makeindexk
-enable_musixflx
-enable_ps2pkm
-enable_seetexk
-enable_tex4htk
-enable_ttf2pk
-enable_ttfdump
-enable_xdv2pdf
-enable_xdvik
-with_xdvi_x_toolkit
-enable_xdvipdfmx
-enable_tetex
-enable_texlive
 with_system_kpathsea
 with_kpathsea_includes
 with_kpathsea_libdir
@@ -987,24 +923,8 @@ enable_mkocp_default
 enable_mkofm_default
 enable_mktexfmt_default
 enable_mktextex_default
-with_system_icu
-with_system_teckit
-with_teckit_includes
-with_teckit_libdir
-with_graphite
-with_system_graphite
 with_system_zziplib
 with_system_xpdf
-with_system_gd
-with_gd_includes
-with_gd_libdir
-with_system_freetype2
-with_system_freetype
-with_freetype_includes
-with_freetype_libdir
-with_system_t1lib
-with_t1lib_includes
-with_t1lib_libdir
 with_system_libpng
 with_libpng_includes
 with_libpng_libdir
@@ -1670,17 +1590,6 @@ Optional Features:
                           lib/PLATFORM
   --enable-cxx-runtime-hack  link C++ runtime statically
   --enable-libtool-hack   ignore libtool dependency_libs
-  --disable-dialog        do not build the dialog package
-  --disable-pdfopen       do not build the pdfopen package
-  --disable-ps2eps        do not build the ps2eps package
-  --disable-psutils       do not build the psutils package
-  --disable-t1utils       do not build the t1utils package
-  --disable-tpic2pdftex   do not build the tpic2pdftex package
-  --disable-vlna          do not build the vlna package
-  --enable-xindy-new      build the xindy-new package
-  --enable-xindy-rules      build and install make-rules package
-  --enable-xindy-docs       build and install documentation
-  --enable-xindy          build the xindy package
   --disable-web2c         do not build the web2c (TeX & Co.) package
   --enable-auto-core        cause TeX&MF to dump core, given a certain
                             filename
@@ -1708,53 +1617,6 @@ Optional Features:
   --enable-unitermwin         include Uniterm window support
   --disable-mp              do not build METAPOST
   --disable-web-progs       do not build WEB programs bibtex ... weave
-  --disable-afm2pl        do not build the afm2pl package
-  --disable-bibtex8       do not build the bibtex8 package
-  --disable-bibtexu       do not build the bibtexu package
-  --disable-cjkutils      do not build the cjkutils package
-  --disable-detex         do not build the detex package
-  --disable-devnag        do not build the devnag package
-  --disable-dtl           do not build the dtl package
-  --disable-dvi2tty       do not build the dvi2tty package
-  --disable-dvidvi        do not build the dvidvi package
-  --disable-dviljk        do not build the dviljk package
-  --disable-dvipdfmx      do not build the dvipdfmx package
-  --disable-dvipng        do not build the dvipng package
-  --disable-debug           Compile without debug (-d) option
-  --enable-timing           Output execution time of dvipng
-  --disable-dvipos        do not build the dvipos package
-  --disable-dvipsk        do not build the dvipsk package
-  --disable-dvisvgm       do not build the dvisvgm package
-  --disable-gsftopk       do not build the gsftopk package
-  --disable-lacheck       do not build the lacheck package
-  --disable-lcdf-typetools
-                          do not build the lcdf-typetools package
-  --disable-cfftot1         do not build the cfftot1 program
-  --disable-mmafm           do not build the mmafm program
-  --disable-mmpfb           do not build the mmpfb program
-  --disable-otfinfo         do not build the otfinfo program
-  --disable-otftotfm        do not build the otftotfm program
-  --disable-t1dotlessj      do not build the t1dotlessj program
-  --disable-t1lint          do not build the t1lint program
-  --disable-t1rawafm        do not build the t1rawafm program
-  --disable-t1reencode      do not build the t1reencode program
-  --disable-t1testpage      do not build the t1testpage program
-  --disable-ttftotype42     do not build the ttftotype42 program
-  --disable-auto-cfftot1    disable running cfftot1 from otftotfm
-  --disable-auto-t1dotlessj disable running t1dotlessj from otftotfm
-  --disable-auto-updmap     disable running updmap from otftotfm
-  --disable-makeindexk    do not build the makeindexk package
-  --disable-musixflx      do not build the musixflx package
-  --disable-ps2pkm        do not build the ps2pkm package
-  --disable-seetexk       do not build the seetexk package
-  --disable-tex4htk       do not build the tex4htk package
-  --disable-ttf2pk        do not build the ttf2pk package
-  --disable-ttfdump       do not build the ttfdump package
-  --disable-xdv2pdf       do not build the xdv2pdf package
-  --disable-xdvik         do not build the xdvik package
-  --disable-xdvipdfmx     do not build the xdvipdfmx package
-  --disable-tetex         do not build the tetex (teTeX scripts) package
-  --disable-texlive       do not build the texlive (TeX Live scripts) package
   --disable-mktexmf-default   do not run mktexmf if MF source missing
   --disable-mktexpk-default   do not run mktexpk if PK font missing
   --disable-mktextfm-default  do not run mktextfm if TFM file missing
@@ -1779,59 +1641,18 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-clisp-runtime=PATH
-                          pathname of clisp runtime to install for `xindy',
-                          `default' to derive from clisp, or `system' to use
-                          installed version
-  --with-recode           use `recode' instead of `iconv' to build xindy-new
-                          [default: no]
-  --with-xindy-recode     For `xindy': use `recode' instead of `iconv'
-                          (default is NO)
   --with-tex-banner=STR   version string appended to banner lines [Web2C YEAR]
   --with-editor=CMD       invoke CMD from the `e' option [vi +%d %s]
   --without-mf-x-toolkit  do not use X toolkit for METAFONT
-  --with-gs=/PATH/TO/gs   Hard-wire the location of GhostScript
-  --with-system-libgs     build dvisvgm with installed gs headers and library
-                          [default: no]
-  --with-libgs-includes=DIR
-                          libgs headers installed in DIR
-  --with-libgs-libdir=DIR libgs library installed in DIR
-  --with-xdvi-x-toolkit=KIT
-                          Use toolkit KIT (motif/xaw/xaw3d/neXtaw) for xdvi
-                          [default: Motif if available, else Xaw]
   --with-system-kpathsea  use installed kpathsea headers and library
   --with-kpathsea-includes=DIR
                           kpathsea headers installed in DIR
   --with-kpathsea-libdir=DIR
                           kpathsea library installed in DIR
-  --with-system-icu       use installed ICU headers and libraries (requires
-                          icu-config, not for XeTeX)
-  --with-system-teckit    use installed teckit headers and library
-  --with-teckit-includes=DIR
-                          teckit headers installed in DIR
-  --with-teckit-libdir=DIR
-                          teckit library installed in DIR
-  --without-graphite      build XeTeX without graphite support
-  --with-system-graphite  use installed silgraphite headers and library
-                          (requires pkg-config)
   --with-system-zziplib   use installed zziplib headers and library (requires
                           pkg-config)
   --with-system-xpdf      use installed poppler headers and library instead of
                           xpdf (requires pkg-config)
-  --with-system-gd        use installed gd headers and library
-  --with-gd-includes=DIR  gd headers installed in DIR
-  --with-gd-libdir=DIR    gd library installed in DIR
-  --with-system-freetype2 use installed freetype2 headers and library
-                          (requires freetype-config)
-  --with-system-freetype  use installed freetype headers and library
-  --with-freetype-includes=DIR
-                          freetype headers installed in DIR
-  --with-freetype-libdir=DIR
-                          freetype library installed in DIR
-  --with-system-t1lib     use installed t1lib headers and library
-  --with-t1lib-includes=DIR
-                          t1lib headers installed in DIR
-  --with-t1lib-libdir=DIR t1lib library installed in DIR
   --with-system-libpng    use installed libpng headers and library
   --with-libpng-includes=DIR
                           libpng headers installed in DIR
@@ -3029,265 +2850,13 @@ case $with_x in #(
 $as_echo "$as_me: Assuming \`--with-x'" >&6;}
          ac_configure_args="$ac_configure_args '--with-x'" ;;
 esac
-## utils/dialog/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory utils/dialog/
-## configure options and TL libraries required for dialog
-# Check whether --enable-dialog was given.
-if test "${enable_dialog+set}" = set; then :
-  enableval=$enable_dialog;
-fi
-case $enable_dialog in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_dialog=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-dialog=$enable_dialog'" >&5
-$as_echo "$as_me: Assuming \`--enable-dialog=$enable_dialog'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-dialog=$enable_dialog'"
-    ;;
-esac
 
 
-## utils/pdfopen/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory utils/pdfopen/
-## configure options and TL libraries required for pdfopen
-if test "x$with_x" = xno; then :
-  case $enable_pdfopen in #(
-  "") :
-    { $as_echo "$as_me:${as_lineno-$LINENO}: \`--without-x' -> \`--disable-pdfopen'" >&5
-$as_echo "$as_me: \`--without-x' -> \`--disable-pdfopen'" >&6;}
-                      enable_pdfopen=no
-                      ac_configure_args="$ac_configure_args '--disable-pdfopen'" ;; #(
-  yes) :
-    as_fn_error "Sorry, incompatible options \`--without-x' and \`--enable-pdfopen'" "$LINENO" 5 ;; #(
-  *) :
-     ;;
-esac
-fi
-# Check whether --enable-pdfopen was given.
-if test "${enable_pdfopen+set}" = set; then :
-  enableval=$enable_pdfopen;
-fi
-case $enable_pdfopen in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_pdfopen=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-pdfopen=$enable_pdfopen'" >&5
-$as_echo "$as_me: Assuming \`--enable-pdfopen=$enable_pdfopen'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-pdfopen=$enable_pdfopen'"
-    ;;
-esac
 
 
-## utils/ps2eps/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory utils/ps2eps/
-## configure options and TL libraries required for ps2eps
-# Check whether --enable-ps2eps was given.
-if test "${enable_ps2eps+set}" = set; then :
-  enableval=$enable_ps2eps;
-fi
-case $enable_ps2eps in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_ps2eps=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-ps2eps=$enable_ps2eps'" >&5
-$as_echo "$as_me: Assuming \`--enable-ps2eps=$enable_ps2eps'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-ps2eps=$enable_ps2eps'"
-    ;;
-esac
 
 
-## utils/psutils/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory utils/psutils/
-## configure options and TL libraries required for psutils
-# Check whether --enable-psutils was given.
-if test "${enable_psutils+set}" = set; then :
-  enableval=$enable_psutils;
-fi
-case $enable_psutils in #(
-  yes|no) :
-     ;; #(
-  *) :
 
-   enable_psutils=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-psutils=$enable_psutils'" >&5
-$as_echo "$as_me: Assuming \`--enable-psutils=$enable_psutils'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-psutils=$enable_psutils'"
-    ;;
-esac
-
-
-## utils/t1utils/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory utils/t1utils/
-## configure options and TL libraries required for t1utils
-# Check whether --enable-t1utils was given.
-if test "${enable_t1utils+set}" = set; then :
-  enableval=$enable_t1utils;
-fi
-case $enable_t1utils in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_t1utils=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-t1utils=$enable_t1utils'" >&5
-$as_echo "$as_me: Assuming \`--enable-t1utils=$enable_t1utils'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-t1utils=$enable_t1utils'"
-    ;;
-esac
-
-
-## utils/tpic2pdftex/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory utils/tpic2pdftex/
-## configure options and TL libraries required for tpic2pdftex
-# Check whether --enable-tpic2pdftex was given.
-if test "${enable_tpic2pdftex+set}" = set; then :
-  enableval=$enable_tpic2pdftex;
-fi
-case $enable_tpic2pdftex in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_tpic2pdftex=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-tpic2pdftex=$enable_tpic2pdftex'" >&5
-$as_echo "$as_me: Assuming \`--enable-tpic2pdftex=$enable_tpic2pdftex'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-tpic2pdftex=$enable_tpic2pdftex'"
-    ;;
-esac
-
-
-## utils/vlna/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory utils/vlna/
-## configure options and TL libraries required for vlna
-# Check whether --enable-vlna was given.
-if test "${enable_vlna+set}" = set; then :
-  enableval=$enable_vlna;
-fi
-case $enable_vlna in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_vlna=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-vlna=$enable_vlna'" >&5
-$as_echo "$as_me: Assuming \`--enable-vlna=$enable_vlna'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-vlna=$enable_vlna'"
-    ;;
-esac
-
-
-## utils/xindy-new/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory utils/xindy-new/
-## configure options and TL libraries required for xindy-new
-# Check whether --enable-xindy-new was given.
-if test "${enable_xindy_new+set}" = set; then :
-  enableval=$enable_xindy_new;
-fi
-case $enable_xindy_new in #(
-  yes) :
-    if test "x$cross_compiling" = xyes; then :
-  as_fn_error "Unable to cross compile xindy-new" "$LINENO" 5
-fi ;; #(
-  no) :
-     ;; #(
-  *) :
-    if test "x$cross_compiling" = xyes; then
-            enable_xindy_new=no
-            { $as_echo "$as_me:${as_lineno-$LINENO}: Cross compiling -> \`--disable-xindy-new'" >&5
-$as_echo "$as_me: Cross compiling -> \`--disable-xindy-new'" >&6;}
-          else
-   enable_xindy_new=no
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-xindy-new=$enable_xindy_new'" >&5
-$as_echo "$as_me: Assuming \`--enable-xindy-new=$enable_xindy_new'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-xindy-new=$enable_xindy_new'"
-   fi ;;
-esac
-
-## utils/xindy-new/ac/xindy.ac: configure.ac fragment for the TeX Live subdirectory utils/xindy-new/
-## configure options for xindy-new
-# Check whether --enable-xindy-rules was given.
-if test "${enable_xindy_rules+set}" = set; then :
-  enableval=$enable_xindy_rules;
-fi
-# Check whether --enable-xindy-docs was given.
-if test "${enable_xindy_docs+set}" = set; then :
-  enableval=$enable_xindy_docs;
-fi
-
-# Check whether --with-clisp-runtime was given.
-if test "${with_clisp_runtime+set}" = set; then :
-  withval=$with_clisp_runtime;
-fi
-
-# Check whether --with-xindy-recode was given.
-if test "${with_xindy_recode+set}" = set; then :
-  withval=$with_xindy_recode;
-fi
-
-## utils/xindy-new/ac/clisp.ac: configure.ac fragment for the TeX Live subdirectory utils/xindy-new/
-## configure checks for xindy-new and clisp
-case $with_clisp_runtime in #(
-  default) :
-     ;; #(
-  system) :
-    if test "x$enable_native_texlive_build" = xyes; then :
-  as_fn_error "you can not use the installed clisp for a native TeX Live build" "$LINENO" 5
-fi ;; #(
-  "") :
-    if test "x$enable_native_texlive_build" = xyes; then :
-  with_clisp_runtime=default
-else
-  with_clisp_runtime=system
-fi
-               { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--with-clisp-runtime=$with_clisp_runtime'" >&5
-$as_echo "$as_me: Assuming \`--with-clisp-runtime=$with_clisp_runtime'" >&6;}
-               ac_configure_args="$ac_configure_args '--with-clisp-runtime=$with_clisp_runtime'" ;; #(
-  *) :
-    if test ! -f "$with_clisp_runtime"; then :
-  as_fn_error "no such file: \"$with_clisp_runtime\"" "$LINENO" 5
-fi ;;
-esac
-
-
-## utils/xindy/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory utils/xindy/
-## configure options and TL libraries required for xindy
-# Check whether --enable-xindy was given.
-if test "${enable_xindy+set}" = set; then :
-  enableval=$enable_xindy;
-fi
-case $enable_xindy in #(
-  yes) :
-    if test "x$cross_compiling" = xyes; then :
-  as_fn_error "Unable to cross compile xindy" "$LINENO" 5
-fi ;; #(
-  no) :
-     ;; #(
-  *) :
-    if test "x$cross_compiling" = xyes; then
-            enable_xindy=no
-            { $as_echo "$as_me:${as_lineno-$LINENO}: Cross compiling -> \`--disable-xindy'" >&5
-$as_echo "$as_me: Cross compiling -> \`--disable-xindy'" >&6;}
-          else
-   enable_xindy=no
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-xindy=$enable_xindy'" >&5
-$as_echo "$as_me: Assuming \`--enable-xindy=$enable_xindy'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-xindy=$enable_xindy'"
-   fi ;;
-esac
-
-## utils/xindy/ac/xindy.ac: configure.ac fragment for the TeX Live subdirectory utils/xindy/
-## configure options for xindy
-# Check whether --enable-xindy-rules was given.
-if test "${enable_xindy_rules+set}" = set; then :
-  enableval=$enable_xindy_rules;
-fi
-# Check whether --enable-xindy-docs was given.
-if test "${enable_xindy_docs+set}" = set; then :
-  enableval=$enable_xindy_docs;
-fi
-
-# Check whether --with-xindy-recode was given.
-if test "${with_xindy_recode+set}" = set; then :
-  withval=$with_xindy_recode;
-fi
 
 
 
@@ -3483,810 +3052,34 @@ if test "${enable_web_progs+set}" = set; then :
 fi
 
 
-## texk/afm2pl/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/afm2pl/
-## configure options and TL libraries required for afm2pl
-# Check whether --enable-afm2pl was given.
-if test "${enable_afm2pl+set}" = set; then :
-  enableval=$enable_afm2pl;
-fi
-case $enable_afm2pl in #(
-  yes|no) :
-     ;; #(
-  *) :
 
-   enable_afm2pl=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-afm2pl=$enable_afm2pl'" >&5
-$as_echo "$as_me: Assuming \`--enable-afm2pl=$enable_afm2pl'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-afm2pl=$enable_afm2pl'"
-    ;;
-esac
 
-test "x$enable_afm2pl" = xno || {
-  need_kpathsea=yes
-}
 
 
-## texk/bibtex8/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/bibtex8/
-## configure options and TL libraries required for bibtex8
-# Check whether --enable-bibtex8 was given.
-if test "${enable_bibtex8+set}" = set; then :
-  enableval=$enable_bibtex8;
-fi
-case $enable_bibtex8 in #(
-  yes|no) :
-     ;; #(
-  *) :
 
-   enable_bibtex8=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-bibtex8=$enable_bibtex8'" >&5
-$as_echo "$as_me: Assuming \`--enable-bibtex8=$enable_bibtex8'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-bibtex8=$enable_bibtex8'"
-    ;;
-esac
 
-test "x$enable_bibtex8" = xno || {
-  need_kpathsea=yes
-}
 
 
-## texk/bibtexu/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/bibtexu/
-## configure options and TL libraries required for bibtexu
-# Check whether --enable-bibtexu was given.
-if test "${enable_bibtexu+set}" = set; then :
-  enableval=$enable_bibtexu;
-fi
-case $enable_bibtexu in #(
-  yes|no) :
-     ;; #(
-  *) :
 
-   enable_bibtexu=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-bibtexu=$enable_bibtexu'" >&5
-$as_echo "$as_me: Assuming \`--enable-bibtexu=$enable_bibtexu'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-bibtexu=$enable_bibtexu'"
-    ;;
-esac
 
-test "x$enable_bibtexu" = xno || {
-  need_kpathsea=yes
-  need_icu=yes
-}
 
 
-## texk/cjkutils/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/cjkutils/
-## configure options and TL libraries required for cjkutils
-# Check whether --enable-cjkutils was given.
-if test "${enable_cjkutils+set}" = set; then :
-  enableval=$enable_cjkutils;
-fi
-case $enable_cjkutils in #(
-  yes|no) :
-     ;; #(
-  *) :
 
-   enable_cjkutils=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-cjkutils=$enable_cjkutils'" >&5
-$as_echo "$as_me: Assuming \`--enable-cjkutils=$enable_cjkutils'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-cjkutils=$enable_cjkutils'"
-    ;;
-esac
 
-test "x$enable_cjkutils" = xno || {
-  need_kpathsea=yes
-}
 
 
-## texk/detex/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/detex/
-## configure options and TL libraries required for detex
-# Check whether --enable-detex was given.
-if test "${enable_detex+set}" = set; then :
-  enableval=$enable_detex;
-fi
-case $enable_detex in #(
-  yes|no) :
-     ;; #(
-  *) :
 
-   enable_detex=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-detex=$enable_detex'" >&5
-$as_echo "$as_me: Assuming \`--enable-detex=$enable_detex'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-detex=$enable_detex'"
-    ;;
-esac
 
-test "x$enable_detex" = xno || {
-  need_kpathsea=yes
-}
 
 
-## texk/devnag/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/devnag/
-## configure options and TL libraries required for devnag
-# Check whether --enable-devnag was given.
-if test "${enable_devnag+set}" = set; then :
-  enableval=$enable_devnag;
-fi
-case $enable_devnag in #(
-  yes|no) :
-     ;; #(
-  *) :
 
-   enable_devnag=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-devnag=$enable_devnag'" >&5
-$as_echo "$as_me: Assuming \`--enable-devnag=$enable_devnag'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-devnag=$enable_devnag'"
-    ;;
-esac
 
 
-## texk/dtl/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/dtl/
-## configure options and TL libraries required for dtl
-# Check whether --enable-dtl was given.
-if test "${enable_dtl+set}" = set; then :
-  enableval=$enable_dtl;
-fi
-case $enable_dtl in #(
-  yes|no) :
-     ;; #(
-  *) :
 
-   enable_dtl=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-dtl=$enable_dtl'" >&5
-$as_echo "$as_me: Assuming \`--enable-dtl=$enable_dtl'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-dtl=$enable_dtl'"
-    ;;
-esac
 
-test "x$enable_dtl" = xno || {
-  need_kpathsea=yes
-}
 
 
-## texk/dvi2tty/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/dvi2tty/
-## configure options and TL libraries required for dvi2tty
-# Check whether --enable-dvi2tty was given.
-if test "${enable_dvi2tty+set}" = set; then :
-  enableval=$enable_dvi2tty;
-fi
-case $enable_dvi2tty in #(
-  yes|no) :
-     ;; #(
-  *) :
 
-   enable_dvi2tty=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-dvi2tty=$enable_dvi2tty'" >&5
-$as_echo "$as_me: Assuming \`--enable-dvi2tty=$enable_dvi2tty'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-dvi2tty=$enable_dvi2tty'"
-    ;;
-esac
-
-test "x$enable_dvi2tty" = xno || {
-  need_kpathsea=yes
-}
-
-
-## texk/dvidvi/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/dvidvi/
-## configure options and TL libraries required for dvidvi
-# Check whether --enable-dvidvi was given.
-if test "${enable_dvidvi+set}" = set; then :
-  enableval=$enable_dvidvi;
-fi
-case $enable_dvidvi in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_dvidvi=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-dvidvi=$enable_dvidvi'" >&5
-$as_echo "$as_me: Assuming \`--enable-dvidvi=$enable_dvidvi'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-dvidvi=$enable_dvidvi'"
-    ;;
-esac
-
-test "x$enable_dvidvi" = xno || {
-  need_kpathsea=yes
-}
-
-
-## texk/dviljk/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/dviljk/
-## configure options and TL libraries required for dviljk
-# Check whether --enable-dviljk was given.
-if test "${enable_dviljk+set}" = set; then :
-  enableval=$enable_dviljk;
-fi
-case $enable_dviljk in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_dviljk=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-dviljk=$enable_dviljk'" >&5
-$as_echo "$as_me: Assuming \`--enable-dviljk=$enable_dviljk'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-dviljk=$enable_dviljk'"
-    ;;
-esac
-
-test "x$enable_dviljk" = xno || {
-  need_kpathsea=yes
-}
-
-
-## texk/dvipdfmx/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/dvipdfmx/
-## configure options and TL libraries required for dvipdfmx
-# Check whether --enable-dvipdfmx was given.
-if test "${enable_dvipdfmx+set}" = set; then :
-  enableval=$enable_dvipdfmx;
-fi
-case $enable_dvipdfmx in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_dvipdfmx=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-dvipdfmx=$enable_dvipdfmx'" >&5
-$as_echo "$as_me: Assuming \`--enable-dvipdfmx=$enable_dvipdfmx'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-dvipdfmx=$enable_dvipdfmx'"
-    ;;
-esac
-
-test "x$enable_dvipdfmx" = xno || {
-  need_kpathsea=yes
-  need_libpng=yes
-}
-
-
-## texk/dvipng/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/dvipng/
-## configure options and TL libraries required for dvipng
-# Check whether --enable-dvipng was given.
-if test "${enable_dvipng+set}" = set; then :
-  enableval=$enable_dvipng;
-fi
-case $enable_dvipng in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_dvipng=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-dvipng=$enable_dvipng'" >&5
-$as_echo "$as_me: Assuming \`--enable-dvipng=$enable_dvipng'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-dvipng=$enable_dvipng'"
-    ;;
-esac
-
-test "x$enable_dvipng" = xno || {
-  need_kpathsea=yes
-  need_freetype2=yes
-  need_gd=yes
-  need_t1lib=yes
-}
-
-## texk/dvipng/ac/dvipng.ac: configure.ac fragment for the TeX Live subdirectory texk/dvipng/
-## configure options for dvipng
-# Check whether --enable-debug was given.
-if test "${enable_debug+set}" = set; then :
-  enableval=$enable_debug;
-fi
-
-# Check whether --enable-timing was given.
-if test "${enable_timing+set}" = set; then :
-  enableval=$enable_timing;
-fi
-
-
-# Check whether --with-gs was given.
-if test "${with_gs+set}" = set; then :
-  withval=$with_gs;
-fi
-
-
-
-## texk/dvipos/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/dvipos/
-## configure options and TL libraries required for dvipos
-# Check whether --enable-dvipos was given.
-if test "${enable_dvipos+set}" = set; then :
-  enableval=$enable_dvipos;
-fi
-case $enable_dvipos in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_dvipos=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-dvipos=$enable_dvipos'" >&5
-$as_echo "$as_me: Assuming \`--enable-dvipos=$enable_dvipos'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-dvipos=$enable_dvipos'"
-    ;;
-esac
-
-test "x$enable_dvipos" = xno || {
-  need_kpathsea=yes
-}
-
-
-## texk/dvipsk/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/dvipsk/
-## configure options and TL libraries required for dvipsk
-# Check whether --enable-dvipsk was given.
-if test "${enable_dvipsk+set}" = set; then :
-  enableval=$enable_dvipsk;
-fi
-case $enable_dvipsk in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_dvipsk=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-dvipsk=$enable_dvipsk'" >&5
-$as_echo "$as_me: Assuming \`--enable-dvipsk=$enable_dvipsk'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-dvipsk=$enable_dvipsk'"
-    ;;
-esac
-
-test "x$enable_dvipsk" = xno || {
-  need_kpathsea=yes
-}
-
-
-## texk/dvisvgm/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/dvisvgm/
-## configure options and TL libraries required for dvisvgm
-# Check whether --enable-dvisvgm was given.
-if test "${enable_dvisvgm+set}" = set; then :
-  enableval=$enable_dvisvgm;
-fi
-case $enable_dvisvgm in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_dvisvgm=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-dvisvgm=$enable_dvisvgm'" >&5
-$as_echo "$as_me: Assuming \`--enable-dvisvgm=$enable_dvisvgm'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-dvisvgm=$enable_dvisvgm'"
-    ;;
-esac
-
-test "x$enable_dvisvgm" = xno || {
-  need_kpathsea=yes
-  need_freetype2=yes
-  need_zlib=yes
-}
-
-## texk/dvisvgm/ac/dvisvgm.ac: configure.ac fragment for the TeX Live subdirectory texk/dvisvgm/
-## configure options for dvisvgm
-
-# Check whether --with-system-libgs was given.
-if test "${with_system_libgs+set}" = set; then :
-  withval=$with_system_libgs;
-fi
-
-
-# Check whether --with-libgs-includes was given.
-if test "${with_libgs_includes+set}" = set; then :
-  withval=$with_libgs_includes;
-fi
-
-
-# Check whether --with-libgs-libdir was given.
-if test "${with_libgs_libdir+set}" = set; then :
-  withval=$with_libgs_libdir;
-fi
-
-
-## texk/dvisvgm/ac/libgs.ac: configure.ac fragment for the TeX Live subdirectory texk/dvisvgm/
-## configure checks for dvisvgm and libgs
-if test "x$enable_native_texlive_build:$with_system_libgs" = xyes:yes; then
-  as_fn_error "you can not use system libraries for a native TeX Live build" "$LINENO" 5
-fi
-
-
-## texk/gsftopk/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/gsftopk/
-## configure options and TL libraries required for gsftopk
-# Check whether --enable-gsftopk was given.
-if test "${enable_gsftopk+set}" = set; then :
-  enableval=$enable_gsftopk;
-fi
-case $enable_gsftopk in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_gsftopk=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-gsftopk=$enable_gsftopk'" >&5
-$as_echo "$as_me: Assuming \`--enable-gsftopk=$enable_gsftopk'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-gsftopk=$enable_gsftopk'"
-    ;;
-esac
-
-test "x$enable_gsftopk" = xno || {
-  need_kpathsea=yes
-}
-
-
-## texk/lacheck/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/lacheck/
-## configure options and TL libraries required for lacheck
-# Check whether --enable-lacheck was given.
-if test "${enable_lacheck+set}" = set; then :
-  enableval=$enable_lacheck;
-fi
-case $enable_lacheck in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_lacheck=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-lacheck=$enable_lacheck'" >&5
-$as_echo "$as_me: Assuming \`--enable-lacheck=$enable_lacheck'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-lacheck=$enable_lacheck'"
-    ;;
-esac
-
-
-## texk/lcdf-typetools/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/lcdf-typetools/
-## configure options and TL libraries required for lcdf-typetools
-# Check whether --enable-lcdf-typetools was given.
-if test "${enable_lcdf_typetools+set}" = set; then :
-  enableval=$enable_lcdf_typetools;
-fi
-case $enable_lcdf_typetools in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_lcdf_typetools=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-lcdf-typetools=$enable_lcdf_typetools'" >&5
-$as_echo "$as_me: Assuming \`--enable-lcdf-typetools=$enable_lcdf_typetools'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-lcdf-typetools=$enable_lcdf_typetools'"
-    ;;
-esac
-
-test "x$enable_lcdf_typetools" = xno || {
-  need_kpathsea=yes
-}
-
-## texk/lcdf-typetools/ac/lcdf-typetools.ac: configure.ac fragment for the TeX Live subdirectory texk/lcdf-typetools/
-## configure options for lcdf-typetools
-# Check whether --enable-cfftot1 was given.
-if test "${enable_cfftot1+set}" = set; then :
-  enableval=$enable_cfftot1;
-fi
-# Check whether --enable-mmafm was given.
-if test "${enable_mmafm+set}" = set; then :
-  enableval=$enable_mmafm;
-fi
-# Check whether --enable-mmpfb was given.
-if test "${enable_mmpfb+set}" = set; then :
-  enableval=$enable_mmpfb;
-fi
-# Check whether --enable-otfinfo was given.
-if test "${enable_otfinfo+set}" = set; then :
-  enableval=$enable_otfinfo;
-fi
-# Check whether --enable-otftotfm was given.
-if test "${enable_otftotfm+set}" = set; then :
-  enableval=$enable_otftotfm;
-fi
-# Check whether --enable-t1dotlessj was given.
-if test "${enable_t1dotlessj+set}" = set; then :
-  enableval=$enable_t1dotlessj;
-fi
-# Check whether --enable-t1lint was given.
-if test "${enable_t1lint+set}" = set; then :
-  enableval=$enable_t1lint;
-fi
-# Check whether --enable-t1rawafm was given.
-if test "${enable_t1rawafm+set}" = set; then :
-  enableval=$enable_t1rawafm;
-fi
-# Check whether --enable-t1reencode was given.
-if test "${enable_t1reencode+set}" = set; then :
-  enableval=$enable_t1reencode;
-fi
-# Check whether --enable-t1testpage was given.
-if test "${enable_t1testpage+set}" = set; then :
-  enableval=$enable_t1testpage;
-fi
-# Check whether --enable-ttftotype42 was given.
-if test "${enable_ttftotype42+set}" = set; then :
-  enableval=$enable_ttftotype42;
-fi
-
-# Check whether --enable-cfftot1 was given.
-if test "${enable_cfftot1+set}" = set; then :
-  enableval=$enable_cfftot1;
-fi
-# Check whether --enable-t1dotlessj was given.
-if test "${enable_t1dotlessj+set}" = set; then :
-  enableval=$enable_t1dotlessj;
-fi
-# Check whether --enable-updmap was given.
-if test "${enable_updmap+set}" = set; then :
-  enableval=$enable_updmap;
-fi
-
-
-
-## texk/makeindexk/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/makeindexk/
-## configure options and TL libraries required for makeindexk
-# Check whether --enable-makeindexk was given.
-if test "${enable_makeindexk+set}" = set; then :
-  enableval=$enable_makeindexk;
-fi
-case $enable_makeindexk in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_makeindexk=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-makeindexk=$enable_makeindexk'" >&5
-$as_echo "$as_me: Assuming \`--enable-makeindexk=$enable_makeindexk'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-makeindexk=$enable_makeindexk'"
-    ;;
-esac
-
-test "x$enable_makeindexk" = xno || {
-  need_kpathsea=yes
-}
-
-
-## texk/musixflx/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/musixflx/
-## configure options and TL libraries required for musixflx
-# Check whether --enable-musixflx was given.
-if test "${enable_musixflx+set}" = set; then :
-  enableval=$enable_musixflx;
-fi
-case $enable_musixflx in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_musixflx=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-musixflx=$enable_musixflx'" >&5
-$as_echo "$as_me: Assuming \`--enable-musixflx=$enable_musixflx'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-musixflx=$enable_musixflx'"
-    ;;
-esac
-
-
-## texk/ps2pkm/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/ps2pkm/
-## configure options and TL libraries required for ps2pkm
-# Check whether --enable-ps2pkm was given.
-if test "${enable_ps2pkm+set}" = set; then :
-  enableval=$enable_ps2pkm;
-fi
-case $enable_ps2pkm in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_ps2pkm=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-ps2pkm=$enable_ps2pkm'" >&5
-$as_echo "$as_me: Assuming \`--enable-ps2pkm=$enable_ps2pkm'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-ps2pkm=$enable_ps2pkm'"
-    ;;
-esac
-
-test "x$enable_ps2pkm" = xno || {
-  need_kpathsea=yes
-}
-
-
-## texk/seetexk/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/seetexk/
-## configure options and TL libraries required for seetexk
-# Check whether --enable-seetexk was given.
-if test "${enable_seetexk+set}" = set; then :
-  enableval=$enable_seetexk;
-fi
-case $enable_seetexk in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_seetexk=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-seetexk=$enable_seetexk'" >&5
-$as_echo "$as_me: Assuming \`--enable-seetexk=$enable_seetexk'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-seetexk=$enable_seetexk'"
-    ;;
-esac
-
-test "x$enable_seetexk" = xno || {
-  need_kpathsea=yes
-}
-
-
-## texk/tex4htk/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/tex4htk/
-## configure options and TL libraries required for tex4htk
-# Check whether --enable-tex4htk was given.
-if test "${enable_tex4htk+set}" = set; then :
-  enableval=$enable_tex4htk;
-fi
-case $enable_tex4htk in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_tex4htk=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-tex4htk=$enable_tex4htk'" >&5
-$as_echo "$as_me: Assuming \`--enable-tex4htk=$enable_tex4htk'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-tex4htk=$enable_tex4htk'"
-    ;;
-esac
-
-test "x$enable_tex4htk" = xno || {
-  need_kpathsea=yes
-}
-
-
-## texk/ttf2pk/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/ttf2pk/
-## configure options and TL libraries required for ttf2pk
-# Check whether --enable-ttf2pk was given.
-if test "${enable_ttf2pk+set}" = set; then :
-  enableval=$enable_ttf2pk;
-fi
-case $enable_ttf2pk in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_ttf2pk=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-ttf2pk=$enable_ttf2pk'" >&5
-$as_echo "$as_me: Assuming \`--enable-ttf2pk=$enable_ttf2pk'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-ttf2pk=$enable_ttf2pk'"
-    ;;
-esac
-
-test "x$enable_ttf2pk" = xno || {
-  need_kpathsea=yes
-  need_freetype=yes
-}
-
-
-## texk/ttfdump/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/ttfdump/
-## configure options and TL libraries required for ttfdump
-# Check whether --enable-ttfdump was given.
-if test "${enable_ttfdump+set}" = set; then :
-  enableval=$enable_ttfdump;
-fi
-case $enable_ttfdump in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_ttfdump=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-ttfdump=$enable_ttfdump'" >&5
-$as_echo "$as_me: Assuming \`--enable-ttfdump=$enable_ttfdump'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-ttfdump=$enable_ttfdump'"
-    ;;
-esac
-
-
-## texk/xdv2pdf/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/xdv2pdf/
-## configure options and TL libraries required for xdv2pdf
-# Check whether --enable-xdv2pdf was given.
-if test "${enable_xdv2pdf+set}" = set; then :
-  enableval=$enable_xdv2pdf;
-fi
-case $enable_xdv2pdf in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_xdv2pdf=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-xdv2pdf=$enable_xdv2pdf'" >&5
-$as_echo "$as_me: Assuming \`--enable-xdv2pdf=$enable_xdv2pdf'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-xdv2pdf=$enable_xdv2pdf'"
-    ;;
-esac
-
-test "x$enable_xdv2pdf" = xno || {
-  need_kpathsea=yes
-}
-
-
-## texk/xdvik/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/xdvik/
-## configure options and TL libraries required for xdvik
-if test "x$with_x" = xno; then :
-  case $enable_xdvik in #(
-  "") :
-    { $as_echo "$as_me:${as_lineno-$LINENO}: \`--without-x' -> \`--disable-xdvik'" >&5
-$as_echo "$as_me: \`--without-x' -> \`--disable-xdvik'" >&6;}
-                      enable_xdvik=no
-                      ac_configure_args="$ac_configure_args '--disable-xdvik'" ;; #(
-  yes) :
-    as_fn_error "Sorry, incompatible options \`--without-x' and \`--enable-xdvik'" "$LINENO" 5 ;; #(
-  *) :
-     ;;
-esac
-fi
-# Check whether --enable-xdvik was given.
-if test "${enable_xdvik+set}" = set; then :
-  enableval=$enable_xdvik;
-fi
-case $enable_xdvik in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_xdvik=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-xdvik=$enable_xdvik'" >&5
-$as_echo "$as_me: Assuming \`--enable-xdvik=$enable_xdvik'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-xdvik=$enable_xdvik'"
-    ;;
-esac
-
-test "x$enable_xdvik" = xno || {
-  need_kpathsea=yes
-  need_t1lib=yes
-}
-
-## texk/xdvik/ac/xdvik.ac: configure.ac fragment for the TeX Live subdirectory texk/xdvik/
-## configure options for xdvik
-
-# Check whether --with-xdvi-x-toolkit was given.
-if test "${with_xdvi_x_toolkit+set}" = set; then :
-  withval=$with_xdvi_x_toolkit;
-fi
-
-
-
-## texk/xdvipdfmx/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/xdvipdfmx/
-## configure options and TL libraries required for xdvipdfmx
-# Check whether --enable-xdvipdfmx was given.
-if test "${enable_xdvipdfmx+set}" = set; then :
-  enableval=$enable_xdvipdfmx;
-fi
-case $enable_xdvipdfmx in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_xdvipdfmx=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-xdvipdfmx=$enable_xdvipdfmx'" >&5
-$as_echo "$as_me: Assuming \`--enable-xdvipdfmx=$enable_xdvipdfmx'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-xdvipdfmx=$enable_xdvipdfmx'"
-    ;;
-esac
-
-test "x$enable_xdvipdfmx" = xno || {
-  need_kpathsea=yes
-  need_freetype2=yes
-  need_libpng=yes
-}
-
-
-## texk/tetex/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/tetex/
-## configure options and TL libraries required for tetex
-# Check whether --enable-tetex was given.
-if test "${enable_tetex+set}" = set; then :
-  enableval=$enable_tetex;
-fi
-case $enable_tetex in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_tetex=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-tetex=$enable_tetex'" >&5
-$as_echo "$as_me: Assuming \`--enable-tetex=$enable_tetex'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-tetex=$enable_tetex'"
-    ;;
-esac
-
-
-## texk/texlive/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/texlive/
-## configure options and TL libraries required for texlive
-# Check whether --enable-texlive was given.
-if test "${enable_texlive+set}" = set; then :
-  enableval=$enable_texlive;
-fi
-case $enable_texlive in #(
-  yes|no) :
-     ;; #(
-  *) :
-
-   enable_texlive=$enable_all_pkgs
-     { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-texlive=$enable_texlive'" >&5
-$as_echo "$as_me: Assuming \`--enable-texlive=$enable_texlive'" >&6;}
-     ac_configure_args="$ac_configure_args '--enable-texlive=$enable_texlive'"
-    ;;
-esac
 
 
 
@@ -4405,129 +3198,7 @@ case $enable_mktextex_default in #(
 esac
 
 
-## libs/icu/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/icu/
-## configure options and TL libraries required for icu (modified for XeTeX)
 
-# Check whether --with-system-icu was given.
-if test "${with_system_icu+set}" = set; then :
-  withval=$with_system_icu;
-fi
-if test "x$with_system_icu" = x; then
-  if test -f $srcdir/libs/icu/configure; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`icu' headers and library from TL tree" >&5
-$as_echo "$as_me: Assuming \`icu' headers and library from TL tree" >&6;}
-    with_system_icu=no
-  else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`icu' headers and library" >&5
-$as_echo "$as_me: Assuming installed \`icu' headers and library" >&6;}
-    with_system_icu=yes
-  fi
-  ac_configure_args="$ac_configure_args '--with-system-icu=$with_system_icu'"
-elif test "x$with_system_icu" = xyes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using installed \`icu' headers and library" >&5
-$as_echo "$as_me: Using installed \`icu' headers and library" >&6;}
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using \`icu' headers and library from TL tree" >&5
-$as_echo "$as_me: Using \`icu' headers and library from TL tree" >&6;}
-  if test "x$with_system_icu" != xno; then
-    with_system_icu=no
-    ac_configure_args="$ac_configure_args '--without-system-icu'"
-  fi
-fi
-
-
-## libs/teckit/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/teckit/
-## configure options and TL libraries required for teckit
-
-# Check whether --with-system-teckit was given.
-if test "${with_system_teckit+set}" = set; then :
-  withval=$with_system_teckit;
-fi
-
-# Check whether --with-teckit-includes was given.
-if test "${with_teckit_includes+set}" = set; then :
-  withval=$with_teckit_includes;
-fi
-
-# Check whether --with-teckit-libdir was given.
-if test "${with_teckit_libdir+set}" = set; then :
-  withval=$with_teckit_libdir;
-fi
-if test "x$with_system_teckit" = x; then
-  if test -f $srcdir/libs/teckit/configure; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`teckit' headers and library from TL tree" >&5
-$as_echo "$as_me: Assuming \`teckit' headers and library from TL tree" >&6;}
-    with_system_teckit=no
-  else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`teckit' headers and library" >&5
-$as_echo "$as_me: Assuming installed \`teckit' headers and library" >&6;}
-    with_system_teckit=yes
-  fi
-  ac_configure_args="$ac_configure_args '--with-system-teckit=$with_system_teckit'"
-elif test "x$with_system_teckit" = xyes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using installed \`teckit' headers and library" >&5
-$as_echo "$as_me: Using installed \`teckit' headers and library" >&6;}
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using \`teckit' headers and library from TL tree" >&5
-$as_echo "$as_me: Using \`teckit' headers and library from TL tree" >&6;}
-  if test "x$with_system_teckit" != xno; then
-    with_system_teckit=no
-    ac_configure_args="$ac_configure_args '--without-system-teckit'"
-  fi
-fi
-if test "x$with_system_teckit" = xyes; then
-  if test "x$with_system_zlib" = x; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}:   ->  installed \`zlib' headers and library" >&5
-$as_echo "$as_me:   ->  installed \`zlib' headers and library" >&6;}
-    with_system_zlib=yes
-    ac_configure_args="$ac_configure_args '--with-system-zlib'"
-  elif test "x$with_system_zlib" != xyes; then
-    as_fn_error "Sorry, \`--with-system-teckit' requires \`--with-system-zlib'" "$LINENO" 5
-  fi
-fi
-
-test "x$need_teckit" = xyes && {
-  need_zlib=yes
-}
-
-
-## libs/graphite/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/graphite/
-## XeTeX can be built without graphite support
-
-# Check whether --with-graphite was given.
-if test "${with_graphite+set}" = set; then :
-  withval=$with_graphite;
-fi
-
-test "x$with_graphite" = xno && need_graphite=no
-## configure options and TL libraries required for graphite
-
-# Check whether --with-system-graphite was given.
-if test "${with_system_graphite+set}" = set; then :
-  withval=$with_system_graphite;
-fi
-if test "x$with_system_graphite" = x; then
-  if test -f $srcdir/libs/graphite/configure; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`graphite' headers and library from TL tree" >&5
-$as_echo "$as_me: Assuming \`graphite' headers and library from TL tree" >&6;}
-    with_system_graphite=no
-  else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`graphite' headers and library" >&5
-$as_echo "$as_me: Assuming installed \`graphite' headers and library" >&6;}
-    with_system_graphite=yes
-  fi
-  ac_configure_args="$ac_configure_args '--with-system-graphite=$with_system_graphite'"
-elif test "x$with_system_graphite" = xyes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using installed \`graphite' headers and library" >&5
-$as_echo "$as_me: Using installed \`graphite' headers and library" >&6;}
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using \`graphite' headers and library from TL tree" >&5
-$as_echo "$as_me: Using \`graphite' headers and library from TL tree" >&6;}
-  if test "x$with_system_graphite" != xno; then
-    with_system_graphite=no
-    ac_configure_args="$ac_configure_args '--without-system-graphite'"
-  fi
-fi
 
 
 ## libs/zziplib/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/zziplib/
@@ -4606,195 +3277,8 @@ $as_echo "$as_me: Using \`xpdf' headers and library from TL tree" >&6;}
 fi
 
 
-## libs/gd/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/gd/
-## configure options and TL libraries required for gd
-
-# Check whether --with-system-gd was given.
-if test "${with_system_gd+set}" = set; then :
-  withval=$with_system_gd;
-fi
-
-# Check whether --with-gd-includes was given.
-if test "${with_gd_includes+set}" = set; then :
-  withval=$with_gd_includes;
-fi
-
-# Check whether --with-gd-libdir was given.
-if test "${with_gd_libdir+set}" = set; then :
-  withval=$with_gd_libdir;
-fi
-if test "x$with_system_gd" = x; then
-  if test -f $srcdir/libs/gd/configure; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`gd' headers and library from TL tree" >&5
-$as_echo "$as_me: Assuming \`gd' headers and library from TL tree" >&6;}
-    with_system_gd=no
-  else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`gd' headers and library" >&5
-$as_echo "$as_me: Assuming installed \`gd' headers and library" >&6;}
-    with_system_gd=yes
-  fi
-  ac_configure_args="$ac_configure_args '--with-system-gd=$with_system_gd'"
-elif test "x$with_system_gd" = xyes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using installed \`gd' headers and library" >&5
-$as_echo "$as_me: Using installed \`gd' headers and library" >&6;}
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using \`gd' headers and library from TL tree" >&5
-$as_echo "$as_me: Using \`gd' headers and library from TL tree" >&6;}
-  if test "x$with_system_gd" != xno; then
-    with_system_gd=no
-    ac_configure_args="$ac_configure_args '--without-system-gd'"
-  fi
-fi
-if test "x$with_system_gd" = xyes; then
-  if test "x$with_system_libpng" = x; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}:   ->  installed \`libpng' headers and library" >&5
-$as_echo "$as_me:   ->  installed \`libpng' headers and library" >&6;}
-    with_system_libpng=yes
-    ac_configure_args="$ac_configure_args '--with-system-libpng'"
-  elif test "x$with_system_libpng" != xyes; then
-    as_fn_error "Sorry, \`--with-system-gd' requires \`--with-system-libpng'" "$LINENO" 5
-  fi
-  if test "x$with_system_freetype2" = x; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}:   ->  installed \`freetype2' headers and library" >&5
-$as_echo "$as_me:   ->  installed \`freetype2' headers and library" >&6;}
-    with_system_freetype2=yes
-    ac_configure_args="$ac_configure_args '--with-system-freetype2'"
-  elif test "x$with_system_freetype2" != xyes; then
-    as_fn_error "Sorry, \`--with-system-gd' requires \`--with-system-freetype2'" "$LINENO" 5
-  fi
-fi
-
-test "x$need_gd" = xyes && {
-  need_libpng=yes
-  need_freetype2=yes
-}
 
 
-## libs/freetype2/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/freetype2/
-## configure options and TL libraries required for freetype2
-
-# Check whether --with-system-freetype2 was given.
-if test "${with_system_freetype2+set}" = set; then :
-  withval=$with_system_freetype2;
-fi
-if test "x$with_system_freetype2" = x; then
-  if test -f $srcdir/libs/freetype2/configure; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`freetype2' headers and library from TL tree" >&5
-$as_echo "$as_me: Assuming \`freetype2' headers and library from TL tree" >&6;}
-    with_system_freetype2=no
-  else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`freetype2' headers and library" >&5
-$as_echo "$as_me: Assuming installed \`freetype2' headers and library" >&6;}
-    with_system_freetype2=yes
-  fi
-  ac_configure_args="$ac_configure_args '--with-system-freetype2=$with_system_freetype2'"
-elif test "x$with_system_freetype2" = xyes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using installed \`freetype2' headers and library" >&5
-$as_echo "$as_me: Using installed \`freetype2' headers and library" >&6;}
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using \`freetype2' headers and library from TL tree" >&5
-$as_echo "$as_me: Using \`freetype2' headers and library from TL tree" >&6;}
-  if test "x$with_system_freetype2" != xno; then
-    with_system_freetype2=no
-    ac_configure_args="$ac_configure_args '--without-system-freetype2'"
-  fi
-fi
-if test "x$with_system_freetype2" = xyes; then
-  if test "x$with_system_zlib" = x; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}:   ->  installed \`zlib' headers and library" >&5
-$as_echo "$as_me:   ->  installed \`zlib' headers and library" >&6;}
-    with_system_zlib=yes
-    ac_configure_args="$ac_configure_args '--with-system-zlib'"
-  elif test "x$with_system_zlib" != xyes; then
-    as_fn_error "Sorry, \`--with-system-freetype2' requires \`--with-system-zlib'" "$LINENO" 5
-  fi
-fi
-
-test "x$need_freetype2" = xyes && {
-  need_zlib=yes
-}
-
-
-## libs/freetype/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/freetype/
-## configure options and TL libraries required for freetype
-
-# Check whether --with-system-freetype was given.
-if test "${with_system_freetype+set}" = set; then :
-  withval=$with_system_freetype;
-fi
-
-# Check whether --with-freetype-includes was given.
-if test "${with_freetype_includes+set}" = set; then :
-  withval=$with_freetype_includes;
-fi
-
-# Check whether --with-freetype-libdir was given.
-if test "${with_freetype_libdir+set}" = set; then :
-  withval=$with_freetype_libdir;
-fi
-if test "x$with_system_freetype" = x; then
-  if test -f $srcdir/libs/freetype/configure; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`freetype' headers and library from TL tree" >&5
-$as_echo "$as_me: Assuming \`freetype' headers and library from TL tree" >&6;}
-    with_system_freetype=no
-  else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`freetype' headers and library" >&5
-$as_echo "$as_me: Assuming installed \`freetype' headers and library" >&6;}
-    with_system_freetype=yes
-  fi
-  ac_configure_args="$ac_configure_args '--with-system-freetype=$with_system_freetype'"
-elif test "x$with_system_freetype" = xyes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using installed \`freetype' headers and library" >&5
-$as_echo "$as_me: Using installed \`freetype' headers and library" >&6;}
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using \`freetype' headers and library from TL tree" >&5
-$as_echo "$as_me: Using \`freetype' headers and library from TL tree" >&6;}
-  if test "x$with_system_freetype" != xno; then
-    with_system_freetype=no
-    ac_configure_args="$ac_configure_args '--without-system-freetype'"
-  fi
-fi
-
-
-## libs/t1lib/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/t1lib/
-## configure options and TL libraries required for t1lib
-
-# Check whether --with-system-t1lib was given.
-if test "${with_system_t1lib+set}" = set; then :
-  withval=$with_system_t1lib;
-fi
-
-# Check whether --with-t1lib-includes was given.
-if test "${with_t1lib_includes+set}" = set; then :
-  withval=$with_t1lib_includes;
-fi
-
-# Check whether --with-t1lib-libdir was given.
-if test "${with_t1lib_libdir+set}" = set; then :
-  withval=$with_t1lib_libdir;
-fi
-if test "x$with_system_t1lib" = x; then
-  if test -f $srcdir/libs/t1lib/configure; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`t1lib' headers and library from TL tree" >&5
-$as_echo "$as_me: Assuming \`t1lib' headers and library from TL tree" >&6;}
-    with_system_t1lib=no
-  else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`t1lib' headers and library" >&5
-$as_echo "$as_me: Assuming installed \`t1lib' headers and library" >&6;}
-    with_system_t1lib=yes
-  fi
-  ac_configure_args="$ac_configure_args '--with-system-t1lib=$with_system_t1lib'"
-elif test "x$with_system_t1lib" = xyes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using installed \`t1lib' headers and library" >&5
-$as_echo "$as_me: Using installed \`t1lib' headers and library" >&6;}
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using \`t1lib' headers and library from TL tree" >&5
-$as_echo "$as_me: Using \`t1lib' headers and library from TL tree" >&6;}
-  if test "x$with_system_t1lib" != xno; then
-    with_system_t1lib=no
-    ac_configure_args="$ac_configure_args '--without-system-t1lib'"
-  fi
-fi
 
 
 ## libs/obsdcompat/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/obsdcompat/
@@ -4900,7 +3384,7 @@ fi
 
 
 
-am__api_version='1.11'
+am__api_version='1.10'
 
 # Find a good install program.  We prefer a C program (faster),
 # so one script is as good as another.  But avoid the broken or
@@ -5000,29 +3484,16 @@ $as_echo_n "checking whether build environment is sane... " >&6; }
 # Just in case
 sleep 1
 echo timestamp > conftest.file
-# Reject unsafe characters in $srcdir or the absolute working directory
-# name.  Accept space and tab only in the latter.
-am_lf='
-'
-case `pwd` in
-  *[\\\"\#\$\&\'\`$am_lf]*)
-    as_fn_error "unsafe absolute working directory name" "$LINENO" 5;;
-esac
-case $srcdir in
-  *[\\\"\#\$\&\'\`$am_lf\ \	]*)
-    as_fn_error "unsafe srcdir value: \`$srcdir'" "$LINENO" 5;;
-esac
-
 # Do `set' in a subshell so we don't clobber the current shell's
 # arguments.  Must try -L first in case configure is actually a
 # symlink; some systems play weird games with the mod time of symlinks
 # (eg FreeBSD returns the mod time of the symlink's containing
 # directory).
 if (
-   set X `ls -Lt "$srcdir/configure" conftest.file 2> /dev/null`
+   set X `ls -Lt $srcdir/configure conftest.file 2> /dev/null`
    if test "$*" = "X"; then
       # -L didn't work.
-      set X `ls -t "$srcdir/configure" conftest.file`
+      set X `ls -t $srcdir/configure conftest.file`
    fi
    rm -f conftest.file
    if test "$*" != "X $srcdir/configure conftest.file" \
@@ -5060,14 +3531,7 @@ program_transform_name=`$as_echo "$program_transform_name" | sed "$ac_script"`
 # expand $ac_aux_dir to an absolute path
 am_aux_dir=`cd $ac_aux_dir && pwd`
 
-if test x"${MISSING+set}" != xset; then
-  case $am_aux_dir in
-  *\ * | *\	*)
-    MISSING="\${SHELL} \"$am_aux_dir/missing\"" ;;
-  *)
-    MISSING="\${SHELL} $am_aux_dir/missing" ;;
-  esac
-fi
+test x"${MISSING+set}" = xset || MISSING="\${SHELL} $am_aux_dir/missing"
 # Use eval to expand $SHELL
 if eval "$MISSING --run true"; then
   am_missing_run="$MISSING --run "
@@ -5076,115 +3540,6 @@ else
   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: \`missing' script is too old or missing" >&5
 $as_echo "$as_me: WARNING: \`missing' script is too old or missing" >&2;}
 fi
-
-if test x"${install_sh}" != xset; then
-  case $am_aux_dir in
-  *\ * | *\	*)
-    install_sh="\${SHELL} '$am_aux_dir/install-sh'" ;;
-  *)
-    install_sh="\${SHELL} $am_aux_dir/install-sh"
-  esac
-fi
-
-# Installed binaries are usually stripped using `strip' when the user
-# run `make install-strip'.  However `strip' might not be the right
-# tool to use in cross-compilation environments, therefore Automake
-# will honor the `STRIP' environment variable to overrule this program.
-if test "$cross_compiling" != no; then
-  if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}strip", so it can be a program name with args.
-set dummy ${ac_tool_prefix}strip; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if test "${ac_cv_prog_STRIP+set}" = set; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$STRIP"; then
-  ac_cv_prog_STRIP="$STRIP" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_prog_STRIP="${ac_tool_prefix}strip"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-STRIP=$ac_cv_prog_STRIP
-if test -n "$STRIP"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $STRIP" >&5
-$as_echo "$STRIP" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-fi
-if test -z "$ac_cv_prog_STRIP"; then
-  ac_ct_STRIP=$STRIP
-  # Extract the first word of "strip", so it can be a program name with args.
-set dummy strip; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if test "${ac_cv_prog_ac_ct_STRIP+set}" = set; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$ac_ct_STRIP"; then
-  ac_cv_prog_ac_ct_STRIP="$ac_ct_STRIP" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_prog_ac_ct_STRIP="strip"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-ac_ct_STRIP=$ac_cv_prog_ac_ct_STRIP
-if test -n "$ac_ct_STRIP"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_ct_STRIP" >&5
-$as_echo "$ac_ct_STRIP" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-  if test "x$ac_ct_STRIP" = x; then
-    STRIP=":"
-  else
-    case $cross_compiling:$ac_tool_warned in
-yes:)
-{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
-$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
-ac_tool_warned=yes ;;
-esac
-    STRIP=$ac_ct_STRIP
-  fi
-else
-  STRIP="$ac_cv_prog_STRIP"
-fi
-
-fi
-INSTALL_STRIP_PROGRAM="\$(install_sh) -c -s"
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for a thread-safe mkdir -p" >&5
 $as_echo_n "checking for a thread-safe mkdir -p... " >&6; }
@@ -5349,7 +3704,7 @@ ac_config_commands="$ac_config_commands depfiles"
 am_make=${MAKE-make}
 cat > confinc << 'END'
 am__doit:
-	@echo this is the am__doit target
+	@echo done
 .PHONY: am__doit
 END
 # If we don't find an include directive, just comment out the code.
@@ -5360,24 +3715,24 @@ am__quote=
 _am_result=none
 # First try GNU make style include.
 echo "include confinc" > confmf
-# Ignore all kinds of additional output from `make'.
-case `$am_make -s -f confmf 2> /dev/null` in #(
-*the\ am__doit\ target*)
-  am__include=include
-  am__quote=
-  _am_result=GNU
-  ;;
-esac
+# We grep out `Entering directory' and `Leaving directory'
+# messages which can occur if `w' ends up in MAKEFLAGS.
+# In particular we don't look at `^make:' because GNU make might
+# be invoked under some other name (usually "gmake"), in which
+# case it prints its new name instead of `make'.
+if test "`$am_make -s -f confmf 2> /dev/null | grep -v 'ing directory'`" = "done"; then
+   am__include=include
+   am__quote=
+   _am_result=GNU
+fi
 # Now try BSD make style include.
 if test "$am__include" = "#"; then
    echo '.include "confinc"' > confmf
-   case `$am_make -s -f confmf 2> /dev/null` in #(
-   *the\ am__doit\ target*)
-     am__include=.include
-     am__quote="\""
-     _am_result=BSD
-     ;;
-   esac
+   if test "`$am_make -s -f confmf 2> /dev/null`" = "done"; then
+      am__include=.include
+      am__quote="\""
+      _am_result=BSD
+   fi
 fi
 
 
@@ -6224,11 +4579,6 @@ else
   if test "$am_compiler_list" = ""; then
      am_compiler_list=`sed -n 's/^#*\([a-zA-Z0-9]*\))$/\1/p' < ./depcomp`
   fi
-  am__universal=false
-  case " $depcc " in #(
-     *\ -arch\ *\ -arch\ *) am__universal=true ;;
-     esac
-
   for depmode in $am_compiler_list; do
     # Setup a source with many dependencies, because some compilers
     # like to wrap large dependency lists on column 80 (with \), and
@@ -6246,17 +4596,7 @@ else
     done
     echo "${am__include} ${am__quote}sub/conftest.Po${am__quote}" > confmf
 
-    # We check with `-c' and `-o' for the sake of the "dashmstdout"
-    # mode.  It turns out that the SunPro C++ compiler does not properly
-    # handle `-M -o', and we need to detect this.  Also, some Intel
-    # versions had trouble with output in subdirs
-    am__obj=sub/conftest.${OBJEXT-o}
-    am__minus_obj="-o $am__obj"
     case $depmode in
-    gcc)
-      # This depmode causes a compiler race in universal mode.
-      test "$am__universal" = false || continue
-      ;;
     nosideeffect)
       # after this tag, mechanisms are not by side-effect, so they'll
       # only be used when explicitly requested
@@ -6266,23 +4606,19 @@ else
 	break
       fi
       ;;
-    msvisualcpp | msvcmsys)
-      # This compiler won't grok `-c -o', but also, the minuso test has
-      # not run yet.  These depmodes are late enough in the game, and
-      # so weak that their functioning should not be impacted.
-      am__obj=conftest.${OBJEXT-o}
-      am__minus_obj=
-      ;;
     none) break ;;
     esac
+    # We check with `-c' and `-o' for the sake of the "dashmstdout"
+    # mode.  It turns out that the SunPro C++ compiler does not properly
+    # handle `-M -o', and we need to detect this.
     if depmode=$depmode \
-       source=sub/conftest.c object=$am__obj \
+       source=sub/conftest.c object=sub/conftest.${OBJEXT-o} \
        depfile=sub/conftest.Po tmpdepfile=sub/conftest.TPo \
-       $SHELL ./depcomp $depcc -c $am__minus_obj sub/conftest.c \
+       $SHELL ./depcomp $depcc -c -o sub/conftest.${OBJEXT-o} sub/conftest.c \
          >/dev/null 2>conftest.err &&
        grep sub/conftst1.h sub/conftest.Po > /dev/null 2>&1 &&
        grep sub/conftst6.h sub/conftest.Po > /dev/null 2>&1 &&
-       grep $am__obj sub/conftest.Po > /dev/null 2>&1 &&
+       grep sub/conftest.${OBJEXT-o} sub/conftest.Po > /dev/null 2>&1 &&
        ${MAKE-make} -s -f confmf > /dev/null 2>&1; then
       # icc doesn't choke on unknown options, it will just issue warnings
       # or remarks (even with -Werror).  So we grep stderr for any message
@@ -6905,13 +5241,13 @@ if test "${lt_cv_nm_interface+set}" = set; then :
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:6908: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:5244: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:6911: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:5247: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:6914: output\"" >&5)
+  (eval echo "\"\$as_me:5250: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -8114,7 +6450,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 8117 "configure"' > conftest.$ac_ext
+  echo '#line 6453 "configure"' > conftest.$ac_ext
   if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_compile\""; } >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -9208,6 +7544,108 @@ AUTOHEADER=${AUTOHEADER-"${am_missing_run}autoheader"}
 
 MAKEINFO=${MAKEINFO-"${am_missing_run}makeinfo"}
 
+install_sh=${install_sh-"\$(SHELL) $am_aux_dir/install-sh"}
+
+# Installed binaries are usually stripped using `strip' when the user
+# run `make install-strip'.  However `strip' might not be the right
+# tool to use in cross-compilation environments, therefore Automake
+# will honor the `STRIP' environment variable to overrule this program.
+if test "$cross_compiling" != no; then
+  if test -n "$ac_tool_prefix"; then
+  # Extract the first word of "${ac_tool_prefix}strip", so it can be a program name with args.
+set dummy ${ac_tool_prefix}strip; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if test "${ac_cv_prog_STRIP+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$STRIP"; then
+  ac_cv_prog_STRIP="$STRIP" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+    ac_cv_prog_STRIP="${ac_tool_prefix}strip"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+STRIP=$ac_cv_prog_STRIP
+if test -n "$STRIP"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $STRIP" >&5
+$as_echo "$STRIP" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+fi
+if test -z "$ac_cv_prog_STRIP"; then
+  ac_ct_STRIP=$STRIP
+  # Extract the first word of "strip", so it can be a program name with args.
+set dummy strip; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if test "${ac_cv_prog_ac_ct_STRIP+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$ac_ct_STRIP"; then
+  ac_cv_prog_ac_ct_STRIP="$ac_ct_STRIP" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+    ac_cv_prog_ac_ct_STRIP="strip"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+ac_ct_STRIP=$ac_cv_prog_ac_ct_STRIP
+if test -n "$ac_ct_STRIP"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_ct_STRIP" >&5
+$as_echo "$ac_ct_STRIP" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+  if test "x$ac_ct_STRIP" = x; then
+    STRIP=":"
+  else
+    case $cross_compiling:$ac_tool_warned in
+yes:)
+{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
+$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
+ac_tool_warned=yes ;;
+esac
+    STRIP=$ac_ct_STRIP
+  fi
+else
+  STRIP="$ac_cv_prog_STRIP"
+fi
+
+fi
+INSTALL_STRIP_PROGRAM="\$(install_sh) -c -s"
+
 # We need awk for the "check" target.  The system "awk" is bad on
 # some platforms.
 # Always define AMTAR for backward compatibility.
@@ -9215,7 +7653,6 @@ MAKEINFO=${MAKEINFO-"${am_missing_run}makeinfo"}
 AMTAR=${AMTAR-"${am_missing_run}tar"}
 
 am__tar='${AMTAR} chof - "$$tardir"'; am__untar='${AMTAR} xf -'
-
 
 
 
@@ -10044,11 +8481,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:10047: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8484: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:10051: \$? = $ac_status" >&5
+   echo "$as_me:8488: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -10383,11 +8820,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:10386: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8823: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:10390: \$? = $ac_status" >&5
+   echo "$as_me:8827: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -10488,11 +8925,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:10491: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8928: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:10495: \$? = $ac_status" >&5
+   echo "$as_me:8932: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10543,11 +8980,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:10546: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8983: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:10550: \$? = $ac_status" >&5
+   echo "$as_me:8987: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -12910,7 +11347,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 12913 "configure"
+#line 11350 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -13006,7 +11443,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 13009 "configure"
+#line 11446 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -15075,11 +13512,6 @@ else
   if test "$am_compiler_list" = ""; then
      am_compiler_list=`sed -n 's/^#*\([a-zA-Z0-9]*\))$/\1/p' < ./depcomp`
   fi
-  am__universal=false
-  case " $depcc " in #(
-     *\ -arch\ *\ -arch\ *) am__universal=true ;;
-     esac
-
   for depmode in $am_compiler_list; do
     # Setup a source with many dependencies, because some compilers
     # like to wrap large dependency lists on column 80 (with \), and
@@ -15097,17 +13529,7 @@ else
     done
     echo "${am__include} ${am__quote}sub/conftest.Po${am__quote}" > confmf
 
-    # We check with `-c' and `-o' for the sake of the "dashmstdout"
-    # mode.  It turns out that the SunPro C++ compiler does not properly
-    # handle `-M -o', and we need to detect this.  Also, some Intel
-    # versions had trouble with output in subdirs
-    am__obj=sub/conftest.${OBJEXT-o}
-    am__minus_obj="-o $am__obj"
     case $depmode in
-    gcc)
-      # This depmode causes a compiler race in universal mode.
-      test "$am__universal" = false || continue
-      ;;
     nosideeffect)
       # after this tag, mechanisms are not by side-effect, so they'll
       # only be used when explicitly requested
@@ -15117,23 +13539,19 @@ else
 	break
       fi
       ;;
-    msvisualcpp | msvcmsys)
-      # This compiler won't grok `-c -o', but also, the minuso test has
-      # not run yet.  These depmodes are late enough in the game, and
-      # so weak that their functioning should not be impacted.
-      am__obj=conftest.${OBJEXT-o}
-      am__minus_obj=
-      ;;
     none) break ;;
     esac
+    # We check with `-c' and `-o' for the sake of the "dashmstdout"
+    # mode.  It turns out that the SunPro C++ compiler does not properly
+    # handle `-M -o', and we need to detect this.
     if depmode=$depmode \
-       source=sub/conftest.c object=$am__obj \
+       source=sub/conftest.c object=sub/conftest.${OBJEXT-o} \
        depfile=sub/conftest.Po tmpdepfile=sub/conftest.TPo \
-       $SHELL ./depcomp $depcc -c $am__minus_obj sub/conftest.c \
+       $SHELL ./depcomp $depcc -c -o sub/conftest.${OBJEXT-o} sub/conftest.c \
          >/dev/null 2>conftest.err &&
        grep sub/conftst1.h sub/conftest.Po > /dev/null 2>&1 &&
        grep sub/conftst6.h sub/conftest.Po > /dev/null 2>&1 &&
-       grep $am__obj sub/conftest.Po > /dev/null 2>&1 &&
+       grep sub/conftest.${OBJEXT-o} sub/conftest.Po > /dev/null 2>&1 &&
        ${MAKE-make} -s -f confmf > /dev/null 2>&1; then
       # icc doesn't choke on unknown options, it will just issue warnings
       # or remarks (even with -Werror).  So we grep stderr for any message
@@ -15460,11 +13878,6 @@ else
   if test "$am_compiler_list" = ""; then
      am_compiler_list=`sed -n 's/^#*\([a-zA-Z0-9]*\))$/\1/p' < ./depcomp`
   fi
-  am__universal=false
-  case " $depcc " in #(
-     *\ -arch\ *\ -arch\ *) am__universal=true ;;
-     esac
-
   for depmode in $am_compiler_list; do
     # Setup a source with many dependencies, because some compilers
     # like to wrap large dependency lists on column 80 (with \), and
@@ -15482,17 +13895,7 @@ else
     done
     echo "${am__include} ${am__quote}sub/conftest.Po${am__quote}" > confmf
 
-    # We check with `-c' and `-o' for the sake of the "dashmstdout"
-    # mode.  It turns out that the SunPro C++ compiler does not properly
-    # handle `-M -o', and we need to detect this.  Also, some Intel
-    # versions had trouble with output in subdirs
-    am__obj=sub/conftest.${OBJEXT-o}
-    am__minus_obj="-o $am__obj"
     case $depmode in
-    gcc)
-      # This depmode causes a compiler race in universal mode.
-      test "$am__universal" = false || continue
-      ;;
     nosideeffect)
       # after this tag, mechanisms are not by side-effect, so they'll
       # only be used when explicitly requested
@@ -15502,23 +13905,19 @@ else
 	break
       fi
       ;;
-    msvisualcpp | msvcmsys)
-      # This compiler won't grok `-c -o', but also, the minuso test has
-      # not run yet.  These depmodes are late enough in the game, and
-      # so weak that their functioning should not be impacted.
-      am__obj=conftest.${OBJEXT-o}
-      am__minus_obj=
-      ;;
     none) break ;;
     esac
+    # We check with `-c' and `-o' for the sake of the "dashmstdout"
+    # mode.  It turns out that the SunPro C++ compiler does not properly
+    # handle `-M -o', and we need to detect this.
     if depmode=$depmode \
-       source=sub/conftest.c object=$am__obj \
+       source=sub/conftest.c object=sub/conftest.${OBJEXT-o} \
        depfile=sub/conftest.Po tmpdepfile=sub/conftest.TPo \
-       $SHELL ./depcomp $depcc -c $am__minus_obj sub/conftest.c \
+       $SHELL ./depcomp $depcc -c -o sub/conftest.${OBJEXT-o} sub/conftest.c \
          >/dev/null 2>conftest.err &&
        grep sub/conftst1.h sub/conftest.Po > /dev/null 2>&1 &&
        grep sub/conftst6.h sub/conftest.Po > /dev/null 2>&1 &&
-       grep $am__obj sub/conftest.Po > /dev/null 2>&1 &&
+       grep sub/conftest.${OBJEXT-o} sub/conftest.Po > /dev/null 2>&1 &&
        ${MAKE-make} -s -f confmf > /dev/null 2>&1; then
       # icc doesn't choke on unknown options, it will just issue warnings
       # or remarks (even with -Werror).  So we grep stderr for any message
@@ -17480,11 +15879,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17483: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15882: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:17487: \$? = $ac_status" >&5
+   echo "$as_me:15886: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17579,11 +15978,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17582: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15981: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:17586: \$? = $ac_status" >&5
+   echo "$as_me:15985: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -17631,11 +16030,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17634: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16033: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:17638: \$? = $ac_status" >&5
+   echo "$as_me:16037: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -19054,166 +17453,9 @@ $as_echo "$kpse_res" >&6; }
 fi
 
 
-## libs/t1lib/ac/t1lib.ac: configure.ac fragment for the TeX Live subdirectory libs/t1lib/
-## basic check of system t1lib
-if test "x$need_t1lib:$with_system_t1lib" = xyes:yes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking requested system \`t1lib' library" >&5
-$as_echo_n "checking requested system \`t1lib' library... " >&6; }
-  CPPFLAGS="$T1LIB_INCLUDES $CPPFLAGS"
-  LIBS="$T1LIB_LIBS $LIBS"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <t1lib.h>
-int
-main ()
-{
-T1_InitLib(NO_LOGFILE); T1_CheckForInit(); T1_AddFont("font");
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  syslib_used=yes kpse_res=ok
-else
-  syslib_status=no kpse_res=failed
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $kpse_res" >&5
-$as_echo "$kpse_res" >&6; }
-fi
-
-
-## libs/freetype/ac/freetype.ac: configure.ac fragment for the TeX Live subdirectory libs/freetype/
-## basic check of system freetype
-if test "x$need_freetype:$with_system_freetype" = xyes:yes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking requested system \`freetype' library" >&5
-$as_echo_n "checking requested system \`freetype' library... " >&6; }
-  CPPFLAGS="$FREETYPE_INCLUDES $CPPFLAGS"
-  LIBS="$FREETYPE_LIBS $LIBS"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <freetype.h>
-int
-main ()
-{
-TT_Engine engine; TT_Init_FreeType(&engine);
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  syslib_used=yes kpse_res=ok
-else
-  syslib_status=no kpse_res=failed
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $kpse_res" >&5
-$as_echo "$kpse_res" >&6; }
-fi
-
-
-## libs/freetype2/ac/freetype2.ac: configure.ac fragment for the TeX Live subdirectory libs/freetype2/
-## basic check of system freetype2
-if test "x$need_freetype2:$with_system_freetype2" = xyes:yes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking requested system \`freetype2' library" >&5
-$as_echo_n "checking requested system \`freetype2' library... " >&6; }
-  CPPFLAGS="$FREETYPE2_INCLUDES $CPPFLAGS"
-  LIBS="$FREETYPE2_LIBS $LIBS"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <ft2build.h>
-#include FT_FREETYPE_H
-int
-main ()
-{
-FT_Library library; FT_Init_FreeType(&library);
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  syslib_used=yes kpse_res=ok
-else
-  syslib_status=no kpse_res=failed
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $kpse_res" >&5
-$as_echo "$kpse_res" >&6; }
-fi
-
-
-## libs/gd/ac/gd.ac: configure.ac fragment for the TeX Live subdirectory libs/gd/
-## basic check of system gd
-if test "x$need_gd:$with_system_gd" = xyes:yes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking requested system \`gd' library" >&5
-$as_echo_n "checking requested system \`gd' library... " >&6; }
-  CPPFLAGS="$GD_INCLUDES $CPPFLAGS"
-  LIBS="$GD_LIBS $LIBS"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <gd.h>
-int
-main ()
-{
-gdImageCreate(1, 2);
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  syslib_used=yes kpse_res=ok
-else
-  syslib_status=no kpse_res=failed
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $kpse_res" >&5
-$as_echo "$kpse_res" >&6; }
-fi
-
-
 ## libs/xpdf/ac/xpdf.ac: configure.ac fragment for the TeX Live subdirectory libs/xpdf/
-## basic check of system xpdf (poppler)
-ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-if test "x$need_xpdf:$with_system_xpdf" = xyes:yes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking requested system \`xpdf' library" >&5
-$as_echo_n "checking requested system \`xpdf' library... " >&6; }
-  CPPFLAGS="$XPDF_INCLUDES $CPPFLAGS"
-  LIBS="$XPDF_LIBS $LIBS"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <GfxFont.h>
-int
-main ()
-{
-GfxFont *gfxFont; gfxFont->decRefCnt();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  syslib_used=yes kpse_res=ok
-else
-  syslib_status=no kpse_res=failed
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $kpse_res" >&5
-$as_echo "$kpse_res" >&6; }
-fi
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
+## define required functions and headers from system xpdf
+KPSE_CHECK_LIB(xpdf, free, goo/gtypes.h)
 
 ## libs/zziplib/ac/zziplib.ac: configure.ac fragment for the TeX Live subdirectory libs/zziplib/
 ## basic check of system zziplib
@@ -19243,128 +17485,6 @@ rm -f core conftest.err conftest.$ac_objext \
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: $kpse_res" >&5
 $as_echo "$kpse_res" >&6; }
 fi
-
-
-## libs/graphite/ac/graphite.ac: configure.ac fragment for the TeX Live subdirectory libs/graphite/
-## basic check of system graphite
-ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-if test "x$need_graphite:$with_system_graphite" = xyes:yes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking requested system \`graphite' library" >&5
-$as_echo_n "checking requested system \`graphite' library... " >&6; }
-  CPPFLAGS="$GRAPHITE_INCLUDES $CPPFLAGS"
-  LIBS="$GRAPHITE_LIBS $LIBS"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <graphite/GrClient.h>
-#include <graphite/Font.h>
-int
-main ()
-{
-gr::Font *font; font->getDPIx();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  syslib_used=yes kpse_res=ok
-else
-  syslib_status=no kpse_res=failed
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $kpse_res" >&5
-$as_echo "$kpse_res" >&6; }
-fi
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
-## libs/teckit/ac/teckit.ac: configure.ac fragment for the TeX Live subdirectory libs/teckit/
-## basic check of system teckit
-ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-if test "x$need_teckit:$with_system_teckit" = xyes:yes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking requested system \`teckit' library" >&5
-$as_echo_n "checking requested system \`teckit' library... " >&6; }
-  CPPFLAGS="$TECKIT_INCLUDES $CPPFLAGS"
-  LIBS="$TECKIT_LIBS $LIBS"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <teckit/TECkit_Engine.h>
-int
-main ()
-{
-TECkit_Converter converter; TECkit_DisposeConverter(converter);
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  syslib_used=yes kpse_res=ok
-else
-  syslib_status=no kpse_res=failed
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $kpse_res" >&5
-$as_echo "$kpse_res" >&6; }
-fi
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
-## libs/icu/ac/icu.ac: configure.ac fragment for the TeX Live subdirectory libs/icu/
-## basic check of system icu
-ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-if test "x$need_icu:$with_system_icu" = xyes:yes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking requested system \`icu' library" >&5
-$as_echo_n "checking requested system \`icu' library... " >&6; }
-  CPPFLAGS="$ICU_INCLUDES $CPPFLAGS"
-  LIBS="$ICU_LIBS $LIBS"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <unicode/ustring.h>
-int
-main ()
-{
-UErrorCode code; const UChar *src; UChar *dst;
-u_strToLower(dst, -1, src, -1, NULL, &code);
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  syslib_used=yes kpse_res=ok
-else
-  syslib_status=no kpse_res=failed
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $kpse_res" >&5
-$as_echo "$kpse_res" >&6; }
-fi
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 ## texk/kpathsea/ac/kpathsea.ac: configure.ac fragment for the TeX Live subdirectory texk/kpathsea/
@@ -19567,14 +17687,6 @@ LIBOBJS=$ac_libobjs
 
 LTLIBOBJS=$ac_ltlibobjs
 
-
- if test -n "$EXEEXT"; then
-  am__EXEEXT_TRUE=
-  am__EXEEXT_FALSE='#'
-else
-  am__EXEEXT_TRUE='#'
-  am__EXEEXT_FALSE=
-fi
 
 if test -z "${MAINTAINER_MODE_TRUE}" && test -z "${MAINTAINER_MODE_FALSE}"; then
   as_fn_error "conditional \"MAINTAINER_MODE\" was never defined.
@@ -20034,8 +18146,8 @@ esac
 
 cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1
 # Files that config.status was made for.
-config_files="$ac_config_files"
-config_commands="$ac_config_commands"
+config_files="`echo $ac_config_files`"
+config_commands="`echo $ac_config_commands`"
 
 _ACEOF
 
@@ -20954,28 +19066,18 @@ $as_echo "$as_me: executing $ac_file commands" >&6;}
 
 
   case $ac_file$ac_mode in
-    "depfiles":C) test x"$AMDEP_TRUE" != x"" || {
-  # Autoconf 2.62 quotes --file arguments for eval, but not when files
-  # are listed without --file.  Let's play safe and only enable the eval
-  # if we detect the quoting.
-  case $CONFIG_FILES in
-  *\'*) eval set x "$CONFIG_FILES" ;;
-  *)   set x $CONFIG_FILES ;;
-  esac
-  shift
-  for mf
-  do
-    # Strip MF so we end up with the name of the file.
-    mf=`echo "$mf" | sed -e 's/:.*$//'`
-    # Check whether this is an Automake generated Makefile or not.
-    # We used to match only the files named `Makefile.in', but
-    # some people rename them; so instead we look at the file content.
-    # Grep'ing the first line is not enough: some people post-process
-    # each Makefile.in and add a new line on top of each file to say so.
-    # Grep'ing the whole file is not good either: AIX grep has a line
-    # limit of 2048, but all sed's we know have understand at least 4000.
-    if sed -n 's,^#.*generated by automake.*,X,p' "$mf" | grep X >/dev/null 2>&1; then
-      dirpart=`$as_dirname -- "$mf" ||
+    "depfiles":C) test x"$AMDEP_TRUE" != x"" || for mf in $CONFIG_FILES; do
+  # Strip MF so we end up with the name of the file.
+  mf=`echo "$mf" | sed -e 's/:.*$//'`
+  # Check whether this is an Automake generated Makefile or not.
+  # We used to match only the files named `Makefile.in', but
+  # some people rename them; so instead we look at the file content.
+  # Grep'ing the first line is not enough: some people post-process
+  # each Makefile.in and add a new line on top of each file to say so.
+  # Grep'ing the whole file is not good either: AIX grep has a line
+  # limit of 2048, but all sed's we know have understand at least 4000.
+  if sed -n 's,^#.*generated by automake.*,X,p' "$mf" | grep X >/dev/null 2>&1; then
+    dirpart=`$as_dirname -- "$mf" ||
 $as_expr X"$mf" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
 	 X"$mf" : 'X\(//\)[^/]' \| \
 	 X"$mf" : 'X\(//\)$' \| \
@@ -20998,28 +19100,28 @@ $as_echo X"$mf" |
 	    q
 	  }
 	  s/.*/./; q'`
-    else
-      continue
-    fi
-    # Extract the definition of DEPDIR, am__include, and am__quote
-    # from the Makefile without running `make'.
-    DEPDIR=`sed -n 's/^DEPDIR = //p' < "$mf"`
-    test -z "$DEPDIR" && continue
-    am__include=`sed -n 's/^am__include = //p' < "$mf"`
-    test -z "am__include" && continue
-    am__quote=`sed -n 's/^am__quote = //p' < "$mf"`
-    # When using ansi2knr, U may be empty or an underscore; expand it
-    U=`sed -n 's/^U = //p' < "$mf"`
-    # Find all dependency output files, they are included files with
-    # $(DEPDIR) in their names.  We invoke sed twice because it is the
-    # simplest approach to changing $(DEPDIR) to its actual value in the
-    # expansion.
-    for file in `sed -n "
-      s/^$am__include $am__quote\(.*(DEPDIR).*\)$am__quote"'$/\1/p' <"$mf" | \
-	 sed -e 's/\$(DEPDIR)/'"$DEPDIR"'/g' -e 's/\$U/'"$U"'/g'`; do
-      # Make sure the directory exists.
-      test -f "$dirpart/$file" && continue
-      fdir=`$as_dirname -- "$file" ||
+  else
+    continue
+  fi
+  # Extract the definition of DEPDIR, am__include, and am__quote
+  # from the Makefile without running `make'.
+  DEPDIR=`sed -n 's/^DEPDIR = //p' < "$mf"`
+  test -z "$DEPDIR" && continue
+  am__include=`sed -n 's/^am__include = //p' < "$mf"`
+  test -z "am__include" && continue
+  am__quote=`sed -n 's/^am__quote = //p' < "$mf"`
+  # When using ansi2knr, U may be empty or an underscore; expand it
+  U=`sed -n 's/^U = //p' < "$mf"`
+  # Find all dependency output files, they are included files with
+  # $(DEPDIR) in their names.  We invoke sed twice because it is the
+  # simplest approach to changing $(DEPDIR) to its actual value in the
+  # expansion.
+  for file in `sed -n "
+    s/^$am__include $am__quote\(.*(DEPDIR).*\)$am__quote"'$/\1/p' <"$mf" | \
+       sed -e 's/\$(DEPDIR)/'"$DEPDIR"'/g' -e 's/\$U/'"$U"'/g'`; do
+    # Make sure the directory exists.
+    test -f "$dirpart/$file" && continue
+    fdir=`$as_dirname -- "$file" ||
 $as_expr X"$file" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
 	 X"$file" : 'X\(//\)[^/]' \| \
 	 X"$file" : 'X\(//\)$' \| \
@@ -21042,12 +19144,11 @@ $as_echo X"$file" |
 	    q
 	  }
 	  s/.*/./; q'`
-      as_dir=$dirpart/$fdir; as_fn_mkdir_p
-      # echo "creating $dirpart/$file"
-      echo '# dummy' > "$dirpart/$file"
-    done
+    as_dir=$dirpart/$fdir; as_fn_mkdir_p
+    # echo "creating $dirpart/$file"
+    echo '# dummy' > "$dirpart/$file"
   done
-}
+done
  ;;
     "libtool":C)
 
