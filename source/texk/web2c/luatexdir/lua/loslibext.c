@@ -27,7 +27,7 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#if defined(_WIN32) || defined(WIN32) || defined(__NT__)
+#if defined(_WIN32) || defined(__NT__)
 #  define MKDIR(a,b) mkdir(a)
 #else
 #  define MKDIR(a,b) mkdir(a,b)
@@ -39,7 +39,7 @@ static const char _svn_version[] =
   successfully compile without major prorting effort 
   (amiga|mac|os2|vms) */
 
-#if defined(_WIN32) || defined(WIN32) || defined(__NT__)
+#if defined(_WIN32) || defined(__NT__)
 #  define OS_PLATTYPE "windows"
 #  define OS_PLATNAME "windows"
 #elif defined(__GO32__) || defined(__DJGPP__) || defined(__DOS__)
@@ -99,7 +99,7 @@ static const char _svn_version[] =
  * gettimeofday() for win32 is using an alternative definition
  */
 
-#if (! defined(WIN32)) && (! defined(__SUNOS__))
+#if (! defined(_WIN32)) && (! defined(__SUNOS__))
 #  include <sys/time.h>         /* gettimeofday() */
 #  include <sys/times.h>        /* times() */
 #  include <sys/wait.h>
@@ -109,7 +109,7 @@ static const char _svn_version[] =
 
 #define DONT_REALLY_EXIT 1
 
-#ifdef WIN32
+#ifdef _WIN32
 #  include <process.h>
 #  define spawn_command(a,b,c) _spawnvpe(_P_WAIT,(const char *)a,(const char* const*)b,(const char* const*)c)
 #  if DONT_REALLY_EXIT
@@ -257,7 +257,7 @@ static int spawn_command(const char *file, char *const *argv, char *const *envp)
 
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 static char *get_command_name(char *maincmd)
 {
     /* retrieve argv[0] part from the command string, 
@@ -282,7 +282,7 @@ static char *get_command_name(char *maincmd)
 static char **do_split_command(const char *maincmd, char **runcmd)
 {
     char **cmdline = NULL;
-#ifdef WIN32
+#ifdef _WIN32
     /* On WIN32 don't split anything, because 
        _spawnvpe can't put it back together properly 
        if there are quoted arguments with spaces. 
@@ -388,7 +388,7 @@ static char **do_flatten_command(lua_State * L, char **runcmd)
 
     lua_rawgeti(L, -1, 0);
     if (lua_isnil(L, -1) || (s = lua_tostring(L, -1)) == NULL) {
-#ifdef WIN32
+#ifdef _WIN32
         *runcmd = get_command_name(cmdline[0]);
 #else
         *runcmd = cmdline[0];
@@ -440,7 +440,7 @@ static int os_exec(lua_State * L)
     }
 
     if (allow > 0 && cmdline != NULL && runcmd != NULL) {
-#if defined(WIN32) && DONT_REALLY_EXIT
+#if defined(_WIN32) && DONT_REALLY_EXIT
         if (allow == 2)
             exec_command(safecmd, cmdline, environ);
         else
@@ -534,7 +534,7 @@ static int os_spawn(lua_State * L)
         } else if (i == -1) {
             /* this branch covers WIN32 as well as fork() and waitpid() errors */
             do_error_return(strerror(errno), errno);
-#ifndef WIN32
+#ifndef _WIN32
         } else if (i == INVALID_RET_E2BIG) {
             do_error_return(strerror(E2BIG), i);
         } else if (i == INVALID_RET_ENOENT) {
@@ -585,7 +585,7 @@ static int os_setenv(lua_State * L)
                 return luaL_error(L, "unable to change environment");
             }
         } else {
-#if defined(WIN32) || defined(__sun__) || defined(__sun) || defined(_AIX)
+#if defined(_WIN32) || defined(__sun__) || defined(__sun) || defined(_AIX)
             value = xmalloc(strlen(key) + 2);
             sprintf(value, "%s=", key);
             if (putenv(value)) {
@@ -638,7 +638,7 @@ static int ex_sleep(lua_State * L)
 {
     lua_Number interval = luaL_checknumber(L, 1);
     lua_Number units = luaL_optnumber(L, 2, 1);
-#ifdef WIN32
+#ifdef _WIN32
     Sleep((DWORD) (1e3 * interval / units));
 #else                           /* assumes posix or bsd */
     usleep((unsigned) (1e6 * interval / units));
@@ -648,7 +648,7 @@ static int ex_sleep(lua_State * L)
 
 
 
-#ifdef WIN32
+#ifdef _WIN32
 #  define _UTSNAME_LENGTH 65
 
 /* Structure describing the system and machine.  */
@@ -809,7 +809,7 @@ static int ex_uname(lua_State * L)
 }
 
 
-#if (! defined (WIN32))  && (! defined (__SUNOS__))
+#if (! defined (_WIN32))  && (! defined (__SUNOS__))
 static int os_times(lua_State * L)
 {
     struct tms r;
@@ -846,7 +846,7 @@ static int os_times(lua_State * L)
 static int os_gettimeofday(lua_State * L)
 {
     double v;
-#  ifndef WIN32
+#  ifndef _WIN32
     struct timeval tv;
     gettimeofday(&tv, NULL);
     v = (double) tv.tv_sec + (double) tv.tv_usec / 1000000.0;
@@ -990,7 +990,7 @@ void open_oslibext(lua_State * L, int safer_option)
     lua_setfield(L, -2, "name");
     lua_pushcfunction(L, ex_uname);
     lua_setfield(L, -2, "uname");
-#if (! defined (WIN32))  && (! defined (__SUNOS__))
+#if (! defined (_WIN32))  && (! defined (__SUNOS__))
     lua_pushcfunction(L, os_times);
     lua_setfield(L, -2, "times");
 #endif
