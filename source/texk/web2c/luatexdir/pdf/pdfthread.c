@@ -58,7 +58,7 @@ void append_bead(PDF pdf, halfword p)
     addto_page_resources(pdf, obj_type_bead, b);
 }
 
-void do_thread(PDF pdf, halfword parent_box, halfword p, scaledpos cur)
+void do_thread(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 {
     scaled_whd alt_rule;
     if ((type(p) == hlist_node) && (subtype(p) == pdf_start_thread_node))
