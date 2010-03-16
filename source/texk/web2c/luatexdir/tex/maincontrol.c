@@ -1189,6 +1189,13 @@ void handle_right_brace(void)
         }
         break;
     case output_group:
+	/* this is needed in case the \.{\\output} executes a \.{\\textdir} command. */
+	if (dir_level(text_dir_ptr) == cur_level) {
+	    /* DIR: Remove from |text_dir_ptr| */
+	    halfword text_dir_tmp = vlink(text_dir_ptr);
+	    flush_node(text_dir_ptr);
+	    text_dir_ptr = text_dir_tmp;
+	}
         resume_after_output();
         break;
     case disc_group:
