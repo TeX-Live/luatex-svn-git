@@ -216,7 +216,7 @@ static int lfs_g_setmode (lua_State *L, FILE *f, int arg) {
   }
 }
 #else
-static int lfs_g_setmode (lua_State *L, FILE *f, int arg) {
+static int lfs_g_setmode (lua_State *L, FILE *f __attribute__ ((unused)), int arg __attribute__ ((unused))) {
   lua_pushboolean(L, 0);
   lua_pushliteral(L, "setmode not supported on this platform");
   return 2;
@@ -694,7 +694,7 @@ static int link_info (lua_State *L) {
 static int read_link (lua_State *L) {
 	return Preadlink (L);
 }
-static int get_short_name (lua_State *L) {
+static int get_short_name (lua_State *L __attribute__ ((unused))) {
     /* simply do nothing */
   return 1;
 }
