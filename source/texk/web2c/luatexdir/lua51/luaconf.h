@@ -11,6 +11,7 @@
 #include <limits.h>
 #include <stddef.h>
 
+#include <web2c/c-auto.h>
 
 /*
 ** ==================================================================
@@ -45,7 +46,9 @@
 #endif
 
 #if !defined(_WIN32)
+#if defined(HAVE_DLFCN_H)
 #define LUA_USE_DLOPEN /* needs an extra library: -ldl */
+#endif
 #endif
 
 
