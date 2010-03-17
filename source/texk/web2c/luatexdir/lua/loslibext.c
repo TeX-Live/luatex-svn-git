@@ -51,6 +51,8 @@ static const char _svn_version[] =
 /* this is just a first guess */
 #  if defined(__BSD__)
 #    define OS_PLATNAME "bsd"
+#  elif defined(__CYGWIN__)
+#    define OS_PLATNAME "cygwin"
 #  elif defined(__SYSV__)
 #    define OS_PLATNAME "sysv"
 #  else
