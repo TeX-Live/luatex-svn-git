@@ -373,19 +373,8 @@ AC_CONFIG_COMMANDS_POST([AS_IF([test "x$cross_compiling" = xyes],
  CC='$BUILDCC' CPPFLAGS='$BUILDCPPFLAGS'\
  CFLAGS='$BUILDCFLAGS' LDFLAGS='$BUILDLDFLAGS'"])])
 
-dnl for luatex on freebsd dlopen support
-AC_CANONICAL_HOST
-AC_MSG_CHECKING([for FreeBSD])
-case "$host" in
-       *-*-freebsd*)
-       freebsd_os=yes
-       ;;
-       *)
-       freebsd_os=no
-       ;;
-esac
-AC_MSG_RESULT([$freebsd_os])
-AM_CONDITIONAL([FREEBSD], [test "x$freebsd_os" = xyes])
+dnl for luatex dynamic loading
 
+LT_LIB_DLLOAD
 
 AC_OUTPUT

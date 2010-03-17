@@ -24,25 +24,9 @@ luatex_ldadd = libluatex.a libff.a libluamisc.a libluasocket.a liblua51.a
 luatex_ldadd += $(ZZIPLIB_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) $(XPDF_LIBS)
 luatex_ldadd += $(OBSDCOMPAT_LIBS) libmd5.a libmplib.a 
 
-# Dynamic module loading
-if WIN32
-# Windows has its own dynamic loading
-else
-if XETEX_MACOSX
-# OSX can do dlopen() without extra options
-else
-# linux, freebsd
-# FreeBSD does not need libdl, but still needs the linker flag
-luatex_LDFLAGS = -Wl,-E
-if FREEBSD
-else
-# linux
-luatex_ldadd += -ldl
-endif
-endif
-endif
+luatex_LDFLAGS = -export-dynamic
 
-luatex_LDADD = $(luatex_ldadd) $(LDADD) $(lua_socketlibs)
+luatex_LDADD = $(luatex_ldadd) $(LDADD) $(LIBADD_DLOPEN) $(lua_socketlibs)
 
 luatex_DEPENDENCIES = $(proglib) $(KPATHSEA_DEPEND) libluatex.a
 luatex_DEPENDENCIES += $(LIBPNG_DEPEND) $(ZLIB_DEPEND) $(XPDF_DEPEND)
