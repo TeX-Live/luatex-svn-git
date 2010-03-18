@@ -312,6 +312,7 @@ static const char *scan_integer_part(lua_State * L, const char *ss, int *ret,
     }
     vacuous = true;
     cur_val = 0;
+    OK_so_far = true;
 
     /* Accumulate the constant until |cur_tok| is not a suitable digit */
     while (1) {
