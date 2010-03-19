@@ -156,6 +156,7 @@ The |jump_out| procedure just cuts across all active procedure levels and
 exits the program. It is used when there is no recovery from a particular error.
 */
 
+__attribute__ ((noreturn))
 void do_final_end(void)
 {
     update_terminal();
@@ -166,6 +167,7 @@ void do_final_end(void)
         uexit(0);
 }
 
+__attribute__ ((noreturn))
 void jump_out(void)
 {
     close_files_and_terminate();
