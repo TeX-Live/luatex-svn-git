@@ -74,37 +74,10 @@ halfword do_pop_dir_node(halfword p)
 
 halfword dir_ptr;
 
-int dir_primary[32];
-int dir_secondary[32];
-int dir_tertiary[32];
 halfword text_dir_ptr;
 
 void initialize_directions(void)
 {
-    int k;
-    for (k = 0; k <= 7; k++) {
-        dir_primary[k] = dir_T;
-        dir_primary[k + 8] = dir_L;
-        dir_primary[k + 16] = dir_B;
-        dir_primary[k + 24] = dir_R;
-    }
-    for (k = 0; k <= 3; k++) {
-        dir_secondary[k] = dir_L;
-        dir_secondary[k + 4] = dir_R;
-        dir_secondary[k + 8] = dir_T;
-        dir_secondary[k + 12] = dir_B;
-
-        dir_secondary[k + 16] = dir_L;
-        dir_secondary[k + 20] = dir_R;
-        dir_secondary[k + 24] = dir_T;
-        dir_secondary[k + 28] = dir_B;
-    }
-    for (k = 0; k <= 7; k++) {
-        dir_tertiary[k * 4] = dir_T;
-        dir_tertiary[k * 4 + 1] = dir_L;
-        dir_tertiary[k * 4 + 2] = dir_B;
-        dir_tertiary[k * 4 + 3] = dir_R;
-    }
 }
 
 halfword new_dir(int s)
@@ -145,7 +118,7 @@ scaled pack_width(int curdir, int pdir, halfword p, boolean isglyph)
     scaled wd = 0;
     if (isglyph) {
         if (textdir_parallel(curdir, pdir) ==
-            dir_orthogonal(dir_secondary[pdir], dir_tertiary[pdir]))
+            textglyphdir_orthogonal(pdir))
             wd = glyph_width(p);
         else
             wd = glyph_depth(p) + glyph_height(p);

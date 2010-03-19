@@ -32,41 +32,278 @@
 #  define dir_LTL  9
 #  define dir_RTT  24
 
-#  define dir_opposite(a,b)   ((((a)+2) % 4)==((b) % 4))
-#  define dir_parallel(a,b)   (((a) % 2)==((b) % 2))
-#  define dir_orthogonal(a,b) (!dir_parallel((a),(b)))
-#  define is_mirrored(a)      (dir_opposite(dir_primary[(a)],dir_tertiary[(a)]))
-#  define is_rotated(a)       dir_parallel(dir_secondary[(a)],dir_tertiary[(a)])
 
-#  define textdir_parallel(a,b)                           \
-   dir_parallel(dir_secondary[(a)], dir_secondary[(b)])
+/* #  define dir_array_size  25 */ /* |dir_RTT + 1| */
 
-#  define pardir_parallel(a,b)                        \
-   dir_parallel(dir_primary[(a)], dir_primary[(b)])
+/* inv(primary) == tertiary */
+/*
+boolean _is_mirrored[dir_array_size];
+_is_mirrored[dir_TLT] = 0;
+_is_mirrored[dir_TRT] = 0;
+_is_mirrored[dir_LTL] = 0;
+_is_mirrored[dir_RTT] = 0;
+*/
 
-#  define pardir_opposite(a,b)                        \
-   dir_opposite(dir_primary[(a)], dir_primary[(b)])
+#define is_mirrored(a) 0
 
-#  define textdir_opposite(a,b)                           \
-   dir_opposite(dir_secondary[(a)], dir_secondary[(b)])
+/* secondary == tertiary */
+/*
+boolean _is_rotated[dir_array_size];
+_is_rotated[dir_TLT] = 0;
+_is_rotated[dir_TRT] = 0;
+_is_rotated[dir_LTL] = 0;
+_is_rotated[dir_RTT] = 1;
+*/
 
-#  define glyphdir_opposite(a,b)                          \
-   dir_opposite(dir_tertiary[(a)], dir_tertiary[(b)])
+#define is_rotated(a) (a == dir_RTT)
 
-#  define pardir_eq(a,b)                          \
-   (dir_primary[(a)] == dir_primary[(b)])
+/* secondary == secondary */
+/*
+boolean _textdir_parallel[dir_array_size][dir_array_size];
+_textdir_parallel[dir_TLT][dir_TLT] = 1;
+_textdir_parallel[dir_TLT][dir_TRT] = 1;
+_textdir_parallel[dir_TLT][dir_LTL] = 0;
+_textdir_parallel[dir_TLT][dir_RTT] = 0;
+_textdir_parallel[dir_TRT][dir_TLT] = 1;
+_textdir_parallel[dir_TRT][dir_TRT] = 1;
+_textdir_parallel[dir_TRT][dir_LTL] = 0;
+_textdir_parallel[dir_TRT][dir_RTT] = 0;
+_textdir_parallel[dir_LTL][dir_TLT] = 0;
+_textdir_parallel[dir_LTL][dir_TRT] = 0;
+_textdir_parallel[dir_LTL][dir_LTL] = 1;
+_textdir_parallel[dir_LTL][dir_RTT] = 1;
+_textdir_parallel[dir_RTT][dir_TLT] = 0;
+_textdir_parallel[dir_RTT][dir_TRT] = 0;
+_textdir_parallel[dir_RTT][dir_LTL] = 1;
+_textdir_parallel[dir_RTT][dir_RTT] = 1;
+*/
 
-#  define textdir_eq(a,b)                             \
-   (dir_secondary[(a)] == dir_secondary[(b)])
+#define textdir_parallel(a,b)  (((a == dir_TLT || a == dir_TRT)&&(b == dir_TLT || b == dir_TRT)) || \
+				((a == dir_LTL || a == dir_RTT)&&(b == dir_LTL || b == dir_RTT)))
 
-#  define glyphdir_eq(a,b)                        \
-   (dir_tertiary[(a)] == dir_tertiary[(b)])
 
-#  define partextdir_eq(a,b)                      \
-   (dir_primary[(a)] == dir_secondary[(b)])
+/* primary == primary */
+/*
+boolean _pardir_parallel[dir_array_size][dir_array_size];
+_pardir_parallel[dir_TLT][dir_TLT] = 1;
+_pardir_parallel[dir_TLT][dir_TRT] = 1;
+_pardir_parallel[dir_TLT][dir_LTL] = 0;
+_pardir_parallel[dir_TLT][dir_RTT] = 0;
+_pardir_parallel[dir_TRT][dir_TLT] = 1;
+_pardir_parallel[dir_TRT][dir_TRT] = 1;
+_pardir_parallel[dir_TRT][dir_LTL] = 0;
+_pardir_parallel[dir_TRT][dir_RTT] = 0;
+_pardir_parallel[dir_LTL][dir_TLT] = 0;
+_pardir_parallel[dir_LTL][dir_TRT] = 0;
+_pardir_parallel[dir_LTL][dir_LTL] = 1;
+_pardir_parallel[dir_LTL][dir_RTT] = 1;
+_pardir_parallel[dir_RTT][dir_TLT] = 0;
+_pardir_parallel[dir_RTT][dir_TRT] = 0;
+_pardir_parallel[dir_RTT][dir_LTL] = 1;
+_pardir_parallel[dir_RTT][dir_RTT] = 1;
+*/
 
-#  define textdir_is(a,b) (dir_secondary[(a)]==(b))
 
+#define pardir_parallel(a,b) (((a == dir_TLT || a == dir_TRT)&&(b == dir_TLT || b == dir_TRT)) || \
+			      ((a == dir_LTL || a == dir_RTT)&&(b == dir_LTL || b == dir_RTT)))
+
+
+/* inv(primary) == primary */
+/*
+boolean _pardir_opposite[dir_array_size][dir_array_size];
+_pardir_opposite[dir_TLT][dir_TLT] = 0;
+_pardir_opposite[dir_TLT][dir_TRT] = 0;
+_pardir_opposite[dir_TLT][dir_LTL] = 0;
+_pardir_opposite[dir_TLT][dir_RTT] = 0;
+_pardir_opposite[dir_TRT][dir_TLT] = 0;
+_pardir_opposite[dir_TRT][dir_TRT] = 0;
+_pardir_opposite[dir_TRT][dir_LTL] = 0;
+_pardir_opposite[dir_TRT][dir_RTT] = 0;
+_pardir_opposite[dir_LTL][dir_TLT] = 0;
+_pardir_opposite[dir_LTL][dir_TRT] = 0;
+_pardir_opposite[dir_LTL][dir_LTL] = 0;
+_pardir_opposite[dir_LTL][dir_RTT] = 1;
+_pardir_opposite[dir_RTT][dir_TLT] = 0;
+_pardir_opposite[dir_RTT][dir_TRT] = 0;
+_pardir_opposite[dir_RTT][dir_LTL] = 1;
+_pardir_opposite[dir_RTT][dir_RTT] = 0;
+*/
+
+#define pardir_opposite(a,b) ((a == dir_LTL && b == dir_RTT)||(a == dir_RTT && b == dir_LTL))
+
+
+/* inv(secondary) == secondary */
+/*
+boolean _textdir_opposite[dir_array_size][dir_array_size];
+_textdir_opposite[dir_TLT][dir_TLT] = 0;
+_textdir_opposite[dir_TLT][dir_TRT] = 1;
+_textdir_opposite[dir_TLT][dir_LTL] = 0;
+_textdir_opposite[dir_TLT][dir_RTT] = 0;
+_textdir_opposite[dir_TRT][dir_TLT] = 1;
+_textdir_opposite[dir_TRT][dir_TRT] = 0;
+_textdir_opposite[dir_TRT][dir_LTL] = 0;
+_textdir_opposite[dir_TRT][dir_RTT] = 0;
+_textdir_opposite[dir_LTL][dir_TLT] = 0;
+_textdir_opposite[dir_LTL][dir_TRT] = 0;
+_textdir_opposite[dir_LTL][dir_LTL] = 0;
+_textdir_opposite[dir_LTL][dir_RTT] = 0;
+_textdir_opposite[dir_RTT][dir_TLT] = 0;
+_textdir_opposite[dir_RTT][dir_TRT] = 0;
+_textdir_opposite[dir_RTT][dir_LTL] = 0;
+_textdir_opposite[dir_RTT][dir_RTT] = 0;
+*/
+
+#define textdir_opposite(a,b) ((a == dir_TLT && b == dir_TRT)||(a == dir_TRT && b == dir_TLT))
+
+
+/* inv(tertiary) == tertiary */
+/*
+boolean _glyphdir_opposite[dir_array_size][dir_array_size];
+_glyphdir_opposite[dir_TLT][dir_TLT] = 0;
+_glyphdir_opposite[dir_TLT][dir_TRT] = 0;
+_glyphdir_opposite[dir_TLT][dir_LTL] = 0;
+_glyphdir_opposite[dir_TLT][dir_RTT] = 0;
+_glyphdir_opposite[dir_TRT][dir_TLT] = 0;
+_glyphdir_opposite[dir_TRT][dir_TRT] = 0;
+_glyphdir_opposite[dir_TRT][dir_LTL] = 0;
+_glyphdir_opposite[dir_TRT][dir_RTT] = 0;
+_glyphdir_opposite[dir_LTL][dir_TLT] = 0;
+_glyphdir_opposite[dir_LTL][dir_TRT] = 0;
+_glyphdir_opposite[dir_LTL][dir_LTL] = 0;
+_glyphdir_opposite[dir_LTL][dir_RTT] = 0;
+_glyphdir_opposite[dir_RTT][dir_TLT] = 0;
+_glyphdir_opposite[dir_RTT][dir_TRT] = 0;
+_glyphdir_opposite[dir_RTT][dir_LTL] = 0;
+_glyphdir_opposite[dir_RTT][dir_RTT] = 0;
+*/
+
+#define glyphdir_opposite(a,b) 0
+
+
+/* primary == primary */
+/*
+boolean _pardir_eq[dir_array_size][dir_array_size];
+_pardir_eq[dir_TLT][dir_TLT] = 1;
+_pardir_eq[dir_TLT][dir_TRT] = 1;
+_pardir_eq[dir_TLT][dir_LTL] = 0;
+_pardir_eq[dir_TLT][dir_RTT] = 0;
+_pardir_eq[dir_TRT][dir_TLT] = 1;
+_pardir_eq[dir_TRT][dir_TRT] = 1;
+_pardir_eq[dir_TRT][dir_LTL] = 0;
+_pardir_eq[dir_TRT][dir_RTT] = 0;
+_pardir_eq[dir_LTL][dir_TLT] = 0;
+_pardir_eq[dir_LTL][dir_TRT] = 0;
+_pardir_eq[dir_LTL][dir_LTL] = 1;
+_pardir_eq[dir_LTL][dir_RTT] = 0;
+_pardir_eq[dir_RTT][dir_TLT] = 0;
+_pardir_eq[dir_RTT][dir_TRT] = 0;
+_pardir_eq[dir_RTT][dir_LTL] = 0;
+_pardir_eq[dir_RTT][dir_RTT] = 1;
+*/
+
+#define pardir_eq(a,b) (((a == dir_TLT || a == dir_TRT)&&(b == dir_TLT || b == dir_TRT))|| \
+			(a == dir_LTL && b == dir_LTL) ||		\
+			(a == dir_RTT && b == dir_RTT))
+
+/* secondary == secondary */
+/*
+boolean _textdir_eq[dir_array_size][dir_array_size];
+_textdir_eq[dir_TLT][dir_TLT] = 1;
+_textdir_eq[dir_TLT][dir_TRT] = 0;
+_textdir_eq[dir_TLT][dir_LTL] = 0;
+_textdir_eq[dir_TLT][dir_RTT] = 0;
+_textdir_eq[dir_TRT][dir_TLT] = 0;
+_textdir_eq[dir_TRT][dir_TRT] = 1;
+_textdir_eq[dir_TRT][dir_LTL] = 0;
+_textdir_eq[dir_TRT][dir_RTT] = 0;
+_textdir_eq[dir_LTL][dir_TLT] = 0;
+_textdir_eq[dir_LTL][dir_TRT] = 0;
+_textdir_eq[dir_LTL][dir_LTL] = 1;
+_textdir_eq[dir_LTL][dir_RTT] = 1;
+_textdir_eq[dir_RTT][dir_TLT] = 0;
+_textdir_eq[dir_RTT][dir_TRT] = 0;
+_textdir_eq[dir_RTT][dir_LTL] = 1;
+_textdir_eq[dir_RTT][dir_RTT] = 1;
+*/
+
+#define textdir_eq(a,b) ((a == dir_TLT && b == dir_TLT) || \
+			 (a == dir_TRT && b == dir_TRT) || \
+			 (a == dir_LTL && (b == dir_LTL || b == dir_RTT)) || \
+			 (a == dir_RTT && (b == dir_LTL || b == dir_RTT))
+
+
+/* tertiary == tertiary */
+/*
+boolean _glyphdir_eq[dir_array_size][dir_array_size];
+_glyphdir_eq[dir_TLT][dir_TLT] = 1;
+_glyphdir_eq[dir_TLT][dir_TRT] = 1;
+_glyphdir_eq[dir_TLT][dir_LTL] = 0;
+_glyphdir_eq[dir_TLT][dir_RTT] = 1;
+_glyphdir_eq[dir_TRT][dir_TLT] = 1;
+_glyphdir_eq[dir_TRT][dir_TRT] = 1;
+_glyphdir_eq[dir_TRT][dir_LTL] = 0;
+_glyphdir_eq[dir_TRT][dir_RTT] = 1;
+_glyphdir_eq[dir_LTL][dir_TLT] = 0;
+_glyphdir_eq[dir_LTL][dir_TRT] = 0;
+_glyphdir_eq[dir_LTL][dir_LTL] = 1;
+_glyphdir_eq[dir_LTL][dir_RTT] = 0;
+_glyphdir_eq[dir_RTT][dir_TLT] = 1;
+_glyphdir_eq[dir_RTT][dir_TRT] = 1;
+_glyphdir_eq[dir_RTT][dir_LTL] = 0;
+_glyphdir_eq[dir_RTT][dir_RTT] = 1;
+*/
+
+#define glyphdir_eq(a,b) ((a != dir_LTL && b != dir_LTL) || \
+			  (a == dir_LTL && b == dir_LTL))
+			  
+
+/* primary == secondary */
+/*
+boolean _partextdir_eq[dir_array_size][dir_array_size];
+_partextdir_eq[dir_TLT][dir_TLT] = 0;
+_partextdir_eq[dir_TLT][dir_TRT] = 0;
+_partextdir_eq[dir_TLT][dir_LTL] = 1;
+_partextdir_eq[dir_TLT][dir_RTT] = 1;
+_partextdir_eq[dir_TRT][dir_TLT] = 0;
+_partextdir_eq[dir_TRT][dir_TRT] = 0;
+_partextdir_eq[dir_TRT][dir_LTL] = 1;
+_partextdir_eq[dir_TRT][dir_RTT] = 1;
+_partextdir_eq[dir_LTL][dir_TLT] = 1;
+_partextdir_eq[dir_LTL][dir_TRT] = 0;
+_partextdir_eq[dir_LTL][dir_LTL] = 0;
+_partextdir_eq[dir_LTL][dir_RTT] = 0;
+_partextdir_eq[dir_RTT][dir_TLT] = 0;
+_partextdir_eq[dir_RTT][dir_TRT] = 1;
+_partextdir_eq[dir_RTT][dir_LTL] = 0;
+_partextdir_eq[dir_RTT][dir_RTT] = 0;
+*/
+
+#define partextdir_eq(a,b) (((a == dir_TLT || a == dir_TRT)&&(b == dir_LTL || b == dir_RTT)) || \
+			    (a == dir_LTL && b == dir_TLT) ||		\
+			    (a == dir_RTT && b == dir_TRT))
+
+
+/* secondary != tertiary */
+/*
+boolean _textglyphdir_orthogonal[dir_array_size]
+_textglyphdir_orthogonal[dir_TLT] = 1;
+_textglyphdir_orthogonal[dir_TRT] = 1;
+_textglyphdir_orthogonal[dir_LTL] = 1;
+_textglyphdir_orthogonal[dir_RTT] = 0;
+*/
+
+#define textglyphdir_orthogonal(a) (a != dir_RTT)
+
+/* secondary == L */
+/*
+boolean _textdir_is[dir_array_size];
+_textdir_is[dir_TLT] = 1;
+_textdir_is[dir_TRT] = 1;
+_textdir_is[dir_LTL] = 1;
+_textdir_is[dir_RTT] = 0;
+*/
+
+#  define textdir_is_L(a) (a == dir_TLT)
 
 #  define push_dir(a)                           \
    { halfword dir_tmp=new_dir((a));             \
@@ -88,9 +325,6 @@
 
 extern halfword dir_ptr;
 
-extern int dir_primary[32];
-extern int dir_secondary[32];
-extern int dir_tertiary[32];
 extern halfword text_dir_ptr;
 
 extern void initialize_directions(void);
