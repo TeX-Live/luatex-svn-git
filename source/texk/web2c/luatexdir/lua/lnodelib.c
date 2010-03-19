@@ -3347,6 +3347,14 @@ static int lua_nodelib_usedlist(lua_State * L)
     return 1;
 }
 
+/* node.protrusion_skipable(node m) */
+static int lua_nodelib_cp_skipable(lua_State * L)
+{
+    halfword n, m, o, p, tmp_head;
+    n = *(check_isnode(L, 1));
+    lua_pushboolean(L, cp_skipable(n));
+    return 1;
+}
 
 static const struct luaL_reg nodelib_f[] = {
     {"id", lua_nodelib_id},
@@ -3387,7 +3395,8 @@ static const struct luaL_reg nodelib_f[] = {
     {"usedlist", lua_nodelib_usedlist},
     {"protect_glyphs", lua_nodelib_protect_glyphs},
     {"unprotect_glyphs", lua_nodelib_unprotect_glyphs},
-    {NULL, NULL}                /* sentinel */
+    {"protrusion_skipable", lua_nodelib_cp_skipable},
+   {NULL, NULL}                /* sentinel */
 };
 
 static const struct luaL_reg nodelib_m[] = {

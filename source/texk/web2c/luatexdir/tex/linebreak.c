@@ -266,36 +266,6 @@ static boolean second_pass;     /* is this our second attempt to break this para
 static boolean final_pass;      /*is this our final attempt to break this paragraph? */
 static int threshold;           /* maximum badness on feasible lines */
 
-/* skipable nodes at the margins during character protrusion */
-
-#define cp_skipable(a) ((! is_char_node((a))) &&                        \
-                        ((type((a)) == ins_node)                        \
-                         || (type((a)) == mark_node)                    \
-                         || (type((a)) == adjust_node)                  \
-                         || (type((a)) == penalty_node)                 \
-                         || ((type((a)) == whatsit_node) &&             \
-                             (subtype((a)) != pdf_refximage_node) &&    \
-                             (subtype((a)) != pdf_refxform_node))       \
-                         /* reference to an image or XObject form */    \
-                         || ((type((a)) == disc_node) &&                \
-                             (vlink_pre_break(a) == null) &&            \
-                             (vlink_post_break(a) == null) &&           \
-                             (vlink_no_break(a) == null))               \
-                         /* an empty |disc_node| */                     \
-                         || ((type((a)) == math_node) &&                \
-                             (surround((a)) == 0))                      \
-                         || ((type((a)) == kern_node) &&                \
-                             ((width((a)) == 0) ||                      \
-                              (subtype((a)) == normal)))                \
-                         || ((type((a)) == glue_node) &&                \
-                             (glue_ptr((a)) == zero_glue))              \
-                         || ((type((a)) == hlist_node) &&               \
-                             (width((a)) == 0) &&                       \
-                             (height((a)) == 0) &&                      \
-                             (depth((a)) == 0) &&                       \
-                             (list_ptr((a)) == null))                   \
-                         ))
-
 /* maximum fill level for |hlist_stack|*/
 #define max_hlist_stack 512     /* maybe good if larger than |2 *
                                    max_quarterword|, so that box nesting
