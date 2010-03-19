@@ -92,7 +92,7 @@ const char *node_fields_margin_kern[] = { "attr", "width", "glyph", NULL };
 
 const char *node_fields_glyph[] =
     { "attr", "char", "font", "lang", "left", "right", "uchyph",
-    "components", "xoffset", "yoffset", NULL
+      "components", "xoffset", "yoffset", "width", "height", "depth", NULL
 };
 const char *node_fields_style[] = { "attr", "style", NULL };
 const char *node_fields_choice[] =

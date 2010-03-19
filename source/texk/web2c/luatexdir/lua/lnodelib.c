@@ -690,6 +690,9 @@ make_luaS_index(uchyph);
 make_luaS_index(components);
 make_luaS_index(xoffset);
 make_luaS_index(yoffset);
+make_luaS_index(width);
+make_luaS_index(height);
+make_luaS_index(depth);
 
 
 void initialize_luaS_indexes(lua_State * L)
@@ -708,6 +711,9 @@ void initialize_luaS_indexes(lua_State * L)
     init_luaS_index(components);
     init_luaS_index(xoffset);
     init_luaS_index(yoffset);
+    init_luaS_index(width);
+    init_luaS_index(height);
+    init_luaS_index(depth);
 }
 
 static int get_node_field_id(lua_State * L, int n, int node)
@@ -743,6 +749,12 @@ static int get_node_field_id(lua_State * L, int n, int node)
             return 11;
         } else if (luaS_ptr_eq(s, yoffset)) {
             return 12;
+        } else if (luaS_ptr_eq(s, width)) {
+            return 13;
+        } else if (luaS_ptr_eq(s, height)) {
+            return 14;
+        } else if (luaS_ptr_eq(s, depth)) {
+            return 15;
         }
     } else if (luaS_ptr_eq(s, prev)) {
         return -1;
@@ -1765,6 +1777,15 @@ static int lua_nodelib_getfield(lua_State * L)
             break;
         case 12:
             lua_pushnumber(L, y_displace(n));
+            break;
+        case 13:
+            lua_pushnumber(L, char_width(font(n),character(n)));
+            break;
+        case 14:
+            lua_pushnumber(L, char_height(font(n),character(n)));
+            break;
+        case 15:
+            lua_pushnumber(L, char_depth(font(n),character(n)));
             break;
         default:
             lua_pushnil(L);

@@ -489,14 +489,14 @@ void ext_post_line_break(int paragraph_dir,
             } else if (cur_line == cur_list.pg_field + 1) {     /* prevgraf */
                 pen += club_penalty;
             }
-	    q = widow_penalties_ptr;
+            q = widow_penalties_ptr;
             if (q != null) {
                 r = best_line - cur_line - 1;
                 if (r > penalty(q))
                     r = penalty(q);
                 pen += penalty(q + r);
             } else if (cur_line + 2 == best_line) {
-		pen += widow_penalty;
+                pen += widow_penalty;
             }
             if (disc_break) {
                 if (passive_pen_broken(cur_p) != 0) {
