@@ -17,6 +17,10 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+#include "openbsd-compat.h"
+#ifdef HAVE_ASPRINTF            /* asprintf is not defined in openbsd-compat.h, but in stdio.h */
+#  include <stdio.h>
+#endif
 #include <kpathsea/c-stat.h>
 
 #include "lua/luatex-api.h"
@@ -639,6 +643,7 @@ void lua_initialize(int ac, char **av)
 {
 
     char *given_file = NULL;
+    char *banner;
     int kpse_init;
     static char LC_CTYPE_C[] = "LC_CTYPE=C";
     static char LC_COLLATE_C[] = "LC_COLLATE=C";
@@ -648,13 +653,18 @@ void lua_initialize(int ac, char **av)
     argc = ac;
     argv = av;
 
-    ptexbanner = malloc(256);
-    if (luatex_svn < 0)
-        snprintf(ptexbanner, 256, "This is LuaTeX, Version %s-%d",
-                 luatex_version_string, luatex_date_info);
-    else
-        snprintf(ptexbanner, 256, "This is LuaTeX, Version %s-%d (rev %d)",
-                 luatex_version_string, luatex_date_info, luatex_svn);
+    if (luatex_svn < 0) {
+        if (asprintf(&banner, "This is LuaTeX, Version %s-%d",
+                     luatex_version_string, luatex_date_info) < 0) {
+            exit(EXIT_FAILURE);
+        }
+    } else {
+        if (asprintf(&banner, "This is LuaTeX, Version %s-%d (rev %d)",
+                     luatex_version_string, luatex_date_info, luatex_svn) < 0) {
+            exit(EXIT_FAILURE);
+        }
+    }
+    ptexbanner = banner;
 
     program_invocation_name = cleaned_invocation_name(argv[0]);
 
