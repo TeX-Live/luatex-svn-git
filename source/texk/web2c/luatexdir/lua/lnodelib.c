@@ -3350,7 +3350,7 @@ static int lua_nodelib_usedlist(lua_State * L)
 /* node.protrusion_skipable(node m) */
 static int lua_nodelib_cp_skipable(lua_State * L)
 {
-    halfword n, m, o, p, tmp_head;
+    halfword n;
     n = *(check_isnode(L, 1));
     lua_pushboolean(L, cp_skipable(n));
     return 1;
