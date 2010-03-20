@@ -18,14 +18,11 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 #include "openbsd-compat.h"
-#if defined(WIN32) && !defined(__MINGW32__)
-/* no asprintf on WIN32 */
-#else
-#  ifdef HAVE_ASPRINTF          /* asprintf is not defined in openbsd-compat.h, but in stdio.h */
-#    include <stdio.h>
-#  endif
-#endif                          /* WIN32 && !__MINGW32__ */
+#ifdef HAVE_ASPRINTF            /* asprintf is not defined in openbsd-compat.h, but in stdio.h */
+#  include <stdio.h>
+#endif
 #include <kpathsea/c-stat.h>
+
 #include "lua/luatex-api.h"
 #include "ptexlib.h"
 
@@ -644,7 +641,7 @@ static void mk_suffixlist(void)
 
 void lua_initialize(int ac, char **av)
 {
-#define BANNER_SIZE 256
+
     char *given_file = NULL;
     char *banner;
     int kpse_init;
@@ -656,34 +653,14 @@ void lua_initialize(int ac, char **av)
     argc = ac;
     argv = av;
 
-#if defined(WIN32) && !defined(__MINGW32__)
-    /* no asprintf on Win32 */
-    banner = malloc(BANNER_SIZE);
-#endif
     if (luatex_svn < 0) {
-        if (
-#if defined(WIN32) && !defined(__MINGW32__)
-               snprintf(banner, BANNER_SIZE, "This is LuaTeX, Version %s-%d",
-                        luatex_version_string, luatex_date_info) >= BANNER_SIZE
-#else
-               asprintf(&banner, "This is LuaTeX, Version %s-%d",
-                        luatex_version_string, luatex_date_info) < 0
-#endif
-            ) {
+        if (asprintf(&banner, "This is LuaTeX, Version %s-%d",
+                     luatex_version_string, luatex_date_info) < 0) {
             exit(EXIT_FAILURE);
         }
     } else {
-        if (
-#if defined(WIN32) && !defined(__MINGW32__)
-               snprintf(banner, BANNER_SIZE,
-                        "This is LuaTeX, Version %s-%d (rev %d)",
-                        luatex_version_string, luatex_date_info,
-                        luatex_svn) >= BANNER_SIZE
-#else
-               asprintf(&banner, "This is LuaTeX, Version %s-%d (rev %d)",
-                        luatex_version_string, luatex_date_info, luatex_svn) < 0
-#endif
-            ) {
+        if (asprintf(&banner, "This is LuaTeX, Version %s-%d (rev %d)",
+                     luatex_version_string, luatex_date_info, luatex_svn) < 0) {
             exit(EXIT_FAILURE);
         }
     }
