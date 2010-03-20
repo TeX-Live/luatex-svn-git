@@ -17,8 +17,15 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+#include "openbsd-compat.h"
+#if defined(WIN32) && !defined(__MINGW32__)
+/* no asprintf on WIN32 */
+#else
+#  ifdef HAVE_ASPRINTF          /* asprintf is not defined in openbsd-compat.h, but in stdio.h */
+#    include <stdio.h>
+#  endif
+#endif                          /* WIN32 && !__MINGW32__ */
 #include <kpathsea/c-stat.h>
-
 #include "lua/luatex-api.h"
 #include "ptexlib.h"
 
@@ -649,18 +656,34 @@ void lua_initialize(int ac, char **av)
     argc = ac;
     argv = av;
 
+#if defined(WIN32) && !defined(__MINGW32__)
     /* no asprintf on Win32 */
     banner = malloc(BANNER_SIZE);
+#endif
     if (luatex_svn < 0) {
-        if (snprintf(banner, BANNER_SIZE, "This is LuaTeX, Version %s-%d",
-                     luatex_version_string, luatex_date_info) >= BANNER_SIZE) {
+        if (
+#if defined(WIN32) && !defined(__MINGW32__)
+               snprintf(banner, BANNER_SIZE, "This is LuaTeX, Version %s-%d",
+                        luatex_version_string, luatex_date_info) >= BANNER_SIZE
+#else
+               asprintf(&banner, "This is LuaTeX, Version %s-%d",
+                        luatex_version_string, luatex_date_info) < 0
+#endif
+            ) {
             exit(EXIT_FAILURE);
         }
     } else {
-        if (snprintf
-            (banner, BANNER_SIZE, "This is LuaTeX, Version %s-%d (rev %d)",
-             luatex_version_string, luatex_date_info,
-             luatex_svn) >= BANNER_SIZE) {
+        if (
+#if defined(WIN32) && !defined(__MINGW32__)
+               snprintf(banner, BANNER_SIZE,
+                        "This is LuaTeX, Version %s-%d (rev %d)",
+                        luatex_version_string, luatex_date_info,
+                        luatex_svn) >= BANNER_SIZE
+#else
+               asprintf(&banner, "This is LuaTeX, Version %s-%d (rev %d)",
+                        luatex_version_string, luatex_date_info, luatex_svn) < 0
+#endif
+            ) {
             exit(EXIT_FAILURE);
         }
     }
