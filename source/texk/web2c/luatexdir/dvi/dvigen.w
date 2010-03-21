@@ -1,28 +1,42 @@
-/* dvigen.c
+%dvigen.w
 
-   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
+%Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+%This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+%LuaTeX is free software; you can redistribute it and/or modify it under
+%the terms of the GNU General Public License as published by the Free
+%Software Foundation; either version 2 of the License, or (at your
+%option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+%LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+%ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+%FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+%License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+%You should have received a copy of the GNU General Public License along
+%with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
+\def\MF{MetaFont}
+\def\MP{MetaPost}
+\def\PASCAL{Pascal}
+\def\[#1]{#1}
+\pdfoutput=1
+\pdfmapline{cmtex10 < cmtex10.pfb}
+\pdfmapfile{pdftex.map}
+
+\title{: generation of DVI output}
+
+@ Initial identification of this file, and the needed headers.
+@c
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
 #include "ptexlib.h"
 
+@ Here is the start of the actual C file.
+@c
 #undef write_dvi
 
 #define mode cur_list.mode_field        /* current mode */
@@ -44,8 +58,7 @@ static const char _svn_version[] =
 
 #define count(A) eqtb[count_base+(A)].cint
 
-/*
-The most important output produced by a run of \TeX\ is the ``device
+@ The most important output produced by a run of \TeX\ is the ``device
 independent'' (\.{DVI}) file that specifies where characters and rules
 are to appear on printed pages. The form of these files was designed by
 David R. Fuchs in 1979. Almost any reasonable typesetting device can be
@@ -358,8 +371,8 @@ file. Parameters |i|, |num|, |den|, |mag|, |k|, and |x| are explained below.
 \yskip\hang|post_post| 249. Ending of the postamble, see below.
 
 \yskip\noindent Commands 250--255 are undefined at the present time.
-*/
 
+@c
 #define set_char_0  0           /* typeset character 0 and move right */
 #define set1  128               /* typeset a character and move right */
 #define set_rule  132           /* typeset a rule and move right */
@@ -391,8 +404,7 @@ file. Parameters |i|, |num|, |den|, |mag|, |k|, and |x| are explained below.
 #define post  248               /* postamble beginning */
 #define post_post  249          /* postamble ending */
 
-/*
-The preamble contains basic information about the file as a whole. As
+@ The preamble contains basic information about the file as a whole. As
 stated above, there are six parameters:
 $$\hbox{|@!i[1]| |@!num[4]| |@!den[4]| |@!mag[4]| |@!k[1]| |@!x[k]|.}$$
 The |i| byte identifies \.{DVI} format; currently this byte is always set
@@ -421,12 +433,12 @@ users to override the |mag|~setting when a \.{DVI} file is being printed.)
 
 Finally, |k| and |x| allow the \.{DVI} writer to include a comment, which is not
 interpreted further. The length of comment |x| is |k|, where |0<=k<256|.
-*/
 
+
+@c
 #define id_byte 2               /* identifies the kind of \.{DVI} files described here */
 
-/*
-Font definitions for a given font number |k| contain further parameters
+@ Font definitions for a given font number |k| contain further parameters
 $$\hbox{|c[4]| |s[4]| |d[4]| |a[1]| |l[1]| |n[a+l]|.}$$
 The four-byte value |c| is the check sum that \TeX\ found in the \.{TFM}
 file for this font; |c| should match the check sum of the font found by
@@ -513,7 +525,7 @@ signifies the end of the font definitions, contains |q|, a pointer to the
 comes next; this currently equals~2, as in the preamble.
 
 The |i| byte is followed by four or more bytes that are all equal to
-the decimal number 223 (i.e., @'337 in octal). \TeX\ puts out four to seven of
+the decimal number 223 (i.e., '337 in octal). \TeX\ puts out four to seven of
 these trailing bytes, until the total length of the file is a multiple of
 four bytes, since this works out best on machines that pack four bytes per
 word; but any number of 223's is allowed, as long as there are at least four
@@ -544,9 +556,8 @@ But if \.{DVI} files have to be processed under the restrictions of standard
 header information is present in the preamble and in the font definitions.
 (The |l| and |u| and |s| and |t| parameters, which appear only in the
 postamble, are ``frills'' that are handy but not absolutely necessary.)
-*/
 
-/*
+
 @* \[32] Shipping pages out.
 After considering \TeX's eyes and stomach, we come now to the bowels.
 @^bowels@>
@@ -575,8 +586,8 @@ A few additional global variables are also defined here for use in
 that would waste stack space when boxes are deeply nested, since the
 values of these variables are not needed during recursive calls.
 @^recursion@>
-*/
 
+@c
 int total_pages = 0;            /* the number of pages that have been shipped out */
 scaled max_v = 0;               /* maximum height-plus-depth of pages shipped so far */
 scaled max_h = 0;               /* maximum width of pages shipped so far */
@@ -590,7 +601,6 @@ pointer g;                      /* current glue specification */
 int lq, lr;                     /* quantities used in calculations for leaders */
 int cur_s = -1;                 /* current depth of output box nesting, initially $-1$ */
 
-/*
 @ The \.{DVI} bytes are output to a buffer instead of being written directly
 to the output file. This makes it possible to reduce the overhead of
 subroutine calls, thereby measurably speeding up the computation, since
@@ -613,19 +623,16 @@ worth of information present, except at the very beginning of the job.
 Bytes of the \.{DVI} file are numbered sequentially starting with 0;
 the next byte to be generated will be number |dvi_offset+dvi_ptr|.
 A byte is present in the buffer only if its number is |>=dvi_gone|.
-*/
 
-/*
 Some systems may find it more efficient to make |dvi_buf| a |packed|
 array, since output of four bytes at once may be facilitated.
 @^system dependencies@>
-*/
 
-/*
-Initially the buffer is all in one piece; we will output half of it only
+
+@ Initially the buffer is all in one piece; we will output half of it only
 after it first fills up.
-*/
 
+@c
 int dvi_buf_size = 800;         /* size of the output buffer; must be a multiple of 8 */
 eight_bits *dvi_buf;            /* buffer for \.{DVI} output */
 dvi_index half_buf = 0;         /* half of |dvi_buf_size| */
@@ -634,8 +641,7 @@ dvi_index dvi_ptr = 0;          /* the next available buffer address */
 int dvi_offset = 0;             /* |dvi_buf_size| times the number of times the output buffer has been fully emptied */
 int dvi_gone = 0;               /* the number of bytes already output to |dvi_file| */
 
-/*
-The actual output of |dvi_buf[a..b]| to |dvi_file| is performed by calling
+@ The actual output of |dvi_buf[a..b]| to |dvi_file| is performed by calling
 |write_dvi(a,b)|. For best results, this procedure should be optimized to
 run as fast as possible on each particular system, since it is part of
 \TeX's inner loop. It is safe to assume that |a| and |b+1| will both be
@@ -645,8 +651,8 @@ output an array of words with one system call.
 @^system dependencies@>
 @^inner loop@>
 @^defecation@>
-*/
 
+@c
 void write_dvi(dvi_index a, dvi_index b)
 {
     dvi_index k;
@@ -669,11 +675,10 @@ void dvi_swap(void)
     dvi_gone = dvi_gone + half_buf;
 }
 
-/*
-The |dvi_four| procedure outputs four bytes in two's complement notation,
+@ The |dvi_four| procedure outputs four bytes in two's complement notation,
 without risking arithmetic overflow.
-*/
 
+@c
 void dvi_four(int x)
 {
     if (x >= 0) {
@@ -690,13 +695,14 @@ void dvi_four(int x)
     dvi_out(x % 0400);
 }
 
-/*
+@
 A mild optimization of the output is performed by the |dvi_pop|
 routine, which issues a |pop| unless it is possible to cancel a
 `|push| |pop|' pair. The parameter to |dvi_pop| is the byte address
 following the old |push| that matches the new |pop|.
-*/
 
+
+@c
 void dvi_push(void)
 {
     dvi_out(push);
@@ -710,12 +716,11 @@ void dvi_pop(int l)
         dvi_out(pop);
 }
 
-/*
-Here's a procedure that outputs a font definition. $\Omega$ allows
+@ Here's a procedure that outputs a font definition. $\Omega$ allows
 more than 256 different fonts per job, so the right font definition
 command must be selected.
-*/
 
+@c
 void out_cmd(void)
 {
     if ((oval < 0x100) && (oval >= 0)) {
@@ -774,8 +779,6 @@ void dvi_font_def(internal_font_number f)
     }
 }
 
-/*
-
 @ Versions of \TeX\ intended for small computers might well choose to omit
 the ideas in the next few parts of this program, since it is not really
 necessary to optimize the \.{DVI} code by making use of the |w0|, |x0|,
@@ -821,9 +824,6 @@ be changed later.
 The subscripts $3_z\,1_y\,4_d\ldots\,$ in the example above were, in fact,
 produced by this procedure, as the reader can verify. (Go ahead and try it.)
 
-*/
-
-/*
 @ In order to implement such an idea, \TeX\ maintains a stack of pointers
 to the \\{down}, $y$, and $z$ commands that have been generated for the
 current page. And there is a similar stack for \\{right}, |w|, and |x|
@@ -836,20 +836,19 @@ byte number of the \.{DVI} command in question (including the appropriate
 |dvi_offset|); the |vlink| field points to the next item below this one
 on the stack; and the |vinfo| field encodes the options for possible change
 in the \.{DVI} command.
-*/
 
+@c
 #define location(A) varmem[(A)+1].cint  /* \.{DVI} byte number for a movement command */
 
 halfword down_ptr = null, right_ptr = null;     /* heads of the down and right stacks */
 
-/*
-Here is a subroutine that produces a \.{DVI} command for some specified
+@ Here is a subroutine that produces a \.{DVI} command for some specified
 downward or rightward motion. It has two parameters: |w| is the amount
 of motion, and |o| is either |down1| or |right1|. We use the fact that
 the command codes have convenient arithmetic properties: |y1-down1=w1-right1|
 and |z1-down1=x1-right1|.
-*/
 
+@c
 void movement(scaled w, eight_bits o)
 {
     small_number mstate;        /* have we seen a |y| or |z|? */
@@ -1011,14 +1010,14 @@ void movement(scaled w, eight_bits o)
     }
 }
 
-/*
-In case you are wondering when all the movement nodes are removed from
+@ In case you are wondering when all the movement nodes are removed from
 \TeX's memory, the answer is that they are recycled just before
 |hlist_out| and |vlist_out| finish outputting a box. This restores the
 down and right stacks to the state they were in before the box was output,
 except that some |vinfo|'s may have become more restrictive.
-*/
 
+
+@c
 /* delete movement nodes with |location>=l| */
 void prune_movements(int l)
 {
@@ -1043,8 +1042,7 @@ scaledpos dvi;                  /* a \.{DVI} position in page coordinates, in sy
 
 scaledpos cur_page_size;
 
-/*
-When |hlist_out| is called, its duty is to output the box represented
+@ When |hlist_out| is called, its duty is to output the box represented
 by the |hlist_node| pointed to by |temp_ptr|. The reference point of that
 box has coordinates |(cur.h,cur.v)|.
 
@@ -1052,22 +1050,20 @@ Similarly, when |vlist_out| is called, its duty is to output the box represented
 by the |vlist_node| pointed to by |temp_ptr|. The reference point of that
 box has coordinates |(cur.h,cur.v)|.
 @^recursion@>
-*/
 
-/*
-The recursive procedures |hlist_out| and |vlist_out| each have a local variable
+@ The recursive procedures |hlist_out| and |vlist_out| each have a local variable
 |save_dvi| to hold the value of |dvi| just before
 entering a new level of recursion.  In effect, the value of |save_dvi|
 on \TeX's run-time stack corresponds to the values of |h| and |v|
 that a \.{DVI}-reading program will push onto its coordinate stack.
-*/
 
+@c
 void dvi_place_rule(PDF pdf, halfword q, scaledpos size)
 {
     (void) q;
     synch_dvi_with_pos(pdf->posstruct->pos);
     if (textdir_is_L(pdf->posstruct->dir)) {
-        dvi_out(set_rule);      /* movement optimization for dir_*L* */
+        dvi_out(set_rule);      /* movement optimization for |dir_*L*| */
         dvi.h += size.h;
     } else
         dvi_out(put_rule);
@@ -1092,13 +1088,10 @@ void dvi_place_glyph(PDF pdf, internal_font_number f, int c)
     }
     if (textdir_is_L(pdf->posstruct->dir)) {
         ci = get_charinfo_whd(f, c);
-        dvi_set(c, ci.wd);      /* movement optimization for dir_*L* */
+        dvi_set(c, ci.wd);      /* movement optimization for |dir_*L*| */
     } else
         dvi_put(c);
 }
-
-/**********************************************************************/
-/**********************************************************************/
 
 void dvi_special(PDF pdf, halfword p)
 {
@@ -1121,16 +1114,15 @@ void dvi_special(PDF pdf, halfword p)
     cur_length = 0;             /* erase the string */
 }
 
-/*
-The final line of this routine is slightly subtle; at least, the author
+@ The final line of this routine is slightly subtle; at least, the author
 didn't think about it until getting burnt! There is a used-up token list
 @^Knuth, Donald Ervin@>
 on the stack, namely the one that contained |end_write_token|. (We
 insert this artificial `\.{\\endwrite}' to prevent runaways, as explained
 above.) If it were not removed, and if there were numerous writes on a
 single page, the stack would overflow.
-*/
 
+@c
 /* TODO: keep track of this value */
 #define end_write_token cs_token_flag+end_write
 
@@ -1251,12 +1243,10 @@ void write_out(halfword p)
     selector = old_setting;
 }
 
-/**********************************************************************/
-/*
-Here's an example of how these conventions are used. Whenever it is time to
+@ Here's an example of how these conventions are used. Whenever it is time to
 ship out a box of stuff, we shall use the macro |ensure_dvi_open|.
-*/
 
+@c
 void ensure_dvi_header_written(PDF pdf)
 {
     unsigned l;
@@ -1340,15 +1330,12 @@ void dvi_end_page(PDF pdf)
 #endif                          /* IPC */
 }
 
-/**********************************************************************/
-
-/*
-At the end of the program, we must finish things off by writing the
+@ At the end of the program, we must finish things off by writing the
 post\-amble. If |total_pages=0|, the \.{DVI} file was never opened.
 If |total_pages>=65536|, the \.{DVI} file will lie. And if
 |max_push>=65536|, the user deserves whatever chaos might ensue.
-*/
 
+@c
 void finish_dvi_file(PDF pdf, int version, int revision)
 {
     int k;
