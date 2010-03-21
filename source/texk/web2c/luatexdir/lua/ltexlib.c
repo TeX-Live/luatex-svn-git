@@ -2028,6 +2028,7 @@ static halfword nodelib_topenalties(lua_State * L, int i)
 
 
 
+
 static int tex_run_linebreak(lua_State * L)
 {
 
@@ -2180,6 +2181,15 @@ static int tex_shipout(lua_State * L)
     return 0;
 }
 
+static int tex_badness(lua_State * L)
+{
+    scaled t = lua_tonumber(L,1);
+    scaled s = lua_tonumber(L,2);
+    lua_pushnumber(L, badness(t,s));
+    return 1;
+}
+
+
 static int tex_run_boot(lua_State * L)
 {
     int n = lua_gettop(L);
@@ -2311,6 +2321,7 @@ static const struct luaL_reg texlib[] = {
     {"extraprimitives", tex_extraprimitives},
     {"enableprimitives", tex_enableprimitives},
     {"shipout", tex_shipout},
+    {"badness", tex_badness},
     {"setmath", tex_setmathparm},
     {"getmath", tex_getmathparm},
     {"linebreak", tex_run_linebreak},
