@@ -176,6 +176,7 @@ void fix_o_mode(PDF pdf)
         } else
             pdf->o_mode = OMODE_DVI;
         fixed_pdf_output = pdf_output;
+        pdf_output_value = pdf_output;
     } else if (pdf_output != fixed_pdf_output) {
         pdf_error("setup",
                   "\\pdfoutput can only be changed before anything is written to the output");

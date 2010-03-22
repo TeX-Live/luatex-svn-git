@@ -69,7 +69,7 @@ authorization from the copyright holder.
 #define SYNCTEX_VALUE int_par(synctex_code)
 
 
-#define CURV static_pdf->posstruct->pos.v
+#define CURV (dimen_par(page_height_code)-static_pdf->posstruct->pos.v)
 #define CURH static_pdf->posstruct->pos.h
 
 #define GETJOBNAME() makecstring(job_name)
