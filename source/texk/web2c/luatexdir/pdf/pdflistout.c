@@ -469,6 +469,8 @@ void hlist_out(PDF pdf, halfword this_box)
                 }
                 break;
             case rule_node:
+                if (rule_dir(p)<0)
+                    rule_dir(p) = localpos.dir;
                 if (pardir_parallel(rule_dir(p), localpos.dir)) {
                     rule.ht = height(p);
                     rule.dp = depth(p);
@@ -907,6 +909,8 @@ void vlist_out(PDF pdf, halfword this_box)
                 }
                 break;
             case rule_node:
+                if (rule_dir(p)<0)
+                    rule_dir(p) = localpos.dir;
                 if (pardir_parallel(rule_dir(p), localpos.dir)) {
                     rule.ht = height(p);
                     rule.dp = depth(p);
