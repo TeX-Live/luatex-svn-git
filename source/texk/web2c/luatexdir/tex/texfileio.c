@@ -1039,6 +1039,10 @@ int readbinfile(FILE * f, unsigned char **tfm_buffer, int *tfm_size)
                     return 1;
                 }
             }
+        } else {
+            *tfm_buffer = NULL;
+            *tfm_size = 0;
+            return 1;
         }
     }                           /* seek failed, or zero-sized file */
     return 0;
