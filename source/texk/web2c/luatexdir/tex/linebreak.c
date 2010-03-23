@@ -128,10 +128,11 @@ void line_break(boolean d, int line_break_context)
     }
     final_par_glue = new_param_glue(par_fill_skip_code);
     couple_nodes(cur_list.tail_field, final_par_glue);
+    cur_list.tail_field = vlink(cur_list.tail_field);
     lua_node_filter(pre_linebreak_filter_callback,
                     line_break_context, temp_head,
                     addressof(cur_list.tail_field));
-    last_line_fill = vlink(cur_list.tail_field);
+    last_line_fill = cur_list.tail_field;
     pop_nest();
     start_of_par = cur_list.tail_field;
     callback_id = callback_defined(linebreak_filter_callback);
