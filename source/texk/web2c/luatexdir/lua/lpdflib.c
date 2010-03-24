@@ -90,13 +90,15 @@ int luapdfprint(lua_State * L)
 unsigned char *fread_to_buf(lua_State * L, const char *filename, size_t * len)
 {
     int i = 0;
+    int ilen = 0;
     FILE *f;
     unsigned char *buf = NULL;
     if ((f = fopen(filename, "rb")) == NULL)
         luaL_error(L, "pdf.immediateobj() cannot open input file");
-    if ((i = readbinfile(f, &buf, (int *) len)) == 0)
+    if ((i = readbinfile(f, &buf, &ilen)) == 0)
         luaL_error(L, "pdf.immediateobj() cannot read input file");
     fclose(f);
+    *len = (size_t) ilen;
     return buf;
 }
 
