@@ -336,7 +336,9 @@ void ext_post_line_break(int paragraph_dir,
            then we append |rightskip| after |q| now */
         if (!glue_break) {
             /* @<Put the \(r)\.{\\rightskip} glue after node |q|@>; */
-            halfword r = new_param_glue(right_skip_code);
+            halfword r = new_glue((right_skip == null ? null : copy_node(right_skip)));
+	    glue_ref_count(glue_ptr(r)) = null;
+	    subtype(r) = right_skip_code;
             vlink(r) = vlink(q);
             delete_attribute_ref(node_attr(r));
             node_attr(r) = node_attr(q);
@@ -389,7 +391,9 @@ void ext_post_line_break(int paragraph_dir,
             }
         };
         if (left_skip != zero_glue) {
-            r = new_param_glue(left_skip_code);
+            r = new_glue(copy_node(left_skip));
+	    glue_ref_count(glue_ptr(r)) = null;
+	    subtype(r) = left_skip_code;
             delete_attribute_ref(node_attr(r));
             node_attr(r) = node_attr(q);
             add_node_attr_ref(node_attr(r));
