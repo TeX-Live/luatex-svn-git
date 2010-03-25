@@ -115,7 +115,7 @@ cd "$B"
 
 if [ "$ONLY_MAKE" = "FALSE" ]
 then
-../source/configure  $CONFHOST \
+TL_MAKE=$MAKE ../source/configure  $CONFHOST \
     --enable-cxx-runtime-hack \
     --disable-afm2pl    \
     --disable-aleph  \
