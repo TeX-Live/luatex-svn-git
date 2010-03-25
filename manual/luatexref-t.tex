@@ -4606,6 +4606,14 @@ This is an experimental function that will append a node list to
 \TEX's \quote {current list} (the node list is not deep-copied
 any more since version 0.38).  There is no error checking yet!
 
+\subsubsection{\luatex{node.protrusion_skipable} (0.53)}
+\startfunctioncall
+boolean <yes> = node.protrusion_skipable(<node> n)
+\stopfunctioncall
+
+Returns \type{true} if this node can be skipped for glyph protrusion 
+line boundary discovery.
+
 \subsection{Attribute handling}
 
 Attributes appear as linked list of userdata objects in the
@@ -5805,6 +5813,105 @@ knows about. The keys in the hash are primitives names, the values are
 tables representing tokens (see~\in{section }[luatokens]). The third value
 is always zero.
 
+\subsection{Core functionality interfaces}
+
+\subsubsection{\luatex{tex.badness} (0.53)}
+
+\startfunctioncall
+<number> b = tex.badness(<number> f, <number> s)
+\stopfunctioncall
+
+This helper function is useful
+during linebreak calculations. \type{f} and \type{s} are scaled values; the function 
+returns the badness for when total \type{f} is supposed to be made from amounts 
+that sum to \type{s}.  The returned number is a reasonable approximation of $100(t/s)^3$;
+
+\subsubsection{\luatex{tex.linebreak} (0.53)}
+
+\startfunctioncall
+local <node> nodelist, <table> info =
+       tex.linebreak(<node> listhead, <table> parameters)
+\stopfunctioncall
+
+The understood parameters are as follows:
+
+\starttabulate[|l|l|p|]
+\NC \bf name                 \NC \bf type \NC \bf description \NC \NR
+\NC pardir                   \NC string   \NC \NC \NR
+\NC pretolerance             \NC number   \NC \NC \NR
+\NC tracingparagraphs        \NC number   \NC \NC \NR
+\NC tolerance                \NC number   \NC \NC \NR
+\NC looseness                \NC number   \NC \NC \NR
+\NC hyphenpenalty            \NC number   \NC \NC \NR
+\NC exhyphenpenalty          \NC number   \NC \NC \NR
+\NC pdfadjustspacing         \NC number   \NC \NC \NR
+\NC adjdemerits              \NC number   \NC \NC \NR
+\NC pdfprotrudechars         \NC number   \NC \NC \NR
+\NC linepenalty              \NC number   \NC \NC \NR
+\NC lastlinefit              \NC number   \NC \NC \NR
+\NC doublehyphendemerits     \NC number   \NC \NC \NR
+\NC finalhyphendemerits      \NC number   \NC \NC \NR
+\NC hangafter                \NC number   \NC \NC \NR
+\NC interlinepenalty         \NC number or table \NC if a table, then it is an array like \type{\interlinepenalties}\NC \NR
+\NC clubpenalty              \NC number or table \NC if a table, then it is an array like \type{\clubpenalties}\NC \NR
+\NC widowpenalty             \NC number or table \NC if a table, then it is an array like \type{\widowpenalties}\NC \NR
+\NC brokenpenalty            \NC number   \NC \NC \NR
+\NC emergencystretch         \NC number   \NC in scaled points \NC \NR
+\NC hangindent               \NC number   \NC in scaled points \NC \NR
+\NC hsize                    \NC number   \NC in scaled points \NC \NR
+\NC leftskip                 \NC glue_spec node   \NC \NC \NR
+\NC rightskip                \NC glue_spec node   \NC \NC \NR
+\NC pdfeachlineheight        \NC number   \NC in scaled points \NC \NR
+\NC pdfeachlinedepth         \NC number   \NC in scaled points \NC \NR
+\NC pdffirstlineheight       \NC number   \NC in scaled points \NC \NR
+\NC pdflastlinedepth         \NC number   \NC in scaled points \NC \NR
+\NC pdfignoreddimen          \NC number   \NC in scaled points \NC \NR
+\NC parshape                 \NC table   \NC \NC \NR
+\stoptabulate
+
+Note that there is no interface for \type{\displaywidowpenalties}, you
+have to pass the right choice for \type{widowpenalties} yourself.
+
+The meaning of the various keys should be fairly obvious from the
+table (the names match the \TEX\ and \PDFTEX\ primitives) except for
+the last 5 entries. The four \type{pdf...line...} keys are ignored if
+their value equals \type{pdfignoreddimen}.
+
+It is your own job to make sure that \type{listhead} is a proper
+paragraph list: this function does not add any nodes to it. To be
+exact, if you want to replace the core line breaking, you may have to
+do the following (when you are not actually working in the
+\type{pre_line_break} or \type{line_break} callback, or when the
+original list starting at listhead was generated in horizontal mode):
+
+\startitemize
+\item add an \quote{indent box} and perhaps a \type{local_par} node at
+  the start (only if you need them)
+\item replace any found final glue by an infinite penalty (or add such
+  a penalty, if the last node is not a glue)
+\item add a glue node for the \type{\parfillskip} after that penalty node
+\item make sure all the \type{prev} pointers are OK
+\stopitemize
+
+The result is a node list, it still needs to be vpacked if you
+want to assign it to a box.
+
+
+The returned \type{info} table contains four values that are all numbers:
+
+\starttabulate[|l|p|]
+\NC prevdepth   \NC depth of the last line in the broken paragraph \NC \NR
+\NC prevgraf    \NC number of lines in the broken paragraph \NC \NR
+\NC looseness   \NC the actual looseness value in the broken paragraph \NC \NR
+\NC demerits    \NC the total demerits of the chosen solution  \NC \NR
+\stoptabulate
+
+Note there are a few things you cannot interface using this function:
+You cannot influence font expansion other than via
+\type{pdfadjustspacing}, because the settings for that take place
+elsewhere. The same is true for hbadness and hfuzz etc. All these are
+in the \type{hpack()} routine, and that fetches its own variables via
+globals.
 
 \subsubsection{\luatex{tex.shipout} (0.51)}
 
@@ -7683,7 +7790,7 @@ accessible fields:
 These objects are reference counted, so there is actually an extra
 field named \type {ref_count} as well. This item type will likely
 disappear in the future, and the glue fields themselves will
-become part of the nodes referencing glue items.
+become part of the nodes referencing glue items. 
 
 \subsubsection{attribute\_list and attribute items}
 
@@ -7976,6 +8083,9 @@ Valid fields: \showfields{glyph}
 \NC components \NC \syntax{<node>}    \NC pointer to ligature components\NC\NR
 \NC xoffset    \NC number             \NC \NC\NR
 \NC yoffset    \NC number             \NC \NC\NR
+\NC width      \NC number             \NC (new in 0.53)\NC\NR
+\NC height     \NC number             \NC (new in 0.53)\NC\NR
+\NC depth      \NC number             \NC (new in 0.53)\NC\NR
 \stoptabulate
 
 A warning: never assign a node list to the components field
