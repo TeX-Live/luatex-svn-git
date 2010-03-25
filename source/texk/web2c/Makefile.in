@@ -253,9 +253,11 @@ am_libluasocket_a_OBJECTS = libluasocket_a-auxiliar.$(OBJEXT) \
 libluasocket_a_OBJECTS = $(am_libluasocket_a_OBJECTS)
 libluatex_a_AR = $(AR) $(ARFLAGS)
 libluatex_a_LIBADD =
-am__objects_1 = libluatex_a-dvigen.$(OBJEXT) \
-	libluatex_a-align.$(OBJEXT) libluatex_a-dumpdata.$(OBJEXT) \
-	libluatex_a-expand.$(OBJEXT) libluatex_a-inputstack.$(OBJEXT) \
+am__objects_1 = libluatex_a-dvigen.$(OBJEXT) libluatex_a-ocp.$(OBJEXT) \
+	libluatex_a-ocplist.$(OBJEXT) libluatex_a-readocp.$(OBJEXT) \
+	libluatex_a-runocp.$(OBJEXT) libluatex_a-align.$(OBJEXT) \
+	libluatex_a-dumpdata.$(OBJEXT) libluatex_a-expand.$(OBJEXT) \
+	libluatex_a-inputstack.$(OBJEXT) \
 	libluatex_a-maincontrol.$(OBJEXT) libluatex_a-mlist.$(OBJEXT) \
 	libluatex_a-postlinebreak.$(OBJEXT) \
 	libluatex_a-scanning.$(OBJEXT) \
@@ -306,8 +308,6 @@ am_libluatex_a_OBJECTS = libluatex_a-dofont.$(OBJEXT) \
 	libluatex_a-luainit.$(OBJEXT) libluatex_a-luanode.$(OBJEXT) \
 	libluatex_a-luastuff.$(OBJEXT) libluatex_a-luatex.$(OBJEXT) \
 	libluatex_a-luatoken.$(OBJEXT) libluatex_a-texluac.$(OBJEXT) \
-	libluatex_a-ocp.$(OBJEXT) libluatex_a-ocplist.$(OBJEXT) \
-	libluatex_a-readocp.$(OBJEXT) libluatex_a-runocp.$(OBJEXT) \
 	libluatex_a-pagetree.$(OBJEXT) libluatex_a-pdfaction.$(OBJEXT) \
 	libluatex_a-pdfannot.$(OBJEXT) \
 	libluatex_a-pdfcolorstack.$(OBJEXT) \
@@ -328,6 +328,8 @@ am_libluatex_a_OBJECTS = libluatex_a-dofont.$(OBJEXT) \
 	libluatex_a-utils.$(OBJEXT) $(am__objects_1) \
 	libluatex_a-lmplib.$(OBJEXT)
 nodist_libluatex_a_OBJECTS = libluatex_a-dvigen.$(OBJEXT) \
+	libluatex_a-ocp.$(OBJEXT) libluatex_a-ocplist.$(OBJEXT) \
+	libluatex_a-readocp.$(OBJEXT) libluatex_a-runocp.$(OBJEXT) \
 	libluatex_a-align.$(OBJEXT) libluatex_a-dumpdata.$(OBJEXT) \
 	libluatex_a-expand.$(OBJEXT) libluatex_a-inputstack.$(OBJEXT) \
 	libluatex_a-maincontrol.$(OBJEXT) libluatex_a-mlist.$(OBJEXT) \
@@ -1537,7 +1539,9 @@ libluatex_a_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) \
 libluatex_a_CFLAGS = $(WARNING_CFLAGS)
 libluatex_a_CXXFLAGS = # $(WARNING_CXXFLAGS)
 luatex_dvi_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/dvi $(ctangle)
-libluatex_web = luatexdir/dvi/dvigen.w luatexdir/tex/align.w \
+libluatex_web = luatexdir/dvi/dvigen.w luatexdir/ocp/ocp.w \
+	luatexdir/ocp/ocplist.w luatexdir/ocp/readocp.w \
+	luatexdir/ocp/runocp.w luatexdir/tex/align.w \
 	luatexdir/tex/dumpdata.w luatexdir/tex/expand.w \
 	luatexdir/tex/inputstack.w luatexdir/tex/maincontrol.w \
 	luatexdir/tex/mlist.w luatexdir/tex/postlinebreak.w \
@@ -1554,13 +1558,15 @@ libluatex_web = luatexdir/dvi/dvigen.w luatexdir/tex/align.w \
 	luatexdir/tex/packaging.w luatexdir/tex/printing.w \
 	luatexdir/tex/stringpool.w luatexdir/tex/texmath.w \
 	luatexdir/tex/textoken.w
-nodist_libluatex_a_SOURCES = dvigen.c align.c dumpdata.c expand.c \
-	inputstack.c maincontrol.c mlist.c postlinebreak.c scanning.c \
-	texdeffont.c texnodes.c arithmetic.c conditional.c \
-	equivalents.c extensions.c commands.c linebreak.c mathcodes.c \
-	nesting.c primitive.c texfileio.c textcodes.c buildpage.c \
-	directions.c errors.c filename.c mainbody.c memoryword.c \
-	packaging.c printing.c stringpool.c texmath.c textoken.c
+nodist_libluatex_a_SOURCES = dvigen.c ocp.c ocplist.c readocp.c \
+	runocp.c align.c dumpdata.c expand.c inputstack.c \
+	maincontrol.c mlist.c postlinebreak.c scanning.c texdeffont.c \
+	texnodes.c arithmetic.c conditional.c equivalents.c \
+	extensions.c commands.c linebreak.c mathcodes.c nesting.c \
+	primitive.c texfileio.c textcodes.c buildpage.c directions.c \
+	errors.c filename.c mainbody.c memoryword.c packaging.c \
+	printing.c stringpool.c texmath.c textoken.c
+luatex_ocp_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/ocp $(ctangle)
 luatex_tex_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/tex $(ctangle)
 libluatex_a_SOURCES = \
 	luatexdir/dvi/dvigen.h \
@@ -1637,13 +1643,9 @@ libluatex_a_SOURCES = \
 	luatexdir/lua/luatoken.c \
 	luatexdir/lua/texluac.c \
 	luatexdir/luatex.h \
-	luatexdir/ocp/ocp.c \
 	luatexdir/ocp/ocp.h \
-	luatexdir/ocp/ocplist.c \
 	luatexdir/ocp/ocplist.h \
-	luatexdir/ocp/readocp.c \
 	luatexdir/ocp/readocp.h \
-	luatexdir/ocp/runocp.c \
 	luatexdir/ocp/runocp.h \
 	luatexdir/pdf/pagetree.c \
 	luatexdir/pdf/pagetree.h \
@@ -4685,62 +4687,6 @@ libluatex_a-texluac.obj: luatexdir/lua/texluac.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-texluac.obj `if test -f 'luatexdir/lua/texluac.c'; then $(CYGPATH_W) 'luatexdir/lua/texluac.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/texluac.c'; fi`
 
-libluatex_a-ocp.o: luatexdir/ocp/ocp.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-ocp.o -MD -MP -MF $(DEPDIR)/libluatex_a-ocp.Tpo -c -o libluatex_a-ocp.o `test -f 'luatexdir/ocp/ocp.c' || echo '$(srcdir)/'`luatexdir/ocp/ocp.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-ocp.Tpo $(DEPDIR)/libluatex_a-ocp.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/ocp/ocp.c' object='libluatex_a-ocp.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-ocp.o `test -f 'luatexdir/ocp/ocp.c' || echo '$(srcdir)/'`luatexdir/ocp/ocp.c
-
-libluatex_a-ocp.obj: luatexdir/ocp/ocp.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-ocp.obj -MD -MP -MF $(DEPDIR)/libluatex_a-ocp.Tpo -c -o libluatex_a-ocp.obj `if test -f 'luatexdir/ocp/ocp.c'; then $(CYGPATH_W) 'luatexdir/ocp/ocp.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/ocp/ocp.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-ocp.Tpo $(DEPDIR)/libluatex_a-ocp.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/ocp/ocp.c' object='libluatex_a-ocp.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-ocp.obj `if test -f 'luatexdir/ocp/ocp.c'; then $(CYGPATH_W) 'luatexdir/ocp/ocp.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/ocp/ocp.c'; fi`
-
-libluatex_a-ocplist.o: luatexdir/ocp/ocplist.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-ocplist.o -MD -MP -MF $(DEPDIR)/libluatex_a-ocplist.Tpo -c -o libluatex_a-ocplist.o `test -f 'luatexdir/ocp/ocplist.c' || echo '$(srcdir)/'`luatexdir/ocp/ocplist.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-ocplist.Tpo $(DEPDIR)/libluatex_a-ocplist.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/ocp/ocplist.c' object='libluatex_a-ocplist.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-ocplist.o `test -f 'luatexdir/ocp/ocplist.c' || echo '$(srcdir)/'`luatexdir/ocp/ocplist.c
-
-libluatex_a-ocplist.obj: luatexdir/ocp/ocplist.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-ocplist.obj -MD -MP -MF $(DEPDIR)/libluatex_a-ocplist.Tpo -c -o libluatex_a-ocplist.obj `if test -f 'luatexdir/ocp/ocplist.c'; then $(CYGPATH_W) 'luatexdir/ocp/ocplist.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/ocp/ocplist.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-ocplist.Tpo $(DEPDIR)/libluatex_a-ocplist.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/ocp/ocplist.c' object='libluatex_a-ocplist.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-ocplist.obj `if test -f 'luatexdir/ocp/ocplist.c'; then $(CYGPATH_W) 'luatexdir/ocp/ocplist.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/ocp/ocplist.c'; fi`
-
-libluatex_a-readocp.o: luatexdir/ocp/readocp.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-readocp.o -MD -MP -MF $(DEPDIR)/libluatex_a-readocp.Tpo -c -o libluatex_a-readocp.o `test -f 'luatexdir/ocp/readocp.c' || echo '$(srcdir)/'`luatexdir/ocp/readocp.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-readocp.Tpo $(DEPDIR)/libluatex_a-readocp.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/ocp/readocp.c' object='libluatex_a-readocp.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-readocp.o `test -f 'luatexdir/ocp/readocp.c' || echo '$(srcdir)/'`luatexdir/ocp/readocp.c
-
-libluatex_a-readocp.obj: luatexdir/ocp/readocp.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-readocp.obj -MD -MP -MF $(DEPDIR)/libluatex_a-readocp.Tpo -c -o libluatex_a-readocp.obj `if test -f 'luatexdir/ocp/readocp.c'; then $(CYGPATH_W) 'luatexdir/ocp/readocp.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/ocp/readocp.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-readocp.Tpo $(DEPDIR)/libluatex_a-readocp.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/ocp/readocp.c' object='libluatex_a-readocp.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-readocp.obj `if test -f 'luatexdir/ocp/readocp.c'; then $(CYGPATH_W) 'luatexdir/ocp/readocp.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/ocp/readocp.c'; fi`
-
-libluatex_a-runocp.o: luatexdir/ocp/runocp.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-runocp.o -MD -MP -MF $(DEPDIR)/libluatex_a-runocp.Tpo -c -o libluatex_a-runocp.o `test -f 'luatexdir/ocp/runocp.c' || echo '$(srcdir)/'`luatexdir/ocp/runocp.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-runocp.Tpo $(DEPDIR)/libluatex_a-runocp.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/ocp/runocp.c' object='libluatex_a-runocp.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-runocp.o `test -f 'luatexdir/ocp/runocp.c' || echo '$(srcdir)/'`luatexdir/ocp/runocp.c
-
-libluatex_a-runocp.obj: luatexdir/ocp/runocp.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-runocp.obj -MD -MP -MF $(DEPDIR)/libluatex_a-runocp.Tpo -c -o libluatex_a-runocp.obj `if test -f 'luatexdir/ocp/runocp.c'; then $(CYGPATH_W) 'luatexdir/ocp/runocp.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/ocp/runocp.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-runocp.Tpo $(DEPDIR)/libluatex_a-runocp.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/ocp/runocp.c' object='libluatex_a-runocp.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-runocp.obj `if test -f 'luatexdir/ocp/runocp.c'; then $(CYGPATH_W) 'luatexdir/ocp/runocp.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/ocp/runocp.c'; fi`
-
 libluatex_a-pagetree.o: luatexdir/pdf/pagetree.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pagetree.o -MD -MP -MF $(DEPDIR)/libluatex_a-pagetree.Tpo -c -o libluatex_a-pagetree.o `test -f 'luatexdir/pdf/pagetree.c' || echo '$(srcdir)/'`luatexdir/pdf/pagetree.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pagetree.Tpo $(DEPDIR)/libluatex_a-pagetree.Po
@@ -5132,6 +5078,62 @@ libluatex_a-dvigen.obj: dvigen.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='dvigen.c' object='libluatex_a-dvigen.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-dvigen.obj `if test -f 'dvigen.c'; then $(CYGPATH_W) 'dvigen.c'; else $(CYGPATH_W) '$(srcdir)/dvigen.c'; fi`
+
+libluatex_a-ocp.o: ocp.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-ocp.o -MD -MP -MF $(DEPDIR)/libluatex_a-ocp.Tpo -c -o libluatex_a-ocp.o `test -f 'ocp.c' || echo '$(srcdir)/'`ocp.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-ocp.Tpo $(DEPDIR)/libluatex_a-ocp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ocp.c' object='libluatex_a-ocp.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-ocp.o `test -f 'ocp.c' || echo '$(srcdir)/'`ocp.c
+
+libluatex_a-ocp.obj: ocp.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-ocp.obj -MD -MP -MF $(DEPDIR)/libluatex_a-ocp.Tpo -c -o libluatex_a-ocp.obj `if test -f 'ocp.c'; then $(CYGPATH_W) 'ocp.c'; else $(CYGPATH_W) '$(srcdir)/ocp.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-ocp.Tpo $(DEPDIR)/libluatex_a-ocp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ocp.c' object='libluatex_a-ocp.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-ocp.obj `if test -f 'ocp.c'; then $(CYGPATH_W) 'ocp.c'; else $(CYGPATH_W) '$(srcdir)/ocp.c'; fi`
+
+libluatex_a-ocplist.o: ocplist.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-ocplist.o -MD -MP -MF $(DEPDIR)/libluatex_a-ocplist.Tpo -c -o libluatex_a-ocplist.o `test -f 'ocplist.c' || echo '$(srcdir)/'`ocplist.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-ocplist.Tpo $(DEPDIR)/libluatex_a-ocplist.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ocplist.c' object='libluatex_a-ocplist.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-ocplist.o `test -f 'ocplist.c' || echo '$(srcdir)/'`ocplist.c
+
+libluatex_a-ocplist.obj: ocplist.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-ocplist.obj -MD -MP -MF $(DEPDIR)/libluatex_a-ocplist.Tpo -c -o libluatex_a-ocplist.obj `if test -f 'ocplist.c'; then $(CYGPATH_W) 'ocplist.c'; else $(CYGPATH_W) '$(srcdir)/ocplist.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-ocplist.Tpo $(DEPDIR)/libluatex_a-ocplist.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ocplist.c' object='libluatex_a-ocplist.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-ocplist.obj `if test -f 'ocplist.c'; then $(CYGPATH_W) 'ocplist.c'; else $(CYGPATH_W) '$(srcdir)/ocplist.c'; fi`
+
+libluatex_a-readocp.o: readocp.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-readocp.o -MD -MP -MF $(DEPDIR)/libluatex_a-readocp.Tpo -c -o libluatex_a-readocp.o `test -f 'readocp.c' || echo '$(srcdir)/'`readocp.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-readocp.Tpo $(DEPDIR)/libluatex_a-readocp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='readocp.c' object='libluatex_a-readocp.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-readocp.o `test -f 'readocp.c' || echo '$(srcdir)/'`readocp.c
+
+libluatex_a-readocp.obj: readocp.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-readocp.obj -MD -MP -MF $(DEPDIR)/libluatex_a-readocp.Tpo -c -o libluatex_a-readocp.obj `if test -f 'readocp.c'; then $(CYGPATH_W) 'readocp.c'; else $(CYGPATH_W) '$(srcdir)/readocp.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-readocp.Tpo $(DEPDIR)/libluatex_a-readocp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='readocp.c' object='libluatex_a-readocp.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-readocp.obj `if test -f 'readocp.c'; then $(CYGPATH_W) 'readocp.c'; else $(CYGPATH_W) '$(srcdir)/readocp.c'; fi`
+
+libluatex_a-runocp.o: runocp.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-runocp.o -MD -MP -MF $(DEPDIR)/libluatex_a-runocp.Tpo -c -o libluatex_a-runocp.o `test -f 'runocp.c' || echo '$(srcdir)/'`runocp.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-runocp.Tpo $(DEPDIR)/libluatex_a-runocp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='runocp.c' object='libluatex_a-runocp.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-runocp.o `test -f 'runocp.c' || echo '$(srcdir)/'`runocp.c
+
+libluatex_a-runocp.obj: runocp.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-runocp.obj -MD -MP -MF $(DEPDIR)/libluatex_a-runocp.Tpo -c -o libluatex_a-runocp.obj `if test -f 'runocp.c'; then $(CYGPATH_W) 'runocp.c'; else $(CYGPATH_W) '$(srcdir)/runocp.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-runocp.Tpo $(DEPDIR)/libluatex_a-runocp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='runocp.c' object='libluatex_a-runocp.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-runocp.obj `if test -f 'runocp.c'; then $(CYGPATH_W) 'runocp.c'; else $(CYGPATH_W) '$(srcdir)/runocp.c'; fi`
 
 libluatex_a-align.o: align.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-align.o -MD -MP -MF $(DEPDIR)/libluatex_a-align.Tpo -c -o libluatex_a-align.o `test -f 'align.c' || echo '$(srcdir)/'`align.c
@@ -7388,6 +7390,18 @@ $(libluamisc_a_OBJECTS): $(libluamisc_a_DEPENDENCIES)
 $(libff_a_OBJECTS): $(libff_a_DEPENDENCIES)
 dvigen.c: ctangle$(EXEEXT) luatexdir/dvi/dvigen.w
 	$(luatex_dvi_ctangle) dvigen.w
+
+ocp.c: ctangle$(EXEEXT) luatexdir/ocp/ocp.w
+	$(luatex_ocp_ctangle) ocp.w
+
+runocp.c: ctangle$(EXEEXT) luatexdir/ocp/runocp.w
+	$(luatex_ocp_ctangle) runocp.w
+
+readocp.c: ctangle$(EXEEXT) luatexdir/ocp/readocp.w
+	$(luatex_ocp_ctangle) readocp.w
+
+ocplist.c: ctangle$(EXEEXT) luatexdir/ocp/ocplist.w
+	$(luatex_ocp_ctangle) ocplist.w
 
 align.c: ctangle$(EXEEXT) luatexdir/tex/align.w
 	$(luatex_tex_ctangle) align.w

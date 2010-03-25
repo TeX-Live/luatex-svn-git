@@ -24,6 +24,26 @@ libluatex_web = luatexdir/dvi/dvigen.w
 
 nodist_libluatex_a_SOURCES = dvigen.c
 
+luatex_ocp_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/ocp $(ctangle)
+
+ocp.c: ctangle$(EXEEXT) luatexdir/ocp/ocp.w
+	$(luatex_ocp_ctangle) ocp.w
+
+runocp.c: ctangle$(EXEEXT) luatexdir/ocp/runocp.w
+	$(luatex_ocp_ctangle) runocp.w
+
+readocp.c: ctangle$(EXEEXT) luatexdir/ocp/readocp.w
+	$(luatex_ocp_ctangle) readocp.w
+
+ocplist.c: ctangle$(EXEEXT) luatexdir/ocp/ocplist.w
+	$(luatex_ocp_ctangle) ocplist.w
+
+libluatex_web += luatexdir/ocp/ocp.w luatexdir/ocp/ocplist.w luatexdir/ocp/readocp.w luatexdir/ocp/runocp.w
+
+nodist_libluatex_a_SOURCES += ocp.c ocplist.c readocp.c runocp.c
+
+
+
 luatex_tex_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/tex $(ctangle)
 
 align.c: ctangle$(EXEEXT) luatexdir/tex/align.w
@@ -357,13 +377,9 @@ libluatex_a_SOURCES = \
 	luatexdir/lua/luatoken.c \
 	luatexdir/lua/texluac.c \
 	luatexdir/luatex.h \
-	luatexdir/ocp/ocp.c \
 	luatexdir/ocp/ocp.h \
-	luatexdir/ocp/ocplist.c \
 	luatexdir/ocp/ocplist.h \
-	luatexdir/ocp/readocp.c \
 	luatexdir/ocp/readocp.h \
-	luatexdir/ocp/runocp.c \
 	luatexdir/ocp/runocp.h \
 	luatexdir/pdf/pagetree.c \
 	luatexdir/pdf/pagetree.h \
