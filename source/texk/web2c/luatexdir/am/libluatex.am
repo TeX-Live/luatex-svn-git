@@ -17,6 +17,7 @@ libluatex_a_CFLAGS = $(WARNING_CFLAGS)
 libluatex_a_CXXFLAGS = # $(WARNING_CXXFLAGS)
 
 luatex_dvi_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/dvi $(ctangle)
+
 dvigen.c: ctangle$(EXEEXT) luatexdir/dvi/dvigen.w
 	$(luatex_dvi_ctangle) dvigen.w
 
@@ -41,6 +42,22 @@ ocplist.c: ctangle$(EXEEXT) luatexdir/ocp/ocplist.w
 libluatex_web += luatexdir/ocp/ocp.w luatexdir/ocp/ocplist.w luatexdir/ocp/readocp.w luatexdir/ocp/runocp.w
 
 nodist_libluatex_a_SOURCES += ocp.c ocplist.c readocp.c runocp.c
+
+luatex_lang_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/lang $(ctangle)
+
+hnjalloc.c: ctangle$(EXEEXT) luatexdir/lang/hnjalloc.w
+	$(luatex_lang_ctangle) hnjalloc.w
+
+hyphen.c: ctangle$(EXEEXT) luatexdir/lang/hyphen.w
+	$(luatex_lang_ctangle) hyphen.w
+
+texlang.c: ctangle$(EXEEXT) luatexdir/lang/texlang.w
+	$(luatex_lang_ctangle) texlang.w
+
+libluatex_web += luatexdir/lang/texlang.w luatexdir/lang/hyphen.w luatexdir/lang/hnjalloc.w
+
+nodist_libluatex_a_SOURCES += texlang.c hyphen.c hnjalloc.c
+
 
 
 
@@ -346,11 +363,8 @@ libluatex_a_SOURCES = \
 	luatexdir/image/writejpg.h \
 	luatexdir/image/writepng.c \
 	luatexdir/image/writepng.h \
-	luatexdir/lang/hnjalloc.c \
 	luatexdir/lang/hnjalloc.h \
-	luatexdir/lang/hyphen.c \
 	luatexdir/lang/hyphen.h \
-	luatexdir/lang/texlang.c \
 	luatexdir/lang/texlang.h \
 	luatexdir/lua/lcallbacklib.c \
 	luatexdir/lua/lfontlib.c \

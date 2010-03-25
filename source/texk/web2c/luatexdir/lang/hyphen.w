@@ -1,3 +1,4 @@
+@ @c
 /* Libhnj is dual licensed under LGPL and MPL. Boilerplate for both
  * licenses follows.
  */
@@ -5,7 +6,7 @@
 /* LibHnj - a library for high quality hyphenation and justification
  * Copyright (C) 1998 Raph Levien, 
  * 	     (C) 2001 ALTLinux, Moscow (http://www.alt-linux.org), 
- *           (C) 2001 Peter Novodvorsky (nidd@cs.msu.su)
+ *           (C) 2001 Peter Novodvorsky (nidd@@cs.msu.su)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -50,8 +51,8 @@
 
 /*#define VERBOSE*/
 
-#include "hnjalloc.h"
-#include "hyphen.h"
+#include "lang/hnjalloc.h"
+#include "lang/hyphen.h"
 
 static const char _svn_version[] =
     "$Id: hyphen.c 1696 2008-12-28 21:02:34Z oneiros $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lang/texlang.c $";

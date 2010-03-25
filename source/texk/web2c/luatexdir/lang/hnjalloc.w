@@ -1,3 +1,4 @@
+@ @c
 /* LibHnj is dual licensed under LGPL and MPL. Boilerplate for both
  * licenses follows.
  */
