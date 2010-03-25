@@ -1,7 +1,8 @@
+@ @c
 /* pkin.c
    
-   Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
+   Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -30,19 +31,18 @@
  * What was needed to implement readchar() is rearranged in pkfile.c to
  * get more modularity in the style of MODULA2.
  * BUGFIXES
- *      May 1997: Eric Delaunay <delaunay@lix.polytechnique.fr> reports a
+ *      May 1997: Eric Delaunay <delaunay@@lix.polytechnique.fr> reports a
  *      problem with huge fonts (greater than 1008 DPI). The code for
  *      handling PK characters in `extended format' was wrongly derived
  *      from dvips. Made some minor improvements regarding error handling.
  * REDESIGN
  * Piet Tutelaers
- * rcpt@urc.tue.nl
+ * rcpt@@urc.tue.nl
  *
- *  Modified for use with pdftex by Han The Thanh <thanh@fi.muni.cz>.
+ *  Modified for use with pdftex by Han The Thanh <thanh@@fi.muni.cz>.
  */
 
 #include "ptexlib.h"
-#include "luatexfont.h"
 
 typedef short shalfword;
 

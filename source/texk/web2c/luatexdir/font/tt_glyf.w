@@ -1,8 +1,9 @@
+@ @c
 /* tt_glyf.c
     
    Copyright 2002 by Jin-Hwan Cho and Shunsaku Hirata,
-   the dvipdfmx project team <dvipdfmx@project.ktug.or.kr>
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   the dvipdfmx project team <dvipdfmx@@project.ktug.or.kr>
+   Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -26,10 +27,10 @@
 
 #include "ptexlib.h"
 
-#include "sfnt.h"
-#include "tt_table.h"
-#include "tt_glyf.h"
-#include "writettf.h"
+#include "font/sfnt.h"
+#include "font/tt_table.h"
+#include "font/tt_glyf.h"
+#include "font/writettf.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";

@@ -253,7 +253,19 @@ am_libluasocket_a_OBJECTS = libluasocket_a-auxiliar.$(OBJEXT) \
 libluasocket_a_OBJECTS = $(am_libluasocket_a_OBJECTS)
 libluatex_a_AR = $(AR) $(ARFLAGS)
 libluatex_a_LIBADD =
-am__objects_1 = libluatex_a-dvigen.$(OBJEXT) libluatex_a-ocp.$(OBJEXT) \
+am__objects_1 = libluatex_a-dvigen.$(OBJEXT) \
+	libluatex_a-dofont.$(OBJEXT) libluatex_a-luafont.$(OBJEXT) \
+	libluatex_a-mapfile.$(OBJEXT) libluatex_a-pkin.$(OBJEXT) \
+	libluatex_a-sfnt.$(OBJEXT) libluatex_a-subfont.$(OBJEXT) \
+	libluatex_a-texfont.$(OBJEXT) libluatex_a-tfmofm.$(OBJEXT) \
+	libluatex_a-tounicode.$(OBJEXT) libluatex_a-tt_glyf.$(OBJEXT) \
+	libluatex_a-tt_table.$(OBJEXT) libluatex_a-vfovf.$(OBJEXT) \
+	libluatex_a-vfpacket.$(OBJEXT) libluatex_a-writecff.$(OBJEXT) \
+	libluatex_a-writeenc.$(OBJEXT) libluatex_a-writefont.$(OBJEXT) \
+	libluatex_a-writet1.$(OBJEXT) libluatex_a-writet3.$(OBJEXT) \
+	libluatex_a-writettf.$(OBJEXT) \
+	libluatex_a-writetype0.$(OBJEXT) \
+	libluatex_a-writetype2.$(OBJEXT) libluatex_a-ocp.$(OBJEXT) \
 	libluatex_a-ocplist.$(OBJEXT) libluatex_a-readocp.$(OBJEXT) \
 	libluatex_a-runocp.$(OBJEXT) libluatex_a-texlang.$(OBJEXT) \
 	libluatex_a-hyphen.$(OBJEXT) libluatex_a-hnjalloc.$(OBJEXT) \
@@ -280,18 +292,7 @@ am__objects_1 = libluatex_a-dvigen.$(OBJEXT) libluatex_a-ocp.$(OBJEXT) \
 	libluatex_a-packaging.$(OBJEXT) libluatex_a-printing.$(OBJEXT) \
 	libluatex_a-stringpool.$(OBJEXT) libluatex_a-texmath.$(OBJEXT) \
 	libluatex_a-textoken.$(OBJEXT)
-am_libluatex_a_OBJECTS = libluatex_a-dofont.$(OBJEXT) \
-	libluatex_a-luafont.$(OBJEXT) libluatex_a-mapfile.$(OBJEXT) \
-	libluatex_a-pkin.$(OBJEXT) libluatex_a-sfnt.$(OBJEXT) \
-	libluatex_a-subfont.$(OBJEXT) libluatex_a-texfont.$(OBJEXT) \
-	libluatex_a-tfmofm.$(OBJEXT) libluatex_a-tounicode.$(OBJEXT) \
-	libluatex_a-tt_glyf.$(OBJEXT) libluatex_a-tt_table.$(OBJEXT) \
-	libluatex_a-vfovf.$(OBJEXT) libluatex_a-vfpacket.$(OBJEXT) \
-	libluatex_a-writecff.$(OBJEXT) libluatex_a-writeenc.$(OBJEXT) \
-	libluatex_a-writefont.$(OBJEXT) libluatex_a-writet1.$(OBJEXT) \
-	libluatex_a-writet3.$(OBJEXT) libluatex_a-writettf.$(OBJEXT) \
-	libluatex_a-writetype0.$(OBJEXT) \
-	libluatex_a-writetype2.$(OBJEXT) libluatex_a-epdf.$(OBJEXT) \
+am_libluatex_a_OBJECTS = libluatex_a-epdf.$(OBJEXT) \
 	libluatex_a-pdftoepdf.$(OBJEXT) libluatex_a-writeimg.$(OBJEXT) \
 	libluatex_a-writejbig2.$(OBJEXT) \
 	libluatex_a-writejpg.$(OBJEXT) libluatex_a-writepng.$(OBJEXT) \
@@ -327,12 +328,23 @@ am_libluatex_a_OBJECTS = libluatex_a-dofont.$(OBJEXT) \
 	libluatex_a-utils.$(OBJEXT) $(am__objects_1) \
 	libluatex_a-lmplib.$(OBJEXT)
 nodist_libluatex_a_OBJECTS = libluatex_a-dvigen.$(OBJEXT) \
-	libluatex_a-ocp.$(OBJEXT) libluatex_a-ocplist.$(OBJEXT) \
-	libluatex_a-readocp.$(OBJEXT) libluatex_a-runocp.$(OBJEXT) \
-	libluatex_a-texlang.$(OBJEXT) libluatex_a-hyphen.$(OBJEXT) \
-	libluatex_a-hnjalloc.$(OBJEXT) libluatex_a-align.$(OBJEXT) \
-	libluatex_a-dumpdata.$(OBJEXT) libluatex_a-expand.$(OBJEXT) \
-	libluatex_a-inputstack.$(OBJEXT) \
+	libluatex_a-dofont.$(OBJEXT) libluatex_a-luafont.$(OBJEXT) \
+	libluatex_a-mapfile.$(OBJEXT) libluatex_a-pkin.$(OBJEXT) \
+	libluatex_a-sfnt.$(OBJEXT) libluatex_a-subfont.$(OBJEXT) \
+	libluatex_a-texfont.$(OBJEXT) libluatex_a-tfmofm.$(OBJEXT) \
+	libluatex_a-tounicode.$(OBJEXT) libluatex_a-tt_glyf.$(OBJEXT) \
+	libluatex_a-tt_table.$(OBJEXT) libluatex_a-vfovf.$(OBJEXT) \
+	libluatex_a-vfpacket.$(OBJEXT) libluatex_a-writecff.$(OBJEXT) \
+	libluatex_a-writeenc.$(OBJEXT) libluatex_a-writefont.$(OBJEXT) \
+	libluatex_a-writet1.$(OBJEXT) libluatex_a-writet3.$(OBJEXT) \
+	libluatex_a-writettf.$(OBJEXT) \
+	libluatex_a-writetype0.$(OBJEXT) \
+	libluatex_a-writetype2.$(OBJEXT) libluatex_a-ocp.$(OBJEXT) \
+	libluatex_a-ocplist.$(OBJEXT) libluatex_a-readocp.$(OBJEXT) \
+	libluatex_a-runocp.$(OBJEXT) libluatex_a-texlang.$(OBJEXT) \
+	libluatex_a-hyphen.$(OBJEXT) libluatex_a-hnjalloc.$(OBJEXT) \
+	libluatex_a-align.$(OBJEXT) libluatex_a-dumpdata.$(OBJEXT) \
+	libluatex_a-expand.$(OBJEXT) libluatex_a-inputstack.$(OBJEXT) \
 	libluatex_a-maincontrol.$(OBJEXT) libluatex_a-mlist.$(OBJEXT) \
 	libluatex_a-postlinebreak.$(OBJEXT) \
 	libluatex_a-scanning.$(OBJEXT) \
@@ -637,34 +649,32 @@ CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 SOURCES = $(libff_a_SOURCES) $(liblua51_a_SOURCES) \
 	$(libluamisc_a_SOURCES) $(EXTRA_libluamisc_a_SOURCES) \
 	$(libluasocket_a_SOURCES) $(libluatex_a_SOURCES) \
-	$(EXTRA_libluatex_a_SOURCES) $(nodist_libluatex_a_SOURCES) \
-	$(libmd5_a_SOURCES) $(nodist_libmf_a_SOURCES) \
-	$(libmplib_a_SOURCES) $(nodist_libmplib_a_SOURCES) \
-	$(libxetex_a_SOURCES) $(libxetexmm_a_SOURCES) \
-	$(nodist_bibtex_SOURCES) $(nodist_ctangle_SOURCES) \
-	$(nodist_ctangleboot_SOURCES) $(nodist_ctie_SOURCES) \
-	$(nodist_cweave_SOURCES) $(nodist_dvicopy_SOURCES) \
-	$(nodist_dvitype_SOURCES) $(gftodvi_SOURCES) \
-	$(nodist_gftodvi_SOURCES) $(nodist_gftopk_SOURCES) \
-	$(nodist_gftype_SOURCES) $(luatex_SOURCES) \
-	$(nodist_EXTRA_luatex_SOURCES) $(md5main_SOURCES) \
-	$(nodist_mf_SOURCES) $(nodist_mf_nowin_SOURCES) \
-	$(nodist_mft_SOURCES) $(nodist_mpost_SOURCES) \
-	$(nodist_patgen_SOURCES) $(nodist_pktogf_SOURCES) \
-	$(nodist_pktype_SOURCES) $(nodist_pltotf_SOURCES) \
-	$(nodist_pooltype_SOURCES) $(nodist_tangle_SOURCES) \
-	$(nodist_tangleboot_SOURCES) $(nodist_tex_SOURCES) \
-	$(nodist_tftopl_SOURCES) $(nodist_tie_SOURCES) \
-	$(nodist_vftovp_SOURCES) $(nodist_vptovf_SOURCES) \
-	$(nodist_weave_SOURCES) $(nodist_xetex_SOURCES) \
-	$(nodist_EXTRA_xetex_SOURCES)
+	$(nodist_libluatex_a_SOURCES) $(libmd5_a_SOURCES) \
+	$(nodist_libmf_a_SOURCES) $(libmplib_a_SOURCES) \
+	$(nodist_libmplib_a_SOURCES) $(libxetex_a_SOURCES) \
+	$(libxetexmm_a_SOURCES) $(nodist_bibtex_SOURCES) \
+	$(nodist_ctangle_SOURCES) $(nodist_ctangleboot_SOURCES) \
+	$(nodist_ctie_SOURCES) $(nodist_cweave_SOURCES) \
+	$(nodist_dvicopy_SOURCES) $(nodist_dvitype_SOURCES) \
+	$(gftodvi_SOURCES) $(nodist_gftodvi_SOURCES) \
+	$(nodist_gftopk_SOURCES) $(nodist_gftype_SOURCES) \
+	$(luatex_SOURCES) $(nodist_EXTRA_luatex_SOURCES) \
+	$(md5main_SOURCES) $(nodist_mf_SOURCES) \
+	$(nodist_mf_nowin_SOURCES) $(nodist_mft_SOURCES) \
+	$(nodist_mpost_SOURCES) $(nodist_patgen_SOURCES) \
+	$(nodist_pktogf_SOURCES) $(nodist_pktype_SOURCES) \
+	$(nodist_pltotf_SOURCES) $(nodist_pooltype_SOURCES) \
+	$(nodist_tangle_SOURCES) $(nodist_tangleboot_SOURCES) \
+	$(nodist_tex_SOURCES) $(nodist_tftopl_SOURCES) \
+	$(nodist_tie_SOURCES) $(nodist_vftovp_SOURCES) \
+	$(nodist_vptovf_SOURCES) $(nodist_weave_SOURCES) \
+	$(nodist_xetex_SOURCES) $(nodist_EXTRA_xetex_SOURCES)
 DIST_SOURCES = $(libff_a_SOURCES) $(liblua51_a_SOURCES) \
 	$(libluamisc_a_SOURCES) $(EXTRA_libluamisc_a_SOURCES) \
 	$(libluasocket_a_SOURCES) $(libluatex_a_SOURCES) \
-	$(EXTRA_libluatex_a_SOURCES) $(libmd5_a_SOURCES) \
-	$(libmplib_a_SOURCES) $(am__libxetex_a_SOURCES_DIST) \
-	$(libxetexmm_a_SOURCES) $(gftodvi_SOURCES) $(luatex_SOURCES) \
-	$(md5main_SOURCES)
+	$(libmd5_a_SOURCES) $(libmplib_a_SOURCES) \
+	$(am__libxetex_a_SOURCES_DIST) $(libxetexmm_a_SOURCES) \
+	$(gftodvi_SOURCES) $(luatex_SOURCES) $(md5main_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -1540,68 +1550,63 @@ libluatex_a_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) \
 libluatex_a_CFLAGS = $(WARNING_CFLAGS)
 libluatex_a_CXXFLAGS = # $(WARNING_CXXFLAGS)
 luatex_dvi_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/dvi $(ctangle)
-libluatex_web = luatexdir/dvi/dvigen.w luatexdir/ocp/ocp.w \
-	luatexdir/ocp/ocplist.w luatexdir/ocp/readocp.w \
-	luatexdir/ocp/runocp.w luatexdir/lang/texlang.w \
-	luatexdir/lang/hyphen.w luatexdir/lang/hnjalloc.w \
-	luatexdir/tex/align.w luatexdir/tex/dumpdata.w \
-	luatexdir/tex/expand.w luatexdir/tex/inputstack.w \
-	luatexdir/tex/maincontrol.w luatexdir/tex/mlist.w \
-	luatexdir/tex/postlinebreak.w luatexdir/tex/scanning.w \
-	luatexdir/tex/texdeffont.w luatexdir/tex/texnodes.w \
-	luatexdir/tex/arithmetic.w luatexdir/tex/conditional.w \
-	luatexdir/tex/equivalents.w luatexdir/tex/extensions.w \
-	luatexdir/tex/commands.w luatexdir/tex/linebreak.w \
-	luatexdir/tex/mathcodes.w luatexdir/tex/nesting.w \
-	luatexdir/tex/primitive.w luatexdir/tex/texfileio.w \
-	luatexdir/tex/textcodes.w luatexdir/tex/buildpage.w \
-	luatexdir/tex/directions.w luatexdir/tex/errors.w \
-	luatexdir/tex/filename.w luatexdir/tex/mainbody.w \
-	luatexdir/tex/memoryword.w luatexdir/tex/packaging.w \
-	luatexdir/tex/printing.w luatexdir/tex/stringpool.w \
-	luatexdir/tex/texmath.w luatexdir/tex/textoken.w
-nodist_libluatex_a_SOURCES = dvigen.c ocp.c ocplist.c readocp.c \
-	runocp.c texlang.c hyphen.c hnjalloc.c align.c dumpdata.c \
-	expand.c inputstack.c maincontrol.c mlist.c postlinebreak.c \
-	scanning.c texdeffont.c texnodes.c arithmetic.c conditional.c \
-	equivalents.c extensions.c commands.c linebreak.c mathcodes.c \
-	nesting.c primitive.c texfileio.c textcodes.c buildpage.c \
-	directions.c errors.c filename.c mainbody.c memoryword.c \
-	packaging.c printing.c stringpool.c texmath.c textoken.c
+libluatex_web = luatexdir/dvi/dvigen.w luatexdir/font/dofont.w \
+	luatexdir/font/luafont.w luatexdir/font/mapfile.w \
+	luatexdir/font/pkin.w luatexdir/font/sfnt.w \
+	luatexdir/font/subfont.w luatexdir/font/texfont.w \
+	luatexdir/font/tfmofm.w luatexdir/font/tounicode.w \
+	luatexdir/font/tt_glyf.w luatexdir/font/tt_table.w \
+	luatexdir/font/vfovf.w luatexdir/font/vfpacket.w \
+	luatexdir/font/writecff.w luatexdir/font/writeenc.w \
+	luatexdir/font/writefont.w luatexdir/font/writet1.w \
+	luatexdir/font/writet3.w luatexdir/font/writettf.w \
+	luatexdir/font/writetype0.w luatexdir/font/writetype2.w \
+	luatexdir/ocp/ocp.w luatexdir/ocp/ocplist.w \
+	luatexdir/ocp/readocp.w luatexdir/ocp/runocp.w \
+	luatexdir/lang/texlang.w luatexdir/lang/hyphen.w \
+	luatexdir/lang/hnjalloc.w luatexdir/tex/align.w \
+	luatexdir/tex/dumpdata.w luatexdir/tex/expand.w \
+	luatexdir/tex/inputstack.w luatexdir/tex/maincontrol.w \
+	luatexdir/tex/mlist.w luatexdir/tex/postlinebreak.w \
+	luatexdir/tex/scanning.w luatexdir/tex/texdeffont.w \
+	luatexdir/tex/texnodes.w luatexdir/tex/arithmetic.w \
+	luatexdir/tex/conditional.w luatexdir/tex/equivalents.w \
+	luatexdir/tex/extensions.w luatexdir/tex/commands.w \
+	luatexdir/tex/linebreak.w luatexdir/tex/mathcodes.w \
+	luatexdir/tex/nesting.w luatexdir/tex/primitive.w \
+	luatexdir/tex/texfileio.w luatexdir/tex/textcodes.w \
+	luatexdir/tex/buildpage.w luatexdir/tex/directions.w \
+	luatexdir/tex/errors.w luatexdir/tex/filename.w \
+	luatexdir/tex/mainbody.w luatexdir/tex/memoryword.w \
+	luatexdir/tex/packaging.w luatexdir/tex/printing.w \
+	luatexdir/tex/stringpool.w luatexdir/tex/texmath.w \
+	luatexdir/tex/textoken.w
+nodist_libluatex_a_SOURCES = dvigen.c dofont.c luafont.c mapfile.c \
+	pkin.c sfnt.c subfont.c texfont.c tfmofm.c tounicode.c \
+	tt_glyf.c tt_table.c vfovf.c vfpacket.c writecff.c writeenc.c \
+	writefont.c writet1.c writet3.c writettf.c writetype0.c \
+	writetype2.c ocp.c ocplist.c readocp.c runocp.c texlang.c \
+	hyphen.c hnjalloc.c align.c dumpdata.c expand.c inputstack.c \
+	maincontrol.c mlist.c postlinebreak.c scanning.c texdeffont.c \
+	texnodes.c arithmetic.c conditional.c equivalents.c \
+	extensions.c commands.c linebreak.c mathcodes.c nesting.c \
+	primitive.c texfileio.c textcodes.c buildpage.c directions.c \
+	errors.c filename.c mainbody.c memoryword.c packaging.c \
+	printing.c stringpool.c texmath.c textoken.c
+luatex_font_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/font $(ctangle)
 luatex_ocp_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/ocp $(ctangle)
 luatex_lang_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/lang $(ctangle)
 luatex_tex_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/tex $(ctangle)
 libluatex_a_SOURCES = \
 	luatexdir/dvi/dvigen.h \
-	luatexdir/font/dofont.c \
 	luatexdir/font/luatexfont.h \
-	luatexdir/font/luafont.c \
-	luatexdir/font/mapfile.c \
 	luatexdir/font/mapfile.h \
-	luatexdir/font/pkin.c \
-	luatexdir/font/sfnt.c \
 	luatexdir/font/sfnt.h \
-	luatexdir/font/subfont.c \
-	luatexdir/font/texfont.c \
 	luatexdir/font/texfont.h \
-	luatexdir/font/tfmofm.c \
-	luatexdir/font/tounicode.c \
-	luatexdir/font/tt_glyf.c \
 	luatexdir/font/tt_glyf.h \
-	luatexdir/font/tt_table.c \
 	luatexdir/font/tt_table.h \
-	luatexdir/font/vfovf.c \
-	luatexdir/font/vfpacket.c \
-	luatexdir/font/writecff.c \
 	luatexdir/font/writecff.h \
-	luatexdir/font/writeenc.c \
-	luatexdir/font/writefont.c \
-	luatexdir/font/writet1.c \
-	luatexdir/font/writet3.c \
-	luatexdir/font/writettf.c \
 	luatexdir/font/writettf.h \
-	luatexdir/font/writetype0.c \
-	luatexdir/font/writetype2.c \
 	luatexdir/image/epdf.c \
 	luatexdir/image/epdf.h \
 	luatexdir/image/image.h \
@@ -1737,7 +1742,6 @@ libluatex_a_SOURCES = \
 	$(nodist_libluatex_a_SOURCES) \
 	mplibdir/lmplib.c
 
-EXTRA_libluatex_a_SOURCES = luatexdir/font/macnames.c
 
 # Force Automake to use CXXLD for linking
 nodist_EXTRA_xetex_SOURCES = dummy.cxx
@@ -2248,7 +2252,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-luastuff.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-luatex.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-luatoken.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-macnames.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mainbody.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-maincontrol.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-managed-sa.Po@am__quote@
@@ -3987,300 +3990,6 @@ libluasocket_a-udp.obj: luatexdir/luasocket/src/udp.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluasocket_a_CPPFLAGS) $(CPPFLAGS) $(libluasocket_a_CFLAGS) $(CFLAGS) -c -o libluasocket_a-udp.obj `if test -f 'luatexdir/luasocket/src/udp.c'; then $(CYGPATH_W) 'luatexdir/luasocket/src/udp.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luasocket/src/udp.c'; fi`
 
-libluatex_a-dofont.o: luatexdir/font/dofont.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-dofont.o -MD -MP -MF $(DEPDIR)/libluatex_a-dofont.Tpo -c -o libluatex_a-dofont.o `test -f 'luatexdir/font/dofont.c' || echo '$(srcdir)/'`luatexdir/font/dofont.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-dofont.Tpo $(DEPDIR)/libluatex_a-dofont.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/dofont.c' object='libluatex_a-dofont.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-dofont.o `test -f 'luatexdir/font/dofont.c' || echo '$(srcdir)/'`luatexdir/font/dofont.c
-
-libluatex_a-dofont.obj: luatexdir/font/dofont.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-dofont.obj -MD -MP -MF $(DEPDIR)/libluatex_a-dofont.Tpo -c -o libluatex_a-dofont.obj `if test -f 'luatexdir/font/dofont.c'; then $(CYGPATH_W) 'luatexdir/font/dofont.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/dofont.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-dofont.Tpo $(DEPDIR)/libluatex_a-dofont.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/dofont.c' object='libluatex_a-dofont.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-dofont.obj `if test -f 'luatexdir/font/dofont.c'; then $(CYGPATH_W) 'luatexdir/font/dofont.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/dofont.c'; fi`
-
-libluatex_a-luafont.o: luatexdir/font/luafont.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-luafont.o -MD -MP -MF $(DEPDIR)/libluatex_a-luafont.Tpo -c -o libluatex_a-luafont.o `test -f 'luatexdir/font/luafont.c' || echo '$(srcdir)/'`luatexdir/font/luafont.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-luafont.Tpo $(DEPDIR)/libluatex_a-luafont.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/luafont.c' object='libluatex_a-luafont.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-luafont.o `test -f 'luatexdir/font/luafont.c' || echo '$(srcdir)/'`luatexdir/font/luafont.c
-
-libluatex_a-luafont.obj: luatexdir/font/luafont.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-luafont.obj -MD -MP -MF $(DEPDIR)/libluatex_a-luafont.Tpo -c -o libluatex_a-luafont.obj `if test -f 'luatexdir/font/luafont.c'; then $(CYGPATH_W) 'luatexdir/font/luafont.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/luafont.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-luafont.Tpo $(DEPDIR)/libluatex_a-luafont.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/luafont.c' object='libluatex_a-luafont.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-luafont.obj `if test -f 'luatexdir/font/luafont.c'; then $(CYGPATH_W) 'luatexdir/font/luafont.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/luafont.c'; fi`
-
-libluatex_a-mapfile.o: luatexdir/font/mapfile.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-mapfile.o -MD -MP -MF $(DEPDIR)/libluatex_a-mapfile.Tpo -c -o libluatex_a-mapfile.o `test -f 'luatexdir/font/mapfile.c' || echo '$(srcdir)/'`luatexdir/font/mapfile.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-mapfile.Tpo $(DEPDIR)/libluatex_a-mapfile.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/mapfile.c' object='libluatex_a-mapfile.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-mapfile.o `test -f 'luatexdir/font/mapfile.c' || echo '$(srcdir)/'`luatexdir/font/mapfile.c
-
-libluatex_a-mapfile.obj: luatexdir/font/mapfile.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-mapfile.obj -MD -MP -MF $(DEPDIR)/libluatex_a-mapfile.Tpo -c -o libluatex_a-mapfile.obj `if test -f 'luatexdir/font/mapfile.c'; then $(CYGPATH_W) 'luatexdir/font/mapfile.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/mapfile.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-mapfile.Tpo $(DEPDIR)/libluatex_a-mapfile.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/mapfile.c' object='libluatex_a-mapfile.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-mapfile.obj `if test -f 'luatexdir/font/mapfile.c'; then $(CYGPATH_W) 'luatexdir/font/mapfile.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/mapfile.c'; fi`
-
-libluatex_a-pkin.o: luatexdir/font/pkin.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pkin.o -MD -MP -MF $(DEPDIR)/libluatex_a-pkin.Tpo -c -o libluatex_a-pkin.o `test -f 'luatexdir/font/pkin.c' || echo '$(srcdir)/'`luatexdir/font/pkin.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pkin.Tpo $(DEPDIR)/libluatex_a-pkin.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/pkin.c' object='libluatex_a-pkin.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pkin.o `test -f 'luatexdir/font/pkin.c' || echo '$(srcdir)/'`luatexdir/font/pkin.c
-
-libluatex_a-pkin.obj: luatexdir/font/pkin.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pkin.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pkin.Tpo -c -o libluatex_a-pkin.obj `if test -f 'luatexdir/font/pkin.c'; then $(CYGPATH_W) 'luatexdir/font/pkin.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/pkin.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pkin.Tpo $(DEPDIR)/libluatex_a-pkin.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/pkin.c' object='libluatex_a-pkin.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pkin.obj `if test -f 'luatexdir/font/pkin.c'; then $(CYGPATH_W) 'luatexdir/font/pkin.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/pkin.c'; fi`
-
-libluatex_a-sfnt.o: luatexdir/font/sfnt.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-sfnt.o -MD -MP -MF $(DEPDIR)/libluatex_a-sfnt.Tpo -c -o libluatex_a-sfnt.o `test -f 'luatexdir/font/sfnt.c' || echo '$(srcdir)/'`luatexdir/font/sfnt.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-sfnt.Tpo $(DEPDIR)/libluatex_a-sfnt.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/sfnt.c' object='libluatex_a-sfnt.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-sfnt.o `test -f 'luatexdir/font/sfnt.c' || echo '$(srcdir)/'`luatexdir/font/sfnt.c
-
-libluatex_a-sfnt.obj: luatexdir/font/sfnt.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-sfnt.obj -MD -MP -MF $(DEPDIR)/libluatex_a-sfnt.Tpo -c -o libluatex_a-sfnt.obj `if test -f 'luatexdir/font/sfnt.c'; then $(CYGPATH_W) 'luatexdir/font/sfnt.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/sfnt.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-sfnt.Tpo $(DEPDIR)/libluatex_a-sfnt.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/sfnt.c' object='libluatex_a-sfnt.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-sfnt.obj `if test -f 'luatexdir/font/sfnt.c'; then $(CYGPATH_W) 'luatexdir/font/sfnt.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/sfnt.c'; fi`
-
-libluatex_a-subfont.o: luatexdir/font/subfont.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-subfont.o -MD -MP -MF $(DEPDIR)/libluatex_a-subfont.Tpo -c -o libluatex_a-subfont.o `test -f 'luatexdir/font/subfont.c' || echo '$(srcdir)/'`luatexdir/font/subfont.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-subfont.Tpo $(DEPDIR)/libluatex_a-subfont.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/subfont.c' object='libluatex_a-subfont.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-subfont.o `test -f 'luatexdir/font/subfont.c' || echo '$(srcdir)/'`luatexdir/font/subfont.c
-
-libluatex_a-subfont.obj: luatexdir/font/subfont.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-subfont.obj -MD -MP -MF $(DEPDIR)/libluatex_a-subfont.Tpo -c -o libluatex_a-subfont.obj `if test -f 'luatexdir/font/subfont.c'; then $(CYGPATH_W) 'luatexdir/font/subfont.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/subfont.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-subfont.Tpo $(DEPDIR)/libluatex_a-subfont.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/subfont.c' object='libluatex_a-subfont.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-subfont.obj `if test -f 'luatexdir/font/subfont.c'; then $(CYGPATH_W) 'luatexdir/font/subfont.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/subfont.c'; fi`
-
-libluatex_a-texfont.o: luatexdir/font/texfont.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-texfont.o -MD -MP -MF $(DEPDIR)/libluatex_a-texfont.Tpo -c -o libluatex_a-texfont.o `test -f 'luatexdir/font/texfont.c' || echo '$(srcdir)/'`luatexdir/font/texfont.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-texfont.Tpo $(DEPDIR)/libluatex_a-texfont.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/texfont.c' object='libluatex_a-texfont.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-texfont.o `test -f 'luatexdir/font/texfont.c' || echo '$(srcdir)/'`luatexdir/font/texfont.c
-
-libluatex_a-texfont.obj: luatexdir/font/texfont.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-texfont.obj -MD -MP -MF $(DEPDIR)/libluatex_a-texfont.Tpo -c -o libluatex_a-texfont.obj `if test -f 'luatexdir/font/texfont.c'; then $(CYGPATH_W) 'luatexdir/font/texfont.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/texfont.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-texfont.Tpo $(DEPDIR)/libluatex_a-texfont.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/texfont.c' object='libluatex_a-texfont.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-texfont.obj `if test -f 'luatexdir/font/texfont.c'; then $(CYGPATH_W) 'luatexdir/font/texfont.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/texfont.c'; fi`
-
-libluatex_a-tfmofm.o: luatexdir/font/tfmofm.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-tfmofm.o -MD -MP -MF $(DEPDIR)/libluatex_a-tfmofm.Tpo -c -o libluatex_a-tfmofm.o `test -f 'luatexdir/font/tfmofm.c' || echo '$(srcdir)/'`luatexdir/font/tfmofm.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-tfmofm.Tpo $(DEPDIR)/libluatex_a-tfmofm.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/tfmofm.c' object='libluatex_a-tfmofm.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-tfmofm.o `test -f 'luatexdir/font/tfmofm.c' || echo '$(srcdir)/'`luatexdir/font/tfmofm.c
-
-libluatex_a-tfmofm.obj: luatexdir/font/tfmofm.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-tfmofm.obj -MD -MP -MF $(DEPDIR)/libluatex_a-tfmofm.Tpo -c -o libluatex_a-tfmofm.obj `if test -f 'luatexdir/font/tfmofm.c'; then $(CYGPATH_W) 'luatexdir/font/tfmofm.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/tfmofm.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-tfmofm.Tpo $(DEPDIR)/libluatex_a-tfmofm.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/tfmofm.c' object='libluatex_a-tfmofm.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-tfmofm.obj `if test -f 'luatexdir/font/tfmofm.c'; then $(CYGPATH_W) 'luatexdir/font/tfmofm.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/tfmofm.c'; fi`
-
-libluatex_a-tounicode.o: luatexdir/font/tounicode.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-tounicode.o -MD -MP -MF $(DEPDIR)/libluatex_a-tounicode.Tpo -c -o libluatex_a-tounicode.o `test -f 'luatexdir/font/tounicode.c' || echo '$(srcdir)/'`luatexdir/font/tounicode.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-tounicode.Tpo $(DEPDIR)/libluatex_a-tounicode.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/tounicode.c' object='libluatex_a-tounicode.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-tounicode.o `test -f 'luatexdir/font/tounicode.c' || echo '$(srcdir)/'`luatexdir/font/tounicode.c
-
-libluatex_a-tounicode.obj: luatexdir/font/tounicode.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-tounicode.obj -MD -MP -MF $(DEPDIR)/libluatex_a-tounicode.Tpo -c -o libluatex_a-tounicode.obj `if test -f 'luatexdir/font/tounicode.c'; then $(CYGPATH_W) 'luatexdir/font/tounicode.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/tounicode.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-tounicode.Tpo $(DEPDIR)/libluatex_a-tounicode.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/tounicode.c' object='libluatex_a-tounicode.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-tounicode.obj `if test -f 'luatexdir/font/tounicode.c'; then $(CYGPATH_W) 'luatexdir/font/tounicode.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/tounicode.c'; fi`
-
-libluatex_a-tt_glyf.o: luatexdir/font/tt_glyf.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-tt_glyf.o -MD -MP -MF $(DEPDIR)/libluatex_a-tt_glyf.Tpo -c -o libluatex_a-tt_glyf.o `test -f 'luatexdir/font/tt_glyf.c' || echo '$(srcdir)/'`luatexdir/font/tt_glyf.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-tt_glyf.Tpo $(DEPDIR)/libluatex_a-tt_glyf.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/tt_glyf.c' object='libluatex_a-tt_glyf.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-tt_glyf.o `test -f 'luatexdir/font/tt_glyf.c' || echo '$(srcdir)/'`luatexdir/font/tt_glyf.c
-
-libluatex_a-tt_glyf.obj: luatexdir/font/tt_glyf.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-tt_glyf.obj -MD -MP -MF $(DEPDIR)/libluatex_a-tt_glyf.Tpo -c -o libluatex_a-tt_glyf.obj `if test -f 'luatexdir/font/tt_glyf.c'; then $(CYGPATH_W) 'luatexdir/font/tt_glyf.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/tt_glyf.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-tt_glyf.Tpo $(DEPDIR)/libluatex_a-tt_glyf.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/tt_glyf.c' object='libluatex_a-tt_glyf.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-tt_glyf.obj `if test -f 'luatexdir/font/tt_glyf.c'; then $(CYGPATH_W) 'luatexdir/font/tt_glyf.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/tt_glyf.c'; fi`
-
-libluatex_a-tt_table.o: luatexdir/font/tt_table.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-tt_table.o -MD -MP -MF $(DEPDIR)/libluatex_a-tt_table.Tpo -c -o libluatex_a-tt_table.o `test -f 'luatexdir/font/tt_table.c' || echo '$(srcdir)/'`luatexdir/font/tt_table.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-tt_table.Tpo $(DEPDIR)/libluatex_a-tt_table.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/tt_table.c' object='libluatex_a-tt_table.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-tt_table.o `test -f 'luatexdir/font/tt_table.c' || echo '$(srcdir)/'`luatexdir/font/tt_table.c
-
-libluatex_a-tt_table.obj: luatexdir/font/tt_table.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-tt_table.obj -MD -MP -MF $(DEPDIR)/libluatex_a-tt_table.Tpo -c -o libluatex_a-tt_table.obj `if test -f 'luatexdir/font/tt_table.c'; then $(CYGPATH_W) 'luatexdir/font/tt_table.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/tt_table.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-tt_table.Tpo $(DEPDIR)/libluatex_a-tt_table.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/tt_table.c' object='libluatex_a-tt_table.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-tt_table.obj `if test -f 'luatexdir/font/tt_table.c'; then $(CYGPATH_W) 'luatexdir/font/tt_table.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/tt_table.c'; fi`
-
-libluatex_a-vfovf.o: luatexdir/font/vfovf.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-vfovf.o -MD -MP -MF $(DEPDIR)/libluatex_a-vfovf.Tpo -c -o libluatex_a-vfovf.o `test -f 'luatexdir/font/vfovf.c' || echo '$(srcdir)/'`luatexdir/font/vfovf.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-vfovf.Tpo $(DEPDIR)/libluatex_a-vfovf.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/vfovf.c' object='libluatex_a-vfovf.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-vfovf.o `test -f 'luatexdir/font/vfovf.c' || echo '$(srcdir)/'`luatexdir/font/vfovf.c
-
-libluatex_a-vfovf.obj: luatexdir/font/vfovf.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-vfovf.obj -MD -MP -MF $(DEPDIR)/libluatex_a-vfovf.Tpo -c -o libluatex_a-vfovf.obj `if test -f 'luatexdir/font/vfovf.c'; then $(CYGPATH_W) 'luatexdir/font/vfovf.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/vfovf.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-vfovf.Tpo $(DEPDIR)/libluatex_a-vfovf.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/vfovf.c' object='libluatex_a-vfovf.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-vfovf.obj `if test -f 'luatexdir/font/vfovf.c'; then $(CYGPATH_W) 'luatexdir/font/vfovf.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/vfovf.c'; fi`
-
-libluatex_a-vfpacket.o: luatexdir/font/vfpacket.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-vfpacket.o -MD -MP -MF $(DEPDIR)/libluatex_a-vfpacket.Tpo -c -o libluatex_a-vfpacket.o `test -f 'luatexdir/font/vfpacket.c' || echo '$(srcdir)/'`luatexdir/font/vfpacket.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-vfpacket.Tpo $(DEPDIR)/libluatex_a-vfpacket.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/vfpacket.c' object='libluatex_a-vfpacket.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-vfpacket.o `test -f 'luatexdir/font/vfpacket.c' || echo '$(srcdir)/'`luatexdir/font/vfpacket.c
-
-libluatex_a-vfpacket.obj: luatexdir/font/vfpacket.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-vfpacket.obj -MD -MP -MF $(DEPDIR)/libluatex_a-vfpacket.Tpo -c -o libluatex_a-vfpacket.obj `if test -f 'luatexdir/font/vfpacket.c'; then $(CYGPATH_W) 'luatexdir/font/vfpacket.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/vfpacket.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-vfpacket.Tpo $(DEPDIR)/libluatex_a-vfpacket.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/vfpacket.c' object='libluatex_a-vfpacket.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-vfpacket.obj `if test -f 'luatexdir/font/vfpacket.c'; then $(CYGPATH_W) 'luatexdir/font/vfpacket.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/vfpacket.c'; fi`
-
-libluatex_a-writecff.o: luatexdir/font/writecff.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writecff.o -MD -MP -MF $(DEPDIR)/libluatex_a-writecff.Tpo -c -o libluatex_a-writecff.o `test -f 'luatexdir/font/writecff.c' || echo '$(srcdir)/'`luatexdir/font/writecff.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writecff.Tpo $(DEPDIR)/libluatex_a-writecff.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/writecff.c' object='libluatex_a-writecff.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writecff.o `test -f 'luatexdir/font/writecff.c' || echo '$(srcdir)/'`luatexdir/font/writecff.c
-
-libluatex_a-writecff.obj: luatexdir/font/writecff.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writecff.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writecff.Tpo -c -o libluatex_a-writecff.obj `if test -f 'luatexdir/font/writecff.c'; then $(CYGPATH_W) 'luatexdir/font/writecff.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/writecff.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writecff.Tpo $(DEPDIR)/libluatex_a-writecff.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/writecff.c' object='libluatex_a-writecff.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writecff.obj `if test -f 'luatexdir/font/writecff.c'; then $(CYGPATH_W) 'luatexdir/font/writecff.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/writecff.c'; fi`
-
-libluatex_a-writeenc.o: luatexdir/font/writeenc.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writeenc.o -MD -MP -MF $(DEPDIR)/libluatex_a-writeenc.Tpo -c -o libluatex_a-writeenc.o `test -f 'luatexdir/font/writeenc.c' || echo '$(srcdir)/'`luatexdir/font/writeenc.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writeenc.Tpo $(DEPDIR)/libluatex_a-writeenc.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/writeenc.c' object='libluatex_a-writeenc.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writeenc.o `test -f 'luatexdir/font/writeenc.c' || echo '$(srcdir)/'`luatexdir/font/writeenc.c
-
-libluatex_a-writeenc.obj: luatexdir/font/writeenc.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writeenc.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writeenc.Tpo -c -o libluatex_a-writeenc.obj `if test -f 'luatexdir/font/writeenc.c'; then $(CYGPATH_W) 'luatexdir/font/writeenc.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/writeenc.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writeenc.Tpo $(DEPDIR)/libluatex_a-writeenc.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/writeenc.c' object='libluatex_a-writeenc.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writeenc.obj `if test -f 'luatexdir/font/writeenc.c'; then $(CYGPATH_W) 'luatexdir/font/writeenc.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/writeenc.c'; fi`
-
-libluatex_a-writefont.o: luatexdir/font/writefont.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writefont.o -MD -MP -MF $(DEPDIR)/libluatex_a-writefont.Tpo -c -o libluatex_a-writefont.o `test -f 'luatexdir/font/writefont.c' || echo '$(srcdir)/'`luatexdir/font/writefont.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writefont.Tpo $(DEPDIR)/libluatex_a-writefont.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/writefont.c' object='libluatex_a-writefont.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writefont.o `test -f 'luatexdir/font/writefont.c' || echo '$(srcdir)/'`luatexdir/font/writefont.c
-
-libluatex_a-writefont.obj: luatexdir/font/writefont.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writefont.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writefont.Tpo -c -o libluatex_a-writefont.obj `if test -f 'luatexdir/font/writefont.c'; then $(CYGPATH_W) 'luatexdir/font/writefont.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/writefont.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writefont.Tpo $(DEPDIR)/libluatex_a-writefont.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/writefont.c' object='libluatex_a-writefont.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writefont.obj `if test -f 'luatexdir/font/writefont.c'; then $(CYGPATH_W) 'luatexdir/font/writefont.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/writefont.c'; fi`
-
-libluatex_a-writet1.o: luatexdir/font/writet1.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writet1.o -MD -MP -MF $(DEPDIR)/libluatex_a-writet1.Tpo -c -o libluatex_a-writet1.o `test -f 'luatexdir/font/writet1.c' || echo '$(srcdir)/'`luatexdir/font/writet1.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writet1.Tpo $(DEPDIR)/libluatex_a-writet1.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/writet1.c' object='libluatex_a-writet1.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writet1.o `test -f 'luatexdir/font/writet1.c' || echo '$(srcdir)/'`luatexdir/font/writet1.c
-
-libluatex_a-writet1.obj: luatexdir/font/writet1.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writet1.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writet1.Tpo -c -o libluatex_a-writet1.obj `if test -f 'luatexdir/font/writet1.c'; then $(CYGPATH_W) 'luatexdir/font/writet1.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/writet1.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writet1.Tpo $(DEPDIR)/libluatex_a-writet1.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/writet1.c' object='libluatex_a-writet1.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writet1.obj `if test -f 'luatexdir/font/writet1.c'; then $(CYGPATH_W) 'luatexdir/font/writet1.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/writet1.c'; fi`
-
-libluatex_a-writet3.o: luatexdir/font/writet3.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writet3.o -MD -MP -MF $(DEPDIR)/libluatex_a-writet3.Tpo -c -o libluatex_a-writet3.o `test -f 'luatexdir/font/writet3.c' || echo '$(srcdir)/'`luatexdir/font/writet3.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writet3.Tpo $(DEPDIR)/libluatex_a-writet3.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/writet3.c' object='libluatex_a-writet3.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writet3.o `test -f 'luatexdir/font/writet3.c' || echo '$(srcdir)/'`luatexdir/font/writet3.c
-
-libluatex_a-writet3.obj: luatexdir/font/writet3.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writet3.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writet3.Tpo -c -o libluatex_a-writet3.obj `if test -f 'luatexdir/font/writet3.c'; then $(CYGPATH_W) 'luatexdir/font/writet3.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/writet3.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writet3.Tpo $(DEPDIR)/libluatex_a-writet3.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/writet3.c' object='libluatex_a-writet3.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writet3.obj `if test -f 'luatexdir/font/writet3.c'; then $(CYGPATH_W) 'luatexdir/font/writet3.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/writet3.c'; fi`
-
-libluatex_a-writettf.o: luatexdir/font/writettf.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writettf.o -MD -MP -MF $(DEPDIR)/libluatex_a-writettf.Tpo -c -o libluatex_a-writettf.o `test -f 'luatexdir/font/writettf.c' || echo '$(srcdir)/'`luatexdir/font/writettf.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writettf.Tpo $(DEPDIR)/libluatex_a-writettf.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/writettf.c' object='libluatex_a-writettf.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writettf.o `test -f 'luatexdir/font/writettf.c' || echo '$(srcdir)/'`luatexdir/font/writettf.c
-
-libluatex_a-writettf.obj: luatexdir/font/writettf.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writettf.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writettf.Tpo -c -o libluatex_a-writettf.obj `if test -f 'luatexdir/font/writettf.c'; then $(CYGPATH_W) 'luatexdir/font/writettf.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/writettf.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writettf.Tpo $(DEPDIR)/libluatex_a-writettf.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/writettf.c' object='libluatex_a-writettf.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writettf.obj `if test -f 'luatexdir/font/writettf.c'; then $(CYGPATH_W) 'luatexdir/font/writettf.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/writettf.c'; fi`
-
-libluatex_a-writetype0.o: luatexdir/font/writetype0.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writetype0.o -MD -MP -MF $(DEPDIR)/libluatex_a-writetype0.Tpo -c -o libluatex_a-writetype0.o `test -f 'luatexdir/font/writetype0.c' || echo '$(srcdir)/'`luatexdir/font/writetype0.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writetype0.Tpo $(DEPDIR)/libluatex_a-writetype0.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/writetype0.c' object='libluatex_a-writetype0.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writetype0.o `test -f 'luatexdir/font/writetype0.c' || echo '$(srcdir)/'`luatexdir/font/writetype0.c
-
-libluatex_a-writetype0.obj: luatexdir/font/writetype0.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writetype0.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writetype0.Tpo -c -o libluatex_a-writetype0.obj `if test -f 'luatexdir/font/writetype0.c'; then $(CYGPATH_W) 'luatexdir/font/writetype0.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/writetype0.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writetype0.Tpo $(DEPDIR)/libluatex_a-writetype0.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/writetype0.c' object='libluatex_a-writetype0.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writetype0.obj `if test -f 'luatexdir/font/writetype0.c'; then $(CYGPATH_W) 'luatexdir/font/writetype0.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/writetype0.c'; fi`
-
-libluatex_a-writetype2.o: luatexdir/font/writetype2.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writetype2.o -MD -MP -MF $(DEPDIR)/libluatex_a-writetype2.Tpo -c -o libluatex_a-writetype2.o `test -f 'luatexdir/font/writetype2.c' || echo '$(srcdir)/'`luatexdir/font/writetype2.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writetype2.Tpo $(DEPDIR)/libluatex_a-writetype2.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/writetype2.c' object='libluatex_a-writetype2.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writetype2.o `test -f 'luatexdir/font/writetype2.c' || echo '$(srcdir)/'`luatexdir/font/writetype2.c
-
-libluatex_a-writetype2.obj: luatexdir/font/writetype2.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writetype2.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writetype2.Tpo -c -o libluatex_a-writetype2.obj `if test -f 'luatexdir/font/writetype2.c'; then $(CYGPATH_W) 'luatexdir/font/writetype2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/writetype2.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writetype2.Tpo $(DEPDIR)/libluatex_a-writetype2.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/writetype2.c' object='libluatex_a-writetype2.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writetype2.obj `if test -f 'luatexdir/font/writetype2.c'; then $(CYGPATH_W) 'luatexdir/font/writetype2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/writetype2.c'; fi`
-
 libluatex_a-epdf.o: luatexdir/image/epdf.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-epdf.o -MD -MP -MF $(DEPDIR)/libluatex_a-epdf.Tpo -c -o libluatex_a-epdf.o `test -f 'luatexdir/image/epdf.c' || echo '$(srcdir)/'`luatexdir/image/epdf.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-epdf.Tpo $(DEPDIR)/libluatex_a-epdf.Po
@@ -5037,6 +4746,300 @@ libluatex_a-dvigen.obj: dvigen.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-dvigen.obj `if test -f 'dvigen.c'; then $(CYGPATH_W) 'dvigen.c'; else $(CYGPATH_W) '$(srcdir)/dvigen.c'; fi`
 
+libluatex_a-dofont.o: dofont.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-dofont.o -MD -MP -MF $(DEPDIR)/libluatex_a-dofont.Tpo -c -o libluatex_a-dofont.o `test -f 'dofont.c' || echo '$(srcdir)/'`dofont.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-dofont.Tpo $(DEPDIR)/libluatex_a-dofont.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='dofont.c' object='libluatex_a-dofont.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-dofont.o `test -f 'dofont.c' || echo '$(srcdir)/'`dofont.c
+
+libluatex_a-dofont.obj: dofont.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-dofont.obj -MD -MP -MF $(DEPDIR)/libluatex_a-dofont.Tpo -c -o libluatex_a-dofont.obj `if test -f 'dofont.c'; then $(CYGPATH_W) 'dofont.c'; else $(CYGPATH_W) '$(srcdir)/dofont.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-dofont.Tpo $(DEPDIR)/libluatex_a-dofont.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='dofont.c' object='libluatex_a-dofont.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-dofont.obj `if test -f 'dofont.c'; then $(CYGPATH_W) 'dofont.c'; else $(CYGPATH_W) '$(srcdir)/dofont.c'; fi`
+
+libluatex_a-luafont.o: luafont.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-luafont.o -MD -MP -MF $(DEPDIR)/libluatex_a-luafont.Tpo -c -o libluatex_a-luafont.o `test -f 'luafont.c' || echo '$(srcdir)/'`luafont.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-luafont.Tpo $(DEPDIR)/libluatex_a-luafont.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luafont.c' object='libluatex_a-luafont.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-luafont.o `test -f 'luafont.c' || echo '$(srcdir)/'`luafont.c
+
+libluatex_a-luafont.obj: luafont.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-luafont.obj -MD -MP -MF $(DEPDIR)/libluatex_a-luafont.Tpo -c -o libluatex_a-luafont.obj `if test -f 'luafont.c'; then $(CYGPATH_W) 'luafont.c'; else $(CYGPATH_W) '$(srcdir)/luafont.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-luafont.Tpo $(DEPDIR)/libluatex_a-luafont.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luafont.c' object='libluatex_a-luafont.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-luafont.obj `if test -f 'luafont.c'; then $(CYGPATH_W) 'luafont.c'; else $(CYGPATH_W) '$(srcdir)/luafont.c'; fi`
+
+libluatex_a-mapfile.o: mapfile.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-mapfile.o -MD -MP -MF $(DEPDIR)/libluatex_a-mapfile.Tpo -c -o libluatex_a-mapfile.o `test -f 'mapfile.c' || echo '$(srcdir)/'`mapfile.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-mapfile.Tpo $(DEPDIR)/libluatex_a-mapfile.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mapfile.c' object='libluatex_a-mapfile.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-mapfile.o `test -f 'mapfile.c' || echo '$(srcdir)/'`mapfile.c
+
+libluatex_a-mapfile.obj: mapfile.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-mapfile.obj -MD -MP -MF $(DEPDIR)/libluatex_a-mapfile.Tpo -c -o libluatex_a-mapfile.obj `if test -f 'mapfile.c'; then $(CYGPATH_W) 'mapfile.c'; else $(CYGPATH_W) '$(srcdir)/mapfile.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-mapfile.Tpo $(DEPDIR)/libluatex_a-mapfile.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mapfile.c' object='libluatex_a-mapfile.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-mapfile.obj `if test -f 'mapfile.c'; then $(CYGPATH_W) 'mapfile.c'; else $(CYGPATH_W) '$(srcdir)/mapfile.c'; fi`
+
+libluatex_a-pkin.o: pkin.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pkin.o -MD -MP -MF $(DEPDIR)/libluatex_a-pkin.Tpo -c -o libluatex_a-pkin.o `test -f 'pkin.c' || echo '$(srcdir)/'`pkin.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pkin.Tpo $(DEPDIR)/libluatex_a-pkin.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pkin.c' object='libluatex_a-pkin.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pkin.o `test -f 'pkin.c' || echo '$(srcdir)/'`pkin.c
+
+libluatex_a-pkin.obj: pkin.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pkin.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pkin.Tpo -c -o libluatex_a-pkin.obj `if test -f 'pkin.c'; then $(CYGPATH_W) 'pkin.c'; else $(CYGPATH_W) '$(srcdir)/pkin.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pkin.Tpo $(DEPDIR)/libluatex_a-pkin.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pkin.c' object='libluatex_a-pkin.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pkin.obj `if test -f 'pkin.c'; then $(CYGPATH_W) 'pkin.c'; else $(CYGPATH_W) '$(srcdir)/pkin.c'; fi`
+
+libluatex_a-sfnt.o: sfnt.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-sfnt.o -MD -MP -MF $(DEPDIR)/libluatex_a-sfnt.Tpo -c -o libluatex_a-sfnt.o `test -f 'sfnt.c' || echo '$(srcdir)/'`sfnt.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-sfnt.Tpo $(DEPDIR)/libluatex_a-sfnt.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='sfnt.c' object='libluatex_a-sfnt.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-sfnt.o `test -f 'sfnt.c' || echo '$(srcdir)/'`sfnt.c
+
+libluatex_a-sfnt.obj: sfnt.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-sfnt.obj -MD -MP -MF $(DEPDIR)/libluatex_a-sfnt.Tpo -c -o libluatex_a-sfnt.obj `if test -f 'sfnt.c'; then $(CYGPATH_W) 'sfnt.c'; else $(CYGPATH_W) '$(srcdir)/sfnt.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-sfnt.Tpo $(DEPDIR)/libluatex_a-sfnt.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='sfnt.c' object='libluatex_a-sfnt.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-sfnt.obj `if test -f 'sfnt.c'; then $(CYGPATH_W) 'sfnt.c'; else $(CYGPATH_W) '$(srcdir)/sfnt.c'; fi`
+
+libluatex_a-subfont.o: subfont.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-subfont.o -MD -MP -MF $(DEPDIR)/libluatex_a-subfont.Tpo -c -o libluatex_a-subfont.o `test -f 'subfont.c' || echo '$(srcdir)/'`subfont.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-subfont.Tpo $(DEPDIR)/libluatex_a-subfont.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='subfont.c' object='libluatex_a-subfont.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-subfont.o `test -f 'subfont.c' || echo '$(srcdir)/'`subfont.c
+
+libluatex_a-subfont.obj: subfont.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-subfont.obj -MD -MP -MF $(DEPDIR)/libluatex_a-subfont.Tpo -c -o libluatex_a-subfont.obj `if test -f 'subfont.c'; then $(CYGPATH_W) 'subfont.c'; else $(CYGPATH_W) '$(srcdir)/subfont.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-subfont.Tpo $(DEPDIR)/libluatex_a-subfont.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='subfont.c' object='libluatex_a-subfont.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-subfont.obj `if test -f 'subfont.c'; then $(CYGPATH_W) 'subfont.c'; else $(CYGPATH_W) '$(srcdir)/subfont.c'; fi`
+
+libluatex_a-texfont.o: texfont.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-texfont.o -MD -MP -MF $(DEPDIR)/libluatex_a-texfont.Tpo -c -o libluatex_a-texfont.o `test -f 'texfont.c' || echo '$(srcdir)/'`texfont.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-texfont.Tpo $(DEPDIR)/libluatex_a-texfont.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='texfont.c' object='libluatex_a-texfont.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-texfont.o `test -f 'texfont.c' || echo '$(srcdir)/'`texfont.c
+
+libluatex_a-texfont.obj: texfont.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-texfont.obj -MD -MP -MF $(DEPDIR)/libluatex_a-texfont.Tpo -c -o libluatex_a-texfont.obj `if test -f 'texfont.c'; then $(CYGPATH_W) 'texfont.c'; else $(CYGPATH_W) '$(srcdir)/texfont.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-texfont.Tpo $(DEPDIR)/libluatex_a-texfont.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='texfont.c' object='libluatex_a-texfont.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-texfont.obj `if test -f 'texfont.c'; then $(CYGPATH_W) 'texfont.c'; else $(CYGPATH_W) '$(srcdir)/texfont.c'; fi`
+
+libluatex_a-tfmofm.o: tfmofm.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-tfmofm.o -MD -MP -MF $(DEPDIR)/libluatex_a-tfmofm.Tpo -c -o libluatex_a-tfmofm.o `test -f 'tfmofm.c' || echo '$(srcdir)/'`tfmofm.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-tfmofm.Tpo $(DEPDIR)/libluatex_a-tfmofm.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tfmofm.c' object='libluatex_a-tfmofm.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-tfmofm.o `test -f 'tfmofm.c' || echo '$(srcdir)/'`tfmofm.c
+
+libluatex_a-tfmofm.obj: tfmofm.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-tfmofm.obj -MD -MP -MF $(DEPDIR)/libluatex_a-tfmofm.Tpo -c -o libluatex_a-tfmofm.obj `if test -f 'tfmofm.c'; then $(CYGPATH_W) 'tfmofm.c'; else $(CYGPATH_W) '$(srcdir)/tfmofm.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-tfmofm.Tpo $(DEPDIR)/libluatex_a-tfmofm.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tfmofm.c' object='libluatex_a-tfmofm.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-tfmofm.obj `if test -f 'tfmofm.c'; then $(CYGPATH_W) 'tfmofm.c'; else $(CYGPATH_W) '$(srcdir)/tfmofm.c'; fi`
+
+libluatex_a-tounicode.o: tounicode.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-tounicode.o -MD -MP -MF $(DEPDIR)/libluatex_a-tounicode.Tpo -c -o libluatex_a-tounicode.o `test -f 'tounicode.c' || echo '$(srcdir)/'`tounicode.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-tounicode.Tpo $(DEPDIR)/libluatex_a-tounicode.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tounicode.c' object='libluatex_a-tounicode.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-tounicode.o `test -f 'tounicode.c' || echo '$(srcdir)/'`tounicode.c
+
+libluatex_a-tounicode.obj: tounicode.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-tounicode.obj -MD -MP -MF $(DEPDIR)/libluatex_a-tounicode.Tpo -c -o libluatex_a-tounicode.obj `if test -f 'tounicode.c'; then $(CYGPATH_W) 'tounicode.c'; else $(CYGPATH_W) '$(srcdir)/tounicode.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-tounicode.Tpo $(DEPDIR)/libluatex_a-tounicode.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tounicode.c' object='libluatex_a-tounicode.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-tounicode.obj `if test -f 'tounicode.c'; then $(CYGPATH_W) 'tounicode.c'; else $(CYGPATH_W) '$(srcdir)/tounicode.c'; fi`
+
+libluatex_a-tt_glyf.o: tt_glyf.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-tt_glyf.o -MD -MP -MF $(DEPDIR)/libluatex_a-tt_glyf.Tpo -c -o libluatex_a-tt_glyf.o `test -f 'tt_glyf.c' || echo '$(srcdir)/'`tt_glyf.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-tt_glyf.Tpo $(DEPDIR)/libluatex_a-tt_glyf.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tt_glyf.c' object='libluatex_a-tt_glyf.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-tt_glyf.o `test -f 'tt_glyf.c' || echo '$(srcdir)/'`tt_glyf.c
+
+libluatex_a-tt_glyf.obj: tt_glyf.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-tt_glyf.obj -MD -MP -MF $(DEPDIR)/libluatex_a-tt_glyf.Tpo -c -o libluatex_a-tt_glyf.obj `if test -f 'tt_glyf.c'; then $(CYGPATH_W) 'tt_glyf.c'; else $(CYGPATH_W) '$(srcdir)/tt_glyf.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-tt_glyf.Tpo $(DEPDIR)/libluatex_a-tt_glyf.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tt_glyf.c' object='libluatex_a-tt_glyf.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-tt_glyf.obj `if test -f 'tt_glyf.c'; then $(CYGPATH_W) 'tt_glyf.c'; else $(CYGPATH_W) '$(srcdir)/tt_glyf.c'; fi`
+
+libluatex_a-tt_table.o: tt_table.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-tt_table.o -MD -MP -MF $(DEPDIR)/libluatex_a-tt_table.Tpo -c -o libluatex_a-tt_table.o `test -f 'tt_table.c' || echo '$(srcdir)/'`tt_table.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-tt_table.Tpo $(DEPDIR)/libluatex_a-tt_table.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tt_table.c' object='libluatex_a-tt_table.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-tt_table.o `test -f 'tt_table.c' || echo '$(srcdir)/'`tt_table.c
+
+libluatex_a-tt_table.obj: tt_table.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-tt_table.obj -MD -MP -MF $(DEPDIR)/libluatex_a-tt_table.Tpo -c -o libluatex_a-tt_table.obj `if test -f 'tt_table.c'; then $(CYGPATH_W) 'tt_table.c'; else $(CYGPATH_W) '$(srcdir)/tt_table.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-tt_table.Tpo $(DEPDIR)/libluatex_a-tt_table.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tt_table.c' object='libluatex_a-tt_table.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-tt_table.obj `if test -f 'tt_table.c'; then $(CYGPATH_W) 'tt_table.c'; else $(CYGPATH_W) '$(srcdir)/tt_table.c'; fi`
+
+libluatex_a-vfovf.o: vfovf.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-vfovf.o -MD -MP -MF $(DEPDIR)/libluatex_a-vfovf.Tpo -c -o libluatex_a-vfovf.o `test -f 'vfovf.c' || echo '$(srcdir)/'`vfovf.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-vfovf.Tpo $(DEPDIR)/libluatex_a-vfovf.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='vfovf.c' object='libluatex_a-vfovf.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-vfovf.o `test -f 'vfovf.c' || echo '$(srcdir)/'`vfovf.c
+
+libluatex_a-vfovf.obj: vfovf.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-vfovf.obj -MD -MP -MF $(DEPDIR)/libluatex_a-vfovf.Tpo -c -o libluatex_a-vfovf.obj `if test -f 'vfovf.c'; then $(CYGPATH_W) 'vfovf.c'; else $(CYGPATH_W) '$(srcdir)/vfovf.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-vfovf.Tpo $(DEPDIR)/libluatex_a-vfovf.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='vfovf.c' object='libluatex_a-vfovf.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-vfovf.obj `if test -f 'vfovf.c'; then $(CYGPATH_W) 'vfovf.c'; else $(CYGPATH_W) '$(srcdir)/vfovf.c'; fi`
+
+libluatex_a-vfpacket.o: vfpacket.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-vfpacket.o -MD -MP -MF $(DEPDIR)/libluatex_a-vfpacket.Tpo -c -o libluatex_a-vfpacket.o `test -f 'vfpacket.c' || echo '$(srcdir)/'`vfpacket.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-vfpacket.Tpo $(DEPDIR)/libluatex_a-vfpacket.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='vfpacket.c' object='libluatex_a-vfpacket.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-vfpacket.o `test -f 'vfpacket.c' || echo '$(srcdir)/'`vfpacket.c
+
+libluatex_a-vfpacket.obj: vfpacket.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-vfpacket.obj -MD -MP -MF $(DEPDIR)/libluatex_a-vfpacket.Tpo -c -o libluatex_a-vfpacket.obj `if test -f 'vfpacket.c'; then $(CYGPATH_W) 'vfpacket.c'; else $(CYGPATH_W) '$(srcdir)/vfpacket.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-vfpacket.Tpo $(DEPDIR)/libluatex_a-vfpacket.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='vfpacket.c' object='libluatex_a-vfpacket.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-vfpacket.obj `if test -f 'vfpacket.c'; then $(CYGPATH_W) 'vfpacket.c'; else $(CYGPATH_W) '$(srcdir)/vfpacket.c'; fi`
+
+libluatex_a-writecff.o: writecff.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writecff.o -MD -MP -MF $(DEPDIR)/libluatex_a-writecff.Tpo -c -o libluatex_a-writecff.o `test -f 'writecff.c' || echo '$(srcdir)/'`writecff.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writecff.Tpo $(DEPDIR)/libluatex_a-writecff.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='writecff.c' object='libluatex_a-writecff.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writecff.o `test -f 'writecff.c' || echo '$(srcdir)/'`writecff.c
+
+libluatex_a-writecff.obj: writecff.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writecff.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writecff.Tpo -c -o libluatex_a-writecff.obj `if test -f 'writecff.c'; then $(CYGPATH_W) 'writecff.c'; else $(CYGPATH_W) '$(srcdir)/writecff.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writecff.Tpo $(DEPDIR)/libluatex_a-writecff.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='writecff.c' object='libluatex_a-writecff.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writecff.obj `if test -f 'writecff.c'; then $(CYGPATH_W) 'writecff.c'; else $(CYGPATH_W) '$(srcdir)/writecff.c'; fi`
+
+libluatex_a-writeenc.o: writeenc.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writeenc.o -MD -MP -MF $(DEPDIR)/libluatex_a-writeenc.Tpo -c -o libluatex_a-writeenc.o `test -f 'writeenc.c' || echo '$(srcdir)/'`writeenc.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writeenc.Tpo $(DEPDIR)/libluatex_a-writeenc.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='writeenc.c' object='libluatex_a-writeenc.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writeenc.o `test -f 'writeenc.c' || echo '$(srcdir)/'`writeenc.c
+
+libluatex_a-writeenc.obj: writeenc.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writeenc.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writeenc.Tpo -c -o libluatex_a-writeenc.obj `if test -f 'writeenc.c'; then $(CYGPATH_W) 'writeenc.c'; else $(CYGPATH_W) '$(srcdir)/writeenc.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writeenc.Tpo $(DEPDIR)/libluatex_a-writeenc.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='writeenc.c' object='libluatex_a-writeenc.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writeenc.obj `if test -f 'writeenc.c'; then $(CYGPATH_W) 'writeenc.c'; else $(CYGPATH_W) '$(srcdir)/writeenc.c'; fi`
+
+libluatex_a-writefont.o: writefont.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writefont.o -MD -MP -MF $(DEPDIR)/libluatex_a-writefont.Tpo -c -o libluatex_a-writefont.o `test -f 'writefont.c' || echo '$(srcdir)/'`writefont.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writefont.Tpo $(DEPDIR)/libluatex_a-writefont.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='writefont.c' object='libluatex_a-writefont.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writefont.o `test -f 'writefont.c' || echo '$(srcdir)/'`writefont.c
+
+libluatex_a-writefont.obj: writefont.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writefont.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writefont.Tpo -c -o libluatex_a-writefont.obj `if test -f 'writefont.c'; then $(CYGPATH_W) 'writefont.c'; else $(CYGPATH_W) '$(srcdir)/writefont.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writefont.Tpo $(DEPDIR)/libluatex_a-writefont.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='writefont.c' object='libluatex_a-writefont.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writefont.obj `if test -f 'writefont.c'; then $(CYGPATH_W) 'writefont.c'; else $(CYGPATH_W) '$(srcdir)/writefont.c'; fi`
+
+libluatex_a-writet1.o: writet1.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writet1.o -MD -MP -MF $(DEPDIR)/libluatex_a-writet1.Tpo -c -o libluatex_a-writet1.o `test -f 'writet1.c' || echo '$(srcdir)/'`writet1.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writet1.Tpo $(DEPDIR)/libluatex_a-writet1.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='writet1.c' object='libluatex_a-writet1.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writet1.o `test -f 'writet1.c' || echo '$(srcdir)/'`writet1.c
+
+libluatex_a-writet1.obj: writet1.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writet1.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writet1.Tpo -c -o libluatex_a-writet1.obj `if test -f 'writet1.c'; then $(CYGPATH_W) 'writet1.c'; else $(CYGPATH_W) '$(srcdir)/writet1.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writet1.Tpo $(DEPDIR)/libluatex_a-writet1.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='writet1.c' object='libluatex_a-writet1.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writet1.obj `if test -f 'writet1.c'; then $(CYGPATH_W) 'writet1.c'; else $(CYGPATH_W) '$(srcdir)/writet1.c'; fi`
+
+libluatex_a-writet3.o: writet3.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writet3.o -MD -MP -MF $(DEPDIR)/libluatex_a-writet3.Tpo -c -o libluatex_a-writet3.o `test -f 'writet3.c' || echo '$(srcdir)/'`writet3.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writet3.Tpo $(DEPDIR)/libluatex_a-writet3.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='writet3.c' object='libluatex_a-writet3.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writet3.o `test -f 'writet3.c' || echo '$(srcdir)/'`writet3.c
+
+libluatex_a-writet3.obj: writet3.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writet3.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writet3.Tpo -c -o libluatex_a-writet3.obj `if test -f 'writet3.c'; then $(CYGPATH_W) 'writet3.c'; else $(CYGPATH_W) '$(srcdir)/writet3.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writet3.Tpo $(DEPDIR)/libluatex_a-writet3.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='writet3.c' object='libluatex_a-writet3.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writet3.obj `if test -f 'writet3.c'; then $(CYGPATH_W) 'writet3.c'; else $(CYGPATH_W) '$(srcdir)/writet3.c'; fi`
+
+libluatex_a-writettf.o: writettf.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writettf.o -MD -MP -MF $(DEPDIR)/libluatex_a-writettf.Tpo -c -o libluatex_a-writettf.o `test -f 'writettf.c' || echo '$(srcdir)/'`writettf.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writettf.Tpo $(DEPDIR)/libluatex_a-writettf.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='writettf.c' object='libluatex_a-writettf.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writettf.o `test -f 'writettf.c' || echo '$(srcdir)/'`writettf.c
+
+libluatex_a-writettf.obj: writettf.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writettf.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writettf.Tpo -c -o libluatex_a-writettf.obj `if test -f 'writettf.c'; then $(CYGPATH_W) 'writettf.c'; else $(CYGPATH_W) '$(srcdir)/writettf.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writettf.Tpo $(DEPDIR)/libluatex_a-writettf.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='writettf.c' object='libluatex_a-writettf.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writettf.obj `if test -f 'writettf.c'; then $(CYGPATH_W) 'writettf.c'; else $(CYGPATH_W) '$(srcdir)/writettf.c'; fi`
+
+libluatex_a-writetype0.o: writetype0.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writetype0.o -MD -MP -MF $(DEPDIR)/libluatex_a-writetype0.Tpo -c -o libluatex_a-writetype0.o `test -f 'writetype0.c' || echo '$(srcdir)/'`writetype0.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writetype0.Tpo $(DEPDIR)/libluatex_a-writetype0.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='writetype0.c' object='libluatex_a-writetype0.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writetype0.o `test -f 'writetype0.c' || echo '$(srcdir)/'`writetype0.c
+
+libluatex_a-writetype0.obj: writetype0.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writetype0.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writetype0.Tpo -c -o libluatex_a-writetype0.obj `if test -f 'writetype0.c'; then $(CYGPATH_W) 'writetype0.c'; else $(CYGPATH_W) '$(srcdir)/writetype0.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writetype0.Tpo $(DEPDIR)/libluatex_a-writetype0.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='writetype0.c' object='libluatex_a-writetype0.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writetype0.obj `if test -f 'writetype0.c'; then $(CYGPATH_W) 'writetype0.c'; else $(CYGPATH_W) '$(srcdir)/writetype0.c'; fi`
+
+libluatex_a-writetype2.o: writetype2.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writetype2.o -MD -MP -MF $(DEPDIR)/libluatex_a-writetype2.Tpo -c -o libluatex_a-writetype2.o `test -f 'writetype2.c' || echo '$(srcdir)/'`writetype2.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writetype2.Tpo $(DEPDIR)/libluatex_a-writetype2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='writetype2.c' object='libluatex_a-writetype2.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writetype2.o `test -f 'writetype2.c' || echo '$(srcdir)/'`writetype2.c
+
+libluatex_a-writetype2.obj: writetype2.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-writetype2.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writetype2.Tpo -c -o libluatex_a-writetype2.obj `if test -f 'writetype2.c'; then $(CYGPATH_W) 'writetype2.c'; else $(CYGPATH_W) '$(srcdir)/writetype2.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-writetype2.Tpo $(DEPDIR)/libluatex_a-writetype2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='writetype2.c' object='libluatex_a-writetype2.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-writetype2.obj `if test -f 'writetype2.c'; then $(CYGPATH_W) 'writetype2.c'; else $(CYGPATH_W) '$(srcdir)/writetype2.c'; fi`
+
 libluatex_a-ocp.o: ocp.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-ocp.o -MD -MP -MF $(DEPDIR)/libluatex_a-ocp.Tpo -c -o libluatex_a-ocp.o `test -f 'ocp.c' || echo '$(srcdir)/'`ocp.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-ocp.Tpo $(DEPDIR)/libluatex_a-ocp.Po
@@ -5596,20 +5599,6 @@ libluatex_a-lmplib.obj: mplibdir/lmplib.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mplibdir/lmplib.c' object='libluatex_a-lmplib.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-lmplib.obj `if test -f 'mplibdir/lmplib.c'; then $(CYGPATH_W) 'mplibdir/lmplib.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/lmplib.c'; fi`
-
-libluatex_a-macnames.o: luatexdir/font/macnames.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-macnames.o -MD -MP -MF $(DEPDIR)/libluatex_a-macnames.Tpo -c -o libluatex_a-macnames.o `test -f 'luatexdir/font/macnames.c' || echo '$(srcdir)/'`luatexdir/font/macnames.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-macnames.Tpo $(DEPDIR)/libluatex_a-macnames.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/macnames.c' object='libluatex_a-macnames.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-macnames.o `test -f 'luatexdir/font/macnames.c' || echo '$(srcdir)/'`luatexdir/font/macnames.c
-
-libluatex_a-macnames.obj: luatexdir/font/macnames.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-macnames.obj -MD -MP -MF $(DEPDIR)/libluatex_a-macnames.Tpo -c -o libluatex_a-macnames.obj `if test -f 'luatexdir/font/macnames.c'; then $(CYGPATH_W) 'luatexdir/font/macnames.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/macnames.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-macnames.Tpo $(DEPDIR)/libluatex_a-macnames.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/font/macnames.c' object='libluatex_a-macnames.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-macnames.obj `if test -f 'luatexdir/font/macnames.c'; then $(CYGPATH_W) 'luatexdir/font/macnames.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/font/macnames.c'; fi`
 
 libmd5_a-md5.o: libmd5/md5.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmd5_a_CPPFLAGS) $(CPPFLAGS) $(libmd5_a_CFLAGS) $(CFLAGS) -MT libmd5_a-md5.o -MD -MP -MF $(DEPDIR)/libmd5_a-md5.Tpo -c -o libmd5_a-md5.o `test -f 'libmd5/md5.c' || echo '$(srcdir)/'`libmd5/md5.c
@@ -7391,6 +7380,49 @@ $(libff_a_OBJECTS): $(libff_a_DEPENDENCIES)
 
 dvigen.c: ctangle$(EXEEXT) luatexdir/dvi/dvigen.w
 	$(luatex_dvi_ctangle) dvigen.w
+
+dofont.c: ctangle$(EXEEXT) luatexdir/font/dofont.w
+	$(luatex_font_ctangle) dofont.w
+luafont.c: ctangle$(EXEEXT) luatexdir/font/luafont.w
+	$(luatex_font_ctangle) luafont.w
+mapfile.c: ctangle$(EXEEXT) luatexdir/font/mapfile.w
+	$(luatex_font_ctangle) mapfile.w
+pkin.c: ctangle$(EXEEXT) luatexdir/font/pkin.w
+	$(luatex_font_ctangle) pkin.w
+sfnt.c: ctangle$(EXEEXT) luatexdir/font/sfnt.w
+	$(luatex_font_ctangle) sfnt.w
+subfont.c: ctangle$(EXEEXT) luatexdir/font/subfont.w
+	$(luatex_font_ctangle) subfont.w
+texfont.c: ctangle$(EXEEXT) luatexdir/font/texfont.w
+	$(luatex_font_ctangle) texfont.w
+tfmofm.c: ctangle$(EXEEXT) luatexdir/font/tfmofm.w
+	$(luatex_font_ctangle) tfmofm.w
+tounicode.c: ctangle$(EXEEXT) luatexdir/font/tounicode.w
+	$(luatex_font_ctangle) tounicode.w
+tt_glyf.c: ctangle$(EXEEXT) luatexdir/font/tt_glyf.w
+	$(luatex_font_ctangle) tt_glyf.w
+tt_table.c: ctangle$(EXEEXT) luatexdir/font/tt_table.w
+	$(luatex_font_ctangle) tt_table.w
+vfovf.c: ctangle$(EXEEXT) luatexdir/font/vfovf.w
+	$(luatex_font_ctangle) vfovf.w
+vfpacket.c: ctangle$(EXEEXT) luatexdir/font/vfpacket.w
+	$(luatex_font_ctangle) vfpacket.w
+writecff.c: ctangle$(EXEEXT) luatexdir/font/writecff.w
+	$(luatex_font_ctangle) writecff.w
+writeenc.c: ctangle$(EXEEXT) luatexdir/font/writeenc.w
+	$(luatex_font_ctangle) writeenc.w
+writefont.c: ctangle$(EXEEXT) luatexdir/font/writefont.w
+	$(luatex_font_ctangle) writefont.w
+writet1.c: ctangle$(EXEEXT) luatexdir/font/writet1.w
+	$(luatex_font_ctangle) writet1.w
+writet3.c: ctangle$(EXEEXT) luatexdir/font/writet3.w
+	$(luatex_font_ctangle) writet3.w
+writettf.c: ctangle$(EXEEXT) luatexdir/font/writettf.w
+	$(luatex_font_ctangle) writettf.w
+writetype0.c: ctangle$(EXEEXT) luatexdir/font/writetype0.w
+	$(luatex_font_ctangle) writetype0.w
+writetype2.c: ctangle$(EXEEXT) luatexdir/font/writetype2.w
+	$(luatex_font_ctangle) writetype2.w
 
 ocp.c: ctangle$(EXEEXT) luatexdir/ocp/ocp.w
 	$(luatex_ocp_ctangle) ocp.w

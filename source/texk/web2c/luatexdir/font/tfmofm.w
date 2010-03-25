@@ -1,6 +1,7 @@
+@ @c
 /* tfmofm.c
    
-   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -18,8 +19,6 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 #include "ptexlib.h"
-
-#include "luatexfont.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";
@@ -56,7 +55,7 @@ The documentation below describes \.{TFM} files, with slight additions
 to show where \.{OFM} files differ.
                                          */
 /*
-@ The first 24 bytes (6 words) of a \.{TFM} file contain twelve 16-bit
+The first 24 bytes (6 words) of a \.{TFM} file contain twelve 16-bit
 integers that give the lengths of the various subsequent portions
 of the file. These twelve integers are, in order:
 $$\vbox{\halign{\hfil#&$\null=\null$#\hfil\cr
@@ -94,7 +93,7 @@ $$\hbox{|lf=13+lh+2*(ec-bc+1)+nw+nh+nd+ni+nl+nk+ne+np|.}$$
 Note that an \.{OFM} font may contain as many as 65536 characters 
 (if |bc=0| and |ec=65535|), and as few as 0 characters (if |bc=ec+1|).
 
-@ The rest of the \.{TFM} file may be regarded as a sequence of ten data
+The rest of the \.{TFM} file may be regarded as a sequence of ten data
 arrays having the informal specification
 $$\def\arr$[#1]#2${\&{array} $[#1]$ \&{of} #2}
 \vbox{\halign{\hfil\\{#}&$\,:\,$\arr#\hfil\cr
@@ -116,7 +115,7 @@ binary point; thus, the largest |fix_word| value is $2048-2^{-20}$, and
 the smallest is $-2048$. We will see below, however, that all but two of
 the |fix_word| values must lie between $-16$ and $+16$.
 
-@ The first data array is a block of header information, which contains
+The first data array is a block of header information, which contains
 general facts about the font. The header must contain at least two words,
 |header[0]| and |header[1]|, whose meaning is explained below.
 Additional header information of use to other software routines might
@@ -160,7 +159,7 @@ value; thus, |header[1]| and |param[1]| are the only |fix_word|
 entries in the whole \.{TFM} file whose first byte might be something
 besides 0 or 255.
 
-@ Next comes the |char_info| array, which contains one |@!char_info_word|
+Next comes the |char_info| array, which contains one |@!char_info_word|
 per character. Each word in this part of a \.{TFM} file contains six fields
 packed into four bytes as follows.
 
@@ -206,7 +205,7 @@ only if it lies between |bc| and |ec| and has a nonzero |width_index|.
 */
 
 /*
-@ \TeX\ checks the information of a \.{TFM} file for validity as the
+\TeX\ checks the information of a \.{TFM} file for validity as the
 file is being read in, so that no further checks will be needed when
 typesetting is going on. The somewhat tedious subroutine that does this
 is called |read_font_info|. It has four parameters: the user font

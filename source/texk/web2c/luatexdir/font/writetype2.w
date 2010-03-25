@@ -1,6 +1,7 @@
+@ @c
 /* writetype0.c
    
-   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -18,12 +19,12 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 #include "ptexlib.h"
-#include "writettf.h"
-#include "writecff.h"
+#include "font/writettf.h"
+#include "font/writecff.h"
 #include "lua/luatex-api.h"
 
-#include "sfnt.h"
-#include "tt_glyf.h"
+#include "font/sfnt.h"
+#include "font/tt_glyf.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";

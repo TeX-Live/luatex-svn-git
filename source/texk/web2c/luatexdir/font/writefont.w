@@ -1,7 +1,8 @@
+@ @c
 /* writefont.c
 
-   Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
+   Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -23,7 +24,6 @@ static const char _svn_version[] =
     "$URL$";
 
 #include "ptexlib.h"
-#include "luatexfont.h"
 #include "lua/luatex-api.h"
 
 void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internal_font_number f);

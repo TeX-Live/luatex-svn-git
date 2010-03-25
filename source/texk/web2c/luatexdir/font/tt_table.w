@@ -1,8 +1,9 @@
+@ @c
 /* tt_table.c
     
    Copyright 2002 by Jin-Hwan Cho and Shunsaku Hirata,
-   the dvipdfmx project team <dvipdfmx@project.ktug.or.kr>
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   the dvipdfmx project team <dvipdfmx@@project.ktug.or.kr>
+   Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -30,8 +31,8 @@
 #  include "ptexlib.h"
 #endif
 
-#include "sfnt.h"
-#include "tt_table.h"
+#include "font/sfnt.h"
+#include "font/tt_table.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";

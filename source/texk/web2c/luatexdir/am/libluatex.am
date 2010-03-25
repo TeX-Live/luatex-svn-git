@@ -25,6 +25,68 @@ libluatex_web = luatexdir/dvi/dvigen.w
 
 nodist_libluatex_a_SOURCES = dvigen.c
 
+luatex_font_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/font $(ctangle)
+
+dofont.c: ctangle$(EXEEXT) luatexdir/font/dofont.w
+	$(luatex_font_ctangle) dofont.w
+luafont.c: ctangle$(EXEEXT) luatexdir/font/luafont.w
+	$(luatex_font_ctangle) luafont.w
+mapfile.c: ctangle$(EXEEXT) luatexdir/font/mapfile.w
+	$(luatex_font_ctangle) mapfile.w
+pkin.c: ctangle$(EXEEXT) luatexdir/font/pkin.w
+	$(luatex_font_ctangle) pkin.w
+sfnt.c: ctangle$(EXEEXT) luatexdir/font/sfnt.w
+	$(luatex_font_ctangle) sfnt.w
+subfont.c: ctangle$(EXEEXT) luatexdir/font/subfont.w
+	$(luatex_font_ctangle) subfont.w
+texfont.c: ctangle$(EXEEXT) luatexdir/font/texfont.w
+	$(luatex_font_ctangle) texfont.w
+tfmofm.c: ctangle$(EXEEXT) luatexdir/font/tfmofm.w
+	$(luatex_font_ctangle) tfmofm.w
+tounicode.c: ctangle$(EXEEXT) luatexdir/font/tounicode.w
+	$(luatex_font_ctangle) tounicode.w
+tt_glyf.c: ctangle$(EXEEXT) luatexdir/font/tt_glyf.w
+	$(luatex_font_ctangle) tt_glyf.w
+tt_table.c: ctangle$(EXEEXT) luatexdir/font/tt_table.w
+	$(luatex_font_ctangle) tt_table.w
+vfovf.c: ctangle$(EXEEXT) luatexdir/font/vfovf.w
+	$(luatex_font_ctangle) vfovf.w
+vfpacket.c: ctangle$(EXEEXT) luatexdir/font/vfpacket.w
+	$(luatex_font_ctangle) vfpacket.w
+writecff.c: ctangle$(EXEEXT) luatexdir/font/writecff.w
+	$(luatex_font_ctangle) writecff.w
+writeenc.c: ctangle$(EXEEXT) luatexdir/font/writeenc.w
+	$(luatex_font_ctangle) writeenc.w
+writefont.c: ctangle$(EXEEXT) luatexdir/font/writefont.w
+	$(luatex_font_ctangle) writefont.w
+writet1.c: ctangle$(EXEEXT) luatexdir/font/writet1.w
+	$(luatex_font_ctangle) writet1.w
+writet3.c: ctangle$(EXEEXT) luatexdir/font/writet3.w
+	$(luatex_font_ctangle) writet3.w
+writettf.c: ctangle$(EXEEXT) luatexdir/font/writettf.w
+	$(luatex_font_ctangle) writettf.w
+writetype0.c: ctangle$(EXEEXT) luatexdir/font/writetype0.w
+	$(luatex_font_ctangle) writetype0.w
+writetype2.c: ctangle$(EXEEXT) luatexdir/font/writetype2.w
+	$(luatex_font_ctangle) writetype2.w
+
+
+libluatex_web += luatexdir/font/dofont.w luatexdir/font/luafont.w luatexdir/font/mapfile.w
+libluatex_web += luatexdir/font/pkin.w luatexdir/font/sfnt.w luatexdir/font/subfont.w
+libluatex_web += luatexdir/font/texfont.w luatexdir/font/tfmofm.w
+libluatex_web += luatexdir/font/tounicode.w luatexdir/font/tt_glyf.w
+libluatex_web += luatexdir/font/tt_table.w luatexdir/font/vfovf.w
+libluatex_web += luatexdir/font/vfpacket.w luatexdir/font/writecff.w
+libluatex_web += luatexdir/font/writeenc.w luatexdir/font/writefont.w
+libluatex_web += luatexdir/font/writet1.w luatexdir/font/writet3.w
+libluatex_web += luatexdir/font/writettf.w luatexdir/font/writetype0.w
+libluatex_web += luatexdir/font/writetype2.w
+
+nodist_libluatex_a_SOURCES += dofont.c luafont.c mapfile.c pkin.c sfnt.c subfont.c
+nodist_libluatex_a_SOURCES += texfont.c tfmofm.c tounicode.c tt_glyf.c tt_table.c vfovf.c vfpacket.c
+nodist_libluatex_a_SOURCES += writecff.c writeenc.c writefont.c writet1.c writet3.c writettf.c
+nodist_libluatex_a_SOURCES += writetype0.c writetype2.c
+
 luatex_ocp_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/ocp $(ctangle)
 
 ocp.c: ctangle$(EXEEXT) luatexdir/ocp/ocp.w
@@ -321,35 +383,14 @@ libluatex_web += luatexdir/tex/textoken.w
 
 libluatex_a_SOURCES = \
 	luatexdir/dvi/dvigen.h \
-	luatexdir/font/dofont.c \
 	luatexdir/font/luatexfont.h \
-	luatexdir/font/luafont.c \
-	luatexdir/font/mapfile.c \
 	luatexdir/font/mapfile.h \
-	luatexdir/font/pkin.c \
-	luatexdir/font/sfnt.c \
 	luatexdir/font/sfnt.h \
-	luatexdir/font/subfont.c \
-	luatexdir/font/texfont.c \
 	luatexdir/font/texfont.h \
-	luatexdir/font/tfmofm.c \
-	luatexdir/font/tounicode.c \
-	luatexdir/font/tt_glyf.c \
 	luatexdir/font/tt_glyf.h \
-	luatexdir/font/tt_table.c \
 	luatexdir/font/tt_table.h \
-	luatexdir/font/vfovf.c \
-	luatexdir/font/vfpacket.c \
-	luatexdir/font/writecff.c \
 	luatexdir/font/writecff.h \
-	luatexdir/font/writeenc.c \
-	luatexdir/font/writefont.c \
-	luatexdir/font/writet1.c \
-	luatexdir/font/writet3.c \
-	luatexdir/font/writettf.c \
 	luatexdir/font/writettf.h \
-	luatexdir/font/writetype0.c \
-	luatexdir/font/writetype2.c \
 	luatexdir/image/epdf.c \
 	luatexdir/image/epdf.h \
 	luatexdir/image/image.h \
@@ -484,9 +525,6 @@ libluatex_a_SOURCES = \
 	luatexdir/utils/utils.h \
 	$(nodist_libluatex_a_SOURCES) \
 	mplibdir/lmplib.c
-
-## included by luatexdir/font/writettf.c
-EXTRA_libluatex_a_SOURCES = luatexdir/font/macnames.c
 
 $(libluatex_a_OBJECTS): libff.a
 

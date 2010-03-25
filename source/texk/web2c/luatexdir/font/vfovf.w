@@ -1,7 +1,8 @@
+@ @c
 /* vfovf.c
 
-   Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
+   Copyright 2006-2009 Taco Hoekwater <taco@@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -19,8 +20,6 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 #include "ptexlib.h"
-
-#include "luatexfont.h"
 
 static const char _svn_version[] =
     "$Id$ "
@@ -325,7 +324,7 @@ static int open_vf_file(const char *fn, unsigned char **vbuffer, int *vsize)
 
 
 /*
-  @ The |do_vf| procedure attempts to read the \.{VF} file for a font, and sets
+  The |do_vf| procedure attempts to read the \.{VF} file for a font, and sets
   |font_type()| to |real_font_type| if the \.{VF} file could not be found
   or loaded, otherwise sets |font_type()| to |virtual_font_type|.  At this
   time, |tmp_f| is the internal font number of the current \.{TFM} font.  To

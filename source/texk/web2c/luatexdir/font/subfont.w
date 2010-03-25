@@ -1,7 +1,8 @@
+@ @c
 /* subfont.c
    
-   Copyright 2005-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2005-2006 Han The Thanh <thanh@@pdftex.org>
+   Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -216,14 +217,14 @@ boolean handle_subfont_fm(fm_entry * fm, int mode)
     char buf[SMALL_BUF_SIZE];
     assert(fm->tfm_name != NULL);
     p = fm->tfm_name;
-    q = strchr(p, '@');         /* search for the first '@' */
+    q = strchr(p, '@@');         /* search for the first '@@' */
     if (q == NULL)
         return false;
-    r = strchr(q + 1, '@');     /* search for the second '@' */
+    r = strchr(q + 1, '@@');     /* search for the second '@@' */
     if (r == NULL)
         return false;
     if (q <= p || r <= q + 1    /* prefix or sfd name is empty */
-        || r - p != (int) strlen(p) - 1)        /* or the second '@' is not the last char yet */
+        || r - p != (int) strlen(p) - 1)        /* or the second '@@' is not the last char yet */
         return false;
     l = (size_t) (r - (q + 1)); /* length of sfd name */
     strncpy(buf, q + 1, l);

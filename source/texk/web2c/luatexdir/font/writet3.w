@@ -1,7 +1,8 @@
+@ @c
 /* writet3.c
 
-   Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
+   Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -26,7 +27,6 @@ static const char _svn_version[] =
 #include <kpathsea/tex-glyph.h>
 #include <kpathsea/magstep.h>
 #include <string.h>
-#include "luatexfont.h"
 
 #define T3_BUF_SIZE   1024
 

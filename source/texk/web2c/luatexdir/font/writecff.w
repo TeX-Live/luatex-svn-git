@@ -1,6 +1,7 @@
+@ @c
 /* writecff.c
 
-   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -20,7 +21,7 @@
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
-#include "writecff.h"
+#include "font/writecff.h"
 
 static const char _svn_version[] =
     "$Id$ "
