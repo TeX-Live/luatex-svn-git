@@ -82,7 +82,7 @@ const char *node_fields_adjust[] = { "attr", "list", NULL };
 const char *node_fields_disc[] = { "attr", "pre", "post", "replace", NULL };
 const char *node_fields_math[] = { "attr", "surround", NULL };
 const char *node_fields_glue[] = { "attr", "spec", "leader", NULL };
-const char *node_fields_kern[] = { "attr", "kern", NULL };
+const char *node_fields_kern[] = { "attr", "kern", "expansion_factor", NULL };
 const char *node_fields_penalty[] = { "attr", "penalty", NULL };
 
 const char *node_fields_unset[] =
@@ -93,7 +93,7 @@ const char *node_fields_margin_kern[] = { "attr", "width", "glyph", NULL };
 
 const char *node_fields_glyph[] =
     { "attr", "char", "font", "lang", "left", "right", "uchyph",
-      "components", "xoffset", "yoffset", "width", "height", "depth", NULL
+      "components", "xoffset", "yoffset", "width", "height", "depth", "expansion_factor", NULL
 };
 const char *node_fields_style[] = { "attr", "style", NULL };
 const char *node_fields_choice[] =

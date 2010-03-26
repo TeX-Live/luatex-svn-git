@@ -178,11 +178,12 @@ typedef enum {
 #  define tlink_post_break(a) tlink(post_break_head(a))
 #  define tlink_no_break(a)   tlink(no_break_head(a))
 
-#  define kern_node_size 4
+#  define kern_node_size 5
 #  define explicit 1            /*|subtype| of kern nodes from \.{\\kern} and \.{\\/} */
 #  define acc_kern 2            /*|subtype| of kern nodes from accents */
 #  define synctex_tag_kern(a)  vinfo((a)+3)
 #  define synctex_line_kern(a) vlink((a)+3)
+#  define ex_kern(a)           vinfo((a)+4) /* expansion factor (hz) */
 
 #  define box_node_size 9
 
@@ -221,7 +222,7 @@ typedef enum {
 #  define adjust_pre       subtype
 #  define adjust_ptr(a)    vlink(a+2)
 
-#  define glyph_node_size 5
+#  define glyph_node_size 6
 
 #  define character(a)    vinfo((a)+2)
 #  define font(a)         vlink((a)+2)
@@ -229,6 +230,7 @@ typedef enum {
 #  define lig_ptr(a)      vlink((a)+3)
 #  define x_displace(a)   vinfo((a)+4)
 #  define y_displace(a)   vlink((a)+4)
+#  define ex_glyph(a)     vinfo((a)+5)  /* expansion factor (hz) */
 #  define is_char_node(a) (a!=null && type(a)==glyph_node)
 
 #  define char_lang(a)     ((const int)(signed short)(((signed int)((unsigned)lang_data(a)&0x7FFF0000)<<1)>>17))

@@ -682,6 +682,7 @@ make_luaS_index(yoffset);
 make_luaS_index(width);
 make_luaS_index(height);
 make_luaS_index(depth);
+make_luaS_index(expansion_factor);
 
 
 void initialize_luaS_indexes(lua_State * L)
@@ -703,6 +704,7 @@ void initialize_luaS_indexes(lua_State * L)
     init_luaS_index(width);
     init_luaS_index(height);
     init_luaS_index(depth);
+    init_luaS_index(expansion_factor);
 }
 
 static int get_node_field_id(lua_State * L, int n, int node)
@@ -744,6 +746,8 @@ static int get_node_field_id(lua_State * L, int n, int node)
             return 14;
         } else if (luaS_ptr_eq(s, depth)) {
             return 15;
+        } else if (luaS_ptr_eq(s, expansion_factor)) {
+            return 16;
         }
     } else if (luaS_ptr_eq(s, prev)) {
         return -1;
@@ -1716,6 +1720,8 @@ static int lua_nodelib_getfield(lua_State * L)
         case 4:
             lua_pushnumber(L, width(n));
             break;
+        case 5:
+            lua_pushnumber(L, ex_kern(n));
         default:
             lua_pushnil(L);
         }
@@ -1772,6 +1778,9 @@ static int lua_nodelib_getfield(lua_State * L)
             break;
         case 15:
             lua_pushnumber(L, char_depth(font(n),character(n)));
+            break;
+        case 16:
+            lua_pushnumber(L, ex_glyph(n));
             break;
         default:
             lua_pushnil(L);
@@ -2587,6 +2596,10 @@ static int lua_nodelib_setfield(lua_State * L)
         case 12:
             y_displace(n) = (halfword) lua_tointeger(L, 3);
             break;
+	    /* 13,14,15 are virtual width, height, depth */
+        case 16:
+            ex_glyph(n) = (halfword) lua_tointeger(L, 3);
+            break;
         default:
             return nodelib_cantset(L, field, n);
         }
@@ -2817,6 +2830,9 @@ static int lua_nodelib_setfield(lua_State * L)
                 break;
             case 4:
                 width(n) = (halfword) lua_tointeger(L, 3);
+                break;
+            case 5:
+                ex_kern(n) = (halfword) lua_tointeger(L, 3);
                 break;
             default:
                 return nodelib_cantset(L, field, n);
