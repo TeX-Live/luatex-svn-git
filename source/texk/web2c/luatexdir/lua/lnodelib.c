@@ -91,11 +91,10 @@ int get_valid_node_type_id(lua_State * L, int n)
     int i = get_node_type_id(L, n);
     if (i == -1) {
         if (lua_type(L, n) == LUA_TSTRING) {
-            lua_pushfstring(L, "Invalid node type id: %s", lua_tostring(L, n));
+            luaL_error(L, "Invalid node type id: %s", lua_tostring(L, n));
         } else {
-            lua_pushfstring(L, "Invalid node type id: %d", lua_tonumber(L, n));
+            luaL_error(L, "Invalid node type id: %d", lua_tonumber(L, n));
         }
-        return lua_error(L);
     }
     return i;
 }
@@ -106,13 +105,12 @@ int get_valid_node_subtype_id(lua_State * L, int n)
     int i = get_node_subtype_id(L, n);
     if (i == -1) {
         if (lua_type(L, n) == LUA_TSTRING) {
-            lua_pushfstring(L, "Invalid whatsit node id: %s",
+            luaL_error(L, "Invalid whatsit node id: %s",
                             lua_tostring(L, n));
         } else {
-            lua_pushfstring(L, "Invalid whatsit node id: %d",
+	    luaL_error(L, "Invalid whatsit node id: %d",
                             lua_tonumber(L, n));
         }
-        return lua_error(L);
     }
     return i;
 }
@@ -235,9 +233,8 @@ static int lua_nodelib_new(lua_State * L)
             j = get_valid_node_subtype_id(L, 2);
         }
         if (j < 0) {
-            lua_pushstring(L,
+            luaL_error(L,
                            "Creating a whatsit requires the subtype number as a second argument");
-            lua_error(L);
         }
     } else {
         j = 0;
@@ -301,8 +298,7 @@ static int lua_nodelib_remove(lua_State * L)
 {
     halfword head, current, t;
     if (lua_gettop(L) < 2) {
-        lua_pushstring(L, "Not enough arguments for node.remove()");
-        lua_error(L);
+        luaL_error(L, "Not enough arguments for node.remove()");
     }
     head = *(check_isnode(L, 1));
     if (lua_isnil(L, 2)) {
@@ -321,9 +317,8 @@ static int lua_nodelib_remove(lua_State * L)
         if (t == null || vlink(t) != current) {
             set_t_to_prev(head, current);
             if (t == null) {    /* error! */
-                lua_pushstring(L,
+		luaL_error(L,
                                "Attempt to node.remove() a non-existing node");
-                lua_error(L);
             }
         }
         /* t is now the previous node */
@@ -346,8 +341,7 @@ static int lua_nodelib_insert_before(lua_State * L)
 {
     halfword head, current, n, t;
     if (lua_gettop(L) < 3) {
-        lua_pushstring(L, "Not enough arguments for node.insert_before()");
-        lua_error(L);
+        luaL_error(L, "Not enough arguments for node.insert_before()");
     }
     if (lua_isnil(L, 3)) {
         lua_pop(L, 1);
@@ -374,9 +368,8 @@ static int lua_nodelib_insert_before(lua_State * L)
         if (t == null || vlink(t) != current) {
             set_t_to_prev(head, current);
             if (t == null) {    /* error! */
-                lua_pushstring(L,
+                luaL_error(L,
                                "Attempt to node.insert_before() a non-existing node");
-                lua_error(L);
             }
         }
         couple_nodes(t, n);
@@ -396,8 +389,7 @@ static int lua_nodelib_insert_after(lua_State * L)
 {
     halfword head, current, n;
     if (lua_gettop(L) < 3) {
-        lua_pushstring(L, "Not enough arguments for node.insert_after()");
-        lua_error(L);
+        luaL_error(L, "Not enough arguments for node.insert_after()");
     }
     if (lua_isnil(L, 3)) {
         lua_pop(L, 1);
@@ -517,9 +509,8 @@ static int lua_nodelib_hpack(lua_State * L)
                 else if (strcmp(s, "subst_ex_font") == 0)
                     m = 3;
                 else {
-                    lua_pushstring(L,
+                    luaL_error(L,
                                    "3rd argument should be either additional or exactly");
-                    lua_error(L);
                 }
             } else if (lua_type(L, 3) == LUA_TNUMBER) {
                 lua_number2int(m, lua_tonumber(L, 3));
@@ -581,9 +572,8 @@ static int lua_nodelib_dimensions(lua_State * L)
         lua_pushnumber(L, siz.dp);
         return 3;
     } else {
-        lua_pushstring(L,
+        luaL_error(L,
                        "missing  argument to 'dimensions' (luatex_node expected)");
-        lua_error(L);
     }
     return 0;                   /* not reached */
 }
@@ -608,9 +598,8 @@ static int lua_nodelib_vpack(lua_State * L)
                 else if (strcmp(s, "exactly") == 0)
                     m = 0;
                 else {
-                    lua_pushstring(L,
+                    luaL_error(L,
                                    "3rd argument should be either additional or exactly");
-                    lua_error(L);
                 }
                 if (lua_gettop(L) > 3) {
                     if (lua_type(L, 4) == LUA_TSTRING) {
@@ -780,9 +769,8 @@ static int get_valid_node_field_id(lua_State * L, int n, int node)
     int i = get_node_field_id(L, n, node);
     if (i == -2) {
         const char *s = lua_tostring(L, n);
-        lua_pushfstring(L, "Invalid field id %s for node type %s (%d)", s,
+        luaL_error(L, "Invalid field id %s for node type %s (%d)", s,
                         node_data[type(node)].name, subtype(node));
-        lua_error(L);
     }
     return i;
 }
@@ -926,8 +914,7 @@ static int lua_nodelib_set_attribute(lua_State * L)
             set_attribute(*n, i, val);
         }
     } else {
-        lua_pushstring(L, "incorrect number of arguments");
-        lua_error(L);
+        luaL_error(L, "incorrect number of arguments");
     }
     return 0;
 }
@@ -949,8 +936,7 @@ static int lua_nodelib_unset_attribute(lua_State * L)
         }
         return 1;
     } else {
-        lua_pushstring(L, "incorrect number of arguments");
-        return lua_error(L);
+        return luaL_error(L, "incorrect number of arguments");
     }
 }
 
@@ -2137,13 +2123,11 @@ int nodelib_getdir(lua_State * L, int n)
             }
         }
     } else {
-        lua_pushstring(L, "Direction specifiers have to be strings");
-        lua_error(L);
+        luaL_error(L, "Direction specifiers have to be strings");
     }
     if ((d > 31) || (d < -64) || (d < 0 && (d + 64) > 31)) {
         d = 0;
-        lua_pushfstring(L, "Bad direction specifier %s", lua_tostring(L, n));
-        lua_error(L);
+        luaL_error(L, "Bad direction specifier %s", lua_tostring(L, n));
     }
     return d;
 }
@@ -2176,9 +2160,8 @@ static void nodelib_setattr(lua_State * L, int stackindex, halfword n)
 
 static int nodelib_cantset(lua_State * L, int field, int n)
 {
-    lua_pushfstring(L, "You cannot set field %d in a node of type %s",
+    luaL_error(L, "You cannot set field %d in a node of type %s",
                     field, node_data[type(n)].name);
-    lua_error(L);
     return 0;
 }
 
@@ -2560,8 +2543,7 @@ static int lua_nodelib_setfield(lua_State * L)
     register int field;
     n = *((halfword *) lua_touserdata(L, 1));
     if (!valid_node(n)) {
-	lua_pushfstring(L, "You can't assign to this glue_spec (%d)\n", n);
-	lua_error(L);
+	return luaL_error(L, "You can't assign to this glue_spec (%d)\n", n);
 	/* return implied */
     }
     field = get_valid_node_field_id(L, 2, n);

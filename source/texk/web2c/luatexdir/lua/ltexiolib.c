@@ -43,8 +43,7 @@ static boolean get_selector_value(lua_State * L, int i, int *l)
             r = true;
         }
     } else {
-        lua_pushstring(L, "first argument is not a string");
-        lua_error(L);
+        luaL_error(L, "first argument is not a string");
     }
     return r;
 }
@@ -56,8 +55,7 @@ static int do_texio_print(lua_State * L, texio_printer printfunction)
     int save_selector = selector;
     int n = lua_gettop(L);
     if (n == 0 || !lua_isstring(L, -1)) {
-        lua_pushstring(L, "no string to print");
-        lua_error(L);
+	luaL_error(L, "no string to print");
     }
     if (n > 1) {
         if (get_selector_value(L, i, &selector))
@@ -72,8 +70,7 @@ static int do_texio_print(lua_State * L, texio_printer printfunction)
             s = lua_tostring(L, i);
             printfunction(s);
         } else {
-            lua_pushstring(L, "argument is not a string");
-            lua_error(L);
+            luaL_error(L, "argument is not a string");
         }
     }
     selector = save_selector;

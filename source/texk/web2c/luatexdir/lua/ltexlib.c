@@ -112,8 +112,7 @@ static int do_luacprint(lua_State * L, int partial, int deftable)
     } else {
         for (i = startstrings; i <= n; i++) {
             if (!lua_isstring(L, i)) {
-                lua_pushstring(L, "no string to print");
-                lua_error(L);
+                luaL_error(L, "no string to print");
             }
             luac_store(L, i, partial, cattable);
         }
@@ -145,8 +144,7 @@ int luactprint(lua_State * L)
         cattable = DEFAULT_CAT_TABLE;
         startstrings = 1;
         if (lua_type(L, i) != LUA_TTABLE) {
-            lua_pushstring(L, "no string to print");
-            lua_error(L);
+            luaL_error(L, "no string to print");
         }
         lua_pushvalue(L, i);    /* push the table */
         lua_pushnumber(L, 1);
@@ -271,8 +269,7 @@ void luacstring_close(int n)
 
 #define check_index_range(j,s)						\
   if (j<0 || j > 65535) {							\
-    lua_pushfstring(L, "incorrect index value %d for tex.%s()", (int)j, s); \
-     lua_error(L);  }
+    luaL_error(L, "incorrect index value %d for tex.%s()", (int)j, s);  }
 
 
 static const char *scan_integer_part(lua_State * L, const char *ss, int *ret,
@@ -332,8 +329,7 @@ static const char *scan_integer_part(lua_State * L, const char *ss, int *ret,
         vacuous = false;
         if ((cur_val >= m) && ((cur_val > m) || (d > 7) || (radix != 10))) {
             if (OK_so_far) {
-                lua_pushstring(L, "Number too big");
-                lua_error(L);
+		luaL_error(L, "Number too big");
                 cur_val = infinity;
                 OK_so_far = false;
             }
@@ -344,8 +340,7 @@ static const char *scan_integer_part(lua_State * L, const char *ss, int *ret,
     }
     if (vacuous) {
         /* Express astonishment that no number was here */
-        lua_pushstring(L, "Missing number, treated as zero");
-        lua_error(L);
+        luaL_error(L, "Missing number, treated as zero");
     }
     if (negative)
         cur_val = -cur_val;
@@ -517,8 +512,7 @@ static const char *scan_dimen_part(lua_State * L, const char *ss, int *ret)
         goto DONE;
     } else {
         /* Complain about unknown unit and |goto done2| */
-        lua_pushstring(L, "Illegal unit of measure (pt inserted)");
-        lua_error(L);
+        luaL_error(L, "Illegal unit of measure (pt inserted)");
         goto DONE2;
     }
     cur_val = xn_over_d(cur_val, num, denom);
@@ -539,8 +533,7 @@ static const char *scan_dimen_part(lua_State * L, const char *ss, int *ret)
   ATTACH_SIGN:
     if (arith_error || (abs(cur_val) >= 010000000000)) {
         /* Report that this dimension is out of range */
-        lua_pushstring(L, "Dimension too large");
-        lua_error(L);
+        luaL_error(L, "Dimension too large");
         cur_val = max_dimen;
     }
     if (negative)
@@ -557,8 +550,7 @@ int dimen_to_number(lua_State * L, const char *s)
     int j = 0;
     const char *d = scan_dimen_part(L, s, &j);
     if (*d) {
-        lua_pushstring(L, "conversion failed (trailing junk?)");
-        lua_error(L);
+        luaL_error(L, "conversion failed (trailing junk?)");
         j = 0;
     }
     return j;
@@ -572,8 +564,7 @@ static int tex_scaledimen(lua_State * L)
         if (lua_isstring(L, 1)) {
             sp = dimen_to_number(L, lua_tostring(L, 1));
         } else {
-            lua_pushstring(L, "argument must be a string or a number");
-            lua_error(L);
+            luaL_error(L, "argument must be a string or a number");
             return 0;
         }
     } else {
@@ -619,8 +610,7 @@ static int vsetdimen(lua_State * L, int is_global)
         if (lua_isstring(L, i)) {
             j = dimen_to_number(L, lua_tostring(L, i));
         } else {
-            lua_pushstring(L, "unsupported value type");
-            lua_error(L);
+            luaL_error(L, "unsupported value type");
         }
     } else {
         lua_number2int(j, lua_tonumber(L, i));
@@ -630,8 +620,7 @@ static int vsetdimen(lua_State * L, int is_global)
     err = set_tex_dimen_register(k, j);
     int_par(global_defs_code) = save_global_defs;
     if (err) {
-        lua_pushstring(L, "incorrect value");
-        lua_error(L);
+        luaL_error(L, "incorrect value");
     }
     return 0;
 }
@@ -674,8 +663,7 @@ static int vsetskip(lua_State * L, int is_global)
     err = set_tex_skip_register(k, *j);
     int_par(global_defs_code) = save_global_defs;
     if (err) {
-        lua_pushstring(L, "incorrect value");
-        lua_error(L);
+        luaL_error(L, "incorrect value");
     }
     return 0;
 }
@@ -719,8 +707,7 @@ static int vsetcount(lua_State * L, int is_global)
     err = set_tex_count_register(k, j);
     int_par(global_defs_code) = save_global_defs;
     if (err) {
-        lua_pushstring(L, "incorrect value");
-        lua_error(L);
+        luaL_error(L, "incorrect value");
     }
     return 0;
 }
@@ -763,8 +750,7 @@ static int vsetattribute(lua_State * L, int is_global)
     err = set_tex_attribute_register(k, j);
     int_par(global_defs_code) = save_global_defs;
     if (err) {
-        lua_pushstring(L, "incorrect value");
-        lua_error(L);
+        luaL_error(L, "incorrect value");
     }
     return 0;
 }
@@ -802,8 +788,7 @@ int vsettoks(lua_State * L, int is_global)
         int_par(global_defs_code) = 1;
     i = lua_gettop(L);
     if (!lua_isstring(L, i)) {
-        lua_pushstring(L, "unsupported value type");
-        lua_error(L);
+        luaL_error(L, "unsupported value type");
     }
     str.s = (unsigned char *) xstrdup(lua_tolstring(L, i, &str.l));
     k = get_item_index(L, (i - 1), toks_base);
@@ -812,8 +797,7 @@ int vsettoks(lua_State * L, int is_global)
     xfree(str.s);
     int_par(global_defs_code) = save_global_defs;
     if (err) {
-        lua_pushstring(L, "incorrect value");
-        lua_error(L);
+        luaL_error(L, "incorrect value");
     }
     return 0;
 }
@@ -893,9 +877,8 @@ static int vsetbox(lua_State * L, int is_global)
     } else {
         j = nodelist_from_lua(L);
         if (j != null && type(j) != hlist_node && type(j) != vlist_node) {
-            lua_pushfstring(L, "setbox: incompatible node type (%s)\n",
+            luaL_error(L, "setbox: incompatible node type (%s)\n",
                             get_node_name(type(j), subtype(j)));
-            lua_error(L);
             return 0;
         }
 
@@ -903,8 +886,7 @@ static int vsetbox(lua_State * L, int is_global)
     err = set_tex_box_register(k, j);
     int_par(global_defs_code) = save_global_defs;
     if (err) {
-        lua_pushstring(L, "incorrect value");
-        lua_error(L);
+        luaL_error(L, "incorrect value");
     }
     return 0;
 }
@@ -928,8 +910,7 @@ static int getboxdim(lua_State * L, int whichdim)
     j = get_box_id(L, i);
     lua_settop(L, (i - 2));     /* table at -1 */
     if (j < 0 || j > 65535) {
-        lua_pushstring(L, "incorrect index");
-        lua_error(L);
+        luaL_error(L, "incorrect index");
     }
     switch (whichdim) {
     case width_offset:
@@ -974,8 +955,7 @@ static int vsetboxdim(lua_State * L, int whichdim, int is_global)
     k = get_box_id(L, (i - 1));
     lua_settop(L, (i - 3));     /* table at -2 */
     if (k < 0 || k > 65535) {
-        lua_pushstring(L, "incorrect index");
-        lua_error(L);
+        luaL_error(L, "incorrect index");
     }
     err = 0;
     switch (whichdim) {
@@ -990,8 +970,7 @@ static int vsetboxdim(lua_State * L, int whichdim, int is_global)
     }
     int_par(global_defs_code) = save_global_defs;
     if (err) {
-        lua_pushstring(L, "not a box");
-        lua_error(L);
+        luaL_error(L, "not a box");
     }
     return 0;
 }
@@ -1060,16 +1039,14 @@ int settex(lua_State * L)
                     assign_internal_value((isglobal ? 4 : 0),
                                           equiv(cur_cs), luai);
                 } else {
-                    lua_pushstring(L, "unsupported value type");
-                    lua_error(L);
+                    luaL_error(L, "unsupported value type");
                 }
             } else if (is_dim_assign(cur_cmd)) {
                 if (!lua_isnumber(L, i)) {
                     if (lua_isstring(L, i)) {
                         j = dimen_to_number(L, lua_tostring(L, i));
                     } else {
-                        lua_pushstring(L, "unsupported value type");
-                        lua_error(L);
+                        luaL_error(L, "unsupported value type");
                     }
                 } else {
                     lua_number2int(j, lua_tonumber(L, i));
@@ -1081,13 +1058,11 @@ int settex(lua_State * L)
                     assign_internal_value((isglobal ? 4 : 0), equiv(cur_cs), j);
 
                 } else {
-                    lua_pushstring(L, "unsupported value type");
-                    lua_error(L);
+                    luaL_error(L, "unsupported value type");
                 }
 
             } else {
-                lua_pushstring(L, "unsupported tex internal assignment");
-                lua_error(L);
+                luaL_error(L, "unsupported tex internal assignment");
             }
         } else {
             if (lua_istable(L, (i - 2)))
@@ -1651,8 +1626,7 @@ static int getnest(lua_State * L)
 
 static int setnest(lua_State * L)
 {
-    lua_pushstring(L, "You can't modify the semantic nest array directly");
-    lua_error(L);
+    luaL_error(L, "You can't modify the semantic nest array directly");
     return 2;
 }
 
@@ -1842,8 +1816,7 @@ static int tex_enableprimitives(lua_State * L)
 {
     int n = lua_gettop(L);
     if (n != 2) {
-        lua_pushstring(L, "wrong number of arguments");
-        lua_error(L);
+        luaL_error(L, "wrong number of arguments");
     } else {
         size_t l;
         int i;
@@ -1893,8 +1866,7 @@ static int tex_enableprimitives(lua_State * L)
             lua_pop(L, 1);      /* the table */
             no_new_control_sequence = nncs;
         } else {
-            lua_pushstring(L, "Expected an array of names as second argument");
-            lua_error(L);
+            luaL_error(L, "Expected an array of names as second argument");
         }
     }
     return 0;
