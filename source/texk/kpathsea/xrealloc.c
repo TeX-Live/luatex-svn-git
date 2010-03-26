@@ -18,10 +18,10 @@
 
 #include <kpathsea/config.h>
 
-extern void *xmalloc (unsigned);
+extern void *xmalloc (size_t);
 
 void *
-xrealloc (void *old_ptr, unsigned size)
+xrealloc (void *old_ptr, size_t size)
 {
     void *new_mem;
     

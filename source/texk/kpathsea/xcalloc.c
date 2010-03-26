@@ -20,7 +20,7 @@
 
 
 void *
-xcalloc (unsigned nelem,  unsigned elsize)
+xcalloc (unsigned nelem,  size_t elsize)
 {
     void *new_mem = (void*)calloc(nelem ? nelem : 1, elsize ? elsize : 1);
   
