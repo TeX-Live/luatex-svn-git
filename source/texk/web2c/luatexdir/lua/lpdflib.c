@@ -40,14 +40,12 @@ int luapdfprint(lua_State * L)
     st.s = modestr.s = NULL;
     n = lua_gettop(L);
     if (!lua_isstring(L, -1)) {
-        lua_pushstring(L, "no string to print");
-        lua_error(L);
+        luaL_error(L, "no string to print");
     }
     literal_mode = set_origin;
     if (n == 2) {
         if (!lua_isstring(L, -2)) {
-            lua_pushstring(L, "invalid argument for print literal mode");
-            lua_error(L);
+            luaL_error(L, "invalid argument for print literal mode");
         } else {
             modestr.s = lua_tolstring(L, -2, &modestr.l);
             if (modestr.l == 6 && strncmp(modestr.s, "direct", 6) == 0)
@@ -55,14 +53,12 @@ int luapdfprint(lua_State * L)
             else if (modestr.l == 4 && strncmp(modestr.s, "page", 4) == 0)
                 literal_mode = direct_page;
             else {
-                lua_pushstring(L, "invalid argument for print literal mode");
-                lua_error(L);
+                luaL_error(L, "invalid argument for print literal mode");
             }
         }
     } else {
         if (n != 1) {
-            lua_pushstring(L, "invalid number of arguments");
-            lua_error(L);
+            luaL_error(L, "invalid number of arguments");
         }
     }
     check_o_mode(static_pdf, "pdf.print()", 1 << OMODE_PDF, true);

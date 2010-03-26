@@ -160,8 +160,7 @@ int program_name_set = 0;
 
 #define TEST_PROGRAM_NAME_SET do {                                      \
     if (! program_name_set) {                                           \
-      lua_pushstring(L, "Please call kpse.set_program_name() before using the library"); \
-      return lua_error(L);                                              \
+      return luaL_error(L, "Please call kpse.set_program_name() before using the library"); \
     }                                                                   \
   } while (0)
 
@@ -173,8 +172,7 @@ static int find_file(lua_State * L)
     int mexist = 0;
     TEST_PROGRAM_NAME_SET;
     if (!lua_isstring(L, 1)) {
-        lua_pushstring(L, "not a file name");
-        lua_error(L);
+        luaL_error(L, "not a file name");
     }
     st = lua_tostring(L, 1);
     i = lua_gettop(L);

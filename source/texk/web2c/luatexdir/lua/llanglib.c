@@ -36,8 +36,7 @@ static int lang_new(lua_State * L)
         lang = lua_newuserdata(L, sizeof(struct tex_language *));
         *lang = new_language(-1);
         if (!*lang) {
-            lua_pushstring(L, "lang.new(): no room for a new language");
-            return lua_error(L);
+            return luaL_error(L, "lang.new(): no room for a new language");
         }
     } else {
         int lualang;
@@ -45,9 +44,8 @@ static int lang_new(lua_State * L)
         lua_number2int(lualang, lua_tonumber(L, 1));
         *lang = get_language(lualang);
         if (!*lang) {
-            lua_pushfstring(L, "lang.new(%d): undefined language",
+            return luaL_error(L, "lang.new(%d): undefined language",
                             lua_tonumber(L, 1));
-            return lua_error(L);
         }
     }
     luaL_getmetatable(L, LANG_METATABLE);
@@ -69,8 +67,7 @@ static int lang_patterns(lua_State * L)
     lang_ptr = check_islang(L, 1);
     if (lua_gettop(L) != 1) {
         if (!lua_isstring(L, 2)) {
-            lua_pushstring(L, "lang.patterns(): argument should be a string");
-            return lua_error(L);
+            return luaL_error(L, "lang.patterns(): argument should be a string");
         }
         load_patterns(*lang_ptr, (const unsigned char *) lua_tostring(L, 2));
         return 0;
@@ -99,9 +96,8 @@ static int lang_hyphenation(lua_State * L)
     lang_ptr = check_islang(L, 1);
     if (lua_gettop(L) != 1) {
         if (!lua_isstring(L, 2)) {
-            lua_pushstring(L,
+            return luaL_error(L,
                            "lang.hyphenation(): argument should be a string");
-            return lua_error(L);
         }
         load_hyphenation(*lang_ptr, (const unsigned char *) lua_tostring(L, 2));
         return 0;
@@ -121,9 +117,8 @@ static int lang_pre_hyphen_char(lua_State * L)
     lang_ptr = check_islang(L, 1);
     if (lua_gettop(L) != 1) {
         if (!lua_isnumber(L, 2)) {
-            lua_pushstring(L,
+            return luaL_error(L,
                            "lang.prehyphenchar(): argument should be a character number");
-            return lua_error(L);
         }
         lua_number2int((*lang_ptr)->pre_hyphen_char, lua_tonumber(L, 2));
         return 0;
@@ -139,9 +134,8 @@ static int lang_post_hyphen_char(lua_State * L)
     lang_ptr = check_islang(L, 1);
     if (lua_gettop(L) != 1) {
         if (!lua_isnumber(L, 2)) {
-            lua_pushstring(L,
+            return luaL_error(L,
                            "lang.posthyphenchar(): argument should be a character number");
-            return lua_error(L);
         }
         lua_number2int((*lang_ptr)->post_hyphen_char, lua_tonumber(L, 2));
         return 0;
@@ -158,9 +152,8 @@ static int lang_pre_exhyphen_char(lua_State * L)
     lang_ptr = check_islang(L, 1);
     if (lua_gettop(L) != 1) {
         if (!lua_isnumber(L, 2)) {
-            lua_pushstring(L,
+            return luaL_error(L,
                            "lang.preexhyphenchar(): argument should be a character number");
-            return lua_error(L);
         }
         lua_number2int((*lang_ptr)->pre_exhyphen_char, lua_tonumber(L, 2));
         return 0;
@@ -176,9 +169,8 @@ static int lang_post_exhyphen_char(lua_State * L)
     lang_ptr = check_islang(L, 1);
     if (lua_gettop(L) != 1) {
         if (!lua_isnumber(L, 2)) {
-            lua_pushstring(L,
+            return luaL_error(L,
                            "lang.postexhyphenchar(): argument should be a character number");
-            return lua_error(L);
         }
         lua_number2int((*lang_ptr)->post_exhyphen_char, lua_tonumber(L, 2));
         return 0;
@@ -202,8 +194,7 @@ static int do_lang_clean(lua_State * L)
 {
     char *cleaned;
     if (!lua_isstring(L, 1)) {
-        lua_pushstring(L, "lang.clean(): argument should be a string");
-        return lua_error(L);
+	return luaL_error(L, "lang.clean(): argument should be a string");
     }
     (void) clean_hyphenation(lua_tostring(L, 1), &cleaned);
     lua_pushstring(L, cleaned);

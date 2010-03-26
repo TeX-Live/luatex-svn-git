@@ -198,8 +198,7 @@ int get_bytecode(lua_State * L)
             if (lua_load
                 (L, reader, (void *) (lua_bytecode_registers + k),
                  "bytecode")) {
-                lua_error(L);
-                lua_pushnil(L);
+		return luaL_error(L, "bad bytecode register");
             } else {
                 lua_pushvalue(L, -1);
                 bytecode_register_shadow_set(L, k);
@@ -218,17 +217,14 @@ int set_bytecode(lua_State * L)
     k = (int) luaL_checkinteger(L, -2);
     i = (unsigned) k + 1;
     if ((int) (UINT_MAX32 / sizeof(bytecode) + 1) < i) {
-        lua_pushstring(L, "value too large");
-        lua_error(L);
+        luaL_error(L, "value too large");
     }
     if (k < 0) {
-        lua_pushstring(L, "negative values not allowed");
-        lua_error(L);
+        luaL_error(L, "negative values not allowed");
     }
     ltype = lua_type(L, -1);
     if (ltype != LUA_TFUNCTION && ltype != LUA_TNIL) {
-        lua_pushstring(L, "unsupported type");
-        lua_error(L);
+        luaL_error(L, "unsupported type");
     }
     if (k > luabytecode_max) {
         i = (unsigned) (sizeof(bytecode) * ((unsigned) k + 1));
