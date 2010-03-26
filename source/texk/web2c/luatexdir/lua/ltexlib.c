@@ -2183,8 +2183,9 @@ static int tex_shipout(lua_State * L)
 
 static int tex_badness(lua_State * L)
 {
-    scaled t = lua_tonumber(L,1);
-    scaled s = lua_tonumber(L,2);
+    scaled t,s;
+    lua_number2int(t,lua_tonumber(L,1));
+    lua_number2int(s,lua_tonumber(L,2));
     lua_pushnumber(L, badness(t,s));
     return 1;
 }

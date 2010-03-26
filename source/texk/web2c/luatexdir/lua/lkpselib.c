@@ -578,12 +578,16 @@ static int do_lua_kpathsea_lookup(lua_State * L, kpathsea kpse, int idx)
             lua_pushnil(L);
             while (lua_next(L, -2) != 0) {      /* numeric value */
                 if (lua_isstring(L, -1)) {
-                    str_list_add(&subdir_paths, lua_tostring(L, -1));
+		    char *s = xstrdup(lua_tostring(L, -1));
+                    str_list_add(&subdir_paths, s);
+		    xfree(s);
                 }
                 lua_pop(L, 1);
             }
         } else if (lua_isstring(L, -1)) {
-            str_list_add(&subdir_paths, lua_tostring(L, -1));
+	    char *s = xstrdup(lua_tostring(L, -1));
+            str_list_add(&subdir_paths, s);
+	    xfree(s);
         }
         lua_pop(L, 1);
         if (STR_LIST_LENGTH(subdir_paths) > 0) {
