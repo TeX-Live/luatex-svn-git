@@ -420,7 +420,12 @@ static int mplib_wrapresults(lua_State * L, mp_run_data *res, int status)
 
 static int mplib_execute(lua_State * L)
 {
-    MP *mp_ptr = is_mp(L, 1);
+    MP *mp_ptr; 
+    if (lua_gettop(L)!=2) {
+        lua_pushnil(L);
+	return 1;
+    }
+    mp_ptr = is_mp(L, 1);
     if (*mp_ptr != NULL && lua_isstring(L, 2)) {
         size_t l;
         char *s = xstrdup(lua_tolstring(L, 2, &l));
