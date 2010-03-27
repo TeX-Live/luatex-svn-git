@@ -127,10 +127,14 @@ static int load_aux (lua_State *L, int status) {
 
 static int luatex_loadfile (lua_State *L) {
   const char *fname = luaL_optstring(L, 1, NULL);
-  if (interaction == batch_mode && !fname) {
-    lua_pushnil(L);
-    lua_pushstring(L, "reading from stdin is disabled in batch mode");
-    return 2;  /* return nil plus error message */
+  if (!lua_only && !fname) {
+      if (interaction == batch_mode) {
+	  lua_pushnil(L);
+	  lua_pushstring(L, "reading from stdin is disabled in batch mode");
+	  return 2;  /* return nil plus error message */
+      } else {
+	  tprint_nl("lua> ");
+      }
   }
   return load_aux(L, luaL_loadfile(L, fname));
 }
@@ -138,10 +142,14 @@ static int luatex_loadfile (lua_State *L) {
 static int luatex_dofile (lua_State *L) {
   const char *fname = luaL_optstring(L, 1, NULL);
   int n = lua_gettop(L);
-  if (interaction == batch_mode && !fname) {
-    lua_pushnil(L);
-    lua_pushstring(L, "reading from stdin is disabled in batch mode");
-    return 2;  /* return nil plus error message */
+  if (!lua_only && !fname) {
+      if (interaction == batch_mode) {
+	  lua_pushnil(L);
+	  lua_pushstring(L, "reading from stdin is disabled in batch mode");
+	  return 2;  /* return nil plus error message */
+      } else {
+	  tprint_nl("lua> ");
+      }
   }
   if (luaL_loadfile(L, fname) != 0) lua_error(L);
   lua_call(L, 0, LUA_MULTRET);

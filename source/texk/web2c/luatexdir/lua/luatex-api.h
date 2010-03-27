@@ -116,6 +116,7 @@ extern void dump_luac_registers(void);
 
 extern void undump_luac_registers(void);
 
+extern int lua_only;
 
 extern void unhide_lua_table(lua_State * lua, const char *name, int r);
 extern int hide_lua_table(lua_State * lua, const char *name);
