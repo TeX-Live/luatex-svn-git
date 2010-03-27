@@ -1301,34 +1301,20 @@ void box_end(int box_context)
         if (cur_box != null) {
             shift_amount(cur_box) = box_context;
             if (abs(mode) == vmode) {
-                if (mode > 0) {
-                    if ((vlink(contrib_head) != null)) {
-                        check_filter("pre_box");
-                        build_page();
-                    }
-                }
                 if (pre_adjust_tail != null) {
                     if (pre_adjust_head != pre_adjust_tail)
                         append_list(pre_adjust_head, pre_adjust_tail);
                     pre_adjust_tail = null;
-                    if (mode > 0) {
-                        check_filter("pre_adjust");
-                        build_page();
-                    }
                 }
                 append_to_vlist(cur_box);
-                if (mode > 0) {
-                    check_filter("box");
-                    build_page();
-                }
                 if (adjust_tail != null) {
                     if (adjust_head != adjust_tail)
                         append_list(adjust_head, adjust_tail);
                     adjust_tail = null;
-                    if (mode > 0) {
-                        check_filter("adjust");
-                        build_page();
-                    }
+                }
+	        if (mode > 0) {
+                    check_filter("box");
+                    build_page();
                 }
             } else {
                 if (abs(mode) == hmode)
