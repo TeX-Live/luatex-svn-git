@@ -606,17 +606,14 @@ static int luatex_kpse_cluaall_find(lua_State * L)
         return (orig_func) (L);
     }
     if (p == NULL) return 0;  /* is root */
-    fixedname = strndup(name, (size_t)(p - name));
-    if (fixedname) {
-	filename = luatex_kpse_find_aux(L, fixedname, kpse_clua_format, "All-in-one");
-	free(fixedname);
-	if (filename == NULL)
-	    return 1;               /* library not found in this path */
-	return loader_Call_luatex(L, name, filename);
-    } else { /* out of memory, give up */
-        fprintf(stderr, "fatal: memory exhausted (strndup).\n");
-        exit(EXIT_FAILURE);
-    }
+    fixedname = xmalloc((size_t)(p - name)+1);
+    memcpy(fixedname,name,(size_t)(p - name));
+    fixedname[(p - name)] = '\0';
+    filename = luatex_kpse_find_aux(L, fixedname, kpse_clua_format, "All-in-one");
+    free(fixedname);
+    if (filename == NULL)
+	return 1;               /* library not found in this path */
+    return loader_Call_luatex(L, name, filename);
 }
 
 /* Setting up the new search functions. 
