@@ -1,4 +1,4 @@
-% $Id: mp.w 1139 2010-01-21 14:35:21Z taco $
+% $Id: mp.w 1214 2010-03-29 12:48:32Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -89,13 +89,13 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 1.209" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version 1.210" /* printed when \MP\ starts */
 @d true 1
 @d false 0
 
 @(mpmp.h@>=
-#define metapost_version "1.209"
-#define metapost_magic (('M'*256) + 'P')*65536 + 1209
+#define metapost_version "1.210"
+#define metapost_magic (('M'*256) + 'P')*65536 + 1210
 #define metapost_old_magic (('M'*256) + 'P')*65536 + 1080
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
@@ -16790,9 +16790,9 @@ with the current input file.
 
 @c void mp_start_mpx_input (MP mp) {
   char *origname = NULL; /* a copy of nameoffile */
-  mp_pack_file_name(mp, in_name, "", in_ext);
+  mp_pack_file_name(mp, in_name, in_area, in_ext);
   origname = xstrdup(mp->name_of_file);
-  mp_pack_file_name(mp, in_name, "", ".mpx");
+  mp_pack_file_name(mp, in_name, in_area, ".mpx");
   if (!(mp->run_make_mpx)(mp, origname, mp->name_of_file))
     goto NOT_FOUND;
   mp_begin_file_reading(mp);

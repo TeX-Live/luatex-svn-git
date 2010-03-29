@@ -1,4 +1,4 @@
-% $Id: mpxout.w 1139 2010-01-21 14:35:21Z taco $
+% $Id: mpxout.w 1211 2010-03-29 10:45:18Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -449,7 +449,14 @@ a percent sign, or an alphabetic token \.{btex}, \.{etex}, or
 \.{verbatimtex}.  (An alphabetic token is a maximal sequence of letters
 and underscores.)  If there are several possible substrings $t$, we
 choose the leftmost one.  If there is no such $t$, we set $b=s$ and return 0.
- 
+
+Various values are defined, so that |mpx_copy_mpto| can distinguish between
+\.{verbatimtex} ... \.{etex} and \.{btex} ... \.{etex} (the former has no
+whitespace corrections applied).
+
+@d VERBATIM_TEX 1
+@d B_TEX 2
+
 @c
 static int mpx_getbta(MPX mpx, char *s) {
   int ok = 1;         /* zero if last character was |a-z|, |A-Z|, or |_| */
@@ -467,24 +474,27 @@ static int mpx_getbta(MPX mpx, char *s) {
         return 1;
     case 'b':
         if (ok && mpx_match_str(mpx->tt, "btex")) {
-        mpx->aa = mpx->tt + 4;
-        return 1;
-        } else
-        ok = 0;
+            mpx->aa = mpx->tt + 4;
+            return 1;
+        } else {
+            ok = 0;
+        }
         break;
     case 'e':
         if (ok && mpx_match_str(mpx->tt, "etex")) {
-        mpx->aa = mpx->tt + 4;
-        return 1;
-        } else
-        ok = 0;
+            mpx->aa = mpx->tt + 4;
+            return 1;
+        } else {
+            ok = 0;
+        }
         break;
     case 'v':
         if (ok && mpx_match_str(mpx->tt, "verbatimtex")) {
-        mpx->aa = mpx->tt + 11;
-        return 1;
-        } else
-        ok = 0;
+            mpx->aa = mpx->tt + 11;
+            return 1;
+        } else {
+            ok = 0;
+        }
         break;
     default:
        if ((*(mpx->tt) >= 'a' && *(mpx->tt) <= 'z') ||
@@ -500,61 +510,66 @@ static int mpx_getbta(MPX mpx, char *s) {
 }
 
 @ @c
-static void mpx_copy_mpto (MPX mpx, FILE *outfile) {
+static void mpx_copy_mpto (MPX mpx, FILE *outfile, int textype) {
     char *s;            /* where a string to print stops */
     char *t;            /* for finding start of last line */
     char c;
     char *res = NULL;
     do {
-    if (mpx->aa == NULL || *mpx->aa == 0) {
-      if ((mpx->aa = mpx_getline(mpx,mpx->mpfile)) == NULL) {
-        mpx_error(mpx,"btex section does not end"); 
-        return;
+      if (mpx->aa == NULL || *mpx->aa == 0) {
+        if ((mpx->aa = mpx_getline(mpx,mpx->mpfile)) == NULL) {
+          mpx_error(mpx,"btex section does not end"); 
+          return;
+        }
       }
-    }
-    if (mpx_getbta(mpx, mpx->aa) && *(mpx->tt) == 'e') {
-      s = mpx->tt;
-    } else {
-      if (mpx->tt == NULL) {
-        mpx_error(mpx,"btex section does not end"); 
-        return;
-      } else if (*(mpx->tt) == 'b') {
-        mpx_error(mpx,"btex in TeX mode");
-        return;
-      } else if (*(mpx->tt) == 'v') {
-        mpx_error(mpx,"verbatimtex in TeX mode");
-        return;
+      if (mpx_getbta(mpx, mpx->aa) && *(mpx->tt) == 'e') {
+        s = mpx->tt;
+      } else {
+        if (mpx->tt == NULL) {
+          mpx_error(mpx,"btex section does not end"); 
+          return;
+        } else if (*(mpx->tt) == 'b') {
+          mpx_error(mpx,"btex in TeX mode");
+          return;
+        } else if (*(mpx->tt) == 'v') {
+          mpx_error(mpx,"verbatimtex in TeX mode");
+          return;
+        }
+        s = mpx->aa;
       }
-      s = mpx->aa;
-    }
-    c = *s;
-    *s = 0;
-    if (res==NULL) {
-      res = xmalloc(strlen(mpx->bb)+2,1);
-      res = strncpy(res,mpx->bb,(strlen(mpx->bb)+1));
-    } else {
-      res = xrealloc(res,strlen(res)+strlen(mpx->bb)+2,1);
-      res = strncat(res,mpx->bb, strlen(mpx->bb));
-    }
-    if (c == '\0')
+      c = *s;
+      *s = 0;
+      if (res==NULL) {
+        res = xmalloc(strlen(mpx->bb)+2,1);
+        res = strncpy(res,mpx->bb,(strlen(mpx->bb)+1));
+      } else {
+        res = xrealloc(res,strlen(res)+strlen(mpx->bb)+2,1);
+        res = strncat(res,mpx->bb, strlen(mpx->bb));
+      }
+      if (c == '\0')
         res = strncat(res, "\n", 1);
-    *s = c;
+      *s = c;
     } while (*(mpx->tt) != 'e');
-    /* whitespace at the end */
-    for (s = res + strlen(res) - 1;
+    s = res;
+    if (textype != VERBATIM_TEX) {
+      /* whitespace at the end */
+      for (s = res + strlen(res) - 1;
          s >= res && (*s == ' ' || *s == '\t' || *s == '\r' || *s == '\n'); s--);
-    t = s;
-    *(++s) = '\0';
-    /* whitespace at the start */
-    for (s = res;
+      t = s;
+      *(++s) = '\0';
+      /* whitespace at the start */
+      for (s = res;
          s < (res + strlen(res)) && (*s == ' ' || *s == '\t' || *s == '\r'
                      || *s == '\n'); s++);
-    for (; *t != '\n' && t > s; t--);
+      for (; *t != '\n' && t > s; t--);
+    }
     fprintf(outfile,"%s", s);
-    /* put no |%| at end if it's only 1 line total, starting with |%|;
-     * this covers the special case |%&format| in a single line. */
-    if (t != s || *t != '%')
-    fprintf(outfile,"%%");
+    if (textype != VERBATIM_TEX) {
+      /* put no |%| at end if it's only 1 line total, starting with |%|;
+       * this covers the special case |%&format| in a single line. */
+      if (t != s || *t != '%')
+        fprintf(outfile,"%%");
+    }
     free(res);
 }
 
@@ -632,14 +647,14 @@ static void mpx_mpto(MPX mpx, char *tmpname, char *mptexpre) {
         fprintf(outfile,mpx_pretex1[mode], mpx->lnno, mpname);
       else
         fprintf(outfile,mpx_pretex[mode], mpx->lnno, mpname);
-      mpx_copy_mpto(mpx, outfile);
+      mpx_copy_mpto(mpx, outfile, B_TEX);
       fprintf(outfile,"%s", mpx_posttex[mode]);
     } else if (*(mpx->tt) == 'v') {
       if (mpx->verbcnt++ == 0 && mpx->texcnt == 0)
         fprintf(outfile,mpx_preverb1[mode], mpx->lnno, mpname);
       else
         fprintf(outfile,mpx_preverb[mode], mpx->lnno, mpname);
-      mpx_copy_mpto(mpx, outfile);
+      mpx_copy_mpto(mpx, outfile, VERBATIM_TEX);
       fprintf(outfile,"%s", mpx_postverb[mode]);
     } else {
       mpx_error(mpx,"unmatched etex");
