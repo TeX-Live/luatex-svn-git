@@ -2551,13 +2551,14 @@ static int lua_nodelib_setfield(lua_State * L)
     register halfword n;
     register int field;
     n = *((halfword *) lua_touserdata(L, 1));
-    if (!valid_node(n)) {
-	return luaL_error(L, "You can't assign to this glue_spec (%d)\n", n);
-	/* return implied */
-    }
     field = get_valid_node_field_id(L, 2, n);
     if (field < -1)
         return 0;
+    if (field !=0 && /* .next assignments are always allowed */
+	!valid_node(n)) {
+	return luaL_error(L, "You can't assign to this %s node (%d)\n", node_data[type(n)].name, n);
+	/* return implied */
+    }
     if (field == 0) {
         vlink(n) = nodelib_getlist(L, 3);
     } else if (field == -1) {
