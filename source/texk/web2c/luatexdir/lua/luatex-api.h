@@ -170,6 +170,8 @@ extern int argc;
 
 extern int loader_C_luatex(lua_State * L, const char *name,
                            const char *filename);
+extern int loader_Call_luatex (lua_State *L, const char *name,
+			       const char *filename);
 
 
 extern void init_tex_table(lua_State * L);

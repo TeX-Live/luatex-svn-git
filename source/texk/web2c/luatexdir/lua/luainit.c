@@ -484,6 +484,25 @@ void fix_dumpname(void)
 
 /* lua require patch */
 
+/* Auxiliary function for kpse search */
+
+static const char *luatex_kpse_find_aux(lua_State *L, const char *name,
+        kpse_file_format_type format, const char *errname)
+{
+    const char *filename;
+    const char *altname;
+    altname = luaL_gsub(L, name, ".", "/"); /* Lua convention */
+    filename = kpse_find_file(altname, format, false);
+    if (filename == NULL) {
+        filename = kpse_find_file(name, format, false);
+    }
+    if (filename == NULL) {
+        lua_pushfstring(L, "\n\t[kpse %s searcher] file not found: " LUA_QS,
+                        errname, name);
+    }
+    return filename;
+}
+
 /* The lua search function.
  * When kpathsea is not initialized, then it runs the
  * normal lua function that is saved in the registry, otherwise
@@ -511,7 +530,7 @@ static int luatex_kpse_lua_find(lua_State * L)
         lua_pop(L, 1);
         return (orig_func) (L);
     }
-    filename = kpse_find_file(name, kpse_lua_format, false);
+    filename = luatex_kpse_find_aux(L, name, kpse_lua_format, "lua");
     if (filename == NULL)
         return 1;               /* library not found in this path */
     if (luaL_loadfile(L, filename) != 0) {
@@ -538,8 +557,10 @@ static int luatex_kpse_clua_find(lua_State * L)
 {
     const char *filename;
     const char *name;
-    if (safer_option)
+    if (safer_option) {
+        lua_pushliteral(L, "\n\t[C searcher disabled in safer mode]");
         return 1;               /* library not found in this path */
+    }
     name = luaL_checkstring(L, 1);
     if (program_name_set == 0) {
         lua_CFunction orig_func;
@@ -550,10 +571,52 @@ static int luatex_kpse_clua_find(lua_State * L)
         lua_pop(L, 1);
         return (orig_func) (L);
     }
-    filename = kpse_find_file(name, kpse_clua_format, false);
+    filename = luatex_kpse_find_aux(L, name, kpse_clua_format, "C");
     if (filename == NULL)
         return 1;               /* library not found in this path */
     return loader_C_luatex(L, name, filename);
+}
+
+/* two registry ref variables are needed: one for the actual lua 
+ *  function, the other for its environment .
+ */
+
+static int clua_loadall_function = 0;
+static int clua_loadall_env = 0;
+
+static int luatex_kpse_cluaall_find(lua_State * L)
+{
+    const char *filename;
+    const char *name;
+    char *fixedname;
+    const char *p = NULL;
+    if (safer_option) {
+        lua_pushliteral(L, "\n\t[All-in-one searcher disabled in safer mode]");
+        return 1;               /* library not found in this path */
+    }
+    name = luaL_checkstring(L, 1);
+    p = strchr(name, '.');
+    if (program_name_set == 0) {
+        lua_CFunction orig_func;
+        lua_rawgeti(L, LUA_REGISTRYINDEX, clua_loadall_function);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, clua_loadall_env);
+        lua_replace(L, LUA_ENVIRONINDEX);
+        orig_func = lua_tocfunction(L, -1);
+        lua_pop(L, 1);
+        return (orig_func) (L);
+    }
+    if (p == NULL) return 0;  /* is root */
+    fixedname = strndup(name, (size_t)(p - name));
+    if (fixedname) {
+	filename = luatex_kpse_find_aux(L, fixedname, kpse_clua_format, "All-in-one");
+	free(fixedname);
+	if (filename == NULL)
+	    return 1;               /* library not found in this path */
+	return loader_Call_luatex(L, name, filename);
+    } else { /* out of memory, give up */
+        fprintf(stderr, "fatal: memory exhausted (strndup).\n");
+        exit(EXIT_FAILURE);
+    }
 }
 
 /* Setting up the new search functions. 
@@ -577,6 +640,14 @@ static void setup_lua_path(lua_State * L)
     clua_loader_function = luaL_ref(L, LUA_REGISTRYINDEX);
     lua_pushcfunction(L, luatex_kpse_clua_find);
     lua_rawseti(L, -2, 3);      /* replace the normal lua lib loader */
+
+    lua_rawgeti(L, -1, 4);      /* package.loaders[4] */
+    lua_getfenv(L, -1);
+    clua_loadall_env = luaL_ref(L, LUA_REGISTRYINDEX);
+    clua_loadall_function = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_pushcfunction(L, luatex_kpse_cluaall_find);
+    lua_rawseti(L, -2, 4);      /* replace the normal lua lib loader */
+
     lua_pop(L, 2);              /* pop the array and table */
 }
 

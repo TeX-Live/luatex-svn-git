@@ -718,7 +718,7 @@ halfword copy_node(const halfword p)
 
 int valid_node(halfword p)
 {
-    if (p > my_prealloc) {
+    if (p >= my_prealloc) {
         if (p < var_mem_max) {
 #ifndef NDEBUG
             if (varmem_sizes[p] > 0)
