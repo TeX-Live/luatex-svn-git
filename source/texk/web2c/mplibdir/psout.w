@@ -3759,14 +3759,15 @@ boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr)
         /* start and close commands */
       case CS_SEAC: /* |- asb adx ady bchar achar SEAC |- */
         cs_debug(CS_SEAC);
-        { double adx, ady;
+        { double adx, ady, asb;
+          asb = cc_get (0);
           adx = cc_get (1);
           ady = cc_get (2);
           a1 = (integer)cc_get (3);
           a2 = (integer)cc_get (4);
           cc_clear ();
           (void)cs_parse(mp,f,standard_glyph_names[a1],0); /* base */
-          f->orig_x += adx;
+          f->orig_x += (adx - asb);
           f->orig_y += ady;
           (void)cs_parse(mp,f,standard_glyph_names[a2],0);
         }
@@ -3778,11 +3779,13 @@ boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr)
         break;
       case CS_HSBW:  /* |- sbx wx HSBW |- */
         cs_debug(CS_HSBW);
-        f->h = mp_xmalloc(mp, 1,sizeof(mp_edge_object));
-        f->h->body = NULL; f->h->next = NULL;
-        f->h->parent = mp;
-        f->h->filename = NULL;
-        f->h->minx = f->h->miny = f->h->maxx = f->h->maxy = 0;
+        if (!f->h) {
+          f->h = mp_xmalloc(mp, 1,sizeof(mp_edge_object));
+          f->h->body = NULL; f->h->next = NULL;
+          f->h->parent = mp;
+          f->h->filename = NULL;
+          f->h->minx = f->h->miny = f->h->maxx = f->h->maxy = 0;
+        }
         f->cur_x = cc_get(-2) + f->orig_x;
         f->cur_y = 0.0 + f->orig_y;
         f->orig_x = f->cur_x;
@@ -3791,11 +3794,13 @@ boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr)
         break;
       case CS_SBW: /* |- sbx sby wx wy SBW |- */
         cs_debug(CS_SBW);
-        f->h = mp_xmalloc(mp, 1,sizeof(mp_edge_object));
-        f->h->body = NULL; f->h->next = NULL;
-        f->h->parent = mp;
-        f->h->filename = NULL;
-        f->h->minx = f->h->miny = f->h->maxx = f->h->maxy = 0;
+        if (!f->h) {
+          f->h = mp_xmalloc(mp, 1,sizeof(mp_edge_object));
+          f->h->body = NULL; f->h->next = NULL;
+          f->h->parent = mp;
+          f->h->filename = NULL;
+          f->h->minx = f->h->miny = f->h->maxx = f->h->maxy = 0;
+        }
         f->cur_x = cc_get(-4) + f->orig_x;
         f->cur_y = cc_get(-3) + f->orig_y;
         f->orig_x = f->cur_x;
