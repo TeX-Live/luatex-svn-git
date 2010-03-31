@@ -1,23 +1,23 @@
+% dofont.w
+%
+%   Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+%
+%   This file is part of LuaTeX.
+%
+%   LuaTeX is free software; you can redistribute it and/or modify it under
+%   the terms of the GNU General Public License as published by the Free
+%   Software Foundation; either version 2 of the License, or (at your
+%   option) any later version.
+%
+%   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+%   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+%   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+%   License for more details.
+%
+%   You should have received a copy of the GNU General Public License along
+%   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
 @ @c
-/* dofont.c
-
-   Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 
 #include "lua/luatex-api.h"
@@ -26,8 +26,9 @@ static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
-/* a bit more interfacing is needed for proper error reporting */
+@ a bit more interfacing is needed for proper error reporting 
 
+@c
 static char *font_error_message(pointer u, char *nom, scaled s)
 {
     char *str = xmalloc(256);
@@ -66,7 +67,7 @@ static int do_define_font(int f, const char *cnom, scaled s, int natural_dir)
             if (lua_istable(Luas, -1)) {
                 res = font_from_lua(Luas, f);
                 destroy_saved_callback(callback_id);
-                /* lua_pop(Luas, 1); *//* done by font_from_lua */
+                /* |lua_pop(Luas, 1);| *//* done by |font_from_lua| */
             } else if (lua_isnumber(Luas, -1)) {
                 lua_number2int(r, lua_tonumber(Luas, -1));
                 destroy_saved_callback(callback_id);
@@ -130,10 +131,10 @@ int read_font_info(pointer u, char *cnom, scaled s, int natural_dir)
     }
 }
 
-/* TODO This function is a placeholder. There can easily appears holes in
+@ TODO This function is a placeholder. There can easily appears holes in
    the |font_tables| array, and we could attempt to reuse those
-*/
 
+@c
 int find_font_id(const char *nom, scaled s)
 {
     int f;

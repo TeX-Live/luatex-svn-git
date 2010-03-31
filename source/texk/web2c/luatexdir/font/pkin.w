@@ -1,59 +1,65 @@
-@ @c
-/* pkin.c
-   
-   Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
-   Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
+%   pkin.w
+%   
+%   Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
+%   Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
+%
+%   This file is part of LuaTeX.
+%
+%   LuaTeX is free software; you can redistribute it and/or modify it under
+%   the terms of the GNU General Public License as published by the Free
+%   Software Foundation; either version 2 of the License, or (at your
+%   option) any later version.
+%
+%   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+%   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+%   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+%   License for more details.
+%
+%   You should have received a copy of the GNU General Public License along
+%   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
-   This file is part of LuaTeX.
+@
+NAME
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+pkin.c - implementation of readchar()
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+DESCRIPTION
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+This implementation of readchar() uses parts of the program dvips
+written by Tomas Rokicki--the inventor of the pkformat--(loadfont.c,
+download.c and unpack.c). Dvips in turn is derived from pktype.
+Pktype(TeX) is described in debt in ``The PKtype processor'',
+which is available as pktype.weave as part of the METAFONTware.
+What was needed to implement readchar() is rearranged in pkfile.c to
+get more modularity in the style of MODULA2.
 
-/*
- * NAME
- * pkin.c - implementation of readchar()
- * DESCRIPTION
- * This implementation of readchar() uses parts of the program dvips
- * written by Tomas Rokicki--the inventor of the pkformat--(loadfont.c,
- * download.c and unpack.c). Dvips in turn is derived from pktype.
- * Pktype(TeX) is described in debt in ``The PKtype processor'',
- * which is available as pktype.weave as part of the METAFONTware.
- * What was needed to implement readchar() is rearranged in pkfile.c to
- * get more modularity in the style of MODULA2.
- * BUGFIXES
- *      May 1997: Eric Delaunay <delaunay@@lix.polytechnique.fr> reports a
- *      problem with huge fonts (greater than 1008 DPI). The code for
- *      handling PK characters in `extended format' was wrongly derived
- *      from dvips. Made some minor improvements regarding error handling.
- * REDESIGN
- * Piet Tutelaers
- * rcpt@@urc.tue.nl
- *
- *  Modified for use with pdftex by Han The Thanh <thanh@@fi.muni.cz>.
- */
+BUGFIXES
 
+May 1997: Eric Delaunay <delaunay@@lix.polytechnique.fr> reports a
+problem with huge fonts (greater than 1008 DPI). The code for
+handling PK characters in `extended format' was wrongly derived
+from dvips. Made some minor improvements regarding error handling.
+
+REDESIGN
+
+Piet Tutelaers <rcpt@@urc.tue.nl>
+
+Modified for use with pdftex by Han The Thanh <thanh@@fi.muni.cz>.
+
+@c
 #include "ptexlib.h"
 
 typedef short shalfword;
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$"
+    "$URL$";
 
-/*
- *   Now we have some routines to get stuff from the pk file.  pkbyte returns
- *   the next byte from the pk file.
- */
-
+@
+Now we have some routines to get stuff from the pk file.  pkbyte returns
+the next byte from the pk file.
+ 
+@c
 static shalfword pkbyte(void)
 {
     register shalfword i;
@@ -99,15 +105,14 @@ static int pkquad(void)
     return (i);
 }
 
-/*
- *   The next part is devoted to unpacking the character data.
- */
 
-/*
- *   We need procedures to get a nybble, bit, and packed word from the
- *   packed data structure.
- */
 
+@  The next part is devoted to unpacking the character data.
+
+@  We need procedures to get a nybble, bit, and packed word from the
+packed data structure.
+
+@c
 static halfword inputbyte, flagbyte;
 static halfword bitweight;
 static halfword dynf;
@@ -152,8 +157,8 @@ static halfword pkpackednum(void)
         } while (!(j != 0));
         if (i > 3) {
 /*
- *   Damn, we got a huge count!  We *fake* it by giving an artificially
- *   large repeat count.
+    Damn, we got a huge count!  We {\it fake} it by giving an artificially
+    large repeat count.
  */
             return (handlehuge(i, j));
         } else {
@@ -215,10 +220,10 @@ static halfword handlehuge(halfword i, halfword k)
     return (rest());
 }
 
-/*
- *   And now we have our unpacking routine.
- */
 
+@  And now we have our unpacking routine.
+
+@c
 static halfword gpower[17] = { 0, 1, 3, 7, 15, 31, 63, 127,
     255, 511, 1023, 2047, 4095, 8191, 16383, 32767, 65535
 };
@@ -320,19 +325,13 @@ static void unpack(chardesc * cd)
     }
 }
 
-/*
- *   readchar(): the main routine
- *   Reads the character definition of character `c' into `cd' if available,
- *   return FALSE (0) otherwise.
- */
+@
+|readchar()|: the main routine
+check pk preamble if necessary,
+Reads the character definition of character `c' into `cd' if available,
+return FALSE (0) otherwise.
 
-/*
- *   readchar(): the main routine
- *   check pk preamble if necessary,
- *   read the next character definition into `cd',
- *   return EOF if no character definition is available
- */
-
+@c
 int readchar(boolean check_preamble, chardesc * cd)
 {
     register shalfword i;
@@ -340,7 +339,7 @@ int readchar(boolean check_preamble, chardesc * cd)
     register int length = 0;
 
 /*
- *   Check the preamble of the pkfile
+    Check the preamble of the pkfile
  */
     if (check_preamble) {
         if (pkbyte() != 247)
@@ -355,7 +354,7 @@ int readchar(boolean check_preamble, chardesc * cd)
         k = pkquad();           /* vppp   */
     }
 /*
- *   Now we skip to the desired character definition
+    Now we skip to the desired character definition
  */
     while ((flagbyte = pkbyte()) != 245) {
         if (flagbyte < 240) {
