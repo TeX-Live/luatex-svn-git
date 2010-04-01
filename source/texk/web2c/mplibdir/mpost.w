@@ -1,4 +1,4 @@
-% $Id: mpost.w 1140 2010-01-21 15:14:30Z taco $
+% $Id: mpost.w 1219 2010-04-01 09:05:51Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -53,7 +53,6 @@ have our customary command-line interface.
 #include <process.h>
 #endif
 #include <kpathsea/kpathsea.h>
-extern KPSEDLL const char *kpathsea_version_string;
 @= /*@@null@@*/ @> static char *mpost_tex_program = NULL;
 static int debug = 0; /* debugging for makempx */
 static int nokpse = 0;
@@ -211,7 +210,7 @@ static string normalize_quotes (const char *name, const char *mesg) {
 @ Helpers for the filename recorder.
 
 @c
-void recorder_start(char *jobname) {
+static void recorder_start(char *jobname) {
     char cwd[1024];
     if (jobname==NULL) {
       recorder_name = mpost_xstrdup("mpout.fls");
@@ -298,7 +297,7 @@ static int mpost_run_make_mpx (MP mp, char *mpname, char *mpxname) {
         int nothingtodo = 0;       
         if ((stat(qmpxname, &target_stat) >= 0) &&
             (stat(qmpname, &source_stat) >= 0)) {
-#if HAVE_ST_MTIM
+#if HAVE_STRUCT_STAT_ST_MTIM
           if (source_stat.st_mtim.tv_sec <= target_stat.st_mtim.tv_sec || 
              (source_stat.st_mtim.tv_sec  == target_stat.st_mtim.tv_sec && 
               source_stat.st_mtim.tv_nsec <= target_stat.st_mtim.tv_nsec))
@@ -455,7 +454,7 @@ static int get_random_seed (void) {
 #if defined (HAVE_GETTIMEOFDAY)
   struct timeval tv;
   gettimeofday(&tv, NULL);
-  ret = (tv.tv_usec + 1000000 * tv.tv_usec);
+  ret = (int)(tv.tv_usec + 1000000 * tv.tv_usec);
 #elif defined (HAVE_FTIME)
   struct timeb tb;
   ftime(&tb);
@@ -498,7 +497,7 @@ static char *mpost_find_file(MP mp, const char *fname, const char *fmode, int ft
           printf("statting %s and %s\n", mpname, f);
           if ((stat(f, &target_stat) >= 0) &&
               (stat(mpname, &source_stat) >= 0)) {
-#if HAVE_ST_MTIM
+#if HAVE_STRUCT_STAT_ST_MTIM
             if (source_stat.st_mtim.tv_sec <= target_stat.st_mtim.tv_sec || 
                (source_stat.st_mtim.tv_sec  == target_stat.st_mtim.tv_sec && 
                 source_stat.st_mtim.tv_nsec <= target_stat.st_mtim.tv_nsec))
@@ -590,7 +589,7 @@ As a special hidden feature, a missing right hand side is treated as if it
 was the integer value |1|. 
 
 @c
-void internal_set_option(const char *opt) {
+static void internal_set_option(const char *opt) {
    struct set_list_item *itm;
    char *s, *v;
    int isstring = 0;
@@ -630,7 +629,7 @@ runs thourgh the list of options and feeds them to the MPlib
 function |mp_set_internal|.
 
 @c
-void run_set_list (MP mp) {
+static void run_set_list (MP mp) {
   struct set_list_item *itm;
   itm = set_list;
   while (itm!=NULL) {

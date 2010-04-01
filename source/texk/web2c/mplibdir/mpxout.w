@@ -1,4 +1,4 @@
-% $Id: mpxout.w 1211 2010-03-29 10:45:18Z taco $
+% $Id: mpxout.w 1219 2010-04-01 09:05:51Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -350,7 +350,7 @@ static int mpx_newer(char *source, char *target) {
 #if HAVE_SYS_STAT_H
     if (stat(target, &target_stat) < 0) return 0; /* true */
     if (stat(source, &source_stat) < 0) return 1; /* false */
-#if HAVE_ST_MTIM
+#if HAVE_STRUCT_STAT_ST_MTIM
     if (source_stat.st_mtim.tv_sec > target_stat.st_mtim.tv_sec || 
          (source_stat.st_mtim.tv_sec  == target_stat.st_mtim.tv_sec && 
           source_stat.st_mtim.tv_nsec >= target_stat.st_mtim.tv_nsec))

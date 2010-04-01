@@ -1,4 +1,4 @@
-% $Id: mp.w 1214 2010-03-29 12:48:32Z taco $
+% $Id: mp.w 1219 2010-04-01 09:05:51Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -89,13 +89,13 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 1.210" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version 1.211" /* printed when \MP\ starts */
 @d true 1
 @d false 0
 
 @(mpmp.h@>=
-#define metapost_version "1.210"
-#define metapost_magic (('M'*256) + 'P')*65536 + 1210
+#define metapost_version "1.211"
+#define metapost_magic (('M'*256) + 'P')*65536 + 1211
 #define metapost_old_magic (('M'*256) + 'P')*65536 + 1080
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
@@ -157,7 +157,8 @@ typedef struct MP_instance {
 #include "mpmp.h" /* internal header */
 #include "mppsout.h" /* internal header */
 #include "mpsvgout.h" /* internal header */
-extern font_number mp_read_font_info (MP mp, char *fname); /* tfmin.w */
+#include "mptfmin.h" /* internal header */
+#include "mpmemio.h" /* internal header */
 @h
 @<Declarations@>
 @<Basic printing procedures@>
@@ -700,11 +701,13 @@ static boolean mp_a_open_in (MP mp, void **f, int ftype) {
   OPEN_FILE("r");
 }
 @#
+#if 0
 boolean mp_w_open_in (MP mp, void **f) {
   /* open a word file for input */
   *f = (mp->open_file)(mp,mp->name_of_file,"r",mp_filetype_memfile); 
   return (*f ? true : false);
 }
+#endif
 @#
 static boolean mp_a_open_out (MP mp, void **f, int ftype) {
   /* open a text file for output */
@@ -3837,6 +3840,7 @@ what type it is; so we print it in all modes.
 @^debugging@>
 
 @c 
+#if 0
 void mp_print_word (MP mp,memory_word w) {
   /* prints |w| in all ways */
   mp_print_int(mp, w.cint); mp_print_char(mp, xord(' '));
@@ -3851,7 +3855,7 @@ void mp_print_word (MP mp,memory_word w) {
   mp_print_int(mp, w.qqqq.b2); mp_print_char(mp, xord(':')); 
   mp_print_int(mp, w.qqqq.b3);
 }
-
+#endif
 
 @* \[10] Dynamic memory allocation.
 
@@ -3918,7 +3922,9 @@ extern @= /*@@only@@*/ @> void *mp_xrealloc (MP mp, void *p, size_t nmem, size_t
 extern @= /*@@only@@*/ @> void *mp_xmalloc (MP mp, size_t nmem, size_t size) ;
 extern @= /*@@only@@*/ @> char *mp_xstrdup(MP mp, const char *s);
 extern @= /*@@only@@*/ @> char *mp_xstrldup(MP mp, const char *s, size_t l);
+#ifndef HAVE_SNPRINTF
 extern void mp_do_snprintf(char *str, int size, const char *fmt, ...);
+#endif
 
 @ The |max_size_test| guards against overflow, on the assumption that
 |size_t| is at least 31bits wide.
@@ -3994,6 +4000,7 @@ char *mp_xstrdup(MP mp, const char *s) {
 @ This internal version is rather stupid, but good enough for its purpose.
 
 @c
+#ifndef HAVE_SNPRINTF
 static char *mp_itoa (int i) {
   char res[32] ;
   unsigned idx = 30;
@@ -4129,6 +4136,7 @@ void mp_do_snprintf (char *str, int size, const char *format, ...) {
   *res = '\0';
   va_end(ap);
 }
+#endif
 
 @ 
 @<Allocate or initialize ...@>=
@@ -4504,7 +4512,8 @@ static void mp_reallocate_memory(MP mp, int l) {
 that are reserved now but were free the last time this procedure was called.
 
 @c 
-void mp_check_mem (MP mp,boolean print_locs ) {
+#if 0
+static void mp_check_mem (MP mp,boolean print_locs ) {
   pointer p,q,r; /* current locations of interest in |mem| */
   boolean clobbered; /* is something amiss? */
   for (p=0;p<=mp->lo_mem_max;p++) {
@@ -4525,6 +4534,7 @@ void mp_check_mem (MP mp,boolean print_locs ) {
   mp->was_lo_max=mp->lo_mem_max; 
   mp->was_hi_min=mp->hi_mem_min;
 }
+#endif
 
 @ @<Check single-word...@>=
 p=mp->avail; q=null; clobbered=false;
@@ -4626,6 +4636,7 @@ to rule out the places that do {\sl not\/} point to |p|, so a few false
 drops are tolerable.
 
 @c
+#if 0
 void mp_search_mem (MP mp, pointer p) { /* look for pointers to |p| */
   integer q; /* current position being searched */
   for (q=0;q<=mp->lo_mem_max;q++) { 
@@ -4646,6 +4657,7 @@ void mp_search_mem (MP mp, pointer p) { /* look for pointers to |p| */
   }
   @<Search |eqtb| for equivalents equal to |p|@>;
 }
+#endif
 
 @ Just before \.{INIMP} writes out the memory, it sorts the doubly linked
 available space list. The list is probably very short at such times, so a
@@ -22877,7 +22889,7 @@ if ( mp->start_sym>0 ) { /* insert the `\&{everyjob}' symbol */
 }
 
 @ @c
-int mp_execute (MP mp, char *s, size_t l) {
+int mp_execute (MP mp, const char *s, size_t l) {
   mp_reset_stream(&(mp->run_data.term_out));
   mp_reset_stream(&(mp->run_data.log_out));
   mp_reset_stream(&(mp->run_data.error_out));
@@ -22958,7 +22970,7 @@ char * mp_metapost_version (void) {
 
 @ @<Exported function headers@>=
 int mp_run (MP mp);
-int mp_execute (MP mp, char *s, size_t l);
+int mp_execute (MP mp, const char *s, size_t l);
 int mp_finish (MP mp);
 char * mp_metapost_version (void);
 
@@ -25718,7 +25730,7 @@ font_number mp_find_font (MP mp, char *f) {
 @ This is an interface function for getting the width of character,
 as a double in ps units
 
-@c double mp_get_char_dimension (MP mp, char *fname, int c, int t) {
+@c double mp_get_char_dimension (MP mp, const char *fname, int c, int t) {
   unsigned n;
   four_quarters cc;
   font_number f = 0;
@@ -25744,7 +25756,7 @@ as a double in ps units
 }
 
 @ @<Exported function ...@>=
-double mp_get_char_dimension (MP mp, char *fname, int n, int t);
+double mp_get_char_dimension (MP mp, const char *fname, int n, int t);
 
 
 @ One simple application of |find_font| is the implementation of the |font_size|
@@ -25884,7 +25896,9 @@ for (i = 1;i<= 9; i++ ) {
 
 @ The following function divides |s| by |m|. |dd| is number of decimal digits.
 
-@c scaled mp_divide_scaled (MP mp,scaled s, scaled m, integer  dd) {
+@c 
+#if 0
+scaled mp_divide_scaled (MP mp,scaled s, scaled m, integer  dd) {
   scaled q,r;
   integer sign,i;
   sign = 1;
@@ -25904,6 +25918,7 @@ for (i = 1;i<= 9; i++ ) {
   mp->scaled_out = sign*(s - (r / mp->ten_pow[dd]));
   return (sign*q);
 }
+#endif
 
 @* \[44] Shipping pictures out.
 The |ship_out| procedure, to be described below, is given a pointer to
@@ -26560,11 +26575,6 @@ mp->mem_ident=NULL;
 
 @ @<Initialize table entries...@>=
 mp->mem_ident=xstrdup(" (INIMP)");
-
-@ @<Declarations@>=
-extern void mp_store_mem_file (MP mp) ;
-extern boolean mp_load_mem_file (MP mp);
-extern int mp_undump_constants (MP mp);
 
 @ @<Dealloc variables@>=
 xfree(mp->mem_ident);

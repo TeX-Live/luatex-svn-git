@@ -73,6 +73,10 @@ static void swap_items (char *p,  int nitems,  size_t size);
 #define WORDS_BIGENDIAN
 #endif
 #endif
+#include "mpmemio.h" /* internal header */
+
+@ @(mpmemio.h@>=
+extern void mp_store_mem_file (MP mp);
 
 @ @c void mp_store_mem_file (MP mp) {
   integer k;  /* all-purpose index */
@@ -100,7 +104,10 @@ incompatible with the present \MP\ table sizes, etc.
   goto OFF_BASE;
   }
 
-@c 
+@(mpmemio.h@>=
+extern boolean mp_load_mem_file (MP mp);
+
+@ @c
 boolean mp_load_mem_file (MP mp) {
   integer k; /* all-purpose index */
   pointer p,q; /* all-purpose pointers */
@@ -212,7 +219,7 @@ read an integer value |x| that is supposed to be in the range |a<=x<=b|.
 @d mgeti(A) do {
   size_t wanted = sizeof(A);
   void *A_ptr = &A;
-  (mp->read_binary_file)(mp, mp->mem_file,&A_ptr,&wanted); 
+  (mp->read_binary_file)(mp, mp->mem_file,&A_ptr,&wanted);
   if (wanted!=sizeof(A)) goto OFF_BASE;
   swap_items(A_ptr,1,wanted); 
 } while (0)
@@ -264,6 +271,9 @@ strings to the string pool; therefore \.{INIMP} and \MP\ will have
 the same strings. (And it is, of course, a good thing that they do.)
 @.WEB@>
 @^string pool@>
+
+@(mpmemio.h@>=
+extern int mp_undump_constants (MP mp);
 
 @ @c
 int mp_undump_constants (MP mp) {

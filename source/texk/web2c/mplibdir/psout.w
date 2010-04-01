@@ -1,4 +1,4 @@
-% $Id: psout.w 1139 2010-01-21 14:35:21Z taco $
+% $Id: psout.w 1219 2010-04-01 09:05:51Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -1788,7 +1788,6 @@ static const char charstringname[] = "/CharStrings";
 @ @<Glob...@>=
 char **t1_glyph_names;
 char *t1_builtin_glyph_names[256];
-char charsetstr[0x4000];
 boolean read_encoding_only;
 int t1_encoding;
 
@@ -2901,7 +2900,7 @@ static void t1_subset_ascii_part (MP mp, font_number tex_font, fm_entry *fm_cur)
             if (is_used_char (i) && mp->ps->t1_glyph_names[i] != notdef &&
                                     strcmp(mp->ps->t1_glyph_names[i],notdef) != 0) {
                 j++;
-                mp_snprintf (mp->ps->t1_line_array, (int)mp->ps->t1_line_limit,
+                mp_snprintf (mp->ps->t1_line_array, mp->ps->t1_line_limit,
                              "dup %i /%s put\n", (int) t1_char (i),
                              mp->ps->t1_glyph_names[i]);
                 t1_puts(mp,mp->ps->t1_line_array);
@@ -3049,7 +3048,7 @@ static void t1_flush_cs (MP mp, boolean is_subr)
         *mp->ps->t1_line_ptr++ = *p++;
     while (mp_isdigit (*p))
         p++;
-    mp_snprintf (mp->ps->t1_line_ptr, (int)mp->ps->t1_line_limit, "%u", (unsigned)count);
+    mp_snprintf (mp->ps->t1_line_ptr, mp->ps->t1_line_limit, "%u", (unsigned)count);
     strcat (mp->ps->t1_line_ptr, p);
     mp->ps->t1_line_ptr = eol (mp->ps->t1_line_array);
     t1_putline (mp);
@@ -3073,10 +3072,10 @@ static void t1_flush_cs (MP mp, boolean is_subr)
     for (ptr = tab; ptr < end_tab; ptr++) {
         if (ptr->is_used) {
             if (is_subr)
-                mp_snprintf (mp->ps->t1_line_array, (int)mp->ps->t1_line_limit,
+                mp_snprintf (mp->ps->t1_line_array, mp->ps->t1_line_limit,
                              "dup %i %u", (int) (ptr - tab), ptr->cslen);
             else
-                mp_snprintf (mp->ps->t1_line_array, (int)mp->ps->t1_line_limit,
+                mp_snprintf (mp->ps->t1_line_array, mp->ps->t1_line_limit,
                              "/%s %u", ptr->glyph_name, ptr->cslen);
             p = strend (mp->ps->t1_line_array);
             memcpy (p, ptr->data, (size_t)ptr->len);
@@ -3085,14 +3084,14 @@ static void t1_flush_cs (MP mp, boolean is_subr)
         } else {
             /* replace unsused subr's by |return_cs| */
             if (is_subr) {
-                mp_snprintf (mp->ps->t1_line_array, (int)mp->ps->t1_line_limit,
+                mp_snprintf (mp->ps->t1_line_array, mp->ps->t1_line_limit,
                          "dup %i %u%s ", (int) (ptr - tab),
                          cs_len,  mp->ps->cs_token_pair[0]);
                 p = strend (mp->ps->t1_line_array);
                 memcpy (p, return_cs, (size_t)cs_len);
                 mp->ps->t1_line_ptr = p + cs_len;
                 t1_putline (mp);
-                mp_snprintf (mp->ps->t1_line_array, (int)mp->ps->t1_line_limit, 
+                mp_snprintf (mp->ps->t1_line_array, mp->ps->t1_line_limit, 
                            " %s",  mp->ps->cs_token_pair[1]);
                 mp->ps->t1_line_ptr = eol (mp->ps->t1_line_array);
                 t1_putline (mp);
@@ -3102,7 +3101,7 @@ static void t1_flush_cs (MP mp, boolean is_subr)
         if (ptr->glyph_name != notdef)
             mp_xfree (ptr->glyph_name);
     }
-    mp_snprintf (mp->ps->t1_line_array, (int)mp->ps->t1_line_limit, "%s", line_end);
+    mp_snprintf (mp->ps->t1_line_array, mp->ps->t1_line_limit, "%s", line_end);
     mp->ps->t1_line_ptr = eol (mp->ps->t1_line_array);
     t1_putline (mp);
     if (is_subr)
@@ -3581,7 +3580,7 @@ boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr);
 @d cs_debug(A) 
 
 @c 
-
+#if 0
 void cs_do_debug (MP mp, mp_ps_font *f, int i, char *s) {
    int n = cc_tab[i].nargs;
    (void)mp; /* for -Wall */
@@ -3592,6 +3591,7 @@ void cs_do_debug (MP mp, mp_ps_font *f, int i, char *s) {
    }
    fprintf (stdout,"%s\n", s);
 }
+#endif
 
 boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr)
 {
@@ -4008,7 +4008,7 @@ static char * mp_fm_font_subset_name (MP mp, font_number f) {
     if (fm != NULL && (fm->ps_name != NULL)) {
       if (is_subsetted(fm)) {
   	    char *s = mp_xmalloc(mp,strlen(fm->ps_name)+8,1);
-       	mp_snprintf(s,(int)strlen(fm->ps_name)+8,"%s-%s",fm->subset_tag,fm->ps_name);
+       	mp_snprintf(s, strlen(fm->ps_name)+8,"%s-%s",fm->subset_tag,fm->ps_name);
  	    return s;
       } else {
         return mp_xstrdup(mp,fm->ps_name);
@@ -4954,6 +4954,7 @@ All node types are assumed to be |endpoint| or |explicit| only.
 This function is currenly unused.
 
 @c 
+#if 0
 mp_knot * mp_gr_htap_ypoc (MP mp,  mp_knot *p) {
   mp_knot *q, *pp, *qq, *rr; /* for list manipulation */
   q=mp_xmalloc(mp, 1, sizeof (mp_knot)); /* this will correspond to |p| */
@@ -4979,6 +4980,7 @@ mp_knot * mp_gr_htap_ypoc (MP mp,  mp_knot *p) {
     pp=gr_next_knot(pp);
   }
 }
+#endif
 
 @ When a cyclic list of knot nodes is no longer needed, it can be recycled by
 calling the following subroutine.
