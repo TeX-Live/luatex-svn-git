@@ -105,6 +105,28 @@ libluatex_web += luatexdir/image/writejbig2.w luatexdir/image/writejpg.w luatexd
 
 nodist_libluatex_a_SOURCES += epdf.c writeimg.c writejbig2.c writejpg.c writepng.c 
 
+
+luatex_lua_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/lua $(ctangle)
+
+luagen.c: ctangle$(EXEEXT) luatexdir/lua/luagen.w
+	$(luatex_lua_ctangle) luagen.w
+luainit.c: ctangle$(EXEEXT) luatexdir/lua/luainit.w
+	$(luatex_lua_ctangle) luainit.w
+luanode.c: ctangle$(EXEEXT) luatexdir/lua/luanode.w
+	$(luatex_lua_ctangle) luanode.w
+luastuff.c: ctangle$(EXEEXT) luatexdir/lua/luastuff.w
+	$(luatex_lua_ctangle) luastuff.w
+luatoken.c: ctangle$(EXEEXT) luatexdir/lua/luatoken.w
+	$(luatex_lua_ctangle) luatoken.w
+texluac.c: ctangle$(EXEEXT) luatexdir/lua/texluac.w
+	$(luatex_lua_ctangle) texluac.w
+
+libluatex_web += luatexdir/lua/luagen.w luatexdir/lua/luainit.w luatexdir/lua/luanode.w 
+libluatex_web += luatexdir/lua/luastuff.w luatexdir/lua/luatoken.w luatexdir/lua/texluac.w
+
+nodist_libluatex_a_SOURCES += luagen.c luainit.c luanode.c luastuff.c luatoken.c texluac.c
+
+
 luatex_ocp_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/ocp $(ctangle)
 
 ocp.c: ctangle$(EXEEXT) luatexdir/ocp/ocp.w
@@ -527,15 +549,8 @@ libluatex_a_SOURCES = \
 	luatexdir/lua/ltexiolib.c \
 	luatexdir/lua/ltexlib.c \
 	luatexdir/lua/ltokenlib.c \
-	luatexdir/lua/luagen.c \
 	luatexdir/lua/luagen.h \
-	luatexdir/lua/luainit.c \
-	luatexdir/lua/luanode.c \
-	luatexdir/lua/luastuff.c \
-	luatexdir/lua/luatex.c \
 	luatexdir/lua/luatex-api.h \
-	luatexdir/lua/luatoken.c \
-	luatexdir/lua/texluac.c \
 	luatexdir/luatex.h \
 	luatexdir/ocp/ocp.h \
 	luatexdir/ocp/ocplist.h \

@@ -1,22 +1,23 @@
-/* luastuff.c
+% luastuff.w
 
-   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
@@ -24,36 +25,39 @@ static const char _svn_version[] =
 #include "lua/luatex-api.h"
 #include "ptexlib.h"
 
+@ @c
 lua_State *Luas = NULL;
 
 int luastate_bytes = 0;
 
 int lua_active = 0;
 
+@ @c
 void make_table(lua_State * L, const char *tab, const char *getfunc,
                 const char *setfunc)
 {
-    /* make the table *//* [{<tex>}] */
-    lua_pushstring(L, tab);     /* [{<tex>},"dimen"] */
-    lua_newtable(L);            /* [{<tex>},"dimen",{}] */
-    lua_settable(L, -3);        /* [{<tex>}] */
+    /* make the table *//* |[{<tex>}]| */
+    lua_pushstring(L, tab);     /* |[{<tex>},"dimen"]| */
+    lua_newtable(L);            /* |[{<tex>},"dimen",{}]| */
+    lua_settable(L, -3);        /* |[{<tex>}]| */
     /* fetch it back */
-    lua_pushstring(L, tab);     /* [{<tex>},"dimen"] */
-    lua_gettable(L, -2);        /* [{<tex>},{<dimen>}] */
+    lua_pushstring(L, tab);     /* |[{<tex>},"dimen"]| */
+    lua_gettable(L, -2);        /* |[{<tex>},{<dimen>}]| */
     /* make the meta entries */
-    luaL_newmetatable(L, tab);  /* [{<tex>},{<dimen>},{<dimen_m>}] */
-    lua_pushstring(L, "__index");       /* [{<tex>},{<dimen>},{<dimen_m>},"__index"] */
-    lua_pushstring(L, getfunc); /* [{<tex>},{<dimen>},{<dimen_m>},"__index","getdimen"] */
-    lua_gettable(L, -5);        /* [{<tex>},{<dimen>},{<dimen_m>},"__index",<tex.getdimen>]  */
-    lua_settable(L, -3);        /* [{<tex>},{<dimen>},{<dimen_m>}]  */
-    lua_pushstring(L, "__newindex");    /* [{<tex>},{<dimen>},{<dimen_m>},"__newindex"] */
-    lua_pushstring(L, setfunc); /* [{<tex>},{<dimen>},{<dimen_m>},"__newindex","setdimen"] */
-    lua_gettable(L, -5);        /* [{<tex>},{<dimen>},{<dimen_m>},"__newindex",<tex.setdimen>]  */
-    lua_settable(L, -3);        /* [{<tex>},{<dimen>},{<dimen_m>}]  */
-    lua_setmetatable(L, -2);    /* [{<tex>},{<dimen>}] : assign the metatable */
-    lua_pop(L, 1);              /* [{<tex>}] : clean the stack */
+    luaL_newmetatable(L, tab);  /* |[{<tex>},{<dimen>},{<dimen_m>}]| */
+    lua_pushstring(L, "__index");       /* |[{<tex>},{<dimen>},{<dimen_m>},"__index"]| */
+    lua_pushstring(L, getfunc); /* |[{<tex>},{<dimen>},{<dimen_m>},"__index","getdimen"]| */
+    lua_gettable(L, -5);        /* |[{<tex>},{<dimen>},{<dimen_m>},"__index",<tex.getdimen>]| */
+    lua_settable(L, -3);        /* |[{<tex>},{<dimen>},{<dimen_m>}]|  */
+    lua_pushstring(L, "__newindex");    /* |[{<tex>},{<dimen>},{<dimen_m>},"__newindex"]| */
+    lua_pushstring(L, setfunc); /* |[{<tex>},{<dimen>},{<dimen_m>},"__newindex","setdimen"]| */
+    lua_gettable(L, -5);        /* |[{<tex>},{<dimen>},{<dimen_m>},"__newindex",<tex.setdimen>]| */
+    lua_settable(L, -3);        /* |[{<tex>},{<dimen>},{<dimen_m>}]| */
+    lua_setmetatable(L, -2);    /* |[{<tex>},{<dimen>}]| : assign the metatable */
+    lua_pop(L, 1);              /* |[{<tex>}]| : clean the stack */
 }
 
+@ @c
 static
 const char *getS(lua_State * L, void *ud, size_t * size)
 {
@@ -66,6 +70,7 @@ const char *getS(lua_State * L, void *ud, size_t * size)
     return ls->s;
 }
 
+@ @c
 void *my_luaalloc(void *ud, void *ptr, size_t osize, size_t nsize)
 {
     void *ret = NULL;
@@ -78,6 +83,7 @@ void *my_luaalloc(void *ud, void *ptr, size_t osize, size_t nsize)
     return ret;
 }
 
+@ @c
 static int my_luapanic(lua_State * L)
 {
     (void) L;                   /* to avoid warnings */
@@ -86,6 +92,7 @@ static int my_luapanic(lua_State * L)
     return 0;
 }
 
+@ @c
 static const luaL_Reg lualibs[] = {
     {"", luaopen_base},
     {"package", luaopen_package},
@@ -105,6 +112,7 @@ static const luaL_Reg lualibs[] = {
 };
 
 
+@ @c
 static void do_openlibs(lua_State * L)
 {
     const luaL_Reg *lib = lualibs;
@@ -115,6 +123,7 @@ static void do_openlibs(lua_State * L)
     }
 }
 
+@ @c
 static int load_aux (lua_State *L, int status) {
   if (status == 0)  /* OK? */
     return 1;
@@ -125,6 +134,7 @@ static int load_aux (lua_State *L, int status) {
   }
 }
 
+@ @c
 static int luatex_loadfile (lua_State *L) {
   const char *fname = luaL_optstring(L, 1, NULL);
   if (!lua_only && !fname) {
@@ -139,6 +149,7 @@ static int luatex_loadfile (lua_State *L) {
   return load_aux(L, luaL_loadfile(L, fname));
 }
 
+@ @c
 static int luatex_dofile (lua_State *L) {
   const char *fname = luaL_optstring(L, 1, NULL);
   int n = lua_gettop(L);
@@ -157,6 +168,7 @@ static int luatex_dofile (lua_State *L) {
 }
 
 
+@ @c
 void luainterpreter(void)
 {
     lua_State *L;
@@ -180,9 +192,9 @@ void luainterpreter(void)
 
     /* luasockets */
     /* socket and mime are a bit tricky to open because
-     * they use a load-time  dependency that has to be
-     * worked around for luatex, where the C module is
-     * loaded way before the lua module.
+     they use a load-time  dependency that has to be
+     worked around for luatex, where the C module is
+     loaded way before the lua module.
      */
     if (!nosocket_option) {
         lua_getglobal(L, "package");
@@ -224,18 +236,18 @@ void luainterpreter(void)
     luaopen_lang(L);
     luaopen_mplib(L);
 
-    /* luaopen_pdf(L); */
-    /* environment table at LUA_ENVIRONINDEX needs to load this way: */
+    /* |luaopen_pdf(L);| */
+    /* environment table at |LUA_ENVIRONINDEX| needs to load this way: */
     lua_pushcfunction(L, luaopen_pdf);
     lua_pushstring(L, "pdf");
     lua_call(L, 1, 0);
 
-    /* luaopen_img(L); */
+    /* |luaopen_img(L);| */
     lua_pushcfunction(L, luaopen_img);
     lua_pushstring(L, "img");
     lua_call(L, 1, 0);
 
-    /* luaopen_epdf(L); */
+    /* |luaopen_epdf(L);| */
     lua_pushcfunction(L, luaopen_epdf);
     lua_pushstring(L, "epdf");
     lua_call(L, 1, 0);
@@ -265,6 +277,7 @@ void luainterpreter(void)
     Luas = L;
 }
 
+@ @c
 int hide_lua_table(lua_State * L, const char *name)
 {
     int r = 0;
@@ -277,6 +290,7 @@ int hide_lua_table(lua_State * L, const char *name)
     return r;
 }
 
+@ @c
 void unhide_lua_table(lua_State * L, const char *name, int r)
 {
     lua_rawgeti(L, LUA_REGISTRYINDEX, r);
@@ -284,6 +298,7 @@ void unhide_lua_table(lua_State * L, const char *name, int r)
     luaL_unref(L, LUA_REGISTRYINDEX, r);
 }
 
+@ @c
 int hide_lua_value(lua_State * L, const char *name, const char *item)
 {
     int r = 0;
@@ -297,6 +312,7 @@ int hide_lua_value(lua_State * L, const char *name, const char *item)
     return r;
 }
 
+@ @c
 void unhide_lua_value(lua_State * L, const char *name, const char *item, int r)
 {
     lua_getglobal(L, name);
@@ -308,6 +324,7 @@ void unhide_lua_value(lua_State * L, const char *name, const char *item, int r)
 }
 
 
+@ @c
 int lua_traceback(lua_State * L)
 {
     lua_getfield(L, LUA_GLOBALSINDEX, "debug");
@@ -326,8 +343,7 @@ int lua_traceback(lua_State * L)
     return 1;
 }
 
-/**********************************************************************/
-
+@ @c
 static void luacall(int p, int nameptr)
 {
     LoadS ls;
@@ -378,16 +394,16 @@ static void luacall(int p, int nameptr)
     lua_active--;
 }
 
+@ @c
 void late_lua(PDF pdf, halfword p)
 {
     (void) pdf;
-    expand_macros_in_tokenlist(p);      /* sets def_ref */
+    expand_macros_in_tokenlist(p);      /* sets |def_ref| */
     luacall(def_ref, late_lua_name(p));
     flush_list(def_ref);
 }
 
-/**********************************************************************/
-
+@ @c
 void luatokencall(int p, int nameptr)
 {
     LoadS ls;
@@ -433,6 +449,7 @@ void luatokencall(int p, int nameptr)
     lua_active--;
 }
 
+@ @c
 lua_State *luatex_error(lua_State * L, int is_fatal)
 {
 
@@ -446,7 +463,7 @@ lua_State *luatex_error(lua_State * L, int is_fatal)
     }
     if (is_fatal > 0) {
         /* Normally a memory error from lua.
-           The pool may overflow during the maketexlstring(), but we
+           The pool may overflow during the |maketexlstring()|, but we
            are crashing anyway so we may as well abort on the pool size */
         lua_fatal_error(err);
         /* never reached */
@@ -460,6 +477,7 @@ lua_State *luatex_error(lua_State * L, int is_fatal)
     }
 }
 
+@ @c
 void preset_environment(lua_State * L, const parm_struct * p)
 {
     int i;

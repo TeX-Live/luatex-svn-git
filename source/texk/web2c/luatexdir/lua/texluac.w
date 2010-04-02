@@ -1,31 +1,30 @@
-/* texlua.c
-
-* Copyright (C) 1994-2007 Lua.org, PUC-Rio.  All rights reserved.
+% texlua.w
+%
+% Copyright (C) 1994-2007 Lua.org, PUC-Rio.  All rights reserved.
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+%
+% Permission is hereby granted, free of charge, to any person obtaining
+% a copy of this software and associated documentation files (the
+% "Software"), to deal in the Software without restriction, including
+% without limitation the rights to use, copy, modify, merge, publish,
+% distribute, sublicense, and/or sell copies of the Software, and to
+% permit persons to whom the Software is furnished to do so, subject to
+% the following conditions:
 *
-* Permission is hereby granted, free of charge, to any person obtaining
-* a copy of this software and associated documentation files (the
-* "Software"), to deal in the Software without restriction, including
-* without limitation the rights to use, copy, modify, merge, publish,
-* distribute, sublicense, and/or sell copies of the Software, and to
-* permit persons to whom the Software is furnished to do so, subject to
-* the following conditions:
+% The above copyright notice and this permission notice shall be
+% included in all copies or substantial portions of the Software.
 *
-* The above copyright notice and this permission notice shall be
-* included in all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+% EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+% IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+% CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+% TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+% SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+% This file is part of LuaTeX.
 
-   This file is part of LuaTeX.
-*/
-
+@ @c
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,9 +44,11 @@
 #include "lua51/lstring.h"
 #include "lua51/lundump.h"
 
+@ @c
 static const char _svn_version[] =
     "$Id$ $URL$";
 
+@ @c
 #define PROGNAME        "texluac"       /* default program name */
 #define OUTPUT          PROGNAME ".out" /* default output file */
 
@@ -58,6 +59,7 @@ static char Output[] = { OUTPUT };      /* default output file name */
 static const char *output = Output;     /* actual output file name */
 static const char *progname = PROGNAME; /* actual program name */
 
+@ @c
 __attribute__ ((noreturn))
 static void fatal(const char *message)
 {
@@ -65,6 +67,7 @@ static void fatal(const char *message)
     exit(EXIT_FAILURE);
 }
 
+@ @c
 __attribute__ ((noreturn))
 static void cannot(const char *what)
 {
@@ -73,6 +76,7 @@ static void cannot(const char *what)
     exit(EXIT_FAILURE);
 }
 
+@ @c
 __attribute__ ((noreturn))
 static void usage(const char *message)
 {
@@ -93,6 +97,7 @@ static void usage(const char *message)
     exit(EXIT_FAILURE);
 }
 
+@ @c
 #define IS(s)   (strcmp(argv[i],s)==0)
 
 static int doargs(int argc, char *argv[])
@@ -142,6 +147,7 @@ static int doargs(int argc, char *argv[])
     return i;
 }
 
+@ @c
 #define toproto(L,i) (clvalue(L->top+(i))->l.p)
 
 static const Proto *combine(lua_State * L, int n)
@@ -171,17 +177,20 @@ static const Proto *combine(lua_State * L, int n)
     }
 }
 
+@ @c
 static int writer(lua_State * L, const void *p, size_t size, void *u)
 {
     UNUSED(L);
     return (fwrite(p, size, 1, (FILE *) u) != 1) && (size != 0);
 }
 
+@ @c
 struct Smain {
     int argc;
     char **argv;
 };
 
+@ @c
 static int pmain(lua_State * L)
 {
     struct Smain *s = (struct Smain *) lua_touserdata(L, 1);
@@ -212,6 +221,7 @@ static int pmain(lua_State * L)
     return 0;
 }
 
+@ @c
 int luac_main(int argc, char *argv[])
 {
     lua_State *L;

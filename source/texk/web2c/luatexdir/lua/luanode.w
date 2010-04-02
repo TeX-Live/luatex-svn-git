@@ -1,29 +1,32 @@
-/* luanode.c
-   
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+% luanode.w
+% 
+% Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
 #include "lua/luatex-api.h"
 #include "ptexlib.h"
 
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+"$URL$";
 
+@ @c
 static const char *group_code_names[] = {
     "",
     "simple",
@@ -53,6 +56,7 @@ static const char *group_code_names[] = {
 const char *pack_type_name[] = { "exactly", "additional" };
 
 
+@ @c
 void lua_node_filter_s(int filterid, const char *extrainfo)
 {
     lua_State *L = Luas;
@@ -75,6 +79,7 @@ void lua_node_filter_s(int filterid, const char *extrainfo)
     return;
 }
 
+@ @c
 void
 lua_node_filter(int filterid, int xextrainfo, halfword head_node,
                 halfword * tail_node)
@@ -122,6 +127,7 @@ lua_node_filter(int filterid, int xextrainfo, halfword head_node,
 }
 
 
+@ @c
 int
 lua_linebreak_callback(int is_broken, halfword head_node, halfword * new_head)
 {
@@ -157,6 +163,7 @@ lua_linebreak_callback(int is_broken, halfword head_node, halfword * new_head)
 
 
 
+@ @c
 halfword
 lua_hpack_filter(halfword head_node, scaled size, int pack_type, int extrainfo,
                  int pack_direction)
@@ -194,12 +201,15 @@ lua_hpack_filter(halfword head_node, scaled size, int pack_type, int extrainfo,
         ret = nodelist_from_lua(L);
     }
     lua_pop(L, 2);              /* result and callback container table */
-    /*  lua_gc(L,LUA_GCSTEP, LUA_GC_STEP_SIZE); */
+#if 0
+    lua_gc(L,LUA_GCSTEP, LUA_GC_STEP_SIZE);
+#endif
     if (fix_node_lists)
         fix_node_list(ret);
     return ret;
 }
 
+@ @c
 halfword
 lua_vpack_filter(halfword head_node, scaled size, int pack_type, scaled maxd,
                  int extrainfo, int pack_direction)
@@ -246,18 +256,20 @@ lua_vpack_filter(halfword head_node, scaled size, int pack_type, scaled maxd,
         ret = nodelist_from_lua(L);
     }
     lua_pop(L, 2);              /* result and callback container table */
-    /*  lua_gc(L,LUA_GCSTEP, LUA_GC_STEP_SIZE); */
+#if 0
+    lua_gc(L,LUA_GCSTEP, LUA_GC_STEP_SIZE);
+#endif
     if (fix_node_lists)
         fix_node_list(ret);
     return ret;
 }
 
 
-/* This is a quick hack to fix etex's \lastnodetype now that
- * there are many more visible node types. TODO: check the
- * eTeX manual for the expected return values.
- */
-
+@ This is a quick hack to fix etex's \.{\\lastnodetype} now that
+  there are many more visible node types. TODO: check the
+  eTeX manual for the expected return values.
+ 
+@c
 int visible_last_node_type(int n)
 {
     int i = type(n);
@@ -278,6 +290,7 @@ int visible_last_node_type(int n)
     }
 }
 
+@ @c
 void lua_pdf_literal(PDF pdf, int i)
 {
     const char *s = NULL;
@@ -291,10 +304,11 @@ void lua_pdf_literal(PDF pdf, int i)
             pdf_out(pdf, *s++);
         }
     }
-    pdf_out(pdf, 10);           /* pdf_print_nl */
+    pdf_out(pdf, 10);           /* |pdf_print_nl| */
     lua_pop(Luas, 1);
 }
 
+@ @c
 void copy_pdf_literal(pointer r, pointer p)
 {
     pdf_literal_type(r) = pdf_literal_type(p);
@@ -309,6 +323,7 @@ void copy_pdf_literal(pointer r, pointer p)
 }
 
 
+@ @c
 void free_pdf_literal(pointer p)
 {
     if (pdf_literal_type(p) == normal) {
@@ -318,6 +333,7 @@ void free_pdf_literal(pointer p)
     }
 }
 
+@ @c
 void show_pdf_literal(pointer p)
 {
     tprint_esc("pdfliteral");

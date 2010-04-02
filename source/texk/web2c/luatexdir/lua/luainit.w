@@ -1,22 +1,23 @@
-/* luainit.c
-   
-   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
+% luainit.w
+% 
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
 #include "openbsd-compat.h"
 #ifdef HAVE_ASPRINTF            /* asprintf is not defined in openbsd-compat.h, but in stdio.h */
 #  include <stdio.h>
@@ -29,23 +30,26 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-/* TH: TODO
- *
- * This file is getting a bit messy, but it is not simple to fix unilaterally.
- *
- * Better to wait until Karl has some time (after texlive 2008) so we can
- * synchronize with kpathsea. One problem, for instance, is that I would
- * like to resolve the full executable path.  kpse_set_program_name() does
- * that, indirectly (by setting SELFAUTOLOC in the environment), but it
- * does much more, making it hard to use for our purpose. 
- *
- * In fact, it sets three C variables:
- *   program_invocation_name  program_invocation_short_name  kpse->program_name
- * and four environment variables:
- *   SELFAUTOLOC  SELFAUTODIR  SELFAUTOPARENT  progname
- *
- */
+@ 
+TH: TODO
 
+This file is getting a bit messy, but it is not simple to fix unilaterally.
+
+Better to wait until Karl has some time (after texlive 2008) so we can
+synchronize with kpathsea. One problem, for instance, is that I would
+like to resolve the full executable path.  |kpse_set_program_name()| does
+that, indirectly (by setting SELFAUTOLOC in the environment), but it
+does much more, making it hard to use for our purpose. 
+
+In fact, it sets three C variables:
+
+  |program_invocation_name|  |program_invocation_short_name|  |kpse->program_name|
+
+and four environment variables:
+
+  SELFAUTOLOC  SELFAUTODIR  SELFAUTOPARENT  progname
+
+@c
 const_string LUATEX_IHELP[] = {
     "Usage: luatex --lua=FILE [OPTION]... [TEXNAME[.tex]] [COMMANDS]",
     "   or: luatex --lua=FILE [OPTION]... \\FIRST-LINE",
@@ -106,6 +110,7 @@ const_string LUATEX_IHELP[] = {
     NULL
 };
 
+@ @c
 char *ex_selfdir(char *argv0)
 {
 #if defined(WIN32)
@@ -125,6 +130,7 @@ char *ex_selfdir(char *argv0)
 #endif
 }
 
+@ @c
 static void
 prepare_cmdline(lua_State * L, char **argv, int argc, int zero_offset)
 {
@@ -145,6 +151,7 @@ prepare_cmdline(lua_State * L, char **argv, int argc, int zero_offset)
     return;
 }
 
+@ @c
 string input_name = NULL;
 
 static string user_progname = NULL;
@@ -156,11 +163,13 @@ int lua_offset = 0;
 int safer_option = 0;
 int nosocket_option = 0;
 
-/* Reading the options.  */
+@ Reading the options.  
 
-/* Test whether getopt found an option ``A''.
-   Assumes the option index is in the variable `option_index', and the
-   option table in a variable `long_options'.  */
+@ Test whether getopt found an option ``A''.
+Assumes the option index is in the variable |option_index|, and the
+option table in a variable |long_options|.  
+
+@c
 #define ARGUMENT_IS(a) STREQ (long_options[option_index].name, a)
 
 /* SunOS cc can't initialize automatic structs, so make this static.  */
@@ -208,6 +217,7 @@ static struct option long_options[]
 {0, 0, 0, 0}
 };
 
+@ @c
 static void parse_options(int argc, char **argv)
 {
     int g;                      /* `getopt' return code.  */
@@ -287,7 +297,7 @@ static void parse_options(int argc, char **argv)
             kpse_maketex_option(optarg, false);
 
         } else if (ARGUMENT_IS("interaction")) {
-            /* These numbers match @d's in *.ch */
+            /* These numbers match CPP defines */
             if (STREQ(optarg, "batchmode")) {
                 interactionoption = 0;
             } else if (STREQ(optarg, "nonstopmode")) {
@@ -346,7 +356,7 @@ static void parse_options(int argc, char **argv)
             uexit(0);
         }
     }
-    /* attempt to find dump_name */
+    /* attempt to find |dump_name| */
     if (argv[optind] && argv[optind][0] == '&') {
         dump_name = strdup(argv[optind] + 1);
     } else if (argv[optind] && argv[optind][0] != '\\') {
@@ -392,10 +402,12 @@ static void parse_options(int argc, char **argv)
     }
 }
 
-/* test for readability */
+@ test for readability 
+@c
 #define is_readable(a) (stat(a,&finfo)==0) && S_ISREG(finfo.st_mode) &&  \
   (f=fopen(a,"r")) != NULL && !fclose(f)
 
+@ @c
 static char *find_filename(char *name, const char *envkey)
 {
     struct stat finfo;
@@ -424,6 +436,7 @@ static char *find_filename(char *name, const char *envkey)
 }
 
 
+@ @c
 char *cleaned_invocation_name(char *arg)
 {
     char *ret, *dot;
@@ -436,6 +449,7 @@ char *cleaned_invocation_name(char *arg)
     return ret;
 }
 
+@ @c
 void init_kpse(void)
 {
 
@@ -465,6 +479,7 @@ void init_kpse(void)
     program_name_set = 1;
 }
 
+@ @c
 void fix_dumpname(void)
 {
     int dist;
@@ -476,16 +491,17 @@ void fix_dumpname(void)
         else
             TEX_format_default = concat(dump_name, DUMP_EXT);
     } else {
-        /* For dump_name to be NULL is a bug.  */
+        /* For |dump_name| to be NULL is a bug.  */
         if (!ini_version)
             abort();
     }
 }
 
-/* lua require patch */
+@ lua require patch
 
-/* Auxiliary function for kpse search */
+@ Auxiliary function for kpse search
 
+@c
 static const char *luatex_kpse_find_aux(lua_State *L, const char *name,
         kpse_file_format_type format, const char *errname)
 {
@@ -503,16 +519,16 @@ static const char *luatex_kpse_find_aux(lua_State *L, const char *name,
     return filename;
 }
 
-/* The lua search function.
- * When kpathsea is not initialized, then it runs the
- * normal lua function that is saved in the registry, otherwise
- * it uses kpathsea.
- */
+@ The lua search function.
+ 
+When kpathsea is not initialized, then it runs the
+normal lua function that is saved in the registry, otherwise
+it uses kpathsea.
 
-/* two registry ref variables are needed: one for the actual lua 
- *  function, the other for its environment .
- */
+two registry ref variables are needed: one for the actual lua 
+function, the other for its environment .
 
+@c
 static int lua_loader_function = 0;
 static int lua_loader_env = 0;
 
@@ -540,16 +556,7 @@ static int luatex_kpse_lua_find(lua_State * L)
     return 1;                   /* library loaded successfully */
 }
 
-/* The lua lib search function.
- * When kpathsea is not initialized, then it runs the
- * normal lua function that is saved in the registry, otherwise
- * it uses kpathsea.
- */
-
-/* two registry ref variables are needed: one for the actual lua 
- *  function, the other for its environment .
- */
-
+@ @c
 static int clua_loader_function = 0;
 static int clua_loader_env = 0;
 
@@ -577,10 +584,7 @@ static int luatex_kpse_clua_find(lua_State * L)
     return loader_C_luatex(L, name, filename);
 }
 
-/* two registry ref variables are needed: one for the actual lua 
- *  function, the other for its environment .
- */
-
+@ @c
 static int clua_loadall_function = 0;
 static int clua_loadall_env = 0;
 
@@ -616,10 +620,11 @@ static int luatex_kpse_cluaall_find(lua_State * L)
     return loader_Call_luatex(L, name, filename);
 }
 
-/* Setting up the new search functions. 
- * This replaces package.loaders[2] with the function defined above.
- */
+@ Setting up the new search functions. 
 
+ This replaces package.loaders[2] with the function defined above.
+
+@c
 static void setup_lua_path(lua_State * L)
 {
     lua_getglobal(L, "package");
@@ -648,7 +653,9 @@ static void setup_lua_path(lua_State * L)
     lua_pop(L, 2);              /* pop the array and table */
 }
 
-/* helper variables for the safe keeping of table ids */
+@ helper variables for the safe keeping of table ids
+
+@c
 int tex_table_id;
 int pdf_table_id;
 int token_table_id;
@@ -660,6 +667,7 @@ char **suffixlist;
 
 #  define EXE_SUFFIXES ".com;.exe;.bat;.cmd;.vbs;.vbe;.js;.jse;.wsf;.wsh;.ws;.tcl;.py;.pyw"
 
+@ @c
 static void mk_suffixlist(void)
 {
     char **p;
@@ -705,8 +713,9 @@ static void mk_suffixlist(void)
     *p = NULL;
     free(v);
 }
-#endif                          /* WIN32 || __MIBGW32__ || __CYGWIN__ */
+#endif
 
+@ @c
 void lua_initialize(int ac, char **av)
 {
 
@@ -744,17 +753,17 @@ void lua_initialize(int ac, char **av)
     }
 #if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
     mk_suffixlist();
-#endif                          /* WIN32 || __MIBGW32__ || __CYGWIN__ */
+#endif
 
     /* Must be initialized before options are parsed.  */
     interactionoption = 4;
     dump_name = NULL;
 
     /* 0 means "disable Synchronize TeXnology".
-     * synctexoption is a *.web variable.
-     * We initialize it to a weird value to catch the -synctex command line flag
-     * At runtime, if synctexoption is not INT_MAX, then it contains the command line option provided,
-     * otherwise no such option was given by the user. */
+     synctexoption is a *.web variable.
+     We initialize it to a weird value to catch the -synctex command line flag
+     At runtime, if synctexoption is not |INT_MAX|, then it contains the command line option provided,
+     otherwise no such option was given by the user. */
 #define SYNCTEX_NO_OPTION INT_MAX
     synctexoption = SYNCTEX_NO_OPTION;
 
@@ -820,7 +829,7 @@ void lua_initialize(int ac, char **av)
         unhide_lua_table(Luas, "token", token_table_id);
         unhide_lua_table(Luas, "node", node_table_id);
 
-        /* kpse_init */
+        /* |kpse_init| */
         kpse_init = -1;
         get_lua_boolean("texconfig", "kpse_init", &kpse_init);
 
@@ -828,19 +837,19 @@ void lua_initialize(int ac, char **av)
             luainit = 0;        /* re-enable loading of texmf.cnf values, see luatex.ch */
             init_kpse();
         }
-        /* prohibit_file_trace (boolean) */
+        /* |prohibit_file_trace| (boolean) */
         tracefilenames = 1;
         get_lua_boolean("texconfig", "trace_file_names", &tracefilenames);
 
-        /* file_line_error */
+        /* |file_line_error| */
         filelineerrorstylep = false;
         get_lua_boolean("texconfig", "file_line_error", &filelineerrorstylep);
 
-        /* halt_on_error */
+        /* |halt_on_error| */
         haltonerrorp = false;
         get_lua_boolean("texconfig", "halt_on_error", &haltonerrorp);
 
-        /* restrictedshell */
+        /* |restrictedshell| */
         v1 = NULL;
         get_lua_string("texconfig", "shell_escape", &v1);
         if (v1) {
@@ -881,6 +890,7 @@ void lua_initialize(int ac, char **av)
     }
 }
 
+@ @c
 void check_texconfig_init(void)
 {
     if (Luas != NULL) {
@@ -900,6 +910,7 @@ void check_texconfig_init(void)
     }
 }
 
+@ @c
 void write_svnversion(char *v)
 {
     char *a_head, *n;

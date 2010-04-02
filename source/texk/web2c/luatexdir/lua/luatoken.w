@@ -1,30 +1,31 @@
-/* luatoken.c
-   
-   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
+% luatoken.w
+% 
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
 #include "lua/luatex-api.h"
 #include "ptexlib.h"
 
-
-
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+"$URL$";
 
+@ @c
 command_item command_names[] = {
     {"relax", relax_cmd, NULL},
     {"left_brace", left_brace_cmd, NULL},
@@ -176,6 +177,7 @@ command_item command_names[] = {
 };
 
 
+@ @c
 int get_command_id(const char *s)
 {
     int i;
@@ -190,6 +192,7 @@ int get_command_id(const char *s)
     return cmd;
 }
 
+@ @c
 static int get_cur_cmd(lua_State * L)
 {
     int r = 0;
@@ -215,6 +218,7 @@ static int get_cur_cmd(lua_State * L)
 }
 
 
+@ @c
 static int token_from_lua(lua_State * L)
 {
     int cmd, chr;
@@ -239,6 +243,7 @@ static int token_from_lua(lua_State * L)
     return -1;
 }
 
+@ @c
 static int get_cur_cs(lua_State * L)
 {
     const char *s;
@@ -272,6 +277,7 @@ static int get_cur_cs(lua_State * L)
     return ret;
 }
 
+@ @c
 void tokenlist_to_lua(lua_State * L, int p)
 {
     int cmd, chr, cs;
@@ -300,7 +306,7 @@ void tokenlist_to_lua(lua_State * L, int p)
     }
 }
 
-
+@ @c
 void tokenlist_to_luastring(lua_State * L, int p)
 {
     int l;
@@ -310,6 +316,7 @@ void tokenlist_to_luastring(lua_State * L, int p)
 }
 
 
+@ @c
 int tokenlist_from_lua(lua_State * L)
 {
     const char *s;
@@ -352,6 +359,7 @@ int tokenlist_from_lua(lua_State * L)
     }
 }
 
+@ @c
 void do_get_token_lua(int callback_id)
 {
     lua_State *L = Luas;
