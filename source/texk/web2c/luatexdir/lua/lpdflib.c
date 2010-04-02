@@ -598,63 +598,63 @@ static int getpdf(lua_State * L)
     char *s;
     const char *st;
     int i, l;
-    if (lua_isstring(L, 2)) {
-        st = lua_tostring(L, 2);        /* changes stack contents (needed?) */
-        if (st) {               /* ... */
-            lua_pushvalue(L, 2);        /* st ... */
-            lua_gettable(L, LUA_ENVIRONINDEX);  /* i? ... */
-            if (lua_isnumber(L, -1)) {  /* i ... */
-                i = (int) lua_tointeger(L, -1); /* i ... */
-                lua_pop(L, 1);  /* ... */
-                switch (i) {
-                case P_PAGEATTRIBUTES:
-                    s = tokenlist_to_cstring(pdf_pageattributes_toks, true, &l);
-                    lua_pushlstring(L, s, (size_t) l);
-                    break;
-                case P_PAGERESOURCES:
-                    s = tokenlist_to_cstring(pdf_pageresources_toks, true, &l);
-                    lua_pushlstring(L, s, (size_t) l);
-                    break;
-                case P_PAGESATTRIBUTES:
-                    s = tokenlist_to_cstring(pdf_pagesattributes_toks, true,
-                                             &l);
-                    lua_pushlstring(L, s, (size_t) l);
-                    break;
-                case P_PDFCATALOG:
-                case P_CATALOG:
-                    s = tokenlist_to_cstring(pdf_catalog_toks, true, &l);
-                    lua_pushlstring(L, s, (size_t) l);
-                    break;
-                case P_PDFINFO:
-                case P_INFO:
-                    s = tokenlist_to_cstring(pdf_info_toks, true, &l);
-                    lua_pushlstring(L, s, (size_t) l);
-                    break;
-                case P_PDFNAMES:
-                case P_NAMES:
-                    s = tokenlist_to_cstring(pdf_names_toks, true, &l);
-                    lua_pushlstring(L, s, (size_t) l);
-                    break;
-                case P_PDFTRAILER:
-                case P_TRAILER:
-                    s = tokenlist_to_cstring(pdf_trailer_toks, true, &l);
-                    lua_pushlstring(L, s, (size_t) l);
-                    break;
-                case P_H:
-                    lua_pushnumber(L, static_pdf->posstruct->pos.h);
-                    break;
-                case P_V:
-                    lua_pushnumber(L, static_pdf->posstruct->pos.v);
-                    break;
-                default:
-                    lua_rawget(L, -2);
-                }
-            } else {
-                lua_pop(L, 1);  /* ... */
+    if (lua_isstring(L, 2) && (st = lua_tostring(L, 2)) != NULL) {
+        lua_pushvalue(L, 2);    /* st ... */
+        lua_gettable(L, LUA_ENVIRONINDEX);      /* i? ... */
+        if (lua_isnumber(L, -1)) {      /* i ... */
+            i = (int) lua_tointeger(L, -1);     /* i ... */
+            lua_pop(L, 1);      /* ... */
+            switch (i) {
+            case P_PAGEATTRIBUTES:
+                s = tokenlist_to_cstring(pdf_pageattributes_toks, true, &l);
+                lua_pushlstring(L, s, (size_t) l);
+                break;
+            case P_PAGERESOURCES:
+                s = tokenlist_to_cstring(pdf_pageresources_toks, true, &l);
+                lua_pushlstring(L, s, (size_t) l);
+                break;
+            case P_PAGESATTRIBUTES:
+                s = tokenlist_to_cstring(pdf_pagesattributes_toks, true, &l);
+                lua_pushlstring(L, s, (size_t) l);
+                break;
+            case P_PDFCATALOG:
+            case P_CATALOG:
+                s = tokenlist_to_cstring(pdf_catalog_toks, true, &l);
+                lua_pushlstring(L, s, (size_t) l);
+                break;
+            case P_PDFINFO:
+            case P_INFO:
+                s = tokenlist_to_cstring(pdf_info_toks, true, &l);
+                lua_pushlstring(L, s, (size_t) l);
+                break;
+            case P_PDFNAMES:
+            case P_NAMES:
+                s = tokenlist_to_cstring(pdf_names_toks, true, &l);
+                lua_pushlstring(L, s, (size_t) l);
+                break;
+            case P_PDFTRAILER:
+            case P_TRAILER:
+                s = tokenlist_to_cstring(pdf_trailer_toks, true, &l);
+                lua_pushlstring(L, s, (size_t) l);
+                break;
+            case P_H:
+                lua_pushnumber(L, static_pdf->posstruct->pos.h);
+                break;
+            case P_V:
+                lua_pushnumber(L, static_pdf->posstruct->pos.v);
+                break;
+            case P_PDFMAPFILE:
+            case P_MAPFILE:
+            case P_MAPLINE:
+            case P_PDFMAPLINE:
+                lua_pushnil(L);
+                break;
+            default:
                 lua_rawget(L, -2);
             }
         } else {
-            lua_pushnil(L);
+            lua_pop(L, 1);      /* ... */
+            lua_rawget(L, -2);
         }
     } else {
         lua_pushnil(L);
@@ -666,6 +666,7 @@ static int setpdf(lua_State * L)
 {
     int i;
     char *s;
+    const char *st;
     if (lua_gettop(L) != 3) {
         return 0;
     }
@@ -703,15 +704,19 @@ static int setpdf(lua_State * L)
             break;
         case P_PDFMAPLINE:
         case P_MAPLINE:
-            s = xstrdup(lua_tostring(L, -1));
-            process_map_item(s, MAPLINE);
-            free(s);
+            if (lua_isstring(L, -1) && (st = lua_tostring(L, -1)) != NULL) {
+                s = xstrdup(st);
+                process_map_item(s, MAPLINE);
+                free(s);
+            }
             break;
         case P_PDFMAPFILE:
         case P_MAPFILE:
-            s = xstrdup(lua_tostring(L, -1));
-            process_map_item(s, MAPFILE);
-            free(s);
+            if (lua_isstring(L, -1) && (st = lua_tostring(L, -1)) != NULL) {
+                s = xstrdup(st);
+                process_map_item(s, MAPFILE);
+                free(s);
+            }
             break;
         case P_H:
         case P_V:
