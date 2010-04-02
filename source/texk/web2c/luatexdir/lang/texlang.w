@@ -1,24 +1,23 @@
+% texlang.w
+% 
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* texlang.c
-   
-   Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
-
 #include "ptexlib.h"
 
 #include <string.h>
@@ -27,8 +26,13 @@
 
 
 static const char _svn_version[] =
-    "$Id$ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lang/texlang.c $";
+    "$Id$ "
+"$URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lang/texlang.c $";
 
+
+@ Low-level helpers 
+
+@c
 static char *uni2string(char *utf8_text, unsigned ch)
 {
     /* Increment and deposit character */
@@ -96,7 +100,7 @@ static void utf82u_strcpy(unsigned int *ubuf, const char *utf8buf)
     *upt = '\0';
 }
 
-
+@ @c
 #define noVERBOSE
 
 #define MAX_TEX_LANGUAGES  32768
@@ -148,6 +152,7 @@ struct tex_language *get_language(int n)
     }
 }
 
+@ @c
 void set_pre_hyphen_char(int n, int v)
 {
     struct tex_language *l = get_language((int) n);
@@ -176,7 +181,6 @@ void set_post_exhyphen_char(int n, int v)
     if (l != NULL)
         l->post_exhyphen_char = (int) v;
 }
-
 
 
 int get_pre_hyphen_char(int n)
@@ -212,6 +216,7 @@ int get_post_exhyphen_char(int n)
     return (int) l->post_exhyphen_char;
 }
 
+@ @c
 void load_patterns(struct tex_language *lang, const unsigned char *buffer)
 {
     if (lang == NULL || buffer == NULL || strlen((const char *) buffer) == 0)
@@ -238,6 +243,7 @@ void load_tex_patterns(int curlang, halfword head)
 }
 
 
+@ @c
 #define STORE_CHAR(x) do {                          \
         word[w] = (unsigned char)x;                 \
         if (w<MAX_WORD_LEN) w++;                    \
@@ -301,6 +307,7 @@ const char *clean_hyphenation(const char *buffer, char **cleaned)
     return s;
 }
 
+@ @c
 void load_hyphenation(struct tex_language *lang, const unsigned char *buffer)
 {
     const char *s;
@@ -355,10 +362,11 @@ void load_tex_hyphenation(int curlang, halfword head)
     load_hyphenation(get_language(curlang), (unsigned char *) s);
 }
 
-/* TODO: clean this up. The delete_attribute_ref() statements are not very 
+@ TODO: clean this up. The |delete_attribute_ref()| statements are not very 
    nice, but needed. Also, in the post-break, it would be nicer to get the 
-   attribute list from vlink(n). No rush, as it is currently not used much. */
+   attribute list from |vlink(n)|. No rush, as it is currently not used much. 
 
+@c
 halfword insert_discretionary(halfword t, halfword pre, halfword post,
                               halfword replace)
 {
@@ -458,6 +466,7 @@ halfword insert_word_discretionary(halfword t, lang_variables * lan)
     return insert_discretionary(t, pre, pos, null);
 }
 
+@ @c
 halfword compound_word_break(halfword t, int clang)
 {
     int disc;
@@ -490,7 +499,7 @@ halfword insert_character(halfword t, int c)
     return p;
 }
 
-
+@ @c
 void set_disc_field(halfword f, halfword t)
 {
     if (t != null) {
@@ -504,6 +513,7 @@ void set_disc_field(halfword f, halfword t)
 
 
 
+@ @c
 char *hyphenation_exception(int exceptions, char *w)
 {
     char *ret = NULL;
@@ -524,6 +534,7 @@ char *hyphenation_exception(int exceptions, char *w)
 }
 
 
+@ @c
 char *exception_strings(struct tex_language *lang)
 {
     const char *value;
@@ -557,14 +568,15 @@ char *exception_strings(struct tex_language *lang)
 }
 
 
-/* the sequence from |wordstart| to |r| can contain only normal characters */
-/* it could be faster to modify a halfword pointer and return an integer */
+@ the sequence from |wordstart| to |r| can contain only normal characters 
+it could be faster to modify a halfword pointer and return an integer 
 
+@c
 halfword find_exception_part(unsigned int *j, unsigned int *uword, int len)
 {
     halfword g = null, gg = null;
     register unsigned i = *j;
-    i++;                        /* this puts uword[i] on the '{' */
+    i++;                        /* this puts uword[i] on the |{| */
     while (i < (unsigned) len && uword[i + 1] != '}') {
         if (g == null) {
             gg = new_char(0, (int) uword[i + 1]);
@@ -584,7 +596,7 @@ int count_exception_part(unsigned int *j, unsigned int *uword, int len)
 {
     int ret = 0;
     register unsigned i = *j;
-    i++;                        /* this puts uword[i] on the '{' */
+    i++;                        /* this puts uword[i] on the |{| */
     while (i < (unsigned) len && uword[i + 1] != '}') {
         ret++;
         i++;
@@ -594,6 +606,7 @@ int count_exception_part(unsigned int *j, unsigned int *uword, int len)
 }
 
 
+@ @c
 static const char *PAT_ERROR[] = {
     "Exception discretionaries should contain three pairs of braced items.",
     "No intervening spaces are allowed.",
@@ -666,7 +679,7 @@ void do_exception(halfword wordstart, halfword r, char *replacement)
     }
 }
 
-/* This is a documentation section from the pascal web file. It is not 
+@ This is a documentation section from the pascal web file. It is not 
 true any more, but I do not have time right now to rewrite it -- Taco
 
 When the line-breaking routine is unable to find a feasible sequence of
@@ -729,14 +742,13 @@ When a word been set up to contain a candidate for hyphenation,
 hyphens are inserted based on patterns that appear within the given word,
 using an algorithm due to Frank~M. Liang.
 @^Liang, Franklin Mark@>
-*/
 
-/* 
- * This is incompatible with TEX because the first word of a paragraph
- * can be hyphenated, but most european users seem to agree that
- * prohibiting hyphenation there was not the best idea ever.
- */
 
+@ This is incompatible with TEX because the first word of a paragraph
+can be hyphenated, but most european users seem to agree that
+prohibiting hyphenation there was not the best idea ever.
+
+@c
 halfword find_next_wordstart(halfword r)
 {
     register int l;
@@ -777,6 +789,7 @@ halfword find_next_wordstart(halfword r)
     return r;
 }
 
+@ @c
 int valid_wordend(halfword s)
 {
     register halfword r = s;
@@ -799,6 +812,7 @@ int valid_wordend(halfword s)
     return 0;
 }
 
+@ @c
 void hnj_hyphenation(halfword head, halfword tail)
 {
     int lchar, i;
@@ -812,17 +826,17 @@ void hnj_hyphenation(halfword head, halfword tail)
         null, right = null;
 
     /* this first movement assures two things: 
-     * a) that we won't waste lots of time on something that has been
-     * handled already (in that case, none of the glyphs match |simple_character|).  
-     * b) that the first word can be hyphenated. if the movement was
-     * not explicit, then the indentation at the start of a paragraph
-     * list would make find_next_wordstart() look too far ahead.
+     \item{a)} that we won't waste lots of time on something that has been
+      handled already (in that case, none of the glyphs match |simple_character|).  
+     \item{b)} that the first word can be hyphenated. if the movement was
+     not explicit, then the indentation at the start of a paragraph
+     list would make |find_next_wordstart()| look too far ahead.
      */
 
     while (r != null && (type(r) != glyph_node || !is_simple_character(r))) {
         r = vlink(r);
     }
-    /* this will make |r| a glyph node with subtype_character */
+    /* this will make |r| a glyph node with subtype character */
     r = find_next_wordstart(r);
     if (r == null)
         return;
@@ -905,12 +919,13 @@ void hnj_hyphenation(halfword head, halfword tail)
 }
 
 
+@ @c
 void new_hyphenation(halfword head, halfword tail)
 {
     register int callback_id = 0;
     if (head == null || vlink(head) == null)
         return;
-    fix_node_list(head);        /* TODO: use couple_nodes() in append_tail()! */
+    fix_node_list(head);
     callback_id = callback_defined(hyphenate_callback);
     if (callback_id > 0) {
         lua_State *L = Luas;
@@ -932,8 +947,9 @@ void new_hyphenation(halfword head, halfword tail)
     }
 }
 
-/* dumping and undumping fonts */
+@ dumping and undumping languages
 
+@c
 #define dump_string(a)                          \
   if (a!=NULL) {                                \
       x = (int)strlen(a)+1;                     \
@@ -1032,11 +1048,11 @@ void undump_language_data(void)
     }
 }
 
-/*
-When \TeX\ has scanned `\.{\\hyphenation}', it calls on a procedure named
-|new_hyph_exceptions| to do the right thing.
-*/
 
+@ When \TeX\ has scanned `\.{\\hyphenation}', it calls on a procedure named
+|new_hyph_exceptions| to do the right thing.
+
+@c
 void new_hyph_exceptions(void)
 {                               /* enters new exceptions */
     (void) scan_toks(false, true);
@@ -1044,11 +1060,10 @@ void new_hyph_exceptions(void)
     flush_list(def_ref);
 }
 
-/*
-Similarly, when \TeX\ has scanned `\.{\\patterns}', it calls on a
+@ Similarly, when \TeX\ has scanned `\.{\\patterns}', it calls on a
 procedure named |new_patterns|.
-*/
 
+@c
 void new_patterns(void)
 {                               /* initializes the hyphenation pattern data */
     (void) scan_toks(false, true);
@@ -1056,12 +1071,11 @@ void new_patterns(void)
     flush_list(def_ref);
 }
 
-/*
-`\.{\\prehyphenchar}', sets the |pre_break| character, and
+@ `\.{\\prehyphenchar}', sets the |pre_break| character, and
 `\.{\\posthyphenchar}' the |post_break| character. Their respective
 defaults are ascii hyphen ("-") and zero (nul).
-*/
 
+@c
 void new_pre_hyphen_char(void)
 {
     scan_optional_equals();
@@ -1076,12 +1090,12 @@ void new_post_hyphen_char(void)
     set_post_hyphen_char(int_par(language_code), cur_val);
 }
 
-/*
-`\.{\\preexhyphenchar}', sets the |pre_break| character, and
+
+@ `\.{\\preexhyphenchar}', sets the |pre_break| character, and
 `\.{\\postexhyphenchar}' the |post_break| character. Their
 defaults are both zero (nul).
-*/
 
+@c
 void new_pre_exhyphen_char(void)
 {
     scan_optional_equals();
