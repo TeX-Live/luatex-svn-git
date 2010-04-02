@@ -1,28 +1,32 @@
-/* managed-sa.c
-   
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+% managed-sa.w
+% 
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@* Sparse arrays with an embedded save stack.
 
+@ @c
 #include "ptexlib.h"
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+"$URL$";
 
+@ @c
 static void store_sa_stack(sa_tree a, int n, sa_tree_item v, int gl)
 {
     sa_stack_item st;
@@ -39,6 +43,7 @@ static void store_sa_stack(sa_tree a, int n, sa_tree_item v, int gl)
     a->stack[a->stack_ptr] = st;
 }
 
+@ @c
 static void skip_in_stack(sa_tree a, int n)
 {
     int p = a->stack_ptr;
@@ -52,6 +57,7 @@ static void skip_in_stack(sa_tree a, int n)
     }
 }
 
+@ @c
 sa_tree_item get_sa_item(const sa_tree head, const int n)
 {
     register int h;
@@ -68,6 +74,7 @@ sa_tree_item get_sa_item(const sa_tree head, const int n)
     return head->dflt;
 }
 
+@ @c
 void set_sa_item(sa_tree head, int n, sa_tree_item v, int gl)
 {
     int h, m, l;
@@ -98,11 +105,13 @@ void set_sa_item(sa_tree head, int n, sa_tree_item v, int gl)
     head->tree[h][m][l] = v;
 }
 
+@ @c
 void rawset_sa_item(sa_tree head, int n, sa_tree_item v)
 {
     head->tree[HIGHPART_PART(n)][MIDPART_PART(n)][LOWPART_PART(n)] = v;
 }
 
+@ @c
 void clear_sa_stack(sa_tree a)
 {
     xfree(a->stack);
@@ -110,6 +119,7 @@ void clear_sa_stack(sa_tree a)
     a->stack_size = a->stack_step;
 }
 
+@ @c
 void destroy_sa_tree(sa_tree a)
 {
     int h, m;
@@ -130,6 +140,7 @@ void destroy_sa_tree(sa_tree a)
     xfree(a);
 }
 
+@ @c
 sa_tree copy_sa_tree(sa_tree b)
 {
     int h, m;
@@ -158,13 +169,13 @@ sa_tree copy_sa_tree(sa_tree b)
     return a;
 }
 
-/* The main reason to fill in the lowest entry branches here immediately
+@ The main reason to fill in the lowest entry branches here immediately
 is that most of the sparse arrays have a bias toward ASCII values. 
 
 Allocating those here immediately improves the chance of the structure
 |a->tree[0][0][x]| being close together in actual memory locations 
-*/
 
+@c
 sa_tree new_sa_tree(int size, sa_tree_item dflt)
 {
     sa_tree_head *a;
@@ -179,6 +190,7 @@ sa_tree new_sa_tree(int size, sa_tree_item dflt)
     return (sa_tree) a;
 }
 
+@ @c
 void restore_sa_stack(sa_tree head, int gl)
 {
     sa_stack_item st;
@@ -194,6 +206,7 @@ void restore_sa_stack(sa_tree head, int gl)
 }
 
 
+@ @c
 void dump_sa_tree(sa_tree a)
 {
     boolean f;
@@ -232,7 +245,7 @@ void dump_sa_tree(sa_tree a)
     }
 }
 
-
+@ @c
 sa_tree undump_sa_tree(void)
 {
     int x;

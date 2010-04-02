@@ -459,6 +459,18 @@ nodist_libluatex_a_SOURCES += textoken.c
 libluatex_web += luatexdir/tex/textoken.w
 
 
+luatex_utils_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/utils $(ctangle)
+
+utils.c: ctangle$(EXEEXT) luatexdir/utils/utils.w
+	$(luatex_utils_ctangle) utils.w
+managed-sa.c: ctangle$(EXEEXT) luatexdir/utils/managed-sa.w
+	$(luatex_utils_ctangle) managed-sa.w
+avlstuff.c: ctangle$(EXEEXT) luatexdir/utils/avlstuff.w
+	$(luatex_utils_ctangle) avlstuff.w
+
+libluatex_web += luatexdir/utils/utils.w luatexdir/utils/avlstuff.w luatexdir/utils/managed-sa.w
+
+nodist_libluatex_a_SOURCES += utils.c avlstuff.c managed-sa.c
 
 
 libluatex_a_SOURCES = \
@@ -573,13 +585,10 @@ libluatex_a_SOURCES = \
 	luatexdir/tex/textcodes.h \
 	luatexdir/utils/avl.c \
 	luatexdir/utils/avl.h \
-	luatexdir/utils/avlstuff.c \
 	luatexdir/utils/avlstuff.h \
-	luatexdir/utils/managed-sa.c \
 	luatexdir/utils/managed-sa.h \
 	luatexdir/utils/synctex.h \
 	luatexdir/utils/synctex.c \
-	luatexdir/utils/utils.c \
 	luatexdir/utils/utils.h \
 	$(nodist_libluatex_a_SOURCES) \
 	mplibdir/lmplib.c

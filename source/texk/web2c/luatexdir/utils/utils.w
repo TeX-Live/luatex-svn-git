@@ -1,26 +1,32 @@
-/* utils.c
+% utils.w
 
-   Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+% Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
+static const char _svn_version[] =
+    "$Id$ "
+    "$URL$";
+
+@ @c
 #include "openbsd-compat.h"
 #include <kpathsea/config.h> /* this is a trick to load mingw32's io.h early,
-				using a macro redefinition of eof(). */
+				using a macro redefinition of |eof()|. */
 #ifdef HAVE_ASPRINTF            /* asprintf is not defined in openbsd-compat.h, but in stdio.h */
 #  include <stdio.h>
 #endif
@@ -35,7 +41,7 @@
 #include <kpathsea/c-fopen.h>
 #include <string.h>
 #include <time.h>
-#include <float.h>              /* for DBL_EPSILON */
+#include <float.h>              /* for |DBL_EPSILON| */
 #include "zlib.h"
 #include "ptexlib.h"
 #include "md5.h"
@@ -52,10 +58,7 @@
 #  include "xpdf/config.h"      /* just to get the xpdf version */
 #endif
 
-static const char _svn_version[] =
-    "$Id$ "
-    "$URL$";
-
+@ @c
 #define check_nprintf(size_get, size_want) \
     if ((unsigned)(size_get) >= (unsigned)(size_want)) \
         pdftex_fail ("snprintf failed: file %s, line %d", __FILE__, __LINE__);
@@ -65,10 +68,11 @@ static char print_buf[PRINTF_BUF_SIZE];
 int epochseconds;
 int microseconds;
 
-/* define char_ptr, char_array & char_limit */
+/* define |char_ptr|, |char_array|, and |char_limit| */
 typedef char char_entry;
 define_array(char);
 
+@ @c
 #define SUBSET_TAG_LENGTH 6
 void make_subset_tag(fd_entry * fd)
 {
@@ -90,7 +94,7 @@ void make_subset_tag(fd_entry * fd)
     do {
         md5_init(&pms);
         avl_t_init(&t, fd->gl_tree);
-        if (is_cidkeyed(fd->fm)) {      /* glw_entry items */
+        if (is_cidkeyed(fd->fm)) {      /* |glw_entry| items */
             for (glw_glyph = (glw_entry *) avl_t_first(&t, fd->gl_tree);
                  glw_glyph != NULL; glw_glyph = (glw_entry *) avl_t_next(&t)) {
                 glyph = malloc(24);
@@ -128,6 +132,7 @@ void make_subset_tag(fd_entry * fd)
              j);
 }
 
+@ @c
 __attribute__ ((format(printf, 1, 2)))
 void tex_printf(const char *fmt, ...)
 {
@@ -139,14 +144,15 @@ void tex_printf(const char *fmt, ...)
     va_end(args);
 }
 
-/* pdftex_fail may be called when a buffer overflow has happened/is
+@ |pdftex_fail| may be called when a buffer overflow has happened/is
    happening, therefore may not call mktexstring.  However, with the
    current implementation it appears that error messages are misleading,
    possibly because pool overflows are detected too late.
 
-   The output format of this fuction must be the same as pdf_error in
-   pdftex.web! */
+   The output format of this fuction must be the same as |pdf_error| in
+   pdftex.web! 
 
+@c
 __attribute__ ((noreturn, format(printf, 1, 2)))
 void pdftex_fail(const char *fmt, ...)
 {
@@ -174,9 +180,9 @@ void pdftex_fail(const char *fmt, ...)
     }
 }
 
-/* The output format of this fuction must be the same as pdf_warn in
-   pdftex.web! */
-
+@ The output format of this fuction must be the same as |pdf_warn| in
+   pdftex.web!
+@c
 __attribute__ ((format(printf, 1, 2)))
 void pdftex_warn(const char *fmt, ...)
 {
@@ -193,14 +199,17 @@ void pdftex_warn(const char *fmt, ...)
     print_ln();
 }
 
+@ @c
 void garbage_warning(void)
 {
     pdftex_warn("dangling objects discarded, no output file produced.");
     remove_pdffile(static_pdf);
 }
 
+@ @c
 char *pdftex_banner = NULL;
 
+@ @c
 void make_pdftex_banner(void)
 {
     char *s;
@@ -222,6 +231,7 @@ void make_pdftex_banner(void)
     pdftex_banner = s;
 }
 
+@ @c
 size_t xfwrite(void *ptr, size_t size, size_t nmemb, FILE * stream)
 {
     if (fwrite(ptr, size, nmemb, stream) != nmemb)
@@ -229,6 +239,7 @@ size_t xfwrite(void *ptr, size_t size, size_t nmemb, FILE * stream)
     return nmemb;
 }
 
+@ @c
 int xfflush(FILE * stream)
 {
     if (fflush(stream) != 0)
@@ -236,6 +247,7 @@ int xfflush(FILE * stream)
     return 0;
 }
 
+@ @c
 int xgetc(FILE * stream)
 {
     int c = getc(stream);
@@ -244,6 +256,7 @@ int xgetc(FILE * stream)
     return c;
 }
 
+@ @c
 int xputc(int c, FILE * stream)
 {
     int i = putc(c, stream);
@@ -252,6 +265,7 @@ int xputc(int c, FILE * stream)
     return i;
 }
 
+@ @c
 scaled ext_xn_over_d(scaled x, scaled n, scaled d)
 {
     double r = (((double) x) * ((double) n)) / ((double) d);
@@ -264,8 +278,9 @@ scaled ext_xn_over_d(scaled x, scaled n, scaled d)
     return (scaled) r;
 }
 
-/* function strips trailing zeros in string with numbers; */
-/* leading zeros are not stripped (as in real life) */
+@ function strips trailing zeros in string with numbers; 
+leading zeros are not stripped (as in real life) 
+@c
 char *stripzeros(char *a)
 {
     enum { NONUM, DOTNONUM, INT, DOT, LEADDOT, FRAC } s = NONUM, t = NONUM;
@@ -333,6 +348,7 @@ char *stripzeros(char *a)
     return a;
 }
 
+@ @c
 void initversionstring(char **versions)
 {
     (void) asprintf(versions,
@@ -343,6 +359,7 @@ void initversionstring(char **versions)
                     ZLIB_VERSION, zlib_version, xpdfString, xpdfVersion);
 }
 
+@ @c
 void check_buffer_overflow(int wsize)
 {
     if (wsize > buf_size) {
@@ -356,11 +373,11 @@ void check_buffer_overflow(int wsize)
     }
 }
 
-#define max_integer 0x7FFFFFFF
-
-/* the return value is a decimal number with the point |dd| places from the back,
+@  the return value is a decimal number with the point |dd| places from the back,
    |scaled_out| is the number of scaled points corresponding to that.
-*/
+
+@c
+#define max_integer 0x7FFFFFFF
 
 scaled divide_scaled(scaled s, scaled m, int dd)
 {
@@ -395,8 +412,8 @@ scaled divide_scaled(scaled s, scaled m, int dd)
     return sign * q;
 }
 
-/* Same function, but using doubles instead of integers (faster) */
-
+@ Same function, but using doubles instead of integers (faster) 
+@c
 scaled divide_scaled_n(double sd, double md, double n)
 {
     double dd, di = 0.0;
@@ -408,6 +425,7 @@ scaled divide_scaled_n(double sd, double md, double n)
     return (scaled) di;
 }
 
+@ @c
 int do_zround(double r)
 {
     int i;
@@ -425,6 +443,8 @@ int do_zround(double r)
 }
 
 
+@ MSVC doesn't have |rind|.
+@c
 #ifdef MSVC
 
 #  include <math.h>
