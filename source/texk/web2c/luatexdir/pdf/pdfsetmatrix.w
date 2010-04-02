@@ -1,35 +1,37 @@
-/* pdfsetmatrix.c
-   
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+% pdfsetmatrix.w
+% 
+% Copyright 2009 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
 #include "ptexlib.h"
 
-/* stack for \pdfsetmatrix */
+@ stack for \.{\\pdfsetmatrix}
 
+@c
 matrix_entry *matrix_stack = NULL;
 int matrix_stack_size = 0;
 int matrix_stack_used = 0;
 
-
+@ @c
 boolean matrixused(void)
 {
     return matrix_stack_used > 0;
@@ -49,13 +51,16 @@ void matrix_stack_room(void)
     }
 }
 
-/*  \pdfsetmatrix{a b c d}
-    e := pos.h
-    f := pos.v
-    M_top: current active matrix at the top of
+@   \.{\\pdfsetmatrix{a b c d}}
+
+    |e| := pos.h
+
+    |f| := pos.v
+
+    |M_top|: current active matrix at the top of
            the matrix stack
 
-    The origin of \pdfsetmatrix is the current point.
+    The origin of \.{\\pdfsetmatrix} is the current point.
     The annotation coordinate system is the original
     page coordinate system. When pdfTeX calculates
     annotation rectangles it does not take into
@@ -64,24 +69,25 @@ void matrix_stack_room(void)
     first we go back to the origin, perform the
     transformation and go back:
 
+{\obeylines\obeyspaces\tt
     (  1   0  0 )   ( a b 0 )   ( 1 0 0 )
-    (  0   1  0 ) x ( c d 0 ) x ( 0 1 0 ) x M_top
+    (  0   1  0 ) x ( c d 0 ) x ( 0 1 0 ) x M\_top
     ( -e  -f  1 )   ( 0 0 1 )   ( e f 1 )
 
     ( 1  0  0 )   (  a  b 0 )
-  = ( 0  1  0 ) x (  c  d 0 ) x M_top
+  = ( 0  1  0 ) x (  c  d 0 ) x M\_top
     ( e  f  1 )   ( -e -f 1 )
 
     ( a         b         0 )
-  = ( c         d         0 ) x M_top
+  = ( c         d         0 ) x M\_top
     ( e(1-a)-fc f(1-d)-eb 1 )
+}
 
-*/
-
+@c
 static void pdfsetmatrix(const char *in, scaledpos pos)
 {
-    /* Argument of \pdfsetmatrix starts with str_pool[in] and ends
-       before str_pool[pool_ptr]. */
+    /* Argument of \.{\\pdfsetmatrix} starts with |str_pool[in]| and ends
+       before |str_pool[pool_ptr]|. */
 
     matrix_entry x, *y, *z;
 
@@ -116,16 +122,18 @@ static void pdfsetmatrix(const char *in, scaledpos pos)
     }
 }
 
-/* Apply matrix to point (x,y)
+@ Apply matrix to point (x,y)
 
+{\obeylines\obeyspaces\tt
                ( a b 0 )
    ( x y 1 ) x ( c d 0 ) = ( xa+yc+e xb+yd+f 1 )
                ( e f 1 )
+}
 
-   If \pdfsetmatrix wasn't used, then return the value unchanged.
-*/
+If \.{\\pdfsetmatrix} wasn't used, then return the value unchanged.
 
-/* Return valeus for matrix tranform functions */
+@c
+/* Return values for matrix tranform functions */
 static scaled ret_llx;
 static scaled ret_lly;
 static scaled ret_urx;
@@ -151,6 +159,7 @@ scaled getury(void)
     return ret_ury;
 }
 
+@ @c
 static int last_llx;
 static int last_lly;
 static int last_urx;
@@ -211,6 +220,7 @@ void matrixrecalculate(scaled urx)
     matrixtransformrect(last_llx, last_lly, urx, last_ury);
 }
 
+@ @c
 void pdf_out_setmatrix(PDF pdf, halfword p)
 {
     scaledpos pos = pdf->posstruct->pos;

@@ -1,37 +1,37 @@
-/* pdfaction.c
-   
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+% pdfaction.w
+% 
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
+@ @c
 #include "ptexlib.h"
-
-         /* for tokenlist_to_cstring */
-
 
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
 
+@ @c
 halfword new_action_node(void)
 {
     return new_node(action_node, 0);
 }
 
+@ @c
 void delete_action_node(halfword a)
 {
     if (pdf_action_type(a) == pdf_action_user) {
@@ -47,8 +47,8 @@ void delete_action_node(halfword a)
     free_node(a, pdf_action_size);
 }
 
-/* read an action specification */
-
+@ read an action specification 
+@c
 halfword scan_action(PDF pdf)
 {
     int p;
@@ -123,7 +123,8 @@ halfword scan_action(PDF pdf)
     return p;
 }
 
-/* write an action specification */
+@ write an action specification
+@c
 void write_action(PDF pdf, halfword p)
 {
     char *s;

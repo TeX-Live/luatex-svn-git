@@ -1,34 +1,36 @@
-/* pdfthread.c
+% pdfthread.w
 
-   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
+@ @c
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
 #include "ptexlib.h"
 
+@ @c
 #define pdf_thread_margin        dimen_par(pdf_thread_margin_code)
 #define page_width dimen_par(page_width_code)
 #define page_height dimen_par(page_height_code)
 
-/* Threads are handled in similar way as link annotations */
-
+@ Threads are handled in similar way as link annotations 
+@c
 void append_bead(PDF pdf, halfword p)
 {
     int a, b, c, t;
@@ -58,6 +60,7 @@ void append_bead(PDF pdf, halfword p)
     addto_page_resources(pdf, obj_type_bead, b);
 }
 
+@ @c
 void do_thread(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 {
     scaled_whd alt_rule;
@@ -83,6 +86,7 @@ void do_thread(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     pdf->last_thread = p;
 }
 
+@ @c
 void append_thread(PDF pdf, halfword parent_box, scaledpos cur)
 {
     halfword p;
@@ -107,6 +111,7 @@ void append_thread(PDF pdf, halfword parent_box, scaledpos cur)
     pdf->last_thread = p;
 }
 
+@ @c
 void end_thread(PDF pdf, halfword p)
 {
     scaledpos pos = pdf->posstruct->pos;
@@ -134,8 +139,8 @@ void end_thread(PDF pdf, halfword p)
     pdf->last_thread = null;
 }
 
-/* The following function are needed for outputing article thread. */
-
+@ The following function are needed for outputing article thread. 
+@c
 void thread_title(PDF pdf, int t)
 {
     pdf_printf(pdf, "/Title (");
@@ -221,6 +226,7 @@ void out_thread(PDF pdf, int t)
 }
 
 
+@ @c
 void scan_thread_id(void)
 {
     if (scan_keyword("num")) {
@@ -247,6 +253,7 @@ void check_running_thread(PDF pdf, halfword this_box, scaledpos cur)
         append_thread(pdf, this_box, cur);
 }
 
+@ @c
 void print_beads_list(PDF pdf)
 {
     pdf_object_list *k;
@@ -261,6 +268,7 @@ void print_beads_list(PDF pdf)
     }
 }
 
+@ @c
 void print_bead_rectangles(PDF pdf)
 {
     halfword i;

@@ -1,29 +1,33 @@
-/* pdfxform.c
+% pdfxform.w
 
-   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
 #include "ptexlib.h"
-#include "pdfpage.h"
 
+@ @c
+#include "pdf/pdfpage.h"
+
+@ @c
 #define box(A) eqtb[box_base+(A)].hh.rh
 
 int pdf_cur_form;               /* the form being output */
@@ -63,6 +67,7 @@ void pdf_place_form(PDF pdf, halfword p)
     addto_page_resources(pdf, obj_type_xform, objnum);
 }
 
+@ @c
 void scan_pdfxform(PDF pdf)
 {
     int k;
@@ -95,6 +100,7 @@ void scan_pdfxform(PDF pdf)
     pdf_last_xform = k;
 }
 
+@ @c
 #define tail          cur_list.tail_field
 
 void scan_pdfrefxform(PDF pdf)

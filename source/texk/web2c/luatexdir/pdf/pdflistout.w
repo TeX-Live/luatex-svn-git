@@ -1,33 +1,38 @@
-/* pdflistout.c
+% pdflistout.w
 
-   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
+\def\pdfTeX{pdf\TeX}
+
+@ @c
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
 #include "ptexlib.h"
 
+@ @c
 pos_info_structure pos_info;    /* to be accessed from Lua */
 
 static backend_struct *backend = NULL;
 backend_function *backend_out, *backend_out_whatsit;
 
+@ @c
 static void missing_backend_function(PDF pdf, halfword p)
 {
     char *b;
@@ -47,12 +52,14 @@ static void missing_backend_function(PDF pdf, halfword p)
     pdf_error(backend_string, err_string);
 }
 
+@ @c
 static void init_none_backend_functions()
 {
     backend_struct *p = &backend[OMODE_NONE];
     p->name = strdup("(None)");
 }
 
+@ @c
 static void init_pdf_backend_functions()
 {
     backend_struct *p = &backend[OMODE_PDF];
@@ -77,6 +84,7 @@ static void init_pdf_backend_functions()
     p->whatsit_fu[pdf_restore_node] = &pdf_out_restore; /* 42 */
 }
 
+@ @c
 static void init_dvi_backend_functions()
 {
     backend_struct *p = &backend[OMODE_DVI];
@@ -87,6 +95,7 @@ static void init_dvi_backend_functions()
     p->whatsit_fu[late_lua_node] = &late_lua;   /* 35 */
 }
 
+@ @c
 static void init_lua_backend_functions()
 {
     backend_struct *p = &backend[OMODE_LUA];
@@ -96,6 +105,7 @@ static void init_lua_backend_functions()
     p->whatsit_fu[late_lua_node] = &late_lua;   /* 35 */
 }
 
+@ @c
 void init_backend_functionpointers(output_mode o_mode)
 {
     int i, j;
@@ -120,16 +130,13 @@ void init_backend_functionpointers(output_mode o_mode)
     backend_out_whatsit = backend[o_mode].whatsit_fu;
 }
 
-/***********************************************************************/
-
-/*
-This code scans forward to the ending |dir_node| while keeping
+@ This code scans forward to the ending |dir_node| while keeping
 track of the needed width in |w|. When it finds the node that will end
 this segment, it stores the accumulated with in the |dir_dvi_h| field
 of that end node, so that when that node is found later in the
 processing, the correct glue correction can be applied.
-*/
 
+@c
 static scaled simple_advance_width(halfword p)
 {
     halfword q = p;
@@ -158,6 +165,7 @@ static scaled simple_advance_width(halfword p)
     return w;
 }
 
+@ @c
 static halfword calculate_width_to_enddir(halfword p, real cur_glue,
                                           scaled cur_g, halfword this_box)
 {
@@ -235,38 +243,36 @@ static halfword calculate_width_to_enddir(halfword p, real cur_glue,
     return enddir_ptr;
 }
 
-/**********************************************************************/
-
-/*
-The |out_what| procedure takes care of outputting the whatsit nodes for
+@ The |out_what| procedure takes care of outputting the whatsit nodes for
 |vlist_out| and |hlist_out|, which are similar for either case.
-*/
 
+We don't implement \.{\\write} inside of leaders. (The reason is that
+the number of times a leader box appears might be different in different
+implementations, due to machine-dependent rounding in the glue calculations.)
+@^leaders@>
+
+@c
 void out_what(PDF pdf, halfword p)
 {
     int j;                      /* write stream number */
     switch (subtype(p)) {
         /* function(pdf, p) */
-    case pdf_save_node:        /* pdf_out_save(pdf, p); */
-    case pdf_restore_node:     /* pdf_out_restore(pdf, p); */
-    case pdf_end_link_node:    /* end_link(pdf, p); */
-    case pdf_end_thread_node:  /* end_thread(pdf, p); */
-    case pdf_literal_node:     /* pdf_out_literal(pdf, p); */
-    case pdf_colorstack_node:  /* pdf_out_colorstack(pdf, p); */
-    case pdf_setmatrix_node:   /* pdf_out_setmatrix(pdf, p); */
-    case special_node:         /* pdf_special(pdf, p); */
-    case late_lua_node:        /* late_lua(pdf, p); */
-    case pdf_refobj_node:      /* pdf_ref_obj(pdf, p) */
+    case pdf_save_node:        /* |pdf_out_save(pdf, p)|; */
+    case pdf_restore_node:     /* |pdf_out_restore(pdf, p)|; */
+    case pdf_end_link_node:    /* |end_link(pdf, p)|; */
+    case pdf_end_thread_node:  /* |end_thread(pdf, p)|; */
+    case pdf_literal_node:     /* |pdf_out_literal(pdf, p)|; */
+    case pdf_colorstack_node:  /* |pdf_out_colorstack(pdf, p)|; */
+    case pdf_setmatrix_node:   /* |pdf_out_setmatrix(pdf, p)|; */
+    case special_node:         /* |pdf_special(pdf, p)|; */
+    case late_lua_node:        /* |late_lua(pdf, p)|; */
+    case pdf_refobj_node:      /* |pdf_ref_obj(pdf, p)| */
         backend_out_whatsit[subtype(p)] (pdf, p);
         break;
     case open_node:
     case write_node:
     case close_node:
         /* Do some work that has been queued up for \.{\\write} */
-        /* We don't implement \.{\\write} inside of leaders. (The reason is that
-           the number of times a leader box appears might be different in different
-           implementations, due to machine-dependent rounding in the glue calculations.)
-           @^leaders@> */
         if (!doing_leaders) {
             j = write_stream(p);
             if (subtype(p) == write_node) {
@@ -303,8 +309,7 @@ void out_what(PDF pdf, halfword p)
     }
 }
 
-/**********************************************************************/
-
+@ @c
 void hlist_out(PDF pdf, halfword this_box)
 {
 
@@ -317,8 +322,6 @@ void hlist_out(PDF pdf, halfword this_box)
     scaled save_h;              /* what |cur.h| should pop to */
     scaled edge;                /* right edge of sub-box or leader space */
     halfword enddir_ptr;        /* temporary pointer to enddir node */
-    /* label move_past, fin_rule, next_p; */
-    /* scaled w;                     temporary value for directional width calculation  */
     int g_order;                /* applicable order of infinity for glue */
     int g_sign;                 /* selects type of glue */
     halfword p, q;              /* current position in the hlist */
@@ -494,16 +497,16 @@ void hlist_out(PDF pdf, halfword this_box)
                     pos_info.boxdim.ht = height(this_box);
                     pos_info.boxdim.dp = depth(this_box);
                     break;
-                    /* function(pdf, p, this_box, cur); too many args for out_what() */
-                case pdf_annot_node:   /* do_annot(pdf, p, this_box, cur); */
-                case pdf_start_link_node:      /* do_link(pdf, p, this_box, cur); */
-                case pdf_dest_node:    /* do_dest(pdf, p, this_box, cur); */
+                    /* |function(pdf, p, this_box, cur)|; too many args for |out_what()| */
+                case pdf_annot_node:   /* |do_annot(pdf, p, this_box, cur);| */
+                case pdf_start_link_node:      /* |do_link(pdf, p, this_box, cur);| */
+                case pdf_dest_node:    /* |do_dest(pdf, p, this_box, cur);| */
                 case pdf_start_thread_node:
-                case pdf_thread_node:  /* do_thread(pdf, p, this_box, cur); */
+                case pdf_thread_node:  /* |do_thread(pdf, p, this_box, cur);| */
                     backend_out_whatsit[subtype(p)] (pdf, p, this_box, cur);
                     break;
-                case pdf_refxform_node:        /* pdf_place_form(pdf, pdf_xform_objnum(p)); */
-                case pdf_refximage_node:       /* pdf_place_image(pdf, pdf_ximage_idx(p)); */
+                case pdf_refxform_node:        /* |pdf_place_form(pdf, pdf_xform_objnum(p));| */
+                case pdf_refximage_node:       /* |pdf_place_image(pdf, pdf_ximage_idx(p));| */
                     /* Output a Form node in a hlist */
                     /* Output an Image node in a hlist */
                     switch (localpos.dir) {
@@ -752,7 +755,7 @@ void hlist_out(PDF pdf, halfword this_box)
                     break;
                 default:;
                 }
-                backend_out[rule_node] (pdf, p, size);  /* pdf_place_rule(pdf, p, rule.ht + rule.dp, rule.wd); */
+                backend_out[rule_node] (pdf, p, size);  /* |pdf_place_rule(pdf, p, rule.ht + rule.dp, rule.wd);| */
             }
           MOVE_PAST:
             cur.h += rule.wd;
@@ -783,6 +786,7 @@ void hlist_out(PDF pdf, halfword this_box)
     pdf->posstruct = refpos;
 }
 
+@ @c
 void vlist_out(PDF pdf, halfword this_box)
 {
     posstructure localpos;      /* the position structure local within this function */
@@ -934,16 +938,16 @@ void vlist_out(PDF pdf, halfword this_box)
                     pos_info.boxdim.ht = height(this_box);
                     pos_info.boxdim.dp = depth(this_box);
                     break;
-                    /* function(pdf, p, this_box, cur); too many args for out_what() */
-                case pdf_annot_node:   /* do_annot(pdf, p, this_box, cur); */
-                case pdf_start_link_node:      /* do_link(pdf, p, this_box, cur); */
-                case pdf_dest_node:    /* do_dest(pdf, p, this_box, cur); */
+                    /* |function(pdf, p, this_box, cur)|; too many args for |out_what()| */
+                case pdf_annot_node:   /* |do_annot(pdf, p, this_box, cur);| */
+                case pdf_start_link_node:      /* |do_link(pdf, p, this_box, cur);| */
+                case pdf_dest_node:    /* |do_dest(pdf, p, this_box, cur);| */
                 case pdf_start_thread_node:
-                case pdf_thread_node:  /* do_thread(pdf, p, this_box, cur); */
+                case pdf_thread_node:  /* |do_thread(pdf, p, this_box, cur);| */
                     backend_out_whatsit[subtype(p)] (pdf, p, this_box, cur);
                     break;
-                case pdf_refxform_node:        /* pdf_place_form(pdf, pdf_xform_objnum(p)); */
-                case pdf_refximage_node:       /* pdf_place_image(pdf, pdf_ximage_idx(p)); */
+                case pdf_refxform_node:        /* |pdf_place_form(pdf, pdf_xform_objnum(p));| */
+                case pdf_refximage_node:       /* |pdf_place_image(pdf, pdf_ximage_idx(p));| */
                     /* Output a Form node in a vlist */
                     /* Output an Image node in a vlist */
                     switch (localpos.dir) {
@@ -1108,7 +1112,7 @@ void vlist_out(PDF pdf, halfword this_box)
                     break;
                 default:;
                 }
-                backend_out[rule_node] (pdf, p, size);  /* pdf_place_rule(pdf, rule.ht, rule.wd); */
+                backend_out[rule_node] (pdf, p, size);  /* |pdf_place_rule(pdf, rule.ht, rule.wd);| */
                 cur.v += rule.ht + rule.dp;
             }
             goto NEXTP;

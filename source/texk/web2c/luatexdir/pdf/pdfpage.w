@@ -1,22 +1,23 @@
-/* pdfpage.c
+% pdfpage.w
 
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
@@ -30,11 +31,11 @@ static const char _svn_version[] =
 
 #define lround(a) (long) floor((a) + 0.5)
 
-/* eternal constants */
+@ eternal constants
+@c
 #define one_bp ((double) 65536 * (double) 72.27 / 72)   /* number of sp per 1bp */
 
-/**********************************************************************/
-
+@ @c
 void init_pdf_pagecalculations(PDF pdf)
 {
     pdfstructure *p;
@@ -59,8 +60,8 @@ void init_pdf_pagecalculations(PDF pdf)
     setpdffloat(p->tm[1], 0, 0);
     setpdffloat(p->tm[2], 0, 3);        /* mantissa holds SlantFont, 0 = default */
     setpdffloat(p->tm[3], 1, 0);
-    setpdffloat(p->tm[4], 0, decimal_digits);   /* mantissa holds delta from pdf_bt_pos.h */
-    setpdffloat(p->tm[5], 0, decimal_digits);   /* mantissa holds delta from pdf_bt_pos.v */
+    setpdffloat(p->tm[4], 0, decimal_digits);   /* mantissa holds delta from |pdf_bt_pos.h| */
+    setpdffloat(p->tm[5], 0, decimal_digits);   /* mantissa holds delta from |pdf_bt_pos.v| */
     /*  */
     p->f_pdf_cur = p->f_pdf = null_font;
     p->fs_cur.m = p->fs.m = 0;
@@ -70,8 +71,7 @@ void init_pdf_pagecalculations(PDF pdf)
     p->k1 = ten_pow[p->pdf.h.e] / one_bp;
 }
 
-/**********************************************************************/
-
+@ @c
 void synch_pos_with_cur(posstructure * pos, posstructure * refpos,
                         scaledpos cur)
 {
@@ -97,8 +97,7 @@ void synch_pos_with_cur(posstructure * pos, posstructure * refpos,
     }
 }
 
-/**********************************************************************/
-
+@ @c
 boolean calc_pdfpos(pdfstructure * p, scaledpos pos)
 {
     scaledpos new;
@@ -157,8 +156,7 @@ boolean calc_pdfpos(pdfstructure * p, scaledpos pos)
     return move_pdfpos;
 }
 
-/**********************************************************************/
-
+@ @c
 void print_pdffloat(PDF pdf, pdffloat f)
 {
     char a[24];
@@ -184,6 +182,7 @@ void print_pdffloat(PDF pdf, pdffloat f)
     }
 }
 
+@ @c
 void print_pdf_matrix(PDF pdf, pdffloat * tm)
 {
     int i;
@@ -194,12 +193,14 @@ void print_pdf_matrix(PDF pdf, pdffloat * tm)
     print_pdffloat(pdf, tm[i]);
 }
 
+@ @c
 void pdf_print_cm(PDF pdf, pdffloat * cm)
 {
     print_pdf_matrix(pdf, cm);
     pdf_puts(pdf, " cm\n");
 }
 
+@ @c
 void pdf_set_pos(PDF pdf, scaledpos pos)
 {
     boolean move;
@@ -213,6 +214,7 @@ void pdf_set_pos(PDF pdf, scaledpos pos)
     }
 }
 
+@ @c
 void pdf_set_pos_temp(PDF pdf, scaledpos pos)
 {
     boolean move;
@@ -223,8 +225,7 @@ void pdf_set_pos_temp(PDF pdf, scaledpos pos)
         pdf_print_cm(pdf, p->cm);
 }
 
-/**********************************************************************/
-
+@ @c
 static void begin_text(PDF pdf)
 {
     pdfstructure *p = pdf->pstruct;
@@ -254,8 +255,7 @@ void pdf_end_string_nl(PDF pdf)
         end_chararray(pdf);
 }
 
-/**********************************************************************/
-
+@ @c
 void pdf_goto_pagemode(PDF pdf)
 {
     pdfstructure *p = pdf->pstruct;

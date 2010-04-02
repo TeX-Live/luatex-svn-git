@@ -1,40 +1,44 @@
-/* pdfobj.c
+% pdfobj.w
 
-   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
 #include "ptexlib.h"
+
+@ @c
 #include "lua/luatex-api.h"
 
 int pdf_last_obj;
 
-/* write a raw PDF object */
+@ write a raw PDF object 
 
+@c
 void pdf_write_obj(PDF pdf, int k)
 {
     lstring data;
     const_lstring st;
     size_t i, li;               /* index into |data.s| */
     int saved_compress_level = pdf->compress_level;
-    int os_level = 1;           /* gives compressed objects for \pdfobjcompresslevel > 0 */
+    int os_level = 1;           /* gives compressed objects for \.{\\pdfobjcompresslevel} $>$ 0 */
     int l = 0;                  /* possibly a lua registry reference */
     int ll = 0;
     data.s = NULL;
@@ -69,7 +73,7 @@ void pdf_write_obj(PDF pdf, int k)
         boolean res = false;    /* callback status value */
         const char *fnam = NULL;        /* callback found filename */
         int callback_id;
-        /* st.s is also '\0'-terminated, even as lstring */
+        /* st.s is also |\0|-terminated, even as lstring */
         fnam = luatex_find_file(st.s, find_data_file_callback);
         callback_id = callback_defined(read_data_file_callback);
         if (fnam && callback_id > 0) {
@@ -117,6 +121,7 @@ void pdf_write_obj(PDF pdf, int k)
     pdf->compress_level = saved_compress_level;
 }
 
+@ @c
 void init_obj_obj(PDF pdf, int k)
 {
     obj_obj_stream_attr(pdf, k) = LUA_NOREF;
@@ -127,13 +132,14 @@ void init_obj_obj(PDF pdf, int k)
     obj_obj_pdfoslevel(pdf, k) = -1;    /* unset */
 }
 
-/* The \.{\\pdfobj} primitive is used to create a ``raw'' object in the PDF
+@ The \.{\\pdfobj} primitive is used to create a ``raw'' object in the PDF
    output file. The object contents will be hold in memory and will be written
    out only when the object is referenced by \.{\\pdfrefobj}. When \.{\\pdfobj}
    is used with \.{\\immediate}, the object contents will be written out
    immediately. Objects referenced in the current page are appended into
-   |pdf_obj_list|. */
+   |pdf_obj_list|. 
 
+@c
 void scan_obj(PDF pdf)
 {
     int k;
@@ -189,6 +195,7 @@ void scan_obj(PDF pdf)
     pdf_last_obj = k;
 }
 
+@ @c
 #define tail          cur_list.tail_field
 
 void scan_refobj(PDF pdf)
@@ -199,6 +206,7 @@ void scan_refobj(PDF pdf)
     pdf_obj_objnum(tail) = cur_val;
 }
 
+@ @c
 void pdf_ref_obj(PDF pdf, halfword p)
 {
     if (!is_obj_scheduled(pdf, pdf_obj_objnum(p)))

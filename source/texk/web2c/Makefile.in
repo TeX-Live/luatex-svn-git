@@ -270,6 +270,21 @@ am__objects_1 = libluatex_a-dvigen.$(OBJEXT) \
 	libluatex_a-ocplist.$(OBJEXT) libluatex_a-readocp.$(OBJEXT) \
 	libluatex_a-runocp.$(OBJEXT) libluatex_a-texlang.$(OBJEXT) \
 	libluatex_a-hyphen.$(OBJEXT) libluatex_a-hnjalloc.$(OBJEXT) \
+	libluatex_a-pagetree.$(OBJEXT) libluatex_a-pdfaction.$(OBJEXT) \
+	libluatex_a-pdfannot.$(OBJEXT) \
+	libluatex_a-pdfcolorstack.$(OBJEXT) \
+	libluatex_a-pdfdest.$(OBJEXT) libluatex_a-pdffont.$(OBJEXT) \
+	libluatex_a-pdfgen.$(OBJEXT) libluatex_a-pdfglyph.$(OBJEXT) \
+	libluatex_a-pdfimage.$(OBJEXT) libluatex_a-pdflink.$(OBJEXT) \
+	libluatex_a-pdflistout.$(OBJEXT) \
+	libluatex_a-pdfliteral.$(OBJEXT) libluatex_a-pdfobj.$(OBJEXT) \
+	libluatex_a-pdfoutline.$(OBJEXT) libluatex_a-pdfpage.$(OBJEXT) \
+	libluatex_a-pdfrule.$(OBJEXT) \
+	libluatex_a-pdfsaverestore.$(OBJEXT) \
+	libluatex_a-pdfsetmatrix.$(OBJEXT) \
+	libluatex_a-pdfshipout.$(OBJEXT) \
+	libluatex_a-pdftables.$(OBJEXT) \
+	libluatex_a-pdfthread.$(OBJEXT) libluatex_a-pdfxform.$(OBJEXT) \
 	libluatex_a-align.$(OBJEXT) libluatex_a-dumpdata.$(OBJEXT) \
 	libluatex_a-expand.$(OBJEXT) libluatex_a-inputstack.$(OBJEXT) \
 	libluatex_a-maincontrol.$(OBJEXT) libluatex_a-mlist.$(OBJEXT) \
@@ -309,21 +324,6 @@ am_libluatex_a_OBJECTS = libluatex_a-epdf.$(OBJEXT) \
 	libluatex_a-luainit.$(OBJEXT) libluatex_a-luanode.$(OBJEXT) \
 	libluatex_a-luastuff.$(OBJEXT) libluatex_a-luatex.$(OBJEXT) \
 	libluatex_a-luatoken.$(OBJEXT) libluatex_a-texluac.$(OBJEXT) \
-	libluatex_a-pagetree.$(OBJEXT) libluatex_a-pdfaction.$(OBJEXT) \
-	libluatex_a-pdfannot.$(OBJEXT) \
-	libluatex_a-pdfcolorstack.$(OBJEXT) \
-	libluatex_a-pdfdest.$(OBJEXT) libluatex_a-pdffont.$(OBJEXT) \
-	libluatex_a-pdfgen.$(OBJEXT) libluatex_a-pdfglyph.$(OBJEXT) \
-	libluatex_a-pdfimage.$(OBJEXT) libluatex_a-pdflink.$(OBJEXT) \
-	libluatex_a-pdflistout.$(OBJEXT) \
-	libluatex_a-pdfliteral.$(OBJEXT) libluatex_a-pdfobj.$(OBJEXT) \
-	libluatex_a-pdfoutline.$(OBJEXT) libluatex_a-pdfpage.$(OBJEXT) \
-	libluatex_a-pdfrule.$(OBJEXT) \
-	libluatex_a-pdfsaverestore.$(OBJEXT) \
-	libluatex_a-pdfsetmatrix.$(OBJEXT) \
-	libluatex_a-pdfshipout.$(OBJEXT) \
-	libluatex_a-pdftables.$(OBJEXT) \
-	libluatex_a-pdfthread.$(OBJEXT) libluatex_a-pdfxform.$(OBJEXT) \
 	libluatex_a-avl.$(OBJEXT) libluatex_a-avlstuff.$(OBJEXT) \
 	libluatex_a-managed-sa.$(OBJEXT) libluatex_a-synctex.$(OBJEXT) \
 	libluatex_a-utils.$(OBJEXT) $(am__objects_1) \
@@ -344,6 +344,21 @@ nodist_libluatex_a_OBJECTS = libluatex_a-dvigen.$(OBJEXT) \
 	libluatex_a-ocplist.$(OBJEXT) libluatex_a-readocp.$(OBJEXT) \
 	libluatex_a-runocp.$(OBJEXT) libluatex_a-texlang.$(OBJEXT) \
 	libluatex_a-hyphen.$(OBJEXT) libluatex_a-hnjalloc.$(OBJEXT) \
+	libluatex_a-pagetree.$(OBJEXT) libluatex_a-pdfaction.$(OBJEXT) \
+	libluatex_a-pdfannot.$(OBJEXT) \
+	libluatex_a-pdfcolorstack.$(OBJEXT) \
+	libluatex_a-pdfdest.$(OBJEXT) libluatex_a-pdffont.$(OBJEXT) \
+	libluatex_a-pdfgen.$(OBJEXT) libluatex_a-pdfglyph.$(OBJEXT) \
+	libluatex_a-pdfimage.$(OBJEXT) libluatex_a-pdflink.$(OBJEXT) \
+	libluatex_a-pdflistout.$(OBJEXT) \
+	libluatex_a-pdfliteral.$(OBJEXT) libluatex_a-pdfobj.$(OBJEXT) \
+	libluatex_a-pdfoutline.$(OBJEXT) libluatex_a-pdfpage.$(OBJEXT) \
+	libluatex_a-pdfrule.$(OBJEXT) \
+	libluatex_a-pdfsaverestore.$(OBJEXT) \
+	libluatex_a-pdfsetmatrix.$(OBJEXT) \
+	libluatex_a-pdfshipout.$(OBJEXT) \
+	libluatex_a-pdftables.$(OBJEXT) \
+	libluatex_a-pdfthread.$(OBJEXT) libluatex_a-pdfxform.$(OBJEXT) \
 	libluatex_a-align.$(OBJEXT) libluatex_a-dumpdata.$(OBJEXT) \
 	libluatex_a-expand.$(OBJEXT) libluatex_a-inputstack.$(OBJEXT) \
 	libluatex_a-maincontrol.$(OBJEXT) libluatex_a-mlist.$(OBJEXT) \
@@ -1576,7 +1591,18 @@ libluatex_web = luatexdir/dvi/dvigen.w luatexdir/font/dofont.w \
 	luatexdir/ocp/ocp.w luatexdir/ocp/ocplist.w \
 	luatexdir/ocp/readocp.w luatexdir/ocp/runocp.w \
 	luatexdir/lang/texlang.w luatexdir/lang/hyphen.w \
-	luatexdir/lang/hnjalloc.w luatexdir/tex/align.w \
+	luatexdir/lang/hnjalloc.w luatexdir/pdf/pagetree.w \
+	luatexdir/pdf/pdfaction.w luatexdir/pdf/pdfannot.w \
+	luatexdir/pdf/pdfcolorstack.w luatexdir/pdf/pdfdest.w \
+	luatexdir/pdf/pdffont.w luatexdir/pdf/pdfgen.w \
+	luatexdir/pdf/pdfglyph.w luatexdir/pdf/pdfimage.w \
+	luatexdir/pdf/pdflink.w luatexdir/pdf/pdflistout.w \
+	luatexdir/pdf/pdfliteral.w luatexdir/pdf/pdfobj.w \
+	luatexdir/pdf/pdfoutline.w luatexdir/pdf/pdfpage.w \
+	luatexdir/pdf/pdfrule.w luatexdir/pdf/pdfsaverestore.w \
+	luatexdir/pdf/pdfsetmatrix.w luatexdir/pdf/pdfshipout.w \
+	luatexdir/pdf/pdftables.w luatexdir/pdf/pdfthread.w \
+	luatexdir/pdf/pdfxform.w luatexdir/tex/align.w \
 	luatexdir/tex/dumpdata.w luatexdir/tex/expand.w \
 	luatexdir/tex/inputstack.w luatexdir/tex/maincontrol.w \
 	luatexdir/tex/mlist.w luatexdir/tex/postlinebreak.w \
@@ -1598,16 +1624,22 @@ nodist_libluatex_a_SOURCES = dvigen.c dofont.c luafont.c mapfile.c \
 	tt_glyf.c tt_table.c vfovf.c vfpacket.c writecff.c writeenc.c \
 	writefont.c writet1.c writet3.c writettf.c writetype0.c \
 	writetype2.c ocp.c ocplist.c readocp.c runocp.c texlang.c \
-	hyphen.c hnjalloc.c align.c dumpdata.c expand.c inputstack.c \
-	maincontrol.c mlist.c postlinebreak.c scanning.c texdeffont.c \
-	texnodes.c arithmetic.c conditional.c equivalents.c \
-	extensions.c commands.c linebreak.c mathcodes.c nesting.c \
-	primitive.c texfileio.c textcodes.c buildpage.c directions.c \
-	errors.c filename.c mainbody.c memoryword.c packaging.c \
-	printing.c stringpool.c texmath.c textoken.c
+	hyphen.c hnjalloc.c pagetree.c pdfaction.c pdfannot.c \
+	pdfcolorstack.c pdfdest.c pdffont.c pdfgen.c pdfglyph.c \
+	pdfimage.c pdflink.c pdflistout.c pdfliteral.c pdfobj.c \
+	pdfoutline.c pdfpage.c pdfrule.c pdfsaverestore.c \
+	pdfsetmatrix.c pdfshipout.c pdftables.c pdfthread.c pdfxform.c \
+	align.c dumpdata.c expand.c inputstack.c maincontrol.c mlist.c \
+	postlinebreak.c scanning.c texdeffont.c texnodes.c \
+	arithmetic.c conditional.c equivalents.c extensions.c \
+	commands.c linebreak.c mathcodes.c nesting.c primitive.c \
+	texfileio.c textcodes.c buildpage.c directions.c errors.c \
+	filename.c mainbody.c memoryword.c packaging.c printing.c \
+	stringpool.c texmath.c textoken.c
 luatex_font_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/font $(ctangle)
 luatex_ocp_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/ocp $(ctangle)
 luatex_lang_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/lang $(ctangle)
+luatex_pdf_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/pdf $(ctangle)
 luatex_tex_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/tex $(ctangle)
 libluatex_a_SOURCES = \
 	luatexdir/dvi/dvigen.h \
@@ -1664,50 +1696,28 @@ libluatex_a_SOURCES = \
 	luatexdir/ocp/ocplist.h \
 	luatexdir/ocp/readocp.h \
 	luatexdir/ocp/runocp.h \
-	luatexdir/pdf/pagetree.c \
 	luatexdir/pdf/pagetree.h \
-	luatexdir/pdf/pdfaction.c \
 	luatexdir/pdf/pdfaction.h \
-	luatexdir/pdf/pdfannot.c \
 	luatexdir/pdf/pdfannot.h \
-	luatexdir/pdf/pdfcolorstack.c \
 	luatexdir/pdf/pdfcolorstack.h \
-	luatexdir/pdf/pdfdest.c \
 	luatexdir/pdf/pdfdest.h \
-	luatexdir/pdf/pdffont.c \
 	luatexdir/pdf/pdffont.h \
-	luatexdir/pdf/pdfgen.c \
 	luatexdir/pdf/pdfgen.h \
-	luatexdir/pdf/pdfglyph.c \
 	luatexdir/pdf/pdfglyph.h \
-	luatexdir/pdf/pdfimage.c \
 	luatexdir/pdf/pdfimage.h \
-	luatexdir/pdf/pdflink.c \
 	luatexdir/pdf/pdflink.h \
-	luatexdir/pdf/pdflistout.c \
 	luatexdir/pdf/pdflistout.h \
-	luatexdir/pdf/pdfliteral.c \
 	luatexdir/pdf/pdfliteral.h \
-	luatexdir/pdf/pdfobj.c \
 	luatexdir/pdf/pdfobj.h \
-	luatexdir/pdf/pdfoutline.c \
 	luatexdir/pdf/pdfoutline.h \
-	luatexdir/pdf/pdfpage.c \
 	luatexdir/pdf/pdfpage.h \
-	luatexdir/pdf/pdfrule.c \
 	luatexdir/pdf/pdfrule.h \
-	luatexdir/pdf/pdfsaverestore.c \
 	luatexdir/pdf/pdfsaverestore.h \
-	luatexdir/pdf/pdfsetmatrix.c \
 	luatexdir/pdf/pdfsetmatrix.h \
-	luatexdir/pdf/pdfshipout.c \
 	luatexdir/pdf/pdfshipout.h \
-	luatexdir/pdf/pdftables.c \
 	luatexdir/pdf/pdftables.h \
-	luatexdir/pdf/pdfthread.c \
 	luatexdir/pdf/pdfthread.h \
 	luatexdir/pdf/pdftypes.h \
-	luatexdir/pdf/pdfxform.c \
 	luatexdir/pdf/pdfxform.h \
 	luatexdir/tex/align.h \
 	luatexdir/tex/arithmetic.h \
@@ -4366,314 +4376,6 @@ libluatex_a-texluac.obj: luatexdir/lua/texluac.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-texluac.obj `if test -f 'luatexdir/lua/texluac.c'; then $(CYGPATH_W) 'luatexdir/lua/texluac.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/texluac.c'; fi`
 
-libluatex_a-pagetree.o: luatexdir/pdf/pagetree.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pagetree.o -MD -MP -MF $(DEPDIR)/libluatex_a-pagetree.Tpo -c -o libluatex_a-pagetree.o `test -f 'luatexdir/pdf/pagetree.c' || echo '$(srcdir)/'`luatexdir/pdf/pagetree.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pagetree.Tpo $(DEPDIR)/libluatex_a-pagetree.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pagetree.c' object='libluatex_a-pagetree.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pagetree.o `test -f 'luatexdir/pdf/pagetree.c' || echo '$(srcdir)/'`luatexdir/pdf/pagetree.c
-
-libluatex_a-pagetree.obj: luatexdir/pdf/pagetree.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pagetree.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pagetree.Tpo -c -o libluatex_a-pagetree.obj `if test -f 'luatexdir/pdf/pagetree.c'; then $(CYGPATH_W) 'luatexdir/pdf/pagetree.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pagetree.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pagetree.Tpo $(DEPDIR)/libluatex_a-pagetree.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pagetree.c' object='libluatex_a-pagetree.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pagetree.obj `if test -f 'luatexdir/pdf/pagetree.c'; then $(CYGPATH_W) 'luatexdir/pdf/pagetree.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pagetree.c'; fi`
-
-libluatex_a-pdfaction.o: luatexdir/pdf/pdfaction.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfaction.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfaction.Tpo -c -o libluatex_a-pdfaction.o `test -f 'luatexdir/pdf/pdfaction.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfaction.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfaction.Tpo $(DEPDIR)/libluatex_a-pdfaction.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfaction.c' object='libluatex_a-pdfaction.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfaction.o `test -f 'luatexdir/pdf/pdfaction.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfaction.c
-
-libluatex_a-pdfaction.obj: luatexdir/pdf/pdfaction.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfaction.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfaction.Tpo -c -o libluatex_a-pdfaction.obj `if test -f 'luatexdir/pdf/pdfaction.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfaction.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfaction.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfaction.Tpo $(DEPDIR)/libluatex_a-pdfaction.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfaction.c' object='libluatex_a-pdfaction.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfaction.obj `if test -f 'luatexdir/pdf/pdfaction.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfaction.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfaction.c'; fi`
-
-libluatex_a-pdfannot.o: luatexdir/pdf/pdfannot.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfannot.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfannot.Tpo -c -o libluatex_a-pdfannot.o `test -f 'luatexdir/pdf/pdfannot.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfannot.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfannot.Tpo $(DEPDIR)/libluatex_a-pdfannot.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfannot.c' object='libluatex_a-pdfannot.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfannot.o `test -f 'luatexdir/pdf/pdfannot.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfannot.c
-
-libluatex_a-pdfannot.obj: luatexdir/pdf/pdfannot.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfannot.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfannot.Tpo -c -o libluatex_a-pdfannot.obj `if test -f 'luatexdir/pdf/pdfannot.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfannot.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfannot.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfannot.Tpo $(DEPDIR)/libluatex_a-pdfannot.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfannot.c' object='libluatex_a-pdfannot.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfannot.obj `if test -f 'luatexdir/pdf/pdfannot.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfannot.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfannot.c'; fi`
-
-libluatex_a-pdfcolorstack.o: luatexdir/pdf/pdfcolorstack.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfcolorstack.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfcolorstack.Tpo -c -o libluatex_a-pdfcolorstack.o `test -f 'luatexdir/pdf/pdfcolorstack.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfcolorstack.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfcolorstack.Tpo $(DEPDIR)/libluatex_a-pdfcolorstack.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfcolorstack.c' object='libluatex_a-pdfcolorstack.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfcolorstack.o `test -f 'luatexdir/pdf/pdfcolorstack.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfcolorstack.c
-
-libluatex_a-pdfcolorstack.obj: luatexdir/pdf/pdfcolorstack.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfcolorstack.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfcolorstack.Tpo -c -o libluatex_a-pdfcolorstack.obj `if test -f 'luatexdir/pdf/pdfcolorstack.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfcolorstack.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfcolorstack.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfcolorstack.Tpo $(DEPDIR)/libluatex_a-pdfcolorstack.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfcolorstack.c' object='libluatex_a-pdfcolorstack.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfcolorstack.obj `if test -f 'luatexdir/pdf/pdfcolorstack.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfcolorstack.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfcolorstack.c'; fi`
-
-libluatex_a-pdfdest.o: luatexdir/pdf/pdfdest.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfdest.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfdest.Tpo -c -o libluatex_a-pdfdest.o `test -f 'luatexdir/pdf/pdfdest.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfdest.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfdest.Tpo $(DEPDIR)/libluatex_a-pdfdest.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfdest.c' object='libluatex_a-pdfdest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfdest.o `test -f 'luatexdir/pdf/pdfdest.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfdest.c
-
-libluatex_a-pdfdest.obj: luatexdir/pdf/pdfdest.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfdest.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfdest.Tpo -c -o libluatex_a-pdfdest.obj `if test -f 'luatexdir/pdf/pdfdest.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfdest.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfdest.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfdest.Tpo $(DEPDIR)/libluatex_a-pdfdest.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfdest.c' object='libluatex_a-pdfdest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfdest.obj `if test -f 'luatexdir/pdf/pdfdest.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfdest.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfdest.c'; fi`
-
-libluatex_a-pdffont.o: luatexdir/pdf/pdffont.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdffont.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdffont.Tpo -c -o libluatex_a-pdffont.o `test -f 'luatexdir/pdf/pdffont.c' || echo '$(srcdir)/'`luatexdir/pdf/pdffont.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdffont.Tpo $(DEPDIR)/libluatex_a-pdffont.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdffont.c' object='libluatex_a-pdffont.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdffont.o `test -f 'luatexdir/pdf/pdffont.c' || echo '$(srcdir)/'`luatexdir/pdf/pdffont.c
-
-libluatex_a-pdffont.obj: luatexdir/pdf/pdffont.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdffont.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdffont.Tpo -c -o libluatex_a-pdffont.obj `if test -f 'luatexdir/pdf/pdffont.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdffont.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdffont.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdffont.Tpo $(DEPDIR)/libluatex_a-pdffont.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdffont.c' object='libluatex_a-pdffont.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdffont.obj `if test -f 'luatexdir/pdf/pdffont.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdffont.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdffont.c'; fi`
-
-libluatex_a-pdfgen.o: luatexdir/pdf/pdfgen.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfgen.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfgen.Tpo -c -o libluatex_a-pdfgen.o `test -f 'luatexdir/pdf/pdfgen.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfgen.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfgen.Tpo $(DEPDIR)/libluatex_a-pdfgen.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfgen.c' object='libluatex_a-pdfgen.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfgen.o `test -f 'luatexdir/pdf/pdfgen.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfgen.c
-
-libluatex_a-pdfgen.obj: luatexdir/pdf/pdfgen.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfgen.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfgen.Tpo -c -o libluatex_a-pdfgen.obj `if test -f 'luatexdir/pdf/pdfgen.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfgen.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfgen.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfgen.Tpo $(DEPDIR)/libluatex_a-pdfgen.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfgen.c' object='libluatex_a-pdfgen.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfgen.obj `if test -f 'luatexdir/pdf/pdfgen.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfgen.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfgen.c'; fi`
-
-libluatex_a-pdfglyph.o: luatexdir/pdf/pdfglyph.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfglyph.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfglyph.Tpo -c -o libluatex_a-pdfglyph.o `test -f 'luatexdir/pdf/pdfglyph.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfglyph.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfglyph.Tpo $(DEPDIR)/libluatex_a-pdfglyph.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfglyph.c' object='libluatex_a-pdfglyph.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfglyph.o `test -f 'luatexdir/pdf/pdfglyph.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfglyph.c
-
-libluatex_a-pdfglyph.obj: luatexdir/pdf/pdfglyph.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfglyph.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfglyph.Tpo -c -o libluatex_a-pdfglyph.obj `if test -f 'luatexdir/pdf/pdfglyph.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfglyph.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfglyph.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfglyph.Tpo $(DEPDIR)/libluatex_a-pdfglyph.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfglyph.c' object='libluatex_a-pdfglyph.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfglyph.obj `if test -f 'luatexdir/pdf/pdfglyph.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfglyph.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfglyph.c'; fi`
-
-libluatex_a-pdfimage.o: luatexdir/pdf/pdfimage.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfimage.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfimage.Tpo -c -o libluatex_a-pdfimage.o `test -f 'luatexdir/pdf/pdfimage.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfimage.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfimage.Tpo $(DEPDIR)/libluatex_a-pdfimage.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfimage.c' object='libluatex_a-pdfimage.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfimage.o `test -f 'luatexdir/pdf/pdfimage.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfimage.c
-
-libluatex_a-pdfimage.obj: luatexdir/pdf/pdfimage.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfimage.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfimage.Tpo -c -o libluatex_a-pdfimage.obj `if test -f 'luatexdir/pdf/pdfimage.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfimage.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfimage.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfimage.Tpo $(DEPDIR)/libluatex_a-pdfimage.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfimage.c' object='libluatex_a-pdfimage.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfimage.obj `if test -f 'luatexdir/pdf/pdfimage.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfimage.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfimage.c'; fi`
-
-libluatex_a-pdflink.o: luatexdir/pdf/pdflink.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdflink.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdflink.Tpo -c -o libluatex_a-pdflink.o `test -f 'luatexdir/pdf/pdflink.c' || echo '$(srcdir)/'`luatexdir/pdf/pdflink.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdflink.Tpo $(DEPDIR)/libluatex_a-pdflink.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdflink.c' object='libluatex_a-pdflink.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdflink.o `test -f 'luatexdir/pdf/pdflink.c' || echo '$(srcdir)/'`luatexdir/pdf/pdflink.c
-
-libluatex_a-pdflink.obj: luatexdir/pdf/pdflink.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdflink.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdflink.Tpo -c -o libluatex_a-pdflink.obj `if test -f 'luatexdir/pdf/pdflink.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdflink.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdflink.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdflink.Tpo $(DEPDIR)/libluatex_a-pdflink.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdflink.c' object='libluatex_a-pdflink.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdflink.obj `if test -f 'luatexdir/pdf/pdflink.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdflink.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdflink.c'; fi`
-
-libluatex_a-pdflistout.o: luatexdir/pdf/pdflistout.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdflistout.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdflistout.Tpo -c -o libluatex_a-pdflistout.o `test -f 'luatexdir/pdf/pdflistout.c' || echo '$(srcdir)/'`luatexdir/pdf/pdflistout.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdflistout.Tpo $(DEPDIR)/libluatex_a-pdflistout.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdflistout.c' object='libluatex_a-pdflistout.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdflistout.o `test -f 'luatexdir/pdf/pdflistout.c' || echo '$(srcdir)/'`luatexdir/pdf/pdflistout.c
-
-libluatex_a-pdflistout.obj: luatexdir/pdf/pdflistout.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdflistout.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdflistout.Tpo -c -o libluatex_a-pdflistout.obj `if test -f 'luatexdir/pdf/pdflistout.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdflistout.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdflistout.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdflistout.Tpo $(DEPDIR)/libluatex_a-pdflistout.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdflistout.c' object='libluatex_a-pdflistout.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdflistout.obj `if test -f 'luatexdir/pdf/pdflistout.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdflistout.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdflistout.c'; fi`
-
-libluatex_a-pdfliteral.o: luatexdir/pdf/pdfliteral.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfliteral.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfliteral.Tpo -c -o libluatex_a-pdfliteral.o `test -f 'luatexdir/pdf/pdfliteral.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfliteral.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfliteral.Tpo $(DEPDIR)/libluatex_a-pdfliteral.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfliteral.c' object='libluatex_a-pdfliteral.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfliteral.o `test -f 'luatexdir/pdf/pdfliteral.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfliteral.c
-
-libluatex_a-pdfliteral.obj: luatexdir/pdf/pdfliteral.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfliteral.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfliteral.Tpo -c -o libluatex_a-pdfliteral.obj `if test -f 'luatexdir/pdf/pdfliteral.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfliteral.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfliteral.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfliteral.Tpo $(DEPDIR)/libluatex_a-pdfliteral.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfliteral.c' object='libluatex_a-pdfliteral.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfliteral.obj `if test -f 'luatexdir/pdf/pdfliteral.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfliteral.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfliteral.c'; fi`
-
-libluatex_a-pdfobj.o: luatexdir/pdf/pdfobj.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfobj.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfobj.Tpo -c -o libluatex_a-pdfobj.o `test -f 'luatexdir/pdf/pdfobj.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfobj.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfobj.Tpo $(DEPDIR)/libluatex_a-pdfobj.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfobj.c' object='libluatex_a-pdfobj.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfobj.o `test -f 'luatexdir/pdf/pdfobj.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfobj.c
-
-libluatex_a-pdfobj.obj: luatexdir/pdf/pdfobj.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfobj.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfobj.Tpo -c -o libluatex_a-pdfobj.obj `if test -f 'luatexdir/pdf/pdfobj.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfobj.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfobj.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfobj.Tpo $(DEPDIR)/libluatex_a-pdfobj.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfobj.c' object='libluatex_a-pdfobj.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfobj.obj `if test -f 'luatexdir/pdf/pdfobj.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfobj.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfobj.c'; fi`
-
-libluatex_a-pdfoutline.o: luatexdir/pdf/pdfoutline.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfoutline.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfoutline.Tpo -c -o libluatex_a-pdfoutline.o `test -f 'luatexdir/pdf/pdfoutline.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfoutline.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfoutline.Tpo $(DEPDIR)/libluatex_a-pdfoutline.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfoutline.c' object='libluatex_a-pdfoutline.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfoutline.o `test -f 'luatexdir/pdf/pdfoutline.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfoutline.c
-
-libluatex_a-pdfoutline.obj: luatexdir/pdf/pdfoutline.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfoutline.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfoutline.Tpo -c -o libluatex_a-pdfoutline.obj `if test -f 'luatexdir/pdf/pdfoutline.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfoutline.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfoutline.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfoutline.Tpo $(DEPDIR)/libluatex_a-pdfoutline.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfoutline.c' object='libluatex_a-pdfoutline.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfoutline.obj `if test -f 'luatexdir/pdf/pdfoutline.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfoutline.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfoutline.c'; fi`
-
-libluatex_a-pdfpage.o: luatexdir/pdf/pdfpage.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfpage.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfpage.Tpo -c -o libluatex_a-pdfpage.o `test -f 'luatexdir/pdf/pdfpage.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfpage.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfpage.Tpo $(DEPDIR)/libluatex_a-pdfpage.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfpage.c' object='libluatex_a-pdfpage.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfpage.o `test -f 'luatexdir/pdf/pdfpage.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfpage.c
-
-libluatex_a-pdfpage.obj: luatexdir/pdf/pdfpage.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfpage.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfpage.Tpo -c -o libluatex_a-pdfpage.obj `if test -f 'luatexdir/pdf/pdfpage.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfpage.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfpage.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfpage.Tpo $(DEPDIR)/libluatex_a-pdfpage.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfpage.c' object='libluatex_a-pdfpage.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfpage.obj `if test -f 'luatexdir/pdf/pdfpage.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfpage.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfpage.c'; fi`
-
-libluatex_a-pdfrule.o: luatexdir/pdf/pdfrule.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfrule.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfrule.Tpo -c -o libluatex_a-pdfrule.o `test -f 'luatexdir/pdf/pdfrule.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfrule.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfrule.Tpo $(DEPDIR)/libluatex_a-pdfrule.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfrule.c' object='libluatex_a-pdfrule.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfrule.o `test -f 'luatexdir/pdf/pdfrule.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfrule.c
-
-libluatex_a-pdfrule.obj: luatexdir/pdf/pdfrule.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfrule.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfrule.Tpo -c -o libluatex_a-pdfrule.obj `if test -f 'luatexdir/pdf/pdfrule.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfrule.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfrule.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfrule.Tpo $(DEPDIR)/libluatex_a-pdfrule.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfrule.c' object='libluatex_a-pdfrule.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfrule.obj `if test -f 'luatexdir/pdf/pdfrule.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfrule.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfrule.c'; fi`
-
-libluatex_a-pdfsaverestore.o: luatexdir/pdf/pdfsaverestore.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfsaverestore.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfsaverestore.Tpo -c -o libluatex_a-pdfsaverestore.o `test -f 'luatexdir/pdf/pdfsaverestore.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfsaverestore.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfsaverestore.Tpo $(DEPDIR)/libluatex_a-pdfsaverestore.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfsaverestore.c' object='libluatex_a-pdfsaverestore.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfsaverestore.o `test -f 'luatexdir/pdf/pdfsaverestore.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfsaverestore.c
-
-libluatex_a-pdfsaverestore.obj: luatexdir/pdf/pdfsaverestore.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfsaverestore.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfsaverestore.Tpo -c -o libluatex_a-pdfsaverestore.obj `if test -f 'luatexdir/pdf/pdfsaverestore.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfsaverestore.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfsaverestore.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfsaverestore.Tpo $(DEPDIR)/libluatex_a-pdfsaverestore.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfsaverestore.c' object='libluatex_a-pdfsaverestore.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfsaverestore.obj `if test -f 'luatexdir/pdf/pdfsaverestore.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfsaverestore.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfsaverestore.c'; fi`
-
-libluatex_a-pdfsetmatrix.o: luatexdir/pdf/pdfsetmatrix.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfsetmatrix.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfsetmatrix.Tpo -c -o libluatex_a-pdfsetmatrix.o `test -f 'luatexdir/pdf/pdfsetmatrix.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfsetmatrix.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfsetmatrix.Tpo $(DEPDIR)/libluatex_a-pdfsetmatrix.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfsetmatrix.c' object='libluatex_a-pdfsetmatrix.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfsetmatrix.o `test -f 'luatexdir/pdf/pdfsetmatrix.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfsetmatrix.c
-
-libluatex_a-pdfsetmatrix.obj: luatexdir/pdf/pdfsetmatrix.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfsetmatrix.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfsetmatrix.Tpo -c -o libluatex_a-pdfsetmatrix.obj `if test -f 'luatexdir/pdf/pdfsetmatrix.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfsetmatrix.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfsetmatrix.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfsetmatrix.Tpo $(DEPDIR)/libluatex_a-pdfsetmatrix.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfsetmatrix.c' object='libluatex_a-pdfsetmatrix.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfsetmatrix.obj `if test -f 'luatexdir/pdf/pdfsetmatrix.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfsetmatrix.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfsetmatrix.c'; fi`
-
-libluatex_a-pdfshipout.o: luatexdir/pdf/pdfshipout.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfshipout.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfshipout.Tpo -c -o libluatex_a-pdfshipout.o `test -f 'luatexdir/pdf/pdfshipout.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfshipout.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfshipout.Tpo $(DEPDIR)/libluatex_a-pdfshipout.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfshipout.c' object='libluatex_a-pdfshipout.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfshipout.o `test -f 'luatexdir/pdf/pdfshipout.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfshipout.c
-
-libluatex_a-pdfshipout.obj: luatexdir/pdf/pdfshipout.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfshipout.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfshipout.Tpo -c -o libluatex_a-pdfshipout.obj `if test -f 'luatexdir/pdf/pdfshipout.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfshipout.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfshipout.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfshipout.Tpo $(DEPDIR)/libluatex_a-pdfshipout.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfshipout.c' object='libluatex_a-pdfshipout.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfshipout.obj `if test -f 'luatexdir/pdf/pdfshipout.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfshipout.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfshipout.c'; fi`
-
-libluatex_a-pdftables.o: luatexdir/pdf/pdftables.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdftables.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdftables.Tpo -c -o libluatex_a-pdftables.o `test -f 'luatexdir/pdf/pdftables.c' || echo '$(srcdir)/'`luatexdir/pdf/pdftables.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdftables.Tpo $(DEPDIR)/libluatex_a-pdftables.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdftables.c' object='libluatex_a-pdftables.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdftables.o `test -f 'luatexdir/pdf/pdftables.c' || echo '$(srcdir)/'`luatexdir/pdf/pdftables.c
-
-libluatex_a-pdftables.obj: luatexdir/pdf/pdftables.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdftables.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdftables.Tpo -c -o libluatex_a-pdftables.obj `if test -f 'luatexdir/pdf/pdftables.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdftables.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdftables.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdftables.Tpo $(DEPDIR)/libluatex_a-pdftables.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdftables.c' object='libluatex_a-pdftables.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdftables.obj `if test -f 'luatexdir/pdf/pdftables.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdftables.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdftables.c'; fi`
-
-libluatex_a-pdfthread.o: luatexdir/pdf/pdfthread.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfthread.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfthread.Tpo -c -o libluatex_a-pdfthread.o `test -f 'luatexdir/pdf/pdfthread.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfthread.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfthread.Tpo $(DEPDIR)/libluatex_a-pdfthread.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfthread.c' object='libluatex_a-pdfthread.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfthread.o `test -f 'luatexdir/pdf/pdfthread.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfthread.c
-
-libluatex_a-pdfthread.obj: luatexdir/pdf/pdfthread.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfthread.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfthread.Tpo -c -o libluatex_a-pdfthread.obj `if test -f 'luatexdir/pdf/pdfthread.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfthread.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfthread.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfthread.Tpo $(DEPDIR)/libluatex_a-pdfthread.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfthread.c' object='libluatex_a-pdfthread.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfthread.obj `if test -f 'luatexdir/pdf/pdfthread.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfthread.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfthread.c'; fi`
-
-libluatex_a-pdfxform.o: luatexdir/pdf/pdfxform.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfxform.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfxform.Tpo -c -o libluatex_a-pdfxform.o `test -f 'luatexdir/pdf/pdfxform.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfxform.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfxform.Tpo $(DEPDIR)/libluatex_a-pdfxform.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfxform.c' object='libluatex_a-pdfxform.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfxform.o `test -f 'luatexdir/pdf/pdfxform.c' || echo '$(srcdir)/'`luatexdir/pdf/pdfxform.c
-
-libluatex_a-pdfxform.obj: luatexdir/pdf/pdfxform.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfxform.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfxform.Tpo -c -o libluatex_a-pdfxform.obj `if test -f 'luatexdir/pdf/pdfxform.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfxform.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfxform.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfxform.Tpo $(DEPDIR)/libluatex_a-pdfxform.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/pdf/pdfxform.c' object='libluatex_a-pdfxform.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfxform.obj `if test -f 'luatexdir/pdf/pdfxform.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfxform.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfxform.c'; fi`
-
 libluatex_a-avl.o: luatexdir/utils/avl.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-avl.o -MD -MP -MF $(DEPDIR)/libluatex_a-avl.Tpo -c -o libluatex_a-avl.o `test -f 'luatexdir/utils/avl.c' || echo '$(srcdir)/'`luatexdir/utils/avl.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-avl.Tpo $(DEPDIR)/libluatex_a-avl.Po
@@ -5149,6 +4851,314 @@ libluatex_a-hnjalloc.obj: hnjalloc.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='hnjalloc.c' object='libluatex_a-hnjalloc.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-hnjalloc.obj `if test -f 'hnjalloc.c'; then $(CYGPATH_W) 'hnjalloc.c'; else $(CYGPATH_W) '$(srcdir)/hnjalloc.c'; fi`
+
+libluatex_a-pagetree.o: pagetree.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pagetree.o -MD -MP -MF $(DEPDIR)/libluatex_a-pagetree.Tpo -c -o libluatex_a-pagetree.o `test -f 'pagetree.c' || echo '$(srcdir)/'`pagetree.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pagetree.Tpo $(DEPDIR)/libluatex_a-pagetree.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pagetree.c' object='libluatex_a-pagetree.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pagetree.o `test -f 'pagetree.c' || echo '$(srcdir)/'`pagetree.c
+
+libluatex_a-pagetree.obj: pagetree.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pagetree.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pagetree.Tpo -c -o libluatex_a-pagetree.obj `if test -f 'pagetree.c'; then $(CYGPATH_W) 'pagetree.c'; else $(CYGPATH_W) '$(srcdir)/pagetree.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pagetree.Tpo $(DEPDIR)/libluatex_a-pagetree.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pagetree.c' object='libluatex_a-pagetree.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pagetree.obj `if test -f 'pagetree.c'; then $(CYGPATH_W) 'pagetree.c'; else $(CYGPATH_W) '$(srcdir)/pagetree.c'; fi`
+
+libluatex_a-pdfaction.o: pdfaction.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfaction.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfaction.Tpo -c -o libluatex_a-pdfaction.o `test -f 'pdfaction.c' || echo '$(srcdir)/'`pdfaction.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfaction.Tpo $(DEPDIR)/libluatex_a-pdfaction.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfaction.c' object='libluatex_a-pdfaction.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfaction.o `test -f 'pdfaction.c' || echo '$(srcdir)/'`pdfaction.c
+
+libluatex_a-pdfaction.obj: pdfaction.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfaction.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfaction.Tpo -c -o libluatex_a-pdfaction.obj `if test -f 'pdfaction.c'; then $(CYGPATH_W) 'pdfaction.c'; else $(CYGPATH_W) '$(srcdir)/pdfaction.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfaction.Tpo $(DEPDIR)/libluatex_a-pdfaction.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfaction.c' object='libluatex_a-pdfaction.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfaction.obj `if test -f 'pdfaction.c'; then $(CYGPATH_W) 'pdfaction.c'; else $(CYGPATH_W) '$(srcdir)/pdfaction.c'; fi`
+
+libluatex_a-pdfannot.o: pdfannot.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfannot.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfannot.Tpo -c -o libluatex_a-pdfannot.o `test -f 'pdfannot.c' || echo '$(srcdir)/'`pdfannot.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfannot.Tpo $(DEPDIR)/libluatex_a-pdfannot.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfannot.c' object='libluatex_a-pdfannot.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfannot.o `test -f 'pdfannot.c' || echo '$(srcdir)/'`pdfannot.c
+
+libluatex_a-pdfannot.obj: pdfannot.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfannot.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfannot.Tpo -c -o libluatex_a-pdfannot.obj `if test -f 'pdfannot.c'; then $(CYGPATH_W) 'pdfannot.c'; else $(CYGPATH_W) '$(srcdir)/pdfannot.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfannot.Tpo $(DEPDIR)/libluatex_a-pdfannot.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfannot.c' object='libluatex_a-pdfannot.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfannot.obj `if test -f 'pdfannot.c'; then $(CYGPATH_W) 'pdfannot.c'; else $(CYGPATH_W) '$(srcdir)/pdfannot.c'; fi`
+
+libluatex_a-pdfcolorstack.o: pdfcolorstack.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfcolorstack.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfcolorstack.Tpo -c -o libluatex_a-pdfcolorstack.o `test -f 'pdfcolorstack.c' || echo '$(srcdir)/'`pdfcolorstack.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfcolorstack.Tpo $(DEPDIR)/libluatex_a-pdfcolorstack.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfcolorstack.c' object='libluatex_a-pdfcolorstack.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfcolorstack.o `test -f 'pdfcolorstack.c' || echo '$(srcdir)/'`pdfcolorstack.c
+
+libluatex_a-pdfcolorstack.obj: pdfcolorstack.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfcolorstack.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfcolorstack.Tpo -c -o libluatex_a-pdfcolorstack.obj `if test -f 'pdfcolorstack.c'; then $(CYGPATH_W) 'pdfcolorstack.c'; else $(CYGPATH_W) '$(srcdir)/pdfcolorstack.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfcolorstack.Tpo $(DEPDIR)/libluatex_a-pdfcolorstack.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfcolorstack.c' object='libluatex_a-pdfcolorstack.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfcolorstack.obj `if test -f 'pdfcolorstack.c'; then $(CYGPATH_W) 'pdfcolorstack.c'; else $(CYGPATH_W) '$(srcdir)/pdfcolorstack.c'; fi`
+
+libluatex_a-pdfdest.o: pdfdest.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfdest.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfdest.Tpo -c -o libluatex_a-pdfdest.o `test -f 'pdfdest.c' || echo '$(srcdir)/'`pdfdest.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfdest.Tpo $(DEPDIR)/libluatex_a-pdfdest.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfdest.c' object='libluatex_a-pdfdest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfdest.o `test -f 'pdfdest.c' || echo '$(srcdir)/'`pdfdest.c
+
+libluatex_a-pdfdest.obj: pdfdest.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfdest.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfdest.Tpo -c -o libluatex_a-pdfdest.obj `if test -f 'pdfdest.c'; then $(CYGPATH_W) 'pdfdest.c'; else $(CYGPATH_W) '$(srcdir)/pdfdest.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfdest.Tpo $(DEPDIR)/libluatex_a-pdfdest.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfdest.c' object='libluatex_a-pdfdest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfdest.obj `if test -f 'pdfdest.c'; then $(CYGPATH_W) 'pdfdest.c'; else $(CYGPATH_W) '$(srcdir)/pdfdest.c'; fi`
+
+libluatex_a-pdffont.o: pdffont.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdffont.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdffont.Tpo -c -o libluatex_a-pdffont.o `test -f 'pdffont.c' || echo '$(srcdir)/'`pdffont.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdffont.Tpo $(DEPDIR)/libluatex_a-pdffont.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdffont.c' object='libluatex_a-pdffont.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdffont.o `test -f 'pdffont.c' || echo '$(srcdir)/'`pdffont.c
+
+libluatex_a-pdffont.obj: pdffont.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdffont.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdffont.Tpo -c -o libluatex_a-pdffont.obj `if test -f 'pdffont.c'; then $(CYGPATH_W) 'pdffont.c'; else $(CYGPATH_W) '$(srcdir)/pdffont.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdffont.Tpo $(DEPDIR)/libluatex_a-pdffont.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdffont.c' object='libluatex_a-pdffont.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdffont.obj `if test -f 'pdffont.c'; then $(CYGPATH_W) 'pdffont.c'; else $(CYGPATH_W) '$(srcdir)/pdffont.c'; fi`
+
+libluatex_a-pdfgen.o: pdfgen.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfgen.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfgen.Tpo -c -o libluatex_a-pdfgen.o `test -f 'pdfgen.c' || echo '$(srcdir)/'`pdfgen.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfgen.Tpo $(DEPDIR)/libluatex_a-pdfgen.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfgen.c' object='libluatex_a-pdfgen.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfgen.o `test -f 'pdfgen.c' || echo '$(srcdir)/'`pdfgen.c
+
+libluatex_a-pdfgen.obj: pdfgen.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfgen.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfgen.Tpo -c -o libluatex_a-pdfgen.obj `if test -f 'pdfgen.c'; then $(CYGPATH_W) 'pdfgen.c'; else $(CYGPATH_W) '$(srcdir)/pdfgen.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfgen.Tpo $(DEPDIR)/libluatex_a-pdfgen.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfgen.c' object='libluatex_a-pdfgen.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfgen.obj `if test -f 'pdfgen.c'; then $(CYGPATH_W) 'pdfgen.c'; else $(CYGPATH_W) '$(srcdir)/pdfgen.c'; fi`
+
+libluatex_a-pdfglyph.o: pdfglyph.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfglyph.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfglyph.Tpo -c -o libluatex_a-pdfglyph.o `test -f 'pdfglyph.c' || echo '$(srcdir)/'`pdfglyph.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfglyph.Tpo $(DEPDIR)/libluatex_a-pdfglyph.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfglyph.c' object='libluatex_a-pdfglyph.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfglyph.o `test -f 'pdfglyph.c' || echo '$(srcdir)/'`pdfglyph.c
+
+libluatex_a-pdfglyph.obj: pdfglyph.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfglyph.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfglyph.Tpo -c -o libluatex_a-pdfglyph.obj `if test -f 'pdfglyph.c'; then $(CYGPATH_W) 'pdfglyph.c'; else $(CYGPATH_W) '$(srcdir)/pdfglyph.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfglyph.Tpo $(DEPDIR)/libluatex_a-pdfglyph.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfglyph.c' object='libluatex_a-pdfglyph.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfglyph.obj `if test -f 'pdfglyph.c'; then $(CYGPATH_W) 'pdfglyph.c'; else $(CYGPATH_W) '$(srcdir)/pdfglyph.c'; fi`
+
+libluatex_a-pdfimage.o: pdfimage.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfimage.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfimage.Tpo -c -o libluatex_a-pdfimage.o `test -f 'pdfimage.c' || echo '$(srcdir)/'`pdfimage.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfimage.Tpo $(DEPDIR)/libluatex_a-pdfimage.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfimage.c' object='libluatex_a-pdfimage.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfimage.o `test -f 'pdfimage.c' || echo '$(srcdir)/'`pdfimage.c
+
+libluatex_a-pdfimage.obj: pdfimage.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfimage.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfimage.Tpo -c -o libluatex_a-pdfimage.obj `if test -f 'pdfimage.c'; then $(CYGPATH_W) 'pdfimage.c'; else $(CYGPATH_W) '$(srcdir)/pdfimage.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfimage.Tpo $(DEPDIR)/libluatex_a-pdfimage.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfimage.c' object='libluatex_a-pdfimage.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfimage.obj `if test -f 'pdfimage.c'; then $(CYGPATH_W) 'pdfimage.c'; else $(CYGPATH_W) '$(srcdir)/pdfimage.c'; fi`
+
+libluatex_a-pdflink.o: pdflink.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdflink.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdflink.Tpo -c -o libluatex_a-pdflink.o `test -f 'pdflink.c' || echo '$(srcdir)/'`pdflink.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdflink.Tpo $(DEPDIR)/libluatex_a-pdflink.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdflink.c' object='libluatex_a-pdflink.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdflink.o `test -f 'pdflink.c' || echo '$(srcdir)/'`pdflink.c
+
+libluatex_a-pdflink.obj: pdflink.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdflink.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdflink.Tpo -c -o libluatex_a-pdflink.obj `if test -f 'pdflink.c'; then $(CYGPATH_W) 'pdflink.c'; else $(CYGPATH_W) '$(srcdir)/pdflink.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdflink.Tpo $(DEPDIR)/libluatex_a-pdflink.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdflink.c' object='libluatex_a-pdflink.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdflink.obj `if test -f 'pdflink.c'; then $(CYGPATH_W) 'pdflink.c'; else $(CYGPATH_W) '$(srcdir)/pdflink.c'; fi`
+
+libluatex_a-pdflistout.o: pdflistout.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdflistout.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdflistout.Tpo -c -o libluatex_a-pdflistout.o `test -f 'pdflistout.c' || echo '$(srcdir)/'`pdflistout.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdflistout.Tpo $(DEPDIR)/libluatex_a-pdflistout.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdflistout.c' object='libluatex_a-pdflistout.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdflistout.o `test -f 'pdflistout.c' || echo '$(srcdir)/'`pdflistout.c
+
+libluatex_a-pdflistout.obj: pdflistout.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdflistout.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdflistout.Tpo -c -o libluatex_a-pdflistout.obj `if test -f 'pdflistout.c'; then $(CYGPATH_W) 'pdflistout.c'; else $(CYGPATH_W) '$(srcdir)/pdflistout.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdflistout.Tpo $(DEPDIR)/libluatex_a-pdflistout.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdflistout.c' object='libluatex_a-pdflistout.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdflistout.obj `if test -f 'pdflistout.c'; then $(CYGPATH_W) 'pdflistout.c'; else $(CYGPATH_W) '$(srcdir)/pdflistout.c'; fi`
+
+libluatex_a-pdfliteral.o: pdfliteral.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfliteral.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfliteral.Tpo -c -o libluatex_a-pdfliteral.o `test -f 'pdfliteral.c' || echo '$(srcdir)/'`pdfliteral.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfliteral.Tpo $(DEPDIR)/libluatex_a-pdfliteral.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfliteral.c' object='libluatex_a-pdfliteral.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfliteral.o `test -f 'pdfliteral.c' || echo '$(srcdir)/'`pdfliteral.c
+
+libluatex_a-pdfliteral.obj: pdfliteral.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfliteral.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfliteral.Tpo -c -o libluatex_a-pdfliteral.obj `if test -f 'pdfliteral.c'; then $(CYGPATH_W) 'pdfliteral.c'; else $(CYGPATH_W) '$(srcdir)/pdfliteral.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfliteral.Tpo $(DEPDIR)/libluatex_a-pdfliteral.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfliteral.c' object='libluatex_a-pdfliteral.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfliteral.obj `if test -f 'pdfliteral.c'; then $(CYGPATH_W) 'pdfliteral.c'; else $(CYGPATH_W) '$(srcdir)/pdfliteral.c'; fi`
+
+libluatex_a-pdfobj.o: pdfobj.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfobj.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfobj.Tpo -c -o libluatex_a-pdfobj.o `test -f 'pdfobj.c' || echo '$(srcdir)/'`pdfobj.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfobj.Tpo $(DEPDIR)/libluatex_a-pdfobj.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfobj.c' object='libluatex_a-pdfobj.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfobj.o `test -f 'pdfobj.c' || echo '$(srcdir)/'`pdfobj.c
+
+libluatex_a-pdfobj.obj: pdfobj.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfobj.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfobj.Tpo -c -o libluatex_a-pdfobj.obj `if test -f 'pdfobj.c'; then $(CYGPATH_W) 'pdfobj.c'; else $(CYGPATH_W) '$(srcdir)/pdfobj.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfobj.Tpo $(DEPDIR)/libluatex_a-pdfobj.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfobj.c' object='libluatex_a-pdfobj.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfobj.obj `if test -f 'pdfobj.c'; then $(CYGPATH_W) 'pdfobj.c'; else $(CYGPATH_W) '$(srcdir)/pdfobj.c'; fi`
+
+libluatex_a-pdfoutline.o: pdfoutline.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfoutline.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfoutline.Tpo -c -o libluatex_a-pdfoutline.o `test -f 'pdfoutline.c' || echo '$(srcdir)/'`pdfoutline.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfoutline.Tpo $(DEPDIR)/libluatex_a-pdfoutline.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfoutline.c' object='libluatex_a-pdfoutline.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfoutline.o `test -f 'pdfoutline.c' || echo '$(srcdir)/'`pdfoutline.c
+
+libluatex_a-pdfoutline.obj: pdfoutline.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfoutline.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfoutline.Tpo -c -o libluatex_a-pdfoutline.obj `if test -f 'pdfoutline.c'; then $(CYGPATH_W) 'pdfoutline.c'; else $(CYGPATH_W) '$(srcdir)/pdfoutline.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfoutline.Tpo $(DEPDIR)/libluatex_a-pdfoutline.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfoutline.c' object='libluatex_a-pdfoutline.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfoutline.obj `if test -f 'pdfoutline.c'; then $(CYGPATH_W) 'pdfoutline.c'; else $(CYGPATH_W) '$(srcdir)/pdfoutline.c'; fi`
+
+libluatex_a-pdfpage.o: pdfpage.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfpage.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfpage.Tpo -c -o libluatex_a-pdfpage.o `test -f 'pdfpage.c' || echo '$(srcdir)/'`pdfpage.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfpage.Tpo $(DEPDIR)/libluatex_a-pdfpage.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfpage.c' object='libluatex_a-pdfpage.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfpage.o `test -f 'pdfpage.c' || echo '$(srcdir)/'`pdfpage.c
+
+libluatex_a-pdfpage.obj: pdfpage.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfpage.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfpage.Tpo -c -o libluatex_a-pdfpage.obj `if test -f 'pdfpage.c'; then $(CYGPATH_W) 'pdfpage.c'; else $(CYGPATH_W) '$(srcdir)/pdfpage.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfpage.Tpo $(DEPDIR)/libluatex_a-pdfpage.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfpage.c' object='libluatex_a-pdfpage.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfpage.obj `if test -f 'pdfpage.c'; then $(CYGPATH_W) 'pdfpage.c'; else $(CYGPATH_W) '$(srcdir)/pdfpage.c'; fi`
+
+libluatex_a-pdfrule.o: pdfrule.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfrule.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfrule.Tpo -c -o libluatex_a-pdfrule.o `test -f 'pdfrule.c' || echo '$(srcdir)/'`pdfrule.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfrule.Tpo $(DEPDIR)/libluatex_a-pdfrule.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfrule.c' object='libluatex_a-pdfrule.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfrule.o `test -f 'pdfrule.c' || echo '$(srcdir)/'`pdfrule.c
+
+libluatex_a-pdfrule.obj: pdfrule.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfrule.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfrule.Tpo -c -o libluatex_a-pdfrule.obj `if test -f 'pdfrule.c'; then $(CYGPATH_W) 'pdfrule.c'; else $(CYGPATH_W) '$(srcdir)/pdfrule.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfrule.Tpo $(DEPDIR)/libluatex_a-pdfrule.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfrule.c' object='libluatex_a-pdfrule.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfrule.obj `if test -f 'pdfrule.c'; then $(CYGPATH_W) 'pdfrule.c'; else $(CYGPATH_W) '$(srcdir)/pdfrule.c'; fi`
+
+libluatex_a-pdfsaverestore.o: pdfsaverestore.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfsaverestore.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfsaverestore.Tpo -c -o libluatex_a-pdfsaverestore.o `test -f 'pdfsaverestore.c' || echo '$(srcdir)/'`pdfsaverestore.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfsaverestore.Tpo $(DEPDIR)/libluatex_a-pdfsaverestore.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfsaverestore.c' object='libluatex_a-pdfsaverestore.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfsaverestore.o `test -f 'pdfsaverestore.c' || echo '$(srcdir)/'`pdfsaverestore.c
+
+libluatex_a-pdfsaverestore.obj: pdfsaverestore.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfsaverestore.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfsaverestore.Tpo -c -o libluatex_a-pdfsaverestore.obj `if test -f 'pdfsaverestore.c'; then $(CYGPATH_W) 'pdfsaverestore.c'; else $(CYGPATH_W) '$(srcdir)/pdfsaverestore.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfsaverestore.Tpo $(DEPDIR)/libluatex_a-pdfsaverestore.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfsaverestore.c' object='libluatex_a-pdfsaverestore.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfsaverestore.obj `if test -f 'pdfsaverestore.c'; then $(CYGPATH_W) 'pdfsaverestore.c'; else $(CYGPATH_W) '$(srcdir)/pdfsaverestore.c'; fi`
+
+libluatex_a-pdfsetmatrix.o: pdfsetmatrix.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfsetmatrix.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfsetmatrix.Tpo -c -o libluatex_a-pdfsetmatrix.o `test -f 'pdfsetmatrix.c' || echo '$(srcdir)/'`pdfsetmatrix.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfsetmatrix.Tpo $(DEPDIR)/libluatex_a-pdfsetmatrix.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfsetmatrix.c' object='libluatex_a-pdfsetmatrix.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfsetmatrix.o `test -f 'pdfsetmatrix.c' || echo '$(srcdir)/'`pdfsetmatrix.c
+
+libluatex_a-pdfsetmatrix.obj: pdfsetmatrix.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfsetmatrix.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfsetmatrix.Tpo -c -o libluatex_a-pdfsetmatrix.obj `if test -f 'pdfsetmatrix.c'; then $(CYGPATH_W) 'pdfsetmatrix.c'; else $(CYGPATH_W) '$(srcdir)/pdfsetmatrix.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfsetmatrix.Tpo $(DEPDIR)/libluatex_a-pdfsetmatrix.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfsetmatrix.c' object='libluatex_a-pdfsetmatrix.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfsetmatrix.obj `if test -f 'pdfsetmatrix.c'; then $(CYGPATH_W) 'pdfsetmatrix.c'; else $(CYGPATH_W) '$(srcdir)/pdfsetmatrix.c'; fi`
+
+libluatex_a-pdfshipout.o: pdfshipout.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfshipout.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfshipout.Tpo -c -o libluatex_a-pdfshipout.o `test -f 'pdfshipout.c' || echo '$(srcdir)/'`pdfshipout.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfshipout.Tpo $(DEPDIR)/libluatex_a-pdfshipout.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfshipout.c' object='libluatex_a-pdfshipout.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfshipout.o `test -f 'pdfshipout.c' || echo '$(srcdir)/'`pdfshipout.c
+
+libluatex_a-pdfshipout.obj: pdfshipout.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfshipout.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfshipout.Tpo -c -o libluatex_a-pdfshipout.obj `if test -f 'pdfshipout.c'; then $(CYGPATH_W) 'pdfshipout.c'; else $(CYGPATH_W) '$(srcdir)/pdfshipout.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfshipout.Tpo $(DEPDIR)/libluatex_a-pdfshipout.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfshipout.c' object='libluatex_a-pdfshipout.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfshipout.obj `if test -f 'pdfshipout.c'; then $(CYGPATH_W) 'pdfshipout.c'; else $(CYGPATH_W) '$(srcdir)/pdfshipout.c'; fi`
+
+libluatex_a-pdftables.o: pdftables.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdftables.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdftables.Tpo -c -o libluatex_a-pdftables.o `test -f 'pdftables.c' || echo '$(srcdir)/'`pdftables.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdftables.Tpo $(DEPDIR)/libluatex_a-pdftables.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdftables.c' object='libluatex_a-pdftables.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdftables.o `test -f 'pdftables.c' || echo '$(srcdir)/'`pdftables.c
+
+libluatex_a-pdftables.obj: pdftables.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdftables.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdftables.Tpo -c -o libluatex_a-pdftables.obj `if test -f 'pdftables.c'; then $(CYGPATH_W) 'pdftables.c'; else $(CYGPATH_W) '$(srcdir)/pdftables.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdftables.Tpo $(DEPDIR)/libluatex_a-pdftables.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdftables.c' object='libluatex_a-pdftables.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdftables.obj `if test -f 'pdftables.c'; then $(CYGPATH_W) 'pdftables.c'; else $(CYGPATH_W) '$(srcdir)/pdftables.c'; fi`
+
+libluatex_a-pdfthread.o: pdfthread.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfthread.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfthread.Tpo -c -o libluatex_a-pdfthread.o `test -f 'pdfthread.c' || echo '$(srcdir)/'`pdfthread.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfthread.Tpo $(DEPDIR)/libluatex_a-pdfthread.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfthread.c' object='libluatex_a-pdfthread.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfthread.o `test -f 'pdfthread.c' || echo '$(srcdir)/'`pdfthread.c
+
+libluatex_a-pdfthread.obj: pdfthread.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfthread.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfthread.Tpo -c -o libluatex_a-pdfthread.obj `if test -f 'pdfthread.c'; then $(CYGPATH_W) 'pdfthread.c'; else $(CYGPATH_W) '$(srcdir)/pdfthread.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfthread.Tpo $(DEPDIR)/libluatex_a-pdfthread.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfthread.c' object='libluatex_a-pdfthread.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfthread.obj `if test -f 'pdfthread.c'; then $(CYGPATH_W) 'pdfthread.c'; else $(CYGPATH_W) '$(srcdir)/pdfthread.c'; fi`
+
+libluatex_a-pdfxform.o: pdfxform.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfxform.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfxform.Tpo -c -o libluatex_a-pdfxform.o `test -f 'pdfxform.c' || echo '$(srcdir)/'`pdfxform.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfxform.Tpo $(DEPDIR)/libluatex_a-pdfxform.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfxform.c' object='libluatex_a-pdfxform.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfxform.o `test -f 'pdfxform.c' || echo '$(srcdir)/'`pdfxform.c
+
+libluatex_a-pdfxform.obj: pdfxform.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfxform.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfxform.Tpo -c -o libluatex_a-pdfxform.obj `if test -f 'pdfxform.c'; then $(CYGPATH_W) 'pdfxform.c'; else $(CYGPATH_W) '$(srcdir)/pdfxform.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfxform.Tpo $(DEPDIR)/libluatex_a-pdfxform.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfxform.c' object='libluatex_a-pdfxform.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfxform.obj `if test -f 'pdfxform.c'; then $(CYGPATH_W) 'pdfxform.c'; else $(CYGPATH_W) '$(srcdir)/pdfxform.c'; fi`
 
 libluatex_a-align.o: align.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-align.o -MD -MP -MF $(DEPDIR)/libluatex_a-align.Tpo -c -o libluatex_a-align.o `test -f 'align.c' || echo '$(srcdir)/'`align.c
@@ -7456,6 +7466,72 @@ hyphen.c: ctangle$(EXEEXT) luatexdir/lang/hyphen.w
 
 texlang.c: ctangle$(EXEEXT) luatexdir/lang/texlang.w
 	$(luatex_lang_ctangle) texlang.w
+
+pagetree.c: ctangle$(EXEEXT) luatexdir/pdf/pagetree.w
+	$(luatex_pdf_ctangle) pagetree.w
+
+pdfaction.c: ctangle$(EXEEXT) luatexdir/pdf/pdfaction.w
+	$(luatex_pdf_ctangle) pdfaction.w
+
+pdfannot.c: ctangle$(EXEEXT) luatexdir/pdf/pdfannot.w
+	$(luatex_pdf_ctangle) pdfannot.w
+
+pdfcolorstack.c: ctangle$(EXEEXT) luatexdir/pdf/pdfcolorstack.w
+	$(luatex_pdf_ctangle) pdfcolorstack.w
+
+pdfdest.c: ctangle$(EXEEXT) luatexdir/pdf/pdfdest.w
+	$(luatex_pdf_ctangle) pdfdest.w
+
+pdffont.c: ctangle$(EXEEXT) luatexdir/pdf/pdffont.w
+	$(luatex_pdf_ctangle) pdffont.w
+
+pdfgen.c: ctangle$(EXEEXT) luatexdir/pdf/pdfgen.w
+	$(luatex_pdf_ctangle) pdfgen.w
+
+pdfglyph.c: ctangle$(EXEEXT) luatexdir/pdf/pdfglyph.w
+	$(luatex_pdf_ctangle) pdfglyph.w
+
+pdfimage.c: ctangle$(EXEEXT) luatexdir/pdf/pdfimage.w
+	$(luatex_pdf_ctangle) pdfimage.w
+
+pdflink.c: ctangle$(EXEEXT) luatexdir/pdf/pdflink.w
+	$(luatex_pdf_ctangle) pdflink.w
+
+pdflistout.c: ctangle$(EXEEXT) luatexdir/pdf/pdflistout.w
+	$(luatex_pdf_ctangle) pdflistout.w
+
+pdfliteral.c: ctangle$(EXEEXT) luatexdir/pdf/pdfliteral.w
+	$(luatex_pdf_ctangle) pdfliteral.w
+
+pdfobj.c: ctangle$(EXEEXT) luatexdir/pdf/pdfobj.w
+	$(luatex_pdf_ctangle) pdfobj.w
+
+pdfoutline.c: ctangle$(EXEEXT) luatexdir/pdf/pdfoutline.w
+	$(luatex_pdf_ctangle) pdfoutline.w
+
+pdfpage.c: ctangle$(EXEEXT) luatexdir/pdf/pdfpage.w
+	$(luatex_pdf_ctangle) pdfpage.w
+
+pdfrule.c: ctangle$(EXEEXT) luatexdir/pdf/pdfrule.w
+	$(luatex_pdf_ctangle) pdfrule.w
+
+pdfsaverestore.c: ctangle$(EXEEXT) luatexdir/pdf/pdfsaverestore.w
+	$(luatex_pdf_ctangle) pdfsaverestore.w
+
+pdfsetmatrix.c: ctangle$(EXEEXT) luatexdir/pdf/pdfsetmatrix.w
+	$(luatex_pdf_ctangle) pdfsetmatrix.w
+
+pdfshipout.c: ctangle$(EXEEXT) luatexdir/pdf/pdfshipout.w
+	$(luatex_pdf_ctangle) pdfshipout.w
+
+pdftables.c: ctangle$(EXEEXT) luatexdir/pdf/pdftables.w
+	$(luatex_pdf_ctangle) pdftables.w
+
+pdfthread.c: ctangle$(EXEEXT) luatexdir/pdf/pdfthread.w
+	$(luatex_pdf_ctangle) pdfthread.w
+
+pdfxform.c: ctangle$(EXEEXT) luatexdir/pdf/pdfxform.w
+	$(luatex_pdf_ctangle) pdfxform.w
 
 align.c: ctangle$(EXEEXT) luatexdir/tex/align.w
 	$(luatex_tex_ctangle) align.w

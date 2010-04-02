@@ -1,54 +1,55 @@
-/* pdftables.c
+% pdftables.w
 
-   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
 #include "ptexlib.h"
 
-/**********************************************************************/
-/* One AVL tree each for a few obj_type out of 0...PDF_OBJ_TYPE_MAX */
+@ One AVL tree each for a few |obj_type| out of |0...PDF_OBJ_TYPE_MAX|
 
+@c
 /* mark which objects should be searchable through AVL tree */
 
 static int obj_in_tree[PDF_OBJ_TYPE_MAX + 1] = {
-    0,                          /* obj_type_font = 0,       */
-    0,                          /* obj_type_outline = 1,    */
-    1,                          /* obj_type_dest = 2,       */
-    0,                          /* obj_type_obj = 3,        */
-    0,                          /* obj_type_xform = 4,      */
-    0,                          /* obj_type_ximage = 5,     */
-    1,                          /* obj_type_thread = 6,     */
+    0,                          /* |obj_type_font = 0|,       */
+    0,                          /* |obj_type_outline = 1|,    */
+    1,                          /* |obj_type_dest = 2|,       */
+    0,                          /* |obj_type_obj = 3|,        */
+    0,                          /* |obj_type_xform = 4|,      */
+    0,                          /* |obj_type_ximage = 5|,     */
+    1,                          /* |obj_type_thread = 6|,     */
     /* the ones below don't go into a linked list */
-    0,                          /* obj_type_pagestream = 7, */
-    1,                          /* obj_type_page = 8,       */
-    0,                          /* obj_type_pages = 9,      */
-    0,                          /* obj_type_link = 10,      */
-    0,                          /* obj_type_bead = 11,      */
-    0,                          /* obj_type_annot = 12,     */
-    0,                          /* obj_type_objstm = 13,    */
-    0                           /* obj_type_others = 14     */
+    0,                          /* |obj_type_pagestream = 7|, */
+    1,                          /* |obj_type_page = 8|,       */
+    0,                          /* |obj_type_pages = 9|,      */
+    0,                          /* |obj_type_link = 10|,      */
+    0,                          /* |obj_type_bead = 11|,      */
+    0,                          /* |obj_type_annot = 12|,     */
+    0,                          /* |obj_type_objstm = 13|,    */
+    0                           /* |obj_type_others = 14|     */
 };
 
-/* AVL sort oentry into avl_table[] */
-
+@ AVL sort oentry into |avl_table[]| 
+@c
 static int compare_info(const void *pa, const void *pb, void *param)
 {
     const oentry *a, *b;
@@ -131,9 +132,9 @@ static int avl_find_str_obj(PDF pdf, int t, char *s)
     return p->objptr;
 }
 
-/**********************************************************************/
-/* create an object with type |t| and identifier |i| */
+@ Create an object with type |t| and identifier |i| 
 
+@c
 void pdf_create_obj(PDF pdf, int t, int i)
 {
     int a;
@@ -169,7 +170,7 @@ void pdf_create_obj(PDF pdf, int t, int i)
                              pdf->obj_ptr);
     }
 }
-
+@ @c
 int find_obj(PDF pdf, int t, int i, boolean byname)
 {
     char *ss = NULL;
@@ -185,15 +186,15 @@ int find_obj(PDF pdf, int t, int i, boolean byname)
     return ret;
 }
 
-/* The following function finds an object with identifier |i| and type |t|.
+@ The following function finds an object with identifier |i| and type |t|.
    Identifier |i| is either an integer or a token list index. If no
    such object exists then it will be created. This function is used mainly to
    find destination for link annotations and outlines; however it is also used
    in |ship_out| (to check whether a Page object already exists) so we need
    to declare it together with subroutines needed in |hlist_out| and
    |vlist_out|.
-*/
 
+@c
 int get_obj(PDF pdf, int t, int i, boolean byname)
 {
     int r;
@@ -222,7 +223,9 @@ int get_obj(PDF pdf, int t, int i, boolean byname)
     return r;
 }
 
-/* create a new object and return its number */
+@ create a new object and return its number 
+
+@c
 int pdf_new_objnum(PDF pdf)
 {
     pdf_create_obj(pdf, obj_type_others, 0);
@@ -237,6 +240,7 @@ void check_obj_exists(PDF pdf, int t, int objnum)
         pdf_error("ext1", "referenced object has wrong type");
 }
 
+@ @c
 void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur,
                      scaled_whd alt_rule, scaled margin)
 {
@@ -286,6 +290,7 @@ void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur,
     pdf_ann_top(p) = pos_ur.v + margin;
 }
 
+@ @c
 void libpdffinish(PDF pdf)
 {
     fb_free(pdf);
@@ -300,16 +305,16 @@ void libpdffinish(PDF pdf)
     zip_free(pdf);
 }
 
-/*
-Store some of the pdftex data structures in the format. The idea here is
+
+@ Store some of the pdftex data structures in the format. The idea here is
 to ensure that any data structures referenced from pdftex-specific whatsit
 nodes are retained. For the sake of simplicity and speed, all the filled parts
 of |pdf->mem| and |obj_tab| are retained, in the present implementation. We also
 retain three of the linked lists that start from |head_tab|, so that it is
 possible to, say, load an image in the \.{INITEX} run and then reference it in a
 \.{VIRTEX} run that uses the dumped format.
-*/
 
+@c
 void dump_pdftex_data(PDF pdf)
 {
     int k, x;
@@ -354,21 +359,21 @@ void dump_pdftex_data(PDF pdf)
             l = l->link;
         }
     }
-    dump_int(0);                /* signal end of obj_list */
+    dump_int(0);                /* signal end of |obj_list| */
     if ((l = get_page_resources_list(pdf, obj_type_xform)) != NULL) {
         while (l != NULL) {
             dump_int(l->info);
             l = l->link;
         }
     }
-    dump_int(0);                /* signal end of xform_list */
+    dump_int(0);                /* signal end of |xform_list| */
     if ((l = get_page_resources_list(pdf, obj_type_ximage)) != NULL) {
         while (l != NULL) {
             dump_int(l->info);
             l = l->link;
         }
     }
-    dump_int(0);                /* signal end of ximage_list */
+    dump_int(0);                /* signal end of |ximage_list| */
     x = pdf->head_tab[obj_type_obj];
     dump_int(x);
     x = pdf->head_tab[obj_type_xform];
@@ -380,12 +385,11 @@ void dump_pdftex_data(PDF pdf)
     dump_int(pdf_last_ximage);
 }
 
-/*
-And restoring the pdftex data structures from the format. The
+@ And restoring the pdftex data structures from the format. The
 two function arguments to |undumpimagemeta| have been restored
 already in an earlier module.
-*/
 
+@c
 void undump_pdftex_data(PDF pdf)
 {
     int k, x;

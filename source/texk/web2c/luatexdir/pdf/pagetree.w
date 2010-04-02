@@ -1,31 +1,32 @@
-/* pagetree.c
-   
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+% pagetree.w
+% 
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
 #include "ptexlib.h"
 
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
-/**********************************************************************/
-/* Page diversions */
+@* Page diversions.
 
+@ @c
 #ifdef DEBUG
 #  define PAGES_TREE_KIDSMAX 3
 #else
@@ -60,6 +61,7 @@ static int comp_divert_list_entry(const void *pa, const void *pb, void *p)
     return 0;
 }
 
+@ @c
 static pages_entry *new_pages_entry(PDF pdf)
 {
     pages_entry *p;
@@ -74,6 +76,7 @@ static pages_entry *new_pages_entry(PDF pdf)
     return p;
 }
 
+@ @c
 static divert_list_entry *new_divert_list_entry(void)
 {
     divert_list_entry *d;
@@ -82,6 +85,7 @@ static divert_list_entry *new_divert_list_entry(void)
     return d;
 }
 
+@ @c
 static void ensure_list_tree(void)
 {
     if (divert_list_tree == NULL) {
@@ -91,6 +95,7 @@ static void ensure_list_tree(void)
     }
 }
 
+@ @c
 static divert_list_entry *get_divert_list(int divnum)
 {
     divert_list_entry *d, tmp;
@@ -106,8 +111,8 @@ static divert_list_entry *get_divert_list(int divnum)
     return d;
 }
 
-/* pdf_do_page_divert() returns the current /Parent object number */
-
+@ |pdf_do_page_divert()| returns the current /Parent object number 
+@c
 int pdf_do_page_divert(PDF pdf, int objnum, int divnum)
 {
     divert_list_entry *d;
@@ -119,10 +124,10 @@ int pdf_do_page_divert(PDF pdf, int objnum, int divnum)
 #endif
     /* initialize the tree */
     ensure_list_tree();
-    // make sure we have a list for this diversion
+    /* make sure we have a list for this diversion */
     d = get_divert_list(divnum);
     if (d->first == NULL || d->last->number_of_kids == PAGES_TREE_KIDSMAX) {
-        // append a new pages_entry
+        /* append a new |pages_entry| */
         p = new_pages_entry(pdf);
         if (d->first == NULL)
             d->first = p;
@@ -151,6 +156,7 @@ int pdf_do_page_divert(PDF pdf, int objnum, int divnum)
     return p->objnum;
 }
 
+@ @c
 static void movelist(divert_list_entry * d, divert_list_entry * dto)
 {
     if (d != NULL && d->first != NULL && d->divnum != dto->divnum) {    /* no undivert of empty list or into self */
@@ -159,12 +165,12 @@ static void movelist(divert_list_entry * d, divert_list_entry * dto)
         else
             dto->last->next = d->first;
         dto->last = d->last;
-        d->first = d->last = NULL;      /* one could as well remove this divert_list_entry */
+        d->first = d->last = NULL;      /* one could as well remove this |divert_list_entry| */
     }
 }
 
-/* undivert from diversion <divnum> into diversion <curdivnum> */
-
+@ undivert from diversion |divnum| into diversion |curdivnum|
+@c
 void pdf_do_page_undivert(int divnum, int curdivnum)
 {
     divert_list_entry *d, *dto, tmp;
@@ -173,11 +179,11 @@ void pdf_do_page_undivert(int divnum, int curdivnum)
     pages_entry *p;
     int i;
 #endif
-    // initialize the tree
+    /*  initialize the tree */
     ensure_list_tree();
-    // find the diversion <curdivnum> list where diversion <divnum> should go
+    /* find the diversion |curdivnum| list where diversion |divnum| should go */
     dto = get_divert_list(curdivnum);
-    if (divnum == 0) {          /* 0 = special case: undivert _all_ lists */
+    if (divnum == 0) {          /* 0 = special case: undivert {\it all\/} lists */
         avl_t_init(&t, divert_list_tree);
         for (d = avl_t_first(&t, divert_list_tree); d != NULL;
              d = avl_t_next(&t))
@@ -204,8 +210,8 @@ void pdf_do_page_undivert(int divnum, int curdivnum)
 #endif
 }
 
-/* write a /Pages object */
-
+@ write a /Pages object 
+@c
 #define pdf_pages_attr equiv(pdf_pages_attr_loc)
 
 static void write_pages(PDF pdf, pages_entry * p, int parent)
@@ -227,14 +233,14 @@ static void write_pages(PDF pdf, pages_entry * p, int parent)
     pdf_end_dict(pdf);
 }
 
-/* loop over all /Pages objects, output them, create their parents,
- * recursing bottom up, return the /Pages root object number */
-
+@ loop over all /Pages objects, output them, create their parents,
+recursing bottom up, return the /Pages root object number 
+@c
 static int output_pages_list(PDF pdf, pages_entry * pe)
 {
     pages_entry *p, *q, *r;
     assert(pe != NULL);
-    if (pe->next == NULL) {     /* everything fits into one pages_entry */
+    if (pe->next == NULL) {     /* everything fits into one |pages_entry| */
         write_pages(pdf, pe, 0);        /* --> /Pages root found */
         return pe->objnum;
     }
@@ -251,6 +257,7 @@ static int output_pages_list(PDF pdf, pages_entry * pe)
     return output_pages_list(pdf, r);   /* recurse through next higher level */
 }
 
+@ @c
 int output_pages_tree(PDF pdf)
 {
     divert_list_entry *d;

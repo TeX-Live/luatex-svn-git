@@ -1,42 +1,44 @@
-/* pdfdest.c
+% pdfdest.w
 
-   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
 #include "ptexlib.h"
 
+@ @c
 #define pdf_dest_margin          dimen_par(pdf_dest_margin_code)
 
-/*
-Here we implement subroutines for work with objects and related things.
+@ Here we implement subroutines for work with objects and related things.
 Some of them are used in former parts too, so we need to declare them
 forward.
-*/
 
+@c
 void init_dest_names(PDF pdf)
 {
     pdf->dest_names_size = inf_dest_names_size;
     pdf->dest_names = xmallocarray(dest_name_entry, inf_dest_names_size);       /* will grow dynamically */
 }
 
+@ @c
 void append_dest_name(PDF pdf, char *s, int n)
 {
     int a;
@@ -58,11 +60,11 @@ void append_dest_name(PDF pdf, char *s, int n)
     pdf->dest_names_ptr++;
 }
 
-/*
-When a destination is created we need to check whether another destination
-with the same identifier already exists and give a warning if needed.
-*/
 
+@ When a destination is created we need to check whether another destination
+with the same identifier already exists and give a warning if needed.
+
+@c
 void warn_dest_dup(int id, small_number byname, const char *s1, const char *s2)
 {
     pdf_warning(s1, "destination with the same identifier (", false, false);
@@ -80,6 +82,7 @@ void warn_dest_dup(int id, small_number byname, const char *s1, const char *s2)
 }
 
 
+@ @c
 void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 {
     scaledpos pos = pdf->posstruct->pos;
@@ -131,6 +134,7 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     }
 }
 
+@ @c
 void write_out_pdf_mark_destinations(PDF pdf)
 {
     pdf_object_list *k;
@@ -207,6 +211,7 @@ void write_out_pdf_mark_destinations(PDF pdf)
     }
 }
 
+@ @c
 void scan_pdfdest(PDF pdf)
 {
     halfword q;
@@ -286,7 +291,8 @@ void scan_pdfdest(PDF pdf)
     }
 }
 
-/* sorts |dest_names| by names */
+@ sorts |dest_names| by names
+@c
 static int dest_cmp(const void *a, const void *b)
 {
     dest_name_entry aa = *(const dest_name_entry *) a;
@@ -294,20 +300,20 @@ static int dest_cmp(const void *a, const void *b)
     return strcmp(aa.objname, bb.objname);
 }
 
+@ @c
 void sort_dest_names(PDF pdf)
 {
     qsort(pdf->dest_names, (size_t) pdf->dest_names_ptr,
           sizeof(dest_name_entry), dest_cmp);
 }
 
-/*
-Output the name tree. The tree nature of the destination list forces the
+
+@ Output the name tree. The tree nature of the destination list forces the
 storing of intermediate data in |obj_info| and |obj_aux| fields, which
 is further uglified by the fact that |obj_tab| entries do not accept char
 pointers.
-*/
 
-
+@c
 int output_name_tree(PDF pdf)
 {
     boolean is_names = true;    /* flag for name tree output: is it Names or Kids? */

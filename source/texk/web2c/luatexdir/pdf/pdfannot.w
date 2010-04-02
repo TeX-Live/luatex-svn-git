@@ -1,28 +1,30 @@
-/* pdfannot.c
+% pdfannot.w
 
-   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
+@ @c
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
 #include "ptexlib.h"
 
+@ @c
 #define tail          cur_list.tail_field
 
 void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
@@ -45,7 +47,8 @@ void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     addto_page_resources(pdf, obj_type_annot, pdf_annot_objnum(p));
 }
 
-/* create a new whatsit node for annotation */
+@ create a new whatsit node for annotation
+@c
 void new_annot_whatsit(small_number w)
 {
     scaled_whd alt_rule;
@@ -64,6 +67,7 @@ void new_annot_whatsit(small_number w)
     }
 }
 
+@ @c
 void scan_annot(PDF pdf)
 {
     int k;

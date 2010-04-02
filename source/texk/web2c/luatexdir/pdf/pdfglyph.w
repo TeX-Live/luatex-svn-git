@@ -1,38 +1,41 @@
-/* pdfglyph.c
+% pdfglyph.w
 
-   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
+@ @c
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
 #include "ptexlib.h"
-#include "pdfpage.h"
+
+@ @c
+#include "pdf/pdfpage.h"
 
 #define lround(a) (long) floor((a) + 0.5)
 #define pdf2double(a) ((double) (a).m / ten_pow[(a).e])
 
-/* eternal constants */
+@ eternal constants
+@c
 #define one_bp ((double) 65536 * (double) 72.27 / 72)   /* number of sp per 1bp */
-#define e_tj 3                  /* must be 3; movements in []TJ are in fontsize/10^3 units */
+#define e_tj 3                  /* must be 3; movements in []TJ are in fontsize/$10^3$ units */
 
-/**********************************************************************/
-
+@ @c
 static long pdf_char_width(pdfstructure * p, internal_font_number f, int i)
 {
     /* use exactly this formula also for calculating the /Width array values */
@@ -41,6 +44,7 @@ static long pdf_char_width(pdfstructure * p, internal_font_number f, int i)
                ten_pow[e_tj + p->cw.e]);
 }
 
+@ @c
 void pdf_print_charwidth(PDF pdf, internal_font_number f, int i)
 {
     pdffloat cw;
@@ -51,14 +55,13 @@ void pdf_print_charwidth(PDF pdf, internal_font_number f, int i)
     print_pdffloat(pdf, cw);
 }
 
-/**********************************************************************/
-
+@ @c
 static void setup_fontparameters(PDF pdf, internal_font_number f)
 {
     float slant, extend, expand;
     float u = 1.0;
     pdfstructure *p = pdf->pstruct;
-    /* fix mantis bug # 0000200 (acroread "feature") */
+    /* fix mantis bug \# 0000200 (acroread "feature") */
     if ((font_format(f) == opentype_format ||
          (font_format(f) == type1_format && font_encodingbytes(f) == 2))
         && font_units_per_em(f) > 0)
@@ -74,7 +77,7 @@ static void setup_fontparameters(PDF pdf, internal_font_number f)
     while (p->tj_delta.e > 0
            && (double) font_size(f) / ten_pow[p->tj_delta.e + e_tj] < 0.5)
         p->tj_delta.e--;        /* happens for very tiny fonts */
-    assert(p->cw.e >= p->tj_delta.e);   /* else we would need, e. g., ten_pow[-1] */
+    assert(p->cw.e >= p->tj_delta.e);   /* else we would need, e. g., |ten_pow[-1]| */
     p->tm[0].m = lround(expand * extend * (float) ten_pow[p->tm[0].e]);
     p->tm[2].m = lround(slant * (float) ten_pow[p->tm[2].e]);
     p->k2 =
@@ -83,6 +86,7 @@ static void setup_fontparameters(PDF pdf, internal_font_number f)
                             pdf2double(p->tm[0]));
 }
 
+@ @c
 static void set_font(PDF pdf)
 {
     pdfstructure *p = pdf->pstruct;
@@ -95,12 +99,14 @@ static void set_font(PDF pdf)
     p->fs_cur.m = p->fs.m;
 }
 
+@ @c
 static void print_tm(PDF pdf, pdffloat * tm)
 {
     print_pdf_matrix(pdf, tm);
     pdf_printf(pdf, " Tm ");
 }
 
+@ @c
 static void set_textmatrix(PDF pdf, scaledpos pos)
 {
     boolean move;
@@ -114,6 +120,7 @@ static void set_textmatrix(PDF pdf, scaledpos pos)
     }
 }
 
+@ @c
 static void begin_charmode(PDF pdf, internal_font_number f, pdfstructure * p)
 {
     assert(is_chararraymode(p));
@@ -127,6 +134,7 @@ static void begin_charmode(PDF pdf, internal_font_number f, pdfstructure * p)
     p->mode = PMODE_CHAR;
 }
 
+@ @c
 void end_charmode(PDF pdf)
 {
     pdfstructure *p = pdf->pstruct;
@@ -140,6 +148,7 @@ void end_charmode(PDF pdf)
     p->mode = PMODE_CHARARRAY;
 }
 
+@ @c
 static void begin_chararray(PDF pdf)
 {
     pdfstructure *p = pdf->pstruct;
@@ -150,6 +159,7 @@ static void begin_chararray(PDF pdf)
     p->mode = PMODE_CHARARRAY;
 }
 
+@ @c
 void end_chararray(PDF pdf)
 {
     pdfstructure *p = pdf->pstruct;
@@ -159,8 +169,7 @@ void end_chararray(PDF pdf)
     p->mode = PMODE_TEXT;
 }
 
-/**********************************************************************/
-
+@ @c
 void pdf_place_glyph(PDF pdf, internal_font_number f, int c)
 {
     boolean move;
@@ -209,5 +218,5 @@ void pdf_place_glyph(PDF pdf, internal_font_number f, int c)
         pdf_print_wide_char(pdf, char_index(f, c));
     else
         pdf_print_char(pdf, c);
-    p->cw.m += pdf_char_width(p, p->f_pdf, c);  /* aka adv_char_width() */
+    p->cw.m += pdf_char_width(p, p->f_pdf, c);  /* aka |adv_char_width()| */
 }

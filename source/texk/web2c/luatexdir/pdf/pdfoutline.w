@@ -1,36 +1,35 @@
-/* pdfoutline.c
-   
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+% pdfoutline.w
+% 
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
 #include "ptexlib.h"
-
-
 
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
-/* Data structure of outlines; it's not able to write out outline entries
+@ Data structure of outlines; it's not able to write out outline entries
 before all outline entries are defined, so memory allocated for outline
 entries can't not be deallocated and will stay in memory. For this reason we
 will store data of outline entries in |pdf->mem| instead of |mem|
-*/
 
+@c
 #define pdfmem_outline_size      8      /* size of memory in |pdf->mem| which |obj_outline_ptr| points to */
 
 #define obj_outline_count         obj_info      /* count of all opened children */
@@ -56,6 +55,7 @@ will store data of outline entries in |pdf->mem| instead of |mem|
 #define set_obj_outline_parent(pdf,A,B) obj_outline_parent(pdf,A)=B
 #define set_obj_outline_attr(pdf,A,B) obj_outline_attr(pdf,A)=B
 
+@ @c
 static int open_subentries(PDF pdf, halfword p)
 {
     int k, c;
@@ -82,7 +82,9 @@ static int open_subentries(PDF pdf, halfword p)
     return k;
 }
 
-/* return number of outline entries in the same level with |p| */
+@ return number of outline entries in the same level with |p| 
+
+@c
 static int outline_list_count(PDF pdf, pointer p)
 {
     int k = 1;
@@ -93,6 +95,7 @@ static int outline_list_count(PDF pdf, pointer p)
     return k;
 }
 
+@ @c
 void scan_pdfoutline(PDF pdf)
 {
     halfword p, q, r;
@@ -170,9 +173,10 @@ void scan_pdfoutline(PDF pdf)
     }
 }
 
-/* In the end we must flush PDF objects that cannot be written out
-   immediately after shipping out pages. */
+@ In the end we must flush PDF objects that cannot be written out
+immediately after shipping out pages. 
 
+@c
 int print_outlines(PDF pdf)
 {
     int k, l, a;

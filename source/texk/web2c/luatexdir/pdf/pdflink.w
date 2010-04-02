@@ -1,36 +1,37 @@
-/* pdflink.c
+% pdflink.w
 
-   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
 #include "ptexlib.h"
 
+@ @c
 #define pdf_link_margin          dimen_par(pdf_link_margin_code)
 
-/*
-To implement nested link annotations, we need a stack to hold copy of
+@ To implement nested link annotations, we need a stack to hold copy of
 |pdf_start_link_node|'s that are being written out, together with their box
 nesting level.
-*/
 
+@c
 void push_link_level(PDF pdf, halfword p)
 {
     if (pdf->link_stack_ptr >= pdf_max_link_level)
@@ -42,6 +43,7 @@ void push_link_level(PDF pdf, halfword p)
     pdf->link_stack[pdf->link_stack_ptr].ref_link_node = p;
 }
 
+@ @c
 void pop_link_level(PDF pdf)
 {
     assert(pdf->link_stack_ptr > 0);
@@ -49,6 +51,7 @@ void pop_link_level(PDF pdf)
     decr(pdf->link_stack_ptr);
 }
 
+@ @c
 void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 {
     scaled_whd alt_rule;
@@ -68,6 +71,7 @@ void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     addto_page_resources(pdf, obj_type_link, pdf_link_objnum(p));
 }
 
+@ @c
 void end_link(PDF pdf, halfword p)
 {
     halfword q;
@@ -110,16 +114,17 @@ void end_link(PDF pdf, halfword p)
     pop_link_level(pdf);
 }
 
-/*
-For ``running'' annotations we must append a new node when the end of
+
+@ For ``running'' annotations we must append a new node when the end of
 annotation is in other box than its start. The new created node is identical to
 corresponding whatsit node representing the start of annotation,  but its
 |info| field is |max_halfword|. We set |info| field just before destroying the
 node, in order to use |flush_node_list| to do the job.
-*/
 
-/* append a new pdf annot to |pdf_link_list| */
 
+@ Append a new pdf annot to |pdf_link_list| 
+
+@c
 void append_link(PDF pdf, halfword parent_box, scaledpos cur, small_number i)
 {
     halfword p;
@@ -137,6 +142,7 @@ void append_link(PDF pdf, halfword parent_box, scaledpos cur, small_number i)
     addto_page_resources(pdf, obj_type_link, pdf->obj_ptr);
 }
 
+@ @c
 void scan_startlink(PDF pdf)
 {
     int k;

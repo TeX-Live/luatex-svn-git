@@ -1,28 +1,30 @@
-/* pdfliteral.c
-   
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+% pdfliteral.w
+% 
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
 #include "ptexlib.h"
 
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
+@ @c
 void pdf_special(PDF pdf, halfword p)
 {
     int old_setting;            /* holds print |selector| */
@@ -37,13 +39,12 @@ void pdf_special(PDF pdf, halfword p)
 }
 
 
-/*
-To ship out a \TeX\ box to PDF page description we need to implement
+@ To ship out a \TeX\ box to PDF page description we need to implement
 |hlist_out|, |vlist_out| and |ship_out|, which are equivalent to
 the \TeX' original |hlist_out|, |vlist_out| and |ship_out| resp. But first we
 need to declare some procedures needed in |hlist_out| and |vlist_out|.
-*/
 
+@c
 void pdf_out_literal(PDF pdf, halfword p)
 {
     int old_setting;            /* holds print |selector| */
@@ -77,7 +78,8 @@ void pdf_out_literal(PDF pdf, halfword p)
     }
 }
 
-/* test equality of start of strings */
+@ test equality of start of strings 
+@c
 static boolean str_in_cstr(str_number s, const char *r, unsigned i)
 {
     const unsigned char *k, *l;
@@ -92,6 +94,7 @@ static boolean str_in_cstr(str_number s, const char *r, unsigned i)
     return true;
 }
 
+@ @c
 void pdf_literal(PDF pdf, str_number s, int literal_mode, boolean warn)
 {
     pool_pointer j = 0;         /* current character code position, initialized to make the compiler happy */

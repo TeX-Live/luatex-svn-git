@@ -1,32 +1,33 @@
-/* pdfgen.c
+% pdfgen.w
 
-   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
+@ @c
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
 #include "ptexlib.h"
+
+@ @c
 #include <kpathsea/c-dir.h>
 #include <kpathsea/c-ctype.h>
 #include "md5.h"
-
-/* for tokenlist_to_cstring */
 
 #define is_hex_char isxdigit
 
@@ -38,7 +39,8 @@ PDF static_pdf = NULL;
 
 static char *jobname_cstr = NULL;
 
-/* commandline interface */
+@ commandline interface
+@c
 int pdf_output_option;
 int pdf_output_value;
 int pdf_draftmode_option;
@@ -51,15 +53,16 @@ halfword pdf_names_toks;        /* additional keys of Names dictionary */
 halfword pdf_trailer_toks;      /* additional keys of Trailer dictionary */
 boolean is_shipping_page;       /* set to |shipping_page| when |ship_out| starts */
 
-/* init_pdf_struct() is called early, only once, from maincontrol.c */
+@ |init_pdf_struct()| is called early, only once, from maincontrol.w
 
+@c
 PDF init_pdf_struct(PDF pdf)
 {
     assert(pdf == NULL);
     pdf = xmalloc(sizeof(pdf_output_file));
     memset(pdf, 0, sizeof(pdf_output_file));
 
-    pdf->o_mode = OMODE_NONE;   /* will be set by fix_o_mode() */
+    pdf->o_mode = OMODE_NONE;   /* will be set by |fix_o_mode()| */
     pdf->o_state = ST_INITIAL;
 
     pdf->os_obj = xmalloc(pdf_os_max_objs * sizeof(os_obj_data));
@@ -112,6 +115,7 @@ PDF init_pdf_struct(PDF pdf)
     return pdf;
 }
 
+@ @c
 static void pdf_shipout_begin(boolean shipping_page)
 {
     pos_stack_used = 0;         /* start with empty stack */
@@ -131,10 +135,9 @@ static void pdf_shipout_end(boolean shipping_page)
     }
 }
 
-/*
-  We use |pdf_get_mem| to allocate memory in |mem|
-*/
+@  We use |pdf_get_mem| to allocate memory in |mem|.
 
+@c
 int pdf_get_mem(PDF pdf, int s)
 {                               /* allocate |s| words in |mem| */
     int a;
@@ -157,11 +160,11 @@ int pdf_get_mem(PDF pdf, int s)
     return ret;
 }
 
-/*
-|fix_o_mode| freezes |pdf->o_mode| as soon as anything goes through
-the backend, be it \.{PDF}, \.{DVI}, or \.{Lua}.
-*/
 
+@ |fix_o_mode| freezes |pdf->o_mode| as soon as anything goes through
+the backend, be it \.{PDF}, \.{DVI}, or \.{Lua}.
+
+@c
 #define pdf_output int_par(pdf_output_code)
 
 void fix_o_mode(PDF pdf)
@@ -183,13 +186,13 @@ void fix_o_mode(PDF pdf)
     }
 }
 
-/*
-This ensures that |pdfminorversion| is set only before any bytes have
+
+@ This ensures that |pdfminorversion| is set only before any bytes have
 been written to the generated \.{PDF} file. Here also all variables for
 \.{PDF} output are initialized, the \.{PDF} file is opened by |ensure_pdf_open|,
 and the \.{PDF} header is written.
-*/
 
+@c
 void fix_pdf_minorversion(PDF pdf)
 {
     if (pdf->minor_version < 0) {       /* unset */
@@ -221,21 +224,19 @@ void fix_pdf_minorversion(PDF pdf)
     }
 }
 
-/*
-The PDF buffer is flushed by calling |pdf_flush|, which checks the
+@ The PDF buffer is flushed by calling |pdf_flush|, which checks the
 variable |zip_write_state| and will compress the buffer before flushing if
 neccesary. We call |pdf_begin_stream| to begin a stream  and |pdf_end_stream|
 to finish it. The stream contents will be compressed if compression is turn on.
-*/
 
-/* writepdf() always writes by fwrite() */
-
+@c
 static void write_pdf(PDF pdf, int a, int b)
 {
     (void) fwrite((char *) &pdf->buf[a], sizeof(pdf->buf[a]),
                   (size_t) ((b) - (a) + 1), pdf->file);
 }
 
+@ @c
 void pdf_flush(PDF pdf)
 {                               /* flush out the |pdf_buf| */
 
@@ -268,7 +269,9 @@ void pdf_flush(PDF pdf)
     }
 }
 
-/* switch between PDF stream and object stream mode */
+@ switch between PDF stream and object stream mode 
+
+@c
 void pdf_os_switch(PDF pdf, boolean pdf_os)
 {
     if (pdf_os && pdf->os_enable) {
@@ -290,7 +293,9 @@ void pdf_os_switch(PDF pdf, boolean pdf_os)
     }
 }
 
-/* create new \.{/ObjStm} object if required, and set up cross reference info */
+@ create new \.{/ObjStm} object if required, and set up cross reference info 
+
+@c
 void pdf_os_prepare_obj(PDF pdf, int i, int pdf_os_level)
 {
     pdf_os_switch(pdf, ((pdf_os_level > 0)
@@ -316,9 +321,10 @@ void pdf_os_prepare_obj(PDF pdf, int i, int pdf_os_level)
     }
 }
 
-/* low-level buffer checkers */
+@* low-level buffer checkers.
 
-/* check that |s| bytes more fit into |pdf_os_buf|; increase it if required */
+@ check that |s| bytes more fit into |pdf_os_buf|; increase it if required 
+@c
 static void pdf_os_get_os_buf(PDF pdf, int s)
 {
     int a;
@@ -340,7 +346,8 @@ static void pdf_os_get_os_buf(PDF pdf, int s)
     }
 }
 
-/* make sure that there are at least |n| bytes free in PDF buffer */
+@ make sure that there are at least |n| bytes free in PDF buffer 
+@c
 void pdf_room(PDF pdf, int n)
 {
     if (pdf->os_mode && (n + pdf->ptr > pdf->buf_size))
@@ -352,11 +359,11 @@ void pdf_room(PDF pdf, int n)
 }
 
 
-/* print out a character to PDF buffer; the character will be printed in octal
- * form in the following cases: chars <= 32, backslash (92), left parenthesis
- * (40) and  right parenthesis (41)
- */
-
+@ print out a character to PDF buffer; the character will be printed in octal
+ form in the following cases: chars <= 32, backslash (92), left parenthesis
+ (40) and  right parenthesis (41)
+ 
+@c
 #define pdf_print_escaped(c)                                  \
   if ((c)<=32||(c)=='\\'||(c)=='('||(c)==')'||(c)>127) {      \
     pdf_room(pdf,4);                                          \
@@ -386,6 +393,7 @@ void pdf_print_wide_char(PDF pdf, int c)
     pdf_quick_out(pdf, (unsigned char) hex[3]);
 }
 
+@ @c
 void pdf_puts(PDF pdf, const char *s)
 {
 
@@ -400,6 +408,7 @@ void pdf_puts(PDF pdf, const char *s)
     }
 }
 
+@ @c
 __attribute__ ((format(printf, 2, 3)))
 void pdf_printf(PDF pdf, const char *fmt, ...)
 {
@@ -413,8 +422,8 @@ void pdf_printf(PDF pdf, const char *fmt, ...)
     va_end(args);
 }
 
-/* print out a string to PDF buffer */
-
+@ print out a string to PDF buffer
+@c
 void pdf_print(PDF pdf, str_number s)
 {
     if (s < number_chars) {
@@ -429,8 +438,8 @@ void pdf_print(PDF pdf, str_number s)
     }
 }
 
-/* print out a integer to PDF buffer */
-
+@ print out a integer to PDF buffer
+@c
 void pdf_print_int(PDF pdf, longinteger n)
 {
     register int k = 0;         /*  current digit; we assume that $|n|<10^{23}$ */
@@ -463,8 +472,8 @@ void pdf_print_int(PDF pdf, longinteger n)
     }
 }
 
-/* print $m/10^d$ as real */
-
+@ print $m/10^d$ as real
+@c
 void pdf_print_real(PDF pdf, int m, int d)
 {
     if (m < 0) {
@@ -486,8 +495,8 @@ void pdf_print_real(PDF pdf, int m, int d)
     }
 }
 
-/* print out |s| as string in PDF output */
-
+@ print out |s| as string in PDF output 
+@c
 void pdf_print_str(PDF pdf, const char *s)
 {
     const char *orig = s;
@@ -519,8 +528,8 @@ void pdf_print_str(PDF pdf, const char *s)
     pdf_puts(pdf, orig);        /* it was a hex string after all  */
 }
 
-/* begin a stream */
-
+@ begin a stream 
+@c
 void pdf_begin_stream(PDF pdf)
 {
     assert(pdf->os_mode == false);
@@ -542,8 +551,8 @@ void pdf_begin_stream(PDF pdf)
     }
 }
 
-/* end a stream */
-
+@ end a stream 
+@c
 void pdf_end_stream(PDF pdf)
 {
     if (pdf->zip_write_state == zip_writing)
@@ -567,11 +576,11 @@ void pdf_remove_last_space(PDF pdf)
         pdf->ptr--;
 }
 
-/*
-To print |scaled| value to PDF output we need some subroutines to ensure
-accurary.
-*/
 
+@ To print |scaled| value to PDF output we need some subroutines to ensure
+accurary.
+
+@c
 #define max_integer 0x7FFFFFFF  /* $2^{31}-1$ */
 
 /* scaled value corresponds to 100in, exact, 473628672 */
@@ -594,12 +603,12 @@ int ten_pow[10] = {
     1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
 };
 
-/*
-The function |divide_scaled| divides |s| by |m| using |dd| decimal
+
+@ The function |divide_scaled| divides |s| by |m| using |dd| decimal
 digits of precision. It is defined in C because it is a good candidate
 for optimizations that are not possible in pascal.
-*/
 
+@c
 scaled round_xn_over_d(scaled x, int n, int d)
 {
     boolean positive;           /* was |x>=0|? */
@@ -626,6 +635,7 @@ scaled round_xn_over_d(scaled x, int n, int d)
         return (-(scaled) u);
 }
 
+@ @c
 #define lround(a) (long) floor((a) + 0.5)
 
 void pdf_print_bp(PDF pdf, scaled s)
@@ -660,14 +670,15 @@ void pdf_print_mag_bp(PDF pdf, scaled s)
     } while (0)
 
 
-/**********************************************************************/
-/* handling page resources */
+@* handling page resources.
 
+@c
 typedef struct {
     int obj_type;
     pdf_object_list *list;
 } pr_entry;
 
+@ @c
 static int comp_page_resources(const void *pa, const void *pb, void *p)
 {
     int a, b;
@@ -681,6 +692,7 @@ static int comp_page_resources(const void *pa, const void *pb, void *p)
     return 0;
 }
 
+@ @c
 void addto_page_resources(PDF pdf, pdf_obj_type t, int k)
 {
     pdf_resource_struct *re;
@@ -727,6 +739,7 @@ void addto_page_resources(PDF pdf, pdf_obj_type t, int k)
     }
 }
 
+@ @c
 pdf_object_list *get_page_resources_list(PDF pdf, pdf_obj_type t)
 {
     pdf_resource_struct *re = pdf->page_resources;
@@ -740,6 +753,7 @@ pdf_object_list *get_page_resources_list(PDF pdf, pdf_obj_type t)
     return pr->list;
 }
 
+@ @c
 static void reset_page_resources(PDF pdf)
 {
     pdf_resource_struct *re = pdf->page_resources;
@@ -760,12 +774,14 @@ static void reset_page_resources(PDF pdf)
     }
 }
 
+@ @c
 static void destroy_pg_res_tree(void *pa, void *param)
 {
     (void) param;
     xfree(pa);
 }
 
+@ @c
 static void destroy_page_resources_tree(PDF pdf)
 {
     pdf_resource_struct *re = pdf->page_resources;
@@ -775,11 +791,10 @@ static void destroy_page_resources_tree(PDF pdf)
     re->resources_tree = NULL;
 }
 
-/**********************************************************************/
+@* Subroutines to print out various PDF objects.
 
-/* Subroutines to print out various PDF objects */
-
-/* print out an integer with fixed width; used for outputting cross-reference table */
+@ print out an integer with fixed width; used for outputting cross-reference table 
+@c
 void pdf_print_fw_int(PDF pdf, longinteger n, int w)
 {
     int k;                      /* $0\le k\le23$ */
@@ -795,7 +810,8 @@ void pdf_print_fw_int(PDF pdf, longinteger n, int w)
         pdf_quick_out(pdf, (unsigned char) ('0' + dig[k]));
 }
 
-/* print out an integer as a number of bytes; used for outputting \.{/XRef} cross-reference stream */
+@ print out an integer as a number of bytes; used for outputting \.{/XRef} cross-reference stream 
+@c
 void pdf_out_bytes(PDF pdf, longinteger n, int w)
 {
     int k;
@@ -811,8 +827,8 @@ void pdf_out_bytes(PDF pdf, longinteger n, int w)
         pdf_quick_out(pdf, bytes[k]);
 }
 
-/* print out an entry in dictionary with integer value to PDF buffer */
-
+@ print out an entry in dictionary with integer value to PDF buffer 
+@c
 void pdf_int_entry(PDF pdf, const char *s, int v)
 {
     pdf_printf(pdf, "/%s ", s);
@@ -826,7 +842,8 @@ void pdf_int_entry_ln(PDF pdf, const char *s, int v)
     pdf_print_nl(pdf);
 }
 
-/* print out an indirect entry in dictionary */
+@  print out an indirect entry in dictionary
+@c
 void pdf_indirect(PDF pdf, const char *s, int o)
 {
     pdf_printf(pdf, "/%s %d 0 R", s, (int) o);
@@ -839,14 +856,16 @@ void pdf_indirect_ln(PDF pdf, const char *s, int o)
     pdf_print_nl(pdf);
 }
 
-/* print out |s| as string in PDF output */
+@ print out |s| as string in PDF output 
+@c
 void pdf_print_str_ln(PDF pdf, const char *s)
 {
     pdf_print_str(pdf, s);
     pdf_print_nl(pdf);
 }
 
-/* print out an entry in dictionary with string value to PDF buffer */
+@ print out an entry in dictionary with string value to PDF buffer 
+@c
 void pdf_str_entry(PDF pdf, const char *s, const char *v)
 {
     if (v == 0)
@@ -863,6 +882,7 @@ void pdf_str_entry_ln(PDF pdf, const char *s, const char *v)
     pdf_print_nl(pdf);
 }
 
+@ @c
 void pdf_print_toks(PDF pdf, halfword p)
 {
     int len = 0;
@@ -883,7 +903,8 @@ void pdf_print_toks_ln(PDF pdf, halfword p)
     xfree(s);
 }
 
-/* prints a rect spec */
+@ prints a rect spec 
+@c
 void pdf_print_rect_spec(PDF pdf, halfword r)
 {
     pdf_print_mag_bp(pdf, pdf_ann_left(r));
@@ -895,7 +916,8 @@ void pdf_print_rect_spec(PDF pdf, halfword r)
     pdf_print_mag_bp(pdf, pdf_ann_top(r));
 }
 
-/* output a rectangle specification to PDF file */
+@ output a rectangle specification to PDF file 
+@c
 void pdf_rectangle(PDF pdf, halfword r)
 {
     prepare_mag();
@@ -904,6 +926,7 @@ void pdf_rectangle(PDF pdf, halfword r)
     pdf_puts(pdf, "]\n");
 }
 
+@ @c
 static void init_pdf_outputparameters(PDF pdf)
 {
     assert(pdf->o_mode == OMODE_PDF);
@@ -950,10 +973,9 @@ static void init_pdf_outputparameters(PDF pdf)
         pdf->resname_prefix = get_resname_prefix(pdf);
 }
 
-/**********************************************************************/
+@ Checks that we have a name for the generated PDF file and that it's open. 
 
-/* Checks that we have a name for the generated PDF file and that it's open. */
-
+@c
 static void ensure_output_file_open(PDF pdf, const char *ext)
 {
     char *fn;
@@ -969,6 +991,7 @@ static void ensure_output_file_open(PDF pdf, const char *ext)
     pdf->file_name = fn;
 }
 
+@ @c
 static void ensure_pdf_header_written(PDF pdf)
 {
     assert(pdf->o_state == ST_FILE_OPEN);
@@ -986,6 +1009,7 @@ static void ensure_pdf_header_written(PDF pdf)
     pdf_print_nl(pdf);
 }
 
+@ @c
 void ensure_output_state(PDF pdf, output_state s)
 {
     if (pdf->o_state < s) {
@@ -1034,9 +1058,8 @@ void ensure_output_state(PDF pdf, output_state s)
     }
 }
 
-/**********************************************************************/
-
-/* begin a PDF dictionary object */
+@ begin a PDF dictionary object
+@c
 void pdf_begin_dict(PDF pdf, int i, int pdf_os_level)
 {
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
@@ -1050,14 +1073,16 @@ void pdf_begin_dict(PDF pdf, int i, int pdf_os_level)
     }
 }
 
-/* begin a new PDF dictionary object */
+@ begin a new PDF dictionary object 
+@c
 void pdf_new_dict(PDF pdf, int t, int i, int pdf_os)
 {
     pdf_create_obj(pdf, t, i);
     pdf_begin_dict(pdf, pdf->obj_ptr, pdf_os);
 }
 
-/* end a PDF dictionary object */
+@ end a PDF dictionary object
+@c
 void pdf_end_dict(PDF pdf)
 {
     if (pdf->os_mode) {
@@ -1069,16 +1094,16 @@ void pdf_end_dict(PDF pdf)
     }
 }
 
-/*
-Write out an accumulated object stream.
+@ Write out an accumulated object stream.
+
 First the object number and byte offset pairs are generated
 and appended to the ready buffered object stream.
 By this the value of \.{/First} can be calculated.
 Then a new \.{/ObjStm} object is generated, and everything is
 copied to the PDF output buffer, where also compression is done.
 When calling this procedure, |pdf_os_mode| must be |true|.
-*/
 
+@c
 void pdf_os_write_objstream(PDF pdf)
 {
     halfword i, j, p, q;
@@ -1127,7 +1152,8 @@ void pdf_os_write_objstream(PDF pdf)
     pdf->os_cur_objnum = 0;     /* to force object stream generation next time */
 }
 
-/* begin a PDF object */
+@ begin a PDF object 
+@c
 void pdf_begin_obj(PDF pdf, int i, int pdf_os_level)
 {
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
@@ -1139,14 +1165,16 @@ void pdf_begin_obj(PDF pdf, int i, int pdf_os_level)
     }
 }
 
-/* begin a new PDF object */
+@ begin a new PDF object
+@c
 void pdf_new_obj(PDF pdf, int t, int i, int pdf_os)
 {
     pdf_create_obj(pdf, t, i);
     pdf_begin_obj(pdf, pdf->obj_ptr, pdf_os);
 }
 
-/* end a PDF object */
+@ end a PDF object 
+@c
 void pdf_end_obj(PDF pdf)
 {
     if (pdf->os_mode) {
@@ -1157,6 +1185,7 @@ void pdf_end_obj(PDF pdf)
     }
 }
 
+@ @c
 void write_stream_length(PDF pdf, int length, longinteger offset)
 {
     if (jobname_cstr == NULL)
@@ -1168,13 +1197,13 @@ void write_stream_length(PDF pdf, int length, longinteger offset)
     }
 }
 
-/* Converts any string given in in in an allowed PDF string which can be
- * handled by printf et.al.: \ is escaped to \\, parenthesis are escaped and
- * control characters are octal encoded.
- * This assumes that the string does not contain any already escaped
- * characters!
- */
-
+@ Converts any string given in in in an allowed PDF string which can be
+ handled by printf et.al.: \.{\\} is escaped to \.{\\\\}, parenthesis are escaped and
+ control characters are octal encoded.
+ This assumes that the string does not contain any already escaped
+ characters!
+ 
+@c
 char *convertStringToPDFString(const char *in, int len)
 {
     static char pstrbuf[MAX_PSTRING_LEN];
@@ -1210,11 +1239,11 @@ char *convertStringToPDFString(const char *in, int len)
     return pstrbuf;
 }
 
-/* Converts any string given in in in an allowed PDF string which is
- * hexadecimal encoded;
- * sizeof(out) should be at least lin*2+1.
- */
-
+@ Converts any string given in in in an allowed PDF string which is
+ hexadecimal encoded;
+ |sizeof(out)| should be at least $|lin|*2+1$.
+ 
+@c
 static void convertStringToHexString(const char *in, char *out, int lin)
 {
     int i, j, k;
@@ -1230,8 +1259,9 @@ static void convertStringToHexString(const char *in, char *out, int lin)
     out[j] = '\0';
 }
 
-/* Compute the ID string as per PDF1.4 9.3:
-  <blockquote>
+@ Compute the ID string as per PDF1.4 9.3:
+\medskip
+{\obeylines\obeyspaces
     File identifers are defined by the optional ID entry in a PDF file's
     trailer dictionary (see Section 3.4.4, "File Trailer"; see also
     implementation note 105 in Appendix H). The value of this entry is an
@@ -1254,14 +1284,15 @@ static void convertStringToHexString(const char *in, char *out, int lin)
     - The size of the file in bytes
     - The values of all entries in the file's document information
       dictionary (see Section 9.2.1,  Document Information Dictionary )
-  </blockquote>
+}
+\medskip
   This stipulates only that the two IDs must be identical when the file is
   created and that they should be reasonably unique. Since it's difficult
   to get the file size at this point in the execution of pdfTeX and
   scanning the info dict is also difficult, we start with a simpler
   implementation using just the first two items.
- */
 
+@c
 void print_ID(PDF pdf, const char *file_name)
 {
     time_t t;
@@ -1290,10 +1321,11 @@ void print_ID(PDF pdf, const char *file_name)
     pdf_printf(pdf, "/ID [<%s> <%s>]", id, id);
 }
 
-/* Print the /CreationDate entry.
+@ Print the /CreationDate entry.
 
   PDF Reference, third edition says about the expected date format:
-  <blockquote>
+\medskip
+{\obeylines\obeyspaces
     3.8.2 Dates
 
       PDF defines a standard date format, which closely follows that of
@@ -1333,14 +1365,14 @@ void print_ID(PDF pdf, const char *file_name)
       Time, is represented by the string
 
         D:199812231952-08'00'
-  </blockquote>
+}
 
-  The main difficulty is get the time zone offset. strftime() does this in ISO
-  C99 (e.g. newer glibc) with %z, but we have to work with other systems (e.g.
+  The main difficulty is get the time zone offset. |strftime()| does this in ISO
+  C99 (e.g. newer glibc) with \%z, but we have to work with other systems (e.g.
   Solaris 2.5).
-*/
 
-#define TIME_STR_SIZE 30        /* minimum size for time_str is 24: "D:YYYYmmddHHMMSS+HH'MM'" */
+@c
+#define TIME_STR_SIZE 30        /* minimum size for |time_str| is 24: |"D:YYYYmmddHHMMSS+HH'MM'"| */
 
 static void makepdftime(PDF pdf)
 {
@@ -1355,12 +1387,12 @@ static void makepdftime(PDF pdf)
     size = strftime(time_str, TIME_STR_SIZE, "D:%Y%m%d%H%M%S", &lt);
     /* expected format: "YYYYmmddHHMMSS" */
     if (size == 0) {
-        /* unexpected, contents of time_str is undefined */
+        /* unexpected, contents of |time_str| is undefined */
         time_str[0] = '\0';
         return;
     }
 
-    /* correction for seconds: %S can be in range 00..61,
+    /* correction for seconds: \%S can be in range 00..61,
        the PDF reference expects 00..59,
        therefore we map "60" and "61" to "59" */
     if (time_str[14] == '6') {
@@ -1392,6 +1424,7 @@ static void makepdftime(PDF pdf)
     pdf->start_time = t;
 }
 
+@ @c
 void init_start_time(PDF pdf)
 {
     assert(pdf);
@@ -1402,18 +1435,21 @@ void init_start_time(PDF pdf)
     }
 }
 
+@ @c
 void print_creation_date(PDF pdf)
 {
     init_start_time(pdf);
     pdf_printf(pdf, "/CreationDate (%s)\n", pdf->start_time_str);
 }
 
+@ @c
 void print_mod_date(PDF pdf)
 {
     init_start_time(pdf);
     pdf_printf(pdf, "/ModDate (%s)\n", pdf->start_time_str);
 }
 
+@ @c
 char *getcreationdate(PDF pdf)
 {
     assert(pdf);
@@ -1421,6 +1457,7 @@ char *getcreationdate(PDF pdf)
     return pdf->start_time_str;
 }
 
+@ @c
 void remove_pdffile(PDF pdf)
 {
     if (pdf != NULL) {
@@ -1431,6 +1468,7 @@ void remove_pdffile(PDF pdf)
     }
 }
 
+@ @c
 static void realloc_fb(PDF pdf)
 {
     if (pdf->fb_array == NULL) {
@@ -1447,16 +1485,19 @@ static void realloc_fb(PDF pdf)
     }
 }
 
+@ @c
 int fb_offset(PDF pdf)
 {
     return (int) (pdf->fb_ptr - pdf->fb_array);
 }
 
+@ @c
 void fb_seek(PDF pdf, int offset)
 {
     pdf->fb_ptr = pdf->fb_array + offset;
 }
 
+@ @c
 void fb_putchar(PDF pdf, eight_bits b)
 {
     if ((size_t) (pdf->fb_ptr - pdf->fb_array + 1) > pdf->fb_limit)
@@ -1464,6 +1505,7 @@ void fb_putchar(PDF pdf, eight_bits b)
     *(pdf->fb_ptr)++ = (char) b;
 }
 
+@ @c
 void fb_flush(PDF pdf)
 {
     char *p;
@@ -1481,17 +1523,20 @@ void fb_flush(PDF pdf)
     pdf->fb_ptr = pdf->fb_array;
 }
 
+@ @c
 void fb_free(PDF pdf)
 {
     xfree(pdf->fb_array);
 }
 
+@ @c
 #define ZIP_BUF_SIZE  32768
 
 #define check_err(f, fn)                        \
   if (f != Z_OK)                                \
     pdftex_fail("zlib: %s() failed (error code %d)", fn, f)
 
+@ @c
 void write_zip(PDF pdf, boolean finish)
 {
     int err;
@@ -1502,7 +1547,9 @@ void write_zip(PDF pdf, boolean finish)
        compress level is fixed) that I don't care about the slightly
        ugly error message that could result.
      */
-    /* cur_file_name = NULL; */
+#if 0
+    cur_file_name = NULL;
+#endif
     if (pdf->stream_length == 0) {
         if (pdf->zipbuf == NULL) {
             pdf->zipbuf = xtalloc(ZIP_BUF_SIZE, char);
@@ -1549,6 +1596,7 @@ void write_zip(PDF pdf, boolean finish)
     pdf->stream_length = (off_t) pdf->c_stream.total_out;
 }
 
+@ @c
 void zip_free(PDF pdf)
 {
     if (pdf->zipbuf != NULL) {
@@ -1557,6 +1605,7 @@ void zip_free(PDF pdf)
     }
 }
 
+@ @c
 void pdf_error(const char *t, const char *p)
 {
     normalize_selector();
@@ -1572,6 +1621,7 @@ void pdf_error(const char *t, const char *p)
     succumb();
 }
 
+@ @c
 void pdf_warning(const char *t, const char *p, boolean prepend_nl,
                  boolean append_nl)
 {
@@ -1592,9 +1642,9 @@ void pdf_warning(const char *t, const char *p, boolean prepend_nl,
         history = warning_issued;
 }
 
-/**********************************************************************/
-/* Use check_o_mode() in the backend-specific "Implement..." chunks */
+@ Use |check_o_mode()| in the backend-specific "Implement..." chunks 
 
+@c
 void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
 {
 
@@ -1603,7 +1653,7 @@ void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
     const char *m = NULL;
 
     /* in warn mode (strict == false):
-       only check, don't do fix_o_mode() here! pdf->o_mode is left
+       only check, don't do |fix_o_mode()| here! |pdf->o_mode| is left
        in possibly wrong state until real output, ok.
      */
 
@@ -1641,8 +1691,7 @@ void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
         ensure_output_state(pdf, ST_HEADER_WRITTEN);
 }
 
-/**********************************************************************/
-
+@ @c
 void set_job_id(PDF pdf, int year, int month, int day, int time)
 {
     char *name_string, *format_string, *s;
@@ -1670,11 +1719,9 @@ void set_job_id(PDF pdf, int year, int month, int day, int time)
     xfree(format_string);
 }
 
+@ @c
 char *get_resname_prefix(PDF pdf)
 {
-/*     static char name_str[] = */
-/* "!\"$&'*+,-.0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\" */
-/* "^_`abcdefghijklmnopqrstuvwxyz|~"; */
     static char name_str[] =
         "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     static char prefix[7];      /* make a tag of 6 chars long */
@@ -1693,6 +1740,7 @@ char *get_resname_prefix(PDF pdf)
     return prefix;
 }
 
+@ @c
 #define mag int_par(mag_code)
 
 #define pdf_xform_attr equiv(pdf_xform_attr_loc)
@@ -1761,6 +1809,7 @@ void pdf_begin_page(PDF pdf, boolean shipping_page)
         pdf_out_colorstack_startpage(pdf);
 }
 
+@ @c
 #define pdf_page_attr equiv(pdf_page_attr_loc)
 #define pdf_page_resources equiv(pdf_page_resources_loc)
 
@@ -1986,18 +2035,16 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
     pdf_end_dict(pdf);
 }
 
-/**********************************************************************/
+@* Finishing the PDF output file. 
 
-/* Finishing the PDF output file. */
-
+@ @c
 #define pdf_gen_tounicode int_par(pdf_gen_tounicode_code)
 
-/*
-Destinations that have been referenced but don't exists have
+@ Destinations that have been referenced but don't exists have
 |obj_dest_ptr=null|. Leaving them undefined might cause troubles for
 PDF browsers, so we need to fix them; they point to the last page.
-*/
 
+@c
 static void check_nonexisting_destinations(PDF pdf)
 {
     int k;
@@ -2025,6 +2072,7 @@ static void check_nonexisting_destinations(PDF pdf)
     }
 }
 
+@ @c
 static void check_nonexisting_pages(PDF pdf)
 {
     struct avl_traverser t;
@@ -2042,13 +2090,12 @@ static void check_nonexisting_pages(PDF pdf)
     }
 }
 
-/*
-If the same keys in a dictionary are given several times, then it is not
+@ If the same keys in a dictionary are given several times, then it is not
 defined which value is choosen by an application.  Therefore the keys
 |/Producer| and |/Creator| are only set if the token list
 |pdf_info_toks| converted to a string does not contain these key strings.
-*/
 
+@c
 static boolean substr_of_str(const char *s, const char *t)
 {
     if (strstr(t, s) == NULL)
@@ -2125,13 +2172,10 @@ void build_free_object_list(PDF pdf)
     set_obj_link(pdf, l, 0);
 }
 
-/**********************************************************************/
-
-/*
-Now the finish of PDF output file. At this moment all Page objects
+@ Now the finish of PDF output file. At this moment all Page objects
 are already written completely to PDF output file.
-*/
 
+@c
 void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
 {
     boolean res;
@@ -2406,6 +2450,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
     }
 }
 
+@ @c
 void scan_pdfcatalog(PDF pdf)
 {
     halfword p;

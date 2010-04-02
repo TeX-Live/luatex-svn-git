@@ -1,32 +1,35 @@
-/* pdfsaverestore.c
-   
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+% pdfsaverestore.w
+% 
+% Copyright 2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
 #include "ptexlib.h"
 
+@ @c
 pos_entry *pos_stack = 0;       /* the stack */
 int pos_stack_size = 0;         /* initially empty */
 int pos_stack_used = 0;         /* used entries */
 
+@ @c
 static void checkpdfsave(scaledpos pos)
 {
     pos_entry *new_stack;
@@ -47,6 +50,7 @@ static void checkpdfsave(scaledpos pos)
     pos_stack_used++;
 }
 
+@ @c
 static void checkpdfrestore(scaledpos pos)
 {
     scaledpos diff;
@@ -67,6 +71,7 @@ static void checkpdfrestore(scaledpos pos)
 }
 
 
+@ @c
 void pdf_out_save(PDF pdf, halfword p)
 {
     (void) p;
@@ -74,6 +79,7 @@ void pdf_out_save(PDF pdf, halfword p)
     pdf_literal(pdf, 'q', set_origin, false);
 }
 
+@ @c
 void pdf_out_restore(PDF pdf, halfword p)
 {
     (void) p;

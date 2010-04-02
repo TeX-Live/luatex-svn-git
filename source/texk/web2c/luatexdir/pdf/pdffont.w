@@ -1,44 +1,49 @@
-/* pdffont.c
+% pdffont.w
 
-   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+\def\pdfTeX{pdf\TeX}
+
+@ @c
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
 #include "ptexlib.h"
 
+@ @c
 #define font_id_text(A) cs_text(font_id_base+(A))       /* a frozen font identifier's name */
 
 int pk_dpi;                     /* PK pixel density value from \.{texmf.cnf} */
 
-/*
-As \pdfTeX{} should also act as a back-end driver, it needs to support virtual
+
+@ As \pdfTeX{} should also act as a back-end driver, it needs to support virtual
 fonts too. Information about virtual fonts can be found in the source of some
 \.{DVI}-related programs.
 
 Whenever we want to write out a character in a font to PDF output, we
 should check whether the used character is a virtual or read character.
 The |has_packet()| C macro checks for this condition.
-*/
 
-/* The following code typesets a character to PDF output */
 
+@ The following code typesets a character to PDF output 
+
+@c
 void output_one_char(PDF pdf, internal_font_number ffi, int c)
 {
     scaled_whd ci;              /* the real width, height and depth of the character */
@@ -62,10 +67,11 @@ void output_one_char(PDF pdf, internal_font_number ffi, int c)
         assert(pdf->o_mode == OMODE_PDF);
         do_vf_packet(pdf, ffi, c);
     } else
-        backend_out[glyph_node] (pdf, ffi, c);  /* pdf_place_glyph(pdf, ffi, c); */
+        backend_out[glyph_node] (pdf, ffi, c);  /* |pdf_place_glyph(pdf, ffi, c);| */
 }
 
-/* mark |f| as a used font; set |font_used(f)|, |font_size(f)| and |pdf_font_num(f)| */
+@ Mark |f| as a used font; set |font_used(f)|, |font_size(f)| and |pdf_font_num(f)| 
+@c
 static void pdf_use_font(internal_font_number f, int fontnum)
 {
     set_font_used(f, true);
@@ -73,14 +79,13 @@ static void pdf_use_font(internal_font_number f, int fontnum)
     set_pdf_font_num(f, fontnum);
 }
 
-/*
-To set PDF font we need to find out fonts with the same name, because \TeX\
+@ To set PDF font we need to find out fonts with the same name, because \TeX\
 can load the same font several times for various sizes. For such fonts we
 define only one font resource. The array |pdf_font_num| holds the object
 number of font resource. A negative value of an entry of |pdf_font_num|
 indicates that the corresponding font shares the font resource with the font
-*/
 
+@c
 #define same(n,f,k) (n(f) != NULL && n(k) != NULL && strcmp(n(f), n(k)) == 0)
 
 static boolean font_shareable(internal_font_number f, internal_font_number k)
@@ -118,8 +123,8 @@ static boolean font_shareable(internal_font_number f, internal_font_number k)
     return ret;
 }
 
-/* create a font object */
-
+@ create a font object 
+@c
 void pdf_init_font(PDF pdf, internal_font_number f)
 {
     internal_font_number k, b;
@@ -172,8 +177,8 @@ void pdf_init_font(PDF pdf, internal_font_number f)
     pdf_use_font(f, pdf->obj_ptr);
 }
 
-/* set the actual font on PDF page */
-
+@ set the actual font on PDF page 
+@c
 internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
 {
     int ff;                     /* for use with |set_ff| */
@@ -184,13 +189,13 @@ internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
        |ff| is either |f| itself (then it is its own base font),
        or some font with the same tfm name at different size and/or expansion.
      */
-    ff = pdf_font_num(f) < 0 ? -pdf_font_num(f) : f;    /* aka set_ff(f) */
+    ff = pdf_font_num(f) < 0 ? -pdf_font_num(f) : f;    /* aka |set_ff(f)| */
     addto_page_resources(pdf, obj_type_font, ff);
     return ff;
 }
 
-/* Here come some subroutines to deal with expanded fonts for HZ-algorithm. */
-
+@ Here come some subroutines to deal with expanded fonts for HZ-algorithm.
+@c
 void copy_expand_params(internal_font_number k, internal_font_number f, int e)
 {                               /* set expansion-related parameters for an expanded font |k|, based on the base
                                    font |f| and the expansion amount |e| */
@@ -200,7 +205,8 @@ void copy_expand_params(internal_font_number k, internal_font_number f, int e)
     set_pdf_font_blink(k, f);
 }
 
-/* return 1 == identical */
+@ return 1 == identical 
+@c
 static boolean cmp_font_name(int id, char *tt)
 {
     char *tid;
@@ -214,6 +220,7 @@ static boolean cmp_font_name(int id, char *tt)
     return 1;
 }
 
+@ @c
 internal_font_number tfm_lookup(char *s, scaled fs, int e)
 {                               /* looks up for a TFM with name |s| loaded at |fs| size; if found then flushes |s| */
     internal_font_number k;
@@ -234,6 +241,7 @@ internal_font_number tfm_lookup(char *s, scaled fs, int e)
     return null_font;
 }
 
+@ @c
 static internal_font_number load_expand_font(internal_font_number f, int e)
 {                               /* loads font |f| expanded by |e| thousandths into font memory; |e| is nonzero
                                    and is a multiple of |font_step(f)| */
@@ -252,6 +260,7 @@ static internal_font_number load_expand_font(internal_font_number f, int e)
     return k;
 }
 
+@ @c
 static int fix_expand_value(internal_font_number f, int e)
 {                               /* return the multiple of |font_step(f)| that is nearest to |e| */
     int step;
@@ -279,6 +288,7 @@ static int fix_expand_value(internal_font_number f, int e)
     return e;
 }
 
+@ @c
 static internal_font_number get_expand_font(internal_font_number f, int e)
 {                               /* look up and create if not found an expanded version of |f|; |f| is an
                                    expandable font; |e| is nonzero and is a multiple of |font_step(f)| */
@@ -295,6 +305,7 @@ static internal_font_number get_expand_font(internal_font_number f, int e)
     return k;
 }
 
+@ @c
 internal_font_number expand_font(internal_font_number f, int e)
 {                               /* looks up for font |f| expanded by |e| thousandths, |e| is an arbitrary value
                                    between max stretch and max shrink of |f|; if not found then creates it */
@@ -308,6 +319,7 @@ internal_font_number expand_font(internal_font_number f, int e)
     return get_expand_font(f, e);
 }
 
+@ @c
 void set_expand_params(internal_font_number f, boolean auto_expand,
                        int stretch_limit, int shrink_limit,
                        int font_step, int expand_ratio)
@@ -322,6 +334,7 @@ void set_expand_params(internal_font_number f, boolean auto_expand,
         set_font_expand_ratio(f, expand_ratio);
 }
 
+@ @c
 void read_expand_font(void)
 {                               /* read font expansion spec and load expanded font */
     int shrink_limit, stretch_limit, font_step;
@@ -398,6 +411,7 @@ void read_expand_font(void)
     }
 }
 
+@ @c
 void new_letterspaced_font(small_number a)
 {                               /* letter-space a font by creating a virtual font */
     pointer u;                  /* user's font identifier */
@@ -420,6 +434,7 @@ void new_letterspaced_font(small_number a)
     font_id_text(f) = t;
 }
 
+@ @c
 void make_font_copy(small_number a)
 {                               /* make a font copy for further use with font expansion */
     pointer u;                  /* user's font identifier */
@@ -441,6 +456,7 @@ void make_font_copy(small_number a)
     font_id_text(f) = t;
 }
 
+@ @c
 void pdf_include_chars(PDF pdf)
 {
     str_number s;
@@ -463,6 +479,7 @@ void pdf_include_chars(PDF pdf)
     flush_str(s);
 }
 
+@ @c
 void glyph_to_unicode(void)
 {
     str_number s1, s2;

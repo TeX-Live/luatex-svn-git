@@ -1,22 +1,23 @@
-/* pdfcolorstack.c
-   
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+% pdfcolorstack.w
+% 
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
 #include "ptexlib.h"
 
 static const char _svn_version[] =
@@ -24,31 +25,31 @@ static const char _svn_version[] =
     "$URL$";
 
 
-/*************************************************/
-/* Color Stack and Matrix Transformation Support */
-/*************************************************/
+@* Color Stack and Matrix Transformation Support.
 
-/*
-    In the following array and especially stack data structures are used.
-    They have the following properties:
-    - They automatically grow dynamically.
-    - The size never decreases.
-    - The variable with name ending in "size" contains the number how many
+
+@ In the following array and especially stack data structures are used.
+
+They have the following properties:
+
+    \item{-} They automatically grow dynamically.
+    \item{-} The size never decreases.
+    \item{-} The variable with name ending in "size" contains the number how many
       entries the data structure can hold.
-    - The variable with name ending in "used" contains the number of
+    \item{-} The variable with name ending in "used" contains the number of
       actually used entries.
-    - Memory of strings in stack entries must be allocated and
+    \item{-} Memory of strings in stack entries must be allocated and
       freed if the stack is cleared.
-*/
 
-/* Color Stack */
 
+@ Color Stack 
+@c
 #define MAX_COLORSTACKS 32768
 /* The colorstack number is stored in two bytes (info field of the node) */
-/* Condition (newcolorstack): MAX_COLORSTACKS mod STACK_INCREMENT = 0 */
+/* Condition (newcolorstack): |MAX_COLORSTACKS mod STACK_INCREMENT = 0| */
 
 #define COLOR_DEFAULT "0 g 0 G"
-/* literal_modes, see pdftex.web */
+/* |literal_mode|s, see pdftex.web */
 #define SET_ORIGIN 0
 #define DIRECT_PAGE 1
 #define DIRECT_ALWAYS 2
@@ -74,11 +75,12 @@ static colstack_type *colstacks = NULL;
 static int colstacks_size = 0;
 static int colstacks_used = 0;
 
-/*  Initialization is done, if the color stacks are used,
-    init_colorstacks() is defined as macro to avoid unnecessary
+@ Initialization is done, if the color stacks are used,
+    |init_colorstacks()| is defined as macro to avoid unnecessary
     procedure calls.
-*/
+@c
 #define init_colorstacks() if (colstacks_size == 0) colstacks_first_init();
+
 void colstacks_first_init(void)
 {
     colstacks_size = STACK_INCREMENT;
@@ -97,16 +99,17 @@ void colstacks_first_init(void)
     colstacks[0].page_start = true;
 }
 
+@ @c
 int colorstackused(void)
 {
     init_colorstacks();
     return colstacks_used;
 }
 
-/*  newcolorstack()
+@  |newcolorstack()|
     A new color stack is setup with the given parameters.
     The stack number is returned or -1 in case of error (no room).
-*/
+@c
 int newcolorstack(int s, int literal_mode, boolean page_start)
 {
     colstack_type *colstack;
@@ -121,8 +124,8 @@ int newcolorstack(int s, int literal_mode, boolean page_start)
     }
     if (colstacks_used == colstacks_size) {
         colstacks_size += STACK_INCREMENT;
-        /* If (MAX_COLORSTACKS mod STACK_INCREMENT = 0) then we don't
-           need to check the case that size overruns MAX_COLORSTACKS. */
+        /* If |(MAX_COLORSTACKS mod STACK_INCREMENT = 0)| then we don't
+           need to check the case that size overruns |MAX_COLORSTACKS|. */
         colstacks =
             xreallocarray(colstacks, colstack_type, (unsigned) colstacks_size);
     }
@@ -152,9 +155,11 @@ int newcolorstack(int s, int literal_mode, boolean page_start)
     return colstack_num;
 }
 
+@ @c
 #define get_colstack(n) (&colstacks[n])
 
-/* Puts a string on top of the string pool and updates pool_ptr. */
+@ Puts a string on top of the string pool and updates |pool_ptr|. 
+@c
 static void put_cstring_on_str_pool(char *str)
 {
     int save_selector = selector;
@@ -166,6 +171,7 @@ static void put_cstring_on_str_pool(char *str)
     selector = save_selector;
 }
 
+@ @c
 int colorstackset(int colstack_no, str_number s)
 {
     colstack_type *colstack = get_colstack(colstack_no);
@@ -180,6 +186,7 @@ int colorstackset(int colstack_no, str_number s)
     return colstack->literal_mode;
 }
 
+@ @c
 int colorstackcurrent(int colstack_no)
 {
     colstack_type *colstack = get_colstack(colstack_no);
@@ -192,6 +199,7 @@ int colorstackcurrent(int colstack_no)
     return colstack->literal_mode;
 }
 
+@ @c
 static int colorstackpush(int colstack_no, str_number s)
 {
     colstack_type *colstack = get_colstack(colstack_no);
@@ -230,6 +238,7 @@ static int colorstackpush(int colstack_no, str_number s)
     return colstack->literal_mode;
 }
 
+@ @c
 int colorstackpop(int colstack_no)
 {
     colstack_type *colstack = get_colstack(colstack_no);
@@ -256,13 +265,14 @@ int colorstackpop(int colstack_no)
     return colstack->literal_mode;
 }
 
+@ @c
 void colorstackpagestart(void)
 {
     int i, j;
     colstack_type *colstack;
 
     if (page_mode) {
-        /* see procedure pdf_out_colorstack_startpage */
+        /* see procedure |pdf_out_colorstack_startpage| */
         return;
     }
 
@@ -281,6 +291,7 @@ void colorstackpagestart(void)
     }
 }
 
+@ @c
 int colorstackskippagestart(int colstack_no)
 {
     colstack_type *colstack = get_colstack(colstack_no);
@@ -298,6 +309,7 @@ int colorstackskippagestart(int colstack_no)
 }
 
 
+@ @c
 void pdf_out_colorstack(PDF pdf, halfword p)
 {
     int old_setting;
@@ -349,6 +361,7 @@ void pdf_out_colorstack(PDF pdf, halfword p)
     }
 }
 
+@ @c
 void pdf_out_colorstack_startpage(PDF pdf)
 {
     int i;

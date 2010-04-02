@@ -1,28 +1,30 @@
-/* pdfshipout.c
+% pdfshipout.w
 
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+% Copyright 2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
 #include "ptexlib.h"
 
+@ @c
 #define count(A) eqtb[count_base+(A)].cint
 #define h_offset dimen_par(h_offset_code)
 #define mag int_par(mag_code)
@@ -41,14 +43,11 @@ static const char _svn_version[] =
 
 scaledpos shipbox_refpos;
 
-/**********************************************************************/
-
-/*
-|ship_out| is used to shipout a box to PDF or DVI mode.
+@ |ship_out| is used to shipout a box to PDF or DVI mode.
 If |shipping_page| is not set then the output will be a Form object
 (only PDF), otherwise it will be a Page object.
-*/
 
+@c
 void ship_out(PDF pdf, halfword p, boolean shipping_page)
 {
     /* output the box |p| */
@@ -61,7 +60,7 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
     refpoint.pos.v = 0;
 
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
-    fix_o_mode(pdf);            /* this is only for complaining if \pdfoutput has changed */
+    fix_o_mode(pdf);            /* this is only for complaining if \.{\\pdfoutput} has changed */
     init_backend_functionpointers(pdf->o_mode);
 
     pdf->f_cur = null_font;
@@ -253,7 +252,7 @@ void ship_out(PDF pdf, halfword p, boolean shipping_page)
 
     /* Now we are at the point on the page where the origin of the page box should go. */
 
-    shipbox_refpos = pdf->posstruct->pos;       /* for \gleaders */
+    shipbox_refpos = pdf->posstruct->pos;       /* for \.{\\gleaders} */
 
     switch (pdf->o_mode) {
     case OMODE_DVI:
