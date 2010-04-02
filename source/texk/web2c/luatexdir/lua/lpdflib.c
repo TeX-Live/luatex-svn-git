@@ -192,16 +192,12 @@ typedef enum { P__ZERO,
     P_CATALOG,
     P_H,
     P_INFO,
-    P_MAPFILE,
-    P_MAPLINE,
     P_NAMES,
     P_PAGEATTRIBUTES,
     P_PAGERESOURCES,
     P_PAGESATTRIBUTES,
     P_PDFCATALOG,
     P_PDFINFO,
-    P_PDFMAPFILE,
-    P_PDFMAPLINE,
     P_PDFNAMES,
     P_PDFTRAILER,
     P_RAW,
@@ -216,16 +212,12 @@ static const parm_struct pdf_parms[] = {
     {"catalog", P_CATALOG},
     {"h", P_H},
     {"info", P_INFO},
-    {"mapfile", P_MAPFILE},
-    {"mapline", P_MAPLINE},
     {"names", P_NAMES},
     {"pageattributes", P_PAGEATTRIBUTES},
     {"pageresources", P_PAGERESOURCES},
     {"pagesattributes", P_PAGESATTRIBUTES},
     {"pdfcatalog", P_PDFCATALOG},       /* obsolescent */
     {"pdfinfo", P_PDFINFO},     /* obsolescent */
-    {"pdfmapfile", P_PDFMAPFILE},       /* obsolescent */
-    {"pdfmapline", P_PDFMAPLINE},       /* obsolescent */
     {"pdfnames", P_PDFNAMES},   /* obsolescent */
     {"pdftrailer", P_PDFTRAILER},       /* obsolescent */
     {"raw", P_RAW},
@@ -643,12 +635,6 @@ static int getpdf(lua_State * L)
             case P_V:
                 lua_pushnumber(L, static_pdf->posstruct->pos.v);
                 break;
-            case P_PDFMAPFILE:
-            case P_MAPFILE:
-            case P_MAPLINE:
-            case P_PDFMAPLINE:
-                lua_pushnil(L);
-                break;
             default:
                 lua_rawget(L, -2);
             }
@@ -702,22 +688,6 @@ static int setpdf(lua_State * L)
         case P_TRAILER:
             pdf_trailer_toks = tokenlist_from_lua(L);
             break;
-        case P_PDFMAPLINE:
-        case P_MAPLINE:
-            if (lua_isstring(L, -1) && (st = lua_tostring(L, -1)) != NULL) {
-                s = xstrdup(st);
-                process_map_item(s, MAPLINE);
-                free(s);
-            }
-            break;
-        case P_PDFMAPFILE:
-        case P_MAPFILE:
-            if (lua_isstring(L, -1) && (st = lua_tostring(L, -1)) != NULL) {
-                s = xstrdup(st);
-                process_map_item(s, MAPFILE);
-                free(s);
-            }
-            break;
         case P_H:
         case P_V:
             /* can't set |h| and |v| yet */
@@ -731,10 +701,50 @@ static int setpdf(lua_State * L)
     return 0;
 }
 
+static int l_mapfile(lua_State * L)
+{
+    char *s;
+    const char *st;
+    if (lua_isstring(L, -1) && (st = lua_tostring(L, -1)) != NULL) {
+        s = xstrdup(st);
+        process_map_item(s, MAPFILE);
+        free(s);
+    }
+    return 0;
+}
+
+static int l_mapline(lua_State * L)
+{
+    char *s;
+    const char *st;
+    if (lua_isstring(L, -1) && (st = lua_tostring(L, -1)) != NULL) {
+        s = xstrdup(st);
+        process_map_item(s, MAPLINE);
+        free(s);
+    }
+    return 0;
+}
+
+static int l_pdfmapfile(lua_State * L)
+{
+    luaL_error(L, "pdf.pdfmapfile() is obsolete. use pdf.mapfile() instead.");
+    return 0;
+}
+
+static int l_pdfmapline(lua_State * L)
+{
+    luaL_error(L, "pdf.pdfmapline() is obsolete. use pdf.mapline() instead.");
+    return 0;
+}
+
 static const struct luaL_reg pdflib[] = {
-    {"print", luapdfprint},
     {"immediateobj", l_immediateobj},
+    {"mapfile", l_mapfile},
+    {"mapline", l_mapline},
     {"obj", l_obj},
+    {"pdfmapfile", l_pdfmapfile},       /* obsolete */
+    {"pdfmapline", l_pdfmapline},       /* obsolete */
+    {"print", luapdfprint},
     {"registerannot", l_registerannot},
     {"reserveobj", l_reserveobj},
     {NULL, NULL}                /* sentinel */
