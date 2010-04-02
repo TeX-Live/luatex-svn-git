@@ -56,8 +56,8 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: hyphen.c 1696 2008-12-28 21:02:34Z oneiros $ "
-"$URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lang/texlang.c $";
+    "$Id$ "
+"$URL$";
 
 @ TODO: should be moved to separate library
 
