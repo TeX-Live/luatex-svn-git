@@ -725,13 +725,13 @@ static int l_mapline(lua_State * L)
 
 static int l_pdfmapfile(lua_State * L)
 {
-    luaL_error(L, "pdf.pdfmapfile() is obsolete. use pdf.mapfile() instead.");
+    luaL_error(L, "pdf.pdfmapfile() is obsolete. Use pdf.mapfile() instead.");
     return 0;
 }
 
 static int l_pdfmapline(lua_State * L)
 {
-    luaL_error(L, "pdf.pdfmapline() is obsolete. use pdf.mapline() instead.");
+    luaL_error(L, "pdf.pdfmapline() is obsolete. Use pdf.mapline() instead.");
     return 0;
 }
 
