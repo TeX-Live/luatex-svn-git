@@ -1,30 +1,27 @@
+% tt_glyf.w
+%  
+% Copyright 2002 by Jin-Hwan Cho and Shunsaku Hirata,
+% the dvipdfmx project team <dvipdfmx@@project.ktug.or.kr>
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
+@* Subsetting glyf, updating loca, hmtx, etc.
+
 @ @c
-/* tt_glyf.c
-    
-   Copyright 2002 by Jin-Hwan Cho and Shunsaku Hirata,
-   the dvipdfmx project team <dvipdfmx@@project.ktug.or.kr>
-   Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
-/*
- * Subsetting glyf, updating loca, hmtx, ...
- *
- */
-
 #include "ptexlib.h"
 
 #include "font/sfnt.h"
@@ -33,8 +30,10 @@
 #include "font/writettf.h"
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+"$URL$";
 
+@ @c
 #define NUM_GLYPH_LIMIT        65534
 #define TABLE_DATA_ALLOC_SIZE  40960
 #define GLYPH_ARRAY_ALLOC_SIZE 256
@@ -118,9 +117,9 @@ USHORT tt_add_glyph(struct tt_glyphs * g, USHORT gid, USHORT new_gid)
     return new_gid;
 }
 
-/*
- * Initialization
- */
+
+@ Initialization
+@c
 struct tt_glyphs *tt_build_init(void)
 {
     struct tt_glyphs *g;
@@ -176,6 +175,7 @@ static int glyf_cmp(const void *v1, const void *v2)
     return cmp;
 }
 
+@ @c
 int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
 {
     char *hmtx_table_data = NULL, *loca_table_data = NULL;
@@ -201,12 +201,15 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
         TT_ERROR("Too many glyphs.");
 
     /*
-     * Read head, hhea, maxp, loca:
-     *
-     *   unitsPerEm       --> head
-     *   numHMetrics      --> hhea
-     *   indexToLocFormat --> head
-     *   numGlyphs        --> maxp
+     Read head, hhea, maxp, loca:
+     
+     unitsPerEm       --> head
+
+     numHMetrics      --> hhea
+
+     indexToLocFormat --> head
+     
+     numGlyphs        --> maxp
      */
     head = tt_read_head_table(sfont);
     hhea = tt_read_hhea_table(sfont);
@@ -262,11 +265,11 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
      */
     offset = sfnt_locate_table(sfont, "glyf");
     /*
-     * The num_glyphs may grow when composite glyph is found.
-     * A component of glyph refered by a composite glyph is appended
-     * to used_glyphs if it is not already registered in used_glyphs.
-     * Glyph programs of composite glyphs are modified so that it
-     * correctly refer to new gid of their components.
+     The |num_glyphs| may grow when composite glyph is found.
+     A component of glyph refered by a composite glyph is appended
+     to |used_glyphs| if it is not already registered in |used_glyphs|.
+     Glyph programs of composite glyphs are modified so that it
+     correctly refer to new gid of their components.
      */
     for (i = 0; i < NUM_GLYPH_LIMIT; i++) {
         USHORT gid;             /* old gid */
@@ -318,9 +321,9 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
         g->gd[i].lly = sfnt_get_short(sfont);
         g->gd[i].urx = sfnt_get_short(sfont);
         g->gd[i].ury = sfnt_get_short(sfont);
-        /* _FIXME_ */
+        /* |_FIXME_| */
 #if  1
-        if (!vmtx)              /* vertOriginY == sTypeAscender */
+        if (!vmtx)              /* |vertOriginY == sTypeAscender| */
             g->gd[i].tsb =
                 (SHORT) (g->default_advh - g->default_tsb - g->gd[i].ury);
 #endif
@@ -332,7 +335,7 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
         /* Read evrything else. */
         sfnt_read(p, (int) len - 10, sfont);
         /*
-         * Fix GIDs of composite glyphs.
+         Fix GIDs of composite glyphs.
          */
         if (number_of_contours < 0) {
             USHORT flags, cgid, new_gid;        /* flag, gid of a component */
@@ -367,9 +370,11 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
                     p += 8;
             } while (flags & MORE_COMPONENTS);
             /*
-             * TrueType instructions comes here:
-             *  length_of_instruction (ushort)
-             *  instruction (byte * length_of_instruction)
+             TrueType instructions comes here:
+
+             |length_of_instruction| (|ushort|)
+              
+             instruction (|byte * length_of_instruction|)
              */
         }
     }
@@ -417,8 +422,8 @@ int tt_build_tables(sfnt * sfont, struct tt_glyphs *g)
             (ULONG) (hhea->numberOfHMetrics * 2 + (g->last_gid + 1) * 2);
 
         /*
-         * Choosing short format does not always give good result
-         * when compressed. Sometimes increases size.
+         Choosing short format does not always give good result
+         when compressed. Sometimes increases size.
          */
         if (glyf_table_size < 0x20000UL) {
             head->indexToLocFormat = 0;
@@ -530,12 +535,15 @@ int tt_get_metrics(sfnt * sfont, struct tt_glyphs *g)
         TT_ERROR("Invalid font type");
 
     /*
-     * Read head, hhea, maxp, loca:
-     *
-     *   unitsPerEm       --> head
-     *   numHMetrics      --> hhea
-     *   indexToLocFormat --> head
-     *   numGlyphs        --> maxp
+     Read head, hhea, maxp, loca:
+     
+     unitsPerEm       --> head
+
+     numHMetrics      --> hhea
+
+     indexToLocFormat --> head
+
+     numGlyphs        --> maxp
      */
     head = tt_read_head_table(sfont);
     hhea = tt_read_hhea_table(sfont);
@@ -580,7 +588,7 @@ int tt_get_metrics(sfnt * sfont, struct tt_glyphs *g)
     w_stat = NEW(g->emsize + 2, USHORT);
     memset(w_stat, 0, (size_t) ((int) sizeof(USHORT) * (g->emsize + 2)));
     /*
-     * Read glyf table.
+     Read glyf table.
      */
     offset = sfnt_locate_table(sfont, "glyf");
     for (i = 0; i < g->num_glyphs; i++) {
@@ -626,9 +634,9 @@ int tt_get_metrics(sfnt * sfont, struct tt_glyphs *g)
         g->gd[i].lly = sfnt_get_short(sfont);
         g->gd[i].urx = sfnt_get_short(sfont);
         g->gd[i].ury = sfnt_get_short(sfont);
-        /* _FIXME_ */
+        /* |_FIXME_| */
 #if  1
-        if (!vmtx)              /* vertOriginY == sTypeAscender */
+        if (!vmtx)              /* |vertOriginY == sTypeAscender| */
             g->gd[i].tsb =
                 (SHORT) (g->default_advh - g->default_tsb - g->gd[i].ury);
 #endif

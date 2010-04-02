@@ -1,44 +1,45 @@
-@ @c
-/* texfont.c Main font API implementation for the pascal parts
+% texfont.w 
 
-   Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
+
+@* Main font API implementation for the original pascal parts.
+
+Stuff to watch out for:
+
+\item{} Knuth had a |'null_character'| that was used when a character could
+not be found by the |fetch()| routine, to signal an error. This has
+been deleted, but it may mean that the output of luatex is
+incompatible with TeX after |fetch()| has detected an error condition.
+
+\item{} Knuth also had a |font_glue()| optimization. I've removed that
+because it was a bit of dirty programming and it also was
+problematic |if 0 != null|.
+
+@c
 static const char _svn_version[] =
     "$Id$ "
-    "$URL$";
-
-/* Main font API implementation for the pascal parts */
-
-/* stuff to watch out for:
- *
- * - Knuth had a 'null_character' that was used when a character could
- * not be found by the fetch() routine, to signal an error. This has
- * been deleted, but it may mean that the output of luatex is
- * incompatible with TeX after fetch() has detected an error condition.
- *
- * - Knuth also had a font_glue() optimization. I've removed that
- * because it was a bit of dirty programming and it also was
- * problematic if 0 != null.
- */
+"$URL$";
 
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
+@ @c
 #define noDEBUG
 
 #define proper_char_index(c) (c<=font_ec(f) && c>=font_bc(f))
@@ -49,6 +50,7 @@ texfont **font_tables = NULL;
 static int font_arr_max = 0;
 static int font_id_maxval = 0;
 
+@ @c
 static void grow_font_table(int id)
 {
     int j;
@@ -91,6 +93,7 @@ void set_max_font_id(int i)
     font_id_maxval = i;
 }
 
+@ @c
 int new_font(void)
 {
     int k;
@@ -136,6 +139,7 @@ int new_font(void)
     return id;
 }
 
+@ @c
 void font_malloc_charinfo(internal_font_number f, int num)
 {
     int glyph = font_tables[f]->charinfo_size;
@@ -146,6 +150,7 @@ void font_malloc_charinfo(internal_font_number f, int num)
     font_tables[f]->charinfo_size += num;
 }
 
+@ @c
 #define find_charinfo_id(f,c) get_sa_item(font_tables[f]->characters,c)
 
 charinfo *get_charinfo(internal_font_number f, int c)
@@ -183,6 +188,7 @@ charinfo *get_charinfo(internal_font_number f, int c)
     return &(font_tables[f]->charinfo[0]);
 }
 
+@ @c
 void set_charinfo(internal_font_number f, int c, charinfo * ci)
 {
     sa_tree_item glyph;
@@ -200,6 +206,7 @@ void set_charinfo(internal_font_number f, int c, charinfo * ci)
     }
 }
 
+@ @c
 charinfo *copy_charinfo(charinfo * ci)
 {
     int x, k;
@@ -331,6 +338,7 @@ charinfo *char_info(internal_font_number f, int c)
     return &(font_tables[f]->charinfo[0]);
 }
 
+@ @c
 scaled_whd get_charinfo_whd(internal_font_number f, int c)
 {
     scaled_whd s;
@@ -342,6 +350,7 @@ scaled_whd get_charinfo_whd(internal_font_number f, int c)
     return s;
 }
 
+@ @c
 int char_exists(internal_font_number f, int c)
 {
     if (f > font_id_maxval)
@@ -356,6 +365,7 @@ int char_exists(internal_font_number f, int c)
     return 0;
 }
 
+@ @c
 int lua_char_exists_callback(internal_font_number f, int c)
 {
     int callback_id;
@@ -381,6 +391,7 @@ int lua_char_exists_callback(internal_font_number f, int c)
 }
 
 
+@ @c
 extinfo *new_variant(int glyph, int startconnect, int endconnect,
                      int advance, int repeater)
 {
@@ -396,6 +407,7 @@ extinfo *new_variant(int glyph, int startconnect, int endconnect,
 }
 
 
+@ @c
 extinfo *copy_variant(extinfo * old)
 {
     extinfo *ext;
@@ -409,6 +421,7 @@ extinfo *copy_variant(extinfo * old)
     return ext;
 }
 
+@ @c
 void dump_variant(extinfo * ext)
 {
     dump_int(ext->glyph);
@@ -420,6 +433,7 @@ void dump_variant(extinfo * ext)
 }
 
 
+@ @c
 extinfo *undump_variant(void)
 {
     int x;
@@ -441,6 +455,7 @@ extinfo *undump_variant(void)
     return ext;
 }
 
+@ @c
 void add_charinfo_vert_variant(charinfo * ci, extinfo * ext)
 {
     if (ci->vert_variants == NULL) {
@@ -454,6 +469,7 @@ void add_charinfo_vert_variant(charinfo * ci, extinfo * ext)
 
 }
 
+@ @c
 void add_charinfo_hor_variant(charinfo * ci, extinfo * ext)
 {
     if (ci->hor_variants == NULL) {
@@ -467,6 +483,7 @@ void add_charinfo_hor_variant(charinfo * ci, extinfo * ext)
 
 }
 
+@ @c
 extinfo *copy_variants(extinfo * o)
 {
     extinfo *c, *t = NULL, *h = NULL;
@@ -484,6 +501,7 @@ extinfo *copy_variants(extinfo * o)
 }
 
 
+@ @c
 void dump_charinfo_variants(extinfo * o)
 {
     while (o != NULL) {
@@ -494,6 +512,7 @@ void dump_charinfo_variants(extinfo * o)
     return;
 }
 
+@ @c
 extinfo *undump_charinfo_variants(void)
 {
     extinfo *c, *t, *h = NULL;
@@ -510,6 +529,9 @@ extinfo *undump_charinfo_variants(void)
 }
 
 
+@ Note that mant more small things like this are implemented
+as macros in the header file.
+@c
 void set_charinfo_width(charinfo * ci, scaled val)
 {
     ci->width = val;
@@ -602,6 +624,7 @@ void set_charinfo_rp(charinfo * ci, scaled val)
     ci->rp = val;
 }
 
+@ @c
 void set_charinfo_vert_variants(charinfo * ci, extinfo * ext)
 {
     extinfo *c, *lst;
@@ -616,6 +639,7 @@ void set_charinfo_vert_variants(charinfo * ci, extinfo * ext)
     ci->vert_variants = ext;
 }
 
+@ @c
 void set_charinfo_hor_variants(charinfo * ci, extinfo * ext)
 {
     extinfo *c, *lst;
@@ -631,10 +655,11 @@ void set_charinfo_hor_variants(charinfo * ci, extinfo * ext)
 
 }
 
+@ @c
 int get_charinfo_math_kerns(charinfo * ci, int id)
 {
 
-    int k = 0;                  /* all callers check for result>0 */
+    int k = 0;                  /* all callers check for |result>0| */
     if (id == top_left_kern) {
         k = ci->top_left_math_kerns;
     } else if (id == bottom_left_kern) {
@@ -649,6 +674,7 @@ int get_charinfo_math_kerns(charinfo * ci, int id)
     return k;
 }
 
+@ @c
 void add_charinfo_math_kern(charinfo * ci, int id, scaled ht, scaled krn)
 {
     int k;
@@ -685,6 +711,7 @@ void add_charinfo_math_kern(charinfo * ci, int id, scaled ht, scaled krn)
 }
 
 
+@ @c
 static void dump_math_kerns(charinfo * ci)
 {
     int k, l;
@@ -714,6 +741,7 @@ static void dump_math_kerns(charinfo * ci)
     }
 }
 
+@ @c
 static void undump_math_kerns(charinfo * ci)
 {
     int k;
@@ -765,15 +793,16 @@ static void undump_math_kerns(charinfo * ci)
 }
 
 
-/* In TeX, extensibles were fairly simple things.
+@ In TeX, extensibles were fairly simple things.
    This function squeezes a TFM extensible into the vertical extender structures.
    |advance==0| is a special case for TFM fonts, because finding the proper
    advance width during tfm reading can be tricky
-*/
 
-/* a small complication arises if |rep| is the only non-zero: it needs to be
+
+  a small complication arises if |rep| is the only non-zero: it needs to be
   doubled as a non-repeatable to avoid mayhem */
 
+@c
 void set_charinfo_extensible(charinfo * ci, int top, int bot, int mid, int rep)
 {
     extinfo *ext;
@@ -807,6 +836,10 @@ void set_charinfo_extensible(charinfo * ci, int top, int bot, int mid, int rep)
     }
 }
 
+@ Note that many more simple things like this are implemented as macros 
+in the header file.
+
+@c
 scaled get_charinfo_width(charinfo * ci)
 {
     return ci->width;
@@ -918,7 +951,6 @@ scaled char_width(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     scaled w = get_charinfo_width(ci);
-    /*fprintf(stdout,"width of char 0x%x in font %s: %i\n",c,font_name(f),w); */
     return w;
 }
 
@@ -926,7 +958,6 @@ scaled char_depth(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     scaled w = get_charinfo_depth(ci);
-    /*fprintf(stdout,"depth of char 0x%x in font %s: %i\n",c,font_name(f),w); */
     return w;
 }
 
@@ -934,7 +965,6 @@ scaled char_height(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
     scaled w = get_charinfo_height(ci);
-    /*fprintf(stdout,"height of char 0x%x in font %s: %i\n",c,font_name(f),w); */
     return w;
 }
 
@@ -1005,7 +1035,7 @@ eight_bits *char_packets(internal_font_number f, int c)
     return get_charinfo_packets(ci);
 }
 
-
+@ @c
 void set_font_params(internal_font_number f, int b)
 {
     int i;
@@ -1024,6 +1054,7 @@ void set_font_params(internal_font_number f, int b)
     }
 }
 
+@ @c
 void set_font_math_params(internal_font_number f, int b)
 {
     int i;
@@ -1043,7 +1074,7 @@ void set_font_math_params(internal_font_number f, int b)
 }
 
 
-
+@ @c
 int copy_font(int f)
 {
     int i, ci_cnt, ci_size;
@@ -1122,6 +1153,7 @@ int copy_font(int f)
     return k;
 }
 
+@ @c
 void delete_font(int f)
 {
     int i;
@@ -1168,6 +1200,7 @@ void delete_font(int f)
     }
 }
 
+@ @c
 void create_null_font(void)
 {
     int i = new_font();
@@ -1177,6 +1210,7 @@ void create_null_font(void)
     set_font_touched(i, 1);
 }
 
+@ @c
 boolean is_valid_font(int id)
 {
     int ret = 0;
@@ -1185,6 +1219,7 @@ boolean is_valid_font(int id)
     return ret;
 }
 
+@ @c
 boolean cmp_font_area(int id, str_number t)
 {
     char *tt = NULL;
@@ -1204,16 +1239,18 @@ boolean cmp_font_area(int id, str_number t)
     return 1;
 }
 
+@ @c
 int test_no_ligatures(internal_font_number f)
 {
     int c;
     for (c = font_bc(f); c <= font_ec(f); c++) {
-        if (has_lig(f, c))      /* char_exists(f,c) */
+        if (has_lig(f, c))      /* |char_exists(f,c)| */
             return 0;
     }
     return 1;
 }
 
+@ @c
 int get_tag_code(internal_font_number f, int c)
 {
     small_number i;
@@ -1231,6 +1268,7 @@ int get_tag_code(internal_font_number f, int c)
     return -1;
 }
 
+@ @c
 int get_lp_code(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
@@ -1249,12 +1287,13 @@ int get_ef_code(internal_font_number f, int c)
     return get_charinfo_ef(ci);
 }
 
+@ @c
 void set_tag_code(internal_font_number f, int c, int i)
 {
     int fixedi;
     charinfo *co;
     if (char_exists(f, c)) {
-        /* abs(fix_int(i-7,0)) */
+        /* |abs(fix_int(i-7,0))| */
         fixedi = -(i < -7 ? -7 : (i > 0 ? 0 : i));
         co = char_info(f, c);
         if (fixedi >= 4) {
@@ -1277,6 +1316,7 @@ void set_tag_code(internal_font_number f, int c, int i)
 }
 
 
+@ @c
 void set_lp_code(internal_font_number f, int c, int i)
 {
     charinfo *co;
@@ -1304,6 +1344,7 @@ void set_ef_code(internal_font_number f, int c, int i)
     }
 }
 
+@ @c
 void set_no_ligatures(internal_font_number f)
 {
     int c;
@@ -1323,6 +1364,7 @@ void set_no_ligatures(internal_font_number f)
     font_tables[f]->ligatures_disabled = 1;
 }
 
+@ @c
 liginfo get_ligature(internal_font_number f, int lc, int rc)
 {
     int k;
@@ -1352,6 +1394,7 @@ liginfo get_ligature(internal_font_number f, int lc, int rc)
 }
 
 
+@ @c
 scaled raw_get_kern(internal_font_number f, int lc, int rc)
 {
     int k;
@@ -1377,6 +1420,7 @@ scaled raw_get_kern(internal_font_number f, int lc, int rc)
 }
 
 
+@ @c
 scaled get_kern(internal_font_number f, int lc, int rc)
 {
     if (lc == non_boundarychar || rc == non_boundarychar || (!has_kern(f, lc)))
@@ -1385,8 +1429,9 @@ scaled get_kern(internal_font_number f, int lc, int rc)
 }
 
 
-/* dumping and undumping fonts */
+@ dumping and undumping fonts
 
+@c
 #define dump_string(a)			\
     if (a!=NULL) {			\
       x = (int)(strlen(a)+1);		\
@@ -1537,6 +1582,7 @@ void dump_font(int f)
     }
 }
 
+@ @c
 int undump_charinfo(int f)
 {
     charinfo *co;

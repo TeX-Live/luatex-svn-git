@@ -1,36 +1,36 @@
+% writeenc.w
+% 
+% Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
+% Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+
 @ @c
-/* writeenc.c
-   
-   Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
-   Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+"$URL$";
 
-/**********************************************************************/
-/* All encoding entries go into AVL tree for fast search by name. */
-
+@ All encoding entries go into AVL tree for fast search by name. 
+@c
 struct avl_table *fe_tree = NULL;
 
-/* AVL sort fe_entry into fe_tree by name */
-
+@ AVL sort |fe_entry| into |fe_tree| by name
+@c
 static int comp_fe_entry(const void *pa, const void *pb, void *p)
 {
     (void) p;
@@ -87,8 +87,7 @@ fe_entry *get_fe_entry(char *s)
     return fe;
 }
 
-/**********************************************************************/
-
+@ @c
 void write_enc(PDF pdf, char **glyph_names, struct avl_table *tx_tree,
                int fe_objnum)
 {
@@ -136,8 +135,8 @@ void write_fontencodings(PDF pdf)
             write_fontencoding(pdf, fe);
 }
 
-/**********************************************************************/
-/* cleaning up... */
+@ cleaning up... 
+@c
 
 static void destroy_fe_entry(void *pa, void *pb)
 {
@@ -160,5 +159,3 @@ void enc_free(void)
         avl_destroy(fe_tree, destroy_fe_entry);
     fe_tree = NULL;
 }
-
-/**********************************************************************/

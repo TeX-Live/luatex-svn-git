@@ -1,30 +1,31 @@
+% vfovf.w
+
+% Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
+% Copyright 2006-2009 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* vfovf.c
-
-   Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
+@ @c
 /* this is a hack! */
 #define font_max 5000
 
@@ -95,7 +96,8 @@ static const char _svn_version[] =
 #define long_char 242           /* \.{VF} command for general character packet */
 #define vf_id 202               /* identifies \.{VF} files */
 
-/* go out \.{VF} processing with an error message */
+@ go out \.{VF} processing with an error message
+@c
 #define bad_vf(a) { xfree(vf_buffer); print_nlp();  \
     tprint("Error in processing VF font (");  \
     tprint(font_name(f));       \
@@ -118,6 +120,7 @@ static const char _svn_version[] =
 
 #define vf_stack_size 100       /* \.{DVI} files shouldn't |push| beyond this depth */
 
+@ @c
 typedef unsigned char vf_stack_index;   /* an index into the stack */
 
 typedef struct vf_stack_record {
@@ -126,8 +129,8 @@ typedef struct vf_stack_record {
 
 boolean auto_expand_vf(internal_font_number f); /* forward */
 
-/* get a byte from\.{VF} file */
-
+@ get a byte from\.{VF} file 
+@c
 #define vf_byte(a)                                     \
 {                                                      \
   eight_bits vf_tmp_b;				       \
@@ -138,6 +141,7 @@ boolean auto_expand_vf(internal_font_number f); /* forward */
     a = vf_tmp_b;                                      \
 }
 
+@ @c
 #define vf_replace_z()                           \
 {                                                \
     vf_alpha = 16;                               \
@@ -149,9 +153,10 @@ boolean auto_expand_vf(internal_font_number f); /* forward */
     vf_alpha = (vf_alpha * vf_z);		 \
 }
 
-/* read |k| bytes as an integer from \.{VF} file */
-/* beware: the vf_read() macro differs from vf_read() in vftovp.web for 1...3 byte words */
 
+@ read |k| bytes as an integer from \.{VF} file 
+beware: the |vf_read()| macro differs from |vf_read()| in vftovp.web for 1...3 byte words.
+@c
 #define vf_read(k, l)                            \
 {                                                \
     int itmp = 0, dtmp = (int)(k), jtmp = 0;	 \
@@ -176,6 +181,7 @@ boolean auto_expand_vf(internal_font_number f); /* forward */
     l = itmp;                                    \
 }
 
+@ @c
 void pdf_check_vf(internal_font_number f)
 {
     if (font_type(f) == virtual_font_type)
@@ -200,8 +206,8 @@ vf_local_font_warning(internal_font_number f, internal_font_number k,
 }
 
 
-/* process a local font in \.{VF} file */
-
+@ process a local font in \.{VF} file 
+@c
 internal_font_number
 vf_def_font(internal_font_number f, unsigned char *vf_buffer, int *vf_cr)
 {
@@ -285,7 +291,7 @@ vf_def_font(internal_font_number f, unsigned char *vf_buffer, int *vf_cr)
     return k;
 }
 
-
+@ @c
 static int open_vf_file(const char *fn, unsigned char **vbuffer, int *vsize)
 {
     boolean res;                /* was the callback successful? */
@@ -323,19 +329,20 @@ static int open_vf_file(const char *fn, unsigned char **vbuffer, int *vsize)
 }
 
 
-/*
-  The |do_vf| procedure attempts to read the \.{VF} file for a font, and sets
+
+@ The |do_vf| procedure attempts to read the \.{VF} file for a font, and sets
   |font_type()| to |real_font_type| if the \.{VF} file could not be found
   or loaded, otherwise sets |font_type()| to |virtual_font_type|.  At this
   time, |tmp_f| is the internal font number of the current \.{TFM} font.  To
   process font definitions in virtual font we call |vf_def_font|.
-*/
 
+@c
 #define append_packet(k) vpackets[vf_np++] = (eight_bits)(k)
 
-/* life is easier if all internal font commands are fnt4 and
-   all character commands are set4 or put4 */
+@ life is easier if all internal font commands are fnt4 and
+   all character commands are set4 or put4 
 
+@c
 #define append_fnt_set(k)            \
 {                                    \
     assert(k > 0);                   \
@@ -351,8 +358,9 @@ static int open_vf_file(const char *fn, unsigned char **vbuffer, int *vsize)
     append_packet((k & 0x000000FF));       \
 }
 
-/* some of these things happen twice, adding a define is simplest */
+@ some of these things happen twice, adding a define is simplest 
 
+@c
 #define test_checksum()  { vf_byte(tmp_b0); vf_byte(tmp_b1);    \
     vf_byte(tmp_b2); vf_byte(tmp_b3);         \
     if (((tmp_b0 != 0) || (tmp_b1 != 0) || (tmp_b2 != 0) || (tmp_b3 != 0)) && \
@@ -377,6 +385,7 @@ static int open_vf_file(const char *fn, unsigned char **vbuffer, int *vsize)
     }                                                  \
 }
 
+@ @c
 int count_packet_bytes(eight_bits * vf_buf, int cur_bute, int count)
 {
     unsigned k = 0;
@@ -648,6 +657,7 @@ int count_packet_bytes(eight_bits * vf_buf, int cur_bute, int count)
     return (acc + 1);
 }
 
+@ @c
 void do_vf(internal_font_number f)
 {
     int k, i;
@@ -681,13 +691,13 @@ void do_vf(internal_font_number f)
     if (auto_expand_vf(f))
         return;                 /* auto-expanded virtual font */
     stack_level = 0;
-    /* @<Open |vf_file|, return if not found@>; */
+    /* Open |vf_file|, return if not found */
     vf_cur = 0;
     vf_buffer = NULL;
     vf_size = 0;
     if (!open_vf_file(font_name(f), &vf_buffer, &vf_size))
         return;
-    /* @<Process the preamble@>;@/ */
+    /* Process the preamble */
     set_font_type(f, virtual_font_type);
     vf_byte(k);
     if (k != pre)
@@ -700,10 +710,9 @@ void do_vf(internal_font_number f)
         vf_byte(junk);
     test_checksum();
     test_dsize();
-    /* update_terminal; */
     vf_z = font_size(f);
     vf_replace_z();
-    /* @<Process the font definitions@>;@/ */
+    /* Process the font definitions */
     /* scan forward to find the number of internal fonts */
     vf_nf = 0;
     save_cur_byte = vf_cur;
@@ -742,7 +751,7 @@ void do_vf(internal_font_number f)
 
 
     while (cmd <= long_char) {
-        /* @<Build a character packet@>;@/ */
+        /* Build a character packet */
         vf_np = 0;
         if (cmd == long_char) {
             vf_read_u(4, packet_length);
@@ -774,7 +783,7 @@ void do_vf(internal_font_number f)
             }
         }
         k = count_packet_bytes(vf_buffer, vf_cur, (int) packet_length);
-        vpackets = xmalloc((unsigned) (k + 1)); /* need one extra extra for packet_end */
+        vpackets = xmalloc((unsigned) (k + 1)); /* need one extra extra for |packet_end| */
         co = get_charinfo(f, cc);
         k = 0;
         w = 0;
@@ -993,7 +1002,7 @@ void do_vf(internal_font_number f)
             bad_vf("more PUSHs than POPs in character packet");
         if (packet_length != 0)
             bad_vf("invalid packet length or DVI command in packet");
-        /* @<Store the packet being built@>; */
+        /* \.{Store the packet being built} */
         set_charinfo_packets(co, vpackets);
         vf_byte(cmd);
     }
@@ -1003,6 +1012,7 @@ void do_vf(internal_font_number f)
     xfree(vf_buffer);
 }
 
+@ @c
 #define make_command0(N,K) {      \
     lua_newtable(L);        \
     lua_pushstring(L, N);     \
@@ -1066,7 +1076,7 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
 
 
     stack_level = 0;
-    /* @<Open |vf_file|, return if not found@>; */
+    /* Open |vf_file|, return if not found */
     vf_cur = 0;
     vf_buffer = NULL;
     vf_size = 0;
@@ -1079,7 +1089,7 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
     s_top = lua_gettop(L);
     lua_newtable(L);
 
-    /* @<Process the preamble@>;@/ */
+    /* Process the preamble */
     vf_byte(k);
     if (k != pre)
         lua_bad_vf("PRE command expected");
@@ -1117,11 +1127,9 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
     lua_pushinteger(L, atsize);
     lua_setfield(L, -2, "size");
 
-
-    /* update_terminal; */
     vf_z = atsize;
     vf_replace_z();
-    /* @<Process the font definitions@>;@/ */
+    /* Process the font definitions */
     vf_byte(cmd);
     lua_newtable(L);
 
@@ -1177,7 +1185,7 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
 
     lua_newtable(L);            /* 'characters' */
     while (cmd <= long_char) {
-        /* @<Build a character packet@>;@/ */
+        /* Build a character packet */
         if (cmd == long_char) {
             vf_read_u(4, packet_length);
             vf_read_u(4, utmp);
@@ -1407,9 +1415,10 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
 }
 
 
-/* This function is called from |do_vf|, and fixes up the virtual data
-   inside an auto-expanded virtual font */
+@ This function is called from |do_vf|, and fixes up the virtual data
+inside an auto-expanded virtual font 
 
+@c
 boolean auto_expand_vf(internal_font_number f)
 {
 
@@ -1442,6 +1451,7 @@ boolean auto_expand_vf(internal_font_number f)
     return true;
 }
 
+@ @c
 internal_font_number auto_expand_font(internal_font_number f, int e)
 {
     internal_font_number k;
@@ -1472,6 +1482,7 @@ internal_font_number auto_expand_font(internal_font_number f, int e)
     return k;
 }
 
+@ @c
 void vf_expand_local_fonts(internal_font_number f)
 {
     internal_font_number lf;
@@ -1494,6 +1505,7 @@ void vf_expand_local_fonts(internal_font_number f)
     }
 }
 
+@ @c
 internal_font_number
 letter_space_font(halfword u, internal_font_number f, int e)
 {
@@ -1510,17 +1522,17 @@ letter_space_font(halfword u, internal_font_number f, int e)
     /* read a new font and expand the character widths */
     k = read_font_info(u, font_name(f), font_size(f), font_natural_dir(f));
     set_no_ligatures(k);        /* disable ligatures for letter-spaced fonts */
-/*
+#if 0
   for (i = 0;i <= font_widths(k);i++) {
     set_font_width(k,i,font_width(f,i)+round_xn_over_d(quad(k), e, 1000));
   }
-*/
+#endif
     /* append eg '+100ls' to font name */
     new_font_name = xmalloc((unsigned) (strlen(font_name(k)) + 8));     /* |abs(e) <= 1000| */
     if (e > 0) {
         sprintf(new_font_name, "%s+%ils", font_name(k), (int) e);
     } else {
-        /* minus from %i */
+        /* minus from \%i */
         sprintf(new_font_name, "%s%ils", font_name(k), (int) e);
     }
     set_font_name(k, new_font_name);
@@ -1553,7 +1565,7 @@ letter_space_font(halfword u, internal_font_number f, int e)
         r = r * 256;
         tmp_b3 = (quarterword) (r / vf_z);
     }
-    /*
+#if 0
        vf_packet_base[k] = new_vf_packet(k);
 
        for (c=font_bc(k);c<=font_ec(k);c++) {
@@ -1577,12 +1589,12 @@ letter_space_font(halfword u, internal_font_number f, int e)
        store_packet(k, c, s);
        flush_str(s);
        }
-     */
+#endif
     return k;
 }
 
-/* the fontname has [+-]\d+ls at the end */
-
+@ the fontname has [+-]\d+ls at the end 
+@c
 boolean is_letterspaced_font(internal_font_number f)
 {
     char *i, *j;
@@ -1605,8 +1617,7 @@ boolean is_letterspaced_font(internal_font_number f)
     return true;
 }
 
-/* TODO */
-
+@ @c
 internal_font_number copy_font_info(internal_font_number f)
 {
     return copy_font(f);

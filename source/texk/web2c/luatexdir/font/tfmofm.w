@@ -1,30 +1,31 @@
+% tfmofm.w
+% 
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
 @ @c
-/* tfmofm.c
-   
-   Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+"$URL$";
 
-/* Here are some macros that help process ligatures and kerns */
-
+@ Here are some macros that help process ligatures and kerns 
+@c
 #define lig_kern_start(f,c)   char_remainder(f,c)
 #define stop_flag 128           /* value indicating `\.{STOP}' in a lig/kern program */
 #define kern_flag 128           /* op code for a kern step */
@@ -35,8 +36,8 @@ static const char _svn_version[] =
 #define rem_byte(z)          lig_kerns[z].b3
 #define lig_kern_restart(c)  (256*op_byte(c)+rem_byte(c))
 
-/*
 
+@
 The information in a \.{TFM} file appears in a sequence of 8-bit bytes.
 Since the number of bytes is always a multiple of 4, we could
 also regard the file as a sequence of 32-bit words, but \TeX\ uses the
@@ -53,8 +54,8 @@ is not aware of this.
 
 The documentation below describes \.{TFM} files, with slight additions
 to show where \.{OFM} files differ.
-                                         */
-/*
+
+@
 The first 24 bytes (6 words) of a \.{TFM} file contain twelve 16-bit
 integers that give the lengths of the various subsequent portions
 of the file. These twelve integers are, in order:
@@ -96,8 +97,9 @@ Note that an \.{OFM} font may contain as many as 65536 characters
 The rest of the \.{TFM} file may be regarded as a sequence of ten data
 arrays having the informal specification
 $$\def\arr$[#1]#2${\&{array} $[#1]$ \&{of} #2}
-\vbox{\halign{\hfil\\{#}&$\,:\,$\arr#\hfil\cr
-header&|[0..lh-1]@t\\{stuff}@>|\cr
+\def\doarr\PB#1{\arr#1}
+\vbox{\halign{\hfil\\{#}&$\,:\,$\doarr#\hfil\cr
+header&|[0..lh-1]stuff|\cr
 char\_info&|[bc..ec]char_info_word|\cr
 width&|[0..nw-1]fix_word|\cr
 height&|[0..nh-1]fix_word|\cr
@@ -106,7 +108,7 @@ italic&|[0..ni-1]fix_word|\cr
 lig\_kern&|[0..nl-1]lig_kern_command|\cr
 kern&|[0..nk-1]fix_word|\cr
 exten&|[0..ne-1]extensible_recipe|\cr
-param&|[1..np]fix_word|\cr}}$$
+param&\omit |[1..np]fix_word|\cr}}$$
 The most important data type used here is a |@!fix_word|, which is
 a 32-bit representation of a binary fraction. A |fix_word| is a signed
 quantity, with the two's complement of the entire word used to represent
@@ -202,10 +204,9 @@ Incidentally, the relation $\\{width}[0]=\\{height}[0]=\\{depth}[0]=
 value of zero.  The |width_index| should never be zero unless the
 character does not exist in the font, since a character is valid if and
 only if it lies between |bc| and |ec| and has a nonzero |width_index|.
-*/
 
-/*
-\TeX\ checks the information of a \.{TFM} file for validity as the
+
+@ \TeX\ checks the information of a \.{TFM} file for validity as the
 file is being read in, so that no further checks will be needed when
 typesetting is going on. The somewhat tedious subroutine that does this
 is called |read_font_info|. It has four parameters: the user font
@@ -221,22 +222,17 @@ It returns the value of the internal font number that was just loaded.
 If an error is detected, an error message is issued and no font
 information is stored; |null_font| is returned in this case.
 
-@d bad_tfm=11 {label for |read_font_info|}
-@d abort==goto bad_tfm {do this when the \.{TFM} data is wrong}
-
-*/
-
-/* 
+@ 
 The |tag| field in a |char_info_word| has four values that explain how to
 interpret the |remainder| field.
 
-\yskip\hangg|tag=0| (|no_tag|) means that |remainder| is unused.\par
-\hangg|tag=1| (|lig_tag|) means that this character has a ligature/kerning
+\yskip\hang|tag=0| (|no_tag|) means that |remainder| is unused.\par
+\hang|tag=1| (|lig_tag|) means that this character has a ligature/kerning
 program starting at position |remainder| in the |lig_kern| array.\par
-\hangg|tag=2| (|list_tag|) means that this character is part of a chain of
+\hang|tag=2| (|list_tag|) means that this character is part of a chain of
 characters of ascending sizes, and not the largest in the chain.  The
 |remainder| field gives the character code of the next larger character.\par
-\hangg|tag=3| (|ext_tag|) means that this character code represents an
+\hang|tag=3| (|ext_tag|) means that this character code represents an
 extensible character, i.e., a character that is built up of smaller pieces
 so that it can be made arbitrarily large. The pieces are specified in
 |@!exten[remainder]|.\par
@@ -245,9 +241,9 @@ Characters with |tag=2| and |tag=3| are treated as characters with |tag=0|
 unless they are used in special circumstances in math formulas. For example,
 the \.{\\sum} operation looks for a |list_tag|, and the \.{\\left}
 operation looks for both |list_tag| and |ext_tag|.
-*/
 
-/* The |lig_kern| array contains instructions in a simple programming language
+
+@ The |lig_kern| array contains instructions in a simple programming language
 that explains what to do for special letter pairs. Each word in this array,
 in a \.{TFM} file, is a |@!lig_kern_command| of four bytes.
 
@@ -298,10 +294,9 @@ $$\hbox{|256*op_byte+remainder<nl|.}$$
 If such an instruction is encountered during
 normal program execution, it denotes an unconditional halt; no ligature
 or kerning command is performed.
-*/
 
-/*
- Extensible characters are specified by an |@!extensible_recipe|, which
+
+@ Extensible characters are specified by an |@!extensible_recipe|, which
 consists of four bytes in a \.{TFM} file, 
 called |@!top|, |@!mid|, |@!bot|, and |@!rep| (in this order). 
 In an \.{OFM} file, each field takes two bytes, for eight in total.
@@ -317,9 +312,9 @@ in the latter case we can have $TR^kB$ for both even and odd values of~|k|.
 The width of the extensible character is the width of $R$; and the
 height-plus-depth is the sum of the individual height-plus-depths of the
 components used, since the pieces are butted together in a vertical list.
-*/
 
-/*
+
+@
 The final portion of a \.{TFM} file is the |param| array, which is another
 sequence of |fix_word| values.
 
@@ -349,17 +344,16 @@ ends of sentences.
 If fewer than seven parameters are present, \TeX\ sets the missing parameters
 to zero. Fonts used for math symbols are required to have
 additional parameter information, which is explained later.
-*/
 
-/*
+
+@
  There are programs called \.{TFtoPL} and \.{PLtoTF} that convert
  between the \.{TFM} format and a symbolic property-list format
  that can be easily edited. These programs contain extensive
  diagnostic information, so \TeX\ does not have to bother giving
  precise details about why it rejects a particular \.{TFM} file.
 
-*/
-
+@c
 #define tfm_abort { font_tables[f]->_font_name = NULL;      \
                     font_tables[f]->_font_area = NULL;      \
                     xfree(tfm_buffer); xfree(kerns);      \
@@ -373,7 +367,7 @@ additional parameter information, which is explained later.
           xfree(italics);  xfree(extens);  xfree(lig_kerns); \
           xfree(xligs);  xfree(xkerns); return 1; }
 
-
+@ @c
 static int open_tfm_file(const char *nom, unsigned char **tfm_buf, int *tfm_siz)
 {
     boolean res;                /* was the callback successful? */
@@ -409,7 +403,7 @@ static int open_tfm_file(const char *nom, unsigned char **tfm_buf, int *tfm_siz)
 }
 
 
-/*
+@
   Note: A malformed \.{TFM} file might be shorter than it claims to be;
   thus |eof(tfm_file)| might be true when |read_font_info| refers to
   |tfm_file^| or when it says |get(tfm_file)|. If such circumstances
@@ -417,7 +411,7 @@ static int open_tfm_file(const char *nom, unsigned char **tfm_buf, int *tfm_siz)
   for example by defining |fget| to be `\ignorespaces|begin get(tfm_file);|
   |if eof(tfm_file) then abort; end|\unskip'.
   @^system dependencies@>
-*/
+@c
 
 #define fget  tfm_byte++
 #define fbyte tfm_buffer[tfm_byte]
@@ -486,7 +480,7 @@ static int open_tfm_file(const char *nom, unsigned char **tfm_buf, int *tfm_siz)
 #define check_byte_range(z)  { if ((z<bc)||(z>ec)) tfm_abort ; }
 
 
-/* A |fix_word| whose four bytes are $(a,b,c,d)$ from left to right represents
+@ A |fix_word| whose four bytes are $(a,b,c,d)$ from left to right represents
    the number
    $$x=\left\{\vcenter{\halign{$#$,\hfil\qquad&if $#$\hfil\cr
    b\cdot2^{-4}+c\cdot2^{-12}+d\cdot2^{-20}&a=0;\cr
@@ -503,8 +497,8 @@ static int open_tfm_file(const char *nom, unsigned char **tfm_buf, int *tfm_siz)
    if $a=0$, or the same quantity minus $\alpha=2^{4+e}z^\prime$ if $a=255$.
    This calculation must be done exactly, in order to guarantee portability
    of \TeX\ between computers.
-*/
 
+@c
 #define store_scaled(zz)                                                   \
   { fget; a=fbyte; fget; b=fbyte;                                          \
     fget; c=fbyte; fget; d=fbyte;                                          \
@@ -518,7 +512,7 @@ scaled store_scaled_f(scaled sq, scaled z_in)
     scaled sw;
     static int alpha, beta;     /* beta:1..16 */
     static scaled z, z_prev = 0;
-    /* @<Replace |z| by $|z|^\prime$ and compute $\alpha,\beta$@>; */
+    /* Replace |z| by $|z|^\prime$ and compute $\alpha,\beta$ */
     if (z_in != z_prev || z_prev == 0) {
         z = z_prev = z_in;
         alpha = 16;
@@ -557,6 +551,7 @@ scaled store_scaled_f(scaled sq, scaled z_in)
     return sw;                  /* not reached, just to make the compiler happy */
 }
 
+@ @c
 #define  check_existence(z)                                             \
   { check_byte_range(z);                                                \
     if (!char_exists(f,z)) tfm_abort;         \
@@ -573,6 +568,7 @@ typedef struct tfmcharacterinfo {
     unsigned char _tag;
 } tfmcharacterinfo;
 
+@ @c
 int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
 {
     int k;                      /* index into |font_info| */
@@ -589,7 +585,7 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
     four_quarters *lig_kerns, *extens;
     scaled sw;                  /* accumulators */
     int bch_label;              /* left boundary start location, or infinity */
-    int bchar;                  /* :0..too_big_char; *//* right boundary character, or |too_big_char| */
+    int bchar;                  /* |:0..too_big_char;| *//* right boundary character, or |too_big_char| */
     int first_two;
     scaled z;                   /* the design size or the ``at'' size */
     int alpha;
@@ -633,7 +629,7 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
     set_font_name(f, tmpnam);
     set_font_area(f, NULL);
 
-    /* @<Read the {\.{TFM}} size fields@>; */
+    /* Read the {\.{TFM}} size fields */
     nco = 0;
     ncw = 0;
     npc = 0;
@@ -715,7 +711,7 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
     if (lf * 4 > tfm_size)
         tfm_abort;
 
-    /* @<Use size fields to allocate font information@>; */
+    /* Use size fields to allocate font information */
 
     set_font_natural_dir(f, font_dir);
     set_font_bc(f, bc);
@@ -730,7 +726,7 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
     lig_kerns = xmalloc((unsigned) ((unsigned) nl * sizeof(four_quarters)));
     kerns = xmalloc((unsigned) ((unsigned) nk * sizeof(scaled)));
 
-    /* @<Read the {\.{TFM}} header@>; */
+    /* Read the {\.{TFM}} header */
 
     /* Only the first two words of the header are needed by \TeX82. */
     slh = lh;
@@ -768,7 +764,7 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
     saved_tfm_byte = tfm_byte;
     tfm_byte = (header_length + slh + ncw) * 4 - 1;
 
-    /* @<Replace |z| by $|z|^\prime$ and compute $\alpha,\beta$@>; */
+    /* Replace |z| by $|z|^\prime$ and compute $\alpha,\beta$ */
 
     alpha = 16;
     while (z >= 040000000) {
@@ -778,7 +774,7 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
     beta = (char) (256 / alpha);
     alpha = alpha * z;
 
-    /* @<Read box dimensions@>; */
+    /* Read box dimensions */
 
     for (k = 0; k < nw; k++) {
         store_scaled(sw);
@@ -806,7 +802,7 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
         tfm_abort;              /* \\{italic}[0] must be zero */
 
 
-    /* @<Read ligature/kern program@>; */
+    /* Read ligature/kern program */
 
     bch_label = nl;             /* infinity */
     bchar = 65536;
@@ -820,9 +816,13 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
                 if (a == 255 && k == 0)
                     bchar = b;
             } else {
-                /* if (b!=bchar) check_existence(b); */
+#if 0
+                if (b!=bchar) check_existence(b); 
+#endif
                 if (c < 128) {
-                    /* check_existence(d); *//* check ligature */
+#if 0
+                    check_existence(d); /* check ligature */
+#endif
                 } else if (256 * (c - 128) + d >= nk) {
                     tfm_abort;  /* check kern */
                 }
@@ -840,13 +840,13 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
         kerns[k] = sw;
     }
 
-    /* @<Read extensible character recipes@>; */
+    /* Read extensible character recipes */
     for (k = 0; k < ne; k++) {
         read_four_quarters(qw);
         extens[k] = qw;
     }
 
-    /* @<Read font parameters@>; */
+    /* Read font parameters */
 
     if (np > 7) {
         set_font_params(f, np);
@@ -876,10 +876,10 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
     fkerns = 0;
     if (bch_label != nl) {
         k = bch_label;
-        /*
+#if 0        
            if (skip_byte(k) > stop_flag)
            k = lig_kern_restart(k);
-         */
+#endif
         while (1) {
             if (skip_byte(k) <= stop_flag) {
                 if (op_byte(k) >= kern_flag) {  /* kern */
@@ -905,10 +905,10 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
         fligs = 0;
         fkerns = 0;
         k = bch_label;
-        /*
-           if (skip_byte(k) > stop_flag)
+#if 0
+        if (skip_byte(k) > stop_flag)
            k = lig_kern_restart(k);
-         */
+#endif         
         while (1) {
             if (skip_byte(k) <= stop_flag) {
                 if (op_byte(k) >= kern_flag) {  /* kern */
@@ -946,7 +946,7 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
         }
     }
 
-    /* @<Read character data@>; */
+    /* Read character data */
     for (k = bc; k <= ec; k++) {
         store_char_info(k);
         if (ci._width_index == 0)
@@ -971,7 +971,7 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
                the largest character code in the cycle.
              */
             check_byte_range(d);
-            while (d < k) {     /* current_character == k */
+            while (d < k) {     /* |current_character == k| */
                 if (char_tag(f, d) != list_tag)
                     goto NOT_FOUND;     /* not a cycle */
                 d = char_remainder(f, d);       /* next character on the list */
@@ -1101,7 +1101,7 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
     }
 
 
-    /* @<Make final adjustments and |goto done|@> */
+    /* Make final adjustments and |goto done| */
 
     /* Now to wrap it up, we have checked all the necessary things about the \.{TFM}
        file, and all we need to do is put the finishing touches on the data for

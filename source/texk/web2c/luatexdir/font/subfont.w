@@ -1,30 +1,32 @@
+% subfont.w
+% 
+% Copyright 2005-2006 Han The Thanh <thanh@@pdftex.org>
+% Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* subfont.c
-   
-   Copyright 2005-2006 Han The Thanh <thanh@@pdftex.org>
-   Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 #include <string.h>
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+"$URL$";
 
+@ @c
 static struct avl_table *sfd_tree = NULL;
 
 static unsigned char *sfd_buffer = NULL;
@@ -115,6 +117,7 @@ static void sfd_getline(boolean expect_eof)
         goto restart;
 }
 
+@ @c
 static sfd_entry *read_sfd(char *sfd_name)
 {
     void **aa;
@@ -207,6 +210,7 @@ static sfd_entry *read_sfd(char *sfd_name)
     return sfd;
 }
 
+@ @c
 boolean handle_subfont_fm(fm_entry * fm, int mode)
 {
     size_t l;

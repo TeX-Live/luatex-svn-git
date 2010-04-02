@@ -1,30 +1,31 @@
+% writettf.w
+% 
+% Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
 @ @c
-/* writettf.c
-   
-   Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 #include "font/writettf.h"
 #include <string.h>
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+"$URL$";
 
 #define DEFAULT_NTABS       14
 #define NEW_CMAP_SIZE       2
@@ -32,8 +33,6 @@ static const char _svn_version[] =
 #define ttf_putchar(A)     fb_putchar(pdf,(A))
 #define ttf_offset()       fb_offset(pdf)
 #define ttf_seek_outbuf(A) fb_seek(pdf,(A))
-
-           /* #define INFILE ttf_file */
 
 unsigned char *ttf_buffer = NULL;
 int ttf_size = 0;
@@ -97,30 +96,9 @@ static struct avl_table *ttf_cmap_tree = NULL;
 
 int ttf_length;
 
-/* macnames.c
-   
-   Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
+@ This used to be macnames.c
 
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
-/* $Id$ */
-
-/* should be better macnames.h */
-
+@c
 char notdef[] = ".notdef";
 
 const char *mac_glyph_names[] = {
@@ -429,6 +407,9 @@ static const char *newtabnames[] = {
     "prep"
 };
 
+@ Back to code. Low-level helpers first.
+
+@c
 ttf_cmap_entry *new_ttf_cmap_entry(void)
 {
     ttf_cmap_entry *e;
@@ -482,7 +463,7 @@ static unsigned char ttf_addchksm(unsigned char b)
 static TTF_ULONG ttf_getchksm(PDF pdf)
 {
     while (tab_length % 4 != 0)
-        ttf_putchar(ttf_addchksm(0));   /* ttf_addchksm updates tab_length */
+        ttf_putchar(ttf_addchksm(0));   /* |ttf_addchksm| updates |tab_length| */
     return checksum;
 }
 
@@ -546,7 +527,6 @@ dirtab_entry *ttf_name_lookup(const char *s, boolean required)
 dirtab_entry *ttf_seek_tab(const char *name, TTF_LONG offset)
 {
     dirtab_entry *tab = ttf_name_lookup(name, true);
-    /*xfseek (INFILE, tab->offset + offset, SEEK_SET, cur_file_name); */
     ttf_curbyte = (int) (tab->offset + (unsigned long) offset);
     return tab;
 }
@@ -554,7 +534,6 @@ dirtab_entry *ttf_seek_tab(const char *name, TTF_LONG offset)
 static void ttf_seek_off(TTF_LONG offset)
 {
     ttf_curbyte = (int) offset;
-    //xfseek (INFILE, offset, SEEK_SET, cur_file_name);
 }
 
 static void ttf_copy_encoding(void)
@@ -567,7 +546,7 @@ static void ttf_copy_encoding(void)
     struct avl_traverser t;
     ttfenc_entry *e = ttfenc_tab;
 
-    assert(fd_cur->tx_tree != NULL);    /* this must be set in create_fontdictionary */
+    assert(fd_cur->tx_tree != NULL);    /* this must be set in |create_fontdictionary| */
 
     if (fd_cur->fe != NULL) {
         glyph_names = fd_cur->fe->glyph_names;
@@ -585,7 +564,7 @@ static void ttf_copy_encoding(void)
         }
         /* end of workaround */
 
-        /* take over collected characters from TeX, reencode them */
+        /* take over collected characters from \TeX, reencode them */
         avl_t_init(&t, fd_cur->tx_tree);
         for (q = (int *) avl_t_first(&t, fd_cur->tx_tree); q != NULL;
              q = (int *) avl_t_next(&t)) {
@@ -600,7 +579,7 @@ static void ttf_copy_encoding(void)
         for (i = 0; i < 256; i++)
             ttfenc_tab[i].code = -1;
 
-        /* take over collected characters from TeX */
+        /* take over collected characters from \TeX */
         avl_t_init(&t, fd_cur->tx_tree);
         for (q = (int *) avl_t_first(&t, fd_cur->tx_tree); q != NULL;
              q = (int *) avl_t_next(&t)) {
@@ -623,6 +602,8 @@ static void ttf_copy_encoding(void)
         assert(0);
 }
 
+@
+@c
 #define ttf_append_byte(B)\
 do {\
     if (name_tab[i].platform_id == 3)\
@@ -814,7 +795,6 @@ void ttf_read_post(void)
         nnames = get_ushort();  /* some fonts have this value different from nglyphs */
         for (glyph = glyph_tab; glyph - glyph_tab < nnames; glyph++)
             glyph->name_index = get_ushort();
-        /*length = tab->length - (xftell (INFILE, cur_file_name) - tab->offset); */
         length =
             (long) ((long) tab->length -
                     (long) ((long) ttf_curbyte - (long) tab->offset));
@@ -886,7 +866,7 @@ static ttf_cmap_entry *ttf_read_cmap(char *ttf_name, int pid, int eid,
     ttf_cmap_entry tmp_e, *p;
     void **aa;
 
-    /* loop up in ttf_cmap_tree first, return if found */
+    /* look up in |ttf_cmap_tree| first, return if found */
     tmp_e.ttf_name = ttf_name;
     tmp_e.pid = (TTF_USHORT) pid;
     tmp_e.eid = (TTF_USHORT) eid;
@@ -899,9 +879,8 @@ static ttf_cmap_entry *ttf_read_cmap(char *ttf_name, int pid, int eid,
         return p;
 
     /* not found, have to read it */
-    ttf_seek_tab("cmap", TTF_USHORT_SIZE);      /* skip the table vesrion number (=0) */
+    ttf_seek_tab("cmap", TTF_USHORT_SIZE);      /* skip the table version number (=0) */
     ncmapsubtabs = get_ushort();
-    /*    cmap_offset = xftell (INFILE, cur_file_name) - 2 * TTF_USHORT_SIZE; */
     cmap_offset = (TTF_ULONG) (ttf_curbyte - 2 * TTF_USHORT_SIZE);
     cmap_tab = xtalloc(ncmapsubtabs, cmap_entry);
     for (i = 0; i < ncmapsubtabs; ++i) {
@@ -991,6 +970,8 @@ static ttf_cmap_entry *ttf_read_cmap(char *ttf_name, int pid, int eid,
     return p;
 }
 
+@ 
+@c
 static void ttf_read_font(void)
 {
     ttf_read_tabdir();
@@ -1039,6 +1020,8 @@ static void ttf_copytab(PDF pdf, const char *name)
     ttf_set_chksm(pdf, tab);
 }
 
+@ 
+@c
 #define BYTE_ENCODING_LENGTH  \
     ((256)*TTF_BYTE_SIZE + 3*TTF_USHORT_SIZE)
 
@@ -1060,6 +1043,8 @@ static void ttf_byte_encoding(PDF pdf)
         }
 }
 
+@ 
+@c
 #define TRIMMED_TABLE_MAP_LENGTH (TTF_USHORT_SIZE*(5 + (256)))
 
 static void ttf_trimmed_table_map(PDF pdf)
@@ -1074,6 +1059,8 @@ static void ttf_trimmed_table_map(PDF pdf)
         (void) put_ushort(e->newindex);
 }
 
+@ 
+@c
 #define SEG_MAP_DELTA_LENGTH ((16 + (256))*TTF_USHORT_SIZE)
 
 static void ttf_seg_map_delta(PDF pdf)
@@ -1099,6 +1086,8 @@ static void ttf_seg_map_delta(PDF pdf)
         (void) put_ushort(e->newindex);
 }
 
+@ 
+@c
 #define CMAP_ENTRY_LENGTH (2*TTF_USHORT_SIZE + TTF_ULONG_SIZE)
 
 static void ttf_select_cmap(void)
@@ -1158,6 +1147,8 @@ static void ttf_write_cmap(PDF pdf)
     ttf_set_chksm(pdf, tab);
 }
 
+@ 
+@c
 static int prepend_subset_tags(int index, char *p)
 {
     boolean is_unicode;
@@ -1237,6 +1228,8 @@ static void ttf_write_name(PDF pdf)
         xfree(new_name_buf);
 }
 
+@ 
+@c
 static void ttf_write_dirtab(PDF pdf)
 {
     dirtab_entry *tab;
@@ -1285,6 +1278,8 @@ static void ttf_write_dirtab(PDF pdf)
     ttf_seek_outbuf(save_offset);
 }
 
+@ 
+@c
 static void ttf_write_glyf(PDF pdf)
 {
     long *id, k;
@@ -1308,8 +1303,8 @@ static void ttf_write_glyf(PDF pdf)
                         glyph_tab[idx].newindex = (TTF_SHORT) new_glyphs_count;
                         glyph_index[new_glyphs_count++] = idx;
                         /* 
-                           N.B.: Here we change `new_glyphs_count',
-                           which appears in the condition of the `for' loop
+                           N.B.: Here we change |new_glyphs_count|,
+                           which appears in the condition of the |for| loop
                          */
                     }
                     (void) put_ushort(glyph_tab[idx].newindex);
@@ -1336,6 +1331,12 @@ static void ttf_write_glyf(PDF pdf)
     ttf_set_chksm(pdf, tab);
 }
 
+@ Reindexing glyphs: we append index of used glyphs to |glyph_index|
+ while going through |ttfenc_tab|. After appending a new entry to
+ |glyph_index| we set field |newindex| of corresponding entries in both
+ |glyph_tab| and |ttfenc_tab| to the newly created index.
+ 
+@c
 static void ttf_reindex_glyphs(void)
 {
     ttfenc_entry *e;
@@ -1345,12 +1346,6 @@ static void ttf_reindex_glyphs(void)
     ttf_cmap_entry *cmap = NULL;
     boolean cmap_not_found = false;
 
-    /*
-     * reindexing glyphs: we append index of used glyphs to `glyph_index'
-     * while going through `ttfenc_tab'. After appending a new entry to
-     * `glyph_index' we set field `newindex' of corresponding entries in both
-     * `glyph_tab' and `ttfenc_tab' to the newly created index
-     */
     for (e = ttfenc_tab; e - ttfenc_tab < 256; e++) {
         e->newindex = 0;        /* index of ".notdef" glyph */
 
@@ -1445,6 +1440,28 @@ static void ttf_reindex_glyphs(void)
     }
 }
 
+@  To calculate the checkSum for the 'head' table which itself includes the
+   checkSumAdjustment entry for the entire font, do the following:
+
+     \item Set the checkSumAdjustment to 0.
+     \item  Calculate the checksum for all the tables including the 'head' table
+       and enter that value into the table directory.
+     \item  Calculate the checksum for the entire font.
+     \item  Subtract that value from the hex value B1B0AFBA.
+     \item  Store the result in checkSumAdjustment.
+
+   The checkSum for the 'head table which includes the checkSumAdjustment
+   entry for the entire font is now incorrect. That is not a problem. Do not
+   change it. An application attempting to verify that the 'head' table has
+   not changed should calculate the checkSum for that table by not including
+   the checkSumAdjustment value, and compare the result with the entry in the
+   table directory.
+
+   The table directory also includes the offset of the associated tagged
+   table from the beginning of the font file and the length of that table.
+
+
+@c
 static void ttf_write_head(PDF pdf)
 {
     dirtab_entry *tab;
@@ -1464,6 +1481,8 @@ static void ttf_write_head(PDF pdf)
     ttf_set_chksm(pdf, tab);
 }
 
+@ 
+@c
 static void ttf_write_hhea(PDF pdf)
 {
     dirtab_entry *tab;
@@ -1475,6 +1494,8 @@ static void ttf_write_hhea(PDF pdf)
     ttf_set_chksm(pdf, tab);
 }
 
+@ 
+@c
 static void ttf_write_htmx(PDF pdf)
 {
     long *id;
@@ -1487,6 +1508,8 @@ static void ttf_write_htmx(PDF pdf)
     ttf_set_chksm(pdf, tab);
 }
 
+@ 
+@c
 static void ttf_write_loca(PDF pdf)
 {
     long *id;
@@ -1513,6 +1536,8 @@ static void ttf_write_loca(PDF pdf)
     ttf_set_chksm(pdf, tab);
 }
 
+@ 
+@c
 static void ttf_write_mapx(PDF pdf)
 {
     dirtab_entry *tab = ttf_seek_tab("maxp", TTF_FIXED_SIZE + TTF_USHORT_SIZE);
@@ -1523,6 +1548,8 @@ static void ttf_write_mapx(PDF pdf)
     ttf_set_chksm(pdf, tab);
 }
 
+@ 
+@c
 static void ttf_write_OS2(PDF pdf)
 {
     dirtab_entry *tab = ttf_seek_tab("OS/2", 0);
@@ -1550,6 +1577,8 @@ static void ttf_write_OS2(PDF pdf)
     ttf_set_chksm(pdf, tab);
 }
 
+@ 
+@c
 static boolean unsafe_name(const char *s)
 {
     const char **p;
@@ -1597,6 +1626,8 @@ static void ttf_write_post(PDF pdf)
     ttf_set_chksm(pdf, tab);
 }
 
+@ 
+@c
 static void ttf_init_font(PDF pdf, int n)
 {
     int i, k;
@@ -1609,6 +1640,8 @@ static void ttf_init_font(PDF pdf, int n)
     ttf_seek_outbuf(TABDIR_OFF + n * 4 * TTF_ULONG_SIZE);
 }
 
+@ 
+@c
 static void ttf_subset_font(PDF pdf)
 {
     ttf_init_font(pdf, new_ntabs);
@@ -1634,6 +1667,8 @@ static void ttf_subset_font(PDF pdf)
     ttf_write_dirtab(pdf);
 }
 
+@ 
+@c
 static void ttf_copy_font(PDF pdf)
 {
     dirtab_entry *tab;
@@ -1647,11 +1682,13 @@ static void ttf_copy_font(PDF pdf)
     ttf_write_dirtab(pdf);
 }
 
+@ 
+@c
 void writettf(PDF pdf, fd_entry * fd)
 {
     int callback_id;
     int file_opened = 0;
-    fd_cur = fd;                /* fd_cur is global inside writettf.c */
+    fd_cur = fd;                /* |fd_cur| is global inside \.{writettf.w} */
     assert(fd_cur->fm != NULL);
     assert(is_truetype(fd_cur->fm));
     assert(is_included(fd_cur->fm));
@@ -1750,17 +1787,18 @@ void do_writeotf(PDF pdf, fd_entry * fd)
     for (i = (long) tab->length; i > 0; i--)
         copy_char();
     xfree(dir_tab);
-    /*    ttf_close (); */
     if (tracefilenames)
         tex_printf(">>");
 }
 
+@ 
+@c
 void writeotf(PDF pdf, fd_entry * fd)
 {
     int callback_id;
     int file_opened = 0;
 
-    fd_cur = fd;                /* fd_cur is global inside writettf.c */
+    fd_cur = fd;
     assert(fd_cur->fm != NULL);
     assert(is_opentype(fd_cur->fm));
     assert(is_included(fd_cur->fm));
@@ -1794,24 +1832,3 @@ void writeotf(PDF pdf, fd_entry * fd)
     cur_file_name = NULL;
 }
 
-/*
- To calculate the checkSum for the 'head' table which itself includes the
-   checkSumAdjustment entry for the entire font, do the following:
-
-     * Set the checkSumAdjustment to 0.
-     * Calculate the checksum for all the tables including the 'head' table
-       and enter that value into the table directory.
-     * Calculate the checksum for the entire font.
-     * Subtract that value from the hex value B1B0AFBA.
-     * Store the result in checkSumAdjustment.
-
-   The checkSum for the 'head table which includes the checkSumAdjustment
-   entry for the entire font is now incorrect. That is not a problem. Do not
-   change it. An application attempting to verify that the 'head' table has
-   not changed should calculate the checkSum for that table by not including
-   the checkSumAdjustment value, and compare the result with the entry in the
-   table directory.
-
-   The table directory also includes the offset of the associated tagged
-   table from the beginning of the font file and the length of that table.
- */

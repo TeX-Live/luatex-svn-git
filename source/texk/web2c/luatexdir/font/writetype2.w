@@ -1,23 +1,23 @@
+% writetype0.w
+%
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+%
+% This file is part of LuaTeX.
+%
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+%
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+%
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* writetype0.c
-   
-   Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 #include "font/writettf.h"
 #include "font/writecff.h"
@@ -29,13 +29,15 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-/* forward*/
+@ forward declaration
+@c
 void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen);
 
+@ @c
 unsigned long cidtogid_obj = 0;
 
-/* low-level helpers */
-
+@ low-level helpers 
+@c
 #define test_loc(l)         \
   if ((f->loc+l)>f->buflen) {       \
     fprintf (stderr,"File ended prematurely\n");  \
@@ -131,7 +133,8 @@ void pdf_release_obj(pdf_obj * stream)
     }
 }
 
-
+@ The main function.
+@c
 void writetype2(PDF pdf, fd_entry * fd)
 {
     int callback_id;
@@ -139,7 +142,7 @@ void writetype2(PDF pdf, fd_entry * fd)
 
     glyph_tab = NULL;
 
-    fd_cur = fd;                /* fd_cur is global inside writettf.c */
+    fd_cur = fd;                /* |fd_cur| is global inside \.{writettf.w} */
     assert(fd_cur->fm != NULL);
     assert(is_truetype(fd_cur->fm));
     assert(is_included(fd_cur->fm));
@@ -179,8 +182,9 @@ void writetype2(PDF pdf, fd_entry * fd)
     /* here is the real work */
 
     make_tt_subset(pdf, fd, ttf_buffer, ttf_size);
-
-    /*xfree (dir_tab); */
+#if 0
+    xfree (dir_tab); 
+#endif
     xfree(ttf_buffer);
     if (tracefilenames) {
         if (is_subsetted(fd_cur->fm))
@@ -191,28 +195,27 @@ void writetype2(PDF pdf, fd_entry * fd)
     cur_file_name = NULL;
 }
 
-/*
- * PDF viewer applications use following tables (CIDFontType 2)
- *
- *  head, hhea, loca, maxp, glyf, hmtx, fpgm, cvt_, prep
- *
- *                                         - from PDF Ref. v.1.3, 2nd ed.
- *
- * The fpgm, cvt_, and prep tables appears only when TrueType instructions
- * requires them. Those tables must be preserved if they exist.
- * We use must_exist flag to indicate `preserve it if present'
- * and to make sure not to cause an error when it does not exist.
- *
- * post and name table must exist in ordinary TrueType font file,
- * but when a TrueType font is converted to CIDFontType 2 font, those tables
- * are no longer required.
- *
- * The OS/2 table (required for TrueType font for Windows and OS/2) contains
- * liscencing information, but PDF viewers seems not using them.
- *
- * The 'name' table added. See comments in ttf.c.
- */
+@ PDF viewer applications use following tables (CIDFontType 2)
+ 
+\.{head, hhea, loca, maxp, glyf, hmtx, fpgm, cvt\_, prep}
+ 
+\rightline{from PDF Ref. v.1.3, 2nd ed.}
+ 
+ The \.{fpgm}, \.{cvt\_} and \.{prep} tables appears only when TrueType instructions
+ requires them. Those tables must be preserved if they exist.
+ We use |must_exist| flag to indicate `preserve it if present'
+ and to make sure not to cause an error when it does not exist.
+ 
+ \.{post} and \.{name} table must exist in ordinary TrueType font file,
+ but when a TrueType font is converted to CIDFontType 2 font, those tables
+ are no longer required.
+ 
+ The OS/2 table (required for TrueType font for Windows and OS/2) contains
+ liscencing information, but PDF viewers seems not using them.
+ 
+ The \.{name} table added. See comments in \.{writettf.w}.
 
+@c
 static struct {
     const char *name;
     int must_exist;
@@ -254,6 +257,8 @@ unsigned long ttc_read_offset(sfnt * sfont, int ttc_idx)
     return offset;
 }
 
+@ Creating the subset.
+@c
 void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
 {
 
@@ -306,7 +311,7 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
         memset(cidtogidmap, 0, (last_cid + 1) * 2);
 #endif
 
-        /* fill used_chars */
+        /* fill |used_chars| */
         used_chars = xmalloc((last_cid + 1) * sizeof(char));
         memset(used_chars, 0, (last_cid + 1));
         avl_t_init(&t, fd->gl_tree);
@@ -315,11 +320,9 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
             used_chars[found->id] = 1;
         }
 
-        /*
-         * Map CIDs to GIDs.
-         */
+        /* Map CIDs to GIDs. */
 
-        num_glyphs = 1;         /* .notdef */
+        num_glyphs = 1;         /* \.{.notdef} */
         for (cid = 1; cid <= (long) last_cid; cid++) {
             if (used_chars[cid] == 0)
                 continue;
@@ -332,7 +335,7 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
             gid = tt_add_glyph(glyphs, (USHORT) gid, (USHORT) num_glyphs);
             cidtogidmap[2 * cid] = gid >> 8;
             cidtogidmap[2 * cid + 1] = gid & 0xff;
-#endif                          /* !NO_GHOSTSCRIPT_BUG */
+#endif                          /* |!NO_GHOSTSCRIPT_BUG| */
 
             num_glyphs++;
         }
@@ -392,12 +395,10 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
 
     pdf_release_obj(fontfile);
 
-    /* other stuff that needs fixing: */
+    /* TODO other stuff that needs fixing: */
 
-    /*
-     * DW, W, DW2, and W2
-     */
-    /*
+    /* DW, W, DW2, and W2 */
+#if 0
        if (opt_flags & CIDFONT_FORCE_FIXEDPITCH) {
        pdf_add_dict(font->fontdict,
        pdf_new_name("DW"), pdf_new_number(1000.0));
@@ -406,12 +407,9 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
        if (v_used_chars)
        add_TTCIDVMetrics(font->fontdict, glyphs, used_chars, cidtogidmap, last_cid);
        }
-     */
-
-    /*
-     * CIDSet
-     */
-    /*
+#endif
+    /* CIDSet */
+#if 0
        {
        pdf_obj *cidset;
 
@@ -422,7 +420,7 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
        pdf_ref_obj(cidset));
        pdf_release_obj(cidset);
        }
-     */
+#endif
     xfree(used_chars);
     sfnt_close(sfont);
     return;

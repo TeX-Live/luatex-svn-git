@@ -1,23 +1,23 @@
+% writecff.w
+
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+
 @ @c
-/* writecff.c
-
-   Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
@@ -25,8 +25,9 @@
 
 static const char _svn_version[] =
     "$Id$ "
-    "$URL$";
+"$URL$";
 
+@ @c
 #define get_offset(s,n) get_unsigned(s, (n))
 #define get_card8(a)  (card8)(a->stream[a->offset++])
 #define get_card16(a) (card16)(get_unsigned(a,2))
@@ -48,6 +49,7 @@ static unsigned long get_unsigned(cff_font * cff, int n)
     return v;
 }
 
+@ @c
 #define CFF_ERROR pdftex_fail
 #undef WARN
 #define WARN pdftex_warn
@@ -149,7 +151,8 @@ const char *const cff_stdstr[CFF_STDSTR_MAX] = {
 };
 
 
-/* Only read header part but not body */
+@ Only read header part but not body
+@c
 cff_index *cff_get_index_header(cff_font * cff)
 {
     cff_index *idx;
@@ -184,6 +187,7 @@ cff_index *cff_get_index_header(cff_font * cff)
 
 
 
+@ @c
 cff_index *cff_get_index(cff_font * cff)
 {
     cff_index *idx;
@@ -222,6 +226,7 @@ cff_index *cff_get_index(cff_font * cff)
 }
 
 
+@ @c
 long cff_pack_index(cff_index * idx, card8 * dest, long destlen)
 {
     long len = 0;
@@ -281,6 +286,7 @@ long cff_pack_index(cff_index * idx, card8 * dest, long destlen)
     return len;
 }
 
+@ @c
 long cff_index_size(cff_index * idx)
 {
     if (idx->count > 0) {
@@ -302,6 +308,7 @@ long cff_index_size(cff_index * idx)
     }
 }
 
+@ @c
 cff_index *cff_new_index(card16 count)
 {
     cff_index *idx;
@@ -322,6 +329,7 @@ cff_index *cff_new_index(card16 count)
 }
 
 
+@ @c
 void cff_release_index(cff_index * idx)
 {
     if (idx) {
@@ -331,6 +339,7 @@ void cff_release_index(cff_index * idx)
     }
 }
 
+@ @c
 void cff_release_dict(cff_dict * dict)
 {
     if (dict) {
@@ -346,6 +355,7 @@ void cff_release_dict(cff_dict * dict)
 }
 
 
+@ @c
 void cff_release_encoding(cff_encoding * encoding)
 {
     if (encoding) {
@@ -365,6 +375,7 @@ void cff_release_encoding(cff_encoding * encoding)
     }
 }
 
+@ @c
 void cff_release_charsets(cff_charsets * charset)
 {
     if (charset) {
@@ -385,6 +396,7 @@ void cff_release_charsets(cff_charsets * charset)
     }
 }
 
+@ @c
 void cff_release_fdselect(cff_fdselect * fdselect)
 {
     if (fdselect) {
@@ -398,6 +410,7 @@ void cff_release_fdselect(cff_fdselect * fdselect)
 }
 
 
+@ @c
 void cff_close(cff_font * cff)
 {
     card16 i;
@@ -449,6 +462,7 @@ void cff_close(cff_font * cff)
     return;
 }
 
+@ @c
 char *cff_get_name(cff_font * cff)
 {
     char *fontname;
@@ -465,6 +479,7 @@ char *cff_get_name(cff_font * cff)
 }
 
 
+@ @c
 long cff_set_name(cff_font * cff, char *name)
 {
     cff_index *idx;
@@ -482,7 +497,7 @@ long cff_set_name(cff_font * cff, char *name)
     (idx->offset)[0] = 1;
     (idx->offset)[1] = strlen(name) + 1;
     idx->data = xmalloc((unsigned) strlen(name) * sizeof(card8));
-    memmove(idx->data, name, strlen(name));     /* no trailing '\0' */
+    memmove(idx->data, name, strlen(name));     /* no trailing |'\0'| */
 
     return (long) (5 + strlen(name));
 }
@@ -504,6 +519,7 @@ long cff_put_header(cff_font * cff, card8 * dest, long destlen)
     return 4;
 }
 
+@ @c
 #define CFF_PARSE_OK                0
 #define CFF_CFF_ERROR_PARSE_CFF_ERROR      -1
 #define CFF_CFF_ERROR_STACK_OVERFLOW   -2
@@ -523,28 +539,29 @@ cff_dict *cff_new_dict(void)
     return dict;
 }
 
-/*
- * Operand stack:
- *  only numbers are stored (as double)
- *
- * Operand types:
- *
- * number : double (integer or real)
- * boolean: stored as a number
- * SID    : stored as a number
- * array  : array of numbers
- * delta  : array of numbers
- */
+@
 
+Operand stack:
+ only numbers are stored (as double)
+
+Operand types:
+
+number : double (integer or real)
+boolean: stored as a number
+SID    : stored as a number
+array  : array of numbers
+delta  : array of numbers
+
+@c
 #define CFF_DICT_STACK_LIMIT 64
 static int stack_top = 0;
 static double arg_stack[CFF_DICT_STACK_LIMIT];
 
-/*
- * CFF DICT encoding:
- * TODO: default values
- */
-
+@
+CFF DICT encoding:
+TODO: default values
+ 
+@c
 #define CFF_LAST_DICT_OP1 22
 #define CFF_LAST_DICT_OP2 39
 #define CFF_LAST_DICT_OP (CFF_LAST_DICT_OP1 + CFF_LAST_DICT_OP2)
@@ -626,7 +643,8 @@ static struct {
     "FDSelect", CFF_TYPE_OFFSET}, {
 "FontName", CFF_TYPE_SID},};
 
-/* Parse DICT data */
+@ Parse DICT data
+@c
 static double get_integer(card8 ** data, card8 * endptr, int *status)
 {
     long result = 0;
@@ -663,7 +681,8 @@ static double get_integer(card8 ** data, card8 * endptr, int *status)
     return (double) result;
 }
 
-/* Simply uses strtod */
+@ Simply uses strtod
+@c
 static double get_real(card8 ** data, card8 * endptr, int *status)
 {
     double result = 0.0;
@@ -724,7 +743,8 @@ static double get_real(card8 ** data, card8 * endptr, int *status)
     return result;
 }
 
-/* operators */
+@ operators
+@c
 static void add_dict(cff_dict * dict,
                      card8 ** data, card8 * endptr, int *status)
 {
@@ -787,7 +807,7 @@ static void add_dict(cff_dict * dict,
             }
             if (t > 3 && strcmp(dict_operator[id].opname, "FontMatrix") == 0) {
                 /* reset FontMatrix to [0.001 * * 0.001 * *],
-                   fix mantis bug # 0000200 (acroread "feature") */
+                   fix mantis bug \# 0000200 (acroread "feature") */
                 (dict->entries)[dict->count].values[0] = 0.001;
                 (dict->entries)[dict->count].values[3] = 0.001;
             }
@@ -800,11 +820,12 @@ static void add_dict(cff_dict * dict,
     return;
 }
 
-/*
- * All operands are treated as number or array of numbers.
- *  Private: two numbers, size and offset
- *  ROS    : three numbers, SID, SID, and a number
- */
+
+@ All operands are treated as number or array of numbers.
+  Private: two numbers, size and offset
+  ROS    : three numbers, SID, SID, and a number
+
+@c
 cff_dict *cff_dict_unpack(card8 * data, card8 * endptr)
 {
     cff_dict *dict;
@@ -845,7 +866,7 @@ cff_dict *cff_dict_unpack(card8 * data, card8 * endptr)
     return dict;
 }
 
-
+@ @c
 int cff_dict_known(cff_dict * dict, const char *key)
 {
     int i;
@@ -859,6 +880,7 @@ int cff_dict_known(cff_dict * dict, const char *key)
     return 0;
 }
 
+@ @c
 double cff_dict_get(cff_dict * dict, const char *key, int idx)
 {
     double value = 0.0;
@@ -882,6 +904,7 @@ double cff_dict_get(cff_dict * dict, const char *key, int idx)
     return value;
 }
 
+@ @c
 card8 cff_fdselect_lookup(cff_font * cff, card16 gid)
 {
     card8 fd = 0xff;
@@ -924,6 +947,7 @@ card8 cff_fdselect_lookup(cff_font * cff, card16 gid)
     return fd;
 }
 
+@ @c
 long cff_read_subrs(cff_font * cff)
 {
     long len = 0;
@@ -978,6 +1002,7 @@ long cff_read_subrs(cff_font * cff)
 }
 
 
+@ @c
 long cff_read_fdarray(cff_font * cff)
 {
     long len = 0;
@@ -1013,6 +1038,7 @@ long cff_read_fdarray(cff_font * cff)
 }
 
 
+@ @c
 long cff_read_private(cff_font * cff)
 {
     long len = 0;
@@ -1066,6 +1092,7 @@ long cff_read_private(cff_font * cff)
 }
 
 
+@ @c
 cff_font *read_cff(unsigned char *buf, long buflength, int n)
 {
     cff_font *cff;
@@ -1171,11 +1198,10 @@ cff_font *read_cff(unsigned char *buf, long buflength, int n)
     return cff;
 }
 
-/* write a cff for opentype */
+@* write a cff for opentype.
 
-
-
-/* Pack DICT data */
+@ Pack DICT data
+@c
 static long pack_integer(card8 * dest, long destlen, long value)
 {
     long len = 0;
@@ -1219,6 +1245,7 @@ static long pack_integer(card8 * dest, long destlen, long value)
     return len;
 }
 
+@ @c
 static long pack_real(card8 * dest, long destlen, double value)
 {
     long e;
@@ -1338,6 +1365,7 @@ static long pack_real(card8 * dest, long destlen, double value)
     return pos / 2;
 }
 
+@ @c
 static long cff_dict_put_number(double value,
                                 card8 * dest, long destlen, int type)
 {
@@ -1367,6 +1395,7 @@ static long cff_dict_put_number(double value,
     return len;
 }
 
+@ @c
 static long put_dict_entry(cff_dict_entry * de, card8 * dest, long destlen)
 {
     long len = 0;
@@ -1401,6 +1430,7 @@ static long put_dict_entry(cff_dict_entry * de, card8 * dest, long destlen)
     return len;
 }
 
+@ @c
 long cff_dict_pack(cff_dict * dict, card8 * dest, long destlen)
 {
     long len = 0;
@@ -1422,6 +1452,7 @@ long cff_dict_pack(cff_dict * dict, card8 * dest, long destlen)
 }
 
 
+@ @c
 void cff_dict_add(cff_dict * dict, const char *key, int count)
 {
     int id, i;
@@ -1466,6 +1497,7 @@ void cff_dict_add(cff_dict * dict, const char *key, int count)
 }
 
 
+@ @c
 void cff_dict_remove(cff_dict * dict, const char *key)
 {
     int i;
@@ -1477,6 +1509,7 @@ void cff_dict_remove(cff_dict * dict, const char *key)
     }
 }
 
+@ @c
 void cff_dict_set(cff_dict * dict, const char *key, int idx, double value)
 {
     int i;
@@ -1498,7 +1531,8 @@ void cff_dict_set(cff_dict * dict, const char *key, int idx, double value)
 }
 
 
-/* Strings */
+@ Strings 
+@c
 char *cff_get_string(cff_font * cff, s_SID id)
 {
     char *result = NULL;
@@ -1523,6 +1557,7 @@ char *cff_get_string(cff_font * cff, s_SID id)
     return result;
 }
 
+@ @c
 long cff_get_sid(cff_font * cff, const char *str)
 {
     card16 i;
@@ -1549,6 +1584,7 @@ long cff_get_sid(cff_font * cff, const char *str)
 }
 
 
+@ @c
 void cff_update_string(cff_font * cff)
 {
     if (cff == NULL)
@@ -1561,6 +1597,7 @@ void cff_update_string(cff_font * cff)
 }
 
 
+@ @c
 s_SID cff_add_string(cff_font * cff, const char *str)
 {
     card16 idx;
@@ -1605,6 +1642,7 @@ s_SID cff_add_string(cff_font * cff, const char *str)
 }
 
 
+@ @c
 void cff_dict_update(cff_dict * dict, cff_font * cff)
 {
     int i;
@@ -1633,8 +1671,8 @@ void cff_dict_update(cff_dict * dict, cff_font * cff)
     }
 }
 
-/* charsets */
-
+@ charsets
+@c
 long cff_read_charsets(cff_font * cff)
 {
     cff_charsets *charset;
@@ -1734,6 +1772,7 @@ long cff_read_charsets(cff_font * cff)
     return length;
 }
 
+@ @c
 long cff_pack_charsets(cff_font * cff, card8 * dest, long destlen)
 {
     long len = 0;
@@ -1795,33 +1834,33 @@ long cff_pack_charsets(cff_font * cff, card8 * dest, long destlen)
 
 
 
-/*
- * Type 2 Charstring support:
- *  Decode and encode Type 2 charstring
- *
- * All local/global subroutine calls in a given charstring is replace by the
- * content of subroutine charstrings. We do this because some PostScript RIP
- * may have problems with sparse subroutine array. Workaround for this is to
- * re-order subroutine array so that no gap appears in the subroutine array,
- * or put dummy charstrings that contains only `return' in the gap. However,
- * re-ordering of subroutine is rather difficult for Type 2 charstrings due
- * to the bias which depends on the total number of subroutines. Replacing
- * callgsubr/callsubr calls with the content of the corresponding subroutine
- * charstring may be more efficient than putting dummy subroutines in the
- * case of subsetted font. Adobe distiller seems doing same thing.
- *
- * And also note that subroutine numbers within subroutines can depend on the
- * content of operand stack as follows:
- *
- *   ... l m callsubr << subr #(m+bias): n add callsubr >> ...
- *
- * I've not implemented the `random' operator which generates a pseudo-random
- * number in the range (0, 1] and push them into argument stack.
- * How pseudo-random sequences are generated is not documented in the Type 2
- * charstring spec..
- */
+@* Type 2 Charstring support.
+
+Decode and encode Type 2 charstring
+
+All local/global subroutine calls in a given charstring is replace by the
+content of subroutine charstrings. We do this because some PostScript RIP
+may have problems with sparse subroutine array. Workaround for this is to
+re-order subroutine array so that no gap appears in the subroutine array,
+or put dummy charstrings that contains only `return' in the gap. However,
+re-ordering of subroutine is rather difficult for Type 2 charstrings due
+to the bias which depends on the total number of subroutines. Replacing
+callgsubr/callsubr calls with the content of the corresponding subroutine
+charstring may be more efficient than putting dummy subroutines in the
+case of subsetted font. Adobe distiller seems doing same thing.
+
+And also note that subroutine numbers within subroutines can depend on the
+content of operand stack as follows:
+
+\.{  ... l m callsubr << subr \#(m+bias): n add callsubr >> ...}
+
+I've not implemented the `random' operator which generates a pseudo-random
+number in the range (0, 1] and push them into argument stack.
+How pseudo-random sequences are generated is not documented in the Type 2
+charstring spec..
 
 
+@c
 #define CS_TYPE2_DEBUG_STR "Type2 Charstring Parser"
 #define CS_TYPE2_DEBUG     5
 
@@ -1851,29 +1890,29 @@ static int cs2_nest = 0;
 static int have_width = 0;
 static double width = 0.0;
 
-/*
- * Standard Encoding Accented Characters:
- *  Optional four arguments for endchar. See, CFF spec., p.35.
- *  This is obsolete feature and is no longer supported.
- */
+@
+ Standard Encoding Accented Characters:
+ Optional four arguments for endchar. See, CFF spec., p.35.
+  This is obsolete feature and is no longer supported.
+@c
 #if 0
 /* adx ady bchar achar endchar */
 static double seac[4] = { 0.0, 0.0, 0.0, 0.0 };
 #endif
 
-/* Operand stack and Transient array */
+@  Operand stack and Transient array 
+@c
 static int cs2_stack_top = 0;
 static double cs2_arg_stack[CS_ARG_STACK_MAX];
 static double trn_array[CS_TRANS_ARRAY_MAX];
 
-/*
- * Type 2 CharString encoding
- */
+@ Type 2 CharString encoding
+@c
 
 /*
- * 1-byte CharString operaotrs:
- *  cs_escape is first byte of two-byte operator
- */
+ 1-byte CharString operaotrs:
+ |cs_escape| is first byte of two-byte operator
+*/
 
 /*      RESERVED      0 */
 #define cs_hstem      1
@@ -1884,11 +1923,11 @@ static double trn_array[CS_TRANS_ARRAY_MAX];
 #define cs_hlineto    6
 #define cs_vlineto    7
 #define cs_rrcurveto  8
-/*      cs_closepath  9  : TYPE1 */
+/*      |cs_closepath|  9  : TYPE1 */
 #define cs_callsubr   10
 #define cs_return     11
 #define cs_escape     12
-/*      cs_hsbw       13 : TYPE1 */
+/*      |cs_hsbw|       13 : TYPE1 */
 #define cs_endchar    14
 /*      RESERVED      15 */
 /*      RESERVED      16 */
@@ -1909,18 +1948,18 @@ static double trn_array[CS_TRANS_ARRAY_MAX];
 #define cs_hvcurveto  31
 
 /*
- * 2-byte CharString operaotrs:
- *  "dotsection" is obsoleted in Type 2 charstring.
+ 2-byte CharString operaotrs:
+ "dotsection" is obsoleted in Type 2 charstring.
  */
 
 #define cs_dotsection 0
-/*      cs_vstem3     1 : TYPE1 */
-/*      cs_hstem3     2 : TYPE1 */
+/*      |cs_vstem3|     1 : TYPE1 */
+/*      |cs_hstem3|     2 : TYPE1 */
 #define cs_and        3
 #define cs_or         4
 #define cs_not        5
-/*      cs_seac       6 : TYPE1 */
-/*      cs_sbw        7 : TYPE1 */
+/*      |cs_seac|       6 : TYPE1 */
+/*      |cs_sbw|        7 : TYPE1 */
 /*      RESERVED      8  */
 #define cs_abs        9
 #define cs_add        10
@@ -1929,8 +1968,8 @@ static double trn_array[CS_TRANS_ARRAY_MAX];
 /*      RESERVED      13 */
 #define cs_neg        14
 #define cs_eq         15
-/*      cs_callothersubr 16 : TYPE1 */
-/*      cs_pop           17 : TYPE1 */
+/*      |cs_callothersubr| 16 : TYPE1 */
+/*      |cs_pop|           17 : TYPE1 */
 #define cs_drop       18
 /*      RESERVED      19 */
 #define cs_put        20
@@ -1944,7 +1983,7 @@ static double trn_array[CS_TRANS_ARRAY_MAX];
 #define cs_exch       28
 #define cs_index      29
 #define cs_roll       30
-/*      cs_setcurrentpoint 31 : TYPE1 */
+/*      |cs_setcurrentpoint| 31 : TYPE1 */
 /*      RESERVED      32 */
 /*      RESERVED      33 */
 #define cs_hflex      34
@@ -1952,9 +1991,9 @@ static double trn_array[CS_TRANS_ARRAY_MAX];
 #define cs_hflex1     36
 #define cs_flex1      37
 
-/*
- * clear_stack() put all operands sotred in operand stack to dest.
- */
+@
+|clear_stack()| put all operands sotred in operand stack to dest.
+@c
 static void clear_stack(card8 ** dest, card8 * limit)
 {
     int i;
@@ -1967,8 +2006,8 @@ static void clear_stack(card8 ** dest, card8 * limit)
         ivalue = (long) floor(value + 0.5);
         if (value >= 0x8000L || value <= (-0x8000L - 1)) {
             /*
-             * This number cannot be represented as a single operand.
-             * We must use `a b mul ...' or `a c div' to represent large values.
+             This number cannot be represented as a single operand.
+             We must use `a b mul ...' or `a c div' to represent large values.
              */
             CFF_ERROR("Argument value too large. (This is bug)");
         } else if (fabs(value - (double) ivalue) > 3.0e-5) {
@@ -2010,16 +2049,16 @@ static void clear_stack(card8 ** dest, card8 * limit)
     return;
 }
 
-/*
- * Single byte operators:
- *  Path construction, Operator for finishing a path, Hint operators.
- *
- * phase:
- *  0: inital state
- *  1: hint declaration, first stack-clearing operator appeared
- *  2: in path construction
- */
+@
+ Single byte operators:
+  Path construction, Operator for finishing a path, Hint operators.
+ 
+ phase:
+ \item 0: inital state
+ \item 1: hint declaration, first stack-clearing operator appeared
+ \item 2: in path construction
 
+@c
 static void
 do_operator1(card8 ** dest, card8 * limit, card8 ** data, card8 * endptr)
 {
@@ -2139,13 +2178,14 @@ do_operator1(card8 ** dest, card8 * limit, card8 ** data, card8 * endptr)
     return;
 }
 
-/*
- * Double byte operators:
- *  Flex, arithmetic, conditional, and storage operators.
- *
- * Following operators are not supported:
- *  random: How random ?
- */
+@
+ Double byte operators:
+ Flex, arithmetic, conditional, and storage operators.
+ 
+ Following operators are not supported:
+   random: How random ?
+ 
+@c
 static void
 do_operator2(card8 ** dest, card8 * limit, card8 ** data, card8 * endptr)
 {
@@ -2353,10 +2393,10 @@ do_operator2(card8 ** dest, card8 * limit, card8 ** data, card8 * endptr)
     return;
 }
 
-/*
- * integer:
- *  exactly the same as the DICT encoding (except 29)
- */
+@
+ integer:
+  exactly the same as the DICT encoding (except 29)
+@c
 static void cs2_get_integer(card8 ** data, card8 * endptr)
 {
     long result = 0;
@@ -2395,9 +2435,9 @@ static void cs2_get_integer(card8 ** data, card8 * endptr)
     return;
 }
 
-/*
- * Signed 16.16-bits fixed number for Type 2 charstring encoding
- */
+@
+Signed 16.16-bits fixed number for Type 2 charstring encoding
+@c
 static void get_fixed(card8 ** data, card8 * endptr)
 {
     long ivalue;
@@ -2419,15 +2459,16 @@ static void get_fixed(card8 ** data, card8 * endptr)
     return;
 }
 
-/*
- * Subroutines:
- *  The bias for subroutine number is introduced in type 2 charstrings.
- *
- * subr:     set to a pointer to the subroutine charstring.
- * len:      set to the length of subroutine charstring.
- * subr_idx: CFF INDEX data that contains subroutines.
- * id:       biased subroutine number.
- */
+@
+ Subroutines:
+  The bias for subroutine number is introduced in type 2 charstrings.
+ 
+  subr:     set to a pointer to the subroutine charstring.
+  len:      set to the length of subroutine charstring.
+  |subr_idx|: CFF INDEX data that contains subroutines.
+  id:       biased subroutine number.
+
+@c
 static void get_subr(card8 ** subr, long *len, cff_index * subr_idx, long id)
 {
     card16 count;
@@ -2457,13 +2498,13 @@ static void get_subr(card8 ** subr, long *len, cff_index * subr_idx, long id)
     return;
 }
 
-/*
- * NOTE:
- *  The Type 2 interpretation of a number encoded in five-bytes (those with
- *  an initial byte value of 255) differs from how it is interpreted in the
- *  Type 1 format.
- */
 
+@ NOTE:
+ The Type 2 interpretation of a number encoded in five-bytes (those with
+ an initial byte value of 255) differs from how it is interpreted in the
+ Type 1 format.
+
+@c
 static void
 do_charstring(card8 ** dest, card8 * limit,
               card8 ** data, card8 * endptr,
@@ -2536,6 +2577,7 @@ do_charstring(card8 ** dest, card8 * limit,
     return;
 }
 
+@ @c
 static void cs_parse_init(void)
 {
     status = CS_PARSE_OK;
@@ -2545,9 +2587,9 @@ static void cs_parse_init(void)
     cs2_stack_top = 0;
 }
 
-/*
- * Not just copying...
- */
+
+@ Not just copying...
+@c
 long
 cs_copy_charstring(card8 * dst, long dstlen,
                    card8 * src, long srclen,
@@ -2576,13 +2618,13 @@ cs_copy_charstring(card8 * dst, long dstlen,
     return (long) (dst - save);
 }
 
-/* encodings */
+@* encodings.
 
-/*
- * Encoding and Charset
- *
- *  Encoding and Charset arrays always begin with GID = 1.
- */
+@ Encoding and Charset
+
+Encoding and Charset arrays always begin with GID = 1.
+
+@c
 long cff_read_encoding(cff_font * cff)
 {
     cff_encoding *encoding;
@@ -2661,6 +2703,7 @@ long cff_read_encoding(cff_font * cff)
     return length;
 }
 
+@ @c
 long cff_pack_encoding(cff_font * cff, card8 * dest, long destlen)
 {
     long len = 0;
@@ -2714,7 +2757,8 @@ long cff_pack_encoding(cff_font * cff, card8 * dest, long destlen)
     return len;
 }
 
-/* CID-Keyed font specific */
+@ CID-Keyed font specific
+@c
 long cff_read_fdselect(cff_font * cff)
 {
     cff_fdselect *fdsel;
@@ -2770,6 +2814,7 @@ long cff_read_fdselect(cff_font * cff)
 }
 
 
+@ @c
 long cff_pack_fdselect(cff_font * cff, card8 * dest, long destlen)
 {
     cff_fdselect *fdsel;
@@ -2826,9 +2871,9 @@ long cff_pack_fdselect(cff_font * cff, card8 * dest, long destlen)
 
 
 
-/*
- * Create an instance of embeddable font.
- */
+@ Create an instance of embeddable font.
+
+@c
 static void write_fontfile(PDF pdf, cff_font * cffont, char *fullname)
 {
     cff_index *topdict, *fdarray, *private;
@@ -2945,14 +2990,13 @@ static void write_fontfile(PDF pdf, cff_font * cffont, char *fullname)
     for (i = 0; i < offset; i++)
         fb_putchar(pdf, dest[i]);
 
-    /*fprintf(stdout," (%i/%i)",offset,cffont->stream_size); */
     xfree(dest);
     return;
 }
 
 
-/* this block is used a few times */
-
+@ this block is used a few times
+@c
 #define DO_COPY_CHARSTRING()                                                   \
   if ((avl_find(fd->gl_tree,glyph) != NULL)) {                                 \
       size = (long)(cs_idx->offset[code+1] - cs_idx->offset[code]);	\
@@ -2974,6 +3018,7 @@ static void write_fontfile(PDF pdf, cff_font * cffont, char *fullname)
     gid++;                                                                     \
   }
 
+@ @c
 void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
 {
     cff_index *charstrings, *cs_idx;
@@ -2999,7 +3044,7 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     cff_read_subrs(cffont);
 
     /*
-     * Widths
+     Widths
      */
     if (cffont->private[0] &&
         cff_dict_known(cffont->private[0], "defaultWidthX")) {
@@ -3132,7 +3177,7 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     cffont->cstrings = charstrings;
 
     /*
-     * We don't use subroutines at all.
+     We don't use subroutines at all.
      */
     if (cffont->gsubr)
         cff_release_index(cffont->gsubr);
@@ -3167,12 +3212,14 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
 
 }
 
+@ @c
 #undef ERROR                    /* for mingw */
 #define ERROR(a) { perror(a); return 0; }
 
-/* Input : SID or CID (16-bit unsigned int)
- * Output: glyph index
- */
+@ Input : SID or CID (16-bit unsigned int)
+ Output: glyph index
+
+@c
 card16 cff_charsets_lookup(cff_font * cff, card16 cid)
 {
     card16 gid = 0;
@@ -3233,6 +3280,7 @@ card16 cff_charsets_lookup(cff_font * cff, card16 cid)
 }
 
 
+@ @c
 #define is_cidfont(a) ((a)->flag & FONTTYPE_CIDFONT)
 #define CID_MAX 65535
 
@@ -3420,11 +3468,11 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
 
 }
 
-/* here is a sneaky trick: fontforge knows how to convert Type1 to CFF, so
- * I have defined a utility function in luafflib.c that does exactly that.
- * If it works out ok, I will clean up this code.
- */
+@ here is a sneaky trick: fontforge knows how to convert Type1 to CFF, so
+I have defined a utility function in luafflib.c that does exactly that.
+If it works out ok, I will clean up this code.
 
+@c
 void writetype1w(PDF pdf, fd_entry * fd)
 {
     cff_font *cff;

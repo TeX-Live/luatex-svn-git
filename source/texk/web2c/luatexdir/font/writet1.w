@@ -1,27 +1,27 @@
+% writet1.w
+%
+% Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
+% Copyright 2006-2009 Taco Hoekwater <taco@@luatex.org>
+%
+% This file is part of LuaTeX.
+%
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+%
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+%
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
 @ @c
-/* writet1.c
-
-   Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 static const char _svn_version[] =
     "$Id$ "
-    "$URL$";
+"$URL$";
 
 #include "ptexlib.h"
 #include <string.h>
@@ -53,6 +53,7 @@ static unsigned char *t1_buffer = NULL;
 static int t1_size = 0;
 static int t1_curbyte = 0;
 
+@ @c
 #define t1_read_file()  \
     readbinfile(t1_file,&t1_buffer,&t1_size)
 #define t1_close()      xfclose(t1_file,cur_file_name)
@@ -73,6 +74,7 @@ static unsigned char *enc_buffer = NULL;
 static int enc_size = 0;
 static int enc_curbyte = 0;
 
+@ @c
 #define enc_open(a)          \
     (enc_file = fopen((char *)(a), FOPEN_RBIN_MODE))
 #define enc_read_file()  \
@@ -84,6 +86,7 @@ static int enc_curbyte = 0;
 #define valid_code(c)   (c >= 0 && c < 256)
 #define fixedcontent     false
 
+@ @c
 static const char *standard_glyph_names[256] = {
     /* 0x00 */
     notdef, notdef, notdef, notdef, notdef, notdef, notdef, notdef, notdef,
@@ -141,6 +144,7 @@ static const char *standard_glyph_names[256] = {
     "oslash", "oe", "germandbls", notdef, notdef, notdef, notdef
 };
 
+@ @c
 static fd_entry *fd_cur;
 
 static char charstringname[] = "/CharStrings";
@@ -150,6 +154,7 @@ enum { ENC_STANDARD, ENC_BUILTIN } t1_encoding;
 #define T1_BUF_SIZE   0x10
 #define ENC_BUF_SIZE  0x1000
 
+@ @c
 #define CS_HSTEM            1
 #define CS_VSTEM            3
 #define CS_VMOVETO          4
@@ -181,6 +186,7 @@ enum { ENC_STANDARD, ENC_BUILTIN } t1_encoding;
 #define CS_2BYTE_MAX        (CS_SETCURRENTPOINT + 1)
 #define CS_MAX              CS_2BYTE_MAX
 
+@ @c
 typedef unsigned char byte;
 
 typedef struct {
@@ -205,11 +211,13 @@ static unsigned short t1_cslen;
 static short t1_lenIV;
 static char enc_line[ENC_BUF_SIZE];
 
-/* define t1_line_ptr, t1_line_array & t1_line_limit */
+@ define |t1_line_ptr|, |t1_line_array|, and |t1_line_limit|
+@c
 #define t1_line_entry char
 define_array(t1_line);
 
-/* define t1_buf_ptr, t1_buf_array & t1_buf_limit */
+@ define |t1_buf_ptr|, |t1_buf_array|, and |t1_buf_limit|
+@c
 #define t1_buf_entry char
 define_array(t1_buf);
 
@@ -223,9 +231,10 @@ static cs_entry *subr_tab;
 static char *subr_array_start, *subr_array_end;
 static int subr_max, subr_size, subr_size_pos;
 
-/* This list contains the begin/end tokens commonly used in the */
-/* /Subrs array of a Type 1 font.                                */
+@ This list contains the begin/end tokens commonly used in the 
+/Subrs array of a Type 1 font. 
 
+@c
 static const char *cs_token_pairs_list[][2] = {
     {" RD", "NP"},
     {" -|", "|"},
@@ -234,6 +243,7 @@ static const char *cs_token_pairs_list[][2] = {
     {NULL, NULL}
 };
 
+@ @c
 static const char **cs_token_pair;
 
 static boolean t1_pfa, t1_cs, t1_scan, t1_eexec_encrypt, t1_synthetic;
@@ -243,6 +253,7 @@ static int last_hexbyte;
 static FILE *t1_file;
 static FILE *enc_file;
 
+@ @c
 static void enc_getline(void)
 {
     char *p;
@@ -261,8 +272,8 @@ static void enc_getline(void)
         goto restart;
 }
 
-/* read encoding from .enc file, return glyph_names array, or pdffail() */
-
+@ read encoding from .enc file, return |glyph_names array|, or |pdffail()|
+@c
 char **load_enc_file(char *enc_name)
 {
     int callback_id = 0;
@@ -341,6 +352,7 @@ char **load_enc_file(char *enc_name)
     return glyph_names;
 }
 
+@ @c
 void free_glyph_names(char **glyph_names)
 {
     int i;
@@ -469,12 +481,13 @@ static boolean str_suffix(const char *begin_buf, const char *end_buf,
     return s2 < s;
 }
 
+@ @c
 static void t1_getline(void)
 {
     int c, l, eexec_scan;
     char *p;
     static const char eexec_str[] = "currentfile eexec";
-    static int eexec_len = 17;  /* strlen(eexec_str) */
+    static int eexec_len = 17;  /* |strlen(eexec_str)| */
   restart:
     if (t1_eof())
         pdftex_fail("unexpected end of file");
@@ -510,25 +523,26 @@ static void t1_getline(void)
                 p--;
             l = (int) t1_scan_num(p + 1, 0);
             t1_cslen = (unsigned short) l;
-            cs_start = (int) (t1_line_ptr - t1_line_array);     /* cs_start is an index now */
+            cs_start = (int) (t1_line_ptr - t1_line_array);     /* |cs_start| is an index now */
             alloc_array(t1_line, l, T1_BUF_SIZE);
             while (l-- > 0)
                 *t1_line_ptr++ = (t1_line_entry) edecrypt((byte) t1_getbyte());
         }
         c = t1_getbyte();
     }
-    alloc_array(t1_line, 2, T1_BUF_SIZE);       /* append_eol can append 2 chars */
+    alloc_array(t1_line, 2, T1_BUF_SIZE);       /* |append_eol| can append 2 chars */
     append_eol(t1_line_ptr, t1_line_array, t1_line_limit);
     if (t1_line_ptr - t1_line_array < 2)
         goto restart;
     if (eexec_scan == eexec_len)
         t1_in_eexec = 1;
   exit:
-    /* ensure that t1_buf_array has as much room as t1_line_array */
+    /* ensure that |t1_buf_array| has as much room as |t1_line_array| */
     t1_buf_ptr = t1_buf_array;
     alloc_array(t1_buf, t1_line_limit, t1_line_limit);
 }
 
+@ @c
 static void t1_putline(PDF pdf)
 {
     char *p = t1_line_array;
@@ -560,6 +574,7 @@ static void t1_printf(PDF pdf, const char *fmt, ...)
     va_end(args);
 }
 
+@ @c
 static void t1_init_params(const char *open_name_prefix)
 {
     t1_log(open_name_prefix);
@@ -596,6 +611,7 @@ static void t1_check_block_len(boolean decrypt)
     }
 }
 
+@ @c
 static void t1_start_eexec(PDF pdf)
 {
     int i;
@@ -635,8 +651,9 @@ static void t1_stop_eexec(PDF pdf)
     t1_in_eexec = 2;
 }
 
-/* macros for various transforms; unused, left for reference */
+@ macros for various transforms; unused, left for reference 
 
+@c
 #ifdef T1TRANSFORMMACROS
 #  define do_xshift(x,a) {x[4]+=a;}
 #  define do_yshift(x,a) {x[5]+=a;}
@@ -656,6 +673,7 @@ static void t1_stop_eexec(PDF pdf)
   x[5] =x[4]*v+x[5]* u; x[4]=t;}
 #endif
 
+@ @c
 static void t1_scan_keys(PDF pdf)
 {
     int i, k;
@@ -687,9 +705,9 @@ static void t1_scan_keys(PDF pdf)
         *q = 0;
         xfree(fd_cur->fontname);
         fd_cur->fontname = xstrdup(t1_buf_array);
-        /* at this moment we cannot call make_subset_tag() yet, as the encoding
-         * is not read; thus we mark the offset of the subset tag and write it
-         * later */
+        /* at this moment we cannot call |make_subset_tag()| yet, as the encoding
+         is not read; thus we mark the offset of the subset tag and write it
+         later */
         if (is_subsetted(fd_cur->fm)) {
             assert(is_included(fd_cur->fm));
             t1_fontname_offset = (int) (t1_offset() + (r - t1_line_array));
@@ -713,6 +731,7 @@ static void t1_scan_keys(PDF pdf)
     fd_cur->font_dim[k].set = true;
 }
 
+@ @c
 static void t1_scan_param(PDF pdf)
 {
     static const char *lenIV = "/lenIV";
@@ -738,13 +757,14 @@ static void copy_glyph_names(char **glyph_names, int a, int b)
     }
 }
 
-/* read encoding from Type1 font file, return glyph_names array, or pdffail() */
+@ read encoding from Type1 font file, return |glyph_names| array, or |pdffail()|
 
+@c
 char **t1_builtin_enc(void)
 {
     int i, a, b, c, counter = 0;
     char *r, *p, **glyph_names;
-    /* At this moment "/Encoding" is the prefix of t1_line_array */
+    /* At this moment \.{/Encoding} is the prefix of |t1_line_array| */
     glyph_names = xtalloc(256, char *);
     for (i = 0; i < 256; i++)
         glyph_names[i] = (char *) notdef;
@@ -762,20 +782,21 @@ char **t1_builtin_enc(void)
                 ("cannot subset font (unknown predefined encoding `%s')",
                  t1_buf_array);
     }
-    /* At this moment "/Encoding" is the prefix of t1_line_array, and the encoding is
-     * not a predefined encoding.
-     *
-     * We have two possible forms of Encoding vector. The first case is
-     *
-     *     /Encoding [/a /b /c...] readonly def
-     *
-     * and the second case can look like
-     *
-     *     /Encoding 256 array 0 1 255 {1 index exch /.notdef put} for
-     *     dup 0 /x put
-     *     dup 1 /y put
-     *     ...
-     *     readonly def
+    /* At this moment \.{/Encoding} is the prefix of |t1_line_array|, and the encoding is
+     not a predefined encoding.
+     
+      We have two possible forms of Encoding vector. The first case is
+     
+          \.{/Encoding [/a /b /c...] readonly def}
+     
+      and the second case can look like
+     
+      {\obeylines
+          \.{/Encoding 256 array 0 1 255 {1 index exch /.notdef put} for}
+          \.{dup 0 /x put}
+          \.{dup 1 /y put}
+          \.{...}
+          \.{readonly def}}
      */
     t1_encoding = ENC_BUILTIN;
     if (t1_prefix("/Encoding [") || t1_prefix("/Encoding[")) {  /* the first case */
@@ -815,7 +836,7 @@ char **t1_builtin_enc(void)
                 p = t1_line_array;
             }
             /*
-               check for `dup <index> <glyph> put'
+               check for \.{dup <index> <glyph> put}
              */
             if (sscanf(p, "dup %i%256s put", &i, t1_buf_array) == 2 &&
                 *t1_buf_array == '/' && valid_code(i)) {
@@ -825,7 +846,7 @@ char **t1_builtin_enc(void)
                 skip(p, ' ');
             }
             /*
-               check for `dup dup <to> exch <from> get put'
+               check for \.{dup dup <to> exch <from> get put}
              */
             else if (sscanf(p, "dup dup %i exch %i get put", &b, &a) == 2
                      && valid_code(a) && valid_code(b)) {
@@ -834,7 +855,7 @@ char **t1_builtin_enc(void)
                 skip(p, ' ');
             }
             /*
-               check for `dup dup <from> <size> getinterval <to> exch putinterval'
+               check for \.{dup dup <from> <size> getinterval <to> exch putinterval}
              */
             else if (sscanf
                      (p, "dup dup %i %i getinterval %i exch putinterval",
@@ -846,7 +867,7 @@ char **t1_builtin_enc(void)
                 skip(p, ' ');
             }
             /*
-               check for `def' or `readonly def'
+               check for \.{def} or \.{readonly def}
              */
             else if ((p == t1_line_array || (p > t1_line_array && p[-1] == ' '))
                      && strcmp(p, "def\n") == 0)
@@ -865,6 +886,8 @@ char **t1_builtin_enc(void)
 }
 
 
+@
+@c
 static void t1_check_end(PDF pdf)
 {
     if (t1_eof())
@@ -874,6 +897,8 @@ static void t1_check_end(PDF pdf)
         t1_putline(pdf);
 }
 
+@
+@c
 static boolean t1_open_fontfile(const char *open_name_prefix)
 {
     ff_entry *ff;
@@ -945,6 +970,8 @@ static void t1_include(PDF pdf)
     get_length3();
 }
 
+@
+@c
 #define check_subr(subr) \
     if (subr >= subr_size || subr < 0) \
         pdftex_fail("Subrs array: entry index out of range (%i)",  subr);
@@ -980,10 +1007,10 @@ static void cs_store(boolean is_subr)
         else
             ptr->name = xstrdup(t1_buf_array + 1);
     }
-    /* copy " RD " + cs data to t1_buf_array */
+    /* copy |" RD " + cs data| to |t1_buf_array| */
     memcpy(t1_buf_array, t1_line_array + cs_start - 4,
            (unsigned) (t1_cslen + 4));
-    /* copy the end of cs data to t1_buf_array */
+    /* copy the end of cs data to |t1_buf_array| */
     for (p = t1_line_array + cs_start + t1_cslen, t1_buf_ptr =
          t1_buf_array + t1_cslen + 4; *p != 10; *t1_buf_ptr++ = *p++);
     *t1_buf_ptr++ = 10;
@@ -997,6 +1024,8 @@ static void cs_store(boolean is_subr)
     ptr->valid = true;
 }
 
+@
+@c
 #define store_subr()    cs_store(true)
 #define store_cs()      cs_store(false)
 
@@ -1046,9 +1075,9 @@ static void cc_init(void)
     set_cc(CS_CLOSEPATH, false, 0, true);
     set_cc(CS_CALLSUBR, false, 1, false);
     set_cc(CS_RETURN, false, 0, false);
-    /*
+#if 0
        set_cc(CS_ESCAPE,          false,  0, false);
-     */
+#endif
     set_cc(CS_HSBW, true, 2, true);
     set_cc(CS_ENDCHAR, false, 0, true);
     set_cc(CS_RMOVETO, true, 2, true);
@@ -1067,6 +1096,8 @@ static void cc_init(void)
     is_cc_init = true;
 }
 
+@
+@c
 #define cs_getchar()    cdecrypt(*data++, &cr)
 
 #define mark_subr(n)    cs_mark(0, n)
@@ -1086,7 +1117,8 @@ static void cs_fail(const char *cs_name, int subr, const char *fmt, ...)
         pdftex_fail("CharString (/%s): %s", cs_name, buf);
 }
 
-/* fix a return-less subr by appending CS_RETURN */
+@ fix a return-less subr by appending |CS_RETURN|
+@c
 static void append_cs_return(cs_entry * ptr)
 {
     unsigned short cr;
@@ -1094,7 +1126,7 @@ static void append_cs_return(cs_entry * ptr)
     byte *p, *q, *data, *new_data;
     assert(ptr != NULL && ptr->valid && ptr->used);
 
-    /* decrypt the cs data to t1_buf_array, append CS_RETURN */
+    /* decrypt the cs data to |t1_buf_array|, append |CS_RETURN| */
     p = (byte *) t1_buf_array;
     data = ptr->data + 4;
     cr = 4330;
@@ -1102,7 +1134,7 @@ static void append_cs_return(cs_entry * ptr)
         *p++ = cs_getchar();
     *p = CS_RETURN;
 
-    /* encrypt the new cs data to new_data */
+    /* encrypt the new cs data to |new_data| */
     new_data = xtalloc((unsigned) (ptr->len + 1), byte);
     memcpy(new_data, ptr->data, 4);
     p = new_data + 4;
@@ -1112,13 +1144,15 @@ static void append_cs_return(cs_entry * ptr)
         *p++ = cencrypt(*q++, &cr);
     memcpy(p, ptr->data + 4 + ptr->cslen, (size_t) (ptr->len - ptr->cslen - 4));
 
-    /* update *ptr */
+    /* update |*ptr| */
     xfree(ptr->data);
     ptr->data = new_data;
     ptr->len++;
     ptr->cslen++;
 }
 
+@
+@c
 static void cs_mark(const char *cs_name, int subr)
 {
     byte *data;
@@ -1262,9 +1296,8 @@ static void cs_mark(const char *cs_name, int subr)
     ptr->used = false;
 }
 
-/**********************************************************************/
-/* AVL search tree for glyph code by glyph name */
-
+@ AVL search tree for glyph code by glyph name 
+@c
 static int comp_t1_glyphs(const void *pa, const void *pb, void *p
                           __attribute__ ((unused)))
 {
@@ -1281,7 +1314,7 @@ struct avl_table *create_t1_glyph_tree(char **glyph_names)
     for (i = 0; i < 256; i++) {
         if (glyph_names[i] != notdef &&
             (char **) avl_find(gl_tree, &glyph_names[i]) == NULL) {
-            /* no strdup here, just point to the glyph_names array members */
+            /* no |strdup| here, just point to the |glyph_names| array members */
             aa = avl_probe(gl_tree, &glyph_names[i]);
             assert(aa != NULL);
         }
@@ -1295,8 +1328,8 @@ void destroy_t1_glyph_tree(struct avl_table *gl_tree)
     avl_destroy(gl_tree, NULL);
 }
 
-/**********************************************************************/
-
+@
+@c
 static void t1_subset_ascii_part(PDF pdf)
 {
     int j, *p;
@@ -1317,7 +1350,7 @@ static void t1_subset_ascii_part(PDF pdf)
     if (is_subsetted(fd_cur->fm)) {
         assert(is_included(fd_cur->fm));
         if (fd_cur->tx_tree != NULL) {
-            /* take over collected non-reencoded characters from TeX */
+            /* take over collected non-reencoded characters from \TeX */
             avl_t_init(&t, fd_cur->tx_tree);
             for (p = (int *) avl_t_first(&t, fd_cur->tx_tree); p != NULL;
                  p = (int *) avl_t_next(&t)) {
@@ -1332,7 +1365,7 @@ static void t1_subset_ascii_part(PDF pdf)
         assert(t1_fontname_offset != 0);
         strncpy(pdf->fb_array + t1_fontname_offset, fd_cur->subset_tag, 6);
     }
-    /* now really all glyphs needed from this font are in the fd_cur->gl_tree */
+    /* now really all glyphs needed from this font are in the |fd_cur->gl_tree| */
     if (t1_encoding == ENC_STANDARD)
         t1_puts(pdf, "/Encoding StandardEncoding def\n");
     else {
@@ -1352,9 +1385,8 @@ static void t1_subset_ascii_part(PDF pdf)
         }
         destroy_t1_glyph_tree(gl_tree);
         if (j == 0)
-            /* We didn't mark anything for the Encoding array. */
-            /* We add "dup 0 /.notdef put" for compatibility   */
-            /* with Acrobat 5.0.                               */
+            /* We didn't mark anything for the Encoding array.
+            We add \.{dup 0 /.notdef put} for compatibility with Acrobat 5.0. */
             t1_puts(pdf, "dup 0 /.notdef put\n");
         t1_puts(pdf, "readonly def\n");
     }
@@ -1368,6 +1400,8 @@ static void t1_subset_ascii_part(PDF pdf)
 }
 
 
+@
+@c
 static void cs_init(void)
 {
     cs_ptr = cs_tab = NULL;
@@ -1389,6 +1423,8 @@ static void init_cs_entry(cs_entry * cs)
     cs->valid = false;
 }
 
+@
+@c
 static void t1_read_subrs(PDF pdf)
 {
     int i, s;
@@ -1406,7 +1442,7 @@ static void t1_read_subrs(PDF pdf)
     if (!t1_subrs())
         return;
     subr_size_pos = strlen("/Subrs") + 1;
-    /* subr_size_pos points to the number indicating dict size after "/Subrs" */
+    /* |subr_size_pos| points to the number indicating dict size after |"Subrs"| */
     subr_size = (int) t1_scan_num(t1_line_array + subr_size_pos, 0);
     if (subr_size == 0) {
         while (!t1_charstrings())
@@ -1426,9 +1462,9 @@ static void t1_read_subrs(PDF pdf)
     for (i = 0; i < subr_size && i < 4; i++)
         subr_tab[i].used = true;
     /* the end of the Subrs array might have more than one line so we need to
-       concatnate them to subr_array_end. Unfortunately some fonts don't have
+       concatenate them to |subr_array_end|. Unfortunately some fonts don't have
        the Subrs array followed by the CharStrings dict immediately (synthetic
-       fonts). If we cannot find CharStrings in next POST_SUBRS_SCAN lines then
+       fonts). If we cannot find CharStrings in next |POST_SUBRS_SCAN| lines then
        we will treat the font as synthetic and ignore everything until next
        Subrs is found
      */
@@ -1461,6 +1497,8 @@ static void t1_read_subrs(PDF pdf)
     }
 }
 
+@
+@c
 #define t1_subr_flush()  t1_flush_cs(pdf, true)
 #define t1_cs_flush()    t1_flush_cs(pdf, false)
 
@@ -1498,12 +1536,12 @@ static void t1_flush_cs(PDF pdf, boolean is_subr)
     t1_putline(pdf);
 
     cs_len = 0;                 /* for -Wall */
-    /* create return_cs to replace unsused subr's */
+    /* create |return_cs| to replace unsused subr's */
     if (is_subr) {
         cr = 4330;
         cs_len = 0;
-        /* at this point we have t1_lenIV >= 0;
-         * a negative value would be caught in t1_scan_param() */
+        /* at this point we have |t1_lenIV >= 0;|
+         a negative value would be caught in |t1_scan_param| */
         return_cs = xtalloc((unsigned) (t1_lenIV + 1), byte);
         for (cs_len = 0, r = return_cs; cs_len < t1_lenIV; cs_len++, r++)
             *r = cencrypt(0x00, &cr);
@@ -1523,7 +1561,7 @@ static void t1_flush_cs(PDF pdf, boolean is_subr)
             t1_line_ptr = p + ptr->len;
             t1_putline(pdf);
         } else {
-            /* replace unsused subr's by return_cs */
+            /* replace unsused subr's by |return_cs| */
             if (is_subr) {
                 sprintf(t1_line_array, "dup %li %u%s ", (long int) (ptr - tab),
                         cs_len, cs_token_pair[0]);
@@ -1550,6 +1588,8 @@ static void t1_flush_cs(PDF pdf, boolean is_subr)
     xfree(line_end);
 }
 
+@
+@c
 static void t1_mark_glyphs(void)
 {
     char *glyph;
@@ -1581,14 +1621,16 @@ static void t1_mark_glyphs(void)
 }
 
 
+@
+@c
 static void t1_subset_charstrings(PDF pdf)
 {
     cs_entry *ptr;
     cs_size_pos = (int) (strstr(t1_line_array,
                                 charstringname) + strlen(charstringname) -
                          t1_line_array + 1);
-    /* cs_size_pos points to the number indicating
-       dict size after "/CharStrings" */
+    /* |cs_size_pos| points to the number indicating
+       dict size after |"/CharStrings"| */
     cs_size = (int) t1_scan_num(t1_line_array + cs_size_pos, 0);
     cs_ptr = cs_tab = xtalloc((unsigned) cs_size, cs_entry);
     for (ptr = cs_tab; ptr - cs_tab < cs_size; ptr++)
@@ -1614,18 +1656,20 @@ static void t1_subset_charstrings(PDF pdf)
     t1_cs_flush();
 }
 
+@
+@c
 static void t1_subset_end(PDF pdf)
 {
-    if (t1_synthetic) {         /* copy to "dup /FontName get exch definefont pop" */
+    if (t1_synthetic) {         /* copy to \.{dup /FontName get exch definefont pop} */
         while (!strstr(t1_line_array, "definefont")) {
             t1_getline();
             t1_putline(pdf);
         }
         while (!t1_end_eexec())
             t1_getline();       /* ignore the rest */
-        t1_putline(pdf);        /* write "mark currentfile closefile" */
+        t1_putline(pdf);        /* write \.{mark currentfile closefile} */
     } else
-        while (!t1_end_eexec()) {       /* copy to "mark currentfile closefile" */
+        while (!t1_end_eexec()) {       /* copy to \.{mark currentfile closefile} */
             t1_getline();
             t1_putline(pdf);
         }
@@ -1635,15 +1679,17 @@ static void t1_subset_end(PDF pdf)
             t1_getline();
             t1_putline(pdf);
         }
-        if (!t1_synthetic)      /* don't check "{restore}if" for synthetic fonts */
-            t1_check_end(pdf);  /* write "{restore}if" if found */
+        if (!t1_synthetic)      /* don't check \.{{restore}if} for synthetic fonts */
+            t1_check_end(pdf);  /* write \.{{restore}if} if found */
     }
     get_length3();
 }
 
+@
+@c
 void writet1(PDF pdf, fd_entry * fd)
 {
-    fd_cur = fd;                /* fd_cur is global inside writet1.c */
+    fd_cur = fd;                /* |fd_cur| is global inside \.{writet1.w} */
     assert(fd_cur->fm != NULL);
     assert(is_type1(fd->fm));
     assert(is_included(fd->fm));
@@ -1671,6 +1717,8 @@ void writet1(PDF pdf, fd_entry * fd)
     xfree(t1_buffer);
 }
 
+@
+@c
 void t1_free(void)
 {
     xfree(t1_line_array);

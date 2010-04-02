@@ -1,32 +1,35 @@
+% tounicode.w
+
+% Copyright 2006 Han The Thanh, <thanh@@pdftex.org>
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* tounicode.c
-   Copyright 2006 Han The Thanh, <thanh@@pdftex.org>
-   Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+"$URL$";
 
+@ @c
 #define isXdigit(c) (isdigit(c) || ('A' <= (c) && (c) <= 'F'))
 #define UNI_UNDEF          -1
-#define UNI_STRING         -2   /* string allocated by def_tounicode() */
-#define UNI_EXTRA_STRING   -3   /* string allocated by set_glyph_unicode() */
+#define UNI_STRING         -2   /* string allocated by |def_tounicode()| */
+#define UNI_EXTRA_STRING   -3   /* string allocated by |set_glyph_unicode()| */
 
 static struct avl_table *glyph_unicode_tree = NULL;
 
@@ -64,6 +67,7 @@ void glyph_unicode_free(void)
         avl_destroy(glyph_unicode_tree, destroy_glyph_unicode_entry);
 }
 
+@ @c
 void def_tounicode(str_number glyph, str_number unistr)
 {
     char buf[SMALL_BUF_SIZE], *p, *ph;
@@ -132,6 +136,7 @@ void def_tounicode(str_number glyph, str_number unistr)
 }
 
 
+@ @c
 static long check_unicode_value(char *s, boolean multiple_value)
 {
     int l = (int) strlen(s);
@@ -169,6 +174,7 @@ static long check_unicode_value(char *s, boolean multiple_value)
     return code;
 }
 
+@ @c
 static char *utf16be_str(long code)
 {
     static char buf[SMALL_BUF_SIZE];
@@ -189,9 +195,10 @@ static char *utf16be_str(long code)
 }
 
 
-/* this function set proper values to *gp based on s; in case it returns
- * gp->code == UNI_EXTRA_STRING then the caller is responsible for freeing
- * gp->unicode_seq too */
+@ This function set proper values to |*gp| based on |s|; in case it returns
+ |gp->code == UNI_EXTRA_STRING| then the caller is responsible for freeing
+ |gp->unicode_seq| too.
+@c
 static void set_glyph_unicode(char *s, glyph_unicode_entry * gp)
 {
     char buf[SMALL_BUF_SIZE], buf2[SMALL_BUF_SIZE], *p;
@@ -214,7 +221,7 @@ static void set_glyph_unicode(char *s, glyph_unicode_entry * gp)
     if (strlen(s) == 0)
         return;
 
-    /* check for case of multiple components separated by '_' */
+    /* check for case of multiple components separated by |'_'| */
     p = strchr(s, '_');
     if (p != NULL) {
         assert(strlen(s) < sizeof(buf));
@@ -297,6 +304,7 @@ static void set_glyph_unicode(char *s, glyph_unicode_entry * gp)
     }
 }
 
+@ @c
 static void set_cid_glyph_unicode(long index, glyph_unicode_entry * gp,
                                   internal_font_number f)
 {
@@ -311,6 +319,7 @@ static void set_cid_glyph_unicode(long index, glyph_unicode_entry * gp,
 }
 
 
+@ @c
 int write_tounicode(PDF pdf, char **glyph_names, char *name)
 {
     char buf[SMALL_BUF_SIZE], *p;
@@ -322,7 +331,9 @@ int write_tounicode(PDF pdf, char **glyph_names, char *name)
     int bfchar_count, bfrange_count, subrange_count;
     assert(strlen(name) + strlen(builtin_suffix) < SMALL_BUF_SIZE);
     if (glyph_unicode_tree == NULL) {
-        /*pdftex_warn("no GlyphToUnicode entry has been inserted yet!"); */
+#ifdef DEBUG
+        pdftex_warn("no GlyphToUnicode entry has been inserted yet!");
+#endif
         pdf->gen_tounicode = 0;
         return 0;
     }
@@ -335,24 +346,24 @@ int write_tounicode(PDF pdf, char **glyph_names, char *name)
     objnum = pdf_new_objnum(pdf);
     pdf_begin_dict(pdf, objnum, 0);
     pdf_begin_stream(pdf);
-    pdf_printf(pdf, "%%!PS-Adobe-3.0 Resource-CMap\n"
-               "%%%%DocumentNeededResources: ProcSet (CIDInit)\n"
-               "%%%%IncludeResource: ProcSet (CIDInit)\n"
-               "%%%%BeginResource: CMap (TeX-%s-0)\n"
-               "%%%%Title: (TeX-%s-0 TeX %s 0)\n"
-               "%%%%Version: 1.000\n"
-               "%%%%EndComments\n"
-               "/CIDInit /ProcSet findresource begin\n"
-               "12 dict begin\n"
-               "begincmap\n"
-               "/CIDSystemInfo\n"
-               "<< /Registry (TeX)\n"
-               "/Ordering (%s)\n"
-               "/Supplement 0\n"
-               ">> def\n"
-               "/CMapName /TeX-%s-0 def\n"
-               "/CMapType 2 def\n"
-               "1 begincodespacerange\n"
+    pdf_printf(pdf, "%%!PS-Adobe-3.0 Resource-CMap\n"@/
+               "%%%%DocumentNeededResources: ProcSet (CIDInit)\n"@/
+               "%%%%IncludeResource: ProcSet (CIDInit)\n"@/
+               "%%%%BeginResource: CMap (TeX-%s-0)\n"@/
+               "%%%%Title: (TeX-%s-0 TeX %s 0)\n"@/
+               "%%%%Version: 1.000\n"@/
+               "%%%%EndComments\n"@/
+               "/CIDInit /ProcSet findresource begin\n"@/
+               "12 dict begin\n"@/
+               "begincmap\n"@/
+               "/CIDSystemInfo\n"@/
+               "<< /Registry (TeX)\n"@/
+               "/Ordering (%s)\n"@/
+               "/Supplement 0\n"@/
+               ">> def\n"@/
+               "/CMapName /TeX-%s-0 def\n"@/
+               "/CMapType 2 def\n"@/
+               "1 begincodespacerange\n"@/
                "<00> <FF>\n" "endcodespacerange\n", buf, buf, buf, buf, buf);
 
     /* set gtab */
@@ -362,7 +373,7 @@ int write_tounicode(PDF pdf, char **glyph_names, char *name)
     }
     gtab[256].code = UNI_UNDEF;
 
-    /* set range_size */
+    /* set |range_size| */
     for (i = 0; i < 256;) {
         if (gtab[i].code == UNI_STRING || gtab[i].code == UNI_EXTRA_STRING) {
             range_size[i] = 1;  /* single entry */
@@ -381,7 +392,7 @@ int write_tounicode(PDF pdf, char **glyph_names, char *name)
         }
     }
 
-    /* calculate bfrange_count and bfchar_count */
+    /* calculate |bfrange_count| and |bfchar_count| */
     bfrange_count = 0;
     bfchar_count = 0;
     for (i = 0; i < 256;) {
@@ -431,7 +442,7 @@ int write_tounicode(PDF pdf, char **glyph_names, char *name)
                 i += range_size[i];
             else if (range_size[i] == 0)
                 i++;
-            else                /* range_size[i] == 1 */
+            else                /* |range_size[i] == 1| */
                 break;
         }
         assert(i < 256 && gtab[i].code != UNI_UNDEF);
@@ -446,7 +457,7 @@ int write_tounicode(PDF pdf, char **glyph_names, char *name)
     if (bfchar_count > 0)
         goto write_bfchar;
 
-    /* free strings allocated by set_glyph_unicode() */
+    /* free strings allocated by |set_glyph_unicode()| */
     for (i = 0; i < 256; ++i) {
         if (gtab[i].code == UNI_EXTRA_STRING)
             xfree(gtab[i].unicode_seq);
@@ -459,6 +470,7 @@ int write_tounicode(PDF pdf, char **glyph_names, char *name)
     return objnum;
 }
 
+@ @c
 int write_cid_tounicode(PDF pdf, fo_entry * fo, internal_font_number f)
 {
 
@@ -478,25 +490,25 @@ int write_cid_tounicode(PDF pdf, fo_entry * fo, internal_font_number f)
     objnum = pdf_new_objnum(pdf);
     pdf_begin_dict(pdf, objnum, 0);
     pdf_begin_stream(pdf);
-    pdf_printf(pdf, "%%!PS-Adobe-3.0 Resource-CMap\n"
-               "%%%%DocumentNeededResources: ProcSet (CIDInit)\n"
-               "%%%%IncludeResource: ProcSet (CIDInit)\n"
-               "%%%%BeginResource: CMap (TeX-%s-0)\n"
-               "%%%%Title: (TeX-%s-0 TeX %s 0)\n"
-               "%%%%Version: 1.000\n"
-               "%%%%EndComments\n"
-               "/CIDInit /ProcSet findresource begin\n"
-               "12 dict begin\n"
-               "begincmap\n"
-               "/CIDSystemInfo\n"
-               "<< /Registry (TeX)\n"
-               "/Ordering (%s)\n"
-               "/Supplement 0\n"
-               ">> def\n"
-               "/CMapName /TeX-Identity-%s def\n"
-               "/CMapType 2 def\n"
-               "1 begincodespacerange\n"
-               "<0000> <FFFF>\n"
+    pdf_printf(pdf, "%%!PS-Adobe-3.0 Resource-CMap\n"@/
+               "%%%%DocumentNeededResources: ProcSet (CIDInit)\n"@/
+               "%%%%IncludeResource: ProcSet (CIDInit)\n"@/
+               "%%%%BeginResource: CMap (TeX-%s-0)\n"@/
+               "%%%%Title: (TeX-%s-0 TeX %s 0)\n"@/
+               "%%%%Version: 1.000\n"@/
+               "%%%%EndComments\n"@/
+               "/CIDInit /ProcSet findresource begin\n"@/
+               "12 dict begin\n"@/
+               "begincmap\n"@/
+               "/CIDSystemInfo\n"@/
+               "<< /Registry (TeX)\n"@/
+               "/Ordering (%s)\n"@/
+               "/Supplement 0\n"@/
+               ">> def\n"@/
+               "/CMapName /TeX-Identity-%s def\n"@/
+               "/CMapType 2 def\n"@/
+               "1 begincodespacerange\n"@/
+               "<0000> <FFFF>\n"@/
                "endcodespacerange\n", buf, buf, buf, buf, buf);
     xfree(buf);
     /* set up gtab */
@@ -516,7 +528,7 @@ int write_cid_tounicode(PDF pdf, fo_entry * fo, internal_font_number f)
         }
     }
 
-    /* set range_size */
+    /* set |range_size| */
     for (i = 0; i < 65536;) {
         if (gtab[i].code == UNI_STRING || gtab[i].code == UNI_EXTRA_STRING) {
             range_size[i] = 1;  /* single entry */
@@ -524,7 +536,7 @@ int write_cid_tounicode(PDF pdf, fo_entry * fo, internal_font_number f)
         } else if (gtab[i].code == UNI_UNDEF) {
             range_size[i] = 0;  /* no entry */
             i++;
-        } else {                /* gtab[i].code >= 0 */
+        } else {                /* |gtab[i].code >= 0| */
             j = i;
             while (i < 65536 && gtab[i + 1].code >= 0 &&
                    gtab[i].code + 1 == gtab[i + 1].code)
@@ -535,7 +547,7 @@ int write_cid_tounicode(PDF pdf, fo_entry * fo, internal_font_number f)
         }
     }
 
-    /* calculate bfrange_count and bfchar_count */
+    /* calculate |bfrange_count| and |bfchar_count| */
     bfrange_count = 0;
     bfchar_count = 0;
     for (i = 0; i < 65536;) {
@@ -585,7 +597,7 @@ int write_cid_tounicode(PDF pdf, fo_entry * fo, internal_font_number f)
                 i += range_size[i];
             else if (range_size[i] == 0)
                 i++;
-            else                /* range_size[i] == 1 */
+            else                /* |range_size[i] == 1| */
                 break;
         }
         assert(i < 65536 && gtab[i].code != UNI_UNDEF);
@@ -600,7 +612,7 @@ int write_cid_tounicode(PDF pdf, fo_entry * fo, internal_font_number f)
     if (bfchar_count > 0)
         goto write_bfchar;
 
-    /* free strings allocated by set_glyph_unicode() */
+    /* free strings allocated by |set_glyph_unicode()| */
     for (i = 0; i < 65536; ++i) {
         if (gtab[i].code == UNI_EXTRA_STRING)
             xfree(gtab[i].unicode_seq);

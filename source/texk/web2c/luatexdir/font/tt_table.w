@@ -1,50 +1,46 @@
+% tt_table.w
+%  
+% Copyright 2002 by Jin-Hwan Cho and Shunsaku Hirata,
+% the dvipdfmx project team <dvipdfmx@@project.ktug.or.kr>
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
 @ @c
-/* tt_table.c
-    
-   Copyright 2002 by Jin-Hwan Cho and Shunsaku Hirata,
-   the dvipdfmx project team <dvipdfmx@@project.ktug.or.kr>
-   Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include <stdio.h>
 
-#ifndef pdfTeX
-#  include "system.h"
-#  include "error.h"
-#  include "mem.h"
-#  include "mfileio.h"
-#else
-#  include "ptexlib.h"
-#endif
-
+#include "ptexlib.h"
 #include "font/sfnt.h"
 #include "font/tt_table.h"
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+"$URL$";
 
-/*
-  tables contains information refered by other tables
-  maxp->numGlyphs, etc --> loca, etc
-  hhea->numberOfHMetrics --> hmtx
-  head->indexToLocFormat --> loca
-  head->glyphDataFormat --> glyf
-*/
+@ tables contains information refered by other tables
 
+  |maxp->numGlyphs, etc --> loca, etc|
+
+  |hhea->numberOfHMetrics --> hmtx|
+
+  |head->indexToLocFormat --> loca|
+
+  |head->glyphDataFormat --> glyf|
+
+@c
 char *tt_pack_head_table(struct tt_head_table *table)
 {
     int i;
@@ -217,7 +213,8 @@ struct tt_hhea_table *tt_read_hhea_table(sfnt * sfont)
     return table;
 }
 
-/* vhea */
+@ vhea 
+@c
 char *tt_pack_vhea_table(struct tt_vhea_table *table)
 {
     int i;
@@ -305,12 +302,12 @@ struct tt_VORG_table *tt_read_VORG_table(sfnt * sfont)
     return vorg;
 }
 
-/*
- * hmtx and vmtx
- *
- *  Reading/writing hmtx and vmtx depend on other tables, maxp and hhea/vhea.
- */
 
+@ hmtx and vmtx
+
+Reading/writing hmtx and vmtx depend on other tables, maxp and hhea/vhea.
+
+@c
 struct tt_longMetrics *tt_read_longMetrics(sfnt * sfont, USHORT numGlyphs,
                                            USHORT numLongMetrics)
 {
@@ -328,8 +325,10 @@ struct tt_longMetrics *tt_read_longMetrics(sfnt * sfont, USHORT numGlyphs,
     return m;
 }
 
-/* OS/2 table */
-/* this table may not exist */
+@ OS/2 table
+
+this table may not exist 
+@c
 struct tt_os2__table *tt_read_os2__table(sfnt * sfont)
 {
     struct tt_os2__table *table = NULL;
@@ -440,18 +439,6 @@ USHORT tt_get_ps_fontname(sfnt * sfont, char *dest, USHORT destlen)
 {
     USHORT namelen = 0;
 
-#ifdef XETEX
-
-    const char *name = FT_Get_Postscript_Name(sfont->ft_face);
-    namelen = strlen(name);
-    if (namelen > destlen - 1) {
-        strncpy(dest, name, destlen - 1);
-        dest[destlen] = 0;
-    } else
-        strcpy(dest, name);
-
-#else
-
     /* First try Mac-Roman PS name and then Win-Unicode PS name */
     if ((namelen = tt_get_name(sfont, dest, destlen, 1, 0, 0, 6)) != 0 ||
         (namelen = tt_get_name(sfont, dest, destlen, 3, 1, 0x409u, 6)) != 0 ||
@@ -471,7 +458,6 @@ USHORT tt_get_ps_fontname(sfnt * sfont, char *dest, USHORT destlen)
          */
         namelen = tt_get_name(sfont, dest, destlen, 1, 0, 0, 1);
     }
-#endif
 
     return namelen;
 }

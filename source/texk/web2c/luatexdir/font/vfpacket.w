@@ -1,40 +1,40 @@
+% vfpacket.w
+
+% Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
+% Copyright 2006-2009 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* vfpacket.c
-
-   Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
-/*
-  The |do_vf_packet| procedure is called in order to interpret the
+
+@ The |do_vf_packet| procedure is called in order to interpret the
   character packet for a virtual character. Such a packet may contain
   the instruction to typeset a character from the same or an other
   virtual font; in such cases |do_vf_packet| calls itself
   recursively. The recursion level, i.e., the number of times this has
   happened, is kept in the global variable |packet_cur_s| and should
   not exceed |packet_max_recursion|.
-*/
 
+@c
 #define packet_max_recursion 100
 
 typedef unsigned char packet_stack_index;       /* an index into the stack */
@@ -50,8 +50,8 @@ static packet_stack_record packet_stack[packet_max_recursion];
 static packet_stack_index packet_stack_ptr = 0; /* pointer into |packet_stack| */
 
 
-/* Some macros for processing character packets. */
-
+@ Some macros for processing character packets. 
+@c
 #define do_packet_byte() vf_packets[cur_packet_byte++]
 
 #define packet_number(fw)  {              \
@@ -69,7 +69,8 @@ static packet_stack_index packet_stack_ptr = 0; /* pointer into |packet_stack| *
     a = store_scaled_f(fw, fs); }
 
 
-/* count the number of bytes in a command packet */
+@ count the number of bytes in a command packet 
+@c
 int vf_packet_bytes(charinfo * co)
 {
     eight_bits *vf_packets;
@@ -115,9 +116,9 @@ int vf_packet_bytes(charinfo * co)
 }
 
 
-/* typeset the \.{DVI} commands in the
-   character packet for character |c| in current font |f| */
-
+@ typeset the \.{DVI} commands in the
+   character packet for character |c| in current font |f| 
+@c
 const char *packet_command_names[] = {
     "char", "font", "pop", "push", "special", "image",
     "right", "down", "rule", "node", "nop", "end", NULL
@@ -159,13 +160,13 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c)
     fs_f = font_size(vf_f);
     while ((cmd = vf_packets[cur_packet_byte]) != packet_end_code) {
         cur_packet_byte++;
-        /*
+#ifdef DEBUG
            if (cmd>packet_end_code) {
            fprintf(stdout, "do_vf_packet(%i,%i) command code = illegal \n", vf_f,c);
            } else {
            fprintf(stdout, "do_vf_packet(%i,%i) command code = %s\n",vf_f, c, packet_command_names[cmd]);
            }
-         */
+#endif
         switch (cmd) {
         case packet_font_code:
             packet_number(lf);
@@ -237,6 +238,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c)
     pdf->posstruct = refpos;
 }
 
+@ @c
 int *packet_local_fonts(internal_font_number f, int *num)
 {
     int c, cmd, cur_packet_byte, lf, k, l, i;
@@ -304,6 +306,7 @@ int *packet_local_fonts(internal_font_number f, int *num)
 }
 
 
+@ @c
 void
 replace_packet_fonts(internal_font_number f, int *old_fontid,
                      int *new_fontid, int count)

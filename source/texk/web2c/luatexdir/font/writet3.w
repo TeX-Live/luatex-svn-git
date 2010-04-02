@@ -1,27 +1,27 @@
+% writet3.w
+
+% Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* writet3.c
-
-   Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
-   Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 static const char _svn_version[] =
     "$Id$ "
-    "$URL$";
+"$URL$";
 
 #include "ptexlib.h"
 #include <kpathsea/tex-glyph.h>
@@ -52,7 +52,8 @@ int t3_curbyte = 0;
     if (t3_eof())                                          \
         pdftex_fail("unexpected end of file");
 
-
+@
+@c
 static void update_bbox(int llx, int lly, int urx, int ury,
                         boolean is_first_glyph)
 {
@@ -90,6 +91,8 @@ static int pk_char_width(internal_font_number f, scaled w, int precision,
                       get_pk_font_scale(f, precision, scale_factor), 0);
 }
 
+@
+@c
 static boolean writepk(PDF pdf, internal_font_number f)
 {
     kpse_glyph_file_type font_ret;
@@ -219,6 +222,8 @@ static boolean writepk(PDF pdf, internal_font_number f)
     return true;
 }
 
+@
+@c
 void writet3(PDF pdf, internal_font_number f)
 {
 

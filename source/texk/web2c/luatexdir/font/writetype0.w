@@ -1,30 +1,32 @@
+% writetype0.w
+% 
+% Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* writetype0.c
-   
-   Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 #include "font/writettf.h"
 #include "font/writecff.h"
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+"$URL$";
 
+@ @c
 void writetype0(PDF pdf, fd_entry * fd)
 {
     int callback_id;
@@ -36,7 +38,7 @@ void writetype0(PDF pdf, fd_entry * fd)
     dir_tab = NULL;
     glyph_tab = NULL;
 
-    fd_cur = fd;                /* fd_cur is global inside writettf.c */
+    fd_cur = fd;                /* |fd_cur| is global inside \.{writettf.w} */
     assert(fd_cur->fm != NULL);
     assert(is_opentype(fd_cur->fm));
     assert(is_included(fd_cur->fm));
@@ -96,10 +98,10 @@ void writetype0(PDF pdf, fd_entry * fd)
         if (cff != NULL) {
             if (cff_is_cidfont(cff)) {
                 write_cid_cff(pdf, cff, fd_cur);
-                /*
+#if 0
                    for (i = tab->length; i > 0; i--)
                    fb_putchar (ttf_getnum(1));
-                 */
+#endif
             } else {
                 write_cff(pdf, cff, fd_cur);
             }

@@ -1,168 +1,61 @@
-@ @c
-/* sfnt.c
-    
-   Copyright 2002 by Jin-Hwan Cho and Shunsaku Hirata,
-   the dvipdfmx project team <dvipdfmx@@project.ktug.or.kr>
-   Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
+% sfnt.w
+%  
+% Copyright 2002 by Jin-Hwan Cho and Shunsaku Hirata,
+% the dvipdfmx project team <dvipdfmx@@project.ktug.or.kr>
+% Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
-/* Based on dvipdfmx-0.13.2c */
+@ Based on dvipdfmx-0.13.2c
+@c
 
 #if  HAVE_CONFIG_H
 #  include "config.h"
-#endif                          /* HAVE_CONFIG_H_ */
+#endif                          /* |HAVE_CONFIG_H_| */
 
 #include <string.h>
 
-#ifndef pdfTeX
-#  include "system.h"
-
-#  include "error.h"
-#  include "mem.h"
-#  include "mfileio.h"
-#else
 #  include "ptexlib.h"
-#endif
-
 #include "font/sfnt.h"
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
-
-#ifdef XETEX
-UNSIGNED_BYTE ft_unsigned_byte(sfnt * f)
-{
-    unsigned char byte;
-    unsigned long length = 1;
-
-    if (FT_Load_Sfnt_Table(f->ft_face, 0, f->loc, &byte, &length) != 0)
-        TT_ERROR("sfnt: Freetype failure...");
-    f->loc += 1;
-
-    return byte;
-}
-
-SIGNED_BYTE ft_signed_byte(sfnt * f)
-{
-    int b = ft_unsigned_byte(f);
-    if (b >= 0x80)
-        b -= 0x100;
-    return (SIGNED_BYTE) b;
-}
-
-UNSIGNED_PAIR ft_unsigned_pair(sfnt * f)
-{
-    unsigned char buf[2];
-    unsigned long length = 2;
-
-    if (FT_Load_Sfnt_Table(f->ft_face, 0, f->loc, buf, &length) != 0)
-        TT_ERROR("sfnt: Freetype failure...");
-    f->loc += 2;
-
-    return (UNSIGNED_PAIR) ((unsigned) buf[0] << 8) + buf[1];
-}
-
-SIGNED_PAIR ft_signed_pair(sfnt * f)
-{
-    int p = ft_unsigned_pair(f);
-    if (p >= 0x8000U)
-        p -= 0x10000U;
-
-    return (SIGNED_PAIR) p;
-}
-
-UNSIGNED_QUAD ft_unsigned_quad(sfnt * f)
-{
-    unsigned char buf[4];
-    unsigned long length = 4;
-
-    if (FT_Load_Sfnt_Table(f->ft_face, 0, f->loc, buf, &length) != 0)
-        TT_ERROR("sfnt: Freetype failure...");
-    f->loc += 4;
-
-    return ((unsigned long) buf[0] << 24) + ((unsigned long) buf[1] << 16)
-        + ((unsigned long) buf[2] << 8) + (unsigned long) buf[3];
-}
-
-unsigned long ft_read(unsigned char *buf, unsigned long len, sfnt * f)
-{
-    unsigned long length = len;
-    if (FT_Load_Sfnt_Table(f->ft_face, 0, f->loc, buf, &length) != 0)
-        TT_ERROR("sfnt: Freetype failure...");
-    f->loc += len;
-
-    return length;
-}
-#endif
+    "$Id$ "
+"$URL$";
 
 
-/*
- * type:
- *  `true' (0x74727565): TrueType (Mac)
- *  `typ1' (0x74797031) (Mac): PostScript font housed in a sfnt wrapper
- *  0x00010000: TrueType (Win)/OpenType
- *  `OTTO': PostScript CFF font with OpenType wrapper
- *  `ttcf': TrueType Collection
-*/
+
+@ type:
+
+ `true' (0x74727565): TrueType (Mac)
+
+ `typ1' (0x74797031) (Mac): PostScript font housed in a sfnt wrapper
+
+ 0x00010000: TrueType (Win)/OpenType
+
+ `OTTO': PostScript CFF font with OpenType wrapper
+
+ `ttcf': TrueType Collection
+
+@c
 #define SFNT_TRUETYPE   0x00010000UL
 #define SFNT_MAC_TRUE 0x74727565UL
 #define SFNT_OPENTYPE   0x00010000UL
 #define SFNT_POSTSCRIPT 0x4f54544fUL
 #define SFNT_TTC        0x74746366UL
 
-#ifdef XETEX
-sfnt *sfnt_open(FT_Face face, int accept_types)
-{
-    sfnt *sfont;
-    ULONG type;
-
-    if (!face || !FT_IS_SFNT(face))
-        return NULL;
-
-    sfont = NEW(1, sfnt);
-    sfont->ft_face = face;
-    sfont->loc = 0;
-    sfont->type = 0;
-
-    type = sfnt_get_ulong(sfont);
-
-    if (type == SFNT_TRUETYPE || type == SFNT_MAC_TRUE) {
-        sfont->type = SFNT_TYPE_TRUETYPE;
-    } else if (type == SFNT_OPENTYPE) {
-        sfont->type = SFNT_TYPE_OPENTYPE;
-    } else if (type == SFNT_POSTSCRIPT) {
-        sfont->type = SFNT_TYPE_POSTSCRIPT;
-    } else if (type == SFNT_TTC) {
-        sfont->type = SFNT_TYPE_TTC;
-    }
-
-    if ((sfont->type & accept_types) == 0) {
-        RELEASE(sfont);
-        return NULL;
-    }
-
-    sfont->loc = 0;
-
-    sfont->directory = NULL;
-
-    return sfont;
-}
-#else                           /* not XETEX */
-#  ifdef pdfTeX
 sfnt *sfnt_open(unsigned char *buffer, int buflen)
 {
     sfnt *sfont;
@@ -189,40 +82,6 @@ sfnt *sfnt_open(unsigned char *buffer, int buflen)
     sfont->directory = NULL;
     return sfont;
 }
-#  else
-sfnt *sfnt_open(FILE * fp)
-{
-    sfnt *sfont;
-    ULONG type;
-
-    ASSERT(fp);
-
-    rewind(fp);
-
-    sfont = NEW(1, sfnt);
-
-    sfont->stream = fp;
-
-    type = sfnt_get_ulong(sfont);
-
-    if (type == SFNT_TRUETYPE || type == SFNT_MAC_TRUE) {
-        sfont->type = SFNT_TYPE_TRUETYPE;
-    } else if (type == SFNT_OPENTYPE) {
-        sfont->type = SFNT_TYPE_OPENTYPE;
-    } else if (type == SFNT_POSTSCRIPT) {
-        sfont->type = SFNT_TYPE_POSTSCRIPT;
-    } else if (type == SFNT_TTC) {
-        sfont->type = SFNT_TYPE_TTC;
-    }
-
-    rewind(sfont->stream);
-
-    sfont->directory = NULL;
-
-    return sfont;
-}
-#  endif
-#endif
 
 static void release_directory(struct sfnt_table_directory *td)
 {
@@ -270,9 +129,9 @@ int put_big_endian(void *s, LONG q, int n)
     return n;
 }
 
-/* Convert four-byte number to big endianess
- * in a machine independent way.
- */
+@ Convert four-byte number to big endianess in a machine independent way.
+
+@c
 static void convert_tag(char *tag, unsigned long u_tag)
 {
     int i;
@@ -285,9 +144,10 @@ static void convert_tag(char *tag, unsigned long u_tag)
     return;
 }
 
-/*
- * Computes the max power of 2 <= n
- */
+
+@ Computes the max power of 2 <= n
+ 
+@c
 static unsigned max2floor(unsigned n)
 {
     int val = 1;
@@ -300,9 +160,10 @@ static unsigned max2floor(unsigned n)
     return (unsigned) val;
 }
 
-/*
- * Computes the log2 of the max power of 2 <= n
- */
+
+@ Computes the log2 of the max power of 2 <= n
+
+@c
 static unsigned log2floor(unsigned n)
 {
     unsigned val = 0;
@@ -315,6 +176,7 @@ static unsigned log2floor(unsigned n)
     return val;
 }
 
+@ @c
 static ULONG sfnt_calc_checksum(void *data, ULONG length)
 {
     ULONG chksum = 0;
@@ -332,6 +194,7 @@ static ULONG sfnt_calc_checksum(void *data, ULONG length)
     return chksum;
 }
 
+@ @c
 static int find_table_index(struct sfnt_table_directory *td, const char *tag)
 {
     int idx;
@@ -347,6 +210,7 @@ static int find_table_index(struct sfnt_table_directory *td, const char *tag)
     return -1;
 }
 
+@ @c
 void sfnt_set_table(sfnt * sfont, const char *tag, void *data, ULONG length)
 {
     struct sfnt_table_directory *td;
@@ -372,6 +236,7 @@ void sfnt_set_table(sfnt * sfont, const char *tag, void *data, ULONG length)
     return;
 }
 
+@ @c
 ULONG sfnt_find_table_len(sfnt * sfont, const char *tag)
 {
     ULONG length;
@@ -391,6 +256,7 @@ ULONG sfnt_find_table_len(sfnt * sfont, const char *tag)
     return length;
 }
 
+@ @c
 ULONG sfnt_find_table_pos(sfnt * sfont, const char *tag)
 {
     ULONG offset;
@@ -410,6 +276,7 @@ ULONG sfnt_find_table_pos(sfnt * sfont, const char *tag)
     return offset;
 }
 
+@ @c
 ULONG sfnt_locate_table(sfnt * sfont, const char *tag)
 {
     ULONG offset;
@@ -425,6 +292,7 @@ ULONG sfnt_locate_table(sfnt * sfont, const char *tag)
     return offset;
 }
 
+@ @c
 int sfnt_read_table_directory(sfnt * sfont, ULONG offset)
 {
     struct sfnt_table_directory *td;
@@ -436,14 +304,7 @@ int sfnt_read_table_directory(sfnt * sfont, ULONG offset)
         release_directory(sfont->directory);
     sfont->directory = td = NEW(1, struct sfnt_table_directory);
 
-#ifdef XETEX
-    ASSERT(sfont->ft_face);
-#elif defined(pdfTeX)
     ASSERT(sfont->buffer);
-#else
-    ASSERT(sfont->stream);
-#endif
-
     sfnt_seek_set(sfont, (long) offset);
 
     td->version = sfnt_get_ulong(sfont);
@@ -472,6 +333,7 @@ int sfnt_read_table_directory(sfnt * sfont, ULONG offset)
     return 0;
 }
 
+@ @c
 int sfnt_require_table(sfnt * sfont, const char *tag, int must_exist)
 {
     struct sfnt_table_directory *td;
@@ -492,36 +354,28 @@ int sfnt_require_table(sfnt * sfont, const char *tag, int must_exist)
     return 0;
 }
 
-#ifndef pdfTeX
-#  include "pdfobj.h"
-#endif
 
-/* 
- * o All tables begin on four byte boundries, and pad any remaining space
- *   between tables with zeros
- *
- * o Entries in the Table Directory must be sorted in ascending order by tag
- *
- * o The head table contains checksum of the whole font file.
- *   To compute:  first set it to 0, sum the entire font as ULONG,
- *   then store 0xB1B0AFBA - sum.
- */
 
-#ifdef pdfTeX
+@ All tables begin on four byte boundries, and pad any remaining space
+  between tables with zeros
+
+  Entries in the Table Directory must be sorted in ascending order by tag
+
+  The head table contains checksum of the whole font file.
+  To compute:  first set it to 0, sum the entire font as ULONG,
+  then store 0xB1B0AFBA - sum.
+
+@c
 #  include "font/luatexfont.h"
 #  undef MIN
 #  define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #  define STREAM_COMPRESS
-#endif
 
 static unsigned char wbuf[1024], padbytes[4] = { 0, 0, 0, 0 };
 
 pdf_obj *sfnt_create_FontFile_stream(sfnt * sfont)
 {
     pdf_obj *stream;
-#ifndef pdfTeX
-    pdf_obj *stream_dict;
-#endif
     struct sfnt_table_directory *td;
     long offset, nb_read, length;
     int i, sr;
@@ -545,7 +399,7 @@ pdf_obj *sfnt_create_FontFile_stream(sfnt * sfont)
     pdf_add_stream(stream, wbuf, 12);
 
     /*
-     * Compute start of actual tables (after headers).
+     Compute start of actual tables (after headers).
      */
     offset = 12 + 16 * td->num_kept_tables;
     for (i = 0; i < td->num_tables; i++) {
@@ -576,13 +430,7 @@ pdf_obj *sfnt_create_FontFile_stream(sfnt * sfont)
                 offset += length;
             }
             if (!td->tables[i].data) {
-#ifdef XETEX
-                if (!sfont->ft_face)
-#elif defined(pdfTeX)
                 if (!sfont->buffer)
-#else
-                if (!sfont->stream)
-#endif
                 {
                     pdf_release_obj(stream);
                     TT_ERROR("Font file not opened or already closed...");
@@ -614,9 +462,5 @@ pdf_obj *sfnt_create_FontFile_stream(sfnt * sfont)
         }
     }
 
-#ifndef pdfTeX
-    stream_dict = pdf_stream_dict(stream);
-    pdf_add_dict(stream_dict, pdf_new_name("Length1"), pdf_new_number(offset));
-#endif
     return stream;
 }
