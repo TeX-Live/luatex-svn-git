@@ -188,12 +188,29 @@ static int l_immediateobj(lua_State * L)
 /**********************************************************************/
 /* for LUA_ENVIRONINDEX table lookup (instead of repeated strcmp()) */
 
-typedef enum { P__ZERO, P_RAW, P_STREAM, P__SENTINEL } parm_idx;
+typedef enum { P__ZERO, P_CATALOG, P_H, P_INFO, P_MAPFILE, P_MAPLINE, P_NAMES,
+    P_PDFCATALOG, P_PDFINFO, P_PDFMAPFILE, P_PDFMAPLINE, P_PDFNAMES,
+    P_PDFTRAILER, P_RAW, P_STREAM, P_TRAILER, P_V, P__SENTINEL
+} parm_idx;
 
-static const parm_struct obj_parms[] = {
+static const parm_struct pdf_parms[] = {
     {NULL, P__ZERO},            /* dummy; lua indices run from 1 */
+    {"catalog", P_CATALOG},
+    {"h", P_H},
+    {"info", P_INFO},
+    {"mapfile", P_MAPFILE},
+    {"mapline", P_MAPLINE},
+    {"names", P_NAMES},
+    {"pdfcatalog", P_PDFCATALOG},       /* obsolescent */
+    {"pdfinfo", P_PDFINFO},     /* obsolescent */
+    {"pdfmapfile", P_PDFMAPFILE},       /* obsolescent */
+    {"pdfmapline", P_PDFMAPLINE},       /* obsolescent */
+    {"pdfnames", P_PDFNAMES},   /* obsolescent */
+    {"pdftrailer", P_PDFTRAILER},       /* obsolescent */
     {"raw", P_RAW},
     {"stream", P_STREAM},
+    {"trailer", P_TRAILER},
+    {"v", P_V},
     {NULL, P__SENTINEL}
 };
 
@@ -227,15 +244,14 @@ static int table_obj(lua_State * L)
         luaL_error(L, "pdf.obj(): \"%s\" is not a valid object type",
                    lua_tostring(L, -2));
     type = (int) lua_tointeger(L, -1);  /* i vs t */
-    lua_pop(L, 1);              /* vs t */
     switch (type) {
     case P_RAW:
     case P_STREAM:
         break;
     default:
-        assert(0);
+        luaL_error(L, "pdf.obj(): \"%s\" is not a valid object type", lua_tostring(L, -2));     /* i vs t */
     }
-    lua_pop(L, 1);              /* t */
+    lua_pop(L, 2);              /* t */
 
     /* get optional "immediate" */
 
@@ -560,27 +576,47 @@ static int getpdf(lua_State * L)
 {
     char *s;
     const char *st;
-    int l;
+    int i, l;
     if (lua_isstring(L, 2)) {
-        st = lua_tostring(L, 2);
-        if (st) {
-            if (strcmp(st, "h") == 0) {
-                lua_pushnumber(L, static_pdf->posstruct->pos.h);
-            } else if (strcmp(st, "v") == 0) {
-                lua_pushnumber(L, static_pdf->posstruct->pos.v);
-            } else if (strcmp(st, "pdfcatalog") == 0) {
-                s = tokenlist_to_cstring(pdf_catalog_toks, true, &l);
-                lua_pushlstring(L, s, (size_t) l);
-            } else if (strcmp(st, "pdfinfo") == 0) {
-                s = tokenlist_to_cstring(pdf_info_toks, true, &l);
-                lua_pushlstring(L, s, (size_t) l);
-            } else if (strcmp(st, "pdfnames") == 0) {
-                s = tokenlist_to_cstring(pdf_names_toks, true, &l);
-                lua_pushlstring(L, s, (size_t) l);
-            } else if (strcmp(st, "pdftrailer") == 0) {
-                s = tokenlist_to_cstring(pdf_trailer_toks, true, &l);
-                lua_pushlstring(L, s, (size_t) l);
+        st = lua_tostring(L, 2);        /* changes stack contents (needed?) */
+        if (st) {               /* ... */
+            lua_pushvalue(L, 2);        /* st ... */
+            lua_gettable(L, LUA_ENVIRONINDEX);  /* i? ... */
+            if (lua_isnumber(L, -1)) {  /* i ... */
+                i = (int) lua_tointeger(L, -1); /* i ... */
+                lua_pop(L, 1);  /* ... */
+                switch (i) {
+                case P_PDFCATALOG:
+                case P_CATALOG:
+                    s = tokenlist_to_cstring(pdf_catalog_toks, true, &l);
+                    lua_pushlstring(L, s, (size_t) l);
+                    break;
+                case P_PDFINFO:
+                case P_INFO:
+                    s = tokenlist_to_cstring(pdf_info_toks, true, &l);
+                    lua_pushlstring(L, s, (size_t) l);
+                    break;
+                case P_PDFNAMES:
+                case P_NAMES:
+                    s = tokenlist_to_cstring(pdf_names_toks, true, &l);
+                    lua_pushlstring(L, s, (size_t) l);
+                    break;
+                case P_PDFTRAILER:
+                case P_TRAILER:
+                    s = tokenlist_to_cstring(pdf_trailer_toks, true, &l);
+                    lua_pushlstring(L, s, (size_t) l);
+                    break;
+                case P_H:
+                    lua_pushnumber(L, static_pdf->posstruct->pos.h);
+                    break;
+                case P_V:
+                    lua_pushnumber(L, static_pdf->posstruct->pos.v);
+                    break;
+                default:
+                    lua_rawget(L, -2);
+                }
             } else {
+                lua_pop(L, 1);  /* ... */
                 lua_rawget(L, -2);
             }
         } else {
@@ -594,29 +630,54 @@ static int getpdf(lua_State * L)
 
 static int setpdf(lua_State * L)
 {
-    const char *st;
+    int i;
+    char *s;
     if (lua_gettop(L) != 3) {
         return 0;
     }
-    /* can't set |h| and |v| yet */
-    st = luaL_checkstring(L, 2);
-    if (strcmp(st, "pdfcatalog") == 0) {
-        pdf_catalog_toks = tokenlist_from_lua(L);
-    } else if (strcmp(st, "pdfinfo") == 0) {
-        pdf_info_toks = tokenlist_from_lua(L);
-    } else if (strcmp(st, "pdfnames") == 0) {
-        pdf_names_toks = tokenlist_from_lua(L);
-    } else if (strcmp(st, "pdftrailer") == 0) {
-        pdf_trailer_toks = tokenlist_from_lua(L);
-    } else if (strcmp(st, "pdfmapline") == 0) {
-        char *s = xstrdup(lua_tostring(L, -1));
-        process_map_item(s, MAPLINE);
-        free(s);
-    } else if (strcmp(st, "pdfmapfile") == 0) {
-        char *s = xstrdup(lua_tostring(L, -1));
-        process_map_item(s, MAPFILE);
-        free(s);
+    (void) luaL_checkstring(L, 2);      /* ... */
+    lua_pushvalue(L, 2);        /* st ... */
+    lua_gettable(L, LUA_ENVIRONINDEX);  /* i? ... */
+    if (lua_isnumber(L, -1)) {  /* i ... */
+        i = (int) lua_tointeger(L, -1); /* i ... */
+        lua_pop(L, 1);          /* ... */
+        switch (i) {
+        case P_PDFCATALOG:
+        case P_CATALOG:
+            pdf_catalog_toks = tokenlist_from_lua(L);
+            break;
+        case P_PDFINFO:
+        case P_INFO:
+            pdf_info_toks = tokenlist_from_lua(L);
+            break;
+        case P_PDFNAMES:
+        case P_NAMES:
+            pdf_names_toks = tokenlist_from_lua(L);
+            break;
+        case P_PDFTRAILER:
+        case P_TRAILER:
+            pdf_trailer_toks = tokenlist_from_lua(L);
+            break;
+        case P_PDFMAPLINE:
+        case P_MAPLINE:
+            s = xstrdup(lua_tostring(L, -1));
+            process_map_item(s, MAPLINE);
+            free(s);
+            break;
+        case P_PDFMAPFILE:
+        case P_MAPFILE:
+            s = xstrdup(lua_tostring(L, -1));
+            process_map_item(s, MAPFILE);
+            free(s);
+            break;
+        case P_H:
+        case P_V:
+            /* can't set |h| and |v| yet */
+        default:
+            lua_rawset(L, -3);
+        }
     } else {
+        lua_pop(L, 1);          /* ... */
         lua_rawset(L, -3);
     }
     return 0;
@@ -635,7 +696,7 @@ static const struct luaL_reg pdflib[] = {
 
 int luaopen_pdf(lua_State * L)
 {
-    preset_environment(L, obj_parms);
+    preset_environment(L, pdf_parms);
     luaL_register(L, "pdf", pdflib);
     /* build meta table */
     luaL_newmetatable(L, "pdf_meta");
