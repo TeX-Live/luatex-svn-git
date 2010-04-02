@@ -4661,8 +4661,8 @@ These two variables can be used to replace \type{\pdfmapline} and
 \type{\pdfmapfile} from \PDFTEX. The values are write-only: when
 queried they return \type{nil}.
 
-The corresponding ``\type{pdf}'' parameter names
-\luatex{pdf.pdfmapline} and \luatex{pdf.pdfmapfile (all new in 0.47.0)
+The corresponding \quote{\type{pdf}} parameter names
+\luatex{pdf.pdfmapline} and \luatex{pdf.pdfmapfile} (all new in 0.47.0)
 still work, but are obsolescent (since 0.53.0).
 
 Note: this interface will almost certainly change in the future.
@@ -4670,17 +4670,29 @@ Note: this interface will almost certainly change in the future.
 %***********************************************************************
 
 \subsubsubject{\luatex{pdf.catalog}, \luatex{pdf.info},
-    \luatex{pdf.names}, \luatex{pdf.trailer}  (new in 0.53.0)}
+    \luatex{pdf.names}, \luatex{pdf.trailer} (new in 0.53.0)}
 
-These variable offer a read-write interface to the corresponding
+These variables offer a read-write interface to the corresponding
 \PDFTEX\ token lists. The value types are strings.
 
-The corresponding ``\type{pdf}'' parameter names
+The corresponding \quote{\type{pdf}} parameter names
 \luatex{pdf.pdfcatalog}, \luatex{pdf.pdfinfo}, \luatex{pdf.pdfnames},
-and \luatex{pdf.pdftrailer (all new in 0.47.0)
+and \luatex{pdf.pdftrailer} (all new in 0.47.0)
 still work, but are obsolescent (since 0.53.0).
 
 Note: this interface will almost certainly change in the future.
+
+%***********************************************************************
+
+\subsubsubject{\luatex{pdf.pageattributes}, \luatex{pdf.pageresources},
+    \luatex{pdf.pagesattributes} (new in 0.53.0)}
+
+These variables offer a read-write interface to related
+token lists. The value types are strings. The variables have no
+interaction with the corresponding \PDFTEX\ token registers
+\tex{pageattrib}, \tex{pageresources}, and \tex{pagesattrib},
+but they are written out to the \PDF\ file directly after
+the \PDFTEX\ token registers.
 
 %***********************************************************************
 

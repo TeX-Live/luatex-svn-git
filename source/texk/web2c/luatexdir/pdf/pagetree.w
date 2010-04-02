@@ -223,6 +223,8 @@ static void write_pages(PDF pdf, pages_entry * p, int parent)
     if (parent == 0) {          /* it's root */
         if (pdf_pages_attr != null)
             pdf_print_toks_ln(pdf, pdf_pages_attr);
+        if (pdf_pagesattributes_toks != null)   /* from Lua */
+            pdf_print_toks_ln(pdf, pdf_pagesattributes_toks);
     } else
         pdf_printf(pdf, "/Parent %d 0 R\n", parent);
     pdf_printf(pdf, "/Count %d\n/Kids [", (int) p->number_of_pages);

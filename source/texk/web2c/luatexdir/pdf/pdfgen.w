@@ -51,6 +51,9 @@ halfword pdf_catalog_toks;      /* additional keys of Catalog dictionary */
 halfword pdf_catalog_openaction;
 halfword pdf_names_toks;        /* additional keys of Names dictionary */
 halfword pdf_trailer_toks;      /* additional keys of Trailer dictionary */
+halfword pdf_pageattributes_toks;       /* additional keys of Page dictionary */
+halfword pdf_pageresources_toks;        /* additional keys of Resources dictionary */
+halfword pdf_pagesattributes_toks;      /* additional keys of Pages dictionary */
 boolean is_shipping_page;       /* set to |shipping_page| when |ship_out| starts */
 
 @ |init_pdf_struct()| is called early, only once, from maincontrol.w
@@ -1842,6 +1845,8 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
         pdf_puts(pdf, "]\n");
         if (pdf_page_attr != null)
             pdf_print_toks_ln(pdf, pdf_page_attr);
+        if (pdf_pageattributes_toks != null)    /* from Lua */
+            pdf_print_toks_ln(pdf, pdf_pageattributes_toks);
         pdf_indirect_ln(pdf, "Parent", pdf->last_pages);
         if (pdf->img_page_group_val > 0) {
             pdf_printf(pdf, "/Group %d 0 R\n", pdf->img_page_group_val);
@@ -1964,6 +1969,8 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
     if (shipping_page) {
         if (pdf_page_resources != null)
             pdf_print_toks_ln(pdf, pdf_page_resources);
+        if (pdf_pageresources_toks != null)     /* from Lua */
+            pdf_print_toks_ln(pdf, pdf_pageresources_toks);
     } else {
         if (pdf_xform_resources != null)
             pdf_print_toks_ln(pdf, pdf_xform_resources);
