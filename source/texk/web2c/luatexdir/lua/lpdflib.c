@@ -651,8 +651,6 @@ static int getpdf(lua_State * L)
 static int setpdf(lua_State * L)
 {
     int i;
-    char *s;
-    const char *st;
     if (lua_gettop(L) != 3) {
         return 0;
     }
