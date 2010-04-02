@@ -1,29 +1,30 @@
+% ocplist.w
+% 
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
 @ @c
-/* ocplist.c
-   
-   Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 
-
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+"$URL$";
 
+@ @c
 memory_word *ocp_list_info;     /* the big collection of ocp list data */
 ocp_list_index ocp_listmem_ptr; /* first unused word of |ocp_list_info| */
 ocp_list_index ocp_listmem_run_ptr;     /* temp unused word of |ocp_list_info| */
@@ -57,6 +58,7 @@ void initialize_ocplist_arrays(int ocp_list_size)
 }
 
 
+@ @c
 ocp_list_index make_ocp_list_node(ocp_lstack_index llstack,
                                   scaled llstack_no, ocp_list_index llnext)
 {
@@ -207,6 +209,7 @@ void print_ocp_list(ocp_list_index list_entry)
     print_char(']');
 }
 
+@ @c
 ocp_list_index scan_ocp_list(void)
 {
     scaled llstack_no;
@@ -247,6 +250,7 @@ ocp_list_index scan_ocp_list(void)
     }
 }
 
+@ @c
 internal_ocp_list_number read_ocp_list(void)
 {
     internal_ocp_list_number f;
@@ -263,6 +267,7 @@ internal_ocp_list_number read_ocp_list(void)
     return g;
 }
 
+@ @c
 void scan_ocp_list_ident(void)
 {
     internal_ocp_list_number f;
@@ -284,6 +289,7 @@ void scan_ocp_list_ident(void)
     cur_val = f;
 }
 
+@ @c
 void new_ocp_list(small_number a)
 {
     pointer u;                  /* user's ocp list identifier */
@@ -313,6 +319,7 @@ void new_ocp_list(small_number a)
     }
 }
 
+@ @c
 void dump_ocplist_info(void)
 {
     int k;

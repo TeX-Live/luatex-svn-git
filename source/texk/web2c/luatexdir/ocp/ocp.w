@@ -1,41 +1,41 @@
+% ocp.w
+% 
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
 @ @c
-/* ocp.c
-   
-   Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 
-
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+"$URL$";
 
+@ @c
 int **ocp_tables;
 
 static int ocp_entries = 0;
 int ocp_maxint = 10000000;
 
-/*
-When the user defines \.{\\ocp\\f}, say, \TeX\ assigns an internal number
+@ When the user defines \.{\\ocp\\f}, say, \TeX\ assigns an internal number
 to the user's ocp~\.{\\f}. Adding this number to |ocp_id_base| gives the
 |eqtb| location of a ``frozen'' control sequence that will always select
 the ocp.
-*/
 
+@c
 internal_ocp_number ocp_ptr;    /* largest internal ocp number in use */
 
 void new_ocp(small_number a)
@@ -96,9 +96,10 @@ void new_ocp(small_number a)
     }
 }
 
-/* Before we forget about the format of these tables, let's deal with
-$\Omega$'s basic scanning routine related to ocp information. */
+@ Before we forget about the format of these tables, let's deal with
+$\Omega$'s basic scanning routine related to ocp information. 
 
+@c
 void scan_ocp_ident(void)
 {
     internal_ocp_number f;
@@ -138,6 +139,7 @@ void allocate_ocp_table(int ocp_number, int ocp_size)
     }
 }
 
+@ @c
 static void dump_ocp_table(int ocp_number)
 {
     dump_things(ocp_tables[ocp_number][0], ocp_tables[ocp_number][0] + 1);

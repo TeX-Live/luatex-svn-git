@@ -1,30 +1,29 @@
+% runocp.w
+% 
+% Copyright 2006-2009 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* runocp.c
-   
-   Copyright 2006-2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 
 
-
-
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+"$URL$";
 
 memory_word active_info[(active_mem_size + 1)];
 active_index active_min_ptr = 0;        /* first unused word of |active_info| */
@@ -33,9 +32,10 @@ active_index active_real = 0;
 
 static ocp_list_index holding[(active_mem_size + 1)] = { 0 };
 
-/* Here we do the main work required for reading and interpreting
-   $\Omega$ Compiled Translation Processes.*/
+@ Here we do the main work required for reading and interpreting
+   $\Omega$ Compiled Translation Processes.
 
+@c
 #define ocp_list_id_text(A) cs_text(ocp_list_id_base+(A))
 
 #define ocp_active_min_ptr_base (ocp_active_number_base+1)
@@ -43,8 +43,9 @@ static ocp_list_index holding[(active_mem_size + 1)] = { 0 };
 #define ocp_active_base (ocp_active_max_ptr_base+1)
 
 
-/* Here are all the instructions in our mini-assembler. */
+@  Here are all the instructions in our mini-assembler. 
 
+@c
 typedef enum {
     otp_right_output = 1,
     otp_right_num = 2,
@@ -90,16 +91,15 @@ typedef enum {
     }									\
   } while (0)
 
-/* 
-Of course we want to define macros that suppress the detail of how ocp
+@ Of course we want to define macros that suppress the detail of how ocp
 information is actually packed, so that we don't have to write things like
 $$\hbox{|ocp_info[k+ocp_info[j+ocp_state_base[i]]]|}$$
 too often. The \.{WEB} definitions here make |ocp_state_entry(i)(j)(k)|
 (|ocp_table_entry(i)(j)(k)|) the |k|-th word in the |j|-th state (table)
 of the |i|-th ocp.
 @^inner loop@>
-*/
 
+@c
 #define ocp_state_entry(A,B,C) ocp_tables[(A)][ocp_tables[(A)][ocp_state_base((A))+((B)*2)]+(C)]
 
 #define ocp_state_no(A,B) ocp_tables[(A)][ocp_state_base(A)+((B)*2)+1]
@@ -181,6 +181,7 @@ int otp_ext_i;
   } while (0)
 
 
+@ @c
 void overflow_ocp_buf_size(void)
 {
     overflow("ocp_buf_size", (unsigned) ocp_buf_size);
@@ -563,6 +564,7 @@ void run_otp(void)
     }
 }
 
+@ @c
 #define FPUTC(a,b) fputc((int)(a),b)
 
 void run_external_ocp(char *external_ocp_name)
@@ -709,6 +711,7 @@ void run_external_ocp(char *external_ocp_name)
     remove(out_file_name);
 }
 
+@ @c
 void run_ocp(void)
 {
     int t = 0;
@@ -867,7 +870,7 @@ void run_ocp(void)
 
 }
 
-
+@ @c
 void initialize_ocp_buffers(int ocp_buf_size, int ocp_stack_size)
 {
     otp_init_input_buf = xmallocarray(quarterword, (unsigned) ocp_buf_size);
@@ -878,6 +881,7 @@ void initialize_ocp_buffers(int ocp_buf_size, int ocp_stack_size)
     otp_states = xmallocarray(halfword, (unsigned) ocp_stack_size);
 }
 
+@ @c
 boolean is_last_ocp(scaled llstack_no, int counter)
 {
     active_min_ptr = equiv(ocp_active_min_ptr_base);
@@ -895,6 +899,7 @@ boolean is_last_ocp(scaled llstack_no, int counter)
     return (active_real == active_max_ptr);
 }
 
+@ @c
 void print_active_ocps(void)
 {
     int i;
@@ -915,6 +920,7 @@ void print_active_ocps(void)
     tprint("]");
 }
 
+@ @c
 void add_ocp_stack(int min_index, scaled min_value)
 {
     ocp_lstack_index p;
@@ -935,6 +941,7 @@ void add_ocp_stack(int min_index, scaled min_value)
     }
 }
 
+@ @c
 void active_compile(void)
 {
     int i;
@@ -973,6 +980,7 @@ void active_compile(void)
     }
 }
 
+@ @c
 void do_push_ocp_list(small_number a)
 {
     halfword ocp_list_no;
@@ -999,6 +1007,7 @@ void do_push_ocp_list(small_number a)
     define(ocp_active_max_ptr_base, data_cmd, active_max_ptr);
 }
 
+@ @c
 void do_pop_ocp_list(small_number a)
 {
     halfword old_number;
@@ -1025,6 +1034,7 @@ void do_pop_ocp_list(small_number a)
     }
 }
 
+@ @c
 void do_clear_ocp_lists(small_number a)
 {
     define(ocp_active_number_base, data_cmd, 0);
@@ -1034,6 +1044,7 @@ void do_clear_ocp_lists(small_number a)
 }
 
 
+@ @c
 void dump_active_ocp_info(void)
 {
     int k;
@@ -1052,9 +1063,7 @@ void undump_active_ocp_info(void)
 {
     int k;
     undump_int(active_min_ptr);
-    /* undump_size(0)(active_mem_size)('active start point')(active_min_ptr); */
     undump_int(active_max_ptr);
-    /*  undump_size(0)(active_mem_size)('active mem size')(active_max_ptr); */
     for (k = 0; k <= active_max_ptr - 1; k++)
         undump_wd(active_info[k]);
 }

@@ -1,29 +1,30 @@
+% readocp.w
+% 
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
 @ @c
-/* readocp.c
-   
-   Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 
-
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+"$URL$";
 
+@ @c
 static char *b_test_in(char *nam)
 {
     if (program_name_set) {
@@ -33,12 +34,11 @@ static char *b_test_in(char *nam)
 }
 
 
-
-
 static unsigned char *ocp_buffer = NULL;        /* byte buffer for ocp files */
 static int ocp_size = 0;        /* total size of the ocp file */
 static int ocp_cur = 0;         /* index into |ocp_buffer| */
 
+@ @c
 void init_null_ocp(str_number a, str_number n)
 {
     ocp_ptr = null_ocp;
@@ -63,7 +63,7 @@ void init_null_ocp(str_number a, str_number n)
 
 
 
-/* $\Omega$ checks the information of a \.{OCP} file for validity as the
+@ $\Omega$ checks the information of a \.{OCP} file for validity as the
 file is being read in, so that no further checks will be needed when
 typesetting is going on. The somewhat tedious subroutine that does this
 is called |read_ocp_info|. It has three parameters: the user ocp
@@ -74,8 +74,7 @@ It returns the value of the internal ocp number that was just loaded.
 If an error is detected, an error message is issued and no ocp
 information is stored; |null_ocp| is returned in this case.
 
-*/
-
+@c
 /* do this when the \.{OCP} data is wrong */
 #define ocp_abort(A) do {				\
     tprint("OCP file error (");				\
@@ -100,7 +99,9 @@ information is stored; |null_ocp| is returned in this case.
 
 
 
-/* input a \.{OCP} file */
+@ Input a \.{OCP} file
+
+@c
 internal_ocp_number
 read_ocp_info(pointer u, char *nom, char *aire, char *ext, boolean external_ocp)
 {
@@ -124,7 +125,7 @@ read_ocp_info(pointer u, char *nom, char *aire, char *ext, boolean external_ocp)
     cnam = NULL;
     file_opened = false;
     if (external_ocp) {
-        /*  @<Check |ocp_file| exists@> */
+        /*  Check |ocp_file| exists */
         cnam =
             xmalloc((unsigned) (strlen(nom) + strlen(aire) + strlen(ext) + 1));
         sprintf(cnam, "%s%s%s", aire, nom, ext);
@@ -149,7 +150,7 @@ read_ocp_info(pointer u, char *nom, char *aire, char *ext, boolean external_ocp)
         goto DONE;
 
     } else {
-        /* @<Open |ocp_file| for input@>; */
+        /* Open |ocp_file| for input */
         char *cname = xmalloc((unsigned)
                               (strlen(nom) + strlen(aire) + strlen(".ocp") +
                                1));
@@ -182,7 +183,7 @@ read_ocp_info(pointer u, char *nom, char *aire, char *ext, boolean external_ocp)
         if (ocp_size == 0)
             ocp_abort("checking size");
 
-        /* @<Read the {\.{OCP}} file@>; */
+        /* Read the {\.{OCP}} file */
         f = ocp_ptr + 1;
         ocpmem_run_ptr = offset_ocp_info;
         ocp_read(ocp_length);
@@ -243,7 +244,7 @@ read_ocp_info(pointer u, char *nom, char *aire, char *ext, boolean external_ocp)
     }
   BAD_OCP:
     {
-        /* @<Report that the ocp won't be loaded@>; */
+        /* Report that the ocp won't be loaded */
         /* $\Omega$ does not give precise details about why it
            rejects a particular \.{OCP} file. */
         const char *hlp[] = {
