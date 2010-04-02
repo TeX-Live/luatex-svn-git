@@ -1,31 +1,33 @@
-/* writejpg.c
+% writejpg.w
 
-   Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
+% Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
 #include <assert.h>
 #include "ptexlib.h"
-#include "image.h"
+#include "image/image.h"
 
+@ @c
 #define JPG_GRAY  1             /* Gray color space, use /DeviceGray    */
 #define JPG_RGB   3             /* RGB color space, use /DeviceRGB      */
 #define JPG_CMYK  4             /* CMYK color space, use /DeviceCMYK    */
@@ -97,12 +99,14 @@ typedef enum {                  /* JPEG marker codes                    */
     M_ERROR = 0x100             /* dummy marker, internal use only      */
 } JPEG_MARKER;
 
+@ @c
 static JPG_UINT16 read2bytes(FILE * f)
 {
     int c = xgetc(f);
     return (JPG_UINT16) ((c << 8) + (int) xgetc(f));
 }
 
+@ @c
 static void close_and_cleanup_jpg(image_dict * idict)
 {
     assert(idict != NULL);
@@ -115,6 +119,7 @@ static void close_and_cleanup_jpg(image_dict * idict)
     img_jpg_ptr(idict) = NULL;
 }
 
+@ @c
 void read_jpg_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
 {
     int i, units = 0;
@@ -133,7 +138,7 @@ void read_jpg_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
     xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
     if (read2bytes(img_file(idict)) != 0xFFD8)
         pdftex_fail("reading JPEG image failed (no JPEG header found)");
-    /* currently only true JFIF files allow extracting img_xres and img_yres */
+    /* currently only true JFIF files allow extracting |img_xres| and |img_yres| */
     if (read2bytes(img_file(idict)) == 0xFFE0) {        /* check for JFIF */
         (void) read2bytes(img_file(idict));
         for (i = 0; i < 5; i++) {
@@ -232,6 +237,7 @@ void read_jpg_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
     assert(0);
 }
 
+@ @c
 static void reopen_jpg(PDF pdf, image_dict * idict)
 {
     int width, height, xres, yres;
@@ -245,6 +251,7 @@ static void reopen_jpg(PDF pdf, image_dict * idict)
         pdftex_fail("writejpg: image dimensions have changed");
 }
 
+@ @c
 void write_jpg(PDF pdf, image_dict * idict)
 {
     long unsigned l;

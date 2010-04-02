@@ -1,24 +1,24 @@
-/* writejbig2.c
+% writejbig2.w
 
-   Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+% Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
+% Copyright 2006-2009 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
-/***********************************************************************
+@
 
 This is experimental JBIG2 image support to pdfTeX. JBIG2 image decoding
 is part of Adobe PDF-1.4, and requires Acroread 5.0 or later.
@@ -40,21 +40,21 @@ http://partners.adobe.com/public/developer/en/pdf/PDFReference16.pdf
 News
 ====
 
-31 May 2006: no need to wait for endoffileflag in sequential access
+31 May 2006: no need to wait for |endoffileflag| in sequential access
 organization.
 
-10 May 2006: ygetc() for some catching of broken JBIG2 files; modify to
+10 May 2006: |ygetc()| for some catching of broken JBIG2 files; modify to
 accept Example 3.4 from PDFRef 5th ed. with short end-of-file segment.
 
-09 May 2006: pages_maketree() and segments_maketree() by AVL tree,
+09 May 2006: |pages_maketree()| and |segments_maketree()| by AVL tree,
 some cleaning up.
 
-06 May 2006: File list replaced by AVL tree; new_fileinfo(),
-new_pageinfo().
+06 May 2006: File list replaced by AVL tree; |new_fileinfo()|,
+|new_pageinfo()|.
 
 04 May 2006: Updated for pdftex-1.40-beta-20060213.
 
-08 Jan. 2003: Added flushjbig2page0objects() function. Now at the end
+08 Jan. 2003: Added |flushjbig2page0objects()| function. Now at the end
 of the pdfTeX run all pending page0 objects are written out.
 
 08 Jan. 2003: Release on private webpage.
@@ -78,8 +78,7 @@ object exists, reference it. Else create fresh one.
 
 09 Dec. 2002: JBIG2 seg. page numbers > 0 are now set to 1, see PDF Ref.
 
-***********************************************************************/
-
+@ @c
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
@@ -90,10 +89,9 @@ static const char _svn_version[] =
 #include <stdio.h>
 #include <assert.h>
 #include "ptexlib.h"
-#include "image.h"
+#include "image/image.h"
 
-/**********************************************************************/
-
+@ @c
 /* 7.3 Segment types */
 #define M_SymbolDictionary 0
 #define M_IntermediateTextRegion 4
@@ -117,8 +115,7 @@ static const char _svn_version[] =
 #define M_Tables 53
 #define M_Extension 62
 
-/**********************************************************************/
-
+@ @c
 typedef enum { INITIAL, HAVEINFO, WRITEPDF } PHASE;
 
 typedef struct _LITEM {
@@ -176,13 +173,12 @@ typedef struct _FILEINFO {
     unsigned int filehdrflags;  /* set by readfilehdr() */
     boolean sequentialaccess;   /* set by readfilehdr() */
     unsigned long numofpages;   /* set by readfilehdr() */
-    unsigned long streamstart;  /* set by get_jbig2_info() */
+    unsigned long streamstart;  /* set by |get_jbig2_info()| */
     unsigned long pdfpage0objnum;
     PHASE phase;
 } FILEINFO;
 
-/**********************************************************************/
-
+@ @c
 static struct avl_table *file_tree = NULL;
 
 static int comp_file_entry(const void *pa, const void *pb, void *p)
@@ -206,8 +202,7 @@ static int comp_segment_entry(const void *pa, const void *pb, void *p)
                   ((const SEGINFO *) pb)->segnum);
 }
 
-/**********************************************************************/
-
+@ @c
 static int ygetc(FILE * stream)
 {
     int c = getc(stream);
@@ -220,8 +215,7 @@ static int ygetc(FILE * stream)
     return c;
 }
 
-/**********************************************************************/
-
+@ @c
 static void initlinkedlist(LIST * lp)
 {
     lp->first = NULL;
@@ -246,8 +240,7 @@ static LIST *litem_append(LIST * lp)
     return lp;
 }
 
-/**********************************************************************/
-
+@ @c
 static FILEINFO *new_fileinfo(void)
 {
     FILEINFO *fip;
@@ -266,6 +259,7 @@ static FILEINFO *new_fileinfo(void)
     return fip;
 }
 
+@ @c
 static PAGEINFO *new_pageinfo(void)
 {
     PAGEINFO *pip;
@@ -282,6 +276,7 @@ static PAGEINFO *new_pageinfo(void)
     return pip;
 }
 
+@ @c
 static void init_seginfo(SEGINFO * sip)
 {
     sip->segnum = 0;
@@ -305,8 +300,7 @@ static void init_seginfo(SEGINFO * sip)
     sip->endoffileflag = false;
 }
 
-/**********************************************************************/
-
+@ @c
 static void pages_maketree(LIST * plp)
 {
     LITEM *ip;
@@ -320,6 +314,7 @@ static void pages_maketree(LIST * plp)
     }
 }
 
+@ @c
 static void segments_maketree(LIST * slp)
 {
     LITEM *ip;
@@ -333,8 +328,7 @@ static void segments_maketree(LIST * slp)
     }
 }
 
-/**********************************************************************/
-
+@ @c
 static PAGEINFO *find_pageinfo(LIST * plp, unsigned long pagenum)
 {
     PAGEINFO tmp;
@@ -343,6 +337,7 @@ static PAGEINFO *find_pageinfo(LIST * plp, unsigned long pagenum)
     return (PAGEINFO *) avl_find(plp->tree, &tmp);
 }
 
+@ @c
 static SEGINFO *find_seginfo(LIST * slp, unsigned long segnum)
 {
     SEGINFO tmp;
@@ -351,22 +346,21 @@ static SEGINFO *find_seginfo(LIST * slp, unsigned long segnum)
     return (SEGINFO *) avl_find(slp->tree, &tmp);
 }
 
-/**********************************************************************/
-
+@ @c
 static unsigned int read2bytes(FILE * f)
 {
     unsigned int c = (unsigned int) ygetc(f);
     return (c << 8) + (unsigned int) ygetc(f);
 }
 
+@ @c
 static unsigned long read4bytes(FILE * f)
 {
     unsigned int l = read2bytes(f);
     return (l << 16) + read2bytes(f);
 }
 
-/**********************************************************************/
-
+@ @c
 static unsigned long getstreamlen(LITEM * slip, boolean refer)
 {
     SEGINFO *sip;
@@ -379,8 +373,7 @@ static unsigned long getstreamlen(LITEM * slip, boolean refer)
     return len;
 }
 
-/**********************************************************************/
-
+@ @c
 static void readfilehdr(FILEINFO * fip)
 {
     unsigned int i;
@@ -406,8 +399,7 @@ static void readfilehdr(FILEINFO * fip)
     /* --- at end of file header --- */
 }
 
-/**********************************************************************/
-
+@ @c
 static void checkseghdrflags(SEGINFO * sip)
 {
     sip->endofstripeflag = false;
@@ -454,9 +446,9 @@ static void checkseghdrflags(SEGINFO * sip)
     }
 }
 
-/**********************************************************************/
-/* for first reading of file; return value tells if header been read */
+@ for first reading of file; return value tells if header been read 
 
+@c
 static boolean readseghdr(FILEINFO * fip, SEGINFO * sip)
 {
     unsigned int i;
@@ -521,8 +513,7 @@ static boolean readseghdr(FILEINFO * fip, SEGINFO * sip)
     return true;
 }
 
-/**********************************************************************/
-
+@ @c
 static void checkseghdr(FILEINFO * fip, SEGINFO * sip);
 
 static void markpage0seg(FILEINFO * fip, unsigned long referedseg)
@@ -538,9 +529,9 @@ static void markpage0seg(FILEINFO * fip, unsigned long referedseg)
     }
 }
 
-/**********************************************************************/
-/* for writing, marks refered page0 segments, sets segpage > 0 to 1 */
+@ for writing, marks refered page0 segments, sets segpage > 0 to 1 
 
+@c
 static void writeseghdr(PDF pdf, FILEINFO * fip, SEGINFO * sip)
 {
     unsigned int i;
@@ -589,9 +580,8 @@ static void writeseghdr(PDF pdf, FILEINFO * fip, SEGINFO * sip)
     /* ---- at end of segment header ---- */
 }
 
-/**********************************************************************/
-/* for recursive marking of refered page0 segments */
-
+@ for recursive marking of refered page0 segments 
+@c
 static void checkseghdr(FILEINFO * fip, SEGINFO * sip)
 {
     unsigned int i;
@@ -627,8 +617,7 @@ static void checkseghdr(FILEINFO * fip, SEGINFO * sip)
     /* ---- at end of segment header ---- */
 }
 
-/**********************************************************************/
-
+@ @c
 static unsigned long findstreamstart(FILEINFO * fip)
 {
     SEGINFO tmp;
@@ -641,8 +630,7 @@ static unsigned long findstreamstart(FILEINFO * fip)
     return fip->streamstart;
 }
 
-/**********************************************************************/
-
+@ @c
 static void rd_jbig2_info(FILEINFO * fip)
 {
     unsigned long seekdist = 0; /* for sequential-access only */
@@ -724,8 +712,7 @@ static void rd_jbig2_info(FILEINFO * fip)
     xfclose(fip->file, fip->filepath);
 }
 
-/**********************************************************************/
-
+@ @c
 static void wr_jbig2(PDF pdf, FILEINFO * fip, unsigned long page)
 {
     LITEM *slip;
@@ -776,8 +763,7 @@ static void wr_jbig2(PDF pdf, FILEINFO * fip, unsigned long page)
     xfclose(fip->file, fip->filepath);
 }
 
-/**********************************************************************/
-
+@ @c
 void read_jbig2_info(image_dict * idict)
 {
     FILEINFO *fip, tmp;
@@ -822,6 +808,7 @@ void read_jbig2_info(image_dict * idict)
     img_colordepth(idict) = 1;
 }
 
+@ @c
 void write_jbig2(PDF pdf, image_dict * idict)
 {
     FILEINFO *fip, tmp;
@@ -831,13 +818,14 @@ void write_jbig2(PDF pdf, image_dict * idict)
     tmp.filepath = img_filepath(idict);
     fip = (FILEINFO *) avl_find(file_tree, &tmp);
     assert(fip != NULL);
-    assert(fip->phase == HAVEINFO);     /* don't write before rd_jbig2_info() call */
+    assert(fip->phase == HAVEINFO);     /* don't write before |rd_jbig2_info()| call */
     pip = find_pageinfo(&(fip->pages), (unsigned long) img_pagenum(idict));
     assert(pip != NULL);
     wr_jbig2(pdf, fip, pip->pagenum);
     img_file(idict) = NULL;
 }
 
+@ @c
 void flush_jbig2_page0_objects(PDF pdf)
 {
     FILEINFO *fip;
@@ -851,5 +839,3 @@ void flush_jbig2_page0_objects(PDF pdf)
         }
     }
 }
-
-/**********************************************************************/

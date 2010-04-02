@@ -87,6 +87,24 @@ nodist_libluatex_a_SOURCES += texfont.c tfmofm.c tounicode.c tt_glyf.c tt_table.
 nodist_libluatex_a_SOURCES += writecff.c writeenc.c writefont.c writet1.c writet3.c writettf.c
 nodist_libluatex_a_SOURCES += writetype0.c writetype2.c
 
+luatex_image_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/image $(ctangle)
+
+epdf.c: ctangle$(EXEEXT) luatexdir/image/epdf.w
+	$(luatex_image_ctangle) epdf.w
+writeimg.c: ctangle$(EXEEXT) luatexdir/image/writeimg.w
+	$(luatex_image_ctangle) writeimg.w
+writejbig2.c: ctangle$(EXEEXT) luatexdir/image/writejbig2.w
+	$(luatex_image_ctangle) writejbig2.w
+writejpg.c: ctangle$(EXEEXT) luatexdir/image/writejpg.w
+	$(luatex_image_ctangle) writejpg.w
+writepng.c: ctangle$(EXEEXT) luatexdir/image/writepng.w
+	$(luatex_image_ctangle) writepng.w
+
+libluatex_web += luatexdir/image/epdf.w luatexdir/image/writeimg.w
+libluatex_web += luatexdir/image/writejbig2.w luatexdir/image/writejpg.w luatexdir/image/writepng.w
+
+nodist_libluatex_a_SOURCES += epdf.c writeimg.c writejbig2.c writejpg.c writepng.c 
+
 luatex_ocp_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/ocp $(ctangle)
 
 ocp.c: ctangle$(EXEEXT) luatexdir/ocp/ocp.w
@@ -483,18 +501,13 @@ libluatex_a_SOURCES = \
 	luatexdir/font/tt_table.h \
 	luatexdir/font/writecff.h \
 	luatexdir/font/writettf.h \
-	luatexdir/image/epdf.c \
 	luatexdir/image/epdf.h \
 	luatexdir/image/image.h \
 	luatexdir/image/pdftoepdf.cc \
 	luatexdir/image/pdftoepdf.h \
-	luatexdir/image/writeimg.c \
 	luatexdir/image/writeimg.h \
-	luatexdir/image/writejbig2.c \
 	luatexdir/image/writejbig2.h \
-	luatexdir/image/writejpg.c \
 	luatexdir/image/writejpg.h \
-	luatexdir/image/writepng.c \
 	luatexdir/image/writepng.h \
 	luatexdir/lang/hnjalloc.h \
 	luatexdir/lang/hyphen.h \

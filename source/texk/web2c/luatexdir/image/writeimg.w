@@ -1,23 +1,26 @@
-/* writeimg.c
+% writeimg.w
 
-   Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
+% Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@* Image inclusion.
+
+@ @c
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
@@ -26,58 +29,58 @@ static const char _svn_version[] =
 #include "ptexlib.h"
 #include <kpathsea/c-auto.h>
 #include <kpathsea/c-memstr.h>
-         /* for tokenlist_to_cstring */
 
-#include "image.h"
-#include "writejpg.h"
-#include "writepng.h"
-#include "writejbig2.h"
+@ @c
+#include "image/image.h"
+#include "image/writejpg.h"
+#include "image/writepng.h"
+#include "image/writejbig2.h"
 
-#include "lua51/lua.h"          /* for LUA_NOREF */
+#include "lua51/lua.h"          /* for |LUA_NOREF| */
 #include "lua51/lauxlib.h"
 
+@ @c
 #define pdf_image_resolution int_par(pdf_image_resolution_code)
 #define pdf_pagebox int_par(pdf_pagebox_code)
 
-/**********************************************************************/
-/*
-  Patch ImageTypeDetection 2003/02/08 by Heiko Oberdiek.
+@* Patch ImageTypeDetection 2003/02/08 by Heiko Oberdiek.
 
-  Function "readimage" performs some basic initializations.
+  Function |readimage| performs some basic initializations.
   Then it looks at the file extension to determine the
   image type and calls specific code/functions.
+
     The main disadvantage is that standard file extensions
   have to be used, otherwise pdfTeX is not able to detect
   the correct image type.
 
   The patch now looks at the file header first regardless of
   the file extension. This is implemented in function
-  "check_type_by_header". If this check fails, the traditional
+  |check_type_by_header|. If this check fails, the traditional
   test of standard file extension is tried, done in function
-  "check_type_by_extension".
+  |check_type_by_extension|.
 
   Magic headers:
 
   * "PNG (Portable Network Graphics) Specification", Version 1.2
     (http://www.libpng.org/pub/png):
 
-  |   3.1. PNG file signature
-  |
-  |      The first eight bytes of a PNG file always contain the following
-  |      (decimal) values:
-  |
-  |         137 80 78 71 13 10 26 10
+     3.1. PNG file signature
+  
+        The first eight bytes of a PNG file always contain the following
+        (decimal) values:
+  
+           137 80 78 71 13 10 26 10
 
-  Translation to C: "\x89PNG\r\n\x1A\n"
+  Translation to C: |"\x89PNG\r\n\x1A\n"|
 
   * "JPEG File Interchange Format", Version 1.02:
 
-  | o you can identify a JFIF file by looking for the following
-  |   sequence: X'FF', SOI X'FF', APP0, <2 bytes to be skipped>,
-  |   "JFIF", X'00'.
+   o you can identify a JFIF file by looking for the following
+     sequence: X'FF', SOI X'FF', APP0, <2 bytes to be skipped>,
+     "JFIF", X'00'.
 
-  Function "check_type_by_header" only looks at the first two bytes:
-    "\xFF\xD8"
+  Function |check_type_by_header| only looks at the first two bytes:
+    |"\xFF\xD8"|
 
   * ISO/IEC JTC 1/SC 29/WG 1
     (ITU-T SG8)
@@ -87,34 +90,35 @@ static const char _svn_version[] =
     Project: JTC 1.29.10
     Status: Final Committee Draft
 
-  | D.4.1, ID string
-  |
-  | This is an 8-byte sequence containing 0x97 0x4A 0x42 0x32 0x0D 0x0A
-  | 0x1A 0x0A.
+   D.4.1, ID string
+  
+   This is an 8-byte sequence containing 0x97 0x4A 0x42 0x32 0x0D 0x0A
+   0x1A 0x0A.
 
   * "PDF Reference", third edition:
-    * The first line should contain "%PDF-1.0" until "%PDF-1.4"
+
+    * The first line should contain "\%PDF-1.0" until "\%PDF-1.4"
       (section 3.4.1 "File Header").
     * The "implementation notes" say:
 
-    | 3.4.1,  File Header
-    |   12. Acrobat viewers require only that the header appear
-    |       somewhere within the first 1024 bytes of the file.
-    |   13. Acrobat viewers will also accept a header of the form
-    |           %!PS-Adobe-N.n PDF-M.m
+     3.4.1,  File Header
+       12. Acrobat viewers require only that the header appear
+           somewhere within the first 1024 bytes of the file.
+       13. Acrobat viewers will also accept a header of the form
+               \%!PS-Adobe-N.n PDF-M.m
 
-    The check in function "check_type_by_header" only implements
+    The check in function |check_type_by_header| only implements
     the first issue. The implementation notes are not considered.
     Therefore files with garbage at start of file must have the
     standard extension.
 
-    Functions "check_type_by_header" and "check_type_by_extension":
-    img_type(img) is set to IMG_TYPE_NONE by new_image_dict().
-    Both functions try to detect a type and set img_type(img).
-    Thus a value other than IMG_TYPE_NONE indicates that a
+    Functions |check_type_by_header| and |check_type_by_extension|:
+    |img_type(img)| is set to |IMG_TYPE_NONE| by |new_image_dict()|.
+    Both functions try to detect a type and set |img_type(img)|.
+    Thus a value other than |IMG_TYPE_NONE| indicates that a
     type has been found.
-*/
 
+@c
 #define HEADER_JPG "\xFF\xD8"
 #define HEADER_PNG "\x89PNG\r\n\x1A\n"
 #define HEADER_JBIG2 "\x97\x4A\x42\x32\x0D\x0A\x1A\x0A"
@@ -149,6 +153,7 @@ static void check_type_by_header(image_dict * idict)
         img_type(idict) = IMG_TYPE_PDF;
 }
 
+@ @c
 static void check_type_by_extension(image_dict * idict)
 {
     char *image_suffix;
@@ -171,8 +176,7 @@ static void check_type_by_extension(image_dict * idict)
         img_type(idict) = IMG_TYPE_PDF;
 }
 
-/**********************************************************************/
-
+@ @c
 void new_img_pdfstream_struct(image_dict * p)
 {
     assert(p != NULL);
@@ -181,8 +185,7 @@ void new_img_pdfstream_struct(image_dict * p)
     img_pdfstream_stream(p) = NULL;
 }
 
-/**********************************************************************/
-
+@ @c
 static void init_image(image * p)
 {
     assert(p != NULL);
@@ -194,6 +197,7 @@ static void init_image(image * p)
     img_dictref(p) = LUA_NOREF;
 }
 
+@ @c
 image *new_image(void)
 {
     image *p = xtalloc(1, image);
@@ -201,6 +205,7 @@ image *new_image(void)
     return p;
 }
 
+@ @c
 static void init_image_dict(image_dict * p)
 {
     assert(p != NULL);
@@ -218,6 +223,7 @@ static void init_image_dict(image_dict * p)
     img_index(p) = -1;          /* -1 = unused, used count from 0 */
 }
 
+@ @c
 image_dict *new_image_dict(void)
 {
     image_dict *p = xtalloc(1, image_dict);
@@ -225,6 +231,7 @@ image_dict *new_image_dict(void)
     return p;
 }
 
+@ @c
 static void free_dict_strings(image_dict * p)
 {
     xfree(img_filename(p));
@@ -233,23 +240,24 @@ static void free_dict_strings(image_dict * p)
     xfree(img_pagename(p));
 }
 
+@ @c
 void free_image_dict(image_dict * p)
 {
     if (ini_version)
-        return;                 /* The image may be \dump{}ed to a format */
+        return;                 /* The image may be \.{\\dump}ed to a format */
     /* called from limglib.c */
     assert(img_state(p) < DICT_REFERED);
     switch (img_type(p)) {
     case IMG_TYPE_PDF:
         unrefPdfDocument(img_filepath(p));
         break;
-    case IMG_TYPE_PNG:         /* assuming IMG_CLOSEINBETWEEN */
+    case IMG_TYPE_PNG:         /* assuming |IMG_CLOSEINBETWEEN| */
         assert(img_png_ptr(p) == NULL);
         break;
-    case IMG_TYPE_JPG:         /* assuming IMG_CLOSEINBETWEEN */
+    case IMG_TYPE_JPG:         /* assuming |IMG_CLOSEINBETWEEN| */
         assert(img_jpg_ptr(p) == NULL);
         break;
-    case IMG_TYPE_JBIG2:       /* todo: writejbig2.c cleanup */
+    case IMG_TYPE_JBIG2:       /* todo: writejbig2.w cleanup */
         break;
     case IMG_TYPE_PDFSTREAM:
         if (img_pdfstream_ptr(p) != NULL) {
@@ -267,8 +275,7 @@ void free_image_dict(image_dict * p)
     xfree(p);
 }
 
-/**********************************************************************/
-
+@ @c
 void read_img(PDF pdf,
               image_dict * idict, int minor_version, int inclusion_errorlevel)
 {
@@ -323,6 +330,7 @@ void read_img(PDF pdf,
         img_state(idict) = DICT_FILESCANNED;
 }
 
+@ @c
 static image_dict *read_image(PDF pdf, char *file_name, int page_num,
                               char *page_name, int colorspace,
                               int page_box, int minor_version,
@@ -347,7 +355,8 @@ static image_dict *read_image(PDF pdf, char *file_name, int page_num,
     return idict;
 }
 
-/* scans PDF pagebox specification */
+@ scans PDF pagebox specification 
+@c
 static pdfboxspec_e scan_pdf_box_spec(void)
 {
     if (scan_keyword("mediabox"))
@@ -363,6 +372,7 @@ static pdfboxspec_e scan_pdf_box_spec(void)
     return PDF_BOX_SPEC_NONE;
 }
 
+@ @c
 void scan_pdfximage(PDF pdf)
 {
     scaled_whd alt_rule;
@@ -409,6 +419,7 @@ void scan_pdfximage(PDF pdf)
     pdf_last_ximage_colordepth = img_colordepth(idict);
 }
 
+@ @c
 #define tail          cur_list.tail_field
 
 void scan_pdfrefximage(PDF pdf)
@@ -433,7 +444,9 @@ void scan_pdfrefximage(PDF pdf)
     pdf_ximage_index(tail) = img_index(idict);
 }
 
-/* tex_scale() sequence of decisions:
+@ |tex_scale()| sequence of decisions:
+
+{\obeylines\obeyspaces\tt
 wd ht dp : res = tex;
 wd ht --
 wd -- dp
@@ -442,8 +455,9 @@ wd -- --
 -- ht --
 -- -- dp
 -- -- -- : res = nat;
-*/
+}
 
+@c
 scaled_whd tex_scale(scaled_whd nat, scaled_whd tex)
 {
     scaled_whd res;
@@ -488,12 +502,12 @@ scaled_whd tex_scale(scaled_whd nat, scaled_whd tex)
     return res;
 }
 
-/* Within scale_img() only image width and height matter;
- * the offsets and positioning are not interesting here.
- * But one needs rotation info to swap width and height.
- * img_rotation() comes from the optional /Rotate key in the PDF file.
- */
+@ Within |scale_img()| only image width and height matter;
+the offsets and positioning are not interesting here.
+But one needs rotation info to swap width and height.
+|img_rotation()| comes from the optional /Rotate key in the PDF file.
 
+@c
 scaled_whd scale_img(image_dict * idict, scaled_whd alt_rule, int transform)
 {
     int x, y, xr, yr, tmp;      /* size and resolution of image */
@@ -549,6 +563,7 @@ scaled_whd scale_img(image_dict * idict, scaled_whd alt_rule, int transform)
     return tex_scale(nat, alt_rule);
 }
 
+@ @c
 void write_img(PDF pdf, image_dict * idict)
 {
     assert(idict != NULL);
@@ -584,7 +599,8 @@ void write_img(PDF pdf, image_dict * idict)
         img_state(idict) = DICT_WRITTEN;
 }
 
-/* write an image */
+@ write an image
+@c
 void pdf_write_image(PDF pdf, int n)
 {
     pdf_begin_dict(pdf, n, 0);
@@ -592,8 +608,7 @@ void pdf_write_image(PDF pdf, int n)
         write_img(pdf, idict_array[obj_data_ptr(pdf, n)]);
 }
 
-/**********************************************************************/
-
+@ @c
 void check_pdfstream_dict(image_dict * idict)
 {
     if (!img_is_bbox(idict))
@@ -602,6 +617,7 @@ void check_pdfstream_dict(image_dict * idict)
         img_state(idict) = DICT_FILESCANNED;
 }
 
+@ @c
 void write_pdfstream(PDF pdf, image_dict * idict)
 {
     char s[256];
@@ -621,10 +637,8 @@ void write_pdfstream(PDF pdf, image_dict * idict)
     pdf_end_stream(pdf);
 }
 
-/**********************************************************************/
-
-/* define idict_ptr, idict_array, & idict_limit */
-/* avoid use of size_t */
+@ @c
+/* define |idict_ptr|, |idict_array|, and |idict_limit| */
 idict_entry *idict_ptr, *idict_array = NULL;
 size_t idict_limit;
 
@@ -641,35 +655,33 @@ void idict_to_array(image_dict * idict)
     idict_ptr++;
 }
 
-/**********************************************************************/
 
-/* To allow the use of \pdfrefximage inside saved boxes in -ini mode,
- * the information in the array has to be (un)dumped with the format.
- * The next two routines take care of that.
- *
- * Most of the work involved in setting up the images is simply
- * executed again. This solves the many possible errors resulting from
- * the split in two separate runs.
+@ To allow the use of \.{\\pdfrefximage} inside saved boxes in -ini mode,
+the information in the array has to be (un)dumped with the format.
+The next two routines take care of that.
 
- * There was only one problem remaining: The pdfversion and
- * pdfinclusionerrorlevel can have changed inbetween the call to
- * readimage() and dump time. That is why they are passed as arguments
- * to undumpimagemeta once more.
- */
+Most of the work involved in setting up the images is simply
+executed again. This solves the many possible errors resulting from
+the split in two separate runs.
 
-/* some of the dumped values are really type int, not integer,
- * but since the macro falls back to generic_dump anyway, that
- * does not matter.
- */
+There was only one problem remaining: The pdfversion and
+pdfinclusionerrorlevel can have changed inbetween the call to
+|readimage()| and dump time. That is why they are passed as arguments
+to undumpimagemeta once more.
 
+some of the dumped values are really type int, not integer,
+but since the macro falls back to |generic_dump| anyway, that
+does not matter.
+
+@c
 #define dumpinteger generic_dump
 #define undumpinteger generic_undump
 
-/* (un)dumping a string means dumping the allocation size, followed
- * by the bytes. The trailing \0 is dumped as well, because that
- * makes the code simpler.
- */
+@ (un)dumping a string means dumping the allocation size, followed
+ by the bytes. The trailing \.{\\0} is dumped as well, because that
+ makes the code simpler.
 
+@c
 #define dumpcharptr(a)                          \
   do {                                          \
     int x;                                      \
@@ -693,6 +705,7 @@ void idict_to_array(image_dict * idict)
     } else { s = NULL; }                        \
   } while (0)
 
+@ @c
 void dumpimagemeta(void)
 {
     int cur_index, i;
@@ -716,7 +729,7 @@ void dumpimagemeta(void)
         dumpinteger(img_totalpages(idict));
         dumpinteger(img_colorspace(idict));
 
-        /* the image_struct is not dumped at all, except for a few
+        /* the |image_struct| is not dumped at all, except for a few
            variables that are needed to restore the contents */
 
         if (img_type(idict) == IMG_TYPE_PDF) {
@@ -729,6 +742,7 @@ void dumpimagemeta(void)
     }
 }
 
+@ @c
 void undumpimagemeta(PDF pdf, int pdfversion, int pdfinclusionerrorlevel)
 {
     int cur_index, i;
@@ -781,7 +795,8 @@ void undumpimagemeta(PDF pdf, int pdfversion, int pdfinclusionerrorlevel)
     }
 }
 
-/* scans rule spec to |alt_rule| */
+@ scans rule spec to |alt_rule| 
+@c
 scaled_whd scan_alt_rule(void)
 {
     scaled_whd alt_rule;

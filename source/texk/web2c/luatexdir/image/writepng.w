@@ -1,31 +1,33 @@
-/* writepng.c
+% writepng.w
 
-   Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
+% Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
 
-   This file is part of LuaTeX.
+% This file is part of LuaTeX.
 
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
 
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
+@ @c
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
 #include <assert.h>
 #include "ptexlib.h"
-#include "image.h"
+#include "image/image.h"
 
+@ @c
 static int transparent_page_group = -1;
 
 static void close_and_cleanup_png(image_dict * idict)
@@ -42,6 +44,7 @@ static void close_and_cleanup_png(image_dict * idict)
     img_png_ptr(idict) = NULL;
 }
 
+@ @c
 void read_png_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
 {
     double gamma;
@@ -118,6 +121,7 @@ void read_png_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
         close_and_cleanup_png(idict);
 }
 
+@ @c
 #define write_gray_pixel_16(r)                           \
     if (j % 4 == 0||j % 4 == 1) pdf_quick_out(pdf,*r++); \
   else                        smask[smask_ptr++] = *r++
@@ -166,6 +170,7 @@ void read_png_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
             xfree(rows[i]);                              \
         }
 
+@ @c
 static void write_png_palette(PDF pdf, image_dict * idict)
 {
     int i, j, k, l;
@@ -211,6 +216,7 @@ static void write_png_palette(PDF pdf, image_dict * idict)
     }
 }
 
+@ @c
 static void write_png_gray(PDF pdf, image_dict * idict)
 {
     int i, j, k, l;
@@ -241,6 +247,7 @@ static void write_png_gray(PDF pdf, image_dict * idict)
     pdf_end_stream(pdf);
 }
 
+@ @c
 static void write_png_gray_alpha(PDF pdf, image_dict * idict)
 {
     int i, j, k, l;
@@ -310,6 +317,7 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
     xfree(smask);
 }
 
+@ @c
 static void write_png_rgb(PDF pdf, image_dict * idict)
 {
     int i, j, k, l;
@@ -340,6 +348,7 @@ static void write_png_rgb(PDF pdf, image_dict * idict)
     pdf_end_stream(pdf);
 }
 
+@ @c
 static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
 {
     int i, j, k, l;
@@ -411,18 +420,17 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
     }
 }
 
-/**********************************************************************/
-/*
- * The |copy_png| function is from Hartmut Henkel. The goal is to use
- * pdf's native FlateDecode support if that is possible.
- *
- * Only a subset of the png files allows this, but when possible it
- * greatly improves inclusion speed.
- *
- * Code cheerfully gleaned from Thomas Merz' PDFlib,
- * file p_png.c "SPNG - Simple PNG"
- */
+@ The |copy_png| function is from Hartmut Henkel. The goal is to use
+pdf's native FlateDecode support if that is possible.
 
+Only a subset of the png files allows this, but when possible it
+greatly improves inclusion speed.
+
+Code cheerfully gleaned from Thomas Merz' PDFlib,
+file |p_png.c| "SPNG - Simple PNG"
+
+
+@c
 static int spng_getint(FILE * fp)
 {
     unsigned char buf[4];
@@ -507,6 +515,7 @@ static void copy_png(PDF pdf, image_dict * idict)
     } while (endflag == false);
 }
 
+@ @c
 static void reopen_png(PDF pdf, image_dict * idict)
 {
     int width, height, xres, yres;
@@ -520,6 +529,7 @@ static void reopen_png(PDF pdf, image_dict * idict)
         pdftex_fail("writepng: image dimensions have changed");
 }
 
+@ @c
 static boolean last_png_needs_page_group;
 
 void write_png(PDF pdf, image_dict * idict)
@@ -555,7 +565,8 @@ void write_png(PDF pdf, image_dict * idict)
     }
     /* the switching between |info_p| and |png_p| queries has been trial and error.
      */
-    if (pdf->minor_version > 1 && info_p->interlace_type == PNG_INTERLACE_NONE && (png_p->transformations == 0 || png_p->transformations == 0x2000)     /* gamma */
+    if (pdf->minor_version > 1 && info_p->interlace_type == PNG_INTERLACE_NONE && 
+	(png_p->transformations == 0 || png_p->transformations == 0x2000)     /* gamma */
         &&!(png_p->color_type == PNG_COLOR_TYPE_GRAY_ALPHA ||
             png_p->color_type == PNG_COLOR_TYPE_RGB_ALPHA)
         && ((pdf->image_hicolor != 0) || (png_p->bit_depth <= 8))
@@ -647,17 +658,18 @@ void write_png(PDF pdf, image_dict * idict)
     close_and_cleanup_png(idict);
 }
 
+@ @c
 static boolean transparent_page_group_was_written = false;
 
-/* Called after the xobject generated by write_png has been finished; used to
- * write out additional objects */
-
+@ Called after the xobject generated by |write_png| has been finished; used to
+write out additional objects
+@c
 void write_additional_png_objects(PDF pdf)
 {
     (void) pdf;
     (void) transparent_page_group;
     (void) transparent_page_group_was_written;
-    return;                     /* this interferes with current macro-based usage and cannot be configured */
+    return; /* this interferes with current macro-based usage and cannot be configured */
 #if 0
     if (last_png_needs_page_group) {
         if (!transparent_page_group_was_written && transparent_page_group > 1) {
