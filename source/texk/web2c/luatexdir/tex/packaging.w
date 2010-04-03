@@ -1,29 +1,30 @@
+% packaging.w
+
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
 @ @c
-/* packaging.c
-
-   Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
+@ @c
 #define scan_normal_dimen() scan_dimen(false,false,false)
 
 #define prev_depth      cur_list.prev_depth_field
@@ -36,8 +37,8 @@ static const char _svn_version[] =
 #define every_vbox equiv(every_vbox_loc)
 #define box_max_depth dimen_par(box_max_depth_code)
 
-/*
-We're essentially done with the parts of \TeX\ that are concerned with
+
+@ We're essentially done with the parts of \TeX\ that are concerned with
 the input (|get_next|) and the output (|ship_out|). So it's time to
 get heavily into the remaining part, which does the real work of typesetting.
 
@@ -63,10 +64,9 @@ has the natural width of list |p|.
 Similarly, |vpack(p,w,m)| returns a pointer to a |vlist_node| for a
 box containing the vlist that starts at |p|. In this case |w| represents
 a height instead of a width; the parameter |m| is interpreted as in |hpack|.
-*/
 
-/*
-The parameters to |hpack| and |vpack| correspond to \TeX's primitives
+
+@ The parameters to |hpack| and |vpack| correspond to \TeX's primitives
 like `\.{\\hbox} \.{to} \.{300pt}', `\.{\\hbox} \.{spread} \.{10pt}'; note
 that `\.{\\hbox}' with no dimension following it is equivalent to
 `\.{\\hbox} \.{spread} \.{0pt}'.  The |scan_spec| subroutine scans such
@@ -76,8 +76,8 @@ desired box can later be obtained by executing the following code:
 $$\vbox{\halign{#\hfil\cr
 |save_ptr:=save_ptr-1;|\cr
 |hpack(p,saved_value(0),saved_level(0)).|\cr}}$$
-*/
 
+@c
 void scan_spec(group_code c)
 {                               /* scans a box specification and left brace */
     int spec_code;
@@ -97,9 +97,8 @@ void scan_spec(group_code c)
     scan_left_brace();
 }
 
-/*
 
-When scanning, special care is necessary to ensure that the special
+@ When scanning, special care is necessary to ensure that the special
 |save_stack| codes are placed just below the new group code, because
 scanning can change |save_stack| when \.{\\csname} appears.
 
@@ -107,9 +106,8 @@ This coincides with the text on |dir| and |attr| keywords, as these
 are exaclty the uses of \.{\\hbox}, \.{\\vbox}, and \.{\\vtop} in the
 input stream (the others are \.{\\vcenter}, \.{\\valign}, and
 \.{\\halign}).
-*/
 
-
+@c
 void scan_full_spec(group_code c, int spec_direction)
 {                               /* scans a box specification and left brace */
     int s;                      /* temporarily saved value */
@@ -180,8 +178,7 @@ void scan_full_spec(group_code c, int spec_direction)
 }
 
 
-/*
-To figure out the glue setting, |hpack| and |vpack| determine how much
+@ To figure out the glue setting, |hpack| and |vpack| determine how much
 stretchability and shrinkability are present, considering all four orders
 of infinity. The highest order of infinity that has a nonzero coefficient
 is then used as if no other orders were present.
@@ -197,26 +194,26 @@ with respect to `fil'; nobody would actually want that to happen.)
 The arrays |total_stretch| and |total_shrink| are used to determine how much
 glue of each kind is present. A global variable |last_badness| is used
 to implement \.{\\badness}.
-*/
 
+@c
 scaled total_stretch[5];
 scaled total_shrink[5];         /* glue found by |hpack| or |vpack| */
 int last_badness;               /* badness of the most recently packaged box */
 
-/*
-If the global variable |adjust_tail| is non-null, the |hpack| routine
+
+@ If the global variable |adjust_tail| is non-null, the |hpack| routine
 also removes all occurrences of |ins_node|, |mark_node|, and |adjust_node|
 items and appends the resulting material onto the list that ends at
 location |adjust_tail|.
-*/
 
+@c
 halfword adjust_tail;           /* tail of adjustment list */
 
-/*
-Materials in \.{\\vadjust} used with \.{pre} keyword will be appended to
-|pre_adjust_tail| instead of |adjust_tail|.
-*/
 
+@ Materials in \.{\\vadjust} used with \.{pre} keyword will be appended to
+|pre_adjust_tail| instead of |adjust_tail|.
+
+@c
 halfword pre_adjust_tail;
 
 int font_expand_ratio;          /* current expansion ratio */
@@ -226,13 +223,14 @@ halfword last_rightmost_char;
 halfword next_char_p;           /* pointer to the next char of an implicit kern */
 halfword prev_char_p;           /* pointer to the previous char of an implicit kern */
 
-/* This procedure is called repeatedly from inside the line break algorithm. */
-
+@ This procedure is called repeatedly from inside the line break algorithm. 
+@c
 void set_prev_char_p(halfword p)
 {
     prev_char_p = p;
 }
 
+@ @c
 scaled char_stretch(halfword p)
 {
     internal_font_number k;
@@ -252,6 +250,7 @@ scaled char_stretch(halfword p)
     return 0;
 }
 
+@ @c
 scaled char_shrink(halfword p)
 {
     internal_font_number k;
@@ -271,6 +270,7 @@ scaled char_shrink(halfword p)
     return 0;
 }
 
+@ @c
 scaled kern_stretch(halfword p)
 {
     halfword l, r;
@@ -288,6 +288,7 @@ scaled kern_stretch(halfword p)
                            get_ef_code(font(l), character(l)), 1000);
 }
 
+@ @c
 scaled kern_shrink(halfword p)
 {
     halfword l, r;
@@ -305,6 +306,7 @@ scaled kern_shrink(halfword p)
                            get_ef_code(font(l), character(l)), 1000);
 }
 
+@ @c
 void do_subst_font(halfword p, int ex_ratio)
 {
     internal_font_number f, k;
@@ -358,7 +360,7 @@ void do_subst_font(halfword p, int ex_ratio)
     }
     if (k != f) {
         font(r) = k;
-        if (!is_char_node(p)) { /* todo: this should be: if(is_ligature()) */
+        if (!is_char_node(p)) { /* todo: this should be: |if(is_ligature())| */
             r = lig_ptr(p);
             while (r != null) {
                 font(r) = k;
@@ -368,6 +370,7 @@ void do_subst_font(halfword p, int ex_ratio)
     }
 }
 
+@ @c
 scaled char_pw(halfword p, int side)
 {
     internal_font_number f;
@@ -393,6 +396,7 @@ scaled char_pw(halfword p, int side)
     return round_xn_over_d(quad(f), c, 1000);
 }
 
+@ @c
 halfword new_margin_kern(scaled w, halfword p, int side)
 {
     halfword k, q;
@@ -405,11 +409,11 @@ halfword new_margin_kern(scaled w, halfword p, int side)
     return k;
 }
 
-/*
-Here is |hpack|, which is place where we do font substituting when
-font expansion is being used.
-*/
 
+@ Here is |hpack|, which is place where we do font substituting when
+font expansion is being used.
+
+@c
 halfword hpack(halfword p, scaled w, int m, int pack_direction)
 {
     halfword r;                 /* the box node that will be returned */
@@ -828,6 +832,7 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
     return r;
 }
 
+@ @c
 halfword filtered_hpack(halfword p, halfword qt, scaled w, int m, int grp,
                         int pac)
 {
@@ -839,8 +844,9 @@ halfword filtered_hpack(halfword p, halfword qt, scaled w, int m, int grp,
     return hpack(q, w, m, pac);
 }
 
-/* here is a function to calculate the natural whd of a (horizontal) node list */
+@ here is a function to calculate the natural whd of a (horizontal) node list
 
+@c
 scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
                          int g_sign, int g_order, int pack_direction)
 {
@@ -951,25 +957,25 @@ scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
     return siz;
 }
 
-/*
-In order to provide a decent indication of where an overfull or underfull
+
+@ In order to provide a decent indication of where an overfull or underfull
 box originated, we use a global variable |pack_begin_line| that is
 set nonzero only when |hpack| is being called by the paragraph builder
 or the alignment finishing routine.
-*/
 
+@c
 int pack_begin_line;            /* source file line where the current paragraph
                                    or alignment began; a negative value denotes alignment */
 
-/*
-The |vpack| subroutine is actually a special case of a slightly more
+
+@ The |vpack| subroutine is actually a special case of a slightly more
 general routine called |vpackage|, which has four parameters. The fourth
 parameter, which is |max_dimen| in the case of |vpack|, specifies the
 maximum depth of the page box that is constructed. The depth is first
 computed by the normal rules; if it exceeds this limit, the reference
 point is simply moved down until the limiting depth is attained.
-*/
 
+@c
 halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
 {
     halfword r;                 /* the box node that will be returned */
@@ -1201,6 +1207,7 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
     return r;
 }
 
+@ @c
 halfword filtered_vpackage(halfword p, scaled h, int m, scaled l, int grp,
                            int pack_direction)
 {
@@ -1210,6 +1217,7 @@ halfword filtered_vpackage(halfword p, scaled h, int m, scaled l, int grp,
     return vpackage(q, h, m, l, pack_direction);
 }
 
+@ @c
 void finish_vcenter(void)
 {
     halfword p;
@@ -1221,6 +1229,7 @@ void finish_vcenter(void)
     tail_append(p);
 }
 
+@ @c
 void package(int c)
 {
     scaled h;                   /* height of box */
@@ -1269,11 +1278,11 @@ void package(int c)
 }
 
 
-/*
-When a box is being appended to the current vertical list, the
-baselineskip calculation is handled by the |append_to_vlist| routine.
-*/
 
+@ When a box is being appended to the current vertical list, the
+baselineskip calculation is handled by the |append_to_vlist| routine.
+
+@c
 void append_to_vlist(halfword b)
 {
     scaled d;                   /* deficiency of space between baselines */
@@ -1301,20 +1310,20 @@ void append_to_vlist(halfword b)
         prev_depth = depth(b);
 }
 
-/*
-When |saving_vdiscards| is positive then the glue, kern, and penalty
+
+@ When |saving_vdiscards| is positive then the glue, kern, and penalty
 nodes removed by the page builder or by \.{\\vsplit} from the top of a
 vertical list are saved in special lists instead of being discarded.
-*/
 
+@c
 #define tail_page_disc disc_ptr[copy_code]      /* last item removed by page builder */
 #define page_disc disc_ptr[last_box_code]       /* first item removed by page builder */
 #define split_disc disc_ptr[vsplit_code]        /* first item removed by \.{\\vsplit} */
 
 halfword disc_ptr[(vsplit_code + 1)];   /* list pointers */
 
-/*
-The |vsplit| procedure, which implements \TeX's \.{\\vsplit} operation,
+
+@ The |vsplit| procedure, which implements \TeX's \.{\\vsplit} operation,
 is considerably simpler than |line_break| because it doesn't have to
 worry about hyphenation, and because its mission is to discover a single
 break instead of an optimum sequence of breakpoints.  But before we get
@@ -1329,8 +1338,8 @@ whenever this is possible without backspacing.
 
 When the second argument |s| is |false| the deleted nodes are destroyed,
 otherwise they are collected in a list starting at |split_disc|.
-*/
 
+@c
 halfword prune_page_top(halfword p, boolean s)
 {
     halfword prev_p;            /* lags one step behind |p| */
@@ -1384,33 +1393,33 @@ halfword prune_page_top(halfword p, boolean s)
     return vlink(temp_head);
 }
 
-/*
-The next subroutine finds the best place to break a given vertical list
+
+@ The next subroutine finds the best place to break a given vertical list
 so as to obtain a box of height~|h|, with maximum depth~|d|.
 A pointer to the beginning of the vertical list is given,
 and a pointer to the optimum breakpoint is returned. The list is effectively
 followed by a forced break, i.e., a penalty node with the |eject_penalty|;
 if the best break occurs at this artificial node, the value |null| is returned.
-*/
 
+@c
 scaled active_height[10];       /* distance from first active node to~|cur_p| */
 
-/*
-An array of six |scaled| distances is used to keep track of the height
+
+@ An array of six |scaled| distances is used to keep track of the height
 from the beginning of the list to the current place, just as in |line_break|.
 In fact, we use one of the same arrays, only changing its name to reflect
 its new significance.
-*/
 
+@c
 #define do_all_six(A) A(1);A(2);A(3);A(4);A(5);A(6);A(7)
 #define set_height_zero(A) active_height[A]=0   /* initialize the height to zero */
 
-/*
-A global variable |best_height_plus_depth| will be set to the natural size
+
+@ A global variable |best_height_plus_depth| will be set to the natural size
 of the box that corresponds to the optimum breakpoint found by |vert_break|.
 (This value is used by the insertion-splitting algorithm of the page builder.)
-*/
 
+@c
 scaled best_height_plus_depth;  /* height of the best box, without stretching or shrinking */
 
 halfword vert_break(halfword p, scaled h, scaled d)
@@ -1490,7 +1499,7 @@ halfword vert_break(halfword p, scaled h, scaled d)
                 break;
             }
         }
-        /* Check if node |p| is a new champion breakpoint; then \(go)|goto done|
+        /* Check if node |p| is a new champion breakpoint; then |goto done|
            if |p| is a forced break or if the page-so-far is already too full */
         if (pi < inf_penalty) {
             /* Compute the badness, |b|, using |awful_bad| if the box is too full */
@@ -1568,8 +1577,8 @@ halfword vert_break(halfword p, scaled h, scaled d)
     return best_place;
 }
 
-/*
-Now we are ready to consider |vsplit| itself. Most of
+
+@ Now we are ready to consider |vsplit| itself. Most of
 its work is accomplished by the two subroutines that we have just considered.
 
 Given the number of a vlist box |n|, and given a desired page height |h|,
@@ -1583,8 +1592,8 @@ fact that |split_first_mark(x)=null| if and only if |split_bot_mark(x)=null|.
 The original box becomes ``void'' if and only if it has been entirely
 extracted.  The extracted box is ``void'' if and only if the original
 box was void (or if it was, erroneously, an hlist box).
-*/
 
+@c
 halfword vsplit(halfword n, scaled h)
 {                               /* extracts a page of height |h| from box |n| */
     halfword v;                 /* the box to be split */
@@ -1660,13 +1669,13 @@ halfword vsplit(halfword n, scaled h)
                              vdir);
 }
 
-/*
-Now that we can see what eventually happens to boxes, we can consider
+
+@ Now that we can see what eventually happens to boxes, we can consider
 the first steps in their creation. The |begin_box| routine is called when
 |box_context| is a context specification, |cur_chr| specifies the type of
 box desired, and |cur_cmd=make_box|.
-*/
 
+@c
 void begin_box(int box_context)
 {
     halfword q;                 /* run through the current list */

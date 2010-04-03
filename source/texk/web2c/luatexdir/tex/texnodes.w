@@ -1,23 +1,23 @@
+% texnodes.w
+
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
 @ @c
-/* texnodes.c
-
-   Copyright 2006-2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
@@ -25,6 +25,7 @@ static const char _svn_version[] =
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
+@ @c
 #undef name
 
 #define noDEBUG
@@ -336,15 +337,16 @@ node_info whatsit_node_data[] = {
 
 #define last_whatsit_node user_defined_node
 
+@ @c
 halfword new_node(int i, int j)
 {
     int s;
     halfword n;
     s = get_node_size(i, j);
     n = get_node(s);
-    /* it should be possible to do this memset at free_node()  */
+    /* it should be possible to do this memset at |free_node()| */
     /* type() and subtype() will be set below, and vlink() is
-       set to null by get_node(), so we can do we clearing one
+       set to null by |get_node()|, so we can do we clearing one
        word less than |s| */
     (void) memset((void *) (varmem + n + 1), 0,
                   (sizeof(memory_word) * ((unsigned) s - 1)));
@@ -384,9 +386,9 @@ halfword new_node(int i, int j)
         break;
     case pseudo_line_node:
     case shape_node:
-        /* this is a trick that makes pseudo_files slightly slower,
-         * but the overall allocation faster then an explicit test
-         * at the top of new_node().
+        /* this is a trick that makes |pseudo_files| slightly slower,
+         but the overall allocation faster then an explicit test
+         at the top of |new_node()|.
          */
         free_node(n, variable_node_size);
         n = slow_get_node(j);
@@ -461,9 +463,9 @@ halfword new_glyph_node(void)
 }
 
 
-/* makes a duplicate of the node list that starts at |p| and returns a
-   pointer to the new list */
-
+@ makes a duplicate of the node list that starts at |p| and returns a
+   pointer to the new list 
+@c
 halfword do_copy_node_list(halfword p, halfword end)
 {
     halfword q = null;          /* previous position in new list */
@@ -487,7 +489,8 @@ halfword copy_node_list(halfword p)
     return do_copy_node_list(p, null);
 }
 
- /* make a dupe of a single node */
+@ make a dupe of a single node 
+@c
 halfword copy_node(const halfword p)
 {
     halfword r;                 /* current node being fabricated for new list */
@@ -619,13 +622,6 @@ halfword copy_node(const halfword p)
         s = copy_node(delimiter(p));
         delimiter(r) = s;
         break;
-        /*
-           case style_node:
-           case delim_node:
-           case math_char_node:
-           case math_text_char_node:
-           break;
-         */
     case sub_box_node:
     case sub_mlist_node:
         s = copy_node_list(math_list(p));
@@ -704,7 +700,15 @@ halfword copy_node(const halfword p)
                 break;
             }
             break;
+#if 0
+        case style_node:
+        case delim_node:
+        case math_char_node:
+        case math_text_char_node:
+        break;
+#else
         default:
+#endif
             break;
         }
         break;
@@ -716,6 +720,7 @@ halfword copy_node(const halfword p)
     return r;
 }
 
+@ @c
 int valid_node(halfword p)
 {
     if (p > my_prealloc) {
@@ -731,6 +736,7 @@ int valid_node(halfword p)
     return 0;
 }
 
+@ @c
 static void do_free_error(halfword p)
 {
     halfword r;
@@ -836,6 +842,7 @@ int free_error(halfword p)
 }
 
 
+@ @c
 static void do_copy_error(halfword p)
 {
     char errstr[255] = { 0 };
@@ -877,7 +884,7 @@ int copy_error(halfword p)
 }
 
 
-
+@ @c
 void flush_node(halfword p)
 {
 
@@ -1108,6 +1115,7 @@ void flush_node(halfword p)
     return;
 }
 
+@ @c
 void flush_node_list(halfword pp)
 {                               /* erase list of nodes starting at |p| */
     register halfword p = pp;
@@ -1124,6 +1132,7 @@ void flush_node_list(halfword pp)
     }
 }
 
+@ @c
 static int test_count = 1;
 
 #define dorangetest(a,b,c)  do {                                        \
@@ -1322,6 +1331,7 @@ void check_node(halfword p)
     }
 }
 
+@ @c
 void check_static_node_mem(void)
 {
     dotest(zero_glue, width(zero_glue), 0);
@@ -1373,6 +1383,7 @@ void check_static_node_mem(void)
     dotest(fil_neg_glue, shrink_order(fil_neg_glue), normal);
 }
 
+@ @c
 void check_node_mem(void)
 {
     int i;
@@ -1387,6 +1398,7 @@ void check_node_mem(void)
     test_count++;
 }
 
+@ @c
 void fix_node_list(halfword head)
 {
     halfword p, q;
@@ -1401,11 +1413,13 @@ void fix_node_list(halfword head)
     }
 }
 
+@ @c
 halfword get_node(int s)
 {
     register halfword r;
-
-    /*check_static_node_mem(); */
+#if 0
+    check_static_node_mem(); 
+#endif
     assert(s < MAX_CHAIN_SIZE);
 
     r = free_chain[s];
@@ -1422,6 +1436,7 @@ halfword get_node(int s)
     return slow_get_node(s);
 }
 
+@ @c
 void print_free_chain(int c)
 {
     halfword p = free_chain[c];
@@ -1433,6 +1448,7 @@ void print_free_chain(int c)
     fprintf(stdout, "null;\n");
 }
 
+@ @c
 void free_node(halfword p, int s)
 {
 
@@ -1459,6 +1475,7 @@ void free_node(halfword p, int s)
     var_used -= s;              /* maintain statistics */
 }
 
+@ @c
 void free_node_chain(halfword q, int s)
 {
     register halfword p = q;
@@ -1478,6 +1495,7 @@ void free_node_chain(halfword q, int s)
 }
 
 
+@ @c
 void init_node_mem(int t)
 {
     my_prealloc = var_mem_stat_max;
@@ -1608,6 +1626,7 @@ void init_node_mem(int t)
     vlink(end_point + 4) = 0;
 }
 
+@ @c
 void dump_node_mem(void)
 {
     dump_int(var_mem_max);
@@ -1621,8 +1640,8 @@ void dump_node_mem(void)
     dump_int(my_prealloc);
 }
 
-/* it makes sense to enlarge the varmem array immediately */
-
+@ it makes sense to enlarge the varmem array immediately
+@c
 void undump_node_mem(void)
 {
     int x;
@@ -1630,7 +1649,9 @@ void undump_node_mem(void)
     undump_int(rover);
     var_mem_max = (x < 100000 ? 100000 : x);
     varmem = xmallocarray(memory_word, (unsigned) var_mem_max);
-    /*memset ((void *)varmem,0,x*sizeof(memory_word)); */
+#if 0
+    memset ((void *)varmem,0,x*sizeof(memory_word));
+#endif
     undump_things(varmem[0], x);
 #ifndef NDEBUG
     varmem_sizes = xmallocarray(char, (unsigned) var_mem_max);
@@ -1669,6 +1690,7 @@ void test_rovers(char *s)
 #  define test_rovers(a)
 #endif
 
+@ @c
 halfword slow_get_node(int s)
 {
     register int t;
@@ -1764,6 +1786,7 @@ halfword slow_get_node(int s)
     }
 }
 
+@ @c
 char *sprint_node_mem_usage(void)
 {
     int i, b;
@@ -1807,6 +1830,7 @@ char *sprint_node_mem_usage(void)
     return s;
 }
 
+@ @c
 halfword list_node_mem_usage(void)
 {
     halfword i, j;
@@ -1830,6 +1854,7 @@ halfword list_node_mem_usage(void)
     return q;
 }
 
+@ @c
 void print_node_mem_stats(void)
 {
     int i, b;
@@ -1871,8 +1896,9 @@ halfword new_span_node(halfword n, int s, scaled w)
     return p;
 }
 
-/* attribute stuff */
+@* Attribute stuff.
 
+@c
 static halfword new_attribute_node(unsigned int i, int v)
 {
     register halfword r = get_node(attribute_node_size);
@@ -1882,6 +1908,7 @@ static halfword new_attribute_node(unsigned int i, int v)
     return r;
 }
 
+@ @c
 halfword copy_attribute_list(halfword n)
 {
     halfword q = get_node(attribute_node_size);
@@ -1901,6 +1928,7 @@ halfword copy_attribute_list(halfword n)
     return q;
 }
 
+@ @c
 void update_attribute_cache(void)
 {
     halfword p;
@@ -1924,6 +1952,7 @@ void update_attribute_cache(void)
     return;
 }
 
+@ @c
 void build_attribute_list(halfword b)
 {
     if (max_used_attr >= 0) {
@@ -1941,6 +1970,7 @@ void build_attribute_list(halfword b)
     }
 }
 
+@ @c
 void delete_attribute_ref(halfword b)
 {
     if (b != null) {
@@ -1961,13 +1991,13 @@ void delete_attribute_ref(halfword b)
     }
 }
 
-/* |p| is an attr list head, or zero */
-
+@ |p| is an attr list head, or zero
+@c
 halfword do_set_attribute(halfword p, int i, int val)
 {
     register halfword q;
     register int j = 0;
-    if (p == null) {            /* add a new head & node */
+    if (p == null) {            /* add a new head \& node */
         q = get_node(attribute_node_size);
         type(q) = attribute_list_node;
         attr_list_ref(q) = 1;
@@ -2000,6 +2030,7 @@ halfword do_set_attribute(halfword p, int i, int val)
     return q;
 }
 
+@ @c
 void set_attribute(halfword n, int i, int val)
 {
     register halfword p;
@@ -2007,7 +2038,7 @@ void set_attribute(halfword n, int i, int val)
     if (!nodetype_has_attributes(type(n)))
         return;
     p = node_attr(n);
-    if (p == null) {            /* add a new head & node */
+    if (p == null) {            /* add a new head \& node */
         p = get_node(attribute_node_size);
         type(p) = attribute_list_node;
         attr_list_ref(p) = 1;
@@ -2053,6 +2084,7 @@ void set_attribute(halfword n, int i, int val)
 }
 
 
+@ @c
 int unset_attribute(halfword n, int i, int val)
 {
     register halfword p;
@@ -2104,6 +2136,7 @@ int unset_attribute(halfword n, int i, int val)
     return t;
 }
 
+@ @c
 int has_attribute(halfword n, int i, int val)
 {
     register halfword p;
@@ -2127,6 +2160,7 @@ int has_attribute(halfword n, int i, int val)
     return UNUSED_ATTRIBUTE;
 }
 
+@ @c
 void print_short_node_contents(halfword p)
 {
     switch (type(p)) {
@@ -2161,6 +2195,7 @@ void print_short_node_contents(halfword p)
 }
 
 
+@ @c
 void show_pdftex_whatsit_rule_spec(int p)
 {
     tprint("(");
@@ -2172,14 +2207,13 @@ void show_pdftex_whatsit_rule_spec(int p)
 }
 
 
-/*
-Each new type of node that appears in our data structure must be capable
+
+@ Each new type of node that appears in our data structure must be capable
 of being displayed, copied, destroyed, and so on. The routines that we
 need for write-oriented whatsits are somewhat like those for mark nodes;
 other extensions might, of course, involve more subtlety here.
-*/
 
-
+@c
 static void print_write_whatsit(const char *s, pointer p)
 {
     tprint_esc(s);
@@ -2192,6 +2226,7 @@ static void print_write_whatsit(const char *s, pointer p)
 }
 
 
+@ @c
 void show_whatsit_node(int p)
 {
     switch (subtype(p)) {
@@ -2503,8 +2538,8 @@ void show_whatsit_node(int p)
 }
 
 
-/*
-  Now we are ready for |show_node_list| itself. This procedure has been
+
+@  Now we are ready for |show_node_list| itself. This procedure has been
   written to be ``extra robust'' in the sense that it should not crash or get
   into a loop even if the data structures have been messed up by bugs in
   the rest of the program. You can safely call its parent routine
@@ -2514,12 +2549,12 @@ void show_whatsit_node(int p)
   for example, it might try to read |mem[p].hh| when |mem[p]|
   contains a scaled integer, if |p| is a pointer that has been
   clobbered or chosen at random.
-*/
 
-/* |str_room| need not be checked; see |show_box|  */
 
-/* Recursive calls on |show_node_list| therefore use the following pattern: */
+@ |str_room| need not be checked; see |show_box| 
 
+@ Recursive calls on |show_node_list| therefore use the following pattern: 
+@c
 #define node_list_display(A) do {               \
     append_char('.');                           \
     show_node_list(A);                          \
@@ -2546,11 +2581,11 @@ void show_node_list(int p)
             tprint("etc.");
             return;
         }
-        /* @<Display node |p|@> */
+        /* Display node |p| */
         if (is_char_node(p)) {
             print_font_and_char(p);
             if (is_ligature(p)) {
-                /* @<Display ligature |p|@>; */
+                /* Display ligature |p|; */
                 tprint(" (ligature ");
                 if (is_leftboundary(p))
                     print_char('|');
@@ -2565,7 +2600,7 @@ void show_node_list(int p)
             case hlist_node:
             case vlist_node:
             case unset_node:
-                /* @<Display box |p|@>; */
+                /* Display box |p|; */
                 if (type(p) == hlist_node)
                     tprint_esc("h");
                 else if (type(p) == vlist_node)
@@ -2579,7 +2614,7 @@ void show_node_list(int p)
                 tprint(")x");
                 print_scaled(width(p));
                 if (type(p) == unset_node) {
-                    /* @<Display special fields of the unset node |p|@>; */
+                    /* Display special fields of the unset node |p|; */
                     if (span_count(p) != min_quarterword) {
                         tprint(" (");
                         print_int(span_count(p) + 1);
@@ -2594,7 +2629,7 @@ void show_node_list(int p)
                         print_glue(glue_shrink(p), glue_sign(p), NULL);
                     }
                 } else {
-                    /*<Display the value of |glue_set(p)|@> */
+                    /* Display the value of |glue_set(p)| */
                     /* The code will have to change in this place if |glue_ratio| is
                        a structured type instead of an ordinary |real|. Note that this routine
                        should avoid arithmetic errors even if the |glue_set| field holds an
@@ -2630,7 +2665,7 @@ void show_node_list(int p)
                 node_list_display(list_ptr(p)); /* recursive call */
                 break;
             case rule_node:
-                /* @<Display rule |p|@>; */
+                /* Display rule |p|; */
                 tprint_esc("rule(");
                 print_rule_dimen(height(p));
                 print_char('+');
@@ -2639,7 +2674,7 @@ void show_node_list(int p)
                 print_rule_dimen(width(p));
                 break;
             case ins_node:
-                /* @<Display insertion |p|@>; */
+                /* Display insertion |p|; */
                 tprint_esc("insert");
                 print_int(subtype(p));
                 tprint(", natural size ");
@@ -2656,9 +2691,9 @@ void show_node_list(int p)
                 show_whatsit_node(p);
                 break;
             case glue_node:
-                /* @<Display glue |p|@>; */
+                /* Display glue |p|; */
                 if (subtype(p) >= a_leaders) {
-                    /* @<Display leaders |p|@>; */
+                    /* Display leaders |p|; */
                     tprint_esc("");
                     switch (subtype(p)) {
                     case a_leaders:
@@ -2713,7 +2748,7 @@ void show_node_list(int p)
                     tprint(" (right margin)");
                 break;
             case kern_node:
-                /* @<Display kern |p|@>; */
+                /* Display kern |p|; */
                 /*  An ``explicit'' kern value is indicated implicitly by an explicit space. */
                 if (subtype(p) != mu_glue) {
                     tprint_esc("kern");
@@ -2729,7 +2764,7 @@ void show_node_list(int p)
                 }
                 break;
             case math_node:
-                /* @<Display math node |p|@>; */
+                /* Display math node |p|; */
                 tprint_esc("math");
                 if (subtype(p) == before)
                     tprint("on");
@@ -2741,12 +2776,12 @@ void show_node_list(int p)
                 }
                 break;
             case penalty_node:
-                /* @<Display penalty |p|@>; */
+                /* Display penalty |p|; */
                 tprint_esc("penalty ");
                 print_int(penalty(p));
                 break;
             case disc_node:
-                /* @<Display discretionary |p|@>; */
+                /* Display discretionary |p|; */
                 /* The |post_break| list of a discretionary node is indicated by a prefixed
                    `\.{\char'174}' instead of the `\..' before the |pre_break| list. */
                 tprint_esc("discretionary");
@@ -2760,7 +2795,7 @@ void show_node_list(int p)
                 flush_char();   /* recursive call */
                 break;
             case mark_node:
-                /* @<Display mark |p|@>; */
+                /* Display mark |p|; */
                 tprint_esc("mark");
                 if (mark_class(p) != 0) {
                     print_char('s');
@@ -2769,7 +2804,7 @@ void show_node_list(int p)
                 print_mark(mark_ptr(p));
                 break;
             case adjust_node:
-                /* @<Display adjustment |p|@>; */
+                /* Display adjustment |p|; */
                 tprint_esc("vadjust");
                 if (adjust_pre(p) != 0)
                     tprint(" pre ");
@@ -2784,9 +2819,10 @@ void show_node_list(int p)
     }
 }
 
-/* This routine finds the 'base' width of a horizontal box, using the same logic
+@ This routine finds the 'base' width of a horizontal box, using the same logic
   that \TeX82 used for \.{\\predisplaywidth} */
 
+@c
 pointer actual_box_width(pointer r, scaled base_width)
 {
     scaled w;                   /* calculated |size| */
@@ -2870,6 +2906,7 @@ pointer actual_box_width(pointer r, scaled base_width)
 }
 
 
+@ @c
 halfword tail_of_list(halfword p)
 {
     halfword q = p;
@@ -2879,10 +2916,10 @@ halfword tail_of_list(halfword p)
 }
 
 
-/* |delete_glue_ref| is called when a pointer to a glue
+@ |delete_glue_ref| is called when a pointer to a glue
    specification is being withdrawn.
-*/
 
+@c
 #define fast_delete_glue_ref(A) do {		\
     if (glue_ref_count(A)==null) {		\
       flush_node(A);				\
@@ -2897,23 +2934,23 @@ void delete_glue_ref(halfword p)
     fast_delete_glue_ref(p);
 }
 
+@ @c
 int var_used;
 halfword temp_ptr;              /* a pointer variable for occasional emergency use */
 
-/*
-Attribute lists need two extra globals to increase processing efficiency.
+
+@ Attribute lists need two extra globals to increase processing efficiency.
 |max_used_attr| limits the test loop that checks for set attributes, and
 |attr_list_cache| contains a pointer to an already created attribute list.  It is
 set to the special value |cache_disabled| when the current value can no longer be
 trusted: after an assignment to an attribute register, and after a group has
 ended.
-*/
 
+@c
 int max_used_attr;              /* maximum assigned attribute id  */
 halfword attr_list_cache;
 
-/*
-From the computer's standpoint, \TeX's chief mission is to create
+@ From the computer's standpoint, \TeX's chief mission is to create
 horizontal and vertical lists. We shall now investigate how the elements
 of these lists are represented internally as nodes in the dynamic memory.
 
@@ -2923,10 +2960,9 @@ penalties, or special things like discretionary hyphens; because of this
 variety, some nodes are longer than others, and we must distinguish different
 kinds of nodes. We do this by putting a `|type|' field in the first word,
 together with the link and an optional `|subtype|'.
-*/
 
-/*
-Character nodes appear only in horizontal lists, never in vertical lists.
+
+@ Character nodes appear only in horizontal lists, never in vertical lists.
 
 An |hlist_node| stands for a box that was made from a horizontal list.
 Each |hlist_node| is seven words long, and contains the following fields
@@ -2945,34 +2981,13 @@ the proportionality constant for glue setting; |glue_sign(p)| is
 glue should stretch or shrink or remain rigid; and |glue_order(p)|
 specifies the order of infinity to which glue setting applies (|normal|,
 |sfi|, |fil|, |fill|, or |filll|). The |subtype| field is not used.
-*/
 
-/*
-@d width_offset=2 {position of |width| field in a box node}
-@d depth_offset=3 {position of |depth| field in a box node}
-@d height_offset=4 {position of |height| field in a box node}
-@d width(#) == vmem(#+width_offset).sc {width of the box, in sp}
-@d depth(#) == vmem(#+depth_offset).sc {depth of the box, in sp}
-@d height(#) == vmem(#+height_offset).sc {height of the box, in sp}
-@d shift_amount(#) == vlink(#+5) {repositioning distance, in sp}
-@d box_dir(#) == vinfo(#+5) {position of |box_dir| in a box node}
-@d list_offset=6 {position of |list_ptr| field in a box node}
-@d list_ptr(#) == vlink(#+list_offset) {beginning of the list inside the box}
-@d glue_order(#) == subtype(#+list_offset) {applicable order of infinity}
-@d glue_sign(#) == type(#+list_offset) {stretching or shrinking}
-@d normal=0 {the most common case when several cases are named}
-@d stretching = 1 {glue setting applies to the stretch components}
-@d shrinking = 2 {glue setting applies to the shrink components}
-@d glue_set(#) == vmem(#+7).gr {a word of type |glue_ratio| for glue setting}
-*/
-
-/*
-The |new_null_box| function returns a pointer to an |hlist_node| in
+@ The |new_null_box| function returns a pointer to an |hlist_node| in
 which all subfields have the values corresponding to `\.{\\hbox\{\}}'.
 The |subtype| field is set to |min_quarterword|, since that's the desired
 |span_count| value if this |hlist_node| is changed to an |unset_node|.
-*/
 
+@c
 halfword new_null_box(void)
 {                               /* creates a new box node */
     halfword p;                 /* the new node */
@@ -2981,30 +2996,23 @@ halfword new_null_box(void)
     return p;
 }
 
-/*
-A |vlist_node| is like an |hlist_node| in all respects except that it
-contains a vertical list.
-*/
 
-/*
-A |rule_node| stands for a solid black rectangle; it has |width|,
+@ A |vlist_node| is like an |hlist_node| in all respects except that it
+contains a vertical list.
+
+
+@ A |rule_node| stands for a solid black rectangle; it has |width|,
 |depth|, and |height| fields just as in an |hlist_node|. However, if
 any of these dimensions is $-2^{30}$, the actual value will be determined
 by running the rule up to the boundary of the innermost enclosing box.
 This is called a ``running dimension.'' The |width| is never running in
 an hlist; the |height| and |depth| are never running in a~vlist.
 
-@d null_flag==-@'10000000000 {$-2^{30}$, signifies a missing item}
-@d is_running(#) == (#=null_flag) {tests for a running dimension}
-@d rule_dir(#)==vlink(#+5)
-*/
-
-/*
-A new rule node is delivered by the |new_rule| function. It
+@ A new rule node is delivered by the |new_rule| function. It
 makes all the dimensions ``running,'' so you have to change the
 ones that are not allowed to run.
-*/
 
+@c
 halfword new_rule(void)
 {
     halfword p;                 /* the new node */
@@ -3012,8 +3020,8 @@ halfword new_rule(void)
     return p;
 }
 
-/*
-Insertions are represented by |ins_node| records, where the |subtype|
+
+@ Insertions are represented by |ins_node| records, where the |subtype|
 indicates the corresponding box number. For example, `\.{\\insert 250}'
 leads to an |ins_node| whose |subtype| is |250+min_quarterword|.
 The |height| field of an |ins_node| is slightly misnamed; it actually holds
@@ -3025,34 +3033,21 @@ will be used if this insertion floats to a subsequent page after a
 split insertion of the same class.  There is one more field, the
 |ins_ptr|, which points to the beginning of the vlist for the insertion.
 
-@d float_cost(#)==vmem(#+2).int {the |floating_penalty| to be used}
-@d ins_ptr(#)==vinfo(#+5) {the vertical list to be inserted}
-@d split_top_ptr(#)==vlink(#+5) {the |split_top_skip| to be used}
-
-A |mark_node| has a |mark_ptr| field that points to the reference count
+@ A |mark_node| has a |mark_ptr| field that points to the reference count
 of a token list that contains the user's \.{\\mark} text.
 In addition there is a |mark_class| field that contains the mark class.
 
-@d mark_ptr(#)==vlink(#+2) {head of the token list for a mark}
-@d mark_class(#)==vinfo(#+2) {the mark class}
-
-An |adjust_node|, which occurs only in horizontal lists,
+@ An |adjust_node|, which occurs only in horizontal lists,
 specifies material that will be moved out into the surrounding
 vertical list; i.e., it is used to implement \TeX's `\.{\\vadjust}'
 operation.  The |adjust_ptr| field points to the vlist containing this
 material.
 
-@d adjust_pre == subtype  {pre-adjustment?}
-@d adjust_ptr(#)==vlink(#+2) {vertical list to be moved out of horizontal list}
-@#{|append_list| is used to append a list to |tail|}
-@d append_list(#) == begin vlink(tail) := vlink(#); append_list_end
-@d append_list_end(#) == tail := #; end
-
-A |glyph_node|, which occurs only in horizontal lists, specifies a
+@ A |glyph_node|, which occurs only in horizontal lists, specifies a
 glyph in a particular font, along with its attribute list. Older
 versions of \TeX\ could use token memory for characters, because the
 font,char combination would fit in a single word (both values were
-required to be strictly less than $2^{16}$). In \LuaTeX, room is
+required to be strictly less than $2^{16}$). In LuaTeX, room is
 needed for characters that are larger than that, as well as a pointer
 to a potential attribute list, and the two displacement values.
 
@@ -3068,16 +3063,7 @@ instead.  Nodes of this subtype are directly created only for accents
 and their base (through |make_accent|), and math nucleus items (in the
 conversion from |mlist| to |hlist|).
 
-
-@d is_char_node(#) == ((#<>null)and(type(#)=glyph_node))
-@d font(#)==vlink(#+2) {the font code in a |glyph_node|}
-@d character(#)==vinfo(#+2) {the character code in a |glyph_node|}
-@d lig_ptr(#)==vlink(#+3) {the list of characters for ligature replacements }
-@d lang_data(#)==vinfo(#+3) {language information }
-@d x_displace(#)==vinfo(#+4) { horizontal displacement }
-@d y_displace(#)==vlink(#+4) { vertical displacement  }
-*/
-
+@c
 halfword new_glyph(int f, int c)
 {
     halfword p = null;          /* the new node */
@@ -3090,8 +3076,8 @@ halfword new_glyph(int f, int c)
     return p;
 }
 
-/*
-A subset of the glyphs nodes represent ligatures: characters
+
+@ A subset of the glyphs nodes represent ligatures: characters
 fabricated from the interaction of two or more actual characters.  The
 characters that generated the ligature have not been forgotten, since
 they are needed for diagnostic messages; the |lig_ptr| field points to
@@ -3109,8 +3095,8 @@ kerning steps of the program.
 
 |main_control| inserts these, and they are later converted to
 |subtype_normal| by |new_ligkern|.
-*/
 
+@c
 quarterword norm_min(int h)
 {
     if (h <= 0)
@@ -3133,14 +3119,14 @@ halfword new_char(int f, int c)
     return p;
 }
 
-/*
-Left and right ghost glyph nodes are the result of \.{\\leftghost}
+
+@ Left and right ghost glyph nodes are the result of \.{\\leftghost}
 and \.{\\rightghost}, respectively. They are going to be removed by
 |new_ligkern|, at the end of which they are no longer needed.
 
-Here are a few handy helpers used by the list output routines.
-*/
+@ Here are a few handy helpers used by the list output routines.
 
+@c
 scaled glyph_width(halfword p)
 {
     scaled w;
@@ -3168,8 +3154,8 @@ scaled glyph_depth(halfword p)
     return w;
 }
 
-/*
-A |disc_node|, which occurs only in horizontal lists, specifies a
+
+@ A |disc_node|, which occurs only in horizontal lists, specifies a
 ``dis\-cretion\-ary'' line break. If such a break occurs at node |p|, the text
 that starts at |pre_break(p)| will precede the break, the text that starts at
 |post_break(p)| will follow the break, and text that appears in
@@ -3188,18 +3174,7 @@ decides to make the break, and the discretionary node will disappear at
 that time; thus, the output routine sees only discretionaries that were
 not chosen.
 
-@d automatic_disc=2
-@d syllable_disc=3
-@d disc_type==subtype {the kind of discretionary}
-@d pre_break(#)==vinfo(#+2) {text that precedes a discretionary break}
-@d post_break(#)==vlink(#+2) {text that follows a discretionary break}
-@d no_break(#)==vlink(#+3) {text this discretionary break replaces}
-@d pre_break_head(#)==(#+4)
-@d post_break_head(#)==(#+6)
-@d no_break_head(#)==(#+8)
-@d tlink(#)==vinfo(#+1)
-*/
-
+@c
 halfword new_disc(void)
 {                               /* creates an empty |disc_node| */
     halfword p;                 /* the new node */
@@ -3207,8 +3182,7 @@ halfword new_disc(void)
     return p;
 }
 
-/*
-A |whatsit_node| is a wild card reserved for extensions to \TeX. The
+@ A |whatsit_node| is a wild card reserved for extensions to \TeX. The
 |subtype| field in its first word says what `\\{whatsit}' it is, and
 implicitly determines the node size (which must be 2 or more) and the
 format of the remaining words. When a |whatsit_node| is encountered
@@ -3223,19 +3197,13 @@ The present implementation of \TeX\ treats the features associated with
 `\.{\\write}' and `\.{\\special}' as if they were extensions, in order to
 illustrate how such routines might be coded. We shall defer further
 discussion of extensions until the end of this program.
-*/
 
-/*
-A |math_node|, which occurs only in horizontal lists, appears before and
+@ A |math_node|, which occurs only in horizontal lists, appears before and
 after mathematical formulas. The |subtype| field is |before| before the
 formula and |after| after it. There is a |surround| field, which represents
 the amount of surrounding space inserted by \.{\\mathsurround}.
 
-@d surround(#)==vlink(#+2)
-@d before=0 {|subtype| for math node that introduces a formula}
-@d after=1 {|subtype| for math node that winds up a formula}
-*/
-
+@c
 halfword new_math(scaled w, int s)
 {
     halfword p;                 /* the new node */
@@ -3244,18 +3212,14 @@ halfword new_math(scaled w, int s)
     return p;
 }
 
-/*
-\TeX\ makes use of the fact that |hlist_node|, |vlist_node|,
+@ \TeX\ makes use of the fact that |hlist_node|, |vlist_node|,
 |rule_node|, |ins_node|, |mark_node|, |adjust_node|,
 |disc_node|, |whatsit_node|, and |math_node| are at the low end of the
 type codes, by permitting a break at glue in a list if and only if the
 |type| of the previous node is less than |math_node|. Furthermore, a
 node is discarded after a break if its type is |math_node| or~more.
 
-@d precedes_break(#)==(type(#)<math_node)
-@d non_discardable(#)==(type(#)<math_node)
-
-A |glue_node| represents glue in a list. However, it is really only
+@ A |glue_node| represents glue in a list. However, it is really only
 a pointer to a separate glue specification, since \TeX\ makes use of the
 fact that many essentially identical nodes of glue are usually present.
 If |p| points to a |glue_node|, |glue_ptr(p)| points to
@@ -3275,21 +3239,13 @@ parameter numbers later (e.g., |line_skip_code=0|, |baseline_skip_code=1|,
 etc.); it suffices for now to say that the |subtype| of parametric glue
 will be the same as the parameter number, plus~one.
 
-In math formulas there are two more possibilities for the |subtype| in a
+@ In math formulas there are two more possibilities for the |subtype| in a
 glue node: |mu_glue| denotes an \.{\\mskip} (where the units are scaled \.{mu}
 instead of scaled \.{pt}); and |cond_math_glue| denotes the `\.{\\nonscript}'
 feature that cancels the glue node immediately following if it appears
 in a subscript.
 
-@d cond_math_glue=98 {special |subtype| to suppress glue in the next node}
-@d mu_glue=99 {|subtype| for math glue}
-@d a_leaders=100 {|subtype| for aligned leaders}
-@d c_leaders=101 {|subtype| for centered leaders}
-@d x_leaders=102 {|subtype| for expanded leaders}
-@d glue_ptr(#)==vinfo(#+2) {pointer to a glue specification}
-@d leader_ptr(#)==vlink(#+2) {pointer to box or rule node for leaders}
-
-A glue specification has a halfword reference count in its first word,
+@ A glue specification has a halfword reference count in its first word,
 @^reference counts@>
 representing |null| plus the number of glue nodes that point to it (less one).
 Note that the reference count appears in the same position as
@@ -3303,23 +3259,11 @@ fields called |stretch_order| and |shrink_order|; these contain the
 orders of infinity (|normal|, |sfi|, |fil|, |fill|, or |filll|)
 corresponding to the stretch and shrink values.
 
-@d glue_ref_count(#) == vlink(#+3) {reference count of a glue specification}
-@d stretch(#) == vlink(#+1) {the stretchability of this glob of glue}
-@d shrink(#) == vinfo(#+1) {the shrinkability of this glob of glue}
-@d stretch_order(#) == type(#+3) {order of infinity for stretching}
-@d shrink_order(#) == subtype(#+3) {order of infinity for shrinking}
-@d sfi=1 {first-order infinity}
-@d fil=2 {second-order infinity}
-@d fill=3 {third-order infinity}
-@d filll=4 {fourth-order infinity}
-*/
-
-/*
-Here is a function that returns a pointer to a copy of a glue spec.
+@ Here is a function that returns a pointer to a copy of a glue spec.
 The reference count in the copy is |null|, because there is assumed
 to be exactly one reference to the new specification.
-*/
 
+@c
 halfword new_spec(halfword p)
 {                               /* duplicates a glue specification */
     halfword q;                 /* the new spec */
@@ -3328,13 +3272,12 @@ halfword new_spec(halfword p)
     return q;
 }
 
-/*
-And here's a function that creates a glue node for a given parameter
+@ And here's a function that creates a glue node for a given parameter
 identified by its code number; for example,
 |new_param_glue(line_skip_code)| returns a pointer to a glue node for the
 current \.{\\lineskip}.
-*/
 
+@c
 halfword new_param_glue(int n)
 {
     halfword p;                 /* the new node */
@@ -3346,11 +3289,10 @@ halfword new_param_glue(int n)
     return p;
 }
 
-/*
-Glue nodes that are more or less anonymous are created by |new_glue|,
+@ Glue nodes that are more or less anonymous are created by |new_glue|,
 whose argument points to a glue specification.
-*/
 
+@c
 halfword new_glue(halfword q)
 {
     halfword p;                 /* the new node */
@@ -3360,15 +3302,14 @@ halfword new_glue(halfword q)
     return p;
 }
 
-/*
-Still another subroutine is needed: This one is sort of a combination
+@ Still another subroutine is needed: This one is sort of a combination
 of |new_param_glue| and |new_glue|. It creates a glue node for one of
 the current glue parameters, but it makes a fresh copy of the glue
 specification, since that specification will probably be subject to change,
 while the parameter will stay put. The global variable |temp_ptr| is
 set to the address of the new spec.
-*/
 
+@c
 halfword new_skip_param(int n)
 {
     halfword p;                 /* the new node */
@@ -3379,8 +3320,7 @@ halfword new_skip_param(int n)
     return p;
 }
 
-/*
-A |kern_node| has a |width| field to specify a (normally negative)
+@ A |kern_node| has a |width| field to specify a (normally negative)
 amount of spacing. This spacing correction appears in horizontal lists
 between letters like A and V when the font designer said that it looks
 better to move them closer together or further apart. A kern node can
@@ -3391,30 +3331,9 @@ kerns inserted from font information or math mode calculations) or |explicit|
 (for kerns inserted from non-math accents) or |mu_glue| (for kerns
 inserted from \.{\\mkern} specifications in math formulas).
 
-@d explicit=1 {|subtype| of kern nodes from \.{\\kern} and \.{\\/}}
-@d acc_kern=2 {|subtype| of kern nodes from accents}
+@ The |new_kern| function creates a kern node having a given width.
 
-@# {memory structure for marginal kerns}
-@d margin_char(#) == vlink(#+3)
-
-@# {|subtype| of marginal kerns}
-@d left_side == 0
-@d right_side == 1
-
-@# {base for lp/rp/ef codes starts from 2:
-    0 for |hyphen_char|,
-    1 for |skew_char|}
-@d lp_code_base == 2
-@d rp_code_base == 3
-@d ef_code_base == 4
-@d tag_code == 5
-
-@d auto_kern == explicit
-@d no_lig_code == 6
-
-The |new_kern| function creates a kern node having a given width.
-*/
-
+@c
 halfword new_kern(scaled w)
 {
     halfword p;                 /* the new node */
@@ -3423,22 +3342,17 @@ halfword new_kern(scaled w)
     return p;
 }
 
-/*
-A |penalty_node| specifies the penalty associated with line or page
+@ A |penalty_node| specifies the penalty associated with line or page
 breaking, in its |penalty| field. This field is a fullword integer, but
 the full range of integer values is not used: Any penalty |>=10000| is
 treated as infinity, and no break will be allowed for such high values.
 Similarly, any penalty |<=-10000| is treated as negative infinity, and a
 break will be forced.
 
-@d inf_penalty==inf_bad {``infinite'' penalty value}
-@d eject_penalty==-inf_penalty {``negatively infinite'' penalty value}
-@d penalty(#) == vlink(#+2) {the added cost of breaking a list here}
-
-Anyone who has been reading the last few sections of the program will
+@ Anyone who has been reading the last few sections of the program will
 be able to guess what comes next.
-*/
 
+@c
 halfword new_penalty(int m)
 {
     halfword p;                 /* the new node */
@@ -3447,8 +3361,7 @@ halfword new_penalty(int m)
     return p;
 }
 
-/*
-You might think that we have introduced enough node types by now. Well,
+@ You might think that we have introduced enough node types by now. Well,
 almost, but there is one more: An |unset_node| has nearly the same format
 as an |hlist_node| or |vlist_node|; it is used for entries in \.{\\halign}
 or \.{\\valign} that are not yet in their final form, since the box
@@ -3461,10 +3374,6 @@ containing the total shrink of order |glue_sign| that is present.
 The |subtype| field is called |span_count|; an unset box typically
 contains the data for |qo(span_count)+1| columns.
 Unset nodes will be changed to box nodes when alignment is completed.
-
-@d glue_stretch(#)==vmem(#+7).sc {total stretch in an unset node}
-@d glue_shrink==shift_amount {total shrink in an unset node}
-@d span_count==subtype {indicates the number of spanned columns}
 
 In fact, there are still more types coming. When we get to math formula
 processing we will see that a |style_node| has |type=14|; and a number
@@ -3480,4 +3389,3 @@ However, other references to the nodes are made symbolically in terms of
 the \.{WEB} macro definitions above, so that format changes will leave
 \TeX's other algorithms intact.
 @^system dependencies@>
-*/

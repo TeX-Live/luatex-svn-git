@@ -1,31 +1,33 @@
+% arithmetic.w
+% 
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
+\def\MP{MetaPost}
+
 @ @c
-/* arithmetic.c
-   
-   Copyright 2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
-/*
-The principal computations performed by \TeX\ are done entirely in terms of
+
+@ The principal computations performed by \TeX\ are done entirely in terms of
 integers less than $2^{31}$ in magnitude; and divisions are done only when both
 dividend and divisor are nonnegative. Thus, the arithmetic specified in this
 program can be carried out in exactly the same way on a wide variety of
@@ -47,9 +49,8 @@ apply for |mod| as well as for |div|.)
 
 Here is a routine that calculates half of an integer, using an
 unambiguous convention with respect to signed odd numbers.
-*/
 
-
+@c
 int half(int x)
 {
     if (odd(x))
@@ -58,12 +59,12 @@ int half(int x)
         return (x / 2);
 }
 
-/*
-The following function is used to create a scaled integer from a given decimal
+
+@ The following function is used to create a scaled integer from a given decimal
 fraction $(.d_0d_1\ldots d_{k-1})$, where |0<=k<=17|. The digit $d_i$ is
 given in |dig[i]|, and the calculation produces a correctly rounded result.
-*/
 
+@c
 scaled round_decimals(int k)
 {                               /* converts a decimal fraction */
     int a;                      /* the accumulator */
@@ -74,8 +75,8 @@ scaled round_decimals(int k)
     return ((a + 1) / 2);
 }
 
-/*
-Conversely, here is a procedure analogous to |print_int|. If the output
+
+@ Conversely, here is a procedure analogous to |print_int|. If the output
 of this procedure is subsequently read by \TeX\ and converted by the
 |round_decimals| routine above, it turns out that the original value will
 be reproduced exactly; the ``simplest'' such decimal number is output,
@@ -86,8 +87,8 @@ decimal digits yet to be printed will yield the original number if and only if
 they form a fraction~$f$ in the range $s-\delta\L10\cdot2^{16}f<s$.
 We can stop if and only if $f=0$ satisfies this condition; the loop will
 terminate before $s$ can possibly become zero.
-*/
 
+@c
 void print_scaled(scaled s)
 {                               /* prints scaled real, rounded to five digits */
     scaled delta;               /* amount of allowable inaccuracy */
@@ -108,8 +109,7 @@ void print_scaled(scaled s)
     } while (s > delta);
 }
 
-/*
-Physical sizes that a \TeX\ user specifies for portions of documents are
+@ Physical sizes that a \TeX\ user specifies for portions of documents are
 represented internally as scaled points. Thus, if we define an `sp' (scaled
 @^sp@>
 point) as a unit equal to $2^{-16}$ printer's points, every dimension
@@ -122,7 +122,7 @@ computer.
 The present implementation of \TeX\ does not check for overflow when
 @^overflow in arithmetic@>
 dimensions are added or subtracted. This could be done by inserting a
-few dozen tests of the form `\ignorespaces|if x>=@'10000000000 then
+few dozen tests of the form `\ignorespaces|if x>=010000000000 then
 @t\\{report\_overflow}@>|', but the chance of overflow is so remote that
 such tests do not seem worthwhile.
 
@@ -133,17 +133,17 @@ desirable to avoid producing multiple error messages in case of arithmetic
 overflow; so the routines set the global variable |arith_error| to |true|
 instead of reporting errors directly to the user. Another global variable,
 |tex_remainder|, holds the remainder after a division.
-*/
 
+@c
 boolean arith_error;            /* has arithmetic overflow occurred recently? */
 scaled tex_remainder;           /* amount subtracted to get an exact division */
 
-/*
-The first arithmetical subroutine we need computes $nx+y$, where |x|
+
+@ The first arithmetical subroutine we need computes $nx+y$, where |x|
 and~|y| are |scaled| and |n| is an integer. We will also use it to
 multiply integers.
-*/
 
+@c
 scaled mult_and_add(int n, scaled x, scaled y, scaled max_answer)
 {
     if (n == 0)
@@ -160,8 +160,8 @@ scaled mult_and_add(int n, scaled x, scaled y, scaled max_answer)
     }
 }
 
-/* We also need to divide scaled dimensions by integers. */
-
+@ We also need to divide scaled dimensions by integers. 
+@c
 scaled x_over_n(scaled x, int n)
 {
     boolean negative;           /* should |tex_remainder| be negated? */
@@ -190,15 +190,15 @@ scaled x_over_n(scaled x, int n)
     }
 }
 
-/*
-Then comes the multiplication of a scaled number by a fraction |n/d|,
+
+@ Then comes the multiplication of a scaled number by a fraction |n/d|,
 where |n| and |d| are nonnegative integers |<=@t$2^{16}$@>| and |d| is
 positive. It would be too dangerous to multiply by~|n| and then divide
 by~|d|, in separate operations, since overflow might well occur; and it
 would be too inaccurate to divide by |d| and then multiply by |n|. Hence
 this subroutine simulates 1.5-precision arithmetic.
-*/
 
+@c
 scaled xn_over_d(scaled x, int n, int d)
 {
     nonnegative_integer t, u, v, xx, dd;        /* intermediate quantities */
@@ -226,8 +226,8 @@ scaled xn_over_d(scaled x, int n, int d)
     }
 }
 
-/*
-The next subroutine is used to compute the ``badness'' of glue, when a
+
+@ The next subroutine is used to compute the ``badness'' of glue, when a
 total~|t| is supposed to be made from amounts that sum to~|s|.  According
 to {\sl The \TeX book}, the badness of this situation is $100(t/s)^3$;
 however, badness is simply a heuristic, so we need not squeeze out the
@@ -245,8 +245,7 @@ It is not difficult to prove that $$\hbox{|badness(t+1,s)>=badness(t,s)
 >=badness(t,s+1)|}.$$ The badness function defined here is capable of
 computing at most 1095 distinct values, but that is plenty.
 
-*/
-
+@c
 halfword badness(scaled t, scaled s)
 {                               /* compute badness, given |t>=0| */
     int r;                      /* approximation to $\alpha t/s$, where $\alpha^3\approx
@@ -270,8 +269,8 @@ halfword badness(scaled t, scaled s)
     }
 }
 
-/*
-When \TeX\ ``packages'' a list into a box, it needs to calculate the
+
+@ When \TeX\ ``packages'' a list into a box, it needs to calculate the
 proportionality ratio by which the glue inside the box should stretch
 or shrink. This calculation does not affect \TeX's decision making,
 so the precise details of rounding, etc., in the glue calculation are not
@@ -281,16 +280,14 @@ We shall use the type |glue_ratio| for such proportionality ratios.
 A glue ratio should take the same amount of memory as an
 |integer| (usually 32 bits) if it is to blend smoothly with \TeX's
 other data structures. Thus |glue_ratio| should be equivalent to
-|short_real| in some implementations of \PASCAL. Alternatively,
+|short_real| in some implementations of PASCAL. Alternatively,
 it is possible to deal with glue ratios using nothing but fixed-point
 arithmetic; see {\sl TUGboat \bf3},1 (March 1982), 10--27. (But the
 routines cited there must be modified to allow negative glue ratios.)
 @^system dependencies@>
-*/
 
-/*
 
-This section is (almost) straight from MetaPost. I had to change
+@ This section is (almost) straight from MetaPost. I had to change
 the types (use |integer| instead of |fraction|), but that should
 not have any influence on the actual calculations (the original
 comments refer to quantities like |fraction_four| ($2^{30}$), and
@@ -306,7 +303,7 @@ typesetting) -- Taco
 
 And now let's complete our collection of numeric utility routines
 by considering random number generation.
-\MP\ generates pseudo-random numbers with the additive scheme recommended
+\MP{} generates pseudo-random numbers with the additive scheme recommended
 in Section 3.6 of {\sl The Art of Computer Programming}; however, the
 results are random fractions between 0 and |fraction_one-1|, inclusive.
 
@@ -315,22 +312,21 @@ fractions. Using the recurrence $x_n=(x_{n-55}-x_{n-31})\bmod 2^{28}$,
 we generate batches of 55 new $x_n$'s at a time by calling |new_randoms|.
 The global variable |j_random| tells which element has most recently
 been consumed.
-*/
 
+@c
 static int randoms[55];         /* the last 55 random values generated */
 static int j_random;            /* the number of unused |randoms| */
 scaled random_seed;             /* the default random seed */
 
-/*  A small bit of metafont is needed. */
+@ A small bit of metafont is needed. 
 
+@c
 #define fraction_half 01000000000       /* $2^{27}$, represents 0.50000000 */
 #define fraction_one 02000000000        /* $2^{28}$, represents 1.00000000 */
 #define fraction_four 010000000000      /* $2^{30}$, represents 4.00000000 */
 #define el_gordo 017777777777   /* $2^{31}-1$, the largest value that \MP\ likes */
-                                                         /* #define halfp(A) (A)/2 *//* in cpascal.h */
 
-/*
-The |make_frac| routine produces the |fraction| equivalent of
+@ The |make_frac| routine produces the |fraction| equivalent of
 |p/q|, given integers |p| and~|q|; it computes the integer
 $f=\lfloor2^{28}p/q+{1\over2}\rfloor$, when $p$ and $q$ are
 positive. If |p| and |q| are both of the same scaled type |t|,
@@ -345,7 +341,7 @@ been designed to avoid this sort of error.
 If this subroutine were programmed in assembly language on a typical
 machine, we could simply compute |(@t$2^{28}$@>*p)div q|, since a
 double-precision product can often be input to a fixed-point division
-instruction. But when we are restricted to \PASCAL\ arithmetic it
+instruction. But when we are restricted to PASCAL arithmetic it
 is necessary either to resort to multiple-precision maneuvering
 or to use a simple but slow iteration. The multiple-precision technique
 would be about three times faster than the code adopted here, but it
@@ -353,7 +349,7 @@ would be comparatively long and tricky, involving about sixteen
 additional multiplications and divisions.
 
 This operation is part of \MP's ``inner loop''; indeed, it will
-consume nearly 10\pct! of the running time (exclusive of input and output)
+consume nearly 10\%! of the running time (exclusive of input and output)
 if the code below is left unchanged. A machine-dependent recoding
 will therefore make \MP\ run faster. The present implementation
 is highly portable, but slow; it avoids multiplication and division
@@ -366,10 +362,8 @@ As noted below, a few more routines should also be replaced by machine-dependent
 code, for efficiency. But when a procedure is not part of the ``inner loop,''
 such changes aren't advisable; simplicity and robustness are
 preferable to trickery, unless the cost is too high.
-@^inner loop@>
-*/
 
-
+@c
 static int make_frac(int p, int q)
 {
     int f;                      /* the fraction bits, with a leading 1 bit */
@@ -384,7 +378,6 @@ static int make_frac(int p, int q)
 #ifdef DEBUG
         if (q == 0)
             confusion("/");
-        /* @:this can't happen /}{\quad \./@> */
 #endif
         negate(q);
         negative = !negative;
@@ -434,6 +427,7 @@ static int make_frac(int p, int q)
     }
 }
 
+@ @c
 static int take_frac(int q, int f)
 {
     int p;                      /* the fraction so far */
@@ -499,18 +493,19 @@ static int take_frac(int q, int f)
 }
 
 
-/*
-The subroutines for logarithm and exponential involve two tables.
+
+@ The subroutines for logarithm and exponential involve two tables.
 The first is simple: |two_to_the[k]| equals $2^k$. The second involves
 a bit more calculation, which the author claims to have done correctly:
 |spec_log[k]| is $2^{27}$ times $\ln\bigl(1/(1-2^{-k})\bigr)=
 2^{-k}+{1\over2}2^{-2k}+{1\over3}2^{-3k}+\cdots\,$, rounded to the
 nearest integer.
-*/
 
+@c
 static int two_to_the[31];      /* powers of two */
 static int spec_log[29];        /* special logarithms */
 
+@ @c
 void initialize_arithmetic(void)
 {
     int k;
@@ -535,7 +530,7 @@ void initialize_arithmetic(void)
     spec_log[28] = 1;
 }
 
-
+@ @c
 static int m_log(int x)
 {
     int y, z;                   /* auxiliary registers */
@@ -556,7 +551,7 @@ static int m_log(int x)
             x += x;
             y = y - 93032639;
             z = z - 48782;
-        }                       /* $2^{27}\ln2\approx 93032639.74436163 
+        }                       /* $2^{27}\ln2\approx 93032639.74436163$
                                    and $2^{16}\times.74436163\approx 48782$ */
         y = y + (z / unity);
         k = 2;
@@ -576,13 +571,13 @@ static int m_log(int x)
 }
 
 
-/*
-The following somewhat different subroutine tests rigorously if $ab$ is
+
+@ The following somewhat different subroutine tests rigorously if $ab$ is
 greater than, equal to, or less than~$cd$,
 given integers $(a,b,c,d)$. In most cases a quick decision is reached.
 The result is $+1$, 0, or~$-1$ in the three respective cases.
-*/
 
+@c
 static int ab_vs_cd(int a, int b, int c, int d)
 {
     int q, r;                   /* temporary registers */
@@ -631,11 +626,11 @@ static int ab_vs_cd(int a, int b, int c, int d)
 }
 
 
-/*
-To consume a random integer, the program below will say `|next_random|'
-and then it will fetch |randoms[j_random]|.
-*/
 
+@ To consume a random integer, the program below will say `|next_random|'
+and then it will fetch |randoms[j_random]|.
+
+@c
 #define next_random() do {					\
 	if (j_random==0) new_randoms(); else decr(j_random);	\
     } while (0)
@@ -660,8 +655,9 @@ static void new_randoms(void)
 }
 
 
-/* To initialize the |randoms| table, we call the following routine. */
+@ To initialize the |randoms| table, we call the following routine. 
 
+@c
 void init_randoms(int seed)
 {
     int j, jj, k;               /* more or less random integers */
@@ -683,15 +679,15 @@ void init_randoms(int seed)
     new_randoms();              /* ``warm up'' the array */
 }
 
-/*
-To produce a uniform random number in the range |0<=u<x| or |0>=u>x|
+
+@ To produce a uniform random number in the range |0<=u<x| or |0>=u>x|
 or |0=u=x|, given a |scaled| value~|x|, we proceed as shown here.
 
 Note that the call of |take_frac| will produce the values 0 and~|x|
 with about half the probability that it will produce any other particular
 values between 0 and~|x|, because it rounds its answers.
-*/
 
+@c
 int unif_rand(int x)
 {
     int y;                      /* trial value */
@@ -705,12 +701,12 @@ int unif_rand(int x)
         return -y;
 }
 
-/*
-Finally, a normal deviate with mean zero and unit standard deviation
+
+@ Finally, a normal deviate with mean zero and unit standard deviation
 can readily be obtained with the ratio method (Algorithm 3.4.1R in
 {\sl The Art of Computer Programming\/}).
-*/
 
+@c
 int norm_rand(void)
 {
     int x, u, l;                /* what the book would call $2^{16}X$, $2^{28}U$, and $-2^{24}\ln U$ */
@@ -728,10 +724,10 @@ int norm_rand(void)
     return x;
 }
 
-/* This function could also be expressed as a macro, but it is a useful
+@ This function could also be expressed as a macro, but it is a useful
    breakpoint for debugging.
-*/
 
+@c
 int fix_int(int val, int min, int max)
 {
     return (val < min ? min : (val > max ? max : val));

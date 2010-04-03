@@ -1,32 +1,31 @@
+% expand.w
+% 
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* expand.c
-   
-   Copyright 2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
-
 
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
-/*
-Only a dozen or so command codes |>max_command| can possibly be returned by
+
+@ Only a dozen or so command codes |>max_command| can possibly be returned by
 |get_next|; in increasing order, they are |undefined_cs|, |expand_after|,
 |no_expand|, |input|, |if_test|, |fi_or_else|, |cs_name|, |convert|, |the|,
 |top_bot_mark|, |call|, |long_call|, |outer_call|, |long_outer_call|, and
@@ -43,12 +42,12 @@ just the ones that exhaust the application calling stack. The
 actual maximum value of |expand_depth| is outside of our control, but
 the initial setting of |100| should be enough to prevent problems.
 @^system dependencies@>
-*/
 
+@c
 static int expand_depth_count = 0;
 
-/*
-The |expand| subroutine is used when |cur_cmd>max_command|. It removes a
+
+@ The |expand| subroutine is used when |cur_cmd>max_command|. It removes a
 ``call'' or a conditional or one of the other special operations just
 listed.  It follows that |expand| might invoke itself recursively. In all
 cases, |expand| destroys the current token, but it sets things up so that
@@ -59,10 +58,11 @@ Since several of the basic scanning routines communicate via global variables,
 their values are saved as local variables of |expand| so that
 recursive calls don't invalidate them.
 @^recursion@>
-*/
 
+@c
 boolean is_in_csname = false;
 
+@ @c
 void expand(void)
 {
     halfword t;                 /* token that is being ``expanded after'' */
@@ -179,7 +179,6 @@ void expand(void)
                    Otherwise, the token we just read has to be pushed back, as well
                    as a token matching the internal form of \.{\\primitive}, that is
                    sneaked in as an alternate form of |ignore_spaces|.
-                   @!@:primitive_}{\.{\\primitive} primitive (internalized)@>
 
                    An implementation problem surfaces: There really is no |cur_cs|
                    attached to the inserted primitive command, so it is safer to set
@@ -224,7 +223,7 @@ void expand(void)
             }
             break;
         case cs_name_cmd:
-            /* @<Manufacture a control sequence name@>; */
+            /* Manufacture a control sequence name; */
             manufacture_csname();
             break;
         case convert_cmd:
@@ -308,6 +307,7 @@ void expand(void)
     decr(expand_depth_count);
 }
 
+@ @c
 void complain_missing_csname(void)
 {
     print_err("Missing \\endcsname inserted");
@@ -316,6 +316,7 @@ void complain_missing_csname(void)
     back_error();
 }
 
+@ @c
 void manufacture_csname(void)
 {
     halfword p, q, r;
@@ -352,11 +353,11 @@ void manufacture_csname(void)
     back_input();
 }
 
-/*
-Sometimes the expansion looks too far ahead, so we want to insert
-a harmless \.{\\relax} into the user's input.
-*/
 
+@ Sometimes the expansion looks too far ahead, so we want to insert
+a harmless \.{\\relax} into the user's input.
+
+@c
 void insert_relax(void)
 {
     cur_tok = cs_token_flag + cur_cs;
@@ -366,12 +367,12 @@ void insert_relax(void)
     token_type = inserted;
 }
 
-/*
-Here is a recursive procedure that is \TeX's usual way to get the
+
+@ Here is a recursive procedure that is \TeX's usual way to get the
 next token of input. It has been slightly optimized to take account of
 common cases.
-*/
 
+@c
 void get_x_token(void)
 {                               /* sets |cur_cmd|, |cur_chr|, |cur_tok|,  and expands macros */
   RESTART:
@@ -397,12 +398,11 @@ void get_x_token(void)
         cur_tok = cs_token_flag + cur_cs;
 }
 
-/*
-The |get_x_token| procedure is equivalent to two consecutive
+
+@ The |get_x_token| procedure is equivalent to two consecutive
 procedure calls: |get_next; x_token|.
-*/
 
-
+@c
 void x_token(void)
 {                               /* |get_x_token| without the initial |get_next| */
     while (cur_cmd > max_command_cmd) {
@@ -416,8 +416,7 @@ void x_token(void)
 }
 
 
-/*
-A control sequence that has been \.{\\def}'ed by the user is expanded by
+@ A control sequence that has been \.{\\def}'ed by the user is expanded by
 \TeX's |macro_call| procedure.
 
 Before we get into the details of |macro_call|, however, let's consider the
@@ -432,8 +431,8 @@ somehwat efficient without too much extra work: it registers the
 highest mark class ever instantiated by the user, so the loops
 in |fire_up| and |vsplit| do not have to traverse the full range
 |0..biggest_mark|.
-*/
 
+@c
 halfword top_marks_array[(biggest_mark + 1)];
 halfword first_marks_array[(biggest_mark + 1)];
 halfword bot_marks_array[(biggest_mark + 1)];
@@ -441,7 +440,7 @@ halfword split_first_marks_array[(biggest_mark + 1)];
 halfword split_bot_marks_array[(biggest_mark + 1)];
 halfword biggest_used_mark;
 
-
+@ @c
 void initialize_marks(void)
 {
     int i;
@@ -455,8 +454,8 @@ void initialize_marks(void)
     }
 }
 
-/*
-Now let's consider |macro_call| itself, which is invoked when \TeX\ is
+
+@ Now let's consider |macro_call| itself, which is invoked when \TeX\ is
 scanning a control sequence whose |cur_cmd| is either |call|, |long_call|,
 |outer_call|, or |long_outer_call|.  The control sequence definition
 appears in the token list whose reference count is in location |cur_chr|
@@ -467,25 +466,23 @@ depending on whether or not the control sequence disallows \.{\\par}
 in its parameters. The |get_next| routine will set |long_state| to
 |outer_call| and emit \.{\\par}, if a file ends or if an \.{\\outer}
 control sequence occurs in the midst of an argument.
-*/
 
-
+@c
 int long_state;                 /* governs the acceptance of \.{\\par} */
 
-/*
-The parameters, if any, must be scanned before the macro is expanded.
+@ The parameters, if any, must be scanned before the macro is expanded.
 Parameters are token lists without reference counts. They are placed on
 an auxiliary stack called |pstack| while they are being scanned, since
 the |param_stack| may be losing entries during the matching process.
 (Note that |param_stack| can't be gaining entries, since |macro_call| is
 the only routine that puts anything onto |param_stack|, and it
 is not recursive.)
-*/
 
+@c
 halfword pstack[9];             /* arguments supplied to a macro */
 
-/*
-After parameter scanning is complete, the parameters are moved to the
+
+@ After parameter scanning is complete, the parameters are moved to the
 |param_stack|. Then the macro body is fed to the scanner; in other words,
 |macro_call| places the defined text of the control sequence at the
 top of\/ \TeX's input stack, so that |get_next| will proceed to read it
@@ -497,8 +494,8 @@ declared \.{\\long}, i.e., if its command code in the |eq_type| field is
 not |long_call| or |long_outer_call|, its parameters are not allowed to contain
 the control sequence \.{\\par}. If an illegal \.{\\par} appears, the macro
 call is aborted, and the \.{\\par} will be rescanned.
-*/
 
+@c
 void macro_call(void)
 {                               /* invokes a user-defined control sequence */
     halfword r;                 /* current node in the macro's token list */
@@ -560,7 +557,7 @@ void macro_call(void)
                 m = 0;
             }
             /* Scan a parameter until its delimiter string has been found; or, if |s=null|,
-               simply scan the delimiter string@>; */
+               simply scan the delimiter string; */
 
             /* If |info(r)| is a |match| or |end_match| command, it cannot be equal to
                any token found by |get_token|. Therefore an undelimited parameter---i.e.,
@@ -569,7 +566,7 @@ void macro_call(void)
           CONTINUE:
             get_token();        /* set |cur_tok| to the next token of input */
             if (cur_tok == token_info(r)) {
-                /* Advance \(r)|r|; |goto found| if the parameter delimiter has been
+                /* Advance |r|; |goto found| if the parameter delimiter has been
                    fully matched, otherwise |goto continue| */
                 /* A slightly subtle point arises here: When the parameter delimiter ends
                    with `\.{\#\{}', the token list will have a left brace both before and

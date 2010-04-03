@@ -1,28 +1,32 @@
+% align.w
+% 
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
+\def\<#1>{$#1$}
+
 @ @c
-/* align.c
-   
-   Copyright 2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
-
 #include "ptexlib.h"
 
+static const char _svn_version[] =
+    "$Id$ "
+    "$URL$";
 
-
+@ @c
 void fin_align(void);
 void init_row(void);
 void init_col(void);
@@ -41,11 +45,7 @@ void init_col(void);
 #define pdf_ignored_dimen dimen_par(pdf_ignored_dimen_code)
 #define overfull_rule     dimen_par(overfull_rule_code)
 
-static const char _svn_version[] =
-    "$Id$ $URL$";
-
-/*
-It's sort of a miracle whenever \.{\\halign} and \.{\\valign} work, because
+@ It's sort of a miracle whenever \.{\\halign} and \.{\\valign} work, because
 they cut across so many of the control structures of \TeX.
 
 Therefore the
@@ -174,22 +174,22 @@ to the rest of \TeX. At critical junctures, an alignment routine is
 called upon to step in and do some little action, but most of the time
 these routines just lurk in the background. It's something like
 post-hypnotic suggestion.
-*/
 
-/*
-We have mentioned that alignrecords contain no |height| or |depth| fields.
+
+
+@ We have mentioned that alignrecords contain no |height| or |depth| fields.
 Their |glue_sign| and |glue_order| are pre-empted as well, since it
 is necessary to store information about what to do when a template ends.
 This information is called the |extra_info| field.
-*/
 
+@c
 #define u_part(A) vlink((A)+depth_offset)       /* pointer to \<u_j> token list */
 #define v_part(A) vinfo((A)+depth_offset)       /* pointer to \<v_j> token list */
 #define span_ptr(A) vinfo((A)+1)        /* column spanning list */
 #define extra_info(A) vinfo((A)+list_offset)    /* info to remember during template */
 
-/*
-Alignments can occur within alignments, so a small stack is used to access
+
+@ Alignments can occur within alignments, so a small stack is used to access
 the alignrecord information. At each level we have a |preamble| pointer,
 indicating the beginning of the preamble list; a |cur_align| pointer,
 indicating the current position in the preamble list; a |cur_span| pointer,
@@ -206,8 +206,8 @@ lists.
 The current values of these nine quantities appear in global variables;
 when they have to be pushed down, they are stored in 6-word nodes, and
 |align_ptr| points to the topmost such node.
-*/
 
+@c
 #define preamble vlink(align_head)      /* the current preamble list */
 
 pointer cur_align = null;       /* current position in preamble list */
@@ -219,10 +219,10 @@ pointer cur_pre_head = null, cur_pre_tail = null;       /* pre-adjustment list p
 
 /* The |align_state| and |preamble| variables are initialized elsewhere. */
 
-/* Alignment stack maintenance is handled by a pair of trivial routines
+@ Alignment stack maintenance is handled by a pair of trivial routines
 called |push_alignment| and |pop_alignment|.
-*/
 
+@c
 void push_alignment(void)
 {
     pointer p;                  /* the new alignment stack node */
@@ -259,8 +259,8 @@ void pop_alignment(void)
     flush_node(p);
 }
 
-/*
-\TeX\ has eight procedures that govern alignments: |init_align| and
+
+@ \TeX\ has eight procedures that govern alignments: |init_align| and
 |fin_align| are used at the very beginning and the very end; |init_row| and
 |fin_row| are used at the beginning and end of individual rows; |init_span|
 is used at the beginning of a sequence of spanned columns (possibly involving
@@ -271,9 +271,9 @@ whether the next item is \.{\\noalign}.
 We shall consider these routines in the order they are first used during
 the course of a complete \.{\\halign}, namely |init_align|, |align_peek|,
 |init_row|, |init_span|, |init_col|, |fin_col|, |fin_row|, |fin_align|.
-*/
 
-/* The preamble is copied directly, except that \.{\\tabskip} causes a change
+
+@ The preamble is copied directly, except that \.{\\tabskip} causes a change
 to the tabskip glue, thereby possibly expanding macros that immediately
 follow it. An appearance of \.{\\span} also causes such an expansion.
 
@@ -281,8 +281,7 @@ Note that if the preamble contains `\.{\\global\\tabskip}', the `\.{\\global}'
 token survives in the preamble and the `\.{\\tabskip}' defines new
 tabskip glue (locally).
 
-*/
-
+@c
 void get_preamble_token(void)
 {
   RESTART:
@@ -310,14 +309,13 @@ void get_preamble_token(void)
 
 
 
-/*
-When \.{\\halign} or \.{\\valign} has been scanned in an appropriate
+@ When \.{\\halign} or \.{\\valign} has been scanned in an appropriate
 mode, \TeX\ calls |init_align|, whose task is to get everything off to a
 good start. This mostly involves scanning the preamble and putting its
 information into the preamble list.
 @^preamble@>
-*/
 
+@c
 void init_align(void)
 {
     /* label done, done1, done2, continue; */
@@ -371,7 +369,7 @@ void init_align(void)
         if (cur_cmd == car_ret_cmd)
             break;              /* \.{\\cr} ends the preamble */
 
-        /* Scan preamble text until |cur_cmd| is |tab_mark| or |car_ret */
+        /* Scan preamble text until |cur_cmd| is |tab_mark| or |car_ret| */
         /* Scan the template \<u_j>, putting the resulting token list in |hold_token_head| */
         /* Spaces are eliminated from the beginning of a template. */
 
@@ -450,8 +448,8 @@ void init_align(void)
     align_peek();               /* look for \.{\\noalign} or \.{\\omit} */
 }
 
-/*
-The tricky part about alignments is getting the templates into the
+
+@ The tricky part about alignments is getting the templates into the
 scanner at the right time, and recovering control when a row or column
 is finished.
 
@@ -460,8 +458,8 @@ We usually begin a row after each \.{\\cr} has been sensed, unless that
 the alignment. The |align_peek| routine is used to look ahead and do
 the right thing; it either gets a new row started, or gets a \.{\\noalign}
 started, or finishes off the alignment.
-*/
 
+@c
 void align_peek(void)
 {
   RESTART:
@@ -484,12 +482,12 @@ void align_peek(void)
     }
 }
 
-/*
-The parameter to |init_span| is a pointer to the alignrecord where the
+
+@ The parameter to |init_span| is a pointer to the alignrecord where the
 next column or group of columns will begin. A new semantic level is
 entered, so that the columns will generate a list for subsequent packaging.
-*/
 
+@c
 void init_span(pointer p)
 {
     push_nest();
@@ -502,14 +500,14 @@ void init_span(pointer p)
     cur_span = p;
 }
 
-/*
-To start a row (i.e., a `row' that rhymes with `dough' but not with `bough'),
+
+@ To start a row (i.e., a `row' that rhymes with `dough' but not with `bough'),
 we enter a new semantic level, copy the first tabskip glue, and change
 from internal vertical mode to restricted horizontal mode or vice versa.
 The |space_factor| and |prev_depth| are not used on this semantic level,
 but we clear them to zero just to be tidy.
-*/
 
+@c
 void init_row(void)
 {
     push_nest();
@@ -526,15 +524,15 @@ void init_row(void)
     init_span(cur_align);
 }
 
-/*
-When a column begins, we assume that |cur_cmd| is either |omit| or else
+
+@ When a column begins, we assume that |cur_cmd| is either |omit| or else
 the current token should be put back into the input until the \<u_j>
 template has been scanned.  (Note that |cur_cmd| might be |tab_mark| or
 |car_ret|.)  We also assume that |align_state| is approximately 1000000 at
 this time.  We remain in the same mode, and start the template if it is
 called for.
-*/
 
+@c
 void init_col(void)
 {
     extra_info(cur_align) = cur_cmd;
@@ -546,8 +544,8 @@ void init_col(void)
     }                           /* now |align_state=1000000| */
 }
 
-/*
-The scanner sets |align_state| to zero when the \<u_j> template ends. When
+
+@ The scanner sets |align_state| to zero when the \<u_j> template ends. When
 a subsequent \.{\\cr} or \.{\\span} or tab mark occurs with |align_state=0|,
 the scanner activates the following code, which fires up the \<v_j> template.
 We need to remember the |cur_chr|, which is either |cr_cr_code|, |cr_code|,
@@ -555,8 +553,8 @@ We need to remember the |cur_chr|, which is either |cr_cr_code|, |cr_code|,
 
 This part of the program had better not be activated when the preamble
 to another alignment is being scanned, or when no alignment preamble is active.
-*/
 
+@c
 void insert_vj_template(void)
 {
     if ((scanner_status == aligning) || (cur_align == null))
@@ -591,13 +589,12 @@ void insert_vj_template(void)
 
 
 
-/*
-When the |endv| command at the end of a \<v_j> template comes through the
+@ When the |endv| command at the end of a \<v_j> template comes through the
 scanner, things really start to happen; and it is the |fin_col| routine
 that makes them happen. This routine returns |true| if a row as well as a
 column has been finished.
-*/
 
+@c
 boolean fin_col(void)
 {
     pointer p;                  /* the alignrecord after the current one */
@@ -738,8 +735,8 @@ boolean fin_col(void)
 }
 
 
-/*
-A span node is a 3-word record containing |width|, |span_span|, and
+
+@ A span node is a 3-word record containing |width|, |span_span|, and
 |span_ptr| fields. The |span_span| field indicates the number of
 spanned columns; the |span_ptr| field points to a span node for the same
 starting column, having a greater extent of spanning, or to
@@ -755,19 +752,19 @@ that column. The code has to make sure that there is room for
 @^data structure assumptions@>
 
 The |new_span_node| function is defined in |texnodes.c|.
-*/
 
+@c
 #ifndef span_span
 #  define span_span(A) vlink((A)+1)     /* that is normally |alink| */
 #endif
 
-/*
-At the end of a row, we append an unset box to the current vlist (for
+
+@ At the end of a row, we append an unset box to the current vlist (for
 \.{\\halign}) or the current hlist (for \.{\\valign}). This unset box
 contains the unset boxes for the columns, separated by the tabskip glue.
 Everything will be set later.
-*/
 
+@c
 void fin_row(void)
 {
     pointer p;                  /* the new unset box */
@@ -796,12 +793,12 @@ void fin_row(void)
     /* note that |glue_shrink(p)=0| since |glue_shrink==shift_amount| */
 }
 
-/*
-Finally, we will reach the end of the alignment, and we can breathe a
+
+@ Finally, we will reach the end of the alignment, and we can breathe a
 sigh of relief that memory hasn't overflowed. All the unset boxes will now be
 set so that the columns line up, taking due account of spanned columns.
-*/
 
+@c
 void fin_align(void)
 {
     pointer p, q, r, s, u, v, rr;       /* registers for the list operations */
@@ -823,8 +820,8 @@ void fin_align(void)
     /* Go through the preamble list, determining the column widths and
      * changing the alignrecords to dummy unset boxes 
      */
-/*
-It's time now to dismantle the preamble list and to compute the column
+
+/* It's time now to dismantle the preamble list and to compute the column
 widths. Let $w_{ij}$ be the maximum of the natural widths of all entries
 that span columns $i$ through $j$, inclusive. The alignrecord for column~$i$
 contains $w_{ii}$ in its |width| field, and there is also a linked list of
@@ -1117,7 +1114,7 @@ value is changed to zero and so is the next tabskip.
     }
     flush_node_list(p);
     pop_alignment();
-    /* Insert the \(c)current list into its environment */
+    /* Insert the current list into its environment */
     /* We now have a completed alignment, in the list that starts at |cur_list.head_field|
        and ends at |cur_list.tail_field|. This list will be merged with the one that encloses
        it. (In case the enclosing mode is |mmode|, for displayed formulas,
@@ -1143,11 +1140,11 @@ value is changed to zero and so is the next tabskip.
 }
 
 
-/*
-The token list |omit_template| just referred to is a constant token
-list that contains the special control sequence \.{\\endtemplate} only.
-*/
 
+@ The token list |omit_template| just referred to is a constant token
+list that contains the special control sequence \.{\\endtemplate} only.
+
+@c
 void initialize_alignments(void)
 {
     token_info(omit_template) = end_template_token;     /* |link(omit_template)=null| */

@@ -1,23 +1,23 @@
+% texfileio.w
+% 
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* texfileio.c
-   
-   Copyright 2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include <string.h>
 #include "ptexlib.h"
 #include <kpathsea/absolute.h>
@@ -26,10 +26,10 @@ static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
+@ @c
 #define end_line_char int_par(end_line_char_code)
 
-/*
-The bane of portability is the fact that different operating systems treat
+@ The bane of portability is the fact that different operating systems treat
 input and output quite differently, perhaps because computer scientists
 have not given sufficient attention to this problem. People have felt somehow
 that input and output are not part of ``real'' programming. Well, it is true
@@ -61,34 +61,36 @@ The program actually makes use also of a third kind of file, called a
 |word_file|, when dumping and reloading base information for its own
 initialization.  We shall define a word file later; but it will be possible
 for us to specify simple operations on word files before they are defined.
-*/
 
-/* We finally did away with |nameoffile| and |namelength|, but the variables
-   have to be kept otherwise there will be link errors from |openclose.c| in
-   the web2c library */
+@ We finally did away with |nameoffile| and |namelength|, but the variables
+have to be kept otherwise there will be link errors from |openclose.c| in
+the web2c library 
 
+@c
 char *nameoffile;
 int namelength;
 
-/*
-When input files are opened via a callback, they will also be read using
+
+@ When input files are opened via a callback, they will also be read using
 callbacks. for that purpose, the |open_read_file_callback| returns an
 integer to uniquely identify a callback table. This id replaces the file
 point |f| in this case, because the input does not have to be a file
 in the traditional sense.
 
 Signalling this fact is achieved by having two arrays of integers.
-*/
 
+@c
 int *input_file_callback_id;
 int read_file_callback_id[17];
 
-/* Handle -output-directory.
-   We assume that it is OK to look here first.  Possibly it
-   would be better to replace lookups in "." with lookups in the
-   output_directory followed by "." but to do this requires much more
-   invasive surgery in libkpathsea.  
-*/
+@ Handle -output-directory.
+
+We assume that it is OK to look here first.  Possibly it
+would be better to replace lookups in "." with lookups in the
+|output_directory| followed by "." but to do this requires much more
+invasive surgery in libkpathsea.  
+
+@c
 static char *find_in_output_directory(const char *s)
 {
     if (output_directory && !kpse_absolute_p(s, false)) {
@@ -106,8 +108,9 @@ static char *find_in_output_directory(const char *s)
     return NULL;
 }
 
-/* find an \input or \read file. |n| differentiates between those case. */
+@ find an \.{\\input} or \.{\\read} file. |n| differentiates between those case. 
 
+@c
 char *luatex_find_read_file(const char *s, int n, int callback_index)
 {
     char *ftemp = NULL;
@@ -128,7 +131,8 @@ char *luatex_find_read_file(const char *s, int n, int callback_index)
     return ftemp;
 }
 
-/* find other files types */
+@ find other files types
+@c
 char *luatex_find_file(const char *s, int callback_index)
 {
     char *ftemp = NULL;
@@ -188,11 +192,11 @@ char *luatex_find_file(const char *s, int callback_index)
 }
 
 
-/* Open an input file F, using the kpathsea format FILEFMT and passing
-   FOPEN_MODE to fopen.  The filename is in `fn'.  We return whether or 
+@  Open an input file F, using the kpathsea format FILEFMT and passing
+   |FOPEN_MODE| to fopen.  The filename is in `fn'.  We return whether or 
    not the open succeeded.
- */
 
+@c
 boolean
 luatex_open_input(FILE ** f_ptr, const char *fn, int filefmt,
                   const_string fopen_mode, boolean must_exist)
@@ -230,6 +234,7 @@ luatex_open_input(FILE ** f_ptr, const char *fn, int filefmt,
     return *f_ptr != NULL;
 }
 
+@ @c
 boolean luatex_open_output(FILE ** f_ptr, const char *fn,
                            const_string fopen_mode)
 {
@@ -263,9 +268,7 @@ boolean luatex_open_output(FILE ** f_ptr, const char *fn,
 }
 
 
-
-
-
+@ @c
 boolean lua_a_open_in(alpha_file * f, char *fn, int n)
 {
     int k;
@@ -308,6 +311,7 @@ boolean lua_a_open_in(alpha_file * f, char *fn, int n)
     return ret;
 }
 
+@ @c
 boolean lua_a_open_out(alpha_file * f, char *fn, int n)
 {
     boolean test;
@@ -329,6 +333,7 @@ boolean lua_a_open_out(alpha_file * f, char *fn, int n)
     return ret;
 }
 
+@ @c
 boolean lua_b_open_out(alpha_file * f, char *fn)
 {
     boolean test;
@@ -350,6 +355,7 @@ boolean lua_b_open_out(alpha_file * f, char *fn)
     return ret;
 }
 
+@ @c
 void lua_a_close_in(alpha_file f, int n)
 {                               /* close a text file */
     boolean ret;
@@ -370,15 +376,16 @@ void lua_a_close_in(alpha_file f, int n)
     }
 }
 
+@ @c
 void lua_a_close_out(alpha_file f)
 {                               /* close a text file */
     close_file_or_pipe(f);
 }
 
-/*
-Binary input and output are done with \PASCAL's ordinary |get| and |put|
+
+@ Binary input and output are done with C's ordinary 
 procedures, so we don't have to make any other special arrangements for
-binary~I/O. Text output is also easy to do with standard \PASCAL\ routines.
+binary~I/O. Text output is also easy to do with standard routines.
 The treatment of text input is more difficult, however, because
 of the necessary translation to |ASCII_code| values.
 \TeX's conventions should be efficient, and they should
@@ -390,15 +397,15 @@ Input from text files is read one line at a time, using a routine called
 now, it suffices for us to know that |buffer| is an array of |ASCII_code|
 values, and that |first| and |last| are indices into this array
 representing the beginning and ending of a line of text.
-*/
 
+@c
 packed_ASCII_code *buffer;      /* lines of characters being read */
 int first;                      /* the first unused position in |buffer| */
 int last;                       /* end of the line just input to |buffer| */
 int max_buf_stack;              /* largest index used in |buffer| */
 
-/*
-The |lua_input_ln| function brings the next line of input from the specified
+
+@ The |lua_input_ln| function brings the next line of input from the specified
 file into available positions of the buffer array and returns the value
 |true|, unless the file has already been entirely read, in which case it
 returns |false| and sets |last:=first|.  In general, the |ASCII_code|
@@ -425,20 +432,13 @@ an |eoln| that was in |f^|. The procedure does not do a |get| when it
 reaches the end of the line; therefore it can be used to acquire input
 from the user's terminal as well as from ordinary text files.
 
-Standard \PASCAL\ says that a file should have |eoln| immediately
-before |eof|, but \TeX\ needs only a weaker restriction: If |eof|
-occurs in the middle of a line, the system function |eoln| should return
-a |true| result (even though |f^| will be undefined).
-
 Since the inner loop of |lua_input_ln| is part of \TeX's ``inner loop''---each
 character of input comes in at this place---it is wise to reduce system
 overhead by making use of special routines that read in an entire array
-of characters at once, if such routines are available. The following
-code uses standard \PASCAL\ to illustrate what needs to be done, but
-finer tuning is often possible at well-developed \PASCAL\ sites.
+of characters at once, if such routines are available. 
 @^inner loop@>
-*/
 
+@c
 boolean lua_input_ln(alpha_file f, int n, boolean bypass_eoln)
 {
     boolean lua_result;
@@ -485,8 +485,8 @@ boolean lua_input_ln(alpha_file f, int n, boolean bypass_eoln)
     return false;
 }
 
-/*
-We need a special routine to read the first line of \TeX\ input from
+
+@ We need a special routine to read the first line of \TeX\ input from
 the user's terminal. This line is different because it is read before we
 have opened the transcript file; there is sort of a ``chicken and
 egg'' problem here. If the user types `\.{\\input paper}' on the first
@@ -498,25 +498,11 @@ will not contain error messages generated by the first line before the
 first \.{\\input} command.)
 @.texput@>
 
-The first line is even more special if we are lucky enough to have an operating
-system that treats \TeX\ differently from a run-of-the-mill \PASCAL\ object
-program. It's nice to let the user start running a \TeX\ job by typing
-a command line like `\.{tex paper}'; in such a case, \TeX\ will operate
-as if the first line of input were `\.{paper}', i.e., the first line will
-consist of the remainder of the command line, after the part that invoked
-\TeX.
-
 The first line is special also because it may be read before \TeX\ has
 input a format file. In such cases, normal error messages cannot yet
 be given. The following code uses concepts that will be explained later.
-(If the \PASCAL\ compiler does not support non-local |@!goto|\unskip, the
-@^system dependencies@>
-statement `|goto final_end|' should be replaced by something that
-quietly terminates the program.)
-*/
 
-/*
-Different systems have different ways to get started. But regardless of
+@ Different systems have different ways to get started. But regardless of
 what conventions are adopted, the routine that initializes the terminal
 should satisfy the following specifications:
 
@@ -546,9 +532,8 @@ The following program does the required initialization.
 Iff anything has been specified on the command line, then |t_open_in|
 will return with |last > first|.
 @^system dependencies@>
-*/
 
-
+@c
 boolean init_terminal(void)
 {                               /* gets the terminal input started */
     t_open_in();
@@ -580,21 +565,19 @@ boolean init_terminal(void)
 }
 
 
-
-/*
-Here is a procedure that asks the user to type a line of input,
+@ Here is a procedure that asks the user to type a line of input,
 assuming that the |selector| setting is either |term_only| or |term_and_log|.
 The input is placed into locations |first| through |last-1| of the
 |buffer| array, and echoed on the transcript file if appropriate.
-*/
 
+@c
 void term_input(void)
 {                               /* gets a line from the terminal */
     int k;                      /* index into |buffer| */
     update_terminal();          /* now the user sees the prompt for sure */
     if (!input_ln(term_in, true))
         fatal_error("End of file on the terminal!");
-    term_offset = 0;            /* the user's line ended with \<\rm return> */
+    term_offset = 0;            /* the user's line ended with \.{<return>} */
     decr(selector);             /* prepare to echo the input */
     if (last != first) {
         for (k = first; k <= last - 1; k++)
@@ -604,8 +587,8 @@ void term_input(void)
     incr(selector);             /* restore previous status */
 }
 
-/*
-It's time now to fret about file names.  Besides the fact that different
+
+@ It's time now to fret about file names.  Besides the fact that different
 operating systems treat files in different ways, we must cope with the
 fact that completely different naming conventions are used by different
 groups of people. The following programs show what is required for one
@@ -647,14 +630,14 @@ be made with reluctance, and only when an entire file name that
 includes spaces is ``quoted'' somehow.
 
 Here are the global values that file names will be scanned into.
-*/
 
+@c
 str_number cur_name;            /* name of file just scanned */
 str_number cur_area;            /* file area just scanned, or \.{""} */
 str_number cur_ext;             /* file extension just scanned, or \.{""} */
 
-/*
-The file names we shall deal with have the
+
+@ The file names we shall deal with have the
 following structure:  If the name contains `\./' or `\.:'
 (for Amiga only), the file area
 consists of all characters up to and including the final such character;
@@ -664,20 +647,20 @@ otherwise the file area is null.  If the remaining file name contains
 
 We can scan such file names easily by using two global variables that keep track
 of the occurrences of area and extension delimiters:
-*/
 
+@c
 pool_pointer area_delimiter;    /* the most recent `\./', if any */
 pool_pointer ext_delimiter;     /* the relevant `\..', if any */
 
-/*
-Input files that can't be found in the user's area may appear in a standard
+
+@ Input files that can't be found in the user's area may appear in a standard
 system area called |TEX_area|. Font metric files whose areas are not given
 explicitly are assumed to appear in a standard system area called
 |TEX_font_area|.  $\Omega$'s compiled translation process files whose areas
 are not given explicitly are assumed to appear in a standard system area. 
 These system area names will, of course, vary from place to place.
-*/
 
+@c
 #define append_to_fn(A) do {                                    \
         c=(A);                                                  \
         if (c!='"') {                                           \
@@ -705,8 +688,8 @@ char *pack_file_name(str_number n, str_number a, str_number e)
 }
 
 
-/*
-A messier routine is also needed, since format file names must be scanned
+
+@ A messier routine is also needed, since format file names must be scanned
 before \TeX's string mechanism has been initialized. We shall use the
 global variable |TEX_format_default| to supply the text for default system areas
 and extensions related to format files.
@@ -715,18 +698,18 @@ and extensions related to format files.
 Under {\mc UNIX} we don't give the area part, instead depending
 on the path searching that will happen during file opening.  Also, the
 length will be set in the main program.
-*/
 
+@c
 char *TEX_format_default;
 
-/*
-This part of the program becomes active when a ``virgin'' \TeX\ is trying to get going, 
+
+@ This part of the program becomes active when a ``virgin'' \TeX\ is trying to get going, 
 just after the preliminary initialization, or when the user is substituting another
 format file by typing `\.\&' after the initial `\.{**}' prompt.  The buffer
 contains the first line of input in |buffer[loc..(last-1)]|, where
 |loc<last| and |buffer[loc]<>" "|.
-*/
 
+@c
 char *open_fmt_file(void)
 {
     int j;                      /* the first space after the format file name */
@@ -765,8 +748,8 @@ char *open_fmt_file(void)
     return fmt;
 }
 
-/*
-The global variable |name_in_progress| is used to prevent recursive
+
+@ The global variable |name_in_progress| is used to prevent recursive
 use of |scan_file_name|, since the |begin_name| and other procedures
 communicate via global variables. Recursion would arise only by
 devious tricks like `\.{\\input\\input f}'; such attempts at sabotage
@@ -777,26 +760,25 @@ from being initiated when a font size specification is being scanned.
 Another global variable, |job_name|, contains the file name that was first
 \.{\\input} by the user. This name is extended by `\.{.log}' and `\.{.dvi}'
 and `\.{.fmt}' in the names of \TeX's output files.
-*/
 
-
+@c
 boolean name_in_progress;       /* is a file name being scanned? */
 str_number job_name;            /* principal file name */
 boolean log_opened;             /* has the transcript file been opened? */
 
-/*
-Initially |job_name=0|; it becomes nonzero as soon as the true name is known.
+
+@ Initially |job_name=0|; it becomes nonzero as soon as the true name is known.
 We have |job_name=0| if and only if the `\.{log}' file has not been opened,
 except of course for a short time just after |job_name| has become nonzero.
-*/
 
+@c
 unsigned char *texmf_log_name;  /* full name of the log file */
 
-/*
-The |open_log_file| routine is used to open the transcript file and to help
-it catch up to what has previously been printed on the terminal.
-*/
 
+@ The |open_log_file| routine is used to open the transcript file and to help
+it catch up to what has previously been printed on the terminal.
+
+@c
 void open_log_file(void)
 {
     int old_setting;            /* previous |selector| setting */
@@ -848,11 +830,11 @@ void open_log_file(void)
     selector = old_setting + 2; /* |log_only| or |term_and_log| */
 }
 
-/*
-Let's turn now to the procedure that is used to initiate file reading
-when an `\.{\\input}' command is being processed.
-*/
 
+@ Let's turn now to the procedure that is used to initiate file reading
+when an `\.{\\input}' command is being processed.
+
+@c
 void start_input(void)
 {                               /* \TeX\ will \.{\\input} something */
     str_number temp_str;
@@ -922,15 +904,16 @@ void start_input(void)
     iloc = istart;
 }
 
-/* Read and write dump files through zlib */
+@ Read and write dump files through zlib
 
-/* Earlier versions recast *f from FILE * to gzFile, but there is
- * no guarantee that these have the same size, so a static variable 
- * is needed.
- */
+@ Earlier versions recast |*f| from |FILE *| to |gzFile|, but there is
+no guarantee that these have the same size, so a static variable 
+is needed.
 
+@c
 static gzFile gz_fmtfile = NULL;
 
+@ @c
 void do_zdump(char *p, int item_size, int nitems, FILE * out_file)
 {
     int err;
@@ -945,6 +928,7 @@ void do_zdump(char *p, int item_size, int nitems, FILE * out_file)
     }
 }
 
+@ @c
 void do_zundump(char *p, int item_size, int nitems, FILE * in_file)
 {
     int err;
@@ -958,6 +942,7 @@ void do_zundump(char *p, int item_size, int nitems, FILE * in_file)
     }
 }
 
+@ @c
 #define COMPRESSION "R3"
 
 boolean zopen_w_input(FILE ** f, const char *fname, int format,
@@ -986,6 +971,7 @@ boolean zopen_w_input(FILE ** f, const char *fname, int format,
     return res;
 }
 
+@ @c
 boolean zopen_w_output(FILE ** f, const char *s, const_string fopen_mode)
 {
     int res = 1;
@@ -1003,14 +989,15 @@ boolean zopen_w_output(FILE ** f, const char *s, const_string fopen_mode)
     return res;
 }
 
+@ @c
 void zwclose(FILE * f)
 {
     (void) f;
     gzclose(gz_fmtfile);
 }
 
-/* create the dvi or pdf file */
-
+@  create the dvi or pdf file 
+@c
 int open_outfile(FILE ** f, const char *name, const char *mode)
 {
     FILE *res;
@@ -1023,8 +1010,8 @@ int open_outfile(FILE ** f, const char *name, const char *mode)
 }
 
 
-/* the caller sets tfm_buffer=NULL and tfm_size=0 */
-
+@ the caller should set |tfm_buffer=NULL| and |tfm_size=0|
+@c
 int readbinfile(FILE * f, unsigned char **tfm_buffer, int *tfm_size)
 {
     void *buf;
@@ -1050,11 +1037,12 @@ int readbinfile(FILE * f, unsigned char **tfm_buffer, int *tfm_size)
 }
 
 
-/* Like runsystem(), the runpopen() function is called only when
-   shellenabledp == 1.   Unlike runsystem(), here we write errors to
+@ Like |runsystem()|, the |runpopen()| function is called only when
+   |shellenabledp == 1|.   Unlike |runsystem()|, here we write errors to
    stderr, since we have nowhere better to use; and of course we return
-   a file handle (or NULL) instead of a status indicator.  */
+   a file handle (or NULL) instead of a status indicator. 
 
+@c
 static FILE *runpopen(char *cmd, const char *mode)
 {
     FILE *f = NULL;
@@ -1086,9 +1074,10 @@ static FILE *runpopen(char *cmd, const char *mode)
     return f;
 }
 
-/* Return true if FNAME is acceptable as a name for \openout, \openin, or
-   \input.  */
+@ Return true if FNAME is acceptable as a name for \.{\\openout}, \.{\\openin}, or
+   \.{\\input}.  
 
+@c
 typedef enum ok_type {
     ok_reading,
     ok_writing
@@ -1165,10 +1154,10 @@ opennameok(const_string fname, const_string check_var,
         return false;
     } else {
         /* Check for "/../".  Since more than one characted can be matched
-           by IS_DIR_SEP, we cannot use "/../" itself. */
+           by |IS_DIR_SEP|, we cannot use "/../" itself. */
         const_string dotpair = strstr(fname, "..");
         while (dotpair) {
-            /* If dotpair[2] == DIR_SEP, then dotpair[-1] is well-defined,
+            /* If dotpair[2] == |DIR_SEP|, then dotpair[-1] is well-defined,
                because the "../" case was handled above. */
             if (IS_DIR_SEP(dotpair[2]) && IS_DIR_SEP(dotpair[-1])) {
                 fprintf(stderr, "%s: Not %s to %s (%s = %s).\n",
@@ -1203,7 +1192,7 @@ static boolean executable_filep(const_string fname)
     string p, q, base;
     string *pp;
 
-/*  check openout_any */
+    /*  check |openout_any| */
     p = kpse_var_value("openout_any");
     if (p && *p == 'p') {
         free(p);
@@ -1252,7 +1241,7 @@ static boolean executable_filep(const_string fname)
     }
     return false;
 }
-#endif                          /* WIN32 || __MINGW32__ || __CYGWIN__ */
+#endif
 
 boolean openoutnameok(const_string fname)
 {
@@ -1260,20 +1249,20 @@ boolean openoutnameok(const_string fname)
     /* Output of an executable file is restricted on Windows */
     if (executable_filep(fname))
         return false;
-#endif                          /* WIN32 || __MINGW32__ || __CYGWIN__ */
+#endif
     /* For output, default to paranoid. */
     return opennameok(fname, "openout_any", "p", ok_writing);
 }
 
-/* 
-  piped I/O
- */
+ 
+@  piped I/O
 
-/* The code that implements popen() needs an array for tracking 
+
+@ The code that implements |popen()| needs an array for tracking 
    possible pipe file pointers, because these need to be
-   closed using pclose().
-*/
+   closed using |pclose()|.
 
+@c
 static FILE *pipes[] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
@@ -1365,8 +1354,8 @@ void close_file_or_pipe(FILE * f)
     int i;                      /* iterator */
 
     if (shellenabledp) {
-        /* if this file was a pipe, pclose() it and return */
         for (i = 0; i <= 15; i++) {
+        /* if this file was a pipe, |pclose()| it and return */
             if (pipes[i] == f) {
                 if (f)
                     pclose(f);

@@ -1,30 +1,30 @@
+% texmath.w
+
+% Copyright 2008-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* math.c
-
-   Copyright 2008-2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
-
 #include "ptexlib.h"
 
 static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
+@ @c
 #define mode          cur_list.mode_field
 #define head          cur_list.head_field
 #define tail          cur_list.tail_field
@@ -39,7 +39,8 @@ static const char _svn_version[] =
 
 #define var_code 7
 
-/* TODO: not sure if this is the right order */
+@ TODO: not sure if this is the right order 
+@c
 #define back_error(A,B) do {                    \
     OK_to_interrupt=false;                      \
     back_input();                               \
@@ -47,6 +48,7 @@ static const char _svn_version[] =
     tex_error(A,B);                             \
   } while (0)
 
+@ @c
 int scan_math(pointer, int);
 pointer fin_mlist(pointer);
 
@@ -61,8 +63,8 @@ pointer fin_mlist(pointer);
 #define every_display  equiv(every_display_loc)
 #define par_shape_ptr  equiv(par_shape_loc)
 
-/*
-When \TeX\ reads a formula that is enclosed between \.\$'s, it constructs an
+
+@ When \TeX\ reads a formula that is enclosed between \.\$'s, it constructs an
 {\sl mlist}, which is essentially a tree structure representing that
 formula.  An mlist is a linear sequence of items, but we can regard it as
 a tree structure because mlists can appear within mlists. For example, many
@@ -140,9 +142,7 @@ and `\.{\$P\$}' produce different results (the former will not have the
 ``italic correction'' added to the width of |P|, but the ``script skip''
 will be added).
 
-*/
-
-
+@c
 void unsave_math(void)
 {
     unsave();
@@ -153,11 +153,10 @@ void unsave_math(void)
 }
 
 
-/*
-Sometimes it is necessary to destroy an mlist. The following
+@ Sometimes it is necessary to destroy an mlist. The following
 subroutine empties the current list, assuming that |abs(mode)=mmode|.
-*/
 
+@c
 void flush_math(void)
 {
     flush_node_list(vlink(head));
@@ -167,13 +166,15 @@ void flush_math(void)
     incompleat_noad = null;
 }
 
-/* Before we can do anything in math mode, we need fonts. */
+@ Before we can do anything in math mode, we need fonts.
 
+@c
 #define MATHFONTSTACK  8
 #define MATHFONTDEFAULT 0       /* == nullfont */
 
 static sa_tree math_fam_head = NULL;
 
+@ @c
 int fam_fnt(int fam_id, int size_id)
 {
     int n = fam_id + (256 * size_id);
@@ -198,6 +199,7 @@ void def_fam_fnt(int fam_id, int size_id, int f, int lvl)
     }
 }
 
+@ @c
 void unsave_math_fam_data(int gl)
 {
     sa_stack_item st;
@@ -230,13 +232,15 @@ void unsave_math_fam_data(int gl)
 
 
 
-/* and parameters */
+@ and parameters 
 
+@c
 #define MATHPARAMSTACK  8
 #define MATHPARAMDEFAULT undefined_math_parameter
 
 static sa_tree math_param_head = NULL;
 
+@ @c
 void def_math_param(int param_id, int style_id, scaled value, int lvl)
 {
     int n = param_id + (256 * style_id);
@@ -261,6 +265,7 @@ scaled get_math_param(int param_id, int style_id)
 }
 
 
+@ @c
 void unsave_math_param_data(int gl)
 {
     sa_stack_item st;
@@ -292,14 +297,17 @@ void unsave_math_param_data(int gl)
 }
 
 
-/* saving and unsaving of both */
+@ saving and unsaving of both 
 
+@c
 void unsave_math_data(int gl)
 {
     unsave_math_fam_data(gl);
     unsave_math_param_data(gl);
 }
 
+@ Dumping and undumping
+@c
 void dump_math_data(void)
 {
     if (math_fam_head == NULL)
@@ -316,8 +324,7 @@ void undump_math_data(void)
     math_param_head = undump_sa_tree();
 }
 
-/*  */
-
+@ @c
 void initialize_math(void)
 {
     if (math_fam_head == NULL)
@@ -330,14 +337,14 @@ void initialize_math(void)
 }
 
 
-/*
-Each portion of a formula is classified as Ord, Op, Bin, Rel, Ope,
+
+@ Each portion of a formula is classified as Ord, Op, Bin, Rel, Ope,
 Clo, Pun, or Inn, for purposes of spacing and line breaking. An
 |ord_noad|, |op_noad|, |bin_noad|, |rel_noad|, |open_noad|, |close_noad|,
 |punct_noad|, or |inner_noad| is used to represent portions of the various
 types. For example, an `\.=' sign in a formula leads to the creation of a
 |rel_noad| whose |nucleus| field is a representation of an equals sign
-(usually |fam=0|, |character=@'75|).  A formula preceded by \.{\\mathrel}
+(usually |fam=0|, |character=075|).  A formula preceded by \.{\\mathrel}
 also results in a |rel_noad|.  When a |rel_noad| is followed by an
 |op_noad|, say, and possibly separated by one or more ordinary nodes (not
 noads), \TeX\ will insert a penalty node (with the current |rel_penalty|)
@@ -374,11 +381,12 @@ be placed at the left and right of the fraction. In this way, a
 |fraction_noad| is able to represent all of \TeX's operators \.{\\over},
 \.{\\atop}, \.{\\above}, \.{\\overwithdelims}, \.{\\atopwithdelims}, and
  \.{\\abovewithdelims}.
-*/
 
 
-/* The |new_noad| function creates an |ord_noad| that is completely null */
 
+@ The |new_noad| function creates an |ord_noad| that is completely null 
+
+@c
 pointer new_noad(void)
 {
     pointer p;
@@ -387,6 +395,7 @@ pointer new_noad(void)
     return p;
 }
 
+@ @c
 pointer new_sub_box(pointer cur_box)
 {
     pointer p, q;
@@ -397,8 +406,8 @@ pointer new_sub_box(pointer cur_box)
     return p;
 }
 
-/*
-A few more kinds of noads will complete the set: An |under_noad| has its
+
+@ A few more kinds of noads will complete the set: An |under_noad| has its
 nucleus underlined; an |over_noad| has it overlined. An |accent_noad| places
 an accent over its nucleus; the accent character appears as
 |math_fam(accent_chr(p))| and |math_character(accent_chr(p))|. A |vcenter_noad|
@@ -406,7 +415,7 @@ centers its nucleus vertically with respect to the axis of the formula;
 in such noads we always have |type(nucleus(p))=sub_box|.
 
 And finally, we have the |fence_noad| type, to implement
-\TeX's \.{\\left} and \.{\\right} as well as \eTeX's \.{\\middle}.
+\TeX's \.{\\left} and \.{\\right} as well as eTeX's \.{\\middle}.
 The |nucleus| of such noads is
 replaced by a |delimiter| field; thus, for example, `\.{\\left(}' produces
 a |fence_noad| such that |delimiter(p)| holds the family and character
@@ -415,10 +424,10 @@ never appears in an mlist except as the first element, and a |fence_noad|
 with subtype |right_noad_side| never appears in an mlist
 except as the last element; furthermore, we either have both a |left_noad_side|
 and a |right_noad_side|, or neither one is present.
-*/
 
-/*
-Math formulas can also contain instructions like \.{\\textstyle} that
+
+
+@ Math formulas can also contain instructions like \.{\\textstyle} that
 override \TeX's normal style rules. A |style_node| is inserted into the
 data structure to record such instructions; it is three words long, so it
 is considered a node instead of a noad. The |subtype| is either |display_style|
@@ -432,8 +441,8 @@ present because a |choice_node| is converted to a |style_node|.
 is backwards from the convention of Appendix~G in {\sl The \TeX book\/};
 i.e., a smaller style has a larger numerical value.
 @:TeXbook}{\sl The \TeX book@>
-*/
 
+@c
 const char *math_style_names[] = {
     "display", "crampeddisplay",
     "text", "crampedtext",
@@ -482,25 +491,25 @@ const char *math_param_names[] = {
     NULL
 };
 
+@ @c
 pointer new_style(small_number s)
 {                               /* create a style node */
     m_style = s;
     return new_node(style_node, s);
 }
 
-/* Finally, the \.{\\mathchoice} primitive creates a |choice_node|, which
+@ Finally, the \.{\\mathchoice} primitive creates a |choice_node|, which
 has special subfields |display_mlist|, |text_mlist|, |script_mlist|,
 and |script_script_mlist| pointing to the mlists for each style.
-*/
 
-
+@c
 pointer new_choice(void)
 {                               /* create a choice node */
     return new_node(choice_node, 0);    /* the |subtype| is not used */
 }
 
-/*
-Let's consider now the previously unwritten part of |show_node_list|
+
+@ Let's consider now the previously unwritten part of |show_node_list|
 that displays the things that can only be present in mlists; this
 program illustrates how to access the data structures just defined.
 
@@ -514,9 +523,8 @@ or |supscr| or |denominator| or |numerator| fields of noads. For example,
 the current string would be `\.{.\^.\_/}' if |p| points to the |ord_noad| for
 |x| in the (ridiculous) formula
 `\.{\$\\sqrt\{a\^\{\\mathinner\{b\_\{c\\over x+y\}\}\}\}\$}'.
-*/
 
-
+@c
 void display_normal_noad(pointer p);    /* forward */
 void display_fence_noad(pointer p);     /* forward */
 void display_fraction_noad(pointer p);  /* forward */
@@ -560,8 +568,9 @@ void show_math_node(pointer p)
 }
 
 
-/* Here are some simple routines used in the display of noads. */
+@ Here are some simple routines used in the display of noads. 
 
+@c
 void print_fam_and_char(pointer p)
 {                               /* prints family and character */
     tprint_esc("fam");
@@ -570,6 +579,7 @@ void print_fam_and_char(pointer p)
     print(math_character(p));
 }
 
+@ @c
 void print_delimiter(pointer p)
 {
     int a;
@@ -595,16 +605,15 @@ void print_delimiter(pointer p)
     }
 }
 
-/*
-The next subroutine will descend to another level of recursion when a
+
+@ The next subroutine will descend to another level of recursion when a
 subsidiary mlist needs to be displayed. The parameter |c| indicates what
 character is to become part of the recursion history. An empty mlist is
 distinguished from a missing field, because these are not equivalent 
 (as explained above).
 @^recursion@>
-*/
 
-
+@c
 void print_subsidiary_data(pointer p, ASCII_code c)
 {                               /* display a noad field */
     if ((int) cur_length >= depth_threshold) {
@@ -637,6 +646,7 @@ void print_subsidiary_data(pointer p, ASCII_code c)
     }
 }
 
+@ @c
 void display_normal_noad(pointer p)
 {
     switch (type(p)) {
@@ -725,6 +735,7 @@ void display_normal_noad(pointer p)
     print_subsidiary_data(subscr(p), '_');
 }
 
+@ @c
 void display_fence_noad(pointer p)
 {
     if (subtype(p) == right_noad_side)
@@ -736,6 +747,7 @@ void display_fence_noad(pointer p)
     print_delimiter(delimiter(p));
 }
 
+@ @c
 void display_fraction_noad(pointer p)
 {
     tprint_esc("fraction, thickness ");
@@ -763,8 +775,8 @@ void display_fraction_noad(pointer p)
     print_subsidiary_data(denominator(p), '/');
 }
 
-/*
-The routines that \TeX\ uses to create mlists are similar to those we have
+
+@ The routines that \TeX\ uses to create mlists are similar to those we have
 just seen for the generation of hlists and vlists. But it is necessary to
 make ``noads'' as well as nodes, so the reader should review the
 discussion of math mode data structures before trying to make sense out of
@@ -772,8 +784,8 @@ the following program.
 
 Here is a little routine that needs to be done whenever a subformula
 is about to be processed. The parameter is a code like |math_group|.
-*/
 
+@c
 void new_save_level_math(group_code c)
 {
     set_saved_record(0, saved_textdir, 0, text_dir_ptr);
@@ -785,6 +797,7 @@ void new_save_level_math(group_code c)
     eq_word_define(int_base + text_direction_code, math_direction);
 }
 
+@ @c
 void push_math(group_code c, int mstyle)
 {
     if (math_direction != text_direction)
@@ -796,6 +809,7 @@ void push_math(group_code c, int mstyle)
     new_save_level_math(c);
 }
 
+@ @c
 void enter_ordinary_math(void)
 {
     push_math(math_shift_group, text_style);
@@ -804,14 +818,15 @@ void enter_ordinary_math(void)
         begin_token_list(every_math, every_math_text);
 }
 
+@ @c
 void enter_display_math(void);
 
-/* We get into math mode from horizontal mode when a `\.\$' (i.e., a
+@ We get into math mode from horizontal mode when a `\.\$' (i.e., a
 |math_shift| character) is scanned. We must check to see whether this
 `\.\$' is immediately followed by another, in case display math mode is
 called for.
-*/
 
+@c
 void init_math(void)
 {
     if (cur_cmd == math_shift_cmd) {
@@ -831,19 +846,17 @@ void init_math(void)
     }
 }
 
-/*
-We get into ordinary math mode from display math mode when `\.{\\eqno}' or
+
+@ We get into ordinary math mode from display math mode when `\.{\\eqno}' or
 `\.{\\leqno}' appears. In such cases |cur_chr| will be 0 or~1, respectively;
 the value of |cur_chr| is placed onto |save_stack| for safe keeping.
-*/
 
 
-/*
-When \TeX\ is in display math mode, |cur_group=math_shift_group|,
+@ When \TeX\ is in display math mode, |cur_group=math_shift_group|,
 so it is not necessary for the |start_eq_no| procedure to test for
 this condition.
-*/
 
+@c
 void start_eq_no(void)
 {
     set_saved_record(0, saved_eqno, 0, cur_chr);
@@ -851,8 +864,7 @@ void start_eq_no(void)
     enter_ordinary_math();
 }
 
-/*
-Subformulas of math formulas cause a new level of math mode to be entered,
+@ Subformulas of math formulas cause a new level of math mode to be entered,
 on the semantic nest as well as the save stack. These subformulas arise in
 several ways: (1)~A left brace by itself indicates the beginning of a
 subformula that will be put into a box, thereby freezing its glue and
@@ -865,8 +877,8 @@ The group codes placed on |save_stack| in these three cases are
 
 Here is the code that handles case (1); the other cases are not quite as
 trivial, so we shall consider them later.
-*/
 
+@c
 void math_left_brace(void)
 {
     pointer q;
@@ -877,14 +889,13 @@ void math_left_brace(void)
     (void) scan_math(nucleus(tail), m_style);
 }
 
-/*
-When we enter display math mode, we need to call |line_break| to
+
+@ When we enter display math mode, we need to call |line_break| to
 process the partial paragraph that has just been interrupted by the
 display. Then we can set the proper values of |display_width| and
 |display_indent| and |pre_display_size|.
-*/
 
-
+@c
 void enter_display_math(void)
 {
     scaled w;                   /* new or partial |pre_display_size| */
@@ -949,12 +960,12 @@ void enter_display_math(void)
     }
 }
 
-/* The next routine parses all variations of a delimiter code. The |extcode|
- * tells what syntax form to use (\TeX, \Aleph, \XeTeX, \XeTeXnum, ...) , the
- * |doclass| tells whether or not read a math class also (for \delimiter c.s.).
- * (the class is passed on for conversion to |\mathchar|).
- */
+@ The next routine parses all variations of a delimiter code. The |extcode|
+ tells what syntax form to use (\TeX, Aleph, XeTeX, XeTeXnum, ...) , the
+ |doclass| tells whether or not read a math class also (for \.{\\delimiter} c.s.).
+ (the class is passed on for conversion to \.{\\mathchar}).
 
+@c
 #define fam_in_range ((cur_fam>=0)&&(cur_fam<256))
 
 delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
@@ -967,7 +978,7 @@ delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
     int cur_val1;               /* and the global |cur_val| */
     int mcls, msfam = 0, mschr = 0, mlfam = 0, mlchr = 0;
     mcls = 0;
-    if (extcode == tex_mathcode) {      /* \delcode, this is the easiest */
+    if (extcode == tex_mathcode) {      /* \.{\\delcode}, this is the easiest */
         scan_int();
         /*  "MFCCFCC or "FCCFCC */
         if (doclass) {
@@ -982,7 +993,7 @@ delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
         mschr = (cur_val % 0x100000) / 0x1000;
         mlfam = (cur_val & 0xFFF) / 0x100;
         mlchr = (cur_val % 0x100);
-    } else if (extcode == aleph_mathcode) {     /* \odelcode */
+    } else if (extcode == aleph_mathcode) {     /* \.{\\odelcode} */
         /*  "MFFCCCC"FFCCCC or "FFCCCC"FFCCCC */
         scan_int();
         if (doclass) {
@@ -1000,7 +1011,7 @@ delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
         mschr = (cur_val1 % 0x10000);
         mlfam = (cur_val / 0x10000);
         mlchr = (cur_val % 0x10000);
-    } else if (extcode == xetex_mathcode) {     /* \Udelcode */
+    } else if (extcode == xetex_mathcode) {     /* \.{\\Udelcode} */
         /* <0-7>,<0-0xFF>,<0-0x10FFFF>  or <0-0xFF>,<0-0x10FFFF> */
         if (doclass) {
             scan_int();
@@ -1017,7 +1028,7 @@ delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
         }
         mlfam = 0;
         mlchr = 0;
-    } else if (extcode == xetexnum_mathcode) {  /* \Udelcodenum */
+    } else if (extcode == xetexnum_mathcode) {  /* \.{\\Udelcodenum} */
         /* "FF<21bits> */
         /* the largest numeric value is $2^29-1$, but 
            the top of bit 21 can't be used as it contains invalid USV's
@@ -1048,6 +1059,7 @@ delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
     return d;
 }
 
+@ @c
 void scan_extdef_del_code(int level, int extcode)
 {
     delcodeval d;
@@ -1061,6 +1073,7 @@ void scan_extdef_del_code(int level, int extcode)
                  (quarterword) (level));
 }
 
+@ @c
 mathcodeval scan_mathchar(int extcode)
 {
     const char *hlp[] = {
@@ -1069,7 +1082,7 @@ mathcodeval scan_mathchar(int extcode)
     };
     mathcodeval d;
     int mcls = 0, mfam = 0, mchr = 0;
-    if (extcode == tex_mathcode) {      /* \mathcode */
+    if (extcode == tex_mathcode) {      /* \.{\\mathcode} */
         /* "TFCC */
         scan_int();
         if (cur_val > 0x8000) {
@@ -1079,7 +1092,7 @@ mathcodeval scan_mathchar(int extcode)
         mcls = (cur_val / 0x1000);
         mfam = ((cur_val % 0x1000) / 0x100);
         mchr = (cur_val % 0x100);
-    } else if (extcode == aleph_mathcode) {     /* \omathcode */
+    } else if (extcode == aleph_mathcode) {     /* \.{\\omathcode} */
         /* "TFFCCCC */
         scan_int();
         if (cur_val > 0x8000000) {
@@ -1131,7 +1144,7 @@ mathcodeval scan_mathchar(int extcode)
     return d;
 }
 
-
+@ @c
 void scan_extdef_math_code(int level, int extcode)
 {
     mathcodeval d;
@@ -1145,8 +1158,8 @@ void scan_extdef_math_code(int level, int extcode)
 }
 
 
-/* this reads in a delcode when actually a mathcode is needed */
-
+@ this reads in a delcode when actually a mathcode is needed 
+@c
 mathcodeval scan_delimiter_as_mathchar(int extcode)
 {
     delcodeval dval;
@@ -1159,10 +1172,10 @@ mathcodeval scan_delimiter_as_mathchar(int extcode)
     return mval;
 }
 
-/* this has to match the inverse routine in the pascal code
- * where the |\Umathchardef| is executed 
- */
-
+@ this has to match the inverse routine in the pascal code
+ where the \.{\\Umathchardef} is executed 
+ 
+@c
 mathcodeval mathchar_from_integer(int value, int extcode)
 {
     mathcodeval mval;
@@ -1184,15 +1197,14 @@ mathcodeval mathchar_from_integer(int value, int extcode)
     return mval;
 }
 
-/* Recall that the |nucleus|, |subscr|, and |supscr| fields in a noad
+@ Recall that the |nucleus|, |subscr|, and |supscr| fields in a noad
 are broken down into subfields called |type| and either |math_list| or
 |(math_fam,math_character)|. The job of |scan_math| is to figure out
 what to place in one of these principal fields; it looks at the
 subformula that comes next in the input, and places an encoding of
 that subformula into a given word of |mem|.
-*/
 
-
+@c
 #define get_next_nb_nr() do { get_x_token(); } while (cur_cmd==spacer_cmd||cur_cmd==relax_cmd)
 
 
@@ -1276,13 +1288,13 @@ int scan_math(pointer p, int mstyle)
 }
 
 
-/*
- The |set_math_char| procedure creates a new noad appropriate to a given
+
+@ The |set_math_char| procedure creates a new noad appropriate to a given
 math code, and appends it to the current mlist. However, if the math code
 is sufficiently large, the |cur_chr| is treated as an active character and
 nothing is appended.
-*/
 
+@c
 void set_math_char(mathcodeval mval)
 {
     pointer p;                  /* the new noad */
@@ -1323,13 +1335,13 @@ void set_math_char(mathcodeval mval)
 }
 
 
-/*
- The |math_char_in_text| procedure creates a new node representing a math char
+
+@ The |math_char_in_text| procedure creates a new node representing a math char
 in text code, and appends it to the current list. However, if the math code
 is sufficiently large, the |cur_chr| is treated as an active character and
 nothing is appended.
-*/
 
+@c
 void math_char_in_text(mathcodeval mval)
 {
     pointer p;                  /* the new node */
@@ -1349,6 +1361,7 @@ void math_char_in_text(mathcodeval mval)
 }
 
 
+@ @c
 void math_math_comp(void)
 {
     pointer q;
@@ -1363,6 +1376,7 @@ void math_math_comp(void)
 }
 
 
+@ @c
 void math_limit_switch(void)
 {
     const char *hlp[] = {
@@ -1378,22 +1392,21 @@ void math_limit_switch(void)
     tex_error("Limit controls must follow a math operator", hlp);
 }
 
-/*
- Delimiter fields of noads are filled in by the |scan_delimiter| routine.
+
+@ Delimiter fields of noads are filled in by the |scan_delimiter| routine.
 The first parameter of this procedure is the |mem| address where the
 delimiter is to be placed; the second tells if this delimiter follows
 \.{\\radical} or not.
-*/
 
-
+@c
 void scan_delimiter(pointer p, int r)
 {
     delcodeval dval = { 0, 0, 0, 0, 0, 0 };
-    if (r == tex_mathcode) {    /* \radical */
+    if (r == tex_mathcode) {    /* \.{\\radical} */
         dval = do_scan_extdef_del_code(tex_mathcode, true);
-    } else if (r == aleph_mathcode) {   /* \oradical */
+    } else if (r == aleph_mathcode) {   /* \.{\\oradical} */
         dval = do_scan_extdef_del_code(aleph_mathcode, true);
-    } else if (r == xetex_mathcode) {   /* \Uradical */
+    } else if (r == xetex_mathcode) {   /* \.{\\Uradical} */
         dval = do_scan_extdef_del_code(xetex_mathcode, false);
     } else if (r == no_mathcode) {
         get_next_nb_nr();
@@ -1403,11 +1416,11 @@ void scan_delimiter(pointer p, int r)
             dval = get_del_code(cur_chr);
             break;
         case delim_num_cmd:
-            if (cur_chr == 0)   /* \delimiter */
+            if (cur_chr == 0)   /* \.{\\delimiter} */
                 dval = do_scan_extdef_del_code(tex_mathcode, true);
-            else if (cur_chr == 1)      /* \odelimiter */
+            else if (cur_chr == 1)      /* \.{\\odelimiter} */
                 dval = do_scan_extdef_del_code(aleph_mathcode, true);
-            else if (cur_chr == 2)      /* \Udelimiter */
+            else if (cur_chr == 2)      /* \.{\\Udelimiter} */
                 dval = do_scan_extdef_del_code(xetex_mathcode, true);
             else
                 confusion("scan_delimiter1");
@@ -1446,6 +1459,7 @@ void scan_delimiter(pointer p, int r)
 }
 
 
+@ @c
 void math_radical(void)
 {
     halfword q;
@@ -1453,21 +1467,21 @@ void math_radical(void)
     tail_append(new_node(radical_noad, chr_code));
     q = new_node(delim_node, 0);
     left_delimiter(tail) = q;
-    if (chr_code == 0)          /* \radical */
+    if (chr_code == 0)          /* \.{\\radical} */
         scan_delimiter(left_delimiter(tail), tex_mathcode);
-    else if (chr_code == 1)     /* \oradical */
+    else if (chr_code == 1)     /* \.{\\oradical} */
         scan_delimiter(left_delimiter(tail), aleph_mathcode);
-    else if (chr_code == 2)     /* \Uradical */
+    else if (chr_code == 2)     /* \.{\\Uradical} */
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
-    else if (chr_code == 3)     /* \Uroot */
+    else if (chr_code == 3)     /* \.{\\Uroot} */
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
-    else if (chr_code == 4)     /* \Uunderdelimiter */
+    else if (chr_code == 4)     /* \.{\\Uunderdelimiter} */
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
-    else if (chr_code == 5)     /* \Uoverdelimiter */
+    else if (chr_code == 5)     /* \.{\\Uoverdelimiter} */
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
-    else if (chr_code == 6)     /* \Udelimiterunder */
+    else if (chr_code == 6)     /* \.{\\Udelimiterunder} */
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
-    else if (chr_code == 7)     /* \Udelimiterover */
+    else if (chr_code == 7)     /* \.{\\Udelimiterover} */
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
     else
         confusion("math_radical");
@@ -1490,6 +1504,7 @@ void math_radical(void)
     }
 }
 
+@ @c
 void math_ac(void)
 {
     halfword q;
@@ -1504,15 +1519,15 @@ void math_ac(void)
         tex_error("Please use \\mathaccent for accents in math mode", hlp);
     }
     tail_append(new_node(accent_noad, 0));
-    if (cur_chr == 0) {         /* \mathaccent */
+    if (cur_chr == 0) {         /* \.{\\mathaccent} */
         t = scan_mathchar(tex_mathcode);
-    } else if (cur_chr == 1) {  /* \omathaccent */
+    } else if (cur_chr == 1) {  /* \.{\\omathaccent} */
         t = scan_mathchar(aleph_mathcode);
-    } else if (cur_chr == 2) {  /* \Umathaccent */
+    } else if (cur_chr == 2) {  /* \.{\\Umathaccent} */
         t = scan_mathchar(xetex_mathcode);
-    } else if (cur_chr == 3) {  /* \Umathbotaccent */
+    } else if (cur_chr == 3) {  /* \.{\\Umathbotaccent} */
         b = scan_mathchar(xetex_mathcode);
-    } else if (cur_chr == 4) {  /* \Umathaccents */
+    } else if (cur_chr == 4) {  /* \.{\\Umathaccents} */
         t = scan_mathchar(xetex_mathcode);
         b = scan_mathchar(xetex_mathcode);
     } else {
@@ -1541,6 +1556,7 @@ void math_ac(void)
     (void) scan_math(nucleus(tail), cramped_style(m_style));
 }
 
+@ @c
 pointer math_vcenter_group(pointer p)
 {
     pointer q, r;
@@ -1552,11 +1568,11 @@ pointer math_vcenter_group(pointer p)
     return q;
 }
 
-/*
-The routine that scans the four mlists of a \.{\\mathchoice} is very
-much like the routine that builds discretionary nodes.
-*/
 
+@ The routine that scans the four mlists of a \.{\\mathchoice} is very
+much like the routine that builds discretionary nodes.
+
+@c
 void append_choices(void)
 {
     tail_append(new_choice());
@@ -1566,6 +1582,7 @@ void append_choices(void)
     scan_left_brace();
 }
 
+@ @c
 void build_choices(void)
 {
     pointer p;                  /* the current mlist */
@@ -1595,11 +1612,11 @@ void build_choices(void)
     scan_left_brace();
 }
 
-/*
- Subscripts and superscripts are attached to the previous nucleus by the
- action procedure called |sub_sup|. 
-*/
 
+@ Subscripts and superscripts are attached to the previous nucleus by the
+action procedure called |sub_sup|. 
+
+@c
 void sub_sup(void)
 {
     pointer q;
@@ -1608,7 +1625,7 @@ void sub_sup(void)
         q = new_node(sub_mlist_node, 0);
         nucleus(tail) = q;
     }
-    if (cur_cmd == sup_mark_cmd || cur_chr == sup_mark_cmd) {   /* super_sub_script */
+    if (cur_cmd == sup_mark_cmd || cur_chr == sup_mark_cmd) {   /* |super_sub_script| */
         if (supscr(tail) != null) {
             const char *hlp[] = {
                 "I treat `x^1^2' essentially like `x^1{}^2'.", NULL
@@ -1637,16 +1654,16 @@ void sub_sup(void)
     }
 }
 
-/*
-An operation like `\.{\\over}' causes the current mlist to go into a
+
+@ An operation like `\.{\\over}' causes the current mlist to go into a
 state of suspended animation: |incompleat_noad| points to a |fraction_noad|
 that contains the mlist-so-far as its numerator, while the denominator
 is yet to come. Finally when the mlist is finished, the denominator will
 go into the incompleat fraction noad, and that noad will become the
 whole formula, unless it is surrounded by `\.{\\left}' and `\.{\\right}'
 delimiters. 
-*/
 
+@c
 void math_fraction(void)
 {
     halfword c;                 /* the type of generalized fraction we are scanning */
@@ -1699,14 +1716,13 @@ void math_fraction(void)
 
 
 
-/* At the end of a math formula or subformula, the |fin_mlist| routine is
+@ At the end of a math formula or subformula, the |fin_mlist| routine is
 called upon to return a pointer to the newly completed mlist, and to
 pop the nest back to the enclosing semantic level. The parameter to
 |fin_mlist|, if not null, points to a |fence_noad| that ends the
 current mlist; this |fence_noad| has not yet been appended.
-*/
 
-
+@c
 pointer fin_mlist(pointer p)
 {
     pointer q;                  /* the mlist to return */
@@ -1738,12 +1754,12 @@ pointer fin_mlist(pointer p)
 }
 
 
-/* Now at last we're ready to see what happens when a right brace occurs
+@ Now at last we're ready to see what happens when a right brace occurs
 in a math formula. Two special cases are simplified here: Braces are effectively
 removed when they surround a single Ord without sub/superscripts, or when they
 surround an accent that is the nucleus of an Ord atom.
-*/
 
+@c
 void close_math_group(pointer p)
 {
     pointer q;
@@ -1805,13 +1821,13 @@ void close_math_group(pointer p)
     }
 }
 
-/*
-We have dealt with all constructions of math mode except `\.{\\left}' and
-`\.{\\right}', so the picture is completed by the following sections of
-the program. The |middle| feature of \eTeX\ allows one ore several \.{\\middle}
-delimiters to appear between \.{\\left} and \.{\\right}.
-*/
 
+@ We have dealt with all constructions of math mode except `\.{\\left}' and
+`\.{\\right}', so the picture is completed by the following sections of
+the program. The |middle| feature of eTeX allows one ore several \.{\\middle}
+delimiters to appear between \.{\\left} and \.{\\right}.
+
+@c
 void math_left_right(void)
 {
     halfword t;                 /* |left_noad_side| .. |right_noad_side| */
@@ -1867,10 +1883,10 @@ void math_left_right(void)
 }
 
 
-/* \TeX\ gets to the following part of the program when 
+@ \TeX\ gets to the following part of the program when 
 the first `\.\$' ending a display has been scanned.
-*/
 
+@c
 static void check_second_math_shift(void)
 {
     get_x_token();
@@ -1906,6 +1922,7 @@ static void check_inline_math_end(void)
     }
 }
 
+@ @c
 void resume_after_display(void)
 {
     if (cur_group != math_shift_group)
@@ -1927,9 +1944,7 @@ void resume_after_display(void)
 }
 
 
-/* 
-
-If the inline directions of \.{\\pardir} and \.{\\mathdir} are
+@ If the inline directions of \.{\\pardir} and \.{\\mathdir} are
 opposite, then this function will return true. Discovering that fact
 is somewhat odd because it needs traversal of the |save_stack|.
 The occurance of displayed equations is weird enough that this is
@@ -1940,8 +1955,7 @@ None of this makes much sense if the inline direction of either one of
 \.{\\pardir} or \.{\\mathdir} is vertical, but in that case the current 
 math machinery is ill suited anyway so I do not bother to test that.
 
-*/
-
+@c
 static boolean math_and_text_reversed_p(void)
 {
     int i = save_ptr - 1;
@@ -1959,19 +1973,19 @@ static boolean math_and_text_reversed_p(void)
 }
 
 
-/*
-  The fussiest part of math mode processing occurs when a displayed formula is 
-  being centered and placed with an optional equation number.
-*/
 
-/* At this time we are in vertical mode (or internal vertical mode).  
+@  The fussiest part of math mode processing occurs when a displayed formula is 
+being centered and placed with an optional equation number.
+
+
+At this time we are in vertical mode (or internal vertical mode).  
 
   |p| points to the mlist for the formula.
   |a| is either |null| or it points to a box containing the equation number.
   |l| is true if there was an \.{\\leqno}/ (so |a| is a horizontal box).
 
-*/
 
+@c
 static void finish_displayed_math(boolean l, pointer a, pointer p)
 {
     pointer eq_box;             /* box containing the equation */
@@ -2059,7 +2073,7 @@ static void finish_displayed_math(boolean l, pointer a, pointer p)
         g2 = below_display_short_skip_code;
     }
 
-    if (l && (eqno_w == 0)) {   /* \leqno on a forced single line due to |width=0| */
+    if (l && (eqno_w == 0)) {   /* \.{\\leqno} on a forced single line due to |width=0| */
         /* it follows that |type(a)=hlist_node| */
         if (swap_dir) {
             shift_amount(a) = line_w + line_s;
@@ -2086,7 +2100,7 @@ static void finish_displayed_math(boolean l, pointer a, pointer p)
         eq_box = hpack(eq_box, 0, additional, -1);
     }
     if (swap_dir) {
-        /*    d = line_w - d; */
+        /*    |d = line_w - d;| */
         if (eqno_w != 0) {
             if (l)
                 d = line_w - width(eq_box);
@@ -2124,8 +2138,7 @@ static void finish_displayed_math(boolean l, pointer a, pointer p)
     resume_after_display();
 }
 
-
-
+@ @c
 void after_math(void)
 {
     int m;                      /* |mmode| or |-mmode| */
@@ -2192,14 +2205,13 @@ void after_math(void)
     }
 }
 
-/*
- When \.{\\halign} appears in a display, the alignment routines operate
+
+@ When \.{\\halign} appears in a display, the alignment routines operate
 essentially as they do in vertical mode. Then the following program is
 activated, with |p| and |q| pointing to the beginning and end of the
 resulting list, and with |aux_save| holding the |prev_depth| value.
-*/
 
-
+@c
 void finish_display_alignment(pointer p, pointer q, halfword saved_prevdepth)
 {
     do_assignments();
@@ -2225,8 +2237,9 @@ void finish_display_alignment(pointer p, pointer q, halfword saved_prevdepth)
     resume_after_display();
 }
 
-/* Interface to \.{\\Umath} and \.{\\mathstyle} */
+@ Interface to \.{\\Umath} and \.{\\mathstyle} 
 
+@c
 void setup_math_style(void)
 {
     pointer q;
@@ -2237,6 +2250,7 @@ void setup_math_style(void)
 }
 
 
+@ @c
 void print_math_style(void)
 {
     if (abs(mode) == mmode)

@@ -1,23 +1,23 @@
+% dumpdata.w
+% 
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
 @ @c
-/* dumpdata.c
-   
-   Copyright 2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 
 static const char _svn_version[] =
@@ -27,8 +27,8 @@ static const char _svn_version[] =
 #define font_id_text(A) cs_text(font_id_base+(A))
 #define prev_depth cur_list.prev_depth_field
 
-/*
-After \.{INITEX} has seen a collection of fonts and macros, it
+
+@ After \.{INITEX} has seen a collection of fonts and macros, it
 can write all the necessary information on an auxiliary file so
 that production versions of \TeX\ are able to initialize their
 memory at high speed. The present section of the program takes
@@ -43,19 +43,19 @@ string says simply `\.{(INITEX)}'; for other versions of \TeX\ it says,
 for example, `\.{(preloaded format=plain 1982.11.19)}', showing the year,
 month, and day that the format file was created. We have |format_ident=0|
 before \TeX's tables are loaded.
-*/
 
+@c
 str_number format_ident;
 str_number format_name;         /* principal file name */
 
-/*
-Format files consist of |memory_word| items, and we use the following
-macros to dump words of different types:
-*/
 
+@ Format files consist of |memory_word| items, and we use the following
+macros to dump words of different types:
+
+@c
 FILE *fmt_file;                 /* for input or output of format information */
 
-
+@ @c
 void store_fmt_file(void)
 {
     int j, k, l;                /* all-purpose indices */
@@ -205,7 +205,7 @@ void store_fmt_file(void)
         dump_int(k - l);
     } while (k != int_base);
 
-    /* <Dump regions 5 and 6 of |eqtb|@> */
+    /* Dump regions 5 and 6 of |eqtb| */
     do {
         j = k;
         while (j < eqtb_size) {
@@ -311,12 +311,11 @@ void store_fmt_file(void)
     zwclose(fmt_file);
 }
 
-/*
-Corresponding to the procedure that dumps a format file, we have a function
+@ Corresponding to the procedure that dumps a format file, we have a function
 that reads one in. The function returns |false| if the dumped format is
 incompatible with the present \TeX\ table sizes, etc.
-*/
 
+@c
 #define too_small(A) do {					\
 	wake_up_terminal();					\
 	wterm_cr();						\
@@ -324,12 +323,11 @@ incompatible with the present \TeX\ table sizes, etc.
 	goto BAD_FMT;						\
     } while (0)
 
-/*
-The inverse macros are slightly more complicated, since we need to check
+@ The inverse macros are slightly more complicated, since we need to check
 the range of the values we are reading in. We say `|undump(a)(b)(x)|' to
 read an integer value |x| that is supposed to be in the range |a<=x<=b|.
-*/
 
+@c
 #define undump(A,B,C) do {						\
 	undump_int(x);							\
 	if (x<(A) || x>(B)) goto BAD_FMT;				\
@@ -352,6 +350,7 @@ read an integer value |x| that is supposed to be in the range |a<=x<=b|.
     } while (0)
 
 
+@ @c
 boolean load_fmt_file(const char *fmtname)
 {
     int j, k;                   /* all-purpose indices */
@@ -387,7 +386,7 @@ boolean load_fmt_file(const char *fmtname)
     xfree(format_engine);
     undump_int(x);
     format_debug("string pool checksum", x);
-    if (x != 0x57325458) {      /* todo: @$ *//* check that strings are the same */
+    if (x != 0x57325458) {      /* todo: @@\$ *//* check that strings are the same */
         wake_up_terminal();
         wterm_cr();
         fprintf(term_out, "---! %s was written by a different version",

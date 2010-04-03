@@ -1,33 +1,31 @@
+% filename.w
+
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
 @ @c
-/* filename.c
-
-   Copyright 2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
-
 #include "ptexlib.h"
 
-
-
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+    "$URL$";
 
-/*
-  In order to isolate the system-dependent aspects of file names, the
+
+@  In order to isolate the system-dependent aspects of file names, the
   @^system dependencies@>
   system-independent parts of \TeX\ are expressed in terms
   of three system-dependent
@@ -52,11 +50,12 @@ static const char _svn_version[] =
   file name has been completely scanned; and |end_name| is supposed to be able
   to finish the assembly of |cur_name|, |cur_area|, and |cur_ext| regardless of
   whether $|more_name|(c_n)$ returned |true| or |false|.
-*/
 
-/* Here now is the first of the system-dependent routines for file name scanning. 
-   @^system dependencies@> */
 
+@ Here now is the first of the system-dependent routines for file name scanning. 
+@^system dependencies@> 
+
+@c
 static void begin_name(void)
 {
     area_delimiter = 0;
@@ -64,12 +63,13 @@ static void begin_name(void)
     quoted_filename = false;
 }
 
-/* And here's the second. The string pool might change as the file name is
+@ And here's the second. The string pool might change as the file name is
    being scanned, since a new \.{\\csname} might be entered; therefore we keep
    |area_delimiter| and |ext_delimiter| relative to the beginning of the current
    string, instead of assigning an absolute address like |pool_ptr| to them.
-   @^system dependencies@> */
+   @^system dependencies@> 
 
+@c
 static boolean more_name(ASCII_code c)
 {
     if (c == ' ' && stop_at_space && (!quoted_filename)) {
@@ -89,18 +89,16 @@ static boolean more_name(ASCII_code c)
     }
 }
 
-/* The third.
-   @^system dependencies@>
+@ The third.
+@^system dependencies@>
 
-*/
-
+@c
 static void end_name(void)
 {
     unsigned char *s;
     if (str_ptr + 3 > (max_strings + STRING_OFFSET))
         overflow("number of strings",
                  (unsigned) (max_strings - init_str_ptr + STRING_OFFSET));
-    /* @:TeX capacity exceeded number of strings}{\quad number of strings@> */
     /* at this point, the full string lives in |cur_string| */
     if (area_delimiter == 0) {
         cur_area = get_nullstr();
@@ -127,17 +125,17 @@ static void end_name(void)
     }
 }
 
-/* Now let's consider the ``driver'' routines by which \TeX\ deals with file names
+@ Now let's consider the ``driver'' routines by which \TeX\ deals with file names
    in a system-independent manner.  First comes a procedure that looks for a
    file name in the input by calling |get_x_token| for the information.
-*/
 
+@c
 void scan_file_name(void)
 {
     str_number u = 0;
     name_in_progress = true;
     begin_name();
-    /* @<Get the next non-blank non-call token@>; */
+    /* Get the next non-blank non-call token; */
     do {
         get_x_token();
     } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
@@ -176,8 +174,8 @@ void scan_file_name(void)
     name_in_progress = false;
 }
 
-/* This function constructs a the three file name strings from a token list */
-
+@ This function constructs a the three file name strings from a token list 
+@c
 void scan_file_name_toks(void)
 {
     char *a, *n, *e, *s = NULL;
@@ -210,13 +208,12 @@ void scan_file_name_toks(void)
 
 
 
-/*
-  Here is a routine that manufactures the output file names, assuming that
+
+@  Here is a routine that manufactures the output file names, assuming that
   |job_name<>0|. It ignores and changes the current settings of |cur_area|
   and |cur_ext|.
-*/
 
-
+@c
 char *pack_job_name(const char *s)
 {                               /* |s = ".log"|, |".dvi"|, or |format_extension| */
     cur_area = get_nullstr();
@@ -225,14 +222,14 @@ char *pack_job_name(const char *s)
     return pack_file_name(cur_name, cur_area, cur_ext);
 }
 
-/* If some trouble arises when \TeX\ tries to open a file, the following
+@ If some trouble arises when \TeX\ tries to open a file, the following
    routine calls upon the user to supply another file name. Parameter~|s|
    is used in the error message to identify the type of file; parameter~|e|
    is the default extension if none is given. Upon exit from the routine,
    variables |cur_name|, |cur_area|, and |cur_ext| are
    ready for another attempt at file opening.
-*/
 
+@c
 char *prompt_file_name(const char *s, const char *e)
 {
     int k;                      /* index into |buffer| */
@@ -246,9 +243,9 @@ char *prompt_file_name(const char *s, const char *e)
     ar = makecstring(cur_area);
     na = makecstring(cur_name);
     ex = makecstring(cur_ext);
-    if (strcmp(s, "input file name") == 0) {    /* @.I can't find file x@> */
+    if (strcmp(s, "input file name") == 0) {
         snprintf(prompt, 255, "I can't find file `%s%s%s'.", ar, na, ex);
-    } else {                    /*@.I can't write on file x@> */
+    } else {
         snprintf(prompt, 255, "I can't write on file `%s%s%s'.", ar, na, ex);
     }
     free(ar);
@@ -257,7 +254,7 @@ char *prompt_file_name(const char *s, const char *e)
     print_err(prompt);
     if ((strcmp(e, ".tex") == 0) || (strcmp(e, "") == 0))
         show_context();
-    tprint_nl("Please type another ");  /*@.Please type...@> */
+    tprint_nl("Please type another ");
     tprint(s);
     if (interaction < scroll_mode)
         fatal_error("*** (job aborted, file error in nonstop mode)");
@@ -282,6 +279,7 @@ char *prompt_file_name(const char *s, const char *e)
     return pack_file_name(cur_name, cur_area, cur_ext);
 }
 
+@ @c
 void tprint_file_name(unsigned char *n, unsigned char *a, unsigned char *e)
 {
     boolean must_quote;         /* whether to quote the filename */
@@ -336,7 +334,7 @@ void tprint_file_name(unsigned char *n, unsigned char *a, unsigned char *e)
         print_char('"');
 }
 
-
+@ @c
 void print_file_name(str_number n, str_number a, str_number e)
 {
     char *nam, *are, *ext;

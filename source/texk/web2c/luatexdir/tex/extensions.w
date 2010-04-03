@@ -1,29 +1,33 @@
+% extensions.w
+
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
+\def\eTeX{e-\TeX}
+\def\pdfTeX{pdf\TeX}
+
 @ @c
-/* extensions.c
-
-   Copyright 2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
 #include "ptexlib.h"
 
+@ @c
 #define mode          cur_list.mode_field
 #define tail          cur_list.tail_field
 #define head          cur_list.head_field
@@ -42,8 +46,8 @@ static const char _svn_version[] =
 #define local_left_box equiv(local_left_box_base)
 #define local_right_box equiv(local_right_box_base)
 
-/*
-The program above includes a bunch of ``hooks'' that allow further
+
+@ The program above includes a bunch of ``hooks'' that allow further
 capabilities to be added without upsetting \TeX's basic structure.
 Most of these hooks are concerned with ``whatsit'' nodes, which are
 intended to be used for special purposes; whenever a new extension to
@@ -93,23 +97,18 @@ In the case of \.{\\write} and \.{\\special}, there is also a field that
 points to the reference count of a token list that should be sent. In the
 case of \.{\\openout}, we need three words and three auxiliary subfields
 to hold the string numbers for name, area, and extension.
-*/
 
-/*
-Extensions might introduce new command codes; but it's best to use
+@ Extensions might introduce new command codes; but it's best to use
 |extension| with a modifier, whenever possible, so that |main_control|
 stays the same.
-*/
 
-
-/*
-The sixteen possible \.{\\write} streams are represented by the |write_file|
+@ The sixteen possible \.{\\write} streams are represented by the |write_file|
 array. The |j|th file is open if and only if |write_open[j]=true|. The last
 two streams are special; |write_open[16]| represents a stream number
 greater than 15, while |write_open[17]| represents a negative stream number,
 and both of these variables are always |false|.
-*/
 
+@c
 alpha_file write_file[16];
 halfword write_file_mode[16];
 halfword write_file_translation[16];
@@ -118,18 +117,18 @@ scaled neg_wd;
 scaled pos_wd;
 scaled neg_ht;
 
-/*
-The variable |write_loc| just introduced is used to provide an
-appropriate error message in case of ``runaway'' write texts.
-*/
 
+@ The variable |write_loc| just introduced is used to provide an
+appropriate error message in case of ``runaway'' write texts.
+
+@c
 halfword write_loc;             /* |eqtb| address of \.{\\write} */
 
-/*
-When an |extension| command occurs in |main_control|, in any mode,
-the |do_extension| routine is called.
-*/
 
+@ When an |extension| command occurs in |main_control|, in any mode,
+the |do_extension| routine is called.
+
+@c
 void do_extension(PDF pdf)
 {
     int i, k;                   /* all-purpose integers */
@@ -178,18 +177,16 @@ void do_extension(PDF pdf)
            of a \.{\\shipout} command. Therefore we will put a dummy control sequence as
            a ``stopper,'' right after the token list. This control sequence is
            artificially defined to be \.{\\outer}.
-           @:end_write_}{\.{\\endwrite}@>
 
            The presence of `\.{\\immediate}' causes the |do_extension| procedure
            to descend to one level of recursion. Nothing happens unless \.{\\immediate}
            is followed by `\.{\\openout}', `\.{\\write}', or `\.{\\closeout}'.
-           @^recursion@>
          */
         get_x_token();
         if (cur_cmd == extension_cmd) {
             if (cur_chr <= close_node) {
                 p = tail;
-                /* do_extension() and out_what() here can only be open, write, or close */
+                /* |do_extension()| and |out_what()| here can only be open, write, or close */
                 do_extension(pdf);      /* append a whatsit node */
                 out_what(pdf, tail);    /* do the action immediately */
                 flush_node_list(tail);
@@ -257,7 +254,7 @@ void do_extension(PDF pdf)
         break;
     case pdf_font_attr_code:
         /* Implement \.{\\pdffontattr} */
-        /* A change from \THANH's original code: the font attributes are simply
+        /* A change from Thanh's original code: the font attributes are simply
            initialized to zero now, this is easier to deal with from C than an
            empty \TeX{} string, and surely nobody will want to set
            \.{\\pdffontattr} to a string containing a single zero, as that
@@ -270,7 +267,7 @@ void do_extension(PDF pdf)
         scan_pdf_ext_toks();
         set_pdf_font_attr(k, tokens_to_string(def_ref));
         if (str_length(pdf_font_attr(k)) == 0) {
-            flush_str((str_ptr - 1));   /* from tokens_to_string */
+            flush_str((str_ptr - 1));   /* from |tokens_to_string| */
             set_pdf_font_attr(k, 0);
         }
         break;
@@ -514,12 +511,12 @@ void do_extension(PDF pdf)
     }
 }
 
-/*
-Here is a subroutine that creates a whatsit node having a given |subtype|
+
+@ Here is a subroutine that creates a whatsit node having a given |subtype|
 and a given number of words. It initializes only the first word of the whatsit,
 and appends it to the current list.
-*/
 
+@c
 void new_whatsit(int s)
 {
     halfword p;                 /* the new node */
@@ -528,11 +525,11 @@ void new_whatsit(int s)
     tail = p;
 }
 
-/*
-The next subroutine uses |cur_chr| to decide what sort of whatsit is
-involved, and also inserts a |write_stream| number.
-*/
 
+@ The next subroutine uses |cur_chr| to decide what sort of whatsit is
+involved, and also inserts a |write_stream| number.
+
+@c
 void new_write_whatsit(int w)
 {
     new_whatsit(cur_chr);
@@ -548,19 +545,20 @@ void new_write_whatsit(int w)
     write_stream(tail) = cur_val;
 }
 
-/*
-  We have to check whether \.{\\pdfoutput} is set for using \pdfTeX{}
-  extensions.
-*/
 
+@ We have to check whether \.{\\pdfoutput} is set for using \pdfTeX{}
+  extensions.
+
+@c
 void scan_pdf_ext_toks(void)
 {
     (void) scan_toks(false, true);      /* like \.{\\special} */
 }
 
-/*  We need to check whether the referenced object exists. */
+@  We need to check whether the referenced object exists.
 
-/* finds the node preceding the rightmost node |e|; |s| is some node before |e| */
+finds the node preceding the rightmost node |e|; |s| is some node before |e| 
+@c
 halfword prev_rightmost(halfword s, halfword e)
 {
     halfword p = s;
@@ -574,32 +572,33 @@ halfword prev_rightmost(halfword s, halfword e)
     return p;
 }
 
-/* \.{\\pdfxform} and \.{\\pdfrefxform} are similiar to \.{\\pdfobj} and
+@ \.{\\pdfxform} and \.{\\pdfrefxform} are similiar to \.{\\pdfobj} and
   \.{\\pdfrefobj}
-*/
 
+@c
 int pdf_last_xform;
 
-/* \.{\\pdfximage} and \.{\\pdfrefximage} are similiar to \.{\\pdfxform} and
+@ \.{\\pdfximage} and \.{\\pdfrefximage} are similiar to \.{\\pdfxform} and
   \.{\\pdfrefxform}. As we have to scan |<rule spec>| quite often, it is better
   have a |rule_node| that holds the most recently scanned |<rule spec>|.
-*/
 
+@c
 int pdf_last_ximage;
 int pdf_last_ximage_pages;
 int pdf_last_ximage_colordepth;
 int pdf_last_annot;
 
-/* pdflastlink needs an extra global variable */
+@ pdflastlink needs an extra global variable 
 
+@c
 int pdf_last_link;
 scaledpos pdf_last_pos = { 0, 0 };
 
-/*
-To implement primitives as \.{\\pdfinfo}, \.{\\pdfcatalog} or
-\.{\\pdfnames} we need to concatenate tokens lists.
-*/
 
+@ To implement primitives as \.{\\pdfinfo}, \.{\\pdfcatalog} or
+\.{\\pdfnames} we need to concatenate tokens lists.
+
+@c
 halfword concat_tokens(halfword q, halfword r)
 {                               /* concat |q| and |r| and returns the result tokens list */
     halfword p;
@@ -613,9 +612,10 @@ halfword concat_tokens(halfword q, halfword r)
     return q;
 }
 
+@ @c
 int pdf_retval;                 /* global multi-purpose return value */
 
-
+@ @c
 halfword make_local_par_node(void)
 /* This function creates a |local_paragraph| node */
 {
@@ -638,8 +638,8 @@ halfword make_local_par_node(void)
 }
 
 
-/*
-The \eTeX\ features available in extended mode are grouped into two
+
+@ The \eTeX\ features available in extended mode are grouped into two
 categories:  (1)~Some of them are permanently enabled and have no
 semantic effect as long as none of the additional primitives are
 executed.  (2)~The remaining \eTeX\ features are optional and can be
@@ -647,20 +647,19 @@ individually enabled and disabled.  For each optional feature there is
 an \eTeX\ state variable named \.{\\...state}; the feature is enabled,
 resp.\ disabled by assigning a positive, resp.\ non-positive value to
 that integer.
-*/
 
-/*
-In order to handle \.{\\everyeof} we need an array |eof_seen| of
+
+@ In order to handle \.{\\everyeof} we need an array |eof_seen| of
 boolean variables.
-*/
 
+@c
 boolean *eof_seen;              /* has eof been seen? */
 
-/*
-The |print_group| procedure prints the current level of grouping and
-the name corresponding to |cur_group|.
-*/
 
+@ The |print_group| procedure prints the current level of grouping and
+the name corresponding to |cur_group|.
+
+@c
 void print_group(boolean e)
 {
     switch (cur_group) {
@@ -720,21 +719,21 @@ void print_group(boolean e)
     tprint(" group (level ");
     print_int(cur_level);
     print_char(')');
-    if (saved_value(-1) != 0) { /* saved_line */
+    if (saved_value(-1) != 0) { /* |saved_line| */
         if (e)
             tprint(" entered at line ");
         else
             tprint(" at line ");
-        print_int(saved_value(-1));     /* saved_line */
+        print_int(saved_value(-1));     /* |saved_line| */
     }
 }
 
-/*
-The |group_trace| procedure is called when a new level of grouping
+
+@ The |group_trace| procedure is called when a new level of grouping
 begins (|e=false|) or ends (|e=true|) with |saved_value(-1)| containing the
 line number.
-*/
 
+@c
 void group_trace(boolean e)
 {
     begin_diagnostic();
@@ -748,20 +747,19 @@ void group_trace(boolean e)
     end_diagnostic(false);
 }
 
-/*
-A group entered (or a conditional started) in one file may end in a
+@ A group entered (or a conditional started) in one file may end in a
 different file.  Such slight anomalies, although perfectly legitimate,
 may cause errors that are difficult to locate.  In order to be able to
 give a warning message when such anomalies occur, \eTeX\ uses the
 |grp_stack| and |if_stack| arrays to record the initial |cur_boundary|
 and |cond_ptr| values for each input file.
-*/
 
+@c
 save_pointer *grp_stack;        /* initial |cur_boundary| */
 halfword *if_stack;             /* initial |cond_ptr| */
 
-/*
-When a group ends that was apparently entered in a different input
+
+@ When a group ends that was apparently entered in a different input
 file, the |group_warning| procedure is invoked in order to update the
 |grp_stack|.  If moreover \.{\\tracingnesting} is positive we want to
 give a warning message.  The situation is, however, somewhat complicated
@@ -770,8 +768,8 @@ corresponding \.{\\input} file or \.{\\scantokens} pseudo file (e.g.,
 error insertions from the terminal); and (2)~the relevant information is
 recorded in the |name_field| of the |input_stack| only loosely
 synchronized with the |in_open| variable indexing |grp_stack|.
-*/
 
+@c
 void group_warning(void)
 {
     int i;                      /* index into |grp_stack| */
@@ -807,13 +805,13 @@ void group_warning(void)
     }
 }
 
-/*
-When a conditional ends that was apparently started in a different
+
+@ When a conditional ends that was apparently started in a different
 input file, the |if_warning| procedure is invoked in order to update the
 |if_stack|.  If moreover \.{\\tracingnesting} is positive we want to
 give a warning message (with the same complications as above).
-*/
 
+@c
 void if_warning(void)
 {
     int i;                      /* index into |if_stack| */
@@ -848,12 +846,12 @@ void if_warning(void)
     }
 }
 
-/*
-Conversely, the |file_warning| procedure is invoked when a file ends
+
+@ Conversely, the |file_warning| procedure is invoked when a file ends
 and some groups entered or conditionals started while reading from that
 file are still incomplete.
-*/
 
+@c
 void file_warning(void)
 {
     halfword p;                 /* saved value of |save_ptr| or |cond_ptr| */
@@ -902,15 +900,16 @@ void file_warning(void)
         history = warning_issued;
 }
 
+@ @c
 halfword last_line_fill;        /* the |par_fill_skip| glue node of the new paragraph */
 
-/*
-The lua interface needs some extra pascal functions. The functions
+
+@ The lua interface needs some extra functions. The functions
 themselves are quite boring, but they are handy because otherwise this
 internal stuff has to be accessed from C directly, where lots of the
-pascal defines are not available.
-*/
+defines are not available.
 
+@c
 #define get_tex_dimen_register(j) dimen(j)
 #define get_tex_skip_register(j) skip(j)
 #define get_tex_count_register(j) count(j)
@@ -1055,8 +1054,8 @@ int set_tex_box_depth(int j, scaled v)
     return 0;
 }
 
-/*
-This section is devoted to the {\sl Synchronize \TeX nology}
+
+@ This section is devoted to the {\sl Synchronize \TeX nology}
 - or simply {\sl Sync\TeX} - used to synchronize between input and output.
 This section explains how synchronization basics are implemented.
 Before we enter into more technical details,
@@ -1085,12 +1084,12 @@ Enabling synchronization should be performed from the command line,
 This global integer variable is declared here but it is not used here.
 This is just a placeholder where the command line controller will put
 the {\sl Sync\TeX} related options, and the {\sl Sync\TeX} controller will read them.
-*/
 
+@c
 int synctexoption;
 
-/*
-A convenient primitive is provided:
+
+@ A convenient primitive is provided:
 \.{\\synctex=1} in the input source file enables synchronization whereas
 \.{\\synctex=0} disables it.
 Its memory address is |synctex_code|.
@@ -1102,12 +1101,12 @@ the contents of the \.{\\synctex} primitive, we declare |synctexoffset|,
 such that |mem[synctexoffset]| and \.{\\synctex} correspond to
 the same memory storage. |synctexoffset| is initialized to
 the correct value when quite everything is initialized.
-*/
 
+@c
 int synctexoffset;              /* holds the true value of |synctex_code| */
 
-/*
-Synchronization is achieved with the help of an auxiliary file named
+
+@ Synchronization is achieved with the help of an auxiliary file named
 `\.{{\sl jobname}.synctex}' ({\sl jobname} is the contents of the
 \.{\\jobname} macro), where a {\sl Sync\TeX} controller implemented
 in the external |synctex.c| file will store geometrical information.
@@ -1192,28 +1191,27 @@ related code was there, including memory management.
 Of course, all this assumes that {\sl Sync\TeX} is turned off from the command line.
 @^synctex@>
 @^synchronization@>
-*/
 
-/*
-Here are extra variables for Web2c.  (This numbering of the
+
+@ Here are extra variables for Web2c.  (This numbering of the
 system-dependent section allows easy integration of Web2c and e-\TeX, etc.)
 @^<system dependencies@>
-*/
 
+@c
 pool_pointer edit_name_start;   /* where the filename to switch to starts */
 int edit_name_length, edit_line;        /* what line to start editing at */
 int ipcon;                      /* level of IPC action, 0 for none [default] */
 boolean stop_at_space;          /* whether |more_name| returns false for space */
 
-/*
-The |edit_name_start| will be set to point into |str_pool| somewhere after
+@ The |edit_name_start| will be set to point into |str_pool| somewhere after
 its beginning if \TeX\ is supposed to switch to an editor on exit.
-*/
 
+@c
 int shellenabledp;
 int restrictedshell;
 char *output_comment;
 
-/* Are we printing extra info as we read the format file? */
+@ Are we printing extra info as we read the format file? 
 
+@c
 boolean debug_format_file;

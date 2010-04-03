@@ -1,31 +1,31 @@
+% mathnodes.w
+% 
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* mathnodes.c
-   
-   Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
-
 #include "ptexlib.h"
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+    "$URL$";
 
-/* math codes */
-
+@ math codes 
+@c
 static sa_tree mathcode_head = NULL;
 
 #define MATHCODEHEAP 8
@@ -38,8 +38,8 @@ static int mathcode_heapptr = 0;
 #define MATHCODESTACK 8
 #define MATHCODEDEFAULT 0xFFFFFFFF
 
-/* delcodes */
-
+@ delcodes
+@c
 static sa_tree delcode_head = NULL;
 
 #define DELCODEHEAP 8
@@ -51,8 +51,9 @@ static int delcode_heapptr = 0;
 #define DELCODESTACK 4
 #define DELCODEDEFAULT 0xFFFFFFFF
 
-/* some helpers for mathcode printing */
+@ some helpers for mathcode printing
 
+@c
 #define print_hex_digit(A) do {                 \
     if ((A)>=10) print_char('A'+(A)-10);        \
     else print_char('0'+(A));                   \
@@ -74,6 +75,7 @@ static int delcode_heapptr = 0;
     two_hex((A)%256);         \
   } while (0)
 
+@ @c
 void show_mathcode_value(mathcodeval c)
 {
     if (c.origin_value == aleph_mathcode) {
@@ -101,7 +103,7 @@ void show_mathcode_value(mathcodeval c)
     }
 }
 
-
+@ @c
 void show_mathcode(int n)
 {
     mathcodeval c = get_math_code(n);
@@ -119,6 +121,7 @@ void show_mathcode(int n)
     show_mathcode_value(c);
 }
 
+@ @c
 void unsavemathcode(quarterword gl)
 {
     sa_stack_item st;
@@ -145,6 +148,7 @@ void unsavemathcode(quarterword gl)
     }
 }
 
+@ @c
 void set_math_code(int n,
                    int commandorigin,
                    int mathclass,
@@ -174,6 +178,7 @@ void set_math_code(int n,
     }
 }
 
+@ @c
 mathcodeval get_math_code(int n)
 {
     unsigned int ret;
@@ -192,6 +197,7 @@ mathcodeval get_math_code(int n)
 }
 
 
+@ @c
 int get_math_code_num(int n)
 {
     mathcodeval mval;
@@ -210,12 +216,14 @@ int get_math_code_num(int n)
     return 0;
 }
 
+@ @c
 void initializemathcode(void)
 {
     mathcode_head = new_sa_tree(MATHCODESTACK, MATHCODEDEFAULT);
     mathcode_heap = Mxmalloc_array(mathcodeval, MATHCODEHEAP);
 }
 
+@ @c
 void dumpmathcode(void)
 {
     int k;
@@ -260,7 +268,7 @@ void undumpmathcode(void)
     }
 }
 
-
+@ @c
 void show_delcode(int n)
 {
     delcodeval c;
@@ -307,8 +315,8 @@ void show_delcode(int n)
 
 
 
-/* TODO: clean up the heap */
-
+@ TODO: clean up the heap
+@c
 void unsavedelcode(quarterword gl)
 {
     sa_stack_item st;
@@ -336,6 +344,7 @@ void unsavedelcode(quarterword gl)
 
 }
 
+@ @c
 void set_del_code(int n,
                   int commandorigin,
                   int smathfamily,
@@ -368,6 +377,7 @@ void set_del_code(int n,
     delcode_heapptr++;
 }
 
+@ @c
 delcodeval get_del_code(int n)
 {
     unsigned ret;
@@ -386,7 +396,9 @@ delcodeval get_del_code(int n)
     }
 }
 
-/* this really only works for old-style delcodes! */
+@ this really only works for old-style delcodes!
+
+@c
 int get_del_code_num(int n)
 {
     unsigned ret;
@@ -405,13 +417,14 @@ int get_del_code_num(int n)
     }
 }
 
-
+@ @c
 void initializedelcode(void)
 {
     delcode_head = new_sa_tree(DELCODESTACK, DELCODEDEFAULT);
     delcode_heap = Mxmalloc_array(delcodeval, DELCODEHEAP);
 }
 
+@ @c
 void dumpdelcode(void)
 {
     int k;
@@ -458,18 +471,21 @@ void undumpdelcode(void)
     }
 }
 
+@ @c
 void unsave_math_codes(quarterword grouplevel)
 {
     unsavemathcode(grouplevel);
     unsavedelcode(grouplevel);
 }
 
+@ @c
 void initialize_math_codes(void)
 {
     initializemathcode();
     initializedelcode();
 }
 
+@ @c
 void free_math_codes(void)
 {
     destroy_sa_tree(mathcode_head);
@@ -478,6 +494,7 @@ void free_math_codes(void)
     xfree(delcode_heap);
 }
 
+@ @c
 void dump_math_codes(void)
 {
     dumpmathcode();

@@ -1,24 +1,23 @@
+% scanning.w
+% 
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* scanning.c
-   
-   Copyright 2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
-
 #include "ptexlib.h"
 
 static const char _svn_version[] =
@@ -26,7 +25,7 @@ static const char _svn_version[] =
     "$URL$";
 
 
-
+@ @c
 #define prev_depth cur_list.prev_depth_field
 #define space_factor cur_list.space_factor_field
 #define par_shape_ptr  equiv(par_shape_loc)
@@ -43,8 +42,8 @@ static const char _svn_version[] =
 #define text_direction int_par(text_direction_code)
 #define body_direction int_par(body_direction_code)
 
-/*
-Let's turn now to some procedures that \TeX\ calls upon frequently to digest
+
+@ Let's turn now to some procedures that \TeX\ calls upon frequently to digest
 certain kinds of patterns in the input. Most of these are quite simple;
 some are quite elaborate. Almost all of the routines call |get_x_token|,
 which can cause them to be invoked recursively.
@@ -53,8 +52,8 @@ The |scan_left_brace| routine is called when a left brace is supposed to be
 the next non-blank token. (The term ``left brace'' means, more precisely,
 a character whose catcode is |left_brace|.) \TeX\ allows \.{\\relax} to
 appear before the |left_brace|.
-*/
 
+@c
 void scan_left_brace(void)
 {                               /* reads a mandatory |left_brace| */
     /* Get the next non-blank non-relax non-call token */
@@ -76,11 +75,11 @@ void scan_left_brace(void)
     }
 }
 
-/*
-The |scan_optional_equals| routine looks for an optional `\.=' sign preceded
-by optional spaces; `\.{\\relax}' is not ignored here.
-*/
 
+@ The |scan_optional_equals| routine looks for an optional `\.=' sign preceded
+by optional spaces; `\.{\\relax}' is not ignored here.
+
+@c
 void scan_optional_equals(void)
 {
     /* Get the next non-blank non-call token */
@@ -91,11 +90,11 @@ void scan_optional_equals(void)
         back_input();
 }
 
-/*
-Here is a procedure that sounds an alarm when mu and non-mu units
-are being switched.
-*/
 
+@ Here is a procedure that sounds an alarm when mu and non-mu units
+are being switched.
+
+@c
 static void mu_error(void)
 {
     print_err("Incompatible glue units");
@@ -103,8 +102,8 @@ static void mu_error(void)
     error();
 }
 
-/*
-The next routine `|scan_something_internal|' is used to fetch internal
+
+@ The next routine `|scan_something_internal|' is used to fetch internal
 numeric quantities like `\.{\\hsize}', and also to handle the `\.{\\the}'
 when expanding constructions like `\.{\\the\\toks0}' and
 `\.{\\the\\baselineskip}'. Soon we will be considering the |scan_int|
@@ -143,8 +142,8 @@ the reference count of that glue will have been updated to reflect this
 reference; if the output is a nonempty token list, |cur_val| will point to
 its reference count, but in this case the count will not have been updated.
 Otherwise |cur_val| will contain the integer or scaled value in question.
-*/
 
+@c
 int cur_val;                    /* value returned by numeric scanners */
 int cur_val1;                   /* delcodes are sometimes 51 digits */
 int cur_val_level;              /* the ``level'' of this value */
@@ -154,15 +153,14 @@ int cur_val_level;              /* the ``level'' of this value */
 	cur_val_level=B;			\
     } while (0)
 
-/*
-When a |glue_val| changes to a |dimen_val|, we use the width component
+
+@ When a |glue_val| changes to a |dimen_val|, we use the width component
 of the glue; there is no need to decrease the reference count, since it
 has not yet been increased.  When a |dimen_val| changes to an |int_val|,
 we use scaled points so that the value doesn't actually change. And when a
 |mu_val| changes to a |glue_val|, the value doesn't change either.
-*/
 
-
+@c
 static void downgrade_cur_val(boolean delete_glue)
 {
     halfword m;
@@ -196,12 +194,11 @@ static void negate_cur_val(boolean delete_glue)
 }
 
 
-/*  Some of the internal items can be fetched both routines,
-    and these have been split off into the next routine, that
-    returns true if the command code was understood 
-*/
+@ Some of the internal items can be fetched both routines,
+and these have been split off into the next routine, that
+returns true if the command code was understood 
 
-
+@c
 static boolean short_scan_something_internal(int cmd, int chr, int level,
                                              boolean negative)
 {
@@ -608,11 +605,11 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
     return succeeded;
 }
 
-/* First, here is a short routine that is called from lua code. All
+@ First, here is a short routine that is called from lua code. All
 the  real work is delegated to |short_scan_something_internal| that
 is shared between this routine and |scan_something_internal|. 
-*/
 
+@c
 void scan_something_simple(halfword cmd, halfword subitem)
 {
     /* negative is never true */
@@ -628,15 +625,14 @@ void scan_something_simple(halfword cmd, halfword subitem)
 }
 
 
-/*
-OK, we're ready for |scan_something_internal| itself. A second parameter,
+
+@ OK, we're ready for |scan_something_internal| itself. A second parameter,
 |negative|, is set |true| if the value that is found should be negated.
 It is assumed that |cur_cmd| and |cur_chr| represent the first token of
 the internal quantity to be scanned; an error will be signalled if
 |cur_cmd<min_internal| or |cur_cmd>max_internal|.
-*/
 
-
+@c
 void scan_something_internal(int level, boolean negative)
 {
     /* fetch an internal parameter */
@@ -871,17 +867,15 @@ void scan_something_internal(int level, boolean negative)
 }
 
 
-/*
-It is nice to have routines that say what they do, so the original
+@ It is nice to have routines that say what they do, so the original
 |scan_eight_bit_int| is superceded by |scan_register_num| and
 |scan_mark_num|. It may become split up even further in the future.
-*/
 
-/* Many of the |restricted classes| routines are the essentially 
+Many of the |restricted classes| routines are the essentially 
 the same except for the upper limit and the error message, so it makes
 sense to combine these all into one function. 
-*/
 
+@c
 void scan_limited_int(int max, const char *name)
 {
     char hlp[80];
@@ -904,6 +898,7 @@ void scan_limited_int(int max, const char *name)
     }
 }
 
+@ @c
 void scan_fifteen_bit_int(void)
 {
     scan_real_fifteen_bit_int();
@@ -911,6 +906,7 @@ void scan_fifteen_bit_int(void)
         (((cur_val % 0x1000) / 0x100) * 0x10000) + (cur_val % 0x100);
 }
 
+@ @c
 void scan_fifty_one_bit_int(void)
 {
     int iiii;
@@ -937,13 +933,13 @@ void scan_fifty_one_bit_int(void)
     cur_val = iiii;
 }
 
-/*
-To be able to determine whether \.{\\write18} is enabled from within
+
+@ To be able to determine whether \.{\\write18} is enabled from within
 \TeX\ we also implement \.{\\eof18}.  We sort of cheat by having an
 additional route |scan_four_bit_int_or_18| which is the same as
 |scan_four_bit_int| except it also accepts the value 18.
-*/
 
+@c
 void scan_four_bit_int_or_18(void)
 {
     scan_int();
@@ -957,7 +953,7 @@ void scan_four_bit_int_or_18(void)
 }
 
 
-
+@ @c
 void scan_string_argument(void)
 {
     int s;
@@ -977,37 +973,36 @@ void scan_string_argument(void)
     }
     s = make_string();
     /* todo: this was just conserving the string pool: */
-    /* 
+#if 0
        if (str_eq_str("mi",s)) s="mi";
        if (str_eq_str("mo",s)) s="mo";
        if (str_eq_str("mn",s)) s="mn";
-     */
+#endif
     cur_val = s;
 }
 
-/*
-An integer number can be preceded by any number of spaces and `\.+' or
+
+@ An integer number can be preceded by any number of spaces and `\.+' or
 `\.-' signs. Then comes either a decimal constant (i.e., radix 10), an
-octal constant (i.e., radix 8, preceded by~\.\'), a hexadecimal constant
-(radix 16, preceded by~\."), an alphabetic constant (preceded by~\.\`), or
+octal constant (i.e., radix 8, preceded by~'), a hexadecimal constant
+(radix 16, preceded by~"), an alphabetic constant (preceded by~`), or
 an internal variable. After scanning is complete,
 |cur_val| will contain the answer, which must be at most
 $2^{31}-1=2147483647$ in absolute value. The value of |radix| is set to
 10, 8, or 16 in the cases of decimal, octal, or hexadecimal constants,
 otherwise |radix| is set to zero. An optional space follows a constant.
-*/
 
-
+@c
 int radix;                      /* |scan_int| sets this to 8, 10, 16, or zero */
 
-/*
-  The |scan_int| routine is used also to scan the integer part of a
+
+@ The |scan_int| routine is used also to scan the integer part of a
   fraction; for example, the `\.3' in `\.{3.14159}' will be found by
   |scan_int|. The |scan_dimen| routine assumes that |cur_tok=point_token|
   after the integer part of such a fraction has been scanned by |scan_int|,
   and that the decimal point has been backed up to be scanned again.
-*/
 
+@c
 void scan_int(void)
 {                               /* sets |cur_val| to an integer */
     boolean negative;           /* should the answer be negated? */
@@ -1155,12 +1150,12 @@ void scan_int(void)
         negate(cur_val);
 }
 
-/*
-The following code is executed when |scan_something_internal| was
+
+@ The following code is executed when |scan_something_internal| was
 called asking for |mu_val|, when we really wanted a ``mudimen'' instead
 of ``muglue.''
-*/
 
+@c
 static void coerce_glue(void)
 {
     int v;
@@ -1172,8 +1167,8 @@ static void coerce_glue(void)
 }
 
 
-/*
-The |scan_dimen| routine is similar to |scan_int|, but it sets |cur_val| to
+
+@ The |scan_dimen| routine is similar to |scan_int|, but it sets |cur_val| to
 a |scaled| value, i.e., an integral number of sp. One of its main tasks
 is therefore to interpret the abbreviations for various kinds of units and
 to convert measurements to scaled points.
@@ -1186,12 +1181,12 @@ an integer and only the units need to be considered.
 
 The order of infinity that was found in the case of infinite glue is returned
 in the global variable |cur_order|.
-*/
 
+@c
 int cur_order;                  /* order of infinity found by |scan_dimen| */
 
-/*
-Constructions like `\.{-\'77 pt}' are legal dimensions, so |scan_dimen|
+
+@ Constructions like `\.{-\'77 pt}' are legal dimensions, so |scan_dimen|
 may begin with |scan_int|. This explains why it is convenient to use
 |scan_int| also for the integer part of a decimal fraction.
 
@@ -1200,8 +1195,8 @@ with an auxiliary fraction |f|, so that the actual quantity of interest is
 $|cur_val|+|f|/2^{16}$. At the end of the routine, this ``unpacked''
 representation is put into the single word |cur_val|, which suddenly
 switches significance from |integer| to |scaled|.
-*/
 
+@c
 void scan_dimen(boolean mu, boolean inf, boolean shortcut)
 /* sets |cur_val| to a dimension */
 {
@@ -1407,7 +1402,7 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
        fractions whose numerator and denominator add to 32768 or less.
        According to the definitions here, $\rm2660\,dd\approx1000.33297\,mm$;
        this agrees well with the value $\rm1000.333\,mm$ cited by Bosshard
-       @^Bosshard, Hans Rudolf@>
+       \^{Bosshard, Hans Rudolf}
        in {\sl Technische Grundlagen zur Satzherstellung\/} (Bern, 1980).
        The Didot point has been newly standardized in 1978;
        it's now exactly $\rm 1\,nd=0.375\,mm$.
@@ -1485,8 +1480,7 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
 }
 
 
-/*
-The final member of \TeX's value-scanning trio is |scan_glue|, which
+@ The final member of \TeX's value-scanning trio is |scan_glue|, which
 makes |cur_val| point to a glue specification. The reference count of that
 glue spec will take account of the fact that |cur_val| is pointing to~it.
 
@@ -1495,8 +1489,8 @@ The |level| parameter should be either |glue_val| or |mu_val|.
 Since |scan_dimen| was so much more complex than |scan_int|, we might expect
 |scan_glue| to be even worse. But fortunately, it is very simple, since
 most of the work has already been done.
-*/
 
+@c
 void scan_glue(int level)
 {                               /* sets |cur_val| to a glue spec pointer */
     boolean negative;           /* should the answer be negated? */
@@ -1550,8 +1544,8 @@ void scan_glue(int level)
     cur_val = q;
 }
 
-/* This is an omega routine */
-
+@ This is an omega routine 
+@c
 void scan_scaled(void)
 {                               /* sets |cur_val| to a scaled value */
     boolean negative;           /* should the answer be negated? */
@@ -1587,7 +1581,7 @@ void scan_scaled(void)
         cur_tok = point_token;
     if ((radix == 10) && (cur_tok == point_token)) {
         /* Scan decimal fraction */
-        /* TODO: merge this with the same block in scan_dimen */
+        /* TODO: merge this with the same block in |scan_dimen| */
         /* When the following code is executed, we have |cur_tok=point_token|, but this
            token has been backed up using |back_input|; we must first discard it.
 
@@ -1636,12 +1630,12 @@ void scan_scaled(void)
         negate(cur_val);
 }
 
-/*
-This procedure is supposed to scan something like `\.{\\skip\\count12}',
+
+@ This procedure is supposed to scan something like `\.{\\skip\\count12}',
 i.e., whatever can follow `\.{\\the}', and it constructs a token list
 containing something like `\.{-3.0pt minus 0.5fill}'.
-*/
 
+@c
 halfword the_toks(void)
 {
     int old_setting;            /* holds |selector| setting */
@@ -1719,6 +1713,7 @@ halfword the_toks(void)
     }
 }
 
+@ @c
 str_number the_scanned_result(void)
 {
     int old_setting;            /* holds |selector| setting */
@@ -1763,12 +1758,12 @@ str_number the_scanned_result(void)
 }
 
 
-/*
-The following routine is used to implement `\.{\\fontdimen} |n| |f|'.
+
+@ The following routine is used to implement `\.{\\fontdimen} |n| |f|'.
 The boolean parameter |writing| is set |true| if the calling program
 intends to change the parameter value.
-*/
 
+@c
 static void font_param_error(int f)
 {
     print_err("Font ");
@@ -1839,15 +1834,15 @@ void get_font_dimen(void)
     scanned_result(cur_val, dimen_val_level);
 }
 
-/*
-Here's a similar procedure that returns a pointer to a rule node. This
+
+@ Here's a similar procedure that returns a pointer to a rule node. This
 routine is called just after \TeX\ has seen \.{\\hrule} or \.{\\vrule};
 therefore |cur_cmd| will be either |hrule| or |vrule|. The idea is to store
 the default rule dimensions in the node, then to override them if
 `\.{height}' or `\.{width}' or `\.{depth}' specifications are
 found (in any order).
-*/
 
+@c
 halfword scan_rule_spec(void)
 {
     halfword q;                 /* the rule node being created */
@@ -1880,8 +1875,9 @@ halfword scan_rule_spec(void)
 }
 
 
-/* Declare procedures that scan font-related stuff */
+@ Declare procedures that scan font-related stuff
 
+@c
 void scan_font_ident(void)
 {
     internal_font_number f;
@@ -1912,14 +1908,14 @@ void scan_font_ident(void)
     cur_val = f;
 }
 
-/* The |scan_general_text| procedure is much like |scan_toks(false,false)|,
-but will be invoked via |expand|, i.e., recursively. */
+@ The |scan_general_text| procedure is much like |scan_toks(false,false)|,
+but will be invoked via |expand|, i.e., recursively. 
 
-/* The token list (balanced text) created by |scan_general_text| begins
+The token list (balanced text) created by |scan_general_text| begins
 at |link(temp_token_head)| and ends at |cur_val|.  (If |cur_val=temp_token_head|,
 the list is empty.)
-*/
 
+@c
 void scan_general_text(void)
 {
     int s;                      /* to save |scanner_status| */
@@ -1964,11 +1960,11 @@ void scan_general_text(void)
     def_ref = d;
 }
 
-/*
-The |get_x_or_protected| procedure is like |get_x_token| except that
-protected macros are not expanded.
-*/
 
+@ The |get_x_or_protected| procedure is like |get_x_token| except that
+protected macros are not expanded.
+
+@c
 void get_x_or_protected(void)
 {                               /* sets |cur_cmd|, |cur_chr|, |cur_tok|,
                                    and expands non-protected macros */
@@ -1985,7 +1981,7 @@ void get_x_or_protected(void)
 }
 
 
-/* |scan_toks|. This function returns a pointer to the tail of a new token
+@ |scan_toks|. This function returns a pointer to the tail of a new token
 list, and it also makes |def_ref| point to the reference count at the
 head of that list.
 
@@ -2007,8 +2003,8 @@ only to the macro body (i.e., to the material following the first
 The value of |cur_cs| when |scan_toks| begins should be the |eqtb|
 address of the control sequence to display in ``runaway'' error
 messages.
-*/
 
+@c
 halfword scan_toks(boolean macro_def, boolean xpand)
 {
     halfword t;                 /* token representing the highest parameter number */
@@ -2037,7 +2033,7 @@ halfword scan_toks(boolean macro_def, boolean xpand)
             if (cur_cmd == mac_param_cmd) {
                 /* If the next character is a parameter number, make |cur_tok|
                    a |match| token; but if it is a left brace, store
-                   `|left_brace|, |end_match|', set |hash_brace|, and |goto done|@>;
+                   `|left_brace|, |end_match|', set |hash_brace|, and |goto done|;
                  */
                 s = match_token + cur_chr;
                 get_token();
@@ -2153,11 +2149,11 @@ halfword scan_toks(boolean macro_def, boolean xpand)
     return p;
 }
 
-/*
-Here we declare two trivial procedures in order to avoid mutually
-recursive procedures with parameters.
-*/
 
+@ Here we declare two trivial procedures in order to avoid mutually
+recursive procedures with parameters.
+
+@c
 void scan_normal_glue(void)
 {
     scan_glue(glue_val_level);
@@ -2168,15 +2164,14 @@ void scan_mu_glue(void)
     scan_glue(mu_val_level);
 }
 
-/* The |scan_expr| procedure scans and evaluates an expression. */
+@ The |scan_expr| procedure scans and evaluates an expression.
 
-/*
-Evaluating an expression is a recursive process:  When the left
+@ Evaluating an expression is a recursive process:  When the left
 parenthesis of a subexpression is scanned we descend to the next level
 of recursion; the previous level is resumed with the matching right
 parenthesis.
-*/
 
+@c
 typedef enum {
     expr_none = 0,              /* \.( seen, or \.( $\langle\it expr\rangle$ \.) seen */
     expr_add = 1,               /* \.( $\langle\it expr\rangle$ \.+ seen */
@@ -2186,27 +2181,25 @@ typedef enum {
     expr_scale = 5,             /* $\langle\it term\rangle$ \.*  $\langle\it factor\rangle$ \./ seen */
 } expression_states;
 
-/*
-  We want to make sure that each term and (intermediate) result is in
+
+@  We want to make sure that each term and (intermediate) result is in
   the proper range.  Integer values must not exceed |infinity|
   ($2^{31}-1$) in absolute value, dimensions must not exceed |max_dimen|
   ($2^{30}-1$).  We avoid the absolute value of an integer, because this
   might fail for the value $-2^{31}$ using 32-bit arithmetic.
-*/
+ 
+@   clear a number or dimension and set |arith_error| 
 
-/* 
-   clear a number or dimension and set |arith_error| 
-*/
-
+@c
 #define num_error(A) do {			\
 	arith_error=true;			\
 	A=0;					\
     } while (0)
 
-/* 
-   clear a glue spec and set |arith_error| 
-*/
+ 
+@   clear a glue spec and set |arith_error| 
 
+@c
 #define glue_error(A) do {				\
 	arith_error=true;				\
 	delete_glue_ref(A);				\
@@ -2219,16 +2212,16 @@ typedef enum {
 	if (shrink(A)==0) shrink_order(A)=normal;	\
     } while (0)
 
-/*
-Parenthesized subexpressions can be inside expressions, and this
+
+@ Parenthesized subexpressions can be inside expressions, and this
 nesting has a stack.  Seven local variables represent the top of the
 expression stack:  |p| points to pushed-down entries, if any; |l|
 specifies the type of expression currently beeing evaluated; |e| is the
 expression so far and |r| is the state of its evaluation; |t| is the
 term so far and |s| is the state of its evaluation; finally |n| is the
 numerator for a combined multiplication and division, if any.
-*/
 
+@c
 #define expr_type(A) type((A)+1)
 #define expr_state(A) subtype((A)+1)
 #define expr_e_field(A) vlink((A)+1)    /* saved expression so far */
@@ -2239,13 +2232,13 @@ numerator for a combined multiplication and division, if any.
 #define expr_add_sub(A,B,C) add_or_sub((A),(B),(C),(r==expr_sub))
 #define expr_a(A,B) expr_add_sub((A),(B),max_dimen)
 
-/*
+@
   The function |add_or_sub(x,y,max_answer,negative)| computes the sum
   (for |negative=false|) or difference (for |negative=true|) of |x| and
   |y|, provided the absolute value of the result does not exceed
   |max_answer|.
-*/
 
+@c
 int add_or_sub(int x, int y, int max_answer, boolean negative)
 {
     int a;                      /* the answer */
@@ -2269,11 +2262,11 @@ int add_or_sub(int x, int y, int max_answer, boolean negative)
 
 #define expr_d(A) A=quotient((A),f)
 
-/*
-The function |quotient(n,d)| computes the rounded quotient
-$q=\lfloor n/d+{1\over2}\rfloor$, when $n$ and $d$ are positive.
-*/
 
+@ The function |quotient(n,d)| computes the rounded quotient
+$q=\lfloor n/d+{1\over2}\rfloor$, when $n$ and $d$ are positive.
+
+@c
 int quotient(int n, int d)
 {
     boolean negative;           /* should the answer be negated? */
@@ -2304,17 +2297,17 @@ int quotient(int n, int d)
 
 #define expr_s(A) A=fract((A),n,f,max_dimen)
 
-/*
-Finally, the function |fract(x,n,d,max_answer)| computes the integer
+
+@ Finally, the function |fract(x,n,d,max_answer)| computes the integer
 $q=\lfloor xn/d+{1\over2}\rfloor$, when $x$, $n$, and $d$ are positive
 and the result does not exceed |max_answer|.  We can't use floating
 point arithmetic since the routine must produce identical results in all
 cases; and it would be too dangerous to multiply by~|n| and then divide
 by~|d|, in separate operations, since overflow might well occur.  Hence
 this subroutine simulates double precision arithmetic, somewhat
-analogous to \MF's |make_fraction| and |take_fraction| routines.
-*/
+analogous to Metafont's |make_fraction| and |take_fraction| routines.
 
+@c
 int fract(int x, int n, int d, int max_answer)
 {
     boolean negative;           /* should the answer be negated? */
@@ -2364,7 +2357,7 @@ int fract(int x, int n, int d, int max_answer)
 
 
     /* now |0<n<=x<d| */
-    /* @<Compute \(f)$f=\lfloor xn/d+{1\over2}\rfloor$@>@; */
+    /* Compute $f=\lfloor xn/d+{1\over2}\rfloor$; */
     /* The loop here preserves the following invariant relations
        between |f|, |x|, |n|, and~|r|:
        (i)~$f+\lfloor(xn+(r+d))/d\rfloor=\lfloor x_0n_0/d+{1\over2}\rfloor$;
@@ -2415,7 +2408,7 @@ int fract(int x, int n, int d, int max_answer)
     return a;
 }
 
-
+@ @c
 void scan_expr(void)
 {                               /* scans and evaluates an expression */
     boolean a, b;               /* saved values of |arith_error| */

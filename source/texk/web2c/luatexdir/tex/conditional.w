@@ -1,36 +1,35 @@
+% conditional.w
+% 
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* conditional.c
-   
-   Copyright 2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
-
 
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
+@ @c
 #define box(A) eqtb[box_base+(A)].hh.rh
 
-/* We consider now the way \TeX\ handles various kinds of \.{\\if} commands. */
+@* We consider now the way \TeX\ handles various kinds of \.{\\if} commands. 
 
-/*
-Conditions can be inside conditions, and this nesting has a stack
+@ Conditions can be inside conditions, and this nesting has a stack
 that is independent of the |save_stack|.
 
 Four global variables represent the top of the condition stack:
@@ -45,29 +44,28 @@ Otherwise |cond_ptr| points to a two-word node; the |type|, |subtype|, and
 |link| fields of the first word contain |if_limit|, |cur_if|, and
 |cond_ptr| at the next level, and the second word contains the
 corresponding |if_line|.
-*/
 
-
+@c
 halfword cond_ptr;              /* top of the condition stack */
 int if_limit;                   /* upper bound on |fi_or_else| codes */
 int cur_if;                     /* type of conditional being worked on */
 int if_line;                    /* line where that conditional began */
 
-/*
-When we skip conditional text, we keep track of the line number
-where skipping began, for use in error messages.
-*/
 
+@ When we skip conditional text, we keep track of the line number
+where skipping began, for use in error messages.
+
+@c
 int skip_line;                  /* skipping began here */
 
-/*
-Here is a procedure that ignores text until coming to an \.{\\or},
+
+@ Here is a procedure that ignores text until coming to an \.{\\or},
 \.{\\else}, or \.{\\fi} at level zero of $\.{\\if}\ldots\.{\\fi}$
 nesting. After it has acted, |cur_chr| will indicate the token that
 was found, but |cur_tok| will not be set (because this makes the
 procedure run faster).
-*/
 
+@c
 void pass_text(void)
 {
     int l;                      /* level of $\.{\\if}\ldots\.{\\fi}$ nesting */
@@ -92,14 +90,14 @@ void pass_text(void)
         show_cur_cmd_chr();
 }
 
-/*
-When we begin to process a new \.{\\if}, we set |if_limit:=if_code|; then
+
+@ When we begin to process a new \.{\\if}, we set |if_limit:=if_code|; then
 if\/ \.{\\or} or \.{\\else} or \.{\\fi} occurs before the current \.{\\if}
 condition has been evaluated, \.{\\relax} will be inserted.
 For example, a sequence of commands like `\.{\\ifvoid1\\else...\\fi}'
 would otherwise require something after the `\.1'.
-*/
 
+@c
 void push_condition_stack(void)
 {
     halfword p = new_node(if_node, 0);
@@ -127,11 +125,11 @@ void pop_condition_stack(void)
     flush_node(p);
 }
 
-/*
-Here's a procedure that changes the |if_limit| code corresponding to
-a given value of |cond_ptr|.
-*/
 
+@ Here's a procedure that changes the |if_limit| code corresponding to
+a given value of |cond_ptr|.
+
+@c
 void change_if_limit(int l, halfword p)
 {
     halfword q;
@@ -151,13 +149,13 @@ void change_if_limit(int l, halfword p)
     }
 }
 
-/*
-The conditional \.{\\ifcsname} is equivalent to \.{\\expandafter}
+
+@ The conditional \.{\\ifcsname} is equivalent to \.{\\expandafter}
 \.{\\expandafter} \.{\\ifdefined} \.{\\csname}, except that no new
 control sequence will be entered into the hash table (once all tokens
 preceding the mandatory \.{\\endcsname} have been expanded).
-*/
 
+@c
 static boolean test_for_cs(void)
 {
     boolean b;                  /*is the condition true? */
@@ -222,11 +220,11 @@ static boolean test_for_cs(void)
     return b;
 }
 
-/*
-An active character will be treated as category 13 following
-\.{\\if\\noexpand} or following \.{\\ifcat\\noexpand}.
-*/
 
+@ An active character will be treated as category 13 following
+\.{\\if\\noexpand} or following \.{\\ifcat\\noexpand}.
+
+@c
 #define get_x_token_or_active_char() do {                             \
         get_x_token();                                                  \
         if (cur_cmd==relax_cmd && cur_chr==no_expand_flag) {            \
@@ -240,13 +238,13 @@ An active character will be treated as category 13 following
 
 
 
-/*
-A condition is started when the |expand| procedure encounters
+
+@ A condition is started when the |expand| procedure encounters
 an |if_test| command; in that case |expand| reduces to |conditional|,
 which is a recursive procedure.
 @^recursion@>
-*/
 
+@c
 void conditional(void)
 {
     boolean b;                  /*is the condition true? */

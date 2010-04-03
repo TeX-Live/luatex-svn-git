@@ -1,32 +1,32 @@
+% primitive.w
+
+% Copyright 2008-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* primitive.c
-
-   Copyright 2008-2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
-
 #include "ptexlib.h"
 
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+    "$URL$";
 
-/*
-Control sequences are stored and retrieved by means of a fairly standard hash
+
+@ Control sequences are stored and retrieved by means of a fairly standard hash
 table algorithm called the method of ``coalescing lists'' (cf.\ Algorithm 6.4C
 in {\sl The Art of Computer Programming\/}). Once a control sequence enters the
 table, it is never removed, because there are complicated situations
@@ -49,8 +49,8 @@ control sequences have been defined, if statistics are being kept.
 
 A global boolean variable called |no_new_control_sequence| is set to
 |true| during the time that new hash table entries are forbidden.
-*/
 
+@c
 two_halves *hash;               /* the hash table */
 halfword hash_used;             /* allocation pointer for |hash| */
 int hash_extra;                 /* |hash_extra=hash| above |eqtb_size| */
@@ -61,16 +61,17 @@ int cs_count;                   /* total number of known identifiers */
 
 #define hash_is_full (hash_used==hash_base)     /* test if all positions are occupied */
 
-/* \primitive support needs a few extra variables and definitions */
+@ \.{\\primitive} support needs a few extra variables and definitions
 
+@c
 #define prim_base 1
 
-/* The arrays |prim| and |prim_eqtb| are used for name -> cmd,chr lookups.
- * 
- * The are  modelled after |hash| and |eqtb|, except that primitives do not 
- *  have an |eq_level|, that field is replaced by |origin|.
- */
+@ The arrays |prim| and |prim_eqtb| are used for name -> cmd,chr lookups.
+  
+ The are  modelled after |hash| and |eqtb|, except that primitives do not 
+  have an |eq_level|, that field is replaced by |origin|.
 
+@c
 #define prim_next(a) prim[(a)].lhfield  /* link for coalesced lists */
 #define prim_text(a) prim[(a)].rh       /* string number for control sequence name */
 #define prim_is_full (prim_used==prim_base)     /* test if all positions are occupied */
@@ -86,9 +87,10 @@ static pointer prim_used;       /* allocation pointer for |prim| */
 static two_halves prim[(prim_size + 1)];        /* the primitives table */
 static memory_word prim_eqtb[(prim_size + 1)];
 
-/* The array |prim_data| works the other way around, it is used for
-   cmd,chr -> name lookups. */
+@ The array |prim_data| works the other way around, it is used for
+   cmd,chr -> name lookups. 
 
+@c
 typedef struct prim_info {
     halfword subids;            /* number of name entries */
     halfword offset;            /* offset to be used for |chr_code|s */
@@ -97,8 +99,8 @@ typedef struct prim_info {
 
 static prim_info prim_data[(last_cmd + 1)];
 
-/* initialize the memory arrays */
-
+@ initialize the memory arrays 
+@c
 void init_primitives(void)
 {
     int k;
@@ -115,13 +117,13 @@ void ini_init_primitives(void)
 }
 
 
-/* The value of |hash_prime| should be roughly 85\pct! of |hash_size|, and it
+@ The value of |hash_prime| should be roughly 85\%! of |hash_size|, and it
    should be a prime number.  The theory of hashing tells us to expect fewer
    than two table probes, on the average, when the search is successful.
    [See J.~S. Vitter, {\sl Journal of the ACM\/ \bf30} (1983), 231--258.]
    @^Vitter, Jeffrey Scott@>
-*/
 
+@c
 static halfword compute_hash(const char *j, unsigned int l,
                              halfword prime_number)
 {
@@ -136,8 +138,8 @@ static halfword compute_hash(const char *j, unsigned int l,
 }
 
 
-/*  Here is the subroutine that searches the primitive table for an identifier */
-
+@ Here is the subroutine that searches the primitive table for an identifier 
+@c
 pointer prim_lookup(str_number s)
 {
     int h;                      /* hash code */
@@ -184,8 +186,8 @@ pointer prim_lookup(str_number s)
     return p;
 }
 
-/* how to test a csname for primitive-ness */
-
+@ how to test a csname for primitive-ness 
+@c
 boolean is_primitive(str_number csname)
 {
     int n, m;
@@ -200,8 +202,8 @@ boolean is_primitive(str_number csname)
 }
 
 
-/* a few simple accessors */
-
+@ a few simple accessors 
+@c
 quarterword get_prim_eq_type(int p)
 {
     return prim_eq_type(p);
@@ -223,8 +225,8 @@ str_number get_prim_text(int p)
 }
 
 
-/* dumping and undumping */
-
+@ dumping and undumping 
+@c
 void dump_primitives(void)
 {
     int p, q;
@@ -263,19 +265,18 @@ void undump_primitives(void)
     }
 }
 
-/* 
-   We need to put \TeX's ``primitive'' control sequences into the hash
+@   We need to put \TeX's ``primitive'' control sequences into the hash
    table, together with their command code (which will be the |eq_type|)
    and an operand (which will be the |equiv|). The |primitive| procedure
    does this, in a way that no \TeX\ user can. The global value |cur_val|
    contains the new |eqtb| pointer after |primitive| has acted.
-*/
 
-/* Because the definitions of the actual user-accessible name of a
+
+@  Because the definitions of the actual user-accessible name of a
    primitive can be postponed until runtime, the function |primitive_def|
    is needed that does nothing except creating the control sequence name. 
-*/
 
+@c
 void primitive_def(const char *s, size_t l, quarterword c, halfword o)
 {
     int nncs = no_new_control_sequence;
@@ -287,7 +288,7 @@ void primitive_def(const char *s, size_t l, quarterword c, halfword o)
     equiv(cur_val) = o;
 }
 
-/* The function |store_primitive_name| sets up the bookkeeping for the
+@ The function |store_primitive_name| sets up the bookkeeping for the
    reverse lookup. It is quite paranoid, because it is easy to mess this up
    accidentally.
 
@@ -298,8 +299,8 @@ void primitive_def(const char *s, size_t l, quarterword c, halfword o)
    wasted room, so |offset| is substracted from |o| because creating
    or accessing the array. The |assert(idx<=0xFFFF)| is not strictly
    needed, but it helps catch errors of this kind.
-*/
 
+@c
 void
 store_primitive_name(str_number s, quarterword c, halfword o, halfword offset)
 {
@@ -326,11 +327,11 @@ store_primitive_name(str_number s, quarterword c, halfword o, halfword offset)
     prim_data[c].names[idx] = s;
 }
 
-/* Compared to tex82, |primitive| has two extra parameters. The |off| is an offset 
+@ Compared to tex82, |primitive| has two extra parameters. The |off| is an offset 
    that will be passed on to |store_primitive_name|, the |cmd_origin| is the bit
    that is used to group primitives by originator.
-*/
 
+@c
 void
 primitive(const char *thes, quarterword c, halfword o, halfword off,
           int cmd_origin)
@@ -350,10 +351,10 @@ primitive(const char *thes, quarterword c, halfword o, halfword off,
 }
 
 
-/* 
- * Here is a helper that does the actual hash insertion.
- */
 
+@ Here is a helper that does the actual hash insertion.
+
+@c
 static halfword insert_id(halfword p, const unsigned char *j, unsigned int l)
 {
     unsigned saved_cur_length;
@@ -366,7 +367,7 @@ static halfword insert_id(halfword p, const unsigned char *j, unsigned int l)
     if (cs_text(p) > 0) {
         if (hash_high < hash_extra) {
             incr(hash_high);
-            /* can't use eqtb_top here (perhaps because that is not finalized 
+            /* can't use |eqtb_top| here (perhaps because that is not finalized 
                yet when called from |primitive|?) */
             cs_next(p) = hash_high + eqtb_size;
             p = cs_next(p);
@@ -395,17 +396,15 @@ static halfword insert_id(halfword p, const unsigned char *j, unsigned int l)
 }
 
 
-/*
- Here is the subroutine that searches the hash table for an identifier
+@ Here is the subroutine that searches the hash table for an identifier
  that matches a given string of length |l>1| appearing in |buffer[j..
  (j+l-1)]|. If the identifier is found, the corresponding hash table address
  is returned. Otherwise, if the global variable |no_new_control_sequence|
  is |true|, the dummy address |undefined_control_sequence| is returned.
  Otherwise the identifier is inserted into the hash table and its location
  is returned.
-*/
 
-
+@c
 pointer id_lookup(int j, int l)
 {                               /* search the hash table */
     int h;                      /* hash code */
@@ -442,12 +441,10 @@ pointer id_lookup(int j, int l)
     return p;
 }
 
-/*
- * Here is a similar subroutine for finding a primitive in the hash.
- * This one is based on a C string.
- */
+@ Here is a similar subroutine for finding a primitive in the hash.
+This one is based on a C string.
 
-
+@c
 pointer string_lookup(const char *s, size_t l)
 {                               /* search the hash table */
     int h;                      /* hash code */
@@ -472,7 +469,7 @@ pointer string_lookup(const char *s, size_t l)
     return p;
 }
 
-/* The |print_cmd_chr| routine prints a symbolic interpretation of a
+@ The |print_cmd_chr| routine prints a symbolic interpretation of a
    command code and its modifier. This is used in certain `\.{You can\'t}'
    error messages, and in the implementation of diagnostic routines like
    \.{\\show}.
@@ -484,8 +481,8 @@ pointer string_lookup(const char *s, size_t l)
    Thanks to |prim_data|, there is no need for all that tediousness. What 
    is left of |primt_cnd_chr| are just the exceptions to the general rule
    that the  |cmd,chr_code| pair represents in a single primitive command.
-*/
 
+@c
 #define chr_cmd(A) do { tprint(A); print(chr_code); } while (0)
 
 void prim_cmd_chr(quarterword cmd, halfword chr_code)

@@ -1,29 +1,30 @@
+% maincontrol.w
+
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* maincontrol.c
-
-   Copyright 2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
 #include "ptexlib.h"
 
+@ @c
 #define explicit 1
 #define acc_kern 2
 #define lp_code_base 2
@@ -100,8 +101,7 @@ static const char _svn_version[] =
 
 #define var_code 7              /* math code meaning ``use the current family'' */
 
-/*
-We come now to the |main_control| routine, which contains the master
+@ We come now to the |main_control| routine, which contains the master
 switch that causes all the various pieces of \TeX\ to do their things,
 in the right order.
 
@@ -131,7 +131,7 @@ an ``action procedure'' that does the work for that case, and then they
 either |goto reswitch| or they ``fall through'' to the end of the |case|
 statement, which returns control back to |big_switch|. Thus, |main_control|
 is not an extremely large procedure, in spite of the multiplicity of things
-it must do; it is small enough to be handled by \PASCAL\ compilers that put
+it must do; it is small enough to be handled by PASCAL compilers that put
 severe restrictions on procedure size.
 @!@^action procedure@>
 
@@ -142,18 +142,17 @@ and kerns, is part of \TeX's ``inner loop''; the whole program runs
 efficiently when its inner loop is fast, so this part has been written
 with particular care.
 
-*/
-
+@c
 static halfword main_p;         /* temporary register for list manipulation */
 static halfword main_s;         /* space factor value */
 
-/*
-We leave the |space_factor| unchanged if |sf_code(cur_chr)=0|; otherwise we
+
+@ We leave the |space_factor| unchanged if |sf_code(cur_chr)=0|; otherwise we
 set it equal to |sf_code(cur_chr)|, except that it should never change
 from a value less than 1000 to a value exceeding 1000. The most common
 case is |sf_code(cur_chr)=1000|, so we want that case to be fast.
-*/
 
+@c
 void adjust_space_factor(void)
 {
     main_s = get_sf_code(cur_chr);
@@ -169,28 +168,29 @@ void adjust_space_factor(void)
     }
 }
 
-/*
-From Knuth: ``Having |font_glue| allocated for each text font saves
+
+@ From Knuth: ``Having |font_glue| allocated for each text font saves
 both time and memory.''  That may be true, but it also punches through
 the API wall for fonts, so I removed that -- Taco. But a bit of caching
 is very welcome, which is why I need to have the next two globals:
-*/
 
+@c
 internal_font_number space_spec_font;
 halfword space_spec_cache;
 
-/* for mode-independent commands, the following macros is useful: */
+@ for mode-independent commands, the following macros is useful: 
 
+@c
 #define any_mode(A) vmode+(A): case hmode+(A): case mmode+(A)
 
-/*
-There is a list of cases where the user has probably gotten into or out of math
-mode by mistake. \TeX\ will insert a dollar sign and rescan the current token.
-*/
 
+@ There is a list of cases where the user has probably gotten into or out of math
+mode by mistake. \TeX\ will insert a dollar sign and rescan the current token.
+
+@c
 #define non_math(A) vmode+(A): case hmode+(A)
 
-
+@ @c
 void main_control(void)
 {                               /* governs \TeX's activities */
     int t;                      /* general-purpose temporary variable */
@@ -276,7 +276,6 @@ void main_control(void)
         } else {
             /* Append a normal inter-word space to the current list */
             /* The occurrence of blank spaces is almost part of \TeX's inner loop,
-               @^inner loop@>
                since we usually encounter about one space for every five non-blank characters.
                Therefore |main_control| gives second-highest priority to ordinary spaces.
 
@@ -392,7 +391,7 @@ void main_control(void)
         math_char_in_text(mval);
         break;
 
-        /* Forbidden cases detected in |main_control|@> */
+        /* Forbidden cases detected in |main_control| */
     case vmode + vmove_cmd:
     case hmode + hmove_cmd:
     case mmode + hmove_cmd:
@@ -891,6 +890,7 @@ void main_control(void)
     goto BIG_SWITCH;            /* restart */
 }
 
+@ @c
 void app_space(void)
 {                               /* handle spaces when |space_factor<>1000| */
     halfword q;                 /* glue node */
@@ -918,6 +918,7 @@ void app_space(void)
     tail = q;
 }
 
+@ @c
 void insert_dollar_sign(void)
 {
     back_input();
@@ -928,11 +929,11 @@ void insert_dollar_sign(void)
     ins_error();
 }
 
-/*
-The `|you_cant|' procedure prints a line saying that the current command
-is illegal in the current mode; it identifies these things symbolically.
-*/
 
+@ The `|you_cant|' procedure prints a line saying that the current command
+is illegal in the current mode; it identifies these things symbolically.
+
+@c
 void you_cant(void)
 {
     print_err("You can't use `");
@@ -950,13 +951,13 @@ void report_illegal_case(void)
     error();
 }
 
-/*
-Some operations are allowed only in privileged modes, i.e., in cases
+
+@ Some operations are allowed only in privileged modes, i.e., in cases
 that |mode>0|. The |privileged| function is used to detect violations
 of this rule; it issues an error message and returns |false| if the
 current |mode| is negative.
-*/
 
+@c
 boolean privileged(void)
 {
     if (mode > 0) {
@@ -967,16 +968,16 @@ boolean privileged(void)
     }
 }
 
-/*
-We don't want to leave |main_control| immediately when a |stop| command
+
+@ We don't want to leave |main_control| immediately when a |stop| command
 is sensed, because it may be necessary to invoke an \.{\\output} routine
 several times before things really grind to a halt. (The output routine
 might even say `\.{\\gdef\\end\{...\}}', to prolong the life of the job.)
 Therefore |its_all_over| is |true| only when the current page
 and contribution list are empty, and when the last output was not a
 ``dead cycle.''
-*/
 
+@c
 boolean its_all_over(void)
 {                               /* do this when \.{\\end} or \.{\\dump} occurs */
     if (privileged()) {
@@ -994,16 +995,16 @@ boolean its_all_over(void)
     return false;
 }
 
-/*
-The |hskip| and |vskip| command codes are used for control sequences
+
+@ The |hskip| and |vskip| command codes are used for control sequences
 like \.{\\hss} and \.{\\vfil} as well as for \.{\\hskip} and \.{\\vskip}.
 The difference is in the value of |cur_chr|.
 
 All the work relating to glue creation has been relegated to the
 following subroutine. It does not call |build_page|, because it is
 used in at least one place where that would be a mistake.
-*/
 
+@c
 void append_glue(void)
 {
     int s;                      /* modifier of skip command */
@@ -1036,6 +1037,7 @@ void append_glue(void)
     }
 }
 
+@ @c
 void append_kern(void)
 {
     int s;                      /* |subtype| of the kern node */
@@ -1045,8 +1047,8 @@ void append_kern(void)
     subtype(tail) = (quarterword) s;
 }
 
-/*
-We have to deal with errors in which braces and such things are not
+
+@ We have to deal with errors in which braces and such things are not
 properly nested. Sometimes the user makes an error of commission by
 inserting an extra symbol, but sometimes the user makes an error of omission.
 \TeX\ can't always tell one from the other, so it makes a guess and tries
@@ -1055,8 +1057,8 @@ to avoid getting into a loop.
 The |off_save| routine is called when the current group code is wrong. It tries
 to insert something into the user's input that will help clean off
 the top level.
-*/
 
+@c
 void off_save(void)
 {
     halfword p, q;              /* inserted token */
@@ -1108,15 +1110,15 @@ void off_save(void)
     }
 }
 
-/*
-The routine for a |right_brace| character branches into many subcases,
+
+@ The routine for a |right_brace| character branches into many subcases,
 since a variety of things may happen, depending on |cur_group|. Some
 types of groups are not supposed to be ended by a right brace; error
 messages are given in hopes of pinpointing the problem. Most branches
 of this routine will be filled in later, when we are ready to understand
 them; meanwhile, we must prepare ourselves to deal with such errors.
-*/
 
+@c
 void handle_right_brace(void)
 {
     halfword p, q;              /* for short-term use */
@@ -1233,6 +1235,7 @@ void handle_right_brace(void)
     }
 }
 
+@ @c
 void extra_right_brace(void)
 {
     print_err("Extra }, or forgotten ");
@@ -1256,11 +1259,11 @@ void extra_right_brace(void)
     incr(align_state);
 }
 
-/*
-Here is where we clear the parameters that are supposed to revert to their
-default values after every paragraph and when internal vertical mode is entered.
-*/
 
+@ Here is where we clear the parameters that are supposed to revert to their
+default values after every paragraph and when internal vertical mode is entered.
+
+@c
 void normal_paragraph(void)
 {
     if (looseness != 0)
@@ -1275,20 +1278,20 @@ void normal_paragraph(void)
         eq_define(inter_line_penalties_loc, shape_ref_cmd, null);
 }
 
-/*
-The global variable |cur_box| will point to a newly-made box. If the box
+
+@ The global variable |cur_box| will point to a newly-made box. If the box
 is void, we will have |cur_box=null|. Otherwise we will have
 |type(cur_box)=hlist_node| or |vlist_node| or |rule_node|; the |rule_node|
 case can occur only with leaders.
-*/
 
+@c
 halfword cur_box;               /* box to be placed into its context */
 
-/*
-The |box_end| procedure does the right thing with |cur_box|, if
-|box_context| represents the context as explained above.
-*/
 
+@ The |box_end| procedure does the right thing with |cur_box|, if
+|box_context| represents the context as explained above.
+
+@c
 void box_end(int box_context)
 {
     if (box_context < box_flag) {
@@ -1363,7 +1366,9 @@ void box_end(int box_context)
     }
 }
 
-/* the next input should specify a box or perhaps a rule */
+@ the next input should specify a box or perhaps a rule
+
+@c
 void scan_box(int box_context)
 {
     /* Get the next non-blank non-relax... */
@@ -1386,6 +1391,7 @@ void scan_box(int box_context)
     }
 }
 
+@ @c
 void new_graf(boolean indented)
 {
     halfword p, q, dir_graf_tmp;
@@ -1430,6 +1436,7 @@ void new_graf(boolean indented)
     }
 }
 
+@ @c
 void indent_in_hmode(void)
 {
     halfword p;
@@ -1444,6 +1451,7 @@ void indent_in_hmode(void)
     }
 }
 
+@ @c
 void head_for_vmode(void)
 {
     if (mode < 0) {
@@ -1463,13 +1471,13 @@ void head_for_vmode(void)
     }
 }
 
-/*
-TODO (BUG?): |dir_save| would have been set by |line_break| by means
+
+@ TODO (BUG?): |dir_save| would have been set by |line_break| by means
 of |post_line_break|, but this is not done right now, as it introduces
 pretty heavy memory leaks. This means the current code is probably
 wrong in some way that relates to in-paragraph displays.
-*/
 
+@c
 void end_graf(int line_break_context)
 {
     if (mode == hmode) {
@@ -1490,6 +1498,7 @@ void end_graf(int line_break_context)
 }
 
 
+@ @c
 void begin_insert_or_adjust(void)
 {
     if (cur_cmd != vadjust_cmd) {
@@ -1516,13 +1525,13 @@ void begin_insert_or_adjust(void)
     prev_depth = pdf_ignored_dimen;
 }
 
-/*
-I've renamed the |make_mark| procedure to this, because if the
+
+@ I (TH)'ve renamed the |make_mark| procedure to this, because if the
 current chr code is 1, then the actual command was \.{\\clearmarks},
 which does not generate a mark node but instead destroys the current
 mark tokenlists.
-*/
 
+@c
 void handle_mark(void)
 {
     halfword p;                 /* new node */
@@ -1554,6 +1563,7 @@ void handle_mark(void)
 }
 
 
+@ @c
 void append_penalty(void)
 {
     scan_int();
@@ -1564,11 +1574,11 @@ void append_penalty(void)
     }
 }
 
-/*
-When |delete_last| is called, |cur_chr| is the |type| of node that
-will be deleted, if present.
-*/
 
+@ When |delete_last| is called, |cur_chr| is the |type| of node that
+will be deleted, if present.
+
+@c
 void delete_last(void)
 {
     halfword p, q;              /* run through the current list */
@@ -1616,6 +1626,7 @@ void delete_last(void)
     }
 }
 
+@ @c
 void unpackage(void)
 {
     halfword p;                 /* the box */
@@ -1663,6 +1674,7 @@ void unpackage(void)
     }
 }
 
+@ @c
 void append_italic_correction(void)
 {
     halfword p;                 /* |char_node| at the tail of the current list */
@@ -1679,6 +1691,7 @@ void append_italic_correction(void)
 }
 
 
+@ @c
 void append_local_box(int kind)
 {
     incr(save_ptr);
@@ -1690,14 +1703,14 @@ void append_local_box(int kind)
     space_factor = 1000;
 }
 
-/*
-Discretionary nodes are easy in the common case `\.{\\-}', but in the
+
+@ Discretionary nodes are easy in the common case `\.{\\-}', but in the
 general case we must process three braces full of items.
 
 The space factor does not change when we append a discretionary node,
 but it starts out as 1000 in the subsidiary lists.
-*/
 
+@c
 void append_discretionary(void)
 {
     int c;
@@ -1727,10 +1740,10 @@ void append_discretionary(void)
     }
 }
 
-/* The test for |p != null| ensures that empty \.{\\localleftbox} and
+@ The test for |p != null| ensures that empty \.{\\localleftbox} and
     \.{\\localrightbox} commands are not applied.
-*/
 
+@c
 void build_local_box(void)
 {
     halfword p;
@@ -1754,13 +1767,12 @@ void build_local_box(void)
     eq_word_define(int_base + no_local_whatsits_code, no_local_whatsits + 1);
 }
 
-/*
-The three discretionary lists are constructed somewhat as if they were
+
+@ The three discretionary lists are constructed somewhat as if they were
 hboxes. A~subroutine called |build_discretionary| handles the transitions.
 (This is sort of fun.)
-*/
 
-
+@c
 void build_discretionary(void)
 {
     halfword p, q;              /* for link manipulation */
@@ -1839,16 +1851,16 @@ void build_discretionary(void)
     space_factor = 1000;
 }
 
-/*
-The positioning of accents is straightforward but tedious. Given an accent
+
+@ The positioning of accents is straightforward but tedious. Given an accent
 of width |a|, designed for characters of height |x| and slant |s|;
 and given a character of width |w|, height |h|, and slant |t|: We will shift
 the accent down by |x-h|, and we will insert kern nodes that have the effect of
 centering the accent over the character and shifting the accent to the
 right by $\delta={1\over2}(w-a)+h\cdot t-x\cdot s$.  If either character is
 absent from the font, we will simply use the other, without shifting.
-*/
 
+@c
 void make_accent(void)
 {
     double s, t;                /* amount of slant */
@@ -1910,16 +1922,16 @@ void make_accent(void)
     }
 }
 
-/*
-When `\.{\\cr}' or `\.{\\span}' or a tab mark comes through the scanner
+
+@ When `\.{\\cr}' or `\.{\\span}' or a tab mark comes through the scanner
 into |main_control|, it might be that the user has foolishly inserted
 one of them into something that has nothing to do with alignment. But it is
 far more likely that a left brace or right brace has been omitted, since
 |get_next| takes actions appropriate to alignment only when `\.{\\cr}'
 or `\.{\\span}' or tab marks occur with |align_state=0|. The following
 program attempts to make an appropriate recovery.
-*/
 
+@c
 void align_error(void)
 {
     if (abs(align_state) > 2) {
@@ -1960,11 +1972,11 @@ void align_error(void)
     }
 }
 
-/*
-The help messages here contain a little white lie, since \.{\\noalign}
-and \.{\\omit} are allowed also after `\.{\\noalign\{...\}}'.
-*/
 
+@ The help messages here contain a little white lie, since \.{\\noalign}
+and \.{\\omit} are allowed also after `\.{\\noalign\{...\}}'.
+
+@c
 void no_align_error(void)
 {
     print_err("Misplaced \\noalign");
@@ -1981,8 +1993,8 @@ void omit_error(void)
     error();
 }
 
-/*
-We've now covered most of the abuses of \.{\\halign} and \.{\\valign}.
+
+@ We've now covered most of the abuses of \.{\\halign} and \.{\\valign}.
 Let's take a look at what happens when they are used correctly.
 
 An |align_group| code is supposed to remain on the |save_stack|
@@ -1990,8 +2002,8 @@ during an entire alignment, until |fin_align| removes it.
 
 A devious user might force an |endv| command to occur just about anywhere;
 we must defeat such hacks.
-*/
 
+@c
 void do_endv(void)
 {
     base_ptr = input_ptr;
@@ -2014,8 +2026,9 @@ void do_endv(void)
     }
 }
 
-/* Finally, \.{\\endcsname} is not supposed to get through to |main_control|. */
+@ Finally, \.{\\endcsname} is not supposed to get through to |main_control|. 
 
+@c
 void cs_error(void)
 {
     print_err("Extra \\endcsname");
@@ -2024,33 +2037,31 @@ void cs_error(void)
 }
 
 
-/*
+@
   Assignments to values in |eqtb| can be global or local. Furthermore, a
   control sequence can be defined to be `\.{\\long}', `\.{\\protected}',
   or `\.{\\outer}', and it might or might not be expanded. The prefixes
   `\.{\\global}', `\.{\\long}', `\.{\\protected}',
   and `\.{\\outer}' can occur in any order. Therefore we assign binary numeric
   codes, making it possible to accumulate the union of all specified prefixes
-  by adding the corresponding codes.  (\PASCAL's |set| operations could also
+  by adding the corresponding codes.  (PASCAL's |set| operations could also
   have been used.)
 
   Every prefix, and every command code that might or might not be prefixed,
   calls the action procedure |prefixed_command|. This routine accumulates
   a sequence of prefixes until coming to a non-prefix, then it carries out
   the command.
-*/
 
-/*
-If the user says, e.g., `\.{\\global\\global}', the redundancy is
+
+
+@ If the user says, e.g., `\.{\\global\\global}', the redundancy is
 silently accepted.
-*/
 
 
-/*
-The different types of code values have different legal ranges; the
+@ The different types of code values have different legal ranges; the
 following program is careful to check each case properly.
-*/
 
+@c
 #define check_def_code(A) do {						\
 	if (((cur_val<0)&&(p<(A)))||(cur_val>n)) {			\
 	    print_err("Invalid code (");				\
@@ -2067,6 +2078,7 @@ following program is careful to check each case properly.
     } while (0)
 
 
+@ @c
 void prefixed_command(void)
 {
     int a;                      /* accumulated prefix codes so far */
@@ -2114,7 +2126,7 @@ void prefixed_command(void)
         error();
     }
 
-    /* Adjust \(f)for the setting of \.{\\globaldefs} */
+    /* Adjust for the setting of \.{\\globaldefs} */
     if (global_defs != 0) {
         if (global_defs < 0) {
             if (is_global(a))
@@ -2697,6 +2709,7 @@ void prefixed_command(void)
     }
 }
 
+@ @c
 void fixup_directions(void)
 {
     int temp_no_whatsits;
@@ -2728,12 +2741,12 @@ void fixup_directions(void)
     }
 }
 
-/*
-When a control sequence is to be defined, by \.{\\def} or \.{\\let} or
+
+@ When a control sequence is to be defined, by \.{\\def} or \.{\\let} or
 something similar, the |get_r_token| routine will substitute a special
 control sequence for a token that is not redefinable.
-*/
 
+@c
 void get_r_token(void)
 {
   RESTART:
@@ -2756,6 +2769,7 @@ void get_r_token(void)
     }
 }
 
+@ @c
 void assign_internal_value(int a, halfword p, int cur_val)
 {
     halfword n;
@@ -2863,12 +2877,12 @@ void assign_internal_value(int a, halfword p, int cur_val)
     }
 }
 
-/*
-When a glue register or parameter becomes zero, it will always point to
+
+@ When a glue register or parameter becomes zero, it will always point to
 |zero_glue| because of the following procedure. (Exception: The tabskip
 glue isn't trapped while preambles are being scanned.)
-*/
 
+@c
 void trap_zero_glue(void)
 {
     if ((width(cur_val) == 0) && (stretch(cur_val) == 0)
@@ -2879,8 +2893,9 @@ void trap_zero_glue(void)
     }
 }
 
-/* We use the fact that |register<advance<multiply<divide| */
+@ We use the fact that |register<advance<multiply<divide|
 
+@c
 void do_register_command(int a)
 {
     halfword l, q, r, s;        /* for list manipulation */
@@ -3023,6 +3038,7 @@ void do_register_command(int a)
 }
 
 
+@ @c
 void alter_aux(void)
 {
     halfword c;                 /* |hmode| or |vmode| */
@@ -3047,6 +3063,7 @@ void alter_aux(void)
     }
 }
 
+@ @c
 void alter_prev_graf(void)
 {
     int p;                      /* index into |nest| */
@@ -3064,6 +3081,7 @@ void alter_prev_graf(void)
     }
 }
 
+@ @c
 void alter_page_so_far(void)
 {
     int c;                      /* index into |page_so_far| */
@@ -3073,6 +3091,7 @@ void alter_page_so_far(void)
     page_so_far[c] = cur_val;
 }
 
+@ @c
 void alter_integer(void)
 {
     int c;                      /* 0 for \.{\\deadcycles}, 1 for \.{\\insertpenalties}, etc. */
@@ -3096,6 +3115,7 @@ void alter_integer(void)
     }
 }
 
+@ @c
 void alter_box_dimen(void)
 {
     int c;                      /* |width_offset| or |height_offset| or |depth_offset| */
@@ -3110,6 +3130,7 @@ void alter_box_dimen(void)
 }
 
 
+@ @c
 void new_interaction(void)
 {
     print_ln();
@@ -3121,19 +3142,19 @@ void new_interaction(void)
     fixup_selector(log_opened);
 }
 
-/*
-The \.{\\afterassignment} command puts a token into the global
+
+@ The \.{\\afterassignment} command puts a token into the global
 variable |after_token|. This global variable is examined just after
 every assignment has been performed.
-*/
 
+@c
 halfword after_token;           /* zero, or a saved token */
 
-/*
-Here is a procedure that might be called `Get the next non-blank non-relax
-non-call non-assignment token'.
-*/
 
+@ Here is a procedure that might be called `Get the next non-blank non-relax
+non-call non-assignment token'.
+
+@c
 void do_assignments(void)
 {
     while (true) {
@@ -3150,6 +3171,7 @@ void do_assignments(void)
     }
 }
 
+@ @c
 void open_or_close_in(void)
 {
     int c;                      /* 1 for \.{\\openin}, 0 for \.{\\closein} */
@@ -3182,6 +3204,7 @@ void open_or_close_in(void)
     }
 }
 
+@ @c
 boolean long_help_seen;         /* has the long \.{\\errmessage} help been used? */
 
 void issue_message(void)
@@ -3233,22 +3256,22 @@ void issue_message(void)
     flush_str(s);
 }
 
-/*
-The |error| routine calls on |give_err_help| if help is requested from
-the |err_help| parameter.
-*/
 
+@ The |error| routine calls on |give_err_help| if help is requested from
+the |err_help| parameter.
+
+@c
 void give_err_help(void)
 {
     token_show(err_help);
 }
 
 
-/*
-The \.{\\uppercase} and \.{\\lowercase} commands are implemented by
-building a token list and then changing the cases of the letters in it.
-*/
 
+@ The \.{\\uppercase} and \.{\\lowercase} commands are implemented by
+building a token list and then changing the cases of the letters in it.
+
+@c
 void shift_case(void)
 {
     halfword b;                 /* |lc_code_base| or |uc_code_base| */
@@ -3289,11 +3312,11 @@ void shift_case(void)
     free_avail(def_ref);        /* omit reference count */
 }
 
-/*
-We come finally to the last pieces missing from |main_control|, namely the
-`\.{\\show}' commands that are useful when debugging.
-*/
 
+@ We come finally to the last pieces missing from |main_control|, namely the
+`\.{\\show}' commands that are useful when debugging.
+
+@c
 void show_whatever(void)
 {
     halfword p;                 /* tail of a token list to show */
@@ -3413,6 +3436,7 @@ void show_whatever(void)
 }
 
 
+@ @c
 void initialize(void)
 {                               /* this procedure gets things started properly */
     int k;                      /* index into |mem|, |eqtb|, etc. */
@@ -3427,7 +3451,9 @@ void initialize(void)
     /* Start a new current page */
     page_contents = empty;
     page_tail = page_head;
-    /* vlink(page_head) = null; */
+#if 0
+    vlink(page_head) = null;
+#endif
     last_glue = max_halfword;
     last_penalty = 0;
     last_kern = 0;

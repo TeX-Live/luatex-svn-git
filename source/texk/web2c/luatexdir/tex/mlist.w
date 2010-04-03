@@ -1,31 +1,34 @@
+% mlist.w
+
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
+\def\LuaTeX{Lua\TeX}
+
 @ @c
-/* mlist.c
-
-   Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
-
 #include "ptexlib.h"
 
 #include "lua/luatex-api.h"
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+    "$URL$";
 
+@ @c
 #define delimiter_factor     int_par(delimiter_factor_code)
 #define delimiter_shortfall  dimen_par(delimiter_shortfall_code)
 #define bin_op_penalty       int_par(bin_op_penalty_code)
@@ -76,10 +79,9 @@ static const char _svn_version[] =
   (font_math_params(a)>=b ? font_math_param(a,b) : undefined_math_parameter)
 
 
-/* here are the math parameters that are font-dependant */
+@ here are the math parameters that are font-dependant 
 
-/*
-Before an mlist is converted to an hlist, \TeX\ makes sure that
+@ Before an mlist is converted to an hlist, \TeX\ makes sure that
 the fonts in family~2 have enough parameters to be math-symbol
 fonts, and that the fonts in family~3 have enough parameters to be
 math-extension fonts. The math-symbol parameters are referred to by using the
@@ -87,8 +89,8 @@ following macros, which take a size code as their parameter; for example,
 |num1(cur_size)| gives the value of the |num1| parameter for the current size.
 @^parameters for symbols@>
 @^font parameters@>
-*/
 
+@c
 #define total_mathsy_params 22
 #define total_mathex_params 13
 
@@ -111,13 +113,13 @@ following macros, which take a size code as their parameter; for example,
 #define delim2(A) mathsy(A,21)  /* size of \.{\\atopwithdelims} delimiters in non-displays */
 #define axis_height(A) mathsy(A,22)     /* height of fraction lines above the baseline */
 
-/*
-The math-extension parameters have similar macros, but the size code is
+
+@ The math-extension parameters have similar macros, but the size code is
 omitted (since it is always |cur_size| when we refer to such parameters).
 @^parameters for symbols@>
 @^font parameters@>
-*/
 
+@c
 #define mathex(A,B) font_param(fam_fnt(3,A),B)
 #define default_rule_thickness(A) mathex(A,8)   /* thickness of \.{\\over} bars */
 #define big_op_spacing1(A) mathex(A,9)  /* minimum clearance above a displayed op */
@@ -126,7 +128,7 @@ omitted (since it is always |cur_size| when we refer to such parameters).
 #define big_op_spacing4(A) mathex(A,12) /* minimum baselineskip below displayed op */
 #define big_op_spacing5(A) mathex(A,13) /* padding above and below displayed limits */
 
-/* I made a bunch of extensions cf. the MATH table in OpenType, but some of
+@ I (TH) made a bunch of extensions cf. the MATH table in OpenType, but some of
 the MathConstants values have no matching usage in \LuaTeX\ right now.
  
 ScriptPercentScaleDown,
@@ -157,10 +159,9 @@ Also still TODO for OpenType Math:
   * extensible large operators
   * prescripts
 
-*/
+@ this is not really a math parameter at all 
 
-/* this is not really a math parameter at all */
-
+@c
 static void math_param_error(const char *param, int style)
 {
     char s[256];
@@ -174,11 +175,14 @@ static void math_param_error(const char *param, int style)
     snprintf(s, 256, "Math error: parameter \\Umath%s\\%sstyle is not set",
              param, math_style_names[style]);
     tex_error(s, hlp);
-    /* flush_math(); */
+#if 0
+    flush_math();
+#endif
     return;
 }
 
 
+@ @c
 static scaled accent_base_height(int f)
 {
     scaled a;
@@ -191,8 +195,9 @@ static scaled accent_base_height(int f)
     return a;
 }
 
-/* the non-staticness of this function is for the benefit of |math.c| */
+@ the non-staticness of this function is for the benefit of |texmath.w|
 
+@c
 scaled get_math_quad(int var)
 {
     scaled a = get_math_param(math_param_quad, var);
@@ -203,9 +208,10 @@ scaled get_math_quad(int var)
     return a;
 }
 
-/* this parameter is different because it is called with a size
-   specifier instead of a style specifier. */
+@ this parameter is different because it is called with a size
+   specifier instead of a style specifier. 
 
+@c
 static scaled math_axis(int b)
 {
     scaled a;
@@ -224,6 +230,7 @@ static scaled math_axis(int b)
     return a;
 }
 
+@ @c
 static scaled get_math_quad_size(int b)
 {
     int var;
@@ -237,24 +244,26 @@ static scaled get_math_quad_size(int b)
 }
 
 
+@ @c
 static scaled minimum_operator_size(int var)
 {
     scaled a = get_math_param(math_param_operator_size, var);
     return a;
 }
 
-/* Old-style fonts do not define the radical_rule. This allows |make_radical| to select
- * the backward compatibility code, and it means that we can't raise an error here.
- */
+@ Old-style fonts do not define the |radical_rule|. This allows |make_radical| to select
+ the backward compatibility code, and it means that we can't raise an error here.
 
+@c
 static scaled radical_rule(int var)
 {
     scaled a = get_math_param(math_param_radical_rule, var);
     return a;
 }
 
-/* now follow all the trivial math parameters */
+@ now follow all the trivial math parameters
 
+@c
 #define get_math_param_or_error(a,b) do_get_math_param_or_error(a, math_param_##b, #b)
 
 static scaled do_get_math_param_or_error(int var, int param, const char *name)
@@ -267,6 +276,7 @@ static scaled do_get_math_param_or_error(int var, int param, const char *name)
     return a;
 }
 
+@ @c
 #define radical_degree_before(a) get_math_param_or_error(a, radical_degree_before)
 #define radical_degree_after(a)  get_math_param_or_error(a, radical_degree_after)
 #define radical_degree_raise(a)  get_math_param_or_error(a, radical_degree_raise)
@@ -321,7 +331,7 @@ static scaled do_get_math_param_or_error(int var, int param, const char *name)
 
 #define space_after_script(a)    get_math_param_or_error(a, space_after_script)
 
-
+@ @c
 void fixup_math_parameters(int fam_id, int size_id, int f, int lvl)
 {
     if (is_new_mathfont(f)) {   /* fix all known parameters */
@@ -681,7 +691,7 @@ void fixup_math_parameters(int fam_id, int size_id, int f, int lvl)
         DEFINE_DMATH_PARAMETERS(math_param_sup_sub_bottom_max, size_id,
                                 (abs(math_x_height(size_id) * 4) / 5), lvl);
 
-        /* The display-size radical_vgap is done twice because it needs 
+        /* The display-size |radical_vgap| is done twice because it needs 
            values from both the sy and the ex font. */
         DEFINE_DMATH_PARAMETERS(math_param_radical_vgap, size_id,
                                 (default_rule_thickness(size_id) +
@@ -784,7 +794,7 @@ void fixup_math_parameters(int fam_id, int size_id, int f, int lvl)
                                4 * default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_subsup_vgap, size_id,
                                 4 * default_rule_thickness(size_id), lvl);
-        /* All of the |space_after_script|s are done in finalize_math_parameters because the
+        /* All of the |space_after_script|s are done in |finalize_math_parameters| because the
            \.{\\scriptspace} may have been altered by the user
          */
         DEFINE_MATH_PARAMETERS(math_param_connector_overlap_min, size_id, 0,
@@ -809,7 +819,7 @@ void fixup_math_parameters(int fam_id, int size_id, int f, int lvl)
         DEFINE_DMATH_PARAMETERS(math_param_over_delimiter_bgap, size_id,
                                 big_op_spacing3(size_id), lvl);
 
-        /* The display-size radical_vgap is done twice because it needs 
+        /* The display-size |radical_vgap| is done twice because it needs 
            values from both the sy and the ex font. */
         DEFINE_DMATH_PARAMETERS(math_param_radical_vgap, size_id,
                                 (default_rule_thickness(size_id) +
@@ -817,7 +827,10 @@ void fixup_math_parameters(int fam_id, int size_id, int f, int lvl)
     }
 }
 
-/* this needs to be called just at the start of |mlist_to_hlist| */
+@ This needs to be called just at the start of |mlist_to_hlist|, for
+backward compatibility with \.{\\scriptspace}.
+
+@c
 void finalize_math_parameters(void)
 {
     int saved_trace = int_par(tracing_assigns_code);
@@ -846,8 +859,7 @@ void finalize_math_parameters(void)
 }
 
 
-/* 
-In order to convert mlists to hlists, i.e., noads to nodes, we need several
+@ In order to convert mlists to hlists, i.e., noads to nodes, we need several
 subroutines that are conveniently dealt with now.
 
 Let us first introduce the macros that make it easy to get at the parameters and
@@ -855,9 +867,8 @@ other font information. A size code, which is a multiple of 256, is added to a
 family number to get an index into the table of internal font numbers
 for each combination of family and size.  (Be alert: Size codes get
 larger as the type gets smaller.)
-*/
 
-
+@c
 const char *math_size_string(int s)
 {
     if (s == text_size)
@@ -868,11 +879,10 @@ const char *math_size_string(int s)
         return "scriptscriptfont";
 }
 
-/*
-  When the style changes, the following piece of program computes associated
-  information:
-*/
+@ When the style changes, the following piece of program computes associated
+information:
 
+@c
 #define setup_cur_size(a) do {                                   \
         if (a==script_style ||                                          \
             a==cramped_script_style)                                    \
@@ -884,8 +894,8 @@ const char *math_size_string(int s)
     } while (0)
 
 
-/* a simple routine that creates a flat copy of a nucleus */
-
+@ a simple routine that creates a flat copy of a nucleus
+@c
 pointer math_clone(pointer q)
 {
     pointer x;
@@ -905,12 +915,11 @@ pointer math_clone(pointer q)
 
 
 
-/*
-  Here is a function that returns a pointer to a rule node having a given
+@ Here is a function that returns a pointer to a rule node having a given
   thickness |t|. The rule will extend horizontally to the boundary of the vlist
   that eventually contains it.
-*/
 
+@c
 pointer do_fraction_rule(scaled t, pointer att)
 {
     pointer p;                  /* the new node */
@@ -922,12 +931,12 @@ pointer do_fraction_rule(scaled t, pointer att)
     return p;
 }
 
-/*
-  The |overbar| function returns a pointer to a vlist box that consists of
+
+@  The |overbar| function returns a pointer to a vlist box that consists of
   a given box |b|, above which has been placed a kern of height |k| under a
   fraction rule of thickness |t| under additional space of height |ht|.
-*/
 
+@c
 pointer overbar(pointer b, scaled k, scaled t, scaled ht, pointer att)
 {
     pointer p, q;               /* nodes being constructed */
@@ -944,14 +953,13 @@ pointer overbar(pointer b, scaled k, scaled t, scaled ht, pointer att)
     return q;
 }
 
-/*
-  Here is a subroutine that creates a new box, whose list contains a
+@ Here is a subroutine that creates a new box, whose list contains a
   single character, and whose width includes the italic correction for
   that character. The height or depth of the box will be negative, if
   the height or depth of the character is negative; thus, this routine
   may deliver a slightly different result than |hpack| would produce.
-*/
 
+@c
 static pointer char_box(internal_font_number f, int c, pointer bb)
 {
     pointer b, p;               /* the new box and its character node */
@@ -966,23 +974,21 @@ static pointer char_box(internal_font_number f, int c, pointer bb)
     return b;
 }
 
-/*
- Another handy subroutine computes the height plus depth of
+@ Another handy subroutine computes the height plus depth of
  a given character:
-*/
 
+@c
 scaled height_plus_depth(internal_font_number f, int c)
 {
     return (char_height(f, c) + char_depth(f, c));
 }
 
 
-/*
-  When we build an extensible character, it's handy to have the
+@  When we build an extensible character, it's handy to have the
   following subroutine, which puts a given character on top
   of the characters already in box |b|:
-*/
 
+@c
 scaled stack_into_box(pointer b, internal_font_number f, int c)
 {
     pointer p;                  /* new node placed into |b| */
@@ -1014,7 +1020,7 @@ scaled stack_into_hbox(pointer b, internal_font_number f, int c)
 }
 
 
-
+@ @c
 void add_delim_kern(pointer b, scaled s)
 {
     pointer p;                  /* new node placed into |b| */
@@ -1039,10 +1045,7 @@ void add_delim_hkern(pointer b, scaled s)
     }
 }
 
-
-
-/*
- \TeX's most important routine for dealing with formulas is called
+@ \TeX's most important routine for dealing with formulas is called
  |mlist_to_hlist|.  After a formula has been scanned and represented
  as an mlist, this routine converts it to an hlist that can be placed
  into a box or incorporated into the text of a paragraph.  The
@@ -1057,12 +1060,11 @@ void add_delim_hkern(pointer b, scaled s)
  is not part of \TeX's inner loop, the program has been written in a manner
  that stresses compactness over efficiency.
 @^recursion@>
-*/
 
+@c
 int cur_size;                   /* size code corresponding to |cur_style|  */
 
-/* */
-
+@ @c
 static pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
                              pointer att, int boxtype, int cur_style)
 {
@@ -1331,17 +1333,19 @@ static pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
         height(b) = ht;
         depth(b) = 0;
         /* the next correction is needed for radicals */
-        if (list_ptr(b) != null && type(list_ptr(b)) == hlist_node && list_ptr(list_ptr(b)) != null && type(list_ptr(list_ptr(b))) == glyph_node) {     /* and it should be */
+        if (list_ptr(b) != null && 
+            type(list_ptr(b)) == hlist_node && list_ptr(list_ptr(b)) != null 
+            && type(list_ptr(list_ptr(b))) == glyph_node) {     /* and it should be */
             last_ht =
                 char_height(font(list_ptr(list_ptr(b))),
                             character(list_ptr(list_ptr(b))));
             height(b) = last_ht;
             depth(b) = ht - last_ht;
         }
-        /*
+#if 0
            fprintf (stdout,"v=%f,b_max=%f,ht=%f,n=%d\n", (float)v/65536.0,
            (float)b_max/65536.0,(float)height(b)/65536.0,num_total);
-         */
+#endif
         width(b) = wd;
     } else {
         /* horizontal version */
@@ -1405,8 +1409,7 @@ static pointer get_delim_hbox(extinfo * ext, internal_font_number f, scaled v,
 
 
 
-/*
-  The |var_delimiter| function, which finds or constructs a sufficiently
+@  The |var_delimiter| function, which finds or constructs a sufficiently
   large delimiter, is the most interesting of the auxiliary functions that
   currently concern us. Given a pointer |d| to a delimiter field in some noad,
   together with a size code |s| and a vertical distance |v|, this function
@@ -1420,10 +1423,8 @@ static pointer get_delim_hbox(extinfo * ext, internal_font_number f, scaled v,
   the box is vertically centered with respect to the axis in the given size.
   If a built-up symbol is returned, the height of the box before shifting
   will be the height of its topmost component.
-*/
 
-
-
+@c
 static void endless_loop_error(internal_font_number g, int y)
 {
     char s[256];
@@ -1567,8 +1568,7 @@ static pointer flat_delimiter(pointer d, int s, scaled v, int cur_style)
     return do_var_delimiter(d, s, v, NULL, true, cur_style);
 }
 
-/*
-The next subroutine is much simpler; it is used for numerators and
+@ The next subroutine is much simpler; it is used for numerators and
 denominators of fractions as well as for displayed operators and
 their limits above and below. It takes a given box~|b| and
 changes it so that the new box is centered in a box of width~|w|.
@@ -1581,8 +1581,8 @@ infinite glue.
 The given box might contain a single character whose italic correction
 has been added to the width of the box; in this case a compensating
 kern is inserted.
-*/
 
+@c
 static pointer rebox(pointer b, scaled w)
 {
     pointer p, q, r, att;       /* temporary registers for list manipulation */
@@ -1627,11 +1627,10 @@ static pointer rebox(pointer b, scaled w)
     }
 }
 
-/*
- Here is a subroutine that creates a new glue specification from another
+@ Here is a subroutine that creates a new glue specification from another
 one that is expressed in `\.{mu}', given the value of the math unit.
-*/
 
+@c
 #define mu_mult(A) mult_and_add(n,(A),xn_over_d((A),f,unity),max_dimen)
 
 static pointer math_glue(pointer g, scaled m)
@@ -1660,11 +1659,10 @@ static pointer math_glue(pointer g, scaled m)
     return p;
 }
 
-/*
-The |math_kern| subroutine removes |mu_glue| from a kern node, given
+@ The |math_kern| subroutine removes |mu_glue| from a kern node, given
 the value of the math unit.
-*/
 
+@c
 static void math_kern(pointer p, scaled m)
 {
     int n;                      /* integer part of |m| */
@@ -1681,6 +1679,7 @@ static void math_kern(pointer p, scaled m)
     }
 }
 
+@ @c
 void run_mlist_to_hlist(halfword p, int mstyle, boolean penalties)
 {
     int callback_id;
@@ -1717,8 +1716,7 @@ void run_mlist_to_hlist(halfword p, int mstyle, boolean penalties)
     }
 }
 
-/*
-The recursion in |mlist_to_hlist| is due primarily to a subroutine
+@ The recursion in |mlist_to_hlist| is due primarily to a subroutine
 called |clean_box| that puts a given noad field into a box using a given
 math style; |mlist_to_hlist| can call |clean_box|, which can call
 |mlist_to_hlist|.
@@ -1727,8 +1725,8 @@ math style; |mlist_to_hlist| can call |clean_box|, which can call
 
 The box returned by |clean_box| is ``clean'' in the
 sense that its |shift_amount| is zero.
-*/
 
+@c
 static pointer clean_box(pointer p, int s, int cur_style)
 {
     pointer q;                  /* beginning of a list to be boxed */
@@ -1784,16 +1782,16 @@ static pointer clean_box(pointer p, int s, int cur_style)
     return x;
 }
 
-/*
- It is convenient to have a procedure that converts a |math_char|
+@ It is convenient to have a procedure that converts a |math_char|
 field to an ``unpacked'' form. The |fetch| routine sets |cur_f| and |cur_c|
 to the font code and character code of a given noad field. 
 It also takes care of issuing error messages for
 nonexistent characters; in such cases, |char_exists(cur_f,cur_c)| will be |false|
 after |fetch| has acted, and the field will also have been reset to |null|.
-*/
-/* The outputs of |fetch| are placed in global variables. */
 
+The outputs of |fetch| are placed in global variables. 
+
+@c
 internal_font_number cur_f;     /* the |font| field of a |math_char| */
 int cur_c;                      /* the |character| field of a |math_char| */
 
@@ -1823,8 +1821,7 @@ static void fetch(pointer a)
 }
 
 
-/*
-We need to do a lot of different things, so |mlist_to_hlist| makes two
+@ We need to do a lot of different things, so |mlist_to_hlist| makes two
 passes over the given mlist.
 
 The first pass does most of the processing: It removes ``mu'' spacing from
@@ -1839,8 +1836,8 @@ field, an integer field that replaces the |nucleus| or |thickness|.
 
 The second pass eliminates all noads and inserts the correct glue and
 penalties between nodes.
-*/
 
+@c
 static void assign_new_hlist(pointer q, pointer r)
 {
     switch (type(q)) {
@@ -1865,16 +1862,17 @@ static void assign_new_hlist(pointer q, pointer r)
     new_hlist(q) = r;
 }
 
+@ @c
 #define choose_mlist(A) do { p=A(q); A(q)=null; } while (0)
 
-/*
-Most of the actual construction work of |mlist_to_hlist| is done
+
+@ Most of the actual construction work of |mlist_to_hlist| is done
 by procedures with names
 like |make_fraction|, |make_radical|, etc. To illustrate
 the general setup of such procedures, let's begin with a couple of
 simple ones.
-*/
 
+@c
 static void make_over(pointer q, int cur_style)
 {
     pointer p;
@@ -1917,8 +1915,7 @@ static void make_vcenter(pointer q)
     depth(v) = delta - height(v);
 }
 
-/*
-According to the rules in the \.{DVI} file specifications, we ensure alignment
+@ According to the rules in the \.{DVI} file specifications, we ensure alignment
 @^square roots@>
 between a square root sign and the rule above its nucleus by assuming that the
 baseline of the square-root symbol is the same as the bottom of the rule. The
@@ -1926,8 +1923,8 @@ height of the square-root symbol will be the thickness of the rule, and the
 depth of the square-root symbol should exceed or equal the height-plus-depth
 of the nucleus plus a certain minimum clearance~|psi|. The symbol will be
 placed so that the actual clearance is |psi| plus half the excess.
-*/
 
+@c
 static void make_radical(pointer q, int cur_style)
 {
     pointer x, y, p;            /* temporary registers for box construction */
@@ -1976,7 +1973,7 @@ static void make_radical(pointer q, int cur_style)
             vlink(x) = r;
             y = x;
         }
-        math_list(degree(q)) = null;    /* for \Uroot ..{<list>}{} */
+        math_list(degree(q)) = null;    /* for \.{\\Uroot ..{<list>}{}} */
         flush_node(degree(q));
     }
     p = hpack(y, 0, additional, -1);
@@ -1986,7 +1983,8 @@ static void make_radical(pointer q, int cur_style)
 }
 
 
-/* Construct a vlist box */
+@ Construct a vlist box 
+@c
 static pointer
 wrapup_delimiter(pointer x, pointer y, pointer q,
                  scaled shift_up, scaled shift_down)
@@ -2005,6 +2003,7 @@ wrapup_delimiter(pointer x, pointer y, pointer q,
     return v;
 }
 
+@ @c
 #define fixup_widths(x,y) do {                      \
         if (width(y) >= width(x)) {                 \
             width(x) = width(y);                    \
@@ -2013,8 +2012,9 @@ wrapup_delimiter(pointer x, pointer y, pointer q,
         }                                           \
     } while (0)
 
-/* this has the |nucleus| box |x| as a limit above an extensible delimiter |y| */
+@ this has the |nucleus| box |x| as a limit above an extensible delimiter |y| 
 
+@c
 static void make_over_delimiter(pointer q, int cur_style)
 {
     pointer x, y, v;            /* temporary registers for box construction */
@@ -2024,7 +2024,7 @@ static void make_over_delimiter(pointer q, int cur_style)
     left_delimiter(q) = null;
     fixup_widths(x, y);
     shift_up = over_delimiter_bgap(cur_style);
-    shift_down = 0;             /* under_delimiter_bgap(cur_style); */
+    shift_down = 0;
     clr = over_delimiter_vgap(cur_style);
     delta = clr - ((shift_up - depth(x)) - (height(y) - shift_down));
     if (delta > 0) {
@@ -2036,8 +2036,9 @@ static void make_over_delimiter(pointer q, int cur_style)
     type(nucleus(q)) = sub_box_node;
 }
 
-/* this has the extensible delimiter |x| as a limit above |nucleus| box |y|  */
+@ this has the extensible delimiter |x| as a limit above |nucleus| box |y| 
 
+@c
 static void make_delimiter_over(pointer q, int cur_style)
 {
     pointer x, y, v;            /* temporary registers for box construction */
@@ -2062,8 +2063,9 @@ static void make_delimiter_over(pointer q, int cur_style)
 }
 
 
-/* this has the extensible delimiter |y| as a limit below a |nucleus| box |x| */
+@ this has the extensible delimiter |y| as a limit below a |nucleus| box |x| 
 
+@c
 static void make_delimiter_under(pointer q, int cur_style)
 {
     pointer x, y, v;            /* temporary registers for box construction */
@@ -2074,7 +2076,7 @@ static void make_delimiter_under(pointer q, int cur_style)
                        width(x), cur_style);
     left_delimiter(q) = null;
     fixup_widths(x, y);
-    shift_up = 0;               /* over_delimiter_bgap(cur_style); */
+    shift_up = 0;
     shift_down = under_delimiter_bgap(cur_style);
     clr = under_delimiter_vgap(cur_style);
     delta = clr - ((shift_up - depth(x)) - (height(y) - shift_down));
@@ -2088,8 +2090,9 @@ static void make_delimiter_under(pointer q, int cur_style)
 
 }
 
-/* this has the extensible delimiter |x| as a limit below |nucleus| box |y| */
+@ this has the extensible delimiter |x| as a limit below |nucleus| box |y| 
 
+@c
 static void make_under_delimiter(pointer q, int cur_style)
 {
     pointer x, y, v;            /* temporary registers for box construction */
@@ -2098,7 +2101,7 @@ static void make_under_delimiter(pointer q, int cur_style)
     x = flat_delimiter(left_delimiter(q), cur_size, width(y), cur_style);
     left_delimiter(q) = null;
     fixup_widths(x, y);
-    shift_up = 0;               /* over_delimiter_bgap(cur_style); */
+    shift_up = 0; 
     shift_down = under_delimiter_bgap(cur_style);
     clr = under_delimiter_vgap(cur_style);
     delta = clr - ((shift_up - depth(x)) - (height(y) - shift_down));
@@ -2112,12 +2115,12 @@ static void make_under_delimiter(pointer q, int cur_style)
 
 }
 
-/*
-Slants are not considered when placing accents in math mode. The accenter is
+
+@ Slants are not considered when placing accents in math mode. The accenter is
 centered over the accentee, and the accent width is treated as zero with
 respect to the size of the final box.
-*/
 
+@c
 #define TOP_CODE 1
 #define BOT_CODE 2
 
@@ -2230,12 +2233,12 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
         vlink(p) = x;
         vlink(y) = p;
     } else {
-        /*
+#if 0
            p = new_kern(-delta);
            vlink(x) = p;
            vlink(p) = y;
            y = x;
-         */
+#endif
         vlink(x) = y;
         y = x;
     }
@@ -2279,11 +2282,10 @@ static void make_math_accent(pointer q, int cur_style)
     }
 }
 
-/*
-The |make_fraction| procedure is a bit different because it sets
+@ The |make_fraction| procedure is a bit different because it sets
 |new_hlist(q)| directly rather than making a sub-box.
-*/
 
+@c
 static void make_fraction(pointer q, int cur_style)
 {
     pointer p, v, x, y, z;      /* temporary registers for box construction */
@@ -2367,8 +2369,7 @@ static void make_fraction(pointer q, int cur_style)
 }
 
 
-/*
-If the nucleus of an |op_noad| is a single character, it is to be
+@ If the nucleus of an |op_noad| is a single character, it is to be
 centered vertically with respect to the axis, after first being enlarged
 (via a character list in the font) if we are in display style.  The normal
 convention for placing displayed limits is to put them above and below the
@@ -2382,8 +2383,8 @@ subscript and superscript.
 After |make_op| has acted, |subtype(q)| will be |limits| if and only if
 the limits have been set above and below the operator. In that case,
 |new_hlist(q)| will already contain the desired final box.
-*/
 
+@c
 static scaled make_op(pointer q, int cur_style)
 {
     scaled delta;               /* offset between subscript and superscript */
@@ -2407,7 +2408,7 @@ static scaled make_op(pointer q, int cur_style)
                     width(x) -= delta;  /* remove italic correction */
                 }
                 /* For an OT MATH font, we may have to get rid of yet another italic
-                   correction because make_scripts() will add one.
+                   correction because |make_scripts()| will add one.
                    This test is somewhat more complicated because |x| can be a null 
                    delimiter */
                 if ((subscr(q) != null || supscr(q) != null)
@@ -2531,8 +2532,7 @@ static scaled make_op(pointer q, int cur_style)
     return delta;
 }
 
-/*
-A ligature found in a math formula does not create a ligature, because
+@ A ligature found in a math formula does not create a ligature, because
 there is no question of hyphenation afterwards; the ligature will simply be
 stored in an ordinary |glyph_node|, after residing in an |ord_noad|.
 
@@ -2541,8 +2541,8 @@ apply an italic correction to the current character unless it belongs
 to a math font (i.e., a font with |space=0|).
 
 No boundary characters enter into these ligatures.
-*/
 
+@c
 static void make_ord(pointer q)
 {
     int a;                      /* the left-side character for lig/kern testing */
@@ -2581,16 +2581,16 @@ static void make_ord(pointer q)
                         switch (lig_type(lig)) {
                         case 1:
                         case 5:
-                            math_character(nucleus(q)) = lig_replacement(lig);  /* \.{=:|}, \.{=:|>} */
+                            math_character(nucleus(q)) = lig_replacement(lig);  /* \.{=:\char`\|}, \.{=:\char`\|>} */
                             break;
                         case 2:
                         case 6:
-                            math_character(nucleus(p)) = lig_replacement(lig);  /* \.{|=:}, \.{|=:>} */
+                            math_character(nucleus(p)) = lig_replacement(lig);  /* \.{\char`\|=:}, \.{\char`\|=:>} */
                             break;
                         case 3:
                         case 7:
                         case 11:
-                            r = new_noad();     /* \.{|=:|}, \.{|=:|>}, \.{|=:|>>} */
+                            r = new_noad();     /* \.{\char`\|=:\char`\|}, \.{\char`\|=:\char`\|>}, \.{\char`\|=:\char`\|>>} */
                             reset_attributes(r, node_attr(q));
                             s = new_node(math_char_node, 0);
                             reset_attributes(s, node_attr(q));
@@ -2637,22 +2637,22 @@ static void make_ord(pointer q)
     }
 }
 
-/* If the fonts for the left and right bits of a mathkern are not
- * both new-style fonts, then return a sentinel value meaning:
- * please use old-style italic correction placement
- */
+@ If the fonts for the left and right bits of a mathkern are not
+both new-style fonts, then return a sentinel value meaning:
+please use old-style italic correction placement
 
+@c
 #define MATH_KERN_NOT_FOUND 0x7FFFFFFF
 
-/* This function tries to find the kern needed for proper cut-ins. 
+@ This function tries to find the kern needed for proper cut-ins. 
    The left side doesn't move, but the right side does, so the first 
    order of business is to create a staggered fence line on the 
    left side of the right character.
 
    The microsoft spec says that there are four quadrants, but the
    actual images say 
-*/
 
+@c
 static scaled math_kern_at(internal_font_number f, int c, int side, int v)
 {
     int h, k, numkerns;
@@ -2696,7 +2696,7 @@ static scaled math_kern_at(internal_font_number f, int c, int side, int v)
     return kern;
 }
 
-
+@ @c
 static scaled
 find_math_kern(internal_font_number l_f, int l_c,
                internal_font_number r_f, int r_c, int cmd, scaled shift)
@@ -2750,7 +2750,8 @@ find_math_kern(internal_font_number l_f, int l_c,
     return 0;                   /* not reached */
 }
 
-/* just a small helper */
+@ just a small helper 
+@c
 static pointer attach_hkern_to_new_hlist(pointer q, scaled delta2)
 {
     pointer y;
@@ -2766,19 +2767,8 @@ static pointer attach_hkern_to_new_hlist(pointer q, scaled delta2)
     return new_hlist(q);
 }
 
-
-
-
-/*
-The purpose of |make_scripts(q,it)| is to attach the subscript and/or
-superscript of noad |q| to the list that starts at |new_hlist(q)|,
-given that subscript and superscript aren't both empty. The superscript
-will be horizontally shifted over |delta1|, the subscript over |delta2|.
-
-We set |shift_down| and |shift_up| to the minimum amounts to shift the
-baseline of subscripts and superscripts based on the given nucleus.
-*/
-
+@ 
+@c
 #ifdef DEBUG
 void dump_simple_field(pointer q)
 {
@@ -2821,6 +2811,15 @@ void dump_simple_node(pointer q)
 }
 #endif
 
+@ The purpose of |make_scripts(q,it)| is to attach the subscript and/or
+superscript of noad |q| to the list that starts at |new_hlist(q)|,
+given that subscript and superscript aren't both empty. The superscript
+will be horizontally shifted over |delta1|, the subscript over |delta2|.
+
+We set |shift_down| and |shift_up| to the minimum amounts to shift the
+baseline of subscripts and superscripts based on the given nucleus.
+
+@c
 static void make_scripts(pointer q, pointer p, scaled it, int cur_style)
 {
     pointer x, y, z;            /* temporary registers for box construction */
@@ -2995,13 +2994,12 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style)
 
 }
 
-/* 
-The |make_left_right| function constructs a left or right delimiter of
+@ The |make_left_right| function constructs a left or right delimiter of
 the required size and returns the value |open_noad| or |close_noad|. The
 |left_noad_side| and |right_noad_side| will both be based on the original |style|,
 so they will have consistent sizes.
-*/
 
+@c
 static small_number make_left_right(pointer q, int style, scaled max_d,
                                     scaled max_hv)
 {
@@ -3025,7 +3023,7 @@ static small_number make_left_right(pointer q, int style, scaled max_d,
         return close_noad_type;
 }
 
-
+@ @c
 #define TEXT_STYLES(A,B) do {					\
     def_math_param(A,display_style,(B),level_one);		\
     def_math_param(A,cramped_display_style,(B),level_one);	\
@@ -3129,6 +3127,7 @@ void initialize_math_spacing(void)
 }
 
 
+@ @c
 #define both_types(A,B) ((A)*16+(B))
 
 static pointer math_spacing_glue(int l_type, int r_type, int mstyle, scaled mmu)
@@ -3151,7 +3150,9 @@ static pointer math_spacing_glue(int l_type, int r_type, int mstyle, scaled mmu)
     case both_types(ord_noad_type,  inner_noad_type):  x = get_math_param(math_param_ord_inner_spacing,mstyle); break;
     case both_types(op_noad_type_normal, ord_noad_type  ):  x = get_math_param(math_param_op_ord_spacing,mstyle); break;
     case both_types(op_noad_type_normal, op_noad_type_normal   ):  x = get_math_param(math_param_op_op_spacing,mstyle); break;
-      /*case both_types(op_noad_type_normal,   bin_noad_type  ):  x = get_math_param(math_param_op_bin_spacing,mstyle); break;*/
+#if 0
+      case both_types(op_noad_type_normal,   bin_noad_type  ):  x = get_math_param(math_param_op_bin_spacing,mstyle); break;
+#endif
     case both_types(op_noad_type_normal,   rel_noad_type  ):  x = get_math_param(math_param_op_rel_spacing,mstyle); break;
     case both_types(op_noad_type_normal,   open_noad_type ):  x = get_math_param(math_param_op_open_spacing,mstyle); break;
     case both_types(op_noad_type_normal,   close_noad_type):  x = get_math_param(math_param_op_close_spacing,mstyle); break;
@@ -3159,15 +3160,21 @@ static pointer math_spacing_glue(int l_type, int r_type, int mstyle, scaled mmu)
     case both_types(op_noad_type_normal,   inner_noad_type):  x = get_math_param(math_param_op_inner_spacing,mstyle); break;
     case both_types(bin_noad_type,  ord_noad_type  ):  x = get_math_param(math_param_bin_ord_spacing,mstyle); break;
     case both_types(bin_noad_type,  op_noad_type_normal   ):  x = get_math_param(math_param_bin_op_spacing,mstyle); break;
-      /*case both_types(bin_noad_type,  bin_noad_type  ):  x = get_math_param(math_param_bin_bin_spacing,mstyle); break;*/
-      /*case both_types(bin_noad_type,  rel_noad_type  ):  x = get_math_param(math_param_bin_rel_spacing,mstyle); break;*/
+#if 0
+      case both_types(bin_noad_type,  bin_noad_type  ):  x = get_math_param(math_param_bin_bin_spacing,mstyle); break;
+      case both_types(bin_noad_type,  rel_noad_type  ):  x = get_math_param(math_param_bin_rel_spacing,mstyle); break;
+#endif
     case both_types(bin_noad_type,  open_noad_type ):  x = get_math_param(math_param_bin_open_spacing,mstyle); break;
-      /*case both_types(bin_noad_type,  close_noad_type):  x = get_math_param(math_param_bin_close_spacing,mstyle); break;*/
-      /*case both_types(bin_noad_type,  punct_noad_type):  x = get_math_param(math_param_bin_punct_spacing,mstyle); break;*/
+#if 0
+      case both_types(bin_noad_type,  close_noad_type):  x = get_math_param(math_param_bin_close_spacing,mstyle); break;
+      case both_types(bin_noad_type,  punct_noad_type):  x = get_math_param(math_param_bin_punct_spacing,mstyle); break;
+#endif
     case both_types(bin_noad_type,  inner_noad_type):  x = get_math_param(math_param_bin_inner_spacing,mstyle); break;
     case both_types(rel_noad_type,  ord_noad_type  ):  x = get_math_param(math_param_rel_ord_spacing,mstyle); break;
     case both_types(rel_noad_type,  op_noad_type_normal   ):  x = get_math_param(math_param_rel_op_spacing,mstyle); break;
-      /*case both_types(rel_noad_type,  bin_noad_type  ):  x = get_math_param(math_param_rel_bin_spacing,mstyle); break;*/
+#if 0
+      case both_types(rel_noad_type,  bin_noad_type  ):  x = get_math_param(math_param_rel_bin_spacing,mstyle); break;
+#endif
     case both_types(rel_noad_type,  rel_noad_type  ):  x = get_math_param(math_param_rel_rel_spacing,mstyle); break;
     case both_types(rel_noad_type,  open_noad_type ):  x = get_math_param(math_param_rel_open_spacing,mstyle); break;
     case both_types(rel_noad_type,  close_noad_type):  x = get_math_param(math_param_rel_close_spacing,mstyle); break;
@@ -3175,7 +3182,9 @@ static pointer math_spacing_glue(int l_type, int r_type, int mstyle, scaled mmu)
     case both_types(rel_noad_type,  inner_noad_type):  x = get_math_param(math_param_rel_inner_spacing,mstyle); break;
     case both_types(open_noad_type, ord_noad_type  ):  x = get_math_param(math_param_open_ord_spacing,mstyle); break;
     case both_types(open_noad_type, op_noad_type_normal   ):  x = get_math_param(math_param_open_op_spacing,mstyle); break;
-      /*case both_types(open_noad_type, bin_noad_type  ):  x = get_math_param(math_param_open_bin_spacing,mstyle); break;*/
+#if 0
+      case both_types(open_noad_type, bin_noad_type  ):  x = get_math_param(math_param_open_bin_spacing,mstyle); break;
+#endif
     case both_types(open_noad_type, rel_noad_type  ):  x = get_math_param(math_param_open_rel_spacing,mstyle); break;
     case both_types(open_noad_type, open_noad_type ):  x = get_math_param(math_param_open_open_spacing,mstyle); break;
     case both_types(open_noad_type, close_noad_type):  x = get_math_param(math_param_open_close_spacing,mstyle); break;
@@ -3191,7 +3200,9 @@ static pointer math_spacing_glue(int l_type, int r_type, int mstyle, scaled mmu)
     case both_types(close_noad_type,inner_noad_type):  x = get_math_param(math_param_close_inner_spacing,mstyle); break;
     case both_types(punct_noad_type,ord_noad_type  ):  x = get_math_param(math_param_punct_ord_spacing,mstyle); break;
     case both_types(punct_noad_type,op_noad_type_normal   ):  x = get_math_param(math_param_punct_op_spacing,mstyle); break;
-      /*case both_types(punct_noad_type,bin_noad_type  ):  x = get_math_param(math_param_punct_bin_spacing,mstyle); break;*/
+#if 0
+      case both_types(punct_noad_type,bin_noad_type  ):  x = get_math_param(math_param_punct_bin_spacing,mstyle); break;
+#endif
     case both_types(punct_noad_type,rel_noad_type  ):  x = get_math_param(math_param_punct_rel_spacing,mstyle); break;
     case both_types(punct_noad_type,open_noad_type ):  x = get_math_param(math_param_punct_open_spacing,mstyle); break;
     case both_types(punct_noad_type,close_noad_type):  x = get_math_param(math_param_punct_close_spacing,mstyle); break;
@@ -3226,7 +3237,7 @@ static pointer math_spacing_glue(int l_type, int r_type, int mstyle, scaled mmu)
     return z;
 }
 
-
+@ @c
 static pointer check_nucleus_complexity(halfword q, scaled * delta,
                                         int cur_style)
 {
@@ -3266,10 +3277,10 @@ static pointer check_nucleus_complexity(halfword q, scaled * delta,
     return p;
 }
 
-/* Here is the overall plan of |mlist_to_hlist|, and the list of its
+@ Here is the overall plan of |mlist_to_hlist|, and the list of its
    local variables.
-*/
 
+@c
 static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
 {
     pointer q;                  /* runs through the mlist */
@@ -3449,8 +3460,7 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
                the node following will be eliminated if it is a glue or kern node and if the
                current size is different from |text_size|. Unconditional math glue
                (`\.{\\muskip}') is converted to normal glue by multiplying the dimensions
-               by |cur_mu|.
-               @:non_script_}{\.{\\nonscript} primitive@>
+               by |cur_mu|.              
              */
             if (subtype(q) == mu_glue) {
                 x = glue_ptr(q);
@@ -3486,8 +3496,6 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
            If |nucleus(q)| is not a |math_char|, the variable |delta| is the amount
            by which a superscript should be moved right with respect to a subscript
            when both are present.
-           @^subscripts@>
-           @^superscripts@>
          */
         p = check_nucleus_complexity(q, &delta, cur_style);
 
@@ -3503,7 +3511,7 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
         if (depth(z) > max_d)
             max_d = depth(z);
         list_ptr(z) = null;
-        flush_node(z);          /* only drop the \hbox */
+        flush_node(z);          /* only drop the \.{\\hbox} */
       DONE_WITH_NOAD:
         r = q;
         r_type = type(r);
@@ -3661,6 +3669,10 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
     }
 }
 
+@ This used to be needed when |mlist_to_hlist| communicated via global
+variables.
+
+@c
 void mlist_to_hlist_args(pointer n, int w, boolean m)
 {
     mlist_to_hlist(n, m, w);

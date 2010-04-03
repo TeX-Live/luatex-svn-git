@@ -1,36 +1,38 @@
+% commands.w
+% 
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
+\def\eTeX{e-\TeX}
+
 @ @c
-/* commands.c
-   
-   Copyright 2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
+@ The symbolic names for glue parameters are put into \TeX's hash table
+by using the routine called |primitive|, defined below. Let us enter them
+now, so that we don't have to list all those parameter names anywhere else.
+
+@c
 void initialize_commands(void)
 {
-
-    /* The symbolic names for glue parameters are put into \TeX's hash table
-       by using the routine called |primitive|, defined below. Let us enter them
-       now, so that we don't have to list all those parameter names anywhere else.
-     */
 
     primitive_tex("lineskip", assign_glue_cmd, glue_base + line_skip_code,
                   glue_base);
@@ -402,7 +404,15 @@ void initialize_commands(void)
     primitive_tex("par", par_end_cmd, too_big_char, too_big_char);      /* cf.\ |scan_file_name| */
     par_loc = cur_val;
     par_token = cs_token_flag + par_loc;
+    @<Create a bunch of primitives@>;
+    @<Create the math param primitives@>;
+    @<Create another bunch of primitives@>;
+}
 
+
+@ These are in a separate module due to a CWEAVE limitation.
+
+@<Create a bunch of primitives@>=
     /* The processing of \.{\\input} involves the |start_input| subroutine,
        which will be declared later; the processing of \.{\\endinput} is trivial. */
     primitive_tex("input", input_cmd, 0, 0);
@@ -694,6 +704,11 @@ void initialize_commands(void)
     primitive_tex("scriptscriptfont", def_family_cmd, script_script_size, 0);
     primitive_luatex("Umathquad", set_math_param_cmd, math_param_quad, 0);
     primitive_luatex("Umathaxis", set_math_param_cmd, math_param_axis, 0);
+
+
+@ These are in a separate module due to a CWEAVE limitation.
+
+@<Create the math param primitives@>=
     primitive_luatex("Umathoperatorsize", set_math_param_cmd,
                      math_param_operator_size, 0);
     primitive_luatex("Umathoverbarkern", set_math_param_cmd,
@@ -908,6 +923,10 @@ void initialize_commands(void)
                      math_param_inner_punct_spacing, 0);
     primitive_luatex("Umathinnerinnerspacing", set_math_param_cmd,
                      math_param_inner_inner_spacing, 0);
+
+@ These are in a separate module due to a CWEAVE limitation.
+
+@<Create another bunch of primitives@>=
     primitive_omega("omathcode", extdef_math_code_cmd, math_code_base,
                     math_code_base);
     primitive_omega("odelcode", extdef_del_code_cmd, del_code_base,
@@ -1040,8 +1059,9 @@ void initialize_commands(void)
     primitive_no("nolocaldirs", assign_int_cmd,
                  int_base + no_local_dirs_code, int_base);
 
-}
 
+
+@ @c
 void initialize_etex_commands(void)
 {
     primitive_etex("lastnodetype", last_item_cmd, last_node_type_code, 0);

@@ -1,32 +1,30 @@
+% textcodes.w
+% 
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
 @ @c
-/* textcodes.c
-   
-   Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
-
 #include "ptexlib.h"
-#include <stdarg.h>
-
-
 
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+    "$URL$";
 
+@ @c
 #define LCCODESTACK  8
 #define LCCODEDEFAULT 0
 
@@ -185,8 +183,10 @@ void clearcatcodestack(int h)
 static void initializecatcodes(void)
 {
     catcode_max = 0;
-    /* xfree(catcode_heads); *//* not needed */
-    /* xfree(catcode_valid); */
+#if 0
+    xfree(catcode_heads); /* not needed */
+    xfree(catcode_valid); 
+#endif
     catcode_heads = Mxmalloc_array(sa_tree, (CATCODE_MAX + 1));
     catcode_valid = Mxmalloc_array(unsigned char, (CATCODE_MAX + 1));
     memset(catcode_heads, 0, sizeof(sa_tree) * (CATCODE_MAX + 1));

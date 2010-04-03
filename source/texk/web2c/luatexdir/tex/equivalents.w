@@ -1,36 +1,35 @@
+% equivalents.w
+% 
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* equivalents.c
-   
-   Copyright 2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
-
+@ @c
 #define par_shape_ptr equiv(par_shape_loc)
 
 void show_eqtb_meaning(halfword n);     /* forward */
 
-/*
-Now that we have studied the data structures for \TeX's semantic routines,
+@ Now that we have studied the data structures for \TeX's semantic routines,
 we ought to consider the data structures used by its syntactic routines. In
 other words, our next concern will be
 the tables that \TeX\ looks at when it is scanning
@@ -42,25 +41,25 @@ or what their current values are, for all quantities that are subject to
 the nesting structure provided by \TeX's grouping mechanism. There are six
 parts to |eqtb|:
 
-\yskip\hangg 1) |eqtb[null_cs]| holds the current equivalent of the
+\yskip\hang 1) |eqtb[null_cs]| holds the current equivalent of the
 zero-length control sequence.
 
-\yskip\hangg 2) |eqtb[hash_base..(glue_base-1)]| holds the current
+\yskip\hang 2) |eqtb[hash_base..(glue_base-1)]| holds the current
 equivalents of single- and multiletter control sequences.
 
-\yskip\hangg 3) |eqtb[glue_base..(local_base-1)]| holds the current
+\yskip\hang 3) |eqtb[glue_base..(local_base-1)]| holds the current
 equivalents of glue parameters like the current baselineskip.
 
-\yskip\hangg 4) |eqtb[local_base..(int_base-1)]| holds the current
+\yskip\hang 4) |eqtb[local_base..(int_base-1)]| holds the current
 equivalents of local halfword quantities like the current box registers,
 the current ``catcodes,'' the current font, and a pointer to the current
 paragraph shape.
 
-\yskip\hangg 5) |eqtb[int_base..(dimen_base-1)]| holds the current
+\yskip\hang 5) |eqtb[int_base..(dimen_base-1)]| holds the current
 equivalents of fullword integer parameters like the current hyphenation
 penalty.
 
-\yskip\hangg 6) |eqtb[dimen_base..eqtb_size]| holds the current equivalents
+\yskip\hang 6) |eqtb[dimen_base..eqtb_size]| holds the current equivalents
 of fullword dimension parameters like the current hsize or amount of
 hanging indentation.
 
@@ -70,19 +69,17 @@ in region~3 of |eqtb|, while the current meaning of the control sequence
 `\.{\\baselineskip}' (which might have been changed by \.{\\def} or
 \.{\\let}) appears in region~2.
 
-*/
-
-/*
-The last two regions of |eqtb| have fullword values instead of the
+@ The last two regions of |eqtb| have fullword values instead of the
 three fields |eq_level|, |eq_type|, and |equiv|. An |eq_type| is unnecessary,
 but \TeX\ needs to store the |eq_level| information in another array
 called |xeq_level|.
-*/
 
+@c
 memory_word *eqtb;
 halfword eqtb_top;              /* maximum of the |eqtb| */
 quarterword xeq_level[(eqtb_size + 1)];
 
+@ @c
 void initialize_equivalents(void)
 {
     int k;
@@ -90,8 +87,8 @@ void initialize_equivalents(void)
         xeq_level[k] = level_one;
 }
 
-/*
-The nested structure provided by `$\.{\char'173}\ldots\.{\char'175}$' groups
+
+@ The nested structure provided by `$\.{\char'173}\ldots\.{\char'175}$' groups
 in \TeX\ means that |eqtb| entries valid in outer groups should be saved
 and restored later if they are overridden inside the braces. When a new |eqtb|
 value is being assigned, the program therefore checks to see if the previous
@@ -106,7 +103,7 @@ this stack is |save_stack[p]|, where |p=save_ptr-1|; it contains three
 fields called |save_type|, |save_level|, and |save_value|, and it is
 interpreted in one of four ways:
 
-\yskip\hangg 1) If |save_type(p)=restore_old_value|, then
+\yskip\hang 1) If |save_type(p)=restore_old_value|, then
 |save_value(p)| is a location in |eqtb| whose current value should
 be destroyed at the end of the current group and replaced by |save_word(p-1)|
 (|save_type(p-1)==saved_eqtb|).
@@ -114,16 +111,16 @@ Furthermore if |save_value(p)>=int_base|, then |save_level(p)| should
 replace the corresponding entry in |xeq_level| (if |save_value(p)<int_base|,
 then the level is part of |save_word(p-1)|). 
 
-\yskip\hangg 2) If |save_type(p)=restore_zero|, then |save_value(p)|
+\yskip\hang 2) If |save_type(p)=restore_zero|, then |save_value(p)|
 is a location in |eqtb| whose current value should be destroyed at the end
 of the current group, when it should be
 replaced by the current value of |eqtb[undefined_control_sequence]|.
 
-\yskip\hangg 3) If |save_type(p)=insert_token|, then |save_value(p)|
+\yskip\hang 3) If |save_type(p)=insert_token|, then |save_value(p)|
 is a token that should be inserted into \TeX's input when the current
 group ends.
 
-\yskip\hangg 4) If |save_type(p)=level_boundary|, then |save_level(p)|
+\yskip\hang 4) If |save_type(p)=level_boundary|, then |save_level(p)|
 is a code explaining what kind of group we were previously in, and
 |save_value(p)| points to the level boundary word at the bottom of
 the entries for that group. Furthermore, |save_value(p-1)| contains the
@@ -148,16 +145,13 @@ an explicit |save_type|, and they are:
 |saved_boxdir| the box \.{dir} specification,
 |saved_boxattr| the box \.{attr} specification.
 
-*/
-
-/*
-The global variable |cur_group| keeps track of what sort of group we are
+@ The global variable |cur_group| keeps track of what sort of group we are
 currently in. Another global variable, |cur_boundary|, points to the
 topmost |level_boundary| word.  And |cur_level| is the current depth of
 nesting. The routines are designed to preserve the condition that no entry
 in the |save_stack| or in |eqtb| ever has a level greater than |cur_level|.
-*/
 
+@c
 save_record *save_stack;
 int save_ptr;                   /* first unused entry on |save_stack| */
 int max_save_stack;             /* maximum usage of save stack */
@@ -165,19 +159,19 @@ quarterword cur_level = level_one;      /* current nesting level for groups */
 group_code cur_group = bottom_level;    /* current group type */
 int cur_boundary;               /* where the current level begins */
 
-/*
-At this time it might be a good idea for the reader to review the introduction
+
+@ At this time it might be a good idea for the reader to review the introduction
 to |eqtb| that was given above just before the long lists of parameter names.
 Recall that the ``outer level'' of the program is |level_one|, since
 undefined control sequences are assumed to be ``defined'' at |level_zero|.
-*/
 
-/*
-The following macro is used to test if there is room for up to eight more
+
+
+@ The following macro is used to test if there is room for up to eight more
 entries on |save_stack|. By making a conservative test like this, we can
 get by with testing for overflow in only a few places.
-*/
 
+@c
 #define check_full_save_stack() do {			\
 	if (save_ptr>max_save_stack) {			\
 	    max_save_stack=save_ptr;			\
@@ -186,8 +180,8 @@ get by with testing for overflow in only a few places.
 	}						\
     } while (0)
 
-/*
-Procedure |new_save_level| is called when a group begins. The
+
+@ Procedure |new_save_level| is called when a group begins. The
 argument is a group identification code like `|hbox_group|'. After
 calling this routine, it is safe to put six more entries on |save_stack|.
 
@@ -195,11 +189,11 @@ In some cases integer-valued items are placed onto the
 |save_stack| just below a |level_boundary| word, because this is a
 convenient place to keep information that is supposed to ``pop up'' just
 when the group has finished.
-For example, when `\.{\\hbox to 100pt}\grp' is being treated, the 100pt
+For example, when `\.{\\hbox to 100pt}' is being treated, the 100pt
 dimension is stored on |save_stack| just before |new_save_level| is
 called.
-*/
 
+@c
 void new_save_level(group_code c)
 {                               /* begin a new level of grouping */
     check_full_save_stack();
@@ -219,7 +213,7 @@ void new_save_level(group_code c)
     incr(save_ptr);
 }
 
-
+@ @c
 static const char *save_stack_type(int v)
 {
     const char *s = "";
@@ -249,7 +243,7 @@ static const char *save_stack_type(int v)
     return s;
 }
 
-
+@ @c
 void print_save_stack(void)
 {
     int i;
@@ -274,7 +268,7 @@ void print_save_stack(void)
                 print_int(save_word(i - 1).cint);
             } else {
                 print_int(eq_type_field(save_word(i - 1)));
-                print_char(',');        /* print_int(eq_level_field(save_word(i-1))); */
+                print_char(',');        /* |print_int(eq_level_field(save_word(i-1)));| */
                 print_int(equiv_field(save_word(i - 1)));
             }
             i--;
@@ -309,11 +303,11 @@ void print_save_stack(void)
             tprint(", ");
             print_int(save_value(i));   /* insert number */
             break;
-        case saved_boxtype:    /* \localleftbox vs \localrightbox */
+        case saved_boxtype:    /* \.{\\localleftbox} vs \.{\\localrightbox} */
             tprint(", ");
             print_int(save_value(i));
             break;
-        case saved_eqno:       /* \eqno vs \leqno */
+        case saved_eqno:       /* \.{\\eqno} vs \.{\\leqno} */
             tprint(", ");
             print_int(save_value(i));
             break;
@@ -356,13 +350,12 @@ void print_save_stack(void)
     end_diagnostic(true);
 }
 
-/*
-  The \.{\\showgroups} command displays all currently active grouping
-  levels.
-*/
 
-/*
-  The modifications of \TeX\ required for the display produced by the
+@ The \.{\\showgroups} command displays all currently active grouping
+  levels.
+
+
+@ The modifications of \TeX\ required for the display produced by the
   |show_save_groups| procedure were first discussed by Donald~E. Knuth in
   {\sl TUGboat\/} {\bf 11}, 165--170 and 499--511, 1990.
   @^Knuth, Donald Ervin@>
@@ -370,8 +363,8 @@ void print_save_stack(void)
   In order to understand a group type we also have to know its mode.
   Since unrestricted horizontal modes are not associated with grouping,
   they are skipped when traversing the semantic nest.
-*/
 
+@c
 void show_save_groups(void)
 {
     int p;                      /* index into |nest| */
@@ -383,7 +376,9 @@ void show_save_groups(void)
     int i;
     quarterword j;
     const char *s;
-    /* print_save_stack(); */
+#ifdef DEBUG
+    print_save_stack();
+#endif
     p = nest_ptr;
     v = save_ptr;
     l = cur_level;
@@ -464,7 +459,7 @@ void show_save_groups(void)
         case math_choice_group:
             tprint_esc("mathchoice");
             for (i = 1; i < 4; i++)
-                if (i <= saved_value(-3))       /* different offset because -2==saved_textdir */
+                if (i <= saved_value(-3))       /* different offset because |-2==saved_textdir| */
                     tprint("{}");
             goto FOUND2;
             break;
@@ -568,14 +563,14 @@ void show_save_groups(void)
 }
 
 
-/*
-Just before an entry of |eqtb| is changed, the following procedure should
+
+@ Just before an entry of |eqtb| is changed, the following procedure should
 be called to update the other data structures properly. It is important
 to keep in mind that reference counts in |mem| include references from
 within |save_stack|, so these counts must be handled carefully.
 @^reference counts@>
-*/
 
+@c
 void eq_destroy(memory_word w)
 {                               /* gets ready to forget |w| */
     halfword q;                 /* |equiv| field of |w| */
@@ -602,11 +597,11 @@ void eq_destroy(memory_word w)
     }
 }
 
-/*
-To save a value of |eqtb[p]| that was established at level |l|, we
-can use the following subroutine.
-*/
 
+@ To save a value of |eqtb[p]| that was established at level |l|, we
+can use the following subroutine.
+
+@c
 void eq_save(halfword p, quarterword l)
 {                               /* saves |eqtb[p]| */
     check_full_save_stack();
@@ -623,16 +618,16 @@ void eq_save(halfword p, quarterword l)
     incr(save_ptr);
 }
 
-/*
-The procedure |eq_define| defines an |eqtb| entry having specified
+
+@ The procedure |eq_define| defines an |eqtb| entry having specified
 |eq_type| and |equiv| fields, and saves the former value if appropriate.
 This procedure is used only for entries in the first four regions of |eqtb|,
 i.e., only for entries that have |eq_type| and |equiv| fields.
 After calling this routine, it is safe to put four more entries on
 |save_stack|, provided that there was room for four more entries before
 the call, since |eq_save| makes the necessary test.
-*/
 
+@c
 void eq_define(halfword p, quarterword t, halfword e)
 {                               /* new data for |eqtb| */
     if ((eq_type(p) == t) && (equiv(p) == e)) {
@@ -651,12 +646,12 @@ void eq_define(halfword p, quarterword t, halfword e)
     assign_trace(p, "into");
 }
 
-/*
-The counterpart of |eq_define| for the remaining (fullword) positions in
+
+@ The counterpart of |eq_define| for the remaining (fullword) positions in
 |eqtb| is called |eq_word_define|. Since |xeq_level[p]>=level_one| for all
 |p|, a `|restore_zero|' will never be used in this case.
-*/
 
+@c
 void eq_word_define(halfword p, int w)
 {
     if (eqtb[p].cint == w) {
@@ -672,13 +667,13 @@ void eq_word_define(halfword p, int w)
     assign_trace(p, "into");
 }
 
-/*
-The |eq_define| and |eq_word_define| routines take care of local definitions.
+
+@ The |eq_define| and |eq_word_define| routines take care of local definitions.
 @^global definitions@>
 Global definitions are done in almost the same way, but there is no need
 to save old values, and the new value is associated with |level_one|.
-*/
 
+@c
 void geq_define(halfword p, quarterword t, halfword e)
 {                               /* global |eq_define| */
     assign_trace(p, "globally changing");
@@ -698,8 +693,9 @@ void geq_word_define(halfword p, int w)
 }
 
 
-/* Subroutine |save_for_after| puts a token on the stack for save-keeping. */
+@ Subroutine |save_for_after| puts a token on the stack for save-keeping. 
 
+@c
 void save_for_after(halfword t)
 {
     if (cur_level > level_one) {
@@ -711,12 +707,12 @@ void save_for_after(halfword t)
     }
 }
 
-/*
-The |unsave| routine goes the other way, taking items off of |save_stack|.
+
+@ The |unsave| routine goes the other way, taking items off of |save_stack|.
 This routine takes care of restoration when a level ends; everything
 belonging to the topmost group is cleared off of the save stack.
-*/
 
+@c
 void unsave(void)
 {                               /* pops the top level off the save stack */
     halfword p;                 /* position to be restored */
@@ -745,10 +741,9 @@ void unsave(void)
                 } else {
                     save_word(save_ptr) = eqtb[undefined_control_sequence];
                 }
-                /* Store \(s)|save_stack[save_ptr]| in |eqtb[p]|, unless
+                /* Store |save_stack[save_ptr]| in |eqtb[p]|, unless
                    |eqtb[p]| holds a global value */
                 /* A global definition, which sets the level to |level_one|,
-                   @^global definitions@>
                    will not be undone by |unsave|. If at least one global definition of
                    |eqtb[p]| has been carried out within the group that just ended, the
                    last such definition will therefore survive.
@@ -790,6 +785,7 @@ void unsave(void)
     attr_list_cache = cache_disabled;
 }
 
+@ @c
 void restore_trace(halfword p, const char *s)
 {                               /* |eqtb[p]| has just been restored or retained */
     begin_diagnostic();
@@ -801,21 +797,21 @@ void restore_trace(halfword p, const char *s)
     end_diagnostic(false);
 }
 
-/*
-Most of the parameters kept in |eqtb| can be changed freely, but there's
+
+@ Most of the parameters kept in |eqtb| can be changed freely, but there's
 an exception:  The magnification should not be used with two different
 values during any \TeX\ job, since a single magnification is applied to an
 entire run. The global variable |mag_set| is set to the current magnification
 whenever it becomes necessary to ``freeze'' it at a particular value.
-*/
 
+@c
 int mag_set;                    /* if nonzero, this magnification should be used henceforth */
 
-/*
-The |prepare_mag| subroutine is called whenever \TeX\ wants to use |mag|
-for magnification.
-*/
 
+@ The |prepare_mag| subroutine is called whenever \TeX\ wants to use |mag|
+for magnification.
+
+@c
 #define mag int_par(mag_code)
 
 void prepare_mag(void)
@@ -845,8 +841,8 @@ void prepare_mag(void)
     mag_set = mag;
 }
 
-/*
-Let's pause a moment now and try to look at the Big Picture.
+
+@ Let's pause a moment now and try to look at the Big Picture.
 The \TeX\ program consists of three main parts: syntactic routines,
 semantic routines, and output routines. The chief purpose of the
 syntactic routines is to deliver the user's input to the semantic routines,
@@ -891,15 +887,16 @@ input mechanism. These stacks record the current state of an implicitly
 recursive process, but the |get_next| procedure is not recursive.
 Therefore it will not be difficult to translate these algorithms into
 low-level languages that do not support recursion.
-*/
 
+@c
 int cur_cmd;                    /* current command set by |get_next| */
 halfword cur_chr;               /* operand of current command */
 halfword cur_cs;                /* control sequence found here, zero if none found */
 halfword cur_tok;               /* packed representative of |cur_cmd| and |cur_chr| */
 
-/* Here is a procedure that displays the current command. */
+@ Here is a procedure that displays the current command. 
 
+@c
 #define mode cur_list.mode_field
 
 void show_cur_cmd_chr(void)
@@ -945,9 +942,10 @@ void show_cur_cmd_chr(void)
 }
 
 
-/* Here is a procedure that displays the contents of |eqtb[n]|
-   symbolically. */
+@ Here is a procedure that displays the contents of |eqtb[n]|
+   symbolically.
 
+@c
 void show_eqtb(halfword n)
 {
     if (n < null_cs) {
@@ -1087,6 +1085,7 @@ void show_eqtb(halfword n)
     }
 }
 
+@ @c
 void show_eqtb_meaning(halfword n)
 {
     if (n < null_cs) {

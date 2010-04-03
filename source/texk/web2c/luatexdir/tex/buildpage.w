@@ -1,29 +1,30 @@
+% buildpage.w
+% 
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* buildpage.c
-   
-   Copyright 2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
 #include "ptexlib.h"
 
+@ @c
 #define box(A) eqtb[box_base+(A)].hh.rh
 #define count(A) eqtb[count_base+(A)].hh.rh
 #undef skip
@@ -50,8 +51,7 @@ static const char _svn_version[] =
 #define tail cur_list.tail_field
 #define head cur_list.head_field
 
-/*
-When \TeX\ appends new material to its main vlist in vertical mode, it uses
+@ When \TeX\ appends new material to its main vlist in vertical mode, it uses
 a method something like |vsplit| to decide where a page ends, except that
 the calculations are done ``on line'' as new items come in.
 The main complication in this process is that insertions must be put
@@ -89,8 +89,8 @@ respectively to the local variables |best_place| and |least_cost| in the
 location and value of the best place currently known for breaking the
 current page. The value of |page_goal| at the time of the best break is
 stored in |best_size|.
-*/
 
+@c
 halfword page_tail;             /* the final node on the current page */
 int page_contents;              /* what is on the current page so far? */
 scaled page_max_depth;          /* maximum box depth on page being built */
@@ -98,8 +98,8 @@ halfword best_page_break;       /* break here to get the best page known so far 
 int least_page_cost;            /* the score for this currently best page */
 scaled best_size;               /* its |page_goal| */
 
-/*
-The page builder has another data structure to keep track of insertions.
+
+@ The page builder has another data structure to keep track of insertions.
 This is a list of four-word nodes, starting and ending at |page_ins_head|.
 That is, the first element of the list is node |r@t$_1$@>=vlink(page_ins_head)|;
 node $r_j$ is followed by |r@t$_{j+1}$@>=vlink(r@t$_j$@>)|; and if there are
@@ -130,10 +130,10 @@ such |ins_node| that should actually be inserted, to get the page with
 minimum badness among all page breaks considered so far. We have
 |best_ins_ptr(r)=null| if and only if no insertion for this box should
 be made to produce this optimum page.
-*/
 
-/*
-Pages are built by appending nodes to the current list in \TeX's
+
+
+@ Pages are built by appending nodes to the current list in \TeX's
 vertical mode, which is at the outermost level of the semantic nest. This
 vlist is split into two parts; the ``current page'' that we have been
 talking so much about already, and the ``contribution list'' that receives
@@ -156,8 +156,8 @@ effectively pass to the user's output routine.
 
 We make |type(page_head)=glue_node|, so that an initial glue node on
 the current page will not be considered a valid breakpoint.
-*/
 
+@c
 void initialize_buildpage(void)
 {
     subtype(page_ins_head) = 65535;
@@ -168,8 +168,8 @@ void initialize_buildpage(void)
     subtype(page_head) = normal;
 }
 
-/*
-An array |page_so_far| records the heights and depths of everything
+
+@ An array |page_so_far| records the heights and depths of everything
 on the current page. This array contains six |scaled| numbers, like the
 similar arrays already considered in |line_break| and |vert_break|; and it
 also contains |page_goal| and |page_depth|, since these values are
@@ -189,10 +189,10 @@ The variables |last_penalty|, |last_kern|, and |last_node_type|
 are similar.  And
 finally, |insert_penalties| holds the sum of the penalties associated with
 all split and floating insertions.
-*/
 
+@c
 scaled page_so_far[8];          /* height and glue of the current page */
-halfword last_glue;             /* used to implement \.{\\lastskip */
+halfword last_glue;             /* used to implement \.{\\lastskip} */
 int last_penalty;               /* used to implement \.{\\lastpenalty} */
 scaled last_kern;               /* used to implement \.{\\lastkern} */
 int last_node_type;             /* used to implement \.{\\lastnodetype} */
@@ -219,11 +219,11 @@ void print_totals(void)
     }
 }
 
-/*
-Here is a procedure that is called when the |page_contents| is changing
-from |empty| to |inserts_only| or |box_there|.
-*/
 
+@ Here is a procedure that is called when the |page_contents| is changing
+from |empty| to |inserts_only| or |box_there|.
+
+@c
 #define do_all_six(A) A(1);A(2);A(3);A(4);A(5);A(6);A(7)
 #define set_page_so_far_zero(A) page_so_far[(A)]=0
 
@@ -245,19 +245,19 @@ void freeze_page_specs(int s)
     }
 }
 
-/*
-The global variable |output_active| is true during the time the
-user's output routine is driving \TeX.
-*/
 
+@ The global variable |output_active| is true during the time the
+user's output routine is driving \TeX.
+
+@c
 boolean output_active;          /* are we in the midst of an output routine? */
 
-/*
-The page builder is ready to start a fresh page if we initialize
+
+@ The page builder is ready to start a fresh page if we initialize
 the following state variables. (However, the page insertion list is initialized
 elsewhere.)
-*/
 
+@c
 void start_new_page(void)
 {
     page_contents = empty;
@@ -271,13 +271,13 @@ void start_new_page(void)
     page_max_depth = 0;
 }
 
-/*
-At certain times box \.{\\outputbox} is supposed to be void (i.e., |null|),
+
+@ At certain times box \.{\\outputbox} is supposed to be void (i.e., |null|),
 or an insertion box is supposed to be ready to accept a vertical list.
 If not, an error message is printed, and the following subroutine
 flushes the unwanted contents, reporting them to the user.
-*/
 
+@c
 static void box_error(int n)
 {
     error();
@@ -289,11 +289,11 @@ static void box_error(int n)
     box(n) = null;
 }
 
-/*
-The following procedure guarantees that a given box register
-does not contain an \.{\\hbox}.
-*/
 
+@ The following procedure guarantees that a given box register
+does not contain an \.{\\hbox}.
+
+@c
 static void ensure_vbox(int n)
 {
     halfword p;                 /* the box register contents */
@@ -307,14 +307,14 @@ static void ensure_vbox(int n)
     }
 }
 
-/*
-\TeX\ is not always in vertical mode at the time |build_page|
+
+@ \TeX\ is not always in vertical mode at the time |build_page|
 is called; the current mode reflects what \TeX\ should return to, after
 the contribution list has been emptied. A call on |build_page| should
 be immediately followed by `|goto big_switch|', which is \TeX's central
 control point.
-*/
 
+@c
 void build_page(void)
 {                               /* append contributions to the current page */
     halfword p;                 /* the node being appended */
@@ -353,7 +353,6 @@ void build_page(void)
         /* The code here is an example of a many-way switch into routines that
            merge together in different places. Some people call this unstructured
            programming, but the author doesn't see much wrong with it, as long as
-           @^Knuth, Donald Ervin@>
            the various labels have a well-understood meaning.
          */
         /* If the current page is empty and node |p| is to be deleted, |goto done1|;
@@ -371,7 +370,7 @@ void build_page(void)
         case rule_node:
             if (page_contents < box_there) {
                 /* Initialize the current page, insert the \.{\\topskip} glue
-                   ahead of |p|, and |goto continue */
+                   ahead of |p|, and |goto continue| */
                 if (page_contents == empty)
                     freeze_page_specs(box_there);
                 else
@@ -574,7 +573,7 @@ void build_page(void)
             break;
         }
 
-        /* Check if node |p| is a new champion breakpoint; then \(if)if it is time for
+        /* Check if node |p| is a new champion breakpoint; then if it is time for
            a page break, prepare for output, and either fire up the users
            output routine and |return| or ship out the page and |goto done| */
 
@@ -719,8 +718,7 @@ void build_page(void)
     ;
 }
 
-/*
-When the page builder has looked at as much material as could appear before
+@ When the page builder has looked at as much material as could appear before
 the next page break, it makes its decision. The break that gave minimum
 badness will be used to put a completed ``page'' into box \.{\\outputbox}, with insertions
 appended to their other boxes.
@@ -734,8 +732,8 @@ place; then it fires up the user's output routine, if there is one,
 or it simply ships out the page. There is one parameter, |c|, which represents
 the node that was being contributed to the page when the decision to
 force an output was made.
-*/
 
+@c
 void fire_up(halfword c)
 {
     halfword p, q, r, s;        /* nodes being examined and/or changed */
@@ -765,9 +763,9 @@ void fire_up(halfword c)
             delete_first_mark(i);
         }
     }
-    /* Put the \(o)optimal current page into box |output_box|, update |first_mark| and
+    /* Put the optimal current page into box |output_box|, update |first_mark| and
        |bot_mark|, append insertions to their boxes, and put the
-       remaining nodes back on the contribution list@>; */
+       remaining nodes back on the contribution list; */
 
     /* As the page is finally being prepared for output,
        pointer |p| runs through the vlist, with |prev_p| trailing behind;
@@ -941,7 +939,7 @@ void fire_up(halfword c)
         page_tail = q;
     }
 
-    /* Delete \(t)the page-insertion nodes */
+    /* Delete the page-insertion nodes */
     r = vlink(page_ins_head);
     while (r != page_ins_head) {
         q = vlink(r);
@@ -1003,11 +1001,11 @@ void fire_up(halfword c)
     box(output_box) = null;
 }
 
-/*
-When the user's output routine finishes, it has constructed a vlist
-in internal vertical mode, and \TeX\ will do the following:
-*/
 
+@ When the user's output routine finishes, it has constructed a vlist
+in internal vertical mode, and \TeX\ will do the following:
+
+@c
 void resume_after_output(void)
 {
     if ((iloc != null)

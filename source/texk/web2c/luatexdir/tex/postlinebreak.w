@@ -1,32 +1,30 @@
+% postlinebreak.w
+% 
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
 @ @c
-/* postlinebreak.c
-   
-   Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
-
 #include "ptexlib.h"
 
-
-
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+    "$URL$";
 
-/* So far we have gotten a little way into the |line_break| routine, having
+@ So far we have gotten a little way into the |line_break| routine, having
 covered its important |try_break| subroutine. Now let's consider the
 rest of the process.
 
@@ -42,9 +40,7 @@ meaning of |prev_p| is this: If |type(cur_p)=glue_node| then |cur_p| is a legal
 breakpoint if and only if |auto_breaking| is true and |prev_p| does not
 point to a glue node, penalty node, explicit kern node, or math node.
 
-*/
-
-/* The total number of lines that will be set by |post_line_break|
+@ The total number of lines that will be set by |post_line_break|
 is |best_line-prev_graf-1|. The last breakpoint is specified by
 |break_node(best_bet)|, and this passive node points to the other breakpoints
 via the |prev_break| links. The finishing-up phase starts by linking the
@@ -57,8 +53,7 @@ The |post_line_break| must also keep an dir stack, so that it can
 output end direction instructions at the ends of lines
 and begin direction instructions at the beginnings of lines.
 
-*/
-
+@c
 #define next_break prev_break   /*new name for |prev_break| after links are reversed */
 
 /* the ints are actually halfwords */
@@ -99,12 +94,12 @@ void ext_post_line_break(int paragraph_dir,
     scaled cur_width;           /*width of line number |cur_line| */
     scaled cur_indent;          /*left margin of line number |cur_line| */
     int pen;                    /*use when calculating penalties between lines */
-    halfword cur_p;             /* cur_p, but localized */
+    halfword cur_p;             /* |cur_p|, but localized */
     halfword cur_line;          /*the current line number being justified */
 
     dir_ptr = cur_list.dirs_field;
-    /* @<Reverse the links of the relevant passive nodes, setting |cur_p| to 
-       the first breakpoint@>; */
+    /* Reverse the links of the relevant passive nodes, setting |cur_p| to 
+       the first breakpoint; */
     /* The job of reversing links in a list is conveniently regarded as the job
        of taking items off one stack and putting them on another. In this case we
        take them off a stack pointed to by |q| and having |prev_break| fields;
@@ -112,8 +107,10 @@ void ext_post_line_break(int paragraph_dir,
        Node |r| is the passive node being moved from stack to stack.
      */
     q = break_node(best_bet);
-    /*used_discs = used_disc(best_bet); */
-    /*has_direction */
+#if 0
+    used_discs = used_disc(best_bet); 
+#endif
+    /* |has_direction| */
     cur_p = null;
     do {
         r = q;
@@ -126,9 +123,9 @@ void ext_post_line_break(int paragraph_dir,
     cur_line = cur_list.pg_field + 1;   /* prevgraf+1 */
 
     do {
-        /* @<Justify the line ending at breakpoint |cur_p|, and append it to the
+        /* Justify the line ending at breakpoint |cur_p|, and append it to the
            current vertical list, together with associated penalties and other
-           insertions@>;    */
+           insertions;    */
         /* The current line to be justified appears in a horizontal list starting
            at |vlink(temp_head)| and ending at |cur_break(cur_p)|. If |cur_break(cur_p)| is
            a glue node, we reset the glue to equal the |right_skip| glue; otherwise
@@ -153,7 +150,7 @@ void ext_post_line_break(int paragraph_dir,
             node_attr(tmp) = node_attr(temp_head);
             add_node_attr_ref(node_attr(tmp));
             couple_nodes(temp_head, tmp);
-            try_couple_nodes(tmp, nxt); /* \break\par */
+            try_couple_nodes(tmp, nxt); /* \.{\\break}\.{\\par} */
         }
         if (dir_ptr != null) {
             flush_node_list(dir_ptr);
@@ -277,7 +274,7 @@ void ext_post_line_break(int paragraph_dir,
             }
             assert(e == cur_break(cur_p));
 
-            /* @<DIR: Insert dir nodes at the end of the current line@>; */
+            /* DIR: Insert dir nodes at the end of the current line; */
             e = vlink(r);
             for (p = dir_ptr; p != null; p = vlink(p)) {
                 halfword s = new_dir(dir_dir(p) - 64);
@@ -335,7 +332,7 @@ void ext_post_line_break(int paragraph_dir,
         /* if |q| was not a breakpoint at glue and has been reset to |rightskip|
            then we append |rightskip| after |q| now */
         if (!glue_break) {
-            /* @<Put the \(r)\.{\\rightskip} glue after node |q|@>; */
+            /* Put the \.{\\rightskip} glue after node |q|; */
             halfword r = new_glue((right_skip == null ? null : copy_node(right_skip)));
 	    glue_ref_count(glue_ptr(r)) = null;
 	    subtype(r) = right_skip_code;
@@ -351,7 +348,7 @@ void ext_post_line_break(int paragraph_dir,
         /* /Modify the end of the line to reflect the nature of the break and to
            include \.{\\rightskip}; also set the proper value of |disc_break|; */
 
-        /* Put the \(l)\.{\\leftskip} glue at the left and detach this line; */
+        /* Put the \.{\\leftskip} glue at the left and detach this line; */
         /* The following code begins with |q| at the end of the list to be
            justified. It ends with |q| at the beginning of that list, and with
            |vlink(temp_head)| pointing to the remainder of the paragraph, if any. */
@@ -401,7 +398,7 @@ void ext_post_line_break(int paragraph_dir,
             alink(q) = r;
             q = r;
         }
-        /* /Put the \(l)\.{\\leftskip} glue at the left and detach this line; */
+        /* /Put the \.{\\leftskip} glue at the left and detach this line; */
 
         /* Call the packaging subroutine, setting |just_box| to the justified box; */
         /* Now |q| points to the hlist that represents the current line of the
@@ -520,11 +517,11 @@ void ext_post_line_break(int paragraph_dir,
 
         /* /Justify the line ending at breakpoint |cur_p|, and append it to the
            current vertical list, together with associated penalties and other
-           insertions@>;   */
+           insertions;   */
         incr(cur_line);
         cur_p = next_break(cur_p);
         if (cur_p != null && !post_disc_break) {
-            /* @<Prune unwanted nodes at the beginning of the next line@>; */
+            /* Prune unwanted nodes at the beginning of the next line; */
             /* Glue and penalty and kern and math nodes are deleted at the
                beginning of a line, except in the anomalous case that the
                node to be deleted is actually one of the chosen
@@ -555,6 +552,6 @@ void ext_post_line_break(int paragraph_dir,
     if ((cur_line != best_line) || (vlink(temp_head) != null))
         confusion("line breaking");
     cur_list.pg_field = best_line - 1;  /* prevgraf */
-    cur_list.dirs_field = dir_ptr;      /* dir_save */
+    cur_list.dirs_field = dir_ptr;      /* |dir_save| */
     dir_ptr = null;
 }

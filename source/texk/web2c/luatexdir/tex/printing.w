@@ -1,23 +1,23 @@
+% printing.w
+
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* printing.c
-
-   Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "lua/luatex-api.h"     /* for ptexbanner */
 #include "ptexlib.h"
 
@@ -25,13 +25,14 @@ static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
+@ @c
 #define font_id_text(A) cs_text(font_id_base+(A))
 
 #define wlog(A)      fputc(A,log_file)
 #define wterm(A)     fputc(A,term_out)
 
-/*
-Messages that are sent to a user's terminal and to the transcript-log file
+
+@ Messages that are sent to a user's terminal and to the transcript-log file
 are produced by several `|print|' procedures. These procedures will
 direct their output to a variety of places, based on the setting of
 the global variable |selector|, which has the following possible
@@ -69,8 +70,8 @@ the length of (possibly very long) stretches of printing; |term_offset|
 and |file_offset|, on the other hand, keep track of how many characters
 have appeared so far on the current line that has been output to the
 terminal or to the transcript file, respectively.
-*/
 
+@c
 alpha_file log_file;            /* transcript of \TeX\ session */
 int selector = term_only;       /* where to print a message */
 int dig[23];                    /* digits in a number being output */
@@ -82,8 +83,8 @@ int trick_count;                /* threshold for pseudoprinting, explained later
 int first_count;                /* another variable for pseudoprinting */
 boolean inhibit_par_tokens = false;     /*  for minor adjustments to |show_token_list|  */
 
-/* To end a line of text output, we call |print_ln| */
-
+@ To end a line of text output, we call |print_ln| 
+@c
 void print_ln(void)
 {                               /* prints an end-of-line */
     switch (selector) {
@@ -111,11 +112,11 @@ void print_ln(void)
     }
 }                               /* |tally| is not affected */
 
-/*
-  The |print_char| procedure sends one byte to the desired destination.
-  All printing comes through |print_ln| or |print_char|.
-*/
 
+@ The |print_char| procedure sends one byte to the desired destination.
+  All printing comes through |print_ln| or |print_char|.
+
+@c
 #define wterm_char(A) do {				\
     if ((A>=0x20)||(A==0x0A)||(A==0x0D)||(A==0x09)) {	\
       wterm(A);					\
@@ -205,8 +206,8 @@ void print_char(int s)
     incr(tally);
 }
 
-/*
-An entire string is output by calling |print|. Note that if we are outputting
+
+@ An entire string is output by calling |print|. Note that if we are outputting
 the single standard ASCII character \.c, we could call |print("c")|, since
 |"c"=99| is the number of a single-character string, as explained above. But
 |print_char("c")| is quicker, so \TeX\ goes directly to the |print_char|
@@ -220,8 +221,8 @@ instead print the character that results from substracting 0x110000
 from that value. This allows byte-oriented output to things like
 \.{\\specials} and \.{\\pdfliterals}. Todo: Perhaps it would be useful
 to do the same substraction while typesetting.
-*/
 
+@c
 void print(int s)
 {                               /* prints string |s| */
     unsigned char *j, *l;       /* current character code position */
@@ -300,11 +301,11 @@ void print(int s)
     }
 }
 
-/*
-The procedure |print_nl| is like |print|, but it makes sure that the
-string appears at the beginning of a new line.
-*/
 
+@ The procedure |print_nl| is like |print|, but it makes sure that the
+string appears at the beginning of a new line.
+
+@c
 void print_nlp(void)
 {                               /* move to beginning of a line */
     if (((term_offset > 0) && (odd(selector))) ||
@@ -318,8 +319,9 @@ void print_nl(str_number s)
     print(s);
 }
 
-/* char * versions */
+@ |char *| versions of the same procedures
 
+@c
 void tprint(const char *s)
 {
     const unsigned char *ss = (const unsigned char *) s;
@@ -337,21 +339,21 @@ void tprint_nl(const char *s)
     tprint(s);
 }
 
-/* |slow_print| is the same as |print| nowadays, but the name is kept for now. */
+@ |slow_print| is the same as |print| nowadays, but the name is kept for now. 
 
+@c
 void slow_print(int s)
 {                               /* prints string |s| */
     print(s);
 }
 
-/*
-Here is the very first thing that \TeX\ prints: a headline that identifies
+@ Here is the very first thing that \TeX\ prints: a headline that identifies
 the version number and format package. The |term_offset| variable is temporarily
 incorrect, but the discrepancy is not serious since we assume that the banner
 and format identifier together will occupy at most |max_print_line|
 character positions.
-*/
 
+@c
 void print_banner(const char *v, int e, int ver)
 {
     boolean res;
@@ -377,6 +379,7 @@ void print_banner(const char *v, int e, int ver)
     }
 }
 
+@ @c
 void log_banner(const char *v, int e, int ver)
 {
     const char *months[] = { "   ",
@@ -419,17 +422,16 @@ void log_banner(const char *v, int e, int ver)
     }
 }
 
+@ @c
 void print_version_banner(void)
 {
-    fprintf(term_out, ptexbanner);      /* todo: get the extra info in here */
-    /* write_svnversion(luatex_svnversion); */
+    fprintf(term_out, ptexbanner);
 }
 
-/*
-The procedure |print_esc| prints a string that is preceded by
+@ The procedure |print_esc| prints a string that is preceded by
 the user's escape character (which is usually a backslash).
-*/
 
+@c
 void print_esc(str_number s)
 {                               /* prints escape character, then |s| */
     int c;                      /* the escape character code */
@@ -440,6 +442,7 @@ void print_esc(str_number s)
     print(s);
 }
 
+@ @c
 void tprint_esc(const char *s)
 {                               /* prints escape character, then |s| */
     int c;                      /* the escape character code */
@@ -450,8 +453,9 @@ void tprint_esc(const char *s)
     tprint(s);
 }
 
-/* An array of digits in the range |0..15| is printed by |print_the_digs|.*/
+@ An array of digits in the range |0..15| is printed by |print_the_digs|.
 
+@c
 void print_the_digs(eight_bits k)
 {
     /* prints |dig[k-1]|$\,\ldots\,$|dig[0]| */
@@ -463,14 +467,13 @@ void print_the_digs(eight_bits k)
     }
 }
 
-/*
-The following procedure, which prints out the decimal representation of a
+@ The following procedure, which prints out the decimal representation of a
 given integer |n|, has been written carefully so that it works properly
 if |n=0| or if |(-n)| would cause overflow. It does not apply |mod| or |div|
 to negative arguments, since such operations are not implemented consistently
-by all \PASCAL\ compilers.
-*/
+by all PASCAL compilers.
 
+@c
 void print_int(longinteger n)
 {                               /* prints an integer in decimal form */
     int k;                      /* index to current digit; we assume that $|n|<10^{23}$ */
@@ -501,11 +504,11 @@ void print_int(longinteger n)
     print_the_digs((eight_bits) k);
 }
 
-/*
-Here is a trivial procedure to print two digits; it is usually called with
-a parameter in the range |0<=n<=99|.
-*/
 
+@ Here is a trivial procedure to print two digits; it is usually called with
+a parameter in the range |0<=n<=99|.
+
+@c
 void print_two(int n)
 {                               /* prints two least significant digits */
     n = abs(n) % 100;
@@ -513,10 +516,10 @@ void print_two(int n)
     print_char('0' + (n % 10));
 }
 
-/*
-Hexadecimal printing of nonnegative integers is accomplished by |print_hex|.
-*/
 
+@ Hexadecimal printing of nonnegative integers is accomplished by |print_hex|.
+
+@c
 void print_hex(int n)
 {                               /* prints a positive integer in hexadecimal form */
     int k;                      /* index to current digit; we assume that $0\L n<16^{22}$ */
@@ -530,13 +533,13 @@ void print_hex(int n)
     print_the_digs((eight_bits) k);
 }
 
-/*
-Roman numerals are produced by the |print_roman_int| routine.  Readers
+
+@ Roman numerals are produced by the |print_roman_int| routine.  Readers
 who like puzzles might enjoy trying to figure out how this tricky code
 works; therefore no explanation will be given. Notice that 1990 yields
 \.{mcmxc}, not \.{mxm}.
-*/
 
+@c
 void print_roman_int(int n)
 {
     char *j, *k;                /* mysterious indices */
@@ -567,11 +570,11 @@ void print_roman_int(int n)
     }
 }
 
-/*
-The |print| subroutine will not print a string that is still being
-created. The following procedure will.
-*/
 
+@ The |print| subroutine will not print a string that is still being
+created. The following procedure will.
+
+@c
 void print_current_string(void)
 {                               /* prints a yet-unmade string */
     unsigned j = 0;             /* points to current character code */
@@ -579,15 +582,14 @@ void print_current_string(void)
         print_char(cur_string[j++]);
 }
 
-/*
-The procedure |print_cs| prints the name of a control sequence, given
+@ The procedure |print_cs| prints the name of a control sequence, given
 a pointer to its address in |eqtb|. A space is printed after the name
 unless it is a single nonletter or an active character. This procedure
 might be invoked with invalid data, so it is ``extra robust.'' The
 individual characters must be printed one at a time using |print|, since
 they may be unprintable.
-*/
 
+@c
 void print_cs(int p)
 {                               /* prints a purported control sequence */
     str_number t = cs_text(p);
@@ -619,11 +621,11 @@ void print_cs(int p)
     }
 }
 
-/*
-Here is a similar procedure; it avoids the error checks, and it never
-prints a space after the control sequence.
-*/
 
+@ Here is a similar procedure; it avoids the error checks, and it never
+prints a space after the control sequence.
+
+@c
 void sprint_cs(pointer p)
 {                               /* prints a control sequence */
     str_number t;
@@ -640,8 +642,8 @@ void sprint_cs(pointer p)
 }
 
 
-/* This procedure is never called when |interaction<scroll_mode|. */
-
+@ This procedure is never called when |interaction<scroll_mode|. 
+@c
 void prompt_input(const char *s)
 {
     wake_up_terminal();
@@ -649,11 +651,11 @@ void prompt_input(const char *s)
     term_input();
 }
 
-/*
-Then there is a subroutine that prints glue stretch and shrink, possibly
-followed by the name of finite units:
-*/
 
+@ Then there is a subroutine that prints glue stretch and shrink, possibly
+followed by the name of finite units:
+
+@c
 void print_glue(scaled d, int order, const char *s)
 {                               /* prints a glue component */
     print_scaled(d);
@@ -670,8 +672,8 @@ void print_glue(scaled d, int order, const char *s)
     }
 }
 
-/*  The next subroutine prints a whole glue specification */
-
+@ The next subroutine prints a whole glue specification 
+@c
 void print_spec(int p, const char *s)
 {                               /* prints a glue specification */
     if (p < 0) {
@@ -691,8 +693,8 @@ void print_spec(int p, const char *s)
     }
 }
 
-/*
-We can reinforce our knowledge of the data structures just introduced
+
+@ We can reinforce our knowledge of the data structures just introduced
 by considering two procedures that display a list in symbolic form.
 The first of these, called |short_display|, is used in ``overfull box''
 messages to give the top-level description of a list. The other one,
@@ -708,15 +710,15 @@ recursion is never more than one level deep.
 A global variable |font_in_short_display| keeps track of the font code that
 is assumed to be present when |short_display| begins; deviations from this
 font will be printed.
-*/
 
+@c
 int font_in_short_display;      /* an internal font number */
 
-/*
-Boxes, rules, inserts, whatsits, marks, and things in general that are
-sort of ``complicated'' are indicated only by printing `\.{[]}'.
-*/
 
+@ Boxes, rules, inserts, whatsits, marks, and things in general that are
+sort of ``complicated'' are indicated only by printing `\.{[]}'.
+
+@c
 void print_font_identifier(internal_font_number f)
 {
     str_number fonttext;
@@ -751,6 +753,7 @@ void print_font_identifier(internal_font_number f)
     }
 }
 
+@ @c
 void short_display(int p)
 {                               /* prints highlights of list |p| */
     while (p != null) {
@@ -776,12 +779,12 @@ void short_display(int p)
     }
 }
 
-/*
-The |show_node_list| routine requires some auxiliary subroutines: one to
+
+@ The |show_node_list| routine requires some auxiliary subroutines: one to
 print a font-and-character combination, one to print a token list without
 its reference count, and one to print a rule dimension.
-*/
 
+@c
 void print_font_and_char(int p)
 {                               /* prints |char_node| data */
     if (!is_valid_font(font(p)))
@@ -792,6 +795,7 @@ void print_font_and_char(int p)
     print(character(p));
 }
 
+@ @c
 void print_mark(int p)
 {                               /* prints token list data in braces */
     print_char('{');
@@ -802,6 +806,7 @@ void print_mark(int p)
     print_char('}');
 }
 
+@ @c
 void print_rule_dimen(scaled d)
 {                               /* prints dimension in rule node */
     if (is_running(d))
@@ -810,8 +815,8 @@ void print_rule_dimen(scaled d)
         print_scaled(d);
 }
 
-/*
-Since boxes can be inside of boxes, |show_node_list| is inherently recursive,
+
+@ Since boxes can be inside of boxes, |show_node_list| is inherently recursive,
 @^recursion@>
 up to a given maximum number of levels.  The history of nesting is indicated
 by the current string, which will be printed at the beginning of each line;
@@ -823,14 +828,15 @@ have |depth_threshold=0|, for example, only the top level information will
 be given and no sublists will be traversed. Another global variable, called
 |breadth_max|, tells the maximum number of items to show at each level;
 |breadth_max| had better be positive, or you won't see anything.
-*/
 
+@c
 int depth_threshold;            /* maximum nesting depth in box displays */
 int breadth_max;                /* maximum number of items shown at the same list level */
 
 
-/* The recursive machinery is started by calling |show_box|. */
+@ The recursive machinery is started by calling |show_box|. 
 
+@c
 void show_box(halfword p)
 {
     /* Assign the values |depth_threshold:=show_box_depth| and
@@ -845,8 +851,9 @@ void show_box(halfword p)
 }
 
 
-/* Helper for debugging purposes */
+@ Helper for debugging purposes
 
+@c
 void short_display_n(int p, int m)
 {                               /* prints highlights of list |p| */
     int i = 0;
@@ -892,14 +899,14 @@ void short_display_n(int p, int m)
     update_terminal();
 }
 
-/*
-When debugging a macro package, it can be useful to see the exact
+
+@ When debugging a macro package, it can be useful to see the exact
 control sequence names in the format file.  For example, if ten new
 csnames appear, it's nice to know what they are, to help pinpoint where
 they came from.  (This isn't a truly ``basic'' printing procedure, but
 that's a convenient module in which to put it.)
-*/
 
+@c
 void print_csnames(int hstart, int hfinish)
 {
     int h;
@@ -918,12 +925,12 @@ void print_csnames(int hstart, int hfinish)
     }
 }
 
-/*
-A helper for printing file:line:error style messages.  Look for a
+
+@ A helper for printing file:line:error style messages.  Look for a
 filename in |full_source_filename_stack|, and if we fail to find
 one fall back on the non-file:line:error style.
-*/
 
+@c
 void print_file_line(void)
 {
     int level;
@@ -944,12 +951,12 @@ void print_file_line(void)
     }
 }
 
-/*
- \TeX\ is occasionally supposed to print diagnostic information that
+
+@ \TeX\ is occasionally supposed to print diagnostic information that
 goes only into the transcript file, unless |tracing_online| is positive.
 Here are two routines that adjust the destination of print commands:
-*/
 
+@c
 void begin_diagnostic(void)
 {                               /* prepare to do some tracing */
     global_old_setting = selector;
@@ -960,7 +967,7 @@ void begin_diagnostic(void)
     }
 }
 
-
+@ @c
 void end_diagnostic(boolean blank_line)
 {                               /* restore proper conditions after tracing */
     tprint_nl("");
@@ -969,9 +976,9 @@ void end_diagnostic(boolean blank_line)
     selector = global_old_setting;
 }
 
-/*
-Of course we had better declare another global variable, if the previous
-routines are going to work.
-*/
 
+@ Of course we had better declare another global variable, if the previous
+routines are going to work.
+
+@c
 int global_old_setting;

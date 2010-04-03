@@ -1,29 +1,30 @@
+% textoken.w
+% 
+% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* textoken.c
-   
-   Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
 #include "ptexlib.h"
 
+@ @c
 #define pausing int_par(pausing_code)
 #define cat_code_table int_par(cat_code_table_code)
 #define tracing_nesting int_par(tracing_nesting_code)
@@ -42,8 +43,8 @@ static const char _svn_version[] =
       a=get_cat_code(cat_code_table,cur_chr);                           \
   } while (0)
 
-/* 
-The \TeX\ system does nearly all of its own memory allocation, so that it
+ 
+@ The \TeX\ system does nearly all of its own memory allocation, so that it
 can readily be transported into environments that do not have automatic
 facilities for strings, garbage collection, etc., and so that it can be in
 control of what error messages the user receives. The dynamic storage
@@ -56,25 +57,25 @@ called |eqtb| that will be explained later. A pointer variable might
 also be a special flag that lies outside the bounds of |mem|, so we
 allow pointers to assume any |halfword| value. The minimum halfword
 value represents a null pointer. \TeX\ does not assume that |mem[null]| exists.
-*/
 
-/*
-Locations in |fixmem| are used for storing one-word records; a conventional 
+
+
+@ Locations in |fixmem| are used for storing one-word records; a conventional 
 \.{AVAIL} stack is used for allocation in this array.
-*/
 
+@c
 smemory_word *fixmem;           /* the big dynamic storage area */
 unsigned fix_mem_min;           /* the smallest location of one-word memory in use */
 unsigned fix_mem_max;           /* the largest location of one-word memory in use */
 
-/*
-In order to study the memory requirements of particular applications, it
+
+@ In order to study the memory requirements of particular applications, it
 is possible to prepare a version of \TeX\ that keeps track of current and
 maximum memory usage. When code between the delimiters |@!stat| $\ldots$
 |tats| is not ``commented out,'' \TeX\ will run a bit slower but it will
 report these statistics when |tracing_stats| is sufficiently large.
-*/
 
+@c
 int var_used, dyn_used;         /* how much memory is in use */
 
 halfword avail;                 /* head of the list of available one-word nodes */
@@ -87,6 +88,7 @@ halfword omit_template;         /* a constant token list */
 halfword null_list;             /* permanently empty list */
 halfword backup_head;           /* head of token list built by |scan_keyword| */
 
+@ @c
 void initialize_tokens(void)
 {
     halfword p;
@@ -113,8 +115,7 @@ void initialize_tokens(void)
     dyn_used = 0;               /* initialize statistics */
 }
 
-/*
-The function |get_avail| returns a pointer to a new one-word node whose
+@ The function |get_avail| returns a pointer to a new one-word node whose
 |link| field is null. However, \TeX\ will halt if there is no more room left.
 @^inner loop@>
 
@@ -122,8 +123,8 @@ If the available-space list is empty, i.e., if |avail=null|,
 we try first to increase |fix_mem_end|. If that cannot be done, i.e., if
 |fix_mem_end=fix_mem_max|, we try to reallocate array |fixmem|.
 If, that doesn't work, we have to quit.
-*/
 
+@c
 halfword get_avail(void)
 {                               /* single-word node allocation */
     unsigned p;                 /* the new node being got */
@@ -155,12 +156,12 @@ halfword get_avail(void)
     return (halfword) p;
 }
 
-/*
-The procedure |flush_list(p)| frees an entire linked list of
+
+@ The procedure |flush_list(p)| frees an entire linked list of
 one-word nodes that starts at position |p|.
 @^inner loop@>
-*/
 
+@c
 void flush_list(halfword p)
 {                               /* makes list of single-word nodes available */
     halfword q, r;              /* list traversers */
@@ -176,8 +177,7 @@ void flush_list(halfword p)
     }
 }
 
-/*
-A \TeX\ token is either a character or a control sequence, and it is
+@ A \TeX\ token is either a character or a control sequence, and it is
 @^token@>
 represented internally in one of two ways: (1)~A character whose ASCII
 code number is |c| and whose command code is |m| is represented as the
@@ -193,10 +193,8 @@ we have |left_brace_limit<=t<right_brace_limit|; and it represents a |match| or
 |end_match| command if and only if |match_token<=t<=end_match_token|.
 The following definitions take care of these token-oriented constants
 and a few others.
-*/
 
-/*
-A token list is a singly linked list of one-word nodes in |mem|, where
+@ A token list is a singly linked list of one-word nodes in |mem|, where
 each word contains a token and a link. Macro definitions, output-routine
 definitions, marks, \.{\\write} texts, and a few other things
 are remembered by \TeX\ in the form
@@ -245,8 +243,8 @@ second one keeps the first from disappearing.
 
 The |print_meaning| subroutine displays |cur_cmd| and |cur_chr| in
 symbolic form, including the expansion of a macro or mark.
-*/
 
+@c
 void print_meaning(void)
 {
     print_cmd_chr((quarterword) cur_cmd, cur_chr);
@@ -281,9 +279,7 @@ void print_meaning(void)
 }
 
 
-
-/*
-The procedure |show_token_list|, which prints a symbolic form of
+@ The procedure |show_token_list|, which prints a symbolic form of
 the token list that starts at a given node |p|, illustrates these
 conventions. The token list being displayed should not begin with a reference
 count. However, the procedure is intended to be robust, so that if the
@@ -308,8 +304,8 @@ of printing exceeds a given limit~|l|. Anomalous entries are printed in the
 form of control sequences that are not followed by a blank space, e.g.,
 `\.{\\BAD.}'; this cannot be confused with actual control sequences because
 a real control sequence named \.{BAD} would come out `\.{\\BAD\ }'.
-*/
 
+@c
 void show_token_list(int p, int q, int l)
 {
     int m, c;                   /* pieces of a token */
@@ -393,16 +389,17 @@ void show_token_list(int p, int q, int l)
         tprint_esc("ETC.");
 }
 
+@ @c
 #define do_buffer_to_unichar(a,b)  do {                         \
         a = (halfword)str2uni(buffer+b);                        \
         b += utf8_size(a);                                      \
     } while (0)
 
-/*
-Here's the way we sometimes want to display a token list, given a pointer
-to its reference count; the pointer may be null.
-*/
 
+@ Here's the way we sometimes want to display a token list, given a pointer
+to its reference count; the pointer may be null.
+
+@c
 void token_show(halfword p)
 {
     if (p != null)
@@ -410,14 +407,14 @@ void token_show(halfword p)
 }
 
 
-/* 
-|delete_token_ref|, is called when
+ 
+@ |delete_token_ref|, is called when
 a pointer to a token list's reference count is being removed. This means
 that the token list should disappear if the reference count was |null|,
 otherwise the count should be decreased by one.
 @^reference counts@>
-*/
 
+@c
 void delete_token_ref(halfword p)
 {                               /* |p| points to the reference count
                                    of a token list that is losing one reference */
@@ -428,7 +425,7 @@ void delete_token_ref(halfword p)
         decr(token_ref_count(p));
 }
 
-
+@ @c
 int get_char_cat_code(int cur_chr)
 {
     int a;
@@ -436,6 +433,7 @@ int get_char_cat_code(int cur_chr)
     return a;
 }
 
+@ @c
 static void invalid_character_error(void)
 {
     const char *hlp[] =
@@ -448,6 +446,7 @@ static void invalid_character_error(void)
     deletions_allowed = true;
 }
 
+@ @c
 static boolean process_sup_mark(void);  /* below */
 
 static int scan_control_sequence(void); /* below */
@@ -458,8 +457,8 @@ typedef enum { next_line_ok, next_line_return,
 
 static next_line_retval next_line(void);        /* below */
 
-/* 
-   In case you are getting bored, here is a slightly less trivial routine:
+ 
+@  In case you are getting bored, here is a slightly less trivial routine:
    Given a string of lowercase letters, like `\.{pt}' or `\.{plus}' or
    `\.{width}', the |scan_keyword| routine checks to see whether the next
    tokens of input match this string. The match must be exact, except that
@@ -473,8 +472,8 @@ static next_line_retval next_line(void);        /* below */
    is left essentially unchanged (except for the fact that some macros
    may have been expanded, etc.).
    @^inner loop@>
-*/
 
+@c
 boolean scan_keyword(const char *s)
 {                               /* look for a given string */
     halfword p;                 /* tail of the backup list */
@@ -482,7 +481,7 @@ boolean scan_keyword(const char *s)
     const char *k;              /* index into |str_pool| */
     halfword save_cur_cs = cur_cs;
     if (strlen(s) == 1) {
-        /* @<Get the next non-blank non-call token@>; */
+        /* Get the next non-blank non-call token; */
         do {
             get_x_token();
         } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
@@ -523,10 +522,10 @@ boolean scan_keyword(const char *s)
     return true;
 }
 
-/* We can not return |undefined_control_sequence| under some conditions
- * (inside |shift_case|, for example). This needs thinking.
- */
-
+@ We can not return |undefined_control_sequence| under some conditions
+ (inside |shift_case|, for example). This needs thinking.
+ 
+@c
 halfword active_to_cs(int curchr, int force)
 {
     halfword curcs;
@@ -552,8 +551,9 @@ halfword active_to_cs(int curchr, int force)
     return curcs;
 }
 
-/* TODO this function should listen to \.{\\escapechar} */
+@ TODO this function should listen to \.{\\escapechar} 
 
+@c
 char *cs_to_string(halfword p)
 {                               /* prints a control sequence */
     const char *s;
@@ -595,8 +595,9 @@ char *cs_to_string(halfword p)
     return (char *) ret;
 }
 
-/* TODO this is a quick hack, will be solved differently soon */
+@ TODO this is a quick hack, will be solved differently soon 
 
+@c
 char *cmd_chr_to_string(int cmd, int chr)
 {
     char *s;
@@ -611,8 +612,7 @@ char *cmd_chr_to_string(int cmd, int chr)
     return s;
 }
 
-/*
-The heart of \TeX's input mechanism is the |get_next| procedure, which
+@ The heart of \TeX's input mechanism is the |get_next| procedure, which
 we shall develop in the next few sections of the program. Perhaps we
 shouldn't actually call it the ``heart,'' however, because it really acts
 as \TeX's eyes and mouth, reading the source files and gobbling them up.
@@ -633,43 +633,40 @@ When |get_next| is asked to get the next token of a \.{\\read} line,
 it sets |cur_cmd=cur_chr=cur_cs=0| in the case that no more tokens
 appear on that line. (There might not be any tokens at all, if the
 |end_line_char| has |ignore| as its catcode.)
-*/
 
-/*
-The value of |par_loc| is the |eqtb| address of `\.{\\par}'. This quantity
+
+@ The value of |par_loc| is the |eqtb| address of `\.{\\par}'. This quantity
 is needed because a blank line of input is supposed to be exactly equivalent
 to the appearance of \.{\\par}; we must set |cur_cs:=par_loc|
 when detecting a blank line.
-*/
 
+@c
 halfword par_loc;               /* location of `\.{\\par}' in |eqtb| */
 halfword par_token;             /* token representing `\.{\\par}' */
 
 
-/*
-Parts |get_next| are executed more often than any other instructions of \TeX.
+@ Parts |get_next| are executed more often than any other instructions of \TeX.
 @^mastication@>@^inner loop@>
-*/
 
-/*
-The global variable |force_eof| is normally |false|; it is set |true|
+
+
+@ The global variable |force_eof| is normally |false|; it is set |true|
 by an \.{\\endinput} command. |luacstrings| is the number of lua print
 statements waiting to be input, it is changed by |luatokencall|.
 
-*/
-
+@c
 boolean force_eof;              /* should the next \.{\\input} be aborted early? */
 int luacstrings;                /* how many lua strings are waiting to be input? */
 
-/*
-If the user has set the |pausing| parameter to some positive value,
+
+@ If the user has set the |pausing| parameter to some positive value,
 and if nonstop mode has not been selected, each line of input is displayed
 on the terminal and the transcript file, followed by `\.{=>}'.
 \TeX\ waits for a response. If the response is simply |carriage_return|, the
 line is accepted as it stands, otherwise the line typed is
 used instead of the line in the file.
-*/
 
+@c
 void firm_up_the_line(void)
 {
     int k;                      /* an index into |buffer| */
@@ -695,12 +692,12 @@ void firm_up_the_line(void)
 
 
 
-/* Before getting into |get_next|, let's consider the subroutine that
+@ Before getting into |get_next|, let's consider the subroutine that
    is called when an `\.{\\outer}' control sequence has been scanned or
    when the end of a file has been reached. These two cases are distinguished
    by |cur_cs|, which is zero at the end of a file.
-*/
 
+@c
 void check_outer_validity(void)
 {
     halfword p;                 /* points to inserted token list */
@@ -709,7 +706,7 @@ void check_outer_validity(void)
         return;
     if (scanner_status != normal) {
         deletions_allowed = false;
-        /* @<Back up an outer control sequence so that it can be reread@>; */
+        /* Back up an outer control sequence so that it can be reread; */
         /* An outer control sequence that occurs in a \.{\\read} will not be reread,
            since the error recovery for \.{\\read} is not very powerful. */
         if (cur_cs != 0) {
@@ -732,7 +729,7 @@ void check_outer_validity(void)
             char errmsg[256];
             const char *startmsg;
             const char *scannermsg;
-            /* @<Tell the user what has run away and try to recover@> */
+            /* Tell the user what has run away and try to recover */
             runaway();          /* print a definition, argument, or preamble */
             if (cur_cs == 0) {
                 startmsg = "File ended";
@@ -740,8 +737,8 @@ void check_outer_validity(void)
                 cur_cs = 0;
                 startmsg = "Forbidden control sequence found";
             }
-            /* @<Print either `\.{definition}' or `\.{use}' or `\.{preamble}' or `\.{text}',
-               and insert tokens that should lead to recovery@>; */
+            /* Print either `\.{definition}' or `\.{use}' or `\.{preamble}' or `\.{text}',
+               and insert tokens that should lead to recovery; */
             /* The recovery procedure can't be fully understood without knowing more
                about the \TeX\ routines that should be aborted, but we can sketch the
                ideas here:  For a runaway definition we will insert a right brace; for a
@@ -805,7 +802,7 @@ void check_outer_validity(void)
                      "Incomplete %s; all text was ignored after line %d",
                      ss, (int) skip_line);
             free(ss);
-            /* @.Incomplete \\if...@> */
+            /* Incomplete \\if... */
             cur_tok = cs_token_flag + frozen_fi;
             /* back up one inserted token and call |error| */
             {
@@ -820,6 +817,7 @@ void check_outer_validity(void)
     }
 }
 
+@ @c
 static boolean get_next_file(void)
 {
   SWITCH:
@@ -833,12 +831,12 @@ static boolean get_next_file(void)
             do_get_cat_code(cur_cmd);
         }
         /* 
-           @<Change state if necessary, and |goto switch| if the current
+           Change state if necessary, and |goto switch| if the current
            character should be ignored, or |goto reswitch| if the current
-           character changes to another@>;
+           character changes to another;
          */
         /* The following 48-way switch accomplishes the scanning quickly, assuming
-           that a decent \PASCAL\ compiler has translated the code. Note that the numeric
+           that a decent C compiler has translated the code. Note that the numeric
            values for |mid_line|, |skip_blanks|, and |new_line| are spaced
            apart from each other by |max_char_code+1|, so we can add a character's
            command code to the state to get a single number that characterizes both.
@@ -848,19 +846,19 @@ static boolean get_next_file(void)
         case skip_blanks + ignore_cmd:
         case new_line + ignore_cmd:
         case skip_blanks + spacer_cmd:
-        case new_line + spacer_cmd:    /* @<Cases where character is ignored@> */
+        case new_line + spacer_cmd:    /* Cases where character is ignored */
             goto SWITCH;
             break;
         case mid_line + escape_cmd:
         case new_line + escape_cmd:
-        case skip_blanks + escape_cmd: /* @<Scan a control sequence ...@>; */
+        case skip_blanks + escape_cmd: /* Scan a control sequence ...; */
             istate = (unsigned char) scan_control_sequence();
             if (cur_cmd >= outer_call_cmd)
                 check_outer_validity();
             break;
         case mid_line + active_char_cmd:
         case new_line + active_char_cmd:
-        case skip_blanks + active_char_cmd:    /* @<Process an active-character  */
+        case skip_blanks + active_char_cmd:    /* Process an active-character  */
             cur_cs = active_to_cs(cur_chr, false);
             cur_cmd = eq_type(cur_cs);
             cur_chr = equiv(cur_cs);
@@ -870,7 +868,7 @@ static boolean get_next_file(void)
             break;
         case mid_line + sup_mark_cmd:
         case new_line + sup_mark_cmd:
-        case skip_blanks + sup_mark_cmd:       /* @<If this |sup_mark| starts */
+        case skip_blanks + sup_mark_cmd:       /* If this |sup_mark| starts */
             if (process_sup_mark())
                 goto RESWITCH;
             else
@@ -878,17 +876,17 @@ static boolean get_next_file(void)
             break;
         case mid_line + invalid_char_cmd:
         case new_line + invalid_char_cmd:
-        case skip_blanks + invalid_char_cmd:   /* @<Decry the invalid character and |goto restart|@>; */
+        case skip_blanks + invalid_char_cmd:   /* Decry the invalid character and |goto restart|; */
             invalid_character_error();
-            return false;       /* because state may be token_list now */
+            return false;       /* because state may be |token_list| now */
             break;
-        case mid_line + spacer_cmd:    /* @<Enter |skip_blanks| state, emit a space@>; */
+        case mid_line + spacer_cmd:    /* Enter |skip_blanks| state, emit a space; */
             istate = skip_blanks;
             cur_chr = ' ';
             break;
-        case mid_line + car_ret_cmd:   /* @<Finish line, emit a space@>; */
+        case mid_line + car_ret_cmd:   /* Finish line, emit a space; */
             /* When a character of type |spacer| gets through, its character code is
-               changed to $\.{"\ "}=@'40$. This means that the ASCII codes for tab and space,
+               changed to $\.{"\ "}=040$. This means that the ASCII codes for tab and space,
                and for the space inserted at the end of a line, will
                be treated alike when macro parameters are being matched. We do this
                since such characters are indistinguishable on most computer terminal displays.
@@ -900,11 +898,11 @@ static boolean get_next_file(void)
         case skip_blanks + car_ret_cmd:
         case mid_line + comment_cmd:
         case new_line + comment_cmd:
-        case skip_blanks + comment_cmd:        /* @<Finish line, |goto switch|@>; */
+        case skip_blanks + comment_cmd:        /* Finish line, |goto switch|; */
             iloc = ilimit + 1;
             goto SWITCH;
             break;
-        case new_line + car_ret_cmd:   /* @<Finish line, emit a \.{\\par}@>; */
+        case new_line + car_ret_cmd:   /* Finish line, emit a \.{\\par}; */
             iloc = ilimit + 1;
             cur_cs = par_loc;
             cur_cmd = eq_type(cur_cs);
@@ -931,8 +929,7 @@ static boolean get_next_file(void)
         case mid_line + letter_cmd:
         case mid_line + other_char_cmd:
             break;
-        default:
-            /*
+#if 0
                case skip_blanks + math_shift:
                case skip_blanks + tab_mark:
                case skip_blanks + mac_param:
@@ -944,8 +941,10 @@ static boolean get_next_file(void)
                case new_line    + mac_param:
                case new_line    + sub_mark:
                case new_line    + letter:
-               case new_line    + other_char:     
-             */
+               case new_line    + other_char: 
+#else
+        default:
+#endif
             istate = mid_line;
             break;
         }
@@ -958,9 +957,9 @@ static boolean get_next_file(void)
             istate = new_line;
 
         /*
-           @<Move to next line of file,
+           Move to next line of file,
            or |goto restart| if there is no next line,
-           or |return| if a \.{\\read} line has finished@>;
+           or |return| if a \.{\\read} line has finished;
          */
         do {
             next_line_retval r = next_line();
@@ -976,6 +975,7 @@ static boolean get_next_file(void)
     return true;
 }
 
+@ @c
 #define is_hex(a) ((a>='0'&&a<='9')||(a>='a'&&a<='f'))
 
 #define add_nybble(a)   do {                                            \
@@ -1005,8 +1005,9 @@ static boolean get_next_file(void)
   } while (0)
 
 
-/* Notice that a code like \.{\^\^8} becomes \.x if not followed by a hex digit.*/
+@ Notice that a code like \.{\^\^8} becomes \.x if not followed by a hex digit.
 
+@c
 static boolean process_sup_mark(void)
 {
     if (cur_chr == buffer[iloc]) {
@@ -1079,7 +1080,7 @@ static boolean process_sup_mark(void)
     return false;
 }
 
-/* Control sequence names are scanned only when they appear in some line of
+@ Control sequence names are scanned only when they appear in some line of
    a file; once they have been scanned the first time, their |eqtb| location
    serves as a unique identification, so \TeX\ doesn't need to refer to the
    original name any more except when it prints the equivalent in symbolic form.
@@ -1093,8 +1094,8 @@ static boolean process_sup_mark(void)
    appear in or just following
    a control sequence name, they are converted to single characters in the
    buffer and the process is repeated, slowly but surely.
-*/
 
+@c
 static boolean check_expanded_code(int *kk);    /* below */
 
 static int scan_control_sequence(void)
@@ -1110,7 +1111,7 @@ static int scan_control_sequence(void)
             do_get_cat_code(cat);
             if (cat != letter_cmd || k > ilimit) {
                 retval = (cat == spacer_cmd ? skip_blanks : mid_line);
-                if (cat == sup_mark_cmd && check_expanded_code(&k))     /* @<If an expanded...@>; */
+                if (cat == sup_mark_cmd && check_expanded_code(&k))     /* If an expanded...; */
                     continue;
             } else {
                 retval = skip_blanks;
@@ -1119,7 +1120,7 @@ static int scan_control_sequence(void)
                     do_get_cat_code(cat);
                 } while (cat == letter_cmd && k <= ilimit);
 
-                if (cat == sup_mark_cmd && check_expanded_code(&k))     /* @<If an expanded...@>; */
+                if (cat == sup_mark_cmd && check_expanded_code(&k))     /* If an expanded...; */
                     continue;
                 if (cat != letter_cmd) {
                     decr(k);
@@ -1141,14 +1142,14 @@ static int scan_control_sequence(void)
     return retval;
 }
 
-/* Whenever we reach the following piece of code, we will have
+@ Whenever we reach the following piece of code, we will have
    |cur_chr=buffer[k-1]| and |k<=ilimit+1| and |cat=get_cat_code(cat_code_table,cur_chr)|. If an
    expanded code like \.{\^\^A} or \.{\^\^df} appears in |buffer[(k-1)..(k+1)]|
    or |buffer[(k-1)..(k+2)]|, we
    will store the corresponding code in |buffer[k-1]| and shift the rest of
    the buffer left two or three places.
-*/
 
+@c
 static boolean check_expanded_code(int *kk)
 {
     int l;
@@ -1249,23 +1250,24 @@ static boolean check_expanded_code(int *kk)
     return false;
 }
 
-/* todo: this is a function because it is still used from the converted pascal.
-   once that is gone, it can be a #define again */
+@ todo: this is a function because it is still used from the converted pascal.
+   once that is gone, it can be a \#define again
 
+@c
 boolean end_line_char_inactive(void)
 {
     return ((end_line_char < 0) || (end_line_char > 127));
 }
 
-/* All of the easy branches of |get_next| have now been taken care of.
+@ All of the easy branches of |get_next| have now been taken care of.
   There is one more branch.
-*/
 
+@c
 static next_line_retval next_line(void)
 {
     boolean inhibit_eol = false;        /* a way to end a pseudo file without trailing space */
     if (iname > 17) {
-        /* @<Read next line of file into |buffer|, or |goto restart| if the file has ended@> */
+        /* Read next line of file into |buffer|, or |goto restart| if the file has ended */
         incr(line);
         first = istart;
         if (!force_eof) {
@@ -1323,11 +1325,13 @@ static next_line_retval next_line(void)
                 if (tracefilenames)
                     print_char(')');
                 open_parens--;
-                /* update_terminal(); *//* show user that file has been read */
+#if 0
+                update_terminal(); /* show user that file has been read */
+#endif
             }
             force_eof = false;
             if (iname == 21 ||  /* lua input */
-                iname == 19) {  /* \scantextokens */
+                iname == 19) {  /* \.{\\scantextokens} */
                 end_file_reading();
             } else {
                 end_file_reading();
@@ -1378,11 +1382,9 @@ static next_line_retval next_line(void)
     return next_line_ok;
 }
 
+@ Let's consider now what happens when |get_next| is looking at a token list. 
 
-
-
-/* Let's consider now what happens when |get_next| is looking at a token list. */
-
+@c
 static boolean get_next_tokenlist(void)
 {
     register halfword t;        /* a token */
@@ -1392,7 +1394,7 @@ static boolean get_next_tokenlist(void)
         cur_cs = t - cs_token_flag;
         cur_cmd = eq_type(cur_cs);
         if (cur_cmd >= outer_call_cmd) {
-            if (cur_cmd == dont_expand_cmd) {   /* @<Get the next token, suppressing expansion@> */
+            if (cur_cmd == dont_expand_cmd) {   /* Get the next token, suppressing expansion */
                 /* The present point in the program is reached only when the |expand|
                    routine has inserted a special marker into the input. In this special
                    case, |token_info(iloc)| is known to be a control sequence token, and |token_link(iloc)=null|.
@@ -1420,7 +1422,7 @@ static boolean get_next_tokenlist(void)
         case right_brace_cmd:
             align_state--;
             break;
-        case out_param_cmd:    /* @<Insert macro parameter and |goto restart|@>; */
+        case out_param_cmd:    /* Insert macro parameter and |goto restart|; */
             begin_token_list(param_stack[param_start + cur_chr - 1], parameter);
             return false;
             break;
@@ -1429,13 +1431,13 @@ static boolean get_next_tokenlist(void)
     return true;
 }
 
-/* Now we're ready to take the plunge into |get_next| itself. Parts of
+@ Now we're ready to take the plunge into |get_next| itself. Parts of
    this routine are executed more often than any other instructions of \TeX.
    @^mastication@>@^inner loop@>
-*/
 
-/* sets |cur_cmd|, |cur_chr|, |cur_cs| to next token */
+@ sets |cur_cmd|, |cur_chr|, |cur_cs| to next token 
 
+@c
 void get_next(void)
 {
   RESTART:
@@ -1452,15 +1454,15 @@ void get_next(void)
             goto RESTART;       /* parameter needs to be expanded */
         }
     }
-    /* @<If an alignment entry has just ended, take appropriate action@> */
+    /* If an alignment entry has just ended, take appropriate action */
     if ((cur_cmd == tab_mark_cmd || cur_cmd == car_ret_cmd) && align_state == 0) {
         insert_vj_template();
         goto RESTART;
     }
 }
 
-/*
-Since |get_next| is used so frequently in \TeX, it is convenient
+
+@ Since |get_next| is used so frequently in \TeX, it is convenient
 to define three related procedures that do a little more:
 
 \yskip\hang|get_token| not only sets |cur_cmd| and |cur_chr|, it
@@ -1482,8 +1484,8 @@ In fact, these three procedures account for almost every use of |get_next|.
 No new control sequences will be defined except during a call of
 |get_token|, or when \.{\\csname} compresses a token list, because
 |no_new_control_sequence| is always |true| at other times.
-*/
 
+@c
 void get_token(void)
 {                               /* sets |cur_cmd|, |cur_chr|, |cur_tok| */
     no_new_control_sequence = false;
@@ -1495,8 +1497,7 @@ void get_token(void)
         cur_tok = cs_token_flag + cur_cs;
 }
 
-
-
+@ @c
 void get_token_lua(void)
 {
     register int callback_id;
@@ -1515,7 +1516,8 @@ void get_token_lua(void)
 }
 
 
-/* changes the string |s| to a token list */
+@ changes the string |s| to a token list 
+@c
 halfword string_to_toks(char *ss)
 {
     halfword p;                 /* tail of the token list */
@@ -1536,8 +1538,7 @@ halfword string_to_toks(char *ss)
     return token_link(temp_token_head);
 }
 
-/*
-The token lists for macros and for other things like \.{\\mark} and \.{\\output}
+@ The token lists for macros and for other things like \.{\\mark} and \.{\\output}
 and \.{\\write} are produced by a procedure called |scan_toks|.
 
 Before we get into the details of |scan_toks|, let's consider a much
@@ -1550,8 +1551,8 @@ at the value |p| that is returned. (If |p=temp_token_head|, the list is empty.)
 
 |lua_str_toks| is almost identical, but it also escapes the three
 symbols that |lua| considers special while scanning a literal string
-*/
 
+@c
 static halfword lua_str_toks(lstring b)
 {                               /* changes the string |str_pool[b..pool_ptr]| to a token list */
     halfword p;                 /* tail of the token list */
@@ -1581,12 +1582,11 @@ static halfword lua_str_toks(lstring b)
     return p;
 }
 
-/*
-Incidentally, the main reason for wanting |str_toks| is the function |the_toks|, 
+
+@ Incidentally, the main reason for wanting |str_toks| is the function |the_toks|, 
 which has similar input/output characteristics.
-*/
 
-
+@c
 halfword str_toks(lstring s)
 {                               /* changes the string |str_pool[b..pool_ptr]| to a token list */
     halfword p;                 /* tail of the token list */
@@ -1609,8 +1609,8 @@ halfword str_toks(lstring s)
     return p;
 }
 
-/* Here's part of the |expand| subroutine that we are now ready to complete: */
-
+@ Here's part of the |expand| subroutine that we are now ready to complete:
+@c
 void ins_the_toks(void)
 {
     (void) the_toks();
@@ -1618,11 +1618,12 @@ void ins_the_toks(void)
 }
 
 
-/* Here is a routine that print the result of a convert command, using
+@ Here is a routine that print the result of a convert command, using
    the argument |i|. It returns |false | if it does not know to print
    the code |c|. The function exists because lua code and tex code can
-   both call it to convert something. */
+   both call it to convert something. 
 
+@c
 static boolean print_convert_string(halfword c, int i)
 {
     int ff;                     /* for use with |set_ff| */
@@ -1713,7 +1714,7 @@ static boolean print_convert_string(halfword c, int i)
     return ret;
 }
 
-
+@ @c
 int scan_lua_state(void)
 {
     int sn = 0;
@@ -1736,16 +1737,16 @@ int scan_lua_state(void)
     return sn;
 }
 
-/*
-The procedure |conv_toks| uses |str_toks| to insert the token list
+
+@ The procedure |conv_toks| uses |str_toks| to insert the token list
 for |convert| functions into the scanner; `\.{\\outer}' control sequences
 are allowed to follow `\.{\\string}' and `\.{\\meaning}'.
 
 The extra temp string |u| is needed because |pdf_scan_ext_toks| incorporates
 any pending string in its output. In order to save such a pending string,
 we have to create a temporary string that is destroyed immediately after.
-*/
 
+@c
 void conv_toks(void)
 {
     int old_setting;            /* holds |selector| setting */
@@ -2032,12 +2033,12 @@ void conv_toks(void)
     ins_list(token_link(temp_token_head));
 }
 
-/* This boolean is keeping track of the lua string escape state */
-
+@ This boolean is keeping track of the lua string escape state
+@c
 boolean in_lua_escape;
 
-/* probably not needed anymore */
-
+@ probably not needed anymore 
+@c
 boolean is_convert(halfword c)
 {
     return (c == convert_cmd);
@@ -2059,16 +2060,14 @@ str_number the_convert_string(halfword c, int i)
     return ret;
 }
 
-/*
-Another way to create a token list is via the \.{\\read} command. The
+@ Another way to create a token list is via the \.{\\read} command. The
 sixteen files potentially usable for reading appear in the following
 global variables. The value of |read_open[n]| will be |closed| if
 stream number |n| has not been opened or if it has been fully read;
 |just_open| if an \.{\\openin} but not a \.{\\read} has been done;
 and |normal| if it is open and ready to read the next line.
-*/
 
-
+@c
 FILE *read_file[16];            /* used for \.{\\read} */
 int read_open[17];              /* state of |read_file[n]| */
 
@@ -2079,12 +2078,11 @@ void initialize_read(void)
         read_open[k] = closed;
 }
 
-/*
-The |read_toks| procedure constructs a token list like that for any
+@ The |read_toks| procedure constructs a token list like that for any
 macro definition, and makes |cur_val| point to it. Parameter |r| points
 to the control sequence that will receive this token list.
-*/
 
+@c
 void read_toks(int n, halfword r, halfword j)
 {
     halfword p;                 /* tail of the token list */
@@ -2197,8 +2195,7 @@ void read_toks(int n, halfword r, halfword j)
     align_state = s;
 }
 
-
-
+@ @c
 str_number tokens_to_string(halfword p)
 {                               /* return a string from tokens list */
     int old_setting;
@@ -2212,7 +2209,7 @@ str_number tokens_to_string(halfword p)
     return make_string();
 }
 
-
+@ @c
 #define make_room(a)                                    \
     if ((unsigned)i+a+1>alloci) {                      \
         ret = xrealloc(ret,(alloci+64));                \
@@ -2257,12 +2254,12 @@ str_number tokens_to_string(halfword p)
 #define is_cat_letter(a)                                                \
     (get_char_cat_code(pool_to_unichar(str_string((a)))) == 11)
 
-/* the actual token conversion in this function is now functionally 
+@ the actual token conversion in this function is now functionally 
    equivalent to |show_token_list|, except that it always prints the
    whole token list.
    TODO: check whether this causes problems in the lua library.
-*/
 
+@c
 char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
 {
     register int p, c, m;
@@ -2392,6 +2389,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
     return ret;
 }
 
+@ @c
 lstring *tokenlist_to_lstring(int pp, int inhibit_par)
 {
     int siz;
@@ -2401,6 +2399,7 @@ lstring *tokenlist_to_lstring(int pp, int inhibit_par)
     return ret;
 }
 
+@ @c
 void free_lstring(lstring * ls)
 {
     if (ls == NULL)

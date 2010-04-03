@@ -1,30 +1,30 @@
+% directions.w
+
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
 @ @c
-/* directions.c
-
-   Copyright 2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
-
 
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
+@ @c
 void scan_direction(void)
 {
     int save_cur_cmd = cur_cmd;
@@ -56,8 +56,9 @@ void scan_direction(void)
     cur_chr = save_cur_chr;
 }
 
-/* the next two are used by postlinebreak.c */
+@ the next two are used by postlinebreak.c 
 
+@c
 halfword do_push_dir_node(halfword p, halfword a)
 {
     halfword n;
@@ -73,14 +74,18 @@ halfword do_pop_dir_node(halfword p)
     return n;
 }
 
+@ @c
 halfword dir_ptr;
 
 halfword text_dir_ptr;
 
+@ There is no need to do anything here at the moment.
+@c
 void initialize_directions(void)
 {
 }
 
+@ @c
 halfword new_dir(int s)
 {
     halfword p;                 /* the new node */
@@ -91,6 +96,7 @@ halfword new_dir(int s)
     return p;
 }
 
+@ @c
 const char *string_dir(int d)
 {
     if (d == dir_TLT) {
@@ -107,13 +113,13 @@ const char *string_dir(int d)
 }
 
 
+@ @c
 void print_dir(int d)
 {
     tprint(string_dir(d));
 }
 
-/**********************************************************************/
-
+@ @c
 scaled pack_width(int curdir, int pdir, halfword p, boolean isglyph)
 {
     scaled wd = 0;
@@ -132,6 +138,7 @@ scaled pack_width(int curdir, int pdir, halfword p, boolean isglyph)
     return wd;
 }
 
+@ @c
 scaled_whd pack_width_height_depth(int curdir, int pdir, halfword p,
                                    boolean isglyph)
 {
@@ -180,6 +187,7 @@ scaled_whd pack_width_height_depth(int curdir, int pdir, halfword p,
     return whd;
 }
 
+@ @c
 void update_text_dir_ptr(int val)
 {
     if (dir_level(text_dir_ptr) == cur_level) {

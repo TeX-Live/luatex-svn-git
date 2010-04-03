@@ -1,31 +1,30 @@
+% inputstack.w
+
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
 @ @c
-/* inputstack.c
-
-   Copyright 2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
-
 #include "ptexlib.h"
 
-
 static const char _svn_version[] =
-    "$Id$ $URL$";
+    "$Id$ "
+    "$URL$";
 
-
+@ @c
 #define end_line_char int_par(end_line_char_code)
 #define error_context_lines int_par(error_context_lines_code)
 
@@ -50,11 +49,11 @@ pointer warning_index = null;   /* identifier relevant to non-|normal| scanner s
 pointer def_ref = null;         /* reference count of token list being defined */
 
 
-/*
-Here is a procedure that uses |scanner_status| to print a warning message
-when a subfile has ended, and at certain other crucial times:
-*/
 
+@ Here is a procedure that uses |scanner_status| to print a warning message
+when a subfile has ended, and at certain other crucial times:
+
+@c
 void runaway(void)
 {
     pointer p = null;           /* head of runaway list */
@@ -85,52 +84,51 @@ void runaway(void)
     }
 }
 
-/*
-The |param_stack| is an auxiliary array used to hold pointers to the token
+
+@ The |param_stack| is an auxiliary array used to hold pointers to the token
 lists for parameters at the current level and subsidiary levels of input.
 This stack is maintained with convention (2), and it grows at a different
 rate from the others.
-*/
 
+@c
 pointer *param_stack = NULL;    /* token list pointers for parameters */
 int param_ptr = 0;              /* first unused entry in |param_stack| */
 int max_param_stack = 0;        /* largest value of |param_ptr|, will be |<=param_size+9| */
 
-/*
-The input routines must also interact with the processing of
+@ The input routines must also interact with the processing of
 \.{\\halign} and \.{\\valign}, since the appearance of tab marks and
 \.{\\cr} in certain places is supposed to trigger the beginning of special
-\<v_j> template text in the scanner. This magic is accomplished by an
+$v_j$ template text in the scanner. This magic is accomplished by an
 |align_state| variable that is increased by~1 when a `\.{\char'173}' is
 scanned and decreased by~1 when a `\.{\char'175}' is scanned. The |align_state|
-is nonzero during the \<u_j> template, after which it is set to zero; the
-\<v_j> template begins when a tab mark or \.{\\cr} occurs at a time that
+is nonzero during the $u_j$ template, after which it is set to zero; the
+$v_j$ template begins when a tab mark or \.{\\cr} occurs at a time that
 |align_state=0|.
-*/
 
+@c
 int align_state = 0;            /* group level with respect to current alignment */
 
-/*
-Thus, the ``current input state'' can be very complicated indeed; there
+
+@ Thus, the ``current input state'' can be very complicated indeed; there
 can be many levels and each level can arise in a variety of ways. The
 |show_context| procedure, which is used by \TeX's error-reporting routine to
 print out the current input state on all levels down to the most recent
 line of characters from an input file, illustrates most of these conventions.
 The global variable |base_ptr| contains the lowest level that was
 displayed by this procedure.
-*/
 
+@c
 int base_ptr = 0;               /* shallowest level shown by |show_context| */
 
-/*
-The status at each level is indicated by printing two lines, where the first
+
+@ The status at each level is indicated by printing two lines, where the first
 line indicates what was read so far and the second line shows what remains
 to be read. The context is cropped, if necessary, so that the first line
 contains at most |half_error_line| characters, and the second contains
 at most |error_line|. Non-current input levels whose |token_type| is
 `|backed_up|' are shown only if they have not been fully read.
-*/
 
+@c
 void print_token_list_type(int t)
 {
     switch (t) {
@@ -193,8 +191,8 @@ void print_token_list_type(int t)
     }
 }
 
-/*
-Here it is necessary to explain a little trick. We don't want to store a long
+
+@ Here it is necessary to explain a little trick. We don't want to store a long
 string that corresponds to a token list, because that string might take up
 lots of memory; and we are printing during a time when an error message is
 being given, so we dare not do anything that might overflow one of \TeX's
@@ -223,13 +221,13 @@ where subscripts of |trick_buf| are circular modulo |error_line|. The
 second line consists of |n|~spaces followed by |trick_buf[k..(k+m-1)]|,
 unless |n+m>error_line|; in the latter case, further cropping is done.
 This is easier to program than to explain.
-*/
 
-/*
-The following code sets up the print routines so that they will gather
+
+
+@ The following code sets up the print routines so that they will gather
 the desired information.
-*/
 
+@c
 void set_trick_count(void)
 {
     first_count = tally;
@@ -255,7 +253,7 @@ void set_trick_count(void)
     }									\
   } while (0)
 
-
+@ @c
 void show_context(void)
 {                               /* prints where the scanner is */
     int old_setting;            /* saved |selector| setting */
@@ -301,7 +299,6 @@ void show_context(void)
                        This routine should be changed, if necessary, to give the best possible
                        indication of where the current line resides in the input file.
                        For example, on some systems it is best to print both a page and line number.
-                       @^system dependencies@>
                      */
                     if (iname <= 17) {
                         if (terminal_input) {
@@ -379,13 +376,13 @@ void show_context(void)
     cur_input = input_stack[input_ptr]; /* restore original state */
 }
 
-/*
-The following subroutines change the input status in commonly needed ways.
+
+@ The following subroutines change the input status in commonly needed ways.
 
 First comes |push_input|, which stores the current state and creates a
 new level (having, initially, the same properties as the old).
-*/
 
+@c
 /* enter a new input level, save the old */
 
 void push_input(void)
@@ -400,12 +397,12 @@ void push_input(void)
     incr(input_ptr);
 }
 
-/*
+@ 
 Here is a procedure that starts a new level of token-list input, given
 a token list |p| and its type |t|. If |t=macro|, the calling routine should
 set |name| and |loc|.
-*/
 
+@c
 void begin_token_list(halfword p, quarterword t)
 {
     push_input();
@@ -438,13 +435,13 @@ void begin_token_list(halfword p, quarterword t)
     }
 }
 
-/*
-When a token list has been fully scanned, the following computations
+
+@ When a token list has been fully scanned, the following computations
 should be done as we leave that level of input. The |token_type| tends
 to be equal to either |backed_up| or |inserted| about 2/3 of the time.
 @^inner loop@>
-*/
 
+@c
 void end_token_list(void)
 {                               /* leave a token-list input level */
     if (token_type >= backed_up) {      /* token list to be deleted */
@@ -469,16 +466,16 @@ void end_token_list(void)
     check_interrupt();
 }
 
-/*
-Sometimes \TeX\ has read too far and wants to ``unscan'' what it has
+
+@ Sometimes \TeX\ has read too far and wants to ``unscan'' what it has
 seen. The |back_input| procedure takes care of this by putting the token
 just scanned back into the input stream, ready to be read again. This
 procedure can be used only if |cur_tok| represents the token to be
 replaced. Some applications of \TeX\ use this procedure a lot,
 so it has been slightly optimized for speed.
 @^inner loop@>
-*/
 
+@c
 void back_input(void)
 {                               /* undoes one token of input */
     halfword p;                 /* a token list of length one */
@@ -500,7 +497,8 @@ void back_input(void)
     iloc = p;                   /* that was |back_list(p)|, without procedure overhead */
 }
 
-/* Insert token |p| into \TeX's input */
+@ Insert token |p| into \TeX's input 
+@c
 int reinsert_token(boolean a, halfword pp)
 {
     halfword t;
@@ -527,14 +525,14 @@ int reinsert_token(boolean a, halfword pp)
     return a;
 }
 
-/*
-The |begin_file_reading| procedure starts a new level of input for lines
+
+@ The |begin_file_reading| procedure starts a new level of input for lines
 of characters to be read from a file, or as an insertion from the
 terminal. It does not take care of opening the file, nor does it set |loc|
 or |limit| or |line|.
 @^system dependencies@>
-*/
 
+@c
 void begin_file_reading(void)
 {
     if (in_open == max_in_open)
@@ -559,11 +557,11 @@ void begin_file_reading(void)
     synctex_tag = 0;
 }
 
-/*
-Conversely, the variables must be downdated when such a level of input
-is finished:
-*/
 
+@ Conversely, the variables must be downdated when such a level of input
+is finished:
+
+@c
 void end_file_reading(void)
 {
     first = istart;
@@ -578,12 +576,12 @@ void end_file_reading(void)
     decr(in_open);
 }
 
-/*
-In order to keep the stack from overflowing during a long sequence of
+
+@ In order to keep the stack from overflowing during a long sequence of
 inserted `\.{\\show}' commands, the following routine removes completed
 error-inserted lines from memory.
-*/
 
+@c
 void clear_for_error_prompt(void)
 {
     while ((istate != token_list) && terminal_input
@@ -593,9 +591,10 @@ void clear_for_error_prompt(void)
     clear_terminal();
 }
 
-/* To get \TeX's whole input mechanism going, we perform the following
-   actions. */
+@ To get \TeX's whole input mechanism going, we perform the following
+   actions. 
 
+@c
 void initialize_inputstack(void)
 {
     input_ptr = 0;
@@ -633,21 +632,21 @@ void initialize_inputstack(void)
     line_partial = false;
     align_state = 1000000;
     if (!init_terminal())
-        exit(EXIT_FAILURE);     /* goto final_end; */
+        exit(EXIT_FAILURE);     /* |goto final_end|; */
     ilimit = last;
     first = last + 1;           /* |init_terminal| has set |loc| and |last| */
 }
 
 
 
-/*
-The global variable |pseudo_files| is used to maintain a stack of
+
+@ The global variable |pseudo_files| is used to maintain a stack of
 pseudo files.  The |pseudo_lines| field of each pseudo file points to
 a linked list of variable size nodes representing lines not yet
 processed: the |subtype| field contains the size of this node,
 all the following words contain ASCII codes.
-*/
 
+@c
 halfword pseudo_files;          /* stack of pseudo files */
 
 static halfword string_to_pseudo(str_number str, int nl)
@@ -695,8 +694,9 @@ static halfword string_to_pseudo(str_number str, int nl)
 }
 
 
-/* The |pseudo_start| procedure initiates reading from a pseudo file. */
+@ The |pseudo_start| procedure initiates reading from a pseudo file. 
 
+@c
 void pseudo_from_string(void)
 {
     str_number s;               /* string to be converted into a pseudo file */
@@ -741,6 +741,7 @@ void pseudo_start(void)
     pseudo_from_string();
 }
 
+@ @c
 void lua_string_start(void)
 {
     begin_file_reading();       /* set up |cur_file| and new level of input */
@@ -751,8 +752,9 @@ void lua_string_start(void)
     luacstring_start(iindex);
 }
 
-/* Here we read a line from the current pseudo file into |buffer|.*/
+@ Here we read a line from the current pseudo file into |buffer|.
 
+@c
 boolean pseudo_input(void)
 {                               /* inputs the next line or returns |false| */
     halfword p;                 /* current line from pseudo file */
@@ -786,8 +788,9 @@ boolean pseudo_input(void)
     return true;
 }
 
-/* When we are done with a pseudo file we `close' it */
+@ When we are done with a pseudo file we `close' it 
 
+@c
 void pseudo_close(void)
 {                               /* close the top level pseudo file */
     halfword p;

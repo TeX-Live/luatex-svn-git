@@ -1,35 +1,34 @@
+% errors.w
+% 
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
 @ @c
-/* errors.c
-   
-   Copyright 2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
-
-
 
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
+@ @c
 #define new_line_char int_par(new_line_char_code)
 
-/*
-When something anomalous is detected, \TeX\ typically does something like this:
+
+@ When something anomalous is detected, \TeX\ typically does something like this:
 $$\vbox{\halign{#\hfil\cr
 |print_err("Something anomalous has been detected");|\cr
 |help3("This is the first line of my offer to help.")|\cr
@@ -50,8 +49,8 @@ shows the location of the error; and if |interaction=error_stop_mode|,
 it also enters into a dialog with the user, during which time the help
 message may be printed.
 @^system dependencies@>
-*/
 
+@c
 int interaction;                /* current level of interaction */
 int interactionoption;          /* set from command line */
 const char *last_error;
@@ -69,8 +68,8 @@ void print_err(const char *s)
     last_error = (const char *) s;
 }
 
-/*
-\TeX\ is careful not to call |error| when the print |selector| setting
+
+@ \TeX\ is careful not to call |error| when the print |selector| setting
 might be unusual. The only possible values of |selector| at the time of
 error messages are
 
@@ -82,9 +81,8 @@ error messages are
 \hang|log_only| (when |interaction=batch_mode| and |log_file| is open);
 
 \hang|term_and_log| (when |interaction>batch_mode| and |log_file| is open).
-*/
 
-
+@c
 void fixup_selector(boolean log_opened)
 {
     if (interaction == batch_mode)
@@ -95,8 +93,8 @@ void fixup_selector(boolean log_opened)
         selector = selector + 2;
 }
 
-/*
-A global variable |deletions_allowed| is set |false| if the |get_next|
+
+@ A global variable |deletions_allowed| is set |false| if the |get_next|
 routine is active when |error| is called; this ensures that |get_next|
 and related routines like |get_token| will never be called recursively.
 A similar interlock is provided by |set_box_allowed|.
@@ -110,8 +108,8 @@ Another global variable, |error_count|, is increased by one when an
 |error| occurs without an interactive dialog, and it is reset to zero at
 the end of every paragraph.  If |error_count| reaches 100, \TeX\ decides
 that there is no point in continuing further.
-*/
 
+@c
 boolean deletions_allowed;      /* is it safe for |error| to call |get_token|? */
 boolean set_box_allowed;        /* is it safe to do a \.{\\setbox} assignment? */
 int history;                    /* has the source input been clean so far? */
@@ -120,11 +118,11 @@ int interrupt;                  /* should \TeX\ pause for instructions? */
 boolean OK_to_interrupt;        /* should interrupts be observed? */
 
 
-/*
-The value of |history| is initially |fatal_error_stop|, but it will
-be changed to |spotless| if \TeX\ survives the initialization process.
-*/
 
+@ The value of |history| is initially |fatal_error_stop|, but it will
+be changed to |spotless| if \TeX\ survives the initialization process.
+
+@c
 void initialize_errors(void)
 {
     if (interactionoption == unspecified_mode)
@@ -137,26 +135,24 @@ void initialize_errors(void)
     /* |history| is initialized elsewhere */
 }
 
-/*
-It is possible for |error| to be called recursively if some error arises
+
+@ It is possible for |error| to be called recursively if some error arises
 when |get_token| is being used to delete a token, and/or if some fatal error
 occurs while \TeX\ is trying to fix a non-fatal one. But such recursion
 @^recursion@>
 is never more than two levels deep.
-*/
 
-/*
-Individual lines of help are recorded in the array |help_line|. 
-*/
+@ Individual lines of help are recorded in the array |help_line|. 
 
+@c
 const char *help_line[7];       /* helps for the next |error| */
 boolean use_err_help;           /* should the |err_help| list be shown? */
 
-/*
-The |jump_out| procedure just cuts across all active procedure levels and
-exits the program. It is used when there is no recovery from a particular error.
-*/
 
+@ The |jump_out| procedure just cuts across all active procedure levels and
+exits the program. It is used when there is no recovery from a particular error.
+
+@c
 __attribute__ ((noreturn))
 void do_final_end(void)
 {
@@ -175,6 +171,7 @@ void jump_out(void)
     do_final_end();
 }
 
+@ @c
 void error(void)
 {                               /* completes the job of error reporting */
     ASCII_code c;               /* what the user types */
@@ -227,7 +224,7 @@ void error(void)
             case '8':
             case '9':
                 if (deletions_allowed) {
-                    /* Delete \(c)|c-"0"| tokens and |goto continue| */
+                    /* Delete |c-"0"| tokens and |goto continue| */
                     /* We allow deletion of up to 99 tokens at a time */
                     s1 = cur_tok;
                     s2 = cur_cmd;
@@ -384,11 +381,11 @@ void error(void)
 }
 
 
-/*
-A dozen or so error messages end with a parenthesized integer, so we
-save a teeny bit of program space by declaring the following procedure:
-*/
 
+@ A dozen or so error messages end with a parenthesized integer, so we
+save a teeny bit of program space by declaring the following procedure:
+
+@c
 void int_error(int n)
 {
     tprint(" (");
@@ -397,12 +394,12 @@ void int_error(int n)
     error();
 }
 
-/*
-In anomalous cases, the print selector might be in an unknown state;
+
+@ In anomalous cases, the print selector might be in an unknown state;
 the following subroutine is called to fix things just enough to keep
 running a bit longer.
-*/
 
+@c
 void normalize_selector(void)
 {
     if (log_opened)
@@ -415,8 +412,8 @@ void normalize_selector(void)
         decr(selector);
 }
 
-/* The following procedure prints \TeX's last words before dying */
-
+@ The following procedure prints \TeX's last words before dying
+@c
 void succumb(void)
 {
     if (interaction == error_stop_mode)
@@ -431,6 +428,7 @@ void succumb(void)
     jump_out();                 /* irrecoverable error */
 }
 
+@ @c
 void fatal_error(const char *s)
 {                               /* prints |s|, and that's it */
     normalize_selector();
@@ -439,6 +437,7 @@ void fatal_error(const char *s)
     succumb();
 }
 
+@ @c
 void lua_norm_error(const char *s)
 {                               /* lua found a problem */
     int saved_new_line_char;
@@ -452,6 +451,7 @@ void lua_norm_error(const char *s)
     new_line_char = saved_new_line_char;
 }
 
+@ @c
 void lua_fatal_error(const char *s)
 {                               /* lua found a problem */
     new_line_char = 10;
@@ -461,8 +461,8 @@ void lua_fatal_error(const char *s)
     succumb();
 }
 
-/* Here is the most dreaded error message */
-
+@ Here is the most dreaded error message
+@c
 void overflow(const char *s, unsigned int n)
 {                               /* stop due to finiteness */
     normalize_selector();
@@ -476,16 +476,16 @@ void overflow(const char *s, unsigned int n)
     succumb();
 }
 
-/*
-The program might sometime run completely amok, at which point there is
+
+@ The program might sometime run completely amok, at which point there is
 no choice but to stop. If no previous error has been detected, that's bad
 news; a message is printed that is really intended for the \TeX\
 maintenance person instead of the user (unless the user has been
 particularly diabolical).  The index entries for `this can't happen' may
 help to pinpoint the problem.
 @^dry rot@>
-*/
 
+@c
 void confusion(const char *s)
 {                               /* consistency check violated; |s| tells where */
     normalize_selector();
@@ -502,16 +502,16 @@ void confusion(const char *s)
     succumb();
 }
 
-/*
-Users occasionally want to interrupt \TeX\ while it's running.
-If the \PASCAL\ runtime system allows this, one can implement
+
+@ Users occasionally want to interrupt \TeX\ while it's running.
+If the runtime system allows this, one can implement
 a routine that sets the global variable |interrupt| to some nonzero value
 when such an interrupt is signalled. Otherwise there is probably at least
-a way to make |interrupt| nonzero using the \PASCAL\ debugger.
+a way to make |interrupt| nonzero using the debugger.
 @^system dependencies@>
 @^debugging@>
-*/
 
+@c
 void check_interrupt(void)
 {
     if (interrupt != 0)
@@ -519,13 +519,13 @@ void check_interrupt(void)
 }
 
 
-/*
-When an interrupt has been detected, the program goes into its
+
+@ When an interrupt has been detected, the program goes into its
 highest interaction level and lets the user have nearly the full flexibility of
 the |error| routine.  \TeX\ checks for interrupts only at times when it is
 safe to do this.
-*/
 
+@c
 void pause_for_instructions(void)
 {
     if (OK_to_interrupt) {
@@ -543,8 +543,7 @@ void pause_for_instructions(void)
     }
 }
 
-
-
+@ @c
 void tex_error(const char *msg, const char **hlp)
 {
     print_err(msg);
@@ -560,13 +559,12 @@ void tex_error(const char *msg, const char **hlp)
     error();
 }
 
-/*
-The |back_error| routine is used when we want to replace an offending token
+@ The |back_error| routine is used when we want to replace an offending token
 just before issuing an error message. This routine, like |back_input|,
 requires that |cur_tok| has been set. We disable interrupts during the
 call of |back_input| so that the help message won't be lost.
-*/
 
+@c
 void back_error(void)
 {                               /* back up one token and call |error| */
     OK_to_interrupt = false;
@@ -575,6 +573,7 @@ void back_error(void)
     error();
 }
 
+@ @c
 void ins_error(void)
 {                               /* back up one inserted token and call |error| */
     OK_to_interrupt = false;
@@ -585,13 +584,13 @@ void ins_error(void)
 }
 
 
-/*
-When \TeX\ wants to typeset a character that doesn't exist, the
+
+@ When \TeX\ wants to typeset a character that doesn't exist, the
 character node is not created; thus the output routine can assume
 that characters exist when it sees them. The following procedure
 prints a warning message unless the user has suppressed it.
-*/
 
+@c
 void char_warning(internal_font_number f, int c)
 {
     int old_setting;            /* saved value of |tracing_online| */

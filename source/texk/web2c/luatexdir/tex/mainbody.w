@@ -1,32 +1,37 @@
+% mainbody.w
+
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
+\def\eTeX{e-\TeX}
+\def\Aleph{Aleph}
+\def\pdfTeX{pdf\TeX}
+
 @ @c
-/* mainbody.c
-
-   Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
-/*
-% pdfTeX is copyright (C) 1996-2006 Han The Thanh, <thanh@@pdftex.org>.
-% e-TeX is copyright (C) 1994,98 by Peter Breitenlohner.
+@ 
+pdfTeX is copyright (C) 1996-2006 Han The Thanh, <thanh@@pdftex.org>.
+
+e-TeX is copyright (C) 1994,98 by Peter Breitenlohner.
 
 This is LuaTeX, a continuation of $\pdfTeX$ and $\Aleph$.  LuaTeX is a
 document compiler intended to simplify high-quality typesetting for
@@ -172,28 +177,26 @@ November 1984].
 A similar test suite called the ``\.{e-TRIP} test'' is available for
 helping to determine whether a particular implementation deserves to be
 known as `\eTeX'.
-*/
 
-/*
-In case somebody has inadvertently made bad settings of the ``constants,''
+@ In case somebody has inadvertently made bad settings of the ``constants,''
 \TeX\ checks them using a global variable called |bad|.
 
 This is the first of many sections of \TeX\ where global variables are
 defined.
-*/
 
+@c
 int bad;                        /* is some ``constant'' wrong? */
 boolean luainit;                /* are we using lua for initializations  */
 boolean tracefilenames;         /* print file open-close  info? */
 
-/*
-This program has two important variations: (1) There is a long and slow
+
+@ This program has two important variations: (1) There is a long and slow
 version called \.{INITEX}, which does the extra calculations needed to
 @.INITEX@>
 initialize \TeX's internal tables; and (2)~there is a shorter and faster
 production version, which cuts the initialization to a bare minimum.
-*/
 
+@c
 boolean ini_version;            /* are we \.{INITEX}? */
 boolean dump_option;            /* was the dump name option used? */
 boolean dump_line;              /* was a \.{\%\AM format} line seen? */
@@ -225,6 +228,7 @@ int filelineerrorstylep;        /* format messages as file:line:error */
 int haltonerrorp;               /* stop at first error */
 boolean quoted_filename;        /* current filename is quoted */
 
+@ @c
 int get_luatexversion(void)
 {
     return luatex_version;
@@ -245,8 +249,8 @@ int get_luatex_date_info(void)
     return luatex_date_info;    /* todo, silly value */
 }
 
-/*
-This is it: the part of \TeX\ that executes all those procedures we have
+
+@ This is it: the part of \TeX\ that executes all those procedures we have
 written.
 
 We have noted that there are two versions of \TeX82. One, called \.{INITEX},
@@ -256,8 +260,8 @@ reading a format file, and it has the capability of dumping a format file.
 The other one is called `\.{VIRTEX}'; it is a ``virgin'' program that needs
 @.VIRTEX@>
 to input a format file in order to get started.
-*/
 
+@c
 #define const_chk(A) do {			\
 	if (A < inf_##A) A = inf_##A;		\
 	if (A > sup_##A) A = sup_##A;		\
@@ -405,6 +409,7 @@ int main_initialize(void)
     return bad;
 }
 
+@ @c
 void main_body(void)
 {
     static char pdftex_map[] = "pdftex.map";
@@ -477,8 +482,8 @@ void main_body(void)
     do_final_end();
 }
 
-/*
-Here we do whatever is needed to complete \TeX's job gracefully on the
+
+@ Here we do whatever is needed to complete \TeX's job gracefully on the
 local operating system. The code here might come into play after a fatal
 error; it must therefore consist entirely of ``safe'' operations that
 cannot produce error messages. For example, it would be a mistake to call
@@ -491,8 +496,8 @@ but that can't cause infinite recursion.
 @^recursion@>
 
 This program doesn't bother to close the input files that may still be open.
-*/
 
+@c
 void close_files_and_terminate(void)
 {
     int k;                      /* all-purpose index */
@@ -577,11 +582,11 @@ void close_files_and_terminate(void)
     }
 }
 
-/*
-We get to the |final_cleanup| routine when \.{\\end} or \.{\\dump} has
-been scanned and |its_all_over|\kern-2pt.
-*/
 
+@ We get to the |final_cleanup| routine when \.{\\end} or \.{\\dump} has
+been scanned and |its_all_over|\kern-2pt.
+
+@c
 void final_cleanup(void)
 {
     int c;                      /* 0 for \.{\\end}, 1 for \.{\\dump} */
@@ -651,28 +656,25 @@ void final_cleanup(void)
     }
 }
 
-/*
-Once \TeX\ is working, you should be able to diagnose most errors with
-the \.{\\show} commands and other diagnostic features. But for the initial
-stages of debugging, and for the revelation of really deep mysteries, you
-can compile \TeX\ with a few more aids, including the \PASCAL\ runtime
-checks and its debugger. An additional routine called |debug_help|
-will also come into play when you type `\.D' after an error message;
+@ Once \TeX\ is working, you should be able to diagnose most errors with
+the \.{\\show} commands and other diagnostic features. 
+An additional routine called |debug_help|
+will come into play when you type `\.D' after an error message;
 |debug_help| also occurs just before a fatal error causes \TeX\ to succumb.
 @^debugging@>
 @^system dependencies@>
 
 The interface to |debug_help| is primitive, but it is good enough when used
-with a \PASCAL\ debugger that allows you to set breakpoints and to read
+with a debugger that allows you to set breakpoints and to read
 variables and change their values. After getting the prompt `\.{debug \#}', you
 type either a negative number (this exits |debug_help|), or zero (this
 goes to a location where you can set a breakpoint, thereby entering into
-dialog with the \PASCAL\ debugger), or a positive number |m| followed by
+dialog with the debugger), or a positive number |m| followed by
 an argument |n|. The meaning of |m| and |n| will be clear from the
 program below. (If |m=13|, there is an additional argument, |l|.)
 @.debug \#@>
-*/
 
+@c
 #ifdef DEBUG
 void debug_help(void)
 {                               /* routine to display various things */

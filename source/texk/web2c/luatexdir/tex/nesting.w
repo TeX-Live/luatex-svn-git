@@ -1,37 +1,38 @@
+% nesting.w
+% 
+% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
 @ @c
-/* nesting.c
-   
-   Copyright 2009 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
 #include "ptexlib.h"
 
+static const char _svn_version[] =
+    "$Id$ "
+    "$URL$";
 
 
-/* these are for show_activities */
+@ these are for |show_activities|
+@c
 #define page_goal page_so_far[0]
 #define pdf_ignored_dimen dimen_par(pdf_ignored_dimen_code)
 #define count(A) eqtb[count_base+(A)].cint
 
-static const char _svn_version[] =
-    "$Id$ $URL$";
 
-/*
-\TeX\ is typically in the midst of building many lists at once. For example,
+@ \TeX\ is typically in the midst of building many lists at once. For example,
 when a math formula is being processed, \TeX\ is in math mode and
 working on an mlist; this formula has temporarily interrupted \TeX\ from
 being in horizontal mode and building the hlist of a paragraph; and this
@@ -63,8 +64,8 @@ Numeric values are assigned to |vmode|, |hmode|, and |mmode| so that
 \TeX's ``big semantic switch'' can select the appropriate thing to
 do by computing the value |abs(mode)+cur_cmd|, where |mode| is the current
 mode and |cur_cmd| is the current command code.
-*/
 
+@c
 const char *string_mode(int m)
 {                               /* prints the mode represented by |m| */
     if (m > 0) {
@@ -101,17 +102,20 @@ const char *string_mode(int m)
     return "unknown mode";
 }
 
+@ @c
 void print_mode(int m)
 {                               /* prints the mode represented by |m| */
     tprint(string_mode(m));
 }
 
+@ @c
 void print_in_mode(int m)
 {                               /* prints the mode represented by |m| */
     tprint("' in ");
     tprint(string_mode(m));
 }
 
+@ @c
 int get_mode_id(void)
 {                               /* returns the mode represented by |m| */
     int m = cur_list.mode_field;
@@ -150,8 +154,8 @@ int get_mode_id(void)
     }
 }
 
-/*
-The state of affairs at any semantic level can be represented by
+
+@ The state of affairs at any semantic level can be represented by
 five values:
 
 \yskip\hang|mode| is the number representing the semantic mode, as
@@ -187,7 +191,7 @@ line number at which the current level of nesting was entered. The negative
 of this line number is the |mode_line| at the level of the
 user's output routine.
 
-A seventh quantity, |eTeX_aux|, is used by the extended features \eTeX.
+A seventh quantity, |eTeX_aux|, is used by the extended features eTeX.
 In math mode it is known as |delim_ptr| and points to the most
 recent |fence_noad|  of a |math_left_group|.
 
@@ -197,29 +201,26 @@ The semantic nest is an array called |nest| that holds the |mode|, |head|,
 |tail|, |prev_graf|, |aux|, and |mode_line| values for all semantic levels
 below the currently active one. Information about the currently active
 level is kept in the global quantities |mode|, |head|, |tail|, |prev_graf|,
-|aux|, and |mode_line|, which live in a \PASCAL\ record that is ready to
+|aux|, and |mode_line|, which live in a struct that is ready to
 be pushed onto |nest| if necessary.
 
-The math field is used by various bits and pieces in |math.c|
-*/
+The math field is used by various bits and pieces in |texmath.w|
 
-/*
-This implementation of
+@ This implementation of
 \TeX\ uses two different conventions for representing sequential stacks.
 @^stack conventions@>@^conventions for representing stacks@>
 
-\yskip\hangg 1) If there is frequent access to the top entry, and if the
+\yskip\hang 1) If there is frequent access to the top entry, and if the
 stack is essentially never empty, then the top entry is kept in a global
 variable (even better would be a machine register), and the other entries
 appear in the array $\\{stack}[0\to(\\{ptr}-1)]$. The
 semantic stack is handled this way.
 
-\yskip\hangg 2) If there is infrequent top access, the entire stack contents
+\yskip\hang 2) If there is infrequent top access, the entire stack contents
 are in the array $\\{stack}[0\to(\\{ptr}-1)]$. For example, the |save_stack|
 is treated this way, as we have seen.
-*/
 
-
+@c
 list_state_record *nest;
 int nest_ptr;                   /* first unused location of |nest| */
 int max_nest_stack;             /* maximum of |nest_ptr| when pushing */
@@ -227,18 +228,15 @@ int shown_mode;                 /* most recent mode shown by \.{\\tracingcommand
 halfword save_tail;             /* save |tail| so we can examine whether we have an auto
                                    kern before a glue */
 
-
-
-/*
-We will see later that the vertical list at the bottom semantic level is split
+@ We will see later that the vertical list at the bottom semantic level is split
 into two parts; the ``current page'' runs from |page_head| to |page_tail|,
 and the ``contribution list'' runs from |contrib_head| to |tail| of
 semantic level zero. The idea is that contributions are first formed in
 vertical mode, then ``contributed'' to the current page (during which time
 the page-breaking decisions are made). For now, we don't need to know
 any more details about the page-building process.
-*/
 
+@c
 void initialize_nesting(void)
 {
     nest_ptr = 0;
@@ -259,14 +257,17 @@ void initialize_nesting(void)
 
 
 
-/* Here is a common way to make the current list grow: */
+@ Here is a common way to make the current list grow: 
 
+@c
 void tail_append(halfword p)
 {
     couple_nodes(cur_list.tail_field, p);
     cur_list.tail_field = vlink(cur_list.tail_field);
 }
 
+
+@ @c
 halfword pop_tail(void)
 {
     halfword n, r;
@@ -288,12 +289,11 @@ halfword pop_tail(void)
     }
 }
 
-/*
-When \TeX's work on one level is interrupted, the state is saved by
+@ When \TeX's work on one level is interrupted, the state is saved by
 calling |push_nest|. This routine changes |head| and |tail| so that
 a new (empty) list is begun; it does not change |mode| or |aux|.
-*/
 
+@c
 void push_nest(void)
 {                               /* enter a new semantic level, save the old */
     if (nest_ptr > max_nest_stack) {
@@ -315,21 +315,22 @@ void push_nest(void)
     init_math_fields();
 }
 
-/*
-Conversely, when \TeX\ is finished on the current level, the former
+
+@ Conversely, when \TeX\ is finished on the current level, the former
 state is restored by calling |pop_nest|. This routine will never be
 called at the lowest semantic level, nor will it be called unless |head|
 is a node that should be returned to free memory.
-*/
 
+@c
 void pop_nest(void)
 {                               /* leave a semantic level, re-enter the old */
     flush_node(cur_list.head_field);
     decr(nest_ptr);
 }
 
-/* Here is a procedure that displays what \TeX\ is working on, at all levels. */
+@ Here is a procedure that displays what \TeX\ is working on, at all levels. 
 
+@c
 void show_activities(void)
 {
     int p;                      /* index into |nest| */
@@ -345,7 +346,8 @@ void show_activities(void)
         tprint(" entered at line ");
         print_int(abs(nest[p].ml_field));
         /* we dont do this any more */
-        /*
+#if 0
+        
            if (m == hmode)
            if (nest[p].pg_field != 040600000) {
            tprint(" (language");
@@ -356,7 +358,7 @@ void show_activities(void)
            print_int((nest[p].pg_field / 0200000) % 0100);
            print_char(')');
            }
-         */
+#endif
         if (nest[p].ml_field < 0)
             tprint(" (\\output routine)");
         if (p == 0) {
@@ -425,14 +427,14 @@ void show_activities(void)
             tprint_nl("spacefactor ");
             print_int(nest[p].space_factor_field);
             /* we dont do this any more, this was aux.rh originally */
-            /*
+#if 0
                if (m > 0) {
                if (nest[p].current_language_field > 0) {
                tprint(", current language ");
                print_int(nest[p].current_language_field);
                }
                }
-             */
+#endif
             break;
         case 2:
             if (nest[p].incompleat_noad_field != null) {

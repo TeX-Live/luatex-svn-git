@@ -1,40 +1,36 @@
+% texdeffont.w
+
+% Copyright 2008-2010 Taco Hoekwater <taco@@luatex.org>
+
+% This file is part of LuaTeX.
+
+% LuaTeX is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free
+% Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+
+% LuaTeX is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+% License for more details.
+
+% You should have received a copy of the GNU General Public License along
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+
 @ @c
-/* texdeffont.c
-
-   Copyright 2010 Taco Hoekwater <taco@@luatex.org>
-
-   This file is part of LuaTeX.
-
-   LuaTeX is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your
-   option) any later version.
-
-   LuaTeX is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-   License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
-
 #include "ptexlib.h"
-
-
-
 
 static const char _svn_version[] =
     "$Id$ $URL$";
 
 
-/*
-When the user defines \.{\\font\\f}, say, \TeX\ assigns an internal number
+
+@ When the user defines \.{\\font\\f}, say, \TeX\ assigns an internal number
 to the user's font~\.{\\f}. Adding this number to |font_id_base| gives the
 |eqtb| location of a ``frozen'' control sequence that will always select
 the font.
-*/
 
+@c
 int font_bytes;
 
 void set_cur_font(internal_font_number f)
@@ -43,6 +39,7 @@ void set_cur_font(internal_font_number f)
     define(cur_font_loc, data_cmd, f);
 }
 
+@ @c
 char *scaled_to_string(scaled s)
 {                               /* prints scaled real, rounded to five digits */
     static char result[16];
@@ -81,6 +78,7 @@ char *scaled_to_string(scaled s)
     return (char *) result;
 }
 
+@ @c
 void tex_def_font(small_number a)
 {
     pointer u;                  /* user's font identifier */
@@ -105,7 +103,7 @@ void tex_def_font(small_number a)
         eq_define(u, set_font_cmd, null_font);
     }
     scan_optional_equals();
-    /* @<Get the next non-blank non-call token@>; */
+    /* Get the next non-blank non-call token; */
     do {
         get_x_token();
     } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
@@ -140,15 +138,15 @@ void tex_def_font(small_number a)
         token_show(def_ref);
         selector = old_setting;
         flush_list(def_ref);
-        /* str_room(1); *//* what did that do ? */
+        /* |str_room(1)|; *//* what did that do ? */
         cur_name = make_string();
         cur_ext = get_nullstr();
         cur_area = get_nullstr();
     }
-    /* @<Scan the font size specification@>; */
+    /* Scan the font size specification; */
     name_in_progress = true;    /* this keeps |cur_name| from being changed */
     if (scan_keyword("at")) {
-        /* @<Put the \(p)(positive) `at' size into |s|@> */
+        /* Put the positive `at' size into |s| */
         scan_normal_dimen();
         s = cur_val;
         if ((s <= 0) || (s >= 01000000000)) {
