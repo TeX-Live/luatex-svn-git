@@ -629,33 +629,17 @@ void ipcpage(int is_eof)
     string p = (string) "";
 
     if (!begun) {
-        string name;            /* Just the filename.  */
+        const_string name;            /* Just the filename.  */
         string cwd = xgetcwd();
 
         ipc_open_out();
-#  if !defined(Aleph)
-        len = strstart[outputfilename + 1] - strstart[outputfilename];
-#  else
-        len = strstartar[outputfilename + 1 - 65536L] -
-            strstartar[outputfilename - 65536L];
-#  endif
-        name = (string) xmalloc(len + 1);
-#  if !defined(Aleph)
-        strncpy(name, (string) & strpool[strstart[outputfilename]], len);
-#  else
-        {
-            unsigned i;
-            for (i = 0; i < len; i++)
-                name[i] = strpool[i + strstartar[outputfilename - 65536L]];
-        }
-#  endif
-        name[len] = 0;
 
         /* Have to pass whole filename to the other end, since it may have
            been started up and running as a daemon, e.g., as with the NeXT
            preview program.  */
+	name = (const_string) static_pdf->file_name;
         p = concat3(cwd, DIR_SEP_STRING, name);
-        free(name);
+        /* free(name); */
         len = strlen(p);
         begun = true;
     }
