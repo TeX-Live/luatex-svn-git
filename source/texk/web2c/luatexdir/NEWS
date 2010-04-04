@@ -1,3 +1,199 @@
+
+This file is in the public domain.
+
+==============================================================
+Luatex beta-0.60.0 was released 20100404
+==============================================================
+
+New features:
+
+* os.name now knows about CYGWIN (from Elie Roux)
+
+* Internal handling of direction specifiers is faster now.
+
+* Each glyph node now has three new virtual read-only fields:
+  width, height, and depth (values in scaled points, of course)
+
+* There are new functions node.protrusion_skipable() and
+  tex.badness() (useful for paragraph breaking in lua)
+
+* Also new: tex.linebreak(). See the manual for details.
+
+* All lua errors now report file and line numbers to aid in
+  debugging.
+
+* Import of metapost 1.211.
+
+* pdf.pdfcatalog will be replaced soon by the new pdf.catalog
+  pdf.pdfinfo will be replaced soon by the new pdf.info
+  pdf.pdfnames will be replaced soon by the new pdf.names
+  pdf.pdftrailer will be replaced soon by the new pdf.trailer
+
+* pdf.pdfmapfile and pdf.pdfmapline are replaced by the new
+  pdf.mapfile() and pdf.mapline() functions. (a function interface
+  fits these parameters better because they never return anything).
+
+* New read-write lua variables: pdf.pageattributes, pdf.pageresources,
+  pdf.pagesresources
+
+* getluatexsvnversion.sh now correctly detects git-svn and still
+  manages to find a valid SVN revision number (from Patrick Gundlach)
+
+* Many of the source files have been converted to CWEB.
+
+Bug fixes:
+
+* GNU libtool is now used to solve the various technical issues with
+  dynamic loading of lua modules.
+
+* Error detection in scan_integer_part was wrong due to missing
+  initialization of OK_so_far (spotted by Javier Mugica)
+
+* Synctex was broken in 0.51-0.52.
+
+* \lastlinefit was broken since ... well, nearly forever.
+
+* Reading of binary files with length zero was broken.
+
+* Trapping of unitialized rules (this was for sloppily created
+  rule nodes from lua)
+
+* pdf.immediateobj('streamfile') was broken on 64-bit platforms.
+
+* tex.linebreak did not take the given left and right skip, but
+  instead used the current TeX-side values (bug #356).
+
+* the found 'MAKE' command in build.sh is now fed into configure to fix
+  problems with that not finding GNU make even when it is actually
+  installed.
+
+* dofile(<nil>) and loadfile(<nil>) in batch mode now give an
+  error and continue instead of pointlessly waiting for user input.
+
+* Reverted commit #3417 (the buildpage experiment) as it causes bad
+  things to happen when items are waiting during page breaks.
+
+* Overrule loaders[4] in --safer mode, make require() behave
+  closer to normal lua 5.1, and add some nicer error messages
+  (based on an email and patches from Manuel Pegourie-Gonnard)
+
+* Added an extra sanity check for GDEF loading in luafontloader,
+  based on a crash caused by Linux' AkaashNormal.ttf.
+
+
+==============================================================
+Luatex beta-0.52.0 was released 20100316
+==============================================================
+
+New features:
+
+* Various small manual improvements.
+
+* A better version of getluatexsvnversion.sh, from Tomek.
+
+* node.copy_list() now allows the second (optional) argument to
+  be nil.
+
+* An import of the current state of the texlive repository
+  (kpathsea and build system).
+
+Bug fixes:
+
+* An attempt fix for bug #345 (math kerning is not perfect): when the
+  current math font is a new math font, check against \catcode <cur_c>
+  == 11 to suppress the italic correction, instead of looking at
+  the value of space(<cur_f>).
+
+* There is a new <tfmtable> key: 'units_per_em' (defaults to 0).
+  This is part of a fix for bug #200 (Problem with CFF fonts having
+  em-size other than 1000): there is a special correction to the
+  embedded cff font itself and the font scale if the font to be output
+  is opentype or type1 in unicode encoding and the 'units_per_em
+  differs' from zero.
+  <tfmtable>.units_per_em has to be passed back to luatex from
+  the lua font loading code for this to work.
+
+* A fix for bug #314 (problem with pk file).
+
+* lua code can no longer change the internal preallocated glue_spec
+  nodes (as that resulted in weird spacing bugs). For this, glue_specs
+  now have a new field: 'writable'. If that field is false, a copy
+  has to be made of the glue_spec instead of doing an assignment
+  to it.
+
+* Setting of \textdir inside the output routine could trash output
+  on following pages due to a lingering internal variable.
+
+* \pdfthread crashed because the arguments were handled in reverse
+  order. 
+
+==============================================================
+Luatex beta-0.51.0 was released 20100312
+==============================================================
+
+New features:
+
+* Various small manual improvements.
+* The backend message "cannot open Type 1 font file for reading"
+  now reports which Type1 font it was looking for.
+* Fontforge clears some font names at loading time that will be
+  refilled in at font generation time, but the fontloader should not
+  do that. Patch from Khaled Hosny.
+* New synctex code imported from TeXLive.
+* luamd5/md5.h is renamed to luamd5/luamd5.h to avoid confusion.
+* Embedded mplib is now 1.209.
+* Some experimental tweaking of buildpage_filter, see the manual
+  for details.
+* Luatex now detects kfreebsd (from Alan Braslau)
+* The new lua function tex.sp() converts a string to a number
+  representing scaled points.
+* There is now support for revision numbers in the banner and stats
+  library again.
+* The command line help and manual documentation page is extended.
+* node.hpack() now also accepts "cal_expand_ratio" and "subst_ex_font"
+  modifiers.
+* node.hpack() and node.vpack() now give back the badness of the box
+  as second return value.
+* node.copy_list() now allows a second (stop) argument, this stopper
+  is not copied.
+* new lua functions in lfs: lfs.readlink() and lfs.shortname().
+* new lua function tex.tprint() that can combine multiple catcode
+  regime prints in one function call.
+* new lua sub-table: tex.nest[] (read/write access to the semantic
+  nest state).
+* New lua functions in kpse: kpse.lookup() and kpse.version(). See
+  the manual for more details.
+* New lua function tex.shipout().
+
+Bug fixes:
+
+* There problems in the pdf output for Type3 (pk) fonts.
+* Fix a bug that allowed bad commandline quoting.
+* Fix a bug that sometimes caused crashes when \pdfprotrudechars.
+* The build script now exports CONFIG_SHELL to avoid problems with
+  /bin/dash.
+* The was a bug in the generated /Image /ProcSet.
+* status.font_bytes reported the wrong value.
+* Lots of compiler warnings are removed (thanks Javier Mugica).
+* Patch to fontloader.info() to accept filenames with embedded
+  parentheses.
+* Fix a \write error with docstrip package.
+* Fixed a crash on AdobeMyungjoStd-Medium.otf.
+* Fix coco stack overflows, needed for lpeg.
+* \pdfcompresslevel wasn't initialized for early immediate objects.
+* Fix for slanted fonts when HZ was on (slant angle was multiplied).
+* When concatenating content streams, put a space between them.
+* Allow pfb lines to end with \r as well as \n (for msam10.pfb).
+* Fix the internal string->scaled point conversion in the lua
+  interface.
+* Memory leaks in the fontloader removed, thanks to patches from
+  Elie Roux.
+* Fix a crash caused by the combination of coroutines and font.each().
+
+Removed features:
+
+* Support for Type3 .pgc files (nobody used them). 
+
 ==============================================================
 Luatex beta-0.50.0 was released 20091224
 ==============================================================
