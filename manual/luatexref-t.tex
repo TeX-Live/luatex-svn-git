@@ -22,7 +22,7 @@
 
 \setvariables
   [document]
-  [beta=0.60.0]
+  [beta=0.60.1]
 
 \starttext
 
@@ -4600,13 +4600,18 @@ This is an experimental function that will append a node list to
 \TEX's \quote {current list} (the node list is not deep-copied
 any more since version 0.38).  There is no error checking yet!
 
-\subsubsection{\luatex{node.protrusion_skipable} (0.53)}
+\subsubsection{\luatex{node.protrusion_skippable} (0.60.1)}
 \startfunctioncall
-boolean <yes> = node.protrusion_skipable(<node> n)
+boolean <yes> = node.protrusion_skippable(<node> n)
 \stopfunctioncall
 
 Returns \type{true} if this node can be skipped for glyph protrusion 
 line boundary discovery.
+
+\subsubsection{\luatex{node.protrusion_skipable} (0.53)}
+
+Older version of \type{node.protrusion_skippable}, with typing error.
+This alias will go away soon, please use the version with two p's.
 
 \subsection{Attribute handling}
 
@@ -7228,7 +7233,7 @@ The top|-|level keys in the table are as follows:
 \NC characters         \NC yes      \NC yes      \NC yes \NC table  \NC the defined glyphs of this font \NC \NR
 \NC checksum           \NC yes      \NC yes      \NC no  \NC number \NC default: 0 \NC \NR
 \NC designsize         \NC no       \NC yes      \NC yes \NC number \NC expected size (default: 655360 == 10pt) \NC \NR
-\NC direction          \NC no       \NC yes      \NC yes \NC number \NC default: 0 (LTR) \NR
+\NC direction          \NC no       \NC yes      \NC yes \NC number \NC default: 0 (TLT) \NC \NR
 \NC encodingbytes      \NC no       \NC no       \NC yes \NC number \NC default: depends on \type {format}\NC\NR
 \NC encodingname       \NC no       \NC no       \NC yes \NC string \NC encoding name\NC\NR
 \NC fonts              \NC yes      \NC no       \NC yes \NC table  \NC locally used fonts\NC \NR
