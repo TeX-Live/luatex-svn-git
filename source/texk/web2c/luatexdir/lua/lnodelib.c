@@ -3395,6 +3395,7 @@ static const struct luaL_reg nodelib_f[] = {
     {"protect_glyphs", lua_nodelib_protect_glyphs},
     {"unprotect_glyphs", lua_nodelib_unprotect_glyphs},
     {"protrusion_skipable", lua_nodelib_cp_skipable},
+    {"protrusion_skippable", lua_nodelib_cp_skipable},
    {NULL, NULL}                /* sentinel */
 };
 
