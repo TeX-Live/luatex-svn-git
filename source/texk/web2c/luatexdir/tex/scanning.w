@@ -1788,7 +1788,7 @@ void set_font_dimen(void)
         font_param_error(f);
     } else {
         if (n > font_params(f)) {
-            if (font_touched(f)) {
+            if (font_used(f)) {
                 font_param_error(f);
             } else {
                 /* Increase the number of parameters in the font */
@@ -1817,7 +1817,7 @@ void get_font_dimen(void)
         goto EXIT;
     } else {
         if (n > font_params(f)) {
-            if (font_touched(f)) {
+            if (font_used(f)) {
                 font_param_error(f);
                 goto EXIT;
             } else {
