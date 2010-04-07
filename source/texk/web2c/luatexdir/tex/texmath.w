@@ -889,6 +889,37 @@ void math_left_brace(void)
     (void) scan_math(nucleus(tail), m_style);
 }
 
+@ If the inline directions of \.{\\pardir} and \.{\\mathdir} are
+opposite, then this function will return true. Discovering that fact
+is somewhat odd because it needs traversal of the |save_stack|.
+The occurance of displayed equations is weird enough that this is
+probably still better than having yet another field in the |input_stack| 
+structures.
+
+None of this makes much sense if the inline direction of either one of 
+\.{\\pardir} or \.{\\mathdir} is vertical, but in that case the current 
+math machinery is ill suited anyway so I do not bother to test that.
+
+@c
+static boolean math_and_text_reversed_p(void)
+{
+    int i = save_ptr - 1;
+    while (save_type(i) != level_boundary)
+        i--;
+    while (i < save_ptr) {
+        if (save_type(i) == restore_old_value &&
+            save_value(i) == int_base + par_direction_code) {
+            if (textdir_opposite(math_direction, save_value(i - 1)))
+                return true;
+        }
+        i++;
+    }
+    return false;
+}
+
+
+
+
 
 @ When we enter display math mode, we need to call |line_break| to
 process the partial paragraph that has just been interrupted by the
@@ -951,6 +982,7 @@ void enter_display_math(void)
     eq_word_define(dimen_base + pre_display_size_code, w);
     eq_word_define(dimen_base + display_width_code, l);
     eq_word_define(dimen_base + display_indent_code, s);
+    eq_word_define(int_base + pre_display_direction_code, (math_and_text_reversed_p() ? -1 : 0));
     if (every_display != null)
         begin_token_list(every_display, every_display_text);
     if (nest_ptr == 1) {
@@ -1944,36 +1976,6 @@ void resume_after_display(void)
 }
 
 
-@ If the inline directions of \.{\\pardir} and \.{\\mathdir} are
-opposite, then this function will return true. Discovering that fact
-is somewhat odd because it needs traversal of the |save_stack|.
-The occurance of displayed equations is weird enough that this is
-probably still better than having yet another field in the |input_stack| 
-structures.
-
-None of this makes much sense if the inline direction of either one of 
-\.{\\pardir} or \.{\\mathdir} is vertical, but in that case the current 
-math machinery is ill suited anyway so I do not bother to test that.
-
-@c
-static boolean math_and_text_reversed_p(void)
-{
-    int i = save_ptr - 1;
-    while (save_type(i) != level_boundary)
-        i--;
-    while (i < save_ptr) {
-        if (save_type(i) == restore_old_value &&
-            save_value(i) == int_base + par_direction_code) {
-            if (textdir_opposite(math_direction, save_value(i - 1)))
-                return true;
-        }
-        i++;
-    }
-    return false;
-}
-
-
-
 @  The fussiest part of math mode processing occurs when a displayed formula is 
 being centered and placed with an optional equation number.
 
@@ -2000,7 +2002,7 @@ static void finish_displayed_math(boolean l, pointer a, pointer p)
     pointer t;                  /* tail of adjustment list */
     pointer pre_t;              /* tail of pre-adjustment list */
     boolean swap_dir;           /* true if the math and surrounding text dirs are opposed */
-    swap_dir = math_and_text_reversed_p();
+    swap_dir = (int_par(pre_display_direction_code) < 0 ? true : false );
 
     adjust_tail = adjust_head;
     pre_adjust_tail = pre_adjust_head;
@@ -2058,12 +2060,6 @@ static void finish_displayed_math(boolean l, pointer a, pointer p)
                     d = 0;
     }
 
-    /* If the equation number is set on a line by itself, either before or
-       after the formula, we append an infinite penalty so that no page break will
-       separate the display from its number; and we use the same size and
-       displacement for all three potential lines of the display, even though
-       `\.{\\parshape}' may specify them differently.
-     */
     tail_append(new_penalty(int_par(pre_display_penalty_code)));
     if ((d + line_s <= pre_display_size) || l) {        /* not enough clearance */
         g1 = above_display_skip_code;
@@ -2073,6 +2069,12 @@ static void finish_displayed_math(boolean l, pointer a, pointer p)
         g2 = below_display_short_skip_code;
     }
 
+    /* If the equation number is set on a line by itself, either before or
+       after the formula, we append an infinite penalty so that no page break will
+       separate the display from its number; and we use the same size and
+       displacement for all three potential lines of the display, even though
+       `\.{\\parshape}' may specify them differently.
+     */
     if (l && (eqno_w == 0)) {   /* \.{\\leqno} on a forced single line due to |width=0| */
         /* it follows that |type(a)=hlist_node| */
         if (swap_dir) {
@@ -2088,7 +2090,7 @@ static void finish_displayed_math(boolean l, pointer a, pointer p)
 
     if (eqno_w != 0) {
         r = new_kern(line_w - eq_w - eqno_w - d);
-        if (l) {
+        if ((l && ! swap_dir )|| (swap_dir && !l)) {
             vlink(a) = r;
             vlink(r) = eq_box;
             eq_box = a;
