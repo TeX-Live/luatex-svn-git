@@ -2003,6 +2003,8 @@ static void finish_displayed_math(boolean l, pointer a, pointer p)
     pointer pre_t;              /* tail of pre-adjustment list */
     boolean swap_dir;           /* true if the math and surrounding text dirs are opposed */
     swap_dir = (int_par(pre_display_direction_code) < 0 ? true : false );
+    if (a != null && swap_dir) 
+        l = !l;
 
     adjust_tail = adjust_head;
     pre_adjust_tail = pre_adjust_head;
@@ -2075,13 +2077,9 @@ static void finish_displayed_math(boolean l, pointer a, pointer p)
        displacement for all three potential lines of the display, even though
        `\.{\\parshape}' may specify them differently.
      */
-    if (l && (eqno_w == 0)) {   /* \.{\\leqno} on a forced single line due to |width=0| */
+    if (a && l && (eqno_w == 0)) {   /* \.{\\leqno} on a forced single line due to |width=0| */
         /* it follows that |type(a)=hlist_node| */
-        if (swap_dir) {
-            shift_amount(a) = line_w + line_s;
-        } else {
-            shift_amount(a) = line_s;
-        }
+        shift_amount(a) = line_s;
         append_to_vlist(a);
         tail_append(new_penalty(inf_penalty));
     } else {
@@ -2090,7 +2088,7 @@ static void finish_displayed_math(boolean l, pointer a, pointer p)
 
     if (eqno_w != 0) {
         r = new_kern(line_w - eq_w - eqno_w - d);
-        if ((l && ! swap_dir )|| (swap_dir && !l)) {
+        if (l) {
             vlink(a) = r;
             vlink(r) = eq_box;
             eq_box = a;
@@ -2101,27 +2099,21 @@ static void finish_displayed_math(boolean l, pointer a, pointer p)
         }
         eq_box = hpack(eq_box, 0, additional, -1);
     }
-    if (swap_dir) {
-        /*    |d = line_w - d;| */
-        if (eqno_w != 0) {
-            if (l)
-                d = line_w - width(eq_box);
-            else
-                d = 0;
-        } else {
-            d = line_w - eq_w - eqno_w - d;
-        }
-    }
-    shift_amount(eq_box) = line_s + d;
+    if (a && math_direction == dir_TRT) 
+        if (l) {
+           r = new_kern(line_w - width(eq_box)); 
+           vlink(eq_box) = r;
+           eq_box = hpack(eq_box, 0, additional, -1);
+           shift_amount(eq_box) = 0;
+        } else
+           shift_amount(eq_box) = 0;
+    else
+        shift_amount(eq_box) = line_s + d;
     append_to_vlist(eq_box);
 
     if ((a != null) && (eqno_w == 0) && !l) {
         tail_append(new_penalty(inf_penalty));
-        if (!swap_dir) {
-            shift_amount(a) = line_s + line_w - width(a);
-        } else {
-            shift_amount(a) = line_s;
-        }
+        shift_amount(a) = line_s;
         append_to_vlist(a);
         g2 = 0;
     }
