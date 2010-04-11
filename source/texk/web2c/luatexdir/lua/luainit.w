@@ -110,20 +110,20 @@ const_string LUATEX_IHELP[] = {
     NULL
 };
 
-@ @c
+@ The return value will be the directory of the executable, e.g.: \.{c:/TeX/bin}
+@c
 char *ex_selfdir(char *argv0)
 {
 #if defined(WIN32)
-    char short_path[PATH_MAX], path[PATH_MAX], *fp;
+    char path[PATH_MAX], *fp;
 
     /* SearchPath() always gives back an absolute directory */
-    if (SearchPath(NULL, argv0, ".exe", PATH_MAX, short_path, &fp) == 0)
+    if (SearchPath(NULL, argv0, ".exe", PATH_MAX, path, NULL) == 0)
         FATAL1("Can't determine where the executable %s is.\n", argv0);
     /* slashify the dirname */
     for (fp = path; fp && *fp; fp++)
         if (IS_DIR_SEP(*fp))
             *fp = DIR_SEP;
-    /* sdir will be the directory of the executable, ie: c:/TeX/bin */
     return xdirname(path);
 #else
     return kpse_selfdir(argv0);
