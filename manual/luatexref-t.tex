@@ -433,8 +433,8 @@ more.
 \tex{latelua} stores \LUA\ code in a whatsit that will be processed
 inside the output routine. Its intended use is a cross between
 \tex{pdfliteral} and \tex{write}.
-Within the \LUA\ code, you can print \PDF\
-statements directly to the \PDF\ file via \type{tex.print},
+Within the \LUA\ code you can print \PDF\
+statements directly to the \PDF\ file via \type{pdf.print},
 or you can write to other output streams via \type{texio.write}
 or simply using lua's I/O routines.
 
@@ -667,7 +667,7 @@ was simply ignored. That behaviour has now reverted back to be
 \stopsyntax
 
 This new integer parameter allows you to alter the number of the box
-that will be used to store the page to be shipped out in. It's default
+that will be used to store the page to be shipped out in. Its default
 value is 255, and the acceptable range is from 0 to 65535.
 
 
