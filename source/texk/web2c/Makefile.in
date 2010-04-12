@@ -7373,7 +7373,7 @@ tfmin-tangle: ctangle$(EXEEXT) mplibdir/tfmin.w tangle-sh
 
 $(libmplib_a_OBJECTS): $(nodist_libmplib_a_SOURCES)
 
-$(luatex_OBJECTS): libluatex.a libmplib.a
+$(luatex_OBJECTS): libluatex.a
 
 # Double-colon rules since we do something similar in mplibdir (maybe others).
 @LUATEX_TRUE@install-exec-hook::
@@ -7651,7 +7651,7 @@ managed-sa.c: ctangle$(EXEEXT) luatexdir/utils/managed-sa.w
 avlstuff.c: ctangle$(EXEEXT) luatexdir/utils/avlstuff.w
 	$(luatex_utils_ctangle) avlstuff.w
 
-$(libluatex_a_OBJECTS): libff.a
+$(libluatex_a_OBJECTS): libff.a libmplib.a
 $(xetex_OBJECTS): $(xetex_prereq)
 
 $(xetex_c_h): xetex-web2c

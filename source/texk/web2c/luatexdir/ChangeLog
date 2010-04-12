@@ -1,3 +1,308 @@
+2010-04-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/luatex.am: Remove libmplib.a from $($(luatex_OBJECTS)'s
+	dependencies ...
+	* am/libluatex.am: and add to $(libluatex_a_OBJECTS)'s
+	dependencies; otherwise parallel builds may fail.
+
+2010-04-04  Taco Hoekwater  <taco@luatex>
+
+	* import of luatex 0.60.0, with a few local changes:
+	* luatex.c (ipcpage): fix fetching of 'name'.
+	* dvi/dvigen.w (dvi_end_page): fix IPC flushing.
+	* image/pdftoepdf.cc (write_epdf1): comment out use of 
+	page->getResourcesNF() and page->getMetadataNF().
+
+2010-03-09  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* luatangle.ch: Use kpse_set_program_name(argv[0], nil) instead
+	of kpse_set_progname(argv[0]).
+
+2010-02-15  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/luamisc.am (libluamisc_a_CPPFLAGS): Adapt to zziplib now
+	in ../../../libs/zziplib/.
+
+2010-01-31  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Moved zziplib/ to ../../../libs/zziplib.
+	* am/luamisc.am (libluamisc_a_DEPENDENCIES): Adapt.
+	* am/luatex.am (luatex_ldadd): Adapt.
+
+2010-01-29  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Clarify dependencies between luaTeX libraries:
+	* am/libzzip.am: Remove dependency on liblua51.a.
+	Remove memdisk.[ch] and mmapped.[ch] from libzzip_a_SOURCES and
+	add them to EXTRA_DIST.
+	* am/luamisc.am: Add dependency on libzzip.a.
+	* am/luasocket.am: Replace dependency on libzzip.a by liblua51.a.
+
+2010-01-27  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* utils/avl.c (avl_copy): Proper handling of const.
+
+2010-01-27  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* luafontloader/src/luafflib.h: New file with prototypes used
+	by libluatex.
+	* luafontloader/src/luafflib.c: #include "luafflib.h".
+	* font/writecff.c, font/writetype2.c: Remove the extern decls
+	and #include <luafontloader/src/luafflib.h>.
+	* font/writecff.c (writetype1w): Change tfm_size integer=>int.
+	* am/luafontforge.am: Add the new file.
+
+	* luatex-api.h: Add prototype for utf8_idpb(), renamed
+	lua_utf8_idpb to avoid name conflicts with fontforge library.
+	* lang/texlang.c: Declare utf8_idpb() as non-static.
+	* tex/filename.c: Remove prototype for utf8_idpb().
+
+	* tex/filename.c (scan_file_name): Don't assume a null byte
+	after string created by utf8_idpb().
+
+2010-01-26  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* font/writettf.c: Remove extern charsetstr[].
+	* lua/lkpselib.c: Remove extern luainit.
+	* lua/luainit.c: Remove extern normalize_quotes(), argc, argv.
+	* tex/textoken.c: Remove extern insert_vj_template().
+
+	* utils/utils.h: Add extern declaration of fb_array ...
+	* font/writet1.c, font/writettf.c: ... removed from here.
+	* luatex-api.h: Add extern declaration of program_name_set ...
+	* lua/luainit.c, lua/luatex.c: ... removed from here.
+	* luatex-api.h: Add extern declaration of startup_filename,
+	safer_option, and nosocket_option ...
+	* lua/luastuff.c: ... removed from here.
+	* lua/llualib.c (luabytecode_max): Change integer=>int.
+	* luatex-api.h: Add extern declaration of luabytecode_max,
+	luabytecode_bytes, luastate_bytes, callback_count, and
+	saved_callback_count ...
+	* lstatslib.c: ... removed from here.
+
+2010-01-25  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/luatex.am (luatex_CFLAGS, luatex_CXXFLAGS),
+	am/libluatex.am (libluatex_a_CFLAGS): Enable compiler warnings.
+
+	Avoid most compiler warnings:
+
+	* font/luatexfont.h, luatexdir/hyphen.h, image/writeimg.h,
+	image/writejbig2.h, luatex.h, pdf/pagetree.h, pdf/pdfpage.h,
+	utils/avlstuff.h, utils/utils.h: ANSI C function prototypes.
+	* font/mapfile.c, font/writeenc.c, font/writefont.c,
+	font/writet1.c, font/writettf.c, image/writeimg.c,
+	image/writejbig2.c, lang/hyphen.c, pdf/pagetree.c,
+	pdf/pdfpage.c, utils/avlstuff.c, utils/utils.c: ANSI C function
+	definitions.
+
+	* font/luafont.c, lang/texlang.c, lua/lcallbacklib.c,
+	lua/lfontlib.c, lua/limglib.c, lua/lkpselib.c, lua/llualib.c,
+	lua/lnodelib.c, lua/loslibext.c, lua/lpdflib.c, lua/lstatslib.c,
+	lua/ltexiolib.c, lua/ltexlib.c, lua/ltokenlib.c, lua/luanode.c,
+	lua/luatoken.c: Remove 'char *' or 'unsigned char *'  casts of
+	Lua strings.
+
+	* font/texfont.h, font/writecff.h, luatex-api.h, luatex.h,
+	nodes.h, primitive.h, ptexlib.h, utils/utils.h, font/dofont.c,
+	font/luafont.c, font/tfmofm.c, font/vfovf.c, font/writecff.c,
+	font/writefont.c, font/writet1.c, font/writettf.[ch],
+	lang/hyphen.c, lang/texlang.c, lua/lcallbacklib.c,
+	lua/lfontlib.c, lua/limglib.c, lua/lkpselib.c, lua/llualib.c,
+	lua/lnodelib.c, lua/loslibext.c, lua/lpdflib.c, lua/lstatslib.c,
+	lua/ltexiolib.c, lua/ltexlib.c, lua/ltokenlib.c, lua/luainit.c,
+	lua/luanode.c, lua/luastuff.c, lua/luatex.c, lua/luatoken.c,
+	luatex.ch, tex/filename.c, tex/linebreak.c, tex/math.c,
+	tex/mlist.c, tex/primitive.c, tex/texdeffont.c, tex/texnodes.c,
+	tex/textoken.c, utils/utils.c: Declare various function params
+	and args, local and global vars, and struct members as const.
+
+	* font/luafont.c, font/texfont.c, font/tfmofm.c, font/vfovf.c,
+	font/writeenc.c, font/writefont.c, font/writet1.c,
+	font/vfpacket.c, font/writettf.c, font/writetype2.c,
+	image/writeimg.c, lang/hyphen.c, lang/texlang.c, lua/limglib.c,
+	lua/llualib.c, lua/lnodelib.c, lua/loslibext.c, lua/lpdflib.c,
+	lua/lstatslib.c, lua/ltexlib.c, lua/luainit.c, lua/luanode.c,
+	lua/luastuff.c, mathcodes.c, tex/linebreak.c, tex/math.c,
+	tex/mlist.c, tex/primitive.c, tex/texdeffont.c, tex/texnodes.c,
+	tex/textoken.c, utils/synctex.c, utils/utils.c:
+	Declare functions and global vars as static.
+
+	* font/texfont.c: #include "luatexfont.h" and remove externs.
+	* image/writejpg.c: #include "writejpg.h".
+	* image/writepng.c: #include "writepng.h".
+	* lang/hnjalloc.c: #include "hnjalloc.h".
+	* lua/texluac.c: #include "luatex-api.h".
+	* utils/synctex.c: #include "synctex.h".
+	* utils/utils.c: #include "utils.h".
+
+	* lua/lcallbacklib.c: Remove prototype for lua_traceback().
+	* ptexlib.h: Add prototype for get_command_id() ...
+	* lua/ltokenlib.c: ... removed from here.
+	* nodes.h: Add prototype for list_node_mem_usage() ...
+	* lua/lnodelib.c: ... removed from here.
+	* managed-sa.h: Add prototype for rawset_sa_item() ...
+	* mathcodes.c, tex/math.c: ... removed from here.
+
+	* inc-epdf.h: New file with prototypes for epdf_mark_glyphs(),
+	epdf_create_fontdescriptor(), and epdf_write_enc() ...
+	* image/epdf.h: ... removed from here.
+	* image/epdf.h, font/writeenc.c: #include inc-epdf.h.
+	* inc-vfovf.h: New file with prototype for make_vf_table() ...
+	* lua/lfontlib.c: ... removed from here.
+	* font/vfovf.c, lua/lfontlib.c: #include inc-vfovf.h.
+	* inc-extra.h: New file with prototypes for check_isnode()
+	and lua_nodelib_push_fast() ...
+	* lua/limglib.c, lua/llanglib.c, lua/lstatslib.c, lua/ltexlib.c:
+	... removed from here.
+	* lua/limglib.c, lua/llanglib.c, lua/lnodelib.c,
+	lua/lstatslib.c, lua/ltexlib.c: #include "inc-extra.h".
+	* am/libluatex.am (libluatex_a_SOURCES): Add the new files.
+
+	* font/texfont.c (lua_char_exists_callback),
+	font/vfovf.c (is_letterspaced_font),
+	font/vfpacket.c (packet_command_names),
+	font/writet1.c (free_glyph_names),
+	image/writeimg.c (image_group_ref),
+	lua/ltexlib.c (get_something_internal),
+	tex/texnodes.c (print_free_chain),
+	textcodes.c (clearcatcodestack):
+	Skip unused static funcs and vars (via #if 0 ... #endif).
+
+	* lua/luainit.c (lua_initialize): Replace string constant
+	arguments of putenv() by non-const static string variables.
+
+	* utils/avl.c (avl_delete): Don't reuse const input param for
+	non-const return value.
+
+	* utils/synctex.c: Rename synctexchar => synctex_char and
+	synctexnode => synctex_node as declared in utils/synctex.h.
+
+2010-01-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* luatangle.ch: Declare web_name, chg_name, pascal_name, and
+	pool_name as const_c_string.
+
+	* lua/lkpselib.c (readable_file, lua_kpathsea_readable_file):
+	Drop non-const cast of {kpse,kpathsea}_readable_file() result.
+
+2010-01-03  Karl Berry  <karl@tug.org>
+
+	* luatex.ch: propagate "executed safely" wording change.
+
+2009-12-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/luatex.am: Replace the obsolete $(mkdir_p) by $(MKDIR_P).
+
+2009-12-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua/loslibext.c (do_mkdtemp): Declare as static and skip
+	compilation when not used.
+
+2009-12-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* pdf/pagetree.c, utils/utils.c: Drop #ifdef HAVE_ASPRINTF and
+	#include <stdio.h>.
+
+2009-12-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* utils/synctex.c: Remove (already commented) extern declaration
+	of gettexstring().
+
+2009-10-24  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* luatex.web: Use kpse_{in,out}_name_ok(), now in Kpathsea,
+	instead of open{in,out}nameok().
+	* luatex.defines: Replace open_{in,out}_name_ok by
+	kpse_{in,out}_name_ok.
+
+2009-10-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* image/pdftoepdf.cc: Adapt to poppler-0.12.
+
+	* FIXME: image/epdf.h, utils/utils.h: Multiple prototypes for
+	pdftex_fail, pdftex_warn, and probably others.
+
+2009-09-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/luatex.am: Adapt to new makecpool with one argument.
+
+2009-09-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua/luainit.c (dump_name, c_job_name, last_source_name,
+	last_lineno): Drop extern declarations (now in texmfmp.h).
+	(user_progname): Constify string.
+	(lua_initialize): Avoid modifying the const_string 'dump_name'.
+
+2009-09-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* utils/synctex.c (synctex_suffix*): Constify strings.
+
+2009-09-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* luatangle.ch: Eliminate the unused |end_of_TANGLE| label.
+
+2009-09-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/libzzip.am: Enable compiler warnings.
+	* am/liblua51.am, am/libluatex.am, am/luafontforge.am,
+	am/luamisc.am, am/luasocket.am, am/luatex.am: Prepare compiler
+	warnings.
+
+2009-08-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua/lstatslib.c, lua/luainit.c: Drop extern decl of ptexbanner.
+	* utils/utils.c: #include <kpathsea/version.h> and drop extern
+	decls.
+
+2009-08-17  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua/liolib.c (io_popen): Changed Arg1 of shell_cmd_is_allowed().
+	* lua/loslibext.c (os_exec, os_spawn, os_execute): Same.
+
+2009-08-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/luatangle.am: Adapt to web2c-sh.
+	* am/luatex.am (luatex_tangle): Use tangle-sh.
+	Adapt to tangle-sh and web2c-sh.
+
+2009-06-26  Taco Hoekwater <taco@luatex.org>
+
+        * lua51/lcoco.c, lua51/lcoco.h: disable the coco patch on
+	linux+ppc because it crashes the executable.
+
+2009-06-25  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* font/writet1.c, image/epdf.[ch], utils/avlstuff.c:
+	remove #include <kpathsea/c-proto.h>.
+ 	
+2009-06-25  Taco Hoekwater <taco@luatex.org>
+ 	
+	* luatexdir: import of luatex release 0.40.6.
+
+2009-06-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua/luatex.c: drop P?C, P?H, use ANSI C function declarations.
+
+2009-06-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* font/writet1.c, image/epdf.c, utils/avlstuff.c:
+	#include <stdarg.h>, not <kpathsea/c-vararg.h>.
+
+2009-06-09  Taco Hoekwater <taco@luatex.org>
+ 	
+	* luatexdir: import of luatex release 0.40.4.
+
+2009-06-08  Taco Hoekwater <taco@luatex.org>
+ 	
+	* luatexdir: import of luatex release 0.40.3.
+	This affects many files in subdirectories.
+
+2009-06-04  Taco Hoekwater <taco@luatex.org>
+	
+	* luatexdir: "avoid variable declaration after statement" patch
+	from Vladimir Volovich
+
 2009-06-03  Taco Hoekwater <taco@luatex.org>
  	
 	* luatexdir/luafontloader/fontforge/fontforge/namelist.c (psaltnames): add
