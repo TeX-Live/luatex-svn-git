@@ -70,13 +70,14 @@ DIST_COMMON = README $(am__configure_deps) $(dist_man_MANS) \
 	$(srcdir)/pdftexdir/am/libpdftex.am \
 	$(srcdir)/pdftexdir/am/pdftex.am \
 	$(srcdir)/pdftexdir/am/pdftosrc.am \
-	$(srcdir)/pdftexdir/am/ttf2afm.am \
+	$(srcdir)/pdftexdir/am/ttf2afm.am $(srcdir)/ptexdir/am/ptex.am \
 	$(srcdir)/synctexdir/am/synctex.am $(srcdir)/tangle-sh.in \
 	$(srcdir)/web2c-sh.in $(srcdir)/xetexdir/am/xetex.am \
 	$(top_srcdir)/configure \
 	$(top_srcdir)/luatexdir/luafontloader/ff-config.in \
 	$(top_srcdir)/omegafonts/Makefile.in \
 	$(top_srcdir)/otps/Makefile.in \
+	$(top_srcdir)/ptexdir/lib/Makefile.in \
 	$(top_srcdir)/window/Makefile.in ../../build-aux/config.guess \
 	../../build-aux/config.sub ../../build-aux/depcomp \
 	../../build-aux/install-sh ../../build-aux/ltmain.sh \
@@ -173,8 +174,9 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = c-auto.h ff-config.h
-CONFIG_CLEAN_FILES = omegafonts/Makefile otps/Makefile window/Makefile \
-	web2c-sh tangle-sh ctangleboot-sh
+CONFIG_CLEAN_FILES = omegafonts/Makefile otps/Makefile \
+	ptexdir/lib/Makefile window/Makefile web2c-sh tangle-sh \
+	ctangleboot-sh
 CONFIG_CLEAN_VPATH_FILES =
 ARFLAGS = cru
 libff_a_AR = $(AR) $(ARFLAGS)
@@ -254,68 +256,6 @@ am_libluasocket_a_OBJECTS = libluasocket_a-auxiliar.$(OBJEXT) \
 libluasocket_a_OBJECTS = $(am_libluasocket_a_OBJECTS)
 libluatex_a_AR = $(AR) $(ARFLAGS)
 libluatex_a_LIBADD =
-am__objects_1 = libluatex_a-dvigen.$(OBJEXT) \
-	libluatex_a-dofont.$(OBJEXT) libluatex_a-luafont.$(OBJEXT) \
-	libluatex_a-mapfile.$(OBJEXT) libluatex_a-pkin.$(OBJEXT) \
-	libluatex_a-sfnt.$(OBJEXT) libluatex_a-subfont.$(OBJEXT) \
-	libluatex_a-texfont.$(OBJEXT) libluatex_a-tfmofm.$(OBJEXT) \
-	libluatex_a-tounicode.$(OBJEXT) libluatex_a-tt_glyf.$(OBJEXT) \
-	libluatex_a-tt_table.$(OBJEXT) libluatex_a-vfovf.$(OBJEXT) \
-	libluatex_a-vfpacket.$(OBJEXT) libluatex_a-writecff.$(OBJEXT) \
-	libluatex_a-writeenc.$(OBJEXT) libluatex_a-writefont.$(OBJEXT) \
-	libluatex_a-writet1.$(OBJEXT) libluatex_a-writet3.$(OBJEXT) \
-	libluatex_a-writettf.$(OBJEXT) \
-	libluatex_a-writetype0.$(OBJEXT) \
-	libluatex_a-writetype2.$(OBJEXT) libluatex_a-epdf.$(OBJEXT) \
-	libluatex_a-writeimg.$(OBJEXT) \
-	libluatex_a-writejbig2.$(OBJEXT) \
-	libluatex_a-writejpg.$(OBJEXT) libluatex_a-writepng.$(OBJEXT) \
-	libluatex_a-luagen.$(OBJEXT) libluatex_a-luainit.$(OBJEXT) \
-	libluatex_a-luanode.$(OBJEXT) libluatex_a-luastuff.$(OBJEXT) \
-	libluatex_a-luatoken.$(OBJEXT) libluatex_a-texluac.$(OBJEXT) \
-	libluatex_a-ocp.$(OBJEXT) libluatex_a-ocplist.$(OBJEXT) \
-	libluatex_a-readocp.$(OBJEXT) libluatex_a-runocp.$(OBJEXT) \
-	libluatex_a-texlang.$(OBJEXT) libluatex_a-hyphen.$(OBJEXT) \
-	libluatex_a-hnjalloc.$(OBJEXT) libluatex_a-pagetree.$(OBJEXT) \
-	libluatex_a-pdfaction.$(OBJEXT) libluatex_a-pdfannot.$(OBJEXT) \
-	libluatex_a-pdfcolorstack.$(OBJEXT) \
-	libluatex_a-pdfdest.$(OBJEXT) libluatex_a-pdffont.$(OBJEXT) \
-	libluatex_a-pdfgen.$(OBJEXT) libluatex_a-pdfglyph.$(OBJEXT) \
-	libluatex_a-pdfimage.$(OBJEXT) libluatex_a-pdflink.$(OBJEXT) \
-	libluatex_a-pdflistout.$(OBJEXT) \
-	libluatex_a-pdfliteral.$(OBJEXT) libluatex_a-pdfobj.$(OBJEXT) \
-	libluatex_a-pdfoutline.$(OBJEXT) libluatex_a-pdfpage.$(OBJEXT) \
-	libluatex_a-pdfrule.$(OBJEXT) \
-	libluatex_a-pdfsaverestore.$(OBJEXT) \
-	libluatex_a-pdfsetmatrix.$(OBJEXT) \
-	libluatex_a-pdfshipout.$(OBJEXT) \
-	libluatex_a-pdftables.$(OBJEXT) \
-	libluatex_a-pdfthread.$(OBJEXT) libluatex_a-pdfxform.$(OBJEXT) \
-	libluatex_a-align.$(OBJEXT) libluatex_a-dumpdata.$(OBJEXT) \
-	libluatex_a-expand.$(OBJEXT) libluatex_a-inputstack.$(OBJEXT) \
-	libluatex_a-maincontrol.$(OBJEXT) libluatex_a-mlist.$(OBJEXT) \
-	libluatex_a-postlinebreak.$(OBJEXT) \
-	libluatex_a-scanning.$(OBJEXT) \
-	libluatex_a-texdeffont.$(OBJEXT) \
-	libluatex_a-texnodes.$(OBJEXT) \
-	libluatex_a-arithmetic.$(OBJEXT) \
-	libluatex_a-conditional.$(OBJEXT) \
-	libluatex_a-equivalents.$(OBJEXT) \
-	libluatex_a-extensions.$(OBJEXT) \
-	libluatex_a-commands.$(OBJEXT) libluatex_a-linebreak.$(OBJEXT) \
-	libluatex_a-mathcodes.$(OBJEXT) libluatex_a-nesting.$(OBJEXT) \
-	libluatex_a-primitive.$(OBJEXT) \
-	libluatex_a-texfileio.$(OBJEXT) \
-	libluatex_a-textcodes.$(OBJEXT) \
-	libluatex_a-buildpage.$(OBJEXT) \
-	libluatex_a-directions.$(OBJEXT) libluatex_a-errors.$(OBJEXT) \
-	libluatex_a-filename.$(OBJEXT) libluatex_a-mainbody.$(OBJEXT) \
-	libluatex_a-memoryword.$(OBJEXT) \
-	libluatex_a-packaging.$(OBJEXT) libluatex_a-printing.$(OBJEXT) \
-	libluatex_a-stringpool.$(OBJEXT) libluatex_a-texmath.$(OBJEXT) \
-	libluatex_a-textoken.$(OBJEXT) libluatex_a-utils.$(OBJEXT) \
-	libluatex_a-avlstuff.$(OBJEXT) \
-	libluatex_a-managed-sa.$(OBJEXT)
 am_libluatex_a_OBJECTS = libluatex_a-pdftoepdf.$(OBJEXT) \
 	libluatex_a-lcallbacklib.$(OBJEXT) \
 	libluatex_a-lfontlib.$(OBJEXT) libluatex_a-limglib.$(OBJEXT) \
@@ -326,8 +266,7 @@ am_libluatex_a_OBJECTS = libluatex_a-pdftoepdf.$(OBJEXT) \
 	libluatex_a-lstatslib.$(OBJEXT) \
 	libluatex_a-ltexiolib.$(OBJEXT) libluatex_a-ltexlib.$(OBJEXT) \
 	libluatex_a-ltokenlib.$(OBJEXT) libluatex_a-avl.$(OBJEXT) \
-	libluatex_a-synctex.$(OBJEXT) $(am__objects_1) \
-	libluatex_a-lmplib.$(OBJEXT)
+	libluatex_a-synctex.$(OBJEXT)
 nodist_libluatex_a_OBJECTS = libluatex_a-dvigen.$(OBJEXT) \
 	libluatex_a-dofont.$(OBJEXT) libluatex_a-luafont.$(OBJEXT) \
 	libluatex_a-mapfile.$(OBJEXT) libluatex_a-pkin.$(OBJEXT) \
@@ -389,7 +328,7 @@ nodist_libluatex_a_OBJECTS = libluatex_a-dvigen.$(OBJEXT) \
 	libluatex_a-stringpool.$(OBJEXT) libluatex_a-texmath.$(OBJEXT) \
 	libluatex_a-textoken.$(OBJEXT) libluatex_a-utils.$(OBJEXT) \
 	libluatex_a-avlstuff.$(OBJEXT) \
-	libluatex_a-managed-sa.$(OBJEXT)
+	libluatex_a-managed-sa.$(OBJEXT) libluatex_a-lmplib.$(OBJEXT)
 libluatex_a_OBJECTS = $(am_libluatex_a_OBJECTS) \
 	$(nodist_libluatex_a_OBJECTS)
 libmd5_a_AR = $(AR) $(ARFLAGS)
@@ -398,19 +337,19 @@ am_libmd5_a_OBJECTS = libmd5_a-md5.$(OBJEXT)
 libmd5_a_OBJECTS = $(am_libmd5_a_OBJECTS)
 libmf_a_AR = $(AR) $(ARFLAGS)
 libmf_a_LIBADD =
-am__objects_2 = libmf_a-mfini.$(OBJEXT) libmf_a-mf0.$(OBJEXT)
-nodist_libmf_a_OBJECTS = $(am__objects_2) libmf_a-mf-pool.$(OBJEXT)
+am__objects_1 = libmf_a-mfini.$(OBJEXT) libmf_a-mf0.$(OBJEXT)
+nodist_libmf_a_OBJECTS = $(am__objects_1) libmf_a-mf-pool.$(OBJEXT)
 libmf_a_OBJECTS = $(nodist_libmf_a_OBJECTS)
 libmplib_a_AR = $(AR) $(ARFLAGS)
 libmplib_a_LIBADD =
 am_libmplib_a_OBJECTS = libmplib_a-avl.$(OBJEXT)
-am__objects_3 = libmplib_a-memio.$(OBJEXT)
-am__objects_4 = libmplib_a-mp.$(OBJEXT)
-am__objects_5 = libmplib_a-psout.$(OBJEXT)
-am__objects_6 = libmplib_a-svgout.$(OBJEXT)
-am__objects_7 = libmplib_a-tfmin.$(OBJEXT)
-nodist_libmplib_a_OBJECTS = $(am__objects_3) $(am__objects_4) \
-	$(am__objects_5) $(am__objects_6) $(am__objects_7)
+am__objects_2 = libmplib_a-memio.$(OBJEXT)
+am__objects_3 = libmplib_a-mp.$(OBJEXT)
+am__objects_4 = libmplib_a-psout.$(OBJEXT)
+am__objects_5 = libmplib_a-svgout.$(OBJEXT)
+am__objects_6 = libmplib_a-tfmin.$(OBJEXT)
+nodist_libmplib_a_OBJECTS = $(am__objects_2) $(am__objects_3) \
+	$(am__objects_4) $(am__objects_5) $(am__objects_6)
 libmplib_a_OBJECTS = $(am_libmplib_a_OBJECTS) \
 	$(nodist_libmplib_a_OBJECTS)
 libxetex_a_AR = $(AR) $(ARFLAGS)
@@ -436,10 +375,10 @@ am__libxetex_a_SOURCES_DIST = xetexdir/MathTable.h \
 	xetexdir/numbers.c xetexdir/numbers.h xetexdir/pdfimage.cpp \
 	xetexdir/pdfimage.h xetexdir/pngimage.c xetexdir/pngimage.h \
 	xetexdir/XeTeXGrLayout.cpp xetexdir/XeTeXGrLayout.h
-@XETEX_MACOSX_TRUE@am__objects_8 =  \
+@XETEX_MACOSX_TRUE@am__objects_7 =  \
 @XETEX_MACOSX_TRUE@	libxetex_a-XeTeXFontInst_Mac.$(OBJEXT) \
 @XETEX_MACOSX_TRUE@	libxetex_a-XeTeX_mac.$(OBJEXT)
-@XETEX_MACOSX_FALSE@am__objects_9 =  \
+@XETEX_MACOSX_FALSE@am__objects_8 =  \
 @XETEX_MACOSX_FALSE@	libxetex_a-XeTeXFontMgr_FC.$(OBJEXT) \
 @XETEX_MACOSX_FALSE@	libxetex_a-XeTeX_pic.$(OBJEXT) \
 @XETEX_MACOSX_FALSE@	libxetex_a-bmpimage.$(OBJEXT) \
@@ -448,7 +387,7 @@ am__libxetex_a_SOURCES_DIST = xetexdir/MathTable.h \
 @XETEX_MACOSX_FALSE@	libxetex_a-numbers.$(OBJEXT) \
 @XETEX_MACOSX_FALSE@	libxetex_a-pdfimage.$(OBJEXT) \
 @XETEX_MACOSX_FALSE@	libxetex_a-pngimage.$(OBJEXT)
-@XETEX_GRAPHITE_TRUE@am__objects_10 =  \
+@XETEX_GRAPHITE_TRUE@am__objects_9 =  \
 @XETEX_GRAPHITE_TRUE@	libxetex_a-XeTeXGrLayout.$(OBJEXT)
 am_libxetex_a_OBJECTS = libxetex_a-FontTableCache.$(OBJEXT) \
 	libxetex_a-XeTeXFontInst.$(OBJEXT) \
@@ -458,8 +397,8 @@ am_libxetex_a_OBJECTS = libxetex_a-FontTableCache.$(OBJEXT) \
 	libxetex_a-XeTeXOTLayoutEngine.$(OBJEXT) \
 	libxetex_a-XeTeXOTMath.$(OBJEXT) \
 	libxetex_a-XeTeX_ext.$(OBJEXT) libxetex_a-cmaps.$(OBJEXT) \
-	libxetex_a-trans.$(OBJEXT) $(am__objects_8) $(am__objects_9) \
-	$(am__objects_10)
+	libxetex_a-trans.$(OBJEXT) $(am__objects_7) $(am__objects_8) \
+	$(am__objects_9)
 libxetex_a_OBJECTS = $(am_libxetex_a_OBJECTS)
 libxetexmm_a_AR = $(AR) $(ARFLAGS)
 libxetexmm_a_LIBADD =
@@ -572,8 +511,8 @@ nodist_mft_OBJECTS = mft.$(OBJEXT)
 mft_OBJECTS = $(nodist_mft_OBJECTS)
 mft_LDADD = $(LDADD)
 mft_DEPENDENCIES = $(proglib) $(am__DEPENDENCIES_1)
-am__objects_11 = mpost-mpxout.$(OBJEXT)
-nodist_mpost_OBJECTS = mpost-mpost.$(OBJEXT) $(am__objects_11)
+am__objects_10 = mpost-mpxout.$(OBJEXT)
+nodist_mpost_OBJECTS = mpost-mpost.$(OBJEXT) $(am__objects_10)
 mpost_OBJECTS = $(nodist_mpost_OBJECTS)
 mpost_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(mpost_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
@@ -605,8 +544,8 @@ tangle_DEPENDENCIES = $(proglib) $(am__DEPENDENCIES_1)
 nodist_tangleboot_OBJECTS = tangleboot.$(OBJEXT)
 tangleboot_OBJECTS = $(nodist_tangleboot_OBJECTS)
 tangleboot_LDADD = $(LDADD)
-am__objects_12 = tex-texini.$(OBJEXT) tex-tex0.$(OBJEXT)
-nodist_tex_OBJECTS = $(am__objects_12) tex-tex-pool.$(OBJEXT) \
+am__objects_11 = tex-texini.$(OBJEXT) tex-tex0.$(OBJEXT)
+nodist_tex_OBJECTS = $(am__objects_11) tex-tex-pool.$(OBJEXT) \
 	tex-texextra.$(OBJEXT)
 tex_OBJECTS = $(nodist_tex_OBJECTS)
 tex_DEPENDENCIES = $(am__DEPENDENCIES_3) $(am__DEPENDENCIES_1)
@@ -636,8 +575,8 @@ nodist_weave_OBJECTS = weave.$(OBJEXT)
 weave_OBJECTS = $(nodist_weave_OBJECTS)
 weave_LDADD = $(LDADD)
 weave_DEPENDENCIES = $(proglib) $(am__DEPENDENCIES_1)
-am__objects_13 = xetex-xetexini.$(OBJEXT) xetex-xetex0.$(OBJEXT)
-nodist_xetex_OBJECTS = $(am__objects_13) xetex-xetex_pool.$(OBJEXT) \
+am__objects_12 = xetex-xetexini.$(OBJEXT) xetex-xetex0.$(OBJEXT)
+nodist_xetex_OBJECTS = $(am__objects_12) xetex-xetex_pool.$(OBJEXT) \
 	xetex-xetexextra.$(OBJEXT)
 xetex_OBJECTS = $(nodist_xetex_OBJECTS)
 @XETEX_MACOSX_FALSE@am__DEPENDENCIES_5 = $(am__DEPENDENCIES_1) \
@@ -862,7 +801,6 @@ LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 LT_DLLOADERS = @LT_DLLOADERS@
 LT_DLPREOPEN = @LT_DLPREOPEN@
-LUATANGLE = @LUATANGLE@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
@@ -1040,10 +978,10 @@ EXTRA_DIST = PROJECTS cftests config.h cpascal.h help.h triptrap-sh \
 	triptrap/tripman.tex triptrap/tripos.tex triptrap/writeo \
 	triptrap/writeo.2 tmf-pool.h mplibdir/ChangeLog $(mpost_web) \
 	$(mp_tests) $(libmplib_web) mplibdir/lmplib.c \
-	luatexdir/ptexlib.h luatexdir/lua51/Makefile \
-	luatexdir/lua51/liolib.c luatexdir/lua51/lua.c \
-	luatexdir/lua51/luac.c luatexdir/lua51/print.c \
-	luatexdir/luasocket/src/socket_lua.c \
+	luatexdir/ptexlib.h luatexdir/getluatexsvnversion.sh \
+	luatexdir/lua51/Makefile luatexdir/lua51/liolib.c \
+	luatexdir/lua51/lua.c luatexdir/lua51/luac.c \
+	luatexdir/lua51/print.c luatexdir/luasocket/src/socket_lua.c \
 	luatexdir/luasocket/src/ftp_lua.c \
 	luatexdir/luasocket/src/http_lua.c \
 	luatexdir/luasocket/src/smtp_lua.c \
@@ -1136,7 +1074,7 @@ EXTRA_DIST = PROJECTS cftests config.h cpascal.h help.h triptrap-sh \
 	luatexdir/luafontloader/fontforge/inc/config.h.in \
 	luatexdir/luafontloader/fontforge/plugins/Makefile.in \
 	$(libluatex_web) luatexdir/ChangeLog luatexdir/NEWS \
-	luatexdir/README luatexdir/font/subfont.txt $(xetex_web_srcs) \
+	luatexdir/font/subfont.txt $(xetex_web_srcs) \
 	xetexdir/xetex.defines xetexdir/xetexextra.in \
 	xetexdir/pool2c.pl xetexdir/unicode-char-prep.pl \
 	xetexdir/appleGlyphNames.c xetexdir/XeTeXFontMgr_Mac.mm \
@@ -1653,7 +1591,7 @@ nodist_libluatex_a_SOURCES = dvigen.c dofont.c luafont.c mapfile.c \
 	texfileio.c textcodes.c buildpage.c directions.c errors.c \
 	filename.c mainbody.c memoryword.c packaging.c printing.c \
 	stringpool.c texmath.c textoken.c utils.c avlstuff.c \
-	managed-sa.c
+	managed-sa.c mplibdir/lmplib.c
 luatex_font_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/font $(ctangle)
 luatex_image_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/image $(ctangle)
 luatex_lua_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/lua $(ctangle)
@@ -1764,11 +1702,11 @@ libluatex_a_SOURCES = \
 	luatexdir/utils/avl.h \
 	luatexdir/utils/avlstuff.h \
 	luatexdir/utils/managed-sa.h \
+	luatexdir/utils/synctex-common.h \
+	luatexdir/utils/synctex-luatex.h \
 	luatexdir/utils/synctex.h \
 	luatexdir/utils/synctex.c \
-	luatexdir/utils/utils.h \
-	$(nodist_libluatex_a_SOURCES) \
-	mplibdir/lmplib.c
+	luatexdir/utils/utils.h
 
 
 # Force Automake to use CXXLD for linking
@@ -1842,7 +1780,7 @@ all: c-auto.h ff-config.h
 .SUFFIXES: .c .cc .cin .cpp .cxx .h .hin .lo .o .obj .p .pin
 am--refresh:
 	@:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/am/bootstrap.am $(srcdir)/am/web.am $(srcdir)/am/cweb.am $(srcdir)/am/texmf.am $(srcdir)/mplibdir/am/mplib.am $(srcdir)/mplibdir/am/libmplib.am $(srcdir)/etexdir/am/etex.am $(srcdir)/pdftexdir/am/pdftex.am $(srcdir)/pdftexdir/am/libpdftex.am $(srcdir)/pdftexdir/am/ttf2afm.am $(srcdir)/pdftexdir/am/pdftosrc.am $(srcdir)/luatexdir/am/luatex.am $(srcdir)/luatexdir/am/liblua51.am $(srcdir)/luatexdir/am/luasocket.am $(srcdir)/luatexdir/am/luamisc.am $(srcdir)/luatexdir/am/luafontforge.am $(srcdir)/luatexdir/am/libluatex.am $(srcdir)/xetexdir/am/xetex.am $(srcdir)/omegaware/am/omegaware.am $(srcdir)/alephdir/am/aleph.am $(srcdir)/synctexdir/am/synctex.am $(srcdir)/libmd5/am/md5.am $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/am/bootstrap.am $(srcdir)/am/web.am $(srcdir)/am/cweb.am $(srcdir)/am/texmf.am $(srcdir)/mplibdir/am/mplib.am $(srcdir)/mplibdir/am/libmplib.am $(srcdir)/etexdir/am/etex.am $(srcdir)/ptexdir/am/ptex.am $(srcdir)/pdftexdir/am/pdftex.am $(srcdir)/pdftexdir/am/libpdftex.am $(srcdir)/pdftexdir/am/ttf2afm.am $(srcdir)/pdftexdir/am/pdftosrc.am $(srcdir)/luatexdir/am/luatex.am $(srcdir)/luatexdir/am/liblua51.am $(srcdir)/luatexdir/am/luasocket.am $(srcdir)/luatexdir/am/luamisc.am $(srcdir)/luatexdir/am/luafontforge.am $(srcdir)/luatexdir/am/libluatex.am $(srcdir)/xetexdir/am/xetex.am $(srcdir)/omegaware/am/omegaware.am $(srcdir)/alephdir/am/aleph.am $(srcdir)/synctexdir/am/synctex.am $(srcdir)/libmd5/am/md5.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -1903,6 +1841,8 @@ distclean-hdr:
 omegafonts/Makefile: $(top_builddir)/config.status $(top_srcdir)/omegafonts/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 otps/Makefile: $(top_builddir)/config.status $(top_srcdir)/otps/Makefile.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+ptexdir/lib/Makefile: $(top_builddir)/config.status $(top_srcdir)/ptexdir/lib/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 window/Makefile: $(top_builddir)/config.status $(top_srcdir)/window/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@

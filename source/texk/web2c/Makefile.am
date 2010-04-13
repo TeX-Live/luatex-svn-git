@@ -159,6 +159,9 @@ include $(srcdir)/mplibdir/am/libmplib.am
 ## e-TeX
 include $(srcdir)/etexdir/am/etex.am
 
+## pTeX
+include $(srcdir)/ptexdir/am/ptex.am
+
 ## pdfTeX
 include $(srcdir)/pdftexdir/am/pdftex.am
 include $(srcdir)/pdftexdir/am/libpdftex.am
@@ -167,7 +170,6 @@ include $(srcdir)/pdftexdir/am/pdftosrc.am
 
 ## luaTeX
 include $(srcdir)/luatexdir/am/luatex.am
-## include $(srcdir)/luatexdir/am/luatangle.am
 include $(srcdir)/luatexdir/am/liblua51.am
 include $(srcdir)/luatexdir/am/luasocket.am
 include $(srcdir)/luatexdir/am/luamisc.am
