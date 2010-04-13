@@ -653,7 +653,7 @@ output an array of words with one system call.
 @^defecation@>
 
 @c
-void write_dvi(dvi_index a, dvi_index b)
+static void write_dvi(dvi_index a, dvi_index b)
 {
     dvi_index k;
     for (k = a; k <= b; k++)

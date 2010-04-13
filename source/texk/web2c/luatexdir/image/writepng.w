@@ -26,6 +26,7 @@ static const char _svn_version[] =
 #include <assert.h>
 #include "ptexlib.h"
 #include "image/image.h"
+#include "image/writepng.h"
 
 @ @c
 static int transparent_page_group = -1;

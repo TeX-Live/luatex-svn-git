@@ -143,7 +143,7 @@ and `\.{\$P\$}' produce different results (the former will not have the
 will be added).
 
 @c
-void unsave_math(void)
+static void unsave_math(void)
 {
     unsave();
     decr(save_ptr);
@@ -200,7 +200,7 @@ void def_fam_fnt(int fam_id, int size_id, int f, int lvl)
 }
 
 @ @c
-void unsave_math_fam_data(int gl)
+static void unsave_math_fam_data(int gl)
 {
     sa_stack_item st;
     if (math_fam_head->stack == NULL)
@@ -266,7 +266,7 @@ scaled get_math_param(int param_id, int style_id)
 
 
 @ @c
-void unsave_math_param_data(int gl)
+static void unsave_math_param_data(int gl)
 {
     sa_stack_item st;
     if (math_param_head->stack == NULL)
@@ -503,7 +503,7 @@ has special subfields |display_mlist|, |text_mlist|, |script_mlist|,
 and |script_script_mlist| pointing to the mlists for each style.
 
 @c
-pointer new_choice(void)
+static pointer new_choice(void)
 {                               /* create a choice node */
     return new_node(choice_node, 0);    /* the |subtype| is not used */
 }
@@ -571,7 +571,7 @@ void show_math_node(pointer p)
 @ Here are some simple routines used in the display of noads. 
 
 @c
-void print_fam_and_char(pointer p)
+static void print_fam_and_char(pointer p)
 {                               /* prints family and character */
     tprint_esc("fam");
     print_int(math_fam(p));
@@ -580,7 +580,7 @@ void print_fam_and_char(pointer p)
 }
 
 @ @c
-void print_delimiter(pointer p)
+static void print_delimiter(pointer p)
 {
     int a;
     if (small_fam(p) < 0) {
@@ -614,7 +614,7 @@ distinguished from a missing field, because these are not equivalent
 @^recursion@>
 
 @c
-void print_subsidiary_data(pointer p, ASCII_code c)
+static void print_subsidiary_data(pointer p, ASCII_code c)
 {                               /* display a noad field */
     if ((int) cur_length >= depth_threshold) {
         if (p != null)
@@ -786,7 +786,7 @@ Here is a little routine that needs to be done whenever a subformula
 is about to be processed. The parameter is a code like |math_group|.
 
 @c
-void new_save_level_math(group_code c)
+static void new_save_level_math(group_code c)
 {
     set_saved_record(0, saved_textdir, 0, text_dir_ptr);
     text_dir_ptr = new_dir(math_direction);
@@ -798,7 +798,7 @@ void new_save_level_math(group_code c)
 }
 
 @ @c
-void push_math(group_code c, int mstyle)
+static void push_math(group_code c, int mstyle)
 {
     if (math_direction != text_direction)
         dir_math_save = true;
@@ -810,7 +810,7 @@ void push_math(group_code c, int mstyle)
 }
 
 @ @c
-void enter_ordinary_math(void)
+static void enter_ordinary_math(void)
 {
     push_math(math_shift_group, text_style);
     eq_word_define(int_base + cur_fam_code, -1);
@@ -1000,7 +1000,7 @@ void enter_display_math(void)
 @c
 #define fam_in_range ((cur_fam>=0)&&(cur_fam<256))
 
-delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
+static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
 {
     const char *hlp[] = {
         "I'm going to use 0 instead of that illegal code value.",
@@ -1431,7 +1431,7 @@ delimiter is to be placed; the second tells if this delimiter follows
 \.{\\radical} or not.
 
 @c
-void scan_delimiter(pointer p, int r)
+static void scan_delimiter(pointer p, int r)
 {
     delcodeval dval = { 0, 0, 0, 0, 0, 0 };
     if (r == tex_mathcode) {    /* \.{\\radical} */
@@ -1955,7 +1955,7 @@ static void check_inline_math_end(void)
 }
 
 @ @c
-void resume_after_display(void)
+static void resume_after_display(void)
 {
     if (cur_group != math_shift_group)
         confusion("display");

@@ -26,6 +26,7 @@ static const char _svn_version[] =
 #include <assert.h>
 #include "ptexlib.h"
 #include "image/image.h"
+#include "image/writejpg.h"
 
 @ @c
 #define JPG_GRAY  1             /* Gray color space, use /DeviceGray    */

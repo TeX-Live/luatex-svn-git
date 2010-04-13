@@ -40,7 +40,7 @@ void set_cur_font(internal_font_number f)
 }
 
 @ @c
-char *scaled_to_string(scaled s)
+static char *scaled_to_string(scaled s)
 {                               /* prints scaled real, rounded to five digits */
     static char result[16];
     int n, k;

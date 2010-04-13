@@ -353,7 +353,8 @@ char **load_enc_file(char *enc_name)
 }
 
 @ @c
-void free_glyph_names(char **glyph_names)
+#if 0
+static void free_glyph_names(char **glyph_names)
 {
     int i;
     assert(glyph_names != NULL);
@@ -362,7 +363,7 @@ void free_glyph_names(char **glyph_names)
             xfree(glyph_names[i]);
     xfree(glyph_names);
 }
-
+#endif
 
 static void t1_check_pfa(void)
 {
@@ -760,7 +761,7 @@ static void copy_glyph_names(char **glyph_names, int a, int b)
 @ read encoding from Type1 font file, return |glyph_names| array, or |pdffail()|
 
 @c
-char **t1_builtin_enc(void)
+static char **t1_builtin_enc(void)
 {
     int i, a, b, c, counter = 0;
     char *r, *p, **glyph_names;
@@ -1304,7 +1305,7 @@ static int comp_t1_glyphs(const void *pa, const void *pb, void *p
     return strcmp(*(const char *const *) pa, *(const char *const *) pb);
 }
 
-struct avl_table *create_t1_glyph_tree(char **glyph_names)
+static struct avl_table *create_t1_glyph_tree(char **glyph_names)
 {
     int i;
     void **aa;
@@ -1322,7 +1323,7 @@ struct avl_table *create_t1_glyph_tree(char **glyph_names)
     return gl_tree;
 }
 
-void destroy_t1_glyph_tree(struct avl_table *gl_tree)
+static void destroy_t1_glyph_tree(struct avl_table *gl_tree)
 {
     assert(gl_tree != NULL);
     avl_destroy(gl_tree, NULL);

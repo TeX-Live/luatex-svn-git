@@ -2110,7 +2110,7 @@ static boolean substr_of_str(const char *s, const char *t)
     return true;
 }
 
-void pdf_print_info(PDF pdf, int luatex_version, str_number luatex_revision)
+static void pdf_print_info(PDF pdf, int luatex_version, str_number luatex_revision)
 {                               /* print info object */
     boolean creator_given, producer_given, creationdate_given, moddate_given,
         trapped_given;
@@ -2165,7 +2165,7 @@ void pdf_print_info(PDF pdf, int luatex_version, str_number luatex_revision)
     pdf_end_dict(pdf);
 }
 
-void build_free_object_list(PDF pdf)
+static void build_free_object_list(PDF pdf)
 {
     int k, l;
     l = 0;

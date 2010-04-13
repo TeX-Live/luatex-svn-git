@@ -31,7 +31,7 @@ for (i = 0; i < (l); i++) {                       \
     pdf_quick_out(p, ((const unsigned char *) (s))[i]); \
 }
 
-int luapdfprint(lua_State * L)
+static int luapdfprint(lua_State * L)
 {
     int n;
     unsigned i;
@@ -83,7 +83,7 @@ int luapdfprint(lua_State * L)
     return 0;
 }
 
-unsigned char *fread_to_buf(lua_State * L, const char *filename, size_t * len)
+static unsigned char *fread_to_buf(lua_State * L, const char *filename, size_t * len)
 {
     int i = 0;
     int ilen = 0;

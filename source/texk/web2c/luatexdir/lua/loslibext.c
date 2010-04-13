@@ -603,7 +603,7 @@ static int os_setenv(lua_State * L)
 }
 
 
-void find_env(lua_State * L)
+static void find_env(lua_State * L)
 {
     char *envitem, *envitem_orig;
     char *envkey;
@@ -872,11 +872,12 @@ static int os_gettimeofday(lua_State * L)
 
 static const char repl[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 
-static int dirs_made = 0;
-
 #define MAXTRIES 36*36*36
 
-char *do_mkdtemp(char *tmpl)
+#ifndef HAVE_MKDTEMP
+static int dirs_made = 0;
+
+static char *do_mkdtemp(char *tmpl)
 {
     int count;
     int value;
@@ -908,6 +909,7 @@ char *do_mkdtemp(char *tmpl)
     }
     return NULL;
 }
+#endif
 
 static int os_tmpdir(lua_State * L)
 {

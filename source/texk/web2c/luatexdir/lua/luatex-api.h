@@ -198,5 +198,6 @@ extern char charsetstr[];       /* from mpdir/psout.w */
 
 extern char **environ;
 
+extern int luac_main(int argc, char *argv[]); /* texluac.w */
 
 #endif

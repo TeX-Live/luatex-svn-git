@@ -35,6 +35,7 @@ fi
 
 ONLY_MAKE=FALSE
 STRIP_LUATEX=TRUE
+WARNINGS=yes
 MINGWCROSS=FALSE
 MACCROSS=FALSE
 JOBS_IF_PARALLEL=2
@@ -44,12 +45,13 @@ CFLAGS="$CFLAGS -Wdeclaration-after-statement"
 
 until [ -z "$1" ]; do
   case "$1" in
-    --make     ) ONLY_MAKE=TRUE     ;;
-    --nostrip  ) STRIP_LUATEX=FALSE ;;
-    --mingw    ) MINGWCROSS=TRUE    ;;
-    --parallel ) MAKE="$MAKE -j $JOBS_IF_PARALLEL -l $MAX_LOAD_IF_PARALLEL" ;;
-    --arch=*   ) MACCROSS=TRUE; ARCH=`echo $1 | sed 's/--arch=\(.*\)/\1/' ` ;;
-    *          ) echo "ERROR: invalid build.sh parameter: $1"; exit 1       ;;
+    --make      ) ONLY_MAKE=TRUE     ;;
+    --nostrip   ) STRIP_LUATEX=FALSE ;;
+    --warnings=*) WARNINGS=`echo $1 | sed 's/--warnings=\(.*\)/\1/' `        ;;
+    --mingw     ) MINGWCROSS=TRUE    ;;
+    --parallel  ) MAKE="$MAKE -j $JOBS_IF_PARALLEL -l $MAX_LOAD_IF_PARALLEL" ;;
+    --arch=*    ) MACCROSS=TRUE; ARCH=`echo $1 | sed 's/--arch=\(.*\)/\1/' ` ;;
+    *           ) echo "ERROR: invalid build.sh parameter: $1"; exit 1       ;;
   esac
   shift
 done
@@ -61,6 +63,8 @@ LUATEXEXE=luatex
 case `uname` in
   MINGW32*    ) LUATEXEXE=luatex.exe ;;
 esac
+
+WARNINGFLAGS=--enable-compiler-warnings=$WARNINGS
 
 B=build
 CONFHOST=
@@ -115,7 +119,7 @@ cd "$B"
 
 if [ "$ONLY_MAKE" = "FALSE" ]
 then
-TL_MAKE=$MAKE ../source/configure  $CONFHOST \
+TL_MAKE=$MAKE ../source/configure  $CONFHOST $WARNINGFLAGS\
     --enable-cxx-runtime-hack \
     --disable-afm2pl    \
     --disable-aleph  \

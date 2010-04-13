@@ -410,7 +410,7 @@ static const char *newtabnames[] = {
 @ Back to code. Low-level helpers first.
 
 @c
-ttf_cmap_entry *new_ttf_cmap_entry(void)
+static ttf_cmap_entry *new_ttf_cmap_entry(void)
 {
     ttf_cmap_entry *e;
     e = xtalloc(1, ttf_cmap_entry);
@@ -1763,7 +1763,7 @@ void writettf(PDF pdf, fd_entry * fd)
     cur_file_name = NULL;
 }
 
-void do_writeotf(PDF pdf, fd_entry * fd)
+static void do_writeotf(PDF pdf, fd_entry * fd)
 {
     long i;
     dirtab_entry *tab;
