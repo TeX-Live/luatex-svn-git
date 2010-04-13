@@ -81,7 +81,7 @@ static int colstacks_used = 0;
 @c
 #define init_colorstacks() if (colstacks_size == 0) colstacks_first_init();
 
-void colstacks_first_init(void)
+static void colstacks_first_init(void)
 {
     colstacks_size = STACK_INCREMENT;
     colstacks = xtalloc((unsigned) colstacks_size, colstack_type);
@@ -172,7 +172,7 @@ static void put_cstring_on_str_pool(char *str)
 }
 
 @ @c
-int colorstackset(int colstack_no, str_number s)
+static int colorstackset(int colstack_no, str_number s)
 {
     colstack_type *colstack = get_colstack(colstack_no);
 

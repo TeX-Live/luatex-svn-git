@@ -44,6 +44,8 @@
 #include "lua51/lstring.h"
 #include "lua51/lundump.h"
 
+#include "lua/luatex-api.h"
+
 @ @c
 static const char _svn_version[] =
     "$Id$ $URL$";

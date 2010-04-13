@@ -208,7 +208,7 @@ vf_local_font_warning(internal_font_number f, internal_font_number k,
 
 @ process a local font in \.{VF} file 
 @c
-internal_font_number
+static internal_font_number
 vf_def_font(internal_font_number f, unsigned char *vf_buffer, int *vf_cr)
 {
     internal_font_number k;
@@ -386,7 +386,7 @@ static int open_vf_file(const char *fn, unsigned char **vbuffer, int *vsize)
 }
 
 @ @c
-int count_packet_bytes(eight_bits * vf_buf, int cur_bute, int count)
+static int count_packet_bytes(eight_bits * vf_buf, int cur_bute, int count)
 {
     unsigned k = 0;
     int ff = 0;
@@ -1595,7 +1595,8 @@ letter_space_font(halfword u, internal_font_number f, int e)
 
 @ the fontname has [+-]\d+ls at the end 
 @c
-boolean is_letterspaced_font(internal_font_number f)
+#if 0
+static boolean is_letterspaced_font(internal_font_number f)
 {
     char *i, *j;
     if (font_type(f) != virtual_font_type)
@@ -1616,6 +1617,7 @@ boolean is_letterspaced_font(internal_font_number f)
         return false;
     return true;
 }
+#endif
 
 @ @c
 internal_font_number copy_font_info(internal_font_number f)

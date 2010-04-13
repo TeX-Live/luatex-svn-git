@@ -112,7 +112,7 @@ const_string LUATEX_IHELP[] = {
 
 @ The return value will be the directory of the executable, e.g.: \.{c:/TeX/bin}
 @c
-char *ex_selfdir(char *argv0)
+static char *ex_selfdir(char *argv0)
 {
 #if defined(WIN32)
     char path[PATH_MAX], *fp;
@@ -437,7 +437,7 @@ static char *find_filename(char *name, const char *envkey)
 
 
 @ @c
-char *cleaned_invocation_name(char *arg)
+static char *cleaned_invocation_name(char *arg)
 {
     char *ret, *dot;
     const char *start = xbasename(arg);
@@ -450,7 +450,7 @@ char *cleaned_invocation_name(char *arg)
 }
 
 @ @c
-void init_kpse(void)
+static void init_kpse(void)
 {
 
     if (!user_progname) {
@@ -480,7 +480,7 @@ void init_kpse(void)
 }
 
 @ @c
-void fix_dumpname(void)
+static void fix_dumpname(void)
 {
     int dist;
     if (dump_name) {

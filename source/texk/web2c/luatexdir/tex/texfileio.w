@@ -920,6 +920,9 @@ void do_zdump(char *p, int item_size, int nitems, FILE * out_file)
     (void) out_file;
     if (nitems == 0)
         return;
+#if !defined (WORDS_BIGENDIAN) && !defined (NO_DUMP_SHARE)
+    swap_items(p, nitems, item_size);
+#endif
     if (gzwrite(gz_fmtfile, (void *) p, (unsigned) (item_size * nitems)) !=
         item_size * nitems) {
         fprintf(stderr, "! Could not write %d %d-byte item(s): %s.\n", nitems,
@@ -940,6 +943,9 @@ void do_zundump(char *p, int item_size, int nitems, FILE * in_file)
                 nitems, item_size, gzerror(gz_fmtfile, &err));
         uexit(1);
     }
+#if !defined (WORDS_BIGENDIAN) && !defined (NO_DUMP_SHARE)
+    swap_items(p, nitems, item_size);
+#endif
 }
 
 @ @c

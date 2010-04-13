@@ -244,6 +244,8 @@ extern void close_files_and_terminate(void);
 extern void final_cleanup(void);
 extern void debug_help(void);   /* routine to display various things */
 
+extern int main_initialize(void);
+
 /* lazy me */
 #  define get_cur_font() equiv(cur_font_loc)
 #  define zset_cur_font set_cur_font

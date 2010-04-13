@@ -66,7 +66,7 @@ do by computing the value |abs(mode)+cur_cmd|, where |mode| is the current
 mode and |cur_cmd| is the current command code.
 
 @c
-const char *string_mode(int m)
+static const char *string_mode(int m)
 {                               /* prints the mode represented by |m| */
     if (m > 0) {
         switch (m / (max_command_cmd + 1)) {

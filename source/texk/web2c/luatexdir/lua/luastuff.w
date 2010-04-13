@@ -71,7 +71,7 @@ const char *getS(lua_State * L, void *ud, size_t * size)
 }
 
 @ @c
-void *my_luaalloc(void *ud, void *ptr, size_t osize, size_t nsize)
+static void *my_luaalloc(void *ud, void *ptr, size_t osize, size_t nsize)
 {
     void *ret = NULL;
     (void) ud;                  /* for -Wunused */

@@ -554,7 +554,7 @@ halfword active_to_cs(int curchr, int force)
 @ TODO this function should listen to \.{\\escapechar} 
 
 @c
-char *cs_to_string(halfword p)
+static char *cs_to_string(halfword p)
 {                               /* prints a control sequence */
     const char *s;
     char *sh;
@@ -598,7 +598,7 @@ char *cs_to_string(halfword p)
 @ TODO this is a quick hack, will be solved differently soon 
 
 @c
-char *cmd_chr_to_string(int cmd, int chr)
+static char *cmd_chr_to_string(int cmd, int chr)
 {
     char *s;
     str_number str;

@@ -129,7 +129,7 @@ at most |error_line|. Non-current input levels whose |token_type| is
 `|backed_up|' are shown only if they have not been fully read.
 
 @c
-void print_token_list_type(int t)
+static void print_token_list_type(int t)
 {
     switch (t) {
     case parameter:

@@ -424,7 +424,7 @@ static void lua_to_image(lua_State * L, image * a)
 
 /**********************************************************************/
 
-void copy_image(lua_State * L, lua_Number scale)
+static void copy_image(lua_State * L, lua_Number scale)
 {
     image *a, **aa, *b, **bb;
     if (lua_gettop(L) != 1)

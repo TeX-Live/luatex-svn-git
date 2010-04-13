@@ -685,7 +685,7 @@ make_luaS_index(depth);
 make_luaS_index(expansion_factor);
 
 
-void initialize_luaS_indexes(lua_State * L)
+static void initialize_luaS_indexes(lua_State * L)
 {
     init_luaS_index(id);
     init_luaS_index(next);
@@ -3308,7 +3308,7 @@ static int lua_nodelib_first_character(lua_State * L)
 
 /* this is too simplistic, but it helps Hans to get going */
 
-halfword do_ligature_n(halfword prev, halfword stop, halfword lig)
+static halfword do_ligature_n(halfword prev, halfword stop, halfword lig)
 {
     vlink(lig) = vlink(stop);
     vlink(stop) = null;

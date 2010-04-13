@@ -26,7 +26,7 @@ static const char _svn_version[] =
 
 
 @ @c
-halfword new_action_node(void)
+static halfword new_action_node(void)
 {
     return new_node(action_node, 0);
 }

@@ -182,12 +182,12 @@ int otp_ext_i;
 
 
 @ @c
-void overflow_ocp_buf_size(void)
+static void overflow_ocp_buf_size(void)
 {
     overflow("ocp_buf_size", (unsigned) ocp_buf_size);
 }
 
-void overflow_ocp_stack_size(void)
+static void overflow_ocp_stack_size(void)
 {
     overflow("ocp_stack_size", (unsigned) ocp_stack_size);
 }
@@ -567,7 +567,7 @@ void run_otp(void)
 @ @c
 #define FPUTC(a,b) fputc((int)(a),b)
 
-void run_external_ocp(char *external_ocp_name)
+static void run_external_ocp(char *external_ocp_name)
 {
     char *in_file_name;
     char *out_file_name;
