@@ -729,7 +729,18 @@ void addto_page_resources(PDF pdf, pdf_obj_type t, int k)
         item->link = NULL;
         item->info = k;
         pr->list = item;
-        set_obj_scheduled(pdf, k);
+
+        /* BEWARE: Page resources are identified by object number k
+           for all object types _but_ fonts: these are identified
+           by TeX font number k.
+           TODO: Unify this if possible, so that k is _always_ an
+           object number. */
+
+        if (t == obj_type_font) {
+            assert(pdf_font_num(k) > 0);        /* always base font: an object number */
+            set_obj_scheduled(pdf, pdf_font_num(k));
+        } else
+            set_obj_scheduled(pdf, k);  /* k is an object number */
     } else {
         for (p = pr->list; p->info != k && p->link != NULL; p = p->link);
         if (p->info != k) {
@@ -737,7 +748,11 @@ void addto_page_resources(PDF pdf, pdf_obj_type t, int k)
             item->link = NULL;
             item->info = k;
             p->link = item;
-            set_obj_scheduled(pdf, k);
+            if (t == obj_type_font) {
+                assert(pdf_font_num(k) > 0);    /* always base font: an object number */
+                set_obj_scheduled(pdf, pdf_font_num(k));
+            } else
+                set_obj_scheduled(pdf, k);
         }
     }
 }

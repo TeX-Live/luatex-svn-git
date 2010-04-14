@@ -577,7 +577,7 @@ static int l_registerannot(lua_State * L)
         if (i <= 0)
             luaL_error(L,
                        "pdf.registerannot() can only register positive object numbers");
-        addto_page_resources(static_pdf, obj_type_annot, -i);
+        addto_page_resources(static_pdf, obj_type_annot, i);
         break;
     default:
         luaL_error(L, "pdf.registerannot() needs exactly 1 argument");
