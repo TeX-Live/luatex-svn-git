@@ -1040,6 +1040,10 @@ library will be replaced by an internal \UNICODE\ library in a future
 The \lua{os} library has a few extra functions and variables:
 
 \startitemize
+\item \luatex{os.selfdir} is a variable that holds the directory path
+of \type{argv[0]}.  For example: {\tt \directlua{tex.sprint(os.selfdir)}}
+(present since 0.27.0).
+
 \item \luatex{os.exec(commandline)} is a variation on \lua{os.execute}.
 
   The \type{commandline} can be either a single string or a single table.
