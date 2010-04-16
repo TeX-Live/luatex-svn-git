@@ -486,6 +486,9 @@ void topenin(void)
    incrementally.  Shamim Mohamed adapted it for Web2c.  */
 #if defined (TeX) && defined (IPC)
 
+# ifdef WIN32
+#  include <winsock2.h>
+# else
 #  include <sys/socket.h>
 #  include <fcntl.h>
 #  ifndef O_NONBLOCK            /* POSIX */
@@ -499,6 +502,8 @@ what the fcntl ? cannot implement IPC without equivalent for O_NONBLOCK.
 #      endif                    /* no FNDELAY */
 #    endif                      /* no O_NDELAY */
 #  endif                        /* no O_NONBLOCK */
+# endif /* !WIN32 */
+
 #  ifndef IPC_PIPE_NAME         /* $HOME is prepended to this.  */
 #    define IPC_PIPE_NAME "/.TeXview_Pipe"
 #  endif
@@ -544,6 +549,12 @@ static int ipc_is_open(void)
 
 static void ipc_open_out(void)
 {
+#ifdef WIN32
+  u_long mode = 1;
+#define SOCK_NONBLOCK(s) ioctlsocket (s, FIONBIO, &mode)
+#else
+#define SOCK_NONBLOCK(s) fcntl (s, F_SETFL, O_NONBLOCK)
+#endif
 #  ifdef IPC_DEBUG
     fputs("tex: Opening socket for IPC output ...\n", stderr);
 #  endif
@@ -559,7 +570,7 @@ static void ipc_open_out(void)
     sock = socket(PF_UNIX, SOCK_STREAM, 0);
     if (sock >= 0) {
         if (connect(sock, ipc_addr, ipc_addr_len) != 0
-            || fcntl(sock, F_SETFL, O_NONBLOCK) < 0) {
+            || SOCK_NONBLOCK (sock) < 0) {
             close(sock);
             sock = -1;
             return;
@@ -624,42 +635,26 @@ void ipcpage(int is_eof)
 {
     static boolean begun = false;
     unsigned len = 0;
-    string p = (string) "";
+    string p = NULL;
 
     if (!begun) {
         string name;            /* Just the filename.  */
         string cwd = xgetcwd();
 
         ipc_open_out();
-#  if !defined(Aleph)
-        len = strstart[outputfilename + 1] - strstart[outputfilename];
-#  else
-        len = strstartar[outputfilename + 1 - 65536L] -
-            strstartar[outputfilename - 65536L];
-#  endif
-        name = (string) xmalloc(len + 1);
-#  if !defined(Aleph)
-        strncpy(name, (string) & strpool[strstart[outputfilename]], len);
-#  else
-        {
-            unsigned i;
-            for (i = 0; i < len; i++)
-                name[i] = strpool[i + strstartar[outputfilename - 65536L]];
-        }
-#  endif
-        name[len] = 0;
 
         /* Have to pass whole filename to the other end, since it may have
            been started up and running as a daemon, e.g., as with the NeXT
            preview program.  */
+	name = static_pdf->file_name;
         p = concat3(cwd, DIR_SEP_STRING, name);
-        free(name);
+        /* free(name); */
         len = strlen(p);
         begun = true;
     }
     ipc_snd(len, is_eof, p);
 
-    if (len > 0) {
+    if (p) {
         free(p);
     }
 }
@@ -699,7 +694,7 @@ string normalize_quotes(const_string name, const_string mesg)
    variable `interrupt'; then they will do everything needed.  */
 #ifdef WIN32
 /* Win32 doesn't set SIGINT ... */
-BOOL WINAPI catch_interrupt(DWORD arg)
+static BOOL WINAPI catch_interrupt(DWORD arg)
 {
     switch (arg) {
     case CTRL_C_EVENT:
