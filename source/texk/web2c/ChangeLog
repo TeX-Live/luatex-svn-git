@@ -1,6 +1,114 @@
+2010-04-15  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Removed LT_LIB_DLLOAD, added check for dlfcn.h.
+	May require '-ldl' for dlopen() for luaTeX only (not everyone).
+
+2010-04-14  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (sub_dirs): New variable, such that ptexdir/lib/
+	for the pTeX programs is (re-)built early.
+
+2010-04-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* triptrap-sh [pTeX]: Generate ptrip.diffs.
+
+2010-04-11  Karl Berry  <karl@tug.org>
+
+	* ac/web2c.ac (kpse_tex_progs): add ptex.
+	* configure.ac (KPSE_PTEXENC_FLAGS): invoke new macro.
+	(AC_CONFIG_FILES): generate ptexdir/lib/Makefile
+	* Makefile.am: include $(srcdir)/ptexdir/am/ptex.am.
+	* lib/texmfmp.c [pTeX]: various pTeX conditionals.
+	* texmfmp-help.h [pTeX]: pTeX options.
+
+2010-04-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tangle.ch: Check and correct module numbers.
+
+	* dvitype.ch, gftodvi.ch, gftopk.ch, gftype.ch, mf.ch, mft.ch,
+	pktogf.ch, pktype.ch, pltotf.ch, pooltype.ch, tangle.ch, tex.ch,
+	tftopl.ch, vftovp.ch, vptovf.ch, weave.ch: Remove trailing
+	whitespace.
+
+2010-04-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/cweb.am (cweave.c): Add dependency on cwebdir/prod.w.
+
+2010-04-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* dvicopy.ch (dvi_name): New global variable.
+	(dvi_length, dvi_move): Use dvi_name instead of 'dvicopy' as
+	last arg of xfseek() and xftell().
+	No random reading on stdin, may be not seekable.
+	* dvitype.ch (dvi_name): New global variable.
+	(dvi_length, move_to_byte): Use dvi_name instead of 'dvitype'
+	as last arg of xfseek() and xftell().
+	* gftopk.ch (gf_length, move_to_byte): Use gf_name instead of
+	'gftopk' as last arg of xfseek() and xftell().
+
+2010-04-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* pktogf.ch: Check and correct module numbers.
+	Dynamically allocate and resize the row_counts array.
+
+2010-04-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* gftopk.ch: Check and correct module numbers.
+	Dynamically allocate and resize the row array.
+	Remove superfluous variable vpl_name.
+	Bug fix for GF file too short.
+
+2010-04-05  Taco Hoekwater  <taco@luatex.org>
+	    
+	* texmfmp.h: Removed #ifdef luaTeX code, now that luatex
+	no longer includes this file at all.
+	
+2010-04-04  Taco Hoekwater  <taco@luatex.org>
+
+	* configure.ac: Append LT_LIB_DLLOAD to the end,
+	needed for the current 0.60.0 luatex build system.
+	* Makefile.am: Comment out the luatexdir/am/luatangle.am line
+	* autoreconf
+	
+2010-03-24  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Check if dlopen() requires `-ldl'.
+
+2010-03-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* cpascal.h (BIBXRETALLOCSTRING): New macro to resize BibTeX's
+	global_strs array of strings.
+	* mf.ch, tex.ch: Remove extra semicolon after setup_bound_var.
+	* bibtex.ch: Parameters |ent_str_size| and |glob_str_size|
+	settable at runtime.  Arrays with dimension |max_glob_strs| or
+	|lit_stk_size| allocated at runtime and resized as needed.
+	Dynamically allocate |singl_function| instances and resize them
+	as needed; remove procedure |singl_fn_overflow|.
+
+2010-03-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* bibtex.ch (str_room): Call pool_overflow() as often as needed.
+	(scan_fn_def): Increase wiz_fn_space as often as needed.
+	(x_text_prefix): Add missing str_room.
+
+2010-03-17  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* bibtex.ch (max_cites): Dynamically resize the cite_list,
+	type_list, entry_exists, and cite_info arrays.
+
+	* tests/bibtex-mem.test: New shell script for dynamic arrays.
+	* tests/memdata[123].bst: Test data from Philipp Lehman.
+	* am/web.am: Adapted.
+
+2010-03-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* bibtex.ch (entry_ints, entry_strs): Delay allocation until
+	the required size is known.
+	(max_ent_ints, max_ent_strs): Removed.
+
 2010-03-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
-	am/bootstrap.am: Use suffix rules to create tangleboot.p,
+	* am/bootstrap.am: Use suffix rules to create tangleboot.p,
 	ctangleboot.c, and cwebboot.[ch] from distributed `in' files.
 
 	* bibtex.ch: Check and correct module numbers.  Parameter
