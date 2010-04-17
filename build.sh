@@ -79,7 +79,8 @@ then
   CFLAGS="-mtune=pentiumpro -msse2 -g -O2 $CFLAGS"
   CXXFLAGS="-mtune=pentiumpro -msse2 -g -O2 $CXXFLAGS"
   CONFHOST="--host=mingw32 --build=i686-linux-gnu "
-  export CFLAGS CXXFLAGS
+  LDFLAGS="-Wl,--large-address-aware $CFLAGS"
+  export CFLAGS CXXFLAGS LDFLAGS
 fi
 
 if [ "$MACCROSS" = "TRUE" ]
