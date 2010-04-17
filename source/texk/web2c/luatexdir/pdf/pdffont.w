@@ -190,7 +190,8 @@ internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
        or some font with the same tfm name at different size and/or expansion.
      */
     ff = pdf_font_num(f) < 0 ? -pdf_font_num(f) : f;    /* aka |set_ff(f)| */
-    addto_page_resources(pdf, obj_type_font, ff);
+    assert(pdf_font_num(ff) > 0);       /* base font object number */
+    addto_page_resources(pdf, obj_type_font, pdf_font_num(ff));
     return ff;
 }
 
