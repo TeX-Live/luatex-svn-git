@@ -10,7 +10,8 @@
    #defines TeX or MF, which avoids the need for a special
    Makefile rule.  */
 #include "luatex.h"
-
+#include "ptexlib.h"
+#include "lua/luatex-api.h"
 #include "luatex_svnversion.h"
 
 static const char _svn_version[] =
@@ -392,9 +393,6 @@ int runsystem(char *cmd)
 
 #endif
 
-/* The main program, etc.  */
-
-extern void lua_initialize(int ac, char **av);
 
 /* What we were invoked as and with.  */
 char **argv;
@@ -406,13 +404,7 @@ string dump_name;
 /* The C version of the jobname, if given. */
 const_string c_job_name;
 
-/* Full source file name. */
-extern string fullnameoffile;
-
-/* The main body of the WEB is transformed into this procedure.  */
-extern TEXDLL void mainbody(void);
-
-char *ptexbanner;
+const char *ptexbanner;
 
 #if !defined(WIN32) || defined(__MINGW32__)
 /* The entry point: set up for reading the command line, which will
