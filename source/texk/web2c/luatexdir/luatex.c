@@ -46,7 +46,6 @@ const char *engine_name = "luatex";     /* the name of this engine */
 
 #include <signal.h>             /* Catch interrupts.  */
 
-#include <texmfmp-help.h>
 
 /* {tex,mf}d.h defines TeX, MF, INI, and other such symbols.
    Unfortunately there's no way to get the banner into this code, so
