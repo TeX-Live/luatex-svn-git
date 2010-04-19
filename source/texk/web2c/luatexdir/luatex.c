@@ -424,7 +424,7 @@ int main(int ac, string * av)
     lua_initialize(ac, av);
 
     /* Call the real main program.  */
-    mainbody();
+    main_body();
 
     return EXIT_SUCCESS;
 }

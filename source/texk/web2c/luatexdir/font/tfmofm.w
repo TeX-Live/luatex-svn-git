@@ -575,7 +575,7 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
     halfword lf, lh, bc, ec, nw, nh, nd, ni, nl, nk, ne, np, slh;       /* sizes of subfiles */
     scaled *widths, *heights, *depths, *italics, *kerns;
     halfword font_dir;
-    int a, b, c, d;             /* byte variables */
+    int a, b, c=0, d=0;             /* byte variables */
     int i;                      /* counter */
     int font_level, header_length;
     int nco, ncw, npc, nlw, neew;

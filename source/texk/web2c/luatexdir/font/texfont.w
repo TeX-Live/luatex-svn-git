@@ -516,7 +516,7 @@ static void dump_charinfo_variants(extinfo * o)
 @ @c
 static extinfo *undump_charinfo_variants(void)
 {
-    extinfo *c, *t, *h = NULL;
+    extinfo *c, *t = NULL, *h = NULL;
     c = undump_variant();
     while (c != NULL) {
         if (h == null)

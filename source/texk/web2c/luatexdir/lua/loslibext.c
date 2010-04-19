@@ -268,7 +268,7 @@ static char *get_command_name(char *maincmd)
     int i, k, quoted;
     quoted = k = 0;
     for (i = 0; (i < MAX_PATH) && maincmd[i] &&
-         (maincmd[i] != ' ' && maincmd[i] != '\t' || quoted); i++) {
+	     ((maincmd[i] != ' ' && maincmd[i] != '\t') || quoted); i++) {
         if (maincmd[i] == '"') {
             quoted = !quoted;
         } else {
