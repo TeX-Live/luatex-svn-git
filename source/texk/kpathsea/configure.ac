@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl
-dnl   Copyright (C) 2009 Peter Breitenlohner <tex-live@tug.org>
+dnl   Copyright (C) 2009, 2010 Peter Breitenlohner <tex-live@tug.org>
 dnl
 dnl   This file is free software; the copyright holder
 dnl   gives unlimited permission to copy and/or distribute it,
@@ -20,10 +20,10 @@ dnl
 dnl   After a release, set kpse_lib_dev to "dev", to distinguish
 dnl   binaries built between releases.
 
-m4_define([kpse_lib_major], [5])[]dnl
-m4_define([kpse_lib_minor], [1])[]dnl
+m4_define([kpse_lib_major], [6])[]dnl
+m4_define([kpse_lib_minor], [0])[]dnl
 m4_define([kpse_lib_micro], [0])[]dnl
-m4_define([kpse_lib_devel], [])[]dnl or "dev"
+m4_define([kpse_lib_devel], [dev])[]dnl empty or "dev"
 m4_define([kpse_version], [kpse_lib_major.kpse_lib_minor.kpse_lib_micro[]kpse_lib_devel])[]dnl
 
 AC_INIT([Kpathsea], [kpse_version], [tex-k@tug.org])
@@ -34,7 +34,7 @@ AC_CONFIG_MACRO_DIR([../../m4])
 
 AC_SUBST([KPSEVERSION], [kpse_version])
 AC_DEFINE([KPSEVERSION], ["kpathsea version kpse_version"])
-AC_SUBST([KPSE_LT_VERSNUM], [kpse_lib_major:kpse_lib_minor:kpse_lib_micro])
+AC_SUBST([KPSE_LT_VERSINFO], [m4_eval(kpse_lib_major+kpse_lib_minor):kpse_lib_micro:kpse_lib_minor])
 
 dnl Common code for all programs using libkpathsea.
 KPSE_COMMON([kpathsea])

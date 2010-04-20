@@ -33,8 +33,6 @@
 extern double rint(double x);
 #  endif
 
-extern string fullnameoffile;
-
 #  if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
 extern char **suffixlist; /* in luainit.w */
 #  endif

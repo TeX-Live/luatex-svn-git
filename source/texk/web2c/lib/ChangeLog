@@ -1,3 +1,54 @@
+2010-04-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c, lib.h: Remove luaTeX specific code.
+
+	* lib.h: Move extern declaration of ptexbanner from here
+	to ../pdftexdir/ptexlib.h (instatiated in texmfmp.c).
+
+2010-04-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* main.c, texmfmp.c: Remove extern declaration of mainbody,
+	is in lib.h.
+	* openclose.c (recorder_enabled, output_directory): Remove
+	extern declarations, are in lib.h.
+	* lib.h: Move extern declaration of fullnameoffile to here ...
+	* texmfmp.c: ... from here ...
+	* openclose.c: ... and from here.
+	* texmfmp.c [XeTeX]: Move extern declarations of papersize and
+	outputdriver from here to ../xetexdir/XeTeX_ext.h.
+
+	* Makefile.am, openclose.c, printversion.c:
+	Integrate libp.a for pTeX.
+
+2010-04-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c (maininit) [__SyncTeX__]: omit warning about no
+	SyncTeX for pTeX.
+
+2010-04-11  Karl Berry  <karl@tug.org>
+
+	* texmfmp.c,
+	* printversion.c,
+	* openclose.c,
+	* chartostring.c,
+	* basechsuffix.c: remove useless casts to (string) or (char *),
+	etc. of xmalloc.
+
+2010-03-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* openclose.c (open_input): Fixed a typo.
+	From Akira Kakuto <kakuto@fuk.kindai.ac.jp>, 30 Mar 2010 12:33:33.
+
+2010-03-30  Karl Berry  <karl@tug.org>
+
+	* (recorder_start): throw in pid in recorder_name so parallel builds
+	have a chance of working.  Report from
+	Kirill Smelkov, Debian bug 575731, tex-k mail 29 Mar 2010 06:18:35.
+
+2010-03-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* setupvar.c (setupboundvariable): Fix off by one error in msg.
+
 2010-03-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* texmfmp.c (setupboundvariable): Moved from here ...

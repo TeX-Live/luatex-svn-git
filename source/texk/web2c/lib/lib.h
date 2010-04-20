@@ -39,18 +39,15 @@ extern boolean open_input (FILE **, int, const_string fopen_mode);
 extern boolean open_output (FILE **, const_string fopen_mode);
 extern void close_file (FILE *);
 extern void recorder_change_filename (string);
-extern boolean recorder_enabled;
-extern string output_directory;
 extern void recorder_record_input (const_string);
 extern void recorder_record_output (const_string);
 
+extern string fullnameoffile;
+extern boolean recorder_enabled;
+extern string output_directory;
+
 /* printversion.c */
 extern void printversionandexit (const_string, const_string, const_string, char*);
-
-/* texmfmp.c (actually ../pdftexextra.c or ../luatexextra) */
-#if defined(pdfTeX) || defined(luaTeX)
-extern const char *ptexbanner;
-#endif
 
 /* setupvar.c */
 /* Set an array size from texmf.cnf.  */

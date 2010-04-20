@@ -55,6 +55,7 @@ AC_LANG(_AC_LANG)[]dnl
 #                 [REBUILD-SRC-DEPENDENCIES],
 #                 [REBUILD-BLD-DEPENDENCIES])
 # -----------------------------------------------
+# For generic libraries in libs/LIBDIR.
 # Provide the configure options '--with-system-LIBDIR' (if in the TL tree),
 # '--with-LIBDIR-includes', and '--with-LIBDIR-libdir'.
 # Options:
@@ -89,6 +90,15 @@ AC_SUBST(AS_TR_CPP($1)[_RULE])[]dnl
 m4_provide_if([AM_INIT_AUTOMAKE], [_AM_SUBST_NOTMAKE(AS_TR_CPP($1)[_RULE])])[]dnl
 ]) # _KPSE_LIB_FLAGS
 
+# _KPSE_TEXLIB_FLAGS(LIBDIR, LIBNAME, OPTIONS,
+#                    TL-INCLUDES, TL-LIBS, TL-EXTRA,
+#                    [REBUILD-SRC-DEPENDENCIES],
+#                    [REBUILD-BLD-DEPENDENCIES])
+# -----------------------------------------------
+# As above, but for TeX specific libraries in texk/LIBDIR.
+AC_DEFUN([_KPSE_TEXLIB_FLAGS],
+[m4_pushdef([Kpse_TeX_Lib], [])_KPSE_LIB_FLAGS($@)m4_popdef([Kpse_TeX_Lib])])
+
 # _KPSE_LIB_FLAGS_TL(LIBDIR, LIBNAME, OPTIONS,
 #                    TL-INCLUDES, TL-LIBS, TL-EXTRA,
 #                    [REBUILD-SRC-DEPENDENCIES],
@@ -110,7 +120,7 @@ else
   AS_TR_CPP($1)[_LIBS=`echo '$5' | sed \
     -e "s,BLD/,$kpse_BLD/,g"`
   $6]
-  m4_if([$1], [kpathsea],
+  m4_ifdef([Kpse_TeX_Lib],
   [AS_TR_CPP($1)[_DEPEND=`echo '$5' | sed \
     -e 's,BLD/texk/,${top_builddir}/../,g'`]
    AS_TR_CPP($1)[_RULE='# Rebuild lib$2
@@ -231,6 +241,7 @@ AC_CHECK_FUNCS([bcmp bcopy bzero getcwd getwd index memcmp memcpy mkstemp mktemp
 dnl
 AC_C_CONST
 AC_C_INLINE
+AC_TYPE_SIZE_T
 dnl
 dnl Check whether struct stat provides high-res time.
 AC_CHECK_MEMBERS([struct stat.st_mtim])

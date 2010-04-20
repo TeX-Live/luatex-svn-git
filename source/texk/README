@@ -1,5 +1,5 @@
-$Id: README 16003 2009-11-13 14:43:15Z peter $
-Copyright 2006, 2007, 2008, 2009 TeX Users Group.
+$Id: README 17693 2010-04-05 00:34:08Z karl $
+Copyright 2006, 2007, 2008, 2009, 2010 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
 This TeX Live directory contains the programs that use the kpathsea
@@ -45,15 +45,15 @@ dvidvi - ?
 
 dviljk - maintained here, by Joachim Schrod
 
-dvipdfmx - checked 17jul09
+dvipdfmx - checked 5apr10
   http://project.ktug.or.kr/dvipdfmx/snapshot/latest/
-  http://project.ktug.or.kr/dvipdfmx/snapshot/latest/dvipdfmx-20090708.tar.gz
-  dvipdfmx@project.ktug.or.kr (ChoF, Hirata, Matthias)
+  http://project.ktug.or.kr/dvipdfmx/snapshot/latest/dvipdfmx-20100328.tar.gz
+  dvipdfmx@project.ktug.or.kr (ChoF, Matthias, Hirata)
 
-dvipng - checked 12apr09
+dvipng - checked 18mar10
   http://www.ctan.org/tex-archive/dviware/dvipng/ (but maybe stale)
   http://savannah.nongnu.org/files/?group=dvipng
-  http://mirror.cinquix.com/pub/savannah/dvipng/dvipng-1.12.tar.gz
+  http://mirror.cinquix.com/pub/savannah/dvipng/dvipng-1.13.tar.gz
 
 dvipos - ?
 
