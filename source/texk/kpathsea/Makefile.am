@@ -20,7 +20,7 @@ lib_LTLIBRARIES = libkpathsea.la
 
 libkpathsea_la_CPPFLAGS = -DMAKE_KPSE_DLL
 
-libkpathsea_la_LDFLAGS = -version-number $(KPSE_LT_VERSNUM)
+libkpathsea_la_LDFLAGS = -version-info $(KPSE_LT_VERSINFO)
 
 libkpathsea_la_LIBADD = $(LTLIBOBJS)
 
@@ -159,8 +159,8 @@ kpseinclude_HEADERS = \
 
 ## First null out comments and leading/trailing whitespace, then remove
 ## lines that define invalid C identifiers, then remove blank lines and
-## lines that define lowercase values (those are never path values). Each
-## line remaining looks like
+## lines that define lowercase values (those are never path values).
+## Each line remaining looks like
 ## <name> = <value>
 ## (but = and surrounding spaces are optional, hence can't remove all spaces).
 ## Change this to #ifndef DEFAULT_name@#define DEFAULT_name "value"@#endif,
@@ -181,18 +181,19 @@ kpseinclude_HEADERS = \
 ##
 ## The definition of DEFAULT_TEXMF (and other variables)
 ## that winds up in the final paths.h will not be used.
-#
+##
 ## We don't want to rewrite paths.h when we have only changed comments
 ## in texmf.cnf that have no effect on paths.h, since that would cause
 ## almost everything to be rebuilt.
-#
+##
 ## We also replace all semicolons with colons in the paths.
-## The path-splitting code should be changed to understand both.
-#
+## (The path-splitting code should be changed to understand both.)
+##
 paths.h: stamp-paths
-stamp-paths: texmf.cnf
+stamp-paths: texmf.cnf bsnl.awk
 	echo "/* paths.h: Generated from texmf.cnf. */" >paths.tmp
-	sed -e 's/%.*//' -e 's/^[ 	]*//' -e 's/[ 	]*$$//' $< \
+	awk -f $(srcdir)/bsnl.awk $(srcdir)/texmf.cnf \
+	| sed -e 's/%.*//' -e 's/^[ 	]*//' -e 's/[ 	]*$$//' \
 	| grep '^[ 	]*[A-Z0-9_]*[ 	=]' \
 	| sed '/^$$/d' \
 	| sed 's/^\([^ 	=]*\)[ 	]*=*[ 	]*\(.*\)/#ifndef DEFAULT_\1%#define DEFAULT_\1 "\2"%#endif/' \
@@ -232,6 +233,8 @@ kpathsea.h: Makefile paths.h
 	      -e '/^mingw32\.h/d' \
 	      -e '/^win32lib\.h/d' \
 	      -e 's,^,#include <kpathsea/,' -e s',$$,>,' >>$@
+
+EXTRA_DIST += bsnl.awk
 
 DISTCLEANFILES = paths.h stamp-paths kpathsea.h
 

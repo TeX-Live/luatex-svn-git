@@ -1,3 +1,94 @@
+2010-04-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmf.cnf (max_strings.pbibtex): New defn.
+
+2010-04-15  Karl Berry  <karl@tug.org>
+
+	* kpsewhich.c (format_abbr_type): new type.
+	(format_abbrs): new array.
+	(format_abbr): new fn to use them.
+	(find_format): call it.
+
+	(help_message): new fn, including the abbreviations.
+
+2010-04-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (EXTRA_DIST): Add bsnl.awk.
+
+2010-04-11  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf ({TEXINPUTS,BIBINPUTS}.{ptex,platex,pbibtex}): new defns.
+
+2010-04-11  Javier Mugica  <javier@digi21.eu>
+
+	* getopt.c, getopt1.c: ANSIfy all fns.
+
+2010-04-10  Karl Berry  <karl@tug.org>
+
+	* progname.c (c-pathmx.h): #include unconditionally.
+	* c-pathmx.h (PATH_MAX) [MAX_PATH]: #define PATH_MAX as MAX_PATH
+	for Windows.
+	* win32lib.h: include io.h, fcntl.h, direct.h.
+	From Javier Mugica, 9 Apr 2010 22:04:46.
+
+2010-04-09  Karl Berry  <karl@tug.org>
+
+	* types.h: doc fixes.
+
+2010-04-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* man/kpseaccess.man, man/kpsestat.man, man/mktexpk.man,
+	man/mktextfm.man: Uniform manpage formatting: bold for literals,
+	italic for variable items, roman for meta items.
+
+2010-04-05  Karl Berry  <karl@tug.org>
+
+	* progname.h: doc fix.
+
+2010-04-04  Karl Berry  <karl@tug.org>
+
+	* bsnl.awk: tiny awk program to eliminate \-newline sequences.
+	* Makefile.am (stamp-paths): call it.
+	* texmf.cnf (TEXMF_RESTRICTED_SCRIPTS): use \-newline again.
+
+2010-03-29  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lib.h, xcalloc.c, xmalloc.c, xrealloc.c: Change type of size
+	arguments of xcalloc(), xmalloc, and xrealloc() from unsigned
+	to size_t (incompatible change of ABI).
+
+	Update version numbers to 6.0.0.
+
+2010-03-24  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmf.cnf (TEXMF_RESTRICTED_SCRIPTS): The make rules used to
+	create paths.h can't handle backslash-newline (FIXME?).
+
+2010-03-24  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (TEXMFSCRIPTS): progname before engine, for consistency,
+	and because the former is more specific.
+	(TEXMF_RESTRICTED_SCRIPTS): new definition, for the w32 wrapper.
+
+	(TEXMFDBS): reorder in file to be next to TEXMF, to make the
+	relationship more apparent.  No change in definition.
+
+2010-03-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmf.cnf (ent_str_size, glob_str_size): New for size of
+	BibTeX (entry and global) strings.
+
+2010-03-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmf.cnf (BIBTEX_CSFILE): Default codepage and sort order
+	file for BibTeX8.
+	(max_strings): Also for BibTeX8 and BibTeXU.
+
+2010-03-18  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (TEXDOCS): remove .; better for texdoc not
+	to be confused by files randomly in the current directory.
+
 2010-03-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* texmf.cnf: Append '.mf' to Metafont specific parameters.
@@ -1259,7 +1350,7 @@
 	has been rewritten not to need this.
 
 	* tex-file.c (kpse_init_format): Add uppercase versions of the
-	.ttf and .ttc suffixes for truetype fonts.  Dont require a
+	.ttf and .ttc suffixes for truetype fonts.  Don't require a
 	recognized suffix.
 
 	* types.h: Don't #define true if it is already defined.  From Karl

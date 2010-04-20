@@ -653,6 +653,7 @@ enable_ipc
 enable_omfonts
 enable_tex
 enable_etex
+enable_ptex
 enable_aleph
 enable_pdftex
 enable_luatex
@@ -670,6 +671,14 @@ enable_tektronixwin
 enable_unitermwin
 enable_mp
 enable_web_progs
+with_system_zziplib
+with_system_xpdf
+with_system_libpng
+with_libpng_includes
+with_libpng_libdir
+with_system_zlib
+with_zlib_includes
+with_zlib_libdir
 with_system_kpathsea
 with_kpathsea_includes
 with_kpathsea_libdir
@@ -680,14 +689,6 @@ enable_mkocp_default
 enable_mkofm_default
 enable_mktexfmt_default
 enable_mktextex_default
-with_system_zziplib
-with_system_xpdf
-with_system_libpng
-with_libpng_includes
-with_libpng_libdir
-with_system_zlib
-with_zlib_includes
-with_zlib_libdir
 enable_maintainer_mode
 '
       ac_precious_vars='build_alias
@@ -1339,6 +1340,7 @@ Optional Features:
                             versions)
   --disable-tex             do not compile and install TeX
   --enable-etex             compile and install e-TeX
+  --disable-ptex            do not compile and install pTeX
   --disable-aleph           do not compile and install Aleph
   --disable-pdftex          do not compile and install pdfTeX
   --disable-luatex          do not compile and install luaTeX
@@ -1372,11 +1374,6 @@ Optional Packages:
   --with-tex-banner=STR   version string appended to banner lines [Web2C YEAR]
   --with-editor=CMD       invoke CMD from the `e' option [vi +%d %s]
   --without-mf-x-toolkit  do not use X toolkit for METAFONT
-  --with-system-kpathsea  use installed kpathsea headers and library
-  --with-kpathsea-includes=DIR
-                          kpathsea headers installed in DIR
-  --with-kpathsea-libdir=DIR
-                          kpathsea library installed in DIR
   --with-system-zziplib   use installed zziplib headers and library (requires
                           pkg-config)
   --with-system-xpdf      use installed poppler headers and library instead of
@@ -1390,6 +1387,11 @@ Optional Packages:
   --with-zlib-includes=DIR
                           zlib headers installed in DIR
   --with-zlib-libdir=DIR  zlib library installed in DIR
+  --with-system-kpathsea  use installed kpathsea headers and library
+  --with-kpathsea-includes=DIR
+                          kpathsea headers installed in DIR
+  --with-kpathsea-libdir=DIR
+                          kpathsea library installed in DIR
 
 Report bugs to <tex-k@tug.org>.
 _ACEOF
@@ -2106,6 +2108,20 @@ case $enable_etex in #(
   *) :
     enable_etex=no ;;
 esac
+# Check whether --enable-ptex was given.
+if test "${enable_ptex+set}" = set; then :
+  enableval=$enable_ptex;
+fi
+case $enable_ptex in #(
+  yes|no) :
+     ;; #(
+  *) :
+    enable_ptex=yes ;;
+esac
+
+test "x$enable_web2c:$enable_ptex" = xyes:yes && {
+  need_ptexenc=yes
+}
 # Check whether --enable-aleph was given.
 if test "${enable_aleph+set}" = set; then :
   enableval=$enable_aleph;
@@ -2257,109 +2273,6 @@ fi
 
 
 
-## texk/kpathsea/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/kpathsea/
-## configure options and TL libraries required for kpathsea
-
-# Check whether --with-system-kpathsea was given.
-if test "${with_system_kpathsea+set}" = set; then :
-  withval=$with_system_kpathsea;
-fi
-
-# Check whether --with-kpathsea-includes was given.
-if test "${with_kpathsea_includes+set}" = set; then :
-  withval=$with_kpathsea_includes;
-fi
-
-# Check whether --with-kpathsea-libdir was given.
-if test "${with_kpathsea_libdir+set}" = set; then :
-  withval=$with_kpathsea_libdir;
-fi
-if test "x$with_system_kpathsea" = x; then
-  if test -f $srcdir/../texk/kpathsea/configure; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`kpathsea' headers and library from TL tree" >&5
-$as_echo "$as_me: Assuming \`kpathsea' headers and library from TL tree" >&6;}
-    with_system_kpathsea=no
-  else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`kpathsea' headers and library" >&5
-$as_echo "$as_me: Assuming installed \`kpathsea' headers and library" >&6;}
-    with_system_kpathsea=yes
-  fi
-  ac_configure_args="$ac_configure_args '--with-system-kpathsea=$with_system_kpathsea'"
-fi
-
-## texk/kpathsea/ac/web2c.ac: configure.ac fragment for the TeX Live
-## subdirectory texk/kpathsea.
-## configure defaults for mktexfmt & Co.
-# Check whether --enable-mktexmf-default was given.
-if test "${enable_mktexmf_default+set}" = set; then :
-  enableval=$enable_mktexmf_default;
-fi
-case $enable_mktexmf_default in #(
-  yes|no) :
-     ;; #(
-  *) :
-    enable_mktexmf_default=yes ;;
-esac
-# Check whether --enable-mktexpk-default was given.
-if test "${enable_mktexpk_default+set}" = set; then :
-  enableval=$enable_mktexpk_default;
-fi
-case $enable_mktexpk_default in #(
-  yes|no) :
-     ;; #(
-  *) :
-    enable_mktexpk_default=yes ;;
-esac
-# Check whether --enable-mktextfm-default was given.
-if test "${enable_mktextfm_default+set}" = set; then :
-  enableval=$enable_mktextfm_default;
-fi
-case $enable_mktextfm_default in #(
-  yes|no) :
-     ;; #(
-  *) :
-    enable_mktextfm_default=yes ;;
-esac
-# Check whether --enable-mkocp-default was given.
-if test "${enable_mkocp_default+set}" = set; then :
-  enableval=$enable_mkocp_default;
-fi
-case $enable_mkocp_default in #(
-  yes|no) :
-     ;; #(
-  *) :
-    enable_mkocp_default=yes ;;
-esac
-# Check whether --enable-mkofm-default was given.
-if test "${enable_mkofm_default+set}" = set; then :
-  enableval=$enable_mkofm_default;
-fi
-case $enable_mkofm_default in #(
-  yes|no) :
-     ;; #(
-  *) :
-    enable_mkofm_default=yes ;;
-esac
-# Check whether --enable-mktexfmt-default was given.
-if test "${enable_mktexfmt_default+set}" = set; then :
-  enableval=$enable_mktexfmt_default;
-fi
-case $enable_mktexfmt_default in #(
-  yes|no) :
-     ;; #(
-  *) :
-    enable_mktexfmt_default=yes ;;
-esac
-# Check whether --enable-mktextex-default was given.
-if test "${enable_mktextex_default+set}" = set; then :
-  enableval=$enable_mktextex_default;
-fi
-case $enable_mktextex_default in #(
-  yes|no) :
-     ;; #(
-  *) :
-    enable_mktextex_default=no ;;
-esac
 
 
 
@@ -2503,6 +2416,113 @@ $as_echo "$as_me: Assuming installed \`zlib' headers and library" >&6;}
   fi
   ac_configure_args="$ac_configure_args '--with-system-zlib=$with_system_zlib'"
 fi
+
+
+
+
+## texk/kpathsea/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/kpathsea/
+## configure options and TL libraries required for kpathsea
+
+# Check whether --with-system-kpathsea was given.
+if test "${with_system_kpathsea+set}" = set; then :
+  withval=$with_system_kpathsea;
+fi
+
+# Check whether --with-kpathsea-includes was given.
+if test "${with_kpathsea_includes+set}" = set; then :
+  withval=$with_kpathsea_includes;
+fi
+
+# Check whether --with-kpathsea-libdir was given.
+if test "${with_kpathsea_libdir+set}" = set; then :
+  withval=$with_kpathsea_libdir;
+fi
+if test "x$with_system_kpathsea" = x; then
+  if test -f $srcdir/../texk/kpathsea/configure; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`kpathsea' headers and library from TL tree" >&5
+$as_echo "$as_me: Assuming \`kpathsea' headers and library from TL tree" >&6;}
+    with_system_kpathsea=no
+  else
+    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`kpathsea' headers and library" >&5
+$as_echo "$as_me: Assuming installed \`kpathsea' headers and library" >&6;}
+    with_system_kpathsea=yes
+  fi
+  ac_configure_args="$ac_configure_args '--with-system-kpathsea=$with_system_kpathsea'"
+fi
+
+## texk/kpathsea/ac/web2c.ac: configure.ac fragment for the TeX Live
+## subdirectory texk/kpathsea.
+## configure defaults for mktexfmt & Co.
+# Check whether --enable-mktexmf-default was given.
+if test "${enable_mktexmf_default+set}" = set; then :
+  enableval=$enable_mktexmf_default;
+fi
+case $enable_mktexmf_default in #(
+  yes|no) :
+     ;; #(
+  *) :
+    enable_mktexmf_default=yes ;;
+esac
+# Check whether --enable-mktexpk-default was given.
+if test "${enable_mktexpk_default+set}" = set; then :
+  enableval=$enable_mktexpk_default;
+fi
+case $enable_mktexpk_default in #(
+  yes|no) :
+     ;; #(
+  *) :
+    enable_mktexpk_default=yes ;;
+esac
+# Check whether --enable-mktextfm-default was given.
+if test "${enable_mktextfm_default+set}" = set; then :
+  enableval=$enable_mktextfm_default;
+fi
+case $enable_mktextfm_default in #(
+  yes|no) :
+     ;; #(
+  *) :
+    enable_mktextfm_default=yes ;;
+esac
+# Check whether --enable-mkocp-default was given.
+if test "${enable_mkocp_default+set}" = set; then :
+  enableval=$enable_mkocp_default;
+fi
+case $enable_mkocp_default in #(
+  yes|no) :
+     ;; #(
+  *) :
+    enable_mkocp_default=yes ;;
+esac
+# Check whether --enable-mkofm-default was given.
+if test "${enable_mkofm_default+set}" = set; then :
+  enableval=$enable_mkofm_default;
+fi
+case $enable_mkofm_default in #(
+  yes|no) :
+     ;; #(
+  *) :
+    enable_mkofm_default=yes ;;
+esac
+# Check whether --enable-mktexfmt-default was given.
+if test "${enable_mktexfmt_default+set}" = set; then :
+  enableval=$enable_mktexfmt_default;
+fi
+case $enable_mktexfmt_default in #(
+  yes|no) :
+     ;; #(
+  *) :
+    enable_mktexfmt_default=yes ;;
+esac
+# Check whether --enable-mktextex-default was given.
+if test "${enable_mktextex_default+set}" = set; then :
+  enableval=$enable_mktextex_default;
+fi
+case $enable_mktextex_default in #(
+  yes|no) :
+     ;; #(
+  *) :
+    enable_mktextex_default=no ;;
+esac
 
 
 

@@ -2,7 +2,7 @@
    and it produces several .c and .h files in the current directory
    as its output.
 
-   $Id: splitup.c 15964 2009-11-10 10:27:09Z peter $
+   $Id: splitup.c 17922 2010-04-19 12:31:17Z peter $
 
    Tim Morgan  September 19, 1987.  */
 
@@ -123,14 +123,14 @@ main (int argc, string *argv)
   } else if (STREQ (output_name, "pdftex")) {
     fputs ("#define INITEX\n#define TeX\n#define pdfTeX\n", out);
     coerce = "pdftexcoerce.h";
-  } else if (STREQ (output_name, "luatex")) {
-    fputs ("#define INITEX\n#define TeX\n#define luaTeX\n", out);
-    coerce = "luatexcoerce.h";
   } else if (STREQ (output_name, "xetex")) {
     fputs ("#define INITEX\n#define TeX\n#define XeTeX\n", out);
     coerce = "xetexcoerce.h";
+  } else if (STREQ (output_name, "ptex")) {
+    fputs ("#define INITEX\n#define TeX\n#define pTeX\n", out);
+    coerce = "ptexcoerce.h";
   } else
-    FATAL1 ("Can only split mf, tex, etex, aleph, luatex, pdftex, or xetex,\n not %s", output_name);
+    FATAL1 ("Can only split mf, tex, etex, aleph, pdftex, or xetex,\n not %s", output_name);
   
   coerce_len = strlen (coerce);
   

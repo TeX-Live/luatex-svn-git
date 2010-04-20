@@ -16,10 +16,16 @@
 
 # KPSE_LIBS_PKGS()
 # ----------------
-# Define the list of library sub-packages, i.e., subdirs 'libs/*'.
+# Define two lists of library sub-packages:
+#   generic libraries, i.e., subdirs 'libs/*', that can be used by
+#   utility and TeXk sub-packages
+# and
+#   TeX specific libraries, i.e., subdirs 'texk/*', that can only
+#   be used by TeXk sub-packages and can't use generic libraries
 # Each library must precede required other libraries (if any).
 AC_DEFUN([KPSE_LIBS_PKGS],
-[m4_define([kpse_libs_pkgs], [
+[dnl generic libraries 'libs/*'
+m4_define([kpse_libs_pkgs], [
 icu
 teckit
 graphite
@@ -32,6 +38,11 @@ t1lib
 obsdcompat
 libpng
 zlib
+])[]dnl
+dnl TeX specific libraries
+m4_define([kpse_texlibs_pkgs], [
+ptexenc
+kpathsea
 ])]) # KPSE_LIBS_PKGS
 
 # KPSE_ALL_SYSTEM_FLAGS()
@@ -40,6 +51,8 @@ zlib
 # only used at top-level.
 AC_DEFUN([KPSE_ALL_SYSTEM_FLAGS],
 [AC_REQUIRE([KPSE_LIBS_PREPARE])[]dnl
+AC_REQUIRE([KPSE_KPATHSEA_SYSTEM_FLAGS])[]dnl
+AC_REQUIRE([KPSE_PTEXENC_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_ZLIB_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_LIBPNG_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_T1LIB_SYSTEM_FLAGS])[]dnl
@@ -47,11 +60,10 @@ AC_REQUIRE([KPSE_FREETYPE_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_FREETYPE2_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_GD_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_XPDF_SYSTEM_FLAGS])[]dnl
+AC_REQUIRE([KPSE_ZZIPLIB_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_GRAPHITE_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_TECKIT_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_ICU_SYSTEM_FLAGS])[]dnl
-AC_REQUIRE([KPSE_KPATHSEA_SYSTEM_FLAGS])[]dnl
-AC_REQUIRE([KPSE_ZZIPLIB_SYSTEM_FLAGS])[]dnl
 ]) # KPSE_ALL_SYSTEM_FLAGS
 
 # KPSE_UTILS_PKGS()
@@ -96,6 +108,8 @@ gsftopk
 lacheck
 lcdf-typetools
 makeindexk
+makejvf
+mendexk
 musixflx
 ps2pkm
 seetexk

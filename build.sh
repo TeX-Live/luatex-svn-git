@@ -155,6 +155,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $WARNINGFLAGS\
     --disable-ps2eps   \
     --disable-ps2pkm \
     --disable-psutils  \
+    --disable-ptex  \
     --disable-seetexk \
     --disable-t1dotlessj  \
     --disable-t1lint \

@@ -46,10 +46,10 @@
 #elif defined (pdfTeX)
 #include <pdftexdir/pdftexextra.h>
 #include <pdftexdir/ptexlib.h>
-#elif defined (luaTeX)
-#include <luatexdir/luatexextra.h>
 #elif defined (Aleph)
 #include <alephdir/alephextra.h>
+#elif defined (pTeX)
+#include <ptexdir/ptexextra.h>
 #else
 #define BANNER "This is TeX, Version 3.1415926"
 #define COPYRIGHT_HOLDER "D.E. Knuth"
@@ -156,12 +156,12 @@ mk_shellcmdlist (const char *v)
   }
   if (*q)
     n++;
-  cmdlist = (char **) xmalloc ((n + 1) * sizeof (char *));
+  cmdlist = xmalloc ((n + 1) * sizeof (char *));
   p = cmdlist;
   q = v;
   while ((r = strchr (q, ',')) != 0) {
     *r = '\0';
-    *p = (char *) xmalloc (strlen (q) + 1);
+    *p = xmalloc (strlen (q) + 1);
     strcpy (*p, q);
     *r = ',';
     r++;
@@ -169,7 +169,7 @@ mk_shellcmdlist (const char *v)
     p++;
   }
   if (*q) {
-    *p = (char *) xmalloc (strlen (q) + 1);
+    *p = xmalloc (strlen (q) + 1);
     strcpy (*p, q);
     p++;
     *p = NULL;
@@ -275,7 +275,7 @@ shell_cmd_is_allowed (const char *cmd, char **safecmd, char **cmdname)
 
   /* pre == 1 means that the previous character is a white space
      pre == 0 means that the previous character is not a white space */
-  buf = (char *) xmalloc (strlen (cmd) + 1);
+  buf = xmalloc (strlen (cmd) + 1);
   strcpy (buf, cmd);
   c = buf;
   while (Isspace (*c))
@@ -315,9 +315,9 @@ shell_cmd_is_allowed (const char *cmd, char **safecmd, char **cmdname)
 
     /* allocate enough memory (too much?) */
 #ifdef WIN32
-    *safecmd = (char *) xmalloc (2 * strlen (cmd) + 3 + 2 * spaces);
+    *safecmd = xmalloc (2 * strlen (cmd) + 3 + 2 * spaces);
 #else
-    *safecmd = (char *) xmalloc (strlen (cmd) + 3 + 2 * spaces);
+    *safecmd = xmalloc (strlen (cmd) + 3 + 2 * spaces);
 #endif
 
     /* make a safe command line *safecmd */
@@ -448,7 +448,7 @@ runsystem (const char *cmd)
   return allow;
 }
 
-#if defined(pdfTeX) || defined(luaTeX)
+#ifdef pdfTeX
 /* Like runsystem(), the runpopen() function is called only when
    shellenabledp == 1.   Unlike runsystem(), here we write errors to
    stderr, since we have nowhere better to use; and of course we return
@@ -484,21 +484,13 @@ runpopen (const char *cmd, const char *mode)
     free (cmdname);
   return f;
 }
-#endif /* pdfTeX || luaTeX */
+#endif /* pdfTeX */
 #endif /* TeX */
 
 /* The main program, etc.  */
 
 #ifdef XeTeX
 #include "xetexdir/XeTeX_ext.h"
-#endif
-
-#if defined(luaTeX)
-extern void lua_initialize(int ac, char **av);
-int etexp;
-#define MAYBE_STATIC  /* symbols needed in luainit.c */
-#else
-#define MAYBE_STATIC static
 #endif
 
 /* What we were invoked as and with.  */
@@ -509,13 +501,10 @@ int argc;
 static const_string user_progname;
 
 /* The C version of what might wind up in DUMP_VAR.  */
-MAYBE_STATIC const_string dump_name;
+static const_string dump_name;
 
 /* The C version of the jobname, if given. */
-MAYBE_STATIC const_string c_job_name;
-
-/* Full source file name. */
-extern string fullnameoffile;
+static const_string c_job_name;
 
 /* The filename for dynamic character translation, or NULL.  */
 string translate_filename;
@@ -523,16 +512,11 @@ string default_translate_filename;
 
 #if defined(TeX)
 /* Needed for --src-specials option. */
-MAYBE_STATIC char *last_source_name;
-MAYBE_STATIC int last_lineno;
-#if !defined (luaTeX)
+static char *last_source_name;
+static int last_lineno;
 static boolean srcspecialsoption = false;
 static void parse_src_specials_option (const_string);
 #endif
-#endif
-
-/* The main body of the WEB is transformed into this procedure.  */
-extern TEXDLL void mainbody (void);
 
 /* Parsing a first %&-line in the input file. */
 static void parse_first_line (const_string);
@@ -558,31 +542,7 @@ texmf_yesno(const_string var)
   return value && (*value == 't' || *value == 'y' || *value == '1');
 }
 
-#ifdef luaTeX
-#define TEXformatdefault TEX_format_default
-#define debugformatfile debug_format_file
-#define formatdefaultlength format_default_length
-#define iniversion ini_version
-#define outputfilename output_file_name
-#define readyalready ready_already
-#define dumpoption dump_option
-#define outputcomment output_comment
-#define pdfoutputoption pdf_output_option
-#define pdfoutputvalue pdf_output_value
-#define pdfdraftmodeoption pdf_draftmode_option
-#define pdfdraftmodevalue pdf_draftmode_value
-#define dumpline dump_line
-#define bufsize buf_size
-#define maxbufstack max_buf_stack
-#define inopen in_open
-#define inputfile input_file
-#define strstart str_start
-#define strpool str_pool
-#define poolptr pool_ptr
-#define poolsize pool_size
-#endif
-
-#if defined(pdfTeX) || defined(luaTeX)
+#ifdef pdfTeX
 const char *ptexbanner = BANNER;
 #endif
 
@@ -600,6 +560,9 @@ maininit (int ac, string *av)
 
   /* Must be initialized before options are parsed.  */
   interactionoption = 4;
+#ifdef pTeX
+  set_enc_string (NULL, "default");
+#endif /* pTeX */
 
   /* Have things to record as we go along.  */
   kpse_record_input = recorder_record_input;
@@ -616,8 +579,8 @@ maininit (int ac, string *av)
 # define SYNCTEX_NO_OPTION INT_MAX
   synctexoption = SYNCTEX_NO_OPTION;
 #else
-# /* Omit warning for Aleph and non-TeX.  */
-# if defined(TeX) && !defined(Aleph) && !defined(luaTeX)
+# /* Omit warning for Aleph, pTeX, and non-TeX.  */
+# if defined(TeX) && !defined(Aleph) && !defined(pTeX)
 #  warning SyncTeX: -synctex command line option NOT available
 # endif
 #endif
@@ -681,10 +644,10 @@ maininit (int ac, string *av)
       iniversion = true;
     } else if (FILESTRCASEEQ (kpse_program_name, "virtex")) {
       virversion = true;
-#if !defined(Aleph) && !defined(luaTeX)
+#ifndef Aleph
     } else if (FILESTRCASEEQ (kpse_program_name, "mltex")) {
       mltexp = true;
-#endif /* !Aleph && !luaTeX */
+#endif /* !Aleph */
 #endif /* TeX */
     }
 
@@ -698,11 +661,11 @@ maininit (int ac, string *av)
 #ifdef TeX
   /* Sanity check: -mltex, -enc, -etex only work in combination with -ini. */
   if (!iniversion) {
-#if !defined(Aleph) && !defined(luaTeX)
+#if !defined(Aleph)
     if (mltexp) {
       fprintf(stderr, "-mltex only works with -ini\n");
     }
-#if !defined(XeTeX)
+#if !defined(XeTeX) && !defined(pTeX)
     if (enctexp) {
       fprintf(stderr, "-enc only works with -ini\n");
     }
@@ -786,11 +749,7 @@ main (int ac, string *av)
   _setmaxstdio(2048);
 #endif
 
-#if defined(luaTeX)
-  lua_initialize (ac, av);
-#else
   maininit (ac, av);
-#endif /* not luaTeX */
 
   /* Call the real main program.  */
   mainbody ();
@@ -873,7 +832,7 @@ topenin (void)
 
   /* One more time, this time converting to TeX's internal character
      representation.  */
-#if !defined(Aleph) && !defined(XeTeX) && !defined(luaTeX)
+#if !defined(Aleph) && !defined(XeTeX)
   for (i = first; i < last; i++)
     buffer[i] = xord[buffer[i]];
 #endif
@@ -1054,7 +1013,7 @@ ipcpage (int is_eof)
     len = strstartar[outputfilename + 1 - 65536L] -
             strstartar[outputfilename - 65536L];
 #endif
-    name = (string)xmalloc (len + 1);
+    name = xmalloc (len + 1);
 #if !defined(Aleph)
     strncpy (name, (string)&strpool[strstart[outputfilename]], len);
 #else
@@ -1084,7 +1043,7 @@ ipcpage (int is_eof)
 
 #if defined (TeX) || defined (MF)
   /* TCX and Aleph&Co get along like sparks and gunpowder. */
-#if !defined(Aleph) && !defined(XeTeX) && !defined(luaTeX) 
+#if !defined(Aleph) && !defined(XeTeX)
 
 /* Return the next number following START, setting POST to the following
    character, as in strtol.  Issue a warning and return -1 if no number
@@ -1185,7 +1144,7 @@ readtcxfile (void)
     WARNING1 ("Could not open char translation file `%s'", orig_filename);
   }
 }
-#endif /* !Aleph && !XeTeX && !luaTeX */
+#endif /* !Aleph && !XeTeX */
 #endif /* TeX || MF [character translation] */
 
 #ifdef XeTeX /* XeTeX handles this differently, and allows odd quotes within names */
@@ -1213,7 +1172,7 @@ normalize_quotes (const_string name, const_string mesg)
             len += 2; /* this could sometimes add length we don't need */
         }
     }
-    ret = (string)xmalloc(len + 1);
+    ret = xmalloc(len + 1);
     p = ret;
     if (must_quote) {
         if (quote_char == 0)
@@ -1242,7 +1201,7 @@ normalize_quotes (const_string name, const_string mesg)
     boolean quoted = false;
     boolean must_quote = (strchr(name, ' ') != NULL);
     /* Leave room for quotes and NUL. */
-    string ret = (string)xmalloc(strlen(name)+3);
+    string ret = xmalloc(strlen(name)+3);
     string p;
     const_string q;
     p = ret;
@@ -1324,17 +1283,17 @@ static struct option long_options[]
       { "ipc",                       0, &ipcon, 1 },
       { "ipc-start",                 0, &ipcon, 2 },
 #endif /* IPC */
-#if !defined(Aleph) && !defined(luaTeX)
+#if !defined(Aleph)
       { "mltex",                     0, &mltexp, 1 },
-#if !defined(XeTeX)
+#if !defined(XeTeX) && !defined(pTeX)
       { "enc",                       0, &enctexp, 1 },
-#endif /* !XeTeX */
-#endif /* !Aleph && !luaTeX */
-#if defined (eTeX) || defined(pdfTeX) || defined(Aleph) || defined(XeTeX) || defined(luaTeX)
+#endif /* !XeTeX && !pTeX */
+#endif /* !Aleph */
+#if defined (eTeX) || defined(pdfTeX) || defined(Aleph) || defined(XeTeX)
       { "etex",                      0, &etexp, 1 },
 #endif /* eTeX || pdfTeX || Aleph */
       { "output-comment",            1, 0, 0 },
-#if defined(pdfTeX) || defined(luaTeX)
+#if defined(pdfTeX)
       { "draftmode",                 0, 0, 0 },
       { "output-format",             1, 0, 0 },
 #endif /* pdfTeX */
@@ -1362,11 +1321,7 @@ static struct option long_options[]
       { "no-parse-first-line",       0, &parsefirstlinep, -1 },
       { "translate-file",            1, 0, 0 },
       { "default-translate-file",    1, 0, 0 },
-#if !defined(luaTeX)
       { "8bit",                      0, &eightbitp, 1 },
-#else
-      { "8bit",                      0, 0, 0 },
-#endif
 #if defined(XeTeX)
       { "no-pdf",                 0, &nopdfoutput, 1 },
       { "output-driver",          1, 0, 0 },
@@ -1375,6 +1330,9 @@ static struct option long_options[]
       { "mktex",                     1, 0, 0 },
       { "no-mktex",                  1, 0, 0 },
 #endif /* TeX or MF */
+#ifdef pTeX
+      { "kanji",                     1, 0, 0 },
+#endif /* pTeX */
       { 0, 0, 0, 0 } };
 
 
@@ -1402,10 +1360,8 @@ parse_options (int argc, string *argv)
 
 #ifdef XeTeX
     } else if (ARGUMENT_IS ("papersize")) {
-      extern const_string papersize;
       papersize = optarg;
     } else if (ARGUMENT_IS ("output-driver")) {
-      extern const_string outputdriver;
       outputdriver = optarg;
 #endif
 
@@ -1441,7 +1397,7 @@ parse_options (int argc, string *argv)
       } else {
         WARNING2 ("Comment truncated to 255 characters from %d. (%s)",
                   len, optarg);
-        outputcomment = (string) xmalloc (256);
+        outputcomment = xmalloc (256);
         strncpy (outputcomment, optarg, 255);
         outputcomment[255] = 0;
       }
@@ -1469,7 +1425,6 @@ parse_options (int argc, string *argv)
       shellenabledp = 1;
       restrictedshell = 1;
       
-#if ! defined (luaTeX)
     } else if (ARGUMENT_IS ("src-specials")) {
        last_source_name = xstrdup("");
        /* Option `--src" without any value means `auto' mode. */
@@ -1481,9 +1436,8 @@ parse_options (int argc, string *argv)
        } else {
           parse_src_specials_option(optarg);
        }
-#endif
 #endif /* TeX */
-#if defined(pdfTeX) || defined(luaTeX)
+#if defined(pdfTeX)
     } else if (ARGUMENT_IS ("output-format")) {
        pdfoutputoption = 1;
        if (strcmp(optarg, "dvi") == 0) {
@@ -1526,7 +1480,13 @@ parse_options (int argc, string *argv)
       } else {
         WARNING1 ("Ignoring unknown argument `%s' to --interaction", optarg);
       }
-      
+#ifdef pTeX
+    } else if (ARGUMENT_IS ("kanji")) {
+      if (!set_enc_string (optarg, NULL)) {
+        WARNING1 ("Ignoring unknown argument `%s' to --kanji", optarg);
+      }
+#endif /* pTeX */
+
     } else if (ARGUMENT_IS ("help")) {
         usagehelp (PROGRAM_HELP, BUG_ADDRESS);
 
@@ -1538,7 +1498,7 @@ parse_options (int argc, string *argv)
 
     } else if (ARGUMENT_IS ("version")) {
         char *versions;
-#if defined (pdfTeX) || defined(XeTeX) || defined(luaTeX)
+#if defined (pdfTeX) || defined(XeTeX)
         initversionstring(&versions); 
 #else
         versions = NULL;
@@ -1550,7 +1510,6 @@ parse_options (int argc, string *argv)
 }
 
 #if defined(TeX)
-#if ! defined (luaTeX)
 void 
 parse_src_specials_option (const_string opt_list)
 {
@@ -1600,7 +1559,6 @@ parse_src_specials_option (const_string opt_list)
     insertsrcspecialeveryvbox | insertsrcspecialeverydisplay;
   srcspecialsoption = true;
 }
-#endif
 #endif
 
 /* If the first thing on the command line (we use the globals `argv' and
@@ -1691,7 +1649,7 @@ parse_first_line (const_string filename)
    closed using pclose().
 */
 
-#if defined(pdfTeX) || defined(luaTeX)
+#if defined(pdfTeX)
 
 static FILE *pipes [] = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
                          NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
@@ -1709,13 +1667,8 @@ open_in_or_pipe (FILE **f_ptr, int filefmt, const_string fopen_mode)
     if (shellenabledp && *(nameoffile+1) == '|') {
       /* the user requested a pipe */
       *f_ptr = NULL;
-      fname = (string)xmalloc(strlen((const_string)(nameoffile+1))+1);
+      fname = xmalloc(strlen((const_string)(nameoffile+1))+1);
       strcpy(fname,(const_string)(nameoffile+1));
-#if !defined(pdfTeX)
-      if (fullnameoffile)
-         free (fullnameoffile);
-      fullnameoffile = xstrdup (fname);
-#endif
       recorder_record_input (fname + 1);
       *f_ptr = runpopen(fname+1,"r");
       free(fname);
@@ -1726,7 +1679,7 @@ open_in_or_pipe (FILE **f_ptr, int filefmt, const_string fopen_mode)
         }
       }
       if (*f_ptr)
-        setvbuf (*f_ptr,(char *)NULL,_IOLBF,0);
+        setvbuf (*f_ptr,NULL,_IOLBF,0);
 
       return *f_ptr != NULL;
     }
@@ -1749,7 +1702,7 @@ open_out_or_pipe (FILE **f_ptr, const_string fopen_mode)
 	
     if (shellenabledp && *(nameoffile+1) == '|') {
       /* the user requested a pipe */
-      fname = (string)xmalloc(strlen((const_string)(nameoffile+1))+1);
+      fname = xmalloc(strlen((const_string)(nameoffile+1))+1);
       strcpy(fname,(const_string)(nameoffile+1));
       if (strchr (fname,' ')==NULL && strchr(fname,'>')==NULL) {
         /* mp and mf currently do not use this code, but it 
@@ -1772,7 +1725,7 @@ open_out_or_pipe (FILE **f_ptr, const_string fopen_mode)
       }
 
       if (*f_ptr)
-        setvbuf(*f_ptr,(char *)NULL,_IOLBF,0);
+        setvbuf(*f_ptr,NULL,_IOLBF,0);
 
       return *f_ptr != NULL;
     }
@@ -1936,9 +1889,13 @@ input_line (FILE *f)
   int i = EOF;
 
   /* Recognize either LF or CR as a line terminator.  */
+#ifdef pTeX
+  last = input_line2(f, buffer, first, bufsize, &i);
+#else /* pTeX */
   last = first;
   while (last < bufsize && (i = getc (f)) != EOF && i != '\n' && i != '\r')
     buffer[last++] = i;
+#endif /* pTeX */
 
   if (i == EOF && errno != EINTR && last == first)
     return false;
@@ -1968,10 +1925,15 @@ input_line (FILE *f)
     --last;
 
   /* Don't bother using xord if we don't need to.  */
-#if !defined(Aleph) && !defined(luaTeX)
+#if !defined(Aleph)
   for (i = first; i <= last; i++)
      buffer[i] = xord[buffer[i]];
 #endif
+
+#ifdef pTeX
+  for (i = last+1; (i < last + 5 && i < bufsize) ; i++)
+    buffer[i] = '\0';
+#endif /* pTeX */
 
     return true;
 }
@@ -2015,7 +1977,7 @@ calledit (packedASCIIcode *filename,
 
   /* Construct the command string.  The `11' is the maximum length an
      integer might be.  */
-  command = (string) xmalloc (strlen (edit_value) + fnlength + 11);
+  command = xmalloc (strlen (edit_value) + fnlength + 11);
 
   /* So we can construct it as we go.  */
   temp = command;
@@ -2217,7 +2179,7 @@ do_undump (char *p, int item_size, int nitems, FILE *in_file)
 
 /* FIXME -- some (most?) of this can/should be moved to the Pascal/WEB side. */
 #if defined(TeX) || defined(MF)
-#if !defined(pdfTeX) && !defined(luaTeX)
+#if !defined(pdfTeX)
 static void
 checkpoolpointer (poolpointer poolptr, size_t len)
 {
@@ -2316,7 +2278,8 @@ gettexstring (strnumber s)
   poolpointer len, i, j;
   string name;
   len = strstart[s + 1 - 65536L] - strstart[s - 65536L];
-  name = (string)xmalloc(len * 3 + 1); /* max UTF16->UTF8 expansion (code units, not bytes) */
+  name = xmalloc(len * 3 + 1); /* max UTF16->UTF8 expansion
+                                  (code units, not bytes) */
   for (i = 0, j = 0; i < len; i++) {
     unsigned c = strpool[i + strstart[s - 65536L]];
     if (c >= 0xD800 && c <= 0xDBFF) {
@@ -2354,9 +2317,6 @@ gettexstring (strnumber s)
 
 #else
 
-#ifdef luaTeX
-static
-#endif
 string
 gettexstring (strnumber s)
 {
