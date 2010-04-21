@@ -91,11 +91,10 @@ then
     * ) echo "ERROR: architecture $ARCH is not supported"; exit 1;;
   esac
   B=build-$ARCH
-  CFLAGS="-arch $ARCH $CFLAGS"
-  XCFLAGS="-arch $ARCH $XCFLAGS"
-  CXXFLAGS="-arch $ARCH $CXXFLAGS"
+  CFLAGS="-arch -g -O2 $ARCH $CFLAGS"
+  CXXFLAGS="-arch -g -O2 $ARCH $CXXFLAGS"
   LDFLAGS="-arch $ARCH $LDFLAGS" 
-  export CFLAGS CXXFLAGS LDFLAGS XCFLAGS  
+  export CFLAGS CXXFLAGS LDFLAGS
 fi
 
 
