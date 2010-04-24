@@ -598,7 +598,6 @@ m_XPDF_get_INT(LinkDest, getPageNum);
 
 int m_LinkDest_getPageRef(lua_State * L)
 {
-    int i;
     udstruct *uin, *uout;
     if (lua_gettop(L) != 1)
         luaL_error(L, "LinkDest:getPageRef() needs exactly 1 argument");
@@ -646,7 +645,6 @@ static const struct luaL_Reg LinkDest_m[] = {
 
 int m_Object_fetch(lua_State * L)
 {
-    int i, len;
     udstruct *uin, *uxref, *uout;
     if (lua_gettop(L) != 2)
         luaL_error(L, "Object:fetch() needs exactly 2 arguments");
@@ -705,7 +703,6 @@ m_XPDF_get_BOOL(Object, isNone);
 
 int m_Object_getBool(lua_State * L)
 {
-    double d;
     udstruct *uin;
     if (lua_gettop(L) != 1)
         luaL_error(L, "Object:getBool() needs exactly 1 argument");
@@ -722,7 +719,6 @@ int m_Object_getBool(lua_State * L)
 
 int m_Object_getInt(lua_State * L)
 {
-    double d;
     udstruct *uin;
     if (lua_gettop(L) != 1)
         luaL_error(L, "Object:getInt() needs exactly 1 argument");
@@ -736,7 +732,6 @@ int m_Object_getInt(lua_State * L)
 
 int m_Object_getReal(lua_State * L)
 {
-    double d;
     udstruct *uin;
     if (lua_gettop(L) != 1)
         luaL_error(L, "Object:getReal() needs exactly 1 argument");
@@ -750,7 +745,6 @@ int m_Object_getReal(lua_State * L)
 
 int m_Object_getNum(lua_State * L)
 {
-    double d;
     udstruct *uin;
     if (lua_gettop(L) != 1)
         luaL_error(L, "Object:getNum() needs exactly 1 argument");
@@ -1114,7 +1108,6 @@ int m_Object_streamGetDict(lua_State * L)
 
 static int m_Object__gc(lua_State * L)
 {
-    Object *a;
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
 #  ifdef DEBUG
@@ -1506,8 +1499,10 @@ static const char *StreamKindNames[] =
     "Flate", "JBIG2", "JPX", "Weird", NULL
 };
 
+#  if 0
 static const char *StreamColorSpaceModeNames[] =
     { "CSNone", "CSDeviceGray", "CSDeviceRGB", "CSDeviceCMYK", NULL };
+#  endif
 
 m_XPDF_get_INT(Stream, getKind);
 
