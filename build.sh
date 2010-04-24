@@ -8,8 +8,11 @@
 #      --make      : only make, no make distclean; configure
 #      --parallel  : make -j 2 -l 3.0
 #      --nostrip   : do not strip binary
+#      --warnings= : enable compiler warnings
 #      --mingw     : crosscompile for mingw32 from i-386linux
-#      --ppc       : crosscompile for ppc
+#      --host=     : target system for mingw32 cross-compilation
+#      --build=    : build system for mingw32 cross-compilation
+#      --arch=     : crosscompile for ARCH on OS X
       
 # try to find bash, in case the standard shell is not capable of
 # handling the generated configure's += variable assignments
@@ -37,6 +40,8 @@ ONLY_MAKE=FALSE
 STRIP_LUATEX=TRUE
 WARNINGS=yes
 MINGWCROSS=FALSE
+CONFHOST=
+CONFBUILD=
 MACCROSS=FALSE
 JOBS_IF_PARALLEL=2
 MAX_LOAD_IF_PARALLEL=3.0
@@ -49,6 +54,8 @@ until [ -z "$1" ]; do
     --nostrip   ) STRIP_LUATEX=FALSE ;;
     --warnings=*) WARNINGS=`echo $1 | sed 's/--warnings=\(.*\)/\1/' `        ;;
     --mingw     ) MINGWCROSS=TRUE    ;;
+    --host=*    ) CONFHOST="$1"      ;;
+    --build=*   ) CONFBUILD="$1"     ;;
     --parallel  ) MAKE="$MAKE -j $JOBS_IF_PARALLEL -l $MAX_LOAD_IF_PARALLEL" ;;
     --arch=*    ) MACCROSS=TRUE; ARCH=`echo $1 | sed 's/--arch=\(.*\)/\1/' ` ;;
     *           ) echo "ERROR: invalid build.sh parameter: $1"; exit 1       ;;
@@ -67,18 +74,18 @@ esac
 WARNINGFLAGS=--enable-compiler-warnings=$WARNINGS
 
 B=build
-CONFHOST=
 
 if [ "$MINGWCROSS" = "TRUE" ]
 then
   B=build-windows
-  STRIP=mingw32-strip
   LUATEXEXE=luatex.exe
   OLDPATH=$PATH
   PATH=/usr/mingw32/bin:$PATH
   CFLAGS="-mtune=pentiumpro -msse2 -g -O2 $CFLAGS"
   CXXFLAGS="-mtune=pentiumpro -msse2 -g -O2 $CXXFLAGS"
-  CONFHOST="--host=mingw32 --build=i686-linux-gnu "
+  : ${CONFHOST:=--host=mingw32}
+  : ${CONFBUILD:=--build=i686-linux-gnu}
+  STRIP="${CONFHOST#--host=}-strip"
   LDFLAGS="-Wl,--large-address-aware $CFLAGS"
   export CFLAGS CXXFLAGS LDFLAGS
 fi
@@ -119,7 +126,7 @@ cd "$B"
 
 if [ "$ONLY_MAKE" = "FALSE" ]
 then
-TL_MAKE=$MAKE ../source/configure  $CONFHOST $WARNINGFLAGS\
+TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --enable-cxx-runtime-hack \
     --disable-afm2pl    \
     --disable-aleph  \
