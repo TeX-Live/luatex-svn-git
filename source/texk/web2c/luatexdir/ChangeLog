@@ -1,10 +1,35 @@
+2010-04-25  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* image/epdf.h, lua51/luaconf.h: #include <c-auto.h> instead of
+	<web2c/c-auto.h>.
+
+2010-04-24  Taco Hoekwater  <taco@luatex>
+
+	* lua/loslibext.c: fix os.exec() and os.spawn(), twice
+
+2010-04-23  Taco Hoekwater  <taco@luatex>
+
+	* lua/loslibext.c: fix os.exec() and os.spawn() once more
+
+2010-04-23  Taco Hoekwater  <taco@luatex>
+
+	* lua/loslibext.c: fix os.exec() and os.spawn()
+	* luatex_svnversion.h: updated to reflect the version of 0.60.x branch
+
+2010-04-23  Taco Hoekwater  <taco@luatex>
+
+	* new import from luatex repository (HEAD of 0.60.x branch)
+
+2010-04-20  Taco Hoekwater  <taco@luatex>
+
+	* new import from luatex repository (HEAD of 0.60.x branch)
+
 2010-04-13  Taco Hoekwater  <taco@luatex>
 
 	* am/luafontforge.am: delete three lines.
 	* luafontloader/fontforge/Unicode/dump.c: deleted
 	* luafontloader/fontforge/Unicode/backtrns.c: deleted
 	* luafontloader/fontforge/Unicode/unialt.c: deleted
-
 
 2010-04-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
