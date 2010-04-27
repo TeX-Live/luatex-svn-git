@@ -3364,6 +3364,73 @@ This function returns a list with the supported \PDF\ page box names,
 currently these are \type {media}, \type {crop}, \type {bleed}, \type {trim}, and \type {art}
 (all in lowercase letters).
 
+%***********************************************************************
+
+\section{The \luatex{epdf} library}
+
+The \type{epdf} library provides Lua bindings to many \PDF\ access functions
+that are defined by the xpdf viewer library (written in C$+{}+$ by Derek Noonburg).
+Within \LUATEX\ (and \PDFTEX),
+xpdf functionality is being used since long time to embed \PDF\ files.
+The new \type{epdf} library shall allow to scrutinize an external \PDF\ file.
+It gives access its document structure,
+e.\,g., catalog, cross-reference table, individual pages, objects,
+annotations, info, and metadata.
+
+The \type{epdf} library is in an early alpha state:
+\PDF\ access is currently read|-|only
+(it's not yet possible to alter a \PDF\ file or to assemble it from scratch),
+and many xpdf function bindings are still missing.
+
+For a start, 
+a \PDF\ file is opened by \type{epdf.open()} with file name, e.\,g.:
+
+\starttyping
+doc = epdf.open {"foo.pdf"}
+\stoptyping
+
+This normally returns a \type{PDFDoc} userdata variable;
+but if the file could not be opened successfully, 
+instead of a fatal error just the value \type{nil} is returned.
+
+All Lua functions in the \type{epdf} library are named after the
+functions listed in the header files for the various xpdf classes,
+e.\,g., files \type{PDFDoc.h}, \type{Dict.h}, and \type{Array.h}.
+These files can be found in the xpdf subdirectory within the \LUATEX\ sources.
+For using the \type{epdf} library, 
+knowledge of the \PDF\ file architecture is indispensable
+as well as access to these header files.
+
+There are many different userdata types defined
+by the \type{epdf} library, currently these are
+\type{Array}, \type{Catalog}, \type{Dict}, \type{GString},
+\type{LinkDest}, \type{Object}, \type{ObjectStream}, \type{Page},
+\type{PDFDoc}, \type{PDFRectangle}, \type{Ref}, \type{Stream},
+\type{XRef}, and \type{XRefEntry} (more to follow).
+
+All these class names and the Lua access functions closely resemble
+the naming from the xpdf header files,
+including the choice of mixed upper and lower case letters.
+The Lua function calls use object-oriented syntax, e.\,g.,
+the following calls return the \type{Page} object for page~1:
+
+\starttyping
+pageref = doc:getCatalog():getPageRef(1)
+pageobj = doc:getXRef():fetch(pageref.num, pageref.gen)
+\stoptyping
+
+But writing such chained calls is risky,
+as an intermediate function may return \type{nil} on error;
+therefore between function calls there should be Lua type checks
+(e.\,g., against \type{nil}) done.
+If a non-object item is requested
+(e.\,g., a \type{Dict} item by calling \type{page:getPieceInfo()},
+cf.~\type{Page.h}) but not available,
+the Lua functions return \type{nil}.
+If a function should return a \type{Object}, which is not existing,
+a \type{Null} object is returned instead.
+
+%***********************************************************************
 
 \section{The \luatex{kpse} library}
 
