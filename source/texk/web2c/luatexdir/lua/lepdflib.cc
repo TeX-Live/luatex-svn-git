@@ -1,7 +1,7 @@
 /* lepdflib.cc
 
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
-   Copyright 2009-2010 Hartmut Henkel <hartmut_henkel@gmx.de>
+   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2010 Hartmut Henkel <hartmut@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -22,7 +22,7 @@ static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
-#include "../image/epdf.h"
+#include "image/epdf.h"
 
 #define ALPHA_TEST
 
@@ -94,19 +94,24 @@ new_XPDF_userdata(XRef);
 new_XPDF_userdata(XRefEntry);
 
 //**********************************************************************
-// TODO: instead of error, return NIL if the document can't be opened
 
 int l_open_PDFDoc(lua_State * L)
 {
     char *file_path;
     udstruct *uout;
+    PdfDocument *d;
     if (lua_gettop(L) != 1)
         luaL_error(L, "epdf.open() needs exactly 1 argument");
     if (!lua_isstring(L, -1))
         luaL_error(L, "epdf.open() needs filename (string)");
     file_path = (char *) lua_tostring(L, -1);   // path
-    uout = new_PDFDoc_userdata(L);
-    uout->d = refPdfDocument(file_path);
+    d = refPdfDocument(file_path, FE_RETURN_NULL);
+    if (d == NULL)
+        lua_pushnil(L);
+    else {
+        uout = new_PDFDoc_userdata(L);
+        uout->d = d;
+    }
     return 1;                   // doc path
 }
 

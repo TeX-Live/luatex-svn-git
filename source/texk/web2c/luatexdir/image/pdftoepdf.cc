@@ -62,33 +62,103 @@ static PdfDocument *findPdfDocument(char *file_path)
     return pdf_doc;
 }
 
-// Returns pointer to PdfDocument structure for PDF file.
-// Creates a new structure if it doesn't exist yet.
+#define PDF_CHECKSUM_SIZE 32
 
-char *get_file_checksum(char *a);
-
-PdfDocument *refPdfDocument(char *file_path)
+static char *get_file_checksum(char *a, file_error_mode fe)
 {
-    PdfDocument *pdf_doc = findPdfDocument(file_path);
-    if (pdf_doc == NULL) {
-        if (PdfDocumentTree == NULL)
-            PdfDocumentTree =
-                avl_create(CompPdfDocument, NULL, &avl_xallocator);
+    struct stat finfo;
+    char *ck = NULL;
+    if (stat(a, &finfo) == 0) {
+        off_t size = finfo.st_size;
+        time_t mtime = finfo.st_mtime;
+        ck = (char *) malloc(PDF_CHECKSUM_SIZE);
+        if (ck == NULL)
+            pdftex_fail("PDF inclusion: out of memory while processing '%s'",
+                        a);
+        snprintf(ck, PDF_CHECKSUM_SIZE, "%llu_%llu", (unsigned long long) size,
+                 (unsigned long long) mtime);
+    } else {
+        switch (fe) {
+        case FE_FAIL:
+            pdftex_fail("PDF inclusion: could not stat() file '%s'", a);
+            break;
+        case FE_RETURN_NULL:
+            if (ck != NULL)
+                free(ck);
+            ck = NULL;
+            break;
+        default:
+            assert(0);
+        }
+    }
+    return ck;
+}
+
+// Returns pointer to PdfDocument structure for PDF file.
+// Creates a new PdfDocument structure if it doesn't exist yet.
+// When fe = FE_RETURN_NULL, the function returns NULL in error case.
+
+PdfDocument *refPdfDocument(char *file_path, file_error_mode fe)
+{
+    char *checksum;
+    PdfDocument *pdf_doc;
+    PDFDoc *doc = NULL;
+    GString *docName = NULL;
+    int new_flag = 0;
+    if ((checksum = get_file_checksum(file_path, fe)) == NULL) {
+        assert(fe == FE_RETURN_NULL);
+        return (PdfDocument *) NULL;
+    }
+    assert(checksum != NULL);
+    if ((pdf_doc = findPdfDocument(file_path)) == NULL) {
+        new_flag = 1;
         pdf_doc = new PdfDocument;
         pdf_doc->file_path = xstrdup(file_path);
-        pdf_doc->checksum = get_file_checksum(file_path);
+        pdf_doc->checksum = checksum;
+        pdf_doc->doc = NULL;
+        pdf_doc->inObjList = NULL;
+        pdf_doc->ObjMapTree = NULL;
+        pdf_doc->occurences = 0;        // 0 = unreferenced
+    } else {
+        assert(pdf_doc->checksum != NULL);
+        if (strncmp(pdf_doc->checksum, checksum, PDF_CHECKSUM_SIZE) != 0) {
+            pdftex_fail("PDF inclusion: file has changed '%s'", file_path);
+        }
+        free(checksum);
+    }
+    assert(pdf_doc != NULL);
+    if (pdf_doc->doc == NULL) {
+        docName = new GString(file_path);
+        doc = new PDFDoc(docName);      // takes ownership of docName
+        if (!doc->isOk() || !doc->okToPrint()) {
+            switch (fe) {
+            case FE_FAIL:
+                pdftex_fail("xpdf: reading PDF image failed");
+                break;
+            case FE_RETURN_NULL:
+                delete doc;
+                delete docName;
+                if (new_flag == 1) {
+                    if (pdf_doc->file_path != NULL)
+                        free(pdf_doc->file_path);
+                    if (pdf_doc->checksum != NULL)
+                        free(pdf_doc->checksum);
+                    delete pdf_doc;
+                }
+                return (PdfDocument *) NULL;
+                break;
+            default:
+                assert(0);
+            }
+        }
+        pdf_doc->doc = doc;
+    }
+    // PDF file could be opened without problems, checksum ok.
+    if (PdfDocumentTree == NULL)
+        PdfDocumentTree = avl_create(CompPdfDocument, NULL, &avl_xallocator);
+    if ((PdfDocument *) avl_find(PdfDocumentTree, pdf_doc) == NULL) {
         void **aa = avl_probe(PdfDocumentTree, pdf_doc);
         assert(aa != NULL);
-        pdf_doc->ObjMapTree = NULL;
-        pdf_doc->doc = NULL;
-    }
-    if (pdf_doc->doc == NULL) {
-        GString *docName = new GString(pdf_doc->file_path);
-        pdf_doc->doc = new PDFDoc(docName);     // takes ownership of docName
-        if (!pdf_doc->doc->isOk() || !pdf_doc->doc->okToPrint())
-            pdftex_fail("xpdf: reading PDF image failed");
-        pdf_doc->inObjList = NULL;
-        pdf_doc->occurences = 0;        // 0 = unreferenced
     }
 #ifdef DEBUG
     fprintf(stderr, "\nluatex Debug: Creating %s (%d)\n",
@@ -436,26 +506,6 @@ static PDFRectangle *get_pagebox(Page * page, int pagebox_spec)
     return page->getMediaBox(); // to make the compiler happy
 }
 
-#define PDF_CHECKSUM_SIZE 32
-char *get_file_checksum(char *a)
-{
-    struct stat finfo;
-    char *ck = NULL;
-    if (stat(a, &finfo) == 0) {
-        off_t size = finfo.st_size;
-        time_t mtime = finfo.st_mtime;
-        ck = (char *) malloc(PDF_CHECKSUM_SIZE);
-        if (ck == NULL)
-            pdftex_fail("PDF inclusion: out of memory while processing '%s'",
-                        a);
-        snprintf(ck, PDF_CHECKSUM_SIZE, "%llu_%llu", (unsigned long long) size,
-                 (unsigned long long) mtime);
-    } else {
-        pdftex_fail("PDF inclusion: could not stat() file '%s'", a);
-    }
-    return ck;
-}
-
 // Reads various information about the PDF and sets it up for later inclusion.
 // This will fail if the PDF version of the PDF is higher than
 // minor_pdf_version_wanted or page_name is given and can not be found.
@@ -469,7 +519,6 @@ read_pdf_info(image_dict * idict, int minor_pdf_version_wanted,
     PdfDocument *pdf_doc;
     Page *page;
     int rotate;
-    char *checksum;
     PDFRectangle *pagebox;
 #ifdef HAVE_GETPDFMAJORVERSION
     int pdf_major_version_found, pdf_minor_version_found;
@@ -486,15 +535,8 @@ read_pdf_info(image_dict * idict, int minor_pdf_version_wanted,
         globalParams->setErrQuiet(gFalse);
         isInit = gTrue;
     }
-    // calculate a checksum string
-    checksum = get_file_checksum(img_filepath(idict));
     // open PDF file
-    pdf_doc = refPdfDocument(img_filepath(idict));
-    if (strncmp(pdf_doc->checksum, checksum, PDF_CHECKSUM_SIZE) != 0) {
-        pdftex_fail("PDF inclusion: file has changed '%s'",
-                    img_filename(idict));
-    }
-    free(checksum);
+    pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL);
     // check PDF version
     // this works only for PDF 1.x -- but since any versions of PDF newer
     // than 1.x will not be backwards compatible to PDF 1.x, pdfTeX will
@@ -503,13 +545,15 @@ read_pdf_info(image_dict * idict, int minor_pdf_version_wanted,
     pdf_major_version_found = pdf_doc->doc->getPDFMajorVersion();
     pdf_minor_version_found = pdf_doc->doc->getPDFMinorVersion();
     if ((pdf_major_version_found > 1)
-     || (pdf_minor_version_found > minor_pdf_version_wanted)) {
+        || (pdf_minor_version_found > minor_pdf_version_wanted)) {
         const char *msg =
             "PDF inclusion: found PDF version <%d.%d>, but at most version <1.%d> allowed";
         if (pdf_inclusion_errorlevel > 0) {
-            pdftex_fail(msg, pdf_major_version_found, pdf_minor_version_found, minor_pdf_version_wanted);
+            pdftex_fail(msg, pdf_major_version_found, pdf_minor_version_found,
+                        minor_pdf_version_wanted);
         } else {
-            pdftex_warn(msg, pdf_major_version_found, pdf_minor_version_found, minor_pdf_version_wanted);
+            pdftex_warn(msg, pdf_major_version_found, pdf_minor_version_found,
+                        minor_pdf_version_wanted);
         }
     }
 #else
@@ -617,23 +661,15 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     PDFRectangle *pagebox;
     int i, l;
     float bbox[4];
-    char *checksum;
     char s[256];
-    char *pagedictkeys[] =
+    const char *pagedictkeys[] =
         { "Group", "LastModified", "Metadata", "PieceInfo", "Resources",
         "SeparationInfo", NULL
     };
 
     assert(idict != NULL);
-    // calculate a checksum string
-    checksum = get_file_checksum(img_filepath(idict));
     // open PDF file
-    pdf_doc = refPdfDocument(img_filepath(idict));
-    if (strncmp(pdf_doc->checksum, checksum, PDF_CHECKSUM_SIZE) != 0) {
-        pdftex_fail("PDF inclusion: file has changed '%s'",
-                    img_filename(idict));
-    }
-    free(checksum);
+    pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL);
     page = pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
     pageref = pdf_doc->doc->getCatalog()->getPageRef(img_pagenum(idict));
     assert(pageref != NULL);    // was checked already in read_pdf_info()
@@ -679,7 +715,7 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     // Now all relevant parts of the Page dictionary are copied:
 
     // Resources validity check
-    pageDict->lookupNF("Resources", &dictObj);
+    pageDict->lookupNF((char *) "Resources", &dictObj);
     if (dictObj->isNull()) {
         // Resources can be missing (files without them have been spotted
         // in the wild); in which case the /Resouces of the /Page will be used.
@@ -687,15 +723,14 @@ static void write_epdf1(PDF pdf, image_dict * idict)
         pdftex_warn
             ("PDF inclusion: /Resources missing. 'This practice is not recommended' (PDF Ref.)");
     }
-
     // Metadata validity check (as a stream it must be indirect)
-    pageDict->lookupNF("Metadata", &dictObj);
+    pageDict->lookupNF((char *) "Metadata", &dictObj);
     if (!dictObj->isNull() && !dictObj->isRef())
         pdftex_warn("PDF inclusion: /Metadata must be indirect object");
 
     // copy selected items in Page dictionary
     for (i = 0; pagedictkeys[i] != NULL; i++) {
-        pageDict->lookupNF(pagedictkeys[i], &dictObj);
+        pageDict->lookupNF((char *) pagedictkeys[i], &dictObj);
         if (!dictObj->isNull()) {
             pdf_printf(pdf, "/%s ", pagedictkeys[i]);
             copyObject(pdf, pdf_doc, &dictObj); // preserves indirection
