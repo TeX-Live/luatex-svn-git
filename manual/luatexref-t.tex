@@ -39,7 +39,7 @@
 \startframedtext[framecolor=red,foregroundcolor=red,width=\hsize,style=\tfa]
 
 This book will eventually become the reference manual of \LUATEX.
-At the moment, it simply reports the behaviour of the executable
+At the moment, it simply reports the behavior of the executable
 matching the snapshot or beta release date in the title page.
 
 \blank
@@ -656,7 +656,7 @@ that is normally prohibited.
 
 The addition of this command coincides with a change in the
 \LUATEX\ engine: ever since the snapshot of 20060915, \type{\outer}
-was simply ignored. That behaviour has now reverted back to be
+was simply ignored. That behavior has now reverted back to be
 \TEX82-compatible by default.
 
 
@@ -1029,7 +1029,7 @@ exceptions are \luatex{unicode.utf8.find}, that always returns byte
 positions in a string, and \luatex{unicode.utf8.match} and
 \luatex{unicode.utf8.gmatch}.  While the latter two functions in general
 {\it are} \UNICODE|-|aware, they fall-back to non|-|\UNICODE|-|aware
-behaviour when using the empty capture \lua{()} (other captures work as
+behavior when using the empty capture \lua{()} (other captures work as
 expected).  For the interpretation of character classes in
 \luatex{unicode.utf8} functions refer to the library sources at
 \hyphenatedurl{http://luaforge.net/projects/sln}.  The \lua{slnunicode}
@@ -3373,7 +3373,7 @@ that are defined by the xpdf viewer library (written in C$+{}+$ by Derek Noonbur
 Within \LUATEX\ (and \PDFTEX),
 xpdf functionality is being used since long time to embed \PDF\ files.
 The new \type{epdf} library shall allow to scrutinize an external \PDF\ file.
-It gives access its document structure,
+It gives access to its document structure,
 e.\,g., catalog, cross-reference table, individual pages, objects,
 annotations, info, and metadata.
 
@@ -3427,8 +3427,9 @@ If a non-object item is requested
 (e.\,g., a \type{Dict} item by calling \type{page:getPieceInfo()},
 cf.~\type{Page.h}) but not available,
 the Lua functions return \type{nil}.
-If a function should return a \type{Object}, which is not existing,
-a \type{Null} object is returned instead.
+If a function should return a \type{Object}, but it's not existing,
+a \type{Null} object is returned instead
+(this is in|-|line with xpdf behavior).
 
 %***********************************************************************
 
@@ -7011,7 +7012,7 @@ The only use \LUATEX\ has for \tex{hyphenchar} is at the check
 whether a word should be considered for hyphenation at all. If the
 \tex{hyphenchar} of the font attached to the first character node in a
 word is negative, then hyphenation of that word is abandoned
-immediately. {\bf This behaviour is added for backward
+immediately. {\bf This behavior is added for backward
 compatibility only, and the use of \type{\hyphenchar=-1} as a means of
 preventing hyphenation should not be used in new \LUATEX\ documents.}
 
@@ -7166,7 +7167,7 @@ Words can be up to 256 characters long (up from 64 in \TEX82).  Longer
 words generate an error right now, but eventually either the
 limitation will be removed or perhaps it will become possible to
 silently ignore the excess characters (this is what happens in \TEX82,
-but there the behaviour cannot be controlled).
+but there the behavior cannot be controlled).
 
 If you are using the \LUA\ function \type{lang.hyphenate}, you should be
 aware that this function expects to receive a list of \quote{character}
@@ -7615,7 +7616,7 @@ explicitly. For \PK\ bitmap fonts, wide font encoding is not
 supported at all.
 
 If no special care is needed, \LUATEX\ currently falls back to the
-mapfile|-|based solution used by \PDFTEX\ and \DVIPS. This behaviour
+mapfile|-|based solution used by \PDFTEX\ and \DVIPS. This behavior
 will be removed in the future, when the existing code becomes
 integrated in the new subsystem.
 
