@@ -97,15 +97,11 @@ new_XPDF_userdata(XRefEntry);
 
 int l_open_PDFDoc(lua_State * L)
 {
-    char *file_path;
+    const char *file_path;
     udstruct *uout;
     PdfDocument *d;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "epdf.open() needs exactly 1 argument");
-    if (!lua_isstring(L, -1))
-        luaL_error(L, "epdf.open() needs filename (string)");
-    file_path = (char *) lua_tostring(L, -1);   // path
-    d = refPdfDocument(file_path, FE_RETURN_NULL);
+    file_path = luaL_checkstring(L, 1); // path
+    d = refPdfDocument((char *) file_path, FE_RETURN_NULL);
     if (d == NULL)
         lua_pushnil(L);
     else {
@@ -126,8 +122,6 @@ static const struct luaL_Reg epdflib[] = {
 int m_##in##_##function(lua_State * L)                                  \
 {                                                                       \
     udstruct *uin, *uout;                                               \
-    if (lua_gettop(L) != 1)                                             \
-        luaL_error(L, #in ":" #function "() needs exactly 1 argument"); \
     uin = (udstruct *) luaL_checkudata(L, 1, M_##in);                   \
     uout = new_##out##_userdata(L);                                     \
     uout->d = ((in *) uin->d)->function();                              \
@@ -138,8 +132,6 @@ int m_##in##_##function(lua_State * L)                                  \
 int m_##in##_##function(lua_State * L)                                  \
 {                                                                       \
     udstruct *uin;                                                      \
-    if (lua_gettop(L) != 1)                                             \
-        luaL_error(L, #in ":" #function "() needs exactly 1 argument"); \
     uin = (udstruct *) luaL_checkudata(L, 1, M_##in);                   \
     if (((in *) uin->d)->function())                                    \
         lua_pushboolean(L, 1);                                          \
@@ -153,8 +145,6 @@ int m_##in##_##function(lua_State * L)                                  \
 {                                                                       \
     int i;                                                              \
     udstruct *uin;                                                      \
-    if (lua_gettop(L) != 1)                                             \
-        luaL_error(L, #in ":" #function "() needs exactly 1 argument"); \
     uin = (udstruct *) luaL_checkudata(L, 1, M_##in);                   \
     i = (int) ((in *) uin->d)->function();                              \
     lua_pushinteger(L, i);                                              \
@@ -166,8 +156,6 @@ int m_##in##_##function(lua_State * L)                                  \
 {                                                                       \
     double d;                                                           \
     udstruct *uin;                                                      \
-    if (lua_gettop(L) != 1)                                             \
-        luaL_error(L, #in ":" #function "() needs exactly 1 argument"); \
     uin = (udstruct *) luaL_checkudata(L, 1, M_##in);                   \
     d = (double) ((in *) uin->d)->function();                           \
     lua_pushnumber(L, d);                                               \
@@ -178,8 +166,6 @@ int m_##in##_##function(lua_State * L)                                  \
 int m_##in##_##function(lua_State * L)                                  \
 {                                                                       \
     udstruct *uin, *uout;                                               \
-    if (lua_gettop(L) != 1)                                             \
-        luaL_error(L, #in ":" #function "() needs exactly 1 argument"); \
     uin = (udstruct *) luaL_checkudata(L, 1, M_##in);                   \
     uout = new_Object_userdata(L);                                      \
     uout->d = new Object();                                             \
@@ -193,12 +179,8 @@ int m_##in##_##function(lua_State * L)                                  \
 {                                                                       \
     int i;                                                              \
     udstruct *uin, *uout;                                               \
-    if (lua_gettop(L) != 2)                                             \
-        luaL_error(L, #in ":" #function "() needs exactly 2 arguments");\
     uin = (udstruct *) luaL_checkudata(L, 1, M_##in);                   \
-    if (!lua_isnumber(L, 2))                                            \
-        luaL_error(L, #in ":" #function "() 2nd argument must be int"); \
-    i = lua_tointeger(L, 2);                                            \
+    i = luaL_checkint(L, 2);                                            \
     uout = new_##out##_userdata(L);                                     \
     uout->d = ((in *) uin->d)->function(i);                             \
     return 1;                                                           \
@@ -222,12 +204,8 @@ int m_Array_get(lua_State * L)
 {
     int i, len;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Array:get() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Array);
-    if (!lua_isnumber(L, 2))
-        luaL_error(L, "Array:get() 2nd argument must be int");
-    i = lua_tointeger(L, 2);
+    i = luaL_checkint(L, 2);
     len = ((Array *) uin->d)->getLength();
     if (i > 0 && i <= len) {
         uout = new_Object_userdata(L);
@@ -243,12 +221,8 @@ int m_Array_getNF(lua_State * L)
 {
     int i, len;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Array:getNF() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Array);
-    if (!lua_isnumber(L, 2))
-        luaL_error(L, "Array:getNF() 2nd argument must be int");
-    i = lua_tointeger(L, 2);
+    i = luaL_checkint(L, 2);
     len = ((Array *) uin->d)->getLength();
     if (i > 0 && i <= len) {
         uout = new_Object_userdata(L);
@@ -280,12 +254,8 @@ int m_Catalog_getPage(lua_State * L)
 {
     int i, pages;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Catalog:getPage() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Catalog);
-    if (!lua_isnumber(L, 2))
-        luaL_error(L, "Catalog:getPage() 2nd argument must be int");
-    i = lua_tointeger(L, 2);
+    i = luaL_checkint(L, 2);
     pages = ((Catalog *) uin->d)->getNumPages();
     if (i > 0 && i <= pages) {
         uout = new_Page_userdata(L);
@@ -299,12 +269,8 @@ int m_Catalog_getPageRef(lua_State * L)
 {
     int i, pages;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Catalog:getPageRef() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Catalog);
-    if (!lua_isnumber(L, 2))
-        luaL_error(L, "Catalog:getPageRef() 2nd argument must be int");
-    i = lua_tointeger(L, 2);
+    i = luaL_checkint(L, 2);
     pages = ((Catalog *) uin->d)->getNumPages();
     if (i > 0 && i <= pages) {
         uout = new_Ref_userdata(L);
@@ -321,8 +287,6 @@ int m_Catalog_getBaseURI(lua_State * L)
 {
     GString *gs;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Catalog:getBaseURI() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Catalog);
     gs = ((Catalog *) uin->d)->getBaseURI();
     if (gs != NULL)
@@ -336,8 +300,6 @@ int m_Catalog_readMetadata(lua_State * L)
 {
     GString *gs;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Catalog:readMetadata() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Catalog);
     gs = ((Catalog *) uin->d)->readMetadata();
     if (gs != NULL)
@@ -353,15 +315,9 @@ int m_Catalog_findPage(lua_State * L)
 {
     int num, gen, i;
     udstruct *uin;
-    if (lua_gettop(L) != 3)
-        luaL_error(L, "Catalog:findPage() needs exactly 3 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Catalog);
-    if (!lua_isnumber(L, 2))
-        luaL_error(L, "Catalog:findPage() 2nd argument must be int");
-    num = lua_tointeger(L, 2);
-    if (!lua_isnumber(L, 3))
-        luaL_error(L, "Catalog:findPage() 3rd argument must be int");
-    gen = lua_tointeger(L, 3);
+    num = luaL_checkint(L, 2);
+    gen = luaL_checkint(L, 3);
     i = ((Catalog *) uin->d)->findPage(num, gen);
     if (i > 0)
         lua_pushinteger(L, i);
@@ -377,12 +333,8 @@ int m_Catalog_findDest(lua_State * L)
     const char *s;
     size_t len;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Catalog:findDest() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Catalog);
-    if (!lua_isstring(L, 2))
-        luaL_error(L, "Catalog:findDest() 2nd argument must be string");
-    s = lua_tolstring(L, 2, &len);
+    s = luaL_checklstring(L, 2, &len);
     name = new GString(s, len);
     dest = ((Catalog *) uin->d)->findDest(name);
     if (dest != NULL) {
@@ -426,15 +378,11 @@ m_XPDF_get_INT(Dict, getLength);
 
 int m_Dict_is(lua_State * L)
 {
-    char *s;
+    const char *s;
     udstruct *uin;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Dict:is() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
-    if (!lua_isstring(L, 2))
-        luaL_error(L, "Dict:is() 2nd argument must be string");
-    s = (char *) lua_tostring(L, 2);
-    if (((Dict *) uin->d)->is(s))
+    s = luaL_checkstring(L, 2);
+    if (((Dict *) uin->d)->is((char *) s))
         lua_pushboolean(L, 1);
     else
         lua_pushboolean(L, 0);
@@ -443,34 +391,26 @@ int m_Dict_is(lua_State * L)
 
 int m_Dict_lookup(lua_State * L)
 {
-    char *s;
+    const char *s;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Dict:lookup() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
-    if (!lua_isstring(L, 2))
-        luaL_error(L, "Dict:lookup() 2nd argument must be string");
-    s = (char *) lua_tostring(L, 2);
+    s = luaL_checkstring(L, 2);
     uout = new_Object_userdata(L);
     uout->d = new Object();
-    ((Dict *) uin->d)->lookup(s, (Object *) uout->d);
+    ((Dict *) uin->d)->lookup((char *) s, (Object *) uout->d);
     uout->atype = ALLOC_LEPDF;
     return 1;
 }
 
 int m_Dict_lookupNF(lua_State * L)
 {
-    char *s;
+    const char *s;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Dict:lookupNF() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
-    if (!lua_isstring(L, 2))
-        luaL_error(L, "Dict:lookupNF() 2nd argument must be string");
-    s = (char *) lua_tostring(L, 2);
+    s = luaL_checkstring(L, 2);
     uout = new_Object_userdata(L);
     uout->d = new Object();
-    ((Dict *) uin->d)->lookupNF(s, (Object *) uout->d);
+    ((Dict *) uin->d)->lookupNF((char *) s, (Object *) uout->d);
     uout->atype = ALLOC_LEPDF;
     return 1;
 }
@@ -479,12 +419,8 @@ int m_Dict_getKey(lua_State * L)
 {
     int i, len;
     udstruct *uin;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Dict:getKey() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
-    if (!lua_isnumber(L, 2))
-        luaL_error(L, "Dict:getKey() 2nd argument must be int");
-    i = lua_tointeger(L, 2);
+    i = luaL_checkint(L, 2);
     len = ((Dict *) uin->d)->getLength();
     if (i > 0 && i <= len)
         lua_pushstring(L, ((Dict *) uin->d)->getKey(i - 1));
@@ -497,12 +433,8 @@ int m_Dict_getVal(lua_State * L)
 {
     int i, len;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Dict:getVal() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
-    if (!lua_isnumber(L, 2))
-        luaL_error(L, "Dict:getVal() 2nd argument must be int");
-    i = lua_tointeger(L, 2);
+    i = luaL_checkint(L, 2);
     len = ((Dict *) uin->d)->getLength();
     if (i > 0 && i <= len) {
         uout = new_Object_userdata(L);
@@ -518,12 +450,8 @@ int m_Dict_getValNF(lua_State * L)
 {
     int i, len;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Dict:getValNF() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
-    if (!lua_isnumber(L, 2))
-        luaL_error(L, "Dict:getValNF() 2nd argument must be int");
-    i = lua_tointeger(L, 2);
+    i = luaL_checkint(L, 2);
     len = ((Dict *) uin->d)->getLength();
     if (i > 0 && i <= len) {
         uout = new_Object_userdata(L);
@@ -578,8 +506,6 @@ int m_LinkDest_getKind(lua_State * L)
 {
     int i;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "LinkDest:getKind() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_LinkDest);
     i = (int) ((LinkDest *) uin->d)->getKind();
     lua_pushinteger(L, i);
@@ -590,8 +516,6 @@ int m_LinkDest_getKindName(lua_State * L)
 {
     int i;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "LinkDest:getKindName() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_LinkDest);
     i = (int) ((LinkDest *) uin->d)->getKind();
     lua_pushstring(L, LinkDestKindNames[i]);
@@ -604,8 +528,6 @@ m_XPDF_get_INT(LinkDest, getPageNum);
 int m_LinkDest_getPageRef(lua_State * L)
 {
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "LinkDest:getPageRef() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_LinkDest);
     uout = new_Ref_userdata(L);
     uout->d = (Ref *) gmalloc(sizeof(Ref));
@@ -651,8 +573,6 @@ static const struct luaL_Reg LinkDest_m[] = {
 int m_Object_fetch(lua_State * L)
 {
     udstruct *uin, *uxref, *uout;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Object:fetch() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     uxref = (udstruct *) luaL_checkudata(L, 2, M_XRef);
     uout = new_Object_userdata(L);
@@ -666,8 +586,6 @@ int m_Object_getType(lua_State * L)
 {
     ObjType t;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Object:getType() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     t = ((Object *) uin->d)->getType();
     lua_pushinteger(L, (int) t);
@@ -678,8 +596,6 @@ int m_Object_getTypeName(lua_State * L)
 {
     char *s;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Object:getTypeName() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     s = ((Object *) uin->d)->getTypeName();
     lua_pushstring(L, s);
@@ -709,8 +625,6 @@ m_XPDF_get_BOOL(Object, isNone);
 int m_Object_getBool(lua_State * L)
 {
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Object:getBool() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (((Object *) uin->d)->isBool()) {
         if (((Object *) uin->d)->getBool())
@@ -725,8 +639,6 @@ int m_Object_getBool(lua_State * L)
 int m_Object_getInt(lua_State * L)
 {
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Object:getInt() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (((Object *) uin->d)->isInt())
         lua_pushnumber(L, ((Object *) uin->d)->getInt());
@@ -738,8 +650,6 @@ int m_Object_getInt(lua_State * L)
 int m_Object_getReal(lua_State * L)
 {
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Object:getReal() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (((Object *) uin->d)->isReal())
         lua_pushnumber(L, ((Object *) uin->d)->getReal());
@@ -751,8 +661,6 @@ int m_Object_getReal(lua_State * L)
 int m_Object_getNum(lua_State * L)
 {
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Object:getNum() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (((Object *) uin->d)->isNum())
         lua_pushnumber(L, ((Object *) uin->d)->getNum());
@@ -765,8 +673,6 @@ int m_Object_getString(lua_State * L)
 {
     GString *gs;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Object:getString() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (((Object *) uin->d)->isString()) {
         gs = ((Object *) uin->d)->getString();
@@ -780,8 +686,6 @@ int m_Object_getName(lua_State * L)
 {
     char *s;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Object:getName() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (((Object *) uin->d)->isName()) {
         s = ((Object *) uin->d)->getName();
@@ -794,8 +698,6 @@ int m_Object_getName(lua_State * L)
 int m_Object_getArray(lua_State * L)
 {
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Object:getArray() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (((Object *) uin->d)->isArray()) {
         uout = new_Array_userdata(L);
@@ -808,8 +710,6 @@ int m_Object_getArray(lua_State * L)
 int m_Object_getDict(lua_State * L)
 {
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Object:getDict() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (((Object *) uin->d)->isDict()) {
         uout = new_Dict_userdata(L);
@@ -822,8 +722,6 @@ int m_Object_getDict(lua_State * L)
 int m_Object_getStream(lua_State * L)
 {
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Object:getStream() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (((Object *) uin->d)->isStream()) {
         uout = new_Dict_userdata(L);
@@ -836,8 +734,6 @@ int m_Object_getStream(lua_State * L)
 int m_Object_getRef(lua_State * L)
 {
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Object:getRef() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (((Object *) uin->d)->isRef()) {
         uout = new_Ref_userdata(L);
@@ -854,8 +750,6 @@ int m_Object_getRefNum(lua_State * L)
 {
     int i;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Object:getRefNum() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (((Object *) uin->d)->isRef()) {
         i = ((Object *) uin->d)->getRef().num;
@@ -869,8 +763,6 @@ int m_Object_getRefGen(lua_State * L)
 {
     int i;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Object:getRefGen() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (((Object *) uin->d)->isRef()) {
         i = ((Object *) uin->d)->getRef().gen;
@@ -884,8 +776,6 @@ int m_Object_getCmd(lua_State * L)
 {
     char *s;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Object:getCmd() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (((Object *) uin->d)->isCmd()) {
         s = ((Object *) uin->d)->getCmd();
@@ -899,8 +789,6 @@ int m_Object_arrayGetLength(lua_State * L)
 {
     int len;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Object:arrayGetLength() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (((Object *) uin->d)->isArray()) {
         len = ((Object *) uin->d)->arrayGetLength();
@@ -914,12 +802,8 @@ int m_Object_arrayGet(lua_State * L)
 {
     int i, len;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Object:arrayGet() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    if (!lua_isnumber(L, 2))
-        luaL_error(L, "Object:arrayGet() 2nd argument must be int");
-    i = lua_tointeger(L, 2);
+    i = luaL_checkint(L, 2);
     if (((Object *) uin->d)->isArray()) {
         len = ((Object *) uin->d)->arrayGetLength();
         if (i > 0 && i <= len) {
@@ -938,12 +822,8 @@ int m_Object_arrayGetNF(lua_State * L)
 {
     int i, len;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Object:arrayGetNF() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    if (!lua_isnumber(L, 2))
-        luaL_error(L, "Object:arrayGetNF() 2nd argument must be int");
-    i = lua_tointeger(L, 2);
+    i = luaL_checkint(L, 2);
     if (((Object *) uin->d)->isArray()) {
         len = ((Object *) uin->d)->arrayGetLength();
         if (i > 0 && i <= len) {
@@ -962,8 +842,6 @@ int m_Object_dictGetLength(lua_State * L)
 {
     int len;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Object:dictGetLength() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (((Object *) uin->d)->isDict()) {
         len = ((Object *) uin->d)->dictGetLength();
@@ -975,18 +853,14 @@ int m_Object_dictGetLength(lua_State * L)
 
 int m_Object_dictLookup(lua_State * L)
 {
-    char *s;
+    const char *s;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Object:dictLookup() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    if (!lua_isstring(L, 2))
-        luaL_error(L, "Object:dictLookup() 2nd argument must be string");
-    s = (char *) lua_tostring(L, 2);
+    s = luaL_checkstring(L, 2);
     if (((Object *) uin->d)->isDict()) {
         uout = new_Object_userdata(L);
         uout->d = new Object();
-        ((Object *) uin->d)->dictLookup(s, (Object *) uout->d);
+        ((Object *) uin->d)->dictLookup((char *) s, (Object *) uout->d);
         uout->atype = ALLOC_LEPDF;
     } else
         lua_pushnil(L);
@@ -995,18 +869,14 @@ int m_Object_dictLookup(lua_State * L)
 
 int m_Object_dictLookupNF(lua_State * L)
 {
-    char *s;
+    const char *s;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Object:dictLookupNF() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    if (!lua_isstring(L, 2))
-        luaL_error(L, "Object:dictLookupNF() 2nd argument must be string");
-    s = (char *) lua_tostring(L, 2);
+    s = luaL_checkstring(L, 2);
     if (((Object *) uin->d)->isDict()) {
         uout = new_Object_userdata(L);
         uout->d = new Object();
-        ((Object *) uin->d)->dictLookupNF(s, (Object *) uout->d);
+        ((Object *) uin->d)->dictLookupNF((char *) s, (Object *) uout->d);
         uout->atype = ALLOC_LEPDF;
     } else
         lua_pushnil(L);
@@ -1017,12 +887,8 @@ int m_Object_dictGetKey(lua_State * L)
 {
     int i, len;
     udstruct *uin;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Object:dictGetKey() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    if (!lua_isnumber(L, 2))
-        luaL_error(L, "Object:dictGetKey() 2nd argument must be int");
-    i = lua_tointeger(L, 2);
+    i = luaL_checkint(L, 2);
     if (((Object *) uin->d)->isDict()) {
         len = ((Object *) uin->d)->dictGetLength();
         if (i > 0 && i <= len)
@@ -1038,12 +904,8 @@ int m_Object_dictGetVal(lua_State * L)
 {
     int i, len;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Object:dictGetVal() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    if (!lua_isnumber(L, 2))
-        luaL_error(L, "Object:dictGetVal() 2nd argument must be int");
-    i = lua_tointeger(L, 2);
+    i = luaL_checkint(L, 2);
     if (((Object *) uin->d)->isDict()) {
         len = ((Object *) uin->d)->dictGetLength();
         if (i > 0 && i <= len) {
@@ -1062,12 +924,8 @@ int m_Object_dictGetValNF(lua_State * L)
 {
     int i, len;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Object:dictGetValNF() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    if (!lua_isnumber(L, 2))
-        luaL_error(L, "Object:dictGetValNF() 2nd argument must be int");
-    i = lua_tointeger(L, 2);
+    i = luaL_checkint(L, 2);
     if (((Object *) uin->d)->isDict()) {
         len = ((Object *) uin->d)->dictGetLength();
         if (i > 0 && i <= len) {
@@ -1086,8 +944,6 @@ int m_Object_streamGetChar(lua_State * L)
 {
     int i;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Object:streamGetChar() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (((Object *) uin->d)->isStream()) {
         i = ((Object *) uin->d)->streamGetChar();
@@ -1100,8 +956,6 @@ int m_Object_streamGetChar(lua_State * L)
 int m_Object_streamGetDict(lua_State * L)
 {
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Object:streamGetDict() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (((Object *) uin->d)->isStream()) {
         uout = new_Dict_userdata(L);
@@ -1209,8 +1063,6 @@ int m_Page_getLastModified(lua_State * L)
 {
     GString *gs;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Page:getLastModified() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Page);
     gs = ((Page *) uin->d)->getLastModified();
     if (gs != NULL)
@@ -1224,8 +1076,6 @@ int m_Page_getBoxColorInfo(lua_State * L)
 {
     Dict *dict;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Page:getBoxColorInfo() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Page);
     dict = ((Page *) uin->d)->getBoxColorInfo();
     if (dict != NULL) {
@@ -1240,8 +1090,6 @@ int m_Page_getGroup(lua_State * L)
 {
     Dict *dict;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Page:getGroup() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Page);
     dict = ((Page *) uin->d)->getGroup();
     if (dict != NULL) {
@@ -1256,8 +1104,6 @@ int m_Page_getMetadata(lua_State * L)
 {
     Stream *stream;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Page:getMetadata() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Page);
     stream = ((Page *) uin->d)->getMetadata();
     if (stream != NULL) {
@@ -1272,8 +1118,6 @@ int m_Page_getPieceInfo(lua_State * L)
 {
     Dict *dict;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Page:getPieceInfo() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Page);
     dict = ((Page *) uin->d)->getPieceInfo();
     if (dict != NULL) {
@@ -1288,8 +1132,6 @@ int m_Page_getSeparationInfo(lua_State * L)
 {
     Dict *dict;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Page:getSeparationInfo() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Page);
     dict = ((Page *) uin->d)->getSeparationInfo();
     if (dict != NULL) {
@@ -1304,8 +1146,6 @@ int m_Page_getResourceDict(lua_State * L)
 {
     Dict *dict;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Page:getResourceDict() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Page);
     dict = ((Page *) uin->d)->getResourceDict();
     if (dict != NULL) {
@@ -1356,8 +1196,6 @@ static const struct luaL_Reg Page_m[] = {
 int m_PDFDoc_isOk(lua_State * L)
 {
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "PDFDoc:isok() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
     if (((PdfDocument *) uin->d)->doc->isOk())
         lua_pushboolean(L, 1);
@@ -1370,8 +1208,6 @@ int m_PDFDoc_getErrorCode(lua_State * L)
 {
     int i;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "PDFDoc:getErrorCode() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
     i = ((PdfDocument *) uin->d)->doc->getErrorCode();
     lua_pushinteger(L, i);
@@ -1382,8 +1218,6 @@ int m_PDFDoc_getErrorCodeName(lua_State * L)
 {
     int i;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "PDFDoc:getErrorCodeName() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
     i = ((PdfDocument *) uin->d)->doc->getErrorCode();
     lua_pushstring(L, ErrorCodeNames[i]);
@@ -1394,8 +1228,6 @@ int m_PDFDoc_getCatalog(lua_State * L)
 {
     Catalog *cat;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "PDFDoc:getCatalog() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
     cat = ((PdfDocument *) uin->d)->doc->getCatalog();
     if (cat->isOk()) {
@@ -1410,8 +1242,6 @@ int m_PDFDoc_getXRef(lua_State * L)
 {
     XRef *xref;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "PDFDoc:getXRef() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
     xref = ((PdfDocument *) uin->d)->doc->getXRef();
     if (xref->isOk()) {
@@ -1460,12 +1290,8 @@ int m_Ref__index(lua_State * L)
 {
     const char *s;
     udstruct *uin;
-    if (lua_gettop(L) != 2)
-        luaL_error(L, "Ref:__index() needs exactly 2 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Ref);
-    if (!lua_isstring(L, 2))
-        luaL_error(L, "Ref:__index() 2nd argument must be string");
-    s = lua_tostring(L, 2);
+    s = luaL_checkstring(L, 2);
     if (strcmp(s, "num") == 0)
         lua_pushinteger(L, ((Ref *) uin->d)->num);
     else if (strcmp(s, "gen") == 0)
@@ -1515,8 +1341,6 @@ int m_Stream_getKindName(lua_State * L)
 {
     StreamKind t;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Stream:getKindName() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Stream);
     t = ((Stream *) uin->d)->getKind();
     lua_pushstring(L, StreamKindNames[t]);
@@ -1526,8 +1350,6 @@ int m_Stream_getKindName(lua_State * L)
 int m_Stream_reset(lua_State * L)
 {
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Stream:reset() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Stream);
     ((Stream *) uin->d)->reset();
     return 0;
@@ -1537,8 +1359,6 @@ int m_Stream_getChar(lua_State * L)
 {
     int i;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Stream:getChar() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Stream);
     i = ((Stream *) uin->d)->getChar();
     lua_pushinteger(L, i);
@@ -1549,8 +1369,6 @@ int m_Stream_lookChar(lua_State * L)
 {
     int i;
     udstruct *uin;
-    if (lua_gettop(L) != 1)
-        luaL_error(L, "Stream:lookChar() needs exactly 1 argument");
     uin = (udstruct *) luaL_checkudata(L, 1, M_Stream);
     i = ((Stream *) uin->d)->lookChar();
     lua_pushinteger(L, i);
@@ -1592,15 +1410,9 @@ int m_XRef_fetch(lua_State * L)
 {
     int num, gen;
     udstruct *uin, *uout;
-    if (lua_gettop(L) != 3)
-        luaL_error(L, "XRef:fetch() needs exactly 3 arguments");
     uin = (udstruct *) luaL_checkudata(L, 1, M_XRef);
-    if (!lua_isnumber(L, 2))
-        luaL_error(L, "XRef:fetch() 2nd argument must be int");
-    num = lua_tointeger(L, 2);
-    if (!lua_isnumber(L, 3))
-        luaL_error(L, "XRef:fetch() 3rd argument must be int");
-    gen = lua_tointeger(L, 3);
+    num = luaL_checkint(L, 2);
+    gen = luaL_checkint(L, 3);
     uout = new_Object_userdata(L);
     uout->d = new Object();
     ((XRef *) uin->d)->fetch(num, gen, (Object *) uout->d);
