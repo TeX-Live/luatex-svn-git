@@ -107,6 +107,7 @@ int l_open_PDFDoc(lua_State * L)
     else {
         uout = new_PDFDoc_userdata(L);
         uout->d = d;
+        uout->atype = ALLOC_LEPDF;
     }
     return 1;                   // doc path
 }
@@ -1259,6 +1260,7 @@ static int m_PDFDoc__gc(lua_State * L)
 #  ifdef DEBUG
     printf("\n===== Type_PDFDoc GC FREE ===== a=<%s>\n", a->file_path);
 #  endif
+    assert(uin->atype == ALLOC_LEPDF);
     unrefPdfDocument(((PdfDocument *) uin->d)->file_path);
     return 0;
 }

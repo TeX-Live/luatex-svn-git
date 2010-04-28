@@ -3397,9 +3397,11 @@ All Lua functions in the \type{epdf} library are named after the
 functions listed in the header files for the various xpdf classes,
 e.\,g., files \type{PDFDoc.h}, \type{Dict.h}, and \type{Array.h}.
 These files can be found in the xpdf subdirectory within the \LUATEX\ sources.
+Which functions are already implemented in the \type{epdf} library
+can be found in the \LUATEX\ source file \type{lepdflib.cc}.
 For using the \type{epdf} library, 
 knowledge of the \PDF\ file architecture is indispensable
-as well as access to these header files.
+as well as access to these source files.
 
 There are many different userdata types defined
 by the \type{epdf} library, currently these are
@@ -3427,7 +3429,7 @@ If a non-object item is requested
 (e.\,g., a \type{Dict} item by calling \type{page:getPieceInfo()},
 cf.~\type{Page.h}) but not available,
 the Lua functions return \type{nil}.
-If a function should return a \type{Object}, but it's not existing,
+If a function should return an \type{Object}, but it's not existing,
 a \type{Null} object is returned instead
 (this is in|-|line with xpdf behavior).
 
