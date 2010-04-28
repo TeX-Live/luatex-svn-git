@@ -119,10 +119,15 @@ static const struct luaL_Reg epdflib[] = {
 #define m_XPDF_get_XPDF(in, out, function)                 \
 int m_##in##_##function(lua_State * L)                     \
 {                                                          \
+    out *o;                                                \
     udstruct *uin, *uout;                                  \
     uin = (udstruct *) luaL_checkudata(L, 1, M_##in);      \
-    uout = new_##out##_userdata(L);                        \
-    uout->d = ((in *) uin->d)->function();                 \
+    o = ((in *) uin->d)->function();                       \
+    if (o != NULL) {                                       \
+        uout = new_##out##_userdata(L);                    \
+        uout->d = o;                                       \
+    } else                                                 \
+        lua_pushnil(L);                                    \
     return 1;                                              \
 }
 
@@ -169,18 +174,6 @@ int m_##in##_##function(lua_State * L)                     \
     uout->d = new Object();                                \
     ((in *) uin->d)->function((Object *) uout->d);         \
     uout->atype = ALLOC_LEPDF;                             \
-    return 1;                                              \
-}
-
-#define m_XPDF_INT_get_XPDF(in, out, function)             \
-int m_##in##_##function(lua_State * L)                     \
-{                                                          \
-    int i;                                                 \
-    udstruct *uin, *uout;                                  \
-    uin = (udstruct *) luaL_checkudata(L, 1, M_##in);      \
-    i = luaL_checkint(L, 2);                               \
-    uout = new_##out##_userdata(L);                        \
-    uout->d = ((in *) uin->d)->function(i);                \
     return 1;                                              \
 }
 
@@ -1070,90 +1063,12 @@ int m_Page_getLastModified(lua_State * L)
     return 1;
 }
 
-int m_Page_getBoxColorInfo(lua_State * L)
-{
-    Dict *dict;
-    udstruct *uin, *uout;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Page);
-    dict = ((Page *) uin->d)->getBoxColorInfo();
-    if (dict != NULL) {
-        uout = new_Dict_userdata(L);
-        uout->d = dict;
-    } else
-        lua_pushnil(L);
-    return 1;
-}
-
-int m_Page_getGroup(lua_State * L)
-{
-    Dict *dict;
-    udstruct *uin, *uout;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Page);
-    dict = ((Page *) uin->d)->getGroup();
-    if (dict != NULL) {
-        uout = new_Dict_userdata(L);
-        uout->d = dict;
-    } else
-        lua_pushnil(L);
-    return 1;
-}
-
-int m_Page_getMetadata(lua_State * L)
-{
-    Stream *stream;
-    udstruct *uin, *uout;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Page);
-    stream = ((Page *) uin->d)->getMetadata();
-    if (stream != NULL) {
-        uout = new_Stream_userdata(L);
-        uout->d = stream;
-    } else
-        lua_pushnil(L);
-    return 1;
-}
-
-int m_Page_getPieceInfo(lua_State * L)
-{
-    Dict *dict;
-    udstruct *uin, *uout;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Page);
-    dict = ((Page *) uin->d)->getPieceInfo();
-    if (dict != NULL) {
-        uout = new_Dict_userdata(L);
-        uout->d = dict;
-    } else
-        lua_pushnil(L);
-    return 1;
-}
-
-int m_Page_getSeparationInfo(lua_State * L)
-{
-    Dict *dict;
-    udstruct *uin, *uout;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Page);
-    dict = ((Page *) uin->d)->getSeparationInfo();
-    if (dict != NULL) {
-        uout = new_Dict_userdata(L);
-        uout->d = dict;
-    } else
-        lua_pushnil(L);
-    return 1;
-}
-
-int m_Page_getResourceDict(lua_State * L)
-{
-    Dict *dict;
-    udstruct *uin, *uout;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Page);
-    dict = ((Page *) uin->d)->getResourceDict();
-    if (dict != NULL) {
-        uout = new_Dict_userdata(L);
-        uout->d = dict;
-    } else
-        lua_pushnil(L);
-    return 1;
-}
-
+m_XPDF_get_XPDF(Page, Dict, getBoxColorInfo);
+m_XPDF_get_XPDF(Page, Dict, getGroup);
+m_XPDF_get_XPDF(Page, Stream, getMetadata);
+m_XPDF_get_XPDF(Page, Dict, getPieceInfo);
+m_XPDF_get_XPDF(Page, Dict, getSeparationInfo);
+m_XPDF_get_XPDF(Page, Dict, getResourceDict);
 m_XPDF_get_OBJECT(Page, getAnnots);
 // getLinks
 m_XPDF_get_OBJECT(Page, getContents);
