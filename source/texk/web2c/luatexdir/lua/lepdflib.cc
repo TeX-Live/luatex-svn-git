@@ -51,6 +51,7 @@ const char *ErrorCodeNames[] = { "None", "OpenFile", "BadCatalog",
 #define M_Dict         "Dict"
 #define M_GString      "GString"
 #define M_LinkDest     "LinkDest"
+#define M_Links        "Links"
 #define M_Object       "Object"
 #define M_ObjectStream "ObjectStream"
 #define M_Page         "Page"
@@ -81,6 +82,7 @@ new_XPDF_userdata(Catalog);
 new_XPDF_userdata(Dict);
 new_XPDF_userdata(GString);
 new_XPDF_userdata(LinkDest);
+new_XPDF_userdata(Links);
 new_XPDF_userdata(Object);
 new_XPDF_userdata(ObjectStream);
 new_XPDF_userdata(Page);
@@ -111,93 +113,93 @@ int l_open_PDFDoc(lua_State * L)
 
 static const struct luaL_Reg epdflib[] = {
     {"open", l_open_PDFDoc},
-    {NULL, NULL}                /* sentinel */
+    {NULL, NULL}                // sentinel
 };
 
 //**********************************************************************
 
-#define m_XPDF_get_XPDF(in, out, function)                 \
-int m_##in##_##function(lua_State * L)                     \
-{                                                          \
-    out *o;                                                \
-    udstruct *uin, *uout;                                  \
-    uin = (udstruct *) luaL_checkudata(L, 1, M_##in);      \
-    o = ((in *) uin->d)->function();                       \
-    if (o != NULL) {                                       \
-        uout = new_##out##_userdata(L);                    \
-        uout->d = o;                                       \
-    } else                                                 \
-        lua_pushnil(L);                                    \
-    return 1;                                              \
+#define m_XPDF_get_XPDF(in, out, function)                     \
+int m_##in##_##function(lua_State * L)                         \
+{                                                              \
+    out *o;                                                    \
+    udstruct *uin, *uout;                                      \
+    uin = (udstruct *) luaL_checkudata(L, 1, M_##in);          \
+    o = ((in *) uin->d)->function();                           \
+    if (o != NULL) {                                           \
+        uout = new_##out##_userdata(L);                        \
+        uout->d = o;                                           \
+    } else                                                     \
+        lua_pushnil(L);                                        \
+    return 1;                                                  \
 }
 
-#define m_XPDF_get_BOOL(in, function)                      \
-int m_##in##_##function(lua_State * L)                     \
-{                                                          \
-    udstruct *uin;                                         \
-    uin = (udstruct *) luaL_checkudata(L, 1, M_##in);      \
-    if (((in *) uin->d)->function())                       \
-        lua_pushboolean(L, 1);                             \
-    else                                                   \
-        lua_pushboolean(L, 0);                             \
-    return 1;                                              \
+#define m_XPDF_get_BOOL(in, function)                          \
+int m_##in##_##function(lua_State * L)                         \
+{                                                              \
+    udstruct *uin;                                             \
+    uin = (udstruct *) luaL_checkudata(L, 1, M_##in);          \
+    if (((in *) uin->d)->function())                           \
+        lua_pushboolean(L, 1);                                 \
+    else                                                       \
+        lua_pushboolean(L, 0);                                 \
+    return 1;                                                  \
 }
 
-#define m_XPDF_get_INT(in, function)                       \
-int m_##in##_##function(lua_State * L)                     \
-{                                                          \
-    int i;                                                 \
-    udstruct *uin;                                         \
-    uin = (udstruct *) luaL_checkudata(L, 1, M_##in);      \
-    i = (int) ((in *) uin->d)->function();                 \
-    lua_pushinteger(L, i);                                 \
-    return 1;                                              \
+#define m_XPDF_get_INT(in, function)                           \
+int m_##in##_##function(lua_State * L)                         \
+{                                                              \
+    int i;                                                     \
+    udstruct *uin;                                             \
+    uin = (udstruct *) luaL_checkudata(L, 1, M_##in);          \
+    i = (int) ((in *) uin->d)->function();                     \
+    lua_pushinteger(L, i);                                     \
+    return 1;                                                  \
 }
 
-#define m_XPDF_get_DOUBLE(in, function)                    \
-int m_##in##_##function(lua_State * L)                     \
-{                                                          \
-    double d;                                              \
-    udstruct *uin;                                         \
-    uin = (udstruct *) luaL_checkudata(L, 1, M_##in);      \
-    d = (double) ((in *) uin->d)->function();              \
-    lua_pushnumber(L, d);                                  \
-    return 1;                                              \
+#define m_XPDF_get_DOUBLE(in, function)                        \
+int m_##in##_##function(lua_State * L)                         \
+{                                                              \
+    double d;                                                  \
+    udstruct *uin;                                             \
+    uin = (udstruct *) luaL_checkudata(L, 1, M_##in);          \
+    d = (double) ((in *) uin->d)->function();                  \
+    lua_pushnumber(L, d);                                      \
+    return 1;                                                  \
 }
 
-#define m_XPDF_get_GSTRING(in, function)                   \
-int m_##in##_##function(lua_State * L)                     \
-{                                                          \
-    GString *gs;                                           \
-    udstruct *uin;                                         \
-    uin = (udstruct *) luaL_checkudata(L, 1, M_##in);      \
-    gs = ((in *) uin->d)->function();                      \
-    if (gs != NULL)                                        \
+#define m_XPDF_get_GSTRING(in, function)                       \
+int m_##in##_##function(lua_State * L)                         \
+{                                                              \
+    GString *gs;                                               \
+    udstruct *uin;                                             \
+    uin = (udstruct *) luaL_checkudata(L, 1, M_##in);          \
+    gs = ((in *) uin->d)->function();                          \
+    if (gs != NULL)                                            \
         lua_pushlstring(L, gs->getCString(), gs->getLength()); \
-    else                                                   \
-        lua_pushnil(L);                                    \
-    return 1;                                              \
+    else                                                       \
+        lua_pushnil(L);                                        \
+    return 1;                                                  \
 }
 
-#define m_XPDF_get_OBJECT(in, function)                    \
-int m_##in##_##function(lua_State * L)                     \
-{                                                          \
-    udstruct *uin, *uout;                                  \
-    uin = (udstruct *) luaL_checkudata(L, 1, M_##in);      \
-    uout = new_Object_userdata(L);                         \
-    uout->d = new Object();                                \
-    ((in *) uin->d)->function((Object *) uout->d);         \
-    uout->atype = ALLOC_LEPDF;                             \
-    return 1;                                              \
+#define m_XPDF_get_OBJECT(in, function)                        \
+int m_##in##_##function(lua_State * L)                         \
+{                                                              \
+    udstruct *uin, *uout;                                      \
+    uin = (udstruct *) luaL_checkudata(L, 1, M_##in);          \
+    uout = new_Object_userdata(L);                             \
+    uout->d = new Object();                                    \
+    ((in *) uin->d)->function((Object *) uout->d);             \
+    uout->atype = ALLOC_LEPDF;                                 \
+    return 1;                                                  \
 }
 
-#define m_XPDF__tostring(type)                             \
-int m_##type##__tostring(lua_State * L)                    \
-{                                                          \
-    udstruct *uin;                                         \
-    uin = (udstruct *) luaL_checkudata(L, 1, M_##type);    \
-    lua_pushfstring(L, "%s: %p", #type, (type *) uin->d);  \
-    return 1;                                              \
+#define m_XPDF__tostring(type)                                 \
+int m_##type##__tostring(lua_State * L)                        \
+{                                                              \
+    udstruct *uin;                                             \
+    uin = (udstruct *) luaL_checkudata(L, 1, M_##type);        \
+    lua_pushfstring(L, "%s: %p", #type, (type *) uin->d);      \
+    return 1;                                                  \
 }
 
 //**********************************************************************
@@ -242,11 +244,11 @@ int m_Array_getNF(lua_State * L)
 m_XPDF__tostring(Array);
 
 static const struct luaL_Reg Array_m[] = {
-    {"getLength", m_Array_getLength},   /* */
-    {"get", m_Array_get},       /* */
-    {"getNF", m_Array_getNF},   /* */
-    {"__tostring", m_Array__tostring},  /* */
-    {NULL, NULL}                /* sentinel */
+    {"getLength", m_Array_getLength},
+    {"get", m_Array_get},
+    {"getNF", m_Array_getNF},
+    {"__tostring", m_Array__tostring},
+    {NULL, NULL}                // sentinel
 };
 
 //**********************************************************************
@@ -335,21 +337,21 @@ m_XPDF_get_XPDF(Catalog, Object, getAcroForm);
 m_XPDF__tostring(Catalog);
 
 static const struct luaL_Reg Catalog_m[] = {
-    {"isOk", m_Catalog_isOk},   /* */
-    {"getNumPages", m_Catalog_getNumPages},     /* */
-    {"getPage", m_Catalog_getPage},     /* */
-    {"getPageRef", m_Catalog_getPageRef},       /* */
-    {"getBaseURI", m_Catalog_getBaseURI},       /* */
-    {"readMetadata", m_Catalog_readMetadata},   /* */
-    {"getStructTreeRoot", m_Catalog_getStructTreeRoot}, /* */
-    {"findPage", m_Catalog_findPage},   /* */
-    {"findDest", m_Catalog_findDest},   /* */
-    {"getDests", m_Catalog_getDests},   /* */
-    {"getNameTree", m_Catalog_getNameTree},     /* */
-    {"getOutline", m_Catalog_getOutline},       /* */
-    {"getAcroForm", m_Catalog_getAcroForm},     /* */
-    {"__tostring", m_Catalog__tostring},        /* */
-    {NULL, NULL}                /* sentinel */
+    {"isOk", m_Catalog_isOk},
+    {"getNumPages", m_Catalog_getNumPages},
+    {"getPage", m_Catalog_getPage},
+    {"getPageRef", m_Catalog_getPageRef},
+    {"getBaseURI", m_Catalog_getBaseURI},
+    {"readMetadata", m_Catalog_readMetadata},
+    {"getStructTreeRoot", m_Catalog_getStructTreeRoot},
+    {"findPage", m_Catalog_findPage},
+    {"findDest", m_Catalog_findDest},
+    {"getDests", m_Catalog_getDests},
+    {"getNameTree", m_Catalog_getNameTree},
+    {"getOutline", m_Catalog_getOutline},
+    {"getAcroForm", m_Catalog_getAcroForm},
+    {"__tostring", m_Catalog__tostring},
+    {NULL, NULL}                // sentinel
 };
 
 //**********************************************************************
@@ -447,15 +449,15 @@ int m_Dict_getValNF(lua_State * L)
 m_XPDF__tostring(Dict);
 
 const struct luaL_Reg Dict_m[] = {
-    {"getLength", m_Dict_getLength},    /* */
-    {"is", m_Dict_is},          /* */
-    {"lookup", m_Dict_lookup},  /* */
-    {"lookupNF", m_Dict_lookupNF},      /* */
-    {"getKey", m_Dict_getKey},  /* */
-    {"getVal", m_Dict_getVal},  /* */
-    {"getValNF", m_Dict_getValNF},      /* */
-    {"__tostring", m_Dict__tostring},   /* */
-    {NULL, NULL}                /* sentinel */
+    {"getLength", m_Dict_getLength},
+    {"is", m_Dict_is},
+    {"lookup", m_Dict_lookup},
+    {"lookupNF", m_Dict_lookupNF},
+    {"getKey", m_Dict_getKey},
+    {"getVal", m_Dict_getVal},
+    {"getValNF", m_Dict_getValNF},
+    {"__tostring", m_Dict__tostring},
+    {NULL, NULL}                // sentinel
 };
 
 //**********************************************************************
@@ -471,8 +473,8 @@ int m_GString__tostring(lua_State * L)
 }
 
 static const struct luaL_Reg GString_m[] = {
-    {"__tostring", m_GString__tostring},        /* */
-    {NULL, NULL}                /* sentinel */
+    {"__tostring", m_GString__tostring},
+    {NULL, NULL}                // sentinel
 };
 
 //**********************************************************************
@@ -530,22 +532,32 @@ m_XPDF_get_BOOL(LinkDest, getChangeZoom);
 m_XPDF__tostring(LinkDest);
 
 static const struct luaL_Reg LinkDest_m[] = {
-    {"isOk", m_LinkDest_isOk},  /* */
-    {"getKind", m_LinkDest_getKind},    /* */
-    {"getKindName", m_LinkDest_getKindName},    /* not xpdf */
-    {"isPageRef", m_LinkDest_isPageRef},        /* */
-    {"getPageNum", m_LinkDest_getPageNum},      /* */
-    {"getPageRef", m_LinkDest_getPageRef},      /* */
-    {"getLeft", m_LinkDest_getLeft},    /* */
-    {"getBottom", m_LinkDest_getBottom},        /* */
-    {"getRight", m_LinkDest_getRight},  /* */
-    {"getTop", m_LinkDest_getTop},      /* */
-    {"getZoom", m_LinkDest_getZoom},    /* */
-    {"getChangeLeft", m_LinkDest_getChangeLeft},        /* */
-    {"getChangeTop", m_LinkDest_getChangeTop},  /* */
-    {"getChangeZoom", m_LinkDest_getChangeZoom},        /* */
-    {"__tostring", m_LinkDest__tostring},       /* */
-    {NULL, NULL}                /* sentinel */
+    {"isOk", m_LinkDest_isOk},
+    {"getKind", m_LinkDest_getKind},
+    {"getKindName", m_LinkDest_getKindName},    // not xpdf
+    {"isPageRef", m_LinkDest_isPageRef},
+    {"getPageNum", m_LinkDest_getPageNum},
+    {"getPageRef", m_LinkDest_getPageRef},
+    {"getLeft", m_LinkDest_getLeft},
+    {"getBottom", m_LinkDest_getBottom},
+    {"getRight", m_LinkDest_getRight},
+    {"getTop", m_LinkDest_getTop},
+    {"getZoom", m_LinkDest_getZoom},
+    {"getChangeLeft", m_LinkDest_getChangeLeft},
+    {"getChangeTop", m_LinkDest_getChangeTop},
+    {"getChangeZoom", m_LinkDest_getChangeZoom},
+    {"__tostring", m_LinkDest__tostring},
+    {NULL, NULL}                // sentinel
+};
+
+//**********************************************************************
+// Links
+
+m_XPDF__tostring(Links);
+
+static const struct luaL_Reg Links_m[] = {
+    {"__tostring", m_Links__tostring},
+    {NULL, NULL}                // sentinel
 };
 
 //**********************************************************************
@@ -921,6 +933,31 @@ int m_Object_dictGetValNF(lua_State * L)
     return 1;
 }
 
+int m_Object_streamIs(lua_State * L)
+{
+    const char *s;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    s = luaL_checkstring(L, 2);
+    if (((Object *) uin->d)->isStream()) {
+        if (((Object *) uin->d)->streamIs((char *) s))
+            lua_pushboolean(L, 1);
+        else
+            lua_pushboolean(L, 0);
+    } else
+        lua_pushnil(L);
+    return 1;
+}
+
+int m_Object_streamReset(lua_State * L)
+{
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    if (((Object *) uin->d)->isStream())
+        ((Object *) uin->d)->streamReset();
+    return 0;
+}
+
 int m_Object_streamGetChar(lua_State * L)
 {
     int i;
@@ -932,6 +969,43 @@ int m_Object_streamGetChar(lua_State * L)
     } else
         lua_pushnil(L);
     return 1;
+}
+
+int m_Object_streamLookChar(lua_State * L)
+{
+    int i;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    if (((Object *) uin->d)->isStream()) {
+        i = ((Object *) uin->d)->streamLookChar();
+        lua_pushinteger(L, i);
+    } else
+        lua_pushnil(L);
+    return 1;
+}
+
+int m_Object_streamGetPos(lua_State * L)
+{
+    int i;
+    udstruct *uin, *uout;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    if (((Object *) uin->d)->isStream()) {
+        i = (int) ((Object *) uin->d)->streamGetPos();
+        lua_pushinteger(L, i);
+    } else
+        lua_pushnil(L);
+    return 1;
+}
+
+int m_Object_streamSetPos(lua_State * L)
+{
+    int i;
+    udstruct *uin, *uout;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    i = luaL_checkint(L, 2);
+    if (((Object *) uin->d)->isStream())
+        ((Object *) uin->d)->streamSetPos(i);
+    return 0;
 }
 
 int m_Object_streamGetDict(lua_State * L)
@@ -961,56 +1035,58 @@ static int m_Object__gc(lua_State * L)
 m_XPDF__tostring(Object);
 
 static const struct luaL_Reg Object_m[] = {
-    {"fetch", m_Object_fetch},  /* */
-    {"getType", m_Object_getType},      /* */
-    {"getTypeName", m_Object_getTypeName},      /* */
-    {"isBool", m_Object_isBool},        /* */
-    {"isInt", m_Object_isInt},  /* */
-    {"isReal", m_Object_isReal},        /* */
-    {"isNum", m_Object_isNum},  /* */
-    {"isString", m_Object_isString},    /* */
-    {"isName", m_Object_isName},        /* */
-    {"isNull", m_Object_isNull},        /* */
-    {"isArray", m_Object_isArray},      /* */
-    {"isDict", m_Object_isDict},        /* */
-    {"isStream", m_Object_isStream},    /* */
-    {"isRef", m_Object_isRef},  /* */
-    {"isCmd", m_Object_isCmd},  /* */
-    {"isError", m_Object_isError},      /* */
-    {"isEOF", m_Object_isEOF},  /* */
-    {"isNone", m_Object_isNone},        /* */
-    //
-    {"getBool", m_Object_getBool},      /* */
-    {"getInt", m_Object_getInt},        /* */
-    {"getReal", m_Object_getReal},      /* */
-    {"getNum", m_Object_getNum},        /* */
-    {"getString", m_Object_getString},  /* */
-    {"getName", m_Object_getName},      /* */
-    {"getArray", m_Object_getArray},    /* */
-    {"getDict", m_Object_getDict},      /* */
-    {"getStream", m_Object_getStream},  /* */
-    {"getRef", m_Object_getRef},        /* */
-    {"getRefNum", m_Object_getRefNum},  /* */
-    {"getRefGen", m_Object_getRefGen},  /* */
-    {"getCmd", m_Object_getCmd},        /* */
-    {"arrayGetLength", m_Object_arrayGetLength},        /* */
-    {"arrayGet", m_Object_arrayGet},    /* */
-    {"arrayGetNF", m_Object_arrayGetNF},        /* */
-    //
-    {"dictGetLength", m_Object_dictGetLength},  /* */
-    {"dictLookup", m_Object_dictLookup},        /* */
-    {"dictLookupNF", m_Object_dictLookupNF},    /* */
-    {"dictgetKey", m_Object_dictGetKey},        /* */
-    {"dictgetVal", m_Object_dictGetVal},        /* */
-    {"dictgetValNF", m_Object_dictGetValNF},    /* */
-    //
-    {"streamGetChar", m_Object_streamGetChar},  /* */
-    //
-    {"streamGetDict", m_Object_streamGetDict},  /* */
-    //
-    {"__gc", m_Object__gc},     /* finalizer */
-    {"__tostring", m_Object__tostring}, /* */
-    {NULL, NULL}                /* sentinel */
+    {"fetch", m_Object_fetch},
+    {"getType", m_Object_getType},
+    {"getTypeName", m_Object_getTypeName},
+    {"isBool", m_Object_isBool},
+    {"isInt", m_Object_isInt},
+    {"isReal", m_Object_isReal},
+    {"isNum", m_Object_isNum},
+    {"isString", m_Object_isString},
+    {"isName", m_Object_isName},
+    {"isNull", m_Object_isNull},
+    {"isArray", m_Object_isArray},
+    {"isDict", m_Object_isDict},
+    {"isStream", m_Object_isStream},
+    {"isRef", m_Object_isRef},
+    {"isCmd", m_Object_isCmd},
+    {"isError", m_Object_isError},
+    {"isEOF", m_Object_isEOF},
+    {"isNone", m_Object_isNone},
+    {"getBool", m_Object_getBool},
+    {"getInt", m_Object_getInt},
+    {"getReal", m_Object_getReal},
+    {"getNum", m_Object_getNum},
+    {"getString", m_Object_getString},
+    {"getName", m_Object_getName},
+    {"getArray", m_Object_getArray},
+    {"getDict", m_Object_getDict},
+    {"getStream", m_Object_getStream},
+    {"getRef", m_Object_getRef},
+    {"getRefNum", m_Object_getRefNum},
+    {"getRefGen", m_Object_getRefGen},
+    {"getCmd", m_Object_getCmd},
+    {"arrayGetLength", m_Object_arrayGetLength},
+    {"arrayGet", m_Object_arrayGet},
+    {"arrayGetNF", m_Object_arrayGetNF},
+    {"dictGetLength", m_Object_dictGetLength},
+    {"dictLookup", m_Object_dictLookup},
+    {"dictLookupNF", m_Object_dictLookupNF},
+    {"dictgetKey", m_Object_dictGetKey},
+    {"dictgetVal", m_Object_dictGetVal},
+    {"dictgetValNF", m_Object_dictGetValNF},
+    {"streamIs", m_Object_streamIs},
+    {"streamReset", m_Object_streamReset},
+    // {"streamClose", m_Object_streamClose},
+    {"streamGetChar", m_Object_streamGetChar},
+    {"streamLookChar", m_Object_streamLookChar},
+    // {"streamGetLine", m_Object_streamGetLine},
+    {"streamGetPos", m_Object_streamGetPos},
+    {"streamSetPos", m_Object_streamSetPos},
+    {"streamGetDict", m_Object_streamGetDict},
+    {"__gc", m_Object__gc},     // finalizer
+    {"__tostring", m_Object__tostring},
+    {NULL, NULL}                // sentinel
 };
 
 //**********************************************************************
@@ -1019,8 +1095,8 @@ static const struct luaL_Reg Object_m[] = {
 m_XPDF__tostring(ObjectStream);
 
 static const struct luaL_Reg ObjectStream_m[] = {
-    {"__tostring", m_ObjectStream__tostring},   /* */
-    {NULL, NULL}                /* sentinel */
+    {"__tostring", m_ObjectStream__tostring},
+    {NULL, NULL}                // sentinel
 };
 
 //**********************************************************************
@@ -1047,37 +1123,52 @@ m_XPDF_get_XPDF(Page, Dict, getPieceInfo);
 m_XPDF_get_XPDF(Page, Dict, getSeparationInfo);
 m_XPDF_get_XPDF(Page, Dict, getResourceDict);
 m_XPDF_get_OBJECT(Page, getAnnots);
-// getLinks
+
+int m_Page_getLinks(lua_State * L)
+{
+    Links *links;
+    udstruct *uin, *ucat, *uout;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Page);
+    ucat = (udstruct *) luaL_checkudata(L, 2, M_Catalog);
+    links = ((Page *) uin->d)->getLinks((Catalog *) ucat->d);
+    if (links != NULL) {
+        uout = new_Links_userdata(L);
+        uout->d = links;
+    } else
+        lua_pushnil(L);
+    return 1;
+}
+
 m_XPDF_get_OBJECT(Page, getContents);
 
 m_XPDF__tostring(Page);
 
 static const struct luaL_Reg Page_m[] = {
-    {"isOk", m_Page_isOk},      /* */
-    {"getNum", m_Page_getNum},  /* */
-    {"getMediaBox", m_Page_getMediaBox},        /* */
-    {"getCropBox", m_Page_getCropBox},  /* */
-    {"isCropped", m_Page_isCropped},    /* */
-    {"getMediaWidth", m_Page_getMediaWidth},    /* */
-    {"getMediaHeight", m_Page_getMediaHeight},  /* */
-    {"getCropWidth", m_Page_getCropWidth},      /* */
-    {"getCropHeight", m_Page_getCropHeight},    /* */
-    {"getBleedBox", m_Page_getBleedBox},        /* */
-    {"getTrimBox", m_Page_getTrimBox},  /* */
-    {"getArtBox", m_Page_getArtBox},    /* */
-    {"getRotate", m_Page_getRotate},    /* */
-    {"getLastModified", m_Page_getLastModified},        /* */
-    {"getBoxColorInfo", m_Page_getBoxColorInfo},        /* */
-    {"getGroup", m_Page_getGroup},      /* */
-    {"getMetadata", m_Page_getMetadata},        /* */
-    {"getPieceInfo", m_Page_getPieceInfo},      /* */
-    {"getSeparationInfo", m_Page_getSeparationInfo},    /* */
-    {"getResourceDict", m_Page_getResourceDict},        /* */
-    {"getAnnots", m_Page_getAnnots},    /* */
-    //
-    {"getContents", m_Page_getContents},        /* */
-    {"__tostring", m_Page__tostring},   /* */
-    {NULL, NULL}                /* sentinel */
+    {"isOk", m_Page_isOk},
+    {"getNum", m_Page_getNum},
+    {"getMediaBox", m_Page_getMediaBox},
+    {"getCropBox", m_Page_getCropBox},
+    {"isCropped", m_Page_isCropped},
+    {"getMediaWidth", m_Page_getMediaWidth},
+    {"getMediaHeight", m_Page_getMediaHeight},
+    {"getCropWidth", m_Page_getCropWidth},
+    {"getCropHeight", m_Page_getCropHeight},
+    {"getBleedBox", m_Page_getBleedBox},
+    {"getTrimBox", m_Page_getTrimBox},
+    {"getArtBox", m_Page_getArtBox},
+    {"getRotate", m_Page_getRotate},
+    {"getLastModified", m_Page_getLastModified},
+    {"getBoxColorInfo", m_Page_getBoxColorInfo},
+    {"getGroup", m_Page_getGroup},
+    {"getMetadata", m_Page_getMetadata},
+    {"getPieceInfo", m_Page_getPieceInfo},
+    {"getSeparationInfo", m_Page_getSeparationInfo},
+    {"getResourceDict", m_Page_getResourceDict},
+    {"getAnnots", m_Page_getAnnots},
+    {"getLinks", m_Page_getLinks},
+    {"getContents", m_Page_getContents},
+    {"__tostring", m_Page__tostring},
+    {NULL, NULL}                // sentinel
 };
 
 //**********************************************************************
@@ -1193,12 +1284,139 @@ m_PDFDoc_PAGEDIMEN(getPageCropWidth);
 m_PDFDoc_PAGEDIMEN(getPageCropHeight);
 m_PDFDoc_INT(getNumPages);
 
+int m_PDFDoc_readMetadata(lua_State * L)
+{
+    GString *gs;
+    Catalog *cat;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
+    cat = ((PdfDocument *) uin->d)->doc->getCatalog();
+    if (cat->isOk()) {
+        gs = ((PdfDocument *) uin->d)->doc->readMetadata();
+        if (gs != NULL)
+            lua_pushlstring(L, gs->getCString(), gs->getLength());
+        else
+            lua_pushnil(L);
+    } else
+        lua_pushnil(L);
+    return 1;
+}
+
+int m_PDFDoc_getStructTreeRoot(lua_State * L)
+{
+    Catalog *cat;
+    Object *obj;
+    udstruct *uin, *uout;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
+    cat = ((PdfDocument *) uin->d)->doc->getCatalog();
+    if (cat->isOk()) {
+        obj = ((PdfDocument *) uin->d)->doc->getStructTreeRoot();
+        uout = new_Object_userdata(L);
+        uout->d = obj;
+    } else
+        lua_pushnil(L);
+}
+
+int m_PDFDoc_findPage(lua_State * L)
+{
+    Catalog *cat;
+    int num, gen, i;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
+    num = luaL_checkint(L, 2);
+    gen = luaL_checkint(L, 3);
+    cat = ((PdfDocument *) uin->d)->doc->getCatalog();
+    if (cat->isOk()) {
+        i = ((PdfDocument *) uin->d)->doc->findPage(num, gen);
+        if (i > 0)
+            lua_pushinteger(L, i);
+        else
+            lua_pushnil(L);
+    } else
+        lua_pushnil(L);
+    return 1;
+}
+
+int m_PDFDoc_getLinks(lua_State * L)
+{
+    int i;
+    Links *links;
+    udstruct *uin, *uout;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
+    i = luaL_checkint(L, 2);
+    links = ((PdfDocument *) uin->d)->doc->getLinks(i);
+    if (links != NULL) {
+        uout = new_Links_userdata(L);
+        uout->d = links;
+    } else
+        lua_pushnil(L);
+    return 1;
+}
+
+int m_PDFDoc_findDest(lua_State * L)
+{
+    GString *name;
+    Catalog *cat;
+    LinkDest *dest;
+    const char *s;
+    size_t len;
+    udstruct *uin, *uout;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
+    s = luaL_checklstring(L, 2, &len);
+    name = new GString(s, len);
+    cat = ((PdfDocument *) uin->d)->doc->getCatalog();
+    if (cat->isOk()) {
+        dest = ((PdfDocument *) uin->d)->doc->findDest(name);
+        if (dest != NULL) {
+            uout = new_LinkDest_userdata(L);
+            uout->d = dest;
+        } else
+            lua_pushnil(L);
+    } else
+        lua_pushnil(L);
+    delete name;
+    return 1;
+}
+
 m_PDFDoc_BOOL(isEncrypted);
 m_PDFDoc_BOOL(okToPrint);
 m_PDFDoc_BOOL(okToChange);
 m_PDFDoc_BOOL(okToCopy);
 m_PDFDoc_BOOL(okToAddNotes);
 m_PDFDoc_BOOL(isLinearized);
+
+int m_PDFDoc_getDocInfo(lua_State * L)
+{
+    XRef *xref;
+    udstruct *uin, *uout;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
+    xref = ((PdfDocument *) uin->d)->doc->getXRef();
+    if (xref->isOk()) {
+        uout = new_Object_userdata(L);
+        uout->d = new Object();
+        ((PdfDocument *) uin->d)->doc->getDocInfo((Object *) uout->d);
+        uout->atype = ALLOC_LEPDF;
+    } else
+        lua_pushnil(L);
+    return 1;
+}
+
+int m_PDFDoc_getDocInfoNF(lua_State * L)
+{
+    XRef *xref;
+    udstruct *uin, *uout;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
+    xref = ((PdfDocument *) uin->d)->doc->getXRef();
+    if (xref->isOk()) {
+        uout = new_Object_userdata(L);
+        uout->d = new Object();
+        ((PdfDocument *) uin->d)->doc->getDocInfoNF((Object *) uout->d);
+        uout->atype = ALLOC_LEPDF;
+    } else
+        lua_pushnil(L);
+    return 1;
+}
+
 m_PDFDoc_DOUBLE(getPDFVersion);
 
 static int m_PDFDoc__gc(lua_State * L)
@@ -1214,43 +1432,47 @@ static int m_PDFDoc__gc(lua_State * L)
 }
 
 static const struct luaL_Reg PDFDoc_m[] = {
-    {"isOk", m_PDFDoc_isOk},    /* */
-    {"getErrorCode", m_PDFDoc_getErrorCode},    /* */
-    {"getErrorCodeName", m_PDFDoc_getErrorCodeName},    /* not xpdf */
-    {"getFileName", m_PDFDoc_getFileName},      /* */
-    {"getXRef", m_PDFDoc_getXRef},      /* */
-    {"getCatalog", m_PDFDoc_getCatalog},        /* */
-    // {"getBaseStream", m_PDFDoc_getBaseStream},        /* */
-    {"getPageMediaWidth", m_PDFDoc_getPageMediaWidth},  /* */
-    {"getPageMediaHeight", m_PDFDoc_getPageMediaHeight},        /* */
-    {"getPageCropWidth", m_PDFDoc_getPageCropWidth},    /* */
-    {"getPageCropHeight", m_PDFDoc_getPageCropHeight},  /* */
-    {"getNumPages", m_PDFDoc_getNumPages},      /* */
-    // {"readMetadata", m_PDFDoc_readMetadata},        /* */
-    // {"findPage", m_PDFDoc_findPage},        /* */
-    // {"getLinks", m_PDFDoc_getLinks},        /* */
-    // {"findDest", m_PDFDoc_findDest},        /* */
-    {"isEncrypted", m_PDFDoc_isEncrypted},      /* */
-    {"okToPrint", m_PDFDoc_okToPrint},  /* */
-    {"okToChange", m_PDFDoc_okToChange},        /* */
-    {"okToCopy", m_PDFDoc_okToCopy},    /* */
-    {"okToAddNotes", m_PDFDoc_okToAddNotes},    /* */
-    {"isLinearized", m_PDFDoc_isLinearized},    /* */
-    // {"getDocInfo", m_PDFDoc_getDocInfo},        /* */
-    // {"getDocInfoNF", m_PDFDoc_getDocInfoNF},        /* */
-    {"getPDFVersion", m_PDFDoc_getPDFVersion},  /* */
-    {"__gc", m_PDFDoc__gc},     /* finalizer */
-    {NULL, NULL}                /* sentinel */
+    {"isOk", m_PDFDoc_isOk},
+    {"getErrorCode", m_PDFDoc_getErrorCode},
+    {"getErrorCodeName", m_PDFDoc_getErrorCodeName},    // not xpdf
+    {"getFileName", m_PDFDoc_getFileName},
+    {"getXRef", m_PDFDoc_getXRef},
+    {"getCatalog", m_PDFDoc_getCatalog},
+    // {"getBaseStream", m_PDFDoc_getBaseStream},
+    {"getPageMediaWidth", m_PDFDoc_getPageMediaWidth},
+    {"getPageMediaHeight", m_PDFDoc_getPageMediaHeight},
+    {"getPageCropWidth", m_PDFDoc_getPageCropWidth},
+    {"getPageCropHeight", m_PDFDoc_getPageCropHeight},
+    {"getNumPages", m_PDFDoc_getNumPages},
+    {"readMetadata", m_PDFDoc_readMetadata},
+    {"getStructTreeRoot", m_PDFDoc_getStructTreeRoot},
+    {"findPage", m_PDFDoc_findPage},
+    {"getLinks", m_PDFDoc_getLinks},
+    {"findDest", m_PDFDoc_findDest},
+    {"isEncrypted", m_PDFDoc_isEncrypted},
+    {"okToPrint", m_PDFDoc_okToPrint},
+    {"okToChange", m_PDFDoc_okToChange},
+    {"okToCopy", m_PDFDoc_okToCopy},
+    {"okToAddNotes", m_PDFDoc_okToAddNotes},
+    {"isLinearized", m_PDFDoc_isLinearized},
+    {"getDocInfo", m_PDFDoc_getDocInfo},
+    {"getDocInfoNF", m_PDFDoc_getDocInfoNF},
+    {"getPDFVersion", m_PDFDoc_getPDFVersion},
+    {"__gc", m_PDFDoc__gc},     // finalizer
+    {NULL, NULL}                // sentinel
 };
 
 //**********************************************************************
 // PDFRectangle
 
+m_XPDF_get_BOOL(PDFRectangle, isValid);
+
 m_XPDF__tostring(PDFRectangle);
 
 static const struct luaL_Reg PDFRectangle_m[] = {
-    {"__tostring", m_PDFRectangle__tostring},   /* */
-    {NULL, NULL}                /* sentinel */
+    {"isValid", m_PDFRectangle_isValid},
+    {"__tostring", m_PDFRectangle__tostring},
+    {NULL, NULL}                // sentinel
 };
 
 //**********************************************************************
@@ -1286,10 +1508,10 @@ static int m_Ref__gc(lua_State * L)
 }
 
 static const struct luaL_Reg Ref_m[] = {
-    {"__index", m_Ref__index},  /* not XPDF */
-    {"__tostring", m_Ref__tostring},    /* */
-    {"__gc", m_Ref__gc},        /* finalizer */
-    {NULL, NULL}                /* sentinel */
+    {"__index", m_Ref__index},  // not XPDF
+    {"__tostring", m_Ref__tostring},
+    {"__gc", m_Ref__gc},        // finalizer
+    {NULL, NULL}                // sentinel
 };
 
 //**********************************************************************
@@ -1352,16 +1574,16 @@ m_XPDF_get_XPDF(Stream, Dict, getDict);
 m_XPDF__tostring(Stream);
 
 static const struct luaL_Reg Stream_m[] = {
-    {"getKind", m_Stream_getKind},      /* */
-    {"getKindName", m_Stream_getKindName},      /* not xpdf */
-    {"reset", m_Stream_reset},  /* */
-    {"getUndecodedStream", m_Stream_getUndecodedStream},        /* */
-    {"getChar", m_Stream_getChar},      /* */
-    {"lookChar", m_Stream_lookChar},    /* */
-    {"isBinary", m_Stream_isBinary},    /* */
-    {"getDict", m_Stream_getDict},      /* */
-    {"__tostring", m_Stream__tostring}, /* */
-    {NULL, NULL}                /* sentinel */
+    {"getKind", m_Stream_getKind},
+    {"getKindName", m_Stream_getKindName},      // not xpdf
+    {"reset", m_Stream_reset},
+    {"getUndecodedStream", m_Stream_getUndecodedStream},
+    {"getChar", m_Stream_getChar},
+    {"lookChar", m_Stream_lookChar},
+    {"isBinary", m_Stream_isBinary},
+    {"getDict", m_Stream_getDict},
+    {"__tostring", m_Stream__tostring},
+    {NULL, NULL}                // sentinel
 };
 
 //**********************************************************************
@@ -1405,34 +1627,34 @@ m_XPDF_get_XPDF(XRef, ObjectStream, getObjStr);
 m_XPDF__tostring(XRef);
 
 static const struct luaL_Reg XRef_m[] = {
-    {"isOk", m_XRef_isOk},      /* */
-    {"getErrorCode", m_XRef_getErrorCode},      /* */
-    {"isEncrypted", m_XRef_isEncrypted},        /* */
-    {"okToPrint", m_XRef_okToPrint},    /* */
-    {"okToChange", m_XRef_okToChange},  /* */
-    {"okToCopy", m_XRef_okToCopy},      /* */
-    {"okToAddNotes", m_XRef_okToAddNotes},      /* */
-    {"getCatalog", m_XRef_getCatalog},  /* */
-    {"fetch", m_XRef_fetch},    /* */
-    {"getDocInfo", m_XRef_getDocInfo},  /* */
-    {"getDocInfoNF", m_XRef_getDocInfoNF},      /* */
-    {"getNumObjects", m_XRef_getNumObjects},    /* */
+    {"isOk", m_XRef_isOk},
+    {"getErrorCode", m_XRef_getErrorCode},
+    {"isEncrypted", m_XRef_isEncrypted},
+    {"okToPrint", m_XRef_okToPrint},
+    {"okToChange", m_XRef_okToChange},
+    {"okToCopy", m_XRef_okToCopy},
+    {"okToAddNotes", m_XRef_okToAddNotes},
+    {"getCatalog", m_XRef_getCatalog},
+    {"fetch", m_XRef_fetch},
+    {"getDocInfo", m_XRef_getDocInfo},
+    {"getDocInfoNF", m_XRef_getDocInfoNF},
+    {"getNumObjects", m_XRef_getNumObjects},
     //
-    {"getRootNum", m_XRef_getRootNum},  /* */
-    {"getRootGen", m_XRef_getRootGen},  /* */
+    {"getRootNum", m_XRef_getRootNum},
+    {"getRootGen", m_XRef_getRootGen},
     //
-    {"getSize", m_XRef_getSize},        /* */
-    {"getTrailerDict", m_XRef_getTrailerDict},  /* */
-    {"getObjStr", m_XRef_getObjStr},    /* */
-    {"__tostring", m_XRef__tostring},   /* */
-    {NULL, NULL}                /* sentinel */
+    {"getSize", m_XRef_getSize},
+    {"getTrailerDict", m_XRef_getTrailerDict},
+    {"getObjStr", m_XRef_getObjStr},
+    {"__tostring", m_XRef__tostring},
+    {NULL, NULL}                // sentinel
 };
 
 //**********************************************************************
 // XRefEntry
 
 static const struct luaL_Reg XRefEntry_m[] = {
-    {NULL, NULL}                /* sentinel */
+    {NULL, NULL}                // sentinel
 };
 
 //**********************************************************************
@@ -1452,6 +1674,7 @@ int luaopen_epdf(lua_State * L)
     register_meta(Dict);
     register_meta(GString);
     register_meta(LinkDest);
+    register_meta(Links);
     register_meta(Object);
     register_meta(ObjectStream);
     register_meta(Page);
