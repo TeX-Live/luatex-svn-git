@@ -363,13 +363,14 @@ static void copyName(PDF pdf, char *s)
 static void copyArray(PDF pdf, PdfDocument * pdf_doc, Array * array)
 {
     int i, l;
-    PdfObject obj1;
+    Object obj1;
     pdf_puts(pdf, "[");
     for (i = 0, l = array->getLength(); i < l; ++i) {
         array->getNF(i, &obj1);
-        if (!obj1->isName())
+        if (!obj1.isName())
             pdf_puts(pdf, " ");
         copyObject(pdf, pdf_doc, &obj1);
+        obj1.free();
     }
     pdf_puts(pdf, "]");
 }
@@ -377,13 +378,14 @@ static void copyArray(PDF pdf, PdfDocument * pdf_doc, Array * array)
 static void copyDict(PDF pdf, PdfDocument * pdf_doc, Dict * dict)
 {
     int i, l;
-    PdfObject obj1;
+    Object obj1;
     pdf_puts(pdf, "<<");
     for (i = 0, l = dict->getLength(); i < l; ++i) {
         copyName(pdf, dict->getKey(i));
         pdf_puts(pdf, " ");
         dict->getValNF(i, &obj1);
         copyObject(pdf, pdf_doc, &obj1);
+        obj1.free();
         pdf_puts(pdf, "\n");
     }
     pdf_puts(pdf, ">>");
@@ -462,15 +464,16 @@ static void writeRefs(PDF pdf, PdfDocument * pdf_doc)
 {
     InObj *r, *n;
     XRef *xref;
+    Object obj1;
     xref = pdf_doc->doc->getXRef();
     for (r = pdf_doc->inObjList; r != NULL;) {
-        PdfObject obj1;
         xref->fetch(r->ref.num, r->ref.gen, &obj1);
-        if (obj1->isStream())
+        if (obj1.isStream())
             pdf_begin_obj(pdf, r->num, 0);
         else
             pdf_begin_obj(pdf, r->num, 2);      // \pdfobjcompresslevel = 2 is for this
         copyObject(pdf, pdf_doc, &obj1);
+        obj1.free();
         pdf_puts(pdf, "\n");
         pdf_end_obj(pdf);
         n = r->next;
@@ -651,13 +654,13 @@ read_pdf_info(image_dict * idict, int minor_pdf_version_wanted,
 // Here the included PDF is copied, so most errors that can happen
 // during PDF inclusion will arise here.
 
-static void write_epdf1(PDF pdf, image_dict * idict)
+void write_epdf(PDF pdf, image_dict * idict)
 {
     PdfDocument *pdf_doc;
     Page *page;
     Ref *pageref;
     Dict *pageDict;
-    PdfObject info, contents, obj1, pageObj, dictObj;
+    Object obj1, pageobj, contents;
     PDFRectangle *pagebox;
     int i, l;
     float bbox[4];
@@ -666,15 +669,15 @@ static void write_epdf1(PDF pdf, image_dict * idict)
         { "Group", "LastModified", "Metadata", "PieceInfo", "Resources",
         "SeparationInfo", NULL
     };
-
     assert(idict != NULL);
+
     // open PDF file
     pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL);
     page = pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
     pageref = pdf_doc->doc->getCatalog()->getPageRef(img_pagenum(idict));
     assert(pageref != NULL);    // was checked already in read_pdf_info()
-    pdf_doc->doc->getXRef()->fetch(pageref->num, pageref->gen, &pageObj);
-    pageDict = pageObj->getDict();
+    pdf_doc->doc->getXRef()->fetch(pageref->num, pageref->gen, &pageobj);
+    pageDict = pageobj.getDict();
 
     // write the Page header
     pdf_puts(pdf, "/Type /XObject\n/Subtype /Form\n");
@@ -688,12 +691,13 @@ static void write_epdf1(PDF pdf, image_dict * idict)
                                         strlen(pdf_doc->file_path)));
     pdf_printf(pdf, "/%s.PageNumber %i\n", pdfkeyprefix,
                (int) img_pagenum(idict));
-    pdf_doc->doc->getDocInfoNF(&info);
-    if (info->isRef()) {
+    pdf_doc->doc->getDocInfoNF(&obj1);
+    if (obj1.isRef()) {
         // the info dict must be indirect (PDF Ref p. 61)
         pdf_printf(pdf, "/%s.InfoDict ", pdfkeyprefix);
-        pdf_printf(pdf, "%d 0 R\n", addInObj(pdf, pdf_doc, info->getRef()));
+        pdf_printf(pdf, "%d 0 R\n", addInObj(pdf, pdf_doc, obj1.getRef()));
     }
+    obj1.free();
     if (img_is_bbox(idict)) {
         bbox[0] = int2bp(img_bbox(idict)[0]);
         bbox[1] = int2bp(img_bbox(idict)[1]);
@@ -715,31 +719,35 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     // Now all relevant parts of the Page dictionary are copied:
 
     // Resources validity check
-    pageDict->lookupNF((char *) "Resources", &dictObj);
-    if (dictObj->isNull()) {
+    pageDict->lookupNF((char *) "Resources", &obj1);
+    if (obj1.isNull()) {
         // Resources can be missing (files without them have been spotted
         // in the wild); in which case the /Resouces of the /Page will be used.
         // "This practice is not recommended".
         pdftex_warn
             ("PDF inclusion: /Resources missing. 'This practice is not recommended' (PDF Ref.)");
     }
+    obj1.free();
+
     // Metadata validity check (as a stream it must be indirect)
-    pageDict->lookupNF((char *) "Metadata", &dictObj);
-    if (!dictObj->isNull() && !dictObj->isRef())
+    pageDict->lookupNF((char *) "Metadata", &obj1);
+    if (!obj1.isNull() && !obj1.isRef())
         pdftex_warn("PDF inclusion: /Metadata must be indirect object");
+    obj1.free();
 
     // copy selected items in Page dictionary
     for (i = 0; pagedictkeys[i] != NULL; i++) {
-        pageDict->lookupNF((char *) pagedictkeys[i], &dictObj);
-        if (!dictObj->isNull()) {
+        pageDict->lookupNF((char *) pagedictkeys[i], &obj1);
+        if (!obj1.isNull()) {
             pdf_printf(pdf, "/%s ", pagedictkeys[i]);
-            copyObject(pdf, pdf_doc, &dictObj); // preserves indirection
+            copyObject(pdf, pdf_doc, &obj1);    // preserves indirection
         }
+        obj1.free();
     }
 
     // write the Page contents
     page->getContents(&contents);
-    if (contents->isStream()) {
+    if (contents.isStream()) {
         // Variant A: get stream and recompress under control
         // of \pdfcompresslevel
         //
@@ -749,37 +757,39 @@ static void write_epdf1(PDF pdf, image_dict * idict)
 
         // Variant B: copy stream without recompressing
         //
-        contents->streamGetDict()->lookup((char *) "F", &obj1);
-        if (!obj1->isNull()) {
+        contents.streamGetDict()->lookup((char *) "F", &obj1);
+        if (!obj1.isNull()) {
             pdftex_fail("PDF inclusion: Unsupported external stream");
         }
-        contents->streamGetDict()->lookup((char *) "Length", &obj1);
-        assert(!obj1->isNull());
+        obj1.free();
+        contents.streamGetDict()->lookup((char *) "Length", &obj1);
+        assert(!obj1.isNull());
         pdf_puts(pdf, "/Length ");
         copyObject(pdf, pdf_doc, &obj1);
+        obj1.free();
         pdf_puts(pdf, "\n");
-        contents->streamGetDict()->lookup((char *) "Filter", &obj1);
-        if (!obj1->isNull()) {
+        contents.streamGetDict()->lookup((char *) "Filter", &obj1);
+        if (!obj1.isNull()) {
             pdf_puts(pdf, "/Filter ");
             copyObject(pdf, pdf_doc, &obj1);
+            obj1.free();
             pdf_puts(pdf, "\n");
-            contents->streamGetDict()->lookup((char *) "DecodeParms", &obj1);
-            if (!obj1->isNull()) {
+            contents.streamGetDict()->lookup((char *) "DecodeParms", &obj1);
+            if (!obj1.isNull()) {
                 pdf_puts(pdf, "/DecodeParms ");
                 copyObject(pdf, pdf_doc, &obj1);
                 pdf_puts(pdf, "\n");
             }
+            obj1.free();
         }
         pdf_puts(pdf, ">>\nstream\n");
-        copyStreamStream(pdf, contents->getStream()->getBaseStream());
+        copyStreamStream(pdf, contents.getStream()->getBaseStream());
         pdf_end_stream(pdf);
-    } else if (contents->isArray()) {
+    } else if (contents.isArray()) {
         pdf_begin_stream(pdf);
-        for (i = 0, l = contents->arrayGetLength(); i < l; ++i) {
-            PdfObject contentsobj;
-            copyStreamStream(pdf,
-                             (contents->
-                              arrayGet(i, &contentsobj))->getStream());
+        for (i = 0, l = contents.arrayGetLength(); i < l; ++i) {
+            copyStreamStream(pdf, (contents.arrayGet(i, &obj1))->getStream());
+            obj1.free();
             if (i < (l - 1)) {
                 // put a space between streams to be on the safe side (streams
                 // should have a trailing space here, but one never knows)
@@ -793,13 +803,9 @@ static void write_epdf1(PDF pdf, image_dict * idict)
     }
     // write out all indirect objects
     writeRefs(pdf, pdf_doc);
-}
-
-// this relay function is needed to keep some destructor quiet (???)
-
-void write_epdf(PDF pdf, image_dict * idict)
-{
-    write_epdf1(pdf, idict);
+    contents.free();
+    pageobj.free();
+    // unrefPdfDocument() must come after contents.free() and pageobj.free()!
     unrefPdfDocument(img_filepath(idict));
 }
 

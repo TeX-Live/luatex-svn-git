@@ -131,6 +131,9 @@ extern "C" {
 // and &obj to get a pointer to the object.
 // It is no longer necessary to call Object::free explicitely.
 
+#  if 0
+// PdfObject is replaced by xpdf's Object type, with manual obj.free()
+
 // *INDENT-OFF*
 class PdfObject {
   public:
@@ -152,6 +155,7 @@ class PdfObject {
     Object iObject;
 };
 // *INDENT-ON*
+#  endif
 
 /**********************************************************************/
 
