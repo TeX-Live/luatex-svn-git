@@ -165,6 +165,20 @@ int m_##in##_##function(lua_State * L)                     \
     return 1;                                              \
 }
 
+#define m_XPDF_get_GSTRING(in, function)                   \
+int m_##in##_##function(lua_State * L)                     \
+{                                                          \
+    GString *gs;                                           \
+    udstruct *uin;                                         \
+    uin = (udstruct *) luaL_checkudata(L, 1, M_##in);      \
+    gs = ((in *) uin->d)->function();                      \
+    if (gs != NULL)                                        \
+        lua_pushlstring(L, gs->getCString(), gs->getLength()); \
+    else                                                   \
+        lua_pushnil(L);                                    \
+    return 1;                                              \
+}
+
 #define m_XPDF_get_OBJECT(in, function)                    \
 int m_##in##_##function(lua_State * L)                     \
 {                                                          \
@@ -274,32 +288,8 @@ int m_Catalog_getPageRef(lua_State * L)
     return 1;
 }
 
-int m_Catalog_getBaseURI(lua_State * L)
-{
-    GString *gs;
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Catalog);
-    gs = ((Catalog *) uin->d)->getBaseURI();
-    if (gs != NULL)
-        lua_pushlstring(L, gs->getCString(), gs->getLength());
-    else
-        lua_pushnil(L);
-    return 1;
-}
-
-int m_Catalog_readMetadata(lua_State * L)
-{
-    GString *gs;
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Catalog);
-    gs = ((Catalog *) uin->d)->readMetadata();
-    if (gs != NULL)
-        lua_pushlstring(L, gs->getCString(), gs->getLength());
-    else
-        lua_pushnil(L);
-    return 1;
-}
-
+m_XPDF_get_GSTRING(Catalog, getBaseURI);
+m_XPDF_get_GSTRING(Catalog, readMetadata);
 m_XPDF_get_XPDF(Catalog, Object, getStructTreeRoot);
 
 int m_Catalog_findPage(lua_State * L)
@@ -973,7 +963,7 @@ m_XPDF__tostring(Object);
 static const struct luaL_Reg Object_m[] = {
     {"fetch", m_Object_fetch},  /* */
     {"getType", m_Object_getType},      /* */
-    {"getTypeName", m_Object_getTypeName},      /* not XPDF */
+    {"getTypeName", m_Object_getTypeName},      /* */
     {"isBool", m_Object_isBool},        /* */
     {"isInt", m_Object_isInt},  /* */
     {"isReal", m_Object_isReal},        /* */
@@ -1049,20 +1039,7 @@ m_XPDF_get_XPDF(Page, PDFRectangle, getBleedBox);
 m_XPDF_get_XPDF(Page, PDFRectangle, getTrimBox);
 m_XPDF_get_XPDF(Page, PDFRectangle, getArtBox);
 m_XPDF_get_INT(Page, getRotate);
-
-int m_Page_getLastModified(lua_State * L)
-{
-    GString *gs;
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Page);
-    gs = ((Page *) uin->d)->getLastModified();
-    if (gs != NULL)
-        lua_pushlstring(L, gs->getCString(), gs->getLength());
-    else
-        lua_pushnil(L);
-    return 1;
-}
-
+m_XPDF_get_GSTRING(Page, getLastModified);
 m_XPDF_get_XPDF(Page, Dict, getBoxColorInfo);
 m_XPDF_get_XPDF(Page, Dict, getGroup);
 m_XPDF_get_XPDF(Page, Stream, getMetadata);
