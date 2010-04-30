@@ -987,7 +987,7 @@ int m_Object_streamLookChar(lua_State * L)
 int m_Object_streamGetPos(lua_State * L)
 {
     int i;
-    udstruct *uin, *uout;
+    udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (((Object *) uin->d)->isStream()) {
         i = (int) ((Object *) uin->d)->streamGetPos();
@@ -1000,7 +1000,7 @@ int m_Object_streamGetPos(lua_State * L)
 int m_Object_streamSetPos(lua_State * L)
 {
     int i;
-    udstruct *uin, *uout;
+    udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     i = luaL_checkint(L, 2);
     if (((Object *) uin->d)->isStream())
@@ -1315,6 +1315,7 @@ int m_PDFDoc_getStructTreeRoot(lua_State * L)
         uout->d = obj;
     } else
         lua_pushnil(L);
+    return 1;
 }
 
 int m_PDFDoc_findPage(lua_State * L)
