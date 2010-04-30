@@ -1287,11 +1287,9 @@ m_PDFDoc_INT(getNumPages);
 int m_PDFDoc_readMetadata(lua_State * L)
 {
     GString *gs;
-    Catalog *cat;
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
-    cat = ((PdfDocument *) uin->d)->doc->getCatalog();
-    if (cat->isOk()) {
+    if (((PdfDocument *) uin->d)->doc->getCatalog()->isOk()) {
         gs = ((PdfDocument *) uin->d)->doc->readMetadata();
         if (gs != NULL)
             lua_pushlstring(L, gs->getCString(), gs->getLength());
@@ -1304,12 +1302,10 @@ int m_PDFDoc_readMetadata(lua_State * L)
 
 int m_PDFDoc_getStructTreeRoot(lua_State * L)
 {
-    Catalog *cat;
     Object *obj;
     udstruct *uin, *uout;
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
-    cat = ((PdfDocument *) uin->d)->doc->getCatalog();
-    if (cat->isOk()) {
+    if (((PdfDocument *) uin->d)->doc->getCatalog()->isOk()) {
         obj = ((PdfDocument *) uin->d)->doc->getStructTreeRoot();
         uout = new_Object_userdata(L);
         uout->d = obj;
@@ -1320,14 +1316,12 @@ int m_PDFDoc_getStructTreeRoot(lua_State * L)
 
 int m_PDFDoc_findPage(lua_State * L)
 {
-    Catalog *cat;
     int num, gen, i;
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
     num = luaL_checkint(L, 2);
     gen = luaL_checkint(L, 3);
-    cat = ((PdfDocument *) uin->d)->doc->getCatalog();
-    if (cat->isOk()) {
+    if (((PdfDocument *) uin->d)->doc->getCatalog()->isOk()) {
         i = ((PdfDocument *) uin->d)->doc->findPage(num, gen);
         if (i > 0)
             lua_pushinteger(L, i);
@@ -1357,7 +1351,6 @@ int m_PDFDoc_getLinks(lua_State * L)
 int m_PDFDoc_findDest(lua_State * L)
 {
     GString *name;
-    Catalog *cat;
     LinkDest *dest;
     const char *s;
     size_t len;
@@ -1365,8 +1358,7 @@ int m_PDFDoc_findDest(lua_State * L)
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
     s = luaL_checklstring(L, 2, &len);
     name = new GString(s, len);
-    cat = ((PdfDocument *) uin->d)->doc->getCatalog();
-    if (cat->isOk()) {
+    if (((PdfDocument *) uin->d)->doc->getCatalog()->isOk()) {
         dest = ((PdfDocument *) uin->d)->doc->findDest(name);
         if (dest != NULL) {
             uout = new_LinkDest_userdata(L);
@@ -1388,11 +1380,9 @@ m_PDFDoc_BOOL(isLinearized);
 
 int m_PDFDoc_getDocInfo(lua_State * L)
 {
-    XRef *xref;
     udstruct *uin, *uout;
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
-    xref = ((PdfDocument *) uin->d)->doc->getXRef();
-    if (xref->isOk()) {
+    if (((PdfDocument *) uin->d)->doc->getXRef()->isOk()) {
         uout = new_Object_userdata(L);
         uout->d = new Object();
         ((PdfDocument *) uin->d)->doc->getDocInfo((Object *) uout->d);
@@ -1404,11 +1394,9 @@ int m_PDFDoc_getDocInfo(lua_State * L)
 
 int m_PDFDoc_getDocInfoNF(lua_State * L)
 {
-    XRef *xref;
     udstruct *uin, *uout;
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
-    xref = ((PdfDocument *) uin->d)->doc->getXRef();
-    if (xref->isOk()) {
+    if (((PdfDocument *) uin->d)->doc->getXRef()->isOk()) {
         uout = new_Object_userdata(L);
         uout->d = new Object();
         ((PdfDocument *) uin->d)->doc->getDocInfoNF((Object *) uout->d);

@@ -781,7 +781,8 @@ void write_epdf(PDF pdf, image_dict * idict)
                 pdf_puts(pdf, "\n");
             }
             obj1.free();
-        }
+        } else
+            obj1.free();
         pdf_puts(pdf, ">>\nstream\n");
         copyStreamStream(pdf, contents.getStream()->getBaseStream());
         pdf_end_stream(pdf);
