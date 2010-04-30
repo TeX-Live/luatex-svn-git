@@ -217,6 +217,7 @@ extern void set_job_id(PDF, int, int, int, int);
 extern char *get_resname_prefix(PDF);
 extern void pdf_begin_page(PDF pdf, boolean shipping_page);
 extern void pdf_end_page(PDF pdf, boolean shipping_page);
+extern void print_pdf_table_string(PDF pdf, const char *s);
 
 extern void fix_o_mode(PDF pdf);
 extern void ensure_output_state(PDF pdf, output_state s);
@@ -227,9 +228,6 @@ extern halfword pdf_catalog_toks;       /* additional keys of Catalog dictionary
 extern halfword pdf_catalog_openaction;
 extern halfword pdf_names_toks; /* additional keys of Names dictionary */
 extern halfword pdf_trailer_toks;       /* additional keys of Trailer dictionary */
-extern halfword pdf_pageattributes_toks;        /* additional keys of Page dictionary */
-extern halfword pdf_pageresources_toks; /* additional keys of Resources dictionary */
-extern halfword pdf_pagesattributes_toks;       /* additional keys of Pages dictionary */
 extern void scan_pdfcatalog(PDF pdf);
 extern void finish_pdf_file(PDF pdf, int luatex_version,
                             str_number luatex_revision);

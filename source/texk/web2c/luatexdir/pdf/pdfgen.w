@@ -27,6 +27,7 @@ static const char _svn_version[] =
 @ @c
 #include <kpathsea/c-dir.h>
 #include <kpathsea/c-ctype.h>
+#include <lua/luatex-api.h>
 #include "md5.h"
 
 #define is_hex_char isxdigit
@@ -51,9 +52,6 @@ halfword pdf_catalog_toks;      /* additional keys of Catalog dictionary */
 halfword pdf_catalog_openaction;
 halfword pdf_names_toks;        /* additional keys of Names dictionary */
 halfword pdf_trailer_toks;      /* additional keys of Trailer dictionary */
-halfword pdf_pageattributes_toks;       /* additional keys of Page dictionary */
-halfword pdf_pageresources_toks;        /* additional keys of Resources dictionary */
-halfword pdf_pagesattributes_toks;      /* additional keys of Pages dictionary */
 boolean is_shipping_page;       /* set to |shipping_page| when |ship_out| starts */
 
 @ |init_pdf_struct()| is called early, only once, from maincontrol.w
@@ -1813,6 +1811,40 @@ void pdf_begin_page(PDF pdf, boolean shipping_page)
         pdf_out_colorstack_startpage(pdf);
 }
 
+@ TODO: yet another out_block; unify all these
+
+@c
+static void pdf_out_block_function(PDF pdf, const char *s, size_t n)
+{
+    size_t i = 0, l;
+    do {
+        l = n;
+        if ((int) l > pdf->buf_size)
+            l = (size_t) pdf->buf_size;
+        pdf_room(pdf, (int) l);
+        (void) memcpy(pdf->buf + pdf->ptr, s + i, l);
+        pdf->ptr += (int) l;
+        i += l;
+        n -= l;
+    } while (n > 0);
+}
+
+@ @c
+void print_pdf_table_string(PDF pdf, const char *s)
+{
+    size_t len;
+    const char *ls;
+    lua_getglobal(Luas, "pdf");     /* t ... */
+    lua_pushstring(Luas, s);    /* s t ... */
+    lua_gettable(Luas, -2);     /* s? t ... */
+    if (lua_isstring(Luas, -1)) {       /* s t ... */
+        ls = lua_tolstring(Luas, -1, &len);
+        pdf_out_block_function(pdf, ls, len);
+        pdf_out(pdf, '\n');
+    }
+    lua_pop(Luas, 2);           /* ... */
+}
+
 @ @c
 #define pdf_page_attr equiv(pdf_page_attr_loc)
 #define pdf_page_resources equiv(pdf_page_resources_loc)
@@ -1846,8 +1878,7 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
         pdf_puts(pdf, "]\n");
         if (pdf_page_attr != null)
             pdf_print_toks_ln(pdf, pdf_page_attr);
-        if (pdf_pageattributes_toks != null)    /* from Lua */
-            pdf_print_toks_ln(pdf, pdf_pageattributes_toks);
+        print_pdf_table_string(pdf, "pageattributes");
         pdf_indirect_ln(pdf, "Parent", pdf->last_pages);
         if (pdf->img_page_group_val > 0) {
             pdf_printf(pdf, "/Group %d 0 R\n", pdf->img_page_group_val);
@@ -1970,8 +2001,7 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
     if (shipping_page) {
         if (pdf_page_resources != null)
             pdf_print_toks_ln(pdf, pdf_page_resources);
-        if (pdf_pageresources_toks != null)     /* from Lua */
-            pdf_print_toks_ln(pdf, pdf_pageresources_toks);
+        print_pdf_table_string(pdf, "pageresources");
     } else {
         if (pdf_xform_resources != null)
             pdf_print_toks_ln(pdf, pdf_xform_resources);

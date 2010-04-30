@@ -193,9 +193,6 @@ typedef enum { P__ZERO,
     P_H,
     P_INFO,
     P_NAMES,
-    P_PAGEATTRIBUTES,
-    P_PAGERESOURCES,
-    P_PAGESATTRIBUTES,
     P_PDFCATALOG,
     P_PDFINFO,
     P_PDFNAMES,
@@ -213,9 +210,6 @@ static const parm_struct pdf_parms[] = {
     {"h", P_H},
     {"info", P_INFO},
     {"names", P_NAMES},
-    {"pageattributes", P_PAGEATTRIBUTES},
-    {"pageresources", P_PAGERESOURCES},
-    {"pagesattributes", P_PAGESATTRIBUTES},
     {"pdfcatalog", P_PDFCATALOG},       /* obsolescent */
     {"pdfinfo", P_PDFINFO},     /* obsolescent */
     {"pdfnames", P_PDFNAMES},   /* obsolescent */
@@ -597,18 +591,6 @@ static int getpdf(lua_State * L)
             i = (int) lua_tointeger(L, -1);     /* i ... */
             lua_pop(L, 1);      /* ... */
             switch (i) {
-            case P_PAGEATTRIBUTES:
-                s = tokenlist_to_cstring(pdf_pageattributes_toks, true, &l);
-                lua_pushlstring(L, s, (size_t) l);
-                break;
-            case P_PAGERESOURCES:
-                s = tokenlist_to_cstring(pdf_pageresources_toks, true, &l);
-                lua_pushlstring(L, s, (size_t) l);
-                break;
-            case P_PAGESATTRIBUTES:
-                s = tokenlist_to_cstring(pdf_pagesattributes_toks, true, &l);
-                lua_pushlstring(L, s, (size_t) l);
-                break;
             case P_PDFCATALOG:
             case P_CATALOG:
                 s = tokenlist_to_cstring(pdf_catalog_toks, true, &l);
@@ -661,15 +643,6 @@ static int setpdf(lua_State * L)
         i = (int) lua_tointeger(L, -1); /* i ... */
         lua_pop(L, 1);          /* ... */
         switch (i) {
-        case P_PAGEATTRIBUTES:
-            pdf_pageattributes_toks = tokenlist_from_lua(L);
-            break;
-        case P_PAGERESOURCES:
-            pdf_pageresources_toks = tokenlist_from_lua(L);
-            break;
-        case P_PAGESATTRIBUTES:
-            pdf_pagesattributes_toks = tokenlist_from_lua(L);
-            break;
         case P_PDFCATALOG:
         case P_CATALOG:
             pdf_catalog_toks = tokenlist_from_lua(L);
