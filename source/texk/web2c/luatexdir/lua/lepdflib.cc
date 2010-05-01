@@ -1084,8 +1084,8 @@ static const struct luaL_Reg Object_m[] = {
     {"streamGetPos", m_Object_streamGetPos},
     {"streamSetPos", m_Object_streamSetPos},
     {"streamGetDict", m_Object_streamGetDict},
-    {"__gc", m_Object__gc},     // finalizer
     {"__tostring", m_Object__tostring},
+    {"__gc", m_Object__gc},     // finalizer
     {NULL, NULL}                // sentinel
 };
 
@@ -1458,8 +1458,37 @@ m_XPDF_get_BOOL(PDFRectangle, isValid);
 
 m_XPDF__tostring(PDFRectangle);
 
+int m_PDFRectangle__index(lua_State * L)
+{
+    const char *s;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_PDFRectangle);
+    s = luaL_checkstring(L, 2);
+    if (strlen(s) == 2) {
+        if (s[0] == 'x') {
+            if (s[1] == '1')
+                lua_pushnumber(L, ((PDFRectangle *) uin->d)->x1);
+            else if (s[1] == '2')
+                lua_pushnumber(L, ((PDFRectangle *) uin->d)->x2);
+            else
+                lua_pushnil(L);
+        } else if (s[0] == 'y') {
+            if (s[1] == '1')
+                lua_pushnumber(L, ((PDFRectangle *) uin->d)->y1);
+            else if (s[1] == '2')
+                lua_pushnumber(L, ((PDFRectangle *) uin->d)->y2);
+            else
+                lua_pushnil(L);
+        } else
+            lua_pushnil(L);
+    } else
+        lua_pushnil(L);
+    return 1;
+}
+
 static const struct luaL_Reg PDFRectangle_m[] = {
     {"isValid", m_PDFRectangle_isValid},
+    {"__index", m_PDFRectangle__index},
     {"__tostring", m_PDFRectangle__tostring},
     {NULL, NULL}                // sentinel
 };
@@ -1497,7 +1526,7 @@ static int m_Ref__gc(lua_State * L)
 }
 
 static const struct luaL_Reg Ref_m[] = {
-    {"__index", m_Ref__index},  // not XPDF
+    {"__index", m_Ref__index},
     {"__tostring", m_Ref__tostring},
     {"__gc", m_Ref__gc},        // finalizer
     {NULL, NULL}                // sentinel
