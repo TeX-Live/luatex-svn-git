@@ -111,8 +111,18 @@ int l_open_PDFDoc(lua_State * L)
     return 1;                   // doc path
 }
 
+int l_new_Object(lua_State * L)
+{
+    udstruct *uout;
+    uout = new_Object_userdata(L);
+    uout->d = new Object();     // automatic init to type "none"
+    uout->atype = ALLOC_LEPDF;
+    return 1;
+}
+
 static const struct luaL_Reg epdflib[] = {
     {"open", l_open_PDFDoc},
+    {"Object", l_new_Object},
     {NULL, NULL}                // sentinel
 };
 
@@ -562,6 +572,98 @@ static const struct luaL_Reg Links_m[] = {
 
 //**********************************************************************
 // Object
+
+int m_Object_initBool(lua_State * L)
+{
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    luaL_checktype(L, 2, LUA_TBOOLEAN);
+    if (((Object *) uin->d)->getBool())
+        ((Object *) uin->d)->initBool(gTrue);
+    else
+        ((Object *) uin->d)->initBool(gFalse);
+    return 0;
+}
+
+int m_Object_initInt(lua_State * L)
+{
+    int i;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    i = luaL_checkint(L, 2);
+    ((Object *) uin->d)->initInt(i);
+    return 0;
+}
+
+int m_Object_initReal(lua_State * L)
+{
+    double d;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    d = luaL_checknumber(L, 2);
+    ((Object *) uin->d)->initReal(d);
+    return 0;
+}
+
+int m_Object_initString(lua_State * L)
+{
+    GString *gs;
+    const char *s;
+    size_t len;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    s = luaL_checklstring(L, 2, &len);
+    gs = new GString(s, len);
+    ((Object *) uin->d)->initString(gs);
+    return 0;
+}
+
+int m_Object_initName(lua_State * L)
+{
+    const char *s;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    s = luaL_checkstring(L, 2);
+    ((Object *) uin->d)->initName((char *) s);
+    return 0;
+}
+
+int m_Object_initNull(lua_State * L)
+{
+    const char *s;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    ((Object *) uin->d)->initNull();
+    return 0;
+}
+
+int m_Object_initCmd(lua_State * L)
+{
+    const char *s;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    s = luaL_checkstring(L, 2);
+    ((Object *) uin->d)->initCmd((char *) s);
+    return 0;
+}
+
+int m_Object_initError(lua_State * L)
+{
+    const char *s;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    ((Object *) uin->d)->initError();
+    return 0;
+}
+
+int m_Object_initEOF(lua_State * L)
+{
+    const char *s;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    ((Object *) uin->d)->initEOF();
+    return 0;
+}
 
 int m_Object_fetch(lua_State * L)
 {
@@ -1025,7 +1127,7 @@ static int m_Object__gc(lua_State * L)
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
 #ifdef DEBUG
-    printf("\n===== Type_Object GC FREE ===== a=<%p>\n", a);
+    printf("\n===== Object GC ===== a=<%p>\n", a);
 #endif
     if (uin->atype == ALLOC_LEPDF)
         delete((Object *) uin->d);
@@ -1035,6 +1137,20 @@ static int m_Object__gc(lua_State * L)
 m_XPDF__tostring(Object);
 
 static const struct luaL_Reg Object_m[] = {
+    {"initBool", m_Object_initBool},
+    {"initInt", m_Object_initInt},
+    {"initReal", m_Object_initReal},
+    {"initString", m_Object_initString},
+    {"initName", m_Object_initName},
+    {"initNull", m_Object_initNull},
+    // {"initArray", m_Object_initArray},
+    // {"initDict", m_Object_initDict},
+    // {"initStream", m_Object_initStream},
+    // {"initRef", m_Object_initRef},
+    {"initCmd", m_Object_initCmd},
+    {"initError", m_Object_initError},
+    {"initEOF", m_Object_initEOF},
+    // {"copy", m_Object_copy},
     {"fetch", m_Object_fetch},
     {"getType", m_Object_getType},
     {"getTypeName", m_Object_getTypeName},
@@ -1413,7 +1529,7 @@ static int m_PDFDoc__gc(lua_State * L)
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
 #ifdef DEBUG
-    printf("\n===== Type_PDFDoc GC FREE ===== a=<%s>\n", a->file_path);
+    printf("\n===== PDFDoc GC ===== a=<%s>\n", a->file_path);
 #endif
     assert(uin->atype == ALLOC_LEPDF);
     unrefPdfDocument(((PdfDocument *) uin->d)->file_path);
@@ -1518,7 +1634,7 @@ static int m_Ref__gc(lua_State * L)
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Ref);
 #ifdef DEBUG
-    printf("\n===== Type_Ref GC FREE ===== a=<%p>\n", a);
+    printf("\n===== Ref GC ===== a=<%p>\n", a);
 #endif
     if (uin->atype == ALLOC_LEPDF && ((Ref *) uin->d) != NULL)
         gfree(((Ref *) uin->d));
