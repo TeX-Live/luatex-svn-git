@@ -26,9 +26,6 @@
 #  define set_pdf_colorstack_cmd(A,B) pdf_colorstack_cmd(A)=B
 #  define set_pdf_colorstack_data(A,B) pdf_colorstack_data(A)=B
 
-/* remember shipout mode: page/form */
-extern boolean page_mode;
-
 #  define STACK_INCREMENT 8
 
 int newcolorstack(int s, int literal_mode, boolean pagestart);

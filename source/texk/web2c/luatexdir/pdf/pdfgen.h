@@ -76,6 +76,8 @@ typedef enum {
     zip_finish = 2              /* finish \.{ZIP} compression */
 } zip_write_states;
 
+typedef enum { NOT_SHIPPING, SHIPPING_PAGE, SHIPPING_FORM } shipping_mode_e;
+
 extern int pdf_output_option;
 extern int pdf_output_value;
 extern int pdf_draftmode_option;
@@ -215,8 +217,8 @@ extern void check_o_mode(PDF pdf, const char *s, int o_mode, boolean errorflag);
 
 extern void set_job_id(PDF, int, int, int, int);
 extern char *get_resname_prefix(PDF);
-extern void pdf_begin_page(PDF pdf, boolean shipping_page);
-extern void pdf_end_page(PDF pdf, boolean shipping_page);
+extern void pdf_begin_page(PDF pdf);
+extern void pdf_end_page(PDF pdf);
 extern void print_pdf_table_string(PDF pdf, const char *s);
 
 extern void fix_o_mode(PDF pdf);
@@ -232,6 +234,6 @@ extern void scan_pdfcatalog(PDF pdf);
 extern void finish_pdf_file(PDF pdf, int luatex_version,
                             str_number luatex_revision);
 
-extern boolean is_shipping_page;
+extern shipping_mode_e global_shipping_mode;
 
 #endif                          /* PDFGEN_H */

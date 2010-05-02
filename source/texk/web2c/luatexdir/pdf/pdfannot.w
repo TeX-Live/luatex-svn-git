@@ -30,7 +30,7 @@ static const char _svn_version[] =
 void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 {
     scaled_whd alt_rule;
-    if (!is_shipping_page)
+    if (global_shipping_mode == SHIPPING_FORM)
         pdf_error("ext4", "annotations cannot be inside an XForm");
     if (doing_leaders)
         return;

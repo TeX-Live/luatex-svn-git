@@ -57,7 +57,7 @@ void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     scaled_whd alt_rule;
     if (type(p) == vlist_node)
         pdf_error("ext4", "\\pdfstartlink ended up in vlist");
-    if (!is_shipping_page)
+    if (global_shipping_mode == SHIPPING_FORM)
         pdf_error("ext4", "link annotations cannot be inside an XForm");
     assert(type(parent_box) == hlist_node);
     if (is_obj_scheduled(pdf, pdf_link_objnum(p)))
@@ -90,7 +90,7 @@ void end_link(PDF pdf, halfword p)
 
     if (is_running(width(pdf->link_stack[pdf->link_stack_ptr].link_node))) {
         q = pdf->link_stack[pdf->link_stack_ptr].ref_link_node;
-        if (is_shipping_page && matrixused()) {
+        if (global_shipping_mode == SHIPPING_PAGE && matrixused()) {
             matrixrecalculate(pos.h + pdf_link_margin);
             pdf_ann_left(q) = getllx() - pdf_link_margin;
             pdf_ann_top(q) = cur_page_size.v - getury() - pdf_link_margin;

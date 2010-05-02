@@ -34,7 +34,7 @@ static const char _svn_version[] =
 void append_bead(PDF pdf, halfword p)
 {
     int a, b, c, t;
-    if (!is_shipping_page)
+    if (global_shipping_mode == SHIPPING_FORM)
         pdf_error("ext4", "threads cannot be inside an XForm");
     t = get_obj(pdf, obj_type_thread, pdf_thread_id(p), pdf_thread_named_id(p));
     b = pdf_new_objnum(pdf);

@@ -88,7 +88,7 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     scaledpos pos = pdf->posstruct->pos;
     scaled_whd alt_rule;
     int k;
-    if (!is_shipping_page)
+    if (global_shipping_mode == SHIPPING_FORM)
         pdf_error("ext4", "destinations cannot be inside an XForm");
     if (doing_leaders)
         return;

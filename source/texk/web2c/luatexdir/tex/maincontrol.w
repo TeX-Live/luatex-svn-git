@@ -1362,7 +1362,7 @@ void box_end(int box_context)
             }
 
         } else
-            ship_out(static_pdf, cur_box, true);
+            ship_out(static_pdf, cur_box, SHIPPING_PAGE);
     }
 }
 

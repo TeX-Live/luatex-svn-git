@@ -107,6 +107,8 @@ static int l_immediateobj(lua_State * L)
     const_lstring st1, st2, st3;
     st1.s = st2.s = st3.s = NULL;
     check_o_mode(static_pdf, "immediateobj()", 1 << OMODE_PDF, true);
+    if (global_shipping_mode != NOT_SHIPPING)
+        luaL_error(L, "pdf.immediateobj() can not be used with \\latelua");
     n = lua_gettop(L);
     if (n > 0 && lua_type(L, 1) == LUA_TNUMBER) {
         first_arg++;
@@ -565,7 +567,7 @@ static int l_registerannot(lua_State * L)
     n = lua_gettop(L);
     switch (n) {
     case 1:
-        if (!is_shipping_page)
+        if (global_shipping_mode == NOT_SHIPPING)
             luaL_error(L, "pdf.registerannot() can only be used in late lua");
         i = (int) luaL_checkinteger(L, 1);
         if (i <= 0)

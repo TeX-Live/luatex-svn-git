@@ -52,7 +52,7 @@ halfword pdf_catalog_toks;      /* additional keys of Catalog dictionary */
 halfword pdf_catalog_openaction;
 halfword pdf_names_toks;        /* additional keys of Names dictionary */
 halfword pdf_trailer_toks;      /* additional keys of Trailer dictionary */
-boolean is_shipping_page;       /* set to |shipping_page| when |ship_out| starts */
+shipping_mode_e global_shipping_mode = NOT_SHIPPING;       /* set to |shipping_mode| when |ship_out| starts */
 
 @ |init_pdf_struct()| is called early, only once, from maincontrol.w
 
@@ -117,22 +117,21 @@ PDF init_pdf_struct(PDF pdf)
 }
 
 @ @c
-static void pdf_shipout_begin(boolean shipping_page)
+static void pdf_shipout_begin()
 {
     pos_stack_used = 0;         /* start with empty stack */
 
-    page_mode = shipping_page;
-    if (shipping_page) {
+    if (global_shipping_mode == SHIPPING_PAGE) {
         colorstackpagestart();
     }
 }
 
-static void pdf_shipout_end(boolean shipping_page)
+static void pdf_shipout_end()
 {
     if (pos_stack_used > 0) {
         pdftex_fail("%u unmatched \\pdfsave after %s shipout",
                     (unsigned int) pos_stack_used,
-                    ((shipping_page) ? "page" : "form"));
+                    ((global_shipping_mode == SHIPPING_PAGE) ? "page" : "form"));
     }
 }
 
@@ -1748,7 +1747,7 @@ char *get_resname_prefix(PDF pdf)
 #define pdf_xform_attr equiv(pdf_xform_attr_loc)
 #define pdf_xform_resources equiv(pdf_xform_resources_loc)
 
-void pdf_begin_page(PDF pdf, boolean shipping_page)
+void pdf_begin_page(PDF pdf)
 {
     scaled form_margin = one_bp;
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
@@ -1761,13 +1760,14 @@ void pdf_begin_page(PDF pdf, boolean shipping_page)
     pdf->page_resources->last_resources = pdf_new_objnum(pdf);
     reset_page_resources(pdf);
 
-    if (shipping_page) {
+    if (global_shipping_mode == SHIPPING_PAGE) {
         pdf->last_page = get_obj(pdf, obj_type_page, total_pages + 1, 0);
         set_obj_aux(pdf, pdf->last_page, 1);    /* mark that this page has been created */
         pdf_new_dict(pdf, obj_type_pagestream, 0, 0);
         pdf->last_stream = pdf->obj_ptr;
         pdf->last_thread = null;
     } else {
+        assert(global_shipping_mode == SHIPPING_FORM);
         pdf_begin_dict(pdf, pdf_cur_form, 0);
         pdf->last_stream = pdf_cur_form;
 
@@ -1796,7 +1796,7 @@ void pdf_begin_page(PDF pdf, boolean shipping_page)
     }
     /* Start stream of page/form contents */
     pdf_begin_stream(pdf);
-    if (shipping_page) {
+    if (global_shipping_mode == SHIPPING_PAGE) {
         /* Adjust transformation matrix for the magnification ratio */
         if (mag != 1000) {
             pdf_print_real(pdf, mag, 3);
@@ -1805,9 +1805,9 @@ void pdf_begin_page(PDF pdf, boolean shipping_page)
             pdf_puts(pdf, " 0 0 cm\n");
         }
     }
-    pdf_shipout_begin(shipping_page);
+    pdf_shipout_begin();
 
-    if (shipping_page)
+    if (global_shipping_mode == SHIPPING_PAGE)
         pdf_out_colorstack_startpage(pdf);
 }
 
@@ -1849,21 +1849,22 @@ void print_pdf_table_string(PDF pdf, const char *s)
 #define pdf_page_attr equiv(pdf_page_attr_loc)
 #define pdf_page_resources equiv(pdf_page_resources_loc)
 
-void pdf_end_page(PDF pdf, boolean shipping_page)
+void pdf_end_page(PDF pdf)
 {
     int j;
     pdf_resource_struct *res_p = pdf->page_resources;
     pdf_resource_struct local_page_resources;
     pdf_object_list *ol, *ol1;
     scaledpos save_cur_page_size;       /* to save |cur_page_size| during flushing pending forms */
+    shipping_mode_e save_shipping_mode;
     int procset = PROCSET_PDF;
 
     /* Finish stream of page/form contents */
     pdf_goto_pagemode(pdf);
-    pdf_shipout_end(shipping_page);
+    pdf_shipout_end();
     pdf_end_stream(pdf);
 
-    if (shipping_page) {
+    if (global_shipping_mode == SHIPPING_PAGE) {
         /* Write out page object */
 
         pdf_begin_dict(pdf, pdf->last_page, 1);
@@ -1925,11 +1926,13 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
         if (!is_obj_written(pdf, ol->info)) {
             pdf_cur_form = ol->info;
             save_cur_page_size = cur_page_size;
+            save_shipping_mode = global_shipping_mode;
             pdf->page_resources = &local_page_resources;
             local_page_resources.resources_tree = NULL;
-            ship_out(pdf, obj_xform_box(pdf, pdf_cur_form), false);
+            ship_out(pdf, obj_xform_box(pdf, pdf_cur_form), SHIPPING_FORM);
             /* Restore page size and page resources */
             cur_page_size = save_cur_page_size;
+            global_shipping_mode = save_shipping_mode;
             destroy_page_resources_tree(pdf);
             pdf->page_resources = res_p;
         }
@@ -1944,7 +1947,7 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
         ol = ol->link;
     }
 
-    if (shipping_page) {
+    if (global_shipping_mode == SHIPPING_PAGE) {
         /* Write out pending PDF marks */
         /* Write out PDF annotations */
         ol = get_page_resources_list(pdf, obj_type_annot);
@@ -1998,7 +2001,7 @@ void pdf_end_page(PDF pdf, boolean shipping_page)
     /* Write out resources dictionary */
     pdf_begin_dict(pdf, res_p->last_resources, 1);
     /* Print additional resources */
-    if (shipping_page) {
+    if (global_shipping_mode == SHIPPING_PAGE) {
         if (pdf_page_resources != null)
             pdf_print_toks_ln(pdf, pdf_page_resources);
         print_pdf_table_string(pdf, "pageresources");

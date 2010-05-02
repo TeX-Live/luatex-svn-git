@@ -277,7 +277,7 @@ void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur,
         pos_ll.v = pos_ur.v;
         pos_ur.v = tmp.v;
     }
-    if (is_shipping_page && matrixused()) {
+    if (global_shipping_mode == SHIPPING_PAGE && matrixused()) {
         matrixtransformrect(pos_ll.h, pos_ll.v, pos_ur.h, pos_ur.v);
         pos_ll.h = getllx();
         pos_ll.v = getlly();

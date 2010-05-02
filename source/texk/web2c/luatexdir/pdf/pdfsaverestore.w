@@ -44,7 +44,7 @@ static void checkpdfsave(scaledpos pos)
     }
     pos_stack[pos_stack_used].pos.h = pos.h;
     pos_stack[pos_stack_used].pos.v = pos.v;
-    if (page_mode) {
+    if (global_shipping_mode == SHIPPING_PAGE) {
         pos_stack[pos_stack_used].matrix_stack = matrix_stack_used;
     }
     pos_stack_used++;
@@ -65,7 +65,7 @@ static void checkpdfrestore(scaledpos pos)
         pdftex_warn("Misplaced \\pdfrestore by (%dsp, %dsp)", (int) diff.h,
                     (int) diff.v);
     }
-    if (page_mode) {
+    if (global_shipping_mode == SHIPPING_PAGE) {
         matrix_stack_used = pos_stack[pos_stack_used].matrix_stack;
     }
 }

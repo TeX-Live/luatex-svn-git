@@ -91,7 +91,7 @@ static void pdfsetmatrix(const char *in, scaledpos pos)
 
     matrix_entry x, *y, *z;
 
-    if (page_mode) {
+    if (global_shipping_mode == SHIPPING_PAGE) {
         if (sscanf((const char *) in, " %lf %lf %lf %lf ",
                    &x.a, &x.b, &x.c, &x.d) != 4) {
             pdftex_warn("Unrecognized format of \\pdfsetmatrix{%s}", in);
@@ -184,7 +184,7 @@ void matrixtransformrect(scaled llx, scaled lly, scaled urx, scaled ury)
 {
     scaled x1, x2, x3, x4, y1, y2, y3, y4;
 
-    if (page_mode && matrix_stack_used > 0) {
+    if (global_shipping_mode == SHIPPING_PAGE && matrix_stack_used > 0) {
         last_llx = llx;
         last_lly = lly;
         last_urx = urx;
@@ -207,7 +207,7 @@ void matrixtransformrect(scaled llx, scaled lly, scaled urx, scaled ury)
 
 void matrixtransformpoint(scaled x, scaled y)
 {
-    if (page_mode && matrix_stack_used > 0) {
+    if (global_shipping_mode == SHIPPING_PAGE && matrix_stack_used > 0) {
         do_matrixtransform(x, y, &ret_llx, &ret_lly);
     } else {
         ret_llx = x;

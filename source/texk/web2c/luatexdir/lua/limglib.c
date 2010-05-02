@@ -609,6 +609,8 @@ static int l_write_image(lua_State * L)
 static int l_immediatewrite_image(lua_State * L)
 {
     check_o_mode(static_pdf, "img.immediatewrite()", 1 << OMODE_PDF, true);
+    if (global_shipping_mode != NOT_SHIPPING)
+        luaL_error(L, "pdf.immediatewrite() can not be used with \\latelua");
     write_image_or_node(L, WR_IMMEDIATEWRITE);
     return 1;                   /* image */
 }
