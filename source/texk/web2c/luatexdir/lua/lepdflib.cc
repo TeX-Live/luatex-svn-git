@@ -696,7 +696,6 @@ int m_Object_initName(lua_State * L)
 
 int m_Object_initNull(lua_State * L)
 {
-    const char *s;
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     ((Object *) uin->d)->initNull();
@@ -735,7 +734,6 @@ int m_Object_initCmd(lua_State * L)
 
 int m_Object_initError(lua_State * L)
 {
-    const char *s;
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     ((Object *) uin->d)->initError();
@@ -744,7 +742,6 @@ int m_Object_initError(lua_State * L)
 
 int m_Object_initEOF(lua_State * L)
 {
-    const char *s;
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     ((Object *) uin->d)->initEOF();
