@@ -120,9 +120,21 @@ int l_new_Object(lua_State * L)
     return 1;
 }
 
+// PDFRectangle see Page.h
+
+int l_new_PDFRectangle(lua_State * L)
+{
+    udstruct *uout;
+    uout = new_PDFRectangle_userdata(L);
+    uout->d = new PDFRectangle();       // automatic init to [0, 0, 0, 0]
+    uout->atype = ALLOC_LEPDF;
+    return 1;
+}
+
 static const struct luaL_Reg epdflib[] = {
     {"open", l_open_PDFDoc},
     {"Object", l_new_Object},
+    {"PDFRectangle", l_new_PDFRectangle},
     {NULL, NULL}                // sentinel
 };
 
@@ -1711,10 +1723,52 @@ int m_PDFRectangle__index(lua_State * L)
     return 1;
 }
 
+int m_PDFRectangle__newindex(lua_State * L)
+{
+    double d;
+    const char *s;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_PDFRectangle);
+    s = luaL_checkstring(L, 2);
+    d = luaL_checknumber(L, 3);
+    if (strlen(s) == 2) {
+        if (s[0] == 'x') {
+            if (s[1] == '1')
+                ((PDFRectangle *) uin->d)->x1 = d;
+            else if (s[1] == '2')
+                ((PDFRectangle *) uin->d)->x2 = d;
+            else
+                luaL_error(L, "wrong PDFRectangle coordinate (%s)", s);
+        } else if (s[0] == 'y') {
+            if (s[1] == '1')
+                ((PDFRectangle *) uin->d)->y1 = d;
+            else if (s[1] == '2')
+                ((PDFRectangle *) uin->d)->y2 = d;
+        } else
+            luaL_error(L, "wrong PDFRectangle coordinate (%s)", s);
+    } else
+        luaL_error(L, "wrong PDFRectangle coordinate (%s)", s);
+    return 0;
+}
+
+static int m_PDFRectangle__gc(lua_State * L)
+{
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_PDFRectangle);
+#ifdef DEBUG
+    printf("\n===== PDFRectangle GC ===== a=<%p>\n", a);
+#endif
+    if (uin->atype == ALLOC_LEPDF)
+        delete((PDFRectangle *) uin->d);
+    return 0;
+}
+
 static const struct luaL_Reg PDFRectangle_m[] = {
     {"isValid", m_PDFRectangle_isValid},
     {"__index", m_PDFRectangle__index},
+    {"__newindex", m_PDFRectangle__newindex},
     {"__tostring", m_PDFRectangle__tostring},
+    {"__gc", m_PDFRectangle__gc},
     {NULL, NULL}                // sentinel
 };
 
