@@ -215,7 +215,36 @@ int m_##type##__tostring(lua_State * L)                        \
 //**********************************************************************
 // Array
 
+int m_Array_incRef(lua_State * L)
+{
+    int i;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Array);
+    i = ((Array *) uin->d)->incRef();
+    lua_pushinteger(L, i);
+    return 1;
+}
+
+int m_Array_decRef(lua_State * L)
+{
+    int i;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Array);
+    i = ((Array *) uin->d)->decRef();
+    lua_pushinteger(L, i);
+    return 1;
+}
+
 m_XPDF_get_INT(Array, getLength);
+
+int m_Array_add(lua_State * L)
+{
+    udstruct *uin, *uobj;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Array);
+    uobj = (udstruct *) luaL_checkudata(L, 2, M_Object);
+    ((Array *) uin->d)->add(((Object *) uobj->d));
+    return 0;
+}
 
 int m_Array_get(lua_State * L)
 {
@@ -254,7 +283,10 @@ int m_Array_getNF(lua_State * L)
 m_XPDF__tostring(Array);
 
 static const struct luaL_Reg Array_m[] = {
+    {"incRef", m_Array_incRef},
+    {"decRef", m_Array_decRef},
     {"getLength", m_Array_getLength},
+    {"add", m_Array_add},
     {"get", m_Array_get},
     {"getNF", m_Array_getNF},
     {"__tostring", m_Array__tostring},
@@ -367,7 +399,38 @@ static const struct luaL_Reg Catalog_m[] = {
 //**********************************************************************
 // Dict
 
+int m_Dict_incRef(lua_State * L)
+{
+    int i;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
+    i = ((Dict *) uin->d)->incRef();
+    lua_pushinteger(L, i);
+    return 1;
+}
+
+int m_Dict_decRef(lua_State * L)
+{
+    int i;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
+    i = ((Dict *) uin->d)->decRef();
+    lua_pushinteger(L, i);
+    return 1;
+}
+
 m_XPDF_get_INT(Dict, getLength);
+
+int m_Dict_add(lua_State * L)
+{
+    char *s;
+    udstruct *uin, *uobj;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
+    s = copyString((char *) luaL_checkstring(L, 2));
+    uobj = (udstruct *) luaL_checkudata(L, 3, M_Object);
+    ((Dict *) uin->d)->add(s, ((Object *) uobj->d));
+    return 0;
+}
 
 int m_Dict_is(lua_State * L)
 {
@@ -459,7 +522,10 @@ int m_Dict_getValNF(lua_State * L)
 m_XPDF__tostring(Dict);
 
 const struct luaL_Reg Dict_m[] = {
+    {"incRef", m_Dict_incRef},
+    {"decRef", m_Dict_decRef},
     {"getLength", m_Dict_getLength},
+    {"add", m_Dict_add},
     {"is", m_Dict_is},
     {"lookup", m_Dict_lookup},
     {"lookupNF", m_Dict_lookupNF},
@@ -630,9 +696,30 @@ int m_Object_initName(lua_State * L)
 
 int m_Object_initNull(lua_State * L)
 {
+    const char *s;
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     ((Object *) uin->d)->initNull();
+    return 0;
+}
+
+int m_Object_initArray(lua_State * L)
+{
+    udstruct *uin, *uxref;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    uxref = (udstruct *) luaL_checkudata(L, 2, M_XRef);
+    ((Object *) uin->d)->initArray((XRef *) uxref->d);
+    return 0;
+}
+
+int m_Object_initRef(lua_State * L)
+{
+    int num, gen;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    num = luaL_checkint(L, 2);
+    gen = luaL_checkint(L, 3);
+    ((Object *) uin->d)->initRef(num, gen);
     return 0;
 }
 
@@ -648,6 +735,7 @@ int m_Object_initCmd(lua_State * L)
 
 int m_Object_initError(lua_State * L)
 {
+    const char *s;
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     ((Object *) uin->d)->initError();
@@ -656,6 +744,7 @@ int m_Object_initError(lua_State * L)
 
 int m_Object_initEOF(lua_State * L)
 {
+    const char *s;
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     ((Object *) uin->d)->initEOF();
@@ -890,6 +979,17 @@ int m_Object_arrayGetLength(lua_State * L)
     return 1;
 }
 
+int m_Object_arrayAdd(lua_State * L)
+{
+    udstruct *uin, *uobj;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    uobj = (udstruct *) luaL_checkudata(L, 2, M_Object);
+    if (!((Object *) uin->d)->isArray())
+        luaL_error(L, "Object is not an Array");
+    ((Object *) uin->d)->arrayAdd((Object *) uobj->d);
+    return 0;
+}
+
 int m_Object_arrayGet(lua_State * L)
 {
     int i, len;
@@ -941,6 +1041,19 @@ int m_Object_dictGetLength(lua_State * L)
     } else
         lua_pushnil(L);
     return 1;
+}
+
+int m_Object_dictAdd(lua_State * L)
+{
+    const char *s;
+    udstruct *uin, *uobj;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    s = luaL_checkstring(L, 2);
+    uobj = (udstruct *) luaL_checkudata(L, 3, M_Object);
+    if (!((Object *) uin->d)->isDict())
+        luaL_error(L, "Object is not a Dict");
+    ((Object *) uin->d)->dictAdd((char *) s, (Object *) uobj->d);
+    return 0;
 }
 
 int m_Object_dictLookup(lua_State * L)
@@ -1140,10 +1253,10 @@ static const struct luaL_Reg Object_m[] = {
     {"initString", m_Object_initString},
     {"initName", m_Object_initName},
     {"initNull", m_Object_initNull},
-    // {"initArray", m_Object_initArray},
+    {"initArray", m_Object_initArray},
     // {"initDict", m_Object_initDict},
     // {"initStream", m_Object_initStream},
-    // {"initRef", m_Object_initRef},
+    {"initRef", m_Object_initRef},
     {"initCmd", m_Object_initCmd},
     {"initError", m_Object_initError},
     {"initEOF", m_Object_initEOF},
@@ -1180,9 +1293,11 @@ static const struct luaL_Reg Object_m[] = {
     {"getRefGen", m_Object_getRefGen},
     {"getCmd", m_Object_getCmd},
     {"arrayGetLength", m_Object_arrayGetLength},
+    {"arrayAdd", m_Object_arrayAdd},
     {"arrayGet", m_Object_arrayGet},
     {"arrayGetNF", m_Object_arrayGetNF},
     {"dictGetLength", m_Object_dictGetLength},
+    {"dictAdd", m_Object_dictAdd},
     {"dictLookup", m_Object_dictLookup},
     {"dictLookupNF", m_Object_dictLookupNF},
     {"dictGetKey", m_Object_dictGetKey},
