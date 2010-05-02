@@ -111,6 +111,26 @@ int l_open_PDFDoc(lua_State * L)
     return 1;                   // doc path
 }
 
+int l_new_Array(lua_State * L)
+{
+    udstruct *uxref, *uout;
+    uxref = (udstruct *) luaL_checkudata(L, 1, M_XRef);
+    uout = new_Array_userdata(L);
+    uout->d = new Array((XRef *) uxref->d);     // automatic init to length 0
+    uout->atype = ALLOC_LEPDF;
+    return 1;
+}
+
+int l_new_Dict(lua_State * L)
+{
+    udstruct *uxref, *uout;
+    uxref = (udstruct *) luaL_checkudata(L, 1, M_XRef);
+    uout = new_Dict_userdata(L);
+    uout->d = new Dict((XRef *) uxref->d);      // automatic init to length 0
+    uout->atype = ALLOC_LEPDF;
+    return 1;
+}
+
 int l_new_Object(lua_State * L)
 {
     udstruct *uout;
@@ -133,6 +153,8 @@ int l_new_PDFRectangle(lua_State * L)
 
 static const struct luaL_Reg epdflib[] = {
     {"open", l_open_PDFDoc},
+    {"Array", l_new_Array},
+    {"Dict", l_new_Dict},
     {"Object", l_new_Object},
     {"PDFRectangle", l_new_PDFRectangle},
     {NULL, NULL}                // sentinel
@@ -723,6 +745,28 @@ int m_Object_initArray(lua_State * L)
     return 0;
 }
 
+// TODO: decide betweeen
+//   Object *initDict(XRef *xref);
+//   Object *initDict(Dict *dictA);
+
+int m_Object_initDict(lua_State * L)
+{
+    udstruct *uin, *uxref;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    uxref = (udstruct *) luaL_checkudata(L, 2, M_XRef);
+    ((Object *) uin->d)->initDict((XRef *) uxref->d);
+    return 0;
+}
+
+int m_Object_initStream(lua_State * L)
+{
+    udstruct *uin, *ustream;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    ustream = (udstruct *) luaL_checkudata(L, 2, M_Stream);
+    ((Object *) uin->d)->initStream((Stream *) ustream->d);
+    return 0;
+}
+
 int m_Object_initRef(lua_State * L)
 {
     int num, gen;
@@ -1263,8 +1307,8 @@ static const struct luaL_Reg Object_m[] = {
     {"initName", m_Object_initName},
     {"initNull", m_Object_initNull},
     {"initArray", m_Object_initArray},
-    // {"initDict", m_Object_initDict},
-    // {"initStream", m_Object_initStream},
+    {"initDict", m_Object_initDict},
+    {"initStream", m_Object_initStream},
     {"initRef", m_Object_initRef},
     {"initCmd", m_Object_initCmd},
     {"initError", m_Object_initError},
