@@ -22,6 +22,8 @@ static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
+// define DEBUG
+
 #include "epdf.h"
 
 #define one_hundred_bp  6578176 // one_hundred_bp = 7227 * 65536 / 72
@@ -111,6 +113,9 @@ PdfDocument *refPdfDocument(char *file_path, file_error_mode fe)
     }
     assert(checksum != NULL);
     if ((pdf_doc = findPdfDocument(file_path)) == NULL) {
+#ifdef DEBUG
+        fprintf(stderr, "\nDEBUG: New PdfDocument %s\n", file_path);
+#endif
         new_flag = 1;
         pdf_doc = new PdfDocument;
         pdf_doc->file_path = xstrdup(file_path);
@@ -120,6 +125,10 @@ PdfDocument *refPdfDocument(char *file_path, file_error_mode fe)
         pdf_doc->ObjMapTree = NULL;
         pdf_doc->occurences = 0;        // 0 = unreferenced
     } else {
+#ifdef DEBUG
+        fprintf(stderr, "\nDEBUG: Found PdfDocument %s (%d)\n",
+                pdf_doc->file_path, pdf_doc->occurences);
+#endif
         assert(pdf_doc->checksum != NULL);
         if (strncmp(pdf_doc->checksum, checksum, PDF_CHECKSUM_SIZE) != 0) {
             pdftex_fail("PDF inclusion: file has changed '%s'", file_path);
@@ -128,6 +137,10 @@ PdfDocument *refPdfDocument(char *file_path, file_error_mode fe)
     }
     assert(pdf_doc != NULL);
     if (pdf_doc->doc == NULL) {
+#ifdef DEBUG
+        fprintf(stderr, "\nDEBUG: New PDFDoc %s (%d)\n",
+                pdf_doc->file_path, pdf_doc->occurences);
+#endif
         docName = new GString(file_path);
         doc = new PDFDoc(docName);      // takes ownership of docName
         if (!doc->isOk() || !doc->okToPrint()) {
@@ -160,13 +173,9 @@ PdfDocument *refPdfDocument(char *file_path, file_error_mode fe)
         void **aa = avl_probe(PdfDocumentTree, pdf_doc);
         assert(aa != NULL);
     }
-#ifdef DEBUG
-    fprintf(stderr, "\nluatex Debug: Creating %s (%d)\n",
-            pdf_doc->file_path, pdf_doc->occurences);
-#endif
     pdf_doc->occurences++;
 #ifdef DEBUG
-    fprintf(stderr, "\nluatex Debug: Incrementing %s (%d)\n",
+    fprintf(stderr, "\nDEBUG: Incrementing %s (%d)\n",
             pdf_doc->file_path, pdf_doc->occurences);
 #endif
     return pdf_doc;
@@ -822,6 +831,9 @@ static void deletePdfDocumentPdfDoc(PdfDocument * pdf_doc)
         n = r->next;
         delete r;
     }
+#ifdef DEBUG
+    fprintf(stderr, "\nDEBUG: Deleting PDFDoc %s\n", pdf_doc->file_path);
+#endif
     delete pdf_doc->doc;
     pdf_doc->doc = NULL;
 }
@@ -843,13 +855,10 @@ void unrefPdfDocument(char *file_path)
     assert(pdf_doc->occurences > 0);    // aim for point landing
     pdf_doc->occurences--;
 #ifdef DEBUG
-    fprintf(stderr, "\nluatex Debug: Decrementing %s (%d)\n",
+    fprintf(stderr, "\nDEBUG: Decrementing %s (%d)\n",
             pdf_doc->file_path, pdf_doc->occurences);
 #endif
     if (pdf_doc->occurences == 0) {
-#ifdef DEBUG
-        fprintf(stderr, "\nluatex Debug: Deleting %s\n", pdf_doc->file_path);
-#endif
         assert(pdf_doc->inObjList == NULL);     // should be eaten up already
         deletePdfDocumentPdfDoc(pdf_doc);
     }
