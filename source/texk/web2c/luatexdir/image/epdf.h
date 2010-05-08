@@ -47,6 +47,8 @@
 #  endif
 #  include "Object.h"
 #  include "Stream.h"
+#  include "Gfx.h"
+#  include "Annot.h"
 #  include "Array.h"
 #  include "Dict.h"
 #  include "XRef.h"

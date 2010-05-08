@@ -46,21 +46,24 @@ const char *ErrorCodeNames[] = { "None", "OpenFile", "BadCatalog",
 
 //**********************************************************************
 
-#define M_Array        "Array"
-#define M_Catalog      "Catalog"
-#define M_Dict         "Dict"
-#define M_GString      "GString"
-#define M_LinkDest     "LinkDest"
-#define M_Links        "Links"
-#define M_Object       "Object"
-#define M_ObjectStream "ObjectStream"
-#define M_Page         "Page"
-#define M_PDFDoc       "PDFDoc"
-#define M_PDFRectangle "PDFRectangle"
-#define M_Ref          "Ref"
-#define M_Stream       "Stream"
-#define M_XRef         "XRef"
-#define M_XRefEntry    "XRefEntry"
+#define M_Annot            "Annot"
+#define M_AnnotBorderStyle "AnnotBorderStyle"
+#define M_Annots           "Annots"
+#define M_Array            "Array"
+#define M_Catalog          "Catalog"
+#define M_Dict             "Dict"
+#define M_GString          "GString"
+#define M_LinkDest         "LinkDest"
+#define M_Links            "Links"
+#define M_Object           "Object"
+#define M_ObjectStream     "ObjectStream"
+#define M_Page             "Page"
+#define M_PDFDoc           "PDFDoc"
+#define M_PDFRectangle     "PDFRectangle"
+#define M_Ref              "Ref"
+#define M_Stream           "Stream"
+#define M_XRef             "XRef"
+#define M_XRefEntry        "XRefEntry"
 
 //**********************************************************************
 
@@ -77,6 +80,9 @@ udstruct *new_##type##_userdata(lua_State * L)                                  
 
 new_XPDF_userdata(PDFDoc);
 
+new_XPDF_userdata(Annot);
+new_XPDF_userdata(AnnotBorderStyle);
+new_XPDF_userdata(Annots);
 new_XPDF_userdata(Array);
 new_XPDF_userdata(Catalog);
 new_XPDF_userdata(Dict);
@@ -245,6 +251,76 @@ int m_##type##__tostring(lua_State * L)                        \
     lua_pushfstring(L, "%s: %p", #type, (type *) uin->d);      \
     return 1;                                                  \
 }
+
+//**********************************************************************
+// Annot
+
+m_XPDF_get_BOOL(Annot, isOk);
+m_XPDF_get_OBJECT(Annot, getAppearance);
+m_XPDF_get_XPDF(Annot, AnnotBorderStyle, getBorderStyle);
+
+int m_Annot_match(lua_State * L)
+{
+    const char *s;
+    udstruct *uin, *uref;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Annot);
+    uref = (udstruct *) luaL_checkudata(L, 2, M_Ref);
+    lua_pushboolean(L, ((Annot *) uin->d)->match((Ref *) uref->d));
+    return 1;
+}
+
+m_XPDF__tostring(Annot);
+
+static const struct luaL_Reg Annot_m[] = {
+    {"isOk", m_Annot_isOk},
+    {"getAppearance", m_Annot_getAppearance},
+    {"getBorderStyle", m_Annot_getBorderStyle},
+    {"match", m_Annot_match},
+    {"__tostring", m_Annot__tostring},
+    {NULL, NULL}                // sentinel
+};
+
+//**********************************************************************
+// AnnotBorderStyle
+
+m_XPDF_get_DOUBLE(AnnotBorderStyle, getWidth);
+
+m_XPDF__tostring(AnnotBorderStyle);
+
+static const struct luaL_Reg AnnotBorderStyle_m[] = {
+    {"getWidth", m_AnnotBorderStyle_getWidth},
+    {"__tostring", m_AnnotBorderStyle__tostring},
+    {NULL, NULL}                // sentinel
+};
+
+//**********************************************************************
+// Annots
+
+m_XPDF_get_INT(Annots, getNumAnnots);
+
+int m_Annots_getAnnot(lua_State * L)
+{
+    int i, annots;
+    udstruct *uin, *uout;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Annots);
+    i = luaL_checkint(L, 2);
+    annots = ((Annots *) uin->d)->getNumAnnots();
+    if (i > 0 && i <= annots) {
+        uout = new_Annot_userdata(L);
+        uout->d = ((Annots *) uin->d)->getAnnot(i);
+    } else
+        lua_pushnil(L);
+    return 1;
+}
+
+m_XPDF__tostring(Annots);
+
+static const struct luaL_Reg Annots_m[] = {
+    {"getNumAnnots", m_Annots_getNumAnnots},
+    {"getAnnot", m_Annots_getAnnot},
+    {"__tostring", m_Annots__tostring},
+    {NULL, NULL}                // sentinel
+};
 
 //**********************************************************************
 // Array
@@ -2010,6 +2086,9 @@ static const struct luaL_Reg XRefEntry_m[] = {
 
 int luaopen_epdf(lua_State * L)
 {
+    register_meta(Annot);
+    register_meta(AnnotBorderStyle);
+    register_meta(Annots);
     register_meta(Array);
     register_meta(Catalog);
     register_meta(Dict);
