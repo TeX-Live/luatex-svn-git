@@ -261,7 +261,6 @@ m_XPDF_get_XPDF(Annot, AnnotBorderStyle, getBorderStyle);
 
 int m_Annot_match(lua_State * L)
 {
-    const char *s;
     udstruct *uin, *uref;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Annot);
     uref = (udstruct *) luaL_checkudata(L, 2, M_Ref);
