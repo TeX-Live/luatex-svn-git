@@ -28,6 +28,7 @@ static const char _svn_version[] =
 
 //**********************************************************************
 // TODO: add more xpdf functions (many are still missing)
+// TODO: reference counter to PDFDoc
 
 //**********************************************************************
 // objects allocated by xpdf may not be deleted in the lepdflib
@@ -117,6 +118,35 @@ int l_open_PDFDoc(lua_State * L)
     return 1;                   // doc path
 }
 
+int l_new_Annot(lua_State * L)
+{
+    udstruct *uxref, *uacroform, *udict, *uref, *uout;
+    uxref = (udstruct *) luaL_checkudata(L, 1, M_XRef);
+    uacroform = (udstruct *) luaL_checkudata(L, 2, M_Dict);
+    udict = (udstruct *) luaL_checkudata(L, 3, M_Dict);
+    uref = (udstruct *) luaL_checkudata(L, 4, M_Ref);
+    uout = new_Annot_userdata(L);
+    uout->d =
+        new Annot((XRef *) uxref->d, (Dict *) uacroform->d, (Dict *) udict->d,
+                  (Ref *) uref->d);
+    uout->atype = ALLOC_LEPDF;
+    return 1;
+}
+
+int l_new_Annots(lua_State * L)
+{
+    udstruct *uxref, *ucatalog, *uannotsobj, *uout;
+    uxref = (udstruct *) luaL_checkudata(L, 1, M_XRef);
+    ucatalog = (udstruct *) luaL_checkudata(L, 2, M_Catalog);
+    uannotsobj = (udstruct *) luaL_checkudata(L, 3, M_Object);
+    uout = new_Annots_userdata(L);
+    uout->d =
+        new Annots((XRef *) uxref->d, (Catalog *) ucatalog->d,
+                   (Object *) uannotsobj->d);
+    uout->atype = ALLOC_LEPDF;
+    return 1;
+}
+
 int l_new_Array(lua_State * L)
 {
     udstruct *uxref, *uout;
@@ -159,6 +189,8 @@ int l_new_PDFRectangle(lua_State * L)
 
 static const struct luaL_Reg epdflib[] = {
     {"open", l_open_PDFDoc},
+    {"Annot", l_new_Annot},
+    {"Annots", l_new_Annots},
     {"Array", l_new_Array},
     {"Dict", l_new_Dict},
     {"Object", l_new_Object},
@@ -270,12 +302,25 @@ int m_Annot_match(lua_State * L)
 
 m_XPDF__tostring(Annot);
 
+static int m_Annot__gc(lua_State * L)
+{
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Annot);
+#ifdef DEBUG
+    printf("\n===== Annot GC ===== a=<%p>\n", a);
+#endif
+    if (uin->atype == ALLOC_LEPDF)
+        delete(Annot *) uin->d;
+    return 0;
+}
+
 static const struct luaL_Reg Annot_m[] = {
     {"isOk", m_Annot_isOk},
     {"getAppearance", m_Annot_getAppearance},
     {"getBorderStyle", m_Annot_getBorderStyle},
     {"match", m_Annot_match},
     {"__tostring", m_Annot__tostring},
+    {"__gc", m_Annot__gc},
     {NULL, NULL}                // sentinel
 };
 
@@ -286,9 +331,22 @@ m_XPDF_get_DOUBLE(AnnotBorderStyle, getWidth);
 
 m_XPDF__tostring(AnnotBorderStyle);
 
+static int m_Annots__gc(lua_State * L)
+{
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Annots);
+#ifdef DEBUG
+    printf("\n===== Annots GC ===== a=<%p>\n", a);
+#endif
+    if (uin->atype == ALLOC_LEPDF)
+        delete(Annots *) uin->d;
+    return 0;
+}
+
 static const struct luaL_Reg AnnotBorderStyle_m[] = {
     {"getWidth", m_AnnotBorderStyle_getWidth},
     {"__tostring", m_AnnotBorderStyle__tostring},
+    {"__gc", m_Annots__gc},
     {NULL, NULL}                // sentinel
 };
 
@@ -1368,7 +1426,7 @@ static int m_Object__gc(lua_State * L)
     printf("\n===== Object GC ===== a=<%p>\n", a);
 #endif
     if (uin->atype == ALLOC_LEPDF)
-        delete((Object *) uin->d);
+        delete(Object *) uin->d;
     return 0;
 }
 
@@ -1878,7 +1936,7 @@ static int m_PDFRectangle__gc(lua_State * L)
     printf("\n===== PDFRectangle GC ===== a=<%p>\n", a);
 #endif
     if (uin->atype == ALLOC_LEPDF)
-        delete((PDFRectangle *) uin->d);
+        delete(PDFRectangle *) uin->d;
     return 0;
 }
 

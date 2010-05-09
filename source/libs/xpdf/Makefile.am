@@ -77,6 +77,7 @@ fofi_libfofi_a_sources = \
 	$(FOFI_SRC)/FoFiType1C.cc
 
 xpdf_libxpdf_a_sources = \
+	$(XPDF_SRC)/Annot.cc \
 	$(XPDF_SRC)/Array.cc \
 	$(XPDF_SRC)/BuiltinFont.cc \
 	$(XPDF_SRC)/BuiltinFontTables.cc \
@@ -88,6 +89,7 @@ xpdf_libxpdf_a_sources = \
 	$(XPDF_SRC)/Error.cc \
 	$(XPDF_SRC)/FontEncodingTables.cc \
 	$(XPDF_SRC)/Function.cc \
+	$(XPDF_SRC)/Gfx.cc \
 	$(XPDF_SRC)/GfxFont.cc \
 	$(XPDF_SRC)/GfxState.cc \
 	$(XPDF_SRC)/GlobalParams.cc \

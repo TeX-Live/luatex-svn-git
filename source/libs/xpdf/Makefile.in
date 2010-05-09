@@ -63,18 +63,18 @@ am__objects_1 = FixedPoint.$(OBJEXT) GHash.$(OBJEXT) GList.$(OBJEXT) \
 am__objects_2 = FoFiBase.$(OBJEXT) FoFiEncodings.$(OBJEXT) \
 	FoFiTrueType.$(OBJEXT) FoFiType1.$(OBJEXT) \
 	FoFiType1C.$(OBJEXT)
-am__objects_3 = Array.$(OBJEXT) BuiltinFont.$(OBJEXT) \
+am__objects_3 = Annot.$(OBJEXT) Array.$(OBJEXT) BuiltinFont.$(OBJEXT) \
 	BuiltinFontTables.$(OBJEXT) CMap.$(OBJEXT) Catalog.$(OBJEXT) \
 	CharCodeToUnicode.$(OBJEXT) Decrypt.$(OBJEXT) Dict.$(OBJEXT) \
 	Error.$(OBJEXT) FontEncodingTables.$(OBJEXT) \
-	Function.$(OBJEXT) GfxFont.$(OBJEXT) GfxState.$(OBJEXT) \
-	GlobalParams.$(OBJEXT) JArithmeticDecoder.$(OBJEXT) \
-	JBIG2Stream.$(OBJEXT) JPXStream.$(OBJEXT) Lexer.$(OBJEXT) \
-	Link.$(OBJEXT) NameToCharCode.$(OBJEXT) Object.$(OBJEXT) \
-	Outline.$(OBJEXT) OutputDev.$(OBJEXT) PDFDoc.$(OBJEXT) \
-	PDFDocEncoding.$(OBJEXT) PSOutputDev.$(OBJEXT) \
-	PSTokenizer.$(OBJEXT) Page.$(OBJEXT) Parser.$(OBJEXT) \
-	SecurityHandler.$(OBJEXT) Stream.$(OBJEXT) \
+	Function.$(OBJEXT) Gfx.$(OBJEXT) GfxFont.$(OBJEXT) \
+	GfxState.$(OBJEXT) GlobalParams.$(OBJEXT) \
+	JArithmeticDecoder.$(OBJEXT) JBIG2Stream.$(OBJEXT) \
+	JPXStream.$(OBJEXT) Lexer.$(OBJEXT) Link.$(OBJEXT) \
+	NameToCharCode.$(OBJEXT) Object.$(OBJEXT) Outline.$(OBJEXT) \
+	OutputDev.$(OBJEXT) PDFDoc.$(OBJEXT) PDFDocEncoding.$(OBJEXT) \
+	PSOutputDev.$(OBJEXT) PSTokenizer.$(OBJEXT) Page.$(OBJEXT) \
+	Parser.$(OBJEXT) SecurityHandler.$(OBJEXT) Stream.$(OBJEXT) \
 	UnicodeMap.$(OBJEXT) XRef.$(OBJEXT)
 nodist_libxpdf_a_OBJECTS = $(am__objects_1) $(am__objects_2) \
 	$(am__objects_3)
@@ -274,6 +274,7 @@ fofi_libfofi_a_sources = \
 	$(FOFI_SRC)/FoFiType1C.cc
 
 xpdf_libxpdf_a_sources = \
+	$(XPDF_SRC)/Annot.cc \
 	$(XPDF_SRC)/Array.cc \
 	$(XPDF_SRC)/BuiltinFont.cc \
 	$(XPDF_SRC)/BuiltinFontTables.cc \
@@ -285,6 +286,7 @@ xpdf_libxpdf_a_sources = \
 	$(XPDF_SRC)/Error.cc \
 	$(XPDF_SRC)/FontEncodingTables.cc \
 	$(XPDF_SRC)/Function.cc \
+	$(XPDF_SRC)/Gfx.cc \
 	$(XPDF_SRC)/GfxFont.cc \
 	$(XPDF_SRC)/GfxState.cc \
 	$(XPDF_SRC)/GlobalParams.cc \
@@ -378,6 +380,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Annot.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Array.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BuiltinFont.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BuiltinFontTables.Po@am__quote@
@@ -398,6 +401,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GHash.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GList.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GString.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Gfx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GfxFont.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GfxState.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GlobalParams.Po@am__quote@
@@ -635,6 +639,20 @@ FoFiType1C.obj: $(FOFI_SRC)/FoFiType1C.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o FoFiType1C.obj `if test -f '$(FOFI_SRC)/FoFiType1C.cc'; then $(CYGPATH_W) '$(FOFI_SRC)/FoFiType1C.cc'; else $(CYGPATH_W) '$(srcdir)/$(FOFI_SRC)/FoFiType1C.cc'; fi`
 
+Annot.o: $(XPDF_SRC)/Annot.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Annot.o -MD -MP -MF $(DEPDIR)/Annot.Tpo -c -o Annot.o `test -f '$(XPDF_SRC)/Annot.cc' || echo '$(srcdir)/'`$(XPDF_SRC)/Annot.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Annot.Tpo $(DEPDIR)/Annot.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(XPDF_SRC)/Annot.cc' object='Annot.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Annot.o `test -f '$(XPDF_SRC)/Annot.cc' || echo '$(srcdir)/'`$(XPDF_SRC)/Annot.cc
+
+Annot.obj: $(XPDF_SRC)/Annot.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Annot.obj -MD -MP -MF $(DEPDIR)/Annot.Tpo -c -o Annot.obj `if test -f '$(XPDF_SRC)/Annot.cc'; then $(CYGPATH_W) '$(XPDF_SRC)/Annot.cc'; else $(CYGPATH_W) '$(srcdir)/$(XPDF_SRC)/Annot.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Annot.Tpo $(DEPDIR)/Annot.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(XPDF_SRC)/Annot.cc' object='Annot.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Annot.obj `if test -f '$(XPDF_SRC)/Annot.cc'; then $(CYGPATH_W) '$(XPDF_SRC)/Annot.cc'; else $(CYGPATH_W) '$(srcdir)/$(XPDF_SRC)/Annot.cc'; fi`
+
 Array.o: $(XPDF_SRC)/Array.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Array.o -MD -MP -MF $(DEPDIR)/Array.Tpo -c -o Array.o `test -f '$(XPDF_SRC)/Array.cc' || echo '$(srcdir)/'`$(XPDF_SRC)/Array.cc
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Array.Tpo $(DEPDIR)/Array.Po
@@ -788,6 +806,20 @@ Function.obj: $(XPDF_SRC)/Function.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(XPDF_SRC)/Function.cc' object='Function.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Function.obj `if test -f '$(XPDF_SRC)/Function.cc'; then $(CYGPATH_W) '$(XPDF_SRC)/Function.cc'; else $(CYGPATH_W) '$(srcdir)/$(XPDF_SRC)/Function.cc'; fi`
+
+Gfx.o: $(XPDF_SRC)/Gfx.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Gfx.o -MD -MP -MF $(DEPDIR)/Gfx.Tpo -c -o Gfx.o `test -f '$(XPDF_SRC)/Gfx.cc' || echo '$(srcdir)/'`$(XPDF_SRC)/Gfx.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Gfx.Tpo $(DEPDIR)/Gfx.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(XPDF_SRC)/Gfx.cc' object='Gfx.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Gfx.o `test -f '$(XPDF_SRC)/Gfx.cc' || echo '$(srcdir)/'`$(XPDF_SRC)/Gfx.cc
+
+Gfx.obj: $(XPDF_SRC)/Gfx.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Gfx.obj -MD -MP -MF $(DEPDIR)/Gfx.Tpo -c -o Gfx.obj `if test -f '$(XPDF_SRC)/Gfx.cc'; then $(CYGPATH_W) '$(XPDF_SRC)/Gfx.cc'; else $(CYGPATH_W) '$(srcdir)/$(XPDF_SRC)/Gfx.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/Gfx.Tpo $(DEPDIR)/Gfx.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(XPDF_SRC)/Gfx.cc' object='Gfx.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Gfx.obj `if test -f '$(XPDF_SRC)/Gfx.cc'; then $(CYGPATH_W) '$(XPDF_SRC)/Gfx.cc'; else $(CYGPATH_W) '$(srcdir)/$(XPDF_SRC)/Gfx.cc'; fi`
 
 GfxFont.o: $(XPDF_SRC)/GfxFont.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT GfxFont.o -MD -MP -MF $(DEPDIR)/GfxFont.Tpo -c -o GfxFont.o `test -f '$(XPDF_SRC)/GfxFont.cc' || echo '$(srcdir)/'`$(XPDF_SRC)/GfxFont.cc
