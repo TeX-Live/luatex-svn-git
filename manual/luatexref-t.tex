@@ -5360,7 +5360,6 @@ tex.lastkern
 tex.lastskip
 tex.lastnodetype
 tex.inputlineno
-tex.badness
 tex.pdftexversion
 tex.pdflastobj
 tex.pdflastxform
@@ -5705,6 +5704,16 @@ the \quote{normal} scanning of \tex{relax}.
 If there is a table argument instead of a list of strings, this has to
 be a consecutive array of strings to print (the first non-string value
 will stop the printing process).   This syntax was added in 0.36.
+
+\subsubsection{\luatex{tex.tprint}}
+
+\startfunctioncall
+tex.tprint({<number> n, <string> s, ...}, {...})
+\stopfunctioncall
+
+This function is basically a shortcut for repeated calls to
+\luatex{tex.sprint(<number> n, <string> s, ...)}, once for each of
+the supplied argument tables.
 
 \subsubsection{\luatex{tex.write}}
 

@@ -925,7 +925,7 @@ calledit(packedASCIIcode * filename,
     *temp = 0;
 
     /* Execute the command.  */
-#ifdef WIN32
+#ifdef __MINGW32__
     /* Win32 reimplementation of the system() command
        provides opportunity to call it asynchronously */
     if (win32_system(command, true) != 0)
