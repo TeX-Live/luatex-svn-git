@@ -2148,7 +2148,7 @@ static int tex_run_linebreak(lua_State * L)
 static int tex_shipout(lua_State * L)
 {
     int boxnum = get_box_id(L, 1);
-    ship_out(static_pdf, box(boxnum), true);
+    ship_out(static_pdf, box(boxnum), SHIPPING_PAGE);
     box(boxnum) = null;
     return 0;
 }

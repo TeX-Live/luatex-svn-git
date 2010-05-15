@@ -997,7 +997,7 @@ void fire_up(halfword c)
     }
     flush_node_list(page_disc);
     page_disc = null;
-    ship_out(static_pdf, box(output_box), true);
+    ship_out(static_pdf, box(output_box), SHIPPING_PAGE);
     box(output_box) = null;
 }
 
