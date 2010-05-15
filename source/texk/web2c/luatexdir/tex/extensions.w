@@ -208,7 +208,7 @@ void do_extension(PDF pdf)
                                  true);
                     do_extension(pdf);  /* scan form and set |pdf_last_xform| */
                     pdf_cur_form = pdf_last_xform;
-                    ship_out(pdf, obj_xform_box(pdf, pdf_last_xform), false);
+                    ship_out(pdf, obj_xform_box(pdf, pdf_last_xform), SHIPPING_FORM);
                     break;
                 case pdf_ximage_code:
                     check_o_mode(pdf, "\\immediate\\pdfximage", 1 << OMODE_PDF,
