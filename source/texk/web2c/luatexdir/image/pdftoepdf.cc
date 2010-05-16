@@ -124,6 +124,7 @@ PdfDocument *refPdfDocument(char *file_path, file_error_mode fe)
         pdf_doc->inObjList = NULL;
         pdf_doc->ObjMapTree = NULL;
         pdf_doc->occurences = 0;        // 0 = unreferenced
+        pdf_doc->pc = 0;
     } else {
 #ifdef DEBUG
         fprintf(stderr, "\nDEBUG: Found PdfDocument %s (%d)\n",
@@ -143,6 +144,8 @@ PdfDocument *refPdfDocument(char *file_path, file_error_mode fe)
 #endif
         docName = new GString(file_path);
         doc = new PDFDoc(docName);      // takes ownership of docName
+        pdf_doc->pc++;
+
         if (!doc->isOk() || !doc->okToPrint()) {
             switch (fe) {
             case FE_FAIL:
@@ -836,6 +839,7 @@ static void deletePdfDocumentPdfDoc(PdfDocument * pdf_doc)
 #endif
     delete pdf_doc->doc;
     pdf_doc->doc = NULL;
+    pdf_doc->pc++;
 }
 
 static void destroyPdfDocument(void *pa, void * /*pb */ )
@@ -852,7 +856,7 @@ void unrefPdfDocument(char *file_path)
 {
     PdfDocument *pdf_doc = findPdfDocument(file_path);
     assert(pdf_doc != NULL);
-    assert(pdf_doc->occurences > 0);    // aim for point landing
+    assert(pdf_doc->occurences != 0);   // aim for point landing
     pdf_doc->occurences--;
 #ifdef DEBUG
     fprintf(stderr, "\nDEBUG: Decrementing %s (%d)\n",

@@ -79,7 +79,7 @@ extern "C" {
 #    undef CONFIG_H             /* header file */
 #  endif
 
-#  include <c-auto.h>     /* define SIZEOF_LONG */
+#  include <c-auto.h>           /* define SIZEOF_LONG */
 
 #  include "openbsd-compat.h"
 #  include "image.h"
@@ -173,7 +173,8 @@ struct PdfDocument {
     PDFDoc *doc;
     InObj *inObjList;           // temporary linked list
     avl_table *ObjMapTree;      // permanent over luatex run
-    int occurences;             // number of references to the PdfDocument; it can be deleted when occurences == 0
+    unsigned int occurences;    // number of references to the PdfDocument; it can be deleted when occurences == 0
+    unsigned int pc;            // counter to track PDFDoc generation or deletion
 };
 
 PdfDocument *refPdfDocument(char *file_path, file_error_mode fe);
