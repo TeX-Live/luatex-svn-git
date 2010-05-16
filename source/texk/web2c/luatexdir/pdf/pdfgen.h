@@ -101,11 +101,14 @@ extern void fix_pdf_minorversion(PDF);
 /* do the same as |pdf_quick_out| and flush the PDF buffer if necessary */
 #  define pdf_out(pdf,A) do { pdf_room(pdf,1); pdf_quick_out(pdf,A); } while (0)
 
-#  define pdf_out_block(pdf,A,n) do {                       \
+#  if 0
+/* see function pdf_out_block() */
+#    define pdf_out_block_macro(pdf,A,n) do {               \
         pdf_room(pdf,(int)(n));                             \
         (void)memcpy((pdf->buf+pdf->ptr),(A),(size_t)(n));  \
         pdf->ptr+=(int)(n);                                 \
     } while (0)
+#  endif
 
 /*
 Basic printing procedures for PDF output are very similiar to \TeX\ basic
@@ -152,9 +155,9 @@ extern void pdf_print_mag_bp(PDF, scaled);
 extern void addto_page_resources(PDF pdf, pdf_obj_type t, int k);
 extern pdf_object_list *get_page_resources_list(PDF pdf, pdf_obj_type t);
 
-extern void pdf_out_block_function(PDF pdf, const char *s, size_t n);
+extern void pdf_out_block(PDF pdf, const char *s, size_t n);
 
-#  define pdf_puts(pdf, s) pdf_out_block_function((pdf), (s), strlen(s))
+#  define pdf_puts(pdf, s) pdf_out_block((pdf), (s), strlen(s))
 
 #  define pdf_print_resname_prefix(pdf) do {        \
         if (pdf->resname_prefix != NULL)            \

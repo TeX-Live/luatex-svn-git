@@ -382,10 +382,8 @@ void pdf_print_char(PDF pdf, int c)
     pdf_print_escaped(c);
 }
 
-@ TODO: yet another out_block; unify all these
-
-@c
-void pdf_out_block_function(PDF pdf, const char *s, size_t n)
+@ @c
+void pdf_out_block(PDF pdf, const char *s, size_t n)
 {
     size_t i = 0, l;
     do {
@@ -404,7 +402,7 @@ void pdf_print_wide_char(PDF pdf, int c)
 {
     char hex[5];
     snprintf(hex, 5, "%04X", c);
-    pdf_out_block_function(pdf, (const char *) hex, 4);
+    pdf_out_block(pdf, (const char *) hex, 4);
 }
 
 @ @c
@@ -805,7 +803,7 @@ void pdf_print_fw_int(PDF pdf, longinteger n, int w)
         digits[k] = '0' + (unsigned char) (n % 10);
         n /= 10;
     } while (k != 0);
-    pdf_out_block_function(pdf, (const char *) digits, w);
+    pdf_out_block(pdf, (const char *) digits, w);
 }
 
 @ print out an integer |n| as a fixed number |w| of bytes; used for outputting \.{/XRef} cross-reference stream 
@@ -820,7 +818,7 @@ void pdf_out_bytes(PDF pdf, longinteger n, int w)
         bytes[k] = (unsigned char) (n % 256);
         n /= 256;
     } while (k != 0);
-    pdf_out_block_function(pdf, (const char *) bytes, w);
+    pdf_out_block(pdf, (const char *) bytes, w);
 }
 
 @ print out an entry in dictionary with integer value to PDF buffer 
@@ -1129,7 +1127,7 @@ void pdf_os_write_objstream(PDF pdf)
     pdf_begin_stream(pdf);
     /* write object number and byte offset pairs;
        |q - p| should always fit into the PDF output buffer */
-    pdf_out_block_function(pdf, (const char *) (pdf->os_buf + p), q - p);
+    pdf_out_block(pdf, (const char *) (pdf->os_buf + p), q - p);
     i = 0;
     while (i < p) {
         q = i + pdf->buf_size;
@@ -1813,7 +1811,7 @@ void print_pdf_table_string(PDF pdf, const char *s)
     lua_gettable(Luas, -2);     /* s? t ... */
     if (lua_isstring(Luas, -1)) {       /* s t ... */
         ls = lua_tolstring(Luas, -1, &len);
-        pdf_out_block_function(pdf, ls, len);
+        pdf_out_block(pdf, ls, len);
         pdf_out(pdf, '\n');
     }
     lua_pop(Luas, 2);           /* ... */

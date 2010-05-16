@@ -141,7 +141,7 @@ void pdf_literal(PDF pdf, str_number s, int literal_mode, boolean warn)
     if (s >= STRING_OFFSET) {
         ss = str_string(s);
         l = str_length(s) - (size_t) j;
-        pdf_out_block_function(pdf, (const char *) (ss + j), l);
+        pdf_out_block(pdf, (const char *) (ss + j), l);
     } else {
         assert(s < 256);
         pdf_out(pdf, s);
