@@ -114,7 +114,6 @@ void pdfdoc_differs_error(lua_State * L)
 
 //**********************************************************************
 
-
 int l_open_PDFDoc(lua_State * L)
 {
     const char *file_path;

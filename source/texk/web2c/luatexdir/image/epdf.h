@@ -92,13 +92,15 @@ extern "C" {
     /* pdfgen.c */
     __attribute__ ((format(printf, 2, 3)))
     extern void pdf_printf(PDF, const char *fmt, ...);
-    extern void pdf_puts(PDF, const char *);
     extern void pdf_begin_obj(PDF, int, bool);
     extern void pdf_end_obj(PDF);
     extern void pdf_begin_stream(PDF);
     extern void pdf_end_stream(PDF);
     extern void pdf_room(PDF, int);
-#  define pdf_out(B,A) do { pdf_room(B,1); B->buf[B->ptr++] = A; } while (0)
+    extern void pdf_out_block_function(PDF pdf, const char *s, size_t n);
+
+#  define pdf_out(B, A) do { pdf_room(B, 1); B->buf[B->ptr++] = A; } while (0)
+#  define pdf_puts(pdf, s) pdf_out_block_function((pdf), (s), strlen(s))
 
     /* pdftables.c */
     extern int pdf_new_objnum(PDF);

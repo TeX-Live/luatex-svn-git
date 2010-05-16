@@ -130,7 +130,6 @@ suffix |_ln| append a new-line character to the PDF output.
         pdf_print_nl(pdf);                        \
     } while (0)
 
-extern void pdf_puts(PDF, const char *);
 extern __attribute__ ((format(printf, 2, 3)))
 void pdf_printf(PDF, const char *, ...);
 
@@ -153,9 +152,13 @@ extern void pdf_print_mag_bp(PDF, scaled);
 extern void addto_page_resources(PDF pdf, pdf_obj_type t, int k);
 extern pdf_object_list *get_page_resources_list(PDF pdf, pdf_obj_type t);
 
+extern void pdf_out_block_function(PDF pdf, const char *s, size_t n);
+
+#  define pdf_puts(pdf, s) pdf_out_block_function((pdf), (s), strlen(s))
+
 #  define pdf_print_resname_prefix(pdf) do {        \
         if (pdf->resname_prefix != NULL)            \
-            pdf_puts(pdf,pdf->resname_prefix);      \
+            pdf_puts(pdf, pdf->resname_prefix);     \
     } while (0)
 
 extern void pdf_print_fw_int(PDF, longinteger, int);

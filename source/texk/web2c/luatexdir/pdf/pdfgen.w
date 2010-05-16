@@ -382,30 +382,29 @@ void pdf_print_char(PDF pdf, int c)
     pdf_print_escaped(c);
 }
 
+@ TODO: yet another out_block; unify all these
+
+@c
+void pdf_out_block_function(PDF pdf, const char *s, size_t n)
+{
+    size_t i = 0, l;
+    do {
+        l = n;
+        if ((int) l > pdf->buf_size)
+            l = (size_t) pdf->buf_size;
+        pdf_room(pdf, (int) l);
+        (void) memcpy(pdf->buf + pdf->ptr, s + i, l);
+        pdf->ptr += (int) l;
+        i += l;
+        n -= l;
+    } while (n > 0);
+}
+
 void pdf_print_wide_char(PDF pdf, int c)
 {
     char hex[5];
     snprintf(hex, 5, "%04X", c);
-    pdf_room(pdf, 4);
-    pdf_quick_out(pdf, (unsigned char) hex[0]);
-    pdf_quick_out(pdf, (unsigned char) hex[1]);
-    pdf_quick_out(pdf, (unsigned char) hex[2]);
-    pdf_quick_out(pdf, (unsigned char) hex[3]);
-}
-
-@ @c
-void pdf_puts(PDF pdf, const char *s)
-{
-
-    size_t l = strlen(s);
-    if (l < (size_t) pdf->buf_size) {
-        pdf_room(pdf, (int) l);
-        while (*s != '\0')
-            pdf_quick_out(pdf, *s++);
-    } else {
-        while (*s != '\0')
-            pdf_out(pdf, *s++);
-    }
+    pdf_out_block_function(pdf, (const char *) hex, 4);
 }
 
 @ @c
@@ -794,38 +793,34 @@ static void destroy_page_resources_tree(PDF pdf)
 
 @* Subroutines to print out various PDF objects.
 
-@ print out an integer with fixed width; used for outputting cross-reference table 
+@ print out an integer |n| with fixed width |w|; used for outputting cross-reference table 
 @c
 void pdf_print_fw_int(PDF pdf, longinteger n, int w)
 {
     int k;                      /* $0\le k\le23$ */
-    int dig[24];
-    k = 0;
+    unsigned char digits[24];
+    k = w;
     do {
-        dig[k] = (int) (n % 10);
-        n = n / 10;
-        k++;
-    } while (k != w);
-    pdf_room(pdf, k);
-    while (k-- > 0)
-        pdf_quick_out(pdf, (unsigned char) ('0' + dig[k]));
+        k--;
+        digigs[k] = '0' + (unsigned char) (n % 10);
+        n /= 10;
+    } while (k != 0);
+    pdf_out_block_function(pdf, (const char *) digits, w);
 }
 
-@ print out an integer as a number of bytes; used for outputting \.{/XRef} cross-reference stream 
+@ print out an integer |n| as a fixed number |w| of bytes; used for outputting \.{/XRef} cross-reference stream 
 @c
 void pdf_out_bytes(PDF pdf, longinteger n, int w)
 {
     int k;
-    int bytes[8];               /* digits in a number being output */
-    k = 0;
+    unsigned char bytes[8];     /* digits in a number being output */
+    k = w;
     do {
-        bytes[k] = (int) (n % 256);
-        n = n / 256;
-        k++;
-    } while (k != w);
-    pdf_room(pdf, k);
-    while (k-- > 0)
-        pdf_quick_out(pdf, bytes[k]);
+        k--;
+        bytes[k] = (unsigned char) (n % 256);
+        n /= 256;
+    } while (k != 0);
+    pdf_out_block_function(pdf, (const char *) bytes, w);
 }
 
 @ print out an entry in dictionary with integer value to PDF buffer 
@@ -1132,12 +1127,9 @@ void pdf_os_write_objstream(PDF pdf)
     pdf_printf(pdf, "/N %d\n", (int) (pdf->os_idx + 1));
     pdf_printf(pdf, "/First %d\n", (int) (q - p));
     pdf_begin_stream(pdf);
-    pdf_room(pdf, q - p);       /* should always fit into the PDF output buffer */
-    i = p;
-    while (i < q) {             /* write object number and byte offset pairs */
-        pdf_quick_out(pdf, pdf->os_buf[i]);
-        i++;
-    }
+    /* write object number and byte offset pairs;
+       |q - p| should always fit into the PDF output buffer */
+    pdf_out_block_function(pdf, (const char *) &(pdf->os_buf[p]), q - p);
     i = 0;
     while (i < p) {
         q = i + pdf->buf_size;
@@ -1809,24 +1801,6 @@ void pdf_begin_page(PDF pdf)
 
     if (global_shipping_mode == SHIPPING_PAGE)
         pdf_out_colorstack_startpage(pdf);
-}
-
-@ TODO: yet another out_block; unify all these
-
-@c
-static void pdf_out_block_function(PDF pdf, const char *s, size_t n)
-{
-    size_t i = 0, l;
-    do {
-        l = n;
-        if ((int) l > pdf->buf_size)
-            l = (size_t) pdf->buf_size;
-        pdf_room(pdf, (int) l);
-        (void) memcpy(pdf->buf + pdf->ptr, s + i, l);
-        pdf->ptr += (int) l;
-        i += l;
-        n -= l;
-    } while (n > 0);
 }
 
 @ @c
