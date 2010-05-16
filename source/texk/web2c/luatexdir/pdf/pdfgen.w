@@ -802,7 +802,7 @@ void pdf_print_fw_int(PDF pdf, longinteger n, int w)
     k = w;
     do {
         k--;
-        digigs[k] = '0' + (unsigned char) (n % 10);
+        digits[k] = '0' + (unsigned char) (n % 10);
         n /= 10;
     } while (k != 0);
     pdf_out_block_function(pdf, (const char *) digits, w);
@@ -1129,7 +1129,7 @@ void pdf_os_write_objstream(PDF pdf)
     pdf_begin_stream(pdf);
     /* write object number and byte offset pairs;
        |q - p| should always fit into the PDF output buffer */
-    pdf_out_block_function(pdf, (const char *) &(pdf->os_buf[p]), q - p);
+    pdf_out_block_function(pdf, (const char *) (pdf->os_buf + p), q - p);
     i = 0;
     while (i < p) {
         q = i + pdf->buf_size;
