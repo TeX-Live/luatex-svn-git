@@ -36,7 +36,7 @@ void pdf_write_obj(PDF pdf, int k)
 {
     lstring data;
     const_lstring st;
-    size_t i, li;               /* index into |data.s| */
+    size_t li;                  /* index into |data.s| */
     int saved_compress_level = pdf->compress_level;
     int os_level = 1;           /* gives compressed objects for \.{\\pdfobjcompresslevel} $>$ 0 */
     int l = 0;                  /* possibly a lua registry reference */
@@ -54,8 +54,7 @@ void pdf_write_obj(PDF pdf, int k)
             assert(lua_isstring(Luas, -1));
             st.s = lua_tolstring(Luas, -1, &li);
             st.l = li;
-            for (i = 0; i < st.l; i++)
-                pdf_out(pdf, st.s[i]);
+            pdf_out_block(pdf, st.s, st.l);
             if (st.s[st.l - 1] != '\n')
                 pdf_out(pdf, '\n');
             luaL_unref(Luas, LUA_REGISTRYINDEX, l);
@@ -100,15 +99,13 @@ void pdf_write_obj(PDF pdf, int k)
             pdf_error("ext5", "error reading file for embedding");
         tprint("<<");
         tprint(st.s);
-        for (i = 0; i < data.l; i++)
-            pdf_out(pdf, data.s[i]);
+        pdf_out_block(pdf, (const char *) data.s, data.l);
         if (!obj_obj_is_stream(pdf, k) && data.s[data.l - 1] != '\n')
             pdf_out(pdf, '\n');
         xfree(data.s);
         tprint(">>");
     } else {
-        for (i = 0; i < st.l; i++)
-            pdf_out(pdf, st.s[i]);
+        pdf_out_block(pdf, st.s, st.l);
         if (!obj_obj_is_stream(pdf, k) && st.s[st.l - 1] != '\n')
             pdf_out(pdf, '\n');
     }
