@@ -473,18 +473,17 @@ void pdf_print_int(PDF pdf, longinteger n)
 @c
 void pdf_print_real(PDF pdf, int m, int d)
 {
-    pdf_room(pdf, 40);          /* more than enough */
     if (m < 0) {
-        pdf_quick_out(pdf, '-');
+        pdf_out(pdf, '-');
         m = -m;
     };
     pdf_print_int(pdf, m / ten_pow[d]);
     m = m % ten_pow[d];
     if (m > 0) {
-        pdf_quick_out(pdf, '.');
+        pdf_out(pdf, '.');
         d--;
         while (m < ten_pow[d]) {
-            pdf_quick_out(pdf, '0');
+            pdf_out(pdf, '0');
             d--;
         }
         while (m % 10 == 0)
