@@ -307,7 +307,7 @@ static int m_Annot__gc(lua_State * L)
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Annot);
 #ifdef DEBUG
-    printf("\n===== Annot GC ===== a=<%p>\n", a);
+    printf("\n===== Annot GC ===== uin=<%p>\n", uin);
 #endif
     if (uin->atype == ALLOC_LEPDF)
         delete(Annot *) uin->d;
@@ -336,7 +336,7 @@ static int m_Annots__gc(lua_State * L)
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Annots);
 #ifdef DEBUG
-    printf("\n===== Annots GC ===== a=<%p>\n", a);
+    printf("\n===== Annots GC ===== uin=<%p>\n", uin);
 #endif
     if (uin->atype == ALLOC_LEPDF)
         delete(Annots *) uin->d;
@@ -1423,7 +1423,7 @@ static int m_Object__gc(lua_State * L)
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
 #ifdef DEBUG
-    printf("\n===== Object GC ===== a=<%p>\n", a);
+    printf("\n===== Object GC ===== uin=<%p>\n", uin);
 #endif
     if (uin->atype == ALLOC_LEPDF)
         delete(Object *) uin->d;
@@ -1827,7 +1827,8 @@ static int m_PDFDoc__gc(lua_State * L)
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
 #ifdef DEBUG
-    printf("\n===== PDFDoc GC ===== a=<%s>\n", a->file_path);
+    printf("\n===== PDFDoc GC ===== file_path=<%s>\n",
+           ((PdfDocument *) uin->d)->file_path);
 #endif
     assert(uin->atype == ALLOC_LEPDF);
     unrefPdfDocument(((PdfDocument *) uin->d)->file_path);
@@ -1933,7 +1934,7 @@ static int m_PDFRectangle__gc(lua_State * L)
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFRectangle);
 #ifdef DEBUG
-    printf("\n===== PDFRectangle GC ===== a=<%p>\n", a);
+    printf("\n===== PDFRectangle GC ===== uin=<%p>\n", uin);
 #endif
     if (uin->atype == ALLOC_LEPDF)
         delete(PDFRectangle *) uin->d;
@@ -1974,7 +1975,7 @@ static int m_Ref__gc(lua_State * L)
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Ref);
 #ifdef DEBUG
-    printf("\n===== Ref GC ===== a=<%p>\n", a);
+    printf("\n===== Ref GC ===== uin=<%p>\n", uin);
 #endif
     if (uin->atype == ALLOC_LEPDF && ((Ref *) uin->d) != NULL)
         gfree(((Ref *) uin->d));
