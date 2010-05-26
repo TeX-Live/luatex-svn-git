@@ -756,6 +756,8 @@ static halfword find_next_wordstart(halfword r)
     int mathlevel = 1;
     while (r != null) {
         switch (type(r)) {
+        case whatsit_node:
+            break;
         case glue_node:
             start_ok = 1;
             break;
