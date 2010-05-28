@@ -46,9 +46,15 @@
 
 #include "lua/luatex-api.h"
 
+
 @ @c
 static const char _svn_version[] =
     "$Id$ $URL$";
+
+/*  fix for non-gcc compilation: */
+#if !defined(__GNUC__) || (__GNUC__ < 2) 
+# define __attribute__(x)
+#endif /* !defined(__GNUC__) || (__GNUC__ < 2) */
 
 @ @c
 #define PROGNAME        "texluac"       /* default program name */
