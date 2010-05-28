@@ -37,10 +37,6 @@ static const char _svn_version[] =
 # define __attribute__(x)
 #endif /* !defined(__GNUC__) || (__GNUC__ < 2) */
 
-#ifndef __attribute__
-#  define __attribute__(A)
-#endif
-
 char **gww_errors = NULL;
 int gww_error_count = 0;
 
