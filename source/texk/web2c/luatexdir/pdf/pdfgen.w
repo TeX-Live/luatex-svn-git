@@ -2195,6 +2195,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
     int root, outlines, threads, names_tree;
     int xref_offset_width;
     int callback_id = callback_defined(stop_run_callback);
+    int callback_id1 = callback_defined(finish_pdffile_callback);
 
     if (total_pages == 0) {
         if (callback_id == 0) {
@@ -2208,6 +2209,8 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
         if (pdf->draftmode == 0) {
             pdf_flush(pdf);     /* to make sure that the output file name has been already created */
             flush_jbig2_page0_objects(pdf);     /* flush page 0 objects from JBIG2 images, if any */
+            if (callback_id1 > 0)
+                res = run_callback(callback_id1, "->");
 
             check_nonexisting_pages(pdf);
             check_nonexisting_destinations(pdf);

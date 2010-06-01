@@ -347,6 +347,7 @@ typedef enum {
     linebreak_filter_callback,
     post_linebreak_filter_callback,
     mlist_to_hlist_callback,
+    finish_pdffile_callback,
     total_callbacks
 } callback_callback_types;
 
