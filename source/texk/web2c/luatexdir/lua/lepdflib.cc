@@ -1982,22 +1982,23 @@ int m_PDFDoc_getCatalog(lua_State * L)
     return 1;
 }
 
-#define m_PDFDoc_PAGEDIMEN(function)                      \
-int m_PDFDoc_##function(lua_State * L)                    \
-{                                                         \
-    int i, j, pages;                                      \
-    udstruct *uin;                                        \
-    uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);   \
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)        \
-        pdfdoc_changed_error(L);                          \
-    i = luaL_checkint(L, 2);                              \
-    pages = ((PdfDocument *) uin->d)->doc->getNumPages(); \
-    if (i > 0 && i <= pages) {                            \
-        j = ((PdfDocument *) uin->d)->doc->function(i);   \
-        lua_pushinteger(L, j);                            \
-    } else                                                \
-        lua_pushnil(L);                                   \
-    return 1;                                             \
+#define m_PDFDoc_PAGEDIMEN(function)                             \
+int m_PDFDoc_##function(lua_State * L)                           \
+{                                                                \
+    int i, pages;                                                \
+    double d;                                                    \
+    udstruct *uin;                                               \
+    uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);          \
+    if (uin->pd != NULL && uin->pd->pc != uin->pc)               \
+        pdfdoc_changed_error(L);                                 \
+    i = luaL_checkint(L, 2);                                     \
+    pages = ((PdfDocument *) uin->d)->doc->getNumPages();        \
+    if (i > 0 && i <= pages) {                                   \
+        d = (double) ((PdfDocument *) uin->d)->doc->function(i); \
+        lua_pushnumber(L, d);                                    \
+    } else                                                       \
+        lua_pushnil(L);                                          \
+    return 1;                                                    \
 }
 
 m_PDFDoc_PAGEDIMEN(getPageMediaWidth);
