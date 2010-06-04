@@ -295,7 +295,7 @@ void read_img(PDF pdf,
             img_filepath(idict) =
                 kpse_find_file(img_filename(idict), kpse_tex_format, true);
         if (img_filepath(idict) == NULL)
-            pdftex_fail("cannot find image file");
+            pdftex_fail("cannot find image file '%s'", img_filename(idict));
     }
     recorder_record_input(img_filename(idict));
     /* type checks */
