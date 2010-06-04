@@ -347,6 +347,36 @@ int shell_cmd_is_allowed(const char **cmd, char **safecmd, char **cmdname)
             *d++ = QUOTE;
         }
         *d = '\0';
+#ifdef WIN32
+        {
+          char *p, *q, *r;
+          p = *safecmd;
+          if (!(IS_DIR_SEP (p[0]) && IS_DIR_SEP (p[1])) &&
+              !(p[1] == ':' && IS_DIR_SEP (p[2]))) { 
+            p = (char *) kpse_var_value ("SELFAUTOLOC");
+            if (p) {
+              r = *safecmd;
+              while (*r && !Isspace(*r))
+                r++;
+              if (*r == '\0')
+                q = (char *) concatn ("\"", p, "/", *safecmd, "\"", NULL);
+              else {
+                *r = '\0';
+                r++;
+                while (*r && Isspace(*r))
+                  r++;
+                if (*r)
+                  q = (char *) concatn ("\"", p, "/", *safecmd, "\" ", r, NULL);
+                else
+                  q = (char *) concatn ("\"", p, "/", *safecmd, "\"", NULL);
+              }
+              free (p);
+              free (*safecmd);
+              *safecmd = q;
+            }
+          }
+        }
+#endif
     }
 
     return allow;
@@ -380,9 +410,10 @@ int runsystem(char *cmd)
 
     if (allow == 1)
         (void) system(cmd);
-    else if (allow == 2)
+    else if (allow == 2) {
+	printf("runsystem command name: %s\n,runsystem command: %s\n",cmdname, safecmd);
         (void) system(safecmd);
-
+    }
     if (safecmd)
         free(safecmd);
     if (cmdname)
