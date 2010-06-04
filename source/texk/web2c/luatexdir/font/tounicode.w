@@ -141,7 +141,7 @@ static long check_unicode_value(char *s, boolean multiple_value)
 {
     int l = (int) strlen(s);
     int i;
-    long code;
+    long code = 0; /* anything that is not |UNI_UNDEF| will do */
 
     if (l == 0)
         return UNI_UNDEF;

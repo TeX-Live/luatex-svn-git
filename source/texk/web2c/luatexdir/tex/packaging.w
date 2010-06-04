@@ -115,7 +115,6 @@ void scan_full_spec(group_code c, int spec_direction)
     int v;
     int spec_code;
     halfword attr_list;
-    s = 0;
     if (attr_list_cache == cache_disabled)
         update_attribute_cache();
     attr_list = attr_list_cache;
@@ -423,7 +422,6 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
     scaled s;                   /* shift amount */
     halfword g;                 /* points to a glue specification */
     int o;                      /* order of infinity */
-    internal_font_number f;     /* the font in a |char_node| */
     halfword dir_ptr;           /* for managing the direction stack */
     /* BEWARE: this shadows a global |dir_ptr| */
     int hpack_dir;              /* the current direction */
@@ -438,7 +436,6 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
         box_dir(r) = text_direction;
     } else {
         box_dir(r) = pack_direction;
-        pack_direction = -1;
     }
     hpack_dir = box_dir(r);
     dir_ptr = null;
@@ -493,7 +490,6 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
                     do_subst_font(p, font_expand_ratio);
                 }
             }
-            f = font(p);
             whd = pack_width_height_depth(hpack_dir, dir_TRT, p, true);
             x += whd.wd;
             if (whd.ht > h)
@@ -852,7 +848,6 @@ scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
 {
     scaled s;                   /* shift amount */
     halfword g;                 /* points to a glue specification */
-    internal_font_number f;     /* the font in a |char_node| */
     int hpack_dir;
     scaled_whd xx;              /* for recursion */
     scaled_whd whd, siz = { 0, 0, 0 };
@@ -863,7 +858,6 @@ scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
     }
     while (p != pp && p != null) {
         while (is_char_node(p) && p != pp) {
-            f = font(p);
             whd = pack_width_height_depth(hpack_dir, dir_TRT, p, true);
             siz.wd += whd.wd;
             if (whd.ht > siz.ht)

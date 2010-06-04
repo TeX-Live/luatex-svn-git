@@ -898,8 +898,6 @@ compute_break_width(int break_type, int line_break_dir, int pdf_adjust_spacing,
         } else {
             s = null;
         }
-    } else {
-        s = p;                  /* unhyphenated: we need to 'skip' any 'whitespace' following */
     }
     while (s != null) {
         switch (type(s)) {

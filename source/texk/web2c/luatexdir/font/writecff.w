@@ -3335,7 +3335,6 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
         glyph = xtalloc(1, glw_entry);
     }
 
-    cid = 0;
     last_cid = 0;
     num_glyphs = 0;
     for (cid = 0; cid <= CID_MAX; cid++) {

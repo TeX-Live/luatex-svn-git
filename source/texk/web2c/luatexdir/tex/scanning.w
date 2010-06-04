@@ -1556,7 +1556,6 @@ void scan_scaled(void)
     arith_error = false;
     negative = false;
     /* Get the next non-blank non-sign... */
-    negative = false;
     do {
         /* Get the next non-blank non-call token */
         do {

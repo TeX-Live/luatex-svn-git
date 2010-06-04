@@ -407,7 +407,6 @@ scaled divide_scaled(scaled s, scaled m, int dd)
     /* rounding */
     if (2 * r >= m) {
         q++;
-        r -= m;
     }
     return sign * q;
 }

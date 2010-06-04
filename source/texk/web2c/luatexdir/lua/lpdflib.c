@@ -78,13 +78,12 @@ static int luapdfprint(lua_State * L)
 static unsigned char *fread_to_buf(lua_State * L, const char *filename,
                                    size_t * len)
 {
-    int i = 0;
     int ilen = 0;
     FILE *f;
     unsigned char *buf = NULL;
     if ((f = fopen(filename, "rb")) == NULL)
         luaL_error(L, "pdf.immediateobj() cannot open input file");
-    if ((i = readbinfile(f, &buf, &ilen)) == 0)
+    if (readbinfile(f, &buf, &ilen) == 0)
         luaL_error(L, "pdf.immediateobj() cannot read input file");
     fclose(f);
     *len = (size_t) ilen;
@@ -575,9 +574,8 @@ static int l_registerannot(lua_State * L)
 static int getpdf(lua_State * L)
 {
     char *s;
-    const char *st;
     int i, l;
-    if (lua_isstring(L, 2) && (st = lua_tostring(L, 2)) != NULL) {
+    if (lua_isstring(L, 2) && (lua_tostring(L, 2) != NULL)) {
         lua_pushvalue(L, 2);    /* st ... */
         lua_gettable(L, LUA_ENVIRONINDEX);      /* i? ... */
         if (lua_isnumber(L, -1)) {      /* i ... */
