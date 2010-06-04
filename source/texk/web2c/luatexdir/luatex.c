@@ -414,10 +414,9 @@ int runsystem(char *cmd)
 
     if (allow == 1)
         (void) system(cmd);
-    else if (allow == 2) {
-	printf("runsystem command name: %s\n,runsystem command: %s\n",cmdname, safecmd);
+    else if (allow == 2)
         (void) system(safecmd);
-    }
+
     if (safecmd)
         free(safecmd);
     if (cmdname)
