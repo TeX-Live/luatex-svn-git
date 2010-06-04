@@ -33,6 +33,10 @@ const char *engine_name = "luatex";     /* the name of this engine */
 #include <kpathsea/variable.h>
 #include <kpathsea/absolute.h>
 #include <kpathsea/recorder.h>
+#ifdef WIN32
+#include <kpathsea/concatn.h>
+#endif
+
 
 #include <time.h>               /* For `struct tm'.  */
 #if defined (HAVE_SYS_TIME_H)
@@ -359,16 +363,16 @@ int shell_cmd_is_allowed(const char **cmd, char **safecmd, char **cmdname)
               while (*r && !Isspace(*r))
                 r++;
               if (*r == '\0')
-                q = (char *) concatn ("\"", p, "/", *safecmd, "\"", NULL);
+                q = concatn ("\"", p, "/", *safecmd, "\"", NULL);
               else {
                 *r = '\0';
                 r++;
                 while (*r && Isspace(*r))
                   r++;
                 if (*r)
-                  q = (char *) concatn ("\"", p, "/", *safecmd, "\" ", r, NULL);
+                  q = concatn ("\"", p, "/", *safecmd, "\" ", r, NULL);
                 else
-                  q = (char *) concatn ("\"", p, "/", *safecmd, "\"", NULL);
+                  q = concatn ("\"", p, "/", *safecmd, "\"", NULL);
               }
               free (p);
               free (*safecmd);
@@ -410,10 +414,9 @@ int runsystem(char *cmd)
 
     if (allow == 1)
         (void) system(cmd);
-    else if (allow == 2) {
-	printf("runsystem command name: %s\n,runsystem command: %s\n",cmdname, safecmd);
+    else if (allow == 2)
         (void) system(safecmd);
-    }
+
     if (safecmd)
         free(safecmd);
     if (cmdname)
