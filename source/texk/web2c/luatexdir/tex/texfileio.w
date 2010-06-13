@@ -913,7 +913,10 @@ is needed.
 @c
 static gzFile gz_fmtfile = NULL;
 
-@ @c
+@ That second swap is to make sure following calls don't get
+confused in the case of |dump_things|.
+
+@c
 void do_zdump(char *p, int item_size, int nitems, FILE * out_file)
 {
     int err;
@@ -929,6 +932,9 @@ void do_zdump(char *p, int item_size, int nitems, FILE * out_file)
                 item_size, gzerror(gz_fmtfile, &err));
         uexit(1);
     }
+#if !defined (WORDS_BIGENDIAN) && !defined (NO_DUMP_SHARE)
+    swap_items(p, nitems, item_size);
+#endif
 }
 
 @ @c
