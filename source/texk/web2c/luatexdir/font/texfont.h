@@ -32,15 +32,28 @@
 
 #  define pointer halfword
 
+/* these are dumped en block, so they need endianness tests */
 typedef struct liginfo {
+#  ifdef WORDS_BIGENDIAN
     int adj;
     int lig;
-    char type;
+    int type;
+#else
+    int type;
+    int lig;
+    int adj;
+#endif
 } liginfo;
 
+/* these are dumped en block, so they need endianness tests */
 typedef struct kerninfo {
+#  ifdef WORDS_BIGENDIAN
     int adj;
     scaled sc;
+#else
+    scaled sc;
+    int adj;
+#endif
 } kerninfo;
 
 typedef struct extinfo {
