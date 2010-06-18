@@ -45,8 +45,13 @@
 #  include "tex/stringpool.h"
 
 typedef struct smemory_word_ {
+#  ifdef WORDS_BIGENDIAN
     halfword hhrh;
     halfword hhlh;
+#else
+    halfword hhlh;
+    halfword hhrh;
+#endif
 } smemory_word;
 
 #  define fix_mem_init 10000
