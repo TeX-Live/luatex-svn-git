@@ -2163,7 +2163,8 @@ static void nodelib_setattr(lua_State * L, int stackindex, halfword n)
         if (node_attr(n) != null)
             delete_attribute_ref(node_attr(n));
         node_attr(n) = p;
-        attr_list_ref(p)++;
+	if (p != null)
+	    attr_list_ref(p)++;
     }
 }
 
