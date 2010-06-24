@@ -16,7 +16,7 @@
 % License for more details.
 %
 % You should have received a copy of the GNU General Public License along
-% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @ @c
 static const char _svn_version[] =
@@ -231,8 +231,8 @@ static cs_entry *subr_tab;
 static char *subr_array_start, *subr_array_end;
 static int subr_max, subr_size, subr_size_pos;
 
-@ This list contains the begin/end tokens commonly used in the 
-/Subrs array of a Type 1 font. 
+@ This list contains the begin/end tokens commonly used in the
+/Subrs array of a Type 1 font.
 
 @c
 static const char *cs_token_pairs_list[][2] = {
@@ -286,7 +286,7 @@ char **load_enc_file(char *enc_name)
     cur_file_name = luatex_find_file(enc_name, find_enc_file_callback);
 
     if (cur_file_name == NULL) {
-        pdftex_fail("cannot find encoding file for reading");
+        pdftex_fail("cannot find encoding file '%s' for reading", enc_name);
     }
     callback_id = callback_defined(read_enc_file_callback);
     enc_curbyte = 0;
@@ -295,12 +295,12 @@ char **load_enc_file(char *enc_name)
         if (run_callback(callback_id, "S->bSd", cur_file_name,
                          &file_opened, &enc_buffer, &enc_size)) {
             if ((!file_opened) || enc_size == 0) {
-                pdftex_fail("cannot open encoding file for reading");
+                pdftex_fail("cannot open encoding file '%s' for reading", cur_file_name);
             }
         }
     } else {
         if (!enc_open(cur_file_name)) {
-            pdftex_fail("cannot open encoding file for reading");
+            pdftex_fail("cannot open encoding file '%s' for reading", cur_file_name);
         }
         enc_read_file();
         enc_close();
@@ -652,7 +652,7 @@ static void t1_stop_eexec(PDF pdf)
     t1_in_eexec = 2;
 }
 
-@ macros for various transforms; unused, left for reference 
+@ macros for various transforms; unused, left for reference
 
 @c
 #ifdef T1TRANSFORMMACROS
@@ -785,13 +785,13 @@ static char **t1_builtin_enc(void)
     }
     /* At this moment \.{/Encoding} is the prefix of |t1_line_array|, and the encoding is
      not a predefined encoding.
-     
+
       We have two possible forms of Encoding vector. The first case is
-     
+
           \.{/Encoding [/a /b /c...] readonly def}
-     
+
       and the second case can look like
-     
+
       {\obeylines
           \.{/Encoding 256 array 0 1 255 {1 index exch /.notdef put} for}
           \.{dup 0 /x put}
@@ -1297,7 +1297,7 @@ static void cs_mark(const char *cs_name, int subr)
     ptr->used = false;
 }
 
-@ AVL search tree for glyph code by glyph name 
+@ AVL search tree for glyph code by glyph name
 @c
 static int comp_t1_glyphs(const void *pa, const void *pb, void *p
                           __attribute__ ((unused)))
