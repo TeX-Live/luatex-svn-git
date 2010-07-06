@@ -68,6 +68,7 @@ void init_pdf_pagecalculations(PDF pdf)
     p->wmode = WMODE_H;
     p->mode = PMODE_PAGE;
     p->ishex = 0;
+    p->need_tm = 0;
     p->k1 = ten_pow[p->pdf.h.e] / one_bp;
 }
 

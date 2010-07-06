@@ -109,6 +109,7 @@ typedef struct {
     writing_mode wmode;         /* PDF writing mode WMode (horizontal/vertical) */
     pos_mode mode;              /* current positioning mode */
     int ishex;                  /* Whether the current char string is <> or () */
+    int need_tm;                /* flag whether Tm needs to be set */
 } pdfstructure;
 
 typedef struct obj_entry_ {
