@@ -15,7 +15,7 @@
 % License for more details.
 
 % You should have received a copy of the GNU General Public License along
-% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @ @c
 static const char _svn_version[] =
@@ -68,6 +68,7 @@ void init_pdf_pagecalculations(PDF pdf)
     p->wmode = WMODE_H;
     p->mode = PMODE_PAGE;
     p->ishex = 0;
+    p->need_tm = 0;
     p->k1 = ten_pow[p->pdf.h.e] / one_bp;
 }
 
