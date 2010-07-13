@@ -34,8 +34,8 @@ static const char _svn_version[] =
 
 /* fix for non-gcc compilation: */
 #if !defined(__GNUC__) || (__GNUC__ < 2)
-# define __attribute__(x)
-#endif /* !defined(__GNUC__) || (__GNUC__ < 2) */
+#  define __attribute__(x)
+#endif                          /* !defined(__GNUC__) || (__GNUC__ < 2) */
 
 char **gww_errors = NULL;
 int gww_error_count = 0;
@@ -62,7 +62,7 @@ static void LUAUI_IError(const char *format, ...)
     l = strlen("Internal Error: ");
     snprintf(buffer, sizeof(buffer), "Internal Error: ");
     va_start(ap, format);
-    vsnprintf(buffer+l, sizeof(buffer)-l, format, ap);
+    vsnprintf(buffer + l, sizeof(buffer) - l, format, ap);
     va_end(ap);
     str = xstrdup((char *) buffer);
     gww_errors = realloc(gww_errors, (gww_error_count + 2) * sizeof(char *));
