@@ -1059,7 +1059,7 @@ void pdf_begin_dict(PDF pdf, int i, int pdf_os_level)
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
     pdf_os_prepare_obj(pdf, i, pdf_os_level);
     if (!pdf->os_mode) {
-        pdf_printf(pdf, "%d 0 obj <<\n", (int) i);
+        pdf_printf(pdf, "%d 0 obj\n<<\n", (int) i);
     } else {
         if (pdf->compress_level == 0)
             pdf_printf(pdf, "%% %d 0 obj\n", (int) i);  /* debugging help */
@@ -1084,7 +1084,7 @@ void pdf_end_dict(PDF pdf)
         if (pdf->os_idx == pdf_os_max_objs - 1)
             pdf_os_write_objstream(pdf);
     } else {
-        pdf_puts(pdf, ">> endobj\n");
+        pdf_puts(pdf, ">>\nendobj\n");
     }
 }
 
