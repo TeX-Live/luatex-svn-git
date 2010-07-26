@@ -699,10 +699,22 @@ static int l_pdfmapline(lua_State * L)
     return 0;
 }
 
+static int l_pageref(lua_State * L)
+{
+    int n = lua_gettop(L);
+    if (n != 1)
+        luaL_error(L, "pdf.pageref() needs exactly 1 argument");
+    n = (int) luaL_checkinteger(L, 1);
+    n = get_obj(static_pdf, obj_type_page, n, false);
+    lua_pushnumber(L, n);
+    return 1;
+}
+
 static const struct luaL_reg pdflib[] = {
     {"immediateobj", l_immediateobj},
     {"mapfile", l_mapfile},
     {"mapline", l_mapline},
+    {"pageref", l_pageref},
     {"obj", l_obj},
     {"pdfmapfile", l_pdfmapfile},       /* obsolete */
     {"pdfmapline", l_pdfmapline},       /* obsolete */
