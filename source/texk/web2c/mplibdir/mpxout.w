@@ -1,4 +1,4 @@
-% $Id: mpxout.w 1219 2010-04-01 09:05:51Z taco $
+% $Id: mpxout.w 1315 2010-07-25 07:13:26Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -46,7 +46,7 @@ The local C preprocessor definitions have to come after the C includes
 in order to prevent name clashes.
 
 @c
-#include "config.h"
+#include <w2c/config.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -1,4 +1,4 @@
-% $Id: mpost.w 1219 2010-04-01 09:05:51Z taco $
+% $Id: mpost.w 1315 2010-07-25 07:13:26Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -34,7 +34,7 @@ have our customary command-line interface.
 @d false 0
  
 @c
-#include "config.h"
+#include <w2c/config.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -69,6 +69,7 @@ static char *job_area = NULL;
 static int dvitomp_only = 0;
 static int ini_version_test = false;
 @<getopt structures@>;
+@<Declarations@>;
 
 @ Allocating a bit of memory, with error detection:
 
@@ -209,8 +210,11 @@ static string normalize_quotes (const char *name, const char *mesg) {
 
 @ Helpers for the filename recorder.
 
-@c
-static void recorder_start(char *jobname) {
+@<Declarations@>=
+void recorder_start(char *jobname);
+
+@ @c
+void recorder_start(char *jobname) {
     char cwd[1024];
     if (jobname==NULL) {
       recorder_name = mpost_xstrdup("mpout.fls");
@@ -297,7 +301,7 @@ static int mpost_run_make_mpx (MP mp, char *mpname, char *mpxname) {
         int nothingtodo = 0;       
         if ((stat(qmpxname, &target_stat) >= 0) &&
             (stat(qmpname, &source_stat) >= 0)) {
-#if HAVE_STRUCT_STAT_ST_MTIM
+#if HAVE_ST_MTIM
           if (source_stat.st_mtim.tv_sec <= target_stat.st_mtim.tv_sec || 
              (source_stat.st_mtim.tv_sec  == target_stat.st_mtim.tv_sec && 
               source_stat.st_mtim.tv_nsec <= target_stat.st_mtim.tv_nsec))
@@ -454,7 +458,7 @@ static int get_random_seed (void) {
 #if defined (HAVE_GETTIMEOFDAY)
   struct timeval tv;
   gettimeofday(&tv, NULL);
-  ret = (int)(tv.tv_usec + 1000000 * tv.tv_usec);
+  ret = (tv.tv_usec + 1000000 * tv.tv_usec);
 #elif defined (HAVE_FTIME)
   struct timeb tb;
   ftime(&tb);
@@ -497,7 +501,7 @@ static char *mpost_find_file(MP mp, const char *fname, const char *fmode, int ft
           printf("statting %s and %s\n", mpname, f);
           if ((stat(f, &target_stat) >= 0) &&
               (stat(mpname, &source_stat) >= 0)) {
-#if HAVE_STRUCT_STAT_ST_MTIM
+#if HAVE_ST_MTIM
             if (source_stat.st_mtim.tv_sec <= target_stat.st_mtim.tv_sec || 
                (source_stat.st_mtim.tv_sec  == target_stat.st_mtim.tv_sec && 
                 source_stat.st_mtim.tv_nsec <= target_stat.st_mtim.tv_nsec))
@@ -588,8 +592,11 @@ processing takes place.
 As a special hidden feature, a missing right hand side is treated as if it
 was the integer value |1|. 
 
-@c
-static void internal_set_option(const char *opt) {
+@<Declarations@>=
+void internal_set_option(const char *opt);
+
+@ @c
+void internal_set_option(const char *opt) {
    struct set_list_item *itm;
    char *s, *v;
    int isstring = 0;
@@ -628,8 +635,11 @@ static void internal_set_option(const char *opt) {
 runs thourgh the list of options and feeds them to the MPlib
 function |mp_set_internal|.
 
-@c
-static void run_set_list (MP mp) {
+@<Declarations@>=
+void run_set_list (MP mp);
+
+@ @c
+void run_set_list (MP mp) {
   struct set_list_item *itm;
   itm = set_list;
   while (itm!=NULL) {
@@ -727,7 +737,7 @@ static struct option mpost_options[]
     }
 
     if (ARGUMENT_IS ("kpathsea-debug")) {
-      kpathsea_debug |= atoi (optarg);
+      kpathsea_debug |= (unsigned)atoi (optarg);
 
     } else if (ARGUMENT_IS("jobname")) {
       if (optarg!=NULL) {
@@ -830,7 +840,7 @@ static struct option dvitomp_options[]
     }
     if (option_is ("kpathsea-debug")) {
       if (optarg!=NULL)
-        kpathsea_debug |= atoi (optarg);
+        kpathsea_debug |= (unsigned)atoi (optarg);
     } else if (option_is ("progname")) {
       user_progname = optarg;
     } else if (option_is("help")) {
@@ -1230,18 +1240,12 @@ int main (int argc, char **argv) { /* |start_here| */
   @= /*@@=nullpass@@*/ @> 
   if(putenv(xstrdup("engine=metapost")))
     fprintf(stdout,"warning: could not set up $engine\n");
-  options->main_memory       = setup_var (50000,"main_memory",nokpse);
-  options->hash_size         = (unsigned)setup_var (16384,"hash_size",nokpse);
-  options->max_in_open       = setup_var (25,"max_in_open",nokpse);
-  options->param_size        = setup_var (1500,"param_size",nokpse);
   options->error_line        = setup_var (79,"error_line",nokpse);
   options->half_error_line   = setup_var (50,"half_error_line",nokpse);
   options->max_print_line    = setup_var (100,"max_print_line",nokpse);
   @<Set up the banner line@>;
   @<Copy the rest of the command line@>;
-  if (options->ini_version!=(int)true) {
-    @<Discover the mem name@>;
-  }
+  @<Discover the mem name@>;
   @<Discover the job name@>;
   @<Register the callback routines@>;
   mp = mp_initialize(options);
