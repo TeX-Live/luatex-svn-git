@@ -2209,15 +2209,10 @@ resulting list, and with |aux_save| holding the |prev_depth| value.
 void finish_display_alignment(pointer p, pointer q, halfword saved_prevdepth)
 {
     do_assignments();
-    if (cur_cmd != math_shift_cmd) {
-        const char *hlp[] = {
-            "Displays can use special alignments (like \\eqalignno)",
-            "only if nothing but the alignment itself is between $$'s.",
-            NULL
-        };
-        back_error("Missing $$ inserted", hlp);
-    } else {
+    if (cur_cmd == math_shift_cmd) {
         check_second_math_shift();
+    } else {
+        check_display_math_end();
     }
     pop_nest();
     tail_append(new_penalty(int_par(pre_display_penalty_code)));
