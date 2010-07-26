@@ -1536,9 +1536,9 @@ letter_space_font(halfword u, internal_font_number f, int e, boolean nolig)
    
     for (c=font_bc(k);c<=font_ec(k);c++) {
        if (quick_char_exists(k, c)) {
+           int half_w;
            int vf_np = 0;
            eight_bits *vpackets = xmalloc((unsigned) (10+10+1));
-           int half_w;
            if (e<0) {
              half_w = -round_xn_over_d(quad(k), -e, 2000);
            } else {
