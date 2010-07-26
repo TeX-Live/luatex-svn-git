@@ -418,6 +418,7 @@ void new_letterspaced_font(small_number a)
     pointer u;                  /* user's font identifier */
     str_number t;               /* name for the frozen font identifier */
     internal_font_number f, k;
+    boolean nolig = false;
     get_r_token();
     u = cur_cs;
     if (u >= hash_base)
@@ -429,7 +430,9 @@ void new_letterspaced_font(small_number a)
     scan_font_ident();
     k = cur_val;
     scan_int();
-    f = letter_space_font(u, k, fix_int(cur_val, -1000, 1000));
+    if (scan_keyword("nolig"))
+       nolig=true;
+    f = letter_space_font(u, k, fix_int(cur_val, -1000, 1000), nolig);
     equiv(u) = f;
     eqtb[font_id_base + f] = eqtb[u];
     font_id_text(f) = t;
