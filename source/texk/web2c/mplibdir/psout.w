@@ -1615,7 +1615,9 @@ void mp_set_job_id (MP mp) {
     if ( mp->job_name==NULL )
        mp->job_name = mp_xstrdup(mp,"mpout");
     name_string = mp_xstrdup (mp,mp->job_name);
-    format_string = mp_xstrdup (mp,mp->mem_ident);
+    format_string = mp_xstrdup (mp, mp->mem_ident);
+    if (format_string == NULL) 
+      format_string = mp_xstrdup (mp, "");	
     slen = SMALL_BUF_SIZE +
         strlen (name_string) +
         strlen (format_string);

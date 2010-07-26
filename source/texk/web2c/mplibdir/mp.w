@@ -26560,18 +26560,19 @@ xfree (mp->err_out);
 @ @<Start non-interactive work@>=
 @<Initialize the output routines@>;
 mp->input_ptr = 0;
-mp->max_in_stack = 0;
-mp->in_open = 0;
+mp->max_in_stack = file_bottom;
+mp->in_open = file_bottom;
 mp->open_parens = 0;
 mp->max_buf_stack = 0;
 mp->param_ptr = 0;
 mp->max_param_stack = 0;
-start = loc = iindex = 0;
+start = loc = 0;
+iindex = file_bottom;
 nloc = nstart = NULL;
 mp->first = 0;
 line = 0;
 name = is_term;
-mp->mpx_name[0] = absent;
+mp->mpx_name[file_bottom] = absent;
 mp->force_eof = false;
 t_open_in;
 mp->scanner_status = normal;
@@ -30998,9 +30999,10 @@ boolean mp_load_preload_file (MP mp) {
   do {
     mp_do_statement (mp);
   } while (!(mp->cur_cmd == stop));     /* "dump" or "end" or EOF */
+  mp_primitive (mp, "dump", relax, 0); /* reset |dump| */
   mp_print_char (mp, xord (')'));
   decr (mp->open_parens);
-  fclose (mp->mem_file);
+  (mp->close_file) (mp, mp->mem_file);
   cur_file = NULL;
   mp->cur_input = old_state;
   return true;

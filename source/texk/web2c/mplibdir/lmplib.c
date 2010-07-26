@@ -375,16 +375,16 @@ static int mplib_wrapresults(lua_State * L, mp_run_data *res, int status)
 {
     lua_checkstack(L, 5);
     lua_newtable(L);
-    if (res->term_out.size != 0) {
-        lua_pushstring(L, res->term_out.data);
+    if (res->term_out.used != 0) {
+        lua_pushlstring(L, res->term_out.data, res->term_out.used);
         lua_setfield(L, -2, "term");
     }
-    if (res->error_out.size != 0) {
-        lua_pushstring(L, res->error_out.data);
+    if (res->error_out.used != 0) {
+        lua_pushlstring(L, res->error_out.data, res->error_out.used);
         lua_setfield(L, -2, "error");
     }
-    if (res->log_out.size != 0) {
-        lua_pushstring(L, res->log_out.data);
+    if (res->log_out.used != 0) {
+        lua_pushlstring(L, res->log_out.data, res->log_out.used);
         lua_setfield(L, -2, "log");
     }
     if (res->edges != NULL) {
