@@ -705,6 +705,8 @@ static int l_pageref(lua_State * L)
     if (n != 1)
         luaL_error(L, "pdf.pageref() needs exactly 1 argument");
     n = (int) luaL_checkinteger(L, 1);
+    if (n <= 0)
+        luaL_error(L, "pdf.pageref() needs page number > 0");
     n = get_obj(static_pdf, obj_type_page, n, false);
     lua_pushnumber(L, n);
     return 1;
