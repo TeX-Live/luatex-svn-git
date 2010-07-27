@@ -1,4 +1,4 @@
-% $Id: mp.w 1326 2010-07-27 09:56:06Z taco $
+% $Id: mp.w 1328 2010-07-27 13:50:48Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -88,12 +88,12 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 1.501" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version 1.502" /* printed when \MP\ starts */
 @d true 1
 @d false 0
 
 @(mpmp.h@>=
-#define metapost_version "1.501"
+#define metapost_version "1.502"
 #ifdef DEBUG
 #  define FUNCTION_TRACE(s,args...) do { printf("FTRACE: " s,##args); usleep(10000); } while(0)
 #else
