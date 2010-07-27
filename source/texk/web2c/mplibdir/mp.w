@@ -1,4 +1,4 @@
-% $Id: mp.w 1324 2010-07-27 07:29:43Z taco $
+% $Id: mp.w 1326 2010-07-27 09:56:06Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -2926,7 +2926,7 @@ can readily be transported into environments that do not have automatic
 facilities for strings, garbage collection, etc., and so that it can be in
 control of what error messages the user receives. 
 
-@d VOID (mp_node)(1) /* |NULL+1|, a |NULL| pointer different from |NULL| */
+@d MP_VOID (mp_node)(1) /* |NULL+1|, a |NULL| pointer different from |NULL| */
 
 @d mp_link(A)      (A)->link /* the |link| field of a node */
 @d set_mp_link(A,B) do {
@@ -9951,7 +9951,7 @@ static mp_node mp_copy_objects (MP mp, mp_node p, mp_node q);
 mp_node mp_copy_objects (MP mp, mp_node p, mp_node q) {
   mp_node hh;   /* the new edge header */
   mp_node pp;   /* the last newly copied object */
-  quarterword k;        /* temporary register */
+  quarterword k = 0;  /* temporary register */
   hh = mp_get_edge_header_node (mp);
   dash_list (hh) = mp->null_dash;
   edge_ref_count (hh) = 0;
@@ -11062,7 +11062,7 @@ if ((q != q0) && (q != c || c == c0))
     k_needed = 0;
   }
   if (r == c) {
-    mp_next_knot (p) = mp_next_knot (c);
+    mp_knot_info (p) = mp_knot_info (c);
     c = p;
   }
   if (r == mp->spec_p1)
@@ -14377,7 +14377,7 @@ the |link| field in a capsule parameter is |void| and that
   mp_print_nl (mp, "<for(");
   pp = mp->param_stack[param_start];
   if (pp != NULL) {
-    if (mp_link (pp) == VOID)
+    if (mp_link (pp) == MP_VOID)
       mp_print_exp (mp, pp, 0); /* we're in a \&{for} loop */
     else
       mp_show_token_list (mp, pp, NULL, 20, mp->tally);
@@ -14582,7 +14582,7 @@ static void mp_end_token_list (MP mp) {                               /* leave a
     decr (mp->param_ptr);
     p = mp->param_stack[mp->param_ptr];
     if (p != NULL) {
-      if (mp_link (p) == VOID) {        /* it's an \&{expr} parameter */
+      if (mp_link (p) == MP_VOID) {        /* it's an \&{expr} parameter */
         mp_recycle_value (mp, p);
         mp_free_node (mp, p, value_node_size);
       } else {
@@ -15733,7 +15733,7 @@ static mp_node mp_scan_toks (MP mp, command_code terminator,
   mp_subst_list_item *q = NULL; /* temporary for link management */
   integer balance;      /* left delimiters minus right delimiters */
   halfword cur_data;
-  quarterword cur_data_mod;
+  quarterword cur_data_mod = 0;
   p = mp->hold_head;
   balance = 1;
   mp_link (mp->hold_head) = NULL;
@@ -16596,7 +16596,7 @@ static void mp_print_arg (MP mp, mp_node q, integer n, halfword b,
 
 @ @c
 void mp_print_arg (MP mp, mp_node q, integer n, halfword b, quarterword bb) {
-  if (q && mp_link (q) == VOID) {
+  if (q && mp_link (q) == MP_VOID) {
     mp_print_nl (mp, "(EXPR");
   } else {
     if ((bb < mp_text_sym) && (b != text_macro))
@@ -16606,7 +16606,7 @@ void mp_print_arg (MP mp, mp_node q, integer n, halfword b, quarterword bb) {
   }
   mp_print_int (mp, n);
   mp_print (mp, ")<-");
-  if (q && mp_link (q) == VOID)
+  if (q && mp_link (q) == MP_VOID)
     mp_print_exp (mp, q, 1);
   else
     mp_show_token_list (mp, q, NULL, 1000, 0);
@@ -17243,7 +17243,7 @@ remaining argument values of a suffix list and expression list.
 In this case, an extra field |loop_ptr.start_list| is needed to
 make sure that |resume_operation| skips ahead.
 
-\yskip\indent|loop_ptr.type=VOID| means that the current loop is
+\yskip\indent|loop_ptr.type=MP_VOID| means that the current loop is
 `\&{forever}'.
 
 \yskip\indent|loop_ptr.type=PROGRESSION_FLAG| means that
@@ -17319,7 +17319,7 @@ void mp_begin_iteration (MP mp) {
   s->type = s->list = s->info = s->list_start = NULL;
   s->link = NULL;
   if (m == start_forever) {
-    s->type = VOID;
+    s->type = MP_VOID;
     p = NULL;
     mp_get_x_next (mp);
   } else {
@@ -17442,7 +17442,7 @@ void mp_resume_iteration (MP mp) {
     mp->loop_ptr->list = mp_link (p);
     q = (mp_node)mp_sym_sym (p);
     mp_free_symbolic_node (mp, p);
-  } else if (p == VOID) {
+  } else if (p == MP_VOID) {
     mp_begin_token_list (mp, mp->loop_ptr->info, (quarterword) forever_text);
     return;
   } else {
@@ -17472,7 +17472,7 @@ NOT_FOUND:
   mp_begin_diagnostic (mp);
   mp_print_nl (mp, "{loop value=");
 @.loop value=n@>;
-  if ((q != NULL) && (mp_link (q) == VOID))
+  if ((q != NULL) && (mp_link (q) == MP_VOID))
     mp_print_exp (mp, q, 1);
   else
     mp_show_token_list (mp, q, NULL, 50, 0);
@@ -17512,7 +17512,7 @@ void mp_stop_iteration (MP mp) {
     while (q != NULL) {
       p = (mp_node)mp_sym_sym (q);
       if (p != NULL) {
-        if (mp_link (p) == VOID) {      /* it's an \&{expr} parameter */
+        if (mp_link (p) == MP_VOID) {      /* it's an \&{expr} parameter */
           mp_recycle_value (mp, p);
           mp_free_node (mp, p, value_node_size);
         } else {
@@ -17747,7 +17747,7 @@ void mp_begin_name (MP mp) {
 @ And here's the second.
 @^system dependencies@>
 
-@d IS_DIR_SEP(c) (c=='/' || c=='\\')
+@d MP_IS_DIR_SEP(c) (c=='/' || c=='\\')
 
 @c
 boolean mp_more_name (MP mp, ASCII_code c) {
@@ -17756,7 +17756,7 @@ boolean mp_more_name (MP mp, ASCII_code c) {
   } else if ((c == ' ' || c == '\t') && (mp->quoted_filename == false)) {
     return false;
   } else {
-    if (IS_DIR_SEP (c)) {
+    if (MP_IS_DIR_SEP (c)) {
       mp->area_delimiter = (integer) mp->cur_length;
       mp->ext_delimiter = -1;
     } else if (c == '.') {
@@ -18723,7 +18723,7 @@ capsule. It is not used when |cur_type=mp_token_list|.
 After the operation, |cur_type=mp_vacuous|; hence there is no need to
 copy path lists or to update reference counts, etc.
 
-The special link |VOID| is put on the capsule returned by
+The special link |MP_VOID| is put on the capsule returned by
 |stash_cur_exp|, because this procedure is used to store macro parameters
 that must be easily distinguishable from token lists.
 
@@ -18754,7 +18754,7 @@ static mp_node mp_stash_cur_exp (MP mp) {
     break;
   }
   mp->cur_exp.type = mp_vacuous;
-  mp_link (p) = VOID;
+  mp_link (p) = MP_VOID;
   return p;
 }
 
@@ -23363,7 +23363,7 @@ case mp_pair_type:
   old_p = mp_tarnished (mp, p);
   break;
 case mp_independent:
-  old_p = VOID;
+  old_p = MP_VOID;
   break;
 default:
   old_p = NULL;
@@ -23386,7 +23386,7 @@ case mp_pair_type:
   old_exp = mp_tarnished (mp, cur_exp_node ());
   break;
 case mp_independent:
-  old_exp = VOID;
+  old_exp = MP_VOID;
   break;
 default:
   old_exp = NULL;
@@ -23407,55 +23407,55 @@ static mp_node mp_tarnished (MP mp, mp_node p) {
   case mp_pair_type:
     r = x_part_loc (q);
     if (mp_type (r) == mp_independent)
-      return VOID;
+      return MP_VOID;
     r = y_part_loc (q);
     if (mp_type (r) == mp_independent)
-      return VOID;
+      return MP_VOID;
     break;
   case mp_color_type:
     r = red_part_loc (q);
     if (mp_type (r) == mp_independent)
-      return VOID;
+      return MP_VOID;
     r = green_part_loc (q);
     if (mp_type (r) == mp_independent)
-      return VOID;
+      return MP_VOID;
     r = blue_part_loc (q);
     if (mp_type (r) == mp_independent)
-      return VOID;
+      return MP_VOID;
     break;
   case mp_cmykcolor_type:
     r = cyan_part_loc (q);
     if (mp_type (r) == mp_independent)
-      return VOID;
+      return MP_VOID;
     r = magenta_part_loc (q);
     if (mp_type (r) == mp_independent)
-      return VOID;
+      return MP_VOID;
     r = yellow_part_loc (q);
     if (mp_type (r) == mp_independent)
-      return VOID;
+      return MP_VOID;
     r = black_part_loc (q);
     if (mp_type (r) == mp_independent)
-      return VOID;
+      return MP_VOID;
     break;
   case mp_transform_type:
     r = tx_part_loc (q);
     if (mp_type (r) == mp_independent)
-      return VOID;
+      return MP_VOID;
     r = ty_part_loc (q);
     if (mp_type (r) == mp_independent)
-      return VOID;
+      return MP_VOID;
     r = xx_part_loc (q);
     if (mp_type (r) == mp_independent)
-      return VOID;
+      return MP_VOID;
     r = xy_part_loc (q);
     if (mp_type (r) == mp_independent)
-      return VOID;
+      return MP_VOID;
     r = yx_part_loc (q);
     if (mp_type (r) == mp_independent)
-      return VOID;
+      return MP_VOID;
     r = yy_part_loc (q);
     if (mp_type (r) == mp_independent)
-      return VOID;
+      return MP_VOID;
     break;
   default:                     /* there are no other valid cases, but please the compiler */
     break;
@@ -23988,7 +23988,7 @@ static void mp_frac_mult (MP mp, scaled n, scaled d) {
     old_exp = mp_tarnished (mp, cur_exp_node ());
     break;
   case mp_independent:
-    old_exp = VOID;
+    old_exp = MP_VOID;
     break;
   default:
     old_exp = NULL;
@@ -27462,11 +27462,11 @@ void mp_scan_with_list (MP mp, mp_node p) {
   mp_value new_expr;
   mp_node cp, pp, dp, ap, bp;
   /* objects being updated; |void| initially; |NULL| to suppress update */
-  cp = VOID;
-  pp = VOID;
-  dp = VOID;
-  ap = VOID;
-  bp = VOID;
+  cp = MP_VOID;
+  pp = MP_VOID;
+  dp = MP_VOID;
+  ap = MP_VOID;
+  bp = MP_VOID;
   k = 0;
   memset(&new_expr,0,sizeof(mp_value));
   while (mp->cur_cmd == with_option) {
@@ -27489,36 +27489,36 @@ void mp_scan_with_list (MP mp, mp_node p) {
         || ((t == mp_picture_type) && (mp->cur_exp.type != t))) {
       @<Complain about improper type@>;
     } else if (t == mp_uninitialized_model) {
-      if (cp == VOID)
+      if (cp == MP_VOID)
         @<Make |cp| a colored object in object list~|p|@>;
       if (cp != NULL)
         @<Transfer a color from the current expression to object~|cp|@>;
       mp_flush_cur_exp (mp, new_expr);
     } else if (t == mp_rgb_model) {
-      if (cp == VOID)
+      if (cp == MP_VOID)
         @<Make |cp| a colored object in object list~|p|@>;
       if (cp != NULL)
         @<Transfer a rgbcolor from the current expression to object~|cp|@>;
       mp_flush_cur_exp (mp, new_expr);
     } else if (t == mp_cmyk_model) {
-      if (cp == VOID)
+      if (cp == MP_VOID)
         @<Make |cp| a colored object in object list~|p|@>;
       if (cp != NULL)
         @<Transfer a cmykcolor from the current expression to object~|cp|@>;
       mp_flush_cur_exp (mp, new_expr);
     } else if (t == mp_grey_model) {
-      if (cp == VOID)
+      if (cp == MP_VOID)
         @<Make |cp| a colored object in object list~|p|@>;
       if (cp != NULL)
         @<Transfer a greyscale from the current expression to object~|cp|@>;
       mp_flush_cur_exp (mp, new_expr);
     } else if (t == mp_no_model) {
-      if (cp == VOID)
+      if (cp == MP_VOID)
         @<Make |cp| a colored object in object list~|p|@>;
       if (cp != NULL)
         @<Transfer a noncolor from the current expression to object~|cp|@>;
     } else if (t == mp_pen_type) {
-      if (pp == VOID)
+      if (pp == MP_VOID)
         @<Make |pp| an object in list~|p| that needs a pen@>;
       if (pp != NULL) {
         switch (mp_type (pp)) {
@@ -27539,7 +27539,7 @@ void mp_scan_with_list (MP mp, mp_node p) {
         mp->cur_exp.type = mp_vacuous;
       }
     } else if (t == with_mp_pre_script) {
-      if (ap == VOID)
+      if (ap == MP_VOID)
         ap = p;
       while ((ap != NULL) && (!has_color (ap)))
         ap = mp_link (ap);
@@ -27561,7 +27561,7 @@ void mp_scan_with_list (MP mp, mp_node p) {
         mp->cur_exp.type = mp_vacuous;
       }
     } else if (t == with_mp_post_script) {
-      if (bp == VOID)
+      if (bp == MP_VOID)
         k = p;
       bp = k;
       while (mp_link (k) != NULL) {
@@ -27587,7 +27587,7 @@ void mp_scan_with_list (MP mp, mp_node p) {
         mp->cur_exp.type = mp_vacuous;
       }
     } else {
-      if (dp == VOID) {
+      if (dp == MP_VOID) {
         @<Make |dp| a stroked node in list~|p|@>;
       }
       if (dp != NULL) {
@@ -27776,13 +27776,13 @@ picture will ever contain a color outside the legal range for \ps\ graphics.
 
 
 @ @<Copy the information from objects |cp|, |pp|, and |dp| into...@>=
-if (cp > VOID) {
+if (cp > MP_VOID) {
   @<Copy |cp|'s color into the colored objects linked to~|cp|@>;
 }
-if (pp > VOID) {
+if (pp > MP_VOID) {
   @<Copy |mp_pen_p(pp)| into stroked and filled nodes linked to |pp|@>;
 }
-if (dp > VOID) {
+if (dp > MP_VOID) {
   @<Make stroked nodes linked to |dp| refer to |mp_dash_p(dp)|@>;
 }
 

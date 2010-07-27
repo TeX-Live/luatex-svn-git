@@ -1,4 +1,4 @@
-% $Id: mpxout.w 1320 2010-07-26 14:52:07Z taco $
+% $Id: mpxout.w 1326 2010-07-27 09:56:06Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -516,6 +516,7 @@ static void mpx_copy_mpto (MPX mpx, FILE *outfile, int textype) {
     char *t;            /* for finding start of last line */
     char c;
     char *res = NULL;
+    t = NULL;
     do {
       if (mpx->aa == NULL || *mpx->aa == 0) {
         if ((mpx->aa = mpx_getline(mpx,mpx->mpfile)) == NULL) {

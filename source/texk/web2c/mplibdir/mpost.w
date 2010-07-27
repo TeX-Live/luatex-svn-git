@@ -1,4 +1,4 @@
-% $Id: mpost.w 1315 2010-07-25 07:13:26Z taco $
+% $Id: mpost.w 1326 2010-07-27 09:56:06Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -1118,7 +1118,7 @@ so we have to fix up |job_name| and |job_area|. If there
 was a \.{--jobname} on the command line, we have to reset
 the options structure as well.
 
-@d IS_DIR_SEP(c) (c=='/' || c=='\\')
+@d MP_IS_DIR_SEP(c) (c=='/' || c=='\\')
 
 @<Discover the job name@>=
 { 
@@ -1170,9 +1170,9 @@ if (options->job_name != NULL) {
 /* now split |tmp_job| into |job_area| and |job_name| */
 {
   char *s = tmp_job + strlen(tmp_job);
-  if (!IS_DIR_SEP(*s)) { /* just in case */
+  if (!MP_IS_DIR_SEP(*s)) { /* just in case */
     while (s>tmp_job) {
-      if (IS_DIR_SEP(*s)) {
+      if (MP_IS_DIR_SEP(*s)) {
         break;
       }
       s--;
