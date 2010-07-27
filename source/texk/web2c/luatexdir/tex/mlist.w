@@ -1457,13 +1457,13 @@ static pointer do_var_delimiter(pointer d, int s, scaled v, scaled * ic,
     f = null_font;
     c = 0;
     w = 0;
+    do_parts = false;
     large_attempt = false;
     if (d == null)
         goto FOUND;
     z = small_fam(d);
     x = small_char(d);
     i = 0;
-    do_parts = false;
     while (true) {
         /* The search process is complicated slightly by the facts that some of the
            characters might not be present in some of the fonts, and they might not
