@@ -1052,6 +1052,11 @@ static int settex(lua_State * L)
                     lua_number2int(j, lua_tonumber(L, i));
                 }
                 assign_internal_value((isglobal ? 4 : 0), equiv(cur_cs), j);
+            } else if (is_glue_assign(cur_cmd)) {
+                halfword *j = check_isnode(L, i);     /* the value */
+                    { int a = isglobal;
+   		      define(equiv(cur_cs), assign_glue_cmd, *j);
+                    }
             } else if (is_toks_assign(cur_cmd)) {
                 if (lua_isstring(L, i)) {
                     j = tokenlist_from_lua(L);  /* uses stack -1 */

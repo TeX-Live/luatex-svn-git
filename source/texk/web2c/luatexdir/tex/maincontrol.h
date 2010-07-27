@@ -157,6 +157,7 @@ extern void fixup_directions(void);
 
 #  define is_int_assign(cmd) (cmd==assign_int_cmd)
 #  define is_dim_assign(cmd) (cmd==assign_dimen_cmd)
+#  define is_glue_assign(cmd) (cmd==assign_glue_cmd)
 #  define is_toks_assign(cmd) (cmd==assign_toks_cmd)
 
 #  define show_code 0           /* \.{\\show} */
