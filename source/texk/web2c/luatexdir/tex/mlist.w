@@ -1451,6 +1451,7 @@ static pointer do_var_delimiter(pointer d, int s, scaled v, scaled * ic,
     int z;                      /* runs through font family members */
     boolean large_attempt;      /* are we trying the ``large'' variant? */
     pointer att;                /* to save the current attribute list */
+    boolean do_parts;
     extinfo *ext;
     att = null;
     f = null_font;
@@ -1462,6 +1463,7 @@ static pointer do_var_delimiter(pointer d, int s, scaled v, scaled * ic,
     z = small_fam(d);
     x = small_char(d);
     i = 0;
+    do_parts = false;
     while (true) {
         /* The search process is complicated slightly by the facts that some of the
            characters might not be present in some of the fonts, and they might not
@@ -1473,11 +1475,6 @@ static pointer do_var_delimiter(pointer d, int s, scaled v, scaled * ic,
               CONTINUE:
                 i++;
                 if (char_exists(g, y)) {
-                    if (char_tag(g, y) == ext_tag) {
-                        f = g;
-                        c = y;
-                        goto FOUND;
-                    }
                     if (flat)
                         u = char_width(g, y);
                     else
@@ -1488,6 +1485,12 @@ static pointer do_var_delimiter(pointer d, int s, scaled v, scaled * ic,
                         w = u;
                         if (u >= v)
                             goto FOUND;
+                    }
+                    if (char_tag(g, y) == ext_tag) {
+                        f = g;
+                        c = y;
+                        do_parts = true;
+                        goto FOUND;
                     }
                     if (i > 10000) {
                         /* endless loop */
@@ -1514,11 +1517,11 @@ static pointer do_var_delimiter(pointer d, int s, scaled v, scaled * ic,
         flush_node(d);
     }
     if (f != null_font) {
-        /* When the following code is executed, |char_tag(q)| will be equal to
-           |ext_tag| if and only if a built-up symbol is supposed to be returned.
+        /* When the following code is executed, |do_parts| will be true
+           if a built-up symbol is supposed to be returned.
          */
         ext = NULL;
-        if ((char_tag(f, c) == ext_tag) &&
+        if ((do_parts) &&
             ((!flat
               && (ext = get_charinfo_vert_variants(char_info(f, c))) != NULL)
              || (flat
