@@ -1,4 +1,4 @@
-% $Id: mp.w 1319 2010-07-26 13:55:25Z taco $
+% $Id: mp.w 1324 2010-07-27 07:29:43Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -14098,13 +14098,14 @@ static void mp_reallocate_input_stack (MP mp, int newsize);
 @ @c
 static void mp_reallocate_input_stack (MP mp, int newsize) {
   int k;
-  XREALLOC (mp->input_file, newsize, void *);
-  XREALLOC (mp->line_stack, newsize, integer);
-  XREALLOC (mp->inext_stack, newsize, char *);
-  XREALLOC (mp->iname_stack, newsize, char *);
-  XREALLOC (mp->iarea_stack, newsize, char *);
-  XREALLOC (mp->mpx_name, newsize, str_number);
-  for (k = mp->max_in_open; k <= newsize; k++) {
+  int n = newsize +1;
+  XREALLOC (mp->input_file, n, void *);
+  XREALLOC (mp->line_stack, n, integer);
+  XREALLOC (mp->inext_stack, n, char *);
+  XREALLOC (mp->iname_stack, n, char *);
+  XREALLOC (mp->iarea_stack, n, char *);
+  XREALLOC (mp->mpx_name, n, str_number);
+  for (k = mp->max_in_open; k <= n; k++) {
     mp->input_file[k] = NULL;
     mp->line_stack[k] = 0;
     mp->inext_stack[k] = NULL;
@@ -22270,7 +22271,7 @@ else {
     mp->se_sf = dash_scale (p);
     mp->se_pic = mp_dash_p (p);
     mp_scale_edges (mp);
-    set_cur_exp_node (mp->se_pic);
+    new_expr.data.node = mp->se_pic;
     mp_flush_cur_exp (mp, new_expr);
     mp->cur_exp.type = mp_picture_type;
   }
@@ -23754,7 +23755,10 @@ make no change.
 }
 
 
-@ @<Reduce comparison of big nodes to comparison of scalars@>=
+@ In the following, the |while| loops exist just so that |break| can be used,
+each loop runs exactly once.
+
+@<Reduce comparison of big nodes to comparison of scalars@>=
 {
   quarterword part_type;
   q = value_node (p);
@@ -23762,130 +23766,99 @@ make no change.
   part_type = 0;
   switch (mp->cur_exp.type) {
   case mp_pair_type:
-    while (1) {
+    while (part_type==0) {
       rr = x_part_loc (r);
       part_type = x_part;
-      mp_add_or_subtract (mp, x_part_loc (q), x_part_loc (r), minus);
-      if (mp_type (r) != mp_known)
-        break;
-      if (value (r) != 0)
+      mp_add_or_subtract (mp, x_part_loc (q), rr, minus);
+      if (mp_type (rr) != mp_known || value (rr) != 0)
         break;
       rr = y_part_loc (r);
       part_type = y_part;
-      mp_add_or_subtract (mp, y_part_loc (q), y_part_loc (r), minus);
-      if (mp_type (r) != mp_known)
-        break;
-      if (value (r) != 0)
+      mp_add_or_subtract (mp, y_part_loc (q), rr, minus);
+      if (mp_type (rr) != mp_known || value (rr) != 0)
         break;
     }
     mp_take_part (mp, part_type);
     break;
   case mp_color_type:
-    while (1) {
+    while (part_type==0) {
       rr = red_part_loc (r);
       part_type = red_part;
-      mp_add_or_subtract (mp, red_part_loc (q), red_part_loc (r), minus);
-      if (mp_type (r) != mp_known)
-        break;
-      if (value (r) != 0)
+      mp_add_or_subtract (mp, red_part_loc (q), rr, minus);
+      if (mp_type (rr) != mp_known || value (rr) != 0)
         break;
       rr = green_part_loc (r);
       part_type = green_part;
-      mp_add_or_subtract (mp, green_part_loc (q), green_part_loc (r), minus);
-      if (mp_type (r) != mp_known)
-        break;
-      if (value (r) != 0)
+      mp_add_or_subtract (mp, green_part_loc (q), rr, minus);
+      if (mp_type (rr) != mp_known || value (rr) != 0)
         break;
       rr = blue_part_loc (r);
       part_type = blue_part;
-      mp_add_or_subtract (mp, blue_part_loc (q), blue_part_loc (r), minus);
-      if (mp_type (r) != mp_known)
-        break;
-      if (value (r) != 0)
+      mp_add_or_subtract (mp, blue_part_loc (q), rr, minus);
+      if (mp_type (rr) != mp_known || value (rr) != 0)
         break;
     }
-    mp_take_part (mp, (quarterword) value (rr));
+    mp_take_part (mp, part_type);
     break;
   case mp_cmykcolor_type:
-    while (1) {
+    while (part_type==0) {
       rr = cyan_part_loc (r);
       part_type = cyan_part;
-      mp_add_or_subtract (mp, cyan_part_loc (q), cyan_part_loc (r), minus);
-      if (mp_type (r) != mp_known)
-        break;
-      if (value (r) != 0)
+      mp_add_or_subtract (mp, cyan_part_loc (q), rr, minus);
+      if (mp_type (rr) != mp_known || value (rr) != 0)
         break;
       rr = magenta_part_loc (r);
       part_type = magenta_part;
-      mp_add_or_subtract (mp, magenta_part_loc (q), magenta_part_loc (r),
-                          minus);
-      if (mp_type (r) != mp_known)
-        break;
-      if (value (r) != 0)
+      mp_add_or_subtract (mp, magenta_part_loc (q), rr, minus);
+      if (mp_type (rr) != mp_known || value (rr) != 0)
         break;
       rr = yellow_part_loc (r);
       part_type = yellow_part;
-      mp_add_or_subtract (mp, yellow_part_loc (q), yellow_part_loc (r), minus);
-      if (mp_type (r) != mp_known)
-        break;
-      if (value (r) != 0)
+      mp_add_or_subtract (mp, yellow_part_loc (q), rr, minus);
+      if (mp_type (rr) != mp_known || value (rr) != 0)
         break;
       rr = black_part_loc (r);
       part_type = black_part;
-      mp_add_or_subtract (mp, black_part_loc (q), black_part_loc (r), minus);
-      if (mp_type (r) != mp_known)
-        break;
-      if (value (r) != 0)
+      mp_add_or_subtract (mp, black_part_loc (q), rr, minus);
+      if (mp_type (rr) != mp_known || value (rr) != 0)
         break;
     }
-    mp_take_part (mp, (quarterword) value (rr));
+    mp_take_part (mp, part_type);
     break;
   case mp_transform_type:
-    while (1) {
+    while (part_type==0) {
       rr = tx_part_loc (r);
       part_type = x_part;
-      mp_add_or_subtract (mp, tx_part_loc (q), tx_part_loc (r), minus);
-      if (mp_type (r) != mp_known)
-        break;
-      if (value (r) != 0)
+      mp_add_or_subtract (mp, tx_part_loc (q), rr, minus);
+      if (mp_type (rr) != mp_known || value (rr) != 0)
         break;
       rr = ty_part_loc (r);
       part_type = y_part;
-      mp_add_or_subtract (mp, ty_part_loc (q), ty_part_loc (r), minus);
-      if (mp_type (r) != mp_known)
-        break;
-      if (value (r) != 0)
+      mp_add_or_subtract (mp, ty_part_loc (q), rr, minus);
+      if (mp_type (rr) != mp_known || value (rr) != 0)
         break;
       rr = xx_part_loc (r);
       part_type = xx_part;
-      mp_add_or_subtract (mp, xx_part_loc (q), xx_part_loc (r), minus);
-      if (mp_type (r) != mp_known)
-        break;
-      if (value (r) != 0)
+      mp_add_or_subtract (mp, xx_part_loc (q), rr, minus);
+      if (mp_type (rr) != mp_known || value (rr) != 0)
         break;
       rr = xy_part_loc (r);
       part_type = xy_part;
-      mp_add_or_subtract (mp, xy_part_loc (q), xy_part_loc (r), minus);
-      if (mp_type (r) != mp_known)
-        break;
-      if (value (r) != 0)
+      mp_add_or_subtract (mp, xy_part_loc (q), rr, minus);
+      if (mp_type (rr) != mp_known || value (rr) != 0)
         break;
       rr = yx_part_loc (r);
       part_type = yx_part;
-      mp_add_or_subtract (mp, yx_part_loc (q), yx_part_loc (r), minus);
-      if (mp_type (r) != mp_known)
-        break;
-      if (value (r) != 0)
+      mp_add_or_subtract (mp, yx_part_loc (q), rr, minus);
+      if (mp_type (rr) != mp_known || value (rr) != 0)
         break;
       rr = yy_part_loc (r);
       part_type = yy_part;
-      mp_add_or_subtract (mp, yy_part_loc (q), yy_part_loc (r), minus);
-      if (mp_type (r) != mp_known)
-        break;
-      if (value (r) != 0)
+      mp_add_or_subtract (mp, yy_part_loc (q), rr, minus);
+      if (mp_type (rr) != mp_known || value (rr) != 0)
         break;
     }
-    mp_take_part (mp, (quarterword) value (rr));
+    mp_take_part (mp, part_type);
     break;
   default:
     assert (0);                 /* todo: |mp->cur_exp.type>mp_transform_node_type| ? */
@@ -24959,7 +24932,7 @@ static void mp_cat (MP mp, mp_node p) {
   a = str_value (p);
   b = cur_exp_str ();
   needed = length (a) + length (b);
-  str_room (needed);
+  str_room (needed+1);
   (void) memcpy (mp->cur_string, a->str, a->len);
   (void) memcpy (mp->cur_string + a->len, b->str, b->len);
   mp->cur_length = needed;
@@ -27009,6 +26982,9 @@ void mp_do_let (MP mp) {
            mp->cur_cmd == tertiary_secondary_macro ||
            mp->cur_cmd == expression_tertiary_macro)
     equiv_node (l) = mp->cur_mod_node;
+  else if (mp->cur_cmd == left_delimiter ||
+           mp->cur_cmd ==  right_delimiter)
+    equiv_sym (l) = mp->cur_sym2;
   else
     equiv (l) = mp->cur_mod;
   mp_get_x_next (mp);

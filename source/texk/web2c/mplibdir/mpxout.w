@@ -1,4 +1,4 @@
-% $Id: mpxout.w 1315 2010-07-25 07:13:26Z taco $
+% $Id: mpxout.w 1320 2010-07-26 14:52:07Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -456,6 +456,7 @@ whitespace corrections applied).
 
 @d VERBATIM_TEX 1
 @d B_TEX 2
+@d FIRST_VERBATIM_TEX 3
 
 @c
 static int mpx_getbta(MPX mpx, char *s) {
@@ -551,12 +552,14 @@ static void mpx_copy_mpto (MPX mpx, FILE *outfile, int textype) {
       *s = c;
     } while (*(mpx->tt) != 'e');
     s = res;
-    if (textype != VERBATIM_TEX) {
+    if (textype == B_TEX) {
       /* whitespace at the end */
       for (s = res + strlen(res) - 1;
          s >= res && (*s == ' ' || *s == '\t' || *s == '\r' || *s == '\n'); s--);
       t = s;
       *(++s) = '\0';
+    }
+    if (textype == B_TEX || textype == FIRST_VERBATIM_TEX) {
       /* whitespace at the start */
       for (s = res;
          s < (res + strlen(res)) && (*s == ' ' || *s == '\t' || *s == '\r'
@@ -564,7 +567,7 @@ static void mpx_copy_mpto (MPX mpx, FILE *outfile, int textype) {
       for (; *t != '\n' && t > s; t--);
     }
     fprintf(outfile,"%s", s);
-    if (textype != VERBATIM_TEX) {
+    if (textype == B_TEX) {
       /* put no |%| at end if it's only 1 line total, starting with |%|;
        * this covers the special case |%&format| in a single line. */
       if (t != s || *t != '%')
@@ -601,6 +604,7 @@ static const char *mpx_postverb[] = { "\n", "\n" } ;
 @ @c
 static void mpx_mpto(MPX mpx, char *tmpname, char *mptexpre) {
     FILE *outfile;
+    int verbatim_written = 0;
     int mode      = mpx->mode;
     char *mpname  = mpx->mpname; 
     if (mode==mpx_tex_mode) {
@@ -654,11 +658,15 @@ static void mpx_mpto(MPX mpx, char *tmpname, char *mptexpre) {
         fprintf(outfile,mpx_preverb1[mode], mpx->lnno, mpname);
       else
         fprintf(outfile,mpx_preverb[mode], mpx->lnno, mpname);
-      mpx_copy_mpto(mpx, outfile, VERBATIM_TEX);
+      if (!verbatim_written)
+         mpx_copy_mpto(mpx, outfile, FIRST_VERBATIM_TEX);
+      else
+         mpx_copy_mpto(mpx, outfile, VERBATIM_TEX);
       fprintf(outfile,"%s", mpx_postverb[mode]);
     } else {
       mpx_error(mpx,"unmatched etex");
     }
+    verbatim_written = 1;
   }
 }
 
