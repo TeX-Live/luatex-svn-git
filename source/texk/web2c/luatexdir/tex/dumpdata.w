@@ -62,6 +62,7 @@ void store_fmt_file(void)
     halfword p;                 /* all-purpose pointer */
     int x;                      /* something to dump */
     char *format_engine;
+    int callback_id;            /* |pre_dump| callback */
     char *fmtname = NULL;
     /* If dumping is not allowed, abort */
     /* The user is not allowed to dump a format file unless |save_ptr=0|.
@@ -75,6 +76,10 @@ void store_fmt_file(void)
 
     /* Create the |format_ident|, open the format file, and inform the user 
        that dumping has begun */
+    callback_id = callback_defined(pre_dump_callback);
+    if (callback_id > 0) {
+        (void) run_callback(callback_id, "->");
+    }
     selector = new_string;
     tprint(" (format=");
     print(job_name);

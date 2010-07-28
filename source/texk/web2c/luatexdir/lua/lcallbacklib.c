@@ -64,6 +64,7 @@ static const char *const callbacknames[] = {
     "post_linebreak_filter",
     "mlist_to_hlist",
     "finish_pdffile",
+    "pre_dump",
     NULL
 };
 
