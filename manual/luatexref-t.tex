@@ -1835,6 +1835,15 @@ certainly result in an endless loop.
 
 \subsection{Information reporting callbacks}
 
+\subsubsection{\luatex{pre_dump} (0.61)}
+
+\startfunctioncall
+function()
+\stopfunctioncall
+
+This function is called just before dumping to a format file starts.
+It does not replace any code and there are neither arguments nor return values.
+
 \subsubsection{\luatex{start_run}}
 
 \startfunctioncall
