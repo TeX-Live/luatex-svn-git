@@ -580,8 +580,7 @@ static int texerror (lua_State * L)
     const char **errhlp = NULL;
     const char *error = luaL_checkstring(L,1);
     n = lua_gettop(L);
-    if (n==2) {
-	luaL_checktype(L,n,LUA_TTABLE);
+    if (n==2 && lua_type(L, n) == LUA_TTABLE) {
         l = 1; /* |errhlp| is terminated by a NULL entry */
         for (i = 1;; i++) {
             lua_rawgeti(L, n, i);
