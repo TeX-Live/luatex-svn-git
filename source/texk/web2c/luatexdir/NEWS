@@ -2,6 +2,43 @@
 This file is in the public domain.
 
 ==============================================================
+Luatex beta-0.61.0 was released 20100728
+==============================================================
+
+New features:
+
+* New lua library 'epdf' for introspection of PDF inclusions,
+  see the manual for details.
+
+* Mplib version 1.502 is now included (which is still beta, 
+  so be careful).
+
+* new "finish_pdffile" and "pre_dump" callbacks.
+
+* new function pdf.pageref()
+
+* In the lua 'tex' library: assignment to internal glue 
+  parameters is now allowed.
+
+* New lua function tex.error().
+
+Bugfixes:
+
+* Fix for crashes on fonts with bad Panose values.
+
+* Fix for a box placement bug that could sometimes cause text
+  to overlap.
+
+* Fix for a few small PDF/A1-a compatibility bugs.
+
+* Fix \letterspacefont.
+
+* Fix \Ustopdisplaymath in combination with aligned displays.
+
+* In math delimiters, the last of a chain of predefined sizes
+  was always ignored if there were also extensible parts.
+
+==============================================================
 Luatex beta-0.60.2 was released 20100701
 ==============================================================
 
