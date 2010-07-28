@@ -574,6 +574,47 @@ static int tex_scaledimen(lua_State * L)
     return 1;
 }
 
+static int texerror (lua_State * L)
+{
+    int i, n, l;
+    const char **errhlp = NULL;
+    const char *error = luaL_checkstring(L,1);
+    n = lua_gettop(L);
+    if (n==2) {
+	luaL_checktype(L,n,LUA_TTABLE);
+        l = 1; /* |errhlp| is terminated by a NULL entry */
+        for (i = 1;; i++) {
+            lua_rawgeti(L, n, i);
+            if (lua_isstring(L, -1)) {
+                l++;
+                lua_pop(L, 1);
+            } else {
+                lua_pop(L, 1);
+                break;
+            }
+        }
+        if (l>1) {
+          errhlp = xmalloc(l * sizeof(char *));
+          memset(errhlp,0,l * sizeof(char *));
+          for (i = 1;; i++) {
+            lua_rawgeti(L, n, i);
+            if (lua_isstring(L, -1)) {
+                errhlp[(i-1)] = lua_tostring(L,-1);
+                lua_pop(L, 1);
+            } else {
+                break;
+            }
+	  }
+	}
+    }
+    deletions_allowed = false;
+    tex_error(error, errhlp);
+    if (errhlp)
+      xfree(errhlp);
+    deletions_allowed = true;
+    return 0;
+}
+
 
 static int get_item_index(lua_State * L, int i, int base)
 {
@@ -2255,6 +2296,7 @@ static const struct luaL_reg texlib[] = {
     {"write", luacwrite},
     {"print", luacprint},
     {"tprint", luactprint},
+    {"error", texerror},
     {"sprint", luacsprint},
     {"set", settex},
     {"get", gettex},

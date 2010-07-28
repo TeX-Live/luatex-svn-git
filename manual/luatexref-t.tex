@@ -5799,6 +5799,20 @@ Associates \type{csname} with the internal font number \type{fontid}.
 The definition is global if (and only if) \type{global} is specified
 and true (the setting of \type{globaldefs} is not taken into account).
 
+
+\subsubsection{\luatex{tex.error} (0.61)}
+
+\startfunctioncall
+tex.error(<string> s)
+tex.error(<string> s, <table> help)
+\stopfunctioncall
+
+This creates an error somewhat like the combination of \tex{errhelp}
+and \type{errmessage} would. During this error, deletions are disabled. 
+
+The array part of the \type{help} table has to contain strings,
+one for each line of error help.
+
 \subsection[luaprimitives]{Functions for dealing with primitives }
 
 \subsubsection{\luatex{tex.enableprimitives}}
