@@ -1921,6 +1921,20 @@ routines, but that needs lots of adjustments in the web source because
 \TEX\ deals with errors in a somewhat haphazard fashion. This is why the
 exact definition of \type{indicator} is not given here.
 
+\subsection{PDF-related callbacks}
+
+\subsubsection{\luatex{finish_pdffile}}
+
+\startfunctioncall
+function()
+\stopfunctioncall
+
+This callback is called when all document pages are already written to \PDF\
+and \LUATEX\ is about to finalize the output document structure. Its intended
+use is final update of \PDF\ dictionaries such as \type{/Catalog} or
+\type{/Info}. The callback does not replace any code. There are neither
+arguments nor return values.
+
 \subsection{Font-related callbacks}
 
 \subsubsection{\luatex{define_font}}
