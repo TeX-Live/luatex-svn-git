@@ -1,3 +1,137 @@
+2010-07-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Get version string from ../../version.ac.
+
+2010-06-13  Karl Berry  <karl@tug.org>
+
+	* doc/web2c.texi (mpost): mention .mps extension.
+
+2010-06-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* c-auto.h, config.h (removed): Obsolete, all mplibdir/ and
+	luatexdir/ files are now changed to directly #include
+	<w2c/c-auto.h> or <w2c/config.h>.
+
+2010-06-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (AM_CPPFLAGS, INCLUDES): Move $(KPATHSEA_INCLUDES).
+	* am/cweb.am (tie_CPPFLAGS): Add $(AM_CPPFLAGS).
+	* am/texmf.am (tex_CPPFLAGS, mf_CPPFLAGS): Add $(AM_CPPFLAGS).
+	(mf_nowin_CPPFLAGS): Use $(mf_CPPFLAGS).
+
+2010-06-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Reorganize web2c headers.
+	* config.h (deleted): Moved ...
+	* w2c/config.h (new): ... to here.
+	* configure.ac: Create w2c/c-auto.h instead of c-auto.h.
+	* c-auto.h (new): Temporary file including <w2c/c-auto.h>, to be
+	removed when all luatexdir/ files are changed to directly
+	include <w2c/c-auto.h>.
+	* config.h (new): Temporary file including <w2c/config.h>, to be
+	removed when all mplibdir/ and luatexdir/ files are changed to
+	directly include <w2c/config.h>.
+	* Makefile.am (EXTRA_DIST): Adjust.
+	* cpascal.h: #include <w2c/config.h> instead of "config.h".
+
+2010-06-04  Karl Berry  <karl@tug.org>
+
+	* configure.ac (web2_version): remove pretest for
+	TeX Live 2010 (pretest 2, maybe final).
+
+2010-05-31  Karl Berry  <karl@tug.org>
+
+	* configure.ac (AC_CHECK_FUNCS): remove stat64, since we are not
+	prepared for largefile support in general, and this gives a false
+	positive on AIX.  tlbuild mail from vvv, 27 May 2010 20:15:40.
+
+	* synctex.c [__attribute__]: #define __attribute__ away if it is
+	not defined.  tlbuild mail, 28 May 2010 14:34:53.
+
+2010-05-29  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* ac/web2c.ac, configure.ac: Use '--with-banner-add' instead of
+	'--with-tex-banner'.
+
+2010-05-25  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (EXTRA_DIST): Remove metapost.mk.
+	* am/texmf.am (EXTRA_DIST): Remove tmf-pool.h.
+	* metapost.mk, tmf-pool.h (removed): Obsolete.
+
+2010-05-24  Karl Berry  <karl@tug.org>
+
+	* tex.ch (sup_font_mem_size): increase from 4,000,000
+	to 147,483,647 (the last nine digits of 2^31 - 1).  It seems to me
+	this is merely an integer, so 2^31-1 itself should be safe, i.e.,
+	a 2 could be prepended, but I just didn't want to go that far.
+
+2010-05-21  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Fix the lib/libp.a rebuild rule.
+
+2010-05-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* cpascal.h (BIBXRETALLOCNOSET, BIBXRETALLOCSTRING): Cast size_t
+	to long for printing to avoid warnings on 64Bit systems.
+	* texmfmp.h (undumpcheckedthings, undumpuppercheckthings):
+	Cast high limit to unsigned long for printing.
+
+2010-05-18  Karl Berry  <karl@tug.org>
+
+	* configure.ac (web2_version): use /pretest ident.
+
+2010-05-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* cpascal.h (BIBXRETALLOCSTRING): Need parens around new_size.
+	From Akira, 02 May 2010 21:49:27.
+
+	* bibtex.ch (MAX_GLOB_STRS): Changed from 20 back to 10. 
+
+2010-05-02  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* bibtex.ch: increase MAX_GLOB_STRS from 10 to 20, because pbibtex on
+	windows crashes for some bst. it should be ok without increasing because
+	of BIBXRETALLOCSTRING etc. don't know why, but MAX_GLOB_STRS = 20
+	solves the problem.
+
+2010-05-01  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* config.h: remove TEXDLL.
+
+2010-05-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* help.h (PTFTOPLHELP): Document '-charcode-format'.
+
+2010-04-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* dvitype.test: Use installed cm fonts.
+
+2010-04-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Require that 'int' has at least 4 bytes,
+	allowing to reduce the use of 'integer' in C and C++ code.
+
+2010-04-25  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmp.h: remove TEXDLL.
+	* config.h: still there is TEXDLL for safety.
+
+2010-04-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (INCLUDES): Remove '-I$(top_builddir)/..' and
+	'-I$(top_srcdir)/..'.
+
+2010-04-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* pltotf.ch, vptovf.ch: Bug fix, from ptexdir/ppltotf.ch by
+	Ken Nakano <nakano@nextsolution.co.jp>.
+
+2010-04-21  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* bibtex.ch: Fix a small bug (duplicate entry) in bibtex.web.
+	(add_out_pool): Call buffer_overflow as often as needed.	
+
 2010-04-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* texmfmem.h, texmfmp-help.h: Remove luaTeX specific code.
@@ -926,7 +1060,7 @@
 	* doc/web2c.texi (gftodvi invocation): talk a bit more about slant
 	fonts, pursuant to DEK's message to tex-k of 10 Jul 2005 18:38:11.
 
-2007-12-19  Martin Schröder <martin@oneiros.de>
+2007-12-19  Martin Schrer <martin@oneiros.de>
 
 	* tex.ch (ssup_max_strings): increase to 2097151
 		 (sup_main_memory): increase to 256000000
@@ -1852,7 +1986,7 @@
 
 	* tex.ch: Initialize source_filename_stack[0],
 	full_source_filename_stack[0] -- these can be read under some
-	circumstances.  Found by Krank Küster <frank@kuesterei.ch>.
+	circumstances.  Found by Krank Kter <frank@kuesterei.ch>.
 
 	* tex.ch: Correct printing of |src_specials| when weaving.
 
@@ -2707,7 +2841,7 @@
 
 	* dvitomp.ch: A checksum failure should result in a warning, but
 	not in a non-zero return code.  This was done correctly in one
-	location, wrong in another.  Reported by Berthold Höllmann.
+	location, wrong in another.  Reported by Berthold Hlmann.
 
 1999-05-30  Olaf Weber  <olaf@infovore.xs4all.nl>
 

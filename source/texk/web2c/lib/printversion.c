@@ -2,7 +2,7 @@
 
    Written in 1996 by Karl Berry.  Public domain.  */
 
-#include "config.h"
+#include <w2c/config.h>
 #include "lib.h"
 #include <kpathsea/version.h>
 #ifdef PTEX
@@ -51,7 +51,7 @@ printversionandexit (const_string banner,
 #endif
 
   if (copyright_holder) {
-    printf ("Copyright 2009 %s.\n", copyright_holder);
+    printf ("Copyright 2010 %s.\n", copyright_holder);
     if (!author)
       author = copyright_holder;
   }

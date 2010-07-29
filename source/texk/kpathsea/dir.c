@@ -29,9 +29,9 @@
 boolean
 kpathsea_dir_p (kpathsea kpse, const_string fn)
 {
-  /* FIXME : using the stat() replacement in gnuw32, 
-	 we could avoid this win32 specific code. However,
-	 I wonder if it would be as fast as this one is ?
+  /* FIXME : using the stat() replacement in gnuw32,
+         we could avoid this win32 specific code. However,
+         I wonder if it would be as fast as this one is ?
   */
 #ifdef WIN32
   int fa;
@@ -43,11 +43,11 @@ kpathsea_dir_p (kpathsea kpse, const_string fn)
   if (KPATHSEA_DEBUG_P (KPSE_DEBUG_STAT)) {
     if (fa == 0xFFFFFFFF) {
       fprintf(stderr, "failed to get file attributes for %s (%d)\n",
-	      fn, (int)(GetLastError()));
+              fn, (int)(GetLastError()));
     } else {
       fprintf(stderr, "path %s %s a directory\n",
-	      fn , (fa & FILE_ATTRIBUTE_DIRECTORY) ? 
-	      "is"  : "is not");
+              fn , (fa & FILE_ATTRIBUTE_DIRECTORY) ?
+              "is"  : "is not");
     }
   }
 #endif /* KPSE_DEBUG */
@@ -71,7 +71,7 @@ dir_p (const_string fn)
   Return -1 if FN isn't a directory, else its number of links.
   Duplicate the call to stat; no need to incur overhead of a function
   call for that little bit of cleanliness.
-   
+
   The process is a bit different under Win32 : the first call
   memoizes the nlinks value, the following ones retrieve it.
 */
@@ -79,7 +79,7 @@ int
 kpathsea_dir_links (kpathsea kpse, const_string fn, long nlinks)
 {
   string *hash_ret;
-  
+
   if (kpse->link_table.size == 0)
     kpse->link_table = hash_create (457);
 
@@ -91,7 +91,7 @@ kpathsea_dir_links (kpathsea kpse, const_string fn, long nlinks)
 #endif
 
   hash_ret = hash_lookup (kpse->link_table, fn);
-  
+
 #ifdef KPSE_DEBUG
   if (KPATHSEA_DEBUG_P (KPSE_DEBUG_HASH))
     kpse->debug_hash_lookup_int = false;
@@ -105,7 +105,7 @@ kpathsea_dir_links (kpathsea kpse, const_string fn, long nlinks)
 #else
       nlinks = (long) *hash_ret;
 #endif
-  } else { 
+  } else {
 #ifdef WIN32
       /* Insert it only if we have some informations about it. */
       if (nlinks) {
@@ -132,7 +132,7 @@ kpathsea_dir_links (kpathsea kpse, const_string fn, long nlinks)
 #endif
   }
 
-  /* In any case, return nlinks 
+  /* In any case, return nlinks
      (either 0, the value inserted or the value retrieved. */
   return nlinks;
 }
@@ -144,5 +144,3 @@ dir_links (const_string fn, long nlinks)
     return kpathsea_dir_links(kpse_def, fn, nlinks);
 }
 #endif
-
-

@@ -47,19 +47,19 @@ token (const_string str)
   unsigned len;
   const_string start;
   string ret;
-  
+
   while (*str && ISSPACE (*str))
     str++;
-  
+
   start = str;
   while (*str && !ISSPACE (*str))
     str++;
-  
+
   len = str - start;
   ret = (string)xmalloc (len + 1);
   strncpy (ret, start, len);
   ret[len] = 0;
-  
+
   return ret;
 }
 
@@ -89,7 +89,7 @@ map_file_parse (kpathsea kpse, const_string map_filename)
     if (!comment_loc) {
       comment_loc = strstr (l, "@c");
     }
-    
+
     /* Ignore anything after a % or @c.  */
     if (comment_loc)
       *comment_loc = 0;
@@ -100,7 +100,7 @@ map_file_parse (kpathsea kpse, const_string map_filename)
        strtok since this routine is recursive.  */
     while (*l && ISSPACE (*l))
       l++;
-      
+
     /* If we don't have any filename, that's ok, the line is blank.  */
     filename = token (l);
     if (filename) {
@@ -111,7 +111,7 @@ map_file_parse (kpathsea kpse, const_string map_filename)
           WARNING2 ("%s:%u: Filename argument for include directive missing",
                     map_filename, map_lineno);
         } else {
-          string include_fname = kpathsea_path_search (kpse, 
+          string include_fname = kpathsea_path_search (kpse,
                                    kpse->map_path, alias, false);
           if (include_fname) {
             map_file_parse (kpse, include_fname);
@@ -141,7 +141,7 @@ map_file_parse (kpathsea kpse, const_string map_filename)
 
     free (orig_l);
   }
-  
+
   xfclose (f, map_filename);
 }
 
@@ -153,10 +153,10 @@ static void
 read_all_maps (kpathsea kpse)
 {
   string *filenames;
-  
+
   kpse->map_path = kpathsea_init_format (kpse, kpse_fontmap_format);
   filenames = kpathsea_all_path_search (kpse, kpse->map_path, MAP_NAME);
-  
+
   kpse->map = hash_create (MAP_HASH_SIZE);
 
   while (*filenames) {
@@ -168,31 +168,31 @@ read_all_maps (kpathsea kpse)
 /* Look up KEY in texfonts.map's; if it's not found, remove any suffix
    from KEY and try again.  Create the map if necessary.  */
 
-string *
-kpathsea_fontmap_lookup (kpathsea kpse,  const_string key)
+const_string *
+kpathsea_fontmap_lookup (kpathsea kpse, const_string key)
 {
-  string *ret;
+  const_string *ret;
   string suffix = find_suffix (key);
-  
+
   if (kpse->map.size == 0) {
     read_all_maps (kpse);
   }
 
-  ret = hash_lookup (kpse->map, key);
+  ret = (const_string *) hash_lookup (kpse->map, key);
   if (!ret) {
     /* OK, the original KEY didn't work.  Let's check for the KEY without
        an extension -- perhaps they gave foobar.tfm, but the mapping only
        defines `foobar'.  */
     if (suffix) {
       string base_key = remove_suffix (key);
-      ret = hash_lookup (kpse->map, base_key);
+      ret = (const_string *) hash_lookup (kpse->map, base_key);
       free (base_key);
     }
   }
 
   /* Append any original suffix.  */
   if (ret && suffix) {
-    string *elt;
+    const_string *elt;
     for (elt = ret; *elt; elt++) {
       *elt = extend_filename (*elt, suffix);
     }
@@ -200,11 +200,3 @@ kpathsea_fontmap_lookup (kpathsea kpse,  const_string key)
 
   return ret;
 }
-
-#if defined(KPSE_COMPAT_API)
-string *
-kpse_fontmap_lookup (const_string key)
-{
-    return kpathsea_fontmap_lookup(kpse_def, key);
-}
-#endif

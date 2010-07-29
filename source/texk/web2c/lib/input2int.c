@@ -1,7 +1,7 @@
 /* input2int.c: read two or three integers from text files.  These
    routines are only used in patgen.  Public domain. */
 
-#include "config.h"
+#include <w2c/config.h>
 #include "lib.h"
 
 #ifdef INTEGER_IS_INT
@@ -23,7 +23,7 @@ zinput2ints (integer *a,  integer *b)
     {
       while ((ch = getchar ()) != EOF && ch != '\n');
       if (ch == EOF) return;
-      (void) fprintf (stderr, "Please enter two integers.\n");
+      fprintf (stderr, "Please enter two integers.\n");
     }
 
   while ((ch = getchar ()) != EOF && ch != '\n');
@@ -41,7 +41,7 @@ zinput3ints (integer *a,  integer *b,  integer *c)
     {
       while ((ch = getchar ()) != EOF && ch != '\n');
       if (ch == EOF) return;
-      (void) fprintf (stderr, "Please enter three integers.\n");
+      fprintf (stderr, "Please enter three integers.\n");
     }
 
   while ((ch = getchar ()) != EOF && ch != '\n');

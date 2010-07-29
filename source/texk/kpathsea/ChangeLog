@@ -1,3 +1,145 @@
+2010-06-13  Karl Berry  <karl@tug.org>
+
+	* doc/unixtex.texi: reduce to current reality.
+
+2010-06-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* getopt.h [NO_KPSE_DLL]: Allow use of this file for chktex.
+	From Karl Berry, 9 Jun 2010 15:36:44.
+
+2010-06-06  Karl Berry  <karl@tug.org>
+
+	* getopt.h (getopt) [! __STDC__]: remove decl since AIX/Solaris
+	compilers complain (vvv, tlbuild 07 Jun 2010 01:30:47).
+
+2010-06-04  Karl Berry  <karl@tug.org>
+
+	* configure.ac (kpse_lib_devel): empty for TeX Live 2010
+	 (pretest 2, maybe final).
+
+2010-05-30  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (shell_escape_commands): turns out fc-list is not
+	needed after all.
+
+2010-05-30  Manuel Pégourié-Gonnard <mpg@elzevir.fr>
+
+	* texmf.cnf: relax LUAINPUTS not to require and extra "lua"
+	subdirectory for modules in texmfscripts.
+	* texmf.cnf: enlarge trie_size to fit with latest hyph-utf8 release.
+
+2010-05-27  Karl Berry  <karl@tug.org>
+
+	* getopt.h (getopt) [!__GNU_LIBRARY__]: do not declare at all.
+	Previous conditional on __cplusplus did not work with Sun CC.
+	Maybe all systems we compile on have getopt now?  We'll see.
+
+2010-05-25  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (shell_escape_commands): include fc-list for 
+	the luaotfload font cache.
+
+2010-05-24  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (font_mem_size): doc fix.
+
+2010-05-21  Karl Berry  <karl@tug.org>
+
+	* mktexpk: help msg, mention map files in error.
+
+2010-05-20  Karl Berry  <karl@tug.org>
+
+	* mktexdir,
+	* mktexupd,
+	* mktex.opt,
+	* mktexnam.opt: systematize header comments.
+
+2010-05-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpseaccess.test: Allow for unexpected test results.
+
+2010-05-18  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (shell_escape): set to p. Trying restricted shells again.
+	(shell_escape_commands): bibtex, bibtex8,
+	kpsewhich, makeindex, repstopdf.  Don't plan to add anything
+	else for TL'10.
+
+	* NEWS,
+	* kpsewhich.c (read_command_line),
+	* texmf.cnf (TEXMFCONFIG, TEXMFVAR): 2010.
+
+2010-05-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* access.c: Adapt comment to facts.
+	* man/kpseaccess.man: Adapt to facts.
+
+2010-05-16  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	*absolute.c, c-fopen.h, c-stat.h, config.h, debug.h, dir.c,
+	elt-dirs.c, expand.c, getopt.c, getopt.h, getopt1.c, hash.c,
+	kpsewhich.c, lib.h, mingw32.c, path-elt.c, pathsearch.c,
+	progname.c, putenv.c, readable.c, strcasecmp.c, strstr.c,
+	strtol.c, tex-file.c, tex-glyph.h,
+	types.h, win32lib.h: untabify.
+
+2010-05-15  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpseaccess.test, kpsereadlink.test, kpsestat.test,
+	kpsewhich.test: New shell scripts to test the programs.
+	* configure.ac (LT_OBJDIR): AC_SUBST for kpsereadlink.test.
+	* Makefile.am (TESTS, TESTS_ENVIRONMENT): Add the tests.
+
+2010-05-15  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	*absolute.c: avoid late declaration. add support of UNC names (WIN32).
+	*db.c: try ls-R only on WIN32.
+	*debug.c: avoid late declaration.
+	*elt-dirs.c: remove trailing whitespace.
+	*lib.h: add variables in prototype.
+	*pathsearch.c, tex-file.c: remove some spaces.
+	*tex-glyph.c: add some spaces.
+
+2010-05-15  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	*absolute.c, access.c, atou.c, c-ctype.h, c-pathch.h, c-std.h, cnf.c,
+	concatn.c, config.h, db.c, db.h, debug.h, default.h, dir.c,
+	elt-dirs.c, expand.c, extend-fname.c, find-suffix.c, fn.c,
+	fontmap.c, getopt.c, kpathsea.c, kpsestat.c, kpsewhich.c, lib.h,
+	line.c, magstep.c, magstep.h, make-suffix.c, mingw32.c, mingw32.h,
+	path-elt.c, pathsearch.c, pathsearch.h, proginit.c, proginit.h,
+	progname.c, readable.c, readable.h, readlink.c, rm-suffix.c,
+	str-list.c, str-llist.c, strstr.c, tex-file.c, tex-glyph.c,
+	tex-glyph.h, tex-hush.c, tex-make.c, tex-make.h, truncate.c,
+	uppercasify.c, variable.h, version.c, win32lib.h, xbasename.c,
+	xcalloc.c, xdirname.c, xfopen.c, xftell.c, xftello.c, xgetcwd.c,
+	xopendir.c, xrealloc.c, xstat.c: remove trailing spaces.
+
+2010-05-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* c-fopen.h [SET_BINARY]: Add cast to void.
+
+2010-05-09  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* progname.c (kpathsea_set_program_name): Drop superfluous cast.
+
+	* extend-fname.c, lib.h: Change return type of extend_filename()
+	from 'string' to 'const_string'.
+	* fontmap.[ch]: Change return type of kpathsea_fontmap_lookup()
+	from 'string *' to 'const_string *', drop kpse_fontmap_lookup.
+	* tex-file.c (target_fontmaps), tex-glyph.c (try_fontmap): Adjust.
+
+2010-04-27  Manuel Pégourié-Gonnard <mpg@elzevir.fr>
+
+	* texmf.cnf: - s/pdf(lua(la)?tex)/dvi\1/
+	- add luatex before generic (for generic package specific to luatex) and
+	similarly for xetex.
+
+2010-04-22  Karl Berry  <karl@tug.org>
+
+	* doc/kpathsea.texi,
+	* doc/bugs.texi: Avoid over/underfull boxes.
+
 2010-04-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* texmf.cnf (max_strings.pbibtex): New defn.

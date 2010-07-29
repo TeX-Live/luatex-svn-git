@@ -1,4 +1,4 @@
-% $Id: mpxout.w 1326 2010-07-27 09:56:06Z taco $
+% $Id: mpxout.w 1330 2010-07-27 16:53:56Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -559,6 +559,8 @@ static void mpx_copy_mpto (MPX mpx, FILE *outfile, int textype) {
          s >= res && (*s == ' ' || *s == '\t' || *s == '\r' || *s == '\n'); s--);
       t = s;
       *(++s) = '\0';
+    } else {
+      t =s;
     }
     if (textype == B_TEX || textype == FIRST_VERBATIM_TEX) {
       /* whitespace at the start */

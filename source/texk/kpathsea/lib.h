@@ -49,13 +49,13 @@
 #else
 #define START_FATAL() do { \
   fprintf (stderr, "fatal: ");
-#endif 
+#endif
 
 #define END_FATAL() fputs (".\n", stderr); exit (1); } while (0)
 
-#define FATAL(str)							\
+#define FATAL(str)                                                      \
   START_FATAL (); fputs (str, stderr); END_FATAL ()
-#define FATAL1(str, e1)							\
+#define FATAL1(str, e1)                                                 \
   START_FATAL (); fprintf (stderr, str, e1); END_FATAL ()
 #define FATAL2(str, e1, e2)                             \
    START_FATAL (); fprintf (stderr, str, e1, e2); END_FATAL ()
@@ -71,32 +71,32 @@
 #define START_WARNING() do { fputs ("warning: ", stderr)
 #define END_WARNING() fputs (".\n", stderr); fflush (stderr); } while (0)
 
-#define WARNING(str)							\
+#define WARNING(str)                                                    \
   START_WARNING (); fputs (str, stderr); END_WARNING ()
-#define WARNING1(str, e1)						\
+#define WARNING1(str, e1)                                               \
   START_WARNING (); fprintf (stderr, str, e1); END_WARNING ()
-#define WARNING2(str, e1, e2)						\
+#define WARNING2(str, e1, e2)                                           \
   START_WARNING (); fprintf (stderr, str, e1, e2); END_WARNING ()
-#define WARNING3(str, e1, e2, e3)					\
+#define WARNING3(str, e1, e2, e3)                                       \
   START_WARNING (); fprintf (stderr, str, e1, e2, e3); END_WARNING ()
-#define WARNING4(str, e1, e2, e3, e4)					\
+#define WARNING4(str, e1, e2, e3, e4)                                   \
   START_WARNING (); fprintf (stderr, str, e1, e2, e3, e4); END_WARNING ()
 
 #define LIB_START_FATAL() do { \
   fprintf (stderr, "%s: fatal: ", kpse->invocation_name);
 
-#define LIB_FATAL(str)							\
+#define LIB_FATAL(str)                                                  \
   LIB_START_FATAL (); fputs (str, stderr); END_FATAL ()
-#define LIB_FATAL1(str, e1)							\
+#define LIB_FATAL1(str, e1)                                             \
   LIB_START_FATAL (); fprintf (stderr, str, e1); END_FATAL ()
-#define LIB_FATAL2(str, e1, e2)						\
+#define LIB_FATAL2(str, e1, e2)                                         \
   LIB_START_FATAL (); fprintf (stderr, str, e1, e2); END_FATAL ()
 
 
 /* I find this easier to read.  */
 #define STREQ(s1, s2) ((s1) && (s2) && (strcmp (s1, s2) == 0))
 #define STRNEQ(s1, s2, n) ((s1) && (s2) && (strncmp (s1, s2, n) == 0))
-      
+
 /* Support for FAT/ISO-9660 filesystems.  Theoretically this should be
    done at runtime, per filesystem, but that's painful to program.  */
 #ifdef MONOCASE_FILENAMES
@@ -169,14 +169,14 @@ extern KPSEDLL string make_prefix (string stem_prefix, string name);
 
 /* If NAME has a suffix, simply return it; otherwise, return
    `NAME.SUFFIX'.  */
-extern KPSEDLL string extend_filename (const_string name,
-                                            const_string suffix);
+extern KPSEDLL const_string extend_filename (const_string name,
+                                             const_string suffix);
 
 /* Call putenv with the string `VAR=VALUE' and abort on error.  */
 extern KPSEDLL void kpathsea_xputenv (kpathsea kpse, const_string var,
-                                      const_string value); 
+                                      const_string value);
 extern KPSEDLL void kpathsea_xputenv_int (kpathsea kpse, const_string var,
-                                          int value); 
+                                          int value);
 #if defined (KPSE_COMPAT_API)
 extern KPSEDLL void xputenv (const_string var, const_string value);
 extern KPSEDLL void xputenv_int (const_string var, int value);
@@ -197,16 +197,16 @@ extern KPSEDLL boolean dir_p (const_string fn);
 extern KPSEDLL int dir_links (const_string fn, long nlinks);
 #endif
 extern KPSEDLL int kpathsea_dir_links (kpathsea kpse, const_string fn,
-                                       long nlinks); 
+                                       long nlinks);
 
 /* Like their stdio counterparts, but abort on error, after calling
    perror(3) with FILENAME as its argument.  */
 extern KPSEDLL FILE *xfopen (const_string filename, const_string mode);
-extern KPSEDLL void xfclose (FILE *, const_string filename);
-extern KPSEDLL void xfseek (FILE *, long, int, const_string filename);
-extern KPSEDLL void xfseeko (FILE *, off_t, int, const_string filename);
-extern KPSEDLL unsigned long xftell (FILE *, const_string filename);
-extern KPSEDLL off_t xftello (FILE *, const_string filename);
+extern KPSEDLL void xfclose (FILE *fp, const_string filename);
+extern KPSEDLL void xfseek (FILE *fp, long offset, int wherefrom, const_string filename);
+extern KPSEDLL void xfseeko (FILE *fp, off_t offset, int wherefrom, const_string filename);
+extern KPSEDLL unsigned long xftell (FILE *fp, const_string filename);
+extern KPSEDLL off_t xftello (FILE *fp, const_string filename);
 
 /* These call the corresponding function in the standard library, and
    abort if those routines fail.  Also, `xrealloc' calls `xmalloc' if

@@ -1,12 +1,12 @@
 #!/bin/sh
-# mkinstalldirs --- make directory hierarchy (now mktexdir).
+# mkinstalldirs (now mktexdir) -- make directory hierarchy.
 # Author: Noah Friedman <friedman@prep.ai.mit.edu>, created: 1993-05-16.
 # Public domain.
 # 
 # Modified for sticky directory creation, --help, --version, more,
 # by Thomas Esser, Karl Berry, Olaf Weber, et al.
 
-version='$Id: mktexdir 16497 2009-12-24 18:38:47Z karl $'
+version='$Id: mktexdir 18383 2010-05-20 18:31:24Z karl $'
 usage="Usage: $0 DIRS...
   Create each DIR, including any missing leading directories."
 mt_max_args=$#

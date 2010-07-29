@@ -128,75 +128,46 @@ if [ "$ONLY_MAKE" = "FALSE" ]
 then
 TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --enable-cxx-runtime-hack \
-    --disable-afm2pl    \
-    --disable-aleph  \
-    --disable-bibtex   \
-    --disable-bibtex8   \
-    --disable-cfftot1 \
-    --disable-cjkutils  \
-    --disable-detex    \
-    --disable-devnag   \
-    --disable-dialog   \
-    --disable-dtl      \
+    --disable-all-pkgs \
+    --disable-shared    \
+    --disable-largefile \
+    --disable-ptex \
+    --disable-ipc \
     --enable-dump-share  \
-    --disable-dvi2tty  \
-    --disable-dvidvi   \
-    --disable-dviljk   \
-    --disable-dvipdfm  \
-    --disable-dvipdfmx \
-    --disable-dvipos  \
-    --disable-dvipsk  \
-    --disable-gsftopk \
-    --disable-lacheck \
-    --disable-lcdf-typetools \
-    --disable-makeindexk \
-    --disable-mf  \
-    --disable-mmafm \
-    --disable-mmpfb \
-    --disable-musixflx \
-    --disable-otfinfo \
-    --disable-otftotfm  \
-    --disable-pdfopen  \
-    --disable-pdftex  \
-    --disable-ps2eps   \
-    --disable-ps2pkm \
-    --disable-psutils  \
-    --disable-ptex  \
-    --disable-seetexk \
-    --disable-t1dotlessj  \
-    --disable-t1lint \
-    --disable-t1rawafm \
-    --disable-t1reencode \
-    --disable-t1testpage \
-    --disable-t1utils  \
-    --disable-tex    \
-    --disable-tex4htk \
-    --disable-tpic2pdftex  \
-    --disable-ttf2pk \
-    --disable-ttfdump \
-    --disable-ttftotype42 \
-    --disable-vlna  \
-    --disable-web-progs \
-    --disable-xdv2pdf \
-    --disable-xdvipdfmx \
-    --disable-xetex \
-    --without-graphite \
-    --without-system-icu \
+    --enable-mp  \
+    --enable-luatex  \
+    --without-system-ptexenc \
     --without-system-kpathsea \
+    --without-system-xpdf \
+    --without-system-freetype \
     --without-system-freetype2 \
     --without-system-gd \
     --without-system-libpng \
     --without-system-teckit \
     --without-system-zlib \
     --without-system-t1lib \
-    --disable-shared    \
-    --disable-largefile \
-    --disable-ipc \
+    --without-system-icu \
+    --without-system-graphite \
+    --without-system-zziplib \
     --without-mf-x-toolkit --without-x \
    || exit 1 
 fi
 
 $MAKE
+
+# the fact that these makes inside libs/ have to be done manually for the cross
+# compiler hints that something is wrong in the --enable/--disable switches above,
+# but I am too lazy to look up what is wrong exactly.
+# (perhaps more files needed to be copied from TL?)
+
+(cd libs/zziplib; $MAKE all )
+(cd libs/zlib; $MAKE all )
+(cd libs/obsdcompat; $MAKE all )
+(cd libs/libpng; $MAKE all )
+(cd libs/xpdf; $MAKE all )
+
+(cd texk/kpathsea; $MAKE )
+(cd texk/web2c; $MAKE $LUATEXEXE )
 
 # go back
 cd ..

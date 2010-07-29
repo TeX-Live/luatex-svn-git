@@ -44,18 +44,18 @@ READABLE(const_string fn, unsigned int st)
   } else {
       switch(GetLastError()) {
       case ERROR_BUFFER_OVERFLOW:
-	  errno = ENAMETOOLONG;
-	  break;
+          errno = ENAMETOOLONG;
+          break;
       case ERROR_ACCESS_DENIED:
-	  errno = EACCES;
-	  break;
+          errno = EACCES;
+          break;
       default :
-          errno = EIO;		/* meaningless, will make ret=NULL later */
-	  break;
+          errno = EIO;          /* meaningless, will make ret=NULL later */
+          break;
       }
   }
   return ((st != 0xFFFFFFFF) &&
-		  !(st & FILE_ATTRIBUTE_DIRECTORY));
+                  !(st & FILE_ATTRIBUTE_DIRECTORY));
 }
 #else
 #define READABLE(fn, st) \
@@ -65,7 +65,7 @@ READABLE(const_string fn, unsigned int st)
 /* POSIX invented the brain-damage of not necessarily truncating
    filename components; the system's behavior is defined by the value of
    the symbol _POSIX_NO_TRUNC, but you can't change it dynamically!
-   
+
    Generic const return warning.  See extend-fname.c.  */
 
 string
@@ -106,9 +106,8 @@ kpathsea_readable_file (kpathsea kpse, const_string name)
 
 #if defined (KPSE_COMPAT_API)
 string
-kpse_readable_file (const_string name) 
+kpse_readable_file (const_string name)
 {
     return kpathsea_readable_file (kpse_def, name);
 }
 #endif
-

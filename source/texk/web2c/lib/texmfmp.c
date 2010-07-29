@@ -19,6 +19,9 @@
 #include <kpathsea/variable.h>
 #include <kpathsea/absolute.h>
 #include <kpathsea/recorder.h>
+#ifdef WIN32
+#include <kpathsea/concatn.h>
+#endif
 
 #include <time.h> /* For `struct tm'.  */
 #if defined (HAVE_SYS_TIME_H)
@@ -404,6 +407,36 @@ shell_cmd_is_allowed (const char *cmd, char **safecmd, char **cmdname)
       *d++ = QUOTE;
     }
     *d = '\0';
+#ifdef WIN32
+    {
+      char *p, *q, *r;
+      p = *safecmd;
+      if (!(IS_DIR_SEP (p[0]) && IS_DIR_SEP (p[1])) &&
+          !(p[1] == ':' && IS_DIR_SEP (p[2]))) { 
+        p = (char *) kpse_var_value ("SELFAUTOLOC");
+        if (p) {
+          r = *safecmd;
+          while (*r && !Isspace(*r))
+            r++;
+          if (*r == '\0')
+            q = concatn ("\"", p, "/", *safecmd, "\"", NULL);
+          else {
+            *r = '\0';
+            r++;
+            while (*r && Isspace(*r))
+              r++;
+            if (*r)
+              q = concatn ("\"", p, "/", *safecmd, "\" ", r, NULL);
+            else
+              q = concatn ("\"", p, "/", *safecmd, "\"", NULL);
+          }
+          free (p);
+          free (*safecmd);
+          *safecmd = q;
+        }
+      }
+    }
+#endif
   }
 
   return allow;
@@ -549,7 +582,7 @@ const char *ptexbanner = BANNER;
 /* The entry point: set up for reading the command line, which will
    happen in `topenin', then call the main body.  */
 
-void TEXDLL
+void
 maininit (int ac, string *av)
 {
   string main_input_file;

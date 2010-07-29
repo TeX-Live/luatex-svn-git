@@ -1,6 +1,6 @@
-/* config.h: All .c files include this first.
+/* w2c/config.h: All .c files include this first.
 
-Copyright 1995, 1996, 2006, 2007, 2009 Karl Berry.
+Copyright 1995, 1996, 2006, 2007, 2009, 2010 Karl Berry.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,19 +18,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/.  */
 #ifndef WEB2C_CONFIG_H
 #define WEB2C_CONFIG_H
 
-#if defined (TEX_DLL) && (defined (WIN32) || defined (__CYGWIN__))
-#ifdef MAKE_TEX_DLL
-#define TEXDLL __declspec (dllexport)
-#else /* ! MAKE_TEX_DLL */
-#define TEXDLL __declspec (dllimport)
-#endif
-#else /* ! (TEX_DLL && (WIN32 || __CYGWIN__)) */
-#define TEXDLL
-#endif
-
 /* The stuff from the path searching library.  */
 #include <kpathsea/config.h>
-#include <c-auto.h>
+#include <w2c/c-auto.h>
 #include <stdarg.h>
 
 /* How to open a binary file.  */

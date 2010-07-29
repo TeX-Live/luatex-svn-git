@@ -68,11 +68,13 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/web2c-disable.m4 \
 	$(top_srcdir)/../../m4/ltsugar.m4 \
 	$(top_srcdir)/../../m4/ltversion.m4 \
 	$(top_srcdir)/../../m4/lt~obsolete.m4 \
-	$(top_srcdir)/ac/web2c.ac $(top_srcdir)/configure.ac
+	$(top_srcdir)/../../version.ac $(top_srcdir)/ac/web2c.ac \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/c-auto.h $(top_builddir)/ff-config.h
+CONFIG_HEADER = $(top_builddir)/w2c/c-auto.h \
+	$(top_builddir)/ff-config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 LIBRARIES = $(noinst_LIBRARIES)
@@ -91,7 +93,7 @@ libp_a_LIBADD =
 am_libp_a_OBJECTS = libp_a-openclose.$(OBJEXT) \
 	libp_a-printversion.$(OBJEXT)
 libp_a_OBJECTS = $(am_libp_a_OBJECTS)
-DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
+DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/w2c -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/../../build-aux/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
@@ -297,7 +299,8 @@ top_srcdir = @top_srcdir@
 wlibs = @wlibs@
 x_ext_lib = @x_ext_lib@
 x_tool_libs = @x_tool_libs@
-INCLUDES = -I$(top_builddir)/.. -I$(top_srcdir) $(KPATHSEA_INCLUDES)
+INCLUDES = -I$(top_srcdir)
+AM_CPPFLAGS = $(KPATHSEA_INCLUDES)
 AM_CFLAGS = $(WARNING_CFLAGS)
 noinst_LIBRARIES = lib.a $(am__append_1)
 EXTRA_LIBRARIES = libp.a
@@ -319,12 +322,12 @@ lib_a_SOURCES = \
 	version.c \
 	zround.c
 
-libp_a_CPPFLAGS = -DPTEX $(ENCTEX_INCLUDES)
+libp_a_CPPFLAGS = -DPTEX $(PTEXENC_INCLUDES) $(AM_CPPFLAGS)
 libp_a_SOURCES = \
 	openclose.c \
 	printversion.c
 
-EXTRA_DIST = alloca.c win32main.c
+EXTRA_DIST = alloca.c
 all: all-am
 
 .SUFFIXES:

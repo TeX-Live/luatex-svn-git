@@ -19,8 +19,8 @@ dnl get these features if you are willing to hack the sources. If not,
 dnl it'll take a good argument to convince me to invest the time to make
 dnl them configurable.
 dnl
-m4_define([web2_version], [2010/dev])
-AC_INIT([Web2C], web2_version(), [tex-k@tug.org])
+m4_include([../../version.ac])[] dnl define tex_live_version
+AC_INIT([Web2C], tex_live_version(), [tex-k@tug.org])
 AC_PREREQ([2.65])
 dnl 
 dnl We don't use (for example) tex/tex.web because people who only want
@@ -30,7 +30,7 @@ AC_CONFIG_SRCDIR([cpascal.h])
 AC_CONFIG_AUX_DIR([../../build-aux])
 AC_CONFIG_MACRO_DIR([../../m4])
 
-WEB2CVERSION=web2_version()
+WEB2CVERSION=tex_live_version()
 AC_SUBST([WEB2CVERSION])
 
 dnl Common code for all programs using libkpathsea.
@@ -46,11 +46,11 @@ dnl Include additional code for web2c.
 KPSE_WEB2C_PREPARE
 m4_include([ac/web2c.ac])
 
-AS_CASE([$with_tex_banner],
-        [''|yes|no], [with_tex_banner="Web2C $WEB2CVERSION"],
-        [AS_IF([echo "$with_tex_banner" | grep -v "$WEB2CVERSION" >/dev/null],
-               [AC_MSG_ERROR([Bad `--with-tex-banner=$with_tex_banner' version string (must contain ` $WEB2CVERSION')])])])
-AC_DEFINE_UNQUOTED([WEB2CVERSION], [" ($with_tex_banner)"])
+AS_IF([test "x$enable_texlive_build" = xyes],
+      [banner_pre='TeX Live'],
+      [banner_pre='Web2C'])
+AC_DEFINE_UNQUOTED([WEB2CVERSION],
+                   [" ($banner_pre $WEB2CVERSION$with_banner_add)"])
 
 dnl For tests
 AC_CHECK_PROGS([KPSEWHICH], [kpsewhich], [false])
@@ -228,9 +228,12 @@ if test `(uname) 2>/dev/null` = aux; then
 fi
 
 AC_CHECK_SIZEOF([int])
+if test $ac_cv_sizeof_int -lt 4; then
+  AC_MSG_ERROR([Sorry, need `int' with at least 4 bytes.])
+fi
 AC_CHECK_SIZEOF([long])
 AC_SEARCH_LIBS([pow], [m])
-AC_CHECK_FUNCS([access atoi fmax ftime gettimeofday mkdtemp setlocale snprintf stat64 strerror strlcat strlcpy])
+AC_CHECK_FUNCS([access atoi fmax ftime gettimeofday mkdtemp setlocale snprintf strerror strlcat strlcpy])
 AC_CHECK_HEADERS([errno.h langinfo.h locale.h sys/time.h sys/timeb.h sys/wait.h time.h])
 AC_TYPE_LONG_DOUBLE
 AC_TYPE_LONG_LONG_INT
@@ -269,13 +272,14 @@ AC_LANG_POP([C++])
 KPSE_RESTORE_FLAGS
 
 dnl Write output here, instead of putting a zillion -D's on the command line.
-AC_CONFIG_HEADERS([c-auto.h:c-auto.in],
+AC_CONFIG_HEADERS([w2c/c-auto.h:c-auto.in],
  [sed -e 's/^#define PACKAGE/#define WEB2C_PACKAGE/' \
-      -e 's/^#define VERSION/#define WEB2C_VERSION/' c-auto.h >c-auto.tmp && mv -f c-auto.tmp c-auto.h])
+      -e 's/^#define VERSION/#define WEB2C_VERSION/' w2c/c-auto.h >c-auto.tmp \
+    && mv -f c-auto.tmp w2c/c-auto.h])
 
-AH_TOP([/* c-auto.h: defines for web2c, as determined by configure.
+AH_TOP([/* w2c/c-auto.h: defines for web2c, as determined by configure.
 
-   Copyright 1994-97, 2008, 2009 Karl Berry.
+   Copyright 1994-97, 2008, 2009, 2010 Karl Berry.
    Copyright 1997-99, 2002, 2005 Olaf Weber.
 
    This program is free software: you can redistribute it and/or modify
