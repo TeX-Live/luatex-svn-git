@@ -31,20 +31,12 @@
 #  include <string.h>
 #  include <kpathsea/c-ctype.h>
 #  include <sys/stat.h>
-#  ifdef POPPLER_VERSION
-#    define GString GooString
-#    include <dirent.h>
-#    include <poppler-config.h>
-#    include <goo/GooString.h>
-#    include <goo/gmem.h>
-#    include <goo/gfile.h>
-#  else
-#    include <aconf.h>
-#    include <GString.h>
-#    include <gmem.h>
-#    include <gfile.h>
-#    include <assert.h>
-#  endif
+#  define GString GooString
+#  include <dirent.h>
+#  include <poppler-config.h>
+#  include <goo/GooString.h>
+#  include <goo/gmem.h>
+#  include <goo/gfile.h>
 #  include "Object.h"
 #  include "Stream.h"
 #  include "Gfx.h"

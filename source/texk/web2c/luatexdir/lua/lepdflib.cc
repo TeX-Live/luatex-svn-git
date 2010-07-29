@@ -49,6 +49,7 @@ const char *ErrorCodeNames[] = { "None", "OpenFile", "BadCatalog",
 //**********************************************************************
 
 #define M_Annot            "Annot"
+#define M_AnnotBorder      "AnnotBorder"
 #define M_AnnotBorderStyle "AnnotBorderStyle"
 #define M_Annots           "Annots"
 #define M_Array            "Array"
@@ -58,7 +59,6 @@ const char *ErrorCodeNames[] = { "None", "OpenFile", "BadCatalog",
 #define M_LinkDest         "LinkDest"
 #define M_Links            "Links"
 #define M_Object           "Object"
-#define M_ObjectStream     "ObjectStream"
 #define M_Page             "Page"
 #define M_PDFDoc           "PDFDoc"
 #define M_PDFRectangle     "PDFRectangle"
@@ -83,6 +83,7 @@ udstruct *new_##type##_userdata(lua_State * L)                                  
 new_XPDF_userdata(PDFDoc);
 
 new_XPDF_userdata(Annot);
+new_XPDF_userdata(AnnotBorder);
 new_XPDF_userdata(AnnotBorderStyle);
 new_XPDF_userdata(Annots);
 new_XPDF_userdata(Array);
@@ -92,7 +93,6 @@ new_XPDF_userdata(GString);
 new_XPDF_userdata(LinkDest);
 new_XPDF_userdata(Links);
 new_XPDF_userdata(Object);
-new_XPDF_userdata(ObjectStream);
 new_XPDF_userdata(Page);
 new_XPDF_userdata(PDFRectangle);
 new_XPDF_userdata(Ref);
@@ -135,23 +135,23 @@ int l_open_PDFDoc(lua_State * L)
 
 int l_new_Annot(lua_State * L)
 {
-    udstruct *uxref, *uacroform, *udict, *uref, *uout;
+    udstruct *uxref, *udict, *ucatalog, *uref, *uout;
     uxref = (udstruct *) luaL_checkudata(L, 1, M_XRef);
-    uacroform = (udstruct *) luaL_checkudata(L, 2, M_Dict);
-    udict = (udstruct *) luaL_checkudata(L, 3, M_Dict);
+    udict = (udstruct *) luaL_checkudata(L, 2, M_Dict);
+    ucatalog = (udstruct *) luaL_checkudata(L, 3, M_Catalog);
     uref = (udstruct *) luaL_checkudata(L, 4, M_Ref);
-    if (uxref->pd != uacroform->pd || uxref->pd != udict->pd
+    if (uxref->pd != ucatalog->pd || uxref->pd != udict->pd
         || uxref->pd != uref->pd)
         pdfdoc_differs_error(L);
     if ((uxref->pd != NULL && uxref->pd->pc != uxref->pc) ||
-        (uacroform->pd != NULL && uacroform->pd->pc != uacroform->pc) ||
+        (ucatalog->pd != NULL && ucatalog->pd->pc != ucatalog->pc) ||
         (udict->pd != NULL && udict->pd->pc != udict->pc) ||
         (uref->pd != NULL && uref->pd->pc != uref->pc))
         pdfdoc_changed_error(L);
     uout = new_Annot_userdata(L);
     uout->d =
-        new Annot((XRef *) uxref->d, (Dict *) uacroform->d, (Dict *) udict->d,
-                  (Ref *) uref->d);
+        new Annot((XRef *) uxref->d, (Dict *) udict->d, (Catalog *) ucatalog->d,
+                  (Object *) uref->d);
     uout->atype = ALLOC_LEPDF;
     uout->pc = uxref->pc;
     uout->pd = uxref->pd;
@@ -352,7 +352,7 @@ int m_##type##__tostring(lua_State * L)                        \
 
 m_XPDF_get_BOOL(Annot, isOk);
 m_XPDF_get_OBJECT(Annot, getAppearance);
-m_XPDF_get_XPDF(Annot, AnnotBorderStyle, getBorderStyle);
+m_XPDF_get_XPDF(Annot, AnnotBorder, getBorder);
 
 int m_Annot_match(lua_State * L)
 {
@@ -387,7 +387,7 @@ static int m_Annot__gc(lua_State * L)
 static const struct luaL_Reg Annot_m[] = {
     {"isOk", m_Annot_isOk},
     {"getAppearance", m_Annot_getAppearance},
-    {"getBorderStyle", m_Annot_getBorderStyle},
+    {"getBorder", m_Annot_getBorder},
     {"match", m_Annot_match},
     {"__tostring", m_Annot__tostring},
     {"__gc", m_Annot__gc},
@@ -646,7 +646,6 @@ int m_Catalog_findDest(lua_State * L)
 }
 
 m_XPDF_get_XPDF(Catalog, Object, getDests);
-m_XPDF_get_XPDF(Catalog, Object, getNameTree);
 m_XPDF_get_XPDF(Catalog, Object, getOutline);
 m_XPDF_get_XPDF(Catalog, Object, getAcroForm);
 
@@ -663,7 +662,6 @@ static const struct luaL_Reg Catalog_m[] = {
     {"findPage", m_Catalog_findPage},
     {"findDest", m_Catalog_findDest},
     {"getDests", m_Catalog_getDests},
-    {"getNameTree", m_Catalog_getNameTree},
     {"getOutline", m_Catalog_getOutline},
     {"getAcroForm", m_Catalog_getAcroForm},
     {"__tostring", m_Catalog__tostring},
@@ -1785,16 +1783,6 @@ static const struct luaL_Reg Object_m[] = {
 };
 
 //**********************************************************************
-// ObjectStream
-
-m_XPDF__tostring(ObjectStream);
-
-static const struct luaL_Reg ObjectStream_m[] = {
-    {"__tostring", m_ObjectStream__tostring},
-    {NULL, NULL}                // sentinel
-};
-
-//**********************************************************************
 // Page
 
 m_XPDF_get_BOOL(Page, isOk);
@@ -1900,19 +1888,6 @@ int m_PDFDoc_##function(lua_State * L)                  \
         pdfdoc_changed_error(L);                        \
     i = ((PdfDocument *) uin->d)->doc->function();      \
     lua_pushinteger(L, i);                              \
-    return 1;                                           \
-}
-
-#define m_PDFDoc_DOUBLE(function)                       \
-int m_PDFDoc_##function(lua_State * L)                  \
-{                                                       \
-    double d;                                           \
-    udstruct *uin;                                      \
-    uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc); \
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)      \
-        pdfdoc_changed_error(L);                        \
-    d = ((PdfDocument *) uin->d)->doc->function();      \
-    lua_pushnumber(L, d);                               \
     return 1;                                           \
 }
 
@@ -2153,7 +2128,8 @@ int m_PDFDoc_getDocInfoNF(lua_State * L)
     return 1;
 }
 
-m_PDFDoc_DOUBLE(getPDFVersion);
+m_PDFDoc_INT(getPDFMajorVersion);
+m_PDFDoc_INT(getPDFMinorVersion);
 
 static int m_PDFDoc__gc(lua_State * L)
 {
@@ -2196,7 +2172,8 @@ static const struct luaL_Reg PDFDoc_m[] = {
     {"isLinearized", m_PDFDoc_isLinearized},
     {"getDocInfo", m_PDFDoc_getDocInfo},
     {"getDocInfoNF", m_PDFDoc_getDocInfoNF},
-    {"getPDFVersion", m_PDFDoc_getPDFVersion},
+    {"getPDFMajorVersion", m_PDFDoc_getPDFMajorVersion},
+    {"getPDFMinorVersion", m_PDFDoc_getPDFMinorVersion},
     {"__gc", m_PDFDoc__gc},     // finalizer
     {NULL, NULL}                // sentinel
 };
@@ -2454,7 +2431,6 @@ m_XPDF_get_INT(XRef, getRootGen);
 m_XPDF_get_INT(XRef, getSize);
 // getEntry
 m_XPDF_get_XPDF(XRef, Object, getTrailerDict);
-m_XPDF_get_XPDF(XRef, ObjectStream, getObjStr);
 
 m_XPDF__tostring(XRef);
 
@@ -2477,7 +2453,6 @@ static const struct luaL_Reg XRef_m[] = {
     //
     {"getSize", m_XRef_getSize},
     {"getTrailerDict", m_XRef_getTrailerDict},
-    {"getObjStr", m_XRef_getObjStr},
     {"__tostring", m_XRef__tostring},
     {NULL, NULL}                // sentinel
 };
@@ -2502,6 +2477,7 @@ static const struct luaL_Reg XRefEntry_m[] = {
 int luaopen_epdf(lua_State * L)
 {
     register_meta(Annot);
+//TODO    register_meta(AnnotBorder);
     register_meta(AnnotBorderStyle);
     register_meta(Annots);
     register_meta(Array);
@@ -2511,7 +2487,6 @@ int luaopen_epdf(lua_State * L)
     register_meta(LinkDest);
     register_meta(Links);
     register_meta(Object);
-    register_meta(ObjectStream);
     register_meta(Page);
     register_meta(PDFDoc);
     register_meta(PDFRectangle);
