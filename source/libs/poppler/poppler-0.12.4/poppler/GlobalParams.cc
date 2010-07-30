@@ -140,6 +140,7 @@ DisplayFontParam::~DisplayFontParam() {
   }
 }
 
+#ifndef PDF_PARSER_ONLY
 #ifdef _WIN32
 
 //------------------------------------------------------------------------
@@ -384,6 +385,7 @@ int CALLBACK WinFontList::enumFunc2(CONST LOGFONT *font,
 }
 
 #endif // _WIN32
+#endif // PDF_PARSER_ONLY
 
 //------------------------------------------------------------------------
 // PSFontParam
@@ -557,9 +559,11 @@ GlobalParams::GlobalParams(const char *customPopplerDataDir)
   UnicodeMap *map;
   int i;
 
+#ifndef PDF_PARSER_ONLY
 #ifndef _MSC_VER  
   FcInit();
   FCcfg = FcConfigGetCurrent();
+#endif
 #endif
 
 #if MULTITHREADED
@@ -1110,6 +1114,11 @@ static FcPattern *buildFcPattern(GfxFont *font)
 /* if you can't or don't want to use Fontconfig, you need to implement
    this function for your platform. For Windows, it's in GlobalParamsWin.cc
 */
+#ifdef PDF_PARSER_ONLY
+DisplayFontParam *GlobalParams::getDisplayFont(GfxFont *font) {
+  return (DisplayFontParam * )NULL;
+}
+#else
 #ifndef _MSC_VER
 DisplayFontParam *GlobalParams::getDisplayFont(GfxFont *font) {
   DisplayFontParam *dfp;
@@ -1169,6 +1178,7 @@ fin:
   unlockGlobalParams;
   return dfp;
 }
+#endif
 #endif
 
 GBool GlobalParams::getPSExpandSmaller() {

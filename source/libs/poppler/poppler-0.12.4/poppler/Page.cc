@@ -45,13 +45,11 @@
 #include "XRef.h"
 #include "Link.h"
 #include "OutputDev.h"
-#ifndef PDF_PARSER_ONLY
 #include "Gfx.h"
 #include "GfxState.h"
 #include "Annot.h"
 #include "TextOutputDev.h"
 #include "Form.h"
-#endif
 #include "Error.h"
 #include "Page.h"
 #include "Catalog.h"

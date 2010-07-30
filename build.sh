@@ -138,6 +138,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --enable-luatex  \
     --without-system-ptexenc \
     --without-system-kpathsea \
+    --without-system-poppler \
     --without-system-xpdf \
     --without-system-freetype \
     --without-system-freetype2 \
@@ -164,7 +165,7 @@ $MAKE
 (cd libs/zlib; $MAKE all )
 (cd libs/obsdcompat; $MAKE all )
 (cd libs/libpng; $MAKE all )
-(cd libs/xpdf; $MAKE all )
+(cd libs/poppler; $MAKE all )
 
 (cd texk/kpathsea; $MAKE )
 (cd texk/web2c; $MAKE $LUATEXEXE )
