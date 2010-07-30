@@ -50,13 +50,11 @@ static const char _svn_version[] =
 
 #include "png.h"
 
-#define xpdfString "poppler"
 #include "poppler-config.h"
 #ifndef POPPLER_VERSION
 #  include "aconf.h"
 #  define POPPLER_VERSION POPPLER_PACKAGE_VERSION
 #endif
-#define xpdfVersion POPPLER_VERSION
 
 @ @c
 #define check_nprintf(size_get, size_want) \
@@ -354,9 +352,9 @@ void initversionstring(char **versions)
     (void) asprintf(versions,
                     "Compiled with libpng %s; using libpng %s\n"
                     "Compiled with zlib %s; using zlib %s\n"
-                    "Compiled with %s version %s\n",
+                    "Compiled with poppler version %s\n",
                     PNG_LIBPNG_VER_STRING, png_libpng_ver,
-                    ZLIB_VERSION, zlib_version, xpdfString, xpdfVersion);
+                    ZLIB_VERSION, zlib_version, POPPLER_VERSION);
 }
 
 @ @c
