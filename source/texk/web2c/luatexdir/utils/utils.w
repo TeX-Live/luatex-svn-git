@@ -49,15 +49,14 @@ static const char _svn_version[] =
 #include "lua/luatex-api.h"     /* for ptexbanner */
 
 #include "png.h"
-#define POPPLER_VERSION 1
-#ifdef POPPLER_VERSION
-#  define xpdfString "poppler"
-#  include "poppler-config.h"
-#  define xpdfVersion POPPLER_VERSION
-#else
-#  define xpdfString "xpdf"
-#  include "xpdf/config.h"      /* just to get the xpdf version */
+
+#define xpdfString "poppler"
+#include "poppler-config.h"
+#ifndef POPPLER_VERSION
+#  include "aconf.h"
+#  define POPPLER_VERSION POPPLER_PACKAGE_VERSION
 #endif
+#define xpdfVersion POPPLER_VERSION
 
 @ @c
 #define check_nprintf(size_get, size_want) \
