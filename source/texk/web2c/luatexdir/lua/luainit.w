@@ -350,7 +350,7 @@ static void parse_options(int argc, char **argv)
                  "lua       by Roberto Ierusalimschy, Waldemar Celes,\n" 
                  "             Luiz Henrique de Figueiredo\n" 
                  "metapost  by John Hobby, Taco Hoekwater and friends.\n" 
-                 "xpdf      by Derek Noonburg (partial)\n" 
+                 "poppler   by Derek Noonburg, Kristian Høgsberg (partial)\n" 
                  "fontforge by George Williams (partial)\n\n" 
                  "Some extensions to lua and additional lua libraries are used, as well as\n" 
                  "libraries for graphic inclusion. More details can be found in the source.\n" 
