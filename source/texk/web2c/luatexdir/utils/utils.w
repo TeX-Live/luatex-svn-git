@@ -49,13 +49,11 @@ static const char _svn_version[] =
 #include "lua/luatex-api.h"     /* for ptexbanner */
 
 #include "png.h"
-#ifdef POPPLER_VERSION
-#  define xpdfString "poppler"
-#  include "poppler-config.h"
-#  define xpdfVersion POPPLER_VERSION
-#else
-#  define xpdfString "xpdf"
-#  include "xpdf/config.h"      /* just to get the xpdf version */
+
+#include "poppler-config.h"
+#ifndef POPPLER_VERSION
+#  include "aconf.h"
+#  define POPPLER_VERSION POPPLER_PACKAGE_VERSION
 #endif
 
 @ @c
@@ -354,9 +352,9 @@ void initversionstring(char **versions)
     (void) asprintf(versions,
                     "Compiled with libpng %s; using libpng %s\n"
                     "Compiled with zlib %s; using zlib %s\n"
-                    "Compiled with %s version %s\n",
+                    "Compiled with poppler version %s\n",
                     PNG_LIBPNG_VER_STRING, png_libpng_ver,
-                    ZLIB_VERSION, zlib_version, xpdfString, xpdfVersion);
+                    ZLIB_VERSION, zlib_version, POPPLER_VERSION);
 }
 
 @ @c

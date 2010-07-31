@@ -25,7 +25,7 @@ static const char _svn_version[] =
 // define DEBUG
 
 #include "epdf.h"
-
+#define HAVE_GETPDFMAJORVERSION 1
 #define one_hundred_bp  6578176 // one_hundred_bp = 7227 * 65536 / 72
 
 // This file is mostly C and not very much C++; it's just used to interface

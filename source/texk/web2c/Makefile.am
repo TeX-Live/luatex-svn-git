@@ -85,6 +85,8 @@ $(proglib): ${srcdir}/lib/*.c
 @LIBPNG_RULE@
 ## Rebuild libxpdf & Co
 @XPDF_RULE@
+## Rebuild poppler
+@POPPLER_RULE@
 ## Rebuild libopenbsd-compat
 @OBSDCOMPAT_RULE@
 ## Rebuild libzzip

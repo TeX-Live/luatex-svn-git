@@ -249,6 +249,7 @@ KPSE_PTEXENC_FLAGS
 KPSE_ZLIB_FLAGS
 KPSE_LIBPNG_FLAGS
 KPSE_XPDF_FLAGS
+KPSE_POPPLER_FLAGS
 KPSE_ZZIPLIB_FLAGS
 KPSE_GRAPHITE_FLAGS
 KPSE_FREETYPE2_FLAGS
@@ -258,6 +259,21 @@ KPSE_OBSDCOMPAT_FLAGS
 
 # Checks for xpdf (libpoppler) features.
 KPSE_ADD_FLAGS([xpdf])
+AC_LANG_PUSH([C++])
+AC_CACHE_CHECK([for PDFDoc::getPDFMajorVersion],
+               [kpse_cv_have_getPDFMajorVersion],
+               [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <PDFDoc.h>]],
+                                                   [[PDFDoc *pdfDoc; pdfDoc->getPDFMajorVersion();]])],
+                                  [kpse_cv_have_getPDFMajorVersion=yes],
+                                  [kpse_cv_have_getPDFMajorVersion=no])])
+AS_IF([test "x$kpse_cv_have_getPDFMajorVersion" = xyes],
+      [AC_DEFINE([HAVE_GETPDFMAJORVERSION], 1,
+                 [Define to 1 if class `PDFDoc' has the `getPDFMajorVersion' member.])])
+AC_LANG_POP([C++])
+KPSE_RESTORE_FLAGS
+
+# Checks for xpdf (libpoppler) features.
+KPSE_ADD_FLAGS([poppler])
 AC_LANG_PUSH([C++])
 AC_CACHE_CHECK([for PDFDoc::getPDFMajorVersion],
                [kpse_cv_have_getPDFMajorVersion],

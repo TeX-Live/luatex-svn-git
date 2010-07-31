@@ -115,6 +115,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/web2c-disable.m4 \
 	$(top_srcdir)/../../m4/kpse-lt-hack.m4 \
 	$(top_srcdir)/../../m4/kpse-macos-framework.m4 \
 	$(top_srcdir)/../../m4/kpse-obsdcompat-flags.m4 \
+	$(top_srcdir)/../../m4/kpse-poppler-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-ptexenc-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-socket-libs.m4 \
 	$(top_srcdir)/../../m4/kpse-teckit-flags.m4 \
@@ -684,6 +685,9 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
+POPPLER_DEPEND = @POPPLER_DEPEND@
+POPPLER_INCLUDES = @POPPLER_INCLUDES@
+POPPLER_LIBS = @POPPLER_LIBS@
 PTEXENC_DEPEND = @PTEXENC_DEPEND@
 PTEXENC_INCLUDES = @PTEXENC_INCLUDES@
 PTEXENC_LIBS = @PTEXENC_LIBS@
@@ -1120,18 +1124,18 @@ libmplib_web = mplibdir/mp.w mplibdir/psout.w mplibdir/svgout.w \
 # Force Automake to use CXXLD for linking
 nodist_EXTRA_luatex_SOURCES = dummy.cxx
 luatex_CPPFLAGS = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) \
-	$(XPDF_INCLUDES) $(OBSDCOMPAT_INCLUDES) -I$(srcdir)/libmd5 \
+	$(POPPLER_INCLUDES) $(OBSDCOMPAT_INCLUDES) -I$(srcdir)/libmd5 \
 	-Iluatexdir -I$(srcdir)/luatexdir -I$(srcdir)/luatexdir/lua51 \
 	-I$(srcdir)/mplibdir -Dextra_version_info=`date +-%Y%m%d%H`
 luatex_CFLAGS = $(WARNING_CFLAGS)
 luatex_CXXFLAGS = $(WARNING_CXXFLAGS)
 luatex_ldadd = libluatex.a libff.a libluamisc.a libluasocket.a \
 	liblua51.a $(ZZIPLIB_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) \
-	$(XPDF_LIBS) $(OBSDCOMPAT_LIBS) libmd5.a libmplib.a
+	$(POPPLER_LIBS) $(OBSDCOMPAT_LIBS) libmd5.a libmplib.a
 luatex_LDFLAGS = -export-dynamic
 luatex_LDADD = $(luatex_ldadd) $(LDADD) $(LIBADD_DLOPEN) $(lua_socketlibs)
 luatex_DEPENDENCIES = $(proglib) $(KPATHSEA_DEPEND) libluatex.a \
-	$(LIBPNG_DEPEND) $(ZLIB_DEPEND) $(XPDF_DEPEND) \
+	$(LIBPNG_DEPEND) $(ZLIB_DEPEND) $(POPPLER_DEPEND) \
 	$(OBSDCOMPAT_DEPEND) libmd5.a libmplib.a
 luatex_SOURCES = luatexdir/luatex_svnversion.h luatexdir/luatex.c luatexdir/luatex.h
 liblua51_a_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/luatexdir/lua51 \
@@ -1371,7 +1375,7 @@ libff_a_SOURCES = \
 
 libluatex_a_DEPENDENCIES = libff.a
 libluatex_a_CPPFLAGS = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) \
-	$(LIBPNG_INCLUDES) $(XPDF_INCLUDES) $(OBSDCOMPAT_INCLUDES) \
+	$(LIBPNG_INCLUDES) $(POPPLER_INCLUDES) $(OBSDCOMPAT_INCLUDES) \
 	-I$(srcdir)/libmd5 -Iluatexdir -I$(srcdir)/luatexdir \
 	-I$(srcdir)/luatexdir/lua51 -DpdfTeX
 libluatex_a_CFLAGS = $(WARNING_CFLAGS)
@@ -6335,6 +6339,7 @@ $(proglib): ${srcdir}/lib/*.c
 @ZLIB_RULE@
 @LIBPNG_RULE@
 @XPDF_RULE@
+@POPPLER_RULE@
 @OBSDCOMPAT_RULE@
 @ZZIPLIB_RULE@
 @GRAPHITE_RULE@
