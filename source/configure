@@ -917,7 +917,6 @@ enable_unitermwin
 enable_mp
 enable_web_progs
 with_system_zziplib
-with_system_xpdf
 with_system_poppler
 with_system_libpng
 with_libpng_includes
@@ -1653,8 +1652,6 @@ Optional Packages:
   --without-mf-x-toolkit  do not use X toolkit for METAFONT
   --with-system-zziplib   use installed zziplib headers and library (requires
                           pkg-config)
-  --with-system-xpdf      use installed poppler headers and library instead of
-                          xpdf (requires pkg-config)
   --with-system-poppler   use installed poppler headers and library instead of
                           poppler (requires pkg-config)
   --with-system-libpng    use installed libpng headers and library
@@ -4053,36 +4050,6 @@ test "x$need_zziplib" = xyes && {
 }
 
 
-## libs/xpdf/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/xpdf/
-## configure options and TL libraries required for xpdf
-
-# Check whether --with-system-xpdf was given.
-if test "${with_system_xpdf+set}" = set; then :
-  withval=$with_system_xpdf;
-fi
-if test "x$with_system_xpdf" = x; then
-  if test -f $srcdir/libs/xpdf/configure; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`xpdf' headers and library from TL tree" >&5
-$as_echo "$as_me: Assuming \`xpdf' headers and library from TL tree" >&6;}
-    with_system_xpdf=no
-  else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`xpdf' headers and library" >&5
-$as_echo "$as_me: Assuming installed \`xpdf' headers and library" >&6;}
-    with_system_xpdf=yes
-  fi
-  ac_configure_args="$ac_configure_args '--with-system-xpdf=$with_system_xpdf'"
-elif test "x$with_system_xpdf" = xyes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using installed \`xpdf' headers and library" >&5
-$as_echo "$as_me: Using installed \`xpdf' headers and library" >&6;}
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using \`xpdf' headers and library from TL tree" >&5
-$as_echo "$as_me: Using \`xpdf' headers and library from TL tree" >&6;}
-  if test "x$with_system_xpdf" != xno; then
-    with_system_xpdf=no
-    ac_configure_args="$ac_configure_args '--without-system-xpdf'"
-  fi
-fi
-
 
 ## libs/poppler/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/poppler/
 ## configure options and TL libraries required for poppler
@@ -5426,13 +5393,13 @@ if test "${lt_cv_nm_interface+set}" = set; then :
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:5429: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:5396: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:5432: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:5399: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:5435: output\"" >&5)
+  (eval echo "\"\$as_me:5402: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -6634,7 +6601,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 6637 "configure"' > conftest.$ac_ext
+  echo '#line 6604 "configure"' > conftest.$ac_ext
   if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_compile\""; } >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -8691,11 +8658,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8694: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8661: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:8698: \$? = $ac_status" >&5
+   echo "$as_me:8665: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -9030,11 +8997,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:9033: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:9000: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:9037: \$? = $ac_status" >&5
+   echo "$as_me:9004: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -9135,11 +9102,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:9138: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:9105: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:9142: \$? = $ac_status" >&5
+   echo "$as_me:9109: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -9190,11 +9157,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:9193: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:9160: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:9197: \$? = $ac_status" >&5
+   echo "$as_me:9164: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -11557,7 +11524,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 11560 "configure"
+#line 11527 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11653,7 +11620,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 11656 "configure"
+#line 11623 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -16140,11 +16107,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16143: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16110: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16147: \$? = $ac_status" >&5
+   echo "$as_me:16114: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16239,11 +16206,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16242: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16209: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:16246: \$? = $ac_status" >&5
+   echo "$as_me:16213: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -16291,11 +16258,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16294: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16261: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:16298: \$? = $ac_status" >&5
+   echo "$as_me:16265: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -17846,46 +17813,6 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-## libs/xpdf/ac/xpdf.ac: configure.ac fragment for the TeX Live subdirectory libs/xpdf/
-## basic check of system xpdf (poppler)
-ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-if test "x$need_xpdf:$with_system_xpdf" = xyes:yes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking requested system \`xpdf' library" >&5
-$as_echo_n "checking requested system \`xpdf' library... " >&6; }
-  CPPFLAGS="$XPDF_INCLUDES $CPPFLAGS"
-  LIBS="$XPDF_LIBS $LIBS"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <GfxFont.h>
-int
-main ()
-{
-GfxFont *gfxFont; gfxFont->decRefCnt();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  syslib_used=yes kpse_res=ok
-else
-  syslib_status=no kpse_res=failed
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $kpse_res" >&5
-$as_echo "$kpse_res" >&6; }
-fi
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
 ## libs/zziplib/ac/zziplib.ac: configure.ac fragment for the TeX Live subdirectory libs/zziplib/
 ## basic check of system zziplib
 if test "x$need_zziplib:$with_system_zziplib" = xyes:yes; then
@@ -18537,8 +18464,8 @@ esac
 
 cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1
 # Files that config.status was made for.
-config_files="`echo $ac_config_files`"
-config_commands="`echo $ac_config_commands`"
+config_files="$ac_config_files"
+config_commands="$ac_config_commands"
 
 _ACEOF
 
