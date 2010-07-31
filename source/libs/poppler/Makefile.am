@@ -1,4 +1,4 @@
-## Proxy Makefile.am to build xpdf for TeX Live.
+## Proxy Makefile.am to build poppler for TeX Live.
 ##
 ##   Copyright (C) 2009 Peter Breitenlohner <tex-live@tug.org>
 ##
@@ -91,6 +91,7 @@ poppler_libpoppler_a_sources = \
 	$(POPPLER_SRC)/Gfx.cc \
 	$(POPPLER_SRC)/GfxFont.cc \
 	$(POPPLER_SRC)/GfxState.cc \
+	$(POPPLER_SRC)/GlobalParams.cc \
 	$(POPPLER_SRC)/JArithmeticDecoder.cc \
 	$(POPPLER_SRC)/JBIG2Stream.cc \
 	$(POPPLER_SRC)/JPXStream.cc \
