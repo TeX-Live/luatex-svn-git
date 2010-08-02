@@ -69,6 +69,7 @@ LUATEXEXE=luatex
 
 case `uname` in
   MINGW32*    ) LUATEXEXE=luatex.exe ;;
+  CYGWIN*    ) LUATEXEXE=luatex.exe ;;
 esac
 
 WARNINGFLAGS=--enable-compiler-warnings=$WARNINGS
