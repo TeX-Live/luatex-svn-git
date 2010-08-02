@@ -27,16 +27,16 @@ static const char _svn_version[] =
 // define DEBUG
 
 //**********************************************************************
-// TODO: add more xpdf functions (many are still missing)
+// TODO: add more poppler functions (many are still missing)
 
 //**********************************************************************
-// objects allocated by xpdf may not be deleted in the lepdflib
+// objects allocated by poppler may not be deleted in the lepdflib
 
-typedef enum { ALLOC_XPDF, ALLOC_LEPDF } alloctype;
+typedef enum { ALLOC_POPPLER, ALLOC_LEPDF } alloctype;
 
 typedef struct {
     void *d;
-    alloctype atype;            // was it allocated by XPDF or the lepdflib.cc?
+    alloctype atype;            // was it allocated by poppler or the lepdflib.cc?
     PdfDocument *pd;            // reference to PdfDocument, or NULL
     unsigned long pc;           // counter to detect PDFDoc change
 } udstruct;
@@ -69,36 +69,36 @@ const char *ErrorCodeNames[] = { "None", "OpenFile", "BadCatalog",
 
 //**********************************************************************
 
-#define new_XPDF_userdata(type)                                                 \
+#define new_poppler_userdata(type)                                              \
 udstruct *new_##type##_userdata(lua_State * L)                                  \
 {                                                                               \
     udstruct *a;                                                                \
     a = (udstruct *) lua_newuserdata(L, sizeof(udstruct));  /* udstruct ... */  \
-    a->atype = ALLOC_XPDF;                                                      \
+    a->atype = ALLOC_POPPLER;                                                   \
     luaL_getmetatable(L, M_##type);     /* m udstruct ... */                    \
     lua_setmetatable(L, -2);    /* udstruct ... */                              \
     return a;                                                                   \
 }
 
-new_XPDF_userdata(PDFDoc);
+new_poppler_userdata(PDFDoc);
 
-new_XPDF_userdata(Annot);
-new_XPDF_userdata(AnnotBorder);
-new_XPDF_userdata(AnnotBorderStyle);
-new_XPDF_userdata(Annots);
-new_XPDF_userdata(Array);
-new_XPDF_userdata(Catalog);
-new_XPDF_userdata(Dict);
-new_XPDF_userdata(GString);
-new_XPDF_userdata(LinkDest);
-new_XPDF_userdata(Links);
-new_XPDF_userdata(Object);
-new_XPDF_userdata(Page);
-new_XPDF_userdata(PDFRectangle);
-new_XPDF_userdata(Ref);
-new_XPDF_userdata(Stream);
-new_XPDF_userdata(XRef);
-new_XPDF_userdata(XRefEntry);
+new_poppler_userdata(Annot);
+new_poppler_userdata(AnnotBorder);
+new_poppler_userdata(AnnotBorderStyle);
+new_poppler_userdata(Annots);
+new_poppler_userdata(Array);
+new_poppler_userdata(Catalog);
+new_poppler_userdata(Dict);
+new_poppler_userdata(GString);
+new_poppler_userdata(LinkDest);
+new_poppler_userdata(Links);
+new_poppler_userdata(Object);
+new_poppler_userdata(Page);
+new_poppler_userdata(PDFRectangle);
+new_poppler_userdata(Ref);
+new_poppler_userdata(Stream);
+new_poppler_userdata(XRef);
+new_poppler_userdata(XRefEntry);
 
 //**********************************************************************
 
@@ -245,7 +245,7 @@ static const struct luaL_Reg epdflib[] = {
 
 //**********************************************************************
 
-#define m_XPDF_get_XPDF(in, out, function)                     \
+#define m_poppler_get_poppler(in, out, function)               \
 int m_##in##_##function(lua_State * L)                         \
 {                                                              \
     out *o;                                                    \
@@ -264,7 +264,7 @@ int m_##in##_##function(lua_State * L)                         \
     return 1;                                                  \
 }
 
-#define m_XPDF_get_BOOL(in, function)                          \
+#define m_poppler_get_BOOL(in, function)                       \
 int m_##in##_##function(lua_State * L)                         \
 {                                                              \
     udstruct *uin;                                             \
@@ -278,7 +278,7 @@ int m_##in##_##function(lua_State * L)                         \
     return 1;                                                  \
 }
 
-#define m_XPDF_get_INT(in, function)                           \
+#define m_poppler_get_INT(in, function)                        \
 int m_##in##_##function(lua_State * L)                         \
 {                                                              \
     int i;                                                     \
@@ -291,7 +291,7 @@ int m_##in##_##function(lua_State * L)                         \
     return 1;                                                  \
 }
 
-#define m_XPDF_get_DOUBLE(in, function)                        \
+#define m_poppler_get_DOUBLE(in, function)                     \
 int m_##in##_##function(lua_State * L)                         \
 {                                                              \
     double d;                                                  \
@@ -304,7 +304,7 @@ int m_##in##_##function(lua_State * L)                         \
     return 1;                                                  \
 }
 
-#define m_XPDF_get_GSTRING(in, function)                       \
+#define m_poppler_get_GSTRING(in, function)                    \
 int m_##in##_##function(lua_State * L)                         \
 {                                                              \
     GString *gs;                                               \
@@ -320,7 +320,7 @@ int m_##in##_##function(lua_State * L)                         \
     return 1;                                                  \
 }
 
-#define m_XPDF_get_OBJECT(in, function)                        \
+#define m_poppler_get_OBJECT(in, function)                     \
 int m_##in##_##function(lua_State * L)                         \
 {                                                              \
     udstruct *uin, *uout;                                      \
@@ -336,7 +336,7 @@ int m_##in##_##function(lua_State * L)                         \
     return 1;                                                  \
 }
 
-#define m_XPDF__tostring(type)                                 \
+#define m_poppler__tostring(type)                              \
 int m_##type##__tostring(lua_State * L)                        \
 {                                                              \
     udstruct *uin;                                             \
@@ -350,9 +350,9 @@ int m_##type##__tostring(lua_State * L)                        \
 //**********************************************************************
 // Annot
 
-m_XPDF_get_BOOL(Annot, isOk);
-m_XPDF_get_OBJECT(Annot, getAppearance);
-m_XPDF_get_XPDF(Annot, AnnotBorder, getBorder);
+m_poppler_get_BOOL(Annot, isOk);
+m_poppler_get_OBJECT(Annot, getAppearance);
+m_poppler_get_poppler(Annot, AnnotBorder, getBorder);
 
 int m_Annot_match(lua_State * L)
 {
@@ -368,7 +368,7 @@ int m_Annot_match(lua_State * L)
     return 1;
 }
 
-m_XPDF__tostring(Annot);
+m_poppler__tostring(Annot);
 
 static int m_Annot__gc(lua_State * L)
 {
@@ -397,9 +397,9 @@ static const struct luaL_Reg Annot_m[] = {
 //**********************************************************************
 // AnnotBorderStyle
 
-m_XPDF_get_DOUBLE(AnnotBorderStyle, getWidth);
+m_poppler_get_DOUBLE(AnnotBorderStyle, getWidth);
 
-m_XPDF__tostring(AnnotBorderStyle);
+m_poppler__tostring(AnnotBorderStyle);
 
 static int m_Annots__gc(lua_State * L)
 {
@@ -425,7 +425,7 @@ static const struct luaL_Reg AnnotBorderStyle_m[] = {
 //**********************************************************************
 // Annots
 
-m_XPDF_get_INT(Annots, getNumAnnots);
+m_poppler_get_INT(Annots, getNumAnnots);
 
 int m_Annots_getAnnot(lua_State * L)
 {
@@ -446,7 +446,7 @@ int m_Annots_getAnnot(lua_State * L)
     return 1;
 }
 
-m_XPDF__tostring(Annots);
+m_poppler__tostring(Annots);
 
 static const struct luaL_Reg Annots_m[] = {
     {"getNumAnnots", m_Annots_getNumAnnots},
@@ -482,7 +482,7 @@ int m_Array_decRef(lua_State * L)
     return 1;
 }
 
-m_XPDF_get_INT(Array, getLength);
+m_poppler_get_INT(Array, getLength);
 
 int m_Array_add(lua_State * L)
 {
@@ -540,7 +540,7 @@ int m_Array_getNF(lua_State * L)
     return 1;
 }
 
-m_XPDF__tostring(Array);
+m_poppler__tostring(Array);
 
 static const struct luaL_Reg Array_m[] = {
     {"incRef", m_Array_incRef},
@@ -556,8 +556,8 @@ static const struct luaL_Reg Array_m[] = {
 //**********************************************************************
 // Catalog
 
-m_XPDF_get_BOOL(Catalog, isOk);
-m_XPDF_get_INT(Catalog, getNumPages);
+m_poppler_get_BOOL(Catalog, isOk);
+m_poppler_get_INT(Catalog, getNumPages);
 
 int m_Catalog_getPage(lua_State * L)
 {
@@ -600,9 +600,9 @@ int m_Catalog_getPageRef(lua_State * L)
     return 1;
 }
 
-m_XPDF_get_GSTRING(Catalog, getBaseURI);
-m_XPDF_get_GSTRING(Catalog, readMetadata);
-m_XPDF_get_XPDF(Catalog, Object, getStructTreeRoot);
+m_poppler_get_GSTRING(Catalog, getBaseURI);
+m_poppler_get_GSTRING(Catalog, readMetadata);
+m_poppler_get_poppler(Catalog, Object, getStructTreeRoot);
 
 int m_Catalog_findPage(lua_State * L)
 {
@@ -645,11 +645,11 @@ int m_Catalog_findDest(lua_State * L)
     return 1;
 }
 
-m_XPDF_get_XPDF(Catalog, Object, getDests);
-m_XPDF_get_XPDF(Catalog, Object, getOutline);
-m_XPDF_get_XPDF(Catalog, Object, getAcroForm);
+m_poppler_get_poppler(Catalog, Object, getDests);
+m_poppler_get_poppler(Catalog, Object, getOutline);
+m_poppler_get_poppler(Catalog, Object, getAcroForm);
 
-m_XPDF__tostring(Catalog);
+m_poppler__tostring(Catalog);
 
 static const struct luaL_Reg Catalog_m[] = {
     {"isOk", m_Catalog_isOk},
@@ -695,7 +695,7 @@ int m_Dict_decRef(lua_State * L)
     return 1;
 }
 
-m_XPDF_get_INT(Dict, getLength);
+m_poppler_get_INT(Dict, getLength);
 
 int m_Dict_add(lua_State * L)
 {
@@ -817,7 +817,7 @@ int m_Dict_getValNF(lua_State * L)
     return 1;
 }
 
-m_XPDF__tostring(Dict);
+m_poppler__tostring(Dict);
 
 const struct luaL_Reg Dict_m[] = {
     {"incRef", m_Dict_incRef},
@@ -859,7 +859,7 @@ static const struct luaL_Reg GString_m[] = {
 const char *LinkDestKindNames[] =
     { "XYZ", "Fit", "FitH", "FitV", "FitR", "FitB", "FitBH", "FitBV", NULL };
 
-m_XPDF_get_BOOL(LinkDest, isOk);
+m_poppler_get_BOOL(LinkDest, isOk);
 
 int m_LinkDest_getKind(lua_State * L)
 {
@@ -885,8 +885,8 @@ int m_LinkDest_getKindName(lua_State * L)
     return 1;
 }
 
-m_XPDF_get_BOOL(LinkDest, isPageRef);
-m_XPDF_get_INT(LinkDest, getPageNum);
+m_poppler_get_BOOL(LinkDest, isPageRef);
+m_poppler_get_INT(LinkDest, getPageNum);
 
 int m_LinkDest_getPageRef(lua_State * L)
 {
@@ -904,21 +904,21 @@ int m_LinkDest_getPageRef(lua_State * L)
     return 1;
 }
 
-m_XPDF_get_DOUBLE(LinkDest, getLeft);
-m_XPDF_get_DOUBLE(LinkDest, getBottom);
-m_XPDF_get_DOUBLE(LinkDest, getRight);
-m_XPDF_get_DOUBLE(LinkDest, getTop);
-m_XPDF_get_DOUBLE(LinkDest, getZoom);
-m_XPDF_get_BOOL(LinkDest, getChangeLeft);
-m_XPDF_get_BOOL(LinkDest, getChangeTop);
-m_XPDF_get_BOOL(LinkDest, getChangeZoom);
+m_poppler_get_DOUBLE(LinkDest, getLeft);
+m_poppler_get_DOUBLE(LinkDest, getBottom);
+m_poppler_get_DOUBLE(LinkDest, getRight);
+m_poppler_get_DOUBLE(LinkDest, getTop);
+m_poppler_get_DOUBLE(LinkDest, getZoom);
+m_poppler_get_BOOL(LinkDest, getChangeLeft);
+m_poppler_get_BOOL(LinkDest, getChangeTop);
+m_poppler_get_BOOL(LinkDest, getChangeZoom);
 
-m_XPDF__tostring(LinkDest);
+m_poppler__tostring(LinkDest);
 
 static const struct luaL_Reg LinkDest_m[] = {
     {"isOk", m_LinkDest_isOk},
     {"getKind", m_LinkDest_getKind},
-    {"getKindName", m_LinkDest_getKindName},    // not xpdf
+    {"getKindName", m_LinkDest_getKindName},    // not poppler
     {"isPageRef", m_LinkDest_isPageRef},
     {"getPageNum", m_LinkDest_getPageNum},
     {"getPageRef", m_LinkDest_getPageRef},
@@ -937,7 +937,7 @@ static const struct luaL_Reg LinkDest_m[] = {
 //**********************************************************************
 // Links
 
-m_XPDF__tostring(Links);
+m_poppler__tostring(Links);
 
 static const struct luaL_Reg Links_m[] = {
     {"__tostring", m_Links__tostring},
@@ -1156,21 +1156,21 @@ int m_Object_getTypeName(lua_State * L)
     return 1;
 }
 
-m_XPDF_get_BOOL(Object, isBool);
-m_XPDF_get_BOOL(Object, isInt);
-m_XPDF_get_BOOL(Object, isReal);
-m_XPDF_get_BOOL(Object, isNum);
-m_XPDF_get_BOOL(Object, isString);
-m_XPDF_get_BOOL(Object, isName);
-m_XPDF_get_BOOL(Object, isNull);
-m_XPDF_get_BOOL(Object, isArray);
-m_XPDF_get_BOOL(Object, isDict);
-m_XPDF_get_BOOL(Object, isStream);
-m_XPDF_get_BOOL(Object, isRef);
-m_XPDF_get_BOOL(Object, isCmd);
-m_XPDF_get_BOOL(Object, isError);
-m_XPDF_get_BOOL(Object, isEOF);
-m_XPDF_get_BOOL(Object, isNone);
+m_poppler_get_BOOL(Object, isBool);
+m_poppler_get_BOOL(Object, isInt);
+m_poppler_get_BOOL(Object, isReal);
+m_poppler_get_BOOL(Object, isNum);
+m_poppler_get_BOOL(Object, isString);
+m_poppler_get_BOOL(Object, isName);
+m_poppler_get_BOOL(Object, isNull);
+m_poppler_get_BOOL(Object, isArray);
+m_poppler_get_BOOL(Object, isDict);
+m_poppler_get_BOOL(Object, isStream);
+m_poppler_get_BOOL(Object, isRef);
+m_poppler_get_BOOL(Object, isCmd);
+m_poppler_get_BOOL(Object, isError);
+m_poppler_get_BOOL(Object, isEOF);
+m_poppler_get_BOOL(Object, isNone);
 // isName
 // isDict
 // isStream
@@ -1300,7 +1300,7 @@ int m_Object_getStream(lua_State * L)
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
     if (((Object *) uin->d)->isStream()) {
-        uout = new_Dict_userdata(L);
+        uout = new_Stream_userdata(L);
         uout->d = ((Object *) uin->d)->getStream();
         uout->pc = uin->pc;
         uout->pd = uin->pd;
@@ -1709,7 +1709,7 @@ static int m_Object__gc(lua_State * L)
     return 0;
 }
 
-m_XPDF__tostring(Object);
+m_poppler__tostring(Object);
 
 static const struct luaL_Reg Object_m[] = {
     {"initBool", m_Object_initBool},
@@ -1785,27 +1785,27 @@ static const struct luaL_Reg Object_m[] = {
 //**********************************************************************
 // Page
 
-m_XPDF_get_BOOL(Page, isOk);
-m_XPDF_get_INT(Page, getNum);
-m_XPDF_get_XPDF(Page, PDFRectangle, getMediaBox);
-m_XPDF_get_XPDF(Page, PDFRectangle, getCropBox);
-m_XPDF_get_BOOL(Page, isCropped);
-m_XPDF_get_DOUBLE(Page, getMediaWidth);
-m_XPDF_get_DOUBLE(Page, getMediaHeight);
-m_XPDF_get_DOUBLE(Page, getCropWidth);
-m_XPDF_get_DOUBLE(Page, getCropHeight);
-m_XPDF_get_XPDF(Page, PDFRectangle, getBleedBox);
-m_XPDF_get_XPDF(Page, PDFRectangle, getTrimBox);
-m_XPDF_get_XPDF(Page, PDFRectangle, getArtBox);
-m_XPDF_get_INT(Page, getRotate);
-m_XPDF_get_GSTRING(Page, getLastModified);
-m_XPDF_get_XPDF(Page, Dict, getBoxColorInfo);
-m_XPDF_get_XPDF(Page, Dict, getGroup);
-m_XPDF_get_XPDF(Page, Stream, getMetadata);
-m_XPDF_get_XPDF(Page, Dict, getPieceInfo);
-m_XPDF_get_XPDF(Page, Dict, getSeparationInfo);
-m_XPDF_get_XPDF(Page, Dict, getResourceDict);
-m_XPDF_get_OBJECT(Page, getAnnots);
+m_poppler_get_BOOL(Page, isOk);
+m_poppler_get_INT(Page, getNum);
+m_poppler_get_poppler(Page, PDFRectangle, getMediaBox);
+m_poppler_get_poppler(Page, PDFRectangle, getCropBox);
+m_poppler_get_BOOL(Page, isCropped);
+m_poppler_get_DOUBLE(Page, getMediaWidth);
+m_poppler_get_DOUBLE(Page, getMediaHeight);
+m_poppler_get_DOUBLE(Page, getCropWidth);
+m_poppler_get_DOUBLE(Page, getCropHeight);
+m_poppler_get_poppler(Page, PDFRectangle, getBleedBox);
+m_poppler_get_poppler(Page, PDFRectangle, getTrimBox);
+m_poppler_get_poppler(Page, PDFRectangle, getArtBox);
+m_poppler_get_INT(Page, getRotate);
+m_poppler_get_GSTRING(Page, getLastModified);
+m_poppler_get_poppler(Page, Dict, getBoxColorInfo);
+m_poppler_get_poppler(Page, Dict, getGroup);
+m_poppler_get_poppler(Page, Stream, getMetadata);
+m_poppler_get_poppler(Page, Dict, getPieceInfo);
+m_poppler_get_poppler(Page, Dict, getSeparationInfo);
+m_poppler_get_poppler(Page, Dict, getResourceDict);
+m_poppler_get_OBJECT(Page, getAnnots);
 
 int m_Page_getLinks(lua_State * L)
 {
@@ -1829,9 +1829,9 @@ int m_Page_getLinks(lua_State * L)
     return 1;
 }
 
-m_XPDF_get_OBJECT(Page, getContents);
+m_poppler_get_OBJECT(Page, getContents);
 
-m_XPDF__tostring(Page);
+m_poppler__tostring(Page);
 
 static const struct luaL_Reg Page_m[] = {
     {"isOk", m_Page_isOk},
@@ -2149,7 +2149,7 @@ static int m_PDFDoc__gc(lua_State * L)
 static const struct luaL_Reg PDFDoc_m[] = {
     {"isOk", m_PDFDoc_isOk},
     {"getErrorCode", m_PDFDoc_getErrorCode},
-    {"getErrorCodeName", m_PDFDoc_getErrorCodeName},    // not xpdf
+    {"getErrorCodeName", m_PDFDoc_getErrorCodeName},    // not poppler
     {"getFileName", m_PDFDoc_getFileName},
     {"getXRef", m_PDFDoc_getXRef},
     {"getCatalog", m_PDFDoc_getCatalog},
@@ -2181,9 +2181,9 @@ static const struct luaL_Reg PDFDoc_m[] = {
 //**********************************************************************
 // PDFRectangle
 
-m_XPDF_get_BOOL(PDFRectangle, isValid);
+m_poppler_get_BOOL(PDFRectangle, isValid);
 
-m_XPDF__tostring(PDFRectangle);
+m_poppler__tostring(PDFRectangle);
 
 int m_PDFRectangle__index(lua_State * L)
 {
@@ -2288,7 +2288,7 @@ int m_Ref__index(lua_State * L)
     return 1;
 }
 
-m_XPDF__tostring(Ref);
+m_poppler__tostring(Ref);
 
 static int m_Ref__gc(lua_State * L)
 {
@@ -2324,7 +2324,7 @@ static const char *StreamColorSpaceModeNames[] =
     { "CSNone", "CSDeviceGray", "CSDeviceRGB", "CSDeviceCMYK", NULL };
 #endif
 
-m_XPDF_get_INT(Stream, getKind);
+m_poppler_get_INT(Stream, getKind);
 
 int m_Stream_getKindName(lua_State * L)
 {
@@ -2372,15 +2372,15 @@ int m_Stream_lookChar(lua_State * L)
     return 1;
 }
 
-m_XPDF_get_XPDF(Stream, Stream, getUndecodedStream);
-m_XPDF_get_BOOL(Stream, isBinary);
-m_XPDF_get_XPDF(Stream, Dict, getDict);
+m_poppler_get_poppler(Stream, Stream, getUndecodedStream);
+m_poppler_get_BOOL(Stream, isBinary);
+m_poppler_get_poppler(Stream, Dict, getDict);
 
-m_XPDF__tostring(Stream);
+m_poppler__tostring(Stream);
 
 static const struct luaL_Reg Stream_m[] = {
     {"getKind", m_Stream_getKind},
-    {"getKindName", m_Stream_getKindName},      // not xpdf
+    {"getKindName", m_Stream_getKindName},      // not poppler
     {"reset", m_Stream_reset},
     {"getUndecodedStream", m_Stream_getUndecodedStream},
     {"getChar", m_Stream_getChar},
@@ -2394,14 +2394,14 @@ static const struct luaL_Reg Stream_m[] = {
 //**********************************************************************
 // XRef
 
-m_XPDF_get_BOOL(XRef, isOk);
-m_XPDF_get_INT(XRef, getErrorCode);
-m_XPDF_get_BOOL(XRef, isEncrypted);
-m_XPDF_get_BOOL(XRef, okToPrint);
-m_XPDF_get_BOOL(XRef, okToChange);
-m_XPDF_get_BOOL(XRef, okToCopy);
-m_XPDF_get_BOOL(XRef, okToAddNotes);
-m_XPDF_get_OBJECT(XRef, getCatalog);
+m_poppler_get_BOOL(XRef, isOk);
+m_poppler_get_INT(XRef, getErrorCode);
+m_poppler_get_BOOL(XRef, isEncrypted);
+m_poppler_get_BOOL(XRef, okToPrint);
+m_poppler_get_BOOL(XRef, okToChange);
+m_poppler_get_BOOL(XRef, okToCopy);
+m_poppler_get_BOOL(XRef, okToAddNotes);
+m_poppler_get_OBJECT(XRef, getCatalog);
 
 int m_XRef_fetch(lua_State * L)
 {
@@ -2421,18 +2421,18 @@ int m_XRef_fetch(lua_State * L)
     return 1;
 }
 
-m_XPDF_get_OBJECT(XRef, getDocInfo);
-m_XPDF_get_OBJECT(XRef, getDocInfoNF);
-m_XPDF_get_INT(XRef, getNumObjects);
+m_poppler_get_OBJECT(XRef, getDocInfo);
+m_poppler_get_OBJECT(XRef, getDocInfoNF);
+m_poppler_get_INT(XRef, getNumObjects);
 // getLastXRefPos
-m_XPDF_get_INT(XRef, getRootNum);
-m_XPDF_get_INT(XRef, getRootGen);
+m_poppler_get_INT(XRef, getRootNum);
+m_poppler_get_INT(XRef, getRootGen);
 // getStreamEnd
-m_XPDF_get_INT(XRef, getSize);
+m_poppler_get_INT(XRef, getSize);
 // getEntry
-m_XPDF_get_XPDF(XRef, Object, getTrailerDict);
+m_poppler_get_poppler(XRef, Object, getTrailerDict);
 
-m_XPDF__tostring(XRef);
+m_poppler__tostring(XRef);
 
 static const struct luaL_Reg XRef_m[] = {
     {"isOk", m_XRef_isOk},
@@ -2477,7 +2477,7 @@ static const struct luaL_Reg XRefEntry_m[] = {
 int luaopen_epdf(lua_State * L)
 {
     register_meta(Annot);
-//TODO    register_meta(AnnotBorder);
+    // TODO register_meta(AnnotBorder);
     register_meta(AnnotBorderStyle);
     register_meta(Annots);
     register_meta(Array);
