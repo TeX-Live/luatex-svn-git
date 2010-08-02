@@ -37,7 +37,7 @@
 #include <assert.h>
 #include "poppler-config.h"
 #include <stdio.h>
-#ifndef _MSC_VER
+#if !defined(PDF_PARSER_ONLY) && !defined(_MSC_VER)
 #include <fontconfig/fontconfig.h>
 #endif
 #include "goo/gtypes.h"
@@ -169,7 +169,7 @@ public:
 
   void setBaseDir(char *dir);
 
-#ifdef _MSC_VER
+#if !defined(PDF_PARSER_ONLY) && !defined(_MSC_VER)
   void setupBaseFonts(char *dir);
 #endif
 
@@ -352,7 +352,7 @@ private:
   UnicodeMapCache *unicodeMapCache;
   CMapCache *cMapCache;
   
-#ifndef _MSC_VER
+#if !defined (PDF_PARSER_ONLY) && !defined(_MSC_VER)
   FcConfig *FCcfg;
 #endif
 

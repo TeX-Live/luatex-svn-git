@@ -559,11 +559,9 @@ GlobalParams::GlobalParams(const char *customPopplerDataDir)
   UnicodeMap *map;
   int i;
 
-#ifndef PDF_PARSER_ONLY
-#ifndef _MSC_VER  
+#if !defined(PDF_PARSER_ONLY) && !defined(_MSC_VER)
   FcInit();
   FCcfg = FcConfigGetCurrent();
-#endif
 #endif
 
 #if MULTITHREADED
@@ -948,6 +946,7 @@ FILE *GlobalParams::findToUnicodeFile(GooString *name) {
   return NULL;
 }
 
+#if !defined(PDF_PARSER_ONLY) && !defined(_MSC_VER)
 static GBool findModifier(const char *name, const char *modifier, const char **start)
 {
   const char *match;
@@ -966,7 +965,6 @@ static GBool findModifier(const char *name, const char *modifier, const char **s
   }
 }
 
-#ifndef _MSC_VER
 static FcPattern *buildFcPattern(GfxFont *font)
 {
   int weight = -1,
