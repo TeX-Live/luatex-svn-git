@@ -1965,7 +1965,8 @@ font loading completely but will nevertheless generate errors.
 \section{The \luatex{epdf} library}
 
 The \type{epdf} library provides Lua bindings to many \PDF\ access functions
-that are defined by the xpdf viewer library (written in C$+{}+$ by Derek Noonburg).
+that are defined by the poppler pdf viewer library (written in C$+{}+$
+by Kristian H\o gsberg, based on xpdf by Derek Noonburg).
 Within \LUATEX\ (and \PDFTEX),
 xpdf functionality is being used since long time to embed \PDF\ files.
 The new \type{epdf} library shall allow to scrutinize an external \PDF\ file.
@@ -1976,7 +1977,7 @@ annotations, info, and metadata.
 The \type{epdf} library is in an early alpha state:
 \PDF\ access is currently read|-|only
 (it's not yet possible to alter a \PDF\ file or to assemble it from scratch),
-and many xpdf function bindings are still missing.
+and many function bindings are still missing.
 
 For a start, 
 a \PDF\ file is opened by \type{epdf.open()} with file name, e.\,g.:
@@ -1990,9 +1991,9 @@ but if the file could not be opened successfully,
 instead of a fatal error just the value \type{nil} is returned.
 
 All Lua functions in the \type{epdf} library are named after the
-functions listed in the header files for the various xpdf classes,
+functions listed in the header files for the various classes,
 e.\,g., files \type{PDFDoc.h}, \type{Dict.h}, and \type{Array.h}.
-These files can be found in the xpdf subdirectory within the \LUATEX\ sources.
+These files can be found in the poppler subdirectory within the \LUATEX\ sources.
 Which functions are already implemented in the \type{epdf} library
 can be found in the \LUATEX\ source file \type{lepdflib.cc}.
 For using the \type{epdf} library, 
@@ -2007,7 +2008,7 @@ by the \type{epdf} library, currently these are
 \type{XRef}, and \type{XRefEntry} (more to follow).
 
 All these class names and the Lua access functions closely resemble
-the naming from the xpdf header files,
+the naming from the poppler header files,
 including the choice of mixed upper and lower case letters.
 The Lua function calls use object-oriented syntax, e.\,g.,
 the following calls return the \type{Page} object for page~1:
@@ -2027,7 +2028,7 @@ cf.~\type{Page.h}) but not available,
 the Lua functions return \type{nil}.
 If a function should return an \type{Object}, but it's not existing,
 a \type{Null} object is returned instead
-(this is in|-|line with xpdf behavior).
+(this is in|-|line with poppler behavior).
 
 %***********************************************************************
 
