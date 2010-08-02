@@ -5493,6 +5493,32 @@ tex.dp
 be removed in luatex 0.70. You should switch to using \type{tex.box[].width}
 etc. instead, see below.}
 
+If in post 0.70 you want the functionality of these tables back, you can add
+\LUA\ code to do that for you, like this:
+
+
+\startluacode
+local box = tex.box
+
+local wd = {
+    __index    = function(t,k)   local bk = box[k] return bk and bk.width or 0 end,
+    __newindex = function(t,k,v) local bk = box[k] if bk then bk.width = v end end,
+}
+local ht = {
+    __index    = function(t,k)   local bk = box[k] return bk and bk.height or 0 end,
+    __newindex = function(t,k,v) local bk = box[k] if bk then bk.height = v end end,
+}
+local dp = {
+    __index    = function(t,k)   local bk = box[k] return bk and bk.depth or 0 end,
+    __newindex = function(t,k,v) local bk = box[k] if bk then bk.depth = v end end,
+}
+
+tex.wd = { } setmetatable(tex.wd,wd)
+tex.ht = { } setmetatable(tex.ht,ht)
+tex.dp = { } setmetatable(tex.dp,dp)
+\stopluacode
+
+
 \blank
 
 It is also possible to set and query actual boxes, using the node
