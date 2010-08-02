@@ -149,13 +149,13 @@ static sfd_entry *read_sfd(char *sfd_name)
             if (!(run_callback(callback_id, "S->bSd", cur_file_name,
                                &file_opened, &sfd_buffer, &sfd_size) &&
                   file_opened && sfd_size > 0)) {
-                pdftex_warn("cannot open SFD file for reading");
+                pdftex_warn("cannot open SFD file for reading (%s)", cur_file_name);
                 cur_file_name = NULL;
                 return NULL;
             }
         } else {
             if (!sfd_open(cur_file_name)) {
-                pdftex_warn("cannot open SFD file for reading");
+                pdftex_warn("cannot open SFD file for reading (%s)", cur_file_name);
                 cur_file_name = NULL;
                 return NULL;
             }

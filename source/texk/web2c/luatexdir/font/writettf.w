@@ -1703,7 +1703,7 @@ void writettf(PDF pdf, fd_entry * fd)
     cur_file_name =
         luatex_find_file(fd_cur->fm->ff_name, find_truetype_file_callback);
     if (cur_file_name == NULL) {
-        pdftex_fail("cannot find TrueType font file for reading");
+        pdftex_fail("cannot find TrueType font file for reading (%d)", fd_cur->fm->ff_name);
     }
     callback_id = callback_defined(read_truetype_file_callback);
     if (callback_id > 0) {
@@ -1711,11 +1711,11 @@ void writettf(PDF pdf, fd_entry * fd)
                          &file_opened, &ttf_buffer, &ttf_size) &&
             file_opened && ttf_size > 0) {
         } else {
-            pdftex_fail("cannot open TrueType font file for reading");
+            pdftex_fail("cannot open TrueType font file for reading (%s)", cur_file_name);
         }
     } else {
         if (!ttf_open(cur_file_name)) {
-            pdftex_fail("cannot open TrueType font file for reading");
+            pdftex_fail("cannot open TrueType font file for reading (%s)", cur_file_name);
         }
         ttf_read_file();
         ttf_close();
@@ -1808,7 +1808,7 @@ void writeotf(PDF pdf, fd_entry * fd)
     cur_file_name =
         luatex_find_file(fd_cur->fm->ff_name, find_opentype_file_callback);
     if (cur_file_name == NULL) {
-        pdftex_fail("cannot find OpenType font file for reading");
+        pdftex_fail("cannot find OpenType font file for reading (%s)", fd_cur->fm->ff_name);
     }
     callback_id = callback_defined(read_opentype_file_callback);
     if (callback_id > 0) {
@@ -1816,11 +1816,11 @@ void writeotf(PDF pdf, fd_entry * fd)
                          &file_opened, &ttf_buffer, &ttf_size) &&
             file_opened && ttf_size > 0) {
         } else {
-            pdftex_fail("cannot open OpenType font file for reading");
+            pdftex_fail("cannot open OpenType font file for reading (%s)", cur_file_name);
         }
     } else {
         if (!otf_open(cur_file_name)) {
-            pdftex_fail("cannot open OpenType font file for reading");
+            pdftex_fail("cannot open OpenType font file for reading (%s)", cur_file_name);
         }
         ttf_read_file();
         ttf_close();

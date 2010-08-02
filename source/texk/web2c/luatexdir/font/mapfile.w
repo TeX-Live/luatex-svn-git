@@ -528,14 +528,14 @@ static void fm_read_info(void)
                             fm_file = NULL;
                         }
                     } else {
-                        pdftex_warn("cannot open font map file");
+                        pdftex_warn("cannot open font map file (%s)", cur_file_name);
                     }
                 } else {
-                    pdftex_warn("cannot open font map file");
+                    pdftex_warn("cannot open font map file (%s)", cur_file_name);
                 }
             } else {
                 if (!fm_open(cur_file_name)) {
-                    pdftex_warn("cannot open font map file");
+                    pdftex_warn("cannot open font map file (%s)", cur_file_name);
                 } else {
                     fm_read_file();
                     tex_printf("{%s", cur_file_name);
