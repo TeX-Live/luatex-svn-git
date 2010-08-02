@@ -335,7 +335,7 @@ void ext_post_line_break(int paragraph_dir,
             /* Put the \.{\\rightskip} glue after node |q|; */
             halfword r = new_glue((right_skip == null ? null : copy_node(right_skip)));
 	    glue_ref_count(glue_ptr(r)) = null;
-	    subtype(r) = right_skip_code;
+	    subtype(r) = right_skip_code+1;
             vlink(r) = vlink(q);
             delete_attribute_ref(node_attr(r));
             node_attr(r) = node_attr(q);
@@ -390,7 +390,7 @@ void ext_post_line_break(int paragraph_dir,
         if (left_skip != zero_glue) {
             r = new_glue(copy_node(left_skip));
 	    glue_ref_count(glue_ptr(r)) = null;
-	    subtype(r) = left_skip_code;
+	    subtype(r) = left_skip_code+1;
             delete_attribute_ref(node_attr(r));
             node_attr(r) = node_attr(q);
             add_node_attr_ref(node_attr(r));
