@@ -1516,7 +1516,7 @@ letter_space_font(halfword u, internal_font_number f, int e, boolean nolig)
     char *new_font_name;
 
     /* read a new font and expand the character widths */
-    k = read_font_info(u, font_name(f), font_size(f), font_natural_dir(f));
+    k = copy_font(f);
 
     if (nolig)
       set_no_ligatures(k);        /* disable ligatures for letter-spaced fonts */
