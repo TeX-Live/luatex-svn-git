@@ -1703,7 +1703,7 @@ void writettf(PDF pdf, fd_entry * fd)
     cur_file_name =
         luatex_find_file(fd_cur->fm->ff_name, find_truetype_file_callback);
     if (cur_file_name == NULL) {
-        pdftex_fail("cannot find TrueType font file for reading (%d)", fd_cur->fm->ff_name);
+        pdftex_fail("cannot find TrueType font file for reading (%s)", fd_cur->fm->ff_name);
     }
     callback_id = callback_defined(read_truetype_file_callback);
     if (callback_id > 0) {
