@@ -432,7 +432,7 @@ void new_letterspaced_font(small_number a)
     scan_int();
     if (scan_keyword("nolig"))
        nolig=true;
-    f = letter_space_font(u, k, fix_int(cur_val, -1000, 1000), nolig);
+    f = letter_space_font(k, fix_int(cur_val, -1000, 1000), nolig);
     equiv(u) = f;
     eqtb[font_id_base + f] = eqtb[u];
     font_id_text(f) = t;

@@ -1507,7 +1507,7 @@ void vf_expand_local_fonts(internal_font_number f)
 
 @ @c
 internal_font_number
-letter_space_font(halfword u, internal_font_number f, int e, boolean nolig)
+letter_space_font(internal_font_number f, int e, boolean nolig)
 {
     internal_font_number k;
     scaled w;
