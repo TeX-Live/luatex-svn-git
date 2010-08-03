@@ -176,6 +176,7 @@ static int ff_open(lua_State * L)
     fontname = luaL_checkstring(L, 1);
     /* test fontname for existance */
     if ((l = fopen(fontname, "r"))) {
+        recorder_record_input(fontname);
         fclose(l);
     } else {
         lua_pushnil(L);
@@ -2424,6 +2425,7 @@ static int ff_info(lua_State * L)
     }
     /* test fontname for existance */
     if ((l = fopen(fontname, "r"))) {
+        recorder_record_input(fontname);
         fclose(l);
     } else {
         lua_pushnil(L);
@@ -2473,6 +2475,7 @@ static void ff_do_cff(SplineFont * sf, char *filename, unsigned char **buf,
         (filename, sf, ff_cff, bsizes, bf_none, flags, map, ly_fore)) {
         /* success */
         f = fopen(filename, "rb");
+        recorder_record_input(filename);
         readbinfile(f, buf, bufsiz);
         /*fprintf(stdout,"\n%s => CFF, size: %d\n", sf->filename, *bufsiz); */
         fclose(f);
