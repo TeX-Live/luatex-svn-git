@@ -191,6 +191,8 @@ typedef enum {
 #  define HLIST_SUBTYPE_LINE 1   /* paragraph lines */
 #  define HLIST_SUBTYPE_HBOX 2   /* \.{\\hbox} */
 #  define HLIST_SUBTYPE_INDENT 3 /* indentation box */
+#  define HLIST_SUBTYPE_ALIGNROW 4 /* row from a \.{\\halign} or \.{\\valign} */
+#  define HLIST_SUBTYPE_ALIGNCELL 5 /* cell from a \.{\\halign} or \.{\\valign} */
 
 #  define width(a)            varmem[(a)+2].cint
 #  define depth(a)            varmem[(a)+3].cint

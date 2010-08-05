@@ -953,11 +953,11 @@ value is changed to zero and so is the next tabskip.
 
                 if (cur_list.mode_field == -vmode) {
                     type(q) = hlist_node;
-                    subtype(q) = 0;
+                    subtype(q) = HLIST_SUBTYPE_ALIGNROW;
                     width(q) = width(p);
                 } else {
                     type(q) = vlist_node;
-                    subtype(q) = 0;
+                    subtype(q) = HLIST_SUBTYPE_ALIGNROW;
                     height(q) = height(p);
                 }
                 glue_order(q) = glue_order(p);
@@ -1004,6 +1004,7 @@ value is changed to zero and so is the next tabskip.
                         vlink(u) = rr;
                         u = vlink(u);
                         t = t + width(s);
+                        subtype(u) = HLIST_SUBTYPE_ALIGNCELL;
                         if (cur_list.mode_field == -vmode) {
                             width(u) = width(s);
                         } else {
@@ -1045,6 +1046,7 @@ value is changed to zero and so is the next tabskip.
                         }
                         width(r) = w;
                         type(r) = hlist_node;
+                        subtype(r) = HLIST_SUBTYPE_ALIGNCELL;
 
                     } else {
                         /* Make the unset node |r| into a |vlist_node| of height |w|,
@@ -1076,9 +1078,10 @@ value is changed to zero and so is the next tabskip.
                         }
                         height(r) = w;
                         type(r) = vlist_node;
+                        subtype(r) = HLIST_SUBTYPE_ALIGNCELL;
 
                     }
-                    subtype(r) = 0;
+                    /* subtype(r) = 0; */
                     shift_amount(r) = 0;
                     if (u != hold_head) {       /* append blank boxes to account for spanned nodes */
                         vlink(u) = vlink(r);
@@ -1104,6 +1107,7 @@ value is changed to zero and so is the next tabskip.
                     vlink(q) = null;
                     q = hpack(q, 0, additional, -1);
                     shift_amount(q) = o;
+                    subtype(q) = HLIST_SUBTYPE_ALIGNCELL;
                     vlink(q) = r;
                     vlink(s) = q;
                 }
