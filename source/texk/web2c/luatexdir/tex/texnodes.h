@@ -188,8 +188,9 @@ typedef enum {
 #  define box_node_size 9
 
 #  define HLIST_SUBTYPE_UNKNOWN 0
-#  define HLIST_SUBTYPE_LINE 1
-#  define HLIST_SUBTYPE_HBOX 2
+#  define HLIST_SUBTYPE_LINE 1   /* paragraph lines */
+#  define HLIST_SUBTYPE_HBOX 2   /* \.{\\hbox} */
+#  define HLIST_SUBTYPE_INDENT 3 /* indentation box */
 
 #  define width(a)            varmem[(a)+2].cint
 #  define depth(a)            varmem[(a)+3].cint

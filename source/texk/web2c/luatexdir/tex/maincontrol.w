@@ -1410,6 +1410,7 @@ void new_graf(boolean indented)
         p = new_null_box();
         box_dir(p) = par_direction;
         width(p) = par_indent;
+        subtype(p) = HLIST_SUBTYPE_INDENT;
         q = tail;
         tail_append(p);
     } else {
