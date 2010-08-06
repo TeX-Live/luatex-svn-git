@@ -58,6 +58,17 @@
     }%
 }
 
+\def\showid#1{\ctxlua
+    {   do
+            local t = string.split('#1',',')
+            tex.sprint('\\type{'.. node.id(t[1]) .. '}')
+            if t[2] then 
+              tex.sprint(', \\type{'.. node.subtype(t[2]) .. '}')
+            end
+        end
+    }%
+}
+
 \def\todo#1%
   {\dontleavehmode{\bf\red <TODO: #1>}}
 

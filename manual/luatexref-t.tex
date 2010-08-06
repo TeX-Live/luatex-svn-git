@@ -8002,7 +8002,8 @@ Valid fields in \type{attribute} items:
 
 \subsubsection{action item}
 
-Valid fields: \showfields{action}
+Valid fields: \showfields{action}\crlf
+Id: \showid{action}
 
 These are a special kind of item that only appears inside
 pdf start link objects.
@@ -8046,7 +8047,8 @@ fields to be a backwards pointer in the argument node list.
 
 \subsubsection{hlist nodes}
 
-Valid fields: \showfields{hlist}
+Valid fields: \showfields{hlist}\crlf
+Id: \showid{hlist}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8075,11 +8077,13 @@ an error may be result.
 \subsubsection{vlist nodes}
 
 Valid fields: As for hlist, except that \quote{shift} is a displacement
-perpendicular to the line progression direction.
+perpendicular to the line progression direction, and \quote{subtype} only
+has subtypes 0, 4, and 5.
 
 \subsubsection{rule nodes}
 
-Valid fields: \showfields{rule}
+Valid fields: \showfields{rule}\crlf
+Id: \showid{rule}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8094,7 +8098,8 @@ Valid fields: \showfields{rule}
 
 \subsubsection{ins nodes}
 
-Valid fields: \showfields{ins}
+Valid fields: \showfields{ins}\crlf
+Id: \showid{ins}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8114,7 +8119,8 @@ an error may be result.
 
 \subsubsection{mark nodes}
 
-Valid fields: \showfields{mark}
+Valid fields: \showfields{mark}\crlf
+Id: \showid{mark}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8126,7 +8132,8 @@ Valid fields: \showfields{mark}
 
 \subsubsection{adjust nodes}
 
-Valid fields: \showfields{adjust}
+Valid fields: \showfields{adjust}\crlf
+Id: \showid{adjust}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8143,7 +8150,8 @@ an error may be result.
 
 \subsubsection{disc nodes}
 
-Valid fields: \showfields{disc}
+Valid fields: \showfields{disc}\crlf
+Id: \showid{disc}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8168,7 +8176,8 @@ an error may be result.
 
 \subsubsection{math nodes}
 
-Valid fields: \showfields{math}
+Valid fields: \showfields{math}\crlf
+Id: \showid{math}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8179,7 +8188,8 @@ Valid fields: \showfields{math}
 
 \subsubsection{glue nodes}
 
-Valid fields: \showfields{glue}
+Valid fields: \showfields{glue}\crlf
+Id: \showid{glue}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8220,7 +8230,8 @@ The exact meanings of the subtypes are as follows:
 
 \subsubsection{kern nodes}
 
-Valid fields: \showfields{kern}
+Valid fields: \showfields{kern}\crlf
+Id: \showid{kern}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8234,7 +8245,8 @@ Valid fields: \showfields{kern}
 
 \subsubsection{penalty nodes}
 
-Valid fields: \showfields{penalty}
+Valid fields: \showfields{penalty}\crlf
+Id: \showid{penalty}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8245,7 +8257,8 @@ Valid fields: \showfields{penalty}
 
 \subsubsection[glyphnodes]{glyph nodes}
 
-Valid fields: \showfields{glyph}
+Valid fields: \showfields{glyph}\crlf
+Id: \showid{glyph}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field\NC \ssbf type         \NC \ssbf explanation \NC\NR
@@ -8288,7 +8301,8 @@ See \in{section}[charsandglyphs] for a detailed description of the
 
 \subsubsection{margin\_kern nodes}
 
-Valid fields: \showfields{margin_kern}
+Valid fields: \showfields{margin_kern}\crlf
+Id: \showid{margin_kern}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8316,7 +8330,8 @@ The \type{next} and \type{prev} fields for these subnodes are unused.
 
 \subsubsubsection{math\_char and math\_text\_char subnodes}
 
-Valid fields: \showfields{math_char}
+Valid fields: \showfields{math_char}\crlf
+Id: \showid{math_char}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
@@ -8333,7 +8348,8 @@ normally encounter, it arises temporarily during math list conversion
 
 \subsubsubsection{sub\_box and sub\_mlist subnodes}
 
-Valid fields: \showfields{sub_box}
+Valid fields: \showfields{sub_box}\crlf
+Id: \showid{sub_box}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
@@ -8357,7 +8373,8 @@ fields. As before, the \type{next} and \type{prev} fields are unused.
 
 \subsubsubsection{delim subnodes}
 
-Valid fields: \showfields{delim}
+Valid fields: \showfields{delim}\crlf
+Id: \showid{delim}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
@@ -8382,7 +8399,8 @@ separate subtypes for differentiation.
 
 \subsubsubsection{simple nodes}
 
-Valid fields: \showfields{noad}
+Valid fields: \showfields{noad}\crlf
+Id: \showid{noad}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type    \NC  \bf explanation \NC\NR
@@ -8415,7 +8433,8 @@ Operators are a bit special because they occupy three subtypes.
 
 \subsubsubsection{accent nodes}
 
-Valid fields: \showfields{accent}
+Valid fields: \showfields{accent}\crlf
+Id: \showid{accent}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
@@ -8429,7 +8448,8 @@ Valid fields: \showfields{accent}
 
 \subsubsubsection{style nodes}
 
-Valid fields: \showfields{style}
+Valid fields: \showfields{style}\crlf
+Id: \showid{style}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
@@ -8443,7 +8463,8 @@ Each of these can have a trailing \type{'} to signify
 
 \subsubsubsection{choice nodes}
 
-Valid fields: \showfields{choice}
+Valid fields: \showfields{choice}\crlf
+Id: \showid{choice}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field  \NC \bf type       \NC  \bf explanation \NC\NR
@@ -8460,7 +8481,8 @@ correct, otherwise an error may be result.
 
 \subsubsubsection{radical nodes}
 
-Valid fields: \showfields{radical}
+Valid fields: \showfields{radical}\crlf
+Id: \showid{radical}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
@@ -8479,7 +8501,8 @@ an error may be result.
 
 \subsubsubsection{fraction nodes}
 
-Valid fields: \showfields{fraction}
+Valid fields: \showfields{fraction}\crlf
+Id: \showid{fraction}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
@@ -8497,7 +8520,8 @@ an error may be result.
 
 \subsubsubsection{fence nodes}
 
-Valid fields: \showfields{fence}
+Valid fields: \showfields{fence}\crlf
+Id: \showid{fence}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
@@ -8520,7 +8544,8 @@ end }
 
 \subsubsection{open nodes}
 
-Valid fields: \showfields{whatsit,open}
+Valid fields: \showfields{whatsit,open}\crlf
+Id: \showid{whatsit,open}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8533,7 +8558,8 @@ Valid fields: \showfields{whatsit,open}
 
 \subsubsection{write nodes}
 
-Valid fields: \showfields{whatsit,write}
+Valid fields: \showfields{whatsit,write}\crlf
+Id: \showid{whatsit,write}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8544,7 +8570,8 @@ Valid fields: \showfields{whatsit,write}
 
 \subsubsection{close nodes}
 
-Valid fields: \showfields{whatsit,close}
+Valid fields: \showfields{whatsit,close}\crlf
+Id: \showid{whatsit,close}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8554,7 +8581,8 @@ Valid fields: \showfields{whatsit,close}
 
 \subsubsection{special nodes}
 
-Valid fields: \showfields{whatsit,special}
+Valid fields: \showfields{whatsit,special}\crlf
+Id: \showid{whatsit,special}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8572,7 +8600,8 @@ This whatsit subtype will be removed in the next release.
 
 \subsubsection{local_par nodes}
 
-Valid fields: \showfields{whatsit,local_par}
+Valid fields: \showfields{whatsit,local_par}\crlf
+Id: \showid{whatsit,local_par}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8595,7 +8624,8 @@ an error may be result.
 
 \subsubsection[dirnodes]{dir nodes}
 
-Valid fields: \showfields{whatsit,dir}
+Valid fields: \showfields{whatsit,dir}\crlf
+Id: \showid{whatsit,dir}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8627,7 +8657,8 @@ stack.
 
 \subsubsection{pdf_literal nodes}
 
-Valid fields: \showfields{whatsit,pdf_literal}
+Valid fields: \showfields{whatsit,pdf_literal}\crlf
+Id: \showid{whatsit,pdf_literal}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8638,7 +8669,8 @@ Valid fields: \showfields{whatsit,pdf_literal}
 
 \subsubsection{pdf_refobj nodes}
 
-Valid fields: \showfields{whatsit,pdf_refobj}
+Valid fields: \showfields{whatsit,pdf_refobj}\crlf
+Id: \showid{whatsit,pdf_refobj}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8648,7 +8680,8 @@ Valid fields: \showfields{whatsit,pdf_refobj}
 
 \subsubsection{pdf_refxform nodes}
 
-Valid fields: \showfields{whatsit,pdf_refxform}.
+Valid fields: \showfields{whatsit,pdf_refxform}\crlf
+Id: \showid{whatsit,pdf_refxform}.
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8663,7 +8696,8 @@ Be aware that \type{pdf_refxform} nodes have dimensions that are used by \LUATEX
 
 \subsubsection{pdf_refximage nodes}
 
-Valid fields: \showfields{whatsit,pdf_refximage}
+Valid fields: \showfields{whatsit,pdf_refximage}\crlf
+Id: \showid{whatsit,pdf_refximage}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8678,7 +8712,8 @@ Be aware that \type{pdf_refximage} nodes have dimensions that are used by \LUATE
 
 \subsubsection{pdf_annot nodes}
 
-Valid fields: \showfields{whatsit,pdf_annot}
+Valid fields: \showfields{whatsit,pdf_annot}\crlf
+Id: \showid{whatsit,pdf_annot}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8693,7 +8728,8 @@ Valid fields: \showfields{whatsit,pdf_annot}
 
 \subsubsection{pdf_start_link nodes}
 
-Valid fields: \showfields{whatsit,pdf_start_link}
+Valid fields: \showfields{whatsit,pdf_start_link}\crlf
+Id: \showid{whatsit,pdf_start_link}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8708,7 +8744,8 @@ Valid fields: \showfields{whatsit,pdf_start_link}
 
 \subsubsection{pdf_end_link nodes}
 
-Valid fields: \showfields{whatsit,pdf_end_link}
+Valid fields: \showfields{whatsit,pdf_end_link}\crlf
+Id: \showid{whatsit,pdf_end_link}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8717,7 +8754,8 @@ Valid fields: \showfields{whatsit,pdf_end_link}
 
 \subsubsection{pdf_dest nodes}
 
-Valid fields: \showfields{whatsit,pdf_dest}
+Valid fields: \showfields{whatsit,pdf_dest}\crlf
+Id: \showid{whatsit,pdf_dest}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8734,7 +8772,8 @@ Valid fields: \showfields{whatsit,pdf_dest}
 
 \subsubsection{pdf_thread nodes}
 
-Valid fields: \showfields{whatsit,pdf_thread}
+Valid fields: \showfields{whatsit,pdf_thread}\crlf
+Id: \showid{whatsit,pdf_thread}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8749,7 +8788,8 @@ Valid fields: \showfields{whatsit,pdf_thread}
 
 \subsubsection{pdf_start_thread nodes}
 
-Valid fields: \showfields{whatsit,pdf_start_thread}
+Valid fields: \showfields{whatsit,pdf_start_thread}\crlf
+Id: \showid{whatsit,pdf_start_thread}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8764,7 +8804,8 @@ Valid fields: \showfields{whatsit,pdf_start_thread}
 
 \subsubsection{pdf_end_thread nodes}
 
-Valid fields: \showfields{whatsit,pdf_end_thread}
+Valid fields: \showfields{whatsit,pdf_end_thread}\crlf
+Id: \showid{whatsit,pdf_end_thread}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8773,7 +8814,8 @@ Valid fields: \showfields{whatsit,pdf_end_thread}
 
 \subsubsection{pdf_save_pos nodes}
 
-Valid fields: \showfields{whatsit,pdf_save_pos}
+Valid fields: \showfields{whatsit,pdf_save_pos}\crlf
+Id: \showid{whatsit,pdf_save_pos}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8782,7 +8824,8 @@ Valid fields: \showfields{whatsit,pdf_save_pos}
 
 \subsubsection{late_lua nodes}
 
-Valid fields: \showfields{whatsit,late_lua}
+Valid fields: \showfields{whatsit,late_lua}\crlf
+Id: \showid{whatsit,late_lua}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8793,7 +8836,8 @@ Valid fields: \showfields{whatsit,late_lua}
 
 \subsubsection{pdf_colorstack  nodes}
 
-Valid fields: \showfields{whatsit,pdf_colorstack}
+Valid fields: \showfields{whatsit,pdf_colorstack}\crlf
+Id: \showid{whatsit,pdf_colorstack}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8805,7 +8849,8 @@ Valid fields: \showfields{whatsit,pdf_colorstack}
 
 \subsubsection{pdf_setmatrix nodes}
 
-Valid fields: \showfields{whatsit,pdf_setmatrix}
+Valid fields: \showfields{whatsit,pdf_setmatrix}\crlf
+Id: \showid{whatsit,pdf_setmatrix}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8815,7 +8860,8 @@ Valid fields: \showfields{whatsit,pdf_setmatrix}
 
 \subsubsection{pdf_save nodes}
 
-Valid fields: \showfields{whatsit,pdf_save}
+Valid fields: \showfields{whatsit,pdf_save}\crlf
+Id: \showid{whatsit,pdf_save}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8824,7 +8870,8 @@ Valid fields: \showfields{whatsit,pdf_save}
 
 \subsubsection{pdf_restore nodes}
 
-Valid fields: \showfields{whatsit,pdf_restore}
+Valid fields: \showfields{whatsit,pdf_restore}\crlf
+Id: \showid{whatsit,pdf_restore}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
@@ -8838,7 +8885,8 @@ code. In effect, they are an extension to the extension
 mechanism. The \LUATEX\ engine will simply step over such whatsits
 without ever looking at the contents.
 
-Valid fields: \showfields{whatsit,user_defined}
+Valid fields: \showfields{whatsit,user_defined}\crlf
+Id: \showid{whatsit,user_defined}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
