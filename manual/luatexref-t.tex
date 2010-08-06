@@ -5497,7 +5497,7 @@ If in post 0.70 you want the functionality of these tables back, you can add
 \LUA\ code to do that for you, like this:
 
 
-\startluacode
+\starttyping
 local box = tex.box
 
 local wd = {
@@ -5516,7 +5516,7 @@ local dp = {
 tex.wd = { } setmetatable(tex.wd,wd)
 tex.ht = { } setmetatable(tex.ht,ht)
 tex.dp = { } setmetatable(tex.dp,dp)
-\stopluacode
+\stoptyping
 
 
 \blank
