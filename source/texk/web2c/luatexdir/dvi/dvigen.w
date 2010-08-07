@@ -1191,10 +1191,11 @@ void write_out(halfword p)
         if (callback_id > 0) {
             lua_retval = run_callback(callback_id, "S->S", s, &ss);
             if ((lua_retval == true) && (ss != NULL))
-                s = ss;
+	      { xfree(s); s = ss; }
         }
     }
     tprint(s);
+    xfree(s);
     print_ln();
     flush_list(def_ref);
     if (j == 18) {

@@ -107,6 +107,7 @@ static void end_name(void)
         cur_string[area_delimiter] = '\0';
         cur_length = (unsigned) strlen((char *) cur_string);
         cur_area = make_string();
+	xfree(cur_string);
         cur_length = (unsigned) strlen((char *) s);
         cur_string = s;
     }
@@ -119,6 +120,7 @@ static void end_name(void)
         cur_string[l] = '\0';
         cur_length = (unsigned) strlen((char *) cur_string);
         cur_name = make_string();
+	xfree(cur_string);
         cur_length = (unsigned) strlen((char *) s);
         cur_string = s;
         cur_ext = make_string();

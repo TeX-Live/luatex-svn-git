@@ -115,6 +115,7 @@ extern void reset_cur_string(void);
 
 #  define restore_cur_string(u) if (u!=0) {                   \
         unsigned l = (unsigned)str_length(u);		      \
+	xfree(cur_string);                                  \
         reset_cur_string();                                 \
         str_room(l);                                        \
         memcpy(cur_string, str_string(u),l);                \

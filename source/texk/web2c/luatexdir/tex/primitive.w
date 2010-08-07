@@ -389,6 +389,7 @@ static halfword insert_id(halfword p, const unsigned char *j, unsigned int l)
         append_char(*k);
     cs_text(p) = make_string();
     cur_length = saved_cur_length;
+    xfree(cur_string);
     cur_string = saved_cur_string;
     cur_string_size = saved_cur_string_size;
     incr(cs_count);

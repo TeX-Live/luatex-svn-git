@@ -344,7 +344,7 @@ void manufacture_csname(void)
     } else {
         cur_cs = null_cs;       /* the list is empty */
     }
-    xfree(ss->s);
+    free_lstring(ss);
     flush_list(r);
     if (eq_type(cur_cs) == undefined_cs_cmd) {
         eq_define(cur_cs, relax_cmd, too_big_char);     /* N.B.: The |save_stack| might change */
