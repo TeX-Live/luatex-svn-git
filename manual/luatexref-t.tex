@@ -1630,9 +1630,8 @@ This callback does not replace any internal code.
 \subsubsection{\luatex{pre_linebreak_filter}}
 
 This callback is called just before \LUATEX\ starts converting a list
-of nodes into a stack of \tex{hbox}es. The removal of a possible final skip
-and the subsequent insertion of \tex{parfillskip} has not happened
-yet at that moment.
+of nodes into a stack of \tex{hbox}es, after the addition of 
+\type{\parfillskip}.
 
 \startfunctioncall
 function(<node> head, <string> groupcode)
