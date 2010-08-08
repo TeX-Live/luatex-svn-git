@@ -91,7 +91,7 @@ indicates that the corresponding font shares the font resource with the font
 static boolean font_shareable(internal_font_number f, internal_font_number k)
 {
     int ret = 0;
-    internal_font_number b;
+    internal_font_number b;     /* possible base font */
     /* For some lua-loaded (for instance AFM) fonts, it is normal to have
        a zero cidregistry,  and such fonts do not have a fontmap entry yet
        at this point, so the test should use the other branch  */
@@ -101,7 +101,7 @@ static boolean font_shareable(internal_font_number f, internal_font_number k)
             font_map(f) != NULL &&
             (same(font_name, k, f) ||
              (font_auto_expand(f) &&
-              (b = pdf_font_blink(f)) != 0 && same(font_name, k, b)))) {
+              (b = pdf_font_blink(k)) != 0 && same(font_name, k, b)))) {
             ret = 1;
         }
 #ifdef DEBUG
@@ -111,7 +111,7 @@ static boolean font_shareable(internal_font_number f, internal_font_number k)
     } else {
         if ((same(font_filename, k, f) && same(font_fullname, k, f))
             || (font_auto_expand(f)
-                && (b = pdf_font_blink(f)) != 0 && same(font_name, k, b))) {
+                && (b = pdf_font_blink(k)) != 0 && same(font_name, k, b))) {
             ret = 1;
         }
 #ifdef DEBUG
