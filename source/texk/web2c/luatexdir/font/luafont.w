@@ -455,7 +455,7 @@ int font_to_lua(lua_State * L, int f)
        lua_pushnumber(L,pdf_font_num(f));
        lua_setfield(L,-2,"pdf_num");
        }
-       if (pdf_font_blink(f) != 0) {
+       if (pdf_font_blink(f) != null_font) {
        lua_pushnumber(L,pdf_font_blink(f));
        lua_setfield(L,-2,"pdf_blink");
        }

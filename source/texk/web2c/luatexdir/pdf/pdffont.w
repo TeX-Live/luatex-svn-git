@@ -101,7 +101,7 @@ static boolean font_shareable(internal_font_number f, internal_font_number k)
             font_map(f) != NULL &&
             (same(font_name, k, f) ||
              (font_auto_expand(f) &&
-              (b = pdf_font_blink(k)) != 0 && same(font_name, k, b)))) {
+              (b = pdf_font_blink(k)) != null_font && same(font_name, k, b)))) {
             ret = 1;
         }
 #ifdef DEBUG
@@ -111,7 +111,8 @@ static boolean font_shareable(internal_font_number f, internal_font_number k)
     } else {
         if ((same(font_filename, k, f) && same(font_fullname, k, f))
             || (font_auto_expand(f)
-                && (b = pdf_font_blink(k)) != 0 && same(font_name, k, b))) {
+                && (b = pdf_font_blink(k)) != null_font
+                && same(font_name, k, b))) {
             ret = 1;
         }
 #ifdef DEBUG
@@ -134,7 +135,7 @@ void pdf_init_font(PDF pdf, internal_font_number f)
 
     /* if |f| is auto expanded then ensure the base font is initialized */
 
-    if (font_auto_expand(f) && ((b = pdf_font_blink(f)) != 0)) {
+    if (font_auto_expand(f) && ((b = pdf_font_blink(f)) != null_font)) {
         if (!font_used(b))
             pdf_init_font(pdf, b);
         set_font_map(f, font_map(b));

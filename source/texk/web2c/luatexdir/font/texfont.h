@@ -172,7 +172,7 @@ typedef struct texfont {
     int ligatures_disabled;
 
     int _pdf_font_num;          /* maps to a PDF resource ID */
-    internal_font_number _pdf_font_blink;       /* link to  base font for expanded fonts */
+    internal_font_number _pdf_font_blink;       /* link to base font for expanded fonts */
     internal_font_number _pdf_font_elink;       /* link to expanded fonts for base font */
     str_number _pdf_font_attr;  /* pointer to additional attributes */
 } texfont;
