@@ -116,6 +116,7 @@ int new_font(void)
     font_tables[id]->_param_base = NULL;
     font_tables[id]->_math_param_base = NULL;
     font_tables[id]->_pdf_font_blink = null_font;
+    font_tables[id]->_pdf_font_elink = null_font;
 
     set_font_bc(id, 1);         /* ec = 0 */
     set_hyphen_char(id, '-');

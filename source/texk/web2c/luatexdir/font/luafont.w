@@ -459,7 +459,7 @@ int font_to_lua(lua_State * L, int f)
        lua_pushnumber(L,pdf_font_blink(f));
        lua_setfield(L,-2,"pdf_blink");
        }
-       if (pdf_font_elink(f) != 0) {
+       if (pdf_font_elink(f) != null_font) {
        lua_pushnumber(L,pdf_font_elink(f));
        lua_setfield(L,-2,"pdf_elink");
        }
