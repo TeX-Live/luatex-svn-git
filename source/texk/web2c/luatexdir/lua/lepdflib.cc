@@ -336,6 +336,17 @@ int m_##in##_##function(lua_State * L)                         \
     return 1;                                                  \
 }
 
+#define m_poppler_do(in, function)                             \
+int m_##in##_##function(lua_State * L)                         \
+{                                                              \
+    udstruct *uin;                                             \
+    uin = (udstruct *) luaL_checkudata(L, 1, M_##in);          \
+    if (uin->pd != NULL && uin->pd->pc != uin->pc)             \
+        pdfdoc_changed_error(L);                               \
+    ((in *) uin->d)->function();                               \
+    return 0;                                                  \
+}
+
 #define m_poppler__tostring(type)                              \
 int m_##type##__tostring(lua_State * L)                        \
 {                                                              \
@@ -2338,42 +2349,16 @@ int m_Stream_getKindName(lua_State * L)
     return 1;
 }
 
-int m_Stream_reset(lua_State * L)
-{
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Stream);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    ((Stream *) uin->d)->reset();
-    return 0;
-}
-
-int m_Stream_getChar(lua_State * L)
-{
-    int i;
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Stream);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    i = ((Stream *) uin->d)->getChar();
-    lua_pushinteger(L, i);
-    return 1;
-}
-
-int m_Stream_lookChar(lua_State * L)
-{
-    int i;
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Stream);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    i = ((Stream *) uin->d)->lookChar();
-    lua_pushinteger(L, i);
-    return 1;
-}
-
-m_poppler_get_poppler(Stream, Stream, getUndecodedStream);
+m_poppler_do(Stream, reset);
+m_poppler_do(Stream, close);
+m_poppler_get_INT(Stream, getChar);
+m_poppler_get_INT(Stream, lookChar);
+m_poppler_get_INT(Stream, getRawChar);
+m_poppler_get_INT(Stream, getUnfilteredChar);
+m_poppler_do(Stream, unfilteredReset);
+m_poppler_get_INT(Stream, getPos);
 m_poppler_get_BOOL(Stream, isBinary);
+m_poppler_get_poppler(Stream, Stream, getUndecodedStream);
 m_poppler_get_poppler(Stream, Dict, getDict);
 
 m_poppler__tostring(Stream);
@@ -2382,10 +2367,17 @@ static const struct luaL_Reg Stream_m[] = {
     {"getKind", m_Stream_getKind},
     {"getKindName", m_Stream_getKindName},      // not poppler
     {"reset", m_Stream_reset},
+    {"close", m_Stream_close},
     {"getUndecodedStream", m_Stream_getUndecodedStream},
     {"getChar", m_Stream_getChar},
     {"lookChar", m_Stream_lookChar},
+    {"getRawChar", m_Stream_getRawChar},
+    {"getUnfilteredChar", m_Stream_getUnfilteredChar},
+    {"unfilteredReset", m_Stream_unfilteredReset},
+    // {"getLine", m_Stream_getLine},
+    {"getPos", m_Stream_getPos},
     {"isBinary", m_Stream_isBinary},
+    {"getUndecodedStream", m_Stream_getUndecodedStream},
     {"getDict", m_Stream_getDict},
     {"__tostring", m_Stream__tostring},
     {NULL, NULL}                // sentinel
