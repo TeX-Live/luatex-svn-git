@@ -1,6 +1,6 @@
 /* luafflib.c
    
-   Copyright 2007-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2007-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -2534,8 +2534,6 @@ int ff_get_ttc_index(char *ffname, char *psname)
     }
     return index;
 }
-
-static int warning_given = 0;
 
 static struct luaL_reg fllib[] = {
     {"open", ff_open},
