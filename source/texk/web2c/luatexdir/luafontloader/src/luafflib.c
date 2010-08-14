@@ -2537,36 +2537,6 @@ int ff_get_ttc_index(char *ffname, char *psname)
 
 static int warning_given = 0;
 
-static int ffold_info(lua_State * L)
-{
-    if (warning_given < 5) {
-        fprintf(stderr,
-                "Warning: The 'fontforge' table has been renamed to 'fontloader'.\n");
-        fprintf(stderr, "  Please update your source file(s) accordingly.\n");
-        warning_given++;
-    }
-    return ff_info(L);
-}
-
-static int ffold_open(lua_State * L)
-{
-    fprintf(stderr,
-            "Warning: The 'fontforge' table has been renamed to 'fontloader'.\n");
-    fprintf(stderr, "  Please update your source file(s) accordingly.\n");
-    return ff_open(L);
-}
-
-
-static struct luaL_reg fflib[] = {
-    {"open", ffold_open},
-    {"info", ffold_info},
-    {"close", ff_close},
-    {"apply_afmfile", ff_apply_afmfile},
-    {"apply_featurefile", ff_apply_featurefile},
-    {"to_table", ff_make_table},
-    {NULL, NULL}
-};
-
 static struct luaL_reg fllib[] = {
     {"open", ff_open},
     {"info", ff_info},
@@ -2595,7 +2565,6 @@ int luaopen_ff(lua_State * L)
     SaveTablesPref = "VORG,JSTF,acnt,bsln,fdsc,fmtx,hsty,just,trak,Zapf,LINO";
     luaL_newmetatable(L, FONT_METATABLE);
     luaL_register(L, NULL, fflib_m);
-    luaL_openlib(L, "fontforge", fflib, 0);
     luaL_openlib(L, "fontloader", fllib, 0);
     return 1;
 }
