@@ -30,6 +30,7 @@
 
 #include "pfaedit.h"
 #include "ustring.h"
+#include "lib/lib.h" /* web2c's lib, for recorder_record_input */
 
 static const char _svn_version[] =
     "$Id$ "
