@@ -737,7 +737,7 @@ int m_Dict_set(lua_State * L)
 int m_Dict_remove(lua_State * L)
 {
     char *s;
-    udstruct *uin, *uobj;
+    udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
