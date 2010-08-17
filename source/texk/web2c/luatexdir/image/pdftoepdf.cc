@@ -105,7 +105,7 @@ PdfDocument *refPdfDocument(char *file_path, file_error_mode fe)
     char *checksum;
     PdfDocument *pdf_doc;
     PDFDoc *doc = NULL;
-    GString *docName = NULL;
+    GooString *docName = NULL;
     int new_flag = 0;
     if ((checksum = get_file_checksum(file_path, fe)) == NULL) {
         assert(fe == FE_RETURN_NULL);
@@ -142,7 +142,7 @@ PdfDocument *refPdfDocument(char *file_path, file_error_mode fe)
         fprintf(stderr, "\nDEBUG: New PDFDoc %s (%d)\n",
                 pdf_doc->file_path, pdf_doc->occurences);
 #endif
-        docName = new GString(file_path);
+        docName = new GooString(file_path);
         doc = new PDFDoc(docName);      // takes ownership of docName
         pdf_doc->pc++;
 
@@ -331,7 +331,7 @@ static char *convertNumToPDF(double n)
 
 static void copyObject(PDF, PdfDocument *, Object *);
 
-static void copyString(PDF pdf, GString * string)
+static void copyString(PDF pdf, GooString * string)
 {
     char *p;
     unsigned char c;
@@ -587,7 +587,7 @@ read_pdf_info(image_dict * idict, int minor_pdf_version_wanted,
     img_totalpages(idict) = pdf_doc->doc->getCatalog()->getNumPages();
     if (img_pagename(idict)) {
         // get page by name
-        GString name(img_pagename(idict));
+        GooString name(img_pagename(idict));
         LinkDest *link = pdf_doc->doc->findDest(&name);
         if (link == NULL || !link->isOk())
             pdftex_fail("PDF inclusion: invalid destination <%s>",

@@ -31,7 +31,6 @@
 #  include <string.h>
 #  include <kpathsea/c-ctype.h>
 #  include <sys/stat.h>
-#  define GString GooString
 #  include <dirent.h>
 #  include <poppler-config.h>
 #  include <goo/GooString.h>

@@ -55,7 +55,7 @@ const char *ErrorCodeNames[] = { "None", "OpenFile", "BadCatalog",
 #define M_Array            "Array"
 #define M_Catalog          "Catalog"
 #define M_Dict             "Dict"
-#define M_GString          "GString"
+#define M_GooString        "GooString"
 #define M_LinkDest         "LinkDest"
 #define M_Links            "Links"
 #define M_Object           "Object"
@@ -89,7 +89,7 @@ new_poppler_userdata(Annots);
 new_poppler_userdata(Array);
 new_poppler_userdata(Catalog);
 new_poppler_userdata(Dict);
-new_poppler_userdata(GString);
+new_poppler_userdata(GooString);
 new_poppler_userdata(LinkDest);
 new_poppler_userdata(Links);
 new_poppler_userdata(Object);
@@ -304,10 +304,10 @@ int m_##in##_##function(lua_State * L)                         \
     return 1;                                                  \
 }
 
-#define m_poppler_get_GSTRING(in, function)                    \
+#define m_poppler_get_GOOSTRING(in, function)                  \
 int m_##in##_##function(lua_State * L)                         \
 {                                                              \
-    GString *gs;                                               \
+    GooString *gs;                                             \
     udstruct *uin;                                             \
     uin = (udstruct *) luaL_checkudata(L, 1, M_##in);          \
     if (uin->pd != NULL && uin->pd->pc != uin->pc)             \
@@ -611,8 +611,8 @@ int m_Catalog_getPageRef(lua_State * L)
     return 1;
 }
 
-m_poppler_get_GSTRING(Catalog, getBaseURI);
-m_poppler_get_GSTRING(Catalog, readMetadata);
+m_poppler_get_GOOSTRING(Catalog, getBaseURI);
+m_poppler_get_GOOSTRING(Catalog, readMetadata);
 m_poppler_get_poppler(Catalog, Object, getStructTreeRoot);
 
 int m_Catalog_findPage(lua_State * L)
@@ -634,7 +634,7 @@ int m_Catalog_findPage(lua_State * L)
 
 int m_Catalog_findDest(lua_State * L)
 {
-    GString *name;
+    GooString *name;
     LinkDest *dest;
     const char *s;
     size_t len;
@@ -643,7 +643,7 @@ int m_Catalog_findDest(lua_State * L)
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
     s = luaL_checklstring(L, 2, &len);
-    name = new GString(s, len);
+    name = new GooString(s, len);
     dest = ((Catalog *) uin->d)->findDest(name);
     if (dest != NULL) {
         uout = new_LinkDest_userdata(L);
@@ -846,21 +846,21 @@ const struct luaL_Reg Dict_m[] = {
 };
 
 //**********************************************************************
-// GString
+// GooString
 
-int m_GString__tostring(lua_State * L)
+int m_GooString__tostring(lua_State * L)
 {
     udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_GString);
+    uin = (udstruct *) luaL_checkudata(L, 1, M_GooString);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
-    lua_pushlstring(L, ((GString *) uin->d)->getCString(),
-                    ((GString *) uin->d)->getLength());
+    lua_pushlstring(L, ((GooString *) uin->d)->getCString(),
+                    ((GooString *) uin->d)->getLength());
     return 1;
 }
 
-static const struct luaL_Reg GString_m[] = {
-    {"__tostring", m_GString__tostring},
+static const struct luaL_Reg GooString_m[] = {
+    {"__tostring", m_GooString__tostring},
     {NULL, NULL}                // sentinel
 };
 
@@ -998,7 +998,7 @@ int m_Object_initReal(lua_State * L)
 
 int m_Object_initString(lua_State * L)
 {
-    GString *gs;
+    GooString *gs;
     const char *s;
     size_t len;
     udstruct *uin;
@@ -1006,7 +1006,7 @@ int m_Object_initString(lua_State * L)
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
     s = luaL_checklstring(L, 2, &len);
-    gs = new GString(s, len);
+    gs = new GooString(s, len);
     ((Object *) uin->d)->initString(gs);
     return 0;
 }
@@ -1244,7 +1244,7 @@ int m_Object_getNum(lua_State * L)
 
 int m_Object_getString(lua_State * L)
 {
-    GString *gs;
+    GooString *gs;
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
@@ -1809,7 +1809,7 @@ m_poppler_get_poppler(Page, PDFRectangle, getBleedBox);
 m_poppler_get_poppler(Page, PDFRectangle, getTrimBox);
 m_poppler_get_poppler(Page, PDFRectangle, getArtBox);
 m_poppler_get_INT(Page, getRotate);
-m_poppler_get_GSTRING(Page, getLastModified);
+m_poppler_get_GOOSTRING(Page, getLastModified);
 m_poppler_get_poppler(Page, Dict, getBoxColorInfo);
 m_poppler_get_poppler(Page, Dict, getGroup);
 m_poppler_get_poppler(Page, Stream, getMetadata);
@@ -1907,7 +1907,7 @@ m_PDFDoc_INT(getErrorCode);
 
 int m_PDFDoc_getFileName(lua_State * L)
 {
-    GString *gs;
+    GooString *gs;
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
@@ -1995,7 +1995,7 @@ m_PDFDoc_INT(getNumPages);
 
 int m_PDFDoc_readMetadata(lua_State * L)
 {
-    GString *gs;
+    GooString *gs;
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
@@ -2071,7 +2071,7 @@ int m_PDFDoc_getLinks(lua_State * L)
 
 int m_PDFDoc_findDest(lua_State * L)
 {
-    GString *name;
+    GooString *name;
     LinkDest *dest;
     const char *s;
     size_t len;
@@ -2080,7 +2080,7 @@ int m_PDFDoc_findDest(lua_State * L)
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
     s = luaL_checklstring(L, 2, &len);
-    name = new GString(s, len);
+    name = new GooString(s, len);
     if (((PdfDocument *) uin->d)->doc->getCatalog()->isOk()) {
         dest = ((PdfDocument *) uin->d)->doc->findDest(name);
         if (dest != NULL) {
@@ -2475,7 +2475,7 @@ int luaopen_epdf(lua_State * L)
     register_meta(Array);
     register_meta(Catalog);
     register_meta(Dict);
-    register_meta(GString);
+    register_meta(GooString);
     register_meta(LinkDest);
     register_meta(Links);
     register_meta(Object);
