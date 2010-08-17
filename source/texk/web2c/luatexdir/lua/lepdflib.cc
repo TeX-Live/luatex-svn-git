@@ -721,6 +721,31 @@ int m_Dict_add(lua_State * L)
     return 0;
 }
 
+int m_Dict_set(lua_State * L)
+{
+    char *s;
+    udstruct *uin, *uobj;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
+    if (uin->pd != NULL && uin->pd->pc != uin->pc)
+        pdfdoc_changed_error(L);
+    s = (char *) luaL_checkstring(L, 2);
+    uobj = (udstruct *) luaL_checkudata(L, 3, M_Object);
+    ((Dict *) uin->d)->set(s, ((Object *) uobj->d));
+    return 0;
+}
+
+int m_Dict_remove(lua_State * L)
+{
+    char *s;
+    udstruct *uin, *uobj;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
+    if (uin->pd != NULL && uin->pd->pc != uin->pc)
+        pdfdoc_changed_error(L);
+    s = (char *) luaL_checkstring(L, 2);
+    ((Dict *) uin->d)->remove(s);
+    return 0;
+}
+
 int m_Dict_is(lua_State * L)
 {
     const char *s;
@@ -835,6 +860,8 @@ const struct luaL_Reg Dict_m[] = {
     {"decRef", m_Dict_decRef},
     {"getLength", m_Dict_getLength},
     {"add", m_Dict_add},
+    {"set", m_Dict_set},
+    {"remove", m_Dict_remove},
     {"is", m_Dict_is},
     {"lookup", m_Dict_lookup},
     {"lookupNF", m_Dict_lookupNF},
