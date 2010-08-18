@@ -30,7 +30,8 @@
 #  define JPG_UINT32      unsigned long
 #  define JPG_UINT8       unsigned char
 
-extern int do_zround(double r); /* from utils.c */
+extern int do_zround(double r); /* from utils.w */
+extern scaled one_hundred_bp;   /* from pdfgen.w */
 #  define bp2int(p)       do_zround(p * (one_hundred_bp / 100.0))
 #  define int2bp(i)       (i * 100.0 / one_hundred_bp)
 

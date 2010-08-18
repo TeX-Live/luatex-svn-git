@@ -586,7 +586,7 @@ scaled one_hundred_inch = 7227 * 65536;
 /* scaled value corresponds to 1in (rounded to 4736287) */
 scaled one_inch = (7227 * 65536 + 50) / 100;
 
-    /* scaled value corresponds to 1truein (rounded!) */
+/* scaled value corresponds to 1truein (rounded!) */
 scaled one_true_inch = (7227 * 65536 + 50) / 100;
 
 /* scaled value corresponds to 100bp */
