@@ -369,7 +369,7 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
     pdf_create_obj(pdf, obj_type_others, 0);
     smask_objnum = pdf->obj_ptr;
     pdf_printf(pdf, "/SMask %i 0 R\n", (int) smask_objnum);
-    smask_size = (int) ((info_p->rowbytes / 2) * info_p->height);
+    smask_size = (int) ((info_p->rowbytes / 4) * info_p->height);
     smask = xtalloc((unsigned) smask_size, png_byte);
     pdf_begin_stream(pdf);
     if (info_p->interlace_type == PNG_INTERLACE_NONE) {
