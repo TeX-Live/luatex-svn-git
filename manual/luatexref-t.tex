@@ -1896,6 +1896,7 @@ the values in the \luatex{status} table useful.
 
 This callback does not replace any internal code.
 
+\iffalse % this has been retracted for the moment
 \startitemize
 
 \sym{message}
@@ -1919,6 +1920,7 @@ The final goal is the total replacement of \TEX's error handling
 routines, but that needs lots of adjustments in the web source because
 \TEX\ deals with errors in a somewhat haphazard fashion. This is why the
 exact definition of \type{indicator} is not given here.
+\fi
 
 \subsection{PDF-related callbacks}
 
@@ -2487,7 +2489,7 @@ The \type{ligatures} is a linear array of small hashes:
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
-\NC lig                \NC table    \NC uses the same substructure as a single \type{possub} item\NC\NR
+\NC lig                \NC table    \NC uses the same substructure as a single item in the \type{lookups} table explained above\NC\NR
 \NC char               \NC string   \NC \NC\NR
 \NC components         \NC array    \NC linear array of named components\NC\NR
 \NC ccnt               \NC number   \NC \NC\NR
@@ -7566,7 +7568,7 @@ The following top|-|level keys can be present inside a character hash:
 \stoptabulate
 
 The values of \type{top_accent}, \type{bot_accent} and \type{mathkern} are used only for math
-accent and superscript placement, see the \at[math]{math chapter} in this manual for details.
+accent and superscript placement, see the \at{math chapter}[math] in this manual for details.
 
 The values of \type{left_protruding} and \type{right_protruding} are used only when
 \tex{pdfprotrudechars} is non-zero.
@@ -8066,7 +8068,7 @@ linebreaking, 2 = explicit box command. (0.46.0),
 
 A warning: never assign a node list to the list field
 unless you are sure its internal link structure is correct, otherwise
-an error may be result.
+an error may result.
 
 
 \subsubsection{vlist nodes}
