@@ -1180,7 +1180,7 @@ an error message if used with characters above code point 127: I.\,e.\
 'R' (range must have two characters)}, since to \lua{lpeg}, \type{ä}
 is two 'characters' (bytes), so \type{aä} totals three.
 
-\item \lua{lzlib}, by Tiago Dionizio, \hyphenatedurl{http://mega.ist.utl.pt/~tngd/lua/}. (version 0.2)
+\item \lua{lzlib}, by Tiago Dionizio, \hyphenatedurl{http://luaforge.net/projects/lzlib/}. (version 0.2)
 \item \lua{md5}, by Roberto Ierusalimschy \hyphenatedurl{http://www.inf.puc-rio.br/~roberto/md5/md5-5/md5.html}.
 
 \item \lua{luasocket}, by Diego Nehab
@@ -2290,10 +2290,10 @@ fontloader.apply_featurefile(f,'filename')
 \stopfunctioncall
 
 A \quote{feature file} is a textual representation of the features in an
-\OPENTYPE\ font.  See
-\hyphenatedurl {http://www.adobe.com/devnet/opentype/afdko/topic_feature_file_syntax.html}
-and
-\hyphenatedurl {http://fontforge.sourceforge.net/featurefile.html}
+\OPENTYPE\ font.  See\crlf
+\hyphenatedurl {http://www.adobe.com/devnet/opentype/afdko/topic_feature_file_syntax.html}\crlf
+and\crlf
+\hyphenatedurl {http://fontforge.sourceforge.net/featurefile.html}\crlf
 for a more detailed description of feature files.
 
 
@@ -2765,7 +2765,7 @@ actually set:
 \stoptabulate
 
 
-The features subtable of gpos has:
+The features subtable items of gpos have:
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
@@ -2799,13 +2799,10 @@ The kernclass with subtables table has:
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
-%\NC first_cnt             \NC number   \NC \NC\NR
-%\NC second_cnt            \NC number   \NC \NC\NR
 \NC firsts                \NC array of strings  \NC \NC\NR
 \NC seconds               \NC array of strings   \NC \NC\NR
-\NC lookup                \NC string \NC associated lookup \NC \NR
+\NC lookup                \NC string or array \NC associated lookup(s) \NC \NR
 \NC offsets               \NC array of numbers  \NC \NC\NR
-%\NC kcid                 \NC number   \NC ? \NC\NR
 \stoptabulate
 
 \subsubsubsection{gsub table}
