@@ -5910,6 +5910,7 @@ static quarterword mp_size_index (MP mp, font_number f, scaled s) ;
 quarterword mp_size_index (MP mp, font_number f, scaled s) {
   mp_node p,q; /* the previous and current font size nodes */
   int i; /* the size index for |q| */
+  p=NULL;
   q=mp->font_sizes[f];
   i=0;
   while ( q!=null ) {

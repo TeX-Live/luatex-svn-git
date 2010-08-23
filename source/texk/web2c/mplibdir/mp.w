@@ -20587,7 +20587,7 @@ static void mp_scan_secondary (MP mp) {
   mp_node p;    /* for list manipulation */
   halfword c, d;        /* operation codes or modifiers */
   mp_node cc = NULL;
-  mp_sym mac_name;      /* token defined with \&{primarydef} */
+  mp_sym mac_name = NULL;      /* token defined with \&{primarydef} */
 RESTART:
   if ((mp->cur_cmd < min_primary_command) ||
       (mp->cur_cmd > max_primary_command))
@@ -20642,8 +20642,8 @@ static void mp_binary_mac (MP mp, mp_node p, mp_node c, mp_sym n) {
 static void mp_scan_tertiary (MP mp) {
   mp_node p;    /* for list manipulation */
   halfword c, d;        /* operation codes or modifiers */
-  mp_node cc;
-  mp_sym mac_name;      /* token defined with \&{secondarydef} */
+  mp_node cc = NULL;
+  mp_sym mac_name = NULL;      /* token defined with \&{secondarydef} */
 RESTART:
   if ((mp->cur_cmd < min_primary_command) ||
       (mp->cur_cmd > max_primary_command))
@@ -20691,7 +20691,7 @@ static void mp_scan_expression (MP mp) {
   mp_knot path_p, path_q, r;
   mp_knot pp, qq;
   halfword c, d;        /* operation codes or modifiers */
-  mp_node cc;
+  mp_node cc = NULL;
   int my_var_flag;      /* initial value of |var_flag| */
   mp_sym mac_name;      /* token defined with \&{tertiarydef} */
   boolean cycle_hit;    /* did a path expression just end with `\&{cycle}'? */
