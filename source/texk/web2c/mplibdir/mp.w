@@ -1,4 +1,4 @@
-% $Id: mp.w 1328 2010-07-27 13:50:48Z taco $
+% $Id: mp.w 1344 2010-08-16 11:43:39Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -94,11 +94,6 @@ undergoes any modifications, so that it will be clear which version of
 
 @(mpmp.h@>=
 #define metapost_version "1.502"
-#ifdef DEBUG
-#  define FUNCTION_TRACE(s,args...) do { printf("FTRACE: " s,##args); usleep(10000); } while(0)
-#else
-#  define FUNCTION_TRACE(s,args...)
-#endif
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
 few typedefs and the header defintions for the externally used
@@ -169,6 +164,53 @@ extern font_number mp_read_font_info (MP mp, char *fname);      /* tfmin.w */
 @<Basic printing procedures@>;
 @<Error handling procedures@>
  
+@ Some debugging support for development. The trick with the variadic macros
+probably only works in gcc, as this preprocessor feature was not formalized 
+until the c99 standard (and that is too new for us). Lets' hope that at least
+most compilers understand the non-debug version.
+@^system dependencies@>
+
+@(mpmp.h@>=
+#define DEBUG 0
+#if DEBUG
+void do_debug_printf(MP mp, const char *prefix, const char *fmt, ...);
+#  define debug_printf(a1,a2,a3) do_debug_printf(mp, "", a1,a2,a3)
+#  define FUNCTION_TRACE1(a1) do_debug_printf(mp, "FTRACE: ", a1)
+#  define FUNCTION_TRACE2(a1,a2) do_debug_printf(mp, "FTRACE: ", a1,a2)
+#  define FUNCTION_TRACE3(a1,a2,a3) do_debug_printf(mp, "FTRACE: ", a1,a2,a3)
+#  define FUNCTION_TRACE4(a1,a2,a3,a4) do_debug_printf(mp, "FTRACE: ", a1,a2,a3,a4)
+#else
+#  define debug_printf(a1,a2,a3)
+#  define FUNCTION_TRACE1(a1)
+#  define FUNCTION_TRACE2(a1,a2)
+#  define FUNCTION_TRACE3(a1,a2,a3)
+#  define FUNCTION_TRACE4(a1,a2,a3,a4)
+#endif
+
+@ This function occasionally crashes (if something is written after the
+log file is already closed), but that is not so important while debugging.
+
+@c
+#if DEBUG
+void do_debug_printf(MP mp, const char *prefix, const char *fmt, ...) {
+  va_list ap;
+  va_start (ap, fmt);
+  if (mp->log_file && !ferror((FILE *)mp->log_file)) {
+    fputs(prefix, mp->log_file);
+    vfprintf(mp->log_file, fmt, ap);
+  }
+  va_end(ap);
+  va_start (ap, fmt);
+  if (mp->term_out  && !ferror((FILE *)mp->term_out)) {
+    fputs(prefix, mp->term_out);
+    vfprintf(mp->term_out, fmt, ap);
+  } else {
+    fputs(prefix, stdout);
+    vfprintf(stdout, fmt, ap);
+  }
+  va_end(ap);
+}
+#endif
 
 @ Here are the functions that set up the \MP\ instance.
 
@@ -1059,21 +1101,25 @@ static int comp_strings_entry (void *p, const void *pa, const void *pb);
 static void *copy_strings_entry (const void *p);
 static void *delete_strings_entry (void *p);
 
-@ @c
+@ An earlier version of this function used |strncmp|, but that produces
+wrong results in some cases.
+@c
+#define STRCMP_RESULT(a) ((a)<0 ? -1 : ((a)>0 ? 1 : 0))
 static int comp_strings_entry (void *p, const void *pa, const void *pb) {
   const mp_lstring *a = (const mp_lstring *) pa;
   const mp_lstring *b = (const mp_lstring *) pb;
+  size_t l;
+  unsigned char *s,*t;
   (void) p;
-  if (a->len != b->len) {
-    return (a->len > b->len ? 1 : -1);
+  s = a->str;
+  t = b->str;
+  l = (a->len<=b->len ? a->len : b->len);
+  while ( l-->0 ) { 
+    if ( *s!=*t)
+       return STRCMP_RESULT(*s-*t); 
+    s++; t++;
   }
-  if (a->str == NULL && b->str == NULL)
-    return 0;
-  if (a->str == NULL)
-    return -1;
-  if (b->str == NULL)
-    return 1;
-  return strncmp ((const char *) a->str, (const char *) b->str, a->len);
+  return STRCMP_RESULT(a->len-b->len);
 }
 static void *copy_strings_entry (const void *p) {
   str_number ff;
@@ -3031,7 +3077,7 @@ static mp_node mp_get_symbolic_node (MP mp) {
   memset (p, 0, symbolic_node_size);
   p->type = mp_symbol_node;
   p->name_type = mp_normal_sym;
-  FUNCTION_TRACE ("%p = mp_get_symbolic_node()\n", p);
+  FUNCTION_TRACE2 ("%p = mp_get_symbolic_node()\n", p);
   return (mp_node) p;
 }
 
@@ -3046,7 +3092,7 @@ A symbolic node is recycled by calling |free_symbolic_node|.
 
 @c
 void mp_free_node (MP mp, mp_node p, size_t siz) {                               /* node liberation */
-  FUNCTION_TRACE ("mp_free_node(%p,%d)\n", p, siz);
+  FUNCTION_TRACE3 ("mp_free_node(%p,%d)\n", p, siz);
   mp->var_used -= siz;
   xfree (p);                    /* do more later */
 }
@@ -3112,7 +3158,7 @@ nodes that starts at a given position, until coming to a |NULL| pointer.
 @c
 static void mp_flush_node_list (MP mp, mp_node p) {
   mp_node q;    /* the node being recycled */
-  FUNCTION_TRACE ("mp_flush_node_list(%p)\n", p);
+  FUNCTION_TRACE2 ("mp_flush_node_list(%p)\n", p);
   while (p != NULL) {
     q = p;
     p = p->link;
@@ -4489,7 +4535,7 @@ static mp_sym new_symbols_entry (MP mp, unsigned char *nam, size_t len) {
   ff->text->len = len;
   ff->type = tag_token;
   ff->v.type = mp_known;
-  FUNCTION_TRACE ("%p = new_symbols_entry(\"%s\",%d)\n", ff, nam, len);
+  FUNCTION_TRACE4 ("%p = new_symbols_entry(\"%s\",%d)\n", ff, nam, len);
   return ff;
 }
 
@@ -4907,7 +4953,7 @@ static mp_node mp_get_token_node (MP mp) {
   add_var_used (token_node_size);
   memset (p, 0, token_node_size);
   p->type = mp_token_node_type;
-  FUNCTION_TRACE ("%p = mp_get_token_node()\n", p);
+  FUNCTION_TRACE2 ("%p = mp_get_token_node()\n", p);
   return (mp_node) p;
 }
 
@@ -4932,7 +4978,7 @@ of a token list when it is no longer needed.
 @c
 static void mp_flush_token_list (MP mp, mp_node p) {
   mp_node q;    /* the node being recycled */
-  FUNCTION_TRACE ("mp_flush_token_list(%p)\n", p);
+  FUNCTION_TRACE2 ("mp_flush_token_list(%p)\n", p);
   while (p != NULL) {
     q = p;
     p = mp_link (p);
@@ -5325,7 +5371,7 @@ static mp_node mp_get_value_node (MP mp) {
   add_var_used (value_node_size);
   memset (p, 0, value_node_size);
   mp_type (p) = mp_value_node_type;
-  FUNCTION_TRACE ("%p = mp_get_value_node()\n", p);
+  FUNCTION_TRACE2 ("%p = mp_get_value_node()\n", p);
   return p;
 }
 
@@ -5490,6 +5536,7 @@ static mp_node mp_get_pair_node (MP mp) {
   add_var_used (pair_node_size);
   memset (p, 0, pair_node_size);
   mp_type (p) = mp_pair_node_type;
+  FUNCTION_TRACE2("get_pair_node(): %p\n", p);
   return (mp_node) p;
 }
 
@@ -6246,7 +6293,9 @@ static void mp_flush_variable (MP mp, mp_node p, mp_node t,
         }
         q = mp_link (r);
       }
-      set_subscr_head (p, q);
+      /* fix |subscr_head| if it was already present */
+      if (q==mp_link(mp->temp_head))
+        set_subscr_head (p, q);
     }
     p = attr_head (p);
     do {
@@ -6275,7 +6324,7 @@ static void mp_flush_below_variable (MP mp, mp_node p);
 @ @c
 void mp_flush_below_variable (MP mp, mp_node p) {
   mp_node q, r; /* list manipulation registers */
-  FUNCTION_TRACE ("mp_flush_below_variable(%p)\n", p);
+  FUNCTION_TRACE2 ("mp_flush_below_variable(%p)\n", p);
   if (mp_type (p) != mp_structured) {
     mp_recycle_value (mp, p);   /* this sets |type(p)=undefined| */
   } else {
@@ -6354,7 +6403,7 @@ parameter is true, a subsidiary structure is saved instead of destroyed.
 @c
 static void mp_clear_symbol (MP mp, mp_sym p, boolean saving) {
   mp_node q;    /* |equiv(p)| */
-  FUNCTION_TRACE ("mp_clear_symbol(%p,%d)\n", p, saving);
+  FUNCTION_TRACE3 ("mp_clear_symbol(%p,%d)\n", p, saving);
   q = equiv_node (p);
   switch (eq_type (p) % outer_tag) {
   case defined_macro:
@@ -6435,7 +6484,7 @@ mp->save_ptr = NULL;
 @c
 static void mp_save_boundary (MP mp) {
   mp_save_data *p;      /* temporary register */
-  FUNCTION_TRACE ("mp_save_boundary ()\n");
+  FUNCTION_TRACE1 ("mp_save_boundary ()\n");
   p = xmalloc (1, sizeof (mp_save_data));
   p->info = 0;
   p->link = mp->save_ptr;
@@ -6454,7 +6503,7 @@ no point in wasting the space.
 @c
 static void mp_save_variable (MP mp, mp_sym q) {
   mp_save_data *p;      /* temporary register */
-  FUNCTION_TRACE ("mp_save_variable (%p)\n", q);
+  FUNCTION_TRACE2 ("mp_save_variable (%p)\n", q);
   if (mp->save_ptr != NULL) {
     p = xmalloc (1, sizeof (mp_save_data));
     p->info = 1;
@@ -6477,7 +6526,7 @@ third kind.
 @c
 static void mp_save_internal (MP mp, halfword q) {
   mp_save_data *p;      /* new item for the save stack */
-  FUNCTION_TRACE ("mp_save_internal (%p)\n", q);
+  FUNCTION_TRACE2 ("mp_save_internal (%p)\n", q);
   if (mp->save_ptr != NULL) {
     p = xmalloc (1, sizeof (mp_save_data));
     p->info = q;
@@ -6496,7 +6545,7 @@ is at least one boundary item on the save stack.
 @c
 static void mp_unsave (MP mp) {
   mp_save_data *p;      /* saved item */
-  FUNCTION_TRACE ("mp_unsave ()\n");
+  FUNCTION_TRACE1 ("mp_unsave ()\n");
   while (mp->save_ptr->info != 0) {
     halfword q = mp->save_ptr->info;
     if (mp->save_ptr->type == mp_internal_sym) {
@@ -12845,40 +12894,40 @@ structures have to match.
 @d dep_value(A) ((mp_value_node)(A))->data.val /* half of the |value| field in a |dependent| variable */
 @d set_dep_value(A,B) do {
   ((mp_value_node)(A))->data.val=(B);  /* half of the |value| field in a |dependent| variable */
-   FUNCTION_TRACE("set_dep_value(%p,%d) on %d\n",A,B,__LINE__);
+   FUNCTION_TRACE4("set_dep_value(%p,%d) on %d\n",A,B,__LINE__);
    set_dep_list((A), NULL);
    set_prev_dep((A), NULL);
  } while (0)
-@d dep_info get_dep_info
+@d dep_info(A) get_dep_info(mp,(A))
 @d set_dep_info(A,B) do {
    mp_value_node d = (mp_value_node)(B);
-   FUNCTION_TRACE("set_dep_info(%p,%p) on %d\n",A,d,__LINE__);
+   FUNCTION_TRACE4("set_dep_info(%p,%p) on %d\n",A,d,__LINE__);
   ((mp_value_node)(A))->parent_ = (mp_node)d;
 } while (0)
 @d dep_list(A) ((mp_value_node)(A))->attr_head_  /* half of the |value| field in a |dependent| variable */
 @d set_dep_list(A,B) do {
    mp_value_node d = (mp_value_node)(B);
-   FUNCTION_TRACE("set_dep_list(%p,%p) on %d\n",A,d,__LINE__);
+   FUNCTION_TRACE4("set_dep_list(%p,%p) on %d\n",A,d,__LINE__);
    dep_list((A)) = (mp_node)d;
 } while (0)
 @d prev_dep(A) ((mp_value_node)(A))->subscr_head_ /* the other half; makes a doubly linked list */
 @d set_prev_dep(A,B) do {
    mp_value_node d = (mp_value_node)(B);
-   FUNCTION_TRACE("set_prev_dep(%p,%p) on %d\n",A,d,__LINE__);
+   FUNCTION_TRACE4("set_prev_dep(%p,%p) on %d\n",A,d,__LINE__);
    prev_dep((A)) = (mp_node)d;
 } while (0)
 
 @c
-static mp_node get_dep_info (mp_value_node p) {
+static mp_node get_dep_info (MP mp, mp_value_node p) {
   mp_node d;
   d = p->parent_;               /* half of the |value| field in a |dependent| variable */
-  FUNCTION_TRACE ("%p = dep_info(%p)\n", d, p);
+  FUNCTION_TRACE3 ("%p = dep_info(%p)\n", d, p);
   return d;
 }
 
 
 @ @<Declarations...@>=
-static mp_node get_dep_info (mp_value_node p);
+static mp_node get_dep_info (MP mp, mp_value_node p);
 
 @ 
 
@@ -13490,7 +13539,7 @@ dependency node. We assume that |dep_final| points to the final node of list~|p|
 static void mp_new_dep (MP mp, mp_node q, mp_variable_type newtype,
                         mp_value_node p) {
   mp_node r;    /* what used to be the first dependency */
-  FUNCTION_TRACE ("mp_new_dep(%p,%d,%p)\n", q, newtype, p);
+  FUNCTION_TRACE4 ("mp_new_dep(%p,%d,%p)\n", q, newtype, p);
   mp_type (q) = newtype;
   set_dep_list (q, (mp_node) p);
   set_prev_dep (q, (mp_node) mp->dep_head);
@@ -13510,7 +13559,7 @@ static mp_value_node mp_const_dependency (MP mp, scaled v) {
   mp->dep_final = mp_get_dep_node (mp);
   set_dep_value (mp->dep_final, v);
   set_dep_info (mp->dep_final, NULL);
-  FUNCTION_TRACE ("%p = mp_const_dependency(%d)\n", mp->dep_final, v);
+  FUNCTION_TRACE3 ("%p = mp_const_dependency(%d)\n", mp->dep_final, v);
   return mp->dep_final;
 }
 
@@ -13542,7 +13591,7 @@ static mp_value_node mp_single_dependency (MP mp, mp_node p) {
     rr = mp_const_dependency (mp, 0);
     set_mp_link (q, (mp_node) rr);
   }
-  FUNCTION_TRACE ("%p = mp_single_dependency(%p)\n", q, p);
+  FUNCTION_TRACE3 ("%p = mp_single_dependency(%p)\n", q, p);
   return q;
 }
 
@@ -13552,7 +13601,7 @@ static mp_value_node mp_single_dependency (MP mp, mp_node p) {
 @c
 static mp_value_node mp_copy_dep_list (MP mp, mp_value_node p) {
   mp_value_node q;      /* the new dependency list */
-  FUNCTION_TRACE ("mp_copy_dep_list(%p)\n", p);
+  FUNCTION_TRACE2 ("mp_copy_dep_list(%p)\n", p);
   q = mp_get_dep_node (mp);
   mp->dep_final = q;
   while (1) {
@@ -13588,7 +13637,7 @@ static void mp_linear_eq (MP mp, mp_value_node p, quarterword t) {
   mp_value_node prev_r; /* lags one step behind |r| */
   mp_value_node final_node;     /* the constant term of the new dependency list */
   integer w;    /* a tentative coefficient */
-  FUNCTION_TRACE ("mp_linear_eq(%p,%d)\n", p, t);
+  FUNCTION_TRACE3 ("mp_linear_eq(%p,%d)\n", p, t);
   @<Find a node |q| in list |p| whose coefficient |v| is largest@>;
   x = dep_info (q);
   n = indep_scale (x);
@@ -19142,7 +19191,7 @@ static void mp_recycle_value (MP mp, mp_node p) {
   integer vv;   /* another value */
   mp_node pp;   /* link manipulation register */
   integer v = 0;        /* a value */
-  FUNCTION_TRACE ("mp_recycle_value(%p)\n", p);
+  FUNCTION_TRACE2 ("mp_recycle_value(%p)\n", p);
   t = mp_type (p);
   if (t < mp_dependent)
     v = value (p);
@@ -19371,7 +19420,7 @@ list.
 @<Determine the dep...@>=
 s = mp->max_ptr[t];
 pp = (mp_node) dep_info (s);
-/* |printf ("s=%p, pp=%p, r=%p\n",s, pp, dep_list((mp_value_node)pp));| */
+/* |debug_printf ("s=%p, pp=%p, r=%p\n",s, pp, dep_list((mp_value_node)pp));| */
 v = dep_value (s);
 if (t == mp_dependent)
   set_dep_value (s, -fraction_one);
@@ -19632,10 +19681,6 @@ static void mp_bad_exp (MP mp, const char *s) {
 
 
 @ @<Supply diagnostic information, if requested@>=
-#ifdef DEBUG
-if (mp->panicking)
-  mp_check_mem (mp, false);
-#endif
 if (mp->interrupt != 0)
   if (mp->OK_to_interrupt) {
     mp_back_input (mp);
@@ -20337,7 +20382,7 @@ tail of dependency list~|p|.
 @<Declare subroutines needed by |make_exp_copy|@>=
 static void mp_encapsulate (MP mp, mp_value_node p) {
   mp_node q = mp_get_value_node (mp);
-  FUNCTION_TRACE ("mp_encapsulate(%p)\n", p);
+  FUNCTION_TRACE2 ("mp_encapsulate(%p)\n", p);
   mp_name_type (q) = mp_capsule;
   mp_new_dep (mp, q, mp->cur_exp.type, p);
   set_cur_exp_node (q);
@@ -20351,6 +20396,7 @@ or |known|.
 
 @<Copy the big node |p|@>=
 {
+  debug_printf("value_node (%p) = %p\n", p, value_node(p));
   if (value_node (p) == NULL) {
     switch (mp_type (p)) {
     case mp_pair_type:
@@ -20374,37 +20420,37 @@ or |known|.
   switch (mp->cur_exp.type) {
   case mp_pair_type:
     mp_init_pair_node (mp, t);
-    mp_install (mp, x_part_loc (value_node (t)), x_part_loc (value_node (p)));
     mp_install (mp, y_part_loc (value_node (t)), y_part_loc (value_node (p)));
+    mp_install (mp, x_part_loc (value_node (t)), x_part_loc (value_node (p)));
     break;
   case mp_color_type:
     mp_init_color_node (mp, t);
-    mp_install (mp, red_part_loc (value_node (t)),
-                red_part_loc (value_node (p)));
-    mp_install (mp, green_part_loc (value_node (t)),
-                green_part_loc (value_node (p)));
     mp_install (mp, blue_part_loc (value_node (t)),
                 blue_part_loc (value_node (p)));
+    mp_install (mp, green_part_loc (value_node (t)),
+                green_part_loc (value_node (p)));
+    mp_install (mp, red_part_loc (value_node (t)),
+                red_part_loc (value_node (p)));
     break;
   case mp_cmykcolor_type:
     mp_init_cmykcolor_node (mp, t);
-    mp_install (mp, cyan_part_loc (value_node (t)),
-                cyan_part_loc (value_node (p)));
-    mp_install (mp, magenta_part_loc (value_node (t)),
-                magenta_part_loc (value_node (p)));
-    mp_install (mp, yellow_part_loc (value_node (t)),
-                yellow_part_loc (value_node (p)));
     mp_install (mp, black_part_loc (value_node (t)),
                 black_part_loc (value_node (p)));
+    mp_install (mp, yellow_part_loc (value_node (t)),
+                yellow_part_loc (value_node (p)));
+    mp_install (mp, magenta_part_loc (value_node (t)),
+                magenta_part_loc (value_node (p)));
+    mp_install (mp, cyan_part_loc (value_node (t)),
+                cyan_part_loc (value_node (p)));
     break;
   case mp_transform_type:
     mp_init_transform_node (mp, t);
-    mp_install (mp, tx_part_loc (value_node (t)), tx_part_loc (value_node (p)));
-    mp_install (mp, ty_part_loc (value_node (t)), ty_part_loc (value_node (p)));
-    mp_install (mp, xx_part_loc (value_node (t)), xx_part_loc (value_node (p)));
-    mp_install (mp, xy_part_loc (value_node (t)), xy_part_loc (value_node (p)));
-    mp_install (mp, yx_part_loc (value_node (t)), yx_part_loc (value_node (p)));
     mp_install (mp, yy_part_loc (value_node (t)), yy_part_loc (value_node (p)));
+    mp_install (mp, yx_part_loc (value_node (t)), yx_part_loc (value_node (p)));
+    mp_install (mp, xy_part_loc (value_node (t)), xy_part_loc (value_node (p)));
+    mp_install (mp, xx_part_loc (value_node (t)), xx_part_loc (value_node (p)));
+    mp_install (mp, ty_part_loc (value_node (t)), ty_part_loc (value_node (p)));
+    mp_install (mp, tx_part_loc (value_node (t)), tx_part_loc (value_node (p)));
     break;
   default:                     /* there are no other valid cases, but please the compiler */
     break;
