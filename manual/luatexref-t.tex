@@ -22,7 +22,7 @@
 
 \setvariables
   [document]
-  [beta=0.62.0]
+  [beta=0.63.0]
 
 \starttext
 
@@ -5472,50 +5472,55 @@ tex.setskip ('global',<string> s, <node> s)
 In the function-based interface, it is possible to define values
 globally by using the string \type{'global'} as the first function argument.
 
+\subsection{Character code registers}
+
+\TEX's character code tables (\tex{lccode}, \tex{uccode},
+\tex{sfcode}), and \tex{catcode})can be accessed and
+written to using four virtual subtables of the \type{tex} table
+
+\startcolumns[n=3]
+\starttyping
+tex.lccode
+tex.uccode
+tex.sfcode
+tex.catcode
+\stoptyping
+\stopcolumns
+
+The function call interfaces are roughly as above, but there are a few twists.
+\type{sfcode}s are the simple ones:
+
+\startfunctioncall
+tex.setsfcode (<number> n, <number> s)
+tex.setsfcode ('global', <number> n, <number> s)
+<number> s = tex.getsfcode (<number> n)
+\stopfunctioncall
+
+The function call interface for \type{lccode} and \type{uccode} additionally allows you to set the associated sibling at the same time:
+
+\startfunctioncall
+tex.setlccode (['global'], <number> n, <number> lc)
+tex.setlccode (['global'], <number> n, <number> lc, <number> uc)
+<number> lc = tex.getlccode (<number> n)
+tex.setuccode (['global'], <number> n, <number> uc)
+tex.setuccode (['global'], <number> n, <number> uc, <number> lc)
+<number> uc = tex.getuccode (<number> n)
+\stopfunctioncall
+
+The function call interface for \type{catcode} also allows you to
+specify a category table to use on assignment or on query (default in
+both cases is the current one):
+
+\startfunctioncall
+tex.setcatcode (['global'], <number> n, <number> c)
+tex.setcatcode (['global'], <number> cattable, <number> n, <number> c)
+<number> lc = tex.getcatcode (<number> n)
+<number> lc = tex.getcatcode (<number> cattable, <number> n)
+\stopfunctioncall
+
 \subsection{Box registers}
 
-The current dimensions of \tex{box} registers can be read and
-altered using three other virtual sub|-|tables :
-
-\starttyping
-tex.wd
-tex.ht
-tex.dp
-\stoptyping
-
-{\bf note: these three virtual tables are deprecated and will
-be removed in luatex 0.70. You should switch to using \type{tex.box[].width}
-etc. instead, see below.}
-
-If in post 0.70 you want the functionality of these tables back, you can add
-\LUA\ code to do that for you, like this:
-
-
-\starttyping
-local box = tex.box
-
-local wd = {
-    __index    = function(t,k)   local bk = box[k] return bk and bk.width or 0 end,
-    __newindex = function(t,k,v) local bk = box[k] if bk then bk.width = v end end,
-}
-local ht = {
-    __index    = function(t,k)   local bk = box[k] return bk and bk.height or 0 end,
-    __newindex = function(t,k,v) local bk = box[k] if bk then bk.height = v end end,
-}
-local dp = {
-    __index    = function(t,k)   local bk = box[k] return bk and bk.depth or 0 end,
-    __newindex = function(t,k,v) local bk = box[k] if bk then bk.depth = v end end,
-}
-
-tex.wd = { } setmetatable(tex.wd,wd)
-tex.ht = { } setmetatable(tex.ht,ht)
-tex.dp = { } setmetatable(tex.dp,dp)
-\stoptyping
-
-
-\blank
-
-It is also possible to set and query actual boxes, using the node
+It is possible to set and query actual boxes, using the node
 interface as defined in the \luatex{node} library:
 
 \starttyping
@@ -5549,6 +5554,37 @@ assigning to a temporary variable:
 \starttyping
 tex.box[0] = node.copy_list(tex.box[2])
 \stoptyping
+
+{\bf note: In previous versions of \LUATEX\ there were also three 
+virtual tables called \type{tex.wd}, \type{tex.ht}, and \type{tex.dp}
+along with an associated function call interface. These were 
+removed in version 0.63. You should switch to using \type{tex.box[].width}
+etc. instead.}
+
+If for some reason you want the functionality of these tables back,
+you can add \LUA\ code to do that for you, like this:
+
+\starttyping
+local box = tex.box
+
+local wd = {
+    __index    = function(t,k)   local bk = box[k] return bk and bk.width or 0 end,
+    __newindex = function(t,k,v) local bk = box[k] if bk then bk.width = v end end,
+}
+local ht = {
+    __index    = function(t,k)   local bk = box[k] return bk and bk.height or 0 end,
+    __newindex = function(t,k,v) local bk = box[k] if bk then bk.height = v end end,
+}
+local dp = {
+    __index    = function(t,k)   local bk = box[k] return bk and bk.depth or 0 end,
+    __newindex = function(t,k,v) local bk = box[k] if bk then bk.depth = v end end,
+}
+
+tex.wd = { } setmetatable(tex.wd,wd)
+tex.ht = { } setmetatable(tex.ht,ht)
+tex.dp = { } setmetatable(tex.dp,dp)
+\stoptyping
+
 
 \subsection{Math parameters}
 
