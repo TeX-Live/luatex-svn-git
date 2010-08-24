@@ -276,6 +276,7 @@ static void hyppat_insert(HashTab * hashtab, unsigned char *key, char *hyppat)
     HashEntry *e;
 
     i = (int) (hnj_string_hash(key) % HASH_SIZE);
+    printf("hyppat_isernt: %d\n", i);
     for (e = hashtab->entries[i]; e; e = e->next) {
         if (strcmp((char *) e->key, (char *) key) == 0) {
             if (e->u.hyppat) {
@@ -324,7 +325,7 @@ static char *hyppat_lookup(HashTab * hashtab, const unsigned char *chars, int l)
 {
     int i;
     HashEntry *e;
-    unsigned char key[128];     /* should be ample */
+    unsigned char key[256];     /* should be ample */
     strncpy((char *) key, (const char *) chars, (size_t) l);
     key[l] = 0;
     i = (int) (hnj_string_hash(key) % HASH_SIZE);
@@ -604,6 +605,12 @@ void hnj_hyphen_load(HyphenDict * dict, const unsigned char *f)
     char *org;
     while ((format = next_pattern(&l, &f)) != NULL) {
         int i, j, e;
+        if (l>=255) {
+           help1("Individual patterns should not be longer than 254 bytes total.");
+           print_err("Pattern of enormous length ignored");
+           error();
+           continue;
+        }
 #if 0
            printf("%s\n",format);
            char* repl = strnchr(format, '/',l);
