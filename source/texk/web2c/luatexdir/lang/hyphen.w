@@ -276,7 +276,6 @@ static void hyppat_insert(HashTab * hashtab, unsigned char *key, char *hyppat)
     HashEntry *e;
 
     i = (int) (hnj_string_hash(key) % HASH_SIZE);
-    printf("hyppat_isernt: %d\n", i);
     for (e = hashtab->entries[i]; e; e = e->next) {
         if (strcmp((char *) e->key, (char *) key) == 0) {
             if (e->u.hyppat) {
