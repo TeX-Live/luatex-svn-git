@@ -834,10 +834,15 @@ static int count_char_packet_bytes(lua_State * L)
                 } else if (luaS_ptr_eq(s, special)) {
                     size_t len;
                     lua_rawgeti(L, -2, 2);
-                    (void) lua_tolstring(L, -1, &len);
-                    lua_pop(L, 1);
-                    if (len > 0) {
-                        l = (int) (l + 5 + (int) len);
+                    if (lua_isstring(L, -1)) {
+                        (void) lua_tolstring(L, -1, &len);
+                        lua_pop(L, 1);
+                        if (len > 0) {
+                            l = (int) (l + 5 + (int) len);
+                        }  
+                    } else {
+                        lua_pop(L, 1);
+                        fprintf(stdout, "invalid packet special!\n");
                     }
                 } else if (luaS_ptr_eq(s, image)) {
                     l += 5;
@@ -905,10 +910,10 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
                 } else if (luaS_ptr_eq(s, slot)) {
                     cmd = packet_nop_code;
                     lua_rawgeti(L, -2, 2);
-                    n = (int) lua_tointeger(L, -1);
+                    n = (int) luaL_checkinteger(L, -1);
                     ff = (n > max_f ? l_fonts[1] : l_fonts[n]);
                     lua_rawgeti(L, -3, 3);
-                    n = (int) lua_tointeger(L, -1);
+                    n = (int) luaL_checkinteger(L, -1);
                     lua_pop(L, 2);
                     append_packet(packet_font_code);
                     do_store_four(ff);
@@ -942,7 +947,7 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
                 case packet_font_code:
                     append_packet(cmd);
                     lua_rawgeti(L, -2, 2);
-                    n = (int) lua_tointeger(L, -1);
+                    n = (int) luaL_checkinteger(L, -1);
                     ff = (n > max_f ? l_fonts[1] : l_fonts[n]);
                     do_store_four(ff);
                     lua_pop(L, 1);
@@ -957,7 +962,7 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
                 case packet_char_code:
                     append_packet(cmd);
                     lua_rawgeti(L, -2, 2);
-                    n = (int) lua_tointeger(L, -1);
+                    n = (int) luaL_checkinteger(L, -1);
                     do_store_four(n);
                     lua_pop(L, 1);
                     break;
@@ -965,24 +970,24 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
                 case packet_down_code:
                     append_packet(cmd);
                     lua_rawgeti(L, -2, 2);
-                    n = (int) lua_tointeger(L, -1);
+                    n = (int) luaL_checkinteger(L, -1);
                     do_store_four(sp_to_dvi(n, atsize));
                     lua_pop(L, 1);
                     break;
                 case packet_rule_code:
                     append_packet(cmd);
                     lua_rawgeti(L, -2, 2);
-                    n = (int) lua_tointeger(L, -1);
+                    n = (int) luaL_checkinteger(L, -1);
                     do_store_four(sp_to_dvi(n, atsize));
                     lua_rawgeti(L, -3, 3);
-                    n = (int) lua_tointeger(L, -1);
+                    n = (int) luaL_checkinteger(L, -1);
                     do_store_four(sp_to_dvi(n, atsize));
                     lua_pop(L, 2);
                     break;
                 case packet_special_code:
                     append_packet(cmd);
                     lua_rawgeti(L, -2, 2);
-                    s = lua_tolstring(L, -1, &l);
+                    s = luaL_checklstring(L, -1, &l);
                     if (l > 0) {
                         do_store_four(l);
                         m = (int) l;
