@@ -690,7 +690,8 @@ extern pointer actual_box_width(pointer r, scaled base_width);
 /* TH: these two defines still need checking. The node ordering in luatex is not 
    quite the same as in tex82 */
 
-#  define precedes_break(a) (type((a))<math_node && (type(a)!=whatsit_node || subtype(a)!=dir_node))
+#  define precedes_break(a) (type((a))<math_node && \
+                            (type(a)!=whatsit_node || (subtype(a)!=dir_node && subtype(a)!=local_par_node)))
 #  define non_discardable(a) (type((a))<math_node)
 
 /* from luanode.c */
