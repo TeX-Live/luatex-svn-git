@@ -48,6 +48,12 @@ static int obj_in_tree[PDF_OBJ_TYPE_MAX + 1] = {
     0                           /* |obj_type_others = 14|     */
 };
 
+@ @c
+static const char *pdf_obj_typenames[PDF_OBJ_TYPE_MAX + 1] =
+    { "font", "outline", "dest", "obj", "xform", "ximage", "thread",
+    "pagestream", "page", "pages", "link", "bead", "annot", "objstm", "others"
+};
+
 @ AVL sort oentry into |avl_table[]| 
 @c
 static int compare_info(const void *pa, const void *pb, void *param)
@@ -234,10 +240,19 @@ int pdf_new_objnum(PDF pdf)
 
 void check_obj_exists(PDF pdf, int t, int objnum)
 {
+    char *s;
+    int u;
     if (objnum < 0 || objnum > pdf->obj_ptr)
         pdf_error("ext1", "cannot find referenced object");
-    if (t != obj_type(pdf, objnum))
-        pdf_error("ext1", "referenced object has wrong type");
+    u = obj_type(pdf, objnum);
+    if (t != u) {
+        assert(t >= 0 && t <= PDF_OBJ_TYPE_MAX);
+        assert(u >= 0 && u <= PDF_OBJ_TYPE_MAX);
+        s = (char *) xtalloc(128, char);
+        snprintf(s, 127, "referenced object has wrong type %s; should be %s",
+                 pdf_obj_typenames[u], pdf_obj_typenames[t]);
+        pdf_error("ext1", s);
+    }
 }
 
 @ @c
