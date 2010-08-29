@@ -468,6 +468,7 @@ static void write_fontfile(PDF pdf, fd_entry * fd)
 
 @
 @c
+int cidset = 0;
 static void write_fontdescriptor(PDF pdf, fd_entry * fd)
 {
     static const int std_flags[] = {
@@ -494,7 +495,7 @@ static void write_fontdescriptor(PDF pdf, fd_entry * fd)
     struct avl_traverser t;
     int fd_flags;
     assert(fd != NULL && fd->fm != NULL);
-
+    cidset = 0; /* possibly updated by |write_fontfile| */
     if (is_fontfile(fd->fm) && is_included(fd->fm))
         write_fontfile(pdf, fd);        /* this will set |fd->ff_found| if font file is found */
     if (fd->fd_objnum == 0)
@@ -549,14 +550,11 @@ static void write_fontdescriptor(PDF pdf, fd_entry * fd)
                 assert(0);
         }
     }
-    /* TODO: Optional keys for CID fonts.
-
-       The most interesting ones are
+    if (cidset !=0)
+        pdf_printf(pdf, "/CIDSet %i 0 R\n", cidset);
+    /* TODO: Other optional keys for CID fonts.
+       The most interesting one is
        \.{/Style << /Panose <12-byte string>>>}
-       and
-       \.{/CIDSET <stream>}
-       the latter can be used in subsets, to give the included CIDs
-       as a bitmap on the whole list.
      */
     pdf_end_dict(pdf);
 }

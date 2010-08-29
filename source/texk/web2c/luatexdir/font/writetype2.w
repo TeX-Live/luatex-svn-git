@@ -259,11 +259,12 @@ static unsigned long ttc_read_offset(sfnt * sfont, int ttc_idx)
 
 @ Creating the subset.
 @c
+extern int cidset;
 void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
 {
 
     long i, cid;
-    unsigned int last_cid;
+    unsigned int last_cid = 0;
     glw_entry *found;
     struct avl_traverser t;
     unsigned char *cidtogidmap;
@@ -395,6 +396,29 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
 
     pdf_release_obj(fontfile);
 
+    /* CIDSet: a table of bits indexed by cid, bytes with high order bit first, 
+       each (set) bit is a (present) CID. */	
+    if (is_subsetted(fd->fm)) {
+      cidset = pdf_new_objnum(pdf);
+      if (cidset != 0) {
+       size_t l = (last_cid/8)+1;
+       char *stream = xmalloc(l);
+       memset(stream, 0, l);
+       stream[0] |= 1; /* .notdef */
+       for (cid = 1; cid <= (long) last_cid; cid++) {
+           if (used_chars[cid]) {
+              stream[(cid / 8)] |= (1<<(cid % 8));
+           }
+       }
+       pdf_begin_dict(pdf, cidset, 0);
+       pdf_printf(pdf, "/Length %i\n", (int)l);
+       pdf_end_dict(pdf);
+       pdf_printf(pdf, "stream\n");
+       pdf_out_block(pdf, stream, l);
+       pdf_printf(pdf, "\nendstream\n");
+      }
+    }
+
     /* TODO other stuff that needs fixing: */
 
     /* DW, W, DW2, and W2 */
@@ -408,19 +432,7 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
        add_TTCIDVMetrics(font->fontdict, glyphs, used_chars, cidtogidmap, last_cid);
        }
 #endif
-    /* CIDSet */
-#if 0
-       {
-       pdf_obj *cidset;
 
-       cidset = pdf_new_stream(STREAM_COMPRESS);
-       pdf_add_stream(cidset, used_chars, last_cid/8 + 1);
-       pdf_add_dict(font->descriptor,
-       pdf_new_name("CIDSet"),
-       pdf_ref_obj(cidset));
-       pdf_release_obj(cidset);
-       }
-#endif
     xfree(used_chars);
     sfnt_close(sfont);
     return;

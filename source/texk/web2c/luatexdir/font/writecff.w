@@ -23,6 +23,8 @@
 
 #include "font/writecff.h"
 
+extern int cidset;
+
 static const char _svn_version[] =
     "$Id$ "
 "$URL$";
@@ -3162,6 +3164,35 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
         }
     }
 
+    /* CIDSet: a table of bits indexed by cid, bytes with high order bit first, 
+       each (set) bit is a (present) CID. */	
+    if (1) {
+      int cid;
+      int byte, bit;
+      cidset = pdf_new_objnum(pdf);
+      if (cidset != 0) {
+       size_t l = (last_cid/8)+1;
+       char *stream = xmalloc(l);
+       memset(stream, 0, l);
+       stream[0] |= 1; /* .notdef */
+       for (cid = 1; cid <= (long) last_cid; cid++) {
+           glyph->id = cid;
+           if (avl_find(fd->gl_tree,glyph) != NULL) {
+              byte = cid / 8;
+              bit = cid % 8;
+	      /* printf("CIDSet %d: stream[%d][%d] num_glyphs:%d\n", cid, byte, bit, num_glyphs); */
+              stream[byte] |= (1<<(bit));
+           }
+       }
+       pdf_begin_dict(pdf, cidset, 0);
+       pdf_printf(pdf, "/Length %i\n", (int)l);
+       pdf_end_dict(pdf);
+       pdf_printf(pdf, "stream\n");
+       pdf_out_block(pdf, stream, l);
+       pdf_printf(pdf, "\nendstream\n");
+      }
+    }
+
     /* this happens if the internal metrics do not agree with the actual disk font */
     if (gid < num_glyphs) {
         WARN("embedded subset is smaller than expected: %d instead of %d glyphs.", gid, num_glyphs);
@@ -3283,7 +3314,6 @@ card16 cff_charsets_lookup(cff_font * cff, card16 cid)
 @ @c
 #define is_cidfont(a) ((a)->flag & FONTTYPE_CIDFONT)
 #define CID_MAX 65535
-
 void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
 {
     cff_index *charstrings, *cs_idx;
@@ -3347,6 +3377,34 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
             num_glyphs++;
         }
     }
+
+    /* CIDSet: a table of bits indexed by cid, bytes with high order bit first, 
+       each (set) bit is a (present) CID. */	
+    if (1) {
+      int byte, bit;
+      cidset = pdf_new_objnum(pdf);
+      if (cidset != 0) {
+       size_t l = (last_cid/8)+1;
+       char *stream = xmalloc(l);
+       memset(stream, 0, l);
+       stream[0] |= 1; /* .notdef */
+       for (cid = 1; cid <= (long) last_cid; cid++) {
+    	   byte = CIDToGIDMap[2 * cid];
+           bit = CIDToGIDMap[2 * cid + 1];
+           if (bit || byte) {
+	      /* printf("CIDSet %d: stream[%d][%d]\n", cid, byte, bit); */
+              stream[byte] |= (1<<(bit));
+           }
+       }
+       pdf_begin_dict(pdf, cidset, 0);
+       pdf_printf(pdf, "/Length %i\n", (int)l);
+       pdf_end_dict(pdf);
+       pdf_printf(pdf, "stream\n");
+       pdf_out_block(pdf, stream, l);
+       pdf_printf(pdf, "\nendstream\n");
+      }
+    }
+
 
     cff_read_fdselect(cffont);
     cff_read_fdarray(cffont);
