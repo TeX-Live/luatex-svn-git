@@ -3381,7 +3381,6 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     /* CIDSet: a table of bits indexed by cid, bytes with high order bit first, 
        each (set) bit is a (present) CID. */	
     if (1) {
-      int byte, bit;
       cidset = pdf_new_objnum(pdf);
       if (cidset != 0) {
        size_t l = (last_cid/8)+1;
@@ -3389,11 +3388,9 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
        memset(stream, 0, l);
        stream[0] |= 1; /* .notdef */
        for (cid = 1; cid <= (long) last_cid; cid++) {
-    	   byte = CIDToGIDMap[2 * cid];
-           bit = CIDToGIDMap[2 * cid + 1];
-           if (bit || byte) {
+           if (CIDToGIDMap[2 * cid] || CIDToGIDMap[2 * cid + 1]) {
 	      /* printf("CIDSet %d: stream[%d][%d]\n", cid, byte, bit); */
-              stream[byte] |= (1<<(bit));
+              stream[(cid/8)] |= (1<<(cid %8));
            }
        }
        pdf_begin_dict(pdf, cidset, 0);
