@@ -411,11 +411,9 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
            }
        }
        pdf_begin_dict(pdf, cidset, 0);
-       pdf_printf(pdf, "/Length %i\n", (int)l);
-       pdf_end_dict(pdf);
-       pdf_printf(pdf, "stream\n");
+       pdf_begin_stream(pdf);
        pdf_out_block(pdf, stream, l);
-       pdf_printf(pdf, "\nendstream\n");
+       pdf_end_stream(pdf);
       }
     }
 

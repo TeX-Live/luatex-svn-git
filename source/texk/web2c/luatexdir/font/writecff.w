@@ -3185,11 +3185,9 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
            }
        }
        pdf_begin_dict(pdf, cidset, 0);
-       pdf_printf(pdf, "/Length %i\n", (int)l);
-       pdf_end_dict(pdf);
-       pdf_printf(pdf, "stream\n");
+       pdf_begin_stream(pdf);
        pdf_out_block(pdf, stream, l);
-       pdf_printf(pdf, "\nendstream\n");
+       pdf_end_stream(pdf);
       }
     }
 
@@ -3394,11 +3392,9 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
            }
        }
        pdf_begin_dict(pdf, cidset, 0);
-       pdf_printf(pdf, "/Length %i\n", (int)l);
-       pdf_end_dict(pdf);
-       pdf_printf(pdf, "stream\n");
+       pdf_begin_stream(pdf);
        pdf_out_block(pdf, stream, l);
-       pdf_printf(pdf, "\nendstream\n");
+       pdf_end_stream(pdf);
       }
     }
 
