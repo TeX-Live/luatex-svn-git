@@ -4592,11 +4592,11 @@ starts at \type{n} that have a matching \type{id} field.
 This function removes the node \type{current} from the list following
 \type{head}. It is your responsibility to make sure it is really part
 of that list. The return values are the new \type{head} and
-\type{current} nodes. The returned \type{current} is the
-node in the calling argument, and is only passed back as a convenience
-(its \type{next} field will be cleared). The returned \type{head} is
-more important, because if the function is called with \type{current}
-equal to \type{head}, it will be changed.
+\type{current} nodes. The returned \type{current} is the node
+following the \type{current} in the calling argument, and is only
+passed back as a convenience (or nil, if there is no such node).  The
+returned \type{head} is more important, because if the function is
+called with \type{current} equal to \type{head}, it will be changed.
 
 \subsubsection{\luatex{node.insert_before}}
 
