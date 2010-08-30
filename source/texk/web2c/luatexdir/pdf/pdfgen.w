@@ -697,7 +697,6 @@ void addto_page_resources(PDF pdf, pdf_obj_type t, int k)
     void **pp;
     pdf_object_list *p, *item = NULL;
     assert(pdf != NULL);
-    /* assert(obj_type(pdf, k) == t); *//* TODO, not yet strictly true */
     re = pdf->page_resources;
     assert(re != NULL);
     assert(t <= PDF_OBJ_TYPE_MAX);
@@ -724,7 +723,8 @@ void addto_page_resources(PDF pdf, pdf_obj_type t, int k)
         item->link = NULL;
         item->info = k;
         pr->list = item;
-        set_obj_scheduled(pdf, k);      /* k is an object number */
+        if (obj_type(pdf, k) == t)
+            set_obj_scheduled(pdf, k);  /* k is an object number */
     } else {
         for (p = pr->list; p->info != k && p->link != NULL; p = p->link);
         if (p->info != k) {
@@ -732,7 +732,8 @@ void addto_page_resources(PDF pdf, pdf_obj_type t, int k)
             item->link = NULL;
             item->info = k;
             p->link = item;
-            set_obj_scheduled(pdf, k);
+            if (obj_type(pdf, k) == t)
+                set_obj_scheduled(pdf, k);
         }
     }
 }
@@ -1924,7 +1925,7 @@ void pdf_end_page(PDF pdf)
         /* Write out PDF annotations */
         ol = get_page_resources_list(pdf, obj_type_annot);
         while (ol != NULL) {
-            if (ol->info > 0) {
+            if (ol->info > 0 && obj_type(pdf, ol->info) == obj_type_annot) {
                 j = obj_annot_ptr(pdf, ol->info);       /* |j| points to |pdf_annot_node| */
                 pdf_begin_dict(pdf, ol->info, 1);
                 pdf_puts(pdf, "/Type /Annot\n");
