@@ -571,26 +571,6 @@ static int l_registerannot(lua_State * L)
     return 0;
 }
 
-static int l_addpageresource(lua_State * L)
-{
-    int n, i;
-    n = lua_gettop(L);
-    switch (n) {
-    case 2:
-        i = (int) luaL_checkinteger(L, 1);
-        if (i <= 0)
-            luaL_error(L,
-                       "pdf.addpageresource() requires positive object number");
-        /* TODO: scan 2nd parm as string, add to appropriate resources */
-        /* e. g. pdf.addpageresource(5, "annot"); */
-        addto_page_resources(static_pdf, obj_type_annot, i);
-        break;
-    default:
-        luaL_error(L, "pdf.addpageresource() needs exactly 2 arguments");
-    }
-    return 0;
-}
-
 static int getpdf(lua_State * L)
 {
     char *s;
@@ -741,7 +721,6 @@ static const struct luaL_reg pdflib[] = {
     {"pdfmapfile", l_pdfmapfile},       /* obsolete */
     {"pdfmapline", l_pdfmapline},       /* obsolete */
     {"print", luapdfprint},
-    {"addpageresource", l_addpageresource},
     {"registerannot", l_registerannot},
     {"reserveobj", l_reserveobj},
     {NULL, NULL}                /* sentinel */
