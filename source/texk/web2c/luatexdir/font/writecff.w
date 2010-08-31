@@ -3176,8 +3176,19 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
        for (cid = 1; cid <= (long) last_cid; cid++) {
            glyph->id = cid;
            if (avl_find(fd->gl_tree,glyph) != NULL) {
-	      /* printf("CIDSet %d: stream[%d][%d] num_glyphs:%d\n", cid, byte, bit, num_glyphs); */
-	      stream[((cid-1)/8)] |= (1<<((cid-1) %8));
+              int bit = 0;
+              int byte = cid/8;
+	      switch (cid % 8) {
+              case 0: bit = 0x80; break;
+              case 1: bit = 0x40; break;
+              case 2: bit = 0x20; break;
+              case 3: bit = 0x10; break;
+              case 4: bit = 0x08; break;
+              case 5: bit = 0x04; break;
+              case 6: bit = 0x02; break;
+              case 7: bit = 0x01; break;
+              }
+	      stream[byte] |= bit;
            }
        }
        pdf_begin_dict(pdf, cidset, 0);
@@ -3382,8 +3393,19 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
        memset(stream, 0, l);
        for (cid = 1; cid <= (long) last_cid; cid++) {
            if (CIDToGIDMap[2 * cid] || CIDToGIDMap[2 * cid + 1]) {
-	      /* printf("CIDSet %d: stream[%d][%d]\n", cid, byte, bit); */
-              stream[((cid-1)/8)] |= (1<<((cid-1) %8));
+              int bit = 0;
+              int byte = cid/8;
+	      switch (cid % 8) {
+              case 0: bit = 0x80; break;
+              case 1: bit = 0x40; break;
+              case 2: bit = 0x20; break;
+              case 3: bit = 0x10; break;
+              case 4: bit = 0x08; break;
+              case 5: bit = 0x04; break;
+              case 6: bit = 0x02; break;
+              case 7: bit = 0x01; break;
+              }
+	      stream[byte] |= bit;
            }
        }
        pdf_begin_dict(pdf, cidset, 0);
