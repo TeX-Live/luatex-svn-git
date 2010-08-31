@@ -404,10 +404,9 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
        size_t l = (last_cid/8)+1;
        char *stream = xmalloc(l);
        memset(stream, 0, l);
-       stream[0] |= 1; /* .notdef */
        for (cid = 1; cid <= (long) last_cid; cid++) {
            if (used_chars[cid]) {
-              stream[(cid / 8)] |= (1<<(cid % 8));
+              stream[((cid-1) / 8)] |= (1<<((cid-1) % 8));
            }
        }
        pdf_begin_dict(pdf, cidset, 0);
