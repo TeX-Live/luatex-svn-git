@@ -723,7 +723,7 @@ void addto_page_resources(PDF pdf, pdf_obj_type t, int k)
         item->link = NULL;
         item->info = k;
         pr->list = item;
-        if (obj_type(pdf, k) == t)
+        if (obj_type(pdf, k) == (int)t)
             set_obj_scheduled(pdf, k);  /* k is an object number */
     } else {
         for (p = pr->list; p->info != k && p->link != NULL; p = p->link);
@@ -732,7 +732,7 @@ void addto_page_resources(PDF pdf, pdf_obj_type t, int k)
             item->link = NULL;
             item->info = k;
             p->link = item;
-            if (obj_type(pdf, k) == t)
+            if (obj_type(pdf, k) == (int)t)
                 set_obj_scheduled(pdf, k);
         }
     }
