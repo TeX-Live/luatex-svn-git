@@ -1017,7 +1017,6 @@ void show_eqtb(halfword n)
                 print_int(vinfo(par_shape_ptr + 1));
             }
         } else if (n < toks_base) {
-            /* TODO make extra cases for ocps here!  */
             print_cmd_chr(assign_toks_cmd, n);
             print_char('=');
             if (equiv(n) != null)
@@ -1130,7 +1129,6 @@ void show_eqtb_meaning(halfword n)
             else
                 print_cmd_chr(set_etex_shape_cmd, n);
         } else if (n < toks_base) {
-            /* TODO make extra cases for ocps here!  */
             print_cmd_chr(assign_toks_cmd, n);
         } else if (n < box_base) {
             tprint_esc("toks");

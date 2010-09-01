@@ -68,13 +68,6 @@ in production versions of \TeX.
 #  define sup_hash_extra   sup_max_strings
 #  define inf_hash_extra   0
 
-#  define sup_ocp_list_size    1000000
-#  define inf_ocp_list_size    1000
-#  define sup_ocp_buf_size     100000000
-#  define inf_ocp_buf_size     1000
-#  define sup_ocp_stack_size   1000000
-#  define inf_ocp_stack_size   1000
-
 #  define inf_expand_depth   100
 #  define sup_expand_depth   1000000
 
@@ -136,9 +129,6 @@ extern char *bound_name;
 extern int error_line;
 extern int half_error_line;
 extern int max_print_line;
-extern int ocp_list_size;
-extern int ocp_buf_size;
-extern int ocp_stack_size;
 extern int max_strings;
 extern int strings_free;
 extern int font_k;

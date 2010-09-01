@@ -1333,10 +1333,6 @@ for writing is always opened in the current directory).
 Like \luatex{find_font_file}, but for virtual fonts. This applies to
 both \ALEPH's \OVF\ files and traditional Knuthian \VF\ files.
 
-\subsubsection{\luatex{find_ocp_file}}
-
-Like \luatex{find_font_file}, but for ocp files.
-
 \subsubsection{\luatex{find_map_file}}
 
 Like \luatex{find_font_file}, but for map files.
@@ -1506,7 +1502,6 @@ The list of functions is as follows:
 \starttabulate[|l|p|]
 \NC \luatex{read_font_file}     \NC ofm or tfm files \NC\NR
 \NC \luatex{read_vf_file}       \NC virtual fonts \NC\NR
-\NC \luatex{read_ocp_file}      \NC ocp files \NC\NR
 \NC \luatex{read_map_file}      \NC map files \NC\NR
 \NC \luatex{read_enc_file}      \NC encoding files \NC\NR
 \NC \luatex{read_sfd_file}      \NC subfont definition files \NC\NR
@@ -6160,9 +6155,6 @@ the executable after loading and executing the startup file.
 \NC error_line \NC         number\NC  79\NC cf.\ web2c docs \NC \NR
 \NC half_error_line \NC    number\NC  50\NC cf.\ web2c docs \NC \NR
 \NC max_print_line \NC     number\NC  79\NC cf.\ web2c docs \NC \NR
-\NC ocp_list_size \NC      number\NC 1000\NC cf.\ web2c docs \NC \NR
-\NC ocp_buf_size \NC       number\NC 1000\NC cf.\ web2c docs \NC \NR
-\NC ocp_stack_size \NC     number\NC 1000\NC cf.\ web2c docs \NC \NR
 \NC hash_extra \NC         number\NC  0\NC cf.\ web2c docs \NC \NR
 \NC pk_dpi \NC             number\NC  72\NC cf.\ web2c docs \NC \NR
 \NC trace_file_names \NC boolean \NC true \NC \type{false} disables \TEX's normal file open|-|close
@@ -9091,8 +9083,25 @@ and \tex{pdfxformattr}, as an alternative to \tex{pdfxform} keywords.
 
 \startitemize
 
-\item \LUATEX's OTP (\tex{ocp} and \tex{ocplist}) processing is
-deprecated, broken, and will be removed alltogether in the 0.70 beta.
+\item Starting with \LUATEX\ 0.63.0, OCP processing is no longer
+  supported at all.  As a consequence, the following primitives have
+  been removed:
+
+\startcolumns[n=2]
+\starttyping
+\ocp
+\externalocp
+\ocplist
+\pushocplist
+\popocplist
+\clearocplists
+\addbeforeocplist
+\addafterocplist
+\removebeforeocplist
+\removeafterocplist
+\ocptracelevel
+\stoptyping
+\stopcolumns
 
 \item \LUATEX\ only understands 4~of the 16~direction
 specifiers of \ALEPH: \type{TLT} (latin), \type{TRT} (arabic),
@@ -9123,10 +9132,6 @@ specifiers generate an error (\LUATEX\ 0.45).
 \stoptyping
 \stopcolumns
 
-\item A small series of bounds checking fixes to \tex{ocp} and
-   \tex{ocplist} has been added to prevent the system from crashing
-   due to array indexes running out of bounds.
-
 \item The \tex{hoffset} bug when \tex{pagedir TRT}  is fixed,
 removing the need for an explicit fix to \tex{hoffset}
 
@@ -9135,10 +9140,6 @@ removing the need for an explicit fix to \tex{hoffset}
 
 \item A fair amount of other minor bugs are fixed as well, most of these
 related to \tex{tracingcommands} output.
-
-\item The number of possible fonts, ocps and ocplists is
-smaller than their maximum \ALEPH\ value (around 5000 fonts and
-30000 ocps / ocplists).
 
 \item The internal function \type{scan_dir()} has been renamed to
 \type{scan_direction()} to prevent a naming clash, and it now allows
@@ -9149,9 +9150,6 @@ insert characters that do not fit in the BMP.
 
 \item Glues {\it immediately after} direction change commands are not
 legal breakpoints.
-
-\item The \tex{ocp} and \tex{ocplist} statistics at the end of a run
-are only printed if OCP's are actually used.
 
 \stopitemize
 

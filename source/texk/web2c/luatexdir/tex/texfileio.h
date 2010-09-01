@@ -129,7 +129,6 @@ extern int readbinfile(FILE * f, unsigned char **b, int *s);
 
 #  define read_tfm_file  readbinfile
 #  define read_vf_file   readbinfile
-#  define read_ocp_file  readbinfile
 #  define read_data_file readbinfile
 
 extern boolean openinnameok(const_string);

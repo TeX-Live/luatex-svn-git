@@ -173,24 +173,6 @@ local fdata = {
    ["shortdesc"]="Find a font map file.",
    ["type"]="callback",
   },
-  ["find_ocp_file"]={
-   ["arguments"]={
-    {
-     ["name"]="asked_name",
-     ["optional"]=false,
-     ["type"]="string",
-    },
-   },
-   ["returnvalues"]={
-    {
-     ["name"]="actual_name",
-     ["optional"]=false,
-     ["type"]="string",
-    },
-   },
-   ["shortdesc"]="Find an OCP file.",
-   ["type"]="callback",
-  },
   ["find_opentype_file"]={
    ["arguments"]={
     {
@@ -782,34 +764,6 @@ the third string is the desired direction",
     },
    },
    ["shortdesc"]="Read a font map file.",
-   ["type"]="callback",
-  },
-  ["read_ocp_file"]={
-   ["arguments"]={
-    {
-     ["name"]="name",
-     ["optional"]=false,
-     ["type"]="string",
-    },
-   },
-   ["returnvalues"]={
-    {
-     ["name"]="success",
-     ["optional"]=false,
-     ["type"]="boolean",
-    },
-    {
-     ["name"]="data",
-     ["optional"]=false,
-     ["type"]="string",
-    },
-    {
-     ["name"]="data_size",
-     ["optional"]=false,
-     ["type"]="number",
-    },
-   },
-   ["shortdesc"]="Read an OCP file.",
    ["type"]="callback",
   },
   ["read_opentype_file"]={

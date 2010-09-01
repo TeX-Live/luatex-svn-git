@@ -289,11 +289,6 @@ void store_fmt_file(void)
         print_char('s');
     dump_math_data();
 
-    /* Dump the ocp information */
-    dump_active_ocp_info();
-    dump_ocp_info();
-    dump_ocplist_info();
-
     /* Dump the hyphenation tables */
     dump_language_data();
 
@@ -497,11 +492,6 @@ boolean load_fmt_file(const char *fmtname)
     }
     undump_math_data();
     make_pdftex_banner();
-
-    /* Undump the ocp information */
-    undump_active_ocp_info();
-    undump_ocp_info();
-    undump_ocplist_info();
 
     /* Undump the hyphenation tables */
     undump_language_data();

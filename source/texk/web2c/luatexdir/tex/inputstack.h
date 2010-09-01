@@ -33,9 +33,7 @@ typedef struct in_state_record {
     halfword loc_field;
     halfword limit_field;
     halfword name_field;
-    halfword ocp_lstack_field;  /* used for omega translation processes */
     int synctex_tag_field;      /* stack the tag of the current file */
-    signed int ocp_no_field:16;   /* used for omega translation processes */
     signed int cattable_field:16;      /* category table used by the current line (see textoken.c) */
     quarterword state_field:8;
     quarterword index_field:8;
@@ -56,8 +54,6 @@ extern in_state_record cur_input;       /* the ``top'' input state */
 #  define  iname cur_input.name_field   /* name of the current file  */
 #  define  nofilter cur_input.nofilter_field    /* is token filtering explicitly disallowed? */
 #  define  synctex_tag cur_input.synctex_tag_field      /* tag of the current file */
-#  define  current_ocp_lstack cur_input.ocp_lstack_field        /* name of the current ocp */
-#  define  current_ocp_no cur_input.ocp_no_field        /* name of the current ocp */
 #  define  line_catcode_table cur_input.cattable_field
 #  define  line_partial cur_input.partial_field
 

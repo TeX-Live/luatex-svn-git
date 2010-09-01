@@ -949,10 +949,6 @@ static boolean get_next_file(void)
             break;
         }
     } else {
-        if (current_ocp_lstack > 0) {
-            pop_input();
-            return false;
-        }
         if (iname != 21)
             istate = new_line;
 

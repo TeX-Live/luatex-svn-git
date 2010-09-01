@@ -35,7 +35,6 @@ static const char *const callbacknames[] = {
     "find_image_file",
     "find_format_file",
     "find_read_file", "open_read_file",
-    "find_ocp_file", "read_ocp_file",
     "find_vf_file", "read_vf_file",
     "find_data_file", "read_data_file",
     "find_font_file", "read_font_file",

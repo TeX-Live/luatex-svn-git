@@ -286,14 +286,7 @@ void show_context(void)
                 /* we omit backed-up token lists that have already been read */
                 tally = 0;      /* get ready to count characters */
                 old_setting = selector;
-                if (current_ocp_lstack > 0) {
-                    tprint_nl("OCP stack ");
-                    print_scaled(current_ocp_lstack);
-                    tprint(" entry ");
-                    print_int(current_ocp_no);
-                    tprint(":");
-                    PSEUDO_PRINT_THE_LINE();
-                } else if (istate != token_list) {
+                if (istate != token_list) {
                     /* Print location of current line */
                     /*
                        This routine should be changed, if necessary, to give the best possible
@@ -623,8 +616,6 @@ void initialize_inputstack(void)
     iindex = 0;
     line = 0;
     iname = 0;
-    current_ocp_lstack = 0;
-    current_ocp_no = 0;
     nofilter = false;
     force_eof = false;
     luacstrings = 0;

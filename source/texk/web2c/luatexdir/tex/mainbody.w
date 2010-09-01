@@ -206,9 +206,6 @@ int error_line;                 /* width of context lines on terminal error mess
 int half_error_line;            /* width of first lines of contexts in terminal
                                    error messages; should be between 30 and |error_line-15| */
 int max_print_line;             /* width of longest text lines output; should be at least 60 */
-int ocp_list_size;
-int ocp_buf_size;
-int ocp_stack_size;
 int max_strings;                /* maximum number of strings; must not exceed |max_halfword| */
 int strings_free;               /* strings available after format loaded */
 int font_k;                     /* loop variable for initialization */
@@ -301,9 +298,6 @@ int main_initialize(void)
     setup_bound_var(79, "error_line", error_line);
     setup_bound_var(50, "half_error_line", half_error_line);
     setup_bound_var(79, "max_print_line", max_print_line);
-    setup_bound_var(1000, "ocp_list_size", ocp_list_size);
-    setup_bound_var(1000, "ocp_buf_size", ocp_buf_size);
-    setup_bound_var(1000, "ocp_stack_size", ocp_stack_size);
     setup_bound_var(0, "hash_extra", hash_extra);
     setup_bound_var(72, "pk_dpi", pk_dpi);
     setup_bound_var(10000, "expand_depth", expand_depth);
@@ -338,8 +332,6 @@ int main_initialize(void)
     full_source_filename_stack = xmallocarray(char *, (unsigned) max_in_open);
     param_stack = xmallocarray(halfword, (unsigned) param_size);
     dvi_buf = xmallocarray(eight_bits, (unsigned) dvi_buf_size);
-    initialize_ocplist_arrays(ocp_list_size);
-    initialize_ocp_buffers(ocp_buf_size, ocp_stack_size);
 
     if (ini_version) {
         fixmem = xmallocarray(smemory_word, fix_mem_init + 1);

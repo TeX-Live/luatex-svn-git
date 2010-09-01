@@ -206,11 +206,6 @@ size_t          T##_limit
 #  include "image/writejbig2.h"
 #  include "image/pdftoepdf.h"
 
-#  include "ocp/ocp.h"
-#  include "ocp/ocplist.h"
-#  include "ocp/runocp.h"
-#  include "ocp/readocp.h"
-
 #  include "lang/texlang.h"
 
 #  include "tex/textcodes.h"
@@ -319,7 +314,6 @@ typedef enum {
     find_image_file_callback,
     find_format_file_callback,
     find_read_file_callback, open_read_file_callback,
-    find_ocp_file_callback, read_ocp_file_callback,
     find_vf_file_callback, read_vf_file_callback,
     find_data_file_callback, read_data_file_callback,
     find_font_file_callback, read_font_file_callback,

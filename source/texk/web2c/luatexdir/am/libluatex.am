@@ -126,25 +126,6 @@ libluatex_web += luatexdir/lua/luastuff.w luatexdir/lua/luatoken.w luatexdir/lua
 
 nodist_libluatex_a_SOURCES += luagen.c luainit.c luanode.c luastuff.c luatoken.c texluac.c
 
-
-luatex_ocp_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/ocp $(ctangle)
-
-ocp.c: ctangle$(EXEEXT) luatexdir/ocp/ocp.w
-	$(luatex_ocp_ctangle) ocp.w
-
-runocp.c: ctangle$(EXEEXT) luatexdir/ocp/runocp.w
-	$(luatex_ocp_ctangle) runocp.w
-
-readocp.c: ctangle$(EXEEXT) luatexdir/ocp/readocp.w
-	$(luatex_ocp_ctangle) readocp.w
-
-ocplist.c: ctangle$(EXEEXT) luatexdir/ocp/ocplist.w
-	$(luatex_ocp_ctangle) ocplist.w
-
-libluatex_web += luatexdir/ocp/ocp.w luatexdir/ocp/ocplist.w luatexdir/ocp/readocp.w luatexdir/ocp/runocp.w
-
-nodist_libluatex_a_SOURCES += ocp.c ocplist.c readocp.c runocp.c
-
 luatex_lang_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/lang $(ctangle)
 
 hnjalloc.c: ctangle$(EXEEXT) luatexdir/lang/hnjalloc.w
@@ -552,10 +533,6 @@ libluatex_a_SOURCES = \
 	luatexdir/lua/luagen.h \
 	luatexdir/lua/luatex-api.h \
 	luatexdir/luatex.h \
-	luatexdir/ocp/ocp.h \
-	luatexdir/ocp/ocplist.h \
-	luatexdir/ocp/readocp.h \
-	luatexdir/ocp/runocp.h \
 	luatexdir/pdf/pagetree.h \
 	luatexdir/pdf/pdfaction.h \
 	luatexdir/pdf/pdfannot.h \

@@ -610,13 +610,6 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
 
         }
         break;
-    case set_ocp_cmd:
-        tprint("select ocp ");
-        slow_print(ocp_name(chr_code));
-        break;
-    case set_ocp_list_cmd:
-        tprint("select ocp list ");
-        break;
     case assign_glue_cmd:
     case assign_mu_glue_cmd:
         if (chr_code < skip_base) {

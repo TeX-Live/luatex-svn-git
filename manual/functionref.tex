@@ -8,7 +8,7 @@
 
 \setuptabulate[before=]
 \setuppagenumbering[location=,alternative=doublesided]
-\setupheadertexts[Luatex 0.60 short reference (preliminary)][pagenumber]
+\setupheadertexts[Luatex 0.63 short reference (preliminary)][pagenumber]
 \setupheader[style=\ssbf]
 
 \setupalign[flushleft]
@@ -187,7 +187,6 @@ in the same format as \type{\pdfximage}.
 \presentfunction{callback}{find_output_file}
 \presentfunction{callback}{find_format_file}
 \presentfunction{callback}{find_vf_file}
-\presentfunction{callback}{find_ocp_file}
 \presentfunction{callback}{find_map_file}
 \presentfunction{callback}{find_enc_file}
 \presentfunction{callback}{find_subfont_file}
@@ -208,7 +207,6 @@ in the same format as \type{\pdfximage}.
 
 \presentfunction{callback}{read_font_file}
 \presentfunction{callback}{read_vf_file}
-\presentfunction{callback}{read_ocp_file}
 \presentfunction{callback}{read_map_file}
 \presentfunction{callback}{read_enc_file}
 \presentfunction{callback}{read_sfd_file}
@@ -736,9 +734,6 @@ the executable after loading and executing the startup file.
 \NC error_line \NC         number\NC  79\NC cf.\ web2c docs \NC \NR
 \NC half_error_line \NC    number\NC  50\NC cf.\ web2c docs \NC \NR
 \NC max_print_line \NC     number\NC  79\NC cf.\ web2c docs \NC \NR
-\NC ocp_list_size \NC      number\NC 1000\NC cf.\ web2c docs \NC \NR
-\NC ocp_buf_size \NC       number\NC 1000\NC cf.\ web2c docs \NC \NR
-\NC ocp_stack_size \NC     number\NC 1000\NC cf.\ web2c docs \NC \NR
 \NC hash_extra \NC         number\NC  0\NC cf.\ web2c docs \NC \NR
 \NC pk_dpi \NC             number\NC  72\NC cf.\ web2c docs \NC \NR
 \NC trace_file_names \NC boolean \NC true \NC \type{false} disables \TEX's normal file feedback\NC \NR

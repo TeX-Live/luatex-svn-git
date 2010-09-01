@@ -228,7 +228,7 @@ void main_control(void)
             scan_char_num();
             cur_chr = cur_val;
         }
-        if (is_last_ocp(current_ocp_lstack, current_ocp_no)) {
+        if (true) {
             /* Append character |cur_chr| and the following characters (if~any)
                to the current hlist in the current font; |goto reswitch| when
                a non-character has been fetched */
@@ -262,7 +262,7 @@ void main_control(void)
             /* Create a buffer with character |cur_chr| and the following
                characters (if~any) and then apply the current active OCP filter
                to this buffer */
-            run_ocp();
+            /* run_ocp(); */
             goto BIG_SWITCH;
 
         }
@@ -849,15 +849,6 @@ void main_control(void)
     case any_mode(set_box_cmd):
     case any_mode(hyph_data_cmd):
     case any_mode(set_interaction_cmd):
-    case any_mode(set_ocp_cmd):
-    case any_mode(def_ocp_cmd):
-    case any_mode(set_ocp_list_cmd):
-    case any_mode(def_ocp_list_cmd):
-    case any_mode(clear_ocp_lists_cmd):
-    case any_mode(push_ocp_list_cmd):
-    case any_mode(pop_ocp_list_cmd):
-    case any_mode(ocp_list_op_cmd):
-    case any_mode(ocp_trace_level_cmd):
         prefixed_command();
         break;
     case any_mode(after_assignment_cmd):
@@ -2663,40 +2654,6 @@ void prefixed_command(void)
     case set_interaction_cmd:
         new_interaction();
         break;
-    case set_ocp_cmd:
-        print_err("To use ocps, use the \\pushocplist  primitive");
-        print_ln();
-        break;
-    case def_ocp_cmd:
-        new_ocp((small_number) a);
-        break;
-    case set_ocp_list_cmd:
-        print_err("To use ocp lists, use the \\pushocplist primitive");
-        print_ln();
-        break;
-    case def_ocp_list_cmd:
-        new_ocp_list((small_number) a);
-        break;
-    case push_ocp_list_cmd:
-        do_push_ocp_list((small_number) a);
-        break;
-    case pop_ocp_list_cmd:
-        do_pop_ocp_list((small_number) a);
-        break;
-    case clear_ocp_lists_cmd:
-        do_clear_ocp_lists((small_number) a);
-        break;
-    case ocp_list_op_cmd:
-        print_err("To build ocp lists, use the \\ocplist primitive");
-        print_ln();
-        break;
-    case ocp_trace_level_cmd:
-        scan_optional_equals();
-        scan_int();
-        if (cur_val != 0)
-            cur_val = 1;
-        define(ocp_trace_level_base, data_cmd, cur_val);
-        break;
     default:
         confusion("prefix");
         break;
@@ -3583,8 +3540,6 @@ void initialize(void)
         cs_text(frozen_primitive) = maketexstring("primitive");
         create_null_font();
         font_bytes = 0;
-        init_null_ocp(get_nullstr(), maketexstring("nullocp"));
-        initialize_init_ocplists();
         pdf_h_origin = one_inch;
         pdf_v_origin = one_inch;
         pdf_compress_level = 9;
