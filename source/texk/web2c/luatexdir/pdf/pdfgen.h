@@ -116,7 +116,7 @@ printing ones but the output is going to PDF buffer. Subroutines with
 suffix |_ln| append a new-line character to the PDF output.
 */
 
-#  define pdf_new_line_char 13  /* new-line character for UNIX platforms */
+#  define pdf_new_line_char 10  /* new-line character for UNIX platforms */
 
 /* output a new-line character to PDF buffer */
 #  define pdf_print_nl(pdf) pdf_out(pdf,pdf_new_line_char)
