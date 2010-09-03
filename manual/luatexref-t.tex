@@ -5482,8 +5482,9 @@ globally by using the string \type{'global'} as the first function argument.
 \subsection{Character code registers (0.63)}
 
 \TEX's character code tables (\tex{lccode}, \tex{uccode},
-\tex{sfcode}), and \tex{catcode})can be accessed and
-written to using four virtual subtables of the \type{tex} table
+\tex{sfcode}, \tex{catcode}, \tex{mathcode}, \tex{delcode}) can be
+accessed and written to using six virtual subtables of the \type{tex}
+table
 
 \startcolumns[n=3]
 \starttyping
@@ -5491,6 +5492,8 @@ tex.lccode
 tex.uccode
 tex.sfcode
 tex.catcode
+tex.mathcode
+tex.delcode
 \stoptyping
 \stopcolumns
 
@@ -5524,6 +5527,35 @@ tex.setcatcode (['global'], <number> cattable, <number> n, <number> c)
 <number> lc = tex.getcatcode (<number> n)
 <number> lc = tex.getcatcode (<number> cattable, <number> n)
 \stopfunctioncall
+
+
+The interfaces for \type{delcode} and \type{mathcode} use small array tables to
+set and retrieve values:
+
+\startfunctioncall
+tex.setmathcode (['global'], <number> n, <table> mval )
+<table> mval = tex.getmathcode (<number> n)
+tex.setdelcode (['global'], <number> n, <table> dval )
+<table> dval = tex.getdelcode (<number> n)
+\stopfunctioncall
+
+Where the table for \type{mathcode} is an array of 3 numbers, like this:
+
+\starttyping
+{<number> mathclass, <number> family, <number> character}
+\stoptyping
+
+And the table for \type{delcode} is an array with 4 numbers, like this:
+
+\starttyping
+{<number> small_fam, <number> small_char, <number> large_fam, <number> large_char}
+\stoptyping
+
+Normally, the third and fourth values in a delimiter code assignment
+will be zero cf. \tex{Udelcode} usage, but the returned table can have
+values there (if the delimiter code was set using \type{\delcode}, for
+example). Unset \type{delcode}'s can be recognized because
+\type{dval[1]} is $-1$.
 
 \subsection{Box registers}
 

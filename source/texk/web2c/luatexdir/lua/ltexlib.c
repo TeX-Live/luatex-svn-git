@@ -1058,6 +1058,121 @@ static int getcatcode(lua_State * L)
 }
 
 
+static int setmathcode(lua_State * L)
+{
+    int ch;
+    halfword cval, fval, chval;
+    int level = cur_level;
+    int n = lua_gettop(L);
+    int f = 1;
+    if (n>1 && lua_type(L,1) == LUA_TTABLE)
+	f++;
+    if (n>2 && lua_isstring(L, f)) {
+        const char *s = lua_tostring(L, f);
+        if (strcmp(s, "global") == 0) {
+            level = level_one; 
+	    f++;
+	}
+    }
+    if (n-f!=1 || lua_type(L,f+1) != LUA_TTABLE) {
+	luaL_error(L, "Bad arguments for tex.setmathcode()");
+    }
+    ch = (int) luaL_checkinteger(L, -2);
+    check_char_range(ch, "setmathcode", 65536*17);
+
+    lua_rawgeti(L, -1, 1);
+    cval = (halfword) luaL_checkinteger(L, -1);
+    lua_rawgeti(L, -2, 2);
+    fval = (halfword) luaL_checkinteger(L, -1);
+    lua_rawgeti(L, -3, 3);
+    chval = (halfword) luaL_checkinteger(L, -1);
+    lua_pop(L,3);
+
+    check_char_range(cval, "setmathcode", 8);
+    check_char_range(fval, "setmathcode", 256);
+    check_char_range(chval, "setmathcode", 65536*17);
+    set_math_code(ch, xetex_mathcode, cval,fval, chval, (quarterword) (level));
+    return 0;
+}
+
+static int getmathcode(lua_State * L)
+{
+    mathcodeval mval = { 0, 0, 0, 0 };
+    int ch = (int) luaL_checkinteger(L, -1);
+    check_char_range(ch, "getmathcode",  65536*17);
+    mval = get_math_code(ch);
+    lua_newtable(L);
+    lua_pushnumber(L,mval.class_value);
+    lua_rawseti(L, -2, 1);
+    lua_pushnumber(L,mval.family_value);
+    lua_rawseti(L, -2, 2);
+    lua_pushnumber(L,mval.character_value);
+    lua_rawseti(L, -2, 3);
+    return 1;
+}
+
+
+
+static int setdelcode(lua_State * L)
+{
+    int ch;
+    halfword sfval, scval, lfval, lcval;
+    int level = cur_level;
+    int n = lua_gettop(L);
+    int f = 1;
+    if (n>1 && lua_type(L,1) == LUA_TTABLE)
+	f++;
+    if (n>2 && lua_isstring(L, f)) {
+        const char *s = lua_tostring(L, f);
+        if (strcmp(s, "global") == 0) {
+            level = level_one; 
+	    f++;
+	}
+    }
+    if (n-f!=1 || lua_type(L,f+1) != LUA_TTABLE) {
+	luaL_error(L, "Bad arguments for tex.setdelcode()");
+    }
+    ch = (int) luaL_checkinteger(L, -2);
+    check_char_range(ch, "setdelcode", 65536*17);
+    lua_rawgeti(L, -1, 1);
+    sfval = (halfword) luaL_checkinteger(L, -1);
+    lua_rawgeti(L, -2, 2);
+    scval = (halfword) luaL_checkinteger(L, -1);
+    lua_rawgeti(L, -3, 3);
+    lfval = (halfword) luaL_checkinteger(L, -1);
+    lua_rawgeti(L, -4, 4);
+    lcval = (halfword) luaL_checkinteger(L, -1);
+    lua_pop(L,4);
+
+    check_char_range(sfval, "setdelcode", 256);
+    check_char_range(scval, "setdelcode", 65536*17);
+    check_char_range(lfval, "setdelcode", 256);
+    check_char_range(lcval, "setdelcode", 65536*17);
+    set_del_code(ch, xetex_mathcode, sfval, scval, lfval, lcval, (quarterword) (level));
+
+    return 0;
+}
+
+static int getdelcode(lua_State * L)
+{
+    delcodeval mval = { 0, 0, 0, 0, 0, 0 };
+    int ch = (int) luaL_checkinteger(L, -1);
+    check_char_range(ch, "getdelcode",  65536*17);
+    mval = get_del_code(ch);
+    /* lua_pushnumber(L, mval.class_value); */
+    /* lua_pushnumber(L, mval.origin_value); */
+    lua_newtable(L);
+    lua_pushnumber(L,mval.small_family_value);
+    lua_rawseti(L, -2, 1);
+    lua_pushnumber(L,mval.small_character_value);
+    lua_rawseti(L, -2, 2);
+    lua_pushnumber(L,mval.large_family_value);
+    lua_rawseti(L, -2, 3);
+    lua_pushnumber(L,mval.large_character_value);
+    lua_rawseti(L, -2, 4);
+    return 1;
+}
+
 
 
 static int settex(lua_State * L)
@@ -2326,8 +2441,12 @@ static const struct luaL_reg texlib[] = {
     {"getnest", getnest},
     {"setcatcode", setcatcode},
     {"getcatcode", getcatcode},
+    {"setdelcode", setdelcode},
+    {"getdelcode", getdelcode},
     {"setlccode", setlccode},
     {"getlccode", getlccode},
+    {"setmathcode", setmathcode},
+    {"getmathcode", getmathcode},
     {"setsfcode", setsfcode},
     {"getsfcode", getsfcode},
     {"setuccode", setuccode},
@@ -2372,6 +2491,8 @@ int luaopen_tex(lua_State * L)
     make_table(L, "lccode",     "getlccode",    "setlccode");
     make_table(L, "uccode",     "getuccode",    "setuccode");
     make_table(L, "catcode",    "getcatcode",   "setcatcode");
+    make_table(L, "mathcode",   "getmathcode",  "setmathcode");
+    make_table(L, "delcode",    "getdelcode",   "setdelcode");
     make_table(L, "lists",      "getlist",      "setlist");
     make_table(L, "nest",       "getnest",      "setnest");
     /* *INDENT-ON* */

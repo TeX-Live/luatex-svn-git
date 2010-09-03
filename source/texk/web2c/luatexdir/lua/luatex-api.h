@@ -30,7 +30,7 @@
 #  include "lua51/lualib.h"
 
 typedef struct LoadS {
-    const char *s;
+    char *s;
     size_t size;
 } LoadS;
 
