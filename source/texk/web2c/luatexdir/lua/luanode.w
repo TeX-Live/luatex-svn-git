@@ -316,6 +316,20 @@ void copy_pdf_literal(pointer r, pointer p)
     }
 }
 
+void copy_late_lua(pointer r, pointer p)
+{
+    late_lua_type(r) = late_lua_type(p);
+    if (late_lua_name(p) > 0)
+        add_token_ref(late_lua_name(p));
+    if (late_lua_type(p) == normal) {
+        late_lua_data(r) = late_lua_data(p);
+        add_token_ref(late_lua_data(p));
+    } else {
+        lua_rawgeti(Luas, LUA_REGISTRYINDEX, late_lua_data(p));
+        late_lua_data(r) = luaL_ref(Luas, LUA_REGISTRYINDEX);
+    }
+}
+
 
 @ @c
 void free_pdf_literal(pointer p)
@@ -324,6 +338,17 @@ void free_pdf_literal(pointer p)
         delete_token_ref(pdf_literal_data(p));
     } else {
         luaL_unref(Luas, LUA_REGISTRYINDEX, pdf_literal_data(p));
+    }
+}
+
+void free_late_lua(pointer p)
+{
+    if (late_lua_name(p) > 0)
+        delete_token_ref(late_lua_name(p));
+    if (late_lua_type(p) == normal) {
+        delete_token_ref(late_lua_data(p));
+    } else {
+        luaL_unref(Luas, LUA_REGISTRYINDEX, late_lua_data(p));
     }
 }
 
@@ -348,7 +373,24 @@ void show_pdf_literal(pointer p)
         print_mark(pdf_literal_data(p));
     } else {
         lua_rawgeti(Luas, LUA_REGISTRYINDEX, pdf_literal_data(p));
+        tprint("\"");
         tprint(lua_tostring(Luas, -1));
+        tprint("\"");
+        lua_pop(Luas, 1);
+    }
+}
+
+void show_late_lua(pointer p)
+{
+    tprint_esc("latelua");
+    print_int(late_lua_reg(p));
+    if (late_lua_type(p) == normal) {
+        print_mark(late_lua_data(p));
+    } else {
+        lua_rawgeti(Luas, LUA_REGISTRYINDEX, late_lua_data(p));
+        tprint("\"");
+        tprint(lua_tostring(Luas, -1));
+        tprint("\"");
         lua_pop(Luas, 1);
     }
 }

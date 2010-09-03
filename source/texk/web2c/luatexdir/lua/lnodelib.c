@@ -1374,14 +1374,19 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, int field)
             break;
         case late_lua_node:
             switch (field) {
-            case 4:
+            case 4: /* regid (obsolete?)*/
                 lua_pushnumber(L, late_lua_reg(n));
                 break;
-            case 5:
-                tokenlist_to_luastring(L, late_lua_data(n));
-                break;
-            case 6:
+            case 6: /* name */
                 tokenlist_to_luastring(L, late_lua_name(n));
+                break;
+            case 5: /* data */
+            case 7: /* string */
+                if (late_lua_type(n) == lua_refid_literal) {
+                    lua_rawgeti(Luas, LUA_REGISTRYINDEX, late_lua_data(n));
+                } else {
+                    tokenlist_to_luastring(L, late_lua_data(n));
+                }
                 break;
             default:
                 lua_pushnil(L);
@@ -2458,11 +2463,22 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, int field)
         case 4:
             late_lua_reg(n) = (halfword) lua_tointeger(L, 3);
             break;
-        case 5:
+        case 5: /* data */
             late_lua_data(n) = nodelib_gettoks(L, 3);
+            late_lua_type(n) = normal;
             break;
         case 6:
             late_lua_name(n) = nodelib_gettoks(L, 3);
+            break;
+        case 7: /* string */
+            if (ini_version) {
+                late_lua_data(n) = nodelib_gettoks(L, 3);
+                late_lua_type(n) = normal;
+            } else {
+                lua_pushvalue(L, 3);
+                late_lua_data(n) = luaL_ref(L, LUA_REGISTRYINDEX);
+                late_lua_type(n) = lua_refid_literal;
+            }
             break;
         default:
             return nodelib_cantset(L, field, n);

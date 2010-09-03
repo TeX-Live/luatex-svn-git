@@ -8865,8 +8865,13 @@ Id: \showid{whatsit,late_lua}
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
 \NC attr      \NC \syntax{<node>}    \NC  \NC\NR
 \NC data      \NC string  \NC data to execute\NC\NR
+\NC string    \NC string  \NC data to execute (0.63)\NC\NR
 \NC name      \NC string  \NC the name to use for lua error reporting\NC\NR
 \stoptabulate
+
+The difference between \type{data} and \type{string} is that on
+assignment, the \type{data} field is converted to a token list, cf. use as
+\tex{latelua}. The \type{string} version is treated as a literal string.
 
 \subsubsection{pdf_colorstack  nodes}
 

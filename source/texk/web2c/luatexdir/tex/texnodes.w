@@ -186,7 +186,7 @@ const char *node_fields_whatsit_pdf_start_thread[] =
 const char *node_fields_whatsit_pdf_end_thread[] = { "attr", NULL };
 const char *node_fields_whatsit_pdf_save_pos[] = { "attr", NULL };
 const char *node_fields_whatsit_late_lua[] =
-    { "attr", "reg", "data", "name", NULL };
+    { "attr", "reg", "data", "name", "string", NULL };
 const char *node_fields_whatsit_close_lua[] = { "attr", "reg", NULL };
 const char *node_fields_whatsit_pdf_colorstack[] =
     { "attr", "stack", "cmd", "data", NULL };
@@ -660,9 +660,7 @@ halfword copy_node(const halfword p)
             add_token_ref(pdf_setmatrix_data(p));
             break;
         case late_lua_node:
-            if (late_lua_name(p) > 0)
-                add_token_ref(late_lua_name(p));
-            add_token_ref(late_lua_data(p));
+            copy_late_lua(r, p);
             break;
         case pdf_annot_node:
             add_token_ref(pdf_annot_data(p));
@@ -957,9 +955,7 @@ void flush_node(halfword p)
             delete_token_ref(pdf_setmatrix_data(p));
             break;
         case late_lua_node:
-            if (late_lua_name(p) > 0)
-                delete_token_ref(late_lua_name(p));
-            delete_token_ref(late_lua_data(p));
+            free_late_lua(p);
             break;
         case pdf_annot_node:
             delete_token_ref(pdf_annot_data(p));
@@ -1194,7 +1190,8 @@ void check_node(halfword p)
         case late_lua_node:
             if (late_lua_name(p) > 0)
                 check_token_ref(late_lua_name(p));
-            check_token_ref(late_lua_data(p));
+            if (late_lua_type(p) == normal)
+                check_token_ref(late_lua_data(p));
             break;
         case pdf_annot_node:
             check_token_ref(pdf_annot_data(p));
@@ -2334,9 +2331,7 @@ static void show_whatsit_node(int p)
         tprint_esc("noboundary");
         break;
     case late_lua_node:
-        tprint_esc("latelua");
-        print_int(late_lua_reg(p));
-        print_mark(late_lua_data(p));
+        show_late_lua(p);
         break;
     case close_lua_node:
         tprint_esc("closelua");

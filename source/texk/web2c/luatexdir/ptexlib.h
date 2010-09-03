@@ -266,6 +266,10 @@ void copy_pdf_literal(pointer r, pointer p);
 void free_pdf_literal(pointer p);
 void show_pdf_literal(pointer p);
 
+void copy_late_lua(pointer r, pointer p);
+void free_late_lua(pointer p);
+void show_late_lua(pointer p);
+
 void load_tex_patterns(int curlang, halfword head);
 void load_tex_hyphenation(int curlang, halfword head);
 

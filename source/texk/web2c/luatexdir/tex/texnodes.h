@@ -541,6 +541,7 @@ typedef enum {
 #  define late_lua_data(a)        vlink((a)+2)
 #  define late_lua_reg(a)         vinfo((a)+2)
 #  define late_lua_name(a)        vlink((a)+3)
+#  define late_lua_type(a)        subtype((a)+3)
 
 #  define local_par_size 6
 

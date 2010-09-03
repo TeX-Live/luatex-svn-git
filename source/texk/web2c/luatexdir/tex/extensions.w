@@ -500,7 +500,7 @@ void do_extension(PDF pdf)
         break;
     case late_lua_node:
         /* Implement \.{\\latelua} */
-        new_whatsit(late_lua_node);
+        new_whatsit(late_lua_node); /* type == normal */
         late_lua_name(tail) = scan_lua_state();
         (void) scan_toks(false, false);
         late_lua_data(tail) = def_ref;
