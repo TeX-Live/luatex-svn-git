@@ -34,7 +34,7 @@ typedef struct in_state_record {
     halfword limit_field;
     halfword name_field;
     int synctex_tag_field;      /* stack the tag of the current file */
-    signed int cattable_field:16;      /* category table used by the current line (see textoken.c) */
+    signed int cattable_field:16;       /* category table used by the current line (see textoken.c) */
     quarterword state_field:8;
     quarterword index_field:8;
     boolean partial_field:8;    /* is the current line partial? (see textoken.c) */

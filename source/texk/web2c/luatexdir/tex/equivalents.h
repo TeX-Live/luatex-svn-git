@@ -190,7 +190,7 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define pdf_xform_resources_loc (pdftex_first_loc + 4)        /* points to token list for \.{\\pdfxformresources} */
 #  define pdf_pk_mode_loc (pdftex_first_loc + 5)        /* points to token list for \.{\\pdfpkmode} */
 #  define pdf_toks (pdftex_first_loc+6) /* end of \pdfTeX's token list parameters */
-#  define toks_base (pdf_toks)      /* table of |number_regs| token list registers */
+#  define toks_base (pdf_toks)  /* table of |number_regs| token list registers */
 #  define etex_pen_base (toks_base+number_regs) /* start of table of \eTeX's penalties */
 #  define inter_line_penalties_loc (etex_pen_base)      /* additional penalties between lines */
 #  define club_penalties_loc (etex_pen_base+1)  /* penalties for creating club lines */

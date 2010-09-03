@@ -38,11 +38,11 @@ typedef struct liginfo {
     int adj;
     int lig;
     int type;
-#else
+#  else
     int type;
     int lig;
     int adj;
-#endif
+#  endif
 } liginfo;
 
 /* these are dumped en block, so they need endianness tests */
@@ -50,10 +50,10 @@ typedef struct kerninfo {
 #  ifdef WORDS_BIGENDIAN
     int adj;
     scaled sc;
-#else
+#  else
     scaled sc;
     int adj;
-#endif
+#  endif
 } kerninfo;
 
 typedef struct extinfo {

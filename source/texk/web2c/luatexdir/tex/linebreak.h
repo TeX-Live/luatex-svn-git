@@ -68,13 +68,13 @@ extern void ext_do_line_break(int paragraph_dir,
                               int broken_penalty, halfword final_par_glue,
                               halfword pdf_ignored_dimen);
 
-extern void  get_linebreak_info (int *, int *) ;
+extern void get_linebreak_info(int *, int *);
 extern halfword find_protchar_left(halfword l, boolean d);
 extern halfword find_protchar_right(halfword l, halfword r);
 
 /* skipable nodes at the margins during character protrusion */
 
-#define cp_skipable(a) ((! is_char_node((a))) &&                        \
+#  define cp_skipable(a) ((! is_char_node((a))) &&                        \
                         ((type((a)) == ins_node)                        \
                          || (type((a)) == mark_node)                    \
                          || (type((a)) == adjust_node)                  \

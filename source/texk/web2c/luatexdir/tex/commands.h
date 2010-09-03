@@ -218,7 +218,7 @@ typedef enum {
     data_cmd,                   /* the equivalent is simply a halfword number */
 } tex_command_code;
 
-#  define max_command_cmd pdf_copy_font_cmd   /* the largest command code seen at |big_switch| */
+#  define max_command_cmd pdf_copy_font_cmd     /* the largest command code seen at |big_switch| */
 #  define last_cmd data_cmd
 #  define max_non_prefixed_command last_item_cmd
 

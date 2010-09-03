@@ -48,10 +48,10 @@ typedef struct smemory_word_ {
 #  ifdef WORDS_BIGENDIAN
     halfword hhrh;
     halfword hhlh;
-#else
+#  else
     halfword hhlh;
     halfword hhrh;
-#endif
+#  endif
 } smemory_word;
 
 #  define fix_mem_init 10000

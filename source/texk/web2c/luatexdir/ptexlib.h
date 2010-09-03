@@ -27,14 +27,14 @@
 #  define EXTERN extern
 #  include "luatex.h"
 
-#   include "lib/lib.h"
+#  include "lib/lib.h"
 
 #  ifdef MSVC
 extern double rint(double x);
 #  endif
 
 #  if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
-extern char **suffixlist; /* in luainit.w */
+extern char **suffixlist;       /* in luainit.w */
 #  endif
 
 

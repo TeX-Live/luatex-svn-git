@@ -107,4 +107,3 @@ authorization from the copyright holder.
 #define SYNCTEX_OUTPUT ((pdf_output_value>0)?"pdf":"dvi")
 
 #define __SyncTeX__ 1
-

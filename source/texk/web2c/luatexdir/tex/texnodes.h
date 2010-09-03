@@ -183,16 +183,16 @@ typedef enum {
 #  define acc_kern 2            /*|subtype| of kern nodes from accents */
 #  define synctex_tag_kern(a)  vinfo((a)+3)
 #  define synctex_line_kern(a) vlink((a)+3)
-#  define ex_kern(a)           vinfo((a)+4) /* expansion factor (hz) */
+#  define ex_kern(a)           vinfo((a)+4)     /* expansion factor (hz) */
 
 #  define box_node_size 9
 
 #  define HLIST_SUBTYPE_UNKNOWN 0
-#  define HLIST_SUBTYPE_LINE 1   /* paragraph lines */
-#  define HLIST_SUBTYPE_HBOX 2   /* \.{\\hbox} */
-#  define HLIST_SUBTYPE_INDENT 3 /* indentation box */
-#  define HLIST_SUBTYPE_ALIGNROW 4 /* row from a \.{\\halign} or \.{\\valign} */
-#  define HLIST_SUBTYPE_ALIGNCELL 5 /* cell from a \.{\\halign} or \.{\\valign} */
+#  define HLIST_SUBTYPE_LINE 1  /* paragraph lines */
+#  define HLIST_SUBTYPE_HBOX 2  /* \.{\\hbox} */
+#  define HLIST_SUBTYPE_INDENT 3        /* indentation box */
+#  define HLIST_SUBTYPE_ALIGNROW 4      /* row from a \.{\\halign} or \.{\\valign} */
+#  define HLIST_SUBTYPE_ALIGNCELL 5     /* cell from a \.{\\halign} or \.{\\valign} */
 
 #  define width(a)            varmem[(a)+2].cint
 #  define depth(a)            varmem[(a)+3].cint
