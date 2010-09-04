@@ -2435,6 +2435,7 @@ static scaled make_op(pointer q, int cur_style)
                 x = clean_box(nucleus(q), cur_style, cur_style);
                 if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits))
                     width(x) = width(x) - delta;        /* remove italic correction */
+
                 shift_amount(x) =
                     half(height(x) - depth(x)) - math_axis(cur_size);
                 /* center vertically */
@@ -2447,6 +2448,19 @@ static scaled make_op(pointer q, int cur_style)
             x = clean_box(nucleus(q), cur_style, cur_style);
             if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits))
                 width(x) = width(x) - delta;    /* remove italic correction */
+
+            /* For an OT MATH font, we may have to get rid of yet another italic
+               correction because |make_scripts()| will add one.
+               This test is somewhat more complicated because |x| can be a null 
+               delimiter */
+            if ((subscr(q) != null || supscr(q) != null)
+                && (subtype(q) != op_noad_type_limits)
+                && ((list_ptr(x) != null)
+                    && (type(list_ptr(x)) == glyph_node)
+                    && is_new_mathfont(font(list_ptr(x))))) {
+                width(x) -= delta;  /* remove another italic correction */
+	    }
+
             shift_amount(x) = half(height(x) - depth(x)) - math_axis(cur_size);
             /* center vertically */
             type(nucleus(q)) = sub_box_node;
