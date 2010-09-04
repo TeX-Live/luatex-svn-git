@@ -195,10 +195,9 @@ void main_control(void)
 {                               /* governs \TeX's activities */
     int t;                      /* general-purpose temporary variable */
     halfword p;                 /* for whatsit nodes and testing whether an auto kern should be inserted */
-    int chr_stack;              /* to temporarily save an |cur_chr| to be appended */
     mathcodeval mval;           /* to build up an argument to |set_math_char| */
     t = 0;                      /* for -Wall */
-    chr_stack = -1;
+
     if (equiv(every_job_loc) != null)
         begin_token_list(equiv(every_job_loc), every_job_text);
 
@@ -220,52 +219,15 @@ void main_control(void)
         show_cur_cmd_chr();
 
     switch (abs(mode) + cur_cmd) {
+    case hmode + char_num_cmd:
+        scan_char_num();
+        cur_chr = cur_val;
+        /* fall through */
     case hmode + letter_cmd:
     case hmode + other_char_cmd:
     case hmode + char_given_cmd:
-    case hmode + char_num_cmd:
-        if (abs(mode) + cur_cmd == hmode + char_num_cmd) {
-            scan_char_num();
-            cur_chr = cur_val;
-        }
-        if (true) {
-            /* Append character |cur_chr| and the following characters (if~any)
-               to the current hlist in the current font; |goto reswitch| when
-               a non-character has been fetched */
-          CONTINUE:
-            adjust_space_factor();
-            chr_stack = cur_chr;
-            tail_append(new_char(cur_font, chr_stack));
-            get_x_token();
-            if ((cur_cmd == letter_cmd) || (cur_cmd == other_char_cmd) ||
-                (cur_cmd == char_given_cmd) || (cur_cmd == char_num_cmd)) {
-                if (cur_cmd == char_num_cmd) {
-                    scan_char_num();
-                    cur_chr = cur_val;
-                }
-                if ((chr_stack == ex_hyphen_char) && (cur_chr != ex_hyphen_char)
-                    && (mode > 0)) {
-                    tail = compound_word_break(tail, cur_lang);
-                    subtype(tail) = automatic_disc;
-                }
-                goto CONTINUE;
-            } else {
-                if ((chr_stack == ex_hyphen_char) && (mode > 0)) {
-                    tail = compound_word_break(tail, cur_lang);
-                    subtype(tail) = automatic_disc;
-                }
-                chr_stack = -1;
-                goto RESWITCH;
-            }
-
-        } else {
-            /* Create a buffer with character |cur_chr| and the following
-               characters (if~any) and then apply the current active OCP filter
-               to this buffer */
-            /* run_ocp(); */
-            goto BIG_SWITCH;
-
-        }
+        adjust_space_factor();
+        tail_append(new_char(cur_font, cur_chr));
         break;
     case hmode + spacer_cmd:
     case hmode + ex_space_cmd:
@@ -308,7 +270,6 @@ void main_control(void)
 
         }
         break;
-
     case hmode + no_boundary_cmd:
         /* Append a |cancel_boundary_node| */
         new_whatsit(cancel_boundary_node);

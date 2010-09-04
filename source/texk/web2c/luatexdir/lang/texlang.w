@@ -33,6 +33,7 @@ static const char _svn_version[] =
 @ Low-level helpers 
 
 @c
+#define ex_hyphen_char int_par(ex_hyphen_char_code)
 static char *uni2string(char *utf8_text, unsigned ch)
 {
     /* Increment and deposit character */
@@ -824,6 +825,7 @@ void hnj_hyphenation(halfword head, halfword tail)
     int wordlen = 0;
     char *hy = utf8word;
     char *replacement = NULL;
+    boolean explicit_hyphen = false;
     halfword s, r = head, wordstart = null, save_tail = null, left =
         null, right = null;
 
@@ -866,9 +868,13 @@ void hnj_hyphenation(halfword head, halfword tail)
                type(r) == glyph_node &&
                is_simple_character(r) &&
                clang == char_lang(r) &&
-               (lchar = get_lc_code(character(r))) > 0) {
+               (((lchar = get_lc_code(character(r))) > 0)
+                ||
+                (character(r) == ex_hyphen_char && (lchar = ex_hyphen_char)))) {
+            if (character(r) == ex_hyphen_char)
+    	        explicit_hyphen = true;
             wordlen++;
-            hy = uni2string(hy, (unsigned) lchar);
+            hy = uni2string(hy, (unsigned) character(r));
             /* this should not be needed  any more */
             /*if (vlink(r)!=null) alink(vlink(r))=r; */
             end_word = r;
@@ -886,6 +892,27 @@ void hnj_hyphenation(halfword head, halfword tail)
 #endif
                 do_exception(wordstart, r, replacement);
                 free(replacement);
+            } else if (explicit_hyphen == true) {
+                /* insert an explicit discretionary after each of the last in a 
+	           set of explicit hyphens */
+                halfword rr = r;
+                halfword t = null;
+#ifdef VERBOSE
+                fprintf(stderr, "explicit hyphen(s) found in %s (c=%d)\n", utf8word, clang);
+#endif
+                while (rr != wordstart) {
+	            if (is_simple_character(rr)) {
+                        if (character(rr) == ex_hyphen_char) {
+                            t = compound_word_break(rr, clang);
+                            subtype(t) = automatic_disc;
+	                    while(character(alink(rr)) == ex_hyphen_char) 
+	                       rr = alink(rr);
+                        }
+                    }
+                    rr = alink(rr);
+                }
+
+
             } else if (lang->patterns != NULL) {
 
                 left = wordstart;

@@ -7155,6 +7155,10 @@ Incidentally, this is a global parameter instead of a
 language-specific one because it may be useful to change the value
 depending on the document structure instead of the text language.
 
+Note: as of \LUATEX\ 0.63.0, the insertion of discretionaries after
+a sequence of explicit hyphens happens at the same time as the other
+hyphenation processing, {\it not\/} inside the main control loop.
+
 The only use \LUATEX\ has for \tex{hyphenchar} is at the check
 whether a word should be considered for hyphenation at all. If the
 \tex{hyphenchar} of the font attached to the first character node in a
@@ -7194,11 +7198,11 @@ The hyphenation algorithm in \LUATEX\ is quite different from the one
 in \TEX82, although it uses essentially the same user input.
 
 After expansion, the argument for \tex{patterns} has to be proper
-UTF-8, no \tex{char} or \tex{chardef-ed} commands are allowed. (The
-current implementation is even more strict, and will reject all
-non|-|\UNICODE\ characters, but that will be changed in the future. For
-now, the generated errors are a valuable tool in discovering
-font-encoding specific pattern files)
+UTF-8 with individual patterns separated by spaces, no \tex{char} or
+\tex{chardef-ed} commands are allowed. (The current implementation is
+even more strict, and will reject all non|-|\UNICODE\ characters, but
+that will be changed in the future. For now, the generated errors are
+a valuable tool in discovering font-encoding specific pattern files)
 
 Likewise, the expanded argument for \tex{hyphenation} also has to be
 proper UTF-8, but here a tiny little bit of extra syntax is provided:
@@ -7208,14 +7212,16 @@ proper UTF-8, but here a tiny little bit of extra syntax is provided:
    indicates a desired complex discretionary, with arguments
    as in \tex{discretionary}'s command in normal document input.
 \item \type{-} indicates a desired simple discretionary,  cf. \tex{-} and
-   \tex{discretionary{-}{}{}} in normal document input.
+   \type{\discretionary{-}{}{}} in normal document input.
 \item Internal command names are ignored. This rule is provided
    especially for \tex{discretionary}, but it also helps to deal with
   \tex{relax} commands that may sneak in.
-\item \type{=} indicates a hyphen in the document input (but that
-  is only useful in documents where \tex{exhyphenchar} is not equal to
-  the hyphen).
+\item \type{=} indicates a (non-discretionary) hyphen in the document input.
 \stopitemize
+
+Note: starting with \LUATEX\ 0.63, \tex{hyphenation} exceptions are
+case sensitive, and do not pay attention to \tex{uchyph} settings.
+This means that you may have to add two exceptions in some cases.
 
 The expanded argument is first converted back to a space-separated
 string while dropping the internal command names. This string is then
@@ -7242,6 +7248,16 @@ into \LUATEX\ using one of the functions in the \LUA\ \luatex{lang}
 library. This loading method is quite a bit faster than going through
 the \TEX\ language primitives, but some (most?) of that speed gain
 would be lost if it had to interpret command sequences while doing so.
+
+Starting with \LUATEX\ 0.63.0, it is possible to specify extra hyphenation
+points in compound words by using \type{{-}{}{-}} for the explicit hyphen
+character (replace \type{-} by the actual explicit hyphen character if needed).
+For example, this matches the word \quote{multi-word-boundaries} and allows
+an extra break inbetweem \quote{boun} and \quote{daries}:
+
+\starttyping
+\hyphenation{multi{-}{}{-}word{-}{}{-}boun-daries}
+\stoptyping
 
 The motivation behind the \ETEX\ extension \tex{savinghyphcodes} was
 that hyphenation heavily depended on font encodings. This is no longer
