@@ -1231,7 +1231,12 @@ static int settex(lua_State * L)
                 }
 
             } else {
-                luaL_error(L, "unsupported tex internal assignment");
+		/* people may want to add keys that are also primitives
+		   (|tex.wd| for example) so creating an error is not
+		   right here */
+		if (lua_istable(L, (i - 2)))
+		    lua_rawset(L, (i - 2));
+                /* luaL_error(L, "unsupported tex internal assignment"); */
             }
         } else {
             if (lua_istable(L, (i - 2)))
