@@ -2659,7 +2659,6 @@ static int ff_glyphs_index (lua_State *L)
 {
 
     SplineFont *sf;
-    int k;
     int gid = 0;
     int l = -1;
     int fix_notdef = 0;
@@ -2705,9 +2704,7 @@ static int ff_glyphs_index (lua_State *L)
 static int ff_glyph_index (lua_State *L) 
 {
     struct splinechar *glyph;
-    size_t k;
     int key;
-    const char *st;
     glyph = *check_isglyph(L, 1);
     if (glyph == NULL) {
         return luaL_error(L, "fontloader.glyph.__index: glyph is nonexistent\n");
@@ -2875,9 +2872,7 @@ static int ff_glyph_index (lua_State *L)
 static int ff_index(lua_State * L)
 {
     SplineFont *sf;
-    size_t k;
-    int key;
-    const char *st;
+    int k, key;
     sf = *check_isfont(L, 1);
     if (sf == NULL) {
 	return luaL_error(L,"fontloader.__index: font is nonexistent or freed already\n");
