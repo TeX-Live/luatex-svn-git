@@ -577,8 +577,8 @@ static int mplib_fig_postscript(lua_State * L)
     int procset = (int)luaL_optnumber(L, 3, (lua_Number)-1);
     if (mp_ps_ship_out(*hh, prologues, procset) 
         && (res = mp_rundata((*hh)->parent))
-        && (res->ps_out.size != 0)) {
-        lua_pushstring(L, res->ps_out.data);
+        && (res->ps_out.used != 0)) {
+        lua_pushlstring(L, res->ps_out.data,res->ps_out.used);
     } else {
         lua_pushnil(L);
     }
