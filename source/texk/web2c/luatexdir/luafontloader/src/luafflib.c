@@ -2837,10 +2837,18 @@ static int ff_glyph_index(lua_State * L)
         lua_pushnumber(L, glyph->is_extended_shape);
         break;
     case GK_italic_correction:
-        lua_pushnumber(L, glyph->italic_correction);
+        if (glyph->italic_correction != TEX_UNDEF) {
+            lua_pushnumber(L, glyph->italic_correction);
+        } else {
+            lua_pushnil(L);
+        }
         break;
     case GK_top_accent:
-        lua_pushnumber(L, glyph->top_accent_horiz);
+        if (glyph->top_accent_horiz != TEX_UNDEF) {
+            lua_pushnumber(L, glyph->top_accent_horiz);
+        } else {
+            lua_pushnil(L);
+        }
         break;
     case GK_vert_variants:
         if (glyph->vert_variants != NULL) {
