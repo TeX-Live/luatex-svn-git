@@ -143,7 +143,7 @@ typedef enum {
     super_sub_script_cmd,       /* explicit super- or subscript */
     math_shift_cs_cmd,          /* start- and endmath */
     end_cs_name_cmd,            /* end control sequence ( \.{\\endcsname} ) */
-    char_ghost_cmd,             /* \.{\\ghostleft}, \.{\\ghostright} character for kerning */
+    char_ghost_cmd,             /* \.{\\leftghost}, \.{\\rightghost} character for kerning */
     assign_local_box_cmd,       /* box for guillemets \.{\\localleftbox} or \.{\\localrightbox} */
     char_given_cmd,             /* character code defined by \.{\\chardef} */
 #  define min_internal_cmd char_given_cmd

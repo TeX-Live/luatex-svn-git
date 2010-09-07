@@ -680,6 +680,7 @@ static void init_main_control (void) {
     jump_table[mmode + ex_space_cmd] = run_app_space;
     jump_table[hmode + no_boundary_cmd] = run_no_boundary;
     jump_table[hmode + char_ghost_cmd] = run_char_ghost;
+    jump_table[mmode + char_ghost_cmd] = run_char_ghost;
     any_mode(relax_cmd, run_relax);
     jump_table[vmode + spacer_cmd] = run_relax;
     jump_table[mmode + spacer_cmd] = run_relax;
