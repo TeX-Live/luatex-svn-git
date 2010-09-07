@@ -2340,6 +2340,7 @@ In the \LUATEX\ 0.63.0, the following is implemented:
   userdata objects, one for each of the subfonts (or nil, if there are no subfonts).
 \stopitemize
 
+
 A short example may be helpful. This code generates a printout of all
 the glyph names in the font \type{PunkNova.kern.otf}:
 
@@ -2367,6 +2368,22 @@ and the glyphs are virtual objects, everything else still produces
 normal lua values and tables. In future versions, more return values
 will be replaced by userdata objects (as much as needed to keep the
 memory requirements in check).
+
+If you want to know the valid fields in a font or glyph
+structure, call the \type{fields} function on an object of a
+particular type (either glyph or font for now, more will be
+implemented later):
+
+\startfunctioncall
+local fields = fontloader.fields(f)
+\stopfunctioncall
+
+or 
+
+\startfunctioncall
+local fields = fontloader.fields(f.glyphs[0])
+\stopfunctioncall
+
 
 \subsubsection{Table types}
 

@@ -159,6 +159,20 @@ void handle_glyphvariants(lua_State * L, struct glyphvariants *vars);
 void handle_mathkern(lua_State * L, struct mathkern *mk);
 void handle_altuni(lua_State * L, struct altuni *au);
 
+int is_userdata(lua_State *L, int b, char *utype) 
+{
+    if (lua_type(L,b) == LUA_TUSERDATA) {
+        lua_getmetatable(L, b);
+        luaL_getmetatable(L, utype);
+        if (lua_equal(L, -2, -1)) {
+            lua_pop(L,2);
+            return 1;
+        } 
+        lua_pop(L,2);
+    }
+    return 0;
+}
+
 
 
 void lua_ff_pushfont(lua_State * L, SplineFont * sf)
@@ -2657,6 +2671,29 @@ const char *font_glyph_keys[] = {
 };
 
 
+static int ff_fields(lua_State * L)
+{
+    int i;
+    const char **fields = NULL;
+    if (is_userdata(L, 1, FONT_METATABLE)) {
+        fields = font_keys;
+    } else if (is_userdata(L, 1, FONT_GLYPH_METATABLE)) {
+        fields = font_glyph_keys;
+    }
+    if (fields != NULL) {
+        lua_newtable(L);
+        for (i = 0; fields[i] != NULL; i++) {
+            lua_pushstring(L, fields[i]);
+            lua_rawseti(L, -2, (i + 1));
+        }
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+
+
 static int ff_glyphs_index(lua_State * L)
 {
 
@@ -3433,6 +3470,7 @@ static struct luaL_reg fllib[] = {
     {"open", ff_open},
     {"info", ff_info},
     {"close", ff_close},
+    {"fields", ff_fields},
     {"apply_afmfile", ff_apply_afmfile},
     {"apply_featurefile", ff_apply_featurefile},
     {"to_table", ff_make_table},
