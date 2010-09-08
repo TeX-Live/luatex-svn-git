@@ -2795,7 +2795,11 @@ static int ff_glyph_index(lua_State * L)
         lua_pushnumber(L, glyph->lsidebearing);
         break;
     case GK_class:
-        lua_pushstring(L, glyph_class_enum[glyph->glyph_class]);
+        if (glyph->glyph_class > 0) {
+            lua_pushstring(L, glyph_class_enum[glyph->glyph_class]);
+        } else {
+            lua_pushnil(L);
+        }
         break;
     case GK_kerns:
         if (glyph->kerns != NULL) {
