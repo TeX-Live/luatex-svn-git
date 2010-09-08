@@ -44,6 +44,7 @@ extern struct ui_interface luaui_interface;
 extern int readbinfile(FILE * f, unsigned char **b, int *s);
 
 #define FONT_METATABLE "fontloader.splinefont"
+#define FONT_SUBFONT_METATABLE "fontloader.splinefont.subfont"
 #define FONT_GLYPHS_METATABLE "fontloader.splinefont.glyphs"
 #define FONT_GLYPH_METATABLE "fontloader.splinefont.glyph"
 
@@ -184,6 +185,20 @@ void lua_ff_pushfont(lua_State * L, SplineFont * sf)
         a = lua_newuserdata(L, sizeof(SplineFont *));
         *a = sf;
         luaL_getmetatable(L, FONT_METATABLE);
+        lua_setmetatable(L, -2);
+    }
+    return;
+}
+
+void lua_ff_pushsubfont(lua_State * L, SplineFont * sf)
+{
+    SplineFont **a;
+    if (sf == NULL) {
+        lua_pushnil(L);
+    } else {
+        a = lua_newuserdata(L, sizeof(SplineFont *));
+        *a = sf;
+        luaL_getmetatable(L, FONT_SUBFONT_METATABLE);
         lua_setmetatable(L, -2);
     }
     return;
@@ -2703,7 +2718,14 @@ static int ff_glyphs_index(lua_State * L)
     int fix_notdef = 0;
     lua_pushstring(L, "__sf");
     lua_rawget(L, 1);
-    sf = *check_isfont(L, -1);
+    /* sf = *check_isfont(L, -1); */
+    if (!(is_userdata(L, -1, FONT_METATABLE) ||
+	  is_userdata(L, -1, FONT_SUBFONT_METATABLE))) {
+        return luaL_error(L,
+                          "fontloader.__index: expected a (sub)font userdata object\n");
+    }
+    sf = *((SplineFont **)lua_touserdata(L, -1));
+
     lua_pop(L, 1);
     gid = luaL_checkinteger(L, 2);
     if (gid < 0 || gid >= sf->glyphmax) {
@@ -2926,7 +2948,14 @@ static int ff_index(lua_State * L)
 {
     SplineFont *sf;
     int k, key;
-    sf = *check_isfont(L, 1);
+    /* sf = *check_isfont(L, 1); */
+    if (!(is_userdata(L, 1, FONT_METATABLE) ||
+	  is_userdata(L, 1, FONT_SUBFONT_METATABLE))) {
+        return luaL_error(L,
+                          "fontloader.__index: expected a (sub)font userdata object\n");
+    }
+    sf = *((SplineFont **)lua_touserdata(L, 1));
+  
     if (sf == NULL) {
         return luaL_error(L,
                           "fontloader.__index: font is nonexistent or freed already\n");
@@ -3082,7 +3111,7 @@ static int ff_index(lua_State * L)
         if (sf->subfontcnt > 0) {
             lua_createtable(L, sf->subfontcnt, 0);
             for (k = 0; k < sf->subfontcnt; k++) {
-                lua_ff_pushfont(L, sf->subfonts[k]);
+                lua_ff_pushsubfont(L, sf->subfonts[k]);
                 lua_rawseti(L, -2, (k + 1));
             }
         } else {
@@ -3501,6 +3530,12 @@ int luaopen_ff(lua_State * L)
     luaL_newmetatable(L, FONT_METATABLE);
     luaL_register(L, NULL, fflib_m);
 
+    /* virtual subfont table */
+    luaL_newmetatable(L, FONT_SUBFONT_METATABLE);
+    lua_pushstring(L, "__index");
+    lua_pushcfunction(L, ff_index);
+    lua_rawset(L, -3);
+    lua_pop(L, 1);
     /* virtual glyphs table */
     luaL_newmetatable(L, FONT_GLYPHS_METATABLE);
     lua_pushstring(L, "__index");
