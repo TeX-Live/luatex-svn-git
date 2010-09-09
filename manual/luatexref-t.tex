@@ -4004,8 +4004,6 @@ different fields,  as follows:
 \NC random_seed \NC        number \NC the initial random seed     \NC variable\NC\NR
 \NC interaction \NC        string \NC the interaction mode, one of
 \type {batch}, \type {nonstop}, \type {scroll}, \type {errorstop} \NC \type {errorstop}\NC\NR
-\NC ini_version \NC        boolean \NC the --ini switch           \NC true \NC\NR
-\NC mem_name \NC           string \NC \type {--mem}               \NC \type {plain} \NC\NR
 \NC job_name \NC           string \NC \type {--jobname}           \NC \type {mpout} \NC\NR
 \NC find_file \NC          function \NC a function to find files  \NC only local files\NC\NR
 \stoptabulate
@@ -4021,11 +4019,16 @@ with:
 \starttabulate[|lT|l|p|]
 \NC \bf name \NC \bf the requested file \NC   \NR
 \NC mode \NC the file mode: \type {r} or \type {w} \NC \NR
-\NC type \NC the kind of file, one of: \type {mp}, \type {mem}, \type {tfm}, \type {map}, \type {pfb}, \type {enc} \NC \NR
+\NC type \NC the kind of file, one of: \type {mp}, \type {tfm}, \type {map}, \type {pfb}, \type {enc} \NC \NR
 \stoptabulate
 
 Return either the full pathname of the found file, or \type{nil} if
 the file cannot be found.
+
+Note that the new version of \MPLIB\ no longer uses binary mem files,
+so the way to preload a set of macros is simply to start off with
+an \type{input} command in the first \type{mp:execute()} call.
+
 
 \subsection{\luatex{mp:statistics}}
 
@@ -4036,8 +4039,8 @@ You can request statistics with:
 \stopfunctioncall
 
 This function returns the vital statistics for an \MPLIB\ instance. There are four
-fields, giving the maximum number of used items in each of the four
-statically allocated object classes:
+fields, giving the maximum number of used items in each of four
+allocated object classes:
 
 \starttabulate[|lT|l|p|]
 \NC main_memory \NC number \NC memory size \NC\NR
@@ -4045,6 +4048,10 @@ statically allocated object classes:
 \NC param_size  \NC number \NC simultaneous macro parameters\NC\NR
 \NC max_in_open \NC number \NC input file nesting levels\NC\NR
 \stoptabulate
+
+Note that in the new version of \MPLIB, this is informational only. The
+objects are all allocated dynamically, so there is no chance of running
+out of space unless the available system memory is exhausted.
 
 \subsection{\luatex{mp:execute}}
 
