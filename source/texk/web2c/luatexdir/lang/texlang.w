@@ -246,64 +246,82 @@ void load_tex_patterns(int curlang, halfword head)
 
 @ @c
 #define STORE_CHAR(x) do {                          \
-        word[w] = (unsigned char)x;                 \
-        if (w<MAX_WORD_LEN) w++;                    \
+	unsigned xx = get_lc_code(x);               \
+        if (!xx) xx = x;                            \
+        uindex = uni2string(uindex, xx);            \
     } while (0)
 
-/* todo change this! */
+/* Cleans one word which is returned in |cleaned|,
+   returns the new offset into |buffer| */
 
 const char *clean_hyphenation(const char *buffer, char **cleaned)
 {
-    int items;
-    unsigned char word[MAX_WORD_LEN + 1];
-    int w = 0;
+    int items = 0;
+    unsigned char word[MAX_WORD_LEN + 1]; /* work buffer for bytes */
+    unsigned uword[MAX_WORD_LEN + 1] = { 0 };  /* work buffer for unicode */
+    int u = 0; /* unicode buffer value */
+    int i = 0; /* index into buffer */
+    char *uindex = (char *)word;
     const char *s = buffer;
+
     while (*s && !isspace(*s)) {
-        if (*s == '-') {        /* skip */
-        } else if (*s == '=') {
+	word[i++] = (unsigned)*s;
+	s++;
+        if ((s-buffer)>MAX_WORD_LEN) {
+            /* todo: this is too strict, should count unicode, not bytes */
+    	    *cleaned = NULL;
+            tex_error("exception too long", NULL);
+            return s;
+        }
+    }
+    /* now convert the input to unicode */	
+    word[i] = '\0';
+    utf82u_strcpy(uword, (const char *)word);
+
+    /* build the new word string */
+    i = 0;
+    while (uword[i]>0) {
+	u = uword[i++];
+        if (u == '-') {        /* skip */
+        } else if (u == '=') {
             STORE_CHAR('-');
-        } else if (*s == '{') {
-            s++;
+        } else if (u == '{') {
+            u = uword[i++];
             items = 0;
-            while (*s && *s != '}') {
-                s++;
+            while (u && u != '}') {
+                u = uword[i++];
             }
-            if (*s == '}') {
+            if (u == '}') {
                 items++;
-                s++;
+                u = uword[i++];
             }
-            while (*s && *s != '}') {
-                s++;
+            while (u && u != '}') {
+                u = uword[i++];
             }
-            if (*s == '}') {
+            if (u == '}') {
                 items++;
-                s++;
+                u = uword[i++];;
             }
-            if (*s == '{') {
-                s++;
+            if (u == '{') {
+                u = uword[i++];;
             }
-            while (*s && *s != '}') {
-                STORE_CHAR(*s);
-                s++;
+            while (u && u != '}') {
+                STORE_CHAR(u);
+                u = uword[i++];
             }
-            if (*s == '}') {
-                items++;
-            } else {
-                s--;
+            if (u == '}') {
+	        items++;
             }
             if (items != 3) {   /* syntax error */
                 *cleaned = NULL;
-                while (*s && !isspace(*s)) {
-                    s++;
-                }
+                tex_error("exception syntax error", NULL);
                 return s;
             }
         } else {
-            STORE_CHAR(*s);
+            STORE_CHAR(u);
         }
-        s++;
     }
-    word[w] = 0;
+    *uindex = '\0';
     *cleaned = xstrdup((char *) word);
     return s;
 }
@@ -874,7 +892,7 @@ void hnj_hyphenation(halfword head, halfword tail)
             if (character(r) == ex_hyphen_char)
     	        explicit_hyphen = true;
             wordlen++;
-            hy = uni2string(hy, (unsigned) character(r));
+            hy = uni2string(hy, (unsigned) lchar);
             /* this should not be needed  any more */
             /*if (vlink(r)!=null) alink(vlink(r))=r; */
             end_word = r;
