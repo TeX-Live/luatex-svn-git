@@ -8,7 +8,7 @@
 
 \setuptabulate[before=]
 \setuppagenumbering[location=,alternative=doublesided]
-\setupheadertexts[Luatex 0.63 short reference (preliminary)][pagenumber]
+\setupheadertexts[Luatex 0.63 short reference][pagenumber]
 \setupheader[style=\ssbf]
 
 \setupalign[flushleft]
@@ -284,7 +284,7 @@ in the same format as \type{\pdfximage}.
 \presentfunction{callback}{start_page_number}
 \presentfunction{callback}{stop_page_number}
 \presentfunction{callback}{show_error_hook}
-\presentfunction{callback}{finish_pdf_file}
+\presentfunction{callback}{finish_pdffile}
 
 \section{Font table}
 
@@ -498,9 +498,12 @@ see the big reference manual.
 \presentfunction{node}{unset_attribute}
 
 \section{Pdf table}
-\presentfunction{pdf}{print}
 \presentfunction{pdf}{immediateobj}
+\presentfunction{pdf}{mapfile}
+\presentfunction{pdf}{mapline}
 \presentfunction{pdf}{obj}
+\presentfunction{pdf}{pageref}
+\presentfunction{pdf}{print}
 \presentfunction{pdf}{reserveobj}
 \presentfunction{pdf}{registerannot}
 
@@ -578,6 +581,7 @@ The current list is:
 Many of \LUATEX's internal parameters can be queried and set this way,
 but not nearly all.  The big reference manual has an extensive list.
 
+\blank
 \presentfunction{tex}{setattribute}
 \presentfunction{tex}{getattribute}
 \presentfunction{tex}{setbox}
@@ -590,11 +594,26 @@ but not nearly all.  The big reference manual has an extensive list.
 \presentfunction{tex}{getskip}
 \presentfunction{tex}{settoks}
 \presentfunction{tex}{gettoks}
+\presentfunction{tex}{setcatcode}
+\presentfunction{tex}{getcatcode}
+\presentfunction{tex}{setlccode}
+\presentfunction{tex}{getlccode}
+\presentfunction{tex}{setsfcode}
+\presentfunction{tex}{getsfcode}
+\presentfunction{tex}{setuccode}
+\presentfunction{tex}{getuccode}
+\presentfunction{tex}{setmathcode}
+\presentfunction{tex}{getmathcode}
+\presentfunction{tex}{setdelcode}
+\presentfunction{tex}{getdelcode}
 
-The items above can also be accessed directly via virtual arrays:
+In all the \afunction{tex.set...} functions above, the optional string is
+the literal \aliteral{global}. The items can also be accessed directly via virtual arrays:
 \type{tex.attributes[]}, \type{tex.box[]}, \type{tex.count[]}, \type{tex.dimen[]},
-\type{tex.skip[]}, \type{tex.toks[]}.
+\type{tex.skip[]}, \type{tex.toks[]}; \type{tex.catcode[]}, \type{tex.lccode[]}, 
+\type{tex.sfcode[]}, \type{tex.uccode[]}, \type{tex.mathcode[]}, \type{tex.delcode[]}.
 
+\blank
 
 \presentfunction{tex}{setmath}
 \presentfunction{tex}{getmath}
@@ -680,9 +699,7 @@ registers that keep track of building page lists.
 The virtual table \type{tex.nest} contains the currently active
 semantic nesting state. It has two main parts: an zero-based array of
 userdata for the semantic nest itself, and the numerical value
-\type{tex.nest.ptr}
-
-The known userdata fields are:
+\type{tex.nest.ptr}. Known fields:
 
 \starttabulate[|lf\ss|lf\ss|l|p|]
 \NC \ssbf key   \NC \bf type  \NC \bf modes  \NC \bf explanation \NC\NR
@@ -741,8 +758,7 @@ the executable after loading and executing the startup file.
 \NC halt_on_error    \NC boolean \NC false \NC abort run on the first encountered error\NC \NR
 \NC formatname       \NC string \NC \NC if no format name was given
                                              on the commandline, this will be used\NC \NR
-\NC jobname          \NC string \NC \NC if no input file name was given
-                                           on the commandline, this will be used\NC \NR
+\NC jobname          \NC string \NC \NC as \type{formatname}.\NC \NR
 \stoptabulate
 
 
