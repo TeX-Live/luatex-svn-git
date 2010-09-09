@@ -2690,7 +2690,8 @@ static int ff_fields(lua_State * L)
 {
     int i;
     const char **fields = NULL;
-    if (is_userdata(L, 1, FONT_METATABLE)) {
+    if (is_userdata(L, 1, FONT_METATABLE) ||
+	is_userdata(L, 1, FONT_SUBFONT_METATABLE)) {
         fields = font_keys;
     } else if (is_userdata(L, 1, FONT_GLYPH_METATABLE)) {
         fields = font_glyph_keys;
