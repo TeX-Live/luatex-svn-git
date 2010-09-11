@@ -203,9 +203,23 @@ void scan_refobj(PDF pdf)
     pdf_obj_objnum(tail) = cur_val;
 }
 
+void scan_refobj_lua(PDF pdf, int k)
+{
+    check_obj_exists(pdf, obj_type_obj, k);
+    new_whatsit(pdf_refobj_node);
+    pdf_obj_objnum(tail) = k;
+}
+
 @ @c
 void pdf_ref_obj(PDF pdf, halfword p)
 {
     if (!is_obj_scheduled(pdf, pdf_obj_objnum(p)))
         addto_page_resources(pdf, obj_type_obj, pdf_obj_objnum(p));
+}
+
+@ @c
+void pdf_ref_obj_lua(PDF pdf, int k)
+{
+    if (!is_obj_scheduled(pdf, k))
+        addto_page_resources(pdf, obj_type_obj, k);
 }

@@ -520,6 +520,19 @@ static int l_obj(lua_State * L)
     return 1;
 }
 
+static int l_refobj(lua_State * L)
+{
+    int k, n;
+    n = lua_gettop(L);
+    if (n != 1)
+        luaL_error(L, "pdf.refobj() needs exactly 1 argument");
+    k = luaL_checkinteger(L, 1);
+    if (global_shipping_mode == NOT_SHIPPING)
+        scan_refobj_lua(static_pdf, k);
+    else
+        pdf_ref_obj_lua(static_pdf, k);
+}
+
 static int l_reserveobj(lua_State * L)
 {
     int n;
@@ -721,6 +734,7 @@ static const struct luaL_reg pdflib[] = {
     {"pdfmapfile", l_pdfmapfile},       /* obsolete */
     {"pdfmapline", l_pdfmapline},       /* obsolete */
     {"print", luapdfprint},
+    {"refobj", l_refobj},
     {"registerannot", l_registerannot},
     {"reserveobj", l_reserveobj},
     {NULL, NULL}                /* sentinel */

@@ -61,6 +61,8 @@ extern void init_obj_obj(PDF pdf, int k);
 extern void pdf_write_obj(PDF pdf, int n);
 extern void scan_obj(PDF pdf);
 extern void scan_refobj(PDF pdf);
+extern void scan_refobj_lua(PDF pdf, int k);
 extern void pdf_ref_obj(PDF pdf, halfword p);
+extern void pdf_ref_obj_lua(PDF pdf, int k);
 
 #endif
