@@ -3231,6 +3231,18 @@ local fdata = {
       ["shortdesc"]="Write an object to the PDF file. See \\aliteral{pdf.immediateobj} for arguments.",
       ["type"]="function",
    },
+   ["refobj"]={
+      ["arguments"]={
+         {
+	    ["name"]="n",
+	    ["optional"]=false,
+	    ["type"]="number",
+         }
+      },
+      ["returnvalues"]={},
+      ["shortdesc"]="Reference an object, so that it will be written out.",
+      ["type"]="function",
+   },
    ["print"]={
       ["arguments"]={
 	 {
