@@ -122,7 +122,7 @@ so it may be needed to put these assignments
 
 before the above line.
 More fine-grained primitives control is possible, you can look the details in
-\in{section}[luaprimitives]. For simplicity's sake, this manual assumes 
+\in{section}[luaprimitives]. For simplicity's sake, this manual assumes
 that you have executed the \type{\directlua} command as given above.
 
 The startup behavior documented above is considered stable in the sense
@@ -364,7 +364,7 @@ from interfering with those used by the macro package.
 
 The conversion to and from a token list means that you normally can
 not use \LUA\ line comments (starting with \type{--}) within the
-argument. As there typically will be only one \quote{line} the first 
+argument. As there typically will be only one \quote{line} the first
 line comment will run on until the end of the input. You will either need to
 use \TEX-style line comments (starting with \%), or change the \TEX\
 category codes locally. Another possibility is to say:
@@ -721,7 +721,7 @@ There is a new experimental primitive: \type{\gleaders} (a \LUATEX\
 extension, added in 0.43). This type of leaders is anchored to the
 origin of the box to be shipped out. So they are like normal
 \type{\leaders} in that they align nicely, except that the alignment
-is based on the {\it largest\/} enclosing box instead of the 
+is based on the {\it largest\/} enclosing box instead of the
 {\it smallest\/}.
 
 \chapter {\LUA\ general}
@@ -768,7 +768,7 @@ and that it accepts (but ignores) the \type{--luaconly} switch.
 When the \LUATEX\ executable starts, it looks for the \type{--lua}
 commandline option. If there is no \type{--lua} option, the
 commandline is interpreted in a similar fashion as in traditional
-\PDFTEX\ and \ALEPH. 
+\PDFTEX\ and \ALEPH.
 
 The following command-line switches are understood.
 
@@ -797,7 +797,7 @@ The following command-line switches are understood.
 \NC --[no-]shell-escape       \NC disable/enable \type{\write18{SHELL COMMAND}} \NC \NR
 \NC --enable-write18          \NC enable \type{\write18{SHELL COMMAND}} \NC \NR
 \NC --disable-write18         \NC disable \type{\write18{SHELL COMMAND}} \NC \NR
-\NC --shell-restricted        \NC restrict \type{\write18} to a list of commands 
+\NC --shell-restricted        \NC restrict \type{\write18} to a list of commands
                                   given in texmf.cnf \NC \NR
 \NC --debug-format            \NC enable format debugging \NC \NR
 \NC --[no-]file-line-error       \NC disable/enable file:line:error style messages  \NC \NR
@@ -817,8 +817,8 @@ of commandline processing in comparison to the standard web2c
 programs.
 
 In this mode, a small series of actions is taken in order. First,
-it will parse the commandline as usual, but it will only interpret 
-a small subset of the options immediately: \type{--safer}, \type{--nosocket}, 
+it will parse the commandline as usual, but it will only interpret
+a small subset of the options immediately: \type{--safer}, \type{--nosocket},
 \type{--[no-]shell-escape}, \type{--enable-write18}, \type{--disable-write18},
 \type{--shell-restricted}, \type{--help}, \type{--version}, and \type{--credits}.
 
@@ -878,7 +878,7 @@ four global names, as they will be overwritten completely.
 We recommend you use the startup file only for your own
 \TEX|-|independent initializations (if you need any), to parse the
 commandline, set values in the \luatex{texconfig} table, and register
-the callbacks you need. 
+the callbacks you need.
 
 \LUATEX\ allows some of the commandline opiotns to be overridden
 by reading values from the \luatex{texconfig} table at the end of
@@ -898,10 +898,10 @@ needs to check \type{--progname}, or \type{--ini} and \type{--fmt}, if
 \section{\LUA\ changes}
 
 The C coroutine (\COCO) patches from luajit are applied to the \LUA\
-core, the used version is 1.1.5.  See \hyphenatedurl{http://luajit.org/coco.html} 
+core, the used version is 1.1.5.  See \hyphenatedurl{http://luajit.org/coco.html}
 for details. This functionality currently (0.45) does not work on
 non-intel OpenBSD platforms nor on powerpc Linux-es. Additional note:
-\type{coroutines.wrap()} under Windows does not inherit the state 
+\type{coroutines.wrap()} under Windows does not inherit the state
 of the random generator, it always has an implicit
 \type{math.randomseed(1)} that is added by the Windows kernel.
 
@@ -909,7 +909,7 @@ Starting from version 0.45, \LUATEX\ is able to use the kpathsea
 library to find \type{require()}d modules. For this purpose,
 \type{package.loaders[2]} is replaced by a different loader function,
 that decides at runtime whether to use kpathsea or the build-in core
-lua function.  It uses \KPATHSEA\ when that is already initialized at 
+lua function.  It uses \KPATHSEA\ when that is already initialized at
 that point in time, otherwise it reverts to using the normal
 \type{package.path} loader.
 
@@ -921,7 +921,7 @@ Initialization of \KPATHSEA\ can happen either implicitly (when
 
 Starting from version 0.46.0 (as an {\bf experimental} feature!) \LUATEX\ is
 also able to use dynamically loadable \LUA\ libraries, unless
-\type{--safer} was given as an option on the command line.  
+\type{--safer} was given as an option on the command line.
 
 For this purpose, \type{package.loaders[3]} is replaced by a different
 loader function, that decides at runtime whether to use kpathsea or
@@ -944,7 +944,7 @@ CLUAINPUTS=.:$SELFAUTOLOC/lib/{$progname,$engine,}/lua//
 This path is imperfect (it requires a TDS subtree below the binaries
 directory), but the architecture has to be in the path somewhere, and
 the currently simplest way to do that is to search below the binary
-directory only. 
+directory only.
 
 One level up (a \type{lib} directory parallel to \type{bin}) would
 have been nicer, but that is not doable because texlive uses a
@@ -985,7 +985,7 @@ argument. The file name is not tested for existence. Finally, for
 non-WIN32 platforms only, there is the new function
 \type{lfs.readlink()} (added in 0.51) that takes an existing symbolic
 link as argument and returns its content. It returns an error on
-WIN32. 
+WIN32.
 
 The \lua{string} library has an extra function:
 \luatex{string.explode(s[,m])}. This function returns an array containing
@@ -1034,7 +1034,7 @@ expected).  For the interpretation of character classes in
 \luatex{unicode.utf8} functions refer to the library sources at
 \hyphenatedurl{http://luaforge.net/projects/sln}.  The \lua{slnunicode}
 library will be replaced by an internal \UNICODE\ library in a future
-\LUATEX\ version. 
+\LUATEX\ version.
 \blank
 
 The \lua{os} library has a few extra functions and variables:
@@ -1625,7 +1625,7 @@ This callback does not replace any internal code.
 \subsubsection{\luatex{pre_linebreak_filter}}
 
 This callback is called just before \LUATEX\ starts converting a list
-of nodes into a stack of \tex{hbox}es, after the addition of 
+of nodes into a stack of \tex{hbox}es, after the addition of
 \type{\parfillskip}.
 
 \startfunctioncall
@@ -1674,11 +1674,11 @@ end
 
 The returned node is the head of the list that will be added to the
 main vertical list, the boolean argument is true if this paragraph is
-interrupted by a following math display. 
+interrupted by a following math display.
 
 If you return something that is not a \type{<node>}, \LUATEX\ will
 apply the internal linebreak algorithm on the list that starts at
-\type{<head>}. Otherwise, the \type{<node>} you return is supposed 
+\type{<head>}. Otherwise, the \type{<node>} you return is supposed
 to be the head of a list of nodes that are all allowed in vertical
 mode, and the last of those has to represent a hbox. Failure to do
 so will result in a fatal error.
@@ -1707,7 +1707,7 @@ horizontal mode material. Math items and line boxes are ignored
 at the moment.
 
 \startfunctioncall
-function(<node> head, <string> groupcode, <number> size, 
+function(<node> head, <string> groupcode, <number> size,
          <string> packtype [, <string> direction])
     return true | false | <node> newhead
 end
@@ -1748,7 +1748,7 @@ This callback is called when \TEX\ is ready to start boxing the
 box 255 for \tex{output}.
 
 \startfunctioncall
-function(<node> head, <string> groupcode, <number> size, <string> packtype, 
+function(<node> head, <string> groupcode, <number> size, <string> packtype,
         <number> maxdepth [, <string> direction])
     return true | false | <node> newhead
 end
@@ -1975,7 +1975,7 @@ The \type{epdf} library is in an early alpha state:
 (it's not yet possible to alter a \PDF\ file or to assemble it from scratch),
 and many function bindings are still missing.
 
-For a start, 
+For a start,
 a \PDF\ file is opened by \type{epdf.open()} with file name, e.\,g.:
 
 \starttyping
@@ -1983,7 +1983,7 @@ doc = epdf.open {"foo.pdf"}
 \stoptyping
 
 This normally returns a \type{PDFDoc} userdata variable;
-but if the file could not be opened successfully, 
+but if the file could not be opened successfully,
 instead of a fatal error just the value \type{nil} is returned.
 
 All Lua functions in the \type{epdf} library are named after the
@@ -1992,7 +1992,7 @@ e.\,g., files \type{PDFDoc.h}, \type{Dict.h}, and \type{Array.h}.
 These files can be found in the poppler subdirectory within the \LUATEX\ sources.
 Which functions are already implemented in the \type{epdf} library
 can be found in the \LUATEX\ source file \type{lepdflib.cc}.
-For using the \type{epdf} library, 
+For using the \type{epdf} library,
 knowledge of the \PDF\ file architecture is indispensable
 as well as access to these source files.
 
@@ -2336,7 +2336,7 @@ In the \LUATEX\ 0.63.0, the following is implemented:
 \item the items in that virtual array (the actual glyphs) are themselves also
   userdata objects, and each has accessors for all of the keys
   explained in the section \quote{Glyph items} below.
-\item the top-level key \quote{subfonts} returns an {\it actual} array of 
+\item the top-level key \quote{subfonts} returns an {\it actual} array of
   userdata objects, one for each of the subfonts (or nil, if there are no subfonts).
 \stopitemize
 
@@ -2347,7 +2347,7 @@ the glyph names in the font \type{PunkNova.kern.otf}:
 \starttyping
 local f = fontloader.open('PunkNova.kern.otf')
 print (f.fontname);
-local i = 0 
+local i = 0
 while (i < f.glyphmax) do
    local g = f.glyphs[i]
    if g then
@@ -2378,7 +2378,7 @@ implemented later):
 local fields = fontloader.fields(f)
 \stopfunctioncall
 
-or 
+or
 
 \startfunctioncall
 local fields = fontloader.fields(f.glyphs[0])
@@ -2482,7 +2482,7 @@ information (quite a few of these are only present if nonzero).
 \NC width                        \NC number   \NC only for horizontal fonts\NC\NR
 \NC vwidth                       \NC number   \NC only for vertical fonts\NC\NR
 \NC lsidebearing                 \NC number   \NC only if nonzero and not equal to boundingbox[1]\NC\NR
-\NC class                        \NC string   \NC one of "none", "base", "ligature", "mark", "component" 
+\NC class                        \NC string   \NC one of "none", "base", "ligature", "mark", "component"
                                                   (if not present, the glyph class is \quote{automatic})\NC\NR
 \NC kerns                        \NC array    \NC only for horizontal fonts, if set\NC\NR
 \NC vkerns                       \NC array    \NC only for vertical fonts, if set\NC\NR
@@ -3693,7 +3693,7 @@ This is used for the size argument of the formats \type{pk}, \type{gf}, and \typ
 
 \subsection{\luatex{lookup}}
 
-A more powerful (but slower) generic method for finding files is also 
+A more powerful (but slower) generic method for finding files is also
 available (since 0.51).
 
 \startfunctioncall
@@ -3714,7 +3714,7 @@ The options match commandline arguments from \type{kpsewhich}:
 \NC mktextex  \NC boolean    \NC disable/enable mktextex generation for this lookup\NC \NR
 \NC mktexmf   \NC boolean    \NC disable/enable mktexmf generation for this lookup\NC \NR
 \NC mktextfm  \NC boolean    \NC disable/enable mktextfm generation for this lookup\NC \NR
-\NC subdir    \NC string 
+\NC subdir    \NC string
                   or table   \NC only output matches whose directory part
                                  ends with the given string(s) \NC \NR
 \stoptabulate
@@ -3838,7 +3838,7 @@ Clears the exception dictionary for this language.
 \stopfunctioncall
 
 Creates a hyphenation key from the supplied hyphenation value. The
-syntax of the argument string is explained~\in{section}[patternsexceptions]. 
+syntax of the argument string is explained~\in{section}[patternsexceptions].
 This function is useful if
 you want to do something else based on the words in a dictionary file,
 like spell-checking.
@@ -4108,11 +4108,11 @@ object methods you can call:
 \starttabulate[|l|l|p|]
 \NC boundingbox  \NC function \NC returns the bounding box, as an array of 4 values\NC \NR
 \NC postscript   \NC function \NC return a string that is the ps output of the \type{fig}.
-                                  this function accepts two optional integer arguments for 
+                                  this function accepts two optional integer arguments for
                                   specifying the values of \type{prologues} (first argument)
                                   and \type{procset} (second argument)\NC \NR
-\NC svg          \NC function \NC return a string that is the svg output of the \type{fig}. 
-                                  this function accepts an optional integer arguments for 
+\NC svg          \NC function \NC return a string that is the svg output of the \type{fig}.
+                                  this function accepts an optional integer arguments for
                                   specifying the value of \type{prologues}\NC \NR
 \NC objects      \NC function \NC returns the actual array of graphic objects in this \type{fig} \NC \NR
 \NC copy_objects \NC function \NC returns a deep copy of the array of graphic objects in this \type{fig} \NC \NR
@@ -4546,7 +4546,7 @@ Direction support added in \LUATEX\ 0.45.
 The second return value is the badness of the generated box,
 this extension was added in 0.51.
 
-See the description of \type{node.hpack()} for a few memory allocation 
+See the description of \type{node.hpack()} for a few memory allocation
 caveats.
 
 \subsubsection{\luatex{node.dimensions} (0.43)}
@@ -4559,28 +4559,28 @@ caveats.
 This function calculates the natural in-line dimensions of the node
 list starting at node \type{n} and terminating just before node \type{t}
 (or nil, if there is no second argument). The return values are scaled
-points. An alternative format that starts with glue parameters as the 
+points. An alternative format that starts with glue parameters as the
 first three arguments is also possible:
 
 \startfunctioncall
-<number> w, <number> h, <number> d  = 
-  node.dimensions(<number> glue_set, <number> glue_sign, 
+<number> w, <number> h, <number> d  =
+  node.dimensions(<number> glue_set, <number> glue_sign,
                  <number> glue_order, <node> n)
-<number> w, <number> h, <number> d  = 
-  node.dimensions(<number> glue_set, <number> glue_sign, 
+<number> w, <number> h, <number> d  =
+  node.dimensions(<number> glue_set, <number> glue_sign,
                  <number> glue_order, <node> n, <string> dir)
-<number> w, <number> h, <number> d  = 
-  node.dimensions(<number> glue_set, <number> glue_sign, 
+<number> w, <number> h, <number> d  =
+  node.dimensions(<number> glue_set, <number> glue_sign,
                  <number> glue_order, <node> n, <node> t)
-<number> w, <number> h, <number> d  = 
-  node.dimensions(<number> glue_set, <number> glue_sign, 
+<number> w, <number> h, <number> d  =
+  node.dimensions(<number> glue_set, <number> glue_sign,
                  <number> glue_order, <node> n, <node> t, <string> dir)
 \stopfunctioncall
 
 This calling method takes glue settings into account and is especially
 useful for finding the actual width of a sublist of nodes that are
-already boxed, for example in code like this, which prints the 
-width of the space inbetween the \type{a} and \type{b} as it would 
+already boxed, for example in code like this, which prints the
+width of the space inbetween the \type{a} and \type{b} as it would
 be if \type{\box0} was used as-is:
 
 \starttyping
@@ -4622,7 +4622,7 @@ between nodes.
 <node> m = node.tail(<node> n)
 \stopfunctioncall
 
-Returns the last node of the node list that starts at \type{n}. 
+Returns the last node of the node list that starts at \type{n}.
 
 
 \subsubsection{\luatex{node.length}}
@@ -4787,7 +4787,7 @@ any more since version 0.38).  There is no error checking yet!
 boolean <yes> = node.protrusion_skippable(<node> n)
 \stopfunctioncall
 
-Returns \type{true} if this node can be skipped for glyph protrusion 
+Returns \type{true} if this node can be skipped for glyph protrusion
 line boundary discovery.
 
 \subsubsection{\luatex{node.protrusion_skipable} (0.53)}
@@ -4951,7 +4951,7 @@ The optional \type{attrtext} goes into the dictionary of that object.
 The 4th version with keyword \type{"streamfile"} does the same as the 3rd one,
 it just reads the stream data raw from a file.
 
-An optional first argument can be given to make the function use a 
+An optional first argument can be given to make the function use a
 previously reserved \PDF\ object.
 
 \startfunctioncall
@@ -4961,10 +4961,13 @@ n = pdf.immediateobj(<integer n>, "stream", <string> streamtext {, <string> attr
 n = pdf.immediateobj(<integer n>, "streamfile", <string> filename, {, <string> attrtext})
 \stopfunctioncall
 
+%***********************************************************************
+
 \subsubsubject{\luatex{pdf.obj()}}
 
 This function creates a \PDF\ object,
-which is written to the \PDF\ file only when referenced.
+which is written to the \PDF\ file only when referenced,
+e.\,g., by \luatex{pdf.refobj()}.
 
 All function variants return the object number of the newly generated
 object, and there are two separate calling modes.
@@ -4978,7 +4981,7 @@ n = pdf.obj("stream", <string> streamtext {, <string> attrtext})
 n = pdf.obj("streamfile", <string> filename, {, <string> attrtext})
 \stopfunctioncall
 
-An optional first argument can be given to make the function use a 
+An optional first argument can be given to make the function use a
 previously reserved \PDF\ object.
 
 \startfunctioncall
@@ -5009,6 +5012,30 @@ Note: this mode makes \type{pdf.obj} look more flexible than it
 actually is: the constraints from the separate parameter version
 still apply, so for example you can't have both \type{string} and
 \type{file} at the same time.
+
+%***********************************************************************
+
+\subsubsubject{\luatex{pdf.refobj()}}
+
+This function,
+the \LUA\ version of the \tex{pdfrefobj} primitive,
+references an object by its object number,
+so that the object will be written out.
+
+\startfunctioncall
+pdf.refobj(<integer> n)
+\stopfunctioncall
+
+This function works in both the \tex{directlua} and \tex{latelua} environment.
+Inside \tex{directlua} a new whatsit node
+`pdf_refobj' is created, which will be marked for flushing during
+page output and the object is then written directly after the page,
+when also the resources objects are written out.
+Inside \tex{latelua} the object will marked for flushing.
+
+This function has no return values.
+
+%***********************************************************************
 
 \subsubsubject{\luatex{pdf.reserveobj()}}
 
@@ -5671,9 +5698,9 @@ assigning to a temporary variable:
 tex.box[0] = node.copy_list(tex.box[2])
 \stoptyping
 
-{\bf note: In previous versions of \LUATEX\ there were also three 
+{\bf note: In previous versions of \LUATEX\ there were also three
 virtual tables called \type{tex.wd}, \type{tex.ht}, and \type{tex.dp}
-along with an associated function call interface. These were 
+along with an associated function call interface. These were
 removed in version 0.63. You should switch to using \type{tex.box[].width}
 etc. instead.}
 
@@ -5793,7 +5820,7 @@ userdata for the semantic nest itself, and the numerical value
 the array items in \type{tex.nest[]} nor \type{tex.nest.ptr} can be
 assigned to (as this would confuse the typesetting engine beyond
 repair), but you can assing to the individual values inside the array
-items, e.g. \type{tex.nest[tex.nest.ptr].prevdepth}. 
+items, e.g. \type{tex.nest[tex.nest.ptr].prevdepth}.
 
 \type{tex.nest[tex.nest.ptr]} is the current nest state, \type{tex.nest[0]}
 the outermost (main vertical list) level.
@@ -5803,13 +5830,13 @@ The known fields are:
 \starttabulate[|lT|l|l|p|]
 \NC \ssbf key   \NC \bf type  \NC \bf modes  \NC \bf explanation \NC\NR
 \NC mode        \NC number    \NC all        \NC The current mode. This is a number representing the
-                                                 main mode at this level:\crlf 
+                                                 main mode at this level:\crlf
                                                  0 == no mode (this happens during \type{\write})\crlf
-                                                 1 == vertical,\crlf 
-                                                 127 = horizontal,\crlf 
+                                                 1 == vertical,\crlf
+                                                 127 = horizontal,\crlf
                                                  253 = display math.\crlf
-                                                 $-1$ == internal vertical,\crlf 
-                                                 $-127$ = restricted horizontal,\crlf 
+                                                 $-1$ == internal vertical,\crlf
+                                                 $-127$ = restricted horizontal,\crlf
                                                  $-253$ = inline math.\NC\NR
 \NC modeline    \NC number    \NC all        \NC source input line where this mode was entered in,
                                                  negative inside the output routine.\NC\NR
@@ -5820,11 +5847,11 @@ The known fields are:
                                                  when it is to be ignored)\NC\NR
 \NC spacefactor \NC number    \NC hmode      \NC the current space factor\NC\NR
 \NC dirs        \NC node      \NC hmode      \NC used for temporary storage by the line break algorithm\NC\NR
-\NC noad        \NC node      \NC mmode      \NC used for temporary storage of a pending fraction numerator, 
+\NC noad        \NC node      \NC mmode      \NC used for temporary storage of a pending fraction numerator,
                                                  for \type{\over} etc.\NC\NR
-\NC delimptr    \NC node      \NC mmode      \NC used for temporary storage of the previous math delimiter, 
+\NC delimptr    \NC node      \NC mmode      \NC used for temporary storage of the previous math delimiter,
                                                  for \type{\middle}.\NC\NR
-\NC mathdir     \NC boolean   \NC mmode      \NC true when during math processing the \type{\mathdir} is not 
+\NC mathdir     \NC boolean   \NC mmode      \NC true when during math processing the \type{\mathdir} is not
                                                  the same as the surrounding \type{\textdir}\NC\NR
 \NC mathstyle   \NC number    \NC mmode      \NC the current \type{\mathstyle} \NC\NR
 \stoptabulate
@@ -5862,7 +5889,7 @@ will stop the printing process).  This syntax was added in 0.36.
 
 
 The optional parameter can be used to print the strings using the
-catcode regime defined by \tex{catcodetable}~\type{n}. If \type{n} is 
+catcode regime defined by \tex{catcodetable}~\type{n}. If \type{n} is
 $-1$, the currently active catcode regime is used. If \type{n} is
 $-2$, the resulting catcodes are in the result of \type{\the}: all
 category codes are 12 (other) except for the space character, that has
@@ -5976,13 +6003,13 @@ added at a later date.
 <number> n = tex.sp(<string> s)
 \stopfunctioncall
 
-Converts the number \type{o} or a string \type{s} that represents 
+Converts the number \type{o} or a string \type{s} that represents
 an explicit dimension into an integer number of scaled points.
 
 For parsing the string, the same scanning and conversion rules are used
-that \LUATEX\ would use if it was scanning a dimension specifier in 
-its \TEX-like input language (this includes generating errors for bad 
-values), expect for the following: 
+that \LUATEX\ would use if it was scanning a dimension specifier in
+its \TEX-like input language (this includes generating errors for bad
+values), expect for the following:
 
 \startitemize[n]
 \item only explicit values are allowed, control sequences are not handled
@@ -6010,7 +6037,7 @@ tex.error(<string> s, <table> help)
 \stopfunctioncall
 
 This creates an error somewhat like the combination of \tex{errhelp}
-and \type{errmessage} would. During this error, deletions are disabled. 
+and \type{errmessage} would. During this error, deletions are disabled.
 
 The array part of the \type{help} table has to contain strings,
 one for each line of error help.
@@ -6144,8 +6171,8 @@ is always zero.
 \stopfunctioncall
 
 This helper function is useful
-during linebreak calculations. \type{f} and \type{s} are scaled values; the function 
-returns the badness for when total \type{f} is supposed to be made from amounts 
+during linebreak calculations. \type{f} and \type{s} are scaled values; the function
+returns the badness for when total \type{f} is supposed to be made from amounts
 that sum to \type{s}.  The returned number is a reasonable approximation of $100(t/s)^3$;
 
 \subsubsection{\luatex{tex.linebreak} (0.53)}
@@ -7485,8 +7512,8 @@ essentially creates the following set of items for \type{of-f-ice}:
 This is not perfect (because the \type{off-ice} hyphenation will never
 be chosen), but luckily three-item ligatures with multiple embedded
 hyphenation points are extremely rare indeed: even this example was
-artificially created. A full, perfect solution is possible, but is 
-low on the agenda now that at least \type{office} can be hyphenated 
+artificially created. A full, perfect solution is possible, but is
+low on the agenda now that at least \type{office} can be hyphenated
 properly again.
 
 \section{Breaking paragraphs into lines}
@@ -7572,8 +7599,8 @@ incoming font source, also used as fontname identifier in the \PDF\ output, new 
                                                                         reference, don't cache any lua data for this font.
                                                                         \type{renew}: don't store the table reference, but
                                                                         save a reference to the table that is created at the
-                                                                        first access to one of its fields in font.fonts. 
-                                                                        (new in 0.40.0, before that caching was always \type{yes}). 
+                                                                        first access to one of its fields in font.fonts.
+                                                                        (new in 0.40.0, before that caching was always \type{yes}).
 Note: the saved reference is thread-local, so be careful when you are using coroutines: an error will be thrown if the table
 has been cached in one thread, but you reference it from another thread ($\approx$ coroutine)\NC\NR
 \NC nomath              \NC no       \NC no       \NC yes \NC boolean\NC this key allows a minor speedup for text fonts. if it is
@@ -8114,14 +8141,14 @@ accessible fields:
 \NC stretch_order  \NC number  \NC \NC\NR
 \NC shrink         \NC number  \NC \NC\NR
 \NC shrink_order   \NC number  \NC \NC\NR
-\NC writable       \NC boolean \NC If this is true, you can't assign to this \type{glue_spec} 
+\NC writable       \NC boolean \NC If this is true, you can't assign to this \type{glue_spec}
                                    because it is one of the preallocated special cases. New in 0.52\NC\NR
 \stoptabulate
 
 These objects are reference counted, so there is actually an extra
 field named \type {ref_count} as well. This item type will likely
 disappear in the future, and the glue fields themselves will
-become part of the nodes referencing glue items. 
+become part of the nodes referencing glue items.
 
 \subsubsection{attribute\_list and attribute items}
 
@@ -8359,27 +8386,27 @@ Id: \showid{glue}
 The exact meanings of the subtypes are as follows:
 
 \starttabulate[|rT|l|]
-\NC  1  \NC \tex{lineskip}                 \NC \NR 
-\NC  2  \NC \tex{baselineskip}             \NC \NR 
-\NC  3  \NC \tex{parskip}                  \NC \NR 
-\NC  4  \NC \tex{abovedisplayskip}         \NC \NR 
-\NC  5  \NC \tex{belowdisplayskip}         \NC \NR 
-\NC  6  \NC \tex{abovedisplayshortskip}    \NC \NR 
-\NC  7  \NC \tex{belowdisplayshortskip}    \NC \NR 
-\NC  8  \NC \tex{leftskip}                 \NC \NR 
-\NC  9  \NC \tex{rightskip}                \NC \NR 
-\NC 10  \NC \tex{topskip}                  \NC \NR 
-\NC 11  \NC \tex{splittopskip}             \NC \NR 
-\NC 12  \NC \tex{tabskip}                  \NC \NR 
-\NC 13  \NC \tex{spaceskip}                \NC \NR 
-\NC 14  \NC \tex{xspaceskip}               \NC \NR 
-\NC 15  \NC \tex{parfillskip}              \NC \NR 
-\NC 16  \NC \tex{thinmuskip}               \NC \NR 
-\NC 17  \NC \tex{medmuskip}                \NC \NR 
-\NC 18  \NC \tex{thickmuskip}              \NC \NR 
-\NC 100 \NC \tex{leaders}                  \NC \NR 
-\NC 101 \NC \tex{cleaders}                 \NC \NR 
-\NC 102 \NC \tex{xleaders}                 \NC \NR 
+\NC  1  \NC \tex{lineskip}                 \NC \NR
+\NC  2  \NC \tex{baselineskip}             \NC \NR
+\NC  3  \NC \tex{parskip}                  \NC \NR
+\NC  4  \NC \tex{abovedisplayskip}         \NC \NR
+\NC  5  \NC \tex{belowdisplayskip}         \NC \NR
+\NC  6  \NC \tex{abovedisplayshortskip}    \NC \NR
+\NC  7  \NC \tex{belowdisplayshortskip}    \NC \NR
+\NC  8  \NC \tex{leftskip}                 \NC \NR
+\NC  9  \NC \tex{rightskip}                \NC \NR
+\NC 10  \NC \tex{topskip}                  \NC \NR
+\NC 11  \NC \tex{splittopskip}             \NC \NR
+\NC 12  \NC \tex{tabskip}                  \NC \NR
+\NC 13  \NC \tex{spaceskip}                \NC \NR
+\NC 14  \NC \tex{xspaceskip}               \NC \NR
+\NC 15  \NC \tex{parfillskip}              \NC \NR
+\NC 16  \NC \tex{thinmuskip}               \NC \NR
+\NC 17  \NC \tex{medmuskip}                \NC \NR
+\NC 18  \NC \tex{thickmuskip}              \NC \NR
+\NC 100 \NC \tex{leaders}                  \NC \NR
+\NC 101 \NC \tex{cleaders}                 \NC \NR
+\NC 102 \NC \tex{xleaders}                 \NC \NR
 \NC 103 \NC \tex{gleaders}                 \NC \NR
 \stoptabulate
 
@@ -8691,10 +8718,10 @@ Id: \showid{fence}
 
 Whatsit nodes come in many subtypes that you can ask for by running
 \luatex{node.whatsits()}:
-\ctxlua {for n,name in table.sortedpairs(node.whatsits()) do 
-  if (n<100) then 
+\ctxlua {for n,name in table.sortedpairs(node.whatsits()) do
+  if (n<100) then
      if (n>0) then tex.sprint (', ') end
-     tex.sprint('\\type{' .. name .. '} (' .. n .. ')') end 
+     tex.sprint('\\type{' .. name .. '} (' .. n .. ')') end
 end }
 
 \subsubsection{open nodes}
@@ -9174,13 +9201,13 @@ as well as the five supporting primitives \tex{knbscode}, \tex{stbscode},
 \stoptyping
 \stopcolumns
 
-\item The four primitives that were already marked obsolete in \PDFTEX~1.40 
+\item The four primitives that were already marked obsolete in \PDFTEX~1.40
 have been removed since \LUATEX~0.42:
 
 \startcolumns[n=2]
 \starttyping
-\pdfoptionalwaysusepdfpagebox 
-\pdfoptionpdfinclusionerrorlevel 
+\pdfoptionalwaysusepdfpagebox
+\pdfoptionpdfinclusionerrorlevel
 \pdfforcepagebox
 \pdfmovechars
 \stoptyping
@@ -9206,7 +9233,7 @@ have been removed since \LUATEX~0.42:
 
 \item LFS (\PDF\ Files larger than 2GiB) support is not working yet.
 
-\item \LUATEX~0.45.0 introduces two extra token lists, \tex{pdfxformresources} 
+\item \LUATEX~0.45.0 introduces two extra token lists, \tex{pdfxformresources}
 and \tex{pdfxformattr}, as an alternative to \tex{pdfxform} keywords.
 
 \item As of \LUATEX~0.50.0 is no longer possible for fonts from embedded pdf files
@@ -9382,8 +9409,8 @@ the \TEX\ \quote{equivalence table} and because each had 1.1 million
 entries with a few memory words each, this makes a major difference
 in memory usage.
 
-The \tex{catcode}, \tex{sfcode}, \tex{lccode} and \tex{uccode} assignments 
-do not yet show up when using the etex tracing routines \tex{tracingassigns} 
+The \tex{catcode}, \tex{sfcode}, \tex{lccode} and \tex{uccode} assignments
+do not yet show up when using the etex tracing routines \tex{tracingassigns}
 and \tex{tracingrestores} (code simply not written yet).
 
 A side|-|effect of the current implementation is that \tex{global} is
@@ -9406,7 +9433,7 @@ the length is one when it has to decide whether or not to add a
 trailing space.
 
 Active characters are internally implemented as a special type
-of multi-letter control sequences that uses a prefix that is 
+of multi-letter control sequences that uses a prefix that is
 otherwise impossible to obtain.
 
 \section{Compressed format}
