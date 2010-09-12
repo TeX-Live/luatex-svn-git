@@ -531,6 +531,7 @@ static int l_refobj(lua_State * L)
         scan_refobj_lua(static_pdf, k);
     else
         pdf_ref_obj_lua(static_pdf, k);
+    return 0;
 }
 
 static int l_reserveobj(lua_State * L)
@@ -676,6 +677,28 @@ static int setpdf(lua_State * L)
     return 0;
 }
 
+static int l_objtype(lua_State * L)
+{
+    int n = lua_gettop(L);
+    if (n != 1)
+        luaL_error(L, "pdf.objtype() needs exactly 1 argument");
+    n = (int) luaL_checkinteger(L, 1);
+    if (n < 0 || n > static_pdf->obj_ptr)
+        lua_pushnil(L);
+    else
+        lua_pushstring(L, pdf_obj_typenames[obj_type(static_pdf, n)]);
+    return 1;
+}
+
+static int l_maxobjnum(lua_State * L)
+{
+    int n = lua_gettop(L);
+    if (n != 0)
+        luaL_error(L, "pdf.maxobjnum() needs 0 arguments");
+    lua_pushinteger(L, static_pdf->obj_ptr);
+    return 1;
+}
+
 static int l_mapfile(lua_State * L)
 {
     char *s;
@@ -729,8 +752,10 @@ static const struct luaL_reg pdflib[] = {
     {"immediateobj", l_immediateobj},
     {"mapfile", l_mapfile},
     {"mapline", l_mapline},
-    {"pageref", l_pageref},
+    {"maxobjnum", l_maxobjnum},
     {"obj", l_obj},
+    {"objtype", l_objtype},
+    {"pageref", l_pageref},
     {"pdfmapfile", l_pdfmapfile},       /* obsolete */
     {"pdfmapline", l_pdfmapline},       /* obsolete */
     {"print", luapdfprint},
