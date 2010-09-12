@@ -49,7 +49,7 @@ static int obj_in_tree[PDF_OBJ_TYPE_MAX + 1] = {
 };
 
 @ @c
-static const char *pdf_obj_typenames[PDF_OBJ_TYPE_MAX + 1] =
+const char *pdf_obj_typenames[PDF_OBJ_TYPE_MAX + 1] =
     { "font", "outline", "dest", "obj", "xform", "ximage", "thread",
     "pagestream", "page", "pages", "link", "bead", "annot", "objstm", "others"
 };
