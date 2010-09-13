@@ -2117,13 +2117,14 @@ static boolean substr_of_str(const char *s, const char *t)
     return true;
 }
 
-static void pdf_print_info(PDF pdf, int luatex_version, str_number luatex_revision)
+static void pdf_print_info(PDF pdf, int luatex_version,
+                           str_number luatex_revision)
 {                               /* print info object */
     boolean creator_given, producer_given, creationdate_given, moddate_given,
         trapped_given;
     char *s = NULL;
     int len = 0;
-    pdf_new_dict(pdf, obj_type_others, 0, 3);   /* keep Info readable unless explicitely forced */
+    pdf_new_dict(pdf, obj_type_info, 0, 3);     /* keep Info readable unless explicitely forced */
     creator_given = false;
     producer_given = false;
     creationdate_given = false;
@@ -2294,8 +2295,8 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 threads = 0;
             }
 
-            /* Output the catalog object */
-            pdf_new_dict(pdf, obj_type_others, 0, 1);
+            /* Output the /Catalog object */
+            pdf_new_dict(pdf, obj_type_catalog, 0, 1);
             root = pdf->obj_ptr;
             pdf_puts(pdf, "/Type /Catalog\n");
             pdf_indirect_ln(pdf, "Pages", pdf->last_pages);
