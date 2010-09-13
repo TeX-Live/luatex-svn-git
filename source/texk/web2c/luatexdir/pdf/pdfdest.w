@@ -401,7 +401,7 @@ int output_name_tree(PDF pdf)
 
   DONE:
     if ((dests != 0) || (pdf_names_toks != null)) {
-        pdf_new_dict(pdf, obj_type_others, 0, 1);
+        (void) pdf_new_dict(pdf, obj_type_others, 0, 1);
         if (dests != 0)
             pdf_indirect_ln(pdf, "Dests", dests);
         if (pdf_names_toks != null) {

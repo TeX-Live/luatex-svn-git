@@ -115,8 +115,7 @@ void scan_pdfoutline(PDF pdf)
     }
     scan_pdf_ext_toks();
     q = def_ref;
-    pdf_new_obj(pdf, obj_type_others, 0, 1);
-    j = pdf->obj_ptr;
+    j = pdf_new_obj(pdf, obj_type_others, 0, 1);
     write_action(pdf, p);
     pdf_end_obj(pdf);
     delete_action_ref(p);
@@ -125,7 +124,7 @@ void scan_pdfoutline(PDF pdf)
     set_obj_outline_ptr(pdf, k, pdf_get_mem(pdf, pdfmem_outline_size));
     set_obj_outline_action_objnum(pdf, k, j);
     set_obj_outline_count(pdf, k, i);
-    pdf_new_obj(pdf, obj_type_others, 0, 1);
+    (void) pdf_new_obj(pdf, obj_type_others, 0, 1);
     {
         char *s = tokenlist_to_cstring(q, true, NULL);
         pdf_print_str_ln(pdf, s);
@@ -182,8 +181,7 @@ int print_outlines(PDF pdf)
     int k, l, a;
     int outlines;
     if (pdf->first_outline != 0) {
-        pdf_new_dict(pdf, obj_type_others, 0, 1);
-        outlines = pdf->obj_ptr;
+        outlines = pdf_new_dict(pdf, obj_type_others, 0, 1);
         l = pdf->first_outline;
         k = 0;
         do {
