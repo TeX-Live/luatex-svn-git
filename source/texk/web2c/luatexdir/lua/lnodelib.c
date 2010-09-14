@@ -115,6 +115,27 @@ int get_valid_node_subtype_id(lua_State * L, int n)
     return i;
 }
 
+/* returns true is the argument is a userdata object of type node */
+
+static int lua_nodelib_isnode(lua_State * L)
+{
+    register halfword *p = lua_touserdata(L, 1);
+    if (p != NULL) {
+        if (lua_getmetatable(L, 1)) {
+            lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(luatex_node));
+            lua_gettable(L, LUA_REGISTRYINDEX);
+            if (lua_rawequal(L, -1, -2)) {
+                lua_pop(L, 2);
+                lua_pushboolean(L,1);
+                return 1;
+            } else {
+                lua_pop(L, 2);
+	    }
+	}
+    }
+    lua_pushboolean(L, 0);
+    return 1;
+}
 
 
 /* Creates a userdata object for a number found at the stack top, 
@@ -3373,6 +3394,7 @@ static int lua_nodelib_cp_skipable(lua_State * L)
 }
 
 static const struct luaL_reg nodelib_f[] = {
+    {"is_node", lua_nodelib_isnode},
     {"id", lua_nodelib_id},
     {"subtype", lua_nodelib_subtype},
     {"type", lua_nodelib_type},
