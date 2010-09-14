@@ -188,10 +188,6 @@ extern void pdf_begin_dict(PDF, int, int);
 extern int pdf_new_dict(PDF, int, int, int);
 extern void pdf_end_dict(PDF);
 
-extern void print_creation_date(PDF);
-extern void print_mod_date(PDF);
-extern void print_ID(PDF, const char *);
-
 extern void remove_pdffile(PDF);
 
 extern int fb_offset(PDF);

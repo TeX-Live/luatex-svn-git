@@ -1285,7 +1285,7 @@ static void convertStringToHexString(const char *in, char *out, int lin)
   implementation using just the first two items.
 
 @c
-void print_ID(PDF pdf, const char *file_name)
+static void print_ID(PDF pdf, const char *file_name)
 {
     time_t t;
     size_t size;
@@ -1428,14 +1428,14 @@ void init_start_time(PDF pdf)
 }
 
 @ @c
-void print_creation_date(PDF pdf)
+static void print_creation_date(PDF pdf)
 {
     init_start_time(pdf);
     pdf_printf(pdf, "/CreationDate (%s)\n", pdf->start_time_str);
 }
 
 @ @c
-void print_mod_date(PDF pdf)
+static void print_mod_date(PDF pdf)
 {
     init_start_time(pdf);
     pdf_printf(pdf, "/ModDate (%s)\n", pdf->start_time_str);
