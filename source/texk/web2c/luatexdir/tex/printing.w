@@ -542,30 +542,30 @@ works; therefore no explanation will be given. Notice that 1990 yields
 @c
 void print_roman_int(int n)
 {
-    char *j, *k;                /* mysterious indices */
-    nonnegative_integer u, v;   /* mysterious numbers */
+    char *j, *k;        /* mysterious indices */
+    int u, v;           /* mysterious numbers */
     char mystery[] = "m2d5c2l5x2v5i";
     j = (char *) mystery;
     v = 1000;
     while (1) {
-        while (n >= (int) v) {
+        while (n >= v) {
             print_char(*j);
-            n = n - (int) v;
+            n = n - v;
         }
         if (n <= 0)
             return;             /* nonpositive input produces no output */
         k = j + 2;
-        u = v / (nonnegative_integer) (*(k - 1) - '0');
+        u = v / (*(k - 1) - '0');
         if (*(k - 1) == '2') {
             k = k + 2;
-            u = u / (nonnegative_integer) (*(k - 1) - '0');
+            u = u / (*(k - 1) - '0');
         }
-        if (n + (int) u >= (int) v) {
+        if (n + u >= v) {
             print_char(*k);
-            n = n + (int) u;
+            n = n + u;
         } else {
             j = j + 2;
-            v = v / (nonnegative_integer) (*(j - 1) - '0');
+            v = v / (*(j - 1) - '0');
         }
     }
 }
