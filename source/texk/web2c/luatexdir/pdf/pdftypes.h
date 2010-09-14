@@ -248,8 +248,7 @@ typedef struct pdf_output_file_ {
     struct avl_table *obj_tree[PDF_OBJ_TYPE_MAX + 1];   /* this is useful for finding the objects back */
 
     int pages_tail;
-    int obj_ptr;                /* user objects counter */
-    int sys_obj_ptr;            /* system objects counter, including object streams */
+    int obj_ptr;                /* objects counter */
     int last_pages;             /* pointer to most recently generated pages object */
     int last_page;              /* pointer to most recently generated page object */
     int last_stream;            /* pointer to most recently generated stream */

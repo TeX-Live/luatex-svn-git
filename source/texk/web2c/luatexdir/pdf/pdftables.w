@@ -148,9 +148,9 @@ void pdf_create_obj(PDF pdf, int t, int i)
 {
     int a;
     char *ss = NULL;
-    if (pdf->sys_obj_ptr == sup_obj_tab_size)
+    if (pdf->obj_ptr == sup_obj_tab_size)
         overflow("indirect objects table size", (unsigned) pdf->obj_tab_size);
-    if (pdf->sys_obj_ptr == pdf->obj_tab_size) {
+    if (pdf->obj_ptr == pdf->obj_tab_size) {
         a = pdf->obj_tab_size / 5;
         if (pdf->obj_tab_size < sup_obj_tab_size - a)
             pdf->obj_tab_size = pdf->obj_tab_size + a;
@@ -160,8 +160,7 @@ void pdf_create_obj(PDF pdf, int t, int i)
             xreallocarray(pdf->obj_tab, obj_entry,
                           (unsigned) pdf->obj_tab_size);
     }
-    incr(pdf->sys_obj_ptr);
-    pdf->obj_ptr = pdf->sys_obj_ptr;
+    incr(pdf->obj_ptr);
     obj_info(pdf, pdf->obj_ptr) = i;
     obj_type(pdf, pdf->obj_ptr) = t;
     set_obj_fresh(pdf, pdf->obj_ptr);
@@ -351,9 +350,7 @@ void dump_pdftex_data(PDF pdf)
     dump_int(x);
     x = pdf->obj_ptr;
     dump_int(x);
-    x = pdf->sys_obj_ptr;
-    dump_int(x);
-    for (k = 1; k <= pdf->sys_obj_ptr; k++) {
+    for (k = 1; k <= pdf->obj_ptr; k++) {
         x = obj_info(pdf, k);
         dump_int(x);
         x = obj_link(pdf, k);
@@ -366,7 +363,7 @@ void dump_pdftex_data(PDF pdf)
         dump_int(x);
     }
     print_ln();
-    print_int(pdf->sys_obj_ptr);
+    print_int(pdf->obj_ptr);
     tprint(" indirect objects");
     dump_int(pdf->obj_count);
     dump_int(pdf->xform_count);
@@ -423,9 +420,7 @@ void undump_pdftex_data(PDF pdf)
     pdf->obj_tab_size = x;
     undump_int(x);
     pdf->obj_ptr = x;
-    undump_int(x);
-    pdf->sys_obj_ptr = x;
-    for (k = 1; k <= pdf->sys_obj_ptr; k++) {
+    for (k = 1; k <= pdf->obj_ptr; k++) {
         undump_int(x);
         obj_info(pdf, k) = x;
         undump_int(x);

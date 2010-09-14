@@ -35,9 +35,9 @@ void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     if (doing_leaders)
         return;
     if (is_obj_scheduled(pdf, pdf_annot_objnum(p))) {
-        pdf_create_obj(pdf, obj_type_annot, pdf->sys_obj_ptr + 1);
+        pdf_create_obj(pdf, obj_type_annot, pdf->obj_ptr + 1);
         obj_annot_ptr(pdf, pdf_annot_objnum(p)) = p;
-        pdf_annot_objnum(p) = pdf->sys_obj_ptr;
+        pdf_annot_objnum(p) = pdf->obj_ptr;
     }
     alt_rule.wd = width(p);
     alt_rule.ht = height(p);
@@ -72,8 +72,8 @@ void scan_annot(PDF pdf)
 {
     int k;
     if (scan_keyword("reserveobjnum")) {
-        pdf_create_obj(pdf, obj_type_annot, pdf->sys_obj_ptr + 1);
-        k = pdf->sys_obj_ptr;
+        pdf_create_obj(pdf, obj_type_annot, pdf->obj_ptr + 1);
+        k = pdf->obj_ptr;
         /* Scan an optional space */
         get_x_token();
         if (cur_cmd != spacer_cmd)
@@ -86,8 +86,8 @@ void scan_annot(PDF pdf)
             if (obj_annot_ptr(pdf, k) != 0)
                 pdf_error("ext1", "annot object in use");
         } else {
-            pdf_create_obj(pdf, obj_type_annot, pdf->sys_obj_ptr + 1);
-            k = pdf->sys_obj_ptr;
+            pdf_create_obj(pdf, obj_type_annot, pdf->obj_ptr + 1);
+            k = pdf->obj_ptr;
         }
         new_annot_whatsit(pdf_annot_node);
         obj_annot_ptr(pdf, k) = tail;

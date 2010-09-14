@@ -147,8 +147,8 @@ void scan_obj(PDF pdf)
         if (cur_cmd != spacer_cmd)
             back_input();
         incr(pdf->obj_count);
-        pdf_create_obj(pdf, obj_type_obj, pdf->sys_obj_ptr + 1);
-        k = pdf->sys_obj_ptr;
+        pdf_create_obj(pdf, obj_type_obj, pdf->obj_ptr + 1);
+        k = pdf->obj_ptr;
     } else {
         if (scan_keyword("useobjnum")) {
             scan_int();
@@ -158,8 +158,8 @@ void scan_obj(PDF pdf)
                 luaL_error(Luas, "object in use");
         } else {
             incr(pdf->obj_count);
-            pdf_create_obj(pdf, obj_type_obj, pdf->sys_obj_ptr + 1);
-            k = pdf->sys_obj_ptr;
+            pdf_create_obj(pdf, obj_type_obj, pdf->obj_ptr + 1);
+            k = pdf->obj_ptr;
         }
         obj_data_ptr(pdf, k) = pdf_get_mem(pdf, pdfmem_obj_size);
         init_obj_obj(pdf, k);

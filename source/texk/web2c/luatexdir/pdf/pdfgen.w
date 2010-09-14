@@ -302,9 +302,8 @@ static void pdf_os_prepare_obj(PDF pdf, int i, int pdf_os_level)
                         && (pdf->objcompresslevel >= pdf_os_level)));
     if (pdf->os_mode) {
         if (pdf->os_cur_objnum == 0) {
-            pdf_create_obj(pdf, obj_type_objstm, pdf->sys_obj_ptr + 1);
-            pdf->os_cur_objnum = pdf->sys_obj_ptr;
-            pdf->obj_ptr--;     /* object stream is not accessible to user */
+            pdf_create_obj(pdf, obj_type_objstm, pdf->obj_ptr + 1);
+            pdf->os_cur_objnum = pdf->obj_ptr;
             pdf->os_cntr++;     /* only for statistics */
             pdf->os_idx = 0;
             pdf->ptr = 0;       /* start fresh object stream */
@@ -2177,7 +2176,7 @@ static void build_free_object_list(PDF pdf)
     int k, l;
     l = 0;
     set_obj_fresh(pdf, l);      /* null object at begin of list of free objects */
-    for (k = 1; k <= pdf->sys_obj_ptr; k++) {
+    for (k = 1; k <= pdf->obj_ptr; k++) {
         if (!is_obj_written(pdf, k)) {
             set_obj_link(pdf, l, k);
             l = k;
@@ -2322,11 +2321,11 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 pdf_os_switch(pdf, false);
                 /* Output the cross-reference stream dictionary */
                 (void) pdf_new_dict(pdf, obj_type_others, 0, 0);
-                if ((obj_offset(pdf, pdf->sys_obj_ptr) / 256) > 16777215)
+                if ((obj_offset(pdf, pdf->obj_ptr) / 256) > 16777215)
                     xref_offset_width = 5;
-                else if (obj_offset(pdf, pdf->sys_obj_ptr) > 16777215)
+                else if (obj_offset(pdf, pdf->obj_ptr) > 16777215)
                     xref_offset_width = 4;
-                else if (obj_offset(pdf, pdf->sys_obj_ptr) > 65535)
+                else if (obj_offset(pdf, pdf->obj_ptr) > 65535)
                     xref_offset_width = 3;
                 else
                     xref_offset_width = 2;
@@ -2350,7 +2349,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 print_ID(pdf, pdf->file_name);
                 pdf_print_nl(pdf);
                 pdf_begin_stream(pdf);
-                for (k = 0; k <= pdf->sys_obj_ptr; k++) {
+                for (k = 0; k <= pdf->obj_ptr; k++) {
                     if (!is_obj_written(pdf, k)) {      /* a free object */
                         pdf_out(pdf, 0);
                         pdf_out_bytes(pdf, obj_link(pdf, k), xref_offset_width);
@@ -2398,9 +2397,9 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             if (!pdf->os_enable) {
                 pdf_puts(pdf, "trailer\n");
                 pdf_puts(pdf, "<< ");
-                pdf_int_entry_ln(pdf, "Size", pdf->sys_obj_ptr + 1);
+                pdf_int_entry_ln(pdf, "Size", pdf->obj_ptr + 1);
                 pdf_indirect_ln(pdf, "Root", root);
-                pdf_indirect_ln(pdf, "Info", pdf->sys_obj_ptr);
+                pdf_indirect_ln(pdf, "Info", pdf->obj_ptr);
                 if (pdf_trailer_toks != null) {
                     pdf_print_toks_ln(pdf, pdf_trailer_toks);
                     delete_token_ref(pdf_trailer_toks);
@@ -2411,7 +2410,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             }
             pdf_puts(pdf, "startxref\n");
             if (pdf->os_enable)
-                pdf_print_int_ln(pdf, obj_offset(pdf, pdf->sys_obj_ptr));
+                pdf_print_int_ln(pdf, obj_offset(pdf, pdf->obj_ptr));
             else
                 pdf_print_int_ln(pdf, pdf_saved_offset(pdf));
             pdf_puts(pdf, "%%EOF\n");
