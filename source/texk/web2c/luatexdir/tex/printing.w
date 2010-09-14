@@ -542,8 +542,8 @@ works; therefore no explanation will be given. Notice that 1990 yields
 @c
 void print_roman_int(int n)
 {
-    char *j, *k;        /* mysterious indices */
-    int u, v;           /* mysterious numbers */
+    char *j, *k;                /* mysterious indices */
+    int u, v;                   /* mysterious numbers */
     char mystery[] = "m2d5c2l5x2v5i";
     j = (char *) mystery;
     v = 1000;
