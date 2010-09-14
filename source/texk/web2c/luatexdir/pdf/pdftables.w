@@ -160,7 +160,7 @@ int pdf_create_obj(PDF pdf, int t, int i)
             xreallocarray(pdf->obj_tab, obj_entry,
                           (unsigned) pdf->obj_tab_size);
     }
-    incr(pdf->obj_ptr);
+    pdf->obj_ptr++;
     obj_info(pdf, pdf->obj_ptr) = i;
     obj_type(pdf, pdf->obj_ptr) = t;
     set_obj_fresh(pdf, pdf->obj_ptr);

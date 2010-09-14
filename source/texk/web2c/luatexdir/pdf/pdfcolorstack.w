@@ -378,6 +378,6 @@ void pdf_out_colorstack_startpage(PDF pdf)
                 flush_str(s);
             }
         }
-        incr(i);
+        i++;
     }
 }

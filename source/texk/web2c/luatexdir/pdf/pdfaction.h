@@ -59,7 +59,7 @@ typedef enum {
         if (pdf_action_refcount(a) == null) {                           \
             delete_action_node(a);                                      \
         } else {                                                        \
-            decr(pdf_action_refcount(a));                               \
+            pdf_action_refcount(a)--;                                   \
         }                                                               \
     }
 

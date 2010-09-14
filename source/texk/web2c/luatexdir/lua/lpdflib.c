@@ -108,7 +108,7 @@ static int l_immediateobj(lua_State * L)
         if (is_obj_scheduled(static_pdf, k) || obj_data_ptr(static_pdf, k) != 0)
             luaL_error(L, "pdf.immediateobj() object in use");
     } else {
-        incr(static_pdf->obj_count);
+        static_pdf->obj_count++;
         k = pdf_create_obj(static_pdf, obj_type_obj, static_pdf->obj_ptr + 1);
     }
     pdf_last_obj = k;
@@ -274,7 +274,7 @@ static int table_obj(lua_State * L)
         if (is_obj_scheduled(static_pdf, k) || obj_data_ptr(static_pdf, k) != 0)
             luaL_error(L, "pdf.obj() object in use");
     } else {
-        incr(static_pdf->obj_count);
+        static_pdf->obj_count++;
         k = pdf_create_obj(static_pdf, obj_type_obj, static_pdf->obj_ptr + 1);
     }
     pdf_last_obj = k;
@@ -454,7 +454,7 @@ static int orig_obj(lua_State * L)
         if (is_obj_scheduled(static_pdf, k) || obj_data_ptr(static_pdf, k) != 0)
             luaL_error(L, "pdf.obj() object in use");
     } else {
-        incr(static_pdf->obj_count);
+        static_pdf->obj_count++;
         k = pdf_create_obj(static_pdf, obj_type_obj, static_pdf->obj_ptr + 1);
     }
     pdf_last_obj = k;
@@ -539,7 +539,7 @@ static int l_reserveobj(lua_State * L)
     n = lua_gettop(L);
     switch (n) {
     case 0:
-        incr(static_pdf->obj_count);
+        static_pdf->obj_count++;
         pdf_last_obj =
             pdf_create_obj(static_pdf, obj_type_obj, static_pdf->obj_ptr + 1);
         break;

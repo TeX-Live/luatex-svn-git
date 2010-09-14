@@ -37,7 +37,7 @@ void push_link_level(PDF pdf, halfword p)
     if (pdf->link_stack_ptr >= pdf_max_link_level)
         overflow("pdf link stack size", pdf_max_link_level);
     assert(((type(p) == whatsit_node) && (subtype(p) == pdf_start_link_node)));
-    incr(pdf->link_stack_ptr);
+    pdf->link_stack_ptr++;
     pdf->link_stack[pdf->link_stack_ptr].nesting_level = cur_s;
     pdf->link_stack[pdf->link_stack_ptr].link_node = copy_node_list(p);
     pdf->link_stack[pdf->link_stack_ptr].ref_link_node = p;
@@ -48,7 +48,7 @@ void pop_link_level(PDF pdf)
 {
     assert(pdf->link_stack_ptr > 0);
     flush_node_list(pdf->link_stack[pdf->link_stack_ptr].link_node);
-    decr(pdf->link_stack_ptr);
+    pdf->link_stack_ptr--;
 }
 
 @ @c

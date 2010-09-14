@@ -89,7 +89,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
             print_char('[');
             j = 9;
             while ((count(j) == 0) && (j > 0))
-                decr(j);
+                j--;
             for (k = 0; k <= j; k++) {
                 print_int(count(k));
                 if (k < j)
@@ -282,7 +282,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
     }
 
     if (shipping_mode == SHIPPING_PAGE)
-        incr(total_pages);
+        total_pages++;
     cur_s = -1;
 
     /* Finish shipping */

@@ -64,7 +64,7 @@ static int open_subentries(PDF pdf, halfword p)
     if (obj_outline_first(pdf, p) != 0) {
         l = obj_outline_first(pdf, p);
         do {
-            incr(k);
+            k++;
             c = open_subentries(pdf, l);
             if (obj_outline_count(pdf, l) > 0)
                 k = k + c;
@@ -89,7 +89,7 @@ static int outline_list_count(PDF pdf, pointer p)
 {
     int k = 1;
     while (obj_outline_prev(pdf, p) != 0) {
-        incr(k);
+        k++;
         p = obj_outline_prev(pdf, p);
     }
     return k;
@@ -184,7 +184,7 @@ int print_outlines(PDF pdf)
         l = pdf->first_outline;
         k = 0;
         do {
-            incr(k);
+            k++;
             a = open_subentries(pdf, l);
             if (obj_outline_count(pdf, l) > 0)
                 k = k + a;
