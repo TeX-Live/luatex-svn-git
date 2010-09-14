@@ -272,16 +272,17 @@ void print_bead_rectangles(PDF pdf)
 {
     halfword i;
     pdf_object_list *k;
+    int l;
     if ((k = get_page_resources_list(pdf, obj_type_bead)) != NULL) {
         while (k != NULL) {
-            (void) pdf_new_obj(pdf, obj_type_others, 0, 1);
+            l = pdf_new_obj(pdf, obj_type_others, 0, 1);
             pdf_out(pdf, '[');
             i = obj_bead_data(pdf, k->info);    /* pointer to a whatsit or whatsit-like node */
             pdf_print_rect_spec(pdf, i);
             if (subtype(i) == pdf_thread_data_node)     /* thanh says it mis be destroyed here */
                 flush_node(i);
             pdf_printf(pdf, "]\n");
-            set_obj_bead_rect(pdf, k->info, pdf->obj_ptr);      /* rewrite |obj_bead_data| */
+            set_obj_bead_rect(pdf, k->info, l); /* rewrite |obj_bead_data| */
             pdf_end_obj(pdf);
             k = k->link;
         }

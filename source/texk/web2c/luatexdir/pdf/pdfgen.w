@@ -2116,14 +2116,14 @@ static boolean substr_of_str(const char *s, const char *t)
     return true;
 }
 
-static void pdf_print_info(PDF pdf, int luatex_version,
-                           str_number luatex_revision)
+static int pdf_print_info(PDF pdf, int luatex_version,
+                          str_number luatex_revision)
 {                               /* print info object */
     boolean creator_given, producer_given, creationdate_given, moddate_given,
         trapped_given;
     char *s = NULL;
-    int len = 0;
-    (void) pdf_new_dict(pdf, obj_type_info, 0, 3);      /* keep Info readable unless explicitely forced */
+    int k, len = 0;
+    k = pdf_new_dict(pdf, obj_type_info, 0, 3); /* keep Info readable unless explicitely forced */
     creator_given = false;
     producer_given = false;
     creationdate_given = false;
@@ -2169,6 +2169,7 @@ static void pdf_print_info(PDF pdf, int luatex_version,
     }
     pdf_str_entry_ln(pdf, "PTEX.Fullbanner", pdftex_banner);
     pdf_end_dict(pdf);
+    return k;
 }
 
 static void build_free_object_list(PDF pdf)
@@ -2193,7 +2194,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
 {
     boolean res;
     int i, j, k;
-    int root, outlines, threads, names_tree;
+    int root, info, xref_stm, outlines, threads, names_tree;
     int xref_offset_width;
     int callback_id = callback_defined(stop_run_callback);
     int callback_id1 = callback_defined(finish_pdffile_callback);
@@ -2312,7 +2313,8 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 pdf_indirect_ln(pdf, "OpenAction", pdf_catalog_openaction);
             pdf_end_dict(pdf);
 
-            pdf_print_info(pdf, luatex_version, luatex_revision);       /* last candidate for object stream */
+            /* last candidate for object stream */
+            info = pdf_print_info(pdf, luatex_version, luatex_revision);        /* final object for pdf->os_enable == false */
 
             if (pdf->os_enable) {
                 pdf_os_switch(pdf, true);
@@ -2320,7 +2322,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 pdf_flush(pdf);
                 pdf_os_switch(pdf, false);
                 /* Output the cross-reference stream dictionary */
-                (void) pdf_new_dict(pdf, obj_type_others, 0, 0);
+                xref_stm = pdf_new_dict(pdf, obj_type_others, 0, 0);    /* final object for pdf->os_enable == true */
                 if ((obj_offset(pdf, pdf->obj_ptr) / 256) > 16777215)
                     xref_offset_width = 5;
                 else if (obj_offset(pdf, pdf->obj_ptr) > 16777215)
@@ -2340,7 +2342,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 pdf_print_int(pdf, xref_offset_width);
                 pdf_puts(pdf, " 1]\n");
                 pdf_indirect_ln(pdf, "Root", root);
-                pdf_indirect_ln(pdf, "Info", pdf->obj_ptr - 1);
+                pdf_indirect_ln(pdf, "Info", info);
                 if (pdf_trailer_toks != null) {
                     pdf_print_toks_ln(pdf, pdf_trailer_toks);
                     delete_token_ref(pdf_trailer_toks);
@@ -2399,7 +2401,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 pdf_puts(pdf, "<< ");
                 pdf_int_entry_ln(pdf, "Size", pdf->obj_ptr + 1);
                 pdf_indirect_ln(pdf, "Root", root);
-                pdf_indirect_ln(pdf, "Info", pdf->obj_ptr);
+                pdf_indirect_ln(pdf, "Info", info);
                 if (pdf_trailer_toks != null) {
                     pdf_print_toks_ln(pdf, pdf_trailer_toks);
                     delete_token_ref(pdf_trailer_toks);
@@ -2410,7 +2412,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             }
             pdf_puts(pdf, "startxref\n");
             if (pdf->os_enable)
-                pdf_print_int_ln(pdf, obj_offset(pdf, pdf->obj_ptr));
+                pdf_print_int_ln(pdf, obj_offset(pdf, xref_stm));
             else
                 pdf_print_int_ln(pdf, pdf_saved_offset(pdf));
             pdf_puts(pdf, "%%EOF\n");

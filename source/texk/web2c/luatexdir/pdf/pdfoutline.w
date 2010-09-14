@@ -99,7 +99,7 @@ static int outline_list_count(PDF pdf, pointer p)
 void scan_pdfoutline(PDF pdf)
 {
     halfword p, q, r;
-    int i, j, k;
+    int i, j, k, l;
     if (scan_keyword("attr")) {
         scan_pdf_ext_toks();
         r = def_ref;
@@ -123,7 +123,7 @@ void scan_pdfoutline(PDF pdf)
     set_obj_outline_ptr(pdf, k, pdf_get_mem(pdf, pdfmem_outline_size));
     set_obj_outline_action_objnum(pdf, k, j);
     set_obj_outline_count(pdf, k, i);
-    (void) pdf_new_obj(pdf, obj_type_others, 0, 1);
+    l = pdf_new_obj(pdf, obj_type_others, 0, 1);
     {
         char *s = tokenlist_to_cstring(q, true, NULL);
         pdf_print_str_ln(pdf, s);
@@ -131,7 +131,7 @@ void scan_pdfoutline(PDF pdf)
     }
     delete_token_ref(q);
     pdf_end_obj(pdf);
-    set_obj_outline_title(pdf, k, pdf->obj_ptr);
+    set_obj_outline_title(pdf, k, l);
     set_obj_outline_prev(pdf, k, 0);
     set_obj_outline_next(pdf, k, 0);
     set_obj_outline_first(pdf, k, 0);

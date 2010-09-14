@@ -321,6 +321,7 @@ int output_name_tree(PDF pdf)
     int k = 0;                  /* index of current child of |l|; if |k < pdf_dest_names_ptr|
                                    then this is pointer to |dest_names| array;
                                    otherwise it is the pointer to |obj_tab| (object number) */
+    int m;
     int dests = 0;
     int names_head = 0, names_tail = 0;
     if (pdf->dest_names_ptr == 0) {
@@ -399,7 +400,7 @@ int output_name_tree(PDF pdf)
 
   DONE:
     if ((dests != 0) || (pdf_names_toks != null)) {
-        (void) pdf_new_dict(pdf, obj_type_others, 0, 1);
+        m = pdf_new_dict(pdf, obj_type_others, 0, 1);
         if (dests != 0)
             pdf_indirect_ln(pdf, "Dests", dests);
         if (pdf_names_toks != null) {
@@ -408,7 +409,7 @@ int output_name_tree(PDF pdf)
             pdf_names_toks = null;
         }
         pdf_end_dict(pdf);
-        return pdf->obj_ptr;
+        return m;
     } else {
         return 0;
     }
