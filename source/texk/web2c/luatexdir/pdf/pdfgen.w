@@ -272,7 +272,7 @@ void pdf_flush(PDF pdf)
 @ switch between PDF stream and object stream mode 
 
 @c
-void pdf_os_switch(PDF pdf, boolean pdf_os)
+static void pdf_os_switch(PDF pdf, boolean pdf_os)
 {
     if (pdf_os && pdf->os_enable) {
         if (!pdf->os_mode) {    /* back up PDF stream variables */
@@ -296,7 +296,7 @@ void pdf_os_switch(PDF pdf, boolean pdf_os)
 @ create new \.{/ObjStm} object if required, and set up cross reference info 
 
 @c
-void pdf_os_prepare_obj(PDF pdf, int i, int pdf_os_level)
+static void pdf_os_prepare_obj(PDF pdf, int i, int pdf_os_level)
 {
     pdf_os_switch(pdf, ((pdf_os_level > 0)
                         && (pdf->objcompresslevel >= pdf_os_level)));
@@ -548,6 +548,18 @@ void pdf_begin_stream(PDF pdf)
     }
 }
 
+@ @c
+static void write_stream_length(PDF pdf, int length, longinteger offset)
+{
+    if (jobname_cstr == NULL)
+        jobname_cstr = makecstring(job_name);
+    if (pdf->draftmode == 0) {
+        xfseeko(pdf->file, (off_t) offset, SEEK_SET, jobname_cstr);
+        fprintf(pdf->file, "%li", (long int) length);
+        xfseeko(pdf->file, pdf_offset(pdf), SEEK_SET, jobname_cstr);
+    }
+}
+
 @ end a stream 
 @c
 void pdf_end_stream(PDF pdf)
@@ -561,8 +573,8 @@ void pdf_end_stream(PDF pdf)
         write_stream_length(pdf, (int) pdf->stream_length,
                             pdf->stream_length_offset);
     pdf->seek_write_length = false;
-    if (pdf->last_byte != pdf_new_line_char)
-        pdf_out(pdf, pdf_new_line_char);
+    if (pdf->last_byte != pdf_newline_char)
+        pdf_out(pdf, pdf_newline_char);
     pdf_puts(pdf, "endstream\n");
     pdf_end_obj(pdf);
 }
@@ -572,7 +584,6 @@ void pdf_remove_last_space(PDF pdf)
     if ((pdf->ptr > 0) && (pdf->buf[pdf->ptr - 1] == ' '))
         pdf->ptr--;
 }
-
 
 @ To print |scaled| value to PDF output we need some subroutines to ensure
 accurary.
@@ -1053,6 +1064,61 @@ void ensure_output_state(PDF pdf, output_state s)
     }
 }
 
+@ Write out an accumulated object stream.
+
+First the object number and byte offset pairs are generated
+and appended to the ready buffered object stream.
+By this the value of \.{/First} can be calculated.
+Then a new \.{/ObjStm} object is generated, and everything is
+copied to the PDF output buffer, where also compression is done.
+When calling this procedure, |pdf_os_mode| must be |true|.
+
+@c
+static void pdf_os_write_objstream(PDF pdf)
+{
+    halfword i, j, p, q;
+    if (pdf->os_cur_objnum == 0)        /* no object stream started */
+        return;
+    p = pdf->ptr;
+    i = 0;
+    j = 0;
+    while (i <= pdf->os_idx) {  /* assemble object number and byte offset pairs */
+        pdf_printf(pdf, "%d %d", (int) pdf->os_obj[i].num,
+                   (int) pdf->os_obj[i].off);
+        if (j == 9) {           /* print out in groups of ten for better readability */
+            pdf_out(pdf, pdf_newline_char);
+            j = 0;
+        } else {
+            pdf_out(pdf, ' ');
+            j++;
+        }
+        i++;
+    }
+    pdf->buf[pdf->ptr - 1] = pdf_newline_char;  /* no risk of flush, as we are in |pdf_os_mode| */
+    q = pdf->ptr;
+    pdf_begin_dict(pdf, pdf->os_cur_objnum, 0); /* switch to PDF stream writing */
+    pdf_puts(pdf, "/Type /ObjStm\n");
+    pdf_printf(pdf, "/N %d\n", (int) (pdf->os_idx + 1));
+    pdf_printf(pdf, "/First %d\n", (int) (q - p));
+    pdf_begin_stream(pdf);
+    /* write object number and byte offset pairs;
+       |q - p| should always fit into the PDF output buffer */
+    pdf_out_block(pdf, (const char *) (pdf->os_buf + p), q - p);
+    i = 0;
+    while (i < p) {
+        q = i + pdf->buf_size;
+        if (q > p)
+            q = p;
+        pdf_room(pdf, q - i);
+        while (i < q) {         /* write the buffered objects */
+            pdf_quick_out(pdf, pdf->os_buf[i]);
+            i++;
+        }
+    }
+    pdf_end_stream(pdf);
+    pdf->os_cur_objnum = 0;     /* to force object stream generation next time */
+}
+
 @ begin a PDF dictionary object
 @c
 void pdf_begin_dict(PDF pdf, int i, int pdf_os_level)
@@ -1090,61 +1156,6 @@ void pdf_end_dict(PDF pdf)
     }
 }
 
-@ Write out an accumulated object stream.
-
-First the object number and byte offset pairs are generated
-and appended to the ready buffered object stream.
-By this the value of \.{/First} can be calculated.
-Then a new \.{/ObjStm} object is generated, and everything is
-copied to the PDF output buffer, where also compression is done.
-When calling this procedure, |pdf_os_mode| must be |true|.
-
-@c
-void pdf_os_write_objstream(PDF pdf)
-{
-    halfword i, j, p, q;
-    if (pdf->os_cur_objnum == 0)        /* no object stream started */
-        return;
-    p = pdf->ptr;
-    i = 0;
-    j = 0;
-    while (i <= pdf->os_idx) {  /* assemble object number and byte offset pairs */
-        pdf_printf(pdf, "%d %d", (int) pdf->os_obj[i].num,
-                   (int) pdf->os_obj[i].off);
-        if (j == 9) {           /* print out in groups of ten for better readability */
-            pdf_out(pdf, pdf_new_line_char);
-            j = 0;
-        } else {
-            pdf_out(pdf, ' ');
-            j++;
-        }
-        i++;
-    }
-    pdf->buf[pdf->ptr - 1] = pdf_new_line_char; /* no risk of flush, as we are in |pdf_os_mode| */
-    q = pdf->ptr;
-    pdf_begin_dict(pdf, pdf->os_cur_objnum, 0); /* switch to PDF stream writing */
-    pdf_puts(pdf, "/Type /ObjStm\n");
-    pdf_printf(pdf, "/N %d\n", (int) (pdf->os_idx + 1));
-    pdf_printf(pdf, "/First %d\n", (int) (q - p));
-    pdf_begin_stream(pdf);
-    /* write object number and byte offset pairs;
-       |q - p| should always fit into the PDF output buffer */
-    pdf_out_block(pdf, (const char *) (pdf->os_buf + p), q - p);
-    i = 0;
-    while (i < p) {
-        q = i + pdf->buf_size;
-        if (q > p)
-            q = p;
-        pdf_room(pdf, q - i);
-        while (i < q) {         /* write the buffered objects */
-            pdf_quick_out(pdf, pdf->os_buf[i]);
-            i++;
-        }
-    }
-    pdf_end_stream(pdf);
-    pdf->os_cur_objnum = 0;     /* to force object stream generation next time */
-}
-
 @ begin a PDF object 
 @c
 void pdf_begin_obj(PDF pdf, int i, int pdf_os_level)
@@ -1176,18 +1187,6 @@ void pdf_end_obj(PDF pdf)
             pdf_os_write_objstream(pdf);
     } else {
         pdf_puts(pdf, "endobj\n");      /* end a PDF object */
-    }
-}
-
-@ @c
-void write_stream_length(PDF pdf, int length, longinteger offset)
-{
-    if (jobname_cstr == NULL)
-        jobname_cstr = makecstring(job_name);
-    if (pdf->draftmode == 0) {
-        xfseeko(pdf->file, (off_t) offset, SEEK_SET, jobname_cstr);
-        fprintf(pdf->file, "%li", (long int) length);
-        xfseeko(pdf->file, pdf_offset(pdf), SEEK_SET, jobname_cstr);
     }
 }
 

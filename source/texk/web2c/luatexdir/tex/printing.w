@@ -555,17 +555,17 @@ void print_roman_int(int n)
         if (n <= 0)
             return;             /* nonpositive input produces no output */
         k = j + 2;
-        u = v / (*(k - 1) - '0');
+        u = v / (nonnegative_integer) (*(k - 1) - '0');
         if (*(k - 1) == '2') {
             k = k + 2;
-            u = u / (*(k - 1) - '0');
+            u = u / (nonnegative_integer) (*(k - 1) - '0');
         }
         if (n + (int) u >= (int) v) {
             print_char(*k);
             n = n + (int) u;
         } else {
             j = j + 2;
-            v = v / (*(j - 1) - '0');
+            v = v / (nonnegative_integer) (*(j - 1) - '0');
         }
     }
 }

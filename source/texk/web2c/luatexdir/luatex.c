@@ -995,7 +995,7 @@ calledit(packedASCIIcode * filename,
 void swap_items(char *pp, int nitems, int size)
 {
     char temp;
-    unsigned total = nitems*size;
+    unsigned total = (unsigned) (nitems * size);
     char *q = xmalloc(total);
     char *p = q;
     memcpy(p,pp,total);
