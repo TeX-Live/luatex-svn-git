@@ -73,8 +73,7 @@ void scan_pdfxform(PDF pdf)
     int k;
     halfword p;
     incr(pdf->xform_count);
-    pdf_create_obj(pdf, obj_type_xform, pdf->xform_count);
-    k = pdf->obj_ptr;
+    k = pdf_create_obj(pdf, obj_type_xform, pdf->xform_count);
     set_obj_data_ptr(pdf, k, pdf_get_mem(pdf, pdfmem_xform_size));
     if (scan_keyword("attr")) {
         scan_pdf_ext_toks();

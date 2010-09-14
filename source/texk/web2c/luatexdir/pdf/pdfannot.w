@@ -30,14 +30,15 @@ static const char _svn_version[] =
 void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 {
     scaled_whd alt_rule;
+    int k;
     if (global_shipping_mode == SHIPPING_FORM)
         pdf_error("ext4", "annotations cannot be inside an XForm");
     if (doing_leaders)
         return;
     if (is_obj_scheduled(pdf, pdf_annot_objnum(p))) {
-        pdf_create_obj(pdf, obj_type_annot, pdf->obj_ptr + 1);
+        k = pdf_create_obj(pdf, obj_type_annot, pdf->obj_ptr + 1);
         obj_annot_ptr(pdf, pdf_annot_objnum(p)) = p;
-        pdf_annot_objnum(p) = pdf->obj_ptr;
+        pdf_annot_objnum(p) = k;
     }
     alt_rule.wd = width(p);
     alt_rule.ht = height(p);
@@ -72,8 +73,7 @@ void scan_annot(PDF pdf)
 {
     int k;
     if (scan_keyword("reserveobjnum")) {
-        pdf_create_obj(pdf, obj_type_annot, pdf->obj_ptr + 1);
-        k = pdf->obj_ptr;
+        k = pdf_create_obj(pdf, obj_type_annot, pdf->obj_ptr + 1);
         /* Scan an optional space */
         get_x_token();
         if (cur_cmd != spacer_cmd)
@@ -86,8 +86,7 @@ void scan_annot(PDF pdf)
             if (obj_annot_ptr(pdf, k) != 0)
                 pdf_error("ext1", "annot object in use");
         } else {
-            pdf_create_obj(pdf, obj_type_annot, pdf->obj_ptr + 1);
-            k = pdf->obj_ptr;
+            k = pdf_create_obj(pdf, obj_type_annot, pdf->obj_ptr + 1);
         }
         new_annot_whatsit(pdf_annot_node);
         obj_annot_ptr(pdf, k) = tail;

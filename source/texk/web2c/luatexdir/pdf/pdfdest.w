@@ -329,10 +329,8 @@ int output_name_tree(PDF pdf)
     sort_dest_names(pdf);
 
     while (true) {
-
         do {
-            pdf_create_obj(pdf, obj_type_others, 0);    /* create a new node */
-            l = pdf->obj_ptr;
+            l = pdf_create_obj(pdf, obj_type_others, 0);        /* create a new node */
             if (b == 0)
                 b = l;          /* first in this level */
             if (names_head == 0) {

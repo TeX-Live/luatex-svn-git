@@ -102,7 +102,7 @@ well.
 extern int find_obj(PDF pdf, int t, int i, boolean byname);
 extern void check_obj_exists(PDF pdf, int t, int n);
 extern int get_obj(PDF pdf, int t, int i, boolean byname);
-extern void pdf_create_obj(PDF pdf, int t, int i);
+extern int pdf_create_obj(PDF pdf, int t, int i);
 extern int pdf_new_objnum(PDF pdf);
 
 extern void set_rect_dimens(PDF pdf, halfword p, halfword parent_box,

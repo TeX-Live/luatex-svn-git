@@ -109,8 +109,7 @@ static int l_immediateobj(lua_State * L)
             luaL_error(L, "pdf.immediateobj() object in use");
     } else {
         incr(static_pdf->obj_count);
-        pdf_create_obj(static_pdf, obj_type_obj, static_pdf->obj_ptr + 1);
-        k = static_pdf->obj_ptr;
+        k = pdf_create_obj(static_pdf, obj_type_obj, static_pdf->obj_ptr + 1);
     }
     pdf_last_obj = k;
     switch (n - first_arg + 1) {
@@ -276,8 +275,7 @@ static int table_obj(lua_State * L)
             luaL_error(L, "pdf.obj() object in use");
     } else {
         incr(static_pdf->obj_count);
-        pdf_create_obj(static_pdf, obj_type_obj, static_pdf->obj_ptr + 1);
-        k = static_pdf->obj_ptr;
+        k = pdf_create_obj(static_pdf, obj_type_obj, static_pdf->obj_ptr + 1);
     }
     pdf_last_obj = k;
     if (immediate == 0) {
@@ -457,8 +455,7 @@ static int orig_obj(lua_State * L)
             luaL_error(L, "pdf.obj() object in use");
     } else {
         incr(static_pdf->obj_count);
-        pdf_create_obj(static_pdf, obj_type_obj, static_pdf->obj_ptr + 1);
-        k = static_pdf->obj_ptr;
+        k = pdf_create_obj(static_pdf, obj_type_obj, static_pdf->obj_ptr + 1);
     }
     pdf_last_obj = k;
     obj_data_ptr(static_pdf, k) = pdf_get_mem(static_pdf, pdfmem_obj_size);
@@ -543,16 +540,15 @@ static int l_reserveobj(lua_State * L)
     switch (n) {
     case 0:
         incr(static_pdf->obj_count);
-        pdf_create_obj(static_pdf, obj_type_obj, static_pdf->obj_ptr + 1);
-        pdf_last_obj = static_pdf->obj_ptr;
+        pdf_last_obj =
+            pdf_create_obj(static_pdf, obj_type_obj, static_pdf->obj_ptr + 1);
         break;
     case 1:
         if (!lua_isstring(L, -1))
             luaL_error(L, "pdf.reserveobj() optional argument must be string");
         st.s = lua_tolstring(L, 1, &st.l);
         if (st.l == 5 && strncmp((const char *) st.s, "annot", 5) == 0) {
-            pdf_create_obj(static_pdf, obj_type_annot, 0);
-            pdf_last_annot = static_pdf->obj_ptr;
+            pdf_last_annot = pdf_create_obj(static_pdf, obj_type_annot, 0);
         } else {
             luaL_error(L, "pdf.reserveobj() optional string must be \"annot\"");
         }

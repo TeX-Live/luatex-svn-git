@@ -558,8 +558,8 @@ static void setup_image(PDF pdf, image * a, wrtype_e writetype)
     read_scale_img(a);
     if (img_objnum(ad) == 0) {  /* latest needed just before out_img() */
         pdf->ximage_count++;
-        pdf_create_obj(pdf, obj_type_ximage, pdf->ximage_count);
-        img_objnum(ad) = pdf->obj_ptr;
+        img_objnum(ad) =
+            pdf_create_obj(pdf, obj_type_ximage, pdf->ximage_count);
         img_index(ad) = pdf->ximage_count;
         idict_to_array(ad);     /* now ad is read-only */
         obj_data_ptr(pdf, pdf->obj_ptr) = img_index(ad);

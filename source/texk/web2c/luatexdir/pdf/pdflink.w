@@ -128,6 +128,7 @@ node, in order to use |flush_node_list| to do the job.
 void append_link(PDF pdf, halfword parent_box, scaledpos cur, small_number i)
 {
     halfword p;
+    int k;
     scaled_whd alt_rule;
     assert(type(parent_box) == hlist_node);
     p = copy_node(pdf->link_stack[(int) i].link_node);
@@ -137,9 +138,9 @@ void append_link(PDF pdf, halfword parent_box, scaledpos cur, small_number i)
     alt_rule.ht = height(p);
     alt_rule.dp = depth(p);
     set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_link_margin);
-    pdf_create_obj(pdf, obj_type_others, 0);
-    obj_annot_ptr(pdf, pdf->obj_ptr) = p;
-    addto_page_resources(pdf, obj_type_link, pdf->obj_ptr);
+    k = pdf_create_obj(pdf, obj_type_others, 0);
+    obj_annot_ptr(pdf, k) = p;
+    addto_page_resources(pdf, obj_type_link, k);
 }
 
 @ @c

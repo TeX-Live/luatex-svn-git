@@ -339,8 +339,7 @@ static image_dict *read_image(PDF pdf, char *file_name, int page_num,
     image *a = new_image();
     image_dict *idict = img_dict(a) = new_image_dict();
     incr(pdf->ximage_count);
-    pdf_create_obj(pdf, obj_type_ximage, pdf->ximage_count);
-    img_objnum(idict) = pdf->obj_ptr;
+    img_objnum(idict) = pdf_create_obj(pdf, obj_type_ximage, pdf->ximage_count);
     img_index(idict) = pdf->ximage_count;
     set_obj_data_ptr(pdf, img_objnum(idict), img_index(idict));
     idict_to_array(idict);

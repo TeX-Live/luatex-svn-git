@@ -119,8 +119,7 @@ void scan_pdfoutline(PDF pdf)
     write_action(pdf, p);
     pdf_end_obj(pdf);
     delete_action_ref(p);
-    pdf_create_obj(pdf, obj_type_outline, 0);
-    k = pdf->obj_ptr;
+    k = pdf_create_obj(pdf, obj_type_outline, 0);
     set_obj_outline_ptr(pdf, k, pdf_get_mem(pdf, pdfmem_outline_size));
     set_obj_outline_action_objnum(pdf, k, j);
     set_obj_outline_count(pdf, k, i);

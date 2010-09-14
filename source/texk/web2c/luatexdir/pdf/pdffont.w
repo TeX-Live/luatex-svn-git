@@ -130,7 +130,7 @@ void pdf_init_font(PDF pdf, internal_font_number f)
 {
     internal_font_number k, b;
     fm_entry *fm;
-    int i;
+    int i, l;
     assert(!font_used(f));
 
     /* if |f| is auto expanded then ensure the base font is initialized */
@@ -174,8 +174,8 @@ void pdf_init_font(PDF pdf, internal_font_number f)
         i = obj_link(pdf, i);
     }
     /* create a new font object for |f| */
-    pdf_create_obj(pdf, obj_type_font, f);
-    pdf_use_font(f, pdf->obj_ptr);
+    l = pdf_create_obj(pdf, obj_type_font, f);
+    pdf_use_font(f, l);
 }
 
 @ set the actual font on PDF page 

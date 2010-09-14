@@ -144,7 +144,7 @@ static int avl_find_str_obj(PDF pdf, int t, char *s)
 @ Create an object with type |t| and identifier |i| 
 
 @c
-void pdf_create_obj(PDF pdf, int t, int i)
+int pdf_create_obj(PDF pdf, int t, int i)
 {
     int a;
     char *ss = NULL;
@@ -177,7 +177,9 @@ void pdf_create_obj(PDF pdf, int t, int i)
             append_dest_name(pdf, makecstring(-obj_info(pdf, pdf->obj_ptr)),
                              pdf->obj_ptr);
     }
+    return pdf->obj_ptr;
 }
+
 @ @c
 int find_obj(PDF pdf, int t, int i, boolean byname)
 {
@@ -217,12 +219,11 @@ int get_obj(PDF pdf, int t, int i, boolean byname)
     }
     if (r == 0) {
         if (byname > 0) {
-            pdf_create_obj(pdf, t, -s);
+            r = pdf_create_obj(pdf, t, -s);
             s = 0;
         } else {
-            pdf_create_obj(pdf, t, i);
+            r = pdf_create_obj(pdf, t, i);
         }
-        r = pdf->obj_ptr;
         if (t == obj_type_dest)
             set_obj_dest_ptr(pdf, r, null);
     }
@@ -236,8 +237,8 @@ int get_obj(PDF pdf, int t, int i, boolean byname)
 @c
 int pdf_new_objnum(PDF pdf)
 {
-    pdf_create_obj(pdf, obj_type_others, 0);
-    return pdf->obj_ptr;
+    int k = pdf_create_obj(pdf, obj_type_others, 0);
+    return k;
 }
 
 void check_obj_exists(PDF pdf, int t, int objnum)
