@@ -1135,10 +1135,10 @@ void pdf_begin_dict(PDF pdf, int i, int pdf_os_level)
 
 @ begin a new PDF dictionary object 
 @c
-int pdf_new_dict(PDF pdf, int t, int i, int pdf_os)
+int pdf_new_dict(PDF pdf, int t, int i, int pdf_os_level)
 {
     int k = pdf_create_obj(pdf, t, i);
-    pdf_begin_dict(pdf, k, pdf_os);
+    pdf_begin_dict(pdf, k, pdf_os_level);
     return k;
 }
 
@@ -1170,10 +1170,10 @@ void pdf_begin_obj(PDF pdf, int i, int pdf_os_level)
 
 @ begin a new PDF object
 @c
-int pdf_new_obj(PDF pdf, int t, int i, int pdf_os)
+int pdf_new_obj(PDF pdf, int t, int i, int pdf_os_level)
 {
     int k = pdf_create_obj(pdf, t, i);
-    pdf_begin_obj(pdf, k, pdf_os);
+    pdf_begin_obj(pdf, k, pdf_os_level);
     return k;
 }
 
