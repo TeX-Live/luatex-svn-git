@@ -41,7 +41,7 @@ typedef struct {
     unsigned long pc;           // counter to detect PDFDoc change
 } udstruct;
 
-const char *ErrorCodeNames[] = { "None", "OpenFile", "BadCatalog",
+static const char *ErrorCodeNames[] = { "None", "OpenFile", "BadCatalog",
     "Damaged", "Encrypted", "HighlightFile", "BadPrinter", "Printing",
     "Permission", "BadPageNum", "FileIO", NULL
 };
@@ -70,7 +70,7 @@ const char *ErrorCodeNames[] = { "None", "OpenFile", "BadCatalog",
 //**********************************************************************
 
 #define new_poppler_userdata(type)                                              \
-udstruct *new_##type##_userdata(lua_State * L)                                  \
+static udstruct *new_##type##_userdata(lua_State * L)                           \
 {                                                                               \
     udstruct *a;                                                                \
     a = (udstruct *) lua_newuserdata(L, sizeof(udstruct));  /* udstruct ... */  \
@@ -102,19 +102,19 @@ new_poppler_userdata(XRefEntry);
 
 //**********************************************************************
 
-void pdfdoc_changed_error(lua_State * L)
+static void pdfdoc_changed_error(lua_State * L)
 {
     luaL_error(L, "PDFDoc changed or gone");
 }
 
-void pdfdoc_differs_error(lua_State * L)
+static void pdfdoc_differs_error(lua_State * L)
 {
     luaL_error(L, "PDFDoc differs between arguments");
 }
 
 //**********************************************************************
 
-int l_open_PDFDoc(lua_State * L)
+static int l_open_PDFDoc(lua_State * L)
 {
     const char *file_path;
     udstruct *uout;
@@ -133,7 +133,7 @@ int l_open_PDFDoc(lua_State * L)
     return 1;                   // doc path
 }
 
-int l_new_Annot(lua_State * L)
+static int l_new_Annot(lua_State * L)
 {
     udstruct *uxref, *udict, *ucatalog, *uref, *uout;
     uxref = (udstruct *) luaL_checkudata(L, 1, M_XRef);
@@ -158,7 +158,7 @@ int l_new_Annot(lua_State * L)
     return 1;
 }
 
-int l_new_Annots(lua_State * L)
+static int l_new_Annots(lua_State * L)
 {
     udstruct *uxref, *ucatalog, *uannotsobj, *uout;
     uxref = (udstruct *) luaL_checkudata(L, 1, M_XRef);
@@ -180,7 +180,7 @@ int l_new_Annots(lua_State * L)
     return 1;
 }
 
-int l_new_Array(lua_State * L)
+static int l_new_Array(lua_State * L)
 {
     udstruct *uxref, *uout;
     uxref = (udstruct *) luaL_checkudata(L, 1, M_XRef);
@@ -194,7 +194,7 @@ int l_new_Array(lua_State * L)
     return 1;
 }
 
-int l_new_Dict(lua_State * L)
+static int l_new_Dict(lua_State * L)
 {
     udstruct *uxref, *uout;
     uxref = (udstruct *) luaL_checkudata(L, 1, M_XRef);
@@ -208,7 +208,7 @@ int l_new_Dict(lua_State * L)
     return 1;
 }
 
-int l_new_Object(lua_State * L)
+static int l_new_Object(lua_State * L)
 {
     udstruct *uout;
     uout = new_Object_userdata(L);
@@ -221,7 +221,7 @@ int l_new_Object(lua_State * L)
 
 // PDFRectangle see Page.h
 
-int l_new_PDFRectangle(lua_State * L)
+static int l_new_PDFRectangle(lua_State * L)
 {
     udstruct *uout;
     uout = new_PDFRectangle_userdata(L);
@@ -246,7 +246,7 @@ static const struct luaL_Reg epdflib[] = {
 //**********************************************************************
 
 #define m_poppler_get_poppler(in, out, function)               \
-int m_##in##_##function(lua_State * L)                         \
+static int m_##in##_##function(lua_State * L)                  \
 {                                                              \
     out *o;                                                    \
     udstruct *uin, *uout;                                      \
@@ -265,7 +265,7 @@ int m_##in##_##function(lua_State * L)                         \
 }
 
 #define m_poppler_get_BOOL(in, function)                       \
-int m_##in##_##function(lua_State * L)                         \
+static int m_##in##_##function(lua_State * L)                  \
 {                                                              \
     udstruct *uin;                                             \
     uin = (udstruct *) luaL_checkudata(L, 1, M_##in);          \
@@ -279,7 +279,7 @@ int m_##in##_##function(lua_State * L)                         \
 }
 
 #define m_poppler_get_INT(in, function)                        \
-int m_##in##_##function(lua_State * L)                         \
+static int m_##in##_##function(lua_State * L)                  \
 {                                                              \
     int i;                                                     \
     udstruct *uin;                                             \
@@ -292,7 +292,7 @@ int m_##in##_##function(lua_State * L)                         \
 }
 
 #define m_poppler_get_DOUBLE(in, function)                     \
-int m_##in##_##function(lua_State * L)                         \
+static int m_##in##_##function(lua_State * L)                  \
 {                                                              \
     double d;                                                  \
     udstruct *uin;                                             \
@@ -305,7 +305,7 @@ int m_##in##_##function(lua_State * L)                         \
 }
 
 #define m_poppler_get_GOOSTRING(in, function)                  \
-int m_##in##_##function(lua_State * L)                         \
+static int m_##in##_##function(lua_State * L)                  \
 {                                                              \
     GooString *gs;                                             \
     udstruct *uin;                                             \
@@ -321,7 +321,7 @@ int m_##in##_##function(lua_State * L)                         \
 }
 
 #define m_poppler_get_OBJECT(in, function)                     \
-int m_##in##_##function(lua_State * L)                         \
+static int m_##in##_##function(lua_State * L)                  \
 {                                                              \
     udstruct *uin, *uout;                                      \
     uin = (udstruct *) luaL_checkudata(L, 1, M_##in);          \
@@ -337,7 +337,7 @@ int m_##in##_##function(lua_State * L)                         \
 }
 
 #define m_poppler_do(in, function)                             \
-int m_##in##_##function(lua_State * L)                         \
+static int m_##in##_##function(lua_State * L)                  \
 {                                                              \
     udstruct *uin;                                             \
     uin = (udstruct *) luaL_checkudata(L, 1, M_##in);          \
@@ -348,7 +348,7 @@ int m_##in##_##function(lua_State * L)                         \
 }
 
 #define m_poppler__tostring(type)                              \
-int m_##type##__tostring(lua_State * L)                        \
+static int m_##type##__tostring(lua_State * L)                 \
 {                                                              \
     udstruct *uin;                                             \
     uin = (udstruct *) luaL_checkudata(L, 1, M_##type);        \
@@ -365,7 +365,7 @@ m_poppler_get_BOOL(Annot, isOk);
 m_poppler_get_OBJECT(Annot, getAppearance);
 m_poppler_get_poppler(Annot, AnnotBorder, getBorder);
 
-int m_Annot_match(lua_State * L)
+static int m_Annot_match(lua_State * L)
 {
     udstruct *uin, *uref;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Annot);
@@ -438,7 +438,7 @@ static const struct luaL_Reg AnnotBorderStyle_m[] = {
 
 m_poppler_get_INT(Annots, getNumAnnots);
 
-int m_Annots_getAnnot(lua_State * L)
+static int m_Annots_getAnnot(lua_State * L)
 {
     int i, annots;
     udstruct *uin, *uout;
@@ -469,7 +469,7 @@ static const struct luaL_Reg Annots_m[] = {
 //**********************************************************************
 // Array
 
-int m_Array_incRef(lua_State * L)
+static int m_Array_incRef(lua_State * L)
 {
     int i;
     udstruct *uin;
@@ -481,7 +481,7 @@ int m_Array_incRef(lua_State * L)
     return 1;
 }
 
-int m_Array_decRef(lua_State * L)
+static int m_Array_decRef(lua_State * L)
 {
     int i;
     udstruct *uin;
@@ -495,7 +495,7 @@ int m_Array_decRef(lua_State * L)
 
 m_poppler_get_INT(Array, getLength);
 
-int m_Array_add(lua_State * L)
+static int m_Array_add(lua_State * L)
 {
     udstruct *uin, *uobj;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Array);
@@ -509,7 +509,7 @@ int m_Array_add(lua_State * L)
     return 0;
 }
 
-int m_Array_get(lua_State * L)
+static int m_Array_get(lua_State * L)
 {
     int i, len;
     udstruct *uin, *uout;
@@ -530,7 +530,7 @@ int m_Array_get(lua_State * L)
     return 1;
 }
 
-int m_Array_getNF(lua_State * L)
+static int m_Array_getNF(lua_State * L)
 {
     int i, len;
     udstruct *uin, *uout;
@@ -570,7 +570,7 @@ static const struct luaL_Reg Array_m[] = {
 m_poppler_get_BOOL(Catalog, isOk);
 m_poppler_get_INT(Catalog, getNumPages);
 
-int m_Catalog_getPage(lua_State * L)
+static int m_Catalog_getPage(lua_State * L)
 {
     int i, pages;
     udstruct *uin, *uout;
@@ -589,7 +589,7 @@ int m_Catalog_getPage(lua_State * L)
     return 1;
 }
 
-int m_Catalog_getPageRef(lua_State * L)
+static int m_Catalog_getPageRef(lua_State * L)
 {
     int i, pages;
     udstruct *uin, *uout;
@@ -615,7 +615,7 @@ m_poppler_get_GOOSTRING(Catalog, getBaseURI);
 m_poppler_get_GOOSTRING(Catalog, readMetadata);
 m_poppler_get_poppler(Catalog, Object, getStructTreeRoot);
 
-int m_Catalog_findPage(lua_State * L)
+static int m_Catalog_findPage(lua_State * L)
 {
     int num, gen, i;
     udstruct *uin;
@@ -632,7 +632,7 @@ int m_Catalog_findPage(lua_State * L)
     return 1;
 }
 
-int m_Catalog_findDest(lua_State * L)
+static int m_Catalog_findDest(lua_State * L)
 {
     GooString *name;
     LinkDest *dest;
@@ -682,7 +682,7 @@ static const struct luaL_Reg Catalog_m[] = {
 //**********************************************************************
 // Dict
 
-int m_Dict_incRef(lua_State * L)
+static int m_Dict_incRef(lua_State * L)
 {
     int i;
     udstruct *uin;
@@ -694,7 +694,7 @@ int m_Dict_incRef(lua_State * L)
     return 1;
 }
 
-int m_Dict_decRef(lua_State * L)
+static int m_Dict_decRef(lua_State * L)
 {
     int i;
     udstruct *uin;
@@ -708,7 +708,7 @@ int m_Dict_decRef(lua_State * L)
 
 m_poppler_get_INT(Dict, getLength);
 
-int m_Dict_add(lua_State * L)
+static int m_Dict_add(lua_State * L)
 {
     char *s;
     udstruct *uin, *uobj;
@@ -721,7 +721,7 @@ int m_Dict_add(lua_State * L)
     return 0;
 }
 
-int m_Dict_set(lua_State * L)
+static int m_Dict_set(lua_State * L)
 {
     char *s;
     udstruct *uin, *uobj;
@@ -734,7 +734,7 @@ int m_Dict_set(lua_State * L)
     return 0;
 }
 
-int m_Dict_remove(lua_State * L)
+static int m_Dict_remove(lua_State * L)
 {
     char *s;
     udstruct *uin;
@@ -746,7 +746,7 @@ int m_Dict_remove(lua_State * L)
     return 0;
 }
 
-int m_Dict_is(lua_State * L)
+static int m_Dict_is(lua_State * L)
 {
     const char *s;
     udstruct *uin;
@@ -761,7 +761,7 @@ int m_Dict_is(lua_State * L)
     return 1;
 }
 
-int m_Dict_lookup(lua_State * L)
+static int m_Dict_lookup(lua_State * L)
 {
     const char *s;
     udstruct *uin, *uout;
@@ -778,7 +778,7 @@ int m_Dict_lookup(lua_State * L)
     return 1;
 }
 
-int m_Dict_lookupNF(lua_State * L)
+static int m_Dict_lookupNF(lua_State * L)
 {
     const char *s;
     udstruct *uin, *uout;
@@ -795,7 +795,7 @@ int m_Dict_lookupNF(lua_State * L)
     return 1;
 }
 
-int m_Dict_getKey(lua_State * L)
+static int m_Dict_getKey(lua_State * L)
 {
     int i, len;
     udstruct *uin;
@@ -811,7 +811,7 @@ int m_Dict_getKey(lua_State * L)
     return 1;
 }
 
-int m_Dict_getVal(lua_State * L)
+static int m_Dict_getVal(lua_State * L)
 {
     int i, len;
     udstruct *uin, *uout;
@@ -832,7 +832,7 @@ int m_Dict_getVal(lua_State * L)
     return 1;
 }
 
-int m_Dict_getValNF(lua_State * L)
+static int m_Dict_getValNF(lua_State * L)
 {
     int i, len;
     udstruct *uin, *uout;
@@ -855,7 +855,7 @@ int m_Dict_getValNF(lua_State * L)
 
 m_poppler__tostring(Dict);
 
-const struct luaL_Reg Dict_m[] = {
+static const struct luaL_Reg Dict_m[] = {
     {"incRef", m_Dict_incRef},
     {"decRef", m_Dict_decRef},
     {"getLength", m_Dict_getLength},
@@ -875,7 +875,7 @@ const struct luaL_Reg Dict_m[] = {
 //**********************************************************************
 // GooString
 
-int m_GooString__tostring(lua_State * L)
+static int m_GooString__tostring(lua_State * L)
 {
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_GooString);
@@ -894,12 +894,12 @@ static const struct luaL_Reg GooString_m[] = {
 //**********************************************************************
 // LinkDest
 
-const char *LinkDestKindNames[] =
+static const char *LinkDestKindNames[] =
     { "XYZ", "Fit", "FitH", "FitV", "FitR", "FitB", "FitBH", "FitBV", NULL };
 
 m_poppler_get_BOOL(LinkDest, isOk);
 
-int m_LinkDest_getKind(lua_State * L)
+static int m_LinkDest_getKind(lua_State * L)
 {
     int i;
     udstruct *uin;
@@ -911,7 +911,7 @@ int m_LinkDest_getKind(lua_State * L)
     return 1;
 }
 
-int m_LinkDest_getKindName(lua_State * L)
+static int m_LinkDest_getKindName(lua_State * L)
 {
     int i;
     udstruct *uin;
@@ -926,7 +926,7 @@ int m_LinkDest_getKindName(lua_State * L)
 m_poppler_get_BOOL(LinkDest, isPageRef);
 m_poppler_get_INT(LinkDest, getPageNum);
 
-int m_LinkDest_getPageRef(lua_State * L)
+static int m_LinkDest_getPageRef(lua_State * L)
 {
     udstruct *uin, *uout;
     uin = (udstruct *) luaL_checkudata(L, 1, M_LinkDest);
@@ -985,7 +985,7 @@ static const struct luaL_Reg Links_m[] = {
 //**********************************************************************
 // Object
 
-int m_Object_initBool(lua_State * L)
+static int m_Object_initBool(lua_State * L)
 {
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
@@ -999,7 +999,7 @@ int m_Object_initBool(lua_State * L)
     return 0;
 }
 
-int m_Object_initInt(lua_State * L)
+static int m_Object_initInt(lua_State * L)
 {
     int i;
     udstruct *uin;
@@ -1011,7 +1011,7 @@ int m_Object_initInt(lua_State * L)
     return 0;
 }
 
-int m_Object_initReal(lua_State * L)
+static int m_Object_initReal(lua_State * L)
 {
     double d;
     udstruct *uin;
@@ -1023,7 +1023,7 @@ int m_Object_initReal(lua_State * L)
     return 0;
 }
 
-int m_Object_initString(lua_State * L)
+static int m_Object_initString(lua_State * L)
 {
     GooString *gs;
     const char *s;
@@ -1038,7 +1038,7 @@ int m_Object_initString(lua_State * L)
     return 0;
 }
 
-int m_Object_initName(lua_State * L)
+static int m_Object_initName(lua_State * L)
 {
     const char *s;
     udstruct *uin;
@@ -1050,7 +1050,7 @@ int m_Object_initName(lua_State * L)
     return 0;
 }
 
-int m_Object_initNull(lua_State * L)
+static int m_Object_initNull(lua_State * L)
 {
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
@@ -1060,7 +1060,7 @@ int m_Object_initNull(lua_State * L)
     return 0;
 }
 
-int m_Object_initArray(lua_State * L)
+static int m_Object_initArray(lua_State * L)
 {
     udstruct *uin, *uxref;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
@@ -1078,7 +1078,7 @@ int m_Object_initArray(lua_State * L)
 //   Object *initDict(XRef *xref);
 //   Object *initDict(Dict *dictA);
 
-int m_Object_initDict(lua_State * L)
+static int m_Object_initDict(lua_State * L)
 {
     udstruct *uin, *uxref;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
@@ -1092,7 +1092,7 @@ int m_Object_initDict(lua_State * L)
     return 0;
 }
 
-int m_Object_initStream(lua_State * L)
+static int m_Object_initStream(lua_State * L)
 {
     udstruct *uin, *ustream;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
@@ -1106,7 +1106,7 @@ int m_Object_initStream(lua_State * L)
     return 0;
 }
 
-int m_Object_initRef(lua_State * L)
+static int m_Object_initRef(lua_State * L)
 {
     int num, gen;
     udstruct *uin;
@@ -1119,7 +1119,7 @@ int m_Object_initRef(lua_State * L)
     return 0;
 }
 
-int m_Object_initCmd(lua_State * L)
+static int m_Object_initCmd(lua_State * L)
 {
     const char *s;
     udstruct *uin;
@@ -1131,7 +1131,7 @@ int m_Object_initCmd(lua_State * L)
     return 0;
 }
 
-int m_Object_initError(lua_State * L)
+static int m_Object_initError(lua_State * L)
 {
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
@@ -1141,7 +1141,7 @@ int m_Object_initError(lua_State * L)
     return 0;
 }
 
-int m_Object_initEOF(lua_State * L)
+static int m_Object_initEOF(lua_State * L)
 {
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
@@ -1151,7 +1151,7 @@ int m_Object_initEOF(lua_State * L)
     return 0;
 }
 
-int m_Object_fetch(lua_State * L)
+static int m_Object_fetch(lua_State * L)
 {
     udstruct *uin, *uxref, *uout;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
@@ -1170,7 +1170,7 @@ int m_Object_fetch(lua_State * L)
     return 1;
 }
 
-int m_Object_getType(lua_State * L)
+static int m_Object_getType(lua_State * L)
 {
     ObjType t;
     udstruct *uin;
@@ -1182,7 +1182,7 @@ int m_Object_getType(lua_State * L)
     return 1;
 }
 
-int m_Object_getTypeName(lua_State * L)
+static int m_Object_getTypeName(lua_State * L)
 {
     char *s;
     udstruct *uin;
@@ -1214,7 +1214,7 @@ m_poppler_get_BOOL(Object, isNone);
 // isStream
 // isCmd
 
-int m_Object_getBool(lua_State * L)
+static int m_Object_getBool(lua_State * L)
 {
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
@@ -1230,7 +1230,7 @@ int m_Object_getBool(lua_State * L)
     return 1;
 }
 
-int m_Object_getInt(lua_State * L)
+static int m_Object_getInt(lua_State * L)
 {
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
@@ -1243,7 +1243,7 @@ int m_Object_getInt(lua_State * L)
     return 1;
 }
 
-int m_Object_getReal(lua_State * L)
+static int m_Object_getReal(lua_State * L)
 {
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
@@ -1256,7 +1256,7 @@ int m_Object_getReal(lua_State * L)
     return 1;
 }
 
-int m_Object_getNum(lua_State * L)
+static int m_Object_getNum(lua_State * L)
 {
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
@@ -1269,7 +1269,7 @@ int m_Object_getNum(lua_State * L)
     return 1;
 }
 
-int m_Object_getString(lua_State * L)
+static int m_Object_getString(lua_State * L)
 {
     GooString *gs;
     udstruct *uin;
@@ -1284,7 +1284,7 @@ int m_Object_getString(lua_State * L)
     return 1;
 }
 
-int m_Object_getName(lua_State * L)
+static int m_Object_getName(lua_State * L)
 {
     char *s;
     udstruct *uin;
@@ -1299,7 +1299,7 @@ int m_Object_getName(lua_State * L)
     return 1;
 }
 
-int m_Object_getArray(lua_State * L)
+static int m_Object_getArray(lua_State * L)
 {
     udstruct *uin, *uout;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
@@ -1315,7 +1315,7 @@ int m_Object_getArray(lua_State * L)
     return 1;
 }
 
-int m_Object_getDict(lua_State * L)
+static int m_Object_getDict(lua_State * L)
 {
     udstruct *uin, *uout;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
@@ -1331,7 +1331,7 @@ int m_Object_getDict(lua_State * L)
     return 1;
 }
 
-int m_Object_getStream(lua_State * L)
+static int m_Object_getStream(lua_State * L)
 {
     udstruct *uin, *uout;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
@@ -1347,7 +1347,7 @@ int m_Object_getStream(lua_State * L)
     return 1;
 }
 
-int m_Object_getRef(lua_State * L)
+static int m_Object_getRef(lua_State * L)
 {
     udstruct *uin, *uout;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
@@ -1366,7 +1366,7 @@ int m_Object_getRef(lua_State * L)
     return 1;
 }
 
-int m_Object_getRefNum(lua_State * L)
+static int m_Object_getRefNum(lua_State * L)
 {
     int i;
     udstruct *uin;
@@ -1381,7 +1381,7 @@ int m_Object_getRefNum(lua_State * L)
     return 1;
 }
 
-int m_Object_getRefGen(lua_State * L)
+static int m_Object_getRefGen(lua_State * L)
 {
     int i;
     udstruct *uin;
@@ -1396,7 +1396,7 @@ int m_Object_getRefGen(lua_State * L)
     return 1;
 }
 
-int m_Object_getCmd(lua_State * L)
+static int m_Object_getCmd(lua_State * L)
 {
     char *s;
     udstruct *uin;
@@ -1411,7 +1411,7 @@ int m_Object_getCmd(lua_State * L)
     return 1;
 }
 
-int m_Object_arrayGetLength(lua_State * L)
+static int m_Object_arrayGetLength(lua_State * L)
 {
     int len;
     udstruct *uin;
@@ -1426,7 +1426,7 @@ int m_Object_arrayGetLength(lua_State * L)
     return 1;
 }
 
-int m_Object_arrayAdd(lua_State * L)
+static int m_Object_arrayAdd(lua_State * L)
 {
     udstruct *uin, *uobj;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
@@ -1442,7 +1442,7 @@ int m_Object_arrayAdd(lua_State * L)
     return 0;
 }
 
-int m_Object_arrayGet(lua_State * L)
+static int m_Object_arrayGet(lua_State * L)
 {
     int i, len;
     udstruct *uin, *uout;
@@ -1466,7 +1466,7 @@ int m_Object_arrayGet(lua_State * L)
     return 1;
 }
 
-int m_Object_arrayGetNF(lua_State * L)
+static int m_Object_arrayGetNF(lua_State * L)
 {
     int i, len;
     udstruct *uin, *uout;
@@ -1490,7 +1490,7 @@ int m_Object_arrayGetNF(lua_State * L)
     return 1;
 }
 
-int m_Object_dictGetLength(lua_State * L)
+static int m_Object_dictGetLength(lua_State * L)
 {
     int len;
     udstruct *uin;
@@ -1505,7 +1505,7 @@ int m_Object_dictGetLength(lua_State * L)
     return 1;
 }
 
-int m_Object_dictAdd(lua_State * L)
+static int m_Object_dictAdd(lua_State * L)
 {
     const char *s;
     udstruct *uin, *uobj;
@@ -1523,7 +1523,7 @@ int m_Object_dictAdd(lua_State * L)
     return 0;
 }
 
-int m_Object_dictLookup(lua_State * L)
+static int m_Object_dictLookup(lua_State * L)
 {
     const char *s;
     udstruct *uin, *uout;
@@ -1543,7 +1543,7 @@ int m_Object_dictLookup(lua_State * L)
     return 1;
 }
 
-int m_Object_dictLookupNF(lua_State * L)
+static int m_Object_dictLookupNF(lua_State * L)
 {
     const char *s;
     udstruct *uin, *uout;
@@ -1563,7 +1563,7 @@ int m_Object_dictLookupNF(lua_State * L)
     return 1;
 }
 
-int m_Object_dictGetKey(lua_State * L)
+static int m_Object_dictGetKey(lua_State * L)
 {
     int i, len;
     udstruct *uin;
@@ -1582,7 +1582,7 @@ int m_Object_dictGetKey(lua_State * L)
     return 1;
 }
 
-int m_Object_dictGetVal(lua_State * L)
+static int m_Object_dictGetVal(lua_State * L)
 {
     int i, len;
     udstruct *uin, *uout;
@@ -1606,7 +1606,7 @@ int m_Object_dictGetVal(lua_State * L)
     return 1;
 }
 
-int m_Object_dictGetValNF(lua_State * L)
+static int m_Object_dictGetValNF(lua_State * L)
 {
     int i, len;
     udstruct *uin, *uout;
@@ -1630,7 +1630,7 @@ int m_Object_dictGetValNF(lua_State * L)
     return 1;
 }
 
-int m_Object_streamIs(lua_State * L)
+static int m_Object_streamIs(lua_State * L)
 {
     const char *s;
     udstruct *uin;
@@ -1648,7 +1648,7 @@ int m_Object_streamIs(lua_State * L)
     return 1;
 }
 
-int m_Object_streamReset(lua_State * L)
+static int m_Object_streamReset(lua_State * L)
 {
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
@@ -1659,7 +1659,7 @@ int m_Object_streamReset(lua_State * L)
     return 0;
 }
 
-int m_Object_streamGetChar(lua_State * L)
+static int m_Object_streamGetChar(lua_State * L)
 {
     int i;
     udstruct *uin;
@@ -1674,7 +1674,7 @@ int m_Object_streamGetChar(lua_State * L)
     return 1;
 }
 
-int m_Object_streamLookChar(lua_State * L)
+static int m_Object_streamLookChar(lua_State * L)
 {
     int i;
     udstruct *uin;
@@ -1689,7 +1689,7 @@ int m_Object_streamLookChar(lua_State * L)
     return 1;
 }
 
-int m_Object_streamGetPos(lua_State * L)
+static int m_Object_streamGetPos(lua_State * L)
 {
     int i;
     udstruct *uin;
@@ -1704,7 +1704,7 @@ int m_Object_streamGetPos(lua_State * L)
     return 1;
 }
 
-int m_Object_streamSetPos(lua_State * L)
+static int m_Object_streamSetPos(lua_State * L)
 {
     int i;
     udstruct *uin;
@@ -1717,7 +1717,7 @@ int m_Object_streamSetPos(lua_State * L)
     return 0;
 }
 
-int m_Object_streamGetDict(lua_State * L)
+static int m_Object_streamGetDict(lua_State * L)
 {
     udstruct *uin, *uout;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
@@ -1845,7 +1845,7 @@ m_poppler_get_poppler(Page, Dict, getSeparationInfo);
 m_poppler_get_poppler(Page, Dict, getResourceDict);
 m_poppler_get_OBJECT(Page, getAnnots);
 
-int m_Page_getLinks(lua_State * L)
+static int m_Page_getLinks(lua_State * L)
 {
     Links *links;
     udstruct *uin, *ucat, *uout;
@@ -1903,7 +1903,7 @@ static const struct luaL_Reg Page_m[] = {
 // PDFDoc
 
 #define m_PDFDoc_BOOL(function)                         \
-int m_PDFDoc_##function(lua_State * L)                  \
+static int m_PDFDoc_##function(lua_State * L)           \
 {                                                       \
     udstruct *uin;                                      \
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc); \
@@ -1917,7 +1917,7 @@ int m_PDFDoc_##function(lua_State * L)                  \
 }
 
 #define m_PDFDoc_INT(function)                          \
-int m_PDFDoc_##function(lua_State * L)                  \
+static int m_PDFDoc_##function(lua_State * L)           \
 {                                                       \
     int i;                                              \
     udstruct *uin;                                      \
@@ -1932,7 +1932,7 @@ int m_PDFDoc_##function(lua_State * L)                  \
 m_PDFDoc_BOOL(isOk);
 m_PDFDoc_INT(getErrorCode);
 
-int m_PDFDoc_getFileName(lua_State * L)
+static int m_PDFDoc_getFileName(lua_State * L)
 {
     GooString *gs;
     udstruct *uin;
@@ -1947,7 +1947,7 @@ int m_PDFDoc_getFileName(lua_State * L)
     return 1;
 }
 
-int m_PDFDoc_getErrorCodeName(lua_State * L)
+static int m_PDFDoc_getErrorCodeName(lua_State * L)
 {
     int i;
     udstruct *uin;
@@ -1959,7 +1959,7 @@ int m_PDFDoc_getErrorCodeName(lua_State * L)
     return 1;
 }
 
-int m_PDFDoc_getXRef(lua_State * L)
+static int m_PDFDoc_getXRef(lua_State * L)
 {
     XRef *xref;
     udstruct *uin, *uout;
@@ -1977,7 +1977,7 @@ int m_PDFDoc_getXRef(lua_State * L)
     return 1;
 }
 
-int m_PDFDoc_getCatalog(lua_State * L)
+static int m_PDFDoc_getCatalog(lua_State * L)
 {
     Catalog *cat;
     udstruct *uin, *uout;
@@ -1996,7 +1996,7 @@ int m_PDFDoc_getCatalog(lua_State * L)
 }
 
 #define m_PDFDoc_PAGEDIMEN(function)                             \
-int m_PDFDoc_##function(lua_State * L)                           \
+static int m_PDFDoc_##function(lua_State * L)                    \
 {                                                                \
     int i, pages;                                                \
     double d;                                                    \
@@ -2020,7 +2020,7 @@ m_PDFDoc_PAGEDIMEN(getPageCropWidth);
 m_PDFDoc_PAGEDIMEN(getPageCropHeight);
 m_PDFDoc_INT(getNumPages);
 
-int m_PDFDoc_readMetadata(lua_State * L)
+static int m_PDFDoc_readMetadata(lua_State * L)
 {
     GooString *gs;
     udstruct *uin;
@@ -2038,7 +2038,7 @@ int m_PDFDoc_readMetadata(lua_State * L)
     return 1;
 }
 
-int m_PDFDoc_getStructTreeRoot(lua_State * L)
+static int m_PDFDoc_getStructTreeRoot(lua_State * L)
 {
     Object *obj;
     udstruct *uin, *uout;
@@ -2056,7 +2056,7 @@ int m_PDFDoc_getStructTreeRoot(lua_State * L)
     return 1;
 }
 
-int m_PDFDoc_findPage(lua_State * L)
+static int m_PDFDoc_findPage(lua_State * L)
 {
     int num, gen, i;
     udstruct *uin;
@@ -2076,7 +2076,7 @@ int m_PDFDoc_findPage(lua_State * L)
     return 1;
 }
 
-int m_PDFDoc_getLinks(lua_State * L)
+static int m_PDFDoc_getLinks(lua_State * L)
 {
     int i;
     Links *links;
@@ -2096,7 +2096,7 @@ int m_PDFDoc_getLinks(lua_State * L)
     return 1;
 }
 
-int m_PDFDoc_findDest(lua_State * L)
+static int m_PDFDoc_findDest(lua_State * L)
 {
     GooString *name;
     LinkDest *dest;
@@ -2130,7 +2130,7 @@ m_PDFDoc_BOOL(okToCopy);
 m_PDFDoc_BOOL(okToAddNotes);
 m_PDFDoc_BOOL(isLinearized);
 
-int m_PDFDoc_getDocInfo(lua_State * L)
+static int m_PDFDoc_getDocInfo(lua_State * L)
 {
     udstruct *uin, *uout;
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
@@ -2148,7 +2148,7 @@ int m_PDFDoc_getDocInfo(lua_State * L)
     return 1;
 }
 
-int m_PDFDoc_getDocInfoNF(lua_State * L)
+static int m_PDFDoc_getDocInfoNF(lua_State * L)
 {
     udstruct *uin, *uout;
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
@@ -2223,7 +2223,7 @@ m_poppler_get_BOOL(PDFRectangle, isValid);
 
 m_poppler__tostring(PDFRectangle);
 
-int m_PDFRectangle__index(lua_State * L)
+static int m_PDFRectangle__index(lua_State * L)
 {
     const char *s;
     udstruct *uin;
@@ -2253,7 +2253,7 @@ int m_PDFRectangle__index(lua_State * L)
     return 1;
 }
 
-int m_PDFRectangle__newindex(lua_State * L)
+static int m_PDFRectangle__newindex(lua_State * L)
 {
     double d;
     const char *s;
@@ -2309,7 +2309,7 @@ static const struct luaL_Reg PDFRectangle_m[] = {
 //**********************************************************************
 // Ref
 
-int m_Ref__index(lua_State * L)
+static int m_Ref__index(lua_State * L)
 {
     const char *s;
     udstruct *uin;
@@ -2364,7 +2364,7 @@ static const char *StreamColorSpaceModeNames[] =
 
 m_poppler_get_INT(Stream, getKind);
 
-int m_Stream_getKindName(lua_State * L)
+static int m_Stream_getKindName(lua_State * L)
 {
     StreamKind t;
     udstruct *uin;
@@ -2422,7 +2422,7 @@ m_poppler_get_BOOL(XRef, okToCopy);
 m_poppler_get_BOOL(XRef, okToAddNotes);
 m_poppler_get_OBJECT(XRef, getCatalog);
 
-int m_XRef_fetch(lua_State * L)
+static int m_XRef_fetch(lua_State * L)
 {
     int num, gen;
     udstruct *uin, *uout;
