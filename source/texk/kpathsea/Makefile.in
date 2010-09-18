@@ -354,7 +354,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I ../../m4
-SUBDIRS = . doc man
+SUBDIRS = . man
 EXTRA_DIST = BUGS PROJECTS putenv.c strcasecmp.c strtol.c strstr.c \
 	bsnl.awk $(TESTS) mktex.cnf Makefile.in.orig common.ac.orig \
 	withenable.ac

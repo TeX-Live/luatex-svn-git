@@ -9,7 +9,7 @@ ACLOCAL_AMFLAGS = -I ../../m4
 .PHONY: rebuild
 rebuild: all
 
-SUBDIRS = . doc man
+SUBDIRS = . man ## doc is a pain
 
 EXTRA_DIST = BUGS PROJECTS
 
