@@ -1126,10 +1126,10 @@ int copy_font(int f)
     if (font_cidordering(f) != NULL)
         set_font_cidordering(k, xstrdup(font_cidordering(f)));
 
-    i = (int) (sizeof(*param_base(f)) * (unsigned) font_params(f));
+    i = (int) (sizeof(*param_base(f)) * (unsigned) (font_params(f)+1));
     font_bytes += i;
     param_base(k) = xmalloc((unsigned) i);
-    memcpy(param_base(k), param_base(f), (size_t) i);
+    memcpy(param_base(k), param_base(f), (size_t) (i+1));
 
     if (font_math_params(f) > 0) {
         i = (int) (sizeof(*math_param_base(f)) *
