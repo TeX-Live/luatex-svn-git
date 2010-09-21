@@ -3148,6 +3148,18 @@ local fdata = {
       ["shortdesc"]="Create a temporary directory inside the current directory.",
       ["type"]="function",
    },
+   ["selfdir"]={
+      ["arguments"]={},
+      ["returnvalues"]={
+        {
+           ["name"]="d",
+           ["optional"]=false,
+           ["type"]="string",
+        },
+      },
+      ["shortdesc"]="Return the directory path of argv[0].",
+      ["type"]="function",
+   },
    ["uname"]={
       ["arguments"]={},
       ["returnvalues"]={
