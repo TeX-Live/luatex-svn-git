@@ -1561,13 +1561,14 @@ letter_space_font(internal_font_number f, int e, boolean nolig)
        }
     }
     /* now patch the quad size */
+    /* Patch 20100922:  do not do this, to remain compatible with pdftex */
+#if 0
     if (e<0) {
-       set_font_param(k, quad_code, -round_xn_over_d(quad(k), -e, 2000));
+       set_font_param(k, quad_code, -round_xn_over_d(quad(k), 1000-e, 1000));
     } else {
-       set_font_param(k, quad_code, round_xn_over_d(quad(k), e, 2000));
+       set_font_param(k, quad_code, round_xn_over_d(quad(k), 1000+e, 1000));
     } 
-
-
+#endif
     return k;
 }
 
