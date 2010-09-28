@@ -1,3 +1,103 @@
+2010-09-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* luatex.test (new): Just testing 'luatex -credits'.
+	* luatexdir/am/luatex.am: Adjusted.
+
+2010-07-12  Taco Hoekwater <taco@luatex.org>
+
+	* luafontloader/src/luafflib.c: quick fix for crashes triggered
+	by invalid panose data in Open/TrueType fonts.
+	* luatex_svnversion.h: new version (rev 3736).
+
+2010-07-01  Taco Hoekwater <taco@luatex.org>
+
+	* lang/texlang.w, lua/lnodelib.c, luatex.c, luatex_svnversion.h,
+	pdf/pdfglyph.w, pdf/pdfpage.w, NEWS: new versions from released 0.60.2
+	
+2010-06-18  Taco Hoekwater <taco@luatex.org>
+
+	* tex/textoken.h (smemory_word): add endiannes test
+	* font/texfont.h (liginfo, kerninfo): add endianness test
+	* luatex_svnversion.h: new version
+
+2010-06-13  Taco Hoekwater <taco@luatex.org>
+
+	* tex/inputstack.h (in_state_record): force two bitfields to be signed,
+	after a bug report from Vladimir Volovich <vvv@vsu.ru>
+	* luatex_svnversion.h: new version
+
+2010-06-11  Taco Hoekwater <taco@luatex.org>
+
+	* font/sfnt.w, font/sfnt.h, 
+	luafontloader/fontforge/Unicode/ucharmap.c,
+	luafontloader/fontforge/fontforge/python.c, 
+	luafontloader/fontforge/inc/basics.h: change include of "config.h"
+	to <w2c/config.h>.
+	* image/epdf.h, lua51/luaconf.h: change include of "c-auto.h"
+	to <w2c/c-auto.h>.
+	
+2010-06-10  Taco Hoekwater <taco@luatex.org>
+
+	* luatex.c (swap_items): debugged.
+	* tex/texfileio.w (do_zdump): reswap the swapped items to avoid
+	crashes when called as |dump_things|.
+
+2010-06-10  Taco Hoekwater <taco@luatex.org>
+
+	* luafilesystem/src/lfs.c(get_dir): do not assume Gnu C compiler.
+
+2010-06-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/libluatex.am (libluatex_a_CPPFLAGS): Add $(AM_CPPFLAGS).
+	* am/luafontforge.am (libff_a_CPPFLAGS): Add $(AM_CPPFLAGS).
+	* am/luatex.am (luatex_CPPFLAGS): Add $(AM_CPPFLAGS).
+
+2010-06-10  Taco Hoekwater <taco@luatex.org>
+
+	* luasocket/src/options.c, luafontloader/fontforge/fontforge/parsettfatt.c,
+	luafontloader/fontforge/fontforge/parsettf.c,
+	luafontloader/fontforge/fontforge/lookups.c: enlarge static buffers
+	for sprintf().
+	
+2010-06-04  Taco Hoekwater <taco@luatex.org>
+
+	* luatex.c (shell_cmd_is_allowed): make sure only commands with
+	absolute path names are executed on win32 in restricted mode --
+	patch from Akira Katuto.
+
+2010-05-28  Taco Hoekwater <taco@luatex.org>
+
+	* luamd5/md.5c: bring in a new version from kepler to fix a
+	portability problem with stdint.h.
+	* luafontloader/src/ffdummies.c, lua/texluac.w: guard __attribute__
+	usage, which is a GNUC only feature.
+	    
+2010-05-19  Taco Hoekwater <taco@luatex.org>
+
+	* printing.w (print_banner, log_banner), luainit.w (lua_initialize):
+	add WEB2CVERSION to the banner.
+
+2010-05-13  Taco Hoekwater <taco@luatex.org>
+
+	* utils/synctex.c, utils/synctex-luatex.h: update from Jérome
+	Laurens, bringing luatex in-line with the core synctex distribution
+	* luatex_svnversion.h: updated to reflect the version of 0.60.x branch
+	
+2010-05-06  Taco Hoekwater <taco@luatex.org>
+
+        * luatex.c (calledit): use ifdef __MINGW32__ instead of WIN32.
+	* luatex_svnversion.h: updated to reflect the version of 0.60.x branch
+
+2010-04-28  Taco Hoekwater <taco@luatex.org>
+
+        * tex/maincontrol.w: Fixed the error message for improper 
+	use of \protected, reported by Heiko Oberdiek 
+	<heiko.oberdiek@googlemail.com>.
+
+2010-04-28  Taco Hoekwater  <taco@luatex>
+
+	* import of luatex 0.60.1, released version
+
 2010-04-25  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* image/epdf.h, lua51/luaconf.h: #include <c-auto.h> instead of
