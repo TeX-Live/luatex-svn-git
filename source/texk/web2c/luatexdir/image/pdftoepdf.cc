@@ -818,7 +818,10 @@ void write_epdf(PDF pdf, image_dict * idict)
     contents.free();
     pageobj.free();
     // unrefPdfDocument() must come after contents.free() and pageobj.free()!
+    // TH: The next line makes repeated pdf inclusion unacceptably slow
+#if 0    
     unrefPdfDocument(img_filepath(idict));
+#endif
 }
 
 //**********************************************************************
