@@ -40,6 +40,8 @@ static const char _svn_version[] =
 
 #define NODE_METATABLE  "luatex_node"
 
+#define DEBUG_OUT stdout
+
 make_luaS_index(luatex_node);
 
 halfword *check_isnode(lua_State * L, int ud)
@@ -344,6 +346,9 @@ static int lua_nodelib_remove(lua_State * L)
         }
         /* t is now the previous node */
         vlink(t) = vlink(current);
+#ifdef DEBUG
+        fprintf(DEBUG_OUT, "vlink(t), %d = vlink(current), %d\n", t, vlink(current));
+#endif
         if (vlink(current) != null) {
             alink(vlink(current)) = t;
         }
@@ -2598,9 +2603,20 @@ static int lua_nodelib_setfield(lua_State * L)
 	/* return implied */
     }
     if (field == 0) {
-        vlink(n) = nodelib_getlist(L, 3);
+        halfword x = nodelib_getlist(L, 3);
+        if (x>0 && type(x) == glue_spec_node) {
+            return luaL_error(L, "You can't assign a %s node to a next field\n", node_data[type(x)].name);
+        }
+#ifdef DEBUG
+        fprintf(DEBUG_OUT, "vlink(n), %d = x, %d\n", n, x);
+#endif
+        vlink(n) = x;
     } else if (field == -1) {
-        alink(n) = nodelib_getlist(L, 3);
+        halfword x = nodelib_getlist(L, 3);
+        if (x>0 && type(x) == glue_spec_node) {
+            return luaL_error(L, "You can't assign a %s node to a prev field\n", node_data[type(x)].name);
+        }
+        alink(n) = x;
     } else if (field == 3 && nodetype_has_attributes(type(n))) {
         nodelib_setattr(L, 3, n);
     } else if (type(n) == glyph_node) {
@@ -3335,6 +3351,9 @@ static int lua_nodelib_first_character(lua_State * L)
         h = vlink(h);
     }
     if (savetail != null) {
+#ifdef DEBUG
+        fprintf(DEBUG_OUT, "vlink(t), %d = savetail, %d\n", t, savetail);
+#endif
         vlink(t) = savetail;
     }
     lua_pushnumber(L, h);
