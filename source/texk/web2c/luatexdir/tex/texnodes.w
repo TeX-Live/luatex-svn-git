@@ -2807,6 +2807,11 @@ void show_node_list(int p)
                     tprint(" pre ");
                 node_list_display(adjust_ptr(p));       /* recursive call */
                 break;
+            case glue_spec_node:
+                tprint("<glue_spec ");
+                print_spec(p, NULL);
+                tprint(">");
+                break;
             default:
                 show_math_node(p);
                 break;
