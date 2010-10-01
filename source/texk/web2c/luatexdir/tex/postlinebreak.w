@@ -323,8 +323,8 @@ void ext_post_line_break(int paragraph_dir,
                 delete_attribute_ref(node_attr(k));
                 node_attr(k) = node_attr(p);
                 add_node_attr_ref(node_attr(k));
-                vlink(k) = vlink(ptmp);
-                vlink(ptmp) = k;
+                try_couple_nodes(k, vlink(ptmp));
+                couple_nodes(ptmp,k);
                 if (ptmp == q)
                     q = vlink(q);
             }
@@ -336,12 +336,11 @@ void ext_post_line_break(int paragraph_dir,
             halfword r = new_glue((right_skip == null ? null : copy_node(right_skip)));
 	    glue_ref_count(glue_ptr(r)) = null;
 	    subtype(r) = right_skip_code+1;
-            vlink(r) = vlink(q);
+            try_couple_nodes(r,vlink(q));
             delete_attribute_ref(node_attr(r));
             node_attr(r) = node_attr(q);
             add_node_attr_ref(node_attr(r));
-            vlink(q) = r;
-            alink(r) = q;
+            couple_nodes(q,r);
             q = r;
         }
 
@@ -361,14 +360,14 @@ void ext_post_line_break(int paragraph_dir,
             /* omega bits: */
             r = copy_node_list(passive_left_box(cur_p));
             s = vlink(q);
-            vlink(r) = q;
+            couple_nodes(r,q);
             q = r;
             if ((cur_line == cur_list.pg_field + 1) && (s != null)) {
                 if (type(s) == hlist_node) {
                     if (list_ptr(s) == null) {
                         q = vlink(q);
-                        vlink(r) = vlink(s);
-                        vlink(s) = r;
+                        try_couple_nodes(r,vlink(s));
+                        try_couple_nodes(s, r);
                     }
                 }
             }
@@ -383,10 +382,10 @@ void ext_post_line_break(int paragraph_dir,
                 delete_attribute_ref(node_attr(k));
                 node_attr(k) = node_attr(q);
                 add_node_attr_ref(node_attr(k));
-                vlink(k) = q;
+                couple_nodes(k,q);
                 q = k;
             }
-        };
+        }
         if (left_skip != zero_glue) {
             r = new_glue(copy_node(left_skip));
 	    glue_ref_count(glue_ptr(r)) = null;
@@ -394,8 +393,7 @@ void ext_post_line_break(int paragraph_dir,
             delete_attribute_ref(node_attr(r));
             node_attr(r) = node_attr(q);
             add_node_attr_ref(node_attr(r));
-            vlink(r) = q;
-            alink(q) = r;
+            couple_nodes(r,q);
             q = r;
         }
         /* /Put the \.{\\leftskip} glue at the left and detach this line; */
@@ -541,7 +539,7 @@ void ext_post_line_break(int paragraph_dir,
                         break;
                 }
                 r = q;
-            };
+            }
             if (r != temp_head) {
                 vlink(r) = null;
                 flush_node_list(vlink(temp_head));

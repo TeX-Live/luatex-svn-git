@@ -247,7 +247,7 @@ static void run_app_space (void) {
         } else {
             temp_ptr = new_param_glue(space_skip_code);
         }
-        vlink(tail) = temp_ptr;
+        couple_nodes(tail,temp_ptr);
         tail = temp_ptr;
 
     }
@@ -1357,7 +1357,7 @@ void box_end(int box_context)
                     space_factor = 1000;
                 else
                     cur_box = new_sub_box(cur_box);
-                vlink(tail) = cur_box;
+                couple_nodes(tail, cur_box);
                 tail = cur_box;
             }
         }
@@ -1453,8 +1453,8 @@ void new_graf(boolean indented)
     while (dir_rover != null) {
         if ((vlink(dir_rover) != null) || (dir_dir(dir_rover) != par_direction)) {
             dir_graf_tmp = new_dir(dir_dir(dir_rover));
-            vlink(dir_graf_tmp) = vlink(q);
-            vlink(q) = dir_graf_tmp;
+            couple_nodes(dir_graf_tmp,vlink(q));
+            couple_nodes(q,dir_graf_tmp);
         }
         dir_rover = vlink(dir_rover);
     }
@@ -1676,7 +1676,7 @@ void unpackage(void)
     halfword s;                 /* for varmem assignment */
     if (cur_chr > copy_code) {
         /* Handle saved items and |goto done| */
-        vlink(tail) = disc_ptr[cur_chr];
+        try_couple_nodes(tail, disc_ptr[cur_chr]);
         disc_ptr[cur_chr] = null;
         goto DONE;
     }
@@ -1697,9 +1697,9 @@ void unpackage(void)
     }
     if (c == copy_code) {
         s = copy_node_list(list_ptr(p));
-        vlink(tail) = s;
+        try_couple_nodes(tail,s);
     } else {
-        vlink(tail) = list_ptr(p);
+        try_couple_nodes(tail,list_ptr(p));
         box(cur_val) = null;
         list_ptr(p) = null;
         flush_node(p);
@@ -1708,7 +1708,7 @@ void unpackage(void)
     while (vlink(tail) != null) {
         r = vlink(tail);
         if (!is_char_node(r) && (type(r) == margin_kern_node)) {
-            vlink(tail) = vlink(r);
+            try_couple_nodes(tail,vlink(r));
             flush_node(r);
         }
         tail = vlink(tail);

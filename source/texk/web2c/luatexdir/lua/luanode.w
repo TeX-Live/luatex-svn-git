@@ -110,7 +110,7 @@ lua_node_filter(int filterid, int xextrainfo, halfword head_node,
         }
     } else {
         a = nodelist_from_lua(L);
-        vlink(head_node) = a;
+        try_couple_nodes(head_node,a);
     }
     lua_pop(L, 2);              /* result and callback container table */
     if (fix_node_lists)
@@ -154,7 +154,7 @@ lua_linebreak_callback(int is_broken, halfword head_node, halfword * new_head)
     p = lua_touserdata(L, -1);
     if (p != NULL) {
         a = nodelist_from_lua(L);
-        vlink(*new_head) = a;
+        try_couple_nodes(*new_head,a);
         ret = 1;
     }
     lua_pop(L, 2);              /* result and callback container table */
