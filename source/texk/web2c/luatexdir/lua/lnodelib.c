@@ -39,7 +39,8 @@ static const char _svn_version[] =
 #define luaS_ptr_eq(a,b) (a==luaS_##b##_ptr)
 
 #define NODE_METATABLE  "luatex_node"
-
+ 
+#define DEBUG 0
 #define DEBUG_OUT stdout
 
 make_luaS_index(luatex_node);
@@ -316,7 +317,17 @@ static int lua_nodelib_flush_list(lua_State * L)
 
 /* remove a node from a list */
 
-
+#if DEBUG
+static void show_node_links (halfword l, const char * p) 
+{
+    halfword t = l;
+    while (t) {
+        fprintf(DEBUG_OUT, "%s t = %d, prev = %d, next = %d\n", p, (int)t, (int)alink(t), (int)vlink(t));
+        t = vlink(t);
+    }    
+}
+#endif
+ 
 static int lua_nodelib_remove(lua_State * L)
 {
     halfword head, current, t;
@@ -324,6 +335,9 @@ static int lua_nodelib_remove(lua_State * L)
         luaL_error(L, "Not enough arguments for node.remove()");
     }
     head = *(check_isnode(L, 1));
+#if DEBUG
+    show_node_links(head, "before");
+#endif
     if (lua_isnil(L, 2)) {
         return 2;               /* the arguments, as they are */
     }
@@ -346,14 +360,14 @@ static int lua_nodelib_remove(lua_State * L)
         }
         /* t is now the previous node */
         vlink(t) = vlink(current);
-#ifdef DEBUG
-        fprintf(DEBUG_OUT, "vlink(t), %d = vlink(current), %d\n", t, vlink(current));
-#endif
         if (vlink(current) != null) {
             alink(vlink(current)) = t;
         }
         current = vlink(current);
     }
+#if DEBUG
+    show_node_links(head, "after");
+#endif
     lua_pushnumber(L, head);
     lua_nodelib_push(L);
     lua_pushnumber(L, current);
@@ -2607,9 +2621,6 @@ static int lua_nodelib_setfield(lua_State * L)
         if (x>0 && type(x) == glue_spec_node) {
             return luaL_error(L, "You can't assign a %s node to a next field\n", node_data[type(x)].name);
         }
-#ifdef DEBUG
-        fprintf(DEBUG_OUT, "vlink(n), %d = x, %d\n", n, x);
-#endif
         vlink(n) = x;
     } else if (field == -1) {
         halfword x = nodelib_getlist(L, 3);
@@ -3351,9 +3362,6 @@ static int lua_nodelib_first_character(lua_State * L)
         h = vlink(h);
     }
     if (savetail != null) {
-#ifdef DEBUG
-        fprintf(DEBUG_OUT, "vlink(t), %d = savetail, %d\n", t, savetail);
-#endif
         vlink(t) = savetail;
     }
     lua_pushnumber(L, h);
