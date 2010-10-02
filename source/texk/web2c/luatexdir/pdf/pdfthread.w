@@ -253,21 +253,6 @@ void check_running_thread(PDF pdf, halfword this_box, scaledpos cur)
 }
 
 @ @c
-void print_beads_list(PDF pdf)
-{
-    pdf_object_list *k;
-    if ((k = get_page_resources_list(pdf, obj_type_bead)) != NULL) {
-        pdf_printf(pdf, "/B [ ");
-        while (k != NULL) {
-            pdf_print_int(pdf, k->info);
-            pdf_printf(pdf, " 0 R ");
-            k = k->link;
-        }
-        pdf_printf(pdf, "]\n");
-    }
-}
-
-@ @c
 void print_bead_rectangles(PDF pdf)
 {
     halfword i;

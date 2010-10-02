@@ -44,17 +44,19 @@ static int obj_in_tree[PDF_OBJ_TYPE_MAX + 1] = {
     0,                          /* |obj_type_catalog = 10|,   */
     0,                          /* |obj_type_info = 11|,      */
     0,                          /* |obj_type_link = 12|,      */
-    0,                          /* |obj_type_bead = 13|,      */
-    0,                          /* |obj_type_annot = 14|,     */
-    0,                          /* |obj_type_objstm = 15|,    */
-    0                           /* |obj_type_others = 16|     */
+    0,                          /* |obj_type_annot = 13|,     */
+    0,                          /* |obj_type_annots = 14|,    */
+    0,                          /* |obj_type_bead = 15|,      */
+    0,                          /* |obj_type_beads = 16|,     */
+    0,                          /* |obj_type_objstm = 17|,    */
+    0                           /* |obj_type_others = 18|     */
 };
 
 @ @c
 const char *pdf_obj_typenames[PDF_OBJ_TYPE_MAX + 1] =
     { "font", "outline", "dest", "obj", "xform", "ximage", "thread",
-    "pagestream", "page", "pages", "catalog", "info", "link", "bead", "annot",
-    "objstm", "others"
+    "pagestream", "page", "pages", "catalog", "info", "link", "annot", "annots",
+    "bead", "beads", "objstm", "others"
 };
 
 @ AVL sort oentry into |avl_table[]| 

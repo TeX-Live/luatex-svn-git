@@ -1823,10 +1823,10 @@ void print_pdf_table_string(PDF pdf, const char *s)
 
 void pdf_end_page(PDF pdf)
 {
-    int j;
+    int j, annots = 0, beads = 0;
     pdf_resource_struct *res_p = pdf->page_resources;
     pdf_resource_struct local_page_resources;
-    pdf_object_list *ol, *ol1;
+    pdf_object_list *annot_list, *bead_list, *link_list, *ol, *ol1;
     scaledpos save_cur_page_size;       /* to save |cur_page_size| during flushing pending forms */
     shipping_mode_e save_shipping_mode;
     int procset = PROCSET_PDF;
@@ -1837,10 +1837,10 @@ void pdf_end_page(PDF pdf)
     pdf_end_stream(pdf);
 
     if (global_shipping_mode == SHIPPING_PAGE) {
-        /* Write out page object */
-
-        pdf_begin_dict(pdf, pdf->last_page, 1);
         pdf->last_pages = pdf_do_page_divert(pdf, pdf->last_page, 0);
+
+        /* Write out /Page object */
+        pdf_begin_dict(pdf, pdf->last_page, 1);
         pdf_puts(pdf, "/Type /Page\n");
         pdf_indirect_ln(pdf, "Contents", pdf->last_stream);
         pdf_indirect_ln(pdf, "Resources", res_p->last_resources);
@@ -1857,26 +1857,48 @@ void pdf_end_page(PDF pdf)
             pdf_printf(pdf, "/Group %d 0 R\n", pdf->img_page_group_val);
             pdf->img_page_group_val = 0;
         }
+        annot_list = get_page_resources_list(pdf, obj_type_annot);
+        link_list = get_page_resources_list(pdf, obj_type_link);
+        if (annot_list != NULL || link_list != NULL) {
+            annots = pdf_create_obj(pdf, obj_type_annots, 0);
+            pdf_indirect_ln(pdf, "Annots", annots);
+        }
+        bead_list = get_page_resources_list(pdf, obj_type_bead);
+        if (bead_list != NULL) {
+            beads = pdf_create_obj(pdf, obj_type_beads, 0);
+            pdf_indirect_ln(pdf, "B", beads);
+        }
+        pdf_end_dict(pdf);
+
         /* Generate array of annotations or beads in page */
-        ol = get_page_resources_list(pdf, obj_type_annot);
-        ol1 = get_page_resources_list(pdf, obj_type_link);
-        if (ol != NULL || ol1 != NULL) {
-            pdf_puts(pdf, "/Annots [ ");
-            while (ol != NULL) {
-                assert(ol->info > 0);
-                pdf_print_int(pdf, ol->info);
+        if (annot_list != NULL || link_list != NULL) {
+            pdf_begin_obj(pdf, annots, 1);
+            pdf_puts(pdf, "[");
+            while (annot_list != NULL) {
+                assert(annot_list->info > 0);
+                pdf_print_int(pdf, annot_list->info);
                 pdf_puts(pdf, " 0 R ");
-                ol = ol->link;
+                annot_list = annot_list->link;
             }
-            while (ol1 != NULL) {
-                pdf_print_int(pdf, ol1->info);
+            while (link_list != NULL) {
+                pdf_print_int(pdf, link_list->info);
                 pdf_puts(pdf, " 0 R ");
-                ol1 = ol1->link;
+                link_list = link_list->link;
             }
             pdf_puts(pdf, "]\n");
+            pdf_end_obj(pdf);
         }
-        print_beads_list(pdf);
-        pdf_end_dict(pdf);
+        if (bead_list != NULL) {
+            pdf_begin_dict(pdf, beads, 1);
+            pdf_puts(pdf, "[");
+            while (bead_list != NULL) {
+                pdf_print_int(pdf, bead_list->info);
+                pdf_printf(pdf, " 0 R ");
+                bead_list = bead_list->link;
+            }
+            pdf_printf(pdf, "]\n");
+            pdf_end_dict(pdf);
+        }
     }
 
     /* Write out resource lists */
@@ -2194,7 +2216,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
 {
     boolean res;
     int i, j, k;
-    int root, info, xref_stm, outlines, threads, names_tree;
+    int root, info, xref_stm = 0, outlines, threads, names_tree;
     int xref_offset_width;
     int callback_id = callback_defined(stop_run_callback);
     int callback_id1 = callback_defined(finish_pdffile_callback);
