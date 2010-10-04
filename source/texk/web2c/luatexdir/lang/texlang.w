@@ -925,11 +925,12 @@ void hnj_hyphenation(halfword head, halfword tail)
                             subtype(t) = automatic_disc;
 	                    while(character(alink(rr)) == ex_hyphen_char) 
 	                       rr = alink(rr);
+	                    if (rr == wordstart) 
+	                       break;
                         }
                     }
                     rr = alink(rr);
                 }
-
 
             } else if (lang->patterns != NULL) {
 
@@ -955,6 +956,7 @@ void hnj_hyphenation(halfword head, halfword tail)
                                             wordlen, left, right, &langdata);
             }
         }
+	explicit_hyphen = false;
         wordlen = 0;
         hy = utf8word;
         if (r == null)
