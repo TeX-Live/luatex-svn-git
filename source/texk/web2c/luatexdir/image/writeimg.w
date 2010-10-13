@@ -428,7 +428,7 @@ void scan_pdfrefximage(PDF pdf)
     scaled_whd alt_rule, dim;
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
     scan_int();
-    check_obj_exists(pdf, obj_type_ximage, cur_val);
+    check_obj_type(pdf, obj_type_ximage, cur_val);
     new_whatsit(pdf_refximage_node);
     idict = idict_array[obj_data_ptr(pdf, cur_val)];
     if (alt_rule.wd != null_flag || alt_rule.ht != null_flag

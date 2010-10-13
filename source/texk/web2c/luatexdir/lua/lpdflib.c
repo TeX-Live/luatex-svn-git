@@ -104,7 +104,7 @@ static int l_immediateobj(lua_State * L)
     if (n > 0 && lua_type(L, 1) == LUA_TNUMBER) {
         first_arg++;
         lua_number2int(k, lua_tonumber(L, 1));
-        check_obj_exists(static_pdf, obj_type_obj, k);
+        check_obj_type(static_pdf, obj_type_obj, k);
         if (is_obj_scheduled(static_pdf, k) || obj_data_ptr(static_pdf, k) != 0)
             luaL_error(L, "pdf.immediateobj() object in use");
     } else {
@@ -270,7 +270,7 @@ static int table_obj(lua_State * L)
         if (!lua_isnumber(L, -1))       /* !vi t */
             luaL_error(L, "pdf.obj(): \"objnum\" must be integer");
         k = (int) lua_tointeger(L, -1); /* vi t */
-        check_obj_exists(static_pdf, obj_type_obj, k);
+        check_obj_type(static_pdf, obj_type_obj, k);
         if (is_obj_scheduled(static_pdf, k) || obj_data_ptr(static_pdf, k) != 0)
             luaL_error(L, "pdf.obj() object in use");
     } else {
@@ -450,7 +450,7 @@ static int orig_obj(lua_State * L)
     if (n > 0 && lua_type(L, 1) == LUA_TNUMBER) {
         first_arg++;
         lua_number2int(k, lua_tonumber(L, 1));
-        check_obj_exists(static_pdf, obj_type_obj, k);
+        check_obj_type(static_pdf, obj_type_obj, k);
         if (is_obj_scheduled(static_pdf, k) || obj_data_ptr(static_pdf, k) != 0)
             luaL_error(L, "pdf.obj() object in use");
     } else {

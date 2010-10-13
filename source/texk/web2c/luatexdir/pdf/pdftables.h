@@ -100,7 +100,8 @@ well.
 #  define sup_pk_dpi 8000       /* max PK pixel density value from \.{texmf.cnf} */
 
 extern int find_obj(PDF pdf, int t, int i, boolean byname);
-extern void check_obj_exists(PDF pdf, int t, int n);
+extern void check_obj_exists(PDF pdf, int objnum);
+extern void check_obj_type(PDF pdf, int t, int objnum);
 extern int get_obj(PDF pdf, int t, int i, boolean byname);
 extern int pdf_create_obj(PDF pdf, int t, int i);
 extern int pdf_new_objnum(PDF pdf);

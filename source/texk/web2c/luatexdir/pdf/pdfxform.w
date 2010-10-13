@@ -108,7 +108,7 @@ void scan_pdfrefxform(PDF pdf)
     scaled_whd alt_rule, dim, nat;
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
     scan_int();
-    check_obj_exists(pdf, obj_type_xform, cur_val);
+    check_obj_type(pdf, obj_type_xform, cur_val);
     new_whatsit(pdf_refxform_node);
     nat.wd = obj_xform_width(pdf, cur_val);
     nat.ht = obj_xform_height(pdf, cur_val);

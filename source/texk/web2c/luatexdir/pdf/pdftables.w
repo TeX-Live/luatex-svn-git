@@ -24,34 +24,6 @@ static const char _svn_version[] =
 
 #include "ptexlib.h"
 
-@ One AVL tree each for a few |obj_type| out of |0...PDF_OBJ_TYPE_MAX|
-
-@c
-/* mark which objects should be searchable through AVL tree */
-
-static int obj_in_tree[PDF_OBJ_TYPE_MAX + 1] = {
-    0,                          /* |obj_type_font = 0|,       */
-    0,                          /* |obj_type_outline = 1|,    */
-    1,                          /* |obj_type_dest = 2|,       */
-    0,                          /* |obj_type_obj = 3|,        */
-    0,                          /* |obj_type_xform = 4|,      */
-    0,                          /* |obj_type_ximage = 5|,     */
-    1,                          /* |obj_type_thread = 6|,     */
-    /* the ones below don't go into a linked list */
-    0,                          /* |obj_type_pagestream = 7|, */
-    1,                          /* |obj_type_page = 8|,       */
-    0,                          /* |obj_type_pages = 9|,      */
-    0,                          /* |obj_type_catalog = 10|,   */
-    0,                          /* |obj_type_info = 11|,      */
-    0,                          /* |obj_type_link = 12|,      */
-    0,                          /* |obj_type_annot = 13|,     */
-    0,                          /* |obj_type_annots = 14|,    */
-    0,                          /* |obj_type_bead = 15|,      */
-    0,                          /* |obj_type_beads = 16|,     */
-    0,                          /* |obj_type_objstm = 17|,    */
-    0                           /* |obj_type_others = 18|     */
-};
-
 @ @c
 const char *pdf_obj_typenames[PDF_OBJ_TYPE_MAX + 1] =
     { "font", "outline", "dest", "obj", "xform", "ximage", "thread",
@@ -82,7 +54,7 @@ static int compare_info(const void *pa, const void *pb, void *param)
 static void avl_put_obj(PDF pdf, int t, oentry * oe)
 {
     void **pp;
-    assert(t >= 0 || t <= PDF_OBJ_TYPE_MAX || obj_in_tree[t] == 1);
+    assert(t >= 0 && t <= PDF_OBJ_TYPE_MAX);
     if (pdf->obj_tree[t] == NULL) {
         pdf->obj_tree[t] = avl_create(compare_info, NULL, &avl_xallocator);
         if (pdf->obj_tree[t] == NULL)
@@ -117,7 +89,7 @@ static int avl_find_int_obj(PDF pdf, int t, int i)
 {
     oentry *p;
     oentry tmp;
-    assert(t >= 0 || t <= PDF_OBJ_TYPE_MAX || obj_in_tree[t] == 1);
+    assert(t >= 0 && t <= PDF_OBJ_TYPE_MAX);
     tmp.u.int0 = i;
     tmp.u_type = union_type_int;
     if (pdf->obj_tree[t] == NULL)
@@ -132,7 +104,7 @@ static int avl_find_str_obj(PDF pdf, int t, char *s)
 {
     oentry *p;
     oentry tmp;
-    assert(t >= 0 || t <= PDF_OBJ_TYPE_MAX || obj_in_tree[t] == 1);
+    assert(t >= 0 && t <= PDF_OBJ_TYPE_MAX);
     tmp.u.str0 = s;
     tmp.u_type = union_type_cstring;
     if (pdf->obj_tree[t] == NULL)
@@ -243,12 +215,17 @@ int pdf_new_objnum(PDF pdf)
     return k;
 }
 
-void check_obj_exists(PDF pdf, int t, int objnum)
+void check_obj_exists(PDF pdf, int objnum)
 {
-    char *s;
-    int u;
     if (objnum < 0 || objnum > pdf->obj_ptr)
         pdf_error("ext1", "cannot find referenced object");
+}
+
+void check_obj_type(PDF pdf, int t, int objnum)
+{
+    int u;
+    char *s;
+    check_obj_exists(pdf, objnum);
     u = obj_type(pdf, objnum);
     if (t != u) {
         assert(t >= 0 && t <= PDF_OBJ_TYPE_MAX);

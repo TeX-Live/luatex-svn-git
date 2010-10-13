@@ -82,7 +82,7 @@ void scan_annot(PDF pdf)
         if (scan_keyword("useobjnum")) {
             scan_int();
             k = cur_val;
-            check_obj_exists(pdf, obj_type_annot, k);
+            check_obj_type(pdf, obj_type_annot, k);
             if (obj_annot_ptr(pdf, k) != 0)
                 pdf_error("ext1", "annot object in use");
         } else {

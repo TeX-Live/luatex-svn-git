@@ -1808,7 +1808,7 @@ void conv_toks(void)
         break;
     case pdf_xform_name_code:
         scan_int();
-        check_obj_exists(static_pdf, obj_type_xform, cur_val);
+        check_obj_type(static_pdf, obj_type_xform, cur_val);
         break;
     case pdf_creation_date_code:
         ins_list(string_to_toks(getcreationdate(static_pdf)));
@@ -1916,7 +1916,7 @@ void conv_toks(void)
         break;
     case pdf_ximage_bbox_code:
         scan_int();
-        check_obj_exists(static_pdf, obj_type_ximage, cur_val);
+        check_obj_type(static_pdf, obj_type_ximage, cur_val);
         i = obj_data_ptr(static_pdf, cur_val);
         scan_int();
         j = cur_val;

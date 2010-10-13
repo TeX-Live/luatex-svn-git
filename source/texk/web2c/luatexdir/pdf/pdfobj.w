@@ -152,7 +152,7 @@ void scan_obj(PDF pdf)
         if (scan_keyword("useobjnum")) {
             scan_int();
             k = cur_val;
-            check_obj_exists(pdf, obj_type_obj, k);
+            check_obj_type(pdf, obj_type_obj, k);
             if (is_obj_scheduled(pdf, k) || obj_data_ptr(pdf, k) != 0)
                 luaL_error(Luas, "object in use");
         } else {
@@ -196,14 +196,14 @@ void scan_obj(PDF pdf)
 void scan_refobj(PDF pdf)
 {
     scan_int();
-    check_obj_exists(pdf, obj_type_obj, cur_val);
+    check_obj_type(pdf, obj_type_obj, cur_val);
     new_whatsit(pdf_refobj_node);
     pdf_obj_objnum(tail) = cur_val;
 }
 
 void scan_refobj_lua(PDF pdf, int k)
 {
-    check_obj_exists(pdf, obj_type_obj, k);
+    check_obj_type(pdf, obj_type_obj, k);
     new_whatsit(pdf_refobj_node);
     pdf_obj_objnum(tail) = k;
 }
