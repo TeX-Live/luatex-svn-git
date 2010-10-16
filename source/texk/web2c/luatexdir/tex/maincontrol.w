@@ -1453,7 +1453,7 @@ void new_graf(boolean indented)
     while (dir_rover != null) {
         if ((vlink(dir_rover) != null) || (dir_dir(dir_rover) != par_direction)) {
             dir_graf_tmp = new_dir(dir_dir(dir_rover));
-            couple_nodes(dir_graf_tmp,vlink(q));
+            try_couple_nodes(dir_graf_tmp,vlink(q));
             couple_nodes(q,dir_graf_tmp);
         }
         dir_rover = vlink(dir_rover);
