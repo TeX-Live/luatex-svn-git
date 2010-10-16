@@ -37,7 +37,7 @@ in production versions of \TeX.
 @^system dependencies@>
 */
 
-#  define ssup_max_strings 262143
+#  define ssup_max_strings 2097151
 
 #  define inf_max_strings   100000
 #  define sup_max_strings   ssup_max_strings
@@ -54,7 +54,7 @@ in production versions of \TeX.
 #  define sup_max_in_open   127
 
 #  define inf_param_size   60
-#  define sup_param_size   6000
+#  define sup_param_size   32767
 
 #  define inf_save_size   600
 #  define sup_save_size   80000
@@ -69,7 +69,7 @@ in production versions of \TeX.
 #  define inf_hash_extra   0
 
 #  define inf_expand_depth   100
-#  define sup_expand_depth   1000000
+#  define sup_expand_depth   10000000
 
 
 #  include <stdio.h>
