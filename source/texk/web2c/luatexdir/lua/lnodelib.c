@@ -898,7 +898,7 @@ static int lua_nodelib_tail(lua_State * L)
     t = *n;
     if (t == null)
         return 1;               /* the old userdata */
-    alink(t) = null;
+    /* alink(t) = null; */ /* don't do this, |t|'s |alink| may be a valid pointer */
     while (vlink(t) != null) {
         alink(vlink(t)) = t;
         t = vlink(t);
