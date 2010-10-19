@@ -480,44 +480,31 @@ boolean scan_keyword(const char *s)
     halfword q;                 /* new node being added to the token list via |store_new_token| */
     const char *k;              /* index into |str_pool| */
     halfword save_cur_cs = cur_cs;
-    if (strlen(s) == 1) {
-        /* Get the next non-blank non-call token; */
-        do {
-            get_x_token();
-        } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
-        if ((cur_cs == 0) && ((cur_chr == *s) || (cur_chr == *s - 'a' + 'A'))) {
-            return true;
-        } else {
+    assert (strlen(s) > 1);
+    p = backup_head;
+    token_link(p) = null;
+    k = s;
+    while (*k) {
+        get_x_token();      /* recursion is possible here */
+        if ((cur_cs == 0) &&
+            ((cur_chr == *k) || (cur_chr == *k - 'a' + 'A'))) {
+            store_new_token(cur_tok);
+            k++;
+        } else if ((cur_cmd != spacer_cmd) || (p != backup_head)) {
+            if (p != backup_head) {
+                q = get_avail();
+                token_info(q) = cur_tok;
+                token_link(q) = null;
+                token_link(p) = q;
+                begin_token_list(token_link(backup_head), backed_up);
+            } else {
+                back_input();
+            }
             cur_cs = save_cur_cs;
-            back_input();
             return false;
         }
-    } else {
-        p = backup_head;
-        token_link(p) = null;
-        k = s;
-        while (*k) {
-            get_x_token();      /* recursion is possible here */
-            if ((cur_cs == 0) &&
-                ((cur_chr == *k) || (cur_chr == *k - 'a' + 'A'))) {
-                store_new_token(cur_tok);
-                k++;
-            } else if ((cur_cmd != spacer_cmd) || (p != backup_head)) {
-                if (p != backup_head) {
-                    q = get_avail();
-                    token_info(q) = cur_tok;
-                    token_link(q) = null;
-                    token_link(p) = q;
-                    begin_token_list(token_link(backup_head), backed_up);
-                } else {
-                    back_input();
-                }
-                cur_cs = save_cur_cs;
-                return false;
-            }
-        }
-        flush_list(token_link(backup_head));
     }
+    flush_list(token_link(backup_head));
     cur_cs = save_cur_cs;
     return true;
 }
