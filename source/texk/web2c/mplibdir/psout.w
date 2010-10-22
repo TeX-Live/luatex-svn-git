@@ -1,4 +1,4 @@
- $Id: psout.w 1318 2010-07-26 12:42:04Z taco $
+ $Id: psout.w 1400 2010-10-13 11:26:37Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -1837,7 +1837,7 @@ boolean read_encoding_only;
 int t1_encoding;
 
 @ @c
-#define T1_BUF_SIZE   0x10
+#define T1_BUF_SIZE   0x100
 
 #define CS_HSTEM            1
 #define CS_VSTEM            3
@@ -2935,8 +2935,38 @@ static void t1_subset_ascii_part (MP mp, font_number tex_font, fm_entry *fm_cur)
     int i, j;
     t1_getline (mp);
     while (!t1_prefix ("/Encoding")) {
-	  t1_scan_param (mp,tex_font, fm_cur);
-        t1_putline (mp);
+	t1_scan_param (mp,tex_font, fm_cur);
+	/* Patch the initial font directory cacheing mechanism found in some
+         * pfb fonts.
+         * 
+	 * Even though the T1 spec does not explicitly state that 'FontDirectory'
+   	 * should appear at the start of a line, luckily this is standard practise.
+	 */
+	if (t1_prefix ("FontDirectory")) {
+          char *endloc, *p;
+	  char new_line[T1_BUF_SIZE] = {0};
+          p = mp->ps->t1_line_array;
+          while ((endloc = strstr(p,fm_cur->ps_name)) != NULL) {
+	     int n = (endloc-mp->ps->t1_line_array) + strlen(fm_cur->subset_tag) + 2 + strlen(fm_cur->ps_name);
+	     if (n >= T1_BUF_SIZE)  {
+               mp_fatal_error (mp, "t1_subset_ascii_part: buffer overrun detected.");
+             }
+             strncat(new_line,p,(endloc-p));
+	     strcat(new_line,fm_cur->subset_tag);
+	     strcat(new_line,"-");
+	     strcat(new_line,fm_cur->ps_name);
+	     p = endloc + strlen(fm_cur->ps_name);
+	  }
+	  if (strlen(new_line) + strlen(p) + 1 >= T1_BUF_SIZE )  {
+	     mp_fatal_error (mp, "t1_subset_ascii_part: buffer overrun detected.");
+          }
+          strcat(new_line, p);
+	  strcpy(mp->ps->t1_line_array,new_line);
+          mp->ps->t1_line_ptr = mp->ps->t1_line_array + strlen(mp->ps->t1_line_array);
+	  t1_putline (mp);
+	} else {
+	  t1_putline (mp);
+	}
         t1_getline (mp);
     }
     t1_builtin_enc (mp);
@@ -2944,12 +2974,6 @@ static void t1_subset_ascii_part (MP mp, font_number tex_font, fm_entry *fm_cur)
         mp->ps->t1_glyph_names = external_enc ();
     else
         mp->ps->t1_glyph_names = mp->ps->t1_builtin_glyph_names;
-	/* 
-    |if (is_included (fm_cur) && is_subsetted (fm_cur)) {
-	    make_subset_tag (fm_cur, t1_glyph_names, tex_font);
-        update_subset_tag ();
-    }|
-    */
     if ((!is_subsetted (fm_cur)) && mp->ps->t1_encoding == ENC_STANDARD)
         t1_puts (mp,"/Encoding StandardEncoding def\n");
     else {

@@ -1,4 +1,4 @@
-% $Id: mp.w 1344 2010-08-16 11:43:39Z taco $
+% $Id: mp.w 1429 2010-10-21 13:59:22Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -88,12 +88,12 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 1.502" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version 1.503" /* printed when \MP\ starts */
 @d true 1
 @d false 0
 
 @(mpmp.h@>=
-#define metapost_version "1.502"
+#define metapost_version "1.503"
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
 few typedefs and the header defintions for the externally used
@@ -6359,7 +6359,6 @@ the current type before recycling.
 static quarterword mp_und_type (MP mp, mp_node p) {
   (void) mp;
   switch (mp_type (p)) {
-  case undefined:
   case mp_vacuous:
     return undefined;
   case mp_boolean_type:
@@ -17796,16 +17795,17 @@ void mp_begin_name (MP mp) {
 @ And here's the second.
 @^system dependencies@>
 
-@d MP_IS_DIR_SEP(c) (c=='/' || c=='\\')
-
 @c
+#ifndef IS_DIR_SEP
+#define IS_DIR_SEP(c) (c=='/' || c=='\\')
+#endif
 boolean mp_more_name (MP mp, ASCII_code c) {
   if (c == '"') {
     mp->quoted_filename = !mp->quoted_filename;
   } else if ((c == ' ' || c == '\t') && (mp->quoted_filename == false)) {
     return false;
   } else {
-    if (MP_IS_DIR_SEP (c)) {
+    if (IS_DIR_SEP (c)) {
       mp->area_delimiter = (integer) mp->cur_length;
       mp->ext_delimiter = -1;
     } else if (c == '.') {
@@ -19196,7 +19196,6 @@ static void mp_recycle_value (MP mp, mp_node p) {
   if (t < mp_dependent)
     v = value (p);
   switch (t) {
-  case undefined:
   case mp_vacuous:
   case mp_boolean_type:
   case mp_known:
@@ -27068,7 +27067,7 @@ void mp_do_new_internal (MP mp) {
   if (mp->cur_cmd == type_name && mp->cur_mod == mp_string_type) {
     the_type = mp_string_type;
   } else {
-    if (!(mp->cur_cmd == type_name && mp->cur_mod == mp_known)) {
+    if (!(mp->cur_cmd == type_name && mp->cur_mod == mp_numeric_type)) {
       mp_back_input (mp);
     }
   }
@@ -27516,49 +27515,50 @@ void mp_scan_with_list (MP mp, mp_node p) {
   k = 0;
   memset(&new_expr,0,sizeof(mp_value));
   while (mp->cur_cmd == with_option) {
+    /* todo this is not very nice: the color models have their own enumeration */
     t = (mp_variable_type) mp->cur_mod;
     mp_get_x_next (mp);
-    if (t != mp_no_model)
+    if (t != (mp_variable_type) mp_no_model)
       mp_scan_expression (mp);
     if (((t == with_mp_pre_script) && (mp->cur_exp.type != mp_string_type)) ||
         ((t == with_mp_post_script) && (mp->cur_exp.type != mp_string_type)) ||
-        ((t == mp_uninitialized_model) &&
+        ((t == (mp_variable_type) mp_uninitialized_model) &&
          ((mp->cur_exp.type != mp_cmykcolor_type)
           && (mp->cur_exp.type != mp_color_type)
           && (mp->cur_exp.type != mp_known)
-          && (mp->cur_exp.type != mp_boolean_type))) || ((t == mp_cmyk_model)
+          && (mp->cur_exp.type != mp_boolean_type))) || ((t == (mp_variable_type) mp_cmyk_model)
                                                          && (mp->cur_exp.type !=
                                                              mp_cmykcolor_type))
-        || ((t == mp_rgb_model) && (mp->cur_exp.type != mp_color_type))
-        || ((t == mp_grey_model) && (mp->cur_exp.type != mp_known))
-        || ((t == mp_pen_type) && (mp->cur_exp.type != t))
-        || ((t == mp_picture_type) && (mp->cur_exp.type != t))) {
+        || ((t == (mp_variable_type) mp_rgb_model) && (mp->cur_exp.type != mp_color_type))
+        || ((t == (mp_variable_type) mp_grey_model) && (mp->cur_exp.type != mp_known))
+        || ((t == (mp_variable_type) mp_pen_type) && (mp->cur_exp.type != t))
+        || ((t == (mp_variable_type) mp_picture_type) && (mp->cur_exp.type != t))) {
       @<Complain about improper type@>;
-    } else if (t == mp_uninitialized_model) {
+    } else if (t == (mp_variable_type) mp_uninitialized_model) {
       if (cp == MP_VOID)
         @<Make |cp| a colored object in object list~|p|@>;
       if (cp != NULL)
         @<Transfer a color from the current expression to object~|cp|@>;
       mp_flush_cur_exp (mp, new_expr);
-    } else if (t == mp_rgb_model) {
+    } else if (t == (mp_variable_type) mp_rgb_model) {
       if (cp == MP_VOID)
         @<Make |cp| a colored object in object list~|p|@>;
       if (cp != NULL)
         @<Transfer a rgbcolor from the current expression to object~|cp|@>;
       mp_flush_cur_exp (mp, new_expr);
-    } else if (t == mp_cmyk_model) {
+    } else if (t == (mp_variable_type) mp_cmyk_model) {
       if (cp == MP_VOID)
         @<Make |cp| a colored object in object list~|p|@>;
       if (cp != NULL)
         @<Transfer a cmykcolor from the current expression to object~|cp|@>;
       mp_flush_cur_exp (mp, new_expr);
-    } else if (t == mp_grey_model) {
+    } else if (t == (mp_variable_type) mp_grey_model) {
       if (cp == MP_VOID)
         @<Make |cp| a colored object in object list~|p|@>;
       if (cp != NULL)
         @<Transfer a greyscale from the current expression to object~|cp|@>;
       mp_flush_cur_exp (mp, new_expr);
-    } else if (t == mp_no_model) {
+    } else if (t == (mp_variable_type) mp_no_model) {
       if (cp == MP_VOID)
         @<Make |cp| a colored object in object list~|p|@>;
       if (cp != NULL)
@@ -27664,14 +27664,14 @@ void mp_scan_with_list (MP mp, mp_node p) {
       "Next time say `withpostscript <known string expression>';";
   else if (t == mp_picture_type)
     mp->help_line[1] = "Next time say `dashed <known picture expression>';";
-  else if (t == mp_uninitialized_model)
+  else if (t == (mp_variable_type) mp_uninitialized_model)
     mp->help_line[1] = "Next time say `withcolor <known color expression>';";
-  else if (t == mp_rgb_model)
+  else if (t == (mp_variable_type) mp_rgb_model)
     mp->help_line[1] = "Next time say `withrgbcolor <known color expression>';";
-  else if (t == mp_cmyk_model)
+  else if (t == (mp_variable_type) mp_cmyk_model)
     mp->help_line[1] =
       "Next time say `withcmykcolor <known cmykcolor expression>';";
-  else if (t == mp_grey_model)
+  else if (t == (mp_variable_type) mp_grey_model)
     mp->help_line[1] =
       "Next time say `withgreyscale <known numeric expression>';";;
   mp_put_get_flush_error (mp, new_expr);
@@ -30308,13 +30308,17 @@ etcetera to make it worthwile to move the code to |psout.w|.
 void mp_open_output_file (MP mp);
 
 @ @c
-static void mp_append_to_template (MP mp, integer ff, integer c) {
+static void mp_append_to_template (MP mp, integer ff, integer c, boolean rounding) {
   if (internal_type (c) == mp_string_type) {
     char *ss = mp_str (mp, internal_string (c));
     mp_print (mp, ss);
   } else if (internal_type (c) == mp_known) {
-    integer cc = mp_round_unscaled (mp, internal_value (c));
-    print_with_leading_zeroes (cc, ff);
+    if (rounding) {
+      integer cc = mp_round_unscaled (mp, internal_value (c));
+      print_with_leading_zeroes (cc, ff);
+    } else {
+      mp_print_scaled (mp, internal_value (c));
+    }
   }
 }
 static char *mp_set_output_file_name (MP mp, integer c) {
@@ -30358,32 +30362,32 @@ static char *mp_set_output_file_name (MP mp, integer c) {
         if (i < length (template)) {
           switch (*(template->str + i)) {
           case 'j':
-            mp_append_to_template (mp, f, mp_job_name);
+            mp_append_to_template (mp, f, mp_job_name, true);
             break;
           case 'c':
             if (internal_value (mp_char_code) < 0) {
               mp_print (mp, "ps");
             } else {
-              mp_append_to_template (mp, f, mp_char_code);
+              mp_append_to_template (mp, f, mp_char_code, true);
             }
             break;
           case 'o':
-            mp_append_to_template (mp, f, mp_output_format);
+            mp_append_to_template (mp, f, mp_output_format, true);
             break;
           case 'd':
-            mp_append_to_template (mp, f, mp_day);
+            mp_append_to_template (mp, f, mp_day, true);
             break;
           case 'm':
-            mp_append_to_template (mp, f, mp_month);
+            mp_append_to_template (mp, f, mp_month, true);
             break;
           case 'y':
-            mp_append_to_template (mp, f, mp_year);
+            mp_append_to_template (mp, f, mp_year, true);
             break;
           case 'H':
-            mp_append_to_template (mp, f, mp_hour);
+            mp_append_to_template (mp, f, mp_hour, true);
             break;
           case 'M':
-            mp_append_to_template (mp, f, mp_minute);
+            mp_append_to_template (mp, f, mp_minute, true);
             break;
           case '{':
             {
@@ -30416,7 +30420,7 @@ static char *mp_set_output_file_name (MP mp, integer c) {
                                    "The appearance of outputtemplate inside outputtemplate is ignored.");
                       mp_warn (mp, err);
                     } else {
-                      mp_append_to_template (mp, f, equiv (p));
+                      mp_append_to_template (mp, f, equiv (p), false);
                     }
                   } else {
                     char err[256];

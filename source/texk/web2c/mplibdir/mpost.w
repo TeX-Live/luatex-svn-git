@@ -1,4 +1,4 @@
-% $Id: mpost.w 1326 2010-07-27 09:56:06Z taco $
+% $Id: mpost.w 1422 2010-10-19 07:26:52Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -239,6 +239,9 @@ void recorder_start(char *jobname) {
   int fmt;
   boolean req;
   (void) mpx;
+  if ((mode[0]=='r' &&  !kpse_in_name_ok(nam)) ||
+      (mode[0]=='w' &&  !kpse_out_name_ok(nam)))
+     return NULL;  /* disallowed filename */
   if (mode[0] != 'r') { 
      return strdup(nam);
   }
@@ -286,6 +289,8 @@ static int mpost_run_make_mpx (MP mp, char *mpname, char *mpxname) {
     } else {
       tmp = normalize_quotes(mpname, "mpname");
     }
+    if (!kpse_in_name_ok(tmp))
+       return 0;  /* disallowed filename */
     qmpname = kpse_find_file (tmp,kpse_mp_format, true);
     mpost_xfree(tmp);
     if (qmpname != NULL && job_area != NULL) {
@@ -302,12 +307,12 @@ static int mpost_run_make_mpx (MP mp, char *mpname, char *mpxname) {
         if ((stat(qmpxname, &target_stat) >= 0) &&
             (stat(qmpname, &source_stat) >= 0)) {
 #if HAVE_ST_MTIM
-          if (source_stat.st_mtim.tv_sec <= target_stat.st_mtim.tv_sec || 
+          if (source_stat.st_mtim.tv_sec < target_stat.st_mtim.tv_sec || 
              (source_stat.st_mtim.tv_sec  == target_stat.st_mtim.tv_sec && 
-              source_stat.st_mtim.tv_nsec <= target_stat.st_mtim.tv_nsec))
+              source_stat.st_mtim.tv_nsec < target_stat.st_mtim.tv_nsec))
      	    nothingtodo = 1;
 #else
-          if (source_stat.st_mtime <= target_stat.st_mtime)
+          if (source_stat.st_mtime < target_stat.st_mtime)
   	        nothingtodo = 1;
 #endif
         }
@@ -427,6 +432,8 @@ static int mpost_run_dvitomp (char *dviname, char *mpxname) {
       mpost_xfree (m);
       m = s ;
     }
+    if (!(kpse_in_name_ok(d) && kpse_out_name_ok(m)))
+         return EXIT_FAILURE; /* disallowed filename */
     mpxopt->mpname = d;
     mpxopt->mpxname = m;
 
@@ -481,6 +488,9 @@ static char *mpost_find_file(MP mp, const char *fname, const char *fmode, int ft
   char *s;
   (void)mp;
   s = NULL;
+  if ((fmode[0]=='r' &&  !kpse_in_name_ok(fname)) ||
+      (fmode[0]=='w' &&  !kpse_out_name_ok(fname)))
+    return NULL;  /* disallowed filename */
   if (fmode[0]=='r') {
 	if ((job_area != NULL) &&
         (ftype>=mp_filetype_text || ftype==mp_filetype_program )) {
@@ -498,7 +508,7 @@ static char *mpost_find_file(MP mp, const char *fname, const char *fmode, int ft
           struct stat source_stat, target_stat;
           char *mpname = mpost_xstrdup(f);
           *(mpname + strlen(mpname) -1 ) = '\0';
-          printf("statting %s and %s\n", mpname, f);
+          /* printf("statting %s and %s\n", mpname, f); */
           if ((stat(f, &target_stat) >= 0) &&
               (stat(mpname, &source_stat) >= 0)) {
 #if HAVE_ST_MTIM
@@ -1118,9 +1128,10 @@ so we have to fix up |job_name| and |job_area|. If there
 was a \.{--jobname} on the command line, we have to reset
 the options structure as well.
 
-@d MP_IS_DIR_SEP(c) (c=='/' || c=='\\')
-
 @<Discover the job name@>=
+#ifndef IS_DIR_SEP
+#define IS_DIR_SEP(c) (c=='/' || c=='\\')
+#endif
 { 
 char *tmp_job = NULL;
 if (options->job_name != NULL) {
@@ -1170,9 +1181,9 @@ if (options->job_name != NULL) {
 /* now split |tmp_job| into |job_area| and |job_name| */
 {
   char *s = tmp_job + strlen(tmp_job);
-  if (!MP_IS_DIR_SEP(*s)) { /* just in case */
+  if (!IS_DIR_SEP(*s)) { /* just in case */
     while (s>tmp_job) {
-      if (MP_IS_DIR_SEP(*s)) {
+      if (IS_DIR_SEP(*s)) {
         break;
       }
       s--;
