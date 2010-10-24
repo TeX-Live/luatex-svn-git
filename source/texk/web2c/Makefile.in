@@ -45,7 +45,8 @@ check_PROGRAMS = $(am__EXEEXT_8) $(am__EXEEXT_9) $(am__EXEEXT_10) \
 	$(am__EXEEXT_11) md5main$(EXEEXT)
 TESTS = tangle.test $(am__EXEEXT_14) ctiedir/ctie.test \
 	cwebdir/cweave.test tiedir/tie.test $(am__append_4) \
-	$(am__append_10) $(am__append_13) libmd5/md5.test
+	$(am__append_10) $(am__append_13) $(am__append_16) \
+	libmd5/md5.test
 DIST_COMMON = README $(am__configure_deps) $(dist_man_MANS) \
 	$(srcdir)/../../build-aux/config.guess \
 	$(srcdir)/../../build-aux/config.sub \
@@ -96,8 +97,9 @@ DIST_COMMON = README $(am__configure_deps) $(dist_man_MANS) \
 @MP_TRUE@am__append_13 = $(mp_tests)
 @MP_TRUE@am__append_14 = pltotf tftopl
 @LUATEX_TRUE@am__append_15 = luatex
-@MINGW32_FALSE@am__append_16 = -DLUA_USE_POSIX
-@OTANGLE_TRUE@am__append_17 = pltotf tftopl
+@LUATEX_TRUE@am__append_16 = $(luatex_tests)
+@MINGW32_FALSE@am__append_17 = -DLUA_USE_POSIX
+@OTANGLE_TRUE@am__append_18 = pltotf tftopl
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/web2c-disable.m4 \
@@ -108,7 +110,6 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/web2c-disable.m4 \
 	$(top_srcdir)/../../m4/kpse-fontconfig-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-freetype2-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-graphite-flags.m4 \
-	$(top_srcdir)/../../m4/kpse-icu-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-kpathsea-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-lex.m4 \
 	$(top_srcdir)/../../m4/kpse-libpng-flags.m4 \
@@ -632,9 +633,6 @@ GRAPHITE_DEPEND = @GRAPHITE_DEPEND@
 GRAPHITE_INCLUDES = @GRAPHITE_INCLUDES@
 GRAPHITE_LIBS = @GRAPHITE_LIBS@
 GREP = @GREP@
-ICU_DEPEND = @ICU_DEPEND@
-ICU_INCLUDES = @ICU_INCLUDES@
-ICU_LIBS = @ICU_LIBS@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -661,6 +659,7 @@ LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
+MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
 NM = @NM@
 NMEDIT = @NMEDIT@
@@ -725,6 +724,7 @@ abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
+ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
 ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
@@ -760,7 +760,6 @@ libdir = @libdir@
 libexecdir = @libexecdir@
 localedir = @localedir@
 localstatedir = @localstatedir@
-lt_ECHO = @lt_ECHO@
 lua_socketlibs = @lua_socketlibs@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
@@ -839,10 +838,10 @@ EXTRA_DIST = PROJECTS cftests cpascal.h help.h w2c/config.h \
 	triptrap/tripman.tex triptrap/tripos.tex triptrap/writeo \
 	triptrap/writeo.2 mplibdir/ChangeLog $(mpost_web) $(mp_tests) \
 	$(libmplib_web) mplibdir/lmplib.c luatexdir/ptexlib.h \
-	luatexdir/getluatexsvnversion.sh luatexdir/lua51/Makefile \
-	luatexdir/lua51/liolib.c luatexdir/lua51/lua.c \
-	luatexdir/lua51/luac.c luatexdir/lua51/print.c \
-	luatexdir/luasocket/src/socket_lua.c \
+	luatexdir/getluatexsvnversion.sh $(luatex_tests) \
+	luatexdir/lua51/Makefile luatexdir/lua51/liolib.c \
+	luatexdir/lua51/lua.c luatexdir/lua51/luac.c \
+	luatexdir/lua51/print.c luatexdir/luasocket/src/socket_lua.c \
 	luatexdir/luasocket/src/ftp_lua.c \
 	luatexdir/luasocket/src/http_lua.c \
 	luatexdir/luasocket/src/smtp_lua.c \
@@ -1136,8 +1135,12 @@ luatex_DEPENDENCIES = $(proglib) $(KPATHSEA_DEPEND) libluatex.a \
 	$(LIBPNG_DEPEND) $(ZLIB_DEPEND) $(POPPLER_DEPEND) \
 	$(OBSDCOMPAT_DEPEND) libmd5.a libmplib.a
 luatex_SOURCES = luatexdir/luatex_svnversion.h luatexdir/luatex.c luatexdir/luatex.h
+
+# luaTeX Tests
+#
+luatex_tests = luatexdir/luatex.test
 liblua51_a_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/luatexdir/lua51 \
-	$(am__append_16)
+	$(am__append_17)
 liblua51_a_CFLAGS = # $(WARNING_CFLAGS)
 liblua51_a_SOURCES = \
 	luatexdir/lua51/lapi.c \
@@ -6275,7 +6278,6 @@ $(proglib): ${srcdir}/lib/*.c
 @GRAPHITE_RULE@
 @FREETYPE2_RULE@
 @TECKIT_RULE@
-@ICU_RULE@
 
 .PHONY: triptrap
 triptrap:

@@ -98,7 +98,7 @@ $(proglib): ${srcdir}/lib/*.c
 ## Rebuild libTEXkit
 @TECKIT_RULE@
 ## Rebuild libsicuxxx
-@ICU_RULE@
+##@ICU_RULE@
 
 # The environment for building.
 buildenv = TEXMFCNF=$(srcdir)/../kpathsea
