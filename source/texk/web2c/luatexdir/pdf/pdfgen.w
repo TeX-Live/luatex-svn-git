@@ -105,8 +105,6 @@ PDF init_pdf_struct(PDF pdf)
     pdf->draftmode = 0;
     pdf->inclusion_copy_font = 1;
     pdf->replace_font = 0;
-    pdf->seek_pdf = 0;          /* set to 1 for pdftex-style seek */
-    pdf->stream_length_obj = 0;
     pdf->pk_resolution = 0;
     pdf->pk_scale_factor = 0;
 
@@ -531,14 +529,8 @@ void pdf_print_str(PDF pdf, const char *s)
 void pdf_begin_stream(PDF pdf)
 {
     assert(pdf->os_mode == false);
-    pdf->stream_length_write = 1;       /* write /Length at |pdf_end_stream| call */
-    if (pdf->seek_pdf == 1) {
-        pdf_puts(pdf, "/Length           \n");
-        pdf->stream_length_obj = 0;
-    } else {
-        pdf->stream_length_obj = pdf_new_objnum(pdf);
-        pdf_indirect_ln(pdf, "Length", pdf->stream_length_obj);
-    }
+    pdf_puts(pdf, "/Length           \n");
+    pdf->seek_write_length = true;      /* fill in length at |pdf_end_stream| call */
     pdf->stream_length_offset = pdf_offset(pdf) - 11;
     pdf->stream_length = 0;
     pdf->last_byte = 0;
@@ -576,24 +568,14 @@ void pdf_end_stream(PDF pdf)
     else
         pdf->stream_length = pdf_offset(pdf) - pdf_saved_offset(pdf);
     pdf_flush(pdf);
-    if (pdf->stream_length_write == 1 && pdf->seek_pdf == 1) {
-        assert(pdf->stream_length_obj == 0);
+    if (pdf->seek_write_length)
         write_stream_length(pdf, (int) pdf->stream_length,
                             pdf->stream_length_offset);
-    }
+    pdf->seek_write_length = false;
     if (pdf->last_byte != pdf_newline_char)
         pdf_out(pdf, pdf_newline_char);
     pdf_puts(pdf, "endstream\n");
     pdf_end_obj(pdf);
-    if (pdf->stream_length_write == 1 && pdf->seek_pdf == 0) {
-        assert(pdf->stream_length_obj != 0);
-        pdf_begin_obj(pdf, pdf->stream_length_obj, 1);
-        pdf_print_int(pdf, pdf->stream_length);
-        pdf_out(pdf, '\n');
-        pdf_end_obj(pdf);
-        pdf->stream_length_obj = 0;
-    }
-    pdf->stream_length_write = 0;
 }
 
 void pdf_remove_last_space(PDF pdf)
