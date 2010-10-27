@@ -254,9 +254,13 @@ typedef struct pdf_output_file_ {
     int last_pages;             /* pointer to most recently generated pages object */
     int last_page;              /* pointer to most recently generated page object */
     int last_stream;            /* pointer to most recently generated stream */
+
+    int seek_pdf;               /* flag whether to seek back in the PDF output file */
     off_t stream_length;        /* length of most recently generated stream */
     off_t stream_length_offset; /* file offset of the last stream length */
-    int seek_write_length;      /* flag whether to seek back and write \.{/Length} */
+    int stream_length_obj;      /* stream \.{/Length} object number, for seek_pdf == 0 */
+    int stream_length_write;    /* flag from pdf_begin_stream to pdf_end_stream whether to write \.{/Length} */
+
     int last_byte;              /* byte most recently written to PDF file; for \.{endstream} in new line */
 
     /* integer last_resources;     halfword to most recently generated Resources object.
