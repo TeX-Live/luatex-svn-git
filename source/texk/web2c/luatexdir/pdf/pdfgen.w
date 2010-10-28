@@ -451,15 +451,15 @@ void pdf_print_char(PDF pdf, int c)
 @ @c
 void pdf_out_block(PDF pdf, const char *s, size_t n)
 {
-    size_t i = 0, l;
+    size_t l;
     do {
         l = n;
         if ((int) l > pdf->buf_size)
             l = (size_t) pdf->buf_size;
         pdf_room(pdf, (int) l);
-        (void) memcpy(pdf->buf + pdf->ptr, s + i, l);
+        (void) memcpy(pdf->buf + pdf->ptr, s, l);
         pdf->ptr += (int) l;
-        i += l;
+        s += l;
         n -= l;
     } while (n > 0);
 }
