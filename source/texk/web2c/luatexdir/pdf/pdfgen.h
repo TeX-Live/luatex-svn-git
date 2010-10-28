@@ -196,7 +196,6 @@ extern void fb_putchar(PDF, eight_bits);
 extern void fb_seek(PDF, int);
 extern void fb_free(PDF);
 
-extern void write_zip(PDF, boolean);
 extern void zip_free(PDF);
 
 /* functions that do not output stuff */
