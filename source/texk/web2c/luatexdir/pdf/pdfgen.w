@@ -274,6 +274,7 @@ static void write_zip(PDF pdf)
         }
         if (finish) {
             if (err == Z_STREAM_END) {
+                assert(pdf->c_stream.avail_in == 0);
                 assert(pdf->c_stream.avail_out == ZIP_BUF_SIZE);
                 xfflush(pdf->file);
                 break;
