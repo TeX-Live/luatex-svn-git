@@ -2173,7 +2173,9 @@ void handle_splinefont(lua_State * L, struct splinefont *sf)
     dump_floatfield(L, "uwidth", sf->uwidth);
     dump_intfield(L, "ascent", sf->ascent);
     dump_intfield(L, "descent", sf->descent);
-    dump_intfield(L, "uniqueid", sf->uniqueid);
+    if (sf->uniqueid!=0) {
+	dump_intfield(L, "uniqueid", sf->uniqueid);
+    }
     dump_intfield(L, "glyphcnt", sf->glyphcnt);
     dump_intfield(L, "glyphmax", sf->glyphmax);
     dump_intfield(L, "units_per_em", sf->units_per_em);
