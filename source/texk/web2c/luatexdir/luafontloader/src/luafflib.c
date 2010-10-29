@@ -158,7 +158,7 @@ void handle_liglist(lua_State * L, struct liglist *ligofme);
 void handle_anchorpoint(lua_State * L, struct anchorpoint *anchor);
 void handle_glyphvariants(lua_State * L, struct glyphvariants *vars);
 void handle_mathkern(lua_State * L, struct mathkern *mk);
-void handle_altuni(lua_State * L, struct altuni *au);
+int handle_altuni(lua_State * L, struct altuni *au);
 
 int is_userdata(lua_State *L, int b, char *utype) 
 {
@@ -701,20 +701,25 @@ void handle_splinecharlist(lua_State * L, struct splinecharlist *scl)
 /*  variant shape. The specifics depend on the selector and script */
 /*  fid is currently unused, but may, someday, be used to do ttcs */
 /* NOTE: GlyphInfo displays vs==-1 as vs==0, and fixes things up */
-void handle_altuni(lua_State * L, struct altuni *au)
+int handle_altuni(lua_State * L, struct altuni *au)
 {
     struct altuni *next = au;
+    int i = 0;
     int k = 1;
     lua_checkstack(L, 3);
     while (next != NULL) {
-        lua_newtable(L);
-        dump_intfield(L, "unicode", next->unienc);
-        if (next->vs != -1)
-            dump_intfield(L, "variant", next->vs);
-        /* dump_intfield(L, "fid", next->fid); */
-        lua_rawseti(L, -2, k++);
+	if (next->unienc<0x10FFF) {
+	    lua_newtable(L);
+	    dump_intfield(L, "unicode", next->unienc);
+	    i++;
+	    if (next->vs != -1)
+		dump_intfield(L, "variant", next->vs);
+	    /* dump_intfield(L, "fid", next->fid); */
+	    lua_rawseti(L, -2, k++);
+	}
         next = next->next;
     }
+    return i;
 }
 
 
@@ -1089,9 +1094,14 @@ void handle_splinechar(lua_State * L, struct splinechar *glyph, int hasvmetrics)
     }
 
     if (glyph->altuni != NULL) {
+	int i;
         lua_newtable(L);
-        handle_altuni(L, glyph->altuni);
-        lua_setfield(L, -2, "altuni");
+        i = handle_altuni(L, glyph->altuni);
+	if (i>0) {
+	    lua_setfield(L, -2, "altuni");
+	} else {
+	    lua_pop(L,1);
+	}
     }
 
     if (glyph->tex_height != TEX_UNDEF)
