@@ -2370,7 +2370,9 @@ void handle_splinefont(lua_State * L, struct splinefont *sf)
     }
     dump_stringfield(L, "chosenname", sf->chosenname);
 
-    dump_intfield(L, "macstyle", sf->macstyle);
+    if (sf->macstyle!=-1) {
+	dump_intfield(L, "macstyle", sf->macstyle);
+    }
     dump_stringfield(L, "fondname", sf->fondname);
 
     dump_intfield(L, "design_size", sf->design_size);
