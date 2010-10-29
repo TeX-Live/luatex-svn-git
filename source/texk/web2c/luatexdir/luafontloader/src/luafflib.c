@@ -1309,10 +1309,10 @@ void handle_pfminfo(lua_State * L, struct pfminfo pfm)
 }
 
 
-void do_handle_enc(lua_State * L, struct enc *enc)
+char *do_handle_enc(lua_State * L, struct enc *enc)
 {
     int i;
-
+    char *ret = enc->enc_name;
     dump_stringfield(L, "enc_name", enc->enc_name);
     dump_intfield(L, "char_cnt", enc->char_cnt);
 
@@ -1361,6 +1361,7 @@ void do_handle_enc(lua_State * L, struct enc *enc)
     dump_stringfield(L, "iconv_name", enc->iconv_name);
 
     dump_intfield(L, "char_max", enc->char_max);
+    return ret;
 }
 
 void handle_enc(lua_State * L, struct enc *enc)
@@ -1419,9 +1420,12 @@ void handle_encmap(lua_State * L, struct encmap *map, int notdef_loc)
     }
 
     if (map->enc != NULL) {
+	char *encname;
         lua_newtable(L);
-        handle_enc(L, map->enc);
+        encname = do_handle_enc(L, map->enc);
         lua_setfield(L, -2, "enc");
+	lua_pushstring(L, encname);
+        lua_setfield(L, -2, "enc_name");
     }
 }
 
