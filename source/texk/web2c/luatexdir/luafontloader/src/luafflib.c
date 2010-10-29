@@ -351,6 +351,14 @@ static void dump_intfield(lua_State * L, char *name, long int field)
     lua_rawset(L, -3);
 }
 
+static void dump_uintfield(lua_State * L, char *name, unsigned int field)
+{
+    lua_checkstack(L, 2);
+    lua_pushstring(L, name);
+    lua_pushnumber(L, field);
+    lua_rawset(L, -3);
+}
+
 static void dump_realfield(lua_State * L, char *name, real field)
 {
     lua_checkstack(L, 2);
@@ -2400,8 +2408,8 @@ void handle_splinefont(lua_State * L, struct splinefont *sf)
         lua_setfield(L, -2, "mark_classes");
     }
 
-    dump_intfield(L, "creationtime", sf->creationtime);
-    dump_intfield(L, "modificationtime", sf->modificationtime);
+    dump_uintfield(L, "creationtime", sf->creationtime);
+    dump_uintfield(L, "modificationtime", sf->modificationtime);
 
     dump_intfield(L, "os2_version", sf->os2_version);
     dump_intfield(L, "sfd_version", sf->sfd_version);
