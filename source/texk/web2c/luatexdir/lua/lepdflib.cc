@@ -84,12 +84,12 @@ new_poppler_userdata(PDFDoc);
 
 new_poppler_userdata(Annot);
 new_poppler_userdata(AnnotBorder);
-new_poppler_userdata(AnnotBorderStyle);
+//new_poppler_userdata(AnnotBorderStyle);
 new_poppler_userdata(Annots);
 new_poppler_userdata(Array);
 new_poppler_userdata(Catalog);
 new_poppler_userdata(Dict);
-new_poppler_userdata(GooString);
+//new_poppler_userdata(GooString);
 new_poppler_userdata(LinkDest);
 new_poppler_userdata(Links);
 new_poppler_userdata(Object);
@@ -98,7 +98,7 @@ new_poppler_userdata(PDFRectangle);
 new_poppler_userdata(Ref);
 new_poppler_userdata(Stream);
 new_poppler_userdata(XRef);
-new_poppler_userdata(XRefEntry);
+//new_poppler_userdata(XRefEntry);
 
 //**********************************************************************
 
