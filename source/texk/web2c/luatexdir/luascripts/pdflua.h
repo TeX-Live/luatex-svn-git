@@ -23,6 +23,12 @@
 #ifndef PDFLUA_H
 #  define PDFLUA_H
 
-/* this is still empty, work in progress */
+typedef struct _zlib_struct {
+    uLong uncomprLen;
+    uLong comprLen;
+    const Byte *compr;
+} zlib_struct;
+
+extern const zlib_struct *pdflua_zlib_struct_ptr;
 
 #endif                          /* PDFLUA_H */

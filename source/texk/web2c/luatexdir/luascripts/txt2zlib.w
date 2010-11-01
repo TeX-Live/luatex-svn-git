@@ -26,11 +26,11 @@
 
 #include<stdlib.h>
 #include<stdio.h>
+#include<string.h>
 #include<zlib.h>
 
 #define INBUFINITLEN 10
 #define LINELEN 16
-#define STRUCTNAME "pdfdriver_lua_zlib_struct"
 
 char header[] =
     "   Copyright 2010 Taco Hoekwater <taco@@luatex.org>\n"
@@ -51,11 +51,14 @@ char header[] =
     "   You should have received a copy of the GNU General Public License along\n"
     "   with LuaTeX; if not, see <http://www.gnu.org/licenses/>.";
 
+#define NAMELEN 100
+
 int main(int argc, char *argv[])
 {
     int i, j, c, err;
     Byte *inbuf = NULL, *outbuf;
     FILE *fin, *fout;
+    char ptrname[NAMELEN];
     uLong inbuflen, uncomprLen = 0, outbuflen, comprLen;
 
     if (argc != 3) {
@@ -79,7 +82,7 @@ int main(int argc, char *argv[])
     inbuflen = INBUFINITLEN;
     while ((c = fgetc(fin)) != EOF) {
         if (uncomprLen == inbuflen - 1) {
-            inbuflen = inbuflen * 1.5 + 1;
+            inbuflen = (uLong) ((double) inbuflen * 1.5 + 1);
             if ((inbuf = realloc(inbuf, inbuflen)) == NULL)
                 exit(EXIT_FAILURE);
         }
@@ -87,7 +90,7 @@ int main(int argc, char *argv[])
         uncomprLen++;
     }
 
-    outbuflen = comprLen = uncomprLen * 1.1 + 50;
+    outbuflen = comprLen = (uLong) ((double) uncomprLen * 1.1 + 50);
     if ((outbuf = malloc(outbuflen * sizeof(Byte))) == NULL)
         exit(EXIT_FAILURE);
 
@@ -102,21 +105,12 @@ int main(int argc, char *argv[])
     fprintf(fout, "%s */\n\n", header);
     fprintf(fout, "#include \"ptexlib.h\"\n\n");
 
-    fprintf(fout, "struct zlib_struct {\n");
-    fprintf(fout, "    uLong uncomprLen;\n");
-    fprintf(fout, "    uLong comprLen;\n");
-    fprintf(fout, "    Byte compr[%ld];\n", comprLen);
-
-    fprintf(fout, "} %s = {\n", STRUCTNAME);
-    fprintf(fout, "    %ld,\n", uncomprLen);
-    fprintf(fout, "    %ld,\n", comprLen);
-    fprintf(fout, "    {\n");
-
-    for (i = 0, j = 0; i < comprLen; i++) {
+    fprintf(fout, "static const Byte compr[%ld] = {\n", comprLen);
+    for (i = 0, j = 0; (uLong) i < comprLen; i++) {
         if (j == 0)
-            fprintf(fout, "        ");
+            fprintf(fout, "    ");
         fprintf(fout, "0x%02x", outbuf[i]);
-        if (i < comprLen - 1) {
+        if ((uLong) i < comprLen - 1) {
             fprintf(fout, ",");
             if (j == LINELEN - 1) {
                 fprintf(fout, "\n");
@@ -127,7 +121,23 @@ int main(int argc, char *argv[])
             }
         }
     }
-    fprintf(fout, "\n    }\n};\n");
+    fprintf(fout, "\n};\n\n");
+
+    strncpy(ptrname, argv[2], NAMELEN - 20);
+    for (i = (int) strlen(ptrname) - 1; i > 0; i--) {
+        if (ptrname[i] == '.') {
+            ptrname[i] = '\0';
+            break;
+        }
+    }
+
+    strcat(ptrname, "_zlib_struct_ptr");
+
+    fprintf(fout,
+            "static const zlib_struct compr_struct = { %ld, %ld, compr };\n\n",
+            uncomprLen, comprLen);
+
+    fprintf(fout, "const zlib_struct *%s = &compr_struct;\n", ptrname);
 
     fclose(fin);
     fclose(fout);
