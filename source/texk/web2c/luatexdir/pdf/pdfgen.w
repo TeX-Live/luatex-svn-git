@@ -877,14 +877,14 @@ static void destroy_page_resources_tree(PDF pdf)
 
 @ print out an integer |n| with fixed width |w|; used for outputting cross-reference table 
 @c
-void pdf_print_fw_int(PDF pdf, longinteger n, int w)
+static void pdf_print_fw_int(PDF pdf, longinteger n, size_t w)
 {
     int k;                      /* $0\le k\le23$ */
     unsigned char digits[24];
-    k = w;
+    k = (int) w;
     do {
         k--;
-        digits[k] = '0' + (unsigned char) (n % 10);
+        digits[k] = (unsigned char) ('0' + (n % 10));
         n /= 10;
     } while (k != 0);
     pdf_out_block(pdf, (const char *) digits, w);
@@ -892,11 +892,11 @@ void pdf_print_fw_int(PDF pdf, longinteger n, int w)
 
 @ print out an integer |n| as a fixed number |w| of bytes; used for outputting \.{/XRef} cross-reference stream 
 @c
-void pdf_out_bytes(PDF pdf, longinteger n, int w)
+static void pdf_out_bytes(PDF pdf, longinteger n, size_t w)
 {
     int k;
     unsigned char bytes[8];     /* digits in a number being output */
-    k = w;
+    k = (int) w;
     do {
         k--;
         bytes[k] = (unsigned char) (n % 256);
@@ -1175,7 +1175,7 @@ static void pdf_os_write_objstream(PDF pdf)
     pdf_begin_stream(pdf);
     /* write object number and byte offset pairs;
        |q - p| should always fit into the PDF output buffer */
-    pdf_out_block(pdf, (const char *) (pdf->os_buf + p), q - p);
+    pdf_out_block(pdf, (const char *) (pdf->os_buf + p), (size_t) (q - p));
     i = 0;
     while (i < p) {
         q = i + pdf->buf_size;
@@ -2214,7 +2214,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
     boolean res;
     int i, j, k;
     int root, info, xref_stm = 0, outlines, threads, names_tree;
-    int xref_offset_width;
+    size_t xref_offset_width;
     int callback_id = callback_defined(stop_run_callback);
     int callback_id1 = callback_defined(finish_pdffile_callback);
 
@@ -2358,7 +2358,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 pdf_puts(pdf, "]\n");
                 pdf_int_entry_ln(pdf, "Size", pdf->obj_ptr + 1);
                 pdf_puts(pdf, "/W [1 ");
-                pdf_print_int(pdf, xref_offset_width);
+                pdf_print_int(pdf, (int) xref_offset_width);
                 pdf_puts(pdf, " 1]\n");
                 pdf_indirect_ln(pdf, "Root", root);
                 pdf_indirect_ln(pdf, "Info", info);

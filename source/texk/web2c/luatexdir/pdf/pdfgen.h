@@ -164,8 +164,6 @@ extern void pdf_out_block(PDF pdf, const char *s, size_t n);
             pdf_puts(pdf, pdf->resname_prefix);     \
     } while (0)
 
-extern void pdf_print_fw_int(PDF, longinteger, int);
-extern void pdf_out_bytes(PDF, longinteger, int);
 extern void pdf_int_entry(PDF, const char *, int);
 extern void pdf_int_entry_ln(PDF, const char *, int);
 extern void pdf_indirect(PDF, const char *, int);
