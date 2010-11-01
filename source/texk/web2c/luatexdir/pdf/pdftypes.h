@@ -228,7 +228,7 @@ typedef struct pdf_output_file_ {
     size_t fb_limit;
 
     char *zipbuf;
-    z_stream c_stream;          /* compression stream */
+    z_stream *c_stream;         /* compression stream pointer */
     int zip_write_state;        /* which state of compression we are in */
 
     int pk_scale_factor;        /* this is just a preprocessed value that depends on

@@ -236,6 +236,7 @@ static void write_zip(PDF pdf)
 {
     int flush, err = Z_OK;
     uInt zip_len;
+    z_stream *s = pdf->c_stream;
     boolean finish = pdf->zip_write_state == zip_finish;
     assert(pdf->compress_level > 0);
     /* This was just to suppress the filename report in |pdftex_fail|
@@ -247,57 +248,59 @@ static void write_zip(PDF pdf)
     cur_file_name = NULL;
 #endif
     if (pdf->stream_length == 0) {
-        if (pdf->zipbuf == NULL) {
+        if (s == NULL) {
+            s = pdf->c_stream = xtalloc(1, z_stream);
+            s->zalloc = (alloc_func) 0;
+            s->zfree = (free_func) 0;
+            s->opaque = (voidpf) 0;
+            check_err(deflateInit(s, pdf->compress_level), "deflateInit");
+            assert(pdf->zipbuf == NULL);
             pdf->zipbuf = xtalloc(ZIP_BUF_SIZE, char);
-            pdf->c_stream.zalloc = (alloc_func) 0;
-            pdf->c_stream.zfree = (free_func) 0;
-            pdf->c_stream.opaque = (voidpf) 0;
-            check_err(deflateInit(&pdf->c_stream, pdf->compress_level),
-                      "deflateInit");
         } else
-            check_err(deflateReset(&pdf->c_stream), "deflateReset");
-        pdf->c_stream.next_out = (Bytef *) pdf->zipbuf;
-        pdf->c_stream.avail_out = ZIP_BUF_SIZE;
+            check_err(deflateReset(s), "deflateReset");
+        s->next_out = (Bytef *) pdf->zipbuf;
+        s->avail_out = ZIP_BUF_SIZE;
     }
+    assert(s != NULL);
     assert(pdf->zipbuf != NULL);
-    pdf->c_stream.next_in = pdf->buf;
-    pdf->c_stream.avail_in = (uInt) pdf->ptr;
+    s->next_in = pdf->buf;
+    s->avail_in = (uInt) pdf->ptr;
     while (true) {
-        if (pdf->c_stream.avail_out == 0
-            || (finish && pdf->c_stream.avail_out < ZIP_BUF_SIZE)) {
-            zip_len = ZIP_BUF_SIZE - pdf->c_stream.avail_out;
+        if (s->avail_out == 0 || (finish && s->avail_out < ZIP_BUF_SIZE)) {
+            zip_len = ZIP_BUF_SIZE - s->avail_out;
             pdf->gone += (off_t) xfwrite(pdf->zipbuf, 1, zip_len, pdf->file);
             pdf->last_byte = pdf->zipbuf[zip_len - 1];
-            pdf->c_stream.next_out = (Bytef *) pdf->zipbuf;
-            pdf->c_stream.avail_out = ZIP_BUF_SIZE;
+            s->next_out = (Bytef *) pdf->zipbuf;
+            s->avail_out = ZIP_BUF_SIZE;
         }
         if (finish) {
             if (err == Z_STREAM_END) {
-                assert(pdf->c_stream.avail_in == 0);
-                assert(pdf->c_stream.avail_out == ZIP_BUF_SIZE);
+                assert(s->avail_in == 0);
+                assert(s->avail_out == ZIP_BUF_SIZE);
                 xfflush(pdf->file);
                 break;
             }
             flush = Z_FINISH;
         } else {
-            if (pdf->c_stream.avail_in == 0)
+            if (s->avail_in == 0)
                 break;
             flush = Z_NO_FLUSH;
         }
-        err = deflate(&pdf->c_stream, flush);
+        err = deflate(s, flush);
         if (err != Z_OK && err != Z_STREAM_END)
             pdftex_fail("zlib: deflate() failed (error code %d)", err);
     }
-    pdf->stream_length = (off_t) pdf->c_stream.total_out;
+    pdf->stream_length = (off_t) s->total_out;
 }
 
 @ @c
 void zip_free(PDF pdf)
 {
     if (pdf->zipbuf != NULL) {
-        check_err(deflateEnd(&pdf->c_stream), "deflateEnd");
+        check_err(deflateEnd(pdf->c_stream), "deflateEnd");
         xfree(pdf->zipbuf);
     }
+    xfree(pdf->c_stream);
 }
 
 @ The PDF buffer is flushed by calling |pdf_flush|, which checks the
