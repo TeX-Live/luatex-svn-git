@@ -689,7 +689,7 @@ digits of precision. It is defined in C because it is a good candidate
 for optimizations that are not possible in pascal.
 
 @c
-scaled round_xn_over_d(scaled x, int n, int d)
+scaled round_xn_over_d(scaled x, int n, unsigned int d)
 {
     boolean positive;           /* was |x>=0|? */
     unsigned t, u, v;           /* intermediate quantities */
@@ -707,7 +707,7 @@ scaled round_xn_over_d(scaled x, int n, int d)
     else
         u = 0100000 * (u / d) + (v / d);
     v = v % d;
-    if (2 * v >= (unsigned) d)
+    if (2 * v >= d)
         u++;
     if (positive)
         return (scaled) u;
