@@ -60,17 +60,17 @@ shipping_mode_e global_shipping_mode = NOT_SHIPPING;       /* set to |shipping_m
 PDF init_pdf_struct(PDF pdf)
 {
     assert(pdf == NULL);
-    pdf = xmalloc(sizeof(pdf_output_file));
+    pdf = xtalloc(1, pdf_output_file);
     memset(pdf, 0, sizeof(pdf_output_file));
 
     pdf->o_mode = OMODE_NONE;   /* will be set by |fix_o_mode()| */
     pdf->o_state = ST_INITIAL;
 
-    pdf->os_obj = xmalloc(pdf_os_max_objs * sizeof(os_obj_data));
+    pdf->os_obj = xtalloc(pdf_os_max_objs, os_obj_data);
     pdf->os_buf_size = inf_pdf_os_buf_size;
-    pdf->os_buf = xmalloc((unsigned) pdf->os_buf_size * sizeof(unsigned char));
+    pdf->os_buf = xtalloc(pdf->os_buf_size, unsigned char);
     pdf->op_buf_size = inf_pdf_op_buf_size;
-    pdf->op_buf = xmalloc((unsigned) pdf->op_buf_size * sizeof(unsigned char));
+    pdf->op_buf = xtalloc(pdf->op_buf_size, unsigned char);
 
     pdf->buf_size = pdf->op_buf_size;
     pdf->buf = pdf->op_buf;
@@ -78,20 +78,18 @@ PDF init_pdf_struct(PDF pdf)
     /* Sometimes it is neccesary to allocate memory for PDF output that cannot
        be deallocated then, so we use |mem| for this purpose. */
     pdf->mem_size = inf_pdf_mem_size;   /* allocated size of |mem| array */
-    pdf->mem = xmalloc((unsigned) ((unsigned) pdf->mem_size * sizeof(int)));
+    pdf->mem = xtalloc(pdf->mem_size, int);
     pdf->mem_ptr = 1;           /* the first word is not used so we can use zero as a value for testing
                                    whether a pointer to |mem| is valid  */
     pdf->pstruct = NULL;
 
-    pdf->posstruct = xmalloc(sizeof(posstructure));
+    pdf->posstruct = xtalloc(1, posstructure);
     pdf->posstruct->pos.h = 0;
     pdf->posstruct->pos.v = 0;
     pdf->posstruct->dir = dir_TLT;
 
     pdf->obj_tab_size = (unsigned) inf_obj_tab_size;    /* allocated size of |obj_tab| array */
-    pdf->obj_tab = xmalloc((unsigned)
-                           ((unsigned) (pdf->obj_tab_size + 1) *
-                            sizeof(obj_entry)));
+    pdf->obj_tab = xtalloc(pdf->obj_tab_size + 1, obj_entry);
     memset(pdf->obj_tab, 0, sizeof(obj_entry));
 
     pdf->minor_version = -1;    /* unset */
@@ -802,7 +800,7 @@ void addto_page_resources(PDF pdf, pdf_obj_type t, int k)
                 ("addto_page_resources(): avl_probe() out of memory in insertion");
     }
     if (pr->list == NULL) {
-        item = xmalloc(sizeof(pdf_object_list));
+        item = xtalloc(1, pdf_object_list);
         item->link = NULL;
         item->info = k;
         pr->list = item;
@@ -811,7 +809,7 @@ void addto_page_resources(PDF pdf, pdf_obj_type t, int k)
     } else {
         for (p = pr->list; p->info != k && p->link != NULL; p = p->link);
         if (p->info != k) {
-            item = xmalloc(sizeof(pdf_object_list));
+            item = xtalloc(1, pdf_object_list);
             item->link = NULL;
             item->info = k;
             p->link = item;
@@ -1742,7 +1740,7 @@ void pdf_begin_page(PDF pdf)
     init_pdf_pagecalculations(pdf);
 
     if (pdf->page_resources == NULL) {
-        pdf->page_resources = xmalloc(sizeof(pdf_resource_struct));
+        pdf->page_resources = xtalloc(1, pdf_resource_struct);
         pdf->page_resources->resources_tree = NULL;
     }
     pdf->page_resources->last_resources = pdf_new_objnum(pdf);
