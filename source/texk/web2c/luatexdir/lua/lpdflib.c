@@ -505,8 +505,7 @@ static int orig_obj(lua_State * L)
 
 static int l_obj(lua_State * L)
 {
-    int n;
-    int k;
+    int k, n;
     ensure_output_state(static_pdf, ST_HEADER_WRITTEN);
     n = lua_gettop(L);
     if (n == 1 && lua_istable(L, 1))
@@ -523,7 +522,7 @@ static int l_refobj(lua_State * L)
     n = lua_gettop(L);
     if (n != 1)
         luaL_error(L, "pdf.refobj() needs exactly 1 argument");
-    k = luaL_checkinteger(L, 1);
+    k = (int) luaL_checkinteger(L, 1);
     if (global_shipping_mode == NOT_SHIPPING)
         scan_refobj_lua(static_pdf, k);
     else
