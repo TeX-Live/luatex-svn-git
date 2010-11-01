@@ -2417,9 +2417,13 @@ m_poppler_get_BOOL(XRef, isOk);
 m_poppler_get_INT(XRef, getErrorCode);
 m_poppler_get_BOOL(XRef, isEncrypted);
 m_poppler_get_BOOL(XRef, okToPrint);
+m_poppler_get_BOOL(XRef, okToPrintHighRes);
 m_poppler_get_BOOL(XRef, okToChange);
 m_poppler_get_BOOL(XRef, okToCopy);
 m_poppler_get_BOOL(XRef, okToAddNotes);
+m_poppler_get_BOOL(XRef, okToFillForm);
+m_poppler_get_BOOL(XRef, okToAccessibility);
+m_poppler_get_BOOL(XRef, okToAssemble);
 m_poppler_get_OBJECT(XRef, getCatalog);
 
 static int m_XRef_fetch(lua_State * L)

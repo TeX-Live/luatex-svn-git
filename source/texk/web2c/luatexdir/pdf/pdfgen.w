@@ -234,7 +234,7 @@ void fix_pdf_minorversion(PDF pdf)
 @ @c
 static void write_zip(PDF pdf)
 {
-    int err = Z_OK;
+    int flush, err = Z_OK;
     uInt zip_len;
     boolean finish = pdf->zip_write_state == zip_finish;
     assert(pdf->compress_level > 0);
@@ -254,9 +254,8 @@ static void write_zip(PDF pdf)
             pdf->c_stream.opaque = (voidpf) 0;
             check_err(deflateInit(&pdf->c_stream, pdf->compress_level),
                       "deflateInit");
-        } else {
+        } else
             check_err(deflateReset(&pdf->c_stream), "deflateReset");
-        }
         pdf->c_stream.next_out = (Bytef *) pdf->zipbuf;
         pdf->c_stream.avail_out = ZIP_BUF_SIZE;
     }
@@ -279,9 +278,13 @@ static void write_zip(PDF pdf)
                 xfflush(pdf->file);
                 break;
             }
-        } else if (pdf->c_stream.avail_in == 0)
-            break;
-        err = deflate(&pdf->c_stream, finish ? Z_FINISH : Z_NO_FLUSH);
+            flush = Z_FINISH;
+        } else {
+            if (pdf->c_stream.avail_in == 0)
+                break;
+            flush = Z_NO_FLUSH;
+        }
+        err = deflate(&pdf->c_stream, flush);
         if (err != Z_OK && err != Z_STREAM_END)
             pdftex_fail("zlib: deflate() failed (error code %d)", err);
     }
