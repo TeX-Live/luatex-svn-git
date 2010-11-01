@@ -23,6 +23,7 @@
 #  define PDFTYPES_H
 
 #  include <zlib.h>
+#  include "lua/luatex-api.h"
 
 /* This stucture holds everything that is needed for the actual pdf generation.
 
@@ -132,7 +133,7 @@ typedef struct dest_name_entry_ {
     int objnum;                 /* destination object number */
 } dest_name_entry;
 
-#  define pdf_max_link_level  10        /* maximum depth of link nesting */
+#  define pdf_max_link_level  10/* maximum depth of link nesting */
 
 typedef struct pdf_link_stack_record {
     int nesting_level;
@@ -288,6 +289,7 @@ typedef struct pdf_output_file_ {
     int thread_level;           /* depth of nesting of box containing the last thread */
 
     int f_cur;                  /* TeX font number */
+    lua_State *Luap;
 } pdf_output_file;
 
 typedef pdf_output_file *PDF;
