@@ -710,6 +710,7 @@ TECKIT_DEPEND = @TECKIT_DEPEND@
 TECKIT_INCLUDES = @TECKIT_INCLUDES@
 TECKIT_LIBS = @TECKIT_LIBS@
 TIE = @TIE@
+TXTTOZLIB = @TXTTOZLIB@
 VERSION = @VERSION@
 WARNING_CFLAGS = @WARNING_CFLAGS@
 WARNING_CXXFLAGS = @WARNING_CXXFLAGS@
@@ -1462,7 +1463,7 @@ nodist_libluatex_a_SOURCES = dvigen.c dofont.c luafont.c mapfile.c \
 luatex_font_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/font $(ctangle)
 luatex_image_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/image $(ctangle)
 luatex_lua_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/lua $(ctangle)
-luatex_luascripts_txt2zlib = ./txt2zlib
+luatex_luascripts_txt2zlib = $(TXTTOZLIB)
 luatex_luascripts_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/luascripts $(ctangle)
 luatex_lang_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/lang $(ctangle)
 luatex_pdf_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/pdf $(ctangle)

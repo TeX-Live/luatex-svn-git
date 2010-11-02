@@ -321,6 +321,8 @@ AH_BOTTOM([#endif /* !WEB2C_C_AUTO_H */])
 
 dnl Additional config header for luaTeX
 AC_CONFIG_HEADERS([ff-config.h:luatexdir/luafontloader/ff-config.in])
+dnl This is also for luatex
+KPSE_CROSS_PATH_PROG([TXTTOZLIB],   [txt2zlib],  [./txt2zlib])
 
 # For cross-compilation.  Put at the end so there is a fair chance
 # these are still visible when the configure script has finished.
@@ -334,6 +336,7 @@ KPSE_CROSS_PATH_PROG([CTANGLE],     [ctangle],   [./ctangle])
 KPSE_CROSS_PATH_PROG([TIE],         [tie],       [./tie])
 dnl Required for Aleph and XeTeX
 KPSE_CROSS_PATH_PROG([OTANGLE],     [otangle],   [./otangle])
+
 
 if test "x$cross_compiling" = xyes; then
   AC_MSG_CHECKING([if your tie supports WEBINPUTS])
