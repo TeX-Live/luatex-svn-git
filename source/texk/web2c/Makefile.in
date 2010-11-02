@@ -1575,6 +1575,7 @@ libluatex_a_SOURCES = \
 	luatexdir/utils/utils.h
 
 nodist_txt2zlib_SOURCES = txt2zlib.c
+txt2zlib_CPPFLAGS = $(AM_CPPFLAGS) $(ZLIB_INCLUDES)
 txt2zlib_DEPENDENCIES = $(ZLIB_DEPEND)
 txt2zlib_CFLAGS = $(WARNING_CFLAGS)
 txt2zlib_LDFLAGS = -lz
@@ -5664,18 +5665,18 @@ tie-tie.obj: tie.c
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tie_CPPFLAGS) $(CPPFLAGS) $(tie_CFLAGS) $(CFLAGS) -c -o tie-tie.obj `if test -f 'tie.c'; then $(CYGPATH_W) 'tie.c'; else $(CYGPATH_W) '$(srcdir)/tie.c'; fi`
 
 txt2zlib-txt2zlib.o: txt2zlib.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(txt2zlib_CFLAGS) $(CFLAGS) -MT txt2zlib-txt2zlib.o -MD -MP -MF $(DEPDIR)/txt2zlib-txt2zlib.Tpo -c -o txt2zlib-txt2zlib.o `test -f 'txt2zlib.c' || echo '$(srcdir)/'`txt2zlib.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(txt2zlib_CPPFLAGS) $(CPPFLAGS) $(txt2zlib_CFLAGS) $(CFLAGS) -MT txt2zlib-txt2zlib.o -MD -MP -MF $(DEPDIR)/txt2zlib-txt2zlib.Tpo -c -o txt2zlib-txt2zlib.o `test -f 'txt2zlib.c' || echo '$(srcdir)/'`txt2zlib.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/txt2zlib-txt2zlib.Tpo $(DEPDIR)/txt2zlib-txt2zlib.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='txt2zlib.c' object='txt2zlib-txt2zlib.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(txt2zlib_CFLAGS) $(CFLAGS) -c -o txt2zlib-txt2zlib.o `test -f 'txt2zlib.c' || echo '$(srcdir)/'`txt2zlib.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(txt2zlib_CPPFLAGS) $(CPPFLAGS) $(txt2zlib_CFLAGS) $(CFLAGS) -c -o txt2zlib-txt2zlib.o `test -f 'txt2zlib.c' || echo '$(srcdir)/'`txt2zlib.c
 
 txt2zlib-txt2zlib.obj: txt2zlib.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(txt2zlib_CFLAGS) $(CFLAGS) -MT txt2zlib-txt2zlib.obj -MD -MP -MF $(DEPDIR)/txt2zlib-txt2zlib.Tpo -c -o txt2zlib-txt2zlib.obj `if test -f 'txt2zlib.c'; then $(CYGPATH_W) 'txt2zlib.c'; else $(CYGPATH_W) '$(srcdir)/txt2zlib.c'; fi`
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(txt2zlib_CPPFLAGS) $(CPPFLAGS) $(txt2zlib_CFLAGS) $(CFLAGS) -MT txt2zlib-txt2zlib.obj -MD -MP -MF $(DEPDIR)/txt2zlib-txt2zlib.Tpo -c -o txt2zlib-txt2zlib.obj `if test -f 'txt2zlib.c'; then $(CYGPATH_W) 'txt2zlib.c'; else $(CYGPATH_W) '$(srcdir)/txt2zlib.c'; fi`
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/txt2zlib-txt2zlib.Tpo $(DEPDIR)/txt2zlib-txt2zlib.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='txt2zlib.c' object='txt2zlib-txt2zlib.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(txt2zlib_CFLAGS) $(CFLAGS) -c -o txt2zlib-txt2zlib.obj `if test -f 'txt2zlib.c'; then $(CYGPATH_W) 'txt2zlib.c'; else $(CYGPATH_W) '$(srcdir)/txt2zlib.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(txt2zlib_CPPFLAGS) $(CPPFLAGS) $(txt2zlib_CFLAGS) $(CFLAGS) -c -o txt2zlib-txt2zlib.obj `if test -f 'txt2zlib.c'; then $(CYGPATH_W) 'txt2zlib.c'; else $(CYGPATH_W) '$(srcdir)/txt2zlib.c'; fi`
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
