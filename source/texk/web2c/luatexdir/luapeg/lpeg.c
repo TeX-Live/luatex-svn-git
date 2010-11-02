@@ -478,6 +478,7 @@ static const char *match (lua_State *L,
       case IBackCommit: {
         assert(stack > stackbase && (stack - 1)->s != NULL);
         s = (--stack)->s;
+        captop = stack->caplevel; /* patch from RI, 20101101 */
         p += p->i.offset;
         continue;
       }
