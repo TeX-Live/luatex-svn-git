@@ -1659,6 +1659,16 @@ will be explained in the next two paragraphs.
 \NC fin_row      \NC alignment row                             \NC\NR
 \stoptabulate
 
+As for all the callbacks that deal with nodes, the return value can be one of three things:
+
+\startitemize
+\item boolean \type{true} signals succesful processing
+\item \type{<node>} signals that the \quote{head} node should be replaced by the returned node
+\item boolean \type{false} signals that the \quote{head} node list should be ignored and 
+flushed from memory
+\stopitemize
+
+
 This callback does not replace any internal code.
 
 
