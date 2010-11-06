@@ -22,6 +22,6 @@
 #ifndef PDFLUAAPI_H
 #  define PDFLUAAPI_H
 
-/* empty yet */
+extern lua_State *new_pdflua(void);
 
 #endif                          /* PDFLUAAPI_H */

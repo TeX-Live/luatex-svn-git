@@ -71,7 +71,7 @@ const char *getS(lua_State * L, void *ud, size_t * size)
 }
 
 @ @c
-static void *my_luaalloc(void *ud, void *ptr, size_t osize, size_t nsize)
+void *my_luaalloc(void *ud, void *ptr, size_t osize, size_t nsize)
 {
     void *ret = NULL;
     (void) ud;                  /* for -Wunused */
@@ -84,7 +84,7 @@ static void *my_luaalloc(void *ud, void *ptr, size_t osize, size_t nsize)
 }
 
 @ @c
-static int my_luapanic(lua_State * L)
+int my_luapanic(lua_State * L)
 {
     (void) L;                   /* to avoid warnings */
     fprintf(stderr, "PANIC: unprotected error in call to Lua API (%s)\n",
@@ -113,7 +113,7 @@ static const luaL_Reg lualibs[] = {
 
 
 @ @c
-static void do_openlibs(lua_State * L)
+void do_openlibs(lua_State * L)
 {
     const luaL_Reg *lib = lualibs;
     for (; lib->func; lib++) {

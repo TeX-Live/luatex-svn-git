@@ -21,3 +21,31 @@
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
+
+#include "ptexlib.h"
+
+@ @c
+lua_State *new_pdflua(void)
+{
+    int err;
+    lua_State *P;
+    Byte *uncompr;
+    zlib_struct *zp = (zlib_struct *) pdflua_zlib_struct_ptr;
+    uLong uncomprLen = zp->uncomprLen;
+    P = lua_newstate(my_luaalloc, NULL);
+    if (P == NULL)
+        pdftex_fail("new_pdflua(): lua_newstate()");
+    lua_atpanic(P, &my_luapanic);
+    do_openlibs(P);             /* does all the 'simple' libraries */
+    if ((uncompr = xtalloc(zp->uncomprLen, Byte)) == NULL)
+        pdftex_fail("new_pdflua(): xtalloc()");
+    err = uncompress(uncompr, &uncomprLen, zp->compr, zp->comprLen);
+    if (err != Z_OK)
+        pdftex_fail("new_pdflua(): uncompress()");
+    assert(uncomprLen == zp->uncomprLen);
+    if (luaL_loadbuffer(P, (const char *) uncompr, uncomprLen, "pdflua")
+        || lua_pcall(P, 0, 0, 0))
+        pdftex_fail("new_pdflua(): lua_pcall()");
+    xfree(uncompr);
+    return P;
+}

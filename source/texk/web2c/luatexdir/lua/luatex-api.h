@@ -163,16 +163,18 @@ extern int last_lineno;
 
 extern int program_name_set;    /* in lkpselib.c */
 
+extern void *my_luaalloc(void *ud, void *ptr, size_t osize, size_t nsize);
+extern int my_luapanic(lua_State * L);
+extern void do_openlibs(lua_State * L);
+
 /* for topenin() */
 extern char **argv;
 extern int argc;
-
 
 extern int loader_C_luatex(lua_State * L, const char *name,
                            const char *filename);
 extern int loader_Call_luatex(lua_State * L, const char *name,
                               const char *filename);
-
 
 extern void init_tex_table(lua_State * L);
 
@@ -200,4 +202,4 @@ extern char **environ;
 
 extern int luac_main(int argc, char *argv[]);   /* texluac.w */
 
-#endif
+#endif                          /* LUATEX_API_H */

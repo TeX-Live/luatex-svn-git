@@ -110,6 +110,7 @@ PDF init_pdf_struct(PDF pdf)
     pdf->page_resources = NULL;
 
     init_pdf_pagecalculations(pdf);
+    pdf->Luap = new_pdflua();
 
     return pdf;
 }
