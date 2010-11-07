@@ -110,7 +110,7 @@ PDF init_pdf_struct(PDF pdf)
     pdf->page_resources = NULL;
 
     init_pdf_pagecalculations(pdf);
-    pdf->Luap = new_pdflua();
+    pdf->pdflua_ref = new_pdflua();
 
     return pdf;
 }
@@ -1752,6 +1752,7 @@ void pdf_begin_page(PDF pdf)
         set_obj_aux(pdf, pdf->last_page, 1);    /* mark that this page has been created */
         pdf->last_stream = pdf_new_dict(pdf, obj_type_pagestream, 0, 0);
         pdf->last_thread = null;
+        pdflua_begin_page(pdf);
     } else {
         assert(global_shipping_mode == SHIPPING_FORM);
         pdf_begin_dict(pdf, pdf_cur_form, 0);
@@ -1849,9 +1850,9 @@ void pdf_end_page(PDF pdf)
             pdf_print_toks_ln(pdf, pdf_page_attr);
         print_pdf_table_string(pdf, "pageattributes");
         pdf_indirect_ln(pdf, "Parent", pdf->last_pages);
-        if (pdf->img_page_group_val > 0) {
+        if (pdf->img_page_group_val != 0) {
+            assert(pdf->img_page_group_val > 0);
             pdf_printf(pdf, "/Group %d 0 R\n", pdf->img_page_group_val);
-            pdf->img_page_group_val = 0;
         }
         annot_list = get_page_resources_list(pdf, obj_type_annot);
         link_list = get_page_resources_list(pdf, obj_type_link);
@@ -1865,6 +1866,9 @@ void pdf_end_page(PDF pdf)
             pdf_indirect_ln(pdf, "B", beads);
         }
         pdf_end_dict(pdf);
+        pdflua_end_page(pdf, annots, beads);
+
+        pdf->img_page_group_val = 0;
 
         /* Generate array of annotations or beads in page */
         if (annot_list != NULL || link_list != NULL) {
@@ -2277,6 +2281,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             write_fontstuff(pdf);
 
             pdf->last_pages = output_pages_tree(pdf);
+            pdflua_output_pages_tree(pdf);
             /* Output outlines */
             outlines = print_outlines(pdf);
 

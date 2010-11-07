@@ -163,10 +163,6 @@ extern int last_lineno;
 
 extern int program_name_set;    /* in lkpselib.c */
 
-extern void *my_luaalloc(void *ud, void *ptr, size_t osize, size_t nsize);
-extern int my_luapanic(lua_State * L);
-extern void do_openlibs(lua_State * L);
-
 /* for topenin() */
 extern char **argv;
 extern int argc;

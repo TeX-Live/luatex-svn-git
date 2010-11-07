@@ -1,6 +1,25 @@
 -- $Id$
 -- $URL$
 
--- this is work in progress...
+-- this is early work in progress...
 
-a = "Hello, World!"
+------------------------------------------------------------------------
+
+beginpage = function(a)
+end
+
+endpage = function(a)
+end
+
+outputpagestree = function()
+end
+
+------------------------------------------------------------------------
+
+local pdflua = {
+  beginpage = beginpage,
+  endpage = endpage,
+  outputpagestree = outputpagestree,
+}
+
+return pdflua

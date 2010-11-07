@@ -22,6 +22,9 @@
 #ifndef PDFLUAAPI_H
 #  define PDFLUAAPI_H
 
-extern lua_State *new_pdflua(void);
+extern int new_pdflua(void);
+extern void pdflua_begin_page(PDF pdf);
+extern void pdflua_end_page(PDF pdf, int annots, int beads);
+extern void pdflua_output_pages_tree(PDF pdf);
 
 #endif                          /* PDFLUAAPI_H */

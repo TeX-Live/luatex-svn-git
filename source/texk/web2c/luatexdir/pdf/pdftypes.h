@@ -289,7 +289,7 @@ typedef struct pdf_output_file_ {
     int thread_level;           /* depth of nesting of box containing the last thread */
 
     int f_cur;                  /* TeX font number */
-    lua_State *Luap;
+    int pdflua_ref;
 } pdf_output_file;
 
 typedef pdf_output_file *PDF;
