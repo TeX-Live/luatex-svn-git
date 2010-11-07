@@ -81,12 +81,18 @@ void pdflua_end_page(PDF pdf, int annots, int beads)
     lua_setfield(Luas, -2, "hsize");    /* t f */
     lua_pushnumber(Luas, cur_page_size.v);      /* i t f */
     lua_setfield(Luas, -2, "vsize");    /* t f */
-    lua_pushnumber(Luas, annots);       /* i t f */
-    lua_setfield(Luas, -2, "annots");   /* t f */
-    lua_pushnumber(Luas, beads);        /* i t f */
-    lua_setfield(Luas, -2, "beads");    /* t f */
-    lua_pushnumber(Luas, pdf->img_page_group_val);      /* i t f */
-    lua_setfield(Luas, -2, "imggroup"); /* t f */
+    if (annots != 0) {
+        lua_pushnumber(Luas, annots);   /* i t f */
+        lua_setfield(Luas, -2, "annots");       /* t f */
+    }
+    if (beads != 0) {
+        lua_pushnumber(Luas, beads);    /* i t f */
+        lua_setfield(Luas, -2, "beads");        /* t f */
+    }
+    if (pdf->img_page_group_val != 0) {
+        lua_pushnumber(Luas, pdf->img_page_group_val);  /* i t f */
+        lua_setfield(Luas, -2, "imggroup");     /* t f */
+    }
     err = lua_pcall(Luas, 1, 0, 0);     /* - */
     if (err != 0)
         pdftex_fail("pdflua.lua: endpage()");
