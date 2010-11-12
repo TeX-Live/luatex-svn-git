@@ -2603,6 +2603,24 @@ local fdata = {
       ["shortdesc"]="Insert the third node just before the second node in the list that starts at the first node.",
       ["type"]="function",
    },
+   ["is_node"]={
+      ["arguments"]={
+	 {
+	    ["name"]="n",
+	    ["optional"]=false,
+	    ["type"]="any",
+	 },
+      },
+      ["returnvalues"]={
+	 {
+	    ["name"]="yes",
+	    ["optional"]=false,
+	    ["type"]="boolean",
+	 },
+      },
+      ["shortdesc"]="Return true if the object is a <node>.",
+      ["type"]="function",
+   },
    ["kerning"]={
       ["arguments"]={
 	 {
