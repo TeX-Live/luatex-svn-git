@@ -2,6 +2,55 @@
 This file is in the public domain.
 
 ==============================================================
+Luatex beta-0.64.0 was released 20101112
+==============================================================
+
+News:
+
+* New lua functions pdf.refobj(), pdf.maxobjnum() and pdf.objtype()
+
+* New lua function node.is_node()
+
+* The max_strings configuration variable's maximum value is
+  raised to be identical to texlive's maximum (2097151), and
+  same for param_size (32767).
+
+* The embedded mplib is now 1.503.
+
+* Minor cleanups in the output of fontloader.to_table():
+
+  - removed out-of-range altuni's from the output
+  - don't dump the extra encodings, just the actual font encoding
+  - export the encoding's name also as 'enc_name' at one level up
+  - no longer exporting unset macstyles, nor zero uniqueids
+  - fix creationtime and modification time
+
+* Ongoing work on the epdf library
+
+Bugfixes:
+
+* Fix a bug where an explicit hyphen prevented hyphenation for the 
+  whole rest of the paragraph
+
+* Internal font copying forgot to copy the last font dimen
+
+* os.selfdir() is now documented
+
+* patch quad (\fontdimen6) in \letterspacefont to be compatible
+  with pdftex
+
+* Multi-page pdf inclusion was very slow in 0.63.0
+
+* Some extra checks added to the handling of glue_spec node 
+  objects in lua code.
+
+* Some node.prev pointers have been corrected (but this is not
+  quite finished).
+
+* A small fix to lpeg 0.9.
+
+
+==============================================================
 Luatex beta-0.63.0 was released 20100909
 ==============================================================
 
