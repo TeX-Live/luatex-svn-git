@@ -187,7 +187,7 @@ static boolean test_for_cs(void)
     while (p != null) {
         if (m >= max_buf_stack) {
             max_buf_stack = m + 4;
-            if (max_buf_stack == buf_size)
+            if (max_buf_stack >= buf_size)
                 check_buffer_overflow(max_buf_stack);
         }
         s = token_chr(token_info(p));
