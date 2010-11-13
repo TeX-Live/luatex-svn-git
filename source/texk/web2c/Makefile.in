@@ -478,10 +478,9 @@ tie_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	$(LDFLAGS) -o $@
 nodist_txt2zlib_OBJECTS = txt2zlib-txt2zlib.$(OBJEXT)
 txt2zlib_OBJECTS = $(nodist_txt2zlib_OBJECTS)
-txt2zlib_LDADD = $(LDADD)
 txt2zlib_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CCLD) $(txt2zlib_CFLAGS) $(CFLAGS) \
-	$(txt2zlib_LDFLAGS) $(LDFLAGS) -o $@
+	--mode=link $(CCLD) $(txt2zlib_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 nodist_vftovp_OBJECTS = vftovp.$(OBJEXT)
 vftovp_OBJECTS = $(nodist_vftovp_OBJECTS)
 vftovp_LDADD = $(LDADD)
@@ -1579,7 +1578,7 @@ nodist_txt2zlib_SOURCES = txt2zlib.c
 txt2zlib_CPPFLAGS = $(AM_CPPFLAGS) $(ZLIB_INCLUDES)
 txt2zlib_DEPENDENCIES = $(ZLIB_DEPEND)
 txt2zlib_CFLAGS = $(WARNING_CFLAGS)
-txt2zlib_LDFLAGS = -lz
+txt2zlib_LDADD = $(ZLIB_LIBS) $(LDADD)
 libmd5_a_CPPFLAGS = -I$(srcdir)/libmd5
 libmd5_a_CFLAGS = $(WARNING_CFLAGS)
 libmd5_a_SOURCES = libmd5/md5.c libmd5/md5.h
