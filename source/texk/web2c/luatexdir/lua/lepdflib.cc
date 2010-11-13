@@ -551,6 +551,28 @@ static int m_Array_getNF(lua_State * L)
     return 1;
 }
 
+static int m_Array_getString(lua_State * L)
+{
+    GooString *gs;
+    int i, len;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Array);
+    if (uin->pd != NULL && uin->pd->pc != uin->pc)
+        pdfdoc_changed_error(L);
+    i = luaL_checkint(L, 2);
+    len = ((Array *) uin->d)->getLength();
+    if (i > 0 && i <= len) {
+        gs = new GooString();
+        if (((Array *) uin->d)->getString(i - 1, gs))
+            lua_pushlstring(L, gs->getCString(), gs->getLength());
+        else
+            lua_pushnil(L);
+        delete gs;
+    } else
+        lua_pushnil(L);
+    return 1;
+}
+
 m_poppler__tostring(Array);
 
 static const struct luaL_Reg Array_m[] = {
@@ -560,6 +582,7 @@ static const struct luaL_Reg Array_m[] = {
     {"add", m_Array_add},
     {"get", m_Array_get},
     {"getNF", m_Array_getNF},
+    {"getString", m_Array_getString},
     {"__tostring", m_Array__tostring},
     {NULL, NULL}                // sentinel
 };
@@ -795,6 +818,23 @@ static int m_Dict_lookupNF(lua_State * L)
     return 1;
 }
 
+static int m_Dict_lookupInt(lua_State * L)
+{
+    const char *s1, *s2;
+    int i;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
+    if (uin->pd != NULL && uin->pd->pc != uin->pc)
+        pdfdoc_changed_error(L);
+    s1 = luaL_checkstring(L, 2);
+    s2 = luaL_checkstring(L, 3);
+    if (((Dict *) uin->d)->lookupInt(s1, s2, &i))
+        lua_pushinteger(L, i);
+    else
+        lua_pushnil(L);
+    return 1;
+}
+
 static int m_Dict_getKey(lua_State * L)
 {
     int i, len;
@@ -865,6 +905,7 @@ static const struct luaL_Reg Dict_m[] = {
     {"is", m_Dict_is},
     {"lookup", m_Dict_lookup},
     {"lookupNF", m_Dict_lookupNF},
+    {"lookupInt", m_Dict_lookupInt},
     {"getKey", m_Dict_getKey},
     {"getVal", m_Dict_getVal},
     {"getValNF", m_Dict_getValNF},
