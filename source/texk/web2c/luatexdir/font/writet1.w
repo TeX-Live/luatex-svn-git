@@ -326,7 +326,7 @@ char **load_enc_file(char *enc_name)
                  *r != ' ' && *r != 10 && *r != ']' && *r != '/'; *p++ = *r++);
             *p = 0;
             skip(r, ' ');
-            if (names_count > 256)
+            if (names_count >= 256)
                 pdftex_fail("encoding vector contains more than 256 names");
             if (strcmp(buf, notdef) != 0)
                 glyph_names[names_count] = xstrdup(buf);
