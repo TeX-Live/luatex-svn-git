@@ -1207,6 +1207,22 @@ The following sections are in alphabetical order.
 
 This library has functions that register, find and list callbacks.
 
+A quick note on what callbacks are (thanks, Paul!):
+
+Callbacks are entry points to \LUATEX's internal operations, which can be
+interspersed with additional \LUA\ code, and even replaced altogether.
+In the first case, \TEX\ is simply augmented with new operations
+(for instance, a manipulation of the nodes resulting from the paragraph
+builder); in the second case, its hard-coded behavior (for instance, the
+paragraph builder itself) is ignored and processing relies on user code only.
+
+More precisely, the code to be inserted at a given callback is a function
+(an anonymous function or the name of a function variable); % Is this line useful?
+it will receive the arguments associated with the callback, if any, and must
+frequently return some other arguments for \TEX\ to resume its operations.
+
+The first task is registering a callback:
+
 \startfunctioncall
 id, error = callback.register(<string> callback_name,function callback_func)
 id, error = callback.register(<string> callback_name,nil)
