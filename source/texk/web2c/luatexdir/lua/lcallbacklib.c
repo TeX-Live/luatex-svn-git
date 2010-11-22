@@ -69,6 +69,12 @@ static const char *const callbacknames[] = {
 
 int callback_callbacks_id = 0;
 
+int debug_callback_defined(int i) 
+{
+    printf ("callback_defined(%s)\n", callbacknames[i]);
+    return callback_set[i];
+}
+
 void get_lua_boolean(const char *table, const char *name, boolean * target)
 {
     int stacktop;

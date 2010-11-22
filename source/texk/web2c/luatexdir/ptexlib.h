@@ -357,6 +357,9 @@ extern int callback_set[];
 extern int lua_active;
 
 #  define callback_defined(a) callback_set[a]
+/* #  define callback_defined(a) debug_callback_defined(a) */
+
+extern int debug_callback_defined(int i);
 
 extern int run_callback(int i, const char *values, ...);
 extern int run_saved_callback(int i, const char *name, const char *values, ...);
