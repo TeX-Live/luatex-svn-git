@@ -538,9 +538,11 @@ int write_cid_tounicode(PDF pdf, fo_entry * fo, internal_font_number f)
             i++;
         } else {                /* |gtab[i].code >= 0| */
             j = i;
-            while (i < 65536 && gtab[i + 1].code >= 0 &&
-                   gtab[i].code + 1 == gtab[i + 1].code)
-                i++;
+            k = i % 256;
+            while (i < 65536 && k<255 && gtab[i + 1].code >= 0 &&
+                   gtab[i].code + 1 == gtab[i + 1].code) {
+                i++; k++;
+            }
             /* at this point i is the last entry of the subrange */
             i++;                /* move i to the next entry */
             range_size[j] = i - j;
