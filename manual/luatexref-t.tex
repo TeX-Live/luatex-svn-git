@@ -111,7 +111,7 @@ format generation file:
 \directlua { tex.enableprimitives('',tex.extraprimitives()) }
 \stoptyping
 
-But be aware, that the curly braces may not have the proper \type{\catcode}
+But be aware that the curly braces may not have the proper \type{\catcode}
 assigned to them at this early time (giving a 'Missing number' error),
 so it may be needed to put these assignments
 
@@ -121,7 +121,7 @@ so it may be needed to put these assignments
 \stoptyping
 
 before the above line.
-More fine-grained primitives control is possible, you can look the details in
+More fine-grained primitives control is possible, you can look up the details in
 \in{section}[luaprimitives]. For simplicity's sake, this manual assumes
 that you have executed the \type{\directlua} command as given above.
 
@@ -145,7 +145,7 @@ There are three new primitives to test the version of \LUATEX:
                               document is {\bf\luatexdatestamp}. \NC\NR
 \stoptabulate
 
-The official \LUATEX\ version is defined follows:
+The official \LUATEX\ version is defined as follows:
 
 \startitemize
 \item The major version is the integer result of \tex{luatexversion} divided by 100.
@@ -172,7 +172,7 @@ input characters can use the full range of \UNICODE\ ($2^{20}+2^{16}-1
 = \hbox{0x10FFFF}$).
 
 Later chapters will talk of characters and glyphs. Although these
-are not the interchangeable, they are closely related. During
+are not interchangeable, they are closely related. During
 typesetting, a character is always converted to a suitable graphic
 representation of that character in a specific font. However,
 while processing a list of to|-|be|-|typeset nodes, its contents
@@ -190,7 +190,7 @@ generated an error when processed by older \TEX|-|based engines. The
 affected commands with an altered initial (left of the equals sign) or
 secondary (right of the equals sign) value are: \tex{char},
 \tex{lccode},\tex{uccode}, \tex{catcode}, \tex{sfcode}, \tex{efcode},
-\tex{lpcode}, \tex{rpcode}, \tex{chardef}
+\tex{lpcode}, \tex{rpcode}, \tex{chardef}.
 
 As far as the core engine is concerned, all input and output to
 text files is \UTF-8 encoded. Input files can be pre|-|processed
@@ -199,7 +199,7 @@ later chapter.
 
 Output in byte|-|sized chunks can be achieved by using characters
 just outside of the valid \UNICODE\ range, starting at the value
-$1{,}114{,}112$ (0x110000). When the times comes to print a character
+$1{,}114{,}112$ (0x110000). When the time comes to print a character
 $c>=1{,}114{,}112$, \LUATEX\ will actually print the single byte
 corresponding to $c$ minus 1{,}114{,}112.
 
@@ -213,7 +213,7 @@ during callback processing (this will be explained in \in{section}[iocallback]).
 
 \section{Extended tables}
 
-All traditional \TEX\ and \ETEX\ registers can be 16~bit numbers as in
+All traditional \TEX\ and \ETEX\ registers can be 16-bit numbers as in
 \ALEPH. The affected commands are:
 
 \startcolumns[n=4]
@@ -245,7 +245,7 @@ All traditional \TEX\ and \ETEX\ registers can be 16~bit numbers as in
 
 The glyph properties (like \type {\efcode}) introduced in \PDFTEX\
 that deal with font expansion (hz) and character protruding are
-also 16~bit. Because font memory management has been rewritten,
+also 16-bit. Because font memory management has been rewritten,
 these character properties are no longer shared among fonts
 instances that originate from the same metric file.
 
@@ -272,7 +272,7 @@ indicate that they are unset, that value is the lowest legal value:
 It follows that the value \type{-"7FFFFFFF} cannot be used as
 a legal attribute value, but you {\it can\/} assign \type{-"7FFFFFFF} to
 \quote{unset} an attribute. All attributes start out in this
-\quote{unset} state in \INITEX (prior to 0.37, there could not be
+\quote{unset} state in \INITEX\ (prior to 0.37, there could not be
 valid negative attribute values, and the \quote{unset} value was $-1$).
 
 Attributes can be used as extra counter values, but their usefulness
@@ -307,10 +307,10 @@ contained in the box are unchanged when such a box is placed,
 unboxed, or copied. In this respect attributes act the same as
 characters that have been converted to references to glyphs in
 fonts. For instance, when you use attributes to implement color
-support, each node carries information about its color. In that
+support, each node carries information about its eventual color. In that
 case, unless you implement mechanisms that deal with it, applying
 a color to already boxed material will have no effect. Keep in
-mind that this incompatibility is mostly due to the fact that
+mind that this incompatibility is mostly due to the fact that separate
 specials and literals are a more unnatural approach to colors than
 attributes.
 
@@ -431,7 +431,7 @@ more.
 \subsection{\tex{latelua}}
 
 \tex{latelua} stores \LUA\ code in a whatsit that will be processed
-inside the output routine. Its intended use is a cross between
+at the time of shipping out. Its intended use is a cross between
 \tex{pdfliteral} and \tex{write}.
 Within the \LUA\ code you can print \PDF\
 statements directly to the \PDF\ file via \type{pdf.print},
@@ -479,7 +479,7 @@ is easier to keep the code in a separate file and load it using \LUA's
 
 \subsection{\tex{clearmarks}}
 
-This primitive clears a marks class completely, resetting all three
+This primitive clears a mark class completely, resetting all three
 connected mark texts to empty.
 
 \startsyntax
@@ -535,9 +535,9 @@ differences are:
 
 \starttabulate[|l|l|l|l|]
 \NC \bf primitive         \NC \bf explanation                           \NC\NR
-\NC \tex{alignmark}       \NC Duplicates the functionality of \char`\#~
+\NC \tex{alignmark}       \NC Duplicates the functionality of \char`\#~%
                               inside alignment preambles\NC\NR
-\NC \tex{aligntab}        \NC Duplicates the functionality of \char`\&~
+\NC \tex{aligntab}        \NC Duplicates the functionality of \char`\&~%
                               inside alignments (and preambles)\NC\NR
 \stoptabulate
 
@@ -562,7 +562,7 @@ format file.
 \catcodetable <16-bit number>
 \stopsyntax
 
-The \tex{catcodetable} switches to a different catcode table.
+The primitive \tex{catcodetable} switches to a different catcode table.
 Such a table has to be previously created using one of the two
 primitives below, or it has to be zero. Table zero is initialized by
 \INITEX.
@@ -573,7 +573,7 @@ primitives below, or it has to be zero. Table zero is initialized by
 \initcatcodetable <16-bit number>
 \stopsyntax
 
-The \tex{initcatcodetable} creates a new table with catcodes
+The primitive \tex{initcatcodetable} creates a new table with catcodes
 identical to those defined by \INITEX:
 
 \starttabulate[|l|l|l|l|l|]
@@ -667,7 +667,7 @@ was simply ignored. That behavior has now reverted back to be
 \stopsyntax
 
 This new integer parameter allows you to alter the number of the box
-that will be used to store the page to be shipped out in. Its default
+that will be used to store the page sent to the output routine. Its default
 value is 255, and the acceptable range is from 0 to 65535.
 
 
@@ -774,7 +774,7 @@ The following command-line switches are understood.
 
 \starttabulate[|lT|p|]
 \NC --fmt=FORMAT \NC load the format file FORMAT             \NC\NR
-\NC --lua=s    \NC load and execute a \LUA\ initialization script\NC\NR
+\NC --lua=FILE \NC load and execute a \LUA\ initialization script\NC\NR
 \NC --safer    \NC disable easily exploitable \LUA\ commands \NC\NR
 \NC --nosocket \NC disable the \LUA\ socket library          \NC\NR
 \NC --help     \NC display help and exit                     \NC\NR
@@ -812,7 +812,7 @@ The following command-line switches are understood.
 \NC --synctex=NUMBER          \NC enable synctex \NC \NR
 \stoptabulate
 
-But if the option is present, \LUATEX\ will enter an alternative mode
+But if the \type{--lua} option is present, \LUATEX\ will enter an alternative mode
 of commandline processing in comparison to the standard web2c
 programs.
 
@@ -823,9 +823,9 @@ a small subset of the options immediately: \type{--safer}, \type{--nosocket},
 \type{--shell-restricted}, \type{--help}, \type{--version}, and \type{--credits}.
 
 Now it searches for the requested \LUA\ initialization script. If it
-can not be found using the actual name given on the commandline, a
+cannot be found using the actual name given on the commandline, a
 second attempt is made by prepending the value of the environment
-variable \type{LUATEXDIR}, if that variable is defined.
+variable \type{LUATEXDIR}, if that variable is defined in the environment.
 
 Then it checks the various safety switches. You can use those to disable
 some \LUA\ commands that can easily be abused by a malicious document. At
@@ -880,25 +880,25 @@ We recommend you use the startup file only for your own
 commandline, set values in the \luatex{texconfig} table, and register
 the callbacks you need.
 
-\LUATEX\ allows some of the commandline opiotns to be overridden
+\LUATEX\ allows some of the commandline options to be overridden
 by reading values from the \luatex{texconfig} table at the end of
 script execution (see the description of the \luatex{texconfig} table
 later on in this document for more details on which ones exactly).
 
 Unless the \luatex{texconfig} table tells \LUATEX\ not to initialize
 \KPATHSEA\ at all (set \luatex{texconfig.kpse_init} to \type{false} for that),
-\LUATEX\ acts on three more commandline options after the
+\LUATEX\ acts on some more commandline options after the
 initialization script is finished:
-
 in order to initialize the built|-|in \KPATHSEA\ library properly,
 \LUATEX\ needs to know the correct program name to use, and for that it
 needs to check \type{--progname}, or \type{--ini} and \type{--fmt}, if
 \type{--progname} is missing.
 
+
 \section{\LUA\ changes}
 
-The C coroutine (\COCO) patches from luajit are applied to the \LUA\
-core, the used version is 1.1.5.  See \hyphenatedurl{http://luajit.org/coco.html}
+The C coroutine (\COCO) patches from LuaJIT are applied to the \LUA\
+core, the used version is 1.1.5.  See \hyphenatedurl{http://coco.luajit.org/}
 for details. This functionality currently (0.45) does not work on
 non-intel OpenBSD platforms nor on powerpc Linux-es. Additional note:
 \type{coroutines.wrap()} under Windows does not inherit the state
@@ -908,7 +908,7 @@ of the random generator, it always has an implicit
 Starting from version 0.45, \LUATEX\ is able to use the kpathsea
 library to find \type{require()}d modules. For this purpose,
 \type{package.loaders[2]} is replaced by a different loader function,
-that decides at runtime whether to use kpathsea or the build-in core
+that decides at runtime whether to use kpathsea or the built-in core
 lua function.  It uses \KPATHSEA\ when that is already initialized at
 that point in time, otherwise it reverts to using the normal
 \type{package.path} loader.
@@ -934,7 +934,7 @@ This functionality required an extension to kpathsea:
 \startnarrower
 There is a new kpathsea file format: \type{kpse_clua_format} that
 searches for files with extension \type{.dll} and \type{.so}.  The
-\type{texmf.cnf} setting for this variable \type{is CLUAINPUTS}, and
+\type{texmf.cnf} setting for this variable is \type{CLUAINPUTS}, and
 by default it has this value:
 
 \starttyping
@@ -943,11 +943,11 @@ CLUAINPUTS=.:$SELFAUTOLOC/lib/{$progname,$engine,}/lua//
 
 This path is imperfect (it requires a TDS subtree below the binaries
 directory), but the architecture has to be in the path somewhere, and
-the currently simplest way to do that is to search below the binary
+the currently simplest way to do that is to search below the binaries
 directory only.
 
 One level up (a \type{lib} directory parallel to \type{bin}) would
-have been nicer, but that is not doable because texlive uses a
+have been nicer, but that is not doable because \TEXLIVE\ uses a
 \type{bin/<arch>} structure.
 \stopnarrower
 
@@ -995,7 +995,7 @@ is either empty (this splits the string into characters), a single
 character (this splits on each occurrence of that character, possibly
 introducing empty strings), or a single character followed by the plus
 sign \type{+} (this special version does not create empty
-sub-strings). The default value for \type{m} is \type{ +} (multiple
+sub-strings). The default value for \type{m} is \quote{\type{ +}} (multiple
 spaces).
 
 Note: \type{m} is not hidden by surrounding braces (as it would be if
@@ -1011,7 +1011,7 @@ piecemeal:
 \UTF-8 token in it)
 \item \luatex{string.characters(s)} (a string containing one byte)
 \item \luatex{string.characterpairs(s)} (two strings each containing one byte) will
-produce an empty second string in the string length was odd.
+produce an empty second string if the string length was odd.
 \item \luatex{string.bytes(s)} (a single byte value)
 \item \luatex{string.bytepairs(s)} (two byte values) Will produce nil instead of a
 number as its second return value if the string length was odd.
@@ -1041,7 +1041,7 @@ The \lua{os} library has a few extra functions and variables:
 
 \startitemize
 \item \luatex{os.selfdir} is a variable that holds the directory path
-of \type{argv[0]}.  For example: {\tt \directlua{tex.sprint(os.selfdir)}}
+of the actual executable.  For example: {\tt \directlua{tex.sprint(os.selfdir)}}
 (present since 0.27.0).
 
 \item \luatex{os.exec(commandline)} is a variation on \lua{os.execute}.
@@ -1055,7 +1055,7 @@ of \type{argv[0]}.  For example: {\tt \directlua{tex.sprint(os.selfdir)}}
 
   The set of consecutive values starting at integer 1 in the table are
   the arguments that are passed on to the command (the value at index 1
-  becomes \type{argv[0]}).  The command is searched for in the execution path,
+  becomes \type{arg[0]}).  The command is searched for in the execution path,
   so there is normally no need to pass on a fully qualified pathname.
 
   If the argument is a string, then it is automatically converted into
@@ -1072,7 +1072,7 @@ of \type{argv[0]}.  For example: {\tt \directlua{tex.sprint(os.selfdir)}}
   command will replace the current process. However, it will return the two values
   \type{nil} and \type {'error'} if there was a problem while attempting to execute the command.
 
-  On windows, the current process is actually kept in memory until after the
+  On Windows, the current process is actually kept in memory until after the
   execution of the command has finished. This prevents crashes in situations
   where \TEXLUA\ scripts are run inside integrated \TEX\ environments.
 
@@ -1101,9 +1101,10 @@ not available on the \SUNOS\ platforms, so do not use this function
 for portable documents.
 
 \item \luatex{os.times()}
-Returns the current process times cf.\ the \UNIX\ C library \quote {times}
-call in seconds. This function is not available on the \MSWINDOWS\ and \SUNOS\
-platforms, so do not use this function for portable documents.
+Returns the current process times cf.\ the \UNIX\ C library function
+\quote {times}. This function is not available on the \MSWINDOWS\
+and \SUNOS\ platforms, so do not use this function for portable
+documents.
 
 \item \luatex{os.tmpdir()} This will create a directory in the \quote {current
 directory} with the name \type{luatex.XXXXXX} where the \type {X}-es are
@@ -1160,13 +1161,13 @@ in with \LUATEX, because they offer useful functionality:
 
 This library has been slightly extended so that the \type{unicode.utf8.*}
 functions also accept the first 256 values of plane~18. This is the range \LUATEX\
-uses for raw binary output, as explained above,
+uses for raw binary output, as explained above.
 
 \item \lua{luazip}, from the kepler project, \hyphenatedurl{http://www.keplerproject.org/luazip/}.
   (version 1.2.1, but patched for compilation with \LUA\ 5.1)
 \item \lua{luafilesystem}, also from the kepler project, \hyphenatedurl{http://www.keplerproject.org/luafilesystem/}.
   (version 1.4.1)
-\item \lua{lpeg}, by Roberto Ierusalimschy, \hyphenatedurl{http://www.inf.puc-rio.br/~roberto/lpeg.html}. (version 0.9.0)
+\item \lua{lpeg}, by Roberto Ierusalimschy, \hyphenatedurl{http://www.inf.puc-rio.br/~roberto/lpeg/lpeg.html}. (version 0.9.0)
 
 Note: \lua{lpeg} is not \UNICODE|-|aware, but interprets strings on a
 byte|-|per|-|byte basis. This mainly means that \luatex{lpeg.S} cannot be
@@ -1184,7 +1185,7 @@ is two 'characters' (bytes), so \type{aä} totals three.
 \item \lua{md5}, by Roberto Ierusalimschy \hyphenatedurl{http://www.inf.puc-rio.br/~roberto/md5/md5-5/md5.html}.
 
 \item \lua{luasocket}, by Diego Nehab
-\hyphenatedurl{http://www.tecgraf.puc-rio.br/~diego/professional/luasocket/}
+\hyphenatedurl{http://w3.impa.br/~diego/software/luasocket/}
 (version 2.0.2).
 
 Note: the \type{.lua} support modules from \type{luasocket} are also
@@ -1625,6 +1626,8 @@ values are:
 \NC alignment       \NC a (partial) alignment is being added   \NC\NR
 \NC after_output    \NC an output routine has just finished    \NC\NR
 \NC box             \NC a typeset box is being added           \NC\NR
+%\NC pre_box         \NC interline material is being added      \NC\NR
+%\NC adjust          \NC \tex{vadjust} material is being added  \NC\NR
 \NC new_graf        \NC the beginning of a new paragraph       \NC\NR
 \NC vmode_par       \NC \tex{par} was found in vertical mode   \NC\NR
 \NC hmode_par       \NC \tex{par} was found in horizontal mode \NC\NR
@@ -1859,6 +1862,7 @@ certainly result in an endless loop.
 
 \startfunctioncall
 function()
+end
 \stopfunctioncall
 
 This function is called just before dumping to a format file starts.
@@ -1868,6 +1872,7 @@ It does not replace any code and there are neither arguments nor return values.
 
 \startfunctioncall
 function()
+end
 \stopfunctioncall
 
 This callback replaces the code that prints \LUATEX's banner. Note that for
@@ -1878,6 +1883,7 @@ otherwise it will be seen only after the run has already started.
 
 \startfunctioncall
 function()
+end
 \stopfunctioncall
 
 This callback replaces the code that prints \LUATEX's statistics and \quote{output written
@@ -1887,6 +1893,7 @@ to} messages.
 
 \startfunctioncall
 function()
+end
 \stopfunctioncall
 
 Replaces the code that prints the \type{[} and the page number at the
@@ -1898,6 +1905,7 @@ printing of box information that normally takes place when
 
 \startfunctioncall
 function()
+end
 \stopfunctioncall
 
 Replaces the code that prints the \type{]} at the end of \tex{shipout}.
@@ -1949,6 +1957,7 @@ exact definition of \type{indicator} is not given here.
 
 \startfunctioncall
 function()
+end
 \stopfunctioncall
 
 This callback is called when all document pages are already written to \PDF\
@@ -2153,7 +2162,7 @@ raised. The table is a font structure, as explained in
 \subsection{Projected next font id}
 
 \startfunctioncall
-<number> i = font.nextid();
+<number> i = font.nextid()
 \stopfunctioncall
 
 This returns the font id number that would be returned by a
@@ -2164,7 +2173,7 @@ themselves.
 \subsection{Font id (0.47)}
 
 \startfunctioncall
-<number> i = font.id(<string> csname);
+<number> i = font.id(<string> csname)
 \stopfunctioncall
 
 This returns the font id associated with \type{csname} string, or $-1$
@@ -2173,8 +2182,8 @@ if \type{csname} is not defined, new in 0.47.
 \subsection{Currently active font}
 
 \startfunctioncall
-<number> i = font.current();
-font.current(<number> i);
+<number> i = font.current()
+font.current(<number> i)
 \stopfunctioncall
 
 This gets or sets the currently used font number.
@@ -2182,7 +2191,7 @@ This gets or sets the currently used font number.
 \subsection{Maximum font id}
 
 \startfunctioncall
-<number> i = font.max();
+<number> i = font.max()
 \stopfunctioncall
 
 This is the largest used index in \type{font.fonts}.
@@ -2372,7 +2381,7 @@ the glyph names in the font \type{PunkNova.kern.otf}:
 
 \starttyping
 local f = fontloader.open('PunkNova.kern.otf')
-print (f.fontname);
+print (f.fontname)
 local i = 0
 while (i < f.glyphmax) do
    local g = f.glyphs[i]
@@ -5063,7 +5072,7 @@ pdf.refobj(<integer> n)
 
 This function works in both the \tex{directlua} and \tex{latelua} environment.
 Inside \tex{directlua} a new whatsit node
-`pdf_refobj' is created, which will be marked for flushing during
+\quote{pdf_refobj} is created, which will be marked for flushing during
 page output and the object is then written directly after the page,
 when also the resources objects are written out.
 Inside \tex{latelua} the object will marked for flushing.
@@ -5838,7 +5847,7 @@ registers that keep track of building page lists.
 \NC \bf field          \NC \bf description \NC \NR
 \NC page_ins_head      \NC  circular list of pending insertions \NC \NR
 \NC contrib_head       \NC  the recent contributions \NC \NR
-\NC page_head          \NC  the page-so-far \NC \NR
+\NC page_head          \NC  the current page content\NC \NR
 %\NC temp_head          \NC  \NC \NR
 \NC hold_head          \NC used for held-over items for next page\NC \NR
 \NC adjust_head        \NC head of the current \tex{adjust} list \NC \NR
@@ -9381,7 +9390,7 @@ in non|-|\LUA\ mode:
   \type{openout} do not happen (however, it is easy for a \LUA\ script
   to do this itself by overloading \lua{io.open}).
 
-\item The `E' option does not do anything useful.
+\item The \quote{E} option does not do anything useful.
 
 \stopitemize
 
