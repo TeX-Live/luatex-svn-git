@@ -564,7 +564,7 @@ static int do_lua_kpathsea_lookup(lua_State * L, kpathsea kpse, int idx)
         lua_pop(L, 1);
 
 
-        lua_pushstring(L, "must-exist");
+        lua_pushstring(L, "mustexist");
         lua_gettable(L, idx + 1);
         if (lua_type(L, -1) == LUA_TBOOLEAN) {
             must_exist = lua_toboolean(L, -1);
