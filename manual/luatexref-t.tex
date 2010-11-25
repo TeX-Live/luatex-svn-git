@@ -1199,7 +1199,7 @@ The interfacing between \TEX\ and \LUA\ is facilitated by a set of
 library modules. The \LUA\ libraries in this chapter are all defined and
 initialized by the \LUATEX\ executable. Together, they allow \LUA\
 scripts to query and change a number of \TEX's internal variables, run
-various internal functions \TEX, and set up \LUATEX's hooks to execute
+various internal \TEX\ functions, and set up \LUATEX's hooks to execute
 \LUA\ code.
 
 The following sections are in alphabetical order.
@@ -1252,7 +1252,7 @@ is present since version 0.38.
 Currently, callbacks are not dumped into the format file.
 
 \startfunctioncall
-table info = callback.list()
+<table> info = callback.list()
 \stopfunctioncall
 
 The keys in the table are the known callback names, the value is a
@@ -1260,7 +1260,7 @@ boolean where \type{true} means that the callback is currently set
 (active).
 
 \startfunctioncall
-function f = callback.find(callback_name)
+<function> f = callback.find (callback_name)
 \stopfunctioncall
 
 If the callback is not set, \luatex{callback.find} returns \type{nil}.
@@ -1275,7 +1275,7 @@ sense that there will not be backward-incompatible changes any more.
 Your callback function should have the following conventions:
 
 \startfunctioncall
-<string> actual_name = function (number id_number, <string> asked_name)
+<string> actual_name = function (<number> id_number, <string> asked_name)
 \stopfunctioncall
 
 Arguments:
@@ -1365,7 +1365,7 @@ Like \luatex{find_font_file}, but for subfont definition files.
 \subsubsection{\luatex{find_pk_file}}
 
 Like \luatex{find_font_file}, but for pk bitmap files. The argument
-\type{name} is a bit special in this case. Its form is
+\type{asked_name} is a bit special in this case. Its form is
 
 \starttyping
 <base res>dpi/<fontname>.<actual res>pk
@@ -1498,7 +1498,7 @@ either one of the file discovery callbacks or the internal version of
 
 \sym{success}
 
-Return false when a fatal error occurred (e.\,g.\ when the file cannot be
+Return \type{false} when a fatal error occurred (e.\,g.\ when the file cannot be
 found, after all).
 
 \sym{data}
@@ -1583,7 +1583,7 @@ end
 The calling convention for this callback is a bit more complicated than
 for most other callbacks.  The function should either return a \LUA\
 table representing a valid to|-|be|-|processed token or tokenlist, or
-something else like nil or an empty table.
+something else like \type{nil} or an empty table.
 
 If your \LUA\ function does not return a table representing a valid
 token, it will be immediately called again, until it eventually does
@@ -1748,7 +1748,7 @@ argument. If \type{exactly}, then the \type{size} is a \tex{hbox to ...}.
 In both cases, the number is in scaled points.
 
 The \type{direction} is either one of the three-letter direction specifier
-strings, or nil (added in 0.45).
+strings, or \type{nil} (added in 0.45).
 
 
 This callback does not replace any internal code.
@@ -1817,7 +1817,7 @@ will be recalculated.
 
 The \type{next} of \type{head} is guaranteed to be non-nil.
 
-The \type{next} of \type{tail} is guaranteed be nil, and therefore the
+The \type{next} of \type{tail} is guaranteed to be nil, and therefore the
 second callback argument can often be ignored. It is provided for
 orthogonality, and because it can sometimes be handy when special
 processing has to take place.
@@ -1828,7 +1828,8 @@ ligature creation pass.
 \subsubsection{\luatex{kerning}}
 
 \startfunctioncall
-function(<node> head, <node> tail) end
+function(<node> head, <node> tail)
+end
 \stopfunctioncall
 
 No return values. This callback has to apply kerning between the nodes
@@ -1843,7 +1844,7 @@ kern insertion pass.
 This callback replaces \LUATEX's math list to node list conversion algorithm.
 
 \startfunctioncall
-function(<node> head, <string> displaytype, <boolean> need_penalties)
+function(<node> head, <string> display_type, <boolean> need_penalties)
     return <node> newhead
 end
 \stopfunctioncall
@@ -1876,7 +1877,7 @@ end
 \stopfunctioncall
 
 This callback replaces the code that prints \LUATEX's banner. Note that for
-successful use, this callback has to be set in the lua initialization file,
+successful use, this callback has to be set in the lua initialization script,
 otherwise it will be seen only after the run has already started.
 
 \subsubsection{\luatex{stop_run}}
@@ -1914,7 +1915,6 @@ Replaces the code that prints the \type{]} at the end of \tex{shipout}.
 
 \startfunctioncall
 function()
-    return
 end
 \stopfunctioncall
 
@@ -1960,8 +1960,8 @@ function()
 end
 \stopfunctioncall
 
-This callback is called when all document pages are already written to \PDF\
-and \LUATEX\ is about to finalize the output document structure. Its intended
+This callback is called when all document pages are already written to the \PDF\
+file and \LUATEX\ is about to finalize the output document structure. Its intended
 use is final update of \PDF\ dictionaries such as \type{/Catalog} or
 \type{/Info}. The callback does not replace any code. There are neither
 arguments nor return values.
@@ -1971,7 +1971,9 @@ arguments nor return values.
 \subsubsection{\luatex{define_font}}
 
 \startfunctioncall
-function(<string> name, <number> size, <number> id) return <table> font end
+function(<string> name, <number> size, <number> id)
+    return <table> font
+end
 \stopfunctioncall
 
 The string \type{name} is the filename part of the font
@@ -1984,6 +1986,8 @@ The number \type{size} is a bit special:
 \item if it is negative, its absolute value represents a \quote{scaled}
 setting relative to the designsize of the font.
 \stopitemize
+
+The \type{id} is the internal number assigned to the font.
 
 The internal structure of the \type{font} table that is to be
 returned is explained in \in{chapter}[fonts]. That table is saved
@@ -2100,8 +2104,8 @@ sense that there will not be backward-incompatible changes any more.
 <table> vf_fnt = font.read_vf(<string> name, <number> s)
 \stopfunctioncall
 
-The meaning of the number \type{s}, and the format of the returned
-table is similar to the one returned by the \luatex{read_tfm()} function.
+The meaning of the number \type{s} and the format of the returned
+table are similar to the ones in the \luatex{read_tfm()} function.
 
 \subsection{The fonts array}
 
@@ -2143,8 +2147,8 @@ You can test for the status of a font by calling this function:
 <boolean> f = font.frozen(<number> n)
 \stopfunctioncall
 
-The return value is one of true (unassignable), false (can be changed)
-or nil (not a valid font at all).
+The return value is one of \type{true} (unassignable), \type{false} (can be changed)
+or \type{nil} (not a valid font at all).
 
 \subsection{Defining a font directly}
 
@@ -2177,7 +2181,7 @@ themselves.
 \stopfunctioncall
 
 This returns the font id associated with \type{csname} string, or $-1$
-if \type{csname} is not defined, new in 0.47.
+if \type{csname} is not defined; new in 0.47.
 
 \subsection{Currently active font}
 
@@ -2215,7 +2219,7 @@ there can be holes in the sequence.
 \subsection{Getting quick information on a font}
 
 \startfunctioncall
-local info = fontloader.info('filename')
+<table> info = fontloader.info('filename')
 \stopfunctioncall
 
 This function returns either \type{nil}, or a \type{table}, or an
@@ -2612,7 +2616,7 @@ anchor type, which is one of
 \NC cexit             \NC table   \NC cursive exit point\NC\NR
 \stoptabulate
 
-The content of these is an short array of defined anchors, with the
+The content of these is a short array of defined anchors, with the
 entry keys being the anchor names. For all except \type{baselig}, the
 value is a single table with this definition:
 
@@ -3293,7 +3297,7 @@ via the \type{image} command listed in~\in{section}[virtualfonts].
 
 \startfunctioncall
 <image> var = img.new()
-<image> var = img.new(image_spec)
+<image> var = img.new(<table> image_spec)
 \stopfunctioncall
 
 This function creates a userdata object of type \quote {image}. The
@@ -3304,20 +3308,20 @@ other keys can also be useful, these are explained below.
 You can either say
 
 \starttyping
-a=img.new()
+a = img.new()
 \stoptyping
 
 followed by
 
 \starttyping
-a.filename="foo.png"
+a.filename = "foo.png"
 \stoptyping
 
 or you can put the file name (and some or all of the other keys)
 into a table directly, like so:
 
 \starttyping
-a=img.new{filename='foo.pdf',page=1}
+a = img.new({filename='foo.pdf',page=1})
 \stoptyping
 
 The generated \type{<image>} userdata object allows access to a set of
@@ -3439,7 +3443,7 @@ followed by the \type{transform} operation.
 
 \startfunctioncall
 <image> var = img.scan(<image> var)
-<image> var = img.scan(image_spec)
+<image> var = img.scan(<table> image_spec)
 \stopfunctioncall
 
 When you say \type{img.scan(a)} for a new image, the file is scanned,
@@ -3454,7 +3458,7 @@ set up (if they have been changed by the user in the meantime).
 For ease of use, you can do right-away a
 
 \starttyping
-<image> a = img.scan { filename = "foo.png" }
+<image> a = img.scan ({ filename = "foo.png" })
 \stoptyping
 
 without a prior \type{img.new}.
@@ -3469,7 +3473,7 @@ cleaned up automatically.
 
 \startfunctioncall
 <image> var = img.copy(<image> var)
-<image> var = img.copy(image_spec)
+<image> var = img.copy(<table> image_spec)
 \stopfunctioncall
 
 If you say \type{a = b}, then both variables point to the same
@@ -3488,7 +3492,7 @@ from their initial values that were just copies from \type{a}.
 
 \startfunctioncall
 <image> var = img.write(<image> var)
-<image> var = img.write(image_spec)
+<image> var = img.write(<table> image_spec)
 \stopfunctioncall
 
 By \type{img.write(a)} a \PDF\ object number is allocated,
@@ -3501,7 +3505,7 @@ after the shipping of the current page is finished.
 Again you can do a terse call like
 
 \starttyping
-img.write { filename = "foo.png" }
+img.write ({ filename = "foo.png" })
 \stoptyping
 
 The \type{<image>} variable is returned in case you want it for later
@@ -3511,7 +3515,7 @@ processing.
 
 \startfunctioncall
 <image> var = img.immediatewrite(<image> var)
-<image> var = img.immediatewrite(image_spec)
+<image> var = img.immediatewrite(<table> image_spec)
 \stopfunctioncall
 
 By \type{img.immediatewrite(a)} a \PDF\ object number is
@@ -3527,7 +3531,7 @@ you will have a dangling image object in the \PDF\ file.
 Also here you can do a terse call like
 
 \starttyping
-a = img.immediatewrite { filename = "foo.png" }
+a = img.immediatewrite ({ filename = "foo.png" })
 \stoptyping
 
 The \type{<image>} variable is returned and you will most likely need it.
@@ -3536,7 +3540,7 @@ The \type{<image>} variable is returned and you will most likely need it.
 
 \startfunctioncall
 <node> n = img.node(<image> var)
-<node> n = img.node(image_spec)
+<node> n = img.node(<table> image_spec)
 \stopfunctioncall
 
 This function allocates a \PDF\ object number and returns a
@@ -3545,7 +3549,7 @@ image parameters \type{width}, \type{height}, \type{depth}, and
 \type{objnum}. Also here you can do a terse call like:
 
 \starttyping
-n = img.node { filename = "foo.png" }
+n = img.node ({ filename = "foo.png" })
 \stoptyping
 
 This example outputs an image:
@@ -3959,7 +3963,7 @@ currently \directlua {tex.print(lua.version)}.
 
 \LUA\ registers can be used to communicate \LUA\ functions across \LUA\
 chunks. The accepted values for assignments are functions and
-nil. Likewise, the retrieved value is either a function or \type{nil}.
+\type{nil}. Likewise, the retrieved value is either a function or \type{nil}.
 
 \starttyping
 lua.bytecode[n] = function () .. end
@@ -3998,7 +4002,7 @@ lua.bytecode[n]()
 
 Note that the path of the file is stored in the \LUA\ bytecode to be
 used in stack backtraces and therefore dumped into the format file if
-above code is used in \INITEX. If it contains private information, i.e.
+the above code is used in \INITEX. If it contains private information, i.e.
 the user name, this information is then contained in the format file as
 well. This should be kept in mind when preloading files into a bytecode
 register in \INITEX.
@@ -4093,7 +4097,7 @@ out of space unless the available system memory is exhausted.
 You can ask the \METAPOST\ interpreter to run a chunk of code by calling
 
 \startfunctioncall
-local rettable = mp:execute('metapost language chunk')
+<table> rettable = mp:execute('metapost language chunk')
 \stopfunctioncall
 
 for various bits of \METAPOST\ language input. Be sure to check the
@@ -4111,7 +4115,7 @@ In contrast with the normal standalone \type{mpost} command, there is
 \subsection{\luatex{mp:finish}}
 
 \startfunctioncall
-local rettable = mp:finish()
+<table> rettable = mp:finish()
 \stopfunctioncall
 
 If for some reason you want to stop using an \MPLIB\ instance while
@@ -4142,12 +4146,12 @@ object methods you can call:
 
 \starttabulate[|l|l|p|]
 \NC boundingbox  \NC function \NC returns the bounding box, as an array of 4 values\NC \NR
-\NC postscript   \NC function \NC return a string that is the ps output of the \type{fig}.
+\NC postscript   \NC function \NC returns a string that is the ps output of the \type{fig}.
                                   this function accepts two optional integer arguments for
                                   specifying the values of \type{prologues} (first argument)
                                   and \type{procset} (second argument)\NC \NR
-\NC svg          \NC function \NC return a string that is the svg output of the \type{fig}.
-                                  this function accepts an optional integer arguments for
+\NC svg          \NC function \NC returns a string that is the svg output of the \type{fig}.
+                                  This function accepts an optional integer argument for
                                   specifying the value of \type{prologues}\NC \NR
 \NC objects      \NC function \NC returns the actual array of graphic objects in this \type{fig} \NC \NR
 \NC copy_objects \NC function \NC returns a deep copy of the array of graphic objects in this \type{fig} \NC \NR
@@ -4165,19 +4169,19 @@ object methods you can call:
 When the boundingbox represents a \quote {negated rectangle}, i.e.\ when the first set
 of coordinates is larger than the second set, the picture is empty.
 
-Graphical objects come in various types that each have a different list of
+Graphical objects come in various types that each has a different list of
 accessible values. The types are: \type{fill}, \type{outline}, \type{text},
 \type{start_clip}, \type{stop_clip}, \type{start_bounds}, \type{stop_bounds}, \type{special}.
 
 There is helper function (\type{mplib.fields(obj)}) to get the list of
 accessible values for a particular object, but you can just as easily
-use the tables given below).
+use the tables given below.
 
 All graphical objects have a field \type{type} that gives the object
 type as a string value, that not explicit mentioned in the tables.  In
 the following, \type{number}s are \POSTSCRIPT\ points represented as
 a floating point number, unless stated otherwise. Field values that
-are of \type{table} are explained in the next section.
+are of type \type{table} are explained in the next section.
 
 \subsubsection{fill}
 
@@ -4363,7 +4367,7 @@ Each node has at least the three fields \type{next}, \type{id}, and
 
 \item The \type{next} field returns the userdata
 object for the next node in a linked list of nodes, or
-nil, if there is no next node.
+\type{nil}, if there is no next node.
 
 \item The \type{id} indicates \TEX's \quote{node type}. The field \type{id}
 has a numeric value for efficiency reasons, but some of the library
@@ -4415,7 +4419,7 @@ type \type{<node>}.
 \subsubsection{\luatex{node.types}}
 
 \startfunctioncall
-table t = node.types()
+<table> t = node.types()
 \stopfunctioncall
 
 This function returns an array that maps node id numbers to node type
@@ -4425,11 +4429,11 @@ types.
 \subsubsection{\luatex{node.whatsits}}
 
 \startfunctioncall
-table t = node.whatsits()
+<table> t = node.whatsits()
 \stopfunctioncall
 
 \TEX's \quote{whatsits} all have the same \type{id}. The various subtypes
-are defined by their \type{subtype}. The function is much like
+are defined by their \type{subtype} fields. The function is much like
 \luatex{node.types}, except that it provides an array of \type{subtype}
 mappings.
 
@@ -4463,8 +4467,8 @@ representation.
 \subsubsection{\luatex{node.fields}}
 
 \startfunctioncall
-table t = node.fields(<number> id)
-table t = node.fields(<number> id, <number> subtype)
+<table> t = node.fields(<number> id)
+<table> t = node.fields(<number> id, <number> subtype)
 \stopfunctioncall
 
 This function returns an array of valid field names for a particular
@@ -4492,7 +4496,7 @@ actually a node, and it has the field.
 \stopfunctioncall
 
 Creates a new node. All of the new node's fields are initialized to
-either zero or nil except for \type{id} and \type{subtype} (if
+either zero or \type{nil} except for \type{id} and \type{subtype} (if
 supplied). If you want to create a new whatsit, then the second
 argument is required, otherwise it need not be present. As with all
 node functions, this function creates a node on the \TEX\ level.
@@ -4581,7 +4585,7 @@ to \type{nil} beforehand. And in a similar way, calling
 
 This function creates a new vlist by packaging the list that begins at  node
 \type{n} into a vertical box. With only a single argument, this box
-is created using the natural width of its components. In the three
+is created using the natural height of its components. In the three
 argument form, \type{info} must be either \type{additional} or
 \type{exactly}, and \type{w} is the additional (\tex{vbox spread}) or exact (\tex{vbox to}) height to be used.
 
@@ -4602,7 +4606,7 @@ caveats.
 
 This function calculates the natural in-line dimensions of the node
 list starting at node \type{n} and terminating just before node \type{t}
-(or nil, if there is no second argument). The return values are scaled
+(or \type{nil}, if there is no second argument). The return values are scaled
 points. An alternative format that starts with glue parameters as the
 first three arguments is also possible:
 
@@ -4643,7 +4647,7 @@ Direction support added in \LUATEX\ 0.45.
 
 \startfunctioncall
 <node> h = node.mlist_to_hlist(<node> n,
-             <string> displaytype, <boolean> penalties)
+             <string> display_type, <boolean> penalties)
 \stopfunctioncall
 
 This runs the internal mlist to hlist conversion, converting the math list in
@@ -4688,7 +4692,7 @@ at the end of the list. The node \type{m} is not counted.
 \stopfunctioncall
 
 Returns the number of nodes contained in the node list that starts at
-\type{n} that have an matching \type{id} field.
+\type{n} that have a matching \type{id} field.
 If \type{m} is also supplied, counting stops at \type{m} instead of at
 the end of the list. The node \type{m} is not counted.
 
@@ -4722,7 +4726,7 @@ This function removes the node \type{current} from the list following
 of that list. The return values are the new \type{head} and
 \type{current} nodes. The returned \type{current} is the node
 following the \type{current} in the calling argument, and is only
-passed back as a convenience (or nil, if there is no such node).  The
+passed back as a convenience (or \type{nil}, if there is no such node).  The
 returned \type{head} is more important, because if the function is
 called with \type{current} equal to \type{head}, it will be changed.
 
@@ -4735,7 +4739,7 @@ called with \type{current} equal to \type{head}, it will be changed.
 This function inserts the node \type{new} before \type{current} into
 the list following \type{head}. It is your responsibility to make sure
 that \type{current} is really part of that list. The return values are
-the (potentially mutated) \type{head} and the \type{new}, set up to
+the (potentially mutated) \type{head} and the node \type{new}, set up to
 be part of the list (with correct \type{next} field). If \type{head}
 is initially \type{nil}, it will become \type{new}.
 
@@ -4748,7 +4752,7 @@ is initially \type{nil}, it will become \type{new}.
 This function inserts the node \type{new} after \type{current} into
 the list following \type{head}. It is your responsibility to make sure
 that \type{current} is really part of that list. The return values are
-the \type{head} and the \type{new}, set up to be part of the list
+the \type{head} and the node \type{new}, set up to be part of the list
 (with correct \type{next} field). If \type{head} is initially
 \type{nil}, it will become \type{new}.
 
@@ -4855,7 +4859,7 @@ dedicated functions associated with them.
 
 Tests if a node has the attribute with number \type{id} set. If
 \type{val} is also supplied, also tests if the value matches \type{val}.
-It returns the value, or, if no match is found, nil.
+It returns the value, or, if no match is found, \type{nil}.
 
 \subsubsection{\luatex{node.set_attribute}}
 
@@ -4878,7 +4882,7 @@ it will only perform this operation if the value matches \type{val}.
 Missing attributes or attribute|-|value pairs are ignored.
 
 If the attribute was actually deleted, returns its old
-value. Otherwise, returns nil.
+value. Otherwise, returns \type{nil}.
 
 \section{The \luatex{pdf} library}
 
