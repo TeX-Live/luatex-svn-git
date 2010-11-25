@@ -8690,6 +8690,9 @@ Id: \showid{accent}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
+\NC subtype    \NC number           \NC the first bit is used for a fixed top accent flag (if the \type{accent} field is present), 
+                                        the second bit for a fixed bottom accent flag (if the \type{bot_accent} field is present).
+                                        Example: the actual value \type{3} means: do not stretch either accent\NC\NR
 \NC attr       \NC \syntax{<node>}\NC          \NC\NR
 \NC nucleus    \NC \syntax{<kernel>}\NC          \NC \NR
 \NC sub        \NC \syntax{<kernel>}\NC          \NC\NR
