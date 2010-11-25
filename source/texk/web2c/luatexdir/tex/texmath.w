@@ -715,20 +715,62 @@ void display_normal_noad(pointer p)
         }
         break;
     case accent_noad:
+       if (accent_chr(p) != null) {
+           if (bot_accent_chr(p) != null) {
+               tprint_esc("Umathaccent both");
+           } else {
+               tprint_esc("Umathaccent");
+           }
+       } else {
+           tprint_esc("Umathaccent bot");
+       }
+       switch (subtype(p)) {
+       case 0:
         if (accent_chr(p) != null) {
             if (bot_accent_chr(p) != null) {
-                tprint_esc("Umathaccents");
                 print_fam_and_char(accent_chr(p));
                 print_fam_and_char(bot_accent_chr(p));
             } else {
-                tprint_esc("accent");
                 print_fam_and_char(accent_chr(p));
             }
         } else {
-            tprint_esc("Umathbotaccent");
             print_fam_and_char(bot_accent_chr(p));
         }
         break;
+       case 1:
+        if (accent_chr(p) != null) {
+            tprint(" fixed ");
+	    print_fam_and_char(accent_chr(p));
+            if (bot_accent_chr(p) != null) {
+                print_fam_and_char(bot_accent_chr(p));
+            }
+        } else {
+            confusion("display_accent_noad");
+        }
+        break;
+       case 2:
+        if (bot_accent_chr(p) != null) {
+            if (accent_chr(p) != null) {
+	       print_fam_and_char(accent_chr(p));
+            }
+	    tprint(" fixed ");
+            print_fam_and_char(bot_accent_chr(p));
+        } else{
+            confusion("display_accent_noad");
+        }
+        break;
+       case 3:
+        if (accent_chr(p) != null && bot_accent_chr(p) != null) {
+            tprint(" fixed ");
+            print_fam_and_char(accent_chr(p));
+	    tprint(" fixed ");
+            print_fam_and_char(bot_accent_chr(p));
+        } else {
+            confusion("display_accent_noad");
+        }
+        break;
+       }
+       break;
     }
     print_subsidiary_data(nucleus(p), '.');
     print_subsidiary_data(supscr(p), '^');
@@ -1556,10 +1598,29 @@ void math_ac(void)
     } else if (cur_chr == 1) {  /* \.{\\omathaccent} */
         t = scan_mathchar(aleph_mathcode);
     } else if (cur_chr == 2) {  /* \.{\\Umathaccent} */
-        t = scan_mathchar(xetex_mathcode);
-    } else if (cur_chr == 3) {  /* \.{\\Umathbotaccent} */
+	if (scan_keyword("fixed")) {
+           subtype(tail) = 1;
+	   t = scan_mathchar(xetex_mathcode);
+	} else if (scan_keyword("both")) {
+  	   if (scan_keyword("fixed")) {
+             subtype(tail) = 1;
+           }
+	   t = scan_mathchar(xetex_mathcode);
+  	   if (scan_keyword("fixed")) {
+             subtype(tail) += 2;
+           }
+	   b = scan_mathchar(xetex_mathcode);
+	} else if (scan_keyword("bot")) {
+  	   if (scan_keyword("fixed")) {
+             subtype(tail) = 2;
+           }
+	   b = scan_mathchar(xetex_mathcode);
+	} else {
+	   t = scan_mathchar(xetex_mathcode);
+	}
+    } else if (cur_chr == 3) {  /* deprecated: \.{\\Umathbotaccent} */
         b = scan_mathchar(xetex_mathcode);
-    } else if (cur_chr == 4) {  /* \.{\\Umathaccents} */
+    } else if (cur_chr == 4) {  /* deprecated: \.{\\Umathaccents} */
         t = scan_mathchar(xetex_mathcode);
         b = scan_mathchar(xetex_mathcode);
     } else {

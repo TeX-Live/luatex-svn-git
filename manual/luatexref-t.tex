@@ -22,7 +22,7 @@
 
 \setvariables
   [document]
-  [beta=0.64.0]
+  [beta=0.65.0]
 
 \starttext
 
@@ -577,7 +577,7 @@ The primitive \tex{initcatcodetable} creates a new table with catcodes
 identical to those defined by \INITEX:
 
 \starttabulate[|l|l|l|l|l|]
-\NC~0\NC \type{_}                  \NC         \NC \tt escape        \NC\NR
+\NC~0\NC \tt\letterbackslash       \NC         \NC \tt escape        \NC\NR
 \NC~5\NC \tt\letterhat\letterhat M \NC return  \NC \tt car\_ret      \NC (this name may change)     \NC\NR
 \NC~9\NC \tt\letterhat\letterhat @ \NC null    \NC \tt ignore        \NC\NR
 \NC10\NC \tt <space>               \NC space   \NC \tt spacer        \NC\NR
@@ -6655,7 +6655,7 @@ New primitives that are compatible with \XETEX:
 \NC \tex{Umathcode}       \NC 0--10FFFF = 0+0+0--7+FF+10FFFF$^1$     \NC\NR
 \NC \tex{Udelcode}        \NC 0--10FFFF = 0+0--FF+10FFFF$^2$         \NC\NR
 \NC \tex{Umathchar}       \NC 0+0+0--7+FF+10FFFF                     \NC\NR
-\NC \tex{Umathaccent}     \NC 0+0+0--7+FF+10FFFF$^2$                 \NC\NR
+\NC \tex{Umathaccent}     \NC 0+0+0--7+FF+10FFFF$^{2,4}$             \NC\NR
 \NC \tex{Udelimiter}      \NC 0+0+0--7+FF+10FFFF$^2$                 \NC\NR
 \NC \tex{Uradical}        \NC 0+0--FF+10FFFF$^2$                     \NC\NR
 \NC \tex{Umathcharnum}    \NC -80000000--7FFFFFFF$^3$              \NC\NR
@@ -6683,14 +6683,19 @@ two- and three-value commands, so unless you know exactly what you are
 doing and absolutely require the speedup resulting from the faster input
 scanning, it is better to use the verbose commands instead.
 
+Note 4: As of \LUATEX\ 0.65, \tex{Umathaccent} accepts optional
+keywords to control various details regarding math accents. See
+\in{section}[mathacc] below for details.
+
+
 New primitives that exist in \LUATEX\ only (all of these will be explained
 in following sections):
 
 
 \starttabulate[|l|l|l|l|]
 \NC \bf primitive         \NC \bf value range (in hex)               \NC\NR
-\NC \tex{Umathbotaccent}  \NC 0+0+0--7+FF+10FFFF                     \NC\NR
-\NC \tex{Umathaccents}    \NC 0+0+0+0+0+0--7+FF+10FFFF+7+FF+10FFFF   \NC\NR
+%\NC \tex{Umathbotaccent}  \NC 0+0+0--7+FF+10FFFF                     \NC\NR
+%\NC \tex{Umathaccents}    \NC 0+0+0+0+0+0--7+FF+10FFFF+7+FF+10FFFF   \NC\NR
 \NC \tex{Uroot}           \NC 0+0--FF+10FFFF$^2$                     \NC\NR
 \NC \tex{Uoverdelimiter}  \NC 0+0--FF+10FFFF$^2$                     \NC\NR
 \NC \tex{Uunderdelimiter} \NC 0+0--FF+10FFFF$^2$                     \NC\NR
@@ -6999,11 +7004,31 @@ actually be used as those combinations of atoms cannot actually
 happen, but it seemed better not to break orthogonality. They are initialized to zero.
 
 
-\section{Math accent handling}
+\section[mathacc]{Math accent handling}
 
-\LUATEX\ supports both top accents and bottom accents in math mode. For bottom accents,
-there is the new primitive \tex{Umathbotaccent}. If you want to set both top and bottom
-accents on a single item, there is \tex{Umathaccents}.
+\LUATEX\ supports both top accents and bottom accents in math mode,
+and math accents stretch automatically (if this is supported by the
+font the accent comes from, of course). Bottom and combined accents as
+well as fixed-width math accents are controlled by optional keywords
+following \tex{Umathaccent}.
+
+The keyword \type{bot} after \tex{Umathaccent} signals that a bottom
+accent is needed, and the keyword \type{both} signals that both a top
+and a bottom accent are needed (in this case two accents need to be
+specified, of course).
+
+Then the set of three integers defining the accent is read. This set
+of integers can be prefixed by the \type{fixed} keyword to indicate
+that a non-stretching variant is requested (in case of both accents,
+this step is repeated).
+
+A simple example:
+\starttyping
+\Umathaccent both fixed 0 0 "20D7 fixed 0 0 "20D7 {example}
+\stoptyping
+
+The primitives \tex{Umathbotaccent} and \tex{Umathaccents} are deprecated since
+version 0.65, and will be removed eventually.
 
 If a math top accent has to be placed and the accentee is a character and has a non-zero
 \type{top_accent} value, then this value will be used to place the accent instead of
@@ -7024,9 +7049,6 @@ kern is ignored.
 
 The vertical placement of a bottom accent is straight below the accentee, no correction
 takes place.
-
-\LUATEX\ has horizontal extensibles, and when present, these will be used by the accent
-commands.
 
 \section{Math root extension}
 

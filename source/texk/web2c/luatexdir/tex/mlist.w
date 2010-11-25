@@ -2126,9 +2126,11 @@ respect to the size of the final box.
 @c
 #define TOP_CODE 1
 #define BOT_CODE 2
+#define TOP_OR_BOT_MASK ((TOP_CODE) | (BOT_CODE))
+#define STRETCH_ACCENT_CODE 4
 
 static void do_make_math_accent(pointer q, internal_font_number f, int c,
-                                int top_or_bot, int cur_style)
+                                int flags, int cur_style)
 {
     pointer p, r, x, y;         /* temporary registers for box construction */
     scaled s;                   /* amount to skew the accent to the right */
@@ -2138,6 +2140,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
     boolean s_is_absolute;      /* will be true if a top-accent is placed in |s| */
     extinfo *ext;
     pointer attr_p;
+    const int top_or_bot = flags & TOP_OR_BOT_MASK;
     attr_p = (top_or_bot == TOP_CODE ? accent_chr(q) : bot_accent_chr(q));
     s_is_absolute = false;
     c = cur_c;
@@ -2168,7 +2171,8 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
     h = height(x);
     /* Switch to a larger accent if available and appropriate */
     y = null;
-    while (1) {
+    if (flags & STRETCH_ACCENT_CODE) {
+      while (1) {
         ext = NULL;
         if ((char_tag(f, c) == ext_tag) &&
             ((ext = get_charinfo_hor_variants(char_info(f, c))) != NULL)) {
@@ -2187,6 +2191,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
                 break;
             c = yy;
         }
+      }
     }
     if (y == null) {
         y = char_box(f, c, node_attr(attr_p));
@@ -2267,10 +2272,13 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
 
 static void make_math_accent(pointer q, int cur_style)
 {
+    int topstretch = !(subtype(q) % 2);
+    int botstretch = !(subtype(q) / 2);
+
     if (accent_chr(q) != null) {
         fetch(accent_chr(q));
         if (char_exists(cur_f, cur_c)) {
-            do_make_math_accent(q, cur_f, cur_c, TOP_CODE, cur_style);
+          do_make_math_accent(q, cur_f, cur_c, TOP_CODE | (topstretch ? STRETCH_ACCENT_CODE : 0), cur_style);
         }
         flush_node(accent_chr(q));
         accent_chr(q) = null;
@@ -2278,7 +2286,7 @@ static void make_math_accent(pointer q, int cur_style)
     if (bot_accent_chr(q) != null) {
         fetch(bot_accent_chr(q));
         if (char_exists(cur_f, cur_c)) {
-            do_make_math_accent(q, cur_f, cur_c, BOT_CODE, cur_style);
+          do_make_math_accent(q, cur_f, cur_c, BOT_CODE | (botstretch ? STRETCH_ACCENT_CODE : 0), cur_style);
         }
         flush_node(bot_accent_chr(q));
         bot_accent_chr(q) = null;
@@ -3417,7 +3425,7 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
                 make_radical(q, cur_style);
             break;
         case accent_noad:
-            make_math_accent(q, cur_style);
+          make_math_accent(q, cur_style);
             break;
         case style_node:
             cur_style = subtype(q);
