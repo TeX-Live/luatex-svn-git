@@ -3358,7 +3358,7 @@ static int lua_nodelib_first_character(lua_State * L)
         savetail = vlink(t);
         vlink(t) = null;
     }
-    while (h != null && !is_simple_character(h)) {
+    while (h != null && (type(h) != glyph_node || !is_simple_character(h))) {
         h = vlink(h);
     }
     if (savetail != null) {
