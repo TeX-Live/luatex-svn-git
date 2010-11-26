@@ -4770,16 +4770,20 @@ the \type{head} and the node \type{new}, set up to be part of the list
 (with correct \type{next} field). If \type{head} is initially
 \type{nil}, it will become \type{new}.
 
-\subsubsection{\luatex{node.first_character}}
+\subsubsection{\luatex{node.first_glyph} (0.65)}
 
 \startfunctioncall
-<node> n = node.first_character(<node> n)
-<node> n = node.first_character(<node> n, <node> m)
+<node> n = node.first_glyph(<node> n)
+<node> n = node.first_glyph(<node> n, <node> m)
 \stopfunctioncall
 
-Returns the first node in the list starting at \type{n} (up to \type{m}
-or the end of the list) that is a glyph node with a subtype indicating
-it is a character, or \type{nil}.
+Returns the first node in the list starting at \type{n} that is a
+glyph node with a subtype indicating it is a glyph, or \type{nil}.
+If \type{m} is given, processing stops at (but including) that node,
+otherwise processing stops at the end of the list.
+
+Note: this function used to be called \type{first_character}. It has
+been renamed in \LUATEX\ 0.65, and the old name is deprecated now. 
 
 \subsubsection{\luatex{node.ligaturing}}
 

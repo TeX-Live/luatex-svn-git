@@ -3342,8 +3342,7 @@ static int lua_nodelib_unprotect_glyphs(lua_State * L)
     return 2;
 }
 
-
-static int lua_nodelib_first_character(lua_State * L)
+static int lua_nodelib_first_glyph(lua_State * L)
 {
     /* on the stack are two nodes and a direction */
     halfword h, savetail = null, t = null;
@@ -3369,6 +3368,13 @@ static int lua_nodelib_first_character(lua_State * L)
     lua_pushboolean(L, (h == null ? 0 : 1));
     return 2;
 }
+
+static int lua_nodelib_first_character(lua_State * L)
+{
+    pdftex_warn("node.first_character() is deprecated, please update to node.first_glyph()\n");
+    return lua_nodelib_first_glyph(L);
+}
+
 
 
 /* this is too simplistic, but it helps Hans to get going */
@@ -3457,6 +3463,7 @@ static const struct luaL_reg nodelib_f[] = {
     {"ligaturing", font_tex_ligaturing},
     {"kerning", font_tex_kerning},
     {"first_character", lua_nodelib_first_character},
+    {"first_glyph", lua_nodelib_first_glyph},
     {"usedlist", lua_nodelib_usedlist},
     {"protect_glyphs", lua_nodelib_protect_glyphs},
     {"unprotect_glyphs", lua_nodelib_unprotect_glyphs},
