@@ -58,7 +58,6 @@ halfword *check_isnode(lua_State * L, int ud)
             }
         }
     }
-    luaL_typerror(L, ud, NODE_METATABLE);
     return NULL;
 }
 
@@ -3504,5 +3503,5 @@ int nodelist_from_lua(lua_State * L)
     if (lua_isnil(L, -1))
         return null;
     n = check_isnode(L, -1);
-    return *n;
+    return (n ? *n : null);
 }
