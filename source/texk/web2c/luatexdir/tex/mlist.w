@@ -2244,7 +2244,11 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
         }
         shift_amount(y) = s - sa;
     } else {
-        shift_amount(y) = s + half(w - width(y));
+        if (width(y)== 0) {
+            shift_amount(y) = s + w;
+        } else {
+            shift_amount(y) = s + half(w - width(y));
+        }
     }
     width(y) = 0;
     if (top_or_bot == TOP_CODE) {
