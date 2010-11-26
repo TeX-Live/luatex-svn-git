@@ -3371,7 +3371,7 @@ static int lua_nodelib_first_glyph(lua_State * L)
 
 static int lua_nodelib_first_character(lua_State * L)
 {
-    pdftex_warn("node.first_character() is deprecated, please update to node.first_glyph()\n");
+    pdftex_warn("node.first_character() is deprecated, please update to node.first_glyph()");
     return lua_nodelib_first_glyph(L);
 }
 

@@ -2382,7 +2382,7 @@ local fdata = {
       ["shortdesc"]="Report the fields a node type understands. The optional argument is needed for whatsits.",
       ["type"]="function",
    },
-   ["first_character"]={
+   ["first_glyph"]={
       ["arguments"]={
 	 {
 	    ["name"]="n",
