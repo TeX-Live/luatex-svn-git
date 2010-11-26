@@ -58,6 +58,7 @@ halfword *check_isnode(lua_State * L, int ud)
             }
         }
     }
+    pdftex_fail("There should have been a lua <node> here, not an object with type %s!", luaL_typename(L, ud));
     return NULL;
 }
 
