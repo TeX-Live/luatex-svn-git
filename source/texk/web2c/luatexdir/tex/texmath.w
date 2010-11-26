@@ -1619,8 +1619,10 @@ void math_ac(void)
 	   t = scan_mathchar(xetex_mathcode);
 	}
     } else if (cur_chr == 3) {  /* deprecated: \.{\\Umathbotaccent} */
+        pdftex_warn("\\Umathbotaccent is deprecated, please update to \\Umathaccent bottom");
         b = scan_mathchar(xetex_mathcode);
     } else if (cur_chr == 4) {  /* deprecated: \.{\\Umathaccents} */
+        pdftex_warn("\\Umathaccents is deprecated, please update to \\Umathaccent both");
         t = scan_mathchar(xetex_mathcode);
         b = scan_mathchar(xetex_mathcode);
     } else {
