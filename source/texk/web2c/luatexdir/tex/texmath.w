@@ -722,7 +722,7 @@ void display_normal_noad(pointer p)
                tprint_esc("Umathaccent");
            }
        } else {
-           tprint_esc("Umathaccent bot");
+           tprint_esc("Umathaccent bottom");
        }
        switch (subtype(p)) {
        case 0:
@@ -1610,7 +1610,7 @@ void math_ac(void)
              subtype(tail) += 2;
            }
 	   b = scan_mathchar(xetex_mathcode);
-	} else if (scan_keyword("bot")) {
+	} else if (scan_keyword("bottom")) {
   	   if (scan_keyword("fixed")) {
              subtype(tail) = 2;
            }
