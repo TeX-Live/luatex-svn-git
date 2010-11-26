@@ -1225,9 +1225,9 @@ frequently return some other arguments for \TEX\ to resume its operations.
 The first task is registering a callback:
 
 \startfunctioncall
-id, error = callback.register(<string> callback_name,function callback_func)
-id, error = callback.register(<string> callback_name,nil)
-id, error = callback.register(<string> callback_name,false)
+id, error = callback.register (<string> callback_name, <function> func)
+id, error = callback.register (<string> callback_name, nil)
+id, error = callback.register (<string> callback_name, false)
 \stopfunctioncall
 
 where the \syntax{callback_name} is a predefined callback name, see
@@ -1473,7 +1473,6 @@ the optional \luatex{close} function next.
 
 \startfunctioncall
 function(<table> env)
-    return
 end
 \stopfunctioncall
 
@@ -2219,7 +2218,7 @@ there can be holes in the sequence.
 \subsection{Getting quick information on a font}
 
 \startfunctioncall
-<table> info = fontloader.info('filename')
+<table> info = fontloader.info(<string> filename)
 \stopfunctioncall
 
 This function returns either \type{nil}, or a \type{table}, or an
@@ -2248,7 +2247,6 @@ If you want to use an \OPENTYPE\ font, you have to get the metric
 information from somewhere. Using the \type{fontloader} library, the
 simplest way to get that information is thus:
 
-
 \starttyping
 function load_font (filename)
   local metrics = nil
@@ -2266,7 +2264,8 @@ myfont = load_font('/opt/tex/texmf/fonts/data/arial.ttf')
 The main function call is
 
 \startfunctioncall
-f, w = fontloader.open('filename')
+<userdata> f, <table> w = fontloader.open(<string> filename)
+<userdata> f, <table> w = fontloader.open(<string> filename, <string> fontname)
 \stopfunctioncall
 
 The first return value is a userdata representation of the font. The
@@ -2280,10 +2279,15 @@ collections, you have to use a second string argument to specify which
 font you want from the collection.  Use the \type{fontname}
 strings that are returned by \type{fontloader.info} for that.
 
+To turn the font into a table, \type{fontloader.to_table} is used on
+the font returned by \type{fontloader.open}.
+
 \startfunctioncall
-f, w = fontloader.open('filename','fontname')
+<table> f = fontloader.to_table(<userdata> font)
 \stopfunctioncall
 
+This table cannot be used directly by \LUATEX\ and should be turned
+into another one as described in~\in{chapter}[fonts].
 Do not forget to store the \type{fontname} value in the \type{psname}
 field of the metrics table to be returned to \LUATEX, otherwise the
 font inclusion backend will not be able to find the correct font in
@@ -2318,12 +2322,18 @@ actual font file ourselves:
 
 \stopitemize
 
+A loaded font is discarded with:
+
+\startfunctioncall
+fontloader.close(<userdata> font)
+\stopfunctioncall
+
 \subsection{Applying a \quote{feature file}}
 
 You can apply a \quote{feature file} to a loaded font:
 
 \startfunctioncall
-fontloader.apply_featurefile(f,'filename')
+fontloader.apply_featurefile(<userdata> font, <string> filename)
 \stopfunctioncall
 
 A \quote{feature file} is a textual representation of the features in an
@@ -2339,11 +2349,11 @@ for a more detailed description of feature files.
 You can apply an \quote{\AFM\ file} to a loaded font:
 
 \startfunctioncall
-fontloader.apply_afmfile(f,'filename')
+fontloader.apply_afmfile(<userdata> font, <string> filename)
 \stopfunctioncall
 
 An \AFM\ file is a textual representation of (some of) the meta information
-in a \TYPEONE\ font. See \hyphenatedurl{http://www.adobe.com/devnet/font/pdfs/5004.AFM_Spec.pdf}
+in a \TYPEONE\ font. See \hyphenatedurl{ftp://ftp.math.utah.edu/u/ma/hohn/linux/postscript/5004.AFM_Spec.pdf}
 for more information about afm files.
 
 Note: If you \type{fontloader.open()} a \TYPEONE\ file named \type{font.pfb},
@@ -2414,12 +2424,14 @@ particular type (either glyph or font for now, more will be
 implemented later):
 
 \startfunctioncall
-local fields = fontloader.fields(f)
+<table> fields = fontloader.fields(<userdata> font)
+<table> fields = fontloader.fields(<userdata> font_glyph)
 \stopfunctioncall
 
-or
+For instance:
 
 \startfunctioncall
+local fields = fontloader.fields(f)
 local fields = fontloader.fields(f.glyphs[0])
 \stopfunctioncall
 
@@ -3733,7 +3745,7 @@ This is used for the size argument of the formats \type{pk}, \type{gf}, and \typ
 \subsection{\luatex{lookup}}
 
 A more powerful (but slower) generic method for finding files is also
-available (since 0.51).
+available (since 0.51). It returns a string for each found file.
 
 \startfunctioncall
 <string> f, ... = kpse.lookup(<string> filename, <table> options)
@@ -3770,7 +3782,7 @@ kpse.init_prog(<string> prefix, <number> base_dpi, <string> mfmode, <string> fal
 
 \subsection{\luatex{readable_file}}
 
-Test if an (absolute) file name is a readable file
+Test if an (absolute) file name is a readable file.
 
 \startfunctioncall
 <string> f = kpse.readable_file(<string> name)
@@ -4178,8 +4190,8 @@ accessible values for a particular object, but you can just as easily
 use the tables given below.
 
 All graphical objects have a field \type{type} that gives the object
-type as a string value, that not explicit mentioned in the tables.  In
-the following, \type{number}s are \POSTSCRIPT\ points represented as
+type as a string value; it is not explicit mentioned in the following tables.
+In the following, \type{number}s are \POSTSCRIPT\ points represented as
 a floating point number, unless stated otherwise. Field values that
 are of type \type{table} are explained in the next section.
 
@@ -4601,12 +4613,14 @@ caveats.
 
 \startfunctioncall
 <number> w, <number> h, <number> d  = node.dimensions(<node> n)
+<number> w, <number> h, <number> d  = node.dimensions(<node> n, <string> dir)
 <number> w, <number> h, <number> d  = node.dimensions(<node> n, <node> t)
+<number> w, <number> h, <number> d  = node.dimensions(<node> n, <node> t, <string> dir)
 \stopfunctioncall
 
 This function calculates the natural in-line dimensions of the node
 list starting at node \type{n} and terminating just before node \type{t}
-(or \type{nil}, if there is no second argument). The return values are scaled
+(or the end of the list, if there is no second argument). The return values are scaled
 points. An alternative format that starts with glue parameters as the
 first three arguments is also possible:
 
@@ -4763,7 +4777,8 @@ the \type{head} and the node \type{new}, set up to be part of the list
 <node> n = node.first_character(<node> n, <node> m)
 \stopfunctioncall
 
-Returns the first node that is a glyph node with a subtype indicating
+Returns the first node in the list starting at \type{n} (up to \type{m}
+or the end of the list) that is a glyph node with a subtype indicating
 it is a character, or \type{nil}.
 
 \subsubsection{\luatex{node.ligaturing}}
