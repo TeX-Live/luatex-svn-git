@@ -1237,7 +1237,12 @@ static pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
        |(num_extenders*with_extenders)+num_normal|
      */
     /* create an array of maximum shrinks and fill it */
-    num_total = ((num_extenders * with_extenders) + num_normal);
+    if (with_extenders) {
+        num_total = ((num_extenders * with_extenders) + num_normal);
+    } else {
+	/* make sure we take at least the extenders that are needed to complete the built-up glyph */
+        num_total = (num_extenders + num_normal);
+    }
     if (num_total == 1) {
         /* weird, but could happen */
         cc = ext->glyph;
