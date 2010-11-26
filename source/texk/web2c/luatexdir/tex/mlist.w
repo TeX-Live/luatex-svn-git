@@ -2140,6 +2140,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
     boolean s_is_absolute;      /* will be true if a top-accent is placed in |s| */
     extinfo *ext;
     pointer attr_p;
+    const int compat_mode = radical_rule(cur_style) == undefined_math_parameter;
     const int top_or_bot = flags & TOP_OR_BOT_MASK;
     attr_p = (top_or_bot == TOP_CODE ? accent_chr(q) : bot_accent_chr(q));
     s_is_absolute = false;
@@ -2149,26 +2150,36 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
     s = 0;
     if (type(nucleus(q)) == math_char_node) {
         fetch(nucleus(q));
+        if (compat_mode) {
+          if (top_or_bot == TOP_CODE) {
+            s = get_kern(cur_f, cur_c, skew_char(cur_f));
+          } else {
+            s = 0;
+          }
+        } else {
         if (top_or_bot == TOP_CODE) {
             s = char_top_accent(cur_f, cur_c);
-            if (s != 0) {
+            if (s != INT_MIN) {
                 s_is_absolute = true;
-            } else {
-                s = get_kern(cur_f, cur_c, skew_char(cur_f));
             }
         } else {                /* new skewchar madness for bot accents */
             s = char_bot_accent(cur_f, cur_c);
-            if (s == 0) {       /* better than nothing: */
+            if (s == INT_MIN) {       /* better than nothing: */
                 s = char_top_accent(cur_f, cur_c);
             }
-            if (s != 0) {
+            if (s != INT_MIN) {
                 s_is_absolute = true;
             }
+        }
         }
     }
     x = clean_box(nucleus(q), cramped_style(cur_style), cur_style);
     w = width(x);
     h = height(x);
+    if (!compat_mode && !s_is_absolute && type(nucleus(q)) == math_char_node) {
+      s = half(w);
+      s_is_absolute = true;
+    }
     /* Switch to a larger accent if available and appropriate */
     y = null;
     if (flags & STRETCH_ACCENT_CODE) {
@@ -2228,7 +2239,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
             sa = char_top_accent(f, c);
         else
             sa = char_bot_accent(f, c);
-        if (sa == 0) {
+        if (sa == INT_MIN) {
             sa = half(width(y));        /* just take the center */
         }
         shift_amount(y) = s - sa;

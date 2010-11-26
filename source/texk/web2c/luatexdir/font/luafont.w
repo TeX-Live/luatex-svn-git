@@ -1226,9 +1226,9 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
             set_charinfo_tounicode(co, NULL);
 
         if (has_math) {
-            j = n_numeric_field(L, luaS_top_accent_index, 0);
+            j = n_numeric_field(L, luaS_top_accent_index, INT_MIN);
             set_charinfo_top_accent(co, j);
-            j = n_numeric_field(L, luaS_bot_accent_index, 0);
+            j = n_numeric_field(L, luaS_bot_accent_index, INT_MIN);
             set_charinfo_bot_accent(co, j);
             k = n_numeric_field(L, luaS_next_index, -1);
             if (k >= 0) {
