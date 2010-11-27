@@ -118,7 +118,7 @@ Latest Revision: Wed Jul  1 08:15:44 UTC 2009
 
 #   define SYNCTEX_VERSION 1
 
-#   define SYNCTEX_DEBUG 1
+#   define SYNCTEX_DEBUG 0
 
 /*  Debugging: define the next macro to "return;" in order to disable the synctex code
  *  only suplemental function calls will be used. The compiler may optimize them. */
