@@ -139,14 +139,21 @@ void line_break(boolean d, int line_break_context)
             lua_linebreak_callback(d, temp_head,
                                    addressof(cur_list.tail_field));
         if (callback_id > 0) {
-            just_box = cur_list.tail_field;
-            if (just_box != null)
-                while (vlink(just_box) != null)
-                    just_box = vlink(just_box);
-            if ((just_box == null) || (type(just_box) != hlist_node)) {
+            /* find the correct value for the |just_box| */
+	    halfword box_search = cur_list.tail_field;
+            just_box  = null;
+	    if (box_search != null) {
+                do {
+	            if (type(box_search) == hlist_node) {
+                       just_box = box_search;
+                    }
+                    box_search = vlink(box_search);
+                } while (box_search != null);
+	    }
+            if (just_box == null) {
                 help3
                     ("A linebreaking routine should return a non-empty list of nodes",
-                     "and the last one of those has to be a \\hbox.",
+                     "and at least one of those has to be a \\hbox.",
                      "Sorry, I cannot recover from this.");
                 print_err("Invalid linebreak_filter");
                 succumb();
