@@ -25,7 +25,7 @@
 #include <time.h>
 
 static const char _svn_version[] =
-    "$Id $URL $";
+    "$Id$ $URL$";
 
 #ifdef _WIN32
 #include <windows.h>
