@@ -1129,7 +1129,7 @@ int copy_font(int f)
     i = (int) (sizeof(*param_base(f)) * (unsigned) (font_params(f)+1));
     font_bytes += i;
     param_base(k) = xmalloc((unsigned) (i+1));
-    memcpy(param_base(k), param_base(f), (size_t) (i+1));
+    memcpy(param_base(k), param_base(f), (size_t) (i));
 
     if (font_math_params(f) > 0) {
         i = (int) (sizeof(*math_param_base(f)) *
