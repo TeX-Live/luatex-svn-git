@@ -227,6 +227,7 @@ am_libluatex_a_OBJECTS = libluatex_a-pdftoepdf.$(OBJEXT) \
 	libluatex_a-lfontlib.$(OBJEXT) libluatex_a-limglib.$(OBJEXT) \
 	libluatex_a-lepdflib.$(OBJEXT) libluatex_a-lkpselib.$(OBJEXT) \
 	libluatex_a-llanglib.$(OBJEXT) libluatex_a-llualib.$(OBJEXT) \
+	libluatex_a-llfslibext.$(OBJEXT) \
 	libluatex_a-lnodelib.$(OBJEXT) libluatex_a-loslibext.$(OBJEXT) \
 	libluatex_a-liolib.$(OBJEXT) libluatex_a-lpdflib.$(OBJEXT) \
 	libluatex_a-lstatslib.$(OBJEXT) \
@@ -1496,6 +1497,7 @@ libluatex_a_SOURCES = \
 	luatexdir/lua/lkpselib.c \
 	luatexdir/lua/llanglib.c \
 	luatexdir/lua/llualib.c \
+	luatexdir/lua/llfslibext.c \
 	luatexdir/lua/lnodelib.c \
 	luatexdir/lua/loslibext.c \
 	luatexdir/lua/liolib.c \
@@ -2007,6 +2009,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-liolib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-lkpselib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-llanglib.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-llfslibext.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-llualib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-lmplib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-lnodelib.Po@am__quote@
@@ -3815,6 +3818,20 @@ libluatex_a-llualib.obj: luatexdir/lua/llualib.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/lua/llualib.c' object='libluatex_a-llualib.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-llualib.obj `if test -f 'luatexdir/lua/llualib.c'; then $(CYGPATH_W) 'luatexdir/lua/llualib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/llualib.c'; fi`
+
+libluatex_a-llfslibext.o: luatexdir/lua/llfslibext.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-llfslibext.o -MD -MP -MF $(DEPDIR)/libluatex_a-llfslibext.Tpo -c -o libluatex_a-llfslibext.o `test -f 'luatexdir/lua/llfslibext.c' || echo '$(srcdir)/'`luatexdir/lua/llfslibext.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-llfslibext.Tpo $(DEPDIR)/libluatex_a-llfslibext.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/lua/llfslibext.c' object='libluatex_a-llfslibext.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-llfslibext.o `test -f 'luatexdir/lua/llfslibext.c' || echo '$(srcdir)/'`luatexdir/lua/llfslibext.c
+
+libluatex_a-llfslibext.obj: luatexdir/lua/llfslibext.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-llfslibext.obj -MD -MP -MF $(DEPDIR)/libluatex_a-llfslibext.Tpo -c -o libluatex_a-llfslibext.obj `if test -f 'luatexdir/lua/llfslibext.c'; then $(CYGPATH_W) 'luatexdir/lua/llfslibext.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/llfslibext.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-llfslibext.Tpo $(DEPDIR)/libluatex_a-llfslibext.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/lua/llfslibext.c' object='libluatex_a-llfslibext.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -c -o libluatex_a-llfslibext.obj `if test -f 'luatexdir/lua/llfslibext.c'; then $(CYGPATH_W) 'luatexdir/lua/llfslibext.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/llfslibext.c'; fi`
 
 libluatex_a-lnodelib.o: luatexdir/lua/lnodelib.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CFLAGS) $(CFLAGS) -MT libluatex_a-lnodelib.o -MD -MP -MF $(DEPDIR)/libluatex_a-lnodelib.Tpo -c -o libluatex_a-lnodelib.o `test -f 'luatexdir/lua/lnodelib.c' || echo '$(srcdir)/'`luatexdir/lua/lnodelib.c

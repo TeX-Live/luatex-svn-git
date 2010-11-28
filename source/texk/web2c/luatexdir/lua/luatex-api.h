@@ -75,6 +75,7 @@ extern int luaopen_epdf(lua_State * L);
 extern int luaopen_mplib(lua_State * L);
 
 extern void open_oslibext(lua_State * L, int safer_option);
+extern void open_lfslibext(lua_State * L);
 
 extern void initfilecallbackids(int max);
 extern void setinputfilecallbackid(int n, int i);

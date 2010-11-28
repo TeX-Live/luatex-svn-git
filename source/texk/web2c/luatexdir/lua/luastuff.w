@@ -189,6 +189,7 @@ void luainterpreter(void)
     luatex_md5_lua_open(L);
 
     open_oslibext(L, safer_option);
+    open_lfslibext(L);
 
     /* luasockets */
     /* socket and mime are a bit tricky to open because
