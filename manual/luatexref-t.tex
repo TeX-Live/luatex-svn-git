@@ -6193,8 +6193,13 @@ possible values and their (current) return values are:
 
 \startluacode
 function out_prim (a)
-  for _,n in pairs(tex.extraprimitives(a)) do
-    tex.print(n .. '\\hskip 4pt plus 5em')
+  local v = tex.extraprimitives(a)
+  table.sort(v)
+  for _,n in pairs(v) do
+    if n == ' ' then
+      n = '\\normalcontrolspace'
+    end
+    tex.print(n .. '\\hskip 4pt plus 5em')  
   end
 end
 \stopluacode
