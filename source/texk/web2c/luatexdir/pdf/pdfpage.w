@@ -22,12 +22,12 @@ static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
+#include "ptexlib.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
-
-#include "ptexlib.h"
 
 #define lround(a) (long) floor((a) + 0.5)
 
