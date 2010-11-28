@@ -1153,6 +1153,8 @@ int copy_font(int f)
         ci = copy_charinfo(right_boundary(f));
         set_charinfo(k, right_boundarychar, ci);
     }
+    /* not updated yet: */
+    font_tables[k]->charinfo_count = font_tables[f]->charinfo_count;
     return k;
 }
 
