@@ -1779,7 +1779,7 @@ ext_do_line_break(int paragraph_dir,
         /* LOCAL: Initialize with first |local_paragraph| node */
         if ((cur_p != null) && (type(cur_p) == whatsit_node)
             && (subtype(cur_p) == local_par_node)) {
-            assert(alink(cur_p) == temp_head);
+	    alink(cur_p) = temp_head; /* this used to be an assert, but may as well force it */
             internal_pen_inter = local_pen_inter(cur_p);
             internal_pen_broken = local_pen_broken(cur_p);
             init_internal_left_box = local_box_left(cur_p);
