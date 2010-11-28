@@ -97,9 +97,18 @@ void show_mathcode_value(mathcodeval c)
         print_int(m);
     } else {
         print_char('"');
-        print_hex_digit(c.class_value);
-        print_hex_digit(c.family_value);
-        two_hex(c.character_value);
+	if (c.class_value) {
+	    print_hex_digit(c.class_value);
+            print_hex_digit(c.family_value);
+            two_hex(c.character_value);
+        } else if (c.family_value) {
+            print_hex_digit(c.family_value);
+            two_hex(c.character_value);
+        } else if (c.character_value >= 16) {
+            two_hex(c.character_value);
+        } else {
+            print_hex_digit(c.character_value);
+        }
     }
 }
 
