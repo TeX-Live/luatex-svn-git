@@ -480,6 +480,7 @@ boolean scan_keyword(const char *s)
     halfword q;                 /* new node being added to the token list via |store_new_token| */
     const char *k;              /* index into |str_pool| */
     halfword save_cur_cs = cur_cs;
+    int saved_align_state = align_state;
     assert (strlen(s) > 1);
     p = backup_head;
     token_link(p) = null;
@@ -501,11 +502,13 @@ boolean scan_keyword(const char *s)
                 back_input();
             }
             cur_cs = save_cur_cs;
+            align_state = saved_align_state;
             return false;
         }
     }
     flush_list(token_link(backup_head));
     cur_cs = save_cur_cs;
+    align_state = saved_align_state;
     return true;
 }
 
