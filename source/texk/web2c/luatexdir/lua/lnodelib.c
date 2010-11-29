@@ -45,6 +45,23 @@ static const char _svn_version[] =
 
 make_luaS_index(luatex_node);
 
+static int maybe_isnode(lua_State * L, int ud)
+{
+    halfword *p = lua_touserdata(L, ud);
+    int res = 0;
+    if (p != NULL) {
+        if (lua_getmetatable(L, ud)) {
+            lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(luatex_node));
+            lua_gettable(L, LUA_REGISTRYINDEX);
+            if (lua_rawequal(L, -1, -2)) {
+                res = 1;
+            }
+	    lua_pop(L, 2);
+        }
+    }
+    return res;
+}
+
 halfword *check_isnode(lua_State * L, int ud)
 {
     register halfword *p = lua_touserdata(L, ud);
@@ -122,21 +139,7 @@ int get_valid_node_subtype_id(lua_State * L, int n)
 
 static int lua_nodelib_isnode(lua_State * L)
 {
-    register halfword *p = lua_touserdata(L, 1);
-    if (p != NULL) {
-        if (lua_getmetatable(L, 1)) {
-            lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(luatex_node));
-            lua_gettable(L, LUA_REGISTRYINDEX);
-            if (lua_rawequal(L, -1, -2)) {
-                lua_pop(L, 2);
-                lua_pushboolean(L,1);
-                return 1;
-            } else {
-                lua_pop(L, 2);
-	    }
-	}
-    }
-    lua_pushboolean(L, 0);
+    lua_pushboolean(L,maybe_isnode(L,1));
     return 1;
 }
 
@@ -233,12 +236,17 @@ static int lua_nodelib_subtype(lua_State * L)
 
 static int lua_nodelib_type(lua_State * L)
 {
-    int i = get_node_type_id(L, 1);
-    if (i >= 0) {
-        lua_pushstring(L, node_data[i].name);
-    } else {
-        lua_pushnil(L);
+    if (lua_type(L,1) == LUA_TNUMBER) {
+	int i = get_node_type_id(L, 1);
+	if (i >= 0) {
+	    lua_pushstring(L, node_data[i].name);
+	    return 1;
+	}
+    } else if (maybe_isnode(L, 1)) {
+	lua_pushstring(L,"node");
+	return 1;
     }
+    lua_pushnil(L);
     return 1;
 }
 

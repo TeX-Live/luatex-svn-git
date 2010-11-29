@@ -4501,11 +4501,13 @@ representation (\type{subtype}).
 \subsubsection{\luatex{node.type}}
 
 \startfunctioncall
-<string> type = node.type(<number> id)
+<string> type = node.type(<any> n)
 \stopfunctioncall
 
-This converts a internal numeric representation to an external string
-representation.
+In the argument is a number, then this function converts an internal
+numeric representation to an external string representation.
+Otherwise, it will return the string \type{node} if the object
+represents a node (this is new in 0.65), and \type{nil} otherwise.
 
 \subsubsection{\luatex{node.fields}}
 
