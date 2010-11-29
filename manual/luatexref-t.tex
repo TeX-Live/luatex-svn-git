@@ -2362,7 +2362,7 @@ fontloader.close(<userdata> font)
 You can apply a \quote{feature file} to a loaded font:
 
 \startfunctioncall
-fontloader.apply_featurefile(<userdata> font, <string> filename)
+<table> errors = fontloader.apply_featurefile(<userdata> font, <string> filename)
 \stopfunctioncall
 
 A \quote{feature file} is a textual representation of the features in an
@@ -2372,13 +2372,18 @@ and\crlf
 \hyphenatedurl {http://fontforge.sourceforge.net/featurefile.html}\crlf
 for a more detailed description of feature files.
 
+If the function fails, the return value is a table containing any
+errors reported by fontloader while applying the feature file. On
+success, \type{nil} is returned.  (the return value is new in 0.65)
+
+
 
 \subsection{Applying an \quote{\AFM\ file}}
 
 You can apply an \quote{\AFM\ file} to a loaded font:
 
 \startfunctioncall
-fontloader.apply_afmfile(<userdata> font, <string> filename)
+<table> errors = fontloader.apply_afmfile(<userdata> font, <string> filename)
 \stopfunctioncall
 
 An \AFM\ file is a textual representation of (some of) the meta information
@@ -2390,6 +2395,9 @@ the library will automatically search for and apply \type{font.afm}
 if it exists in the same directory as the file \type{font.pfb}. In that case,
 there is no need for an explicit call to \type{apply_afmfile()}.
 
+If the function fails, the return value is a table containing any
+errors reported by fontloader while applying the AFM file. On
+success, \type{nil} is returned. (the return value is new in 0.65)
 
 \subsection[fontloadertables]{Fontloader font tables}
 

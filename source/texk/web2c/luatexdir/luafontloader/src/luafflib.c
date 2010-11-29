@@ -327,7 +327,18 @@ static int ff_apply_featurefile(lua_State * L)
     sf = check_isfont(L, 1);
     fname = (char *) luaL_checkstring(L, 2);
     SFApplyFeatureFilename(*sf, fname);
-    return 0;
+    if (gww_error_count > 0) {
+	int i;
+	lua_newtable(L);
+	for (i = 0; i < gww_error_count; i++) {
+	    lua_pushstring(L, gww_errors[i]);
+	    lua_rawseti(L, -2, (i + 1));
+	}
+	gwwv_errors_free();
+    } else {
+	lua_pushnil(L);
+    }
+    return 1;
 }
 
 static int ff_apply_afmfile(lua_State * L)
@@ -337,8 +348,18 @@ static int ff_apply_afmfile(lua_State * L)
     sf = check_isfont(L, 1);
     fname = (char *) luaL_checkstring(L, 2);
     CheckAfmOfPostscript(*sf, fname, (*sf)->map);
-
-    return 0;
+    if (gww_error_count > 0) {
+	int i;
+	lua_newtable(L);
+	for (i = 0; i < gww_error_count; i++) {
+	    lua_pushstring(L, gww_errors[i]);
+	    lua_rawseti(L, -2, (i + 1));
+	}
+	gwwv_errors_free();
+    } else {
+	lua_pushnil(L);
+    }
+    return 1;
 }
 
 
