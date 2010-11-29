@@ -7650,7 +7650,8 @@ be selected:
 
 The current solution in \LUATEX\ is not able to handle nested
 discretionaries, but it is in fact smart enough to handle this
-fictional \type{of-f-ice} example.
+fictional \type{of-f-ice} example. It does so by combining two
+sequential discretionaries as if they were a single object.
 
 One can observe that the \type{of-f-ice} and \type{off-ice} cases both end
 with the same actual post replacement list (\type{i}), and that this
@@ -7686,9 +7687,11 @@ therefore:
 
 The two discretionaries have different subtypes from a discretionary
 appearing on its own: the first has subtype 4, and the second has
-subtype 5.  The reason for these special subtypes is that not all of
-the fields are in their \quote{normal} location, like the \type{<ff>-}
-that appears in \type{disc2.replace}.
+subtype 5.  The reason for these special subtypes that not all of the
+fields are in their \quote{normal} location, like the \type{<ff>-}
+that appears in \type{disc2.replace}. Therefore it is necessary to be
+able to distinguish this sequence of two joined discretionaries from
+the case of a two standalone discretionaries appearing in a row.
 
 
 \section{Breaking paragraphs into lines}
