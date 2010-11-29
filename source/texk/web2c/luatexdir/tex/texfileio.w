@@ -876,7 +876,7 @@ void start_input(void)
     {
 	char *n, *p;
 	n = p = fullnameoffile + strlen(fullnameoffile);
-	while (p>=fullnameoffile) {
+	while (p>fullnameoffile) {
 	    p--;
             if (IS_DIR_SEP(*p)) {
 	        break;
@@ -885,7 +885,7 @@ void start_input(void)
 	if (IS_DIR_SEP(*p)) {
 	    p++;
 	}
-	while (n>=fullnameoffile) {
+	while (n>fullnameoffile) {
 	    n--;
             if (*n == '.') {
 	        break;
