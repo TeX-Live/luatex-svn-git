@@ -7568,49 +7568,99 @@ are handled by our rewritten ligaturing engine. We are working hard to
 make sure all of the possible inputs will become supported soon.
 
 For example, take the word \type{office}, hyphenated \type{of-fice},
-using a \quote{normal} font with all the \type{f}-\type{i} ligatures:
+using a \quote{normal} font with all the \type{f}-\type{f} and
+\type{f}-\type{i} type ligatures:
+
 \starttabulate[|l|l|]
-\NC Initial:               \NC \type{{o}{f}{f}{i}{c}{e}}           \NC\NR
+\NC Initial:               \NC \type{{o}{f}           {f}{i}{c}{e}}\NC\NR
 \NC After hyphenation:     \NC \type{{o}{f}{{-},{},{}}{f}{i}{c}{e}}\NC\NR
-\NC First ligature stage:  \NC \type{{o}{{f}{-},{f},{ff}}{i}{c}{e}}\NC\NR
-\NC Final result:          \NC \type{{o}{{f}{-},{fi},{ffi}}{c}{e}} \NC\NR
+\NC First ligature stage:  \NC \type{{o}{{f-},{f},{<ff>}}{i}{c}{e}}\NC\NR
+\NC Final result:          \NC \type{{o}{{f-},{<fi>},{<ffi>}}{c}{e}} \NC\NR
 \stoptabulate
 
-That's bad enough, but if there was a hyphenation point between the
-\type{f} and the \type{i}: \type{of-f-ice}, the final result should be:
+That's bad enough, but let us assume that there is also a hyphenation
+point between the \type{f} and the \type{i}, to create
+\type{of-f-ice}. Then the final result should be:
 
 \starttyping
-{o}{{f}{-},
-    {{f}{-},
+{o}{{f-},
+    {{f-},
      {i},
-     {fi}},
-    {{ff}{-},
+     {<fi>}},
+    {{<ff>-},
      {i},
-     {ffi}}}{c}{e}
+     {<ffi>}}}{c}{e}
 \stoptyping
 
 with discretionaries in the post-break text as well as in the
 replacement text of the top-level discretionary that resulted from the
-first hyphenation point.  And this is only a simple case.
+first hyphenation point.
 
-As of 0.39.0, the solution in \LUATEX\ is not as smart as all this. It
-essentially creates the following set of items for \type{of-f-ice}:
+Here is that nested solution again, in a different representation:
+
+\starttabulate[|l|l|l|l|]
+\NC                  \NC pre             \NC post         \NC replace       \NC \NR
+\NC topdisc          \NC \type{f-}$^1$   \NC sub1         \NC sub2          \NC \NR
+\NC sub1             \NC \type{f-}$^2$   \NC \type{i}$^3$ \NC \type{<fi>}$^4$ \NC \NR
+\NC sub2             \NC \type{<ff>-}$^5$\NC \type{i}$^6$ \NC \type{<ffi>}$^7$\NC \NR
+\stoptabulate
+
+When line breaking is choosing its breakpoints, the following fields will eventually 
+be selected:
+
+\starttabulate[|l|l|l|]
+\NC \type{of-f-ice} \NC \type{f-}$^1$    \NC \NR
+\NC                 \NC \type{f-}$^2$    \NC \NR
+\NC                 \NC \type{i}$^3$     \NC \NR
+\NC \type{of-fice}  \NC \type{f-}$^1$    \NC \NR
+\NC                 \NC \type{<fi>}$^4$  \NC \NR
+\NC \type{off-ice}  \NC \type{<ff>-}$^5$ \NC \NR 
+\NC                 \NC \type{i}$^6$     \NC \NR 
+\NC \type{office}   \NC \type{<ffi>}$^7$ \NC \NR
+\stoptabulate
+
+The current solution in \LUATEX\ is not able to handle nested
+discretionaries, but it is in fact smart enough to handle this
+fictional \type{of-f-ice} example.
+
+One can observe that the \type{of-f-ice} and \type{off-ice} cases both end
+with the same actual post replacement list (\type{i}), and that this
+would be the case even if that \type{i} was the first item of a
+potential following ligature like \type{ic}. That means that \LUATEX\
+can do away with one of the fields, and thus make the whole stuff fit
+into just two discretionaries.
+
+The mapping of the seven list fields to the six fields in this
+discretionary pair is as follows:
+
+\starttabulate[|l|p|]
+\NC \bf field \NC \bf description \NC \NR
+\NC \type{disc1.pre}     \NC \type{f-}$^1$  \NC \NR
+\NC \type{disc1.post}    \NC \type{<fi>}$^4$  \NC \NR
+\NC \type{disc1.replace} \NC \type{<ffi>}$^7$ \NC \NR
+\NC \type{disc2.pre}     \NC \type{f-}$^2$  \NC \NR
+\NC \type{disc2.post}    \NC \type{i}$^{3{,}6}$\NC \NR
+\NC \type{disc2.replace} \NC \type{<ff>-}$^5$\NC \NR
+\stoptabulate
+
+What is actually generated after ligaturing has been applied is
+therefore:
 
 \starttyping
-{o}{{f}{-},
-    {fi},
-    {ffi}},
-   {{f}{-},
+{o}{{f-},
+    {<fi>},
+    {<ffi>}}
+   {{f-},
     {i},
-    {fi}}{c}{e}
+    {<ff>-}}{c}{e}
 \stoptyping
 
-This is not perfect (because the \type{off-ice} hyphenation will never
-be chosen), but luckily three-item ligatures with multiple embedded
-hyphenation points are extremely rare indeed: even this example was
-artificially created. A full, perfect solution is possible, but is
-low on the agenda now that at least \type{office} can be hyphenated
-properly again.
+The two discretionaries have different subtypes from a discretionary
+appearing on its own: the first has subtype 4, and the second has
+subtype 5.  The reason for these special subtypes is that not all of
+the fields are in their \quote{normal} location, like the \type{<ff>-}
+that appears in \type{disc2.replace}.
+
 
 \section{Breaking paragraphs into lines}
 
