@@ -53,8 +53,7 @@ functionality staying the same.
 Nothing is considered stable just yet. This manual therefore
 simply reflects the current state of the executable. {\bs
 Absolutely nothing\/} on the following pages is set in stone. When
-the need arises, anything can (and will) be changed without prior
-notice.
+the need arises, anything can (and will) be changed.
 
 \blank
 
@@ -71,8 +70,8 @@ TODO list is still large.}
 distinguishable parts:
 
 \startitemize[packed]
-\item \PDFTEX\ version 1.40.9, converted to C.
-\item \ALEPH\ RC4 converted to C.
+\item \PDFTEX\ version 1.40.9, converted to C (with patches from later releases).
+\item The direction model and some other bits from \ALEPH\ RC4 converted to C.
 \item \LUA\ 5.1.4 ($+$ coco 1.1.5 $+$ portable bytecode)
 \item dedicated \LUA\ libraries
 \item various \TEX\ extensions
@@ -83,9 +82,9 @@ distinguishable parts:
 
 Neither \ALEPH's I/O translation processes, nor tcx files, nor
 \ENCTEX\ can be used, these encoding|-|related functions are
-superseded by a \LUA|-|based solution (reader callbacks). Also,
-some experimental \PDFTEX\ features are removed. These can be
-implemented in \LUA\ instead.
+superseded by a \LUA|-|based solution (reader callbacks). Also, some
+experimental \PDFTEX\ features are removed. These can be implemented
+in \LUA\ instead.
 
 \chapter{Basic \TEX\ enhancements}
 
@@ -812,7 +811,37 @@ The following command-line switches are understood.
 \NC --synctex=NUMBER          \NC enable synctex \NC \NR
 \stoptabulate
 
-But if the \type{--lua} option is present, \LUATEX\ will enter an alternative mode
+A note on the creation of the various temporary files and the \type{\jobname}.
+The value to use for \type{\jobname} is decided as follows:
+
+\startitemize
+\item If \type{--jobname} is given on the command line, its argument
+  will be the value for \tex{jobname}, without any changes. The
+  argument will not be used for actual input so it need not exist. 
+  The \type{--jobname} switch only controls the \tex{jobname} setting.
+\item Otherwise, \tex{jobname} will be the name of the first file that
+  is read from the file system, with any path components and the last
+  extension (the part following the last \type{.}) stripped off.
+\item An expection to the previous point: if the command
+  line goes into interactive mode (by starting with a command) and
+  there are no files input via \type{\everyjob} either, then the
+  \tex{jobname} is set to \type{texput} as a last resort.
+\stopitemize
+
+The file names for output files that are generated automatically are
+created by attaching the proper extension (\type{.log}, \type{.pdf},
+etc.) to the found \tex{jobname}. These files are created in the
+directory pointed to by \type{--output-directory}, or in the current
+directory, if that switch is not present.
+
+\blank
+
+Without the \type{--lua} option, command line processing works like it does in
+any other web2c-based typesetting engine, except that \LUATEX\ has a few extra
+switches.
+
+
+If the \type{--lua} option is present, \LUATEX\ will enter an alternative mode
 of commandline processing in comparison to the standard web2c
 programs.
 
