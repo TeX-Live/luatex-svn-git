@@ -2872,6 +2872,42 @@ local fdata = {
       ["shortdesc"]="Move to the last node of a list while fixing next and prev pointers.",
       ["type"]="function",
    },
+   ["next"]={
+      ["arguments"]={
+	 {
+	    ["name"]="n",
+	    ["optional"]=false,
+	    ["type"]="node",
+	 },
+      },
+      ["returnvalues"]={
+	 {
+	    ["name"]="m",
+	    ["optional"]=false,
+	    ["type"]="node",
+	 },
+      },
+      ["shortdesc"]="Returns the next node.",
+      ["type"]="function",
+   },
+   ["prev"]={
+      ["arguments"]={
+	 {
+	    ["name"]="n",
+	    ["optional"]=false,
+	    ["type"]="node",
+	 },
+      },
+      ["returnvalues"]={
+	 {
+	    ["name"]="m",
+	    ["optional"]=false,
+	    ["type"]="node",
+	 },
+      },
+      ["shortdesc"]="Returns the previous node.",
+      ["type"]="function",
+   },
    ["subtype"]={
       ["arguments"]={
 	 {

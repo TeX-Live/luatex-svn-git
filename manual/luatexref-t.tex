@@ -4600,6 +4600,24 @@ copied.
 Creates a deep copy of the node list that starts at \type{n}. If
 \type{m} is also given, the copy stops just before node \type{m}.
 
+\subsubsection{\luatex{node.next} (0.65)}
+
+\startfunctioncall
+<node> m = node.next(<node> n)
+\stopfunctioncall
+
+Returns the node following this node, or \type{nil} if there is no
+such node.
+
+\subsubsection{\luatex{node.prev} (0.65)}
+
+\startfunctioncall
+<node> m = node.prev(<node> n)
+\stopfunctioncall
+
+Returns the node preceding this node, or \type{nil} if there is no
+such node.
+
 \subsubsection{\luatex{node.hpack}}
 
 \startfunctioncall

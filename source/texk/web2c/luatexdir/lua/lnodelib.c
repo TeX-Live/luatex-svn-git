@@ -45,35 +45,27 @@ static const char _svn_version[] =
 
 make_luaS_index(luatex_node);
 
-static int maybe_isnode(lua_State * L, int ud)
+static halfword *maybe_isnode(lua_State * L, int ud)
 {
     halfword *p = lua_touserdata(L, ud);
-    int res = 0;
     if (p != NULL) {
         if (lua_getmetatable(L, ud)) {
             lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(luatex_node));
             lua_gettable(L, LUA_REGISTRYINDEX);
-            if (lua_rawequal(L, -1, -2)) {
-                res = 1;
+            if (!lua_rawequal(L, -1, -2)) {
+                p = NULL;
             }
 	    lua_pop(L, 2);
         }
     }
-    return res;
+    return p;
 }
 
 halfword *check_isnode(lua_State * L, int ud)
 {
-    register halfword *p = lua_touserdata(L, ud);
+    halfword *p = maybe_isnode(L, ud);
     if (p != NULL) {
-        if (lua_getmetatable(L, ud)) {
-            lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(luatex_node));
-            lua_gettable(L, LUA_REGISTRYINDEX);
-            if (lua_rawequal(L, -1, -2)) {
-                lua_pop(L, 2);
-                return p;
-            }
-        }
+	return p;
     }
     pdftex_fail("There should have been a lua <node> here, not an object with type %s!", luaL_typename(L, ud));
     return NULL;
@@ -139,7 +131,34 @@ int get_valid_node_subtype_id(lua_State * L, int n)
 
 static int lua_nodelib_isnode(lua_State * L)
 {
-    lua_pushboolean(L,maybe_isnode(L,1));
+    if (maybe_isnode(L,1) != NULL)
+	lua_pushboolean(L,1);
+    else
+	lua_pushboolean(L,0);
+    return 1;
+}
+
+/* two simple helpers to speed up and simplify lua code: */
+
+static int lua_nodelib_next(lua_State * L)
+{
+    halfword *p = maybe_isnode(L,1);
+    if (p != NULL && *p && vlink(*p)) {
+	lua_nodelib_push_fast(L,vlink(*p));
+    } else {
+	lua_pushnil(L);
+    }
+    return 1;
+}
+
+static int lua_nodelib_prev(lua_State * L)
+{
+    halfword *p = maybe_isnode(L,1);
+    if (p != NULL && *p && alink(*p)) {
+	lua_nodelib_push_fast(L,alink(*p));
+    } else {
+	lua_pushnil(L);
+    }
     return 1;
 }
 
@@ -242,7 +261,7 @@ static int lua_nodelib_type(lua_State * L)
 	    lua_pushstring(L, node_data[i].name);
 	    return 1;
 	}
-    } else if (maybe_isnode(L, 1)) {
+    } else if (maybe_isnode(L, 1) != NULL) {
 	lua_pushstring(L,"node");
 	return 1;
     }
@@ -621,7 +640,7 @@ static int lua_nodelib_dimensions(lua_State * L)
         return 3;
     } else {
         luaL_error(L,
-                       "missing  argument to 'dimensions' (luatex_node expected)");
+                       "missing  argument to 'dimensions' (node expected)");
     }
     return 0;                   /* not reached */
 }
@@ -3466,6 +3485,8 @@ static const struct luaL_reg nodelib_f[] = {
     {"ligaturing", font_tex_ligaturing},
     {"mlist_to_hlist", lua_nodelib_mlist_to_hlist},
     {"new", lua_nodelib_new},
+    {"next", lua_nodelib_next},
+    {"prev", lua_nodelib_prev},
     {"protect_glyphs", lua_nodelib_protect_glyphs},
     {"protrusion_skippable", lua_nodelib_cp_skipable},
     {"remove", lua_nodelib_remove},
