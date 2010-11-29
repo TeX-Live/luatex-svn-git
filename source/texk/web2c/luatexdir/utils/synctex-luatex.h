@@ -85,7 +85,7 @@ authorization from the copyright holder.
 #define SYNCTEX_CURH static_pdf->posstruct->pos.h
 
 #define SYNCTEX_GET_JOB_NAME() makecstring(job_name)
-#define SYNCTEX_GET_LOG_NAME() (char *)xstrdup((const char*)texmf_log_name)
+#define SYNCTEX_GET_LOG_NAME() get_full_log_name()
 
 #define SYNCTEX_RULE_WD width(p)
 #define SYNCTEX_RULE_HT height(p)

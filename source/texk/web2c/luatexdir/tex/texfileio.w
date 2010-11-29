@@ -827,6 +827,21 @@ void open_log_file(void)
     selector = old_setting + 2; /* |log_only| or |term_and_log| */
 }
 
+@ This function is needed by synctex to make its log appear in the right
+spot when |output_directory| is set.
+
+@c
+char *get_full_log_name (void)
+{
+   if (output_directory) {
+       char *ret  = xmalloc(strlen(texmf_log_name)+2+strlen(output_directory));
+       ret = strcpy(ret, output_directory);
+       strcat(ret, "/");
+       strcat(ret, texmf_log_name);
+   } else {
+       return xstrdup((const char*)texmf_log_name);
+   } 
+}
 
 @ Let's turn now to the procedure that is used to initiate file reading
 when an `\.{\\input}' command is being processed.

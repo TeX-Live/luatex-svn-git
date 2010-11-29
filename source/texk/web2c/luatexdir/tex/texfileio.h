@@ -116,6 +116,7 @@ extern boolean log_opened;      /* has the transcript file been opened? */
 extern unsigned char *texmf_log_name;   /* full name of the log file */
 
 extern void open_log_file(void);
+extern char *get_full_log_name (void);
 extern void start_input(void);
 
 extern int open_outfile(FILE ** f, const char *name, const char *mode);
