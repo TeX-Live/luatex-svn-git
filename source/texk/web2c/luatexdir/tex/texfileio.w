@@ -871,6 +871,36 @@ void start_input(void)
         fn = prompt_file_name("input file name", "");
     }
     iname = maketexstring(fullnameoffile);
+    /* Now that we have |fullnameoffile|, it is time to post-adjust 
+      |cur_name| and |cur_ext| for trailing |.tex| */
+    {
+	char *n, *p;
+	n = p = fullnameoffile + strlen(fullnameoffile);
+	while (p>=fullnameoffile) {
+	    p--;
+            if (IS_DIR_SEP(*p)) {
+	        break;
+            }
+	}
+	if (IS_DIR_SEP(*p)) {
+	    p++;
+	}
+	while (n>=fullnameoffile) {
+	    n--;
+            if (*n == '.') {
+	        break;
+            }
+	}
+	if (n>p) {
+	    int q = *n;
+	    cur_ext = maketexstring(n);
+	    *n = 0;
+	    cur_name = maketexstring(p);
+	    *n = q;
+        }
+    }
+
+
     source_filename_stack[in_open] = iname;
     full_source_filename_stack[in_open] = xstrdup(fullnameoffile);
     /* we can try to conserve string pool space now */
