@@ -834,10 +834,11 @@ spot when |output_directory| is set.
 char *get_full_log_name (void)
 {
    if (output_directory) {
-       char *ret  = xmalloc(strlen(texmf_log_name)+2+strlen(output_directory));
+       char *ret  = xmalloc(strlen((char *)texmf_log_name)+2+strlen(output_directory));
        ret = strcpy(ret, output_directory);
        strcat(ret, "/");
-       strcat(ret, texmf_log_name);
+       strcat(ret, (char *)texmf_log_name);
+       return ret;
    } else {
        return xstrdup((const char*)texmf_log_name);
    } 
