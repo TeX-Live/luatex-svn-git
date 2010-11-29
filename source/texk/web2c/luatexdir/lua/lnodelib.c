@@ -731,6 +731,8 @@ make_luaS_index(width);
 make_luaS_index(height);
 make_luaS_index(depth);
 make_luaS_index(expansion_factor);
+make_luaS_index(list);
+make_luaS_index(head);
 
 
 static void initialize_luaS_indexes(lua_State * L)
@@ -753,12 +755,17 @@ static void initialize_luaS_indexes(lua_State * L)
     init_luaS_index(height);
     init_luaS_index(depth);
     init_luaS_index(expansion_factor);
+    init_luaS_index(list);
+    init_luaS_index(head);
 }
 
 static int get_node_field_id(lua_State * L, int n, int node)
 {
     register int t = type(node);
     register const char *s = lua_tostring(L, n);
+    if (luaS_ptr_eq(s, list)) {
+	s = luaS_head_ptr; /* create a |head| alias for now */
+    }
     if (luaS_ptr_eq(s, next)) {
         return 0;
     } else if (luaS_ptr_eq(s, id)) {

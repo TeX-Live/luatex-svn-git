@@ -72,14 +72,14 @@ int copy_error(halfword p);     /* define below */
 
 const char *node_fields_list[] =
     { "attr", "width", "depth", "height", "dir", "shift",
-    "glue_order", "glue_sign", "glue_set", "list", NULL
+    "glue_order", "glue_sign", "glue_set", "head", NULL
 };
 const char *node_fields_rule[] =
     { "attr", "width", "depth", "height", "dir", NULL };
 const char *node_fields_insert[] =
-    { "attr", "cost", "depth", "height", "spec", "list", NULL };
+    { "attr", "cost", "depth", "height", "spec", "head", NULL };
 const char *node_fields_mark[] = { "attr", "class", "mark", NULL };
-const char *node_fields_adjust[] = { "attr", "list", NULL };
+const char *node_fields_adjust[] = { "attr", "head", NULL };
 const char *node_fields_disc[] = { "attr", "pre", "post", "replace", NULL };
 const char *node_fields_math[] = { "attr", "surround", NULL };
 const char *node_fields_glue[] = { "attr", "spec", "leader", NULL };
@@ -88,7 +88,7 @@ const char *node_fields_penalty[] = { "attr", "penalty", NULL };
 
 const char *node_fields_unset[] =
     { "attr", "width", "depth", "height", "dir", "shrink",
-    "glue_order", "glue_sign", "stretch", "span", "list", NULL
+    "glue_order", "glue_sign", "stretch", "span", "head", NULL
 };
 const char *node_fields_margin_kern[] = { "attr", "width", "glyph", NULL };
 
@@ -118,8 +118,8 @@ const char *node_fields_accent[] =
     { "attr", "nucleus", "sub", "sup", "accent", "bot_accent", NULL };
 const char *node_fields_fence[] = { "attr", "delim", NULL };
 const char *node_fields_math_char[] = { "attr", "fam", "char", NULL };
-const char *node_fields_sub_box[] = { "attr", "list", NULL };
-const char *node_fields_sub_mlist[] = { "attr", "list", NULL };
+const char *node_fields_sub_box[] = { "attr", "head", NULL };
+const char *node_fields_sub_mlist[] = { "attr", "head", NULL };
 const char *node_fields_math_text_char[] = { "attr", "fam", "char", NULL };
 const char *node_fields_delim[] =
     { "attr", "small_fam", "small_char", "large_fam", "large_char", NULL };

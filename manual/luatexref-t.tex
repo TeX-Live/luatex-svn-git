@@ -4684,8 +4684,8 @@ be if \type{\box0} was used as-is:
 \directlua{print (node.dimensions(tex.box[0].glue_set,
                                   tex.box[0].glue_sign,
                                   tex.box[0].glue_order,
-                                  tex.box[0].list.next,
-                                  node.tail(tex.box[0].list))) }
+                                  tex.box[0].head.next,
+                                  node.tail(tex.box[0].head))) }
 \stoptyping
 
 Direction support added in \LUATEX\ 0.45.
@@ -8433,14 +8433,17 @@ linebreaking, 2 = explicit box command. (0.46.0),
                                 the glue order\NC\NR
 \NC glue_set   \NC number  \NC  the calculated glue ratio\NC\NR
 \NC glue_sign  \NC number  \NC  \NC\NR
-\NC list       \NC \syntax{<node>}    \NC  the body of this list\NC\NR
+\NC head       \NC \syntax{<node>}    \NC  the first node of the body of this list\NC\NR
 \NC dir        \NC string  \NC  the direction of this box. see~\in{}[dirnodes]\NC\NR
 \stoptabulate
 
-A warning: never assign a node list to the list field
+A warning: never assign a node list to the \type{head} field
 unless you are sure its internal link structure is correct, otherwise
 an error may result.
 
+Note: the new field name \type{head} was introduced in 0.65 to replace
+the old name \type{list}. Use of the name \type{list} is now
+deprecated, but it will stay available until at least version 0.80.
 
 \subsubsection{vlist nodes}
 
@@ -8476,13 +8479,17 @@ Id: \showid{ins}
 \NC cost       \NC number  \NC  the penalty associated with this insert\NC\NR
 \NC height     \NC number  \NC  \NC\NR
 \NC depth      \NC number  \NC  \NC\NR
-\NC list       \NC \syntax{<node>}    \NC  the body of this insert\NC\NR
+\NC head       \NC \syntax{<node>}    \NC the first node of the body of this insert\NC\NR
 \NC spec       \NC \syntax{<node>}    \NC a pointer to the \tex{splittopskip} glue spec\NC\NR
 \stoptabulate
 
-A warning: never assign a node list to the list field
+A warning: never assign a node list to the \type{head} field
 unless you are sure its internal link structure is correct, otherwise
 an error may be result.
+
+Note: the new field name \type{head} was introduced in 0.65 to replace
+the old name \type{list}. Use of the name \type{list} is now
+deprecated, but it will stay available until at least version 0.80.
 
 
 \subsubsection{mark nodes}
@@ -8507,13 +8514,16 @@ Id: \showid{adjust}
 \NC \ssbf field     \NC \bf type \NC  \bf explanation \NC\NR
 \NC subtype    \NC number  \NC  0 = normal, 1 = \quote{pre}\NC\NR
 \NC attr       \NC \syntax{<node>}    \NC  \NC\NR
-\NC list       \NC \syntax{<node>}    \NC  adjusted material\NC\NR
+\NC head       \NC \syntax{<node>}    \NC  adjusted material\NC\NR
 \stoptabulate
 
-
-A warning: never assign a node list to the list field
+A warning: never assign a node list to the \type{head} field
 unless you are sure its internal link structure is correct, otherwise
 an error may be result.
+
+Note: the new field name \type{head} was introduced in 0.65 to replace
+the old name \type{list}. Use of the name \type{list} is now
+deprecated, but it will stay available until at least version 0.80.
 
 
 \subsubsection{disc nodes}
@@ -8722,17 +8732,21 @@ Id: \showid{sub_box}
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
 \NC attr       \NC \syntax{<node>}\NC          \NC\NR
-\NC list       \NC \syntax{<node>}\NC          \NC \NR
+\NC head       \NC \syntax{<node>}\NC          \NC \NR
 \stoptabulate
 
 These two subnode types are used for subsidiary list items. For
-\type{sub_box}, the \type{list} points to a \quote{normal} vbox or
-hbox. For \type{sub_mlist}, the \type{list} points to a math list
+\type{sub_box}, the \type{head} points to a \quote{normal} vbox or
+hbox. For \type{sub_mlist}, the \type{head} points to a math list
 that is yet to be converted.
 
-A warning: never assign a node list to the components field
+A warning: never assign a node list to the \type{head} field
 unless you are sure its internal link structure is correct, otherwise
 an error may be result.
+
+Note: the new field name \type{head} was introduced in 0.65 to replace
+the old name \type{list}. Use of the name \type{list} is now
+deprecated, but it will stay available until at least version 0.80.
 
 \subsubsection{Math delimiter subnode}
 
