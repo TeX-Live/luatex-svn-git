@@ -816,7 +816,7 @@ void lua_initialize(int ac, char **av)
         if (!dump_name) {
             get_lua_string("texconfig", "formatname", &dump_name);
         }
-        if ((lua_only) || ((!input_name) && (!dump_name))) {
+        if (lua_only) {
             if (given_file)
                 free(given_file);
             /* this is not strictly needed but it pleases valgrind */
