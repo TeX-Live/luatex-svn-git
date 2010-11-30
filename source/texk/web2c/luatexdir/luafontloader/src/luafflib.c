@@ -227,7 +227,7 @@ static int ff_open(lua_State * L)
     char s[511];
     size_t len;
     int args, i;
-    int openflags = 1;
+    int openflags = 1 + 4;
     fontname = luaL_checkstring(L, 1);
     /* test fontname for existance */
     if ((l = fopen(fontname, "r"))) {
