@@ -3539,12 +3539,13 @@ int ff_get_ttc_index(char *ffname, char *psname)
     while (sf != NULL) {
         if (strcmp(sf->fontname, psname) == 0) {
             index = i;
-            break;
         }
         i++;
         sf = sf->next;
     }
-    return index;
+    if (index>=0)
+	return (i-index-1);
+    return -1;
 }
 
 static struct luaL_reg fllib[] = {
