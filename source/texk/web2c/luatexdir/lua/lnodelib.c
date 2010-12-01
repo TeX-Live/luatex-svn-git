@@ -1599,6 +1599,9 @@ static int lua_nodelib_getfield(lua_State * L)
             lua_pushnumber(L, (double) glue_set(n));
             break;
         case 12:
+            if (list_ptr(n)) {
+                alink(list_ptr(n)) = null;
+            }
             nodelib_pushlist(L, list_ptr(n));
             break;
         default:
@@ -1638,6 +1641,9 @@ static int lua_nodelib_getfield(lua_State * L)
             lua_pushnumber(L, span_count(n));
             break;
         case 13:
+            if (list_ptr(n)) {
+                alink(list_ptr(n)) = null;
+            }
             nodelib_pushlist(L, list_ptr(n));
             break;
         default:
@@ -1683,6 +1689,9 @@ static int lua_nodelib_getfield(lua_State * L)
             nodelib_pushspec(L, split_top_ptr(n));
             break;
         case 8:
+            if (ins_ptr(n)) {
+                alink(ins_ptr(n)) = null;
+            }
             nodelib_pushlist(L, ins_ptr(n));
             break;
         default:
@@ -1710,6 +1719,9 @@ static int lua_nodelib_getfield(lua_State * L)
             lua_pushnumber(L, subtype(n));
             break;
         case 4:
+            if (adjust_ptr(n)) {
+                alink(adjust_ptr(n)) = null;
+            }
             nodelib_pushlist(L, adjust_ptr(n));
             break;
         default:
@@ -2023,6 +2035,9 @@ static int lua_nodelib_getfield(lua_State * L)
             lua_pushnumber(L, subtype(n));
             break;
         case 4:
+            if (math_list(n)) {
+                alink(math_list(n)) = null;
+            }
             nodelib_pushlist(L, math_list(n));
             break;
         default:
