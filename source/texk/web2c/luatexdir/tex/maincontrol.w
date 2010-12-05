@@ -2866,7 +2866,7 @@ void assign_internal_value(int a, halfword p, int cur_val)
                            no_local_whatsits + 1);
         }
 
-    } else if ((p >= dimen_base) && (p < eqtb_size)) {
+    } else if ((p >= dimen_base) && (p <= eqtb_size)) {
         if (p == (dimen_base + page_left_offset_code)) {
             n = cur_val - one_true_inch;
             word_define(dimen_base + h_offset_code, n);
