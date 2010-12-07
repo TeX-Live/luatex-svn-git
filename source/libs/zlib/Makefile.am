@@ -1,6 +1,6 @@
 ## Proxy Makefile.am to build zlib for TeX Live.
 ##
-##   Copyright (C) 2009 Peter Breitenlohner <tex-live@tug.org>
+##   Copyright (C) 2009, 2010 Peter Breitenlohner <tex-live@tug.org>
 ##
 ##   This file is free software; the copyright holder
 ##   gives unlimited permission to copy and/or distribute it,
@@ -21,7 +21,7 @@ EXTRA_DIST = $(ZLIB_TREE)
 
 ## Changes applied to the original source tree
 ##
-EXTRA_DIST +=  $(ZLIB_TREE)-PATCHES
+EXTRA_DIST += $(ZLIB_TREE)-PATCHES
 
 # in case of an SVN repository
 dist-hook:
@@ -42,8 +42,12 @@ nodist_libz_a_SOURCES = \
 	$(ZLIB_TREE)/crc32.h \
 	$(ZLIB_TREE)/deflate.c \
 	$(ZLIB_TREE)/deflate.h \
-	$(ZLIB_TREE)/gzio.c \
 	$(ZLIB_TREE)/infback.c \
+	$(ZLIB_TREE)/gzclose.c \
+	$(ZLIB_TREE)/gzguts.h \
+	$(ZLIB_TREE)/gzlib.c \
+	$(ZLIB_TREE)/gzread.c \
+	$(ZLIB_TREE)/gzwrite.c \
 	$(ZLIB_TREE)/inffast.c \
 	$(ZLIB_TREE)/inffast.h \
 	$(ZLIB_TREE)/inffixed.h \
@@ -70,8 +74,9 @@ LDADD = libz.a
 nodist_example_SOURCES = $(ZLIB_TREE)/example.c
 nodist_minigzip_SOURCES = $(ZLIB_TREE)/minigzip.c
 
-zconf.h: $(ZLIB_TREE)/zconf.in.h Makefile
-	sed < $< '/HAVE_UNISTD_H/s%^#if [01]%#if $(WITH_UNISTD)%' >$@
+zconf.h: $(ZLIB_TREE)/zconf.h.in config.status
+	echo '$(SHELL) ./config.status $@'
+	$(SHELL) ./config.status $@
 
 DISTCLEANFILES = zconf.h
 
