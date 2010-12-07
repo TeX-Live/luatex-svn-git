@@ -501,14 +501,16 @@ boolean scan_keyword(const char *s)
             } else {
                 back_input();
             }
+            if (cur_cmd != endv_cmd)
+   	       align_state = saved_align_state;
             cur_cs = save_cur_cs;
-            align_state = saved_align_state;
             return false;
         }
     }
     flush_list(token_link(backup_head));
     cur_cs = save_cur_cs;
-    align_state = saved_align_state;
+    if (cur_cmd != endv_cmd)
+        align_state = saved_align_state;
     return true;
 }
 
