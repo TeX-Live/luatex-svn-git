@@ -498,11 +498,11 @@ boolean scan_keyword(const char *s)
                 token_link(q) = null;
                 token_link(p) = q;
                 begin_token_list(token_link(backup_head), backed_up);
+                if (cur_cmd != endv_cmd) 
+   	           align_state = saved_align_state;
             } else {
                 back_input();
             }
-            if (cur_cmd != endv_cmd)
-   	       align_state = saved_align_state;
             cur_cs = save_cur_cs;
             return false;
         }
