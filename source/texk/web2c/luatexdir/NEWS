@@ -2,6 +2,107 @@
 This file is in the public domain.
 
 ==============================================================
+Luatex beta-0.65.0 was released 20101213
+==============================================================
+
+News:
+
+* The Aleph and Omega version primitives are deprecated.
+
+* The Apple Snow Leopard Truetype font collections now work
+  properly.
+
+* Libpng has been updated to 1.4.4, and zlib to 1.2.5.
+
+* New lua functions node.next() and node.prev().
+
+* The already deprecated for some time node.protrusion_skipable()
+  function has been removed.
+
+* fontloader.apply_featurefile() and fontloader.apply_afmfile()
+  now return nil,<errortable> on failure.
+
+* The various node list fields in the lua node interface have
+  been renamed from 'list' to 'head', e.g. tex.box[0].head,
+  and the 'list' name is deprecated. For now, the deprecation 
+  is silent, as 'list' will stay for quite some time. Please
+  update your lua source as soon as possible, though.
+
+* The call node.type(<node>) now returns "node". The existing
+  functionality is otherwise unchanged.
+
+* Luafilesystem has been updated to 1.5.0. NOTE: there is an
+  incompatible change in the directory iterator method.
+
+* The restriction on linebreak_filter has been eased: at least one 
+  horizontal box should be returned, but that is not necessarily 
+  the last node any more.
+
+* Backward compatibility has been restored for \meaning\mathchar
+
+* node.first_character() has been renamed to node.first_glyph()
+  to better match its actual functionality.
+
+* The \Umathaccent primitive now supports both/bottom keywords,
+  and \Umathbotaccent / \Umathaccents are now deprecated.
+
+* The \Umathaccent primitive now also supports the fixed keyword,
+  which supports non-growing math accents even if the font says
+  there are extensible variants.
+
+* Ongoing work on the epdf library.
+
+Bugfixes:
+
+* Assignment to \dimen65535 was broken earlier.
+
+* <box>.head.prev is now always initialized to null (0).
+
+* luatex -lua=<script> '\relax' no longer exits immediately, 
+  instead going into interactive mode as it should.
+
+* The \jobname was initialized wrongly for input file names
+  with multiple dots in them.
+
+* The synctex file is now written in the right place when 
+  --output-directory is given.
+
+* \letterspacefont could cause crashes, especially when combined
+  with font expansion.
+
+* Luatex would crash on linux32 systems if it was build in an 
+  environment where LFS (>2GB files) was enabled by default.
+
+* Node lists created by node.copy_list() could not be hyphenated
+  due to an assertion error.
+
+* Synctex support was partially broken since 0.60.0.
+
+* With OpenType math fonts, accents with multiple parts 
+  (like the \vec arrow) forgot to include all parts if the
+  accentee was too narrow.
+
+* With OpenType math fonts, accents over any class except 0 and 7 
+  were misplaced.
+
+* kpse.lookup("plain", {all = true}) was broken in kpathsea
+  itself (no extension given as well as --all specified).
+
+* A FontForge bug made Cambria Math accents look bad, and the
+  placement of math top accents did not allow a marker at the
+  origin (patches by Stefan Philipp)
+
+* Cut&Paste from PDF was sometimes broken due to bad ToUnicode map.
+
+* Many small manual improvements (thanks to Paul Isambert)
+
+* An other bugfix to lpeg 0.9 (from Roberto Ierusalimsky)
+
+* Some small fixes to writet1.w (from Han The Thanh)
+
+* A build failure because of bad libz configuration on Win32
+
+==============================================================
 Luatex beta-0.64.0 was released 20101112
 ==============================================================
 
