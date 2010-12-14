@@ -751,13 +751,13 @@ void write_epdf(PDF pdf, image_dict * idict)
     // A kludge. E. g., not implemented: Merging Page and Pages dict. Resources
     pageDict->lookupNF((char *) "Resources", &obj1);
     if (obj1.isNull()) {
-        obj1.free();
         // Resources can be missing (files without them have been spotted in the wild).
         pdftex_warn
             ("PDF inclusion: /Resources missing. 'This practice is not recommended' (PDF Ref.)");
         pdf_doc->doc->getXRef()->getCatalog(&catdict);
         catdict.dictLookup((char *) "Pages", &pagesdict);
         if (pagesdict.isDict()) {
+            obj1.free();
             pagesdict.dictLookupNF((char *) "Resources", &obj1);
             if (!obj1.isNull()) {
                 pdf_printf(pdf, "/%s ", "Resources");
