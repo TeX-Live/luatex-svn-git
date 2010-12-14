@@ -671,7 +671,7 @@ void write_epdf(PDF pdf, image_dict * idict)
     Page *page;
     Ref *pageref;
     Dict *pageDict;
-    Object obj1, pageobj, contents;
+    Object obj1, pageobj, contents, pagesdict, catdict;
     PDFRectangle *pagebox;
     int i, l;
     float bbox[4];
@@ -729,17 +729,6 @@ void write_epdf(PDF pdf, image_dict * idict)
 
     // Now all relevant parts of the Page dictionary are copied:
 
-    // Resources validity check
-    pageDict->lookupNF((char *) "Resources", &obj1);
-    if (obj1.isNull()) {
-        // Resources can be missing (files without them have been spotted
-        // in the wild); in which case the /Resouces of the /Page will be used.
-        // "This practice is not recommended".
-        pdftex_warn
-            ("PDF inclusion: /Resources missing. 'This practice is not recommended' (PDF Ref.)");
-    }
-    obj1.free();
-
     // Metadata validity check (as a stream it must be indirect)
     pageDict->lookupNF((char *) "Metadata", &obj1);
     if (!obj1.isNull() && !obj1.isRef())
@@ -755,6 +744,30 @@ void write_epdf(PDF pdf, image_dict * idict)
         }
         obj1.free();
     }
+
+    // Resources validity check: Only if there are no Resources in the
+    // embedded Page dict, try to get Resources from the Pages dict
+    // of the embedded PDF file (fixes a problem with Scribus 1.3.3.14).
+    // A kludge. E. g., not implemented: Merging Page and Pages dict. Resources
+    pageDict->lookupNF((char *) "Resources", &obj1);
+    if (obj1.isNull()) {
+        obj1.free();
+        // Resources can be missing (files without them have been spotted in the wild).
+        pdftex_warn
+            ("PDF inclusion: /Resources missing. 'This practice is not recommended' (PDF Ref.)");
+        pdf_doc->doc->getXRef()->getCatalog(&catdict);
+        catdict.dictLookup((char *) "Pages", &pagesdict);
+        if (pagesdict.isDict()) {
+            pagesdict.dictLookupNF((char *) "Resources", &obj1);
+            if (!obj1.isNull()) {
+                pdf_printf(pdf, "/%s ", "Resources");
+                copyObject(pdf, pdf_doc, &obj1);        // preserves indirection
+            }
+        }
+        catdict.free();
+        pagesdict.free();
+    }
+    obj1.free();
 
     // write the Page contents
     page->getContents(&contents);
@@ -819,7 +832,7 @@ void write_epdf(PDF pdf, image_dict * idict)
     pageobj.free();
     // unrefPdfDocument() must come after contents.free() and pageobj.free()!
     // TH: The next line makes repeated pdf inclusion unacceptably slow
-#if 0    
+#if 0
     unrefPdfDocument(img_filepath(idict));
 #endif
 }
