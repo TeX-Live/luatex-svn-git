@@ -822,7 +822,7 @@ The value to use for \type{\jobname} is decided as follows:
 \item Otherwise, \tex{jobname} will be the name of the first file that
   is read from the file system, with any path components and the last
   extension (the part following the last \type{.}) stripped off.
-\item An expection to the previous point: if the command
+\item An exception to the previous point: if the command
   line goes into interactive mode (by starting with a command) and
   there are no files input via \type{\everyjob} either, then the
   \tex{jobname} is set to \type{texput} as a last resort.
@@ -3914,8 +3914,7 @@ lang.hyphenation(<language> l, <string> n)
 \stopfunctioncall
 
 Either returns the current hyphenation exceptions for this language,
-or adds new ones. The syntax of the string is explained in the next
-chapter,~\in{section}[patternsexceptions].
+or adds new ones. The syntax of the string is explained in~\in{section}[patternsexceptions].
 
 \startfunctioncall
 lang.clear_hyphenation(<language> l)
@@ -3928,7 +3927,7 @@ Clears the exception dictionary for this language.
 \stopfunctioncall
 
 Creates a hyphenation key from the supplied hyphenation value. The
-syntax of the argument string is explained~\in{section}[patternsexceptions].
+syntax of the argument string is explained in~\in{section}[patternsexceptions].
 This function is useful if
 you want to do something else based on the words in a dictionary file,
 like spell-checking.
@@ -4017,8 +4016,8 @@ chunks. The accepted values for assignments are functions and
 \type{nil}. Likewise, the retrieved value is either a function or \type{nil}.
 
 \starttyping
-lua.bytecode[n] = function () .. end
-lua.bytecode[n]()
+lua.bytecode[<number> n] = <function> f
+lua.bytecode[<number> n]()
 \stoptyping
 
 The contents of the \luatex{lua.bytecode} array is stored inside the format
@@ -4032,7 +4031,7 @@ implementation and thus subject to change.
 The associated function calls are
 
 \startfunctioncall
-function f = lua.getbytecode(<number> n)
+<function> f = lua.getbytecode(<number> n)
 lua.setbytecode(<number> n, <function> f)
 \stopfunctioncall
 
@@ -4065,7 +4064,7 @@ the \type{\directlua} and \type{\latelua} primitives.
 
 \startfunctioncall
 lua.name[<number> n] = <string> s
-<string> s = lua.name[<number n>]
+<string> s = lua.name[<number> n]
 \stopfunctioncall
 
 If you want to unset a lua name, you can assign \type{nil} to it.
@@ -4725,7 +4724,7 @@ Direction support added in \LUATEX\ 0.45.
 
 This runs the internal mlist to hlist conversion, converting the math list in
 \type{n} into the horizontal list \type{h}. The interface is exactly the same as
-for the callback \type{mlist_to_hlist}.)
+for the callback \type{mlist_to_hlist}.
 
 \subsubsection{\luatex{node.slide}}
 
@@ -4910,7 +4909,7 @@ any more since version 0.38).  There is no error checking yet!
 
 \subsubsection{\luatex{node.protrusion_skippable} (0.60.1)}
 \startfunctioncall
-boolean <yes> = node.protrusion_skippable(<node> n)
+<boolean> skippable = node.protrusion_skippable(<node> n)
 \stopfunctioncall
 
 Returns \type{true} if this node can be skipped for glyph protrusion
@@ -4946,8 +4945,8 @@ Sets the attribute with number \type{id} to the value
 \subsubsection{\luatex{node.unset_attribute}}
 
 \startfunctioncall
-<number> v = node.unset_attribute(<node> n, <number> id, <number> val)
 <number> v = node.unset_attribute(<node> n, <number> id)
+<number> v = node.unset_attribute(<node> n, <number> id, <number> val)
 \stopfunctioncall
 
 Unsets the attribute with number \type{id}. If \type{val} is also supplied,
@@ -4963,13 +4962,18 @@ This contains variables and functions that are related to the \PDF\ backend.
 
 %***********************************************************************
 
-\subsection{\luatex{pdf.mapfile()}, \luatex{pdf.mapline()} (new in 0.53.0)}
+\subsection{\luatex{pdf.mapfile}, \luatex{pdf.mapline} (new in 0.53.0)}
+
+\startfunctioncall
+pdf.mapfile(<string> map file)
+pdf.mapfile(<string> map line)
+\stopfunctioncall
 
 These two functions can be used to replace primitives \type{\pdfmapfile}
 and \type{\pdfmapline} from \PDFTEX. They expect a string as only parameter
 and have no return value.
 
-The functions replace also the former variables
+The also functions replace the former variables
 \luatex{pdf.pdfmapfile} and \luatex{pdf.pdfmapline}.
 
 %***********************************************************************
@@ -5009,10 +5013,10 @@ measured from its lower left corner.
 The values can be queried % and set
 using scaled points as units.
 
-\starttyping
-pdf.h
-pdf.v
-\stoptyping
+%\starttyping
+%pdf.h
+%pdf.v
+%\stoptyping
 
 Note: this interface will almost certainly change in the future.
 
@@ -5029,7 +5033,7 @@ Note: this interface will almost certainly change in the future.
 % <number> n = pdf.v
 % \stopfunctioncall
 
-\subsection{\luatex{pdf.print()}}
+\subsection{\luatex{pdf.print}}
 
 A print function to write stuff to the \PDF\ document
 that can be used from within a \tex{latelua} argument.
@@ -5044,47 +5048,47 @@ pdf.print(<string> type, <string> s)
 The optional parameter can be used to mimic the behavior of
 \tex{pdfliteral}: the \type{type} is \type{direct} or \type{page}.
 
-\subsection{\luatex{pdf.immediateobj()}}
+\subsection{\luatex{pdf.immediateobj}}
 
 This function creates a \PDF\ object
-and immediately write it to the \PDF\ file.
+and immediately writes it to the \PDF\ file.
 It is modelled after \PDFTEX's \tex{immediate}\tex{pdfobj} primitives.
 All function variants return the object number
 of the newly generated object.
 
 \startfunctioncall
-n = pdf.immediateobj(<string> objtext)
-n = pdf.immediateobj("file", <string> filename)
-n = pdf.immediateobj("stream", <string> streamtext {, <string> attrtext})
-n = pdf.immediateobj("streamfile", <string> filename, {, <string> attrtext})
+<number> n = pdf.immediateobj(<string> objtext)
+<number> n = pdf.immediateobj("file", <string> filename)
+<number> n = pdf.immediateobj("stream", <string> streamtext, <string> attrtext)
+<number> n = pdf.immediateobj("streamfile", <string> filename, <string> attrtext)
 \stopfunctioncall
 
-The 1st version puts the \type{objtext} raw into an object.
+The fist version puts the \type{objtext} raw into an object.
 Only the object wrapper is automatically generated,
 but any internal structure (like \type{<< >>} dictionary markers)
 needs to provided by the user.
-The 2nd version with keyword \type{"file"} as 1st argument
+The second version with keyword \type{"file"} as 1st argument
 puts the contents of the file with name \type{filename} raw into the object.
-The 3rd version with keyword \type{"stream"} creates a stream object
+The third version with keyword \type{"stream"} creates a stream object
 and puts the \type{streamtext} raw into the stream.
 The stream length is automatically calculated.
 The optional \type{attrtext} goes into the dictionary of that object.
-The 4th version with keyword \type{"streamfile"} does the same as the 3rd one,
+The fourth version with keyword \type{"streamfile"} does the same as the 3rd one,
 it just reads the stream data raw from a file.
 
 An optional first argument can be given to make the function use a
 previously reserved \PDF\ object.
 
 \startfunctioncall
-n = pdf.immediateobj(<integer n>, <string> objtext)
-n = pdf.immediateobj(<integer n>, "file", <string> filename)
-n = pdf.immediateobj(<integer n>, "stream", <string> streamtext {, <string> attrtext})
-n = pdf.immediateobj(<integer n>, "streamfile", <string> filename, {, <string> attrtext})
+<number> n = pdf.immediateobj(<integer> n, <string> objtext)
+<number> n = pdf.immediateobj(<integer> n, "file", <string> filename)
+<number> n = pdf.immediateobj(<integer> n, "stream", <string> streamtext, <string> attrtext)
+<number> n = pdf.immediateobj(<integer> n, "streamfile", <string> filename, <string> attrtext)
 \stopfunctioncall
 
 %***********************************************************************
 
-\subsection{\luatex{pdf.obj()}}
+\subsection{\luatex{pdf.obj}}
 
 This function creates a \PDF\ object,
 which is written to the \PDF\ file only when referenced,
@@ -5096,33 +5100,33 @@ object, and there are two separate calling modes.
 The first mode is modelled after \PDFTEX's \tex{pdfobj} primitive.
 
 \startfunctioncall
-n = pdf.obj(<string> objtext)
-n = pdf.obj("file", <string> filename)
-n = pdf.obj("stream", <string> streamtext {, <string> attrtext})
-n = pdf.obj("streamfile", <string> filename, {, <string> attrtext})
+<number> n = pdf.obj(<string> objtext)
+<number> n = pdf.obj("file", <string> filename)
+<number> n = pdf.obj("stream", <string> streamtext, <string> attrtext)
+<number> n = pdf.obj("streamfile", <string> filename, <string> attrtext)
 \stopfunctioncall
 
 An optional first argument can be given to make the function use a
 previously reserved \PDF\ object.
 
 \startfunctioncall
-n = pdf.obj(<integer> n, <string> objtext)
-n = pdf.obj(<integer> n, "file", <string> filename)
-n = pdf.obj(<integer> n, "stream", <string> streamtext {, <string> attrtext})
-n = pdf.obj(<integer> n, "streamfile", <string> filename, {, <string> attrtext})
+<number> n = pdf.obj(<integer> n, <string> objtext)
+<number> n = pdf.obj(<integer> n, "file", <string> filename)
+<number> n = pdf.obj(<integer> n, "stream", <string> streamtext, <string> attrtext)
+<number> n = pdf.obj(<integer> n, "streamfile", <string> filename, <string> attrtext)
 \stopfunctioncall
 
 The second mode accepts a single argument table with key--value pairs.
 
 \startfunctioncall
-n = pdf.obj{ type = <string>,
-             immmediate = <boolean>,
-             objnum = <number>,
-             attr = <string>,
-             compresslevel = <number>,
-             objcompression = <boolean>,
-             file = <string>,
-             string = <string>}
+<number> n = pdf.obj{ type = <string>,
+                      immmediate = <boolean>,
+                      objnum = <number>,
+                      attr = <string>,
+                      compresslevel = <number>,
+                      objcompression = <boolean>,
+                      file = <string>,
+                      string = <string>}
 \stopfunctioncall
 
 The \type{type} field can have the values \type{raw} and
@@ -5136,7 +5140,7 @@ still apply, so for example you can't have both \type{string} and
 
 %***********************************************************************
 
-\subsection{\luatex{pdf.refobj()}}
+\subsection{\luatex{pdf.refobj}}
 
 This function,
 the \LUA\ version of the \tex{pdfrefobj} primitive,
@@ -5152,22 +5156,22 @@ Inside \tex{directlua} a new whatsit node
 \quote{pdf_refobj} is created, which will be marked for flushing during
 page output and the object is then written directly after the page,
 when also the resources objects are written out.
-Inside \tex{latelua} the object will marked for flushing.
+Inside \tex{latelua} the object will be marked for flushing.
 
 This function has no return values.
 
 %***********************************************************************
 
-\subsection{\luatex{pdf.reserveobj()}}
+\subsection{\luatex{pdf.reserveobj}}
 
 This function creates an empty \PDF\ object and returns its number.
 
 \startfunctioncall
-n = pdf.reserveobj()
-n = pdf.reserveobj("annot")
+<number> n = pdf.reserveobj()
+<number> n = pdf.reserveobj("annot")
 \stopfunctioncall
 
-\subsection{\luatex{pdf.registerannot()} (new in 0.47.0)}
+\subsection{\luatex{pdf.registerannot} (new in 0.47.0)}
 
 This function adds an object number to the \type{/Annots} array for the
 current page without doing anything else. This function can only be
@@ -5861,7 +5865,7 @@ tex.setmath('global', <string> n, <string> t, <number> n)
 <number> n = tex.getmath(<string> n, <string> t)
 \stopfunctioncall
 
-As before an optional first parameter of \type{'global'} indicates a
+As before an optional first parameter \type{'global'} indicates a
 global assignment.
 
 The first string is the parameter name minus the leading \quote{Umath},
@@ -5927,20 +5931,20 @@ registers that keep track of building page lists.
 \NC page_head          \NC  the current page content\NC \NR
 %\NC temp_head          \NC  \NC \NR
 \NC hold_head          \NC used for held-over items for next page\NC \NR
-\NC adjust_head        \NC head of the current \tex{adjust} list \NC \NR
-\NC pre_adjust_head    \NC head of the current \tex{adjust pre} list\NC \NR
+\NC adjust_head        \NC head of the current \tex{vadjust} list \NC \NR
+\NC pre_adjust_head    \NC head of the current \tex{vadjust pre} list\NC \NR
 % \NC align_head         \NC  \NC \NR
 \stoptabulate
 
 \subsection{Semantic nest levels (0.51)}
 
 The virtual table \luatex{tex.nest} contains the currently active
-semantic nesting state. It has two main parts: an zero-based array of
+semantic nesting state. It has two main parts: a zero-based array of
 userdata for the semantic nest itself, and the numerical value
 \type{tex.nest.ptr}, which gives the highest available index. Neither
 the array items in \type{tex.nest[]} nor \type{tex.nest.ptr} can be
 assigned to (as this would confuse the typesetting engine beyond
-repair), but you can assing to the individual values inside the array
+repair), but you can assign to the individual values inside the array
 items, e.g. \type{tex.nest[tex.nest.ptr].prevdepth}.
 
 \type{tex.nest[tex.nest.ptr]} is the current nest state, \type{tex.nest[0]}
@@ -6012,7 +6016,7 @@ will stop the printing process).  This syntax was added in 0.36.
 The optional parameter can be used to print the strings using the
 catcode regime defined by \tex{catcodetable}~\type{n}. If \type{n} is
 $-1$, the currently active catcode regime is used. If \type{n} is
-$-2$, the resulting catcodes are in the result of \type{\the}: all
+$-2$, the resulting catcodes are the result of \type{\the}: all
 category codes are 12 (other) except for the space character, that has
 category code 10 (space). Otherwise, if \type{n} is not
 a valid catcode table, then it is ignored, and the currently
@@ -6055,6 +6059,8 @@ If there is a table argument instead of a list of strings, this has to
 be a consecutive array of strings to print (the first non-string value
 will stop the printing process).   This syntax was added in 0.36.
 
+The optional argument sets the catcode regime, as with \type{tex.print()}.
+
 \subsubsection{\luatex{tex.tprint}}
 
 \startfunctioncall
@@ -6073,7 +6079,7 @@ tex.write(<table> t)
 \stopfunctioncall
 
 Each string argument is treated by \TEX\ as a special kind of input
-line that makes is suitable for use as a quick way to dump
+line that makes it suitable for use as a quick way to dump
 information:
 
 \startitemize
@@ -6158,7 +6164,7 @@ tex.error(<string> s, <table> help)
 \stopfunctioncall
 
 This creates an error somewhat like the combination of \tex{errhelp}
-and \type{errmessage} would. During this error, deletions are disabled.
+and \tex{errmessage} would. During this error, deletions are disabled.
 
 The array part of the \type{help} table has to contain strings,
 one for each line of error help.
@@ -6175,8 +6181,8 @@ This function accepts a prefix string and an array of primitive names.
 
 For each combination of \quote{prefix} and \quote{name}, the
 \type{tex.enableprimitives} first verifies that \quote{name} is
-and actual primitive (it must be returned by one of the
-\type{tex.extraprimitives()} calls explained above, or part of
+an actual primitive (it must be returned by one of the
+\type{tex.extraprimitives()} calls explained below, or part of
 \TEX82, or \type{\directlua}). If it is not,
 \type{tex.enableprimitives} does nothing and skips to the next pair.
 
@@ -6220,7 +6226,7 @@ So, if you want to have all the new functionality available using
 their default names, as it is now, you will have to add
 
 \starttyping
-  \expandafter\ifx\csname directlua\endcsname \relax \else
+  \ifx\directlua\undefined \else
      \directlua {tex.enableprimitives('',tex.extraprimitives ())}
   \fi
 \stoptyping
@@ -6231,7 +6237,7 @@ different prefixes for different subsets, as you see fit.
 Calling some form of \type{tex.enableprimitives()} is highly important
 though, because if you do not, you will end up with a \TEX82-lookalike
 that can run lua code but not do much else. The defined csnames are
-(of course) saved in the format and will be available runtime.
+(of course) saved in the format and will be available at runtime.
 
 
 \subsubsection{\luatex{tex.extraprimitives}}
@@ -6356,7 +6362,7 @@ It is your own job to make sure that \type{listhead} is a proper
 paragraph list: this function does not add any nodes to it. To be
 exact, if you want to replace the core line breaking, you may have to
 do the following (when you are not actually working in the
-\type{pre_line_break} or \type{line_break} callback, or when the
+\type{pre_linebreak_filter} or \type{linebreak_filter} callbacks, or when the
 original list starting at listhead was generated in horizontal mode):
 
 \startitemize
@@ -6518,7 +6524,7 @@ without expansion.
 \subsection{\luatex{token.is_expandable}}
 
 \startfunctioncall
-<boolean> b = token.is_expandable(token t)
+<boolean> b = token.is_expandable(<token> t)
 \stopfunctioncall
 
 This tests if the token \type{t} could be expanded.
@@ -6526,7 +6532,7 @@ This tests if the token \type{t} could be expanded.
 \subsection{\luatex{token.expand}}
 
 \startfunctioncall
-token.expand()
+token.expand(<token> t)
 \stopfunctioncall
 
 If a token is expandable, this will expand one level of it, so that
@@ -6536,7 +6542,7 @@ by \luatex{token.get_next()}.
 \subsection{\luatex{token.is_activechar}}
 
 \startfunctioncall
-<boolean> b = token.is_activechar(token t)
+<boolean> b = token.is_activechar(<token> t)
 \stopfunctioncall
 
 This is a special test that is sometimes handy. Discovering whether
