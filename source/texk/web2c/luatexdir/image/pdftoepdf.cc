@@ -671,7 +671,7 @@ void write_epdf(PDF pdf, image_dict * idict)
     Page *page;
     Ref *pageref;
     Dict *pageDict;
-    Object obj1, pageobj, contents, pagesdict, catdict;
+    Object obj1, contents, pageobj, pagesobj1, pagesobj2, *op1, *op2, *optmp;
     PDFRectangle *pagebox;
     int i, l;
     float bbox[4];
@@ -745,27 +745,32 @@ void write_epdf(PDF pdf, image_dict * idict)
         obj1.free();
     }
 
-    // Resources validity check: Only if there are no Resources in the
-    // embedded Page dict, try to get Resources from the Pages dict
-    // of the embedded PDF file (fixes a problem with Scribus 1.3.3.14).
-    // A kludge. E. g., not implemented: Merging Page and Pages dict. Resources
+    // If there are no Resources in the Page dict of the embedded page,
+    // try to inherit the Resources from the Pages tree of the embedded
+    // PDF file, climbing up the tree until the Resources are found.
+    // (This fixes a problem with Scribus 1.3.3.14.)
     pageDict->lookupNF((char *) "Resources", &obj1);
     if (obj1.isNull()) {
-        // Resources can be missing (files without them have been spotted in the wild).
-        pdftex_warn
-            ("PDF inclusion: /Resources missing. 'This practice is not recommended' (PDF Ref.)");
-        pdf_doc->doc->getXRef()->getCatalog(&catdict);
-        catdict.dictLookup((char *) "Pages", &pagesdict);
-        if (pagesdict.isDict()) {
+        op1 = &pagesobj1;
+        op2 = &pagesobj2;
+        pageDict->lookup((char *) "Parent", op1);
+        while (op1->isDict()) {
             obj1.free();
-            pagesdict.dictLookupNF((char *) "Resources", &obj1);
+            op1->dictLookupNF((char *) "Resources", &obj1);
             if (!obj1.isNull()) {
-                pdf_printf(pdf, "/%s ", "Resources");
-                copyObject(pdf, pdf_doc, &obj1);        // preserves indirection
+                pdf_puts(pdf, "/Resources ");
+                copyObject(pdf, pdf_doc, &obj1);
+                break;
             }
-        }
-        catdict.free();
-        pagesdict.free();
+            op1->dictLookup((char *) "Parent", op2);
+            optmp = op1;
+            op1 = op2;
+            op2 = optmp;
+            op2->free();
+        };
+        if (!op1->isDict())
+            pdftex_warn("PDF inclusion: Page /Resources missing.");
+        op1->free();
     }
     obj1.free();
 
