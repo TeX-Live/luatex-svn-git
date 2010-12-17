@@ -52,17 +52,18 @@ void pdflua_begin_page(PDF pdf)
     int err;
     lua_rawgeti(Luas, LUA_GLOBALSINDEX, pdf->pdflua_ref);       /* t */
     lua_pushstring(Luas, "beginpage");  /* s t */
-    lua_gettable(Luas, -2);     /* f */
-    lua_newtable(Luas);         /* t f */
-    lua_pushnumber(Luas, total_pages + 1);      /* i t f */
-    lua_setfield(Luas, -2, "pagenum");  /* t f */
-    lua_pushnumber(Luas, pdf->last_page);       /*  i t f */
-    lua_setfield(Luas, -2, "page_objnum");      /* t f */
-    lua_pushnumber(Luas, pdf->last_stream);     /* i t f */
-    lua_setfield(Luas, -2, "stream_objnum");    /* t f */
-    lua_pushnumber(Luas, pdf->page_resources->last_resources);  /* i t f */
-    lua_setfield(Luas, -2, "resources_objnum"); /* t f */
-    err = lua_pcall(Luas, 1, 0, 0);     /* - */
+    lua_gettable(Luas, -2);     /* f t */
+    lua_newtable(Luas);         /* t f t */
+    lua_pushnumber(Luas, total_pages + 1);      /* i t f t */
+    lua_setfield(Luas, -2, "pagenum");  /* t f t */
+    lua_pushnumber(Luas, pdf->last_page);       /*  i t f t */
+    lua_setfield(Luas, -2, "page_objnum");      /* t f t */
+    lua_pushnumber(Luas, pdf->last_stream);     /* i t f t */
+    lua_setfield(Luas, -2, "stream_objnum");    /* t f t */
+    lua_pushnumber(Luas, pdf->page_resources->last_resources);  /* i t f t */
+    lua_setfield(Luas, -2, "resources_objnum"); /* t f t */
+    err = lua_pcall(Luas, 1, 0, 0);     /* t */
+    lua_pop(Luas,1); /* - */
     if (err != 0)
         pdftex_fail("pdflua.lua: beginpage()");
 }
@@ -73,27 +74,28 @@ void pdflua_end_page(PDF pdf, int annots, int beads)
     int err;
     lua_rawgeti(Luas, LUA_GLOBALSINDEX, pdf->pdflua_ref);       /* t */
     lua_pushstring(Luas, "endpage");    /* s t */
-    lua_gettable(Luas, -2);     /* f */
-    lua_newtable(Luas);         /* t f */
-    lua_pushnumber(Luas, total_pages);  /* i t f */
-    lua_setfield(Luas, -2, "pagenum");  /* t f */
-    lua_pushnumber(Luas, cur_page_size.h);      /* i t f */
-    lua_setfield(Luas, -2, "hsize");    /* t f */
-    lua_pushnumber(Luas, cur_page_size.v);      /* i t f */
-    lua_setfield(Luas, -2, "vsize");    /* t f */
+    lua_gettable(Luas, -2);     /* f t */
+    lua_newtable(Luas);         /* t f t */
+    lua_pushnumber(Luas, total_pages);  /* i t f t */
+    lua_setfield(Luas, -2, "pagenum");  /* t f t */
+    lua_pushnumber(Luas, cur_page_size.h);      /* i t f t */
+    lua_setfield(Luas, -2, "hsize");    /* t f t */
+    lua_pushnumber(Luas, cur_page_size.v);      /* i t f t */
+    lua_setfield(Luas, -2, "vsize");    /* t f t */
     if (annots != 0) {
-        lua_pushnumber(Luas, annots);   /* i t f */
-        lua_setfield(Luas, -2, "annots");       /* t f */
+        lua_pushnumber(Luas, annots);   /* i t f t */
+        lua_setfield(Luas, -2, "annots");       /* t f t */
     }
     if (beads != 0) {
-        lua_pushnumber(Luas, beads);    /* i t f */
-        lua_setfield(Luas, -2, "beads");        /* t f */
+        lua_pushnumber(Luas, beads);    /* i t f t */
+        lua_setfield(Luas, -2, "beads");        /* t f t */
     }
     if (pdf->img_page_group_val != 0) {
-        lua_pushnumber(Luas, pdf->img_page_group_val);  /* i t f */
-        lua_setfield(Luas, -2, "imggroup");     /* t f */
+        lua_pushnumber(Luas, pdf->img_page_group_val);  /* i t f t */
+        lua_setfield(Luas, -2, "imggroup");     /* t f t */
     }
-    err = lua_pcall(Luas, 1, 0, 0);     /* - */
+    err = lua_pcall(Luas, 1, 0, 0);     /* t */
+    lua_pop(Luas,1); /* - */
     if (err != 0)
         pdftex_fail("pdflua.lua: endpage()");
 }
