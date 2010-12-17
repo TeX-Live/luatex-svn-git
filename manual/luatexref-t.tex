@@ -1130,7 +1130,7 @@ not available on the \SUNOS\ platforms, so do not use this function
 for portable documents.
 
 \item \luatex{os.times()}
-Returns the current process times cf.\ the \UNIX\ C library function
+Returns the current process times according to \ the \UNIX\ C library function
 \quote {times}. This function is not available on the \MSWINDOWS\
 and \SUNOS\ platforms, so do not use this function for portable
 documents.
@@ -4912,8 +4912,8 @@ any more since version 0.38).  There is no error checking yet!
 <boolean> skippable = node.protrusion_skippable(<node> n)
 \stopfunctioncall
 
-Returns \type{true} if this node can be skipped for glyph protrusion
-line boundary discovery.
+Returns \type{true} if, for the purpose of line boundary discovery
+when character protrusion is active, this node can be skipped.
 
 \subsection{Attribute handling}
 
@@ -5823,35 +5823,35 @@ assigning to a temporary variable:
 tex.box[0] = node.copy_list(tex.box[2])
 \stoptyping
 
-{\bf note: In previous versions of \LUATEX\ there were also three
-virtual tables called \type{tex.wd}, \type{tex.ht}, and \type{tex.dp}
-along with an associated function call interface. These were
-removed in version 0.63. You should switch to using \type{tex.box[].width}
-etc. instead.}
-
-If for some reason you want the functionality of these tables back,
-you can add \LUA\ code to do that for you, like this:
-
-\starttyping
-local box = tex.box
-
-local wd = {
-    __index    = function(t,k)   local bk = box[k] return bk and bk.width or 0 end,
-    __newindex = function(t,k,v) local bk = box[k] if bk then bk.width = v end end,
-}
-local ht = {
-    __index    = function(t,k)   local bk = box[k] return bk and bk.height or 0 end,
-    __newindex = function(t,k,v) local bk = box[k] if bk then bk.height = v end end,
-}
-local dp = {
-    __index    = function(t,k)   local bk = box[k] return bk and bk.depth or 0 end,
-    __newindex = function(t,k,v) local bk = box[k] if bk then bk.depth = v end end,
-}
-
-tex.wd = { } setmetatable(tex.wd,wd)
-tex.ht = { } setmetatable(tex.ht,ht)
-tex.dp = { } setmetatable(tex.dp,dp)
-\stoptyping
+%{\bf note: In previous versions of \LUATEX\ there were also three
+%virtual tables called \type{tex.wd}, \type{tex.ht}, and \type{tex.dp}
+%along with an associated function call interface. These were
+%removed in version 0.63. You should switch to using \type{tex.box[].width}
+%etc. instead.}
+%
+%If for some reason you want the functionality of these tables back,
+%you can add \LUA\ code to do that for you, like this:
+%
+%\starttyping
+%local box = tex.box
+%
+%local wd = {
+%    __index    = function(t,k)   local bk = box[k] return bk and bk.width or 0 end,
+%    __newindex = function(t,k,v) local bk = box[k] if bk then bk.width = v end end,
+%}
+%local ht = {
+%    __index    = function(t,k)   local bk = box[k] return bk and bk.height or 0 end,
+%    __newindex = function(t,k,v) local bk = box[k] if bk then bk.height = v end end,
+%}
+%local dp = {
+%    __index    = function(t,k)   local bk = box[k] return bk and bk.depth or 0 end,
+%    __newindex = function(t,k,v) local bk = box[k] if bk then bk.depth = v end end,
+%}
+%
+%tex.wd = { } setmetatable(tex.wd,wd)
+%tex.ht = { } setmetatable(tex.ht,ht)
+%tex.dp = { } setmetatable(tex.dp,dp)
+%\stoptyping
 
 
 \subsection{Math parameters}
@@ -6012,11 +6012,10 @@ If there is a table argument instead of a list of strings, this has to
 be a consecutive array of strings to print (the first non-string value
 will stop the printing process).  This syntax was added in 0.36.
 
-
 The optional parameter can be used to print the strings using the
 catcode regime defined by \tex{catcodetable}~\type{n}. If \type{n} is
 $-1$, the currently active catcode regime is used. If \type{n} is
-$-2$, the resulting catcodes are the result of \type{\the}: all
+$-2$, the resulting catcodes are the result of \type{\the\toks}: all
 category codes are 12 (other) except for the space character, that has
 category code 10 (space). Otherwise, if \type{n} is not
 a valid catcode table, then it is ignored, and the currently
