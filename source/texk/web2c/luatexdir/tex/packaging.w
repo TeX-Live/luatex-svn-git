@@ -529,7 +529,7 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
             case ins_node:
             case mark_node:
             case adjust_node:
-                if (adjust_tail != null) {
+                if (adjust_tail != null || pre_adjust_tail != null) {
                     /* Transfer node |p| to the adjustment list */
                     /*
                        Although node |q| is not necessarily the immediate predecessor of node |p|,

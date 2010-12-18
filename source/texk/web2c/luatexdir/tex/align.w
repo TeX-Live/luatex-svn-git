@@ -239,12 +239,14 @@ static void push_alignment(void)
     vlink(p + 5) = cur_pre_tail;
     align_ptr = p;
     cur_head = new_node(temp_node, 0);
+    cur_pre_head = new_node(temp_node, 0);
 }
 
 static void pop_alignment(void)
 {
     pointer p;                  /* the top alignment stack node */
     flush_node(cur_head);
+    flush_node(cur_pre_head);
     p = align_ptr;
     cur_pre_tail = vlink(p + 5);
     cur_pre_head = vinfo(p + 5);
