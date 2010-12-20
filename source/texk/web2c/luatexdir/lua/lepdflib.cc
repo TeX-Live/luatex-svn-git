@@ -1026,6 +1026,29 @@ static const struct luaL_Reg Links_m[] = {
 //**********************************************************************
 // Object
 
+// Special type checking.
+#define m_Object_isType(function)                                          \
+static int m_Object_##function(lua_State * L)                              \
+{                                                                          \
+    udstruct *uin;                                                         \
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);                    \
+    if (uin->pd != NULL && uin->pd->pc != uin->pc)                         \
+        pdfdoc_changed_error(L);                                           \
+    if (lua_gettop(L) >= 2) {                                              \
+        if (lua_isstring(L, 2)                                             \
+            && ((Object *) uin->d)->function((char *) lua_tostring(L, 2))) \
+            lua_pushboolean(L, 1);                                         \
+        else                                                               \
+            lua_pushboolean(L, 0);                                         \
+    } else {                                                               \
+        if (((Object *) uin->d)->function())                               \
+            lua_pushboolean(L, 1);                                         \
+        else                                                               \
+            lua_pushboolean(L, 0);                                         \
+    }                                                                      \
+    return 1;                                                              \
+}
+
 static int m_Object_initBool(lua_State * L)
 {
     udstruct *uin;
@@ -1033,7 +1056,7 @@ static int m_Object_initBool(lua_State * L)
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
     luaL_checktype(L, 2, LUA_TBOOLEAN);
-    if (((Object *) uin->d)->getBool())
+    if (lua_toboolean(L, 2) != 0)
         ((Object *) uin->d)->initBool(gTrue);
     else
         ((Object *) uin->d)->initBool(gFalse);
@@ -1240,20 +1263,16 @@ m_poppler_get_BOOL(Object, isInt);
 m_poppler_get_BOOL(Object, isReal);
 m_poppler_get_BOOL(Object, isNum);
 m_poppler_get_BOOL(Object, isString);
-m_poppler_get_BOOL(Object, isName);
+m_Object_isType(isName);
 m_poppler_get_BOOL(Object, isNull);
 m_poppler_get_BOOL(Object, isArray);
-m_poppler_get_BOOL(Object, isDict);
-m_poppler_get_BOOL(Object, isStream);
+m_Object_isType(isDict);
+m_Object_isType(isStream);
 m_poppler_get_BOOL(Object, isRef);
-m_poppler_get_BOOL(Object, isCmd);
+m_Object_isType(isCmd);
 m_poppler_get_BOOL(Object, isError);
 m_poppler_get_BOOL(Object, isEOF);
 m_poppler_get_BOOL(Object, isNone);
-// isName
-// isDict
-// isStream
-// isCmd
 
 static int m_Object_getBool(lua_State * L)
 {
