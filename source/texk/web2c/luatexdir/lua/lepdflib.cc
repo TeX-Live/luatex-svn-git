@@ -1583,6 +1583,24 @@ static int m_Object_dictAdd(lua_State * L)
     return 0;
 }
 
+static int m_Object_dictSet(lua_State * L)
+{
+    const char *s;
+    udstruct *uin, *uobj;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    s = luaL_checkstring(L, 2);
+    uobj = (udstruct *) luaL_checkudata(L, 3, M_Object);
+    if (uin->pd != NULL && uobj->pd != NULL && uin->pd != uobj->pd)
+        pdfdoc_differs_error(L);
+    if ((uin->pd != NULL && uin->pd->pc != uin->pc)
+        || (uobj->pd != NULL && uobj->pd->pc != uobj->pd->pc))
+        pdfdoc_changed_error(L);
+    if (!((Object *) uin->d)->isDict())
+        luaL_error(L, "Object is not a Dict");
+    ((Object *) uin->d)->dictSet((char *) s, (Object *) uobj->d);
+    return 0;
+}
+
 static int m_Object_dictLookup(lua_State * L)
 {
     const char *s;
@@ -1861,6 +1879,7 @@ static const struct luaL_Reg Object_m[] = {
     {"arrayGetNF", m_Object_arrayGetNF},
     {"dictGetLength", m_Object_dictGetLength},
     {"dictAdd", m_Object_dictAdd},
+    {"dictSet", m_Object_dictSet},
     {"dictLookup", m_Object_dictLookup},
     {"dictLookupNF", m_Object_dictLookupNF},
     {"dictGetKey", m_Object_dictGetKey},
