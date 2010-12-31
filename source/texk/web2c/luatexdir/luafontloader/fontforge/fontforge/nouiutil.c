@@ -31,6 +31,7 @@
 #include <basics.h>
 #include <ustring.h>
 
+__attribute__ ((format(printf, 1, 2)))
 static void NOUI_IError(const char *format,...) {
     va_list ap;
     va_start(ap,format);
@@ -39,6 +40,7 @@ static void NOUI_IError(const char *format,...) {
     va_end(ap);
 }
 
+__attribute__ ((format(printf, 1, 0)))
 static void NOUI__LogError(const char *format,va_list ap) {
     char buffer[400], *str;
     vsnprintf(buffer,sizeof(buffer),format,ap);
@@ -49,6 +51,7 @@ static void NOUI__LogError(const char *format,va_list ap) {
 /*    free(str);*/
 }
 
+__attribute__ ((format(printf, 1, 2)))
 static void NOUI_LogError(const char *format,...) {
     va_list ap;
 
@@ -57,6 +60,7 @@ static void NOUI_LogError(const char *format,...) {
     va_end(ap);
 }
 
+__attribute__ ((format(printf, 2, 3)))
 static void NOUI_post_notice(const char *title,const char *statement,...) {
     va_list ap;
   (void)title;
@@ -65,6 +69,7 @@ static void NOUI_post_notice(const char *title,const char *statement,...) {
     va_end(ap);
 }
 
+__attribute__ ((format(printf, 2, 3)))
 static void NOUI_post_error(const char *title,const char *statement,...) {
     va_list ap;
   (void)title;
