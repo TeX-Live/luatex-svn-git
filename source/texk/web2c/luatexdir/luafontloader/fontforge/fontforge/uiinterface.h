@@ -39,7 +39,6 @@
 struct ui_interface {
    /* The following is used to post a fontforge internal error */
    /* currently it puts up a dlg displaying the error text */
-    __attribute__ ((format(printf, 1, 2)))
     void (*ierror)(const char *fmt,...);
 
    /* The following is a simple dialog to alert the user that s/he has */
@@ -49,20 +48,17 @@ struct ui_interface {
    /*  text of the message. It may contain printf formatting. It may contain */
    /*  newlines to force line breaks -- even if it doesn't contain new lines */
    /*  the routine will wrap the text if a line is too long */
-    __attribute__ ((format(printf, 2, 3)))
     void (*post_error)(const char *title,const char *error,...);
 
    /* The following is used to post a warning message in such a way that it */
    /*  will not impede the user. Currently it creates a little window at the */
    /*  bottom right of the screen and writes successive messages there */
-    __attribute__ ((format(printf, 1, 2)))
     void (*logwarning)(const char *fmt,...);
 
    /* The following is another way to post a warning message in such a way */
    /*  that it will not impede the user. Currently it pops up a little */
    /*  non-modal dlg which vanishes after a minute or two (or if the user */
    /*  dismisses it, of course */
-    __attribute__ ((format(printf, 2, 3)))
     void (*post_warning)(const char *title,const char *statement,...);
 
    /* Occasionally we we be deep in a non-ui routine and we find we must ask */
