@@ -129,10 +129,10 @@ void read_jpg_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
     xfseek(img_file(idict), 0, SEEK_END, img_filepath(idict));
     img_jpg_ptr(idict)->length = xftell(img_file(idict), img_filepath(idict));
     xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
-    if ((int) read2bytes(img_file(idict)) != 0xFFD8)
+    if ((unsigned int) read2bytes(img_file(idict)) != 0xFFD8)
         pdftex_fail("reading JPEG image failed (no JPEG header found)");
     /* currently only true JFIF files allow extracting |img_xres| and |img_yres| */
-    if ((int) read2bytes(img_file(idict)) == 0xFFE0) {  /* check for JFIF */
+    if ((unsigned int) read2bytes(img_file(idict)) == 0xFFE0) { /* check for JFIF */
         (void) read2bytes(img_file(idict));
         for (i = 0; i < 5; i++) {
             if (xgetc(img_file(idict)) != jpg_id[i])
