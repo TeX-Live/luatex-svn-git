@@ -65,19 +65,21 @@ static hdr_struct read_boxhdr(image_dict * idict)
     hdr.tbox = read4bytes(img_file(idict));
     if (hdr.lbox == 1)
         hdr.lbox = read8bytes(img_file(idict));
-    if (hdr.lbox == 0)          /* should never happen before Codestream boxes */
+    if (hdr.lbox == 0 && hdr.tbox != BOX_JP2C)
         pdftex_fail("reading JP2 image failed (LBox == 0)");
     return hdr;
 }
 
-static void scan_ihdr(PDF pdf, image_dict * idict, unsigned long epos_s)
+static void scan_ihdr(image_dict * idict, unsigned long epos_s)
 {
     unsigned long epos;
     unsigned int height, width, nc;     /* 1.5.3.1 Image Header box */
     unsigned char bpc, c, unkc, ipr;
-    img_ysize(idict) = height = (int) read4bytes(img_file(idict));
-    img_xsize(idict) = width = (int) read4bytes(img_file(idict));
-    nc = (int) read2bytes(img_file(idict));
+    height = read4bytes(img_file(idict));
+    width = read4bytes(img_file(idict));
+    img_ysize(idict) = (int) height;
+    img_xsize(idict) = (int) width;
+    nc = read2bytes(img_file(idict));
     bpc = (unsigned char) xgetc(img_file(idict));
     c = (unsigned char) xgetc(img_file(idict));
     unkc = (unsigned char) xgetc(img_file(idict));
@@ -89,7 +91,7 @@ static void scan_ihdr(PDF pdf, image_dict * idict, unsigned long epos_s)
 
 /* Resolution scanning is work in progress */
 
-static void scan_resc(PDF pdf, image_dict * idict, unsigned long epos_s)
+static void scan_resc(image_dict * idict, unsigned long epos_s)
 {
     unsigned long epos;
     unsigned int vrcn, vrcd, hrcn, hrcd;        /* 1.5.3.7.1 Capture Resolution box */
@@ -105,7 +107,7 @@ static void scan_resc(PDF pdf, image_dict * idict, unsigned long epos_s)
         pdftex_fail("reading JP2 image failed (resc box size inconsistent)");
 }
 
-static void scan_resd(PDF pdf, image_dict * idict, unsigned long epos_s)
+static void scan_resd(image_dict * idict, unsigned long epos_s)
 {
     unsigned long epos;
     unsigned int vrdn, vrdd, hrdn, hrdd;        /* 1.5.3.7.2 Default Display Resolution box */
@@ -121,7 +123,7 @@ static void scan_resd(PDF pdf, image_dict * idict, unsigned long epos_s)
         pdftex_fail("reading JP2 image failed (resd box size inconsistent)");
 }
 
-static void scan_res(PDF pdf, image_dict * idict, unsigned long epos_s)
+static void scan_res(image_dict * idict, unsigned long epos_s)
 {
     hdr_struct hdr;
     unsigned long spos, epos;
@@ -132,10 +134,10 @@ static void scan_res(PDF pdf, image_dict * idict, unsigned long epos_s)
         epos = spos + hdr.lbox;
         switch (hdr.tbox) {
         case (BOX_RESC):
-            scan_resc(pdf, idict, epos);
+            scan_resc(idict, epos);
             break;
         case (BOX_RESD):
-            scan_resd(pdf, idict, epos);
+            scan_resd(idict, epos);
             break;
         default:;
         }
@@ -143,13 +145,13 @@ static void scan_res(PDF pdf, image_dict * idict, unsigned long epos_s)
             pdftex_fail("reading JP2 image failed (res box size inconsistent)");
         if (epos == epos_s)
             break;
-        xfseek(img_file(idict), epos, SEEK_SET, img_filepath(idict));
+        xfseek(img_file(idict), (long int) epos, SEEK_SET, img_filepath(idict));
     }
 }
 
-static int scan_jp2h(PDF pdf, image_dict * idict, unsigned long epos_s)
+static boolean scan_jp2h(image_dict * idict, unsigned long epos_s)
 {
-    int ihdr_found = 0;
+    boolean ihdr_found = false;
     hdr_struct hdr;
     unsigned long spos, epos;
     epos = xftell(img_file(idict), img_filepath(idict));
@@ -159,11 +161,11 @@ static int scan_jp2h(PDF pdf, image_dict * idict, unsigned long epos_s)
         epos = spos + hdr.lbox;
         switch (hdr.tbox) {
         case (BOX_IHDR):
-            scan_ihdr(pdf, idict, epos);
-            ihdr_found = 1;
+            scan_ihdr(idict, epos);
+            ihdr_found = true;
             break;
         case (BOX_RES):
-            scan_res(pdf, idict, epos);
+            scan_res(idict, epos);
             break;
         default:;
         }
@@ -172,7 +174,7 @@ static int scan_jp2h(PDF pdf, image_dict * idict, unsigned long epos_s)
                 ("reading JP2 image failed (jp2h box size inconsistent)");
         if (epos == epos_s)
             break;
-        xfseek(img_file(idict), epos, SEEK_SET, img_filepath(idict));
+        xfseek(img_file(idict), (long int) epos, SEEK_SET, img_filepath(idict));
     }
     return ihdr_found;
 }
@@ -190,7 +192,7 @@ static void close_and_cleanup_jp2(image_dict * idict)
 
 void read_jp2_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
 {
-    int ihdr_found = 0;
+    boolean ihdr_found = false;
     hdr_struct hdr;
     unsigned long spos, epos;
     assert(img_type(idict) == IMG_TYPE_JP2);
@@ -202,7 +204,8 @@ void read_jp2_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
     assert(img_jp2_ptr(idict) == NULL);
     img_jp2_ptr(idict) = xtalloc(1, jp2_img_struct);
     xfseek(img_file(idict), 0, SEEK_END, img_filepath(idict));
-    img_jp2_ptr(idict)->length = xftell(img_file(idict), img_filepath(idict));
+    img_jp2_ptr(idict)->length =
+        (int) xftell(img_file(idict), img_filepath(idict));
     xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
 
     assert(sizeof(unsigned long) >= 8);
@@ -212,7 +215,7 @@ void read_jp2_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
     hdr = read_boxhdr(idict);
     assert(hdr.tbox == BOX_JP); /* has already been checked */
     epos = spos + hdr.lbox;
-    xfseek(img_file(idict), epos, SEEK_SET, img_filepath(idict));
+    xfseek(img_file(idict), (long int) epos, SEEK_SET, img_filepath(idict));
 
     /* 1.5.2 File Type box */
     spos = epos;
@@ -220,23 +223,23 @@ void read_jp2_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
     if (hdr.tbox != BOX_FTYP)
         pdftex_fail("reading JP2 image failed (missing ftyp box)");
     epos = spos + hdr.lbox;
-    xfseek(img_file(idict), epos, SEEK_SET, img_filepath(idict));
+    xfseek(img_file(idict), (long int) epos, SEEK_SET, img_filepath(idict));
 
-    while (ihdr_found == 0) {
+    while (!ihdr_found) {
         spos = epos;
         hdr = read_boxhdr(idict);
         epos = spos + hdr.lbox;
         switch (hdr.tbox) {
         case BOX_JP2H:
-            ihdr_found = scan_jp2h(pdf, idict, epos);
+            ihdr_found = scan_jp2h(idict, epos);
             break;
         case BOX_JP2C:
-            if (ihdr_found == 0)
+            if (!ihdr_found)
                 pdftex_fail("reading JP2 image failed (no ihdr box found)");
             break;
         default:;
         }
-        xfseek(img_file(idict), epos, SEEK_SET, img_filepath(idict));
+        xfseek(img_file(idict), (long int) epos, SEEK_SET, img_filepath(idict));
     }
     if (readtype == IMG_CLOSEINBETWEEN)
         close_and_cleanup_jp2(idict);
@@ -271,7 +274,8 @@ void write_jp2(PDF pdf, image_dict * idict)
                (int) img_xsize(idict),
                (int) img_ysize(idict), (int) img_jp2_ptr(idict)->length);
     pdf_puts(pdf, "/Filter /JPXDecode\n>>\nstream\n");
-    for (l = img_jp2_ptr(idict)->length, f = img_file(idict); l > 0; l--)
+    for (l = (long unsigned int) img_jp2_ptr(idict)->length, f =
+         img_file(idict); l > 0; l--)
         pdf_out(pdf, xgetc(f));
     pdf_end_stream(pdf);
     close_and_cleanup_jp2(idict);
