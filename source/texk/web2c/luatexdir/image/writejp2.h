@@ -1,7 +1,7 @@
-/* writejbig2.h
+/* writejpx.h
 
-   Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2011 Taco Hoekwater <taco@luatex.org>
+   Copyright 2011 Hartmut Henkel <hartmut@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -20,16 +20,12 @@
 
 /* $Id$ */
 
-#ifndef WRITEJBIG2_H
-#  define WRITEJBIG2_H
+#ifndef WRITEJPX_H
+#  define WRITEJPX_H
 
 #  include "image.h"
 
-unsigned int read2bytes(FILE * f);
-unsigned int read4bytes(FILE * f);
+void read_jp2_info(PDF, image_dict *, img_readtype_e);
+void write_jp2(PDF, image_dict *);
 
-void flush_jbig2_page0_objects(PDF);
-void read_jbig2_info(image_dict *);
-void write_jbig2(PDF, image_dict *);
-
-#endif                          /* WRITEJBIG"_H */
+#endif                          /* WRITEJPX_H */

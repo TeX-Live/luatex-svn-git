@@ -97,14 +97,17 @@ writejbig2.c: ctangle$(EXEEXT) luatexdir/image/writejbig2.w
 	$(luatex_image_ctangle) writejbig2.w
 writejpg.c: ctangle$(EXEEXT) luatexdir/image/writejpg.w
 	$(luatex_image_ctangle) writejpg.w
+writejp2.c: ctangle$(EXEEXT) luatexdir/image/writejp2.w
+	$(luatex_image_ctangle) writejp2.w
 writepng.c: ctangle$(EXEEXT) luatexdir/image/writepng.w
 	$(luatex_image_ctangle) writepng.w
 
 libluatex_web += luatexdir/image/epdf.w luatexdir/image/writeimg.w
-libluatex_web += luatexdir/image/writejbig2.w luatexdir/image/writejpg.w luatexdir/image/writepng.w
+libluatex_web += luatexdir/image/writejbig2.w
+libluatex_web += luatexdir/image/writejpg.w luatexdir/image/writejp2.w
+libluatex_web += luatexdir/image/writepng.w
 
-nodist_libluatex_a_SOURCES += epdf.c writeimg.c writejbig2.c writejpg.c writepng.c 
-
+nodist_libluatex_a_SOURCES += epdf.c writeimg.c writejbig2.c writejpg.c writejp2.c writepng.c 
 
 luatex_lua_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/lua $(ctangle)
 
@@ -526,6 +529,7 @@ libluatex_a_SOURCES = \
 	luatexdir/image/writeimg.h \
 	luatexdir/image/writejbig2.h \
 	luatexdir/image/writejpg.h \
+	luatexdir/image/writejp2.h \
 	luatexdir/image/writepng.h \
 	luatexdir/lang/hnjalloc.h \
 	luatexdir/lang/hyphen.h \

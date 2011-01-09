@@ -3420,8 +3420,8 @@ keys, both user-supplied and automatic ones.
 \NC filepath      \NC string   \NC the full (expanded) file name of the image\NC \NR
 \NC height        \NC number   \NC the image height for \LUATEX\
                                    (in scaled points)\NC \NR
-\NC imagetype     \NC string   \NC one of \type {pdf}, \type {png}, \type {jpg},
-                                   \type {jbig2}, or \type{nil} \NC \NR
+\NC imagetype     \NC string   \NC one of \type{pdf}, \type{png}, \type{jpg}, \type{jp2},
+                                   \type{jbig2}, or \type{nil} \NC \NR
 \NC index         \NC number   \NC the \PDF\ image name suffix \NC \NR
 \NC objnum        \NC number   \NC the \PDF\ image object number \NC \NR
 \NC page          \NC ??       \NC the identifier for the requested image page
@@ -3615,7 +3615,8 @@ node.write(img.node{filename="foo.png"})
 \stopfunctioncall
 
 This function returns a list with the supported image file type names,
-currently these are \type {pdf}, \type {png}, \type {jpg}, and \type {jbig2}.
+currently these are \type{pdf}, \type{png}, \type{jpg}, \type{jp2} (JPEG~2000),
+and \type{jbig2}.
 
 \subsection{\luatex{img.boxes}}
 

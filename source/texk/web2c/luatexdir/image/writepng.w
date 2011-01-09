@@ -42,7 +42,6 @@ static void close_and_cleanup_png(image_dict * idict)
     png_destroy_read_struct(&(img_png_png_ptr(idict)),
                             &(img_png_info_ptr(idict)), NULL);
     xfree(img_png_ptr(idict));
-    img_png_ptr(idict) = NULL;
 }
 
 @ @c

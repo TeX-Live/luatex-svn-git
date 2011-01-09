@@ -347,14 +347,14 @@ static SEGINFO *find_seginfo(LIST * slp, unsigned long segnum)
 }
 
 @ @c
-static unsigned int read2bytes(FILE * f)
+unsigned int read2bytes(FILE * f)
 {
     unsigned int c = (unsigned int) ygetc(f);
     return (c << 8) + (unsigned int) ygetc(f);
 }
 
 @ @c
-static unsigned long read4bytes(FILE * f)
+unsigned int read4bytes(FILE * f)
 {
     unsigned int l = read2bytes(f);
     return (l << 16) + read2bytes(f);
@@ -503,7 +503,7 @@ static boolean readseghdr(FILEINFO * fip, SEGINFO * sip)
     }
     /* 7.2.6 Segment page association */
     if (sip->pageassocsizeflag)
-        sip->segpage = (long int) read4bytes(fip->file);
+        sip->segpage = read4bytes(fip->file);
     else
         sip->segpage = ygetc(fip->file);
     /* 7.2.7 Segment data length */
@@ -683,17 +683,17 @@ static void rd_jbig2_info(FILEINFO * fip)
         /* 7.4.8 Page information segment syntax */
         if (sip->pageinfoflag) {
             pip->pagenum = (unsigned long) sip->segpage;
-            pip->width = (unsigned) read4bytes(fip->file);
-            pip->height = (unsigned) read4bytes(fip->file);
-            pip->xres = (unsigned) read4bytes(fip->file);
-            pip->yres = (unsigned) read4bytes(fip->file);
+            pip->width = read4bytes(fip->file);
+            pip->height = read4bytes(fip->file);
+            pip->xres = read4bytes(fip->file);
+            pip->yres = read4bytes(fip->file);
             pip->pagesegmentflags = (unsigned) ygetc(fip->file);
             /* 7.4.8.6 Page striping information */
             pip->stripinginfo = read2bytes(fip->file);
             seekdist -= 19;
         }
         if (sip->endofstripeflag) {
-            pip->stripedheight = (unsigned) read4bytes(fip->file);
+            pip->stripedheight = read4bytes(fip->file);
             seekdist -= 4;
         }
         if (!fip->sequentialaccess

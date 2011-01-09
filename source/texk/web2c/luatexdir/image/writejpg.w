@@ -101,13 +101,6 @@ typedef enum {                  /* JPEG marker codes                    */
 } JPEG_MARKER;
 
 @ @c
-static JPG_UINT16 read2bytes(FILE * f)
-{
-    int c = xgetc(f);
-    return (JPG_UINT16) ((c << 8) + (int) xgetc(f));
-}
-
-@ @c
 static void close_and_cleanup_jpg(image_dict * idict)
 {
     assert(idict != NULL);
@@ -117,7 +110,6 @@ static void close_and_cleanup_jpg(image_dict * idict)
     img_file(idict) = NULL;
     assert(img_jpg_ptr(idict) != NULL);
     xfree(img_jpg_ptr(idict));
-    img_jpg_ptr(idict) = NULL;
 }
 
 @ @c
@@ -137,17 +129,17 @@ void read_jpg_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
     xfseek(img_file(idict), 0, SEEK_END, img_filepath(idict));
     img_jpg_ptr(idict)->length = xftell(img_file(idict), img_filepath(idict));
     xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
-    if (read2bytes(img_file(idict)) != 0xFFD8)
+    if ((int) read2bytes(img_file(idict)) != 0xFFD8)
         pdftex_fail("reading JPEG image failed (no JPEG header found)");
     /* currently only true JFIF files allow extracting |img_xres| and |img_yres| */
-    if (read2bytes(img_file(idict)) == 0xFFE0) {        /* check for JFIF */
+    if ((int) read2bytes(img_file(idict)) == 0xFFE0) {  /* check for JFIF */
         (void) read2bytes(img_file(idict));
         for (i = 0; i < 5; i++) {
             if (xgetc(img_file(idict)) != jpg_id[i])
                 break;
         }
         if (i == 5) {           /* it's JFIF */
-            read2bytes(img_file(idict));
+            (void) read2bytes(img_file(idict));
             units = xgetc(img_file(idict));
             img_xres(idict) = (int) read2bytes(img_file(idict));
             img_yres(idict) = (int) read2bytes(img_file(idict));
@@ -230,7 +222,7 @@ void read_jpg_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
         case M_RST7:
             break;
         default:               /* skip variable length markers */
-            xfseek(img_file(idict), read2bytes(img_file(idict)) - 2,
+            xfseek(img_file(idict), (int) read2bytes(img_file(idict)) - 2,
                    SEEK_CUR, img_filepath(idict));
             break;
         }
