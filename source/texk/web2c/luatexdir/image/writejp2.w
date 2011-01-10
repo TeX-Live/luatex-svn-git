@@ -190,7 +190,7 @@ static void close_and_cleanup_jp2(image_dict * idict)
     xfree(img_jp2_ptr(idict));
 }
 
-void read_jp2_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
+void read_jp2_info(image_dict * idict, img_readtype_e readtype)
 {
     boolean ihdr_found = false;
     hdr_struct hdr;
@@ -245,14 +245,14 @@ void read_jp2_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
         close_and_cleanup_jp2(idict);
 }
 
-static void reopen_jp2(PDF pdf, image_dict * idict)
+static void reopen_jp2(image_dict * idict)
 {
     int width, height, xres, yres;
     width = img_xsize(idict);
     height = img_ysize(idict);
     xres = img_xres(idict);
     yres = img_yres(idict);
-    read_jp2_info(pdf, idict, IMG_KEEPOPEN);
+    read_jp2_info(idict, IMG_KEEPOPEN);
     if (width != img_xsize(idict) || height != img_ysize(idict)
         || xres != img_xres(idict) || yres != img_yres(idict))
         pdftex_fail("writejp2: image dimensions have changed");
@@ -264,7 +264,7 @@ void write_jp2(PDF pdf, image_dict * idict)
     FILE *f;
     assert(idict != NULL);
     if (img_file(idict) == NULL)
-        reopen_jp2(pdf, idict);
+        reopen_jp2(idict);
     xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
     assert(img_jp2_ptr(idict) != NULL);
     pdf_puts(pdf, "/Type /XObject\n/Subtype /Image\n");

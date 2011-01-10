@@ -25,7 +25,7 @@
 
 #  include "image.h"
 
-void read_jp2_info(PDF, image_dict *, img_readtype_e);
+void read_jp2_info(image_dict *, img_readtype_e);
 void write_jp2(PDF, image_dict *);
 
 #endif                          /* WRITEJPX_H */

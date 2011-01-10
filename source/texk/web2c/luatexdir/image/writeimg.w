@@ -324,7 +324,7 @@ void read_img(PDF pdf,
         read_jpg_info(pdf, idict, IMG_CLOSEINBETWEEN);
         break;
     case IMG_TYPE_JP2:
-        read_jp2_info(pdf, idict, IMG_CLOSEINBETWEEN);
+        read_jp2_info(idict, IMG_CLOSEINBETWEEN);
         break;
     case IMG_TYPE_JBIG2:
         if (minor_version < 4) {
