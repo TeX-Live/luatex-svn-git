@@ -1,4 +1,4 @@
-/* writejpx.h
+/* writejp2.h
 
    Copyright 2011 Taco Hoekwater <taco@luatex.org>
    Copyright 2011 Hartmut Henkel <hartmut@luatex.org>
@@ -20,7 +20,7 @@
 
 /* $Id$ */
 
-#ifndef WRITEJPX_H
+#ifndef WRITEJP2_H
 #  define WRITEJPX_H
 
 #  include "image.h"
@@ -28,4 +28,4 @@
 void read_jp2_info(image_dict *, img_readtype_e);
 void write_jp2(PDF, image_dict *);
 
-#endif                          /* WRITEJPX_H */
+#endif                          /* WRITEJP2_H */

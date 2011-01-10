@@ -28,6 +28,7 @@ Information technology --- JPEG~2000 image coding system: Core coding system.
 ISO/IEC 15444-1, Second edition, 2004-09-15, file |15444-1-annexi.pdf|.
 
 @c
+#include <math.h>
 #include <assert.h>
 #include "ptexlib.h"
 #include "image/image.h"
@@ -46,9 +47,10 @@ ISO/IEC 15444-1, Second edition, 2004-09-15, file |15444-1-annexi.pdf|.
 #define BOX_RESD 0x72657364
 #define BOX_JP2C 0x6A703263
 
+/* 1.4 Box definition */
 typedef struct {
-    unsigned int tbox;          /* 1.4 Box definition */
     unsigned long lbox;
+    unsigned int tbox;
 } hdr_struct;
 
 static unsigned long read8bytes(FILE * f)
@@ -70,10 +72,11 @@ static hdr_struct read_boxhdr(image_dict * idict)
     return hdr;
 }
 
+/* 1.5.3.1 Image Header box */
 static void scan_ihdr(image_dict * idict, unsigned long epos_s)
 {
     unsigned long epos;
-    unsigned int height, width, nc;     /* 1.5.3.1 Image Header box */
+    unsigned int height, width, nc;
     unsigned char bpc, c, unkc, ipr;
     height = read4bytes(img_file(idict));
     width = read4bytes(img_file(idict));
@@ -81,6 +84,7 @@ static void scan_ihdr(image_dict * idict, unsigned long epos_s)
     img_xsize(idict) = (int) width;
     nc = read2bytes(img_file(idict));
     bpc = (unsigned char) xgetc(img_file(idict));
+    img_colordepth(idict) = bpc + 1;
     c = (unsigned char) xgetc(img_file(idict));
     unkc = (unsigned char) xgetc(img_file(idict));
     ipr = (unsigned char) xgetc(img_file(idict));
@@ -89,40 +93,26 @@ static void scan_ihdr(image_dict * idict, unsigned long epos_s)
         pdftex_fail("reading JP2 image failed (ihdr box size inconsistent)");
 }
 
-/* Resolution scanning is work in progress */
-
-static void scan_resc(image_dict * idict, unsigned long epos_s)
+/* 1.5.3.7.1 Capture Resolution box */
+/* 1.5.3.7.2 Default Display Resolution box */
+static void scan_resolution(image_dict * idict)
 {
-    unsigned long epos;
-    unsigned int vrcn, vrcd, hrcn, hrcd;        /* 1.5.3.7.1 Capture Resolution box */
-    unsigned char vrce, hrce;
-    vrcn = read2bytes(img_file(idict));
-    vrcd = read2bytes(img_file(idict));
-    hrcn = read2bytes(img_file(idict));
-    hrcd = read2bytes(img_file(idict));
-    vrce = (unsigned char) xgetc(img_file(idict));
-    hrce = (unsigned char) xgetc(img_file(idict));
-    epos = xftell(img_file(idict), img_filepath(idict));
-    if (epos != epos_s)
-        pdftex_fail("reading JP2 image failed (resc box size inconsistent)");
+    unsigned int vr_n, vr_d, hr_n, hr_d;
+    unsigned char vr_e, hr_e;
+    double hr_, vr_;
+    vr_n = read2bytes(img_file(idict));
+    vr_d = read2bytes(img_file(idict));
+    hr_n = read2bytes(img_file(idict));
+    hr_d = read2bytes(img_file(idict));
+    vr_e = (unsigned char) xgetc(img_file(idict));
+    hr_e = (unsigned char) xgetc(img_file(idict));
+    hr_ = ((double) hr_n / hr_d) * exp(hr_e * log(10.0)) * 0.0254;
+    vr_ = ((double) vr_n / vr_d) * exp(vr_e * log(10.0)) * 0.0254;
+    img_xres(idict) = (int) (hr_ + 0.5);
+    img_yres(idict) = (int) (vr_ + 0.5);
 }
 
-static void scan_resd(image_dict * idict, unsigned long epos_s)
-{
-    unsigned long epos;
-    unsigned int vrdn, vrdd, hrdn, hrdd;        /* 1.5.3.7.2 Default Display Resolution box */
-    unsigned char vrde, hrde;
-    vrdn = read2bytes(img_file(idict));
-    vrdd = read2bytes(img_file(idict));
-    hrdn = read2bytes(img_file(idict));
-    hrdd = read2bytes(img_file(idict));
-    vrde = (unsigned char) xgetc(img_file(idict));
-    hrde = (unsigned char) xgetc(img_file(idict));
-    epos = xftell(img_file(idict), img_filepath(idict));
-    if (epos != epos_s)
-        pdftex_fail("reading JP2 image failed (resd box size inconsistent)");
-}
-
+/* 1.5.3.7 Resolution box (superbox) */
 static void scan_res(image_dict * idict, unsigned long epos_s)
 {
     hdr_struct hdr;
@@ -130,14 +120,18 @@ static void scan_res(image_dict * idict, unsigned long epos_s)
     epos = xftell(img_file(idict), img_filepath(idict));
     while (1) {
         spos = epos;
-        hdr = read_boxhdr(idict);       /* 1.5.3.7 Resolution box (superbox) */
+        hdr = read_boxhdr(idict);
         epos = spos + hdr.lbox;
         switch (hdr.tbox) {
         case (BOX_RESC):
-            scan_resc(idict, epos);
+            /* arbitrarily: let scan_resd() have precedence */
+            if (img_xres(idict) == 0 && img_yres(idict) == 0)
+                scan_resolution(idict);
+            assert(xftell(img_file(idict), img_filepath(idict)) == epos);
             break;
         case (BOX_RESD):
-            scan_resd(idict, epos);
+            scan_resolution(idict);
+            assert(xftell(img_file(idict), img_filepath(idict)) == epos);
             break;
         default:;
         }
@@ -149,6 +143,7 @@ static void scan_res(image_dict * idict, unsigned long epos_s)
     }
 }
 
+/* 1.5.3 JP2 Header box (superbox) */
 static boolean scan_jp2h(image_dict * idict, unsigned long epos_s)
 {
     boolean ihdr_found = false;
@@ -157,7 +152,7 @@ static boolean scan_jp2h(image_dict * idict, unsigned long epos_s)
     epos = xftell(img_file(idict), img_filepath(idict));
     while (1) {
         spos = epos;
-        hdr = read_boxhdr(idict);       /* 1.5.3 JP2 Header box (superbox) */
+        hdr = read_boxhdr(idict);
         epos = spos + hdr.lbox;
         switch (hdr.tbox) {
         case (BOX_IHDR):
