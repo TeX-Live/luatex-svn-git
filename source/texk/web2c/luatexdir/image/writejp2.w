@@ -35,7 +35,8 @@ ISO/IEC 15444-1, Second edition, 2004-09-15, file |15444-1-annexi.pdf|.
 #include "image/writejp2.h"
 #include "image/writejbig2.h"   /* read2bytes(), read4bytes() */
 
-#define BOX_JP   0x6A502020     /* Table 1.2 -- Defined boxes */
+/* Table 1.2 -- Defined boxes */
+#define BOX_JP   0x6A502020
 #define BOX_FTYP 0x66747970
 #define BOX_JP2H 0x6a703268
 #define BOX_IHDR 0x69686472
@@ -73,9 +74,8 @@ static hdr_struct read_boxhdr(image_dict * idict)
 }
 
 /* 1.5.3.1 Image Header box */
-static void scan_ihdr(image_dict * idict, unsigned long epos_s)
+static void scan_ihdr(image_dict * idict)
 {
-    unsigned long epos;
     unsigned int height, width, nc;
     unsigned char bpc, c, unkc, ipr;
     height = read4bytes(img_file(idict));
@@ -88,14 +88,11 @@ static void scan_ihdr(image_dict * idict, unsigned long epos_s)
     c = (unsigned char) xgetc(img_file(idict));
     unkc = (unsigned char) xgetc(img_file(idict));
     ipr = (unsigned char) xgetc(img_file(idict));
-    epos = xftell(img_file(idict), img_filepath(idict));
-    if (epos != epos_s)
-        pdftex_fail("reading JP2 image failed (ihdr box size inconsistent)");
 }
 
 /* 1.5.3.7.1 Capture Resolution box */
 /* 1.5.3.7.2 Default Display Resolution box */
-static void scan_resolution(image_dict * idict)
+static void scan_resc_resd(image_dict * idict)
 {
     unsigned int vr_n, vr_d, hr_n, hr_d;
     unsigned char vr_e, hr_e;
@@ -124,14 +121,19 @@ static void scan_res(image_dict * idict, unsigned long epos_s)
         epos = spos + hdr.lbox;
         switch (hdr.tbox) {
         case (BOX_RESC):
-            /* arbitrarily: let scan_resd() have precedence */
-            if (img_xres(idict) == 0 && img_yres(idict) == 0)
-                scan_resolution(idict);
-            assert(xftell(img_file(idict), img_filepath(idict)) == epos);
+            /* arbitrarily: let BOX_RESD have precedence */
+            if (img_xres(idict) == 0 && img_yres(idict) == 0) {
+                scan_resc_resd(idict);
+                if (xftell(img_file(idict), img_filepath(idict)) != epos)
+                    pdftex_fail
+                        ("reading JP2 image failed (resc box size inconsistent)");
+            }
             break;
         case (BOX_RESD):
-            scan_resolution(idict);
-            assert(xftell(img_file(idict), img_filepath(idict)) == epos);
+            scan_resc_resd(idict);
+            if (xftell(img_file(idict), img_filepath(idict)) != epos)
+                pdftex_fail
+                    ("reading JP2 image failed (resd box size inconsistent)");
             break;
         default:;
         }
@@ -156,7 +158,10 @@ static boolean scan_jp2h(image_dict * idict, unsigned long epos_s)
         epos = spos + hdr.lbox;
         switch (hdr.tbox) {
         case (BOX_IHDR):
-            scan_ihdr(idict, epos);
+            scan_ihdr(idict);
+            if (xftell(img_file(idict), img_filepath(idict)) != epos)
+                pdftex_fail
+                    ("reading JP2 image failed (ihdr box size inconsistent)");
             ihdr_found = true;
             break;
         case (BOX_RES):
