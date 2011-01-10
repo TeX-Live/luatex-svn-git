@@ -89,8 +89,6 @@ nodist_libluatex_a_SOURCES += writetype0.c writetype2.c
 
 luatex_image_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/image $(ctangle)
 
-epdf.c: ctangle$(EXEEXT) luatexdir/image/epdf.w
-	$(luatex_image_ctangle) epdf.w
 writeimg.c: ctangle$(EXEEXT) luatexdir/image/writeimg.w
 	$(luatex_image_ctangle) writeimg.w
 writejbig2.c: ctangle$(EXEEXT) luatexdir/image/writejbig2.w
@@ -102,12 +100,12 @@ writejp2.c: ctangle$(EXEEXT) luatexdir/image/writejp2.w
 writepng.c: ctangle$(EXEEXT) luatexdir/image/writepng.w
 	$(luatex_image_ctangle) writepng.w
 
-libluatex_web += luatexdir/image/epdf.w luatexdir/image/writeimg.w
+libluatex_web += luatexdir/image/writeimg.w
 libluatex_web += luatexdir/image/writejbig2.w
 libluatex_web += luatexdir/image/writejpg.w luatexdir/image/writejp2.w
 libluatex_web += luatexdir/image/writepng.w
 
-nodist_libluatex_a_SOURCES += epdf.c writeimg.c writejbig2.c writejpg.c writejp2.c writepng.c 
+nodist_libluatex_a_SOURCES += writeimg.c writejbig2.c writejpg.c writejp2.c writepng.c 
 
 luatex_lua_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/lua $(ctangle)
 

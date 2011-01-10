@@ -96,14 +96,11 @@ extern "C" {
     /* pdftables.c */
     extern int pdf_new_objnum(PDF);
 
-    /* epdf.c */
-    extern void epdf_free(void);
-
     /* pdftoepdf.cc */
     extern void read_pdf_info(image_dict *, int, int, img_readtype_e);
     extern void write_epdf(PDF, image_dict *);
     extern void unrefPdfDocument(char *);
-    extern void epdf_check_mem(void);
+    extern void epdf_free(void);
 
     /* utils.c */
     __attribute__ ((format(printf, 1, 2)))

@@ -890,7 +890,7 @@ void unrefPdfDocument(char *file_path)
 // Called when PDF embedding system is finalized.
 // Now deallocate all remaining PdfDocuments.
 
-void epdf_check_mem()
+void epdf_free()
 {
     if (PdfDocumentTree != NULL)
         avl_destroy(PdfDocumentTree, destroyPdfDocument);

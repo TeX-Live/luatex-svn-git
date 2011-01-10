@@ -71,7 +71,6 @@ font/tfmofm.o \
 font/vfovf.o \
 font/luafont.o \
 font/dofont.o \
-image/epdf.o \
 image/pdftoepdf.o \
 image/writeimg.o \
 image/writejbig2.o \
