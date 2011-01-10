@@ -13,7 +13,8 @@
 #      --host=     : target system for mingw32 cross-compilation
 #      --build=    : build system for mingw32 cross-compilation
 #      --arch=     : crosscompile for ARCH on OS X
-      
+$DEBUG
+
 # try to find bash, in case the standard shell is not capable of
 # handling the generated configure's += variable assignments
 if which bash >/dev/null
@@ -43,8 +44,9 @@ MINGWCROSS=FALSE
 CONFHOST=
 CONFBUILD=
 MACCROSS=FALSE
-JOBS_IF_PARALLEL=2
-MAX_LOAD_IF_PARALLEL=3.0
+JOBS_IF_PARALLEL=${JOBS_IF_PARALLEL:-3}
+MAX_LOAD_IF_PARALLEL=${MAX_LOAD_IF_PARALLEL:-2}
+exit 0
 
 CFLAGS="$CFLAGS -Wdeclaration-after-statement"
 
