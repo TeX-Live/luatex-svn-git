@@ -21,7 +21,7 @@
 /* $Id$ */
 
 #ifndef WRITEJP2_H
-#  define WRITEJPX_H
+#  define WRITEJP2_H
 
 #  include "image.h"
 
