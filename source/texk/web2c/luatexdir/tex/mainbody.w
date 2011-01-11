@@ -443,7 +443,7 @@ void main_body(void)
     if (pdf_output_option != 0)
         int_par(pdf_output_code) = pdf_output_value;
     if (pdf_draftmode_option != 0)
-        int_par(pdf_draftmode_code) = pdf_draftmode_value;
+        pdf_draftmode = static_pdf->draftmode = pdf_draftmode_value;
     pdf_init_map_file((char *) pdftex_map);
     if (end_line_char_inactive())
         decr(ilimit);
