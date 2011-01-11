@@ -70,7 +70,7 @@ well.
 #  define obj_info(pdf,A)   pdf->obj_tab[(A)].u.int0    /* information representing identifier of this object */
 #  define obj_start(pdf,A)  pdf->obj_tab[(A)].u.str0
 #  define obj_link(pdf,A)   pdf->obj_tab[(A)].int1      /* link to the next entry in linked list */
-#  define obj_offset(pdf,A) pdf->obj_tab[(A)].int2      /* negative (flags), or byte offset for this object in PDF 
+#  define obj_offset(pdf,A) pdf->obj_tab[(A)].int2      /* negative (flags), or byte offset for this object in PDF
                                                            output file, or object stream number for this object */
 #  define obj_os_idx(pdf,A) pdf->obj_tab[(A)].int3      /* index of this object in object stream */
 #  define obj_aux(pdf,A)    pdf->obj_tab[(A)].v.int4    /* auxiliary pointer */
@@ -92,7 +92,7 @@ well.
 #  define is_obj_scheduled(pdf,A)   (intcast(obj_offset(pdf,A))>-2)
 #  define is_obj_written(pdf,A)     (intcast(obj_offset(pdf,A))>-1)
 
-/*  NOTE: The data structure definitions for the nodes on the typesetting side are 
+/*  NOTE: The data structure definitions for the nodes on the typesetting side are
     inside |nodes.h| */
 
 /* Some constants */
@@ -119,21 +119,23 @@ extern void undump_pdftex_data(PDF pdf);
 #  define set_depth(A, B) depth(A) = (B)
 
 /* interface definitions for eqtb locations */
-#  define pdf_minor_version        int_par(pdf_minor_version_code)
+#  define pdf_compress_level       int_par(pdf_compress_level_code)
 #  define pdf_decimal_digits       int_par(pdf_decimal_digits_code)
+#  define pdf_draftmode            int_par(pdf_draftmode_code)
 #  define pdf_gamma                int_par(pdf_gamma_code)
+#  define pdf_gen_tounicode        int_par(pdf_gen_tounicode_code)
+#  define pdf_image_apply_gamma    int_par(pdf_image_apply_gamma_code)
 #  define pdf_image_gamma          int_par(pdf_image_gamma_code)
 #  define pdf_image_hicolor        int_par(pdf_image_hicolor_code)
-#  define pdf_image_apply_gamma    int_par(pdf_image_apply_gamma_code)
-#  define pdf_objcompresslevel     int_par(pdf_objcompresslevel_code)
-#  define pdf_draftmode            int_par(pdf_draftmode_code)
 #  define pdf_inclusion_copy_font  int_par(pdf_inclusion_copy_font_code)
 #  define pdf_inclusion_errorlevel int_par(pdf_inclusion_errorlevel_code)
-#  define pdf_replace_font         int_par(pdf_replace_font_code)
-#  define pdf_pk_resolution        int_par(pdf_pk_resolution_code)
-#  define pdf_pk_mode              equiv(pdf_pk_mode_loc)
-#  define pdf_unique_resname       int_par(pdf_unique_resname_code)
-#  define pdf_compress_level       int_par(pdf_compress_level_code)
+#  define pdf_minor_version        int_par(pdf_minor_version_code)
 #  define pdf_move_chars           int_par(pdf_move_chars_code)
+#  define pdf_objcompresslevel     int_par(pdf_objcompresslevel_code)
+#  define pdf_output               int_par(pdf_output_code)
+#  define pdf_pk_mode              equiv(pdf_pk_mode_loc)
+#  define pdf_pk_resolution        int_par(pdf_pk_resolution_code)
+#  define pdf_replace_font         int_par(pdf_replace_font_code)
+#  define pdf_unique_resname       int_par(pdf_unique_resname_code)
 
-#endif
+#endif                          /* PDFTABLES_H */

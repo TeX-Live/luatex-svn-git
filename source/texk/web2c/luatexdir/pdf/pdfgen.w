@@ -164,8 +164,6 @@ int pdf_get_mem(PDF pdf, int s)
 the backend, be it \.{PDF}, \.{DVI}, or \.{Lua}.
 
 @c
-#define pdf_output int_par(pdf_output_code)
-
 void fix_o_mode(PDF pdf)
 {
     static int fixed_pdf_output = 0;
@@ -210,10 +208,10 @@ void fix_pdf_minorversion(PDF pdf)
         pdf->minor_version = pdf_minor_version;
     } else {
         /* Check that variables for \.{PDF} output are unchanged */
-        if (pdf->minor_version != int_par(pdf_minor_version_code))
+        if (pdf->minor_version != pdf_minor_version)
             pdf_error("setup",
                       "\\pdfminorversion cannot be changed after data is written to the PDF file");
-        if (pdf->draftmode != int_par(pdf_draftmode_code))
+        if (pdf->draftmode != pdf_draftmode)
             pdf_error("setup",
                       "\\pdfdraftmode cannot be changed after data is written to the PDF file");
     }
@@ -2071,9 +2069,6 @@ void pdf_end_page(PDF pdf)
 }
 
 @* Finishing the PDF output file. 
-
-@ @c
-#define pdf_gen_tounicode int_par(pdf_gen_tounicode_code)
 
 @ Destinations that have been referenced but don't exists have
 |obj_dest_ptr=null|. Leaving them undefined might cause troubles for
