@@ -162,7 +162,7 @@ int pdf_get_mem(PDF pdf, int s)
 @ |get_o_mode| translates from |pdf_output| to |o_mode|.
 
 @c
-static output_mode get_o_mode(PDF pdf)
+static output_mode get_o_mode()
 {
     output_mode o_mode;
     if (pdf_output > 0) {
@@ -181,7 +181,7 @@ the backend, be it \.{PDF}, \.{DVI}, or \.{Lua}.
 @c
 void fix_o_mode(PDF pdf)
 {
-    output_mode o_mode = get_o_mode(pdf);
+    output_mode o_mode = get_o_mode();
     if (pdf->o_mode == OMODE_NONE)
         pdf->o_mode = o_mode;
     else if (pdf->o_mode != o_mode)
@@ -1649,7 +1649,7 @@ void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
      */
 
     if (pdf->o_mode == OMODE_NONE)
-        o_mode = get_o_mode(pdf);
+        o_mode = get_o_mode();
     else
         o_mode = pdf->o_mode;
     if (!((1 << o_mode) & o_mode_bitpattern)) { /* warning or error */
