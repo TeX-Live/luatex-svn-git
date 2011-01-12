@@ -25,7 +25,7 @@ static const char _svn_version[] =
 
 @ Basic JPEG~2000 image support. Section and Table references below:
 Information technology --- JPEG~2000 image coding system: Core coding system.
-ISO/IEC 15444-1, Second edition, 2004-09-15, file |15444-1-annexi.pdf|.
+ISO/IEC 15444-1, Second edition, 2004-09-15, file |15444-1annexi.pdf|.
 
 @c
 #include <math.h>

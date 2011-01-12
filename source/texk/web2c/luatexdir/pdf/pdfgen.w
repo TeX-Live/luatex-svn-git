@@ -159,6 +159,21 @@ int pdf_get_mem(PDF pdf, int s)
     return ret;
 }
 
+@ |get_o_mode| translates from |pdf_output| to |o_mode|.
+
+@c
+static output_mode get_o_mode(PDF pdf)
+{
+    output_mode o_mode;
+    if (pdf_output > 0) {
+        if (pdf_output == 2009)
+            o_mode = OMODE_LUA;
+        else
+            o_mode = OMODE_PDF;
+    } else
+        o_mode = OMODE_DVI;
+    return o_mode;
+}
 
 @ |fix_o_mode| freezes |pdf->o_mode| as soon as anything goes through
 the backend, be it \.{PDF}, \.{DVI}, or \.{Lua}.
@@ -166,23 +181,13 @@ the backend, be it \.{PDF}, \.{DVI}, or \.{Lua}.
 @c
 void fix_o_mode(PDF pdf)
 {
-    static int fixed_pdf_output = 0;
-    if (pdf->o_mode == OMODE_NONE) {
-        if (pdf_output > 0) {
-            if (pdf_output == 2009)
-                pdf->o_mode = OMODE_LUA;
-            else
-                pdf->o_mode = OMODE_PDF;
-        } else
-            pdf->o_mode = OMODE_DVI;
-        fixed_pdf_output = pdf_output;
-        pdf_output_value = pdf_output;
-    } else if (pdf_output != fixed_pdf_output) {
+    output_mode o_mode = get_o_mode(pdf);
+    if (pdf->o_mode == OMODE_NONE)
+        pdf->o_mode = o_mode;
+    else if (pdf->o_mode != o_mode)
         pdf_error("setup",
                   "\\pdfoutput can only be changed before anything is written to the output");
-    }
 }
-
 
 @ This ensures that |pdfminorversion| is set only before any bytes have
 been written to the generated \.{PDF} file. Here also all variables for
@@ -1643,15 +1648,9 @@ void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
        in possibly wrong state until real output, ok.
      */
 
-    if (pdf->o_mode == OMODE_NONE) {
-        if (pdf_output > 0) {
-            if (pdf_output == 2009)
-                o_mode = OMODE_LUA;
-            else
-                o_mode = OMODE_PDF;
-        } else
-            o_mode = OMODE_DVI;
-    } else
+    if (pdf->o_mode == OMODE_NONE)
+        o_mode = get_o_mode(pdf);
+    else
         o_mode = pdf->o_mode;
     if (!((1 << o_mode) & o_mode_bitpattern)) { /* warning or error */
         switch (o_mode) {
