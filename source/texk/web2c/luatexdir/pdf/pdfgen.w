@@ -1733,7 +1733,7 @@ char *get_resname_prefix(PDF pdf)
 
 void pdf_begin_page(PDF pdf)
 {
-    scaled form_margin = one_bp;
+    scaled form_margin = 0;     /* was one_bp until SVN4066 */
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
     init_pdf_pagecalculations(pdf);
 
