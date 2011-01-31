@@ -2346,22 +2346,25 @@ static halfword
 run_lua_ligkern_callback(halfword head, halfword tail, int callback_id)
 {
     lua_State *L = Luas;
+    int i;
+    int top = lua_gettop(L);
     if (!get_callback(L, callback_id)) {
         lua_pop(L, 2);
         return tail;
     }
     nodelist_to_lua(L, head);
     nodelist_to_lua(L, tail);
-    if (lua_pcall(L, 2, 1, 0) != 0) {
-        fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
-        lua_pop(L, 2);
-        lua_error(L);
+    if ((i=lua_pcall(L, 2, 0, 0)) != 0) {
+        luatex_error(L, (i == LUA_ERRRUN ? 0 : 1));
         return tail;
     }
+    /* next two lines disabled to be compatible with the manual */
+#if 0
     tail = nodelist_from_lua(L);
     if (fix_node_lists)
+#endif
         fix_node_list(head);
-    lua_pop(L, 2);
+    lua_settop(L, top);
     return tail;
 }
 
