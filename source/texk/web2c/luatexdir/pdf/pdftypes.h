@@ -290,6 +290,9 @@ typedef struct pdf_output_file_ {
 
     int f_cur;                  /* TeX font number */
     int pdflua_ref;
+    /* */
+    int annots;
+    int beads;
 } pdf_output_file;
 
 typedef pdf_output_file *PDF;

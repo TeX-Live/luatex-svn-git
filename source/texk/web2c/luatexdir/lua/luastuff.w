@@ -253,6 +253,11 @@ void luainterpreter(void)
     lua_pushstring(L, "epdf");
     lua_call(L, 1, 0);
 
+    /* |luaopen_pdfobj(L);| */
+    lua_pushcfunction(L, luaopen_pdfobj);
+    lua_pushstring(L, "pdfobj");
+    lua_call(L, 1, 0);
+
     lua_createtable(L, 0, 0);
     lua_setglobal(L, "texconfig");
 

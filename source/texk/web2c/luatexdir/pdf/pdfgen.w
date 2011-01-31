@@ -730,6 +730,19 @@ void pdf_print_bp(PDF pdf, scaled s)
     print_pdffloat(pdf, a);
 }
 
+pdffloat pdf_calc_mag_bp(PDF pdf, scaled s)
+{                               /* take |mag| into account */
+    pdffloat a;
+    pdfstructure *p = pdf->pstruct;
+    prepare_mag();
+    if (int_par(mag_code) != 1000)
+        a.m = lround(s * (double) int_par(mag_code) / 1000.0 * p->k1);
+    else
+        a.m = lround(s * p->k1);
+    a.e = pdf->decimal_digits;
+    return a;
+}
+
 void pdf_print_mag_bp(PDF pdf, scaled s)
 {                               /* take |mag| into account */
     pdffloat a;
@@ -1749,7 +1762,6 @@ void pdf_begin_page(PDF pdf)
         set_obj_aux(pdf, pdf->last_page, 1);    /* mark that this page has been created */
         pdf->last_stream = pdf_new_dict(pdf, obj_type_pagestream, 0, 0);
         pdf->last_thread = null;
-        pdflua_begin_page(pdf);
     } else {
         assert(global_shipping_mode == SHIPPING_FORM);
         pdf_begin_dict(pdf, pdf_cur_form, 0);
@@ -1817,13 +1829,15 @@ void print_pdf_table_string(PDF pdf, const char *s)
 
 void pdf_end_page(PDF pdf)
 {
-    int j, annots = 0, beads = 0;
+    int j;
     pdf_resource_struct *res_p = pdf->page_resources;
     pdf_resource_struct local_page_resources;
     pdf_object_list *annot_list, *bead_list, *link_list, *ol, *ol1;
     scaledpos save_cur_page_size;       /* to save |cur_page_size| during flushing pending forms */
     shipping_mode_e save_shipping_mode;
     int procset = PROCSET_PDF;
+    pdf->annots = 0;
+    pdf->beads = 0;
 
     /* Finish stream of page/form contents */
     pdf_goto_pagemode(pdf);
@@ -1831,45 +1845,21 @@ void pdf_end_page(PDF pdf)
     pdf_end_stream(pdf);
 
     if (global_shipping_mode == SHIPPING_PAGE) {
-        pdf->last_pages = pdf_do_page_divert(pdf, pdf->last_page, 0);
-
-        /* Write out /Page object */
-        pdf_begin_dict(pdf, pdf->last_page, 1);
-        pdf_puts(pdf, "/Type /Page\n");
-        pdf_indirect_ln(pdf, "Contents", pdf->last_stream);
-        pdf_indirect_ln(pdf, "Resources", res_p->last_resources);
-        pdf_puts(pdf, "/MediaBox [0 0 ");
-        pdf_print_mag_bp(pdf, cur_page_size.h);
-        pdf_out(pdf, ' ');
-        pdf_print_mag_bp(pdf, cur_page_size.v);
-        pdf_puts(pdf, "]\n");
-        if (pdf_page_attr != null)
-            pdf_print_toks_ln(pdf, pdf_page_attr);
-        print_pdf_table_string(pdf, "pageattributes");
-        pdf_indirect_ln(pdf, "Parent", pdf->last_pages);
-        if (pdf->img_page_group_val != 0) {
-            assert(pdf->img_page_group_val > 0);
-            pdf_printf(pdf, "/Group %d 0 R\n", pdf->img_page_group_val);
-        }
         annot_list = get_page_resources_list(pdf, obj_type_annot);
         link_list = get_page_resources_list(pdf, obj_type_link);
-        if (annot_list != NULL || link_list != NULL) {
-            annots = pdf_create_obj(pdf, obj_type_annots, 0);
-            pdf_indirect_ln(pdf, "Annots", annots);
-        }
+        if (annot_list != NULL || link_list != NULL)
+            pdf->annots = pdf_create_obj(pdf, obj_type_annots, 0);
         bead_list = get_page_resources_list(pdf, obj_type_bead);
-        if (bead_list != NULL) {
-            beads = pdf_create_obj(pdf, obj_type_beads, 0);
-            pdf_indirect_ln(pdf, "B", beads);
-        }
-        pdf_end_dict(pdf);
-        pdflua_end_page(pdf, annots, beads);
+        if (bead_list != NULL)
+            pdf->beads = pdf_create_obj(pdf, obj_type_beads, 0);
+
+        pdflua_make_pagedict(pdf);
 
         pdf->img_page_group_val = 0;
 
         /* Generate array of annotations or beads in page */
         if (annot_list != NULL || link_list != NULL) {
-            pdf_begin_obj(pdf, annots, 1);
+            pdf_begin_obj(pdf, pdf->annots, 1);
             pdf_puts(pdf, "[");
             while (annot_list != NULL) {
                 assert(annot_list->info > 0);
@@ -1886,7 +1876,7 @@ void pdf_end_page(PDF pdf)
             pdf_end_obj(pdf);
         }
         if (bead_list != NULL) {
-            pdf_begin_dict(pdf, beads, 1);
+            pdf_begin_dict(pdf, pdf->beads, 1);
             pdf_puts(pdf, "[");
             while (bead_list != NULL) {
                 pdf_print_int(pdf, bead_list->info);
@@ -2274,7 +2264,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             }
             write_fontstuff(pdf);
 
-            pdf->last_pages = output_pages_tree(pdf);
+            //pdf->last_pages = output_pages_tree(pdf);
             pdflua_output_pages_tree(pdf);
             /* Output outlines */
             outlines = print_outlines(pdf);

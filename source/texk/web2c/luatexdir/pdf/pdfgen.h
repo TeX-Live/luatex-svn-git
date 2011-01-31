@@ -148,6 +148,7 @@ extern void pdf_end_stream(PDF);
 extern void pdf_remove_last_space(PDF);
 
 extern void pdf_print_bp(PDF, scaled);
+extern pdffloat pdf_calc_mag_bp(PDF, scaled);
 extern void pdf_print_mag_bp(PDF, scaled);
 
 /* This is for the resource lists */
