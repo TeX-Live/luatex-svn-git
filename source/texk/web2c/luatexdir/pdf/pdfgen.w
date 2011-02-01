@@ -48,8 +48,6 @@ int pdf_draftmode_option;
 int pdf_draftmode_value;
 
 halfword pdf_info_toks;         /* additional keys of Info dictionary */
-halfword pdf_catalog_toks;      /* additional keys of Catalog dictionary */
-halfword pdf_catalog_openaction;
 halfword pdf_names_toks;        /* additional keys of Names dictionary */
 halfword pdf_trailer_toks;      /* additional keys of Trailer dictionary */
 shipping_mode_e global_shipping_mode = NOT_SHIPPING;       /* set to |shipping_mode| when |ship_out| starts */
@@ -2200,7 +2198,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
 {
     boolean res;
     int i, j, k;
-    int root, info, xref_stm = 0, outlines, threads, names_tree;
+    int root, info, xref_stm = 0;
     size_t xref_offset_width;
     int callback_id = callback_defined(stop_run_callback);
     int callback_id1 = callback_defined(finish_pdffile_callback);
@@ -2264,10 +2262,10 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             }
             write_fontstuff(pdf);
 
-            //pdf->last_pages = output_pages_tree(pdf);
             pdflua_output_pages_tree(pdf);
+
             /* Output outlines */
-            outlines = print_outlines(pdf);
+            pdf->outlines = print_outlines(pdf);
 
             /* Output name tree */
             /* The name tree is very similiar to Pages tree so its construction should be
@@ -2277,11 +2275,11 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                |k < pdf_dest_names_ptr| then |k| is index of leaf in |dest_names|; else
                |k| will be index in |obj_tab| of some intermediate node.
              */
-            names_tree = output_name_tree(pdf);
+            pdf->namestree = output_name_tree(pdf);
 
             /* Output article threads */
             if (pdf->head_tab[obj_type_thread] != 0) {
-                threads = pdf_new_obj(pdf, obj_type_others, 0, 1);
+                pdf->threads = pdf_new_obj(pdf, obj_type_others, 0, 1);
                 pdf_out(pdf, '[');
                 k = pdf->head_tab[obj_type_thread];
                 while (k != 0) {
@@ -2298,27 +2296,10 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                     k = obj_link(pdf, k);
                 }
             } else {
-                threads = 0;
+                pdf->threads = 0;
             }
 
-            /* Output the /Catalog object */
-            root = pdf_new_dict(pdf, obj_type_catalog, 0, 1);
-            pdf_puts(pdf, "/Type /Catalog\n");
-            pdf_indirect_ln(pdf, "Pages", pdf->last_pages);
-            if (threads != 0)
-                pdf_indirect_ln(pdf, "Threads", threads);
-            if (outlines != 0)
-                pdf_indirect_ln(pdf, "Outlines", outlines);
-            if (names_tree != 0)
-                pdf_indirect_ln(pdf, "Names", names_tree);
-            if (pdf_catalog_toks != null) {
-                pdf_print_toks_ln(pdf, pdf_catalog_toks);
-                delete_token_ref(pdf_catalog_toks);
-                pdf_catalog_toks = null;
-            }
-            if (pdf_catalog_openaction != 0)
-                pdf_indirect_ln(pdf, "OpenAction", pdf_catalog_openaction);
-            pdf_end_dict(pdf);
+            root = pdflua_make_catalog(pdf);
 
             /* last candidate for object stream */
             info = pdf_print_info(pdf, luatex_version, luatex_revision);        /* final object for pdf->os_enable == false */
@@ -2478,14 +2459,15 @@ void scan_pdfcatalog(PDF pdf)
 {
     halfword p;
     scan_pdf_ext_toks();
-    pdf_catalog_toks = concat_tokens(pdf_catalog_toks, def_ref);
+    pdf->catalog_toks =
+        (int) concat_tokens((halfword) pdf->catalog_toks, def_ref);
     if (scan_keyword("openaction")) {
-        if (pdf_catalog_openaction != 0) {
+        if (pdf->catalog_openaction != 0) {
             pdf_error("ext1", "duplicate of openaction");
         } else {
             check_o_mode(pdf, "\\pdfcatalog", 1 << OMODE_PDF, true);
             p = scan_action(pdf);
-            pdf_catalog_openaction = pdf_new_obj(pdf, obj_type_others, 0, 1);
+            pdf->catalog_openaction = pdf_new_obj(pdf, obj_type_others, 0, 1);
             write_action(pdf, p);
             pdf_end_obj(pdf);
             delete_action_ref(p);

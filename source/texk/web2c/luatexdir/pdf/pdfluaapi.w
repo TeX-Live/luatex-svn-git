@@ -62,16 +62,12 @@ typedef struct {
 
 typedef struct {
     int num;                    /* object number, or zero */
-    union {
-        int i;                  /* Lua table reference */
-    } data;
+    int i;                      /* Lua table reference */
     int attr;                   /* Lua attributes string reference (should get obsolescent) */
 } pdf_objDict;
 
 #define pdf_objStream pdfobj
 #define pdf_objRef    pdfobj
-
-static pdf_objRef *lua_newobjRef(lua_State * L, int objnum);
 
 /**********************************************************************/
 
@@ -91,6 +87,15 @@ static int m_##type##_setobjnum(lua_State * L)          \
     a = (pdf_##type *) luaL_checkudata(L, 1, M_##type); \
     a->num = (int) luaL_checkinteger(L, 2);             \
     return 0;                                           \
+}
+
+#define m__tostring(type)                               \
+static int m_##type##__tostring(lua_State * L)          \
+{                                                       \
+    pdf_##type *a;                                      \
+    a = (pdf_##type *) luaL_checkudata(L, 1, M_##type); \
+    lua_pushstring(L, #type);                           \
+    return 1;                                           \
 }
 
 /**********************************************************************/
@@ -156,13 +161,7 @@ static int m_objBool_pdfout(lua_State * L)
     return 0;
 }
 
-static int m_objBool__tostring(lua_State * L)
-{
-    pdf_objBool *a;
-    a = (pdf_objBool *) luaL_checkudata(L, 1, M_objBool);
-    lua_pushstring(L, "objBool");
-    return 1;
-}
+m__tostring(objBool);
 
 static int m_objBool__gc(lua_State * L)
 {
@@ -255,13 +254,7 @@ static int m_objInt_pdfout(lua_State * L)
     return 0;
 }
 
-static int m_objInt__tostring(lua_State * L)
-{
-    pdf_objInt *a;
-    a = (pdf_objInt *) luaL_checkudata(L, 1, M_objInt);
-    lua_pushstring(L, "objInt");
-    return 1;
-}
+m__tostring(objInt);
 
 static int m_objInt__gc(lua_State * L)
 {
@@ -342,13 +335,7 @@ static int m_objReal_pdfout(lua_State * L)
     return 0;
 }
 
-static int m_objReal__tostring(lua_State * L)
-{
-    pdf_objReal *a;
-    a = (pdf_objReal *) luaL_checkudata(L, 1, M_objReal);
-    lua_pushstring(L, "objReal");
-    return 1;
-}
+m__tostring(objReal);
 
 static int m_objReal__gc(lua_State * L)
 {
@@ -440,13 +427,7 @@ static int m_objString_pdfout(lua_State * L)
     return 0;
 }
 
-static int m_objString__tostring(lua_State * L)
-{
-    pdf_objString *a;
-    a = (pdf_objString *) luaL_checkudata(L, 1, M_objString);
-    lua_pushstring(L, "objString");
-    return 1;
-}
+m__tostring(objString);
 
 static int m_objString__gc(lua_State * L)
 {
@@ -537,13 +518,7 @@ static int m_objName_pdfout(lua_State * L)
     return 0;
 }
 
-static int m_objName__tostring(lua_State * L)
-{
-    pdf_objName *a;
-    a = (pdf_objName *) luaL_checkudata(L, 1, M_objName);
-    lua_pushstring(L, "objName");
-    return 1;
-}
+m__tostring(objName);
 
 static int m_objName__gc(lua_State * L)
 {
@@ -581,19 +556,13 @@ static int l_new_objNull(lua_State * L)
 m_getobjnum(objNull);
 m_setobjnum(objNull);
 
+m__tostring(objNull);
+
 static int m_objNull__gc(lua_State * L)
 {
     pdf_objNull *a;
     a = (pdf_objNull *) luaL_checkudata(L, 1, M_objNull);
     return 0;
-}
-
-static int m_objNull__tostring(lua_State * L)
-{
-    pdf_objNull *a;
-    a = (pdf_objNull *) luaL_checkudata(L, 1, M_objNull);
-    lua_pushstring(L, "objNull");
-    return 1;
 }
 
 static const struct luaL_Reg objNull_m[] = {
@@ -685,13 +654,7 @@ static int m_objArray_pdfout(lua_State * L)
     return 0;
 }
 
-static int m_objArray__tostring(lua_State * L)
-{
-    pdf_objArray *a;
-    a = (pdf_objArray *) luaL_checkudata(L, 1, M_objArray);
-    lua_pushstring(L, "objArray");
-    return 1;
-}
+m__tostring(objArray);
 
 static int m_objArray__gc(lua_State * L)
 {
@@ -721,7 +684,7 @@ static int l_new_objDict(lua_State * L)
     int i = lua_gettop(L);      /* (t) */
     a = (pdf_objDict *) lua_newuserdata(L, sizeof(pdf_objDict));        /* o (t) */
     a->num = 0;
-    a->data.i = LUA_NOREF;
+    a->i = LUA_NOREF;
     a->attr = LUA_NOREF;
     luaL_getmetatable(L, M_objDict);    /* m o (t) */
     lua_setmetatable(L, -2);    /* o (t) */
@@ -731,7 +694,7 @@ static int l_new_objDict(lua_State * L)
     case 1:
         luaL_checktype(L, 1, LUA_TTABLE);       /* o t */
         lua_pushvalue(L, 1);    /* t o t */
-        a->data.i = (int) luaL_ref(L, LUA_GLOBALSINDEX);        /* o t */
+        a->i = (int) luaL_ref(L, LUA_GLOBALSINDEX);     /* o t */
         break;
     default:
         luaL_error(L, "newDict() needs maximum 1 argument");
@@ -743,7 +706,7 @@ static int m_objDict_get(lua_State * L)
 {
     pdf_objDict *a;
     a = (pdf_objDict *) luaL_checkudata(L, 1, M_objDict);       /* o */
-    lua_rawgeti(L, LUA_GLOBALSINDEX, a->data.i);        /* t o */
+    lua_rawgeti(L, LUA_GLOBALSINDEX, a->i);     /* t o */
     return 1;                   /* t o */
 }
 
@@ -751,13 +714,13 @@ static int m_objDict_set(lua_State * L)
 {
     pdf_objDict *a;
     a = (pdf_objDict *) luaL_checkudata(L, 1, M_objDict);       /* ... t? o */
-    if (a->data.i != LUA_NOREF) {
-        luaL_unref(L, LUA_GLOBALSINDEX, a->data.i);
-        a->data.i = LUA_NOREF;
+    if (a->i != LUA_NOREF) {
+        luaL_unref(L, LUA_GLOBALSINDEX, a->i);
+        a->i = LUA_NOREF;
     }
     luaL_checktype(L, 2, LUA_TTABLE);   /* ... t o */
     lua_pushvalue(L, 2);        /* t ... t o */
-    a->data.i = (int) luaL_ref(L, LUA_GLOBALSINDEX);    /* ... t o */
+    a->i = (int) luaL_ref(L, LUA_GLOBALSINDEX); /* ... t o */
     return 0;
 }
 
@@ -799,8 +762,8 @@ static int m_objDict_pdfout(lua_State * L)
     if (a->num != 0)
         pdf_begin_obj(static_pdf, a->num, 1);
     pdf_puts(static_pdf, "<<");
-    if (a->data.i != LUA_NOREF) {
-        lua_rawgeti(L, LUA_GLOBALSINDEX, a->data.i);    /* t o */
+    if (a->i != LUA_NOREF) {
+        lua_rawgeti(L, LUA_GLOBALSINDEX, a->i); /* t o */
         lua_pushnil(L);         /* n t o */
         while (lua_next(L, -2) != 0) {
             st.s = lua_tolstring(L, -2, &st.l);
@@ -833,19 +796,14 @@ static int m_objDict_pdfout(lua_State * L)
     return 0;
 }
 
-static int m_objDict__tostring(lua_State * L)
-{
-    pdf_objDict *a;
-    a = (pdf_objDict *) luaL_checkudata(L, 1, M_objDict);
-    lua_pushstring(L, "objDict");
-    return 1;
-}
+m__tostring(objDict);
 
 static int m_objDict__gc(lua_State * L)
 {
     pdf_objDict *a;
     a = (pdf_objDict *) luaL_checkudata(L, 1, M_objDict);
-    luaL_unref(L, LUA_GLOBALSINDEX, a->data.i);
+    luaL_unref(L, LUA_GLOBALSINDEX, a->i);
+    luaL_unref(L, LUA_GLOBALSINDEX, a->attr);
     return 0;
 }
 
@@ -867,22 +825,17 @@ static const struct luaL_Reg objDict_m[] = {
 
 static int l_new_objStream(lua_State * L)
 {
+    assert(0);
     return 0;
 }
+
+m__tostring(objStream);
 
 static int m_objStream__gc(lua_State * L)
 {
     pdf_objStream *a;
     a = (pdf_objStream *) luaL_checkudata(L, 1, M_objStream);
     return 0;
-}
-
-static int m_objStream__tostring(lua_State * L)
-{
-    pdf_objStream *a;
-    a = (pdf_objStream *) luaL_checkudata(L, 1, M_objStream);
-    lua_pushstring(L, "objStream");
-    return 1;
 }
 
 static const struct luaL_Reg objStream_m[] = {
@@ -948,13 +901,7 @@ static int m_objRef_pdfout(lua_State * L)
     return 0;
 }
 
-static int m_objRef__tostring(lua_State * L)
-{
-    pdf_objRef *a;
-    a = (pdf_objRef *) luaL_checkudata(L, 1, M_objRef);
-    lua_pushstring(L, "objRef");
-    return 1;
-}
+m__tostring(objRef);
 
 static int m_objRef__gc(lua_State * L)
 {
@@ -980,6 +927,12 @@ static const struct luaL_Reg objRef_m[] = {
 static int l_get_last_page(lua_State * L)
 {
     lua_pushinteger(L, static_pdf->last_page);  /* i */
+    return 1;
+}
+
+static int l_get_last_pages(lua_State * L)
+{
+    lua_pushinteger(L, static_pdf->last_pages); /* i */
     return 1;
 }
 
@@ -1049,6 +1002,42 @@ static int l_get_pdf_page_attr(lua_State * L)
     return 1;
 }
 
+static int l_get_threads(lua_State * L)
+{
+    lua_pushinteger(L, static_pdf->threads);    /* i */
+    return 1;
+}
+
+static int l_get_outlines(lua_State * L)
+{
+    lua_pushinteger(L, static_pdf->outlines);   /* i */
+    return 1;
+}
+
+static int l_get_names(lua_State * L)
+{
+    lua_pushinteger(L, static_pdf->namestree);  /* i */
+    return 1;
+}
+
+static int l_get_catalog_openaction(lua_State * L)
+{
+    lua_pushinteger(L, static_pdf->catalog_openaction); /* i */
+    return 1;
+}
+
+static int l_get_catalogtoks(lua_State * L)
+{
+    char *s;
+    int l;
+    s = tokenlist_to_cstring(static_pdf->catalog_toks, true, &l);
+    delete_token_ref(static_pdf->catalog_toks);
+    static_pdf->catalog_toks = null;
+    lua_pushlstring(L, s, l);
+    xfree(s);
+    return 1;
+}
+
 /**********************************************************************/
 
 static const struct luaL_Reg pdfobjlib[] = {
@@ -1073,6 +1062,13 @@ static const struct luaL_Reg pdfobjlib[] = {
     {"get_cur_page_size_h", l_get_cur_page_size_h},
     {"get_cur_page_size_v", l_get_cur_page_size_v},
     {"get_pdf_page_attr", l_get_pdf_page_attr},
+    /* get info needed for catalog dict */
+    {"get_last_pages", l_get_last_pages},
+    {"get_threads", l_get_threads},
+    {"get_outlines", l_get_outlines},
+    {"get_names", l_get_names},
+    {"get_catalog_openaction", l_get_catalog_openaction},
+    {"get_catalogtoks", l_get_catalogtoks},
     {NULL, NULL}                /* sentinel */
 };
 
@@ -1158,4 +1154,22 @@ void pdflua_output_pages_tree(PDF pdf)
     lua_pop(Luas, 2);           /* ... */
     i2 = lua_gettop(Luas);
     assert(i1 == i2);
+}
+
+int pdflua_make_catalog(PDF pdf)
+{
+    int err, i1, i2, root_objnum;
+    i1 = lua_gettop(Luas);      /* ... */
+    lua_rawgeti(Luas, LUA_GLOBALSINDEX, pdf->pdflua_ref);       /* t ... */
+    lua_pushstring(Luas, "makecatalog");        /* s t ... */
+    lua_gettable(Luas, -2);     /* f t ... */
+    err = lua_pcall(Luas, 0, 1, 0);     /* (e) t ... */
+    if (err != 0)
+        pdftex_fail("pdflua.lua: makecatalog()");
+    /* i t ... */
+    root_objnum = (int) luaL_checkinteger(Luas, -1);    /* i t ... */
+    lua_pop(Luas, 2);           /* ... */
+    i2 = lua_gettop(Luas);
+    assert(i1 == i2);
+    return root_objnum;
 }

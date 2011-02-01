@@ -220,8 +220,6 @@ extern void ensure_output_state(PDF pdf, output_state s);
 extern PDF init_pdf_struct(PDF pdf);
 
 extern halfword pdf_info_toks;  /* additional keys of Info dictionary */
-extern halfword pdf_catalog_toks;       /* additional keys of Catalog dictionary */
-extern halfword pdf_catalog_openaction;
 extern halfword pdf_names_toks; /* additional keys of Names dictionary */
 extern halfword pdf_trailer_toks;       /* additional keys of Trailer dictionary */
 extern void scan_pdfcatalog(PDF pdf);

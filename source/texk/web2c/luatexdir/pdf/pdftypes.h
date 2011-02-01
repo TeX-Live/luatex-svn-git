@@ -290,9 +290,15 @@ typedef struct pdf_output_file_ {
 
     int f_cur;                  /* TeX font number */
     int pdflua_ref;
-    /* */
+    /* stuff for page dict */
     int annots;
     int beads;
+    /* stuff for catalog dict */
+    int threads;
+    int outlines;
+    int namestree;
+    int catalog_openaction;
+    int catalog_toks;           /* should be halfword */
 } pdf_output_file;
 
 typedef pdf_output_file *PDF;

@@ -593,7 +593,7 @@ static int getpdf(lua_State * L)
             switch (i) {
             case P_PDFCATALOG:
             case P_CATALOG:
-                s = tokenlist_to_cstring(pdf_catalog_toks, true, &l);
+                s = tokenlist_to_cstring(static_pdf->catalog_toks, true, &l);
                 lua_pushlstring(L, s, (size_t) l);
                 break;
             case P_PDFINFO:
@@ -645,7 +645,7 @@ static int setpdf(lua_State * L)
         switch (i) {
         case P_PDFCATALOG:
         case P_CATALOG:
-            pdf_catalog_toks = tokenlist_from_lua(L);
+            static_pdf->catalog_toks = tokenlist_from_lua(L);
             break;
         case P_PDFINFO:
         case P_INFO:

@@ -131,7 +131,47 @@ end
 
 ------------------------------------------------------------------------
 
+local makecatalog = function()
+  local catalog_tbl = {
+    Type = pdfobj.newName("Catalog"),
+    Pages = pdfobj.newRef(pdfobj.get_last_pages()),
+  }
+  local threads = pdfobj.get_threads()
+  local outlines = pdfobj.get_outlines()
+  local names = pdfobj.get_names()
+  local openaction = pdfobj.get_catalog_openaction()
+  if threads ~= 0 then
+    catalog_tbl.Threads = pdfobj.newRef(threads)
+  end
+  if outlines ~= 0 then
+    catalog_tbl.Outlines = pdfobj.newRef(outlines)
+  end
+  if names ~= 0 then
+    catalog_tbl.Names = pdfobj.newRef(names)
+  end
+  if openaction ~= 0 then
+    catalog_tbl.OpenAction = pdfobj.newRef(openaction)
+  end
+  local catalog = pdfobj.newDict(catalog_tbl)
+  local catalog_objnum = pdf.reserveobj()
+  catalog:setobjnum(catalog_objnum)
+
+  -- instead of \pdfcatalogtoks
+  -- better use PDF objects as true dict entries
+
+  local catalogtoks = pdfobj.get_catalogtoks() -- a string
+  if string.len(catalogtoks) > 0 then
+    catalog:setattr(catalogtoks)
+  end
+  --
+  catalog:pdfout()
+  return catalog_objnum
+end
+
+------------------------------------------------------------------------
+
 local pdflua = {
+  makecatalog = makecatalog,
   makepagedict = makepagedict,
   outputpagestree = outputpagestree,
 }
