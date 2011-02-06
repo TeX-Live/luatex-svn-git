@@ -175,9 +175,6 @@ local makeinfo = function()
     Type = pdfobj.newName("Info"),
   }
   local infotoks = pdfobj.get_infotoks() -- a string
-  if string.len(infotoks) > 0 then
-    info:setattr(infotoks)
-  end
 
   if string.find(infotoks, "/Producer") == nil then
     local lver = pdfobj.get_luatex_version()
@@ -208,6 +205,9 @@ local makeinfo = function()
   local info = pdfobj.newDict(info_tbl)
   local info_objnum = pdf.reserveobj()
   info:setobjnum(info_objnum)
+  if string.len(infotoks) > 0 then
+    info:setattr(infotoks)
+  end
   info:pdfout()
   return info_objnum
 end
