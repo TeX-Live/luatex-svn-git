@@ -1514,20 +1514,6 @@ void init_start_time(PDF pdf)
 }
 
 @ @c
-static void print_creation_date(PDF pdf)
-{
-    init_start_time(pdf);
-    pdf_printf(pdf, "/CreationDate (%s)\n", pdf->start_time_str);
-}
-
-@ @c
-static void print_mod_date(PDF pdf)
-{
-    init_start_time(pdf);
-    pdf_printf(pdf, "/ModDate (%s)\n", pdf->start_time_str);
-}
-
-@ @c
 char *getcreationdate(PDF pdf)
 {
     assert(pdf);
@@ -2107,75 +2093,8 @@ static void check_nonexisting_pages(PDF pdf)
     }
 }
 
-@ If the same keys in a dictionary are given several times, then it is not
-defined which value is choosen by an application.  Therefore the keys
-|/Producer| and |/Creator| are only set if the token list
-|pdf_info_toks| converted to a string does not contain these key strings.
-
+@
 @c
-static boolean substr_of_str(const char *s, const char *t)
-{
-    if (strstr(t, s) == NULL)
-        return false;
-    return true;
-}
-
-static int pdf_print_info(PDF pdf, int luatex_version,
-                          str_number luatex_revision)
-{                               /* print info object */
-    boolean creator_given, producer_given, creationdate_given, moddate_given,
-        trapped_given;
-    char *s = NULL;
-    int k, len = 0;
-    k = pdf_new_dict(pdf, obj_type_info, 0, 3); /* keep Info readable unless explicitely forced */
-    creator_given = false;
-    producer_given = false;
-    creationdate_given = false;
-    moddate_given = false;
-    trapped_given = false;
-    if (pdf_info_toks != 0) {
-        s = tokenlist_to_cstring(pdf_info_toks, true, &len);
-        creator_given = substr_of_str("/Creator", s);
-        producer_given = substr_of_str("/Producer", s);
-        creationdate_given = substr_of_str("/CreationDate", s);
-        moddate_given = substr_of_str("/ModDate", s);
-        trapped_given = substr_of_str("/Trapped", s);
-    }
-    if (!producer_given) {
-        /* Print the Producer key */
-        pdf_puts(pdf, "/Producer (LuaTeX-");
-        pdf_print_int(pdf, luatex_version / 100);
-        pdf_out(pdf, '.');
-        pdf_print_int(pdf, luatex_version % 100);
-        pdf_out(pdf, '.');
-        pdf_print(pdf, luatex_revision);
-        pdf_puts(pdf, ")\n");
-    }
-    if (pdf_info_toks != null) {
-        if (len > 0) {
-            pdf_puts(pdf, s);
-            pdf_print_nl(pdf);
-            xfree(s);
-        }
-        delete_token_ref(pdf_info_toks);
-        pdf_info_toks = null;
-    }
-    if (!creator_given)
-        pdf_str_entry_ln(pdf, "Creator", "TeX");
-    if (!creationdate_given) {
-        print_creation_date(pdf);
-    }
-    if (!moddate_given) {
-        print_mod_date(pdf);
-    }
-    if (!trapped_given) {
-        pdf_puts(pdf, "/Trapped /False\n");
-    }
-    pdf_str_entry_ln(pdf, "PTEX.Fullbanner", pdftex_banner);
-    pdf_end_dict(pdf);
-    return k;
-}
-
 static void build_free_object_list(PDF pdf)
 {
     int k, l;
@@ -2302,7 +2221,8 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             root = pdflua_make_catalog(pdf);
 
             /* last candidate for object stream */
-            info = pdf_print_info(pdf, luatex_version, luatex_revision);        /* final object for pdf->os_enable == false */
+
+            info = pdflua_make_info(pdf);       /* final object for pdf->os_enable == false */
 
             if (pdf->os_enable) {
                 pdf_os_switch(pdf, true);

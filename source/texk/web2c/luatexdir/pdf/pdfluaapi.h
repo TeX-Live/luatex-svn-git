@@ -27,6 +27,7 @@ extern void pdflua_make_pagedict(PDF pdf);
 extern void pdflua_output_pages_tree(PDF pdf);
 
 extern int pdflua_make_catalog(PDF pdf);
+extern int pdflua_make_info(PDF pdf);
 
 extern int luaopen_pdfobj(lua_State * L);
 

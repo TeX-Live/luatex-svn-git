@@ -40,14 +40,14 @@ static const char _svn_version[] =
 
 typedef struct {
     int num;                    /* object number, or zero */
-    union {
-        boolean b;
-        int i;
-        lua_Number f;
-    } data;
+    int i;
 } pdfobj;
 
-#define pdf_objBool   pdfobj
+typedef struct {
+    int num;                    /* object number, or zero */
+    boolean b;
+} pdf_objBool;
+
 #define pdf_objInt    pdfobj
 
 typedef struct {
@@ -115,11 +115,11 @@ static int l_new_objBool(lua_State * L)
     lua_setmetatable(L, -2);    /* o */
     switch (i) {
     case 0:
-        a->data.b = false;
+        a->b = false;
         break;
     case 1:
         j = lua_toboolean(L, 1);
-        a->data.b = j ? true : false;
+        a->b = j ? true : false;
         break;
     default:
         luaL_error(L, "newBool() needs maximum 1 argument");
@@ -131,7 +131,7 @@ static int m_objBool_get(lua_State * L)
 {
     pdf_objBool *a;
     a = (pdf_objBool *) luaL_checkudata(L, 1, M_objBool);
-    lua_pushboolean(L, a->data.b ? 1 : 0);
+    lua_pushboolean(L, a->b ? 1 : 0);
     return 1;
 }
 
@@ -141,7 +141,7 @@ static int m_objBool_set(lua_State * L)
     int j;
     a = (pdf_objBool *) luaL_checkudata(L, 1, M_objBool);       /* ... b? o */
     j = lua_toboolean(L, 2);
-    a->data.b = j ? true : false;
+    a->b = j ? true : false;
     return 0;
 }
 
@@ -154,7 +154,7 @@ static int m_objBool_pdfout(lua_State * L)
     a = (pdf_objBool *) luaL_checkudata(L, 1, M_objBool);       /* o */
     if (a->num != 0)
         pdf_begin_obj(static_pdf, a->num, 1);
-    if (a->data.b)
+    if (a->b)
         pdf_puts(static_pdf, "true");
     else
         pdf_puts(static_pdf, "false");
@@ -198,10 +198,10 @@ static int l_new_objInt(lua_State * L)
     lua_setmetatable(L, -2);    /* o */
     switch (i) {
     case 0:
-        a->data.i = 0;
+        a->i = 0;
         break;
     case 1:
-        a->data.i = (int) luaL_checkinteger(L, 1);
+        a->i = (int) luaL_checkinteger(L, 1);
         break;
     default:
         luaL_error(L, "newInt() needs maximum 1 argument");
@@ -213,7 +213,7 @@ static int m_objInt_get(lua_State * L)
 {
     pdf_objInt *a;
     a = (pdf_objInt *) luaL_checkudata(L, 1, M_objInt);
-    lua_pushinteger(L, a->data.i);
+    lua_pushinteger(L, a->i);
     return 1;
 }
 
@@ -221,7 +221,7 @@ static int m_objInt_set(lua_State * L)
 {
     pdf_objInt *a;
     a = (pdf_objInt *) luaL_checkudata(L, 1, M_objInt); /* i? o */
-    a->data.i = (int) luaL_checkinteger(L, 2);  /* i o */
+    a->i = (int) luaL_checkinteger(L, 2);       /* i o */
     return 0;
 }
 
@@ -232,7 +232,7 @@ static int m_objInt_incr(lua_State * L)
 {
     pdf_objInt *a;
     a = (pdf_objInt *) luaL_checkudata(L, 1, M_objInt); /* o */
-    (a->data.i)++;              /* o */
+    (a->i)++;                   /* o */
     return 0;
 }
 
@@ -240,7 +240,7 @@ static int m_objInt_decr(lua_State * L)
 {
     pdf_objInt *a;
     a = (pdf_objInt *) luaL_checkudata(L, 1, M_objInt); /* o */
-    (a->data.i)--;              /* o */
+    (a->i)--;                   /* o */
     return 0;
 }
 
@@ -250,7 +250,7 @@ static int m_objInt_pdfout(lua_State * L)
     a = (pdf_objInt *) luaL_checkudata(L, 1, M_objInt); /* o */
     if (a->num != 0)
         pdf_begin_obj(static_pdf, a->num, 1);
-    pdf_print_int(static_pdf, (longinteger) a->data.i);
+    pdf_print_int(static_pdf, (longinteger) a->i);
     if (a->num != 0) {
         pdf_puts(static_pdf, "\n");
         pdf_end_obj(static_pdf);
@@ -374,12 +374,12 @@ static int l_new_objString(lua_State * L)
     lua_setmetatable(L, -2);    /* o s */
     switch (i) {
     case 0:
-        a->data.i = LUA_NOREF;  /* o */
+        a->i = LUA_NOREF;       /* o */
         break;
     case 1:
         luaL_checkstring(L, 1); /* o s */
         lua_pushvalue(L, 1);    /* s o s */
-        a->data.i = (int) luaL_ref(L, LUA_GLOBALSINDEX);        /* o s */
+        a->i = (int) luaL_ref(L, LUA_GLOBALSINDEX);     /* o s */
         break;
     default:
         luaL_error(L, "newString() needs maximum 1 argument");
@@ -391,7 +391,7 @@ static int m_objString_get(lua_State * L)
 {
     pdf_objString *a;
     a = (pdf_objString *) luaL_checkudata(L, 1, M_objString);
-    lua_rawgeti(L, LUA_GLOBALSINDEX, a->data.i);
+    lua_rawgeti(L, LUA_GLOBALSINDEX, a->i);
     return 1;
 }
 
@@ -399,13 +399,13 @@ static int m_objString_set(lua_State * L)
 {
     pdf_objString *a;
     a = (pdf_objString *) luaL_checkudata(L, 1, M_objString);   /* ... s? o */
-    if (a->data.i != LUA_NOREF) {
-        luaL_unref(L, LUA_GLOBALSINDEX, a->data.i);
-        a->data.i = LUA_NOREF;
+    if (a->i != LUA_NOREF) {
+        luaL_unref(L, LUA_GLOBALSINDEX, a->i);
+        a->i = LUA_NOREF;
     }
     luaL_checkstring(L, 1);     /* ... s o */
     lua_pushvalue(L, 2);        /* s ... s o */
-    a->data.i = (int) luaL_ref(L, LUA_GLOBALSINDEX);    /* ... s o */
+    a->i = (int) luaL_ref(L, LUA_GLOBALSINDEX); /* ... s o */
     return 0;
 }
 
@@ -419,11 +419,13 @@ static int m_objString_pdfout(lua_State * L)
     a = (pdf_objString *) luaL_checkudata(L, 1, M_objString);   /* o */
     if (a->num != 0)
         pdf_begin_obj(static_pdf, a->num, 1);
-    if (a->data.i != LUA_NOREF) {
-        lua_rawgeti(L, LUA_GLOBALSINDEX, a->data.i);    /* s? o */
+    if (a->i != LUA_NOREF) {
+        lua_rawgeti(L, LUA_GLOBALSINDEX, a->i); /* s? o */
         if (lua_isstring(L, -1)) {      /* s o */
             st.s = lua_tolstring(L, -1, &st.l);
+            pdf_out(static_pdf, '(');
             pdf_out_block(static_pdf, st.s, st.l);
+            pdf_out(static_pdf, ')');
         }
     }
     if (a->num != 0) {
@@ -439,7 +441,7 @@ static int m_objString__gc(lua_State * L)
 {
     pdf_objString *a;
     a = (pdf_objString *) luaL_checkudata(L, 1, M_objString);
-    luaL_unref(L, LUA_GLOBALSINDEX, a->data.i);
+    luaL_unref(L, LUA_GLOBALSINDEX, a->i);
     return 0;
 }
 
@@ -467,12 +469,12 @@ static int l_new_objName(lua_State * L)
     lua_setmetatable(L, -2);    /* o s */
     switch (i) {
     case 0:
-        a->data.i = LUA_NOREF;  /* o */
+        a->i = LUA_NOREF;       /* o */
         break;
     case 1:
         luaL_checkstring(L, 1); /* o s */
         lua_pushvalue(L, 1);    /* s o s */
-        a->data.i = (int) luaL_ref(L, LUA_GLOBALSINDEX);        /* o s */
+        a->i = (int) luaL_ref(L, LUA_GLOBALSINDEX);     /* o s */
         break;
     default:
         luaL_error(L, "newName() needs maximum 1 argument");
@@ -484,7 +486,7 @@ static int m_objName_get(lua_State * L)
 {
     pdf_objName *a;
     a = (pdf_objName *) luaL_checkudata(L, 1, M_objName);
-    lua_rawgeti(L, LUA_GLOBALSINDEX, a->data.i);
+    lua_rawgeti(L, LUA_GLOBALSINDEX, a->i);
     return 1;
 }
 
@@ -492,13 +494,13 @@ static int m_objName_set(lua_State * L)
 {
     pdf_objName *a;
     a = (pdf_objName *) luaL_checkudata(L, 1, M_objName);       /* ... s? o */
-    if (a->data.i != LUA_NOREF) {
-        luaL_unref(L, LUA_GLOBALSINDEX, a->data.i);
-        a->data.i = LUA_NOREF;
+    if (a->i != LUA_NOREF) {
+        luaL_unref(L, LUA_GLOBALSINDEX, a->i);
+        a->i = LUA_NOREF;
     }
     luaL_checkstring(L, 1);     /* ... s o */
     lua_pushvalue(L, 2);        /* s ... s o */
-    a->data.i = (int) luaL_ref(L, LUA_GLOBALSINDEX);    /* ... s o */
+    a->i = (int) luaL_ref(L, LUA_GLOBALSINDEX); /* ... s o */
     return 0;
 }
 
@@ -512,8 +514,8 @@ static int m_objName_pdfout(lua_State * L)
     a = (pdf_objName *) luaL_checkudata(L, 1, M_objName);       /* o */
     if (a->num != 0)
         pdf_begin_obj(static_pdf, a->num, 1);
-    assert(a->data.i != LUA_NOREF);
-    lua_rawgeti(L, LUA_GLOBALSINDEX, a->data.i);        /* s o */
+    assert(a->i != LUA_NOREF);
+    lua_rawgeti(L, LUA_GLOBALSINDEX, a->i);     /* s o */
     st.s = lua_tolstring(L, -1, &st.l);
     pdf_out(static_pdf, '/');
     pdf_puts(static_pdf, st.s);
@@ -530,7 +532,7 @@ static int m_objName__gc(lua_State * L)
 {
     pdf_objName *a;
     a = (pdf_objName *) luaL_checkudata(L, 1, M_objName);
-    luaL_unref(L, LUA_GLOBALSINDEX, a->data.i);
+    luaL_unref(L, LUA_GLOBALSINDEX, a->i);
     return 0;
 }
 
@@ -619,7 +621,7 @@ static int l_new_objArray(lua_State * L)
     int i = lua_gettop(L);      /* (t) */
     a = (pdf_objArray *) lua_newuserdata(L, sizeof(pdf_objArray));      /* o (t) */
     a->num = 0;
-    a->data.i = LUA_NOREF;
+    a->i = LUA_NOREF;
     luaL_getmetatable(L, M_objArray);   /* m o (t) */
     lua_setmetatable(L, -2);    /* o (t) */
     switch (i) {
@@ -628,7 +630,7 @@ static int l_new_objArray(lua_State * L)
     case 1:
         luaL_checktype(L, 1, LUA_TTABLE);       /* o t */
         lua_pushvalue(L, 1);    /* t o t */
-        a->data.i = (int) luaL_ref(L, LUA_GLOBALSINDEX);        /* o t */
+        a->i = (int) luaL_ref(L, LUA_GLOBALSINDEX);     /* o t */
         break;
     default:
         luaL_error(L, "newArray() needs maximum 1 argument");
@@ -640,7 +642,7 @@ static int m_objArray_get(lua_State * L)
 {
     pdf_objArray *a;
     a = (pdf_objArray *) luaL_checkudata(L, 1, M_objArray);
-    lua_rawgeti(L, LUA_GLOBALSINDEX, a->data.i);
+    lua_rawgeti(L, LUA_GLOBALSINDEX, a->i);
     return 1;
 }
 
@@ -648,13 +650,13 @@ static int m_objArray_set(lua_State * L)
 {
     pdf_objArray *a;
     a = (pdf_objArray *) luaL_checkudata(L, 1, M_objArray);     /* ... t? o */
-    if (a->data.i != LUA_NOREF) {
-        luaL_unref(L, LUA_GLOBALSINDEX, a->data.i);
-        a->data.i = LUA_NOREF;
+    if (a->i != LUA_NOREF) {
+        luaL_unref(L, LUA_GLOBALSINDEX, a->i);
+        a->i = LUA_NOREF;
     }
     luaL_checktype(L, 2, LUA_TTABLE);   /* ... t o */
     lua_pushvalue(L, 2);        /* t ... t o */
-    a->data.i = (int) luaL_ref(L, LUA_GLOBALSINDEX);    /* ... t o */
+    a->i = (int) luaL_ref(L, LUA_GLOBALSINDEX); /* ... t o */
     return 0;
 }
 
@@ -670,8 +672,8 @@ static int m_objArray_pdfout(lua_State * L)
     if (a->num != 0)
         pdf_begin_obj(static_pdf, a->num, 1);
     pdf_out(static_pdf, '[');
-    if (a->data.i != LUA_NOREF) {
-        lua_rawgeti(L, LUA_GLOBALSINDEX, a->data.i);    /* t o */
+    if (a->i != LUA_NOREF) {
+        lua_rawgeti(L, LUA_GLOBALSINDEX, a->i); /* t o */
         lua_pushnil(L);         /* n t o */
         while (lua_next(L, -2) != 0) {
             if (!first)
@@ -697,7 +699,7 @@ static int m_objArray__gc(lua_State * L)
 {
     pdf_objArray *a;
     a = (pdf_objArray *) luaL_checkudata(L, 1, M_objArray);
-    luaL_unref(L, LUA_GLOBALSINDEX, a->data.i);
+    luaL_unref(L, LUA_GLOBALSINDEX, a->i);
     return 0;
 }
 
@@ -894,10 +896,10 @@ static int l_new_objRef(lua_State * L)
     lua_setmetatable(L, -2);    /* o */
     switch (i) {
     case 0:
-        a->data.i = 0;
+        a->i = 0;
         break;
     case 1:
-        a->data.i = (int) luaL_checkinteger(L, 1);
+        a->i = (int) luaL_checkinteger(L, 1);
         break;
     default:
         luaL_error(L, "newRef() needs maximum 1 argument");
@@ -909,7 +911,7 @@ static int m_objRef_get(lua_State * L)
 {
     pdf_objRef *a;
     a = (pdf_objRef *) luaL_checkudata(L, 1, M_objRef);
-    lua_pushinteger(L, a->data.i);
+    lua_pushinteger(L, a->i);
     return 1;
 }
 
@@ -917,7 +919,7 @@ static int m_objRef_set(lua_State * L)
 {
     pdf_objRef *a;
     a = (pdf_objRef *) luaL_checkudata(L, 1, M_objRef); /* ... b? o */
-    a->data.i = lua_tointeger(L, 2);
+    a->i = lua_tointeger(L, 2);
     return 0;
 }
 
@@ -930,7 +932,7 @@ static int m_objRef_pdfout(lua_State * L)
     a = (pdf_objRef *) luaL_checkudata(L, 1, M_objRef); /* o */
     if (a->num != 0)
         pdf_begin_obj(static_pdf, a->num, 1);
-    pdf_printf(static_pdf, "%d 0 R", a->data.i);
+    pdf_printf(static_pdf, "%d 0 R", a->i);
     if (a->num != 0) {
         pdf_puts(static_pdf, "\n");
         pdf_end_obj(static_pdf);
@@ -1075,6 +1077,47 @@ static int l_get_catalogtoks(lua_State * L)
     return 1;
 }
 
+static int l_get_infotoks(lua_State * L)
+{
+    char *s;
+    int l;
+    s = tokenlist_to_cstring(static_pdf->info_toks, true, &l);
+    delete_token_ref(static_pdf->info_toks);
+    static_pdf->info_toks = null;
+    lua_pushlstring(L, s, l);
+    xfree(s);
+    return 1;
+}
+
+static int l_get_luatex_version(lua_State * L)
+{
+    lua_pushinteger(L, get_luatexversion());    /* i */
+    return 1;
+}
+
+static int l_get_luatex_revision(lua_State * L)
+{
+    char *cs;
+    size_t len;
+    str_number s = get_luatexrevision();
+    cs = makeclstring(s, &len);
+    lua_pushlstring(L, cs, len);
+    xfree(cs);
+    return 1;
+}
+
+static int l_get_creationdate(lua_State * L)
+{
+    lua_pushstring(L, static_pdf->start_time_str);
+    return 1;
+}
+
+static int l_get_pdftex_banner(lua_State * L)
+{
+    lua_pushstring(L, pdftex_banner);
+    return 1;
+}
+
 /**********************************************************************/
 
 static const struct luaL_Reg pdfobjlib[] = {
@@ -1106,6 +1149,12 @@ static const struct luaL_Reg pdfobjlib[] = {
     {"get_names", l_get_names},
     {"get_catalog_openaction", l_get_catalog_openaction},
     {"get_catalogtoks", l_get_catalogtoks},
+    /* get info needed for info dict */
+    {"get_infotoks", l_get_infotoks},
+    {"get_luatex_version", l_get_luatex_version},
+    {"get_luatex_revision", l_get_luatex_revision},
+    {"get_creationdate", l_get_creationdate},
+    {"get_pdftex_banner", l_get_pdftex_banner},
     {NULL, NULL}                /* sentinel */
 };
 
@@ -1209,4 +1258,22 @@ int pdflua_make_catalog(PDF pdf)
     i2 = lua_gettop(Luas);
     assert(i1 == i2);
     return root_objnum;
+}
+
+int pdflua_make_info(PDF pdf)
+{
+    int err, i1, i2, info_objnum;
+    i1 = lua_gettop(Luas);      /* ... */
+    lua_rawgeti(Luas, LUA_GLOBALSINDEX, pdf->pdflua_ref);       /* t ... */
+    lua_pushstring(Luas, "makeinfo");   /* s t ... */
+    lua_gettable(Luas, -2);     /* f t ... */
+    err = lua_pcall(Luas, 0, 1, 0);     /* (e) t ... */
+    if (err != 0)
+        pdftex_fail("pdflua.lua: makeinfo()");
+    /* i t ... */
+    info_objnum = (int) luaL_checkinteger(Luas, -1);    /* i t ... */
+    lua_pop(Luas, 2);           /* ... */
+    i2 = lua_gettop(Luas);
+    assert(i1 == i2);
+    return info_objnum;
 }

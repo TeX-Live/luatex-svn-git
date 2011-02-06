@@ -170,8 +170,53 @@ end
 
 ------------------------------------------------------------------------
 
+local makeinfo = function()
+  local info_tbl = {
+    Type = pdfobj.newName("Info"),
+  }
+  local infotoks = pdfobj.get_infotoks() -- a string
+  if string.len(infotoks) > 0 then
+    info:setattr(infotoks)
+  end
+
+  if string.find(infotoks, "/Producer") == nil then
+    local lver = pdfobj.get_luatex_version()
+    local luatex_version = math.floor(lver / 100) .. "." .. math.floor(lver % 100)
+    local luatex_revision = pdfobj.get_luatex_revision()
+    local ps = "LuaTeX-" .. luatex_version .. "." .. luatex_revision
+    info_tbl.Producer = pdfobj.newString(ps)
+  end
+
+  if string.find(infotoks, "/Creator") == nil then
+    info_tbl.Creator = pdfobj.newString("TeX")
+  end
+
+  if string.find(infotoks, "/CreationDate") == nil then
+    info_tbl.Creationdate = pdfobj.newString(pdfobj.get_creationdate())
+  end
+
+  if string.find(infotoks, "/ModDate") == nil then
+    info_tbl.ModDate = pdfobj.newString(pdfobj.get_creationdate())
+  end
+
+  if string.find(infotoks, "/Trapped") == nil then
+    info_tbl.Trapped = pdfobj.newBool(false)
+  end
+
+  info_tbl["PTEX.Fullbanner"] = pdfobj.newString(pdfobj.get_pdftex_banner())
+
+  local info = pdfobj.newDict(info_tbl)
+  local info_objnum = pdf.reserveobj()
+  info:setobjnum(info_objnum)
+  info:pdfout()
+  return info_objnum
+end
+
+------------------------------------------------------------------------
+
 local pdflua = {
   makecatalog = makecatalog,
+  makeinfo = makeinfo,
   makepagedict = makepagedict,
   outputpagestree = outputpagestree,
 }

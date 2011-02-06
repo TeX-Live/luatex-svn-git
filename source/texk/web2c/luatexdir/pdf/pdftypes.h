@@ -299,6 +299,7 @@ typedef struct pdf_output_file_ {
     int namestree;
     int catalog_openaction;
     int catalog_toks;           /* should be halfword */
+    int info_toks;              /* should be halfword */
 } pdf_output_file;
 
 typedef pdf_output_file *PDF;
