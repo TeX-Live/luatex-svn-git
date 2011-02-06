@@ -57,7 +57,11 @@ typedef struct {
 
 #define pdf_objString pdfobj
 #define pdf_objName   pdfobj
-#define pdf_objNull   pdfobj
+
+typedef struct {
+    int num;                    /* object number, or zero */
+} pdf_objNull;
+
 #define pdf_objArray  pdfobj
 
 typedef struct {
@@ -306,15 +310,17 @@ static int m_objReal_get(lua_State * L)
 {
     pdf_objReal *a;
     a = (pdf_objReal *) luaL_checkudata(L, 1, M_objReal);
-    lua_pushnumber(L, a->f.m);
-    return 1;
+    lua_pushinteger(L, a->f.m);
+    lua_pushinteger(L, a->f.e);
+    return 2;
 }
 
 static int m_objReal_set(lua_State * L)
 {
     pdf_objReal *a;
     a = (pdf_objReal *) luaL_checkudata(L, 1, M_objReal);       /* ... b? o */
-    a->f.m = lua_tonumber(L, 2);
+    a->f.m = (int) luaL_checkinteger(L, 2);
+    a->f.e = (int) luaL_checkinteger(L, 3);
     return 0;
 }
 
@@ -549,12 +555,40 @@ static int l_new_objNull(lua_State * L)
     a->num = 0;
     luaL_getmetatable(L, M_objNull);    /* m o */
     lua_setmetatable(L, -2);    /* o */
-    a->data.i = 0;
     return 1;
+}
+
+static int m_objNull_get(lua_State * L)
+{
+    pdf_objNull *a;
+    a = (pdf_objNull *) luaL_checkudata(L, 1, M_objNull);       /* o */
+    lua_pushnil(L);             /* n o */
+    return 1;
+}
+
+static int m_objNull_set(lua_State * L)
+{
+    pdf_objNull *a;
+    a = (pdf_objNull *) luaL_checkudata(L, 1, M_objNull);       /* o */
+    return 0;
 }
 
 m_getobjnum(objNull);
 m_setobjnum(objNull);
+
+static int m_objNull_pdfout(lua_State * L)
+{
+    pdf_objNull *a;
+    a = (pdf_objNull *) luaL_checkudata(L, 1, M_objNull);       /* o */
+    if (a->num != 0)
+        pdf_begin_obj(static_pdf, a->num, 1);
+    pdf_puts(static_pdf, "null");
+    if (a->num != 0) {
+        pdf_puts(static_pdf, "\n");
+        pdf_end_obj(static_pdf);
+    }
+    return 0;
+}
 
 m__tostring(objNull);
 
@@ -566,8 +600,11 @@ static int m_objNull__gc(lua_State * L)
 }
 
 static const struct luaL_Reg objNull_m[] = {
+    {"set", m_objNull_set},     /* */
+    {"get", m_objNull_get},     /* */
     {"getobjnum", m_objNull_getobjnum}, /* */
     {"setobjnum", m_objNull_setobjnum}, /* */
+    {"pdfout", m_objNull_pdfout},       /* */
     {"__tostring", m_objNull__tostring},        /* */
     {"__gc", m_objNull__gc},    /* finalizer */
     {NULL, NULL}                /* sentinel */
