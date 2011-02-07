@@ -1114,6 +1114,21 @@ static int l_get_pdftex_banner(lua_State * L)
 
 /**********************************************************************/
 
+static int l_getpagelist(lua_State * L)
+{
+    int err;
+    lua_rawgeti(Luas, LUA_GLOBALSINDEX, static_pdf->pdflua_ref);        /* t ... */
+    lua_pushstring(Luas, "get_pagelist");       /* s t ... */
+    lua_gettable(Luas, -2);     /* f t ... */
+    err = lua_pcall(Luas, 0, 1, 0);     /* (e) t ... */
+    if (err != 0)
+        pdftex_fail("pdflua.lua: makeinfo()");
+    /* t t ... */
+    return 1;
+}
+
+/**********************************************************************/
+
 static const struct luaL_Reg pdfobjlib[] = {
     {"newBool", l_new_objBool},
     {"newInt", l_new_objInt},
@@ -1125,6 +1140,8 @@ static const struct luaL_Reg pdfobjlib[] = {
     {"newDict", l_new_objDict},
     {"newStream", l_new_objStream},
     {"newRef", l_new_objRef},
+    /* */
+    {"getpagelist", l_getpagelist},
     /* get info needed for page dict */
     {"get_last_page", l_get_last_page},
     {"get_total_pages", l_get_total_pages},

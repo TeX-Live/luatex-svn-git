@@ -31,6 +31,12 @@ local doc = {
 
 ------------------------------------------------------------------------
 
+local get_pagelist = function()
+  return doc.pagelist
+end
+
+------------------------------------------------------------------------
+
 local make_pagedict = function()
   local pagedict_tbl = {
     Type = pdfobj.newName("Page"),
@@ -245,6 +251,7 @@ end
 ------------------------------------------------------------------------
 
 local pdflua = {
+  get_pagelist = get_pagelist,
   make_pagedict = make_pagedict,
   make_catalog = make_catalog,
   make_info = make_info,
