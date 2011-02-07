@@ -969,12 +969,6 @@ static int l_get_last_page(lua_State * L)
     return 1;
 }
 
-static int l_get_last_pages(lua_State * L)
-{
-    lua_pushinteger(L, static_pdf->last_pages); /* i */
-    return 1;
-}
-
 static int l_get_total_pages(lua_State * L)
 {
     lua_pushinteger(L, total_pages);    /* i */
@@ -1143,7 +1137,6 @@ static const struct luaL_Reg pdfobjlib[] = {
     {"get_cur_page_size_v", l_get_cur_page_size_v},
     {"get_pdf_page_attr", l_get_pdf_page_attr},
     /* get info needed for catalog dict */
-    {"get_last_pages", l_get_last_pages},
     {"get_threads", l_get_threads},
     {"get_outlines", l_get_outlines},
     {"get_names", l_get_names},
@@ -1214,7 +1207,7 @@ void pdflua_make_pagedict(PDF pdf)
     int err, i1, i2;
     i1 = lua_gettop(Luas);      /* ... */
     lua_rawgeti(Luas, LUA_GLOBALSINDEX, pdf->pdflua_ref);       /* t ... */
-    lua_pushstring(Luas, "makepagedict");       /* s t ... */
+    lua_pushstring(Luas, "make_pagedict");      /* s t ... */
     lua_gettable(Luas, -2);     /* f t ... */
     err = lua_pcall(Luas, 0, 0, 0);     /* (e) t ... */
     if (err != 0)
@@ -1225,29 +1218,12 @@ void pdflua_make_pagedict(PDF pdf)
     assert(i1 == i2);
 }
 
-void pdflua_output_pages_tree(PDF pdf)
-{
-    int err, i1, i2;            /* ... */
-    i1 = lua_gettop(Luas);
-    lua_rawgeti(Luas, LUA_GLOBALSINDEX, pdf->pdflua_ref);       /* t ... */
-    lua_pushstring(Luas, "outputpagestree");    /* s t ... */
-    lua_gettable(Luas, -2);     /* f t ... */
-    err = lua_pcall(Luas, 0, 1, 0);     /* (e) i t ... */
-    if (err != 0)
-        pdftex_fail("pdflua.lua: outputpagestree()");
-    /* i t ... */
-    pdf->last_pages = (int) luaL_checkinteger(Luas, -1);        /* i t ... */
-    lua_pop(Luas, 2);           /* ... */
-    i2 = lua_gettop(Luas);
-    assert(i1 == i2);
-}
-
 int pdflua_make_catalog(PDF pdf)
 {
     int err, i1, i2, root_objnum;
     i1 = lua_gettop(Luas);      /* ... */
     lua_rawgeti(Luas, LUA_GLOBALSINDEX, pdf->pdflua_ref);       /* t ... */
-    lua_pushstring(Luas, "makecatalog");        /* s t ... */
+    lua_pushstring(Luas, "make_catalog");       /* s t ... */
     lua_gettable(Luas, -2);     /* f t ... */
     err = lua_pcall(Luas, 0, 1, 0);     /* (e) t ... */
     if (err != 0)
@@ -1265,7 +1241,7 @@ int pdflua_make_info(PDF pdf)
     int err, i1, i2, info_objnum;
     i1 = lua_gettop(Luas);      /* ... */
     lua_rawgeti(Luas, LUA_GLOBALSINDEX, pdf->pdflua_ref);       /* t ... */
-    lua_pushstring(Luas, "makeinfo");   /* s t ... */
+    lua_pushstring(Luas, "make_info");  /* s t ... */
     lua_gettable(Luas, -2);     /* f t ... */
     err = lua_pcall(Luas, 0, 1, 0);     /* (e) t ... */
     if (err != 0)
@@ -1276,4 +1252,20 @@ int pdflua_make_info(PDF pdf)
     i2 = lua_gettop(Luas);
     assert(i1 == i2);
     return info_objnum;
+}
+
+void pdflua_write_pending_objects(PDF pdf)
+{
+    int err, i1, i2;
+    i1 = lua_gettop(Luas);      /* ... */
+    lua_rawgeti(Luas, LUA_GLOBALSINDEX, pdf->pdflua_ref);       /* t ... */
+    lua_pushstring(Luas, "write_pending_objects");      /* s t ... */
+    lua_gettable(Luas, -2);     /* f t ... */
+    err = lua_pcall(Luas, 0, 0, 0);     /* (e) t ... */
+    if (err != 0)
+        pdftex_fail("pdflua.lua: makeinfo()");
+    /* t ... */
+    lua_pop(Luas, 1);           /* ... */
+    i2 = lua_gettop(Luas);
+    assert(i1 == i2);
 }

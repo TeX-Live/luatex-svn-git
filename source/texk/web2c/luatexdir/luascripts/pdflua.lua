@@ -23,11 +23,15 @@
 
 -- this is early work in progress...
 
-local pagelist = {}
+local doc = {
+  pagelist = {},
+  catalog = pdfobj.newDict(),
+  info = pdfobj.newDict(),
+}
 
 ------------------------------------------------------------------------
 
-local makepagedict = function()
+local make_pagedict = function()
   local pagedict_tbl = {
     Type = pdfobj.newName("Page"),
     Contents = pdfobj.newRef(pdfobj.get_last_stream()),
@@ -67,13 +71,13 @@ local makepagedict = function()
   end
   --
   local pagenum = pdfobj.get_total_pages()
-  pagelist[pagenum] = pagedict
+  doc.pagelist[pagenum] = pagedict
 end
 
 ------------------------------------------------------------------------
 
 local make_pageslist = function(pxlist) -- px is page or pages
-  local kids_max = 4
+  local kids_max = 8
   assert(#pxlist > 0)
   local pageslist
   local ispagelist = pxlist[1]:get().Type:get() == "Page"
@@ -116,7 +120,8 @@ local output_pxlist = function(pxlist)
   end
 end
 
-outputpagestree = function()
+local output_pagestree = function()
+  local pagelist = doc.pagelist
   local pageslist = make_pageslist(pagelist)
   output_pxlist(pagelist)
   while #pageslist > 1 do
@@ -125,56 +130,77 @@ outputpagestree = function()
     pageslist = tmplist
   end
   output_pxlist(pageslist)
-  local rootobjnum = pageslist[1]:getobjnum()
-  return rootobjnum
+  local pagesrootobjnum = pageslist[1]:getobjnum()
+  return pagesrootobjnum
 end
 
 ------------------------------------------------------------------------
 
-local makecatalog = function()
-  local catalog_tbl = {
-    Type = pdfobj.newName("Catalog"),
-    Pages = pdfobj.newRef(pdfobj.get_last_pages()),
-  }
-  local threads = pdfobj.get_threads()
-  local outlines = pdfobj.get_outlines()
-  local names = pdfobj.get_names()
-  local openaction = pdfobj.get_catalog_openaction()
-  if threads ~= 0 then
-    catalog_tbl.Threads = pdfobj.newRef(threads)
+local make_catalog = function()
+  local catalog = doc.catalog
+  local catalog_tbl = catalog:get()
+  if catalog_tbl == nil then
+    catalog_tbl = {}
+    catalog:set(catalog_tbl)
   end
-  if outlines ~= 0 then
-    catalog_tbl.Outlines = pdfobj.newRef(outlines)
+  assert(type(catalog_tbl) == "table")
+  local catalog_objnum = catalog:getobjnum()
+  if catalog_objnum == 0 then
+    catalog_objnum = pdf.reserveobj()
+    catalog:setobjnum(catalog_objnum)
   end
-  if names ~= 0 then
-    catalog_tbl.Names = pdfobj.newRef(names)
-  end
-  if openaction ~= 0 then
-    catalog_tbl.OpenAction = pdfobj.newRef(openaction)
-  end
-  local catalog = pdfobj.newDict(catalog_tbl)
-  local catalog_objnum = pdf.reserveobj()
-  catalog:setobjnum(catalog_objnum)
-
-  -- instead of \pdfcatalogtoks
-  -- better use PDF objects as true dict entries
 
   local catalogtoks = pdfobj.get_catalogtoks() -- a string
   if string.len(catalogtoks) > 0 then
     catalog:setattr(catalogtoks)
   end
-  --
-  catalog:pdfout()
+
+  catalog_tbl.Type = pdfobj.newName("Catalog")
+
+  catalog_tbl.Pages = pdfobj.newRef()
+
+  local threads = pdfobj.get_threads()
+  local outlines = pdfobj.get_outlines()
+  local names = pdfobj.get_names()
+  local openaction = pdfobj.get_catalog_openaction()
+  if catalog_tbl.Threads == nil and threads ~= 0 then
+    catalog_tbl.Threads = pdfobj.newRef(threads)
+  end
+  if catalog_tbl.Outlines == nil and outlines ~= 0 then
+    catalog_tbl.Outlines = pdfobj.newRef(outlines)
+  end
+  if catalog_tbl.Names == nil and names ~= 0 then
+    catalog_tbl.Names = pdfobj.newRef(names)
+  end
+  if catalog_tbl.OpenAction == nil and openaction ~= 0 then
+    catalog_tbl.OpenAction = pdfobj.newRef(openaction)
+  end
+
   return catalog_objnum
 end
 
 ------------------------------------------------------------------------
 
-local makeinfo = function()
-  local info_tbl = {
-    Type = pdfobj.newName("Info"),
-  }
+local make_info = function()
+  local info = doc.info
+  local info_tbl = info:get()
+  if info_tbl == nil then
+    info_tbl = {}
+    info:set(info_tbl)
+  end
+  assert(type(info_tbl) == "table")
+  local info_objnum = info:getobjnum()
+  if info_objnum == 0 then
+    info_objnum = pdf.reserveobj()
+    info:setobjnum(info_objnum)
+  end
+
   local infotoks = pdfobj.get_infotoks() -- a string
+  if string.len(infotoks) > 0 then
+    info:setattr(infotoks)
+  end
+
+  info_tbl.Type = pdfobj.newName("Info")
 
   if string.find(infotoks, "/Producer") == nil then
     local lver = pdfobj.get_luatex_version()
@@ -184,41 +210,45 @@ local makeinfo = function()
     info_tbl.Producer = pdfobj.newString(ps)
   end
 
-  if string.find(infotoks, "/Creator") == nil then
+  if info_tbl.Creator == nil and string.find(infotoks, "/Creator") == nil then
     info_tbl.Creator = pdfobj.newString("TeX")
   end
 
-  if string.find(infotoks, "/CreationDate") == nil then
-    info_tbl.Creationdate = pdfobj.newString(pdfobj.get_creationdate())
+  if info_tbl.CreationDate == nil and string.find(infotoks, "/CreationDate") == nil then
+    info_tbl.CreationDate = pdfobj.newString(pdfobj.get_creationdate())
   end
 
-  if string.find(infotoks, "/ModDate") == nil then
+  if info_tbl.ModDate == nil and string.find(infotoks, "/ModDate") == nil then
     info_tbl.ModDate = pdfobj.newString(pdfobj.get_creationdate())
   end
 
-  if string.find(infotoks, "/Trapped") == nil then
-    info_tbl.Trapped = pdfobj.newBool(false)
+  if info_tbl.Trapped == nil and string.find(infotoks, "/Trapped") == nil then
+    info_tbl.Trapped = pdfobj.newName("False")
   end
 
-  info_tbl["PTEX.Fullbanner"] = pdfobj.newString(pdfobj.get_pdftex_banner())
-
-  local info = pdfobj.newDict(info_tbl)
-  local info_objnum = pdf.reserveobj()
-  info:setobjnum(info_objnum)
-  if string.len(infotoks) > 0 then
-    info:setattr(infotoks)
+  if info_tbl["PTEX.Fullbanner"] == nil then
+    info_tbl["PTEX.Fullbanner"] = pdfobj.newString(pdfobj.get_pdftex_banner())
   end
-  info:pdfout()
+
   return info_objnum
 end
 
 ------------------------------------------------------------------------
 
+local write_pending_objects = function()
+  local pagesrootobjnum = output_pagestree()
+  doc.catalog:get().Pages:set(pagesrootobjnum) -- well...
+  doc.catalog:pdfout()
+  doc.info:pdfout()
+end
+
+------------------------------------------------------------------------
+
 local pdflua = {
-  makecatalog = makecatalog,
-  makeinfo = makeinfo,
-  makepagedict = makepagedict,
-  outputpagestree = outputpagestree,
+  make_pagedict = make_pagedict,
+  make_catalog = make_catalog,
+  make_info = make_info,
+  write_pending_objects = write_pending_objects,
 }
 
 return pdflua

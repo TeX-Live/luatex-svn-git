@@ -2181,8 +2181,6 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             }
             write_fontstuff(pdf);
 
-            pdflua_output_pages_tree(pdf);
-
             /* Output outlines */
             pdf->outlines = print_outlines(pdf);
 
@@ -2219,10 +2217,11 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             }
 
             root = pdflua_make_catalog(pdf);
+            info = pdflua_make_info(pdf);       /* final object for pdf->os_enable == false */
 
             /* last candidate for object stream */
 
-            info = pdflua_make_info(pdf);       /* final object for pdf->os_enable == false */
+            pdflua_write_pending_objects(pdf);
 
             if (pdf->os_enable) {
                 pdf_os_switch(pdf, true);
