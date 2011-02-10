@@ -368,7 +368,7 @@ static void write_lua_math_parameters(lua_State * L, int f)
 {
     int k;
     lua_newtable(L);
-    for (k = 1; k < font_math_params(f); k++) {
+    for (k = 1; k <= font_math_params(f); k++) {
         lua_pushnumber(L, font_math_param(f, k));
         if (k <= MATH_param_max) {
             lua_setfield(L, -2, MATH_param_names[k]);
