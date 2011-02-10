@@ -28,110 +28,134 @@ static const char _svn_version[] =
     "$Id$ $URL$";
 
 #ifdef _WIN32
-#include <windows.h>
+#  include <windows.h>
 #else
 #endif
 
 #ifdef _WIN32
 
-static int get_short_name (lua_State *L) {
-    long     length = 0;
-    TCHAR*   buffer = NULL;
-    const char *lpszPath = luaL_checkstring (L, 1);
+static int get_short_name(lua_State * L)
+{
+    long length = 0;
+    TCHAR *buffer = NULL;
+    const char *lpszPath = luaL_checkstring(L, 1);
     length = GetShortPathName(lpszPath, NULL, 0);
     if (length == 0) {
-	lua_pushnil(L);
-	lua_pushfstring(L, "operating system error: %d", (int)GetLastError());
-	return 2;
+        lua_pushnil(L);
+        lua_pushfstring(L, "operating system error: %d", (int) GetLastError());
+        return 2;
     }
-    buffer = (TCHAR *)xmalloc(length * sizeof(TCHAR));
+    buffer = (TCHAR *) xmalloc(length * sizeof(TCHAR));
     length = GetShortPathName(lpszPath, buffer, length);
     if (length == 0) {
-	lua_pushnil(L);
-	lua_pushfstring(L, "operating system error: %d", (int)GetLastError());
-	return 2;
+        lua_pushnil(L);
+        lua_pushfstring(L, "operating system error: %d", (int) GetLastError());
+        return 2;
     }
-    lua_pushlstring(L, (const char *)buffer, (size_t)length);
+    lua_pushlstring(L, (const char *) buffer, (size_t) length);
     return 1;
 }
 
-static int read_link (lua_State *L) {
-  lua_pushboolean(L, 0);
-  lua_pushliteral(L, "readlink not supported on this platform");
-  return 2;
+static int read_link(lua_State * L)
+{
+    lua_pushboolean(L, 0);
+    lua_pushliteral(L, "readlink not supported on this platform");
+    return 2;
 }
 
 #else
 
-static int pusherror(lua_State *L, const char *info)
+static int pusherror(lua_State * L, const char *info)
 {
-	lua_pushnil(L);
-	if (info==NULL)
-		lua_pushstring(L, strerror(errno));
-	else
-		lua_pushfstring(L, "%s: %s", info, strerror(errno));
-	lua_pushinteger(L, errno);
-	return 3;
+    lua_pushnil(L);
+    if (info == NULL)
+        lua_pushstring(L, strerror(errno));
+    else
+        lua_pushfstring(L, "%s: %s", info, strerror(errno));
+    lua_pushinteger(L, errno);
+    return 3;
 }
 
-static int Preadlink(lua_State *L)		/** readlink(path) */
+static int Preadlink(lua_State * L)
 {
-	char b[PATH_MAX];
-	const char *path = luaL_checkstring(L, 1);
-	int n = readlink(path, b, sizeof(b));
-	if (n==-1) return pusherror(L, path);
-	lua_pushlstring(L, b, n);
-	return 1;
+/** readlink(path) */
+    const char *path = luaL_checkstring(L, 1);
+    char *b = NULL;
+    size_t allocated = 128;
+    int n;
+    while (1) {
+        b = malloc(allocated);
+        if (!b)
+            return pusherror(L, path);
+        n = readlink(path, b, allocated);
+        if (n == -1) {
+            free(b);
+            return pusherror(L, path);
+        }
+        if (n < allocated)
+            break;
+        /* Not enough room, try bigger */
+        allocated *= 2;
+        free(b);
+    }
+    lua_pushlstring(L, b, n);
+    free(b);
+    return 1;
 }
 
-static int read_link (lua_State *L) {
-	return Preadlink (L);
+
+static int read_link(lua_State * L)
+{
+    return Preadlink(L);
 }
 
-static int get_short_name (lua_State *L) {
+static int get_short_name(lua_State * L)
+{
     /* simply do nothing */
-  return 1;
+    return 1;
 }
 #endif
 
-  
+
 /*
 ** Get file information
 */
-static int file_is_directory (lua_State *L) {
+static int file_is_directory(lua_State * L)
+{
     struct stat info;
-    const char *file = luaL_checkstring (L, 1);
+    const char *file = luaL_checkstring(L, 1);
 
     if (stat(file, &info)) {
-	lua_pushnil (L);
-	lua_pushfstring (L, "cannot obtain information from file `%s'", file);
-	return 2;
+        lua_pushnil(L);
+        lua_pushfstring(L, "cannot obtain information from file `%s'", file);
+        return 2;
     }
-    if ( S_ISDIR(info.st_mode) ) 
-	lua_pushboolean (L, 1);
+    if (S_ISDIR(info.st_mode))
+        lua_pushboolean(L, 1);
     else
-	lua_pushboolean (L, 0);
-    
+        lua_pushboolean(L, 0);
+
     return 1;
 }
 
-static int file_is_file (lua_State *L) {
+static int file_is_file(lua_State * L)
+{
     struct stat info;
-    const char *file = luaL_checkstring (L, 1);
-    
+    const char *file = luaL_checkstring(L, 1);
+
     if (stat(file, &info)) {
-	lua_pushnil (L);
-	lua_pushfstring (L, "cannot obtain information from file `%s'", file);
-	return 2;
+        lua_pushnil(L);
+        lua_pushfstring(L, "cannot obtain information from file `%s'", file);
+        return 2;
     }
-    if ( S_ISREG(info.st_mode) ) 
-	lua_pushboolean (L, 1);
+    if (S_ISREG(info.st_mode))
+        lua_pushboolean(L, 1);
     else
-	lua_pushboolean (L, 0);
-	  
+        lua_pushboolean(L, 0);
+
     return 1;
 }
- 
+
 
 void open_lfslibext(lua_State * L)
 {
