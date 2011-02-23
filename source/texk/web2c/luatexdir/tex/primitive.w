@@ -127,9 +127,9 @@ void ini_init_primitives(void)
 static halfword compute_hash(const char *j, unsigned int l,
                              halfword prime_number)
 {
-    unsigned int k;
+    int k;
     halfword h = (unsigned char) *j;
-    for (k = 1; k <= l - 1; k++) {
+    for (k = 1; k <= (int)(l - 1); k++) {
         h = h + h + (unsigned char) *(j + k);
         while (h >= prime_number)
             h = h - prime_number;
