@@ -823,19 +823,21 @@ static int get_node_field_id(lua_State * L, int n, int node)
         } else if (luaS_ptr_eq(s, expansion_factor)) {
             return 16;
         }
-    } else if (luaS_ptr_eq(s, prev)) {
+    } else if (luaS_ptr_eq(s, prev)  && nodetype_has_prev(t)) {
         return -1;
-    } else if (luaS_ptr_eq(s, subtype)) {
+    } else if (luaS_ptr_eq(s, subtype) && nodetype_has_subtype(t)) {
         return 2;
     } else {
         int j;
         const char **fields = node_data[t].fields;
         if (t == whatsit_node)
             fields = whatsit_node_data[subtype(node)].fields;
-        for (j = 0; fields[j] != NULL; j++) {
-            if (strcmp(s, fields[j]) == 0) {
-                return j + 3;
-            }
+	if (fields != NULL) {
+	    for (j = 0; fields[j] != NULL; j++) {
+                if (strcmp(s, fields[j]) == 0) {
+		    return j + 3;
+		}
+	    }
         }
     }
     return -2;

@@ -356,6 +356,9 @@ typedef enum {
 
 #  define nodetype_has_attributes(t) (((t)<=glyph_node) && ((t)!=unset_node))
 
+#  define nodetype_has_subtype(t) ((t)!=action_node && (t)!=attribute_list_node && (t)!=attribute_node && (t)!=glue_spec_node)
+#  define nodetype_has_prev(t)   nodetype_has_subtype((t))
+
 /* style and choice nodes */
 /* style nodes can be smaller, the information is encoded in |subtype|,
    but choice nodes are on-the-spot converted to style nodes */
