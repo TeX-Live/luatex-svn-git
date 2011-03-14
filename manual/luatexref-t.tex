@@ -7922,22 +7922,6 @@ character \quote{f} (decimal 102) in the font cmr10 at 10 points:
 }
 \stoptyping
 
-Of course a more compact is also possible, but keep in mind that reserved
-words cannot be used compact and in \LUATEX\ we often have a \type {type} key.
-
-\starttyping
-[102] = {
-    ...
-    ligatures = {
-        [102] = {
-            char = 11,
-            ['type'] = 0
-        },
-        ...
-    }
-}
-\stoptyping
-
 The following top|-|level keys can be present inside a character hash:
 
 \starttabulate[|lT|c|c|c|l|p|]
