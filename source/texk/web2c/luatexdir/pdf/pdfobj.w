@@ -68,6 +68,7 @@ void pdf_write_obj(PDF pdf, int k)
     assert(lua_isstring(Luas, -1));
     st.s = lua_tolstring(Luas, -1, &li);
     st.l = li;
+    lua_pop(Luas,1);
     if (obj_obj_is_file(pdf, k)) {
         boolean res = false;    /* callback status value */
         const char *fnam = NULL;        /* callback found filename */
