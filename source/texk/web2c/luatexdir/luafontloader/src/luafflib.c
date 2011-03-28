@@ -2806,7 +2806,11 @@ static int ff_glyphs_index(lua_State * L)
         }
     }
     /* push the glyph */
-    lua_ff_pushglyph(L, sf->glyphs[gid]);
+    if (sf->glyphs[gid] && sf->glyphs[gid] != (struct splinechar *)-1) {
+        lua_ff_pushglyph(L, sf->glyphs[gid]);
+    } else {
+	lua_pushnil(L);
+    }
     return 1;
 }
 
