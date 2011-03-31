@@ -41,18 +41,18 @@ typedef enum {                  /* JPEG marker codes                    */
 
     M_SOF5 = 0xc5,              /* differential sequential DCT          */
     M_SOF6 = 0xc6,              /* differential progressive DCT         */
-    M_SOF7 = 0xc7,              /* differential lossless                */
+    M_SOF7 = 0xc7,              /* differential lossless (sequential)   */
 
-    M_JPG = 0xc8,               /* JPEG extensions                      */
+    M_JPG = 0xc8,               /* reserved for JPEG extensions         */
     M_SOF9 = 0xc9,              /* extended sequential DCT              */
     M_SOF10 = 0xca,             /* progressive DCT                      */
     M_SOF11 = 0xcb,             /* lossless (sequential)                */
 
     M_SOF13 = 0xcd,             /* differential sequential DCT          */
     M_SOF14 = 0xce,             /* differential progressive DCT         */
-    M_SOF15 = 0xcf,             /* differential lossless                */
+    M_SOF15 = 0xcf,             /* differential lossless (sequential)   */
 
-    M_DHT = 0xc4,               /* define Huffman tables                */
+    M_DHT = 0xc4,               /* define Huffman table(s)              */
 
     M_DAC = 0xcc,               /* define arithmetic conditioning table */
 
@@ -169,23 +169,25 @@ void read_jpg_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
             pdftex_fail("reading JPEG image failed (premature file end)");
         if (fgetc(img_file(idict)) != 0xFF)
             pdftex_fail("reading JPEG image failed (no marker found)");
-        switch (xgetc(img_file(idict))) {
+        i = xgetc(img_file(idict));
+        switch (i) {
+        case M_SOF3:           /* lossless */
         case M_SOF5:
         case M_SOF6:
-        case M_SOF7:
+        case M_SOF7:           /* lossless */
         case M_SOF9:
         case M_SOF10:
-        case M_SOF11:
+        case M_SOF11:          /* lossless */
         case M_SOF13:
         case M_SOF14:
-        case M_SOF15:
-            pdftex_fail("unsupported type of compression");
+        case M_SOF15:          /* lossless */
+            pdftex_fail("unsupported type of compression (SOF_%d)", i - M_SOF0);
+            break;
         case M_SOF2:
             if (pdf->minor_version <= 2)
                 pdftex_fail("cannot use progressive DCT with PDF-1.2");
         case M_SOF0:
         case M_SOF1:
-        case M_SOF3:
             (void) read2bytes(img_file(idict)); /* read segment length  */
             img_colordepth(idict) = xgetc(img_file(idict));
             img_ysize(idict) = (int) read2bytes(img_file(idict));
