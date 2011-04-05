@@ -823,6 +823,8 @@ static int vsettoks(lua_State * L, int is_global)
     int i, err;
     int k;
     lstring str;
+    char *s;
+    const char *ss;
     int save_global_defs = int_par(global_defs_code);
     if (is_global)
         int_par(global_defs_code) = 1;
@@ -830,7 +832,10 @@ static int vsettoks(lua_State * L, int is_global)
     if (!lua_isstring(L, i)) {
         luaL_error(L, "unsupported value type");
     }
-    str.s = (unsigned char *) xstrdup(lua_tolstring(L, i, &str.l));
+    ss = lua_tolstring(L, i, &str.l);
+    s = xmalloc (str.l+1);
+    memcpy (s, ss, str.l+1);
+    str.s = (unsigned char *)s;
     k = get_item_index(L, (i - 1), toks_base);
     check_index_range(k, "settoks");
     err = set_tex_toks_register(k, str);
