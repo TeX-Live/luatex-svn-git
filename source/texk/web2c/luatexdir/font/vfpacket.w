@@ -1,7 +1,7 @@
 % vfpacket.w
 
 % Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
-% Copyright 2006-2009 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2011 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -189,7 +189,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c)
                 if (has_packet(lf, (int) k))
                     do_vf_packet(pdf, lf, (int) k);
                 else
-                    pdf_place_glyph(pdf, lf, (int) k);
+                    backend_out[glyph_node] (pdf, lf, (int) k);
             }
             cur.h = cur.h + char_width(lf, (int) k);
             break;

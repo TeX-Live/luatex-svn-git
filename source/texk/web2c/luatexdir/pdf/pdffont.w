@@ -64,7 +64,6 @@ void output_one_char(PDF pdf, internal_font_number ffi, int c)
         break;
     }
     if (has_packet(ffi, c)) {
-        assert(pdf->o_mode == OMODE_PDF);
         do_vf_packet(pdf, ffi, c);
     } else
         backend_out[glyph_node] (pdf, ffi, c);  /* |pdf_place_glyph(pdf, ffi, c);| */
