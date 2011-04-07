@@ -2065,10 +2065,23 @@ as well as access to these source files.
 
 There are many different userdata types defined
 by the \type{epdf} library, currently these are
-\type{Array}, \type{Catalog}, \type{Dict}, \type{GString},
-\type{LinkDest}, \type{Object}, \type{ObjectStream}, \type{Page},
-\type{PDFDoc}, \type{PDFRectangle}, \type{Ref}, \type{Stream},
-\type{XRef}, and \type{XRefEntry} (more to follow).
+\type{Annot},
+\type{AnnotBorderStyle},
+\type{Annots},
+\type{Array},
+\type{Catalog},
+\type{Dict},
+\type{GString},
+\type{LinkDest},
+\type{Object},
+\type{ObjectStream},
+\type{Page},
+\type{PDFDoc},
+\type{PDFRectangle},
+\type{Ref},
+\type{Stream},
+\type{XRef}, and
+\type{XRefEntry}.
 
 All these class names and the Lua access functions closely resemble
 the naming from the poppler header files,
@@ -2092,6 +2105,69 @@ the Lua functions return \type{nil}.
 If a function should return an \type{Object}, but it's not existing,
 a \type{Null} object is returned instead
 (this is in|-|line with poppler behavior).
+
+All constructors:
+
+\startfunctioncall
+<PDFDoc>       = epdf.open(<string> PDF filename)
+<Annot>        = epdf.Annot(<XRef>, <Dict>, <Catalog>, <Ref>)
+<Annots>       = epdf.Annots(<XRef>, <Catalog>, <Object>)
+<Array>        = epdf.Array(<XRef>)
+<Dict>         = epdf.Dict(<XRef>)
+<Object>       = epdf.Object()
+<PDFRectangle> = epdf.PDFRectangle()
+\stopfunctioncall
+
+\type{Annot} methods:
+
+\startfunctioncall
+<boolean>     = <Annot>:isOK()
+<Object>      = <Annot>:getAppearance()
+<AnnotBorder> = <Annot>:getBorder()
+<boolean>     = <Annot>:match(<Ref>)
+\stopfunctioncall
+
+\type{AnnotBorderStyle} methods:
+
+\startfunctioncall
+<number> = <AnnotBorderStyle>:getWidth()
+\stopfunctioncall
+
+\type{Annots} methods:
+
+\startfunctioncall
+<int>   = <Annots>:getNumAnnots()
+<Annot> = <Annots>:getAnnot()
+\stopfunctioncall
+
+\type{Array} methods:
+
+\startfunctioncall
+           <Array>:incRef()
+           <Array>:decRef()
+<int>    = <Array>:getLength()
+           <Array>:add(<Object>)
+<Object> = <Array>:get(<int>)
+<Object> = <Array>:getNF(<int>)
+<string> = <Array>:getString(<int>)
+\stopfunctioncall
+
+\type{Catalog} methods:
+
+\startfunctioncall
+<boolean>  = <Catalog>:isOK()
+<int>      = <Catalog>:getNumPages()
+<Page>     = <Catalog>:getPage(<int>)
+<Ref>      = <Catalog>:getPageRef(<int>)
+<string>   = <Catalog>:getBaseURI()
+<string>   = <Catalog>:readMetadata()
+<Object>   = <Catalog>:getStructTreeRoot()
+<int>      = <Catalog>:findPage(<int> object number, <int> object generation)
+<LinkDest> = <Catalog>:findDest(<string> name)
+<Object>   = <Catalog>:getDests()
+<Object>   = <Catalog>:getOutline()
+<Object>   = <Catalog>:getAcroForm()
+\stopfunctioncall
 
 %***********************************************************************
 
