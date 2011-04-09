@@ -680,6 +680,31 @@ static int m_Catalog_findDest(lua_State * L)
 }
 
 m_poppler_get_poppler(Catalog, Object, getDests);
+m_poppler_get_INT(Catalog, numEmbeddedFiles);
+m_poppler_get_INT(Catalog, numJS);
+
+static int m_Catalog_getJS(lua_State * L)
+{
+    GooString *gs;
+    int i, len;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Catalog);
+    if (uin->pd != NULL && uin->pd->pc != uin->pc)
+        pdfdoc_changed_error(L);
+    i = luaL_checkint(L, 2);
+    len = ((Catalog *) uin->d)->numJS();
+    if (i > 0 && i <= len) {
+        gs = ((Catalog *) uin->d)->getJS(i);
+        if (gs != NULL)
+            lua_pushlstring(L, gs->getCString(), gs->getLength());
+        else
+            lua_pushnil(L);
+        delete gs;
+    } else
+        lua_pushnil(L);
+    return 1;
+}
+
 m_poppler_get_poppler(Catalog, Object, getOutline);
 m_poppler_get_poppler(Catalog, Object, getAcroForm);
 
@@ -696,6 +721,10 @@ static const struct luaL_Reg Catalog_m[] = {
     {"findPage", m_Catalog_findPage},
     {"findDest", m_Catalog_findDest},
     {"getDests", m_Catalog_getDests},
+    {"numEmbeddedFiles", m_Catalog_numEmbeddedFiles},
+    //{"embeddedFile", m_Catalog_embeddedFile},
+    {"numJS", m_Catalog_numJS},
+    {"getJS", m_Catalog_getJS},
     {"getOutline", m_Catalog_getOutline},
     {"getAcroForm", m_Catalog_getAcroForm},
     {"__tostring", m_Catalog__tostring},
