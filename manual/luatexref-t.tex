@@ -817,7 +817,7 @@ The value to use for \type{\jobname} is decided as follows:
 \startitemize
 \item If \type{--jobname} is given on the command line, its argument
   will be the value for \tex{jobname}, without any changes. The
-  argument will not be used for actual input so it need not exist. 
+  argument will not be used for actual input so it need not exist.
   The \type{--jobname} switch only controls the \tex{jobname} setting.
 \item Otherwise, \tex{jobname} will be the name of the first file that
   is read from the file system, with any path components and the last
@@ -1711,7 +1711,7 @@ As for all the callbacks that deal with nodes, the return value can be one of th
 \startitemize
 \item boolean \type{true} signals succesful processing
 \item \type{<node>} signals that the \quote{head} node should be replaced by the returned node
-\item boolean \type{false} signals that the \quote{head} node list should be ignored and 
+\item boolean \type{false} signals that the \quote{head} node list should be ignored and
 flushed from memory
 \stopitemize
 
@@ -2032,12 +2032,12 @@ that are defined by the poppler pdf viewer library (written in C$+{}+$
 by Kristian H\o gsberg, based on xpdf by Derek Noonburg).
 Within \LUATEX\ (and \PDFTEX),
 xpdf functionality is being used since long time to embed \PDF\ files.
-The new \type{epdf} library shall allow to scrutinize an external \PDF\ file.
+The \type{epdf} library shall allow to scrutinize an external \PDF\ file.
 It gives access to its document structure,
 e.\,g., catalog, cross-reference table, individual pages, objects,
 annotations, info, and metadata.
 
-The \type{epdf} library is in an early alpha state:
+The \type{epdf} library is still in alpha state:
 \PDF\ access is currently read|-|only
 (it's not yet possible to alter a \PDF\ file or to assemble it from scratch),
 and many function bindings are still missing.
@@ -2054,18 +2054,18 @@ but if the file could not be opened successfully,
 instead of a fatal error just the value \type{nil} is returned.
 
 All Lua functions in the \type{epdf} library are named after the
-functions listed in the header files for the various classes,
+poppler functions listed in the poppler header files for the various classes,
 e.\,g., files \type{PDFDoc.h}, \type{Dict.h}, and \type{Array.h}.
 These files can be found in the poppler subdirectory within the \LUATEX\ sources.
 Which functions are already implemented in the \type{epdf} library
 can be found in the \LUATEX\ source file \type{lepdflib.cc}.
 For using the \type{epdf} library,
-knowledge of the \PDF\ file architecture is indispensable
-as well as access to these source files.
+knowledge of the \PDF\ file architecture is indispensable.
 
 There are many different userdata types defined
 by the \type{epdf} library, currently these are
 \type{Annot},
+\type{AnnotBorder},
 \type{AnnotBorderStyle},
 \type{Annots},
 \type{Array},
@@ -2083,8 +2083,8 @@ by the \type{epdf} library, currently these are
 \type{XRef}, and
 \type{XRefEntry}.
 
-All these class names and the Lua access functions closely resemble
-the naming from the poppler header files,
+All these userdata names and the Lua access functions closely resemble
+the classes naming from the poppler header files,
 including the choice of mixed upper and lower case letters.
 The Lua function calls use object-oriented syntax, e.\,g.,
 the following calls return the \type{Page} object for page~1:
@@ -2101,12 +2101,15 @@ therefore between function calls there should be Lua type checks
 If a non-object item is requested
 (e.\,g., a \type{Dict} item by calling \type{page:getPieceInfo()},
 cf.~\type{Page.h}) but not available,
-the Lua functions return \type{nil}.
+the Lua functions return \type{nil} (without error).
 If a function should return an \type{Object}, but it's not existing,
 a \type{Null} object is returned instead
-(this is in|-|line with poppler behavior).
+(also without error; this is in|-|line with poppler behavior).
 
-All constructors:
+All library objects have a \type{__gc} metamethod for garbage collection.
+The \type{__tostring} metamethod gives the type name for each object.
+
+All object constructors:
 
 \startfunctioncall
 <PDFDoc>       = epdf.open(<string> PDF filename)
@@ -2136,37 +2139,255 @@ All constructors:
 \type{Annots} methods:
 
 \startfunctioncall
-<int>   = <Annots>:getNumAnnots()
-<Annot> = <Annots>:getAnnot()
+<integer> = <Annots>:getNumAnnots()
+<Annot>   = <Annots>:getAnnot(<integer>)
 \stopfunctioncall
 
 \type{Array} methods:
 
 \startfunctioncall
-           <Array>:incRef()
-           <Array>:decRef()
-<int>    = <Array>:getLength()
-           <Array>:add(<Object>)
-<Object> = <Array>:get(<int>)
-<Object> = <Array>:getNF(<int>)
-<string> = <Array>:getString(<int>)
+            <Array>:incRef()
+            <Array>:decRef()
+<integer> = <Array>:getLength()
+            <Array>:add(<Object>)
+<Object>  = <Array>:get(<integer>)
+<Object>  = <Array>:getNF(<integer>)
+<string>  = <Array>:getString(<integer>)
 \stopfunctioncall
 
 \type{Catalog} methods:
 
 \startfunctioncall
 <boolean>  = <Catalog>:isOK()
-<int>      = <Catalog>:getNumPages()
-<Page>     = <Catalog>:getPage(<int>)
-<Ref>      = <Catalog>:getPageRef(<int>)
+<integer>  = <Catalog>:getNumPages()
+<Page>     = <Catalog>:getPage(<integer>)
+<Ref>      = <Catalog>:getPageRef(<integer>)
 <string>   = <Catalog>:getBaseURI()
 <string>   = <Catalog>:readMetadata()
 <Object>   = <Catalog>:getStructTreeRoot()
-<int>      = <Catalog>:findPage(<int> object number, <int> object generation)
+<integer>  = <Catalog>:findPage(<integer> object number, <integer> object generation)
 <LinkDest> = <Catalog>:findDest(<string> name)
 <Object>   = <Catalog>:getDests()
 <Object>   = <Catalog>:getOutline()
 <Object>   = <Catalog>:getAcroForm()
+\stopfunctioncall
+
+\type{Dict} methods:
+
+\startfunctioncall
+            <Dict>:incRef()
+            <Dict>:decRef()
+<integer> = <Dict>:getLength()
+            <Dict>:add(<string>, <Object>)
+            <Dict>:set(<string>, <Object>)
+            <Dict>:remove(<string>)
+<boolean> = <Dict>:is(<string>)
+<Object>  = <Dict>:lookup(<string>)
+<Object>  = <Dict>:lookupNF(<string>)
+<integer> = <Dict>:lookupInt(<string>, <string>)
+<string>  = <Dict>:getKey(<integer>)
+<Object>  = <Dict>:getVal(<integer>)
+<Object>  = <Dict>:getValNF(<integer>)
+\stopfunctioncall
+
+\type{LinkDest} methods:
+
+\startfunctioncall
+<boolean>  = <LinkDest>:isOK()
+<integer>  = <LinkDest>:getKind()
+<string>   = <LinkDest>:getKindName()
+<boolean>  = <LinkDest>:isPageRef()
+<integer>  = <LinkDest>:getPageNum()
+<Ref>      = <LinkDest>:getPageRef()
+<number>   = <LinkDest>:getLeft()
+<number>   = <LinkDest>:getBottom()
+<number>   = <LinkDest>:getRight()
+<number>   = <LinkDest>:getTop()
+<number>   = <LinkDest>:getZoom()
+<boolean>  = <LinkDest>:getChangeLeft()
+<boolean>  = <LinkDest>:getChangeTop()
+<boolean>  = <LinkDest>:getChangeZoom()
+\stopfunctioncall
+
+\type{Object} methods:
+
+\startfunctioncall
+            <Object>:initBool(<boolean>)
+            <Object>:initInt(<integer>)
+            <Object>:initReal(<number>)
+            <Object>:initString(<string>)
+            <Object>:initName(<string>)
+            <Object>:initNull()
+            <Object>:initArray(<XRef>)
+            <Object>:initDict(<XRef>)
+            <Object>:initStream(<Stream>)
+            <Object>:initRef(<integer> object number, <integer> object generation)
+            <Object>:initCmd(<string>)
+            <Object>:initError()
+            <Object>:initEOF()
+            <Object>:fetch(<XRef>)
+<integer> = <Object>:getType()
+<string>  = <Object>:getTypeName()
+<boolean> = <Object>:isBool()
+<boolean> = <Object>:isInt()
+<boolean> = <Object>:isReal()
+<boolean> = <Object>:isNum()
+<boolean> = <Object>:isString()
+<boolean> = <Object>:isName()
+<boolean> = <Object>:isNull()
+<boolean> = <Object>:isArray()
+<boolean> = <Object>:isDict()
+<boolean> = <Object>:isStream()
+<boolean> = <Object>:isRef()
+<boolean> = <Object>:isCmd()
+<boolean> = <Object>:isError()
+<boolean> = <Object>:isEOF()
+<boolean> = <Object>:isNone()
+<boolean> = <Object>:getBool()
+<integer> = <Object>:getInt()
+<number>  = <Object>:getReal()
+<number>  = <Object>:getNum()
+<string>  = <Object>:getString()
+<string>  = <Object>:getName()
+<Array>   = <Object>:getArray()
+<Dict>    = <Object>:getDict()
+<Stream>  = <Object>:getStream()
+<Ref>     = <Object>:getRef()
+<integer> = <Object>:getRefNum()
+<integer> = <Object>:getRefGen()
+<string>  = <Object>:getCmd()
+<integer> = <Object>:arrayGetLength()
+          = <Object>:arrayAdd(<Object>)
+<Object>  = <Object>:arrayGet(<integer>)
+<Object>  = <Object>:arrayGetNF(<integer>)
+<integer> = <Object>:dictGetLength(<integer>)
+          = <Object>:dictAdd(<string>, <Object>)
+          = <Object>:dictSet(<string>, <Object>)
+<Object>  = <Object>:dictLookup(<string>)
+<Object>  = <Object>:dictLookupNF(<string>)
+<string>  = <Object>:dictgetKey(<integer>)
+<Object>  = <Object>:dictgetVal(<integer>)
+<Object>  = <Object>:dictgetValNF(<integer>)
+<boolean> = <Object>:streamIs()
+          = <Object>:streamReset()
+<integer> = <Object>:streamGetChar()
+<integer> = <Object>:streamLookChar()
+<integer> = <Object>:streamGetPos()
+          = <Object>:streamSetPos(<integer>)
+<Dict>    = <Object>:streamGetDict()
+\stopfunctioncall
+
+\type{Page} methods:
+
+\startfunctioncall
+<boolean>      = <Page>:isOk()
+<integer>      = <Page>:getNum()
+<PDFRectangle> = <Page>:getMediaBox()
+<PDFRectangle> = <Page>:getCropBox()
+<boolean>      = <Page>:isCropped()
+<number>       = <Page>:getMediaWidth()
+<number>       = <Page>:getMediaHeight()
+<number>       = <Page>:getCropWidth()
+<number>       = <Page>:getCropHeight()
+<PDFRectangle> = <Page>:getBleedBox()
+<PDFRectangle> = <Page>:getTrimBox()
+<PDFRectangle> = <Page>:getArtBox()
+<integer>      = <Page>:getRotate()
+<string>       = <Page>:getLastModified()
+<Dict>         = <Page>:getBoxColorInfo()
+<Dict>         = <Page>:getGroup()
+<Stream>       = <Page>:getMetadata()
+<Dict>         = <Page>:getPieceInfo()
+<Dict>         = <Page>:getSeparationInfo()
+<Dict>         = <Page>:getResourceDict()
+<Object>       = <Page>:getAnnots()
+<Links>        = <Page>:getLinks(<Catalog>)
+<Object>       = <Page>:getContents()
+\stopfunctioncall
+
+\type{PDFDoc} methods:
+
+\startfunctioncall
+<boolean>  = <PDFDoc>:isOk()
+<integer>  = <PDFDoc>:getErrorCode()
+<string>   = <PDFDoc>:getErrorCodeName()
+<string>   = <PDFDoc>:getFileName()
+<XRef>     = <PDFDoc>:getXRef()
+<Catalog>  = <PDFDoc>:getCatalog()
+<number>   = <PDFDoc>:getPageMediaWidth()
+<number>   = <PDFDoc>:getPageMediaHeight()
+<number>   = <PDFDoc>:getPageCropWidth()
+<number>   = <PDFDoc>:getPageCropHeight()
+<integer>  = <PDFDoc>:getNumPages()
+<string>   = <PDFDoc>:readMetadata()
+<Object>   = <PDFDoc>:getStructTreeRoot()
+<integer>  = <PDFDoc>:findPage(<integer> object number, <integer> object generation)
+<Links>    = <PDFDoc>:getLinks(<integer>)
+<LinkDest> = <PDFDoc>:findDest(<string>)
+<boolean>  = <PDFDoc>:isEncrypted()
+<boolean>  = <PDFDoc>:okToPrint()
+<boolean>  = <PDFDoc>:okToChange()
+<boolean>  = <PDFDoc>:okToCopy()
+<boolean>  = <PDFDoc>:okToAddNotes()
+<boolean>  = <PDFDoc>:isLinearized()
+<Object>   = <PDFDoc>:getDocInfo()
+<Object>   = <PDFDoc>:getDocInfoNF()
+<integer>  = <PDFDoc>:getPDFMajorVersion()
+<integer>  = <PDFDoc>:getPDFMinorVersion()
+\stopfunctioncall
+
+\type{PDFRectangle} methods:
+
+\startfunctioncall
+<boolean>  = <PDFRectangle>:isValid()
+\stopfunctioncall
+
+%\type{Ref} methods:
+%
+%\startfunctioncall
+%\stopfunctioncall
+
+\type{Stream} methods:
+
+\startfunctioncall
+<integer>  = <Stream>:getKind()
+<string>   = <Stream>:getKindName()
+           = <Stream>:reset()
+           = <Stream>:close()
+<integer>  = <Stream>:getChar()
+<integer>  = <Stream>:lookChar()
+<integer>  = <Stream>:getRawChar()
+<integer>  = <Stream>:getUnfilteredChar()
+           = <Stream>:unfilteredReset()
+<integer>  = <Stream>:getPos()
+<boolean>  = <Stream>:isBinary()
+<Stream>   = <Stream>:getUndecodedStream()
+<Dict>     = <Stream>:getDict()
+\stopfunctioncall
+
+\type{XRef} methods:
+
+\startfunctioncall
+<boolean>  = <XRef>:isOk()
+<integer>  = <XRef>:getErrorCode()
+<boolean>  = <XRef>:isEncrypted()
+<boolean>  = <XRef>:okToPrint()
+<boolean>  = <XRef>:okToPrintHighRes()
+<boolean>  = <XRef>:okToChange()
+<boolean>  = <XRef>:okToCopy()
+<boolean>  = <XRef>:okToAddNotes()
+<boolean>  = <XRef>:okToFillForm()
+<boolean>  = <XRef>:okToAccessibility()
+<boolean>  = <XRef>:okToAssemble()
+<Object>   = <XRef>:getCatalog()
+<Object>   = <XRef>:fetch(<integer> object number, <integer> object generation)
+<Object>   = <XRef>:getDocInfo()
+<Object>   = <XRef>:getDocInfoNF()
+<integer>  = <XRef>:getNumObjects()
+<integer>  = <XRef>:getRootNum()
+<integer>  = <XRef>:getRootGen()
+<integer>  = <XRef>:getSize()
+<Object>   = <XRef>:getTrailerDict()
 \stopfunctioncall
 
 %***********************************************************************
@@ -4918,7 +5139,7 @@ If \type{m} is given, processing stops at (but including) that node,
 otherwise processing stops at the end of the list.
 
 Note: this function used to be called \type{first_character}. It has
-been renamed in \LUATEX\ 0.65, and the old name is deprecated now. 
+been renamed in \LUATEX\ 0.65, and the old name is deprecated now.
 
 \subsubsection{\luatex{node.ligaturing}}
 
@@ -6334,7 +6555,7 @@ function out_prim (a)
     if n == ' ' then
       n = '\\normalcontrolspace'
     end
-    tex.print(n .. '\\hskip 4pt plus 5em')  
+    tex.print(n .. '\\hskip 4pt plus 5em')
   end
 end
 \stopluacode
@@ -7755,7 +7976,7 @@ Here is that nested solution again, in a different representation:
 \NC sub2             \NC \type{<ff>-}$^5$\NC \type{i}$^6$ \NC \type{<ffi>}$^7$\NC \NR
 \stoptabulate
 
-When line breaking is choosing its breakpoints, the following fields will eventually 
+When line breaking is choosing its breakpoints, the following fields will eventually
 be selected:
 
 \starttabulate[|l|l|l|]
@@ -7764,16 +7985,16 @@ be selected:
 \NC                 \NC \type{i}$^3$     \NC \NR
 \NC \type{of-fice}  \NC \type{f-}$^1$    \NC \NR
 \NC                 \NC \type{<fi>}$^4$  \NC \NR
-\NC \type{off-ice}  \NC \type{<ff>-}$^5$ \NC \NR 
-\NC                 \NC \type{i}$^6$     \NC \NR 
+\NC \type{off-ice}  \NC \type{<ff>-}$^5$ \NC \NR
+\NC                 \NC \type{i}$^6$     \NC \NR
 \NC \type{office}   \NC \type{<ffi>}$^7$ \NC \NR
 \stoptabulate
 
 The current solution in \LUATEX\ is not able to handle nested
 discretionaries, but it is in fact smart enough to handle this
 fictional \type{of-f-ice} example. It does so by combining two
-sequential discretionary nodes as if they were a single object 
-(where the second discretionary node is treated as an extension 
+sequential discretionary nodes as if they were a single object
+(where the second discretionary node is treated as an extension
 of the first node).
 
 One can observe that the \type{of-f-ice} and \type{off-ice} cases both end
@@ -8923,7 +9144,7 @@ Id: \showid{accent}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type  \NC  \bf explanation \NC\NR
-\NC subtype    \NC number           \NC the first bit is used for a fixed top accent flag (if the \type{accent} field is present), 
+\NC subtype    \NC number           \NC the first bit is used for a fixed top accent flag (if the \type{accent} field is present),
                                         the second bit for a fixed bottom accent flag (if the \type{bot_accent} field is present).
                                         Example: the actual value \type{3} means: do not stretch either accent\NC\NR
 \NC attr       \NC \syntax{<node>}\NC          \NC\NR
