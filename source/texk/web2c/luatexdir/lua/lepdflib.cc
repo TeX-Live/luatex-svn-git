@@ -1,7 +1,7 @@
 /* lepdflib.cc
 
-   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
-   Copyright 2009-2010 Hartmut Henkel <hartmut@luatex.org>
+   Copyright 2009-2011 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2011 Hartmut Henkel <hartmut@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -694,7 +694,7 @@ static int m_Catalog_getJS(lua_State * L)
     i = luaL_checkint(L, 2);
     len = ((Catalog *) uin->d)->numJS();
     if (i > 0 && i <= len) {
-        gs = ((Catalog *) uin->d)->getJS(i);
+        gs = ((Catalog *) uin->d)->getJS(i - 1);
         if (gs != NULL)
             lua_pushlstring(L, gs->getCString(), gs->getLength());
         else
