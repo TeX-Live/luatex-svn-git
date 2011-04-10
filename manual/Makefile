@@ -6,7 +6,7 @@ all:	$(pdffiles)
 
 luatexref-t.pdf:	luatexref-t.tex
 
-functionref.pdf:	functionref.tex fdata.lua fdata_epdf.lua
+functionref.pdf:	functionref.tex fdata.lua fdata_epdf.lua fdata_img.lua
 
 %.pdf:	%.tex
 	context $<
