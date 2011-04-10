@@ -682,51 +682,51 @@ local fdata_epdf = {
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "boolean", name = "boolean", optional = false, },
         },
         returnvalues = {
         },
       },
-
       initInt = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
         },
         returnvalues = {
         },
       },
-
       initReal = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "number", name = "number", optional = false, },
         },
         returnvalues = {
         },
       },
-
       initString = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "string", name = "string", optional = false, },
         },
         returnvalues = {
         },
       },
-
       initName = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "string", name = "string", optional = false, },
         },
         returnvalues = {
         },
       },
-
       initNull = {
         type = "function",
         shortdesc = "TODO",
@@ -736,57 +736,57 @@ local fdata_epdf = {
         returnvalues = {
         },
       },
-
       initArray = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "XRef", name = "xref", optional = false, },
         },
         returnvalues = {
         },
       },
-
       initDict = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "XRef", name = "xref", optional = false, },
         },
         returnvalues = {
         },
       },
-
       initStream = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "Stream", name = "stream", optional = false, },
         },
         returnvalues = {
         },
       },
-
       initRef = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
         },
         returnvalues = {
         },
       },
-
       initCmd = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "string", name = "string", optional = false, },
         },
         returnvalues = {
         },
       },
-
       initError = {
         type = "function",
         shortdesc = "TODO",
@@ -796,7 +796,6 @@ local fdata_epdf = {
         returnvalues = {
         },
       },
-
       initEOF = {
         type = "function",
         shortdesc = "TODO",
@@ -806,18 +805,17 @@ local fdata_epdf = {
         returnvalues = {
         },
       },
-
       fetch = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "XRef", name = "xref", optional = false, },
         },
         returnvalues = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       getType = {
         type = "function",
         shortdesc = "TODO",
@@ -828,7 +826,6 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       getTypeName = {
         type = "function",
         shortdesc = "TODO",
@@ -839,7 +836,6 @@ local fdata_epdf = {
           {type = "string", name = "var", optional = false, },
         },
       },
-
       isBool = {
         type = "function",
         shortdesc = "TODO",
@@ -850,7 +846,6 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       isInt = {
         type = "function",
         shortdesc = "TODO",
@@ -861,7 +856,6 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       isReal = {
         type = "function",
         shortdesc = "TODO",
@@ -872,7 +866,6 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       isNum = {
         type = "function",
         shortdesc = "TODO",
@@ -883,7 +876,6 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       isString = {
         type = "function",
         shortdesc = "TODO",
@@ -894,7 +886,6 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       isName = {
         type = "function",
         shortdesc = "TODO",
@@ -905,7 +896,6 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       isNull = {
         type = "function",
         shortdesc = "TODO",
@@ -916,7 +906,6 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       isArray = {
         type = "function",
         shortdesc = "TODO",
@@ -927,7 +916,6 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       isDict = {
         type = "function",
         shortdesc = "TODO",
@@ -938,7 +926,6 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       isStream = {
         type = "function",
         shortdesc = "TODO",
@@ -949,7 +936,6 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       isRef = {
         type = "function",
         shortdesc = "TODO",
@@ -960,7 +946,6 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       isCmd = {
         type = "function",
         shortdesc = "TODO",
@@ -971,7 +956,6 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       isError = {
         type = "function",
         shortdesc = "TODO",
@@ -982,7 +966,6 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       isEOF = {
         type = "function",
         shortdesc = "TODO",
@@ -993,7 +976,6 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       isNone = {
         type = "function",
         shortdesc = "TODO",
@@ -1004,7 +986,6 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       getBool = {
         type = "function",
         shortdesc = "TODO",
@@ -1015,7 +996,6 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       getInt = {
         type = "function",
         shortdesc = "TODO",
@@ -1026,7 +1006,6 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       getReal = {
         type = "function",
         shortdesc = "TODO",
@@ -1037,7 +1016,6 @@ local fdata_epdf = {
           {type = "number", name = "var", optional = false, },
         },
       },
-
       getNum = {
         type = "function",
         shortdesc = "TODO",
@@ -1048,7 +1026,6 @@ local fdata_epdf = {
           {type = "number", name = "var", optional = false, },
         },
       },
-
       getString = {
         type = "function",
         shortdesc = "TODO",
@@ -1059,7 +1036,6 @@ local fdata_epdf = {
           {type = "string", name = "var", optional = false, },
         },
       },
-
       getName = {
         type = "function",
         shortdesc = "TODO",
@@ -1070,7 +1046,6 @@ local fdata_epdf = {
           {type = "string", name = "var", optional = false, },
         },
       },
-
       getArray = {
         type = "function",
         shortdesc = "TODO",
@@ -1081,7 +1056,6 @@ local fdata_epdf = {
           {type = "Array", name = "var", optional = false, },
         },
       },
-
       getDict = {
         type = "function",
         shortdesc = "TODO",
@@ -1092,7 +1066,6 @@ local fdata_epdf = {
           {type = "Dict", name = "var", optional = false, },
         },
       },
-
       getStream = {
         type = "function",
         shortdesc = "TODO",
@@ -1103,7 +1076,6 @@ local fdata_epdf = {
           {type = "Stream", name = "var", optional = false, },
         },
       },
-
       getRef = {
         type = "function",
         shortdesc = "TODO",
@@ -1114,7 +1086,6 @@ local fdata_epdf = {
           {type = "Ref", name = "var", optional = false, },
         },
       },
-
       getRefNum = {
         type = "function",
         shortdesc = "TODO",
@@ -1125,7 +1096,6 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       getRefGen = {
         type = "function",
         shortdesc = "TODO",
@@ -1136,7 +1106,6 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       getCmd = {
         type = "function",
         shortdesc = "TODO",
@@ -1147,7 +1116,6 @@ local fdata_epdf = {
           {type = "string", name = "var", optional = false, },
         },
       },
-
       arrayGetLength = {
         type = "function",
         shortdesc = "TODO",
@@ -1158,125 +1126,126 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       arrayAdd = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
         },
       },
-
       arrayGet = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
         },
         returnvalues = {
           {type = "Object", name = "var", optional = false, },
         },
       },
-
       arrayGetNF = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
         },
         returnvalues = {
           {type = "Object", name = "var", optional = false, },
         },
       },
-
       dictGetLength = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
         },
         returnvalues = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       dictAdd = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "string", name = "string", optional = false, },
+          {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
         },
       },
-
       dictSet = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "string", name = "string", optional = false, },
+          {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
         },
       },
-
       dictLookup = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "string", name = "string", optional = false, },
         },
         returnvalues = {
           {type = "Object", name = "var", optional = false, },
         },
       },
-
       dictLookupNF = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "string", name = "string", optional = false, },
         },
         returnvalues = {
           {type = "Object", name = "var", optional = false, },
         },
       },
-
       dictGetKey = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
         },
         returnvalues = {
           {type = "string", name = "var", optional = false, },
         },
       },
-
       dictGetVal = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
         },
         returnvalues = {
           {type = "Object", name = "var", optional = false, },
         },
       },
-
       dictGetValNF = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
         },
         returnvalues = {
           {type = "Object", name = "var", optional = false, },
         },
       },
-
       streamIs = {
         type = "function",
         shortdesc = "TODO",
@@ -1287,7 +1256,6 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       streamReset = {
         type = "function",
         shortdesc = "TODO",
@@ -1297,7 +1265,6 @@ local fdata_epdf = {
         returnvalues = {
         },
       },
-
       streamGetChar = {
         type = "function",
         shortdesc = "TODO",
@@ -1308,7 +1275,6 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       streamLookChar = {
         type = "function",
         shortdesc = "TODO",
@@ -1319,7 +1285,6 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       streamGetPos = {
         type = "function",
         shortdesc = "TODO",
@@ -1330,17 +1295,16 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       streamSetPos = {
         type = "function",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
         },
         returnvalues = {
         },
       },
-
       streamGetDict = {
         type = "function",
         shortdesc = "TODO",
@@ -1351,11 +1315,9 @@ local fdata_epdf = {
           {type = "Dict", name = "var", optional = false, },
         },
       },
-
     },
 ------------------------------------------------------------------------
     Page = {
-
       isOK = {
         type = "function",
         shortdesc = "Check if Page object is ok.",
@@ -1366,10 +1328,9 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       getNum = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1377,10 +1338,9 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       getMediaBox = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1388,10 +1348,9 @@ local fdata_epdf = {
           {type = "PDFRectangle", name = "var", optional = false, },
         },
       },
-
       getCropBox = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1399,10 +1358,9 @@ local fdata_epdf = {
           {type = "PDFRectangle", name = "var", optional = false, },
         },
       },
-
       isCropped = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1410,10 +1368,9 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       getMediaWidth = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1421,10 +1378,9 @@ local fdata_epdf = {
           {type = "number", name = "var", optional = false, },
         },
       },
-
       getMediaHeight = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1432,10 +1388,9 @@ local fdata_epdf = {
           {type = "number", name = "var", optional = false, },
         },
       },
-
       getCropWidth = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1443,10 +1398,9 @@ local fdata_epdf = {
           {type = "number", name = "var", optional = false, },
         },
       },
-
       getCropHeight = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1454,10 +1408,9 @@ local fdata_epdf = {
           {type = "number", name = "var", optional = false, },
         },
       },
-
       getBleedBox = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1465,10 +1418,9 @@ local fdata_epdf = {
           {type = "PDFRectangle", name = "var", optional = false, },
         },
       },
-
       getTrimBox = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1476,10 +1428,9 @@ local fdata_epdf = {
           {type = "PDFRectangle", name = "var", optional = false, },
         },
       },
-
       getArtBox = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1487,10 +1438,9 @@ local fdata_epdf = {
           {type = "PDFRectangle", name = "var", optional = false, },
         },
       },
-
       getRotate = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1498,10 +1448,9 @@ local fdata_epdf = {
           {type = "number", name = "var", optional = false, },
         },
       },
-
       getLastModified = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1509,10 +1458,9 @@ local fdata_epdf = {
           {type = "string", name = "var", optional = false, },
         },
       },
-
       getBoxColorInfo = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1520,10 +1468,9 @@ local fdata_epdf = {
           {type = "Dict", name = "var", optional = false, },
         },
       },
-
       getGroup = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1531,10 +1478,9 @@ local fdata_epdf = {
           {type = "Dict", name = "var", optional = false, },
         },
       },
-
       getMetadata = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1542,10 +1488,9 @@ local fdata_epdf = {
           {type = "Stream", name = "var", optional = false, },
         },
       },
-
       getPieceInfo = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1553,10 +1498,9 @@ local fdata_epdf = {
           {type = "Dict", name = "var", optional = false, },
         },
       },
-
       getSeparationInfo = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1564,10 +1508,9 @@ local fdata_epdf = {
           {type = "Dict", name = "var", optional = false, },
         },
       },
-
       getResourceDict = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1575,10 +1518,9 @@ local fdata_epdf = {
           {type = "Dict", name = "var", optional = false, },
         },
       },
-
       getAnnots = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1586,21 +1528,20 @@ local fdata_epdf = {
           {type = "Object", name = "var", optional = false, },
         },
       },
-
       getLinks = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
+          {type = "Catalog", name = "catalog", optional = false, },
         },
         returnvalues = {
           {type = "Links", name = "var", optional = false, },
         },
       },
-
       getContents = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Page", name = "page", optional = false, },
         },
@@ -1608,303 +1549,279 @@ local fdata_epdf = {
           {type = "Object", name = "var", optional = false, },
         },
       },
-
     },
 ------------------------------------------------------------------------
     PDFDoc = {
-
       isOK = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "Check if PDFDoc object is ok.",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       getErrorCode = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       getErrorCodeName = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "string", name = "var", optional = false, },
         },
       },
-
       getFileName = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "string", name = "var", optional = false, },
         },
       },
-
       getXRef = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "XRef", name = "var", optional = false, },
         },
       },
-
       getCatalog = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "Catalog", name = "var", optional = false, },
         },
       },
-
       getPageMediaWidth = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "number", name = "var", optional = false, },
         },
       },
-
       getPageMediaHeight = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "number", name = "var", optional = false, },
         },
       },
-
       getPageCropWidth = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "number", name = "var", optional = false, },
         },
       },
-
       getPageCropHeight = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "number", name = "var", optional = false, },
         },
       },
-
       getNumPages = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       readMetadata = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "string", name = "var", optional = false, },
         },
       },
-
       getStructTreeRoot = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "Object", name = "var", optional = false, },
         },
       },
-
       findPage = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
         },
         returnvalues = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       getLinks = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
         },
         returnvalues = {
           {type = "Links", name = "var", optional = false, },
         },
       },
-
       findDest = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
+          {type = "string", name = "string", optional = false, },
         },
         returnvalues = {
           {type = "LinkDest", name = "var", optional = false, },
         },
       },
-
       isEncrypted = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       okToPrint = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       okToChange = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       okToCopy = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       okToAddNotes = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       isLinearized = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       getDocInfo = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "Object", name = "var", optional = false, },
         },
       },
-
       getDocInfoNF = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "Object", name = "var", optional = false, },
         },
       },
-
       getPDFMajorVersion = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       getPDFMinorVersion = {
         type = "function",
-        shortdesc = "Check if Page object is ok.",
+        shortdesc = "TODO",
         arguments = {
-          {type = "Page", name = "page", optional = false, },
+          {type = "PDFDoc", name = "pdfdoc", optional = false, },
         },
         returnvalues = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
     },
 ------------------------------------------------------------------------
     PDFRectangle = {
       isValid = {
         type = "function",
-        shortdesc = "Check if PDFRectangle object is valid.",
+        shortdesc = "TODO",
         arguments = {
           {type = "PDFRectangle", name = "pdfrectangle", optional = false, },
         },
@@ -1915,10 +1832,9 @@ local fdata_epdf = {
     },
 ------------------------------------------------------------------------
     Stream = {
-
       getKind = {
         type = "function",
-        shortdesc = "Check if Stream object is valid.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Stream", name = "stream", optional = false, },
         },
@@ -1926,10 +1842,9 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       getKindName = {
         type = "function",
-        shortdesc = "Check if Stream object is valid.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Stream", name = "stream", optional = false, },
         },
@@ -1937,30 +1852,27 @@ local fdata_epdf = {
           {type = "string", name = "var", optional = false, },
         },
       },
-
       reset = {
         type = "function",
-        shortdesc = "Check if Stream object is valid.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Stream", name = "stream", optional = false, },
         },
         returnvalues = {
         },
       },
-
       close = {
         type = "function",
-        shortdesc = "Check if Stream object is valid.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Stream", name = "stream", optional = false, },
         },
         returnvalues = {
         },
       },
-
       getChar = {
         type = "function",
-        shortdesc = "Check if Stream object is valid.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Stream", name = "stream", optional = false, },
         },
@@ -1968,10 +1880,9 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       lookChar = {
         type = "function",
-        shortdesc = "Check if Stream object is valid.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Stream", name = "stream", optional = false, },
         },
@@ -1979,10 +1890,9 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       getRawChar = {
         type = "function",
-        shortdesc = "Check if Stream object is valid.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Stream", name = "stream", optional = false, },
         },
@@ -1990,10 +1900,9 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       getUnfilteredChar = {
         type = "function",
-        shortdesc = "Check if Stream object is valid.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Stream", name = "stream", optional = false, },
         },
@@ -2001,20 +1910,18 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       unfilteredReset = {
         type = "function",
-        shortdesc = "Check if Stream object is valid.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Stream", name = "stream", optional = false, },
         },
         returnvalues = {
         },
       },
-
       getPos = {
         type = "function",
-        shortdesc = "Check if Stream object is valid.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Stream", name = "stream", optional = false, },
         },
@@ -2022,10 +1929,9 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       isBinary = {
         type = "function",
-        shortdesc = "Check if Stream object is valid.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Stream", name = "stream", optional = false, },
         },
@@ -2033,10 +1939,9 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       getUndecodedStream = {
         type = "function",
-        shortdesc = "Check if Stream object is valid.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Stream", name = "stream", optional = false, },
         },
@@ -2044,10 +1949,9 @@ local fdata_epdf = {
           {type = "Stream", name = "var", optional = false, },
         },
       },
-
       getDict = {
         type = "function",
-        shortdesc = "Check if Stream object is valid.",
+        shortdesc = "TODO",
         arguments = {
           {type = "Stream", name = "stream", optional = false, },
         },
@@ -2055,11 +1959,9 @@ local fdata_epdf = {
           {type = "Dict", name = "var", optional = false, },
         },
       },
-
     },
 ------------------------------------------------------------------------
     XRef = {
-
       isOK = {
         type = "function",
         shortdesc = "Check if XRef object is ok.",
@@ -2070,10 +1972,9 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       getErrorCode = {
         type = "function",
-        shortdesc = "Check if XRef object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "XRef", name = "xref", optional = false, },
         },
@@ -2081,10 +1982,9 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       isEncrypted = {
         type = "function",
-        shortdesc = "Check if XRef object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "XRef", name = "xref", optional = false, },
         },
@@ -2092,10 +1992,9 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       okToPrint = {
         type = "function",
-        shortdesc = "Check if XRef object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "XRef", name = "xref", optional = false, },
         },
@@ -2103,10 +2002,9 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       okToPrintHighRes = {
         type = "function",
-        shortdesc = "Check if XRef object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "XRef", name = "xref", optional = false, },
         },
@@ -2114,10 +2012,9 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       okToChange = {
         type = "function",
-        shortdesc = "Check if XRef object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "XRef", name = "xref", optional = false, },
         },
@@ -2125,10 +2022,9 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       okToCopy = {
         type = "function",
-        shortdesc = "Check if XRef object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "XRef", name = "xref", optional = false, },
         },
@@ -2136,10 +2032,9 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       okToAddNotes = {
         type = "function",
-        shortdesc = "Check if XRef object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "XRef", name = "xref", optional = false, },
         },
@@ -2147,10 +2042,9 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       okToFillForm = {
         type = "function",
-        shortdesc = "Check if XRef object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "XRef", name = "xref", optional = false, },
         },
@@ -2158,10 +2052,9 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       okToAccessibility = {
         type = "function",
-        shortdesc = "Check if XRef object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "XRef", name = "xref", optional = false, },
         },
@@ -2169,10 +2062,9 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       okToAssemble = {
         type = "function",
-        shortdesc = "Check if XRef object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "XRef", name = "xref", optional = false, },
         },
@@ -2180,10 +2072,9 @@ local fdata_epdf = {
           {type = "boolean", name = "var", optional = false, },
         },
       },
-
       getCatalog = {
         type = "function",
-        shortdesc = "Check if XRef object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "XRef", name = "xref", optional = false, },
         },
@@ -2191,21 +2082,21 @@ local fdata_epdf = {
           {type = "Object", name = "var", optional = false, },
         },
       },
-
       fetch = {
         type = "function",
-        shortdesc = "Check if XRef object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "XRef", name = "xref", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
         },
         returnvalues = {
           {type = "Object", name = "var", optional = false, },
         },
       },
-
       getDocInfo = {
         type = "function",
-        shortdesc = "Check if XRef object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "XRef", name = "xref", optional = false, },
         },
@@ -2213,10 +2104,9 @@ local fdata_epdf = {
           {type = "Object", name = "var", optional = false, },
         },
       },
-
       getDocInfoNF = {
         type = "function",
-        shortdesc = "Check if XRef object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "XRef", name = "xref", optional = false, },
         },
@@ -2224,10 +2114,9 @@ local fdata_epdf = {
           {type = "Object", name = "var", optional = false, },
         },
       },
-
       getNumObjects = {
         type = "function",
-        shortdesc = "Check if XRef object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "XRef", name = "xref", optional = false, },
         },
@@ -2235,10 +2124,9 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       getRootNum = {
         type = "function",
-        shortdesc = "Check if XRef object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "XRef", name = "xref", optional = false, },
         },
@@ -2246,10 +2134,9 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       getRootGen = {
         type = "function",
-        shortdesc = "Check if XRef object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "XRef", name = "xref", optional = false, },
         },
@@ -2257,10 +2144,9 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       getSize = {
         type = "function",
-        shortdesc = "Check if XRef object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "XRef", name = "xref", optional = false, },
         },
@@ -2268,10 +2154,9 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
-
       getTrailerDict = {
         type = "function",
-        shortdesc = "Check if XRef object is ok.",
+        shortdesc = "TODO",
         arguments = {
           {type = "XRef", name = "xref", optional = false, },
         },
@@ -2279,10 +2164,8 @@ local fdata_epdf = {
           {type = "Object", name = "var", optional = false, },
         },
       },
-
     },
 ------------------------------------------------------------------------
   }
 }
-
 return fdata_epdf
