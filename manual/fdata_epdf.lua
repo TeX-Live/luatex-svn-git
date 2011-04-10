@@ -4,7 +4,7 @@ local fdata_epdf = {
   functions = {
     open = {
       type = "function",
-      shortdesc = "Open a PDF document.",
+      shortdesc = "Construct a PDFDoc object by opening a PDF document.",
       arguments = {
         {type = "string", name = "filename", optional = false, },
       },
@@ -311,8 +311,8 @@ local fdata_epdf = {
         shortdesc = "Get a Page number by object number and generation.",
         arguments = {
           {type = "Catalog", name = "catalog", optional = false, },
-          {type = "integer", name = "number", optional = false, },
-          {type = "integer", name = "generation", optional = false, },
+          {type = "integer", name = "object number", optional = false, },
+          {type = "integer", name = "object generation", optional = false, },
         },
         returnvalues = {
           {type = "integer", name = "var", optional = false, },
@@ -679,7 +679,7 @@ local fdata_epdf = {
     Object = {
       initBool = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Initialize a Bool-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "boolean", name = "boolean", optional = false, },
@@ -689,7 +689,7 @@ local fdata_epdf = {
       },
       initInt = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Initialize an Int-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "integer", name = "integer", optional = false, },
@@ -699,7 +699,7 @@ local fdata_epdf = {
       },
       initReal = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Initialize a Real-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "number", name = "number", optional = false, },
@@ -709,7 +709,7 @@ local fdata_epdf = {
       },
       initString = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Initialize a String-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "string", name = "string", optional = false, },
@@ -719,7 +719,7 @@ local fdata_epdf = {
       },
       initName = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Initialize a Name-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "string", name = "string", optional = false, },
@@ -729,7 +729,7 @@ local fdata_epdf = {
       },
       initNull = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Initialize a Null-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -738,7 +738,7 @@ local fdata_epdf = {
       },
       initArray = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Initialize an Array-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "XRef", name = "xref", optional = false, },
@@ -748,7 +748,7 @@ local fdata_epdf = {
       },
       initDict = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Initialize a Dict-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "XRef", name = "xref", optional = false, },
@@ -758,7 +758,7 @@ local fdata_epdf = {
       },
       initStream = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Initialize a Stream-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "Stream", name = "stream", optional = false, },
@@ -768,18 +768,18 @@ local fdata_epdf = {
       },
       initRef = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Initialize a Ref-type object by object number and generation.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
-          {type = "integer", name = "integer", optional = false, },
-          {type = "integer", name = "integer", optional = false, },
+          {type = "integer", name = "object number", optional = false, },
+          {type = "integer", name = "object generation", optional = false, },
         },
         returnvalues = {
         },
       },
       initCmd = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Initialize a Cmd-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "string", name = "string", optional = false, },
@@ -789,7 +789,7 @@ local fdata_epdf = {
       },
       initError = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Initialize an Error-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -798,7 +798,7 @@ local fdata_epdf = {
       },
       initEOF = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Initialize an EOF-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -807,7 +807,7 @@ local fdata_epdf = {
       },
       fetch = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "If object is of type Ref, fetch and return the referenced object. Otherwise, return a copy of the object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "XRef", name = "xref", optional = false, },
@@ -818,7 +818,7 @@ local fdata_epdf = {
       },
       getType = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get object type as a number (enum ObjType).",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -828,7 +828,7 @@ local fdata_epdf = {
       },
       getTypeName = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get object type name.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -838,7 +838,7 @@ local fdata_epdf = {
       },
       isBool = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Check if object is of type Bool.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -848,7 +848,7 @@ local fdata_epdf = {
       },
       isInt = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Check if object is of type Int.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -858,7 +858,7 @@ local fdata_epdf = {
       },
       isReal = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Check if object is of type Real.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -868,7 +868,7 @@ local fdata_epdf = {
       },
       isNum = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Check if object is of type Num.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -878,7 +878,7 @@ local fdata_epdf = {
       },
       isString = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Check if object is of type String.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -888,7 +888,7 @@ local fdata_epdf = {
       },
       isName = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Check if object is of type Name.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -898,7 +898,7 @@ local fdata_epdf = {
       },
       isNull = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Check if object is of type Null.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -908,7 +908,7 @@ local fdata_epdf = {
       },
       isArray = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Check if object is of type Array.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -918,7 +918,7 @@ local fdata_epdf = {
       },
       isDict = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Check if object is of type Dict.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -928,7 +928,7 @@ local fdata_epdf = {
       },
       isStream = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Check if object is of type Stream.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -938,7 +938,7 @@ local fdata_epdf = {
       },
       isRef = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Check if object is of type Ref.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -948,7 +948,7 @@ local fdata_epdf = {
       },
       isCmd = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Check if object is of type Cmd.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -958,7 +958,7 @@ local fdata_epdf = {
       },
       isError = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Check if object is of type Error.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -968,7 +968,7 @@ local fdata_epdf = {
       },
       isEOF = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Check if object is of type EOF.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -978,7 +978,7 @@ local fdata_epdf = {
       },
       isNone = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Check if object is of type None.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -988,7 +988,7 @@ local fdata_epdf = {
       },
       getBool = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get boolean from Bool-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -998,7 +998,7 @@ local fdata_epdf = {
       },
       getInt = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get integer from Int-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -1008,7 +1008,7 @@ local fdata_epdf = {
       },
       getReal = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get number from Real-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -1018,7 +1018,7 @@ local fdata_epdf = {
       },
       getNum = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get number from Num-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -1028,7 +1028,7 @@ local fdata_epdf = {
       },
       getString = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get string from String-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -1038,7 +1038,7 @@ local fdata_epdf = {
       },
       getName = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get name from Name-type object as a string.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -1048,7 +1048,7 @@ local fdata_epdf = {
       },
       getArray = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get Array from Array-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -1058,7 +1058,7 @@ local fdata_epdf = {
       },
       getDict = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get Dict from Dict-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -1068,7 +1068,7 @@ local fdata_epdf = {
       },
       getStream = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get Stream from Stream-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -1078,7 +1078,7 @@ local fdata_epdf = {
       },
       getRef = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get Ref from Ref-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -1088,7 +1088,7 @@ local fdata_epdf = {
       },
       getRefNum = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get object number from Ref-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -1098,7 +1098,7 @@ local fdata_epdf = {
       },
       getRefGen = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get object generation from Ref-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -1107,7 +1107,7 @@ local fdata_epdf = {
         },
       },
       getCmd = {
-        type = "function",
+        shortdesc = "Get command from Cmd-type object as a string.",
         shortdesc = "TODO",
         arguments = {
           {type = "Object", name = "object", optional = false, },
@@ -1118,7 +1118,7 @@ local fdata_epdf = {
       },
       arrayGetLength = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get array length from Array-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
         },
@@ -1128,7 +1128,7 @@ local fdata_epdf = {
       },
       arrayAdd = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Add Object to Array-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "Object", name = "object", optional = false, },
@@ -1138,7 +1138,7 @@ local fdata_epdf = {
       },
       arrayGet = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get Object from Array-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "integer", name = "integer", optional = false, },
@@ -1149,7 +1149,7 @@ local fdata_epdf = {
       },
       arrayGetNF = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get Object from Array-type object, not resolving indirection.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "integer", name = "integer", optional = false, },
@@ -1160,7 +1160,7 @@ local fdata_epdf = {
       },
       dictGetLength = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get dictionary length from Dict-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "integer", name = "integer", optional = false, },
@@ -1171,7 +1171,7 @@ local fdata_epdf = {
       },
       dictAdd = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Add Object to Dict-type object.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "string", name = "string", optional = false, },
@@ -1215,7 +1215,7 @@ local fdata_epdf = {
       },
       dictGetKey = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get Dict key of Dict-type object by number.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "integer", name = "integer", optional = false, },
@@ -1226,7 +1226,7 @@ local fdata_epdf = {
       },
       dictGetVal = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get Dict value of Dict-type object by number.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "integer", name = "integer", optional = false, },
@@ -1237,7 +1237,7 @@ local fdata_epdf = {
       },
       dictGetValNF = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get Dict value of Dict-type object by number, not resolving indirection.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "integer", name = "integer", optional = false, },
@@ -1684,11 +1684,11 @@ local fdata_epdf = {
       },
       findPage = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Get a Page number by object number and generation.",
         arguments = {
           {type = "PDFDoc", name = "pdfdoc", optional = false, },
-          {type = "integer", name = "integer", optional = false, },
-          {type = "integer", name = "integer", optional = false, },
+          {type = "integer", name = "object number", optional = false, },
+          {type = "integer", name = "object generation", optional = false, },
         },
         returnvalues = {
           {type = "integer", name = "var", optional = false, },
@@ -2168,4 +2168,5 @@ local fdata_epdf = {
 ------------------------------------------------------------------------
   }
 }
+
 return fdata_epdf
