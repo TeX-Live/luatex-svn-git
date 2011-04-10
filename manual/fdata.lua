@@ -1,3 +1,5 @@
+-- $Id$
+
 local fdata = {
    ["callback"]={
       ["buildpage_filter"]={
@@ -1066,6 +1068,7 @@ local fdata = {
 	 ["type"]="callback",
       },
    },
+   ["epdf"] = require "fdata_epdf",
    ["font"]={
       ["current"]={
 	 ["arguments"]={

@@ -1,8 +1,12 @@
 # $Id$
 
-all:	luatexref-t.pdf functionref.pdf
+pdffiles=	luatexref-t.pdf functionref.pdf
 
-functionref.pdf:	functionref.tex fdata.lua
+all:	$(pdffiles)	
+
+luatexref-t.pdf:	luatexref-t.tex
+
+functionref.pdf:	functionref.tex fdata.lua fdata_epdf.lua
 
 %.pdf:	%.tex
 	context $<
@@ -10,3 +14,7 @@ functionref.pdf:	functionref.tex fdata.lua
 clean:
 	- rm -f *.log
 	- rm -f *.tuc
+
+allclean:
+	make clean
+	- rm -f $(pdffiles)
