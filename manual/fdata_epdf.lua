@@ -77,6 +77,7 @@ local fdata_epdf = {
     },
   },
   methods = {
+------------------------------------------------------------------------
     Annot = {
       isOK = {
         type = "function",
@@ -120,6 +121,7 @@ local fdata_epdf = {
         },
       },
     },
+------------------------------------------------------------------------
     AnnotBorderStyle = {
       getWidth = {
         type = "function",
@@ -132,6 +134,7 @@ local fdata_epdf = {
         },
       },
     },
+------------------------------------------------------------------------
     Annots = {
       getNumAnnots = {
         type = "function",
@@ -155,6 +158,7 @@ local fdata_epdf = {
         },
       },
     },
+------------------------------------------------------------------------
     Array = {
       incRef = {
         type = "function",
@@ -228,6 +232,7 @@ local fdata_epdf = {
         },
       },
     },
+------------------------------------------------------------------------
     Catalog = {
       isOK = {
         type = "function",
@@ -386,6 +391,7 @@ local fdata_epdf = {
         },
       },
     },
+------------------------------------------------------------------------
     Dict = {
       incRef = {
         type = "function",
@@ -526,6 +532,7 @@ local fdata_epdf = {
         },
       },
     },
+------------------------------------------------------------------------
     LinkDest = {
       isOK = {
         type = "function",
@@ -668,9 +675,7 @@ local fdata_epdf = {
         },
       },
     },
-
 ------------------------------------------------------------------------
-
     Object = {
       initBool = {
         type = "function",
@@ -679,7 +684,6 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -690,7 +694,6 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -701,7 +704,6 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -712,7 +714,6 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -723,7 +724,6 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -734,7 +734,6 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -745,7 +744,6 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -756,7 +754,6 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -767,7 +764,6 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -778,7 +774,6 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -789,7 +784,6 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -800,7 +794,6 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -811,7 +804,6 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -833,7 +825,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -844,7 +836,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "string", name = "var", optional = false, },
         },
       },
 
@@ -1031,7 +1023,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -1042,7 +1034,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "number", name = "var", optional = false, },
         },
       },
 
@@ -1053,7 +1045,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "number", name = "var", optional = false, },
         },
       },
 
@@ -1064,7 +1056,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "string", name = "var", optional = false, },
         },
       },
 
@@ -1075,7 +1067,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "string", name = "var", optional = false, },
         },
       },
 
@@ -1086,7 +1078,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Array", name = "var", optional = false, },
         },
       },
 
@@ -1097,7 +1089,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Dict", name = "var", optional = false, },
         },
       },
 
@@ -1108,7 +1100,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Stream", name = "var", optional = false, },
         },
       },
 
@@ -1119,7 +1111,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Ref", name = "var", optional = false, },
         },
       },
 
@@ -1130,7 +1122,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -1141,7 +1133,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -1152,7 +1144,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "string", name = "var", optional = false, },
         },
       },
 
@@ -1163,7 +1155,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -1174,7 +1166,6 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -1185,7 +1176,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Object", name = "var", optional = false, },
         },
       },
 
@@ -1196,7 +1187,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Object", name = "var", optional = false, },
         },
       },
 
@@ -1207,7 +1198,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -1218,7 +1209,6 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -1229,7 +1219,6 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -1240,7 +1229,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Object", name = "var", optional = false, },
         },
       },
 
@@ -1251,7 +1240,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Object", name = "var", optional = false, },
         },
       },
 
@@ -1262,7 +1251,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "string", name = "var", optional = false, },
         },
       },
 
@@ -1273,7 +1262,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Object", name = "var", optional = false, },
         },
       },
 
@@ -1284,7 +1273,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Object", name = "var", optional = false, },
         },
       },
 
@@ -1306,7 +1295,6 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -1317,7 +1305,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -1328,7 +1316,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -1339,7 +1327,7 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -1350,7 +1338,6 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -1361,14 +1348,12 @@ local fdata_epdf = {
           {type = "Object", name = "object", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Dict", name = "var", optional = false, },
         },
       },
 
     },
-
 ------------------------------------------------------------------------
-
     Page = {
 
       isOK = {
@@ -1389,7 +1374,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -1400,7 +1385,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "PDFRectangle", name = "var", optional = false, },
         },
       },
 
@@ -1411,7 +1396,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "PDFRectangle", name = "var", optional = false, },
         },
       },
 
@@ -1433,7 +1418,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "number", name = "var", optional = false, },
         },
       },
 
@@ -1444,7 +1429,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "number", name = "var", optional = false, },
         },
       },
 
@@ -1455,7 +1440,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "number", name = "var", optional = false, },
         },
       },
 
@@ -1466,7 +1451,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "number", name = "var", optional = false, },
         },
       },
 
@@ -1477,7 +1462,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "PDFRectangle", name = "var", optional = false, },
         },
       },
 
@@ -1488,7 +1473,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "PDFRectangle", name = "var", optional = false, },
         },
       },
 
@@ -1499,7 +1484,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "PDFRectangle", name = "var", optional = false, },
         },
       },
 
@@ -1510,7 +1495,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "number", name = "var", optional = false, },
         },
       },
 
@@ -1521,7 +1506,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "string", name = "var", optional = false, },
         },
       },
 
@@ -1532,7 +1517,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Dict", name = "var", optional = false, },
         },
       },
 
@@ -1543,7 +1528,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Dict", name = "var", optional = false, },
         },
       },
 
@@ -1554,7 +1539,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Stream", name = "var", optional = false, },
         },
       },
 
@@ -1565,7 +1550,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Dict", name = "var", optional = false, },
         },
       },
 
@@ -1576,7 +1561,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Dict", name = "var", optional = false, },
         },
       },
 
@@ -1587,7 +1572,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Dict", name = "var", optional = false, },
         },
       },
 
@@ -1598,7 +1583,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Object", name = "var", optional = false, },
         },
       },
 
@@ -1609,7 +1594,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Links", name = "var", optional = false, },
         },
       },
 
@@ -1620,14 +1605,12 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Object", name = "var", optional = false, },
         },
       },
 
     },
-
 ------------------------------------------------------------------------
-
     PDFDoc = {
 
       isOK = {
@@ -1648,7 +1631,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -1659,7 +1642,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "string", name = "var", optional = false, },
         },
       },
 
@@ -1670,7 +1653,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "string", name = "var", optional = false, },
         },
       },
 
@@ -1681,7 +1664,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "XRef", name = "var", optional = false, },
         },
       },
 
@@ -1692,7 +1675,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Catalog", name = "var", optional = false, },
         },
       },
 
@@ -1703,7 +1686,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "number", name = "var", optional = false, },
         },
       },
 
@@ -1714,7 +1697,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "number", name = "var", optional = false, },
         },
       },
 
@@ -1725,7 +1708,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "number", name = "var", optional = false, },
         },
       },
 
@@ -1736,7 +1719,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "number", name = "var", optional = false, },
         },
       },
 
@@ -1747,7 +1730,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -1758,7 +1741,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "string", name = "var", optional = false, },
         },
       },
 
@@ -1769,7 +1752,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Object", name = "var", optional = false, },
         },
       },
 
@@ -1780,7 +1763,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -1791,7 +1774,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Links", name = "var", optional = false, },
         },
       },
 
@@ -1802,7 +1785,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "LinkDest", name = "var", optional = false, },
         },
       },
 
@@ -1879,7 +1862,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Object", name = "var", optional = false, },
         },
       },
 
@@ -1890,7 +1873,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Object", name = "var", optional = false, },
         },
       },
 
@@ -1901,7 +1884,7 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -1912,14 +1895,12 @@ local fdata_epdf = {
           {type = "Page", name = "page", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
     },
-
 ------------------------------------------------------------------------
-
     PDFRectangle = {
       isValid = {
         type = "function",
@@ -1932,9 +1913,7 @@ local fdata_epdf = {
         },
       },
     },
-
 ------------------------------------------------------------------------
-
     Stream = {
 
       getKind = {
@@ -1944,7 +1923,7 @@ local fdata_epdf = {
           {type = "Stream", name = "stream", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -1955,7 +1934,7 @@ local fdata_epdf = {
           {type = "Stream", name = "stream", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "string", name = "var", optional = false, },
         },
       },
 
@@ -1966,7 +1945,6 @@ local fdata_epdf = {
           {type = "Stream", name = "stream", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -1977,7 +1955,6 @@ local fdata_epdf = {
           {type = "Stream", name = "stream", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -1988,7 +1965,7 @@ local fdata_epdf = {
           {type = "Stream", name = "stream", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -1999,7 +1976,7 @@ local fdata_epdf = {
           {type = "Stream", name = "stream", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -2010,7 +1987,7 @@ local fdata_epdf = {
           {type = "Stream", name = "stream", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -2021,7 +1998,7 @@ local fdata_epdf = {
           {type = "Stream", name = "stream", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -2032,7 +2009,6 @@ local fdata_epdf = {
           {type = "Stream", name = "stream", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
         },
       },
 
@@ -2043,7 +2019,7 @@ local fdata_epdf = {
           {type = "Stream", name = "stream", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -2065,7 +2041,7 @@ local fdata_epdf = {
           {type = "Stream", name = "stream", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Stream", name = "var", optional = false, },
         },
       },
 
@@ -2076,14 +2052,12 @@ local fdata_epdf = {
           {type = "Stream", name = "stream", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Dict", name = "var", optional = false, },
         },
       },
 
     },
-
 ------------------------------------------------------------------------
-
     XRef = {
 
       isOK = {
@@ -2104,7 +2078,7 @@ local fdata_epdf = {
           {type = "XRef", name = "xref", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -2214,7 +2188,7 @@ local fdata_epdf = {
           {type = "XRef", name = "xref", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Object", name = "var", optional = false, },
         },
       },
 
@@ -2225,7 +2199,7 @@ local fdata_epdf = {
           {type = "XRef", name = "xref", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Object", name = "var", optional = false, },
         },
       },
 
@@ -2236,7 +2210,7 @@ local fdata_epdf = {
           {type = "XRef", name = "xref", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Object", name = "var", optional = false, },
         },
       },
 
@@ -2247,7 +2221,7 @@ local fdata_epdf = {
           {type = "XRef", name = "xref", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Object", name = "var", optional = false, },
         },
       },
 
@@ -2258,7 +2232,7 @@ local fdata_epdf = {
           {type = "XRef", name = "xref", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -2269,7 +2243,7 @@ local fdata_epdf = {
           {type = "XRef", name = "xref", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -2280,7 +2254,7 @@ local fdata_epdf = {
           {type = "XRef", name = "xref", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -2291,7 +2265,7 @@ local fdata_epdf = {
           {type = "XRef", name = "xref", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "integer", name = "var", optional = false, },
         },
       },
 
@@ -2302,14 +2276,12 @@ local fdata_epdf = {
           {type = "XRef", name = "xref", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Object", name = "var", optional = false, },
         },
       },
 
     },
-
 ------------------------------------------------------------------------
-
   }
 }
 
