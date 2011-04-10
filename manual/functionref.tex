@@ -55,8 +55,13 @@
 
 \startluacode 
 local fdata = dofile('fdata.lua')
-function showfunction (t,f)
-         local val = fdata[t][f]
+function showfunction (t,o,f)
+         local val
+         if o == nil then
+            val = fdata[t]["functions"][f]
+         else
+            val = fdata[t]["methods"][o][f]
+         end
          local r = {}
          local a = {}
          if #val.returnvalues > 0 then
@@ -64,7 +69,7 @@ function showfunction (t,f)
                if v.optional then
 		  r[#r+1] = '[' .. v.type .. ']'
                else
-                 r[#r+1] = v.type
+                  r[#r+1] = v.type
                end
             end
          end
@@ -73,7 +78,7 @@ function showfunction (t,f)
                if v.optional then
 		  a[#a+1] = '[' ..  v.type .. ']'
                else
-                 a[#a+1] = v.type
+                  a[#a+1] = v.type
                end
             end
          end
@@ -83,7 +88,8 @@ end
 
 \stopluacode
 
-\def\presentfunction#1#2{\directlua{showfunction("#1","#2")}}
+\def\presentfunction#1#2{\directlua{showfunction("#1",nil,"#2")}}
+\def\presentmethod#1#2#3{\directlua{showfunction("#1","#2","#3")}}
 
 \starttext
 

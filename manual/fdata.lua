@@ -1,7 +1,8 @@
 -- $Id$
 
 local fdata = {
-   ["callback"]={
+  ["callback"]={
+    ["functions"]={
       ["buildpage_filter"]={
 	 ["arguments"]={
 	    {
@@ -1067,9 +1068,13 @@ local fdata = {
 	 ["shortdesc"]="Alter a node list before vertical packing takes place. The second number is the desired max depth. See \\afunction{hpack_filter} for the arguments.",
 	 ["type"]="callback",
       },
-   },
-   ["epdf"] = require "fdata_epdf",
-   ["font"]={
+    },
+    ["methods"]={
+    },
+  },
+  ["epdf"] = require "fdata_epdf",
+  ["font"]={
+    ["functions"]={
       ["current"]={
 	 ["arguments"]={
 	    {
@@ -1264,8 +1269,12 @@ local fdata = {
 	 ["shortdesc"]="Set an internal font id from a lua table.",
 	 ["type"]="function",
       },
-   },
-   ["fontloader"]={
+    },
+    ["methods"]={
+    },
+  },
+  ["fontloader"]={
+    ["functions"]={
       ["apply_afmfile"]={
 	 ["arguments"]={
 	    {
@@ -1348,8 +1357,12 @@ local fdata = {
 	 value contains any parser error strings.",
 	 ["type"]="function",
       },
-   },
-   ["img"]={
+    },
+    ["methods"]={
+    },
+  },
+  ["img"]={
+    ["functions"]={
       ["boxes"]={
 	 ["arguments"]={},
 	 ["returnvalues"]={
@@ -1496,8 +1509,12 @@ local fdata = {
       ["shortdesc"]="Write the image to the PDF file.",
       ["type"]="function",
    },
-},
-["kpse"]={
+    },
+    ["methods"]={
+    },
+  },
+  ["kpse"]={
+    ["functions"]={
    ["expand_braces"]={
       ["arguments"]={
 	 {
@@ -1745,8 +1762,12 @@ local fdata = {
       ["shortdesc"]="Return the kpathsea version.",
       ["type"]="function",
    },
+    },
+    ["methods"]={
+    },
 },
-["lang"]={
+  ["lang"]={
+    ["functions"]={
    ["clean"]={
       ["arguments"]={
 	 {
@@ -1986,8 +2007,12 @@ local fdata = {
       ["shortdesc"]="Set the pre-hyphenchar for implicit hyphenation.",
       ["type"]="function",
    },
+    },
+    ["methods"]={
+    },
 },
-["lfs"]={
+  ["lfs"]={
+    ["functions"]={
    ["isdir"]={
       ["arguments"]={
 	 {
@@ -2060,8 +2085,12 @@ local fdata = {
       ["shortdesc"]="Return the FAT name of a file (Windows only).",
       ["type"]="function",
    },
-},
-["lua"]={
+    },
+    ["methods"]={
+    },
+  },
+  ["lua"]={
+    ["functions"]={
    ["getbytecode"]={
       ["arguments"]={
 	 {
@@ -2097,8 +2126,12 @@ local fdata = {
       ["shortdesc"]="Save a function in a bytecode register.",
       ["type"]="function",
    },
+    },
+    ["methods"]={
+    },
 },
-["mp"]={
+  ["mp"]={
+    ["functions"]={
    ["char_depth"]={
       ["arguments"]={
 	 {
@@ -2210,8 +2243,12 @@ local fdata = {
       ["shortdesc"]="Returns some statistics for this metapost instance.",
       ["type"]="method",
    },
-},
-["mplib"]={
+    },
+    ["methods"]={
+    },
+  },
+  ["mplib"]={
+    ["functions"]={
    ["new"]={
       ["arguments"]={
 	 {
@@ -2242,8 +2279,12 @@ local fdata = {
       ["shortdesc"]="Returns the mplib version.",
       ["type"]="function",
    },
-},
-["node"]={
+    },
+    ["methods"]={
+    },
+  },
+  ["node"]={
+    ["functions"]={
    ["copy"]={
       ["arguments"]={
 	 {
@@ -3120,8 +3161,12 @@ local fdata = {
       ["shortdesc"]="Appends a node to the current output list.",
       ["type"]="function",
    },
-},
-["os"]={
+    },
+    ["methods"]={
+    },
+  },
+  ["os"]={
+    ["functions"]={
    ["exec"]={
       ["arguments"]={
 	 {
@@ -3229,8 +3274,12 @@ local fdata = {
       ["shortdesc"]="Return various information strings about the computer.",
       ["type"]="function",
    },
-},
-["pdf"]={
+    },
+    ["methods"]={
+    },
+  },
+  ["pdf"]={
+    ["functions"]={
    ["immediateobj"]={
       ["arguments"]={
 	 {
@@ -3399,8 +3448,12 @@ local fdata = {
       ["shortdesc"]="Reserve an object number in the PDF backend.",
       ["type"]="function",
    },
-},
-["status"]={
+    },
+    ["methods"]={
+    },
+  },
+  ["status"]={
+    ["functions"]={
    ["list"]={
       ["arguments"]={},
       ["returnvalues"]={
@@ -3413,8 +3466,12 @@ local fdata = {
       ["shortdesc"]="Returns a table with various status items.",
       ["type"]="function",
    },
-},
-["string"]={
+    },
+    ["methods"]={
+    },
+  },
+  ["string"]={
+    ["functions"]={
    ["bytepairs"]={
       ["arguments"]={
 	 {
@@ -3556,8 +3613,12 @@ local fdata = {
       ["shortdesc"]="Iterator that returns a value representing a single \\UTF-8 token.",
       ["type"]="function",
    },
-},
-["tex"]={
+    },
+    ["methods"]={
+    },
+  },
+  ["tex"]={
+    ["functions"]={
    ["badness"]={
       ["arguments"]={
 	 {
@@ -4437,8 +4498,12 @@ local fdata = {
       ["shortdesc"]="      Print a sequence of strings (not just two) as detokenized data.",
       ["type"]="function",
    },
-},
-["texio"]={
+    },
+    ["methods"]={
+    },
+  },
+  ["texio"]={
+    ["functions"]={
    ["write"]={
       ["arguments"]={
 	 {
@@ -4476,8 +4541,12 @@ local fdata = {
       \\aliteral{{term}}, \\aliteral{{term and log}}, or \\aliteral{{log}}.",
       ["type"]="function",
    },
-},
-["token"]={
+    },
+    ["methods"]={
+    },
+  },
+  ["token"]={
+    ["functions"]={
    ["command_id"]={
       ["arguments"]={
 	 {
@@ -4627,7 +4696,10 @@ local fdata = {
       ["shortdesc"]="True if the token is expandable.",
       ["type"]="function",
    },
-},
+    },
+    ["methods"]={
+    },
+  },
 }
 
 return fdata;
