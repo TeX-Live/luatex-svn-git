@@ -57,10 +57,13 @@
 local fdata = dofile('fdata.lua')
 function showfunction (t,o,f)
          local val
+         local method
          if o == nil then
             val = fdata[t]["functions"][f]
+            method = false
          else
             val = fdata[t]["methods"][o][f]
+            method = true
          end
          local r = {}
          local a = {}
@@ -75,15 +78,22 @@ function showfunction (t,o,f)
          end
          if #val.arguments > 0 then
             for i,v in ipairs (val.arguments) do
-               if v.optional then
-		  a[#a+1] = '[' ..  v.type .. ']'
-               else
-                  a[#a+1] = v.type
+               if (method == false) or (i > 1) then
+                  if v.optional then
+		     a[#a+1] = '[' ..  v.type .. ']'
+                  else
+                     a[#a+1] = v.type
+                  end
                end
             end
          end
-         tex.sprint(string.format('\\lua%s{%s}{%s}{(%s)}{%s}{%s}', val.type, t, f, 
+         if method == false then
+            tex.sprint(string.format('\\lua%s{%s}{%s}{(%s)}{%s}{%s}', val.type, t, f, 
 			       table.concat(a,', '),table.concat(r,', '), val.shortdesc))
+         else
+            tex.sprint(string.format('\\lua%s{%s}{%s}{(%s)}{%s}{%s}', "method", o, f, 
+			       table.concat(a,', '),table.concat(r,', '), val.shortdesc))
+         end
 end
 
 \stopluacode
@@ -293,6 +303,8 @@ in the same format as \type{\pdfximage}.
 \presentfunction{callback}{show_error_hook}
 \presentfunction{callback}{finish_pdffile}
 
+%***********************************************************************
+
 \section{Epdf table}
 
 \presentfunction{epdf}{open}
@@ -302,6 +314,34 @@ in the same format as \type{\pdfximage}.
 \presentfunction{epdf}{Dict}
 \presentfunction{epdf}{Object}
 \presentfunction{epdf}{PDFRectangle}
+
+Annot methods:
+
+\presentmethod{epdf}{Annot}{isOK}
+\presentmethod{epdf}{Annot}{getAppearance}
+\presentmethod{epdf}{Annot}{getBorder}
+\presentmethod{epdf}{Annot}{match}
+
+AnnotBorderStyle methods:
+
+\presentmethod{epdf}{AnnotBorderStyle}{getWidth}
+
+Annots methods:
+
+\presentmethod{epdf}{Annots}{getNumAnnots}
+\presentmethod{epdf}{Annots}{getAnnot}
+
+Array methods:
+
+\presentmethod{epdf}{Array}{incRef}
+\presentmethod{epdf}{Array}{decRef}
+\presentmethod{epdf}{Array}{getLength}
+\presentmethod{epdf}{Array}{add}
+\presentmethod{epdf}{Array}{get}
+\presentmethod{epdf}{Array}{getNF}
+\presentmethod{epdf}{Array}{getString}
+
+%***********************************************************************
 
 \section{Font table}
 
