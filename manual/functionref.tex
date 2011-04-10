@@ -308,6 +308,8 @@ in the same format as \type{\pdfximage}.
 
 \section{Epdf table}
 
+--- All constructors:
+
 \presentfunction{epdf}{open}
 \presentfunction{epdf}{Annot}
 \presentfunction{epdf}{Annots}
@@ -316,23 +318,23 @@ in the same format as \type{\pdfximage}.
 \presentfunction{epdf}{Object}
 \presentfunction{epdf}{PDFRectangle}
 
-Annot methods:
+--- Annot methods:
 
 \presentmethod{epdf}{Annot}{isOK}
 \presentmethod{epdf}{Annot}{getAppearance}
 \presentmethod{epdf}{Annot}{getBorder}
 \presentmethod{epdf}{Annot}{match}
 
-AnnotBorderStyle methods:
+--- AnnotBorderStyle methods:
 
 \presentmethod{epdf}{AnnotBorderStyle}{getWidth}
 
-Annots methods:
+--- Annots methods:
 
 \presentmethod{epdf}{Annots}{getNumAnnots}
 \presentmethod{epdf}{Annots}{getAnnot}
 
-Array methods:
+--- Array methods:
 
 \presentmethod{epdf}{Array}{incRef}
 \presentmethod{epdf}{Array}{decRef}
@@ -342,7 +344,7 @@ Array methods:
 \presentmethod{epdf}{Array}{getNF}
 \presentmethod{epdf}{Array}{getString}
 
-Catalog methods:
+--- Catalog methods:
 
 \presentmethod{epdf}{Catalog}{isOK}
 \presentmethod{epdf}{Catalog}{getNumPages}
@@ -360,7 +362,7 @@ Catalog methods:
 \presentmethod{epdf}{Catalog}{getOutline}
 \presentmethod{epdf}{Catalog}{getAcroForm}
 
-Dict methods:
+--- Dict methods:
 
 \presentmethod{epdf}{Dict}{incRef}
 \presentmethod{epdf}{Dict}{decRef}
@@ -375,6 +377,187 @@ Dict methods:
 \presentmethod{epdf}{Dict}{getKey}
 \presentmethod{epdf}{Dict}{getVal}
 \presentmethod{epdf}{Dict}{getValNF}
+
+--- LinkDest methods:
+
+\presentmethod{epdf}{LinkDest}{isOK}
+\presentmethod{epdf}{LinkDest}{getKind}
+\presentmethod{epdf}{LinkDest}{getKindName}
+\presentmethod{epdf}{LinkDest}{isPageRef}
+\presentmethod{epdf}{LinkDest}{getPageNum}
+\presentmethod{epdf}{LinkDest}{getPageRef}
+\presentmethod{epdf}{LinkDest}{getLeft}
+\presentmethod{epdf}{LinkDest}{getBottom}
+\presentmethod{epdf}{LinkDest}{getRight}
+\presentmethod{epdf}{LinkDest}{getTop}
+\presentmethod{epdf}{LinkDest}{getZoom}
+\presentmethod{epdf}{LinkDest}{getChangeLeft}
+\presentmethod{epdf}{LinkDest}{getChangeTop}
+\presentmethod{epdf}{LinkDest}{getChangeZoom}
+
+--- Object methods:
+
+\presentmethod{epdf}{Object}{initBool}
+\presentmethod{epdf}{Object}{initInt}
+\presentmethod{epdf}{Object}{initReal}
+\presentmethod{epdf}{Object}{initString}
+\presentmethod{epdf}{Object}{initName}
+\presentmethod{epdf}{Object}{initNull}
+\presentmethod{epdf}{Object}{initArray}
+\presentmethod{epdf}{Object}{initDict}
+\presentmethod{epdf}{Object}{initStream}
+\presentmethod{epdf}{Object}{initRef}
+\presentmethod{epdf}{Object}{initCmd}
+\presentmethod{epdf}{Object}{initError}
+\presentmethod{epdf}{Object}{initEOF}
+\presentmethod{epdf}{Object}{fetch}
+\presentmethod{epdf}{Object}{getType}
+\presentmethod{epdf}{Object}{getTypeName}
+\presentmethod{epdf}{Object}{isBool}
+\presentmethod{epdf}{Object}{isInt}
+\presentmethod{epdf}{Object}{isReal}
+\presentmethod{epdf}{Object}{isNum}
+\presentmethod{epdf}{Object}{isString}
+\presentmethod{epdf}{Object}{isName}
+\presentmethod{epdf}{Object}{isNull}
+\presentmethod{epdf}{Object}{isArray}
+\presentmethod{epdf}{Object}{isDict}
+\presentmethod{epdf}{Object}{isStream}
+\presentmethod{epdf}{Object}{isRef}
+\presentmethod{epdf}{Object}{isCmd}
+\presentmethod{epdf}{Object}{isError}
+\presentmethod{epdf}{Object}{isEOF}
+\presentmethod{epdf}{Object}{isNone}
+\presentmethod{epdf}{Object}{getBool}
+\presentmethod{epdf}{Object}{getInt}
+\presentmethod{epdf}{Object}{getReal}
+\presentmethod{epdf}{Object}{getNum}
+\presentmethod{epdf}{Object}{getString}
+\presentmethod{epdf}{Object}{getName}
+\presentmethod{epdf}{Object}{getArray}
+\presentmethod{epdf}{Object}{getDict}
+\presentmethod{epdf}{Object}{getStream}
+\presentmethod{epdf}{Object}{getRef}
+\presentmethod{epdf}{Object}{getRefNum}
+\presentmethod{epdf}{Object}{getRefGen}
+\presentmethod{epdf}{Object}{getCmd}
+\presentmethod{epdf}{Object}{arrayGetLength}
+\presentmethod{epdf}{Object}{arrayAdd}
+\presentmethod{epdf}{Object}{arrayGet}
+\presentmethod{epdf}{Object}{arrayGetNF}
+\presentmethod{epdf}{Object}{dictGetLength}
+\presentmethod{epdf}{Object}{dictAdd}
+\presentmethod{epdf}{Object}{dictSet}
+\presentmethod{epdf}{Object}{dictLookup}
+\presentmethod{epdf}{Object}{dictLookupNF}
+\presentmethod{epdf}{Object}{dictGetKey}
+\presentmethod{epdf}{Object}{dictGetVal}
+\presentmethod{epdf}{Object}{dictGetValNF}
+\presentmethod{epdf}{Object}{streamIs}
+\presentmethod{epdf}{Object}{streamReset}
+\presentmethod{epdf}{Object}{streamGetChar}
+\presentmethod{epdf}{Object}{streamLookChar}
+\presentmethod{epdf}{Object}{streamGetPos}
+\presentmethod{epdf}{Object}{streamSetPos}
+\presentmethod{epdf}{Object}{streamGetDict}
+
+--- Page methods:
+
+\presentmethod{epdf}{Page}{isOK}
+\presentmethod{epdf}{Page}{getNum}
+\presentmethod{epdf}{Page}{getMediaBox}
+\presentmethod{epdf}{Page}{getCropBox}
+\presentmethod{epdf}{Page}{isCropped}
+\presentmethod{epdf}{Page}{getMediaWidth}
+\presentmethod{epdf}{Page}{getMediaHeight}
+\presentmethod{epdf}{Page}{getCropWidth}
+\presentmethod{epdf}{Page}{getCropHeight}
+\presentmethod{epdf}{Page}{getBleedBox}
+\presentmethod{epdf}{Page}{getTrimBox}
+\presentmethod{epdf}{Page}{getArtBox}
+\presentmethod{epdf}{Page}{getRotate}
+\presentmethod{epdf}{Page}{getLastModified}
+\presentmethod{epdf}{Page}{getBoxColorInfo}
+\presentmethod{epdf}{Page}{getGroup}
+\presentmethod{epdf}{Page}{getMetadata}
+\presentmethod{epdf}{Page}{getPieceInfo}
+\presentmethod{epdf}{Page}{getSeparationInfo}
+\presentmethod{epdf}{Page}{getResourceDict}
+\presentmethod{epdf}{Page}{getAnnots}
+\presentmethod{epdf}{Page}{getLinks}
+\presentmethod{epdf}{Page}{getContents}
+
+--- PDFDoc methods:
+
+\presentmethod{epdf}{PDFDoc}{isOK}
+\presentmethod{epdf}{PDFDoc}{getErrorCode}
+\presentmethod{epdf}{PDFDoc}{getErrorCodeName}
+\presentmethod{epdf}{PDFDoc}{getFileName}
+\presentmethod{epdf}{PDFDoc}{getXRef}
+\presentmethod{epdf}{PDFDoc}{getCatalog}
+\presentmethod{epdf}{PDFDoc}{getPageMediaWidth}
+\presentmethod{epdf}{PDFDoc}{getPageMediaHeight}
+\presentmethod{epdf}{PDFDoc}{getPageCropWidth}
+\presentmethod{epdf}{PDFDoc}{getPageCropHeight}
+\presentmethod{epdf}{PDFDoc}{getNumPages}
+\presentmethod{epdf}{PDFDoc}{readMetadata}
+\presentmethod{epdf}{PDFDoc}{getStructTreeRoot}
+\presentmethod{epdf}{PDFDoc}{findPage}
+\presentmethod{epdf}{PDFDoc}{getLinks}
+\presentmethod{epdf}{PDFDoc}{findDest}
+\presentmethod{epdf}{PDFDoc}{isEncrypted}
+\presentmethod{epdf}{PDFDoc}{okToPrint}
+\presentmethod{epdf}{PDFDoc}{okToChange}
+\presentmethod{epdf}{PDFDoc}{okToCopy}
+\presentmethod{epdf}{PDFDoc}{okToAddNotes}
+\presentmethod{epdf}{PDFDoc}{isLinearized}
+\presentmethod{epdf}{PDFDoc}{getDocInfo}
+\presentmethod{epdf}{PDFDoc}{getDocInfoNF}
+\presentmethod{epdf}{PDFDoc}{getPDFMajorVersion}
+\presentmethod{epdf}{PDFDoc}{getPDFMinorVersion}
+
+--- PDFRectangle methods:
+
+\presentmethod{epdf}{PDFRectangle}{isValid}
+
+--- Stream methods:
+
+\presentmethod{epdf}{Stream}{getKind}
+\presentmethod{epdf}{Stream}{getKindName}
+\presentmethod{epdf}{Stream}{reset}
+\presentmethod{epdf}{Stream}{close}
+\presentmethod{epdf}{Stream}{getChar}
+\presentmethod{epdf}{Stream}{lookChar}
+\presentmethod{epdf}{Stream}{getRawChar}
+\presentmethod{epdf}{Stream}{getUnfilteredChar}
+\presentmethod{epdf}{Stream}{unfilteredReset}
+\presentmethod{epdf}{Stream}{getPos}
+\presentmethod{epdf}{Stream}{isBinary}
+\presentmethod{epdf}{Stream}{getUndecodedStream}
+\presentmethod{epdf}{Stream}{getDict}
+
+--- XRef methods:
+
+\presentmethod{epdf}{XRef}{isOK}
+\presentmethod{epdf}{XRef}{getErrorCode}
+\presentmethod{epdf}{XRef}{isEncrypted}
+\presentmethod{epdf}{XRef}{okToPrint}
+\presentmethod{epdf}{XRef}{okToPrintHighRes}
+\presentmethod{epdf}{XRef}{okToChange}
+\presentmethod{epdf}{XRef}{okToCopy}
+\presentmethod{epdf}{XRef}{okToAddNotes}
+\presentmethod{epdf}{XRef}{okToFillForm}
+\presentmethod{epdf}{XRef}{okToAccessibility}
+\presentmethod{epdf}{XRef}{okToAssemble}
+\presentmethod{epdf}{XRef}{getCatalog}
+\presentmethod{epdf}{XRef}{fetch}
+\presentmethod{epdf}{XRef}{getDocInfo}
+\presentmethod{epdf}{XRef}{getDocInfoNF}
+\presentmethod{epdf}{XRef}{getNumObjects}
+\presentmethod{epdf}{XRef}{getRootNum}
+\presentmethod{epdf}{XRef}{getRootGen}
+\presentmethod{epdf}{XRef}{getSize}
+\presentmethod{epdf}{XRef}{getTrailerDict}
 
 %***********************************************************************
 
