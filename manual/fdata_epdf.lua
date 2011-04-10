@@ -813,7 +813,7 @@ local fdata_epdf = {
           {type = "XRef", name = "xref", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Object", name = "var", optional = false, },
         },
       },
       getType = {
