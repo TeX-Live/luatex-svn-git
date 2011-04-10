@@ -228,6 +228,166 @@ local fdata_epdf = {
         },
       },
     },
+    Catalog = {
+      isOK = {
+        type = "function",
+        shortdesc = "Check if Catalog object is ok.",
+        arguments = {
+          {type = "Catalog", name = "catalog", optional = false, },
+        },
+        returnvalues = {
+          {type = "boolean", name = "var", optional = false, },
+        },
+      },
+      getNumPages = {
+        type = "function",
+        shortdesc = "Get total number of pages.",
+        arguments = {
+          {type = "Catalog", name = "catalog", optional = false, },
+        },
+        returnvalues = {
+          {type = "integer", name = "var", optional = false, },
+        },
+      },
+      getPage = {
+        type = "function",
+        shortdesc = "Get Page.",
+        arguments = {
+          {type = "Catalog", name = "catalog", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
+        },
+        returnvalues = {
+          {type = "Page", name = "var", optional = false, },
+        },
+      },
+      getPageRef = {
+        type = "function",
+        shortdesc = "Get the reference to a Page object.",
+        arguments = {
+          {type = "Catalog", name = "catalog", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
+        },
+        returnvalues = {
+          {type = "Ref", name = "var", optional = false, },
+        },
+      },
+      getBaseURI = {
+        type = "function",
+        shortdesc = "Get base URI, if any.",
+        arguments = {
+          {type = "Catalog", name = "catalog", optional = false, },
+        },
+        returnvalues = {
+          {type = "string", name = "var", optional = false, },
+        },
+      },
+      readMetadata = {
+        type = "function",
+        shortdesc = "Get the contents of the Metadata stream.",
+        arguments = {
+          {type = "Catalog", name = "catalog", optional = false, },
+        },
+        returnvalues = {
+          {type = "string", name = "var", optional = false, },
+        },
+      },
+      getStructTreeRoot = {
+        type = "function",
+        shortdesc = "Get the structure tree root object.",
+        arguments = {
+          {type = "Catalog", name = "catalog", optional = false, },
+        },
+        returnvalues = {
+          {type = "Object", name = "var", optional = false, },
+        },
+      },
+      findPage = {
+        type = "function",
+        shortdesc = "Get a Page number by object number and generation.",
+        arguments = {
+          {type = "Catalog", name = "catalog", optional = false, },
+          {type = "integer", name = "number", optional = false, },
+          {type = "integer", name = "generation", optional = false, },
+        },
+        returnvalues = {
+          {type = "integer", name = "var", optional = false, },
+        },
+      },
+      findDest = {
+        type = "function",
+        shortdesc = "Find a named destination.",
+        arguments = {
+          {type = "Catalog", name = "catalog", optional = false, },
+          {type = "string", name = "string", optional = false, },
+        },
+        returnvalues = {
+          {type = "LinkDest", name = "var", optional = false, },
+        },
+      },
+      getDests = {
+        type = "function",
+        shortdesc = "Get destinations object.",
+        arguments = {
+          {type = "Catalog", name = "catalog", optional = false, },
+        },
+        returnvalues = {
+          {type = "Object", name = "var", optional = false, },
+        },
+      },
+      numEmbeddedFiles = {
+        type = "function",
+        shortdesc = "Get number of embedded files.",
+        arguments = {
+          {type = "Catalog", name = "catalog", optional = false, },
+        },
+        returnvalues = {
+          {type = "integer", name = "var", optional = false, },
+        },
+      },
+      numJS = {
+        type = "function",
+        shortdesc = "Get number of javascript scripts.",
+        arguments = {
+          {type = "Catalog", name = "catalog", optional = false, },
+        },
+        returnvalues = {
+          {type = "integer", name = "var", optional = false, },
+        },
+      },
+      getJS = {
+        type = "function",
+        shortdesc = "Get javascript script.",
+        arguments = {
+          {type = "Catalog", name = "catalog", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
+        },
+        returnvalues = {
+          {type = "string", name = "var", optional = false, },
+        },
+      },
+      getOutline = {
+        type = "function",
+        shortdesc = "Get Outline object.",
+        arguments = {
+          {type = "Catalog", name = "catalog", optional = false, },
+        },
+        returnvalues = {
+          {type = "Object", name = "var", optional = false, },
+        },
+      },
+      getAcroForm = {
+        type = "function",
+        shortdesc = "Get AcroForm object.",
+        arguments = {
+          {type = "Catalog", name = "catalog", optional = false, },
+        },
+        returnvalues = {
+          {type = "boolean", name = "var", optional = false, },
+        },
+      },
+    },
+    Dict = {
+    },
   }
 }
   
