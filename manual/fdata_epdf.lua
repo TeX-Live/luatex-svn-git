@@ -387,8 +387,146 @@ local fdata_epdf = {
       },
     },
     Dict = {
+      incRef = {
+        type = "function",
+        shortdesc = "Increment reference count to Dict.",
+        arguments = {
+          {type = "Dict", name = "dict", optional = false, },
+        },
+        returnvalues = {
+        },
+      },
+      decRef = {
+        type = "function",
+        shortdesc = "Decrement reference count to Dict.",
+        arguments = {
+          {type = "Dict", name = "dict", optional = false, },
+        },
+        returnvalues = {
+        },
+      },
+      getLength = {
+        type = "function",
+        shortdesc = "Get Dict length.",
+        arguments = {
+          {type = "Dict", name = "dict", optional = false, },
+        },
+        returnvalues = {
+          {type = "integer", name = "var", optional = false, },
+        },
+      },
+      add = {
+        type = "function",
+        shortdesc = "Add Object to Dict.",
+        arguments = {
+          {type = "Dict", name = "dict", optional = false, },
+          {type = "string", name = "string", optional = false, },
+          {type = "Object", name = "object", optional = false, },
+        },
+        returnvalues = {
+        },
+      },
+      set = {
+        type = "function",
+        shortdesc = "Set Object in Dict.",
+        arguments = {
+          {type = "Dict", name = "dict", optional = false, },
+          {type = "string", name = "string", optional = false, },
+          {type = "Object", name = "object", optional = false, },
+        },
+        returnvalues = {
+        },
+      },
+      remove = {
+        type = "function",
+        shortdesc = "Remove entry from Dict.",
+        arguments = {
+          {type = "Dict", name = "dict", optional = false, },
+          {type = "string", name = "string", optional = false, },
+        },
+        returnvalues = {
+        },
+      },
+      is = {
+        type = "function",
+        shortdesc = "TODO",
+        arguments = {
+          {type = "Dict", name = "dict", optional = false, },
+          {type = "string", name = "string", optional = false, },
+        },
+        returnvalues = {
+          {type = "boolean", name = "var", optional = false, },
+        },
+      },
+      lookup = {
+        type = "function",
+        shortdesc = "Look up Dict entry.",
+        arguments = {
+          {type = "Dict", name = "dict", optional = false, },
+          {type = "string", name = "string", optional = false, },
+        },
+        returnvalues = {
+          {type = "Object", name = "var", optional = false, },
+        },
+      },
+      lookupNF = {
+        type = "function",
+        shortdesc = "Look up Dict entry, not resolving indirection.",
+        arguments = {
+          {type = "Dict", name = "dict", optional = false, },
+          {type = "string", name = "string", optional = false, },
+        },
+        returnvalues = {
+          {type = "Object", name = "var", optional = false, },
+        },
+      },
+      lookupInt = {
+        type = "function",
+        shortdesc = "TODO",
+        arguments = {
+          {type = "Dict", name = "dict", optional = false, },
+          {type = "string", name = "string", optional = false, },
+          {type = "string", name = "string", optional = false, },
+        },
+        returnvalues = {
+          {type = "integer", name = "var", optional = false, },
+        },
+      },
+      getKey = {
+        type = "function",
+        shortdesc = "Get key from Dict by number.",
+        arguments = {
+          {type = "Dict", name = "dict", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
+        },
+        returnvalues = {
+          {type = "string", name = "var", optional = false, },
+        },
+      },
+      getVal = {
+        type = "function",
+        shortdesc = "Get value from Dict by number.",
+        arguments = {
+          {type = "Dict", name = "dict", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
+        },
+        returnvalues = {
+          {type = "Object", name = "var", optional = false, },
+        },
+      },
+      getValNF = {
+        type = "function",
+        shortdesc = "Get value from Dict by number, not resolving indirection.",
+        arguments = {
+          {type = "Dict", name = "dict", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
+        },
+        returnvalues = {
+          {type = "Object", name = "var", optional = false, },
+        },
+      },
     },
   }
 }
-  
+
 return fdata_epdf

@@ -1,3 +1,4 @@
+% $Id$
 
 \nonknuthmode
 \catcode`\|=12
@@ -29,13 +30,13 @@
 \def\showitemnoret#1#2#3#4#5#6%
   {\hangafter=1\hangindent=12pt
    \noindent {\ss \afunction{#1#6#2}#3}%
-   \hskip 12pt plus .5\hsize\penalty0 \hskip 0pt plus -.5\hsize 
+   \hskip 12pt plus .5\hsize\penalty0 \hskip 0pt plus -.5\hsize
    #5\par}
 
 \def\showitemret#1#2#3#4#5#6%
   {\hangafter=1\hangindent=12pt
    \noindent {\ss #4 = \afunction{#1#6#2}#3}%
-   \hskip 12pt plus .5\hsize\penalty0\hskip 0pt plus -.5\hsize 
+   \hskip 12pt plus .5\hsize\penalty0\hskip 0pt plus -.5\hsize
    #5\par}
 
 \def\luafunction#1#2#3#4#5%
@@ -53,7 +54,7 @@
     {\showitemnoret{}{#2}{#3}{#4}{#5}{}}
     {\showitemret{}{#2}{#3}{#4}{#5}{}}\par}
 
-\startluacode 
+\startluacode
 local fdata = dofile('fdata.lua')
 function showfunction (t,o,f)
          local val
@@ -70,7 +71,7 @@ function showfunction (t,o,f)
          if #val.returnvalues > 0 then
             for i,v in ipairs (val.returnvalues) do
                if v.optional then
-		  r[#r+1] = '[' .. v.type .. ']'
+                  r[#r+1] = '[' .. v.type .. ']'
                else
                   r[#r+1] = v.type
                end
@@ -80,7 +81,7 @@ function showfunction (t,o,f)
             for i,v in ipairs (val.arguments) do
                if (method == false) or (i > 1) then
                   if v.optional then
-		     a[#a+1] = '[' ..  v.type .. ']'
+                     a[#a+1] = '[' ..  v.type .. ']'
                   else
                      a[#a+1] = v.type
                   end
@@ -88,11 +89,11 @@ function showfunction (t,o,f)
             end
          end
          if method == false then
-            tex.sprint(string.format('\\lua%s{%s}{%s}{(%s)}{%s}{%s}', val.type, t, f, 
-			       table.concat(a,', '),table.concat(r,', '), val.shortdesc))
+            tex.sprint(string.format('\\lua%s{%s}{%s}{(%s)}{%s}{%s}', val.type, t, f,
+                               table.concat(a,', '),table.concat(r,', '), val.shortdesc))
          else
-            tex.sprint(string.format('\\lua%s{%s}{%s}{(%s)}{%s}{%s}', "method", o, f, 
-			       table.concat(a,', '),table.concat(r,', '), val.shortdesc))
+            tex.sprint(string.format('\\lua%s{%s}{%s}{(%s)}{%s}{%s}', "method", o, f,
+                               table.concat(a,', '),table.concat(r,', '), val.shortdesc))
          end
 end
 
@@ -148,7 +149,7 @@ of Unicode. Category table manipulation:
 
 \subsection{Images and forms}
 
-\type{\pdfrefximage} and \type{\pdfrefxform} accept optional dimension parameters 
+\type{\pdfrefximage} and \type{\pdfrefxform} accept optional dimension parameters
 in the same format as \type{\pdfximage}.
 
 \section{Preloaded lua modules}
@@ -359,6 +360,22 @@ Catalog methods:
 \presentmethod{epdf}{Catalog}{getOutline}
 \presentmethod{epdf}{Catalog}{getAcroForm}
 
+Dict methods:
+
+\presentmethod{epdf}{Dict}{incRef}
+\presentmethod{epdf}{Dict}{decRef}
+\presentmethod{epdf}{Dict}{getLength}
+\presentmethod{epdf}{Dict}{add}
+\presentmethod{epdf}{Dict}{set}
+\presentmethod{epdf}{Dict}{remove}
+\presentmethod{epdf}{Dict}{is}
+\presentmethod{epdf}{Dict}{lookup}
+\presentmethod{epdf}{Dict}{lookupNF}
+\presentmethod{epdf}{Dict}{lookupInt}
+\presentmethod{epdf}{Dict}{getKey}
+\presentmethod{epdf}{Dict}{getVal}
+\presentmethod{epdf}{Dict}{getValNF}
+
 %***********************************************************************
 
 \section{Font table}
@@ -464,7 +481,7 @@ The \afunction{kpse.lookup} options match commandline arguments from
 \NC mktextex  \NC boolean    \NC disable/enable mktextex generation for this lookup\NC \NR
 \NC mktexmf   \NC boolean    \NC disable/enable mktexmf generation for this lookup\NC \NR
 \NC mktextfm  \NC boolean    \NC disable/enable mktextfm generation for this lookup\NC \NR
-\NC subdir    \NC string 
+\NC subdir    \NC string
                   or table   \NC only output matches whose directory part
                                  ends with the given string(s) \NC \NR
 \stoptabulate
@@ -689,7 +706,7 @@ but not nearly all.  The big reference manual has an extensive list.
 In all the \afunction{tex.set...} functions above, the optional string is
 the literal \aliteral{global}. The items can also be accessed directly via virtual arrays:
 \type{tex.attributes[]}, \type{tex.box[]}, \type{tex.count[]}, \type{tex.dimen[]},
-\type{tex.skip[]}, \type{tex.toks[]}; \type{tex.catcode[]}, \type{tex.lccode[]}, 
+\type{tex.skip[]}, \type{tex.toks[]}; \type{tex.catcode[]}, \type{tex.lccode[]},
 \type{tex.sfcode[]}, \type{tex.uccode[]}, \type{tex.mathcode[]}, \type{tex.delcode[]}.
 
 \blank
@@ -782,8 +799,8 @@ userdata for the semantic nest itself, and the numerical value
 
 \starttabulate[|lf\ss|lf\ss|l|p|]
 \NC \ssbf key   \NC \bf type  \NC \bf modes  \NC \bf explanation \NC\NR
-\NC mode        \NC number    \NC all        \NC The current mode. 
-                                                 0 = no mode, 
+\NC mode        \NC number    \NC all        \NC The current mode.
+                                                 0 = no mode,
                                                  1 = vertical,
                                                  127 = horizontal,
                                                  253 = display math.
@@ -800,7 +817,7 @@ userdata for the semantic nest itself, and the numerical value
 \NC dirs        \NC node      \NC hmode      \NC internal use only\NC\NR
 \NC noad        \NC node      \NC mmode      \NC internal use only\NC\NR
 \NC delimptr    \NC node      \NC mmode      \NC internal use only\NC\NR
-\NC mathdir     \NC boolean   \NC mmode      \NC true when during math processing the \type{\mathdir} is not 
+\NC mathdir     \NC boolean   \NC mmode      \NC true when during math processing the \type{\mathdir} is not
                                                  the same as the surrounding \type{\textdir}\NC\NR
 \NC mathstyle   \NC number    \NC mmode      \NC the current \type{\mathstyle} \NC\NR
 \stoptabulate
