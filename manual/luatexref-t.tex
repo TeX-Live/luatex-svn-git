@@ -4894,6 +4894,12 @@ copied.
 Creates a deep copy of the node list that starts at \type{n}. If
 \type{m} is also given, the copy stops just before node \type{m}.
 
+Note that you cannot copy attribute lists this way, specialized functions for 
+dealing with attribute lists will be provided later but are not there yet. 
+However, there is normally no need to copy attribute lists as when you do
+assigments to the \type{attr} or make changes to specific attributes, the 
+needed copying and freeing takes place automatically.
+
 \subsubsection{\luatex{node.next} (0.65)}
 
 \startfunctioncall
