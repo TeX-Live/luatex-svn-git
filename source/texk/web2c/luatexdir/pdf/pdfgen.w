@@ -678,7 +678,9 @@ scaled one_true_inch = (7227 * 65536 + 50) / 100;
 scaled one_hundred_bp = (7227 * 65536) / 72;
 
 /* scaled value corresponds to 1bp (rounded to 65782) */
-scaled one_bp = ((7227 * 65536) / 72 + 50) / 100;
+/* changed on 20110411 to be exactly 65781, as in tex itself,
+  because this value is also used for \pdfpxdimen */
+scaled one_bp = 65781;
 
 /* $10^0..10^9$ */
 int ten_pow[10] = {

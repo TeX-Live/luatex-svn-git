@@ -31,10 +31,6 @@ static const char _svn_version[] =
 
 #define lround(a) (long) floor((a) + 0.5)
 
-@ eternal constants
-@c
-#define one_bp ((double) 65536 * (double) 72.27 / 72)   /* number of sp per 1bp */
-
 @ @c
 void init_pdf_pagecalculations(PDF pdf)
 {
