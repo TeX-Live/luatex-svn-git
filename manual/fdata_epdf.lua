@@ -349,6 +349,17 @@ local fdata_epdf = {
           {type = "integer", name = "var", optional = false, },
         },
       },
+      embeddedFile = {
+        type = "function",
+        shortdesc = "Get embedded file.",
+        arguments = {
+          {type = "Catalog", name = "catalog", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
+        },
+        returnvalues = {
+          {type = "EmbFile", name = "var", optional = false, },
+        },
+      },
       numJS = {
         type = "function",
         shortdesc = "Get number of javascript scripts.",
@@ -385,6 +396,99 @@ local fdata_epdf = {
         shortdesc = "Get AcroForm object.",
         arguments = {
           {type = "Catalog", name = "catalog", optional = false, },
+        },
+        returnvalues = {
+          {type = "boolean", name = "var", optional = false, },
+        },
+      },
+    },
+------------------------------------------------------------------------
+    EmbFile = {
+      name = {
+        type = "function",
+        shortdesc = "Get name of embedded file.",
+        arguments = {
+          {type = "EmbFile", name = "embfile", optional = false, },
+        },
+        returnvalues = {
+          {type = "string", name = "var", optional = false, },
+        },
+      },
+      description = {
+        type = "function",
+        shortdesc = "Get description of embedded file.",
+        arguments = {
+          {type = "EmbFile", name = "embfile", optional = false, },
+        },
+        returnvalues = {
+          {type = "string", name = "var", optional = false, },
+        },
+      },
+      size = {
+        type = "function",
+        shortdesc = "Get size of embedded file.",
+        arguments = {
+          {type = "EmbFile", name = "embfile", optional = false, },
+        },
+        returnvalues = {
+          {type = "integer", name = "var", optional = false, },
+        },
+      },
+      modDate = {
+        type = "function",
+        shortdesc = "Get modification date of embedded file.",
+        arguments = {
+          {type = "EmbFile", name = "embfile", optional = false, },
+        },
+        returnvalues = {
+          {type = "string", name = "var", optional = false, },
+        },
+      },
+      createDate = {
+        type = "function",
+        shortdesc = "Get creation date of embedded file.",
+        arguments = {
+          {type = "EmbFile", name = "embfile", optional = false, },
+        },
+        returnvalues = {
+          {type = "string", name = "var", optional = false, },
+        },
+      },
+      checksum = {
+        type = "function",
+        shortdesc = "Get checksum of embedded file.",
+        arguments = {
+          {type = "EmbFile", name = "embfile", optional = false, },
+        },
+        returnvalues = {
+          {type = "string", name = "var", optional = false, },
+        },
+      },
+      mimeType = {
+        type = "function",
+        shortdesc = "Get mime type of embedded file.",
+        arguments = {
+          {type = "EmbFile", name = "embfile", optional = false, },
+        },
+        returnvalues = {
+          {type = "string", name = "var", optional = false, },
+        },
+      },
+      streamObject = {
+        type = "function",
+        shortdesc = "Get stream object of embedded file.",
+        arguments = {
+          {type = "EmbFile", name = "embfile", optional = false, },
+        },
+        returnvalues = {
+          {type = "Object", name = "var", optional = false, },
+        },
+      },
+      isOk = {
+        type = "function",
+        shortdesc = "Check if embedded file is ok.",
+        arguments = {
+          {type = "EmbFile", name = "embfile", optional = false, },
         },
         returnvalues = {
           {type = "boolean", name = "var", optional = false, },
