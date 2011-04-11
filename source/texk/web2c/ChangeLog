@@ -1,3 +1,83 @@
+2011-03-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/texmf.am: Install symbolic links initex->tex and inimf->mf
+	or equivalent MinGW wrappers.
+
+	* am/bootstrap.am: Use AM_CFLAGS instead of ctangle_CFLAGS.
+	* am/cweb.am: Use AM_CFLAGS instead of *_CFLAGS.
+	* am/texmf.am: Use AM_CFLAGS instead of *_CFLAGS.
+	* libmd5/am/md5.am: Use AM_CFLAGS instead of *_CFLAGS.
+
+2011-02-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.in.orig, configure.in.orig: Remove ancient files.
+	* Makefile.am (EXTRA_DIST): Adapt.
+
+2011-02-15  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (install_exe_links, uninstall_exe_links): Hooks to
+	install and uninstall MinGW wrappers.
+
+2011-02-14  Karl Berry  <karl@tug.org>
+
+	* texmfmp-help.h: propagate -output-dir wording change to other msgs. 
+	From Akira.
+
+2011-02-08  Karl Berry  <karl@tug.org>
+
+	* texmfmp-help.h (MFHELP): -output-dir must be an existing dir.
+
+2011-01-17  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (triptrap_diffs): Recipe fragment for trip/trap,
+	used for $(TRIPTRAP).
+	* am/texmf.am (trip.diffs, mftrap.diffs): Use $(triptrap_diffs).
+
+2011-01-14  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (clean-local, triptrap-clean): Use TRIPTRAP_CLEAN
+	and drop double-colon rules.
+	* am/texmf.am (trip-clean, trap-clean): Use TRIPTRAP_CLEAN.
+
+2011-01-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* triptrap-sh: Add support for e-pTRIP test.
+
+2011-01-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am, ac/web2c.ac, texmfmp.h, lib/texmfmp.c: 
+	Add support for e-pTeX.
+	* texmfmp-help.h: Modernize PTEXHELP and add EPTEXHELP.
+	Avoid to include TEXHELP for all TeX-like engines.
+
+	* texmfmem.h: ep-TeX uses Aleph-type memory words.
+
+2011-01-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* enctex.ch (new): Split enc\TeX off tex.ch (not for pTeX).
+	* am/texmf.am (tex_ch_srcs): Added enctex.ch.
+
+2011-01-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lib/texmfmp.c: Removed the initial two #includes;
+	this file is now #included from texextra.c for TeX,
+	from mfextra.c for Metafont, ...
+
+	* texextra.c (new): #include <texd.h> and <lib/texmfmp.c>.
+	* mfextra.c (new): #include <mfd.h> and <lib/texmfmp.c>.
+
+	* am/texmf.am: {tex,mf}extra.c are now distributed.
+
+2010-12-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (bin_links): New variable for required symlinks.
+	(install-exec-hook, uninstall-hook): Rules for symlinks.
+
+2010-12-14  Karl Berry  <karl@tug.org>
+
+	* bibtex.web: non-functional update to clarify license,
+	version of 8-Dec-10.
+
 2010-07-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* configure.ac: Get version string from ../../version.ac.

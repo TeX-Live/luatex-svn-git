@@ -1,17 +1,16 @@
-/* texmf.c: Hand-coded routines for TeX or Metafont in C.  Originally
+/* texmfmp.c: Hand-coded routines for TeX or Metafont in C.  Originally
    written by Tim Morgan, drawing from other Unix ports of TeX.  This is
    a collection of miscellany, everything that's easier (or only
    possible) to do in C.
    
    This file is public domain.  */
 
-#define	EXTERN /* Instantiate data from {tex,mf,mp}d.h here.  */
-
-/* This file is used to create texextra.c etc., with this line
-   changed to include texd.h or mfd.h.  The ?d.h file is what
+/* This file is included from, e.g., texextra,c after
+      #define EXTERN
+      #include <texd.h>
+   to instantiate data from texd.h here.  The ?d.h file is what
    #defines TeX or MF, which avoids the need for a special
    Makefile rule.  */
-#include "TEX-OR-MF-OR-MPd.h"
 
 #include <kpathsea/c-ctype.h>
 #include <kpathsea/line.h>
@@ -53,6 +52,8 @@
 #include <alephdir/alephextra.h>
 #elif defined (pTeX)
 #include <ptexdir/ptexextra.h>
+#elif defined (epTeX)
+#include <eptexdir/eptexextra.h>
 #else
 #define BANNER "This is TeX, Version 3.1415926"
 #define COPYRIGHT_HOLDER "D.E. Knuth"
@@ -593,9 +594,9 @@ maininit (int ac, string *av)
 
   /* Must be initialized before options are parsed.  */
   interactionoption = 4;
-#ifdef pTeX
+#if defined(pTeX) || defined(epTeX)
   set_enc_string (NULL, "default");
-#endif /* pTeX */
+#endif /* pTeX || epTeX */
 
   /* Have things to record as we go along.  */
   kpse_record_input = recorder_record_input;
@@ -612,8 +613,8 @@ maininit (int ac, string *av)
 # define SYNCTEX_NO_OPTION INT_MAX
   synctexoption = SYNCTEX_NO_OPTION;
 #else
-# /* Omit warning for Aleph, pTeX, and non-TeX.  */
-# if defined(TeX) && !defined(Aleph) && !defined(pTeX)
+# /* Omit warning for Aleph, pTeX, epTeX, and non-TeX.  */
+# if defined(TeX) && !defined(Aleph) && !defined(pTeX) && !defined(epTeX)
 #  warning SyncTeX: -synctex command line option NOT available
 # endif
 #endif
@@ -627,7 +628,7 @@ maininit (int ac, string *av)
   if (!user_progname)
     user_progname = dump_name;
   
-  /* Do this early so we can inspect program_invocation_name and
+  /* Do this early so we can inspect kpse_invocation_name and
      kpse_program_name below, and because we have to do this before
      any path searching.  */
   kpse_set_program_name (argv[0], user_progname);
@@ -698,13 +699,13 @@ maininit (int ac, string *av)
     if (mltexp) {
       fprintf(stderr, "-mltex only works with -ini\n");
     }
-#if !defined(XeTeX) && !defined(pTeX)
+#if !defined(XeTeX) && !defined(pTeX) && !defined(epTeX)
     if (enctexp) {
       fprintf(stderr, "-enc only works with -ini\n");
     }
 #endif
 #endif
-#if defined(eTeX) || defined(Aleph) || defined(XeTeX)
+#if defined(eTeX) || defined(epTeX) || defined(Aleph) || defined(XeTeX)
     if (etexp) {
       fprintf(stderr, "-etex only works with -ini\n");
     }
@@ -789,7 +790,7 @@ main (int ac, string *av)
   
   return EXIT_SUCCESS;
 } 
-#endif /* !(WIN32 || __MINGW32__) */
+#endif /* !WIN32 || __MINGW32__ */
 
 
 /* This is supposed to ``open the terminal for input'', but what we
@@ -1318,13 +1319,13 @@ static struct option long_options[]
 #endif /* IPC */
 #if !defined(Aleph)
       { "mltex",                     0, &mltexp, 1 },
-#if !defined(XeTeX) && !defined(pTeX)
+#if !defined(XeTeX) && !defined(pTeX) && !defined(epTeX)
       { "enc",                       0, &enctexp, 1 },
-#endif /* !XeTeX && !pTeX */
+#endif /* !XeTeX && !pTeX && !epTeX */
 #endif /* !Aleph */
-#if defined (eTeX) || defined(pdfTeX) || defined(Aleph) || defined(XeTeX)
+#if defined (eTeX) || defined (epTeX) || defined(pdfTeX) || defined(Aleph) || defined(XeTeX)
       { "etex",                      0, &etexp, 1 },
-#endif /* eTeX || pdfTeX || Aleph */
+#endif /* eTeX || epTeX || pdfTeX || Aleph */
       { "output-comment",            1, 0, 0 },
 #if defined(pdfTeX)
       { "draftmode",                 0, 0, 0 },
@@ -1363,9 +1364,9 @@ static struct option long_options[]
       { "mktex",                     1, 0, 0 },
       { "no-mktex",                  1, 0, 0 },
 #endif /* TeX or MF */
-#ifdef pTeX
+#if defined(pTeX) || defined(epTeX)
       { "kanji",                     1, 0, 0 },
-#endif /* pTeX */
+#endif /* pTeX || epTeX */
       { 0, 0, 0, 0 } };
 
 
@@ -1513,12 +1514,12 @@ parse_options (int argc, string *argv)
       } else {
         WARNING1 ("Ignoring unknown argument `%s' to --interaction", optarg);
       }
-#ifdef pTeX
+#if defined(pTeX) || defined(epTeX)
     } else if (ARGUMENT_IS ("kanji")) {
       if (!set_enc_string (optarg, NULL)) {
         WARNING1 ("Ignoring unknown argument `%s' to --kanji", optarg);
       }
-#endif /* pTeX */
+#endif /* pTeX || epTeX */
 
     } else if (ARGUMENT_IS ("help")) {
         usagehelp (PROGRAM_HELP, BUG_ADDRESS);
@@ -1922,13 +1923,13 @@ input_line (FILE *f)
   int i = EOF;
 
   /* Recognize either LF or CR as a line terminator.  */
-#ifdef pTeX
+#if defined(pTeX) || defined(epTeX)
   last = input_line2(f, buffer, first, bufsize, &i);
-#else /* pTeX */
+#else /* pTeX || epTeX */
   last = first;
   while (last < bufsize && (i = getc (f)) != EOF && i != '\n' && i != '\r')
     buffer[last++] = i;
-#endif /* pTeX */
+#endif /* pTeX || epTeX */
 
   if (i == EOF && errno != EINTR && last == first)
     return false;
@@ -1963,10 +1964,10 @@ input_line (FILE *f)
      buffer[i] = xord[buffer[i]];
 #endif
 
-#ifdef pTeX
+#if defined(pTeX) || defined(epTeX)
   for (i = last+1; (i < last + 5 && i < bufsize) ; i++)
     buffer[i] = '\0';
-#endif /* pTeX */
+#endif /* pTeX || epTeX */
 
     return true;
 }
@@ -2057,13 +2058,7 @@ calledit (packedASCIIcode *filename,
   *temp = 0;
 
   /* Execute the command.  */
-#ifdef __MINGW32__
-  /* Win32 reimplementation of the system() command
-     provides opportunity to call it asynchronously */
-  if (win32_system(command, true) != 0 )
-#else
   if (system (command) != 0)
-#endif
     fprintf (stderr, "! Trouble executing `%s'.\n", command);
 
   /* Quit, since we found an error.  */

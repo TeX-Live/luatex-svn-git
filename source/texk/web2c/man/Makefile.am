@@ -1,6 +1,6 @@
 ## Makefile.am for the TeX Live subdirectory texk/web2c/man/
 ##
-## Copyright (C) 2009, 2010 Peter Breitenlohner <tex-live@tug.org>
+## Copyright (C) 2009 - 2011 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
 man_sources = $(bootstrap_man_sources)
@@ -50,6 +50,7 @@ pdftex_man_sources = pdftex.man pdftosrc.man ttf2afm.man
 
 if LUATEX
 man_sources += luatex.man
+man1_links += luatex:texlua luatex:texluac
 endif LUATEX
 EXTRA_DIST += luatex.man
 
@@ -81,21 +82,11 @@ misc_man_sources = \
 
 include $(top_srcdir)/../am/man.am
 
-install-data-hook:
-	@cd $(DESTDIR)$(man1dir) && \
-	  for s in $(man1_links); do \
-	    link=`echo $$s | sed 's,.*:,,'`; \
-	    file=`echo $$s | sed 's,:.*,,'`; \
-	    rm -f $$link.1; \
-	    echo "creating link '$$link.1' -> '$$file.1'"; \
-	    $(LN_S) $$file.1 $$link.1; \
-	  done
+include $(top_srcdir)/../am/man1_links.am
 
-uninstall-hook:
-	@for s in $(man1_links); do \
-	  link=`echo $$s | sed 's,.*:,,'`; \
-	  rm -f $(DESTDIR)$(man1dir)/$$link.1; \
-	done
+install-data-hook: install-man1-links
+
+uninstall-hook: uninstall-man1-links
 
 ## Obsolete ?
 ##

@@ -1,4 +1,4 @@
-$Id: README 19135 2010-06-24 08:38:09Z peter $
+$Id: README 20707 2010-12-10 11:22:05Z peter $
 Copyright 2004, 2006, 2007, 2008, 2009 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -28,7 +28,7 @@ Prerequisites:
 
 - If you modify any .y or .l source files, then Bison and Flex (or maybe
   equivalents) are needed.  The distributed .c and .h files are generated
-  with bison-2.4.1 and flex-2.5.35.
+  with bison-2.4.3 and flex-2.5.35.
 
 The binaries will be left in ./inst/bin/<stdplatform>.
 For TeX Live, ignore the other files and directories that end up in ./inst.
@@ -61,7 +61,7 @@ Build information:
   i386-linux: Debian sarge, gcc 3.3.5, libc 2.3.2, Linux 2.6.9-67.0.4.ELsmp
     chroot /home/texlive/sarge; Build --with-xindy --with-clisp=...
   
-  x86_64-linux: gcc 3.4.6, libc libc 2.3.6, Linux 2.6.28.6
+  x86_64-linux: gcc 3.4.6, libc 2.3.6, Linux 2.6.28.6
   
   universal-darwin, x86_64-darwin: a menagerie of versions.
 

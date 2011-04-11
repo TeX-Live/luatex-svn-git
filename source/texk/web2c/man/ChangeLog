@@ -1,3 +1,37 @@
+2011-04-05  Taco Hoekwater  <taco@metapost.org>
+
+	* mpost.man: update to version 1.504
+	* dvitomp.man: update to version 1.504
+
+2011-04-05  Taco Hoekwater  <taco@metapost.org>
+
+	* mpost.man: update to version 1.503
+
+2011-03-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* aleph.man, etex.man, luatex.man, mf.man, pdftex.man,
+	tangle.man, tex.man: Drop useless '.rb' macros.
+
+2011-02-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (man1_links): Add texlua and texluac.
+
+2011-02-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Use ../../am/man1_links.am for manpage links.
+
+2010-12-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (install-data-hook): Check symlink creation.
+
+2010-12-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mpost.man: Define the macro URL (from Taco).
+
+2010-12-17  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* cweb.man: Adapt to facts: use '-' to indicate no change file.
+
 2010-05-20  Karl Berry  <karl@tug.org>
 
 	* Makefile.am [LUATEX]: do not include luatangle.man link,

@@ -1,6 +1,6 @@
 ## Makefile.am for the TeX Live subdirectory texk/web2c/
 ##
-## Copyright (C) 2009, 2010 Peter Breitenlohner <tex-live@tug.org>
+## Copyright (C) 2009 - 2011 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
 ACLOCAL_AMFLAGS = -I ../../m4 -I m4
@@ -31,7 +31,11 @@ EXTRA_LIBRARIES =
 EXTRA_DIST = PROJECTS cftests cpascal.h help.h w2c/config.h
 DISTCLEANFILES = $(EXTRA_LIBRARIES)
 CLEANFILES =
+TRIPTRAP_CLEAN =
 TRIPTRAP =
+bin_links =
+install_exe_links =
+uninstall_exe_links =
 
 # in case of an SVN repository
 dist-hook:
@@ -118,12 +122,16 @@ o_tangle = WEBINPUTS=.:$(srcdir) $(SHELL) ./tangle-sh $@ $(OTANGLE)
 DIFF = diff
 DIFFFLAGS =
 TESTS_ENVIRONMENT = DIFF='$(DIFF)' DIFFFLAGS='$(DIFFFLAGS)' LN_S='$(LN_S)' KPSEWHICH='$(KPSEWHICH)'
+triptrap_diffs = srcdir=$(srcdir) MAKE=$(MAKE) $(SHELL) $(srcdir)/triptrap-sh
 
 .PHONY: triptrap
 triptrap:
-	srcdir=$(srcdir) MAKE=$(MAKE) \
-	  $(SHELL) $(srcdir)/triptrap-sh $(TRIPTRAP)
+	$(triptrap_diffs) $(TRIPTRAP)
 EXTRA_DIST += triptrap-sh
+
+clean-local: triptrap-clean
+.PHONY: triptrap-clean
+triptrap-clean: $(TRIPTRAP_CLEAN)
 
 # The environment for making dumps.
 # No need to specify TEXMF, as ../kpathsea/texmf.cnf should contain
@@ -162,6 +170,9 @@ include $(srcdir)/etexdir/am/etex.am
 ## pTeX
 include $(srcdir)/ptexdir/am/ptex.am
 
+## e-pTeX
+include $(srcdir)/eptexdir/am/eptex.am
+
 ## pdfTeX
 include $(srcdir)/pdftexdir/am/pdftex.am
 include $(srcdir)/pdftexdir/am/libpdftex.am
@@ -197,7 +208,21 @@ include $(srcdir)/synctexdir/am/synctex.am
 ## libmd5
 include $(srcdir)/libmd5/am/md5.am
 
-## Eventually delete these files
-##
-EXTRA_DIST += Makefile.in.orig configure.in.orig
+# Symlinks within $(bindir): FILE:LINK indicates LINK$(EXEEXT)->FILE$(EXEEXT)
+install-exec-hook: $(install_exe_links)
+	@test -z "$(bin_links)" || { \
+	  cd $(DESTDIR)$(bindir) && \
+	  for s in $(bin_links); do \
+	    link=`echo $$s | sed 's,.*:,,'`$(EXEEXT); \
+	    file=`echo $$s | sed 's,:.*,,'`$(EXEEXT); \
+	    rm -f $$link; \
+	    echo "creating link '$$link' -> '$$file'"; \
+	    $(LN_S) $$file $$link || exit 1; \
+	  done; }
+uninstall-hook: $(uninstall_exe_links)
+	@test -z "$(bin_links)" || \
+	for s in $(bin_links); do \
+	  link=`echo $$s | sed 's,.*:,,'`$(EXEEXT); \
+	  rm -f $(DESTDIR)$(bindir)/$$link; \
+	done  
 

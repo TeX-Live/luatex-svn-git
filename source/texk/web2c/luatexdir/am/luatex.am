@@ -1,23 +1,30 @@
 ## texk/web2c/luatexdir/am/luatex.am: Makefile fragment for luaTeX.
 ##
-## Copyright (C) 2009, 2010 Peter Breitenlohner <tex-live@tug.org>
+## Copyright (C) 2009 - 2011 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 
 ## luaTeX
 ##
 if LUATEX
 bin_PROGRAMS += luatex
+if WIN32
+noinst_PROGRAMS += call_luatex
+install_exe_links += install-luatex-links
+uninstall_exe_links += uninstall-luatex-links
+else !WIN32
+bin_links += luatex:texlua luatex:texluac
+endif !WIN32
 endif LUATEX
 EXTRA_PROGRAMS += luatex
 
 # Force Automake to use CXXLD for linking
 nodist_EXTRA_luatex_SOURCES = dummy.cxx
 
-luatex_CPPFLAGS = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(POPPLER_INCLUDES)
-luatex_CPPFLAGS += $(OBSDCOMPAT_INCLUDES) -I$(srcdir)/libmd5
-luatex_CPPFLAGS += -Iluatexdir -I$(srcdir)/luatexdir -I$(srcdir)/luatexdir/lua51 -I$(srcdir)/mplibdir
+luatex_CPPFLAGS = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES)
+luatex_CPPFLAGS += $(POPPLER_INCLUDES) $(OBSDCOMPAT_INCLUDES) -I$(srcdir)/libmd5
+luatex_CPPFLAGS += -I$(srcdir)/luatexdir -I$(srcdir)/luatexdir/lua51 -I$(srcdir)/mplibdir
 luatex_CPPFLAGS += -Dextra_version_info=`date +-%Y%m%d%H`
-luatex_CFLAGS = $(WARNING_CFLAGS)
+luatex_CPPFLAGS += -I$(srcdir)/synctexdir -DSYNCTEX_ENGINE_H='<utils/synctex-luatex.h>'
 luatex_CXXFLAGS = $(WARNING_CXXFLAGS)
 
 luatex_ldadd = libluatex.a libff.a libluamisc.a libluasocket.a liblua51.a
@@ -36,21 +43,25 @@ $(luatex_OBJECTS): libluatex.a
 
 luatex_SOURCES = luatexdir/luatex_svnversion.h luatexdir/luatex.c luatexdir/luatex.h
 
-# Double-colon rules since we do something similar in mplibdir (maybe others).
-if LUATEX
-install-exec-hook::
-	cd $(DESTDIR)$(bindir) && rm -f texlua$(EXEEXT) \
-	  && $(LN_S) luatex$(EXEEXT) texlua$(EXEEXT)
-	cd $(DESTDIR)$(bindir) && rm -f texluac$(EXEEXT) \
-	  && $(LN_S) luatex$(EXEEXT) texluac$(EXEEXT)
-uninstall-hook::
-	rm -f $(DESTDIR)$(bindir)/texlua$(EXEEXT)
-	rm -f $(DESTDIR)$(bindir)/texluac$(EXEEXT)
-endif LUATEX
-
 EXTRA_DIST += luatexdir/ptexlib.h
 
 EXTRA_DIST += luatexdir/getluatexsvnversion.sh
+
+call_luatex_CPPFLAGS = -DEXEPROG=\"luatex.exe\"
+
+call_luatex_SOURCES = $(srcdir)/../texlive/w32_wrapper/callexe.c
+
+call_luatex_LDADD =
+
+.PHONY: install-luatex-links uninstall-luatex-links
+if WIN32
+install-luatex-links: call_luatex$(EXEEXT)
+	$(INSTALL_PROGRAM) call_luatex$(EXEEXT) $(DESTDIR)$(bindir)/texlua$(EXEEXT)
+	$(INSTALL_PROGRAM) call_luatex$(EXEEXT) $(DESTDIR)$(bindir)/texluac$(EXEEXT)
+uninstall-luatex-links:
+	rm -f $(DESTDIR)$(bindir)/texlua$(EXEEXT)
+	rm -f $(DESTDIR)$(bindir)/texluac$(EXEEXT)
+endif WIN32
 
 # luaTeX Tests
 #

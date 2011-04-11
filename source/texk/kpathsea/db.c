@@ -727,8 +727,8 @@ kpathsea_db_search_list (kpathsea kpse, const_string* names,
       if (path != path_elt)
           free((string)path);
   }
-  return ret;
 
+  return ret;
 }
 
 #if defined(KPSE_COMPAT_API)

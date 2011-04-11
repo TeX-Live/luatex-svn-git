@@ -355,15 +355,14 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I ../../m4
-SUBDIRS = . man ## doc is a pain
+SUBDIRS = . doc man
 EXTRA_DIST = BUGS PROJECTS putenv.c strcasecmp.c strtol.c strstr.c \
-	bsnl.awk $(TESTS) mktex.cnf Makefile.in.orig common.ac.orig \
-	withenable.ac
+	bsnl.awk $(TESTS) mktex.cnf
 INCLUDES = -I$(top_builddir)/.. -I$(top_srcdir)/..
 AM_CFLAGS = $(WARNING_CFLAGS)
 lib_LTLIBRARIES = libkpathsea.la
 libkpathsea_la_CPPFLAGS = -DMAKE_KPSE_DLL
-libkpathsea_la_LDFLAGS = -version-info $(KPSE_LT_VERSINFO)
+libkpathsea_la_LDFLAGS = -no-undefined -version-info $(KPSE_LT_VERSINFO)
 libkpathsea_la_LIBADD = $(LTLIBOBJS)
 BUILT_SOURCES = paths.h
 libkpathsea_la_SOURCES = tex-file.c absolute.c atou.c cnf.c concat.c \
@@ -1752,6 +1751,10 @@ $(libkpathsea_la_OBJECTS): paths.h kpathsea.h
 
 paths.h: stamp-paths
 stamp-paths: texmf.cnf bsnl.awk
+# ensure grep is not completely broken, e.g., from GREP_OPTIONS.
+	echo a | grep -v b >/dev/null || { echo "*** grep broken, goodbye."; exit 1; }
+#
+# generate paths.h without build machine directories.
 	echo "/* paths.h: Generated from texmf.cnf. */" >paths.tmp
 	awk -f $(srcdir)/bsnl.awk $(srcdir)/texmf.cnf \
 	| sed -e 's/%.*//' -e 's/^[ 	]*//' -e 's/[ 	]*$$//' \
@@ -1796,21 +1799,21 @@ kpathsea.h: Makefile paths.h
 	      -e 's,^,#include <kpathsea/,' -e s',$$,>,' >>$@
 
 install-exec-hook:
-	@for f in $(dist_noinst_SCRIPTS); do \
-	  if grep "original $$f --" "$(DESTDIR)$(bindir)/$$f" >/dev/null 2>&1 \
-	      || test ! -r "$(DESTDIR)$(bindir)/$$f"; then \
-	    echo " $(INSTALL_SCRIPT) '$(srcdir)/$$f' '$(DESTDIR)$(bindir)/$$f'"; \
-	    $(INSTALL_SCRIPT) "$(srcdir)/$$f" "$(DESTDIR)$(bindir)/$$f"; \
-	  else :; fi; \
-	done
-	@cd $(DESTDIR)$(bindir) && \
-	  for s in $(bin_links); do \
-	    link=`echo $$s | sed 's,.*:,,'`; \
-	    file=`echo $$s | sed 's,:.*,,'`; \
-	    rm -f $$link; \
-	    echo "creating link '$$link' -> '$$file'"; \
-	    $(LN_S) $$file $$link; \
-	  done
+@WIN32_FALSE@	@for f in $(dist_noinst_SCRIPTS); do \
+@WIN32_FALSE@	  if grep "original $$f --" "$(DESTDIR)$(bindir)/$$f" >/dev/null 2>&1 \
+@WIN32_FALSE@	      || test ! -r "$(DESTDIR)$(bindir)/$$f"; then \
+@WIN32_FALSE@	    echo " $(INSTALL_SCRIPT) '$(srcdir)/$$f' '$(DESTDIR)$(bindir)/$$f'"; \
+@WIN32_FALSE@	    $(INSTALL_SCRIPT) "$(srcdir)/$$f" "$(DESTDIR)$(bindir)/$$f"; \
+@WIN32_FALSE@	  else :; fi; \
+@WIN32_FALSE@	done
+@WIN32_FALSE@	@cd $(DESTDIR)$(bindir) && \
+@WIN32_FALSE@	  for s in $(bin_links); do \
+@WIN32_FALSE@	    link=`echo $$s | sed 's,.*:,,'`; \
+@WIN32_FALSE@	    file=`echo $$s | sed 's,:.*,,'`; \
+@WIN32_FALSE@	    rm -f $$link; \
+@WIN32_FALSE@	    echo "creating link '$$link' -> '$$file'"; \
+@WIN32_FALSE@	    $(LN_S) $$file $$link || exit 1; \
+@WIN32_FALSE@	  done
 
 install-data-hook:
 	@for f in $(dist_noinst_DATA); do \
@@ -1822,20 +1825,18 @@ install-data-hook:
 	done
 
 uninstall-hook:
-	@for f in $(dist_noinst_SCRIPTS); do \
-	  if grep "original $$f --" "$(DESTDIR)$(bindir)/$$f" >/dev/null 2>&1 \
-	      || test ! -r "$(DESTDIR)$(bindir)/$$f"; then \
-	    echo " rm -f '$(DESTDIR)$(bindir)/$$f'"; \
-	    rm -f "$(DESTDIR)$(bindir)/$$f"; \
-	  else :; fi; \
-	done
-	@for s in $(bin_links); do \
-	  link=`echo $$s | sed 's,.*:,,'`; \
-	  rm -f $(DESTDIR)$(bindir)/$$link; \
-	done
+@WIN32_FALSE@	@for f in $(dist_noinst_SCRIPTS); do \
+@WIN32_FALSE@	  if grep "original $$f --" "$(DESTDIR)$(bindir)/$$f" >/dev/null 2>&1; then \
+@WIN32_FALSE@	    echo " rm -f '$(DESTDIR)$(bindir)/$$f'"; \
+@WIN32_FALSE@	    rm -f "$(DESTDIR)$(bindir)/$$f"; \
+@WIN32_FALSE@	  else :; fi; \
+@WIN32_FALSE@	done
+@WIN32_FALSE@	@for s in $(bin_links); do \
+@WIN32_FALSE@	  link=`echo $$s | sed 's,.*:,,'`; \
+@WIN32_FALSE@	  rm -f $(DESTDIR)$(bindir)/$$link; \
+@WIN32_FALSE@	done
 	@for f in $(dist_noinst_DATA); do \
-	  if grep "original $$f --" "$(DESTDIR)$(web2cdir)/$$f" >/dev/null 2>&1 \
-	      || test ! -r "$(DESTDIR)$(web2cdir)/$$f"; then \
+	  if grep "original $$f --" "$(DESTDIR)$(web2cdir)/$$f" >/dev/null 2>&1; then \
 	    echo " rm -f '$(DESTDIR)$(web2cdir)/$$f'"; \
 	    rm -f "$(DESTDIR)$(web2cdir)/$$f"; \
 	  else :; fi; \

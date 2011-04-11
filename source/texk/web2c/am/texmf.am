@@ -1,6 +1,6 @@
 ## texk/web2c/am/texmf.am: Makefile fragment for TeX and MF.
 ##
-## Copyright (C) 2009, 2010 Peter Breitenlohner <tex-live@tug.org>
+## Copyright (C) 2009 - 2011 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 
 ## Common for MF and TeX
@@ -16,18 +16,27 @@ EXTRA_DIST += \
 ##
 if TEX
 bin_PROGRAMS += tex
+if WIN32
+bin_PROGRAMS += initex
+else !WIN32
+bin_links += tex:initex
+endif !WIN32
 endif TEX
 EXTRA_PROGRAMS += tex
 
+initex_CPPFLAGS = -DEXEPROG=\"tex.exe\"
+initex_SOURCES = $(srcdir)/../texlive/w32_wrapper/callexe.c
+initex_LDADD =
+
 tex_CPPFLAGS = $(AM_CPPFLAGS)
-tex_CFLAGS = $(WARNING_CFLAGS)
 
 # With --enable-ipc, TeX may need to link with -lsocket.
 tex_LDADD = $(LDADD) $(ipc_socketlibs)
 
 # TeX C sources
 tex_c_h = texini.c tex0.c texcoerce.h texd.h
-nodist_tex_SOURCES = $(tex_c_h) tex-pool.c texextra.c
+nodist_tex_SOURCES = $(tex_c_h) tex-pool.c
+dist_tex_SOURCES = texextra.c
 
 # We must create texd.h before building the tex_OBJECTS.
 tex_prereq = texd.h
@@ -41,9 +50,6 @@ tex-web2c: tex.p $(web2c_texmf)
 tex-pool.c: tex.pool texd.h $(makecpool_stamp)
 	$(makecpool) tex >$@ || rm -f $@
 
-texextra.c: lib/texmfmp.c texd.h
-	sed s/TEX-OR-MF-OR-MP/tex/ $(srcdir)/lib/texmfmp.c >$@
-
 # Tangling TeX
 tex.p tex.pool: tex-tangle
 	@$(texmf_tangle) tex tex-final
@@ -56,10 +62,11 @@ tex-final.ch: tie$(EXEEXT) $(tex_ch_srcs)
 tex_ch_srcs = \
 	tex.web \
 	tex.ch \
+	enctex.ch \
 	$(tex_ch_synctex) \
 	tex-binpool.ch
 ##
-EXTRA_DIST += $(tex_ch_srcs) lib/texmfmp.c
+EXTRA_DIST += $(tex_ch_srcs)
 
 DISTCLEANFILES += $(nodist_tex_SOURCES) tex-final.ch tex-web2c \
 	tex.p tex.pool tex-tangle
@@ -73,12 +80,14 @@ if TEX
 TESTS += $(tex_tests)
 check_PROGRAMS += dvitype pltotf tftopl
 TRIPTRAP += trip.diffs
+TRIPTRAP_CLEAN += trip-clean
 endif TEX
 DISTCLEANFILES += trip.diffs
 
-.PHONY: trip-clean
-clean-local:: trip-clean
 # trip.test
+trip.diffs: tex$(EXEEXT)
+	$(triptrap_diffs) $@
+.PHONY: trip-clean
 trip-clean:
 	rm -f trip.tfm trip.pl trip.tex trip.fmt tripin.fot tripin.log
 	rm -f trip.fot trip.log trip.dvi trip.typ tripos.tex 8terminal.tex
@@ -91,19 +100,28 @@ bin_PROGRAMS += mf
 if MFN
 bin_PROGRAMS += mf-nowin
 endif MFN
-TRIPTRAP += mftrap.diffs
+if WIN32
+bin_PROGRAMS += inimf
+else !WIN32
+bin_links += mf:inimf
+endif !WIN32
 endif MF
 EXTRA_PROGRAMS += mf mf-nowin
 DISTCLEANFILES += mftrap.diffs
 
-nodist_mf_SOURCES = mfextra.c
+inimf_CPPFLAGS = -DEXEPROG=\"mf.exe\"
+inimf_SOURCES = $(srcdir)/../texlive/w32_wrapper/callexe.c
+inimf_LDADD =
+
+dist_mf_SOURCES = mfextra.c
 mf_CPPFLAGS = $(AM_CPPFLAGS) $(X_CFLAGS)
-mf_CFLAGS = $(WARNING_CFLAGS)
 mf_LDADD = libmf.a $(LDADD) $(windowlib) $(mf_x_libs)
-nodist_mf_nowin_SOURCES = mfextra.c
+dist_mf_nowin_SOURCES = mfextra.c
 mf_nowin_CPPFLAGS = $(mf_CPPFLAGS) -DMFNOWIN
-mf_nowin_CFLAGS = $(WARNING_CFLAGS)
 mf_nowin_LDADD = libmf.a $(LDADD) $(windowlib)
+
+# We must create mfd.h before compiling mfextra.c.
+$(mf_OBJECTS) $(mf_nowin_OBJECTS): mfd.h
 
 windowlib = window/libwindow.a
 $(windowlib): mfd.h $(srcdir)/window/*.c
@@ -129,7 +147,6 @@ EXTRA_LIBRARIES += libmf.a
 # Metafont C sources
 mf_c_h = mfini.c mf0.c mfcoerce.h mfd.h
 nodist_libmf_a_SOURCES = $(mf_c_h) mf-pool.c
-libmf_a_CFLAGS = $(WARNING_CFLAGS)
 
 # We must create mfd.h before building the libmf_a_OBJECTS.
 $(libmf_a_OBJECTS): mfd.h
@@ -141,9 +158,6 @@ mf-web2c: mf.p $(web2c_texmf) web2c/cvtmf1.sed web2c/cvtmf2.sed
 
 mf-pool.c: mf.pool mfd.h $(makecpool_stamp)
 	$(makecpool) mf >$@ || rm -f $@
-
-mfextra.c: lib/texmfmp.c mfd.h
-	sed s/TEX-OR-MF-OR-MP/mf/ $(srcdir)/lib/texmfmp.c >$@
 
 # Tangling Metafont
 mf.p mf.pool: mf-tangle
@@ -159,9 +173,9 @@ mf_ch_src = \
 	mf.ch \
 	mf-binpool.ch
 ##
-EXTRA_DIST += $(mf_ch_src) mftalk.h lib/texmfmp.c
+EXTRA_DIST += $(mf_ch_src) mftalk.h
 
-DISTCLEANFILES += $(nodist_libmf_a_SOURCES) mfextra.c mf-final.ch mf-web2c \
+DISTCLEANFILES += $(nodist_libmf_a_SOURCES) mf-final.ch mf-web2c \
 	mf.p mf.pool mf-tangle
 
 # Metafont tests
@@ -171,11 +185,14 @@ EXTRA_DIST += $(mf_tests)
 if MF
 TESTS += $(mf_tests)
 check_PROGRAMS += gftype tftopl
+TRIPTRAP += mftrap.diffs
+TRIPTRAP_CLEAN += trap-clean
 endif MF
 
-.PHONY: trap-clean
-clean-local:: trap-clean
 # trap.test
+mftrap.diffs: mf$(EXEEXT)
+	$(triptrap_diffs) $@
+.PHONY: trap-clean
 trap-clean:
 	rm -f trap.mf trap.base
 	rm -f mftrapin.fot mftrapin.log

@@ -1174,7 +1174,7 @@ opennameok(const_string fname, const_string check_var,
         if (base[0] == 0 ||
             (base[0] == '.' && !IS_DIR_SEP(base[1]) && !STREQ(base, ".tex"))) {
             fprintf(stderr, "%s: Not %s to %s (%s = %s).\n",
-                    program_invocation_name, ok_type_name[action], fname,
+                    kpse_invocation_name, ok_type_name[action], fname,
                     check_var, open_choice);
             return false;
         }
@@ -1195,7 +1195,7 @@ opennameok(const_string fname, const_string check_var,
             || fname != strstr(fname, texmfoutput)
             || !IS_DIR_SEP(fname[strlen(texmfoutput)])) {
             fprintf(stderr, "%s: Not %s to %s (%s = %s).\n",
-                    program_invocation_name, ok_type_name[action], fname,
+                    kpse_invocation_name, ok_type_name[action], fname,
                     check_var, open_choice);
             return false;
         }
@@ -1204,7 +1204,7 @@ opennameok(const_string fname, const_string check_var,
        anywhere.  */
     if (fname[0] == '.' && fname[1] == '.' && IS_DIR_SEP(fname[2])) {
         fprintf(stderr, "%s: Not %s to %s (%s = %s).\n",
-                program_invocation_name, ok_type_name[action], fname,
+                kpse_invocation_name, ok_type_name[action], fname,
                 check_var, open_choice);
         return false;
     } else {
@@ -1216,7 +1216,7 @@ opennameok(const_string fname, const_string check_var,
                because the "../" case was handled above. */
             if (IS_DIR_SEP(dotpair[2]) && IS_DIR_SEP(dotpair[-1])) {
                 fprintf(stderr, "%s: Not %s to %s (%s = %s).\n",
-                        program_invocation_name, ok_type_name[action], fname,
+                        kpse_invocation_name, ok_type_name[action], fname,
                         check_var, open_choice);
                 return false;
             }

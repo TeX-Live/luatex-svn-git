@@ -2,7 +2,7 @@
    and it produces several .c and .h files in the current directory
    as its output.
 
-   $Id: splitup.c 18865 2010-06-10 13:18:47Z peter $
+   $Id: splitup.c 21027 2011-01-11 09:59:29Z peter $
 
    Tim Morgan  September 19, 1987.  */
 
@@ -112,7 +112,7 @@ main (int argc, string *argv)
     fputs ("#define INIMF\n#define MF\n", out);
     coerce = "mfcoerce.h";
   } else if (STREQ (output_name, "tex")) {
-    fputs ("#define INITEX\n#define TeX\n", out);
+    fputs ("#define INITEX\n#define TeX\n#define onlyTeX\n", out);
     coerce = "texcoerce.h";
   } else if (STREQ (output_name, "aleph")) {
     fputs ("#define INITEX\n#define TeX\n#define Aleph\n", out);
@@ -126,11 +126,14 @@ main (int argc, string *argv)
   } else if (STREQ (output_name, "ptex")) {
     fputs ("#define INITEX\n#define TeX\n#define pTeX\n", out);
     coerce = "ptexcoerce.h";
+  } else if (STREQ (output_name, "eptex")) {
+    fputs ("#define INITEX\n#define TeX\n#define epTeX\n", out);
+    coerce = "eptexcoerce.h";
   } else if (STREQ (output_name, "xetex")) {
     fputs ("#define INITEX\n#define TeX\n#define XeTeX\n", out);
     coerce = "xetexcoerce.h";
   } else
-    FATAL1 ("Can only split mf, tex, aleph, etex, pdftex, ptex, or xetex,\n not %s", output_name);
+    FATAL1 ("Can only split mf, tex, aleph, eptex, etex, pdftex, ptex, or xetex,\n not %s", output_name);
   
   coerce_len = strlen (coerce);
   

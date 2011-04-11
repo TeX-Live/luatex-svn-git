@@ -1,6 +1,6 @@
 ## Makefile.am for the TeX Live subdirectory texk/kpathsea/
 ##
-## Copyright (C) 2009, 2010 Peter Breitenlohner <tex-live@tug.org>
+## Copyright (C) 2009 - 2011 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
 ACLOCAL_AMFLAGS = -I ../../m4
@@ -9,7 +9,7 @@ ACLOCAL_AMFLAGS = -I ../../m4
 .PHONY: rebuild
 rebuild: all
 
-SUBDIRS = . man ## doc is a pain
+SUBDIRS = . doc man
 
 EXTRA_DIST = BUGS PROJECTS
 
@@ -20,7 +20,7 @@ lib_LTLIBRARIES = libkpathsea.la
 
 libkpathsea_la_CPPFLAGS = -DMAKE_KPSE_DLL
 
-libkpathsea_la_LDFLAGS = -version-info $(KPSE_LT_VERSINFO)
+libkpathsea_la_LDFLAGS = -no-undefined -version-info $(KPSE_LT_VERSINFO)
 
 libkpathsea_la_LIBADD = $(LTLIBOBJS)
 
@@ -191,6 +191,10 @@ kpseinclude_HEADERS = \
 ##
 paths.h: stamp-paths
 stamp-paths: texmf.cnf bsnl.awk
+# ensure grep is not completely broken, e.g., from GREP_OPTIONS.
+	echo a | grep -v b >/dev/null || { echo "*** grep broken, goodbye."; exit 1; }
+#
+# generate paths.h without build machine directories.
 	echo "/* paths.h: Generated from texmf.cnf. */" >paths.tmp
 	awk -f $(srcdir)/bsnl.awk $(srcdir)/texmf.cnf \
 	| sed -e 's/%.*//' -e 's/^[ 	]*//' -e 's/[ 	]*$$//' \
@@ -263,6 +267,7 @@ bin_links = \
 	mktexlsr:texhash
 
 install-exec-hook:
+if !WIN32
 	@for f in $(dist_noinst_SCRIPTS); do \
 	  if grep "original $$f --" "$(DESTDIR)$(bindir)/$$f" >/dev/null 2>&1 \
 	      || test ! -r "$(DESTDIR)$(bindir)/$$f"; then \
@@ -276,9 +281,9 @@ install-exec-hook:
 	    file=`echo $$s | sed 's,:.*,,'`; \
 	    rm -f $$link; \
 	    echo "creating link '$$link' -> '$$file'"; \
-	    $(LN_S) $$file $$link; \
+	    $(LN_S) $$file $$link || exit 1; \
 	  done
-
+endif !WIN32
 
 install-data-hook:
 	@for f in $(dist_noinst_DATA); do \
@@ -290,9 +295,9 @@ install-data-hook:
 	done
 
 uninstall-hook:
+if !WIN32
 	@for f in $(dist_noinst_SCRIPTS); do \
-	  if grep "original $$f --" "$(DESTDIR)$(bindir)/$$f" >/dev/null 2>&1 \
-	      || test ! -r "$(DESTDIR)$(bindir)/$$f"; then \
+	  if grep "original $$f --" "$(DESTDIR)$(bindir)/$$f" >/dev/null 2>&1; then \
 	    echo " rm -f '$(DESTDIR)$(bindir)/$$f'"; \
 	    rm -f "$(DESTDIR)$(bindir)/$$f"; \
 	  else :; fi; \
@@ -301,9 +306,9 @@ uninstall-hook:
 	  link=`echo $$s | sed 's,.*:,,'`; \
 	  rm -f $(DESTDIR)$(bindir)/$$link; \
 	done
+endif !WIN32
 	@for f in $(dist_noinst_DATA); do \
-	  if grep "original $$f --" "$(DESTDIR)$(web2cdir)/$$f" >/dev/null 2>&1 \
-	      || test ! -r "$(DESTDIR)$(web2cdir)/$$f"; then \
+	  if grep "original $$f --" "$(DESTDIR)$(web2cdir)/$$f" >/dev/null 2>&1; then \
 	    echo " rm -f '$(DESTDIR)$(web2cdir)/$$f'"; \
 	    rm -f "$(DESTDIR)$(web2cdir)/$$f"; \
 	  else :; fi; \
@@ -317,8 +322,4 @@ EXTRA_DIST += $(TESTS)
 ## Not used
 ##
 EXTRA_DIST += mktex.cnf
-
-## Eventually delete these files
-##
-EXTRA_DIST += Makefile.in.orig common.ac.orig withenable.ac
 

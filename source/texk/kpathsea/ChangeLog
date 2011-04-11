@@ -1,3 +1,151 @@
+2011-03-22  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (TEXINPUTS.eptex, TEXINPUTS.eplatex): define,
+	same as .p(la)tex.  From Akira.
+
+2011-03-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* types.h: Rename the variables program_invocation_name and
+	program_invocation_short_name into kpse_invocation_name and
+	kpse_invocation_short_name repectively, (1) in order to avoid
+	conflicts with /usr/include/sys/errno.h from Cygwin, and (2)
+	because they are not the same as those from the GNU C library.
+
+	Problem reported by Ken Brown <kbrow1i@gmail.com>.
+
+2011-03-03  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lib.h, xftell.c (xftell): Change return type from unsigned to
+	signed and use ftell() instead of ftello().
+
+2011-03-01  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf: be more explicit that all trees, including TEXMFHOME,
+	must follow the TDS.
+
+2011-03-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mingw32.[ch]: Drop win32_system(); this was a workaround for a
+	bug in system() under Win9x.
+
+2011-03-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* man/{kpsewhich,mktexlsr,mktexmf,mktexpk,mktextfm}.man: Drop
+	useless '.rb' macros.
+	* man/{kpseaccess,kpsereadlink,kpsestat}.man: The same.
+	Also remove `additional' from `following additional options'.
+
+2011-02-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.in.orig, common.ac.orig, withenable.ac: Remove
+	ancient files.
+	* Makefile.am (EXTRA_DIST): Adapt.
+
+2011-02-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* man/Makefile.am: Use ../am/man1_links.am for manpage links.
+
+2011-02-02  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (TEXMFROOT): new variable, $SELFAUTOPARENT by default,
+	to minimize redistributors' patches with a new Perl updmap.
+
+2011-01-06  Karl Berry  <karl@tug.org>
+
+	* tex-file.c (LUA_SUFFIXES): add .tlu,
+	luatex mail from t34www, 6 Jan 2011 22:04:45.
+
+2011-01-01  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (TEXLIVE_WINDOWS_TRY_EXTERNAL_PERL): doc fixes.
+
+2010-12-27  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (install-exec-hook): Check symlink creation.
+	* man/Makefile.am (install-data-hook): The same.
+
+2010-12-24  Karl Berry  <karl@tug.org>
+
+	* Makefile.am (stamp-paths): ensure that grep is not completely
+	broken, e.g., from GREP_OPTIONS, in which case we'd generate a
+	useless paths.h.
+
+2010-12-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am [WIN32]: Skip mktex{lsr,mf,pk,tfm} shell scripts
+	and texhash->mktexlsr symlink.
+
+2010-12-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tex-make.c (maketex): Factor out common WIN32 & Unix code.
+	[WIN32]: Avoid compiler warnings.
+
+2010-12-01  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* tex-make.c (maketex): [WIN32] spawnvp(_P_NOWAIT, ...) and pipe.
+
+2010-11-29  Karl Berry  <karl@tug.org>
+
+	* doc/kpathsea.texi (Brace expansion): no longer derived from Bash.
+
+2010-11-27  Taco Hoekwater  <taco@elvenkind.com>
+
+	* db.c (kpathsea_db_search_list): one return list for everything,
+	else kpsewhich --all plain returns nothing, even though
+	kpsewhich plain works.  Report from Paul Isambert,
+	25 Nov 2010 19:09:21.
+
+2010-11-27  Karl Berry  <karl@tug.org>
+
+	* kpsewhich.test: test this.
+
+2010-11-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tex-glyph.c (try_format): Drop unused params fontname and dpi;
+	mention the use of $KPATHSEA_{NAME,DPI} from environment.
+
+2010-11-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Update version number to 6.0.1dev.
+
+2010-11-10  Mathias Kende  <mathias@kende.fr>
+
+	* tex-file.c (kpathsea_set_suffixes_va_list): new fn.
+	(kpse_set_suffixes, kpathsea_set_suffixes): call it.
+	Avoids passing variable argument list, which is not portable.
+	http://bugs.debian.org/602566.
+
+2010-11-07  Karl Berry  <karl@tug.org>
+
+ 	* cnf.c (do_line): remove trailing comment and preceding
+	whitespace, so they do not appear as part of the value.
+	From Akira.
+	* doc/kpathsea.texi (Config files): document this.
+	* texmf.cnf: doc fixes.
+
+2010-10-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (libkpathsea_la_LDFLAGS): Add -no-undefined.
+
+2010-09-24  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (TTFONTS): also read opentype//.
+	(OPENTYPEFONTS): also read truetype//.
+	Because common practice is to use .ttf/.ttc for TrueType-flavored
+	OpenType fonts (and .otf only for PostScript-flavored OpenType).
+
+2010-09-18  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (DVIPDFMXINPUTS): do not include ., so attackers
+	cannot create a dvipdfmx.cfg with, e.g., xetex.
+	Report from Heiko, 16 Sep 2010 22:32:25.
+
+2010-09-09  Karl Berry  <karl@tug.org>
+
+	* mktexlsr (vc_dirs): remove CVS and RCS from the list,
+	for compatibility with the corresponding change on Windows,
+	made so that rcs/rcs.sty is not ignored.
+
 2010-06-13  Karl Berry  <karl@tug.org>
 
 	* doc/unixtex.texi: reduce to current reality.
