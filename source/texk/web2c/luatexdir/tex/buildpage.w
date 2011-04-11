@@ -569,6 +569,7 @@ void build_page(void)
 
             break;
         default:
+            fprintf(stderr, "type(p)=%d\n", type(p));
             confusion("page");
             break;
         }

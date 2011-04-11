@@ -2197,10 +2197,10 @@ static int tex_run_linebreak(lua_State * L)
         pdflastlinedepth, pdfignoreddimen, parshape;
     int fewest_demerits = 0, actual_looseness = 0;
     halfword clubpenalties, interlinepenalties, widowpenalties;
-
+    int save_vlink_tmp_head;
     /* push a new nest level */
     push_nest();
-    /* save_vlink_cur_head = vlink(cur_list.head_field); */
+    save_vlink_tmp_head = vlink(temp_head);
 
     j = check_isnode(L, 1);     /* the value */
     vlink(temp_head) = *j;
@@ -2318,6 +2318,7 @@ static int tex_run_linebreak(lua_State * L)
     lua_settable(L, -3);
 
     /* restore nest stack */
+    vlink(temp_head) = save_vlink_tmp_head;
     pop_nest();
     if (parshape != equiv(par_shape_loc))
         flush_node(parshape);
