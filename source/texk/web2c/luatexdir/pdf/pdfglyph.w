@@ -32,6 +32,7 @@ static const char _svn_version[] =
 
 @ eternal constants
 @c
+#define one_bp ((double) 65536 * (double) 72.27 / 72)   /* number of sp per 1bp */
 #define e_tj 3                  /* must be 3; movements in []TJ are in fontsize/$10^3$ units */
 
 @ @c
