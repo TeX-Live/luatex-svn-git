@@ -492,7 +492,7 @@ static void prim_cmd_chr(quarterword cmd, halfword chr_code)
     if (cmd <= last_cmd &&
         idx >= 0 && idx < prim_data[cmd].subids &&
         prim_data[cmd].names != NULL && prim_data[cmd].names[idx] != 0) {
-        tprint("\\");
+        tprint_esc("");
         print(prim_data[cmd].names[idx]);
     } else {
         /* TEX82 didn't print the |cmd,idx| information, but it may be useful */
