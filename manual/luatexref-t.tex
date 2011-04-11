@@ -297,7 +297,7 @@ effect in, say, the first or third line of the paragraph.
 
 Similar situations happen in \LUATEX\ regularly. A few of the more
 obvious problematic cases are dealt with: the attributes for nodes
-that are created during hyphenation and ligaturing borrow their
+that are created during hyphenation, kerning and ligaturing borrow their
 attributes from their surrounding glyphs, and it is possible to
 influence box attributes directly.
 
@@ -312,12 +312,6 @@ a color to already boxed material will have no effect. Keep in
 mind that this incompatibility is mostly due to the fact that separate
 specials and literals are a more unnatural approach to colors than
 attributes.
-
-Many other inserted nodes, like the nodes resulting from math mode
-and alignments, are processed \quote {out of order}, and will have the
-attributes that are in effect at the precise moment of creation (which
-is often later than expected). This area needs studying, and is in
-fact one of the reasons for a beta at this moment.
 
 It is possible to fine-tune the list of attributes that are applied
 to a \type{hbox}, \type{vbox} or \type{vtop} by the use of the
