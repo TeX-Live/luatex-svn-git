@@ -708,6 +708,7 @@ make_luaS_index(font);
 make_luaS_index(char);
 make_luaS_index(slot);
 make_luaS_index(comment);
+make_luaS_index(nop);
 make_luaS_index(push);
 make_luaS_index(pop);
 make_luaS_index(rule);
@@ -763,6 +764,7 @@ static void init_font_string_pointers(lua_State * L)
     init_luaS_index(char);
     init_luaS_index(slot);
     init_luaS_index(comment);
+    init_luaS_index(nop);
     init_luaS_index(push);
     init_luaS_index(pop);
     init_luaS_index(rule);
@@ -823,7 +825,8 @@ static int count_char_packet_bytes(lua_State * L)
                 } else if (luaS_ptr_eq(s, slot)) {
                     l += 10;
                     ff = 1;
-                } else if (luaS_ptr_eq(s, comment)) {;
+                } else if (luaS_ptr_eq(s, comment) || luaS_ptr_eq(s, nop)) {
+                    ;
                 } else if (luaS_ptr_eq(s, push) || luaS_ptr_eq(s, pop)) {
                     l++;
                 } else if (luaS_ptr_eq(s, rule)) {
@@ -919,7 +922,7 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
                     do_store_four(ff);
                     append_packet(packet_char_code);
                     do_store_four(n);
-                } else if (luaS_ptr_eq(s, comment)) {
+                } else if (luaS_ptr_eq(s, comment) || luaS_ptr_eq(s, nop)) {
                     cmd = packet_nop_code;
                 } else if (luaS_ptr_eq(s, node)) {
                     cmd = packet_node_code;
