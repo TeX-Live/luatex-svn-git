@@ -420,8 +420,7 @@ extern void topenin(void);
 extern str_number getjobname(str_number);
 extern str_number makefullnamestring(void);
 
-
-extern KPSEDLL string kpathsea_version_string;  /* from kpathsea/version.c */
+#include <kpathsea/version.h>
 
 extern PDF static_pdf;
 
