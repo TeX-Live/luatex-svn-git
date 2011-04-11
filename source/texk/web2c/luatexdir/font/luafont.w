@@ -103,6 +103,24 @@ const char *MATH_param_names[] = {
     NULL,
 };
 
+/* here for now, may be useful elsewhere */
+
+int ff_checkoption (lua_State *L, int narg, const char *def,
+                                 const char *const lst[]);
+
+int ff_checkoption (lua_State *L, int narg, const char *def,
+                                 const char *const lst[]) {
+  const char *name = (def) ? luaL_optstring(L, narg, def) :
+                             luaL_checkstring(L, narg);
+  int i;
+  for (i=0; lst[i]; i++)
+    if (strcmp(lst[i], name) == 0)
+      return i;
+  return -1;
+}
+
+
+
 static void dump_intfield(lua_State * L, const char *n, int c)
 {
     lua_pushstring(L, n);
@@ -1133,10 +1151,10 @@ static void read_lua_math_parameters(lua_State * L, int f)
             if (lua_isnumber(L, -2)) {
                 lua_number2int(i, lua_tonumber(L, -2));
             } else if (lua_isstring(L, -2)) {
-                i = luaL_checkoption(L, -2, NULL, MATH_param_names);
+                i = ff_checkoption(L, -2, NULL, MATH_param_names);
             }
             lua_number2int(n, lua_tonumber(L, -1));
-            if (i != 0) {
+            if (i > 0) {
                 set_font_math_param(f, i, n);
             }
             lua_pop(L, 1);      /* pop value */
