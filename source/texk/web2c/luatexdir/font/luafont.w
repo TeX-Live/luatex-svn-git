@@ -2229,6 +2229,10 @@ static void add_kern_before(halfword left, halfword right)
             assert(vlink(prev) == right);
             couple_nodes(prev, kern);
             couple_nodes(kern, right);
+            /* update the attribute list (inherit from left) */
+            delete_attribute_ref(node_attr(kern));
+            add_node_attr_ref(node_attr(left));
+            node_attr(kern) = node_attr(left);
         }
     }
 }
@@ -2245,6 +2249,10 @@ static void add_kern_after(halfword left, halfword right, halfword aft)
             assert(next == null || alink(next) == aft);
             couple_nodes(aft, kern);
             try_couple_nodes(kern, next);
+            /* update the attribute list (inherit from left == aft) */
+            delete_attribute_ref(node_attr(kern));
+            add_node_attr_ref(node_attr(aft));
+            node_attr(kern) = node_attr(aft);
         }
     }
 }
