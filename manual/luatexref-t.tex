@@ -260,7 +260,7 @@ and can be used after \tex{the} etc.\ just like the normal
 \tex{count} registers.
 
 \startsyntax
-\attribute <16-bit number> <optional equals> <31-bit number>!crlf
+\attribute <16-bit number> <optional equals> <32-bit number>!crlf
 \attributedef <csname> <optional equals> <16-bit number>
 \stopsyntax
 
@@ -326,12 +326,12 @@ keyword \type{attr}. An example:
 \starttyping
 \attribute2=5
 \setbox0=\hbox {Hello}
-\setbox2=\hbox attr1=12 attr2=-1{Hello}
+\setbox2=\hbox attr1=12 attr2=-"7FFFFFFF{Hello}
 \stoptyping
 
 This will set the attribute list of box~2 to $1=12$, and the
-attributes of box~0 will be $2=5$. As you can see, assigning a
-negative value causes an attribute to be ignored.
+attributes of box~0 will be $2=5$. As you can see, assigning
+the maximum negative value causes an attribute to be ignored.
 
 The \type{attr} keyword(s) should come before a \type{to} or
 \type{spread}, if that is also specified.
