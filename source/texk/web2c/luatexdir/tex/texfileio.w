@@ -29,6 +29,7 @@ static const char _svn_version[] =
 @ @c
 #define end_line_char int_par(end_line_char_code)
 
+ 
 @ The bane of portability is the fact that different operating systems treat
 input and output quite differently, perhaps because computer scientists
 have not given sufficient attention to this problem. People have felt somehow
@@ -188,6 +189,18 @@ char *luatex_find_file(const char *s, int callback_index)
     return ftemp;
 }
 
+
+@  LuaTeX used to have private functions for these that did not use kpathsea, 
+but since the file paranoia tests have to come from kpathsea anyway, that is no 
+longer useful. The only downside to using luatex is that if one wants to disable
+kpathsea via the Lua startup script, it is now an absolute requirement that all
+file discovery callbacks are specified. Just using the find_read_file, but not
+setting open_read_file, for example, does not work any more if kpathsea is not
+to be used at all.
+
+@c
+#define openoutnameok(A)  kpse_out_name_ok (A)
+#define openinnameok(A)  kpse_in_name_ok (A)
 
 @  Open an input file F, using the kpathsea format FILEFMT and passing
    |FOPEN_MODE| to fopen.  The filename is in `fn'.  We return whether or 
@@ -1129,187 +1142,6 @@ static FILE *runpopen(char *cmd, const char *mode)
     return f;
 }
 
-@ Return true if FNAME is acceptable as a name for \.{\\openout}, \.{\\openin}, or
-   \.{\\input}.  
-
-@c
-typedef enum ok_type {
-    ok_reading,
-    ok_writing
-} ok_type;
-
-static const_string ok_type_name[] = {
-    "reading",
-    "writing"
-};
-
-static boolean
-opennameok(const_string fname, const_string check_var,
-           const_string default_choice, ok_type action)
-{
-    /* We distinguish three cases:
-       'a' (any)        allows any file to be opened.
-       'r' (restricted) means disallowing special file names.
-       'p' (paranoid)   means being really paranoid: disallowing special file
-       names and restricting output files to be in or below
-       the working directory or $TEXMFOUTPUT, while input files
-       must be below the current directory, $TEXMFOUTPUT, or
-       (implicitly) in the system areas.
-       We default to "paranoid".  The error messages from TeX will be somewhat
-       puzzling...
-       This function contains several return statements...  */
-
-    const_string open_choice = kpse_var_value(check_var);
-
-    if (!open_choice)
-        open_choice = default_choice;
-
-    if (*open_choice == 'a' || *open_choice == 'y' || *open_choice == '1')
-        return true;
-
-#if defined (unix) && !defined (MSDOS)
-    {
-        const_string base = xbasename(fname);
-        /* Disallow .rhosts, .login, etc.  Allow .tex (for LaTeX).  */
-        if (base[0] == 0 ||
-            (base[0] == '.' && !IS_DIR_SEP(base[1]) && !STREQ(base, ".tex"))) {
-            fprintf(stderr, "%s: Not %s to %s (%s = %s).\n",
-                    kpse_invocation_name, ok_type_name[action], fname,
-                    check_var, open_choice);
-            return false;
-        }
-    }
-#else
-    /* Other OSs don't have special names? */
-#endif
-
-    if (*open_choice == 'r' || *open_choice == 'n' || *open_choice == '0')
-        return true;
-
-    /* Paranoia supplied by Charles Karney...  */
-    if (kpse_absolute_p(fname, false)) {
-        const_string texmfoutput = kpse_var_value("TEXMFOUTPUT");
-        /* Absolute pathname is only OK if TEXMFOUTPUT is set, it's not empty,
-           fname begins the TEXMFOUTPUT, and is followed by / */
-        if (!texmfoutput || *texmfoutput == '\0'
-            || fname != strstr(fname, texmfoutput)
-            || !IS_DIR_SEP(fname[strlen(texmfoutput)])) {
-            fprintf(stderr, "%s: Not %s to %s (%s = %s).\n",
-                    kpse_invocation_name, ok_type_name[action], fname,
-                    check_var, open_choice);
-            return false;
-        }
-    }
-    /* For all pathnames, we disallow "../" at the beginning or "/../"
-       anywhere.  */
-    if (fname[0] == '.' && fname[1] == '.' && IS_DIR_SEP(fname[2])) {
-        fprintf(stderr, "%s: Not %s to %s (%s = %s).\n",
-                kpse_invocation_name, ok_type_name[action], fname,
-                check_var, open_choice);
-        return false;
-    } else {
-        /* Check for "/../".  Since more than one characted can be matched
-           by |IS_DIR_SEP|, we cannot use "/../" itself. */
-        const_string dotpair = strstr(fname, "..");
-        while (dotpair) {
-            /* If dotpair[2] == |DIR_SEP|, then dotpair[-1] is well-defined,
-               because the "../" case was handled above. */
-            if (IS_DIR_SEP(dotpair[2]) && IS_DIR_SEP(dotpair[-1])) {
-                fprintf(stderr, "%s: Not %s to %s (%s = %s).\n",
-                        kpse_invocation_name, ok_type_name[action], fname,
-                        check_var, open_choice);
-                return false;
-            }
-            /* Continue after the dotpair. */
-            dotpair = strstr(dotpair + 2, "..");
-        }
-    }
-
-    /* We passed all tests.  */
-    return true;
-}
-
-boolean openinnameok(const_string fname)
-{
-    /* For input default to all. */
-    return opennameok(fname, "openin_any", "a", ok_reading);
-}
-
-#if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
-
-static int Isspace(char c)
-{
-    return (c == ' ' || c == '\t');
-}
-
-static boolean executable_filep(const_string fname)
-{
-    string p, q, base;
-    string *pp;
-
-    /*  check |openout_any| */
-    p = kpse_var_value("openout_any");
-    if (p && *p == 'p') {
-        free(p);
-/* get base name
-   we cannot use xbasename() for abnormal names.
-*/
-        base = xstrdup(fname);
-        p = strrchr(fname, '/');
-        if (p) {
-            p++;
-            strcpy(base, p);
-        }
-        p = strrchr(base, '\\');
-        if (p) {
-            p++;
-            strcpy(base, p);
-        }
-#  if defined(__CYGWIN__)
-        for (p = base; *p; p++)
-            *p = tolower(*p);
-        p = base;
-#  else
-        p = (char *) strlwr(base);
-#  endif
-        for (q = p + strlen(p) - 1;
-             (q >= p) && ((*q == '.') || (Isspace(*q))); q--) {
-            *q = '\0';          /* remove trailing '.' , ' ' and '\t' */
-        }
-        q = strrchr(p, '.');    /* get extension part */
-        pp = suffixlist;
-        if (pp && q) {
-            while (*pp) {
-                if (strchr(fname, ':') || !strcmp(q, *pp)) {
-                    fprintf(stderr,
-                            "\nThe name %s is forbidden to open for writing.\n",
-                            fname);
-                    free(base);
-                    return true;
-                }
-                pp++;
-            }
-        }
-        free(base);
-    } else if (p) {
-        free(p);
-    }
-    return false;
-}
-#endif
-
-boolean openoutnameok(const_string fname)
-{
-#if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
-    /* Output of an executable file is restricted on Windows */
-    if (executable_filep(fname))
-        return false;
-#endif
-    /* For output, default to paranoid. */
-    return opennameok(fname, "openout_any", "p", ok_writing);
-}
-
- 
 @  piped I/O
 
 
