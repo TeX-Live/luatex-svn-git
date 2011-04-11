@@ -152,7 +152,7 @@ PdfDocument *refPdfDocument(char *file_path, file_error_mode fe)
                 break;
             case FE_RETURN_NULL:
                 delete doc;
-                delete docName;
+                // delete docName;
                 if (new_flag == 1) {
                     if (pdf_doc->file_path != NULL)
                         free(pdf_doc->file_path);
