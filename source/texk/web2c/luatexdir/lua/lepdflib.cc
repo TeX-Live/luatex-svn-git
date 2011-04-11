@@ -54,6 +54,7 @@ static const char *ErrorCodeNames[] = { "None", "OpenFile", "BadCatalog",
 #define M_Annots           "Annots"
 #define M_Array            "Array"
 #define M_Catalog          "Catalog"
+#define M_EmbFile          "EmbFile"
 #define M_Dict             "Dict"
 #define M_GooString        "GooString"
 #define M_LinkDest         "LinkDest"
@@ -88,6 +89,7 @@ new_poppler_userdata(AnnotBorder);
 new_poppler_userdata(Annots);
 new_poppler_userdata(Array);
 new_poppler_userdata(Catalog);
+new_poppler_userdata(EmbFile);
 new_poppler_userdata(Dict);
 //new_poppler_userdata(GooString);
 new_poppler_userdata(LinkDest);
@@ -681,6 +683,31 @@ static int m_Catalog_findDest(lua_State * L)
 
 m_poppler_get_poppler(Catalog, Object, getDests);
 m_poppler_get_INT(Catalog, numEmbeddedFiles);
+
+static int m_Catalog_embeddedFile(lua_State * L)
+{
+    EmbFile *ef;
+    int i, len;
+    udstruct *uin, *uout;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Catalog);
+    if (uin->pd != NULL && uin->pd->pc != uin->pc)
+        pdfdoc_changed_error(L);
+    i = luaL_checkint(L, 2);
+    len = ((Catalog *) uin->d)->numEmbeddedFiles();
+    if (i > 0 && i <= len) {
+        ef = ((Catalog *) uin->d)->embeddedFile(i - 1);
+        if (ef != NULL) {
+            uout = new_EmbFile_userdata(L);
+            uout->d = ef;
+            uout->pc = uin->pc;
+            uout->pd = uin->pd;
+        } else
+            lua_pushnil(L);
+    } else
+        lua_pushnil(L);
+    return 1;
+}
+
 m_poppler_get_INT(Catalog, numJS);
 
 static int m_Catalog_getJS(lua_State * L)
@@ -722,12 +749,55 @@ static const struct luaL_Reg Catalog_m[] = {
     {"findDest", m_Catalog_findDest},
     {"getDests", m_Catalog_getDests},
     {"numEmbeddedFiles", m_Catalog_numEmbeddedFiles},
-    //{"embeddedFile", m_Catalog_embeddedFile},
+    {"embeddedFile", m_Catalog_embeddedFile},
     {"numJS", m_Catalog_numJS},
     {"getJS", m_Catalog_getJS},
     {"getOutline", m_Catalog_getOutline},
     {"getAcroForm", m_Catalog_getAcroForm},
     {"__tostring", m_Catalog__tostring},
+    {NULL, NULL}                // sentinel
+};
+
+//**********************************************************************
+// EmbFile
+
+m_poppler_get_GOOSTRING(EmbFile, name);
+m_poppler_get_GOOSTRING(EmbFile, description);
+m_poppler_get_INT(EmbFile, size);
+m_poppler_get_GOOSTRING(EmbFile, modDate);
+m_poppler_get_GOOSTRING(EmbFile, createDate);
+m_poppler_get_GOOSTRING(EmbFile, checksum);
+m_poppler_get_GOOSTRING(EmbFile, mimeType);
+
+static int m_EmbFile_streamObject(lua_State * L)
+{
+    udstruct *uin, *uout;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_EmbFile);
+    if (uin->pd != NULL && uin->pd->pc != uin->pc)
+        pdfdoc_changed_error(L);
+    uout = new_Object_userdata(L);
+    uout->d = new Object();     // automatic init to type "none"
+    ((EmbFile *) uin->d)->streamObject().copy((Object *) uout->d);
+    uout->pc = uin->pc;
+    uout->pd = uin->pd;
+    return 1;
+}
+
+m_poppler_get_BOOL(EmbFile, isOk);
+
+m_poppler__tostring(EmbFile);
+
+static const struct luaL_Reg EmbFile_m[] = {
+    {"name", m_EmbFile_name},
+    {"description", m_EmbFile_description},
+    {"size", m_EmbFile_size},
+    {"modDate", m_EmbFile_modDate},
+    {"createDate", m_EmbFile_createDate},
+    {"checksum", m_EmbFile_checksum},
+    {"mimeType", m_EmbFile_mimeType},
+    {"streamObject", m_EmbFile_streamObject},
+    {"isOk", m_EmbFile_isOk},
+    {"__tostring", m_EmbFile__tostring},
     {NULL, NULL}                // sentinel
 };
 
@@ -2617,6 +2687,7 @@ int luaopen_epdf(lua_State * L)
     register_meta(Annots);
     register_meta(Array);
     register_meta(Catalog);
+    register_meta(EmbFile);
     register_meta(Dict);
     register_meta(GooString);
     register_meta(LinkDest);

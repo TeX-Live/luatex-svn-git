@@ -1,4 +1,5 @@
 % engine=luatex language=uk
+% $Id$
 
 % TODO: fix layout of function legend descriptions
 % check numbers
@@ -2064,6 +2065,7 @@ by the \type{epdf} library, currently these are
 \type{Annots},
 \type{Array},
 \type{Catalog},
+\type{EmbFile},
 \type{Dict},
 \type{GString},
 \type{LinkDest},
@@ -2163,10 +2165,25 @@ All object constructors:
 <LinkDest> = <Catalog>:findDest(<string> name)
 <Object>   = <Catalog>:getDests()
 <integer>  = <Catalog>:numEmbeddedFiles()
+<EmbFile>  = <Catalog>:embeddedFile(<integer>)
 <integer>  = <Catalog>:numJS()
 <string>   = <Catalog>:getJS(<integer>)
 <Object>   = <Catalog>:getOutline()
 <Object>   = <Catalog>:getAcroForm()
+\stopfunctioncall
+
+\type{EmbFile} methods:
+
+\startfunctioncall
+<string>   = <EmbFile>:name()
+<string>   = <EmbFile>:description()
+<integer>  = <EmbFile>:size()
+<string>   = <EmbFile>:modDate()
+<string>   = <EmbFile>:createDate()
+<string>   = <EmbFile>:checksum()
+<string>   = <EmbFile>:mimeType()
+<Object>   = <EmbFile>:streamObject()
+<boolean>  = <EmbFile>:isOk()
 \stopfunctioncall
 
 \type{Dict} methods:
