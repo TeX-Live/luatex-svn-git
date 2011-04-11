@@ -210,7 +210,7 @@ static void write_png_palette(PDF pdf, image_dict * idict)
     if (palette_objnum > 0) {
         pdf_begin_dict(pdf, palette_objnum, 0);
         pdf_begin_stream(pdf);
-        for (i = 0; (unsigned) i < num_palette; i++) {
+        for (i = 0; i < num_palette; i++) {
             pdf_room(pdf, 3);
             pdf_quick_out(pdf, palette[i].red);
             pdf_quick_out(pdf, palette[i].green);
@@ -605,7 +605,7 @@ void write_png(PDF pdf, image_dict * idict)
         if (palette_objnum > 0) {
             pdf_begin_dict(pdf, palette_objnum, 0);
             pdf_begin_stream(pdf);
-            for (i = 0; (unsigned) i < num_palette; i++) {
+            for (i = 0; i < num_palette; i++) {
                 pdf_room(pdf, 3);
                 pdf_quick_out(pdf, palette[i].red);
                 pdf_quick_out(pdf, palette[i].green);

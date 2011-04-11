@@ -124,14 +124,14 @@ static void scan_res(image_dict * idict, unsigned long long epos_s)
             /* arbitrarily: let BOX_RESD have precedence */
             if (img_xres(idict) == 0 && img_yres(idict) == 0) {
                 scan_resc_resd(idict);
-                if (xftell(img_file(idict), img_filepath(idict)) != epos)
+                if (xftell(img_file(idict), img_filepath(idict)) != (long)epos)
                     pdftex_fail
                         ("reading JP2 image failed (resc box size inconsistent)");
             }
             break;
         case (BOX_RESD):
             scan_resc_resd(idict);
-            if (xftell(img_file(idict), img_filepath(idict)) != epos)
+            if (xftell(img_file(idict), img_filepath(idict)) != (long)epos)
                 pdftex_fail
                     ("reading JP2 image failed (resd box size inconsistent)");
             break;
@@ -159,7 +159,7 @@ static boolean scan_jp2h(image_dict * idict, unsigned long long epos_s)
         switch (hdr.tbox) {
         case (BOX_IHDR):
             scan_ihdr(idict);
-            if (xftell(img_file(idict), img_filepath(idict)) != epos)
+            if (xftell(img_file(idict), img_filepath(idict)) != (long)epos)
                 pdftex_fail
                     ("reading JP2 image failed (ihdr box size inconsistent)");
             ihdr_found = true;
