@@ -163,10 +163,20 @@
     StopPage ;
 \stopuseMPgraphic
 
+\def\luaextraangle{\directlua{
+  if \lastpage == 0 then
+    luaextraangle = 0;
+  else
+    luaextraangle = \realfolio*360/\lastpage;
+  end
+  tex.print(luaextraangle)
+}}
+
 \startuseMPgraphic{luanumber}
     \includeMPgraphic{lualogo}
-%     luaextraangle := \realfolio*360/\lastpage ;
-    luaextraangle := 10 * ( (\realfolio-2)*36/(\lastpage-2) ) ;
+    % luaextraangle := \realfolio*360/\lastpage ;
+    % luaextraangle := 10 * ( (\realfolio-2)/(\lastpage-2)*36 ) ;
+    luaextraangle := \luaextraangle;
     picture p ; p := lualogo ;
     setbounds p to boundingbox fullcircle ;
     draw p ysized 1cm ;
