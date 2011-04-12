@@ -3483,10 +3483,39 @@ static int lua_nodelib_cp_skipable(lua_State * L)
     return 1;
 }
 
+static int lua_nodelib_currentattr(lua_State * L)
+{
+    int n = lua_gettop(L);
+    if (n == 0) {
+        /* query */
+	if (max_used_attr >= 0) {
+	    if (attr_list_cache == cache_disabled) {
+		update_attribute_cache();
+		if (attr_list_cache == null) {
+		    lua_pushnil (L);
+		    return 1;
+		}
+	    }
+	    attr_list_ref(attr_list_cache)++;
+	    lua_pushnumber(L, attr_list_cache);
+	    lua_nodelib_push(L);
+	} else {
+	    lua_pushnil (L);
+	}
+        return 1;
+    } else {
+	/* assign */
+        pdftex_warn("Assignment via node.current_attr(<list>) is not supported (yet)");
+        return 0;
+    }
+}
+
+
 static const struct luaL_reg nodelib_f[] = {
     {"copy", lua_nodelib_copy},
     {"copy_list", lua_nodelib_copy_list},
     {"count", lua_nodelib_count},
+    {"current_attr", lua_nodelib_currentattr},
     {"dimensions", lua_nodelib_dimensions},
     {"do_ligature_n", lua_nodelib_do_ligature_n},
     {"family_font", lua_nodelib_mfont},

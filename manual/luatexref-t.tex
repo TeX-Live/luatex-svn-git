@@ -4935,6 +4935,22 @@ such node.
 Returns the node preceding this node, or \type{nil} if there is no
 such node.
 
+
+\subsubsection{\luatex{node.current_attr} (0.66)}
+
+\startfunctioncall
+<node> m = node.current_attr()
+\stopfunctioncall
+
+Returns the currently active list of attributes, if there is one.
+
+Note: this function is somewhat experimental, and it returns the {\it
+ actual} attribute list, not a copy thereof. 
+Therefore, changing any of the attributes in the list will change
+these values for all nodes that have the current attribute list
+assigned to them.
+
+
 \subsubsection{\luatex{node.hpack}}
 
 \startfunctioncall
