@@ -232,11 +232,9 @@ node_info node_data[] = {
     {math_char_node, math_kernel_node_size, node_fields_math_char, "math_char"},
     {sub_box_node, math_kernel_node_size, node_fields_sub_box, "sub_box"},
     {sub_mlist_node, math_kernel_node_size, node_fields_sub_mlist, "sub_mlist"},
-    {math_text_char_node, math_kernel_node_size, node_fields_math_text_char,
-     "math_text_char"},
+    {math_text_char_node, math_kernel_node_size, node_fields_math_text_char, "math_text_char"},
     {delim_node, math_shield_node_size, node_fields_delim, "delim"},
-    {margin_kern_node, margin_kern_node_size, node_fields_margin_kern,
-     "margin_kern"},
+    {margin_kern_node, margin_kern_node_size, node_fields_margin_kern, "margin_kern"},
     {glyph_node, glyph_node_size, node_fields_glyph, "glyph"},
     {align_record_node, box_node_size, NULL, "align_record"},
     {pseudo_file_node, pseudo_file_node_size, NULL, "pseudo_file"},
@@ -248,8 +246,7 @@ node_info node_data[] = {
     {span_node, span_node_size, NULL, "span"},
     {attribute_node, attribute_node_size, node_fields_attribute, "attribute"},
     {glue_spec_node, glue_spec_size, node_fields_glue_spec, "glue_spec"},
-    {attribute_list_node, attribute_node_size, node_fields_attribute_list,
-     "attribute_list"},
+    {attribute_list_node, attribute_node_size, node_fields_attribute_list, "attribute_list"},
     {action_node, pdf_action_size, node_fields_action, "action"},
     {temp_node, temp_node_size, NULL, "temp"},
     {align_stack_node, align_stack_node_size, NULL, "align_stack"},
@@ -390,10 +387,12 @@ halfword new_node(int i, int j)
          but the overall allocation faster then an explicit test
          at the top of |new_node()|.
          */
-        free_node(n, variable_node_size);
-        n = slow_get_node(j);
-        (void) memset((void *) (varmem + n + 1), 0,
+        if (j>0) {
+          free_node(n, variable_node_size);
+          n = slow_get_node(j);
+          (void) memset((void *) (varmem + n + 1), 0,
                       (sizeof(memory_word) * ((unsigned) j - 1)));
+        }
         break;
     default:
         break;

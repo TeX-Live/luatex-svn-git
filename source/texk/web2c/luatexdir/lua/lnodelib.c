@@ -895,6 +895,7 @@ static int lua_nodelib_whatsits(lua_State * L)
 static int lua_nodelib_fields(lua_State * L)
 {
     int i = -1;
+    int offset = 3;
     const char **fields;
     int t = get_valid_node_type_id(L, 1);
     if (t == whatsit_node) {
@@ -909,14 +910,19 @@ static int lua_nodelib_fields(lua_State * L)
     lua_rawseti(L, -2, 0);
     lua_pushstring(L, "id");
     lua_rawseti(L, -2, 1);
-    lua_pushstring(L, "subtype");
-    lua_rawseti(L, -2, 2);
+    if (nodetype_has_subtype(t)) {
+      lua_pushstring(L, "subtype");
+      lua_rawseti(L, -2, 2);
+      offset--;
+    }
     if (fields != NULL) {
-        lua_pushstring(L, "prev");
-        lua_rawseti(L, -2, -1);
+        if (nodetype_has_prev(t)) {
+          lua_pushstring(L, "prev");
+          lua_rawseti(L, -2, -1);
+        }
         for (i = 0; fields[i] != NULL; i++) {
             lua_pushstring(L, fields[i]);
-            lua_rawseti(L, -2, (i + 3));
+            lua_rawseti(L, -2, (i + offset));
         }
     }
     return 1;
