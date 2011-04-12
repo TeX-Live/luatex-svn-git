@@ -2,6 +2,78 @@
 This file is in the public domain.
 
 ==============================================================
+Luatex beta-0.66.0 was released 20110512
+==============================================================
+
+News:
+
+* fixed: linebreak_filter doesn't do its default job when 
+  tex.linebreak is used
+
+* fixed: \escapechar ignored by \meaning
+
+* fixed: wrong px default
+
+* fixed: font kern attribute inheritance
+
+* fixed: "nop" unrecognized in virtual fonts
+
+* fixed: assertion failure in dviluatex when font ptmr8t used
+
+* fixed: tex.settoks for with strings with embedded zeroes
+
+* fixed: an indexing problem with nonexistent font glyphs
+
+* fixed: some crashes and other bugs on the 'subtype' and 'prev' 
+  fields (not all node types have those fields)
+
+* fixed: crash on  token.csname_id ("")
+
+* fixed: initialize the statically allocated node's type ids
+
+* fixed: fencepost error in math parameter counting
+
+* fixed: math family numbers > 255 are allowed
+
+* fixed: compilation failure on Hurd
+
+* fixed: a small bug leading to displacements when reading 
+  the AccentTop table
+
+* fixed: \directlua followed by \pdfximage generates error if 
+  draft mode is active
+
+* fixed: a problem with \vadjust pre in alignments
+
+* fixed: a lua stack growing problem in the backend in 0.65.0,
+  resulting in an inability to create more than a few thousand 
+  generated pages
+
+* fixed: inclusion of Scribus-generated pdfs
+
+* adapt: the default form margin is now zero (was 1bp before) 
+
+* adapt: libpng 1.4.4, zzuplib 0.13.60, mplib 1.504
+
+* adapt: small changes to the build system and new imports from
+  the texlive repository
+
+* feature: new function node.currentattr() queries the current
+  active attribute list
+
+* feature: Lua font loading; ignore unknown enumeration keys in 
+  MathConstants
+
+* feature: JPEG 2000 image support
+
+* feature: continuing work on the 'epdf' library
+
+* doc: the 'epdf' lua library is now documented
+
+* doc: various other manual corrections
+
+
+==============================================================
 Luatex beta-0.65.0 was released 20101213
 ==============================================================
 
