@@ -778,6 +778,7 @@ static int m_EmbFile_streamObject(lua_State * L)
     uout = new_Object_userdata(L);
     uout->d = new Object();     // automatic init to type "none"
     ((EmbFile *) uin->d)->streamObject().copy((Object *) uout->d);
+    uout->atype = ALLOC_LEPDF;
     uout->pc = uin->pc;
     uout->pd = uin->pd;
     return 1;
@@ -2347,6 +2348,8 @@ static int m_PDFDoc_getDocInfoNF(lua_State * L)
 m_PDFDoc_INT(getPDFMajorVersion);
 m_PDFDoc_INT(getPDFMinorVersion);
 
+m_poppler__tostring(PDFDoc);
+
 static int m_PDFDoc__gc(lua_State * L)
 {
     udstruct *uin;
@@ -2390,6 +2393,7 @@ static const struct luaL_Reg PDFDoc_m[] = {
     {"getDocInfoNF", m_PDFDoc_getDocInfoNF},
     {"getPDFMajorVersion", m_PDFDoc_getPDFMajorVersion},
     {"getPDFMinorVersion", m_PDFDoc_getPDFMinorVersion},
+    {"__tostring", m_PDFDoc__tostring},
     {"__gc", m_PDFDoc__gc},     // finalizer
     {NULL, NULL}                // sentinel
 };
@@ -2665,7 +2669,10 @@ static const struct luaL_Reg XRef_m[] = {
 //**********************************************************************
 // XRefEntry
 
+m_poppler__tostring(XRefEntry);
+
 static const struct luaL_Reg XRefEntry_m[] = {
+    {"__tostring", m_XRefEntry__tostring},
     {NULL, NULL}                // sentinel
 };
 
