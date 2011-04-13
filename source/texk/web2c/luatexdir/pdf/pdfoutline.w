@@ -181,7 +181,6 @@ int print_outlines(PDF pdf)
     int outlines;
     if (pdf->first_outline != 0) {
         outlines = pdf_new_obj(pdf, obj_type_others, 0, 1);
-        pdf_begin_dict(pdf);
         l = pdf->first_outline;
         k = 0;
         do {
@@ -192,6 +191,7 @@ int print_outlines(PDF pdf)
             set_obj_outline_parent(pdf, l, pdf->obj_ptr);
             l = obj_outline_next(pdf, l);
         } while (l != 0);
+        pdf_begin_dict(pdf);
         pdf_printf(pdf, "/Type /Outlines\n");
         pdf_indirect_ln(pdf, "First", pdf->first_outline);
         pdf_indirect_ln(pdf, "Last", pdf->last_outline);

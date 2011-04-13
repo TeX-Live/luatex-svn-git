@@ -1746,16 +1746,16 @@ void pdf_begin_page(PDF pdf)
         pdf->last_page = get_obj(pdf, obj_type_page, total_pages + 1, 0);
         set_obj_aux(pdf, pdf->last_page, 1);    /* mark that this page has been created */
         pdf->last_stream = pdf_new_obj(pdf, obj_type_pagestream, 0, 0);
-        pdf_begin_dict(pdf);
         pdf->last_thread = null;
+        pdf_begin_dict(pdf);
         pdflua_begin_page(pdf);
     } else {
         assert(global_shipping_mode == SHIPPING_FORM);
         pdf_begin_obj(pdf, pdf_cur_form, 0);
-        pdf_begin_dict(pdf);
         pdf->last_stream = pdf_cur_form;
 
         /* Write out Form stream header */
+        pdf_begin_dict(pdf);
         pdf_puts(pdf, "/Type /XObject\n");
         pdf_puts(pdf, "/Subtype /Form\n");
         if (pdf_xform_attr != null)
@@ -1891,13 +1891,13 @@ void pdf_end_page(PDF pdf)
         if (bead_list != NULL) {
             pdf_begin_obj(pdf, beads, 1);
             pdf_begin_dict(pdf);
-            pdf_puts(pdf, "[");
+            pdf_begin_array(pdf);
             while (bead_list != NULL) {
                 pdf_print_int(pdf, bead_list->info);
                 pdf_printf(pdf, " 0 R ");
                 bead_list = bead_list->link;
             }
-            pdf_printf(pdf, "]\n");
+            pdf_end_array(pdf);
             pdf_end_dict(pdf);
             pdf_end_obj(pdf);
         }
@@ -2153,12 +2153,12 @@ static int pdf_print_info(PDF pdf, int luatex_version,
     char *s = NULL;
     int k, len = 0;
     k = pdf_new_obj(pdf, obj_type_info, 0, 3); /* keep Info readable unless explicitely forced */
-    pdf_begin_dict(pdf);
     creator_given = false;
     producer_given = false;
     creationdate_given = false;
     moddate_given = false;
     trapped_given = false;
+    pdf_begin_dict(pdf);
     if (pdf_info_toks != 0) {
         s = tokenlist_to_cstring(pdf_info_toks, true, &len);
         creator_given = substr_of_str("/Creator", s);
@@ -2357,7 +2357,6 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 pdf_os_switch(pdf, false);
                 /* Output the cross-reference stream dictionary */
                 xref_stm = pdf_new_obj(pdf, obj_type_others, 0, 0);    /* final object for pdf->os_enable == true */
-                pdf_begin_dict(pdf);
                 if ((obj_offset(pdf, pdf->obj_ptr) / 256) > 16777215)
                     xref_offset_width = 5;
                 else if (obj_offset(pdf, pdf->obj_ptr) > 16777215)
@@ -2368,6 +2367,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                     xref_offset_width = 2;
                 /* Build a linked list of free objects */
                 build_free_object_list(pdf);
+                pdf_begin_dict(pdf);
                 pdf_puts(pdf, "/Type /XRef\n");
                 pdf_puts(pdf, "/Index [0 ");
                 pdf_print_int(pdf, pdf->obj_ptr + 1);

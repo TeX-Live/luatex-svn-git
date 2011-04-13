@@ -375,7 +375,7 @@ static void copyArray(PDF pdf, PdfDocument * pdf_doc, Array * array)
 {
     int i, l;
     Object obj1;
-    pdf_puts(pdf, "[");
+    pdf_begin_array(pdf);
     for (i = 0, l = array->getLength(); i < l; ++i) {
         array->getNF(i, &obj1);
         if (!obj1.isName())
@@ -383,7 +383,7 @@ static void copyArray(PDF pdf, PdfDocument * pdf_doc, Array * array)
         copyObject(pdf, pdf_doc, &obj1);
         obj1.free();
     }
-    pdf_puts(pdf, "]");
+    pdf_end_array(pdf);
 }
 
 static void copyDict(PDF pdf, PdfDocument * pdf_doc, Dict * dict)
