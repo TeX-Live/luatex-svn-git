@@ -133,7 +133,7 @@ void write_action(PDF pdf, halfword p)
         pdf_print_toks_ln(pdf, pdf_action_tokens(p));
         return;
     }
-    pdf_printf(pdf, "<< ");
+    pdf_begin_dict(pdf);
     if (pdf_action_file(p) != null) {
         pdf_printf(pdf, "/F ");
         s = tokenlist_to_cstring(pdf_action_file(p), true, NULL);
@@ -203,5 +203,5 @@ void write_action(PDF pdf, halfword p)
         }
         break;
     }
-    pdf_printf(pdf, " >>\n");
+    pdf_end_dict(pdf);
 }

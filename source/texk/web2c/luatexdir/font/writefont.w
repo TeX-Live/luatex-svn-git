@@ -997,13 +997,14 @@ void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internal_font_number f)
     write_fontname(pdf, fo->fd, "BaseFont");
     pdf_printf(pdf, "/FontDescriptor %i 0 R\n", (int) fo->fd->fd_objnum);
     pdf_printf(pdf, "/W %i 0 R\n", (int) fo->cw_objnum);
-    pdf_printf(pdf, "/CIDSystemInfo <<\n");
+    pdf_printf(pdf, "/CIDSystemInfo ");
+    pdf_begin_dict(pdf);
     pdf_printf(pdf, "/Registry (%s)\n",
                (font_cidregistry(f) ? font_cidregistry(f) : "Adobe"));
     pdf_printf(pdf, "/Ordering (%s)\n",
                (font_cidordering(f) ? font_cidordering(f) : "Identity"));
     pdf_printf(pdf, "/Supplement %u\n", (unsigned int) font_cidsupplement(f));
-    pdf_printf(pdf, ">>\n");
+    pdf_end_dict(pdf);
 
     /* I doubt there is anything useful that could be written here */
 #if 0

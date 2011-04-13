@@ -85,6 +85,8 @@ extern "C" {
     extern void pdf_printf(PDF, const char *fmt, ...);
     extern void pdf_begin_obj(PDF, int, bool);
     extern void pdf_end_obj(PDF);
+    extern void pdf_begin_dict(PDF);
+    extern void pdf_end_dict(PDF);
     extern void pdf_begin_stream(PDF);
     extern void pdf_end_stream(PDF);
     extern void pdf_room(PDF, int);

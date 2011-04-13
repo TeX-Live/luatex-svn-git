@@ -180,9 +180,10 @@ void pdf_fix_thread(PDF pdf, int t)
     pdf_end_obj(pdf);
     pdf_begin_obj(pdf, t, 1);
     pdf_begin_dict(pdf);
-    pdf_printf(pdf, "/I << \n");
+    pdf_printf(pdf, "/I ");
+    pdf_begin_dict(pdf);
     thread_title(pdf, t);
-    pdf_printf(pdf, ">>\n");
+    pdf_end_dict(pdf);
     pdf_indirect_ln(pdf, "F", a);
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
@@ -209,9 +210,10 @@ void out_thread(PDF pdf, int t)
     if (last_attr != 0) {
         pdf_print_ln(pdf, last_attr);
     } else {
-        pdf_printf(pdf, "/I << \n");
+        pdf_printf(pdf, "/I ");
+        pdf_begin_dict(pdf);
         thread_title(pdf, t);
-        pdf_printf(pdf, ">>\n");
+        pdf_end_dict(pdf);
     }
     pdf_indirect_ln(pdf, "F", a);
     pdf_end_dict(pdf);

@@ -611,12 +611,12 @@ void pdf_begin_stream(PDF pdf)
     pdf->last_byte = 0;
     if (pdf->compress_level > 0) {
         pdf_puts(pdf, "/Filter /FlateDecode\n");
-        pdf_puts(pdf, ">>\n");
+        pdf_end_dict(pdf);
         pdf_puts(pdf, "stream\n");
         pdf_flush(pdf);
         pdf->zip_write_state = zip_writing;
     } else {
-        pdf_puts(pdf, ">>\n");
+        pdf_end_dict(pdf);
         pdf_puts(pdf, "stream\n");
         pdf_save_offset(pdf);
     }
@@ -1196,14 +1196,6 @@ static void pdf_os_write_objstream(PDF pdf)
     pdf->os_cur_objnum = 0;     /* to force object stream generation next time */
 }
 
-@ begin a PDF dictionary object
-@c
-void pdf_begin_dict(PDF pdf)
-{
-    (void) pdf;                 /* keep it for now */
-    pdf_puts(pdf, "<<\n");
-}
-
 @ begin a new PDF dictionary object 
 @c
 int pdf_new_dict(PDF pdf, int t, int i, int pdf_os_level)
@@ -1214,12 +1206,36 @@ int pdf_new_dict(PDF pdf, int t, int i, int pdf_os_level)
     return k;
 }
 
-@ end a PDF dictionary object
+@ begin a PDF dictionary
+@c
+void pdf_begin_dict(PDF pdf)
+{
+    (void) pdf;                 /* keep it for now */
+    pdf_puts(pdf, "<<\n");
+}
+
+@ end a PDF dictionary
 @c
 void pdf_end_dict(PDF pdf)
 {
     (void) pdf;                 /* keep it for now */
     pdf_puts(pdf, ">>\n");
+}
+
+@ begin a PDF array
+@c
+void pdf_begin_array(PDF pdf)
+{
+    (void) pdf;                 /* keep it for now */
+    pdf_puts(pdf, "[");
+}
+
+@ end a PDF array
+@c
+void pdf_end_array(PDF pdf)
+{
+    (void) pdf;                 /* keep it for now */
+    pdf_puts(pdf, "]");
 }
 
 @ begin a PDF object 
@@ -2010,7 +2026,8 @@ void pdf_end_page(PDF pdf)
 
     /* Generate font resources */
     if ((ol = get_page_resources_list(pdf, obj_type_font)) != NULL) {
-        pdf_puts(pdf, "/Font << ");
+        pdf_puts(pdf, "/Font ");
+        pdf_begin_dict(pdf);
         while (ol != NULL) {
             assert(ol->info > 0);       /* always base font: an object number */
             pdf_puts(pdf, "/F");
@@ -2021,7 +2038,7 @@ void pdf_end_page(PDF pdf)
             pdf_puts(pdf, " 0 R ");
             ol = ol->link;
         }
-        pdf_puts(pdf, ">>\n");
+        pdf_end_dict(pdf);
         procset |= PROCSET_TEXT;
     }
 
@@ -2029,7 +2046,8 @@ void pdf_end_page(PDF pdf)
     ol = get_page_resources_list(pdf, obj_type_xform);
     ol1 = get_page_resources_list(pdf, obj_type_ximage);
     if (ol != NULL || ol1 != NULL) {
-        pdf_puts(pdf, "/XObject << ");
+        pdf_puts(pdf, "/XObject ");
+        pdf_begin_dict(pdf);
         while (ol != NULL) {
             pdf_printf(pdf, "/Fm");
             pdf_print_int(pdf, obj_info(pdf, ol->info));
@@ -2049,7 +2067,7 @@ void pdf_end_page(PDF pdf)
             procset |= img_procset(idict_array[obj_data_ptr(pdf, ol1->info)]);
             ol1 = ol1->link;
         }
-        pdf_puts(pdf, ">>\n");
+        pdf_end_dict(pdf);
     }
 
     /* Generate ProcSet */
@@ -2420,7 +2438,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             /* Output the trailer */
             if (!pdf->os_enable) {
                 pdf_puts(pdf, "trailer\n");
-                pdf_puts(pdf, "<< ");
+                pdf_begin_dict(pdf);
                 pdf_int_entry_ln(pdf, "Size", pdf->obj_ptr + 1);
                 pdf_indirect_ln(pdf, "Root", root);
                 pdf_indirect_ln(pdf, "Info", info);
@@ -2430,7 +2448,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                     pdf_trailer_toks = null;
                 }
                 print_ID(pdf, pdf->file_name);
-                pdf_puts(pdf, " >>\n");
+                pdf_end_dict(pdf);
             }
             pdf_puts(pdf, "startxref\n");
             if (pdf->os_enable)

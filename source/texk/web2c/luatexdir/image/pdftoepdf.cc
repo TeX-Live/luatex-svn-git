@@ -390,7 +390,7 @@ static void copyDict(PDF pdf, PdfDocument * pdf_doc, Dict * dict)
 {
     int i, l;
     Object obj1;
-    pdf_puts(pdf, "<<");
+    pdf_begin_dict(pdf);
     for (i = 0, l = dict->getLength(); i < l; ++i) {
         copyName(pdf, dict->getKey(i));
         pdf_puts(pdf, " ");
@@ -399,7 +399,7 @@ static void copyDict(PDF pdf, PdfDocument * pdf_doc, Dict * dict)
         obj1.free();
         pdf_puts(pdf, "\n");
     }
-    pdf_puts(pdf, ">>");
+    pdf_end_dict(pdf);
 }
 
 static void copyStreamStream(PDF pdf, Stream * str)
@@ -811,7 +811,8 @@ void write_epdf(PDF pdf, image_dict * idict)
             }
         }
         obj1.free();
-        pdf_puts(pdf, ">>\nstream\n");
+        pdf_end_dict(pdf);
+        pdf_puts(pdf, "\nstream\n");
         copyStreamStream(pdf, contents.getStream()->getBaseStream());
         pdf_end_stream(pdf);
     } else if (contents.isArray()) {
