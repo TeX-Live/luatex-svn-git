@@ -565,6 +565,8 @@ void write_png(PDF pdf, image_dict * idict)
     info_p = img_png_info_ptr(idict);
     if (pdf->minor_version < 5)
         pdf->image_hicolor = 0;
+    pdf_begin_obj(pdf, img_objnum(idict), 0);
+    pdf_begin_dict(pdf);
     pdf_puts(pdf, "/Type /XObject\n/Subtype /Image\n");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
         pdf_printf(pdf, "%s\n", img_attr(idict));

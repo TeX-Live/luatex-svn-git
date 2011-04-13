@@ -267,6 +267,8 @@ void write_jp2(PDF pdf, image_dict * idict)
         reopen_jp2(idict);
     xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
     assert(img_jp2_ptr(idict) != NULL);
+    pdf_begin_obj(pdf, img_objnum(idict), 0);
+    pdf_begin_dict(pdf);
     pdf_puts(pdf, "/Type /XObject\n/Subtype /Image\n");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
         pdf_printf(pdf, "%s\n", img_attr(idict));

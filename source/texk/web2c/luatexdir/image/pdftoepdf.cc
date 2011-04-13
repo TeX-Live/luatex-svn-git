@@ -691,6 +691,8 @@ void write_epdf(PDF pdf, image_dict * idict)
     pageDict = pageobj.getDict();
 
     // write the Page header
+    pdf_begin_obj(pdf, img_objnum(idict), 0);
+    pdf_begin_dict(pdf);
     pdf_puts(pdf, "/Type /XObject\n/Subtype /Form\n");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
         pdf_printf(pdf, "%s\n", img_attr(idict));

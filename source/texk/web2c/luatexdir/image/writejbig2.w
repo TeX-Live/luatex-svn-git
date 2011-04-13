@@ -824,6 +824,8 @@ void write_jbig2(PDF pdf, image_dict * idict)
     assert(fip->phase == HAVEINFO);     /* don't write before |rd_jbig2_info()| call */
     pip = find_pageinfo(&(fip->pages), (unsigned long) img_pagenum(idict));
     assert(pip != NULL);
+    pdf_begin_obj(pdf, img_objnum(idict), 0);
+    pdf_begin_dict(pdf);
     wr_jbig2(pdf, fip, pip->pagenum);
     img_file(idict) = NULL;
 }

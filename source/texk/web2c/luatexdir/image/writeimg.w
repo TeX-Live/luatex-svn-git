@@ -617,8 +617,6 @@ void write_img(PDF pdf, image_dict * idict)
 @c
 void pdf_write_image(PDF pdf, int n)
 {
-    pdf_begin_obj(pdf, n, 0);
-    pdf_begin_dict(pdf);
     if (pdf->draftmode == 0)
         write_img(pdf, idict_array[obj_data_ptr(pdf, n)]);
 }
