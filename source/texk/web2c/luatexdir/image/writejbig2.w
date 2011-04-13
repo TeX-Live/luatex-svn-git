@@ -762,6 +762,7 @@ static void wr_jbig2(PDF pdf, FILEINFO * fip, unsigned long page)
         }
     }
     pdf_end_stream(pdf);
+    pdf_end_obj(pdf);
     xfclose(fip->file, fip->filepath);
 }
 

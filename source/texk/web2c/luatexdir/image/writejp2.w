@@ -278,5 +278,6 @@ void write_jp2(PDF pdf, image_dict * idict)
          img_file(idict); l > 0; l--)
         pdf_out(pdf, xgetc(f));
     pdf_end_stream(pdf);
+    pdf_end_obj(pdf);
     close_and_cleanup_jp2(idict);
 }

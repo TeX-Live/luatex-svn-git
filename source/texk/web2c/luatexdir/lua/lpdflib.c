@@ -169,6 +169,7 @@ static int l_immediateobj(lua_State * L)
             } else
                 luaL_error(L, "pdf.immediateobj() invalid argument");
             pdf_end_stream(static_pdf);
+            pdf_end_obj(static_pdf);
         }
         break;
     default:
@@ -432,8 +433,10 @@ static int table_obj(lua_State * L)
                 obj_obj_data(static_pdf, k) = luaL_ref(L, LUA_REGISTRYINDEX);   /* nil t */
             }
         }
-        if (immediate == 1)
+        if (immediate == 1) {
             pdf_end_stream(static_pdf);
+            pdf_end_obj(static_pdf);
+        }
         break;
     default:
         assert(0);

@@ -207,6 +207,7 @@ static void write_png_palette(PDF pdf, image_dict * idict)
         xfree(rows);
     }
     pdf_end_stream(pdf);
+    pdf_end_obj(pdf);
     if (palette_objnum > 0) {
         pdf_begin_obj(pdf, palette_objnum, 0);
         pdf_begin_dict(pdf);
@@ -218,6 +219,7 @@ static void write_png_palette(PDF pdf, image_dict * idict)
             pdf_quick_out(pdf, palette[i].blue);
         }
         pdf_end_stream(pdf);
+        pdf_end_obj(pdf);
     }
 }
 
@@ -250,6 +252,7 @@ static void write_png_gray(PDF pdf, image_dict * idict)
         xfree(rows);
     }
     pdf_end_stream(pdf);
+    pdf_end_obj(pdf);
 }
 
 @ @c
@@ -298,6 +301,7 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
         xfree(rows);
     }
     pdf_end_stream(pdf);
+    pdf_end_obj(pdf);
     pdf_flush(pdf);
     /* now write the Smask object */
     bitdepth = png_get_bit_depth (png_p, info_p);
@@ -320,6 +324,7 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
             i++;
     }
     pdf_end_stream(pdf);
+    pdf_end_obj(pdf);
     xfree(smask);
 }
 
@@ -352,6 +357,7 @@ static void write_png_rgb(PDF pdf, image_dict * idict)
         xfree(rows);
     }
     pdf_end_stream(pdf);
+    pdf_end_obj(pdf);
 }
 
 @ @c
@@ -400,6 +406,7 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
         xfree(rows);
     }
     pdf_end_stream(pdf);
+    pdf_end_obj(pdf);
     pdf_flush(pdf);
     /* now write the Smask object */
     if (smask_objnum > 0) {
@@ -424,6 +431,7 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
         }
         xfree(smask);
         pdf_end_stream(pdf);
+        pdf_end_obj(pdf);
     }
 }
 
@@ -512,6 +520,7 @@ static void copy_png(PDF pdf, image_dict * idict)
             break;
         case SPNG_CHUNK_IEND:  /* done */
             pdf_end_stream(pdf);
+            pdf_end_obj(pdf);
             endflag = true;
             break;
         default:
@@ -616,6 +625,7 @@ void write_png(PDF pdf, image_dict * idict)
                 pdf_quick_out(pdf, palette[i].blue);
             }
             pdf_end_stream(pdf);
+            pdf_end_obj(pdf);
         }
     } else {
         if (0) {

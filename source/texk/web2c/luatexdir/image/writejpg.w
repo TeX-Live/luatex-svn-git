@@ -287,5 +287,6 @@ void write_jpg(PDF pdf, image_dict * idict)
     for (l = img_jpg_ptr(idict)->length, f = img_file(idict); l > 0; l--)
         pdf_out(pdf, xgetc(f));
     pdf_end_stream(pdf);
+    pdf_end_obj(pdf);
     close_and_cleanup_jpg(idict);
 }

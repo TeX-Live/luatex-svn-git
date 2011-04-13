@@ -468,6 +468,7 @@ int write_tounicode(PDF pdf, char **glyph_names, char *name)
                "CMapName currentdict /CMap defineresource pop\n"
                "end\n" "end\n" "%%%%EndResource\n" "%%%%EOF\n");
     pdf_end_stream(pdf);
+    pdf_end_obj(pdf);
     return objnum;
 }
 
@@ -626,5 +627,6 @@ int write_cid_tounicode(PDF pdf, fo_entry * fo, internal_font_number f)
                "CMapName currentdict /CMap defineresource pop\n"
                "end\n" "end\n" "%%%%EndResource\n" "%%%%EOF\n");
     pdf_end_stream(pdf);
+    pdf_end_obj(pdf);
     return objnum;
 }

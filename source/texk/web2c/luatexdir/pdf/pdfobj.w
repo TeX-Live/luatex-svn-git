@@ -111,8 +111,10 @@ void pdf_write_obj(PDF pdf, int k)
         if (!obj_obj_is_stream(pdf, k) && st.s[st.l - 1] != '\n')
             pdf_out(pdf, '\n');
     }
-    if (obj_obj_is_stream(pdf, k))
+    if (obj_obj_is_stream(pdf, k)) {
         pdf_end_stream(pdf);
+        pdf_end_obj(pdf);
+    }
     else
         pdf_end_obj(pdf);
     luaL_unref(Luas, LUA_REGISTRYINDEX, l);

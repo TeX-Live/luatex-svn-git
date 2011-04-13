@@ -650,6 +650,7 @@ void write_pdfstream(PDF pdf, image_dict * idict)
     if (img_pdfstream_stream(idict) != NULL)
         pdf_puts(pdf, img_pdfstream_stream(idict));
     pdf_end_stream(pdf);
+    pdf_end_obj(pdf);
 }
 
 @ @c

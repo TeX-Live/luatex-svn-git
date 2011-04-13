@@ -465,6 +465,7 @@ static void write_fontfile(PDF pdf, fd_entry * fd)
     pdf_begin_stream(pdf);
     fb_flush(pdf);
     pdf_end_stream(pdf);
+    pdf_end_obj(pdf);
 }
 
 @

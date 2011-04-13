@@ -416,6 +416,7 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
        pdf_begin_stream(pdf);
        pdf_out_block(pdf, stream, l);
        pdf_end_stream(pdf);
+       pdf_end_obj(pdf);
       }
     }
 

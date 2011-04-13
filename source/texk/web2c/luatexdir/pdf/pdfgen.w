@@ -650,7 +650,6 @@ void pdf_end_stream(PDF pdf)
     if (pdf->last_byte != pdf_newline_char)
         pdf_out(pdf, pdf_newline_char);
     pdf_puts(pdf, "endstream\n");
-    pdf_end_obj(pdf);
 }
 
 void pdf_remove_last_space(PDF pdf)
@@ -1193,6 +1192,7 @@ static void pdf_os_write_objstream(PDF pdf)
         }
     }
     pdf_end_stream(pdf);
+    pdf_end_obj(pdf);
     pdf->os_cur_objnum = 0;     /* to force object stream generation next time */
 }
 
@@ -1838,6 +1838,7 @@ void pdf_end_page(PDF pdf)
     pdf_goto_pagemode(pdf);
     pdf_shipout_end();
     pdf_end_stream(pdf);
+    pdf_end_obj(pdf);
 
     if (global_shipping_mode == SHIPPING_PAGE) {
         pdf->last_pages = pdf_do_page_divert(pdf, pdf->last_page, 0);
@@ -2409,6 +2410,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                     }
                 }
                 pdf_end_stream(pdf);
+                pdf_end_obj(pdf);
                 /* TODO: generate a debug version of the crossref */
 
                 pdf_flush(pdf);

@@ -215,6 +215,7 @@ static boolean writepk(PDF pdf, internal_font_number f)
         pdf_puts(pdf, "\nEI\nQ\n");
       end_stream:
         pdf_end_stream(pdf);
+        pdf_end_obj(pdf);
     }
     xfree(cd.raster);
     cur_file_name = NULL;
