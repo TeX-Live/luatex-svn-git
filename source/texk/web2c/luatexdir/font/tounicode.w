@@ -344,7 +344,8 @@ int write_tounicode(PDF pdf, char **glyph_names, char *name)
         strcat(buf, builtin_suffix);    /* ".enc" not present, this is a builtin
                                            encoding so the name is eg "cmr10-builtin" */
     objnum = pdf_new_objnum(pdf);
-    pdf_begin_dict(pdf, objnum, 0);
+    pdf_begin_obj(pdf, objnum, 0);
+    pdf_begin_dict(pdf);
     pdf_begin_stream(pdf);
     pdf_printf(pdf, "%%!PS-Adobe-3.0 Resource-CMap\n"@/
                "%%%%DocumentNeededResources: ProcSet (CIDInit)\n"@/
@@ -488,7 +489,8 @@ int write_cid_tounicode(PDF pdf, fo_entry * fo, internal_font_number f)
             fo->fd->fontname);
 
     objnum = pdf_new_objnum(pdf);
-    pdf_begin_dict(pdf, objnum, 0);
+    pdf_begin_obj(pdf, objnum, 0);
+    pdf_begin_dict(pdf);
     pdf_begin_stream(pdf);
     pdf_printf(pdf, "%%!PS-Adobe-3.0 Resource-CMap\n"@/
                "%%%%DocumentNeededResources: ProcSet (CIDInit)\n"@/

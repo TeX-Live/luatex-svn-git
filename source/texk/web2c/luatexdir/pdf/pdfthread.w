@@ -177,12 +177,15 @@ void pdf_fix_thread(PDF pdf, int t)
     pdf_print_bp(pdf, page_height);
     pdf_printf(pdf, "]\n");
     pdf_end_dict(pdf);
-    pdf_begin_dict(pdf, t, 1);
+    pdf_end_obj(pdf);
+    pdf_begin_obj(pdf, t, 1);
+    pdf_begin_dict(pdf);
     pdf_printf(pdf, "/I << \n");
     thread_title(pdf, t);
     pdf_printf(pdf, ">>\n");
     pdf_indirect_ln(pdf, "F", a);
     pdf_end_dict(pdf);
+    pdf_end_obj(pdf);
 }
 
 void out_thread(PDF pdf, int t)
@@ -193,7 +196,8 @@ void out_thread(PDF pdf, int t)
         pdf_fix_thread(pdf, t);
         return;
     }
-    pdf_begin_dict(pdf, t, 1);
+    pdf_begin_obj(pdf, t, 1);
+    pdf_begin_dict(pdf);
     a = obj_thread_first(pdf, t);
     b = a;
     last_attr = 0;
@@ -211,8 +215,10 @@ void out_thread(PDF pdf, int t)
     }
     pdf_indirect_ln(pdf, "F", a);
     pdf_end_dict(pdf);
+    pdf_end_obj(pdf);
     do {
-        pdf_begin_dict(pdf, a, 1);
+        pdf_begin_obj(pdf, a, 1);
+        pdf_begin_dict(pdf);
         if (a == b)
             pdf_indirect_ln(pdf, "T", t);
         pdf_indirect_ln(pdf, "V", obj_bead_prev(pdf, a));
@@ -220,6 +226,7 @@ void out_thread(PDF pdf, int t)
         pdf_indirect_ln(pdf, "P", obj_bead_page(pdf, a));
         pdf_indirect_ln(pdf, "R", obj_bead_rect(pdf, a));
         pdf_end_dict(pdf);
+        pdf_end_obj(pdf);
         a = obj_bead_next(pdf, a);
     } while (a != b);
 }

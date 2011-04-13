@@ -146,7 +146,8 @@ static int l_immediateobj(lua_State * L)
             xfree(buf.s);
             pdf_end_obj(static_pdf);
         } else {
-            pdf_begin_dict(static_pdf, k, 0);   /* 0 = not an object stream candidate! */
+            pdf_begin_obj(static_pdf, k, 0);   /* 0 = not an object stream candidate! */
+            pdf_begin_dict(static_pdf);
             if (n == first_arg + 2) {   /* write attr text */
                 if (!lua_isstring(L, first_arg + 2))
                     luaL_error(L,
@@ -390,7 +391,8 @@ static int table_obj(lua_State * L)
         break;
     case P_STREAM:
         if (immediate == 1) {
-            pdf_begin_dict(static_pdf, k, 0);   /* 0 = not an object stream candidate! */
+            pdf_begin_obj(static_pdf, k, 0);   /* 0 = not an object stream candidate! */
+            pdf_begin_dict(static_pdf);
             if (attr.s != NULL) {
                 pdf_out_block(static_pdf, attr.s, attr.l);
                 if (attr.s[attr.l - 1] != '\n')

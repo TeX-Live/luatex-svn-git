@@ -742,7 +742,8 @@ static void wr_jbig2(PDF pdf, FILEINFO * fip, unsigned long page)
     } else {
         pip = find_pageinfo(&(fip->page0), page);
         assert(pip != NULL);
-        pdf_begin_dict(pdf, (int) fip->pdfpage0objnum, 0);
+        pdf_begin_obj(pdf, (int) fip->pdfpage0objnum, 0);
+        pdf_begin_dict(pdf);
         pdf_printf(pdf, "/Length %lu\n",
                    getstreamlen(pip->segments.first, false));
     }

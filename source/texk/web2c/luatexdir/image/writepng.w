@@ -208,7 +208,8 @@ static void write_png_palette(PDF pdf, image_dict * idict)
     }
     pdf_end_stream(pdf);
     if (palette_objnum > 0) {
-        pdf_begin_dict(pdf, palette_objnum, 0);
+        pdf_begin_obj(pdf, palette_objnum, 0);
+        pdf_begin_dict(pdf);
         pdf_begin_stream(pdf);
         for (i = 0; i < num_palette; i++) {
             pdf_room(pdf, 3);
@@ -300,7 +301,8 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
     pdf_flush(pdf);
     /* now write the Smask object */
     bitdepth = png_get_bit_depth (png_p, info_p);
-    pdf_begin_dict(pdf, smask_objnum, 0);
+    pdf_begin_obj(pdf, smask_objnum, 0);
+    pdf_begin_dict(pdf);
     pdf_puts(pdf, "/Type /XObject\n/Subtype /Image\n");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
         pdf_printf(pdf, "%s\n", img_attr(idict));
@@ -402,7 +404,8 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
     /* now write the Smask object */
     if (smask_objnum > 0) {
         bitdepth = png_get_bit_depth (png_p, info_p);
-        pdf_begin_dict(pdf, smask_objnum, 0);
+        pdf_begin_obj(pdf, smask_objnum, 0);
+        pdf_begin_dict(pdf);
         pdf_puts(pdf, "/Type /XObject\n/Subtype /Image\n");
         if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
             pdf_printf(pdf, "%s\n", img_attr(idict));
@@ -603,7 +606,8 @@ void write_png(PDF pdf, image_dict * idict)
             tex_printf(" (PNG copy)");
         copy_png(pdf, idict);
         if (palette_objnum > 0) {
-            pdf_begin_dict(pdf, palette_objnum, 0);
+            pdf_begin_obj(pdf, palette_objnum, 0);
+            pdf_begin_dict(pdf);
             pdf_begin_stream(pdf);
             for (i = 0; i < num_palette; i++) {
                 pdf_room(pdf, 3);

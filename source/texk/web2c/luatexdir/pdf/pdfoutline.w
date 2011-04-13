@@ -196,6 +196,7 @@ int print_outlines(PDF pdf)
         pdf_indirect_ln(pdf, "Last", pdf->last_outline);
         pdf_int_entry_ln(pdf, "Count", k);
         pdf_end_dict(pdf);
+        pdf_end_obj(pdf);
         /* Output PDF outline entries */
 
         k = pdf->head_tab[obj_type_outline];
@@ -206,7 +207,8 @@ int print_outlines(PDF pdf)
                 if (obj_outline_next(pdf, k) == 0)
                     pdf->last_outline = k;
             }
-            pdf_begin_dict(pdf, k, 1);
+            pdf_begin_obj(pdf, k, 1);
+            pdf_begin_dict(pdf);
             pdf_indirect_ln(pdf, "Title", obj_outline_title(pdf, k));
             pdf_indirect_ln(pdf, "A", obj_outline_action_objnum(pdf, k));
             if (obj_outline_parent(pdf, k) != 0)
@@ -227,6 +229,7 @@ int print_outlines(PDF pdf)
                 set_obj_outline_attr(pdf, k, null);
             }
             pdf_end_dict(pdf);
+            pdf_end_obj(pdf);
             k = obj_link(pdf, k);
         }
 

@@ -3179,7 +3179,8 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
 	      stream[(cid / 8)] |= (1 << (7 - (cid % 8)));
            }
        }
-       pdf_begin_dict(pdf, cidset, 0);
+       pdf_begin_obj(pdf, cidset, 0);
+       pdf_begin_dict(pdf);
        pdf_begin_stream(pdf);
        pdf_out_block(pdf, stream, l);
        pdf_end_stream(pdf);
@@ -3384,7 +3385,8 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
 	      stream[(cid / 8)] |= (1 << (7 - (cid % 8)));
            }
        }
-       pdf_begin_dict(pdf, cidset, 0);
+       pdf_begin_obj(pdf, cidset, 0);
+       pdf_begin_dict(pdf);
        pdf_begin_stream(pdf);
        pdf_out_block(pdf, stream, l);
        pdf_end_stream(pdf);

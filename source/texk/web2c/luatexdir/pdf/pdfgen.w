@@ -1172,7 +1172,8 @@ static void pdf_os_write_objstream(PDF pdf)
     }
     pdf->buf[pdf->ptr - 1] = pdf_newline_char;  /* no risk of flush, as we are in |pdf_os_mode| */
     q = pdf->ptr;
-    pdf_begin_dict(pdf, pdf->os_cur_objnum, 0); /* switch to PDF stream writing */
+    pdf_begin_obj(pdf, pdf->os_cur_objnum, 0);  /* switch to PDF stream writing */
+    pdf_begin_dict(pdf);
     pdf_puts(pdf, "/Type /ObjStm\n");
     pdf_printf(pdf, "/N %d\n", (int) (pdf->os_idx + 1));
     pdf_printf(pdf, "/First %d\n", (int) (q - p));
@@ -1197,17 +1198,10 @@ static void pdf_os_write_objstream(PDF pdf)
 
 @ begin a PDF dictionary object
 @c
-void pdf_begin_dict(PDF pdf, int i, int pdf_os_level)
+void pdf_begin_dict(PDF pdf)
 {
-    ensure_output_state(pdf, ST_HEADER_WRITTEN);
-    pdf_os_prepare_obj(pdf, i, pdf_os_level);
-    if (!pdf->os_mode) {
-        pdf_printf(pdf, "%d 0 obj\n<<\n", (int) i);
-    } else {
-        if (pdf->compress_level == 0)
-            pdf_printf(pdf, "%% %d 0 obj\n", (int) i);  /* debugging help */
-        pdf_puts(pdf, "<<\n");
-    }
+    (void) pdf;                 /* keep it for now */
+    pdf_puts(pdf, "<<\n");
 }
 
 @ begin a new PDF dictionary object 
@@ -1215,7 +1209,8 @@ void pdf_begin_dict(PDF pdf, int i, int pdf_os_level)
 int pdf_new_dict(PDF pdf, int t, int i, int pdf_os_level)
 {
     int k = pdf_create_obj(pdf, t, i);
-    pdf_begin_dict(pdf, k, pdf_os_level);
+    pdf_begin_obj(pdf, k, pdf_os_level);
+    pdf_begin_dict(pdf);
     return k;
 }
 
@@ -1223,13 +1218,8 @@ int pdf_new_dict(PDF pdf, int t, int i, int pdf_os_level)
 @c
 void pdf_end_dict(PDF pdf)
 {
-    if (pdf->os_mode) {
-        pdf_puts(pdf, ">>\n");
-        if (pdf->os_idx == pdf_os_max_objs - 1)
-            pdf_os_write_objstream(pdf);
-    } else {
-        pdf_puts(pdf, ">>\nendobj\n");
-    }
+    (void) pdf;                 /* keep it for now */
+    pdf_puts(pdf, ">>\n");
 }
 
 @ begin a PDF object 
@@ -1754,7 +1744,8 @@ void pdf_begin_page(PDF pdf)
         pdflua_begin_page(pdf);
     } else {
         assert(global_shipping_mode == SHIPPING_FORM);
-        pdf_begin_dict(pdf, pdf_cur_form, 0);
+        pdf_begin_obj(pdf, pdf_cur_form, 0);
+        pdf_begin_dict(pdf);
         pdf->last_stream = pdf_cur_form;
 
         /* Write out Form stream header */
@@ -1836,7 +1827,8 @@ void pdf_end_page(PDF pdf)
         pdf->last_pages = pdf_do_page_divert(pdf, pdf->last_page, 0);
 
         /* Write out /Page object */
-        pdf_begin_dict(pdf, pdf->last_page, 1);
+        pdf_begin_obj(pdf, pdf->last_page, 1);
+        pdf_begin_dict(pdf);
         pdf_puts(pdf, "/Type /Page\n");
         pdf_indirect_ln(pdf, "Contents", pdf->last_stream);
         pdf_indirect_ln(pdf, "Resources", res_p->last_resources);
@@ -1865,6 +1857,7 @@ void pdf_end_page(PDF pdf)
             pdf_indirect_ln(pdf, "B", beads);
         }
         pdf_end_dict(pdf);
+        pdf_end_obj(pdf);
         pdflua_end_page(pdf, annots, beads);
 
         pdf->img_page_group_val = 0;
@@ -1888,7 +1881,8 @@ void pdf_end_page(PDF pdf)
             pdf_end_obj(pdf);
         }
         if (bead_list != NULL) {
-            pdf_begin_dict(pdf, beads, 1);
+            pdf_begin_obj(pdf, beads, 1);
+            pdf_begin_dict(pdf);
             pdf_puts(pdf, "[");
             while (bead_list != NULL) {
                 pdf_print_int(pdf, bead_list->info);
@@ -1897,6 +1891,7 @@ void pdf_end_page(PDF pdf)
             }
             pdf_printf(pdf, "]\n");
             pdf_end_dict(pdf);
+            pdf_end_obj(pdf);
         }
     }
 
@@ -1947,11 +1942,13 @@ void pdf_end_page(PDF pdf)
         while (ol != NULL) {
             if (ol->info > 0 && obj_type(pdf, ol->info) == obj_type_annot) {
                 j = obj_annot_ptr(pdf, ol->info);       /* |j| points to |pdf_annot_node| */
-                pdf_begin_dict(pdf, ol->info, 1);
+                pdf_begin_obj(pdf, ol->info, 1);
+                pdf_begin_dict(pdf);
                 pdf_puts(pdf, "/Type /Annot\n");
                 pdf_print_toks_ln(pdf, pdf_annot_data(j));
                 pdf_rectangle(pdf, j);
                 pdf_end_dict(pdf);
+                pdf_end_obj(pdf);
             }
             ol = ol->link;
         }
@@ -1960,7 +1957,8 @@ void pdf_end_page(PDF pdf)
         if ((ol = get_page_resources_list(pdf, obj_type_link)) != NULL) {
             while (ol != NULL) {
                 j = obj_annot_ptr(pdf, ol->info);
-                pdf_begin_dict(pdf, ol->info, 1);
+                pdf_begin_obj(pdf, ol->info, 1);
+                pdf_begin_dict(pdf);
                 pdf_puts(pdf, "/Type /Annot\n");
                 if (pdf_action_type(pdf_link_action(j)) != pdf_action_user)
                     pdf_puts(pdf, "/Subtype /Link\n");
@@ -1971,6 +1969,7 @@ void pdf_end_page(PDF pdf)
                     pdf_puts(pdf, "/A ");
                 write_action(pdf, pdf_link_action(j));
                 pdf_end_dict(pdf);
+                pdf_end_obj(pdf);
                 ol = ol->link;
             }
             /* Flush |pdf_start_link_node|'s created by |append_link| */
@@ -1992,7 +1991,8 @@ void pdf_end_page(PDF pdf)
 
     }
     /* Write out resources dictionary */
-    pdf_begin_dict(pdf, res_p->last_resources, 1);
+    pdf_begin_obj(pdf, res_p->last_resources, 1);
+    pdf_begin_dict(pdf);
     /* Print additional resources */
     if (global_shipping_mode == SHIPPING_PAGE) {
         if (pdf_page_resources != null)
@@ -2067,6 +2067,7 @@ void pdf_end_page(PDF pdf)
     pdf_puts(pdf, " ]\n");
 
     pdf_end_dict(pdf);
+    pdf_end_obj(pdf);
 }
 
 @* Finishing the PDF output file. 
@@ -2187,6 +2188,7 @@ static int pdf_print_info(PDF pdf, int luatex_version,
     }
     pdf_str_entry_ln(pdf, "PTEX.Fullbanner", pdftex_banner);
     pdf_end_dict(pdf);
+    pdf_end_obj(pdf);
     return k;
 }
 
@@ -2331,6 +2333,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             if (pdf_catalog_openaction != 0)
                 pdf_indirect_ln(pdf, "OpenAction", pdf_catalog_openaction);
             pdf_end_dict(pdf);
+            pdf_end_obj(pdf);
 
             /* last candidate for object stream */
             info = pdf_print_info(pdf, luatex_version, luatex_revision);        /* final object for pdf->os_enable == false */

@@ -217,7 +217,8 @@ static void write_pages(PDF pdf, pages_entry * p, int parent)
 {
     int i;
     assert(p != NULL);
-    pdf_begin_dict(pdf, p->objnum, 1);
+    pdf_begin_obj(pdf, p->objnum, 1);
+    pdf_begin_dict(pdf);
     pdf_printf(pdf, "/Type /Pages\n");
     if (parent == 0) {          /* it's root */
         if (pdf_pages_attr != null)
@@ -231,6 +232,7 @@ static void write_pages(PDF pdf, pages_entry * p, int parent)
     pdf_remove_last_space(pdf);
     pdf_printf(pdf, "]\n");
     pdf_end_dict(pdf);
+    pdf_end_obj(pdf);
 }
 
 @ loop over all /Pages objects, output them, create their parents,

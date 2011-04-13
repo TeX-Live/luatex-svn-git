@@ -96,7 +96,8 @@ static void write_enc(PDF pdf, char **glyph_names, struct avl_table *tx_tree,
     assert(glyph_names != NULL);
     assert(tx_tree != NULL);
     assert(fe_objnum != 0);
-    pdf_begin_dict(pdf, fe_objnum, 1);
+    pdf_begin_obj(pdf, fe_objnum, 1);
+    pdf_begin_dict(pdf);
     pdf_puts(pdf, "/Type /Encoding\n");
     pdf_puts(pdf, "/Differences [");
     avl_t_init(&t, tx_tree);
@@ -114,6 +115,7 @@ static void write_enc(PDF pdf, char **glyph_names, struct avl_table *tx_tree,
     }
     pdf_puts(pdf, "]\n");
     pdf_end_dict(pdf);
+    pdf_end_obj(pdf);
 }
 
 static void write_fontencoding(PDF pdf, fe_entry * fe)

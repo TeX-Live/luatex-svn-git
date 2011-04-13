@@ -47,7 +47,8 @@ void pdf_write_obj(PDF pdf, int k)
     if (obj_obj_pdfoslevel(pdf, k) > -1)        /* -1 = "unset" */
         os_level = obj_obj_pdfoslevel(pdf, k);
     if (obj_obj_is_stream(pdf, k)) {
-        pdf_begin_dict(pdf, k, 0);
+        pdf_begin_obj(pdf, k, 0);
+        pdf_begin_dict(pdf);
         l = obj_obj_stream_attr(pdf, k);
         if (l != LUA_NOREF) {
             lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);

@@ -182,7 +182,7 @@ extern void pdf_begin_obj(PDF, int, int);
 extern int pdf_new_obj(PDF, int, int, int);
 extern void pdf_end_obj(PDF);
 
-extern void pdf_begin_dict(PDF, int, int);
+extern void pdf_begin_dict(PDF);
 extern int pdf_new_dict(PDF, int, int, int);
 extern void pdf_end_dict(PDF);
 

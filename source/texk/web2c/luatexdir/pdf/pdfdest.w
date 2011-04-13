@@ -147,7 +147,8 @@ void write_out_pdf_mark_destinations(PDF pdf)
                 int i;
                 i = obj_dest_ptr(pdf, k->info);
                 if (pdf_dest_named_id(i) > 0) {
-                    pdf_begin_dict(pdf, k->info, 1);
+                    pdf_begin_obj(pdf, k->info, 1);
+                    pdf_begin_dict(pdf);
                     pdf_printf(pdf, "/D ");
                 } else {
                     pdf_begin_obj(pdf, k->info, 1);
@@ -201,9 +202,10 @@ void write_out_pdf_mark_destinations(PDF pdf)
                     break;
                 }
                 pdf_printf(pdf, "]\n");
-                if (pdf_dest_named_id(i) > 0)
+                if (pdf_dest_named_id(i) > 0) {
                     pdf_end_dict(pdf);
-                else
+                    pdf_end_obj(pdf);
+                } else
                     pdf_end_obj(pdf);
             }
             k = k->link;
@@ -343,7 +345,8 @@ int output_name_tree(PDF pdf)
             }
             set_obj_link(pdf, names_tail, 0);
             /* Output the current node in this level */
-            pdf_begin_dict(pdf, l, 1);
+            pdf_begin_obj(pdf, l, 1);
+            pdf_begin_dict(pdf);
             j = 0;
             if (is_names) {
                 set_obj_start(pdf, l, pdf->dest_names[k].objname);
@@ -387,6 +390,7 @@ int output_name_tree(PDF pdf)
             pdf_print_str(pdf, obj_stop(pdf, l));
             pdf_printf(pdf, "]\n");
             pdf_end_dict(pdf);
+            pdf_end_obj(pdf);
 
 
         } while (b != 0);
@@ -409,6 +413,7 @@ int output_name_tree(PDF pdf)
             pdf_names_toks = null;
         }
         pdf_end_dict(pdf);
+        pdf_end_obj(pdf);
         return m;
     } else {
         return 0;
