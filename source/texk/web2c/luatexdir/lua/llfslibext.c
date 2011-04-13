@@ -81,7 +81,7 @@ static int Preadlink(lua_State * L)
 /** readlink(path) */
     const char *path = luaL_checkstring(L, 1);
     char *b = NULL;
-    size_t allocated = 128;
+    int allocated = 128;
     int n;
     while (1) {
         b = malloc(allocated);
