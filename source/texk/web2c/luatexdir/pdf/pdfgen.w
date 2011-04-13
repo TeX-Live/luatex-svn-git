@@ -1002,9 +1002,11 @@ void pdf_print_rect_spec(PDF pdf, halfword r)
 void pdf_rectangle(PDF pdf, halfword r)
 {
     prepare_mag();
-    pdf_puts(pdf, "/Rect [");
+    pdf_puts(pdf, "/Rect ");
+    pdf_begin_array(pdf);
     pdf_print_rect_spec(pdf, r);
-    pdf_puts(pdf, "]\n");
+    pdf_end_array(pdf);
+    pdf_out(pdf, '\n');
 }
 
 @ @c
@@ -1258,6 +1260,8 @@ void pdf_end_obj(PDF pdf)
         if (pdf->os_idx == pdf_os_max_objs - 1)
             pdf_os_write_objstream(pdf);
     } else {
+        if (pdf->last_byte != pdf_newline_char)
+            pdf_out(pdf, pdf_newline_char);
         pdf_puts(pdf, "endobj\n");      /* end a PDF object */
     }
 }
@@ -1765,7 +1769,8 @@ void pdf_begin_page(PDF pdf)
             delete_token_ref(obj_xform_attr(pdf, pdf_cur_form));
             set_obj_xform_attr(pdf, pdf_cur_form, null);
         }
-        pdf_puts(pdf, "/BBox [");
+        pdf_puts(pdf, "/BBox ");
+        pdf_begin_array(pdf);
         pdf_print_bp(pdf, -form_margin);
         pdf_out(pdf, ' ');
         pdf_print_bp(pdf, -form_margin);
@@ -1773,7 +1778,8 @@ void pdf_begin_page(PDF pdf)
         pdf_print_bp(pdf, cur_page_size.h + form_margin);
         pdf_out(pdf, ' ');
         pdf_print_bp(pdf, cur_page_size.v + form_margin);
-        pdf_puts(pdf, "]\n");
+        pdf_end_array(pdf);
+        pdf_out(pdf, '\n');
         pdf_puts(pdf, "/FormType 1\n");
         pdf_puts(pdf, "/Matrix [1 0 0 1 0 0]\n");
         pdf_indirect_ln(pdf, "Resources", pdf->page_resources->last_resources);
@@ -1840,11 +1846,14 @@ void pdf_end_page(PDF pdf)
         pdf_puts(pdf, "/Type /Page\n");
         pdf_indirect_ln(pdf, "Contents", pdf->last_stream);
         pdf_indirect_ln(pdf, "Resources", res_p->last_resources);
-        pdf_puts(pdf, "/MediaBox [0 0 ");
+        pdf_puts(pdf, "/MediaBox ");
+        pdf_begin_array(pdf);
+        pdf_puts(pdf, "0 0 ");
         pdf_print_mag_bp(pdf, cur_page_size.h);
         pdf_out(pdf, ' ');
         pdf_print_mag_bp(pdf, cur_page_size.v);
-        pdf_puts(pdf, "]\n");
+        pdf_end_array(pdf);
+        pdf_out(pdf, '\n');
         if (pdf_page_attr != null)
             pdf_print_toks_ln(pdf, pdf_page_attr);
         print_pdf_table_string(pdf, "pageattributes");
@@ -1873,7 +1882,7 @@ void pdf_end_page(PDF pdf)
         /* Generate array of annotations or beads in page */
         if (annot_list != NULL || link_list != NULL) {
             pdf_begin_obj(pdf, annots, 1);
-            pdf_puts(pdf, "[");
+            pdf_begin_array(pdf);
             while (annot_list != NULL) {
                 assert(annot_list->info > 0);
                 pdf_print_int(pdf, annot_list->info);
@@ -1885,7 +1894,7 @@ void pdf_end_page(PDF pdf)
                 pdf_puts(pdf, " 0 R ");
                 link_list = link_list->link;
             }
-            pdf_puts(pdf, "]\n");
+            pdf_end_array(pdf);
             pdf_end_obj(pdf);
         }
         if (bead_list != NULL) {
@@ -2307,7 +2316,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             /* Output article threads */
             if (pdf->head_tab[obj_type_thread] != 0) {
                 threads = pdf_new_obj(pdf, obj_type_others, 0, 1);
-                pdf_out(pdf, '[');
+                pdf_begin_array(pdf);
                 k = pdf->head_tab[obj_type_thread];
                 while (k != 0) {
                     pdf_print_int(pdf, k);
@@ -2315,7 +2324,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                     k = obj_link(pdf, k);
                 }
                 pdf_remove_last_space(pdf);
-                pdf_puts(pdf, "]\n");
+                pdf_end_array(pdf);
                 pdf_end_obj(pdf);
                 k = pdf->head_tab[obj_type_thread];
                 while (k != 0) {
@@ -2369,13 +2378,20 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 build_free_object_list(pdf);
                 pdf_begin_dict(pdf);
                 pdf_puts(pdf, "/Type /XRef\n");
-                pdf_puts(pdf, "/Index [0 ");
+                pdf_puts(pdf, "/Index ");
+                pdf_begin_array(pdf);
+                pdf_puts(pdf, "0 ");
                 pdf_print_int(pdf, pdf->obj_ptr + 1);
-                pdf_puts(pdf, "]\n");
+                pdf_end_array(pdf);
+                pdf_out(pdf, '\n');
                 pdf_int_entry_ln(pdf, "Size", pdf->obj_ptr + 1);
-                pdf_puts(pdf, "/W [1 ");
+                pdf_puts(pdf, "/W ");
+                pdf_begin_array(pdf);
+                pdf_puts(pdf, "1 ");
                 pdf_print_int(pdf, (int) xref_offset_width);
-                pdf_puts(pdf, " 1]\n");
+                pdf_puts(pdf, " 1");
+                pdf_end_array(pdf);
+                pdf_out(pdf, '\n');
                 pdf_indirect_ln(pdf, "Root", root);
                 pdf_indirect_ln(pdf, "Info", info);
                 if (pdf_trailer_toks != null) {
