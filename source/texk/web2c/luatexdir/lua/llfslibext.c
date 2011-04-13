@@ -1,6 +1,6 @@
 /* llfslibext.c
    
-   Copyright 2010 Taco Hoekwater <taco@luatex.org>
+   Copyright 2010-2011 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -109,7 +109,7 @@ static int read_link(lua_State * L)
     return Preadlink(L);
 }
 
-static int get_short_name(lua_State * L)
+static int get_short_name(lua_State * L __attribute__ ((unused)))
 {
     /* simply do nothing */
     return 1;
