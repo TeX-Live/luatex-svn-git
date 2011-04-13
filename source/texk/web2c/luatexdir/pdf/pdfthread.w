@@ -166,7 +166,8 @@ void pdf_fix_thread(PDF pdf, int t)
     tprint(" has been referenced but does not exist, replaced by a fixed one");
     print_ln();
     print_ln();
-    a = pdf_new_dict(pdf, obj_type_others, 0, 0);
+    a = pdf_new_obj(pdf, obj_type_others, 0, 0);
+    pdf_begin_dict(pdf);
     pdf_indirect_ln(pdf, "T", t);
     pdf_indirect_ln(pdf, "V", a);
     pdf_indirect_ln(pdf, "N", a);

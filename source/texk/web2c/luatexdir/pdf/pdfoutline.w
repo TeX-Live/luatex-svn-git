@@ -180,7 +180,8 @@ int print_outlines(PDF pdf)
     int k, l, a;
     int outlines;
     if (pdf->first_outline != 0) {
-        outlines = pdf_new_dict(pdf, obj_type_others, 0, 1);
+        outlines = pdf_new_obj(pdf, obj_type_others, 0, 1);
+        pdf_begin_dict(pdf);
         l = pdf->first_outline;
         k = 0;
         do {

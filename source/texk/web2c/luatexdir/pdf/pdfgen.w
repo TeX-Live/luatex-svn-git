@@ -1196,16 +1196,6 @@ static void pdf_os_write_objstream(PDF pdf)
     pdf->os_cur_objnum = 0;     /* to force object stream generation next time */
 }
 
-@ begin a new PDF dictionary object 
-@c
-int pdf_new_dict(PDF pdf, int t, int i, int pdf_os_level)
-{
-    int k = pdf_create_obj(pdf, t, i);
-    pdf_begin_obj(pdf, k, pdf_os_level);
-    pdf_begin_dict(pdf);
-    return k;
-}
-
 @ begin a PDF dictionary
 @c
 void pdf_begin_dict(PDF pdf)
@@ -1755,7 +1745,8 @@ void pdf_begin_page(PDF pdf)
     if (global_shipping_mode == SHIPPING_PAGE) {
         pdf->last_page = get_obj(pdf, obj_type_page, total_pages + 1, 0);
         set_obj_aux(pdf, pdf->last_page, 1);    /* mark that this page has been created */
-        pdf->last_stream = pdf_new_dict(pdf, obj_type_pagestream, 0, 0);
+        pdf->last_stream = pdf_new_obj(pdf, obj_type_pagestream, 0, 0);
+        pdf_begin_dict(pdf);
         pdf->last_thread = null;
         pdflua_begin_page(pdf);
     } else {
@@ -2161,7 +2152,8 @@ static int pdf_print_info(PDF pdf, int luatex_version,
         trapped_given;
     char *s = NULL;
     int k, len = 0;
-    k = pdf_new_dict(pdf, obj_type_info, 0, 3); /* keep Info readable unless explicitely forced */
+    k = pdf_new_obj(pdf, obj_type_info, 0, 3); /* keep Info readable unless explicitely forced */
+    pdf_begin_dict(pdf);
     creator_given = false;
     producer_given = false;
     creationdate_given = false;
@@ -2335,7 +2327,8 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             }
 
             /* Output the /Catalog object */
-            root = pdf_new_dict(pdf, obj_type_catalog, 0, 1);
+            root = pdf_new_obj(pdf, obj_type_catalog, 0, 1);
+            pdf_begin_dict(pdf);
             pdf_puts(pdf, "/Type /Catalog\n");
             pdf_indirect_ln(pdf, "Pages", pdf->last_pages);
             if (threads != 0)
@@ -2363,7 +2356,8 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 pdf_flush(pdf);
                 pdf_os_switch(pdf, false);
                 /* Output the cross-reference stream dictionary */
-                xref_stm = pdf_new_dict(pdf, obj_type_others, 0, 0);    /* final object for pdf->os_enable == true */
+                xref_stm = pdf_new_obj(pdf, obj_type_others, 0, 0);    /* final object for pdf->os_enable == true */
+                pdf_begin_dict(pdf);
                 if ((obj_offset(pdf, pdf->obj_ptr) / 256) > 16777215)
                     xref_offset_width = 5;
                 else if (obj_offset(pdf, pdf->obj_ptr) > 16777215)
