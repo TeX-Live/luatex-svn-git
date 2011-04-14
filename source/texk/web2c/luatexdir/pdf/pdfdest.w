@@ -407,7 +407,7 @@ int output_name_tree(PDF pdf)
         m = pdf_new_obj(pdf, obj_type_others, 0, 1);
         pdf_begin_dict(pdf);
         if (dests != 0)
-            pdf_indirect_ln(pdf, "Dests", dests);
+            pdf_dict_add_ref(pdf, "Dests", dests);
         if (pdf_names_toks != null) {
             pdf_print_toks_ln(pdf, pdf_names_toks);
             delete_token_ref(pdf_names_toks);

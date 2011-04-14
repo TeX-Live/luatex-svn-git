@@ -189,7 +189,7 @@ static boolean writepk(PDF pdf, internal_font_number f)
         t3_glyph_num++;
         t3_char_procs[cd.charcode] = pdf_new_obj(pdf, obj_type_others, 0, 0);
         pdf_begin_dict(pdf);
-        pdf_dict_add_stream(pdf);
+        pdf_dict_add_streaminfo(pdf);
         pdf_end_dict(pdf);
         pdf_begin_stream(pdf);
         pdf_print_real(pdf, (int) t3_char_widths[cd.charcode], 2);

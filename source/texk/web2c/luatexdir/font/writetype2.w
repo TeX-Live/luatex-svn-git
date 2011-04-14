@@ -381,9 +381,10 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
         cidtogid_obj = (unsigned long) pdf_new_objnum(pdf);
         pdf_begin_obj(pdf, (int) cidtogid_obj, 0);
         pdf_begin_dict(pdf);
-        pdf_printf(pdf, "/Length %i\n", ((last_cid + 1) * 2));
+        pdf_dict_add_int(pdf, "Length", ((last_cid + 1) * 2));
         pdf_end_dict(pdf);
-        pdf_end_obj(pdf);
+        /* pdf_end_obj(pdf); */
+        assert(0); /* code unused */
         pdf_printf(pdf, "stream\n");
         pdf_room(pdf, (int) ((last_cid + 1) * 2));
         for (i = 0; i < ((int) (last_cid + 1) * 2); i++) {
@@ -413,7 +414,7 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
        }
        pdf_begin_obj(pdf, cidset, 0);
        pdf_begin_dict(pdf);
-       pdf_dict_add_stream(pdf);
+       pdf_dict_add_streaminfo(pdf);
        pdf_end_dict(pdf);
        pdf_begin_stream(pdf);
        pdf_out_block(pdf, stream, l);

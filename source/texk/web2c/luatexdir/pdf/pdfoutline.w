@@ -192,10 +192,10 @@ int print_outlines(PDF pdf)
             l = obj_outline_next(pdf, l);
         } while (l != 0);
         pdf_begin_dict(pdf);
-        pdf_printf(pdf, "/Type /Outlines\n");
-        pdf_indirect_ln(pdf, "First", pdf->first_outline);
-        pdf_indirect_ln(pdf, "Last", pdf->last_outline);
-        pdf_int_entry_ln(pdf, "Count", k);
+        pdf_dict_add_name(pdf, "Type", "Outlines");
+        pdf_dict_add_ref(pdf, "First", pdf->first_outline);
+        pdf_dict_add_ref(pdf, "Last", pdf->last_outline);
+        pdf_dict_add_int(pdf, "Count", k);
         pdf_end_dict(pdf);
         pdf_end_obj(pdf);
         /* Output PDF outline entries */
@@ -210,18 +210,18 @@ int print_outlines(PDF pdf)
             }
             pdf_begin_obj(pdf, k, 1);
             pdf_begin_dict(pdf);
-            pdf_indirect_ln(pdf, "Title", obj_outline_title(pdf, k));
-            pdf_indirect_ln(pdf, "A", obj_outline_action_objnum(pdf, k));
+            pdf_dict_add_ref(pdf, "Title", obj_outline_title(pdf, k));
+            pdf_dict_add_ref(pdf, "A", obj_outline_action_objnum(pdf, k));
             if (obj_outline_parent(pdf, k) != 0)
-                pdf_indirect_ln(pdf, "Parent", obj_outline_parent(pdf, k));
+                pdf_dict_add_ref(pdf, "Parent", obj_outline_parent(pdf, k));
             if (obj_outline_prev(pdf, k) != 0)
-                pdf_indirect_ln(pdf, "Prev", obj_outline_prev(pdf, k));
+                pdf_dict_add_ref(pdf, "Prev", obj_outline_prev(pdf, k));
             if (obj_outline_next(pdf, k) != 0)
-                pdf_indirect_ln(pdf, "Next", obj_outline_next(pdf, k));
+                pdf_dict_add_ref(pdf, "Next", obj_outline_next(pdf, k));
             if (obj_outline_first(pdf, k) != 0)
-                pdf_indirect_ln(pdf, "First", obj_outline_first(pdf, k));
+                pdf_dict_add_ref(pdf, "First", obj_outline_first(pdf, k));
             if (obj_outline_last(pdf, k) != 0)
-                pdf_indirect_ln(pdf, "Last", obj_outline_last(pdf, k));
+                pdf_dict_add_ref(pdf, "Last", obj_outline_last(pdf, k));
             if (obj_outline_count(pdf, k) != 0)
                 pdf_int_entry_ln(pdf, "Count", obj_outline_count(pdf, k));
             if (obj_outline_attr(pdf, k) != 0) {

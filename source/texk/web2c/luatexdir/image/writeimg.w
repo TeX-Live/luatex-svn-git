@@ -644,7 +644,7 @@ void write_pdfstream(PDF pdf, image_dict * idict)
             int2bp(img_bbox(idict)[1]), int2bp(img_bbox(idict)[2]),
             int2bp(img_bbox(idict)[3]));
     pdf_printf(pdf, stripzeros(s));
-    pdf_dict_add_stream(pdf);
+    pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
     if (img_pdfstream_stream(idict) != NULL)

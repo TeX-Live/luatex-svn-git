@@ -1,6 +1,6 @@
 /* pdfgen.h
 
-   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2011 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -28,7 +28,7 @@
 #  define PROCSET_IMAGE_C (1 << 3)
 #  define PROCSET_IMAGE_I (1 << 4)
 
-#  define inf_pdf_mem_size 10000        /* min size of the |mem| array */
+#  define inf_pdf_mem_size 10000/* min size of the |mem| array */
 #  define sup_pdf_mem_size 10000000     /* max size of the |mem| array */
 
 extern PDF static_pdf;
@@ -141,7 +141,10 @@ extern void pdf_print_int(PDF, longinteger);
 extern void pdf_print_real(PDF, int, int);
 extern void pdf_print_str(PDF, const char *);
 
-extern void pdf_dict_add_stream(PDF);
+extern void pdf_dict_add_int(PDF, const char *key, int i);
+extern void pdf_dict_add_ref(PDF, const char *key, int num);
+extern void pdf_dict_add_name(PDF, const char *key, const char *val);
+extern void pdf_dict_add_streaminfo(PDF);
 
 extern void pdf_begin_stream(PDF);
 extern void pdf_end_stream(PDF);
@@ -167,7 +170,6 @@ extern void pdf_out_block(PDF pdf, const char *s, size_t n);
 extern void pdf_int_entry(PDF, const char *, int);
 extern void pdf_int_entry_ln(PDF, const char *, int);
 extern void pdf_indirect(PDF, const char *, int);
-extern void pdf_indirect_ln(PDF, const char *, int);
 extern void pdf_print_str_ln(PDF, const char *);
 extern void pdf_str_entry(PDF, const char *, const char *);
 extern void pdf_str_entry_ln(PDF, const char *, const char *);

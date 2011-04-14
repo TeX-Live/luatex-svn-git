@@ -157,7 +157,7 @@ static int l_immediateobj(lua_State * L)
                 if (st3.s[st3.l - 1] != '\n')
                     pdf_puts(static_pdf, "\n");
             }
-            pdf_dict_add_stream(static_pdf);
+            pdf_dict_add_streaminfo(static_pdf);
             pdf_end_dict(static_pdf);
             pdf_begin_stream(static_pdf);
             if (st1.l == 6 && strncmp((const char *) st1.s, "stream", 6) == 0) {
@@ -403,7 +403,7 @@ static int table_obj(lua_State * L)
             }
             if (compress_level > -1)
                 static_pdf->compress_level = compress_level;
-            pdf_dict_add_stream(static_pdf);
+            pdf_dict_add_streaminfo(static_pdf);
             pdf_end_dict(static_pdf);
             pdf_begin_stream(static_pdf);
         } else {

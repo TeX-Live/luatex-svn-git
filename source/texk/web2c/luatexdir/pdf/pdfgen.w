@@ -599,19 +599,6 @@ void pdf_print_str(PDF pdf, const char *s)
     pdf_puts(pdf, orig);        /* it was a hex string after all  */
 }
 
-@ add stream length and filter entries to a stream dictionary,
-remember file position for seek
-@c
-void pdf_dict_add_stream(PDF pdf)
-{
-    assert(pdf->os_mode == false);
-    pdf_puts(pdf, "/Length           \n");
-    pdf->seek_write_length = true;      /* fill in length at |pdf_end_stream| call */
-    pdf->stream_length_offset = pdf_offset(pdf) - 11;
-    if (pdf->compress_level > 0)
-        pdf_puts(pdf, "/Filter /FlateDecode\n");
-}
-
 @ begin a stream (needs to have a stream dictionary also) 
 @c
 void pdf_begin_stream(PDF pdf)
@@ -938,13 +925,6 @@ void pdf_indirect(PDF pdf, const char *s, int o)
     pdf_printf(pdf, "/%s %d 0 R", s, (int) o);
 }
 
-void pdf_indirect_ln(PDF pdf, const char *s, int o)
-{
-
-    pdf_indirect(pdf, s, o);
-    pdf_print_nl(pdf);
-}
-
 @ print out |s| as string in PDF output 
 @c
 void pdf_print_str_ln(PDF pdf, const char *s)
@@ -1179,14 +1159,14 @@ static void pdf_os_write_objstream(PDF pdf)
         }
         i++;
     }
-    pdf->buf[pdf->ptr - 1] = '\n';  /* no risk of flush, as we are in |pdf_os_mode| */
+    pdf->buf[pdf->ptr - 1] = '\n';      /* no risk of flush, as we are in |pdf_os_mode| */
     q = pdf->ptr;
     pdf_begin_obj(pdf, pdf->os_cur_objnum, 0);  /* switch to PDF stream writing */
     pdf_begin_dict(pdf);
-    pdf_puts(pdf, "/Type /ObjStm\n");
-    pdf_printf(pdf, "/N %d\n", (int) (pdf->os_idx + 1));
-    pdf_printf(pdf, "/First %d\n", (int) (q - p));
-    pdf_dict_add_stream(pdf);
+    pdf_dict_add_name(pdf, "Type", "ObjStm");
+    pdf_dict_add_int(pdf, "N", (int) (pdf->os_idx + 1));
+    pdf_dict_add_int(pdf, "First", (int) (q - p));
+    pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
     /* write object number and byte offset pairs;
@@ -1214,6 +1194,7 @@ void pdf_begin_dict(PDF pdf)
 {
     (void) pdf;                 /* keep it for now */
     pdf_puts(pdf, "<<\n");
+    pdf->cave = 0;
 }
 
 @ end a PDF dictionary
@@ -1222,22 +1203,73 @@ void pdf_end_dict(PDF pdf)
 {
     (void) pdf;                 /* keep it for now */
     pdf_puts(pdf, ">>\n");
+    pdf->cave = 0;
+}
+
+@ add integer object to dict
+@c
+void pdf_dict_add_int(PDF pdf, const char *key, int i)
+{
+    pdf_out(pdf, '/');
+    pdf_puts(pdf, key);
+    pdf_out(pdf, ' ');
+    pdf_print_int(pdf, i);
+    pdf_out(pdf, '\n');
+    pdf->cave = 0;
+}
+
+@ add name object to dict
+@c
+void pdf_dict_add_name(PDF pdf, const char *key, const char *val)
+{
+    pdf_out(pdf, '/');
+    pdf_puts(pdf, key);
+    pdf_puts(pdf, " /");
+    pdf_puts(pdf, val);
+    pdf_out(pdf, '\n');
+    pdf->cave = 0;
+}
+
+@ add name reference to dict
+@c
+void pdf_dict_add_ref(PDF pdf, const char *key, int num)
+{
+    pdf_out(pdf, '/');
+    pdf_puts(pdf, key);
+    pdf_out(pdf, ' ');
+    pdf_print_int(pdf, num);
+    pdf_puts(pdf, " 0 R");
+    pdf_out(pdf, '\n');
+    pdf->cave = 0;
+}
+
+@ add stream length and filter entries to a stream dictionary,
+remember file position for seek
+@c
+void pdf_dict_add_streaminfo(PDF pdf)
+{
+    assert(pdf->os_mode == false);
+    pdf_puts(pdf, "/Length           \n");
+    pdf->seek_write_length = true;      /* fill in length at |pdf_end_stream| call */
+    pdf->stream_length_offset = pdf_offset(pdf) - 11;
+    if (pdf->compress_level > 0)
+        pdf_dict_add_name(pdf, "Filter", "FlateDecode");
 }
 
 @ begin a PDF array
 @c
 void pdf_begin_array(PDF pdf)
 {
-    (void) pdf;                 /* keep it for now */
     pdf_puts(pdf, "[");
+    pdf->cave = 0;
 }
 
 @ end a PDF array
 @c
 void pdf_end_array(PDF pdf)
 {
-    (void) pdf;                 /* keep it for now */
     pdf_puts(pdf, "]");
+    pdf->cave = 0;
 }
 
 @ begin a PDF object 
@@ -1251,6 +1283,7 @@ void pdf_begin_obj(PDF pdf, int i, int pdf_os_level)
     } else if (pdf->compress_level == 0) {
         pdf_printf(pdf, "%% %d 0 obj\n", (int) i);      /* debugging help */
     }
+    pdf->cave = 0;
 }
 
 @ begin a new PDF object
@@ -1770,8 +1803,8 @@ void pdf_begin_page(PDF pdf)
 
         /* Write out Form stream header */
         pdf_begin_dict(pdf);
-        pdf_puts(pdf, "/Type /XObject\n");
-        pdf_puts(pdf, "/Subtype /Form\n");
+        pdf_dict_add_name(pdf, "Type", "XObject");
+        pdf_dict_add_name(pdf, "Subtype", "Form");
         if (pdf_xform_attr != null)
             pdf_print_toks_ln(pdf, pdf_xform_attr);
         if (obj_xform_attr(pdf, pdf_cur_form) != null) {
@@ -1790,12 +1823,12 @@ void pdf_begin_page(PDF pdf)
         pdf_print_bp(pdf, cur_page_size.v + form_margin);
         pdf_end_array(pdf);
         pdf_out(pdf, '\n');
-        pdf_puts(pdf, "/FormType 1\n");
+        pdf_dict_add_int(pdf, "FormType", 1);
         pdf_puts(pdf, "/Matrix [1 0 0 1 0 0]\n");
-        pdf_indirect_ln(pdf, "Resources", pdf->page_resources->last_resources);
+        pdf_dict_add_ref(pdf, "Resources", pdf->page_resources->last_resources);
     }
     /* Start stream of page/form contents */
-    pdf_dict_add_stream(pdf);
+    pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
     if (global_shipping_mode == SHIPPING_PAGE) {
@@ -1855,9 +1888,9 @@ void pdf_end_page(PDF pdf)
         /* Write out /Page object */
         pdf_begin_obj(pdf, pdf->last_page, 1);
         pdf_begin_dict(pdf);
-        pdf_puts(pdf, "/Type /Page\n");
-        pdf_indirect_ln(pdf, "Contents", pdf->last_stream);
-        pdf_indirect_ln(pdf, "Resources", res_p->last_resources);
+        pdf_dict_add_name(pdf, "Type", "Page");
+        pdf_dict_add_ref(pdf, "Contents", pdf->last_stream);
+        pdf_dict_add_ref(pdf, "Resources", res_p->last_resources);
         pdf_puts(pdf, "/MediaBox ");
         pdf_begin_array(pdf);
         pdf_puts(pdf, "0 0 ");
@@ -1869,21 +1902,21 @@ void pdf_end_page(PDF pdf)
         if (pdf_page_attr != null)
             pdf_print_toks_ln(pdf, pdf_page_attr);
         print_pdf_table_string(pdf, "pageattributes");
-        pdf_indirect_ln(pdf, "Parent", pdf->last_pages);
+        pdf_dict_add_ref(pdf, "Parent", pdf->last_pages);
         if (pdf->img_page_group_val != 0) {
             assert(pdf->img_page_group_val > 0);
-            pdf_printf(pdf, "/Group %d 0 R\n", pdf->img_page_group_val);
+            pdf_dict_add_ref(pdf, "Group", pdf->img_page_group_val);
         }
         annot_list = get_page_resources_list(pdf, obj_type_annot);
         link_list = get_page_resources_list(pdf, obj_type_link);
         if (annot_list != NULL || link_list != NULL) {
             annots = pdf_create_obj(pdf, obj_type_annots, 0);
-            pdf_indirect_ln(pdf, "Annots", annots);
+            pdf_dict_add_ref(pdf, "Annots", annots);
         }
         bead_list = get_page_resources_list(pdf, obj_type_bead);
         if (bead_list != NULL) {
             beads = pdf_create_obj(pdf, obj_type_beads, 0);
-            pdf_indirect_ln(pdf, "B", beads);
+            pdf_dict_add_ref(pdf, "B", beads);
         }
         pdf_end_dict(pdf);
         pdf_end_obj(pdf);
@@ -1907,11 +1940,13 @@ void pdf_end_page(PDF pdf)
                 link_list = link_list->link;
             }
             pdf_end_array(pdf);
+            pdf_out(pdf, '\n');
             pdf_end_obj(pdf);
         }
         if (bead_list != NULL) {
             pdf_begin_obj(pdf, beads, 1);
             pdf_begin_dict(pdf);
+            /* TODO: Where is the /Key??? */
             pdf_begin_array(pdf);
             while (bead_list != NULL) {
                 pdf_print_int(pdf, bead_list->info);
@@ -1973,7 +2008,7 @@ void pdf_end_page(PDF pdf)
                 j = obj_annot_ptr(pdf, ol->info);       /* |j| points to |pdf_annot_node| */
                 pdf_begin_obj(pdf, ol->info, 1);
                 pdf_begin_dict(pdf);
-                pdf_puts(pdf, "/Type /Annot\n");
+                pdf_dict_add_name(pdf, "Type", "Annot");
                 pdf_print_toks_ln(pdf, pdf_annot_data(j));
                 pdf_rectangle(pdf, j);
                 pdf_end_dict(pdf);
@@ -1988,9 +2023,9 @@ void pdf_end_page(PDF pdf)
                 j = obj_annot_ptr(pdf, ol->info);
                 pdf_begin_obj(pdf, ol->info, 1);
                 pdf_begin_dict(pdf);
-                pdf_puts(pdf, "/Type /Annot\n");
+                pdf_dict_add_name(pdf, "Type", "Annot");
                 if (pdf_action_type(pdf_link_action(j)) != pdf_action_user)
-                    pdf_puts(pdf, "/Subtype /Link\n");
+                    pdf_dict_add_name(pdf, "Subtype", "Link");
                 if (pdf_link_attr(j) != null)
                     pdf_print_toks_ln(pdf, pdf_link_attr(j));
                 pdf_rectangle(pdf, j);
@@ -2084,7 +2119,8 @@ void pdf_end_page(PDF pdf)
     }
 
     /* Generate ProcSet */
-    pdf_puts(pdf, "/ProcSet [");
+    pdf_puts(pdf, "/ProcSet ");
+    pdf_begin_array(pdf);
     if ((procset & PROCSET_PDF) != 0)
         pdf_puts(pdf, " /PDF");
     if ((procset & PROCSET_TEXT) != 0)
@@ -2095,7 +2131,7 @@ void pdf_end_page(PDF pdf)
         pdf_puts(pdf, " /ImageC");
     if ((procset & PROCSET_IMAGE_I) != 0)
         pdf_puts(pdf, " /ImageI");
-    pdf_puts(pdf, " ]\n");
+    pdf_end_array(pdf);
 
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
@@ -2127,9 +2163,11 @@ static void check_nonexisting_destinations(PDF pdf)
             print_ln();
             print_ln();
             pdf_begin_obj(pdf, k, 1);
-            pdf_out(pdf, '[');
+            pdf_begin_array(pdf);
             pdf_print_int(pdf, pdf->last_page);
-            pdf_puts(pdf, " 0 R /Fit]\n");
+            pdf_puts(pdf, " 0 R /Fit");
+            pdf_end_array(pdf);
+            pdf_out(pdf, '\n');
             pdf_end_obj(pdf);
         }
     }
@@ -2216,7 +2254,7 @@ static int pdf_print_info(PDF pdf, int luatex_version,
         print_mod_date(pdf);
     }
     if (!trapped_given) {
-        pdf_puts(pdf, "/Trapped /False\n");
+        pdf_dict_add_name(pdf, "Trapped", "False");
     }
     pdf_str_entry_ln(pdf, "PTEX.Fullbanner", pdftex_banner);
     pdf_end_dict(pdf);
@@ -2350,21 +2388,21 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             /* Output the /Catalog object */
             root = pdf_new_obj(pdf, obj_type_catalog, 0, 1);
             pdf_begin_dict(pdf);
-            pdf_puts(pdf, "/Type /Catalog\n");
-            pdf_indirect_ln(pdf, "Pages", pdf->last_pages);
+            pdf_dict_add_name(pdf, "Type", "Catalog");
+            pdf_dict_add_ref(pdf, "Pages", pdf->last_pages);
             if (threads != 0)
-                pdf_indirect_ln(pdf, "Threads", threads);
+                pdf_dict_add_ref(pdf, "Threads", threads);
             if (outlines != 0)
-                pdf_indirect_ln(pdf, "Outlines", outlines);
+                pdf_dict_add_ref(pdf, "Outlines", outlines);
             if (names_tree != 0)
-                pdf_indirect_ln(pdf, "Names", names_tree);
+                pdf_dict_add_ref(pdf, "Names", names_tree);
             if (pdf_catalog_toks != null) {
                 pdf_print_toks_ln(pdf, pdf_catalog_toks);
                 delete_token_ref(pdf_catalog_toks);
                 pdf_catalog_toks = null;
             }
             if (pdf_catalog_openaction != 0)
-                pdf_indirect_ln(pdf, "OpenAction", pdf_catalog_openaction);
+                pdf_dict_add_ref(pdf, "OpenAction", pdf_catalog_openaction);
             pdf_end_dict(pdf);
             pdf_end_obj(pdf);
 
@@ -2389,7 +2427,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 /* Build a linked list of free objects */
                 build_free_object_list(pdf);
                 pdf_begin_dict(pdf);
-                pdf_puts(pdf, "/Type /XRef\n");
+                pdf_dict_add_name(pdf, "Type", "XRef");
                 pdf_puts(pdf, "/Index ");
                 pdf_begin_array(pdf);
                 pdf_puts(pdf, "0 ");
@@ -2404,8 +2442,8 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 pdf_puts(pdf, " 1");
                 pdf_end_array(pdf);
                 pdf_out(pdf, '\n');
-                pdf_indirect_ln(pdf, "Root", root);
-                pdf_indirect_ln(pdf, "Info", info);
+                pdf_dict_add_ref(pdf, "Root", root);
+                pdf_dict_add_ref(pdf, "Info", info);
                 if (pdf_trailer_toks != null) {
                     pdf_print_toks_ln(pdf, pdf_trailer_toks);
                     delete_token_ref(pdf_trailer_toks);
@@ -2413,7 +2451,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 }
                 print_ID(pdf, pdf->file_name);
                 pdf_print_nl(pdf);
-                pdf_dict_add_stream(pdf);
+                pdf_dict_add_streaminfo(pdf);
                 pdf_end_dict(pdf);
                 pdf_begin_stream(pdf);
                 for (k = 0; k <= pdf->obj_ptr; k++) {
@@ -2466,8 +2504,8 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 pdf_puts(pdf, "trailer\n");
                 pdf_begin_dict(pdf);
                 pdf_int_entry_ln(pdf, "Size", pdf->obj_ptr + 1);
-                pdf_indirect_ln(pdf, "Root", root);
-                pdf_indirect_ln(pdf, "Info", info);
+                pdf_dict_add_ref(pdf, "Root", root);
+                pdf_dict_add_ref(pdf, "Info", info);
                 if (pdf_trailer_toks != null) {
                     pdf_print_toks_ln(pdf, pdf_trailer_toks);
                     delete_token_ref(pdf_trailer_toks);

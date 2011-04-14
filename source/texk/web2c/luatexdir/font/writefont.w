@@ -462,7 +462,7 @@ static void write_fontfile(PDF pdf, fd_entry * fd)
         else
             assert(0);
     }
-    pdf_dict_add_stream(pdf);
+    pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
     fb_flush(pdf);
