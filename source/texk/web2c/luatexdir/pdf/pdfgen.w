@@ -1945,8 +1945,6 @@ void pdf_end_page(PDF pdf)
         }
         if (bead_list != NULL) {
             pdf_begin_obj(pdf, beads, 1);
-            pdf_begin_dict(pdf);
-            /* TODO: Where is the /Key??? */
             pdf_begin_array(pdf);
             while (bead_list != NULL) {
                 pdf_print_int(pdf, bead_list->info);
@@ -1954,7 +1952,6 @@ void pdf_end_page(PDF pdf)
                 bead_list = bead_list->link;
             }
             pdf_end_array(pdf);
-            pdf_end_dict(pdf);
             pdf_end_obj(pdf);
         }
     }
