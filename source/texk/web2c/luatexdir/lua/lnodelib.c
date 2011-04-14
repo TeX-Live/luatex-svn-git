@@ -782,6 +782,8 @@ static int get_node_field_id(lua_State * L, int n, int node)
 {
     register int t = type(node);
     register const char *s = lua_tostring(L, n);
+    if (s == NULL)
+        return -2;
     if (luaS_ptr_eq(s, list)) {
 	s = luaS_head_ptr; /* create a |head| alias for now */
     }
