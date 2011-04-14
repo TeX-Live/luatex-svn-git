@@ -1,6 +1,6 @@
 % pdfgen.w
 
-% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2009-2011 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -599,24 +599,32 @@ void pdf_print_str(PDF pdf, const char *s)
     pdf_puts(pdf, orig);        /* it was a hex string after all  */
 }
 
-@ begin a stream 
+@ add stream length and filter entries to a stream dictionary,
+remember file position for seek
 @c
-void pdf_begin_stream(PDF pdf)
+void pdf_dict_add_stream(PDF pdf)
 {
     assert(pdf->os_mode == false);
     pdf_puts(pdf, "/Length           \n");
     pdf->seek_write_length = true;      /* fill in length at |pdf_end_stream| call */
     pdf->stream_length_offset = pdf_offset(pdf) - 11;
+    if (pdf->compress_level > 0)
+        pdf_puts(pdf, "/Filter /FlateDecode\n");
+}
+
+@ begin a stream (needs to have a stream dictionary also) 
+@c
+void pdf_begin_stream(PDF pdf)
+{
+    assert(pdf->os_mode == false);
+    assert(pdf->seek_write_length == true);
     pdf->stream_length = 0;
     pdf->last_byte = 0;
     if (pdf->compress_level > 0) {
-        pdf_puts(pdf, "/Filter /FlateDecode\n");
-        pdf_end_dict(pdf);
         pdf_puts(pdf, "stream\n");
         pdf_flush(pdf);
         pdf->zip_write_state = zip_writing;
     } else {
-        pdf_end_dict(pdf);
         pdf_puts(pdf, "stream\n");
         pdf_save_offset(pdf);
     }
@@ -647,8 +655,8 @@ void pdf_end_stream(PDF pdf)
         write_stream_length(pdf, (int) pdf->stream_length,
                             pdf->stream_length_offset);
     pdf->seek_write_length = false;
-    if (pdf->last_byte != pdf_newline_char)
-        pdf_out(pdf, pdf_newline_char);
+    if (pdf->last_byte != '\n')
+        pdf_out(pdf, '\n');
     pdf_puts(pdf, "endstream\n");
 }
 
@@ -1163,7 +1171,7 @@ static void pdf_os_write_objstream(PDF pdf)
         pdf_printf(pdf, "%d %d", (int) pdf->os_obj[i].num,
                    (int) pdf->os_obj[i].off);
         if (j == 9) {           /* print out in groups of ten for better readability */
-            pdf_out(pdf, pdf_newline_char);
+            pdf_out(pdf, '\n');
             j = 0;
         } else {
             pdf_out(pdf, ' ');
@@ -1171,13 +1179,15 @@ static void pdf_os_write_objstream(PDF pdf)
         }
         i++;
     }
-    pdf->buf[pdf->ptr - 1] = pdf_newline_char;  /* no risk of flush, as we are in |pdf_os_mode| */
+    pdf->buf[pdf->ptr - 1] = '\n';  /* no risk of flush, as we are in |pdf_os_mode| */
     q = pdf->ptr;
     pdf_begin_obj(pdf, pdf->os_cur_objnum, 0);  /* switch to PDF stream writing */
     pdf_begin_dict(pdf);
     pdf_puts(pdf, "/Type /ObjStm\n");
     pdf_printf(pdf, "/N %d\n", (int) (pdf->os_idx + 1));
     pdf_printf(pdf, "/First %d\n", (int) (q - p));
+    pdf_dict_add_stream(pdf);
+    pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
     /* write object number and byte offset pairs;
        |q - p| should always fit into the PDF output buffer */
@@ -1260,8 +1270,8 @@ void pdf_end_obj(PDF pdf)
         if (pdf->os_idx == pdf_os_max_objs - 1)
             pdf_os_write_objstream(pdf);
     } else {
-        if (pdf->last_byte != pdf_newline_char)
-            pdf_out(pdf, pdf_newline_char);
+        if (pdf->last_byte != '\n')
+            pdf_out(pdf, '\n');
         pdf_puts(pdf, "endobj\n");      /* end a PDF object */
     }
 }
@@ -1785,6 +1795,8 @@ void pdf_begin_page(PDF pdf)
         pdf_indirect_ln(pdf, "Resources", pdf->page_resources->last_resources);
     }
     /* Start stream of page/form contents */
+    pdf_dict_add_stream(pdf);
+    pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
     if (global_shipping_mode == SHIPPING_PAGE) {
         /* Adjust transformation matrix for the magnification ratio */
@@ -2401,6 +2413,8 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 }
                 print_ID(pdf, pdf->file_name);
                 pdf_print_nl(pdf);
+                pdf_dict_add_stream(pdf);
+                pdf_end_dict(pdf);
                 pdf_begin_stream(pdf);
                 for (k = 0; k <= pdf->obj_ptr; k++) {
                     if (!is_obj_written(pdf, k)) {      /* a free object */

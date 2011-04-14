@@ -1,7 +1,7 @@
 /* epdf.h
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2011 Taco Hoekwater <taco@luatex.org>
    This file is part of LuaTeX.
 
    LuaTeX is free software; you can redistribute it and/or modify it under
@@ -89,6 +89,7 @@ extern "C" {
     extern void pdf_end_dict(PDF);
     extern void pdf_begin_array(PDF);
     extern void pdf_end_array(PDF);
+    extern void pdf_dict_add_stream(PDF);
     extern void pdf_begin_stream(PDF);
     extern void pdf_end_stream(PDF);
     extern void pdf_room(PDF, int);

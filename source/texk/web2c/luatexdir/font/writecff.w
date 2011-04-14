@@ -3181,6 +3181,8 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
        }
        pdf_begin_obj(pdf, cidset, 0);
        pdf_begin_dict(pdf);
+       pdf_dict_add_stream(pdf);
+       pdf_end_dict(pdf);
        pdf_begin_stream(pdf);
        pdf_out_block(pdf, stream, l);
        pdf_end_stream(pdf);

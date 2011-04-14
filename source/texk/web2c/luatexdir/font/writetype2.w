@@ -413,6 +413,8 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
        }
        pdf_begin_obj(pdf, cidset, 0);
        pdf_begin_dict(pdf);
+       pdf_dict_add_stream(pdf);
+       pdf_end_dict(pdf);
        pdf_begin_stream(pdf);
        pdf_out_block(pdf, stream, l);
        pdf_end_stream(pdf);

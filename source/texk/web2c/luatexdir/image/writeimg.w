@@ -1,7 +1,7 @@
 % writeimg.w
 
 % Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
-% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2011 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -644,6 +644,8 @@ void write_pdfstream(PDF pdf, image_dict * idict)
             int2bp(img_bbox(idict)[1]), int2bp(img_bbox(idict)[2]),
             int2bp(img_bbox(idict)[3]));
     pdf_printf(pdf, stripzeros(s));
+    pdf_dict_add_stream(pdf);
+    pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
     if (img_pdfstream_stream(idict) != NULL)
         pdf_puts(pdf, img_pdfstream_stream(idict));

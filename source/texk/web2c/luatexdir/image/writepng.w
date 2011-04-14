@@ -1,7 +1,7 @@
 % writepng.w
 
 % Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
-% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2011 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -190,6 +190,8 @@ static void write_png_palette(PDF pdf, image_dict * idict)
         pdf_printf(pdf, "[/Indexed /DeviceRGB %i %i 0 R]\n",
                    (int) (num_palette - 1), (int) palette_objnum);
     }
+    pdf_dict_add_stream(pdf);
+    pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
     if (png_get_interlace_type(png_p, info_p) == PNG_INTERLACE_NONE) {
         row = xtalloc(png_get_rowbytes(png_p, info_p), png_byte);
@@ -211,6 +213,8 @@ static void write_png_palette(PDF pdf, image_dict * idict)
     if (palette_objnum > 0) {
         pdf_begin_obj(pdf, palette_objnum, 0);
         pdf_begin_dict(pdf);
+        pdf_dict_add_stream(pdf);
+        pdf_end_dict(pdf);
         pdf_begin_stream(pdf);
         for (i = 0; i < num_palette; i++) {
             pdf_room(pdf, 3);
@@ -235,6 +239,8 @@ static void write_png_gray(PDF pdf, image_dict * idict)
     } else {
         pdf_puts(pdf, "/DeviceGray\n");
     }
+    pdf_dict_add_stream(pdf);
+    pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
     if (png_get_interlace_type(png_p, info_p) == PNG_INTERLACE_NONE) {
         row = xtalloc(png_get_rowbytes(png_p, info_p), png_byte);
@@ -276,6 +282,8 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
     pdf_printf(pdf, "/SMask %i 0 R\n", (int) smask_objnum);
     smask_size = (int) ((png_get_rowbytes(png_p, info_p) / 2) * png_get_image_height (png_p, info_p));
     smask = xtalloc((unsigned) smask_size, png_byte);
+    pdf_dict_add_stream(pdf);
+    pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
     if (png_get_interlace_type(png_p, info_p) == PNG_INTERLACE_NONE) {
         row = xtalloc(png_get_rowbytes(png_p, info_p), png_byte);
@@ -315,6 +323,8 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
                (int) png_get_image_height (png_p, info_p),
                (bitdepth == 16 ? 8 : bitdepth));
     pdf_puts(pdf, "/ColorSpace /DeviceGray\n");
+    pdf_dict_add_stream(pdf);
+    pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
     for (i = 0; i < smask_size; i++) {
         if (i % 8 == 0)
@@ -340,6 +350,8 @@ static void write_png_rgb(PDF pdf, image_dict * idict)
     } else {
         pdf_puts(pdf, "/DeviceRGB\n");
     }
+    pdf_dict_add_stream(pdf);
+    pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
     if (png_get_interlace_type(png_p, info_p) == PNG_INTERLACE_NONE) {
         row = xtalloc(png_get_rowbytes(png_p, info_p), png_byte);
@@ -381,6 +393,8 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
     pdf_printf(pdf, "/SMask %i 0 R\n", (int) smask_objnum);
     smask_size = (int) ((png_get_rowbytes (png_p, info_p) / 4) * png_get_image_height (png_p, info_p));
     smask = xtalloc((unsigned) smask_size, png_byte);
+    pdf_dict_add_stream(pdf);
+    pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
     if (png_get_interlace_type(png_p, info_p) == PNG_INTERLACE_NONE) {
         row = xtalloc(png_get_rowbytes(png_p, info_p), png_byte);
@@ -421,6 +435,8 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
                    (int) png_get_image_height (png_p, info_p),
                    (bitdepth == 16 ? 8 : bitdepth));
         pdf_puts(pdf, "/ColorSpace /DeviceGray\n");
+        pdf_dict_add_stream(pdf);
+        pdf_end_dict(pdf);
         pdf_begin_stream(pdf);
         for (i = 0; i < smask_size; i++) {
             if (i % 8 == 0)
@@ -619,6 +635,8 @@ void write_png(PDF pdf, image_dict * idict)
         if (palette_objnum > 0) {
             pdf_begin_obj(pdf, palette_objnum, 0);
             pdf_begin_dict(pdf);
+            pdf_dict_add_stream(pdf);
+            pdf_end_dict(pdf);
             pdf_begin_stream(pdf);
             for (i = 0; i < num_palette; i++) {
                 pdf_room(pdf, 3);

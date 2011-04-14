@@ -819,6 +819,8 @@ void write_epdf(PDF pdf, image_dict * idict)
         pdf_end_stream(pdf);
         pdf_end_obj(pdf);
     } else if (contents.isArray()) {
+        pdf_dict_add_stream(pdf);
+        pdf_end_dict(pdf);
         pdf_begin_stream(pdf);
         for (i = 0, l = contents.arrayGetLength(); i < l; ++i) {
             copyStreamStream(pdf, (contents.arrayGet(i, &obj1))->getStream());
@@ -832,6 +834,8 @@ void write_epdf(PDF pdf, image_dict * idict)
         pdf_end_stream(pdf);
         pdf_end_obj(pdf);
     } else {                    // the contents are optional, but we need to include an empty stream
+        pdf_dict_add_stream(pdf);
+        pdf_end_dict(pdf);
         pdf_begin_stream(pdf);
         pdf_end_stream(pdf);
         pdf_end_obj(pdf);

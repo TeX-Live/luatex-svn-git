@@ -1,6 +1,6 @@
 % pdfobj.w
 
-% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2009-2011 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -61,6 +61,8 @@ void pdf_write_obj(PDF pdf, int k)
             luaL_unref(Luas, LUA_REGISTRYINDEX, l);
             obj_obj_stream_attr(pdf, k) = LUA_NOREF;
         }
+        pdf_dict_add_stream(pdf);
+        pdf_end_dict(pdf);
         pdf_begin_stream(pdf);
     } else
         pdf_begin_obj(pdf, k, os_level);

@@ -116,10 +116,8 @@ printing ones but the output is going to PDF buffer. Subroutines with
 suffix |_ln| append a new-line character to the PDF output.
 */
 
-#  define pdf_newline_char 10   /* new-line character '\n' for UNIX platforms */
-
 /* output a new-line character to PDF buffer */
-#  define pdf_print_nl(pdf) pdf_out(pdf,pdf_newline_char)
+#  define pdf_print_nl(pdf) pdf_out(pdf, '\n')
 
 /* print out a string to PDF buffer followed by a new-line character */
 #  define pdf_print_ln(pdf,A) do {                 \
@@ -142,6 +140,8 @@ extern void pdf_print(PDF, str_number);
 extern void pdf_print_int(PDF, longinteger);
 extern void pdf_print_real(PDF, int, int);
 extern void pdf_print_str(PDF, const char *);
+
+extern void pdf_dict_add_stream(PDF);
 
 extern void pdf_begin_stream(PDF);
 extern void pdf_end_stream(PDF);
