@@ -1192,7 +1192,6 @@ static void pdf_os_write_objstream(PDF pdf)
 @c
 void pdf_begin_dict(PDF pdf)
 {
-    (void) pdf;                 /* keep it for now */
     pdf_puts(pdf, "<<\n");
     pdf->cave = 0;
 }
@@ -1201,7 +1200,6 @@ void pdf_begin_dict(PDF pdf)
 @c
 void pdf_end_dict(PDF pdf)
 {
-    (void) pdf;                 /* keep it for now */
     pdf_puts(pdf, ">>\n");
     pdf->cave = 0;
 }
