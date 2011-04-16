@@ -1,5 +1,15 @@
 2011-03-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
+	* configure.ac: LuaTeX needs poppler at least 0.12, no reason
+	to test for PDFDoc::getPDF*Version(). HAVE_GETPDFMAJORVERSION
+	would yield a conflict for pdfTeX using xpdf or poppler 0.10.
+
+2011-04-04  Karl Berry  <karl@tug.org>
+
+	* doc/ref.txi: add urls for TUGboat.
+
+2011-03-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
 	* am/texmf.am: Install symbolic links initex->tex and inimf->mf
 	or equivalent MinGW wrappers.
 

@@ -1,3 +1,35 @@
+2011-04-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* utils/utils.w (POPPLER_VERSION): Now defined in
+	poppler-config.h for poppler from the TeX Live tree, or in the
+	Makefile for an installed version.
+
+2011-04-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/libluatex.am, am/txt2zlib.am: When cross compiling skip
+	txt2zlib and use installed luascripts/pdflua.c.
+
+	Need poppler at least 0.12 for PDFDoc::getPDF*Version().
+	* image/pdftoepdf.cc: Remove code for older poppler versions.
+
+2011-04-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* image/writepng.w: Fix to build with png-1.5 (and avoid
+	`deprecated' warnings with png-1.4). The transformations part
+	is removed on recommendation by John Bowler (a png developer).
+	Mail from Thomas Klausner <tk@giga.or.at>, Sun, 30 Jan 2011.
+
+	* pdf/pdfgen.w: ANSI C function definitions.
+
+	* pdf/pdfluaapi.w (new_pdflua): Declare zp as const.
+
+	* am/libluatex.am (EXTRA_DIST): Distribute luascripts/pdflua.lua.
+	* am/txt2zlib.am (EXTRA_DIST): Distribute luascripts/txt2zlib.w.
+
+2011-04-12  Taco Hoekwater  <taco@luatex.org>
+
+	* import of luatex 0.66.0, released version
+
 2011-03-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* am/libluatex.am: Use AM_CFLAGS instead of libluatex_a_CFLAGS.

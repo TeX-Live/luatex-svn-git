@@ -1,4 +1,4 @@
-$Id: README 19378 2010-07-11 22:39:53Z karl $
+$Id: README 21945 2011-04-04 00:08:50Z vvv $
 Public domain.  Originally written 2005 by Karl Berry.
 
 Extra utilities we (optionally) compile for TeX Live.
@@ -12,15 +12,18 @@ asymptote 2.02 - checked 12jul10
 chktex 1.6.4 - checked 3may10
   http://baruch.ev-en.org/proj/chktex/chktex-1.6.4.tar.gz
 
-dialog 1.1-20100119 - checked 21jan10
+dialog 1.1-20110302 - checked 2mar11
   ftp://invisible-island.net/dialog/dialog.tar.gz
 
-ps2eps 1.64 - checked 19feb08
-  http://www.ipv6.tm.uka.de/~bless/ps2eps
+ps2eps 1.68 - checked 15dec10
+  http://tm.uka.de/~bless/ps2eps
 
 psutils p17 - checked 25nov06
+  http://www.tardis.ed.ac.uk/~ajcd/psutils/index.html
+  -> http://www.ctan.org/support/psutils/
+  https://savannah.nongnu.org/bugs/?30782
+  -> http://www.connochaetos.org/misc/psutils-libre-1.17.tar.gz
   (Fabrice made small modifications for Windows, it seems)
-  http://www.ctan.org/support/psutils/
 
 t1utils 1.36 - checked 7jun10
   http://www.lcdf.org/type/
@@ -61,9 +64,9 @@ clisp_builddir=$clisp_basedir/clisp-build
 mkdir $clisp_toolsdir
 
 cd $clisp_basedir
-wget http://ftp.gnu.org/gnu/libsigsegv/libsigsegv-2.8.tar.gz
-gzip -dc libsigsegv-2.8.tar.gz | tar xf -
-cd libsigsegv-2.8
+wget http://ftp.gnu.org/gnu/libsigsegv/libsigsegv-2.10.tar.gz
+gzip -dc libsigsegv-2.10.tar.gz | tar xf -
+cd libsigsegv-2.10
 ./configure --prefix=$clisp_toolsdir && make && make check && make install
 
 # you may need this hack on 64-bit systems
@@ -71,9 +74,9 @@ cd libsigsegv-2.8
 ln -s lib $clisp_toolsdir/lib64
 
 cd $clisp_basedir
-wget http://ftp.gnu.org/gnu/clisp/release/2.48/clisp-2.48.tar.gz
-gzip -dc clisp-2.48.tar.gz | tar xf -
-cd clisp-2.48
+wget http://ftp.gnu.org/gnu/clisp/release/2.49/clisp-2.49.tar.gz
+gzip -dc clisp-2.49.tar.gz | tar xf -
+cd clisp-2.49
 # On FreeBSD/amd64, add --disable-mmap.
 ./configure --with-libsigsegv-prefix=$clisp_toolsdir --without-readline \
   --disable-nls \

@@ -62,7 +62,8 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/kpse-common.m4 \
 	$(top_srcdir)/m4/kpse-zziplib-flags.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
 	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/tardate.ac \
+	$(top_srcdir)/version.ac \
 	$(top_srcdir)/texk/web2c/ac/withenable.ac \
 	$(top_srcdir)/texk/web2c/ac/web2c.ac \
 	$(top_srcdir)/libs/zziplib/ac/withenable.ac \
@@ -285,10 +286,10 @@ EXTRA_DIST = \
 CONFIG_AUX = subsubdir-conf.cmd
 SUBDIRS = . $(TEXLIBS) libs utils texk
 DIST_SUBDIRS = auxdir/auxsub $(DIST_TEXLIBS) libs utils texk
-@cross_compiling_FALSE@check_target = check
+@cross_FALSE@check_target = check
 
 # Allow for skipping make check if needed.
-@cross_compiling_TRUE@check_target = skip
+@cross_TRUE@check_target = skip
 all: all-recursive
 
 .SUFFIXES:
