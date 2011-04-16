@@ -398,7 +398,7 @@ local fdata_epdf = {
           {type = "Catalog", name = "catalog", optional = false, },
         },
         returnvalues = {
-          {type = "boolean", name = "var", optional = false, },
+          {type = "Object", name = "var", optional = false, },
         },
       },
     },
