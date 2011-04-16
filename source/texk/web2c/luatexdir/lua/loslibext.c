@@ -974,6 +974,16 @@ static int os_execute(lua_State * L)
     char *cmdname = NULL;
     const char *cmd = luaL_optstring(L, 1, NULL);
 
+    if (cmd == NULL) { /* pretend we are \.{\\pdfshellescape} */
+	if (shellenabledp <= 0) {
+	    lua_pushinteger(L, 0);
+        } else if (restrictedshell == 0) {
+	    lua_pushinteger(L, 1);
+	} else {
+	    lua_pushinteger(L, 2);
+	}
+	return 1;
+    }
     if (shellenabledp <= 0) {
         lua_pushnil(L);
         lua_pushstring(L, "All command execution disabled.");
