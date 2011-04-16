@@ -1,0 +1,173 @@
+2011-04-16  Taco Hoekwater  <taco@luatex.org>
+
+	* synctex.c: Rename flags member output => output_p to avoid
+	conflict with macro defined for MinGW32.
+
+2011-04-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* synctex-luatex.h (new): moved from ../luatexdir/utils to here.
+
+	* synctex.c (synctexstartinput): When SYNCTEX_GET_CURRENT_NAME()
+	returns "", don't assign "texput" which might later get freed
+	but rather xrealloc and strcpy.
+
+2011-04-03  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* synctex-e-mem.ch0: Adapt to ../etexdir/etex.ch.
+
+2011-03-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/synctex.am: Use AM_CFLAGS instead of synctex_CFLAGS.
+
+2011-03-14  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* synctex.c: Instead of sed-substituting TEX-OR-MF-OR-MP in
+	#include "synctex-TEX-OR-MF-OR-MP.h", #include SYNCTEX_ENGINE_H
+	and add -DSYNCTEX_ENGINE_H=\"synctex-tex.h\" to CPPFLAGS for TeX
+	and similarly for e-TeX, pdfTeX, and XeTeX.
+	* am/synctex.am: Adapt.
+
+2011-03-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Avoid compiler warnings (redo changes from 2010-01-22).
+
+	* synctex_parser_utils.h: Declare synctex_suffix{,_gz} extern ...
+	* synctex_parser.c: ... and instantiate here.
+	* synctex_parser_utils.[ch]: Constify _synctex_last_path_component()
+	return type.
+	* synctex_parser.c (__synctex_scanner_t): Change type of struct
+	members buffer_{cur,start,end} from 'unsigned char *' to 'char *'
+	and remove the casts.
+	(_synctex_class_t synctex_class_*): Declare as non-const.
+	(_synctex_scan_named): Constify string param `name'.
+
+2010-06-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Reorganize web2c headers.
+	* synctex_main.c, synctex_parser_local.h:
+	#include <w2c/config.h> instead of "config.h".
+
+2010-05-13  Jerome Laurens  <jerome.laurens@u-bourgogne.fr>
+
+	* synctex.c, very minor change in code design to remove wrong warnings when building xetex.
+    
+2010-05-13  Jerome Laurens  <jerome.laurens@u-bourgogne.fr>
+
+	* synctex.c, change in code design.
+    The macro layer is enhanced to take luatex into account.
+    Luatex can now safely use this file instead of luatexdir/utils/synctex.c,
+    provided luatexdir/utils/synctex-luatex.h is updated accordingly.
+    No change for pdftex nor xetex.
+    
+    * synctex.c, typos fixed, some wrong "size_t" causing false warnings replaced by "int".
+
+2010-04-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* synctex_main.c, synctex_parser_local.h: #include "c-auto.h"
+	instead of "web2c/c-auto.h".
+
+2010-01-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/synctex.am (synctex_CFLAGS): Enable compiler warnings.
+
+	Avoid compiler warnings:
+
+	* synctex_main.c: Define _ISOC99_SOURCE to get fmax() prototype
+	FIXME: Linux only?
+	* synctex_parser_utils.h: Move declaration of synctex_io_modes ...
+	* synctex_parser.c: ... to here.
+	* synctex_parser_utils.h: Declare synctex_suffix{,_gz} extern ...
+	* synctex_parser.c: ... and instantiate here.
+	* synctex_parser_utils.[ch]: Constify _synctex_last_path_component()
+	return type.
+	* synctex_parser.c (__synctex_scanner_t): Change type of struct
+	members buffer_{cur,start,end} from 'unsigned char *' to 'char *'
+	and remove the casts.
+	(_synctex_class_t synctex_class_*): Declare as non-const.
+	(_synctex_scan_named): Constify string param `name'.
+
+2010-01-10  Jérôme Laurens  <jerome.laurens@u-bourgogne.fr>
+
+	* synctex_parser.c: in the _synctex_smallest_container() function,
+			SYNCTEX_WIDTH is replaced with SYNCTEX_ABS_WIDTH
+            to take into account h boxes with negative width.
+            Solves a problem with amsmath's gather environment
+	* synctex_parser.c: enhancements in comments to better explain the code
+
+2009-12-30  Jérôme Laurens  <jerome.laurens@u-bourgogne.fr>
+
+	* synctex_parser_utils.c: in the _synctex_malloc() function,
+            memset() is used unconditionally (suggested by J. Kew).
+	* synctex_parser_utils.c: in the _synctex_error() function,
+            - all 3 instances of OutputDebugString() replaced with OutputDebugStringA()
+            such that unicode is ignored (also suggested by J. Kew).
+            - _WIN32 flag replaced by SYNCTEX_RECENT_WINDOWS because older windows systems
+            may have _WIN32 defined but no OutputDebugString().
+
+2009-12-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* synctex.c: Remove extern declaration of gettexstring(),
+	now in ../web2c/coerce.h.
+
+2009-10-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	synctex-e-mem.ch0 (just_reverse): Drop unused label found.
+
+2009-09-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* synctex.c (synctex_suffix*): Constify strings.
+	Add #include "synctex.h" for prototypes.
+	* synctex.h (synctexabort): Add prototype.
+	* synctex_main.c (synctex_help*): Constify string params.
+	(synctex_edit_proceed): Add a prototype (was a duplicate for
+	synctex_view_proceed). Drop cast.
+	* synctex_parser_utils.[ch] (_synctex_error): Constify string
+	param.
+
+2009-09-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/synctex.am: Prepare compiler warnings.
+
+2009-08-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/synctex.am: SyncTeX now integrated into ../texmfmp.h.
+	* synctex-convert.sh (removed): Obsolete.
+
+2009-07-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* synctex_main.c: re-#include "web2c/c-auto.h", needed for AIX.
+
+2009-07-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/synctex.am: remove INSTALL.
+
+2009-07-13  Jerome Laurens  <jerome.laurens@u-bourgogne.fr>
+
+	No need to rebuild the binaries with these changes.
+	* INSTALL: the content has no meaning with the new building architecture, file removed.
+	* synctex_parser*: version number changed to 1.8
+	* synctex_main.c: version number updated to 1.2 (2 typos)
+
+2009-07-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/synctex.am: remove unused files Makefile, Makefile.in.
+
+2009-07-09  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* synctex_main.c: make 'synctex help update' work as advertised.
+	* tests/LM-Volume-manuscript.tex: Mac -> native line ends.
+
+2009-07-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/synctex.am: distribute new files.
+	* synctex_parser_local.h: add newline at end of file.
+	* synctex_parser_readme.txt: Mac -> native line ends.
+
+2009-07-08  Jerome Laurens  <jerome.laurens@u-bourgogne.fr>
+
+	Updated version.
+
+2009-03-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Adapt to TL2009 build system.
+

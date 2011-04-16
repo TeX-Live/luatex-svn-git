@@ -40,10 +40,10 @@ Latest Revision: Wed Jul  1 08:17:50 UTC 2009
 
 */
 
-#ifndef __SYNCTEX_HEADER__
-#  define __SYNCTEX_HEADER__
+#  ifndef __SYNCTEX_HEADER__
+#    define __SYNCTEX_HEADER__
 
-#  include "synctex-common.h"
+#include "synctex-common.h"
 
 /*  Free all memory used, close and remove the file if any. */
 void synctexabort(boolean log_opened);
@@ -110,4 +110,4 @@ extern void synctexnode(halfword p, halfword this_box);
 /*  For debugging purpose only    */
 extern void synctexcurrent(void);
 
-#endif
+#  endif

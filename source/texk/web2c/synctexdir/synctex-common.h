@@ -38,8 +38,8 @@ Latest Revision: Wed Jul  1 08:07:50 UTC 2009
 
 */
 
-#ifndef __SYNCTEX_COMMON_HEADER__
-#  define __SYNCTEX_COMMON_HEADER__
+#  ifndef __SYNCTEX_COMMON_HEADER__
+#    define __SYNCTEX_COMMON_HEADER__
 
 /*  Send this message to init the synctex command value to the command line option.
  *  Sending this message too early will cause a bus error.  */
@@ -48,4 +48,4 @@ extern void synctexinitcommand(void);
 /*  Send this message to clean memory, and close the file.  */
 extern void synctexterminate(int log_opened);
 
-#endif
+#  endif
