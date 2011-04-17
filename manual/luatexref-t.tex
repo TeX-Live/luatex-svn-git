@@ -2068,7 +2068,9 @@ by the \type{epdf} library, currently these are
 \type{EmbFile},
 \type{Dict},
 \type{GString},
+\type{Link},
 \type{LinkDest},
+\type{Links},
 \type{Object},
 \type{ObjectStream},
 \type{Page},
@@ -2204,6 +2206,11 @@ All object constructors:
 <Object>  = <Dict>:getValNF(<integer>)
 \stopfunctioncall
 
+\type{Link} methods:
+
+\startfunctioncall
+\stopfunctioncall
+
 \type{LinkDest} methods:
 
 \startfunctioncall
@@ -2221,6 +2228,13 @@ All object constructors:
 <boolean>  = <LinkDest>:getChangeLeft()
 <boolean>  = <LinkDest>:getChangeTop()
 <boolean>  = <LinkDest>:getChangeZoom()
+\stopfunctioncall
+
+\type{Links} methods:
+
+\startfunctioncall
+<integer>  = <Links>:getNumLinks()
+<Link>     = <Links>:getLink(<integer>)
 \stopfunctioncall
 
 \type{Object} methods:

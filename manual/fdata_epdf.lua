@@ -637,6 +637,9 @@ local fdata_epdf = {
       },
     },
 ------------------------------------------------------------------------
+    Link = {
+    },
+------------------------------------------------------------------------
     LinkDest = {
       isOK = {
         type = "function",
@@ -776,6 +779,30 @@ local fdata_epdf = {
         },
         returnvalues = {
           {type = "boolean", name = "var", optional = false, },
+        },
+      },
+    },
+------------------------------------------------------------------------
+    Links = {
+      getNumLinks = {
+        type = "function",
+        shortdesc = "Get number of links.",
+        arguments = {
+          {type = "Links", name = "links", optional = false, },
+        },
+        returnvalues = {
+          {type = "integer", name = "var", optional = false, },
+        },
+      },
+      getLink = {
+        type = "function",
+        shortdesc = "Get link by number.",
+        arguments = {
+          {type = "Links", name = "links", optional = false, },
+          {type = "integer", name = "integer", optional = false, },
+        },
+        returnvalues = {
+          {type = "Link", name = "var", optional = false, },
         },
       },
     },
