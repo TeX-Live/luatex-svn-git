@@ -2257,19 +2257,23 @@ static int m_PDFDoc_findPage(lua_State * L)
 
 static int m_PDFDoc_getLinks(lua_State * L)
 {
-    int i;
+    int i, pages;
     Links *links;
     udstruct *uin, *uout;
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
     i = luaL_checkint(L, 2);
-    links = ((PdfDocument *) uin->d)->doc->getLinks(i);
-    if (links != NULL) {
-        uout = new_Links_userdata(L);
-        uout->d = links;
-        uout->pc = uin->pc;
-        uout->pd = uin->pd;
+    pages = ((PdfDocument *) uin->d)->doc->getNumPages();
+    if (i > 0 && i <= pages) {
+        links = ((PdfDocument *) uin->d)->doc->getLinks(i);
+        if (links != NULL) {
+            uout = new_Links_userdata(L);
+            uout->d = links;
+            uout->pc = uin->pc;
+            uout->pd = uin->pd;
+        } else
+            lua_pushnil(L);
     } else
         lua_pushnil(L);
     return 1;
