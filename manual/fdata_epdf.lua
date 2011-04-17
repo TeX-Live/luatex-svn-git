@@ -869,7 +869,7 @@ local fdata_epdf = {
       },
       initArray = {
         type = "function",
-        shortdesc = "Initialize an Array-type object.",
+        shortdesc = "Initialize an Array-type object with an empty array.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "XRef", name = "xref", optional = false, },
@@ -879,7 +879,7 @@ local fdata_epdf = {
       },
       initDict = {
         type = "function",
-        shortdesc = "Initialize a Dict-type object.",
+        shortdesc = "Initialize a Dict-type object with an empty dictionary.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
           {type = "XRef", name = "xref", optional = false, },
