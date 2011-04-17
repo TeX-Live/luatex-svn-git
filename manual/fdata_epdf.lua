@@ -638,6 +638,28 @@ local fdata_epdf = {
     },
 ------------------------------------------------------------------------
     Link = {
+      isOK = {
+        type = "function",
+        shortdesc = "Check if Link object is ok.",
+        arguments = {
+          {type = "Link", name = "link", optional = false, },
+        },
+        returnvalues = {
+          {type = "boolean", name = "var", optional = false, },
+        },
+      },
+      inRect = {
+        type = "function",
+        shortdesc = "Check if point is inside the link rectangle.",
+        arguments = {
+          {type = "Link", name = "link", optional = false, },
+          {type = "number", name = "number", optional = false, },
+          {type = "number", name = "number", optional = false, },
+        },
+        returnvalues = {
+          {type = "boolean", name = "var", optional = false, },
+        },
+      },
     },
 ------------------------------------------------------------------------
     LinkDest = {

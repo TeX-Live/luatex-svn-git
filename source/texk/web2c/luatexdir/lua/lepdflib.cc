@@ -1037,9 +1037,29 @@ static const struct luaL_Reg GooString_m[] = {
 //**********************************************************************
 // Link
 
+m_poppler_get_BOOL(Link, isOk);
+
+static int m_Link_inRect(lua_State * L)
+{
+    udstruct *uin;
+    double x, y;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Link);
+    if (uin->pd != NULL && uin->pd->pc != uin->pc)
+        pdfdoc_changed_error(L);
+    x = luaL_checknumber(L, 2);
+    y = luaL_checknumber(L, 3);
+    if (((Link *) uin->d)->inRect(x, y))
+        lua_pushboolean(L, 1);
+    else
+        lua_pushboolean(L, 0);
+    return 1;
+}
+
 m_poppler__tostring(Link);
 
 static const struct luaL_Reg Link_m[] = {
+    {"isOk", m_Link_isOk},
+    {"inRect", m_Link_inRect},
     {"__tostring", m_Link__tostring},
     {NULL, NULL}                // sentinel
 };
