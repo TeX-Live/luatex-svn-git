@@ -559,7 +559,7 @@ local fdata_epdf = {
       },
       is = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Check if Dict is of given /Type.",
         arguments = {
           {type = "Dict", name = "dict", optional = false, },
           {type = "string", name = "string", optional = false, },
@@ -1352,9 +1352,10 @@ local fdata_epdf = {
       },
       streamIs = {
         type = "function",
-        shortdesc = "TODO",
+        shortdesc = "Check if object contains a stream whose dictionary is of given /Type.",
         arguments = {
           {type = "Object", name = "object", optional = false, },
+          {type = "string", name = "string", optional = false, },
         },
         returnvalues = {
           {type = "boolean", name = "var", optional = false, },
