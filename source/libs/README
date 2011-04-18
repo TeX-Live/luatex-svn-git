@@ -1,4 +1,4 @@
-$Id: README 20965 2011-01-07 15:22:43Z peter $
+$Id: README 22071 2011-04-13 11:15:39Z peter $
 Public domain.  Originally created by Karl Berry, 2005.
 
 Libraries we compile for TeX Live.
@@ -11,7 +11,7 @@ See also comments in ../texk/README.
 
 freetype 1.5 - ?
 
-freetype2 2.4.3 - http://savannah.nongnu.org/download/freetype/
+freetype2 2.4.4 - http://savannah.nongnu.org/download/freetype/
 
 gd 2.0.35 - http://www.libgd.org/releases/
 
@@ -21,7 +21,7 @@ graphite 2.3.1 - the directory silgraphite-2.3.1/engine/ from
 icu 4.6 - http://download.icu-project.org/files/icu4c/
   with modifications required for xetex, also used by bibtexu
 
-libpng 1.4.4 - http://www.libpng.org/ - used by many
+libpng 1.5.2 - http://www.libpng.org/ - used by many
 
 obsdcompat - used by pdftex and luatex
 

@@ -1,6 +1,6 @@
 dnl Process this file with Autoconf to produce a configure script for Web2c.
 dnl
-dnl   Copyright (C) 2009, 2010 Peter Breitenlohner <tex-live@tug.org>
+dnl   Copyright (C) 2009 - 2011 Peter Breitenlohner <tex-live@tug.org>
 dnl
 dnl   This file is free software; the copyright holder
 dnl   gives unlimited permission to copy and/or distribute it,
@@ -37,6 +37,8 @@ dnl Common code for all programs using libkpathsea.
 KPSE_COMMON([web2c programs])
 KPSE_CANONICAL_HOST
 
+AM_CONDITIONAL([cross], [test "x$cross_compiling" = xyes])
+
 AC_PROG_CXX
 AC_PROG_OBJCXX
 KPSE_CXX_HACK
@@ -56,9 +58,12 @@ dnl For tests
 AC_CHECK_PROGS([KPSEWHICH], [kpsewhich], [false])
 
 KPSE_ASM_UNDERSCORE
+KPSE_CHECK_WIN32
 
 AS_CASE([$with_editor],
-        [''|yes|no], [with_editor='vi +%d %s'])
+        [''|yes|no], [AS_IF([test "x$kpse_cv_have_win32" = xno],
+                            [with_editor="vi +%d '%s'"],
+                            [with_editor='texworks --position=%d \"%s\"'])])
 AC_DEFINE_UNQUOTED([EDITOR], ["$with_editor"],
                    [web2c: Default editor for interactive `e' option.])
 
@@ -75,7 +80,6 @@ AS_CASE([$enable_ipc],
         [yes|no], [],
             [enable_ipc=yes])
 
-KPSE_CHECK_WIN32
 AM_CONDITIONAL([WIN32], [test "x$kpse_cv_have_win32" != xno])
 AM_CONDITIONAL([MINGW32], [test "x$kpse_cv_have_win32" = xmingw32])
 
@@ -272,21 +276,6 @@ AS_IF([test "x$kpse_cv_have_getPDFMajorVersion" = xyes],
 AC_LANG_POP([C++])
 KPSE_RESTORE_FLAGS
 
-# Checks for xpdf (libpoppler) features.
-KPSE_ADD_FLAGS([poppler])
-AC_LANG_PUSH([C++])
-AC_CACHE_CHECK([for PDFDoc::getPDFMajorVersion],
-               [kpse_cv_have_getPDFMajorVersion],
-               [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <PDFDoc.h>]],
-                                                   [[PDFDoc *pdfDoc; pdfDoc->getPDFMajorVersion();]])],
-                                  [kpse_cv_have_getPDFMajorVersion=yes],
-                                  [kpse_cv_have_getPDFMajorVersion=no])])
-AS_IF([test "x$kpse_cv_have_getPDFMajorVersion" = xyes],
-      [AC_DEFINE([HAVE_GETPDFMAJORVERSION], 1,
-                 [Define to 1 if class `PDFDoc' has the `getPDFMajorVersion' member.])])
-AC_LANG_POP([C++])
-KPSE_RESTORE_FLAGS
-
 dnl Write output here, instead of putting a zillion -D's on the command line.
 AC_CONFIG_HEADERS([w2c/c-auto.h:c-auto.in],
  [sed -e 's/^#define PACKAGE/#define WEB2C_PACKAGE/' \
@@ -321,8 +310,6 @@ AH_BOTTOM([#endif /* !WEB2C_C_AUTO_H */])
 
 dnl Additional config header for luaTeX
 AC_CONFIG_HEADERS([ff-config.h:luatexdir/luafontloader/ff-config.in])
-dnl This is also for luatex
-KPSE_CROSS_PATH_PROG([TXTTOZLIB],   [txt2zlib],  [./txt2zlib])
 
 # For cross-compilation.  Put at the end so there is a fair chance
 # these are still visible when the configure script has finished.
@@ -336,7 +323,6 @@ KPSE_CROSS_PATH_PROG([CTANGLE],     [ctangle],   [./ctangle])
 KPSE_CROSS_PATH_PROG([TIE],         [tie],       [./tie])
 dnl Required for Aleph and XeTeX
 KPSE_CROSS_PATH_PROG([OTANGLE],     [otangle],   [./otangle])
-
 
 if test "x$cross_compiling" = xyes; then
   AC_MSG_CHECKING([if your tie supports WEBINPUTS])

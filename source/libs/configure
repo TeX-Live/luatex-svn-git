@@ -1410,12 +1410,13 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-banner-add=STR   add STR to version string appended to banner lines
-  --with-editor=CMD       invoke CMD from the `e' option [vi +%d %s]
+  --with-editor=CMD       invoke CMD from the `e' option [vi +%d '%s'] or
+                          [texworks --position=%d "%s"]
   --without-mf-x-toolkit  do not use X toolkit for METAFONT
   --with-system-zziplib   use installed zziplib headers and library (requires
                           pkg-config)
-  --with-system-poppler   use installed poppler headers and library instead of
-                          poppler (requires pkg-config)
+  --with-system-poppler   use installed poppler headers and library (requires
+                          pkg-config)
   --with-system-libpng    use installed libpng headers and library (requires
                           pkg-config)
   --with-system-zlib      use installed zlib headers and library
@@ -3281,6 +3282,20 @@ $as_echo "$as_me: Assuming installed \`poppler' headers and library" >&6;}
   fi
   ac_configure_args="$ac_configure_args '--with-system-poppler=$with_system_poppler'"
 fi
+if test "x$with_system_poppler" = xyes; then
+  if test "x$with_system_zlib" = x; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}:   ->  installed \`zlib' headers and library" >&5
+$as_echo "$as_me:   ->  installed \`zlib' headers and library" >&6;}
+    with_system_zlib=yes
+    ac_configure_args="$ac_configure_args '--with-system-zlib'"
+  elif test "x$with_system_zlib" != xyes; then
+    as_fn_error $? "Sorry, \`--with-system-poppler' requires \`--with-system-zlib'" "$LINENO" 5
+  fi
+fi
+
+test "x$need_poppler" = xyes && {
+  need_zlib=yes
+}
 
 
 
