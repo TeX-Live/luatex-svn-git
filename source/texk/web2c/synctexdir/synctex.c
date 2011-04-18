@@ -395,7 +395,7 @@ static struct {
         unsigned int not_void:1;    /*  Whether it really contains synchronization material */
         unsigned int warn:1;        /*  One shot warning flag */
         unsigned int quoted:1;      /*  Whether the input file name was quoted by tex or not, for example "\"my input file.tex\"", unused by XeTeX */
-        unsigned int output_p:1;      /*  Whether the output_directory is used */
+        unsigned int output_p:1;    /*  Whether the output_directory is used */
         unsigned int reserved:SYNCTEX_BITS_PER_BYTE*sizeof(int)-7; /* Align */
     } flags;
 } synctex_ctxt = {
@@ -666,7 +666,8 @@ void synctexstartinput(void)
          *  This is necessary because \jobname can be different */
         synctex_ctxt.root_name = SYNCTEX_GET_CURRENT_NAME();
         if (!strlen(synctex_ctxt.root_name)) {
-            synctex_ctxt.root_name = "texput";
+            synctex_ctxt.root_name = xrealloc(synctex_ctxt.root_name, strlen("texput") + 1);
+            strcpy(synctex_ctxt.root_name, "texput");
         }
 #   if SYNCTEX_DEBUG
         printf("\nwarning: Synchronize DEBUG: synctexstartinput first END\n");
