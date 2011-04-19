@@ -225,12 +225,14 @@ static void write_pages(PDF pdf, pages_entry * p, int parent)
             pdf_print_toks_ln(pdf, pdf_pages_attr);
         print_pdf_table_string(pdf, "pagesattributes");
     } else
-        pdf_printf(pdf, "/Parent %d 0 R\n", parent);
-    pdf_printf(pdf, "/Count %d\n/Kids [", (int) p->number_of_pages);
+        pdf_dict_add_ref(pdf, "Parent", parent);
+    pdf_dict_add_int(pdf, "Count", (int) p->number_of_pages);
+    pdf_printf(pdf, "/Kids ");
+    pdf_begin_array(pdf);
     for (i = 0; i < p->number_of_kids; i++)
         pdf_printf(pdf, "%d 0 R ", (int) p->kids[i]);
     pdf_remove_last_space(pdf);
-    pdf_printf(pdf, "]\n");
+    pdf_end_array(pdf);
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
 }

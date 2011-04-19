@@ -146,14 +146,12 @@ void write_out_pdf_mark_destinations(PDF pdf)
             } else {
                 int i;
                 i = obj_dest_ptr(pdf, k->info);
+                pdf_begin_obj(pdf, k->info, OBJSTM_ALWAYS);
                 if (pdf_dest_named_id(i) > 0) {
-                    pdf_begin_obj(pdf, k->info, OBJSTM_ALWAYS);
                     pdf_begin_dict(pdf);
                     pdf_printf(pdf, "/D ");
-                } else {
-                    pdf_begin_obj(pdf, k->info, OBJSTM_ALWAYS);
                 }
-                pdf_out(pdf, '[');
+                pdf_begin_array(pdf);
                 pdf_print_int(pdf, pdf->last_page);
                 pdf_printf(pdf, " 0 R ");
                 switch (pdf_dest_type(i)) {
@@ -201,12 +199,10 @@ void write_out_pdf_mark_destinations(PDF pdf)
                     pdf_error("ext5", "unknown dest type");
                     break;
                 }
-                pdf_printf(pdf, "]\n");
-                if (pdf_dest_named_id(i) > 0) {
+                pdf_end_array(pdf);
+                if (pdf_dest_named_id(i) > 0)
                     pdf_end_dict(pdf);
-                    pdf_end_obj(pdf);
-                } else
-                    pdf_end_obj(pdf);
+                pdf_end_obj(pdf);
             }
             k = k->link;
         }
