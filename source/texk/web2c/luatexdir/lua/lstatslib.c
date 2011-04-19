@@ -1,6 +1,6 @@
 /* lstatslib.c
-   
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+
+   Copyright 2006-2011 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -95,14 +95,14 @@ static lua_Number get_pdf_ptr(void)
 static lua_Number get_pdf_os_cntr(void)
 {
     if (static_pdf != NULL)
-        return (lua_Number) static_pdf->os_cntr;
+        return (lua_Number) static_pdf->os->cntr;
     return (lua_Number) 0;
 }
 
 static lua_Number get_pdf_os_objidx(void)
 {
     if (static_pdf != NULL)
-        return (lua_Number) static_pdf->os_idx;
+        return (lua_Number) static_pdf->os->idx;
     return (lua_Number) 0;
 }
 
@@ -174,12 +174,12 @@ static struct statistic stats[] = {
     {"luatex_revision", 'S', (void *) &luatexrevision},
     {"ini_version", 'b', &ini_version},
     /*
-     * mem stat 
+     * mem stat
      */
     {"var_used", 'g', &var_used},
     {"dyn_used", 'g', &dyn_used},
-    /* 
-     * traditional tex stats 
+    /*
+     * traditional tex stats
      */
     {"str_ptr", 'g', &str_ptr},
     {"init_str_ptr", 'g', &init_str_ptr},

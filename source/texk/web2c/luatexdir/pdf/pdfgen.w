@@ -59,6 +59,7 @@ shipping_mode_e global_shipping_mode = NOT_SHIPPING;       /* set to |shipping_m
 @c
 PDF init_pdf_struct(PDF pdf)
 {
+    os_struct *os;
     assert(pdf == NULL);
     pdf = xtalloc(1, pdf_output_file);
     memset(pdf, 0, sizeof(pdf_output_file));
@@ -66,9 +67,13 @@ PDF init_pdf_struct(PDF pdf)
     pdf->o_mode = OMODE_NONE;   /* will be set by |fix_o_mode()| */
     pdf->o_state = ST_INITIAL;
 
-    pdf->os_obj = xtalloc(pdf_os_max_objs, os_obj_data);
-    pdf->os_buf_size = inf_pdf_os_buf_size;
-    pdf->os_buf = xtalloc(pdf->os_buf_size, unsigned char);
+    /* init object stream writing */
+    pdf->os = os = xtalloc(1, os_struct);
+    os->obj = xtalloc(pdf_os_max_objs, os_obj_data);
+    os->buf_size = inf_pdf_os_buf_size;
+    os->buf = xtalloc(os->buf_size, unsigned char);
+    os->cur_objnum = 0;
+
     pdf->op_buf_size = inf_pdf_op_buf_size;
     pdf->op_buf = xtalloc(pdf->op_buf_size, unsigned char);
 
@@ -315,7 +320,7 @@ void pdf_flush(PDF pdf)
 {                               /* flush out the |pdf_buf| */
 
     off_t saved_pdf_gone;
-    if (!pdf->os_mode) {
+    if (!pdf->os->mode) {
         saved_pdf_gone = pdf->gone;
         switch (pdf->zip_write_state) {
         case no_zip:
@@ -344,51 +349,52 @@ void pdf_flush(PDF pdf)
     }
 }
 
-@ switch between PDF stream and object stream mode 
+@ switch between PDF stream and object stream mode
 
 @c
 static void pdf_os_switch(PDF pdf, boolean pdf_os)
 {
+    os_struct *os = pdf->os;
     if (pdf_os && pdf->os_enable) {
-        if (!pdf->os_mode) {    /* back up PDF stream variables */
+        if (!os->mode) {        /* back up PDF stream variables */
             pdf->op_ptr = pdf->ptr;
-            pdf->ptr = pdf->os_ptr;
-            pdf->buf = pdf->os_buf;
-            pdf->buf_size = pdf->os_buf_size;
-            pdf->os_mode = true;        /* switch to object stream */
+            pdf->ptr = os->ptr;
+            pdf->buf = os->buf;
+            pdf->buf_size = os->buf_size;
+            os->mode = true;    /* switch to object stream */
         }
     } else {
-        if (pdf->os_mode) {     /* back up object stream variables */
-            pdf->os_ptr = pdf->ptr;
+        if (os->mode) {         /* back up object stream variables */
+            os->ptr = pdf->ptr;
             pdf->ptr = pdf->op_ptr;
             pdf->buf = pdf->op_buf;
             pdf->buf_size = pdf->op_buf_size;
-            pdf->os_mode = false;       /* switch to PDF stream */
+            os->mode = false;   /* switch to PDF stream */
         }
     }
 }
 
-@ create new \.{/ObjStm} object if required, and set up cross reference info 
+@ create new \.{/ObjStm} object if required, and set up cross reference info
 
 @c
 static void pdf_os_prepare_obj(PDF pdf, int i, int pdf_os_level)
 {
+    os_struct *os = pdf->os;
     pdf_os_switch(pdf, ((pdf_os_level > 0)
                         && (pdf->objcompresslevel >= pdf_os_level)));
-    if (pdf->os_mode) {
-        if (pdf->os_cur_objnum == 0) {
-            pdf->os_cur_objnum =
+    if (os->mode) {
+        if (os->cur_objnum == 0) {
+            os->cur_objnum =
                 pdf_create_obj(pdf, obj_type_objstm, pdf->obj_ptr + 1);
-            pdf->os_cntr++;     /* only for statistics */
-            pdf->os_idx = 0;
+            os->idx = 0;
             pdf->ptr = 0;       /* start fresh object stream */
-        } else {
-            pdf->os_idx++;
-        }
-        obj_os_idx(pdf, i) = pdf->os_idx;
-        obj_offset(pdf, i) = pdf->os_cur_objnum;
-        pdf->os_obj[pdf->os_idx].num = i;
-        pdf->os_obj[pdf->os_idx].off = pdf->ptr;
+            os->cntr++;         /* only for statistics */
+        } else
+            os->idx++;
+        obj_os_idx(pdf, i) = os->idx;
+        obj_offset(pdf, i) = os->cur_objnum;
+        os->obj[os->idx].num = i;
+        os->obj[os->idx].off = pdf->ptr;
     } else {
         obj_offset(pdf, i) = pdf_offset(pdf);
         obj_os_idx(pdf, i) = -1;        /* mark it as not included in object stream */
@@ -397,46 +403,45 @@ static void pdf_os_prepare_obj(PDF pdf, int i, int pdf_os_level)
 
 @* low-level buffer checkers.
 
-@ check that |s| bytes more fit into |pdf_os_buf|; increase it if required 
+@ check that |s| bytes more fit into |pdf_os_buf|; increase it if required
 @c
 static void pdf_os_get_os_buf(PDF pdf, int s)
 {
     int a;
+    os_struct *os = pdf->os;
     if (s > sup_pdf_os_buf_size - pdf->ptr)
-        overflow("PDF object stream buffer", (unsigned) pdf->os_buf_size);
-    if (pdf->ptr + s > pdf->os_buf_size) {
-        a = pdf->os_buf_size / 5;
-        if (pdf->ptr + s > pdf->os_buf_size + a)
-            pdf->os_buf_size = pdf->ptr + s;
-        else if (pdf->os_buf_size < sup_pdf_os_buf_size - a)
-            pdf->os_buf_size = pdf->os_buf_size + a;
+        overflow("PDF object stream buffer", (unsigned) os->buf_size);
+    if (pdf->ptr + s > os->buf_size) {
+        a = os->buf_size / 5;
+        if (pdf->ptr + s > os->buf_size + a)
+            os->buf_size = pdf->ptr + s;
+        else if (os->buf_size < sup_pdf_os_buf_size - a)
+            os->buf_size = os->buf_size + a;
         else
-            pdf->os_buf_size = sup_pdf_os_buf_size;
-        pdf->os_buf =
-            xreallocarray(pdf->os_buf, unsigned char,
-                          (unsigned) pdf->os_buf_size);
-        pdf->buf = pdf->os_buf;
-        pdf->buf_size = pdf->os_buf_size;
+            os->buf_size = sup_pdf_os_buf_size;
+        os->buf =
+            xreallocarray(os->buf, unsigned char, (unsigned) os->buf_size);
+        pdf->buf = os->buf;
+        pdf->buf_size = os->buf_size;
     }
 }
 
-@ make sure that there are at least |n| bytes free in PDF buffer 
+@ make sure that there are at least |n| bytes free in PDF buffer
 @c
 void pdf_room(PDF pdf, int n)
 {
-    if (pdf->os_mode && (n + pdf->ptr > pdf->buf_size))
+    if (pdf->os->mode && (n + pdf->ptr > pdf->buf_size))
         pdf_os_get_os_buf(pdf, n);
-    else if ((!pdf->os_mode) && (n > pdf->buf_size))
+    else if ((!pdf->os->mode) && (n > pdf->buf_size))
         overflow("PDF output buffer", (unsigned) pdf->op_buf_size);
-    else if ((!pdf->os_mode) && (n + pdf->ptr > pdf->buf_size))
+    else if ((!pdf->os->mode) && (n + pdf->ptr > pdf->buf_size))
         pdf_flush(pdf);
 }
-
 
 @ print out a character to PDF buffer; the character will be printed in octal
  form in the following cases: chars <= 32, backslash (92), left parenthesis
  (40) and  right parenthesis (41)
- 
+
 @c
 #define pdf_print_escaped(c)                                  \
   if ((c)<=32||(c)=='\\'||(c)=='('||(c)==')'||(c)>127) {      \
@@ -566,7 +571,7 @@ void pdf_print_real(PDF pdf, int m, int d)
     }
 }
 
-@ print out |s| as string in PDF output 
+@ print out |s| as string in PDF output
 @c
 void pdf_print_str(PDF pdf, const char *s)
 {
@@ -599,11 +604,11 @@ void pdf_print_str(PDF pdf, const char *s)
     pdf_puts(pdf, orig);        /* it was a hex string after all  */
 }
 
-@ begin a stream (needs to have a stream dictionary also) 
+@ begin a stream (needs to have a stream dictionary also)
 @c
 void pdf_begin_stream(PDF pdf)
 {
-    assert(pdf->os_mode == false);
+    assert(pdf->os->mode == false);
     assert(pdf->seek_write_length == true);
     pdf->stream_length = 0;
     pdf->last_byte = 0;
@@ -629,7 +634,7 @@ static void write_stream_length(PDF pdf, int length, longinteger offset)
     }
 }
 
-@ end a stream 
+@ end a stream
 @c
 void pdf_end_stream(PDF pdf)
 {
@@ -873,7 +878,7 @@ static void destroy_page_resources_tree(PDF pdf)
 
 @* Subroutines to print out various PDF objects.
 
-@ print out an integer |n| with fixed width |w|; used for outputting cross-reference table 
+@ print out an integer |n| with fixed width |w|; used for outputting cross-reference table
 @c
 static void pdf_print_fw_int(PDF pdf, longinteger n, size_t w)
 {
@@ -888,7 +893,7 @@ static void pdf_print_fw_int(PDF pdf, longinteger n, size_t w)
     pdf_out_block(pdf, (const char *) digits, w);
 }
 
-@ print out an integer |n| as a fixed number |w| of bytes; used for outputting \.{/XRef} cross-reference stream 
+@ print out an integer |n| as a fixed number |w| of bytes; used for outputting \.{/XRef} cross-reference stream
 @c
 static void pdf_out_bytes(PDF pdf, longinteger n, size_t w)
 {
@@ -903,7 +908,7 @@ static void pdf_out_bytes(PDF pdf, longinteger n, size_t w)
     pdf_out_block(pdf, (const char *) bytes, w);
 }
 
-@ print out an entry in dictionary with integer value to PDF buffer 
+@ print out an entry in dictionary with integer value to PDF buffer
 @c
 void pdf_int_entry(PDF pdf, const char *s, int v)
 {
@@ -925,7 +930,7 @@ void pdf_indirect(PDF pdf, const char *s, int o)
     pdf_printf(pdf, "/%s %d 0 R", s, (int) o);
 }
 
-@ print out |s| as string in PDF output 
+@ print out |s| as string in PDF output
 @c
 void pdf_print_str_ln(PDF pdf, const char *s)
 {
@@ -933,7 +938,7 @@ void pdf_print_str_ln(PDF pdf, const char *s)
     pdf_print_nl(pdf);
 }
 
-@ print out an entry in dictionary with string value to PDF buffer 
+@ print out an entry in dictionary with string value to PDF buffer
 @c
 void pdf_str_entry(PDF pdf, const char *s, const char *v)
 {
@@ -972,7 +977,7 @@ void pdf_print_toks_ln(PDF pdf, halfword p)
     xfree(s);
 }
 
-@ prints a rect spec 
+@ prints a rect spec
 @c
 void pdf_print_rect_spec(PDF pdf, halfword r)
 {
@@ -985,7 +990,7 @@ void pdf_print_rect_spec(PDF pdf, halfword r)
     pdf_print_mag_bp(pdf, pdf_ann_top(r));
 }
 
-@ output a rectangle specification to PDF file 
+@ output a rectangle specification to PDF file
 @c
 void pdf_rectangle(PDF pdf, halfword r)
 {
@@ -1044,7 +1049,7 @@ static void init_pdf_outputparameters(PDF pdf)
         pdf->resname_prefix = get_resname_prefix(pdf);
 }
 
-@ Checks that we have a name for the generated PDF file and that it's open. 
+@ Checks that we have a name for the generated PDF file and that it's open.
 
 @c
 static void ensure_output_file_open(PDF pdf, const char *ext)
@@ -1142,14 +1147,14 @@ When calling this procedure, |pdf_os_mode| must be |true|.
 static void pdf_os_write_objstream(PDF pdf)
 {
     halfword i, j, p, q;
-    if (pdf->os_cur_objnum == 0)        /* no object stream started */
+    os_struct *os = pdf->os;
+    if (os->cur_objnum == 0)    /* no object stream started */
         return;
     p = pdf->ptr;
     i = 0;
     j = 0;
-    while (i <= pdf->os_idx) {  /* assemble object number and byte offset pairs */
-        pdf_printf(pdf, "%d %d", (int) pdf->os_obj[i].num,
-                   (int) pdf->os_obj[i].off);
+    while (i <= os->idx) {      /* assemble object number and byte offset pairs */
+        pdf_printf(pdf, "%d %d", (int) os->obj[i].num, (int) os->obj[i].off);
         if (j == 9) {           /* print out in groups of ten for better readability */
             pdf_out(pdf, '\n');
             j = 0;
@@ -1161,17 +1166,17 @@ static void pdf_os_write_objstream(PDF pdf)
     }
     pdf->buf[pdf->ptr - 1] = '\n';      /* no risk of flush, as we are in |pdf_os_mode| */
     q = pdf->ptr;
-    pdf_begin_obj(pdf, pdf->os_cur_objnum, 0);  /* switch to PDF stream writing */
+    pdf_begin_obj(pdf, os->cur_objnum, 0);      /* switch to PDF stream writing */
     pdf_begin_dict(pdf);
     pdf_dict_add_name(pdf, "Type", "ObjStm");
-    pdf_dict_add_int(pdf, "N", (int) (pdf->os_idx + 1));
+    pdf_dict_add_int(pdf, "N", (int) (os->idx + 1));
     pdf_dict_add_int(pdf, "First", (int) (q - p));
     pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
     /* write object number and byte offset pairs;
        |q - p| should always fit into the PDF output buffer */
-    pdf_out_block(pdf, (const char *) (pdf->os_buf + p), (size_t) (q - p));
+    pdf_out_block(pdf, (const char *) (os->buf + p), (size_t) (q - p));
     i = 0;
     while (i < p) {
         q = i + pdf->buf_size;
@@ -1179,13 +1184,13 @@ static void pdf_os_write_objstream(PDF pdf)
             q = p;
         pdf_room(pdf, q - i);
         while (i < q) {         /* write the buffered objects */
-            pdf_quick_out(pdf, pdf->os_buf[i]);
+            pdf_quick_out(pdf, os->buf[i]);
             i++;
         }
     }
     pdf_end_stream(pdf);
     pdf_end_obj(pdf);
-    pdf->os_cur_objnum = 0;     /* to force object stream generation next time */
+    os->cur_objnum = 0;         /* to force object stream generation next time */
 }
 
 @ begin a PDF dictionary
@@ -1246,7 +1251,7 @@ remember file position for seek
 @c
 void pdf_dict_add_streaminfo(PDF pdf)
 {
-    assert(pdf->os_mode == false);
+    assert(pdf->os->mode == false);
     pdf_puts(pdf, "/Length           \n");
     pdf->seek_write_length = true;      /* fill in length at |pdf_end_stream| call */
     pdf->stream_length_offset = pdf_offset(pdf) - 11;
@@ -1270,13 +1275,13 @@ void pdf_end_array(PDF pdf)
     pdf->cave = 0;
 }
 
-@ begin a PDF object 
+@ begin a PDF object
 @c
 void pdf_begin_obj(PDF pdf, int i, int pdf_os_level)
 {
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
     pdf_os_prepare_obj(pdf, i, pdf_os_level);
-    if (!pdf->os_mode) {
+    if (!pdf->os->mode) {
         pdf_printf(pdf, "%d 0 obj\n", (int) i);
     } else if (pdf->compress_level == 0) {
         pdf_printf(pdf, "%% %d 0 obj\n", (int) i);      /* debugging help */
@@ -1293,12 +1298,12 @@ int pdf_new_obj(PDF pdf, int t, int i, int pdf_os_level)
     return k;
 }
 
-@ end a PDF object 
+@ end a PDF object
 @c
 void pdf_end_obj(PDF pdf)
 {
-    if (pdf->os_mode) {
-        if (pdf->os_idx == pdf_os_max_objs - 1)
+    if (pdf->os->mode) {
+        if (pdf->os->idx == pdf_os_max_objs - 1)
             pdf_os_write_objstream(pdf);
     } else {
         if (pdf->last_byte != '\n')
@@ -1312,7 +1317,7 @@ void pdf_end_obj(PDF pdf)
  control characters are octal encoded.
  This assumes that the string does not contain any already escaped
  characters!
- 
+
 @c
 char *convertStringToPDFString(const char *in, int len)
 {
@@ -1352,7 +1357,7 @@ char *convertStringToPDFString(const char *in, int len)
 @ Converts any string given in in in an allowed PDF string which is
  hexadecimal encoded;
  |sizeof(out)| should be at least $|lin|*2+1$.
- 
+
 @c
 static void convertStringToHexString(const char *in, char *out, int lin)
 {
@@ -1676,7 +1681,7 @@ void pdf_warning(const char *t, const char *p, boolean prepend_nl,
         history = warning_issued;
 }
 
-@ Use |check_o_mode()| in the backend-specific "Implement..." chunks 
+@ Use |check_o_mode()| in the backend-specific "Implement..." chunks
 
 @c
 void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
@@ -2132,7 +2137,7 @@ void pdf_end_page(PDF pdf)
     pdf_end_obj(pdf);
 }
 
-@* Finishing the PDF output file. 
+@* Finishing the PDF output file.
 
 @ Destinations that have been referenced but don't exists have
 |obj_dest_ptr=null|. Leaving them undefined might cause troubles for
@@ -2547,12 +2552,12 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                     "\nPDF statistics: %d PDF objects out of %d (max. %d)\n",
                     (int) pdf->obj_ptr, (int) pdf->obj_tab_size,
                     (int) sup_obj_tab_size);
-            if (pdf->os_cntr > 0) {
+            if (pdf->os->cntr > 0) {
                 fprintf(log_file,
                         " %d compressed objects within %d object stream%s\n",
-                        (int) ((pdf->os_cntr - 1) * pdf_os_max_objs +
-                               pdf->os_idx + 1), (int) pdf->os_cntr,
-                        (pdf->os_cntr > 1 ? "s" : ""));
+                        (int) ((pdf->os->cntr - 1) * pdf_os_max_objs +
+                               pdf->os->idx + 1), (int) pdf->os->cntr,
+                        (pdf->os->cntr > 1 ? "s" : ""));
             }
             fprintf(log_file, " %d named destinations out of %d (max. %d)\n",
                     (int) pdf->dest_names_ptr, (int) pdf->dest_names_size,

@@ -1,6 +1,6 @@
 /* pdftypes.h
 
-   Copyright 2009-2010 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2011 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -34,11 +34,6 @@ lua. Together, this means that it is best only to use the standard C types and
 the types explicitly defined in this header, and stay away from types like
 |integer| and |eight_bits| that are used elsewhere in the \LUATEX\ sources.
 */
-
-typedef struct os_obj_data_ {
-    int num;
-    int off;
-} os_obj_data;
 
 typedef struct {
     long m;                     /* mantissa (significand) */
@@ -176,6 +171,26 @@ typedef struct pdf_resource_struct_ {
     int last_resources;         /* halfword to most recently generated Resources object. */
 } pdf_resource_struct;
 
+/**********************************************************************/
+
+typedef struct os_obj_data_ {
+    int num;
+    int off;
+} os_obj_data;
+
+typedef struct os_struct_ {
+    os_obj_data *obj;           /* array of object stream objects */
+    unsigned char *buf;         /* the PDF object stream buffer */
+    int buf_size;               /* current size of the PDF object stream buffer, grows dynamically */
+    int ptr;                    /* store for object stream |pdf_ptr| while outside object streams */
+    int idx;                    /* pointer into |pdf_os_objnum| and |pdf_os_objoff| */
+    int cntr;                   /* counter for object stream objects */
+    int cur_objnum;             /* number of current object stream object */
+    int mode;                   /* true if producing object stream */
+} os_struct;
+
+/**********************************************************************/
+
 typedef struct pdf_output_file_ {
     FILE *file;                 /* the PDF output file handle */
     char *file_name;            /* the PDF output file name */
@@ -201,16 +216,9 @@ typedef struct pdf_output_file_ {
     unsigned char *op_buf;      /* the PDF output buffer */
     int op_buf_size;            /* output buffer size (static) */
     int op_ptr;                 /* store for PDF buffer |pdf_ptr| while inside object streams */
-    unsigned char *os_buf;      /* the PDF object stream buffer */
-    int os_buf_size;            /* current size of the PDF object stream buffer, grows dynamically */
-    int os_ptr;                 /* store for object stream |pdf_ptr| while outside object streams */
 
-    os_obj_data *os_obj;        /* array of object stream objects */
-    int os_idx;                 /* pointer into |pdf_os_objnum| and |pdf_os_objoff| */
-    int os_cntr;                /* counter for object stream objects */
-    int os_mode;                /* true if producing object stream */
     int os_enable;              /* true if object streams are globally enabled */
-    int os_cur_objnum;          /* number of current object stream object */
+    os_struct *os;              /* object stream structure pointer */
 
     unsigned char *buf;         /* pointer to the PDF output buffer or PDF object stream buffer */
     int buf_size;               /* end of PDF output buffer or PDF object stream buffer */
