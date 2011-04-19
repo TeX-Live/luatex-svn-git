@@ -95,6 +95,11 @@ extern "C" {
     extern void pdf_room(PDF, int);
     extern void pdf_out_block(PDF pdf, const char *s, size_t n);
 
+    extern void pdf_dict_add_int(PDF, const char *key, int i);
+    extern void pdf_dict_add_ref(PDF, const char *key, int num);
+    extern void pdf_dict_add_name(PDF, const char *key, const char *val);
+    extern void pdf_dict_add_streaminfo(PDF);
+
 #  define pdf_out(B, A) do { pdf_room(B, 1); B->buf[B->ptr++] = A; } while (0)
 #  define pdf_puts(pdf, s) pdf_out_block((pdf), (s), strlen(s))
 

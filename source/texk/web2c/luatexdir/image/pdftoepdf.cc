@@ -674,10 +674,11 @@ void write_epdf(PDF pdf, image_dict * idict)
     // write the Page header
     pdf_begin_obj(pdf, img_objnum(idict), OBJSTM_NEVER);
     pdf_begin_dict(pdf);
-    pdf_puts(pdf, "/Type /XObject\n/Subtype /Form\n");
+    pdf_dict_add_name(pdf, "Type", "XObject");
+    pdf_dict_add_name(pdf, "Subtype", "Form");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
         pdf_printf(pdf, "%s\n", img_attr(idict));
-    pdf_puts(pdf, "/FormType 1\n");
+    pdf_dict_add_int(pdf, "FormType", 1);
 
     // write additional information
     pdf_printf(pdf, "/%s.FileName (%s)\n", pdfkeyprefix,

@@ -315,14 +315,15 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
     bitdepth = png_get_bit_depth (png_p, info_p);
     pdf_begin_obj(pdf, smask_objnum, OBJSTM_NEVER);
     pdf_begin_dict(pdf);
-    pdf_puts(pdf, "/Type /XObject\n/Subtype /Image\n");
+    pdf_dict_add_name(pdf, "Type", "XObject");
+    pdf_dict_add_name(pdf, "Subtype", "Image");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
         pdf_printf(pdf, "%s\n", img_attr(idict));
     pdf_printf(pdf, "/Width %i\n/Height %i\n/BitsPerComponent %i\n",
                (int) png_get_image_width (png_p, info_p),
                (int) png_get_image_height (png_p, info_p),
                (bitdepth == 16 ? 8 : bitdepth));
-    pdf_puts(pdf, "/ColorSpace /DeviceGray\n");
+    pdf_dict_add_name(pdf, "ColorSpace", "DeviceGray");
     pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
@@ -427,14 +428,15 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
         bitdepth = png_get_bit_depth (png_p, info_p);
         pdf_begin_obj(pdf, smask_objnum, OBJSTM_NEVER);
         pdf_begin_dict(pdf);
-        pdf_puts(pdf, "/Type /XObject\n/Subtype /Image\n");
+        pdf_dict_add_name(pdf, "Type", "XObject");
+        pdf_dict_add_name(pdf, "Subtype", "Image");
         if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
             pdf_printf(pdf, "%s\n", img_attr(idict));
         pdf_printf(pdf, "/Width %i\n/Height %i\n/BitsPerComponent %i\n",
                    (int) png_get_image_width (png_p, info_p),
                    (int) png_get_image_height (png_p, info_p),
                    (bitdepth == 16 ? 8 : bitdepth));
-        pdf_puts(pdf, "/ColorSpace /DeviceGray\n");
+        pdf_dict_add_name(pdf, "ColorSpace", "DeviceGray");
         pdf_dict_add_streaminfo(pdf);
         pdf_end_dict(pdf);
         pdf_begin_stream(pdf);
@@ -583,7 +585,8 @@ void write_png(PDF pdf, image_dict * idict)
         pdf->image_hicolor = 0;
     pdf_begin_obj(pdf, img_objnum(idict), OBJSTM_NEVER);
     pdf_begin_dict(pdf);
-    pdf_puts(pdf, "/Type /XObject\n/Subtype /Image\n");
+    pdf_dict_add_name(pdf, "Type", "XObject");
+    pdf_dict_add_name(pdf, "Subtype", "Image");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
         pdf_printf(pdf, "%s\n", img_attr(idict));
     pdf_printf(pdf, "/Width %i\n/Height %i\n/BitsPerComponent %i\n",

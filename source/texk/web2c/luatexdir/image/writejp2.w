@@ -269,7 +269,8 @@ void write_jp2(PDF pdf, image_dict * idict)
     assert(img_jp2_ptr(idict) != NULL);
     pdf_begin_obj(pdf, img_objnum(idict), OBJSTM_NEVER);
     pdf_begin_dict(pdf);
-    pdf_puts(pdf, "/Type /XObject\n/Subtype /Image\n");
+    pdf_dict_add_name(pdf, "Type", "XObject");
+    pdf_dict_add_name(pdf, "Subtype", "Image");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
         pdf_printf(pdf, "%s\n", img_attr(idict));
     pdf_printf(pdf, "/Width %i\n/Height %i\n/Length %i\n",

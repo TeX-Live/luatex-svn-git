@@ -219,7 +219,7 @@ static void write_pages(PDF pdf, pages_entry * p, int parent)
     assert(p != NULL);
     pdf_begin_obj(pdf, p->objnum, OBJSTM_ALWAYS);
     pdf_begin_dict(pdf);
-    pdf_printf(pdf, "/Type /Pages\n");
+    pdf_dict_add_name(pdf, "Type", "Pages");
     if (parent == 0) {          /* it's root */
         if (pdf_pages_attr != null)
             pdf_print_toks_ln(pdf, pdf_pages_attr);

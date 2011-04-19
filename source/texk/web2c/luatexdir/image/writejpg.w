@@ -257,13 +257,14 @@ void write_jpg(PDF pdf, image_dict * idict)
     assert(img_jpg_ptr(idict) != NULL);
     pdf_begin_obj(pdf, img_objnum(idict), OBJSTM_NEVER);
     pdf_begin_dict(pdf);
-    pdf_puts(pdf, "/Type /XObject\n/Subtype /Image\n");
+    pdf_dict_add_name(pdf, "Type", "XObject");
+    pdf_dict_add_name(pdf, "Subtype", "Image");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
         pdf_printf(pdf, "%s\n", img_attr(idict));
-    pdf_printf(pdf, "/Width %i\n/Height %i\n/BitsPerComponent %i\n/Length %i\n",
-               (int) img_xsize(idict),
-               (int) img_ysize(idict),
-               (int) img_colordepth(idict), (int) img_jpg_ptr(idict)->length);
+    pdf_dict_add_int(pdf, "Width", (int) img_xsize(idict));
+    pdf_dict_add_int(pdf, "Height", (int) img_ysize(idict));
+    pdf_dict_add_int(pdf, "BitsPerComponent", (int) img_colordepth(idict));
+    pdf_dict_add_int(pdf, "Length", (int) img_jpg_ptr(idict)->length);
     pdf_puts(pdf, "/ColorSpace ");
     if (img_colorspace(idict) != 0) {
         pdf_printf(pdf, "%i 0 R\n", (int) img_colorspace(idict));
@@ -283,7 +284,7 @@ void write_jpg(PDF pdf, image_dict * idict)
                         (int) img_jpg_color(idict));
         }
     }
-    pdf_puts(pdf, "/Filter /DCTDecode");
+    pdf_dict_add_name(pdf, "Filter", "DCTDecode");
     pdf_end_dict(pdf);
     pdf_puts(pdf, "\nstream\n");
     for (l = img_jpg_ptr(idict)->length, f = img_file(idict); l > 0; l--)

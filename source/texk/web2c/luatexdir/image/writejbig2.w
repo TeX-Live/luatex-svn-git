@@ -723,13 +723,14 @@ static void wr_jbig2(PDF pdf, FILEINFO * fip, unsigned long page)
     if (page > 0) {
         pip = find_pageinfo(&(fip->pages), page);
         assert(pip != NULL);
-        pdf_puts(pdf, "/Type /XObject\n/Subtype /Image\n");
-        pdf_printf(pdf, "/Width %i\n", pip->width);
-        pdf_printf(pdf, "/Height %i\n", pip->height);
-        pdf_puts(pdf, "/ColorSpace /DeviceGray\n");
-        pdf_puts(pdf, "/BitsPerComponent 1\n");
-        pdf_printf(pdf, "/Length %lu\n",
-                   getstreamlen(pip->segments.first, true));
+        pdf_dict_add_name(pdf, "Type", "XObject");
+        pdf_dict_add_name(pdf, "Subtype", "Image");
+        pdf_dict_add_int(pdf, "Width", pip->width);
+        pdf_dict_add_int(pdf, "Height", pip->height);
+        pdf_dict_add_name(pdf, "ColorSpace", "DeviceGray");
+        pdf_dict_add_int(pdf, "BitsPerComponent", 1);
+        pdf_dict_add_int(pdf, "Length",
+                         getstreamlen(pip->segments.first, true));
         pdf_puts(pdf, "/Filter [/JBIG2Decode]\n");
         if (fip->page0.last != NULL) {
             if (fip->pdfpage0objnum == 0) {
