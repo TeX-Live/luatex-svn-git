@@ -742,7 +742,7 @@ static void wr_jbig2(PDF pdf, FILEINFO * fip, unsigned long page)
     } else {
         pip = find_pageinfo(&(fip->page0), page);
         assert(pip != NULL);
-        pdf_begin_obj(pdf, (int) fip->pdfpage0objnum, 0);
+        pdf_begin_obj(pdf, (int) fip->pdfpage0objnum, OBJSTM_NEVER);
         pdf_begin_dict(pdf);
         pdf_printf(pdf, "/Length %lu\n",
                    getstreamlen(pip->segments.first, false));
@@ -824,7 +824,7 @@ void write_jbig2(PDF pdf, image_dict * idict)
     assert(fip->phase == HAVEINFO);     /* don't write before |rd_jbig2_info()| call */
     pip = find_pageinfo(&(fip->pages), (unsigned long) img_pagenum(idict));
     assert(pip != NULL);
-    pdf_begin_obj(pdf, img_objnum(idict), 0);
+    pdf_begin_obj(pdf, img_objnum(idict), OBJSTM_NEVER);
     pdf_begin_dict(pdf);
     wr_jbig2(pdf, fip, pip->pagenum);
     img_file(idict) = NULL;

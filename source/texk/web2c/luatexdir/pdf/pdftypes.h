@@ -25,6 +25,12 @@
 #  include <zlib.h>
 #  include "lua/luatex-api.h"
 
+#  define MAX_OBJ_COMPRESS_LEVEL 3      /* maximum/clipping value for \pdfobjcompresslevel */
+#  define OBJSTM_UNSET -1       /* initial value */
+#  define OBJSTM_ALWAYS 1       /* \pdfobjcompresslevel >= OBJSTM_ALWAYS: put object into object stream */
+#  define OBJSTM_NEVER (MAX_OBJ_COMPRESS_LEVEL + 1)
+                                        /* above maximum/clipping value for \pdfobjcompresslevel */
+
 /* This stucture holds everything that is needed for the actual pdf generation.
 
 Because this structure interfaces with C++, it is not wise to use |boolean|

@@ -89,14 +89,14 @@ fe_entry *get_fe_entry(char *s)
 
 @ @c
 static void write_enc(PDF pdf, char **glyph_names, struct avl_table *tx_tree,
-               int fe_objnum)
+                      int fe_objnum)
 {
     int i_old, *p;
     struct avl_traverser t;
     assert(glyph_names != NULL);
     assert(tx_tree != NULL);
     assert(fe_objnum != 0);
-    pdf_begin_obj(pdf, fe_objnum, 1);
+    pdf_begin_obj(pdf, fe_objnum, OBJSTM_ALWAYS);
     pdf_begin_dict(pdf);
     pdf_puts(pdf, "/Type /Encoding\n");
     pdf_puts(pdf, "/Differences [");

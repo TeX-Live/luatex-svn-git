@@ -211,7 +211,7 @@ static void write_png_palette(PDF pdf, image_dict * idict)
     pdf_end_stream(pdf);
     pdf_end_obj(pdf);
     if (palette_objnum > 0) {
-        pdf_begin_obj(pdf, palette_objnum, 0);
+        pdf_begin_obj(pdf, palette_objnum, OBJSTM_NEVER);
         pdf_begin_dict(pdf);
         pdf_dict_add_streaminfo(pdf);
         pdf_end_dict(pdf);
@@ -313,7 +313,7 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
     pdf_flush(pdf);
     /* now write the Smask object */
     bitdepth = png_get_bit_depth (png_p, info_p);
-    pdf_begin_obj(pdf, smask_objnum, 0);
+    pdf_begin_obj(pdf, smask_objnum, OBJSTM_NEVER);
     pdf_begin_dict(pdf);
     pdf_puts(pdf, "/Type /XObject\n/Subtype /Image\n");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
@@ -425,7 +425,7 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
     /* now write the Smask object */
     if (smask_objnum > 0) {
         bitdepth = png_get_bit_depth (png_p, info_p);
-        pdf_begin_obj(pdf, smask_objnum, 0);
+        pdf_begin_obj(pdf, smask_objnum, OBJSTM_NEVER);
         pdf_begin_dict(pdf);
         pdf_puts(pdf, "/Type /XObject\n/Subtype /Image\n");
         if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
@@ -581,7 +581,7 @@ void write_png(PDF pdf, image_dict * idict)
     info_p = img_png_info_ptr(idict);
     if (pdf->minor_version < 5)
         pdf->image_hicolor = 0;
-    pdf_begin_obj(pdf, img_objnum(idict), 0);
+    pdf_begin_obj(pdf, img_objnum(idict), OBJSTM_NEVER);
     pdf_begin_dict(pdf);
     pdf_puts(pdf, "/Type /XObject\n/Subtype /Image\n");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
@@ -632,7 +632,7 @@ void write_png(PDF pdf, image_dict * idict)
             tex_printf(" (PNG copy)");
         copy_png(pdf, idict);
         if (palette_objnum > 0) {
-            pdf_begin_obj(pdf, palette_objnum, 0);
+            pdf_begin_obj(pdf, palette_objnum, OBJSTM_NEVER);
             pdf_begin_dict(pdf);
             pdf_dict_add_streaminfo(pdf);
             pdf_end_dict(pdf);

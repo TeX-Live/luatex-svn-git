@@ -344,7 +344,7 @@ int write_tounicode(PDF pdf, char **glyph_names, char *name)
         strcat(buf, builtin_suffix);    /* ".enc" not present, this is a builtin
                                            encoding so the name is eg "cmr10-builtin" */
     objnum = pdf_new_objnum(pdf);
-    pdf_begin_obj(pdf, objnum, 0);
+    pdf_begin_obj(pdf, objnum, OBJSTM_NEVER);
     pdf_begin_dict(pdf);
     pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);
@@ -492,7 +492,7 @@ int write_cid_tounicode(PDF pdf, fo_entry * fo, internal_font_number f)
             fo->fd->fontname);
 
     objnum = pdf_new_objnum(pdf);
-    pdf_begin_obj(pdf, objnum, 0);
+    pdf_begin_obj(pdf, objnum, OBJSTM_NEVER);
     pdf_begin_dict(pdf);
     pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);

@@ -255,7 +255,7 @@ void write_jpg(PDF pdf, image_dict * idict)
     if (img_file(idict) == NULL)
         reopen_jpg(pdf, idict);
     assert(img_jpg_ptr(idict) != NULL);
-    pdf_begin_obj(pdf, img_objnum(idict), 0);
+    pdf_begin_obj(pdf, img_objnum(idict), OBJSTM_NEVER);
     pdf_begin_dict(pdf);
     pdf_puts(pdf, "/Type /XObject\n/Subtype /Image\n");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)

@@ -38,16 +38,16 @@ void pdf_write_obj(PDF pdf, int k)
     const_lstring st;
     size_t li;                  /* index into |data.s| */
     int saved_compress_level = pdf->compress_level;
-    int os_level = 1;           /* gives compressed objects for \.{\\pdfobjcompresslevel} $>$ 0 */
+    int os_threshold = OBJSTM_ALWAYS;   /* gives compressed objects for \.{\\pdfobjcompresslevel} >= |OBJSTM_ALWAYS| */
     int l = 0;                  /* possibly a lua registry reference */
     int ll = 0;
     data.s = NULL;
     if (obj_obj_pdfcompresslevel(pdf, k) > -1)  /* -1 = "unset" */
         pdf->compress_level = obj_obj_pdfcompresslevel(pdf, k);
-    if (obj_obj_pdfoslevel(pdf, k) > -1)        /* -1 = "unset" */
-        os_level = obj_obj_pdfoslevel(pdf, k);
+    if (obj_obj_objstm_threshold(pdf, k) != OBJSTM_UNSET)
+        os_threshold = obj_obj_objstm_threshold(pdf, k);
     if (obj_obj_is_stream(pdf, k)) {
-        pdf_begin_obj(pdf, k, 0);
+        pdf_begin_obj(pdf, k, OBJSTM_NEVER);
         pdf_begin_dict(pdf);
         l = obj_obj_stream_attr(pdf, k);
         if (l != LUA_NOREF) {
@@ -65,13 +65,13 @@ void pdf_write_obj(PDF pdf, int k)
         pdf_end_dict(pdf);
         pdf_begin_stream(pdf);
     } else
-        pdf_begin_obj(pdf, k, os_level);
+        pdf_begin_obj(pdf, k, os_threshold);
     l = obj_obj_data(pdf, k);
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
     assert(lua_isstring(Luas, -1));
     st.s = lua_tolstring(Luas, -1, &li);
     st.l = li;
-    lua_pop(Luas,1);
+    lua_pop(Luas, 1);
     if (obj_obj_is_file(pdf, k)) {
         boolean res = false;    /* callback status value */
         const char *fnam = NULL;        /* callback found filename */
@@ -116,8 +116,7 @@ void pdf_write_obj(PDF pdf, int k)
     if (obj_obj_is_stream(pdf, k)) {
         pdf_end_stream(pdf);
         pdf_end_obj(pdf);
-    }
-    else
+    } else
         pdf_end_obj(pdf);
     luaL_unref(Luas, LUA_REGISTRYINDEX, l);
     obj_obj_data(pdf, k) = LUA_NOREF;
@@ -132,7 +131,7 @@ void init_obj_obj(PDF pdf, int k)
     unset_obj_obj_is_stream(pdf, k);
     unset_obj_obj_is_file(pdf, k);
     obj_obj_pdfcompresslevel(pdf, k) = -1;      /* unset */
-    obj_obj_pdfoslevel(pdf, k) = -1;    /* unset */
+    obj_obj_objstm_threshold(pdf, k) = OBJSTM_UNSET;  /* unset */
 }
 
 @ The \.{\\pdfobj} primitive is used to create a ``raw'' object in the PDF
@@ -169,7 +168,7 @@ void scan_obj(PDF pdf)
         init_obj_obj(pdf, k);
         if (scan_keyword("uncompressed")) {
             obj_obj_pdfcompresslevel(pdf, k) = 0;       /* \pdfcompresslevel = 0 */
-            obj_obj_pdfoslevel(pdf, k) = 0;
+            obj_obj_objstm_threshold(pdf, k) = OBJSTM_NEVER;
         }
         if (scan_keyword("stream")) {
             set_obj_obj_is_stream(pdf, k);

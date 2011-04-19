@@ -147,11 +147,11 @@ void write_out_pdf_mark_destinations(PDF pdf)
                 int i;
                 i = obj_dest_ptr(pdf, k->info);
                 if (pdf_dest_named_id(i) > 0) {
-                    pdf_begin_obj(pdf, k->info, 1);
+                    pdf_begin_obj(pdf, k->info, OBJSTM_ALWAYS);
                     pdf_begin_dict(pdf);
                     pdf_printf(pdf, "/D ");
                 } else {
-                    pdf_begin_obj(pdf, k->info, 1);
+                    pdf_begin_obj(pdf, k->info, OBJSTM_ALWAYS);
                 }
                 pdf_out(pdf, '[');
                 pdf_print_int(pdf, pdf->last_page);
@@ -345,7 +345,7 @@ int output_name_tree(PDF pdf)
             }
             set_obj_link(pdf, names_tail, 0);
             /* Output the current node in this level */
-            pdf_begin_obj(pdf, l, 1);
+            pdf_begin_obj(pdf, l, OBJSTM_ALWAYS);
             pdf_begin_dict(pdf);
             j = 0;
             if (is_names) {
@@ -404,7 +404,7 @@ int output_name_tree(PDF pdf)
 
   DONE:
     if ((dests != 0) || (pdf_names_toks != null)) {
-        m = pdf_new_obj(pdf, obj_type_others, 0, 1);
+        m = pdf_new_obj(pdf, obj_type_others, 0, OBJSTM_ALWAYS);
         pdf_begin_dict(pdf);
         if (dests != 0)
             pdf_dict_add_ref(pdf, "Dests", dests);

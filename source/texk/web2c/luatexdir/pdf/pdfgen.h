@@ -50,7 +50,7 @@ written bytes.
 #  define max_single_pdf_print 8192     /* Max size that can be get from pdf_room() at once.
                                            the value is on the conservative side, but should be
                                            large enough to cover most uses */
-#  define pdf_os_max_objs 100   /* maximum number of objects in object stream */
+#  define PDF_OS_MAX_OBJS 100   /* maximum number of objects in object stream */
 
 #  define inf_obj_tab_size 1000 /* min size of the cross-reference table for PDF output */
 #  define sup_obj_tab_size 8388607      /* max size of the cross-reference table for PDF output */

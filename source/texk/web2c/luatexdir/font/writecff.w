@@ -3179,7 +3179,7 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
 	      stream[(cid / 8)] |= (1 << (7 - (cid % 8)));
            }
        }
-       pdf_begin_obj(pdf, cidset, 0);
+       pdf_begin_obj(pdf, cidset, OBJSTM_NEVER);
        pdf_begin_dict(pdf);
        pdf_dict_add_streaminfo(pdf);
        pdf_end_dict(pdf);
@@ -3376,25 +3376,25 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     }
 
     /* CIDSet: a table of bits indexed by cid, bytes with high order bit first, 
-       each (set) bit is a (present) CID. */	
+       each (set) bit is a (present) CID. */
     if (1) {
-      cidset = pdf_new_objnum(pdf);
-      if (cidset != 0) {
-       size_t l = (last_cid/8)+1;
-       char *stream = xmalloc(l);
-       memset(stream, 0, l);
-       for (cid = 1; cid <= (long) last_cid; cid++) {
-           if (CIDToGIDMap[2 * cid] || CIDToGIDMap[2 * cid + 1]) {
-	      stream[(cid / 8)] |= (1 << (7 - (cid % 8)));
-           }
-       }
-       pdf_begin_obj(pdf, cidset, 0);
-       pdf_begin_dict(pdf);
-       pdf_begin_stream(pdf);
-       pdf_out_block(pdf, stream, l);
-       pdf_end_stream(pdf);
-       pdf_end_obj(pdf);
-      }
+        cidset = pdf_new_objnum(pdf);
+        if (cidset != 0) {
+            size_t l = (last_cid / 8) + 1;
+            char *stream = xmalloc(l);
+            memset(stream, 0, l);
+            for (cid = 1; cid <= (long) last_cid; cid++) {
+                if (CIDToGIDMap[2 * cid] || CIDToGIDMap[2 * cid + 1]) {
+                    stream[(cid / 8)] |= (1 << (7 - (cid % 8)));
+                }
+            }
+            pdf_begin_obj(pdf, cidset, OBJSTM_NEVER);
+            pdf_begin_dict(pdf);
+            pdf_begin_stream(pdf);
+            pdf_out_block(pdf, stream, l);
+            pdf_end_stream(pdf);
+            pdf_end_obj(pdf);
+        }
     }
 
 

@@ -217,7 +217,7 @@ static void write_pages(PDF pdf, pages_entry * p, int parent)
 {
     int i;
     assert(p != NULL);
-    pdf_begin_obj(pdf, p->objnum, 1);
+    pdf_begin_obj(pdf, p->objnum, OBJSTM_ALWAYS);
     pdf_begin_dict(pdf);
     pdf_printf(pdf, "/Type /Pages\n");
     if (parent == 0) {          /* it's root */

@@ -1,6 +1,6 @@
 /* pdfobj.h
 
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2011 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -32,13 +32,13 @@
 #  define obj_obj_stream_attr(pdf, A)      pdf->mem[obj_data_ptr((pdf), (A)) + 1]       /* additional attributes into stream dict */
 #  define obj_obj_flags(pdf, A)            pdf->mem[obj_data_ptr((pdf), (A)) + 2]       /* stream/file flags */
 #  define obj_obj_pdfcompresslevel(pdf, A) pdf->mem[obj_data_ptr((pdf), (A)) + 3]       /* overrides \pdfcompresslevel */
-#  define obj_obj_pdfoslevel(pdf, A)       pdf->mem[obj_data_ptr((pdf), (A)) + 4]       /* for object stream compression */
+#  define obj_obj_objstm_threshold(pdf, A) pdf->mem[obj_data_ptr((pdf), (A)) + 4]       /* for object stream compression */
 
 /*  define set_obj_obj_data(pdf, A, B)             obj_obj_data((pdf), (A)) = (B) */
 /*  define set_obj_obj_flags(pdf, A, B)            obj_obj_flags((pdf), (A)) = (B) */
 /*  define set_obj_obj_stream_attr(pdf, A, B)      obj_obj_stream_attr((pdf), (A)) = (B) */
 /*  define set_obj_obj_pdfcompresslevel(pdf, A, B) obj_obj_pdfcompresslevel((pdf), (A)) = (B) */
-/*  define set_obj_obj_pdfoslevel(pdf, A, B)       obj_obj_pdfoslevel((pdf), (A)) = (B) */
+/*  define set_obj_obj_objstm_threshold(pdf, A, B) obj_obj_objstm_threshold((pdf), (A)) = (B) */
 
 /**********************************************************************/
 

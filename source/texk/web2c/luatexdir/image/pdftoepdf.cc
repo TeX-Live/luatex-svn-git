@@ -479,7 +479,7 @@ static void writeRefs(PDF pdf, PdfDocument * pdf_doc)
     for (r = pdf_doc->inObjList; r != NULL;) {
         xref->fetch(r->ref.num, r->ref.gen, &obj1);
         if (obj1.isStream())
-            pdf_begin_obj(pdf, r->num, 0);
+            pdf_begin_obj(pdf, r->num, OBJSTM_NEVER);
         else
             pdf_begin_obj(pdf, r->num, 2);      // \pdfobjcompresslevel = 2 is for this
         copyObject(pdf, pdf_doc, &obj1);
@@ -672,7 +672,7 @@ void write_epdf(PDF pdf, image_dict * idict)
     pageDict = pageobj.getDict();
 
     // write the Page header
-    pdf_begin_obj(pdf, img_objnum(idict), 0);
+    pdf_begin_obj(pdf, img_objnum(idict), OBJSTM_NEVER);
     pdf_begin_dict(pdf);
     pdf_puts(pdf, "/Type /XObject\n/Subtype /Form\n");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)

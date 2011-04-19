@@ -187,7 +187,7 @@ static boolean writepk(PDF pdf, internal_font_number f)
         ury = cd.cheight + lly;
         update_bbox(llx, lly, urx, ury, t3_glyph_num == 0);
         t3_glyph_num++;
-        t3_char_procs[cd.charcode] = pdf_new_obj(pdf, obj_type_others, 0, 0);
+        t3_char_procs[cd.charcode] = pdf_new_obj(pdf, obj_type_others, 0, OBJSTM_NEVER);
         pdf_begin_dict(pdf);
         pdf_dict_add_streaminfo(pdf);
         pdf_end_dict(pdf);
@@ -229,7 +229,6 @@ static boolean writepk(PDF pdf, internal_font_number f)
 @c
 void writet3(PDF pdf, internal_font_number f)
 {
-
     int i;
     int wptr, eptr, cptr;
     int first_char, last_char;
@@ -257,7 +256,7 @@ void writet3(PDF pdf, internal_font_number f)
         if (pdf_char_marked(f, i))
             break;
     last_char = i;
-    pdf_begin_obj(pdf, pdf_font_num(f), 1);    /* Type 3 font dictionary */
+    pdf_begin_obj(pdf, pdf_font_num(f), OBJSTM_ALWAYS); /* Type 3 font dictionary */
     pdf_begin_dict(pdf);
     pdf_puts(pdf, "/Type /Font\n/Subtype /Type3\n");
     pdf_printf(pdf, "/Name /F%i\n", (int) f);
@@ -289,7 +288,7 @@ void writet3(PDF pdf, internal_font_number f)
                (int) wptr, (int) eptr, (int) cptr);
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
-    pdf_begin_obj(pdf, wptr, 1);        /* chars width array */
+    pdf_begin_obj(pdf, wptr, OBJSTM_ALWAYS);    /* chars width array */
     pdf_puts(pdf, "[");
     if (is_pk_font)
         for (i = first_char; i <= last_char; i++) {
@@ -300,7 +299,7 @@ void writet3(PDF pdf, internal_font_number f)
             pdf_printf(pdf, "%i ", (int) t3_char_widths[i]);
     pdf_puts(pdf, "]\n");
     pdf_end_obj(pdf);
-    pdf_begin_obj(pdf, eptr, 1);       /* encoding dictionary */
+    pdf_begin_obj(pdf, eptr, OBJSTM_ALWAYS);    /* encoding dictionary */
     pdf_begin_dict(pdf);
     pdf_printf(pdf, "/Type /Encoding\n/Differences [%i", first_char);
     if (t3_char_procs[first_char] == 0) {
@@ -327,7 +326,7 @@ void writet3(PDF pdf, internal_font_number f)
     pdf_puts(pdf, "]\n");
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
-    pdf_begin_obj(pdf, cptr, 1);       /* CharProcs dictionary */
+    pdf_begin_obj(pdf, cptr, OBJSTM_ALWAYS);    /* CharProcs dictionary */
     pdf_begin_dict(pdf);
     for (i = first_char; i <= last_char; i++)
         if (t3_char_procs[i] != 0)
