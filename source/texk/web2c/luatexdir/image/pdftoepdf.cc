@@ -336,6 +336,8 @@ static void copyString(PDF pdf, GooString * string)
     size_t i, l;
     p = string->getCString();
     l = (size_t) string->getLength();
+    if (pdf->cave)
+        pdf_out(pdf, ' ');
     if (strlen(p) == l) {
         pdf_puts(pdf, "(");
         for (; *p != 0; p++) {
@@ -356,6 +358,7 @@ static void copyString(PDF pdf, GooString * string)
         }
         pdf_puts(pdf, ">");
     }
+    pdf->cave = true;
 }
 
 static void copyName(PDF pdf, char *s)
@@ -368,6 +371,7 @@ static void copyName(PDF pdf, char *s)
         else
             pdf_printf(pdf, "#%.2X", *s & 0xFF);
     }
+    pdf->cave = true;
 }
 
 static void copyArray(PDF pdf, PdfDocument * pdf_doc, Array * array)
@@ -377,8 +381,6 @@ static void copyArray(PDF pdf, PdfDocument * pdf_doc, Array * array)
     pdf_begin_array(pdf);
     for (i = 0, l = array->getLength(); i < l; ++i) {
         array->getNF(i, &obj1);
-        if (!obj1.isName())
-            pdf_puts(pdf, " ");
         copyObject(pdf, pdf_doc, &obj1);
         obj1.free();
     }
@@ -392,11 +394,9 @@ static void copyDict(PDF pdf, PdfDocument * pdf_doc, Dict * dict)
     pdf_begin_dict(pdf);
     for (i = 0, l = dict->getLength(); i < l; ++i) {
         copyName(pdf, dict->getKey(i));
-        pdf_puts(pdf, " ");
         dict->getValNF(i, &obj1);
         copyObject(pdf, pdf_doc, &obj1);
         obj1.free();
-        pdf_puts(pdf, "\n");
     }
     pdf_end_dict(pdf);
 }
@@ -414,24 +414,32 @@ static void copyStreamStream(PDF pdf, Stream * str)
 static void copyStream(PDF pdf, PdfDocument * pdf_doc, Stream * stream)
 {
     copyDict(pdf, pdf_doc, stream->getDict());
-    pdf_puts(pdf, "stream\n");
+    pdf_begin_stream(pdf);
+    assert(pdf->zip_write_state == no_zip);
     copyStreamStream(pdf, stream->getUndecodedStream());
-    if (pdf->last_byte != '\n')
-        pdf_puts(pdf, "\n");
-    pdf_puts(pdf, "endstream"); // can't simply write pdf_end_stream()
+    pdf_end_stream(pdf);
 }
 
 static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
 {
     switch (obj->getType()) {
     case objBool:
+        if (pdf->cave)
+            pdf_out(pdf, ' ');
         pdf_printf(pdf, "%s", obj->getBool()? "true" : "false");
+        pdf->cave = true;
         break;
     case objInt:
+        if (pdf->cave)
+            pdf_out(pdf, ' ');
         pdf_printf(pdf, "%i", obj->getInt());
+        pdf->cave = true;
         break;
     case objReal:
+        if (pdf->cave)
+            pdf_out(pdf, ' ');
         pdf_printf(pdf, "%s", convertNumToPDF(obj->getReal()));
+        pdf->cave = true;
         break;
         // not needed:
         // GBool isNum() { return type == objInt || type == objReal; }
@@ -442,7 +450,10 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
         copyName(pdf, obj->getName());
         break;
     case objNull:
+        if (pdf->cave)
+            pdf_out(pdf, ' ');
         pdf_puts(pdf, "null");
+        pdf->cave = true;
         break;
     case objArray:
         copyArray(pdf, pdf_doc, obj->getArray());
@@ -454,7 +465,10 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
         copyStream(pdf, pdf_doc, obj->getStream());
         break;
     case objRef:
+        if (pdf->cave)
+            pdf_out(pdf, ' ');
         pdf_printf(pdf, "%d 0 R", addInObj(pdf, pdf_doc, obj->getRef()));
+        pdf->cave = true;
         break;
     case objCmd:
     case objError:
@@ -764,9 +778,9 @@ void write_epdf(PDF pdf, image_dict * idict)
         // Variant A: get stream and recompress under control
         // of \pdfcompresslevel
         //
-        // pdfbeginstream();
+        // pdf_begin_stream();
         // copyStreamStream(contents->getStream());
-        // pdfendstream();
+        // pdf_end_stream();
 
         // Variant B: copy stream without recompressing
         //
@@ -796,7 +810,7 @@ void write_epdf(PDF pdf, image_dict * idict)
         }
         obj1.free();
         pdf_end_dict(pdf);
-        pdf_puts(pdf, "\nstream\n");
+        pdf_begin_stream(pdf);
         copyStreamStream(pdf, contents.getStream()->getBaseStream());
         pdf_end_stream(pdf);
         pdf_end_obj(pdf);

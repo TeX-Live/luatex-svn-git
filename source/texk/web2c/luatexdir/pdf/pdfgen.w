@@ -38,8 +38,6 @@ static const char _svn_version[] =
 
 PDF static_pdf = NULL;
 
-static char *jobname_cstr = NULL;
-
 @ commandline interface
 @c
 int pdf_output_option;
@@ -63,6 +61,7 @@ PDF init_pdf_struct(PDF pdf)
     assert(pdf == NULL);
     pdf = xtalloc(1, pdf_output_file);
     memset(pdf, 0, sizeof(pdf_output_file));
+    pdf->job_name = makecstring(job_name);
 
     pdf->o_mode = OMODE_NONE;   /* will be set by |fix_o_mode()| */
     pdf->o_state = ST_INITIAL;
@@ -78,6 +77,7 @@ PDF init_pdf_struct(PDF pdf)
     os->mode = false;
     pdf->buf_size = os->op_buf_size;
     pdf->buf = os->op_buf;
+    pdf->use_deflate = false;
 
     /* Sometimes it is neccesary to allocate memory for PDF output that cannot
        be deallocated then, so we use |mem| for this purpose. */
@@ -612,29 +612,15 @@ void pdf_print_str(PDF pdf, const char *s)
 void pdf_begin_stream(PDF pdf)
 {
     assert(pdf->os->mode == false);
-    assert(pdf->seek_write_length == true);
     pdf->stream_length = 0;
     pdf->last_byte = 0;
-    if (pdf->compress_level > 0) {
-        pdf_puts(pdf, "stream\n");
+    pdf_puts(pdf, "\nstream\n");
+    if (pdf->use_deflate) {
+        assert(pdf->compress_level > 0);
         pdf_flush(pdf);
         pdf->zip_write_state = zip_writing;
-    } else {
-        pdf_puts(pdf, "stream\n");
+    } else
         pdf_save_offset(pdf);
-    }
-}
-
-@ @c
-static void write_stream_length(PDF pdf, int length, longinteger offset)
-{
-    if (jobname_cstr == NULL)
-        jobname_cstr = makecstring(job_name);
-    if (pdf->draftmode == 0) {
-        xfseeko(pdf->file, (off_t) offset, SEEK_SET, jobname_cstr);
-        fprintf(pdf->file, "%li", (long int) length);
-        xfseeko(pdf->file, pdf_offset(pdf), SEEK_SET, jobname_cstr);
-    }
 }
 
 @ end a stream
@@ -644,12 +630,16 @@ void pdf_end_stream(PDF pdf)
     if (pdf->zip_write_state == zip_writing)
         pdf->zip_write_state = zip_finish;
     else
-        pdf->stream_length = pdf_offset(pdf) - pdf_saved_offset(pdf);
+        pdf->stream_length = pdf_offset(pdf) - pdf->save_offset;
     pdf_flush(pdf);
-    if (pdf->seek_write_length)
-        write_stream_length(pdf, (int) pdf->stream_length,
-                            pdf->stream_length_offset);
+    if (pdf->seek_write_length && pdf->draftmode == 0) {
+        xfseeko(pdf->file, (off_t) pdf->stream_length_offset, SEEK_SET,
+                pdf->job_name);
+        fprintf(pdf->file, "%li", (long int) pdf->stream_length);
+        xfseeko(pdf->file, pdf_offset(pdf), SEEK_SET, pdf->job_name);
+    }
     pdf->seek_write_length = false;
+    pdf->use_deflate = false;
     if (pdf->last_byte != '\n')
         pdf_out(pdf, '\n');
     pdf_puts(pdf, "endstream\n");
@@ -1258,8 +1248,10 @@ void pdf_dict_add_streaminfo(PDF pdf)
     pdf_puts(pdf, "/Length           \n");
     pdf->seek_write_length = true;      /* fill in length at |pdf_end_stream| call */
     pdf->stream_length_offset = pdf_offset(pdf) - 11;
-    if (pdf->compress_level > 0)
+    if (pdf->compress_level > 0) {
         pdf_dict_add_name(pdf, "Filter", "FlateDecode");
+        pdf->use_deflate = true;
+    }
 }
 
 @ begin a PDF array
@@ -1284,11 +1276,10 @@ void pdf_begin_obj(PDF pdf, int i, int pdf_os_threshold)
 {
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
     pdf_prepare_obj(pdf, i, pdf_os_threshold);
-    if (!pdf->os->mode) {
+    if (!pdf->os->mode)
         pdf_printf(pdf, "%d 0 obj\n", (int) i);
-    } else if (pdf->compress_level == 0) {
+    else if (pdf->compress_level == 0)
         pdf_printf(pdf, "%% %d 0 obj\n", (int) i);      /* debugging help */
-    }
     pdf->cave = 0;
 }
 
@@ -2522,7 +2513,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             if (pdf->os_enable)
                 pdf_print_int_ln(pdf, obj_offset(pdf, xref_stm));
             else
-                pdf_print_int_ln(pdf, pdf_saved_offset(pdf));
+                pdf_print_int_ln(pdf, pdf->save_offset);
             pdf_puts(pdf, "%%EOF\n");
 
             pdf_flush(pdf);

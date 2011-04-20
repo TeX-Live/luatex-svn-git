@@ -31,6 +31,12 @@
 #  define OBJSTM_NEVER (MAX_OBJ_COMPRESS_LEVEL + 1)
                                         /* above maximum/clipping value for \pdfobjcompresslevel */
 
+typedef enum {
+    no_zip = 0,                 /* no \.{ZIP} compression */
+    zip_writing = 1,            /* \.{ZIP} compression being used */
+    zip_finish = 2              /* finish \.{ZIP} compression */
+} zip_write_states;
+
 /* This stucture holds everything that is needed for the actual pdf generation.
 
 Because this structure interfaces with C++, it is not wise to use |boolean|
@@ -203,6 +209,7 @@ typedef struct os_struct_ {
 typedef struct pdf_output_file_ {
     FILE *file;                 /* the PDF output file handle */
     char *file_name;            /* the PDF output file name */
+    char *job_name;
     output_mode o_mode;         /* output mode (DVI/PDF/...) */
     output_state o_state;
     /* generation parameters */
@@ -243,6 +250,7 @@ typedef struct pdf_output_file_ {
     char *zipbuf;
     z_stream *c_stream;         /* compression stream pointer */
     int zip_write_state;        /* which state of compression we are in */
+    int use_deflate;            /* if true, stream should be compressed */
 
     int pk_scale_factor;        /* this is just a preprocessed value that depends on
                                    |pk_resolution| and |decimal_digits| */

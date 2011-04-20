@@ -272,11 +272,13 @@ void write_jp2(PDF pdf, image_dict * idict)
     pdf_dict_add_name(pdf, "Type", "XObject");
     pdf_dict_add_name(pdf, "Subtype", "Image");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
-        pdf_printf(pdf, "%s\n", img_attr(idict));
-    pdf_printf(pdf, "/Width %i\n/Height %i\n/Length %i\n",
-               (int) img_xsize(idict),
-               (int) img_ysize(idict), (int) img_jp2_ptr(idict)->length);
-    pdf_puts(pdf, "/Filter /JPXDecode\n>>\nstream\n");
+        pdf_printf(pdf, "\n%s\n", img_attr(idict));
+    pdf_dict_add_int(pdf, "Width", (int) img_xsize(idict));
+    pdf_dict_add_int(pdf, "Height", (int) img_ysize(idict));
+    pdf_dict_add_int(pdf, "Length", (int) img_jp2_ptr(idict)->length);
+    pdf_dict_add_name(pdf, "Filter", "JPXDecode");
+    pdf_end_dict(pdf);
+    pdf_begin_stream(pdf);
     for (l = (long unsigned int) img_jp2_ptr(idict)->length, f =
          img_file(idict); l > 0; l--)
         pdf_out(pdf, xgetc(f));

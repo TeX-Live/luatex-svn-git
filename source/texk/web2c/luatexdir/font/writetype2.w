@@ -383,14 +383,14 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
         pdf_begin_dict(pdf);
         pdf_dict_add_int(pdf, "Length", ((last_cid + 1) * 2));
         pdf_end_dict(pdf);
-        /* pdf_end_obj(pdf); */
         assert(0);              /* code unused */
-        pdf_printf(pdf, "stream\n");
+        pdf_begin_stream(pdf);
         pdf_room(pdf, (int) ((last_cid + 1) * 2));
         for (i = 0; i < ((int) (last_cid + 1) * 2); i++) {
             pdf_quick_out(pdf, cidtogidmap[i]);
         }
-        pdf_printf(pdf, "\nendstream\n");
+        pdf_end_stream(pdf);
+        pdf_end_obj(pdf);
     }
 
     /* the tff subset */

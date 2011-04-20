@@ -61,7 +61,6 @@ written bytes.
                                         /* the file offset of last byte in PDF
                                            buffer that |pdf_ptr| points to */
 #  define pdf_save_offset(pdf) pdf->save_offset=(pdf->gone + pdf->ptr)
-#  define pdf_saved_offset(pdf) pdf->save_offset
 
 #  define set_ff(A)  do {                       \
         if (pdf_font_num(A) < 0)                \
@@ -69,12 +68,6 @@ written bytes.
         else                                    \
             ff = A;                             \
     } while (0)
-
-typedef enum {
-    no_zip = 0,                 /* no \.{ZIP} compression */
-    zip_writing = 1,            /* \.{ZIP} compression being used */
-    zip_finish = 2              /* finish \.{ZIP} compression */
-} zip_write_states;
 
 typedef enum { NOT_SHIPPING, SHIPPING_PAGE, SHIPPING_FORM } shipping_mode_e;
 

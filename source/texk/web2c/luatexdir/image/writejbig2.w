@@ -749,7 +749,7 @@ static void wr_jbig2(PDF pdf, FILEINFO * fip, unsigned long page)
                    getstreamlen(pip->segments.first, false));
     }
     pdf_end_dict(pdf);
-    pdf_puts(pdf, "\nstream\n");
+    pdf_begin_stream(pdf);
     fip->file = xfopen(fip->filepath, FOPEN_RBIN_MODE);
     for (slip = pip->segments.first; slip != NULL; slip = slip->next) { /* loop over page segments */
         sip = slip->d;
