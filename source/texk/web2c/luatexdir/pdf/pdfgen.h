@@ -141,7 +141,6 @@ extern void pdf_dict_add_streaminfo(PDF);
 
 extern void pdf_begin_stream(PDF);
 extern void pdf_end_stream(PDF);
-extern void pdf_remove_last_space(PDF);
 
 extern void pdf_print_bp(PDF, scaled);
 extern void pdf_print_mag_bp(PDF, scaled);

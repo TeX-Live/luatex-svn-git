@@ -1,6 +1,6 @@
 % pdfdest.w
 
-% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2009-2011 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -15,7 +15,7 @@
 % License for more details.
 
 % You should have received a copy of the GNU General Public License along
-% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @ @c
 static const char _svn_version[] =
@@ -305,7 +305,6 @@ void sort_dest_names(PDF pdf)
           sizeof(dest_name_entry), dest_cmp);
 }
 
-
 @ Output the name tree. The tree nature of the destination list forces the
 storing of intermediate data in |obj_info| and |obj_aux| fields, which
 is further uglified by the fact that |obj_tab| entries do not accept char
@@ -346,7 +345,8 @@ int output_name_tree(PDF pdf)
             j = 0;
             if (is_names) {
                 set_obj_start(pdf, l, pdf->dest_names[k].objname);
-                pdf_printf(pdf, "/Names [");
+                pdf_printf(pdf, "/Names ");
+                pdf_begin_array(pdf);
                 do {
                     pdf_print_str(pdf, pdf->dest_names[k].objname);
                     pdf_out(pdf, ' ');
@@ -355,8 +355,7 @@ int output_name_tree(PDF pdf)
                     j++;
                     k++;
                 } while (j != name_tree_kids_max && k != pdf->dest_names_ptr);
-                pdf_remove_last_space(pdf);
-                pdf_printf(pdf, "]\n");
+                pdf_end_array(pdf);
                 set_obj_stop(pdf, l, pdf->dest_names[k - 1].objname);   /* for later */
                 if (k == pdf->dest_names_ptr) {
                     is_names = false;
@@ -366,7 +365,8 @@ int output_name_tree(PDF pdf)
 
             } else {
                 set_obj_start(pdf, l, obj_start(pdf, k));
-                pdf_printf(pdf, "/Kids [");
+                pdf_printf(pdf, "/Kids ");
+                pdf_begin_array(pdf);
                 do {
                     pdf_print_int(pdf, k);
                     pdf_printf(pdf, " 0 R ");
@@ -375,16 +375,16 @@ int output_name_tree(PDF pdf)
                     j++;
                 } while (j != name_tree_kids_max && k != b
                          && obj_link(pdf, k) != 0);
-                pdf_remove_last_space(pdf);
-                pdf_printf(pdf, "]\n");
+                pdf_end_array(pdf);
                 if (k == b)
                     b = 0;
             }
-            pdf_printf(pdf, "/Limits [");
+            pdf_printf(pdf, "/Limits ");
+            pdf_begin_array(pdf);
             pdf_print_str(pdf, obj_start(pdf, l));
             pdf_out(pdf, ' ');
             pdf_print_str(pdf, obj_stop(pdf, l));
-            pdf_printf(pdf, "]\n");
+            pdf_end_array(pdf);
             pdf_end_dict(pdf);
             pdf_end_obj(pdf);
 

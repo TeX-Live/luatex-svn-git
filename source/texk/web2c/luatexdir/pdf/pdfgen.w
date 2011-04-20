@@ -645,12 +645,6 @@ void pdf_end_stream(PDF pdf)
     pdf_puts(pdf, "endstream\n");
 }
 
-void pdf_remove_last_space(PDF pdf)
-{
-    if ((pdf->ptr > 0) && (pdf->buf[pdf->ptr - 1] == ' '))
-        pdf->ptr--;
-}
-
 @ To print |scaled| value to PDF output we need some subroutines to ensure
 accurary.
 
@@ -2368,7 +2362,6 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                     pdf_puts(pdf, " 0 R ");
                     k = obj_link(pdf, k);
                 }
-                pdf_remove_last_space(pdf);
                 pdf_end_array(pdf);
                 pdf_end_obj(pdf);
                 k = pdf->head_tab[obj_type_thread];

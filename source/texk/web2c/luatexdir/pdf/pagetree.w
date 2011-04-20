@@ -231,7 +231,6 @@ static void write_pages(PDF pdf, pages_entry * p, int parent)
     pdf_begin_array(pdf);
     for (i = 0; i < p->number_of_kids; i++)
         pdf_printf(pdf, "%d 0 R ", (int) p->kids[i]);
-    pdf_remove_last_space(pdf);
     pdf_end_array(pdf);
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
