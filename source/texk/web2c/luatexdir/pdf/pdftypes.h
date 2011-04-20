@@ -186,9 +186,12 @@ typedef struct os_obj_data_ {
 
 typedef struct os_struct_ {
     os_obj_data *obj;           /* array of object stream objects */
-    unsigned char *buf;         /* the PDF object stream buffer */
-    int buf_size;               /* current size of the PDF object stream buffer, grows dynamically */
-    int ptr;                    /* store for object stream |pdf_ptr| while outside object streams */
+    unsigned char *os_buf;      /* the PDF object stream buffer */
+    int os_buf_size;            /* current size of the PDF object stream buffer, grows dynamically */
+    int os_ptr;                 /* store for object stream |pdf_ptr| while outside object streams */
+    unsigned char *op_buf;      /* the PDF output buffer */
+    int op_buf_size;            /* output buffer size (static) */
+    int op_ptr;                 /* store for PDF buffer |pdf_ptr| while inside object streams */
     int idx;                    /* pointer into |pdf_os_objnum| and |pdf_os_objoff| */
     int cntr;                   /* counter for object stream objects */
     int cur_objnum;             /* number of current object stream object */
@@ -217,11 +220,6 @@ typedef struct pdf_output_file_ {
     int compress_level;         /* level for zlib object stream compression */
     int objcompresslevel;       /* fixed level for activating PDF object streams */
     char *job_id_string;        /* the full job string */
-
-    /* output file buffering  */
-    unsigned char *op_buf;      /* the PDF output buffer */
-    int op_buf_size;            /* output buffer size (static) */
-    int op_ptr;                 /* store for PDF buffer |pdf_ptr| while inside object streams */
 
     int os_enable;              /* true if object streams are globally enabled */
     os_struct *os;              /* object stream structure pointer */
