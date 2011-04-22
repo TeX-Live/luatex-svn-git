@@ -1,7 +1,7 @@
 /* pdftoepdf.cc
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2011 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -329,6 +329,30 @@ static char *convertNumToPDF(double n)
 
 static void copyObject(PDF, PdfDocument *, Object *);
 
+static void copyBool(PDF pdf, GBool b)
+{
+    if (pdf->cave)
+        pdf_out(pdf, ' ');
+    pdf_printf(pdf, "%s", b ? "true" : "false");
+    pdf->cave = true;
+}
+
+static void copyInt(PDF pdf, int i)
+{
+    if (pdf->cave)
+        pdf_out(pdf, ' ');
+    pdf_printf(pdf, "%i", i);
+    pdf->cave = true;
+}
+
+static void copyReal(PDF pdf, double d)
+{
+    if (pdf->cave)
+        pdf_out(pdf, ' ');
+    pdf_printf(pdf, "%s", convertNumToPDF(d));
+    pdf->cave = true;
+}
+
 static void copyString(PDF pdf, GooString * string)
 {
     char *p;
@@ -371,6 +395,14 @@ static void copyName(PDF pdf, char *s)
         else
             pdf_printf(pdf, "#%.2X", *s & 0xFF);
     }
+    pdf->cave = true;
+}
+
+static void copyNull(PDF pdf)
+{
+    if (pdf->cave)
+        pdf_out(pdf, ' ');
+    pdf_puts(pdf, "null");
     pdf->cave = true;
 }
 
@@ -420,28 +452,28 @@ static void copyStream(PDF pdf, PdfDocument * pdf_doc, Stream * stream)
     pdf_end_stream(pdf);
 }
 
+static void copyRef(PDF pdf, PdfDocument * pdf_doc, Ref ref)
+{
+    if (pdf->cave)
+        pdf_out(pdf, ' ');
+    pdf_printf(pdf, "%d 0 R", addInObj(pdf, pdf_doc, ref));
+    pdf->cave = true;
+}
+
 static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
 {
     switch (obj->getType()) {
     case objBool:
-        if (pdf->cave)
-            pdf_out(pdf, ' ');
-        pdf_printf(pdf, "%s", obj->getBool()? "true" : "false");
-        pdf->cave = true;
+        copyBool(pdf, obj->getBool());
         break;
     case objInt:
-        if (pdf->cave)
-            pdf_out(pdf, ' ');
-        pdf_printf(pdf, "%i", obj->getInt());
-        pdf->cave = true;
+        copyInt(pdf, obj->getInt());
         break;
     case objReal:
-        if (pdf->cave)
-            pdf_out(pdf, ' ');
-        pdf_printf(pdf, "%s", convertNumToPDF(obj->getReal()));
-        pdf->cave = true;
+        copyReal(pdf, obj->getReal());
         break;
         // not needed:
+        // case objNum:
         // GBool isNum() { return type == objInt || type == objReal; }
     case objString:
         copyString(pdf, obj->getString());
@@ -450,10 +482,7 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
         copyName(pdf, obj->getName());
         break;
     case objNull:
-        if (pdf->cave)
-            pdf_out(pdf, ' ');
-        pdf_puts(pdf, "null");
-        pdf->cave = true;
+        copyNull(pdf);
         break;
     case objArray:
         copyArray(pdf, pdf_doc, obj->getArray());
@@ -465,10 +494,7 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
         copyStream(pdf, pdf_doc, obj->getStream());
         break;
     case objRef:
-        if (pdf->cave)
-            pdf_out(pdf, ' ');
-        pdf_printf(pdf, "%d 0 R", addInObj(pdf, pdf_doc, obj->getRef()));
-        pdf->cave = true;
+        copyRef(pdf, pdf_doc, obj->getRef());
         break;
     case objCmd:
     case objError:
@@ -487,9 +513,10 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
 static void writeRefs(PDF pdf, PdfDocument * pdf_doc)
 {
     InObj *r, *n;
-    XRef *xref;
     Object obj1;
-    xref = pdf_doc->doc->getXRef();
+    XRef *xref;
+    PDFDoc *doc = pdf_doc->doc;
+    xref = doc->getXRef();
     for (r = pdf_doc->inObjList; r != NULL;) {
         xref->fetch(r->ref.num, r->ref.gen, &obj1);
         if (obj1.isStream())
@@ -544,6 +571,7 @@ read_pdf_info(image_dict * idict, int minor_pdf_version_wanted,
               int pdf_inclusion_errorlevel, img_readtype_e readtype)
 {
     PdfDocument *pdf_doc;
+    PDFDoc *doc;
     Page *page;
     int rotate;
     PDFRectangle *pagebox;
@@ -560,12 +588,13 @@ read_pdf_info(image_dict * idict, int minor_pdf_version_wanted,
     }
     // open PDF file
     pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL);
+    doc = pdf_doc->doc;
     // check PDF version
     // this works only for PDF 1.x -- but since any versions of PDF newer
     // than 1.x will not be backwards compatible to PDF 1.x, pdfTeX will
     // then have to changed drastically anyway.
-    pdf_major_version_found = pdf_doc->doc->getPDFMajorVersion();
-    pdf_minor_version_found = pdf_doc->doc->getPDFMinorVersion();
+    pdf_major_version_found = doc->getPDFMajorVersion();
+    pdf_minor_version_found = doc->getPDFMinorVersion();
     if ((pdf_major_version_found > 1)
         || (pdf_minor_version_found > minor_pdf_version_wanted)) {
         const char *msg =
@@ -578,17 +607,16 @@ read_pdf_info(image_dict * idict, int minor_pdf_version_wanted,
                         minor_pdf_version_wanted);
         }
     }
-    img_totalpages(idict) = pdf_doc->doc->getCatalog()->getNumPages();
+    img_totalpages(idict) = doc->getCatalog()->getNumPages();
     if (img_pagename(idict)) {
         // get page by name
         GooString name(img_pagename(idict));
-        LinkDest *link = pdf_doc->doc->findDest(&name);
+        LinkDest *link = doc->findDest(&name);
         if (link == NULL || !link->isOk())
             pdftex_fail("PDF inclusion: invalid destination <%s>",
                         img_pagename(idict));
         Ref ref = link->getPageRef();
-        img_pagenum(idict) =
-            pdf_doc->doc->getCatalog()->findPage(ref.num, ref.gen);
+        img_pagenum(idict) = doc->getCatalog()->findPage(ref.num, ref.gen);
         if (img_pagenum(idict) == 0)
             pdftex_fail("PDF inclusion: destination is not a page <%s>",
                         img_pagename(idict));
@@ -601,7 +629,7 @@ read_pdf_info(image_dict * idict, int minor_pdf_version_wanted,
                         (int) img_pagenum(idict));
     }
     // get the required page
-    page = pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
+    page = doc->getCatalog()->getPage(img_pagenum(idict));
 
     // get the pagebox coordinates (media, crop,...) to use.
     pagebox = get_pagebox(page, img_pagebox(idict));
@@ -663,6 +691,7 @@ read_pdf_info(image_dict * idict, int minor_pdf_version_wanted,
 void write_epdf(PDF pdf, image_dict * idict)
 {
     PdfDocument *pdf_doc;
+    PDFDoc *doc;
     Page *page;
     Ref *pageref;
     Dict *pageDict;
@@ -679,10 +708,11 @@ void write_epdf(PDF pdf, image_dict * idict)
 
     // open PDF file
     pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL);
-    page = pdf_doc->doc->getCatalog()->getPage(img_pagenum(idict));
-    pageref = pdf_doc->doc->getCatalog()->getPageRef(img_pagenum(idict));
+    doc = pdf_doc->doc;
+    page = doc->getCatalog()->getPage(img_pagenum(idict));
+    pageref = doc->getCatalog()->getPageRef(img_pagenum(idict));
     assert(pageref != NULL);    // was checked already in read_pdf_info()
-    pdf_doc->doc->getXRef()->fetch(pageref->num, pageref->gen, &pageobj);
+    doc->getXRef()->fetch(pageref->num, pageref->gen, &pageobj);
     pageDict = pageobj.getDict();
 
     // write the Page header
@@ -700,7 +730,7 @@ void write_epdf(PDF pdf, image_dict * idict)
                                         strlen(pdf_doc->file_path)));
     pdf_printf(pdf, "/%s.PageNumber %i\n", pdfkeyprefix,
                (int) img_pagenum(idict));
-    pdf_doc->doc->getDocInfoNF(&obj1);
+    doc->getDocInfoNF(&obj1);
     if (obj1.isRef()) {
         // the info dict must be indirect (PDF Ref p. 61)
         pdf_printf(pdf, "/%s.InfoDict ", pdfkeyprefix);
@@ -756,7 +786,7 @@ void write_epdf(PDF pdf, image_dict * idict)
             obj1.free();
             op1->dictLookupNF((char *) "Resources", &obj1);
             if (!obj1.isNull()) {
-                pdf_puts(pdf, "/Resources ");
+                pdf_add_name(pdf, (const char *) "Resources");
                 copyObject(pdf, pdf_doc, &obj1);
                 break;
             }
@@ -791,19 +821,19 @@ void write_epdf(PDF pdf, image_dict * idict)
         obj1.free();
         contents.streamGetDict()->lookup((char *) "Length", &obj1);
         assert(!obj1.isNull());
-        pdf_puts(pdf, "/Length ");
+        pdf_add_name(pdf, (const char *) "Length");
         copyObject(pdf, pdf_doc, &obj1);
         obj1.free();
         pdf_puts(pdf, "\n");
         contents.streamGetDict()->lookup((char *) "Filter", &obj1);
         if (!obj1.isNull()) {
-            pdf_puts(pdf, "/Filter ");
+            pdf_add_name(pdf, (const char *) "Filter");
             copyObject(pdf, pdf_doc, &obj1);
             obj1.free();
             pdf_puts(pdf, "\n");
             contents.streamGetDict()->lookup((char *) "DecodeParms", &obj1);
             if (!obj1.isNull()) {
-                pdf_puts(pdf, "/DecodeParms ");
+                pdf_add_name(pdf, (const char *) "DecodeParms");
                 copyObject(pdf, pdf_doc, &obj1);
                 pdf_puts(pdf, "\n");
             }

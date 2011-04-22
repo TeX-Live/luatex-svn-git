@@ -260,24 +260,24 @@ void write_jpg(PDF pdf, image_dict * idict)
     pdf_dict_add_name(pdf, "Type", "XObject");
     pdf_dict_add_name(pdf, "Subtype", "Image");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
-        pdf_printf(pdf, "%s\n", img_attr(idict));
+        pdf_printf(pdf, "\n%s\n", img_attr(idict));
     pdf_dict_add_int(pdf, "Width", (int) img_xsize(idict));
     pdf_dict_add_int(pdf, "Height", (int) img_ysize(idict));
     pdf_dict_add_int(pdf, "BitsPerComponent", (int) img_colordepth(idict));
     pdf_dict_add_int(pdf, "Length", (int) img_jpg_ptr(idict)->length);
-    pdf_puts(pdf, "/ColorSpace ");
     if (img_colorspace(idict) != 0) {
-        pdf_printf(pdf, "%i 0 R\n", (int) img_colorspace(idict));
+        pdf_dict_add_ref(pdf, "ColorSpace", (int) img_colorspace(idict));
     } else {
         switch (img_jpg_color(idict)) {
         case JPG_GRAY:
-            pdf_puts(pdf, "/DeviceGray\n");
+            pdf_dict_add_name(pdf, "ColorSpace", "DeviceGray");
             break;
         case JPG_RGB:
-            pdf_puts(pdf, "/DeviceRGB\n");
+            pdf_dict_add_name(pdf, "ColorSpace", "DeviceRGB");
             break;
         case JPG_CMYK:
-            pdf_puts(pdf, "/DeviceCMYK\n/Decode [1 0 1 0 1 0 1 0]\n");
+            pdf_dict_add_name(pdf, "ColorSpace", "DeviceCMYK");
+            pdf_puts(pdf, "/Decode [1 0 1 0 1 0 1 0]\n");
             break;
         default:
             pdftex_fail("Unsupported color space %i",

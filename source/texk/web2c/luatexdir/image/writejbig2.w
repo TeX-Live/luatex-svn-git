@@ -714,15 +714,19 @@ static void rd_jbig2_info(FILEINFO * fip)
 }
 
 @ @c
-static void wr_jbig2(PDF pdf, FILEINFO * fip, unsigned long page)
+static void wr_jbig2(PDF pdf, image_dict * idict, FILEINFO * fip,
+                     unsigned long page)
 {
     LITEM *slip;
     PAGEINFO *pip;
     SEGINFO *sip;
     unsigned long i;
     if (page > 0) {
+        assert(idict != NULL);
         pip = find_pageinfo(&(fip->pages), page);
         assert(pip != NULL);
+        pdf_begin_obj(pdf, img_objnum(idict), OBJSTM_NEVER);
+        pdf_begin_dict(pdf);
         pdf_dict_add_name(pdf, "Type", "XObject");
         pdf_dict_add_name(pdf, "Subtype", "Image");
         pdf_dict_add_int(pdf, "Width", pip->width);
@@ -731,24 +735,30 @@ static void wr_jbig2(PDF pdf, FILEINFO * fip, unsigned long page)
         pdf_dict_add_int(pdf, "BitsPerComponent", 1);
         pdf_dict_add_int(pdf, "Length",
                          getstreamlen(pip->segments.first, true));
-        pdf_puts(pdf, "/Filter [/JBIG2Decode]\n");
+        pdf_dict_add_name(pdf, "Filter", "JBIG2Decode");
         if (fip->page0.last != NULL) {
             if (fip->pdfpage0objnum == 0) {
                 fip->pdfpage0objnum =
                     (unsigned long) pdf_create_obj(pdf, obj_type_others, 0);
             }
-            pdf_printf(pdf, "/DecodeParms [<< /JBIG2Globals %lu 0 R >>]\n",
-                       fip->pdfpage0objnum);
+            pdf_add_name(pdf, "DecodeParms");
+            pdf_begin_array(pdf);
+            pdf_begin_dict(pdf);
+            pdf_dict_add_ref(pdf, "JBIG2Globals", fip->pdfpage0objnum);
+            pdf_end_dict(pdf);
+            pdf_end_array(pdf);
         }
+        pdf_end_dict(pdf);
     } else {
+        assert(idict == NULL);
         pip = find_pageinfo(&(fip->page0), page);
         assert(pip != NULL);
         pdf_begin_obj(pdf, (int) fip->pdfpage0objnum, OBJSTM_NEVER);
         pdf_begin_dict(pdf);
-        pdf_printf(pdf, "/Length %lu\n",
-                   getstreamlen(pip->segments.first, false));
+        pdf_dict_add_int(pdf, "Length",
+                         getstreamlen(pip->segments.first, false));
+        pdf_end_dict(pdf);
     }
-    pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
     fip->file = xfopen(fip->filepath, FOPEN_RBIN_MODE);
     for (slip = pip->segments.first; slip != NULL; slip = slip->next) { /* loop over page segments */
@@ -825,9 +835,7 @@ void write_jbig2(PDF pdf, image_dict * idict)
     assert(fip->phase == HAVEINFO);     /* don't write before |rd_jbig2_info()| call */
     pip = find_pageinfo(&(fip->pages), (unsigned long) img_pagenum(idict));
     assert(pip != NULL);
-    pdf_begin_obj(pdf, img_objnum(idict), OBJSTM_NEVER);
-    pdf_begin_dict(pdf);
-    wr_jbig2(pdf, fip, pip->pagenum);
+    wr_jbig2(pdf, idict, fip, pip->pagenum);
     img_file(idict) = NULL;
 }
 
@@ -841,7 +849,7 @@ void flush_jbig2_page0_objects(PDF pdf)
         for (fip = avl_t_first(&t, file_tree); fip != NULL;
              fip = avl_t_next(&t)) {
             if (fip->page0.last != NULL)
-                wr_jbig2(pdf, fip, 0);
+                wr_jbig2(pdf, NULL, fip, 0);    /* NULL: page0 */
         }
     }
 }

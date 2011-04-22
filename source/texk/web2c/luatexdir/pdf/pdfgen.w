@@ -1200,37 +1200,56 @@ void pdf_end_dict(PDF pdf)
 @c
 void pdf_dict_add_int(PDF pdf, const char *key, int i)
 {
-    pdf_out(pdf, '/');
-    pdf_puts(pdf, key);
-    pdf_out(pdf, ' ');
-    pdf_print_int(pdf, i);
-    pdf_out(pdf, '\n');
-    pdf->cave = 0;
+    pdf_add_name(pdf, key);
+    pdf_add_int(pdf, i);
+    pdf_out(pdf, '\n');         /* TODO: remove */
+    pdf->cave = 0;              /* TODO: remove */
 }
 
 @ add name object to dict
 @c
 void pdf_dict_add_name(PDF pdf, const char *key, const char *val)
 {
-    pdf_out(pdf, '/');
-    pdf_puts(pdf, key);
-    pdf_puts(pdf, " /");
-    pdf_puts(pdf, val);
-    pdf_out(pdf, '\n');
-    pdf->cave = 0;
+    pdf_add_name(pdf, key);
+    pdf_add_name(pdf, val);
+    pdf_out(pdf, '\n');         /* TODO: remove */
+    pdf->cave = 0;              /* TODO: remove */
 }
 
 @ add name reference to dict
 @c
 void pdf_dict_add_ref(PDF pdf, const char *key, int num)
 {
+    pdf_add_name(pdf, key);
+    pdf_add_ref(pdf, num);
+    pdf_out(pdf, '\n');         /* TODO: remove */
+    pdf->cave = 0;         /* TODO: remove */
+}
+
+@ add objects of different types
+@c
+void pdf_add_int(PDF pdf, int i)
+{
+    if (pdf->cave > 0)
+        pdf_out(pdf, ' ');
+    pdf_print_int(pdf, i);
+    pdf->cave = 1;
+}
+
+void pdf_add_name(PDF pdf, const char *name)
+{
     pdf_out(pdf, '/');
-    pdf_puts(pdf, key);
-    pdf_out(pdf, ' ');
+    pdf_puts(pdf, name);
+    pdf->cave = 1;
+}
+
+void pdf_add_ref(PDF pdf, int num)
+{
+    if (pdf->cave > 0)
+        pdf_out(pdf, ' ');
     pdf_print_int(pdf, num);
     pdf_puts(pdf, " 0 R");
-    pdf_out(pdf, '\n');
-    pdf->cave = 0;
+    pdf->cave = 1;
 }
 
 @ add stream length and filter entries to a stream dictionary,

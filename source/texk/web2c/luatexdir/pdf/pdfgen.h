@@ -134,6 +134,10 @@ extern void pdf_print_int(PDF, longinteger);
 extern void pdf_print_real(PDF, int, int);
 extern void pdf_print_str(PDF, const char *);
 
+extern void pdf_add_int(PDF, int i);
+extern void pdf_add_ref(PDF, int num);
+extern void pdf_add_name(PDF, const char *name);
+
 extern void pdf_dict_add_int(PDF, const char *key, int i);
 extern void pdf_dict_add_ref(PDF, const char *key, int num);
 extern void pdf_dict_add_name(PDF, const char *key, const char *val);
