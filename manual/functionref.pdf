@@ -1,8 +1,7 @@
 %PDF-1.6
 %ÐÔÅØ
 17 0 obj
-<<
-/Length 40416     
+<</Length 40416     
 >>
 
 stream
@@ -41,7 +40,7 @@ BT
 /F32 8.966376 Tf 1 0 0 1 101.2561 685.9893 Tm [<007A>]TJ
 /F31 8.069684 Tf 1 0 0 1 28.3464 674.6917 Tm [<00250049006E001D006A003300750030001D006A00330063006A001D004C0055>]TJ
 /F29 8.966376 Tf 1 0 0 1 89.7971 674.6917 Tm [<002D>]TJ
-/F32 8.966376 Tf 1 0 0 1 101.2561 674.6917 Tm [<006C007A00530053007A003A006C006C00530053>]TJ
+/F32 8.966376 Tf 1 0 0 1 101.2561 674.6917 Tm [<006C007A00530053007A003A006C006C0053003A>]TJ
 /F30 8.069684 Tf 1 0 0 1 28.3464 650.5817 Tm [<001C006A006A006100430024006E006A00330063>]TJ
 /F29 8.966376 Tf 1 0 0 1 28.3464 639.284 Tm [<00690040003300610033>-250<001D00610033>-250<006600390039006B0066>-250<001D006A006A006100430024006E006A0033>-250<00610033003C00430063006A003300610063002E>-250<0033001D002C0040>-250<00520038>-250<007300400043002C0040>-250<00520024003300770063>-250<003C00610052006E00550043004E003C>-250<001D004E0030>]TJ
 1 0 0 1 28.3464 627.9864 Tm [<002C001D004E>-250<0040001D00710033>-250<001D004E0077>-250<0043004E006A0033003C00330061>-250<0071001D0049006E0033>-250<0052006A004000330061>-250<006A0040001D004E>-250<006A00400033>-250<004C00520063006A>-250<004E0033003C001D006A004300710033>-250<004E006E004C002400330061>-250<0056007300400043002C0040>]TJ
@@ -357,8 +356,7 @@ ET
 endstream
 endobj
 16 0 obj
-<<
-/Type/Page
+<</Type/Page
 /Contents 17 0 R
 /Resources 15 0 R
 /MediaBox [0 0 595.2756 841.8898]
@@ -368,14 +366,11 @@ endobj
 endobj
 15 0 obj
 <<
-
-/Font <<
-/F29 18 0 R /F30 19 0 R /F31 20 0 R /F32 21 0 R /F22 22 0 R >>
+/Font <</F29 18 0 R /F30 19 0 R /F31 20 0 R /F32 21 0 R /F22 22 0 R >>
 /ProcSet [ /PDF /Text]>>
 endobj
 26 0 obj
-<<
-/Length 38250     
+<</Length 38250     
 >>
 
 stream
@@ -705,8 +700,7 @@ ET
 endstream
 endobj
 25 0 obj
-<<
-/Type/Page
+<</Type/Page
 /Contents 26 0 R
 /Resources 24 0 R
 /MediaBox [0 0 595.2756 841.8898]
@@ -716,14 +710,11 @@ endobj
 endobj
 24 0 obj
 <<
-
-/Font <<
-/F29 18 0 R /F30 19 0 R /F31 20 0 R /F32 21 0 R >>
+/Font <</F29 18 0 R /F30 19 0 R /F31 20 0 R /F32 21 0 R >>
 /ProcSet [ /PDF /Text]>>
 endobj
 29 0 obj
-<<
-/Length 48047     
+<</Length 48047     
 >>
 
 stream
@@ -1174,8 +1165,7 @@ ET
 endstream
 endobj
 28 0 obj
-<<
-/Type/Page
+<</Type/Page
 /Contents 29 0 R
 /Resources 27 0 R
 /MediaBox [0 0 595.2756 841.8898]
@@ -1185,14 +1175,11 @@ endobj
 endobj
 27 0 obj
 <<
-
-/Font <<
-/F29 18 0 R /F31 20 0 R /F30 19 0 R >>
+/Font <</F29 18 0 R /F31 20 0 R /F30 19 0 R >>
 /ProcSet [ /PDF /Text]>>
 endobj
 32 0 obj
-<<
-/Length 43353     
+<</Length 43353     
 >>
 
 stream
@@ -1647,8 +1634,7 @@ ET
 endstream
 endobj
 31 0 obj
-<<
-/Type/Page
+<</Type/Page
 /Contents 32 0 R
 /Resources 30 0 R
 /MediaBox [0 0 595.2756 841.8898]
@@ -1658,14 +1644,11 @@ endobj
 endobj
 30 0 obj
 <<
-
-/Font <<
-/F29 18 0 R /F31 20 0 R /F30 19 0 R /F32 21 0 R >>
+/Font <</F29 18 0 R /F31 20 0 R /F30 19 0 R /F32 21 0 R >>
 /ProcSet [ /PDF /Text]>>
 endobj
 35 0 obj
-<<
-/Length 42189     
+<</Length 42189     
 >>
 
 stream
@@ -2023,8 +2006,7 @@ ET
 endstream
 endobj
 34 0 obj
-<<
-/Type/Page
+<</Type/Page
 /Contents 35 0 R
 /Resources 33 0 R
 /MediaBox [0 0 595.2756 841.8898]
@@ -2034,14 +2016,11 @@ endobj
 endobj
 33 0 obj
 <<
-
-/Font <<
-/F29 18 0 R /F31 20 0 R /F30 19 0 R >>
+/Font <</F29 18 0 R /F31 20 0 R /F30 19 0 R >>
 /ProcSet [ /PDF /Text]>>
 endobj
 38 0 obj
-<<
-/Length 42274     
+<</Length 42274     
 >>
 
 stream
@@ -2383,8 +2362,7 @@ ET
 endstream
 endobj
 37 0 obj
-<<
-/Type/Page
+<</Type/Page
 /Contents 38 0 R
 /Resources 36 0 R
 /MediaBox [0 0 595.2756 841.8898]
@@ -2394,14 +2372,11 @@ endobj
 endobj
 36 0 obj
 <<
-
-/Font <<
-/F29 18 0 R /F31 20 0 R /F30 19 0 R /F32 21 0 R >>
+/Font <</F29 18 0 R /F31 20 0 R /F30 19 0 R /F32 21 0 R >>
 /ProcSet [ /PDF /Text]>>
 endobj
 41 0 obj
-<<
-/Length 41963     
+<</Length 41963     
 >>
 
 stream
@@ -2748,8 +2723,7 @@ ET
 endstream
 endobj
 40 0 obj
-<<
-/Type/Page
+<</Type/Page
 /Contents 41 0 R
 /Resources 39 0 R
 /MediaBox [0 0 595.2756 841.8898]
@@ -2759,14 +2733,11 @@ endobj
 endobj
 39 0 obj
 <<
-
-/Font <<
-/F29 18 0 R /F31 20 0 R /F30 19 0 R /F32 21 0 R >>
+/Font <</F29 18 0 R /F31 20 0 R /F30 19 0 R /F32 21 0 R >>
 /ProcSet [ /PDF /Text]>>
 endobj
 45 0 obj
-<<
-/Length 35195     
+<</Length 35195     
 >>
 
 stream
@@ -3055,8 +3026,7 @@ ET
 endstream
 endobj
 44 0 obj
-<<
-/Type/Page
+<</Type/Page
 /Contents 45 0 R
 /Resources 43 0 R
 /MediaBox [0 0 595.2756 841.8898]
@@ -3066,14 +3036,11 @@ endobj
 endobj
 43 0 obj
 <<
-
-/Font <<
-/F29 18 0 R /F31 20 0 R /F30 19 0 R /F32 21 0 R /F24 46 0 R /F28 47 0 R /F19 48 0 R >>
+/Font <</F29 18 0 R /F31 20 0 R /F30 19 0 R /F32 21 0 R /F24 46 0 R /F28 47 0 R /F19 48 0 R >>
 /ProcSet [ /PDF /Text]>>
 endobj
 49 0 obj
-<<
-/Type /Metadata /Subtype /XML
+<</Type /Metadata /Subtype /XML
 /Length 2243      
 >>
 
@@ -3098,17 +3065,17 @@ stream
         </rdf:Description>
         <rdf:Description rdf:about="" xmlns:pdfx="http://ns.adobe.com/pdfx/1.3/">
             <pdfx:ConTeXt.Jobname>functionref</pdfx:ConTeXt.Jobname>
-            <pdfx:ConTeXt.Time>2011.04.22 11:55</pdfx:ConTeXt.Time>
+            <pdfx:ConTeXt.Time>2011.04.22 14:37</pdfx:ConTeXt.Time>
             <pdfx:ConTeXt.Url>www.pragma-ade.com</pdfx:ConTeXt.Url>
             <pdfx:ConTeXt.Version>2011.04.20 16:23</pdfx:ConTeXt.Version>
-            <pdfx:ID>functionref.2011-04-22T11:55:26+02:00</pdfx:ID>
-            <pdfx:PTEX.Fullbanner>This is LuaTeX, Version beta-0.67.0-2011042211 (rev 4190) (TeX Live 2011) kpathsea version 6.0.1</pdfx:PTEX.Fullbanner>
+            <pdfx:ID>functionref.2011-04-22T14:37:35+02:00</pdfx:ID>
+            <pdfx:PTEX.Fullbanner>This is LuaTeX, Version beta-0.67.0-2011042214 (rev 4191) (TeX Live 2011) kpathsea version 6.0.1</pdfx:PTEX.Fullbanner>
         </rdf:Description>
         <rdf:Description rdf:about="" xmlns:xmp="http://ns.adobe.com/xap/1.0/">
-            <xmp:CreateDate>2011-04-22T11:55:26+02:00</xmp:CreateDate>
+            <xmp:CreateDate>2011-04-22T14:37:35+02:00</xmp:CreateDate>
             <xmp:CreatorTool>ConTeXt - 2011.04.20 16:23</xmp:CreatorTool>
-            <xmp:ModifyDate>2011-04-22T11:55:26+02:00</xmp:ModifyDate>
-            <xmp:MetadataDate>2011-04-22T11:55:26+02:00</xmp:MetadataDate>
+            <xmp:ModifyDate>2011-04-22T14:37:35+02:00</xmp:ModifyDate>
+            <xmp:MetadataDate>2011-04-22T14:37:35+02:00</xmp:MetadataDate>
         </rdf:Description>
         <rdf:Description rdf:about="" xmlns:pdf="http://ns.adobe.com/pdf/1.3/">
             <pdf:Keywords/>
@@ -3131,8 +3098,7 @@ endobj
 
 endobj
 51 0 obj
-<<
-/Length 14        
+<</Length 14        
 >>
 
 stream
@@ -3141,8 +3107,7 @@ endstream
 
 endobj
 52 0 obj
-<<
-/Subtype/CIDFontType0C
+<</Subtype/CIDFontType0C
 /Length 692       
 >>
 
@@ -3153,8 +3118,7 @@ endstream
 
 endobj
 53 0 obj
-<<
-/Type/FontDescriptor
+<</Type/FontDescriptor
 /FontName /VOQWLP+TeXGyreTermes-Regular
 /Flags 4
 /FontBBox [-526 -281 1306 1055]
@@ -3170,8 +3134,7 @@ endobj
 
 endobj
 54 0 obj
-<<
-/Length 726       
+<</Length 726       
 >>
 
 stream
@@ -3210,8 +3173,7 @@ end
 endstream
 endobj
 48 0 obj
-<<
-/Type/Font
+<</Type/Font
 /Subtype/Type0
 /Encoding/Identity-H
 /BaseFont /VOQWLP+TeXGyreTermes-Regular
@@ -3220,14 +3182,12 @@ endobj
 >>
 endobj
 55 0 obj
-<<
-/Type/Font
+<</Type/Font
 /Subtype/CIDFontType0
 /BaseFont /VOQWLP+TeXGyreTermes-Regular
 /FontDescriptor 53 0 R
 /W 50 0 R
-/CIDSystemInfo <<
-/Registry (Adobe)
+/CIDSystemInfo <</Registry (Adobe)
 /Ordering (Identity)
 /Supplement 0
 >>
@@ -3237,8 +3197,7 @@ endobj
 [ 57 [500] 83 [500] 101 [500] 107 [500 500] 122 [500]]
 endobj
 57 0 obj
-<<
-/Length 16        
+<</Length 16        
 >>
 
 stream
@@ -3247,8 +3206,7 @@ endstream
 
 endobj
 58 0 obj
-<<
-/Subtype/CIDFontType0C
+<</Subtype/CIDFontType0C
 /Length 1107      
 >>
 
@@ -3260,8 +3218,7 @@ endstream
 
 endobj
 59 0 obj
-<<
-/Type/FontDescriptor
+<</Type/FontDescriptor
 /FontName /OLVTUK+TeXGyreTermes-Regular
 /Flags 4
 /FontBBox [-526 -281 1306 1055]
@@ -3277,8 +3234,7 @@ endobj
 
 endobj
 60 0 obj
-<<
-/Length 782       
+<</Length 782       
 >>
 
 stream
@@ -3321,8 +3277,7 @@ end
 endstream
 endobj
 47 0 obj
-<<
-/Type/Font
+<</Type/Font
 /Subtype/Type0
 /Encoding/Identity-H
 /BaseFont /OLVTUK+TeXGyreTermes-Regular
@@ -3331,14 +3286,12 @@ endobj
 >>
 endobj
 61 0 obj
-<<
-/Type/Font
+<</Type/Font
 /Subtype/CIDFontType0
 /BaseFont /OLVTUK+TeXGyreTermes-Regular
 /FontDescriptor 59 0 R
 /W 56 0 R
-/CIDSystemInfo <<
-/Registry (Adobe)
+/CIDSystemInfo <</Registry (Adobe)
 /Ordering (Identity)
 /Supplement 0
 >>
@@ -3354,8 +3307,7 @@ endobj
 [ 29 [500] 44 [444] 48 [556] 51 [444] 56 [333] 58 [500] 60 [500] 67 [278] 73 [278] 76 [833] 78 [556] 82 [500 500] 85 [556] 97 [444] 99 [389] 101 [500 500] 106 [333] 108 [500] 110 [556] 117 [500] 122 [500]]
 endobj
 66 0 obj
-<<
-/Length 16        
+<</Length 16        
 >>
 
 stream
@@ -3364,8 +3316,7 @@ endstream
 
 endobj
 67 0 obj
-<<
-/Subtype/CIDFontType0C
+<</Subtype/CIDFontType0C
 /Length 2961      
 >>
 
@@ -3380,8 +3331,7 @@ endstream
 
 endobj
 68 0 obj
-<<
-/Type/FontDescriptor
+<</Type/FontDescriptor
 /FontName /VWYXRG+TeXGyreTermes-Bold
 /Flags 4
 /FontBBox [-586 -341 1305 1118]
@@ -3397,8 +3347,7 @@ endobj
 
 endobj
 69 0 obj
-<<
-/Length 1006      
+<</Length 1006      
 >>
 
 stream
@@ -3458,8 +3407,7 @@ end
 endstream
 endobj
 21 0 obj
-<<
-/Type/Font
+<</Type/Font
 /Subtype/Type0
 /Encoding/Identity-H
 /BaseFont /VWYXRG+TeXGyreTermes-Bold
@@ -3468,14 +3416,12 @@ endobj
 >>
 endobj
 70 0 obj
-<<
-/Type/Font
+<</Type/Font
 /Subtype/CIDFontType0
 /BaseFont /VWYXRG+TeXGyreTermes-Bold
 /FontDescriptor 68 0 R
 /W 65 0 R
-/CIDSystemInfo <<
-/Registry (Adobe)
+/CIDSystemInfo <</Registry (Adobe)
 /Ordering (Identity)
 /Supplement 0
 >>
@@ -3485,8 +3431,7 @@ endobj
 [ 28 [667 556] 35 [667 556 278] 39 [334 334 278 278 722 500 278 278 722 556] 50 [667 556] 53 [584] 55 [611 278 556] 60 [556] 62 [584] 64 [556 333] 67 [222] 69 [222] 71 [500 556 222 584] 76 [833] 78 [556] 81 [778 556 556 667 556 333 333] 89 [278 584] 93 [556 355] 96 [722 333 667 500] 103 [278] 106 [278] 108 [556 722 556 556] 113 [500] 115 [722 667 500] 119 [500] 121 [500 556 534 758] 126 [500 500] 290 [556] 533 [222]]
 endobj
 72 0 obj
-<<
-/Length 67        
+<</Length 67        
 >>
 
 stream
@@ -3495,8 +3440,7 @@ endstream
 
 endobj
 73 0 obj
-<<
-/Subtype/CIDFontType0C
+<</Subtype/CIDFontType0C
 /Length 4779      
 >>
 
@@ -3516,8 +3460,7 @@ endstream
 
 endobj
 74 0 obj
-<<
-/Type/FontDescriptor
+<</Type/FontDescriptor
 /FontName /ARIICQ+TeXGyreHeros-Regular
 /Flags 4
 /FontBBox [-529 -284 1353 1148]
@@ -3533,8 +3476,7 @@ endobj
 
 endobj
 75 0 obj
-<<
-/Length 1618      
+<</Length 1618      
 >>
 
 stream
@@ -3636,8 +3578,7 @@ end
 endstream
 endobj
 20 0 obj
-<<
-/Type/Font
+<</Type/Font
 /Subtype/Type0
 /Encoding/Identity-H
 /BaseFont /ARIICQ+TeXGyreHeros-Regular
@@ -3646,14 +3587,12 @@ endobj
 >>
 endobj
 76 0 obj
-<<
-/Type/Font
+<</Type/Font
 /Subtype/CIDFontType0
 /BaseFont /ARIICQ+TeXGyreHeros-Regular
 /FontDescriptor 74 0 R
 /W 71 0 R
-/CIDSystemInfo <<
-/Registry (Adobe)
+/CIDSystemInfo <</Registry (Adobe)
 /Ordering (Identity)
 /Supplement 0
 >>
@@ -3663,8 +3602,7 @@ endobj
 [ 28 [722 556] 35 [722 611] 43 [722 556 333] 47 [722 611] 50 [667 556] 55 [611 333] 59 [778 611] 63 [722 611] 66 [278 278 556 278 722 556 611 278] 75 [833 889 722 611] 81 [778 611 556 667 611] 89 [278] 96 [722 389 667 556] 105 [611 333] 109 [722 611 556 667 556 944 778 667 556] 119 [556 611 500] 123 [637 921] 126 [611 611]]
 endobj
 78 0 obj
-<<
-/Length 16        
+<</Length 16        
 >>
 
 stream
@@ -3673,8 +3611,7 @@ endstream
 
 endobj
 79 0 obj
-<<
-/Subtype/CIDFontType0C
+<</Subtype/CIDFontType0C
 /Length 4436      
 >>
 
@@ -3696,8 +3633,7 @@ endstream
 
 endobj
 80 0 obj
-<<
-/Type/FontDescriptor
+<</Type/FontDescriptor
 /FontName /JUPTUS+TeXGyreHeros-Bold
 /Flags 4
 /FontBBox [-531 -307 1359 1125]
@@ -3713,8 +3649,7 @@ endobj
 
 endobj
 81 0 obj
-<<
-/Length 1470      
+<</Length 1470      
 >>
 
 stream
@@ -3807,8 +3742,7 @@ end
 endstream
 endobj
 19 0 obj
-<<
-/Type/Font
+<</Type/Font
 /Subtype/Type0
 /Encoding/Identity-H
 /BaseFont /JUPTUS+TeXGyreHeros-Bold
@@ -3817,14 +3751,12 @@ endobj
 >>
 endobj
 82 0 obj
-<<
-/Type/Font
+<</Type/Font
 /Subtype/CIDFontType0
 /BaseFont /JUPTUS+TeXGyreHeros-Bold
 /FontDescriptor 80 0 R
 /W 77 0 R
-/CIDSystemInfo <<
-/Registry (Adobe)
+/CIDSystemInfo <</Registry (Adobe)
 /Ordering (Identity)
 /Supplement 0
 >>
@@ -3834,8 +3766,7 @@ endobj
 [ 28 [722 444] 32 [541] 35 [667 500] 38 [200] 41 [333 333 667 444 278 250 722 500] 50 [611 444 500 564] 55 [556 333 500 500 722 500] 62 [564 722 500 333 333 278] 69 [278 722 500 611 278 564 889 778 722 500 500] 81 [722 500 500 556 500 333 333] 89 [250] 92 [500] 96 [667 333 556 389 278 500 500 278] 105 [611 278 500 500 722 500 500 722 500 944 722 722 500] 119 [500] 121 [444 500 600 827] 126 [556 556] 289 [1000] 532 [333 333]]
 endobj
 84 0 obj
-<<
-/Length 67        
+<</Length 67        
 >>
 
 stream
@@ -3844,8 +3775,7 @@ endstream
 
 endobj
 85 0 obj
-<<
-/Subtype/CIDFontType0C
+<</Subtype/CIDFontType0C
 /Length 8909      
 >>
 
@@ -3867,8 +3797,7 @@ endstream
 
 endobj
 86 0 obj
-<<
-/Type/FontDescriptor
+<</Type/FontDescriptor
 /FontName /GFOIKA+TeXGyreTermes-Regular
 /Flags 4
 /FontBBox [-526 -281 1306 1055]
@@ -3884,8 +3813,7 @@ endobj
 
 endobj
 87 0 obj
-<<
-/Length 1819      
+<</Length 1819      
 >>
 
 stream
@@ -4001,8 +3929,7 @@ end
 endstream
 endobj
 18 0 obj
-<<
-/Type/Font
+<</Type/Font
 /Subtype/Type0
 /Encoding/Identity-H
 /BaseFont /GFOIKA+TeXGyreTermes-Regular
@@ -4011,22 +3938,19 @@ endobj
 >>
 endobj
 88 0 obj
-<<
-/Type/Font
+<</Type/Font
 /Subtype/CIDFontType0
 /BaseFont /GFOIKA+TeXGyreTermes-Regular
 /FontDescriptor 86 0 R
 /W 83 0 R
-/CIDSystemInfo <<
-/Registry (Adobe)
+/CIDSystemInfo <</Registry (Adobe)
 /Ordering (Identity)
 /Supplement 0
 >>
 >>
 endobj
 89 0 obj
-<<
-/Length1 2025
+<</Length1 2025
 /Length2 15806
 /Length3 0
 /Length 17831     
@@ -4169,8 +4093,7 @@ endstream
 
 endobj
 90 0 obj
-<<
-/Type/FontDescriptor
+<</Type/FontDescriptor
 /FontName /MJPNET+TeXGyreTermes-Italic
 /Flags 4
 /FontBBox [-484 -270 1370 1070]
@@ -4186,8 +4109,7 @@ endobj
 
 endobj
 91 0 obj
-<<
-/Length1 742
+<</Length1 742
 /Length2 741
 /Length3 0
 /Length 1483      
@@ -4229,8 +4151,7 @@ endstream
 
 endobj
 92 0 obj
-<<
-/Type/FontDescriptor
+<</Type/FontDescriptor
 /FontName /LATGSE+txsy
 /Flags 4
 /FontBBox [-22 -944 1227 866]
@@ -4246,15 +4167,13 @@ endobj
 
 endobj
 63 0 obj
-<<
-/Type /Encoding
+<</Type /Encoding
 /Differences [78/N]
 >>
 
 endobj
 22 0 obj
-<<
-/Type/Font
+<</Type/Font
 /Subtype/Type1
 /BaseFont /MJPNET+TeXGyreTermes-Italic
 /FontDescriptor 90 0 R
@@ -4266,8 +4185,7 @@ endobj
 
 endobj
 46 0 obj
-<<
-/Type/Font
+<</Type/Font
 /Subtype/Type1
 /BaseFont /LATGSE+txsy
 /FontDescriptor 92 0 R
@@ -4278,37 +4196,32 @@ endobj
 
 endobj
 23 0 obj
-<<
-/Type/Pages
+<</Type/Pages
 /Parent 93 0 R
 /Count 6
 /Kids [16 0 R 25 0 R 28 0 R 31 0 R 34 0 R 37 0 R ]>>
 
 endobj
 42 0 obj
-<<
-/Type/Pages
+<</Type/Pages
 /Parent 93 0 R
 /Count 2
 /Kids [40 0 R 44 0 R ]>>
 
 endobj
 93 0 obj
-<<
-/Type/Pages
+<</Type/Pages
 
 /Count 8
 /Kids [23 0 R 42 0 R ]>>
 
 endobj
 94 0 obj
-<<
->>
+<<>>
 
 endobj
 95 0 obj
-<<
-/Type/Catalog
+<</Type/Catalog
 /Pages 93 0 R
 /Names 94 0 R
 /Version /1.6 /PageLabels << /Nums [ 0 << /S /D >> ] >> /PageMode /UseNone /Metadata 49 0 R
@@ -4316,9 +4229,8 @@ endobj
 
 endobj
 96 0 obj
-<<
-/ConTeXt.Url (www.pragma-ade.com) /ConTeXt.Version (2011.04.20 16:23) /ConTeXt.Jobname (functionref) /CreationDate (D:20110422115526+02'00') /Trapped /False /Title <feff00660075006e006300740069006f006e007200650066> /ConTeXt.Time (2011.04.22 11:55) /ID (functionref.2011-04-22T11:55:26+02:00) /Producer (LuaTeX-0.67.0) /ModDate (D:20110422115526+02'00') /Creator <feff0043006f006e00540065005800740020002d00200032003000310031002e00300034002e00320030002000310036003a00320033>
-/PTEX.Fullbanner (This is LuaTeX, Version beta-0.67.0-2011042211 (rev 4190) (TeX Live 2011) kpathsea version 6.0.1)
+<</ConTeXt.Url (www.pragma-ade.com) /ConTeXt.Version (2011.04.20 16:23) /ConTeXt.Jobname (functionref) /CreationDate (D:20110422143735+02'00') /Trapped /False /Title <feff00660075006e006300740069006f006e007200650066> /ConTeXt.Time (2011.04.22 14:37) /ID (functionref.2011-04-22T14:37:35+02:00) /Producer (LuaTeX-0.67.0) /ModDate (D:20110422143735+02'00') /Creator <feff0043006f006e00540065005800740020002d00200032003000310031002e00300034002e00320030002000310036003a00320033>
+/PTEX.Fullbanner (This is LuaTeX, Version beta-0.67.0-2011042214 (rev 4191) (TeX Live 2011) kpathsea version 6.0.1)
 >>
 
 endobj
@@ -4339,94 +4251,93 @@ xref
 0000000013 00000 f 
 0000000014 00000 f 
 0000000000 00000 f 
-0000040697 00000 n 
-0000040490 00000 n 
+0000040695 00000 n 
+0000040489 00000 n 
 0000000015 00000 n 
-0000373532 00000 n 
-0000361503 00000 n 
-0000354448 00000 n 
-0000346757 00000 n 
-0000393915 00000 n 
-0000394220 00000 n 
-0000079330 00000 n 
-0000079123 00000 n 
-0000040814 00000 n 
-0000127748 00000 n 
-0000127541 00000 n 
-0000079435 00000 n 
-0000171460 00000 n 
-0000171253 00000 n 
-0000127841 00000 n 
-0000214020 00000 n 
-0000213813 00000 n 
-0000171565 00000 n 
-0000256653 00000 n 
-0000256446 00000 n 
-0000214113 00000 n 
-0000298987 00000 n 
-0000298780 00000 n 
-0000256758 00000 n 
-0000394329 00000 n 
-0000334553 00000 n 
-0000334346 00000 n 
-0000299092 00000 n 
-0000394085 00000 n 
-0000341714 00000 n 
-0000338941 00000 n 
-0000334694 00000 n 
-0000337028 00000 n 
-0000337067 00000 n 
-0000337142 00000 n 
-0000337918 00000 n 
-0000338156 00000 n 
-0000339094 00000 n 
-0000339296 00000 n 
-0000339367 00000 n 
-0000339444 00000 n 
-0000340635 00000 n 
-0000340873 00000 n 
-0000341867 00000 n 
-0000342069 00000 n 
-0000393856 00000 n 
-0000342091 00000 n 
-0000342113 00000 n 
-0000342335 00000 n 
-0000342412 00000 n 
-0000345457 00000 n 
-0000345692 00000 n 
-0000346907 00000 n 
-0000347106 00000 n 
-0000347543 00000 n 
-0000347671 00000 n 
-0000352534 00000 n 
-0000352771 00000 n 
-0000354600 00000 n 
-0000354801 00000 n 
-0000355143 00000 n 
-0000355220 00000 n 
-0000359740 00000 n 
-0000359974 00000 n 
-0000361652 00000 n 
-0000361850 00000 n 
-0000362295 00000 n 
-0000362423 00000 n 
-0000371416 00000 n 
-0000371654 00000 n 
-0000373685 00000 n 
-0000373887 00000 n 
-0000391819 00000 n 
-0000392055 00000 n 
-0000393636 00000 n 
-0000394410 00000 n 
-0000394477 00000 n 
-0000394500 00000 n 
-0000394657 00000 n 
+0000373460 00000 n 
+0000361438 00000 n 
+0000354390 00000 n 
+0000346706 00000 n 
+0000393835 00000 n 
+0000394138 00000 n 
+0000079324 00000 n 
+0000079118 00000 n 
+0000040810 00000 n 
+0000127738 00000 n 
+0000127532 00000 n 
+0000079427 00000 n 
+0000171446 00000 n 
+0000171240 00000 n 
+0000127829 00000 n 
+0000214002 00000 n 
+0000213796 00000 n 
+0000171549 00000 n 
+0000256631 00000 n 
+0000256425 00000 n 
+0000214093 00000 n 
+0000298961 00000 n 
+0000298755 00000 n 
+0000256734 00000 n 
+0000394246 00000 n 
+0000334523 00000 n 
+0000334317 00000 n 
+0000299064 00000 n 
+0000394004 00000 n 
+0000341670 00000 n 
+0000338904 00000 n 
+0000334662 00000 n 
+0000336995 00000 n 
+0000337034 00000 n 
+0000337108 00000 n 
+0000337883 00000 n 
+0000338120 00000 n 
+0000339056 00000 n 
+0000339256 00000 n 
+0000339327 00000 n 
+0000339403 00000 n 
+0000340593 00000 n 
+0000340830 00000 n 
+0000341822 00000 n 
+0000342022 00000 n 
+0000393777 00000 n 
+0000342044 00000 n 
+0000342066 00000 n 
+0000342288 00000 n 
+0000342364 00000 n 
+0000345408 00000 n 
+0000345642 00000 n 
+0000346855 00000 n 
+0000347052 00000 n 
+0000347489 00000 n 
+0000347616 00000 n 
+0000352478 00000 n 
+0000352714 00000 n 
+0000354541 00000 n 
+0000354740 00000 n 
+0000355082 00000 n 
+0000355158 00000 n 
+0000359677 00000 n 
+0000359910 00000 n 
+0000361586 00000 n 
+0000361782 00000 n 
+0000362227 00000 n 
+0000362354 00000 n 
+0000371346 00000 n 
+0000371583 00000 n 
+0000373612 00000 n 
+0000373812 00000 n 
+0000391743 00000 n 
+0000391978 00000 n 
+0000393558 00000 n 
+0000394326 00000 n 
+0000394392 00000 n 
+0000394414 00000 n 
+0000394570 00000 n 
 trailer
-<<
-/Size 97
+<</Size 97
 /Root 95 0 R
 /Info 96 0 R
-/ID [<24B541CFECCB1059693BBD0A7DBE4A2E> <24B541CFECCB1059693BBD0A7DBE4A2E>]>>
+/ID [<CA3602065E4E78DC065C75D4620C9567> <CA3602065E4E78DC065C75D4620C9567>]>>
 startxref
-395269
+395181
 %%EOF

@@ -493,7 +493,6 @@ static void writeRefs(PDF pdf, PdfDocument * pdf_doc)
             pdf_begin_obj(pdf, r->num, 2);      // \pdfobjcompresslevel = 2 is for this
         copyObject(pdf, pdf_doc, &obj1);
         obj1.free();
-        pdf_puts(pdf, "\n");
         pdf_end_obj(pdf);
         n = r->next;
         delete r;
@@ -688,21 +687,24 @@ void write_epdf(PDF pdf, image_dict * idict)
     pdf_begin_dict(pdf);
     pdf_dict_add_name(pdf, "Type", "XObject");
     pdf_dict_add_name(pdf, "Subtype", "Form");
+
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
-        pdf_printf(pdf, "%s\n", img_attr(idict));
+        pdf_printf(pdf, "\n%s\n", img_attr(idict));
     pdf_dict_add_int(pdf, "FormType", 1);
 
     // write additional information
-    pdf_printf(pdf, "/%s.FileName (%s)\n", pdfkeyprefix,
+    snprintf(s, 30, "%s.FileName", pdfkeyprefix);
+    pdf_add_name(pdf, s);
+    pdf_printf(pdf, " (%s)",
                convertStringToPDFString(pdf_doc->file_path,
                                         strlen(pdf_doc->file_path)));
-    pdf_printf(pdf, "/%s.PageNumber %i\n", pdfkeyprefix,
-               (int) img_pagenum(idict));
+    snprintf(s, 30, "%s.PageNumber", pdfkeyprefix);
+    pdf_dict_add_int(pdf, s, (int) img_pagenum(idict));
     doc->getDocInfoNF(&obj1);
     if (obj1.isRef()) {
         // the info dict must be indirect (PDF Ref p. 61)
-        pdf_printf(pdf, "/%s.InfoDict ", pdfkeyprefix);
-        pdf_printf(pdf, "%d 0 R\n", addInObj(pdf, pdf_doc, obj1.getRef()));
+        snprintf(s, 30, "%s.InfoDict", pdfkeyprefix);
+        pdf_dict_add_ref(pdf, s, addInObj(pdf, pdf_doc, obj1.getRef()));
     }
     obj1.free();
     if (img_is_bbox(idict)) {
@@ -718,9 +720,11 @@ void write_epdf(PDF pdf, image_dict * idict)
         bbox[2] = pagebox->x2;
         bbox[3] = pagebox->y2;
     }
-    sprintf(s, "/BBox [%.8f %.8f %.8f %.8f]\n", bbox[0], bbox[1], bbox[2],
-            bbox[3]);
+    sprintf(s, "%.8f %.8f %.8f %.8f", bbox[0], bbox[1], bbox[2], bbox[3]);
+    pdf_add_name(pdf, "BBox");
+    pdf_begin_array(pdf);
     pdf_puts(pdf, stripzeros(s));
+    pdf_end_array(pdf);
     // The /Matrix calculation is replaced by transforms in out_img().
 
     // Now all relevant parts of the Page dictionary are copied:
@@ -735,7 +739,7 @@ void write_epdf(PDF pdf, image_dict * idict)
     for (i = 0; pagedictkeys[i] != NULL; i++) {
         pageDict->lookupNF((char *) pagedictkeys[i], &obj1);
         if (!obj1.isNull()) {
-            pdf_printf(pdf, "/%s ", pagedictkeys[i]);
+            pdf_add_name(pdf, pagedictkeys[i]);
             copyObject(pdf, pdf_doc, &obj1);    // preserves indirection
         }
         obj1.free();
@@ -792,18 +796,15 @@ void write_epdf(PDF pdf, image_dict * idict)
         pdf_add_name(pdf, (const char *) "Length");
         copyObject(pdf, pdf_doc, &obj1);
         obj1.free();
-        pdf_puts(pdf, "\n");
         contents.streamGetDict()->lookup((char *) "Filter", &obj1);
         if (!obj1.isNull()) {
             pdf_add_name(pdf, (const char *) "Filter");
             copyObject(pdf, pdf_doc, &obj1);
             obj1.free();
-            pdf_puts(pdf, "\n");
             contents.streamGetDict()->lookup((char *) "DecodeParms", &obj1);
             if (!obj1.isNull()) {
                 pdf_add_name(pdf, (const char *) "DecodeParms");
                 copyObject(pdf, pdf_doc, &obj1);
-                pdf_puts(pdf, "\n");
             }
         }
         obj1.free();
