@@ -89,6 +89,9 @@ extern "C" {
     extern void pdf_end_dict(PDF);
     extern void pdf_begin_array(PDF);
     extern void pdf_end_array(PDF);
+    extern void pdf_add_null(PDF);
+    extern void pdf_add_bool(PDF, int i);
+    extern void pdf_add_int(PDF, int i);
     extern void pdf_add_ref(PDF, int num);
     extern void pdf_add_name(PDF, const char *name);
     extern void pdf_dict_add_streaminfo(PDF);

@@ -134,6 +134,8 @@ extern void pdf_print_int(PDF, longinteger);
 extern void pdf_print_real(PDF, int, int);
 extern void pdf_print_str(PDF, const char *);
 
+extern void pdf_add_null(PDF);
+extern void pdf_add_bool(PDF, int i);
 extern void pdf_add_int(PDF, int i);
 extern void pdf_add_ref(PDF, int num);
 extern void pdf_add_name(PDF, const char *name);

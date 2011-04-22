@@ -329,22 +329,6 @@ static char *convertNumToPDF(double n)
 
 static void copyObject(PDF, PdfDocument *, Object *);
 
-static void copyBool(PDF pdf, GBool b)
-{
-    if (pdf->cave)
-        pdf_out(pdf, ' ');
-    pdf_printf(pdf, "%s", b ? "true" : "false");
-    pdf->cave = true;
-}
-
-static void copyInt(PDF pdf, int i)
-{
-    if (pdf->cave)
-        pdf_out(pdf, ' ');
-    pdf_printf(pdf, "%i", i);
-    pdf->cave = true;
-}
-
 static void copyReal(PDF pdf, double d)
 {
     if (pdf->cave)
@@ -398,14 +382,6 @@ static void copyName(PDF pdf, char *s)
     pdf->cave = true;
 }
 
-static void copyNull(PDF pdf)
-{
-    if (pdf->cave)
-        pdf_out(pdf, ' ');
-    pdf_puts(pdf, "null");
-    pdf->cave = true;
-}
-
 static void copyArray(PDF pdf, PdfDocument * pdf_doc, Array * array)
 {
     int i, l;
@@ -452,22 +428,14 @@ static void copyStream(PDF pdf, PdfDocument * pdf_doc, Stream * stream)
     pdf_end_stream(pdf);
 }
 
-static void copyRef(PDF pdf, PdfDocument * pdf_doc, Ref ref)
-{
-    if (pdf->cave)
-        pdf_out(pdf, ' ');
-    pdf_printf(pdf, "%d 0 R", addInObj(pdf, pdf_doc, ref));
-    pdf->cave = true;
-}
-
 static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
 {
     switch (obj->getType()) {
     case objBool:
-        copyBool(pdf, obj->getBool());
+        pdf_add_bool(pdf, (int) obj->getBool());
         break;
     case objInt:
-        copyInt(pdf, obj->getInt());
+        pdf_add_int(pdf, obj->getInt());
         break;
     case objReal:
         copyReal(pdf, obj->getReal());
@@ -482,7 +450,7 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
         copyName(pdf, obj->getName());
         break;
     case objNull:
-        copyNull(pdf);
+        pdf_add_null(pdf);
         break;
     case objArray:
         copyArray(pdf, pdf_doc, obj->getArray());
@@ -494,7 +462,7 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
         copyStream(pdf, pdf_doc, obj->getStream());
         break;
     case objRef:
-        copyRef(pdf, pdf_doc, obj->getRef());
+        pdf_add_ref(pdf, addInObj(pdf, pdf_doc, obj->getRef()));
         break;
     case objCmd:
     case objError:

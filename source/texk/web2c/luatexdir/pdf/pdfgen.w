@@ -1228,6 +1228,25 @@ void pdf_dict_add_ref(PDF pdf, const char *key, int num)
 
 @ add objects of different types
 @c
+void pdf_add_null(PDF pdf)
+{
+    if (pdf->cave > 0)
+        pdf_out(pdf, ' ');
+    pdf_puts(pdf, "null");
+    pdf->cave = 1;
+}
+
+void pdf_add_bool(PDF pdf, int i)
+{
+    if (pdf->cave > 0)
+        pdf_out(pdf, ' ');
+    if (i == 0)
+        pdf_puts(pdf, "false");
+    else
+        pdf_puts(pdf, "true");
+    pdf->cave = 1;
+}
+
 void pdf_add_int(PDF pdf, int i)
 {
     if (pdf->cave > 0)
