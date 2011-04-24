@@ -1914,16 +1914,18 @@ void pdf_end_page(PDF pdf)
         pdf_dict_add_name(pdf, "Type", "Page");
         pdf_dict_add_ref(pdf, "Contents", pdf->last_stream);
         pdf_dict_add_ref(pdf, "Resources", res_p->last_resources);
-        pdf_puts(pdf, "/MediaBox ");
+        pdf_add_name(pdf, "MediaBox");
         pdf_begin_array(pdf);
         pdf_puts(pdf, "0 0 ");
         pdf_print_mag_bp(pdf, cur_page_size.h);
         pdf_out(pdf, ' ');
         pdf_print_mag_bp(pdf, cur_page_size.v);
         pdf_end_array(pdf);
-        pdf_out(pdf, '\n');
-        if (pdf_page_attr != null)
+        if (pdf_page_attr != null) {
+            pdf_out(pdf, '\n');
             pdf_print_toks_ln(pdf, pdf_page_attr);
+            pdf_out(pdf, '\n');
+        }
         print_pdf_table_string(pdf, "pageattributes");
         pdf_dict_add_ref(pdf, "Parent", pdf->last_pages);
         if (pdf->img_page_group_val != 0) {
@@ -1953,25 +1955,21 @@ void pdf_end_page(PDF pdf)
             pdf_begin_array(pdf);
             while (annot_list != NULL) {
                 assert(annot_list->info > 0);
-                pdf_print_int(pdf, annot_list->info);
-                pdf_puts(pdf, " 0 R ");
+                pdf_add_ref(pdf, annot_list->info);
                 annot_list = annot_list->link;
             }
             while (link_list != NULL) {
-                pdf_print_int(pdf, link_list->info);
-                pdf_puts(pdf, " 0 R ");
+                pdf_add_ref(pdf, link_list->info);
                 link_list = link_list->link;
             }
             pdf_end_array(pdf);
-            pdf_out(pdf, '\n');
             pdf_end_obj(pdf);
         }
         if (bead_list != NULL) {
             pdf_begin_obj(pdf, beads, OBJSTM_ALWAYS);
             pdf_begin_array(pdf);
             while (bead_list != NULL) {
-                pdf_print_int(pdf, bead_list->info);
-                pdf_printf(pdf, " 0 R ");
+                pdf_add_ref(pdf, bead_list->info);
                 bead_list = bead_list->link;
             }
             pdf_end_array(pdf);
@@ -2139,20 +2137,19 @@ void pdf_end_page(PDF pdf)
     }
 
     /* Generate ProcSet */
-    pdf_puts(pdf, "/ProcSet ");
+    pdf_add_name(pdf, "ProcSet");
     pdf_begin_array(pdf);
     if ((procset & PROCSET_PDF) != 0)
-        pdf_puts(pdf, " /PDF");
+        pdf_add_name(pdf, "PDF");
     if ((procset & PROCSET_TEXT) != 0)
-        pdf_puts(pdf, " /Text");
+        pdf_add_name(pdf, "Text");
     if ((procset & PROCSET_IMAGE_B) != 0)
-        pdf_puts(pdf, " /ImageB");
+        pdf_add_name(pdf, "ImageB");
     if ((procset & PROCSET_IMAGE_C) != 0)
-        pdf_puts(pdf, " /ImageC");
+        pdf_add_name(pdf, "ImageC");
     if ((procset & PROCSET_IMAGE_I) != 0)
-        pdf_puts(pdf, " /ImageI");
+        pdf_add_name(pdf, "ImageI");
     pdf_end_array(pdf);
-
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
 }

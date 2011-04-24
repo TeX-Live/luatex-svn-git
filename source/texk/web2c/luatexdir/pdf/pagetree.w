@@ -227,10 +227,10 @@ static void write_pages(PDF pdf, pages_entry * p, int parent)
     } else
         pdf_dict_add_ref(pdf, "Parent", parent);
     pdf_dict_add_int(pdf, "Count", (int) p->number_of_pages);
-    pdf_printf(pdf, "/Kids ");
+    pdf_add_name(pdf, "Kids");
     pdf_begin_array(pdf);
     for (i = 0; i < p->number_of_kids; i++)
-        pdf_printf(pdf, "%d 0 R ", (int) p->kids[i]);
+        pdf_add_ref(pdf, (int) p->kids[i]);
     pdf_end_array(pdf);
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
