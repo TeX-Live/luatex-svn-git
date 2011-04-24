@@ -140,6 +140,7 @@ extern void pdf_add_int(PDF, int i);
 extern void pdf_add_ref(PDF, int num);
 extern void pdf_add_name(PDF, const char *name);
 
+extern void pdf_dict_add_bool(PDF, const char *key, int i);
 extern void pdf_dict_add_int(PDF, const char *key, int i);
 extern void pdf_dict_add_ref(PDF, const char *key, int num);
 extern void pdf_dict_add_name(PDF, const char *key, const char *val);
@@ -165,8 +166,6 @@ extern void pdf_out_block(PDF pdf, const char *s, size_t n);
             pdf_puts(pdf, pdf->resname_prefix);     \
     } while (0)
 
-extern void pdf_int_entry(PDF, const char *, int);
-extern void pdf_int_entry_ln(PDF, const char *, int);
 extern void pdf_indirect(PDF, const char *, int);
 extern void pdf_print_str_ln(PDF, const char *);
 extern void pdf_str_entry(PDF, const char *, const char *);

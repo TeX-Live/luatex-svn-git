@@ -40,7 +40,7 @@ BT
 /F32 8.966376 Tf 1 0 0 1 101.2561 685.9893 Tm [<007A>]TJ
 /F31 8.069684 Tf 1 0 0 1 28.3464 674.6917 Tm [<00250049006E001D006A003300750030001D006A00330063006A001D004C0055>]TJ
 /F29 8.966376 Tf 1 0 0 1 89.7971 674.6917 Tm [<002D>]TJ
-/F32 8.966376 Tf 1 0 0 1 101.2561 674.6917 Tm [<006C007A00530053007A003A006C006C0053003A>]TJ
+/F32 8.966376 Tf 1 0 0 1 101.2561 674.6917 Tm [<006C007A00530053007A003A006C003A0053004F>]TJ
 /F30 8.069684 Tf 1 0 0 1 28.3464 650.5817 Tm [<001C006A006A006100430024006E006A00330063>]TJ
 /F29 8.966376 Tf 1 0 0 1 28.3464 639.284 Tm [<00690040003300610033>-250<001D00610033>-250<006600390039006B0066>-250<001D006A006A006100430024006E006A0033>-250<00610033003C00430063006A003300610063002E>-250<0033001D002C0040>-250<00520038>-250<007300400043002C0040>-250<00520024003300770063>-250<003C00610052006E00550043004E003C>-250<001D004E0030>]TJ
 1 0 0 1 28.3464 627.9864 Tm [<002C001D004E>-250<0040001D00710033>-250<001D004E0077>-250<0043004E006A0033003C00330061>-250<0071001D0049006E0033>-250<0052006A004000330061>-250<006A0040001D004E>-250<006A00400033>-250<004C00520063006A>-250<004E0033003C001D006A004300710033>-250<004E006E004C002400330061>-250<0056007300400043002C0040>]TJ
@@ -356,13 +356,9 @@ ET
 endstream
 endobj
 16 0 obj
-<</Type/Page
-/Contents 17 0 R
-/Resources 15 0 R
-/MediaBox [0 0 595.2756 841.8898]
+<</Type/Page/Contents 17 0 R/Resources 15 0 R/MediaBox [0 0 595.2756 841.8898]
 /TrimBox [ 0.0000 0.0000 595.2756 841.8898 ] /CropBox [ 0.0000 0.0000 595.2756 841.8898 ]
-/Parent 23 0 R
->>
+/Parent 23 0 R>>
 endobj
 15 0 obj
 <<
@@ -700,13 +696,9 @@ ET
 endstream
 endobj
 25 0 obj
-<</Type/Page
-/Contents 26 0 R
-/Resources 24 0 R
-/MediaBox [0 0 595.2756 841.8898]
+<</Type/Page/Contents 26 0 R/Resources 24 0 R/MediaBox [0 0 595.2756 841.8898]
 /TrimBox [ 0.0000 0.0000 595.2756 841.8898 ] /CropBox [ 0.0000 0.0000 595.2756 841.8898 ]
-/Parent 23 0 R
->>
+/Parent 23 0 R>>
 endobj
 24 0 obj
 <<
@@ -1165,13 +1157,9 @@ ET
 endstream
 endobj
 28 0 obj
-<</Type/Page
-/Contents 29 0 R
-/Resources 27 0 R
-/MediaBox [0 0 595.2756 841.8898]
+<</Type/Page/Contents 29 0 R/Resources 27 0 R/MediaBox [0 0 595.2756 841.8898]
 /TrimBox [ 0.0000 0.0000 595.2756 841.8898 ] /CropBox [ 0.0000 0.0000 595.2756 841.8898 ]
-/Parent 23 0 R
->>
+/Parent 23 0 R>>
 endobj
 27 0 obj
 <<
@@ -1634,13 +1622,9 @@ ET
 endstream
 endobj
 31 0 obj
-<</Type/Page
-/Contents 32 0 R
-/Resources 30 0 R
-/MediaBox [0 0 595.2756 841.8898]
+<</Type/Page/Contents 32 0 R/Resources 30 0 R/MediaBox [0 0 595.2756 841.8898]
 /TrimBox [ 0.0000 0.0000 595.2756 841.8898 ] /CropBox [ 0.0000 0.0000 595.2756 841.8898 ]
-/Parent 23 0 R
->>
+/Parent 23 0 R>>
 endobj
 30 0 obj
 <<
@@ -2006,13 +1990,9 @@ ET
 endstream
 endobj
 34 0 obj
-<</Type/Page
-/Contents 35 0 R
-/Resources 33 0 R
-/MediaBox [0 0 595.2756 841.8898]
+<</Type/Page/Contents 35 0 R/Resources 33 0 R/MediaBox [0 0 595.2756 841.8898]
 /TrimBox [ 0.0000 0.0000 595.2756 841.8898 ] /CropBox [ 0.0000 0.0000 595.2756 841.8898 ]
-/Parent 23 0 R
->>
+/Parent 23 0 R>>
 endobj
 33 0 obj
 <<
@@ -2362,13 +2342,9 @@ ET
 endstream
 endobj
 37 0 obj
-<</Type/Page
-/Contents 38 0 R
-/Resources 36 0 R
-/MediaBox [0 0 595.2756 841.8898]
+<</Type/Page/Contents 38 0 R/Resources 36 0 R/MediaBox [0 0 595.2756 841.8898]
 /TrimBox [ 0.0000 0.0000 595.2756 841.8898 ] /CropBox [ 0.0000 0.0000 595.2756 841.8898 ]
-/Parent 23 0 R
->>
+/Parent 23 0 R>>
 endobj
 36 0 obj
 <<
@@ -2723,13 +2699,9 @@ ET
 endstream
 endobj
 40 0 obj
-<</Type/Page
-/Contents 41 0 R
-/Resources 39 0 R
-/MediaBox [0 0 595.2756 841.8898]
+<</Type/Page/Contents 41 0 R/Resources 39 0 R/MediaBox [0 0 595.2756 841.8898]
 /TrimBox [ 0.0000 0.0000 595.2756 841.8898 ] /CropBox [ 0.0000 0.0000 595.2756 841.8898 ]
-/Parent 42 0 R
->>
+/Parent 42 0 R>>
 endobj
 39 0 obj
 <<
@@ -3026,13 +2998,9 @@ ET
 endstream
 endobj
 44 0 obj
-<</Type/Page
-/Contents 45 0 R
-/Resources 43 0 R
-/MediaBox [0 0 595.2756 841.8898]
+<</Type/Page/Contents 45 0 R/Resources 43 0 R/MediaBox [0 0 595.2756 841.8898]
 /TrimBox [ 0.0000 0.0000 595.2756 841.8898 ] /CropBox [ 0.0000 0.0000 595.2756 841.8898 ]
-/Parent 42 0 R
->>
+/Parent 42 0 R>>
 endobj
 43 0 obj
 <<
@@ -3065,17 +3033,17 @@ stream
         </rdf:Description>
         <rdf:Description rdf:about="" xmlns:pdfx="http://ns.adobe.com/pdfx/1.3/">
             <pdfx:ConTeXt.Jobname>functionref</pdfx:ConTeXt.Jobname>
-            <pdfx:ConTeXt.Time>2011.04.22 14:37</pdfx:ConTeXt.Time>
+            <pdfx:ConTeXt.Time>2011.04.24 20:07</pdfx:ConTeXt.Time>
             <pdfx:ConTeXt.Url>www.pragma-ade.com</pdfx:ConTeXt.Url>
-            <pdfx:ConTeXt.Version>2011.04.20 16:23</pdfx:ConTeXt.Version>
-            <pdfx:ID>functionref.2011-04-22T14:37:35+02:00</pdfx:ID>
-            <pdfx:PTEX.Fullbanner>This is LuaTeX, Version beta-0.67.0-2011042214 (rev 4191) (TeX Live 2011) kpathsea version 6.0.1</pdfx:PTEX.Fullbanner>
+            <pdfx:ConTeXt.Version>2011.04.23 22:29</pdfx:ConTeXt.Version>
+            <pdfx:ID>functionref.2011-04-24T20:07:57+02:00</pdfx:ID>
+            <pdfx:PTEX.Fullbanner>This is LuaTeX, Version beta-0.67.0-2011042419 (rev 4192) (TeX Live 2011) kpathsea version 6.0.1</pdfx:PTEX.Fullbanner>
         </rdf:Description>
         <rdf:Description rdf:about="" xmlns:xmp="http://ns.adobe.com/xap/1.0/">
-            <xmp:CreateDate>2011-04-22T14:37:35+02:00</xmp:CreateDate>
-            <xmp:CreatorTool>ConTeXt - 2011.04.20 16:23</xmp:CreatorTool>
-            <xmp:ModifyDate>2011-04-22T14:37:35+02:00</xmp:ModifyDate>
-            <xmp:MetadataDate>2011-04-22T14:37:35+02:00</xmp:MetadataDate>
+            <xmp:CreateDate>2011-04-24T20:07:57+02:00</xmp:CreateDate>
+            <xmp:CreatorTool>ConTeXt - 2011.04.23 22:29</xmp:CreatorTool>
+            <xmp:ModifyDate>2011-04-24T20:07:57+02:00</xmp:ModifyDate>
+            <xmp:MetadataDate>2011-04-24T20:07:57+02:00</xmp:MetadataDate>
         </rdf:Description>
         <rdf:Description rdf:about="" xmlns:pdf="http://ns.adobe.com/pdf/1.3/">
             <pdf:Keywords/>
@@ -3107,8 +3075,7 @@ endstream
 
 endobj
 52 0 obj
-<</Subtype/CIDFontType0C
-/Length 692       
+<</Subtype/CIDFontType0C/Length 692       
 >>
 
 stream
@@ -3118,19 +3085,15 @@ endstream
 
 endobj
 53 0 obj
-<</Type/FontDescriptor
-/FontName /VOQWLP+TeXGyreTermes-Regular
-/Flags 4
-/FontBBox [-526 -281 1306 1055]
+<</Type/FontDescriptor/FontName /VOQWLP+TeXGyreTermes-Regular
+/Flags 4/FontBBox [-526 -281 1306 1055]
 /Ascent 1055
 /CapHeight 662
 /Descent -281
 /ItalicAngle 0
 /StemV 83
 /XHeight 450
-/FontFile3 52 0 R
-/CIDSet 51 0 R
->>
+/FontFile3 52 0 R/CIDSet 51 0 R>>
 
 endobj
 54 0 obj
@@ -3173,24 +3136,12 @@ end
 endstream
 endobj
 48 0 obj
-<</Type/Font
-/Subtype/Type0
-/Encoding/Identity-H
-/BaseFont /VOQWLP+TeXGyreTermes-Regular
-/DescendantFonts [55 0 R]
-/ToUnicode 54 0 R
->>
+<</Type/Font/Subtype/Type0/Encoding/Identity-H/BaseFont /VOQWLP+TeXGyreTermes-Regular
+/DescendantFonts[55 0 R]/ToUnicode 54 0 R>>
 endobj
 55 0 obj
-<</Type/Font
-/Subtype/CIDFontType0
-/BaseFont /VOQWLP+TeXGyreTermes-Regular
-/FontDescriptor 53 0 R
-/W 50 0 R
-/CIDSystemInfo <</Registry (Adobe)
-/Ordering (Identity)
-/Supplement 0
->>
+<</Type/Font/Subtype/CIDFontType0/BaseFont /VOQWLP+TeXGyreTermes-Regular
+/FontDescriptor 53 0 R/W 50 0 R/CIDSystemInfo<</Registry (Adobe)/Ordering (Identity)/Supplement 0>>
 >>
 endobj
 56 0 obj
@@ -3206,8 +3157,7 @@ endstream
 
 endobj
 58 0 obj
-<</Subtype/CIDFontType0C
-/Length 1107      
+<</Subtype/CIDFontType0C/Length 1107      
 >>
 
 stream
@@ -3218,19 +3168,15 @@ endstream
 
 endobj
 59 0 obj
-<</Type/FontDescriptor
-/FontName /OLVTUK+TeXGyreTermes-Regular
-/Flags 4
-/FontBBox [-526 -281 1306 1055]
+<</Type/FontDescriptor/FontName /OLVTUK+TeXGyreTermes-Regular
+/Flags 4/FontBBox [-526 -281 1306 1055]
 /Ascent 1055
 /CapHeight 662
 /Descent -281
 /ItalicAngle 0
 /StemV 83
 /XHeight 450
-/FontFile3 58 0 R
-/CIDSet 57 0 R
->>
+/FontFile3 58 0 R/CIDSet 57 0 R>>
 
 endobj
 60 0 obj
@@ -3277,24 +3223,12 @@ end
 endstream
 endobj
 47 0 obj
-<</Type/Font
-/Subtype/Type0
-/Encoding/Identity-H
-/BaseFont /OLVTUK+TeXGyreTermes-Regular
-/DescendantFonts [61 0 R]
-/ToUnicode 60 0 R
->>
+<</Type/Font/Subtype/Type0/Encoding/Identity-H/BaseFont /OLVTUK+TeXGyreTermes-Regular
+/DescendantFonts[61 0 R]/ToUnicode 60 0 R>>
 endobj
 61 0 obj
-<</Type/Font
-/Subtype/CIDFontType0
-/BaseFont /OLVTUK+TeXGyreTermes-Regular
-/FontDescriptor 59 0 R
-/W 56 0 R
-/CIDSystemInfo <</Registry (Adobe)
-/Ordering (Identity)
-/Supplement 0
->>
+<</Type/Font/Subtype/CIDFontType0/BaseFont /OLVTUK+TeXGyreTermes-Regular
+/FontDescriptor 59 0 R/W 56 0 R/CIDSystemInfo<</Registry (Adobe)/Ordering (Identity)/Supplement 0>>
 >>
 endobj
 62 0 obj
@@ -3304,58 +3238,54 @@ endobj
 [667]
 endobj
 65 0 obj
-[ 29 [500] 44 [444] 48 [556] 51 [444] 56 [333] 58 [500] 60 [500] 67 [278] 73 [278] 76 [833] 78 [556] 82 [500 500] 85 [556] 97 [444] 99 [389] 101 [500 500] 106 [333] 108 [500] 110 [556] 117 [500] 122 [500]]
+[ 29 [500] 44 [444] 48 [556] 51 [444] 56 [333] 58 [500] 60 [500] 67 [278] 73 [278] 76 [833] 78 [556 500] 82 [500 500] 85 [556] 97 [444] 99 [389] 101 [500 500] 106 [333] 108 [500] 110 [556] 117 [500] 122 [500]]
 endobj
 66 0 obj
 <</Length 16        
 >>
 
 stream
-    ¨J4 V* 
+    ¨K4 V* 
 endstream
 
 endobj
 67 0 obj
-<</Subtype/CIDFontType0C
-/Length 2961      
+<</Subtype/CIDFontType0C/Length 3086      
 >>
 
 stream
-  VWYXRG+TeXGyreTermes-Bold ?øø‹ø øø ø!øüŞûéúò  ­  ä÷"  C$  Ü%     ' ,'4VWYXRG+TeXGyreTermes-BoldAdobeIdentity2.004Copyright 2006, 2009 for TeX Gyre extensions by B. Jackowski and J.M. Nowacki (on behalf of TeX users groups). This work is released under the GUST Font License --  see http://tug.org/fonts/licenses/GUST-FONT-LICENSE.txt for details.TeXGyreTermes-BoldTeXGyreTermes     , 0 3 8 : < C I L N R S U a c e f j l n u z         ” ç_È,u.}¬TÁFÅ Ä8yÛ:Ğ	+ûê}ËKÒø«¤÷&÷÷û÷´ø|¶| ˆˆˆŠ†}„“œ÷™à?¿ûû?X@a£s´³§£­™†˜~›‚•ˆ‘‘ ¦›¯Æ¤pNBû	g\yer^muh_N¹^ËÅ¹Ÿ½ÂX–¡x¼¶ª›´±ûWÄXlpwsmv¦³Åµ´Û¡ûF}Îøª¤÷!÷÷øBæyafq}b4Tâ÷ò«Ê¿›šƒ€‘‚‹‹aYŒœu±µ¥£²ÉH»4û'"û%ûä)÷ØÃªÕÅI}Ãu¢ø
+  UYAAYY+TeXGyreTermes-Bold ?øø‹ø øø ø!øüŞûéúò  ­  æ÷"  À$  Ş%     ' ,'4UYAAYY+TeXGyreTermes-BoldAdobeIdentity2.004Copyright 2006, 2009 for TeX Gyre extensions by B. Jackowski and J.M. Nowacki (on behalf of TeX users groups). This work is released under the GUST Font License --  see http://tug.org/fonts/licenses/GUST-FONT-LICENSE.txt for details.TeXGyreTermes-BoldTeXGyreTermes     , 0 3 8 : < C I L N O R S U a c e f j l n u z         ” ç_È,u.}¬TÁ:€¿>™=±òT³	I	¤ûê}ËKÒø«¤÷&÷÷û÷´ø|¶| ˆˆˆŠ†}„“œ÷™à?¿ûû?X@a£s´³§£­™†˜~›‚•ˆ‘‘ ¦›¯Æ¤pNBû	g\yer^muh_N¹^ËÅ¹Ÿ½ÂX–¡x¼¶ª›´±ûWÄXlpwsmv¦³Åµ´Û¡ûF}Îøª¤÷!÷÷øBæyafq}b4Tâ÷ò«Ê¿›šƒ€‘‚‹‹aYŒœu±µ¥£²ÉH»4û'"û%ûä)÷ØÃªÕÅI}Ãu¢ø
 Ã÷G£¤÷(÷7÷|øªŸ¢]~˜µøÓûksÎ†”„]ûK¹`m›]û9 û%€û×(ôÀ¬›½ºJ¹˜¤É’@ûï…z~¬twv€uVrÇ÷÷¦ÆÅ¬ªse™ûF}Ó÷O°÷4ª¤÷ø>÷s™Zbmy`emœ­wx«ƒ­‡Ñ÷…Ş|¹l²²k\ Sû7(û&û&İ+÷Ü¼ªéÌû÷?û÷³¼¨{l“xoXûµ‹£ø·÷[ªÒ÷Ä÷øøãÆQ´6HWs_puh„b5R_Äûá`€]†s÷ª£E—Ì÷Îâ·4÷Â™¡¯–„†‰…„‚|‡€l¥s­°¤¤° v÷$÷øEw÷Ÿ÷%û#÷#høo÷$÷LøE;P>ûû;I/O,ûĞ÷Œû$÷%÷$û#÷ûeH÷e÷½ûb«÷÷â¦÷lÀ‚ª§ã<÷÷÷fÚq øwTØM¹%J;w’§©§¡³¸Šº¤‘Ÿ­¸¥¢´À³©o§ÜÀû
- ›_o‘cû7I,i˜j¢o¡s~ºw<pceWbyËtä€L‚jrbQÖi÷÷:ã¿î<\]Tq(3]¢· ’–§¢÷AÁ¥zj)ø1.xg\ [y¯èé°ººe.ûì‹£ø1£Ó÷.Ç÷.û%÷È÷“£h™±øûTs·‚”‚bûºb„ƒ]€s0÷Zøö·i¬``ij__­j¶¶­¬·ûì‹£ù£Î÷÷“£jŒ{³øäûRs®ˆ›yfü’fzwiˆs÷g‹£øÎg£Ò÷÷÷÷÷ÜùÂ£d€—¶÷áVÂ9RetKWÊmh£LL]pOe¼ÖûSs·…–bûºb€€_ƒs÷„£h€™±÷Ÿ‘›˜•Ü› œ’œ²štOû†b€~fˆs÷~£hš±÷Ÿ›˜•œ¡œ’œ±šsPû†a€eˆsI‹£øÎg£Õ÷÷÷Èø¯£d—µ÷áVÂ9O]oPf°ÖûSs·„”aûºaƒ‚^‚s÷…£fš°÷Ÿ’••”È¢¡£—¢®œpSû†f~{i‡s}ªø=ª¤÷'÷1÷'øp÷y÷ +óûû("ûû#ê$÷÷ëó÷û'…û.wWQPw¾÷&÷D¿ÉÅTû8‹£ù,w÷N÷(øN£0zšØøÎzûûq”“•¦¤’˜¤–u\ü9wz(ŠsIûa£÷<Âø
+ ›_o‘cû7I,i˜j¢o¡s~ºw<pceWbyËtä€L‚jrbQÖi÷÷:ã¿î<\]Tq(3]¢· ’–§¢÷AÁ¥zj)ø1.xg\ [y¯èé°ººe.ûì‹£ø1£Ó÷.Ç÷.û%÷È÷“£h™±øûTs·‚”‚bûºb„ƒ]€s0÷Zøö·i¬``ij__­j¶¶­¬·ûì‹£ù£Î÷÷“£jŒ{³øäûRs®ˆ›yfü’fzwiˆs÷g‹£øÎg£Ò÷÷÷÷÷ÜùÂ£d€—¶÷áVÂ9RetKWÊmh£LL]pOe¼ÖûSs·…–bûºb€€_ƒs÷„£h€™±÷Ÿ‘›˜•Ü› œ’œ²štOû†b€~fˆs÷~£hš±÷Ÿ›˜•œ¡œ’œ±šsPû†a€eˆsI‹£øÎg£Õ÷÷÷Èø¯£d—µ÷áVÂ9O]oPf°ÖûSs·„”aûºaƒ‚^‚s÷…£fš°÷Ÿ’••”È¢¡£—¢®œpSû†f~{i‡s“v÷Ÿ¸÷ş¦¥÷,÷÷0ømø&÷A/÷û û1(ûû
+Ô;÷±¥™¦`û,:<û$nq÷ ŸÏ¤ÙÆñØÁö÷û0Ãp‰kˆ^ˆqŠ~Š†ˆ‰†„x‡|MtÆ÷1÷—©¼¤œ€t–šo•ED}ªø=ª¤÷'÷1÷'øp÷y÷ +óûû("ûû#ê$÷÷ëó÷û'…û.wWQPw¾÷&÷D¿ÉÅTû8‹£ù,w÷N÷(øN£0zšØøÎzûûq”“•¦¤’˜¤–u\ü9wz(ŠsIûa£÷<Âø
 Äg£Ö÷÷6÷( ø ÷ƒ÷@êûPgtQlÜĞûSs·„•aü‰bƒ‚[ƒs÷¥ NzŸÎ÷!\»¥~·÷Ûó÷(û(}ûoPRjn¢±|÷‡’”›—˜$¡Ÿ¢—¡¿£OûûF‹£÷Ä÷%g£Ş÷@øFø¸i¬\YepH\°İûQs¶…–~cûºb€_ƒs÷£N˜É÷Q¿§¶¬“”„{–@pš‚¥°¥§²û}}­ø8¬¦ï÷ë÷ı÷Òe·'´G¨o¤­¬§¤±¦¥€v¡ w–xš`¤÷%u|……†~…‚{–ktt0IM7I´]ğ`Ğm¦rkdmq^E]¸âvoû9¤ –‘’”“‰‡•¨¾€§æÊÉå vø¯÷øqù8ü4_ûr¤Ë£ Â÷cû\ü¯ê~¦÷ş¸÷Ÿw§÷0÷÷,øo÷r÷BÙûku‡~m°÷'ŞÜ÷&©¥ûxMu?Wû>PûûûAçû÷ ÷æî÷û,Oû
-mZty•z¬ÔèÉ‘Ä’‘“™™Î¢Tû3ûµÒ÷ú·÷=wÓ÷÷àïr–ew{}vo€œ³÷Áé·-÷=rN5c^JTp¿ûØJ¶cĞÎ³©İ´‹÷øM÷÷À÷ør÷gsCn…%û+÷6÷.ÚÖ®Î×ö>×û Y[wghddwio@§Éª°§Á·¬xg¡—v“ot_xTkZX=haû&û0tø4I}Ìl¢ø£Ì÷÷÷hø­Ÿ¢_˜¶÷üû]s½‡—`û¯°jjw€nb|Ÿ¾÷çûPs´ƒ“‚aû3½WŞ¿®›½ÅJ¶š£Ì’@‹£ø1£øx£{„„–û(÷xğ÷¢Ÿ–ª£û<sŠ”“Š¢Š“…||zok……|x|v…’‡‘ˆkµq¶˜—™‘¬Œ£ûs¥‡‘†Ÿm÷ûYnfpj‚}SAwzf‰s÷=£g}’šš¥µ±¹’“’”µL¢j•x}…l‰s~§ù§£÷2÷÷2øp÷å÷\*÷+ûJI_CbkTu-8ûbéû'÷÷ë÷)÷]û2ûPƒ=‚pn€{}tYxÆ÷(÷y÷+Å»¼ŸMû' ø&   :  WwŸøaŸ÷WŸJ8Âÿ	‹¤
+mZty•z¬ÔèÉ‘Ä’‘“™™Î¢Tû3ûµÒ÷ú·÷=wÓ÷÷àïr–ew{}vo€œ³÷Áé·-÷=rN5c^JTp¿ûØJ¶cĞÎ³©İ´‹÷øM÷÷À÷ør÷gsCn…%û+÷6÷.ÚÖ®Î×ö>×û Y[wghddwio@§Éª°§Á·¬xg¡—v“ot_xTkZX=haû&û0tø4I}Ìl¢ø£Ì÷÷÷hø­Ÿ¢_˜¶÷üû]s½‡—`û¯°jjw€nb|Ÿ¾÷çûPs´ƒ“‚aû3½WŞ¿®›½ÅJ¶š£Ì’@‹£ø1£øx£{„„–û(÷xğ÷¢Ÿ–ª£û<sŠ”“Š¢Š“…||zok……|x|v…’‡‘ˆkµq¶˜—™‘¬Œ£ûs¥‡‘†Ÿm÷ûYnfpj‚}SAwzf‰s÷=£g}’šš¥µ±¹’“’”µL¢j•x}…l‰s~§ù§£÷2÷÷2øp÷å÷\*÷+ûJI_CbkTu-8ûbéû'÷÷ë÷)÷]û2ûPƒ=‚pn€{}tYxÆ÷(÷y÷+Å»¼ŸMû' ø&   :  ÔwŸøaŸ÷WŸJ8Âÿ	‹¤
 ÷¢ŒŒŒŒŒŒ­‘×©é”ŒŒ‘Œ“šøˆù
 endstream
 
 endobj
 68 0 obj
-<</Type/FontDescriptor
-/FontName /VWYXRG+TeXGyreTermes-Bold
-/Flags 4
-/FontBBox [-586 -341 1305 1118]
+<</Type/FontDescriptor/FontName /UYAAYY+TeXGyreTermes-Bold
+/Flags 4/FontBBox [-586 -341 1305 1118]
 /Ascent 1118
 /CapHeight 676
 /Descent -341
 /ItalicAngle 0
 /StemV 83
 /XHeight 461
-/FontFile3 67 0 R
-/CIDSet 66 0 R
->>
+/FontFile3 67 0 R/CIDSet 66 0 R>>
 
 endobj
 69 0 obj
-<</Length 1006      
+<</Length 1020      
 >>
 
 stream
 %!PS-Adobe-3.0 Resource-CMap
 %%DocumentNeededResources: ProcSet (CIDInit)
 %%IncludeResource: ProcSet (CIDInit)
-%%BeginResource: CMap (TeX-VWYXRG-TeXGyreTermes-Bold-0)
-%%Title: (TeX-VWYXRG-TeXGyreTermes-Bold-0 TeX VWYXRG-TeXGyreTermes-Bold 0)
+%%BeginResource: CMap (TeX-UYAAYY-TeXGyreTermes-Bold-0)
+%%Title: (TeX-UYAAYY-TeXGyreTermes-Bold-0 TeX UYAAYY-TeXGyreTermes-Bold 0)
 %%Version: 1.000
 %%EndComments
 /CIDInit /ProcSet findresource begin
@@ -3363,17 +3293,17 @@ stream
 begincmap
 /CIDSystemInfo
 << /Registry (TeX)
-/Ordering (VWYXRG-TeXGyreTermes-Bold)
+/Ordering (UYAAYY-TeXGyreTermes-Bold)
 /Supplement 0
 >> def
-/CMapName /TeX-Identity-VWYXRG-TeXGyreTermes-Bold def
+/CMapName /TeX-Identity-UYAAYY-TeXGyreTermes-Bold def
 /CMapType 2 def
 1 begincodespacerange
 <0000> <FFFF>
 endcodespacerange
 0 beginbfrange
 endbfrange
-23 beginbfchar
+24 beginbfchar
 <001D> <0061>
 <002C> <0063>
 <0030> <0064>
@@ -3385,6 +3315,7 @@ endbfrange
 <0049> <006C>
 <004C> <006D>
 <004E> <006E>
+<004F> <0039>
 <0052> <006F>
 <0053> <0031>
 <0055> <0070>
@@ -3407,24 +3338,12 @@ end
 endstream
 endobj
 21 0 obj
-<</Type/Font
-/Subtype/Type0
-/Encoding/Identity-H
-/BaseFont /VWYXRG+TeXGyreTermes-Bold
-/DescendantFonts [70 0 R]
-/ToUnicode 69 0 R
->>
+<</Type/Font/Subtype/Type0/Encoding/Identity-H/BaseFont /UYAAYY+TeXGyreTermes-Bold
+/DescendantFonts[70 0 R]/ToUnicode 69 0 R>>
 endobj
 70 0 obj
-<</Type/Font
-/Subtype/CIDFontType0
-/BaseFont /VWYXRG+TeXGyreTermes-Bold
-/FontDescriptor 68 0 R
-/W 65 0 R
-/CIDSystemInfo <</Registry (Adobe)
-/Ordering (Identity)
-/Supplement 0
->>
+<</Type/Font/Subtype/CIDFontType0/BaseFont /UYAAYY+TeXGyreTermes-Bold
+/FontDescriptor 68 0 R/W 65 0 R/CIDSystemInfo<</Registry (Adobe)/Ordering (Identity)/Supplement 0>>
 >>
 endobj
 71 0 obj
@@ -3440,8 +3359,7 @@ endstream
 
 endobj
 73 0 obj
-<</Subtype/CIDFontType0C
-/Length 4779      
+<</Subtype/CIDFontType0C/Length 4779      
 >>
 
 stream
@@ -3460,19 +3378,15 @@ endstream
 
 endobj
 74 0 obj
-<</Type/FontDescriptor
-/FontName /ARIICQ+TeXGyreHeros-Regular
-/Flags 4
-/FontBBox [-529 -284 1353 1148]
+<</Type/FontDescriptor/FontName /ARIICQ+TeXGyreHeros-Regular
+/Flags 4/FontBBox [-529 -284 1353 1148]
 /Ascent 1148
 /CapHeight 729
 /Descent -284
 /ItalicAngle 0
 /StemV 93
 /XHeight 524
-/FontFile3 73 0 R
-/CIDSet 72 0 R
->>
+/FontFile3 73 0 R/CIDSet 72 0 R>>
 
 endobj
 75 0 obj
@@ -3578,24 +3492,12 @@ end
 endstream
 endobj
 20 0 obj
-<</Type/Font
-/Subtype/Type0
-/Encoding/Identity-H
-/BaseFont /ARIICQ+TeXGyreHeros-Regular
-/DescendantFonts [76 0 R]
-/ToUnicode 75 0 R
->>
+<</Type/Font/Subtype/Type0/Encoding/Identity-H/BaseFont /ARIICQ+TeXGyreHeros-Regular
+/DescendantFonts[76 0 R]/ToUnicode 75 0 R>>
 endobj
 76 0 obj
-<</Type/Font
-/Subtype/CIDFontType0
-/BaseFont /ARIICQ+TeXGyreHeros-Regular
-/FontDescriptor 74 0 R
-/W 71 0 R
-/CIDSystemInfo <</Registry (Adobe)
-/Ordering (Identity)
-/Supplement 0
->>
+<</Type/Font/Subtype/CIDFontType0/BaseFont /ARIICQ+TeXGyreHeros-Regular
+/FontDescriptor 74 0 R/W 71 0 R/CIDSystemInfo<</Registry (Adobe)/Ordering (Identity)/Supplement 0>>
 >>
 endobj
 77 0 obj
@@ -3611,8 +3513,7 @@ endstream
 
 endobj
 79 0 obj
-<</Subtype/CIDFontType0C
-/Length 4436      
+<</Subtype/CIDFontType0C/Length 4436      
 >>
 
 stream
@@ -3633,19 +3534,15 @@ endstream
 
 endobj
 80 0 obj
-<</Type/FontDescriptor
-/FontName /JUPTUS+TeXGyreHeros-Bold
-/Flags 4
-/FontBBox [-531 -307 1359 1125]
+<</Type/FontDescriptor/FontName /JUPTUS+TeXGyreHeros-Bold
+/Flags 4/FontBBox [-531 -307 1359 1125]
 /Ascent 1125
 /CapHeight 729
 /Descent -307
 /ItalicAngle 0
 /StemV 93
 /XHeight 540
-/FontFile3 79 0 R
-/CIDSet 78 0 R
->>
+/FontFile3 79 0 R/CIDSet 78 0 R>>
 
 endobj
 81 0 obj
@@ -3742,24 +3639,12 @@ end
 endstream
 endobj
 19 0 obj
-<</Type/Font
-/Subtype/Type0
-/Encoding/Identity-H
-/BaseFont /JUPTUS+TeXGyreHeros-Bold
-/DescendantFonts [82 0 R]
-/ToUnicode 81 0 R
->>
+<</Type/Font/Subtype/Type0/Encoding/Identity-H/BaseFont /JUPTUS+TeXGyreHeros-Bold
+/DescendantFonts[82 0 R]/ToUnicode 81 0 R>>
 endobj
 82 0 obj
-<</Type/Font
-/Subtype/CIDFontType0
-/BaseFont /JUPTUS+TeXGyreHeros-Bold
-/FontDescriptor 80 0 R
-/W 77 0 R
-/CIDSystemInfo <</Registry (Adobe)
-/Ordering (Identity)
-/Supplement 0
->>
+<</Type/Font/Subtype/CIDFontType0/BaseFont /JUPTUS+TeXGyreHeros-Bold
+/FontDescriptor 80 0 R/W 77 0 R/CIDSystemInfo<</Registry (Adobe)/Ordering (Identity)/Supplement 0>>
 >>
 endobj
 83 0 obj
@@ -3775,8 +3660,7 @@ endstream
 
 endobj
 85 0 obj
-<</Subtype/CIDFontType0C
-/Length 8909      
+<</Subtype/CIDFontType0C/Length 8909      
 >>
 
 stream
@@ -3797,19 +3681,15 @@ endstream
 
 endobj
 86 0 obj
-<</Type/FontDescriptor
-/FontName /GFOIKA+TeXGyreTermes-Regular
-/Flags 4
-/FontBBox [-526 -281 1306 1055]
+<</Type/FontDescriptor/FontName /GFOIKA+TeXGyreTermes-Regular
+/Flags 4/FontBBox [-526 -281 1306 1055]
 /Ascent 1055
 /CapHeight 662
 /Descent -281
 /ItalicAngle 0
 /StemV 83
 /XHeight 450
-/FontFile3 85 0 R
-/CIDSet 84 0 R
->>
+/FontFile3 85 0 R/CIDSet 84 0 R>>
 
 endobj
 87 0 obj
@@ -3929,31 +3809,16 @@ end
 endstream
 endobj
 18 0 obj
-<</Type/Font
-/Subtype/Type0
-/Encoding/Identity-H
-/BaseFont /GFOIKA+TeXGyreTermes-Regular
-/DescendantFonts [88 0 R]
-/ToUnicode 87 0 R
->>
+<</Type/Font/Subtype/Type0/Encoding/Identity-H/BaseFont /GFOIKA+TeXGyreTermes-Regular
+/DescendantFonts[88 0 R]/ToUnicode 87 0 R>>
 endobj
 88 0 obj
-<</Type/Font
-/Subtype/CIDFontType0
-/BaseFont /GFOIKA+TeXGyreTermes-Regular
-/FontDescriptor 86 0 R
-/W 83 0 R
-/CIDSystemInfo <</Registry (Adobe)
-/Ordering (Identity)
-/Supplement 0
->>
+<</Type/Font/Subtype/CIDFontType0/BaseFont /GFOIKA+TeXGyreTermes-Regular
+/FontDescriptor 86 0 R/W 83 0 R/CIDSystemInfo<</Registry (Adobe)/Ordering (Identity)/Supplement 0>>
 >>
 endobj
 89 0 obj
-<</Length1 2025
-/Length2 15806
-/Length3 0
-/Length 17831     
+<</Length1 2025/Length2 15806/Length3 0/Length 17831     
 >>
 
 stream
@@ -4093,10 +3958,8 @@ endstream
 
 endobj
 90 0 obj
-<</Type/FontDescriptor
-/FontName /MJPNET+TeXGyreTermes-Italic
-/Flags 4
-/FontBBox [-484 -270 1370 1070]
+<</Type/FontDescriptor/FontName /MJPNET+TeXGyreTermes-Italic
+/Flags 4/FontBBox [-484 -270 1370 1070]
 /Ascent 668
 /CapHeight 668
 /Descent -206
@@ -4104,15 +3967,11 @@ endobj
 /StemV 84
 /XHeight 441
 /CharSet (/N)
-/FontFile 89 0 R
->>
+/FontFile 89 0 R>>
 
 endobj
 91 0 obj
-<</Length1 742
-/Length2 741
-/Length3 0
-/Length 1483      
+<</Length1 742/Length2 741/Length3 0/Length 1483      
 >>
 
 stream
@@ -4151,10 +4010,8 @@ endstream
 
 endobj
 92 0 obj
-<</Type/FontDescriptor
-/FontName /LATGSE+txsy
-/Flags 4
-/FontBBox [-22 -944 1227 866]
+<</Type/FontDescriptor/FontName /LATGSE+txsy
+/Flags 4/FontBBox [-22 -944 1227 866]
 /Ascent 685
 /CapHeight 720
 /Descent -150
@@ -4162,58 +4019,34 @@ endobj
 /StemV 52
 /XHeight 441
 /CharSet (/minus)
-/FontFile 91 0 R
->>
+/FontFile 91 0 R>>
 
 endobj
 63 0 obj
-<</Type /Encoding
-/Differences [78/N]
->>
+<</Type/Encoding/Differences[78/N]>>
 
 endobj
 22 0 obj
-<</Type/Font
-/Subtype/Type1
-/BaseFont /MJPNET+TeXGyreTermes-Italic
-/FontDescriptor 90 0 R
-/FirstChar 78
-/LastChar 78
-/Widths 64 0 R
-/Encoding 63 0 R
->>
+<</Type/Font/Subtype/Type1/BaseFont /MJPNET+TeXGyreTermes-Italic
+/FontDescriptor 90 0 R/FirstChar 78/LastChar 78/Widths 64 0 R/Encoding 63 0 R>>
 
 endobj
 46 0 obj
-<</Type/Font
-/Subtype/Type1
-/BaseFont /LATGSE+txsy
-/FontDescriptor 92 0 R
-/FirstChar 0
-/LastChar 0
-/Widths 62 0 R
->>
+<</Type/Font/Subtype/Type1/BaseFont /LATGSE+txsy
+/FontDescriptor 92 0 R/FirstChar 0/LastChar 0/Widths 62 0 R>>
 
 endobj
 23 0 obj
-<</Type/Pages
-/Parent 93 0 R
-/Count 6
-/Kids [16 0 R 25 0 R 28 0 R 31 0 R 34 0 R 37 0 R ]>>
+<</Type/Pages/Parent 93 0 R/Count 6/Kids [16 0 R 25 0 R 28 0 R 31 0 R 34 0 R 37 0 R ]>>
 
 endobj
 42 0 obj
-<</Type/Pages
-/Parent 93 0 R
-/Count 2
-/Kids [40 0 R 44 0 R ]>>
+<</Type/Pages/Parent 93 0 R/Count 2/Kids [40 0 R 44 0 R ]>>
 
 endobj
 93 0 obj
 <</Type/Pages
-
-/Count 8
-/Kids [23 0 R 42 0 R ]>>
+/Count 8/Kids [23 0 R 42 0 R ]>>
 
 endobj
 94 0 obj
@@ -4221,16 +4054,13 @@ endobj
 
 endobj
 95 0 obj
-<</Type/Catalog
-/Pages 93 0 R
-/Names 94 0 R
-/Version /1.6 /PageLabels << /Nums [ 0 << /S /D >> ] >> /PageMode /UseNone /Metadata 49 0 R
+<</Type/Catalog/Pages 93 0 R/Names 94 0 R/Version /1.6 /PageLabels << /Nums [ 0 << /S /D >> ] >> /PageMode /UseNone /Metadata 49 0 R
 >>
 
 endobj
 96 0 obj
-<</ConTeXt.Url (www.pragma-ade.com) /ConTeXt.Version (2011.04.20 16:23) /ConTeXt.Jobname (functionref) /CreationDate (D:20110422143735+02'00') /Trapped /False /Title <feff00660075006e006300740069006f006e007200650066> /ConTeXt.Time (2011.04.22 14:37) /ID (functionref.2011-04-22T14:37:35+02:00) /Producer (LuaTeX-0.67.0) /ModDate (D:20110422143735+02'00') /Creator <feff0043006f006e00540065005800740020002d00200032003000310031002e00300034002e00320030002000310036003a00320033>
-/PTEX.Fullbanner (This is LuaTeX, Version beta-0.67.0-2011042214 (rev 4191) (TeX Live 2011) kpathsea version 6.0.1)
+<</ConTeXt.Url (www.pragma-ade.com) /ConTeXt.Version (2011.04.23 22:29) /ConTeXt.Jobname (functionref) /CreationDate (D:20110424200757+02'00') /Trapped /False /Title <feff00660075006e006300740069006f006e007200650066> /ConTeXt.Time (2011.04.24 20:07) /ID (functionref.2011-04-24T20:07:57+02:00) /Producer (LuaTeX-0.67.0) /ModDate (D:20110424200757+02'00') /Creator <feff0043006f006e00540065005800740020002d00200032003000310031002e00300034002e00320033002000320032003a00320039>
+/PTEX.Fullbanner (This is LuaTeX, Version beta-0.67.0-2011042419 (rev 4192) (TeX Live 2011) kpathsea version 6.0.1)
 >>
 
 endobj
@@ -4251,93 +4081,90 @@ xref
 0000000013 00000 f 
 0000000014 00000 f 
 0000000000 00000 f 
-0000040695 00000 n 
+0000040691 00000 n 
 0000040489 00000 n 
 0000000015 00000 n 
-0000373460 00000 n 
-0000361438 00000 n 
-0000354390 00000 n 
-0000346706 00000 n 
-0000393835 00000 n 
-0000394138 00000 n 
-0000079324 00000 n 
-0000079118 00000 n 
-0000040810 00000 n 
-0000127738 00000 n 
-0000127532 00000 n 
-0000079427 00000 n 
-0000171446 00000 n 
-0000171240 00000 n 
-0000127829 00000 n 
-0000214002 00000 n 
-0000213796 00000 n 
-0000171549 00000 n 
-0000256631 00000 n 
-0000256425 00000 n 
-0000214093 00000 n 
-0000298961 00000 n 
-0000298755 00000 n 
-0000256734 00000 n 
-0000394246 00000 n 
-0000334523 00000 n 
-0000334317 00000 n 
-0000299064 00000 n 
-0000394004 00000 n 
-0000341670 00000 n 
-0000338904 00000 n 
-0000334662 00000 n 
-0000336995 00000 n 
-0000337034 00000 n 
-0000337108 00000 n 
-0000337883 00000 n 
-0000338120 00000 n 
-0000339056 00000 n 
-0000339256 00000 n 
-0000339327 00000 n 
-0000339403 00000 n 
-0000340593 00000 n 
-0000340830 00000 n 
-0000341822 00000 n 
-0000342022 00000 n 
-0000393777 00000 n 
-0000342044 00000 n 
-0000342066 00000 n 
-0000342288 00000 n 
-0000342364 00000 n 
-0000345408 00000 n 
-0000345642 00000 n 
-0000346855 00000 n 
-0000347052 00000 n 
-0000347489 00000 n 
-0000347616 00000 n 
-0000352478 00000 n 
-0000352714 00000 n 
-0000354541 00000 n 
-0000354740 00000 n 
-0000355082 00000 n 
-0000355158 00000 n 
-0000359677 00000 n 
-0000359910 00000 n 
-0000361586 00000 n 
-0000361782 00000 n 
-0000362227 00000 n 
-0000362354 00000 n 
-0000371346 00000 n 
-0000371583 00000 n 
-0000373612 00000 n 
-0000373812 00000 n 
-0000391743 00000 n 
-0000391978 00000 n 
-0000393558 00000 n 
-0000394326 00000 n 
-0000394392 00000 n 
-0000394414 00000 n 
-0000394570 00000 n 
+0000373471 00000 n 
+0000361468 00000 n 
+0000354439 00000 n 
+0000346774 00000 n 
+0000393816 00000 n 
+0000394106 00000 n 
+0000079316 00000 n 
+0000079114 00000 n 
+0000040806 00000 n 
+0000127726 00000 n 
+0000127524 00000 n 
+0000079419 00000 n 
+0000171430 00000 n 
+0000171228 00000 n 
+0000127817 00000 n 
+0000213982 00000 n 
+0000213780 00000 n 
+0000171533 00000 n 
+0000256607 00000 n 
+0000256405 00000 n 
+0000214073 00000 n 
+0000298933 00000 n 
+0000298731 00000 n 
+0000256710 00000 n 
+0000394211 00000 n 
+0000334491 00000 n 
+0000334289 00000 n 
+0000299036 00000 n 
+0000393978 00000 n 
+0000341614 00000 n 
+0000338867 00000 n 
+0000334630 00000 n 
+0000336963 00000 n 
+0000337002 00000 n 
+0000337076 00000 n 
+0000337850 00000 n 
+0000338083 00000 n 
+0000339013 00000 n 
+0000339205 00000 n 
+0000339276 00000 n 
+0000339352 00000 n 
+0000340541 00000 n 
+0000340774 00000 n 
+0000341760 00000 n 
+0000341952 00000 n 
+0000393762 00000 n 
+0000341974 00000 n 
+0000341996 00000 n 
+0000342222 00000 n 
+0000342298 00000 n 
+0000345466 00000 n 
+0000345696 00000 n 
+0000346917 00000 n 
+0000347106 00000 n 
+0000347543 00000 n 
+0000347670 00000 n 
+0000352531 00000 n 
+0000352763 00000 n 
+0000354584 00000 n 
+0000354775 00000 n 
+0000355117 00000 n 
+0000355193 00000 n 
+0000359711 00000 n 
+0000359940 00000 n 
+0000361610 00000 n 
+0000361798 00000 n 
+0000362243 00000 n 
+0000362370 00000 n 
+0000371361 00000 n 
+0000371594 00000 n 
+0000373617 00000 n 
+0000373809 00000 n 
+0000391737 00000 n 
+0000391969 00000 n 
+0000393546 00000 n 
+0000394288 00000 n 
+0000394352 00000 n 
+0000394374 00000 n 
+0000394527 00000 n 
 trailer
-<</Size 97
-/Root 95 0 R
-/Info 96 0 R
-/ID [<CA3602065E4E78DC065C75D4620C9567> <CA3602065E4E78DC065C75D4620C9567>]>>
+<</Size 97/Root 95 0 R/Info 96 0 R/ID[<B36D2F7ED675249D794E5CB44B342534> <B36D2F7ED675249D794E5CB44B342534>]>>
 startxref
-395181
+395138
 %%EOF

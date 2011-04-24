@@ -277,7 +277,10 @@ void write_jpg(PDF pdf, image_dict * idict)
             break;
         case JPG_CMYK:
             pdf_dict_add_name(pdf, "ColorSpace", "DeviceCMYK");
-            pdf_puts(pdf, "/Decode [1 0 1 0 1 0 1 0]\n");
+            pdf_add_name(pdf, "Decode");
+            pdf_begin_array(pdf);
+            pdf_puts(pdf, "1 0 1 0 1 0 1 0");
+            pdf_end_array(pdf);
             break;
         default:
             pdftex_fail("Unsupported color space %i",

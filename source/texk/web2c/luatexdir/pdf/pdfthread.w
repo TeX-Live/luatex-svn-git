@@ -166,22 +166,26 @@ void pdf_fix_thread(PDF pdf, int t)
     tprint(" has been referenced but does not exist, replaced by a fixed one");
     print_ln();
     print_ln();
+
     a = pdf_new_obj(pdf, obj_type_others, 0, OBJSTM_NEVER);
     pdf_begin_dict(pdf);
     pdf_dict_add_ref(pdf, "T", t);
     pdf_dict_add_ref(pdf, "V", a);
     pdf_dict_add_ref(pdf, "N", a);
     pdf_dict_add_ref(pdf, "P", pdf->last_page);
-    pdf_printf(pdf, "/R [0 0 ");
+    pdf_add_name(pdf, "R");
+    pdf_begin_array(pdf);
+    pdf_printf(pdf, "0 0 ");
     pdf_print_bp(pdf, page_width);
     pdf_out(pdf, ' ');
     pdf_print_bp(pdf, page_height);
-    pdf_printf(pdf, "]\n");
+    pdf_end_array(pdf);
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
+
     pdf_begin_obj(pdf, t, OBJSTM_ALWAYS);
     pdf_begin_dict(pdf);
-    pdf_printf(pdf, "/I ");
+    pdf_add_name(pdf, "I");
     pdf_begin_dict(pdf);
     thread_title(pdf, t);
     pdf_end_dict(pdf);
@@ -270,14 +274,14 @@ void print_bead_rectangles(PDF pdf)
     if ((k = get_page_resources_list(pdf, obj_type_bead)) != NULL) {
         while (k != NULL) {
             l = pdf_new_obj(pdf, obj_type_others, 0, OBJSTM_ALWAYS);
-            pdf_out(pdf, '[');
+            pdf_begin_array(pdf);
             i = obj_bead_data(pdf, k->info);    /* pointer to a whatsit or whatsit-like node */
             pdf_print_rect_spec(pdf, i);
             if (subtype(i) == pdf_thread_data_node)     /* thanh says it mis be destroyed here */
                 flush_node(i);
-            pdf_printf(pdf, "]\n");
-            set_obj_bead_rect(pdf, k->info, l); /* rewrite |obj_bead_data| */
+            pdf_end_array(pdf);
             pdf_end_obj(pdf);
+            set_obj_bead_rect(pdf, k->info, l); /* rewrite |obj_bead_data| */
             k = k->link;
         }
     }

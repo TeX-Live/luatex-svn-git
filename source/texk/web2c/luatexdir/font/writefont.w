@@ -981,11 +981,13 @@ void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internal_font_number f)
     pdf_dict_add_name(pdf, "Encoding", "Identity-H");
     write_fontname(pdf, fo->fd, "BaseFont");
     i = pdf_new_objnum(pdf);
-    pdf_printf(pdf, "/DescendantFonts [%i 0 R]\n", i);
+    pdf_add_name(pdf, "DescendantFonts");
+    pdf_begin_array(pdf);
+    pdf_add_ref(pdf, i);
+    pdf_end_array(pdf);
     /* todo: the ToUnicode CMap */
     if (fo->tounicode_objnum != 0)
         pdf_dict_add_ref(pdf, "ToUnicode", (int) fo->tounicode_objnum);
-
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
 
@@ -1001,18 +1003,19 @@ void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internal_font_number f)
     write_fontname(pdf, fo->fd, "BaseFont");
     pdf_dict_add_ref(pdf, "FontDescriptor", (int) fo->fd->fd_objnum);
     pdf_dict_add_ref(pdf, "W", (int) fo->cw_objnum);
-    pdf_printf(pdf, "/CIDSystemInfo ");
+    pdf_add_name(pdf, "CIDSystemInfo");
     pdf_begin_dict(pdf);
-    pdf_printf(pdf, "/Registry (%s)\n",
+    pdf_printf(pdf, "/Registry (%s)",
                (font_cidregistry(f) ? font_cidregistry(f) : "Adobe"));
-    pdf_printf(pdf, "/Ordering (%s)\n",
+    pdf_printf(pdf, "/Ordering (%s)",
                (font_cidordering(f) ? font_cidordering(f) : "Identity"));
-    pdf_printf(pdf, "/Supplement %u\n", (unsigned int) font_cidsupplement(f));
+    pdf_dict_add_int(pdf, "Supplement", (int) font_cidsupplement(f));
     pdf_end_dict(pdf);
 
     /* I doubt there is anything useful that could be written here */
 #if 0
     if (pdf_font_attr(fo->tex_font) != get_nullstr()) {
+        pdf_puts(pdf, "\n");
         pdf_print(pdf_font_attr(fo->tex_font));
         pdf_puts(pdf, "\n");
     }

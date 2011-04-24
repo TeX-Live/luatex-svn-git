@@ -1,7 +1,7 @@
 % writeenc.w
-% 
+
 % Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
-% Copyright 2006-2008 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2011 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -25,7 +25,7 @@ static const char _svn_version[] =
     "$Id$ "
 "$URL$";
 
-@ All encoding entries go into AVL tree for fast search by name. 
+@ All encoding entries go into AVL tree for fast search by name.
 @c
 struct avl_table *fe_tree = NULL;
 
@@ -98,8 +98,9 @@ static void write_enc(PDF pdf, char **glyph_names, struct avl_table *tx_tree,
     assert(fe_objnum != 0);
     pdf_begin_obj(pdf, fe_objnum, OBJSTM_ALWAYS);
     pdf_begin_dict(pdf);
-    pdf_puts(pdf, "/Type /Encoding\n");
-    pdf_puts(pdf, "/Differences [");
+    pdf_dict_add_name(pdf, "Type", "Encoding");
+    pdf_add_name(pdf, "Differences");
+    pdf_begin_array(pdf);
     avl_t_init(&t, tx_tree);
     for (i_old = -2, p = (int *) avl_t_first(&t, tx_tree); p != NULL;
          p = (int *) avl_t_next(&t)) {
@@ -113,7 +114,7 @@ static void write_enc(PDF pdf, char **glyph_names, struct avl_table *tx_tree,
         }
         i_old = *p;
     }
-    pdf_puts(pdf, "]\n");
+    pdf_end_array(pdf);
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
 }
@@ -137,7 +138,7 @@ void write_fontencodings(PDF pdf)
             write_fontencoding(pdf, fe);
 }
 
-@ cleaning up... 
+@ cleaning up...
 @c
 
 static void destroy_fe_entry(void *pa, void *pb)

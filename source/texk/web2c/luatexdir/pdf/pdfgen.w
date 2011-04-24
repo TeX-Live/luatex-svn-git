@@ -895,21 +895,6 @@ static void pdf_out_bytes(PDF pdf, longinteger n, size_t w)
     pdf_out_block(pdf, (const char *) bytes, w);
 }
 
-@ print out an entry in dictionary with integer value to PDF buffer
-@c
-void pdf_int_entry(PDF pdf, const char *s, int v)
-{
-    pdf_printf(pdf, "/%s ", s);
-    pdf_print_int(pdf, v);
-}
-
-void pdf_int_entry_ln(PDF pdf, const char *s, int v)
-{
-
-    pdf_int_entry(pdf, s, v);
-    pdf_print_nl(pdf);
-}
-
 @  print out an indirect entry in dictionary
 @c
 void pdf_indirect(PDF pdf, const char *s, int o)
@@ -1198,12 +1183,18 @@ void pdf_end_dict(PDF pdf)
 
 @ add integer object to dict
 @c
+void pdf_dict_add_bool(PDF pdf, const char *key, int i)
+{
+    pdf_add_name(pdf, key);
+    pdf_add_bool(pdf, i);
+}
+
+@ add integer object to dict
+@c
 void pdf_dict_add_int(PDF pdf, const char *key, int i)
 {
     pdf_add_name(pdf, key);
     pdf_add_int(pdf, i);
-    pdf_out(pdf, '\n');         /* TODO: remove */
-    pdf->cave = 0;              /* TODO: remove */
 }
 
 @ add name object to dict
@@ -1212,8 +1203,6 @@ void pdf_dict_add_name(PDF pdf, const char *key, const char *val)
 {
     pdf_add_name(pdf, key);
     pdf_add_name(pdf, val);
-    pdf_out(pdf, '\n');         /* TODO: remove */
-    pdf->cave = 0;              /* TODO: remove */
 }
 
 @ add name reference to dict
@@ -1222,8 +1211,6 @@ void pdf_dict_add_ref(PDF pdf, const char *key, int num)
 {
     pdf_add_name(pdf, key);
     pdf_add_ref(pdf, num);
-    pdf_out(pdf, '\n');         /* TODO: remove */
-    pdf->cave = 0;         /* TODO: remove */
 }
 
 @ add objects of different types
@@ -1459,7 +1446,10 @@ static void print_ID(PDF pdf, const char *file_name)
     md5_finish(&state, digest);
     /* write the IDs */
     convertStringToHexString((char *) digest, id, 16);
-    pdf_printf(pdf, "/ID [<%s> <%s>]", id, id);
+    pdf_add_name(pdf, "ID");
+    pdf_begin_array(pdf);
+    pdf_printf(pdf, "<%s> <%s>", id, id);
+    pdf_end_array(pdf);
 }
 
 @ Print the /CreationDate entry.
@@ -1854,7 +1844,10 @@ void pdf_begin_page(PDF pdf)
         pdf_end_array(pdf);
         pdf_out(pdf, '\n');
         pdf_dict_add_int(pdf, "FormType", 1);
-        pdf_puts(pdf, "/Matrix [1 0 0 1 0 0]\n");
+        pdf_add_name(pdf, "Matrix");
+        pdf_begin_array(pdf);
+        pdf_puts(pdf, "1 0 0 1 0 0");
+        pdf_end_array(pdf);
         pdf_dict_add_ref(pdf, "Resources", pdf->page_resources->last_resources);
     }
     /* Start stream of page/form contents */
@@ -2460,7 +2453,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 pdf_print_int(pdf, pdf->obj_ptr + 1);
                 pdf_end_array(pdf);
                 pdf_out(pdf, '\n');
-                pdf_int_entry_ln(pdf, "Size", pdf->obj_ptr + 1);
+                pdf_dict_add_int(pdf, "Size", pdf->obj_ptr + 1);
                 pdf_puts(pdf, "/W ");
                 pdf_begin_array(pdf);
                 pdf_puts(pdf, "1 ");
@@ -2529,7 +2522,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             if (!pdf->os_enable) {
                 pdf_puts(pdf, "trailer\n");
                 pdf_begin_dict(pdf);
-                pdf_int_entry_ln(pdf, "Size", pdf->obj_ptr + 1);
+                pdf_dict_add_int(pdf, "Size", pdf->obj_ptr + 1);
                 pdf_dict_add_ref(pdf, "Root", root);
                 pdf_dict_add_ref(pdf, "Info", info);
                 if (pdf_trailer_toks != null) {

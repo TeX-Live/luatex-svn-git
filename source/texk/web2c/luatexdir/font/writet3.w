@@ -1,7 +1,7 @@
 % writet3.w
 
 % Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
-% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2011 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -230,6 +230,7 @@ static boolean writepk(PDF pdf, internal_font_number f)
 void writet3(PDF pdf, internal_font_number f)
 {
     int i;
+    char s[32];
     int wptr, eptr, cptr;
     int first_char, last_char;
     int pk_font_scale;
@@ -262,29 +263,46 @@ void writet3(PDF pdf, internal_font_number f)
     pdf_begin_dict(pdf);
     pdf_dict_add_name(pdf, "Type", "Font");
     pdf_dict_add_name(pdf, "Subtype", "Type3");
-    pdf_printf(pdf, "/Name /F%i\n", (int) f);
+    snprintf(s, 31, "F%i", (int) f);
+    pdf_dict_add_name(pdf, "Name", s);
     if (pdf_font_attr(f) != get_nullstr() && pdf_font_attr(f) != 0) {
+        pdf_puts(pdf, "\n");
         pdf_print(pdf, pdf_font_attr(f));
         pdf_puts(pdf, "\n");
     }
     if (is_pk_font) {
         pk_font_scale =
             get_pk_font_scale(f, pdf->decimal_digits, pdf->pk_scale_factor);
-        pdf_puts(pdf, "/FontMatrix");
+        pdf_add_name(pdf, "FontMatrix");
         pdf_begin_array(pdf);
         pdf_print_real(pdf, pk_font_scale, 5);
         pdf_puts(pdf, " 0 0 ");
         pdf_print_real(pdf, pk_font_scale, 5);
         pdf_puts(pdf, " 0 0");
         pdf_end_array(pdf);
-    } else
-        pdf_printf(pdf, "/FontMatrix [%g 0 0 %g 0 0]\n",
+    } else {
+        pdf_add_name(pdf, "FontMatrix");
+        pdf_begin_array(pdf);
+        pdf_printf(pdf, "%g 0 0 %g 0 0",
                    (double) t3_font_scale, (double) t3_font_scale);
-    pdf_printf(pdf, "/%s [ %i %i %i %i ]\n",
-               font_key[FONTBBOX1_CODE].pdfname,
-               (int) t3_b0, (int) t3_b1, (int) t3_b2, (int) t3_b3);
-    pdf_printf(pdf, "/Resources << /ProcSet [ /PDF %s] >>\n",
-               t3_image_used ? "/ImageB " : "");
+        pdf_end_array(pdf);
+    }
+    pdf_add_name(pdf, font_key[FONTBBOX1_CODE].pdfname);
+    pdf_begin_array(pdf);
+    pdf_add_int(pdf, (int) t3_b0);
+    pdf_add_int(pdf, (int) t3_b1);
+    pdf_add_int(pdf, (int) t3_b2);
+    pdf_add_int(pdf, (int) t3_b3);
+    pdf_end_array(pdf);
+    pdf_add_name(pdf, "Resources");
+    pdf_begin_dict(pdf);
+    pdf_add_name(pdf, "ProcSet");
+    pdf_begin_array(pdf);
+    pdf_add_name(pdf, "PDF");
+    if (t3_image_used)
+        pdf_add_name(pdf, "ImageB");
+    pdf_end_array(pdf);
+    pdf_end_dict(pdf);
     pdf_dict_add_int(pdf, "FirstChar", first_char);
     pdf_dict_add_int(pdf, "LastChar", last_char);
     wptr = pdf_new_objnum(pdf);
@@ -313,9 +331,10 @@ void writet3(PDF pdf, internal_font_number f)
     pdf_begin_obj(pdf, eptr, OBJSTM_ALWAYS);
     pdf_begin_dict(pdf);
     pdf_dict_add_name(pdf, "Type", "Encoding");
-    pdf_printf(pdf, "/Differences");
+    pdf_add_name(pdf, "Differences");
     pdf_begin_array(pdf);
-    pdf_printf(pdf, "%i", first_char);
+    pdf_add_int(pdf, first_char);
+    pdf_out(pdf, ' ');          /* TODO: remove */
     if (t3_char_procs[first_char] == 0) {
         pdf_printf(pdf, "/%s", notdef);
         is_notdef = true;
@@ -345,8 +364,10 @@ void writet3(PDF pdf, internal_font_number f)
     pdf_begin_obj(pdf, cptr, OBJSTM_ALWAYS);
     pdf_begin_dict(pdf);
     for (i = first_char; i <= last_char; i++)
-        if (t3_char_procs[i] != 0)
-            pdf_printf(pdf, "/a%i %i 0 R\n", (int) i, (int) t3_char_procs[i]);
+        if (t3_char_procs[i] != 0) {
+            snprintf(s, 31, "a%i", (int) i);
+            pdf_dict_add_ref(pdf, s, (int) t3_char_procs[i]);
+        }
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
     if (tracefilenames)
