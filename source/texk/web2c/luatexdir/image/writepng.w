@@ -75,7 +75,8 @@ void read_png_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
         png_set_tRNS_to_alpha(png_p);
     }
     /* alpha channel support  */
-    if (pdf->minor_version < 4 && png_get_color_type(png_p, info_p) | PNG_COLOR_MASK_ALPHA)
+    if (pdf->minor_version < 4
+        && png_get_color_type(png_p, info_p) | PNG_COLOR_MASK_ALPHA)
         png_set_strip_alpha(png_p);
     /* 16bit depth support */
     if (pdf->minor_version < 5)
@@ -91,10 +92,11 @@ void read_png_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
                           (1000.0 / pdf->image_gamma));
     }
     /* reset structure */
+    (void) png_set_interlace_handling(png_p);
     png_read_update_info(png_p, info_p);
     /* resolution support */
-    img_xsize(idict) = (int) png_get_image_width (png_p, info_p);
-    img_ysize(idict) = (int) png_get_image_height (png_p, info_p);
+    img_xsize(idict) = (int) png_get_image_width(png_p, info_p);
+    img_ysize(idict) = (int) png_get_image_height(png_p, info_p);
     if (png_get_valid(png_p, info_p, PNG_INFO_pHYs)) {
         img_xres(idict) =
             round(0.0254 * (double) png_get_x_pixels_per_meter(png_p, info_p));
@@ -114,7 +116,8 @@ void read_png_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
         img_procset(idict) |= PROCSET_IMAGE_C;
         break;
     default:
-        pdftex_fail("unsupported type of color_type <%i>", (int)png_get_color_type (png_p, info_p));
+        pdftex_fail("unsupported type of color_type <%i>",
+                    (int) png_get_color_type(png_p, info_p));
     }
     img_colordepth(idict) = png_get_bit_depth(png_p, info_p);
     if (readtype == IMG_CLOSEINBETWEEN)
