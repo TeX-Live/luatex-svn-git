@@ -281,15 +281,11 @@ static int addInObj(PDF pdf, PdfDocument * pdf_doc, Ref ref)
 static pdffloat conv_double_to_pdffloat(double n)
 {
     pdffloat a;
-    int neg = 0;
     a.e = 6;
-    if (n < 0) {
-        neg = 1;
-        n = -n;
-    }
-    a.m = (int) (n * ten_pow[a.e] + 0.5);
-    if (neg == 1)
-        a.m = -a.m;
+    if (n < 0)
+        a.m = -(long) (-n * ten_pow[a.e] + 0.5);
+    else
+        a.m = (long) (n * ten_pow[a.e] + 0.5);
     return a;
 }
 
