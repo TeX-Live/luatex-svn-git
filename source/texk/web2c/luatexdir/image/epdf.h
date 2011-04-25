@@ -80,7 +80,8 @@ extern "C" {
 #  include "lua51/lua.h"
 #  include "lua51/lauxlib.h"
 
-    /* pdfgen.c */
+    /* pdfgen.w */
+    extern int ten_pow[10];
     __attribute__ ((format(printf, 2, 3)))
     extern void pdf_printf(PDF, const char *fmt, ...);
     extern void pdf_begin_obj(PDF, int, int);
@@ -108,7 +109,10 @@ extern "C" {
 #  define pdf_out(B, A) do { pdf_room(B, 1); B->buf[B->ptr++] = A; } while (0)
 #  define pdf_puts(pdf, s) pdf_out_block((pdf), (s), strlen(s))
 
-    /* pdftables.c */
+    /* pdfpage.w */
+    extern void print_pdffloat(PDF pdf, pdffloat f);
+
+    /* pdftables.w */
     extern int pdf_new_objnum(PDF);
 
     /* pdftoepdf.cc */
@@ -117,7 +121,7 @@ extern "C" {
     extern void unrefPdfDocument(char *);
     extern void epdf_free(void);
 
-    /* utils.c */
+    /* utils.w */
     __attribute__ ((format(printf, 1, 2)))
     extern void pdftex_warn(const char *fmt, ...);
     __attribute__ ((noreturn, format(printf, 1, 2)))
@@ -125,7 +129,7 @@ extern "C" {
     extern char *convertStringToPDFString(char *in, int len);
     extern char *stripzeros(char *a);
 
-    /* lepdflib.c */
+    /* lepdflib.w */
     int luaopen_epdf(lua_State * L);
 
 };

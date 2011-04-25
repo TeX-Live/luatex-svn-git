@@ -269,7 +269,7 @@ static int addInObj(PDF pdf, PdfDocument * pdf_doc, Ref ref)
 }
 
 //**********************************************************************
-// Function converts double to string; very small and very large numbers
+// Function converts double to pdffloat; very small and very large numbers
 // are NOT converted to scientific notation.
 // n must be a number or real conforming to the implementation limits
 // of PDF as specified in appendix C.1 of the PDF Ref.
@@ -278,53 +278,19 @@ static int addInObj(PDF pdf, PdfDocument * pdf_doc, Ref ref)
 // maximum value of reals is +2^15
 // smalles values of reals is 1/(2^16)
 
-static char *convertNumToPDF(double n)
+static pdffloat conv_double_to_pdffloat(double n)
 {
-    static const int precision = 6;
-    static const int fact = (int) 1E6;  // must be 10^precision
-    static const double epsilon = 0.5E-6;       // 2epsilon must be 10^-precision
-    static char buf[64];
-    // handle very small values: return 0
-    if (fabs(n) < epsilon) {
-        buf[0] = '0';
-        buf[1] = '\0';
-    } else {
-        char ints[64];
-        int bindex = 0, sindex = 0;
-        int ival, fval;
-        // handle the sign part if n is negative
-        if (n < 0) {
-            buf[bindex++] = '-';
-            n = -n;
-        }
-        n += epsilon;           // for rounding
-        // handle the integer part, simply with sprintf
-        ival = (int) floor(n);
-        n -= ival;
-        sprintf(ints, "%d", ival);
-        while (ints[sindex] != 0)
-            buf[bindex++] = ints[sindex++];
-        // handle the fractional part up to 'precision' digits
-        fval = (int) floor(n * fact);
-        if (fval) {
-            // set a dot
-            buf[bindex++] = '.';
-            sindex = bindex + precision;
-            buf[sindex--] = '\0';
-            // fill up trailing zeros with the string terminator NULL
-            while (((fval % 10) == 0) && (sindex >= bindex)) {
-                buf[sindex--] = '\0';
-                fval /= 10;
-            }
-            // fill up the fractional part back to front
-            while (sindex >= bindex) {
-                buf[sindex--] = (fval % 10) + '0';
-                fval /= 10;
-            }
-        } else
-            buf[bindex++] = '\0';
+    pdffloat a;
+    int neg = 0;
+    a.e = 6;
+    if (n < 0) {
+        neg = 1;
+        n = -n;
     }
-    return (char *) buf;
+    a.m = (int) (n * ten_pow[a.e] + 0.5);
+    if (neg == 1)
+        a.m = -a.m;
+    return a;
 }
 
 static void copyObject(PDF, PdfDocument *, Object *);
@@ -333,7 +299,7 @@ static void copyReal(PDF pdf, double d)
 {
     if (pdf->cave)
         pdf_out(pdf, ' ');
-    pdf_printf(pdf, "%s", convertNumToPDF(d));
+    print_pdffloat(pdf, conv_double_to_pdffloat(d));
     pdf->cave = true;
 }
 
@@ -665,7 +631,7 @@ void write_epdf(PDF pdf, image_dict * idict)
     Object obj1, contents, pageobj, pagesobj1, pagesobj2, *op1, *op2, *optmp;
     PDFRectangle *pagebox;
     int i, l;
-    float bbox[4];
+    double bbox[4];
     char s[256];
     const char *pagedictkeys[] =
         { "Group", "LastModified", "Metadata", "PieceInfo", "Resources",
@@ -720,10 +686,12 @@ void write_epdf(PDF pdf, image_dict * idict)
         bbox[2] = pagebox->x2;
         bbox[3] = pagebox->y2;
     }
-    sprintf(s, "%.8f %.8f %.8f %.8f", bbox[0], bbox[1], bbox[2], bbox[3]);
     pdf_add_name(pdf, "BBox");
     pdf_begin_array(pdf);
-    pdf_puts(pdf, stripzeros(s));
+    copyReal(pdf, bbox[0]);
+    copyReal(pdf, bbox[1]);
+    copyReal(pdf, bbox[2]);
+    copyReal(pdf, bbox[3]);
     pdf_end_array(pdf);
     // The /Matrix calculation is replaced by transforms in out_img().
 
