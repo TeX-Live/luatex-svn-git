@@ -104,13 +104,11 @@ static void write_enc(PDF pdf, char **glyph_names, struct avl_table *tx_tree,
     avl_t_init(&t, tx_tree);
     for (i_old = -2, p = (int *) avl_t_first(&t, tx_tree); p != NULL;
          p = (int *) avl_t_next(&t)) {
-        if (*p == i_old + 1)    /* no gap */
-            pdf_printf(pdf, "/%s", glyph_names[*p]);
+        if (*p == i_old + 1)    /* consecutive */
+            pdf_add_name(pdf, glyph_names[*p]);
         else {
-            if (i_old == -2)
-                pdf_printf(pdf, "%i/%s", *p, glyph_names[*p]);
-            else
-                pdf_printf(pdf, " %i/%s", *p, glyph_names[*p]);
+            pdf_add_int(pdf, *p);
+            pdf_add_name(pdf, glyph_names[*p]);
         }
         i_old = *p;
     }

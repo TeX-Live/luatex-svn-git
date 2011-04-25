@@ -323,7 +323,7 @@ void writet3(PDF pdf, internal_font_number f)
             pdf_puts(pdf, " ");
     } else
         for (i = first_char; i <= last_char; i++)
-            pdf_printf(pdf, "%i ", (int) t3_char_widths[i]);
+            pdf_add_int(pdf, (int) t3_char_widths[i]);
     pdf_end_array(pdf);
     pdf_end_obj(pdf);
 
@@ -334,26 +334,28 @@ void writet3(PDF pdf, internal_font_number f)
     pdf_add_name(pdf, "Differences");
     pdf_begin_array(pdf);
     pdf_add_int(pdf, first_char);
-    pdf_out(pdf, ' ');          /* TODO: remove */
     if (t3_char_procs[first_char] == 0) {
-        pdf_printf(pdf, "/%s", notdef);
+        pdf_add_name(pdf, notdef);
         is_notdef = true;
     } else {
-        pdf_printf(pdf, "/a%i", first_char);
+        snprintf(s, 31, "a%i", first_char);
+        pdf_add_name(pdf, s);
         is_notdef = false;
     }
     for (i = first_char + 1; i <= last_char; i++) {
         if (t3_char_procs[i] == 0) {
             if (!is_notdef) {
-                pdf_printf(pdf, " %i/%s", i, notdef);
+                pdf_add_int(pdf, i);
+                pdf_add_name(pdf, notdef);
                 is_notdef = true;
             }
         } else {
             if (is_notdef) {
-                pdf_printf(pdf, " %i", i);
+                pdf_add_int(pdf, i);
                 is_notdef = false;
             }
-            pdf_printf(pdf, "/a%i", i);
+            snprintf(s, 31, "a%i", i);
+            pdf_add_name(pdf, s);
         }
     }
     pdf_end_array(pdf);

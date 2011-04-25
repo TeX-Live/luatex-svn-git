@@ -548,11 +548,13 @@ static void write_fontdescriptor(PDF pdf, fd_entry * fd)
                 /* /CharSet is optional; names may appear in any order */
                 assert(fd->gl_tree != NULL);
                 avl_t_init(&t, fd->gl_tree);
-                pdf_puts(pdf, "/CharSet (");
+                pdf_add_name(pdf, "CharSet");
+                pdf_puts(pdf, "(");
                 for (glyph = (char *) avl_t_first(&t, fd->gl_tree);
                      glyph != NULL; glyph = (char *) avl_t_next(&t))
-                    pdf_printf(pdf, "/%s", glyph);
-                pdf_puts(pdf, ")\n");
+                    pdf_add_name(pdf, glyph);
+                pdf_puts(pdf, ")");
+                pdf->cave = 0;
             }
             if (is_type1(fd->fm))
                 pdf_dict_add_ref(pdf, "FontFile", (int) fd->ff_objnum);
