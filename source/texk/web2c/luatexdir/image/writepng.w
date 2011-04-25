@@ -635,7 +635,9 @@ void write_png(PDF pdf, image_dict * idict)
         && ((pdf->image_hicolor != 0)
             || (png_get_bit_depth(png_p, info_p) <= 8))
         && (checked_gamma <= 1.01 && checked_gamma > 0.99)
+        && 0                    /* disable copy_png(), needs fixing above AND condition for libpng >= 1.5.2 */
         ) {
+        /* Copy PNG */
         png_colorp palette;
         int num_palette;
 
