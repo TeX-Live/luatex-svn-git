@@ -2088,10 +2088,10 @@ void pdf_end_page(PDF pdf)
         }
         while (ol1 != null) {
             p = s;
-            p += snprintf(p, 20, "Im%i", obj_info(pdf, ol->info));
+            p += snprintf(p, 20, "Im%i", obj_info(pdf, ol1->info));
             if (pdf->resname_prefix != NULL)
                 p += snprintf(p, 20, "%s", pdf->resname_prefix);
-            pdf_dict_add_ref(pdf, s, ol->info);
+            pdf_dict_add_ref(pdf, s, ol1->info);
             procset |= img_procset(idict_array[obj_data_ptr(pdf, ol1->info)]);
             ol1 = ol1->link;
         }
