@@ -167,7 +167,7 @@ void pdf_fix_thread(PDF pdf, int t)
     print_ln();
     print_ln();
 
-    a = pdf_new_obj(pdf, obj_type_others, 0, OBJSTM_NEVER);
+    a = pdf_new_obj(pdf, obj_type_others, 0, OBJSTM_ALWAYS);
     pdf_begin_dict(pdf);
     pdf_dict_add_ref(pdf, "T", t);
     pdf_dict_add_ref(pdf, "V", a);
@@ -175,10 +175,10 @@ void pdf_fix_thread(PDF pdf, int t)
     pdf_dict_add_ref(pdf, "P", pdf->last_page);
     pdf_add_name(pdf, "R");
     pdf_begin_array(pdf);
-    pdf_printf(pdf, "0 0 ");
-    pdf_print_bp(pdf, page_width);
-    pdf_out(pdf, ' ');
-    pdf_print_bp(pdf, page_height);
+    pdf_add_int(pdf, 0);
+    pdf_add_int(pdf, 0);
+    pdf_add_bp(pdf, page_width);
+    pdf_add_bp(pdf, page_height);
     pdf_end_array(pdf);
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);

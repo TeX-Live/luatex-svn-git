@@ -109,19 +109,16 @@ printing ones but the output is going to PDF buffer. Subroutines with
 suffix |_ln| append a new-line character to the PDF output.
 */
 
-/* output a new-line character to PDF buffer */
-#  define pdf_print_nl(pdf) pdf_out(pdf, '\n')
-
 /* print out a string to PDF buffer followed by a new-line character */
 #  define pdf_print_ln(pdf,A) do {                 \
         pdf_print(pdf,A);                          \
-        pdf_print_nl(pdf);                         \
+        pdf_out(pdf, '\n');                        \
     } while (0)
 
 /* print out an integer to PDF buffer followed by a new-line character */
-#  define pdf_print_int_ln(pdf,A) do {            \
-        pdf_print_int(pdf,A);                     \
-        pdf_print_nl(pdf);                        \
+#  define pdf_print_int_ln(pdf,A) do {             \
+        pdf_print_int(pdf,A);                      \
+        pdf_out(pdf, '\n');                        \
     } while (0)
 
 extern __attribute__ ((format(printf, 2, 3)))
@@ -150,7 +147,7 @@ extern void pdf_dict_add_streaminfo(PDF);
 extern void pdf_begin_stream(PDF);
 extern void pdf_end_stream(PDF);
 
-extern void pdf_print_bp(PDF, scaled);
+extern void pdf_add_bp(PDF, scaled);
 extern void pdf_add_mag_bp(PDF, scaled);
 
 /* This is for the resource lists */

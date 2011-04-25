@@ -708,14 +708,17 @@ scaled round_xn_over_d(scaled x, int n, unsigned int d)
 @ @c
 #define lround(a) (long) floor((a) + 0.5)
 
-void pdf_print_bp(PDF pdf, scaled s)
+void pdf_add_bp(PDF pdf, scaled s)
 {                               /* print scaled as |bp| */
     pdffloat a;
     pdfstructure *p = pdf->pstruct;
     assert(p != NULL);
     a.m = lround(s * p->k1);
     a.e = pdf->decimal_digits;
+    if (pdf->cave > 0)
+        pdf_out(pdf, ' ');
     print_pdffloat(pdf, a);
+    pdf->cave = 1;
 }
 
 void pdf_add_mag_bp(PDF pdf, scaled s)
@@ -903,7 +906,7 @@ static void pdf_out_bytes(PDF pdf, longinteger n, size_t w)
 void pdf_print_str_ln(PDF pdf, const char *s)
 {
     pdf_print_str(pdf, s);
-    pdf_print_nl(pdf);
+    pdf_out(pdf, '\n');
 }
 
 @ @c
@@ -1021,7 +1024,7 @@ static void ensure_pdf_header_written(PDF pdf)
     pdf_out(pdf, 'T' + 128);
     pdf_out(pdf, 'E' + 128);
     pdf_out(pdf, 'X' + 128);
-    pdf_print_nl(pdf);
+    pdf_out(pdf, '\n');
 }
 
 @ @c
@@ -1797,21 +1800,22 @@ void pdf_begin_page(PDF pdf)
             delete_token_ref(obj_xform_attr(pdf, pdf_cur_form));
             set_obj_xform_attr(pdf, pdf_cur_form, null);
         }
-        pdf_puts(pdf, "/BBox ");
+        pdf_add_name(pdf, "BBox");
         pdf_begin_array(pdf);
-        pdf_print_bp(pdf, -form_margin);
-        pdf_out(pdf, ' ');
-        pdf_print_bp(pdf, -form_margin);
-        pdf_out(pdf, ' ');
-        pdf_print_bp(pdf, cur_page_size.h + form_margin);
-        pdf_out(pdf, ' ');
-        pdf_print_bp(pdf, cur_page_size.v + form_margin);
+        pdf_add_bp(pdf, -form_margin);
+        pdf_add_bp(pdf, -form_margin);
+        pdf_add_bp(pdf, cur_page_size.h + form_margin);
+        pdf_add_bp(pdf, cur_page_size.v + form_margin);
         pdf_end_array(pdf);
-        pdf_out(pdf, '\n');
         pdf_dict_add_int(pdf, "FormType", 1);
         pdf_add_name(pdf, "Matrix");
         pdf_begin_array(pdf);
-        pdf_puts(pdf, "1 0 0 1 0 0");
+        pdf_add_int(pdf, 1);
+        pdf_add_int(pdf, 0);
+        pdf_add_int(pdf, 0);
+        pdf_add_int(pdf, 1);
+        pdf_add_int(pdf, 0);
+        pdf_add_int(pdf, 0);
         pdf_end_array(pdf);
         pdf_dict_add_ref(pdf, "Resources", pdf->page_resources->last_resources);
     }
@@ -2429,7 +2433,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                     pdf_trailer_toks = null;
                 }
                 print_ID(pdf, pdf->file_name);
-                pdf_print_nl(pdf);
+                pdf_out(pdf, '\n');
                 pdf_dict_add_streaminfo(pdf);
                 pdf_end_dict(pdf);
                 pdf_begin_stream(pdf);

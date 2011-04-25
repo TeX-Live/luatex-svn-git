@@ -373,7 +373,7 @@ static void write_charwidth_array(PDF pdf, fo_entry * fo,
     avl_t_init(&t, fo->tx_tree);
     fip = (int *) avl_t_first(&t, fo->tx_tree);
     assert(fip != NULL);
-    pdf_puts(pdf, "[");
+    pdf_begin_array(pdf);
     for (ip = fip, j = *ip; ip != NULL; ip = (int *) avl_t_next(&t)) {
         if (ip != fip)
             pdf_puts(pdf, " ");
@@ -385,7 +385,7 @@ static void write_charwidth_array(PDF pdf, fo_entry * fo,
         j = i;
         pdf_print_charwidth(pdf, f, i);
     }
-    pdf_puts(pdf, "]\n");
+    pdf_end_array(pdf);
     pdf_end_obj(pdf);
 }
 

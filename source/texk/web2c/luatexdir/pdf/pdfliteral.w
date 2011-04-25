@@ -150,5 +150,5 @@ void pdf_literal(PDF pdf, str_number s, int literal_mode, boolean warn)
         assert(s < 256);
         pdf_out(pdf, s);
     }
-    pdf_print_nl(pdf);
+    pdf_out(pdf, '\n');
 }
