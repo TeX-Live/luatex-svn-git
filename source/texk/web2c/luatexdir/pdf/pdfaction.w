@@ -130,7 +130,9 @@ void write_action(PDF pdf, halfword p)
     char *s;
     int d = 0;
     if (pdf_action_type(p) == pdf_action_user) {
-        pdf_print_toks_ln(pdf, pdf_action_tokens(p));
+        pdf_out(pdf, '\n');
+        pdf_print_toks(pdf, pdf_action_tokens(p));
+        pdf_out(pdf, '\n');
         return;
     }
     pdf_begin_dict(pdf);
@@ -143,9 +145,9 @@ void write_action(PDF pdf, halfword p)
         pdf_out(pdf, ' ');
         if (pdf_action_new_window(p) > pdf_window_notset) {
             if (pdf_action_new_window(p) == pdf_window_new)
-                pdf_dict_add_bool(pdf, "NewWindow", "true ");
+                pdf_dict_add_bool(pdf, "NewWindow", 1);
             else
-                pdf_dict_add_bool(pdf, "NewWindow", "false ");
+                pdf_dict_add_bool(pdf, "NewWindow", 0);
         }
     }
     switch (pdf_action_type(p)) {
@@ -178,7 +180,7 @@ void write_action(PDF pdf, halfword p)
             pdf_dict_add_name(pdf, "S", "GoToR");
         if (pdf_action_named_id(p) > 0) {
             char *tokstr = tokenlist_to_cstring(pdf_action_id(p), true, NULL);
-            pdf_str_entry(pdf, "D", tokstr);
+            pdf_dict_add_string(pdf, "D", tokstr);
             xfree(tokstr);
         } else if (pdf_action_file(p) == null) {
             pdf_dict_add_ref(pdf, "D", d);
@@ -195,7 +197,7 @@ void write_action(PDF pdf, halfword p)
             if (pdf_action_named_id(p) > 0) {
                 char *tokstr =
                     tokenlist_to_cstring(pdf_action_id(p), true, NULL);
-                pdf_str_entry(pdf, "D", tokstr);
+                pdf_dict_add_string(pdf, "D", tokstr);
                 xfree(tokstr);
             } else if (pdf_action_file(p) == null) {
                 pdf_dict_add_ref(pdf, "D", d);

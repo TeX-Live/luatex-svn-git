@@ -276,7 +276,7 @@ void print_bead_rectangles(PDF pdf)
             l = pdf_new_obj(pdf, obj_type_others, 0, OBJSTM_ALWAYS);
             pdf_begin_array(pdf);
             i = obj_bead_data(pdf, k->info);    /* pointer to a whatsit or whatsit-like node */
-            pdf_print_rect_spec(pdf, i);
+            pdf_add_rect_spec(pdf, i);
             if (subtype(i) == pdf_thread_data_node)     /* thanh says it mis be destroyed here */
                 flush_node(i);
             pdf_end_array(pdf);

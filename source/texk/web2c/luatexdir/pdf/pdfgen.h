@@ -144,13 +144,14 @@ extern void pdf_dict_add_bool(PDF, const char *key, int i);
 extern void pdf_dict_add_int(PDF, const char *key, int i);
 extern void pdf_dict_add_ref(PDF, const char *key, int num);
 extern void pdf_dict_add_name(PDF, const char *key, const char *val);
+extern void pdf_dict_add_string(PDF pdf, const char *key, const char *val);
 extern void pdf_dict_add_streaminfo(PDF);
 
 extern void pdf_begin_stream(PDF);
 extern void pdf_end_stream(PDF);
 
 extern void pdf_print_bp(PDF, scaled);
-extern void pdf_print_mag_bp(PDF, scaled);
+extern void pdf_add_mag_bp(PDF, scaled);
 
 /* This is for the resource lists */
 
@@ -166,15 +167,11 @@ extern void pdf_out_block(PDF pdf, const char *s, size_t n);
             pdf_puts(pdf, pdf->resname_prefix);     \
     } while (0)
 
-extern void pdf_indirect(PDF, const char *, int);
 extern void pdf_print_str_ln(PDF, const char *);
-extern void pdf_str_entry(PDF, const char *, const char *);
-extern void pdf_str_entry_ln(PDF, const char *, const char *);
 
 extern void pdf_print_toks(PDF, halfword);
-extern void pdf_print_toks_ln(PDF, halfword);
 
-extern void pdf_print_rect_spec(PDF, halfword);
+extern void pdf_add_rect_spec(PDF, halfword);
 extern void pdf_rectangle(PDF, halfword);
 
 extern void pdf_begin_obj(PDF, int, int);

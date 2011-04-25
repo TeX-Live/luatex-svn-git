@@ -221,8 +221,10 @@ static void write_pages(PDF pdf, pages_entry * p, int parent)
     pdf_begin_dict(pdf);
     pdf_dict_add_name(pdf, "Type", "Pages");
     if (parent == 0) {          /* it's root */
-        if (pdf_pages_attr != null)
-            pdf_print_toks_ln(pdf, pdf_pages_attr);
+        if (pdf_pages_attr != null) {
+            pdf_print_toks(pdf, pdf_pages_attr);
+            pdf_out(pdf, ' ');
+        }
         print_pdf_table_string(pdf, "pagesattributes");
     } else
         pdf_dict_add_ref(pdf, "Parent", parent);

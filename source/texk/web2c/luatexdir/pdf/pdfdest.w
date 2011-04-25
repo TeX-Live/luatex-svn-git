@@ -149,51 +149,51 @@ void write_out_pdf_mark_destinations(PDF pdf)
                 pdf_begin_obj(pdf, k->info, OBJSTM_ALWAYS);
                 if (pdf_dest_named_id(i) > 0) {
                     pdf_begin_dict(pdf);
-                    pdf_printf(pdf, "/D ");
+                    pdf_add_name(pdf, "D");
                 }
                 pdf_begin_array(pdf);
-                pdf_print_int(pdf, pdf->last_page);
-                pdf_printf(pdf, " 0 R ");
+                pdf_add_ref(pdf, pdf->last_page);
                 switch (pdf_dest_type(i)) {
                 case pdf_dest_xyz:
-                    pdf_printf(pdf, "/XYZ ");
-                    pdf_print_mag_bp(pdf, pdf_ann_left(i));
-                    pdf_out(pdf, ' ');
-                    pdf_print_mag_bp(pdf, pdf_ann_top(i));
-                    pdf_out(pdf, ' ');
+                    pdf_add_name(pdf, "XYZ");
+                    pdf_add_mag_bp(pdf, pdf_ann_left(i));
+                    pdf_add_mag_bp(pdf, pdf_ann_top(i));
                     if (pdf_dest_xyz_zoom(i) == null) {
-                        pdf_printf(pdf, "null");
+                        pdf_add_null(pdf);
                     } else {
+                        if (pdf->cave == 1)
+                            pdf_out(pdf, ' ');
                         pdf_print_int(pdf, pdf_dest_xyz_zoom(i) / 1000);
                         pdf_out(pdf, '.');
                         pdf_print_int(pdf, (pdf_dest_xyz_zoom(i) % 1000));
+                        pdf->cave = 1;
                     }
                     break;
                 case pdf_dest_fit:
-                    pdf_printf(pdf, "/Fit");
+                    pdf_add_name(pdf, "Fit");
                     break;
                 case pdf_dest_fith:
-                    pdf_printf(pdf, "/FitH ");
-                    pdf_print_mag_bp(pdf, pdf_ann_top(i));
+                    pdf_add_name(pdf, "FitH");
+                    pdf_add_mag_bp(pdf, pdf_ann_top(i));
                     break;
                 case pdf_dest_fitv:
-                    pdf_printf(pdf, "/FitV ");
-                    pdf_print_mag_bp(pdf, pdf_ann_left(i));
+                    pdf_add_name(pdf, "FitV");
+                    pdf_add_mag_bp(pdf, pdf_ann_left(i));
                     break;
                 case pdf_dest_fitb:
-                    pdf_printf(pdf, "/FitB");
+                    pdf_add_name(pdf, "FitB");
                     break;
                 case pdf_dest_fitbh:
-                    pdf_printf(pdf, "/FitBH ");
-                    pdf_print_mag_bp(pdf, pdf_ann_top(i));
+                    pdf_add_name(pdf, "FitBH");
+                    pdf_add_mag_bp(pdf, pdf_ann_top(i));
                     break;
                 case pdf_dest_fitbv:
-                    pdf_printf(pdf, "/FitBV ");
-                    pdf_print_mag_bp(pdf, pdf_ann_left(i));
+                    pdf_add_name(pdf, "FitBV");
+                    pdf_add_mag_bp(pdf, pdf_ann_left(i));
                     break;
                 case pdf_dest_fitr:
-                    pdf_printf(pdf, "/FitR ");
-                    pdf_print_rect_spec(pdf, i);
+                    pdf_add_name(pdf, "FitR");
+                    pdf_add_rect_spec(pdf, i);
                     break;
                 default:
                     pdf_error("ext5", "unknown dest type");
@@ -345,13 +345,13 @@ int output_name_tree(PDF pdf)
             j = 0;
             if (is_names) {
                 set_obj_start(pdf, l, pdf->dest_names[k].objname);
-                pdf_printf(pdf, "/Names ");
+                pdf_add_name(pdf, "Names");
                 pdf_begin_array(pdf);
                 do {
                     pdf_print_str(pdf, pdf->dest_names[k].objname);
                     pdf_out(pdf, ' ');
-                    pdf_print_int(pdf, pdf->dest_names[k].objnum);
-                    pdf_printf(pdf, " 0 R ");
+                    pdf_add_ref(pdf, pdf->dest_names[k].objnum);
+                    pdf_out(pdf, ' ');
                     j++;
                     k++;
                 } while (j != name_tree_kids_max && k != pdf->dest_names_ptr);
@@ -365,11 +365,10 @@ int output_name_tree(PDF pdf)
 
             } else {
                 set_obj_start(pdf, l, obj_start(pdf, k));
-                pdf_printf(pdf, "/Kids ");
+                pdf_add_name(pdf, "Kids");
                 pdf_begin_array(pdf);
                 do {
-                    pdf_print_int(pdf, k);
-                    pdf_printf(pdf, " 0 R ");
+                    pdf_add_ref(pdf, k);
                     set_obj_stop(pdf, l, obj_stop(pdf, k));
                     k = obj_link(pdf, k);
                     j++;
@@ -379,7 +378,7 @@ int output_name_tree(PDF pdf)
                 if (k == b)
                     b = 0;
             }
-            pdf_printf(pdf, "/Limits ");
+            pdf_add_name(pdf, "Limits");
             pdf_begin_array(pdf);
             pdf_print_str(pdf, obj_start(pdf, l));
             pdf_out(pdf, ' ');
@@ -387,15 +386,12 @@ int output_name_tree(PDF pdf)
             pdf_end_array(pdf);
             pdf_end_dict(pdf);
             pdf_end_obj(pdf);
-
-
         } while (b != 0);
 
         if (k == l) {
             dests = l;
             goto DONE;
         }
-
     }
 
   DONE:
@@ -405,7 +401,7 @@ int output_name_tree(PDF pdf)
         if (dests != 0)
             pdf_dict_add_ref(pdf, "Dests", dests);
         if (pdf_names_toks != null) {
-            pdf_print_toks_ln(pdf, pdf_names_toks);
+            pdf_print_toks(pdf, pdf_names_toks);
             delete_token_ref(pdf_names_toks);
             pdf_names_toks = null;
         }

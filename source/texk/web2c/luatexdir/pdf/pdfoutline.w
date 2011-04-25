@@ -225,7 +225,9 @@ int print_outlines(PDF pdf)
             if (obj_outline_count(pdf, k) != 0)
                 pdf_dict_add_int(pdf, "Count", obj_outline_count(pdf, k));
             if (obj_outline_attr(pdf, k) != 0) {
-                pdf_print_toks_ln(pdf, obj_outline_attr(pdf, k));
+                pdf_out(pdf, '\n');
+                pdf_print_toks(pdf, obj_outline_attr(pdf, k));
+                pdf_out(pdf, '\n');
                 delete_token_ref(obj_outline_attr(pdf, k));
                 set_obj_outline_attr(pdf, k, null);
             }
