@@ -179,7 +179,7 @@ int find_obj(PDF pdf, int t, int i, boolean byname)
    |vlist_out|.
 
 @c
-int get_obj(PDF pdf, int t, int i, boolean byname)
+int pdf_get_obj(PDF pdf, int t, int i, boolean byname)
 {
     int r;
     str_number s;
@@ -206,15 +206,8 @@ int get_obj(PDF pdf, int t, int i, boolean byname)
     return r;
 }
 
-@ create a new object and return its number 
-
+@ object checking 
 @c
-int pdf_new_objnum(PDF pdf)
-{
-    int k = pdf_create_obj(pdf, obj_type_others, 0);
-    return k;
-}
-
 void check_obj_exists(PDF pdf, int objnum)
 {
     if (objnum < 0 || objnum > pdf->obj_ptr)

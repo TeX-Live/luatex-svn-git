@@ -61,7 +61,7 @@ void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
         pdf_error("ext4", "link annotations cannot be inside an XForm");
     assert(type(parent_box) == hlist_node);
     if (is_obj_scheduled(pdf, pdf_link_objnum(p)))
-        pdf_link_objnum(p) = pdf_new_objnum(pdf);
+        pdf_link_objnum(p) = pdf_create_obj(pdf, obj_type_others, 0);
     push_link_level(pdf, p);
     alt_rule.wd = width(p);
     alt_rule.ht = height(p);
@@ -150,7 +150,7 @@ void scan_startlink(PDF pdf)
     halfword r;
     if (abs(cur_list.mode_field) == vmode)
         pdf_error("ext1", "\\pdfstartlink cannot be used in vertical mode");
-    k = pdf_new_objnum(pdf);
+    k = pdf_create_obj(pdf, obj_type_others, 0);
     new_annot_whatsit(pdf_start_link_node);
     set_pdf_link_attr(cur_list.tail_field, null);
     if (scan_keyword("attr")) {

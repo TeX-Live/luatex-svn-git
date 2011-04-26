@@ -113,7 +113,7 @@ extern "C" {
     extern void print_pdffloat(PDF pdf, pdffloat f);
 
     /* pdftables.w */
-    extern int pdf_new_objnum(PDF);
+    extern int pdf_create_obj(PDF pdf, int t, int i);
 
     /* pdftoepdf.cc */
     extern void read_pdf_info(image_dict *, int, int, img_readtype_e);

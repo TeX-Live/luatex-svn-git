@@ -36,8 +36,9 @@ void append_bead(PDF pdf, halfword p)
     int a, b, c, t;
     if (global_shipping_mode == SHIPPING_FORM)
         pdf_error("ext4", "threads cannot be inside an XForm");
-    t = get_obj(pdf, obj_type_thread, pdf_thread_id(p), pdf_thread_named_id(p));
-    b = pdf_new_objnum(pdf);
+    t = pdf_get_obj(pdf, obj_type_thread, pdf_thread_id(p),
+                    pdf_thread_named_id(p));
+    b = pdf_create_obj(pdf, obj_type_others, 0);
     obj_bead_ptr(pdf, b) = pdf_get_mem(pdf, pdfmem_bead_size);
     set_obj_bead_page(pdf, b, pdf->last_page);
     set_obj_bead_data(pdf, b, p);

@@ -643,9 +643,9 @@ void write_pdfstream(PDF pdf, image_dict * idict)
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
         pdf_printf(pdf, "%s\n", img_attr(idict));
     pdf_dict_add_int(pdf, "FormType", 1);
-    sprintf(s, "/BBox [%.8f %.8f %.8f %.8f]\n", int2bp(img_bbox(idict)[0]),
-            int2bp(img_bbox(idict)[1]), int2bp(img_bbox(idict)[2]),
-            int2bp(img_bbox(idict)[3]));
+    sprintf(s, "/BBox [%.8f %.8f %.8f %.8f]\n", sp2bp(img_bbox(idict)[0]),
+            sp2bp(img_bbox(idict)[1]), sp2bp(img_bbox(idict)[2]),
+            sp2bp(img_bbox(idict)[3]));
     pdf_printf(pdf, stripzeros(s));
     pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);

@@ -306,9 +306,9 @@ void writet3(PDF pdf, internal_font_number f)
     pdf_end_dict(pdf);
     pdf_dict_add_int(pdf, "FirstChar", first_char);
     pdf_dict_add_int(pdf, "LastChar", last_char);
-    wptr = pdf_new_objnum(pdf);
-    eptr = pdf_new_objnum(pdf);
-    cptr = pdf_new_objnum(pdf);
+    wptr = pdf_create_obj(pdf, obj_type_others, 0);
+    eptr = pdf_create_obj(pdf, obj_type_others, 0);
+    cptr = pdf_create_obj(pdf, obj_type_others, 0);
     pdf_dict_add_ref(pdf, "Widths", (int) wptr);
     pdf_dict_add_ref(pdf, "Encoding", (int) eptr);
     pdf_dict_add_ref(pdf, "CharProcs", (int) cptr);

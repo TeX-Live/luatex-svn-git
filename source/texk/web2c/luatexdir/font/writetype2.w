@@ -378,7 +378,7 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
 
     /* squeeze in the cidgidmap */
     if (cidtogidmap != NULL) {
-        cidtogid_obj = (unsigned long) pdf_new_objnum(pdf);
+        cidtogid_obj = (unsigned long) pdf_create_obj(pdf, obj_type_others, 0);
         pdf_begin_obj(pdf, (int) cidtogid_obj, OBJSTM_NEVER);
         pdf_begin_dict(pdf);
         pdf_dict_add_int(pdf, "Length", ((last_cid + 1) * 2));
@@ -402,7 +402,7 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
     /* CIDSet: a table of bits indexed by cid, bytes with high order bit first, 
        each (set) bit is a (present) CID. */
     if (is_subsetted(fd->fm)) {
-        cidset = pdf_new_objnum(pdf);
+        cidset = pdf_create_obj(pdf, obj_type_others, 0);
         if (cidset != 0) {
             size_t l = (last_cid / 8) + 1;
             char *stream = xmalloc(l);

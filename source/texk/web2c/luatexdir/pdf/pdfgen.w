@@ -1764,11 +1764,12 @@ void pdf_begin_page(PDF pdf)
         pdf->page_resources = xtalloc(1, pdf_resource_struct);
         pdf->page_resources->resources_tree = NULL;
     }
-    pdf->page_resources->last_resources = pdf_new_objnum(pdf);
+    pdf->page_resources->last_resources =
+        pdf_create_obj(pdf, obj_type_others, 0);
     reset_page_resources(pdf);
 
     if (global_shipping_mode == SHIPPING_PAGE) {
-        pdf->last_page = get_obj(pdf, obj_type_page, total_pages + 1, 0);
+        pdf->last_page = pdf_get_obj(pdf, obj_type_page, total_pages + 1, 0);
         set_obj_aux(pdf, pdf->last_page, 1);    /* mark that this page has been created */
         pdf->last_stream = pdf_create_obj(pdf, obj_type_pagestream, 0);
         pdf_begin_obj(pdf, pdf->last_stream, OBJSTM_NEVER);

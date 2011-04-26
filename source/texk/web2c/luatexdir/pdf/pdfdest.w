@@ -92,7 +92,7 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
         pdf_error("ext4", "destinations cannot be inside an XForm");
     if (doing_leaders)
         return;
-    k = get_obj(pdf, obj_type_dest, pdf_dest_id(p), pdf_dest_named_id(p));
+    k = pdf_get_obj(pdf, obj_type_dest, pdf_dest_id(p), pdf_dest_named_id(p));
     if (obj_dest_ptr(pdf, k) != null) {
         warn_dest_dup(pdf_dest_id(p), (small_number) pdf_dest_named_id(p),
                       "ext4", "has been already used, duplicate ignored");

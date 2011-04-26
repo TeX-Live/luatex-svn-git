@@ -253,7 +253,7 @@ static int addInObj(PDF pdf, PdfDocument * pdf_doc, Ref ref)
     n = new InObj;
     n->ref = ref;
     n->next = NULL;
-    n->num = pdf_new_objnum(pdf);
+    n->num = pdf_create_obj(pdf, obj_type_others, 0);
     addObjMap(pdf_doc, ref, n->num);
     if (pdf_doc->inObjList == NULL)
         pdf_doc->inObjList = n;
@@ -577,10 +577,10 @@ read_pdf_info(image_dict * idict, int minor_pdf_version_wanted,
         ysize = pagebox->y1 - pagebox->y2;
     }
     // The following 4 parameters are raw. Do _not_ modify by /Rotate!
-    img_xsize(idict) = bp2int(xsize);
-    img_ysize(idict) = bp2int(ysize);
-    img_xorig(idict) = bp2int(xorig);
-    img_yorig(idict) = bp2int(yorig);
+    img_xsize(idict) = bp2sp(xsize);
+    img_ysize(idict) = bp2sp(ysize);
+    img_xorig(idict) = bp2sp(xorig);
+    img_yorig(idict) = bp2sp(yorig);
 
     // Handle /Rotate parameter. Only multiples of 90 deg. are allowed
     // (PDF Ref. v1.3, p. 78).
@@ -670,10 +670,10 @@ void write_epdf(PDF pdf, image_dict * idict)
     }
     obj1.free();
     if (img_is_bbox(idict)) {
-        bbox[0] = int2bp(img_bbox(idict)[0]);
-        bbox[1] = int2bp(img_bbox(idict)[1]);
-        bbox[2] = int2bp(img_bbox(idict)[2]);
-        bbox[3] = int2bp(img_bbox(idict)[3]);
+        bbox[0] = sp2bp(img_bbox(idict)[0]);
+        bbox[1] = sp2bp(img_bbox(idict)[1]);
+        bbox[2] = sp2bp(img_bbox(idict)[2]);
+        bbox[3] = sp2bp(img_bbox(idict)[3]);
     } else {
         // get the pagebox coordinates (media, crop,...) to use.
         pagebox = get_pagebox(page, img_pagebox(idict));

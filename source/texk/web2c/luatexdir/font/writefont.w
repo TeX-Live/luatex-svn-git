@@ -368,7 +368,7 @@ static void write_charwidth_array(PDF pdf, fo_entry * fo,
     struct avl_traverser t;
     assert(fo->tx_tree != NULL);
     assert(fo->cw_objnum == 0);
-    fo->cw_objnum = pdf_new_objnum(pdf);
+    fo->cw_objnum = pdf_create_obj(pdf, obj_type_others, 0);
     pdf_begin_obj(pdf, fo->cw_objnum, OBJSTM_ALWAYS);
     avl_t_init(&t, fo->tx_tree);
     fip = (int *) avl_t_first(&t, fo->tx_tree);
@@ -448,7 +448,7 @@ static void write_fontfile(PDF pdf, fd_entry * fd)
     if (!fd->ff_found)
         return;
     assert(fd->ff_objnum == 0);
-    fd->ff_objnum = pdf_new_objnum(pdf);
+    fd->ff_objnum = pdf_create_obj(pdf, obj_type_others, 0);
     pdf_begin_obj(pdf, fd->ff_objnum, OBJSTM_NEVER);    /* font file stream */
     pdf_begin_dict(pdf);
     if (is_cidkeyed(fd->fm)) {
@@ -512,7 +512,7 @@ static void write_fontdescriptor(PDF pdf, fd_entry * fd)
     if (is_fontfile(fd->fm) && is_included(fd->fm))
         write_fontfile(pdf, fd);        /* this will set |fd->ff_found| if font file is found */
     if (fd->fd_objnum == 0)
-        fd->fd_objnum = pdf_new_objnum(pdf);
+        fd->fd_objnum = pdf_create_obj(pdf, obj_type_others, 0);
     pdf_begin_obj(pdf, fd->fd_objnum, OBJSTM_ALWAYS);
     pdf_begin_dict(pdf);
     pdf_dict_add_name(pdf, "Type", "FontDescriptor");
@@ -680,7 +680,7 @@ static void create_fontdictionary(PDF pdf, internal_font_number f)
         fo->fe = get_fe_entry(fo->fm->encname); /* returns |NULL| if .enc file couldn't be opened */
         if (fo->fe != NULL && (is_type1(fo->fm) || is_opentype(fo->fm))) {
             if (fo->fe->fe_objnum == 0)
-                fo->fe->fe_objnum = pdf_new_objnum(pdf);        /* then it will be written out */
+                fo->fe->fe_objnum = pdf_create_obj(pdf, obj_type_others, 0);    /* then it will be written out */
             /* mark encoding pairs used by TeX to optimize encoding vector */
             fo->fe->tx_tree = mark_chars(fo, fo->fe->tx_tree, f);
         }
@@ -920,7 +920,7 @@ static void write_cid_charwidth_array(PDF pdf, fo_entry * fo)
     struct avl_traverser t;
 
     assert(fo->cw_objnum == 0);
-    fo->cw_objnum = pdf_new_objnum(pdf);
+    fo->cw_objnum = pdf_create_obj(pdf, obj_type_others, 0);
     pdf_begin_obj(pdf, fo->cw_objnum, OBJSTM_ALWAYS);
     avl_t_init(&t, fo->fd->gl_tree);
     glyph = (glw_entry *) avl_t_first(&t, fo->fd->gl_tree);
@@ -995,7 +995,7 @@ void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internal_font_number f)
     pdf_dict_add_name(pdf, "Subtype", "Type0");
     pdf_dict_add_name(pdf, "Encoding", "Identity-H");
     pdf_dict_add_fontname(pdf, "BaseFont", fo->fd);
-    i = pdf_new_objnum(pdf);
+    i = pdf_create_obj(pdf, obj_type_others, 0);
     pdf_add_name(pdf, "DescendantFonts");
     pdf_begin_array(pdf);
     pdf_add_ref(pdf, i);

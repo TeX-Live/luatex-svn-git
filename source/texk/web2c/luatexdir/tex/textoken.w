@@ -1681,7 +1681,7 @@ static boolean print_convert_string(halfword c, int i)
         tprint("pt");
         break;
     case pdf_page_ref_code:
-        print_int(get_obj(static_pdf, obj_type_page, i, false));
+        print_int(pdf_get_obj(static_pdf, obj_type_page, i, false));
         break;
     case pdf_xform_name_code:
         print_int(obj_info(static_pdf, i));

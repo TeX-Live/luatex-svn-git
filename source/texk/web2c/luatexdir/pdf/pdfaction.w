@@ -157,7 +157,8 @@ void write_action(PDF pdf, halfword p)
             pdf_add_name(pdf, "D");
             pdf_begin_array(pdf);
             pdf_add_ref(pdf,
-                        get_obj(pdf, obj_type_page, pdf_action_id(p), false));
+                        pdf_get_obj(pdf, obj_type_page, pdf_action_id(p),
+                                    false));
         } else {
             pdf_add_name(pdf, "D");
             pdf_begin_array(pdf);
@@ -174,8 +175,8 @@ void write_action(PDF pdf, halfword p)
     case pdf_action_goto:
         if (pdf_action_file(p) == null) {
             pdf_dict_add_name(pdf, "S", "GoTo");
-            d = get_obj(pdf, obj_type_dest, pdf_action_id(p),
-                        pdf_action_named_id(p));
+            d = pdf_get_obj(pdf, obj_type_dest, pdf_action_id(p),
+                            pdf_action_named_id(p));
         } else
             pdf_dict_add_name(pdf, "S", "GoToR");
         if (pdf_action_named_id(p) > 0) {
@@ -192,8 +193,8 @@ void write_action(PDF pdf, halfword p)
     case pdf_action_thread:
         pdf_dict_add_name(pdf, "S", "Thread");
         if (pdf_action_file(p) == null) {
-            d = get_obj(pdf, obj_type_thread, pdf_action_id(p),
-                        pdf_action_named_id(p));
+            d = pdf_get_obj(pdf, obj_type_thread, pdf_action_id(p),
+                            pdf_action_named_id(p));
             if (pdf_action_named_id(p) > 0) {
                 char *tokstr =
                     tokenlist_to_cstring(pdf_action_id(p), true, NULL);
