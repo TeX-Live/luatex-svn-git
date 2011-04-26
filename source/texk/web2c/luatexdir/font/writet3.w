@@ -187,7 +187,8 @@ static boolean writepk(PDF pdf, internal_font_number f)
         ury = cd.cheight + lly;
         update_bbox(llx, lly, urx, ury, t3_glyph_num == 0);
         t3_glyph_num++;
-        t3_char_procs[cd.charcode] = pdf_new_obj(pdf, obj_type_others, 0, OBJSTM_NEVER);
+        t3_char_procs[cd.charcode] = pdf_create_obj(pdf, obj_type_others, 0);
+        pdf_begin_obj(pdf, t3_char_procs[cd.charcode], OBJSTM_NEVER);
         pdf_begin_dict(pdf);
         pdf_dict_add_streaminfo(pdf);
         pdf_end_dict(pdf);

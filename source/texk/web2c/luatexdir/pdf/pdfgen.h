@@ -172,7 +172,6 @@ extern void pdf_add_rect_spec(PDF, halfword);
 extern void pdf_rectangle(PDF, halfword);
 
 extern void pdf_begin_obj(PDF, int, int);
-extern int pdf_new_obj(PDF, int, int, int);
 extern void pdf_end_obj(PDF);
 
 extern void pdf_begin_dict(PDF);

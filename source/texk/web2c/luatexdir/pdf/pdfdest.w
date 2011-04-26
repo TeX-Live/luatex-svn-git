@@ -396,7 +396,8 @@ int output_name_tree(PDF pdf)
 
   DONE:
     if ((dests != 0) || (pdf_names_toks != null)) {
-        m = pdf_new_obj(pdf, obj_type_others, 0, OBJSTM_ALWAYS);
+        m = pdf_create_obj(pdf, obj_type_others, 0);
+        pdf_begin_obj(pdf, m, OBJSTM_ALWAYS);
         pdf_begin_dict(pdf);
         if (dests != 0)
             pdf_dict_add_ref(pdf, "Dests", dests);

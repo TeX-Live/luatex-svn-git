@@ -1,6 +1,6 @@
 % pdfoutline.w
-% 
-% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+
+% Copyright 2009-2011 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -15,7 +15,7 @@
 % License for more details.
 
 % You should have received a copy of the GNU General Public License along
-% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @ @c
 #include "ptexlib.h"
@@ -82,7 +82,7 @@ static int open_subentries(PDF pdf, halfword p)
     return k;
 }
 
-@ return number of outline entries in the same level with |p| 
+@ return number of outline entries in the same level with |p|
 
 @c
 static int outline_list_count(PDF pdf, pointer p)
@@ -115,7 +115,8 @@ void scan_pdfoutline(PDF pdf)
     }
     scan_pdf_ext_toks();
     q = def_ref;
-    j = pdf_new_obj(pdf, obj_type_others, 0, OBJSTM_ALWAYS);
+    j = pdf_create_obj(pdf, obj_type_others, 0);
+    pdf_begin_obj(pdf, j, OBJSTM_ALWAYS);
     write_action(pdf, p);
     pdf_end_obj(pdf);
     delete_action_ref(p);
@@ -123,7 +124,8 @@ void scan_pdfoutline(PDF pdf)
     set_obj_outline_ptr(pdf, k, pdf_get_mem(pdf, pdfmem_outline_size));
     set_obj_outline_action_objnum(pdf, k, j);
     set_obj_outline_count(pdf, k, i);
-    l = pdf_new_obj(pdf, obj_type_others, 0, OBJSTM_ALWAYS);
+    l = pdf_create_obj(pdf, obj_type_others, 0);
+    pdf_begin_obj(pdf, l, OBJSTM_ALWAYS);
     {
         char *s = tokenlist_to_cstring(q, true, NULL);
         pdf_print_str_ln(pdf, s);
@@ -172,7 +174,7 @@ void scan_pdfoutline(PDF pdf)
 }
 
 @ In the end we must flush PDF objects that cannot be written out
-immediately after shipping out pages. 
+immediately after shipping out pages.
 
 @c
 int print_outlines(PDF pdf)
@@ -180,7 +182,7 @@ int print_outlines(PDF pdf)
     int k, l, a;
     int outlines;
     if (pdf->first_outline != 0) {
-        outlines = pdf_new_obj(pdf, obj_type_others, 0, OBJSTM_ALWAYS);
+        outlines = pdf_create_obj(pdf, obj_type_others, 0);
         l = pdf->first_outline;
         k = 0;
         do {
@@ -191,6 +193,7 @@ int print_outlines(PDF pdf)
             set_obj_outline_parent(pdf, l, pdf->obj_ptr);
             l = obj_outline_next(pdf, l);
         } while (l != 0);
+        pdf_begin_obj(pdf, outlines, OBJSTM_ALWAYS);
         pdf_begin_dict(pdf);
         pdf_dict_add_name(pdf, "Type", "Outlines");
         pdf_dict_add_ref(pdf, "First", pdf->first_outline);

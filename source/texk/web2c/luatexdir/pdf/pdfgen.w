@@ -1287,15 +1287,6 @@ void pdf_begin_obj(PDF pdf, int i, int pdf_os_threshold)
     pdf->cave = 0;
 }
 
-@ begin a new PDF object
-@c
-int pdf_new_obj(PDF pdf, int t, int i, int pdf_os_threshold)
-{
-    int k = pdf_create_obj(pdf, t, i);
-    pdf_begin_obj(pdf, k, pdf_os_threshold);
-    return k;
-}
-
 @ end a PDF object
 @c
 void pdf_end_obj(PDF pdf)
@@ -1779,8 +1770,8 @@ void pdf_begin_page(PDF pdf)
     if (global_shipping_mode == SHIPPING_PAGE) {
         pdf->last_page = get_obj(pdf, obj_type_page, total_pages + 1, 0);
         set_obj_aux(pdf, pdf->last_page, 1);    /* mark that this page has been created */
-        pdf->last_stream =
-            pdf_new_obj(pdf, obj_type_pagestream, 0, OBJSTM_NEVER);
+        pdf->last_stream = pdf_create_obj(pdf, obj_type_pagestream, 0);
+        pdf_begin_obj(pdf, pdf->last_stream, OBJSTM_NEVER);
         pdf->last_thread = null;
         pdf_begin_dict(pdf);
         pdflua_begin_page(pdf);
@@ -2194,7 +2185,8 @@ static int pdf_print_info(PDF pdf, int luatex_version,
         trapped_given;
     char *s = NULL;
     int k, len = 0;
-    k = pdf_new_obj(pdf, obj_type_info, 0, 3);  /* keep Info readable unless explicitely forced */
+    k = pdf_create_obj(pdf, obj_type_info, 0);
+    pdf_begin_obj(pdf, k, 3);   /* keep Info readable unless explicitely forced */
     creator_given = false;
     producer_given = false;
     creationdate_given = false;
@@ -2352,7 +2344,8 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
 
             /* Output article threads */
             if (pdf->head_tab[obj_type_thread] != 0) {
-                threads = pdf_new_obj(pdf, obj_type_others, 0, OBJSTM_ALWAYS);
+                threads = pdf_create_obj(pdf, obj_type_others, 0);
+                pdf_begin_obj(pdf, threads, OBJSTM_ALWAYS);
                 pdf_begin_array(pdf);
                 k = pdf->head_tab[obj_type_thread];
                 while (k != 0) {
@@ -2371,7 +2364,8 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             }
 
             /* Output the /Catalog object */
-            root = pdf_new_obj(pdf, obj_type_catalog, 0, OBJSTM_ALWAYS);
+            root = pdf_create_obj(pdf, obj_type_catalog, 0);
+            pdf_begin_obj(pdf, root, OBJSTM_ALWAYS);
             pdf_begin_dict(pdf);
             pdf_dict_add_name(pdf, "Type", "Catalog");
             pdf_dict_add_ref(pdf, "Pages", pdf->last_pages);
@@ -2400,7 +2394,8 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 pdf_flush(pdf);
                 pdf_stream_switch(pdf, false);
                 /* Output the cross-reference stream dictionary */
-                xref_stm = pdf_new_obj(pdf, obj_type_others, 0, OBJSTM_NEVER);  /* final object for pdf->os_enable == true */
+                xref_stm = pdf_create_obj(pdf, obj_type_others, 0);
+                pdf_begin_obj(pdf, xref_stm, OBJSTM_NEVER);     /* final object for pdf->os_enable == true */
                 if ((obj_offset(pdf, pdf->obj_ptr) / 256) > 16777215)
                     xref_offset_width = 5;
                 else if (obj_offset(pdf, pdf->obj_ptr) > 16777215)
@@ -2565,7 +2560,8 @@ void scan_pdfcatalog(PDF pdf)
         } else {
             check_o_mode(pdf, "\\pdfcatalog", 1 << OMODE_PDF, true);
             p = scan_action(pdf);
-            pdf_catalog_openaction = pdf_new_obj(pdf, obj_type_others, 0, OBJSTM_ALWAYS);
+            pdf_catalog_openaction = pdf_create_obj(pdf, obj_type_others, 0);
+            pdf_begin_obj(pdf, pdf_catalog_openaction, OBJSTM_ALWAYS);
             write_action(pdf, p);
             pdf_end_obj(pdf);
             delete_action_ref(p);

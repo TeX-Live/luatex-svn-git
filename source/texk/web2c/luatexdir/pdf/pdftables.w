@@ -142,7 +142,7 @@ int pdf_create_obj(PDF pdf, int t, int i)
     if (i < 0) {
         ss = makecstring(-i);
         avl_put_str_obj(pdf, ss, pdf->obj_ptr, t);
-    } else
+    } else if (i > 0)
         avl_put_int_obj(pdf, i, pdf->obj_ptr, t);
     if (t <= HEAD_TAB_MAX) {
         obj_link(pdf, pdf->obj_ptr) = pdf->head_tab[t];

@@ -166,8 +166,8 @@ void pdf_fix_thread(PDF pdf, int t)
     tprint(" has been referenced but does not exist, replaced by a fixed one");
     print_ln();
     print_ln();
-
-    a = pdf_new_obj(pdf, obj_type_others, 0, OBJSTM_ALWAYS);
+    a = pdf_create_obj(pdf, obj_type_others, 0);
+    pdf_begin_obj(pdf, a, OBJSTM_ALWAYS);
     pdf_begin_dict(pdf);
     pdf_dict_add_ref(pdf, "T", t);
     pdf_dict_add_ref(pdf, "V", a);
@@ -273,7 +273,8 @@ void print_bead_rectangles(PDF pdf)
     int l;
     if ((k = get_page_resources_list(pdf, obj_type_bead)) != NULL) {
         while (k != NULL) {
-            l = pdf_new_obj(pdf, obj_type_others, 0, OBJSTM_ALWAYS);
+            l = pdf_create_obj(pdf, obj_type_others, 0);
+            pdf_begin_obj(pdf, l, OBJSTM_ALWAYS);
             pdf_begin_array(pdf);
             i = obj_bead_data(pdf, k->info);    /* pointer to a whatsit or whatsit-like node */
             pdf_add_rect_spec(pdf, i);
