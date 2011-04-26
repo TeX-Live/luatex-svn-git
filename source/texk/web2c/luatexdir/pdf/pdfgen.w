@@ -521,34 +521,11 @@ void pdf_print(PDF pdf, str_number s)
 @c
 void pdf_print_int(PDF pdf, longinteger n)
 {
-    register int k = 0;         /*  current digit; we assume that $|n|<10^{23}$ */
-    int dig[24];
-    if (n < 0) {
-        pdf_out(pdf, '-');
-        if (n < -0x7FFFFFFF) {  /* need to negate |n| more carefully */
-            register longinteger m;
-            k++;
-            m = -1 - n;
-            n = m / 10;
-            m = (m % 10) + 1;
-            if (m < 10) {
-                dig[0] = (int) m;
-            } else {
-                dig[0] = 0;
-                n++;
-            }
-        } else {
-            n = -n;
-        }
-    }
-    do {
-        dig[k++] = (int) (n % 10);
-        n /= 10;
-    } while (n != 0);
-    pdf_room(pdf, k);
-    while (k-- > 0) {
-        pdf_quick_out(pdf, (unsigned char) ('0' + dig[k]));
-    }
+    char s[24];
+    size_t w;
+    w = snprintf(s, 23, "%ld", n);
+    check_nprintf(w, 23);
+    pdf_out_block(pdf, (const char *) s, w);
 }
 
 @ print $m/10^d$ as real
