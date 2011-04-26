@@ -1239,7 +1239,7 @@ void pdf_dict_add_streaminfo(PDF pdf)
 @c
 void pdf_begin_array(PDF pdf)
 {
-    pdf_puts(pdf, "[");
+    pdf_out(pdf, '[');
     pdf->cave = 0;
 }
 
@@ -1247,7 +1247,7 @@ void pdf_begin_array(PDF pdf)
 @c
 void pdf_end_array(PDF pdf)
 {
-    pdf_puts(pdf, "]");
+    pdf_out(pdf, ']');
     pdf->cave = 0;
 }
 
@@ -2190,7 +2190,7 @@ static int pdf_print_info(PDF pdf, int luatex_version,
         pdf_print_int(pdf, luatex_version % 100);
         pdf_out(pdf, '.');
         pdf_print(pdf, luatex_revision);
-        pdf_puts(pdf, ")");
+        pdf_out(pdf, ')');
     }
     if (pdf_info_toks != null) {
         if (len > 0) {

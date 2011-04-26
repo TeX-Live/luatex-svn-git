@@ -164,14 +164,14 @@ void print_pdffloat(PDF pdf, pdffloat f)
     int e = f.e, i, j;
     long l, m = f.m;
     if (m < 0) {
-        pdf_puts(pdf, "-");
+        pdf_out(pdf, '-');
         m *= -1;
     }
     l = m / ten_pow[e];
     pdf_print_int(pdf, l);
     l = m % ten_pow[e];
     if (l != 0) {
-        pdf_puts(pdf, ".");
+        pdf_out(pdf, '.');
         j = snprintf(a, 23, "%ld", l + ten_pow[e]);
         assert(j < 23);
         for (i = e; i > 0; i--) {
@@ -189,7 +189,7 @@ void print_pdf_matrix(PDF pdf, pdffloat * tm)
     int i;
     for (i = 0; i < 5; i++) {
         print_pdffloat(pdf, tm[i]);
-        pdf_puts(pdf, " ");
+        pdf_out(pdf, ' ');
     }
     print_pdffloat(pdf, tm[i]);
 }

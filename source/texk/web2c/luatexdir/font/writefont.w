@@ -376,7 +376,7 @@ static void write_charwidth_array(PDF pdf, fo_entry * fo,
     pdf_begin_array(pdf);
     for (ip = fip, j = *ip; ip != NULL; ip = (int *) avl_t_next(&t)) {
         if (ip != fip)
-            pdf_puts(pdf, " ");
+            pdf_out(pdf, ' ');
         i = *ip;
         while (j < i - 1) {
             pdf_puts(pdf, "0 ");
@@ -549,11 +549,11 @@ static void write_fontdescriptor(PDF pdf, fd_entry * fd)
                 assert(fd->gl_tree != NULL);
                 avl_t_init(&t, fd->gl_tree);
                 pdf_add_name(pdf, "CharSet");
-                pdf_puts(pdf, "(");
+                pdf_out(pdf, '(');
                 for (glyph = (char *) avl_t_first(&t, fd->gl_tree);
                      glyph != NULL; glyph = (char *) avl_t_next(&t))
                     pdf_add_name(pdf, glyph);
-                pdf_puts(pdf, ")");
+                pdf_out(pdf, ')');
                 pdf->cave = 0;
             }
             if (is_type1(fd->fm))
@@ -634,7 +634,7 @@ static void write_fontdictionary(PDF pdf, fo_entry * fo)
     if (pdf_font_attr(fo->tex_font) != get_nullstr() &&
         pdf_font_attr(fo->tex_font) != 0) {
         pdf_print(pdf, pdf_font_attr(fo->tex_font));
-        pdf_puts(pdf, "\n");
+        pdf_out(pdf, '\n');
     }
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
@@ -938,10 +938,10 @@ static void write_cid_charwidth_array(PDF pdf, fo_entry * fo)
             j = glyph->wd;
         }
         if (glyph->id == (unsigned) (i + 1))
-            pdf_puts(pdf, " ");
+            pdf_out(pdf, ' ');
 
         if (j < 0) {
-            pdf_puts(pdf, "-");
+            pdf_out(pdf, '-');
             j = -j;
         }
 
@@ -1031,9 +1031,9 @@ void write_cid_fontdictionary(PDF pdf, fo_entry * fo, internal_font_number f)
     /* I doubt there is anything useful that could be written here */
 #if 0
     if (pdf_font_attr(fo->tex_font) != get_nullstr()) {
-        pdf_puts(pdf, "\n");
+        pdf_out(pdf, '\n');
         pdf_print(pdf_font_attr(fo->tex_font));
-        pdf_puts(pdf, "\n");
+        pdf_out(pdf, '\n');
     }
 #endif
     pdf_end_dict(pdf);

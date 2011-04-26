@@ -309,7 +309,7 @@ static void copyString(PDF pdf, GooString * string)
     if (pdf->cave)
         pdf_out(pdf, ' ');
     if (strlen(p) == l) {
-        pdf_puts(pdf, "(");
+        pdf_out(pdf, '(');
         for (; *p != 0; p++) {
             c = (unsigned char) *p;
             if (c == '(' || c == ')' || c == '\\')
@@ -319,21 +319,21 @@ static void copyString(PDF pdf, GooString * string)
             else
                 pdf_out(pdf, c);
         }
-        pdf_puts(pdf, ")");
+        pdf_out(pdf, ')');
     } else {
-        pdf_puts(pdf, "<");
+        pdf_out(pdf, '<');
         for (i = 0; i < l; i++) {
             c = (unsigned char) string->getChar(i);
             pdf_printf(pdf, "%.2x", (int) c);
         }
-        pdf_puts(pdf, ">");
+        pdf_out(pdf, '>');
     }
     pdf->cave = true;
 }
 
 static void copyName(PDF pdf, char *s)
 {
-    pdf_puts(pdf, "/");
+    pdf_out(pdf, '/');
     for (; *s != 0; s++) {
         if (isdigit(*s) || isupper(*s) || islower(*s) || *s == '_' ||
             *s == '.' || *s == '-' || *s == '+')
@@ -787,7 +787,7 @@ void write_epdf(PDF pdf, image_dict * idict)
             if (i < (l - 1)) {
                 // put a space between streams to be on the safe side (streams
                 // should have a trailing space here, but one never knows)
-                pdf_puts(pdf, " ");
+                pdf_out(pdf, ' ');
             }
         }
         pdf_end_stream(pdf);

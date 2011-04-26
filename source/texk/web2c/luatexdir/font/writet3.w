@@ -267,9 +267,9 @@ void writet3(PDF pdf, internal_font_number f)
     snprintf(s, 31, "F%i", (int) f);
     pdf_dict_add_name(pdf, "Name", s);
     if (pdf_font_attr(f) != get_nullstr() && pdf_font_attr(f) != 0) {
-        pdf_puts(pdf, "\n");
+        pdf_out(pdf, '\n');
         pdf_print(pdf, pdf_font_attr(f));
-        pdf_puts(pdf, "\n");
+        pdf_out(pdf, '\n');
     }
     if (is_pk_font) {
         pk_font_scale =
@@ -321,7 +321,7 @@ void writet3(PDF pdf, internal_font_number f)
     if (is_pk_font)
         for (i = first_char; i <= last_char; i++) {
             pdf_print_real(pdf, (int) t3_char_widths[i], 2);
-            pdf_puts(pdf, " ");
+            pdf_out(pdf, ' ');
     } else
         for (i = first_char; i <= last_char; i++)
             pdf_add_int(pdf, (int) t3_char_widths[i]);

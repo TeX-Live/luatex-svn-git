@@ -123,7 +123,7 @@ static int l_immediateobj(lua_State * L)
         st1.s = lua_tolstring(L, first_arg, &st1.l);
         pdf_out_block(static_pdf, st1.s, st1.l);
         if (st1.s[st1.l - 1] != '\n')
-            pdf_puts(static_pdf, "\n");
+            pdf_out(static_pdf, '\n');
         pdf_end_obj(static_pdf);
         break;
     case 2:
@@ -142,7 +142,7 @@ static int l_immediateobj(lua_State * L)
             buf.s = fread_to_buf(L, st2.s, &buf.l);
             pdf_out_block(static_pdf, (const char *) buf.s, buf.l);
             if (buf.s[buf.l - 1] != '\n')
-                pdf_puts(static_pdf, "\n");
+                pdf_out(static_pdf, '\n');
             xfree(buf.s);
             pdf_end_obj(static_pdf);
         } else {
@@ -155,7 +155,7 @@ static int l_immediateobj(lua_State * L)
                 st3.s = lua_tolstring(L, first_arg + 2, &st3.l);
                 pdf_out_block(static_pdf, st3.s, st3.l);
                 if (st3.s[st3.l - 1] != '\n')
-                    pdf_puts(static_pdf, "\n");
+                    pdf_out(static_pdf, '\n');
             }
             pdf_dict_add_streaminfo(static_pdf);
             pdf_end_dict(static_pdf);
@@ -373,7 +373,7 @@ static int table_obj(lua_State * L)
                 st.s = lua_tolstring(L, -1, &st.l);
                 pdf_out_block(static_pdf, st.s, st.l);
                 if (st.s[st.l - 1] != '\n')
-                    pdf_puts(static_pdf, "\n");
+                    pdf_out(static_pdf, '\n');
             } else
                 obj_obj_data(static_pdf, k) = luaL_ref(L, LUA_REGISTRYINDEX);   /* t */
         } else {
@@ -386,7 +386,7 @@ static int table_obj(lua_State * L)
                 buf.s = fread_to_buf(L, st.s, &buf.l);
                 pdf_out_block(static_pdf, (const char *) buf.s, buf.l);
                 if (buf.s[buf.l - 1] != '\n')
-                    pdf_puts(static_pdf, "\n");
+                    pdf_out(static_pdf, '\n');
                 xfree(buf.s);
             } else {
                 set_obj_obj_is_file(static_pdf, k);
@@ -403,7 +403,7 @@ static int table_obj(lua_State * L)
             if (attr.s != NULL) {
                 pdf_out_block(static_pdf, attr.s, attr.l);
                 if (attr.s[attr.l - 1] != '\n')
-                    pdf_puts(static_pdf, "\n");
+                    pdf_out(static_pdf, '\n');
             }
             if (compress_level > -1)
                 static_pdf->compress_level = compress_level;
