@@ -633,7 +633,6 @@ void check_pdfstream_dict(image_dict * idict)
 @ @c
 void write_pdfstream(PDF pdf, image_dict * idict)
 {
-    char s[256];
     assert(img_pdfstream_ptr(idict) != NULL);
     assert(img_is_bbox(idict));
     pdf_begin_obj(pdf, img_objnum(idict), OBJSTM_NEVER);
@@ -641,12 +640,15 @@ void write_pdfstream(PDF pdf, image_dict * idict)
     pdf_dict_add_name(pdf, "Type", "XObject");
     pdf_dict_add_name(pdf, "Subtype", "Form");
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
-        pdf_printf(pdf, "%s\n", img_attr(idict));
+        pdf_printf(pdf, "\n%s\n", img_attr(idict));
     pdf_dict_add_int(pdf, "FormType", 1);
-    sprintf(s, "/BBox [%.8f %.8f %.8f %.8f]\n", sp2bp(img_bbox(idict)[0]),
-            sp2bp(img_bbox(idict)[1]), sp2bp(img_bbox(idict)[2]),
-            sp2bp(img_bbox(idict)[3]));
-    pdf_printf(pdf, stripzeros(s));
+    pdf_add_name(pdf, "BBox");
+    pdf_begin_array(pdf);
+    copyReal(pdf, sp2bp(img_bbox(idict)[0]));
+    copyReal(pdf, sp2bp(img_bbox(idict)[1]));
+    copyReal(pdf, sp2bp(img_bbox(idict)[2]));
+    copyReal(pdf, sp2bp(img_bbox(idict)[3]));
+    pdf_end_array(pdf);
     pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);
     pdf_begin_stream(pdf);

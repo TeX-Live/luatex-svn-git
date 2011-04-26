@@ -1840,10 +1840,12 @@ void print_pdf_table_string(PDF pdf, const char *s)
     lua_gettable(Luas, -2);     /* s? t ... */
     if (lua_isstring(Luas, -1)) {       /* s t ... */
         ls = lua_tolstring(Luas, -1, &len);
-        if (pdf->cave == 1)
-            pdf_out(pdf, ' ');
-        pdf_out_block(pdf, ls, len);
-        pdf->cave = 1;
+        if (len > 0) {
+            if (pdf->cave == 1)
+                pdf_out(pdf, ' ');
+            pdf_out_block(pdf, ls, len);
+            pdf->cave = 1;
+        }
     }
     lua_pop(Luas, 2);           /* ... */
 }

@@ -1,7 +1,7 @@
 /* utils.h
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2011 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -43,7 +43,6 @@ int xfflush(FILE *);
 int xgetc(FILE *);
 int xputc(int, FILE *);
 scaled ext_xn_over_d(scaled, scaled, scaled);
-char *stripzeros(char *);
 void initversionstring(char **versions);
 extern void check_buffer_overflow(int wsize);
 extern void check_pool_overflow(int wsize);

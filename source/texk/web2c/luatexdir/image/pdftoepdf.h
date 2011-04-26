@@ -1,7 +1,7 @@
 /* pdftoepdf.h
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2011 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -29,6 +29,7 @@ void read_pdf_info(image_dict *, int, int, img_readtype_e);
 void unrefPdfDocument(char *);
 void write_epdf(PDF, image_dict *);
 void epdf_check_mem(void);
+void copyReal(PDF pdf, double d);
 
 /* epdf.c --- this should go in an own header file */
 

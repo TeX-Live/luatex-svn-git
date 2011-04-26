@@ -120,6 +120,7 @@ extern "C" {
     extern void write_epdf(PDF, image_dict *);
     extern void unrefPdfDocument(char *);
     extern void epdf_free(void);
+    extern void copyReal(PDF pdf, double d);
 
     /* utils.w */
     __attribute__ ((format(printf, 1, 2)))
@@ -127,7 +128,6 @@ extern "C" {
     __attribute__ ((noreturn, format(printf, 1, 2)))
     extern void pdftex_fail(const char *fmt, ...);
     extern char *convertStringToPDFString(char *in, int len);
-    extern char *stripzeros(char *a);
 
     /* lepdflib.w */
     int luaopen_epdf(lua_State * L);

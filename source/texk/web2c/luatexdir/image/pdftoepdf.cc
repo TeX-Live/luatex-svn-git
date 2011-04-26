@@ -291,7 +291,7 @@ static pdffloat conv_double_to_pdffloat(double n)
 
 static void copyObject(PDF, PdfDocument *, Object *);
 
-static void copyReal(PDF pdf, double d)
+void copyReal(PDF pdf, double d)
 {
     if (pdf->cave)
         pdf_out(pdf, ' ');
