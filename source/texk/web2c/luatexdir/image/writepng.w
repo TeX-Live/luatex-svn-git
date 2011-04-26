@@ -173,6 +173,28 @@ void read_png_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
             xfree(rows[i]);                              \
         }
 
+static void write_palette_streamobj(PDF pdf, int palette_objnum,
+                                    png_colorp palette, int num_palette)
+{
+    int i;
+    if (palette_objnum == 0)
+        return;
+    assert(palette != NULL);
+    pdf_begin_obj(pdf, palette_objnum, OBJSTM_NEVER);
+    pdf_begin_dict(pdf);
+    pdf_dict_add_streaminfo(pdf);
+    pdf_end_dict(pdf);
+    pdf_begin_stream(pdf);
+    for (i = 0; i < num_palette; i++) {
+        pdf_room(pdf, 3);
+        pdf_quick_out(pdf, palette[i].red);
+        pdf_quick_out(pdf, palette[i].green);
+        pdf_quick_out(pdf, palette[i].blue);
+    }
+    pdf_end_stream(pdf);
+    pdf_end_obj(pdf);
+}
+
 @ @c
 static void write_png_palette(PDF pdf, image_dict * idict)
 {
@@ -220,21 +242,7 @@ static void write_png_palette(PDF pdf, image_dict * idict)
     pdf_end_stream(pdf);
     pdf_end_obj(pdf);
 
-    if (palette_objnum > 0) {
-        pdf_begin_obj(pdf, palette_objnum, OBJSTM_NEVER);
-        pdf_begin_dict(pdf);
-        pdf_dict_add_streaminfo(pdf);
-        pdf_end_dict(pdf);
-        pdf_begin_stream(pdf);
-        for (i = 0; i < num_palette; i++) {
-            pdf_room(pdf, 3);
-            pdf_quick_out(pdf, palette[i].red);
-            pdf_quick_out(pdf, palette[i].green);
-            pdf_quick_out(pdf, palette[i].blue);
-        }
-        pdf_end_stream(pdf);
-        pdf_end_obj(pdf);
-    }
+    write_palette_streamobj(pdf, palette_objnum, palette, num_palette);
 }
 
 @ @c
@@ -595,7 +603,6 @@ static boolean last_png_needs_page_group;
 void write_png(PDF pdf, image_dict * idict)
 {
     double gamma, checked_gamma;
-    int i;
     int palette_objnum = 0;
     png_structp png_p;
     png_infop info_p;
@@ -666,22 +673,7 @@ void write_png(PDF pdf, image_dict * idict)
         if (tracefilenames)
             tex_printf(" (PNG copy)");
         copy_png(pdf, idict);
-
-        if (palette_objnum > 0) {
-            pdf_begin_obj(pdf, palette_objnum, OBJSTM_NEVER);
-            pdf_begin_dict(pdf);
-            pdf_dict_add_streaminfo(pdf);
-            pdf_end_dict(pdf);
-            pdf_begin_stream(pdf);
-            for (i = 0; i < num_palette; i++) {
-                pdf_room(pdf, 3);
-                pdf_quick_out(pdf, palette[i].red);
-                pdf_quick_out(pdf, palette[i].green);
-                pdf_quick_out(pdf, palette[i].blue);
-            }
-            pdf_end_stream(pdf);
-            pdf_end_obj(pdf);
-        }
+        write_palette_streamobj(pdf, palette_objnum, palette, num_palette);
     } else {
         if (0) {
             tex_printf(" PNG copy skipped because: ");
