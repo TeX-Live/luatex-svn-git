@@ -385,8 +385,7 @@ static void pdf_prepare_obj(PDF pdf, int i, int pdf_os_threshold)
     pdf_stream_switch(pdf, (pdf->objcompresslevel >= pdf_os_threshold));
     if (os->mode) {
         if (os->cur_objnum == 0) {
-            os->cur_objnum =
-                pdf_create_obj(pdf, obj_type_objstm, pdf->obj_ptr + 1);
+            os->cur_objnum = pdf_create_obj(pdf, obj_type_objstm, 0);
             os->idx = 0;
             pdf->ptr = 0;       /* start fresh object stream */
             os->cntr++;         /* only for statistics */

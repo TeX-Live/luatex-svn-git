@@ -1,6 +1,6 @@
 % pdfannot.w
 
-% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2009-2011 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -36,7 +36,7 @@ void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     if (doing_leaders)
         return;
     if (is_obj_scheduled(pdf, pdf_annot_objnum(p))) {
-        k = pdf_create_obj(pdf, obj_type_annot, pdf->obj_ptr + 1);
+        k = pdf_create_obj(pdf, obj_type_annot, 0);
         obj_annot_ptr(pdf, pdf_annot_objnum(p)) = p;
         pdf_annot_objnum(p) = k;
     }
@@ -73,7 +73,7 @@ void scan_annot(PDF pdf)
 {
     int k;
     if (scan_keyword("reserveobjnum")) {
-        k = pdf_create_obj(pdf, obj_type_annot, pdf->obj_ptr + 1);
+        k = pdf_create_obj(pdf, obj_type_annot, 0);
         /* Scan an optional space */
         get_x_token();
         if (cur_cmd != spacer_cmd)
@@ -86,7 +86,7 @@ void scan_annot(PDF pdf)
             if (obj_annot_ptr(pdf, k) != 0)
                 pdf_error("ext1", "annot object in use");
         } else {
-            k = pdf_create_obj(pdf, obj_type_annot, pdf->obj_ptr + 1);
+            k = pdf_create_obj(pdf, obj_type_annot, 0);
         }
         new_annot_whatsit(pdf_annot_node);
         obj_annot_ptr(pdf, k) = tail;
