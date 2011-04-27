@@ -125,54 +125,63 @@ void read_png_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
 }
 
 @ @c
-#define write_gray_pixel_16(r)                           \
-    if (j % 4 == 0||j % 4 == 1) pdf_quick_out(pdf,*r++); \
-  else                        smask[smask_ptr++] = *r++
+#define write_gray_pixel_16(r)       \
+    if (j % 4 == 0 || j % 4 == 1)    \
+        pdf_quick_out(pdf, *r++);    \
+    else                             \
+        smask[smask_ptr++] = *r++    \
 
-#define write_gray_pixel_8(r)                   \
-    if (j % 2 == 0)  pdf_quick_out(pdf,*r++);   \
-    else             smask[smask_ptr++] = *r++
+#define write_gray_pixel_8(r)        \
+    if (j % 2 == 0)                  \
+        pdf_quick_out(pdf, *r++);    \
+    else                             \
+        smask[smask_ptr++] = *r++
 
-#define write_rgb_pixel_16(r)                                  \
-    if (!(j % 8 == 6||j % 8 == 7)) pdf_quick_out(pdf,*r++);    \
-    else                           smask[smask_ptr++] = *r++
+#define write_rgb_pixel_16(r)        \
+    if (!(j % 8 == 6 || j % 8 == 7)) \
+        pdf_quick_out(pdf, *r++);    \
+    else                             \
+        smask[smask_ptr++] = *r++
 
-#define write_rgb_pixel_8(r)                   \
-    if (j % 4 != 3) pdf_quick_out(pdf,*r++);   \
-    else            smask[smask_ptr++] = *r++
+#define write_rgb_pixel_8(r)         \
+    if (j % 4 != 3)                  \
+        pdf_quick_out(pdf, *r++);    \
+    else                             \
+        smask[smask_ptr++] = *r++
 
 #define write_simple_pixel(r)    pdf_quick_out(pdf,*r++)
 
-#define write_noninterlaced(outmac)                      \
-    for (i = 0; i < (int)png_get_image_height (png_p, info_p); i++) {          \
-    png_read_row(png_p, row, NULL);                      \
-    r = row;                                             \
-    k = (int)png_get_rowbytes(png_p, info_p);				 \
-    while(k > 0) {                                       \
-        l = (k > pdf->buf_size)? pdf->buf_size : k;      \
-                pdf_room(pdf,l);                         \
-                for (j = 0; j < l; j++) {                \
-                  outmac;                                \
-                }                                        \
-                k -= l;                                  \
-            }                                            \
-        }
+#define write_noninterlaced(outmac)                                   \
+    for (i = 0; i < (int) png_get_image_height(png_p, info_p); i++) { \
+        png_read_row(png_p, row, NULL);                               \
+        r = row;                                                      \
+        k = (int) png_get_rowbytes(png_p, info_p);                    \
+        while (k > 0) {                                               \
+            l = (k > pdf->buf_size) ? pdf->buf_size : k;              \
+            pdf_room(pdf, l);                                         \
+            for (j = 0; j < l; j++) {                                 \
+                outmac;                                               \
+            }                                                         \
+            k -= l;                                                   \
+        }                                                             \
+    }
 
-#define write_interlaced(outmac)                         \
-    for (i = 0; i < (int)png_get_image_height (png_p, info_p); i++) {          \
-            row = rows[i];                               \
-            k = (int)png_get_rowbytes(png_p, info_p);			 \
-            while(k > 0) {                               \
-                l = (k > pdf->buf_size)?pdf->buf_size: k;\
-                pdf_room(pdf,l);                         \
-                for (j = 0; j < l; j++) {                \
-                  outmac;                                \
-                }                                        \
-                k -= l;                                  \
-            }                                            \
-            xfree(rows[i]);                              \
-        }
+#define write_interlaced(outmac)                                      \
+    for (i = 0; i < (int) png_get_image_height(png_p, info_p); i++) { \
+        row = rows[i];                                                \
+        k = (int) png_get_rowbytes(png_p, info_p);                    \
+        while (k > 0) {                                               \
+            l = (k > pdf->buf_size) ? pdf->buf_size : k;              \
+            pdf_room(pdf, l);                                         \
+            for (j = 0; j < l; j++) {                                 \
+                outmac;                                               \
+            }                                                         \
+            k -= l;                                                   \
+        }                                                             \
+        xfree(rows[i]);                                               \
+    }
 
+@ @c
 static void write_palette_streamobj(PDF pdf, int palette_objnum,
                                     png_colorp palette, int num_palette)
 {
@@ -196,30 +205,45 @@ static void write_palette_streamobj(PDF pdf, int palette_objnum,
 }
 
 @ @c
+static void write_smask_streamobj(PDF pdf, image_dict * idict, int smask_objnum,
+                                  png_bytep smask, int smask_size)
+{
+    int i;
+    png_byte bitdepth;
+    png_structp png_p = img_png_png_ptr(idict);
+    png_infop info_p = img_png_info_ptr(idict);
+    bitdepth = png_get_bit_depth(png_p, info_p);
+    pdf_begin_obj(pdf, smask_objnum, OBJSTM_NEVER);
+    pdf_begin_dict(pdf);
+    pdf_dict_add_name(pdf, "Type", "XObject");
+    pdf_dict_add_name(pdf, "Subtype", "Image");
+    if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
+        pdf_printf(pdf, "\n%s\n", img_attr(idict));
+    pdf_dict_add_int(pdf, "Width", (int) png_get_image_width(png_p, info_p));
+    pdf_dict_add_int(pdf, "Height", (int) png_get_image_height(png_p, info_p));
+    pdf_dict_add_int(pdf, "BitsPerComponent", (bitdepth == 16 ? 8 : bitdepth));
+    pdf_dict_add_name(pdf, "ColorSpace", "DeviceGray");
+    pdf_dict_add_streaminfo(pdf);
+    pdf_end_dict(pdf);
+    pdf_begin_stream(pdf);
+    for (i = 0; i < smask_size; i++) {
+        if (i % 8 == 0)
+            pdf_room(pdf, 8);
+        pdf_quick_out(pdf, smask[i]);
+        if (bitdepth == 16)
+            i++;
+    }
+    pdf_end_stream(pdf);
+    pdf_end_obj(pdf);
+}
+
+@ @c
 static void write_png_palette(PDF pdf, image_dict * idict)
 {
     int i, j, k, l;
     png_structp png_p = img_png_png_ptr(idict);
     png_infop info_p = img_png_info_ptr(idict);
     png_bytep row, r, *rows;
-    int palette_objnum = 0;
-    png_colorp palette;
-    int num_palette;
-
-    png_get_PLTE(png_p, info_p, &palette, &num_palette);
-
-    if (img_colorspace(idict) != 0) {
-        pdf_dict_add_ref(pdf, "ColorSpace", (int) img_colorspace(idict));
-    } else {
-        palette_objnum = pdf_create_obj(pdf, obj_type_others, 0);
-        pdf_add_name(pdf, "ColorSpace");
-        pdf_begin_array(pdf);
-        pdf_add_name(pdf, "Indexed");
-        pdf_add_name(pdf, "DeviceRGB"); /* base; PDFRef. 4.5.5 */
-        pdf_add_int(pdf, (int) (num_palette - 1));      /* hival */
-        pdf_add_ref(pdf, (int) palette_objnum); /* lookup */
-        pdf_end_array(pdf);
-    }
     pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
@@ -241,8 +265,6 @@ static void write_png_palette(PDF pdf, image_dict * idict)
     }
     pdf_end_stream(pdf);
     pdf_end_obj(pdf);
-
-    write_palette_streamobj(pdf, palette_objnum, palette, num_palette);
 }
 
 @ @c
@@ -252,11 +274,6 @@ static void write_png_gray(PDF pdf, image_dict * idict)
     png_structp png_p = img_png_png_ptr(idict);
     png_infop info_p = img_png_info_ptr(idict);
     png_bytep row, r, *rows;
-    if (img_colorspace(idict) != 0) {
-        pdf_dict_add_ref(pdf, "ColorSpace", (int) img_colorspace(idict));
-    } else {
-        pdf_dict_add_name(pdf, "ColorSpace", "DeviceGray");
-    }
     pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
@@ -291,12 +308,6 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
     png_bytep smask;
     int smask_ptr = 0;
     int smask_size = 0;
-    png_byte bitdepth;
-    if (img_colorspace(idict) != 0) {
-        pdf_dict_add_ref(pdf, "ColorSpace", (int) img_colorspace(idict));
-    } else {
-        pdf_dict_add_name(pdf, "ColorSpace", "DeviceGray");
-    }
     smask_objnum = pdf_create_obj(pdf, obj_type_others, 0);
     pdf_dict_add_ref(pdf, "SMask", (int) smask_objnum);
     smask_size =
@@ -334,31 +345,7 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
     }
     pdf_end_stream(pdf);
     pdf_end_obj(pdf);
-    pdf_flush(pdf);
-    /* now write the Smask object */
-    bitdepth = png_get_bit_depth(png_p, info_p);
-    pdf_begin_obj(pdf, smask_objnum, OBJSTM_NEVER);
-    pdf_begin_dict(pdf);
-    pdf_dict_add_name(pdf, "Type", "XObject");
-    pdf_dict_add_name(pdf, "Subtype", "Image");
-    if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
-        pdf_printf(pdf, "\n%s\n", img_attr(idict));
-    pdf_dict_add_int(pdf, "Width", (int) png_get_image_width(png_p, info_p));
-    pdf_dict_add_int(pdf, "Height", (int) png_get_image_height(png_p, info_p));
-    pdf_dict_add_int(pdf, "BitsPerComponent", (bitdepth == 16 ? 8 : bitdepth));
-    pdf_dict_add_name(pdf, "ColorSpace", "DeviceGray");
-    pdf_dict_add_streaminfo(pdf);
-    pdf_end_dict(pdf);
-    pdf_begin_stream(pdf);
-    for (i = 0; i < smask_size; i++) {
-        if (i % 8 == 0)
-            pdf_room(pdf, 8);
-        pdf_quick_out(pdf, smask[i]);
-        if (bitdepth == 16)
-            i++;
-    }
-    pdf_end_stream(pdf);
-    pdf_end_obj(pdf);
+    write_smask_streamobj(pdf, idict, smask_objnum, smask, smask_size);
     xfree(smask);
 }
 
@@ -369,11 +356,6 @@ static void write_png_rgb(PDF pdf, image_dict * idict)
     png_structp png_p = img_png_png_ptr(idict);
     png_infop info_p = img_png_info_ptr(idict);
     png_bytep row, r, *rows;
-    if (img_colorspace(idict) != 0) {
-        pdf_dict_add_ref(pdf, "ColorSpace", (int) img_colorspace(idict));
-    } else {
-        pdf_dict_add_name(pdf, "ColorSpace", "DeviceRGB");
-    }
     pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
@@ -408,12 +390,6 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
     png_bytep smask;
     int smask_ptr = 0;
     int smask_size = 0;
-    png_byte bitdepth;
-    if (img_colorspace(idict) != 0) {
-        pdf_dict_add_ref(pdf, "ColorSpace", (int) img_colorspace(idict));
-    } else {
-        pdf_dict_add_name(pdf, "ColorSpace", "DeviceRGB");
-    }
     smask_objnum = pdf_create_obj(pdf, obj_type_others, 0);
     pdf_dict_add_ref(pdf, "SMask", (int) smask_objnum);
     smask_size =
@@ -451,38 +427,8 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
     }
     pdf_end_stream(pdf);
     pdf_end_obj(pdf);
-    pdf_flush(pdf);
-
-    /* now write the Smask object */
-    if (smask_objnum > 0) {
-        bitdepth = png_get_bit_depth(png_p, info_p);
-        pdf_begin_obj(pdf, smask_objnum, OBJSTM_NEVER);
-        pdf_begin_dict(pdf);
-        pdf_dict_add_name(pdf, "Type", "XObject");
-        pdf_dict_add_name(pdf, "Subtype", "Image");
-        if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
-            pdf_printf(pdf, "\n%s\n", img_attr(idict));
-        pdf_dict_add_int(pdf, "Width",
-                         (int) png_get_image_width(png_p, info_p));
-        pdf_dict_add_int(pdf, "Height",
-                         (int) png_get_image_height(png_p, info_p));
-        pdf_dict_add_int(pdf, "BitsPerComponent",
-                         (bitdepth == 16 ? 8 : bitdepth));
-        pdf_dict_add_name(pdf, "ColorSpace", "DeviceGray");
-        pdf_dict_add_streaminfo(pdf);
-        pdf_end_dict(pdf);
-        pdf_begin_stream(pdf);
-        for (i = 0; i < smask_size; i++) {
-            if (i % 8 == 0)
-                pdf_room(pdf, 8);
-            pdf_quick_out(pdf, smask[i]);
-            if (bitdepth == 16)
-                i++;
-        }
-        xfree(smask);
-        pdf_end_stream(pdf);
-        pdf_end_obj(pdf);
-    }
+    write_smask_streamobj(pdf, idict, smask_objnum, smask, smask_size);
+    xfree(smask);
 }
 
 @ The |copy_png| code is cheerfully gleaned from Thomas Merz' PDFlib,
@@ -604,8 +550,10 @@ void write_png(PDF pdf, image_dict * idict)
 {
     double gamma, checked_gamma;
     int palette_objnum = 0;
+    int num_palette;
     png_structp png_p;
     png_infop info_p;
+    png_colorp palette;
     assert(idict != NULL);
     last_png_needs_page_group = false;
     if (img_file(idict) == NULL)
@@ -625,13 +573,40 @@ void write_png(PDF pdf, image_dict * idict)
     pdf_dict_add_int(pdf, "Height", (int) png_get_image_height(png_p, info_p));
     pdf_dict_add_int(pdf, "BitsPerComponent",
                      (int) png_get_bit_depth(png_p, info_p));
+    if (img_colorspace(idict) != 0) {
+        pdf_dict_add_ref(pdf, "ColorSpace", (int) img_colorspace(idict));
+    } else {
+        switch (png_get_color_type(png_p, info_p)) {
+        case PNG_COLOR_TYPE_PALETTE:
+            png_get_PLTE(png_p, info_p, &palette, &num_palette);
+            palette_objnum = pdf_create_obj(pdf, obj_type_others, 0);
+            pdf_add_name(pdf, "ColorSpace");
+            pdf_begin_array(pdf);
+            pdf_add_name(pdf, "Indexed");
+            pdf_add_name(pdf, "DeviceRGB");     /* base; PDFRef. 4.5.5 */
+            pdf_add_int(pdf, (int) (num_palette - 1));  /* hival */
+            pdf_add_ref(pdf, (int) palette_objnum);     /* lookup */
+            pdf_end_array(pdf);
+            break;
+        case PNG_COLOR_TYPE_GRAY:
+        case PNG_COLOR_TYPE_GRAY_ALPHA:
+            pdf_dict_add_name(pdf, "ColorSpace", "DeviceGray");
+            break;
+        case PNG_COLOR_TYPE_RGB:
+        case PNG_COLOR_TYPE_RGB_ALPHA:
+            pdf_dict_add_name(pdf, "ColorSpace", "DeviceRGB");
+            break;
+        default:
+            pdftex_fail("unsupported type of color_type <%i>",
+                        png_get_color_type(png_p, info_p));
+        }
+    }
     checked_gamma = 1.0;
     if (pdf->image_apply_gamma) {
-        if (png_get_gAMA(png_p, info_p, &gamma)) {
+        if (png_get_gAMA(png_p, info_p, &gamma))
             checked_gamma = (pdf->gamma / 1000.0) * gamma;
-        } else {
+        else
             checked_gamma = (pdf->gamma / 1000.0) * (1000.0 / pdf->image_gamma);
-        }
     }
     /* the switching between |info_p| and |png_p| queries has been trial and error.
      */
@@ -644,36 +619,10 @@ void write_png(PDF pdf, image_dict * idict)
         && (checked_gamma <= 1.01 && checked_gamma > 0.99)
         && 0                    /* disable copy_png(), needs fixing above AND condition for libpng >= 1.5.2 */
         ) {
-        /* Copy PNG */
-        png_colorp palette;
-        int num_palette;
-
-        png_get_PLTE(png_p, info_p, &palette, &num_palette);
-        if (img_colorspace(idict) != 0) {
-            pdf_dict_add_ref(pdf, "ColorSpace", (int) img_colorspace(idict));
-        } else {
-            switch (png_get_color_type(png_p, info_p)) {
-            case PNG_COLOR_TYPE_PALETTE:
-                palette_objnum = pdf_create_obj(pdf, obj_type_others, 0);
-                pdf_add_name(pdf, "ColorSpace");
-                pdf_begin_array(pdf);
-                pdf_add_name(pdf, "Indexed");
-                pdf_add_name(pdf, "DeviceRGB"); /* base; PDFRef. 4.5.5 */
-                pdf_add_int(pdf, (int) (num_palette - 1));      /* hival */
-                pdf_add_ref(pdf, (int) palette_objnum); /* lookup */
-                pdf_end_array(pdf);
-                break;
-            case PNG_COLOR_TYPE_GRAY:
-                pdf_dict_add_name(pdf, "ColorSpace", "DeviceGray");
-                break;
-            default:           /* RGB */
-                pdf_dict_add_name(pdf, "ColorSpace", "DeviceRGB");
-            };
-        }
+        /* PNG copy */
         if (tracefilenames)
             tex_printf(" (PNG copy)");
         copy_png(pdf, idict);
-        write_palette_streamobj(pdf, palette_objnum, palette, num_palette);
     } else {
         if (0) {
             tex_printf(" PNG copy skipped because: ");
@@ -719,11 +668,10 @@ void write_png(PDF pdf, image_dict * idict)
                 write_png_rgb(pdf, idict);
             break;
         default:
-            pdftex_fail("unsupported type of color_type <%i>",
-                        png_get_color_type(png_p, info_p));
+            assert(0);
         }
     }
-    pdf_flush(pdf);
+    write_palette_streamobj(pdf, palette_objnum, palette, num_palette);
     close_and_cleanup_png(idict);
 }
 
