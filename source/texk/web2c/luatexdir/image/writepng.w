@@ -237,36 +237,6 @@ static void write_smask_streamobj(PDF pdf, image_dict * idict, int smask_objnum,
 }
 
 @ @c
-static void write_png_palette(PDF pdf, image_dict * idict)
-{
-    int i, j, k, l;
-    png_structp png_p = img_png_png_ptr(idict);
-    png_infop info_p = img_png_info_ptr(idict);
-    png_bytep row, r, *rows;
-    pdf_dict_add_streaminfo(pdf);
-    pdf_end_dict(pdf);
-    pdf_begin_stream(pdf);
-    if (png_get_interlace_type(png_p, info_p) == PNG_INTERLACE_NONE) {
-        row = xtalloc(png_get_rowbytes(png_p, info_p), png_byte);
-        write_noninterlaced(write_simple_pixel(r));
-        xfree(row);
-    } else {
-        if (png_get_image_height(png_p, info_p) *
-            png_get_rowbytes(png_p, info_p) >= 10240000L)
-            pdftex_warn
-                ("large interlaced PNG might cause out of memory (use non-interlaced PNG to fix this)");
-        rows = xtalloc(png_get_image_height(png_p, info_p), png_bytep);
-        for (i = 0; (unsigned) i < png_get_image_height(png_p, info_p); i++)
-            rows[i] = xtalloc(png_get_rowbytes(png_p, info_p), png_byte);
-        png_read_image(png_p, rows);
-        write_interlaced(write_simple_pixel(row));
-        xfree(rows);
-    }
-    pdf_end_stream(pdf);
-    pdf_end_obj(pdf);
-}
-
-@ @c
 static void write_png_gray(PDF pdf, image_dict * idict)
 {
     int i, j, k, l;
@@ -634,8 +604,6 @@ void write_png(PDF pdf, image_dict * idict)
         }
         switch (png_get_color_type(png_p, info_p)) {
         case PNG_COLOR_TYPE_PALETTE:
-            write_png_palette(pdf, idict);
-            break;
         case PNG_COLOR_TYPE_GRAY:
             write_png_gray(pdf, idict);
             break;
