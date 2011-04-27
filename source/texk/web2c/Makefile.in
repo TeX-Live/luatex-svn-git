@@ -272,7 +272,7 @@ nodist_libluatex_a_OBJECTS = libluatex_a-dvigen.$(OBJEXT) \
 	libluatex_a-luagen.$(OBJEXT) libluatex_a-luainit.$(OBJEXT) \
 	libluatex_a-luanode.$(OBJEXT) libluatex_a-luastuff.$(OBJEXT) \
 	libluatex_a-luatoken.$(OBJEXT) libluatex_a-texluac.$(OBJEXT) \
-	libluatex_a-pagetree.$(OBJEXT) libluatex_a-pdfaction.$(OBJEXT) \
+	libluatex_a-pdfpagetree.$(OBJEXT) libluatex_a-pdfaction.$(OBJEXT) \
 	libluatex_a-pdfannot.$(OBJEXT) \
 	libluatex_a-pdfcolorstack.$(OBJEXT) \
 	libluatex_a-pdfdest.$(OBJEXT) libluatex_a-pdffont.$(OBJEXT) \
@@ -1428,7 +1428,7 @@ libluatex_web = luatexdir/dvi/dvigen.w luatexdir/font/dofont.w \
 	luatexdir/lua/luagen.w luatexdir/lua/luainit.w \
 	luatexdir/lua/luanode.w luatexdir/lua/luastuff.w \
 	luatexdir/lua/luatoken.w luatexdir/lua/texluac.w \
-	luatexdir/pdf/pagetree.w luatexdir/pdf/pdfaction.w \
+	luatexdir/pdf/pdfpagetree.w luatexdir/pdf/pdfaction.w \
 	luatexdir/pdf/pdfannot.w luatexdir/pdf/pdfcolorstack.w \
 	luatexdir/pdf/pdfdest.w luatexdir/pdf/pdffont.w \
 	luatexdir/pdf/pdfgen.w luatexdir/pdf/pdfglyph.w \
@@ -1465,7 +1465,7 @@ nodist_libluatex_a_SOURCES = dvigen.c dofont.c luafont.c mapfile.c \
 	writefont.c writet1.c writet3.c writettf.c writetype0.c \
 	writetype2.c writeimg.c writejbig2.c writejpg.c writejp2.c \
 	writepng.c texlang.c hyphen.c hnjalloc.c luagen.c luainit.c \
-	luanode.c luastuff.c luatoken.c texluac.c pagetree.c \
+	luanode.c luastuff.c luatoken.c texluac.c pdfpagetree.c \
 	pdfaction.c pdfannot.c pdfcolorstack.c pdfdest.c pdffont.c \
 	pdfgen.c pdfglyph.c pdfimage.c pdflink.c pdflistout.c \
 	pdfliteral.c pdfluaapi.c pdfobj.c pdfoutline.c pdfpage.c \
@@ -1498,7 +1498,7 @@ libluatex_a_SOURCES = luatexdir/luatex.h luatexdir/dvi/dvigen.h \
 	luatexdir/lua/lstatslib.c luatexdir/lua/ltexiolib.c \
 	luatexdir/lua/ltexlib.c luatexdir/lua/ltokenlib.c \
 	luatexdir/lua/luagen.h luatexdir/lua/luatex-api.h \
-	luatexdir/pdf/pagetree.h luatexdir/pdf/pdfaction.h \
+	luatexdir/pdf/pdfpagetree.h luatexdir/pdf/pdfaction.h \
 	luatexdir/pdf/pdfannot.h luatexdir/pdf/pdfcolorstack.h \
 	luatexdir/pdf/pdfdest.h luatexdir/pdf/pdffont.h \
 	luatexdir/pdf/pdfgen.h luatexdir/pdf/pdfglyph.h \
@@ -2009,7 +2009,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mlist.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-nesting.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-packaging.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pagetree.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdfpagetree.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdfaction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdfannot.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdfcolorstack.Po@am__quote@
@@ -4453,19 +4453,19 @@ libluatex_a-texluac.obj: texluac.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-texluac.obj `if test -f 'texluac.c'; then $(CYGPATH_W) 'texluac.c'; else $(CYGPATH_W) '$(srcdir)/texluac.c'; fi`
 
-libluatex_a-pagetree.o: pagetree.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-pagetree.o -MD -MP -MF $(DEPDIR)/libluatex_a-pagetree.Tpo -c -o libluatex_a-pagetree.o `test -f 'pagetree.c' || echo '$(srcdir)/'`pagetree.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pagetree.Tpo $(DEPDIR)/libluatex_a-pagetree.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pagetree.c' object='libluatex_a-pagetree.o' libtool=no @AMDEPBACKSLASH@
+libluatex_a-pdfpagetree.o: pdfpagetree.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfpagetree.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfpagetree.Tpo -c -o libluatex_a-pdfpagetree.o `test -f 'pdfpagetree.c' || echo '$(srcdir)/'`pdfpagetree.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfpagetree.Tpo $(DEPDIR)/libluatex_a-pdfpagetree.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfpagetree.c' object='libluatex_a-pdfpagetree.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-pagetree.o `test -f 'pagetree.c' || echo '$(srcdir)/'`pagetree.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfpagetree.o `test -f 'pdfpagetree.c' || echo '$(srcdir)/'`pdfpagetree.c
 
-libluatex_a-pagetree.obj: pagetree.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-pagetree.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pagetree.Tpo -c -o libluatex_a-pagetree.obj `if test -f 'pagetree.c'; then $(CYGPATH_W) 'pagetree.c'; else $(CYGPATH_W) '$(srcdir)/pagetree.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pagetree.Tpo $(DEPDIR)/libluatex_a-pagetree.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pagetree.c' object='libluatex_a-pagetree.obj' libtool=no @AMDEPBACKSLASH@
+libluatex_a-pdfpagetree.obj: pdfpagetree.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfpagetree.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdfpagetree.Tpo -c -o libluatex_a-pdfpagetree.obj `if test -f 'pdfpagetree.c'; then $(CYGPATH_W) 'pdfpagetree.c'; else $(CYGPATH_W) '$(srcdir)/pdfpagetree.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-pdfpagetree.Tpo $(DEPDIR)/libluatex_a-pdfpagetree.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='pdfpagetree.c' object='libluatex_a-pdfpagetree.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-pagetree.obj `if test -f 'pagetree.c'; then $(CYGPATH_W) 'pagetree.c'; else $(CYGPATH_W) '$(srcdir)/pagetree.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfpagetree.obj `if test -f 'pdfpagetree.c'; then $(CYGPATH_W) 'pdfpagetree.c'; else $(CYGPATH_W) '$(srcdir)/pdfpagetree.c'; fi`
 
 libluatex_a-pdfaction.o: pdfaction.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfaction.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfaction.Tpo -c -o libluatex_a-pdfaction.o `test -f 'pdfaction.c' || echo '$(srcdir)/'`pdfaction.c
@@ -6645,8 +6645,8 @@ luatoken.c: ctangle$(EXEEXT) luatexdir/lua/luatoken.w
 texluac.c: ctangle$(EXEEXT) luatexdir/lua/texluac.w
 	$(luatex_lua_ctangle) texluac.w
 
-pagetree.c: ctangle$(EXEEXT) luatexdir/pdf/pagetree.w
-	$(luatex_pdf_ctangle) pagetree.w
+pdfpagetree.c: ctangle$(EXEEXT) luatexdir/pdf/pdfpagetree.w
+	$(luatex_pdf_ctangle) pdfpagetree.w
 pdfaction.c: ctangle$(EXEEXT) luatexdir/pdf/pdfaction.w
 	$(luatex_pdf_ctangle) pdfaction.w
 pdfannot.c: ctangle$(EXEEXT) luatexdir/pdf/pdfannot.w

@@ -101,7 +101,7 @@ lang/hyphen.o \
 lang/texlang.o \
 ocp/readocp.o \
 pdf/pdfpage.o \
-pdf/pagetree.o \
+pdf/pdfpagetree.o \
 tex/linebreak.o \
 tex/postlinebreak.o \
 tex/texnodes.o \

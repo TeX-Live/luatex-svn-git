@@ -174,7 +174,7 @@ size_t          T##_limit
 #  include "image/writeimg.h"
 #  include "openbsd-compat.h"
 #  include "dvi/dvigen.h"
-#  include "pdf/pagetree.h"
+#  include "pdf/pdfpagetree.h"
 #  include "pdf/pdfgen.h"
 #  include "pdf/pdfpage.h"
 #  include "pdf/pdftables.h"

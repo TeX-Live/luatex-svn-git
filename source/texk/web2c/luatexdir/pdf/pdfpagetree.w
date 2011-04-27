@@ -1,6 +1,6 @@
-% pagetree.w
-% 
-% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+% pdfpagetree.w
+
+% Copyright 2006-2011 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -15,7 +15,7 @@
 % License for more details.
 
 % You should have received a copy of the GNU General Public License along
-% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @ @c
 #include "ptexlib.h"
@@ -110,7 +110,7 @@ static divert_list_entry *get_divert_list(int divnum)
     return d;
 }
 
-@ |pdf_do_page_divert()| returns the current /Parent object number 
+@ |pdf_do_page_divert()| returns the current /Parent object number
 @c
 int pdf_do_page_divert(PDF pdf, int objnum, int divnum)
 {
@@ -209,7 +209,7 @@ void pdf_do_page_undivert(int divnum, int curdivnum)
 #endif
 }
 
-@ write a /Pages object 
+@ write a /Pages object
 @c
 #define pdf_pages_attr equiv(pdf_pages_attr_loc)
 
@@ -239,7 +239,7 @@ static void write_pages(PDF pdf, pages_entry * p, int parent)
 }
 
 @ loop over all /Pages objects, output them, create their parents,
-recursing bottom up, return the /Pages root object number 
+recursing bottom up, return the /Pages root object number
 @c
 static int output_pages_list(PDF pdf, pages_entry * pe)
 {

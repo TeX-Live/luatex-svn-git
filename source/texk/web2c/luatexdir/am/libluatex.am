@@ -210,8 +210,8 @@ libluatex_a_SOURCES += \
 ##
 luatex_pdf_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/pdf $(ctangle)
 
-pagetree.c: ctangle$(EXEEXT) luatexdir/pdf/pagetree.w
-	$(luatex_pdf_ctangle) pagetree.w
+pdfpagetree.c: ctangle$(EXEEXT) luatexdir/pdf/pdfpagetree.w
+	$(luatex_pdf_ctangle) pdfpagetree.w
 pdfaction.c: ctangle$(EXEEXT) luatexdir/pdf/pdfaction.w
 	$(luatex_pdf_ctangle) pdfaction.w
 pdfannot.c: ctangle$(EXEEXT) luatexdir/pdf/pdfannot.w
@@ -257,7 +257,7 @@ pdfthread.c: ctangle$(EXEEXT) luatexdir/pdf/pdfthread.w
 pdfxform.c: ctangle$(EXEEXT) luatexdir/pdf/pdfxform.w
 	$(luatex_pdf_ctangle) pdfxform.w
 
-libluatex_web += luatexdir/pdf/pagetree.w luatexdir/pdf/pdfaction.w luatexdir/pdf/pdfannot.w
+libluatex_web += luatexdir/pdf/pdfpagetree.w luatexdir/pdf/pdfaction.w luatexdir/pdf/pdfannot.w
 libluatex_web += luatexdir/pdf/pdfcolorstack.w luatexdir/pdf/pdfdest.w
 libluatex_web += luatexdir/pdf/pdffont.w luatexdir/pdf/pdfgen.w luatexdir/pdf/pdfglyph.w
 libluatex_web += luatexdir/pdf/pdfimage.w luatexdir/pdf/pdflink.w luatexdir/pdf/pdflistout.w
@@ -267,13 +267,13 @@ libluatex_web += luatexdir/pdf/pdfsaverestore.w luatexdir/pdf/pdfsetmatrix.w
 libluatex_web += luatexdir/pdf/pdfshipout.w luatexdir/pdf/pdftables.w
 libluatex_web += luatexdir/pdf/pdfthread.w luatexdir/pdf/pdfxform.w
 
-nodist_libluatex_a_SOURCES += pagetree.c pdfaction.c pdfannot.c pdfcolorstack.c pdfdest.c pdffont.c
+nodist_libluatex_a_SOURCES += pdfpagetree.c pdfaction.c pdfannot.c pdfcolorstack.c pdfdest.c pdffont.c
 nodist_libluatex_a_SOURCES += pdfgen.c pdfglyph.c pdfimage.c pdflink.c pdflistout.c pdfliteral.c
 nodist_libluatex_a_SOURCES += pdfluaapi.c pdfobj.c pdfoutline.c pdfpage.c pdfrule.c pdfsaverestore.c
 nodist_libluatex_a_SOURCES += pdfsetmatrix.c pdfshipout.c pdftables.c pdfthread.c pdfxform.c
 
 libluatex_a_SOURCES += \
-	luatexdir/pdf/pagetree.h \
+	luatexdir/pdf/pdfpagetree.h \
 	luatexdir/pdf/pdfaction.h \
 	luatexdir/pdf/pdfannot.h \
 	luatexdir/pdf/pdfcolorstack.h \

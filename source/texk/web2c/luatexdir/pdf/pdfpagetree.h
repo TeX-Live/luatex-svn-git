@@ -1,6 +1,6 @@
-/* pagetree.h
+/* pdfpagetree.h
 
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009--2011 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -26,4 +26,4 @@ int output_pages_tree(PDF);
 int pdf_do_page_divert(PDF, int, int);
 void pdf_do_page_undivert(int, int);
 
-#endif
+#endif                          /* PAGETREE_H */
