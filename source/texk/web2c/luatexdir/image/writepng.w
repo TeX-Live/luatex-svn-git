@@ -209,10 +209,9 @@ static void write_smask_streamobj(PDF pdf, image_dict * idict, int smask_objnum,
                                   png_bytep smask, int smask_size)
 {
     int i;
-    png_byte bitdepth;
     png_structp png_p = img_png_png_ptr(idict);
     png_infop info_p = img_png_info_ptr(idict);
-    bitdepth = png_get_bit_depth(png_p, info_p);
+    png_byte bitdepth = png_get_bit_depth(png_p, info_p);
     pdf_begin_obj(pdf, smask_objnum, OBJSTM_NEVER);
     pdf_begin_dict(pdf);
     pdf_dict_add_name(pdf, "Type", "XObject");
@@ -433,11 +432,9 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
 
 @ The |copy_png| code is cheerfully gleaned from Thomas Merz' PDFlib,
 file |p_png.c| "SPNG - Simple PNG".
-The goal is to use pdf's native FlateDecode support
-if that is possible.
-
-Only a subset of the png files allows this, but when possible it
-greatly improves inclusion speed.
+The goal is to use pdf's native FlateDecode support, if that is possible.
+Only a subset of the png files allows this, but for these it greatly
+improves inclusion speed.
 
 @c
 static int spng_getint(FILE * fp)
@@ -453,12 +450,11 @@ static int spng_getint(FILE * fp)
 
 static void copy_png(PDF pdf, image_dict * idict)
 {
+    int i, len, type, streamlength = 0, idat = 0;
+    boolean endflag = false;
+    FILE *fp;
     png_structp png_p;
     png_infop info_p;
-    FILE *fp;
-    int i, len, type, streamlength = 0;
-    boolean endflag = false;
-    int idat = 0;               /* flag to check continuous IDAT chunks sequence */
     assert(idict != NULL);
     png_p = img_png_png_ptr(idict);
     info_p = img_png_info_ptr(idict);
@@ -548,7 +544,7 @@ static boolean last_png_needs_page_group;
 
 void write_png(PDF pdf, image_dict * idict)
 {
-    double gamma, checked_gamma;
+    double gamma, checked_gamma = 1.0;
     int palette_objnum = 0;
     int num_palette;
     png_structp png_p;
@@ -601,23 +597,16 @@ void write_png(PDF pdf, image_dict * idict)
                         png_get_color_type(png_p, info_p));
         }
     }
-    checked_gamma = 1.0;
     if (pdf->image_apply_gamma) {
         if (png_get_gAMA(png_p, info_p, &gamma))
             checked_gamma = (pdf->gamma / 1000.0) * gamma;
         else
             checked_gamma = (pdf->gamma / 1000.0) * (1000.0 / pdf->image_gamma);
     }
-    /* the switching between |info_p| and |png_p| queries has been trial and error.
-     */
     if (pdf->minor_version > 1
         && png_get_interlace_type(png_p, info_p) == PNG_INTERLACE_NONE
-        && !(png_get_color_type(png_p, info_p) == PNG_COLOR_TYPE_GRAY_ALPHA ||
-             png_get_color_type(png_p, info_p) == PNG_COLOR_TYPE_RGB_ALPHA)
-        && ((pdf->image_hicolor != 0)
-            || (png_get_bit_depth(png_p, info_p) <= 8))
-        && (checked_gamma <= 1.01 && checked_gamma > 0.99)
-        && 0                    /* disable copy_png(), needs fixing above AND condition for libpng >= 1.5.2 */
+        && (png_get_color_type(png_p, info_p) == PNG_COLOR_TYPE_GRAY
+            || png_get_color_type(png_p, info_p) == PNG_COLOR_TYPE_RGB)
         ) {
         /* PNG copy */
         if (tracefilenames)
