@@ -348,10 +348,8 @@ int output_name_tree(PDF pdf)
                 pdf_add_name(pdf, "Names");
                 pdf_begin_array(pdf);
                 do {
-                    pdf_print_str(pdf, pdf->dest_names[k].objname);
-                    pdf_out(pdf, ' ');
+                    pdf_add_string(pdf, pdf->dest_names[k].objname);
                     pdf_add_ref(pdf, pdf->dest_names[k].objnum);
-                    pdf_out(pdf, ' ');
                     j++;
                     k++;
                 } while (j != name_tree_kids_max && k != pdf->dest_names_ptr);
@@ -380,9 +378,8 @@ int output_name_tree(PDF pdf)
             }
             pdf_add_name(pdf, "Limits");
             pdf_begin_array(pdf);
-            pdf_print_str(pdf, obj_start(pdf, l));
-            pdf_out(pdf, ' ');
-            pdf_print_str(pdf, obj_stop(pdf, l));
+            pdf_add_string(pdf, obj_start(pdf, l));
+            pdf_add_string(pdf, obj_stop(pdf, l));
             pdf_end_array(pdf);
             pdf_end_dict(pdf);
             pdf_end_obj(pdf);

@@ -144,12 +144,13 @@ void end_thread(PDF pdf, halfword p)
 @c
 void thread_title(PDF pdf, int t)
 {
-    pdf_printf(pdf, "/Title (");
+    pdf_add_name(pdf, "Title");
+    pdf_out(pdf, '(');
     if (obj_info(pdf, t) < 0)
         pdf_print(pdf, -obj_info(pdf, t));
     else
         pdf_print_int(pdf, obj_info(pdf, t));
-    pdf_printf(pdf, ")\n");
+    pdf_out(pdf, ')');
 }
 
 void pdf_fix_thread(PDF pdf, int t)
@@ -216,7 +217,7 @@ void out_thread(PDF pdf, int t)
     if (last_attr != 0) {
         pdf_print_ln(pdf, last_attr);
     } else {
-        pdf_printf(pdf, "/I ");
+        pdf_add_name(pdf, "I");
         pdf_begin_dict(pdf);
         thread_title(pdf, t);
         pdf_end_dict(pdf);

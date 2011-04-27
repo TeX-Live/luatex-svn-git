@@ -1201,6 +1201,14 @@ void pdf_add_int(PDF pdf, int i)
     pdf->cave = 1;
 }
 
+void pdf_add_string(PDF pdf, const char *s)
+{
+    if (pdf->cave > 0)
+        pdf_out(pdf, ' ');
+    pdf_print_str(pdf, s);
+    pdf->cave = 1;
+}
+
 void pdf_add_name(PDF pdf, const char *name)
 {
     pdf_out(pdf, '/');

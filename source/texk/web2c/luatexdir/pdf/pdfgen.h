@@ -135,6 +135,7 @@ extern void pdf_add_null(PDF);
 extern void pdf_add_bool(PDF, int i);
 extern void pdf_add_int(PDF, int i);
 extern void pdf_add_ref(PDF, int num);
+extern void pdf_add_string(PDF, const char *s);
 extern void pdf_add_name(PDF, const char *name);
 
 extern void pdf_dict_add_bool(PDF, const char *key, int i);

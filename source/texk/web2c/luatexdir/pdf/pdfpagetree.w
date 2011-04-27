@@ -30,7 +30,7 @@ static const char _svn_version[] =
 #ifdef DEBUG
 #  define PAGES_TREE_KIDSMAX 3
 #else
-#  define PAGES_TREE_KIDSMAX 6
+#  define PAGES_TREE_KIDSMAX 10
 #endif
 
 static struct avl_table *divert_list_tree = NULL;
