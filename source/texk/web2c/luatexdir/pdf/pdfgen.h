@@ -94,15 +94,6 @@ extern void fix_pdf_minorversion(PDF);
 /* do the same as |pdf_quick_out| and flush the PDF buffer if necessary */
 #  define pdf_out(pdf,A) do { pdf_room(pdf,1); pdf_quick_out(pdf,A); } while (0)
 
-#  if 0
-/* see function pdf_out_block() */
-#    define pdf_out_block_macro(pdf,A,n) do {               \
-        pdf_room(pdf,(int)(n));                             \
-        (void)memcpy((pdf->buf+pdf->ptr),(A),(size_t)(n));  \
-        pdf->ptr+=(int)(n);                                 \
-    } while (0)
-#  endif
-
 /*
 Basic printing procedures for PDF output are very similiar to \TeX\ basic
 printing ones but the output is going to PDF buffer. Subroutines with

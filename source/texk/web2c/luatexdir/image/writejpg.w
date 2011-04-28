@@ -249,8 +249,7 @@ static void reopen_jpg(PDF pdf, image_dict * idict)
 @ @c
 void write_jpg(PDF pdf, image_dict * idict)
 {
-    long unsigned l;
-    FILE *f;
+    size_t l, m;
     assert(idict != NULL);
     if (img_file(idict) == NULL)
         reopen_jpg(pdf, idict);
@@ -279,7 +278,14 @@ void write_jpg(PDF pdf, image_dict * idict)
             pdf_dict_add_name(pdf, "ColorSpace", "DeviceCMYK");
             pdf_add_name(pdf, "Decode");
             pdf_begin_array(pdf);
-            pdf_puts(pdf, "1 0 1 0 1 0 1 0");
+            pdf_add_int(pdf, 1);
+            pdf_add_int(pdf, 0);
+            pdf_add_int(pdf, 1);
+            pdf_add_int(pdf, 0);
+            pdf_add_int(pdf, 1);
+            pdf_add_int(pdf, 0);
+            pdf_add_int(pdf, 1);
+            pdf_add_int(pdf, 0);
             pdf_end_array(pdf);
             break;
         default:
@@ -290,8 +296,10 @@ void write_jpg(PDF pdf, image_dict * idict)
     pdf_dict_add_name(pdf, "Filter", "DCTDecode");
     pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
-    for (l = img_jpg_ptr(idict)->length, f = img_file(idict); l > 0; l--)
-        pdf_out(pdf, xgetc(f));
+    l = (size_t) img_jpg_ptr(idict)->length;
+    xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
+    if ((m = read_file_to_buf(pdf, img_file(idict), l)) != l)
+        pdftex_fail("writejpg: fread failed");
     pdf_end_stream(pdf);
     pdf_end_obj(pdf);
     close_and_cleanup_jpg(idict);

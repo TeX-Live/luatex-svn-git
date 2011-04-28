@@ -47,7 +47,6 @@ static void close_and_cleanup_png(image_dict * idict)
 @ @c
 void read_png_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
 {
-    double gamma;
     png_structp png_p;
     png_infop info_p;
     assert(idict != NULL);
@@ -70,30 +69,6 @@ void read_png_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
         pdftex_fail("libpng: internal error");
     png_init_io(png_p, img_file(idict));
     png_read_info(png_p, info_p);
-    /* simple transparency support */
-    if (png_get_valid(png_p, info_p, PNG_INFO_tRNS)) {
-        png_set_tRNS_to_alpha(png_p);
-    }
-    /* alpha channel support  */
-    if (pdf->minor_version < 4
-        && png_get_color_type(png_p, info_p) | PNG_COLOR_MASK_ALPHA)
-        png_set_strip_alpha(png_p);
-    /* 16bit depth support */
-    if (pdf->minor_version < 5)
-        pdf->image_hicolor = 0;
-    if ((png_get_bit_depth(png_p, info_p) == 16) && (pdf->image_hicolor == 0))
-        png_set_strip_16(png_p);
-    /* gamma support */
-    if (pdf->image_apply_gamma) {
-        if (png_get_gAMA(png_p, info_p, &gamma))
-            png_set_gamma(png_p, (pdf->gamma / 1000.0), gamma);
-        else
-            png_set_gamma(png_p, (pdf->gamma / 1000.0),
-                          (1000.0 / pdf->image_gamma));
-    }
-    /* reset structure */
-    (void) png_set_interlace_handling(png_p);
-    png_read_update_info(png_p, info_p);
     /* resolution support */
     img_xsize(idict) = (int) png_get_image_width(png_p, info_p);
     img_ysize(idict) = (int) png_get_image_height(png_p, info_p);
@@ -377,10 +352,10 @@ Only a subset of the png files allows this, but for these it greatly
 improves inclusion speed.
 
 @c
-static int spng_getint(FILE * fp)
+static int spng_getint(FILE * f)
 {
     unsigned char buf[4];
-    if (fread(buf, 1, 4, fp) != 4)
+    if (fread(buf, 1, 4, f) != 4)
         pdftex_fail("writepng: reading chunk type failed");
     return ((((((int) buf[0] << 8) + buf[1]) << 8) + buf[2]) << 8) + buf[3];
 }
@@ -390,21 +365,21 @@ static int spng_getint(FILE * fp)
 
 static void copy_png(PDF pdf, image_dict * idict)
 {
-    int i, len, type, streamlength = 0, idat = 0;
+    int len, type, streamlength = 0, idat = 0;
     boolean endflag = false;
-    FILE *fp;
+    FILE *f;
     png_structp png_p;
     png_infop info_p;
     assert(idict != NULL);
     png_p = img_png_png_ptr(idict);
     info_p = img_png_info_ptr(idict);
-    fp = (FILE *) png_get_io_ptr(png_p);
+    f = (FILE *) png_get_io_ptr(png_p);
     /* 1st pass to find overall stream /Length */
-    if (fseek(fp, 8, SEEK_SET) != 0)
-        pdftex_fail("writepng: fseek in PNG file failed");
+    if (fseek(f, 8, SEEK_SET) != 0)
+        pdftex_fail("writepng: fseek in PNG file failed (1)");
     do {
-        len = spng_getint(fp);
-        type = spng_getint(fp);
+        len = spng_getint(f);
+        type = spng_getint(f);
         switch (type) {
         case SPNG_CHUNK_IEND:
             endflag = true;
@@ -412,8 +387,8 @@ static void copy_png(PDF pdf, image_dict * idict)
         case SPNG_CHUNK_IDAT:
             streamlength += len;
         default:
-            if (fseek(fp, len + 4, SEEK_CUR) != 0)
-                pdftex_fail("writepng: fseek in PNG file failed");
+            if (fseek(f, len + 4, SEEK_CUR) != 0)
+                pdftex_fail("writepng: fseek in PNG file failed (2)");
         }
     } while (endflag == false);
     pdf_dict_add_int(pdf, "Length", streamlength);
@@ -431,25 +406,20 @@ static void copy_png(PDF pdf, image_dict * idict)
     assert(pdf->zip_write_state == no_zip);     /* the PNG stream is already compressed */
     /* 2nd pass to copy data */
     endflag = false;
-    if (fseek(fp, 8, SEEK_SET) != 0)
-        pdftex_fail("writepng: fseek in PNG file failed");
+    if (fseek(f, 8, SEEK_SET) != 0)
+        pdftex_fail("writepng: fseek in PNG file failed (3)");
     do {
-        len = spng_getint(fp);
-        type = spng_getint(fp);
+        len = spng_getint(f);
+        type = spng_getint(f);
         switch (type) {
         case SPNG_CHUNK_IDAT:  /* do copy */
             if (idat == 2)
                 pdftex_fail("writepng: IDAT chunk sequence broken");
             idat = 1;
-            while (len > 0) {
-                i = (len > pdf->buf_size) ? pdf->buf_size : len;
-                pdf_room(pdf, i);
-                fread(&pdf->buf[pdf->ptr], 1, (size_t) i, fp);
-                pdf->ptr += i;
-                len -= i;
-            }
-            if (fseek(fp, 4, SEEK_CUR) != 0)
-                pdftex_fail("writepng: fseek in PNG file failed");
+            if (read_file_to_buf(pdf, f, len) != len)
+                pdftex_fail("writepng: fread failed");
+            if (fseek(f, 4, SEEK_CUR) != 0)
+                pdftex_fail("writepng: fseek in PNG file failed (4)");
             break;
         case SPNG_CHUNK_IEND:  /* done */
             endflag = true;
@@ -457,8 +427,8 @@ static void copy_png(PDF pdf, image_dict * idict)
         default:
             if (idat == 1)
                 idat = 2;
-            if (fseek(fp, len + 4, SEEK_CUR) != 0)
-                pdftex_fail("writepng: fseek in PNG file failed");
+            if (fseek(f, len + 4, SEEK_CUR) != 0)
+                pdftex_fail("writepng: fseek in PNG file failed (5)");
         }
     } while (endflag == false);
     pdf_end_stream(pdf);
@@ -484,9 +454,9 @@ static boolean last_png_needs_page_group;
 
 void write_png(PDF pdf, image_dict * idict)
 {
-    double gamma, checked_gamma = 1.0;
-    int palette_objnum = 0;
-    int num_palette;
+    int num_palette, palette_objnum = 0;
+    boolean png_copy = true;
+    double gamma;
     png_structp png_p;
     png_infop info_p;
     png_colorp palette;
@@ -497,8 +467,37 @@ void write_png(PDF pdf, image_dict * idict)
     assert(img_png_ptr(idict) != NULL);
     png_p = img_png_png_ptr(idict);
     info_p = img_png_info_ptr(idict);
+    /* simple transparency support */
+    if (png_get_valid(png_p, info_p, PNG_INFO_tRNS)) {
+        png_set_tRNS_to_alpha(png_p);
+        png_copy = false;
+    }
+    /* alpha channel support  */
+    if (pdf->minor_version < 4
+        && png_get_color_type(png_p, info_p) | PNG_COLOR_MASK_ALPHA) {
+        png_set_strip_alpha(png_p);
+        png_copy = false;
+    }
+    /* 16 bit depth support */
     if (pdf->minor_version < 5)
         pdf->image_hicolor = 0;
+    if ((png_get_bit_depth(png_p, info_p) == 16) && (pdf->image_hicolor == 0)) {
+        png_set_strip_16(png_p);
+        png_copy = false;
+    }
+    /* gamma support */
+    if (pdf->image_apply_gamma) {
+        if (png_get_gAMA(png_p, info_p, &gamma))
+            png_set_gamma(png_p, (pdf->gamma / 1000.0), gamma);
+        else
+            png_set_gamma(png_p, (pdf->gamma / 1000.0),
+                          (1000.0 / pdf->image_gamma));
+        png_copy = false;
+    }
+    /* reset structure */
+    (void) png_set_interlace_handling(png_p);
+    png_read_update_info(png_p, info_p);
+
     pdf_begin_obj(pdf, img_objnum(idict), OBJSTM_NEVER);
     pdf_begin_dict(pdf);
     pdf_dict_add_name(pdf, "Type", "XObject");
@@ -537,36 +536,30 @@ void write_png(PDF pdf, image_dict * idict)
                         png_get_color_type(png_p, info_p));
         }
     }
-    if (pdf->image_apply_gamma) {
-        if (png_get_gAMA(png_p, info_p, &gamma))
-            checked_gamma = (pdf->gamma / 1000.0) * gamma;
-        else
-            checked_gamma = (pdf->gamma / 1000.0) * (1000.0 / pdf->image_gamma);
-    }
-    if (pdf->minor_version > 1
+    if (png_copy && pdf->minor_version > 1
         && png_get_interlace_type(png_p, info_p) == PNG_INTERLACE_NONE
         && (png_get_color_type(png_p, info_p) == PNG_COLOR_TYPE_GRAY
             || png_get_color_type(png_p, info_p) == PNG_COLOR_TYPE_RGB)
-        && checked_gamma > 0.99 && checked_gamma < 1.01) {
+        && !pdf->image_apply_gamma
+        && !png_get_valid(png_p, info_p, PNG_INFO_tRNS)) {
         /* PNG copy */
         if (tracefilenames)
             tex_printf(" (PNG copy)");
         copy_png(pdf, idict);
     } else {
         if (0) {
-            tex_printf(" PNG copy skipped because: ");
+            tex_printf(" *** PNG copy skipped because: ");
+            if (!png_copy)
+                tex_printf("!png_copy ");
             if (pdf->minor_version <= 1)
-                tex_printf("version=%d ", pdf->minor_version);
+                tex_printf("minorversion=%d ", pdf->minor_version);
             if (png_get_interlace_type(png_p, info_p) != PNG_INTERLACE_NONE)
                 tex_printf("interlaced ");
             if ((png_get_color_type(png_p, info_p) != PNG_COLOR_TYPE_GRAY)
                 && (png_get_color_type(png_p, info_p) != PNG_COLOR_TYPE_RGB))
                 tex_printf("colortype ");
-            if ((pdf->image_apply_gamma != 0) &&
-                (checked_gamma <= 0.99 || checked_gamma >= 1.01))
-                tex_printf("gamma delta=%lf ", checked_gamma);
-            if (png_get_bit_depth(png_p, info_p) > 8)
-                tex_printf("bitdepth=%d ", png_get_bit_depth(png_p, info_p));
+            if (pdf->image_apply_gamma)
+                tex_printf("apply gamma ");
             if (png_get_valid(png_p, info_p, PNG_INFO_tRNS))
                 tex_printf("simple transparancy ");
         }

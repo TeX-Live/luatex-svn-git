@@ -16,7 +16,7 @@
 % License for more details.
 
 % You should have received a copy of the GNU General Public License along
-% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @* Image inclusion.
 
@@ -66,10 +66,10 @@ static const char _svn_version[] =
     (http://www.libpng.org/pub/png):
 
      3.1. PNG file signature
-  
+
         The first eight bytes of a PNG file always contain the following
         (decimal) values:
-  
+
            137 80 78 71 13 10 26 10
 
   Translation to C: |"\x89PNG\r\n\x1A\n"|
@@ -92,7 +92,7 @@ static const char _svn_version[] =
     Status: Final Committee Draft
 
    D.4.1, ID string
-  
+
    This is an 8-byte sequence containing 0x97 0x4A 0x42 0x32 0x0D 0x0A
    0x1A 0x0A.
 
@@ -366,7 +366,7 @@ static image_dict *read_image(PDF pdf, char *file_name, int page_num,
     return idict;
 }
 
-@ scans PDF pagebox specification 
+@ scans PDF pagebox specification
 @c
 static pdfboxspec_e scan_pdf_box_spec(void)
 {
@@ -816,7 +816,7 @@ void undumpimagemeta(PDF pdf, int pdfversion, int pdfinclusionerrorlevel)
     }
 }
 
-@ scans rule spec to |alt_rule| 
+@ scans rule spec to |alt_rule|
 @c
 scaled_whd scan_alt_rule(void)
 {
@@ -841,4 +841,22 @@ scaled_whd scan_alt_rule(void)
         goto RESWITCH;
     }
     return alt_rule;
+}
+
+@ copy file of arbitrary size to PDF buffer and flush as needed
+@c
+size_t read_file_to_buf(PDF pdf, FILE * f, size_t len)
+{
+    size_t i, j, k = 0;
+    while (len > 0) {
+        i = (size_t) ((int) len > pdf->buf_size) ? pdf->buf_size : len;
+        pdf_room(pdf, (int) i);
+        j = fread(&pdf->buf[pdf->ptr], 1, i, f);
+        pdf->ptr += j;
+        k += j;
+        len -= j;
+        if (i != j)
+            break;
+    }
+    return k;
 }
