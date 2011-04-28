@@ -265,7 +265,6 @@ void write_jp2(PDF pdf, image_dict * idict)
     assert(idict != NULL);
     if (img_file(idict) == NULL)
         reopen_jp2(idict);
-    xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
     assert(img_jp2_ptr(idict) != NULL);
     pdf_begin_obj(pdf, img_objnum(idict), OBJSTM_NEVER);
     pdf_begin_dict(pdf);
@@ -279,9 +278,10 @@ void write_jp2(PDF pdf, image_dict * idict)
     pdf_dict_add_name(pdf, "Filter", "JPXDecode");
     pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
-    for (l = (long unsigned int) img_jp2_ptr(idict)->length, f =
-         img_file(idict); l > 0; l--)
-        pdf_out(pdf, xgetc(f));
+    l = (long unsigned int) img_jp2_ptr(idict)->length;
+    xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
+    if (read_file_to_buf(pdf, img_file(idict), l) != l)
+        pdftex_fail("writejp2: fread failed");
     pdf_end_stream(pdf);
     pdf_end_obj(pdf);
     close_and_cleanup_jp2(idict);

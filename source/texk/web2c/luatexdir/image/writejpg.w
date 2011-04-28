@@ -249,7 +249,7 @@ static void reopen_jpg(PDF pdf, image_dict * idict)
 @ @c
 void write_jpg(PDF pdf, image_dict * idict)
 {
-    size_t l, m;
+    size_t l;
     assert(idict != NULL);
     if (img_file(idict) == NULL)
         reopen_jpg(pdf, idict);
@@ -298,7 +298,7 @@ void write_jpg(PDF pdf, image_dict * idict)
     pdf_begin_stream(pdf);
     l = (size_t) img_jpg_ptr(idict)->length;
     xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
-    if ((m = read_file_to_buf(pdf, img_file(idict), l)) != l)
+    if (read_file_to_buf(pdf, img_file(idict), l) != l)
         pdftex_fail("writejpg: fread failed");
     pdf_end_stream(pdf);
     pdf_end_obj(pdf);
