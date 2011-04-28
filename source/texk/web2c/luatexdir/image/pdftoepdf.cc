@@ -373,11 +373,17 @@ static void copyDict(PDF pdf, PdfDocument * pdf_doc, Dict * dict)
 
 static void copyStreamStream(PDF pdf, Stream * str)
 {
-    int c;
+    int c, i, len = 1024;
     str->reset();
+    i = len;
     while ((c = str->getChar()) != EOF) {
-        pdf_out(pdf, c);
+        if (i == len) {
+            pdf_room(pdf, len);
+            i = 0;
+        }
+        pdf_quick_out(pdf, c);
         pdf->last_byte = c;
+        i++;
     }
 }
 
