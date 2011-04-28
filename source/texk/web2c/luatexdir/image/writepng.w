@@ -319,36 +319,6 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
 }
 
 @ @c
-static void write_png_rgb(PDF pdf, image_dict * idict)
-{
-    int i, j, k, l;
-    png_structp png_p = img_png_png_ptr(idict);
-    png_infop info_p = img_png_info_ptr(idict);
-    png_bytep row, r, *rows;
-    pdf_dict_add_streaminfo(pdf);
-    pdf_end_dict(pdf);
-    pdf_begin_stream(pdf);
-    if (png_get_interlace_type(png_p, info_p) == PNG_INTERLACE_NONE) {
-        row = xtalloc(png_get_rowbytes(png_p, info_p), png_byte);
-        write_noninterlaced(write_simple_pixel(r));
-        xfree(row);
-    } else {
-        if (png_get_image_height(png_p, info_p) *
-            png_get_rowbytes(png_p, info_p) >= 10240000L)
-            pdftex_warn
-                ("large interlaced PNG might cause out of memory (use non-interlaced PNG to fix this)");
-        rows = xtalloc(png_get_image_height(png_p, info_p), png_bytep);
-        for (i = 0; (unsigned) i < png_get_image_height(png_p, info_p); i++)
-            rows[i] = xtalloc(png_get_rowbytes(png_p, info_p), png_byte);
-        png_read_image(png_p, rows);
-        write_interlaced(write_simple_pixel(row));
-        xfree(rows);
-    }
-    pdf_end_stream(pdf);
-    pdf_end_obj(pdf);
-}
-
-@ @c
 static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
 {
     int i, j, k, l;
@@ -605,6 +575,7 @@ void write_png(PDF pdf, image_dict * idict)
         switch (png_get_color_type(png_p, info_p)) {
         case PNG_COLOR_TYPE_PALETTE:
         case PNG_COLOR_TYPE_GRAY:
+        case PNG_COLOR_TYPE_RGB:
             write_png_gray(pdf, idict);
             break;
         case PNG_COLOR_TYPE_GRAY_ALPHA:
@@ -614,15 +585,14 @@ void write_png(PDF pdf, image_dict * idict)
             } else
                 write_png_gray(pdf, idict);
             break;
-        case PNG_COLOR_TYPE_RGB:
-            write_png_rgb(pdf, idict);
+            write_png_gray(pdf, idict);
             break;
         case PNG_COLOR_TYPE_RGB_ALPHA:
             if (pdf->minor_version >= 4) {
                 write_png_rgb_alpha(pdf, idict);
                 last_png_needs_page_group = true;
             } else
-                write_png_rgb(pdf, idict);
+                write_png_gray(pdf, idict);
             break;
         default:
             assert(0);
