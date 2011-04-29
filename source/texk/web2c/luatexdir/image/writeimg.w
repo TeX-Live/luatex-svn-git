@@ -853,6 +853,7 @@ size_t read_file_to_buf(PDF pdf, FILE * f, size_t len)
         pdf_room(pdf, (int) i);
         j = fread(&pdf->buf[pdf->ptr], 1, i, f);
         pdf->ptr += j;
+        pdf->last_byte = pdf->buf[pdf->ptr - 1];
         k += j;
         len -= j;
         if (i != j)
