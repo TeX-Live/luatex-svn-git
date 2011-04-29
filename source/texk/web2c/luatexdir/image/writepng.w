@@ -346,10 +346,17 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
 }
 
 @ The |copy_png| code is cheerfully gleaned from Thomas Merz' PDFlib,
-file |p_png.c| "SPNG - Simple PNG".
+file |p_png.c| ``SPNG - Simple PNG''.
 The goal is to use pdf's native FlateDecode support, if that is possible.
 Only a subset of the png files allows this, but for these it greatly
 improves inclusion speed.
+
+In the ``PNG Copy'' mode only the IDAT chunks are copied;
+all other chunks from the PNG file are discarded.
+If there are any other chunks in the PNG file,
+which might influence the visual appearance of the image,
+or if image processing like gamma change is requested,
+the ``PNG Copy'' function must be skipped; therefore the lengthy tests.
 
 @c
 static int spng_getint(FILE * f)
@@ -472,7 +479,7 @@ void write_png(PDF pdf, image_dict * idict)
         png_set_tRNS_to_alpha(png_p);
         png_copy = false;
     }
-    /* alpha channel support  */
+    /* alpha channel support */
     if (pdf->minor_version < 4
         && png_get_color_type(png_p, info_p) | PNG_COLOR_MASK_ALPHA) {
         png_set_strip_alpha(png_p);
@@ -486,8 +493,9 @@ void write_png(PDF pdf, image_dict * idict)
         png_copy = false;
     }
     /* gamma support */
+    png_get_gAMA(png_p, info_p, &gamma);
     if (pdf->image_apply_gamma) {
-        if (png_get_gAMA(png_p, info_p, &gamma))
+        if (png_get_valid(png_p, info_p, PNG_INFO_gAMA))
             png_set_gamma(png_p, (pdf->gamma / 1000.0), gamma);
         else
             png_set_gamma(png_p, (pdf->gamma / 1000.0),
@@ -540,8 +548,15 @@ void write_png(PDF pdf, image_dict * idict)
         && png_get_interlace_type(png_p, info_p) == PNG_INTERLACE_NONE
         && (png_get_color_type(png_p, info_p) == PNG_COLOR_TYPE_GRAY
             || png_get_color_type(png_p, info_p) == PNG_COLOR_TYPE_RGB)
-        && !pdf->image_apply_gamma
-        && !png_get_valid(png_p, info_p, PNG_INFO_tRNS)) {
+        && gamma > 0.9999 && gamma < 1.0001 && !pdf->image_apply_gamma
+        && !png_get_valid(png_p, info_p, PNG_INFO_cHRM)
+        && !png_get_valid(png_p, info_p, PNG_INFO_iCCP)
+        && !png_get_valid(png_p, info_p, PNG_INFO_sBIT)
+        && !png_get_valid(png_p, info_p, PNG_INFO_sRGB)
+        && !png_get_valid(png_p, info_p, PNG_INFO_bKGD)
+        && !png_get_valid(png_p, info_p, PNG_INFO_hIST)
+        && !png_get_valid(png_p, info_p, PNG_INFO_tRNS)
+        && !png_get_valid(png_p, info_p, PNG_INFO_sPLT)) {
         /* PNG copy */
         if (tracefilenames)
             tex_printf(" (PNG copy)");
@@ -551,17 +566,33 @@ void write_png(PDF pdf, image_dict * idict)
             tex_printf(" *** PNG copy skipped because: ");
             if (!png_copy)
                 tex_printf("!png_copy ");
-            if (pdf->minor_version <= 1)
+            if (!(pdf->minor_version > 1))
                 tex_printf("minorversion=%d ", pdf->minor_version);
-            if (png_get_interlace_type(png_p, info_p) != PNG_INTERLACE_NONE)
+            if (!(png_get_interlace_type(png_p, info_p) == PNG_INTERLACE_NONE))
                 tex_printf("interlaced ");
-            if ((png_get_color_type(png_p, info_p) != PNG_COLOR_TYPE_GRAY)
-                && (png_get_color_type(png_p, info_p) != PNG_COLOR_TYPE_RGB))
+            if (!((png_get_color_type(png_p, info_p) == PNG_COLOR_TYPE_GRAY)
+                  || (png_get_color_type(png_p, info_p) == PNG_COLOR_TYPE_RGB)))
                 tex_printf("colortype ");
+            if (!(gamma > 0.9999 && gamma < 1.0001))
+                tex_printf("gamma ");
             if (pdf->image_apply_gamma)
                 tex_printf("apply gamma ");
+            if (png_get_valid(png_p, info_p, PNG_INFO_cHRM))
+                tex_printf("cHRM ");
+            if (png_get_valid(png_p, info_p, PNG_INFO_iCCP))
+                tex_printf("iCCP ");
+            if (png_get_valid(png_p, info_p, PNG_INFO_sBIT))
+                tex_printf("sBIT ");
+            if (png_get_valid(png_p, info_p, PNG_INFO_sRGB))
+                tex_printf("sRGB ");
+            if (png_get_valid(png_p, info_p, PNG_INFO_bKGD))
+                tex_printf("bKGD ");
+            if (png_get_valid(png_p, info_p, PNG_INFO_hIST))
+                tex_printf("hIST ");
             if (png_get_valid(png_p, info_p, PNG_INFO_tRNS))
-                tex_printf("simple transparancy ");
+                tex_printf("tRNS ");
+            if (png_get_valid(png_p, info_p, PNG_INFO_sPLT))
+                tex_printf("sPLT ");
         }
         switch (png_get_color_type(png_p, info_p)) {
         case PNG_COLOR_TYPE_PALETTE:

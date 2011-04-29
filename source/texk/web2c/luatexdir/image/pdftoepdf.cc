@@ -382,7 +382,6 @@ static void copyStreamStream(PDF pdf, Stream * str)
             i = 0;
         }
         pdf_quick_out(pdf, c);
-        pdf->last_byte = c;
         i++;
     }
 }
