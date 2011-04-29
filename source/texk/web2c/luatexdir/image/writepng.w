@@ -403,7 +403,8 @@ static void copy_png(PDF pdf, image_dict * idict)
     pdf_add_name(pdf, "DecodeParms");
     pdf_begin_dict(pdf);
     pdf_dict_add_int(pdf, "Colors",
-                     png_get_color_type(png_p, info_p) == 2 ? 3 : 1);
+                     png_get_color_type(png_p,
+                                        info_p) == PNG_COLOR_TYPE_RGB ? 3 : 1);
     pdf_dict_add_int(pdf, "Columns", png_get_image_width(png_p, info_p));
     pdf_dict_add_int(pdf, "BitsPerComponent", png_get_bit_depth(png_p, info_p));
     pdf_dict_add_int(pdf, "Predictor", 10);
