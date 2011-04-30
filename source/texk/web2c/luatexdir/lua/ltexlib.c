@@ -97,6 +97,9 @@ static int do_luacprint(lua_State * L, int partial, int deftable)
         if (lua_type(L, 1) == LUA_TNUMBER && n > 1) {
             lua_number2int(cattable, lua_tonumber(L, 1));
             startstrings = 2;
+            if (!valid_catcode_table(cattable)) {
+	      cattable = DEFAULT_CAT_TABLE;
+	    }
         }
     }
     if (lua_type(L, startstrings) == LUA_TTABLE) {
@@ -152,6 +155,9 @@ static int luactprint(lua_State * L)
         if (lua_type(L, -1) == LUA_TNUMBER) {
             lua_number2int(cattable, lua_tonumber(L, -1));
             startstrings = 2;
+            if (!valid_catcode_table(cattable)) {
+	      cattable = DEFAULT_CAT_TABLE;
+	    }
         }
         lua_pop(L, 1);
 
