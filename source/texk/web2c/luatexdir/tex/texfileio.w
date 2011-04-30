@@ -784,6 +784,16 @@ except of course for a short time just after |job_name| has become nonzero.
 @c
 unsigned char *texmf_log_name;  /* full name of the log file */
 
+static void set_recorder_filename(char *filename) {
+    if (output_directory) {
+        filename = concat3(output_directory, DIR_SEP_STRING, filename);
+        recorder_change_filename(filename);
+        free(filename);
+    } else {
+        recorder_change_filename(filename);
+    }
+}
+
 
 @ The |open_log_file| routine is used to open the transcript file and to help
 it catch up to what has previously been printed on the terminal.
@@ -799,7 +809,7 @@ void open_log_file(void)
     if (job_name == 0)
         job_name = getjobname(maketexstring("texput")); /* TODO */
     fn = pack_job_name(".fls");
-    recorder_change_filename(fn);
+    set_recorder_filename(fn);
     fn = pack_job_name(".log");
     while (!lua_a_open_out(&log_file, fn, 0)) {
         /* Try to get a different log file name */
