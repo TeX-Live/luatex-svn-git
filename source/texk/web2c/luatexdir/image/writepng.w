@@ -444,7 +444,7 @@ static void copy_png(PDF pdf, image_dict * idict)
 }
 
 @ @c
-static void reopen_png(PDF pdf, image_dict * idict)
+static void reopen_png(image_dict * idict)
 {
     int width, height, xres, yres;
     width = img_xsize(idict);   /* do consistency check */
@@ -471,7 +471,7 @@ void write_png(PDF pdf, image_dict * idict)
     assert(idict != NULL);
     last_png_needs_page_group = false;
     if (img_file(idict) == NULL)
-        reopen_png(pdf, idict);
+        reopen_png(idict);
     assert(img_png_ptr(idict) != NULL);
     png_p = img_png_png_ptr(idict);
     info_p = img_png_info_ptr(idict);
