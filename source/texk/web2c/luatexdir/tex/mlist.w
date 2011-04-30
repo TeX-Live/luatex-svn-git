@@ -2050,19 +2050,19 @@ static void make_over_delimiter(pointer q, int cur_style)
 static void make_delimiter_over(pointer q, int cur_style)
 {
     pointer x, y, v;            /* temporary registers for box construction */
-    scaled shift_up, shift_down, clr, delta;
+    scaled shift_up, shift_down, clr, actual;
     y = clean_box(nucleus(q), cur_style, cur_style);
     x = flat_delimiter(left_delimiter(q),
                        cur_size + (cur_size == script_script_size ? 0 : 1),
                        width(y), cur_style);
     left_delimiter(q) = null;
     fixup_widths(x, y);
-    shift_up = over_delimiter_bgap(cur_style);
+    shift_up = over_delimiter_bgap(cur_style)-height(x)-depth(x);
     shift_down = 0;
     clr = over_delimiter_vgap(cur_style);
-    delta = clr - ((shift_up - depth(x)) - (height(y) - shift_down));
-    if (delta > 0) {
-        shift_up = shift_up + delta;
+    actual = shift_up - height(y);
+    if (actual < clr) {
+        shift_up = shift_up + (clr-actual);
     }
     v = wrapup_delimiter(x, y, q, shift_up, shift_down);
     width(v) = width(x);        /* this also equals |width(y)| */
@@ -2077,7 +2077,7 @@ static void make_delimiter_over(pointer q, int cur_style)
 static void make_delimiter_under(pointer q, int cur_style)
 {
     pointer x, y, v;            /* temporary registers for box construction */
-    scaled shift_up, shift_down, clr, delta;
+    scaled shift_up, shift_down, clr, actual;
     x = clean_box(nucleus(q), cur_style, cur_style);
     y = flat_delimiter(left_delimiter(q),
                        cur_size + (cur_size == script_script_size ? 0 : 1),
@@ -2085,11 +2085,11 @@ static void make_delimiter_under(pointer q, int cur_style)
     left_delimiter(q) = null;
     fixup_widths(x, y);
     shift_up = 0;
-    shift_down = under_delimiter_bgap(cur_style);
+    shift_down = under_delimiter_bgap(cur_style) - height(y)-depth(y);
     clr = under_delimiter_vgap(cur_style);
-    delta = clr - ((shift_up - depth(x)) - (height(y) - shift_down));
-    if (delta > 0) {
-        shift_down = shift_down + delta;
+    actual = shift_down - depth(x);
+    if (actual<clr) {
+       shift_down += (clr-actual);
     }
     v = wrapup_delimiter(x, y, q, shift_up, shift_down);
     width(v) = width(y);        /* this also equals |width(y)| */
