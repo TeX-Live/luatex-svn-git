@@ -424,7 +424,7 @@ static void copy_png(PDF pdf, image_dict * idict)
             if (idat == 2)
                 pdftex_fail("writepng: IDAT chunk sequence broken");
             idat = 1;
-            if (read_file_to_buf(pdf, f, len) != len)
+            if ((int)read_file_to_buf(pdf, f, (size_t)len) != len)
                 pdftex_fail("writepng: fread failed");
             if (fseek(f, 4, SEEK_CUR) != 0)
                 pdftex_fail("writepng: fseek in PNG file failed (4)");
