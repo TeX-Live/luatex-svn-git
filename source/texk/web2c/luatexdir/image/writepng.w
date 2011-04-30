@@ -45,7 +45,7 @@ static void close_and_cleanup_png(image_dict * idict)
 }
 
 @ @c
-void read_png_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
+void read_png_info(image_dict * idict, img_readtype_e readtype)
 {
     png_structp png_p;
     png_infop info_p;
@@ -451,7 +451,7 @@ static void reopen_png(PDF pdf, image_dict * idict)
     height = img_ysize(idict);
     xres = img_xres(idict);
     yres = img_yres(idict);
-    read_png_info(pdf, idict, IMG_KEEPOPEN);
+    read_png_info(idict, IMG_KEEPOPEN);
     if (width != img_xsize(idict) || height != img_ysize(idict)
         || xres != img_xres(idict) || yres != img_yres(idict))
         pdftex_fail("writepng: image dimensions have changed");

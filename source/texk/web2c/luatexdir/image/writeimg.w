@@ -318,7 +318,7 @@ void read_img(PDF pdf,
                       IMG_CLOSEINBETWEEN);
         break;
     case IMG_TYPE_PNG:
-        read_png_info(pdf, idict, IMG_CLOSEINBETWEEN);
+        read_png_info(idict, IMG_CLOSEINBETWEEN);
         break;
     case IMG_TYPE_JPG:
         read_jpg_info(pdf, idict, IMG_CLOSEINBETWEEN);
