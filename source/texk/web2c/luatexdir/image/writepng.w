@@ -549,7 +549,9 @@ void write_png(PDF pdf, image_dict * idict)
         && png_get_interlace_type(png_p, info_p) == PNG_INTERLACE_NONE
         && (png_get_color_type(png_p, info_p) == PNG_COLOR_TYPE_GRAY
             || png_get_color_type(png_p, info_p) == PNG_COLOR_TYPE_RGB)
-        && gamma > 0.9999 && gamma < 1.0001 && !pdf->image_apply_gamma
+        && !pdf->image_apply_gamma
+        && (!png_get_valid(png_p, info_p, PNG_INFO_gAMA)
+            || (gamma > 0.9999 && gamma < 1.0001))
         && !png_get_valid(png_p, info_p, PNG_INFO_cHRM)
         && !png_get_valid(png_p, info_p, PNG_INFO_iCCP)
         && !png_get_valid(png_p, info_p, PNG_INFO_sBIT)
@@ -574,10 +576,11 @@ void write_png(PDF pdf, image_dict * idict)
             if (!((png_get_color_type(png_p, info_p) == PNG_COLOR_TYPE_GRAY)
                   || (png_get_color_type(png_p, info_p) == PNG_COLOR_TYPE_RGB)))
                 tex_printf("colortype ");
-            if (!(gamma > 0.9999 && gamma < 1.0001))
-                tex_printf("gamma ");
             if (pdf->image_apply_gamma)
                 tex_printf("apply gamma ");
+            if (!(!png_get_valid(png_p, info_p, PNG_INFO_gAMA)
+                  || (gamma > 0.9999 && gamma < 1.0001)))
+                tex_printf("gamma ");
             if (png_get_valid(png_p, info_p, PNG_INFO_cHRM))
                 tex_printf("cHRM ");
             if (png_get_valid(png_p, info_p, PNG_INFO_iCCP))
