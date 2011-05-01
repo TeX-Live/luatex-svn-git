@@ -464,7 +464,8 @@ void write_png(PDF pdf, image_dict * idict)
 {
     int num_palette, palette_objnum = 0;
     boolean png_copy = true;
-    double gamma;
+    double gamma = 0.0;
+    png_fixed_point int_file_gamma = 0;
     png_structp png_p;
     png_infop info_p;
     png_colorp palette;
@@ -494,7 +495,10 @@ void write_png(PDF pdf, image_dict * idict)
         png_copy = false;
     }
     /* gamma support */
-    png_get_gAMA(png_p, info_p, &gamma);
+    if (png_get_valid(png_p, info_p, PNG_INFO_gAMA)) {
+        png_get_gAMA(png_p, info_p, &gamma);
+        png_get_gAMA_fixed(png_p, info_p, &int_file_gamma);
+    }
     if (pdf->image_apply_gamma) {
         if (png_get_valid(png_p, info_p, PNG_INFO_gAMA))
             png_set_gamma(png_p, (pdf->gamma / 1000.0), gamma);
@@ -551,7 +555,7 @@ void write_png(PDF pdf, image_dict * idict)
             || png_get_color_type(png_p, info_p) == PNG_COLOR_TYPE_RGB)
         && !pdf->image_apply_gamma
         && (!png_get_valid(png_p, info_p, PNG_INFO_gAMA)
-            || (gamma > 0.9999 && gamma < 1.0001))
+            || int_file_gamma == PNG_FP_1)
         && !png_get_valid(png_p, info_p, PNG_INFO_cHRM)
         && !png_get_valid(png_p, info_p, PNG_INFO_iCCP)
         && !png_get_valid(png_p, info_p, PNG_INFO_sBIT)
@@ -579,7 +583,7 @@ void write_png(PDF pdf, image_dict * idict)
             if (pdf->image_apply_gamma)
                 tex_printf("apply gamma ");
             if (!(!png_get_valid(png_p, info_p, PNG_INFO_gAMA)
-                  || (gamma > 0.9999 && gamma < 1.0001)))
+                  || int_file_gamma == PNG_FP_1))
                 tex_printf("gamma ");
             if (png_get_valid(png_p, info_p, PNG_INFO_cHRM))
                 tex_printf("cHRM ");
