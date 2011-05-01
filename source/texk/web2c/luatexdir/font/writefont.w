@@ -211,9 +211,10 @@ static void pdf_dict_add_fontname(PDF pdf, const char *key, fd_entry * fd)
         l1 = strlen(fd->subset_tag);
     l2 = strlen(fd->fontname);
     p = s = xmalloc(l1 + l2 + 2);
-    if (l1 > 0)
+    if (l1 > 0) {
         p += snprintf(p, l1 + 1, fd->subset_tag);
-    p += snprintf(p, 2, "+");
+        p += snprintf(p, 2, "+");
+    }
     snprintf(p, l2 + 1, fd->fontname);
     pdf_dict_add_name(pdf, key, s);
     xfree(s);
