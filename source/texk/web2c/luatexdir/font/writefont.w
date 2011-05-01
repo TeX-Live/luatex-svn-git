@@ -203,19 +203,18 @@ static void preset_fontname(fo_entry * fo, internal_font_number f)
 
 static void pdf_dict_add_fontname(PDF pdf, const char *key, fd_entry * fd)
 {
-    char *s, *p;
-    int l1 = 0, l2;
+    char *s;
+    size_t l1 = 0, l2;
     assert(fd->fontname != NULL);
     assert(key != NULL);
     if (fd->subset_tag != NULL)
         l1 = strlen(fd->subset_tag);
     l2 = strlen(fd->fontname);
-    p = s = xmalloc(l1 + l2 + 2);
-    if (l1 > 0) {
-        p += snprintf(p, l1 + 1, fd->subset_tag);
-        p += snprintf(p, 2, "+");
-    }
-    snprintf(p, l2 + 1, fd->fontname);
+    s = xmalloc(l1 + l2 + 2);
+    if (l1 > 0)
+        snprintf(s, l1 + l2 + 2, "%s+%s", fd->subset_tag, fd->fontname);
+    else
+        snprintf(s, l2 + 1, "%s", fd->fontname);
     pdf_dict_add_name(pdf, key, s);
     xfree(s);
 }
