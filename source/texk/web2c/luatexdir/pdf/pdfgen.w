@@ -2415,7 +2415,6 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                     pdf_trailer_toks = null;
                 }
                 print_ID(pdf, pdf->file_name);
-                pdf_out(pdf, '\n');
                 pdf_dict_add_streaminfo(pdf);
                 pdf_end_dict(pdf);
                 pdf_begin_stream(pdf);
@@ -2478,8 +2477,9 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 }
                 print_ID(pdf, pdf->file_name);
                 pdf_end_dict(pdf);
+                pdf_out(pdf, '\n');
             }
-            pdf_puts(pdf, "\nstartxref\n");
+            pdf_puts(pdf, "startxref\n");
             if (pdf->os_enable)
                 pdf_add_int(pdf, obj_offset(pdf, xref_stm));
             else
