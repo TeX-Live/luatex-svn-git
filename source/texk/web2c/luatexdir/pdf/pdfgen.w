@@ -1278,6 +1278,8 @@ void pdf_end_obj(PDF pdf)
     if (pdf->os->mode) {
         if (pdf->os->idx == PDF_OS_MAX_OBJS - 1)
             pdf_os_write_objstream(pdf);
+        else
+            pdf_out(pdf, ' ');
     } else
         pdf_puts(pdf, "\nendobj\n");    /* end a PDF object */
 }
