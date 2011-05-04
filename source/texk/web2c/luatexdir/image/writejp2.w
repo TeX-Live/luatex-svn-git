@@ -261,7 +261,6 @@ static void reopen_jp2(image_dict * idict)
 void write_jp2(PDF pdf, image_dict * idict)
 {
     long unsigned l;
-    FILE *f;
     assert(idict != NULL);
     if (img_file(idict) == NULL)
         reopen_jp2(idict);
