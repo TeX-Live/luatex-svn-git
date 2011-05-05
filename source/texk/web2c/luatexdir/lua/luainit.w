@@ -19,9 +19,6 @@
 
 @ @c
 #include "openbsd-compat.h"
-#ifdef HAVE_ASPRINTF            /* asprintf is not defined in openbsd-compat.h, but in stdio.h */
-#  include <stdio.h>
-#endif
 #include <kpathsea/c-stat.h>
 
 #include "lua/luatex-api.h"

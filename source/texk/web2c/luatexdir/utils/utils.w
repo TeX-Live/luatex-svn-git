@@ -27,10 +27,6 @@ static const char _svn_version[] =
 #include "openbsd-compat.h"
 #include <kpathsea/config.h> /* this is a trick to load mingw32's io.h early,
 				using a macro redefinition of |eof()|. */
-#ifdef HAVE_ASPRINTF            /* asprintf is not defined in openbsd-compat.h, but in stdio.h */
-#  include <stdio.h>
-#endif
-
 #include "sys/types.h"
 #ifndef __MINGW32__
 #  include "sysexits.h"
