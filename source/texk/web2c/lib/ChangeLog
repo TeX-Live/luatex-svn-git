@@ -1,3 +1,34 @@
+2011-05-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c (ipc_open_out): Avoid to #define SOCK_NONBLOCK which
+	conflicts with newer GNU C library headers.
+
+2011-05-04  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* openclose.c (recorder_change_filename): on windows, an opened file
+	cannot be renamed.
+
+2011-05-02  Karl Berry  <karl@tug.org>
+
+	* openclose.c (recorder_change_filename): take output_directory
+	into account.  Report/patch from 
+	Philipp Stephani, 30 Apr 2011 16:11:53,
+	http://tracker.luatex.org/view.php?id=615
+
+2011-04-28  Karl Berry  <karl@tug.org>
+
+	* printversion.c (printversionandexit): it is 2011.
+
+2011-04-27  Karl Berry  <karl@tug.org>
+
+	* texmfmp.c (initscreen): do not mention mfw, which is no more.
+	Suggestion from Reinhard Kotucha, tex-k mail 21 Jul 2010 11:40:36.
+
+2011-04-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Avoid 'differ in signedness' warnings.
+	texmfmp.c (input_line): Caat input_line2() arg2 to 'char *'.
+
 2011-03-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* setupvar.c (setupboundvariable): `program_invocation_name' has
