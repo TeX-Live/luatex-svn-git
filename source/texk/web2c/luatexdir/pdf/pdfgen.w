@@ -2260,6 +2260,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
     if (total_pages == 0) {
         if (callback_id == 0) {
             tprint_nl("No pages of output.");
+            print_ln();
         } else if (callback_id > 0) {
             res = run_callback(callback_id, "->");
         }
@@ -2500,6 +2501,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 tprint(", ");
                 print_int(pdf_offset(pdf));
                 tprint(" bytes).");
+                print_ln();
             } else if (callback_id > 0) {
                 res = run_callback(callback_id, "->");
             }

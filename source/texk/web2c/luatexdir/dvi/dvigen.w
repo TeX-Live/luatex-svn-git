@@ -1354,10 +1354,12 @@ void finish_dvi_file(PDF pdf, int version, int revision)
         decr(cur_s);
     }
     if (total_pages == 0) {
-        if (callback_id == 0)
+        if (callback_id == 0) {
             tprint_nl("No pages of output.");
-        else if (callback_id > 0)
+            print_ln();
+        } else if (callback_id > 0) {
             res = run_callback(callback_id, "->");
+        }
     } else {
         dvi_out(post);          /* beginning of the postamble */
         dvi_four(last_bop);

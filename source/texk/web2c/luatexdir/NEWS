@@ -2,6 +2,27 @@
 This file is in the public domain.
 
 ==============================================================
+Luatex beta-0.70.0 was released 20110506
+==============================================================
+
+News:
+
+* fixed: various changes needed for libpng 1.5.2.
+
+* fixed: node.fields() for nodes without subtype.
+
+* fixed: non-argument use of os.execute().
+
+* fixed: tex.[s|t|]print() with invalid catcode table arguments.
+
+* fixed: recorder filename location with --output-directory.
+
+* fixed: display alignment in TRT mode.
+
+* luatex now uses the standard synctex files from Jérome Laurens.
+
+
+==============================================================
 Luatex beta-0.66.0 was released 20110412
 ==============================================================
 
