@@ -862,13 +862,13 @@ char *get_full_log_name (void)
 char *luatex_synctex_get_current_name (void)
 {
   char *pwdbuf = NULL, *ret;
-  int pwdbufsize = 4;
+  int pwdbufsize = 2;
   if (kpse_absolute_p(fullnameoffile, false)) {
      return xstrdup(fullnameoffile);
   }
   do {
-    pwdbuf = xrealloc (pwdbuf, pwdbufsize);
     pwdbufsize = 2*pwdbufsize;
+    pwdbuf = xrealloc (pwdbuf, pwdbufsize);
   } while (!getcwd(pwdbuf, pwdbufsize));
   ret = concat3(pwdbuf, DIR_SEP_STRING, fullnameoffile);
   free(pwdbuf) ;
