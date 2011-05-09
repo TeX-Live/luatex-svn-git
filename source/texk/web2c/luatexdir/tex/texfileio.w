@@ -856,6 +856,26 @@ char *get_full_log_name (void)
    } 
 }
 
+@ Synctex uses this to get the anchored path of an input file.
+
+@c
+char *luatex_synctex_get_current_name (void)
+{
+  char *pwdbuf = NULL, *ret;
+  int pwdbufsize = 4;
+  if (kpse_absolute_p(fullnameoffile, false)) {
+     return xstrdup(fullnameoffile);
+  }
+  do {
+    pwdbuf = xrealloc (pwdbuf, pwdbufsize);
+    pwdbufsize = 2*pwdbufsize;
+  } while (!getcwd(pwdbuf, pwdbufsize));
+  ret = concat3(pwdbuf, DIR_SEP_STRING, fullnameoffile);
+  free(pwdbuf) ;
+  return ret;
+}
+
+
 @ Let's turn now to the procedure that is used to initiate file reading
 when an `\.{\\input}' command is being processed.
 

@@ -140,5 +140,6 @@ extern boolean open_in_or_pipe(FILE **, char *, int, const_string fopen_mode,
 extern boolean open_out_or_pipe(FILE **, char *, const_string fopen_mode);
 extern void close_file_or_pipe(FILE *);
 
+extern char *luatex_synctex_get_current_name(void);
 
 #endif
