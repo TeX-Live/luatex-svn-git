@@ -462,6 +462,10 @@ static boolean last_png_needs_page_group;
 
 void write_png(PDF pdf, image_dict * idict)
 {
+#ifndef PNG_FP_1
+    /* for libpng < 1.5.0 */
+#  define PNG_FP_1    100000
+#endif
     int num_palette, palette_objnum = 0;
     boolean png_copy = true;
     double gamma = 0.0;
@@ -614,8 +618,6 @@ void write_png(PDF pdf, image_dict * idict)
                 last_png_needs_page_group = true;
             } else
                 write_png_gray(pdf, idict);
-            break;
-            write_png_gray(pdf, idict);
             break;
         case PNG_COLOR_TYPE_RGB_ALPHA:
             if (pdf->minor_version >= 4) {
