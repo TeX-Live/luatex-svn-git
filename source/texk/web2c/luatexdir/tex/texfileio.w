@@ -858,11 +858,16 @@ char *get_full_log_name (void)
 
 @ Synctex uses this to get the anchored path of an input file.
 
+The |2048| instead of a normal low number like |2| is because
+apparently glibc's |getcwd| is buggy: actually executing the
+loop causes errors later on during execution even though the
+initial function calls work just fine.
+
 @c
 char *luatex_synctex_get_current_name (void)
 {
   char *pwdbuf = NULL, *ret;
-  int pwdbufsize = 2;
+  int pwdbufsize = 2048;
   if (kpse_absolute_p(fullnameoffile, false)) {
      return xstrdup(fullnameoffile);
   }
