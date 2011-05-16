@@ -519,17 +519,17 @@ static void write_fontdescriptor(PDF pdf, fd_entry * fd)
     }
     pdf_printf(pdf, "/Flags %i\n", fd_flags);
     write_fontmetrics(pdf, fd);
-    if (is_cidkeyed(fd->fm)) {
-        if (is_type1(fd->fm))
-            pdf_printf(pdf, "/FontFile3 %i 0 R\n", (int) fd->ff_objnum);
-        else if (is_truetype(fd->fm))
-            pdf_printf(pdf, "/FontFile2 %i 0 R\n", (int) fd->ff_objnum);
-        else if (is_opentype(fd->fm))
-            pdf_printf(pdf, "/FontFile3 %i 0 R\n", (int) fd->ff_objnum);
-        else
-            assert(0);
-    } else {
-        if (fd->ff_found) {
+    if (fd->ff_found) {
+        if (is_cidkeyed(fd->fm)) {
+            if (is_type1(fd->fm))
+                pdf_printf(pdf, "/FontFile3 %i 0 R\n", (int) fd->ff_objnum);
+            else if (is_truetype(fd->fm))
+                pdf_printf(pdf, "/FontFile2 %i 0 R\n", (int) fd->ff_objnum);
+            else if (is_opentype(fd->fm))
+                pdf_printf(pdf, "/FontFile3 %i 0 R\n", (int) fd->ff_objnum);
+            else
+                assert(0);
+        } else {
             if (is_subsetted(fd->fm) && is_type1(fd->fm)) {
                 /* /CharSet is optional; names may appear in any order */
                 assert(fd->gl_tree != NULL);
