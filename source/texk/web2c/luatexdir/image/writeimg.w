@@ -288,7 +288,7 @@ void free_image_dict(image_dict * p)
 void read_img(PDF pdf,
               image_dict * idict, int minor_version, int inclusion_errorlevel)
 {
-    char *filepath;
+    char *filepath = NULL;
     int callback_id;
     assert(idict != NULL);
     if (img_filename(idict) == NULL)
