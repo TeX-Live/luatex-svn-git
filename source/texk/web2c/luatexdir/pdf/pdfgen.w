@@ -77,7 +77,8 @@ PDF init_pdf_struct(PDF pdf)
     os->mode = false;
     pdf->buf_size = os->op_buf_size;
     pdf->buf = os->op_buf;
-    pdf->use_deflate = false;
+    pdf->stream_deflate = false;
+    pdf->stream_writing = false;
 
     /* Sometimes it is neccesary to allocate memory for PDF output that cannot
        be deallocated then, so we use |mem| for this purpose. */
@@ -591,12 +592,13 @@ void pdf_begin_stream(PDF pdf)
     pdf->stream_length = 0;
     pdf->last_byte = 0;
     pdf_puts(pdf, "\nstream\n");
-    if (pdf->use_deflate) {
+    if (pdf->stream_deflate) {
         assert(pdf->compress_level > 0);
         pdf_flush(pdf);
         pdf->zip_write_state = zip_writing;
     } else
         pdf_save_offset(pdf);
+    pdf->stream_writing = true;
 }
 
 @ end a stream
@@ -608,17 +610,19 @@ void pdf_end_stream(PDF pdf)
     else
         pdf->stream_length = pdf_offset(pdf) - pdf->save_offset;
     pdf_flush(pdf);
+    pdf->stream_deflate = false;
+    pdf->stream_writing = false;
+    if (pdf->last_byte != '\n')
+        pdf_out(pdf, '\n');     /* doesn't really belong to the stream */
+    pdf_puts(pdf, "endstream");
+    /* write stream /Length */
     if (pdf->seek_write_length && pdf->draftmode == 0) {
         xfseeko(pdf->file, (off_t) pdf->stream_length_offset, SEEK_SET,
                 pdf->job_name);
         fprintf(pdf->file, "%li", (long int) pdf->stream_length);
-        xfseeko(pdf->file, pdf_offset(pdf), SEEK_SET, pdf->job_name);
+        xfseeko(pdf->file, 0, SEEK_END, pdf->job_name);
     }
     pdf->seek_write_length = false;
-    pdf->use_deflate = false;
-    if (pdf->last_byte != '\n')
-        pdf_out(pdf, '\n');
-    pdf_puts(pdf, "endstream");
 }
 
 @ To print |scaled| value to PDF output we need some subroutines to ensure
@@ -1238,7 +1242,7 @@ void pdf_dict_add_streaminfo(PDF pdf)
     pdf->cave = 1;
     if (pdf->compress_level > 0) {
         pdf_dict_add_name(pdf, "Filter", "FlateDecode");
-        pdf->use_deflate = true;
+        pdf->stream_deflate = true;
     }
 }
 

@@ -250,7 +250,8 @@ typedef struct pdf_output_file_ {
     char *zipbuf;
     z_stream *c_stream;         /* compression stream pointer */
     int zip_write_state;        /* which state of compression we are in */
-    int use_deflate;            /* if true, stream should be compressed */
+    int stream_deflate;         /* true, if stream dict has /Filter/FlateDecode */
+    int stream_writing;         /* true while writing stream */
 
     int pk_scale_factor;        /* this is just a preprocessed value that depends on
                                    |pk_resolution| and |decimal_digits| */
