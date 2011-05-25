@@ -1592,6 +1592,27 @@ that.
 
 This callback does not replace any internal code.
 
+
+\subsubsection{\luatex{process_jobname} (0.71)}
+
+This callback allows you to change the jobname given by \type{\jobname}
+in \TEX\ and \type{tex.jobname} in Lua. It does not affect the internal
+job name or the name of the output or log files.
+
+\startfunctioncall
+function(<string> jobname)
+    return <string> adjusted_jobname
+end
+\stopfunctioncall
+
+The only argument is the actual job name; you should not use
+\type{tex.jobname} inside this function or infinite recursion may occur.
+If you return \type{nil}, \LUATEX\ will pretend your callback never
+happened.
+
+This callback does not replace any internal code.
+
+
 \subsubsection{\luatex{token_filter}}
 
 This callback allows you to replace the way \LUATEX\ fetches

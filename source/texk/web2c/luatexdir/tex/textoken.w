@@ -1605,6 +1605,24 @@ void ins_the_toks(void)
     ins_list(token_link(temp_token_head));
 }
 
+@ This routine, used in the next one, prints the job name, possibly
+modified by the |process_jobname| callback.
+
+@c
+static void print_job_name(void)
+{
+    char *s, *ss; /* C strings for jobname before and after processing */
+    int callback_id, lua_retval;
+
+    s = str_string(job_name);
+    callback_id = callback_defined(process_jobname_callback);
+    if (callback_id > 0) {
+        lua_retval = run_callback(callback_id, "S->S", s, &ss);
+        if ((lua_retval == true) && (ss != NULL))
+            s = ss;
+    }
+    tprint(s);
+}
 
 @ Here is a routine that print the result of a convert command, using
    the argument |i|. It returns |false | if it does not know to print
@@ -1654,7 +1672,7 @@ static boolean print_convert_string(halfword c, int i)
         print(format_name);
         break;
     case job_name_code:
-        print(job_name);
+        print_job_name();
         break;
     case font_name_code:
         append_string((unsigned char *) font_name(i),
