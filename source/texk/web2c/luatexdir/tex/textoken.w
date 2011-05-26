@@ -1611,17 +1611,20 @@ modified by the |process_jobname| callback.
 @c
 static void print_job_name(void)
 {
-    char *s, *ss; /* C strings for jobname before and after processing */
-    int callback_id, lua_retval;
-
-    s = str_string(job_name);
-    callback_id = callback_defined(process_jobname_callback);
-    if (callback_id > 0) {
+   if (job_name) {
+      char *s, *ss; /* C strings for jobname before and after processing */
+      int callback_id, lua_retval;
+      s = str_string(job_name);
+      callback_id = callback_defined(process_jobname_callback);
+      if (callback_id > 0) {
         lua_retval = run_callback(callback_id, "S->S", s, &ss);
         if ((lua_retval == true) && (ss != NULL))
             s = ss;
-    }
-    tprint(s);
+      }
+      tprint(s);
+   } else {
+      print(job_name);
+   }
 }
 
 @ Here is a routine that print the result of a convert command, using
