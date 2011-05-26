@@ -1,6 +1,6 @@
 % textoken.w
 % 
-% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2011 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -1614,7 +1614,7 @@ static void print_job_name(void)
    if (job_name) {
       char *s, *ss; /* C strings for jobname before and after processing */
       int callback_id, lua_retval;
-      s = str_string(job_name);
+      s = (char*)str_string(job_name);
       callback_id = callback_defined(process_jobname_callback);
       if (callback_id > 0) {
         lua_retval = run_callback(callback_id, "S->S", s, &ss);
