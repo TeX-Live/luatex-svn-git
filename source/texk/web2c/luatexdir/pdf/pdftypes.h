@@ -190,14 +190,17 @@ typedef struct os_obj_data_ {
     int off;
 } os_obj_data;
 
+typedef struct bufstruct_ {
+    unsigned char *buf;         /* a PDF stream buffer */
+    unsigned char *p;           /* pointer to the next character in the PDF stream buffer */
+    int size;                   /* currently allocated size of the PDF stream buffer, grows dynamically */
+    int maxsize;                /* maximum allowed PDF stream buffer size */
+} bufstruct;
+
 typedef struct os_struct_ {
     os_obj_data *obj;           /* array of object stream objects */
-    unsigned char *os_buf;      /* the PDF object stream buffer */
-    int os_buf_size;            /* current size of the PDF object stream buffer, grows dynamically */
-    int os_ptr;                 /* store for object stream |pdf_ptr| while outside object streams */
-    unsigned char *op_buf;      /* the PDF output buffer */
-    int op_buf_size;            /* output buffer size (static) */
-    int op_ptr;                 /* store for PDF buffer |pdf_ptr| while inside object streams */
+    bufstruct *op_buf;
+    bufstruct *os_buf;
     int idx;                    /* pointer into |pdf_os_objnum| and |pdf_os_objoff| */
     int cntr;                   /* counter for object stream objects */
     int cur_objnum;             /* number of current object stream object */
@@ -231,9 +234,8 @@ typedef struct pdf_output_file_ {
     int os_enable;              /* true if object streams are globally enabled */
     os_struct *os;              /* object stream structure pointer */
 
-    unsigned char *buf;         /* pointer to the PDF output buffer or PDF object stream buffer */
-    int buf_size;               /* end of PDF output buffer or PDF object stream buffer */
-    int ptr;                    /* pointer to the first unused byte in the PDF buffer or object stream buffer */
+    bufstruct *pdfbuf;          /* current pointer to the PDF output buffer or PDF object stream buffer */
+
     off_t save_offset;          /* to save |pdf_offset| */
     off_t gone;                 /* number of bytes that were flushed to output */
 

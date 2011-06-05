@@ -57,10 +57,10 @@ written bytes.
 
 /* The following macros are similar as for \.{DVI} buffer handling */
 
-#  define pdf_offset(pdf) (pdf->gone + pdf->ptr)
+#  define pdf_offset(pdf) (pdf->gone + pdf->pdfbuf->p - pdf->pdfbuf->buf)
                                         /* the file offset of last byte in PDF
                                            buffer that |pdf_ptr| points to */
-#  define pdf_save_offset(pdf) pdf->save_offset=(pdf->gone + pdf->ptr)
+#  define pdf_save_offset(pdf) pdf->save_offset=(pdf->gone + pdf->pdfbuf->p - pdf->pdfbuf->buf)
 
 #  define set_ff(A)  do {                       \
         if (pdf_font_num(A) < 0)                \
@@ -89,7 +89,7 @@ extern void pdf_room(PDF, int);
 extern void fix_pdf_minorversion(PDF);
 
  /* output a byte to PDF buffer without checking of overflow */
-#  define pdf_quick_out(pdf,A) pdf->buf[pdf->ptr++]=(unsigned char)A
+#  define pdf_quick_out(pdf,A) *(pdf->pdfbuf->p++)=(unsigned char)(A)
 
 /* do the same as |pdf_quick_out| and flush the PDF buffer if necessary */
 #  define pdf_out(pdf,A) do { pdf_room(pdf,1); pdf_quick_out(pdf,A); } while (0)

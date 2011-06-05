@@ -88,7 +88,7 @@ static lua_Number get_pdf_gone(void)
 static lua_Number get_pdf_ptr(void)
 {
     if (static_pdf != NULL)
-        return (lua_Number) static_pdf->ptr;
+        return (lua_Number) (static_pdf->pdfbuf->p - static_pdf->pdfbuf->buf);
     return (lua_Number) 0;
 }
 

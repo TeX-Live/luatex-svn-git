@@ -106,8 +106,8 @@ extern "C" {
     extern void pdf_dict_add_name(PDF, const char *key, const char *val);
     extern void pdf_dict_add_streaminfo(PDF);
 
-#  define pdf_out(B, A) do { pdf_room(B, 1); B->buf[B->ptr++] = A; } while (0)
-#  define pdf_quick_out(pdf,A) pdf->buf[pdf->ptr++]=(unsigned char)A
+#  define pdf_out(B, A) do { pdf_room(B, 1); *(B->pdfbuf->p++) = A; } while (0)
+#  define pdf_quick_out(pdf,A) *(pdf->pdfbuf->p++)=(unsigned char)(A)
 #  define pdf_puts(pdf, s) pdf_out_block((pdf), (s), strlen(s))
 
     /* pdfpage.w */

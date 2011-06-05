@@ -58,6 +58,7 @@ shipping_mode_e global_shipping_mode = NOT_SHIPPING;       /* set to |shipping_m
 PDF init_pdf_struct(PDF pdf)
 {
     os_struct *os;
+    bufstruct *buf;
     assert(pdf == NULL);
     pdf = xtalloc(1, pdf_output_file);
     memset(pdf, 0, sizeof(pdf_output_file));
@@ -68,15 +69,25 @@ PDF init_pdf_struct(PDF pdf)
 
     /* init PDF and object stream writing */
     pdf->os = os = xtalloc(1, os_struct);
-    os->op_buf_size = inf_pdf_op_buf_size;
-    os->op_buf = xtalloc(os->op_buf_size, unsigned char);
-    os->obj = xtalloc(PDF_OS_MAX_OBJS, os_obj_data);
-    os->os_buf_size = inf_pdf_os_buf_size;
-    os->os_buf = xtalloc(os->os_buf_size, unsigned char);
     os->cur_objnum = 0;
     os->mode = false;
-    pdf->buf_size = os->op_buf_size;
-    pdf->buf = os->op_buf;
+
+    os->obj = xtalloc(PDF_OS_MAX_OBJS, os_obj_data);
+
+    os->op_buf = buf = xtalloc(1, bufstruct);
+    buf->size = inf_pdf_op_buf_size;
+    buf->maxsize = sup_pdf_op_buf_size;
+    buf->buf = xtalloc(buf->size, unsigned char);
+    buf->p = buf->buf;
+
+    os->os_buf = buf = xtalloc(1, bufstruct);
+    buf->size = inf_pdf_os_buf_size;
+    buf->maxsize = sup_pdf_os_buf_size;
+    buf->buf = xtalloc(buf->size, unsigned char);
+    buf->p = buf->buf;
+
+    pdf->pdfbuf = os->op_buf;
+
     pdf->stream_deflate = false;
     pdf->stream_writing = false;
 
@@ -270,8 +281,8 @@ static void write_zip(PDF pdf)
     }
     assert(s != NULL);
     assert(pdf->zipbuf != NULL);
-    s->next_in = pdf->buf;
-    s->avail_in = (uInt) pdf->ptr;
+    s->next_in = pdf->pdfbuf->buf;
+    s->avail_in = (uInt) (pdf->pdfbuf->p - pdf->pdfbuf->buf);
     while (true) {
         if (s->avail_out == 0 || (finish && s->avail_out < ZIP_BUF_SIZE)) {
             zip_len = ZIP_BUF_SIZE - s->avail_out;
@@ -318,18 +329,19 @@ to finish it. The stream contents will be compressed if compression is turn on.
 @c
 void pdf_flush(PDF pdf)
 {                               /* flush out the |pdf_buf| */
-
     off_t saved_pdf_gone;
+    bufstruct *b = pdf->pdfbuf;
+    size_t l;
     if (!pdf->os->mode) {
         saved_pdf_gone = pdf->gone;
         switch (pdf->zip_write_state) {
         case no_zip:
-            if (pdf->ptr > 0) {
+            if (b->p != b->buf) {
+                l = (size_t) (b->p - b->buf);
                 if (pdf->draftmode == 0)
-                    (void) xfwrite((char *) pdf->buf, sizeof(char),
-                                   (size_t) pdf->ptr, pdf->file);
-                pdf->gone += pdf->ptr;
-                pdf->last_byte = pdf->buf[pdf->ptr - 1];
+                    (void) xfwrite((char *) b->buf, sizeof(char), l, pdf->file);
+                pdf->gone += l;
+                pdf->last_byte = *(b->p - 1);
             }
             break;
         case zip_writing:
@@ -342,7 +354,7 @@ void pdf_flush(PDF pdf)
             pdf->zip_write_state = no_zip;
             break;
         }
-        pdf->ptr = 0;
+        b->p = b->buf;
         if (saved_pdf_gone > pdf->gone)
             pdf_error("file size",
                       "File size exceeds architectural limits (pdf_gone wraps around)");
@@ -359,18 +371,12 @@ static void pdf_stream_switch(PDF pdf, boolean pdf_os)
         return;
     if (pdf_os) {
         if (!os->mode) {        /* back up PDF stream variables */
-            os->op_ptr = pdf->ptr;
-            pdf->ptr = os->os_ptr;
-            pdf->buf = os->os_buf;
-            pdf->buf_size = os->os_buf_size;
+            pdf->pdfbuf = os->os_buf;
             os->mode = true;    /* switch to object stream */
         }
     } else {
         if (os->mode) {         /* back up object stream variables */
-            os->os_ptr = pdf->ptr;
-            pdf->ptr = os->op_ptr;
-            pdf->buf = os->op_buf;
-            pdf->buf_size = os->op_buf_size;
+            pdf->pdfbuf = os->op_buf;
             os->mode = false;   /* switch to PDF stream */
         }
     }
@@ -388,14 +394,14 @@ static void pdf_prepare_obj(PDF pdf, int i, int pdf_os_threshold)
         if (os->cur_objnum == 0) {
             os->cur_objnum = pdf_create_obj(pdf, obj_type_objstm, 0);
             os->idx = 0;
-            pdf->ptr = 0;       /* start fresh object stream */
+            pdf->pdfbuf->p = pdf->pdfbuf->buf;  /* start fresh object stream */
             os->cntr++;         /* only for statistics */
         } else
             os->idx++;
         obj_os_idx(pdf, i) = os->idx;
         obj_os_objnum(pdf, i) = os->cur_objnum;
         os->obj[os->idx].num = i;
-        os->obj[os->idx].off = pdf->ptr;
+        os->obj[os->idx].off = (size_t) (pdf->pdfbuf->p - pdf->pdfbuf->buf);
     } else {
         obj_offset(pdf, i) = pdf_offset(pdf);
         obj_os_idx(pdf, i) = -1;        /* mark it as not included in object stream */
@@ -406,25 +412,22 @@ static void pdf_prepare_obj(PDF pdf, int i, int pdf_os_threshold)
 
 @ check that |s| bytes more fit into |pdf_os_buf|; increase it if required
 @c
-static void pdf_get_os_buf(PDF pdf, int s)
+static void pdf_get_buf(PDF pdf, bufstruct * b, int s)
 {
     int a;
-    os_struct *os = pdf->os;
-    if (s > sup_pdf_os_buf_size - pdf->ptr)
-        overflow("PDF object stream buffer", (unsigned) os->os_buf_size);
-    if (pdf->ptr + s > os->os_buf_size) {
-        a = os->os_buf_size / 5;
-        if (pdf->ptr + s > os->os_buf_size + a)
-            os->os_buf_size = pdf->ptr + s;
-        else if (os->os_buf_size < sup_pdf_os_buf_size - a)
-            os->os_buf_size = os->os_buf_size + a;
+    size_t l = (size_t) (b->p - b->buf);
+    if (s > b->maxsize - l)
+        overflow("PDF buffer", (unsigned) b->size);
+    if (l + s > b->size) {
+        a = b->size / 5;
+        if (l + s > b->size + a)
+            b->size = l + s;
+        else if (b->size < b->maxsize - a)
+            b->size = b->size + a;
         else
-            os->os_buf_size = sup_pdf_os_buf_size;
-        os->os_buf =
-            xreallocarray(os->os_buf, unsigned char,
-                          (unsigned) os->os_buf_size);
-        pdf->buf = os->os_buf;
-        pdf->buf_size = os->os_buf_size;
+            b->size = b->maxsize;
+        b->buf = xreallocarray(b->buf, unsigned char, (unsigned) b->size);
+        b->p = b->buf + l;
     }
 }
 
@@ -432,13 +435,17 @@ static void pdf_get_os_buf(PDF pdf, int s)
 @c
 void pdf_room(PDF pdf, int n)
 {
-    os_struct *os = pdf->os;
-    if (os->mode && (n + pdf->ptr > pdf->buf_size))
-        pdf_get_os_buf(pdf, n);
-    else if ((!os->mode) && (n > pdf->buf_size))
-        overflow("PDF output buffer", (unsigned) os->op_buf_size);
-    else if ((!os->mode) && (n + pdf->ptr > pdf->buf_size))
-        pdf_flush(pdf);
+    bufstruct *b = pdf->pdfbuf;
+    size_t l = (size_t) (b->p - b->buf);
+    if (pdf->os->mode) {
+        if (n + l > b->size)
+            pdf_get_buf(pdf, b, n);
+    } else {
+        if (n > b->size)
+            overflow("PDF output buffer", (unsigned) b->size);
+        else if (n + l > b->size)
+            pdf_flush(pdf);
+    }
 }
 
 @ print out a character to PDF buffer; the character will be printed in octal
@@ -468,13 +475,14 @@ void pdf_print_char(PDF pdf, int c)
 void pdf_out_block(PDF pdf, const char *s, size_t n)
 {
     size_t l;
+    bufstruct *b = pdf->pdfbuf;
     do {
         l = n;
-        if ((int) l > pdf->buf_size)
-            l = (size_t) pdf->buf_size;
+        if ((int) l > b->size)
+            l = (size_t) b->size;
         pdf_room(pdf, (int) l);
-        (void) memcpy(pdf->buf + pdf->ptr, s, l);
-        pdf->ptr += (int) l;
+        (void) memcpy(b->p, s, l);
+        b->p += (int) l;
         s += l;
         n -= l;
     } while (n > 0);
@@ -1072,7 +1080,7 @@ static void pdf_os_write_objstream(PDF pdf)
     os_struct *os = pdf->os;
     if (os->cur_objnum == 0)    /* no object stream started */
         return;
-    p = pdf->ptr;
+    p = (halfword) (pdf->pdfbuf->p - pdf->pdfbuf->buf);
     i = 0;
     j = 0;
     while (i <= os->idx) {      /* assemble object number and byte offset pairs */
@@ -1086,8 +1094,8 @@ static void pdf_os_write_objstream(PDF pdf)
         }
         i++;
     }
-    pdf->buf[pdf->ptr - 1] = '\n';      /* no risk of flush, as we are in |pdf_os_mode| */
-    q = pdf->ptr;
+    *(pdf->pdfbuf->p - 1) = '\n';       /* no risk of flush, as we are in |pdf_os_mode| */
+    q = (halfword) (pdf->pdfbuf->p - pdf->pdfbuf->buf);
     pdf_begin_obj(pdf, os->cur_objnum, OBJSTM_NEVER);   /* switch to PDF stream writing */
     pdf_begin_dict(pdf);
     pdf_dict_add_name(pdf, "Type", "ObjStm");
@@ -1098,15 +1106,15 @@ static void pdf_os_write_objstream(PDF pdf)
     pdf_begin_stream(pdf);
     /* write object number and byte offset pairs;
        |q - p| should always fit into the PDF output buffer */
-    pdf_out_block(pdf, (const char *) (os->os_buf + p), (size_t) (q - p));
+    pdf_out_block(pdf, (const char *) (os->os_buf->buf + p), (size_t) (q - p));
     i = 0;
     while (i < p) {
-        q = i + pdf->buf_size;
+        q = i + pdf->pdfbuf->size;
         if (q > p)
             q = p;
         pdf_room(pdf, q - i);
         while (i < q) {         /* write the buffered objects */
-            pdf_quick_out(pdf, os->os_buf[i]);
+            pdf_quick_out(pdf, os->os_buf->buf[i]);
             i++;
         }
     }
@@ -1591,12 +1599,12 @@ void fb_flush(PDF pdf)
     char *p;
     int n;
     for (p = pdf->fb_array; p < pdf->fb_ptr;) {
-        n = pdf->buf_size - pdf->ptr;
+        n = pdf->pdfbuf->size - (pdf->pdfbuf->p - pdf->pdfbuf->buf);
         if (pdf->fb_ptr - p < n)
             n = (int) (pdf->fb_ptr - p);
-        memcpy(pdf->buf + pdf->ptr, p, (unsigned) n);
-        pdf->ptr += n;
-        if (pdf->ptr == pdf->buf_size)
+        memcpy(pdf->pdfbuf->p, p, (unsigned) n);
+        pdf->pdfbuf->p += n;
+        if (pdf->pdfbuf->p == pdf->pdfbuf->buf + pdf->pdfbuf->size)
             pdf_flush(pdf);
         p += n;
     }
