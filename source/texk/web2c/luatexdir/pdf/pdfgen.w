@@ -412,15 +412,15 @@ static void pdf_prepare_obj(PDF pdf, int i, int pdf_os_threshold)
 
 @ check that |s| bytes more fit into |pdf_os_buf|; increase it if required
 @c
-static void pdf_get_buf(PDF pdf, bufstruct * b, int s)
+static void pdf_get_buf(bufstruct * b, int s)
 {
     int a;
     size_t l = (size_t) (b->p - b->buf);
-    if (s > b->maxsize - l)
+    if (s > b->maxsize - (int)l)
         overflow("PDF buffer", (unsigned) b->size);
-    if (l + s > b->size) {
+    if ((int)l + s > b->size) {
         a = b->size / 5;
-        if (l + s > b->size + a)
+        if ((int)l + s > b->size + a)
             b->size = l + s;
         else if (b->size < b->maxsize - a)
             b->size = b->size + a;
@@ -438,12 +438,12 @@ void pdf_room(PDF pdf, int n)
     bufstruct *b = pdf->pdfbuf;
     size_t l = (size_t) (b->p - b->buf);
     if (pdf->os->mode) {
-        if (n + l > b->size)
-            pdf_get_buf(pdf, b, n);
+        if (n + (int)l > b->size)
+            pdf_get_buf(b, n);
     } else {
         if (n > b->size)
             overflow("PDF output buffer", (unsigned) b->size);
-        else if (n + l > b->size)
+        else if (n + (int)l > b->size)
             pdf_flush(pdf);
     }
 }
