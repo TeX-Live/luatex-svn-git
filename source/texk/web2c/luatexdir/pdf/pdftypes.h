@@ -193,8 +193,8 @@ typedef struct os_obj_data_ {
 typedef struct bufstruct_ {
     unsigned char *buf;         /* a PDF stream buffer */
     unsigned char *p;           /* pointer to the next character in the PDF stream buffer */
-    int size;                   /* currently allocated size of the PDF stream buffer, grows dynamically */
-    int maxsize;                /* maximum allowed PDF stream buffer size */
+    size_t size;                /* currently allocated size of the PDF stream buffer, grows dynamically */
+    size_t limit;               /* maximum allowed PDF stream buffer size */
 } bufstruct;
 
 typedef struct os_struct_ {
@@ -234,7 +234,7 @@ typedef struct pdf_output_file_ {
     int os_enable;              /* true if object streams are globally enabled */
     os_struct *os;              /* object stream structure pointer */
 
-    bufstruct *pdfbuf;          /* current pointer to the PDF output buffer or PDF object stream buffer */
+    bufstruct *pdfbuf;          /* pointer to the current PDF stream buffer or PDF object stream buffer */
 
     off_t save_offset;          /* to save |pdf_offset| */
     off_t gone;                 /* number of bytes that were flushed to output */
