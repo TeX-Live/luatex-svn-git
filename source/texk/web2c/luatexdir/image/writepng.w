@@ -132,12 +132,12 @@ void read_png_info(image_dict * idict, img_readtype_e readtype)
         r = row;                                                      \
         k = (int) png_get_rowbytes(png_p, info_p);                    \
         while (k > 0) {                                               \
-            l = (k > pdf->pdfbuf->size) ? pdf->pdfbuf->size : k;      \
+            l = ((size_t)k > pdf->pdfbuf->size) ? pdf->pdfbuf->size : (size_t)k;\
             pdf_room(pdf, l);                                         \
             for (j = 0; j < l; j++) {                                 \
                 outmac;                                               \
             }                                                         \
-            k -= l;                                                   \
+            k -= (int)l;                                              \
         }                                                             \
     }
 
@@ -146,12 +146,12 @@ void read_png_info(image_dict * idict, img_readtype_e readtype)
         row = rows[i];                                                \
         k = (int) png_get_rowbytes(png_p, info_p);                    \
         while (k > 0) {                                               \
-            l = (k > pdf->pdfbuf->size) ? pdf->pdfbuf->size : k;      \
+            l = ((size_t)k > pdf->pdfbuf->size) ? pdf->pdfbuf->size : (size_t)k;\
             pdf_room(pdf, l);                                         \
             for (j = 0; j < l; j++) {                                 \
                 outmac;                                               \
             }                                                         \
-            k -= l;                                                   \
+            k -= (int)l;                                              \
         }                                                             \
         xfree(rows[i]);                                               \
     }
@@ -214,7 +214,8 @@ static void write_smask_streamobj(PDF pdf, image_dict * idict, int smask_objnum,
 @ @c
 static void write_png_gray(PDF pdf, image_dict * idict)
 {
-    int i, j, k, l;
+    int i, k;
+    size_t j, l;
     png_structp png_p = img_png_png_ptr(idict);
     png_infop info_p = img_png_info_ptr(idict);
     png_bytep row, r, *rows;
