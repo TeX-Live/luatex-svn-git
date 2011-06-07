@@ -130,28 +130,28 @@ void read_png_info(image_dict * idict, img_readtype_e readtype)
     for (i = 0; i < (int) png_get_image_height(png_p, info_p); i++) { \
         png_read_row(png_p, row, NULL);                               \
         r = row;                                                      \
-        k = (int) png_get_rowbytes(png_p, info_p);                    \
+        k = (size_t) png_get_rowbytes(png_p, info_p);                 \
         while (k > 0) {                                               \
-            l = ((size_t)k > pdf->pdfbuf->size) ? pdf->pdfbuf->size : (size_t)k;\
+            l = (k > pdf->pdfbuf->size) ? pdf->pdfbuf->size : k;      \
             pdf_room(pdf, l);                                         \
             for (j = 0; j < l; j++) {                                 \
                 outmac;                                               \
             }                                                         \
-            k -= (int)l;                                              \
+            k -= l;                                                   \
         }                                                             \
     }
 
 #define write_interlaced(outmac)                                      \
     for (i = 0; i < (int) png_get_image_height(png_p, info_p); i++) { \
         row = rows[i];                                                \
-        k = (int) png_get_rowbytes(png_p, info_p);                    \
+        k = (size_t) png_get_rowbytes(png_p, info_p);                 \
         while (k > 0) {                                               \
-            l = ((size_t)k > pdf->pdfbuf->size) ? pdf->pdfbuf->size : (size_t)k;\
+            l = (k > pdf->pdfbuf->size) ? pdf->pdfbuf->size : k;      \
             pdf_room(pdf, l);                                         \
             for (j = 0; j < l; j++) {                                 \
                 outmac;                                               \
             }                                                         \
-            k -= (int)l;                                              \
+            k -= l;                                                   \
         }                                                             \
         xfree(rows[i]);                                               \
     }
@@ -214,8 +214,8 @@ static void write_smask_streamobj(PDF pdf, image_dict * idict, int smask_objnum,
 @ @c
 static void write_png_gray(PDF pdf, image_dict * idict)
 {
-    int i, k;
-    size_t j, l;
+    int i, j;
+    size_t k, l;
     png_structp png_p = img_png_png_ptr(idict);
     png_infop info_p = img_png_info_ptr(idict);
     png_bytep row, r, *rows;
@@ -232,7 +232,7 @@ static void write_png_gray(PDF pdf, image_dict * idict)
             pdftex_warn
                 ("large interlaced PNG might cause out of memory (use non-interlaced PNG to fix this)");
         rows = xtalloc(png_get_image_height(png_p, info_p), png_bytep);
-        for (i = 0; (unsigned) i < png_get_image_height(png_p, info_p); i++)
+        for (i = 0; i < (int) png_get_image_height(png_p, info_p); i++)
             rows[i] = xtalloc(png_get_rowbytes(png_p, info_p), png_byte);
         png_read_image(png_p, rows);
         write_interlaced(write_simple_pixel(row));
@@ -245,7 +245,8 @@ static void write_png_gray(PDF pdf, image_dict * idict)
 @ @c
 static void write_png_gray_alpha(PDF pdf, image_dict * idict)
 {
-    int i, j, k, l;
+    int i, j;
+    size_t k, l;
     png_structp png_p = img_png_png_ptr(idict);
     png_infop info_p = img_png_info_ptr(idict);
     png_bytep row, r, *rows;
@@ -277,7 +278,7 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
             pdftex_warn
                 ("large interlaced PNG might cause out of memory (use non-interlaced PNG to fix this)");
         rows = xtalloc(png_get_image_height(png_p, info_p), png_bytep);
-        for (i = 0; (unsigned) i < png_get_image_height(png_p, info_p); i++)
+        for (i = 0; i < (int) png_get_image_height(png_p, info_p); i++)
             rows[i] = xtalloc(png_get_rowbytes(png_p, info_p), png_byte);
         png_read_image(png_p, rows);
         if ((png_get_bit_depth(png_p, info_p) == 16)
@@ -297,7 +298,8 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
 @ @c
 static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
 {
-    int i, j, k, l;
+    int i, j;
+    size_t k, l;
     png_structp png_p = img_png_png_ptr(idict);
     png_infop info_p = img_png_info_ptr(idict);
     png_bytep row, r, *rows;
@@ -329,7 +331,7 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
             pdftex_warn
                 ("large interlaced PNG might cause out of memory (use non-interlaced PNG to fix this)");
         rows = xtalloc(png_get_image_height(png_p, info_p), png_bytep);
-        for (i = 0; (unsigned) i < png_get_image_height(png_p, info_p); i++)
+        for (i = 0; i < (int) png_get_image_height(png_p, info_p); i++)
             rows[i] = xtalloc(png_get_rowbytes(png_p, info_p), png_byte);
         png_read_image(png_p, rows);
         if ((png_get_bit_depth(png_p, info_p) == 16)
@@ -425,7 +427,7 @@ static void copy_png(PDF pdf, image_dict * idict)
             if (idat == 2)
                 pdftex_fail("writepng: IDAT chunk sequence broken");
             idat = 1;
-            if ((int) read_file_to_buf(pdf, f, (size_t) len) != len)
+            if (read_file_to_buf(pdf, f, len) != len)
                 pdftex_fail("writepng: fread failed");
             if (fseek(f, 4, SEEK_CUR) != 0)
                 pdftex_fail("writepng: fseek in PNG file failed (4)");
