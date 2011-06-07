@@ -214,8 +214,8 @@ static void write_smask_streamobj(PDF pdf, image_dict * idict, int smask_objnum,
 @ @c
 static void write_png_gray(PDF pdf, image_dict * idict)
 {
-    int i, j;
-    size_t k, l;
+    int i;
+    size_t j, k, l;
     png_structp png_p = img_png_png_ptr(idict);
     png_infop info_p = img_png_info_ptr(idict);
     png_bytep row, r, *rows;
@@ -245,8 +245,8 @@ static void write_png_gray(PDF pdf, image_dict * idict)
 @ @c
 static void write_png_gray_alpha(PDF pdf, image_dict * idict)
 {
-    int i, j;
-    size_t k, l;
+    int i;
+    size_t j, k, l;
     png_structp png_p = img_png_png_ptr(idict);
     png_infop info_p = img_png_info_ptr(idict);
     png_bytep row, r, *rows;
@@ -298,8 +298,8 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
 @ @c
 static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
 {
-    int i, j;
-    size_t k, l;
+    int i;
+    size_t j, k, l;
     png_structp png_p = img_png_png_ptr(idict);
     png_infop info_p = img_png_info_ptr(idict);
     png_bytep row, r, *rows;
