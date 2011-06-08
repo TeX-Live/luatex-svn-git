@@ -3623,7 +3623,7 @@ actual lookups, represented as dictionary tables.
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
-\NC type                   \NC number   \NC \NC\NR
+\NC type                   \NC string   \NC \NC\NR
 \NC format                 \NC enum     \NC one of \type {glyphs}, \type {class}, \type {coverage}, \type {reversecoverage} \NC\NR
 \NC tag                    \NC string   \NC \NC\NR
 \NC current_class          \NC array   \NC \NC\NR
@@ -3637,10 +3637,10 @@ Rule items have one common item and one specialized item:
 \starttabulate[|lT|l|p|]
 \NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
 \NC lookups                \NC array    \NC a linear array of lookup names\NC\NR
-\NC glyph                  \NC array     \NC only if the parent's format is \type{glyph}\NC\NR
-\NC class                  \NC array     \NC only if the parent's format is \type{glyph}\NC\NR
-\NC coverage               \NC array     \NC only if the parent's format is \type{glyph}\NC\NR
-\NC reversecoverage        \NC array     \NC only if the parent's format is \type{glyph}\NC\NR
+\NC glyphs                 \NC array     \NC only if the parent's format is \type{glyphs}\NC\NR
+\NC class                  \NC array     \NC only if the parent's format is \type{class}\NC\NR
+\NC coverage               \NC array     \NC only if the parent's format is \type{coverage}\NC\NR
+\NC reversecoverage        \NC array     \NC only if the parent's format is \type{reversecoverage}\NC\NR
 \stoptabulate
 
 A glyph table is:
