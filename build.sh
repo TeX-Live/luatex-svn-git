@@ -99,7 +99,7 @@ then
   PATH=/usr/mingw32/bin:$PATH
   CFLAGS="-mtune=pentiumpro -msse2 -g -O2 $CFLAGS"
   CXXFLAGS="-mtune=pentiumpro -msse2 -g -O2 $CXXFLAGS"
-  : ${CONFHOST:=--host=mingw32}
+  : ${CONFHOST:=--host=i586-mingw32msvc}
   : ${CONFBUILD:=--build=i686-linux-gnu}
   STRIP="${CONFHOST#--host=}-strip"
   LDFLAGS="-Wl,--large-address-aware $CFLAGS"
