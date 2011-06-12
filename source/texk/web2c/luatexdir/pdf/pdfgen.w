@@ -389,9 +389,10 @@ static void pdf_stream_switch(PDF pdf, boolean pdf_os)
 static void pdf_prepare_obj(PDF pdf, int i, int pdf_os_threshold)
 {
     os_struct *os = pdf->os;
-    bufstruct *b = pdf->pdfbuf;
+    bufstruct *b;
     assert(pdf_os_threshold >= OBJSTM_ALWAYS);
     pdf_stream_switch(pdf, (pdf->objcompresslevel >= pdf_os_threshold));
+    b = pdf->pdfbuf;
     if (os->mode) {
         if (os->cur_objnum == 0) {
             os->cur_objnum = pdf_create_obj(pdf, obj_type_objstm, 0);
