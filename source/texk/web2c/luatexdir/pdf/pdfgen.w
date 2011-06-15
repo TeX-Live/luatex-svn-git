@@ -52,13 +52,23 @@ halfword pdf_names_toks;        /* additional keys of Names dictionary */
 halfword pdf_trailer_toks;      /* additional keys of Trailer dictionary */
 shipping_mode_e global_shipping_mode = NOT_SHIPPING;       /* set to |shipping_mode| when |ship_out| starts */
 
-@ |init_pdf_struct()| is called early, only once, from maincontrol.w
+@ create new buffer and initialize it
+@c
+static bufstruct *new_pdf_buffer(size_t size, size_t limit)
+{
+    bufstruct *b;
+    b = xtalloc(1, bufstruct);
+    b->size = size;
+    b->limit = limit;
+    b->p = b->data = xtalloc(b->size, unsigned char);
+    return b;
+}
 
+@ |init_pdf_struct()| is called early, only once, from maincontrol.w
 @c
 PDF init_pdf_struct(PDF pdf)
 {
     os_struct *os;
-    bufstruct *buf;
     assert(pdf == NULL);
     pdf = xtalloc(1, pdf_output_file);
     memset(pdf, 0, sizeof(pdf_output_file));
@@ -69,22 +79,11 @@ PDF init_pdf_struct(PDF pdf)
 
     /* init PDF and object stream writing */
     pdf->os = os = xtalloc(1, os_struct);
-    os->cur_objnum = 0;
+    os->cur_objstm = 0;
     os->mode = false;
-
     os->obj = xtalloc(PDF_OS_MAX_OBJS, os_obj_data);
-
-    os->op_buf = buf = xtalloc(1, bufstruct);
-    buf->size = inf_pdf_op_buf_size;
-    buf->limit = sup_pdf_op_buf_size;
-    buf->buf = xtalloc(buf->size, unsigned char);
-    buf->p = buf->buf;
-
-    os->os_buf = buf = xtalloc(1, bufstruct);
-    buf->size = inf_pdf_os_buf_size;
-    buf->limit = sup_pdf_os_buf_size;
-    buf->buf = xtalloc(buf->size, unsigned char);
-    buf->p = buf->buf;
+    os->op_buf = new_pdf_buffer(inf_pdf_op_buf_size, sup_pdf_op_buf_size);
+    os->os_buf = new_pdf_buffer(inf_pdf_os_buf_size, sup_pdf_os_buf_size);
 
     pdf->pdfbuf = os->op_buf;
 
@@ -282,8 +281,8 @@ static void write_zip(PDF pdf)
     }
     assert(s != NULL);
     assert(pdf->zipbuf != NULL);
-    s->next_in = b->buf;
-    s->avail_in = (uInt) (b->p - b->buf);
+    s->next_in = b->data;
+    s->avail_in = (uInt) (b->p - b->data);
     while (true) {
         if (s->avail_out == 0 || (finish && s->avail_out < ZIP_BUF_SIZE)) {
             zip_len = ZIP_BUF_SIZE - s->avail_out;
@@ -337,10 +336,11 @@ void pdf_flush(PDF pdf)
         saved_pdf_gone = pdf->gone;
         switch (pdf->zip_write_state) {
         case no_zip:
-            if (b->p != b->buf) {
-                l = (size_t) (b->p - b->buf);
+            if (b->p != b->data) {
+                l = (size_t) (b->p - b->data);
                 if (pdf->draftmode == 0)
-                    (void) xfwrite((char *) b->buf, sizeof(char), l, pdf->file);
+                    (void) xfwrite((char *) b->data, sizeof(char), l,
+                                   pdf->file);
                 pdf->gone += l;
                 pdf->last_byte = *(b->p - 1);
             }
@@ -355,7 +355,7 @@ void pdf_flush(PDF pdf)
             pdf->zip_write_state = no_zip;
             break;
         }
-        b->p = b->buf;
+        b->p = b->data;
         if (saved_pdf_gone > pdf->gone)
             pdf_error("file size",
                       "File size exceeds architectural limits (pdf_gone wraps around)");
@@ -386,28 +386,28 @@ static void pdf_stream_switch(PDF pdf, boolean pdf_os)
 @ create new \.{/ObjStm} object if required, and set up cross reference info
 
 @c
-static void pdf_prepare_obj(PDF pdf, int i, int pdf_os_threshold)
+static void pdf_prepare_obj(PDF pdf, int k, int pdf_os_threshold)
 {
     os_struct *os = pdf->os;
-    bufstruct *b;
+    bufstruct *osbuf = os->os_buf;
     assert(pdf_os_threshold >= OBJSTM_ALWAYS);
     pdf_stream_switch(pdf, (pdf->objcompresslevel >= pdf_os_threshold));
-    b = pdf->pdfbuf;
     if (os->mode) {
-        if (os->cur_objnum == 0) {
-            os->cur_objnum = pdf_create_obj(pdf, obj_type_objstm, 0);
+        assert(pdf->pdfbuf == osbuf);   /* yes, writing into ObjStm */
+        if (os->cur_objstm == 0) {
+            os->cur_objstm = pdf_create_obj(pdf, obj_type_objstm, 0);
             os->idx = 0;
-            b->p = b->buf;      /* start fresh object stream */
-            os->cntr++;         /* only for statistics */
-        } else
-            os->idx++;
-        obj_os_idx(pdf, i) = os->idx;
-        obj_os_objnum(pdf, i) = os->cur_objnum;
-        os->obj[os->idx].num = i;
-        os->obj[os->idx].off = (size_t) (b->p - b->buf);
+            os->os_buf->p = os->os_buf->data;   /* start fresh object stream */
+            os->ostm_ctr++;     /* only for statistics */
+        }
+        assert(os->idx < PDF_OS_MAX_OBJS);      /* for marking below */
+        obj_os_idx(pdf, k) = (int) os->idx;
+        obj_os_objnum(pdf, k) = (int) os->cur_objstm;
+        os->obj[os->idx].num = k;
+        os->obj[os->idx].off = (size_t) (osbuf->p - osbuf->data);
     } else {
-        obj_offset(pdf, i) = pdf_offset(pdf);
-        obj_os_idx(pdf, i) = -1;        /* mark it as not included in object stream */
+        obj_offset(pdf, k) = pdf_offset(pdf);
+        obj_os_idx(pdf, k) = PDF_OS_MAX_OBJS;   /* mark it as not included in any ObjStm */
     }
 }
 
@@ -418,7 +418,7 @@ static void pdf_prepare_obj(PDF pdf, int i, int pdf_os_threshold)
 static void pdf_get_buf(bufstruct * b, size_t n)
 {
     int a;
-    size_t l = (size_t) (b->p - b->buf);
+    size_t l = (size_t) (b->p - b->data);
     if (n > b->limit - l)
         overflow("PDF buffer", (unsigned) b->size);
     if (n + l > b->size) {
@@ -429,8 +429,8 @@ static void pdf_get_buf(bufstruct * b, size_t n)
             b->size = b->size + a;
         else
             b->size = b->limit;
-        b->buf = xreallocarray(b->buf, unsigned char, (unsigned) b->size);
-        b->p = b->buf + l;
+        b->data = xreallocarray(b->data, unsigned char, (unsigned) b->size);
+        b->p = b->data + l;
     }
 }
 
@@ -439,7 +439,7 @@ static void pdf_get_buf(bufstruct * b, size_t n)
 void pdf_room(PDF pdf, int n)
 {
     bufstruct *b = pdf->pdfbuf;
-    size_t l = (size_t) (b->p - b->buf);
+    size_t l = (size_t) (b->p - b->data);
     if (pdf->os->mode) {
         if ((size_t) n + l > b->size)
             pdf_get_buf(b, (size_t) n);
@@ -1079,52 +1079,43 @@ When calling this procedure, |pdf_os_mode| must be |true|.
 @c
 static void pdf_os_write_objstream(PDF pdf)
 {
-    halfword i, j, p, q;
-    bufstruct *b = pdf->pdfbuf;
+    unsigned int i, j, n1, n2;  /* n1, n2: ObjStm buffer may be reallocated! */
     os_struct *os = pdf->os;
-    if (os->cur_objnum == 0)    /* no object stream started */
+    bufstruct *b = os->os_buf;
+    if (os->cur_objstm == 0)    /* no object stream started */
         return;
-    p = (halfword) (b->p - b->buf);
-    i = 0;
-    j = 0;
-    while (i <= os->idx) {      /* assemble object number and byte offset pairs */
-        pdf_printf(pdf, "%d %d", (int) os->obj[i].num, (int) os->obj[i].off);
-        if (j == 9) {           /* print out in groups of ten for better readability */
+    assert(pdf->pdfbuf == b);   /* yes, pdf_out() still goes into ObjStm */
+    assert(os->idx > 0);        /* yes, there are objects for the ObjStm */
+    n1 = (unsigned int) (b->p - b->data);       /* remember end of collected object stream contents */
+    /* this is needed here to calculate /First for the ObjStm dict */
+    for (i = 0, j = 0; i < os->idx; i++) {      /* add object-number/byte-offset list to buffer */
+        pdf_print_int(pdf, (int) os->obj[i].num);
+        pdf_out(pdf, ' ');
+        pdf_print_int(pdf, (int) os->obj[i].off);
+        if (j == 9 || i == os->idx - 1) {       /* print out in groups of ten for better readability */
             pdf_out(pdf, '\n');
             j = 0;
         } else {
             pdf_out(pdf, ' ');
             j++;
         }
-        i++;
     }
-    *(b->p - 1) = '\n';         /* no risk of flush, as we are in |pdf_os_mode| */
-    q = (halfword) (b->p - b->buf);
-    pdf_begin_obj(pdf, os->cur_objnum, OBJSTM_NEVER);   /* switch to PDF stream writing */
+    n2 = (unsigned int) (b->p - b->data);       /* remember current buffer end */
+    pdf_begin_obj(pdf, os->cur_objstm, OBJSTM_NEVER);   /* switch to PDF stream writing */
     pdf_begin_dict(pdf);
     pdf_dict_add_name(pdf, "Type", "ObjStm");
-    pdf_dict_add_int(pdf, "N", (int) (os->idx + 1));
-    pdf_dict_add_int(pdf, "First", (int) (q - p));
+    pdf_dict_add_int(pdf, "N", (int) os->idx);  /* number of objects in ObjStm */
+    pdf_dict_add_int(pdf, "First", (int) (n2 - n1));
     pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
-    /* write object number and byte offset pairs;
-       |q - p| should always fit into the PDF output buffer */
-    pdf_out_block(pdf, (const char *) (os->os_buf->buf + p), (size_t) (q - p));
-    i = 0;
-    while (i < p) {
-        q = i + b->size;
-        if (q > p)
-            q = p;
-        pdf_room(pdf, q - i);
-        while (i < q) {         /* write the buffered objects */
-            pdf_quick_out(pdf, os->os_buf->buf[i]);
-            i++;
-        }
-    }
+    /* write object-number/byte-offset list */
+    pdf_out_block(pdf, (const char *) (b->data + n1), (size_t) (n2 - n1));
+    /* write collected object stream contents */
+    pdf_out_block(pdf, (const char *) b->data, (size_t) n1);
     pdf_end_stream(pdf);
     pdf_end_obj(pdf);
-    os->cur_objnum = 0;         /* to force object stream generation next time */
+    os->cur_objstm = 0;         /* to force object stream generation next time */
 }
 
 @ begin a PDF dictionary
@@ -1292,10 +1283,13 @@ void pdf_begin_obj(PDF pdf, int i, int pdf_os_threshold)
 void pdf_end_obj(PDF pdf)
 {
     if (pdf->os->mode) {
-        if (pdf->os->idx == PDF_OS_MAX_OBJS - 1)
+        pdf->os->idx++;         /* = number of objects collected so far in ObjStm */
+        pdf->os->o_ctr++;       /* only for statistics */
+        if (pdf->os->idx == PDF_OS_MAX_OBJS)
             pdf_os_write_objstream(pdf);
-        else
-            pdf_out(pdf, ' ');
+        else {
+            pdf_out(pdf, ' ');  /* Adobe Reader seems to need this */
+        }
     } else
         pdf_puts(pdf, "\nendobj\n");    /* end a PDF object */
 }
@@ -1604,12 +1598,12 @@ void fb_flush(PDF pdf)
     int n;
     bufstruct *b = pdf->pdfbuf;
     for (p = pdf->fb_array; p < pdf->fb_ptr;) {
-        n = b->size - (b->p - b->buf);
+        n = b->size - (b->p - b->data);
         if (pdf->fb_ptr - p < n)
             n = (int) (pdf->fb_ptr - p);
         memcpy(b->p, p, (unsigned) n);
         b->p += n;
-        if (b->p == b->buf + b->size)
+        if (b->p == b->data + b->size)
             pdf_flush(pdf);
         p += n;
     }
@@ -2443,7 +2437,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                         pdf_out(pdf, 0);
                         pdf_out_bytes(pdf, obj_link(pdf, k), xref_offset_width);
                         pdf_out(pdf, 255);
-                    } else if (obj_os_idx(pdf, k) == -1) {      /* object not in object stream */
+                    } else if (obj_os_idx(pdf, k) == PDF_OS_MAX_OBJS) { /* object not in object stream */
                         pdf_out(pdf, 1);
                         pdf_out_bytes(pdf, obj_offset(pdf, k),
                                       xref_offset_width);
@@ -2538,12 +2532,11 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                     "\nPDF statistics: %d PDF objects out of %d (max. %d)\n",
                     (int) pdf->obj_ptr, (int) pdf->obj_tab_size,
                     (int) sup_obj_tab_size);
-            if (pdf->os->cntr > 0) {
+            if (pdf->os->ostm_ctr > 0) {
                 fprintf(log_file,
                         " %d compressed objects within %d object stream%s\n",
-                        (int) ((pdf->os->cntr - 1) * PDF_OS_MAX_OBJS +
-                               pdf->os->idx + 1), (int) pdf->os->cntr,
-                        (pdf->os->cntr > 1 ? "s" : ""));
+                        (int) pdf->os->o_ctr, (int) pdf->os->ostm_ctr,
+                        (pdf->os->ostm_ctr > 1 ? "s" : ""));
             }
             fprintf(log_file, " %d named destinations out of %d (max. %d)\n",
                     (int) pdf->dest_names_ptr, (int) pdf->dest_names_size,

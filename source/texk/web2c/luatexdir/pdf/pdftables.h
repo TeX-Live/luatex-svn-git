@@ -81,14 +81,14 @@ well.
 
 #  define obj_data_ptr               obj_aux    /* pointer to |pdf->mem| */
 
-#  define set_obj_link(pdf,A,B)      obj_link(pdf,A)=B
-#  define set_obj_start(pdf,A,B)     obj_start(pdf,A)=B
-#  define set_obj_info(pdf,A,B)      obj_info(pdf,A)=B
-#  define set_obj_offset(pdf,A,B)    obj_offset(pdf,A)=B
-#  define set_obj_os_objnum(pdf,A,B) obj_offset(pdf,A)=B
-#  define set_obj_aux(pdf,A,B)       obj_aux(pdf,A)=B
-#  define set_obj_stop(pdf,A,B)      obj_stop(pdf,A)=B
-#  define set_obj_data_ptr(pdf,A,B)  obj_data_ptr(pdf,A)=B
+#  define set_obj_link(pdf,A,B)      obj_link(pdf,A)=(B)
+#  define set_obj_start(pdf,A,B)     obj_start(pdf,A)=(B)
+#  define set_obj_info(pdf,A,B)      obj_info(pdf,A)=(B)
+#  define set_obj_offset(pdf,A,B)    obj_offset(pdf,A)=(B)
+#  define set_obj_os_objnum(pdf,A,B) obj_offset(pdf,A)=(B)
+#  define set_obj_aux(pdf,A,B)       obj_aux(pdf,A)=(B)
+#  define set_obj_stop(pdf,A,B)      obj_stop(pdf,A)=(B)
+#  define set_obj_data_ptr(pdf,A,B)  obj_data_ptr(pdf,A)=(B)
 
 #  define set_obj_fresh(pdf,A)       obj_offset(pdf,(A))=-2
 #  define set_obj_scheduled(pdf,A)   if (intcast(obj_offset(pdf,A))==-2) obj_offset(pdf,A)=-1

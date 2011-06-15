@@ -57,10 +57,10 @@ written bytes.
 
 /* The following macros are similar as for \.{DVI} buffer handling */
 
-#  define pdf_offset(pdf) (pdf->gone + pdf->pdfbuf->p - pdf->pdfbuf->buf)
+#  define pdf_offset(pdf) (pdf->gone + pdf->pdfbuf->p - pdf->pdfbuf->data)
                                         /* the file offset of last byte in PDF
                                            buffer that |pdf_ptr| points to */
-#  define pdf_save_offset(pdf) pdf->save_offset=(pdf->gone + pdf->pdfbuf->p - pdf->pdfbuf->buf)
+#  define pdf_save_offset(pdf) pdf->save_offset = (pdf->gone + pdf->pdfbuf->p - pdf->pdfbuf->data)
 
 #  define set_ff(A)  do {                       \
         if (pdf_font_num(A) < 0)                \

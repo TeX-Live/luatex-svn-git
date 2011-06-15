@@ -88,14 +88,14 @@ static lua_Number get_pdf_gone(void)
 static lua_Number get_pdf_ptr(void)
 {
     if (static_pdf != NULL)
-        return (lua_Number) (static_pdf->pdfbuf->p - static_pdf->pdfbuf->buf);
+        return (lua_Number) (static_pdf->pdfbuf->p - static_pdf->pdfbuf->data);
     return (lua_Number) 0;
 }
 
 static lua_Number get_pdf_os_cntr(void)
 {
     if (static_pdf != NULL)
-        return (lua_Number) static_pdf->os->cntr;
+        return (lua_Number) static_pdf->os->ostm_ctr;
     return (lua_Number) 0;
 }
 

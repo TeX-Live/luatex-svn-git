@@ -191,7 +191,7 @@ typedef struct os_obj_data_ {
 } os_obj_data;
 
 typedef struct bufstruct_ {
-    unsigned char *buf;         /* a PDF stream buffer */
+    unsigned char *data;        /* a PDF stream buffer */
     unsigned char *p;           /* pointer to the next character in the PDF stream buffer */
     size_t size;                /* currently allocated size of the PDF stream buffer, grows dynamically */
     size_t limit;               /* maximum allowed PDF stream buffer size */
@@ -201,10 +201,11 @@ typedef struct os_struct_ {
     os_obj_data *obj;           /* array of object stream objects */
     bufstruct *op_buf;
     bufstruct *os_buf;
-    int idx;                    /* pointer into |pdf_os_objnum| and |pdf_os_objoff| */
-    int cntr;                   /* counter for object stream objects */
-    int cur_objnum;             /* number of current object stream object */
-    int mode;                   /* true if producing object stream */
+    unsigned int mode;          /* true if producing object stream */
+    unsigned int cur_objstm;    /* number of current object stream object */
+    unsigned int idx;           /* index of object within object stream [1...PDF_OS_MAX_OBJS - 1] */
+    unsigned int ostm_ctr;      /* statistics: counter for object stream objects */
+    unsigned int o_ctr;         /* statistics: counter for objects within object streams */
 } os_struct;
 
 /**********************************************************************/
