@@ -143,7 +143,7 @@ extern void pdf_add_bp(PDF, scaled);
 extern void pdf_add_mag_bp(PDF, scaled);
 
 extern strbuf_s *new_strbuf(size_t size, size_t limit);
-extern void strbuf_seek(strbuf_s * b, int offset);
+extern void strbuf_seek(strbuf_s * b, off_t offset);
 extern size_t strbuf_offset(strbuf_s * b);
 extern void strbuf_putchar(strbuf_s * b, unsigned char c);
 extern void strbuf_flush(PDF pdf, strbuf_s * b);

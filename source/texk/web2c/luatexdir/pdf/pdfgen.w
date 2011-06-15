@@ -88,9 +88,9 @@ static void strbuf_room(strbuf_s * b, size_t n)
 
 @ Seek to position |offset| within buffer. Position must be valid.
 @c
-void strbuf_seek(strbuf_s * b, int offset)
+void strbuf_seek(strbuf_s * b, off_t offset)
 {
-    if (offset < 0 || offset >= b->size)
+    if (offset < 0 || offset >= (off_t)b->size)
         assert(0);
     b->p = b->data + offset;
 }
@@ -106,7 +106,7 @@ size_t strbuf_offset(strbuf_s * b)
 @c
 void strbuf_putchar(strbuf_s * b, unsigned char c)
 {
-    if (b->p - b->data + 1 > b->size)
+    if ((size_t)(b->p - b->data + 1) > b->size)
         strbuf_room(b, 1);
     *b->p++ = c;
 }
