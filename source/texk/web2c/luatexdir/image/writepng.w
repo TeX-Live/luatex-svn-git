@@ -375,7 +375,8 @@ static int spng_getint(FILE * f)
 
 static void copy_png(PDF pdf, image_dict * idict)
 {
-    int len, type, streamlength = 0, idat = 0;
+    int type, streamlength = 0, idat = 0;
+    size_t len;
     boolean endflag = false;
     FILE *f;
     png_structp png_p;
