@@ -52,7 +52,8 @@ halfword pdf_names_toks;        /* additional keys of Names dictionary */
 halfword pdf_trailer_toks;      /* additional keys of Trailer dictionary */
 shipping_mode_e global_shipping_mode = NOT_SHIPPING;       /* set to |shipping_mode| when |ship_out| starts */
 
-@ create new buffer and initialize it
+@ Create a new buffer |strbuf_s| of size |size| and maximum allowed size |limit|.
+Initialize it and set |p| to begin of data.
 @c
 strbuf_s *new_strbuf(size_t size, size_t limit)
 {
@@ -64,7 +65,7 @@ strbuf_s *new_strbuf(size_t size, size_t limit)
     return b;
 }
 
-@ check that |s| bytes more fit into |pdf_os_buf|; increase it if required
+@ Check that |n| bytes more fit into buffer; increase it if required.
 @c
 static void strbuf_room(strbuf_s * b, size_t n)
 {
@@ -85,7 +86,8 @@ static void strbuf_room(strbuf_s * b, size_t n)
     }
 }
 
-@ @c
+@ Seek to position |offset| within buffer. Position must be valid.
+@c
 void strbuf_seek(strbuf_s * b, int offset)
 {
     if (offset < 0 || offset >= b->size)
@@ -93,13 +95,15 @@ void strbuf_seek(strbuf_s * b, int offset)
     b->p = b->data + offset;
 }
 
-@ @c
+@ Get the current buffer fill level, the number of characters.
+@c
 size_t strbuf_offset(strbuf_s * b)
 {
     return (size_t) (b->p - b->data);
 }
 
-@ @c
+@ Put one character into buffer. Make room before if needed.
+@c
 void strbuf_putchar(strbuf_s * b, unsigned char c)
 {
     if (b->p - b->data + 1 > b->size)
@@ -107,14 +111,16 @@ void strbuf_putchar(strbuf_s * b, unsigned char c)
     *b->p++ = c;
 }
 
-@ @c
+@ Dump filled buffer part to PDF.
+@c
 void strbuf_flush(PDF pdf, strbuf_s * b)
 {
     pdf_out_block(pdf, (const char *) b->data, strbuf_offset(b));
     strbuf_seek(b, 0);
 }
 
-@ @c
+@ Free all dynamically allocated buffer structures.
+@c
 void strbuf_free(strbuf_s * b)
 {
     xfree(b->data);
