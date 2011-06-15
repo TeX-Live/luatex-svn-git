@@ -90,7 +90,7 @@ static void strbuf_room(strbuf_s * b, size_t n)
 @c
 void strbuf_seek(strbuf_s * b, off_t offset)
 {
-    if (offset < 0 || offset >= (off_t)b->size)
+    if (offset < 0 || offset >= (off_t) b->size)
         assert(0);
     b->p = b->data + offset;
 }
@@ -106,7 +106,7 @@ size_t strbuf_offset(strbuf_s * b)
 @c
 void strbuf_putchar(strbuf_s * b, unsigned char c)
 {
-    if ((size_t)(b->p - b->data + 1) > b->size)
+    if ((size_t) (b->p - b->data + 1) > b->size)
         strbuf_room(b, 1);
     *b->p++ = c;
 }
@@ -386,6 +386,17 @@ void zip_free(PDF pdf)
     xfree(pdf->c_stream);
 }
 
+@ @c
+static void write_nozip(PDF pdf)
+{
+    strbuf_s *b = pdf->pdfbuf;
+    size_t l = strbuf_offset(b);
+    if (l == 0)
+        return;
+    pdf->gone += (off_t) xfwrite((char *) b->data, sizeof(char), l, pdf->file);
+    pdf->last_byte = *(b->p - 1);
+}
+
 @ The PDF buffer is flushed by calling |pdf_flush|, which checks the
 variable |zip_write_state| and will compress the buffer before flushing if
 neccesary. We call |pdf_begin_stream| to begin a stream  and |pdf_end_stream|
@@ -396,19 +407,12 @@ void pdf_flush(PDF pdf)
 {                               /* flush out the |pdf_buf| */
     off_t saved_pdf_gone;
     strbuf_s *b = pdf->pdfbuf;
-    size_t l;
     if (!pdf->os->mode) {
         saved_pdf_gone = pdf->gone;
         switch (pdf->zip_write_state) {
         case no_zip:
-            if (b->p != b->data) {
-                l = (size_t) (b->p - b->data);
-                if (pdf->draftmode == 0)
-                    (void) xfwrite((char *) b->data, sizeof(char), l,
-                                   pdf->file);
-                pdf->gone += l;
-                pdf->last_byte = *(b->p - 1);
-            }
+            if (pdf->draftmode == 0)
+                write_nozip(pdf);
             break;
         case zip_writing:
             if (pdf->draftmode == 0)
@@ -420,7 +424,7 @@ void pdf_flush(PDF pdf)
             pdf->zip_write_state = no_zip;
             break;
         }
-        b->p = b->data;
+        strbuf_seek(b, 0);
         if (saved_pdf_gone > pdf->gone)
             pdf_error("file size",
                       "File size exceeds architectural limits (pdf_gone wraps around)");
