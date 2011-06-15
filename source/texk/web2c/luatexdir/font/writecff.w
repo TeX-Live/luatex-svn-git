@@ -2990,7 +2990,7 @@ static void write_fontfile(PDF pdf, cff_font * cffont, char *fullname)
     cff_release_index(topdict);
 
     for (i = 0; i < offset; i++)
-        fb_putchar(pdf, dest[i]);
+        strbuf_putchar(pdf->fb, dest[i]);
 
     xfree(dest);
     return;
@@ -3557,7 +3557,7 @@ void writetype1w(PDF pdf, fd_entry * fd)
             write_cff(pdf, cff, fd);
         } else {
             for (i = 0; i < tfm_size; i++)
-                fb_putchar(pdf, tfm_buffer[i]);
+                strbuf_putchar(pdf->fb, tfm_buffer[i]);
         }
         fd->ff_found = 1;
     } else {

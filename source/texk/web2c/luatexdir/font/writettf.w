@@ -30,9 +30,9 @@ static const char _svn_version[] =
 #define DEFAULT_NTABS       14
 #define NEW_CMAP_SIZE       2
 
-#define ttf_putchar(A)     fb_putchar(pdf,(A))
-#define ttf_offset()       fb_offset(pdf)
-#define ttf_seek_outbuf(A) fb_seek(pdf,(A))
+#define ttf_putchar(A)     strbuf_putchar(pdf->fb, (A))
+#define ttf_offset()       strbuf_offset(pdf->fb)
+#define ttf_seek_outbuf(A) strbuf_seek(pdf->fb, (A))
 
 unsigned char *ttf_buffer = NULL;
 int ttf_size = 0;
@@ -1260,7 +1260,7 @@ static void ttf_write_dirtab(PDF pdf)
     /* adjust checkSumAdjustment */
     tmp_ulong = 0;
     checksum = 0;
-    for (p = pdf->fb_array, i = 0; i < (unsigned) save_offset;) {
+    for (p = (char *) pdf->fb->data, i = 0; i < (unsigned) save_offset;) {
         tmp_ulong = (tmp_ulong << 8) + (TTF_ULONG) * p++;
         i++;
         if (i % 4 == 0) {

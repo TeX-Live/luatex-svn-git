@@ -283,7 +283,7 @@ void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur,
 @ @c
 void libpdffinish(PDF pdf)
 {
-    fb_free(pdf);
+    strbuf_free(pdf->fb);
     xfree(pdf->job_id_string);
     fm_free();
     t1_free();
@@ -294,7 +294,6 @@ void libpdffinish(PDF pdf)
     glyph_unicode_free();
     zip_free(pdf);
 }
-
 
 @ Store some of the pdftex data structures in the format. The idea here is
 to ensure that any data structures referenced from pdftex-specific whatsit

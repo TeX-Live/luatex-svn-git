@@ -142,6 +142,13 @@ extern void pdf_end_stream(PDF);
 extern void pdf_add_bp(PDF, scaled);
 extern void pdf_add_mag_bp(PDF, scaled);
 
+extern strbuf_s *new_strbuf(size_t size, size_t limit);
+extern void strbuf_seek(strbuf_s * b, int offset);
+extern size_t strbuf_offset(strbuf_s * b);
+extern void strbuf_putchar(strbuf_s * b, unsigned char c);
+extern void strbuf_flush(PDF pdf, strbuf_s * b);
+extern void strbuf_free(strbuf_s * b);
+
 /* This is for the resource lists */
 
 extern void addto_page_resources(PDF pdf, pdf_obj_type t, int k);
@@ -172,12 +179,6 @@ extern void pdf_begin_array(PDF);
 extern void pdf_end_array(PDF);
 
 extern void remove_pdffile(PDF);
-
-extern int fb_offset(PDF);
-extern void fb_flush(PDF);
-extern void fb_putchar(PDF, eight_bits);
-extern void fb_seek(PDF, int);
-extern void fb_free(PDF);
 
 extern void zip_free(PDF);
 

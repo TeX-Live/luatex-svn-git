@@ -48,7 +48,8 @@ void writetype0(PDF pdf, fd_entry * fd)
     cur_file_name =
         luatex_find_file(fd_cur->fm->ff_name, find_opentype_file_callback);
     if (cur_file_name == NULL) {
-        pdftex_fail("cannot find OpenType font file for reading (%s)", fd_cur->fm->ff_name);
+        pdftex_fail("cannot find OpenType font file for reading (%s)",
+                    fd_cur->fm->ff_name);
     }
     callback_id = callback_defined(read_opentype_file_callback);
     if (callback_id > 0) {
@@ -56,11 +57,13 @@ void writetype0(PDF pdf, fd_entry * fd)
                          &file_opened, &ttf_buffer, &ttf_size) &&
             file_opened && ttf_size > 0) {
         } else {
-            pdftex_fail("cannot open OpenType font file for reading (%s)", cur_file_name);
+            pdftex_fail("cannot open OpenType font file for reading (%s)",
+                        cur_file_name);
         }
     } else {
         if (!otf_open(cur_file_name)) {
-            pdftex_fail("cannot open OpenType font file for reading (%s)", cur_file_name);
+            pdftex_fail("cannot open OpenType font file for reading (%s)",
+                        cur_file_name);
         }
         ttf_read_file();
         ttf_close();
@@ -93,14 +96,14 @@ void writetype0(PDF pdf, fd_entry * fd)
     if (!is_subsetted(fd_cur->fm)) {
         /* not subsetted, just do a copy */
         for (i = (long) tab->length; i > 0; i--)
-            fb_putchar(pdf, (eight_bits) ttf_getnum(1));
+            strbuf_putchar(pdf->fb, (unsigned char) ttf_getnum(1));
     } else {
         if (cff != NULL) {
             if (cff_is_cidfont(cff)) {
                 write_cid_cff(pdf, cff, fd_cur);
 #if 0
-                   for (i = tab->length; i > 0; i--)
-                   fb_putchar (ttf_getnum(1));
+                for (i = tab->length; i > 0; i--)
+                    strbuf_putchar(pdf->fb, (unsigned char) ttf_getnum(1));
 #endif
             } else {
                 write_cff(pdf, cff, fd_cur);
@@ -108,7 +111,7 @@ void writetype0(PDF pdf, fd_entry * fd)
         } else {
             /* not understood, just do a copy */
             for (i = (long) tab->length; i > 0; i--)
-                fb_putchar(pdf, (eight_bits) ttf_getnum(1));
+                strbuf_putchar(pdf->fb, (unsigned char) ttf_getnum(1));
         }
     }
     xfree(dir_tab);

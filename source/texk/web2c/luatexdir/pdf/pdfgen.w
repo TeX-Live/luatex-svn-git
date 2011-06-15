@@ -54,14 +54,71 @@ shipping_mode_e global_shipping_mode = NOT_SHIPPING;       /* set to |shipping_m
 
 @ create new buffer and initialize it
 @c
-static bufstruct *new_pdf_buffer(size_t size, size_t limit)
+strbuf_s *new_strbuf(size_t size, size_t limit)
 {
-    bufstruct *b;
-    b = xtalloc(1, bufstruct);
+    strbuf_s *b;
+    b = xtalloc(1, strbuf_s);
     b->size = size;
     b->limit = limit;
     b->p = b->data = xtalloc(b->size, unsigned char);
     return b;
+}
+
+@ check that |s| bytes more fit into |pdf_os_buf|; increase it if required
+@c
+static void strbuf_room(strbuf_s * b, size_t n)
+{
+    int a;
+    size_t l = (size_t) (b->p - b->data);
+    if (n > b->limit - l)
+        overflow("PDF buffer", (unsigned) b->size);
+    if (n + l > b->size) {
+        a = b->size / 5;
+        if ((int) n + l > b->size + a)
+            b->size = n + l;
+        else if (b->size < b->limit - a)
+            b->size = b->size + a;
+        else
+            b->size = b->limit;
+        b->data = xreallocarray(b->data, unsigned char, (unsigned) b->size);
+        b->p = b->data + l;
+    }
+}
+
+@ @c
+void strbuf_seek(strbuf_s * b, int offset)
+{
+    if (offset < 0 || offset >= b->size)
+        assert(0);
+    b->p = b->data + offset;
+}
+
+@ @c
+size_t strbuf_offset(strbuf_s * b)
+{
+    return (size_t) (b->p - b->data);
+}
+
+@ @c
+void strbuf_putchar(strbuf_s * b, unsigned char c)
+{
+    if (b->p - b->data + 1 > b->size)
+        strbuf_room(b, 1);
+    *b->p++ = c;
+}
+
+@ @c
+void strbuf_flush(PDF pdf, strbuf_s * b)
+{
+    pdf_out_block(pdf, (const char *) b->data, strbuf_offset(b));
+    strbuf_seek(b, 0);
+}
+
+@ @c
+void strbuf_free(strbuf_s * b)
+{
+    xfree(b->data);
+    xfree(b);
 }
 
 @ |init_pdf_struct()| is called early, only once, from maincontrol.w
@@ -82,8 +139,10 @@ PDF init_pdf_struct(PDF pdf)
     os->cur_objstm = 0;
     os->mode = false;
     os->obj = xtalloc(PDF_OS_MAX_OBJS, os_obj_data);
-    os->op_buf = new_pdf_buffer(inf_pdf_op_buf_size, sup_pdf_op_buf_size);
-    os->os_buf = new_pdf_buffer(inf_pdf_os_buf_size, sup_pdf_os_buf_size);
+    os->op_buf = new_strbuf(inf_pdf_op_buf_size, sup_pdf_op_buf_size);
+    os->os_buf = new_strbuf(inf_pdf_os_buf_size, sup_pdf_os_buf_size);
+
+    pdf->fb = new_strbuf(1, 100000000);
 
     pdf->pdfbuf = os->op_buf;
 
@@ -253,7 +312,7 @@ static void write_zip(PDF pdf)
 {
     int flush, err = Z_OK;
     uInt zip_len;
-    bufstruct *b = pdf->pdfbuf;
+    strbuf_s *b = pdf->pdfbuf;
     z_stream *s = pdf->c_stream;
     boolean finish = pdf->zip_write_state == zip_finish;
     assert(pdf->compress_level > 0);
@@ -330,7 +389,7 @@ to finish it. The stream contents will be compressed if compression is turn on.
 void pdf_flush(PDF pdf)
 {                               /* flush out the |pdf_buf| */
     off_t saved_pdf_gone;
-    bufstruct *b = pdf->pdfbuf;
+    strbuf_s *b = pdf->pdfbuf;
     size_t l;
     if (!pdf->os->mode) {
         saved_pdf_gone = pdf->gone;
@@ -389,7 +448,7 @@ static void pdf_stream_switch(PDF pdf, boolean pdf_os)
 static void pdf_prepare_obj(PDF pdf, int k, int pdf_os_threshold)
 {
     os_struct *os = pdf->os;
-    bufstruct *osbuf = os->os_buf;
+    strbuf_s *osbuf = os->os_buf;
     assert(pdf_os_threshold >= OBJSTM_ALWAYS);
     pdf_stream_switch(pdf, (pdf->objcompresslevel >= pdf_os_threshold));
     if (os->mode) {
@@ -413,36 +472,16 @@ static void pdf_prepare_obj(PDF pdf, int k, int pdf_os_threshold)
 
 @* low-level buffer checkers.
 
-@ check that |s| bytes more fit into |pdf_os_buf|; increase it if required
-@c
-static void pdf_get_buf(bufstruct * b, size_t n)
-{
-    int a;
-    size_t l = (size_t) (b->p - b->data);
-    if (n > b->limit - l)
-        overflow("PDF buffer", (unsigned) b->size);
-    if (n + l > b->size) {
-        a = b->size / 5;
-        if ((int) n + l > b->size + a)
-            b->size = n + l;
-        else if (b->size < b->limit - a)
-            b->size = b->size + a;
-        else
-            b->size = b->limit;
-        b->data = xreallocarray(b->data, unsigned char, (unsigned) b->size);
-        b->p = b->data + l;
-    }
-}
 
 @ make sure that there are at least |n| bytes free in PDF buffer
 @c
 void pdf_room(PDF pdf, int n)
 {
-    bufstruct *b = pdf->pdfbuf;
+    strbuf_s *b = pdf->pdfbuf;
     size_t l = (size_t) (b->p - b->data);
     if (pdf->os->mode) {
         if ((size_t) n + l > b->size)
-            pdf_get_buf(b, (size_t) n);
+            strbuf_room(b, (size_t) n);
     } else {
         if ((size_t) n > b->size)
             overflow("PDF output buffer", (unsigned) b->size);
@@ -478,7 +517,7 @@ void pdf_print_char(PDF pdf, int c)
 void pdf_out_block(PDF pdf, const char *s, size_t n)
 {
     size_t l;
-    bufstruct *b = pdf->pdfbuf;
+    strbuf_s *b = pdf->pdfbuf;
     do {
         l = n;
         if (l > b->size)
@@ -1081,12 +1120,12 @@ static void pdf_os_write_objstream(PDF pdf)
 {
     unsigned int i, j, n1, n2;  /* n1, n2: ObjStm buffer may be reallocated! */
     os_struct *os = pdf->os;
-    bufstruct *b = os->os_buf;
+    strbuf_s *b = os->os_buf;
     if (os->cur_objstm == 0)    /* no object stream started */
         return;
     assert(pdf->pdfbuf == b);   /* yes, pdf_out() still goes into ObjStm */
     assert(os->idx > 0);        /* yes, there are objects for the ObjStm */
-    n1 = (unsigned int) (b->p - b->data);       /* remember end of collected object stream contents */
+    n1 = strbuf_offset(b);      /* remember end of collected object stream contents */
     /* this is needed here to calculate /First for the ObjStm dict */
     for (i = 0, j = 0; i < os->idx; i++) {      /* add object-number/byte-offset list to buffer */
         pdf_print_int(pdf, (int) os->obj[i].num);
@@ -1100,7 +1139,7 @@ static void pdf_os_write_objstream(PDF pdf)
             j++;
         }
     }
-    n2 = (unsigned int) (b->p - b->data);       /* remember current buffer end */
+    n2 = strbuf_offset(b);      /* remember current buffer end */
     pdf_begin_obj(pdf, os->cur_objstm, OBJSTM_NEVER);   /* switch to PDF stream writing */
     pdf_begin_dict(pdf);
     pdf_dict_add_name(pdf, "Type", "ObjStm");
@@ -1552,68 +1591,6 @@ void remove_pdffile(PDF pdf)
             remove(pdf->file_name);
         }
     }
-}
-
-@ @c
-static void realloc_fb(PDF pdf)
-{
-    if (pdf->fb_array == NULL) {
-        pdf->fb_limit = SMALL_ARRAY_SIZE;
-        pdf->fb_array = xtalloc(pdf->fb_limit, char);
-        pdf->fb_ptr = pdf->fb_array;
-    } else if ((size_t) (pdf->fb_ptr - pdf->fb_array + 1) > pdf->fb_limit) {
-        size_t last_ptr_index = (size_t) (pdf->fb_ptr - pdf->fb_array);
-        pdf->fb_limit *= 2;
-        if ((size_t) (pdf->fb_ptr - pdf->fb_array + 1) > pdf->fb_limit)
-            pdf->fb_limit = (size_t) (pdf->fb_ptr - pdf->fb_array + 1);
-        xretalloc(pdf->fb_array, pdf->fb_limit, char);
-        pdf->fb_ptr = pdf->fb_array + last_ptr_index;
-    }
-}
-
-@ @c
-int fb_offset(PDF pdf)
-{
-    return (int) (pdf->fb_ptr - pdf->fb_array);
-}
-
-@ @c
-void fb_seek(PDF pdf, int offset)
-{
-    pdf->fb_ptr = pdf->fb_array + offset;
-}
-
-@ @c
-void fb_putchar(PDF pdf, eight_bits b)
-{
-    if ((size_t) (pdf->fb_ptr - pdf->fb_array + 1) > pdf->fb_limit)
-        realloc_fb(pdf);
-    *(pdf->fb_ptr)++ = (char) b;
-}
-
-@ @c
-void fb_flush(PDF pdf)
-{
-    char *p;
-    int n;
-    bufstruct *b = pdf->pdfbuf;
-    for (p = pdf->fb_array; p < pdf->fb_ptr;) {
-        n = b->size - (b->p - b->data);
-        if (pdf->fb_ptr - p < n)
-            n = (int) (pdf->fb_ptr - p);
-        memcpy(b->p, p, (unsigned) n);
-        b->p += n;
-        if (b->p == b->data + b->size)
-            pdf_flush(pdf);
-        p += n;
-    }
-    pdf->fb_ptr = pdf->fb_array;
-}
-
-@ @c
-void fb_free(PDF pdf)
-{
-    xfree(pdf->fb_array);
 }
 
 @ @c

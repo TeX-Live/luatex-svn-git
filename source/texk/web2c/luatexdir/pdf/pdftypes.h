@@ -190,17 +190,17 @@ typedef struct os_obj_data_ {
     int off;
 } os_obj_data;
 
-typedef struct bufstruct_ {
+typedef struct strbuf_s_ {
     unsigned char *data;        /* a PDF stream buffer */
     unsigned char *p;           /* pointer to the next character in the PDF stream buffer */
     size_t size;                /* currently allocated size of the PDF stream buffer, grows dynamically */
     size_t limit;               /* maximum allowed PDF stream buffer size */
-} bufstruct;
+} strbuf_s;
 
 typedef struct os_struct_ {
     os_obj_data *obj;           /* array of object stream objects */
-    bufstruct *op_buf;
-    bufstruct *os_buf;
+    strbuf_s *op_buf;
+    strbuf_s *os_buf;
     unsigned int mode;          /* true if producing object stream */
     unsigned int cur_objstm;    /* number of current object stream object */
     unsigned int idx;           /* index of object within object stream [1...PDF_OS_MAX_OBJS - 1] */
@@ -235,7 +235,7 @@ typedef struct pdf_output_file_ {
     int os_enable;              /* true if object streams are globally enabled */
     os_struct *os;              /* object stream structure pointer */
 
-    bufstruct *pdfbuf;          /* pointer to the current PDF stream buffer or PDF object stream buffer */
+    strbuf_s *pdfbuf;           /* pointer to the current PDF stream buffer or PDF object stream buffer */
 
     off_t save_offset;          /* to save |pdf_offset| */
     off_t gone;                 /* number of bytes that were flushed to output */
@@ -245,10 +245,7 @@ typedef struct pdf_output_file_ {
     time_t start_time;          /* when this job started */
     char *start_time_str;       /* minimum size for time_str is 24: "D:YYYYmmddHHMMSS+HH'MM'" */
 
-    /* define fb_ptr, fb_array & fb_limit */
-    char *fb_array;
-    char *fb_ptr;
-    size_t fb_limit;
+    strbuf_s *fb;               /* pointer to auxiliary buffer for font stuff */
 
     char *zipbuf;
     z_stream *c_stream;         /* compression stream pointer */

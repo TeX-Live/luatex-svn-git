@@ -38,11 +38,11 @@ unsigned long cidtogid_obj = 0;
 
 @ low-level helpers 
 @c
-#define test_loc(l)         \
-  if ((f->loc+l)>f->buflen) {       \
-    fprintf (stderr,"File ended prematurely\n");  \
-    uexit(1);           \
-  }
+#define test_loc(l)                                  \
+    if ((f->loc + l) > f->buflen) {                  \
+        fprintf(stderr, "File ended prematurely\n"); \
+        uexit(1);                                    \
+    }
 
 
 BYTE get_unsigned_byte(sfnt * f)
@@ -395,7 +395,7 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
 
     /* the tff subset */
     for (i = 0; i < (int) (fontfile->length); i++)
-        fb_putchar(pdf, fontfile->data[i]);
+        strbuf_putchar(pdf->fb, fontfile->data[i]);
 
     pdf_release_obj(fontfile);
 
