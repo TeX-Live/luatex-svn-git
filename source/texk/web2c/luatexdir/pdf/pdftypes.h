@@ -37,6 +37,12 @@ typedef enum {
     zip_finish = 2              /* finish \.{ZIP} compression */
 } zip_write_states;
 
+typedef enum {
+    PDFOUT_BUF,
+    OBJSTM_BUF,
+    LUASTM_BUF
+} buffer_e;
+
 /* This stucture holds everything that is needed for the actual pdf generation.
 
 Because this structure interfaces with C++, it is not wise to use |boolean|
@@ -199,9 +205,10 @@ typedef struct strbuf_s_ {
 
 typedef struct os_struct_ {
     os_obj_data *obj;           /* array of object stream objects */
-    strbuf_s *op_buf;
-    strbuf_s *os_buf;
-    unsigned int mode;          /* true if producing object stream */
+    strbuf_s *pdfout_buf;
+    strbuf_s *objstm_buf;
+    strbuf_s *luastm_buf;
+    buffer_e activebuf;         /* select into which buffer to output */
     unsigned int cur_objstm;    /* number of current object stream object */
     unsigned int idx;           /* index of object within object stream [1...PDF_OS_MAX_OBJS - 1] */
     unsigned int ostm_ctr;      /* statistics: counter for object stream objects */
@@ -235,7 +242,7 @@ typedef struct pdf_output_file_ {
     int os_enable;              /* true if object streams are globally enabled */
     os_struct *os;              /* object stream structure pointer */
 
-    strbuf_s *pdfbuf;           /* pointer to the current PDF stream buffer or PDF object stream buffer */
+    strbuf_s *buffer;           /* pointer to the current stream buffer (PDF stream, ObjStm, or Lua) */
 
     off_t save_offset;          /* to save |pdf_offset| */
     off_t gone;                 /* number of bytes that were flushed to output */

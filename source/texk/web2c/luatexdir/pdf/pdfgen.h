@@ -43,10 +43,10 @@ output file in initialization to ensure that it will be the first
 written bytes.
 */
 
-#  define inf_pdf_op_buf_size 16384     /* size of the PDF output buffer */
-#  define sup_pdf_op_buf_size 16384     /* size of the PDF output buffer */
-#  define inf_pdf_os_buf_size 1 /* initial value of |pdf_os_buf_size| */
-#  define sup_pdf_os_buf_size 5000000   /* arbitrary upper hard limit of |pdf_os_buf_size| */
+#  define inf_pdfout_buf_size 16384     /* size of the PDF output buffer */
+#  define sup_pdfout_buf_size 16384     /* size of the PDF output buffer */
+#  define inf_objstm_buf_size 1 /* initial value of |pdf_os_buf_size| */
+#  define sup_objstm_buf_size 5000000   /* arbitrary upper hard limit of |objstm_buf_size| */
 #  define max_single_pdf_print 8192     /* Max size that can be get from pdf_room() at once.
                                            the value is on the conservative side, but should be
                                            large enough to cover most uses */
@@ -57,10 +57,10 @@ written bytes.
 
 /* The following macros are similar as for \.{DVI} buffer handling */
 
-#  define pdf_offset(pdf) (pdf->gone + pdf->pdfbuf->p - pdf->pdfbuf->data)
+#  define pdf_offset(pdf) (pdf->gone + pdf->buffer->p - pdf->buffer->data)
                                         /* the file offset of last byte in PDF
                                            buffer that |pdf_ptr| points to */
-#  define pdf_save_offset(pdf) pdf->save_offset = (pdf->gone + pdf->pdfbuf->p - pdf->pdfbuf->data)
+#  define pdf_save_offset(pdf) pdf->save_offset = (pdf->gone + pdf->buffer->p - pdf->buffer->data)
 
 #  define set_ff(A)  do {                       \
         if (pdf_font_num(A) < 0)                \
@@ -89,7 +89,7 @@ extern void pdf_room(PDF, int);
 extern void fix_pdf_minorversion(PDF);
 
  /* output a byte to PDF buffer without checking of overflow */
-#  define pdf_quick_out(pdf,A) *(pdf->pdfbuf->p++)=(unsigned char)(A)
+#  define pdf_quick_out(pdf,A) *(pdf->buffer->p++)=(unsigned char)(A)
 
 /* do the same as |pdf_quick_out| and flush the PDF buffer if necessary */
 #  define pdf_out(pdf,A) do { pdf_room(pdf,1); pdf_quick_out(pdf,A); } while (0)
@@ -115,8 +115,6 @@ suffix |_ln| append a new-line character to the PDF output.
 extern __attribute__ ((format(printf, 2, 3)))
 void pdf_printf(PDF, const char *, ...);
 
-extern void pdf_print_char(PDF, int);
-extern void pdf_print_wide_char(PDF, int);
 extern void pdf_print(PDF, str_number);
 extern void pdf_print_int(PDF, longinteger);
 extern void pdf_print_real(PDF, int, int);

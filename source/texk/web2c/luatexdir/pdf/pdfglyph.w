@@ -121,6 +121,32 @@ static void set_textmatrix(PDF pdf, scaledpos pos)
     }
 }
 
+@ Print out a character to PDF buffer; the character will be printed in octal
+form in the following cases: chars <= 32, backslash (92), left parenthesis
+(40), and right parenthesis (41).
+@c
+static void pdf_print_char(PDF pdf, int c)
+{
+    if (c > 255)
+        return;
+    /* pdf_print_escaped(c) */
+    if (c <= 32 || c == '\\' || c == '(' || c == ')' || c > 127) {
+        pdf_room(pdf, 4);
+        pdf_quick_out(pdf, '\\');
+        pdf_quick_out(pdf, (unsigned char) ('0' + ((c >> 6) & 0x3)));
+        pdf_quick_out(pdf, (unsigned char) ('0' + ((c >> 3) & 0x7)));
+        pdf_quick_out(pdf, (unsigned char) ('0' + (c & 0x7)));
+    } else
+        pdf_out(pdf, c);
+}
+
+static void pdf_print_wide_char(PDF pdf, int c)
+{
+    char hex[5];
+    snprintf(hex, 5, "%04X", c);
+    pdf_out_block(pdf, (const char *) hex, 4);
+}
+
 @ @c
 static void begin_charmode(PDF pdf, internal_font_number f, pdfstructure * p)
 {

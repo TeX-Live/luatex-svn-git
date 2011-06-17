@@ -132,7 +132,7 @@ void read_png_info(image_dict * idict, img_readtype_e readtype)
         r = row;                                                      \
         k = (size_t) png_get_rowbytes(png_p, info_p);                 \
         while (k > 0) {                                               \
-            l = (k > pdf->pdfbuf->size) ? pdf->pdfbuf->size : k;      \
+            l = (k > pdf->buffer->size) ? pdf->buffer->size : k;      \
             pdf_room(pdf, l);                                         \
             for (j = 0; j < l; j++) {                                 \
                 outmac;                                               \
@@ -146,7 +146,7 @@ void read_png_info(image_dict * idict, img_readtype_e readtype)
         row = rows[i];                                                \
         k = (size_t) png_get_rowbytes(png_p, info_p);                 \
         while (k > 0) {                                               \
-            l = (k > pdf->pdfbuf->size) ? pdf->pdfbuf->size : k;      \
+            l = (k > pdf->buffer->size) ? pdf->buffer->size : k;      \
             pdf_room(pdf, l);                                         \
             for (j = 0; j < l; j++) {                                 \
                 outmac;                                               \
