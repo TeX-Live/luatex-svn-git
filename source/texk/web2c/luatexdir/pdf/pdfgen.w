@@ -94,7 +94,7 @@ static void strbuf_room(strbuf_s * b, size_t n)
 @c
 void strbuf_seek(strbuf_s * b, off_t offset)
 {
-    assert(offset >= 0 && offset <= (off_t) b->size);
+    assert(offset >= 0 && offset < (off_t) b->size);
     b->p = b->data + offset;
 }
 
@@ -228,7 +228,7 @@ int pdf_get_mem(PDF pdf, int s)
     if (s > sup_pdf_mem_size - pdf->mem_ptr)
         overflow("PDF memory size (pdf_mem_size)", (unsigned) pdf->mem_size);
     if (pdf->mem_ptr + s > pdf->mem_size) {
-        a = pdf->mem_size / 5;
+        a = pdf->mem_size >> 2;
         if (pdf->mem_ptr + s > pdf->mem_size + a) {
             pdf->mem_size = pdf->mem_ptr + s;
         } else if (pdf->mem_size < sup_pdf_mem_size - a) {
@@ -499,10 +499,9 @@ static void pdf_prepare_obj(PDF pdf, int k, int pdf_os_threshold)
     }
 }
 
-@* low-level buffer checkers.
+@* Low-level buffer checkers.
 
-
-@ make sure that there are at least |n| bytes free in PDF buffer
+@ Make sure that there are at least |n| bytes free in PDF buffer.
 @c
 void pdf_room(PDF pdf, int n)
 {
