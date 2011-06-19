@@ -399,9 +399,9 @@ static void write_nozip(PDF pdf)
     size_t l = strbuf_offset(buf);
     if (l == 0)
         return;
+    pdf->stream_length = pdf_offset(pdf) - pdf->save_offset;
     pdf->gone +=
         (off_t) xfwrite((char *) buf->data, sizeof(char), l, pdf->file);
-    pdf->stream_length = pdf_offset(pdf) - pdf->save_offset;
     pdf->last_byte = *(buf->p - 1);
 }
 
@@ -709,7 +709,7 @@ void pdf_end_stream(PDF pdf)
         lua_pop(Luas, 1);
         os->curbuf = PDFOUT_BUF;
         pdf->buf = os->buf[os->curbuf];
-assert(pdf->buf->data == pdf->buf->p);
+        assert(pdf->buf->data == pdf->buf->p);
         break;
     case OBJSTM_BUF:
         assert(0);
@@ -718,6 +718,8 @@ assert(pdf->buf->data == pdf->buf->p);
         assert(0);
     }
     assert(pdf->zip_write_state == NO_ZIP);
+    assert(os->curbuf == PDFOUT_BUF);
+    assert(pdf->buf == os->buf[os->curbuf]);
     pdf->stream_deflate = false;
     pdf->stream_writing = false;
     if (pdf->last_byte != '\n')
