@@ -325,7 +325,7 @@ static void write_zip(PDF pdf)
     uInt zip_len;
     strbuf_s *buf = pdf->buf;
     z_stream *s = pdf->c_stream;
-    boolean finish = pdf->zip_write_state == zip_finish;
+    boolean finish = pdf->zip_write_state == ZIP_FINISH;
     assert(pdf->compress_level > 0);
     /* This was just to suppress the filename report in |pdftex_fail|
        but zlib errors are rare enough (especially now that the
@@ -366,6 +366,7 @@ static void write_zip(PDF pdf)
                 assert(s->avail_in == 0);
                 assert(s->avail_out == ZIP_BUF_SIZE);
                 xfflush(pdf->file);
+                pdf->zip_write_state = NO_ZIP;
                 break;
             }
             flush = Z_FINISH;
@@ -400,6 +401,7 @@ static void write_nozip(PDF pdf)
         return;
     pdf->gone +=
         (off_t) xfwrite((char *) buf->data, sizeof(char), l, pdf->file);
+    pdf->stream_length = pdf_offset(pdf) - pdf->save_offset;
     pdf->last_byte = *(buf->p - 1);
 }
 
@@ -417,18 +419,17 @@ void pdf_flush(PDF pdf)
     switch (os->curbuf) {
     case PDFOUT_BUF:
         switch (pdf->zip_write_state) {
-        case no_zip:
+        case NO_ZIP:
             if (pdf->draftmode == 0)
                 write_nozip(pdf);
             break;
-        case zip_writing:
+        case ZIP_WRITING:
             if (pdf->draftmode == 0)
                 write_zip(pdf);
             break;
-        case zip_finish:
+        case ZIP_FINISH:
             if (pdf->draftmode == 0)
                 write_zip(pdf);
-            pdf->zip_write_state = no_zip;
             break;
         }
         strbuf_seek(pdf->buf, 0);
@@ -653,7 +654,7 @@ void pdf_begin_stream(PDF pdf)
     strbuf_s *lbuf = os->buf[LUASTM_BUF];
     assert(os->curbuf == PDFOUT_BUF);
     assert(pdf->buf == os->buf[os->curbuf]);
-    assert(pdf->zip_write_state == no_zip);
+    assert(pdf->zip_write_state == NO_ZIP);
     pdf_puts(pdf, "\nstream\n");
     pdf_save_offset(pdf);
     pdf_flush(pdf);
@@ -667,7 +668,7 @@ void pdf_begin_stream(PDF pdf)
     }
     if (pdf->stream_deflate) {
         assert(pdf->compress_level > 0);
-        pdf->zip_write_state = zip_writing;
+        pdf->zip_write_state = ZIP_WRITING;
     }
     pdf->stream_writing = true;
     pdf->stream_length = 0;
@@ -679,10 +680,14 @@ void pdf_begin_stream(PDF pdf)
 void pdf_end_stream(PDF pdf)
 {
     os_struct *os = pdf->os;
+    strbuf_s *lbuf = os->buf[LUASTM_BUF];
     const_lstring ls;
     assert(pdf->buf == os->buf[os->curbuf]);
     switch (os->curbuf) {
     case PDFOUT_BUF:
+        if (pdf->zip_write_state == ZIP_WRITING)
+            pdf->zip_write_state = ZIP_FINISH;
+        pdf_flush(pdf);         /* sets pdf->last_byte */
         break;
     case LUASTM_BUF:
         luaL_addsize(&(os->b), strbuf_offset(os->buf[LUASTM_BUF]));
@@ -692,12 +697,19 @@ void pdf_end_stream(PDF pdf)
         /* TODO: pagestream filter callback here */
 
         ls.s = lua_tolstring(Luas, -1, &ls.l);
-        pdf->buf = os->buf[PDFOUT_BUF];
-        assert(pdf->buf->data == pdf->buf->p);  /* flushed, empty */
-        os->curbuf = PDFOUT_BUF;
-        /* the following is inefficient; could go directly into PDF file */
-        pdf_out_block(pdf, (const char *) ls.s, (size_t) ls.l);
+        lbuf->data = (unsigned char *) ls.s;
+        lbuf->p = lbuf->data + ls.l;
+        os->curbuf = LUASTM_BUF;
+        pdf->buf = os->buf[os->curbuf];
+        if (pdf->zip_write_state == ZIP_WRITING) {
+            pdf->zip_write_state = ZIP_FINISH;
+            write_zip(pdf);
+        } else
+            write_nozip(pdf);
         lua_pop(Luas, 1);
+        os->curbuf = PDFOUT_BUF;
+        pdf->buf = os->buf[os->curbuf];
+assert(pdf->buf->data == pdf->buf->p);
         break;
     case OBJSTM_BUF:
         assert(0);
@@ -705,12 +717,7 @@ void pdf_end_stream(PDF pdf)
     default:
         assert(0);
     }
-    if (pdf->zip_write_state == zip_writing)
-        pdf->zip_write_state = zip_finish;
-    else
-        pdf->stream_length = pdf_offset(pdf) - pdf->save_offset;
-    pdf_flush(pdf);             /* sets pdf->last_byte */
-    assert(pdf->zip_write_state == no_zip);
+    assert(pdf->zip_write_state == NO_ZIP);
     pdf->stream_deflate = false;
     pdf->stream_writing = false;
     if (pdf->last_byte != '\n')

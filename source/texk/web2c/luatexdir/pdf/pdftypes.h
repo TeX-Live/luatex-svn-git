@@ -32,10 +32,10 @@
                                         /* above maximum/clipping value for \pdfobjcompresslevel */
 
 typedef enum {
-    no_zip = 0,                 /* no \.{ZIP} compression */
-    zip_writing = 1,            /* \.{ZIP} compression being used */
-    zip_finish = 2              /* finish \.{ZIP} compression */
-} zip_write_states;
+    NO_ZIP,                     /* no \.{ZIP} compression */
+    ZIP_WRITING,                /* \.{ZIP} compression being used */
+    ZIP_FINISH                  /* finish \.{ZIP} compression */
+} zip_write_state_e;
 
 typedef enum {
     PDFOUT_BUF,
@@ -256,7 +256,7 @@ typedef struct pdf_output_file_ {
 
     char *zipbuf;
     z_stream *c_stream;         /* compression stream pointer */
-    int zip_write_state;        /* which state of compression we are in */
+    zip_write_state_e zip_write_state;  /* which state of compression we are in */
     int stream_deflate;         /* true, if stream dict has /Filter/FlateDecode */
     int stream_writing;         /* true while writing stream */
 
