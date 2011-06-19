@@ -145,14 +145,15 @@ PDF init_pdf_struct(PDF pdf)
 
     /* init PDF and object stream writing */
     pdf->os = os = xtalloc(1, os_struct);
-    os->pdfout_buf = new_strbuf(inf_pdfout_buf_size, sup_pdfout_buf_size);
-    os->objstm_buf = new_strbuf(inf_objstm_buf_size, sup_objstm_buf_size);
-    os->luastm_buf = new_strbuf(0, 0);
-    os->activebuf = PDFOUT_BUF;
+    os->buf[PDFOUT_BUF] = new_strbuf(inf_pdfout_buf_size, sup_pdfout_buf_size);
+    os->buf[OBJSTM_BUF] = new_strbuf(inf_objstm_buf_size, sup_objstm_buf_size);
+    os->buf[LUASTM_BUF] = new_strbuf(0, 0);
     os->obj = xtalloc(PDF_OS_MAX_OBJS, os_obj_data);
     os->cur_objstm = 0;
+    os->trigger_luastm = false;
 
-    pdf->buffer = os->pdfout_buf;
+    os->curbuf = PDFOUT_BUF;
+    pdf->buf = os->buf[os->curbuf];
 
     pdf->fb = new_strbuf(1, 100000000);
 
@@ -322,7 +323,7 @@ static void write_zip(PDF pdf)
 {
     int flush, err = Z_OK;
     uInt zip_len;
-    strbuf_s *b = pdf->buffer;
+    strbuf_s *buf = pdf->buf;
     z_stream *s = pdf->c_stream;
     boolean finish = pdf->zip_write_state == zip_finish;
     assert(pdf->compress_level > 0);
@@ -350,8 +351,8 @@ static void write_zip(PDF pdf)
     }
     assert(s != NULL);
     assert(pdf->zipbuf != NULL);
-    s->next_in = b->data;
-    s->avail_in = (uInt) (b->p - b->data);
+    s->next_in = buf->data;
+    s->avail_in = (uInt) (buf->p - buf->data);
     while (true) {
         if (s->avail_out == 0 || (finish && s->avail_out < ZIP_BUF_SIZE)) {
             zip_len = ZIP_BUF_SIZE - s->avail_out;
@@ -393,12 +394,13 @@ void zip_free(PDF pdf)
 @ @c
 static void write_nozip(PDF pdf)
 {
-    strbuf_s *b = pdf->buffer;
-    size_t l = strbuf_offset(b);
+    strbuf_s *buf = pdf->buf;
+    size_t l = strbuf_offset(buf);
     if (l == 0)
         return;
-    pdf->gone += (off_t) xfwrite((char *) b->data, sizeof(char), l, pdf->file);
-    pdf->last_byte = *(b->p - 1);
+    pdf->gone +=
+        (off_t) xfwrite((char *) buf->data, sizeof(char), l, pdf->file);
+    pdf->last_byte = *(buf->p - 1);
 }
 
 @ The PDF buffer is flushed by calling |pdf_flush|, which checks the
@@ -408,12 +410,12 @@ to finish it. The stream contents will be compressed if compression is turn on.
 
 @c
 void pdf_flush(PDF pdf)
-{                               /* flush out the |pdf->buffer| */
-    off_t saved_pdf_gone;
-    strbuf_s *b = pdf->buffer;
-    switch (pdf->os->activebuf) {
+{                               /* flush out the |pdf->buf| */
+    os_struct *os = pdf->os;
+    off_t saved_pdf_gone = pdf->gone;
+    assert(pdf->buf == os->buf[os->curbuf]);
+    switch (os->curbuf) {
     case PDFOUT_BUF:
-        saved_pdf_gone = pdf->gone;
         switch (pdf->zip_write_state) {
         case no_zip:
             if (pdf->draftmode == 0)
@@ -429,40 +431,32 @@ void pdf_flush(PDF pdf)
             pdf->zip_write_state = no_zip;
             break;
         }
-        strbuf_seek(b, 0);
+        strbuf_seek(pdf->buf, 0);
         if (saved_pdf_gone > pdf->gone)
             pdf_error("file size",
                       "File size exceeds architectural limits (pdf_gone wraps around)");
         break;
     case LUASTM_BUF:
-        /* TODO */
+        luaL_addsize(&(os->b), strbuf_offset(pdf->buf));
+        pdf->buf->p = pdf->buf->data = (unsigned char *) luaL_prepbuffer(&(os->b));     /* for next stream piece */
         break;
-    case OBJSTM_BUF:           /* no flush, OBJSTM_BUF just grows as needed */
+    case OBJSTM_BUF:
         break;
     default:
         assert(0);
     }
 }
 
-@ switch between PDF stream and object stream mode
-
-@c
-static void pdf_buffer_select(PDF pdf, boolean pdf_os)
+@ @c
+static void pdf_buffer_select(PDF pdf, boolean do_os)
 {
     os_struct *os = pdf->os;
-    if (!pdf->os_enable)
-        return;
-    if (pdf_os) {
-        if (os->activebuf != OBJSTM_BUF) { /* back up PDF stream variables */
-            pdf->buffer = os->objstm_buf;
-            os->activebuf = OBJSTM_BUF;    /* switch to object stream */
-        }
+    if (pdf->os_enable && do_os) {
+        os->curbuf = OBJSTM_BUF;        /* switch to object stream */
     } else {
-        if (os->activebuf == OBJSTM_BUF) { /* back up object stream variables */
-            pdf->buffer = os->pdfout_buf;
-            os->activebuf = PDFOUT_BUF;    /* switch to PDF stream */
-        }
+        os->curbuf = PDFOUT_BUF;        /* switch to PDF stream */
     }
+    pdf->buf = os->buf[pdf->os->curbuf];
 }
 
 @ create new \.{/ObjStm} object if required, and set up cross reference info
@@ -471,31 +465,31 @@ static void pdf_buffer_select(PDF pdf, boolean pdf_os)
 static void pdf_prepare_obj(PDF pdf, int k, int pdf_os_threshold)
 {
     os_struct *os = pdf->os;
-    strbuf_s *osbuf = os->objstm_buf;
+    strbuf_s *obuf = os->buf[OBJSTM_BUF];
+    assert(os->curbuf != LUASTM_BUF);
     assert(pdf_os_threshold >= OBJSTM_ALWAYS);
     pdf_buffer_select(pdf, (pdf->objcompresslevel >= pdf_os_threshold));
-    switch (os->activebuf) {
+    assert(pdf->buf == os->buf[os->curbuf]);
+    switch (os->curbuf) {
     case PDFOUT_BUF:
-        assert(pdf->buffer == os->pdfout_buf);  /* yes, writing directly into PDF */
         obj_offset(pdf, k) = pdf_offset(pdf);
         obj_os_idx(pdf, k) = PDF_OS_MAX_OBJS;   /* mark it as not included in any ObjStm */
         break;
     case LUASTM_BUF:
-        assert(0);              /* LUASTM_BUF is only for streams, not for dicts etc. */
+        assert(0);
         break;
     case OBJSTM_BUF:
-        assert(pdf->buffer == osbuf);   /* yes, writing into ObjStm */
         if (os->cur_objstm == 0) {
             os->cur_objstm = pdf_create_obj(pdf, obj_type_objstm, 0);
             os->idx = 0;
-            osbuf->p = osbuf->data;     /* start fresh object stream */
+            obuf->p = obuf->data;       /* start fresh object stream */
             os->ostm_ctr++;     /* only for statistics */
         }
         assert(os->idx < PDF_OS_MAX_OBJS);      /* for marking below */
         obj_os_idx(pdf, k) = (int) os->idx;
         obj_os_objnum(pdf, k) = (int) os->cur_objstm;
         os->obj[os->idx].num = k;
-        os->obj[os->idx].off = (size_t) (osbuf->p - osbuf->data);
+        os->obj[os->idx].off = (size_t) (obuf->p - obuf->data);
         break;
     default:
         assert(0);
@@ -504,23 +498,33 @@ static void pdf_prepare_obj(PDF pdf, int k, int pdf_os_threshold)
 
 @* Low-level buffer checkers.
 
-@ Make sure that there are at least |n| bytes free in PDF buffer.
+@ Set the active buffer pointer.
+Make sure that there are at least |n| bytes free in that buffer,
+flush if needed.
 @c
 void pdf_room(PDF pdf, int n)
 {
-    strbuf_s *b = pdf->buffer;
-    size_t l = (size_t) (b->p - b->data);
-    switch (pdf->os->activebuf) {
+    os_struct *os = pdf->os;
+    strbuf_s *buf = pdf->buf;
+    if ((size_t) (n + buf->p - buf->data) <= buf->size)
+        return;
+    assert(buf == os->buf[os->curbuf]);
+    switch (os->curbuf) {
     case PDFOUT_BUF:
-    case LUASTM_BUF:
-        if ((size_t) n > b->size)
-            overflow("PDF output buffer", (unsigned) b->size);
-        if ((size_t) n + l > b->size)
+        if ((size_t) n > buf->size)
+            overflow("PDF output buffer", (unsigned) buf->size);
+        if ((size_t) (n + buf->p - buf->data) < buf->limit)
+            strbuf_room(buf, (size_t) n);       /* grow it if possible */
+        else
             pdf_flush(pdf);
         break;
+    case LUASTM_BUF:
+        if ((size_t) n > buf->size)
+            overflow("PDF output buffer", (unsigned) buf->size);
+        pdf_flush(pdf);
+        break;
     case OBJSTM_BUF:
-        if ((size_t) n + l > b->size)
-            strbuf_room(b, (size_t) n);
+        strbuf_room(buf, (size_t) n);   /* just grow it */
         break;
     default:
         assert(0);
@@ -531,14 +535,14 @@ void pdf_room(PDF pdf, int n)
 void pdf_out_block(PDF pdf, const char *s, size_t n)
 {
     size_t l;
-    strbuf_s *b = pdf->buffer;
+    strbuf_s *buf = pdf->buf;
     do {
         l = n;
-        if (l > b->size)
-            l = b->size;
+        if (l > buf->size)
+            l = buf->size;
         pdf_room(pdf, (int) l);
-        (void) memcpy(b->p, s, l);
-        b->p += l;
+        (void) memcpy(buf->p, s, l);
+        buf->p += l;
         s += l;
         n -= l;
     } while (n > 0);
@@ -645,64 +649,81 @@ void pdf_print_str(PDF pdf, const char *s)
 @c
 void pdf_begin_stream(PDF pdf)
 {
-    switch (pdf->os->activebuf) {
-    case PDFOUT_BUF:
-        pdf->stream_length = 0;
-        pdf->last_byte = 0;
-        pdf_puts(pdf, "\nstream\n");
-        if (pdf->stream_deflate) {
-            assert(pdf->compress_level > 0);
-            pdf_flush(pdf);
-            pdf->zip_write_state = zip_writing;
-        } else
-            pdf_save_offset(pdf);
-        break;
-    case LUASTM_BUF:
-        /* TODO */
-        break;
-    case OBJSTM_BUF:
-        assert(0);              /* ObjStm are not for stream objects */
-        break;
-    default:
-        assert(0);
+    os_struct *os = pdf->os;
+    strbuf_s *lbuf = os->buf[LUASTM_BUF];
+    assert(os->curbuf == PDFOUT_BUF);
+    assert(pdf->buf == os->buf[os->curbuf]);
+    assert(pdf->zip_write_state == no_zip);
+    pdf_puts(pdf, "\nstream\n");
+    pdf_save_offset(pdf);
+    pdf_flush(pdf);
+    if (os->trigger_luastm) {
+        os->trigger_luastm = false;     /* this was just a trigger */
+        luaL_buffinit(Luas, &(os->b));
+        lbuf->p = lbuf->data = (unsigned char *) luaL_prepbuffer(&(os->b));
+        lbuf->size = lbuf->limit = LUAL_BUFFERSIZE;
+        os->curbuf = LUASTM_BUF;
+        pdf->buf = os->buf[os->curbuf];
+    }
+    if (pdf->stream_deflate) {
+        assert(pdf->compress_level > 0);
+        pdf->zip_write_state = zip_writing;
     }
     pdf->stream_writing = true;
+    pdf->stream_length = 0;
+    pdf->last_byte = 0;
 }
 
 @ end a stream
 @c
 void pdf_end_stream(PDF pdf)
 {
-    switch (pdf->os->activebuf) {
+    os_struct *os = pdf->os;
+    const_lstring ls;
+    assert(pdf->buf == os->buf[os->curbuf]);
+    switch (os->curbuf) {
     case PDFOUT_BUF:
-        if (pdf->zip_write_state == zip_writing)
-            pdf->zip_write_state = zip_finish;
-        else
-            pdf->stream_length = pdf_offset(pdf) - pdf->save_offset;
-        pdf_flush(pdf);
-        pdf->stream_deflate = false;
-        pdf->stream_writing = false;
-        if (pdf->last_byte != '\n')
-            pdf_out(pdf, '\n'); /* doesn't really belong to the stream */
-        pdf_puts(pdf, "endstream");
-        /* write stream /Length */
-        if (pdf->seek_write_length && pdf->draftmode == 0) {
-            xfseeko(pdf->file, (off_t) pdf->stream_length_offset, SEEK_SET,
-                    pdf->job_name);
-            fprintf(pdf->file, "%li", (long int) pdf->stream_length);
-            xfseeko(pdf->file, 0, SEEK_END, pdf->job_name);
-        }
-        pdf->seek_write_length = false;
         break;
     case LUASTM_BUF:
-        /* TODO */
+        luaL_addsize(&(os->b), strbuf_offset(os->buf[LUASTM_BUF]));
+        luaL_pushresult(&(os->b));
+
+        /* now the complete page stream is on the Lua stack */
+        /* TODO: pagestream filter callback here */
+
+        ls.s = lua_tolstring(Luas, -1, &ls.l);
+        pdf->buf = os->buf[PDFOUT_BUF];
+        assert(pdf->buf->data == pdf->buf->p);  /* flushed, empty */
+        os->curbuf = PDFOUT_BUF;
+        /* the following is inefficient; could go directly into PDF file */
+        pdf_out_block(pdf, (const char *) ls.s, (size_t) ls.l);
+        lua_pop(Luas, 1);
         break;
     case OBJSTM_BUF:
-        assert(0);              /* ObjStm are not for stream objects */
+        assert(0);
         break;
     default:
         assert(0);
     }
+    if (pdf->zip_write_state == zip_writing)
+        pdf->zip_write_state = zip_finish;
+    else
+        pdf->stream_length = pdf_offset(pdf) - pdf->save_offset;
+    pdf_flush(pdf);             /* sets pdf->last_byte */
+    assert(pdf->zip_write_state == no_zip);
+    pdf->stream_deflate = false;
+    pdf->stream_writing = false;
+    if (pdf->last_byte != '\n')
+        pdf_out(pdf, '\n');     /* doesn't really belong to the stream */
+    pdf_puts(pdf, "endstream");
+    /* write stream /Length */
+    if (pdf->seek_write_length && pdf->draftmode == 0) {
+        xfseeko(pdf->file, (off_t) pdf->stream_length_offset, SEEK_SET,
+                pdf->job_name);
+        fprintf(pdf->file, "%li", (long int) pdf->stream_length);
+        xfseeko(pdf->file, 0, SEEK_END, pdf->job_name);
+    }
+    pdf->seek_write_length = false;
 }
 
 @ To print |scaled| value to PDF output we need some subroutines to ensure
@@ -1148,14 +1169,14 @@ When calling this procedure, |pdf_os_mode| must be |true|.
 @c
 static void pdf_os_write_objstream(PDF pdf)
 {
-    unsigned int i, j, n1, n2;  /* n1, n2: ObjStm buffer may be reallocated! */
     os_struct *os = pdf->os;
-    strbuf_s *b = os->objstm_buf;
+    unsigned int i, j, n1, n2;  /* n1, n2: ObjStm buffer may be reallocated! */
+    strbuf_s *obuf = os->buf[OBJSTM_BUF];
     if (os->cur_objstm == 0)    /* no object stream started */
         return;
-    assert(pdf->buffer == b);   /* yes, pdf_out() still goes into ObjStm */
+    assert(pdf->buf == obuf);   /* yes, pdf_out() still goes into ObjStm */
     assert(os->idx > 0);        /* yes, there are objects for the ObjStm */
-    n1 = strbuf_offset(b);      /* remember end of collected object stream contents */
+    n1 = strbuf_offset(obuf);   /* remember end of collected object stream contents */
     /* this is needed here to calculate /First for the ObjStm dict */
     for (i = 0, j = 0; i < os->idx; i++) {      /* add object-number/byte-offset list to buffer */
         pdf_print_int(pdf, (int) os->obj[i].num);
@@ -1169,7 +1190,7 @@ static void pdf_os_write_objstream(PDF pdf)
             j++;
         }
     }
-    n2 = strbuf_offset(b);      /* remember current buffer end */
+    n2 = strbuf_offset(obuf);   /* remember current buffer end */
     pdf_begin_obj(pdf, os->cur_objstm, OBJSTM_NEVER);   /* switch to PDF stream writing */
     pdf_begin_dict(pdf);
     pdf_dict_add_name(pdf, "Type", "ObjStm");
@@ -1179,9 +1200,9 @@ static void pdf_os_write_objstream(PDF pdf)
     pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
     /* write object-number/byte-offset list */
-    pdf_out_block(pdf, (const char *) (b->data + n1), (size_t) (n2 - n1));
+    pdf_out_block(pdf, (const char *) (obuf->data + n1), (size_t) (n2 - n1));
     /* write collected object stream contents */
-    pdf_out_block(pdf, (const char *) b->data, (size_t) n1);
+    pdf_out_block(pdf, (const char *) obuf->data, (size_t) n1);
     pdf_end_stream(pdf);
     pdf_end_obj(pdf);
     os->cur_objstm = 0;         /* to force object stream generation next time */
@@ -1306,11 +1327,11 @@ remember file position for seek
 @c
 void pdf_dict_add_streaminfo(PDF pdf)
 {
-    assert(pdf->os->activebuf == PDFOUT_BUF);
+    assert(pdf->buf == pdf->os->buf[PDFOUT_BUF]);
     pdf_add_name(pdf, "Length");
     pdf->stream_length_offset = pdf_offset(pdf) + 1;
     pdf->seek_write_length = true;      /* fill in length at |pdf_end_stream| call */
-    pdf_puts(pdf, "           ");       /* space for 10 decimal digits */
+    pdf_puts(pdf, " x         ");       /* space for 10 decimal digits */
     pdf->cave = 1;
     if (pdf->compress_level > 0) {
         pdf_dict_add_name(pdf, "Filter", "FlateDecode");
@@ -1338,9 +1359,13 @@ void pdf_end_array(PDF pdf)
 @c
 void pdf_begin_obj(PDF pdf, int i, int pdf_os_threshold)
 {
+    os_struct *os = pdf->os;
+    strbuf_s *buf;
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
     pdf_prepare_obj(pdf, i, pdf_os_threshold);
-    switch (pdf->os->activebuf) {
+    assert(pdf->buf == os->buf[os->curbuf]);
+    buf = pdf->buf;
+    switch (os->curbuf) {
     case PDFOUT_BUF:
         pdf_printf(pdf, "%d 0 obj\n", (int) i);
         break;
@@ -1361,7 +1386,9 @@ void pdf_begin_obj(PDF pdf, int i, int pdf_os_threshold)
 @c
 void pdf_end_obj(PDF pdf)
 {
-    switch (pdf->os->activebuf) {
+    os_struct *os = pdf->os;
+    assert(pdf->buf == os->buf[os->curbuf]);
+    switch (os->curbuf) {
     case PDFOUT_BUF:
         pdf_puts(pdf, "\nendobj\n");    /* end a PDF object */
         break;
@@ -1369,9 +1396,9 @@ void pdf_end_obj(PDF pdf)
         assert(0);
         break;
     case OBJSTM_BUF:
-        pdf->os->idx++;         /* = number of objects collected so far in ObjStm */
-        pdf->os->o_ctr++;       /* only for statistics */
-        if (pdf->os->idx == PDF_OS_MAX_OBJS)
+        os->idx++;              /* = number of objects collected so far in ObjStm */
+        os->o_ctr++;            /* only for statistics */
+        if (os->idx == PDF_OS_MAX_OBJS)
             pdf_os_write_objstream(pdf);
         else
             pdf_out(pdf, ' ');  /* Adobe Reader seems to need this */
@@ -1781,7 +1808,6 @@ void pdf_begin_page(PDF pdf)
     scaled form_margin = 0;     /* was one_bp until SVN4066 */
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
     init_pdf_pagecalculations(pdf);
-
     if (pdf->page_resources == NULL) {
         pdf->page_resources = xtalloc(1, pdf_resource_struct);
         pdf->page_resources->resources_tree = NULL;
@@ -1836,6 +1862,7 @@ void pdf_begin_page(PDF pdf)
     /* Start stream of page/form contents */
     pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);
+    pdf->os->trigger_luastm = false;    /* if it's true, the page stream goes through Lua */
     pdf_begin_stream(pdf);
     if (global_shipping_mode == SHIPPING_PAGE) {
         /* Adjust transformation matrix for the magnification ratio */
@@ -2526,6 +2553,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             pdf_puts(pdf, "\n%%EOF\n");
 
             pdf_flush(pdf);
+
             if (callback_id == 0) {
                 tprint_nl("Output written on ");
                 tprint(pdf->file_name);

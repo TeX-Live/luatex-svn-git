@@ -205,14 +205,14 @@ typedef struct strbuf_s_ {
 
 typedef struct os_struct_ {
     os_obj_data *obj;           /* array of object stream objects */
-    strbuf_s *pdfout_buf;
-    strbuf_s *objstm_buf;
-    strbuf_s *luastm_buf;
-    buffer_e activebuf;         /* select into which buffer to output */
+    strbuf_s *buf[3];
+    buffer_e curbuf;            /* select into which buffer to output */
+    luaL_Buffer b;              /* Lua buffer connected to luastm_buf */
     unsigned int cur_objstm;    /* number of current object stream object */
     unsigned int idx;           /* index of object within object stream [1...PDF_OS_MAX_OBJS - 1] */
     unsigned int ostm_ctr;      /* statistics: counter for object stream objects */
     unsigned int o_ctr;         /* statistics: counter for objects within object streams */
+    int trigger_luastm;
 } os_struct;
 
 /**********************************************************************/
@@ -242,7 +242,7 @@ typedef struct pdf_output_file_ {
     int os_enable;              /* true if object streams are globally enabled */
     os_struct *os;              /* object stream structure pointer */
 
-    strbuf_s *buffer;           /* pointer to the current stream buffer (PDF stream, ObjStm, or Lua) */
+    strbuf_s *buf;              /* pointer to the current stream buffer (PDF stream, ObjStm, or Lua) */
 
     off_t save_offset;          /* to save |pdf_offset| */
     off_t gone;                 /* number of bytes that were flushed to output */

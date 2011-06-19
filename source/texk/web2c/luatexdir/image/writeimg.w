@@ -849,11 +849,10 @@ size_t read_file_to_buf(PDF pdf, FILE * f, size_t len)
 {
     size_t i, j, k = 0;
     while (len > 0) {
-        i = (size_t) (len >
-                      pdf->buffer->size) ? (size_t) pdf->buffer->size : len;
+        i = (size_t) (len > pdf->buf->size) ? (size_t) pdf->buf->size : len;
         pdf_room(pdf, (int) i);
-        j = fread(pdf->buffer->p, 1, i, f);
-        pdf->buffer->p += j;
+        j = fread(pdf->buf->p, 1, i, f);
+        pdf->buf->p += j;
         k += j;
         len -= j;
         if (i != j)

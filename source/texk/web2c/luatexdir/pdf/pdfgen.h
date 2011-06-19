@@ -43,13 +43,11 @@ output file in initialization to ensure that it will be the first
 written bytes.
 */
 
-#  define inf_pdfout_buf_size 16384     /* size of the PDF output buffer */
-#  define sup_pdfout_buf_size 16384     /* size of the PDF output buffer */
-#  define inf_objstm_buf_size 1 /* initial value of |pdf_os_buf_size| */
-#  define sup_objstm_buf_size 5000000   /* arbitrary upper hard limit of |objstm_buf_size| */
-#  define max_single_pdf_print 8192     /* Max size that can be get from pdf_room() at once.
-                                           the value is on the conservative side, but should be
-                                           large enough to cover most uses */
+#  define inf_pdfout_buf_size 1     /* initial value of |pdf->buf| size */
+#  define sup_pdfout_buf_size 65536     /* arbitrary upper hard limit of |pdf->buf| size */
+#  define inf_objstm_buf_size 1 /* initial value of |os->buf[OBJSTM_BUF]| size */
+#  define sup_objstm_buf_size 5000000   /* arbitrary upper hard limit of |os->buf[OBJSTM_BUF]| size */
+
 #  define PDF_OS_MAX_OBJS 100   /* maximum number of objects in object stream */
 
 #  define inf_obj_tab_size 1000 /* min size of the cross-reference table for PDF output */
@@ -57,10 +55,10 @@ written bytes.
 
 /* The following macros are similar as for \.{DVI} buffer handling */
 
-#  define pdf_offset(pdf) (pdf->gone + pdf->buffer->p - pdf->buffer->data)
+#  define pdf_offset(pdf) (pdf->gone + pdf->buf->p - pdf->buf->data)
                                         /* the file offset of last byte in PDF
                                            buffer that |pdf_ptr| points to */
-#  define pdf_save_offset(pdf) pdf->save_offset = (pdf->gone + pdf->buffer->p - pdf->buffer->data)
+#  define pdf_save_offset(pdf) pdf->save_offset = (pdf->gone + pdf->buf->p - pdf->buf->data)
 
 #  define set_ff(A)  do {                       \
         if (pdf_font_num(A) < 0)                \
@@ -89,10 +87,10 @@ extern void pdf_room(PDF, int);
 extern void fix_pdf_minorversion(PDF);
 
  /* output a byte to PDF buffer without checking of overflow */
-#  define pdf_quick_out(pdf,A) *(pdf->buffer->p++)=(unsigned char)(A)
+#  define pdf_quick_out(pdf,A) * (pdf->buf->p++) = (unsigned char) (A)
 
 /* do the same as |pdf_quick_out| and flush the PDF buffer if necessary */
-#  define pdf_out(pdf,A) do { pdf_room(pdf,1); pdf_quick_out(pdf,A); } while (0)
+#  define pdf_out(pdf,A) do { pdf_room(pdf, 1); pdf_quick_out(pdf, A); } while (0)
 
 /*
 Basic printing procedures for PDF output are very similiar to \TeX\ basic
