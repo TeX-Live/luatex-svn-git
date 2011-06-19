@@ -415,7 +415,7 @@ static void copy_png(PDF pdf, image_dict * idict)
     pdf_end_dict(pdf);
     pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
-    assert(pdf->zip_write_state == no_zip);     /* the PNG stream is already compressed */
+    assert(pdf->zip_write_state == NO_ZIP);     /* the PNG stream is already compressed */
     /* 2nd pass to copy data */
     endflag = false;
     if (fseek(f, 8, SEEK_SET) != 0)

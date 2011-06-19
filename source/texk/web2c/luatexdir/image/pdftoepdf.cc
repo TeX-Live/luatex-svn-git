@@ -390,7 +390,7 @@ static void copyStream(PDF pdf, PdfDocument * pdf_doc, Stream * stream)
 {
     copyDict(pdf, pdf_doc, stream->getDict());
     pdf_begin_stream(pdf);
-    assert(pdf->zip_write_state == no_zip);
+    assert(pdf->zip_write_state == NO_ZIP);
     copyStreamStream(pdf, stream->getUndecodedStream());
     pdf_end_stream(pdf);
 }

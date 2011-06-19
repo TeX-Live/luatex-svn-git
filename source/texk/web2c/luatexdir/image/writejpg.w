@@ -296,7 +296,7 @@ void write_jpg(PDF pdf, image_dict * idict)
     pdf_dict_add_name(pdf, "Filter", "DCTDecode");
     pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
-    assert(pdf->zip_write_state == no_zip);
+    assert(pdf->zip_write_state == NO_ZIP);
     l = (size_t) img_jpg_ptr(idict)->length;
     xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
     if (read_file_to_buf(pdf, img_file(idict), l) != l)
