@@ -43,7 +43,7 @@ output file in initialization to ensure that it will be the first
 written bytes.
 */
 
-#  define inf_pdfout_buf_size 1 /* initial value of |pdf->buf| size */
+#  define inf_pdfout_buf_size 16384 /* initial value of |pdf->buf| size */
 #  define sup_pdfout_buf_size 16384     /* arbitrary upper hard limit of |pdf->buf| size */
 #  define inf_objstm_buf_size 1 /* initial value of |os->buf[OBJSTM_BUF]| size */
 #  define sup_objstm_buf_size 5000000   /* arbitrary upper hard limit of |os->buf[OBJSTM_BUF]| size */
@@ -195,6 +195,7 @@ extern char *get_resname_prefix(PDF);
 extern void pdf_begin_page(PDF pdf);
 extern void pdf_end_page(PDF pdf);
 extern void print_pdf_table_string(PDF pdf, const char *s);
+extern int get_pdf_table_bool(PDF, const char *, int);
 
 extern void fix_o_mode(PDF pdf);
 extern void ensure_output_state(PDF pdf, output_state s);
