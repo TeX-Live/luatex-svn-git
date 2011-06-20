@@ -29,11 +29,6 @@ static const char _svn_version[] =
 // This file is mostly C and not very much C++; it's just used to interface
 // the functions of xpdf, which happens to be written in C++.
 
-// The prefix "PTEX" for the PDF keys is special to pdfTeX;
-// this has been registered with Adobe by Hans Hagen.
-
-#define pdfkeyprefix "PTEX"
-
 static GBool isInit = gFalse;
 
 //**********************************************************************

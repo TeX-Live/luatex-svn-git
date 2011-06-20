@@ -1,7 +1,7 @@
 /* ptexlib.h
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2011 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -37,7 +37,6 @@ extern double rint(double x);
 extern char **suffixlist;       /* in luainit.w */
 #  endif
 
-
 /* Replicate these here. They are hardcoded anyway */
 
 #  define eTeX_version_string "2.2"     /* current \eTeX\ version */
@@ -47,7 +46,7 @@ extern char **suffixlist;       /* in luainit.w */
 
 #  define Omega_version_string "1.15"   /* \.{\\OmegaVersion}  */
 #  define Omega_version 1       /* \.{\\Omegaversion} */
-#  define Omega_minor_version 15        /* \.{\\Omegaminorversion} */
+#  define Omega_minor_version 15/* \.{\\Omegaminorversion} */
 #  define Omega_revision ".15"  /* \.{\\Omegarevision} */
 
 #  define Aleph_version_string "0.0"    /* \.{\\AlephVersion} */
@@ -67,7 +66,8 @@ extern char **suffixlist;       /* in luainit.w */
 
 /* Not all systems define it. */
 #  ifndef M_PI
-#    define M_PI           3.14159265358979323846       /* pi */
+#    define M_PI           3.14159265358979323846
+                                                /* pi */
 #  endif
 
 #  ifdef WIN32
@@ -421,7 +421,7 @@ extern void topenin(void);
 extern str_number getjobname(str_number);
 extern str_number makefullnamestring(void);
 
-#include <kpathsea/version.h>
+#  include <kpathsea/version.h>
 
 extern PDF static_pdf;
 

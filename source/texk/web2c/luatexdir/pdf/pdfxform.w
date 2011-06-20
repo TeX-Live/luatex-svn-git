@@ -1,6 +1,6 @@
 % pdfxform.w
 
-% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2009-2011 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -59,11 +59,11 @@ void pdf_place_form(PDF pdf, halfword p)
     (void) calc_pdfpos(q, pdf->posstruct->pos);
     cm[4] = q->cm[4];
     cm[5] = q->cm[5];
-    pdf_printf(pdf, "q\n");
+    pdf_puts(pdf, "q\n");
     pdf_print_cm(pdf, cm);
     pdf_printf(pdf, "/Fm%d", (int) obj_info(pdf, objnum));
     pdf_print_resname_prefix(pdf);
-    pdf_printf(pdf, " Do\nQ\n");
+    pdf_puts(pdf, " Do\nQ\n");
     addto_page_resources(pdf, obj_type_xform, objnum);
 }
 

@@ -92,9 +92,9 @@ static void set_font(PDF pdf)
     pdfstructure *p = pdf->pstruct;
     pdf_printf(pdf, "/F%d", (int) p->f_pdf);
     pdf_print_resname_prefix(pdf);
-    pdf_printf(pdf, " ");
+    pdf_out(pdf, ' ');
     print_pdffloat(pdf, p->fs);
-    pdf_printf(pdf, " Tf ");
+    pdf_puts(pdf, " Tf ");
     p->f_pdf_cur = p->f_pdf;
     p->fs_cur.m = p->fs.m;
 }
@@ -103,7 +103,7 @@ static void set_font(PDF pdf)
 static void print_tm(PDF pdf, pdffloat * tm)
 {
     print_pdf_matrix(pdf, tm);
-    pdf_printf(pdf, " Tm ");
+    pdf_puts(pdf, " Tm ");
 }
 
 @ @c
@@ -153,10 +153,10 @@ static void begin_charmode(PDF pdf, internal_font_number f, pdfstructure * p)
     assert(is_chararraymode(p));
     if (font_encodingbytes(f) == 2) {
         p->ishex = 1;
-        pdf_printf(pdf, "<");
+        pdf_out(pdf, '<');
     } else {
         p->ishex = 0;
-        pdf_printf(pdf, "(");
+        pdf_out(pdf, '(');
     }
     p->mode = PMODE_CHAR;
 }
@@ -168,9 +168,9 @@ void end_charmode(PDF pdf)
     assert(is_charmode(p));
     if (p->ishex == 1) {
         p->ishex = 0;
-        pdf_printf(pdf, ">");
+        pdf_out(pdf, '>');
     } else {
-        pdf_printf(pdf, ")");
+        pdf_out(pdf, ')');
     }
     p->mode = PMODE_CHARARRAY;
 }
@@ -182,7 +182,7 @@ static void begin_chararray(PDF pdf)
     assert(is_textmode(p));
     p->pdf_tj_pos = p->pdf;
     p->cw.m = 0;
-    pdf_printf(pdf, "[");
+    pdf_out(pdf, '[');
     p->mode = PMODE_CHARARRAY;
 }
 
@@ -191,7 +191,7 @@ void end_chararray(PDF pdf)
 {
     pdfstructure *p = pdf->pstruct;
     assert(is_chararraymode(p));
-    pdf_printf(pdf, "]TJ\n");
+    pdf_puts(pdf, "]TJ\n");
     p->pdf = p->pdf_tj_pos;
     p->mode = PMODE_TEXT;
 }

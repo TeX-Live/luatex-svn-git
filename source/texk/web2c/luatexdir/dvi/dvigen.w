@@ -1040,8 +1040,6 @@ void prune_movements(int l)
 
 scaledpos dvi;                  /* a \.{DVI} position in page coordinates, in sync with DVI file */
 
-scaledpos cur_page_size;
-
 @ When |hlist_out| is called, its duty is to output the box represented
 by the |hlist_node| pointed to by |temp_ptr|. The reference point of that
 box has coordinates |(cur.h,cur.v)|.

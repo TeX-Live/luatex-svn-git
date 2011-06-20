@@ -1,6 +1,6 @@
 % pdflink.w
 
-% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2009-2011 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -15,7 +15,7 @@
 % License for more details.
 
 % You should have received a copy of the GNU General Public License along
-% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @ @c
 static const char _svn_version[] =
@@ -93,9 +93,9 @@ void end_link(PDF pdf, halfword p)
         if (global_shipping_mode == SHIPPING_PAGE && matrixused()) {
             matrixrecalculate(pos.h + pdf_link_margin);
             pdf_ann_left(q) = getllx() - pdf_link_margin;
-            pdf_ann_top(q) = cur_page_size.v - getury() - pdf_link_margin;
+            pdf_ann_top(q) = pdf->page_size.v - getury() - pdf_link_margin;
             pdf_ann_right(q) = geturx() + pdf_link_margin;
-            pdf_ann_bottom(q) = cur_page_size.v - getlly() + pdf_link_margin;
+            pdf_ann_bottom(q) = pdf->page_size.v - getlly() + pdf_link_margin;
         } else {
             switch (pdf->posstruct->dir) {
             case dir_TLT:
@@ -114,7 +114,6 @@ void end_link(PDF pdf, halfword p)
     pop_link_level(pdf);
 }
 
-
 @ For ``running'' annotations we must append a new node when the end of
 annotation is in other box than its start. The new created node is identical to
 corresponding whatsit node representing the start of annotation,  but its
@@ -122,7 +121,7 @@ corresponding whatsit node representing the start of annotation,  but its
 node, in order to use |flush_node_list| to do the job.
 
 
-@ Append a new pdf annot to |pdf_link_list| 
+@ Append a new pdf annot to |pdf_link_list|.
 
 @c
 void append_link(PDF pdf, halfword parent_box, scaledpos cur, small_number i)

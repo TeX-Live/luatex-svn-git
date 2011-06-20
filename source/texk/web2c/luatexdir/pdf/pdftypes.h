@@ -25,6 +25,11 @@
 #  include <zlib.h>
 #  include "lua/luatex-api.h"
 
+/* The prefix "PTEX" for the PDF keys is special to pdfTeX;
+   this has been registered with Adobe by Hans Hagen. */
+
+#  define pdfkeyprefix "PTEX"
+
 #  define MAX_OBJ_COMPRESS_LEVEL 3      /* maximum/clipping value for \pdfobjcompresslevel */
 #  define OBJSTM_UNSET -1       /* initial value */
 #  define OBJSTM_ALWAYS 1       /* \pdfobjcompresslevel >= OBJSTM_ALWAYS: put object into object stream */
@@ -297,6 +302,8 @@ typedef struct pdf_output_file_ {
     int ximage_count;
 
     pdf_resource_struct *page_resources;
+
+    scaledpos page_size;        /* width and height of page being shipped */
 
     /* the variables from pdfdest */
     int dest_names_size;

@@ -175,7 +175,6 @@ this is essentially the depth of |push| commands in the \.{DVI} output.
 
 extern scaled_whd rule;
 extern scaledpos dvi;
-extern scaledpos cur_page_size; /* width and height of page being shipped */
 
 extern void expand_macros_in_tokenlist(halfword p);
 extern void write_out(halfword p);

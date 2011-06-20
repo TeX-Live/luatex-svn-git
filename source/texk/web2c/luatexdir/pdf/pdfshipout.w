@@ -141,34 +141,34 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
     /* Calculate page dimensions and margins */
     if (global_shipping_mode == SHIPPING_PAGE) {
         if (page_width > 0)
-            cur_page_size.h = page_width;
+            pdf->page_size.h = page_width;
         else {
             switch (page_direction) {
             case dir_TLT:
-                cur_page_size.h = width(p) + 2 * page_left_offset;
+                pdf->page_size.h = width(p) + 2 * page_left_offset;
                 break;
             case dir_TRT:
-                cur_page_size.h = width(p) + 2 * page_right_offset;
+                pdf->page_size.h = width(p) + 2 * page_right_offset;
                 break;
             case dir_LTL:
-                cur_page_size.h = height(p) + depth(p) + 2 * page_left_offset;
+                pdf->page_size.h = height(p) + depth(p) + 2 * page_left_offset;
                 break;
             case dir_RTT:
-                cur_page_size.h = height(p) + depth(p) + 2 * page_right_offset;
+                pdf->page_size.h = height(p) + depth(p) + 2 * page_right_offset;
                 break;
             }
         }
         if (page_height > 0)
-            cur_page_size.v = page_height;
+            pdf->page_size.v = page_height;
         else {
             switch (page_direction) {
             case dir_TLT:
             case dir_TRT:
-                cur_page_size.v = height(p) + depth(p) + 2 * page_top_offset;
+                pdf->page_size.v = height(p) + depth(p) + 2 * page_top_offset;
                 break;
             case dir_LTL:
             case dir_RTT:
-                cur_page_size.v = width(p) + 2 * page_top_offset;
+                pdf->page_size.v = width(p) + 2 * page_top_offset;
                 break;
             }
         }
@@ -179,13 +179,13 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
         switch (pdf->o_mode) {
         case OMODE_DVI:
             refpoint.pos.h = one_true_inch;
-            refpoint.pos.v = cur_page_size.v - one_true_inch;
+            refpoint.pos.v = pdf->page_size.v - one_true_inch;
             dvi = refpoint.pos;
             break;
         case OMODE_PDF:
         case OMODE_LUA:
             refpoint.pos.h = pdf_h_origin;
-            refpoint.pos.v = cur_page_size.v - pdf_v_origin;
+            refpoint.pos.v = pdf->page_size.v - pdf_v_origin;
             break;
         default:
             assert(0);
@@ -203,7 +203,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
         case dir_TRT:
         case dir_RTT:
             refpoint.pos.h +=
-                cur_page_size.h - page_right_offset - one_true_inch;
+                pdf->page_size.h - page_right_offset - one_true_inch;
             refpoint.pos.v -= v_offset;
             break;
         }
@@ -221,13 +221,13 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
         switch (pdf->posstruct->dir) {
         case dir_TLT:
         case dir_TRT:
-            cur_page_size.h = width(p);
-            cur_page_size.v = height(p) + depth(p);
+            pdf->page_size.h = width(p);
+            pdf->page_size.v = height(p) + depth(p);
             break;
         case dir_LTL:
         case dir_RTT:
-            cur_page_size.h = height(p) + depth(p);
-            cur_page_size.v = width(p);
+            pdf->page_size.h = height(p) + depth(p);
+            pdf->page_size.v = width(p);
             break;
         }
         switch (pdf->posstruct->dir) {

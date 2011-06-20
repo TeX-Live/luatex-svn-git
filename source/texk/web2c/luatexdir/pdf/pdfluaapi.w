@@ -79,9 +79,9 @@ void pdflua_end_page(PDF pdf, int annots, int beads)
     lua_newtable(Luas);         /* t f t ... */
     lua_pushnumber(Luas, total_pages);  /* i t f t ... */
     lua_setfield(Luas, -2, "pagenum");  /* t f t ... */
-    lua_pushnumber(Luas, cur_page_size.h);      /* i t f t ... */
+    lua_pushnumber(Luas, pdf->page_size.h);     /* i t f t ... */
     lua_setfield(Luas, -2, "hsize");    /* t f t ... */
-    lua_pushnumber(Luas, cur_page_size.v);      /* i t f t ... */
+    lua_pushnumber(Luas, pdf->page_size.v);     /* i t f t ... */
     lua_setfield(Luas, -2, "vsize");    /* t f t ... */
     if (annots != 0) {
         lua_pushnumber(Luas, annots);   /* i t f t ... */

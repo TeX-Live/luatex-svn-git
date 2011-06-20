@@ -1,6 +1,6 @@
 % pdfrule.w
 % 
-% Copyright 2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2010-2011 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -41,30 +41,30 @@ void pdf_place_rule(PDF pdf, halfword q, scaledpos size)
     dim.h.e = p->pdf.h.e;
     dim.v.m = lround(size.v * p->k1);
     dim.v.e = p->pdf.v.e;
-    pdf_printf(pdf, "q\n");
+    pdf_puts(pdf, "q\n");
     if (size.v <= one_bp) {
         pos.v += (int) lround(0.5 * size.v);
         pdf_set_pos_temp(pdf, pos);
-        pdf_printf(pdf, "[]0 d 0 J ");
+        pdf_puts(pdf, "[]0 d 0 J ");
         print_pdffloat(pdf, dim.v);
-        pdf_printf(pdf, " w 0 0 m ");
+        pdf_puts(pdf, " w 0 0 m ");
         print_pdffloat(pdf, dim.h);
-        pdf_printf(pdf, " 0 l S\n");
+        pdf_puts(pdf, " 0 l S\n");
     } else if (size.h <= one_bp) {
         pos.h += (int) lround(0.5 * size.h);
         pdf_set_pos_temp(pdf, pos);
-        pdf_printf(pdf, "[]0 d 0 J ");
+        pdf_puts(pdf, "[]0 d 0 J ");
         print_pdffloat(pdf, dim.h);
-        pdf_printf(pdf, " w 0 0 m 0 ");
+        pdf_puts(pdf, " w 0 0 m 0 ");
         print_pdffloat(pdf, dim.v);
-        pdf_printf(pdf, " l S\n");
+        pdf_puts(pdf, " l S\n");
     } else {
         pdf_set_pos_temp(pdf, pos);
-        pdf_printf(pdf, "0 0 ");
+        pdf_puts(pdf, "0 0 ");
         print_pdffloat(pdf, dim.h);
-        pdf_printf(pdf, " ");
+        pdf_out(pdf, ' ');
         print_pdffloat(pdf, dim.v);
-        pdf_printf(pdf, " re f\n");
+        pdf_puts(pdf, " re f\n");
     }
-    pdf_printf(pdf, "Q\n");
+    pdf_puts(pdf, "Q\n");
 }

@@ -1853,8 +1853,8 @@ void pdf_begin_page(PDF pdf)
         pdf_begin_array(pdf);
         pdf_add_bp(pdf, -form_margin);
         pdf_add_bp(pdf, -form_margin);
-        pdf_add_bp(pdf, cur_page_size.h + form_margin);
-        pdf_add_bp(pdf, cur_page_size.v + form_margin);
+        pdf_add_bp(pdf, pdf->page_size.h + form_margin);
+        pdf_add_bp(pdf, pdf->page_size.v + form_margin);
         pdf_end_array(pdf);
         pdf_dict_add_int(pdf, "FormType", 1);
         pdf_add_name(pdf, "Matrix");
@@ -1919,7 +1919,7 @@ void pdf_end_page(PDF pdf)
     pdf_resource_struct *res_p = pdf->page_resources;
     pdf_resource_struct local_page_resources;
     pdf_object_list *annot_list, *bead_list, *link_list, *ol, *ol1;
-    scaledpos save_cur_page_size;       /* to save |cur_page_size| during flushing pending forms */
+    scaledpos save_cur_page_size;       /* to save |pdf->page_size| during flushing pending forms */
     shipping_mode_e save_shipping_mode;
     int procset = PROCSET_PDF;
 
@@ -1942,8 +1942,8 @@ void pdf_end_page(PDF pdf)
         pdf_begin_array(pdf);
         pdf_add_int(pdf, 0);
         pdf_add_int(pdf, 0);
-        pdf_add_mag_bp(pdf, cur_page_size.h);
-        pdf_add_mag_bp(pdf, cur_page_size.v);
+        pdf_add_mag_bp(pdf, pdf->page_size.h);
+        pdf_add_mag_bp(pdf, pdf->page_size.v);
         pdf_end_array(pdf);
         if (pdf_page_attr != null)
             pdf_print_toks(pdf, pdf_page_attr);
@@ -2010,19 +2010,19 @@ void pdf_end_page(PDF pdf)
     /* Write out pending forms */
     /* When flushing pending forms we need to save and restore resource lists
        which are also used by page shipping.
-       Saving and restoring |cur_page_size| is needed for proper
+       Saving and restoring |pdf->page_size| is needed for proper
        writing out pending PDF marks. */
     ol = get_page_resources_list(pdf, obj_type_xform);
     while (ol != NULL) {
         if (!is_obj_written(pdf, ol->info)) {
             pdf_cur_form = ol->info;
-            save_cur_page_size = cur_page_size;
+            save_cur_page_size = pdf->page_size;
             save_shipping_mode = global_shipping_mode;
             pdf->page_resources = &local_page_resources;
             local_page_resources.resources_tree = NULL;
             ship_out(pdf, obj_xform_box(pdf, pdf_cur_form), SHIPPING_FORM);
             /* Restore page size and page resources */
-            cur_page_size = save_cur_page_size;
+            pdf->page_size = save_cur_page_size;
             global_shipping_mode = save_shipping_mode;
             destroy_page_resources_tree(pdf);
             pdf->page_resources = res_p;

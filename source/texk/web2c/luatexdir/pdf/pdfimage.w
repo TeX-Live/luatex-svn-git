@@ -130,12 +130,12 @@ void place_img(PDF pdf, image_dict * idict, scaled_whd dim, int transform)
     cm[5] = p->cm[5];
     if (pdf->img_page_group_val == 0)
         pdf->img_page_group_val = img_group_ref(idict); /* added from web for 1.40.8 */
-    pdf_printf(pdf, "q\n");
+    pdf_puts(pdf, "q\n");
     pdf_print_cm(pdf, cm);
-    pdf_printf(pdf, "/Im");
+    pdf_puts(pdf, "/Im");
     pdf_print_int(pdf, img_index(idict));
     pdf_print_resname_prefix(pdf);
-    pdf_printf(pdf, " Do\nQ\n");
+    pdf_puts(pdf, " Do\nQ\n");
     addto_page_resources(pdf, obj_type_ximage, img_objnum(idict));
     if (img_state(idict) < DICT_OUTIMG)
         img_state(idict) = DICT_OUTIMG;
