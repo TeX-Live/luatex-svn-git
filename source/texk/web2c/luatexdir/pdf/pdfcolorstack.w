@@ -1,6 +1,6 @@
 % pdfcolorstack.w
 % 
-% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2009-2011 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -204,9 +204,8 @@ static int colorstackpush(int colstack_no, str_number s)
     if (global_shipping_mode == SHIPPING_PAGE) {
         if (colstack->page_used == colstack->page_size) {
             colstack->page_size += STACK_INCREMENT;
-            colstack->page_stack = xretalloc(colstack->page_stack,
-                                             (unsigned) colstack->page_size,
-                                             char *);
+            xretalloc(colstack->page_stack, (unsigned) colstack->page_size,
+                      char *);
         }
         colstack->page_stack[colstack->page_used++] = colstack->page_current;
         str = makecstring(s);
@@ -219,9 +218,8 @@ static int colorstackpush(int colstack_no, str_number s)
     } else {
         if (colstack->form_used == colstack->form_size) {
             colstack->form_size += STACK_INCREMENT;
-            colstack->form_stack = xretalloc(colstack->form_stack,
-                                             (unsigned) colstack->form_size,
-                                             char *);
+            xretalloc(colstack->form_stack, (unsigned) colstack->form_size,
+                      char *);
         }
         colstack->form_stack[colstack->form_used++] = colstack->form_current;
         str = makecstring(s);
