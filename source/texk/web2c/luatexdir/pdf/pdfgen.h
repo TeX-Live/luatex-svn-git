@@ -115,7 +115,7 @@ void pdf_printf(PDF, const char *, ...);
 
 extern void pdf_print(PDF, str_number);
 extern void pdf_print_int(PDF, longinteger);
-extern void pdf_print_real(PDF, int, int);
+extern void print_pdffloat(PDF pdf, pdffloat f);
 extern void pdf_print_str(PDF, const char *);
 
 extern void pdf_add_null(PDF);

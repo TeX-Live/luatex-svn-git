@@ -98,6 +98,7 @@ static boolean writepk(PDF pdf, internal_font_number f)
     kpse_glyph_file_type font_ret;
     int llx, lly, urx, ury;
     int cw, rw, i, j;
+    pdffloat pf;
     halfword *row;
     char *name;
     char *ftemp = NULL;
@@ -193,7 +194,8 @@ static boolean writepk(PDF pdf, internal_font_number f)
         pdf_dict_add_streaminfo(pdf);
         pdf_end_dict(pdf);
         pdf_begin_stream(pdf);
-        pdf_print_real(pdf, (int) t3_char_widths[cd.charcode], 2);
+        setpdffloat(pf, (int) t3_char_widths[cd.charcode], 2);
+        print_pdffloat(pdf, pf);
         pdf_printf(pdf, " 0 %i %i %i %i d1\n",
                    (int) llx, (int) lly, (int) urx, (int) ury);
         if (is_null_glyph)
@@ -235,6 +237,7 @@ void writet3(PDF pdf, internal_font_number f)
     int wptr, eptr, cptr;
     int first_char, last_char;
     int pk_font_scale;
+    pdffloat pf;
     boolean is_notdef;
 
     t3_glyph_num = 0;
@@ -276,9 +279,10 @@ void writet3(PDF pdf, internal_font_number f)
             get_pk_font_scale(f, pdf->decimal_digits, pdf->pk_scale_factor);
         pdf_add_name(pdf, "FontMatrix");
         pdf_begin_array(pdf);
-        pdf_print_real(pdf, pk_font_scale, 5);
+        setpdffloat(pf, pk_font_scale, 5);
+        print_pdffloat(pdf, pf);
         pdf_puts(pdf, " 0 0 ");
-        pdf_print_real(pdf, pk_font_scale, 5);
+        print_pdffloat(pdf, pf);
         pdf_puts(pdf, " 0 0");
         pdf_end_array(pdf);
     } else {
@@ -320,7 +324,8 @@ void writet3(PDF pdf, internal_font_number f)
     pdf_begin_array(pdf);
     if (is_pk_font)
         for (i = first_char; i <= last_char; i++) {
-            pdf_print_real(pdf, (int) t3_char_widths[i], 2);
+            setpdffloat(pf, (int) t3_char_widths[i], 2);
+            print_pdffloat(pdf, pf);
             pdf_out(pdf, ' ');
     } else
         for (i = first_char; i <= last_char; i++)

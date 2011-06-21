@@ -200,25 +200,6 @@ PDF init_pdf_struct(PDF pdf)
     return pdf;
 }
 
-@ @c
-static void pdf_shipout_begin(void)
-{
-    pos_stack_used = 0;         /* start with empty stack */
-
-    if (global_shipping_mode == SHIPPING_PAGE) {
-        colorstackpagestart();
-    }
-}
-
-static void pdf_shipout_end(void)
-{
-    if (pos_stack_used > 0) {
-        pdftex_fail("%u unmatched \\pdfsave after %s shipout",
-                    (unsigned int) pos_stack_used,
-                    ((global_shipping_mode == SHIPPING_PAGE) ? "page" : "form"));
-    }
-}
-
 @  We use |pdf_get_mem| to allocate memory in |mem|.
 
 @c
@@ -418,19 +399,18 @@ void pdf_flush(PDF pdf)
     assert(pdf->buf == os->buf[os->curbuf]);
     switch (os->curbuf) {
     case PDFOUT_BUF:
-        switch (pdf->zip_write_state) {
-        case NO_ZIP:
-            if (pdf->draftmode == 0)
+        if (pdf->draftmode == 0) {
+            switch (pdf->zip_write_state) {
+            case NO_ZIP:
                 write_nozip(pdf);
-            break;
-        case ZIP_WRITING:
-            if (pdf->draftmode == 0)
+                break;
+            case ZIP_WRITING:
+            case ZIP_FINISH:
                 write_zip(pdf);
-            break;
-        case ZIP_FINISH:
-            if (pdf->draftmode == 0)
-                write_zip(pdf);
-            break;
+                break;
+            default:
+                assert(0);
+            }
         }
         strbuf_seek(pdf->buf, 0);
         if (saved_pdf_gone > pdf->gone)
@@ -590,26 +570,29 @@ void pdf_print_int(PDF pdf, longinteger n)
     pdf_out_block(pdf, (const char *) s, w);
 }
 
-@ print $m/10^d$ as real
-@c
-void pdf_print_real(PDF pdf, int m, int d)
+@ @c
+void print_pdffloat(PDF pdf, pdffloat f)
 {
+    char a[24];
+    int e = f.e, i, j;
+    long l, m = f.m;
     if (m < 0) {
         pdf_out(pdf, '-');
-        m = -m;
-    };
-    pdf_print_int(pdf, m / ten_pow[d]);
-    m = m % ten_pow[d];
-    if (m > 0) {
+        m *= -1;
+    }
+    l = m / ten_pow[e];
+    pdf_print_int(pdf, l);
+    l = m % ten_pow[e];
+    if (l != 0) {
         pdf_out(pdf, '.');
-        d--;
-        while (m < ten_pow[d]) {
-            pdf_out(pdf, '0');
-            d--;
+        j = snprintf(a, 23, "%ld", l + ten_pow[e]);
+        assert(j < 23);
+        for (i = e; i > 0; i--) {
+            if (a[i] != '0')
+                break;
+            a[i] = '\0';
         }
-        while (m % 10 == 0)
-            m /= 10;
-        pdf_print_int(pdf, m);
+        pdf_puts(pdf, (a + 1));
     }
 }
 
@@ -1814,6 +1797,7 @@ char *get_resname_prefix(PDF pdf)
 
 void pdf_begin_page(PDF pdf)
 {
+    pdffloat f;
     scaled form_margin = 0;     /* was one_bp until SVN4066 */
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
     init_pdf_pagecalculations(pdf);
@@ -1876,14 +1860,18 @@ void pdf_begin_page(PDF pdf)
     if (global_shipping_mode == SHIPPING_PAGE) {
         /* Adjust transformation matrix for the magnification ratio */
         if (mag != 1000) {
-            pdf_print_real(pdf, mag, 3);
+            setpdffloat(f, mag, 3);
+            print_pdffloat(pdf, f);
             pdf_puts(pdf, " 0 0 ");
-            pdf_print_real(pdf, mag, 3);
+            print_pdffloat(pdf, f);
             pdf_puts(pdf, " 0 0 cm\n");
         }
     }
-    pdf_shipout_begin();
+    pos_stack_used = 0;         /* start with empty stack */
 
+    if (global_shipping_mode == SHIPPING_PAGE) {
+        colorstackpagestart();
+    }
     if (global_shipping_mode == SHIPPING_PAGE)
         pdf_out_colorstack_startpage(pdf);
 }
@@ -1925,7 +1913,12 @@ void pdf_end_page(PDF pdf)
 
     /* Finish stream of page/form contents */
     pdf_goto_pagemode(pdf);
-    pdf_shipout_end();
+    if (pos_stack_used > 0) {
+        pdftex_fail("%u unmatched \\pdfsave after %s shipout",
+                    (unsigned int) pos_stack_used,
+                    ((global_shipping_mode ==
+                      SHIPPING_PAGE) ? "page" : "form"));
+    }
     pdf_end_stream(pdf);
     pdf_end_obj(pdf);
 
