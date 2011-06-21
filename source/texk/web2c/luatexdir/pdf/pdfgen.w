@@ -73,13 +73,13 @@ strbuf_s *new_strbuf(size_t size, size_t limit)
 @c
 static void strbuf_room(strbuf_s * b, size_t n)
 {
-    int a;
+    unsigned int a;
     size_t l = (size_t) (b->p - b->data);
     if (n > b->limit - l)
         overflow("PDF buffer", (unsigned) b->size);
     if (n + l > b->size) {
-        a = b->size >> 2;
-        if ((int) n + l > b->size + a)
+        a = (unsigned int) (b->size >> 2);
+        if (n + l > b->size + a)
             b->size = n + l;
         else if (b->size < b->limit - a)
             b->size = b->size + a;
@@ -461,7 +461,7 @@ static void pdf_prepare_obj(PDF pdf, int k, int pdf_os_threshold)
         break;
     case OBJSTM_BUF:
         if (os->cur_objstm == 0) {
-            os->cur_objstm = pdf_create_obj(pdf, obj_type_objstm, 0);
+            os->cur_objstm = (unsigned int) pdf_create_obj(pdf, obj_type_objstm, 0);
             os->idx = 0;
             obuf->p = obuf->data;       /* start fresh object stream */
             os->ostm_ctr++;     /* only for statistics */
@@ -470,7 +470,7 @@ static void pdf_prepare_obj(PDF pdf, int k, int pdf_os_threshold)
         obj_os_idx(pdf, k) = (int) os->idx;
         obj_os_objnum(pdf, k) = (int) os->cur_objstm;
         os->obj[os->idx].num = k;
-        os->obj[os->idx].off = (size_t) (obuf->p - obuf->data);
+        os->obj[os->idx].off = obuf->p - obuf->data;
         break;
     default:
         assert(0);
@@ -564,10 +564,10 @@ void pdf_print(PDF pdf, str_number s)
 void pdf_print_int(PDF pdf, longinteger n)
 {
     char s[24];
-    size_t w;
+    int w;
     w = snprintf(s, 23, "%ld", n);
     check_nprintf(w, 23);
-    pdf_out_block(pdf, (const char *) s, w);
+    pdf_out_block(pdf, (const char *) s, (size_t) w);
 }
 
 @ @c
@@ -664,7 +664,7 @@ void pdf_end_stream(PDF pdf)
 {
     os_struct *os = pdf->os;
     strbuf_s *lbuf = os->buf[LUASTM_BUF];
-    const_lstring ls;
+    lstring ls;
     assert(pdf->buf == os->buf[os->curbuf]);
     switch (os->curbuf) {
     case PDFOUT_BUF:
@@ -1168,7 +1168,7 @@ static void pdf_os_write_objstream(PDF pdf)
         return;
     assert(pdf->buf == obuf);   /* yes, pdf_out() still goes into ObjStm */
     assert(os->idx > 0);        /* yes, there are objects for the ObjStm */
-    n1 = strbuf_offset(obuf);   /* remember end of collected object stream contents */
+    n1 = (unsigned int) strbuf_offset(obuf);    /* remember end of collected object stream contents */
     /* this is needed here to calculate /First for the ObjStm dict */
     for (i = 0, j = 0; i < os->idx; i++) {      /* add object-number/byte-offset list to buffer */
         pdf_print_int(pdf, (int) os->obj[i].num);
@@ -1182,8 +1182,8 @@ static void pdf_os_write_objstream(PDF pdf)
             j++;
         }
     }
-    n2 = strbuf_offset(obuf);   /* remember current buffer end */
-    pdf_begin_obj(pdf, os->cur_objstm, OBJSTM_NEVER);   /* switch to PDF stream writing */
+    n2 = (unsigned int) strbuf_offset(obuf);    /* remember current buffer end */
+    pdf_begin_obj(pdf, (int) os->cur_objstm, OBJSTM_NEVER);     /* switch to PDF stream writing */
     pdf_begin_dict(pdf);
     pdf_dict_add_name(pdf, "Type", "ObjStm");
     pdf_dict_add_int(pdf, "N", (int) os->idx);  /* number of objects in ObjStm */
@@ -2549,9 +2549,9 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             }
             pdf_puts(pdf, "startxref\n");
             if (pdf->os_enable)
-                pdf_add_int(pdf, obj_offset(pdf, xref_stm));
+                pdf_add_int(pdf, (int) obj_offset(pdf, xref_stm));
             else
-                pdf_add_int(pdf, pdf->save_offset);
+                pdf_add_int(pdf, (int) pdf->save_offset);
             pdf_puts(pdf, "\n%%EOF\n");
 
             pdf_flush(pdf);
