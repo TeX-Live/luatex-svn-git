@@ -480,6 +480,7 @@ void initialize_commands(void)
     primitive_omega("OmegaVersion", convert_cmd, omega_code, 0);
     primitive_aleph("AlephVersion", convert_cmd, aleph_code, 0);
     primitive_tex("fontname", convert_cmd, font_name_code, 0);
+    primitive_luatex("fontid", convert_cmd, font_id_code, 0);
     primitive_pdftex("pdftexrevision", convert_cmd, pdftex_revision_code, 0);
     primitive_luatex("luatexrevision", convert_cmd, luatex_revision_code, 0);
     primitive_luatex("luatexdatestamp", convert_cmd, luatex_date_code, 0);

@@ -1686,6 +1686,9 @@ static boolean print_convert_string(halfword c, int i)
             tprint("pt");
         }
         break;
+    case font_id_code:
+        print_int(i);
+        break;
     case math_style_code:
         print_math_style();
         break;
@@ -1789,6 +1792,7 @@ void conv_toks(void)
     case aleph_code:
         break;
     case font_name_code:
+    case font_id_code:
         scan_font_ident();
         break;
     case pdftex_revision_code:

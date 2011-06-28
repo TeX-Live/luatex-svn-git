@@ -266,6 +266,7 @@ typedef enum {
     Omega_revision_code,        /* command code for \.{\\Omegarevision} */
     eTeX_revision_code,         /* command code for \.{\\eTeXrevision} */
     font_identifier_code,       /* command code for \.{tex.fontidentifier} (virtual) */
+    font_id_code,               /* command code for \.{\\fontid} */
 } convert_codes;
 
 typedef enum {
