@@ -113,11 +113,11 @@ static void set_textmatrix(PDF pdf, scaledpos pos)
     pdfstructure *p = pdf->pstruct;
     assert(is_textmode(p));
     move = calc_pdfpos(p, pos);
-    if (p->need_tm == 1 || move) {
+    if (p->need_tm || move) {
         print_tm(pdf, p->tm);
         p->pdf.h.m = p->pdf_bt_pos.h.m + p->tm[4].m;    /* Tm replaces */
         p->pdf.v.m = p->pdf_bt_pos.v.m + p->tm[5].m;
-        p->need_tm = 0;
+        p->need_tm = false;
     }
 }
 
@@ -204,29 +204,29 @@ void pdf_place_glyph(PDF pdf, internal_font_number f, int c)
     scaledpos pos = pdf->posstruct->pos;
     if (!char_exists(f, c))
         return;
-    if (f != pdf->f_cur || is_textmode(p) || is_pagemode(p)) {
+    if (is_pagemode(p)) {
         pdf_goto_textmode(pdf);
-        if (f != pdf->f_cur)
-            setup_fontparameters(pdf, f);
-        if (p->f_pdf != p->f_pdf_cur || p->fs.m != p->fs_cur.m) {
-            set_font(pdf);
-            p->need_tm = 1;     /* force Tm setting */
-        }
-        set_textmatrix(pdf, pos);
-        begin_chararray(pdf);
+        p->need_tm = true;
     }
-    assert(is_charmode(p) || is_chararraymode(p));
-    move = calc_pdfpos(p, pos);
-    if (move) {
-        if ((p->wmode == WMODE_H
-             && (p->pdf_bt_pos.v.m + p->tm[5].m) != p->pdf.v.m)
+    if (f != pdf->f_cur) {
+        setup_fontparameters(pdf, f);
+        if (p->f_pdf != p->f_pdf_cur || p->fs.m != p->fs_cur.m) {
+            pdf_goto_textmode(pdf);
+            set_font(pdf);
+            p->need_tm = true;
+        }
+    }
+    move = calc_pdfpos(p, pos); /* within text or chararray or char mode */
+    if (move || p->need_tm) {
+        if (p->need_tm || (p->wmode == WMODE_H
+                           && (p->pdf_bt_pos.v.m + p->tm[5].m) != p->pdf.v.m)
             || (p->wmode == WMODE_V
                 && (p->pdf_bt_pos.h.m + p->tm[4].m) != p->pdf.h.m)
             || abs(p->tj_delta.m) >= 1000000) {
             pdf_goto_textmode(pdf);
             set_textmatrix(pdf, pos);
             begin_chararray(pdf);
-            move = calc_pdfpos(p, pos);
+            move = calc_pdfpos(p, pos); /* for fine adjustment */
         }
         if (move) {
             assert((p->wmode == WMODE_H
@@ -240,6 +240,7 @@ void pdf_place_glyph(PDF pdf, internal_font_number f, int c)
             p->cw.m -= p->tj_delta.m * ten_pow[p->cw.e - p->tj_delta.e];
         }
     }
+    assert(is_chararraymode(p) || is_charmode(p));
     if (is_chararraymode(p))
         begin_charmode(pdf, f, p);
     pdf_mark_char(f, c);

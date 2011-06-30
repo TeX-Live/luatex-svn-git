@@ -70,7 +70,7 @@ void pdf_out_literal(PDF pdf, halfword p)
             break;
         case direct_always:
             pdf_end_string_nl(pdf);
-            ps->need_tm = 1;
+            ps->need_tm = true;
             break;
         default:
             confusion("literal1");
@@ -136,7 +136,7 @@ void pdf_literal(PDF pdf, str_number s, int literal_mode, boolean warn)
         break;
     case direct_always:
         pdf_end_string_nl(pdf);
-        p->need_tm = 1;
+        p->need_tm = true;
         break;
     default:
         confusion("literal1");

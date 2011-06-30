@@ -68,7 +68,7 @@ void init_pdf_pagecalculations(PDF pdf)
     p->wmode = WMODE_H;
     p->mode = PMODE_PAGE;
     p->ishex = 0;
-    p->need_tm = 0;
+    p->need_tm = false;
     p->k1 = ten_pow[p->pdf.h.e] / one_bp;
 }
 
@@ -242,14 +242,14 @@ void pdf_goto_pagemode(PDF pdf)
             end_chararray(pdf);
         if (is_textmode(p))
             end_text(pdf);
-        assert(is_pagemode(p));
     }
+    assert(is_pagemode(p));
 }
 
 void pdf_goto_textmode(PDF pdf)
 {
     pdfstructure *p = pdf->pstruct;
-    scaledpos origin = {
+    const scaledpos origin = {
         0, 0
     };
     if (!is_textmode(p)) {
@@ -262,6 +262,6 @@ void pdf_goto_textmode(PDF pdf)
             if (is_chararraymode(p))
                 end_chararray(pdf);
         }
-        assert(is_textmode(p));
     }
+    assert(is_textmode(p));
 }
