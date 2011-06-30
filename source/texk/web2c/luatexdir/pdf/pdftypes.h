@@ -119,6 +119,7 @@ typedef struct {
     pdffloat tj_delta;          /* rel. movement in [(..)..]TJ array (glyph raster) */
     pdffloat fs;                /* font size in PDF units */
     pdffloat fs_cur;            /* to check if fs.m has changed and Tf needed */
+    pdffloat tm0_cur;           /* to check if tm[0] has changed and Tm needed */
     pdffloat cm[6];             /* cm array */
     pdffloat tm[6];             /* Tm array */
     double k1;                  /* conv. factor from TeX sp to PDF page raster */

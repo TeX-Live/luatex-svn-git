@@ -119,6 +119,7 @@ static void set_textmatrix(PDF pdf, scaledpos pos)
         p->pdf.v.m = p->pdf_bt_pos.v.m + p->tm[5].m;
         p->need_tm = false;
     }
+    p->tm0_cur.m = p->tm[0].m;
 }
 
 @ Print out a character to PDF buffer; the character will be printed in octal
@@ -214,7 +215,8 @@ void pdf_place_glyph(PDF pdf, internal_font_number f, int c)
             pdf_goto_textmode(pdf);
             set_font(pdf);
             p->need_tm = true;
-        }
+        } else if (p->tm0_cur.m != p->tm[0].m)
+            p->need_tm = true;
     }
     move = calc_pdfpos(p, pos); /* within text or chararray or char mode */
     if (move || p->need_tm) {

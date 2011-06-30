@@ -56,6 +56,7 @@ void init_pdf_pagecalculations(PDF pdf)
     setpdffloat(p->cm[4], 0, decimal_digits);   /* horizontal movement on page */
     setpdffloat(p->cm[5], 0, decimal_digits);   /* vertical movement on page */
     /* for placement inside BT...ET */
+    setpdffloat(p->tm0_cur, 0, 6);      /* mantissa holds HZ expand * ExtendFont */
     setpdffloat(p->tm[0], ten_pow[6], 6);       /* mantissa holds HZ expand * ExtendFont */
     setpdffloat(p->tm[1], 0, 0);
     setpdffloat(p->tm[2], 0, 3);        /* mantissa holds SlantFont, 0 = default */
