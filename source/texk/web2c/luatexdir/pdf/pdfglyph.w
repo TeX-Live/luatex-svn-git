@@ -215,8 +215,10 @@ void pdf_place_glyph(PDF pdf, internal_font_number f, int c)
             pdf_goto_textmode(pdf);
             set_font(pdf);
             p->need_tm = true;
-        } else if (p->tm0_cur.m != p->tm[0].m)
+        } else if (p->tm0_cur.m != p->tm[0].m) {
+            /* catch in-line HZ expand change due to efcode */
             p->need_tm = true;
+        }
     }
     move = calc_pdfpos(p, pos); /* within text or chararray or char mode */
     if (move || p->need_tm) {
