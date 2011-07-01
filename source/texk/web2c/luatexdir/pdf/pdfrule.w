@@ -23,11 +23,7 @@ static const char _svn_version[] =
     "$URL$";
 
 #include "ptexlib.h"
-
-@ @c
 #include "pdf/pdfpage.h"
-
-#define lround(a) (long) floor((a) + 0.5)
 
 @ @c
 void pdf_place_rule(PDF pdf, halfword q, scaledpos size)

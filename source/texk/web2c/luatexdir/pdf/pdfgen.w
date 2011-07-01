@@ -779,8 +779,6 @@ scaled round_xn_over_d(scaled x, int n, unsigned int d)
 }
 
 @ @c
-#define lround(a) (long) floor((a) + 0.5)
-
 void pdf_add_bp(PDF pdf, scaled s)
 {                               /* print scaled as |bp| */
     pdffloat a;

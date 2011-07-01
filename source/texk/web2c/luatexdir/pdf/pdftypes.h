@@ -30,6 +30,8 @@
 
 #  define pdfkeyprefix "PTEX"
 
+#  define lround(a) (long) floor((a) + 0.5)
+
 #  define MAX_OBJ_COMPRESS_LEVEL 3      /* maximum/clipping value for \pdfobjcompresslevel */
 #  define OBJSTM_UNSET -1       /* initial value */
 #  define OBJSTM_ALWAYS 1       /* \pdfobjcompresslevel >= OBJSTM_ALWAYS: put object into object stream */
