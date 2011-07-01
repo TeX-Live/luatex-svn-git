@@ -97,13 +97,8 @@ static void set_font(PDF pdf)
     pdf_puts(pdf, " Tf ");
     p->f_pdf_cur = p->f_pdf;
     p->fs_cur.m = p->fs.m;
-}
-
-@ @c
-static void print_tm(PDF pdf, pdffloat * tm)
-{
-    print_pdf_matrix(pdf, tm);
-    pdf_puts(pdf, " Tm ");
+    p->need_tf = false;
+    p->need_tm = true;          /* always follow Tf by Tm */
 }
 
 @ @c
@@ -114,7 +109,8 @@ static void set_textmatrix(PDF pdf, scaledpos pos)
     assert(is_textmode(p));
     move = calc_pdfpos(p, pos);
     if (p->need_tm || move) {
-        print_tm(pdf, p->tm);
+        print_pdf_matrix(pdf, p->tm);
+        pdf_puts(pdf, " Tm ");
         p->pdf.h.m = p->pdf_bt_pos.h.m + p->tm[4].m;    /* Tm replaces */
         p->pdf.v.m = p->pdf_bt_pos.v.m + p->tm[5].m;
         p->need_tm = false;
@@ -205,21 +201,23 @@ void pdf_place_glyph(PDF pdf, internal_font_number f, int c)
     scaledpos pos = pdf->posstruct->pos;
     if (!char_exists(f, c))
         return;
+    /* ensure to be within BT...ET */
     if (is_pagemode(p)) {
         pdf_goto_textmode(pdf);
-        p->need_tm = true;
+        p->need_tf = true;
     }
-    if (f != pdf->f_cur) {
+    /* all font setup */
+    if (f != pdf->f_cur || p->need_tf) {
         setup_fontparameters(pdf, f);
-        if (p->f_pdf != p->f_pdf_cur || p->fs.m != p->fs_cur.m) {
+        if (p->need_tf || p->f_pdf != p->f_pdf_cur || p->fs.m != p->fs_cur.m) {
             pdf_goto_textmode(pdf);
             set_font(pdf);
-            p->need_tm = true;
         } else if (p->tm0_cur.m != p->tm[0].m) {
             /* catch in-line HZ expand change due to efcode */
             p->need_tm = true;
         }
     }
+    /* all movements */
     move = calc_pdfpos(p, pos); /* within text or chararray or char mode */
     if (move || p->need_tm) {
         if (p->need_tm || (p->wmode == WMODE_H
@@ -244,6 +242,7 @@ void pdf_place_glyph(PDF pdf, internal_font_number f, int c)
             p->cw.m -= p->tj_delta.m * ten_pow[p->cw.e - p->tj_delta.e];
         }
     }
+    /* glyph output */
     assert(is_chararraymode(p) || is_charmode(p));
     if (is_chararraymode(p))
         begin_charmode(pdf, f, p);

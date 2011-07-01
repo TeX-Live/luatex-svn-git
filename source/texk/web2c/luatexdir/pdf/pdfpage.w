@@ -69,6 +69,7 @@ void init_pdf_pagecalculations(PDF pdf)
     p->wmode = WMODE_H;
     p->mode = PMODE_PAGE;
     p->ishex = 0;
+    p->need_tf = false;
     p->need_tm = false;
     p->k1 = ten_pow[p->pdf.h.e] / one_bp;
 }
@@ -209,8 +210,7 @@ static void begin_text(PDF pdf)
     p->pdf_bt_pos = p->pdf;
     pdf_puts(pdf, "BT\n");
     p->mode = PMODE_TEXT;
-    p->f_pdf_cur = null_font;   /* forces Tf operator */
-    p->fs_cur.m = 0;
+    p->need_tf = true;
 }
 
 static void end_text(PDF pdf)
