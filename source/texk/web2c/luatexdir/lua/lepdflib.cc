@@ -102,7 +102,7 @@ new_poppler_userdata(PDFRectangle);
 new_poppler_userdata(Ref);
 new_poppler_userdata(Stream);
 new_poppler_userdata(XRef);
-//new_poppler_userdata(XRefEntry);
+new_poppler_userdata(XRefEntry);
 
 //**********************************************************************
 
@@ -2693,12 +2693,48 @@ static int m_XRef_fetch(lua_State * L)
 m_poppler_get_OBJECT(XRef, getDocInfo);
 m_poppler_get_OBJECT(XRef, getDocInfoNF);
 m_poppler_get_INT(XRef, getNumObjects);
-// getLastXRefPos
+m_poppler_get_INT(XRef, getLastXRefPos);
 m_poppler_get_INT(XRef, getRootNum);
 m_poppler_get_INT(XRef, getRootGen);
 // getStreamEnd
+
+static int m_XRef_getNumEntry(lua_State * L)
+{
+    int i, offset;
+    udstruct *uin, *uout;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_XRef);
+    if (uin->pd != NULL && uin->pd->pc != uin->pc)
+        pdfdoc_changed_error(L);
+    offset = luaL_checkint(L, 2);
+    i = ((XRef *) uin->d)->getNumEntry(offset);
+    if (i >= 0)
+        lua_pushinteger(L, i);
+    else
+        lua_pushnil(L);
+    return 1;
+}
+
 m_poppler_get_INT(XRef, getSize);
-// getEntry
+
+static int m_XRef_getEntry(lua_State * L)
+{
+    int i, size;
+    udstruct *uin, *uout;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_XRef);
+    if (uin->pd != NULL && uin->pd->pc != uin->pc)
+        pdfdoc_changed_error(L);
+    i = luaL_checkint(L, 2);
+    size = ((XRef *) uin->d)->getSize();
+    if (i > 0 && i <= size) {
+        uout = new_XRefEntry_userdata(L);
+        uout->d = ((XRef *) uin->d)->getEntry(i);
+        uout->pc = uin->pc;
+        uout->pd = uin->pd;
+    } else
+        lua_pushnil(L);
+    return 1;
+}
+
 m_poppler_get_poppler(XRef, Object, getTrailerDict);
 
 m_poppler__tostring(XRef);
@@ -2720,11 +2756,13 @@ static const struct luaL_Reg XRef_m[] = {
     {"getDocInfo", m_XRef_getDocInfo},
     {"getDocInfoNF", m_XRef_getDocInfoNF},
     {"getNumObjects", m_XRef_getNumObjects},
-    //
+    {"getLastXRefPos", m_XRef_getLastXRefPos},
     {"getRootNum", m_XRef_getRootNum},
     {"getRootGen", m_XRef_getRootGen},
-    //
+    // {"getStreamEnd", m_XRef_getStreamEnd},
+    {"getNumEntry", m_XRef_getNumEntry},
     {"getSize", m_XRef_getSize},
+    {"getEntry", m_XRef_getEntry},
     {"getTrailerDict", m_XRef_getTrailerDict},
     {"__tostring", m_XRef__tostring},
     {NULL, NULL}                // sentinel
