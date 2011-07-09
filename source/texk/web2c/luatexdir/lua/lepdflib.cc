@@ -2701,7 +2701,7 @@ m_poppler_get_INT(XRef, getRootGen);
 static int m_XRef_getNumEntry(lua_State * L)
 {
     int i, offset;
-    udstruct *uin, *uout;
+    udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_XRef);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
