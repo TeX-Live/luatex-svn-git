@@ -967,6 +967,7 @@ value is changed to zero and so is the next tabskip.
                 glue_set(q) = glue_set(p);
                 shift_amount(q) = o;
                 r = vlink(list_ptr(q));
+                assert (type(r) == unset_node);
                 s = vlink(list_ptr(p));
                 do {
                     /* Set the glue in node |r| and change it from an unset node */
