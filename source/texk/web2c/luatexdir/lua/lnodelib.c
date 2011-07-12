@@ -2781,7 +2781,7 @@ static int lua_nodelib_setfield(lua_State * L)
                 height(n) = (halfword) lua_tointeger(L, 3);
                 break;
             case 7:
-                box_dir(n) = (halfword) lua_tointeger(L, 3);
+                box_dir(n) = nodelib_getdir(L, 3);
                 break;
             case 8:
                 glue_shrink(n) = (halfword) lua_tointeger(L, 3);
