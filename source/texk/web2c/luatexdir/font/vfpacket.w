@@ -125,7 +125,7 @@ const char *packet_command_names[] = {
 @ @c
 static float packet_float(eight_bits ** vfpp)
 {
-    int i;
+    unsigned int i;
     union U {
         float a;
         eight_bits b[sizeof(float)];
