@@ -58,7 +58,7 @@ void init_pdf_pagecalculations(PDF pdf)
     setpdffloat(p->tm[0], ten_pow[6], 6);       /* mantissa holds HZ expand * ExtendFont */
     setpdffloat(p->tm[1], 0, 0);
     setpdffloat(p->tm[2], 0, 3);        /* mantissa holds SlantFont, 0 = default */
-    setpdffloat(p->tm[3], 1, 0);
+    setpdffloat(p->tm[3], ten_pow[6], 6);
     setpdffloat(p->tm[4], 0, decimal_digits);   /* mantissa holds delta from |pdf_bt_pos.h| */
     setpdffloat(p->tm[5], 0, decimal_digits);   /* mantissa holds delta from |pdf_bt_pos.v| */
     /*  */
