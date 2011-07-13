@@ -1,6 +1,6 @@
 % luafont.w
 %
-%   Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+%   Copyright 2006-2011 Taco Hoekwater <taco@@luatex.org>
 %
 %   This file is part of LuaTeX.
 %
@@ -582,7 +582,7 @@ static int count_hash_items(lua_State * L, int name_index)
 @ @c
 static void append_float(eight_bits ** cpp, float a)
 {
-    int i;
+    unsigned int i;
     eight_bits *cp = *cpp;
     union U {
         float a;
