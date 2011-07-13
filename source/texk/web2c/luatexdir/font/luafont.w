@@ -15,7 +15,7 @@
 %   License for more details.
 %
 %   You should have received a copy of the GNU General Public License along
-%   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+%   with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @ @c
 static const char _svn_version[] =
@@ -468,7 +468,7 @@ int font_to_lua(lua_State * L, int f)
 
     /* pdf parameters */
     /* skip the first four for now, that are very much interal */
-#if 0    
+#if 0
        if (pdf_font_num(f) != 0) {
        lua_pushnumber(L,pdf_font_num(f));
        lua_setfield(L,-2,"pdf_num");
@@ -570,16 +570,29 @@ static int count_hash_items(lua_State * L, int name_index)
 @ @c
 #define streq(a,b) (strcmp(a,b)==0)
 
-#define append_packet(k) { cpackets[np++] = (eight_bits)(k); }
+#define append_packet(k) { *(cp++) = (eight_bits) (k); }
 
-#define do_store_four(l) {                                                        \
-    append_packet((l&0xFF000000)>>24);                                \
-    append_packet((l&0x00FF0000)>>16);                                \
-    append_packet((l&0x0000FF00)>>8);                                \
-    append_packet((l&0x000000FF));  }
+#define do_store_four(l) {                 \
+    append_packet((l & 0xFF000000) >> 24); \
+    append_packet((l & 0x00FF0000) >> 16); \
+    append_packet((l & 0x0000FF00) >> 8);  \
+    append_packet((l & 0x000000FF));       \
+}
 
-/*
-*/
+@ @c
+static void append_float(eight_bits ** cpp, float a)
+{
+    int i;
+    eight_bits *cp = *cpp;
+    union U {
+        float a;
+        eight_bits b[sizeof(float)];
+    } u;
+    u.a = a;
+    for (i = 0; i < sizeof(float); i++)
+        append_packet(u.b[i]);
+    *cpp = cp;
+}
 
 #define lua_roundnumber(a,b) (int)floor((double)lua_tonumber(L,-1)+0.5)
 
@@ -757,6 +770,7 @@ make_luaS_index(horiz_variants);
 make_luaS_index(vert_variants);
 make_luaS_index(mathkern);
 make_luaS_index(commands);
+make_luaS_index(scale);
 
 static void init_font_string_pointers(lua_State * L)
 {
@@ -817,6 +831,7 @@ static void init_font_string_pointers(lua_State * L)
     init_luaS_index(vert_variants);
     init_luaS_index(mathkern);
     init_luaS_index(commands);
+    init_luaS_index(scale);
 
 }
 
@@ -852,6 +867,8 @@ static int count_char_packet_bytes(lua_State * L)
                 } else if (luaS_ptr_eq(s, right) ||
                            luaS_ptr_eq(s, node) || luaS_ptr_eq(s, down)) {
                     l += 5;
+                } else if (luaS_ptr_eq(s, scale)) {
+                    l += sizeof(float) + 1;
                 } else if (luaS_ptr_eq(s, special)) {
                     size_t len;
                     lua_rawgeti(L, -2, 2);
@@ -860,7 +877,7 @@ static int count_char_packet_bytes(lua_State * L)
                         lua_pop(L, 1);
                         if (len > 0) {
                             l = (int) (l + 5 + (int) len);
-                        }  
+                        }
                     } else {
                         lua_pop(L, 1);
                         fprintf(stdout, "invalid packet special!\n");
@@ -898,9 +915,8 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
     size_t l;
     int cmd;
     const char *s;
-    eight_bits *cpackets;
+    eight_bits *cpackets, *cp;
     int ff = 0;
-    int np = 0;
     int max_f = 0;
     int pc = count_char_packet_bytes(L);
     if (pc <= 0)
@@ -910,7 +926,7 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
     while (l_fonts[(max_f + 1)] != 0)
         max_f++;
 
-    cpackets = xmalloc((unsigned) (pc + 1));
+    cp = cpackets = xmalloc((unsigned) (pc + 1));
     for (i = 1; i <= (int) lua_objlen(L, -1); i++) {
         lua_rawgeti(L, -1, i);
         if (lua_istable(L, -1)) {
@@ -958,6 +974,8 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
                     cmd = packet_special_code;
                 } else if (luaS_ptr_eq(s, image)) {
                     cmd = packet_image_code;
+                } else if (luaS_ptr_eq(s, scale)) {
+                    cmd = packet_scale_code;
                 }
 
                 switch (cmd) {
@@ -1037,6 +1055,12 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
                     break;
                 case packet_nop_code:
                     break;
+                case packet_scale_code:
+                    append_packet(cmd);
+                    lua_rawgeti(L, -2, 2);
+                    append_float(&cp, (float) luaL_checknumber(L, -1));
+                    lua_pop(L, 1);
+                    break;
                 default:
                     fprintf(stdout,
                             "Unknown char packet code %s (char %d in font %s)\n",
@@ -1055,7 +1079,6 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
     set_charinfo_packets(co, cpackets);
     return;
 }
-
 
 @ @c
 static void read_lua_cidinfo(lua_State * L, int f)
@@ -1478,7 +1501,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
 
 
 
-@ The caller has to fix the state of the lua stack when there is an error! 
+@ The caller has to fix the state of the lua stack when there is an error!
 
 @c
 int font_from_lua(lua_State * L, int f)
@@ -2194,7 +2217,7 @@ static halfword handle_lig_word(halfword cur)
     return cur;
 }
 
-@ Return value is the new tail, head should be a dummy 
+@ Return value is the new tail, head should be a dummy
 
 @c
 halfword handle_ligaturing(halfword head, halfword tail)
