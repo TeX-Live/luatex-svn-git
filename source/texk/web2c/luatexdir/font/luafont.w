@@ -771,6 +771,7 @@ make_luaS_index(vert_variants);
 make_luaS_index(mathkern);
 make_luaS_index(commands);
 make_luaS_index(scale);
+make_luaS_index(lua);
 
 static void init_font_string_pointers(lua_State * L)
 {
@@ -832,7 +833,7 @@ static void init_font_string_pointers(lua_State * L)
     init_luaS_index(mathkern);
     init_luaS_index(commands);
     init_luaS_index(scale);
-
+    init_luaS_index(lua);
 }
 
 static int count_char_packet_bytes(lua_State * L)
@@ -864,12 +865,12 @@ static int count_char_packet_bytes(lua_State * L)
                     l++;
                 } else if (luaS_ptr_eq(s, rule)) {
                     l += 9;
-                } else if (luaS_ptr_eq(s, right) ||
-                           luaS_ptr_eq(s, node) || luaS_ptr_eq(s, down)) {
+                } else if (luaS_ptr_eq(s, right) || luaS_ptr_eq(s, node)
+                           || luaS_ptr_eq(s, down) || luaS_ptr_eq(s, image)) {
                     l += 5;
                 } else if (luaS_ptr_eq(s, scale)) {
                     l += sizeof(float) + 1;
-                } else if (luaS_ptr_eq(s, special)) {
+                } else if (luaS_ptr_eq(s, special) || luaS_ptr_eq(s, lua)) {
                     size_t len;
                     lua_rawgeti(L, -2, 2);
                     if (lua_isstring(L, -1)) {
@@ -882,8 +883,6 @@ static int count_char_packet_bytes(lua_State * L)
                         lua_pop(L, 1);
                         fprintf(stdout, "invalid packet special!\n");
                     }
-                } else if (luaS_ptr_eq(s, image)) {
-                    l += 5;
                 } else {
                     fprintf(stdout, "unknown packet command %s!\n", s);
                 }
@@ -896,8 +895,6 @@ static int count_char_packet_bytes(lua_State * L)
     }
     return l;
 }
-
-
 
 static scaled sp_to_dvi(halfword sp, halfword atsize)
 {
@@ -976,6 +973,8 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
                     cmd = packet_image_code;
                 } else if (luaS_ptr_eq(s, scale)) {
                     cmd = packet_scale_code;
+                } else if (luaS_ptr_eq(s, lua)) {
+                    cmd = packet_lua_code;
                 }
 
                 switch (cmd) {
@@ -1024,6 +1023,7 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
                     lua_pop(L, 2);
                     break;
                 case packet_special_code:
+                case packet_lua_code:
                     append_packet(cmd);
                     lua_rawgeti(L, -2, 2);
                     s = luaL_checklstring(L, -1, &l);

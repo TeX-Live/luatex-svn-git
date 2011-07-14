@@ -600,7 +600,8 @@ typedef enum { packet_char_code,
     packet_node_code,
     packet_nop_code,
     packet_end_code,
-    packet_scale_code
+    packet_scale_code,
+    packet_lua_code,
 } packet_command_codes;
 
 extern scaled store_scaled_f(scaled sq, int fw);

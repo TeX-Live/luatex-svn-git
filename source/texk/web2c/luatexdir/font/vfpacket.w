@@ -85,15 +85,17 @@ int vf_packet_bytes(charinfo * co)
     }
     while ((cmd = *(vfp++)) != packet_end_code) {
         switch (cmd) {
-        case packet_char_code:
-        case packet_font_code:
-        case packet_right_code:
-        case packet_down_code:
-        case packet_node_code:
-            vfp += 4;
-            break;
-        case packet_push_code:
+        case packet_nop_code:
         case packet_pop_code:
+        case packet_push_code:
+            break;
+        case packet_char_code:
+        case packet_down_code:
+        case packet_font_code:
+        case packet_image_code:
+        case packet_node_code:
+        case packet_right_code:
+            vfp += 4;
             break;
         case packet_rule_code:
             vfp += 8;
@@ -101,11 +103,6 @@ int vf_packet_bytes(charinfo * co)
         case packet_special_code:
             packet_number(k);   /* +4 */
             vfp += (int) k;
-            break;
-        case packet_image_code:
-            vfp += 4;
-            break;
-        case packet_nop_code:
             break;
         default:
             pdf_error("vf", "invalid DVI command (1)");
@@ -237,6 +234,14 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c)
             pdf_literal(pdf, s, scan_special, false);
             flush_str(s);
             break;
+        case packet_lua_code:
+            packet_number(k);
+            if (luaL_loadbuffer
+                (Luas, (const char *) vfp, (size_t) k, "packet_lua_code")
+                || lua_pcall(Luas, 0, LUA_MULTRET, 0))
+                lua_error(Luas);
+            vfp += k;
+            break;
         case packet_image_code:
             packet_number(k);
             vf_out_image(pdf, k);
@@ -295,14 +300,15 @@ int *packet_local_fonts(internal_font_number f, int *num)
                         localfonts[k++] = lf;
                     }
                     break;
-                case packet_push_code:
-                case packet_pop_code:
                 case packet_nop_code:
+                case packet_pop_code:
+                case packet_push_code:
                     break;
                 case packet_char_code:
-                case packet_right_code:
                 case packet_down_code:
+                case packet_image_code:
                 case packet_node_code:
+                case packet_right_code:
                     vfp += 4;
                     break;
                 case packet_rule_code:
@@ -311,9 +317,6 @@ int *packet_local_fonts(internal_font_number f, int *num)
                 case packet_special_code:
                     packet_number(i);
                     vfp += i;
-                    break;
-                case packet_image_code:
-                    vfp += 4;
                     break;
                 default:
                     pdf_error("vf", "invalid DVI command (3)");
@@ -365,14 +368,15 @@ replace_packet_fonts(internal_font_number f, int *old_fontid,
                         *(vfp - 1) = (eight_bits) (k & 0x000000FF);
                     }
                     break;
-                case packet_push_code:
-                case packet_pop_code:
                 case packet_nop_code:
+                case packet_pop_code:
+                case packet_push_code:
                     break;
                 case packet_char_code:
-                case packet_right_code:
                 case packet_down_code:
+                case packet_image_code:
                 case packet_node_code:
+                case packet_right_code:
                     vfp += 4;
                     break;
                 case packet_rule_code:
@@ -381,9 +385,6 @@ replace_packet_fonts(internal_font_number f, int *old_fontid,
                 case packet_special_code:
                     packet_number(k);
                     vfp += k;
-                    break;
-                case packet_image_code:
-                    vfp += 4;
                     break;
                 default:
                     pdf_error("vf", "invalid DVI command (4)");
