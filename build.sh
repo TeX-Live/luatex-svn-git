@@ -98,8 +98,8 @@ then
   LUATEXEXE=luatex.exe
   OLDPATH=$PATH
   PATH=/usr/mingw32/bin:$PATH
-  CFLAGS="-mtune=pentiumpro -msse2 -g -O2 $CFLAGS"
-  CXXFLAGS="-mtune=pentiumpro -msse2 -g -O2 $CXXFLAGS"
+  CFLAGS="-mtune=nocona -g -O3 $CFLAGS"
+  CXXFLAGS="-mtune=nocona -g -O3 $CXXFLAGS"
   : ${CONFHOST:=--host=i586-mingw32msvc}
   : ${CONFBUILD:=--build=i686-linux-gnu}
   STRIP="${CONFHOST#--host=}-strip"
