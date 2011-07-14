@@ -116,7 +116,7 @@ int vf_packet_bytes(charinfo * co)
 @c
 const char *packet_command_names[] = {
     "char", "font", "pop", "push", "special", "image",
-    "right", "down", "rule", "node", "nop", "end", "scale", NULL
+    "right", "down", "rule", "node", "nop", "end", "scale", "lua", NULL
 };
 
 @ @c
