@@ -6539,6 +6539,19 @@ and \tex{errmessage} would. During this error, deletions are disabled.
 The array part of the \type{help} table has to contain strings,
 one for each line of error help.
 
+
+\subsubsection{\luatex{tex.hashtokens} (0.25)}
+
+\startfunctioncall
+for i,v in pairs (tex.hashtokens()) do ... end
+\stopfunctioncall
+
+Returns a name and token table pair (see~\in{section}[luatokens] about
+token tables) iterator for every non-zero entry in the hash table.
+This can be useful for debugging, but note that this also reports
+control sequences that may be unreachable at this moment due to local
+redefinitions: it is strictly a dump of the hash table.
+
 \subsection[luaprimitives]{Functions for dealing with primitives }
 
 \subsubsection{\luatex{tex.enableprimitives}}
