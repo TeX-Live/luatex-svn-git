@@ -36,8 +36,6 @@ static const char _svn_version[] =
 @c
 #define packet_max_recursion 100
 
-typedef unsigned char packet_stack_index;       /* an index into the stack */
-
 typedef struct packet_stack_record_ {
     float c0;
     float c1;
@@ -47,9 +45,9 @@ typedef struct packet_stack_record_ {
     scaled stack_v;             /* c5 */
 } packet_stack_record;
 
-static packet_stack_index packet_cur_s = 0;     /* current recursion level */
+packet_stack_index packet_cur_s = 0;    /* current recursion level */
 static packet_stack_record packet_stack[packet_max_recursion];
-static packet_stack_index packet_stack_ptr = 0; /* pointer into |packet_stack| */
+packet_stack_index packet_stack_ptr = 0;        /* pointer into |packet_stack| */
 
 @ Some macros for processing character packets.
 @c
@@ -191,8 +189,12 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c)
         case packet_push_code:
             packet_stack[packet_stack_ptr] = cur_mat;
             packet_stack_ptr++;
+            if (packet_stack_ptr == packet_max_recursion)
+                pdf_error("vf", "pdf_stack_ptr overflow");
             break;
         case packet_pop_code:
+            if (packet_stack_ptr == 0)
+                pdf_error("vf", "pdf_stack_ptr underflow");
             packet_stack_ptr--;
             cur_mat = packet_stack[packet_stack_ptr];
             break;
