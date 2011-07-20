@@ -150,9 +150,8 @@ void replace_packet_fonts(internal_font_number f, int *old_fontid,
                           int *new_fontid, int count);
 int *packet_local_fonts(internal_font_number f, int *num);
 
-typedef unsigned char packet_stack_index;       /* an index into the stack */
-packet_stack_index packet_cur_s;        /* current recursion level */
-packet_stack_index packet_stack_ptr;    /* pointer into |packet_stack| */
+int packet_cur_s;               /* current |do_vf_packet()| recursion level */
+int packet_stack_ptr;           /* pointer into |packet_stack| */
 
 /* writecff.c */
 void writetype1w(PDF pdf, fd_entry * fd);

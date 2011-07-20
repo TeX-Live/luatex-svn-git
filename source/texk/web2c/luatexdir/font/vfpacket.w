@@ -34,20 +34,20 @@ static const char _svn_version[] =
   not exceed |packet_max_recursion|.
 
 @c
-#define packet_max_recursion 100
+#define packet_stack_size 100   /* stack array size */
+#define packet_max_recursion 100        /* maximum |do_vf_packet()| recursion level */
 
 typedef struct packet_stack_record_ {
     float c0;
     float c1;
     float c2;
     float c3;
-    scaled stack_h;             /* c4 */
-    scaled stack_v;             /* c5 */
+    scaledpos pos;              /* c4, c5 */
 } packet_stack_record;
 
-packet_stack_index packet_cur_s = 0;    /* current recursion level */
-static packet_stack_record packet_stack[packet_max_recursion];
-packet_stack_index packet_stack_ptr = 0;        /* pointer into |packet_stack| */
+int packet_cur_s = 0;           /* current |do_vf_packet()| recursion level */
+static packet_stack_record packet_stack[packet_stack_size];
+int packet_stack_ptr = 0;       /* pointer into |packet_stack| */
 
 @ Some macros for processing character packets.
 @c
@@ -134,37 +134,36 @@ static float packet_float(eight_bits ** vfpp)
 
 void do_vf_packet(PDF pdf, internal_font_number vf_f, int c)
 {
+    int cmd, fs_f, save_stack_ptr = packet_stack_ptr;
+    unsigned k;
     internal_font_number lf;
     charinfo *co;
-    scaledpos cur = { 0, 0 }, size;
+    scaledpos size;
     packet_stack_record cur_mat;
     eight_bits *vf_packets, *vfp;
-    int cmd, fs_f;
-    float f;
     scaled i;
-    unsigned k;
     str_number s;
+    float f;
 
     posstructure localpos;      /* the position structure local within this function */
     posstructure *refpos;       /* the list origin pos. on the page, provided by the caller */
 
-    cur_mat.c0 = 1.0;
-    cur_mat.c1 = 0.0;
-    cur_mat.c2 = 0.0;
-    cur_mat.c3 = 1.0;
-    cur_mat.stack_h = 0;
-    cur_mat.stack_v = 0;
+    co = get_charinfo(vf_f, c);
+    vfp = vf_packets = get_charinfo_packets(co);
+    if (vf_packets == NULL)
+        return;
 
     lf = 0;                     /* for -Wall */
     packet_cur_s++;
     if (packet_cur_s >= packet_max_recursion)
         overflow("max level recursion of virtual fonts", packet_max_recursion);
-    co = get_charinfo(vf_f, c);
-    vfp = vf_packets = get_charinfo_packets(co);
-    if (vf_packets == NULL) {
-        packet_cur_s--;
-        return;
-    }
+
+    cur_mat.c0 = 1.0;
+    cur_mat.c1 = 0.0;
+    cur_mat.c2 = 0.0;
+    cur_mat.c3 = 1.0;
+    cur_mat.pos.h = 0;
+    cur_mat.pos.v = 0;
 
     refpos = pdf->posstruct;
     pdf->posstruct = &localpos; /* use local structure for recursion */
@@ -189,11 +188,11 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c)
         case packet_push_code:
             packet_stack[packet_stack_ptr] = cur_mat;
             packet_stack_ptr++;
-            if (packet_stack_ptr == packet_max_recursion)
+            if (packet_stack_ptr == packet_stack_size)
                 pdf_error("vf", "pdf_stack_ptr overflow");
             break;
         case packet_pop_code:
-            if (packet_stack_ptr == 0)
+            if (packet_stack_ptr == save_stack_ptr)
                 pdf_error("vf", "pdf_stack_ptr underflow");
             packet_stack_ptr--;
             cur_mat = packet_stack[packet_stack_ptr];
@@ -208,22 +207,22 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c)
                 else
                     backend_out[glyph_node] (pdf, lf, (int) k);
             }
-            cur_mat.stack_h = cur_mat.stack_h + char_width(lf, (int) k);
+            cur_mat.pos.h = cur_mat.pos.h + char_width(lf, (int) k);
             break;
         case packet_rule_code:
             packet_scaled(size.v, fs_f);        /* height (where is depth?) */
             packet_scaled(size.h, fs_f);
             if (size.h > 0 && size.v > 0)
                 pdf_place_rule(pdf, 0, size);   /* the 0 is unused */
-            cur_mat.stack_h = cur_mat.stack_h + size.h;
+            cur_mat.pos.h = cur_mat.pos.h + size.h;
             break;
         case packet_right_code:
             packet_scaled(i, fs_f);
-            cur_mat.stack_h = cur_mat.stack_h + i;
+            cur_mat.pos.h = cur_mat.pos.h + i;
             break;
         case packet_down_code:
             packet_scaled(i, fs_f);
-            cur_mat.stack_v = cur_mat.stack_v + i;
+            cur_mat.pos.v = cur_mat.pos.v + i;
             break;
         case packet_special_code:
             packet_number(k);
@@ -265,12 +264,11 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c)
         default:
             pdf_error("vf", "invalid DVI command (2)");
         }
-        cur.h = cur_mat.stack_h;
-        cur.v = cur_mat.stack_v;
-        synch_pos_with_cur(&localpos, refpos, cur);     /* trivial case, always TLT */
+        synch_pos_with_cur(&localpos, refpos, cur_mat.pos);     /* trivial case, always TLT */
     }
-    packet_cur_s--;
     pdf->posstruct = refpos;
+    packet_cur_s--;
+    packet_stack_ptr = save_stack_ptr;
 }
 
 @ @c
