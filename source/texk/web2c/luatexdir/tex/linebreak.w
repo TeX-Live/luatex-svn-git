@@ -105,13 +105,6 @@ void line_break(boolean d, int line_break_context)
     pack_begin_line = cur_list.ml_field;        /* this is for over/underfull box messages */
     vlink(temp_head) = vlink(cur_list.head_field);
     new_hyphenation(temp_head, cur_list.tail_field);
-    if ((!is_char_node(vlink(cur_list.head_field)))
-        && ((type(vlink(cur_list.head_field)) == whatsit_node)
-            && (subtype(vlink(cur_list.head_field)) == local_par_node)))
-        paragraph_dir = local_par_dir(vlink(cur_list.head_field));
-    else {
-        assert(0);              /* |paragraph_dir = 0|; */
-    }
     cur_list.tail_field = new_ligkern(temp_head, cur_list.tail_field);
     if (is_char_node(cur_list.tail_field)) {
         tail_append(new_penalty(inf_penalty));
@@ -191,6 +184,12 @@ void line_break(boolean d, int line_break_context)
         }
     }
     if (callback_id == 0) {
+        if ((!is_char_node(vlink(temp_head)))
+            && ((type(vlink(temp_head)) == whatsit_node)
+                && (subtype(vlink(temp_head)) == local_par_node)))
+            paragraph_dir = local_par_dir(vlink(temp_head));
+        else
+            assert(0);              /* |paragraph_dir = 0|; */
         ext_do_line_break(paragraph_dir,
                           int_par(pretolerance_code),
                           int_par(tracing_paragraphs_code),
