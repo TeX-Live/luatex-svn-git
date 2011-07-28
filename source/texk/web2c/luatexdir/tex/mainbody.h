@@ -96,7 +96,6 @@ typedef unsigned char glue_ord; /* infinity to the 0, 1, 2, 3, or 4 power */
 
 typedef unsigned short group_code;      /* |save_level| for a level boundary */
 
-typedef int internal_font_number;       /* |font| in a |char_node| */
 typedef int font_index;         /* index into |font_info| */
 
 typedef int save_pointer;

@@ -152,6 +152,7 @@ int *packet_local_fonts(internal_font_number f, int *num);
 
 int packet_cur_s;               /* current |do_vf_packet()| recursion level */
 int packet_stack_ptr;           /* pointer into |packet_stack| */
+vf_struct *new_vfstruct(void);
 
 /* writecff.c */
 void writetype1w(PDF pdf, fd_entry * fd);

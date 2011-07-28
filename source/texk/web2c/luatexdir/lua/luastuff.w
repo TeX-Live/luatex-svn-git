@@ -236,6 +236,7 @@ void luainterpreter(void)
     luaopen_font(L);
     luaopen_lang(L);
     luaopen_mplib(L);
+    luaopen_vf(L);
 
     /* |luaopen_pdf(L);| */
     /* environment table at |LUA_ENVIRONINDEX| needs to load this way: */

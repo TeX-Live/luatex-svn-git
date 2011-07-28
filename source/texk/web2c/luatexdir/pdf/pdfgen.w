@@ -197,6 +197,8 @@ PDF init_pdf_struct(PDF pdf)
     init_pdf_pagecalculations(pdf);
     pdf->pdflua_ref = new_pdflua();
 
+    pdf->vfstruct = new_vfstruct();
+
     return pdf;
 }
 

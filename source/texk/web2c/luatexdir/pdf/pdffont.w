@@ -37,7 +37,7 @@ fonts too. Information about virtual fonts can be found in the source of some
 \.{DVI}-related programs.
 
 Whenever we want to write out a character in a font to PDF output, we
-should check whether the used character is a virtual or read character.
+should check whether the used character is a virtual or real character.
 The |has_packet()| C macro checks for this condition.
 
 

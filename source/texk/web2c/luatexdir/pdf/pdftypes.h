@@ -38,6 +38,8 @@
 #  define OBJSTM_NEVER (MAX_OBJ_COMPRESS_LEVEL + 1)
                                         /* above maximum/clipping value for \pdfobjcompresslevel */
 
+typedef int internal_font_number;       /* |font| in a |char_node| */
+
 typedef enum {
     NO_ZIP,                     /* no \.{ZIP} compression */
     ZIP_WRITING,                /* \.{ZIP} compression being used */
@@ -226,6 +228,30 @@ typedef struct os_struct_ {
 
 /**********************************************************************/
 
+#  define packet_max_recursion 100      /* see |packet_cur_s| */
+#  define packet_stack_size 100
+
+typedef struct packet_stack_record_ {
+    float c0;
+    float c1;
+    float c2;
+    float c3;
+    scaledpos pos;              /* c4, c5 */
+} packet_stack_record;
+
+typedef struct vf_struct_ {
+    packet_stack_record *packet_stack;  /* for "push" and "pop" */
+    int packet_stack_level;
+    int packet_stack_minlevel;  /* to check stack underflow */
+    internal_font_number lf;    /* local font number, resolved */
+    int fs_f;                   /* local font size */
+    int packet_cur_s;           /* do_vf_packet() nesting level */
+    posstructure *refpos;
+    int vflua;                  /* flag, whether vf.*() functions are allowed */
+} vf_struct;
+
+/**********************************************************************/
+
 typedef struct pdf_output_file_ {
     FILE *file;                 /* the PDF output file handle */
     char *file_name;            /* the PDF output file name */
@@ -330,6 +356,8 @@ typedef struct pdf_output_file_ {
     int f_cur;                  /* TeX font number */
     int pdflua_ref;
     int cave;                   /* stay away from previous PDF object */
+
+    vf_struct *vfstruct;
 } pdf_output_file;
 
 typedef pdf_output_file *PDF;
