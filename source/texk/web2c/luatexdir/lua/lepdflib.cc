@@ -2693,7 +2693,6 @@ static int m_XRef_fetch(lua_State * L)
 m_poppler_get_OBJECT(XRef, getDocInfo);
 m_poppler_get_OBJECT(XRef, getDocInfoNF);
 m_poppler_get_INT(XRef, getNumObjects);
-m_poppler_get_INT(XRef, getLastXRefPos);
 m_poppler_get_INT(XRef, getRootNum);
 m_poppler_get_INT(XRef, getRootGen);
 // getStreamEnd
@@ -2756,7 +2755,6 @@ static const struct luaL_Reg XRef_m[] = {
     {"getDocInfo", m_XRef_getDocInfo},
     {"getDocInfoNF", m_XRef_getDocInfoNF},
     {"getNumObjects", m_XRef_getNumObjects},
-    {"getLastXRefPos", m_XRef_getLastXRefPos},
     {"getRootNum", m_XRef_getRootNum},
     {"getRootGen", m_XRef_getRootGen},
     // {"getStreamEnd", m_XRef_getStreamEnd},
