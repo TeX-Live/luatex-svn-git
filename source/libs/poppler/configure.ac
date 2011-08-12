@@ -6,7 +6,7 @@ dnl   This file is free software; the copyright holder
 dnl   gives unlimited permission to copy and/or distribute it,
 dnl   with or without modifications, as long as this notice is preserved.
 dnl
-m4_define([poppler_version], [0.12.4])[]dnl using unmodified poppler source tree
+m4_define([poppler_version], [0.16.7])[]dnl using unmodified poppler source tree
 AC_INIT([poppler for TeX Live], poppler_version, [tex-k@tug.org])
 AC_PREREQ([2.65])
 AC_CONFIG_SRCDIR([poppler-]poppler_version[/poppler/Array.cc])

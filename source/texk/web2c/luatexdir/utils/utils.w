@@ -1,20 +1,20 @@
 % utils.w
-
+%
 % Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
-% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
-
+% Copyright 2006-2011 Taco Hoekwater <taco@@luatex.org>
+%
 % This file is part of LuaTeX.
-
+%
 % LuaTeX is free software; you can redistribute it and/or modify it under
 % the terms of the GNU General Public License as published by the Free
 % Software Foundation; either version 2 of the License, or (at your
 % option) any later version.
-
+%
 % LuaTeX is distributed in the hope that it will be useful, but WITHOUT
 % ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 % FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 % License for more details.
-
+%
 % You should have received a copy of the GNU General Public License along
 % with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
 
@@ -45,10 +45,6 @@ static const char _svn_version[] =
 #include "lua/luatex-api.h"     /* for ptexbanner */
 
 #include "png.h"
-
-/* POPPLER_VERSION is defined in poppler-config.h for poppler from
- * the TeX Live tree, or in the Makefile for an installed version.  */
-#include "poppler-config.h"
 
 @ @c
 #define check_nprintf(size_get, size_want) \
@@ -350,7 +346,7 @@ void initversionstring(char **versions)
                     "Compiled with zlib %s; using zlib %s\n"
                     "Compiled with poppler version %s\n",
                     PNG_LIBPNG_VER_STRING, png_libpng_ver,
-                    ZLIB_VERSION, zlib_version, POPPLER_VERSION);
+                    ZLIB_VERSION, zlib_version, "0.16.7"); /* TODO: get POPPLER_VERSION */
 }
 
 @ @c

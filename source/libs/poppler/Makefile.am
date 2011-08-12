@@ -67,6 +67,7 @@ poppler_libpoppler_a_sources = \
 	$(POPPLER_SRC)/BuiltinFont.cc \
 	$(POPPLER_SRC)/BuiltinFontTables.cc \
 	$(POPPLER_SRC)/CMap.cc \
+	$(POPPLER_SRC)/CachedFile.cc \
 	$(POPPLER_SRC)/Catalog.cc \
 	$(POPPLER_SRC)/CharCodeToUnicode.cc \
 	$(POPPLER_SRC)/DateInfo.cc \
@@ -86,7 +87,9 @@ poppler_libpoppler_a_sources = \
 	$(POPPLER_SRC)/JArithmeticDecoder.cc \
 	$(POPPLER_SRC)/JBIG2Stream.cc \
 	$(POPPLER_SRC)/JPXStream.cc \
+	$(POPPLER_SRC)/Hints.cc \
 	$(POPPLER_SRC)/Lexer.cc \
+	$(POPPLER_SRC)/Linearization.cc \
 	$(POPPLER_SRC)/Link.cc \
 	$(POPPLER_SRC)/Movie.cc \
 	$(POPPLER_SRC)/NameToCharCode.cc \
@@ -105,6 +108,7 @@ poppler_libpoppler_a_sources = \
 	$(POPPLER_SRC)/PopplerCache.cc \
 	$(POPPLER_SRC)/PreScanOutputDev.cc \
 	$(POPPLER_SRC)/ProfileData.cc \
+	$(POPPLER_SRC)/Rendition.cc \
 	$(POPPLER_SRC)/SecurityHandler.cc \
 	$(POPPLER_SRC)/Sound.cc \
 	$(POPPLER_SRC)/Stream.cc \
