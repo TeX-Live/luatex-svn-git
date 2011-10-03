@@ -5286,7 +5286,7 @@ fi
 POPPLER_TREE=poppler-0.16.7
 
 
-ac_config_files="$ac_config_files Makefile poppler/Makefile goo/Makefile fofi/Makefile"
+ac_config_files="$ac_config_files Makefile poppler/Makefile goo/Makefile fofi/Makefile cpp/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -6025,6 +6025,7 @@ do
     "poppler/Makefile") CONFIG_FILES="$CONFIG_FILES poppler/Makefile" ;;
     "goo/Makefile") CONFIG_FILES="$CONFIG_FILES goo/Makefile" ;;
     "fofi/Makefile") CONFIG_FILES="$CONFIG_FILES fofi/Makefile" ;;
+    "cpp/Makefile") CONFIG_FILES="$CONFIG_FILES cpp/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5 ;;
   esac

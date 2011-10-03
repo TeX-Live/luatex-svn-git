@@ -24,22 +24,27 @@ EXTRA_DIST += $(POPPLER_TREE)-PATCHES
 dist-hook:
 	rm -rf `find $(distdir) -name .svn`
 
-SUBDIRS = goo fofi poppler
+SUBDIRS = cpp goo fofi poppler
 
+CPP_SRC = $(top_srcdir)/$(POPPLER_TREE)/cpp
 GOO_SRC = $(top_srcdir)/$(POPPLER_TREE)/goo
 FOFI_SRC = $(top_srcdir)/$(POPPLER_TREE)/fofi
 POPPLER_SRC = $(top_srcdir)/$(POPPLER_TREE)/poppler
 
-INCLUDES = -Igoo -Ifofi -Ipoppler -I$(GOO_SRC) -I$(FOFI_SRC) -I$(POPPLER_SRC) $(ZLIB_INCLUDES)
+INCLUDES = -Icpp -Igoo -Ifofi -Ipoppler -I$(CPP_SRC) -I$(GOO_SRC) -I$(FOFI_SRC) -I$(POPPLER_SRC) $(ZLIB_INCLUDES)
 AM_CPPFLAGS = -DPDF_PARSER_ONLY -DPOPPLER_DATADIR='"."'
 AM_CFLAGS = $(WARNING_CFLAGS)
 
 noinst_LIBRARIES = libpoppler.a
 
 nodist_libpoppler_a_SOURCES = \
+	$(cpp_libCpp_a_sources) \
 	$(goo_libGoo_a_sources) \
 	$(fofi_libfofi_a_sources) \
 	$(poppler_libpoppler_a_sources)
+
+cpp_libCpp_a_sources = \
+	$(CPP_SRC)/poppler-version.cpp
 
 goo_libGoo_a_sources = \
 	$(GOO_SRC)/FixedPoint.cc \

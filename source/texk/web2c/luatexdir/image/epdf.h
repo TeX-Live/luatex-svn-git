@@ -33,6 +33,7 @@
 #  include <sys/stat.h>
 #  include <dirent.h>
 #  include <poppler-config.h>
+#  include <cpp/poppler-version.h>
 #  include <goo/GooString.h>
 #  include <goo/gmem.h>
 #  include <goo/gfile.h>

@@ -91,7 +91,10 @@ new_poppler_userdata(Annots);
 new_poppler_userdata(Array);
 new_poppler_userdata(Catalog);
 new_poppler_userdata(Dict);
+#if POPPLER_VERSION_MAJOR == 0 && (POPPLER_VERSION_MINOR < 17 || \
+    ( POPPLER_VERSION_MINOR == 17 && POPPLER_VERSION_MICRO < 2))
 new_poppler_userdata(EmbFile);
+#endif
 //new_poppler_userdata(GooString);
 new_poppler_userdata(Link);
 new_poppler_userdata(LinkDest);
@@ -395,7 +398,11 @@ static int m_Annot__gc(lua_State * L)
     printf("\n===== Annot GC ===== uin=<%p>\n", uin);
 #endif
     if (uin->atype == ALLOC_LEPDF)
+#if POPPLER_VERSION_MAJOR == 0 && POPPLER_VERSION_MINOR < 17
         delete(Annot *) uin->d;
+#else
+        ((Annot *) uin->d)->decRefCnt();
+#endif
     return 0;
 }
 
@@ -412,6 +419,8 @@ static const struct luaL_Reg Annot_m[] = {
 //**********************************************************************
 // AnnotBorderStyle
 
+#if POPPLER_VERSION_MAJOR == 0 && POPPLER_VERSION_MINOR < 17
+
 m_poppler_get_DOUBLE(AnnotBorderStyle, getWidth);
 
 m_poppler__tostring(AnnotBorderStyle);
@@ -422,9 +431,9 @@ static int m_Annots__gc(lua_State * L)
     uin = (udstruct *) luaL_checkudata(L, 1, M_Annots);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
-#ifdef DEBUG
+#  ifdef DEBUG
     printf("\n===== Annots GC ===== uin=<%p>\n", uin);
-#endif
+#  endif
     if (uin->atype == ALLOC_LEPDF)
         delete(Annots *) uin->d;
     return 0;
@@ -436,6 +445,8 @@ static const struct luaL_Reg AnnotBorderStyle_m[] = {
     {"__gc", m_Annots__gc},
     {NULL, NULL}                // sentinel
 };
+
+#endif
 
 //**********************************************************************
 // Annots
@@ -686,6 +697,8 @@ static int m_Catalog_findDest(lua_State * L)
 m_poppler_get_poppler(Catalog, Object, getDests);
 m_poppler_get_INT(Catalog, numEmbeddedFiles);
 
+#if POPPLER_VERSION_MAJOR == 0 && (POPPLER_VERSION_MINOR < 17 || \
+    ( POPPLER_VERSION_MINOR == 17 && POPPLER_VERSION_MICRO < 2))
 static int m_Catalog_embeddedFile(lua_State * L)
 {
     EmbFile *ef;
@@ -709,6 +722,7 @@ static int m_Catalog_embeddedFile(lua_State * L)
         lua_pushnil(L);
     return 1;
 }
+#endif
 
 m_poppler_get_INT(Catalog, numJS);
 
@@ -751,7 +765,9 @@ static const struct luaL_Reg Catalog_m[] = {
     {"findDest", m_Catalog_findDest},
     {"getDests", m_Catalog_getDests},
     {"numEmbeddedFiles", m_Catalog_numEmbeddedFiles},
+#if POPPLER_VERSION_MAJOR == 0 && POPPLER_VERSION_MINOR < 17
     {"embeddedFile", m_Catalog_embeddedFile},
+#endif
     {"numJS", m_Catalog_numJS},
     {"getJS", m_Catalog_getJS},
     {"getOutline", m_Catalog_getOutline},
@@ -762,6 +778,9 @@ static const struct luaL_Reg Catalog_m[] = {
 
 //**********************************************************************
 // EmbFile
+
+#if POPPLER_VERSION_MAJOR == 0 && (POPPLER_VERSION_MINOR < 17 || \
+    ( POPPLER_VERSION_MINOR == 17 && POPPLER_VERSION_MICRO < 2))
 
 m_poppler_get_GOOSTRING(EmbFile, name);
 m_poppler_get_GOOSTRING(EmbFile, description);
@@ -803,6 +822,8 @@ static const struct luaL_Reg EmbFile_m[] = {
     {"__tostring", m_EmbFile__tostring},
     {NULL, NULL}                // sentinel
 };
+
+#endif
 
 //**********************************************************************
 // Dict
@@ -2790,12 +2811,18 @@ int luaopen_epdf(lua_State * L)
 {
     register_meta(Annot);
     // TODO register_meta(AnnotBorder);
+#if POPPLER_VERSION_MAJOR == 0 && POPPLER_VERSION_MINOR < 17
     register_meta(AnnotBorderStyle);
+#endif
     register_meta(Annots);
     register_meta(Array);
     register_meta(Catalog);
     register_meta(Dict);
+#if POPPLER_VERSION_MAJOR == 0 && (POPPLER_VERSION_MINOR < 17 || \
+    ( POPPLER_VERSION_MINOR == 17 && POPPLER_VERSION_MICRO < 2))
     register_meta(EmbFile);
+#endif
+
     register_meta(GooString);
     register_meta(Link);
     register_meta(LinkDest);

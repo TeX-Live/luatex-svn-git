@@ -60,14 +60,15 @@ AR = ar
 ARFLAGS = cru
 libpoppler_a_AR = $(AR) $(ARFLAGS)
 libpoppler_a_LIBADD =
-am__objects_1 = FixedPoint.$(OBJEXT) gfile.$(OBJEXT) gmem.$(OBJEXT) \
+am__objects_1 = poppler-version.$(OBJEXT)
+am__objects_2 = FixedPoint.$(OBJEXT) gfile.$(OBJEXT) gmem.$(OBJEXT) \
 	gmempp.$(OBJEXT) GooHash.$(OBJEXT) GooList.$(OBJEXT) \
 	GooString.$(OBJEXT) GooTimer.$(OBJEXT) gstrtod.$(OBJEXT) \
 	PNGWriter.$(OBJEXT)
-am__objects_2 = FoFiBase.$(OBJEXT) FoFiEncodings.$(OBJEXT) \
+am__objects_3 = FoFiBase.$(OBJEXT) FoFiEncodings.$(OBJEXT) \
 	FoFiTrueType.$(OBJEXT) FoFiType1.$(OBJEXT) \
 	FoFiType1C.$(OBJEXT)
-am__objects_3 = Annot.$(OBJEXT) Array.$(OBJEXT) BuiltinFont.$(OBJEXT) \
+am__objects_4 = Annot.$(OBJEXT) Array.$(OBJEXT) BuiltinFont.$(OBJEXT) \
 	BuiltinFontTables.$(OBJEXT) CMap.$(OBJEXT) \
 	CachedFile.$(OBJEXT) Catalog.$(OBJEXT) \
 	CharCodeToUnicode.$(OBJEXT) DateInfo.$(OBJEXT) \
@@ -91,7 +92,7 @@ am__objects_3 = Annot.$(OBJEXT) Array.$(OBJEXT) BuiltinFont.$(OBJEXT) \
 	UnicodeTypeTable.$(OBJEXT) XRef.$(OBJEXT) \
 	XpdfPluginAPI.$(OBJEXT)
 nodist_libpoppler_a_OBJECTS = $(am__objects_1) $(am__objects_2) \
-	$(am__objects_3)
+	$(am__objects_3) $(am__objects_4)
 libpoppler_a_OBJECTS = $(nodist_libpoppler_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/poppler
 depcomp = $(SHELL) $(top_srcdir)/../../build-aux/depcomp
@@ -256,18 +257,23 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I ../../m4
 EXTRA_DIST = $(POPPLER_TREE) $(POPPLER_TREE)-PATCHES
-SUBDIRS = goo fofi poppler
+SUBDIRS = cpp goo fofi poppler
+CPP_SRC = $(top_srcdir)/$(POPPLER_TREE)/cpp
 GOO_SRC = $(top_srcdir)/$(POPPLER_TREE)/goo
 FOFI_SRC = $(top_srcdir)/$(POPPLER_TREE)/fofi
 POPPLER_SRC = $(top_srcdir)/$(POPPLER_TREE)/poppler
-INCLUDES = -Igoo -Ifofi -Ipoppler -I$(GOO_SRC) -I$(FOFI_SRC) -I$(POPPLER_SRC) $(ZLIB_INCLUDES)
+INCLUDES = -Icpp -Igoo -Ifofi -Ipoppler -I$(CPP_SRC) -I$(GOO_SRC) -I$(FOFI_SRC) -I$(POPPLER_SRC) $(ZLIB_INCLUDES)
 AM_CPPFLAGS = -DPDF_PARSER_ONLY -DPOPPLER_DATADIR='"."'
 AM_CFLAGS = $(WARNING_CFLAGS)
 noinst_LIBRARIES = libpoppler.a
 nodist_libpoppler_a_SOURCES = \
+	$(cpp_libCpp_a_sources) \
 	$(goo_libGoo_a_sources) \
 	$(fofi_libfofi_a_sources) \
 	$(poppler_libpoppler_a_sources)
+
+cpp_libCpp_a_sources = \
+	$(CPP_SRC)/poppler-version.cpp
 
 goo_libGoo_a_sources = \
 	$(GOO_SRC)/FixedPoint.cc \
@@ -349,7 +355,7 @@ all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .cc .o .obj
+.SUFFIXES: .cc .cpp .o .obj
 am--refresh:
 	@:
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -484,6 +490,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gmem.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gmempp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gstrtod.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/poppler-version.Po@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -498,6 +505,20 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+poppler-version.o: $(CPP_SRC)/poppler-version.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT poppler-version.o -MD -MP -MF $(DEPDIR)/poppler-version.Tpo -c -o poppler-version.o `test -f '$(CPP_SRC)/poppler-version.cpp' || echo '$(srcdir)/'`$(CPP_SRC)/poppler-version.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/poppler-version.Tpo $(DEPDIR)/poppler-version.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(CPP_SRC)/poppler-version.cpp' object='poppler-version.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o poppler-version.o `test -f '$(CPP_SRC)/poppler-version.cpp' || echo '$(srcdir)/'`$(CPP_SRC)/poppler-version.cpp
+
+poppler-version.obj: $(CPP_SRC)/poppler-version.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT poppler-version.obj -MD -MP -MF $(DEPDIR)/poppler-version.Tpo -c -o poppler-version.obj `if test -f '$(CPP_SRC)/poppler-version.cpp'; then $(CYGPATH_W) '$(CPP_SRC)/poppler-version.cpp'; else $(CYGPATH_W) '$(srcdir)/$(CPP_SRC)/poppler-version.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/poppler-version.Tpo $(DEPDIR)/poppler-version.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(CPP_SRC)/poppler-version.cpp' object='poppler-version.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o poppler-version.obj `if test -f '$(CPP_SRC)/poppler-version.cpp'; then $(CYGPATH_W) '$(CPP_SRC)/poppler-version.cpp'; else $(CYGPATH_W) '$(srcdir)/$(CPP_SRC)/poppler-version.cpp'; fi`
 
 FixedPoint.o: $(GOO_SRC)/FixedPoint.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT FixedPoint.o -MD -MP -MF $(DEPDIR)/FixedPoint.Tpo -c -o FixedPoint.o `test -f '$(GOO_SRC)/FixedPoint.cc' || echo '$(srcdir)/'`$(GOO_SRC)/FixedPoint.cc
@@ -1464,6 +1485,20 @@ XpdfPluginAPI.obj: $(POPPLER_SRC)/XpdfPluginAPI.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(POPPLER_SRC)/XpdfPluginAPI.cc' object='XpdfPluginAPI.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o XpdfPluginAPI.obj `if test -f '$(POPPLER_SRC)/XpdfPluginAPI.cc'; then $(CYGPATH_W) '$(POPPLER_SRC)/XpdfPluginAPI.cc'; else $(CYGPATH_W) '$(srcdir)/$(POPPLER_SRC)/XpdfPluginAPI.cc'; fi`
+
+.cpp.o:
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ $<
+
+.cpp.obj:
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.

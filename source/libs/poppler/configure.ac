@@ -90,6 +90,6 @@ fi
 
 AC_SUBST([POPPLER_TREE], [poppler-]poppler_version)
 
-AC_CONFIG_FILES([Makefile poppler/Makefile goo/Makefile fofi/Makefile])
+AC_CONFIG_FILES([Makefile poppler/Makefile goo/Makefile fofi/Makefile cpp/Makefile])
 
 AC_OUTPUT
