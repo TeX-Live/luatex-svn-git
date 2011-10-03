@@ -1058,6 +1058,7 @@ static const struct luaL_Reg GooString_m[] = {
 //**********************************************************************
 // Link
 
+#if 0
 m_poppler_get_BOOL(Link, isOk);
 
 static int m_Link_inRect(lua_State * L)
@@ -1084,6 +1085,7 @@ static const struct luaL_Reg Link_m[] = {
     {"__tostring", m_Link__tostring},
     {NULL, NULL}                // sentinel
 };
+#endif
 
 //**********************************************************************
 // LinkDest
@@ -1171,6 +1173,7 @@ static const struct luaL_Reg LinkDest_m[] = {
 
 m_poppler_get_INT(Links, getNumLinks);
 
+#if 0
 static int m_Links_getLink(lua_State * L)
 {
     Link *link;
@@ -1194,12 +1197,13 @@ static int m_Links_getLink(lua_State * L)
         lua_pushnil(L);
     return 1;
 }
+#endif
 
 m_poppler__tostring(Links);
 
 static const struct luaL_Reg Links_m[] = {
     {"getNumLinks", m_Links_getNumLinks},
-    {"getLink", m_Links_getLink},
+    //{"getLink", m_Links_getLink},
     {"__tostring", m_Links__tostring},
     {NULL, NULL}                // sentinel
 };
@@ -2824,7 +2828,7 @@ int luaopen_epdf(lua_State * L)
 #endif
 
     register_meta(GooString);
-    register_meta(Link);
+    //register_meta(Link);
     register_meta(LinkDest);
     register_meta(Links);
     register_meta(Object);

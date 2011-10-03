@@ -89,8 +89,8 @@ am__objects_4 = Annot.$(OBJEXT) Array.$(OBJEXT) BuiltinFont.$(OBJEXT) \
 	PreScanOutputDev.$(OBJEXT) ProfileData.$(OBJEXT) \
 	Rendition.$(OBJEXT) SecurityHandler.$(OBJEXT) Sound.$(OBJEXT) \
 	Stream.$(OBJEXT) UnicodeMap.$(OBJEXT) \
-	UnicodeTypeTable.$(OBJEXT) XRef.$(OBJEXT) \
-	XpdfPluginAPI.$(OBJEXT)
+	UnicodeTypeTable.$(OBJEXT) ViewerPreferences.$(OBJEXT) \
+	XRef.$(OBJEXT) XpdfPluginAPI.$(OBJEXT)
 nodist_libpoppler_a_OBJECTS = $(am__objects_1) $(am__objects_2) \
 	$(am__objects_3) $(am__objects_4)
 libpoppler_a_OBJECTS = $(nodist_libpoppler_a_OBJECTS)
@@ -347,6 +347,7 @@ poppler_libpoppler_a_sources = \
 	$(POPPLER_SRC)/Stream.cc \
 	$(POPPLER_SRC)/UnicodeMap.cc \
 	$(POPPLER_SRC)/UnicodeTypeTable.cc \
+	$(POPPLER_SRC)/ViewerPreferences.cc \
 	$(POPPLER_SRC)/XRef.cc \
 	$(POPPLER_SRC)/XpdfPluginAPI.cc
 
@@ -484,6 +485,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Stream.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UnicodeMap.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UnicodeTypeTable.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ViewerPreferences.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XRef.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XpdfPluginAPI.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gfile.Po@am__quote@
@@ -1457,6 +1459,20 @@ UnicodeTypeTable.obj: $(POPPLER_SRC)/UnicodeTypeTable.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(POPPLER_SRC)/UnicodeTypeTable.cc' object='UnicodeTypeTable.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o UnicodeTypeTable.obj `if test -f '$(POPPLER_SRC)/UnicodeTypeTable.cc'; then $(CYGPATH_W) '$(POPPLER_SRC)/UnicodeTypeTable.cc'; else $(CYGPATH_W) '$(srcdir)/$(POPPLER_SRC)/UnicodeTypeTable.cc'; fi`
+
+ViewerPreferences.o: $(POPPLER_SRC)/ViewerPreferences.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ViewerPreferences.o -MD -MP -MF $(DEPDIR)/ViewerPreferences.Tpo -c -o ViewerPreferences.o `test -f '$(POPPLER_SRC)/ViewerPreferences.cc' || echo '$(srcdir)/'`$(POPPLER_SRC)/ViewerPreferences.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/ViewerPreferences.Tpo $(DEPDIR)/ViewerPreferences.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(POPPLER_SRC)/ViewerPreferences.cc' object='ViewerPreferences.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ViewerPreferences.o `test -f '$(POPPLER_SRC)/ViewerPreferences.cc' || echo '$(srcdir)/'`$(POPPLER_SRC)/ViewerPreferences.cc
+
+ViewerPreferences.obj: $(POPPLER_SRC)/ViewerPreferences.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ViewerPreferences.obj -MD -MP -MF $(DEPDIR)/ViewerPreferences.Tpo -c -o ViewerPreferences.obj `if test -f '$(POPPLER_SRC)/ViewerPreferences.cc'; then $(CYGPATH_W) '$(POPPLER_SRC)/ViewerPreferences.cc'; else $(CYGPATH_W) '$(srcdir)/$(POPPLER_SRC)/ViewerPreferences.cc'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/ViewerPreferences.Tpo $(DEPDIR)/ViewerPreferences.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(POPPLER_SRC)/ViewerPreferences.cc' object='ViewerPreferences.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ViewerPreferences.obj `if test -f '$(POPPLER_SRC)/ViewerPreferences.cc'; then $(CYGPATH_W) '$(POPPLER_SRC)/ViewerPreferences.cc'; else $(CYGPATH_W) '$(srcdir)/$(POPPLER_SRC)/ViewerPreferences.cc'; fi`
 
 XRef.o: $(POPPLER_SRC)/XRef.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT XRef.o -MD -MP -MF $(DEPDIR)/XRef.Tpo -c -o XRef.o `test -f '$(POPPLER_SRC)/XRef.cc' || echo '$(srcdir)/'`$(POPPLER_SRC)/XRef.cc
