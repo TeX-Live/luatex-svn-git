@@ -124,6 +124,10 @@ extern "C" {
     extern void epdf_free(void);
     extern void copyReal(PDF pdf, double d);
 
+    extern int poppler_version_major(void);
+    extern int poppler_version_minor(void);
+    extern int poppler_version_micro(void);
+
     /* utils.w */
     __attribute__ ((format(printf, 1, 2)))
     extern void pdftex_warn(const char *fmt, ...);
@@ -133,7 +137,6 @@ extern "C" {
 
     /* lepdflib.w */
     int luaopen_epdf(lua_State * L);
-
 };
 
 /**********************************************************************/

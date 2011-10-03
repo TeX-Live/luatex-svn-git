@@ -344,9 +344,11 @@ void initversionstring(char **versions)
     (void) asprintf(versions,
                     "Compiled with libpng %s; using libpng %s\n"
                     "Compiled with zlib %s; using zlib %s\n"
-                    "Compiled with poppler version %s\n",
+                    "Compiled with poppler version %d.%d.%d\n",
                     PNG_LIBPNG_VER_STRING, png_libpng_ver,
-                    ZLIB_VERSION, zlib_version, "0.18.0"); /* TODO: get POPPLER_VERSION */
+                    ZLIB_VERSION, zlib_version,
+                    poppler_version_major(), poppler_version_minor(),
+                    poppler_version_micro());
 }
 
 @ @c
