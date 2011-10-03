@@ -90,7 +90,7 @@ am__objects_4 = Annot.$(OBJEXT) Array.$(OBJEXT) BuiltinFont.$(OBJEXT) \
 	Rendition.$(OBJEXT) SecurityHandler.$(OBJEXT) Sound.$(OBJEXT) \
 	Stream.$(OBJEXT) UnicodeMap.$(OBJEXT) \
 	UnicodeTypeTable.$(OBJEXT) ViewerPreferences.$(OBJEXT) \
-	XRef.$(OBJEXT) XpdfPluginAPI.$(OBJEXT)
+	XRef.$(OBJEXT) XpdfPluginAPI.$(OBJEXT) strtok_r.$(OBJEXT)
 nodist_libpoppler_a_OBJECTS = $(am__objects_1) $(am__objects_2) \
 	$(am__objects_3) $(am__objects_4)
 libpoppler_a_OBJECTS = $(nodist_libpoppler_a_OBJECTS)
@@ -349,7 +349,8 @@ poppler_libpoppler_a_sources = \
 	$(POPPLER_SRC)/UnicodeTypeTable.cc \
 	$(POPPLER_SRC)/ViewerPreferences.cc \
 	$(POPPLER_SRC)/XRef.cc \
-	$(POPPLER_SRC)/XpdfPluginAPI.cc
+	$(POPPLER_SRC)/XpdfPluginAPI.cc \
+	$(POPPLER_SRC)/strtok_r.cpp
 
 DISTCLEANFILES = config.force
 all: config.h
@@ -493,6 +494,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gmempp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gstrtod.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/poppler-version.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strtok_r.Po@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -1501,6 +1503,20 @@ XpdfPluginAPI.obj: $(POPPLER_SRC)/XpdfPluginAPI.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(POPPLER_SRC)/XpdfPluginAPI.cc' object='XpdfPluginAPI.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o XpdfPluginAPI.obj `if test -f '$(POPPLER_SRC)/XpdfPluginAPI.cc'; then $(CYGPATH_W) '$(POPPLER_SRC)/XpdfPluginAPI.cc'; else $(CYGPATH_W) '$(srcdir)/$(POPPLER_SRC)/XpdfPluginAPI.cc'; fi`
+
+strtok_r.o: $(POPPLER_SRC)/strtok_r.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT strtok_r.o -MD -MP -MF $(DEPDIR)/strtok_r.Tpo -c -o strtok_r.o `test -f '$(POPPLER_SRC)/strtok_r.cpp' || echo '$(srcdir)/'`$(POPPLER_SRC)/strtok_r.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/strtok_r.Tpo $(DEPDIR)/strtok_r.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(POPPLER_SRC)/strtok_r.cpp' object='strtok_r.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o strtok_r.o `test -f '$(POPPLER_SRC)/strtok_r.cpp' || echo '$(srcdir)/'`$(POPPLER_SRC)/strtok_r.cpp
+
+strtok_r.obj: $(POPPLER_SRC)/strtok_r.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT strtok_r.obj -MD -MP -MF $(DEPDIR)/strtok_r.Tpo -c -o strtok_r.obj `if test -f '$(POPPLER_SRC)/strtok_r.cpp'; then $(CYGPATH_W) '$(POPPLER_SRC)/strtok_r.cpp'; else $(CYGPATH_W) '$(srcdir)/$(POPPLER_SRC)/strtok_r.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/strtok_r.Tpo $(DEPDIR)/strtok_r.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(POPPLER_SRC)/strtok_r.cpp' object='strtok_r.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o strtok_r.obj `if test -f '$(POPPLER_SRC)/strtok_r.cpp'; then $(CYGPATH_W) '$(POPPLER_SRC)/strtok_r.cpp'; else $(CYGPATH_W) '$(srcdir)/$(POPPLER_SRC)/strtok_r.cpp'; fi`
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

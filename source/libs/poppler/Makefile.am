@@ -121,7 +121,8 @@ poppler_libpoppler_a_sources = \
 	$(POPPLER_SRC)/UnicodeTypeTable.cc \
 	$(POPPLER_SRC)/ViewerPreferences.cc \
 	$(POPPLER_SRC)/XRef.cc \
-	$(POPPLER_SRC)/XpdfPluginAPI.cc
+	$(POPPLER_SRC)/XpdfPluginAPI.cc \
+	$(POPPLER_SRC)/strtok_r.cpp
 
 $(libpoppler_a_OBJECTS): config.force
 
