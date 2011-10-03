@@ -346,7 +346,7 @@ void initversionstring(char **versions)
                     "Compiled with zlib %s; using zlib %s\n"
                     "Compiled with poppler version %s\n",
                     PNG_LIBPNG_VER_STRING, png_libpng_ver,
-                    ZLIB_VERSION, zlib_version, "0.16.7"); /* TODO: get POPPLER_VERSION */
+                    ZLIB_VERSION, zlib_version, "0.18.0"); /* TODO: get POPPLER_VERSION */
 }
 
 @ @c
