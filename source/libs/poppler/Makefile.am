@@ -32,7 +32,7 @@ FOFI_SRC = $(top_srcdir)/$(POPPLER_TREE)/fofi
 POPPLER_SRC = $(top_srcdir)/$(POPPLER_TREE)/poppler
 
 INCLUDES = -Icpp -Igoo -Ifofi -Ipoppler -I$(CPP_SRC) -I$(GOO_SRC) -I$(FOFI_SRC) -I$(POPPLER_SRC) $(ZLIB_INCLUDES)
-AM_CPPFLAGS = -DPDF_PARSER_ONLY -DPOPPLER_DATADIR='"."'
+AM_CPPFLAGS = -DPOPPLER_DATADIR='"."'
 AM_CFLAGS = $(WARNING_CFLAGS)
 
 noinst_LIBRARIES = libpoppler.a
