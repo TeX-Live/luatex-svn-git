@@ -277,10 +277,7 @@ static pdffloat conv_double_to_pdffloat(double n)
 {
     pdffloat a;
     a.e = 6;
-    if (n < 0)
-        a.m = -(long) (-n * ten_pow[a.e] + 0.5);
-    else
-        a.m = (long) (n * ten_pow[a.e] + 0.5);
+    a.m = lround(n * ten_pow[a.e]);
     return a;
 }
 
