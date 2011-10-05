@@ -174,8 +174,10 @@ void pdftex_fail(const char *fmt, ...)
 __attribute__ ((format(printf, 1, 2)))
 void pdftex_warn(const char *fmt, ...)
 {
+    int old_selector = selector;
     va_list args;
     va_start(args, fmt);
+    selector = term_and_log;
     print_ln();
     tex_printf("LuaTeX warning");
     if (cur_file_name)
@@ -185,6 +187,7 @@ void pdftex_warn(const char *fmt, ...)
     tprint(print_buf);
     va_end(args);
     print_ln();
+    selector = old_selector;
 }
 
 @ @c

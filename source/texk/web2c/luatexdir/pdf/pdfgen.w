@@ -810,15 +810,6 @@ void pdf_add_mag_bp(PDF pdf, scaled s)
     pdf->cave = 1;
 }
 
-#define set_p_or_return(a) do {                 \
-        p = a;                                  \
-        if (p==NULL) {                          \
-            a = item;                           \
-            return;                             \
-        }                                       \
-    } while (0)
-
-
 @* handling page resources.
 
 @c
