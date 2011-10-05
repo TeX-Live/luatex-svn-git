@@ -1,19 +1,19 @@
 % printing.w
-
-% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
-
+%
+% Copyright 2009-2011 Taco Hoekwater <taco@@luatex.org>
+%
 % This file is part of LuaTeX.
-
+%
 % LuaTeX is free software; you can redistribute it and/or modify it under
 % the terms of the GNU General Public License as published by the Free
 % Software Foundation; either version 2 of the License, or (at your
 % option) any later version.
-
+%
 % LuaTeX is distributed in the hope that it will be useful, but WITHOUT
 % ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 % FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 % License for more details.
-
+%
 % You should have received a copy of the GNU General Public License along
 % with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
@@ -83,7 +83,7 @@ int trick_count;                /* threshold for pseudoprinting, explained later
 int first_count;                /* another variable for pseudoprinting */
 boolean inhibit_par_tokens = false;     /*  for minor adjustments to |show_token_list|  */
 
-@ To end a line of text output, we call |print_ln| 
+@ To end a line of text output, we call |print_ln|
 @c
 void print_ln(void)
 {                               /* prints an end-of-line */
@@ -339,7 +339,7 @@ void tprint_nl(const char *s)
     tprint(s);
 }
 
-@ |slow_print| is the same as |print| nowadays, but the name is kept for now. 
+@ |slow_print| is the same as |print| nowadays, but the name is kept for now.
 
 @c
 void slow_print(int s)
@@ -642,7 +642,7 @@ void sprint_cs(pointer p)
 }
 
 
-@ This procedure is never called when |interaction<scroll_mode|. 
+@ This procedure is never called when |interaction<scroll_mode|.
 @c
 void prompt_input(const char *s)
 {
@@ -672,7 +672,7 @@ void print_glue(scaled d, int order, const char *s)
     }
 }
 
-@ The next subroutine prints a whole glue specification 
+@ The next subroutine prints a whole glue specification
 @c
 void print_spec(int p, const char *s)
 {                               /* prints a glue specification */
@@ -834,7 +834,7 @@ int depth_threshold;            /* maximum nesting depth in box displays */
 int breadth_max;                /* maximum number of items shown at the same list level */
 
 
-@ The recursive machinery is started by calling |show_box|. 
+@ The recursive machinery is started by calling |show_box|.
 
 @c
 void show_box(halfword p)
@@ -946,7 +946,7 @@ void print_file_line(void)
         if (level == in_open)
             print_int(line);
         else
-            print_int(line_stack[iindex + 1 - (in_open - level)]);
+            print_int(line_stack[level + 1]);
         tprint(": ");
     }
 }
