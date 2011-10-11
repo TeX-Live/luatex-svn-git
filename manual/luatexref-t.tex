@@ -23,7 +23,7 @@
 
 \setvariables
   [document]
-  [beta=0.66.0]
+  [beta=0.71.0]
 
 \starttext
 
@@ -393,19 +393,43 @@ further in this manual). This syntax is new in version 0.36.0.
 The chunk name should not start with a \type{@}, or it will be displayed
 as a file name (this is a quirk in the current \LUA\ implementation).
 
+The \tex{directlua} command is expandable. Since it passes {\LUA} code to the
+{\LUA} interpreter its expansion from the {\TEX} viewpoint is usually empty.
+However, there are some {\LUA} functions that produce material to be read
+by {\TeX}, the so called print functions. The most simple use of these is
+\type{tex.print(<string> s)}. The characters of the string \type{s} will be placed
+on the {\TeX} input buffer, that is, \quote{before \TeX's eyes} to be read by {\TeX}
+immediately. For example:
+
+\startbuffer
+\count10=20
+a\directlua{tex.print(tex.count[10]+5)}b
+\stopbuffer
+
+\typebuffer
+
+expands to
+
+\getbuffer
+
+Here is another example:
+
 \startbuffer
 $\pi = \directlua{tex.print(math.pi)}$
 \stopbuffer
-
-The \tex{directlua} command is expandable: the results of the \LUA\
-code become effective immediately. As an example, the following
-input:
 
 \typebuffer
 
 will result in
 
 \getbuffer
+
+Note that the expansion of \tex{directlua} is a sequence of characters, not
+of tokens, contrary to all {\TeX} commands. So formally speaking its
+expansion is null, but it places material on a pseudo-file to be
+immediately read by {\TeX}, as etex's \tex{scantokens}.
+
+For a description of print functions look at \in{section~}[sec:luaprint].
 
 Because the \syntax{<general text>} is a chunk, the normal \LUA\ error
 handling is triggered if there is a problem in the included code. The
@@ -6353,7 +6377,7 @@ The known fields are:
 \stoptabulate
 
 
-\subsection{Print functions}
+\subsection[sec:luaprint]{Print functions}
 
 The \luatex{tex} table also contains the three print functions that
 are the major interface from \LUA\ scripting to \TEX.
