@@ -1041,13 +1041,13 @@ static void init_pdf_outputparameters(PDF pdf)
     if (!callback_defined(read_pk_file_callback)) {
         if (pdf_pk_mode != null) {
             char *s = tokenlist_to_cstring(pdf_pk_mode, true, NULL);
-            kpseinitprog("PDFTEX", (unsigned) pdf->pk_resolution, s, nil);
+            kpse_init_prog("PDFTEX", (unsigned) pdf->pk_resolution, s, nil);
             xfree(s);
         } else {
-            kpseinitprog("PDFTEX", (unsigned) pdf->pk_resolution, nil, nil);
+            kpse_init_prog("PDFTEX", (unsigned) pdf->pk_resolution, nil, nil);
         }
-        if (!kpsevarvalue("MKTEXPK"))
-            kpsesetprogramenabled(kpsepkformat, 1, kpsesrccmdline);
+        if (!kpse_var_value("MKTEXPK"))
+            kpse_set_program_enabled(kpse_pk_format, 1, kpse_src_cmdline);
     }
     set_job_id(pdf, int_par(year_code),
                int_par(month_code), int_par(day_code), int_par(time_code));

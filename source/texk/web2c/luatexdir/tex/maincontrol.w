@@ -3148,9 +3148,9 @@ void new_interaction(void)
     print_ln();
     interaction = cur_chr;
     if (interaction == batch_mode)
-        kpsemaketexdiscarderrors = 1;
+        kpse_make_tex_discard_errors = 1;
     else
-        kpsemaketexdiscarderrors = 0;
+        kpse_make_tex_discard_errors = 0;
     fixup_selector(log_opened);
 }
 

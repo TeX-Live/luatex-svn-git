@@ -80,7 +80,7 @@ static boolean more_name(ASCII_code c)
     } else {
         str_room(1);
         append_char(c);         /* contribute |c| to the current string */
-        if (ISDIRSEP(c)) {
+        if (IS_DIR_SEP(c)) {
             area_delimiter = (pool_pointer) cur_length;
             ext_delimiter = 0;
         } else if (c == '.')
@@ -187,7 +187,7 @@ void scan_file_name_toks(void)
     a = n = s;
     e = NULL;
     for (i = 0; i < l; i++) {
-        if (ISDIRSEP(s[i])) {
+        if (IS_DIR_SEP(s[i])) {
             n = s + i + 1;
             e = NULL;
         } else if (s[i] == '.') {
