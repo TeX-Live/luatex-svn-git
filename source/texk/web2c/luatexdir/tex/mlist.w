@@ -186,11 +186,12 @@ static void math_param_error(const char *param, int style)
 static scaled accent_base_height(int f)
 {
     scaled a;
-    a = x_height(f);
-    if (a == 0 && is_new_mathfont(f)) {
+    if (is_new_mathfont(f)) {
         a = font_MATH_par(f, AccentBaseHeight);
         if (a == undefined_math_parameter)
-            a = 0;
+            a = x_height(f);
+    } else {
+        a = x_height(f);
     }
     return a;
 }
