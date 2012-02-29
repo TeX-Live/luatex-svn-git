@@ -2049,10 +2049,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
         ext = NULL;
         if ((char_tag(f, c) == ext_tag) &&
             ((ext = get_charinfo_hor_variants(char_info(f, c))) != NULL)) {
-            scaled w1 = xn_over_d(w, delimiter_factor, 1000);
-            if (w - w1 > delimiter_shortfall)
-                w1 = w - delimiter_shortfall;
-            y = get_delim_hbox(ext, f, w1, node_attr(attr_p), cur_style);
+            y = get_delim_hbox(ext, f, w, node_attr(attr_p), cur_style);
             break;
         } else if (char_tag(f, c) != list_tag) {
             break;
