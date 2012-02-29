@@ -2094,10 +2094,14 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
     }
     if (s_is_absolute) {
         scaled sa;
-        if (top_or_bot == TOP_CODE)
-            sa = char_top_accent(f, c);
-        else
-            sa = char_bot_accent(f, c);
+        if (ext != NULL) {
+            sa = half(width(y));	/* if the accent is extensible just take the center */
+        } else {
+            if (top_or_bot == TOP_CODE)
+                sa = char_top_accent(f, c);
+            else
+                sa = char_bot_accent(f, c);
+        }
         if (sa == INT_MIN) {
             sa = half(width(y));        /* just take the center */
         }
