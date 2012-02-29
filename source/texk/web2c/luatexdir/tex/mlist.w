@@ -1237,17 +1237,20 @@ static pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
     /* set glue so as to stretch the connections if needed */
     d = 0;
     if (v > b_max && s_max > 0) {
+        d = v-b_max;
+        /* don't stretch more than |s_max| */
+        if (d > s_max)
+            d = s_max;
         glue_order(b) = normal;
         glue_sign(b) = stretching;
-        glue_set(b) = unfloat((v-b_max)/(float) s_max);
-        d = b_max + round(s_max * (float) glue_set(b));
-    } else {
-        d = b_max;
+        glue_set(b) = unfloat(d/(float) s_max);
+        b_max += d;
     }
+
     if (boxtype == vlist_node)
-        height(b) = d;
+        height(b) = b_max;
     else
-        width(b) = d;
+        width(b) = b_max;
 
     depth(b) = 0;
 
