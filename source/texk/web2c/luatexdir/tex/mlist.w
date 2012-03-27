@@ -2044,11 +2044,8 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
     }
     /* Switch to a larger accent if available and appropriate */
     y = null;
-    if (flags & STRETCH_ACCENT_CODE) {
+    if ((flags & STRETCH_ACCENT_CODE) && (char_width(f, c) < w)) {
       while (1) {
-        if (char_width(f, c) >= w) /* the accent is already wide enough */
-            break;
-
         ext = NULL;
         if ((char_tag(f, c) == ext_tag) &&
             ((ext = get_charinfo_hor_variants(char_info(f, c))) != NULL)) {
