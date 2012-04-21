@@ -2035,7 +2035,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
     x = clean_box(nucleus(q), cramped_style(cur_style), cur_style);
     w = width(x);
     h = height(x);
-    if (is_new_mathfont(cur_f) && !s_is_absolute && type(nucleus(q)) == math_char_node) {
+    if (is_new_mathfont(cur_f) && !s_is_absolute) {
       s = half(w);
       s_is_absolute = true;
     }
