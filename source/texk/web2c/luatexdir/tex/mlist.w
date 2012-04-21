@@ -1252,8 +1252,6 @@ static pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
     else
         width(b) = b_max;
 
-    depth(b) = 0;
-
     return b;
 }
 
