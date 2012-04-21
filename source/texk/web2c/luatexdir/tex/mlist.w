@@ -2009,27 +2009,27 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
     s = 0;
     if (type(nucleus(q)) == math_char_node) {
         fetch(nucleus(q));
-        if (!is_new_mathfont(cur_f)) {
+        if (is_new_mathfont(cur_f)) {
+          if (top_or_bot == TOP_CODE) {
+              s = char_top_accent(cur_f, cur_c);
+              if (s != INT_MIN) {
+                  s_is_absolute = true;
+              }
+          } else {                /* new skewchar madness for bot accents */
+              s = char_bot_accent(cur_f, cur_c);
+              if (s == INT_MIN) {       /* better than nothing: */
+                  s = char_top_accent(cur_f, cur_c);
+              }
+              if (s != INT_MIN) {
+                  s_is_absolute = true;
+              }
+          }
+        } else {
           if (top_or_bot == TOP_CODE) {
             s = get_kern(cur_f, cur_c, skew_char(cur_f));
           } else {
             s = 0;
           }
-        } else {
-        if (top_or_bot == TOP_CODE) {
-            s = char_top_accent(cur_f, cur_c);
-            if (s != INT_MIN) {
-                s_is_absolute = true;
-            }
-        } else {                /* new skewchar madness for bot accents */
-            s = char_bot_accent(cur_f, cur_c);
-            if (s == INT_MIN) {       /* better than nothing: */
-                s = char_top_accent(cur_f, cur_c);
-            }
-            if (s != INT_MIN) {
-                s_is_absolute = true;
-            }
-        }
         }
     }
     x = clean_box(nucleus(q), cramped_style(cur_style), cur_style);
