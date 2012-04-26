@@ -1989,6 +1989,51 @@ respect to the size of the final box.
 #define TOP_OR_BOT_MASK ((TOP_CODE) | (BOT_CODE))
 #define STRETCH_ACCENT_CODE 4
 
+static boolean compute_accent_skew(pointer q, int top_or_bot, scaled *s)
+{
+    pointer p;                  /* temporary register for box construction */
+    boolean s_is_absolute;      /* will be true if a top-accent is placed in |s| */
+
+    s_is_absolute = false;
+
+    if (type(nucleus(q)) == math_char_node) {
+        fetch(nucleus(q));
+        if (is_new_mathfont(cur_f)) {
+            if (top_or_bot == TOP_CODE) {
+                *s = char_top_accent(cur_f, cur_c);
+                if (*s != INT_MIN) {
+                    s_is_absolute = true;
+                }
+            } else {                /* new skewchar madness for bot accents */
+                *s = char_bot_accent(cur_f, cur_c);
+                if (*s == INT_MIN) {       /* better than nothing: */
+                    *s = char_top_accent(cur_f, cur_c);
+                }
+                if (*s != INT_MIN) {
+                    s_is_absolute = true;
+                }
+            }
+        } else {
+            if (top_or_bot == TOP_CODE) {
+                *s = get_kern(cur_f, cur_c, skew_char(cur_f));
+            } else {
+                *s = 0;
+            }
+        }
+    } else if (type(nucleus(q)) == sub_mlist_node) {
+	/* if |nucleus(q)| is a |sub_mlist_node| composed of an |accent_noad| we
+         * use the positioning of the nucleus of that noad, recursing until
+         * the inner most |accent_noad|. This way multiple stacked accents are
+         * aligned to the inner most one. */
+        p = math_list(nucleus(q));
+        if (type(p) == accent_noad) {
+            s_is_absolute = compute_accent_skew(p, top_or_bot, s);
+        }
+    }
+
+    return s_is_absolute;
+}
+
 static void do_make_math_accent(pointer q, internal_font_number f, int c,
                                 int flags, int cur_style)
 {
@@ -2002,36 +2047,14 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
     pointer attr_p;
     const int top_or_bot = flags & TOP_OR_BOT_MASK;
     attr_p = (top_or_bot == TOP_CODE ? accent_chr(q) : bot_accent_chr(q));
-    s_is_absolute = false;
     c = cur_c;
     f = cur_f;
-    /* Compute the amount of skew, or set |s| to an alignment point */
+
     s = 0;
-    if (type(nucleus(q)) == math_char_node) {
-        fetch(nucleus(q));
-        if (is_new_mathfont(cur_f)) {
-          if (top_or_bot == TOP_CODE) {
-              s = char_top_accent(cur_f, cur_c);
-              if (s != INT_MIN) {
-                  s_is_absolute = true;
-              }
-          } else {                /* new skewchar madness for bot accents */
-              s = char_bot_accent(cur_f, cur_c);
-              if (s == INT_MIN) {       /* better than nothing: */
-                  s = char_top_accent(cur_f, cur_c);
-              }
-              if (s != INT_MIN) {
-                  s_is_absolute = true;
-              }
-          }
-        } else {
-          if (top_or_bot == TOP_CODE) {
-            s = get_kern(cur_f, cur_c, skew_char(cur_f));
-          } else {
-            s = 0;
-          }
-        }
-    }
+    s_is_absolute = false;
+    /* Compute the amount of skew, or set |s| to an alignment point */
+    s_is_absolute = compute_accent_skew(q, top_or_bot, &s);
+
     x = clean_box(nucleus(q), cramped_style(cur_style), cur_style);
     w = width(x);
     h = height(x);
