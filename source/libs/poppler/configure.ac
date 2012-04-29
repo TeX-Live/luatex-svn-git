@@ -6,7 +6,7 @@ dnl   This file is free software; the copyright holder
 dnl   gives unlimited permission to copy and/or distribute it,
 dnl   with or without modifications, as long as this notice is preserved.
 dnl
-m4_define([poppler_version], [0.18.0])[]dnl using unmodified poppler source tree
+m4_include([version.ac])[] dnl define poppler_version
 AC_INIT([poppler for TeX Live], poppler_version, [tex-k@tug.org])
 AC_PREREQ([2.65])
 AC_CONFIG_SRCDIR([poppler-]poppler_version[/poppler/Array.cc])
@@ -22,6 +22,9 @@ AC_PROG_RANLIB
 AC_PROG_LN_S
 
 KPSE_COMPILER_WARNINGS
+
+test "x$GXX" = xyes && NO_WARN_CXXFLAGS='-Wno-write-strings'
+AC_SUBST([NO_WARN_CXXFLAGS])  
 
 dnl ##### Optional features.
 AC_ARG_ENABLE([opi],
@@ -69,9 +72,9 @@ AC_FUNC_FSEEKO
 
 AC_CONFIG_HEADERS([config.h])
 
-AC_CONFIG_HEADERS([poppler/poppler-config.h:poppler-]poppler_version[/poppler/poppler-config.h.in],
-  [sed -e 's/^#define PACKAGE_/#define POPPLER_/' poppler/poppler-config.h >config.tmp \
-    && mv -f config.tmp poppler/poppler-config.h])
+AC_CONFIG_HEADERS([poppler/poppler-config.h:poppler-]poppler_version[/poppler/poppler-config.h.in])
+
+AC_DEFINE_UNQUOTED([POPPLER_VERSION], ["$PACKAGE_VERSION"], [Define to the poppler version.])
 
 KPSE_ZLIB_FLAGS
 
@@ -82,14 +85,15 @@ if test "x$enable_build" != xno || test -f config.force; then
 KPSE_ADD_FLAGS([zlib])
 AC_CHECK_FUNC([inflate], , [AC_ERROR([zlib not found])])
 AC_CHECK_HEADERS([zlib.h], , [AC_ERROR([zlib not found])])
-AC_DEFINE([ENABLE_ZLIB], 1, [Use zlib instead of builtin zlib decoder.])
 KPSE_RESTORE_FLAGS
 
 echo timestamp >config.force
 fi
 
+AC_DEFINE([ENABLE_ZLIB], 1, [Use zlib instead of builtin zlib decoder.])
+
 AC_SUBST([POPPLER_TREE], [poppler-]poppler_version)
 
-AC_CONFIG_FILES([Makefile poppler/Makefile goo/Makefile fofi/Makefile cpp/Makefile])
+AC_CONFIG_FILES([Makefile poppler/Makefile goo/Makefile fofi/Makefile])
 
 AC_OUTPUT

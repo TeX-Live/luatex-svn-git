@@ -865,20 +865,3 @@ void epdf_free()
         delete globalParams;
     isInit = gFalse;
 }
-
-//**********************************************************************
-
-int poppler_version_major(void)
-{
-    return (POPPLER_VERSION_MAJOR);
-}
-
-int poppler_version_minor(void)
-{
-    return (POPPLER_VERSION_MINOR);
-}
-
-int poppler_version_micro(void)
-{
-    return (POPPLER_VERSION_MICRO);
-}

@@ -1,6 +1,6 @@
 ## Proxy Makefile.am to build poppler for TeX Live.
 ##
-##   Copyright (C) 2011 Peter Breitenlohner <tex-live@tug.org>
+##   Copyright (C) 2011, 2012 Peter Breitenlohner <tex-live@tug.org>
 ##
 ##   This file is free software; the copyright holder
 ##   gives unlimited permission to copy and/or distribute it,
@@ -24,27 +24,23 @@ EXTRA_DIST += $(POPPLER_TREE)-PATCHES
 dist-hook:
 	rm -rf `find $(distdir) -name .svn`
 
-SUBDIRS = cpp goo fofi poppler
+SUBDIRS = goo fofi poppler
 
-CPP_SRC = $(top_srcdir)/$(POPPLER_TREE)/cpp
 GOO_SRC = $(top_srcdir)/$(POPPLER_TREE)/goo
 FOFI_SRC = $(top_srcdir)/$(POPPLER_TREE)/fofi
 POPPLER_SRC = $(top_srcdir)/$(POPPLER_TREE)/poppler
 
-INCLUDES = -Icpp -Igoo -Ifofi -Ipoppler -I$(CPP_SRC) -I$(GOO_SRC) -I$(FOFI_SRC) -I$(POPPLER_SRC) $(ZLIB_INCLUDES)
+INCLUDES = -Igoo -Ifofi -Ipoppler -I$(GOO_SRC) -I$(FOFI_SRC) -I$(POPPLER_SRC) $(ZLIB_INCLUDES)
 AM_CPPFLAGS = -DPOPPLER_DATADIR='"."'
 AM_CFLAGS = $(WARNING_CFLAGS)
+AM_CXXFLAGS = $(NO_WARN_CXXFLAGS)
 
 noinst_LIBRARIES = libpoppler.a
 
 nodist_libpoppler_a_SOURCES = \
-	$(cpp_libCpp_a_sources) \
 	$(goo_libGoo_a_sources) \
 	$(fofi_libfofi_a_sources) \
 	$(poppler_libpoppler_a_sources)
-
-cpp_libCpp_a_sources = \
-	$(CPP_SRC)/poppler-version.cpp
 
 goo_libGoo_a_sources = \
 	$(GOO_SRC)/FixedPoint.cc \
@@ -55,9 +51,7 @@ goo_libGoo_a_sources = \
 	$(GOO_SRC)/GooList.cc \
 	$(GOO_SRC)/GooString.cc \
 	$(GOO_SRC)/GooTimer.cc \
-	$(GOO_SRC)/gstrtod.cc \
-	$(GOO_SRC)/PNGWriter.cc
-
+	$(GOO_SRC)/gstrtod.cc
 
 fofi_libfofi_a_sources = \
 	$(FOFI_SRC)/FoFiBase.cc \
@@ -89,12 +83,12 @@ poppler_libpoppler_a_sources = \
 	$(POPPLER_SRC)/GfxFont.cc \
 	$(POPPLER_SRC)/GfxState.cc \
 	$(POPPLER_SRC)/GlobalParams.cc \
+	$(POPPLER_SRC)/Hints.cc \
 	$(POPPLER_SRC)/JArithmeticDecoder.cc \
 	$(POPPLER_SRC)/JBIG2Stream.cc \
 	$(POPPLER_SRC)/JPXStream.cc \
-	$(POPPLER_SRC)/Hints.cc \
-	$(POPPLER_SRC)/Lexer.cc \
 	$(POPPLER_SRC)/Linearization.cc \
+	$(POPPLER_SRC)/Lexer.cc \
 	$(POPPLER_SRC)/Link.cc \
 	$(POPPLER_SRC)/Movie.cc \
 	$(POPPLER_SRC)/NameToCharCode.cc \
@@ -117,12 +111,12 @@ poppler_libpoppler_a_sources = \
 	$(POPPLER_SRC)/SecurityHandler.cc \
 	$(POPPLER_SRC)/Sound.cc \
 	$(POPPLER_SRC)/Stream.cc \
+	$(POPPLER_SRC)/strtok_r.cpp \
 	$(POPPLER_SRC)/UnicodeMap.cc \
 	$(POPPLER_SRC)/UnicodeTypeTable.cc \
 	$(POPPLER_SRC)/ViewerPreferences.cc \
 	$(POPPLER_SRC)/XRef.cc \
-	$(POPPLER_SRC)/XpdfPluginAPI.cc \
-	$(POPPLER_SRC)/strtok_r.cpp
+	$(POPPLER_SRC)/XpdfPluginAPI.cc
 
 $(libpoppler_a_OBJECTS): config.force
 

@@ -33,7 +33,6 @@
 #  include <sys/stat.h>
 #  include <dirent.h>
 #  include <poppler-config.h>
-#  include <cpp/poppler-version.h>
 #  include <goo/GooString.h>
 #  include <goo/gmem.h>
 #  include <goo/gfile.h>
@@ -123,10 +122,6 @@ extern "C" {
     extern void unrefPdfDocument(char *);
     extern void epdf_free(void);
     extern void copyReal(PDF pdf, double d);
-
-    extern int poppler_version_major(void);
-    extern int poppler_version_minor(void);
-    extern int poppler_version_micro(void);
 
     /* utils.w */
     __attribute__ ((format(printf, 1, 2)))
