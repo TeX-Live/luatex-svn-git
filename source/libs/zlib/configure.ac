@@ -1,12 +1,12 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl
-dnl   Copyright (C) 2009, 2010 Peter Breitenlohner <tex-live@tug.org>
+dnl   Copyright (C) 2009-2011 Peter Breitenlohner <tex-live@tug.org>
 dnl
 dnl   This file is free software; the copyright holder
 dnl   gives unlimited permission to copy and/or distribute it,
 dnl   with or without modifications, as long as this notice is preserved.
 dnl
-m4_define([zlib_version], [1.2.5])[]dnl using unmodified zlib source tree
+m4_include([version.ac])[] dnl define zlib_version
 AC_INIT([zlib for TeX Live], zlib_version, [tex-k@tug.org])
 AC_PREREQ([2.65])
 AC_CONFIG_SRCDIR([zlib-]zlib_version[/zlib.h])
@@ -74,10 +74,15 @@ caddr_t hello() {
                   [AC_MSG_RESULT([yes])
                   ZLIB_DEFINES="$ZLIB_DEFINES -DUSE_MMAP"],
                   [AC_MSG_RESULT([no])])
+
+KPSE_CHECK_WIN32
+if test "x$kpse_cv_have_win32" != xno; then
+  ZLIB_DEFINES="$ZLIB_DEFINES -DNO_VIZ"
+fi
+
 AC_SUBST([ZLIB_DEFINES])
 
-ZLIB_TREE=[zlib-]zlib_version
-AC_SUBST([ZLIB_TREE])
+AC_SUBST([ZLIB_TREE], [zlib-]zlib_version)
 
 if test -f $srcdir/$ZLIB_TREE/zconf.h; then
   AC_MSG_ERROR([Sorry, you must remove the file $ZLIB_TREE/zconf.h])
