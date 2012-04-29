@@ -368,14 +368,13 @@ boolean lua_b_open_out(alpha_file * f, char *fn)
 @ @c
 void lua_a_close_in(alpha_file f, int n)
 {                               /* close a text file */
-    boolean ret;
     int callback_id;
     if (n == 0)
         callback_id = input_file_callback_id[iindex];
     else
         callback_id = read_file_callback_id[n];
     if (callback_id > 0) {
-        ret = run_saved_callback(callback_id, "close", "->");
+        run_saved_callback(callback_id, "close", "->");
         destroy_saved_callback(callback_id);
         if (n == 0)
             input_file_callback_id[iindex] = 0;
