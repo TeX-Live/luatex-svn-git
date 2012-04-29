@@ -1,3 +1,34 @@
+2012-03-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import libpng-1.5.10.
+	* version.ac: Adjust.
+
+2012-02-24  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* include/Makefile.am: Use ../am/hdr_links.am.
+
+2012-02-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import libpng-1.5.9.
+	* version.ac: Adjust.
+
+2011-12-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import libpng-1.5.7.
+	* version.ac: Adjust.
+	* configure.ac: Add AC_C_RESTRICT as in libpng-1.5.7.
+
+2011-10-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import libpng-1.5.5.
+	* version.ac: Adjust.
+
+2011-07-21  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import libpng-1.5.4.
+	* version.ac: New file defining the libpng version.
+	* configure.ac: Adapt.
+
 2011-04-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	Import libpng-1.5.2.
