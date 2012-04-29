@@ -356,7 +356,6 @@ character positions.
 @c
 void print_banner(const char *v, int e, int ver)
 {
-    boolean res;
     int callback_id;
     callback_id = callback_defined(start_run_callback);
     if (callback_id == 0) {
@@ -375,7 +374,7 @@ void print_banner(const char *v, int e, int ver)
             fprintf(term_out, "\\write18 enabled.\n");
         }
     } else if (callback_id > 0) {
-        res = run_callback(callback_id, "->");
+        run_callback(callback_id, "->");
     }
 }
 
