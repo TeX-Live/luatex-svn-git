@@ -2839,7 +2839,6 @@ pointer actual_box_width(pointer r, scaled base_width)
     scaled w;                   /* calculated |size| */
     pointer p;                  /* current node when calculating |pre_display_size| */
     pointer q;                  /* glue specification when calculating |pre_display_size| */
-    internal_font_number f;     /* font in current |char_node| */
     scaled d;                   /* increment to |v| */
     scaled v;                   /* |w| plus possible glue amount */
     w = -max_dimen;
@@ -2847,7 +2846,6 @@ pointer actual_box_width(pointer r, scaled base_width)
     p = list_ptr(r);
     while (p != null) {
         if (is_char_node(p)) {
-            f = font(p);
             d = glyph_width(p);
             goto found;
         }
