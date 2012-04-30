@@ -177,14 +177,13 @@ void error(void)
     ASCII_code c;               /* what the user types */
     int callback_id;
     int s1, s2, s3, s4;         /* used to save global variables when deleting tokens */
-    boolean t;
     int i;
     if (history < error_message_issued)
         history = error_message_issued;
     print_char('.');
     callback_id = callback_defined(show_error_hook_callback);
     if (callback_id > 0)
-        t = run_callback(callback_id, "->");
+        run_callback(callback_id, "->");
     show_context();
     if (haltonerrorp) {
         history = fatal_error_stop;
