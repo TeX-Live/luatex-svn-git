@@ -1,7 +1,7 @@
 % vfovf.w
 
 % Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
-% Copyright 2006-2009 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2012 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -149,7 +149,7 @@ boolean auto_expand_vf(internal_font_number f); /* forward */
         vf_z = vf_z / 2;                         \
         vf_alpha += vf_alpha;                    \
     }                                            \
-    vf_beta = (char)(256 / vf_alpha);		 \
+    /*vf_beta = (char)(256 / vf_alpha);*/	 \
     vf_alpha = (vf_alpha * vf_z);		 \
 }
 
@@ -671,7 +671,7 @@ void do_vf(internal_font_number f)
     vf_stack_index stack_level;
     int vf_z;                   /* multiplier */
     int vf_alpha;               /* correction for negative values */
-    char vf_beta;               /* divisor */
+    //char vf_beta;               /* divisor */
     int vf_np;
     eight_bits *vpackets;
     memory_word tmp_w;          /* accumulator */
@@ -1059,7 +1059,7 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
     vf_stack_index stack_level;
     int vf_z;                   /* multiplier */
     int vf_alpha;               /* correction for negative values */
-    char vf_beta;               /* divisor */
+    //char vf_beta;               /* divisor */
     eight_bits *s;
     scaled h, v;
     scaled w, x, y, z;
