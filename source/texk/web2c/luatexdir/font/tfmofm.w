@@ -1,6 +1,6 @@
 % tfmofm.w
 % 
-% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2012 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -578,7 +578,7 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
     int a, b, c=0, d=0;             /* byte variables */
     int i;                      /* counter */
     int font_level, header_length;
-    int nco, ncw, npc, nlw, neew;
+    int ncw, nlw, neew;
     tfmcharacterinfo ci;
     charinfo *co;
     four_quarters qw;
@@ -630,9 +630,7 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
     set_font_area(f, NULL);
 
     /* Read the {\.{TFM}} size fields */
-    nco = 0;
     ncw = 0;
-    npc = 0;
     read_sixteen(first_two);
     if (first_two != 0) {
         font_level = -1;
