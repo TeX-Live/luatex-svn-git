@@ -1,6 +1,6 @@
 /* ltexlib.c
    
-   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2012 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -912,13 +912,12 @@ static int getbox(lua_State * L)
 
 static int vsetbox(lua_State * L, int is_global)
 {
-    int i, j, k, err;
+    int j, k, err;
     int save_global_defs = int_par(global_defs_code);
     if (is_global)
         int_par(global_defs_code) = 1;
     k = get_box_id(L, -2);
     check_index_range(k, "setbox");
-    i = get_tex_box_register(k);
     if (lua_isboolean(L, -1)) {
         j = lua_toboolean(L, -1);
         if (j == 0)
