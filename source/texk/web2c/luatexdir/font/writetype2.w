@@ -1,6 +1,6 @@
 % writetype2.w
 %
-% Copyright 2006-2011 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2012 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -239,13 +239,13 @@ static struct {
 
 static unsigned long ttc_read_offset(sfnt * sfont, int ttc_idx)
 {
-    ULONG version;
+    //ULONG version;
     unsigned long offset = 0;
     unsigned long num_dirs = 0;
 
     sfnt_seek_set(sfont, 4);    /* skip version tag */
 
-    version = sfnt_get_ulong(sfont);
+    /*version = */sfnt_get_ulong(sfont);
     num_dirs = sfnt_get_ulong(sfont);
     if (ttc_idx < 0 || ttc_idx > (int) (num_dirs - 1)) {
         fprintf(stderr, "Invalid TTC index number\n");
