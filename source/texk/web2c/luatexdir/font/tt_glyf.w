@@ -2,7 +2,7 @@
 %  
 % Copyright 2002 by Jin-Hwan Cho and Shunsaku Hirata,
 % the dvipdfmx project team <dvipdfmx@@project.ktug.or.kr>
-% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2012 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -594,7 +594,7 @@ int tt_get_metrics(sfnt * sfont, struct tt_glyphs *g)
     for (i = 0; i < g->num_glyphs; i++) {
         USHORT gid;             /* old gid */
         ULONG loc, len;
-        SHORT number_of_contours;
+        //SHORT number_of_contours;
 
         gid = g->gd[i].ogid;
         if (gid >= maxp->numGlyphs)
@@ -627,7 +627,7 @@ int tt_get_metrics(sfnt * sfont, struct tt_glyphs *g)
         }
 
         sfnt_seek_set(sfont, (long) (offset + loc));
-        number_of_contours = sfnt_get_short(sfont);
+        /*number_of_contours = */sfnt_get_short(sfont);
 
         /* BoundingBox: FWord x 4 */
         g->gd[i].llx = sfnt_get_short(sfont);
