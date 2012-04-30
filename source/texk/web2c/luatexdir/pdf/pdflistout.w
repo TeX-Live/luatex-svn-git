@@ -329,7 +329,6 @@ void hlist_out(PDF pdf, halfword this_box)
     scaled leader_wd;           /* width of leader box being replicated */
     scaled lx;                  /* extra space between leader boxes */
     boolean outer_doing_leaders;        /* were we doing leaders? */
-    halfword prev_p;            /* one step behind |p| */
     real glue_temp;             /* glue value before rounding */
     real cur_glue = 0.0;        /* glue seen so far */
     scaled cur_g = 0;           /* rounded equivalent of |cur_glue| times the glue ratio */
@@ -359,7 +358,6 @@ void hlist_out(PDF pdf, halfword this_box)
         save_loc = dvi_offset + dvi_ptr /* DVI! */ ;
     }
 
-    prev_p = this_box + list_offset;
     /* Create link annotations for the current hbox if needed */
     for (i = 1; i <= pdf->link_stack_ptr; i++) {
         assert(is_running(width(pdf->link_stack[i].link_node)));
@@ -765,7 +763,6 @@ void hlist_out(PDF pdf, halfword this_box)
                 synctexhorizontalruleorglue(p, this_box);
             }
           NEXTP:
-            prev_p = p;
             p = vlink(p);
             synch_pos_with_cur(pdf->posstruct, refpos, cur);
         }
