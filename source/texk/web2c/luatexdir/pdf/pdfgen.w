@@ -1343,11 +1343,9 @@ void pdf_end_array(PDF pdf)
 void pdf_begin_obj(PDF pdf, int i, int pdf_os_threshold)
 {
     os_struct *os = pdf->os;
-    strbuf_s *buf;
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
     pdf_prepare_obj(pdf, i, pdf_os_threshold);
     assert(pdf->buf == os->buf[os->curbuf]);
-    buf = pdf->buf;
     switch (os->curbuf) {
     case PDFOUT_BUF:
         pdf_printf(pdf, "%d 0 obj\n", (int) i);
@@ -2306,7 +2304,6 @@ are already written completely to PDF output file.
 @c
 void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
 {
-    boolean res;
     int i, j, k;
     int root, info, xref_stm = 0, outlines, threads, names_tree;
     size_t xref_offset_width;
@@ -2318,7 +2315,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             tprint_nl("No pages of output.");
             print_ln();
         } else if (callback_id > 0) {
-            res = run_callback(callback_id, "->");
+            run_callback(callback_id, "->");
         }
         if (pdf->gone > 0)
             garbage_warning();
@@ -2327,7 +2324,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             pdf_flush(pdf);     /* to make sure that the output file name has been already created */
             flush_jbig2_page0_objects(pdf);     /* flush page 0 objects from JBIG2 images, if any */
             if (callback_id1 > 0)
-                res = run_callback(callback_id1, "->");
+                run_callback(callback_id1, "->");
 
             check_nonexisting_pages(pdf);
             check_nonexisting_destinations(pdf);
@@ -2560,7 +2557,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
                 tprint(" bytes).");
                 print_ln();
             } else if (callback_id > 0) {
-                res = run_callback(callback_id, "->");
+                run_callback(callback_id, "->");
             }
         }
         libpdffinish(pdf);
