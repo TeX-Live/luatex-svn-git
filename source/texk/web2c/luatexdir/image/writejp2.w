@@ -1,7 +1,7 @@
 % writejp2.w
 
-% Copyright 2011 Taco Hoekwater <taco@@luatex.org>
-% Copyright 2011 Hartmut Henkel <hartmut@@luatex.org>
+% Copyright 2011,2012 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2011,2012 Hartmut Henkel <hartmut@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -76,18 +76,18 @@ static hdr_struct read_boxhdr(image_dict * idict)
 /* 1.5.3.1 Image Header box */
 static void scan_ihdr(image_dict * idict)
 {
-    unsigned int height, width, nc;
-    unsigned char bpc, c, unkc, ipr;
+    unsigned int height, width/*, nc*/;
+    unsigned char bpc/*, c, unkc, ipr*/;
     height = read4bytes(img_file(idict));
     width = read4bytes(img_file(idict));
     img_ysize(idict) = (int) height;
     img_xsize(idict) = (int) width;
-    nc = read2bytes(img_file(idict));
+    //nc = read2bytes(img_file(idict));
     bpc = (unsigned char) xgetc(img_file(idict));
     img_colordepth(idict) = bpc + 1;
-    c = (unsigned char) xgetc(img_file(idict));
-    unkc = (unsigned char) xgetc(img_file(idict));
-    ipr = (unsigned char) xgetc(img_file(idict));
+    //c = (unsigned char) xgetc(img_file(idict));
+    //unkc = (unsigned char) xgetc(img_file(idict));
+    //ipr = (unsigned char) xgetc(img_file(idict));
 }
 
 /* 1.5.3.7.1 Capture Resolution box */
