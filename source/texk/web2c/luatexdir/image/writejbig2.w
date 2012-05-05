@@ -735,7 +735,10 @@ static void wr_jbig2(PDF pdf, image_dict * idict, FILEINFO * fip,
         pdf_dict_add_int(pdf, "BitsPerComponent", 1);
         pdf_dict_add_int(pdf, "Length",
                          getstreamlen(pip->segments.first, true));
-        pdf_dict_add_name(pdf, "Filter", "JBIG2Decode");
+        pdf_add_name(pdf, "Filter");
+        pdf_begin_array(pdf);
+        pdf_add_name(pdf, "JBIG2Decode");
+        pdf_end_array(pdf);
         if (fip->page0.last != NULL) {
             if (fip->pdfpage0objnum == 0) {
                 fip->pdfpage0objnum =
