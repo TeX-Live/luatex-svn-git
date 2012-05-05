@@ -1,7 +1,7 @@
 /* lepdflib.cc
 
-   Copyright 2009-2011 Taco Hoekwater <taco@luatex.org>
-   Copyright 2009-2011 Hartmut Henkel <hartmut@luatex.org>
+   Copyright 2009-2012 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2012 Hartmut Henkel <hartmut@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -362,6 +362,22 @@ static int m_##type##__tostring(lua_State * L)                 \
     if (uin->pd != NULL && uin->pd->pc != uin->pc)             \
         pdfdoc_changed_error(L);                               \
     lua_pushfstring(L, "%s: %p", #type, (type *) uin->d);      \
+    return 1;                                                  \
+}
+
+#define m_poppler_check_string(in, function)                   \
+static int m_##in##_##function(lua_State * L)                  \
+{                                                              \
+    const char *s;                                             \
+    udstruct *uin;                                             \
+    uin = (udstruct *) luaL_checkudata(L, 1, M_##in);          \
+    if (uin->pd != NULL && uin->pd->pc != uin->pc)             \
+        pdfdoc_changed_error(L);                               \
+    s = luaL_checkstring(L, 2);                                \
+    if (((in *) uin->d)->function((char *) s))                 \
+        lua_pushboolean(L, 1);                                 \
+    else                                                       \
+        lua_pushboolean(L, 0);                                 \
     return 1;                                                  \
 }
 
@@ -892,20 +908,7 @@ static int m_Dict_remove(lua_State * L)
     return 0;
 }
 
-static int m_Dict_is(lua_State * L)
-{
-    const char *s;
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    s = luaL_checkstring(L, 2);
-    if (((Dict *) uin->d)->is((char *) s))
-        lua_pushboolean(L, 1);
-    else
-        lua_pushboolean(L, 0);
-    return 1;
-}
+m_poppler_check_string(Dict, is);
 
 static int m_Dict_lookup(lua_State * L)
 {
@@ -1016,6 +1019,8 @@ static int m_Dict_getValNF(lua_State * L)
     return 1;
 }
 
+m_poppler_check_string(Dict, hasKey);
+
 m_poppler__tostring(Dict);
 
 static const struct luaL_Reg Dict_m[] = {
@@ -1032,6 +1037,7 @@ static const struct luaL_Reg Dict_m[] = {
     {"getKey", m_Dict_getKey},
     {"getVal", m_Dict_getVal},
     {"getValNF", m_Dict_getValNF},
+    {"hasKey", m_Dict_hasKey},
     {"__tostring", m_Dict__tostring},
     {NULL, NULL}                // sentinel
 };

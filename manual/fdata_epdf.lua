@@ -635,6 +635,17 @@ local fdata_epdf = {
           {type = "Object", name = "var", optional = false, },
         },
       },
+      hasKey = {
+        type = "function",
+        shortdesc = "Check if Dict contains /Key.",
+        arguments = {
+          {type = "Dict", name = "dict", optional = false, },
+          {type = "string", name = "string", optional = false, },
+        },
+        returnvalues = {
+          {type = "boolean", name = "var", optional = false, },
+        },
+      },
     },
 ------------------------------------------------------------------------
     Link = {
