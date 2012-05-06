@@ -1,5 +1,5 @@
 /* ltexlib.c
-   
+
    Copyright 2006-2012 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -620,27 +620,30 @@ static int texerror (lua_State * L)
     return 0;
 }
 
-
 static int get_item_index(lua_State * L, int i, int base)
 {
     size_t kk;
     int k;
     int cur_cs;
     const char *s;
-    if (lua_type(L, i) == LUA_TSTRING) {
+    switch (lua_type(L, i)) {
+    case LUA_TSTRING:
         s = lua_tolstring(L, i, &kk);
         cur_cs = string_lookup(s, kk);
-        if (cur_cs == undefined_control_sequence || cur_cs == undefined_cs_cmd) {
+        if (cur_cs == undefined_control_sequence || cur_cs == undefined_cs_cmd)
             k = -1;             /* guarandeed invalid */
-        } else {
+        else
             k = (equiv(cur_cs) - base);
-        }
-    } else {
+        break;
+    case LUA_TNUMBER:
         k = (int) luaL_checkinteger(L, i);
+        break;
+    default:
+        luaL_error(L, "argument must be a string or a number");
+        k = -1;                 /* not a valid index */
     }
     return k;
 }
-
 
 static int vsetdimen(lua_State * L, int is_global)
 {
@@ -886,7 +889,8 @@ static int get_box_id(lua_State * L, int i)
     int cur_cs, cur_cmd;
     size_t k = 0;
     int j = -1;
-    if (lua_type(L, i) == LUA_TSTRING) {
+    switch (lua_type(L, i)) {
+    case LUA_TSTRING:
         s = lua_tolstring(L, i, &k);
         cur_cs = string_lookup(s, k);
         cur_cmd = eq_type(cur_cs);
@@ -894,8 +898,13 @@ static int get_box_id(lua_State * L, int i)
             cur_cmd == math_given_cmd || cur_cmd == omath_given_cmd) {
             j = equiv(cur_cs);
         }
-    } else {
+        break;
+    case LUA_TNUMBER:
         lua_number2int(j, lua_tonumber(L, (i)));
+        break;
+    default:
+        luaL_error(L, "argument must be a string or a number");
+        j = -1;                 /* not a valid box id */
     }
     return j;
 }
@@ -958,11 +967,11 @@ static int setbox(lua_State * L)
 	luaL_error(L, "incorrect character value %d for tex.%s()", (int)j, s);  }
 
 
-static int setcode (lua_State *L, void (*setone)(int,halfword,quarterword), 
+static int setcode (lua_State *L, void (*setone)(int,halfword,quarterword),
 		    void (*settwo)(int,halfword,quarterword), const char *name, int lim)
 {
     int ch;
-    halfword val, ucval;   
+    halfword val, ucval;
     int level = cur_level;
     int n = lua_gettop(L);
     int f = 1;
@@ -971,7 +980,7 @@ static int setcode (lua_State *L, void (*setone)(int,halfword,quarterword),
     if (n>2 && lua_isstring(L, f)) {
         const char *s = lua_tostring(L, f);
         if (strcmp(s, "global") == 0) {
-            level = level_one; 
+            level = level_one;
 	    f++;
 	}
     }
@@ -1040,7 +1049,7 @@ static int setcatcode(lua_State * L)
     if (n>2 && lua_isstring(L, f)) {
         const char *s = lua_tostring(L, f);
         if (strcmp(s, "global") == 0) {
-            level = level_one; 
+            level = level_one;
 	    f++;
 	}
     }
@@ -1080,7 +1089,7 @@ static int setmathcode(lua_State * L)
     if (n>2 && lua_isstring(L, f)) {
         const char *s = lua_tostring(L, f);
         if (strcmp(s, "global") == 0) {
-            level = level_one; 
+            level = level_one;
 	    f++;
 	}
     }
@@ -1135,7 +1144,7 @@ static int setdelcode(lua_State * L)
     if (n>2 && lua_isstring(L, f)) {
         const char *s = lua_tostring(L, f);
         if (strcmp(s, "global") == 0) {
-            level = level_one; 
+            level = level_one;
 	    f++;
 	}
     }
@@ -1433,6 +1442,8 @@ static int tex_setmathparm(lua_State * L)
         }
         i = luaL_checkoption(L, (n - 2), NULL, math_param_names);
         j = luaL_checkoption(L, (n - 1), NULL, math_style_names);
+        if (!lua_isnumber(L, n))
+            luaL_error(L, "argument must be a number");
         lua_number2int(k, lua_tonumber(L, n));
         def_math_param(i, j, (scaled) k, l);
     }
@@ -2262,11 +2273,11 @@ static int tex_run_linebreak(lua_State * L)
     get_int_par("finalhyphendemerits", finalhyphendemerits,
                 int_par(final_hyphen_demerits_code));
     get_int_par("hangafter", hangafter, int_par(hang_after_code));
-    get_intx_par("interlinepenalty", interlinepenalty,int_par(inter_line_penalty_code), 
+    get_intx_par("interlinepenalty", interlinepenalty,int_par(inter_line_penalty_code),
 		 interlinepenalties, equiv(inter_line_penalties_loc));
-    get_intx_par("clubpenalty", clubpenalty, int_par(club_penalty_code), 
+    get_intx_par("clubpenalty", clubpenalty, int_par(club_penalty_code),
 		 clubpenalties, equiv(club_penalties_loc));
-    get_intx_par("widowpenalty", widowpenalty, int_par(widow_penalty_code), 
+    get_intx_par("widowpenalty", widowpenalty, int_par(widow_penalty_code),
 		 widowpenalties, equiv(widow_penalties_loc));
     get_int_par("brokenpenalty", brokenpenalty, int_par(broken_penalty_code));
     get_dimen_par("emergencystretch", emergencystretch,
