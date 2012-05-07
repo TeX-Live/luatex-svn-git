@@ -82,12 +82,12 @@ static void scan_ihdr(image_dict * idict)
     width = read4bytes(img_file(idict));
     img_ysize(idict) = (int) height;
     img_xsize(idict) = (int) width;
-    //nc = read2bytes(img_file(idict));
+    /*nc = */read2bytes(img_file(idict));
     bpc = (unsigned char) xgetc(img_file(idict));
     img_colordepth(idict) = bpc + 1;
-    //c = (unsigned char) xgetc(img_file(idict));
-    //unkc = (unsigned char) xgetc(img_file(idict));
-    //ipr = (unsigned char) xgetc(img_file(idict));
+    /*c = (unsigned char) */xgetc(img_file(idict));
+    /*unkc = (unsigned char) */xgetc(img_file(idict));
+    /*ipr = (unsigned char) */xgetc(img_file(idict));
 }
 
 /* 1.5.3.7.1 Capture Resolution box */
