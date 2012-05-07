@@ -729,6 +729,7 @@ static void wr_jbig2(PDF pdf, image_dict * idict, FILEINFO * fip,
         pdf_begin_dict(pdf);
         pdf_dict_add_name(pdf, "Type", "XObject");
         pdf_dict_add_name(pdf, "Subtype", "Image");
+        pdf_dict_add_img_filename(pdf, idict);
         pdf_dict_add_int(pdf, "Width", pip->width);
         pdf_dict_add_int(pdf, "Height", pip->height);
         pdf_dict_add_name(pdf, "ColorSpace", "DeviceGray");

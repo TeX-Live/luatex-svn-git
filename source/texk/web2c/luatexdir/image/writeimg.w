@@ -676,6 +676,19 @@ void idict_to_array(image_dict * idict)
     idict_ptr++;
 }
 
+void pdf_dict_add_img_filename(PDF pdf, image_dict * idict)
+{
+    char s[21];
+    assert(idict != NULL);
+    if (img_type(idict) != IMG_TYPE_PDF)        /* for now */
+        return;
+    // write additional information
+    snprintf(s, 20, "%s.FileName", pdfkeyprefix);
+    pdf_add_name(pdf, s);
+    pdf_printf(pdf, " (%s)",
+               convertStringToPDFString(img_filepath(idict),
+                                        strlen(img_filepath(idict))));
+}
 
 @ To allow the use of \.{\\pdfrefximage} inside saved boxes in -ini mode,
 the information in the array has to be (un)dumped with the format.

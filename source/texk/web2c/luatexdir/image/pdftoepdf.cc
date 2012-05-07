@@ -1,7 +1,7 @@
 /* pdftoepdf.cc
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2011 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2012 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -652,11 +652,7 @@ void write_epdf(PDF pdf, image_dict * idict)
     pdf_dict_add_int(pdf, "FormType", 1);
 
     // write additional information
-    snprintf(s, 30, "%s.FileName", pdfkeyprefix);
-    pdf_add_name(pdf, s);
-    pdf_printf(pdf, " (%s)",
-               convertStringToPDFString(pdf_doc->file_path,
-                                        strlen(pdf_doc->file_path)));
+    pdf_dict_add_img_filename(pdf, idict);
     snprintf(s, 30, "%s.PageNumber", pdfkeyprefix);
     pdf_dict_add_int(pdf, s, (int) img_pagenum(idict));
     doc->getDocInfoNF(&obj1);

@@ -1,7 +1,7 @@
 % writejp2.w
 
-% Copyright 2011,2012 Taco Hoekwater <taco@@luatex.org>
-% Copyright 2011,2012 Hartmut Henkel <hartmut@@luatex.org>
+% Copyright 2011-2012 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2011-2012 Hartmut Henkel <hartmut@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -76,18 +76,18 @@ static hdr_struct read_boxhdr(image_dict * idict)
 /* 1.5.3.1 Image Header box */
 static void scan_ihdr(image_dict * idict)
 {
-    unsigned int height, width/*, nc*/;
-    unsigned char bpc/*, c, unkc, ipr*/;
+    unsigned int height, width;
+    unsigned char bpc;
     height = read4bytes(img_file(idict));
     width = read4bytes(img_file(idict));
     img_ysize(idict) = (int) height;
     img_xsize(idict) = (int) width;
-    /*nc = */read2bytes(img_file(idict));
+    (void) read2bytes(img_file(idict)); /* nc */
     bpc = (unsigned char) xgetc(img_file(idict));
     img_colordepth(idict) = bpc + 1;
-    /*c = (unsigned char) */xgetc(img_file(idict));
-    /*unkc = (unsigned char) */xgetc(img_file(idict));
-    /*ipr = (unsigned char) */xgetc(img_file(idict));
+    (void) xgetc(img_file(idict));      /* c */
+    (void) xgetc(img_file(idict));      /* unkc */
+    (void) xgetc(img_file(idict));      /* ipr */
 }
 
 /* 1.5.3.7.1 Capture Resolution box */
@@ -269,6 +269,7 @@ void write_jp2(PDF pdf, image_dict * idict)
     pdf_begin_dict(pdf);
     pdf_dict_add_name(pdf, "Type", "XObject");
     pdf_dict_add_name(pdf, "Subtype", "Image");
+    pdf_dict_add_img_filename(pdf, idict);
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
         pdf_printf(pdf, "\n%s\n", img_attr(idict));
     pdf_dict_add_int(pdf, "Width", (int) img_xsize(idict));

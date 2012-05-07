@@ -1,7 +1,7 @@
 /* writeimg.h
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2011 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2012 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -49,5 +49,6 @@ void dumpimagemeta(void);
 void undumpimagemeta(PDF, int, int);
 scaled_whd scan_alt_rule(void);
 size_t read_file_to_buf(PDF pdf, FILE * f, size_t len);
+void pdf_dict_add_img_filename(PDF pdf, image_dict * idict);
 
 #endif                          /* WRITEIMG_H */

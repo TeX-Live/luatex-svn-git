@@ -1,7 +1,7 @@
 /* epdf.h
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2011 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2012 Taco Hoekwater <taco@luatex.org>
    This file is part of LuaTeX.
 
    LuaTeX is free software; you can redistribute it and/or modify it under
@@ -127,6 +127,9 @@ extern "C" {
     extern int poppler_version_major(void);
     extern int poppler_version_minor(void);
     extern int poppler_version_micro(void);
+
+    /* writeimg.w */
+    extern void pdf_dict_add_img_filename(PDF pdf, image_dict * idict);
 
     /* utils.w */
     __attribute__ ((format(printf, 1, 2)))

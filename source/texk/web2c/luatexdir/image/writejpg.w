@@ -258,6 +258,7 @@ void write_jpg(PDF pdf, image_dict * idict)
     pdf_begin_dict(pdf);
     pdf_dict_add_name(pdf, "Type", "XObject");
     pdf_dict_add_name(pdf, "Subtype", "Image");
+    pdf_dict_add_img_filename(pdf, idict);
     if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
         pdf_printf(pdf, "\n%s\n", img_attr(idict));
     pdf_dict_add_int(pdf, "Width", (int) img_xsize(idict));
