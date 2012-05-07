@@ -1,7 +1,7 @@
 % writeimg.w
 
 % Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
-% Copyright 2006-2011 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2012 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -816,30 +816,31 @@ void undumpimagemeta(PDF pdf, int pdfversion, int pdfinclusionerrorlevel)
     }
 }
 
-@ scans rule spec to |alt_rule|
+@ scan rule spec to |alt_rule|
 @c
 scaled_whd scan_alt_rule(void)
 {
+    boolean loop;
     scaled_whd alt_rule;
     alt_rule.wd = null_flag;
     alt_rule.ht = null_flag;
     alt_rule.dp = null_flag;
-  RESWITCH:
-    if (scan_keyword("width")) {
-        scan_normal_dimen();
-        alt_rule.wd = cur_val;
-        goto RESWITCH;
-    }
-    if (scan_keyword("height")) {
-        scan_normal_dimen();
-        alt_rule.ht = cur_val;
-        goto RESWITCH;
-    }
-    if (scan_keyword("depth")) {
-        scan_normal_dimen();
-        alt_rule.dp = cur_val;
-        goto RESWITCH;
-    }
+    do {
+        loop = false;
+        if (scan_keyword("width")) {
+            scan_normal_dimen();
+            alt_rule.wd = cur_val;
+            loop = true;
+        } else if (scan_keyword("height")) {
+            scan_normal_dimen();
+            alt_rule.ht = cur_val;
+            loop = true;
+        } else if (scan_keyword("depth")) {
+            scan_normal_dimen();
+            alt_rule.dp = cur_val;
+            loop = true;
+        }
+    } while (loop);
     return alt_rule;
 }
 
