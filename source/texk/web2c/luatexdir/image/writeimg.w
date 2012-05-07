@@ -678,16 +678,22 @@ void idict_to_array(image_dict * idict)
 
 void pdf_dict_add_img_filename(PDF pdf, image_dict * idict)
 {
-    char s[21];
+    char s[21], *p;
     assert(idict != NULL);
-    if (img_type(idict) != IMG_TYPE_PDF)        /* for now */
+    /* for now PTEX.FileName only for PDF, but prepared for JPG, PNG, ... */
+    if (img_type(idict) != IMG_TYPE_PDF)
         return;
+    if (img_visiblefilename(idict) != NULL) {
+        if (strlen(img_visiblefilename(idict)) == 0)
+            return;             /* empty string blocks PTEX.FileName output */
+        else
+            p = img_visiblefilename(idict);
+    } else
+        p = img_filepath(idict);
     // write additional information
     snprintf(s, 20, "%s.FileName", pdfkeyprefix);
     pdf_add_name(pdf, s);
-    pdf_printf(pdf, " (%s)",
-               convertStringToPDFString(img_filepath(idict),
-                                        strlen(img_filepath(idict))));
+    pdf_printf(pdf, " (%s)", convertStringToPDFString(p, strlen(p)));
 }
 
 @ To allow the use of \.{\\pdfrefximage} inside saved boxes in -ini mode,

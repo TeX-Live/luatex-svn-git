@@ -1,6 +1,6 @@
 /* limglib.c
    
-   Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2012 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -63,8 +63,8 @@ void stackDump(lua_State * L, char *s)
 
 typedef enum { P__ZERO, P_ATTR, P_BBOX, P_COLORDEPTH, P_COLORSPACE, P_DEPTH,
     P_FILENAME, P_FILEPATH, P_HEIGHT, P_IMAGETYPE, P_INDEX, P_OBJNUM,
-    P_PAGE, P_PAGEBOX, P_TOTALPAGES, P_ROTATION, P_STREAM, P_TRANSFORM,
-    P_WIDTH, P_XRES, P_XSIZE, P_YRES, P_YSIZE, P__SENTINEL
+    P_PAGEBOX, P_PAGE, P_TOTALPAGES, P_ROTATION, P_STREAM, P_TRANSFORM,
+    P_VISIBLEFILENAME, P_WIDTH, P_XRES, P_XSIZE, P_YRES, P_YSIZE, P__SENTINEL
 } parm_idx;
 
 static const parm_struct img_parms[] = {
@@ -80,12 +80,13 @@ static const parm_struct img_parms[] = {
     {"imagetype", P_IMAGETYPE},
     {"index", P_INDEX},
     {"objnum", P_OBJNUM},
-    {"page", P_PAGE},
     {"pagebox", P_PAGEBOX},
+    {"page", P_PAGE},
     {"pages", P_TOTALPAGES},
     {"rotation", P_ROTATION},
     {"stream", P_STREAM},
     {"transform", P_TRANSFORM},
+    {"visiblefilename", P_VISIBLEFILENAME},
     {"width", P_WIDTH},
     {"xres", P_XRES},
     {"xsize", P_XSIZE},
@@ -144,6 +145,13 @@ static void image_to_lua(lua_State * L, image * a)
             lua_pushnil(L);
         else
             lua_pushstring(L, img_filename(d));
+        break;
+    case P_VISIBLEFILENAME:
+        if (img_visiblefilename(d) == NULL
+            || strlen(img_visiblefilename(d)) == 0)
+            lua_pushnil(L);
+        else
+            lua_pushstring(L, img_visiblefilename(d));
         break;
     case P_FILEPATH:
         if (img_filepath(d) == NULL || strlen(img_filepath(d)) == 0)
@@ -328,6 +336,18 @@ static void lua_to_image(lua_State * L, image * a)
             img_filename(d) = xstrdup(lua_tostring(L, -1));
         } else
             luaL_error(L, "image.filename needs string value");
+        break;
+    case P_VISIBLEFILENAME:
+        if (img_state(d) >= DICT_FILESCANNED)
+            luaL_error(L, "image.visiblefilename is now read-only");
+        if (img_type(d) == IMG_TYPE_PDFSTREAM)
+            luaL_error(L,
+                       "image.visiblefilename can't be used with image.stream");
+        if (lua_isstring(L, -1)) {
+            xfree(img_visiblefilename(d));
+            img_visiblefilename(d) = xstrdup(lua_tostring(L, -1));
+        } else
+            luaL_error(L, "image.visiblefilename needs string value");
         break;
     case P_ATTR:
         if (img_state(d) >= DICT_FILESCANNED)
