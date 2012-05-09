@@ -7144,6 +7144,7 @@ New primitives that are compatible with \XETEX:
 \starttabulate[|l|l|l|l|]
 \NC \bf primitive         \NC \bf value range (in hex)               \NC\NR
 \NC \tex{Umathchardef}    \NC 0+0+0--7+FF+10FFFF$^1$                 \NC\NR
+\NC \tex{Umathcharnumdef}$^5$ \NC -80000000--7FFFFFFF$^3$              \NC\NR
 \NC \tex{Umathcode}       \NC 0--10FFFF = 0+0+0--7+FF+10FFFF$^1$     \NC\NR
 \NC \tex{Udelcode}        \NC 0--10FFFF = 0+0--FF+10FFFF$^2$         \NC\NR
 \NC \tex{Umathchar}       \NC 0+0+0--7+FF+10FFFF                     \NC\NR
@@ -7178,6 +7179,8 @@ scanning, it is better to use the verbose commands instead.
 Note 4: As of \LUATEX\ 0.65, \tex{Umathaccent} accepts optional
 keywords to control various details regarding math accents. See
 \in{section}[mathacc] below for details.
+
+Note 5: \tex{Umathcharnumdef} will be added in release 0.72.
 
 
 New primitives that exist in \LUATEX\ only (all of these will be explained
