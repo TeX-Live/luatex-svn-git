@@ -213,11 +213,11 @@ int get_math_code_num(int n, boolean compat)
     mathcodeval mval;
     mval = get_math_code(n);
     if (compat) { /* \.{\\the\\mathcode} */
-        if (mval.class_value > 7
+        if (mval.class_value > 8
             || mval.family_value > 15
             || mval.character_value > 255) {
            print_err("Extended mathchar used as mathchar");
-           help2("A mathchar number must be between 0 and 32767.",
+           help2("A mathchar number must be between 0 and \"7FFF.",
                  "I changed this one to zero.");
            int_error(mval.character_value);
            mval = get_math_code(0);
