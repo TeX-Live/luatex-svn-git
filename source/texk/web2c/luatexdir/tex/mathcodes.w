@@ -216,13 +216,13 @@ int get_math_code_num(int n, boolean compat)
         if (mval.class_value > 8
             || mval.family_value > 15
             || mval.character_value > 255) {
-           print_err("Extended mathchar used as mathchar");
-           help2("A mathchar number must be between 0 and \"7FFF.",
-                 "I changed this one to zero.");
-           int_error(mval.character_value);
-           mval = get_math_code(0);
-        }
-        return mval.class_value * 4096 + mval.family_value * 256 + mval.character_value;
+            print_err("Extended mathchar used as mathchar");
+            help2("A mathchar number must be between 0 and \"8000.",
+                  "I changed this one to zero.");
+            int_error(get_math_code_num(n, false));
+            return 0;
+        } else
+            return mval.class_value * 4096 + mval.family_value * 256 + mval.character_value;
     } else { /* \.{\\the\\Umathcodenum} */
         if (mval.origin_value == tex_mathcode) {
             return (mval.class_value * 16 + mval.family_value) * 256 +
