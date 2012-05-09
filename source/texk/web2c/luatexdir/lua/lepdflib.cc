@@ -82,11 +82,9 @@ static udstruct *new_##type##_userdata(lua_State * L)                           
 new_poppler_userdata(PDFDoc);
 
 new_poppler_userdata(Annot);
-new_poppler_userdata(Annots);
 new_poppler_userdata(Array);
 new_poppler_userdata(Catalog);
 new_poppler_userdata(Dict);
-new_poppler_userdata(Link);
 new_poppler_userdata(LinkDest);
 new_poppler_userdata(Links);
 new_poppler_userdata(Object);
@@ -95,7 +93,6 @@ new_poppler_userdata(PDFRectangle);
 new_poppler_userdata(Ref);
 new_poppler_userdata(Stream);
 new_poppler_userdata(XRef);
-new_poppler_userdata(XRefEntry);
 
 //**********************************************************************
 
