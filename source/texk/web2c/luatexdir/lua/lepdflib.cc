@@ -350,7 +350,11 @@ static int m_Annot__gc(lua_State * L)
     printf("\n===== Annot GC ===== uin=<%p>\n", uin);
 #endif
     if (uin->atype == ALLOC_LEPDF)
+#ifdef HAVE_ANNOTDECREFCNT
         ((Annot *) uin->d)->decRefCnt();
+#else
+        delete(Annot *) uin->d;
+#endif
     return 0;
 }
 
@@ -1200,13 +1204,11 @@ static int m_Object_getType(lua_State * L)
 
 static int m_Object_getTypeName(lua_State * L)
 {
-    const char *s;
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
-    s = ((Object *) uin->d)->getTypeName();
-    lua_pushstring(L, s);
+    lua_pushstring(L, ((Object *) uin->d)->getTypeName());
     return 1;
 }
 
@@ -1298,15 +1300,13 @@ static int m_Object_getString(lua_State * L)
 
 static int m_Object_getName(lua_State * L)
 {
-    char *s;
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
-    if (((Object *) uin->d)->isName()) {
-        s = ((Object *) uin->d)->getName();
-        lua_pushstring(L, s);
-    } else
+    if (((Object *) uin->d)->isName())
+        lua_pushstring(L, ((Object *) uin->d)->getName());
+    else
         lua_pushnil(L);
     return 1;
 }
@@ -1415,10 +1415,9 @@ static int m_Object_getCmd(lua_State * L)
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
-    if (((Object *) uin->d)->isCmd()) {
-        s = ((Object *) uin->d)->getCmd();
-        lua_pushstring(L, s);
-    } else
+    if (((Object *) uin->d)->isCmd())
+        lua_pushstring(L, ((Object *) uin->d)->getCmd());
+    else
         lua_pushnil(L);
     return 1;
 }
