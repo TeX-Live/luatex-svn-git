@@ -733,13 +733,12 @@ static int m_img_set(lua_State * L)
 
 static int m_img_mul(lua_State * L)
 {
-    image **aa;
     lua_Number scale;
     if (lua_isnumber(L, 1)) {   /* u? n */
-        aa = (image **) luaL_checkudata(L, 2, TYPE_IMG);        /* u n */
+        (void) luaL_checkudata(L, 2, TYPE_IMG);        /* u n */
         lua_insert(L, -2);      /* n a */
     } else if (lua_isnumber(L, 2)) {    /* n u? */
-        aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);        /* n a */
+        (void) luaL_checkudata(L, 1, TYPE_IMG);        /* n a */
     }                           /* n a */
     scale = lua_tonumber(L, 2); /* n a */
     lua_pop(L, 1);              /* a */
