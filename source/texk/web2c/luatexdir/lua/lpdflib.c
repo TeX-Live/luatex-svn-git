@@ -21,8 +21,8 @@ static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
-#include "lua/luatex-api.h"
 #include "ptexlib.h"
+#include "lua/luatex-api.h"
 
 static int luapdfprint(lua_State * L)
 {
