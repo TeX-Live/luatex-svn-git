@@ -1,6 +1,6 @@
 % pdfgen.w
 
-% Copyright 2009-2011 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2009-2012 Taco Hoekwater <taco@@luatex.org>
 
 % This file is part of LuaTeX.
 
@@ -666,7 +666,7 @@ void pdf_end_stream(PDF pdf)
 {
     os_struct *os = pdf->os;
     strbuf_s *lbuf = os->buf[LUASTM_BUF];
-    lstring ls;
+    const_lstring ls;
     assert(pdf->buf == os->buf[os->curbuf]);
     switch (os->curbuf) {
     case PDFOUT_BUF:
