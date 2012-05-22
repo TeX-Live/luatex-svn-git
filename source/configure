@@ -2599,6 +2599,14 @@ ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
 
 
 
+if test "x$srcdir" = x. && test "x$enable_build_in_source_tree" != xyes; then
+  rm -rf config.log
+  as_fn_error $? "Configuring and building TeX Live in the source tree
+is strongly discouraged.  If you really want to do that, you must
+specify the configure option \`--enable-build-in-source-tree', but
+then do not ask for help -- you have been warned." "$LINENO" 5
+fi
+
 # Check whether --enable-missing was given.
 if test "${enable_missing+set}" = set; then :
   enableval=$enable_missing;
@@ -17817,14 +17825,19 @@ if test "x$LN_S" != "xln -s" && test "x$with_ln_s" != xno; then
   as_fn_error $? "You could use \`--without-ln-s' to build without working \`ln -s'" "$LINENO" 5
 fi
 
-if test "x$mandir" = 'x${datarootdir}/man'; then
-  mandir='${prefix}/texmf/doc/man'
-  ac_configure_args="$ac_configure_args '--mandir=$mandir'"
-fi
-
-if test "x$infodir" = 'x${datarootdir}/info'; then
-  infodir='${prefix}/texmf/doc/info'
-  ac_configure_args="$ac_configure_args '--infodir=$infodir'"
+if test "x$enable_native_texlive_build" = xyes; then
+  if test "x$datarootdir" = 'x${prefix}/share'; then
+    datarootdir='${prefix}'
+    ac_configure_args="$ac_configure_args '--datarootdir=$datarootdir'"
+  fi
+  if test "x$mandir" = 'x${datarootdir}/man'; then
+    mandir='${prefix}/texmf/doc/man'
+    ac_configure_args="$ac_configure_args '--mandir=$mandir'"
+  fi
+  if test "x$infodir" = 'x${datarootdir}/info'; then
+    infodir='${prefix}/texmf/doc/info'
+    ac_configure_args="$ac_configure_args '--infodir=$infodir'"
+  fi
 fi
 
 if test "x$enable_web2c" = xyes && test "x$with_system_kpathsea" = xyes; then
@@ -18370,6 +18383,9 @@ subdirs="$subdirs auxdir/auxsub libs utils texk"
 
 ac_config_files="$ac_config_files Makefile"
 
+
+rm -f Makefile
+kpse_GNU_make=`${MAKE-make} -v 2>/dev/null | grep GNU`
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -21019,7 +21035,7 @@ $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
 
 
-if test -z "`${MAKE-make} -v 2>/dev/null | grep GNU`"; then
+if test -z "$kpse_GNU_make"; then
   if test "x$enable_native_texlive_build" = xno; then
     { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Building TeX Live may require GNU make" >&5
 $as_echo "$as_me: WARNING: Building TeX Live may require GNU make" >&2;}
@@ -21051,24 +21067,42 @@ case $kpse_src$kpse_bld in
   *' '*) as_fn_error $? "Absolute source and/or build path with embedded spaces" "$LINENO" 5 ;;
 esac
 { $as_echo "$as_me:${as_lineno-$LINENO}: result:
-   prefix:                       $prefix
    enable_native_texlive_build:  $enable_native_texlive_build
+   enable_largefile:             $enable_largefile
    enable_shared:                $enable_shared
    enable_multiplatform:         $enable_multiplatform
    enable_cxx_runtime_hack:      $enable_cxx_runtime_hack
    enable_libtool_hack:          $enable_libtool_hack
    enable_compiler_warnings:     $enable_compiler_warnings
 
+   prefix:                       $prefix
+   includedir:                   $includedir
+   datarootdir:                  $datarootdir
+   mandir:                       $mandir
+   infodir:                      $infodir
+   exec_prefix:                  $exec_prefix
+   bindir:                       $bindir
+   libdir:                       $libdir
+
 ** Next run \`make' to configure and build each library and program.
 " >&5
 $as_echo "
-   prefix:                       $prefix
    enable_native_texlive_build:  $enable_native_texlive_build
+   enable_largefile:             $enable_largefile
    enable_shared:                $enable_shared
    enable_multiplatform:         $enable_multiplatform
    enable_cxx_runtime_hack:      $enable_cxx_runtime_hack
    enable_libtool_hack:          $enable_libtool_hack
    enable_compiler_warnings:     $enable_compiler_warnings
+
+   prefix:                       $prefix
+   includedir:                   $includedir
+   datarootdir:                  $datarootdir
+   mandir:                       $mandir
+   infodir:                      $infodir
+   exec_prefix:                  $exec_prefix
+   bindir:                       $bindir
+   libdir:                       $libdir
 
 ** Next run \`make' to configure and build each library and program.
 " >&6; }

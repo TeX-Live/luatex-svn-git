@@ -91,7 +91,7 @@ DIST_COMMON = README $(am__configure_deps) $(dist_man_MANS) \
 @WEB_TRUE@am__append_2 = $(web_tests)
 @TEX_TRUE@am__append_3 = tex
 @TEX_TRUE@@WIN32_TRUE@am__append_4 = initex
-@TEX_TRUE@@WIN32_FALSE@am__append_5 = tex:initex
+@TEX_TRUE@@WIN32_FALSE@am__append_5 = tex$(EXEEXT):initex
 @TEX_TRUE@am__append_6 = $(tex_tests)
 @TEX_TRUE@am__append_7 = dvitype pltotf tftopl
 @TEX_TRUE@am__append_8 = trip.diffs
@@ -99,7 +99,7 @@ DIST_COMMON = README $(am__configure_deps) $(dist_man_MANS) \
 @MF_TRUE@am__append_10 = mf
 @MFN_TRUE@@MF_TRUE@am__append_11 = mf-nowin
 @MF_TRUE@@WIN32_TRUE@am__append_12 = inimf
-@MF_TRUE@@WIN32_FALSE@am__append_13 = mf:inimf
+@MF_TRUE@@WIN32_FALSE@am__append_13 = mf$(EXEEXT):inimf
 @MF_TRUE@am__append_14 = $(mf_tests)
 @MF_TRUE@am__append_15 = gftype tftopl
 @MF_TRUE@am__append_16 = mftrap.diffs
@@ -960,22 +960,24 @@ DISTCLEANFILES = $(EXTRA_LIBRARIES) tangle.c tangle.h tangle.p \
 	common-ctangle ctangleboot.c cwebboot.c cwebboot.h cftest.p \
 	$(web_programs:=.c) $(web_programs:=.h) $(web_programs:=.p) \
 	$(web_programs:=-web2c) tests/xexampl.aux tests/xexampl.bbl \
-	tests/xexampl.blg tests/memtest* tests/xstory.dvi \
-	tests/xpplr.dvi tests/xstory.dvityp tests/xpagenum.typ \
-	cmr10.dvi tests/xcmr10.dvi cmr10.pk tests/xcmr10.pk \
-	tests/xcmr10.gft1 tests/xcmr10.gft2 io.tex tests/io.tex \
-	tests/xpatout pattmp.4 cmr10.gf tests/xcmr10.600gf \
-	tests/xcmr10.pktyp tests/xcmr10.tfm tests/xtexpool.typ \
-	tests/xcmr10.pl tests/xptmr.vpl tests/xptmr.tfm tests/xptmr.vf \
-	pooltype.tex ctie.c cweave.c tie.c ctie.outc ctie.outm \
-	common.tex common.scn common.idx tie.outc tie.outm \
-	$(nodist_tex_SOURCES) tex-final.ch tex-web2c tex.p tex.pool \
-	tex-tangle trip.diffs mftrap.diffs $(nodist_libmf_a_SOURCES) \
-	mf-final.ch mf-web2c mf.p mf.pool mf-tangle \
-	$(nodist_mpost_SOURCES) mpxout-tangle mptrap.diffs ptmr.mpx \
-	tests/xptmr.mpx tests/xstory.mpx $(nodist_libmplib_a_SOURCES) \
-	mp-tangle mpmath-tangle psout-tangle svgout-tangle \
-	$(nodist_libluatex_a_SOURCES) txt2zlib.c
+	tests/xexampl.blg longline.aux longline.bbl longline.bib \
+	longline.blg tests/memtest.bib tests/memtest?.* \
+	tests/xstory.dvi tests/xpplr.dvi tests/xstory.dvityp \
+	tests/xpagenum.typ cmr10.dvi tests/xcmr10.dvi cmr10.pk \
+	tests/xcmr10.pk tests/xcmr10.gft1 tests/xcmr10.gft2 io.tex \
+	tests/io.tex tests/xpatout pattmp.4 cmr10.gf \
+	tests/xcmr10.600gf tests/xcmr10.pktyp tests/xcmr10.tfm \
+	tests/xtexpool.typ tests/xcmr10.pl tests/xptmr.vpl \
+	tests/xptmr.tfm tests/xptmr.vf pooltype.tex ctie.c cweave.c \
+	tie.c ctie.outc ctie.outm common.tex common.scn common.idx \
+	tie.outc tie.outm $(nodist_tex_SOURCES) tex-final.ch tex-web2c \
+	tex.p tex.pool tex-tangle trip.diffs write18-quote.log \
+	mftrap.diffs $(nodist_libmf_a_SOURCES) mf-final.ch mf-web2c \
+	mf.p mf.pool mf-tangle $(nodist_mpost_SOURCES) mpxout-tangle \
+	mptrap.diffs ptmr.mpx tests/xptmr.mpx tests/xstory.mpx \
+	$(nodist_libmplib_a_SOURCES) mp-tangle mpmath-tangle \
+	psout-tangle svgout-tangle $(nodist_libluatex_a_SOURCES) \
+	txt2zlib.c
 CLEANFILES = 
 TRIPTRAP_CLEAN = $(am__append_9) $(am__append_17) $(am__append_24)
 TRIPTRAP = $(am__append_8) $(am__append_16) $(am__append_23)
@@ -6458,7 +6460,6 @@ tex-tangle: tangle$(EXEEXT) tex.web tex-final.ch tangle-sh
 tex-final.ch: tie$(EXEEXT) $(tex_ch_srcs)
 	$(tie) -c $@ $(tex_ch_srcs)
 
-# trip.test
 trip.diffs: tex$(EXEEXT)
 	$(triptrap_diffs) $@
 .PHONY: trip-clean
@@ -6493,7 +6494,6 @@ mf-tangle: tangle$(EXEEXT) mf.web mf-final.ch tangle-sh
 mf-final.ch: tie$(EXEEXT) $(mf_ch_src)
 	$(tie) -c $@ $(mf_ch_src)
 
-# trap.test
 mftrap.diffs: mf$(EXEEXT)
 	$(triptrap_diffs) $@
 .PHONY: trap-clean

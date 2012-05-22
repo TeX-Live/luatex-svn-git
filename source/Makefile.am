@@ -1,6 +1,6 @@
 ## Makefile.am for the TeX Live top-level
 ##
-## Copyright (C) 2009 - 2011 Peter Breitenlohner <tex-live@tug.org>
+## Copyright (C) 2009-2011 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
 ## Use 'aclocal --force' (for "computed m4_sinclude")
@@ -8,7 +8,7 @@
 ACLOCAL_AMFLAGS = -I m4 --force
 
 ## speed up distcheck
-DISTCHECK_CONFIGURE_FLAGS = -C
+AM_DISTCHECK_CONFIGURE_FLAGS = -C
 ## check as well for symlinks
 distuninstallcheck_listfiles = find . -type f -o -type l -print
 distcleancheck_listfiles = find . -type f -o -type l -print
@@ -18,9 +18,11 @@ EXTRA_DIST = \
 	README.coding \
 	README.config \
 	README.cross \
+	README.distro \
 	README.hacking \
 	README.layout \
 	build-aux/README.TL \
+	m4/ChangeLog \
 	m4/README \
 	reautoconf
 

@@ -1,7 +1,7 @@
 % utils.w
 %
 % Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
-% Copyright 2006-2011 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2012 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -16,7 +16,7 @@
 % License for more details.
 %
 % You should have received a copy of the GNU General Public License along
-% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @ @c
 static const char _svn_version[] =
@@ -45,6 +45,10 @@ static const char _svn_version[] =
 #include "lua/luatex-api.h"     /* for ptexbanner */
 
 #include "png.h"
+
+/* POPPLER_VERSION is defined in poppler-config.h for poppler from
+ * the TeX Live tree, or in the Makefile for an installed version.  */
+#include "poppler-config.h"
 
 @ @c
 #define check_nprintf(size_get, size_want) \
@@ -138,7 +142,7 @@ void tex_printf(const char *fmt, ...)
    possibly because pool overflows are detected too late.
 
    The output format of this fuction must be the same as |pdf_error| in
-   pdftex.web! 
+   pdftex.web!
 
 @c
 __attribute__ ((noreturn, format(printf, 1, 2)))
@@ -269,8 +273,8 @@ scaled ext_xn_over_d(scaled x, scaled n, scaled d)
     return (scaled) r;
 }
 
-@ function strips trailing zeros in string with numbers; 
-leading zeros are not stripped (as in real life) 
+@ function strips trailing zeros in string with numbers;
+leading zeros are not stripped (as in real life)
 @c
 #if 0
 char *stripzeros(char *a)
@@ -347,11 +351,9 @@ void initversionstring(char **versions)
     (void) asprintf(versions,
                     "Compiled with libpng %s; using libpng %s\n"
                     "Compiled with zlib %s; using zlib %s\n"
-                    "Compiled with poppler version %d.%d.%d\n",
+                    "Compiled with poppler version %s\n",
                     PNG_LIBPNG_VER_STRING, png_libpng_ver,
-                    ZLIB_VERSION, zlib_version,
-                    poppler_version_major(), poppler_version_minor(),
-                    poppler_version_micro());
+                    ZLIB_VERSION, zlib_version, POPPLER_VERSION);
 }
 
 @ @c
@@ -406,7 +408,7 @@ scaled divide_scaled(scaled s, scaled m, int dd)
     return sign * q;
 }
 
-@ Same function, but using doubles instead of integers (faster) 
+@ Same function, but using doubles instead of integers (faster)
 @c
 scaled divide_scaled_n(double sd, double md, double n)
 {

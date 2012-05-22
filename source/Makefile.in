@@ -269,7 +269,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4 --force
-DISTCHECK_CONFIGURE_FLAGS = -C
+AM_DISTCHECK_CONFIGURE_FLAGS = -C
 distuninstallcheck_listfiles = find . -type f -o -type l -print
 distcleancheck_listfiles = find . -type f -o -type l -print
 EXTRA_DIST = \
@@ -277,9 +277,11 @@ EXTRA_DIST = \
 	README.coding \
 	README.config \
 	README.cross \
+	README.distro \
 	README.hacking \
 	README.layout \
 	build-aux/README.TL \
+	m4/ChangeLog \
 	m4/README \
 	reautoconf
 
