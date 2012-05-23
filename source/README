@@ -1,9 +1,8 @@
-$Id: README 22029 2011-04-09 00:14:22Z karl $
-Copyright 2004, 2006, 2007, 2008, 2009 TeX Users Group.
-You may freely use, modify and/or distribute this file.
+$Id: README 26414 2012-05-15 22:52:34Z preining $
+Public domain.  Originally written 2005 by Karl Berry.
 
 For a high-level overview of building TeX Live, see
-http://tug.org/texlive/build.html.
+http://tug.org/texlive/build.html.  In brief:
 
 To configure and make the source tree, run ./Build.
 To build (mostly) without optimization, run ./Build --debug.
@@ -16,19 +15,24 @@ Prerequisites:
 - GNU make.  If your GNU make is invoked by some name other than `make',
   try setting the envvar TL_MAKE to what is needed.
 
-- GNU clisp and GNU libffcall, must be present for xindy.  See more
+- GNU clisp and GNU libffcall, for xindy.  See more
   details in utils/README.  (Alternative: Build --disable-xindy.)
 
-- libfontconfig (again both headers and library) must be present for
-  XeTeX and xdvipdfmx, except on MacOSX.  (Alternative:
-  Build --disable-xetex --disable-xdvipdfmx.)
+  Perl, latex, and pdflatex to build the rules and/or documentation.
 
-- X11 headers and libraries must be present for pdfopen and xdvi.
+- Perl to autodetect the TeX Live platform name for biber.
+
+- X11 headers and libraries (often a ``development'' package, not
+  installed by default), for pdfopen and xdvi.
   (Alternative: Build --without-x.)
+
+- libfontconfig (again both headers and library), for XeTeX and xdvipdfmx,
+  except on MacOSX.  (Alternative:
+  Build --disable-xetex --disable-xdvipdfmx.)
 
 - If you modify any .y or .l source files, then Bison and Flex (or maybe
   equivalents) are needed.  The distributed .c and .h files are generated
-  with bison-2.4.3 and flex-2.5.35.
+  with bison-2.5 and flex-2.5.35.
 
 The binaries will be left in ./inst/bin/<stdplatform>.
 For TeX Live, ignore the other files and directories that end up in ./inst.
@@ -45,27 +49,28 @@ dealing with them is the TeX Live (plain text) database,
 Master/tlpkg/texlive.tlpdb, and/or our installer.  More information is
 under Master/tlpkg.  See also http://tug.org/texlive/distro.html.
 
-For unusual situations:
-
-- If your C++ needs to find the standard library in, say, /usr/local/lib,
+If your C++ needs to find the standard library in, say, /usr/local/lib,
 (i.e., configure fails saying the compiler doesn't work), try:
 env LD_OPTIONS=-R/usr/local/lib ./Build
 
-- Running ./reautoconf here reruns auto-tools as needed.  Use --help for more.
+Many more details about the TL build system, such as adding new
+programs or libraries, recompiling after fixing problems, etc., are in
+the other README.* files here.
 
 
 Build information:
   In general, xe(la)tex and xdvipdfmx depend on fontconfig.
-  We cannot statically link it because it varies on different systems.
+  We cannot statically link it because it varies by os version.
 
   i386-linux: Debian sarge, gcc 3.3.5, libc 2.3.2, Linux 2.6.9-67.0.4.ELsmp
     chroot /home/texlive/sarge; Build --with-xindy --with-clisp=...
   
-  x86_64-linux: gcc 3.4.6, libc 2.3.6, Linux 2.6.28.6
+  x86_64-linux: gcc 4.5, libc 2.3.6, Linux 2.6.28.6
   
   universal-darwin, x86_64-darwin: a menagerie of versions.
+    See Master/source/mactexdoc.tar.xz.
 
-  i386-solaris, x86_64-solaris: Solaris 11
+  i386-solaris, x86_64-solaris: Solaris 11.
 
   powerpc-linux (Debian Squeeze)
 Linux homer 2.6.32-5-powerpc64 #1 SMP Tue Mar 8 02:01:42 UTC 2011
@@ -82,12 +87,6 @@ GNU Make 3.81
   Because Solaris 8 does not include fontconfig, we used fontconfig
   package (version 2.3.2) from http://www.blastwave.org/
   (together with its dependencies)
-
-  sparc-linux (utah)
-kernel: 2.4.28-sparc-r1
-/lib/libc-2.3.3.so
-gcc version 3.3.4 20040623 (Gentoo Linux 3.3.4-r1, ssp-3.3.2-2, pie-8.7.6)
-make 3.81
 
   powerpc-aix
 OS: AIX 4.3
@@ -111,8 +110,9 @@ GNU Make 3.81
       ulimit -s 16384
     did suffice for me
   - compiling of texk/web2c/pdftexdir/writezip.c is broken and triggers a 
-    compiler error with the above gcc. Disabling optimization -O2 using
-    Build --debug ... resolved this problem.
-  - compilation of clisp needs hand adding -lavcall -lcallback -ltrampoline 
-    -lvacall after the -lsigsegv
+    compiler error with the above gcc. This is a known optimization error
+    of gcc on alphas. The solution is to set
+      LDFLAGS=-Wl,--no-relax
+    before running Build.
+  - compilation of clisp needs --disable-mmap
   - asy compilation with --disable-gsl && make
