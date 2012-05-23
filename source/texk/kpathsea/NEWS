@@ -1,5 +1,17 @@
 This file records noteworthy changes.  (Public domain.)
 
+6.1.0 (for TeX Collection 2012)
+* texmf.cnf is found in the great-grandparent's texmf-local,
+  corresponding to the default TeX Live installation.
+* New formats for .ris, .bltxml.
+* Merge with W32TeX.
+
+6.0.1 (for TeX Collection 2011, 5 July 2011)
+* Trailing comments and whitespace omitted from config values.
+* Add .tlu to type lua suffixes, and .dfont to truetype suffixes.
+* Prefix program_invocation{,_short}_name with kpse_.
+* Finally remove kpse_set_progname (deprecated since 1998).
+
 6.0.0 (for TeX Collection 2010, 4 June 2010)
 * Change xmalloc and friends to use size_t, unfortunately changing the ABI.
 

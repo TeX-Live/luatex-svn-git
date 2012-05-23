@@ -1,13 +1,14 @@
 ## Makefile.am for the TeX Live subdirectory texk/kpathsea/
 ##
-## Copyright (C) 2009 - 2011 Peter Breitenlohner <tex-live@tug.org>
+## Copyright (C) 2009-2012 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
 ACLOCAL_AMFLAGS = -I ../../m4
 
 # Rebuild
 .PHONY: rebuild
-rebuild: all
+rebuild: all-am
+	touch libkpathsea.la
 
 SUBDIRS = . doc man
 
@@ -86,9 +87,15 @@ libkpathsea_la_SOURCES = \
 	xstat.c \
 	xstrdup.c
 
+if WIN32
 if MINGW32
 libkpathsea_la_SOURCES += mingw32.c
-endif MINGW32
+else !MINGW32
+libkpathsea_la_SOURCES += win32lib.c
+endif !MINGW32
+libkpathsea_la_SOURCES += knj.c
+SUBDIRS += win32
+endif WIN32
 
 $(libkpathsea_la_OBJECTS): paths.h kpathsea.h
 
@@ -105,7 +112,17 @@ nodist_kpseinclude_HEADERS = \
 	kpathsea.h \
 	paths.h
 
-kpseinclude_HEADERS = \
+kpseinclude_HEADERS = $(special_headers) $(normal_headers)
+
+# Headers treated specially when building kpathsea.h
+#
+special_headers = \
+	config.h \
+	knj.h \
+	mingw32.h \
+	win32lib.h
+
+normal_headers = \
 	absolute.h \
 	c-ctype.h \
 	c-dir.h \
@@ -123,24 +140,17 @@ kpseinclude_HEADERS = \
 	c-unistd.h \
 	cnf.h \
 	concatn.h \
-	config.h \
-	db.h \
 	debug.h \
-	default.h \
 	expand.h \
-	fn.h \
-	fontmap.h \
 	getopt.h \
 	hash.h \
 	lib.h \
 	line.h \
 	magstep.h \
-	mingw32.h \
 	pathsearch.h \
 	proginit.h \
 	progname.h \
 	readable.h \
-	recorder.h \
 	str-list.h \
 	str-llist.h \
 	systypes.h \
@@ -148,71 +158,37 @@ kpseinclude_HEADERS = \
 	tex-glyph.h \
 	tex-hush.h \
 	tex-make.h \
-	tilde.h \
-	truncate.h \
 	types.h \
 	variable.h \
-	version.h \
-	win32lib.h \
+	version.h
+
+noinst_HEADERS = \
+	db.h \
+	default.h \
+	fn.h \
+	fontmap.h \
+	tilde.h \
+	truncate.h \
 	xopendir.h \
 	xstat.h
 
-## First null out comments and leading/trailing whitespace, then remove
-## lines that define invalid C identifiers, then remove blank lines and
-## lines that define lowercase values (those are never path values).
-## Each line remaining looks like
-## <name> = <value>
-## (but = and surrounding spaces are optional, hence can't remove all spaces).
-## Change this to #ifndef DEFAULT_name@#define DEFAULT_name "value"@#endif,
-## then change the @'s to newlines (sed isn't good at multiline replacements).
-##
-## No backslash-newline escapes in the long sed replacement because that
-## will turn into a space in the output.
-##
-## We replace the $TEXMF* references with nonexisting directories.  These
-## are the compile-time defaults and are not useful in the native TL
-## builds; we rely completely on the self-location.  (Previously, the
-## random build-time paths would get included in the binaries, to
-## consequent confusion.)
-##
-## We preserve the $SELFAUTO* references, since the selfauto-using
-## compile-time path for cnf files is how texmf.cnf gets found, which
-## determines everything else.
-##
-## The definition of DEFAULT_TEXMF (and other variables)
-## that winds up in the final paths.h will not be used.
-##
+## Handle backslash continuations, then null out comments and
+## leading/trailing whitespace.  An awk script does the rest.
+## 
 ## We don't want to rewrite paths.h when we have only changed comments
 ## in texmf.cnf that have no effect on paths.h, since that would cause
 ## almost everything to be rebuilt.
 ##
-## We also replace all semicolons with colons in the paths.
-## (The path-splitting code should be changed to understand both.)
-##
 paths.h: stamp-paths
-stamp-paths: texmf.cnf bsnl.awk
+stamp-paths: texmf.cnf bsnl.awk cnf-to-paths.awk
 # ensure grep is not completely broken, e.g., from GREP_OPTIONS.
 	echo a | grep -v b >/dev/null || { echo "*** grep broken, goodbye."; exit 1; }
 #
 # generate paths.h without build machine directories.
 	echo "/* paths.h: Generated from texmf.cnf. */" >paths.tmp
-	awk -f $(srcdir)/bsnl.awk $(srcdir)/texmf.cnf \
+	$(AWK) -f $(srcdir)/bsnl.awk $(srcdir)/texmf.cnf \
 	| sed -e 's/%.*//' -e 's/^[ 	]*//' -e 's/[ 	]*$$//' \
-	| grep '^[ 	]*[A-Z0-9_]*[ 	=]' \
-	| sed '/^$$/d' \
-	| sed 's/^\([^ 	=]*\)[ 	]*=*[ 	]*\(.*\)/#ifndef DEFAULT_\1%#define DEFAULT_\1 "\2"%#endif/' \
-	| tr '%' '\012' \
-	| sed -e 's%\$$TEXMFCONFIG%/nonesuch/texmfconfig%g' \
-	      -e 's%\$$TEXMFDIST%/nonesuch/texmfdist%g' \
-	      -e 's%\$$TEXMFDOCDIR%/nonesuch/texmfdocdir%g' \
-	      -e 's%\$$TEXMFLOCAL%/nonesuch/texmflocal%g' \
-	      -e 's%\$$TEXMFMAIN%/nonesuch/texmfmain%g' \
-	      -e 's%\$$TEXMFSYSCONFIG%/nonesuch/texmfsysconfig%g' \
-	      -e 's%\$$TEXMFSYSVAR%/nonesuch/texmfsysvar%g' \
-	      -e 's%\$$TEXMFVAR%/nonesuch/texmfvar%g' \
-	      -e 's%\$$TEXMF%/nonesuch/texmf%g' \
-	      -e 's%\$$VARTEXFONTS%/nonesuch/vartexfonts%g' \
-	| sed -e 's%;%:%g' \
+	| $(AWK) -f $(srcdir)/cnf-to-paths.awk \
 	>>paths.tmp
 	@if cmp -s paths.h paths.tmp 2>/dev/null; then \
 	  echo "paths.h is unchanged"; \
@@ -226,19 +202,12 @@ stamp-paths: texmf.cnf bsnl.awk
 kpathsea.h: Makefile paths.h
 	rm -f $@
 	echo '/* This is a generated file */' >$@
-	echo '/* collecting all kpathsea headers. */' >>$@
-	echo '#include <kpathsea/config.h>' >>$@
-	echo '#include <kpathsea/c-auto.h>' >>$@
-	echo '#include <kpathsea/paths.h>' >>$@
-	(cd $(srcdir) && ls -1 *.h) \
-	| sed -e '/^config\.h/d' \
-	      -e '/^paths\.h/d' \
-	      -e '/^kpathsea\.h/d' \
-	      -e '/^mingw32\.h/d' \
-	      -e '/^win32lib\.h/d' \
-	      -e 's,^,#include <kpathsea/,' -e s',$$,>,' >>$@
+	echo '/* collecting all public kpathsea headers. */' >>$@
+	for f in config.h c-auto.h paths.h $(normal_headers); do \
+	  echo "#include <kpathsea/$$f>" >>$@; \
+	done
 
-EXTRA_DIST += bsnl.awk
+EXTRA_DIST += bsnl.awk cnf-to-paths.awk
 
 DISTCLEANFILES = paths.h stamp-paths kpathsea.h
 
@@ -251,8 +220,16 @@ kpsereadlink_SOURCES = readlink.c
 
 kpsewhich_LDADD = libkpathsea.la
 
+EXTRA_PROGRAMS = progname-test xdirtest
+
+progname_test_CPPFLAGS = -DMAKE_KPSE_DLL -DTEST
+progname_test_SOURCES = progname.c
+progname_test_LDADD = libkpathsea.la
+
+xdirtest_LDADD = libkpathsea.la
+
 ## The scripts and their data
-web2cdir = ${prefix}/texmf/web2c
+web2cdir = $(datarootdir)/texmf/web2c
 
 dist_web2c_SCRIPTS = mktexdir mktexnam mktexupd
 
@@ -321,5 +298,5 @@ EXTRA_DIST += $(TESTS)
 
 ## Not used
 ##
-EXTRA_DIST += mktex.cnf
+EXTRA_DIST += mktex.cnf win32lib.h.mugica
 

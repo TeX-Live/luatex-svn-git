@@ -1,11 +1,9 @@
 # Private macros for the TeX Live (TL) tree.
-# Copyright (C) 2009, 2010 Peter Breitenlohner <tex-live@tug.org>
+# Copyright (C) 2009-2012 Peter Breitenlohner <tex-live@tug.org>
 #
 # This file is free software; the copyright holder
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
-
-# serial 0
 
 # KPSE_SETUP(TOP-LEVEL)
 # ---------------------
@@ -31,6 +29,10 @@ AS_CASE([$enable_native_texlive_build],
         [yes | no], [:],
         [enable_native_texlive_build=yes
          ac_configure_args="$ac_configure_args '--enable-native-texlive-build'"])
+AS_CASE([$enable_largefile],
+        [yes | no], [:],
+        [enable_largefile=yes
+         ac_configure_args="$ac_configure_args '--enable-largefile'"])
 AS_CASE([$enable_multiplatform],
         [yes | no], [:],
         [enable_multiplatform=$enable_native_texlive_build
@@ -62,6 +64,7 @@ KPSE_OPTIONS
 KPSE_ENABLE_CXX_HACK
 KPSE_ENABLE_LT_HACK
 KPSE_LIBS_PREPARE
+KPSE_MKTEX_PREPARE
 KPSE_WEB2C_PREPARE
 KPSE_CHECK_WIN32
 AS_CASE([$with_x:$kpse_cv_have_win32],

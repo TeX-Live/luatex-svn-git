@@ -1,11 +1,10 @@
-This is ../../../../source/texk/kpathsea/doc/kpathsea.info, produced by
-makeinfo version 4.13 from
-../../../../source/texk/kpathsea/doc/kpathsea.texi.
+This is ../../../../texk/kpathsea/doc/kpathsea.info, produced by
+makeinfo version 4.13 from ../../../../texk/kpathsea/doc/kpathsea.texi.
 
 This file documents the Kpathsea library for path searching.
 
    Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
-2005, 2007, 2008, 2009, 2010 Karl Berry & Olaf Weber.
+2005, 2007, 2008, 2009, 2010, 2011, 2012 Karl Berry & Olaf Weber.
 
    Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
@@ -40,8 +39,8 @@ Kpathsea library
 ****************
 
 This manual documents how to install and use the Kpathsea library for
-filename lookup.  It corresponds to version 6.0.0, released in
-November 2010.
+filename lookup.  It corresponds to version 6.1.0, released in
+May 2012.
 
 * Menu:
 
@@ -61,8 +60,8 @@ File: kpathsea.info,  Node: Introduction,  Next: Installation,  Prev: Top,  Up: 
 1 Introduction
 **************
 
-This manual corresponds to version 6.0.0 of the Kpathsea library,
-released in November 2010.
+This manual corresponds to version 6.1.0 of the Kpathsea library,
+released in May 2012.
 
    The library's fundamental purpose is to return a filename from a
 list of directories specified by the user, similar to what shells do
@@ -2587,7 +2586,7 @@ filename, and returns the first file found.
           vf: .vf
           dvips config (dvipsconfig):
           ist: .ist
-          truetype fonts: .ttf .ttc .TTF .TTC
+          truetype fonts: .ttf .ttc .TTF .TTC .dfont
           type42 fonts: .t42 .T42
           web2c files (web2c):
           other text files (othertext):
@@ -2608,6 +2607,8 @@ filename, and returns the first file found.
           mlbib: .mlbib .bib
           mlbst: .mlbst .bst
           clua: .dll .so
+          ris: .ris
+          bltxml: .bltxml
 
      This option and `--path' are mutually exclusive.
 
@@ -3053,7 +3054,8 @@ environment variables with an underscore, e.g., `TEXINPUTS_latex'
      invocation.)  `TRFONTS'.
 
 `truetype fonts'
-     (TrueType outline fonts) `TTFONTS'; suffixes `.ttf', `.ttc'.
+     (TrueType outline fonts) `TTFONTS'; suffixes `.ttf' and `.TTF',
+     `.ttc' and `.TTC', `.dfont'.
 
 `type1 fonts'
      (Type 1 PostScript outline fonts, *note Glyph files: (dvips)Glyph
@@ -3606,28 +3608,28 @@ Index
                                                               (line  38)
 * --help:                                Standard options.    (line   8)
 * --interactive:                         Path searching options.
-                                                              (line 118)
+                                                              (line 120)
 * --mktex=FILETYPE:                      Path searching options.
-                                                              (line 123)
+                                                              (line 125)
 * --mode=STRING:                         Path searching options.
-                                                              (line 129)
+                                                              (line 131)
 * --must-exist:                          Path searching options.
-                                                              (line 134)
+                                                              (line 136)
 * --no-mktex=FILETYPE:                   Path searching options.
-                                                              (line 123)
+                                                              (line 125)
 * --path=STRING:                         Path searching options.
-                                                              (line 139)
+                                                              (line 141)
 * --progname=NAME:                       Path searching options.
-                                                              (line 148)
+                                                              (line 150)
 * --safe-in-name=NAME:                   Path searching options.
-                                                              (line 154)
+                                                              (line 156)
 * --safe-out-name=NAME:                  Path searching options.
-                                                              (line 154)
+                                                              (line 156)
 * --show-path=NAME:                      Auxiliary tasks.     (line  41)
 * --srcdir, for building multiple architectures: configure scenarios.
                                                               (line  18)
 * --subdir=STRING:                       Path searching options.
-                                                              (line 160)
+                                                              (line 162)
 * --var-value=VARIABLE:                  Auxiliary tasks.     (line  12)
 * --version:                             Standard options.    (line  11)
 * --with options:                        configure options.   (line  16)
@@ -3708,9 +3710,9 @@ Index
 * .ovp:                                  Supported file formats.
                                                               (line 147)
 * .pfa:                                  Supported file formats.
-                                                              (line 199)
+                                                              (line 200)
 * .pfb:                                  Supported file formats.
-                                                              (line 199)
+                                                              (line 200)
 * .pk:                                   Supported file formats.
                                                               (line 154)
 * .pool:                                 Supported file formats.
@@ -3730,7 +3732,7 @@ Index
 * .ttf:                                  Supported file formats.
                                                               (line 196)
 * .vf:                                   Supported file formats.
-                                                              (line 207)
+                                                              (line 208)
 * .w:                                    Supported file formats.
                                                               (line  43)
 * .web:                                  Supported file formats.
@@ -3953,9 +3955,9 @@ Index
 * dvipdfmx.cfg:                          Specially-recognized files.
                                                               (line  19)
 * DVIPSFONTS:                            Supported file formats.
-                                                              (line 242)
+                                                              (line 243)
 * DVIPSHEADERS:                          Supported file formats.
-                                                              (line 199)
+                                                              (line 200)
 * DVIPSMAKEPK:                           mktex script names.  (line  32)
 * DVIPSSIZES:                            Fallback font.       (line   6)
 * dynamic creation of files:             mktex scripts.       (line   6)
@@ -4037,7 +4039,7 @@ Index
 * fontnames, arbitrary length:           Fontmap.             (line  15)
 * fonts, being created:                  Simple installation. (line  79)
 * FOOINPUTS:                             Supported file formats.
-                                                              (line 224)
+                                                              (line 225)
 * fopen, redefined:                      Debugging.           (line  54)
 * format of external database:           Database format.     (line   6)
 * FreeBSD configure error:               Empty Makefiles.     (line   6)
@@ -4100,7 +4102,7 @@ Index
 * installation, simple:                  Simple installation. (line   6)
 * installing files:                      Installing files.    (line   6)
 * interactive query:                     Path searching options.
-                                                              (line 118)
+                                                              (line 120)
 * interface, not frozen:                 Introduction.        (line  27)
 * introduction:                          Introduction.        (line   6)
 * kdebug::                               Debugging.           (line 105)
@@ -4483,11 +4485,11 @@ Index
 * system dependencies:                   Running configure.   (line   6)
 * system V universe:                     Running make.        (line  44)
 * T1FONTS:                               Supported file formats.
-                                                              (line 199)
+                                                              (line 200)
 * T1INPUTS:                              Supported file formats.
-                                                              (line 199)
+                                                              (line 200)
 * T42FONTS:                              Supported file formats.
-                                                              (line 204)
+                                                              (line 205)
 * tcfmgr.map:                            Specially-recognized files.
                                                               (line  47)
 * TDS <1>:                               TeX directory structure.
@@ -4633,7 +4635,7 @@ Index
 * version numbers, determining:          Bug checklist.       (line  15)
 * VF files, not found:                   Searching overview.  (line  31)
 * VFFONTS:                               Supported file formats.
-                                                              (line 207)
+                                                              (line 208)
 * VMS support:                           Custom installation. (line  19)
 * Vojta, Paul:                           History.             (line  30)
 * Walsh, Norman:                         History.             (line  57)
@@ -4646,10 +4648,10 @@ Index
                                                               (line   6)
 * wcstombs:                              dlopen.              (line   6)
 * WEB2C:                                 Supported file formats.
-                                                              (line 215)
+                                                              (line 216)
 * Weber, Olaf:                           History.             (line  74)
 * WEBINPUTS:                             Supported file formats.
-                                                              (line 211)
+                                                              (line 212)
 * whitespace, in fontmap files:          Fontmap.             (line  28)
 * whitespace, not ignored on continuation lines: Config files.
                                                               (line  37)
@@ -4664,7 +4666,7 @@ Index
 * XDvi:                                  Specially-recognized files.
                                                               (line  41)
 * XDVIFONTS:                             Supported file formats.
-                                                              (line 242)
+                                                              (line 243)
 * XDVIMAKEPK:                            mktex script names.  (line  32)
 * XDVISIZES:                             Fallback font.       (line   6)
 * XLDFLAGS:                              Running make.        (line  29)
@@ -4679,83 +4681,83 @@ Index
 
 
 Tag Table:
-Node: Top1629
-Node: Introduction2276
-Node: History4102
-Node: Installation8194
-Node: Simple installation8984
-Node: Custom installation12567
-Node: Disk space13741
-Node: Kpathsea application distributions14625
-Node: Changing search paths15740
-Node: Default path features16922
-Node: Default path generation19005
-Node: Running configure20448
-Node: configure shells21499
-Node: configure options22551
-Node: configure environment24058
-Node: configure scenarios25860
-Node: Shared library27446
-Node: Running make28460
-Node: Installing files30507
-Node: Cleaning up32454
-Node: Filename database generation33502
-Node: mktex scripts34069
-Node: mktex configuration35346
-Node: mktex script names41165
-Node: mktex script arguments42556
-Node: Installation testing43442
-Node: Security43806
-Node: TeX directory structure46373
-Node: unixtex.ftp50795
-Node: Reporting bugs52129
-Node: Bug checklist52864
-Node: Mailing lists56561
-Node: Debugging57770
-Node: Logging62848
-Node: Common problems64718
-Node: Unable to find files65549
-Node: Slow path searching67960
-Node: Unable to generate fonts69337
-Node: TeX or Metafont failing71846
-Node: Empty Makefiles73725
-Node: XtStrings74962
-Node: dlopen75798
-Node: ShellWidgetClass76616
-Node: Pointer combination warnings78248
-Node: Path searching78637
-Node: Searching overview79284
-Node: Path sources82680
-Node: Config files83751
-Node: Path expansion87678
-Node: Default expansion88627
-Node: Variable expansion90697
-Node: Tilde expansion92100
-Node: Brace expansion93080
-Node: KPSE_DOT expansion94005
-Node: Subdirectory expansion94518
-Node: Filename database96869
-Node: ls-R97923
-Node: Filename aliases100817
-Node: Database format101995
-Node: Invoking kpsewhich103008
-Node: Path searching options103954
-Node: Specially-recognized files112118
-Node: Auxiliary tasks113474
-Node: Standard options115299
-Node: TeX support115655
-Node: Supported file formats116946
-Node: File lookup124463
-Node: Glyph lookup126212
-Node: Basic glyph lookup127336
-Node: Fontmap128215
-Node: Fallback font130832
-Node: Suppressing warnings131745
-Node: Programming132850
-Node: Programming overview133363
-Node: Calling sequence136057
-Node: Program-specific files142580
-Node: Programming with config files143603
-Node: Index144915
+Node: Top1627
+Node: Introduction2269
+Node: History4090
+Node: Installation8182
+Node: Simple installation8972
+Node: Custom installation12555
+Node: Disk space13729
+Node: Kpathsea application distributions14613
+Node: Changing search paths15728
+Node: Default path features16910
+Node: Default path generation18993
+Node: Running configure20436
+Node: configure shells21487
+Node: configure options22539
+Node: configure environment24046
+Node: configure scenarios25848
+Node: Shared library27434
+Node: Running make28448
+Node: Installing files30495
+Node: Cleaning up32442
+Node: Filename database generation33490
+Node: mktex scripts34057
+Node: mktex configuration35334
+Node: mktex script names41153
+Node: mktex script arguments42544
+Node: Installation testing43430
+Node: Security43794
+Node: TeX directory structure46361
+Node: unixtex.ftp50783
+Node: Reporting bugs52117
+Node: Bug checklist52852
+Node: Mailing lists56549
+Node: Debugging57758
+Node: Logging62836
+Node: Common problems64706
+Node: Unable to find files65537
+Node: Slow path searching67948
+Node: Unable to generate fonts69325
+Node: TeX or Metafont failing71834
+Node: Empty Makefiles73713
+Node: XtStrings74950
+Node: dlopen75786
+Node: ShellWidgetClass76604
+Node: Pointer combination warnings78236
+Node: Path searching78625
+Node: Searching overview79272
+Node: Path sources82668
+Node: Config files83739
+Node: Path expansion87666
+Node: Default expansion88615
+Node: Variable expansion90685
+Node: Tilde expansion92088
+Node: Brace expansion93068
+Node: KPSE_DOT expansion93993
+Node: Subdirectory expansion94506
+Node: Filename database96857
+Node: ls-R97911
+Node: Filename aliases100805
+Node: Database format101983
+Node: Invoking kpsewhich102996
+Node: Path searching options103942
+Node: Specially-recognized files112159
+Node: Auxiliary tasks113515
+Node: Standard options115340
+Node: TeX support115696
+Node: Supported file formats116987
+Node: File lookup124541
+Node: Glyph lookup126290
+Node: Basic glyph lookup127414
+Node: Fontmap128293
+Node: Fallback font130910
+Node: Suppressing warnings131823
+Node: Programming132928
+Node: Programming overview133441
+Node: Calling sequence136135
+Node: Program-specific files142658
+Node: Programming with config files143681
+Node: Index144993
 
 End Tag Table

@@ -1,6 +1,6 @@
 /* db.c: an external database to avoid filesystem lookups.
 
-   Copyright 1994, 1995, 1996, 1997, 2008, 2009 Karl Berry.
+   Copyright 1994, 1995, 1996, 1997, 2008, 2009, 2011, 2012 Karl Berry.
    Copyright 1997-2005 Olaf Weber.
 
    This library is free software; you can redistribute it and/or
@@ -44,18 +44,13 @@
 #endif
 
 /* read ls-R only on WIN32 */
-#ifdef WIN32
 static const_string db_names[] = {
     DB_NAME,
-    NULL
-};
-#else
-static const_string db_names[] = {
-    DB_NAME,
+#ifndef WIN32
     DB_NAME_LC,
+#endif
     NULL
 };
-#endif
 
 #ifndef ALIAS_NAME
 #define ALIAS_NAME "aliases"
@@ -76,7 +71,7 @@ ignore_dir_p (const_string dirname)
 
   while ((dot_pos = strchr (dot_pos + 1, '.'))) {
     /* If / before and no / after, skip it. */
-    if (IS_DIR_SEP (dot_pos[-1]) && dot_pos[1] && !IS_DIR_SEP (dot_pos[1]))
+    if (IS_DIR_SEP_CH (dot_pos[-1]) && dot_pos[1] && !IS_DIR_SEP_CH (dot_pos[1]))
       return true;
   }
 
@@ -95,6 +90,9 @@ db_build (kpathsea kpse, hash_table_type *table,  const_string db_filename)
   string top_dir = (string)xmalloc (len + 1);
   string cur_dir = NULL; /* First thing in ls-R might be a filename.  */
   FILE *db_file = fopen (db_filename, FOPEN_R_MODE);
+#if defined(WIN32)
+  string pp;
+#endif
 
   strncpy (top_dir, db_filename, len);
   top_dir[len] = 0;
@@ -102,6 +100,15 @@ db_build (kpathsea kpse, hash_table_type *table,  const_string db_filename)
   if (db_file) {
     while ((line = read_line (db_file)) != NULL) {
       len = strlen (line);
+
+#if defined(WIN32)
+      for (pp = line; *pp; pp++) {
+        if (IS_KANJI(pp))
+          pp++;
+        else
+          *pp = TRANSFORM(*pp);
+      }
+#endif
 
       /* A line like `/foo:' = new dir foo.  Allow both absolute (/...)
          and explicitly relative (./...) names here.  It's a kludge to
@@ -148,7 +155,7 @@ db_build (kpathsea kpse, hash_table_type *table,  const_string db_filename)
     xfclose (db_file, db_filename);
 
     if (file_count == 0) {
-      WARNING1 ("kpathsea: No usable entries in %s", db_filename);
+      WARNING1 ("kpathsea: %s: No usable entries in ls-R", db_filename);
       WARNING ("kpathsea: See the manual for how to generate ls-R");
       db_file = NULL;
     } else {
@@ -190,7 +197,7 @@ kpathsea_db_insert (kpathsea kpse, const_string passed_fname)
   if (kpse->db.buckets) {
     const_string dir_part;
     string fname = xstrdup (passed_fname);
-    string baseptr = (string)xbasename (fname);
+    string baseptr = fname + (xbasename (fname) - fname);
     const_string file_part = xstrdup (baseptr);
 
     *baseptr = '\0';  /* Chop off the filename.  */
@@ -200,14 +207,6 @@ kpathsea_db_insert (kpathsea kpse, const_string passed_fname)
     hash_insert (&(kpse->db), file_part, dir_part);
   }
 }
-
-#if defined(KPSE_COMPAT_API)
-void
-kpse_db_insert (const_string passed_fname)
-{
-  kpathsea_db_insert(kpse_def, passed_fname);
-}
-#endif
 
 /* Return true if FILENAME could be in PATH_ELT, i.e., if the directory
    part of FILENAME matches PATH_ELT.  Have to consider // wildcards, but
@@ -223,9 +222,9 @@ match (const_string filename,  const_string path_elt)
     if (FILECHARCASEEQ (*filename, *path_elt)) /* normal character match */
       ;
 
-    else if (IS_DIR_SEP (*path_elt)  /* at // */
-             && original_filename < filename && IS_DIR_SEP (path_elt[-1])) {
-      while (IS_DIR_SEP (*path_elt))
+    else if (IS_DIR_SEP_CH (*path_elt)  /* at // */
+             && original_filename < filename && IS_DIR_SEP_CH (path_elt[-1])) {
+      while (IS_DIR_SEP_CH (*path_elt))
         path_elt++; /* get past second and any subsequent /'s */
       if (*path_elt == 0) {
         /* Trailing //, matches anything. We could make this part of the
@@ -236,7 +235,7 @@ match (const_string filename,  const_string path_elt)
         /* Intermediate //, have to match rest of PATH_ELT.  */
         for (; !matched && *filename; filename++) {
           /* Try matching at each possible character.  */
-          if (IS_DIR_SEP (filename[-1])
+          if (IS_DIR_SEP_CH (filename[-1])
               && FILECHARCASEEQ (*filename, *path_elt))
             matched = match (filename, path_elt);
         }
@@ -250,20 +249,37 @@ match (const_string filename,  const_string path_elt)
   }
 
   /* If we've reached the end of PATH_ELT, check that we're at the last
-     component of FILENAME, we've matched.  */
+     component of FILENAME (that is, no directory separators remaining);
+     only then have we matched.  */
   if (!matched && *path_elt == 0) {
-    /* Probably PATH_ELT ended with `vf' or some such, and FILENAME ends
-       with `vf/ptmr.vf'.  In that case, we'll be at a directory
-       separator.  On the other hand, if PATH_ELT ended with a / (as in
-       `vf/'), FILENAME being the same `vf/ptmr.vf', we'll be at the
-       `p'.  Upshot: if we're at a dir separator in FILENAME, skip it.
-       But if not, that's ok, as long as there are no more dir separators.  */
-    if (IS_DIR_SEP (*filename))
+    /* Typically PATH_ELT ends with, say, `vf', and FILENAME ends with
+       `vf/ptmr.vf'.  In that case, we'll be at the /.  On the other
+       hand, if PATH_ELT ended with a / (as in `vf/'), FILENAME being
+       the same `vf/ptmr.vf', we'll be at the `p'.
+       Upshot: if we're at a dir sep in FILENAME, skip it.  */
+    if (IS_DIR_SEP_CH (*filename))
       filename++;
 
-    while (*filename && !IS_DIR_SEP (*filename))
-      filename++;
-    matched = *filename == 0;
+    /* Here are the basic possibilities for the check on being at the
+       last component:
+       1) PATH_ELT is empty and FILENAME is `ptmr.vf'     => match.
+          (we now have original_filename == filename)
+       2) PATH_ELT is empty and FILENAME is `foo/ptmr.vf' => no match.
+          (we now have original_filename == filename)
+       3) PATH_ELT is `vf/' and FILENAME is `vf/ptmr.vf'
+          (we are now after the / in each)                 => match.
+       4) PATH_ELT is `vf' and FILENAME is `vfoo.ext'
+          (we are now after the f in each)                 => no match.
+       
+       When (the original) PATH_ELT was the empty string, we want to match
+       a FILENAME without dir seps.  (This could be argued, and may never
+       happen in practice, but is the historical behavior.)  */
+    /* if original_filename != filename then original_filename < filename */
+    if (original_filename == filename || IS_DIR_SEP_CH (filename[-1])) {
+      while (*filename && !IS_DIR_SEP_CH (*filename))
+        filename++;
+      matched = *filename == 0;
+    }
   }
 
   return matched;
@@ -413,28 +429,19 @@ kpathsea_init_db (kpathsea kpse)
 
   free (orig_db_files);
 }
-
-#if defined(KPSE_COMPAT_API)
-void
-kpse_init_db (void)
-{
-  kpathsea_init_db(kpse_def);
-}
-#endif
-
 
 /* Avoid doing anything if this PATH_ELT is irrelevant to the databases. */
 str_list_type *
 kpathsea_db_search (kpathsea kpse, const_string name,
                     const_string orig_path_elt, boolean all)
 {
-  string *db_dirs, *orig_dirs, *r;
-  const_string last_slash;
-  string path_elt;
+  string *db_dirs, *orig_dirs;
+  const_string last_slash, path_elt;
+  string temp_str = NULL;
   boolean done;
   unsigned e;
   str_list_type *ret = NULL;
-  string *aliases = NULL;
+  const_string *aliases, *r;
   boolean relevant = false;
 
   /* If we failed to build the database (or if this is the recursive
@@ -454,10 +461,11 @@ kpathsea_db_search (kpathsea kpse, const_string name,
     string dir_part = (string)xmalloc (len);
     strncpy (dir_part, name, len - 1);
     dir_part[len - 1] = 0;
-    path_elt = concat3 (orig_path_elt, "/", dir_part);
+    path_elt = temp_str = concat3 (orig_path_elt, "/", dir_part);
     name = last_slash + 1;
+    free (dir_part);
   } else
-    path_elt = (string) orig_path_elt;
+    path_elt = orig_path_elt;
 
   /* Don't bother doing any lookups if this `path_elt' isn't covered by
      any of database directories.  We do this not so much because the
@@ -472,10 +480,12 @@ kpathsea_db_search (kpathsea kpse, const_string name,
 
   /* If we have aliases for this name, use them.  */
   if (kpse->alias_db.buckets)
-    aliases = hash_lookup (kpse->alias_db, name);
+    aliases = (const_string *) hash_lookup (kpse->alias_db, name);
+  else
+    aliases = NULL;
 
   if (!aliases) {
-    aliases = XTALLOC1 (string);
+    aliases = XTALLOC1 (const_string);
     aliases[0] = NULL;
   }
   {  /* Push aliases up by one and insert the original name at the front.  */
@@ -483,16 +493,20 @@ kpathsea_db_search (kpathsea kpse, const_string name,
     unsigned len = 1; /* Have NULL element already allocated.  */
     for (r = aliases; *r; r++)
       len++;
-    XRETALLOC (aliases, len + 1, string);
+    /* This is essentially
+    XRETALLOC (aliases, len + 1, const_string);
+       except that MSVC warns without the cast to `void *'.  */
+    aliases = (const_string *) xrealloc ((void *) aliases,
+                                         (len + 1) * sizeof(const_string));
     for (i = len; i > 0; i--) {
       aliases[i] = aliases[i - 1];
     }
-    aliases[0] = (string) name;
+    aliases[0] = name;
   }
 
   done = false;
   for (r = aliases; !done && *r; r++) {
-    string ctry = *r;
+    const_string ctry = *r;
 
     /* We have an ls-R db.  Look up `try'.  */
     orig_dirs = db_dirs = hash_lookup (kpse->db, ctry);
@@ -520,7 +534,7 @@ kpathsea_db_search (kpathsea kpse, const_string name,
           found = db_file;
 
         } else {
-          string *a;
+          const_string *a;
 
           free (db_file); /* `db_file' wasn't on disk.  */
 
@@ -559,33 +573,25 @@ kpathsea_db_search (kpathsea kpse, const_string name,
       free (orig_dirs);
   }
 
-  free (aliases);
+  free ((void *) aliases);
 
-  /* If we had to break up NAME, free the temporary PATH_ELT.  */
-  if (path_elt != orig_path_elt)
-    free (path_elt);
+  /* If we had to break up NAME, free the TEMP_STR.  */
+  if (temp_str)
+    free (temp_str);
 
   return ret;
 }
-
-#if defined(KPSE_COMPAT_API)
-str_list_type *
-kpse_db_search (const_string name,  const_string orig_path_elt,
-                boolean all)
-{
-    return kpathsea_db_search (kpse_def, name, orig_path_elt, all);
-}
-#endif
 
 str_list_type *
 kpathsea_db_search_list (kpathsea kpse, const_string* names,
                          const_string path_elt, boolean all)
 {
-  string *db_dirs, *orig_dirs, *r;
+  string *db_dirs, *orig_dirs;
   const_string last_slash, name, path;
+  string temp_str = NULL;
   boolean done;
   unsigned e;
-  string *aliases;
+  const_string *aliases, *r;
   int n;
   str_list_type *ret = NULL;
   boolean relevant = false;
@@ -630,21 +636,21 @@ kpathsea_db_search_list (kpathsea kpse, const_string* names,
           string dir_part = (string)xmalloc (len);
           strncpy (dir_part, name, len - 1);
           dir_part[len - 1] = 0;
-          path = concat3 (path_elt, "/", dir_part);
+          path = temp_str = concat3 (path_elt, "/", dir_part);
           name = last_slash + 1;
-          free(dir_part);
+          free (dir_part);
       } else {
           path = path_elt;
       }
 
       /* If we have aliases for this name, use them.  */
       if (kpse->alias_db.buckets)
-          aliases = hash_lookup (kpse->alias_db, name);
+          aliases = (const_string *) hash_lookup (kpse->alias_db, name);
       else
           aliases = NULL;
 
       if (!aliases) {
-          aliases = XTALLOC1 (string);
+          aliases = XTALLOC1 (const_string);
           aliases[0] = NULL;
       }
       {  /* Push aliases up by one and insert the original name at front.  */
@@ -652,15 +658,16 @@ kpathsea_db_search_list (kpathsea kpse, const_string* names,
           unsigned len = 1; /* Have NULL element already allocated.  */
           for (r = aliases; *r; r++)
               len++;
-          XRETALLOC (aliases, len + 1, string);
+          aliases = (const_string *) xrealloc ((void *) aliases,
+                                               (len + 1) * sizeof(const_string));
           for (i = len; i > 0; i--) {
               aliases[i] = aliases[i - 1];
           }
-          aliases[0] = (string) name;
+          aliases[0] = name;
       }
 
       for (r = aliases; !done && *r; r++) {
-          string ctry = *r;
+          const_string ctry = *r;
 
           /* We have an ls-R db.  Look up `try'.  */
           orig_dirs = db_dirs = hash_lookup (kpse->db, ctry);
@@ -685,7 +692,7 @@ kpathsea_db_search_list (kpathsea kpse, const_string* names,
                 found = db_file;
 
               } else {
-                string *a;
+                const_string *a;
 
                 free (db_file); /* `db_file' wasn't on disk.  */
 
@@ -710,12 +717,12 @@ kpathsea_db_search_list (kpathsea kpse, const_string* names,
                 if (!all && found)
                   done = true;
               }
-          } else { /* no match in the db */
-            free (db_file);
-          }
+            } else { /* no match in the db */
+              free (db_file);
+            }
 
-          /* On to the next directory, if any.  */
-          db_dirs++;
+            /* On to the next directory, if any.  */
+            db_dirs++;
           }
 
           /* This is just the space for the pointers, not the strings.  */
@@ -723,19 +730,10 @@ kpathsea_db_search_list (kpathsea kpse, const_string* names,
               free (orig_dirs);
       }
 
-      free (aliases);
-      if (path != path_elt)
-          free((string)path);
+      free ((void *) aliases);
+      if (temp_str)
+          free (temp_str);
   }
 
   return ret;
 }
-
-#if defined(KPSE_COMPAT_API)
-str_list_type *
-kpse_db_search_list (const_string* names,  const_string path_elt,
-                     boolean all)
-{
-    return kpathsea_db_search_list (kpse_def, names, path_elt, all);
-}
-#endif

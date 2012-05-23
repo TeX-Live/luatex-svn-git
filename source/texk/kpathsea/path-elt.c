@@ -55,7 +55,11 @@ element (kpathsea kpse, const_string passed_path,  boolean env_p)
                        && (env_p ? IS_ENV_SEP (*p) : IS_DIR_SEP (*p)))) {
     if (*p == '{') ++brace_level;
     else if (*p == '}') --brace_level;
-    ++p;
+#if defined(WIN32)
+    else if (IS_KANJI(p))
+        p++;
+#endif
+    p++;
   }
 
   /* Return the substring starting at `path'.  */
@@ -87,15 +91,6 @@ kpathsea_path_element (kpathsea kpse, const_string p)
     return element (kpse, p, true);
 }
 
-#if defined (KPSE_COMPAT_API)
-string
-kpse_path_element (const_string p)
-{
-    return kpathsea_path_element (kpse_def, p);
-}
-#endif
-
-
 string
 kpathsea_filename_component (kpathsea kpse, const_string p)
 {
@@ -110,8 +105,8 @@ print_path_elements (const_string path)
   string elt;
   printf ("Elements of `%s':", path ? path : "(null)");
 
-  for (elt = kpse_path_element (path); elt != NULL;
-       elt = kpse_path_element (NULL))
+  for (elt = kpathsea_path_element (kpse_def, path); elt != NULL;
+       elt = kpathsea_path_element (kpse_def, NULL))
     {
       printf (" %s", *elt ? elt : "`'");
     }

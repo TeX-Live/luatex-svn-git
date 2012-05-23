@@ -1,3 +1,20 @@
+/* mingw32.h: declarations for mingw32.
+
+   Copyright 2009-2012 Taco Hoekwater <taco@luatex.org>.
+
+   This library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   This library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public License
+   along with this library; if not, see <http://www.gnu.org/licenses/>.  */
+
 #ifndef _MINGW32_H_
 #define _MINGW32_H_
 
@@ -15,6 +32,12 @@
 #include <fcntl.h>
 #include <ctype.h>
 
+/* sys/types.h defines off_t as `long' and we do not want that.
+   We need to include unistd.h and sys/stat.h using off_t
+   before defining off_t (no need to include wchar.h).  */
+#include <unistd.h>
+#include <sys/stat.h>
+#define off_t off64_t
 #define ftello ftello64
 #define fseeko fseeko64
 
@@ -26,22 +49,6 @@
 #define MAX_PIPES 128
 #endif
 
-/* On DOS, it's good to allow both \ and / between directories.  */
-#ifndef IS_DIR_SEP
-#define IS_DIR_SEP(ch) ((ch) == '/' || (ch) == '\\')
-#endif
-#ifndef IS_DEVICE_SEP
-#define IS_DEVICE_SEP(ch) ((ch) == ':')
-#endif
-#ifndef NAME_BEGINS_WITH_DEVICE
-#define NAME_BEGINS_WITH_DEVICE(name) (*(name) && IS_DEVICE_SEP((name)[1]))
-#endif
-/* On win32, UNC names are authorized */
-#ifndef IS_UNC_NAME
-#define IS_UNC_NAME(name) (strlen(name)>=3 && IS_DIR_SEP(*name)  \
-                            && IS_DIR_SEP(*(name+1)) && isalnum(*(name+2)))
-#endif
-
 #ifdef MAKE_KPSE_DLL /* libkpathsea internal only */
 
 extern void init_user_info (void);
@@ -51,6 +58,6 @@ extern char *quote_args(char **);
 #endif /* MAKE_KPSE_DLL */
 
 extern KPSEDLL BOOL win32_get_long_filename (char *, char *, int);
-extern KPSEDLL void dostounix_filename (char *p);
+extern KPSEDLL void texlive_gs_init(void);
 
 #endif

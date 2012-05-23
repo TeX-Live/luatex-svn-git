@@ -1,11 +1,9 @@
 # Public macros for the TeX Live (TL) tree.
-# Copyright (C) 2011 Peter Breitenlohner <tex-live@tug.org>
+# Copyright (C) 2011, 2012 Peter Breitenlohner <tex-live@tug.org>
 #
 # This file is free software; the copyright holder
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
-
-# serial 0
 
 # KPSE_POPPLER_FLAGS
 # ---------------
@@ -15,7 +13,7 @@
 # LIBS required for the `-lpoppler' library in libs/poppler/ of the TL tree.
 AC_DEFUN([KPSE_POPPLER_FLAGS],
 [_KPSE_LIB_FLAGS([poppler], [poppler], [],
-                 [-DPDF_PARSER_ONLY -IBLD/libs/poppler -IBLD/libs/poppler/goo -IBLD/libs/poppler/poppler],
+                 [-IBLD/libs/poppler -IBLD/libs/poppler/goo -IBLD/libs/poppler/poppler],
                  [BLD/libs/poppler/libpoppler.a], [],
                  [], [${top_builddir}/../../libs/poppler/poppler/Stream.h])[]dnl
 ]) # KPSE_POPPLER_FLAGS
@@ -38,6 +36,6 @@ if $PKG_CONFIG poppler --atleast-version=0.12; then
   POPPLER_INCLUDES="$POPPLER_VERSION `$PKG_CONFIG poppler --cflags`"
   POPPLER_LIBS=`$PKG_CONFIG poppler --libs`
 elif test "x$need_poppler:$with_system_poppler" = xyes:yes; then
-  AC_MSG_ERROR([did not find poppler-0.10 or better])
+  AC_MSG_ERROR([did not find poppler-0.12 or better])
 fi
 ]) # KPSE_POPPLER_SYSTEM_FLAGS

@@ -1,32 +1,13 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl
-dnl   Copyright (C) 2009 - 2011 Peter Breitenlohner <tex-live@tug.org>
+dnl   Copyright (C) 2009-2011 Peter Breitenlohner <tex-live@tug.org>
 dnl
 dnl   This file is free software; the copyright holder
 dnl   gives unlimited permission to copy and/or distribute it,
 dnl   with or without modifications, as long as this notice is preserved.
-dnl --------------------------------------------------------
-dnl Keep Kpathsea shared and package library versions the same:
-dnl   Only bug fixes:
-dnl     kpse_lib_micro += 1;
-dnl   Adding new interfaces (backwards compatible)
-dnl     kpse_lib_minor += 1;
-dnl     kpse_lib_micro = 0;
-dnl   Modifying or revoking interfaces (not backwards compatible)
-dnl     kpse_lib_major += 1;
-dnl     kpse_lib_minor = 0;
-dnl     kpse_lib_micro = 0;
 dnl
-dnl   After a release, set kpse_lib_dev to "dev", to distinguish
-dnl   binaries built between releases.
-
-m4_define([kpse_lib_major], [6])[]dnl
-m4_define([kpse_lib_minor], [0])[]dnl
-m4_define([kpse_lib_micro], [1])[]dnl
-m4_define([kpse_lib_devel], [])[]dnl empty or "dev"
-m4_define([kpse_version], [kpse_lib_major.kpse_lib_minor.kpse_lib_micro[]kpse_lib_devel])[]dnl
-
-AC_INIT([Kpathsea], [kpse_version], [tex-k@tug.org])
+m4_include([version.ac])[] dnl define kpse_version
+AC_INIT([Kpathsea], kpse_version, [tex-k@tug.org])
 AC_PREREQ([2.65])
 AC_CONFIG_SRCDIR([pathsearch.c])
 AC_CONFIG_AUX_DIR([../../build-aux])
@@ -34,18 +15,24 @@ AC_CONFIG_MACRO_DIR([../../m4])
 
 AC_SUBST([KPSEVERSION], [kpse_version])
 AC_DEFINE([KPSEVERSION], ["kpathsea version kpse_version"])
-AC_SUBST([KPSE_LT_VERSINFO], [m4_eval(kpse_lib_major+kpse_lib_minor):kpse_lib_micro:kpse_lib_minor])
+KPSE_LT_VERSION([kpse])
+
+m4_include([../../version.ac])[] dnl define tex_live_version
+AC_SUBST([WEB2CVERSION], [tex_live_version])
 
 dnl Common code for all programs using libkpathsea.
 KPSE_COMMON([kpathsea])
 dnl Include additional code for kpathsea.
-KPSE_WEB2C_PREPARE
-m4_sinclude([ac/web2c.ac])
+KPSE_MKTEX_PREPARE
+m4_sinclude([ac/mktex.ac])
 
 dnl Generate MAKE_TEX_*_BY_DEFAULT and MAKE_OMEGA_*_BY_DEFAULT defines.
 m4_foreach([Kpse_Mktex], [kpse_mktex_opts],
            [m4_ifset([Kpse_Mktex],
                      [KPSE_MKTEX_DEFINE(Kpse_Mktex)])])[]dnl
+
+# So we can use reasonable awk in the Makefile.
+AC_PROG_AWK
 
 dnl Replacement functions that may be required on ancient broken system.
 AC_CHECK_DECLS([putenv, strstr])
@@ -108,6 +95,6 @@ AH_TOP([/* c-auto.h: defines for kpathsea, as determined by configure.
 #define KPSEVERSION "REPLACE-WITH-KPSEVERSION"])
 AH_BOTTOM([#endif /* !KPATHSEA_C_AUTO_H */])
 
-AC_CONFIG_FILES([Makefile doc/Makefile man/Makefile])
+AC_CONFIG_FILES([Makefile doc/Makefile man/Makefile win32/Makefile])
 
 AC_OUTPUT

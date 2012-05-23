@@ -1,6 +1,6 @@
 /* readable.c: check if a filename is a readable non-directory file.
 
-   Copyright 1993, 1995, 1996, 2008 Karl Berry.
+   Copyright 1993, 1995, 1996, 2008, 2011, 2012 Karl Berry.
    Copyright 1998, 1999, 2000, 2001, 2005 Olaf Weber.
 
    This library is free software; you can redistribute it and/or
@@ -33,8 +33,8 @@
 /* `stat' is way too expensive for such a simple job.  */
 #define READABLE(fn, st) \
   (access (fn, R_OK) == 0 && access (fn, D_OK) == -1)
-#elif WIN32
-/* Warning: st must be an unsigned int under Win32 */
+#elif defined (WIN32)
+/* st must be an unsigned int under Windows */
 static boolean
 READABLE(const_string fn, unsigned int st)
 {
@@ -66,7 +66,9 @@ READABLE(const_string fn, unsigned int st)
    filename components; the system's behavior is defined by the value of
    the symbol _POSIX_NO_TRUNC, but you can't change it dynamically!
 
-   Generic const return warning.  See extend-fname.c.  */
+   We may or may not return NAME.  It's up to the caller not to assume
+   the return value is modifiable.  */
+
 
 string
 kpathsea_readable_file (kpathsea kpse, const_string name)

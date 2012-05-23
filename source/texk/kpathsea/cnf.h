@@ -1,6 +1,6 @@
 /* cnf.h: runtime config files.
 
-   Copyright 1994, 1995, 2008 Karl Berry.
+   Copyright 1994, 1995, 2008, 2012 Karl Berry.
    Copyright 1999, 2005 Olaf Weber.
 
    This library is free software; you can redistribute it and/or

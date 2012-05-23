@@ -1,6 +1,6 @@
 /* progname.h: Declarations for argv[0] equivalents.
 
-   Copyright 1994, 1996, 2008, 2010 Karl Berry.
+   Copyright 1994, 1996, 2008, 2010, 2011 Karl Berry.
    Copyright 1999, 2005 Olaf Weber.
 
    This library is free software; you can redistribute it and/or
@@ -25,7 +25,9 @@
 /* Return directory ARGV0 comes from.  Check PATH if ARGV0 is not
    absolute.  */
 
+#if !defined (WIN32)
 extern KPSEDLL string kpathsea_selfdir (kpathsea kpse, const_string argv0);
+#endif
 
 /* Set the first two variables above (if they're not predefined) to a copy
    of ARGV0 and everything in ARGV0 after the last directory separator,
@@ -44,22 +46,12 @@ extern KPSEDLL void kpathsea_set_program_name (kpathsea kpse,
 
 
 #if defined (KPSE_COMPAT_API)
+#if !defined (WIN32)
 extern KPSEDLL string kpse_selfdir (const_string argv0);
+#endif
 
 extern KPSEDLL void kpse_set_program_name (const_string argv0,
                                       const_string progname);
-
-#ifdef MAKE_KPSE_DLL /* libkpathsea internal only */
-
-/* Set first two variables above (if they're not predefined) to a copy of
-   ARGV0 and everything in ARGV0 after the last directory separator,
-   respectively.  kpse_program_name is _always_ set to a copy of everything
-   in ARGV0 after the last directory separator. */
-
-extern KPSEDLL void kpse_set_progname (const_string argv0);
-
-#endif /* MAKE_KPSE_DLL */
-
 #endif /* KPSE_COMPAT_API */
 
 #endif /* not KPATHSEA_PROGNAME_H */

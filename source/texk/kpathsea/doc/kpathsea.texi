@@ -2,14 +2,14 @@
 @setfilename kpathsea.info
 @settitle Kpathsea: A library for path searching
 
-@set version 6.0.0
-@set month-year November 2010
+@set version 6.1.0
+@set month-year May 2012
 
 @copying
 This file documents the Kpathsea library for path searching.
 
 Copyright @copyright{} 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
-2004, 2005, 2007, 2008, 2009, 2010 Karl Berry & Olaf Weber.
+2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012 Karl Berry & Olaf Weber.
 
 Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
@@ -1162,7 +1162,7 @@ type1 fonts: .pfa .pfb
 vf: .vf
 dvips config (dvipsconfig):
 ist: .ist
-truetype fonts: .ttf .ttc .TTF .TTC
+truetype fonts: .ttf .ttc .TTF .TTC .dfont
 type42 fonts: .t42 .T42
 web2c files (web2c):
 other text files (othertext):
@@ -1183,6 +1183,8 @@ cid maps: .cid .cidmap
 mlbib: .mlbib .bib
 mlbst: .mlbst .bst
 clua: .dll .so
+ris: .ris
+bltxml: .bltxml
 @end example
 
 This option and @samp{--path} are mutually exclusive.
@@ -1862,8 +1864,8 @@ dynamic creation program: @code{mktextfm}.
 @flindex .ttf
 @flindex .ttc
 @vindex TTFONTS
-(TrueType outline fonts) @code{TTFONTS}; suffixes @samp{.ttf},
-@samp{.ttc}.
+(TrueType outline fonts) @code{TTFONTS}; suffixes @samp{.ttf} and
+@samp{.TTF}, @samp{.ttc} and @samp{.TTC}, @samp{.dfont}.
 
 @item type1 fonts
 @flindex .pfa

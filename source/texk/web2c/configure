@@ -886,13 +886,21 @@ enable_dump_share
 enable_ipc
 enable_omfonts
 enable_tex
+enable_tex_synctex
 enable_etex
+enable_etex_synctex
 enable_ptex
+enable_ptex_synctex
 enable_eptex
+enable_eptex_synctex
 enable_aleph
+enable_aleph_synctex
 enable_pdftex
+enable_pdftex_synctex
 enable_luatex
+enable_luatex_synctex
 enable_xetex
+enable_xetex_synctex
 enable_mf
 enable_mf_nowin
 with_mf_x_toolkit
@@ -1592,13 +1600,21 @@ Optional Features:
   --disable-omfonts       do not compile and install omfonts (use Web2C
                           versions)
   --disable-tex           do not compile and install TeX
+  --enable-tex-synctex      build TeX with SyncTeX support
   --enable-etex           compile and install e-TeX
+  --disable-etex-synctex    build e-TeX without SyncTeX support
   --disable-ptex          do not compile and install pTeX
+  --enable-ptex-synctex     build pTeX with SyncTeX support
   --disable-eptex         do not compile and install e-pTeX
+  --enable-eptex-synctex    build e-pTeX with SyncTeX support
   --disable-aleph         do not compile and install Aleph
+  --enable-aleph-synctex    build Aleph with SyncTeX support
   --disable-pdftex        do not compile and install pdfTeX
+  --disable-pdftex-synctex  build pdfTeX without SyncTeX support
   --disable-luatex        do not compile and install luaTeX
+  --enable-luatex-synctex   build luaTeX with SyncTeX support
   --disable-xetex         do not compile and install XeTeX
+  --disable-xetex-synctex   build XeTeX without SyncTeX support
   --disable-mf            do not build METAFONT
   --disable-mf-nowin        do not build a separate non-windows-capable
                             METAFONT
@@ -1618,7 +1634,7 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-pic              try to use only PIC/non-PIC objects [default=use
+  --with-pic[=PKGS]       try to use only PIC/non-PIC objects [default=use
                           both]
   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
   --with-sysroot=DIR Search for dependent libraries within DIR
@@ -1649,7 +1665,7 @@ Optional Packages:
   --with-system-libpng    use installed libpng headers and library (requires
                           pkg-config)
   --with-system-xpdf      use installed poppler headers and library instead of
-                          xpdf (requires pkg-config)
+                          xpdf library from TL (requires pkg-config)
   --with-system-poppler   use installed poppler headers and library (requires
                           pkg-config)
   --with-system-zziplib   use installed zziplib headers and library (requires
@@ -8456,7 +8472,22 @@ fi
 
 # Check whether --with-pic was given.
 if test "${with_pic+set}" = set; then :
-  withval=$with_pic; pic_mode="$withval"
+  withval=$with_pic; lt_p=${PACKAGE-default}
+    case $withval in
+    yes|no) pic_mode=$withval ;;
+    *)
+      pic_mode=default
+      # Look at the argument we got.  We use all the common list separators.
+      lt_save_ifs="$IFS"; IFS="${IFS}$PATH_SEPARATOR,"
+      for lt_pkg in $withval; do
+	IFS="$lt_save_ifs"
+	if test "X$lt_pkg" = "X$lt_p"; then
+	  pic_mode=yes
+	fi
+      done
+      IFS="$lt_save_ifs"
+      ;;
+    esac
 else
   pic_mode=default
 fi
@@ -13153,39 +13184,42 @@ $as_echo_n "checking what warning flags to pass to the C compiler... " >&6; }
 if test "${kpse_cv_warning_cflags+set}" = set; then :
   $as_echo_n "(cached) " >&6
 else
-  if test "x$enable_compiler_warnings" = xno; then
+  if test "x$GCC" = xyes; then
   kpse_cv_warning_cflags=
-elif test "x$GCC" = xyes; then
+if test "x$enable_compiler_warnings" != xno; then
   kpse_cv_warning_cflags="-Wimplicit -Wreturn-type"
-case `$CC -dumpversion` in #(
+  case `$CC -dumpversion` in #(
   3.4.* | 4.*) :
     kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wdeclaration-after-statement" ;; #(
   *) :
      ;;
 esac
-case `$CC -dumpversion` in #(
+  case `$CC -dumpversion` in #(
   3.[234].* | 4.*) :
     kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wno-unknown-pragmas" ;; #(
   *) :
      ;;
 esac
-if test "x$enable_compiler_warnings" != xmin; then
-  kpse_cv_warning_cflags="-Wall -Wunused $kpse_cv_warning_cflags"
-  kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wmissing-prototypes -Wmissing-declarations"
-  if test "x$enable_compiler_warnings" != xyes; then
-    kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wparentheses -Wswitch -Wtrigraphs -Wpointer-arith"
-    kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wcast-qual -Wcast-align -Wwrite-strings"
-    case `$CC -dumpversion` in #(
+  if test "x$enable_compiler_warnings" != xmin; then
+    kpse_cv_warning_cflags="-Wall -Wunused $kpse_cv_warning_cflags"
+    kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wmissing-prototypes -Wmissing-declarations"
+    if test "x$enable_compiler_warnings" != xyes; then
+      kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wparentheses -Wswitch -Wtrigraphs -Wpointer-arith"
+      kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wcast-qual -Wcast-align -Wwrite-strings"
+      case `$CC -dumpversion` in #(
   3.4.* | 4.*) :
     kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wold-style-definition" ;; #(
   *) :
      ;;
 esac
-    if test "x$enable_compiler_warnings" != xmax; then
-      kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wshadow"
+      if test "x$enable_compiler_warnings" != xmax; then
+        kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wshadow"
+      fi
     fi
   fi
 fi
+elif test "x$enable_compiler_warnings" = xno; then
+  kpse_cv_warning_cflags=
 else
   kpse_cv_warning_cflags= # FIXME: warning flags for non-GNU C compilers
 fi
@@ -16804,26 +16838,38 @@ $as_echo_n "checking what warning flags to pass to the C++ compiler... " >&6; }
 if test "${kpse_cv_warning_cxxflags+set}" = set; then :
   $as_echo_n "(cached) " >&6
 else
-  if test "x$enable_compiler_warnings" = xno; then
+  if test "x$GXX" = xyes; then
   kpse_cv_warning_cxxflags=
-elif test "x$GXX" = xyes; then
-  kpse_cv_warning_cxxflags="-Wimplicit -Wreturn-type"
-case `$CXX -dumpversion` in #(
+kpse_warn_strings="-Wno-write-strings"
+if test "x$enable_compiler_warnings" != xno; then
+  kpse_cv_warning_cxxflags="-Wreturn-type"
+  case `$CXX -dumpversion` in #(
+  3.* | 4.[012345].*) :
+    kpse_cv_warning_cxxflags="-Wimplicit $kpse_cv_warning_cxxflags" ;; #(
+  *) :
+     ;;
+esac
+  case `$CXX -dumpversion` in #(
   3.[234].* | 4.*) :
     kpse_cv_warning_cxxflags="$kpse_cv_warning_cxxflags -Wno-unknown-pragmas" ;; #(
   *) :
      ;;
 esac
-if test "x$enable_compiler_warnings" != xmin; then
-  kpse_cv_warning_cxxflags="-Wall -Wunused $kpse_cv_warning_cxxflags"
-  if test "x$enable_compiler_warnings" != xyes; then
-    kpse_cv_warning_cxxflags="$kpse_cv_warning_cxxflags -Wparentheses -Wswitch -Wtrigraphs -Wpointer-arith"
-    kpse_cv_warning_cxxflags="$kpse_cv_warning_cxxflags -Wcast-qual -Wcast-align -Wwrite-strings"
-  fi
-    if test "x$enable_compiler_warnings" != xmax; then
-      kpse_cv_warning_cxxflags="$kpse_cv_warning_cxxflags -Wshadow"
+  if test "x$enable_compiler_warnings" != xmin; then
+    kpse_cv_warning_cxxflags="-Wall -Wunused $kpse_cv_warning_cxxflags"
+    if test "x$enable_compiler_warnings" != xyes; then
+      kpse_cv_warning_cxxflags="$kpse_cv_warning_cxxflags -Wparentheses -Wswitch -Wtrigraphs -Wpointer-arith"
+      kpse_cv_warning_cxxflags="$kpse_cv_warning_cxxflags -Wcast-qual -Wcast-align"
+      kpse_warn_strings="-Wwrite-strings"
+      if test "x$enable_compiler_warnings" != xmax; then
+        kpse_cv_warning_cxxflags="$kpse_cv_warning_cxxflags -Wshadow"
+      fi
     fi
+  fi
 fi
+kpse_cv_warning_cxxflags="$kpse_cv_warning_cxxflags $kpse_warn_strings"
+elif test "x$enable_compiler_warnings" = xno; then
+  kpse_cv_warning_cxxflags=
 else
   kpse_cv_warning_cxxflags= # FIXME: warning flags for non-GNU C++ compilers
 fi
@@ -17088,26 +17134,38 @@ $as_echo_n "checking what warning flags to pass to the Objective C++ compiler...
 if test "${kpse_cv_warning_objcxxflags+set}" = set; then :
   $as_echo_n "(cached) " >&6
 else
-  if test "x$enable_compiler_warnings" = xno; then
+  if test "x$GOBJCXX" = xyes; then
   kpse_cv_warning_objcxxflags=
-elif test "x$GOBJCXX" = xyes; then
-  kpse_cv_warning_objcxxflags="-Wimplicit -Wreturn-type"
-case `$OBJCXX -dumpversion` in #(
+kpse_warn_strings="-Wno-write-strings"
+if test "x$enable_compiler_warnings" != xno; then
+  kpse_cv_warning_objcxxflags="-Wreturn-type"
+  case `$OBJCXX -dumpversion` in #(
+  3.* | 4.[012345].*) :
+    kpse_cv_warning_objcxxflags="-Wimplicit $kpse_cv_warning_objcxxflags" ;; #(
+  *) :
+     ;;
+esac
+  case `$OBJCXX -dumpversion` in #(
   3.[234].* | 4.*) :
     kpse_cv_warning_objcxxflags="$kpse_cv_warning_objcxxflags -Wno-unknown-pragmas" ;; #(
   *) :
      ;;
 esac
-if test "x$enable_compiler_warnings" != xmin; then
-  kpse_cv_warning_objcxxflags="-Wall -Wunused $kpse_cv_warning_objcxxflags"
-  if test "x$enable_compiler_warnings" != xyes; then
-    kpse_cv_warning_objcxxflags="$kpse_cv_warning_objcxxflags -Wparentheses -Wswitch -Wtrigraphs -Wpointer-arith"
-    kpse_cv_warning_objcxxflags="$kpse_cv_warning_objcxxflags -Wcast-qual -Wcast-align -Wwrite-strings"
-  fi
-    if test "x$enable_compiler_warnings" != xmax; then
-      kpse_cv_warning_objcxxflags="$kpse_cv_warning_objcxxflags -Wshadow"
+  if test "x$enable_compiler_warnings" != xmin; then
+    kpse_cv_warning_objcxxflags="-Wall -Wunused $kpse_cv_warning_objcxxflags"
+    if test "x$enable_compiler_warnings" != xyes; then
+      kpse_cv_warning_objcxxflags="$kpse_cv_warning_objcxxflags -Wparentheses -Wswitch -Wtrigraphs -Wpointer-arith"
+      kpse_cv_warning_objcxxflags="$kpse_cv_warning_objcxxflags -Wcast-qual -Wcast-align"
+      kpse_warn_strings="-Wwrite-strings"
+      if test "x$enable_compiler_warnings" != xmax; then
+        kpse_cv_warning_objcxxflags="$kpse_cv_warning_objcxxflags -Wshadow"
+      fi
     fi
+  fi
 fi
+kpse_cv_warning_objcxxflags="$kpse_cv_warning_objcxxflags $kpse_warn_strings"
+elif test "x$enable_compiler_warnings" = xno; then
+  kpse_cv_warning_objcxxflags=
 else
   kpse_cv_warning_objcxxflags= # FIXME: warning flags for non-GNU Objective C++ compilers
 fi
@@ -17271,31 +17329,46 @@ if test "${enable_tex+set}" = set; then :
   enableval=$enable_tex;
 fi
 case $enable_tex in #(
-  yes|no) :
+  yes | no) :
      ;; #(
   *) :
     enable_tex=yes ;;
 esac
+
+# Check whether --enable-tex-synctex was given.
+if test "${enable_tex_synctex+set}" = set; then :
+  enableval=$enable_tex_synctex;
+fi
 # Check whether --enable-etex was given.
 if test "${enable_etex+set}" = set; then :
   enableval=$enable_etex;
 fi
 case $enable_etex in #(
-  yes|no) :
+  yes | no) :
      ;; #(
   *) :
     enable_etex=no ;;
 esac
+
+# Check whether --enable-etex-synctex was given.
+if test "${enable_etex_synctex+set}" = set; then :
+  enableval=$enable_etex_synctex;
+fi
 # Check whether --enable-ptex was given.
 if test "${enable_ptex+set}" = set; then :
   enableval=$enable_ptex;
 fi
 case $enable_ptex in #(
-  yes|no) :
+  yes | no) :
      ;; #(
   *) :
     enable_ptex=yes ;;
 esac
+
+# Check whether --enable-ptex-synctex was given.
+if test "${enable_ptex_synctex+set}" = set; then :
+  enableval=$enable_ptex_synctex;
+fi
 
 test "x$enable_web2c:$enable_ptex" = xyes:yes && {
   need_ptexenc=yes
@@ -17305,11 +17378,16 @@ if test "${enable_eptex+set}" = set; then :
   enableval=$enable_eptex;
 fi
 case $enable_eptex in #(
-  yes|no) :
+  yes | no) :
      ;; #(
   *) :
     enable_eptex=yes ;;
 esac
+
+# Check whether --enable-eptex-synctex was given.
+if test "${enable_eptex_synctex+set}" = set; then :
+  enableval=$enable_eptex_synctex;
+fi
 
 test "x$enable_web2c:$enable_eptex" = xyes:yes && {
   need_ptexenc=yes
@@ -17319,21 +17397,31 @@ if test "${enable_aleph+set}" = set; then :
   enableval=$enable_aleph;
 fi
 case $enable_aleph in #(
-  yes|no) :
+  yes | no) :
      ;; #(
   *) :
     enable_aleph=yes ;;
 esac
+
+# Check whether --enable-aleph-synctex was given.
+if test "${enable_aleph_synctex+set}" = set; then :
+  enableval=$enable_aleph_synctex;
+fi
 # Check whether --enable-pdftex was given.
 if test "${enable_pdftex+set}" = set; then :
   enableval=$enable_pdftex;
 fi
 case $enable_pdftex in #(
-  yes|no) :
+  yes | no) :
      ;; #(
   *) :
     enable_pdftex=yes ;;
 esac
+
+# Check whether --enable-pdftex-synctex was given.
+if test "${enable_pdftex_synctex+set}" = set; then :
+  enableval=$enable_pdftex_synctex;
+fi
 
 test "x$enable_web2c:$enable_pdftex" = xyes:yes && {
   need_xpdf=yes
@@ -17345,11 +17433,16 @@ if test "${enable_luatex+set}" = set; then :
   enableval=$enable_luatex;
 fi
 case $enable_luatex in #(
-  yes|no) :
+  yes | no) :
      ;; #(
   *) :
     enable_luatex=yes ;;
 esac
+
+# Check whether --enable-luatex-synctex was given.
+if test "${enable_luatex_synctex+set}" = set; then :
+  enableval=$enable_luatex_synctex;
+fi
 
 test "x$enable_web2c:$enable_luatex" = xyes:yes && {
   need_poppler=yes
@@ -17362,11 +17455,16 @@ if test "${enable_xetex+set}" = set; then :
   enableval=$enable_xetex;
 fi
 case $enable_xetex in #(
-  yes|no) :
+  yes | no) :
      ;; #(
   *) :
     enable_xetex=yes ;;
 esac
+
+# Check whether --enable-xetex-synctex was given.
+if test "${enable_xetex_synctex+set}" = set; then :
+  enableval=$enable_xetex_synctex;
+fi
 
 test "x$enable_web2c:$enable_xetex" = xyes:yes && {
   need_xpdf=yes
@@ -18302,7 +18400,21 @@ else
   TEX_TRUE='#'
   TEX_FALSE=
 fi
- if false; then
+
+case $enable_native_texlive_build:$enable_tex_synctex in #(
+  yes:no | no:yes | no:no) :
+     ;; #(
+  *) :
+    if test -z "$enable_tex_synctex"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-tex-synctex=no'" >&5
+$as_echo "$as_me: Assuming \`--enable-tex-synctex=no'" >&6;}
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Enforcing \`--enable-tex-synctex=no' (native TeX Live build)" >&5
+$as_echo "$as_me: WARNING: Enforcing \`--enable-tex-synctex=no' (native TeX Live build)" >&2;}
+fi
+         enable_tex_synctex=no ;;
+esac
+ if test "x$enable_tex_synctex" = xyes; then
   TEX_SYNCTEX_TRUE=
   TEX_SYNCTEX_FALSE='#'
 else
@@ -18316,7 +18428,21 @@ else
   ETEX_TRUE='#'
   ETEX_FALSE=
 fi
- if true; then
+
+case $enable_native_texlive_build:$enable_etex_synctex in #(
+  yes:yes | no:yes | no:no) :
+     ;; #(
+  *) :
+    if test -z "$enable_etex_synctex"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-etex-synctex=yes'" >&5
+$as_echo "$as_me: Assuming \`--enable-etex-synctex=yes'" >&6;}
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Enforcing \`--enable-etex-synctex=yes' (native TeX Live build)" >&5
+$as_echo "$as_me: WARNING: Enforcing \`--enable-etex-synctex=yes' (native TeX Live build)" >&2;}
+fi
+         enable_etex_synctex=yes ;;
+esac
+ if test "x$enable_etex_synctex" = xyes; then
   ETEX_SYNCTEX_TRUE=
   ETEX_SYNCTEX_FALSE='#'
 else
@@ -18330,7 +18456,21 @@ else
   PTEX_TRUE='#'
   PTEX_FALSE=
 fi
- if false; then
+
+case $enable_native_texlive_build:$enable_ptex_synctex in #(
+  yes:no | no:yes | no:no) :
+     ;; #(
+  *) :
+    if test -z "$enable_ptex_synctex"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-ptex-synctex=no'" >&5
+$as_echo "$as_me: Assuming \`--enable-ptex-synctex=no'" >&6;}
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Enforcing \`--enable-ptex-synctex=no' (native TeX Live build)" >&5
+$as_echo "$as_me: WARNING: Enforcing \`--enable-ptex-synctex=no' (native TeX Live build)" >&2;}
+fi
+         enable_ptex_synctex=no ;;
+esac
+ if test "x$enable_ptex_synctex" = xyes; then
   PTEX_SYNCTEX_TRUE=
   PTEX_SYNCTEX_FALSE='#'
 else
@@ -18344,7 +18484,21 @@ else
   EPTEX_TRUE='#'
   EPTEX_FALSE=
 fi
- if false; then
+
+case $enable_native_texlive_build:$enable_eptex_synctex in #(
+  yes:no | no:yes | no:no) :
+     ;; #(
+  *) :
+    if test -z "$enable_eptex_synctex"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-eptex-synctex=no'" >&5
+$as_echo "$as_me: Assuming \`--enable-eptex-synctex=no'" >&6;}
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Enforcing \`--enable-eptex-synctex=no' (native TeX Live build)" >&5
+$as_echo "$as_me: WARNING: Enforcing \`--enable-eptex-synctex=no' (native TeX Live build)" >&2;}
+fi
+         enable_eptex_synctex=no ;;
+esac
+ if test "x$enable_eptex_synctex" = xyes; then
   EPTEX_SYNCTEX_TRUE=
   EPTEX_SYNCTEX_FALSE='#'
 else
@@ -18358,7 +18512,21 @@ else
   ALEPH_TRUE='#'
   ALEPH_FALSE=
 fi
- if false; then
+
+case $enable_native_texlive_build:$enable_aleph_synctex in #(
+  yes:no | no:yes | no:no) :
+     ;; #(
+  *) :
+    if test -z "$enable_aleph_synctex"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-aleph-synctex=no'" >&5
+$as_echo "$as_me: Assuming \`--enable-aleph-synctex=no'" >&6;}
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Enforcing \`--enable-aleph-synctex=no' (native TeX Live build)" >&5
+$as_echo "$as_me: WARNING: Enforcing \`--enable-aleph-synctex=no' (native TeX Live build)" >&2;}
+fi
+         enable_aleph_synctex=no ;;
+esac
+ if test "x$enable_aleph_synctex" = xyes; then
   ALEPH_SYNCTEX_TRUE=
   ALEPH_SYNCTEX_FALSE='#'
 else
@@ -18372,7 +18540,21 @@ else
   PDFTEX_TRUE='#'
   PDFTEX_FALSE=
 fi
- if true; then
+
+case $enable_native_texlive_build:$enable_pdftex_synctex in #(
+  yes:yes | no:yes | no:no) :
+     ;; #(
+  *) :
+    if test -z "$enable_pdftex_synctex"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-pdftex-synctex=yes'" >&5
+$as_echo "$as_me: Assuming \`--enable-pdftex-synctex=yes'" >&6;}
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Enforcing \`--enable-pdftex-synctex=yes' (native TeX Live build)" >&5
+$as_echo "$as_me: WARNING: Enforcing \`--enable-pdftex-synctex=yes' (native TeX Live build)" >&2;}
+fi
+         enable_pdftex_synctex=yes ;;
+esac
+ if test "x$enable_pdftex_synctex" = xyes; then
   PDFTEX_SYNCTEX_TRUE=
   PDFTEX_SYNCTEX_FALSE='#'
 else
@@ -18386,7 +18568,21 @@ else
   LUATEX_TRUE='#'
   LUATEX_FALSE=
 fi
- if false; then
+
+case $enable_native_texlive_build:$enable_luatex_synctex in #(
+  yes:no | no:yes | no:no) :
+     ;; #(
+  *) :
+    if test -z "$enable_luatex_synctex"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-luatex-synctex=no'" >&5
+$as_echo "$as_me: Assuming \`--enable-luatex-synctex=no'" >&6;}
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Enforcing \`--enable-luatex-synctex=no' (native TeX Live build)" >&5
+$as_echo "$as_me: WARNING: Enforcing \`--enable-luatex-synctex=no' (native TeX Live build)" >&2;}
+fi
+         enable_luatex_synctex=no ;;
+esac
+ if test "x$enable_luatex_synctex" = xyes; then
   LUATEX_SYNCTEX_TRUE=
   LUATEX_SYNCTEX_FALSE='#'
 else
@@ -18400,7 +18596,21 @@ else
   XETEX_TRUE='#'
   XETEX_FALSE=
 fi
- if true; then
+
+case $enable_native_texlive_build:$enable_xetex_synctex in #(
+  yes:yes | no:yes | no:no) :
+     ;; #(
+  *) :
+    if test -z "$enable_xetex_synctex"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`--enable-xetex-synctex=yes'" >&5
+$as_echo "$as_me: Assuming \`--enable-xetex-synctex=yes'" >&6;}
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Enforcing \`--enable-xetex-synctex=yes' (native TeX Live build)" >&5
+$as_echo "$as_me: WARNING: Enforcing \`--enable-xetex-synctex=yes' (native TeX Live build)" >&2;}
+fi
+         enable_xetex_synctex=yes ;;
+esac
+ if test "x$enable_xetex_synctex" = xyes; then
   XETEX_SYNCTEX_TRUE=
   XETEX_SYNCTEX_FALSE='#'
 else
@@ -21809,15 +22019,10 @@ if test "x$with_kpathsea_libdir" != x && test "x$with_kpathsea_libdir" != xyes; 
   KPATHSEA_LIBS="-L$with_kpathsea_libdir $KPATHSEA_LIBS"
 fi
 else
-  KPATHSEA_INCLUDES=`echo '-IBLD/texk -ISRC/texk' | sed \
-    -e "s,SRC/,$kpse_SRC/,g" \
-    -e "s,BLD/,$kpse_BLD/,g"`
-  KPATHSEA_LIBS=`echo 'BLD/texk/kpathsea/libkpathsea.la' | sed \
-    -e "s,BLD/,$kpse_BLD/,g"`
-
-  KPATHSEA_DEPEND=`echo 'BLD/texk/kpathsea/libkpathsea.la' | sed \
-    -e 's,BLD/texk/,${top_builddir}/../,g'`
-   KPATHSEA_RULE='# Rebuild libkpathsea
+  KPATHSEA_INCLUDES="-I$kpse_BLD/texk -I$kpse_SRC/texk"
+  KPATHSEA_LIBS="$kpse_BLD/texk/kpathsea/libkpathsea.la"
+  KPATHSEA_DEPEND='${top_builddir}/../kpathsea/libkpathsea.la'
+  KPATHSEA_RULE='# Rebuild libkpathsea
 $(KPATHSEA_DEPEND): ${top_srcdir}/../kpathsea/*.[ch] ${top_builddir}/../kpathsea/paths.h
 	cd ${top_builddir}/../kpathsea && $(MAKE) $(AM_MAKEFLAGS) rebuild
 ${top_builddir}/../kpathsea/paths.h:
@@ -21885,15 +22090,10 @@ if test "x$with_ptexenc_libdir" != x && test "x$with_ptexenc_libdir" != xyes; th
   PTEXENC_LIBS="-L$with_ptexenc_libdir $PTEXENC_LIBS"
 fi
 else
-  PTEXENC_INCLUDES=`echo '-IBLD/texk/ptexenc -ISRC/texk/ptexenc' | sed \
-    -e "s,SRC/,$kpse_SRC/,g" \
-    -e "s,BLD/,$kpse_BLD/,g"`
-  PTEXENC_LIBS=`echo 'BLD/texk/ptexenc/libptexenc.la' | sed \
-    -e "s,BLD/,$kpse_BLD/,g"`
-
-  PTEXENC_DEPEND=`echo 'BLD/texk/ptexenc/libptexenc.la' | sed \
-    -e 's,BLD/texk/,${top_builddir}/../,g'`
-   PTEXENC_RULE='# Rebuild libptexenc
+  PTEXENC_INCLUDES="-I$kpse_BLD/texk/ptexenc -I$kpse_SRC/texk/ptexenc"
+  PTEXENC_LIBS="$kpse_BLD/texk/ptexenc/libptexenc.la"
+  PTEXENC_DEPEND='${top_builddir}/../ptexenc/libptexenc.la'
+  PTEXENC_RULE='# Rebuild libptexenc
 $(PTEXENC_DEPEND): ${top_srcdir}/../ptexenc/*.c ${top_srcdir}/../ptexenc/ptexenc/*.h
 	cd ${top_builddir}/../ptexenc && $(MAKE) $(AM_MAKEFLAGS) rebuild'
 fi
@@ -21923,15 +22123,10 @@ if test "x$with_zlib_libdir" != x && test "x$with_zlib_libdir" != xyes; then
   ZLIB_LIBS="-L$with_zlib_libdir $ZLIB_LIBS"
 fi
 else
-  ZLIB_INCLUDES=`echo '-IBLD/libs/zlib/include' | sed \
-    -e "s,SRC/,$kpse_SRC/,g" \
-    -e "s,BLD/,$kpse_BLD/,g"`
-  ZLIB_LIBS=`echo 'BLD/libs/zlib/libz.a' | sed \
-    -e "s,BLD/,$kpse_BLD/,g"`
-
-  ZLIB_DEPEND=`echo 'BLD/libs/zlib/libz.a' | sed \
-    -e 's,BLD/,${top_builddir}/../../,g'`
-   ZLIB_RULE='# Rebuild libz
+  ZLIB_INCLUDES="-I$kpse_BLD/libs/zlib/include"
+  ZLIB_LIBS="$kpse_BLD/libs/zlib/libz.a"
+  ZLIB_DEPEND='${top_builddir}/../../libs/zlib/libz.a'
+  ZLIB_RULE='# Rebuild libz
 $(ZLIB_DEPEND): ${top_builddir}/../../libs/zlib/include/zconf.h
 	cd ${top_builddir}/../../libs/zlib && $(MAKE) $(AM_MAKEFLAGS) rebuild
 ${top_builddir}/../../libs/zlib/include/zconf.h:
@@ -21952,15 +22147,10 @@ elif test "x$need_libpng:$with_system_libpng" = xyes:yes; then
   as_fn_error $? "did not find libpng" "$LINENO" 5
 fi
 else
-  LIBPNG_INCLUDES=`echo '-IBLD/libs/libpng/include' | sed \
-    -e "s,SRC/,$kpse_SRC/,g" \
-    -e "s,BLD/,$kpse_BLD/,g"`
-  LIBPNG_LIBS=`echo 'BLD/libs/libpng/libpng.a' | sed \
-    -e "s,BLD/,$kpse_BLD/,g"`
-
-  LIBPNG_DEPEND=`echo 'BLD/libs/libpng/libpng.a' | sed \
-    -e 's,BLD/,${top_builddir}/../../,g'`
-   LIBPNG_RULE='# Rebuild libpng
+  LIBPNG_INCLUDES="-I$kpse_BLD/libs/libpng/include"
+  LIBPNG_LIBS="$kpse_BLD/libs/libpng/libpng.a"
+  LIBPNG_DEPEND='${top_builddir}/../../libs/libpng/libpng.a'
+  LIBPNG_RULE='# Rebuild libpng
 $(LIBPNG_DEPEND): ${top_builddir}/../../libs/libpng/include/png.h
 	cd ${top_builddir}/../../libs/libpng && $(MAKE) $(AM_MAKEFLAGS) rebuild
 ${top_builddir}/../../libs/libpng/include/png.h:
@@ -21974,23 +22164,18 @@ if test "${with_system_xpdf+set}" = set; then :
   withval=$with_system_xpdf;
 fi
 if test "x$with_system_xpdf" = xyes; then
-  if $PKG_CONFIG poppler --atleast-version=0.10; then
+  if $PKG_CONFIG poppler --atleast-version=0.12; then
   POPPLER_VERSION='-DPOPPLER_VERSION=\"'`$PKG_CONFIG poppler --modversion`'\"'
   XPDF_INCLUDES="$POPPLER_VERSION `$PKG_CONFIG poppler --cflags`"
   XPDF_LIBS=`$PKG_CONFIG poppler --libs`
 elif test "x$need_xpdf:$with_system_xpdf" = xyes:yes; then
-  as_fn_error $? "did not find poppler-0.10 or better" "$LINENO" 5
+  as_fn_error $? "did not find poppler-0.12 or better" "$LINENO" 5
 fi
 else
-  XPDF_INCLUDES=`echo '-DPDF_PARSER_ONLY -IBLD/libs/xpdf -IBLD/libs/xpdf/goo -IBLD/libs/xpdf/xpdf' | sed \
-    -e "s,SRC/,$kpse_SRC/,g" \
-    -e "s,BLD/,$kpse_BLD/,g"`
-  XPDF_LIBS=`echo 'BLD/libs/xpdf/libxpdf.a' | sed \
-    -e "s,BLD/,$kpse_BLD/,g"`
-
-  XPDF_DEPEND=`echo 'BLD/libs/xpdf/libxpdf.a' | sed \
-    -e 's,BLD/,${top_builddir}/../../,g'`
-   XPDF_RULE='# Rebuild libxpdf
+  XPDF_INCLUDES="-DPDF_PARSER_ONLY -I$kpse_BLD/libs/xpdf -I$kpse_BLD/libs/xpdf/goo -I$kpse_BLD/libs/xpdf/xpdf"
+  XPDF_LIBS="$kpse_BLD/libs/xpdf/libxpdf.a"
+  XPDF_DEPEND='${top_builddir}/../../libs/xpdf/libxpdf.a'
+  XPDF_RULE='# Rebuild libxpdf
 $(XPDF_DEPEND): ${top_builddir}/../../libs/xpdf/xpdf/Stream.h
 	cd ${top_builddir}/../../libs/xpdf && $(MAKE) $(AM_MAKEFLAGS) rebuild
 ${top_builddir}/../../libs/xpdf/xpdf/Stream.h:
@@ -22009,18 +22194,13 @@ if test "x$with_system_poppler" = xyes; then
   POPPLER_INCLUDES="$POPPLER_VERSION `$PKG_CONFIG poppler --cflags`"
   POPPLER_LIBS=`$PKG_CONFIG poppler --libs`
 elif test "x$need_poppler:$with_system_poppler" = xyes:yes; then
-  as_fn_error $? "did not find poppler-0.10 or better" "$LINENO" 5
+  as_fn_error $? "did not find poppler-0.12 or better" "$LINENO" 5
 fi
 else
-  POPPLER_INCLUDES=`echo '-DPDF_PARSER_ONLY -IBLD/libs/poppler -IBLD/libs/poppler/goo -IBLD/libs/poppler/poppler' | sed \
-    -e "s,SRC/,$kpse_SRC/,g" \
-    -e "s,BLD/,$kpse_BLD/,g"`
-  POPPLER_LIBS=`echo 'BLD/libs/poppler/libpoppler.a' | sed \
-    -e "s,BLD/,$kpse_BLD/,g"`
-
-  POPPLER_DEPEND=`echo 'BLD/libs/poppler/libpoppler.a' | sed \
-    -e 's,BLD/,${top_builddir}/../../,g'`
-   POPPLER_RULE='# Rebuild libpoppler
+  POPPLER_INCLUDES="-I$kpse_BLD/libs/poppler -I$kpse_BLD/libs/poppler/goo -I$kpse_BLD/libs/poppler/poppler"
+  POPPLER_LIBS="$kpse_BLD/libs/poppler/libpoppler.a"
+  POPPLER_DEPEND='${top_builddir}/../../libs/poppler/libpoppler.a'
+  POPPLER_RULE='# Rebuild libpoppler
 $(POPPLER_DEPEND): ${top_builddir}/../../libs/poppler/poppler/Stream.h
 	cd ${top_builddir}/../../libs/poppler && $(MAKE) $(AM_MAKEFLAGS) rebuild
 ${top_builddir}/../../libs/poppler/poppler/Stream.h:
@@ -22041,15 +22221,10 @@ elif test "x$need_zziplib:$with_system_zziplib" = xyes:yes; then
   as_fn_error $? "did not find zziplib-0.12 or better" "$LINENO" 5
 fi
 else
-  ZZIPLIB_INCLUDES=`echo '-IBLD/libs/zziplib/include' | sed \
-    -e "s,SRC/,$kpse_SRC/,g" \
-    -e "s,BLD/,$kpse_BLD/,g"`
-  ZZIPLIB_LIBS=`echo 'BLD/libs/zziplib/libzzip.a' | sed \
-    -e "s,BLD/,$kpse_BLD/,g"`
-
-  ZZIPLIB_DEPEND=`echo 'BLD/libs/zziplib/libzzip.a' | sed \
-    -e 's,BLD/,${top_builddir}/../../,g'`
-   ZZIPLIB_RULE='# Rebuild libzzip
+  ZZIPLIB_INCLUDES="-I$kpse_BLD/libs/zziplib/include"
+  ZZIPLIB_LIBS="$kpse_BLD/libs/zziplib/libzzip.a"
+  ZZIPLIB_DEPEND='${top_builddir}/../../libs/zziplib/libzzip.a'
+  ZZIPLIB_RULE='# Rebuild libzzip
 $(ZZIPLIB_DEPEND): ${top_builddir}/../../libs/zziplib/include/zzip/zzip.h
 	cd ${top_builddir}/../../libs/zziplib && $(MAKE) $(AM_MAKEFLAGS) rebuild
 ${top_builddir}/../../libs/zziplib/include/zzip/zzip.h:
@@ -22070,15 +22245,10 @@ elif test "x$need_graphite:$with_system_graphite" = xyes:yes; then
   as_fn_error $? "did not find silgraphite 2.3 or better" "$LINENO" 5
 fi
 else
-  GRAPHITE_INCLUDES=`echo '-IBLD/libs/graphite/include' | sed \
-    -e "s,SRC/,$kpse_SRC/,g" \
-    -e "s,BLD/,$kpse_BLD/,g"`
-  GRAPHITE_LIBS=`echo 'BLD/libs/graphite/libgraphite.a' | sed \
-    -e "s,BLD/,$kpse_BLD/,g"`
-
-  GRAPHITE_DEPEND=`echo 'BLD/libs/graphite/libgraphite.a' | sed \
-    -e 's,BLD/,${top_builddir}/../../,g'`
-   GRAPHITE_RULE='# Rebuild libgraphite
+  GRAPHITE_INCLUDES="-I$kpse_BLD/libs/graphite/include"
+  GRAPHITE_LIBS="$kpse_BLD/libs/graphite/libgraphite.a"
+  GRAPHITE_DEPEND='${top_builddir}/../../libs/graphite/libgraphite.a'
+  GRAPHITE_RULE='# Rebuild libgraphite
 $(GRAPHITE_DEPEND): ${top_builddir}/../../libs/graphite/include/graphite/GrClient.h
 	cd ${top_builddir}/../../libs/graphite && $(MAKE) $(AM_MAKEFLAGS) rebuild
 ${top_builddir}/../../libs/graphite/include/graphite/GrClient.h:
@@ -22191,16 +22361,12 @@ elif test "x$need_freetype2:$with_system_freetype2" = xyes:yes; then
   as_fn_error $? "did not find freetype-config required for system freetype2 library" "$LINENO" 5
 fi
 else
-  FREETYPE2_INCLUDES=`echo 'BLD/libs/freetype2' | sed \
-    -e "s,SRC/,$kpse_SRC/,g" \
-    -e "s,BLD/,$kpse_BLD/,g"`
-  FREETYPE2_LIBS=`echo 'BLD/libs/freetype2/libfreetype.la' | sed \
-    -e "s,BLD/,$kpse_BLD/,g"`
+  FREETYPE2_INCLUDES="$kpse_BLD/libs/freetype2"
+  FREETYPE2_LIBS="$kpse_BLD/libs/freetype2/libfreetype.la"
   FREETYPE2_LIBS="\`cat $FREETYPE2_INCLUDES/ft-libs\`"
   FREETYPE2_INCLUDES="\`cat $FREETYPE2_INCLUDES/ft-includes\`"
-  FREETYPE2_DEPEND=`echo 'BLD/libs/freetype2/libfreetype.la' | sed \
-    -e 's,BLD/,${top_builddir}/../../,g'`
-   FREETYPE2_RULE='# Rebuild libfreetype
+  FREETYPE2_DEPEND='${top_builddir}/../../libs/freetype2/libfreetype.la'
+  FREETYPE2_RULE='# Rebuild libfreetype
 $(FREETYPE2_DEPEND): ${top_builddir}/../../libs/freetype2/ft2build.h
 	cd ${top_builddir}/../../libs/freetype2 && $(MAKE) $(AM_MAKEFLAGS) rebuild
 ${top_builddir}/../../libs/freetype2/ft2build.h:
@@ -22232,15 +22398,10 @@ if test "x$with_teckit_libdir" != x && test "x$with_teckit_libdir" != xyes; then
   TECKIT_LIBS="-L$with_teckit_libdir $TECKIT_LIBS"
 fi
 else
-  TECKIT_INCLUDES=`echo '-IBLD/libs/teckit/include' | sed \
-    -e "s,SRC/,$kpse_SRC/,g" \
-    -e "s,BLD/,$kpse_BLD/,g"`
-  TECKIT_LIBS=`echo 'BLD/libs/teckit/libTECkit.a' | sed \
-    -e "s,BLD/,$kpse_BLD/,g"`
-
-  TECKIT_DEPEND=`echo 'BLD/libs/teckit/libTECkit.a' | sed \
-    -e 's,BLD/,${top_builddir}/../../,g'`
-   TECKIT_RULE='# Rebuild libTECkit
+  TECKIT_INCLUDES="-I$kpse_BLD/libs/teckit/include"
+  TECKIT_LIBS="$kpse_BLD/libs/teckit/libTECkit.a"
+  TECKIT_DEPEND='${top_builddir}/../../libs/teckit/libTECkit.a'
+  TECKIT_RULE='# Rebuild libTECkit
 $(TECKIT_DEPEND): ${top_builddir}/../../libs/teckit/include/teckit/TECkit_Common.h
 	cd ${top_builddir}/../../libs/teckit && $(MAKE) $(AM_MAKEFLAGS) rebuild
 ${top_builddir}/../../libs/teckit/include/teckit/TECkit_Common.h:
@@ -22248,18 +22409,11 @@ ${top_builddir}/../../libs/teckit/include/teckit/TECkit_Common.h:
 fi
 
 ## _KPSE_LIB_FLAGS: Setup obsdcompat (-lopenbsd-compat) flags
-  OBSDCOMPAT_INCLUDES=`echo '-IBLD/libs/obsdcompat -ISRC/libs/obsdcompat' | sed \
-    -e "s,SRC/,$kpse_SRC/,g" \
-    -e "s,BLD/,$kpse_BLD/,g"`
-  OBSDCOMPAT_LIBS=`echo 'BLD/libs/obsdcompat/libopenbsd-compat.a' | sed \
-    -e "s,BLD/,$kpse_BLD/,g"`
-
-  OBSDCOMPAT_DEPEND=`echo 'BLD/libs/obsdcompat/libopenbsd-compat.a' | sed \
-    -e 's,BLD/,${top_builddir}/../../,g'`
-   OBSDCOMPAT_RULE='# Rebuild libopenbsd-compat
+  OBSDCOMPAT_INCLUDES="-I$kpse_BLD/libs/obsdcompat -I$kpse_SRC/libs/obsdcompat"
+  OBSDCOMPAT_LIBS="$kpse_BLD/libs/obsdcompat/libopenbsd-compat.a"
+  OBSDCOMPAT_DEPEND='${top_builddir}/../../libs/obsdcompat/libopenbsd-compat.a'
+  OBSDCOMPAT_RULE='# Rebuild libopenbsd-compat
 $(OBSDCOMPAT_DEPEND): ${top_srcdir}/../../libs/obsdcompat/*.[ch]
-	cd ${top_builddir}/../../libs/obsdcompat && $(MAKE) $(AM_MAKEFLAGS) rebuild
-${top_srcdir}/../../libs/obsdcompat/*.[ch]:
 	cd ${top_builddir}/../../libs/obsdcompat && $(MAKE) $(AM_MAKEFLAGS) rebuild'
 
 

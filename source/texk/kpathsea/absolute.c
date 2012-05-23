@@ -1,6 +1,6 @@
 /* absolute.c: test if a filename is absolute or explicitly relative.
 
-   Copyright 1993, 1994, 1995, 2008, 2009, 2010 Karl Berry.
+   Copyright 1993, 1994, 1995, 2008, 2009, 2010, 2011 Karl Berry.
    Copyright 1997, 2002, 2005 Olaf Weber.
 
    This library is free software; you can redistribute it and/or
@@ -27,15 +27,14 @@
 boolean
 kpathsea_absolute_p (kpathsea kpse, const_string filename, boolean relative_ok)
 {
-#ifndef VMS
-  boolean absolute;
-  boolean explicit_relative;
-#endif
 #ifdef VMS
 #include <string.h>
   (void)kpse; /* currenty not used */
   return strcspn (filename, "]>:") != strlen (filename);
 #else /* not VMS */
+  boolean absolute;
+  boolean explicit_relative;
+
   absolute = IS_DIR_SEP (*filename)
 #ifdef DOSISH
                      /* Novell allows non-alphanumeric drive letters. */
@@ -45,7 +44,7 @@ kpathsea_absolute_p (kpathsea kpse, const_string filename, boolean relative_ok)
                      /* UNC names */
                      || (*filename == '\\' && filename[1] == '\\')
                      || (*filename == '/' && filename[1] == '/')
-#endif
+#endif /* WIN32 */
 #ifdef AMIGA
                      /* Colon anywhere means a device.  */
                      || strchr (filename, ':')

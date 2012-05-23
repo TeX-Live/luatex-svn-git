@@ -1,6 +1,6 @@
 /* types.h: general types for kpathsea.
 
-   Copyright 1993, 1995, 1996, 2005, 2008, 2009, 2010 Karl Berry.
+   Copyright 1993, 1995, 1996, 2005, 2008, 2009, 2010, 2011 Karl Berry.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -141,6 +141,8 @@ typedef enum
   kpse_mlbib_format,
   kpse_mlbst_format,
   kpse_clua_format,
+  kpse_ris_format,
+  kpse_bltxml_format,
   kpse_last_format /* one past last index */
 } kpse_file_format_type;
 
@@ -169,7 +171,7 @@ typedef enum
 typedef struct
 {
   const_string type;            /* Human-readable description.  */
-  const_string path;            /* The search path to use.  */
+  string path;                  /* The search path to use.  */
   const_string raw_path;        /* Pre-$~ (but post-default) expansion.  */
   const_string path_source;     /* Where the path started from.  */
   const_string override_path;   /* From client environment variable.  */
@@ -186,6 +188,25 @@ typedef struct
   kpse_src_type program_enable_level; /* Who said to invoke `program'.  */
   boolean binmode;              /* Open files in binary mode?  */
 } kpse_format_info_type;
+
+#if defined(WIN32) && !defined(__MINGW32__)
+struct passwd {
+  char *pw_name;
+  char *pw_passwd;
+  int   pw_uid;
+  int   pw_gid;
+  int   pw_quota;
+  char *pw_gecos;
+  char *pw_dir;
+  char *pw_shell;
+};
+
+struct _popen_elt {
+  FILE *f;                      /* File stream returned */
+  void *hp;                     /* Handle of associated process */
+  struct _popen_elt *next;      /* Next list element */
+};
+#endif /* WIN32 && !__MINGW32 */
 
 typedef struct kpathsea_instance *kpathsea;
 
@@ -251,9 +272,21 @@ typedef struct kpathsea_instance {
        allows us to reclaim memory we allocated.  */
     char **saved_env;           /* keep track of changed items */
     int saved_count;
-#if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
+#if defined(WIN32) || defined(__CYGWIN__)
     char **suffixlist;
-#endif /* WIN32 || __MINGW32__ || __CYGWIN__ */
+#endif /* WIN32 || __CYGWIN__ */
+
+#if defined(WIN32) && !defined(__MINGW32__)
+    struct _popen_elt _z_p_open;
+    struct _popen_elt *_popen_list;
+    char the_passwd_name[256];
+    char the_passwd_passwd[256];
+    char the_passwd_gecos[256];
+    char the_passwd_dir[256];
+    char the_passwd_shell[256];
+    struct passwd the_passwd;
+    int __system_allow_multiple_cmds;
+#endif /* WIN32 && !__MINGW32__ */
 } kpathsea_instance;
 
 /* these come from kpathsea.c */

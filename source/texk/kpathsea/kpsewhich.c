@@ -1,7 +1,7 @@
 /* kpsewhich -- standalone path lookup and variable expansion for Kpathsea.
    Ideas from Thomas Esser, Pierre MacKay, and many others.
 
-   Copyright 1995-2010 Karl Berry & Olaf Weber.
+   Copyright 1995-2012 Karl Berry & Olaf Weber.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -129,7 +129,7 @@ static unsigned
 find_dpi (string s)
 {
   unsigned dpi_number = 0;
-  string extension = find_suffix (s);
+  const_string extension = find_suffix (s);
 
   if (extension != NULL)
     sscanf (extension, "%u", &dpi_number);
@@ -139,11 +139,47 @@ find_dpi (string s)
 
 
 
+/* Return true if FTRY (the candidate suffix) matches NAME.  If
+   IS_FILENAME is true, the check is simply that FTRY is a suffix of
+   NAME.  If false (that is, NAME is a format), then FTRY and NAME must
+   be entirely equal.  */
+
+static boolean
+try_suffix (boolean is_filename, string name, unsigned name_len,
+            const_string ftry)
+{
+  unsigned try_len;
+  
+  if (!ftry || ! *ftry) {
+    return false;
+  }
+  
+  try_len = strlen (ftry);
+  if (try_len > name_len) {
+    /* Candidate is longer than what we're looking for.  */
+    return false;
+  }
+  if (!is_filename && try_len < name_len) {
+    /* We're doing format names, not file names, and candidate is
+       shorter than what we're looking for.  E.g., do not find `lua'
+       when looking for `clua'.  */
+    return false;
+  }
+  
+  if (FILESTRCASEEQ (name + name_len - try_len, ftry)) {
+    return true;
+  }
+  
+  return false;
+}
+
+
+
 /* Use the file type from -format if that was previously determined
    (i.e., the user_format global variable), else guess dynamically from
    NAME.  Return kpse_last_format if undeterminable.  This function is
-   also used to parse the -format string, a case which we distinguish by
-   setting is_filename to false.
+   also used to parse the -format string, a case we distinguish via
+   is_filename being false.
 
    A few filenames have been hard-coded for format types that
    differ from what would be inferred from their extensions. */
@@ -186,15 +222,7 @@ find_format (kpathsea kpse, string name, boolean is_filename)
       int f = 0;  /* kpse_file_format_type */
       unsigned name_len = strlen (name);
 
-/* Have to rely on `try_len' being declared here, since we can't assume
-   GNU C and statement expressions.  */
-#define TRY_SUFFIX(ftry) (\
-  try_len = (ftry) ? strlen (ftry) : 0, \
-  (ftry) && try_len <= name_len \
-     && FILESTRCASEEQ (ftry, name + name_len - try_len))
-
       while (f != kpse_last_format) {
-        unsigned try_len;
         const_string *ext;
         const_string ftry;
         boolean found = false;
@@ -202,8 +230,11 @@ find_format (kpathsea kpse, string name, boolean is_filename)
         if (!kpse->format_info[f].type)
           kpathsea_init_format (kpse, (kpse_file_format_type) f);
 
+/* Just to abbreviate this lengthy call.  */
+#define TRY_SUFFIX(ftry) try_suffix (is_filename, name, name_len, (ftry))
+
         if (!is_filename) {
-          /* Allow the long name, but only in the -format option.  We don't
+          /* Allow the long name, but only in the format options.  We don't
              want a filename confused with a format name.  */
           ftry = kpse->format_info[f].type;
           found = TRY_SUFFIX (ftry);
@@ -241,15 +272,27 @@ subdir_match (str_list_type subdirs,  string *matches)
 {
   string *ret = XTALLOC1 (string);
   unsigned len = 1;
+  unsigned e;
   unsigned m;
+#if defined(WIN32)
+  string p;
+
+  for (e = 0; e < STR_LIST_LENGTH (subdirs); e++) {
+    for (p = STR_LIST_ELT (subdirs, e); *p; p++) {
+      if (*p == '\\')
+        *p = '/';
+      else if (IS_KANJI(p))
+        p++;
+    }
+  }
+#endif
 
   for (m = 0; matches[m]; m++) {
     unsigned loc;
-    unsigned e;
     string s = xstrdup (matches[m]);
-    for (loc = strlen (s); loc > 0 && !IS_DIR_SEP (s[loc-1]); loc--)
+    for (loc = strlen (s); loc > 0 && !IS_DIR_SEP_CH (s[loc-1]); loc--)
       ;
-    while (loc > 0 && IS_DIR_SEP (s[loc-1])) {
+    while (loc > 0 && IS_DIR_SEP_CH (s[loc-1])) {
       loc--;
     }
     s[loc] = 0;  /* wipe out basename */
@@ -257,7 +300,7 @@ subdir_match (str_list_type subdirs,  string *matches)
     for (e = 0; e < STR_LIST_LENGTH (subdirs); e++) {
       string subdir = STR_LIST_ELT (subdirs, e);
       unsigned subdir_len = strlen (subdir);
-      while (subdir_len > 0 && IS_DIR_SEP (subdir[subdir_len-1])) {
+      while (subdir_len > 0 && IS_DIR_SEP_CH (subdir[subdir_len-1])) {
         subdir_len--;
         subdir[subdir_len] = 0; /* remove trailing slashes from subdir spec */
       }
@@ -311,12 +354,15 @@ lookup (kpathsea kpse, string name)
       case kpse_any_glyph_format:
         {
           kpse_glyph_file_type glyph_ret;
+          string temp = remove_suffix (name);
           /* Try to extract the resolution from the name.  */
           unsigned local_dpi = find_dpi (name);
           if (!local_dpi)
             local_dpi = dpi;
-          ret = kpathsea_find_glyph (kpse, remove_suffix (name),
+          ret = kpathsea_find_glyph (kpse, temp,
                                      local_dpi, fmt, &glyph_ret);
+          if (temp != name)
+            free (temp);
         }
         break;
 
@@ -560,7 +606,7 @@ read_command_line (kpathsea kpse, int argc, string *argv)
 
     } else if (ARGUMENT_IS ("version")) {
       puts (kpathsea_version_string);
-      puts ("Copyright 2010 Karl Berry & Olaf Weber.\n\
+      puts ("Copyright 2011 Karl Berry & Olaf Weber.\n\
 License LGPLv2.1+: GNU Lesser GPL version 2.1 or later <http://gnu.org/licenses/lgpl.html>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n");

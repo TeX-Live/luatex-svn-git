@@ -38,13 +38,17 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@MINGW32_TRUE@am__append_1 = mingw32.c
+@MINGW32_TRUE@@WIN32_TRUE@am__append_1 = mingw32.c
+@MINGW32_FALSE@@WIN32_TRUE@am__append_2 = win32lib.c
+@WIN32_TRUE@am__append_3 = knj.c
+@WIN32_TRUE@am__append_4 = win32
 bin_PROGRAMS = kpseaccess$(EXEEXT) kpsereadlink$(EXEEXT) \
 	kpsestat$(EXEEXT) kpsewhich$(EXEEXT)
+EXTRA_PROGRAMS = progname-test$(EXEEXT) xdirtest$(EXEEXT)
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(dist_noinst_DATA) \
 	$(dist_noinst_SCRIPTS) $(dist_web2c_DATA) \
-	$(dist_web2c_SCRIPTS) $(kpseinclude_HEADERS) \
+	$(dist_web2c_SCRIPTS) $(kpseinclude_HEADERS) $(noinst_HEADERS) \
 	$(srcdir)/../../build-aux/config.guess \
 	$(srcdir)/../../build-aux/config.sub \
 	$(srcdir)/../../build-aux/depcomp \
@@ -60,15 +64,17 @@ DIST_COMMON = README $(am__configure_deps) $(dist_noinst_DATA) \
 	strcasecmp.c strstr.c strtol.c
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/../../m4/kpse-common.m4 \
+	$(top_srcdir)/../../m4/kpse-lib-version.m4 \
+	$(top_srcdir)/../../m4/kpse-mktex.m4 \
 	$(top_srcdir)/../../m4/kpse-warnings.m4 \
-	$(top_srcdir)/../../m4/kpse-web2c.m4 \
 	$(top_srcdir)/../../m4/kpse-win32.m4 \
 	$(top_srcdir)/../../m4/libtool.m4 \
 	$(top_srcdir)/../../m4/ltoptions.m4 \
 	$(top_srcdir)/../../m4/ltsugar.m4 \
 	$(top_srcdir)/../../m4/ltversion.m4 \
-	$(top_srcdir)/../../m4/lt~obsolete.m4 \
-	$(top_srcdir)/ac/web2c.ac $(top_srcdir)/configure.ac
+	$(top_srcdir)/../../m4/lt~obsolete.m4 $(top_srcdir)/version.ac \
+	$(top_srcdir)/../../version.ac $(top_srcdir)/ac/mktex.ac \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
@@ -113,8 +119,10 @@ am__libkpathsea_la_SOURCES_DIST = tex-file.c absolute.c atou.c cnf.c \
 	uppercasify.c variable.c version.c xbasename.c xcalloc.c \
 	xdirname.c xfopen.c xfseek.c xfseeko.c xftell.c xftello.c \
 	xgetcwd.c xmalloc.c xopendir.c xputenv.c xrealloc.c xstat.c \
-	xstrdup.c mingw32.c
-@MINGW32_TRUE@am__objects_1 = libkpathsea_la-mingw32.lo
+	xstrdup.c mingw32.c win32lib.c knj.c
+@MINGW32_TRUE@@WIN32_TRUE@am__objects_1 = libkpathsea_la-mingw32.lo
+@MINGW32_FALSE@@WIN32_TRUE@am__objects_2 = libkpathsea_la-win32lib.lo
+@WIN32_TRUE@am__objects_3 = libkpathsea_la-knj.lo
 am_libkpathsea_la_OBJECTS = libkpathsea_la-tex-file.lo \
 	libkpathsea_la-absolute.lo libkpathsea_la-atou.lo \
 	libkpathsea_la-cnf.lo libkpathsea_la-concat.lo \
@@ -143,7 +151,8 @@ am_libkpathsea_la_OBJECTS = libkpathsea_la-tex-file.lo \
 	libkpathsea_la-xgetcwd.lo libkpathsea_la-xmalloc.lo \
 	libkpathsea_la-xopendir.lo libkpathsea_la-xputenv.lo \
 	libkpathsea_la-xrealloc.lo libkpathsea_la-xstat.lo \
-	libkpathsea_la-xstrdup.lo $(am__objects_1)
+	libkpathsea_la-xstrdup.lo $(am__objects_1) $(am__objects_2) \
+	$(am__objects_3)
 libkpathsea_la_OBJECTS = $(am_libkpathsea_la_OBJECTS)
 libkpathsea_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -161,6 +170,12 @@ kpsestat_LDADD = $(LDADD)
 kpsewhich_SOURCES = kpsewhich.c
 kpsewhich_OBJECTS = kpsewhich.$(OBJEXT)
 kpsewhich_DEPENDENCIES = libkpathsea.la
+am_progname_test_OBJECTS = progname_test-progname.$(OBJEXT)
+progname_test_OBJECTS = $(am_progname_test_OBJECTS)
+progname_test_DEPENDENCIES = libkpathsea.la
+xdirtest_SOURCES = xdirtest.c
+xdirtest_OBJECTS = xdirtest.$(OBJEXT)
+xdirtest_DEPENDENCIES = libkpathsea.la
 SCRIPTS = $(dist_noinst_SCRIPTS) $(dist_web2c_SCRIPTS)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/../../build-aux/depcomp
@@ -176,10 +191,11 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(libkpathsea_la_SOURCES) $(kpseaccess_SOURCES) \
-	$(kpsereadlink_SOURCES) kpsestat.c kpsewhich.c
+	$(kpsereadlink_SOURCES) kpsestat.c kpsewhich.c \
+	$(progname_test_SOURCES) xdirtest.c
 DIST_SOURCES = $(am__libkpathsea_la_SOURCES_DIST) \
 	$(kpseaccess_SOURCES) $(kpsereadlink_SOURCES) kpsestat.c \
-	kpsewhich.c
+	kpsewhich.c $(progname_test_SOURCES) xdirtest.c
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -188,7 +204,8 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	installcheck-recursive installdirs-recursive pdf-recursive \
 	ps-recursive uninstall-recursive
 DATA = $(dist_noinst_DATA) $(dist_web2c_DATA)
-HEADERS = $(kpseinclude_HEADERS) $(nodist_kpseinclude_HEADERS)
+HEADERS = $(kpseinclude_HEADERS) $(nodist_kpseinclude_HEADERS) \
+	$(noinst_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
@@ -198,7 +215,7 @@ ETAGS = etags
 CTAGS = ctags
 am__tty_colors = \
 red=; grn=; lgn=; blu=; std=
-DIST_SUBDIRS = $(SUBDIRS)
+DIST_SUBDIRS = . doc man win32
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -302,6 +319,7 @@ SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
 WARNING_CFLAGS = @WARNING_CFLAGS@
+WEB2CVERSION = @WEB2CVERSION@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -355,9 +373,9 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I ../../m4
-SUBDIRS = . doc man
+SUBDIRS = . doc man $(am__append_4)
 EXTRA_DIST = BUGS PROJECTS putenv.c strcasecmp.c strtol.c strstr.c \
-	bsnl.awk $(TESTS) mktex.cnf
+	bsnl.awk cnf-to-paths.awk $(TESTS) mktex.cnf win32lib.h.mugica
 INCLUDES = -I$(top_builddir)/.. -I$(top_srcdir)/..
 AM_CFLAGS = $(WARNING_CFLAGS)
 lib_LTLIBRARIES = libkpathsea.la
@@ -375,14 +393,24 @@ libkpathsea_la_SOURCES = tex-file.c absolute.c atou.c cnf.c concat.c \
 	variable.c version.c xbasename.c xcalloc.c xdirname.c xfopen.c \
 	xfseek.c xfseeko.c xftell.c xftello.c xgetcwd.c xmalloc.c \
 	xopendir.c xputenv.c xrealloc.c xstat.c xstrdup.c \
-	$(am__append_1)
+	$(am__append_1) $(am__append_2) $(am__append_3)
 kpseincludedir = ${includedir}/kpathsea
 nodist_kpseinclude_HEADERS = \
 	c-auto.h \
 	kpathsea.h \
 	paths.h
 
-kpseinclude_HEADERS = \
+kpseinclude_HEADERS = $(special_headers) $(normal_headers)
+
+# Headers treated specially when building kpathsea.h
+#
+special_headers = \
+	config.h \
+	knj.h \
+	mingw32.h \
+	win32lib.h
+
+normal_headers = \
 	absolute.h \
 	c-ctype.h \
 	c-dir.h \
@@ -400,24 +428,17 @@ kpseinclude_HEADERS = \
 	c-unistd.h \
 	cnf.h \
 	concatn.h \
-	config.h \
-	db.h \
 	debug.h \
-	default.h \
 	expand.h \
-	fn.h \
-	fontmap.h \
 	getopt.h \
 	hash.h \
 	lib.h \
 	line.h \
 	magstep.h \
-	mingw32.h \
 	pathsearch.h \
 	proginit.h \
 	progname.h \
 	readable.h \
-	recorder.h \
 	str-list.h \
 	str-llist.h \
 	systypes.h \
@@ -425,12 +446,17 @@ kpseinclude_HEADERS = \
 	tex-glyph.h \
 	tex-hush.h \
 	tex-make.h \
-	tilde.h \
-	truncate.h \
 	types.h \
 	variable.h \
-	version.h \
-	win32lib.h \
+	version.h
+
+noinst_HEADERS = \
+	db.h \
+	default.h \
+	fn.h \
+	fontmap.h \
+	tilde.h \
+	truncate.h \
 	xopendir.h \
 	xstat.h
 
@@ -438,7 +464,11 @@ DISTCLEANFILES = paths.h stamp-paths kpathsea.h
 kpseaccess_SOURCES = access.c
 kpsereadlink_SOURCES = readlink.c
 kpsewhich_LDADD = libkpathsea.la
-web2cdir = ${prefix}/texmf/web2c
+progname_test_CPPFLAGS = -DMAKE_KPSE_DLL -DTEST
+progname_test_SOURCES = progname.c
+progname_test_LDADD = libkpathsea.la
+xdirtest_LDADD = libkpathsea.la
+web2cdir = $(datarootdir)/texmf/web2c
 dist_web2c_SCRIPTS = mktexdir mktexnam mktexupd
 dist_web2c_DATA = mktex.opt mktexdir.opt mktexnam.opt
 dist_noinst_SCRIPTS = mktexlsr mktexmf mktexpk mktextfm
@@ -594,6 +624,12 @@ kpsestat$(EXEEXT): $(kpsestat_OBJECTS) $(kpsestat_DEPENDENCIES)
 kpsewhich$(EXEEXT): $(kpsewhich_OBJECTS) $(kpsewhich_DEPENDENCIES) 
 	@rm -f kpsewhich$(EXEEXT)
 	$(LINK) $(kpsewhich_OBJECTS) $(kpsewhich_LDADD) $(LIBS)
+progname-test$(EXEEXT): $(progname_test_OBJECTS) $(progname_test_DEPENDENCIES) 
+	@rm -f progname-test$(EXEEXT)
+	$(LINK) $(progname_test_OBJECTS) $(progname_test_LDADD) $(LIBS)
+xdirtest$(EXEEXT): $(xdirtest_OBJECTS) $(xdirtest_DEPENDENCIES) 
+	@rm -f xdirtest$(EXEEXT)
+	$(LINK) $(xdirtest_OBJECTS) $(xdirtest_LDADD) $(LIBS)
 install-dist_web2cSCRIPTS: $(dist_web2c_SCRIPTS)
 	@$(NORMAL_INSTALL)
 	test -z "$(web2cdir)" || $(MKDIR_P) "$(DESTDIR)$(web2cdir)"
@@ -662,6 +698,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-getopt1.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-hash.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-kdefault.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-knj.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-kpathsea.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-line.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-magstep.Plo@am__quote@
@@ -684,6 +721,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-uppercasify.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-variable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-version.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-win32lib.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-xbasename.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-xcalloc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-xdirname.Plo@am__quote@
@@ -699,7 +737,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-xrealloc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-xstat.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkpathsea_la-xstrdup.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/progname_test-progname.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/readlink.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xdirtest.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -1120,6 +1160,34 @@ libkpathsea_la-mingw32.lo: mingw32.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mingw32.c' object='libkpathsea_la-mingw32.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkpathsea_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libkpathsea_la-mingw32.lo `test -f 'mingw32.c' || echo '$(srcdir)/'`mingw32.c
+
+libkpathsea_la-win32lib.lo: win32lib.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkpathsea_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libkpathsea_la-win32lib.lo -MD -MP -MF $(DEPDIR)/libkpathsea_la-win32lib.Tpo -c -o libkpathsea_la-win32lib.lo `test -f 'win32lib.c' || echo '$(srcdir)/'`win32lib.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libkpathsea_la-win32lib.Tpo $(DEPDIR)/libkpathsea_la-win32lib.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='win32lib.c' object='libkpathsea_la-win32lib.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkpathsea_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libkpathsea_la-win32lib.lo `test -f 'win32lib.c' || echo '$(srcdir)/'`win32lib.c
+
+libkpathsea_la-knj.lo: knj.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkpathsea_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libkpathsea_la-knj.lo -MD -MP -MF $(DEPDIR)/libkpathsea_la-knj.Tpo -c -o libkpathsea_la-knj.lo `test -f 'knj.c' || echo '$(srcdir)/'`knj.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libkpathsea_la-knj.Tpo $(DEPDIR)/libkpathsea_la-knj.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='knj.c' object='libkpathsea_la-knj.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libkpathsea_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libkpathsea_la-knj.lo `test -f 'knj.c' || echo '$(srcdir)/'`knj.c
+
+progname_test-progname.o: progname.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(progname_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT progname_test-progname.o -MD -MP -MF $(DEPDIR)/progname_test-progname.Tpo -c -o progname_test-progname.o `test -f 'progname.c' || echo '$(srcdir)/'`progname.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/progname_test-progname.Tpo $(DEPDIR)/progname_test-progname.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='progname.c' object='progname_test-progname.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(progname_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o progname_test-progname.o `test -f 'progname.c' || echo '$(srcdir)/'`progname.c
+
+progname_test-progname.obj: progname.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(progname_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT progname_test-progname.obj -MD -MP -MF $(DEPDIR)/progname_test-progname.Tpo -c -o progname_test-progname.obj `if test -f 'progname.c'; then $(CYGPATH_W) 'progname.c'; else $(CYGPATH_W) '$(srcdir)/progname.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/progname_test-progname.Tpo $(DEPDIR)/progname_test-progname.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='progname.c' object='progname_test-progname.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(progname_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o progname_test-progname.obj `if test -f 'progname.c'; then $(CYGPATH_W) 'progname.c'; else $(CYGPATH_W) '$(srcdir)/progname.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -1745,34 +1813,21 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_web2cDATA \
 
 # Rebuild
 .PHONY: rebuild
-rebuild: all
+rebuild: all-am
+	touch libkpathsea.la
 
 $(libkpathsea_la_OBJECTS): paths.h kpathsea.h
 
 paths.h: stamp-paths
-stamp-paths: texmf.cnf bsnl.awk
+stamp-paths: texmf.cnf bsnl.awk cnf-to-paths.awk
 # ensure grep is not completely broken, e.g., from GREP_OPTIONS.
 	echo a | grep -v b >/dev/null || { echo "*** grep broken, goodbye."; exit 1; }
 #
 # generate paths.h without build machine directories.
 	echo "/* paths.h: Generated from texmf.cnf. */" >paths.tmp
-	awk -f $(srcdir)/bsnl.awk $(srcdir)/texmf.cnf \
+	$(AWK) -f $(srcdir)/bsnl.awk $(srcdir)/texmf.cnf \
 	| sed -e 's/%.*//' -e 's/^[ 	]*//' -e 's/[ 	]*$$//' \
-	| grep '^[ 	]*[A-Z0-9_]*[ 	=]' \
-	| sed '/^$$/d' \
-	| sed 's/^\([^ 	=]*\)[ 	]*=*[ 	]*\(.*\)/#ifndef DEFAULT_\1%#define DEFAULT_\1 "\2"%#endif/' \
-	| tr '%' '\012' \
-	| sed -e 's%\$$TEXMFCONFIG%/nonesuch/texmfconfig%g' \
-	      -e 's%\$$TEXMFDIST%/nonesuch/texmfdist%g' \
-	      -e 's%\$$TEXMFDOCDIR%/nonesuch/texmfdocdir%g' \
-	      -e 's%\$$TEXMFLOCAL%/nonesuch/texmflocal%g' \
-	      -e 's%\$$TEXMFMAIN%/nonesuch/texmfmain%g' \
-	      -e 's%\$$TEXMFSYSCONFIG%/nonesuch/texmfsysconfig%g' \
-	      -e 's%\$$TEXMFSYSVAR%/nonesuch/texmfsysvar%g' \
-	      -e 's%\$$TEXMFVAR%/nonesuch/texmfvar%g' \
-	      -e 's%\$$TEXMF%/nonesuch/texmf%g' \
-	      -e 's%\$$VARTEXFONTS%/nonesuch/vartexfonts%g' \
-	| sed -e 's%;%:%g' \
+	| $(AWK) -f $(srcdir)/cnf-to-paths.awk \
 	>>paths.tmp
 	@if cmp -s paths.h paths.tmp 2>/dev/null; then \
 	  echo "paths.h is unchanged"; \
@@ -1786,17 +1841,10 @@ stamp-paths: texmf.cnf bsnl.awk
 kpathsea.h: Makefile paths.h
 	rm -f $@
 	echo '/* This is a generated file */' >$@
-	echo '/* collecting all kpathsea headers. */' >>$@
-	echo '#include <kpathsea/config.h>' >>$@
-	echo '#include <kpathsea/c-auto.h>' >>$@
-	echo '#include <kpathsea/paths.h>' >>$@
-	(cd $(srcdir) && ls -1 *.h) \
-	| sed -e '/^config\.h/d' \
-	      -e '/^paths\.h/d' \
-	      -e '/^kpathsea\.h/d' \
-	      -e '/^mingw32\.h/d' \
-	      -e '/^win32lib\.h/d' \
-	      -e 's,^,#include <kpathsea/,' -e s',$$,>,' >>$@
+	echo '/* collecting all public kpathsea headers. */' >>$@
+	for f in config.h c-auto.h paths.h $(normal_headers); do \
+	  echo "#include <kpathsea/$$f>" >>$@; \
+	done
 
 install-exec-hook:
 @WIN32_FALSE@	@for f in $(dist_noinst_SCRIPTS); do \

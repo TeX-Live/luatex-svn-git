@@ -1,7 +1,7 @@
 /* fontmap.c: read files for additional font names.
 
+   Copyright 1993, 1994, 1995, 1996, 1997, 2008, 2011, 2012 Karl Berry.
    Copyright 2001, 2002, 2005 Olaf Weber.
-   Copyright 1993, 1994, 1995, 1996, 1997, 2008 Karl Berry.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -25,7 +25,6 @@
 #include <kpathsea/line.h>
 #include <kpathsea/pathsearch.h>
 #include <kpathsea/str-list.h>
-#include <kpathsea/recorder.h>
 #include <kpathsea/tex-file.h>
 
 /* We have one and only one fontmap, so may as well make it static
@@ -108,7 +107,7 @@ map_file_parse (kpathsea kpse, const_string map_filename)
 
       if (STREQ (filename, "include")) {
         if (alias == NULL) {
-          WARNING2 ("%s:%u: Filename argument for include directive missing",
+  WARNING2 ("kpathsea: %s:%u: Filename argument for include directive missing",
                     map_filename, map_lineno);
         } else {
           string include_fname = kpathsea_path_search (kpse,
@@ -118,7 +117,7 @@ map_file_parse (kpathsea kpse, const_string map_filename)
             if (include_fname != alias)
               free (include_fname);
           } else {
-            WARNING3 ("%s:%u: Can't find fontname include file `%s'",
+            WARNING3 ("kpathsea: %s:%u: Can't find fontname include file `%s'",
                       map_filename, map_lineno, alias);
           }
           free (alias);
@@ -127,7 +126,7 @@ map_file_parse (kpathsea kpse, const_string map_filename)
 
       /* But if we have a filename and no alias, something's wrong.  */
       } else if (alias == NULL) {
-        WARNING3 ("%s:%u: Fontname alias missing for filename `%s'",
+        WARNING3 ("kpathsea: %s:%u: Fontname alias missing for filename `%s'",
                   map_filename, map_lineno, filename);
         free (filename);
 
@@ -172,7 +171,7 @@ const_string *
 kpathsea_fontmap_lookup (kpathsea kpse, const_string key)
 {
   const_string *ret;
-  string suffix = find_suffix (key);
+  const_string suffix = find_suffix (key);
 
   if (kpse->map.size == 0) {
     read_all_maps (kpse);

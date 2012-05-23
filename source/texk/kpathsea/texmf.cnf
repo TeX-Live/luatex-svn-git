@@ -4,8 +4,8 @@
 % If you modify this original file, YOUR CHANGES WILL BE LOST when it is
 % updated.  Instead, put your changes -- and only your changes, not an
 % entire copy of the full texmf.cnf! -- in ../../texmf.cnf.  That is, if
-% this file is installed in /some/path/to/texlive/2010/texmf/web2c/texmf.cnf,
-% add your custom settings to /some/path/to/texlive/2010/texmf.cnf.
+% this file is installed in /some/path/to/texlive/2012/texmf/web2c/texmf.cnf,
+% add your custom settings to /some/path/to/texlive/2012/texmf.cnf.
 % 
 % What follows is a super-summary of what this .cnf file can
 % contain. Please read the Kpathsea manual for more information.
@@ -49,6 +49,8 @@
 % (http://tug.org/tds), or files may not be found.
 %
 % Redistributors will probably want $SELFAUTODIR/share, i.e., /usr/share.
+% Kpathsea sets SELFAUTOLOC (the directory with the binary),
+% SELFAUTODIR (its parent), and SELFAUTOPARENT (its grandparent).
 TEXMFROOT = $SELFAUTOPARENT
 
 % The tree containing runtime files related to the specific
@@ -70,14 +72,14 @@ TEXMFSYSCONFIG = $TEXMFROOT/texmf-config
 % Per-user texmf tree(s) -- organized per the TDS, as usual.  To define
 % more than one per-user tree, set this to a list of directories in
 % braces, as described above.  (This used to be HOMETEXMF.)  ~ expands
-% to %USERPROFILE% on Window, $HOME otherwise.
+% to %USERPROFILE% on Windows, $HOME otherwise.
 TEXMFHOME = ~/texmf
 
 % TEXMFVAR, where texconfig/updmap/fmtutil store cached runtime data.
-TEXMFVAR = ~/.texlive2010/texmf-var
+TEXMFVAR = ~/.texlive2012/texmf-var
 
 % TEXMFCONFIG, where texconfig/updmap/fmtutil store configuration data.
-TEXMFCONFIG = ~/.texlive2010/texmf-config
+TEXMFCONFIG = ~/.texlive2012/texmf-config
 
 % List all the texmf trees.
 %
@@ -209,19 +211,24 @@ TEXINPUTS.lamed         = .;$TEXMF/tex/{lamed,lambda,latex,generic,}//
 TEXINPUTS.omega         = .;$TEXMF/tex/{plain,generic,}//
 
 % p(La)TeX.
-TEXINPUTS.ptex          = .;$TEXMF/tex/{ptex,ptexgeneric,plain,generic,}//
-TEXINPUTS.platex        = .;$TEXMF/tex/{platex,ptexgeneric,latex,generic,}//
+TEXINPUTS.ptex          = .;$TEXMF/tex/{ptex,plain,generic,}//
+TEXINPUTS.platex        = .;$TEXMF/tex/{platex,latex,generic,}//
 
-% ep(La)TeX.
-TEXINPUTS.eptex         = .;$TEXMF/tex/{ptex,ptexgeneric,plain,generic,}//
-TEXINPUTS.eplatex       = .;$TEXMF/tex/{platex,ptexgeneric,latex,generic,}//
+% epTeX, and for pmpost.
+TEXINPUTS.eptex         = .;$TEXMF/tex/{ptex,plain,generic,}//
+TEX.pmpost = eptex
+
+% (e)up(La)TeX.
+TEXINPUTS.uplatex = .;$TEXMF/tex/{uplatex,platex,latex,generic,}//
+TEXINPUTS.uptex   = .;$TEXMF/tex/{uptex,ptex,plain,generic,}//
+TEXINPUTS.euptex  = .;$TEXMF/tex/{uptex,ptex,plain,generic}//
 
 % pBibTeX bibliographies and style files.
 BIBINPUTS.pbibtex       = .;$TEXMF/{pbibtex,bibtex}/bib//
 BSTINPUTS.pbibtex       = .;$TEXMF/{pbibtex,bibtex}/bst//
 
 % ConTeXt.
-TEXINPUTS.context       = .;$TEXMF/tex/{context,plain,generic,}//
+TEXINPUTS.context       = .;$TEXMF/tex/{context,plain,generic}//
 
 % jadetex.
 TEXINPUTS.jadetex       = .;$TEXMF/tex/{jadetex,latex,generic,}//
@@ -304,6 +311,10 @@ BSTINPUTS = .;$TEXMF/bibtex/{bst,csf}//
 MLBIBINPUTS = .;$TEXMF/bibtex/bib/{mlbib,}//
 MLBSTINPUTS = .;$TEXMF/bibtex/{mlbst,bst}//
 
+% .ris and .bltxml bibliography formats.
+RISINPUTS = .;$TEXMF/bibtex/ris//
+BLTXMLINPUTS = .;$TEXMF/bibtex/bltxml//
+
 % MFT style files.
 MFTINPUTS = .;$TEXMF/mft//
 
@@ -326,7 +337,7 @@ AFMFONTS = .;$TEXMF/fonts/afm//;$OSFONTDIR//
 % TrueType outline fonts.
 TTFONTS = .;$TEXMF/fonts/{truetype,opentype}//;$OSFONTDIR//
 
-% Opentype outline fonts.
+% OpenType outline fonts.
 OPENTYPEFONTS = .;$TEXMF/fonts/{opentype,truetype}//;$OSFONTDIR//
 
 % Type 42 outline fonts.
@@ -350,9 +361,6 @@ CMAPFONTS = .;$TEXMF/fonts/cmap//
 % Subfont definition files.
 SFDFONTS = .;$TEXMF/fonts/sfd//
 
-% OpenType outline fonts.
-OPENTYPEFONTS = .;$TEXMF/fonts/opentype//
-
 % OpenType feature files (.fea).
 FONTFEATURES=.;$TEXMF/fonts/fea//
 
@@ -372,11 +380,13 @@ MPSUPPORT = .;$TEXMF/metapost/support
 MIMELIBDIR = $TEXMFROOT/etc
 MAILCAPLIBDIR = $TEXMFROOT/etc
 
-% Default settings for fontconfig library, used by Windows versions of
-% xetex/xdvipdfmx.  On Unixish systems, fontconfig ignores this.
-FONTCONFIG_FILE=fonts.conf
-FONTCONFIG_PATH=$TEXMFSYSVAR/fonts/conf
-FC_CACHEDIR=$TEXMFSYSVAR/fonts/cache
+% Default settings for the fontconfig library as used by the Windows
+% versions of xetex/xdvipdfmx.  On Unixish systems, fontconfig ignores
+% this.  ConTeXT MkIV (all platforms) also use these values.
+% 
+FONTCONFIG_FILE = fonts.conf
+FONTCONFIG_PATH = $TEXMFSYSVAR/fonts/conf
+FC_CACHEDIR = $TEXMFSYSVAR/fonts/cache
 
 % TeX documentation and source files, for use with texdoc and kpsewhich.
 TEXDOCS = $TEXMF/doc//
@@ -411,10 +421,19 @@ TW_INIPATH = $TW_LIBPATH
 % would allow command execution.
 DVIPDFMXINPUTS = $TEXMF/dvipdfmx
 
-% Find scripts that are distributed/installed in the texmf tree.
-
 % Lua needs to look in TEXINPUTS for lua scripts distributed with packages.
-LUAINPUTS = .;$TEXMF/scripts/{$progname,$engine,}/{lua,}//;$TEXINPUTS
+% 
+% But we can't simply use $TEXINPUTS, since then if TEXINPUTS is set in
+% the environment with a colon, say, TEXINPUTS=/some/dir:, the intended
+% default expansion of TEXINPUTS will not happen and .lua files under
+% the /tex/ will not be found.
+% 
+% So, duplicate the TEXINPUTS.*lualatex values as LUAINPUTS.*lualatex.
+% The default LUAINPUTS sufficess for luatex and dviluatex.
+%
+LUAINPUTS.lualatex = .;$TEXMF/scripts/{$progname,$engine,}/{lua,}//;$TEXMF/tex/{lualatex,latex,luatex,generic,}//
+LUAINPUTS.dvilualatex = .;$TEXMF/scripts/{$progname,$engine,}/{lua,}//;$TEXMF/tex/{lualatex,latex,luatex,generic,}//
+LUAINPUTS = .;$TEXMF/scripts/{$progname,$engine,}/{lua,}//;$TEXMF/tex/{luatex,plain,generic,}//
 
 % Lua needs to look for binary lua libraries distributed with packages.
 CLUAINPUTS = .;$SELFAUTOLOC/lib/{$progname,$engine,}/lua//
@@ -444,9 +463,39 @@ RUBYINPUTS   = .;$TEXMF/scripts/{$progname,$engine,}/ruby//
 % /usr/local/texlive/YYYY/texmf.cnf; any settings in this latter file
 % will take precedence over the distributed one under texmf/web2c.
 % 
-% For security reasons, it is better not to include . in this path.
+% For security reasons, it is best not to include . in this path.
 %
-TEXMFCNF = {$SELFAUTOLOC,$SELFAUTODIR,$SELFAUTOPARENT}{,{/share,}/texmf{-local,}/web2c}
+% The idea behind this lengthy definition: for each of
+% SELFAUTO{LOC,DIR,AUTO}, look in the directory,
+% then the subdirectories share/texmf-local and share/texmf,
+% then ./texmf-local and ./texmf.
+% 
+% However, we want to include one more directory: the
+% great-grandparent's texmf-local, because that is how TL is installed
+% by default.  That is, given a binary
+% /usr/local/texlive/YYYY/bin/PLATFORM/kpsewhich, it should find
+% /usr/local/texlive/texmf-local/web2c/texmf.cnf.  I.e., not under YYYY.
+% 
+% As a result, we cannot use actual brace expansion in the definition,
+% since we don't want to scatter ../'s throughout the value.  Hence we
+% explicitly list every directory.  Arguably more understandable this
+% way anyway.
+%
+TEXMFCNF = {\
+$SELFAUTOLOC,\
+$SELFAUTOLOC/share/texmf-local/web2c,$SELFAUTOLOC/share/texmf/web2c,\
+$SELFAUTOLOC/texmf-local/web2c,$SELFAUTOLOC/texmf/web2c,\
+$SELFAUTODIR,\
+$SELFAUTODIR/share/texmf-local/web2c,$SELFAUTODIR/share/texmf/web2c,\
+$SELFAUTODIR/texmf-local/web2c,$SELFAUTODIR/texmf/web2c,\
+$SELFAUTOPARENT/../texmf-local/web2c,\
+$SELFAUTOPARENT,\
+$SELFAUTOPARENT/share/texmf-local/web2c,$SELFAUTOPARENT/share/texmf/web2c,\
+$SELFAUTOPARENT/texmf-local/web2c,$SELFAUTOPARENT/texmf/web2c\
+}
+%
+% For reference, here is the old brace-using definition:
+%TEXMFCNF = {$SELFAUTOLOC,$SELFAUTODIR,$SELFAUTOPARENT}{,{/share,}/texmf{-local,}/web2c}
 
 % kpathsea 3.5.3 and later sets these at runtime. To avoid empty
 % expansions from binaries linked against an earlier version of the
@@ -494,6 +543,7 @@ shell_escape_commands = \
 bibtex,bibtex8,\
 kpsewhich,\
 makeindex,\
+mpost,\
 repstopdf,\
 
 % we'd like to allow:
@@ -512,6 +562,7 @@ repstopdf,\
 
 % plain TeX should remain unenhanced.
 shell_escape.tex = f
+shell_escape.initex = f
 
 % This is used by the Windows script wrapper for restricting searching
 % for the purportedly safe shell_escape_commands above to system
@@ -551,6 +602,7 @@ parse_first_line = t
 % file_line_error_style settings, as well as the options -enctex,
 % -mltex, -8bit, etc., also affect this, but they are all off by default.
 parse_first_line.tex = f
+parse_first_line.initex = f
 
 % Control file:line:error style messages.
 file_line_error_style = f
@@ -589,13 +641,14 @@ TEX = etex
 % given as command line option or environment variable.
 BIBTEX_CSFILE = 88591lat.csf
 
-% This variable is specific to Windows.  It must be set to 0 or 1.  It
-% tells script wrappers to use an already installed Perl interpreter if
-% one is found on the search path, in preference to the Perl shipped
-% with TeX Live.  Thus, it may be useful if you (a) installed a full
-% Perl distribution for general use, and (b) need to run Perl programs
-% from TL that use additional modules we don't provide.  The TL Perl
-% does provide all the standard modules.
+% This variable is specific to Windows.  It must be set to 0 or 1.  The
+% default is 0.  Setting it to 1 tells the Windows script wrappers to
+% use an already installed Perl interpreter if one is found on the
+% search path, in preference to the Perl shipped with TeX Live.  Thus,
+% it may be useful if you both (a) installed a full Perl distribution
+% for general use, and (b) need to run Perl programs from TL that use
+% additional modules we don't provide.  The TL Perl does provide all the
+% standard Perl modules.
 %
 %TEXLIVE_WINDOWS_TRY_EXTERNAL_PERL = 0
 
@@ -698,7 +751,7 @@ screen_depth.mf = 1200
 
 % BibTeX only (max_strings also determines hash_size and hash_prime).
 ent_str_size =  250
-glob_str_size = 5000
+glob_str_size = 20000
 max_strings.bibtex = 35307
 max_strings.bibtex8 = 35307
 max_strings.bibtexu = 35307

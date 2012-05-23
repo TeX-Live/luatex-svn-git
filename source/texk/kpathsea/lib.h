@@ -1,6 +1,7 @@
 /* lib.h: declarations for common, low-level routines in kpathsea.
 
-   Copyright 1992, 1993, 1994, 1995, 1996, 2008, 2009, 2010, 2011 Karl Berry.
+   Copyright 1992, 1993, 1994, 1995, 1996, 2008, 2009, 2010, 2011,
+             2012 Karl Berry.
    Copyright 1999, 2000, 2003, 2005 Olaf Weber.
 
    This library is free software; you can redistribute it and/or
@@ -94,7 +95,7 @@
 
 
 /* I find this easier to read.  */
-#define STREQ(s1, s2) ((s1) && (s2) && (strcmp (s1, s2) == 0))
+#define STREQ(s1, s2) (((s1) != NULL) && ((s2) != NULL) && (strcmp (s1, s2) == 0))
 #define STRNEQ(s1, s2, n) ((s1) && (s2) && (strncmp (s1, s2, n) == 0))
 
 /* Support for FAT/ISO-9660 filesystems.  Theoretically this should be
@@ -152,7 +153,7 @@ extern string strstr (const_string haystack, const_string needle);
 
 /* If NAME has a suffix, return a pointer to its first character (i.e.,
    the one after the `.'); otherwise, return NULL.  */
-extern KPSEDLL string find_suffix (const_string name);
+extern KPSEDLL const_string find_suffix (const_string name);
 
 /* Return NAME with any suffix removed.  */
 extern KPSEDLL string remove_suffix (const_string name);
@@ -186,9 +187,9 @@ extern KPSEDLL void xputenv_int (const_string var, int value);
 extern KPSEDLL string xgetcwd (void);
 
 /* Returns true if FN is a directory or a symlink to a directory.  */
-extern KPSEDLL boolean kpathsea_dir_p (kpathsea kpse, const_string fn);
+extern KPSEDLL boolean kpathsea_dir_p (kpathsea kpse, string fn);
 #if defined (KPSE_COMPAT_API)
-extern KPSEDLL boolean dir_p (const_string fn);
+extern KPSEDLL boolean dir_p (string fn);
 #endif
 
 /* If FN is a readable directory, return the number of links it has.

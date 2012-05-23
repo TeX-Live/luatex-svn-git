@@ -1,7 +1,8 @@
 /* expand.c: general expansion.
 
-   Copyright 1993, 1994, 1995, 1996, 1997, 1998, 2005, 2008, 2009
-   Karl Berry & Olaf Weber.
+   Copyright 1993, 1994, 1995, 1996, 1997, 2005, 2008, 2009, 2011,
+             2012 Karl Berry.
+   Copyright 1997-2005 Olaf Weber.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -44,14 +45,6 @@ kpathsea_expand (kpathsea kpse, const_string s)
 
   return tilde_expansion;
 }
-
-#if defined(KPSE_COMPAT_API)
-string
-kpse_expand (const_string s)
-{
-    return kpathsea_expand (kpse_def, s);
-}
-#endif
 
 /* Forward declarations of functions from the original expand.c  */
 static str_list_type brace_expand (kpathsea, const_string*);
@@ -217,14 +210,36 @@ kpathsea_path_expand (kpathsea kpse, const_string path)
   string xpath;
   string elt;
   unsigned len;
+  const_string ypath;
+#if defined(WIN32)
+  string zpath, p;
+#endif
 
   /* Initialise ret to the empty string. */
   ret = (string)xmalloc (1);
   *ret = 0;
   len = 0;
 
+#if defined(WIN32)
+  zpath = xstrdup (path);
+
+  for (p = zpath; *p; p++)
+    if (*p == '\\')
+      *p = '/';
+    else if (IS_KANJI(p))
+      p++;
+
+  ypath = zpath;
+#else
+  ypath = path;
+#endif
+
   /* Expand variables and braces first.  */
-  xpath = kpathsea_brace_expand (kpse, path);
+  xpath = kpathsea_brace_expand (kpse, ypath);
+
+#if defined(WIN32)
+  free (zpath);
+#endif
 
   /* Now expand each of the path elements, printing the results */
   for (elt = kpathsea_path_element (kpse, xpath); elt;
@@ -296,7 +311,6 @@ static void expand_append (str_list_type* partial,
 }
 
 
-
 static str_list_type
 brace_expand (kpathsea kpse, const_string *text)
 {
@@ -320,7 +334,7 @@ brace_expand (kpathsea kpse, const_string *text)
             str_list_free(&recurse);
             /* Check for missing closing brace. */
             if (*p != '}') {
-                WARNING1 ("%s: Unmatched {", *text);
+                WARNING1 ("kpathsea: %s: Unmatched {", *text);
             }
             *text = p+1;
         } else if (*p == '$') {
@@ -328,6 +342,10 @@ brace_expand (kpathsea kpse, const_string *text)
             if (*(p+1) == '{')
                 for (p+=2; *p!='}';++p);
         }
+#if defined(WIN32)
+        else if (IS_KANJI(p))
+            p++;
+#endif
     }
     expand_append(&partial, *text, p);
     str_list_concat(&result, partial);

@@ -4094,39 +4094,42 @@ $as_echo_n "checking what warning flags to pass to the C compiler... " >&6; }
 if test "${kpse_cv_warning_cflags+set}" = set; then :
   $as_echo_n "(cached) " >&6
 else
-  if test "x$enable_compiler_warnings" = xno; then
+  if test "x$GCC" = xyes; then
   kpse_cv_warning_cflags=
-elif test "x$GCC" = xyes; then
+if test "x$enable_compiler_warnings" != xno; then
   kpse_cv_warning_cflags="-Wimplicit -Wreturn-type"
-case `$CC -dumpversion` in #(
+  case `$CC -dumpversion` in #(
   3.4.* | 4.*) :
     kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wdeclaration-after-statement" ;; #(
   *) :
      ;;
 esac
-case `$CC -dumpversion` in #(
+  case `$CC -dumpversion` in #(
   3.[234].* | 4.*) :
     kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wno-unknown-pragmas" ;; #(
   *) :
      ;;
 esac
-if test "x$enable_compiler_warnings" != xmin; then
-  kpse_cv_warning_cflags="-Wall -Wunused $kpse_cv_warning_cflags"
-  kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wmissing-prototypes -Wmissing-declarations"
-  if test "x$enable_compiler_warnings" != xyes; then
-    kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wparentheses -Wswitch -Wtrigraphs -Wpointer-arith"
-    kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wcast-qual -Wcast-align -Wwrite-strings"
-    case `$CC -dumpversion` in #(
+  if test "x$enable_compiler_warnings" != xmin; then
+    kpse_cv_warning_cflags="-Wall -Wunused $kpse_cv_warning_cflags"
+    kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wmissing-prototypes -Wmissing-declarations"
+    if test "x$enable_compiler_warnings" != xyes; then
+      kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wparentheses -Wswitch -Wtrigraphs -Wpointer-arith"
+      kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wcast-qual -Wcast-align -Wwrite-strings"
+      case `$CC -dumpversion` in #(
   3.4.* | 4.*) :
     kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wold-style-definition" ;; #(
   *) :
      ;;
 esac
-    if test "x$enable_compiler_warnings" != xmax; then
-      kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wshadow"
+      if test "x$enable_compiler_warnings" != xmax; then
+        kpse_cv_warning_cflags="$kpse_cv_warning_cflags -Wshadow"
+      fi
     fi
   fi
 fi
+elif test "x$enable_compiler_warnings" = xno; then
+  kpse_cv_warning_cflags=
 else
   kpse_cv_warning_cflags= # FIXME: warning flags for non-GNU C compilers
 fi
@@ -5690,15 +5693,10 @@ if test "x$with_zlib_libdir" != x && test "x$with_zlib_libdir" != xyes; then
   ZLIB_LIBS="-L$with_zlib_libdir $ZLIB_LIBS"
 fi
 else
-  ZLIB_INCLUDES=`echo '-IBLD/libs/zlib/include' | sed \
-    -e "s,SRC/,$kpse_SRC/,g" \
-    -e "s,BLD/,$kpse_BLD/,g"`
-  ZLIB_LIBS=`echo 'BLD/libs/zlib/libz.a' | sed \
-    -e "s,BLD/,$kpse_BLD/,g"`
-
-  ZLIB_DEPEND=`echo 'BLD/libs/zlib/libz.a' | sed \
-    -e 's,BLD/,${top_builddir}/../../,g'`
-   ZLIB_RULE='# Rebuild libz
+  ZLIB_INCLUDES="-I$kpse_BLD/libs/zlib/include"
+  ZLIB_LIBS="$kpse_BLD/libs/zlib/libz.a"
+  ZLIB_DEPEND='${top_builddir}/../../libs/zlib/libz.a'
+  ZLIB_RULE='# Rebuild libz
 $(ZLIB_DEPEND): ${top_builddir}/../../libs/zlib/include/zconf.h
 	cd ${top_builddir}/../../libs/zlib && $(MAKE) $(AM_MAKEFLAGS) rebuild
 ${top_builddir}/../../libs/zlib/include/zconf.h:

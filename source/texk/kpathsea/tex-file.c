@@ -1,6 +1,7 @@
 /* tex-file.c: high-level file searching by format.
 
-   Copyright 1993, 1994, 1995, 1996, 1997, 2007, 2008, 2009, 2010 Karl Berry.
+   Copyright 1993, 1994, 1995, 1996, 1997, 2007, 2008, 2009, 2010, 2011
+             2012 Karl Berry.
    Copyright 1998-2005 Olaf Weber.
 
    This library is free software; you can redistribute it and/or
@@ -91,6 +92,8 @@
 #define MLBIB_ENVS "MLBIBINPUTS", BIB_ENVS
 #define MLBST_ENVS "MLBSTINPUTS", BST_ENVS
 #define CLUA_ENVS "CLUAINPUTS"
+#define RIS_ENVS "RISINPUTS"
+#define BLTXML_ENVS "BLTXMLINPUTS"
 
 /* The compiled-in default list, DEFAULT_FONT_SIZES, is intended to be
    set from the command line (presumably via the Makefile).  */
@@ -122,7 +125,7 @@ kpathsea_init_fallback_resolutions (kpathsea kpse, string envvar)
 
       s = atoi (size);
       if (size_count && s < last_resort_sizes[size_count - 1]) {
-    WARNING1 ("kpathsea: last resort size %s not in ascending order, ignored",
+    WARNING1 ("kpathsea: last resort size %s not in ascending order; ignored",
           size);
       } else {
         size_count++;
@@ -223,7 +226,9 @@ kpse_maketex_option (const_string fmtname,  boolean value)
 #define EXPAND_DEFAULT(try_path, source_string)                 \
   if (try_path) {                                               \
     info->raw_path = try_path;                                  \
+    tmp = info->path;                                           \
     info->path = kpathsea_expand_default (kpse, try_path, info->path);  \
+    free (tmp);                                                 \
     info->path_source = source_string;                          \
   }
 
@@ -240,6 +245,7 @@ init_path (kpathsea kpse, kpse_format_info_type *info,
   string env_name;
   string env_value = NULL;
   string var = NULL;
+  string tmp;
   va_list ap;
 
   info->default_path = default_path;
@@ -291,7 +297,8 @@ init_path (kpathsea kpse, kpse_format_info_type *info,
      bottom are guaranteed to exist.  */
 
   /* Assume we can reliably start with the compile-time default.  */
-  info->path = info->raw_path = info->default_path;
+  info->raw_path = info->default_path;
+  info->path = xstrdup (info->raw_path);
   info->path_source = "compile-time paths.h";
 
   EXPAND_DEFAULT (info->cnf_path, "texmf.cnf");
@@ -313,7 +320,9 @@ init_path (kpathsea kpse, kpse_format_info_type *info,
   }
 
   EXPAND_DEFAULT (info->override_path, "application override variable");
+  tmp = info->path;
   info->path = kpathsea_brace_expand (kpse, info->path);
+  free (tmp);
 }
 
 
@@ -336,7 +345,11 @@ kpathsea_set_suffixes_va_list (kpathsea kpse, kpse_file_format_type format,
 
   while ((s = va_arg (ap, string)) != NULL) {
     count++;
+    /* This is essentially
     XRETALLOC (*list, count + 1, const_string);
+       except that MSVC warns without the cast to `void *'.  */
+    *list = (const_string *) xrealloc ((void *) *list,
+                                       (count + 1) * sizeof(const_string));
     (*list)[count - 1] = s;
   }
   (*list)[count] = NULL;
@@ -407,7 +420,8 @@ init_maketex (kpathsea kpse, kpse_file_format_type fmt,
   va_start (ap, dflt_prog);
   while ((arg = va_arg (ap, string)) != NULL) {
     f->argc++;
-    XRETALLOC (f->argv, f->argc + 1, const_string);
+    f->argv = (const_string *) xrealloc ((void *) f->argv,
+                                         (f->argc + 1) * sizeof(const_string));
     f->argv[f->argc - 1] = arg;
   }
   va_end (ap);
@@ -687,7 +701,7 @@ kpathsea_init_format (kpathsea kpse, kpse_file_format_type format)
       break;
     case kpse_truetype_format:
       INIT_FORMAT ("truetype fonts", DEFAULT_TTFONTS, TRUETYPE_ENVS);
-#define TRUETYPE_SUFFIXES ".ttf", ".ttc", ".TTF", ".TTC"
+#define TRUETYPE_SUFFIXES ".ttf", ".ttc", ".TTF", ".TTC", ".dfont"
       SUFFIXES (TRUETYPE_SUFFIXES);
       FMT_INFO.suffix_search_only = false;
       FMT_INFO.binmode = true;
@@ -795,6 +809,16 @@ kpathsea_init_format (kpathsea kpse, kpse_file_format_type format)
       SUFFIXES (CLUA_SUFFIXES);
       FMT_INFO.suffix_search_only = true;
       break;
+    case kpse_ris_format:
+      INIT_FORMAT ("ris", DEFAULT_RISINPUTS, RIS_ENVS);
+      SUFFIXES (".ris");
+      FMT_INFO.suffix_search_only = true;
+      break;
+    case kpse_bltxml_format:
+      INIT_FORMAT ("bltxml", DEFAULT_BLTXMLINPUTS, BLTXML_ENVS);
+      SUFFIXES (".bltxml");
+      FMT_INFO.suffix_search_only = true;
+      break;
     default:
       LIB_FATAL1 ("kpse_init_format: Unknown format %d", format);
     }
@@ -874,7 +898,7 @@ kpse_init_format (kpse_file_format_type format)
 
 static void
 target_fontmaps (kpathsea kpse, string **target, unsigned *count,
-                const_string name)
+                 const_string name)
 {
   const_string *mapped_names = kpathsea_fontmap_lookup (kpse, name);
 
@@ -970,7 +994,8 @@ kpse_find_file (const_string name,  kpse_file_format_type format,
 
 string *
 kpathsea_find_file_generic (kpathsea kpse, const_string const_name,
-               kpse_file_format_type format, boolean must_exist, boolean all)
+                            kpse_file_format_type format,
+                            boolean must_exist, boolean all)
 {
   string *target, name;
   const_string *ext;
@@ -1056,7 +1081,7 @@ kpathsea_find_file_generic (kpathsea kpse, const_string const_name,
 
   /* Search, trying to minimize disk-pounding.  */
   ret = kpathsea_path_search_list_generic (kpse, FMT_INFO.path,
-                                         (const_string*) target, false, all);
+                                           (const_string*) target, false, all);
 
   /* Do we need to pound the disk? */
   if (! *ret && must_exist) {
@@ -1075,7 +1100,7 @@ kpathsea_find_file_generic (kpathsea kpse, const_string const_name,
     }
     target[count] = NULL;
     ret = kpathsea_path_search_list_generic (kpse, FMT_INFO.path,
-                                           (const_string*) target, true, all);
+                                             (const_string*) target, true, all);
   }
 
   /* Free the list we created. */
@@ -1221,7 +1246,7 @@ kpathsea_in_name_ok (kpathsea kpse, const_string fname)
 }
 
 
-#if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
+#if defined(WIN32) || defined(__CYGWIN__)
 static int
 Isspace (char c)
 {
@@ -1281,16 +1306,16 @@ executable_filep (kpathsea kpse, const_string fname, boolean silent)
     }
     return false;
 }
-#endif /* WIN32 || __MINGW32__ || __CYGWIN__ */
+#endif /* WIN32 || __CYGWIN__ */
 
 static boolean
 kpathsea_out_name_ok_1 (kpathsea kpse, const_string fname, boolean silent)
 {
-#if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
+#if defined(WIN32) || defined(__CYGWIN__)
   /* Output of an executable file is restricted on Windows */
   if (executable_filep (kpse, fname, silent))
     return false;
-#endif /* WIN32 || __MINGW32__ || __CYGWIN__ */
+#endif /* WIN32 || __CYGWIN__ */
   /* For output, default to paranoid. */
   return kpathsea_name_ok (kpse, fname, "openout_any", "p", ok_writing,silent);
 }
@@ -1391,10 +1416,10 @@ kpathsea_reset_program_name (kpathsea kpse, const_string progname)
        to 100k if this function is called. */
     if (i == kpse_cnf_format || i == kpse_db_format)
       continue;
-    /* Wipe the path (it is tested) and the cnf_path and because their
+    /* Wipe the path (it is tested) and the cnf_path because their
        values may differ with the new program name.  */
     if (kpse->format_info[i].path != NULL) {
-      free ((string)kpse->format_info[i].path);
+      free (kpse->format_info[i].path);
       kpse->format_info[i].path = NULL;
     }
     /* We cannot free the cnf_path: it points into the cnf hash, which

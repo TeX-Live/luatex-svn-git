@@ -1,6 +1,6 @@
 /* elt-dirs.c: Translate a path element to its corresponding director{y,ies}.
 
-   Copyright 1993, 1994, 1995, 1996, 1997, 2008, 2009, 2010 Karl Berry.
+   Copyright 1993, 1994, 1995, 1996, 1997, 2008, 2009, 2010, 2011 Karl Berry.
    Copyright 1997, 1998, 1999, 2000, 2005 Olaf Weber.
 
    This library is free software; you can redistribute it and/or
@@ -32,11 +32,11 @@
    DIR ends with a DIR_SEP for the benefit of later searches.  */
 
 static void
-dir_list_add (str_llist_type *l,  const_string dir)
+dir_list_add (str_llist_type *l, string dir)
 {
   char last_char = dir[strlen (dir) - 1];
   string saved_dir
-    = IS_DIR_SEP (last_char) || IS_DEVICE_SEP (last_char)
+    = IS_DIR_SEP_CH (last_char) || IS_DEVICE_SEP (last_char)
       ? xstrdup (dir)
       : concat (dir, DIR_SEP_STRING);
 
@@ -47,7 +47,7 @@ dir_list_add (str_llist_type *l,  const_string dir)
 /* If DIR is a directory, add it to the list L.  */
 
 static void
-checked_dir_list_add (kpathsea kpse, str_llist_type *l,  const_string dir)
+checked_dir_list_add (kpathsea kpse, str_llist_type *l, string dir)
 {
     if (kpathsea_dir_p (kpse, dir))
     dir_list_add (l, dir);
@@ -94,7 +94,7 @@ cached (kpathsea kpse, const_string key)
 /* Handle the magic path constructs.  */
 
 /* Declare recursively called routine.  */
-static void expand_elt (kpathsea, str_llist_type *, const_string, unsigned);
+static void expand_elt (kpathsea, str_llist_type *, string, unsigned);
 
 
 /* POST is a pointer into the original element (which may no longer be
@@ -108,8 +108,8 @@ static char dirname[MAX_PATH];
 #endif
 
 static void
-do_subdir (kpathsea kpse, str_llist_type *str_list_ptr,  const_string elt,
-              unsigned elt_length,  const_string post)
+do_subdir (kpathsea kpse, str_llist_type *str_list_ptr, string elt,
+              unsigned elt_length, string post)
 {
 #ifdef WIN32
   WIN32_FIND_DATA find_file_data;
@@ -125,7 +125,7 @@ do_subdir (kpathsea kpse, str_llist_type *str_list_ptr,  const_string elt,
   /* Some old compilers don't allow aggregate initialization.  */
   name = fn_copy0 (elt, elt_length);
 
-  assert (IS_DIR_SEP (elt[elt_length - 1])
+  assert (IS_DIR_SEP_CH (elt[elt_length - 1])
           || IS_DEVICE_SEP (elt[elt_length - 1]));
 
 #if defined (WIN32)
@@ -305,19 +305,19 @@ do_subdir (kpathsea kpse, str_llist_type *str_list_ptr,  const_string elt,
    looking for magic constructs at START.  */
 
 static void
-expand_elt (kpathsea kpse, str_llist_type * str_list_ptr,  const_string elt,
+expand_elt (kpathsea kpse, str_llist_type * str_list_ptr, string elt,
                unsigned start)
 {
-  const_string dir = elt + start, post;
+  string dir = elt + start, post;
 
   while (*dir != 0)
     {
-      if (IS_DIR_SEP (*dir))
+      if (IS_DIR_SEP_CH (*dir))
         {
           /* If two or more consecutive /'s, find subdirectories.  */
-          if (IS_DIR_SEP (dir[1]))
+          if (IS_DIR_SEP_CH (dir[1]))
             {
-              for (post = dir + 1; IS_DIR_SEP (*post); post++) ;
+              for (post = dir + 1; IS_DIR_SEP_CH (*post); post++) ;
             do_subdir (kpse, str_list_ptr, elt, dir - elt + 1, post);
               return;
             }
@@ -332,6 +332,10 @@ expand_elt (kpathsea kpse, str_llist_type * str_list_ptr,  const_string elt,
   checked_dir_list_add (kpse, str_list_ptr, elt);
 }
 
+/*  On win32 we slashify ELT, i.e., change '\\' to '/', and then can use
+   IS_DIR_SEP_CH instead of IS_DIR_SEP and need not test for the presence
+   of 2-Byte Kanji (CP 932, SJIS) codes.  */
+
 /* The first bits of a path element can be problematic because they
    look like a request to expand a whole disk, rather than a subtree.
    - It can contain a drive specification.
@@ -346,8 +350,8 @@ expand_elt (kpathsea kpse, str_llist_type * str_list_ptr,  const_string elt,
      handle well filenames like c://dir/foo. So canonicalize the names.
      The resulting name will always be shorter than the one passed, so no
      problem.
-   - If possible, we merely skip multiple leading slashes to prevent
-     expanding from the root of a UNIX filesystem tree.  */
+   - Remove multiple leading slashes to prevent expanding from the root
+     of a UNIX filesystem tree.  */
 
 unsigned
 kpathsea_normalize_path (kpathsea kpse, string elt)
@@ -355,43 +359,40 @@ kpathsea_normalize_path (kpathsea kpse, string elt)
   unsigned ret;
   unsigned i;
 
+#if defined(WIN32)
+  for (i = 0; elt[i]; i++) {
+    if (elt[i] == '\\')
+      elt[i] = '/';
+    else if (IS_KANJI(elt + i))
+      i++;
+  }
+#endif
+
   if (NAME_BEGINS_WITH_DEVICE(elt)) {
     if (*elt >= 'A' && *elt <= 'Z')
       *elt += 'a' - 'A';
-    for (i = 2; IS_DIR_SEP(elt[i]); ++i)
-      ;
-    if (i > 3)
-      memmove (elt+3, elt+i, strlen(elt+i) + 1);
     ret = 2;
 
   } else if (IS_UNC_NAME(elt)) {
-    for (ret = 2; elt[ret] && !IS_DIR_SEP(elt[ret]); ++ret)
+    for (ret = 2; elt[ret] && !IS_DIR_SEP_CH(elt[ret]); ret++)
       ;
-    for (i = ret; elt[i] && IS_DIR_SEP(elt[i]); ++i)
-      ;
-    if (i > ret+1)
-      memmove (elt+ret+1, elt+i, strlen(elt+i) + 1);
 
-  } else {
-    for (ret = 0; IS_DIR_SEP(elt[ret]); ++ret)
-      ;
-  }
+  } else
+    ret = 0;
 
+  for (i = ret; IS_DIR_SEP_CH(elt[i]); ++i)
+    ;
+  if (i > ret + 1) {
 #ifdef KPSE_DEBUG
-  if (KPATHSEA_DEBUG_P (KPSE_DEBUG_STAT) && ret != 1)
+  if (KPATHSEA_DEBUG_P (KPSE_DEBUG_STAT))
     DEBUGF2 ("kpse_normalize_path (%s) => %u\n", elt, ret);
 #endif /* KPSE_DEBUG */
 
+    memmove (elt + ret + 1, elt + i, strlen (elt + i) + 1);
+  }
+
   return ret;
 }
-
-#if defined(KPSE_COMPAT_API)
-unsigned
-kpse_normalize_path (string elt)
-{
-    return kpathsea_normalize_path(kpse_def, elt);
-}
-#endif
 
 /* Here is the entry point.  Returns directory list for ELT.  */
 
@@ -399,10 +400,14 @@ str_llist_type *
 kpathsea_element_dirs (kpathsea kpse, string elt)
 {
   str_llist_type *ret;
+  unsigned i;
 
   /* If given nothing, return nothing.  */
   if (!elt || !*elt)
     return NULL;
+
+  /* Normalize ELT before looking for a cached value.  */
+  i = kpathsea_normalize_path (kpse, elt);
 
   /* If we've already cached the answer for ELT, return it.  */
   ret = cached (kpse, elt);
@@ -414,7 +419,7 @@ kpathsea_element_dirs (kpathsea kpse, string elt)
   *ret = NULL;
 
   /* We handle the hard case in a subroutine.  */
-  expand_elt (kpse, ret, elt, kpathsea_normalize_path (kpse, elt));
+  expand_elt (kpse, ret, elt, i);
 
   /* Remember the directory list we just found, in case future calls are
      made with the same ELT.  */
@@ -437,14 +442,6 @@ kpathsea_element_dirs (kpathsea kpse, string elt)
 
   return ret;
 }
-
-#if defined(KPSE_COMPAT_API)
-str_llist_type *
-kpse_element_dirs (string elt)
-{
-    return kpathsea_element_dirs(kpse_def, elt);
-}
-#endif
 
 #ifdef TEST
 
@@ -456,7 +453,7 @@ print_element_dirs (const_string elt)
   printf ("Directories of %s:\t", elt ? elt : "(nil)");
   fflush (stdout);
 
-  dirs = kpse_element_dirs (elt);
+  dirs = kpathsea_element_dirs (kpse_def, elt);
 
   if (!dirs)
     printf ("(nil)");
