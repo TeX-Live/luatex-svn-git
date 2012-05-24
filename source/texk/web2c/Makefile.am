@@ -1,6 +1,6 @@
 ## Makefile.am for the TeX Live subdirectory texk/web2c/
 ##
-## Copyright (C) 2009 - 2011 Peter Breitenlohner <tex-live@tug.org>
+## Copyright (C) 2009-2011 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
 ACLOCAL_AMFLAGS = -I ../../m4 -I m4
@@ -29,7 +29,7 @@ check_PROGRAMS =
 TESTS =
 EXTRA_LIBRARIES =
 EXTRA_DIST = PROJECTS cftests cpascal.h help.h w2c/config.h
-DISTCLEANFILES = $(EXTRA_LIBRARIES)
+DISTCLEANFILES = $(EXTRA_LIBRARIES) CXXLD.sh
 CLEANFILES =
 TRIPTRAP_CLEAN =
 TRIPTRAP =
@@ -102,7 +102,7 @@ $(proglib): ${srcdir}/lib/*.c
 ## Rebuild libTEXkit
 @TECKIT_RULE@
 ## Rebuild libsicuxxx
-##@ICU_RULE@
+@ICU_RULE@
 
 # The environment for building.
 buildenv = TEXMFCNF=$(srcdir)/../kpathsea
@@ -173,6 +173,12 @@ include $(srcdir)/ptexdir/am/ptex.am
 ## e-pTeX
 include $(srcdir)/eptexdir/am/eptex.am
 
+## upTeX
+include $(srcdir)/uptexdir/am/uptex.am
+
+## e-upTeX
+include $(srcdir)/euptexdir/am/euptex.am
+
 ## pdfTeX
 include $(srcdir)/pdftexdir/am/pdftex.am
 include $(srcdir)/pdftexdir/am/libpdftex.am
@@ -208,21 +214,8 @@ include $(srcdir)/synctexdir/am/synctex.am
 ## libmd5
 include $(srcdir)/libmd5/am/md5.am
 
-# Symlinks within $(bindir): FILE:LINK indicates LINK$(EXEEXT)->FILE$(EXEEXT)
-install-exec-hook: $(install_exe_links)
-	@test -z "$(bin_links)" || { \
-	  cd $(DESTDIR)$(bindir) && \
-	  for s in $(bin_links); do \
-	    link=`echo $$s | sed 's,.*:,,'`$(EXEEXT); \
-	    file=`echo $$s | sed 's,:.*,,'`$(EXEEXT); \
-	    rm -f $$link; \
-	    echo "creating link '$$link' -> '$$file'"; \
-	    $(LN_S) $$file $$link || exit 1; \
-	  done; }
-uninstall-hook: $(uninstall_exe_links)
-	@test -z "$(bin_links)" || \
-	for s in $(bin_links); do \
-	  link=`echo $$s | sed 's,.*:,,'`$(EXEEXT); \
-	  rm -f $(DESTDIR)$(bindir)/$$link; \
-	done  
+## Symlinks within $(bindir)
+include $(srcdir)/../am/bin_links.am
+install-exec-hook: install-bin-links $(install_exe_links)
+uninstall-hook: uninstall-bin-links $(uninstall_exe_links)
 

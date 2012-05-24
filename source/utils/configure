@@ -677,12 +677,14 @@ enable_ptex
 enable_ptex_synctex
 enable_eptex
 enable_eptex_synctex
+enable_uptex
+enable_uptex_synctex
+enable_euptex
+enable_euptex_synctex
 enable_aleph
-enable_aleph_synctex
 enable_pdftex
 enable_pdftex_synctex
 enable_luatex
-enable_luatex_synctex
 enable_xetex
 enable_xetex_synctex
 enable_mf
@@ -1377,15 +1379,17 @@ Optional Features:
   --enable-etex             compile and install e-TeX
   --disable-etex-synctex      build e-TeX without SyncTeX support
   --disable-ptex            do not compile and install pTeX
-  --enable-ptex-synctex       build pTeX with SyncTeX support
+  --disable-ptex-synctex      build pTeX without SyncTeX support
   --disable-eptex           do not compile and install e-pTeX
-  --enable-eptex-synctex      build e-pTeX with SyncTeX support
+  --disable-eptex-synctex     build e-pTeX without SyncTeX support
+  --disable-uptex           do not compile and install upTeX
+  --disable-uptex-synctex     build upTeX without SyncTeX support
+  --disable-euptex          do not compile and install e-upTeX
+  --disable-euptex-synctex    build e-upTeX without SyncTeX support
   --disable-aleph           do not compile and install Aleph
-  --enable-aleph-synctex      build Aleph with SyncTeX support
   --disable-pdftex          do not compile and install pdfTeX
   --disable-pdftex-synctex    build pdfTeX without SyncTeX support
   --disable-luatex          do not compile and install luaTeX
-  --enable-luatex-synctex     build luaTeX with SyncTeX support
   --disable-xetex           do not compile and install XeTeX
   --disable-xetex-synctex     build XeTeX without SyncTeX support
   --disable-mf              do not build METAFONT
@@ -3108,6 +3112,44 @@ fi
 test "x$enable_web2c:$enable_eptex" = xyes:yes && {
   need_ptexenc=yes
 }
+# Check whether --enable-uptex was given.
+if test "${enable_uptex+set}" = set; then :
+  enableval=$enable_uptex;
+fi
+case $enable_uptex in #(
+  yes | no) :
+     ;; #(
+  *) :
+    enable_uptex=yes ;;
+esac
+
+# Check whether --enable-uptex-synctex was given.
+if test "${enable_uptex_synctex+set}" = set; then :
+  enableval=$enable_uptex_synctex;
+fi
+
+test "x$enable_web2c:$enable_uptex" = xyes:yes && {
+  need_ptexenc=yes
+}
+# Check whether --enable-euptex was given.
+if test "${enable_euptex+set}" = set; then :
+  enableval=$enable_euptex;
+fi
+case $enable_euptex in #(
+  yes | no) :
+     ;; #(
+  *) :
+    enable_euptex=yes ;;
+esac
+
+# Check whether --enable-euptex-synctex was given.
+if test "${enable_euptex_synctex+set}" = set; then :
+  enableval=$enable_euptex_synctex;
+fi
+
+test "x$enable_web2c:$enable_euptex" = xyes:yes && {
+  need_ptexenc=yes
+}
 # Check whether --enable-aleph was given.
 if test "${enable_aleph+set}" = set; then :
   enableval=$enable_aleph;
@@ -3118,11 +3160,6 @@ case $enable_aleph in #(
   *) :
     enable_aleph=yes ;;
 esac
-
-# Check whether --enable-aleph-synctex was given.
-if test "${enable_aleph_synctex+set}" = set; then :
-  enableval=$enable_aleph_synctex;
-fi
 # Check whether --enable-pdftex was given.
 if test "${enable_pdftex+set}" = set; then :
   enableval=$enable_pdftex;
@@ -3155,11 +3192,6 @@ case $enable_luatex in #(
     enable_luatex=yes ;;
 esac
 
-# Check whether --enable-luatex-synctex was given.
-if test "${enable_luatex_synctex+set}" = set; then :
-  enableval=$enable_luatex_synctex;
-fi
-
 test "x$enable_web2c:$enable_luatex" = xyes:yes && {
   need_poppler=yes
   need_libpng=yes
@@ -3183,7 +3215,7 @@ if test "${enable_xetex_synctex+set}" = set; then :
 fi
 
 test "x$enable_web2c:$enable_xetex" = xyes:yes && {
-  need_xpdf=yes
+  need_poppler=yes
   need_libpng=yes
   need_freetype2=yes
   need_icu_xetex=yes

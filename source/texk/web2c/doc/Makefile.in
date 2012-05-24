@@ -45,6 +45,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/web2c-disable.m4 \
 	$(top_srcdir)/../../m4/kpse-fontconfig-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-freetype2-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-graphite-flags.m4 \
+	$(top_srcdir)/../../m4/kpse-icu-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-kpathsea-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-lex.m4 \
 	$(top_srcdir)/../../m4/kpse-libpng-flags.m4 \
@@ -155,6 +156,9 @@ GRAPHITE_DEPEND = @GRAPHITE_DEPEND@
 GRAPHITE_INCLUDES = @GRAPHITE_INCLUDES@
 GRAPHITE_LIBS = @GRAPHITE_LIBS@
 GREP = @GREP@
+ICU_DEPEND = @ICU_DEPEND@
+ICU_INCLUDES = @ICU_INCLUDES@
+ICU_LIBS = @ICU_LIBS@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@

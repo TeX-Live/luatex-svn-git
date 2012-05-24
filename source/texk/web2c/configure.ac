@@ -1,6 +1,6 @@
 dnl Process this file with Autoconf to produce a configure script for Web2c.
 dnl
-dnl   Copyright (C) 2009 - 2011 Peter Breitenlohner <tex-live@tug.org>
+dnl   Copyright (C) 2009-2012 Peter Breitenlohner <tex-live@tug.org>
 dnl
 dnl   This file is free software; the copyright holder
 dnl   gives unlimited permission to copy and/or distribute it,
@@ -142,7 +142,9 @@ m4_foreach([Kpse_Prog], [kpse_tex_progs],
            [m4_ifset([Kpse_Prog],
                      [KPSE_XTEX_COND(Kpse_Prog)])])[]dnl
 
-AS_IF([test "x$enable_aleph:$enable_xetex" = xno:no],
+test "x$enable_omfonts" = xno || enable_omfonts=yes
+
+AS_IF([test "x$enable_aleph:$enable_xetex:$enable_omfonts" = xno:no:yes],
       [enable_otangle=no],
       [enable_otangle=yes])
 AM_CONDITIONAL([OTANGLE],
@@ -196,6 +198,16 @@ AM_CONDITIONAL([MP], [test "x$enable_mp" != xno])
 
 AM_CONDITIONAL([WEB], [test "x$enable_web_progs" != xno])
 
+AS_IF([test "x$enable_ptex:$enable_eptex" = xno:no],
+      [enable_pweb_progs=no],
+      [enable_pweb_progs=$enable_web_progs])
+AM_CONDITIONAL([PWEB], [test "x$enable_pweb_progs" != xno])
+
+AS_IF([test "x$enable_uptex:$enable_euptex" = xno:no],
+      [enable_upweb_progs=no],
+      [enable_upweb_progs=$enable_web_progs])
+AM_CONDITIONAL([UPWEB], [test "x$enable_upweb_progs" != xno])
+
 dnl Although quite unusual, it is possible to build Web2C (TeX & Co)
 dnl using installed (system) kpathsea headers and library.
 dnl In that case we need the location of <kpathsea/paths.h>.
@@ -231,6 +243,7 @@ if test `(uname) 2>/dev/null` = aux; then
   AC_CHECK_LIB([posix], [sigemptyset])
 fi
 
+AC_C_CHAR_UNSIGNED
 AC_CHECK_SIZEOF([int])
 if test $ac_cv_sizeof_int -lt 4; then
   AC_MSG_ERROR([Sorry, need `int' with at least 4 bytes.])
@@ -254,25 +267,34 @@ KPSE_ZLIB_FLAGS
 KPSE_LIBPNG_FLAGS
 KPSE_XPDF_FLAGS
 KPSE_POPPLER_FLAGS
+test "x$kpse_cv_have_win32" = xno || POPPLER_LIBS="$POPPLER_LIBS -lgdi32"
 KPSE_ZZIPLIB_FLAGS
 KPSE_GRAPHITE_FLAGS
 KPSE_FREETYPE2_FLAGS
 KPSE_TECKIT_FLAGS
-dnl KPSE_ICU_XETEX_FLAGS([icule])
+KPSE_ICU_XETEX_FLAGS([icule])
 KPSE_OBSDCOMPAT_FLAGS
 
-# Checks for xpdf (libpoppler) features.
-KPSE_ADD_FLAGS([xpdf])
+# Check size of off_t (using <kpathsea/config.h>)
+KPSE_ADD_FLAGS([kpathsea])
+AC_CHECK_SIZEOF([off_t], , AC_INCLUDES_DEFAULT
+[#include <kpathsea/config.h>])
+
+# Checks for xpdf poppler features.
+KPSE_ADD_FLAGS([poppler])
 AC_LANG_PUSH([C++])
-AC_CACHE_CHECK([for PDFDoc::getPDFMajorVersion],
-               [kpse_cv_have_getPDFMajorVersion],
-               [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <PDFDoc.h>]],
-                                                   [[PDFDoc *pdfDoc; pdfDoc->getPDFMajorVersion();]])],
-                                  [kpse_cv_have_getPDFMajorVersion=yes],
-                                  [kpse_cv_have_getPDFMajorVersion=no])])
-AS_IF([test "x$kpse_cv_have_getPDFMajorVersion" = xyes],
-      [AC_DEFINE([HAVE_GETPDFMAJORVERSION], 1,
-                 [Define to 1 if class `PDFDoc' has the `getPDFMajorVersion' member.])])
+AC_CACHE_CHECK([for Annot::decRefCnt],
+               [kpse_cv_have_Annot_decRefCnt],
+               [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <goo/GooString.h>
+#include <Object.h>
+#include <Array.h>
+#include <Annot.h>]],
+                                                   [[Annot *an; an->decRefCnt();]])],
+                                  [kpse_cv_have_Annot_decRefCnt=yes],
+                                  [kpse_cv_have_Annot_decRefCnt=no])])
+AS_IF([test "x$kpse_cv_have_Annot_decRefCnt" = xyes],
+      [AC_DEFINE([HAVE_ANNOTDECREFCNT], 1,
+                 [Define to 1 if class `Annot' has the `decRefCnt' member.])])
 AC_LANG_POP([C++])
 KPSE_RESTORE_FLAGS
 
@@ -284,7 +306,7 @@ AC_CONFIG_HEADERS([w2c/c-auto.h:c-auto.in],
 
 AH_TOP([/* w2c/c-auto.h: defines for web2c, as determined by configure.
 
-   Copyright 1994-97, 2008, 2009, 2010 Karl Berry.
+   Copyright 1994-97, 2008-2012 Karl Berry.
    Copyright 1997-99, 2002, 2005 Olaf Weber.
 
    This program is free software: you can redistribute it and/or modify
@@ -362,7 +384,7 @@ fi
 AC_CONFIG_SUBDIRS([web2c])
 
 AC_CONFIG_FILES([Makefile doc/Makefile lib/Makefile man/Makefile
-                 omegafonts/Makefile otps/Makefile
+                 omegafonts/Makefile otps/Makefile otps/win32/Makefile
                  window/Makefile])
 AC_CONFIG_FILES([web2c-sh], [chmod +x web2c-sh])
 AC_CONFIG_FILES([tangle-sh], [chmod +x tangle-sh])
