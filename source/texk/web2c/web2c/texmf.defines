@@ -19,11 +19,9 @@
 
 @define function bopenin ();
 @define function bopenout ();
-@define function callmakempx ();
 @define function floorscaled ();
 @define function floorunscaled ();
 @define function getjobname ();
-@define function getrandomseed;
 @define function initscreen;
 @define function inputln ();
 @define function isnewsource ();
@@ -68,7 +66,6 @@
 @define procedure updatescreen;
 @define procedure wakeupterminal;
 @define procedure wclose ();
-@define procedure writedvi ();
 @define procedure writegf ();
 
 @define type fourquarters;

@@ -1,3 +1,48 @@
+2012-04-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmf.defines (callmakempx, getrandomseed): Removed, MP only.
+
+2012-03-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Avoid 'differ in signedness' warnings.
+	* common.defines: Define ustringcast().
+
+2012-02-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmf.defines: Moved writedvi from here ...
+	* common.defines: ... to here for use in GFtoDVI.
+
+	* common.defines: Drop writechunk, GFtoDVI now uses writedvi.
+
+2012-01-09  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* fixwrites.c: Replace 'fprintf(filename, "%c\n", char);' by
+	'{ putc(char, filename); putc ('\n', filename); }'.  Patch from
+	Akira Kakuto for (u)pDVItype & Co. where putc() => putc2().
+
+2011-10-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* common.defines: Remove ALEPHHELP.
+
+2011-10-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Add distclean-local to remove kpathsea/ and w2c/.
+
+2011-08-17  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* common.defines: Remove ETEXHELP, LUATEXHELP, PDFTEXHELP.
+	Add UPBIBTEXHELP, UPDVITYPEHELP, UPPLTOTFHELP, and UPTFTOPLHELP.
+	* convert: Add upBibTeX, upDVItype, upPLtoTF, and upTFtoPL.
+
+2011-08-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* convert, splitup.c: Add upTeX and e-upTeX.
+
+2011-04-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Avoid 'differ in signedness' warnings.
+	* common.defines: Define ucharcast().
+
 2011-01-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* convert, splitup.c: Add e-pTeX.

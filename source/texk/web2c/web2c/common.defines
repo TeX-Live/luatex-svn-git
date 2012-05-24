@@ -60,16 +60,13 @@
 @define const stdout;
 @define const true;
 
-@define const ALEPHHELP;
 @define const BIBTEXHELP;
 @define const DVICOPYHELP;
 @define const DVITOMPHELP;
 @define const DVITYPEHELP;
-@define const ETEXHELP;
 @define const GFTODVIHELP;
 @define const GFTOPKHELP;
 @define const GFTYPEHELP;
-@define const LUATEXHELP;
 @define const MFTHELP;
 @define const ODVICOPYHELP;
 @define const ODVITYPEHELP;
@@ -81,7 +78,6 @@
 @define const PATGENHELP;
 @define const PBIBTEXHELP;
 @define const PDVITYPEHELP;
-@define const PDFTEXHELP;
 @define const PKTOGFHELP;
 @define const PKTYPEHELP;
 @define const PLTOTFHELP;
@@ -90,6 +86,10 @@
 @define const PTFTOPLHELP;
 @define const TANGLEHELP;
 @define const TFTOPLHELP;
+@define const UPBIBTEXHELP;
+@define const UPDVITYPEHELP;
+@define const UPPLTOTFHELP;
+@define const UPTFTOPLHELP;
 @define const VFTOVPHELP;
 @define const VPTOVFHELP;
 @define const WEAVEHELP;
@@ -107,6 +107,7 @@
 @define function chartostring ();
 @define function chr ();
 @define function cmdline ();
+@define function conststringcast ();
 @define function eof ();
 @define function eoln ();
 @define function extendfilename ();
@@ -140,10 +141,11 @@
 @define function round ();
 @define function strcmp ();
 @define function stringcast ();
-@define function conststringcast ();
 @define function strlen ();
 @define function strtol ();
 @define function trunc ();
+@define function ucharcast ();
+@define function ustringcast ();
 @define function xcalloc ();
 @define function xcallocarray ();
 @define function xftell ();
@@ -191,7 +193,7 @@
 @define procedure uexit ();
 @define procedure vgetc ();
 @define procedure write ();
-@define procedure writechunk ();
+@define procedure writedvi ();
 @define procedure writeln ();
 @define procedure xfclose ();
 @define procedure xfseek ();
