@@ -18,12 +18,12 @@
 % with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @ @c
-#include "ptexlib.h"
-#include "lua/luatex-api.h"     /* for ptexbanner */
-
 static const char _svn_version[] =
     "$Id$"
     "$URL$";
+
+#include "ptexlib.h"
+#include "lua/luatex-api.h"     /* for ptexbanner */
 
 @ @c
 #define font_id_text(A) cs_text(font_id_base+(A))

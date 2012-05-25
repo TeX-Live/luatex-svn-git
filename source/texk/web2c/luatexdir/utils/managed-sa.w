@@ -1,30 +1,30 @@
 % managed-sa.w
-% 
+%
 % Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
-
+%
 % This file is part of LuaTeX.
-
+%
 % LuaTeX is free software; you can redistribute it and/or modify it under
 % the terms of the GNU General Public License as published by the Free
 % Software Foundation; either version 2 of the License, or (at your
 % option) any later version.
-
+%
 % LuaTeX is distributed in the hope that it will be useful, but WITHOUT
 % ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 % FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 % License for more details.
-
+%
 % You should have received a copy of the GNU General Public License along
-% with LuaTeX; if not, see <http://www.gnu.org/licenses/>. 
+% with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @* Sparse arrays with an embedded save stack.
 
 @ @c
-#include "ptexlib.h"
-
 static const char _svn_version[] =
-    "$Id$ "
-"$URL$";
+    "$Id$"
+    "$URL$";
+
+#include "ptexlib.h"
 
 @ @c
 static void store_sa_stack(sa_tree a, int n, sa_tree_item v, int gl)

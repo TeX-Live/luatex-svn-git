@@ -18,6 +18,10 @@
 % with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @ @c
+static const char _svn_version[] =
+    "$Id$"
+    "$URL$";
+
 #include "ptexlib.h"
 #include "font/writettf.h"
 #include "font/writecff.h"
@@ -25,9 +29,6 @@
 
 #include "font/sfnt.h"
 #include "font/tt_glyf.h"
-
-static const char _svn_version[] =
-    "$Id$ $URL$";
 
 @ forward declaration
 @c

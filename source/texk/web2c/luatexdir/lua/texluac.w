@@ -1,7 +1,7 @@
-% texlua.w
+% texluac.w
 %
 % Copyright (C) 1994-2007 Lua.org, PUC-Rio.  All rights reserved.
-% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2012 Taco Hoekwater <taco@@luatex.org>
 %
 % Permission is hereby granted, free of charge, to any person obtaining
 % a copy of this software and associated documentation files (the
@@ -10,10 +10,10 @@
 % distribute, sublicense, and/or sell copies of the Software, and to
 % permit persons to whom the Software is furnished to do so, subject to
 % the following conditions:
-*
+%
 % The above copyright notice and this permission notice shall be
 % included in all copies or substantial portions of the Software.
-*
+%
 % THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 % EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 % MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -21,10 +21,14 @@
 % CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 % TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 % SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+%
 % This file is part of LuaTeX.
 
 @ @c
+static const char _svn_version[] =
+    "$Id$"
+    "$URL$";
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,11 +50,7 @@
 
 #include "lua/luatex-api.h"
 
-
 @ @c
-static const char _svn_version[] =
-    "$Id$ $URL$";
-
 /*  fix for non-gcc compilation: */
 #if !defined(__GNUC__) || (__GNUC__ < 2) 
 # define __attribute__(x)

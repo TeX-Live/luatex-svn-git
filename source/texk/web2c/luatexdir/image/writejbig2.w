@@ -1,21 +1,21 @@
 % writejbig2.w
-
+%
 % Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
-% Copyright 2006-2011 Taco Hoekwater <taco@@luatex.org>
-% Copyright 2003-2011 Hartmut Henkel <hartmut@@luatex.org>
-
+% Copyright 2006-2012 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2003-2012 Hartmut Henkel <hartmut@@luatex.org>
+%
 % This file is part of LuaTeX.
-
+%
 % LuaTeX is free software; you can redistribute it and/or modify it under
 % the terms of the GNU General Public License as published by the Free
 % Software Foundation; either version 2 of the License, or (at your
 % option) any later version.
-
+%
 % LuaTeX is distributed in the hope that it will be useful, but WITHOUT
 % ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 % FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 % License for more details.
-
+%
 % You should have received a copy of the GNU General Public License along
 % with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
@@ -81,7 +81,7 @@ object exists, reference it. Else create fresh one.
 
 @ @c
 static const char _svn_version[] =
-    "$Id$ "
+    "$Id$"
     "$URL$";
 
 #undef DEBUG
@@ -450,7 +450,7 @@ static void checkseghdrflags(SEGINFO * sip)
     }
 }
 
-@ for first reading of file; return value tells if header been read 
+@ for first reading of file; return value tells if header been read
 
 @c
 static boolean readseghdr(FILEINFO * fip, SEGINFO * sip)
@@ -533,7 +533,7 @@ static void markpage0seg(FILEINFO * fip, unsigned long referedseg)
     }
 }
 
-@ for writing, marks refered page0 segments, sets segpage > 0 to 1 
+@ for writing, marks refered page0 segments, sets segpage > 0 to 1
 
 @c
 static void writeseghdr(PDF pdf, FILEINFO * fip, SEGINFO * sip)
@@ -584,7 +584,7 @@ static void writeseghdr(PDF pdf, FILEINFO * fip, SEGINFO * sip)
     /* ---- at end of segment header ---- */
 }
 
-@ for recursive marking of refered page0 segments 
+@ for recursive marking of refered page0 segments
 @c
 static void checkseghdr(FILEINFO * fip, SEGINFO * sip)
 {
