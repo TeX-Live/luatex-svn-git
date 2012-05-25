@@ -125,18 +125,21 @@ writejp2.c: ctangle$(EXEEXT) luatexdir/image/writejp2.w
 	$(luatex_image_ctangle) writejp2.w
 writepng.c: ctangle$(EXEEXT) luatexdir/image/writepng.w
 	$(luatex_image_ctangle) writepng.w
+pdftoepdf.cc: ctangle$(EXEEXT) luatexdir/image/pdftoepdf.w
+	$(luatex_image_ctangle) pdftoepdf.w - $@
 
 libluatex_web += luatexdir/image/writeimg.w
 libluatex_web += luatexdir/image/writejbig2.w
-libluatex_web += luatexdir/image/writejpg.w luatexdir/image/writejp2.w
+libluatex_web += luatexdir/image/writejpg.w
+libluatex_web += luatexdir/image/writejp2.w
 libluatex_web += luatexdir/image/writepng.w
+libluatex_web += luatexdir/image/pdftoepdf.w
 
-nodist_libluatex_a_SOURCES += writeimg.c writejbig2.c writejpg.c writejp2.c writepng.c 
+nodist_libluatex_a_SOURCES += writeimg.c writejbig2.c writejpg.c writejp2.c writepng.c pdftoepdf.cc
 
 libluatex_a_SOURCES += \
 	luatexdir/image/epdf.h \
 	luatexdir/image/image.h \
-	luatexdir/image/pdftoepdf.cc \
 	luatexdir/image/pdftoepdf.h \
 	luatexdir/image/writeimg.h \
 	luatexdir/image/writejbig2.h \

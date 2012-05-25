@@ -1,4 +1,5 @@
-/* pdftoepdf.cc
+@ @c
+/* pdftoepdf.w
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
    Copyright 2006-2012 Taco Hoekwater <taco@luatex.org>
@@ -24,7 +25,7 @@ static const char _svn_version[] =
 
 // define DEBUG
 
-#include "epdf.h"
+#include "image/epdf.h"
 
 // This file is mostly C and not very much C++; it's just used to interface
 // the functions of xpdf, which happens to be written in C++.
