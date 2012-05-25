@@ -499,6 +499,7 @@ read_pdf_info(image_dict * idict, int minor_pdf_version_wanted,
 {
     PdfDocument *pdf_doc;
     PDFDoc *doc;
+    Catalog *catalog;
     Page *page;
     int rotate;
     PDFRectangle *pagebox;
@@ -516,6 +517,7 @@ read_pdf_info(image_dict * idict, int minor_pdf_version_wanted,
     // open PDF file
     pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL);
     doc = pdf_doc->doc;
+    catalog = doc->getCatalog();
     // check PDF version
     // this works only for PDF 1.x -- but since any versions of PDF newer
     // than 1.x will not be backwards compatible to PDF 1.x, pdfTeX will
@@ -534,7 +536,7 @@ read_pdf_info(image_dict * idict, int minor_pdf_version_wanted,
                         minor_pdf_version_wanted);
         }
     }
-    img_totalpages(idict) = doc->getCatalog()->getNumPages();
+    img_totalpages(idict) = catalog->getNumPages();
     if (img_pagename(idict)) {
         // get page by name
         GooString name(img_pagename(idict));
@@ -543,7 +545,7 @@ read_pdf_info(image_dict * idict, int minor_pdf_version_wanted,
             pdftex_fail("PDF inclusion: invalid destination <%s>",
                         img_pagename(idict));
         Ref ref = link->getPageRef();
-        img_pagenum(idict) = doc->getCatalog()->findPage(ref.num, ref.gen);
+        img_pagenum(idict) = catalog->findPage(ref.num, ref.gen);
         if (img_pagenum(idict) == 0)
             pdftex_fail("PDF inclusion: destination is not a page <%s>",
                         img_pagename(idict));
@@ -556,7 +558,7 @@ read_pdf_info(image_dict * idict, int minor_pdf_version_wanted,
                         (int) img_pagenum(idict));
     }
     // get the required page
-    page = doc->getCatalog()->getPage(img_pagenum(idict));
+    page = catalog->getPage(img_pagenum(idict));
 
     // get the pagebox coordinates (media, crop,...) to use.
     pagebox = get_pagebox(page, img_pagebox(idict));
@@ -619,6 +621,7 @@ void write_epdf(PDF pdf, image_dict * idict)
 {
     PdfDocument *pdf_doc;
     PDFDoc *doc;
+    Catalog *catalog;
     Page *page;
     Ref *pageref;
     Dict *pageDict;
@@ -636,8 +639,9 @@ void write_epdf(PDF pdf, image_dict * idict)
     // open PDF file
     pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL);
     doc = pdf_doc->doc;
-    page = doc->getCatalog()->getPage(img_pagenum(idict));
-    pageref = doc->getCatalog()->getPageRef(img_pagenum(idict));
+    catalog = doc->getCatalog();
+    page = catalog->getPage(img_pagenum(idict));
+    pageref = catalog->getPageRef(img_pagenum(idict));
     assert(pageref != NULL);    // was checked already in read_pdf_info()
     doc->getXRef()->fetch(pageref->num, pageref->gen, &pageobj);
     pageDict = pageobj.getDict();
