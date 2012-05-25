@@ -59,7 +59,7 @@ Web2c
 
 This document describes how to install and use the programs in the Web2c
 implementation of the TeX system, especially for Unix systems.  It
-corresponds to Web2c version 2010, released in July 2010.
+corresponds to Web2c version 2012, released in May 2012.
 
 * Menu:
 
@@ -83,7 +83,7 @@ File: web2c.info,  Node: Introduction,  Next: Installation,  Prev: Top,  Up: Top
 1 Introduction
 **************
 
-This manual corresponds to version 2010 of Web2c, released in July 2010.
+This manual corresponds to version 2012 of Web2c, released in May 2012.
 
    "Web2c" is the name of a TeX implementation, originally for Unix,
 but now also running under DOS, Amiga, and other operating systems. By
@@ -515,8 +515,7 @@ common:
 `-ini'
      Enable the "initial" form of the program (*note Initial and
      virgin::).  This is implicitly set if the program name is `initex'
-     resp. `inimf' resp. `inimpost', although these variants are no
-     longer typically installed.
+     resp. `inimf'.
 
 `-interaction=STRING'
      Set the interaction mode from the command line.  The STRING must
@@ -537,12 +536,7 @@ common:
 `-output-directory=DIRNAME'
      Specify the directory DIRNAME to which output files are written.
      Also look for input files in DIRNAME first, before looking along
-     the normal search path.  This is useful when you are in some
-     read-only distribution directory, perhaps on a CD-ROM, and want to
-     TeX some documentation, for example.  Note that for input files
-     the "search" in DIRNAME does not use the full generality of the
-     search mechanism.  This means that some files are not found there
-     even though you might expect them to be.
+     the normal search path.  *Note Output file location::.
 
 `-parse-first-line'
 `-no-parse-first-line'
@@ -563,6 +557,14 @@ common:
      `.fls'.  For Aleph, this option is always on, and the file has
      extension `.ofl'.
 
+     Ordinarily, the `.fls' file is written to the same location as the
+     `.log' file, for example, respecting `-output-directory' if it is
+     given (*note Output file location::).  However, if TeX processing
+     is done on the command line (or in response to the `**' prompt),
+     the `.fls' might be written to the current directory, or include
+     an integer (the current pid), as in `texput1234.fls'.  You can use
+     `-jobname' to explicitly set the basename.
+
 `-translate-file=TCXFILE'
      Use TCXFILE to define which characters are printable and
      translations between the internal and external character sets.
@@ -574,11 +576,6 @@ common:
      This option specifies that by default all characters should be
      considered printable.  If `-translate-file' was given as well,
      then the TCX file may mark characters as non-printable.
-
-`-oem'
-     This option is specific to Windows. When specified, TeX engines
-     will use the OEM code page rather than the ANSI one to display
-     their messages.
 
 
 
@@ -623,13 +620,14 @@ in the specified directory instead.  *Note Common options::.
 
    If the current directory is not writable, and `-output-directory' is
 not specified, the main programs (TeX, Metafont, MetaPost, and BibTeX)
-make an exception: if the config file value `TEXMFOUTPUT' is set (it is
-not by default), output files are written to the directory specified.
+make an exception: if the config file or environment variable value
+`TEXMFOUTPUT' is set (it is not by default), output files are written
+to the directory specified.
 
    `TEXMFOUTPUT' is also checked for input files, as TeX often
 generates files that need to be subsequently read; for input, no
-suffixes (such as `.tex') are added by default, the input name is
-simply checked as given.
+suffixes (such as `.tex') are added by default and no exhaustive path
+searching is done, the input name is simply checked as given.
 
 
 File: web2c.info,  Node: Three programs,  Prev: Output file location,  Up: Commonalities
@@ -646,7 +644,7 @@ Runtime options::.
 * Menu:
 
 * Initial and virgin::          Making memory dumps vs. production runs.
-* Memory dumps::                .fmt/.base/.mem files for fast startup.
+* Memory dumps::                .fmt/.base files for fast startup.
 * Editor invocation::           The `e' response at errors.
 * \input filenames::            ~ and $ expansion in TeX/MF/MP.
 
@@ -656,16 +654,13 @@ File: web2c.info,  Node: Initial and virgin,  Next: Memory dumps,  Up: Three pro
 3.5.1 Initial and virgin
 ------------------------
 
-The TeX, Metafont, and MetaPost programs each have two main variants,
-called "initial" and "virgin".  As of Web2c 7, one executable suffices
-for both variants, and in fact, the `ini...' executables are no longer
-created.
+The TeX and Metafont programs each have two main variants, called
+"initial" and "virgin".  MetaPost no longer makes this distinction.
 
    The initial form is enabled if:
   1. the `-ini' option was specified; or
 
-  2. the program name is `initex' resp. `inimf' resp.  `inimpost'
-     (these variants are no longer typically installed); or
+  2. the program name is `initex' resp. `inimf'; or
 
   3. the first line of the main input file is `%&ini';
         otherwise, the virgin form is used.
@@ -685,9 +680,9 @@ File: web2c.info,  Node: Memory dumps,  Next: Editor invocation,  Prev: Initial 
 3.5.2 Memory dumps
 ------------------
 
-In typical use, TeX, Metafont, and MetaPost require a large number of
-macros to be predefined; therefore, they support "memory dump" files,
-which can be read much more efficiently than ordinary source code.
+In typical use, TeX and Metafont require a large number of macros to be
+predefined; therefore, they support "memory dump" files, which can be
+read much more efficiently than ordinary source code.
 
 * Menu:
 
@@ -720,9 +715,6 @@ TeX
 Metafont
      (`.base') *Note Initial Metafont::.
 
-MetaPost
-     (`.mem') *Note Initial MetaPost::.
-
    When making memory dumps, the programs read environment variables and
 configuration files for path searching and other values as usual.  If
 you are making a new installation and have environment variables
@@ -744,8 +736,7 @@ programs determine the memory dump to use in the same way:
      name.  For example, running `tex \&super' reads `super.fmt'.  (The
      backslash protects the `&' against interpretation by the shell.)
 
-  2. If the `-fmt' resp. `-base' resp. `-mem' option is specified, its
-     value is used.
+  2. If the `-fmt' resp. `-base' option is specified, its value is used.
 
   3. If the `-progname' option is specified, its value is used.
 
@@ -762,9 +753,8 @@ programs determine the memory dump to use in the same way:
      If this is done, the name of the dump must be given first.
 
   5. Otherwise, the program uses the program invocation name, most
-     commonly `tex' resp. `mf' resp. `mpost'.  For example, if `latex'
-     is a link to `tex', and the user runs `latex foo', `latex.fmt'
-     will be used.
+     commonly `tex' resp. `mf'.  For example, if `latex' is a link to
+     `tex', and the user runs `latex foo', `latex.fmt' will be used.
 
 
 
@@ -794,8 +784,8 @@ files cannot be guaranteed to work.  Floating-point values are always
 written in native format, and hence will generally not be readable
 across platforms.  Fortunately, TeX uses floating point only to
 represent glue ratios, and all common formats (plain, LaTeX, AMSTeX,
-...) do not do any glue setting at `.fmt'-creation time.  Metafont and
-MetaPost do not use floating point in any dumped value at all.
+...) do not do any glue setting at `.fmt'-creation time.  Metafont does
+not use floating point in any dumped value at all.
 
    Incidentally, different memory dump files will never compare equal
 byte-for-byte, because the program always dumps the current date and
@@ -833,13 +823,15 @@ File: web2c.info,  Node: Editor invocation,  Next: \input filenames,  Prev: Memo
 -----------------------
 
 TeX, Metafont, and MetaPost all (by default) stop and ask for user
-intervention at an error.  If the user responds with `e' or `E', the
-program invokes an editor.
+intervention at an error.  If the input came from a file, and the user
+responds with `e' or `E', the program invokes an editor.
 
    Specifying `--with-editor=CMD' to `configure' sets the default
 editor command string to CMD.  The environment variables/configuration
 values `TEXEDIT', `MFEDIT', and `MPEDIT' (respectively) override this.
-If `--with-editor' is not specified, the default is `vi +%d %s'.
+If `--with-editor' is not specified, the default is `vi +%d %s' on
+Unix, and an invocation of the TeXworks editor on Windows.  (See
+`texmf.cnf' for the precise values.)
 
    In this string, `%d' is replaced by the line number of the error,
 and `%s' is replaced by the name of the current input file.
@@ -935,7 +927,7 @@ are available.
 * Initial TeX::                 Making format files.
 * Formats::                     Major TeX macro packages.
 * Languages and hyphenation::   TeX supports many human languages.
-* Shell escapes::               DVI output to a socket.
+* Shell escapes::               Running subprograms from TeX.
 * IPC and TeX::                 DVI output to a socket.
 * TeX extensions::              Changes to the TeX language.
 
@@ -1933,9 +1925,9 @@ default.  You can make your own by copying one of the existing files,
 such as `.../fonts/source/public/misc/slantlj4.mf' and then running
 `mf' on it.
 
-   For testing purposes, you may it useful to run `mf rtest' (hit
-RETURN when it stops) to get a `gf' file of a thorn glyph.  Or use
-`mfw' instead of `mf' to have the glyph(s) displayed on the screen.
+   For testing purposes, you may it useful to run `mf-nowin rtest' (hit
+RETURN when it stops) to get a `gf' file of a thorn glyph.  Or use `mf'
+instead of `mf-nowin' to have the glyph(s) displayed on the screen.
 After that, `gftodvi rtest.2602gf' should produce `rtest.dvi', which
 you process as usual.
 
@@ -2189,37 +2181,21 @@ File: web2c.info,  Node: Initial MetaPost,  Next: dvitomp invocation,  Prev: mpo
 6.2 Initial MetaPost
 ====================
 
-`inimpost' is the "initial" form of MetaPost, which does lengthy
-initializations avoided by the "virgin" (`vir') form, so as to be
-capable of dumping `.mem' files (*note Memory dumps::).  For a detailed
-comparison of virgin and initial forms, see *note Initial and virgin::.
-In past releases, a separate program `inimpost' was installed for the
-initial form, but this is no longer the case.
+As of MetaPost 1.504 (TeX Live 2011), MetaPost no longer dumps `.mem'
+files (*note Memory dumps::) and does not distinguish virgin and
+initial forms (*note Initial and virgin::).  Instead, the "initial"
+file name is read in its source form--that is, `mpost.mp' when the
+program is invoked as `mpost'.
 
    For a list of options and other information, see *note mpost
 invocation::.
 
-   The principal memory dump file used with MetaPost is the default,
-`plain.mem', also known as `mpost.mem' (again, *note Memory dumps::).
-It is created by default during installation, but you can also do so by
-hand if necessary (e.g., if a `plain.mp' update is issued):
-     mpost -ini '\input plain dump'
-   (The quotes prevent interpretation of the backslashes from the
-shell.)  Then install the resulting `plain.mem' in `$(memdir)'
-(`/usr/local/share/texmf/web2c' by default), and link `mpost.mem' to it.
-
-   MetaPost also provides a mem file with all the features of plain
-Metafont, called `mfplain.mem'.  You can create that in the same way;
-just replace `plain' in the above command with `mfplain'.
-`mfplain.mem' file lets you directly process Metafont source files with
-MetaPost, producing character proofs (one file for each character)
-similar to those produced with Metafont in proof mode and GFtoDVI
-(*note gftodvi invocation::).
-
-   Another MetaPost mem file, named MetaFun, provides many advanced
-features.  It was developed and maintained by Pragma ADE.  The home
-page for MetaFun, other MetaPost-related things, and lots more from
-Pragma: `http://www.pragma-ade.com/'.
+   MetaPost provides a format with all the features of plain Metafont,
+called `mfplain'.  You can use that in the same way; just run `mfplain'
+instead of `mpost'.  This lets you directly process Metafont source
+files with MetaPost, producing character proofs (one file for each
+character) similar to those produced with Metafont in proof mode and
+GFtoDVI (*note gftodvi invocation::).
 
 
 File: web2c.info,  Node: dvitomp invocation,  Prev: Initial MetaPost,  Up: MetaPost
@@ -3509,7 +3485,7 @@ Index
                                                               (line   6)
 * $ expansion in filenames:              \input filenames.    (line  48)
 * %& magic number:                       Determining the memory dump to use.
-                                                              (line  20)
+                                                              (line  19)
 * - starting a filename:                 Option conventions.  (line  19)
 * - starts option names:                 Option conventions.  (line  11)
 * -- starts option names:                Option conventions.  (line  11)
@@ -3542,7 +3518,7 @@ Index
                                                               (line  59)
 * --with-x:                              Online Metafont graphics.
                                                               (line  57)
-* -8bit:                                 Common options.      (line 103)
+* -8bit:                                 Common options.      (line 105)
 * -base=BASE:                            Determining the memory dump to use.
                                                               (line  15)
 * -base=DUMPNAME:                        Common options.      (line  34)
@@ -3564,13 +3540,13 @@ Index
                                                               (line  69)
 * -halt-on-error:                        Common options.      (line  41)
 * -images:                               gftype invocation.   (line  26)
-* -ini <1>:                              Initial and virgin.  (line  12)
+* -ini <1>:                              Initial and virgin.  (line  10)
 * -ini:                                  Common options.      (line  45)
-* -interaction=STRING:                   Common options.      (line  51)
+* -interaction=STRING:                   Common options.      (line  50)
 * -ipc:                                  tex invocation.      (line  95)
 * -ipc-start:                            tex invocation.      (line  95)
-* -jobname=STRING:                       Common options.      (line  56)
-* -kpathsea-debug=NUMBER:                Common options.      (line  60)
+* -jobname=STRING:                       Common options.      (line  55)
+* -kpathsea-debug=NUMBER:                Common options.      (line  59)
 * -length=NUMBER:                        tangle invocation.   (line  27)
 * -loose:                                tangle invocation.   (line  46)
 * -lowercase:                            tangle invocation.   (line  35)
@@ -3579,8 +3555,6 @@ Index
 * -max-pages=N <1>:                      dvitype invocation.  (line  33)
 * -max-pages=N:                          dvicopy invocation.  (line  25)
 * -mem=DUMPNAME:                         Common options.      (line  34)
-* -mem=MEM:                              Determining the memory dump to use.
-                                                              (line  15)
 * -min-crossrefs=N:                      bibtex invocation.   (line  31)
 * -mixedcase:                            tangle invocation.   (line  35)
 * -mktex=FILETYPE <1>:                   mf invocation.       (line  87)
@@ -3590,22 +3564,21 @@ Index
 * -no-file-line-error:                   Common options.      (line  26)
 * -no-mktex=FILETYPE <1>:                mf invocation.       (line  87)
 * -no-mktex=FILETYPE:                    tex invocation.      (line 105)
-* -no-parse-first-line:                  Common options.      (line  78)
+* -no-parse-first-line:                  Common options.      (line  72)
 * -no-shell-escape:                      tex invocation.      (line 123)
-* -oem:                                  Common options.      (line 108)
 * -output-comment=STRING:                tex invocation.      (line 115)
 * -output-directory <1>:                 Output file location.
                                                               (line  15)
-* -output-directory:                     Common options.      (line  67)
+* -output-directory:                     Common options.      (line  66)
 * -output-level=N:                       dvitype invocation.  (line  36)
 * -overflow-label-offset=POINTS:         gftodvi invocation.  (line  59)
 * -page-start=PAGE-SPEC <1>:             dvitype invocation.  (line  50)
 * -page-start=PAGE-SPEC:                 dvicopy invocation.  (line  28)
-* -parse-first-line:                     Common options.      (line  77)
+* -parse-first-line:                     Common options.      (line  71)
 * -progname=STRING <1>:                  Determining the memory dump to use.
-                                                              (line  18)
-* -progname=STRING:                      Common options.      (line  83)
-* -recorder:                             Common options.      (line  90)
+                                                              (line  17)
+* -progname=STRING:                      Common options.      (line  77)
+* -recorder:                             Common options.      (line  84)
 * -shell-escape:                         tex invocation.      (line 122)
 * -shell-restricted:                     tex invocation.      (line 124)
 * -show-opcodes:                         dvitype invocation.  (line  56)
@@ -3614,7 +3587,7 @@ Index
 * -T:                                    mpost invocation.    (line 118)
 * -terse:                                bibtex invocation.   (line  28)
 * -tex=TEXPROGRAM:                       mpost invocation.    (line 121)
-* -translate-file=TCXFILE:               Common options.      (line  96)
+* -translate-file=TCXFILE:               Common options.      (line  98)
 * -troff:                                mpost invocation.    (line 118)
 * -underline:                            tangle invocation.   (line  41)
 * -uppercase:                            tangle invocation.   (line  35)
@@ -3628,14 +3601,13 @@ Index
 * .bib bibliography databases:           bibtex invocation.   (line   6)
 * .blg BibTeX log file:                  bibtex invocation.   (line  14)
 * .fmt:                                  Initial TeX.         (line   6)
-* .mem:                                  Initial MetaPost.    (line   6)
 * .mf:                                   mf invocation.       (line  24)
 * .mp:                                   mpost invocation.    (line  31)
 * .mps files and PDF:                    mpost invocation.    (line  89)
 * .NNN PostScript figures:               mpost invocation.    (line  37)
 * .NNNgf generic fonts:                  mf invocation.       (line  34)
 * .tcx character translation files <1>:  TCX files.           (line   6)
-* .tcx character translation files:      Common options.      (line  96)
+* .tcx character translation files:      Common options.      (line  98)
 * .tex:                                  tex invocation.      (line  20)
 * .tfm output <1>:                       mpost invocation.    (line  37)
 * .tfm output:                           mf invocation.       (line  43)
@@ -3644,8 +3616,8 @@ Index
 * .Xresources:                           Online Metafont graphics.
                                                               (line  69)
 * 2602gf:                                mf invocation.       (line  48)
-* 8 bit clean:                           Common options.      (line 103)
-* 8 bit clean output, specifying:        Common options.      (line 103)
+* 8 bit clean:                           Common options.      (line 105)
+* 8 bit clean output, specifying:        Common options.      (line 105)
 * 8-bit characters:                      TCX files.           (line   6)
 * \bibliography:                         bibtex invocation.   (line  18)
 * \bibliographystyle:                    bibtex invocation.   (line  18)
@@ -3729,7 +3701,7 @@ Index
                                                               (line   6)
 * BigEndian machines:                    Hardware and memory dumps.
                                                               (line   6)
-* binaries, linking:                     Common options.      (line  83)
+* binaries, linking:                     Common options.      (line  77)
 * blank lines, in TCX files:             TCX files.           (line  67)
 * boxes, memory for:                     Runtime options.     (line  20)
 * breakpoints, memory for:               Runtime options.     (line  20)
@@ -3808,7 +3780,7 @@ Index
 * date and time, in memory dumps:        Hardware and memory dumps.
                                                               (line  30)
 * debugging DVI utilities:               dvitype invocation.  (line  56)
-* debugging flags, specifying:           Common options.      (line  60)
+* debugging flags, specifying:           Common options.      (line  59)
 * decimal character codes, in TCX files: TCX files.           (line  78)
 * dependencies, hardware:                Hardware and memory dumps.
                                                               (line   6)
@@ -3874,10 +3846,10 @@ Index
 * FAMILY property:                       tftopl invocation.   (line  96)
 * Ferguson, Michael:                     MLTeX.               (line   6)
 * file formats for fonts:                Font file formats.   (line   6)
-* file recorder:                         Common options.      (line  90)
+* file recorder:                         Common options.      (line  84)
 * filename conventions, in input files:  \input filenames.    (line   6)
 * filenames starting with -:             Option conventions.  (line  19)
-* first line of the main input file:     Common options.      (line  96)
+* first line of the main input file:     Common options.      (line  98)
 * fixed-point arithmetic:                Compile-time options.
                                                               (line  22)
 * FIXPT:                                 Compile-time options.
@@ -3987,9 +3959,9 @@ Index
 * initial form, enabling:                Common options.      (line  45)
 * initial Metafont:                      Initial Metafont.    (line   6)
 * initial MetaPost:                      Initial MetaPost.    (line   6)
-* initial programs:                      Initial and virgin.  (line  24)
+* initial programs:                      Initial and virgin.  (line  21)
 * initial TeX:                           Initial TeX.         (line   6)
-* initializations, lengthy:              Initial and virgin.  (line  24)
+* initializations, lengthy:              Initial and virgin.  (line  21)
 * input filenames:                       \input filenames.    (line   6)
 * install-bases Make target:             Additional targets.  (line  29)
 * install-fmts Make target:              Additional targets.  (line  25)
@@ -3997,19 +3969,19 @@ Index
 * install-mems Make target:              Additional targets.  (line  34)
 * installation:                          Installation.        (line   6)
 * interaction between TCX files and -8bit.: TCX files.        (line 105)
-* interaction mode:                      Common options.      (line  51)
+* interaction mode:                      Common options.      (line  50)
 * international characters:              TCX files.           (line   6)
 * introduction:                          Introduction.        (line   6)
 * IPC:                                   IPC and TeX.         (line   6)
 * IPC_DEBUG <1>:                         IPC and TeX.         (line  13)
 * IPC_DEBUG:                             Compile-time options.
                                                               (line  29)
-* job name:                              Common options.      (line  56)
+* job name:                              Common options.      (line  55)
 * kerning table, in TFM files:           tftopl invocation.   (line 102)
 * keyboard character code, translating:  TCX files.           (line 102)
 * Knuth, Donald E. <1>:                  mft invocation.      (line  58)
 * Knuth, Donald E.:                      Introduction.        (line   8)
-* KPATHSEA_DEBUG:                        Common options.      (line  60)
+* KPATHSEA_DEBUG:                        Common options.      (line  59)
 * KRN property:                          tftopl invocation.   (line 102)
 * label font:                            gftodvi invocation.  (line  36)
 * LABEL property:                        tftopl invocation.   (line 102)
@@ -4026,9 +3998,9 @@ Index
 * LIG property:                          tftopl invocation.   (line 102)
 * ligature table, in TFM files:          tftopl invocation.   (line 102)
 * LIGTABLE property:                     tftopl invocation.   (line 102)
-* linking binaries:                      Common options.      (line  83)
+* linking binaries:                      Common options.      (line  77)
 * links to binaries:                     Determining the memory dump to use.
-                                                              (line  32)
+                                                              (line  31)
 * literate programming:                  WEB.                 (line   6)
 * LittleEndian machines:                 Hardware and memory dumps.
                                                               (line   6)
@@ -4054,8 +4026,6 @@ Index
 * mathematical typesetting:              TeX.                 (line   6)
 * mem file, determining:                 Determining the memory dump to use.
                                                               (line   6)
-* mem files:                             Initial MetaPost.    (line   6)
-* mem files, plain only:                 Initial MetaPost.    (line  16)
 * mem files, sharing:                    Hardware and memory dumps.
                                                               (line   6)
 * memory dump to use, determining:       Determining the memory dump to use.
@@ -4080,14 +4050,12 @@ Index
 * Metafont online support, new devices:  Online Metafont graphics.
                                                               (line  80)
 * Metafont source, prettyprinting:       mft invocation.      (line   6)
-* Metafont, compatibility in MetaPost:   Initial MetaPost.    (line  25)
+* Metafont, compatibility in MetaPost:   Initial MetaPost.    (line  15)
 * Metafont, initial:                     Initial Metafont.    (line   6)
 * Metafont, MetaPost, and TeX:           Three programs.      (line   6)
-* MetaFun, enhanced MetaPost:            Initial MetaPost.    (line  33)
-* metafun.mp:                            Initial MetaPost.    (line  33)
 * MetaPost:                              MetaPost.            (line   6)
 * MetaPost and plain Metafont compatibility: Initial MetaPost.
-                                                              (line  25)
+                                                              (line  15)
 * MetaPost input files:                  mpost invocation.    (line  31)
 * MetaPost invocation:                   mpost invocation.    (line   6)
 * MetaPost source, prettyprinting:       mft invocation.      (line  80)
@@ -4098,7 +4066,7 @@ Index
 * mf:                                    mf invocation.       (line   6)
 * mf.base:                               Initial Metafont.    (line  16)
 * MFEDIT:                                Editor invocation.   (line  10)
-* mfplain.mem:                           Initial MetaPost.    (line  25)
+* mfplain:                               Initial MetaPost.    (line  15)
 * mfput:                                 mf invocation.       (line  34)
 * mft:                                   mft invocation.      (line   6)
 * mftalk:                                Online Metafont graphics.
@@ -4123,7 +4091,6 @@ Index
 * mpman.ps:                              mpost invocation.    (line   6)
 * mpost:                                 mpost invocation.    (line   6)
 * mpost, reason for name change:         Installation.        (line  19)
-* mpost.mem:                             Initial MetaPost.    (line  16)
 * mpout:                                 mpost invocation.    (line  37)
 * mproof.tex:                            mpost invocation.    (line  73)
 * mptrap Make target:                    Additional targets.  (line  41)
@@ -4153,7 +4120,7 @@ Index
 * origin:                                pktype invocation.   (line  66)
 * output directory, specifying <1>:      Output file location.
                                                               (line  15)
-* output directory, specifying:          Common options.      (line  67)
+* output directory, specifying:          Common options.      (line  66)
 * output file location:                  Output file location.
                                                               (line   6)
 * output files, written by TeX programs: tex invocation.      (line  51)
@@ -4162,11 +4129,11 @@ Index
 * packet length:                         pktype invocation.   (line  50)
 * page, starting <1>:                    dvitype invocation.  (line  50)
 * page, starting:                        dvicopy invocation.  (line  28)
-* parsing the first line:                Common options.      (line  78)
+* parsing the first line:                Common options.      (line  72)
 * Pascal, creating from WEB:             tangle invocation.   (line   6)
 * patgen:                                patgen invocation.   (line   6)
 * path searching:                        Path searching.      (line   6)
-* path searching debugging:              Common options.      (line  60)
+* path searching debugging:              Common options.      (line  59)
 * PDF:                                   TeX extensions.      (line  20)
 * PDF, and .mps files:                   mpost invocation.    (line  89)
 * pdfTeX:                                TeX extensions.      (line  20)
@@ -4191,7 +4158,7 @@ Index
 * pktype.web:                            Font utilities.      (line  11)
 * PL files, explained:                   Font file formats.   (line  47)
 * plain Metafont, compatibility in MetaPost: Initial MetaPost.
-                                                              (line  25)
+                                                              (line  15)
 * plain text, converting DVI to:         dvitype invocation.  (line   6)
 * plain text, converting GF to:          gftype invocation.   (line   6)
 * plain text, converting PK to:          pktype invocation.   (line   6)
@@ -4201,7 +4168,6 @@ Index
 * plain.bst:                             Basic BibTeX style files.
                                                               (line  11)
 * plain.fmt:                             Initial TeX.         (line  15)
-* plain.mem:                             Initial MetaPost.    (line  16)
 * plain.mft:                             mft invocation.      (line  68)
 * pltotf:                                pltotf invocation.   (line   6)
 * pool file, writing:                    tangle invocation.   (line  16)
@@ -4219,16 +4185,15 @@ Index
 * PostScript, and font scaling:          Font file formats.   (line  22)
 * potrace:                               Font utilities available elsewhere.
                                                               (line  46)
-* Pragma ADE:                            Initial MetaPost.    (line  33)
 * predefined macros and memory dumps:    Memory dumps.        (line   6)
 * prettyprinting Metafont source:        mft invocation.      (line   6)
 * prettyprinting WEB programs:           weave invocation.    (line   6)
 * primitives, new:                       TeX extensions.      (line  10)
 * printable characters, specifying:      TCX files.           (line  88)
 * printer characteristics, for Metafont: Modes.               (line   6)
-* production use:                        Initial and virgin.  (line  20)
+* production use:                        Initial and virgin.  (line  17)
 * program name, determines memory dump:  Determining the memory dump to use.
-                                                              (line  32)
+                                                              (line  31)
 * program names, special <1>:            tex invocation.      (line 110)
 * program names, special:                Common options.      (line  45)
 * prologues:                             mpost invocation.    (line 118)
@@ -4356,7 +4321,7 @@ Index
 * texmfmp.c:                             Online Metafont graphics.
                                                               (line  80)
 * TEXMFOUTPUT, used for reading:         Output file location.
-                                                              (line  24)
+                                                              (line  25)
 * TEXMFOUTPUT, used if . unwritable:     Output file location.
                                                               (line  19)
 * texput:                                tex invocation.      (line  35)
@@ -4375,7 +4340,7 @@ Index
 * toolkits, X:                           Online Metafont graphics.
                                                               (line  59)
 * torture tests:                         Triptrap.            (line   6)
-* translation file for TeX, specifying:  Common options.      (line  96)
+* translation file for TeX, specifying:  Common options.      (line  98)
 * translation from WEB to C:             Introduction.        (line  16)
 * trap Make target:                      Additional targets.  (line  41)
 * trap test:                             Triptrap.            (line   6)
@@ -4406,7 +4371,6 @@ Index
                                                               (line  50)
 * unsrt.bst:                             Basic BibTeX style files.
                                                               (line  39)
-* using local codepage to display messages: Common options.   (line 108)
 * UTF-8 input:                           tex invocation.      (line  89)
 * validation, of DVI files:              dvitype invocation.  (line   6)
 * validation, of GF files:               gftype invocation.   (line   6)
@@ -4419,7 +4383,7 @@ Index
 * vertical escapement:                   gftype invocation.   (line 107)
 * VF files, converting property lists to: vptovf invocation.  (line   6)
 * vftovp:                                vftovp invocation.   (line   6)
-* virgin programs:                       Initial and virgin.  (line  20)
+* virgin programs:                       Initial and virgin.  (line  17)
 * virtual font creation:                 Font utilities available elsewhere.
                                                               (line  53)
 * virtual fonts, expanding:              dvicopy invocation.  (line   6)
@@ -4478,74 +4442,74 @@ Index
 
 Tag Table:
 Node: Top2812
-Node: Introduction3806
-Node: Installation6978
-Node: configure options9142
-Node: Compile-time options11224
-Node: Additional targets12350
-Node: Triptrap13631
-Node: Runtime options15160
-Node: Commonalities16932
-Node: Option conventions17537
-Node: Common options18761
-Node: Path searching23273
-Node: Output file location24295
-Node: Three programs25555
-Node: Initial and virgin26314
-Node: Memory dumps27414
-Node: Creating memory dumps27881
-Node: Determining the memory dump to use29142
-Node: Hardware and memory dumps30766
-Node: Editor invocation33235
-Node: \input filenames33965
-Node: TeX36958
-Node: tex invocation38104
-Node: Initial TeX45074
-Node: Formats46563
-Node: Languages and hyphenation49502
-Node: MLTeX49932
-Node: \charsubdef51427
-Node: \tracingcharsubdef53753
-Node: TCX files54328
-Node: patgen invocation59752
-Node: Shell escapes60469
-Node: IPC and TeX64033
-Node: TeX extensions64603
-Node: Metafont65735
-Node: mf invocation67023
-Node: Initial Metafont70906
-Node: Modes72659
-Node: Online Metafont graphics74915
-Node: gftodvi invocation78330
-Node: mft invocation81152
-Node: MetaPost85207
-Node: mpost invocation85969
-Node: Initial MetaPost91227
-Node: dvitomp invocation93038
-Node: BibTeX93703
-Node: bibtex invocation94064
-Node: Basic BibTeX style files96389
-Node: WEB97731
-Node: tangle invocation98939
-Node: weave invocation101062
-Node: pooltype invocation102470
-Node: DVI utilities103600
-Node: dvicopy invocation104544
-Node: dvitype invocation105842
-Node: dvitype output example108197
-Node: Font utilities111248
-Node: Font file formats112428
-Node: gftopk invocation115727
-Node: pktogf invocation116931
-Node: pktype invocation118110
-Node: gftype invocation120945
-Node: tftopl invocation125461
-Node: pltotf invocation130095
-Node: vftovp invocation131160
-Node: vptovf invocation133444
-Node: Font utilities available elsewhere134498
-Node: Legalisms136906
-Node: References139077
-Node: Index143649
+Node: Introduction3805
+Node: Installation6976
+Node: configure options9140
+Node: Compile-time options11222
+Node: Additional targets12348
+Node: Triptrap13629
+Node: Runtime options15158
+Node: Commonalities16930
+Node: Option conventions17535
+Node: Common options18759
+Node: Path searching23166
+Node: Output file location24188
+Node: Three programs25513
+Node: Initial and virgin26267
+Node: Memory dumps27206
+Node: Creating memory dumps27662
+Node: Determining the memory dump to use28873
+Node: Hardware and memory dumps30460
+Node: Editor invocation32918
+Node: \input filenames33784
+Node: TeX36777
+Node: tex invocation37929
+Node: Initial TeX44899
+Node: Formats46388
+Node: Languages and hyphenation49327
+Node: MLTeX49757
+Node: \charsubdef51252
+Node: \tracingcharsubdef53578
+Node: TCX files54153
+Node: patgen invocation59577
+Node: Shell escapes60294
+Node: IPC and TeX63858
+Node: TeX extensions64428
+Node: Metafont65560
+Node: mf invocation66848
+Node: Initial Metafont70731
+Node: Modes72484
+Node: Online Metafont graphics74740
+Node: gftodvi invocation78155
+Node: mft invocation80988
+Node: MetaPost85043
+Node: mpost invocation85805
+Node: Initial MetaPost91063
+Node: dvitomp invocation91985
+Node: BibTeX92650
+Node: bibtex invocation93011
+Node: Basic BibTeX style files95336
+Node: WEB96678
+Node: tangle invocation97886
+Node: weave invocation100009
+Node: pooltype invocation101417
+Node: DVI utilities102547
+Node: dvicopy invocation103491
+Node: dvitype invocation104789
+Node: dvitype output example107144
+Node: Font utilities110195
+Node: Font file formats111375
+Node: gftopk invocation114674
+Node: pktogf invocation115878
+Node: pktype invocation117057
+Node: gftype invocation119892
+Node: tftopl invocation124408
+Node: pltotf invocation129042
+Node: vftovp invocation130107
+Node: vptovf invocation132391
+Node: Font utilities available elsewhere133445
+Node: Legalisms135853
+Node: References138024
+Node: Index142596
 
 End Tag Table

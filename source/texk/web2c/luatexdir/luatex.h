@@ -1,7 +1,7 @@
 /* luatex.h
-   
+
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2012 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -89,13 +89,6 @@ typedef GLUERATIO_TYPE glueratio;
 extern void ipcpage(int);
 #  endif                        /* IPC */
 
-
-/* How to output to the GF or DVI file.  */
-#  define	WRITE_OUT(a, b)							\
-  if (fwrite ((char *) &OUT_BUF[a], sizeof (OUT_BUF[a]),		\
-                 (int) ((b) - (a) + 1), OUT_FILE) 			\
-      != (int) ((b) - (a) + 1))						\
-    FATAL_PERROR ("fwrite");
 
 #  define flush_out() fflush (OUT_FILE)
 

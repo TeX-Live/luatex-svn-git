@@ -75,6 +75,7 @@ const_string ALEPHHELP[] = {
 #endif /* Aleph */
 
 #ifdef epTeX
+const_string based_prog_name = "e-TeX";
 const_string EPTEXHELP[] = {
     "Usage: eptex [OPTION]... [TEXNAME[.tex]] [COMMANDS]",
     "   or: eptex [OPTION]... \\FIRST-LINE",
@@ -96,6 +97,9 @@ const_string EPTEXHELP[] = {
     "",
     "-etex                   enable e-TeX extensions",
     "-fmt=NAME               use NAME instead of program name or %&format.",
+#if defined(WIN32)
+    "[-no]-guess-input-enc   disable/enable to guess input file encoding",
+#endif
     "-halt-on-error          stop processing at the first error",
     "[-no]-file-line-error   disable/enable file:line:error style messages",
     "-ini                    be iniptex.",
@@ -108,6 +112,7 @@ const_string EPTEXHELP[] = {
 #endif /* IPC */
     "-jobname=STRING         set the job name to STRING",
     "-kanji=STRING           set Japanese encoding (STRING=euc|jis|sjis|utf8)",
+    "-kanji-internal=STRING  set Japanese internal encoding (STRING=euc|sjis)",
     "-kpathsea-debug=NUMBER  set path searching debugging flags according to",
     "                          the bits of NUMBER",
     "[-no]-mktex=FMT         disable/enable mktexFMT generation (FMT=tex/tfm)",
@@ -118,10 +123,17 @@ const_string EPTEXHELP[] = {
     "-progname=STRING        set program (and fmt) name to STRING",
     "-recorder               enable filename recorder",
     "[-no]-shell-escape      disable/enable \\write18{SHELL COMMAND}",
+    "-shell-restricted       enable restricted \\write18",
+#if defined(WIN32)
+    "-sjis-terminal          always output to stdout and stderr by CP932",
+#endif
     "-src-specials           insert source specials into the DVI file",
     "-src-specials=WHERE     insert source specials in certain places of",
     "                          the DVI file. WHERE is a comma-separated value",
     "                          list: cr display hbox math par parend vbox",
+#if defined(__SyncTeX__)
+    "-synctex=NUMBER         generate SyncTeX data for previewers if nonzero",
+#endif
     "-translate-file=TCXNAME use the TCX file TCXNAME",
     "-help                   print this message and exit.",
     "-version                print version information and exit.",
@@ -189,6 +201,73 @@ const_string ETEXHELP[] = {
     NULL
 };
 #endif /* eTeX */
+
+#ifdef eupTeX
+const_string based_prog_name = "e-TeX";
+const_string EUPTEXHELP[] = {
+    "Usage: euptex [OPTION]... [TEXNAME[.tex]] [COMMANDS]",
+    "   or: euptex [OPTION]... \\FIRST-LINE",
+    "   or: euptex [OPTION]... &FMT ARGS",
+    "  Run e-upTeX on TEXNAME, usually creating TEXNAME.dvi.",
+    "  Any remaining COMMANDS are processed as e-upTeX input, after TEXNAME is read.",
+    "  If the first line of TEXNAME is %&FMT, and FMT is an existing .fmt file,",
+    "  use it.  Else use `NAME.fmt', where NAME is the program invocation name,",
+    "  most commonly `euptex'.",
+    "",
+    "  Alternatively, if the first non-option argument begins with a backslash,",
+    "  interpret all non-option arguments as a line of e-upTeX input.",
+    "",
+    "  Alternatively, if the first non-option argument begins with a &, the",
+    "  next word is taken as the FMT to read, overriding all else.  Any",
+    "  remaining arguments are processed as above.",
+    "",
+    "  If no arguments or options are specified, prompt for input.",
+    "",
+    "-etex                   enable e-TeX extensions",
+    "-fmt=NAME               use NAME instead of program name or %&format.",
+#if defined(WIN32)
+    "[-no]-guess-input-enc   disable/enable to guess input file encoding",
+#endif
+    "-halt-on-error          stop processing at the first error",
+    "[-no]-file-line-error   disable/enable file:line:error style messages",
+    "-ini                    be iniptex.",
+    "-interaction=STRING     set interaction mode (STRING=batchmode|nonstopmode|",
+    "                          scrollmode|errorstopmode)",
+#ifdef IPC
+    "-ipc                    send DVI output to a socket as well as the usual",
+    "                          output file",
+    "-ipc-start              as -ipc, and also start the server at the other end",
+#endif /* IPC */
+    "-jobname=STRING         set the job name to STRING",
+    "-kanji=STRING           set Japanese encoding (STRING=euc|jis|sjis|utf8|uptex)",
+    "-kanji-internal=STRING  set Japanese internal encoding (STRING=euc|sjis|uptex)",
+    "-kpathsea-debug=NUMBER  set path searching debugging flags according to",
+    "                          the bits of NUMBER",
+    "[-no]-mktex=FMT         disable/enable mktexFMT generation (FMT=tex/tfm)",
+    "-mltex                  enable MLTeX extensions such as \\charsubdef",
+    "-output-comment=STRING  use STRING for DVI file comment instead of date",
+    "-output-directory=DIR   use existing DIR as the directory to write files in",
+    "[-no]-parse-first-line  disable/enable parsing of first line of input file",
+    "-progname=STRING        set program (and fmt) name to STRING",
+    "-recorder               enable filename recorder",
+    "[-no]-shell-escape      disable/enable \\write18{SHELL COMMAND}",
+    "-shell-restricted       enable restricted \\write18",
+#if defined(WIN32)
+    "-sjis-terminal          always output to stdout and stderr by CP932",
+#endif
+    "-src-specials           insert source specials into the DVI file",
+    "-src-specials=WHERE     insert source specials in certain places of",
+    "                          the DVI file. WHERE is a comma-separated value",
+    "                          list: cr display hbox math par parend vbox",
+#if defined(__SyncTeX__)
+    "-synctex=NUMBER         generate SyncTeX data for previewers if nonzero",
+#endif
+    "-translate-file=TCXNAME use the TCX file TCXNAME",
+    "-help                   print this message and exit.",
+    "-version                print version information and exit.",
+    NULL
+};
+#endif /* eupTeX */
 
 #ifdef MF
 const_string MFHELP[] = {
@@ -300,6 +379,7 @@ const_string PDFTEXHELP[] = {
 #endif /* pdfTeX */
 
 #ifdef pTeX
+const_string based_prog_name = "TeX";
 const_string PTEXHELP[] = {
     "Usage: ptex [OPTION]... [TEXNAME[.tex]] [COMMANDS]",
     "   or: ptex [OPTION]... \\FIRST-LINE",
@@ -320,6 +400,9 @@ const_string PTEXHELP[] = {
     "  If no arguments or options are specified, prompt for input.",
     "",
     "-fmt=NAME               use NAME instead of program name or %&format.",
+#if defined(WIN32)
+    "[-no]-guess-input-enc   disable/enable to guess input file encoding",
+#endif
     "-halt-on-error          stop processing at the first error",
     "[-no]-file-line-error   disable/enable file:line:error style messages",
     "-ini                    be iniptex.",
@@ -332,6 +415,7 @@ const_string PTEXHELP[] = {
 #endif /* IPC */
     "-jobname=STRING         set the job name to STRING",
     "-kanji=STRING           set Japanese encoding (STRING=euc|jis|sjis|utf8)",
+    "-kanji-internal=STRING  set Japanese internal encoding (STRING=euc|sjis)",
     "-kpathsea-debug=NUMBER  set path searching debugging flags according to",
     "                          the bits of NUMBER",
     "[-no]-mktex=FMT         disable/enable mktexFMT generation (FMT=tex/tfm)",
@@ -342,10 +426,17 @@ const_string PTEXHELP[] = {
     "-progname=STRING        set program (and fmt) name to STRING",
     "-recorder               enable filename recorder",
     "[-no]-shell-escape      disable/enable \\write18{SHELL COMMAND}",
+    "-shell-restricted       enable restricted \\write18",
+#if defined(WIN32)
+    "-sjis-terminal          always output to stdout and stderr by CP932",
+#endif
     "-src-specials           insert source specials into the DVI file",
     "-src-specials=WHERE     insert source specials in certain places of",
     "                          the DVI file. WHERE is a comma-separated value",
     "                          list: cr display hbox math par parend vbox",
+#if defined(__SyncTeX__)
+    "-synctex=NUMBER         generate SyncTeX data for previewers if nonzero",
+#endif
     "-translate-file=TCXNAME use the TCX file TCXNAME",
     "-help                   print this message and exit.",
     "-version                print version information and exit.",
@@ -412,6 +503,72 @@ const_string TEXHELP[] = {
     NULL
 };
 #endif /* onlyTeX */
+
+#ifdef upTeX
+const_string based_prog_name = "TeX";
+const_string UPTEXHELP[] = {
+    "Usage: uptex [OPTION]... [TEXNAME[.tex]] [COMMANDS]",
+    "   or: uptex [OPTION]... \\FIRST-LINE",
+    "   or: uptex [OPTION]... &FMT ARGS",
+    "  Run upTeX on TEXNAME, usually creating TEXNAME.dvi.",
+    "  Any remaining COMMANDS are processed as upTeX input, after TEXNAME is read.",
+    "  If the first line of TEXNAME is %&FMT, and FMT is an existing .fmt file,",
+    "  use it.  Else use `NAME.fmt', where NAME is the program invocation name,",
+    "  most commonly `uptex'.",
+    "",
+    "  Alternatively, if the first non-option argument begins with a backslash,",
+    "  interpret all non-option arguments as a line of upTeX input.",
+    "",
+    "  Alternatively, if the first non-option argument begins with a &, the",
+    "  next word is taken as the FMT to read, overriding all else.  Any",
+    "  remaining arguments are processed as above.",
+    "",
+    "  If no arguments or options are specified, prompt for input.",
+    "",
+    "-fmt=NAME               use NAME instead of program name or %&format.",
+#if defined(WIN32)
+    "[-no]-guess-input-enc   disable/enable to guess input file encoding",
+#endif
+    "-halt-on-error          stop processing at the first error",
+    "[-no]-file-line-error   disable/enable file:line:error style messages",
+    "-ini                    be iniptex.",
+    "-interaction=STRING     set interaction mode (STRING=batchmode|nonstopmode|",
+    "                          scrollmode|errorstopmode)",
+#ifdef IPC
+    "-ipc                    send DVI output to a socket as well as the usual",
+    "                          output file",
+    "-ipc-start              as -ipc, and also start the server at the other end",
+#endif /* IPC */
+    "-jobname=STRING         set the job name to STRING",
+    "-kanji=STRING           set Japanese encoding (STRING=euc|jis|sjis|utf8|uptex)",
+    "-kanji-internal=STRING  set Japanese internal encoding (STRING=euc|sjis|uptex)",
+    "-kpathsea-debug=NUMBER  set path searching debugging flags according to",
+    "                          the bits of NUMBER",
+    "[-no]-mktex=FMT         disable/enable mktexFMT generation (FMT=tex/tfm)",
+    "-mltex                  enable MLTeX extensions such as \\charsubdef",
+    "-output-comment=STRING  use STRING for DVI file comment instead of date",
+    "-output-directory=DIR   use existing DIR as the directory to write files in",
+    "[-no]-parse-first-line  disable/enable parsing of first line of input file",
+    "-progname=STRING        set program (and fmt) name to STRING",
+    "-recorder               enable filename recorder",
+    "[-no]-shell-escape      disable/enable \\write18{SHELL COMMAND}",
+    "-shell-restricted       enable restricted \\write18",
+#if defined(WIN32)
+    "-sjis-terminal          always output to stdout and stderr by CP932",
+#endif
+    "-src-specials           insert source specials into the DVI file",
+    "-src-specials=WHERE     insert source specials in certain places of",
+    "                          the DVI file. WHERE is a comma-separated value",
+    "                          list: cr display hbox math par parend vbox",
+#if defined(__SyncTeX__)
+    "-synctex=NUMBER         generate SyncTeX data for previewers if nonzero",
+#endif
+    "-translate-file=TCXNAME use the TCX file TCXNAME",
+    "-help                   print this message and exit.",
+    "-version                print version information and exit.",
+    NULL
+};
+#endif /* upTeX */
 
 #ifdef XeTeX
 const_string XETEXHELP[] = {
