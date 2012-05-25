@@ -1,3 +1,98 @@
+2012-05-16  Vladimir Volovich  <vvv@vsu.ru>
+
+	* synctex_parser.c (SYNCTEX_DECLARE_CHARINDEX): Bug fix, avoid
+	isolated semicolon.
+
+2012-02-03  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* synctex_parser.c: Change struct __synctex_updater_t member
+	file from 'void *' to 'gzFile', they differ for zlib-1.2.6.
+
+2011-10-18  Akira Kakuto   <kakuto@fuk.kindai.ac.jp>
+
+	* synctex_parser.c: remove "# warning ..." lines, because MSVC fails to
+	interpret them.
+
+2011-10-14  Jérôme Laurens  <jerome.laurens@u-bourgogne.fr>
+
+    These changes only affect the synctex command line utility
+    as well as 3rd parties developers. The various TeX engines are not affected.
+    
+	* synctex_parser.c:
+        - cosmetic changes to enhance code readability
+        - Adding the notiong of mean line and weight to hbox nodes
+          in order to enhance forward synchronization
+        - function synctex_scanner_get_name:
+            + Adding support for the new file naming convention with './'
+    * synctex_parser_utils.c:
+        - Adding support for the new file naming convention with './'
+            + function synctex_ignore_leading_dot_slash_in_path replaces synctex_ignore_leading_dot_slash
+            + function _synctex_is_equivalent_file_name is more permissive
+
+    See the synctex_parser_readme.txt for more details
+
+2011-08-25  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* synctex-e-rec.ch0: Shorten a change set to simplify e-pTeX.
+
+2011-08-22  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* synctex-luatex.h, synctex-xetex.h: Define SYNCTEX_CURH and
+	SYNCTEX_CURH to yield correct coordinates in dvi and pdf mode.
+
+2011-08-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/synctex.am: Add upTeX and e-upTeX.
+	* synctex-euptex.h, synctex-uptex.h: New files.
+
+2011-07-25  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/synctex.am (eptex_ch_synctex): Bug fix:
+	use synctex-e-rec.ch[01] instead of ...
+	* synctex-ep-rec.ch1 (removed): ... this file.
+	Mail from Akira, Sat, 23 Jul 2011 23:02:45.
+
+2011-07-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	SyncTeX infrastructure for pTeX and e-pTeX.
+	* synctex-ptex.h, synctex-p-{mem,rec}.ch[01] (all new):
+	Additional files for pTeX.
+	* synctex-eptex.h, synctex-ep-{mem.ch[01],rec.ch1} (all new):
+	Additional files for e-pTeX.
+	* am/synctex.am: Adapt
+
+	* synctex.c: Drop `#warning These structures MUST be kept...'.
+
+2011-06-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* synctex-{,e}tex.h: Drop the `#warning SyncTeX for *TeX'.
+	* synctex-{,e,pdf,xe}tex.h: Move the default definition of
+	SYNCTEX_GET_CURRENT_NAME for here ...
+	* synctex.c: ... to here.
+
+2011-06-11  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* synctex_parser_utils.c: fix a typo.
+
+2011-05-13  Taco Hoekwater  <taco@luatex.org>
+
+	* synctex-luatex.h: synchronization_field_size has to be 1 for luatex.
+
+2011-05-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* synctex-etex.h, synctex-pdftex.h, synctex-tex.h, synctex-xetex.h:
+	Move generic_synctex_get_current_name() prototype to ../texmfmp.h.
+
+2011-05-11  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* synctex-etex.h, synctex-pdftex.h, synctex-tex.h, synctex-xetex.h:
+	define SYNCTEX_GET_CURRENT_NAME() as in LuaTeX, since SyncTeX name
+	should be full path when --output-directory option is given.
+
+2011-05-09  Taco Hoekwater  <taco@luatex.org>
+
+	* synctex-luatex.h: use an actual function to find the current name.
+
 2011-04-16  Taco Hoekwater  <taco@luatex.org>
 
 	* synctex.c: Rename flags member output => output_p to avoid
