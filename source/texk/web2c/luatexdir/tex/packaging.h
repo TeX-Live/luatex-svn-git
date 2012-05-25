@@ -1,4 +1,4 @@
-/* nesting.h
+/* packaging.h
    
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 

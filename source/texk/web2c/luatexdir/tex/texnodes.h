@@ -1,4 +1,4 @@
-/* nodes.h
+/* texnodes.h
    
    Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
 
