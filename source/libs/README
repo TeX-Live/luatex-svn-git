@@ -1,4 +1,4 @@
-$Id: README 22071 2011-04-13 11:15:39Z peter $
+$Id: README 26397 2012-05-15 07:40:57Z peter $
 Public domain.  Originally created by Karl Berry, 2005.
 
 Libraries we compile for TeX Live.
@@ -11,29 +11,46 @@ See also comments in ../texk/README.
 
 freetype 1.5 - ?
 
-freetype2 2.4.4 - http://savannah.nongnu.org/download/freetype/
+freetype2 2.4.9 - checked 9mar12
+  http://savannah.nongnu.org/download/freetype/
 
-gd 2.0.35 - http://www.libgd.org/releases/
+gd 2.0.35 - unchecked 10may12, libgd still down
+  http://www.libgd.org/releases/
+  http://www.boutell.com/gd/
+  https://bitbucket.org/pierrejoye/gd-libgd/overview
 
-graphite 2.3.1 - the directory silgraphite-2.3.1/engine/ from
-  http://sourceforge.net/projects/silgraphite/
+graphite 2.4 - checked 15may12
+  the directory silgraphite/engine/ from
+  http://scripts.sil.org/svn-public/graphite/graphite/trunk
+  (svn r1333 2012-05-14 14:47:16 UTC, omitting changes in test/).
 
-icu 4.6 - http://download.icu-project.org/files/icu4c/
+icu 49.1 (49.1 release) - http://download.icu-project.org/files/icu4c/
   with modifications required for xetex, also used by bibtexu
 
-libpng 1.5.2 - http://www.libpng.org/ - used by many
+libpng 1.5.10 - checked 30mar12
+  http://www.libpng.org/ - used by many
+  http://www.libpng.org/pub/png/pngcode.html
 
 obsdcompat - used by pdftex and luatex
 
-poppler 0.12.4 - http://poppler.freedesktop.org/ - used by luatex
+poppler 0.20.0 - checked 11may12
+  http://poppler.freedesktop.org/ - used by luatex and xetex
 
-t1lib 5.1.2 - ftp://sunsite.unc.edu/pub/Linux/libs/graphics/
+t1lib 5.1.2 - checked 10may12
+  (apparently unmaintained)
+  ftp://sunsite.unc.edu/pub/Linux/libs/graphics/
+  http://www.t1lib.org/
 
-teckit 2.5.1 - http://scripts.sil.org/svn-view/teckit/
+teckit 2.5.3 - checked 17mar12
+  http://scripts.sil.org/svn-public/teckit/TRUNK
+  (svn r1250 2012-03-14 19:45:41 UTC).
 
-xpdf 3.02pl4 - http://www.foolabs.com/xpdf/
-  with modifications for pdftex and xetex
+xpdf 3.03 - checked 10may12
+  ftp://ftp.foolabs.com/pub/xpdf/
+  with modifications for pdftex
 
-zlib 1.2.5 - http://www.zlib.net/ - used by many
+zlib 1.2.7 - checked 3may12
+  http://www.zlib.net/ - used by many
 
-zziplib 0.13.60 - http://zziplib.sourceforge.net/ - used by luatex
+zziplib 0.13.62 - checked 12mar12
+  http://zziplib.sourceforge.net/ - used by luatex

@@ -1,3 +1,132 @@
+2012-05-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* printversion.c (printversionandexit): Update 'Copyright 2012'.
+
+2012-04-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c (mk_shellcmdlist, init_shell_escape,
+	shell_cmd_is_allowed, normalize_quotes): Declare as static.
+	(get_seconds_and_micros): Define only for pdfTeX.
+	(getrandomseed): Removed, MP only.
+
+2012-03-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Avoid 'differ in signedness' warnings.
+	* texmfmp.c (input_line): Cast buffer to 'unsigned char *'.
+
+2012-02-14  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* eofeoln.c (eof): Fix a typo in comment.
+
+2012-01-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* printversion.c, texmfmp.c: Drop report of file offset bits.
+
+2012-01-17  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lib.h, printversion.c, texmfmp.c: Report file offset bits.
+
+2011-12-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* setupvar.c (setupboundvariable): Warning message: the bad
+	value can be from the environment or from texmf.cnf.
+
+2011-10-11  Peter Breitenlohner  <peb@mp.mpg.de>
+
+	* texmfmp.c [WIN32]: Slightly reformulate Byte order marks.
+
+2011-10-07  Peter Breitenlohner  <peb@mp.mpg.de>
+
+	* texmfmp.c: More changes to reduce diffs with W32TeX.
+
+2011-10-04  Peter Breitenlohner  <peb@mp.mpg.de>
+
+	* texmfmp.c: More changes to reduce diffs with W32TeX,
+	for compilation with MS Visual Studio 2005.
+
+2011-10-05  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmp.c : remove unused free_shellcmdlist()
+
+2011-10-04  Peter Breitenlohner  <peb@mp.mpg.de>
+
+	* texmfmp.c (calledit): More changes to reduce diffs with W32TeX.
+
+2011-10-01  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmp.c: write (sock, buff, n) and send (sock, buff, n, 0)
+	for ipc_snd () are different in winsock.
+
+2011-09-30  Peter Breitenlohner  <peb@mp.mpg.de>
+
+	* texmfmp.c [Aleph]: Remove unused variable `eightbitp'.
+
+2011-09-21  Peter Breitenlohner  <peb@mp.mpg.de>
+
+	* texmfmp.c [IPC]: More changes to reduce diffs with W32TeX.
+
+2011-09-11  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmp.c: Disable options -translate-file, -default-translate-file,
+	and -8bit for Aleph. The option -kanji-internal=STRING is effective
+	also for pTeX and epTeX.
+
+2011-09-02  Peter Breitenlohner  <peb@mp.mpg.de>
+
+	* texmfmp.c: More changes to reduce diffs with W32TeX.
+
+2011-09-01  Peter Breitenlohner  <peb@mp.mpg.de>
+
+	* texmfmp.c [WIN32]: Minor rewrite to reduce diffs with W32TeX.
+
+2011-08-30  Akira Kakuto <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmp.c [WIN32]: Remove a semicolon.
+
+2011-08-29  Peter Breitenlohner  <peb@mp.mpg.de>
+
+	* texmfmp.c [WIN32]: Allow to build TeX & Co as DLL.
+
+2011-08-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c: Remove some (e-)pTeX cruft.
+
+	* openclose.c [PTEX]: No nkf_open() and nkf_close() for WIN32.
+
+2011-08-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c: Options for (e-)pTeX and (e-)upTeX.
+
+2011-08-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c: Add upTeX and e-upTeX.
+
+2011-08-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c: Do not #include empty file <kpathsea/recorder.h>.
+
+2011-08-03  Magnus Granberg  <zorry@gentoo.org>
+
+	* texmfmp.c: Use C code for i?86 when -fPIC.
+
+2011-07-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c: Drop `#warning SyncTeX: -synctex command line...'.
+
+2011-05-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c (ipcpage): Add 'free(cwd)'.
+	(generic_synctex_get_current_name): Use xgetcwd().
+
+2011-05-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c: Change arg2 of kpse_absolute_p() from `0' to `false'.
+
+2011-05-11  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmp.c: add a function generic_synctex_get_current_name()
+	in order to get full path names for SyncTeX.
+
 2011-05-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* texmfmp.c (ipc_open_out): Avoid to #define SOCK_NONBLOCK which
@@ -29,15 +158,15 @@
 	Avoid 'differ in signedness' warnings.
 	texmfmp.c (input_line): Caat input_line2() arg2 to 'char *'.
 
-2011-03-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
-
-	* setupvar.c (setupboundvariable): `program_invocation_name' has
-	been renamed into `kpse_invocation_name'.
-
 2011-03-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* texmfmp.c (calledit): [__MINGW32__] Drop win32_system() and
 	use system() as for all other systems.
+
+2011-03-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* setupvar.c (setupboundvariable): `program_invocation_name' has
+	been renamed into `kpse_invocation_name'.
 
 2010-06-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
 

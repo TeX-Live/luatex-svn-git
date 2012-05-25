@@ -1,48 +1,48 @@
-$Id: README 21945 2011-04-04 00:08:50Z vvv $
+$Id: README 26502 2012-05-20 10:47:27Z peter $
 Public domain.  Originally written 2005 by Karl Berry.
 
 Extra utilities we (optionally) compile for TeX Live.
 See comments in ../texk/README.
 
-asymptote 2.02 - checked 12jul10
+asymptote 2.13 - checked 19jun11
   update to TL from CTAN, to include prebuilt doc.
   see http://tug.org/texlive/build.html#asymptote
   and tlpkg/bin/tl-update-asy
 
-chktex 1.6.4 - checked 3may10
-  http://baruch.ev-en.org/proj/chktex/chktex-1.6.4.tar.gz
+chktex 1.6.6 - checked 10apr12
+  http://mirror.ctan.org/support/chktex/ for pdf, otherwise same as
+  http://download.savannah.gnu.org/releases/chktex/
 
-dialog 1.1-20110302 - checked 2mar11
-  ftp://invisible-island.net/dialog/dialog.tar.gz
+mtx 0.60d - checked 16apr12
+  http://mirror.ctan.org/support/m-tx/
 
-ps2eps 1.68 - checked 15dec10
+pmx 2.6.18 - checked 18may12
+  http://mirror.ctan.org/support/pmx/
+
+ps2eps 1.68 - checked 10may12
   http://tm.uka.de/~bless/ps2eps
 
-psutils p17 - checked 25nov06
+psutils p17 - checked 10may12
   http://www.tardis.ed.ac.uk/~ajcd/psutils/index.html
-  -> http://www.ctan.org/support/psutils/
+  -> http://mirror.ctan.org/support/psutils/
   https://savannah.nongnu.org/bugs/?30782
   -> http://www.connochaetos.org/misc/psutils-libre-1.17.tar.gz
   (Fabrice made small modifications for Windows, it seems)
 
-t1utils 1.36 - checked 7jun10
+t1utils 1.37 - checked 10may12
   http://www.lcdf.org/type/
 
-tpic2pdftex 1.97 - checked 9may10
-  http://www.ctan.org/graphics/tpic2pdftex
+tpic2pdftex 1.97 - checked 10may12
+  http://mirror.ctan.org/graphics/tpic2pdftex/
 
-vlna 1.2 - checked 26jun08
-  ftp://math.feld.cvut.cz/pub/olsak/vlna
+vlna 1.5 - checked 10may12
+  ftp://math.feld.cvut.cz/pub/olsak/vlna/
 
-xindy 2.4 - checked 11may10
-  http://www.ctan.org/indexing/xindy/
+xindy - see just below
 
-After building clisp as described below, run the TL
-  Build --enable-xindy CLISP=$clisp_builddir/clisp
-to include xindy in the build.  It is disabled by default.
-
-xpdfopen 0.80 - checked 5may10
-  http://mirror.ctan.org/support/xpdfopen.zip
+xpdfopen 0.83 - checked 10may12
+  http://mirror.ctan.org/support/xpdfopen/
+  http://cs.acadiau.ca/~jdiamond/xpdfopen/
 
 
 xindy 2.4 - checked 13may10
@@ -63,8 +63,10 @@ clisp_toolsdir=$clisp_basedir/clisp-tools
 clisp_builddir=$clisp_basedir/clisp-build
 mkdir $clisp_toolsdir
 
+wget=wget  # or "curl -O" or whatever
+
 cd $clisp_basedir
-wget http://ftp.gnu.org/gnu/libsigsegv/libsigsegv-2.10.tar.gz
+$wget http://ftp.gnu.org/gnu/libsigsegv/libsigsegv-2.10.tar.gz
 gzip -dc libsigsegv-2.10.tar.gz | tar xf -
 cd libsigsegv-2.10
 ./configure --prefix=$clisp_toolsdir && make && make check && make install
@@ -73,11 +75,31 @@ cd libsigsegv-2.10
 # if clisp's configure will not find libsigsegv.
 ln -s lib $clisp_toolsdir/lib64
 
+# on the mac, get libiconv and ensure link statically.
+# not needed on other platforms?
 cd $clisp_basedir
-wget http://ftp.gnu.org/gnu/clisp/release/2.49/clisp-2.49.tar.gz
+$wget http://ftp.gnu.org/gnu/libiconv/libiconv-1.13.1.tar.gz
+gzip -dc libiconv-1.13.1.tar.gz | tar xf -
+cd libiconv-1.13.1
+./configure --enable-static --prefix=$clisp_toolsdir \
+&& make && make check && make install
+#
+cd $clisp_basedir/clisp-tools/lib
+rm *.dylib
+rm *.la
+
+cd $clisp_basedir
+$wget http://ftp.gnu.org/gnu/clisp/release/2.49/clisp-2.49.tar.gz
 gzip -dc clisp-2.49.tar.gz | tar xf -
 cd clisp-2.49
-# On FreeBSD/amd64, add --disable-mmap.
+
+# On Cygwin:
+# mv modules/syscalls/configure modules/syscalls/configure.orig
+# sed -e '{s%-luuid%-L/usr/lib/w32api -luuid%}' \
+#  modules/syscalls/configure.orig > modules/syscalls/configure
+#
+# On FreeBSD/amd64: add --disable-mmap.
+#
 ./configure --with-libsigsegv-prefix=$clisp_toolsdir --without-readline \
   --disable-nls \
   $clisp_builddir \

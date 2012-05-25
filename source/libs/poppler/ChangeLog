@@ -1,3 +1,56 @@
+2012-05-09  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import poppler-0.20.0.
+	* version.ac: Adjust.
+
+2012-05-09  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import poppler-0.19.4.
+	* version.ac: Adjust.
+	* Makefile.am (fofi_libfofi_a_sources): Add FoFiIdentifier.cc.
+
+2012-02-24  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* {fofi,goo,poppler}/Makefile.am: Use ../am/hdr_links.am.
+	* hdrs.am (removed): Obsolete.
+
+2012-02-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import poppler-0.18.4.
+	* version.ac: Adjust.
+
+2012-01-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (AM_CPPFLAGS): Drop `-DPDF_PARSER_ONLY'.
+
+2011-10-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Reorganize definition of POPPLER_VERSION.
+
+2011-10-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import poppler 0.18.0.
+	* version.ac: New file defining the poppler version.
+	* Makefile.am (poppler_libpoppler_a_sources): Add CachedFile.cc,
+	Hints.cc, Linearization.cc, Rendition.cc, strtok_r.cpp, and
+	ViewerPreferences.cc.
+	* configure.ac: Adapt.
+
+2011-04-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (goo_libGoo_a_sources): Omit PNGWriter.cc.
+
+2011-04-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Suppress "deprecated conversion from string constant to 'char*'"
+	warnings from g++-4.4.
+	Unfortunately poppler declares lots of function parameters as
+	'char *' that should actually be 'const char *'.
+	Compiling with the g++-4.4 default '-Wwrite-strings' would yield
+	>10000 such warnings.
+
+	* Makefile.am, configure.ac: Define and use NO_WARN_CXXFLAGS.
+
 2011-04-14  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* Makefile.am, ac/poppler.ac, ac/withenable.ac, configure.ac:

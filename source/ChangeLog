@@ -1,7 +1,84 @@
+2012-05-21  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Test for GNU make before creating Makefile,
+	required for FreeBSD make and perhaps others.
+
+2012-05-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* README: Update the list of prerequisites.
+	* README.config: Mention configure options for biber.
+
+2012-04-12  Karl Berry  <karl@tug.org>
+
+	* Build (TL_COMPILER_GFLAGS): new envvar, used to override -g
+	for all three compilers, with Build -g.
+
+2012-04-03  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tardate.ac: Switch to 2012-04-03.
+
+2012-03-31  Karl Berry  <karl@tug.org>
+
+	* Build (TL_CONF_LARGEFILE): switch default to --enable-largefile.
+	More info in README.config.
+
+2012-03-12  Karl Berry  <karl@tug.org>
+
+	* README.config: 32-bit rather than 32Bit
+
+2012-03-11  Karl Berry  <karl@tug.org>
+
+	* README.config: text tweaks for poppler/libxpdf/luatex/etc.
+
+2012-01-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Report `$enable_largefile'.
+
+2012-01-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tardate.ac: Switch to 2012-01-13.
+
+2011-12-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Replace DISTCHECK_CONFIGURE_FLAGS by
+	AM_DISTCHECK_CONFIGURE_FLAGS (for automake-1.11.2).
+
+2011-12-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Use TL specific installation directories only
+	for $enable_native_texlive_build=yes (also datarootdir).
+	Display the installation directories.
+
+	* README.config, README.distro: Adapted.
+
+2011-10-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tardate.ac: Switch to 2011-10-05.
+
+2011-08-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tardate.ac: Switch to 2011-08-10.
+
+2011-07-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am [EXTRA_DIST]: Add m4/ChangeLog.
+
+2011-07-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* version.ac: Switch 2011 => 2012/dev.
+
+2011-06-21  Karl Berry  <karl@tug.org>
+
+	* Build: report final exit status.
+
+2011-04-15  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tardate.ac: Switch to 2011-06-15.
+
 2011-04-14  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
-	* Makefile.am, configure.ac: Conditional cross_compiling => cross
-	as in libs/icu, texk/dvipng, and texk/web2c.
+	* Makefile.am, configure.ac: Conditional 'cross_compiling' =>
+	'cross' as in libs/icu, texk/dvipng, and texk/web2c.
 
 	* version.ac: Switch 2011/dev => 2011.
 
@@ -9,10 +86,9 @@
 
 	* tardate.ac: Switch to 2011-04-12.
 
-2011-03-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
+2011-04-09  Karl Berry  <karl@tug.org>
 
-	* m4/kpse-common.m4 (KPSE_COMMON): Remove check for
-	program_invocation_name.
+	* Build (MACOSX_DEPLOYMENT_TARGET): no longer needed per koch.
 
 2011-03-03  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
@@ -39,18 +115,6 @@
 
 	* Build (TL_CONF_BANNER): switch ident to /pretest.
 
-2010-04-11  Karl Berry  <karl@tug.org>
-
-	* m4/kpse-pkgs.m4 (KPSE_TEXK_PKGS): add ptexenc, makejvf, mendexk.
-	From Akira and Norbert.
-	* m4/kpse-ptexenc-flags.m4: new file.
-
-2010-03-29  Peter Breitenlohner  <peb@mppmu.mpg.de>
-
-	* m4/kpse-icu-flags.m4 (KPSE_ICU_SYSTEM_FLAGS): Work around bug
-	in icu-config version 4.4.
-	* m4/kpse-common.m4 (KPSE_COMMON): Added AC_TYPE_SIZE_T.
-
 2010-03-24  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* Build (TL_CONF_THREADS): Removed, now in libs/icu/configure.
@@ -74,21 +138,6 @@
 
 	* Build (TL_CONF_BANNER): 2010/dev.
 
-2010-02-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
-
-	* m4/kpse-common.m4 (KPSE_COMMON): Use LT_INIT([win32-dll]).
-	* m4/kpse-gd-flags.m4 (KPSE_GD_FLAGS): Add -DNONDLL.
-
-2010-02-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
-
-	* m4/kpse-kpathsea-flags.m4: Detect if libkpathsea was compiled
-	without debugging support and add '-DNODEBUG' if necessary.
-
-2010-02-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
-
-	* m4/kpse-warnings.m4: Redefine compiler warning levels to
-	reduce the number of 'min' warnings.
-
 2009-12-24  Karl Berry  <karl@tug.org>
 
 	* Makefile.am (world): also run make check.
@@ -103,8 +152,7 @@
 
 2009-11-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
-	* configure.ac, m4/kpse-setup.m4: Disable cross compilation
-	of xindy.
+	* configure.ac: Disable cross compilation of xindy.
 	* configure.ac: Report absolute build and source dir; reject
 	paths with embedded spaces.
 
@@ -114,8 +162,6 @@
 
 2009-09-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
-	* m4/kpse-warnings.m4: Additional level 'all' of compiler
-	warnings, 'max' now without the extremely noisy -Wshadow.
 	* configure.ac: Report level of compiler warnings used.
 
 2009-08-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
@@ -123,10 +169,6 @@
 	* Makefile.am (dist*check_listfiles): Stricter checking for
 	'make distcheck': check for leftover files and symlinks.
 	This really ought to be the Automake default.
-
-2009-08-17  Peter Breitenlohner  <peb@mppmu.mpg.de>
-
-	* m4/kpse-warnings.m4: Implement Objective C compiler warnings.
 
 2009-06-18  Karl Berry  <karl@tug.org>
 

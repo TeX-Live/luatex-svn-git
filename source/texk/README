@@ -1,5 +1,5 @@
-$Id: README 21659 2011-03-09 10:21:59Z peter $
-Copyright 2006, 2007, 2008, 2009, 2010 TeX Users Group.
+$Id: README 26310 2012-05-12 11:03:50Z peter $
+Copyright 2006-2012 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
 This TeX Live directory contains the programs that use the kpathsea
@@ -27,17 +27,17 @@ bibtex8 - ?
 bibtexu - ?
   http://omega.enstb.org/yannis/bibtexu/
 
-cjkutils 4.8.2 - checked 18dec10
-  http://cjk.ffii.org/cjk-4.8.2.tar.gz
+cjkutils 4.8.3 - checked 11may12
+  http://cjk.ffii.org/cjk-4.8.3.tar.gz
 
-detex 2.8 - checked 21may10
+detex 2.8 - checked 10may12
   http://www.cs.purdue.edu/homes/trinkle/detex/
 
 devnag - from devnag package installed in texmf-dist.
 
 dtl - ?
 
-dvi2tty 5.3.4 - checked 13nov10
+dvi2tty 5.3.4 - checked 10may12
   http://www.mesa.nl/pub/dvi2tty/
   ftp://ftp.mesa.nl/pub/dvi2tty/
 
@@ -45,58 +45,55 @@ dvidvi - ?
 
 dviljk - maintained here, by Joachim Schrod
 
-dvipdfmx - checked 9mar11
-  http://project.ktug.or.kr/dvipdfmx/snapshot/latest/
-  http://project.ktug.or.kr/dvipdfmx/snapshot/latest/dvipdfmx-20110309.tar.gz
-  dvipdfmx@project.ktug.or.kr (ChoF, Matthias, Hirata)
+dvipdfmx 20120420 - checked 20apr12
+  ftp://ftpth.mppmu.mpg.de/pub/peb/TLtests/dvipdfmx-20120420.tar.xz
 
-dvipng 1.14 - checked 15dec10
-  http://www.ctan.org/tex-archive/dviware/dvipng/ (but maybe stale)
+dvipng 1.14 - checked 10may12
+  http://mirror.ctan.org/dviware/dvipng/ (but maybe stale)
   http://savannah.nongnu.org/files/?group=dvipng
 
 dvipos - ?
 
-dvipsk - maintained here by Tom Rokicki, Karl Berry, Akira Kakuto, ...
+dvipsk - maintained here, by us
 
-dvisvgm - checked 4mar11
-  http://downloads.sourceforge.net/dvisvgm/dvisvgm-1.0.5.tar.gz
+dvisvgm - checked 10may12
+  http://downloads.sourceforge.net/dvisvgm/dvisvgm-1.0.11.tar.gz
 
 gsftopk - from Paul Vojta's xdvi?
 
-kpathsea - maintained here by Karl Berry, Akira Kakuto, ...
+kpathsea - maintained here, by us
 
-lacheck - checked 10dec10
+lacheck - checked 25apr11
   http://mirror.ctan.org/support/lacheck/lacheck-1.26.tar.gz
 
-lcdf-typetools - checked 9mar11
+lcdf-typetools 2.92 - checked 16aug11
   http://www.lcdf.org/type/
-  http://www.lcdf.org/type/lcdf-typetools-2.88.tar.bz2
+  http://www.lcdf.org/type/lcdf-typetools-2.92.tar.gz
 
 makeindexk - maintained here, by us
-
-musixflx - checked 19oct10
-  http://mirror.ctan.org/macros/musixtex/musixflx-0.83.2.tar.gz
 
 ps2pkm - ?
 
 seetexk - ?
 
-tex4htk 
-  http://www.cse.ohio-state.edu/~gurari/TeX4ht/
+tex4htk - checked 25apr11
+  http://tug.org/tex4ht/
 
-texlive - maintained here, scripts
+texlive - scripts maintained here, by us
+
+texlive - scripts maintained here, by us
 
 ttf2pk - maintained here, by us
 
 ttfdump - ?
 
-web2c - maintained here by Karl Berry et al. - core web2c, plain tex, omega.
+web2c - maintained here, by us - core web2c, plain tex, etc.
         The TeX variant dirs (pdftexdir, xetexdir, etc.)
         updated here by their respective maintainers.
 
-xdv2pdf - Jonathan Kew
+xdv2pdf - Khaled Hosny, Jonathan Kew
 
-xdvik 22.84.16 - checked 18may09
-  ftp://tug.org/tex/
+xdvik 22.85 - checked 10may12
+  http://sourceforge.net/projects/xdvi/files/xdvik/
 
-xdvipdfmx - Jonathan Kew
+xdvipdfmx - Khaled Hosny, Jonathan Kew

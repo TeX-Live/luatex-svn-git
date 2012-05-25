@@ -1,3 +1,250 @@
+2012-05-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* dvicopy.test, dvitype.test: Cope with spaces in paths returned
+	by kpsewhich.
+
+2012-05-12  Werner Lemberg  <wl@gnu.org>
+
+	* patgen.ch: Fixed a typo causing weave to fail.
+
+2012-05-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Drop obsolete poppler tests.
+
+2012-04-12  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* bibtex.ch: Do not check whether ent_str_size > buf_size and
+	glob_str_size > buf_size, because buf_size can be changed dynamically,
+	whereas ent_str_size and glob_str_size are constants.
+ 
+2012-04-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.h (mk_shellcmdlist, init_shell_escape,
+	shell_cmd_is_allowed, normalize_quotes): Drop extern decls.
+	(get_seconds_and_micros): Declare only for pdfTeX.
+	(getrandomseed, callmakempx): Removed, MP only.
+
+2012-03-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Avoid 'differ in signedness' warnings.
+	* cpascal.h: Define ustringcast().
+
+2012-02-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mf.ch, tex.ch: Remove test for end-of-file after undump.
+	* texmfmp.h: Remove weof().
+
+2012-02-12  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmp.h: Remove old comments that gzFile is typedef'd as void *.
+
+2012-02-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.h: Moved WRITE_OUT from here ...
+	* cpascal.h: ... to here for use in GFtoDVI.
+
+	* gftodvi.ch (write_dvi): Done in C as for TeX.
+	* cpascal.h: Drop writechunk, GFtoDVI now uses writedvi.
+
+2012-02-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* vftovp.ch: Allow arbitrarily large TFM files as in TFtoPL.
+
+2012-02-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tex.ch, gftodvi.ch: Ensure dvi file size < 2GB.
+	* mf.ch: Ensure gf file size < 2GB.
+
+	* tftopl.ch: Remove unused constant tfm_size.
+
+2012-01-24  Karl Berry  <karl@tug.org>
+
+	* doc/web2c.texi (Common options): remove doc for the long-since
+	removed option -oem.  Report from peb.
+
+2012-01-24  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* pltotf.ch, vptovf.ch: Interpret "--" as "+", not "-".
+
+2012-01-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tftopl.ch, vftovp.ch: Add missing space in error message.
+
+2012-01-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Check sizeof(off_t).
+	* w2c/config.h: Define LONGINTEGER_TYPE and LONGINTEGER_PRId.
+
+2011-12-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac [OTANGLE]: For ovf2ovp and ovp2ovf (Web2C).
+
+2011-12-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tex.ch: Consistency of `constants'.
+
+2011-10-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac [WIN32]: Add `-lgdi32' to POPPLER_LIBS.
+
+2011-10-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.h (ENABLE_PIPES): New macro for pipe support.
+
+2011-10-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Add poppler feature tests for luaTeX.
+
+2011-10-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/web.am (DISTCLEANFILES): Preserve distributed files.
+
+	* Makefile.am (DISTCLEANFILES): Add CXXLD.sh.
+	* am/texmf.am (DISTCLEANFILES): Add write18-quote.log.
+	* am/web.am (DISTCLEANFILES): Add longline.{aux,bbl,bib,blg}.
+
+2011-09-30  Peter Breitenlohner  <peb@mp.mpg.de>
+
+	* tex.ch (print_file_line): Bug fix: avoid uninitialized lineno.
+	Patch and discussion from Karl, 21 Sep 2011 16:05:09 GMT.
+
+2011-09-11  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmp-help.h: The option -kanji-internal=STRING is effective
+	also for pTeX and epTeX.
+
+2011-08-29  Peter Breitenlohner  <peb@mp.mpg.de>
+
+	* texmfmp.h [WIN32]: Allow to build TeX & Co as DLL.
+
+2011-08-23  Peter Breitenlohner  <peb@mp.mpg.de>
+
+	* triptrap-sh: Add uptrip and euptrip tests.
+
+2011-08-20  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmem.h: upTeX uses Aleph-type memory words.
+
+2011-08-19  Peter Breitenlohner  <peb@mp.mpg.de>
+
+	* help.h (UPBIBTEXHELP): Add "-kanji-internal".
+
+2011-08-17  Peter Breitenlohner  <peb@mp.mpg.de>
+
+	* help.h (PBIBTEXHELP, PDVITYPEHELP, PPLTOTFHELP, PTFTOPLHELP):
+	Add "-sjis-terminal" for WIN32 versions.  Uniform appearance.
+	Add UPBIBTEXHELP, UPDVITYPEHELP, UPPLTOTFHELP, and UPTFTOPLHELP.
+	* texmfmp-help.h: WIN32 options also for MINGW32.
+
+	* configure.ac: New conditional UPWEB for upBibTeX and Co.
+
+2011-08-17  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmp-help.h: Recover help messages for w32tex.
+
+2011-08-15  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmp-help.h: Remove w32tex garbage.
+
+2011-08-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am, texmfmem.h, texmfmp.h, texmfmp-help.h,
+	ac/web2c.ac: Add support for upTeX and e-upTeX.
+
+2011-07-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mft.ch (parsearguments): Allow find_suffix() to return a
+	const string.
+
+2011-07-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: No need to test for PDFDoc::getPDFMajorVersion
+	for poppler >= 0.12.
+
+2011-07-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* enctex.ch: Fix an off-by-one bug initializing mubyte_cswrite.
+	From Roderich Schupp <roderich.schupp@googlemail.com>,
+	Debian Bug#633011, tex-k mail Fri, 8 Jul 2011 15:56:23.
+
+2011-07-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* ac/web2c.ac: Always use poppler for XeTeX instead of xpdf.
+
+2011-07-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	SyncTeX infrastructure for pTeX and e-pTeX.
+	* ac/web2c.ac: Enable SyncTeX for pTeX and e-pTeX.
+	* texmfmp-help.h (*PTEXHELP): Document the -synctex option.
+
+2011-06-23  Karl Berry  <karl@tug.org>
+
+	* configure.ac (AC_C_CHAR_UNSIGNED): needed for test
+	in web2c/w2c/config.h, else AIX ends up mis-tangling tex.web.
+	tlbuild mail from vvv, 21 Jun 2011 23:57:53.
+
+2011-06-06  Karl Berry  <karl@tug.org>
+
+	* doc/web2c.texi: update MetaPost description, .mem's are
+	no longer created or used.
+
+2011-05-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Use ../am/bin_links.am for $(bindir) links.
+
+2011-05-24  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac (AC_CONFIG_FILES): Add otps/win32/Makefile.
+
+2011-05-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.h: Move generic_synctex_get_current_name() prototype
+	from synctexdir/synctex-{,e,pdf,xe}tex.h to here.
+
+2011-05-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* osx-strip: Removed.
+	* configure.ac: Remove osx-strip.
+
+2011-05-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* osx-strip: New shell script to strip Mac OS X binaries.
+	* configure.ac: Use osx-strip for Mac OS X.
+
+2011-05-05  Karl Berry  <karl@tug.org>
+
+	* man/pktype.man: output is always to stdout.
+	
+	* doc/web2c.texi (Common option): -jobname can override recorder name.
+
+2011-04-28  Karl Berry  <karl@tug.org>
+
+	* doc/web2c.texi (Common options): caveats about the -recorder
+	.fls file name not following the .log in unusual usage.
+	Philipp Stephani, 21 Sep 2010 16:28:58, and my reply 28apr11.
+
+2011-04-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Avoid 'differ in signedness' warnings.
+	* cpascal.h: Define ucharcast().
+
+	* bibtex.ch (pds_type): Do not declare as unsigned.
+	(pre_define): Apply ucharcast() to xord[] index.
+
+	* dvicopy.ch (comment): Do not declare as unsigned.
+	(do_pre): Apply ucharcast() to xord[] index.
+
+	* gftodvi.ch (start_gf): Do not declare arg_buffer as unsigned
+	and apply ucharcast() to xord[] index.
+
+	* mf.ch (MF_base_default): Do not declare as unsigned.
+	(pack_buffered_name): Apply ucharcast() to xord[] index.
+	(storebasefile, loadbasefile): cast base_engine to string.
+
+	* tex.ch (TEX_format_default): Do not declare as unsigned.
+	(pack_buffered_name): Apply ucharcast() to xord[] index.
+	(storefmtfile, loadfmtfile): Cast format_engine to string.
+
 2011-03-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* configure.ac: LuaTeX needs poppler at least 0.12, no reason
@@ -60,7 +307,7 @@
 	* texmfmp-help.h: Modernize PTEXHELP and add EPTEXHELP.
 	Avoid to include TEXHELP for all TeX-like engines.
 
-	* texmfmem.h: ep-TeX uses Aleph-type memory words.
+	* texmfmem.h: e-pTeX uses Aleph-type memory words.
 
 2011-01-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
