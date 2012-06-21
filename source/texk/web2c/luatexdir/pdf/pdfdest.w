@@ -103,6 +103,7 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     alt_rule.wd = width(p);
     alt_rule.ht = height(p);
     alt_rule.dp = depth(p);
+    /* the different branches for matrixused is somewhat strange and should always be used  */
     switch (pdf_dest_type(p)) {
     case pdf_dest_xyz:
         if (matrixused())
