@@ -24,6 +24,8 @@ static const char _svn_version[] =
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
+#define PDF_ENV "pdf_env"
+
 static int luapdfprint(lua_State * L)
 {
     int n;
@@ -182,7 +184,7 @@ static int l_immediateobj(lua_State * L)
 }
 
 /**********************************************************************/
-/* for LUA_ENVIRONINDEX table lookup (instead of repeated strcmp()) */
+/* for lookup within table in LUA_REGISTRYINDEX (instead of repeated strcmp()) */
 
 typedef enum { P__ZERO,
     P_CATALOG,
@@ -240,20 +242,22 @@ static int table_obj(lua_State * L)
         luaL_error(L, "pdf.obj(): object \"type\" missing");
     if (!lua_isstring(L, -1))   /* !vs t */
         luaL_error(L, "pdf.obj(): object \"type\" must be string");
-    lua_pushvalue(L, -1);       /* vs vs t */
-    lua_gettable(L, LUA_ENVIRONINDEX);  /* i? vs t */
-    if (!lua_isnumber(L, -1))   /* !i vs t */
+    lua_pushstring(L, PDF_ENV); /* s vs t */
+    lua_gettable(L, LUA_REGISTRYINDEX); /* t vs t */
+    lua_pushvalue(L, -2);       /* vs t vs t */
+    lua_gettable(L, -2);        /* i? t vs t */
+    if (!lua_isnumber(L, -1))   /* !i t vs t */
         luaL_error(L, "pdf.obj(): \"%s\" is not a valid object type",
-                   lua_tostring(L, -2));
-    type = (int) lua_tointeger(L, -1);  /* i vs t */
+                   lua_tostring(L, -3));
+    type = (int) lua_tointeger(L, -1);  /* i t vs t */
     switch (type) {
     case P_RAW:
     case P_STREAM:
         break;
     default:
-        luaL_error(L, "pdf.obj(): \"%s\" is not a valid object type", lua_tostring(L, -2));     /* i vs t */
+        luaL_error(L, "pdf.obj(): \"%s\" is not a valid object type", lua_tostring(L, -3));     /* i vs t */
     }
-    lua_pop(L, 2);              /* t */
+    lua_pop(L, 3);              /* t */
 
     /* get optional "immediate" */
 
@@ -598,11 +602,13 @@ static int getpdf(lua_State * L)
     char *s;
     int i, l;
     if (lua_isstring(L, 2) && (lua_tostring(L, 2) != NULL)) {
-        lua_pushvalue(L, 2);    /* st ... */
-        lua_gettable(L, LUA_ENVIRONINDEX);      /* i? ... */
-        if (lua_isnumber(L, -1)) {      /* i ... */
-            i = (int) lua_tointeger(L, -1);     /* i ... */
-            lua_pop(L, 1);      /* ... */
+        lua_pushstring(L, PDF_ENV);     /* s ... */
+        lua_gettable(L, LUA_REGISTRYINDEX);     /* t ... */
+        lua_pushvalue(L, 2);    /* st t ... */
+        lua_gettable(L, -2);    /* i? t ... */
+        if (lua_isnumber(L, -1)) {      /* i t ... */
+            i = (int) lua_tointeger(L, -1);     /* i t ... */
+            lua_pop(L, 2);      /* ... */
             switch (i) {
             case P_PDFCATALOG:
             case P_CATALOG:
@@ -634,7 +640,7 @@ static int getpdf(lua_State * L)
                 lua_rawget(L, -2);
             }
         } else {
-            lua_pop(L, 1);      /* ... */
+            lua_pop(L, 2);      /* ... */
             lua_rawget(L, -2);
         }
     } else {
@@ -650,11 +656,13 @@ static int setpdf(lua_State * L)
         return 0;
     }
     (void) luaL_checkstring(L, 2);      /* ... */
-    lua_pushvalue(L, 2);        /* st ... */
-    lua_gettable(L, LUA_ENVIRONINDEX);  /* i? ... */
-    if (lua_isnumber(L, -1)) {  /* i ... */
-        i = (int) lua_tointeger(L, -1); /* i ... */
-        lua_pop(L, 1);          /* ... */
+    lua_pushstring(L, PDF_ENV); /* s ... */
+    lua_gettable(L, LUA_REGISTRYINDEX); /* t ... */
+    lua_pushvalue(L, 2);        /* st t ... */
+    lua_gettable(L, -2);        /* i? t ... */
+    if (lua_isnumber(L, -1)) {  /* i t ... */
+        i = (int) lua_tointeger(L, -1); /* i t ... */
+        lua_pop(L, 2);          /* ... */
         switch (i) {
         case P_PDFCATALOG:
         case P_CATALOG:
@@ -679,7 +687,7 @@ static int setpdf(lua_State * L)
             lua_rawset(L, -3);
         }
     } else {
-        lua_pop(L, 1);          /* ... */
+        lua_pop(L, 2);          /* ... */
         lua_rawset(L, -3);
     }
     return 0;
@@ -777,7 +785,7 @@ static const struct luaL_reg pdflib[] = {
 
 int luaopen_pdf(lua_State * L)
 {
-    preset_environment(L, pdf_parms);
+    preset_environment(L, pdf_parms, PDF_ENV);
     luaL_register(L, "pdf", pdflib);
     /* build meta table */
     luaL_newmetatable(L, "pdf_meta");

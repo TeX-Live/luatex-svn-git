@@ -29,6 +29,8 @@ static const char _svn_version[] =
 #include "lua51/lua.h"
 #include "lua51/lauxlib.h"
 
+#define IMG_ENV "img_env"
+
 /**********************************************************************/
 
 #ifdef DEBUG
@@ -110,13 +112,15 @@ static void image_to_lua(lua_State * L, image * a)
     int i, j;
     image_dict *d = img_dict(a);
     assert(d != NULL);
-    lua_pushvalue(L, -1);       /* k k u ... */
-    lua_gettable(L, LUA_ENVIRONINDEX);  /* i? k u ... */
-    if (!lua_isnumber(L, -1))   /* !i k u ... */
+    lua_pushstring(L, IMG_ENV); /* s k u ... */
+    lua_gettable(L, LUA_REGISTRYINDEX); /* t k u ... */
+    lua_pushvalue(L, -2);       /* k t k u ... */
+    lua_gettable(L, -2);        /* i? t k u ... */
+    if (!lua_isnumber(L, -1))   /* !i t k u ... */
         luaL_error(L, "image_to_lua(): %s is not a valid image key",
-                   lua_tostring(L, -2));
-    i = (int) lua_tointeger(L, -1);     /* i k u ... */
-    lua_pop(L, 2);              /* u ... */
+                   lua_tostring(L, -3));
+    i = (int) lua_tointeger(L, -1);     /* i t k u ... */
+    lua_pop(L, 3);              /* u ... */
     switch (i) {
     case P_WIDTH:
         if (is_wd_running(a))
@@ -278,13 +282,15 @@ static void lua_to_image(lua_State * L, image * a)
     int i;
     image_dict *d = img_dict(a);
     assert(d != NULL);
-    lua_pushvalue(L, -2);       /* k v k t ... */
-    lua_gettable(L, LUA_ENVIRONINDEX);  /* i? v k t ... */
-    if (!lua_isnumber(L, -1))   /* !i v k t ... */
+    lua_pushstring(L, IMG_ENV); /* s v k t ... */
+    lua_gettable(L, LUA_REGISTRYINDEX); /* t v k t ... */
+    lua_pushvalue(L, -3);       /* k t v k t ... */
+    lua_gettable(L, -2);        /* i? t v k t ... */
+    if (!lua_isnumber(L, -1))   /* !i t v k t ... */
         luaL_error(L, "lua_to_image(): %s is not a valid image key",
-                   lua_tostring(L, -3));
-    i = (int) lua_tointeger(L, -1);     /* i v k t ... */
-    lua_pop(L, 1);              /* v k t ... */
+                   lua_tostring(L, -4));
+    i = (int) lua_tointeger(L, -1);     /* i t v k t ... */
+    lua_pop(L, 2);              /* v k t ... */
     switch (i) {
     case P_WIDTH:
         if (lua_isnil(L, -1))
@@ -735,10 +741,10 @@ static int m_img_mul(lua_State * L)
 {
     lua_Number scale;
     if (lua_isnumber(L, 1)) {   /* u? n */
-        (void) luaL_checkudata(L, 2, TYPE_IMG);        /* u n */
+        (void) luaL_checkudata(L, 2, TYPE_IMG); /* u n */
         lua_insert(L, -2);      /* n a */
     } else if (lua_isnumber(L, 2)) {    /* n u? */
-        (void) luaL_checkudata(L, 1, TYPE_IMG);        /* n a */
+        (void) luaL_checkudata(L, 1, TYPE_IMG); /* n a */
     }                           /* n a */
     scale = lua_tonumber(L, 2); /* n a */
     lua_pop(L, 1);              /* a */
@@ -811,7 +817,7 @@ static const struct luaL_Reg img_dict_m[] = {
 
 int luaopen_img(lua_State * L)
 {
-    preset_environment(L, img_parms);
+    preset_environment(L, img_parms, IMG_ENV);
     luaL_newmetatable(L, TYPE_IMG);
     luaL_register(L, NULL, img_m);
     luaL_newmetatable(L, TYPE_IMG_DICT);

@@ -180,7 +180,7 @@ void luainterpreter(void)
     lua_atpanic(L, &my_luapanic);
 
     do_openlibs(L);             /* does all the 'simple' libraries */
-    
+
     lua_pushcfunction(L,luatex_dofile);
     lua_setglobal(L, "dofile");
     lua_pushcfunction(L,luatex_loadfile);
@@ -363,7 +363,7 @@ static void luacall(int p, int nameptr, boolean is_string)
        lua_rawgeti(Luas, LUA_REGISTRYINDEX, p);
        ss = lua_tolstring(Luas, -1, &ll);
        s = xmalloc(ll+1);
-       memcpy(s,ss,ll+1);       
+       memcpy(s,ss,ll+1);
        lua_pop(Luas,1);
     } else {
        int l = 0;
@@ -496,16 +496,22 @@ lua_State *luatex_error(lua_State * L, int is_fatal)
 }
 
 @ @c
-void preset_environment(lua_State * L, const parm_struct * p)
+void preset_environment(lua_State * L, const parm_struct * p, const char *s)
 {
     int i;
     assert(L != NULL);
-    lua_newtable(L);            /* t */
+    /* double call with same s gives assert(0) */
+    lua_pushstring(L, s);       /* s */
+    lua_gettable(L, LUA_REGISTRYINDEX); /* t */
+    assert(lua_isnil(L, -1));
+    lua_pop(L, 1);              /* - */
+    lua_pushstring(L, s);       /* s */
+    lua_newtable(L);            /* t s */
     for (i = 1, ++p; p->name != NULL; i++, p++) {
         assert(i == p->idx);
-        lua_pushstring(L, p->name);     /* k t */
-        lua_pushinteger(L, p->idx);     /* v k t */
-        lua_settable(L, -3);    /* t */
+        lua_pushstring(L, p->name);     /* k t s */
+        lua_pushinteger(L, p->idx);     /* v k t s */
+        lua_settable(L, -3);    /* t s */
     }
-    lua_replace(L, LUA_ENVIRONINDEX);   /* - */
+    lua_settable(L, LUA_REGISTRYINDEX); /* - */
 }
