@@ -470,7 +470,7 @@ void hlist_out(PDF pdf, halfword this_box)
                 }
                 break;
             case rule_node:
-                if (rule_dir(p)<0)
+                if (rule_dir(p) < 0)
                     rule_dir(p) = localpos.dir;
                 if (pardir_parallel(rule_dir(p), localpos.dir)) {
                     rule.ht = height(p);
@@ -523,6 +523,8 @@ void hlist_out(PDF pdf, halfword this_box)
                         pos_left(depth(p));
                         pos_down(width(p));
                         break;
+                    default:
+                        assert(0);
                     }
                     backend_out_whatsit[subtype(p)] (pdf, p);
                     cur.h += width(p);
@@ -627,6 +629,8 @@ void hlist_out(PDF pdf, halfword this_box)
                                 cur.h =
                                     refpos->pos.v - shipbox_refpos.v - cur.h;
                                 break;
+                            default:
+                                assert(0);
                             }
                             if (cur.h < save_h)
                                 cur.h += leader_wd;
@@ -751,7 +755,8 @@ void hlist_out(PDF pdf, halfword this_box)
                     pos_left(rule.dp);
                     pos_down(size.v);
                     break;
-                default:;
+                default:
+                    assert(0);
                 }
                 backend_out[rule_node] (pdf, p, size);  /* |pdf_place_rule(pdf, p, rule.ht + rule.dp, rule.wd);| */
             }
@@ -910,7 +915,7 @@ void vlist_out(PDF pdf, halfword this_box)
                 }
                 break;
             case rule_node:
-                if (rule_dir(p)<0)
+                if (rule_dir(p) < 0)
                     rule_dir(p) = localpos.dir;
                 if (pardir_parallel(rule_dir(p), localpos.dir)) {
                     rule.ht = height(p);
@@ -963,7 +968,7 @@ void vlist_out(PDF pdf, halfword this_box)
                         pos_down(width(p));
                         break;
                     default:
-                        break;
+                        assert(0);
                     }
                     backend_out_whatsit[subtype(p)] (pdf, p);
                     cur.v += height(p) + depth(p);
@@ -1029,6 +1034,8 @@ void vlist_out(PDF pdf, halfword this_box)
                                 cur.v =
                                     refpos->pos.v - shipbox_refpos.v - cur.v;
                                 break;
+                            default:
+                                assert(0);
                             }
                             if (cur.v < save_v)
                                 cur.v += leader_ht;
@@ -1107,7 +1114,8 @@ void vlist_out(PDF pdf, halfword this_box)
                     pos_left(size.h);
                     pos_down(size.v);
                     break;
-                default:;
+                default:
+                    assert(0);
                 }
                 backend_out[rule_node] (pdf, p, size);  /* |pdf_place_rule(pdf, rule.ht, rule.wd);| */
                 cur.v += rule.ht + rule.dp;

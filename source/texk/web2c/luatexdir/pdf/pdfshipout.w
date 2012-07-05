@@ -1,6 +1,6 @@
 % pdfshipout.w
 %
-% Copyright 2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2010-2012 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -156,6 +156,8 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
             case dir_RTT:
                 pdf->page_size.h = height(p) + depth(p) + 2 * page_right_offset;
                 break;
+            default:
+                assert(0);
             }
         }
         if (page_height > 0)
@@ -170,6 +172,8 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
             case dir_RTT:
                 pdf->page_size.v = width(p) + 2 * page_top_offset;
                 break;
+            default:
+                assert(0);
             }
         }
 
@@ -206,6 +210,8 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
                 pdf->page_size.h - page_right_offset - one_true_inch;
             refpoint.pos.v -= v_offset;
             break;
+        default:
+            assert(0);
         }
 
         /* Then switch to page box coordinate system; do |height(p)| movement,
@@ -229,6 +235,8 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
             pdf->page_size.h = height(p) + depth(p);
             pdf->page_size.v = width(p);
             break;
+        default:
+            assert(0);
         }
         switch (pdf->posstruct->dir) {
         case dir_TLT:
@@ -247,6 +255,8 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
             pdf->posstruct->pos.h = depth(p);
             pdf->posstruct->pos.v = width(p);
             break;
+        default:
+            assert(0);
         }
     }
 

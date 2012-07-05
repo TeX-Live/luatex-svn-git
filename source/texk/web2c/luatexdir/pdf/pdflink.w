@@ -1,6 +1,6 @@
 % pdflink.w
 %
-% Copyright 2009-2011 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2009-2012 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -108,6 +108,8 @@ void end_link(PDF pdf, halfword p)
             case dir_RTT:
                 pdf_ann_bottom(q) = pos.v - pdf_link_margin;
                 break;
+            default:
+                assert(0);
             }
         }
     }

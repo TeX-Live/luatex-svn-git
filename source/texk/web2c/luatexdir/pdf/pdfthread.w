@@ -1,6 +1,6 @@
 % pdfthread.w
 %
-% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2009-2012 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -133,6 +133,8 @@ void end_thread(PDF pdf, halfword p)
         case dir_RTT:
             pdf_ann_left(pdf->last_thread) = pos.h - pdf_thread_margin;
             break;
+        default:
+            assert(0);
         }
     }
     if (pdf->last_thread_named_id)

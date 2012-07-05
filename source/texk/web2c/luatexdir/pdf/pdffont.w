@@ -1,6 +1,6 @@
 % pdffont.w
 %
-% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2009-2012 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -62,6 +62,8 @@ void output_one_char(PDF pdf, internal_font_number ffi, int c)
         pos_down(ci.ht);
         pos_left(ci.wd / 2);
         break;
+    default:
+        assert(0);
     }
     if (has_packet(ffi, c)) {
         do_vf_packet(pdf, ffi, c);
