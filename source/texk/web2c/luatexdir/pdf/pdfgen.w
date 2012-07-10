@@ -145,6 +145,7 @@ PDF init_pdf_struct(PDF pdf)
 
     /* init PDF and object stream writing */
     pdf->os = os = xtalloc(1, os_struct);
+    memset(pdf->os, 0, sizeof(os_struct));
     os->buf[PDFOUT_BUF] = new_strbuf(inf_pdfout_buf_size, sup_pdfout_buf_size);
     os->buf[OBJSTM_BUF] = new_strbuf(inf_objstm_buf_size, sup_objstm_buf_size);
     os->buf[LUASTM_BUF] = new_strbuf(0, 0);
