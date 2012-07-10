@@ -104,10 +104,13 @@ static const luaL_Reg lualibs[] = {
     {"debug", luaopen_debug},
     {"unicode", luaopen_unicode},
     {"zip", luaopen_zip},
-    {"lpeg", luaopen_lpeg},
     {"md5", luaopen_md5},
     {"lfs", luaopen_lfs},
     {"profiler", luaopen_profiler},
+    {NULL, NULL}
+};
+static const luaL_Reg lualibs_nofenv[] = {
+    {"lpeg", luaopen_lpeg},
     {NULL, NULL}
 };
 
@@ -118,6 +121,14 @@ static void do_openlibs(lua_State * L)
     const luaL_Reg *lib = lualibs;
     for (; lib->func; lib++) {
         lua_pushcfunction(L, lib->func);
+        lua_pushstring(L, lib->name);
+        lua_call(L, 1, 0);
+    }
+    lib = lualibs_nofenv;
+    for (; lib->func; lib++) {
+        lua_pushcfunction(L, lib->func);
+        lua_newtable(L);
+        lua_setfenv(L,-2);
         lua_pushstring(L, lib->name);
         lua_call(L, 1, 0);
     }
