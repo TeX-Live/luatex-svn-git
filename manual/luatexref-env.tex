@@ -4,28 +4,6 @@
 
 % something rests this, but i hav eno time not to see where
 
-\unprotect \bgroup
-
-    \ifx\normalsuber\undefined \def\normalsuber{_} \fi
-    \ifx\normalsuper\undefined \def\normalsuper{^} \fi
-
-    \catcode`_=\active
-    \catcode`^=\active
-
-    \gdef\nonknuthmode
-      {\appendtoks\let_\normalsuber\let^\normalsuper\to\everymathematics
-       \mathcode`_="8000
-       \mathcode`^="8000
-       \catcode`_=\@@other
-       \catcode`^=\@@other
-       }% \let\nonknuthmode\relax}
-
-    \gdef\donknuthmode
-      {\catcode`_=\@@subscript
-       \catcode`^=\@@superscript}
-
-\egroup \protect
-
 \usemodule[abr-02]
 
 % \tex    : tex command
@@ -129,7 +107,7 @@
 \definecolor[blue] [b=.5]
 \definecolor[red]  [r=.5]
 \definecolor[green][g=.5]
-\runMPgraphicstrue
+
 \startuseMPgraphic{lualogo}
     color   luaplanetcolor ; luaplanetcolor := .5blue  ;
     color   luaholecolor   ; luaholecolor   :=   white ;
