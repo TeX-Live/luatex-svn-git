@@ -453,7 +453,7 @@ static int read_all(lua_State * L, FILE * f)
 }
 
 
-static int g_read(lua_State * L, FILE * f, int first)
+static int g_read(lua_State * L, FILE * f, int first1)
 {
     int nargs = lua_gettop(L) - 1;
     int success;
@@ -461,11 +461,11 @@ static int g_read(lua_State * L, FILE * f, int first)
     clearerr(f);
     if (nargs == 0) {           /* no arguments? */
         success = new_read_line(L, f);
-        n = first + 1;          /* to return 1 result */
+        n = first1 + 1;          /* to return 1 result */
     } else {                    /* ensure stack space for all results and for auxlib's buffer */
         luaL_checkstack(L, nargs + LUA_MINSTACK, "too many arguments");
         success = 1;
-        for (n = first; nargs-- && success; n++) {
+        for (n = first1; nargs-- && success; n++) {
             if (lua_type(L, n) == LUA_TNUMBER) {
                 size_t l = (size_t) lua_tointeger(L, n);
                 success = (l == 0) ? test_eof(L, f) : read_chars(L, f, l);
@@ -495,7 +495,7 @@ static int g_read(lua_State * L, FILE * f, int first)
         lua_pop(L, 1);          /* remove last result */
         lua_pushnil(L);         /* push nil instead */
     }
-    return n - first;
+    return n - first1;
 }
 
 static int io_read(lua_State * L)

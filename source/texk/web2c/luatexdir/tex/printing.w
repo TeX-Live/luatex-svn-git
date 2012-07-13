@@ -397,7 +397,7 @@ void log_banner(const char *v, int e, int ver)
     print_char(' ');
     print_int(int_par(day_code));
     print_char(' ');
-    fprintf(log_file, months[month]);
+    fprintf(log_file, "%s", months[month]);
     print_char(' ');
     print_int(int_par(year_code));
     print_char(' ');
@@ -424,7 +424,7 @@ void log_banner(const char *v, int e, int ver)
 @ @c
 void print_version_banner(void)
 {
-    fprintf(term_out, ptexbanner);
+    fprintf(term_out, "%s", ptexbanner);
 }
 
 @ The procedure |print_esc| prints a string that is preceded by

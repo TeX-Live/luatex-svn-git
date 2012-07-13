@@ -32,7 +32,7 @@ static const char _svn_version[] =
 
 @ forward declaration
 @c
-void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen);
+void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buff, int buflen);
 
 @ @c
 unsigned long cidtogid_obj = 0;
@@ -246,7 +246,7 @@ static unsigned long ttc_read_offset(sfnt * sfont, int ttc_idx)
 
     sfnt_seek_set(sfont, 4);    /* skip version tag */
 
-    /*version = */sfnt_get_ulong(sfont);
+    /*version = */(void)sfnt_get_ulong(sfont);
     num_dirs = sfnt_get_ulong(sfont);
     if (ttc_idx < 0 || ttc_idx > (int) (num_dirs - 1)) {
         fprintf(stderr, "Invalid TTC index number\n");
@@ -261,7 +261,7 @@ static unsigned long ttc_read_offset(sfnt * sfont, int ttc_idx)
 @ Creating the subset.
 @c
 extern int cidset;
-void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
+void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buff, int buflen)
 {
 
     long i, cid;
@@ -278,7 +278,7 @@ void make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buffer, int buflen)
 
     cidtogidmap = NULL;
 
-    sfont = sfnt_open(buffer, buflen);
+    sfont = sfnt_open(buff, buflen);
 
     if (sfont->type == SFNT_TYPE_TTC) {
         i = ff_get_ttc_index(fd->fm->ff_name, fd->fm->ps_name);

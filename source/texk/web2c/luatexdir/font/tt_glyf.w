@@ -627,7 +627,7 @@ int tt_get_metrics(sfnt * sfont, struct tt_glyphs *g)
         }
 
         sfnt_seek_set(sfont, (long) (offset + loc));
-        /*number_of_contours = */sfnt_get_short(sfont);
+        /*number_of_contours = */(void)sfnt_get_short(sfont);
 
         /* BoundingBox: FWord x 4 */
         g->gd[i].llx = sfnt_get_short(sfont);

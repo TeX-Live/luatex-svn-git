@@ -773,7 +773,7 @@ and `\.{.fmt}' in the names of \TeX's output files.
 @c
 boolean name_in_progress;       /* is a file name being scanned? */
 str_number job_name;            /* principal file name */
-boolean log_opened;             /* has the transcript file been opened? */
+boolean log_opened_global;             /* has the transcript file been opened? */
 
 
 @ Initially |job_name=0|; it becomes nonzero as soon as the true name is known.
@@ -820,7 +820,7 @@ void open_log_file(void)
     }
     texmf_log_name = (unsigned char *) xstrdup(fn);
     selector = log_only;
-    log_opened = true;
+    log_opened_global = true;
     if (callback_defined(start_run_callback) == 0) {
         /* Print the banner line, including the date and time */
         log_banner(luatex_version_string, luatex_date_info, luatex_svn);

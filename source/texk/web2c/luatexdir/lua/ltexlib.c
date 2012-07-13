@@ -289,10 +289,10 @@ static const char *scan_integer_part(lua_State * L, const char *ss, int *ret,
     int d;                      /* the digit just scanned */
     boolean vacuous;            /* have no digits appeared? */
     boolean OK_so_far;          /* has an error message been issued? */
-    int radix = 0;              /* the radix of the integer */
+    int radix1 = 0;              /* the radix of the integer */
     int c = 0;                  /* the current character */
     const char *s;              /* where we stopped in the string |ss| */
-    integer cur_val = 0;        /* return value */
+    integer val = 0;        /* return value */
     s = ss;
     do {
         do {
@@ -305,26 +305,26 @@ static const char *scan_integer_part(lua_State * L, const char *ss, int *ret,
     } while (c == '+');
 
 
-    radix = 10;
+    radix1 = 10;
     m = 214748364;
     if (c == '\'') {
-        radix = 8;
+        radix1 = 8;
         m = 02000000000;
         c = *s++;
     } else if (c == '"') {
-        radix = 16;
+        radix1 = 16;
         m = 01000000000;
         c = *s++;
     }
     vacuous = true;
-    cur_val = 0;
+    val = 0;
     OK_so_far = true;
 
     /* Accumulate the constant until |cur_tok| is not a suitable digit */
     while (1) {
-        if ((c < '0' + radix) && (c >= '0') && (c <= '0' + 9)) {
+        if ((c < '0' + radix1) && (c >= '0') && (c <= '0' + 9)) {
             d = c - '0';
-        } else if (radix == 16) {
+        } else if (radix1 == 16) {
             if ((c <= 'A' + 5) && (c >= 'A')) {
                 d = c - 'A' + 10;
             } else if ((c <= 'a' + 5) && (c >= 'a')) {
@@ -336,14 +336,14 @@ static const char *scan_integer_part(lua_State * L, const char *ss, int *ret,
             break;
         }
         vacuous = false;
-        if ((cur_val >= m) && ((cur_val > m) || (d > 7) || (radix != 10))) {
+        if ((val >= m) && ((val > m) || (d > 7) || (radix1 != 10))) {
             if (OK_so_far) {
 		luaL_error(L, "Number too big");
-                cur_val = infinity;
+                val = infinity;
                 OK_so_far = false;
             }
         } else {
-            cur_val = cur_val * radix + d;
+            val = val * radix1 + d;
         }
         c = *s++;
     }
@@ -352,9 +352,9 @@ static const char *scan_integer_part(lua_State * L, const char *ss, int *ret,
         luaL_error(L, "Missing number, treated as zero");
     }
     if (negative)
-        cur_val = -cur_val;
-    *ret = cur_val;
-    *radix_ret = radix;
+        val = -val;
+    *ret = val;
+    *radix_ret = radix1;
     if (c != ' ' && s > ss)
         s--;
     return s;
@@ -372,10 +372,9 @@ static const char *scan_dimen_part(lua_State * L, const char *ss, int *ret)
     int k;                      /* number of digits in a decimal fraction */
     scaled v;                   /* an internal dimension */
     int save_cur_val;           /* temporary storage of |cur_val| */
-    int arith_error = false;
     int c;                      /* the current character */
     const char *s = ss;         /* where we are in the string */
-    int radix = 0;              /* the current radix */
+    int radix1 = 0;              /* the current radix */
     int rdig[18];               /* to save the |dig[]| array */
     int saved_tex_remainder;    /* to save |tex_remainder|  */
     int saved_arith_error;      /* to save |arith_error|  */
@@ -399,16 +398,16 @@ static const char *scan_dimen_part(lua_State * L, const char *ss, int *ret)
         c = '.';
     }
     if (c != '.') {
-        s = scan_integer_part(L, (s > ss ? (s - 1) : ss), &cur_val, &radix);
+        s = scan_integer_part(L, (s > ss ? (s - 1) : ss), &cur_val, &radix1);
         c = *s;
     } else {
-        radix = 10;
+        radix1 = 10;
         cur_val = 0;
         c = *(--s);
     }
     if (c == ',')
         c = '.';
-    if ((radix == 10) && (c == '.')) {
+    if ((radix1 == 10) && (c == '.')) {
         /* Scan decimal fraction */
         for (k = 0; k < 18; k++)
             rdig[k] = dig[k];
@@ -627,16 +626,16 @@ static int get_item_index(lua_State * L, int i, int base)
 {
     size_t kk;
     int k;
-    int cur_cs;
+    int cur_cs1;
     const char *s;
     switch (lua_type(L, i)) {
     case LUA_TSTRING:
         s = lua_tolstring(L, i, &kk);
-        cur_cs = string_lookup(s, kk);
-        if (cur_cs == undefined_control_sequence || cur_cs == undefined_cs_cmd)
+        cur_cs1 = string_lookup(s, kk);
+        if (cur_cs1 == undefined_control_sequence || cur_cs1 == undefined_cs_cmd)
             k = -1;             /* guarandeed invalid */
         else
-            k = (equiv(cur_cs) - base);
+            k = (equiv(cur_cs1) - base);
         break;
     case LUA_TNUMBER:
         k = (int) luaL_checkinteger(L, i);
@@ -889,17 +888,17 @@ static int gettoks(lua_State * L)
 static int get_box_id(lua_State * L, int i)
 {
     const char *s;
-    int cur_cs, cur_cmd;
+    int cur_cs1, cur_cmd1;
     size_t k = 0;
     int j = -1;
     switch (lua_type(L, i)) {
     case LUA_TSTRING:
         s = lua_tolstring(L, i, &k);
-        cur_cs = string_lookup(s, k);
-        cur_cmd = eq_type(cur_cs);
-        if (cur_cmd == char_given_cmd ||
-            cur_cmd == math_given_cmd || cur_cmd == omath_given_cmd) {
-            j = equiv(cur_cs);
+        cur_cs1 = string_lookup(s, k);
+        cur_cmd1 = eq_type(cur_cs1);
+        if (cur_cmd1 == char_given_cmd ||
+            cur_cmd1 == math_given_cmd || cur_cmd1 == omath_given_cmd) {
+            j = equiv(cur_cs1);
         }
         break;
     case LUA_TNUMBER:
@@ -1202,7 +1201,7 @@ static int settex(lua_State * L)
     const char *st;
     int i, j, texstr;
     size_t k;
-    int cur_cs, cur_cmd;
+    int cur_cs1, cur_cmd1;
     int isglobal = 0;
     j = 0;
     i = lua_gettop(L);
@@ -1215,19 +1214,19 @@ static int settex(lua_State * L)
                 if (strcmp(s, "global") == 0)
                     isglobal = 1;
             }
-            cur_cs = string_lookup(st, k);
+            cur_cs1 = string_lookup(st, k);
             flush_str(texstr);
-            cur_cmd = eq_type(cur_cs);
-            if (is_int_assign(cur_cmd)) {
+            cur_cmd1 = eq_type(cur_cs1);
+            if (is_int_assign(cur_cmd1)) {
                 if (lua_isnumber(L, i)) {
                     int luai;
                     lua_number2int(luai, lua_tonumber(L, i));
                     assign_internal_value((isglobal ? 4 : 0),
-                                          equiv(cur_cs), luai);
+                                          equiv(cur_cs1), luai);
                 } else {
                     luaL_error(L, "unsupported value type");
                 }
-            } else if (is_dim_assign(cur_cmd)) {
+            } else if (is_dim_assign(cur_cmd1)) {
                 if (!lua_isnumber(L, i)) {
                     if (lua_isstring(L, i)) {
                         j = dimen_to_number(L, lua_tostring(L, i));
@@ -1237,16 +1236,16 @@ static int settex(lua_State * L)
                 } else {
                     lua_number2int(j, lua_tonumber(L, i));
                 }
-                assign_internal_value((isglobal ? 4 : 0), equiv(cur_cs), j);
-            } else if (is_glue_assign(cur_cmd)) {
-                halfword *j = check_isnode(L, i);     /* the value */
+                assign_internal_value((isglobal ? 4 : 0), equiv(cur_cs1), j);
+            } else if (is_glue_assign(cur_cmd1)) {
+                halfword *j1 = check_isnode(L, i);     /* the value */
                     { int a = isglobal;
-   		      define(equiv(cur_cs), assign_glue_cmd, *j);
+   		      define(equiv(cur_cs1), assign_glue_cmd, *j1);
                     }
-            } else if (is_toks_assign(cur_cmd)) {
+            } else if (is_toks_assign(cur_cmd1)) {
                 if (lua_isstring(L, i)) {
                     j = tokenlist_from_lua(L);  /* uses stack -1 */
-                    assign_internal_value((isglobal ? 4 : 0), equiv(cur_cs), j);
+                    assign_internal_value((isglobal ? 4 : 0), equiv(cur_cs1), j);
 
                 } else {
                     luaL_error(L, "unsupported value type");
@@ -1322,14 +1321,14 @@ static int do_convert(lua_State * L, int cur_code)
 }
 
 
-static int do_scan_internal(lua_State * L, int cur_cmd, int cur_code)
+static int do_scan_internal(lua_State * L, int cur_cmd1, int cur_code)
 {
     int texstr;
     char *str = NULL;
     int save_cur_val, save_cur_val_level;
     save_cur_val = cur_val;
     save_cur_val_level = cur_val_level;
-    scan_something_simple(cur_cmd, cur_code);
+    scan_something_simple(cur_cmd1, cur_code);
 
     if (cur_val_level == int_val_level ||
         cur_val_level == dimen_val_level || cur_val_level == attr_val_level) {
@@ -1543,7 +1542,7 @@ static int get_parshape(lua_State * L)
 
 static int gettex(lua_State * L)
 {
-    int cur_cs = -1;
+    int cur_cs1 = -1;
     int retval = 1;             /* default is to return nil  */
 
     if (lua_isstring(L, 2)) {   /* 1 == 'tex' */
@@ -1551,14 +1550,14 @@ static int gettex(lua_State * L)
         size_t k;
         const char *st = lua_tolstring(L, 2, &k);
         texstr = maketexlstring(st, k);
-        cur_cs = prim_lookup(texstr);   /* not found == relax == 0 */
+        cur_cs1 = prim_lookup(texstr);   /* not found == relax == 0 */
         flush_str(texstr);
     }
-    if (cur_cs > 0) {
-        int cur_cmd, cur_code;
-        cur_cmd = get_prim_eq_type(cur_cs);
-        cur_code = get_prim_equiv(cur_cs);
-        switch (cur_cmd) {
+    if (cur_cs1 > 0) {
+        int cur_cmd1, cur_code;
+        cur_cmd1 = get_prim_eq_type(cur_cs1);
+        cur_code = get_prim_equiv(cur_cs1);
+        switch (cur_cmd1) {
         case last_item_cmd:
             retval = do_lastitem(L, cur_code);
             break;
@@ -1579,7 +1578,7 @@ static int gettex(lua_State * L)
         case char_given_cmd:
         case math_given_cmd:
         case omath_given_cmd:
-            retval = do_scan_internal(L, cur_cmd, cur_code);
+            retval = do_scan_internal(L, cur_cmd1, cur_code);
             break;
         case set_tex_shape_cmd:
             retval = get_parshape(L);
@@ -1965,7 +1964,6 @@ static int tex_extraprimitives(lua_State * L)
 {
     int n, i;
     int mask = 0;
-    str_number s = 0;
     int cs = 0;
     n = lua_gettop(L);
     if (n == 0) {
@@ -1996,6 +1994,7 @@ static int tex_extraprimitives(lua_State * L)
     lua_newtable(L);
     i = 1;
     while (cs < prim_size) {
+	str_number s = 0;
         s = get_prim_text(cs);
         if (s > 0) {
             if (get_prim_origin(cs) & mask) {
@@ -2033,8 +2032,8 @@ static int tex_enableprimitives(lua_State * L)
                         char *newprim;
                         int val;
                         size_t newl;
-                        halfword cur_cmd = get_prim_eq_type(prim_val);
-                        halfword cur_chr = get_prim_equiv(prim_val);
+                        halfword cur_cmd1 = get_prim_eq_type(prim_val);
+                        halfword cur_chr1 = get_prim_equiv(prim_val);
                         if (strncmp(pre, prim, l) != 0) {       /* not a prefix */
                             newl = strlen(prim) + l;
                             newprim = (char *) xmalloc((unsigned) (newl + 1));
@@ -2048,8 +2047,8 @@ static int tex_enableprimitives(lua_State * L)
                         val = string_lookup(newprim, newl);
                         if (val == undefined_control_sequence ||
                             eq_type(val) == undefined_cs_cmd) {
-                            primitive_def(newprim, newl, (quarterword) cur_cmd,
-                                          cur_chr);
+                            primitive_def(newprim, newl, (quarterword) cur_cmd1,
+                                          cur_chr1);
                         }
                         free(newprim);
                     }
@@ -2394,7 +2393,7 @@ static int tex_run_boot(lua_State * L)
     random_seed = (microseconds * 1000) + (epochseconds % 1000000);
     init_randoms(random_seed);
     initialize_math();
-    fixup_selector(log_opened);
+    fixup_selector(log_opened_global);
     check_texconfig_init();
     text_dir_ptr = new_dir(0);
     history = spotless;         /* ready to go! */

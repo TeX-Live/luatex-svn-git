@@ -422,8 +422,7 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
     scaled s;                   /* shift amount */
     halfword g;                 /* points to a glue specification */
     int o;                      /* order of infinity */
-    halfword dir_ptr;           /* for managing the direction stack */
-    /* BEWARE: this shadows a global |dir_ptr| */
+    halfword dir_ptr1;           /* for managing the direction stack */
     int hpack_dir;              /* the current direction */
     int disc_level;
     halfword pack_interrupt[8];
@@ -438,8 +437,8 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
         box_dir(r) = pack_direction;
     }
     hpack_dir = box_dir(r);
-    dir_ptr = null;
-    push_dir(hpack_dir);
+    dir_ptr1 = null;
+    push_dir(hpack_dir,dir_ptr1);
     q = r + list_offset;
     vlink(q) = p;
     if (m == cal_expand_ratio) {
@@ -563,11 +562,11 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
                     /* DIR: Adjust the dir stack for the |hpack| routine */
                     if (dir_dir(p) >= 0) {
                         hpack_dir = dir_dir(p);
-                        push_dir_node(p);
+                        push_dir_node(p,dir_ptr1);
                     } else {
-                        pop_dir_node();
-                        if (dir_ptr != null)
-                            hpack_dir = dir_dir(dir_ptr);
+                        pop_dir_node(dir_ptr1);
+                        if (dir_ptr1 != null)
+                            hpack_dir = dir_dir(dir_ptr1);
                     }
 
                 } else {
@@ -600,7 +599,7 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
                 break;
             case margin_kern_node:
                 if (m == cal_expand_ratio) {
-                    f = font(margin_char(p));
+                    int f = font(margin_char(p));
                     do_subst_font(margin_char(p), 1000);
                     if (f != font(margin_char(p)))
                         font_stretch =
@@ -823,8 +822,8 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
         flush_node(r);
         r = hpack(q, w, subst_ex_font, hpack_dir);
     }
-    while (dir_ptr != null)
-        pop_dir_node();
+    while (dir_ptr1 != null)
+        pop_dir_node(dir_ptr1);
     return r;
 }
 

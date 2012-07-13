@@ -36,11 +36,11 @@ static const char _svn_version[] =
 
 #define detokenized_line() (line_catcode_table==NO_CAT_TABLE)
 
-#define do_get_cat_code(a) do {                                         \
+#define do_get_cat_code(a,b) do {                                         \
     if (line_catcode_table!=DEFAULT_CAT_TABLE)                          \
-      a=get_cat_code(line_catcode_table,cur_chr);                       \
+      a=get_cat_code(line_catcode_table,b);                       \
     else                                                                \
-      a=get_cat_code(cat_code_table,cur_chr);                           \
+      a=get_cat_code(cat_code_table,b);                           \
   } while (0)
 
  
@@ -426,10 +426,10 @@ void delete_token_ref(halfword p)
 }
 
 @ @c
-int get_char_cat_code(int cur_chr)
+int get_char_cat_code(int curchr)
 {
     int a;
-    do_get_cat_code(a);
+    do_get_cat_code(a,curchr);
     return a;
 }
 
@@ -820,7 +820,7 @@ static boolean get_next_file(void)
         if (detokenized_line()) {
             cur_cmd = (cur_chr == ' ' ? 10 : 12);
         } else {
-            do_get_cat_code(cur_cmd);
+            do_get_cat_code(cur_cmd, cur_chr);
         }
         /* 
            Change state if necessary, and |goto switch| if the current
@@ -1096,7 +1096,7 @@ static int scan_control_sequence(void)
         while (1) {
             int k = iloc;
             do_buffer_to_unichar(cur_chr, k);
-            do_get_cat_code(cat);
+            do_get_cat_code(cat, cur_chr);
             if (cat != letter_cmd || k > ilimit) {
                 retval = (cat == spacer_cmd ? skip_blanks : mid_line);
                 if (cat == sup_mark_cmd && check_expanded_code(&k))     /* If an expanded...; */
@@ -1105,7 +1105,7 @@ static int scan_control_sequence(void)
                 retval = skip_blanks;
                 do {
                     do_buffer_to_unichar(cur_chr, k);
-                    do_get_cat_code(cat);
+                    do_get_cat_code(cat, cur_chr);
                 } while (cat == letter_cmd && k <= ilimit);
 
                 if (cat == sup_mark_cmd && check_expanded_code(&k))     /* If an expanded...; */
@@ -1873,7 +1873,7 @@ void conv_toks(void)
         break;
     case lua_escape_string_code:
         {
-            lstring str;
+            lstring escstr;
             int l = 0;
             save_scanner_status = scanner_status;
             save_def_ref = def_ref;
@@ -1881,16 +1881,16 @@ void conv_toks(void)
             scan_pdf_ext_toks();
             bool = in_lua_escape;
             in_lua_escape = true;
-            str.s = (unsigned char *) tokenlist_to_cstring(def_ref, false, &l);
-            str.l = (unsigned) l;
+            escstr.s = (unsigned char *) tokenlist_to_cstring(def_ref, false, &l);
+            escstr.l = (unsigned) l;
             in_lua_escape = bool;
             delete_token_ref(def_ref);
             def_ref = save_def_ref;
             warning_index = save_warning_index;
             scanner_status = save_scanner_status;
-            (void) lua_str_toks(str);
+            (void) lua_str_toks(escstr);
             ins_list(token_link(temp_token_head));
-            free(str.s);
+            free(escstr.s);
             return;
         }
         break;

@@ -51,15 +51,15 @@ static char *scaled_to_string(scaled s)
     }
     {
         int l = 0;
-        char dig[8] = { 0 };
+        char digs[8] = { 0 };
         n = s / unity;
         /* process the integer part */
         do {
-            dig[l++] = (char) (n % 10);
+            digs[l++] = (char) (n % 10);
             n = n / 10;;
         } while (n > 0);
         while (l > 0) {
-            result[k++] = (char) (dig[--l] + '0');
+            result[k++] = (char) (digs[--l] + '0');
         }
     }
     result[k++] = '.';

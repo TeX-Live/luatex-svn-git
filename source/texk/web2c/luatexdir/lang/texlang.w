@@ -214,14 +214,14 @@ int get_post_exhyphen_char(int n)
 }
 
 @ @c
-void load_patterns(struct tex_language *lang, const unsigned char *buffer)
+void load_patterns(struct tex_language *lang, const unsigned char *buff)
 {
-    if (lang == NULL || buffer == NULL || strlen((const char *) buffer) == 0)
+    if (lang == NULL || buff == NULL || strlen((const char *) buff) == 0)
         return;
     if (lang->patterns == NULL) {
         lang->patterns = hnj_hyphen_new();
     }
-    hnj_hyphen_load(lang->patterns, buffer);
+    hnj_hyphen_load(lang->patterns, buff);
 }
 
 void clear_patterns(struct tex_language *lang)
@@ -250,7 +250,7 @@ void load_tex_patterns(int curlang, halfword head)
 /* Cleans one word which is returned in |cleaned|,
    returns the new offset into |buffer| */
 
-const char *clean_hyphenation(const char *buffer, char **cleaned)
+const char *clean_hyphenation(const char *buff, char **cleaned)
 {
     int items = 0;
     unsigned char word[MAX_WORD_LEN + 1]; /* work buffer for bytes */
@@ -258,12 +258,12 @@ const char *clean_hyphenation(const char *buffer, char **cleaned)
     int u = 0; /* unicode buffer value */
     int i = 0; /* index into buffer */
     char *uindex = (char *)word;
-    const char *s = buffer;
+    const char *s = buff;
 
     while (*s && !isspace(*s)) {
 	word[i++] = (unsigned)*s;
 	s++;
-        if ((s-buffer)>MAX_WORD_LEN) {
+        if ((s-buff)>MAX_WORD_LEN) {
             /* todo: this is too strict, should count unicode, not bytes */
     	    *cleaned = NULL;
             tex_error("exception too long", NULL);
@@ -323,7 +323,7 @@ const char *clean_hyphenation(const char *buffer, char **cleaned)
 }
 
 @ @c
-void load_hyphenation(struct tex_language *lang, const unsigned char *buffer)
+void load_hyphenation(struct tex_language *lang, const unsigned char *buff)
 {
     const char *s;
     const char *value;
@@ -336,7 +336,7 @@ void load_hyphenation(struct tex_language *lang, const unsigned char *buffer)
         lang->exceptions = luaL_ref(L, LUA_REGISTRYINDEX);
     }
     lua_rawgeti(L, LUA_REGISTRYINDEX, lang->exceptions);
-    s = (const char *) buffer;
+    s = (const char *) buff;
     while (*s) {
         while (isspace(*s))
             s++;
@@ -840,7 +840,7 @@ void hnj_hyphenation(halfword head, halfword tail)
     char *hy = utf8word;
     char *replacement = NULL;
     boolean explicit_hyphen = false;
-    halfword s, r = head, wordstart = null, save_tail = null, left =
+    halfword s, r = head, wordstart = null, save_tail1 = null, left =
         null, right = null;
 
     /* this first movement assures two things: 
@@ -860,7 +860,7 @@ void hnj_hyphenation(halfword head, halfword tail)
         return;
 
     assert(tail != null);
-    save_tail = vlink(tail);
+    save_tail1 = vlink(tail);
     s = new_penalty(0);
     couple_nodes(tail, s);
 
@@ -960,7 +960,7 @@ void hnj_hyphenation(halfword head, halfword tail)
         r = find_next_wordstart(r);
     }
     flush_node(vlink(tail));
-    vlink(tail) = save_tail;
+    vlink(tail) = save_tail1;
 }
 
 

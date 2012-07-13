@@ -396,13 +396,13 @@ pointer new_noad(void)
 }
 
 @ @c
-pointer new_sub_box(pointer cur_box)
+pointer new_sub_box(pointer curbox)
 {
     pointer p, q;
     p = new_noad();
     q = new_node(sub_box_node, 0);
     nucleus(p) = q;
-    math_list(nucleus(p)) = cur_box;
+    math_list(nucleus(p)) = curbox;
     return p;
 }
 
@@ -1049,7 +1049,7 @@ static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
         NULL
     };
     delcodeval d;
-    int cur_val1;               /* and the global |cur_val| */
+    int curval1;               /* and the global |cur_val| */
     int mcls, msfam = 0, mschr = 0, mlfam = 0, mlchr = 0;
     mcls = 0;
     if (extcode == tex_mathcode) {      /* \.{\\delcode}, this is the easiest */
@@ -1074,15 +1074,15 @@ static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
             mcls = (cur_val / 0x1000000);
             cur_val = (cur_val & 0xFFFFFF);
         }
-        cur_val1 = cur_val;
+        curval1 = cur_val;
         scan_int();
-        if ((cur_val1 > 0xFFFFFF) || (cur_val > 0xFFFFFF)) {
+        if ((curval1 > 0xFFFFFF) || (cur_val > 0xFFFFFF)) {
             tex_error("Invalid delimiter code", hlp);
-            cur_val1 = 0;
+            curval1 = 0;
             cur_val = 0;
         }
-        msfam = (cur_val1 / 0x10000);
-        mschr = (cur_val1 % 0x10000);
+        msfam = (curval1 / 0x10000);
+        mschr = (curval1 % 0x10000);
         mlfam = (cur_val / 0x10000);
         mlchr = (cur_val % 0x10000);
     } else if (extcode == xetex_mathcode) {     /* \.{\\Udelcode} */
@@ -1868,7 +1868,6 @@ surround an accent that is the nucleus of an Ord atom.
 @c
 void close_math_group(pointer p)
 {
-    pointer q;
     int old_style = m_style;
     unsave_math();
 
@@ -1899,7 +1898,7 @@ void close_math_group(pointer p)
                 if (saved_value(0) == nucleus(tail)) {
                     if (type(tail) == simple_noad
                         && subtype(tail) == ord_noad_type) {
-                        q = head;
+                        pointer q = head;
                         while (vlink(q) != tail)
                             q = vlink(q);
                         vlink(q) = p;

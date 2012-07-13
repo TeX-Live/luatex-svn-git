@@ -29,9 +29,7 @@ extern int max_push;
 extern int last_bop;
 extern int dead_cycles;
 extern boolean doing_leaders;
-extern int c, f;
 extern int oval, ocmd;
-extern halfword g;
 extern int lq, lr;
 extern int cur_s;
 
@@ -173,7 +171,6 @@ this is essentially the depth of |push| commands in the \.{DVI} output.
       glue_temp=-billion;                       \
   } while (0)
 
-extern scaled_whd rule;
 extern scaledpos dvi;
 
 extern void expand_macros_in_tokenlist(halfword p);

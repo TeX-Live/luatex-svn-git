@@ -115,7 +115,6 @@ names in this program because they are used with a special meaning.
 #  define carriage_return '\r'  /* ASCII code used at end of line */
 
 /* Global variables */
-extern int bad;                 /* is some ``constant'' wrong? */
 extern boolean luainit;         /* are we using lua for initializations  */
 extern boolean tracefilenames;  /* print file open-close  info? */
 

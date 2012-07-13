@@ -83,13 +83,13 @@ error messages are
 \hang|term_and_log| (when |interaction>batch_mode| and |log_file| is open).
 
 @c
-void fixup_selector(boolean log_opened)
+void fixup_selector(boolean logopened)
 {
     if (interaction == batch_mode)
         selector = no_print;
     else
         selector = term_only;
-    if (log_opened)
+    if (logopened)
         selector = selector + 2;
 }
 
@@ -369,9 +369,9 @@ void error(void)
         print_ln();
         give_err_help();
     } else {
-        int i = 0;
-        while (help_line[i] != NULL)
-            tprint_nl(help_line[i++]);
+        int i1 = 0;
+        while (help_line[i1] != NULL)
+            tprint_nl(help_line[i1++]);
     }
     print_ln();
     if (interaction > batch_mode)
@@ -401,7 +401,7 @@ running a bit longer.
 @c
 void normalize_selector(void)
 {
-    if (log_opened)
+    if (log_opened_global)
         selector = term_and_log;
     else
         selector = term_only;
@@ -417,7 +417,7 @@ void succumb(void)
 {
     if (interaction == error_stop_mode)
         interaction = scroll_mode;      /* no more interaction */
-    if (log_opened)
+    if (log_opened_global)
         error();
 #ifdef DEBUG
     if (interaction > batch_mode)

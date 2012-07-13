@@ -1293,8 +1293,8 @@ ext_try_break(int pi,
             shortfall -= passive_last_left_box_width(break_node(r));
         shortfall -= internal_right_box_width;
         if (pdf_protrude_chars > 1) {
-            halfword l, o;
-            l = (break_node(r) == null) ? first_p : cur_break(break_node(r));
+            halfword l1, o;
+            l1 = (break_node(r) == null) ? first_p : cur_break(break_node(r));
             if (cur_p == null) {
                 o = null;
             } else {            /* TODO |if (is_character_node(alink(cur_p)))| */
@@ -1316,17 +1316,17 @@ ext_try_break(int pi,
                 /* a |disc_node| with non-empty |pre_break|, protrude the last char of |pre_break| */
                 o = tlink_pre_break(cur_p);
             } else {
-                o = find_protchar_right(l, o);
+                o = find_protchar_right(l1, o);
             }
             /* now the left margin */
-            if ((l != null) && (type(l) == disc_node)
-                && (vlink_post_break(l) != null)) {
+            if ((l1 != null) && (type(l1) == disc_node)
+                && (vlink_post_break(l1) != null)) {
                 /* FIXME: first 'char' could be a disc! */
-                l = vlink_post_break(l);        /* protrude the first char */
+                l1 = vlink_post_break(l1);        /* protrude the first char */
             } else {
-                l = find_protchar_left(l, true);
+                l1 = find_protchar_left(l1, true);
             }
-            shortfall += (left_pw(l) + right_pw(o));
+            shortfall += (left_pw(l1) + right_pw(o));
         }
         if ((shortfall != 0) && (pdf_adjust_spacing > 1)) {
             margin_kern_stretch = 0;
@@ -1761,7 +1761,7 @@ ext_do_line_break(int paragraph_dir,
         dir_ptr = null;
     }
 #if 0
-    push_dir(paragraph_dir); /* TODO what was the point of this? */
+    push_dir(paragraph_dir,dir_ptr); /* TODO what was the point of this? */
 #endif
 
     /* Find optimal breakpoints; */
@@ -1888,9 +1888,9 @@ ext_do_line_break(int paragraph_dir,
                 case dir_node: /* DIR: Adjust the dir stack for the |line_break| routine; */
                     if (dir_dir(cur_p) >= 0) {
                         line_break_dir = dir_dir(cur_p);
-                        push_dir_node(cur_p);   /* adds to |dir_ptr| */
+                        push_dir_node(cur_p,dir_ptr);   /* adds to |dir_ptr| */
                     } else {
-                        pop_dir_node();
+                        pop_dir_node(dir_ptr);
                         if (dir_ptr != null)
                             line_break_dir = dir_dir(dir_ptr);
                     }

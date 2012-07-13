@@ -3028,7 +3028,7 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     long size, offset = 0;
 
     card8 *data;
-    card16 num_glyphs, cs_count, code, gid, last_cid;
+    card16 num_glyphs, cs_count1, code, gid, last_cid;
 
     double nominal_width, default_width;
 
@@ -3140,13 +3140,13 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     cs_idx = cff_get_index_header(cffont);
 
     offset = (long) cffont->offset;
-    cs_count = cs_idx->count;
-    if (cs_count < 2) {
+    cs_count1 = cs_idx->count;
+    if (cs_count1 < 2) {
         CFF_ERROR("No valid charstring data found.");
     }
 
     /* build the new charstrings entry */
-    charstrings = cff_new_index((card16) (cs_count + 1));
+    charstrings = cff_new_index((card16) (cs_count1 + 1));
     max_len = 2 * CS_STR_LEN_MAX;
     charstrings->data = xcalloc((unsigned) max_len, sizeof(card8));
     charstring_len = 0;
@@ -3156,7 +3156,7 @@ void write_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
 
     {
         int i;
-        for (i = 0; i < cs_count; i++) {
+        for (i = 0; i < cs_count1; i++) {
             code = (card16) i;
             glyph->id = code;
             DO_COPY_CHARSTRING();
@@ -3318,7 +3318,7 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     long size, offset = 0;
 
     card8 *data;
-    card16 num_glyphs, cs_count, gid, last_cid;
+    card16 num_glyphs, cs_count1, gid, last_cid;
 
 
     int fdsel, prev_fd, cid_count, cid;
@@ -3408,8 +3408,8 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     cs_idx = cff_get_index_header(cffont);
 
     offset = (long) cffont->offset;
-    cs_count = cs_idx->count;
-    if (cs_count < 2) {
+    cs_count1 = cs_idx->count;
+    if (cs_count1 < 2) {
         CFF_ERROR("No valid charstring data found.");
     }
 
@@ -3423,7 +3423,7 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     fdselect->num_entries = 0;
     fdselect->data.ranges = xcalloc(num_glyphs, sizeof(cff_range3));
 
-    charstrings = cff_new_index((card16) (cs_count + 1));
+    charstrings = cff_new_index((card16) (cs_count1 + 1));
     max_len = 2 * CS_STR_LEN_MAX;
     charstrings->data = xcalloc((unsigned) max_len, sizeof(card8));
     charstring_len = 0;

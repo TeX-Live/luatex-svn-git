@@ -53,14 +53,14 @@ static const char _svn_version[] =
 #define SFNT_POSTSCRIPT 0x4f54544fUL
 #define SFNT_TTC        0x74746366UL
 
-sfnt *sfnt_open(unsigned char *buffer, int buflen)
+sfnt *sfnt_open(unsigned char *buff, int buflen)
 {
     sfnt *sfont;
     ULONG type;
 
     sfont = xmalloc(sizeof(sfnt));
     sfont->loc = 0;
-    sfont->buffer = buffer;
+    sfont->buffer = buff;
     sfont->buflen = buflen;
 
     type = sfnt_get_ulong(sfont);

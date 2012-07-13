@@ -108,14 +108,14 @@ static void usage(const char *message)
 @ @c
 #define IS(s)   (strcmp(argv[i],s)==0)
 
-static int doargs(int argc, char *argv[])
+static int doargs(int ac, char *av[])
 {
     int i;
     int version = 0;
-    if (argv[0] != NULL && *argv[0] != 0)
-        progname = argv[0];
-    for (i = 1; i < argc; i++) {
-        if (*argv[i] != '-')    /* end of options; keep it */
+    if (av[0] != NULL && *av[0] != 0)
+        progname = av[0];
+    for (i = 1; i < ac; i++) {
+        if (*av[i] != '-')    /* end of options; keep it */
             break;
         else if (IS("--")) {    /* end of options; skip it */
             ++i;
@@ -125,7 +125,7 @@ static int doargs(int argc, char *argv[])
         } else if (IS("-"))     /* end of options; use stdin */
             break;
         else if (IS("-o")) {    /* output file */
-            output = argv[++i];
+            output = av[++i];
             if (output == NULL || *output == 0)
                 usage(LUA_QL("-o") " needs argument");
             if (IS("-"))
@@ -141,15 +141,15 @@ static int doargs(int argc, char *argv[])
         else if (IS("--luac"))  /* ignore */
             ;
         else                    /* unknown option */
-            usage(argv[i]);
+            usage(av[i]);
     }
-    if (i == argc && (!dumping)) {
+    if (i == ac && (!dumping)) {
         dumping = 0;
-        argv[--i] = Output;
+        av[--i] = Output;
     }
     if (version) {
         printf("%s  %s\n", LUA_RELEASE, LUA_COPYRIGHT);
-        if (version == argc - 1)
+        if (version == ac - 1)
             exit(EXIT_SUCCESS);
     }
     return i;
@@ -202,18 +202,18 @@ struct Smain {
 static int pmain(lua_State * L)
 {
     struct Smain *s = (struct Smain *) lua_touserdata(L, 1);
-    int argc = s->argc;
-    char **argv = s->argv;
+    int ac = s->argc;
+    char **av = s->argv;
     const Proto *f;
     int i;
-    if (!lua_checkstack(L, argc))
+    if (!lua_checkstack(L, ac))
         fatal("too many input files");
-    for (i = 0; i < argc; i++) {
-        const char *filename = IS("-") ? NULL : argv[i];
+    for (i = 0; i < ac; i++) {
+        const char *filename = IS("-") ? NULL : av[i];
         if (luaL_loadfile(L, filename) != 0)
             fatal(lua_tostring(L, -1));
     }
-    f = combine(L, argc);
+    f = combine(L, ac);
     if (dumping) {
         FILE *D = (output == NULL) ? stdout : fopen(output, "wb");
         if (D == NULL)
@@ -230,20 +230,20 @@ static int pmain(lua_State * L)
 }
 
 @ @c
-int luac_main(int argc, char *argv[])
+int luac_main(int ac, char *av[])
 {
     lua_State *L;
     struct Smain s;
-    int i = doargs(argc, argv);
-    argc -= i;
-    argv += i;
-    if (argc <= 0)
+    int i = doargs(ac, av);
+    ac -= i;
+    av += i;
+    if (ac <= 0)
         usage("no input files given");
     L = lua_open();
     if (L == NULL)
         fatal("not enough memory for state");
-    s.argc = argc;
-    s.argv = argv;
+    s.argc = ac;
+    s.argv = av;
     if (lua_cpcall(L, pmain, &s) != 0)
         fatal(lua_tostring(L, -1));
     lua_close(L);

@@ -245,17 +245,17 @@ static int getfontid(lua_State * L)
 {
     const char *s;
     size_t ff;
-    int cur_cs;
+    int cs;
     int f;
     if (lua_type(L, 1) == LUA_TSTRING) {
         s = lua_tolstring(L, 1, &ff);
-        cur_cs = string_lookup(s, ff);
-        if (cur_cs == undefined_control_sequence || cur_cs == undefined_cs_cmd
-            || eq_type(cur_cs) != set_font_cmd) {
+        cs = string_lookup(s, ff);
+        if (cs == undefined_control_sequence || cs == undefined_cs_cmd
+            || eq_type(cs) != set_font_cmd) {
             lua_pushstring(L, "not a valid font csname");
             f = -1;
         } else {
-            f = equiv(cur_cs);
+            f = equiv(cs);
         }
         lua_pushnumber(L, f);
     } else {

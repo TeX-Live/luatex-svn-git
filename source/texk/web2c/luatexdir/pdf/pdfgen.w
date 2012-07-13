@@ -2222,8 +2222,8 @@ static boolean substr_of_str(const char *s, const char *t)
     return true;
 }
 
-static int pdf_print_info(PDF pdf, int luatex_version,
-                          str_number luatex_revision)
+static int pdf_print_info(PDF pdf, int luatexversion,
+                          str_number luatexrevision)
 {                               /* print info object */
     boolean creator_given, producer_given, creationdate_given, moddate_given,
         trapped_given;
@@ -2249,11 +2249,11 @@ static int pdf_print_info(PDF pdf, int luatex_version,
         /* Print the Producer key */
         pdf_add_name(pdf, "Producer");
         pdf_puts(pdf, " (LuaTeX-");
-        pdf_print_int(pdf, luatex_version / 100);
+        pdf_print_int(pdf, luatexversion / 100);
         pdf_out(pdf, '.');
-        pdf_print_int(pdf, luatex_version % 100);
+        pdf_print_int(pdf, luatexversion % 100);
         pdf_out(pdf, '.');
-        pdf_print(pdf, luatex_revision);
+        pdf_print(pdf, luatexrevision);
         pdf_out(pdf, ')');
     }
     if (pdf_info_toks != null) {
@@ -2303,7 +2303,7 @@ static void build_free_object_list(PDF pdf)
 are already written completely to PDF output file.
 
 @c
-void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
+void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
 {
     int i, j, k;
     int root, info, xref_stm = 0, outlines, threads, names_tree;
@@ -2363,7 +2363,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             pdf->gen_tounicode = pdf_gen_tounicode;
             k = pdf->head_tab[obj_type_font];
             while (k != 0) {
-                f = obj_info(pdf, k);
+                int f = obj_info(pdf, k);
                 assert(pdf_font_num(f) > 0);
                 assert(pdf_font_num(f) == k);
                 do_pdf_font(pdf, f);
@@ -2430,7 +2430,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
             pdf_end_obj(pdf);
 
             /* last candidate for object stream */
-            info = pdf_print_info(pdf, luatex_version, luatex_revision);        /* final object for pdf->os_enable == false */
+            info = pdf_print_info(pdf, luatexversion, luatexrevision);        /* final object for pdf->os_enable == false */
 
             if (pdf->os_enable) {
                 pdf_buffer_select(pdf, true);
@@ -2571,7 +2571,7 @@ void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision)
     }
 
     if (callback_id == 0) {
-        if (log_opened) {
+        if (log_opened_global) {
             fprintf(log_file,
                     "\nPDF statistics: %d PDF objects out of %d (max. %d)\n",
                     (int) pdf->obj_ptr, (int) pdf->obj_tab_size,

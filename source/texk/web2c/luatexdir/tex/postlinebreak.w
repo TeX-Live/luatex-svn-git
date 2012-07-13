@@ -85,8 +85,8 @@ void ext_post_line_break(int paragraph_dir,
 {
 
     boolean have_directional = true;
-    halfword q, r, s;           /* temporary registers for list manipulation */
-    halfword p, k;
+    halfword q, r;              /* temporary registers for list manipulation */
+    halfword k;
     scaled w;
     boolean glue_break;         /* was a break at glue? */
     boolean disc_break;         /*was the current break at a discretionary node? */
@@ -307,7 +307,7 @@ void ext_post_line_break(int paragraph_dir,
         /* If the par ends with a \break command, the last line is utterly empty.
            That is the case of |q==temp_head| */
         if (q != temp_head && pdf_protrude_chars > 0) {
-            halfword ptmp;
+            halfword p, ptmp;
             if (disc_break && (is_char_node(q) || (type(q) != disc_node))) {
                 p = q;          /* |q| has been reset to the last node of |pre_break| */
                 ptmp = p;
@@ -333,15 +333,15 @@ void ext_post_line_break(int paragraph_dir,
            then we append |rightskip| after |q| now */
         if (!glue_break) {
             /* Put the \.{\\rightskip} glue after node |q|; */
-            halfword r = new_glue((right_skip == null ? null : copy_node(right_skip)));
-	    glue_ref_count(glue_ptr(r)) = null;
-	    subtype(r) = right_skip_code+1;
-            try_couple_nodes(r,vlink(q));
-            delete_attribute_ref(node_attr(r));
-            node_attr(r) = node_attr(q);
-            add_node_attr_ref(node_attr(r));
-            couple_nodes(q,r);
-            q = r;
+            halfword r1 = new_glue((right_skip == null ? null : copy_node(right_skip)));
+	    glue_ref_count(glue_ptr(r1)) = null;
+	    subtype(r1) = right_skip_code+1;
+            try_couple_nodes(r1,vlink(q));
+            delete_attribute_ref(node_attr(r1));
+            node_attr(r1) = node_attr(q);
+            add_node_attr_ref(node_attr(r1));
+            couple_nodes(q,r1);
+            q = r1;
         }
 
         /* /Modify the end of the line to reflect the nature of the break and to
@@ -358,6 +358,7 @@ void ext_post_line_break(int paragraph_dir,
         try_couple_nodes(temp_head, r);
         if (passive_left_box(cur_p) != null && passive_left_box(cur_p) != 0) {
             /* omega bits: */
+            halfword s;
             r = copy_node_list(passive_left_box(cur_p));
             s = vlink(q);
             couple_nodes(r,q);
@@ -374,6 +375,7 @@ void ext_post_line_break(int paragraph_dir,
         }
         /*at this point |q| is the leftmost node; all discardable nodes have been discarded */
         if (pdf_protrude_chars > 0) {
+	    halfword p;
             p = q;
             p = find_protchar_left(p, false);   /* no more discardables */
             w = char_pw(p, left_side);

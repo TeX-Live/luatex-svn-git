@@ -325,7 +325,7 @@ int do_run_callback(int special, const char *values, va_list vl)
             /* Can't be more precise here, could be called before 
              * TeX initialization is complete 
              */
-            if (!log_opened) {
+            if (!log_opened_global) {
                 fprintf(stderr, "This went wrong: %s\n", lua_tostring(L, -1));
                 error();
             } else {

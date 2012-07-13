@@ -595,7 +595,6 @@ int max_push = 0;               /* deepest nesting of |push| commands encountere
 int last_bop = -1;              /* location of previous |bop| in the \.{DVI} output */
 int dead_cycles = 0;            /* recent outputs that didn't ship anything out */
 boolean doing_leaders = false;  /* are we inside a leader box? */
-int c, f;                       /* character and font in current |char_node| */
 int oval, ocmd;                 /* used by |out_cmd| for generating |set|, |fnt| and |fnt_def| commands */
 pointer g;                      /* current glue specification */
 int lq, lr;                     /* quantities used in calculations for leaders */
@@ -1205,7 +1204,7 @@ void write_out(halfword p)
         /* If the log file isn't open yet, we can only send output to the terminal.
            Calling |open_log_file| from here seems to result in bad data in the log.
          */
-        if (!log_opened)
+        if (!log_opened_global)
             selector = term_only;
         tprint_nl("runsystem(");
         tprint((char *) cur_string);

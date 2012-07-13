@@ -569,8 +569,8 @@ void hlist_out(PDF pdf, halfword this_box)
                 break;
             case glue_node:
                 /* (\pdfTeX) Move right or output leaders */
-
-                g = glue_ptr(p);
+                {
+                halfword g = glue_ptr(p);
                 rule.wd = width(g) - cur_g;
                 if (g_sign != normal) {
                     if (g_sign == stretching) {
@@ -702,6 +702,7 @@ void hlist_out(PDF pdf, halfword this_box)
                         cur.h = edge - 10;
                         goto NEXTP;
                     }
+                }
                 }
                 goto MOVE_PAST;
                 break;
@@ -979,7 +980,8 @@ void vlist_out(PDF pdf, halfword this_box)
                 break;
             case glue_node:
                 /* (\pdfTeX) Move down or output leaders */
-                g = glue_ptr(p);
+                {
+                halfword g = glue_ptr(p);
                 rule.ht = width(g) - cur_g;
                 if (g_sign != normal) {
                     if (g_sign == stretching) {
@@ -1076,6 +1078,7 @@ void vlist_out(PDF pdf, halfword this_box)
                         cur.v = edge - 10;
                         goto NEXTP;
                     }
+                }
                 }
                 goto MOVE_PAST;
                 break;

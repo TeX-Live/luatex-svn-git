@@ -1109,10 +1109,10 @@ static int lua_nodelib_traverse(lua_State * L)
 
 
 static int
-do_lua_nodelib_count(lua_State * L, halfword match, int i, halfword first)
+do_lua_nodelib_count(lua_State * L, halfword match, int i, halfword first1)
 {
     int count = 0;
-    int t = first;
+    int t = first1;
     while (t != match) {
         if (i < 0 || type(t) == i) {
             count++;

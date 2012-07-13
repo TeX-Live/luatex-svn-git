@@ -590,7 +590,6 @@ for a hyphenation point between characters
 void hnj_hyphen_load(HyphenDict * dict, const unsigned char *f)
 {
     int state_num, last_state;
-    int i, j = 0;
     int ch;
     int found;
     HashEntry *e;
@@ -604,7 +603,7 @@ void hnj_hyphen_load(HyphenDict * dict, const unsigned char *f)
     unsigned char *pat;
     char *org;
     while ((format = next_pattern(&l, &f)) != NULL) {
-        int i, j, e;
+        int i, j, e1;
         if (l>=255) {
            help1("Individual patterns should not be longer than 254 bytes total.");
            print_err("Pattern of enormous length ignored");
@@ -634,31 +633,31 @@ void hnj_hyphen_load(HyphenDict * dict, const unsigned char *f)
            repl = hnj_strdup(repl + 1);
            }
 #endif
-        for (i = 0, j = 0, e = 0; (unsigned) i < l; i++) {
+        for (i = 0, j = 0, e1 = 0; (unsigned) i < l; i++) {
             if (format[i] >= '0' && format[i] <= '9')
                 j++;
             if (is_utf8_follow(format[i]))
-                e++;
+                e1++;
         }
-        /* |l-e|   => number of {\it characters} not {\it bytes} */
+        /* |l-e1|   => number of {\it characters} not {\it bytes} */
         /* |l-j|   => number of pattern bytes */
-        /* |l-e-j| => number of pattern characters */
+        /* |l-e1-j| => number of pattern characters */
         pat = (unsigned char *) malloc((1 + l - (size_t) j));
-        org = (char *) malloc((size_t) (2 + l - (size_t) e - (size_t) j));
+        org = (char *) malloc((size_t) (2 + l - (size_t) e1 - (size_t) j));
         /* remove hyphenation encoders (digits) from pat */
         org[0] = '0';
-        for (i = 0, j = 0, e = 0; (unsigned) i < l; i++) {
+        for (i = 0, j = 0, e1 = 0; (unsigned) i < l; i++) {
             unsigned char c = format[i];
             if (is_utf8_follow(c)) {
-                pat[j + e++] = c;
+                pat[j + e1++] = c;
             } else if (c < '0' || c > '9') {
-                pat[e + j++] = c;
+                pat[e1 + j++] = c;
                 org[j] = '0';
             } else {
                 org[j] = (char) c;
             }
         }
-        pat[e + j] = 0;
+        pat[e1 + j] = 0;
         org[j + 1] = 0;
         hyppat_insert(dict->patterns, pat, org);
     }
@@ -667,31 +666,31 @@ void hnj_hyphen_load(HyphenDict * dict, const unsigned char *f)
     v = new_HashIter(dict->patterns);
     while (nextHash(v, &word)) {
         int wordsize = (int) strlen((char *) word);
-        int j, l;
-        for (l = 1; l <= wordsize; l++) {
-            if (is_utf8_follow(word[l]))
+        int j1, l1;
+        for (l1 = 1; l1 <= wordsize; l1++) {
+            if (is_utf8_follow(word[l1]))
                 continue;       /* Do not clip an utf8 sequence */
-            for (j = 1; j <= l; j++) {
+            for (j1 = 1; j1 <= l1; j1++) {
                 char *subpat_pat;
-                int i = l - j;
-                if (is_utf8_follow(word[i]))
+                int i1 = l1 - j1;
+                if (is_utf8_follow(word[i1]))
                     continue;   /* Do not start halfway an utf8 sequence */
                 if ((subpat_pat =
-                     hyppat_lookup(dict->patterns, word + i, j)) != NULL) {
+                     hyppat_lookup(dict->patterns, word + i1, j1)) != NULL) {
                     char *newpat_pat;
                     if ((newpat_pat =
-                         hyppat_lookup(dict->merged, word, l)) == NULL) {
+                         hyppat_lookup(dict->merged, word, l1)) == NULL) {
                         char *neworg;
                         unsigned char *newword =
-                            (unsigned char *) malloc((size_t) (l + 1));
-                        int e = 0;
-                        strncpy((char *) newword, (char *) word, (size_t) l);
+                            (unsigned char *) malloc((size_t) (l1 + 1));
+                        int e1 = 0;
+                        strncpy((char *) newword, (char *) word, (size_t) l1);
                         newword[l] = 0;
-                        for (i = 0; i < l; i++)
-                            if (is_utf8_follow(newword[i]))
-                                e++;
-                        neworg = malloc((size_t) (l + 2 - e));
-                        sprintf(neworg, "%0*d", l + 1 - e, 0);  /* fill with right amount of '0' */
+                        for (i1 = 0; i1 < l1; i1++)
+                            if (is_utf8_follow(newword[i1]))
+                                e1++;
+                        neworg = malloc((size_t) (l1 + 2 - e1));
+                        sprintf(neworg, "%0*d", l1 + 1 - e1, 0);  /* fill with right amount of '0' */
                         hyppat_insert(dict->merged, newword,
                                       combine(neworg, subpat_pat));
                     } else {
@@ -708,31 +707,31 @@ void hnj_hyphen_load(HyphenDict * dict, const unsigned char *f)
     v = new_HashIter(dict->merged);
     while (nextHashStealPattern(v, &word, &pattern)) {
         static unsigned char mask[] = { 0x3F, 0x1F, 0xF, 0x7 };
-        int j = (int) strlen((char *) word);
+        int j1 = (int) strlen((char *) word);
 #ifdef VERBOSE
-        printf("word %s pattern %s, j = %d\n", word, pattern, j);
+        printf("word %s pattern %s, j = %d\n", word, pattern, j1);
 #endif
         state_num = hnj_get_state(dict, word, &found);
         dict->states[state_num].match = pattern;
 
         /* now, put in the prefix transitions */
         while (found < 0) {
-            j--;
+            j1--;
             last_state = state_num;
-            ch = word[j];
+            ch = word[j1];
             if (ch >= 0x80) {
                 int m;
-                int i = 1;
-                while (is_utf8_follow(word[j - i]))
-                    i++;
-                ch = word[j - i] & mask[i];
-                m = j - i;
-                while (i--) {
-                    ch = (ch << 6) + (0x3F & word[j - i]);
+                int i1 = 1;
+                while (is_utf8_follow(word[j1 - i1]))
+                    i1++;
+                ch = word[j1 - i1] & mask[i1];
+                m = j1 - i1;
+                while (i1--) {
+                    ch = (ch << 6) + (0x3F & word[j1 - i1]);
                 }
-                j = m;
+                j1 = m;
             }
-            word[j] = '\0';
+            word[j1] = '\0';
             state_num = hnj_get_state(dict, word, &found);
             hnj_add_trans(dict, state_num, last_state, ch);
         }
@@ -741,6 +740,8 @@ void hnj_hyphen_load(HyphenDict * dict, const unsigned char *f)
     clear_hyppat_hash(&dict->merged);
 
     /* put in the fallback states */
+    {
+    int i, j = 0;
     for (i = 0; i < HASH_SIZE; i++) {
         for (e = dict->state_num->entries[i]; e; e = e->next) {
             /* do not do state==0 otherwise things get confused */
@@ -767,13 +768,14 @@ void hnj_hyphen_load(HyphenDict * dict, const unsigned char *f)
         }
     }
 #endif
+    }
     clear_state_hash(&dict->state_num);
 }
 
 @ @c
 void hnj_hyphen_hyphenate(HyphenDict * dict,
-                          halfword first,
-                          halfword last,
+                          halfword first1,
+                          halfword last1,
                           int length,
                           halfword left, halfword right, lang_variables * lan)
 {
@@ -786,9 +788,9 @@ void hnj_hyphen_hyphenate(HyphenDict * dict,
     char *hyphens = hnj_malloc(hyphen_len + 1);
 
     /* Add a '.' to beginning and end to facilitate matching */
-    set_vlink(begin_point, first);
-    set_vlink(end_point, get_vlink(last));
-    set_vlink(last, end_point);
+    set_vlink(begin_point, first1);
+    set_vlink(end_point, get_vlink(last1));
+    set_vlink(last1, end_point);
 
     for (char_num = 0; char_num < hyphen_len; char_num++) {
         hyphens[char_num] = '0';
@@ -848,12 +850,12 @@ void hnj_hyphen_hyphenate(HyphenDict * dict,
     }
 
     /* restore the correct pointers */
-    set_vlink(last, get_vlink(end_point));
+    set_vlink(last1, get_vlink(end_point));
 
     /* pattern is \.{\^.\^w\^o\^r\^d\^.\^}   |word_len|=4, |ext_word_len|=6, |hyphens|=7
      * check      \.{    \^ \^ \^    }   so drop first two and stop after |word_len-1|
      */
-    for (here = first, char_num = 2; here != left; here = get_vlink(here))
+    for (here = first1, char_num = 2; here != left; here = get_vlink(here))
         char_num++;
     for (; here != right; here = get_vlink(here)) {
         if (hyphens[char_num] & 1)

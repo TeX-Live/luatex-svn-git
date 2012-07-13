@@ -111,7 +111,7 @@ extern char *open_fmt_file(void);
 
 extern boolean name_in_progress;        /* is a file name being scanned? */
 extern str_number job_name;     /* principal file name */
-extern boolean log_opened;      /* has the transcript file been opened? */
+extern boolean log_opened_global;      /* has the transcript file been opened? */
 
 extern unsigned char *texmf_log_name;   /* full name of the log file */
 

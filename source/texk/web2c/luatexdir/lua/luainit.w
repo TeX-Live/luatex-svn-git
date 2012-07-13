@@ -130,14 +130,14 @@ static char *ex_selfdir(char *argv0)
 
 @ @c
 static void
-prepare_cmdline(lua_State * L, char **argv, int argc, int zero_offset)
+prepare_cmdline(lua_State * L, char **av, int ac, int zero_offset)
 {
     int i;
     char *s;
-    luaL_checkstack(L, argc + 3, "too many arguments to script");
+    luaL_checkstack(L, ac + 3, "too many arguments to script");
     lua_createtable(L, 0, 0);
-    for (i = 0; i < argc; i++) {
-        lua_pushstring(L, argv[i]);
+    for (i = 0; i < ac; i++) {
+        lua_pushstring(L, av[i]);
         lua_rawseti(L, -2, (i - zero_offset));
     }
     lua_setglobal(L, "arg");
@@ -216,7 +216,7 @@ static struct option long_options[]
 };
 
 @ @c
-static void parse_options(int argc, char **argv)
+static void parse_options(int ac, char **av)
 {
     int g;                      /* `getopt' return code.  */
     int option_index;
@@ -228,7 +228,7 @@ static void parse_options(int argc, char **argv)
         luainit = 1;
     }
     for (;;) {
-        g = getopt_long_only(argc, argv, "+", long_options, &option_index);
+        g = getopt_long_only(ac, av, "+", long_options, &option_index);
 
         if (g == -1)            /* End of arguments, exit the loop.  */
             break;

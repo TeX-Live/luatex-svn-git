@@ -790,10 +790,10 @@ static int lua_kpathsea_new(lua_State * L)
 {
     kpathsea kpse = NULL;
     kpathsea *kp = NULL;
-    const char *argv = luaL_checkstring(L, 1);
-    const char *liar = luaL_optstring(L, 2, argv);
+    const char *av = luaL_checkstring(L, 1);
+    const char *liar = luaL_optstring(L, 2, av);
     kpse = kpathsea_new();
-    kpathsea_set_program_name(kpse, argv, liar);
+    kpathsea_set_program_name(kpse, av, liar);
     kp = (kpathsea *) lua_newuserdata(L, sizeof(kpathsea *));
     *kp = kpse;
     luaL_getmetatable(L, KPATHSEA_METATABLE);

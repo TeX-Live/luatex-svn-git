@@ -337,9 +337,9 @@ int tokenlist_from_lua(lua_State * L)
             if (s[i] == 32) {
                 tok = token_val(10, s[i]);
             } else {
-                int j = (int) str2uni((const unsigned char *) (s + i));
-                i = i + (size_t) (utf8_size(j) - 1);
-                tok = token_val(12, j);
+                int j1 = (int) str2uni((const unsigned char *) (s + i));
+                i = i + (size_t) (utf8_size(j1) - 1);
+                tok = token_val(12, j1);
             }
             store_new_token(tok);
         }
