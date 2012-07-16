@@ -685,7 +685,7 @@ void hnj_hyphen_load(HyphenDict * dict, const unsigned char *f)
                             (unsigned char *) malloc((size_t) (l1 + 1));
                         int e1 = 0;
                         strncpy((char *) newword, (char *) word, (size_t) l1);
-                        newword[l] = 0;
+                        newword[l1] = 0;
                         for (i1 = 0; i1 < l1; i1++)
                             if (is_utf8_follow(newword[i1]))
                                 e1++;
