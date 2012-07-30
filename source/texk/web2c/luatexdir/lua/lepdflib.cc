@@ -350,7 +350,7 @@ static int m_Annot__gc(lua_State * L)
     printf("\n===== Annot GC ===== uin=<%p>\n", uin);
 #endif
     if (uin->atype == ALLOC_LEPDF)
-#if 1 /* def HAVE_ANNOTDECREFCNT */
+#if 1                           /* def HAVE_ANNOTDECREFCNT */
         ((Annot *) uin->d)->decRefCnt();
 #else
         delete(Annot *) uin->d;
@@ -1771,7 +1771,7 @@ static int m_Object__gc(lua_State * L)
     printf("\n===== Object GC ===== uin=<%p>\n", uin);
 #endif
     if (uin->atype == ALLOC_LEPDF)
-        delete(Object *) uin->d;
+        ((Object *) uin->d)->free();
     return 0;
 }
 
