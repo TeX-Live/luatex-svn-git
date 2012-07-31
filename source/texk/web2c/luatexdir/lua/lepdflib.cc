@@ -1770,8 +1770,10 @@ static int m_Object__gc(lua_State * L)
 #ifdef DEBUG
     printf("\n===== Object GC ===== uin=<%p>\n", uin);
 #endif
-    if (uin->atype == ALLOC_LEPDF)
+    if (uin->atype == ALLOC_LEPDF) {
         ((Object *) uin->d)->free();
+	delete (Object *) uin->d;
+    }
     return 0;
 }
 
