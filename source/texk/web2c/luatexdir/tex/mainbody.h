@@ -57,7 +57,7 @@ in production versions of \TeX.
 #  define sup_param_size   32767
 
 #  define inf_save_size   600
-#  define sup_save_size   80000
+#  define sup_save_size   250000
 
 #  define inf_stack_size   200
 #  define sup_stack_size   30000
