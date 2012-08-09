@@ -1,6 +1,6 @@
 % luastuff.w
 %
-% Copyright 2006-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2012 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -482,13 +482,12 @@ void luatokencall(int p, int nameptr)
 lua_State *luatex_error(lua_State * L, int is_fatal)
 {
 
-    const char *luaerr;
-    size_t len = 0;
+    const_lstring luaerr;
     char *err = NULL;
     if (lua_isstring(L, -1)) {
-        luaerr = lua_tolstring(L, -1, &len);
-        err = (char *) xmalloc((unsigned) (len + 1));
-        len = (size_t) snprintf(err, (len + 1), "%s", luaerr);
+        luaerr.s = lua_tolstring(L, -1, &luaerr.l);
+        err = (char *) xmalloc((unsigned) (luaerr.l + 1));
+        snprintf(err, (luaerr.l + 1), "%s", luaerr.s);
     }
     if (is_fatal > 0) {
         /* Normally a memory error from lua.
