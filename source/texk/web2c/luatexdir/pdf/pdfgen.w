@@ -1909,7 +1909,8 @@ void pdf_end_page(PDF pdf)
                     ((global_shipping_mode ==
                       SHIPPING_PAGE) ? "page" : "form"));
     }
-    pdf_end_stream(pdf);
+    if (pdf->draftmode == 0)
+        pdf_end_stream(pdf);
     pdf_end_obj(pdf);
 
     if (global_shipping_mode == SHIPPING_PAGE) {
