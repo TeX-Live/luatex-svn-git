@@ -414,7 +414,8 @@ void pdf_flush(PDF pdf)
             default:
                 assert(0);
             }
-        }
+        } else
+            pdf->zip_write_state = NO_ZIP;
         strbuf_seek(pdf->buf, 0);
         if (saved_pdf_gone > pdf->gone)
             pdf_error("file size",
@@ -1909,8 +1910,7 @@ void pdf_end_page(PDF pdf)
                     ((global_shipping_mode ==
                       SHIPPING_PAGE) ? "page" : "form"));
     }
-    if (pdf->draftmode == 0)
-        pdf_end_stream(pdf);
+    pdf_end_stream(pdf);
     pdf_end_obj(pdf);
 
     if (global_shipping_mode == SHIPPING_PAGE) {
