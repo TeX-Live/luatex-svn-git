@@ -6195,8 +6195,11 @@ for array access, or
 
 \starttyping
 tex.setbox(<number> n, <node> s)
+tex.setbox(<string> cs, <node> s)
 tex.setbox('global', <number> n, <node> s)
+tex.setbox('global', <string> cs, <node> s)
 <node> n = tex.getbox(<number> n)
+<node> n = tex.getbox(<string> cs)
 \stoptyping
 
 for function|-|based access.
