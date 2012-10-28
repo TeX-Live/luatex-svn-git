@@ -224,17 +224,7 @@ int get_math_code_num(int n, boolean compat)
         } else
             return mval.class_value * 4096 + mval.family_value * 256 + mval.character_value;
     } else { /* \.{\\the\\Umathcodenum} */
-        if (mval.origin_value == tex_mathcode) {
-            return (mval.class_value * 16 + mval.family_value) * 256 +
-                mval.character_value;
-        } else if (mval.origin_value == aleph_mathcode) {
-            return (mval.class_value * 256 + mval.family_value) * 65536 +
-                mval.character_value;
-        } else if (mval.origin_value == xetexnum_mathcode
-                   || mval.origin_value == xetex_mathcode) {
-            return (mval.class_value + (mval.family_value * 8)) * (65536 * 32) +
-                mval.character_value;
-        }
+        return (mval.class_value + (mval.family_value * 8)) * (65536 * 32) + mval.character_value;
     }
     return 0;
 }
