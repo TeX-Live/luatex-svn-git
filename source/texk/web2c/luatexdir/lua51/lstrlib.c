@@ -1068,6 +1068,7 @@ static int str_split (lua_State *L) {
 	  lua_pushlstring(L,q,1); q++;
 	  lua_rawseti(L,-2,n); n++;
 	}
+	free(p);
 	return 1;
   }
   if (*(joiner+1) == '+') {
@@ -1092,12 +1093,14 @@ static int str_split (lua_State *L) {
 	}
   }
   if (mult && q==(p+l)) {
+	free(p);
 	return 1;
   }
   if(q<=(p+l)) {
 	lua_pushlstring(L,q,strlen(q));
 	lua_rawseti(L,-2,n);
   }
+  free(p);
   return 1;
 } 
 
