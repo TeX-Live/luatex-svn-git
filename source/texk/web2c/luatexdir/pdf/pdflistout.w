@@ -731,36 +731,35 @@ void hlist_out(PDF pdf, halfword this_box)
                 rule.ht = height(this_box);
             if (is_running(rule.dp))
                 rule.dp = depth(this_box);
-            if ((rule.ht + rule.dp) > 0 && rule.wd > 0) {       /* we don't output empty rules */
-                switch (localpos.dir) {
-                case dir_TLT:
-                    size.h = rule.wd;
-                    size.v = rule.ht + rule.dp;
-                    pos_down(rule.dp);
-                    break;
-                case dir_TRT:
-                    size.h = rule.wd;
-                    size.v = rule.ht + rule.dp;
-                    pos_left(size.h);
-                    pos_down(rule.dp);
-                    break;
-                case dir_LTL:
-                    size.h = rule.ht + rule.dp;
-                    size.v = rule.wd;
-                    pos_left(rule.ht);
-                    pos_down(size.v);
-                    break;
-                case dir_RTT:
-                    size.h = rule.ht + rule.dp;
-                    size.v = rule.wd;
-                    pos_left(rule.dp);
-                    pos_down(size.v);
-                    break;
-                default:
-                    assert(0);
-                }
-                backend_out[rule_node] (pdf, p, size);  /* |pdf_place_rule(pdf, p, rule.ht + rule.dp, rule.wd);| */
+            switch (localpos.dir) {
+            case dir_TLT:
+                size.h = rule.wd;
+                size.v = rule.ht + rule.dp;
+                pos_down(rule.dp);
+                break;
+            case dir_TRT:
+                size.h = rule.wd;
+                size.v = rule.ht + rule.dp;
+                pos_left(size.h);
+                pos_down(rule.dp);
+                break;
+            case dir_LTL:
+                size.h = rule.ht + rule.dp;
+                size.v = rule.wd;
+                pos_left(rule.ht);
+                pos_down(size.v);
+                break;
+            case dir_RTT:
+                size.h = rule.ht + rule.dp;
+                size.v = rule.wd;
+                pos_left(rule.dp);
+                pos_down(size.v);
+                break;
+            default:
+                assert(0);
             }
+            if ((rule.ht + rule.dp) > 0 && rule.wd > 0) /* we don't output empty rules */
+                backend_out[rule_node] (pdf, p, size);  /* |pdf_place_rule(pdf, p, rule.ht + rule.dp, rule.wd);| */
           MOVE_PAST:
             cur.h += rule.wd;
             /* Record horizontal |rule_node| or |glue_node| {\sl Sync\TeX} information */
@@ -1093,36 +1092,35 @@ void vlist_out(PDF pdf, halfword this_box)
             /* (\pdfTeX) Output a rule in a vlist, |goto next_p| */
             if (is_running(rule.wd))
                 rule.wd = width(this_box);
-            if ((rule.ht + rule.dp) > 0 && rule.wd > 0) {       /* we don't output empty rules */
-                switch (localpos.dir) {
-                case dir_TLT:
-                    size.h = rule.wd;
-                    size.v = rule.ht + rule.dp;
-                    pos_down(size.v);
-                    break;
-                case dir_TRT:
-                    size.h = rule.wd;
-                    size.v = rule.ht + rule.dp;
-                    pos_left(size.h);
-                    pos_down(size.v);
-                    break;
-                case dir_LTL:
-                    size.h = rule.ht + rule.dp;
-                    size.v = rule.wd;
-                    pos_down(size.v);
-                    break;
-                case dir_RTT:
-                    size.h = rule.ht + rule.dp;
-                    size.v = rule.wd;
-                    pos_left(size.h);
-                    pos_down(size.v);
-                    break;
-                default:
-                    assert(0);
-                }
-                backend_out[rule_node] (pdf, p, size);  /* |pdf_place_rule(pdf, rule.ht, rule.wd);| */
-                cur.v += rule.ht + rule.dp;
+            switch (localpos.dir) {
+            case dir_TLT:
+                size.h = rule.wd;
+                size.v = rule.ht + rule.dp;
+                pos_down(size.v);
+                break;
+            case dir_TRT:
+                size.h = rule.wd;
+                size.v = rule.ht + rule.dp;
+                pos_left(size.h);
+                pos_down(size.v);
+                break;
+            case dir_LTL:
+                size.h = rule.ht + rule.dp;
+                size.v = rule.wd;
+                pos_down(size.v);
+                break;
+            case dir_RTT:
+                size.h = rule.ht + rule.dp;
+                size.v = rule.wd;
+                pos_left(size.h);
+                pos_down(size.v);
+                break;
+            default:
+                assert(0);
             }
+            if ((rule.ht + rule.dp) > 0 && rule.wd > 0) /* we don't output empty rules */
+                backend_out[rule_node] (pdf, p, size);  /* |pdf_place_rule(pdf, rule.ht, rule.wd);| */
+            cur.v += rule.ht + rule.dp;
             goto NEXTP;
           MOVE_PAST:
             cur.v += rule.ht;
