@@ -1044,7 +1044,7 @@ static int str_split (lua_State *L) {
   size_t l;
   size_t i;
   int n;
-  char *q, *p;
+  char *q, *p, *orig;
   int mult = 0;
   const char *s = luaL_checklstring(L, 1, &l);
   const char *joiner = luaL_optstring(L, 2, " +");
@@ -1054,7 +1054,7 @@ static int str_split (lua_State *L) {
 	lua_rawseti(L,-2,1);
 	return 1;
   }
-  p = malloc(l+1);
+  orig = p = malloc(l+1);
   if (p==NULL) {
 	fprintf(stderr, "fatal: memory exhausted (malloc of %u bytes).\n",(int)(l+1));
 	exit(EXIT_FAILURE);
@@ -1068,7 +1068,7 @@ static int str_split (lua_State *L) {
 	  lua_pushlstring(L,q,1); q++;
 	  lua_rawseti(L,-2,n); n++;
 	}
-	free(p);
+	free(orig);
 	return 1;
   }
   if (*(joiner+1) == '+') {
@@ -1093,14 +1093,14 @@ static int str_split (lua_State *L) {
 	}
   }
   if (mult && q==(p+l)) {
-	free(p);
+	free(orig);
 	return 1;
   }
   if(q<=(p+l)) {
 	lua_pushlstring(L,q,strlen(q));
 	lua_rawseti(L,-2,n);
   }
-  free(p);
+  free(orig);
   return 1;
 } 
 
