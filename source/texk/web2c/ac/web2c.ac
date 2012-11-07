@@ -38,8 +38,8 @@ m4_define([kpse_tex_progs], [dnl
 [[uptex],  [yes], [yes], [upTeX],   [ptexenc]],
 [[euptex], [yes], [yes], [e-upTeX], [ptexenc]],
 [[aleph],  [yes], [],    [Aleph],   []],
-[[pdftex], [yes], [yes], [pdfTeX],  [xpdf libpng obsdcompat]],
-[[luatex], [yes], [],    [luaTeX],  [poppler libpng obsdcompat zziplib]],
+[[pdftex], [yes], [yes], [pdfTeX],  [xpdf libpng]],
+[[luatex], [yes], [],    [luaTeX],  [poppler libpng zziplib]],
 [[xetex],  [yes], [yes], [XeTeX],   [poppler libpng freetype2 icu-xetex teckit graphite]],
 ])[]dnl
 m4_foreach([Kpse_Prog], [kpse_tex_progs],

@@ -91,8 +91,6 @@ $(proglib): ${srcdir}/lib/*.c
 @XPDF_RULE@
 ## Rebuild poppler
 @POPPLER_RULE@
-## Rebuild libopenbsd-compat
-@OBSDCOMPAT_RULE@
 ## Rebuild libzzip
 @ZZIPLIB_RULE@
 ## Rebuild libgraphite
