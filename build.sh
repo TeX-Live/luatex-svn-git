@@ -27,6 +27,7 @@
 #      --host=     : target system for mingw32 cross-compilation
 #      --build=    : build system for mingw32 cross-compilation
 #      --arch=     : crosscompile for ARCH on OS X
+#      --debug     : CFLAGS="-g -O0" --warnings=max --nostrip
 $DEBUG
 
 # try to find bash, in case the standard shell is not capable of
@@ -68,6 +69,7 @@ until [ -z "$1" ]; do
   case "$1" in
     --make      ) ONLY_MAKE=TRUE     ;;
     --nostrip   ) STRIP_LUATEX=FALSE ;;
+    --debug     ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-g -O0 $CFLAGS" ;;
     --warnings=*) WARNINGS=`echo $1 | sed 's/--warnings=\(.*\)/\1/' `        ;;
     --mingw     ) MINGWCROSS=TRUE    ;;
     --host=*    ) CONFHOST="$1"      ;;
@@ -121,6 +123,10 @@ then
   export CFLAGS CXXFLAGS LDFLAGS
 fi
 
+if [ "$STRIP_LUATEX" = "FALSE" ]
+then
+    export CFLAGS
+fi
 
 # ----------
 # clean up, if needed
