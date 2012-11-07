@@ -127,6 +127,10 @@
 char *generic_synctex_get_current_name (void)
 {
   char *pwdbuf, *ret;
+  if (!fullnameoffile) {
+    ret = xstrdup("");
+    return ret;
+  }
   if (kpse_absolute_p(fullnameoffile, false)) {
      return xstrdup(fullnameoffile);
   }
@@ -201,11 +205,10 @@ Isspace (char c)
 static char **cmdlist = NULL;
 
 static void 
-mk_shellcmdlist (const char *v)
+mk_shellcmdlist (char *v)
 {
   char **p;
-  const char *q, *r1;
-  char *r;
+  char *q, *r;
   int  n;
 
   q = v;
@@ -214,10 +217,10 @@ mk_shellcmdlist (const char *v)
 /* analyze the variable shell_escape_commands = foo,bar,...
    spaces before and after (,) are not allowed. */
 
-  while ((r1 = strchr (q, ',')) != 0) {
+  while ((r = strchr (q, ',')) != 0) {
     n++;
-    r1++;
-    q = r1;
+    r++;
+    q = r;
   }
   if (*q)
     n++;
@@ -241,9 +244,6 @@ mk_shellcmdlist (const char *v)
   } else
     *p = NULL;
 }
-
-/* Called from maininit.  Not static because also called from
-   luatexdir/lua/luainit.c.  */
 
 static void
 init_shell_escape (void)
@@ -269,7 +269,7 @@ init_shell_escape (void)
     if (shellenabledp && restrictedshell == 1) {
       char *v2 = kpse_var_value ("shell_escape_commands");
       if (v2) {
-        mk_shellcmdlist ((const char *)v2);
+        mk_shellcmdlist (v2);
         free (v2);
       }
     }
@@ -448,9 +448,17 @@ shell_cmd_is_allowed (const char *cmd, char **safecmd, char **cmdname)
     {
       char *p, *q, *r;
       p = *safecmd;
-      if (!(IS_DIR_SEP (p[0]) && IS_DIR_SEP (p[1])) &&
-          !(p[1] == ':' && IS_DIR_SEP (p[2]))) { 
-        p = (char *) kpse_var_value ("SELFAUTOLOC");
+      if (strlen (p) > 2 && p[1] == ':' && !IS_DIR_SEP (p[2])) {
+          q = xmalloc (strlen (p) + 2);
+          q[0] = p[0];
+          q[1] = p[1];
+          q[2] = '/';
+          q[3] = '\0';
+          strcat (q, (p + 2));
+          free (*safecmd);
+          *safecmd = q;
+      } else if (!IS_DIR_SEP (p[0]) && !(p[1] == ':' && IS_DIR_SEP (p[2]))) { 
+        p = kpse_var_value ("SELFAUTOLOC");
         if (p) {
           r = *safecmd;
           while (*r && !Isspace(*r))
@@ -617,6 +625,11 @@ texmf_yesno(const_string var)
 const char *ptexbanner = BANNER;
 #endif
 
+#ifdef WIN32
+static string
+normalize_quotes (const_string name, const_string mesg);
+#endif
+
 /* The entry point: set up for reading the command line, which will
    happen in `topenin', then call the main body.  */
 
@@ -649,7 +662,7 @@ maininit (int ac, string *av)
 
 #if IS_pTeX
   kpse_set_program_name (argv[0], NULL);
-  initdefaultkanji ();
+  initkanji ();
 #endif
 
   /* If the user says --help or --version, we need to notice early.  And
@@ -691,6 +704,47 @@ maininit (int ac, string *av)
   
   /* Were we given a simple filename? */
   main_input_file = get_input_file_name();
+
+#ifdef WIN32
+  if (main_input_file == NULL) {
+    string name;
+    boolean quoted;
+
+    name = argv[argc-1];
+    if (name && name[0] != '-' && name[0] != '&' && name[0] != '\\') {
+      if (strlen (name) > 2 && isalpha (name[0]) && name[1] == ':' &&
+          name[2] == '\\') {
+        string pp;
+        for (pp = name; *pp; pp++) {
+          if (IS_KANJI (pp))
+            pp++;
+          else if (*pp == '\\')
+            *pp = '/';
+        }
+      }
+#ifdef XeTeX
+      name = normalize_quotes(argv[argc-1], "argument");
+      main_input_file = kpse_find_file(argv[argc-1], INPUT_FORMAT, false);
+      argv[argc-1] = name;
+#else
+      name = normalize_quotes(argv[argc-1], "argument");
+      quoted = (name[0] == '"');
+      if (quoted) {
+        /* Overwrite last quote and skip first quote. */
+        name[strlen(name)-1] = '\0';
+        name++;
+      }
+      main_input_file = kpse_find_file(name, INPUT_FORMAT, false);
+      if (quoted) {
+        /* Undo modifications */
+        name[strlen(name)] = '"';
+        name--;
+      }
+      argv[argc-1] = name;
+#endif
+    }
+  }
+#endif
 
   /* Second chance to activate file:line:error style messages, this
      time from texmf.cnf. */
@@ -824,7 +878,7 @@ maininit (int ac, string *av)
    happen in `topenin', then call the main body.  */
 
 int
-#if defined(WIN32) && defined(DLLPROC)
+#if defined(WIN32) && !defined(__MINGW32__) && defined(DLLPROC)
 DLLPROC (int ac, string *av)
 #else
 main (int ac, string *av)
@@ -1592,7 +1646,7 @@ parse_options (int argc, string *argv)
           unsigned i;
           for (i = 0; i < 20 && !ipc_is_open (); i++) {
 #ifdef WIN32
-            Sleep (2000);
+            Sleep (100); /* 2000ms is too long for a simple w32 example */
 #else
             sleep (2);
 #endif
@@ -1853,7 +1907,7 @@ open_in_or_pipe (FILE **f_ptr, int filefmt, const_string fopen_mode)
       fname = xmalloc(strlen((const_string)(nameoffile+1))+1);
       strcpy(fname,(const_string)(nameoffile+1));
       recorder_record_input (fname + 1);
-      *f_ptr = runpopen(fname+1,"rb");
+      *f_ptr = runpopen(fname+1,"r");
       free(fname);
       for (i=0; i<NUM_PIPES; i++) {
         if (pipes[i]==NULL) {
@@ -1862,7 +1916,7 @@ open_in_or_pipe (FILE **f_ptr, int filefmt, const_string fopen_mode)
         }
       }
       if (*f_ptr)
-        setvbuf (*f_ptr,NULL,_IOLBF,0);
+        setvbuf (*f_ptr,NULL,_IONBF,0);
 #ifdef WIN32
       Poptr = *f_ptr;
 #endif
@@ -1895,10 +1949,10 @@ open_out_or_pipe (FILE **f_ptr, const_string fopen_mode)
            is better to be prepared */
         if (STREQ((fname+strlen(fname)-4),".tex"))
           *(fname+strlen(fname)-4) = 0;
-        *f_ptr = runpopen(fname+1,"wb");
+        *f_ptr = runpopen(fname+1,"w");
         *(fname+strlen(fname)) = '.';
       } else {
-        *f_ptr = runpopen(fname+1,"wb");
+        *f_ptr = runpopen(fname+1,"w");
       }
       recorder_record_output (fname + 1);
       free(fname);
@@ -1911,7 +1965,7 @@ open_out_or_pipe (FILE **f_ptr, const_string fopen_mode)
       }
 
       if (*f_ptr)
-        setvbuf(*f_ptr,NULL,_IOLBF,0);
+        setvbuf(*f_ptr,NULL,_IONBF,0);
 
       return *f_ptr != NULL;
     }
@@ -2070,13 +2124,13 @@ input_line (FILE *f)
     if (position == 0L) {  /* Detect and skip Byte order marks.  */
       int k1 = getc (f);
 
-      if (k1 == EOF || k1 == '\r' || k1 == '\n')
-        fseek (f, -1L , SEEK_CUR);
+      if (k1 != 0xff && k1 != 0xfe && k1 != 0xef)
+        rewind (f);
       else {
         int k2 = getc (f);
 
-        if (k2 == EOF || k2 == '\r' || k2 == '\n')
-          fseek (f, -2L , SEEK_CUR);
+        if (k2 != 0xff && k2 != 0xfe && k2 != 0xbb)
+          rewind (f);
         else if ((k1 == 0xff && k2 == 0xfe) || /* UTF-16(LE) */
                  (k1 == 0xfe && k2 == 0xff))   /* UTF-16(BE) */
           ;
@@ -2086,7 +2140,7 @@ input_line (FILE *f)
           if (k1 == 0xef && k2 == 0xbb && k3 == 0xbf) /* UTF-8 */
             ;
           else
-            fseek (f, -3L, SEEK_CUR);
+            rewind (f);
         }
       }
     }

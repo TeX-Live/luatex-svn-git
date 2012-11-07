@@ -1,3 +1,53 @@
+2012-10-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac (POPPLER): Adding '-lgdi32' for WIN32 now done
+	in KPSE_POPPLER_FLAGS (../../m4/kpse-poppler-flags.m4).
+
+2012-10-12  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmp.h: Support pipe except for tex.
+
+2012-10-09  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* ac/web2c.ac (kpse_tex_progs): Remove obsdcompat.
+	* configure.ac: Remove KPSE_OBSDCOMPAT_FLAGS.
+	* Makefile.am: Remove OBSDCOMPAT_RULE.
+
+2012-08-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac (AC_CHECK_FUNCS): Remove test for snprintf.
+
+2012-07-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* w2c/config.h: Define LONGINTEGER_PRI instead of
+	LONGINTEGER_PRId, also to be used for unsigned quantities.
+
+2012-07-15  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* bibtex.ch, dvicopy.ch, dvitype.ch, gftodvi.ch, gftopk.ch,
+	gftype.ch, mft.ch, patgen.ch, pktogf.ch, pktype.ch, pltotf.ch,
+	pooltype.ch, tangle.ch, tftopl.ch, vftovp.ch, vptovf.ch,
+	weave.ch: Define and use my_name.
+
+2012-07-15  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texextra.c: Must #define DLLPROC before reading texd.h.
+
+2012-07-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* help.h (LUATANGLEHELP): Removed, luatangle no longer exists.
+	Use DEV_NULL instead of hard-coding /dev/null (from W32TeX).
+
+2012-07-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* w2c/config.h: Define LONGINTEGER_{TYPE,PRId} for MSVC.
+
+2012-06-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.h [WIN32]: Ignore DLLPROC for __MINGW32__.
+
+	* texextra.c [W32TeX]: #define DLLPROC for tex.dll.
+
 2012-05-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* dvicopy.test, dvitype.test: Cope with spaces in paths returned

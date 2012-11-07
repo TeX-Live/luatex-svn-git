@@ -8,7 +8,7 @@
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
 #define YY_FLEX_MINOR_VERSION 5
-#define YY_FLEX_SUBMINOR_VERSION 35
+#define YY_FLEX_SUBMINOR_VERSION 37
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
 #endif
@@ -53,7 +53,6 @@ typedef int flex_int32_t;
 typedef unsigned char flex_uint8_t; 
 typedef unsigned short int flex_uint16_t;
 typedef unsigned int flex_uint32_t;
-#endif /* ! C99 */
 
 /* Limits of integral types. */
 #ifndef INT8_MIN
@@ -83,6 +82,8 @@ typedef unsigned int flex_uint32_t;
 #ifndef UINT32_MAX
 #define UINT32_MAX             (4294967295U)
 #endif
+
+#endif /* ! C99 */
 
 #endif /* ! FLEXINT_H */
 
@@ -152,7 +153,12 @@ typedef unsigned int flex_uint32_t;
 typedef struct yy_buffer_state *YY_BUFFER_STATE;
 #endif
 
-extern int yyleng;
+#ifndef YY_TYPEDEF_YY_SIZE_T
+#define YY_TYPEDEF_YY_SIZE_T
+typedef size_t yy_size_t;
+#endif
+
+extern yy_size_t yyleng;
 
 extern FILE *yyin, *yyout;
 
@@ -191,11 +197,6 @@ extern FILE *yyin, *yyout;
 
 #define unput(c) yyunput( c, (yytext_ptr)  )
 
-#ifndef YY_TYPEDEF_YY_SIZE_T
-#define YY_TYPEDEF_YY_SIZE_T
-typedef size_t yy_size_t;
-#endif
-
 #ifndef YY_STRUCT_YY_BUFFER_STATE
 #define YY_STRUCT_YY_BUFFER_STATE
 struct yy_buffer_state
@@ -213,7 +214,7 @@ struct yy_buffer_state
 	/* Number of characters read into yy_ch_buf, not including EOB
 	 * characters.
 	 */
-	int yy_n_chars;
+	yy_size_t yy_n_chars;
 
 	/* Whether we "own" the buffer - i.e., we know we created it,
 	 * and can realloc() it to grow it, and should free() it to
@@ -283,8 +284,8 @@ static YY_BUFFER_STATE * yy_buffer_stack = 0; /**< Stack as an array. */
 
 /* yy_hold_char holds the character lost when yytext is formed. */
 static char yy_hold_char;
-static int yy_n_chars;		/* number of characters read into yy_ch_buf */
-int yyleng;
+static yy_size_t yy_n_chars;		/* number of characters read into yy_ch_buf */
+yy_size_t yyleng;
 
 /* Points to current character in buffer. */
 static char *yy_c_buf_p = (char *) 0;
@@ -312,7 +313,7 @@ static void yy_init_buffer (YY_BUFFER_STATE b,FILE *file  );
 
 YY_BUFFER_STATE yy_scan_buffer (char *base,yy_size_t size  );
 YY_BUFFER_STATE yy_scan_string (yyconst char *yy_str  );
-YY_BUFFER_STATE yy_scan_bytes (yyconst char *bytes,int len  );
+YY_BUFFER_STATE yy_scan_bytes (yyconst char *bytes,yy_size_t len  );
 
 void *yyalloc (yy_size_t  );
 void *yyrealloc (void *,yy_size_t  );
@@ -719,7 +720,7 @@ static int yy_prev_more_offset = 0;
 char yytext[YYLMAX];
 char *yytext_ptr;
 #line 1 "web2c-lexer.l"
-#line 2 "web2c-lexer.l"
+#line 4 "web2c-lexer.l"
 /* web2c-lexer.l -- lexical analysis for Tangle output.  Public domain. */
 
 #include "web2c.h"
@@ -751,7 +752,7 @@ yywrap (void)
   return 1;
 }
 #define YY_SKIP_YYWRAP /* not that it matters */
-#line 755 "web2c-lexer.c"
+#line 756 "web2c-lexer.c"
 
 #define INITIAL 0
 
@@ -790,7 +791,7 @@ FILE *yyget_out (void );
 
 void yyset_out  (FILE * out_str  );
 
-int yyget_leng (void );
+yy_size_t yyget_leng (void );
 
 char *yyget_text (void );
 
@@ -840,7 +841,7 @@ static int input (void );
 /* This used to be an fputs(), but since the string might contain NUL's,
  * we now use fwrite().
  */
-#define ECHO fwrite( yytext, yyleng, 1, yyout )
+#define ECHO do { if (fwrite( yytext, yyleng, 1, yyout )) {} } while (0)
 #endif
 
 /* Gets input and stuffs it into "buf".  number of characters read, or YY_NULL,
@@ -851,7 +852,7 @@ static int input (void );
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
 		{ \
 		int c = '*'; \
-		int n; \
+		size_t n; \
 		for ( n = 0; n < max_size && \
 			     (c = getc( yyin )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \
@@ -933,9 +934,9 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 49 "web2c-lexer.l"
+#line 51 "web2c-lexer.l"
 
-#line 939 "web2c-lexer.c"
+#line 940 "web2c-lexer.c"
 
 	if ( !(yy_init) )
 		{
@@ -1000,7 +1001,7 @@ yy_match:
 			*(yy_state_ptr)++ = yy_current_state;
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 404 );
+		while ( yy_current_state != 277 );
 
 yy_find_action:
 		yy_current_state = *--(yy_state_ptr);
@@ -1040,17 +1041,17 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 50 "web2c-lexer.l"
+#line 52 "web2c-lexer.l"
 ;
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 51 "web2c-lexer.l"
+#line 53 "web2c-lexer.l"
 { while (webinput() != '}'); }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 53 "web2c-lexer.l"
+#line 55 "web2c-lexer.l"
 {
 		    register int c;
 		    putc('#', out);
@@ -1061,7 +1062,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 61 "web2c-lexer.l"
+#line 63 "web2c-lexer.l"
 {register int c;
 		 register char *cp=conditional;
 		 new_line();
@@ -1077,7 +1078,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 74 "web2c-lexer.l"
+#line 76 "web2c-lexer.l"
 {register int c;
 		 new_line();
 		 fputs("#endif /* ", out);
@@ -1092,7 +1093,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 86 "web2c-lexer.l"
+#line 88 "web2c-lexer.l"
 {register int c;
 		 register char *cp=conditional;
 		 new_line();
@@ -1108,7 +1109,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 99 "web2c-lexer.l"
+#line 101 "web2c-lexer.l"
 {register int c;
 		 new_line();
 		 fputs("#endif /* not ", out);
@@ -1124,205 +1125,205 @@ YY_RULE_SETUP
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
-#line 112 "web2c-lexer.l"
+#line 114 "web2c-lexer.l"
 ;
 	YY_BREAK
 case 9:
 /* rule 9 can match eol */
 YY_RULE_SETUP
-#line 114 "web2c-lexer.l"
+#line 116 "web2c-lexer.l"
 ;
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 116 "web2c-lexer.l"
+#line 118 "web2c-lexer.l"
 return last_tok=define_tok;
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 117 "web2c-lexer.l"
+#line 119 "web2c-lexer.l"
 return last_tok=field_tok;
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 118 "web2c-lexer.l"
+#line 120 "web2c-lexer.l"
 return last_tok=and_tok;
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 119 "web2c-lexer.l"
+#line 121 "web2c-lexer.l"
 return last_tok=array_tok;
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 120 "web2c-lexer.l"
+#line 122 "web2c-lexer.l"
 return last_tok=begin_tok;
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 121 "web2c-lexer.l"
+#line 123 "web2c-lexer.l"
 return last_tok=case_tok;
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 122 "web2c-lexer.l"
+#line 124 "web2c-lexer.l"
 return last_tok=const_tok;
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 123 "web2c-lexer.l"
+#line 125 "web2c-lexer.l"
 return last_tok=div_tok;
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 124 "web2c-lexer.l"
+#line 126 "web2c-lexer.l"
 return last_tok=break_tok;
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 125 "web2c-lexer.l"
+#line 127 "web2c-lexer.l"
 return last_tok=do_tok;
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 126 "web2c-lexer.l"
+#line 128 "web2c-lexer.l"
 return last_tok=downto_tok;
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 127 "web2c-lexer.l"
+#line 129 "web2c-lexer.l"
 return last_tok=else_tok;
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 128 "web2c-lexer.l"
+#line 130 "web2c-lexer.l"
 return last_tok=end_tok;
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 129 "web2c-lexer.l"
+#line 131 "web2c-lexer.l"
 return last_tok=file_tok;
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 130 "web2c-lexer.l"
+#line 132 "web2c-lexer.l"
 return last_tok=for_tok;
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 131 "web2c-lexer.l"
+#line 133 "web2c-lexer.l"
 return last_tok=function_tok;
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 132 "web2c-lexer.l"
+#line 134 "web2c-lexer.l"
 return last_tok=goto_tok;
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 133 "web2c-lexer.l"
+#line 135 "web2c-lexer.l"
 return last_tok=if_tok;
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 134 "web2c-lexer.l"
+#line 136 "web2c-lexer.l"
 return last_tok=label_tok;
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 135 "web2c-lexer.l"
+#line 137 "web2c-lexer.l"
 return last_tok=mod_tok;
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 136 "web2c-lexer.l"
+#line 138 "web2c-lexer.l"
 return last_tok=noreturn_tok;
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 137 "web2c-lexer.l"
+#line 139 "web2c-lexer.l"
 return last_tok=not_tok;
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 138 "web2c-lexer.l"
+#line 140 "web2c-lexer.l"
 return last_tok=of_tok;
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 139 "web2c-lexer.l"
+#line 141 "web2c-lexer.l"
 return last_tok=or_tok;
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 140 "web2c-lexer.l"
+#line 142 "web2c-lexer.l"
 return last_tok=procedure_tok;
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 141 "web2c-lexer.l"
+#line 143 "web2c-lexer.l"
 return last_tok=program_tok;
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 142 "web2c-lexer.l"
+#line 144 "web2c-lexer.l"
 return last_tok=record_tok;
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 143 "web2c-lexer.l"
+#line 145 "web2c-lexer.l"
 return last_tok=repeat_tok;
 	YY_BREAK
 case 38:
 /* rule 38 can match eol */
 YY_RULE_SETUP
-#line 144 "web2c-lexer.l"
+#line 146 "web2c-lexer.l"
 return last_tok=hhb0_tok;
 	YY_BREAK
 case 39:
 /* rule 39 can match eol */
 YY_RULE_SETUP
-#line 145 "web2c-lexer.l"
+#line 147 "web2c-lexer.l"
 return last_tok=hhb1_tok;
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 146 "web2c-lexer.l"
+#line 148 "web2c-lexer.l"
 return last_tok=then_tok;
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 147 "web2c-lexer.l"
+#line 149 "web2c-lexer.l"
 return last_tok=to_tok;
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 148 "web2c-lexer.l"
+#line 150 "web2c-lexer.l"
 return last_tok=type_tok;
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 149 "web2c-lexer.l"
+#line 151 "web2c-lexer.l"
 return last_tok=until_tok;
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 150 "web2c-lexer.l"
+#line 152 "web2c-lexer.l"
 return last_tok=var_tok;
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 151 "web2c-lexer.l"
+#line 153 "web2c-lexer.l"
 return last_tok=while_tok;
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 152 "web2c-lexer.l"
+#line 154 "web2c-lexer.l"
 return last_tok=others_tok;
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 154 "web2c-lexer.l"
+#line 156 "web2c-lexer.l"
 {
 		  sprintf (temp, "%s%s", negbuf, yytext);
 		  negbuf[0] = '\0';
@@ -1331,7 +1332,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 160 "web2c-lexer.l"
+#line 162 "web2c-lexer.l"
 {
 		  sprintf (temp, "%s%s", negbuf, yytext);
 		  negbuf[0] = '\0';
@@ -1341,18 +1342,18 @@ YY_RULE_SETUP
 case 49:
 /* rule 49 can match eol */
 YY_RULE_SETUP
-#line 166 "web2c-lexer.l"
+#line 168 "web2c-lexer.l"
 return last_tok=single_char_tok;
 	YY_BREAK
 case 50:
 /* rule 50 can match eol */
 YY_RULE_SETUP
-#line 168 "web2c-lexer.l"
+#line 170 "web2c-lexer.l"
 return last_tok=string_literal_tok;
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 170 "web2c-lexer.l"
+#line 172 "web2c-lexer.l"
 { if ((last_tok>=undef_id_tok &&
 		      last_tok<=field_id_tok) ||
 		      last_tok==i_num_tok ||
@@ -1364,7 +1365,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 179 "web2c-lexer.l"
+#line 181 "web2c-lexer.l"
 { if ((last_tok>=undef_id_tok &&
 		      last_tok<=field_id_tok) ||
 		      last_tok==i_num_tok ||
@@ -1385,102 +1386,102 @@ YY_RULE_SETUP
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 197 "web2c-lexer.l"
+#line 199 "web2c-lexer.l"
 return last_tok='*';
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 198 "web2c-lexer.l"
+#line 200 "web2c-lexer.l"
 return last_tok='/';
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 199 "web2c-lexer.l"
+#line 201 "web2c-lexer.l"
 return last_tok='=';
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 200 "web2c-lexer.l"
+#line 202 "web2c-lexer.l"
 return last_tok=not_eq_tok;
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 201 "web2c-lexer.l"
+#line 203 "web2c-lexer.l"
 return last_tok='<';
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 202 "web2c-lexer.l"
+#line 204 "web2c-lexer.l"
 return last_tok='>';
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 203 "web2c-lexer.l"
+#line 205 "web2c-lexer.l"
 return last_tok=less_eq_tok;
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 204 "web2c-lexer.l"
+#line 206 "web2c-lexer.l"
 return last_tok=great_eq_tok;
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 205 "web2c-lexer.l"
+#line 207 "web2c-lexer.l"
 return last_tok='(';
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 206 "web2c-lexer.l"
+#line 208 "web2c-lexer.l"
 return last_tok=')';
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 207 "web2c-lexer.l"
+#line 209 "web2c-lexer.l"
 return last_tok='[';
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 208 "web2c-lexer.l"
+#line 210 "web2c-lexer.l"
 return last_tok=']';
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 209 "web2c-lexer.l"
+#line 211 "web2c-lexer.l"
 return last_tok=assign_tok;
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 210 "web2c-lexer.l"
+#line 212 "web2c-lexer.l"
 return last_tok=two_dots_tok;
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 211 "web2c-lexer.l"
+#line 213 "web2c-lexer.l"
 return last_tok='.';
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 212 "web2c-lexer.l"
+#line 214 "web2c-lexer.l"
 return last_tok=',';
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 213 "web2c-lexer.l"
+#line 215 "web2c-lexer.l"
 return last_tok=';';
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 214 "web2c-lexer.l"
+#line 216 "web2c-lexer.l"
 return last_tok=':';
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 215 "web2c-lexer.l"
+#line 217 "web2c-lexer.l"
 return last_tok='^';
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 217 "web2c-lexer.l"
+#line 219 "web2c-lexer.l"
 { strcpy (last_id, yytext);
 		  l_s = search_table (last_id);
 		  return
@@ -1489,16 +1490,16 @@ YY_RULE_SETUP
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 224 "web2c-lexer.l"
+#line 226 "web2c-lexer.l"
 { /* Any bizarre token will do.  */
 		  return last_tok = two_dots_tok; }
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 226 "web2c-lexer.l"
+#line 228 "web2c-lexer.l"
 ECHO;
 	YY_BREAK
-#line 1502 "web2c-lexer.c"
+#line 1503 "web2c-lexer.c"
 			case YY_STATE_EOF(INITIAL):
 				yyterminate();
 
@@ -1684,7 +1685,7 @@ static int yy_get_next_buffer (void)
 
 	else
 		{
-			int num_to_read =
+			yy_size_t num_to_read =
 			YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
 
 		while ( num_to_read <= 0 )
@@ -1700,7 +1701,7 @@ static int yy_get_next_buffer (void)
 
 		/* Read in more data. */
 		YY_INPUT( (&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move]),
-			(yy_n_chars), (size_t) num_to_read );
+			(yy_n_chars), num_to_read );
 
 		YY_CURRENT_BUFFER_LVALUE->yy_n_chars = (yy_n_chars);
 		}
@@ -1790,7 +1791,7 @@ static int yy_get_next_buffer (void)
 	if ( ! yy_is_jam )
 		*(yy_state_ptr)++ = yy_current_state;
 
-	return yy_is_jam ? 0 : yy_current_state;
+		return yy_is_jam ? 0 : yy_current_state;
 }
 
     static void yyunput (int c, register char * yy_bp )
@@ -1805,7 +1806,7 @@ static int yy_get_next_buffer (void)
 	if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
 		{ /* need to shift things up to make room */
 		/* +2 for EOB chars. */
-		register int number_to_move = (yy_n_chars) + 2;
+		register yy_size_t number_to_move = (yy_n_chars) + 2;
 		register char *dest = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[
 					YY_CURRENT_BUFFER_LVALUE->yy_buf_size + 2];
 		register char *source =
@@ -1858,7 +1859,7 @@ static int yy_get_next_buffer (void)
 
 		else
 			{ /* need more input */
-			int offset = (yy_c_buf_p) - (yytext_ptr);
+			yy_size_t offset = (yy_c_buf_p) - (yytext_ptr);
 			++(yy_c_buf_p);
 
 			switch ( yy_get_next_buffer(  ) )
@@ -2023,10 +2024,6 @@ static void yy_load_buffer_state  (void)
 	yyfree((void *) b  );
 }
 
-#ifndef __cplusplus
-extern int isatty (int );
-#endif /* __cplusplus */
-    
 /* Initializes or reinitializes a buffer.
  * This function is sometimes called more than once on the same buffer,
  * such as during a yyrestart() or at EOF.
@@ -2050,7 +2047,7 @@ extern int isatty (int );
         b->yy_bs_column = 0;
     }
 
-        b->yy_is_interactive = file ? (isatty( fileno(file) ) > 0) : 0;
+        b->yy_is_interactive = 0;
     
 	errno = oerrno;
 }
@@ -2139,7 +2136,7 @@ void yypop_buffer_state (void)
  */
 static void yyensure_buffer_stack (void)
 {
-	int num_to_alloc;
+	yy_size_t num_to_alloc;
     
 	if (!(yy_buffer_stack)) {
 
@@ -2231,12 +2228,12 @@ YY_BUFFER_STATE yy_scan_string (yyconst char * yystr )
 
 /** Setup the input buffer state to scan the given bytes. The next call to yylex() will
  * scan from a @e copy of @a bytes.
- * @param bytes the byte buffer to scan
- * @param len the number of bytes in the buffer pointed to by @a bytes.
+ * @param yybytes the byte buffer to scan
+ * @param _yybytes_len the number of bytes in the buffer pointed to by @a bytes.
  * 
  * @return the newly allocated buffer state object.
  */
-YY_BUFFER_STATE yy_scan_bytes  (yyconst char * yybytes, int  _yybytes_len )
+YY_BUFFER_STATE yy_scan_bytes  (yyconst char * yybytes, yy_size_t  _yybytes_len )
 {
 	YY_BUFFER_STATE b;
 	char *buf;
@@ -2323,7 +2320,7 @@ FILE *yyget_out  (void)
 /** Get the length of the current token.
  * 
  */
-int yyget_leng  (void)
+yy_size_t yyget_leng  (void)
 {
         return yyleng;
 }
@@ -2482,7 +2479,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 226 "web2c-lexer.l"
+#line 228 "web2c-lexer.l"
 
 
 /* Some helper routines.  Defining these here means we don't have references

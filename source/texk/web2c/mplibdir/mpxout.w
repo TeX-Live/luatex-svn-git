@@ -1220,6 +1220,7 @@ static void mpx_in_TFM (MPX mpx,web_integer f) {
   @<Move the widths from |in_width| to |width|@>;
   mpx->fbase[f]=0; mpx->ftop[f]=0;
   mpx->info_ptr=wp;
+  mpx_fclose(mpx,mpx->tfm_file);
   return;
 }
 
@@ -3992,7 +3993,7 @@ static int do_spawn (MPX mpx, char *icmd, char **options) {
     }  
   }
 #else
-  retcode = spawnvp(P_WAIT, cmd, (const char **)options);
+  retcode = spawnvp(_P_WAIT, cmd, (const char **)options);
 #endif
   xfree(cmd);
   return retcode;

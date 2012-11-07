@@ -1,3 +1,61 @@
+2012-08-03  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mpost.w: Reduce diffs between TeX Live and W32TeX.
+	* mpxout.w: Replace P_WAIT by _P_WAIT.
+
+2012-08-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mp.w: Drop replacement function for snprintf().
+
+2012-07-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/mplib.am (nodist_libmplib_a_SOURCES): Omit $(tfmin_c_h).
+
+2012-05-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* dvitomp.test: Cope with spaces in paths returned by kpsewhich.
+
+2012-05-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/mplib.am (mpost_LDADD): Drop explicit '-lm'.
+
+2012-05-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mpost.w: Use WEB2CVERSION.
+
+2011-10-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/libmplib.am (EXTRA_DIST): Drop lmplib.c, used by luaTeX.
+
+2011-06-06 Taco Hoekwater  <taco@luatex.org>
+
+	* mpost.w (mpost_run_editor): Do not attempt to use EDITOR.
+
+2011-06-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/mplib.am (bin_links): Remove no longer existing 'metafun'.
+
+2011-05-31  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/mplib.am (bin_links): Move mpost:metafun and mpost:mfplain
+	from ../../texlive/linked_scripts/Makefile.am to here.
+	[MinGW]: Build call_mpost.exe wrapper binary and install as
+	dvitomp.exe, metafun.exe, amd mfplain.exe.
+
+2011-05-30 Taco Hoekwater  <taco@luatex.org>
+
+	* all files: clarify that base MetaPost is public domain,
+	but uses LGPL'd libraries.
+
+2011-05-13  Taco Hoekwater  <taco@luatex.org>
+
+	* mpost.w (main): change setting of kpse program name
+	(on a hint by PEB).
+
+2011-05-09  Taco Hoekwater  <taco@luatex.org>
+
+	* mpxout.w (mpx_in_TFM): close tfm files.
+
 2011-04-29  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* mp.w (mp_do_snprintf): Removed, instead declare and define

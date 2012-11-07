@@ -78,6 +78,34 @@ int main (int ac, char **av)
   }
 @z
 
+@x l.112
+@d max_bytes 90000 /* the number of bytes in identifiers,
+@y
+@d max_bytes 1000000 /* the number of bytes in identifiers,
+@z
+
+@x l.114
+@d max_toks 270000 /* number of bytes in compressed \CEE/ code */
+@d max_names 4000 /* number of identifiers, strings, section names;
+@y
+@d max_toks 1000000 /* number of bytes in compressed \CEE/ code */
+@d max_names 10239 /* number of identifiers, strings, section names;
+@z
+
+@x l.117
+@d max_texts 2500 /* number of replacement texts, must be less than 10240 */
+@d hash_size 353 /* should be prime; used in |"common.w"| */
+@y
+@d max_texts 10239 /* number of replacement texts, must be less than 10240 */
+@d hash_size 8501 /* should be prime; used in |"common.w"| */
+@z
+
+@x l.121
+@d buf_size 100 /* for \.{CWEAVE} and \.{CTANGLE} */
+@y
+@d buf_size 1000 /* for \.{CWEAVE} and \.{CTANGLE} */
+@z
+
 Section 5.
 
 @x common.h l.30 - boolean comes from kpathsea.
@@ -247,6 +275,14 @@ phase_two () {
 @y
 static void
 phase_two (void) {
+@z
+
+Section 43.
+
+@x l.577 Use binary mode for output files
+    C_file=fopen(output_file_name,"w");
+@y
+    C_file=fopen(output_file_name,"wb");
 @z
 
 Section 46.

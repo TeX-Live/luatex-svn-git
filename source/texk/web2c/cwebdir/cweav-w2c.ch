@@ -90,6 +90,48 @@ int main (int ac, char **av)
   return wrap_up(); /* and exit gracefully */
 @z
 
+@x l.120
+@d max_bytes 90000 /* the number of bytes in identifiers,
+@y
+@d max_bytes 1000000 /* the number of bytes in identifiers,
+@z
+
+@x l.112
+@d max_names 4000 /* number of identifiers, strings, section names;
+@y
+@d max_names 10239 /* number of identifiers, strings, section names;
+@z
+
+@x l.124
+@d max_sections 2000 /* greater than the total number of sections */
+@d hash_size 353 /* should be prime */
+@d buf_size 100 /* maximum length of input line, plus one */
+@y
+@d max_sections 10239 /* greater than the total number of sections */
+@d hash_size 8501 /* should be prime */
+@d buf_size 1000 /* maximum length of input line, plus one */
+@z
+
+@x l.131
+@d max_refs 20000 /* number of cross-references; must be less than 65536 */
+@d max_toks 20000 /* number of symbols in \CEE/ texts being parsed;
+@y
+@d max_refs 65535 /* number of cross-references; must be less than 65536 */
+@d max_toks 65535 /* number of symbols in \CEE/ texts being parsed;
+@z
+
+@x l.134
+@d max_texts 4000 /* number of phrases in \CEE/ texts being parsed;
+@y
+@d max_texts 10239 /* number of phrases in \CEE/ texts being parsed;
+@z
+
+@x l.136
+@d max_scraps 2000 /* number of tokens in \CEE/ texts being parsed */
+@y
+@d max_scraps 10000 /* number of tokens in \CEE/ texts being parsed */
+@z
+
 Section 5.
 
 @x common.h l.30 - boolean comes from kpathsea.
@@ -891,9 +933,21 @@ static void
 phase_three (void) {
 @z
 
+@x l.4309 Use binary mode for output files
+  if ((idx_file=fopen(idx_file_name,"w"))==NULL)
+@y
+  if ((idx_file=fopen(idx_file_name,"wb"))==NULL)
+@z
+
+@x l.4324 Use binary mode for output files
+  if ((scn_file=fopen(scn_file_name,"w"))==NULL)
+@y
+  if ((scn_file=fopen(scn_file_name,"wb"))==NULL)
+@z
+
 Section 235.
 
-@x
+@x l.4440
 strcpy(collate+1," \1\2\3\4\5\6\7\10\11\12\13\14\15\16\17");
 /* 16 characters + 1 = 17 */
 strcpy(collate+17,"\20\21\22\23\24\25\26\27\30\31\32\33\34\35\36\37");

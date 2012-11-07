@@ -10,7 +10,7 @@
    thing, the messages have a lot in common, so it's nice to have them
    in one place.)
 
-Copyright 1995, 1996, 2009, 2011 Karl Berry.
+Copyright 1995, 1996, 2009, 2011, 2012 Karl Berry.
 Copyright 2008 Taco Hoekwater.
 Copyright 2001, 2003, 2004 Olaf Weber.
 
@@ -48,10 +48,27 @@ const_string BIBTEXHELP[] = {
 #endif /* BIBTEX */
 
 #ifdef CWEB
+const_string CTANGLEHELP[] = {
+    "Usage: ctangle [OPTIONS] WEBFILE[.w] [{CHANGEFILE[.ch]|-} [OUTFILE[.c]]]",
+    "  Tangle WEBFILE with CHANGEFILE into a C/C++ program.",
+    "  Default CHANGEFILE is " DEV_NULL ";",
+    "  C output goes to the basename of WEBFILE extended with `.c'",
+    "  unless otherwise specified by OUTFILE; in this case, '-' specifies",
+    "  a null CHANGEFILE.",
+    "",
+    "-b          suppress banner line on terminal",
+    "-h          suppress success message on completion",
+    "-p          suppress progress report messages",
+    "+s          print usage statistics",
+    "--help      display this help and exit",
+    "--version   output version information and exit",
+    NULL
+};
+
 const_string CWEAVEHELP[] = {
     "Usage: cweave [OPTIONS] WEBFILE[.w] [{CHANGEFILE[.ch]|-} [OUTFILE[.tex]]]",
     "  Weave WEBFILE with CHANGEFILE into a TeX document.",
-    "  Default CHANGEFILE is /dev/null;",
+    "  Default CHANGEFILE is " DEV_NULL ";",
     "  TeX output goes to the basename of WEBFILE extended with `.tex'",
     "  unless otherwise specified by OUTFILE; in this case, '-' specifies",
     "  a null CHANGEFILE.",
@@ -62,23 +79,6 @@ const_string CWEAVEHELP[] = {
     "-p          suppress progress report messages",
     "-x          omit indices and table of contents",
     "+e          enclose C material in \\PB{...}",
-    "+s          print usage statistics",
-    "--help      display this help and exit",
-    "--version   output version information and exit",
-    NULL
-};
-
-const_string CTANGLEHELP[] = {
-    "Usage: ctangle [OPTIONS] WEBFILE[.w] [{CHANGEFILE[.ch]|-} [OUTFILE[.c]]]",
-    "  Tangle WEBFILE with CHANGEFILE into a C/C++ program.",
-    "  Default CHANGEFILE is /dev/null;",
-    "  C output goes to the basename of WEBFILE extended with `.c'",
-    "  unless otherwise specified by OUTFILE; in this case, '-' specifies",
-    "  a null CHANGEFILE.",
-    "",
-    "-b          suppress banner line on terminal",
-    "-h          suppress success message on completion",
-    "-p          suppress progress report messages",
     "+s          print usage statistics",
     "--help      display this help and exit",
     "--version   output version information and exit",
@@ -159,20 +159,6 @@ const_string GFTYPEHELP[] = {
     NULL
 };
 #endif /* GFTYPE */
-
-#if defined (LUATANGLE) || defined (LUATANGLEBOOT)
-const_string LUATANGLEHELP[] = {
-    "Usage: luatangle [OPTION]... WEBFILE[.web] [CHANGEFILE[.ch]]",
-    "  Tangle WEBFILE with CHANGEFILE into a Pascal program.",
-    "  Default CHANGEFILE is /dev/null;",
-    "  Pascal output goes to the basename of WEBFILE extended with `.p',",
-    "  and a string pool file, if necessary, to the same extended with `.pool'.",
-    "",
-    "-help       display this help and exit",
-    "-version    output version information and exit",
-    NULL
-};
-#endif /* LUATANGLE */
 
 #ifdef MFT
 const_string MFTHELP[] = {
@@ -257,7 +243,7 @@ const_string OPL2OFMHELP[] = {
 const_string OTANGLEHELP[] = {
     "Usage: otangle [OPTION]... WEBFILE[.web] [CHANGEFILE[.ch]]",
     "  Tangle WEBFILE with CHANGEFILE into a Pascal program.",
-    "  Default CHANGEFILE is /dev/null;",
+    "  Default CHANGEFILE is " DEV_NULL ";",
     "  Pascal output goes to the basename of WEBFILE extended with `.p',",
     "  and a string pool file, if necessary, to the same extended with `.pool'.",
     "",
@@ -444,7 +430,7 @@ const_string PTFTOPLHELP[] = {
 const_string TANGLEHELP[] = {
     "Usage: tangle [OPTION]... WEBFILE[.web] [CHANGEFILE[.ch]]",
     "  Tangle WEBFILE with CHANGEFILE into a Pascal program.",
-    "  Default CHANGEFILE is /dev/null;",
+    "  Default CHANGEFILE is " DEV_NULL ";",
     "  Pascal output goes to the basename of WEBFILE extended with `.p',",
     "  and a string pool file, if necessary, to the same extended with `.pool'.",
     "",
@@ -597,7 +583,7 @@ const_string VPTOVFHELP[] = {
 const_string WEAVEHELP[] = {
     "Usage: weave [OPTION]... WEBFILE[.web] [CHANGEFILE[.ch]]",
     "  Weave WEBFILE with CHANGEFILE into a TeX document.",
-    "  Default CHANGEFILE is /dev/null;",
+    "  Default CHANGEFILE is " DEV_NULL ";",
     "  TeX output goes to the basename of WEBFILE extended with `.tex'.",
     "",
     "-x          omit cross-reference information",

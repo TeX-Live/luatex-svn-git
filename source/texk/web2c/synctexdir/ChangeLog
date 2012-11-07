@@ -1,3 +1,22 @@
+2012-10-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* synctex_parser_utils.h: Avoid definition of FALSE and TRUE
+	that may cause warnings.	
+
+2012-09-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* synctex_main.c: Define snprintf and getcwd for WIN32.
+
+2012-07-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* synctex_main.c (TEST): Check values returned by snprintf().
+
+2012-06-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* synctex.c: Remove "# warning ..." line, because MSVC fails to
+	interpret it.
+	From Akira Kakuto <kakuto@fuk.kindai.ac.jp> (W32TeX).
+
 2012-05-16  Vladimir Volovich  <vvv@vsu.ru>
 
 	* synctex_parser.c (SYNCTEX_DECLARE_CHARINDEX): Bug fix, avoid

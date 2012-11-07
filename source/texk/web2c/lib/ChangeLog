@@ -1,3 +1,70 @@
+2012-10-14  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* texmfmp.c: Use _IONBF for unbuffered stream.
+
+2012-10-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c (mk_shellcmdlist): The argument is not constant.
+
+2012-10-10  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* texmfmp.c: Modify determination of fullpath for restricted shell
+	escape commands.
+
+2012-09-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c: Since normalize_quotes() is declared static,
+	the forward declaration should also be static.
+
+2012-09-11  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmp.c (maininit): On Windows, latex "\input" "a b c", for example,
+	was not allowed. Allow file name with spaces in these cases.
+
+2012-08-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* main.c [WIN32]: Added _setmaxstdio() (from W32TeX).
+
+	* openclose.c (recorder_start): Reduce TL/W32TeX diffs.
+	Avoid using pid_t lacking in WIN32 (MSVC).
+
+2012-08-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c [IS_pTeX]: Rename initdefaultkanji() => initkanji().
+
+2012-08-06  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmp.c [WIN32]: bug fix. use rewind (f) to clear error and
+	EOF indicators.
+
+2012-07-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c (runpopen): Binary mode for popen() on Windows now
+	done in kpathsea.
+
+2012-06-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c [WIN32]: Ignore DLLPROC for __MINGW32__.
+
+2012-06-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+2012-06-27  Norbert Preining  <preining@logic.at>
+
+	* texmfmp.c (runpopen): Append "b" on Windows.
+	(open_{in,out}_or_pipe): Do not use the "b" here.
+
+2012-06-27  Karl Berry  <karl@tug.org>
+
+	* texmfmp.c (generic_synctex_get_current_name): return the
+	empty string if passed null (can happen with -ini).
+
+2012-06-26  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c (open_{in,out}_or_pipe): Use popen() modes "rb" and
+	"wb" only for Windows, Posix allows them only for fopen().
+	(This makes pdftex's \input"|..." feature work again,
+	unintentionally broken.)
+	tex-live mail, 26 Jun 2012 06:24:11.
+
 2012-05-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* printversion.c (printversionandexit): Update 'Copyright 2012'.

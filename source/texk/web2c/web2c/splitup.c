@@ -2,7 +2,7 @@
    and it produces several .c and .h files in the current directory
    as its output.
 
-   $Id: splitup.c 23549 2011-08-14 14:23:26Z peter $
+   $Id: splitup.c 27708 2012-09-18 17:43:20Z peter $
 
    Tim Morgan  September 19, 1987.  */
 
@@ -75,12 +75,21 @@ read_line (void)
   return true;
 }
 
+#ifdef WIN32
+#include <io.h>
+#include <fcntl.h>
+#endif
+
 int
 main (int argc, string *argv)
 {
   const_string coerce;
   unsigned coerce_len;
   int option;
+
+#ifdef WIN32
+  setmode(fileno(stdout), _O_BINARY);
+#endif
 
   while ((option = getopt(argc, argv, "il:")) != -1) {
     switch (option) {
@@ -181,7 +190,7 @@ main (int argc, string *argv)
     {
       /* Read one routine into a temp file */
       has_ini = false;
-      temp = xfopen (tempfile, "w+");
+      temp = xfopen (tempfile, "wb+");
 
       while (read_line ())
 	{

@@ -1,19 +1,15 @@
-$Id: README 26502 2012-05-20 10:47:27Z peter $
+$Id: README 27137 2012-07-24 09:00:18Z peter $
 Public domain.  Originally written 2005 by Karl Berry.
 
 Extra utilities we (optionally) compile for TeX Live.
 See comments in ../texk/README.
 
-asymptote 2.13 - checked 19jun11
+asymptote 2.16 - checked 31may12
   update to TL from CTAN, to include prebuilt doc.
   see http://tug.org/texlive/build.html#asymptote
   and tlpkg/bin/tl-update-asy
 
-chktex 1.6.6 - checked 10apr12
-  http://mirror.ctan.org/support/chktex/ for pdf, otherwise same as
-  http://download.savannah.gnu.org/releases/chktex/
-
-mtx 0.60d - checked 16apr12
+m-tx 0.60d - checked 16apr12
   http://mirror.ctan.org/support/m-tx/
 
 pmx 2.6.18 - checked 18may12

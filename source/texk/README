@@ -1,4 +1,4 @@
-$Id: README 26310 2012-05-12 11:03:50Z peter $
+$Id: README 28086 2012-10-26 07:10:52Z peter $
 Copyright 2006-2012 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -27,6 +27,10 @@ bibtex8 - ?
 bibtexu - ?
   http://omega.enstb.org/yannis/bibtexu/
 
+chktex 1.7.1 - checked 27sep12
+  http://mirror.ctan.org/support/chktex/
+  http://download.savannah.gnu.org/releases/chktex/
+
 cjkutils 4.8.3 - checked 11may12
   http://cjk.ffii.org/cjk-4.8.3.tar.gz
 
@@ -45,8 +49,7 @@ dvidvi - ?
 
 dviljk - maintained here, by Joachim Schrod
 
-dvipdfmx 20120420 - checked 20apr12
-  ftp://ftpth.mppmu.mpg.de/pub/peb/TLtests/dvipdfmx-20120420.tar.xz
+dvipdfmx - maintained here, by Khaled Hosny, Jonathan Kew
 
 dvipng 1.14 - checked 10may12
   http://mirror.ctan.org/dviware/dvipng/ (but maybe stale)
@@ -56,8 +59,8 @@ dvipos - ?
 
 dvipsk - maintained here, by us
 
-dvisvgm - checked 10may12
-  http://downloads.sourceforge.net/dvisvgm/dvisvgm-1.0.11.tar.gz
+dvisvgm - checked 28sep12
+  http://downloads.sourceforge.net/dvisvgm/dvisvgm-1.0.12.tar.gz
 
 gsftopk - from Paul Vojta's xdvi?
 
@@ -66,20 +69,26 @@ kpathsea - maintained here, by us
 lacheck - checked 25apr11
   http://mirror.ctan.org/support/lacheck/lacheck-1.26.tar.gz
 
-lcdf-typetools 2.92 - checked 16aug11
+lcdf-typetools 2.97 - checked 26oct12
   http://www.lcdf.org/type/
-  http://www.lcdf.org/type/lcdf-typetools-2.92.tar.gz
+  http://www.lcdf.org/type/lcdf-typetools-2.97.tar.gz
 
 makeindexk - maintained here, by us
 
+makejvf - ?
+
+mendexk - ?
+
 ps2pkm - ?
+
+ptexenc - ?
 
 seetexk - ?
 
+tetex - scripts maintained here, by us
+
 tex4htk - checked 25apr11
   http://tug.org/tex4ht/
-
-texlive - scripts maintained here, by us
 
 texlive - scripts maintained here, by us
 
@@ -91,9 +100,9 @@ web2c - maintained here, by us - core web2c, plain tex, etc.
         The TeX variant dirs (pdftexdir, xetexdir, etc.)
         updated here by their respective maintainers.
 
-xdv2pdf - Khaled Hosny, Jonathan Kew
+xdv2pdf - maintained here, by Khaled Hosny, Jonathan Kew
 
 xdvik 22.85 - checked 10may12
   http://sourceforge.net/projects/xdvi/files/xdvik/
 
-xdvipdfmx - Khaled Hosny, Jonathan Kew
+xdvipdfmx - maintainered here, by Khaled Hosny, Jonathan Kew
