@@ -27,11 +27,6 @@ static const char _svn_version[] =
 #include <kpathsea/config.h> /* this is a trick to load mingw32's io.h early,
 				using a macro redefinition of |eof()|. */
 #include "sys/types.h"
-#ifndef __MINGW32__
-#  include "sysexits.h"
-#else
-#  define EX_SOFTWARE 70
-#endif
 #include <kpathsea/c-stat.h>
 #include <kpathsea/c-fopen.h>
 #include <string.h>
@@ -167,7 +162,7 @@ void pdftex_fail(const char *fmt, ...)
     if (kpathsea_debug) {
         abort();
     } else {
-        exit(EX_SOFTWARE);
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -347,10 +342,20 @@ char *stripzeros(char *a)
 @ @c
 void initversionstring(char **versions)
 {
-    (void) asprintf(versions,
+    const_string fmt =
                     "Compiled with libpng %s; using libpng %s\n"
                     "Compiled with zlib %s; using zlib %s\n"
-                    "Compiled with poppler version %s\n",
+                    "Compiled with poppler version %s\n";
+    size_t len = strlen(fmt)
+                    + strlen(PNG_LIBPNG_VER_STRING) + strlen(png_libpng_ver)
+                    + strlen(ZLIB_VERSION) + strlen(zlib_version)
+                    + strlen(POPPLER_VERSION)
+                    + 1;
+
+    /* len will be more than enough, because of the placeholder chars in fmt
+       that get replaced by the arguments.  */
+    *versions = xmalloc(len);
+    sprintf(*versions, fmt,
                     PNG_LIBPNG_VER_STRING, png_libpng_ver,
                     ZLIB_VERSION, zlib_version, POPPLER_VERSION);
 }

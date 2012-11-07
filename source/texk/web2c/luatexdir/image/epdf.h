@@ -130,14 +130,13 @@ extern "C" {
     extern void pdf_dict_add_img_filename(PDF pdf, image_dict * idict);
 
     /* utils.w */
-    __attribute__ ((format(printf, 1, 2)))
-    extern void pdftex_warn(const char *fmt, ...);
-    __attribute__ ((noreturn, format(printf, 1, 2)))
-    extern void pdftex_fail(const char *fmt, ...);
     extern char *convertStringToPDFString(char *in, int len);
 
     /* lepdflib.w */
     int luaopen_epdf(lua_State * L);
+
+#  include "luatex-common.h"
+
 };
 
 /**********************************************************************/

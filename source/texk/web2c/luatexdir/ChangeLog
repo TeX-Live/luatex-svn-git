@@ -1,3 +1,207 @@
+2012-11-06  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* pdf/pdflistout.w: sync with r4471 (a bug fix by H. Henkel).
+
+2012-10-13  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* tex/texfileio.w: input by pipe was impossible. enable it.
+
+2012-10-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua/luainit.w (lua_initialize): Free two malloc()ed strings.
+
+2012-10-10  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* luatex.c: Modify determination of fullpath for restricted shell
+	escape commands.
+
+2012-10-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Avoid TL vs W32TeX differences (from Akira).
+	* luatex.h: Include "ptexlib.h" instead of <luatexdir/ptexlib.h>
+	as in all other cases.
+	* ptexlib.h: Use _MSC_VER instead of MSVC.
+	* image/epdf.h: Change arg3 of extern void pdf_begin_obj() from
+	bool to int, as declared and defined in pdf/pdfgen.[hw].
+	FIXME: There should be only one extern declaration in one file.
+
+2012-10-09  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	The openbsd compat library is no longer used.
+	* image/epdf.h, lua/luainit.w, ptexlib.h, utils/utils.w:
+	Drop #include "openbsd-compat.h".
+	* am/libluatex.am, am/luatex.am: Remove OBSDCOMPAT_*.
+
+2012-09-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua/luainit.w (parse_options): Avoid cast const => non-const.
+
+2012-09-13  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* lua/luainit.w (parse_options): allow lualatex "\input" "a b" on
+	Windows.
+
+2012-09-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* luatex-api.h: Avoid conflicting extern declaration of environ,
+	declared in <stdlib.h> for WIN32 (from W32TeX).
+
+2012-08-21  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* tex/texdeffont.w (tex_def_font): Recover the old code, because the
+	new code seems not to work.
+
+2012-08-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* ptexlib.h: Drop unused definition of M_PI.
+
+2012-08-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tex/dumpdata.h: Remove the swap_items() prototype.
+	* luatex.c (swap_items): Moved from here ...
+	* tex/texfileio.w (swap_items): ... to here and declared static.
+
+	* luatex.c (input_line) [WIN32]: Sync with ../lib/texmfmp.c.
+	Detect and skip Byte order marks.
+	* tex/texfileio.[ch] [WIN32]: Use Poptr to record pipe input.
+
+2012-08-03  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* luatex.[ch] [W32TeX]: Use DLLPROC for luatex.dll.
+	* pdf/pdfgen.w [WIN32]: Convert file names '\\' -> '/'.
+
+2012-08-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tex/texdeffont.w (tex_def_font): Better tracing of font
+	definitions, adapted from e-TeX version 2.5.
+
+2012-07-31  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* pdf/pdfpage.w (print_pdffloat): Cope with broken snprintf().
+	* lua/luastuff.w (luatex_error): Drop snprintf() return value.
+
+2012-07-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua/luainit.w (lua_initialize): Avoid using asprintf().
+	* utils/utils.w (initversionstring): Avoid using asprintf().
+
+	One and only one prototype per function.
+	* image/epdf.h, utils/utils.h: Add #include "luatex-common.h"
+	and move pdftex_{fail,warn} prototypes from here ...
+	* luatex-common.h (new): ... to here.
+	* am/libluatex.am (libluatex_a_SOURCES): Add the new file.
+
+2012-07-26  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua/loslibext.c os_gettimeofday): Use int64_t (from W32TeX).
+
+2012-07-25  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* image/pdftoepdf.cc (get_file_checksum): Use uint64_t and PRIu64.
+	* image/writejp2.w, lua/loslibext.c: Use uint64_t.
+
+2012-07-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tex/texfileio.w (runpopen): Sync with ../lib/texmfmp.c.
+
+2012-07-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* image/writejbig2.w: Use LONGINTEGER_PRI, not LONGINTEGER_PRId.
+	* pdf/pdfgen.w: Use LONGINTEGER_PRI, not LONGINTEGER_PRIi.
+
+2012-07-14  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* utils/utils.w: Use EXIT_FAILURE instead of EX_SOFTWARE.
+
+2012-07-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* pdf/pdfgen.w: Cast xfseeko() arg2 to avoid MSVC warning.
+
+2012-07-09  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tex/texfileio.w (runpopen): Sync with ../lib/texmfmp.c.
+
+2012-07-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* luatex.c (shell_cmd_is_allowed): Change Arg1 from 'const char **'
+	into 'const char *'; sync with ../lib/texmfmp.c.
+	* luatex.h, lua/liolib.c, lua/loslibext.c, tex/texfileio.w: Adapt.
+
+	* lua/liolib.c, luascripts/txt2zlib.w: Use binary file io mode.
+	From Akira Kakuto <kakuto@fuk.kindai.ac.jp> (W32TeX).
+
+2012-05-22  Taco Hoekwater  <taco@luatex.org>
+
+	* lua/lkpselib.c: new function kpse.default_texmfcnf() that
+	reports the value of DEFAULT_TEXMFCNF, for the benefit of
+	context mkiv on Debian.
+
+2012-05-22  Taco Hoekwater  <taco@luatex.org>
+
+	* luafontloader/fontforge/fontforge/splinesave.c,
+	luafontloader/fontforge/fontforge/splinefont.h: drop parts of the
+	Type1 saving routines (unused) to remove a compiler warning.
+
+	* pdf/pdftypes.h, lua/limglib.c, image/epdf.h, image/writeimg.w,
+	image/writejbig2.w, ptexlib.h: more off_t trouble.
+
+2012-05-21  Taco Hoekwater  <taco@luatex.org>
+
+	* tex/printing.w, lua/ltokenlib.c, lua/llanglib.c, lua/llualib.c,
+	lua/lnodelib.c, lua/luainit.w, lua/ltexiolib.c,
+	lua/lcallbacklib.c, lua/lstatslib.c, lua/ltexlib.c,
+	lua/loslibext.c, lua/lkpselib.c, lua/luatoken.w, lua/llfslibext.c,
+	lua/lfontlib.c, lua/luanode.w, lua/lpdflib.c, lua/luastuff.w:
+	when loading both "ptexlib.h" and "lua/luatex-api.h", make sure
+	that "ptexlib.h" is loaded first because that reads config.h
+	which affects loading of system headers (via Large File Support,
+	specifically).
+
+2012-05-20  Khaled Hosny  <khaledhosny@eglug.org>
+
+	* tex/mlist.w: fix "warning: 'ext' might be used uninitialized".
+
+2012-05-18  Taco Hoekwater  <taco@luatex.org>
+
+	* lua/ltexlib.c: fix a ConTeXt crash on `\endinput \end`.
+
+2012-05-18  Khaled Hosny  <khaledhosny@eglug.org>
+
+	* tex/commands.h, tex/commands.w, tex/maincontrol.h,
+	tex/maincontrol.w, tex/mathcodes.h, tex/mathcodes.w, tex/scanning.w, 
+	tex/texmath.w, tex/mlist.w: backport math relatex changes from 0.71
+	* luatex.c: bump version to 0.70.1
+
+2012-05-10  Hartmut Henkel  <hartmut@luatex.org>
+	and Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua/lepdflib.cc: Adapt for poppler 0.19.4.
+
+2012-05-09  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua/luainit.w (lua_initialize): Use WEB2CVERSION.
+	* tex/printing.w (print_banner, log_banner): Same.
+
+2012-02-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* luatex.h: Remove definition of WRITE_OUT, now in ../cpascal.h.
+
+2012-01-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* image/writejbig2.w (getstreamlen): Change type to `off_t'.
+	Use LONGINTEGER_TYPE and LONGINTEGER_PRId for printing.
+
+2012-01-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Consistent support for large JBIG2 files.
+	* image/writejbig2.w: Change type of various struct members, local
+	variables and findstreamstart() from `long' or `unsigned long'
+	to `off_t'.  Do not use xfseek and xfseeko for the same file.
+
+2011-10-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua/lepdflib.cc: Test poppler 0.16.x / 0.17.x features.
+
 2011-10-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* am/libluatex.am: Avoid to `clean' ../mplibdir/lmplib.c.

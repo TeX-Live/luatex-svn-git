@@ -1,6 +1,6 @@
 /* loslibext.c
    
-   Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2012 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -463,7 +463,7 @@ static int os_exec(lua_State * L)
         allow = 1;
     } else {
         const char *theruncmd = runcmd;
-        allow = shell_cmd_is_allowed(&theruncmd, &safecmd, &cmdname);
+        allow = shell_cmd_is_allowed(theruncmd, &safecmd, &cmdname);
     }
 
     if (allow > 0 && cmdline != NULL && runcmd != NULL) {
@@ -545,7 +545,7 @@ static int os_spawn(lua_State * L)
         allow = 1;
     } else {
         const char *theruncmd = runcmd;
-        allow = shell_cmd_is_allowed(&theruncmd, &safecmd, &cmdname);
+        allow = shell_cmd_is_allowed(theruncmd, &safecmd, &cmdname);
     }
     if (allow > 0 && cmdline != NULL && runcmd != NULL) {
         if (allow == 2)
@@ -880,7 +880,7 @@ static int os_gettimeofday(lua_State * L)
     v = (double) tv.tv_sec + (double) tv.tv_usec / 1000000.0;
 #  else
     FILETIME ft;
-    unsigned __int64 tmpres = 0;
+    int64_t tmpres = 0;
 
     GetSystemTimeAsFileTime(&ft);
 
@@ -993,7 +993,7 @@ static int os_execute(lua_State * L)
     if (restrictedshell == 0)
         allow = 1;
     else
-        allow = shell_cmd_is_allowed(&cmd, &safecmd, &cmdname);
+        allow = shell_cmd_is_allowed(cmd, &safecmd, &cmdname);
 
     if (allow == 1) {
         lua_pushinteger(L, system(cmd));

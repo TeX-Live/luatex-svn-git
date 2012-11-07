@@ -24,6 +24,7 @@ static const char _svn_version[] =
     "$URL$";
 
 // define DEBUG
+#define __STDC_FORMAT_MACROS /* for PRId64 etc.  */
 
 #include "image/epdf.h"
 
@@ -71,9 +72,9 @@ static char *get_file_checksum(char *a, file_error_mode fe)
         if (ck == NULL)
             pdftex_fail("PDF inclusion: out of memory while processing '%s'",
                         a);
-        snprintf(ck, PDF_CHECKSUM_SIZE, "%llu_%llu", (unsigned long long) size,
-                 (unsigned long long) mtime);
-    } else {
+        snprintf(ck, PDF_CHECKSUM_SIZE, "%" PRIu64 "_%" PRIu64, (uint64_t) size,
+                 (uint64_t) mtime);
+   } else {
         switch (fe) {
         case FE_FAIL:
             pdftex_fail("PDF inclusion: could not stat() file '%s'", a);

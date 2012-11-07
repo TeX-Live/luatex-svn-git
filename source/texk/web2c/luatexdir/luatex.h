@@ -72,9 +72,14 @@
 /* Executing shell commands.  */
 extern void mk_shellcmdlist(char *);
 extern void init_shell_escape(void);
-extern int shell_cmd_is_allowed(const char **cmd, char **safecmd,
+extern int shell_cmd_is_allowed(const char *cmd, char **safecmd,
                                 char **cmdname);
 extern int runsystem(char *cmd);
+
+
+#if defined(WIN32) && !defined(__MINGW32__) && defined(DLLPROC)
+extern __declspec(dllexport) int DLLPROC (int ac, string *av);
+#endif
 
 #  ifndef GLUERATIO_TYPE
 #    define GLUERATIO_TYPE double
@@ -97,7 +102,7 @@ extern void ipcpage(int);
 
 extern boolean input_line(FILE *);
 
-#  include <luatexdir/ptexlib.h>
+#  include "ptexlib.h"
 
 #  define COPYRIGHT_HOLDER "Taco Hoekwater"
 #  define AUTHOR NULL

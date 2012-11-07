@@ -208,24 +208,24 @@ static int Isspace(char c)
    should get executed.  And we set CMDNAME to its first word; this is
    what is checked against the shell_escape_commands list.  */
 
-int shell_cmd_is_allowed(const char **cmd, char **safecmd, char **cmdname)
+int shell_cmd_is_allowed(const char *cmd, char **safecmd, char **cmdname)
 {
     char **p;
     char *buf;
-    char *s, *d;
-    const char *ss;
+    char *c, *d;
+    const char *s;
     int pre;
     unsigned spaces;
     int allow = 0;
 
     /* pre == 1 means that the previous character is a white space
        pre == 0 means that the previous character is not a white space */
-    buf = (char *) xmalloc((unsigned) strlen(*cmd) + 1);
-    strcpy(buf, *cmd);
-    s = buf;
-    while (Isspace(*s))
-        s++;
-    d = s;
+    buf = xmalloc(strlen(cmd) + 1);
+    strcpy(buf, cmd);
+    c = buf;
+    while (Isspace(*c))
+        c++;
+    d = c;
     while (!Isspace(*d) && *d)
         d++;
     *d = '\0';
@@ -234,7 +234,7 @@ int shell_cmd_is_allowed(const char **cmd, char **safecmd, char **cmdname)
      *cmdname == "kpsewhich" for
      \write18{kpsewhich --progname=dvipdfm --format="other text files" config}
      */
-    *cmdname = xstrdup(s);
+    *cmdname = xstrdup(c);
     free(buf);
 
     /* Is *cmdname listed in a texmf.cnf vriable as
@@ -253,37 +253,36 @@ int shell_cmd_is_allowed(const char **cmd, char **safecmd, char **cmdname)
     }
     if (allow == 2) {
         spaces = 0;
-        for (ss = *cmd; *ss; ss++) {
-            if (Isspace(*ss))
+        for (s = *cmd; *s; s++) {
+            if (Isspace(*s))
                 spaces++;
         }
 
         /* allocate enough memory (too much?) */
 #  ifdef WIN32
-        *safecmd =
-            (char *) xmalloc(2 * (unsigned) strlen(*cmd) + 3 + 2 * spaces);
+        *safecmd = xmalloc(2 * strlen(cmd) + 3 + 2 * spaces);
 #  else
-        *safecmd = (char *) xmalloc((unsigned) strlen(*cmd) + 3 + 2 * spaces);
+        *safecmd = xmalloc(strlen(cmd) + 3 + 2 * spaces);
 #  endif
 
         /* make a safe command line *safecmd */
-        ss = *cmd;
-        while (Isspace(*ss))
-            ss++;
+        s = cmd;
+        while (Isspace(*s))
+            s++;
         d = *safecmd;
-        while (!Isspace(*ss) && *ss)
-            *d++ = *ss++;
+        while (!Isspace(*s) && *s)
+            *d++ = *s++;
 
         pre = 1;
-        while (*ss) {
+        while (*s) {
             /* Quotation given by a user.  " should always be used; we
                transform it below.  On Unix, if ' is used, simply immediately
                return a quotation error.  */
-            if (*ss == '\'') {
+            if (*s == '\'') {
                 return -1;
             }
 
-            if (*ss == '"') {
+            if (*s == '"') {
                 /* All arguments are quoted as 'foo' (Unix) or "foo" (Windows)
                    before calling system(). Therefore closing QUOTE is necessary
                    if the previous character is not a white space.
@@ -298,51 +297,51 @@ int shell_cmd_is_allowed(const char **cmd, char **safecmd, char **cmdname)
                 pre = 0;
                 /* output the quotation mark for the quoted argument */
                 *d++ = QUOTE;
-                ss++;
+                s++;
 
-                while (*ss != '"') {
+                while (*s != '"') {
                     /* Illegal use of ', or closing quotation mark is missing */
-                    if (*ss == '\'' || *ss == '\0')
+                    if (*s == '\'' || *s == '\0')
                         return -1;
 #  ifdef WIN32
-                    if (char_needs_quote(*ss))
+                    if (char_needs_quote(*s))
                         *d++ = '^';
 #  endif
-                    *d++ = *ss++;
+                    *d++ = *s++;
                 }
 
                 /* Closing quotation mark will be output afterwards, so
                    we do nothing here */
-                ss++;
+                s++;
 
                 /* The character after the closing quotation mark
                    should be a white space or NULL */
-                if (!Isspace(*ss) && *ss)
+                if (!Isspace(*s) && *s)
                     return -1;
 
                 /* Beginning of a usual argument */
-            } else if (pre == 1 && !Isspace(*ss)) {
+            } else if (pre == 1 && !Isspace(*s)) {
                 pre = 0;
                 *d++ = QUOTE;
 #  ifdef WIN32
-                if (char_needs_quote(*ss))
+                if (char_needs_quote(*s))
                     *d++ = '^';
 #  endif
-                *d++ = *ss++;
+                *d++ = *s++;
                 /* Ending of a usual argument */
 
-            } else if (pre == 0 && Isspace(*ss)) {
+            } else if (pre == 0 && Isspace(*s)) {
                 pre = 1;
                 /* Closing quotation mark */
                 *d++ = QUOTE;
-                *d++ = *ss++;
+                *d++ = *s++;
             } else {
-                /* Copy a character from *cmd to *safecmd. */
+                /* Copy a character from cmd to *safecmd. */
 #  ifdef WIN32
-                if (char_needs_quote(*ss))
+                if (char_needs_quote(*s))
                     *d++ = '^';
 #  endif
-                *d++ = *ss++;
+                *d++ = *s++;
             }
         }
         /* End of the command line */
@@ -354,9 +353,17 @@ int shell_cmd_is_allowed(const char **cmd, char **safecmd, char **cmdname)
         {
           char *p, *q, *r;
           p = *safecmd;
-          if (!(IS_DIR_SEP (p[0]) && IS_DIR_SEP (p[1])) &&
-              !(p[1] == ':' && IS_DIR_SEP (p[2]))) { 
-            p = (char *) kpse_var_value ("SELFAUTOLOC");
+          if (strlen (p) > 2 && p[1] == ':' && !IS_DIR_SEP (p[2])) {
+              q = xmalloc (strlen (p) + 2);
+              q[0] = p[0];
+              q[1] = p[1];
+              q[2] = '/';
+              q[3] = '\0';
+              strcat (q, (p + 2));
+              free (*safecmd);
+              *safecmd = q;
+          } else if (!IS_DIR_SEP (p[0]) && !(p[1] == ':' && IS_DIR_SEP (p[2]))) { 
+            p = kpse_var_value ("SELFAUTOLOC");
             if (p) {
               r = *safecmd;
               while (*r && !Isspace(*r))
@@ -408,7 +415,7 @@ int runsystem(char *cmd)
         allow = 1;
     } else {
         const char *thecmd = cmd;
-        allow = shell_cmd_is_allowed(&thecmd, &safecmd, &cmdname);
+        allow = shell_cmd_is_allowed(thecmd, &safecmd, &cmdname);
     }
 
     if (allow == 1)
@@ -439,11 +446,15 @@ const_string c_job_name;
 
 const char *ptexbanner;
 
-#if !defined(WIN32) || defined(__MINGW32__)
 /* The entry point: set up for reading the command line, which will
    happen in `topenin', then call the main body.  */
 
-int main(int ac, string * av)
+int
+#if defined(WIN32) && !defined(__MINGW32__) && defined(DLLPROC)
+DLLPROC (int ac, string *av)
+#else
+main (int ac, string *av)
+#endif
 {
 #  ifdef __EMX__
     _wildcard(&ac, &av);
@@ -461,7 +472,6 @@ int main(int ac, string * av)
 
     return EXIT_SUCCESS;
 }
-#endif                          /* !(WIN32 || __MINGW32__) */
 
 
 /* This is supposed to ``open the terminal for input'', but what we
@@ -840,6 +850,35 @@ boolean input_line(FILE * f)
 {
     int i = EOF;
 
+#ifdef WIN32
+    if (f != Poptr && fileno (f) != fileno (stdin)) {
+        long position = ftell (f);
+
+        if (position == 0L) {  /* Detect and skip Byte order marks.  */
+            int k1 = getc (f);
+
+            if (k1 != 0xff && k1 != 0xfe && k1 != 0xef)
+                rewind (f);
+            else {
+                int k2 = getc (f);
+
+                if (k2 != 0xff && k2 != 0xfe && k2 != 0xbb)
+                    rewind (f);
+                else if ((k1 == 0xff && k2 == 0xfe) || /* UTF-16(LE) */
+                         (k1 == 0xfe && k2 == 0xff))   /* UTF-16(BE) */
+                    ;
+                else {
+                    int k3 = getc (f);
+
+                    if (k1 == 0xef && k2 == 0xbb && k3 == 0xbf) /* UTF-8 */
+                        ;
+                    else
+                        rewind (f);
+                }
+            }
+        }
+    }
+#endif
     /* Recognize either LF or CR as a line terminator.  */
     last = first;
     while (last < buf_size && (i = getc(f)) != EOF && i != '\n' && i != '\r')
@@ -876,101 +915,6 @@ boolean input_line(FILE * f)
     return true;
 }
 
-
-
-/* Read and write dump files.  As distributed, these files are
-   architecture dependent; specifically, BigEndian and LittleEndian
-   architectures produce different files.  These routines always output
-   BigEndian files.  This still does not guarantee them to be
-   architecture-independent, because it is possible to make a format
-   that dumps a glue ratio, i.e., a floating-point number.  Fortunately,
-   none of the standard formats do that.  */
-
-#if !defined (WORDS_BIGENDIAN) && !defined (NO_DUMP_SHARE)      /* this fn */
-
-/* This macro is always invoked as a statement.  It assumes a variable
-   `temp'.  */
-
-#  define SWAP(x, y) do { temp = x; x = y; y = temp; } while (0)
-
-
-/* Make the NITEMS items pointed at by P, each of size SIZE, be the
-   opposite-endianness of whatever they are now.  */
-
-void swap_items(char *pp, int nitems, int size)
-{
-    char temp;
-    unsigned total = (unsigned) (nitems * size);
-    char *q = xmalloc(total);
-    char *p = q;
-    memcpy(p,pp,total);
-    /* Since `size' does not change, we can write a while loop for each
-       case, and avoid testing `size' for each time.  */
-    switch (size) {
-        /* 16-byte items happen on the DEC Alpha machine when we are not
-           doing sharable memory dumps.  */
-    case 16:
-        while (nitems--) {
-            SWAP(p[0], p[15]);
-            SWAP(p[1], p[14]);
-            SWAP(p[2], p[13]);
-            SWAP(p[3], p[12]);
-            SWAP(p[4], p[11]);
-            SWAP(p[5], p[10]);
-            SWAP(p[6], p[9]);
-            SWAP(p[7], p[8]);
-            p += size;
-        }
-        break;
-
-    case 12:
-        while (nitems--) {
-            SWAP(p[0], p[11]);
-            SWAP(p[1], p[10]);
-            SWAP(p[2], p[9]);
-            SWAP(p[3], p[8]);
-            SWAP(p[4], p[7]);
-            SWAP(p[5], p[6]);
-            p += size;
-        }
-        break;
-
-    case 8:
-        while (nitems--) {
-            SWAP(p[0], p[7]);
-            SWAP(p[1], p[6]);
-            SWAP(p[2], p[5]);
-            SWAP(p[3], p[4]);
-            p += size;
-        }
-        break;
-
-    case 4:
-        while (nitems--) {
-            SWAP(p[0], p[3]);
-            SWAP(p[1], p[2]);
-            p += size;
-        }
-        break;
-
-    case 2:
-        while (nitems--) {
-            SWAP(p[0], p[1]);
-            p += size;
-        }
-        break;
-
-    case 1:
-        /* Nothing to do.  */
-        break;
-
-    default:
-        FATAL1("Can't swap a %d-byte item for (un)dumping", size);
-    }
-    memcpy(pp,q,total);
-    xfree(q); 
-}
-#endif                          /* not WORDS_BIGENDIAN and not NO_DUMP_SHARE */
 
 
 

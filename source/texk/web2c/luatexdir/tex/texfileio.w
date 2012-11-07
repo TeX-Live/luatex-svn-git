@@ -291,7 +291,10 @@ boolean lua_a_open_in(alpha_file * f, char *fn, int n)
     } else {
         read_file_callback_id[n] = 0;
     }
-    fnam = luatex_find_read_file(fn, n, find_read_file_callback);
+    if (*fn == '|')
+        fnam = fn;
+    else
+        fnam = luatex_find_read_file(fn, n, find_read_file_callback);
     if (!fnam)
         return false;
     callback_id = callback_defined(open_read_file_callback);
@@ -983,6 +986,99 @@ is needed.
 @c
 static gzFile gz_fmtfile = NULL;
 
+@ As distributed, the dump files are
+architecture dependent; specifically, BigEndian and LittleEndian
+architectures produce different files.  These routines always output
+BigEndian files.  This still does not guarantee them to be
+architecture-independent, because it is possible to make a format
+that dumps a glue ratio, i.e., a floating-point number.  Fortunately,
+none of the standard formats do that.
+
+@c
+#if !defined (WORDS_BIGENDIAN) && !defined (NO_DUMP_SHARE)
+
+/* This macro is always invoked as a statement.  It assumes a variable
+   `temp'.  */
+#  define SWAP(x, y) do { temp = x; x = y; y = temp; } while (0)
+
+/* Make the NITEMS items pointed at by P, each of size SIZE, be the
+   opposite-endianness of whatever they are now.  */
+static void
+swap_items(char *pp, int nitems, int size)
+{
+    char temp;
+    unsigned total = (unsigned) (nitems * size);
+    char *q = xmalloc(total);
+    char *p = q;
+    memcpy(p,pp,total);
+    /* Since `size' does not change, we can write a while loop for each
+       case, and avoid testing `size' for each time.  */
+    switch (size) {
+        /* 16-byte items happen on the DEC Alpha machine when we are not
+           doing sharable memory dumps.  */
+    case 16:
+        while (nitems--) {
+            SWAP(p[0], p[15]);
+            SWAP(p[1], p[14]);
+            SWAP(p[2], p[13]);
+            SWAP(p[3], p[12]);
+            SWAP(p[4], p[11]);
+            SWAP(p[5], p[10]);
+            SWAP(p[6], p[9]);
+            SWAP(p[7], p[8]);
+            p += size;
+        }
+        break;
+
+    case 12:
+        while (nitems--) {
+            SWAP(p[0], p[11]);
+            SWAP(p[1], p[10]);
+            SWAP(p[2], p[9]);
+            SWAP(p[3], p[8]);
+            SWAP(p[4], p[7]);
+            SWAP(p[5], p[6]);
+            p += size;
+        }
+        break;
+
+    case 8:
+        while (nitems--) {
+            SWAP(p[0], p[7]);
+            SWAP(p[1], p[6]);
+            SWAP(p[2], p[5]);
+            SWAP(p[3], p[4]);
+            p += size;
+        }
+        break;
+
+    case 4:
+        while (nitems--) {
+            SWAP(p[0], p[3]);
+            SWAP(p[1], p[2]);
+            p += size;
+        }
+        break;
+
+    case 2:
+        while (nitems--) {
+            SWAP(p[0], p[1]);
+            p += size;
+        }
+        break;
+
+    case 1:
+        /* Nothing to do.  */
+        break;
+
+    default:
+        FATAL1("Can't swap a %d-byte item for (un)dumping", size);
+    }
+    memcpy(pp,q,total);
+    xfree(q); 
+}
+#endif                          /* not WORDS_BIGENDIAN and not NO_DUMP_SHARE */
+
 @ That second swap is to make sure following calls don't get
 confused in the case of |dump_things|.
 
@@ -1132,12 +1228,20 @@ static FILE *runpopen(char *cmd, const char *mode)
     char *cmdname = NULL;
     int allow;
 
+#ifdef WIN32
+    char *pp;
+
+    for (pp = cmd; *pp; pp++) {
+      if (*pp == '\'') *pp = '"';
+    }
+#endif
+
     /* If restrictedshell == 0, any command is allowed. */
     if (restrictedshell == 0) {
         allow = 1;
     } else {
         const char *thecmd = cmd;
-        allow = shell_cmd_is_allowed(&thecmd, &safecmd, &cmdname);
+        allow = shell_cmd_is_allowed(thecmd, &safecmd, &cmdname);
     }
     if (allow == 1)
         f = popen(cmd, mode);
@@ -1164,9 +1268,12 @@ static FILE *runpopen(char *cmd, const char *mode)
    closed using |pclose()|.
 
 @c
-static FILE *pipes[] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-};
+#define NUM_PIPES 16
+static FILE *pipes[NUM_PIPES];
+ 
+#ifdef WIN32
+FILE *Poptr;
+#endif
 
 boolean open_in_or_pipe(FILE ** f_ptr, char *fn, int filefmt,
                         const_string fopen_mode, boolean must_exist)
@@ -1189,14 +1296,17 @@ boolean open_in_or_pipe(FILE ** f_ptr, char *fn, int filefmt,
         recorder_record_input(fname + 1);
         *f_ptr = runpopen(fname + 1, "r");
         free(fname);
-        for (i = 0; i <= 15; i++) {
+        for (i = 0; i < NUM_PIPES; i++) {
             if (pipes[i] == NULL) {
                 pipes[i] = *f_ptr;
                 break;
             }
         }
         if (*f_ptr)
-            setvbuf(*f_ptr, (char *) NULL, _IOLBF, 0);
+            setvbuf(*f_ptr, (char *) NULL, _IONBF, 0);
+#ifdef WIN32
+        Poptr = *f_ptr;
+#endif
 
         return *f_ptr != NULL;
     }
@@ -1233,7 +1343,7 @@ boolean open_out_or_pipe(FILE ** f_ptr, char *fn, const_string fopen_mode)
         recorder_record_output(fname + 1);
         free(fname);
 
-        for (i = 0; i <= 15; i++) {
+        for (i = 0; i < NUM_PIPES; i++) {
             if (pipes[i] == NULL) {
                 pipes[i] = *f_ptr;
                 break;
@@ -1241,7 +1351,7 @@ boolean open_out_or_pipe(FILE ** f_ptr, char *fn, const_string fopen_mode)
         }
 
         if (*f_ptr)
-            setvbuf(*f_ptr, (char *) NULL, _IOLBF, 0);
+            setvbuf(*f_ptr, (char *) NULL, _IONBF, 0);
 
         return *f_ptr != NULL;
     }
@@ -1258,8 +1368,12 @@ void close_file_or_pipe(FILE * f)
         for (i = 0; i <= 15; i++) {
         /* if this file was a pipe, |pclose()| it and return */
             if (pipes[i] == f) {
-                if (f)
+                if (f) {
                     pclose(f);
+#ifdef WIN32
+                    Poptr = NULL;
+#endif
+                }
                 pipes[i] = NULL;
                 return;
             }
