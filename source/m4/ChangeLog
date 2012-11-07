@@ -1,3 +1,28 @@
+2012-10-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-poppler-flags.m4 [WIN32]: Add '-lgdi32' to POPPLER_LIBS.
+	* kpse-xpdf-flags.m4 [WIN32]: Add '-lgdi32' to XPDF_LIBS.
+
+2012-10-09  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-pkgs.m4 (kpse_libs_pkgs): Remove obsdcompat.
+	* kpse-obsdcompat-flags.m4: Removed.
+
+2012-07-25  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-common.m4 (KPSE_COMMON): Check for 64-bit integer types
+	and bail out if unsupported.
+	Some headers are already checked by AC_HEADER_STDC.
+
+2012-07-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-pkgs.m4 (KPSE_UTILS_PKGS): Moved chktex from here ...
+	(KPSE_TEXK_PKGS): ... to here (now using kpathsea).
+
+2012-07-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-pkgs.m4 (KPSE_UTILS_PKGS): Rename mtx => m-tx.
+
 2012-04-24  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* kpse-common.m4 (_KPSE_LIB_FLAGS_TL): Replace sed substitutions

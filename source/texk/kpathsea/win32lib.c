@@ -19,6 +19,7 @@
 #include <kpathsea/config.h>
 #include <kpathsea/concatn.h>
 #include <kpathsea/variable.h>
+#include <kpathsea/c-stat.h>
 
 FILE * __cdecl kpathsea_win32_popen (kpathsea kpse, const char *cmd, const char *fmode)
 {
@@ -113,10 +114,7 @@ FILE * __cdecl kpathsea_win32_popen (kpathsea kpse, const char *cmd, const char 
 #ifdef TRACE
     fprintf(stderr, "%s not found, concatenating comspec\n", app_name);
 #endif
-    if(_osver & 0x8000)
-      new_cmd = concatn("command.com", " /c ", cmd, NULL);
-    else
-      new_cmd = concatn("cmd.exe", " /c ", cmd, NULL);
+    new_cmd = concatn("cmd.exe", " /c ", cmd, NULL);
     free(app_name);
     app_name = NULL;
   }
@@ -325,18 +323,9 @@ xfseek64 (FILE *f, __int64 offset, int wherefrom,  const char *filename)
 
 static int is_dir (char *buff)
 {
-  HANDLE h;
-  WIN32_FIND_DATA w32fd;
+  struct stat stats;
 
-  if (((h = FindFirstFile (buff, &w32fd))
-       != INVALID_HANDLE_VALUE) &&
-      (w32fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-    FindClose (h);
-    return (1);
-  } else {
-    FindClose (h);
-    return (0);
-  }
+  return stat (buff, &stats) == 0 && S_ISDIR (stats.st_mode);
 }
 
 /*
@@ -664,10 +653,7 @@ look_for_cmd(const char *cmd, char **app, char **new)
 #ifdef TRACE
     fprintf(stderr, "%s not found, concatenating comspec\n", app_name);
 #endif
-    if(_osver & 0x8000)
-      new_cmd = concatn("command.com", " /c ", cmd, NULL);
-    else
-      new_cmd = concatn("cmd.exe", " /c ", cmd, NULL);
+    new_cmd = concatn("cmd.exe", " /c ", cmd, NULL);
     free(app_name);
     app_name = NULL;
   }

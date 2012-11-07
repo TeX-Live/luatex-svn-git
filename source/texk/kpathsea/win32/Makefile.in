@@ -234,8 +234,9 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-INCLUDES = -I$(top_builddir)/.. -I$(top_srcdir)/..
-AM_CPPFLAGS = -DWEB2C_KPSE_VERSION='"Web2C-$(WEB2CVERSION) Kpathsea-$(KPSEVERSION)"'
+AM_CPPFLAGS = -I$(top_builddir)/.. -I$(top_srcdir)/.. \
+	-DWEB2C_KPSE_VERSION='"Web2C-$(WEB2CVERSION) \
+	Kpathsea-$(KPSEVERSION)"'
 AM_CFLAGS = $(WARNING_CFLAGS)
 fmtutil_SOURCES = \
 	dirutil.c \
@@ -577,7 +578,8 @@ install-dvi: install-dvi-am
 install-dvi-am:
 
 install-exec-am: install-binPROGRAMS
-
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) install-exec-hook
 install-html: install-html-am
 
 install-html-am:
@@ -617,23 +619,30 @@ ps: ps-am
 ps-am:
 
 uninstall-am: uninstall-binPROGRAMS
-
-.MAKE: install-am install-strip
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) uninstall-hook
+.MAKE: install-am install-exec-am install-strip uninstall-am
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-binPROGRAMS \
 	clean-generic clean-libtool ctags distclean distclean-compile \
 	distclean-generic distclean-libtool distclean-tags distdir dvi \
 	dvi-am html html-am info info-am install install-am \
 	install-binPROGRAMS install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags uninstall uninstall-am \
-	uninstall-binPROGRAMS
+	install-dvi-am install-exec install-exec-am install-exec-hook \
+	install-html install-html-am install-info install-info-am \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
+	uninstall-am uninstall-binPROGRAMS uninstall-hook
 
+
+install-exec-hook:
+	cp -p $(DESTDIR)$(bindir)/mktexlsr$(EXEEXT) $(DESTDIR)$(bindir)/texhash$(EXEEXT)
+
+uninstall-hook:
+	rm -f $(DESTDIR)$(bindir)/texhash$(EXEEXT)
 
 ../libkpathsea.la: ${top_srcdir}/../kpathsea/*.[ch] ../paths.h
 	cd .. && $(MAKE) $(AM_MAKEFLAGS) rebuild

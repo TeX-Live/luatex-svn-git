@@ -1,10 +1,10 @@
-## Makefile.am for the TeX Live subdirectory texk/dviljk/win32/
+## Makefile.am for the TeX Live subdirectory texk/kpathsea/win32/
 ##
 ## Copyright (C) 2011, 2012 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
-INCLUDES = -I$(top_builddir)/.. -I$(top_srcdir)/..
-AM_CPPFLAGS = -DWEB2C_KPSE_VERSION='"Web2C-$(WEB2CVERSION) Kpathsea-$(KPSEVERSION)"'
+AM_CPPFLAGS = -I$(top_builddir)/.. -I$(top_srcdir)/..
+AM_CPPFLAGS += -DWEB2C_KPSE_VERSION='"Web2C-$(WEB2CVERSION) Kpathsea-$(KPSEVERSION)"'
 AM_CFLAGS = $(WARNING_CFLAGS)
 
 # Build WIN32 replacements for Unix shell scripts.
@@ -65,6 +65,12 @@ mktexupd_SOURCES = \
 	mktexupd.h
 
 LDADD = ../libkpathsea.la
+
+install-exec-hook:
+	cp -p $(DESTDIR)$(bindir)/mktexlsr$(EXEEXT) $(DESTDIR)$(bindir)/texhash$(EXEEXT)
+
+uninstall-hook:
+	rm -f $(DESTDIR)$(bindir)/texhash$(EXEEXT)
 
 ## Rebuild libkpathsea
 ../libkpathsea.la: ${top_srcdir}/../kpathsea/*.[ch] ../paths.h
