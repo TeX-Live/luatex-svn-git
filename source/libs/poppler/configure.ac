@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl
-dnl   Copyright (C) 2011 Peter Breitenlohner <tex-live@tug.org>
+dnl   Copyright (C) 2011-2012 Peter Breitenlohner <tex-live@tug.org>
 dnl
 dnl   This file is free software; the copyright holder
 dnl   gives unlimited permission to copy and/or distribute it,
@@ -66,7 +66,7 @@ AC_HEADER_DIRENT
 
 dnl **** Checks for library functions ****
 
-AC_CHECK_FUNCS([gettimeofday gmtime_r popen mkstemp])
+AC_CHECK_FUNCS([gettimeofday gmtime_r mkstemp popen rand_r])
 AC_SYS_LARGEFILE
 AC_FUNC_FSEEKO
 
@@ -74,7 +74,8 @@ AC_CONFIG_HEADERS([config.h])
 
 AC_CONFIG_HEADERS([poppler/poppler-config.h:poppler-]poppler_version[/poppler/poppler-config.h.in])
 
-AC_DEFINE_UNQUOTED([POPPLER_VERSION], ["$PACKAGE_VERSION"], [Define to the poppler version.])
+dnl ##### Export the version
+AC_DEFINE_UNQUOTED([POPPLER_VERSION], ["poppler_version"], [Define to the poppler version.])
 
 KPSE_ZLIB_FLAGS
 
