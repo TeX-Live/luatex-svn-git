@@ -253,7 +253,7 @@ int shell_cmd_is_allowed(const char *cmd, char **safecmd, char **cmdname)
     }
     if (allow == 2) {
         spaces = 0;
-        for (s = *cmd; *s; s++) {
+        for (s = cmd; *s; s++) {
             if (Isspace(*s))
                 spaces++;
         }
