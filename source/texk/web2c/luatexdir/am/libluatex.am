@@ -195,6 +195,7 @@ libluatex_a_SOURCES += \
 	luatexdir/lua/lcallbacklib.c \
 	luatexdir/lua/lfontlib.c \
 	luatexdir/lua/limglib.c \
+	luatexdir/lua/lpdfscannerlib.cc \
 	luatexdir/lua/lepdflib.cc \
 	luatexdir/lua/lkpselib.c \
 	luatexdir/lua/llanglib.c \

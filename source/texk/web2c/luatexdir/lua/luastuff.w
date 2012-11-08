@@ -265,6 +265,11 @@ void luainterpreter(void)
     lua_pushstring(L, "epdf");
     lua_call(L, 1, 0);
 
+    /* |luaopen_pdfscanner(L);| */
+    lua_pushcfunction(L, luaopen_pdfscanner);
+    lua_pushstring(L, "pdfscanner");
+    lua_call(L, 1, 0);
+
     lua_createtable(L, 0, 0);
     lua_setglobal(L, "texconfig");
 
