@@ -5172,7 +5172,44 @@ This function also accept string \type{id}'s.
 <node> t = node.traverse(<node> n)
 \stopfunctioncall
 
-This is an iterator that loops over the node list that starts at \type{n}.
+This is a lua iterator that loops over the node list that starts at \type{n}.
+Typical input code like this 
+
+\starttyping
+for n in node.traverse(head) do
+   ...
+end 
+\stoptyping
+
+is functionally equivalent to:
+
+\starttyping
+do
+  local n
+  local function f (head,var)
+    local t
+    if var == nil then
+       t = head
+    else
+       t = var.next
+    end
+    return t
+  end
+  while true do
+    n = f (head, n)
+    if n == nil then break end
+    ...
+  end
+end
+\stoptyping
+
+It should be clear from the definition of the function \type{f} that
+even though it is possible to add or remove nodes from the node list while 
+traversing, you have to take great care to make sure all the \type{next}
+(and \type{prev}) pointers remain valid.
+
+If the above is unclear to you, see the section \quote{For Statement}
+in the Lua Reference Manual. 
 
 \subsubsection{\luatex{node.traverse_id}}
 
@@ -5182,6 +5219,25 @@ This is an iterator that loops over the node list that starts at \type{n}.
 
 This is an iterator that loops over all the nodes in the list that
 starts at \type{n} that have a matching \type{id} field.
+
+See the previous section for details. The change is in the local
+function \type{f}, which now does an extra while loop checking
+against the upvalue \type{id}:
+
+\starttyping
+  local function f (head,var)
+    local t
+    if var == nil then
+       t = head
+    else
+       t = var.next
+    end
+    while not t.id == id do
+       t = t.next
+    end
+    return t
+  end
+\stoptyping
 
 \subsubsection{\luatex{node.remove}}
 
