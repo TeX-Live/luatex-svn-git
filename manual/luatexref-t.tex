@@ -23,7 +23,7 @@
 
 \setvariables
   [document]
-  [beta=0.71.0]
+  [beta=0.72.0]
 
 \starttext
 
@@ -5633,6 +5633,173 @@ used from within \type{\latelua}.
 pdf.registerannot (<number> objnum)
 \stopfunctioncall
 
+\section{The \luatex{pdfscanner} library (new in 0.72.0)}
+
+The \luatex{pdfscanner} library allows interpretation of PDF content streams
+and \type{/ToUnicode} (cmap) streams. You can get those streams from the
+\luatex{epdf} library, as explained in an earlier section. There is only
+a single top|-|level function in this library:
+
+\startfunctioncall
+pdfscanner.scan (<Object> stream, <table> operatortable, <table> info)
+\stopfunctioncall
+
+The first argument, \type{stream}, should be either a PDF stream
+object, or a PDF array of PDF stream objects (those options comprise 
+the possible return values of \type{<Page>:getContents()}
+and \type{<Object>:getStream()} in the \type{epdf} library).
+
+The second argument, \type{operatortable}, should be a Lua table where
+the keys are PDF operator name strings and the values are Lua
+functions (defined by you) that are used to process those
+operators. The functions are called whenever the scanner finds one
+of these PDF operators in the content stream(s). The functions are
+called with two arguments: the \type{scanner} object itself, and
+the \type{info} table that was passed are the third argument
+to \type{pdfscanner.scan}.
+
+Internally, \type{pdfscanner.scan} loops over the PDF operators in the
+stream(s), collecting operands on an internal stack until it finds a
+PDF operator.  If that PDF operator's name exists
+in \type{operatortable}, then the associated function is
+executed. After the function has run (or when there is no function to
+execute) the internal operand stack is cleared in preparation for the
+next operator, and processing continues.
+
+The \type{scanner} argument to the processing functions is needed
+because it offers various methods to get the actual operands from the
+internal operand stack. The most important of those functions is 
+\type{}
+
+A simple example of processing a PDF's document stream 
+could look like this:
+
+\starttyping
+function Do (scanner, info)
+   local val = scanner:pop()
+   local name = val[2] -- val[1] == 'name'
+   print (info.space ..'Use XObject '.. name)
+   local resources  = info.resources
+   local xobject = resources:lookup("XObject"):getDict():lookup(name)
+   if (xobject and xobject:isStream()) then
+      local dict = xobject:getStream():getDict()
+      if dict then
+	 local name = dict:lookup('Subtype')
+	 if name:getName() == 'Form' then
+	    local newinfo =  { space = info.space .. "  " ,
+			       resources = dict:lookup('Resources'):getDict() }
+	    pdfscanner.scan(xobject, operatortable, newinfo)
+	 end
+      end
+   end   
+end
+operatortable = {Do = Do}
+
+doc = epdf.open(arg[1])
+pagenum  = 1
+while pagenum <= doc:getNumPages() do
+   local page = doc:getCatalog():getPage(pagenum)
+   local info = { space = "  " , resources = page:getResourceDict()}
+   print ('Page ' .. pagenum)
+   pdfscanner.scan(page:getContents(), operatortable, info)
+   pagenum = pagenum + 1
+end
+\stoptyping
+
+This example iterates over all the actual content in the PDF, and
+prints out the found XObject names. While the code demonstrates quite 
+some of the \type{epdf} functions, let's focus on the type
+\type{pdfscanner} specific code instead. 
+
+From the bottom up, the line 
+
+\starttyping
+   pdfscanner.scan(page:getContents(), operatortable, info)
+\stoptyping
+
+runs the scanner with the PDF page's top-level content. 
+
+The third argument, \type{info}, contains two entries: \type{space} is
+used to indent the printed output, and \type{resources} is needed so
+that embedded \type{XForms} can find their own content.
+
+The second argument, \type{operatortable} defines a processing function
+for a single PDF operator, \type{Do}.
+
+The function \type{Do} prints the name of the current XObject, and
+then starts a new scanner for that object's content stream, under the
+condition that the XObject is in fact a \type{/Form}. That nested
+scanner is called with new \type{info} argument with an
+updated \type{space} value so that the indentation of the output nicely
+nests, and with an new \type{resources} field to help the next
+iteration down to properly process any other, embedded XObjects.
+
+Of course, this is not a very useful example in practise, but for the
+purpose of demonstrating \type{pdfscanner}, it is just long enough.
+It makes use of only one \type{scanner} method: \type{scanner:pop()}.
+That function pops the top operand of the internal stack, and returns
+a lua table where the object at index one is a string representing 
+the type of the operand, and object two is its value.
+
+The list of possible operand types and associated lua value types is:
+
+\starttabulate[|lT|p|]
+\NC integer   \NC <number>  \NC \NR
+\NC real      \NC <number>  \NC \NR
+\NC boolean   \NC <boolean> \NC \NR
+\NC name      \NC <string>  \NC \NR
+\NC operator  \NC <string>  \NC \NR
+\NC string    \NC <string>  \NC \NR
+\NC array     \NC <table>   \NC \NR
+\NC dict      \NC <table>   \NC \NR
+\stoptabulate
+
+In case of \type{integer} or \type{real}, the value is always
+a Lua (floating point) number.
+
+In case of \type{name}, the leading slash is always stripped.
+
+In case of \type{string}, please bear in mind that PDF actually
+supports different types of strings (with different encodings) in
+different parts of the PDF document, so may need to reencode some of
+the results; \type{pdfscanner} always outputs the byte stream without
+reencoding anything. \type{pdfscanner} does not differentiate between
+literal strings and hexidecimal strings (the hexadecimal values are
+decoded), and it treats the stream data for inline images as a string
+that is the single operand for \type{EI}.
+
+In case of \type{array}, the table content is a list of \type{pop}
+return values. 
+
+In case of \type{dict}, the table keys are PDF name strings
+and the values are \type{pop} return values. 
+
+\blank
+
+There are few more methods defined that you can ask \type{scanner}:
+
+\starttabulate[|lT|p|]
+\NC pop       \NC as explained above\NC \NR
+\NC popNumber \NC return only the value of a \type{real} or \type{integer}\NC \NR
+\NC popName   \NC return only the value of a \type{name} \NC \NR
+\NC popString \NC return only the value of a \type{string} \NC \NR
+\NC popArray  \NC return only the value of a \type{array} \NC \NR
+\NC popDict   \NC return only the value of a \type{dict} \NC \NR
+\NC popBool   \NC return only the value of a \type{boolean} \NC \NR
+\NC done      \NC abort further processing of this \type{scan()} call\NC \NR
+\stoptabulate
+
+The \type{popXXX} are convenience functions, and come in handy when
+you know the type of the operands beforehand (which you usually do, in
+PDF).  For example, the \type{Do} function could have used \type{local
+name = scanner:popName()} instead, because the single operand
+to the \type{Do} operator is always a PDF name object.
+
+The \type{done} function allows you to abort processing of a stream
+once you have learned everything you want to learn. This comes in handy
+while parsing \type{/ToUnicode}, because there usually is trailing 
+garbage that you are not interested in. Without \type{done}, processing
+only end at the end of the stream, possibly wasting CPU cycles.
 
 \section{The \luatex{status} library}
 
