@@ -4,9 +4,12 @@
 #  include <string.h>
 #  include <assert.h>
 #  include <math.h>
+
+extern "C" {
 #  include <lua51/lua.h>
 #  include <lua51/lauxlib.h>
 #  include <lua51/lualib.h>
+}
 
 #  include <poppler/poppler-config.h>
 #  include <goo/GooString.h>
@@ -26,6 +29,8 @@
 #  include <PDFDoc.h>
 #  include <GlobalParams.h>
 #  include <Error.h>
+
+#  include <lua/luatex-api.h>
 
 #define SCANNER "pdfscanner"
 

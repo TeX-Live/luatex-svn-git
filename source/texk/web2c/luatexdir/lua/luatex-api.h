@@ -29,6 +29,10 @@
 #  include "lua51/lauxlib.h"
 #  include "lua51/lualib.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct LoadS {
     char *s;
     size_t size;
@@ -203,5 +207,7 @@ extern char **environ;
 #endif
 
 extern int luac_main(int argc, char *argv[]);   /* texluac.w */
-
+#ifdef __cplusplus
+}
+#endif
 #endif                          /* LUATEX_API_H */
