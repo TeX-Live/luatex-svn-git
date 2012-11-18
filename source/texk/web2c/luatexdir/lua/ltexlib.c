@@ -1922,7 +1922,7 @@ static int tex_hashpairs(lua_State * L)
     str_number s = 0;
     int cs = 1;
     lua_newtable(L);
-    while (cs < eqtb_size) {
+    while (cs < hash_size) {
         s = hash_text(cs);
         if (s > 0) {
             char *ss = makecstring(s);
