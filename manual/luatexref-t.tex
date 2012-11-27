@@ -6933,12 +6933,12 @@ is always zero.
 \subsubsection{\luatex{tex.badness} (0.53)}
 
 \startfunctioncall
-<number> b = tex.badness(<number> f, <number> s)
+<number> b = tex.badness(<number> t, <number> s)
 \stopfunctioncall
 
 This helper function is useful
-during linebreak calculations. \type{f} and \type{s} are scaled values; the function
-returns the badness for when total \type{f} is supposed to be made from amounts
+during linebreak calculations. \type{t} and \type{s} are scaled values; the function
+returns the badness for when total \type{t} is supposed to be made from amounts
 that sum to \type{s}.  The returned number is a reasonable approximation of $100(t/s)^3$;
 
 \subsubsection{\luatex{tex.linebreak} (0.53)}
