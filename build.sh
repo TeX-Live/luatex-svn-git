@@ -186,7 +186,6 @@ $MAKE
 
 (cd libs/zziplib; $MAKE all )
 (cd libs/zlib; $MAKE all )
-(cd libs/obsdcompat; $MAKE all )
 (cd libs/libpng; $MAKE all )
 (cd libs/poppler; $MAKE all )
 
