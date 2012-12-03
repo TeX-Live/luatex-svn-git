@@ -565,14 +565,12 @@ PACKAGE_BUGREPORT='tex-k@tug.org'
 PACKAGE_URL=''
 
 ac_unique_file="../build-aux/missing"
-enable_option_checking=no
 ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
 DIST_SUBUTILS
 SUBUTILS
-subdirs
 MAINT
 MAINTAINER_MODE_FALSE
 MAINTAINER_MODE_TRUE
@@ -680,22 +678,18 @@ enable_ipc
 enable_omfonts
 enable_tex
 enable_tex_synctex
+enable_luatex
+enable_mp
 enable_etex
 enable_etex_synctex
-enable_ptex
-enable_ptex_synctex
-enable_eptex
-enable_eptex_synctex
-enable_uptex
-enable_uptex_synctex
-enable_euptex
-enable_euptex_synctex
-enable_aleph
 enable_pdftex
 enable_pdftex_synctex
-enable_luatex
 enable_xetex
 enable_xetex_synctex
+enable_ptex
+enable_ptex_synctex
+enable_aleph
+enable_aleph_synctex
 enable_mf
 enable_mf_nowin
 with_mf_x_toolkit
@@ -707,10 +701,11 @@ enable_regiswin
 enable_suntoolswin
 enable_tektronixwin
 enable_unitermwin
-enable_mp
 enable_web_progs
 with_system_zziplib
 with_system_poppler
+with_system_cairo
+with_system_pixman
 with_system_libpng
 with_system_zlib
 with_zlib_includes
@@ -736,16 +731,7 @@ CFLAGS
 LDFLAGS
 LIBS
 CPPFLAGS'
-ac_subdirs_all='biber
-m-tx
-pmx
-ps2eps
-psutils
-t1utils
-tpic2pdftex
-vlna
-xindy
-xpdfopen'
+
 
 # Initialize some variables set by options.
 ac_init_help=
@@ -1384,22 +1370,18 @@ Optional Features:
                             versions)
   --disable-tex             do not compile and install TeX
   --enable-tex-synctex        build TeX with SyncTeX support
-  --enable-etex             compile and install e-TeX
-  --disable-etex-synctex      build e-TeX without SyncTeX support
-  --disable-ptex            do not compile and install pTeX
-  --disable-ptex-synctex      build pTeX without SyncTeX support
-  --disable-eptex           do not compile and install e-pTeX
-  --disable-eptex-synctex     build e-pTeX without SyncTeX support
-  --disable-uptex           do not compile and install upTeX
-  --disable-uptex-synctex     build upTeX without SyncTeX support
-  --disable-euptex          do not compile and install e-upTeX
-  --disable-euptex-synctex    build e-upTeX without SyncTeX support
-  --disable-aleph           do not compile and install Aleph
-  --disable-pdftex          do not compile and install pdfTeX
-  --disable-pdftex-synctex    build pdfTeX without SyncTeX support
   --disable-luatex          do not compile and install luaTeX
-  --disable-xetex           do not compile and install XeTeX
-  --disable-xetex-synctex     build XeTeX without SyncTeX support
+  --disable-mp              do not compile and install MetaPost
+  --enable-etex             compile and install e-TeX
+  --enable-etex-synctex       build e-TeX with SyncTeX support
+  --enable-pdftex           compile and install pdfTeX
+  --enable-pdftex-synctex     build pdfTeX with SyncTeX support
+  --enable-xetex            compile and install XeTeX
+  --enable-xetex-synctex      build XeTeX with SyncTeX support
+  --enable-ptex             compile and install pTeX
+  --enable-ptex-synctex       build pTeX with SyncTeX support
+  --enable-aleph            compile and install Aleph
+  --enable-aleph-synctex      build Aleph with SyncTeX support
   --disable-mf              do not build METAFONT
   --disable-mf-nowin          do not build a separate non-windows-capable
                               METAFONT
@@ -1411,7 +1393,6 @@ Optional Features:
   --enable-suntoolswin        include old Suntools (not X) window support
   --enable-tektronixwin       include Tektronix window support
   --enable-unitermwin         include Uniterm window support
-  --disable-mp              do not build METAPOST
   --disable-web-progs       do not build WEB programs bibtex ... weave
   --disable-mktexmf-default   do not run mktexmf if MF source missing
   --disable-mktexpk-default   do not run mktexpk if PK font missing
@@ -1435,6 +1416,10 @@ Optional Packages:
   --with-system-zziplib   use installed zziplib headers and library (requires
                           pkg-config)
   --with-system-poppler   use installed poppler headers and library (requires
+                          pkg-config)
+  --with-system-cairo     use installed cairo headers and library (requires
+                          pkg-config)
+  --with-system-pixman    use installed pixman headers and library (requires
                           pkg-config)
   --with-system-libpng    use installed libpng headers and library (requires
                           pkg-config)
@@ -2989,16 +2974,6 @@ $as_echo "$as_me: WIN32 -> \`--without-x'" >&6;}
          ac_configure_args="$ac_configure_args '--without-x'" ;;
 esac
 
-
-
-
-
-
-
-
-
-
-
 ## texk/web2c/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory texk/web2c/
 ## configure options and TL libraries required for web2c
 # Check whether --enable-web2c was given.
@@ -3066,127 +3041,6 @@ esac
 if test "${enable_tex_synctex+set}" = set; then :
   enableval=$enable_tex_synctex;
 fi
-# Check whether --enable-etex was given.
-if test "${enable_etex+set}" = set; then :
-  enableval=$enable_etex;
-fi
-case $enable_etex in #(
-  yes | no) :
-     ;; #(
-  *) :
-    enable_etex=no ;;
-esac
-
-# Check whether --enable-etex-synctex was given.
-if test "${enable_etex_synctex+set}" = set; then :
-  enableval=$enable_etex_synctex;
-fi
-# Check whether --enable-ptex was given.
-if test "${enable_ptex+set}" = set; then :
-  enableval=$enable_ptex;
-fi
-case $enable_ptex in #(
-  yes | no) :
-     ;; #(
-  *) :
-    enable_ptex=yes ;;
-esac
-
-# Check whether --enable-ptex-synctex was given.
-if test "${enable_ptex_synctex+set}" = set; then :
-  enableval=$enable_ptex_synctex;
-fi
-
-test "x$enable_web2c:$enable_ptex" = xyes:yes && {
-  need_ptexenc=yes
-}
-# Check whether --enable-eptex was given.
-if test "${enable_eptex+set}" = set; then :
-  enableval=$enable_eptex;
-fi
-case $enable_eptex in #(
-  yes | no) :
-     ;; #(
-  *) :
-    enable_eptex=yes ;;
-esac
-
-# Check whether --enable-eptex-synctex was given.
-if test "${enable_eptex_synctex+set}" = set; then :
-  enableval=$enable_eptex_synctex;
-fi
-
-test "x$enable_web2c:$enable_eptex" = xyes:yes && {
-  need_ptexenc=yes
-}
-# Check whether --enable-uptex was given.
-if test "${enable_uptex+set}" = set; then :
-  enableval=$enable_uptex;
-fi
-case $enable_uptex in #(
-  yes | no) :
-     ;; #(
-  *) :
-    enable_uptex=yes ;;
-esac
-
-# Check whether --enable-uptex-synctex was given.
-if test "${enable_uptex_synctex+set}" = set; then :
-  enableval=$enable_uptex_synctex;
-fi
-
-test "x$enable_web2c:$enable_uptex" = xyes:yes && {
-  need_ptexenc=yes
-}
-# Check whether --enable-euptex was given.
-if test "${enable_euptex+set}" = set; then :
-  enableval=$enable_euptex;
-fi
-case $enable_euptex in #(
-  yes | no) :
-     ;; #(
-  *) :
-    enable_euptex=yes ;;
-esac
-
-# Check whether --enable-euptex-synctex was given.
-if test "${enable_euptex_synctex+set}" = set; then :
-  enableval=$enable_euptex_synctex;
-fi
-
-test "x$enable_web2c:$enable_euptex" = xyes:yes && {
-  need_ptexenc=yes
-}
-# Check whether --enable-aleph was given.
-if test "${enable_aleph+set}" = set; then :
-  enableval=$enable_aleph;
-fi
-case $enable_aleph in #(
-  yes | no) :
-     ;; #(
-  *) :
-    enable_aleph=yes ;;
-esac
-# Check whether --enable-pdftex was given.
-if test "${enable_pdftex+set}" = set; then :
-  enableval=$enable_pdftex;
-fi
-case $enable_pdftex in #(
-  yes | no) :
-     ;; #(
-  *) :
-    enable_pdftex=yes ;;
-esac
-
-# Check whether --enable-pdftex-synctex was given.
-if test "${enable_pdftex_synctex+set}" = set; then :
-  enableval=$enable_pdftex_synctex;
-fi
-
-test "x$enable_web2c:$enable_pdftex" = xyes:yes && {
-  need_xpdf=yes
-  need_libpng=yes
-}
 # Check whether --enable-luatex was given.
 if test "${enable_luatex+set}" = set; then :
   enableval=$enable_luatex;
@@ -3203,6 +3057,51 @@ test "x$enable_web2c:$enable_luatex" = xyes:yes && {
   need_libpng=yes
   need_zziplib=yes
 }
+# Check whether --enable-mp was given.
+if test "${enable_mp+set}" = set; then :
+  enableval=$enable_mp;
+fi
+case $enable_mp in #(
+  yes | no) :
+     ;; #(
+  *) :
+    enable_mp=yes ;;
+esac
+
+test "x$enable_web2c:$enable_mp" = xyes:yes && {
+  need_cairo=yes
+  need_libpng=yes
+}
+# Check whether --enable-etex was given.
+if test "${enable_etex+set}" = set; then :
+  enableval=$enable_etex;
+fi
+case $enable_etex in #(
+  yes | no) :
+     ;; #(
+  *) :
+    enable_etex=no ;;
+esac
+
+# Check whether --enable-etex-synctex was given.
+if test "${enable_etex_synctex+set}" = set; then :
+  enableval=$enable_etex_synctex;
+fi
+# Check whether --enable-pdftex was given.
+if test "${enable_pdftex+set}" = set; then :
+  enableval=$enable_pdftex;
+fi
+case $enable_pdftex in #(
+  yes | no) :
+     ;; #(
+  *) :
+    enable_pdftex=no ;;
+esac
+
+# Check whether --enable-pdftex-synctex was given.
+if test "${enable_pdftex_synctex+set}" = set; then :
+  enableval=$enable_pdftex_synctex;
+fi
 # Check whether --enable-xetex was given.
 if test "${enable_xetex+set}" = set; then :
   enableval=$enable_xetex;
@@ -3211,22 +3110,43 @@ case $enable_xetex in #(
   yes | no) :
      ;; #(
   *) :
-    enable_xetex=yes ;;
+    enable_xetex=no ;;
 esac
 
 # Check whether --enable-xetex-synctex was given.
 if test "${enable_xetex_synctex+set}" = set; then :
   enableval=$enable_xetex_synctex;
 fi
+# Check whether --enable-ptex was given.
+if test "${enable_ptex+set}" = set; then :
+  enableval=$enable_ptex;
+fi
+case $enable_ptex in #(
+  yes | no) :
+     ;; #(
+  *) :
+    enable_ptex=no ;;
+esac
 
-test "x$enable_web2c:$enable_xetex" = xyes:yes && {
-  need_poppler=yes
-  need_libpng=yes
-  need_freetype2=yes
-  need_icu_xetex=yes
-  need_teckit=yes
-  need_graphite=yes
-}
+# Check whether --enable-ptex-synctex was given.
+if test "${enable_ptex_synctex+set}" = set; then :
+  enableval=$enable_ptex_synctex;
+fi
+# Check whether --enable-aleph was given.
+if test "${enable_aleph+set}" = set; then :
+  enableval=$enable_aleph;
+fi
+case $enable_aleph in #(
+  yes | no) :
+     ;; #(
+  *) :
+    enable_aleph=no ;;
+esac
+
+# Check whether --enable-aleph-synctex was given.
+if test "${enable_aleph_synctex+set}" = set; then :
+  enableval=$enable_aleph_synctex;
+fi
 ## configure options for MF
 # Check whether --enable-mf was given.
 if test "${enable_mf+set}" = set; then :
@@ -3273,51 +3193,11 @@ fi
 if test "${enable_unitermwin+set}" = set; then :
   enableval=$enable_unitermwin;
 fi
-## configure options for MP
-# Check whether --enable-mp was given.
-if test "${enable_mp+set}" = set; then :
-  enableval=$enable_mp;
-fi
 ## configure options for WEB programs
 # Check whether --enable-web-progs was given.
 if test "${enable_web_progs+set}" = set; then :
   enableval=$enable_web_progs;
 fi
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -3357,7 +3237,6 @@ test "x$need_zziplib" = xyes && {
 }
 
 
-
 ## libs/poppler/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/poppler/
 ## configure options and TL libraries required for poppler
 
@@ -3393,8 +3272,60 @@ test "x$need_poppler" = xyes && {
 }
 
 
+## libs/cairo/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/cairo/
+## configure options and TL libraries required for cairo
+
+# Check whether --with-system-cairo was given.
+if test "${with_system_cairo+set}" = set; then :
+  withval=$with_system_cairo;
+fi
+if test "x$with_system_cairo" = x; then
+  if test -f $srcdir/../libs/cairo/configure; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`cairo' headers and library from TL tree" >&5
+$as_echo "$as_me: Assuming \`cairo' headers and library from TL tree" >&6;}
+    with_system_cairo=no
+  else
+    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`cairo' headers and library" >&5
+$as_echo "$as_me: Assuming installed \`cairo' headers and library" >&6;}
+    with_system_cairo=yes
+  fi
+  ac_configure_args="$ac_configure_args '--with-system-cairo=$with_system_cairo'"
+fi
+if test "x$with_system_cairo" = xyes; then
+  if test "x$with_system_pixman" = x; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}:   ->  installed \`pixman' headers and library" >&5
+$as_echo "$as_me:   ->  installed \`pixman' headers and library" >&6;}
+    with_system_pixman=yes
+    ac_configure_args="$ac_configure_args '--with-system-pixman'"
+  elif test "x$with_system_pixman" != xyes; then
+    as_fn_error $? "Sorry, \`--with-system-cairo' requires \`--with-system-pixman'" "$LINENO" 5
+  fi
+fi
+
+test "x$need_cairo" = xyes && {
+  need_pixman=yes
+}
 
 
+## libs/pixman/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/pixman/
+## configure options and TL libraries required for pixman
+
+# Check whether --with-system-pixman was given.
+if test "${with_system_pixman+set}" = set; then :
+  withval=$with_system_pixman;
+fi
+if test "x$with_system_pixman" = x; then
+  if test -f $srcdir/../libs/pixman/configure; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`pixman' headers and library from TL tree" >&5
+$as_echo "$as_me: Assuming \`pixman' headers and library from TL tree" >&6;}
+    with_system_pixman=no
+  else
+    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`pixman' headers and library" >&5
+$as_echo "$as_me: Assuming installed \`pixman' headers and library" >&6;}
+    with_system_pixman=yes
+  fi
+  ac_configure_args="$ac_configure_args '--with-system-pixman=$with_system_pixman'"
+fi
 
 
 ## libs/libpng/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/libpng/
@@ -3461,7 +3392,6 @@ $as_echo "$as_me: Assuming installed \`zlib' headers and library" >&6;}
   fi
   ac_configure_args="$ac_configure_args '--with-system-zlib=$with_system_zlib'"
 fi
-
 
 
 
@@ -4230,108 +4160,6 @@ fi
 $as_echo_n "checking for Utils programs to build... " >&6; }
 SUBUTILS=
 DIST_SUBUTILS=
-
-
-
-if test -x $srcdir/biber/configure; then
-  test "x$enable_biber" = xno || SUBUTILS="$SUBUTILS biber"
-  DIST_SUBUTILS="$DIST_SUBUTILS biber"
-  if false; then
-    subdirs="$subdirs biber"
-
-  fi
-fi
-
-
-if test -x $srcdir/m-tx/configure; then
-  test "x$enable_m_tx" = xno || SUBUTILS="$SUBUTILS m-tx"
-  DIST_SUBUTILS="$DIST_SUBUTILS m-tx"
-  if false; then
-    subdirs="$subdirs m-tx"
-
-  fi
-fi
-
-
-if test -x $srcdir/pmx/configure; then
-  test "x$enable_pmx" = xno || SUBUTILS="$SUBUTILS pmx"
-  DIST_SUBUTILS="$DIST_SUBUTILS pmx"
-  if false; then
-    subdirs="$subdirs pmx"
-
-  fi
-fi
-
-
-if test -x $srcdir/ps2eps/configure; then
-  test "x$enable_ps2eps" = xno || SUBUTILS="$SUBUTILS ps2eps"
-  DIST_SUBUTILS="$DIST_SUBUTILS ps2eps"
-  if false; then
-    subdirs="$subdirs ps2eps"
-
-  fi
-fi
-
-
-if test -x $srcdir/psutils/configure; then
-  test "x$enable_psutils" = xno || SUBUTILS="$SUBUTILS psutils"
-  DIST_SUBUTILS="$DIST_SUBUTILS psutils"
-  if false; then
-    subdirs="$subdirs psutils"
-
-  fi
-fi
-
-
-if test -x $srcdir/t1utils/configure; then
-  test "x$enable_t1utils" = xno || SUBUTILS="$SUBUTILS t1utils"
-  DIST_SUBUTILS="$DIST_SUBUTILS t1utils"
-  if false; then
-    subdirs="$subdirs t1utils"
-
-  fi
-fi
-
-
-if test -x $srcdir/tpic2pdftex/configure; then
-  test "x$enable_tpic2pdftex" = xno || SUBUTILS="$SUBUTILS tpic2pdftex"
-  DIST_SUBUTILS="$DIST_SUBUTILS tpic2pdftex"
-  if false; then
-    subdirs="$subdirs tpic2pdftex"
-
-  fi
-fi
-
-
-if test -x $srcdir/vlna/configure; then
-  test "x$enable_vlna" = xno || SUBUTILS="$SUBUTILS vlna"
-  DIST_SUBUTILS="$DIST_SUBUTILS vlna"
-  if false; then
-    subdirs="$subdirs vlna"
-
-  fi
-fi
-
-
-if test -x $srcdir/xindy/configure; then
-  test "x$enable_xindy" = xno || SUBUTILS="$SUBUTILS xindy"
-  DIST_SUBUTILS="$DIST_SUBUTILS xindy"
-  if false; then
-    subdirs="$subdirs xindy"
-
-  fi
-fi
-
-
-if test -x $srcdir/xpdfopen/configure; then
-  test "x$enable_xpdfopen" = xno || SUBUTILS="$SUBUTILS xpdfopen"
-  DIST_SUBUTILS="$DIST_SUBUTILS xpdfopen"
-  if false; then
-    subdirs="$subdirs xpdfopen"
-
-  fi
-fi
-
 
 
 
@@ -5648,151 +5476,6 @@ if test "$no_create" != yes; then
   # Use ||, not &&, to avoid exiting from the if with $? = 1, which
   # would make configure fail if this is the last instruction.
   $ac_cs_success || as_fn_exit 1
-fi
-
-#
-# CONFIG_SUBDIRS section.
-#
-if test "$no_recursion" != yes; then
-
-  # Remove --cache-file, --srcdir, and --disable-option-checking arguments
-  # so they do not pile up.
-  ac_sub_configure_args=
-  ac_prev=
-  eval "set x $ac_configure_args"
-  shift
-  for ac_arg
-  do
-    if test -n "$ac_prev"; then
-      ac_prev=
-      continue
-    fi
-    case $ac_arg in
-    -cache-file | --cache-file | --cache-fil | --cache-fi \
-    | --cache-f | --cache- | --cache | --cach | --cac | --ca | --c)
-      ac_prev=cache_file ;;
-    -cache-file=* | --cache-file=* | --cache-fil=* | --cache-fi=* \
-    | --cache-f=* | --cache-=* | --cache=* | --cach=* | --cac=* | --ca=* \
-    | --c=*)
-      ;;
-    --config-cache | -C)
-      ;;
-    -srcdir | --srcdir | --srcdi | --srcd | --src | --sr)
-      ac_prev=srcdir ;;
-    -srcdir=* | --srcdir=* | --srcdi=* | --srcd=* | --src=* | --sr=*)
-      ;;
-    -prefix | --prefix | --prefi | --pref | --pre | --pr | --p)
-      ac_prev=prefix ;;
-    -prefix=* | --prefix=* | --prefi=* | --pref=* | --pre=* | --pr=* | --p=*)
-      ;;
-    --disable-option-checking)
-      ;;
-    *)
-      case $ac_arg in
-      *\'*) ac_arg=`$as_echo "$ac_arg" | sed "s/'/'\\\\\\\\''/g"` ;;
-      esac
-      as_fn_append ac_sub_configure_args " '$ac_arg'" ;;
-    esac
-  done
-
-  # Always prepend --prefix to ensure using the same prefix
-  # in subdir configurations.
-  ac_arg="--prefix=$prefix"
-  case $ac_arg in
-  *\'*) ac_arg=`$as_echo "$ac_arg" | sed "s/'/'\\\\\\\\''/g"` ;;
-  esac
-  ac_sub_configure_args="'$ac_arg' $ac_sub_configure_args"
-
-  # Pass --silent
-  if test "$silent" = yes; then
-    ac_sub_configure_args="--silent $ac_sub_configure_args"
-  fi
-
-  # Always prepend --disable-option-checking to silence warnings, since
-  # different subdirs can have different --enable and --with options.
-  ac_sub_configure_args="--disable-option-checking $ac_sub_configure_args"
-
-  ac_popdir=`pwd`
-  for ac_dir in : $subdirs; do test "x$ac_dir" = x: && continue
-
-    # Do not complain, so a configure script can configure whichever
-    # parts of a large source tree are present.
-    test -d "$srcdir/$ac_dir" || continue
-
-    ac_msg="=== configuring in $ac_dir (`pwd`/$ac_dir)"
-    $as_echo "$as_me:${as_lineno-$LINENO}: $ac_msg" >&5
-    $as_echo "$ac_msg" >&6
-    as_dir="$ac_dir"; as_fn_mkdir_p
-    ac_builddir=.
-
-case "$ac_dir" in
-.) ac_dir_suffix= ac_top_builddir_sub=. ac_top_build_prefix= ;;
-*)
-  ac_dir_suffix=/`$as_echo "$ac_dir" | sed 's|^\.[\\/]||'`
-  # A ".." for each directory in $ac_dir_suffix.
-  ac_top_builddir_sub=`$as_echo "$ac_dir_suffix" | sed 's|/[^\\/]*|/..|g;s|/||'`
-  case $ac_top_builddir_sub in
-  "") ac_top_builddir_sub=. ac_top_build_prefix= ;;
-  *)  ac_top_build_prefix=$ac_top_builddir_sub/ ;;
-  esac ;;
-esac
-ac_abs_top_builddir=$ac_pwd
-ac_abs_builddir=$ac_pwd$ac_dir_suffix
-# for backward compatibility:
-ac_top_builddir=$ac_top_build_prefix
-
-case $srcdir in
-  .)  # We are building in place.
-    ac_srcdir=.
-    ac_top_srcdir=$ac_top_builddir_sub
-    ac_abs_top_srcdir=$ac_pwd ;;
-  [\\/]* | ?:[\\/]* )  # Absolute name.
-    ac_srcdir=$srcdir$ac_dir_suffix;
-    ac_top_srcdir=$srcdir
-    ac_abs_top_srcdir=$srcdir ;;
-  *) # Relative name.
-    ac_srcdir=$ac_top_build_prefix$srcdir$ac_dir_suffix
-    ac_top_srcdir=$ac_top_build_prefix$srcdir
-    ac_abs_top_srcdir=$ac_pwd/$srcdir ;;
-esac
-ac_abs_srcdir=$ac_abs_top_srcdir$ac_dir_suffix
-
-
-    cd "$ac_dir"
-
-    # Check for guested configure; otherwise get Cygnus style configure.
-    if test -f "$ac_srcdir/configure.gnu"; then
-      ac_sub_configure=$ac_srcdir/configure.gnu
-    elif test -f "$ac_srcdir/configure"; then
-      ac_sub_configure=$ac_srcdir/configure
-    elif test -f "$ac_srcdir/configure.in"; then
-      # This should be Cygnus configure.
-      ac_sub_configure=$ac_aux_dir/configure
-    else
-      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: no configuration information is in $ac_dir" >&5
-$as_echo "$as_me: WARNING: no configuration information is in $ac_dir" >&2;}
-      ac_sub_configure=
-    fi
-
-    # The recursion is here.
-    if test -n "$ac_sub_configure"; then
-      # Make the cache file name correct relative to the subdirectory.
-      case $cache_file in
-      [\\/]* | ?:[\\/]* ) ac_sub_cache_file=$cache_file ;;
-      *) # Relative name.
-	ac_sub_cache_file=$ac_top_build_prefix$cache_file ;;
-      esac
-
-      { $as_echo "$as_me:${as_lineno-$LINENO}: running $SHELL $ac_sub_configure $ac_sub_configure_args --cache-file=$ac_sub_cache_file --srcdir=$ac_srcdir" >&5
-$as_echo "$as_me: running $SHELL $ac_sub_configure $ac_sub_configure_args --cache-file=$ac_sub_cache_file --srcdir=$ac_srcdir" >&6;}
-      # The eval makes quoting arguments work.
-      eval "\$SHELL \"\$ac_sub_configure\" $ac_sub_configure_args \
-	   --cache-file=\"\$ac_sub_cache_file\" --srcdir=\"\$ac_srcdir\"" ||
-	as_fn_error $? "$ac_sub_configure failed for $ac_dir" "$LINENO" 5
-    fi
-
-    cd "$ac_popdir"
-  done
 fi
 if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: unrecognized options: $ac_unrecognized_opts" >&5

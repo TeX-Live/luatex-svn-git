@@ -41,6 +41,7 @@ DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/web2c-disable.m4 \
 	$(top_srcdir)/../../m4/kpse-asm.m4 \
+	$(top_srcdir)/../../m4/kpse-cairo-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-common.m4 \
 	$(top_srcdir)/../../m4/kpse-cross.m4 \
 	$(top_srcdir)/../../m4/kpse-cxx-hack.m4 \
@@ -53,6 +54,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/web2c-disable.m4 \
 	$(top_srcdir)/../../m4/kpse-libpng-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-lt-hack.m4 \
 	$(top_srcdir)/../../m4/kpse-macos-framework.m4 \
+	$(top_srcdir)/../../m4/kpse-pixman-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-poppler-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-ptexenc-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-socket-libs.m4 \
@@ -119,6 +121,9 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+CAIRO_DEPEND = @CAIRO_DEPEND@
+CAIRO_INCLUDES = @CAIRO_INCLUDES@
+CAIRO_LIBS = @CAIRO_LIBS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -201,6 +206,9 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PIXMAN_DEPEND = @PIXMAN_DEPEND@
+PIXMAN_INCLUDES = @PIXMAN_INCLUDES@
+PIXMAN_LIBS = @PIXMAN_LIBS@
 PKG_CONFIG = @PKG_CONFIG@
 POPPLER_DEPEND = @POPPLER_DEPEND@
 POPPLER_INCLUDES = @POPPLER_INCLUDES@
@@ -300,8 +308,7 @@ top_srcdir = @top_srcdir@
 wlibs = @wlibs@
 x_ext_lib = @x_ext_lib@
 x_tool_libs = @x_tool_libs@
-INCLUDES = -I$(top_srcdir)
-AM_CPPFLAGS = $(KPATHSEA_INCLUDES)
+AM_CPPFLAGS = -I$(top_srcdir) $(KPATHSEA_INCLUDES)
 AM_CFLAGS = $(WARNING_CFLAGS)
 noinst_LIBRARIES = lib.a $(am__append_1)
 EXTRA_LIBRARIES = libp.a

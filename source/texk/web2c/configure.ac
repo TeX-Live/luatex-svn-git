@@ -265,6 +265,8 @@ KPSE_KPATHSEA_FLAGS
 KPSE_PTEXENC_FLAGS
 KPSE_ZLIB_FLAGS
 KPSE_LIBPNG_FLAGS
+KPSE_PIXMAN_FLAGS
+KPSE_CAIRO_FLAGS
 KPSE_XPDF_FLAGS
 KPSE_POPPLER_FLAGS
 KPSE_ZZIPLIB_FLAGS
@@ -278,22 +280,6 @@ KPSE_ADD_FLAGS([kpathsea])
 AC_CHECK_SIZEOF([off_t], , AC_INCLUDES_DEFAULT
 [#include <kpathsea/config.h>])
 
-# Checks for xpdf poppler features.
-KPSE_ADD_FLAGS([poppler])
-AC_LANG_PUSH([C++])
-AC_CACHE_CHECK([for Annot::decRefCnt],
-               [kpse_cv_have_Annot_decRefCnt],
-               [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <goo/GooString.h>
-#include <Object.h>
-#include <Array.h>
-#include <Annot.h>]],
-                                                   [[Annot *an; an->decRefCnt();]])],
-                                  [kpse_cv_have_Annot_decRefCnt=yes],
-                                  [kpse_cv_have_Annot_decRefCnt=no])])
-AS_IF([test "x$kpse_cv_have_Annot_decRefCnt" = xyes],
-      [AC_DEFINE([HAVE_ANNOTDECREFCNT], 1,
-                 [Define to 1 if class `Annot' has the `decRefCnt' member.])])
-AC_LANG_POP([C++])
 KPSE_RESTORE_FLAGS
 
 dnl Write output here, instead of putting a zillion -D's on the command line.
@@ -382,7 +368,6 @@ fi
 AC_CONFIG_SUBDIRS([web2c])
 
 AC_CONFIG_FILES([Makefile doc/Makefile lib/Makefile man/Makefile
-                 omegafonts/Makefile otps/Makefile otps/win32/Makefile
                  window/Makefile])
 AC_CONFIG_FILES([web2c-sh], [chmod +x web2c-sh])
 AC_CONFIG_FILES([tangle-sh], [chmod +x tangle-sh])

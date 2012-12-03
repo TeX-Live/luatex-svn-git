@@ -40,7 +40,7 @@
 #include "mplibsvg.h"
 
    /*@unused@*/ static const char _svn_version[] =
-    "$Id: lmplib.c 1364 2008-07-04 16:09:46Z taco $ $URL: http://scm.foundry.supelec.fr/svn/luatex/trunk/src/texk/web2c/luatexdir/lua/lmplib.c $";
+    "$Id: lmplib.c 1703 2012-09-27 10:45:15Z taco $";
 
 int luaopen_mplib(lua_State * L); /* forward */
 
@@ -577,8 +577,8 @@ static int mplib_fig_postscript(lua_State * L)
     int procset = (int)luaL_optnumber(L, 3, (lua_Number)-1);
     if (mp_ps_ship_out(*hh, prologues, procset) 
         && (res = mp_rundata((*hh)->parent))
-        && (res->ps_out.size != 0)) {
-        lua_pushstring(L, res->ps_out.data);
+        && (res->ship_out.size != 0)) {
+        lua_pushstring(L, res->ship_out.data);
     } else {
         lua_pushnil(L);
     }
@@ -592,8 +592,8 @@ static int mplib_fig_svg(lua_State * L)
     int prologues = (int)luaL_optnumber(L, 2, (lua_Number)-1);
     if (mp_svg_ship_out(*hh, prologues) 
         && (res = mp_rundata((*hh)->parent))
-        && (res->ps_out.size != 0)) {
-        lua_pushstring(L, res->ps_out.data);
+        && (res->ship_out.size != 0)) {
+        lua_pushstring(L, res->ship_out.data);
     } else {
         lua_pushnil(L);
     }
@@ -710,16 +710,16 @@ static int mplib_gr_tostring(lua_State * L)
 
 static double eps  = 0.0001;
 
-static double coord_range_x (mp_knot h, double dz) {
+static double coord_range_x (mp_gr_knot h, double dz) {
   double z;
   double zlo = 0.0, zhi = 0.0;
-  mp_knot f = h; 
+  mp_gr_knot f = h; 
   while (h != NULL) {
-    z = (double)h->x_coord;
+    z = mp_number_to_double(h->x_coord);
     if (z < zlo) zlo = z; else if (z > zhi) zhi = z;
-    z = (double)h->right_x;
+    z = mp_number_to_double(h->right_x);
     if (z < zlo) zlo = z; else if (z > zhi) zhi = z;
-    z = (double)h->left_x;
+    z = mp_number_to_double(h->left_x);
     if (z < zlo) zlo = z; else if (z > zhi) zhi = z;
     h = h->next;
     if (h==f)
@@ -728,16 +728,16 @@ static double coord_range_x (mp_knot h, double dz) {
   return (zhi - zlo <= dz ? aspect_bound : aspect_default);
 }
 
-static double coord_range_y (mp_knot h, double dz) {
+static double coord_range_y (mp_gr_knot h, double dz) {
   double z;
   double zlo = 0.0, zhi = 0.0;
-  mp_knot f = h; 
+  mp_gr_knot f = h; 
   while (h != NULL) {
-    z = (double)h->y_coord;
+    z = mp_number_to_double(h->y_coord);
     if (z < zlo) zlo = z; else if (z > zhi) zhi = z;
-    z = (double)h->right_y;
+    z = mp_number_to_double(h->right_y);
     if (z < zlo) zlo = z; else if (z > zhi) zhi = z;
-    z = (double)h->left_y;
+    z = mp_number_to_double(h->left_y);
     if (z < zlo) zlo = z; else if (z > zhi) zhi = z;
     h = h->next;
     if (h==f)
@@ -753,7 +753,7 @@ static int mplib_gr_peninfo(lua_State * L) {
     double rx = 1.0, sx = 0.0, sy = 0.0, ry = 1.0, tx = 0.0, ty = 0.0;
     double divider = 1.0;
     double width = 1.0;
-    mp_knot p = NULL, path = NULL;
+    mp_gr_knot p = NULL, path = NULL;
     struct mp_graphic_object **hh = is_gr_object(L, -1);
     if (!*hh) {
       lua_pushnil(L);
@@ -770,12 +770,12 @@ static int mplib_gr_peninfo(lua_State * L) {
       lua_pushnil(L);
       return 1;
     }
-    x_coord = p->x_coord/65536.0;
-    y_coord = p->y_coord/65536.0;
-    left_x = p->left_x/65536.0;
-    left_y = p->left_y/65536.0;
-    right_x = p->right_x/65536.0;
-    right_y = p->right_y/65536.0;
+    x_coord = mp_number_to_double(p->x_coord);
+    y_coord = mp_number_to_double(p->y_coord);
+    left_x = mp_number_to_double(p->left_x);
+    left_y = mp_number_to_double(p->left_y);
+    right_x = mp_number_to_double(p->right_x);
+    right_y = mp_number_to_double(p->right_y);
     if ((right_x == x_coord) && (left_y == y_coord)) {
       wx = fabs(left_x  - x_coord);
       wy = fabs(right_y - y_coord);
@@ -866,9 +866,9 @@ static int mplib_gr_fields(lua_State * L)
 #define MPLIB_PATH 0
 #define MPLIB_PEN 1
 
-static void mplib_push_path(lua_State * L, struct mp_knot_data *h, int is_pen)
+static void mplib_push_path(lua_State * L, mp_gr_knot h, int is_pen)
 {
-    struct mp_knot_data *p;          /* for scanning the path */
+    mp_gr_knot p;          /* for scanning the path */
     int i = 1;
     p = h;
     if (p != NULL) {
@@ -888,22 +888,22 @@ static void mplib_push_path(lua_State * L, struct mp_knot_data *h, int is_pen)
                 }
             }
             mplib_push_S(x_coord);
-            mplib_push_number(L, p->x_coord);
+            mplib_push_number(L, mp_number_to_double(p->x_coord));
             lua_rawset(L, -3);
             mplib_push_S(y_coord);
-            mplib_push_number(L, p->y_coord);
+            mplib_push_number(L, mp_number_to_double(p->y_coord));
             lua_rawset(L, -3);
             mplib_push_S(left_x);
-            mplib_push_number(L, p->left_x);
+            mplib_push_number(L, mp_number_to_double(p->left_x));
             lua_rawset(L, -3);
             mplib_push_S(left_y);
-            mplib_push_number(L, p->left_y);
+            mplib_push_number(L, mp_number_to_double(p->left_y));
             lua_rawset(L, -3);
             mplib_push_S(right_x);
-            mplib_push_number(L, p->right_x);
+            mplib_push_number(L, mp_number_to_double(p->right_x));
             lua_rawset(L, -3);
             mplib_push_S(right_y);
-            mplib_push_number(L, p->right_y);
+            mplib_push_number(L, mp_number_to_double(p->right_y));
             lua_rawset(L, -3);
             lua_rawseti(L, -2, i);
             i++;
@@ -920,9 +920,9 @@ static void mplib_push_path(lua_State * L, struct mp_knot_data *h, int is_pen)
 /* this assumes that the top of the stack is a table 
    or nil already in the case
  */
-static void mplib_push_pentype(lua_State * L, mp_knot h)
+static void mplib_push_pentype(lua_State * L, mp_gr_knot h)
 {
-    mp_knot p;          /* for scanning the path */
+    mp_gr_knot p;          /* for scanning the path */
     p = h;
     if (p == NULL) {
         /* do nothing */

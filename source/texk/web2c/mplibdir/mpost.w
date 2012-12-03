@@ -1,19 +1,8 @@
-% $Id: mpost.w 1598 2011-04-05 14:14:16Z taco $
+% $Id: mpost.w 1767 2012-11-22 09:05:54Z taco $
 %
-% Copyright 2008-2009 Taco Hoekwater.
-%
-% This program is free software: you can redistribute it and/or modify
-% it under the terms of the GNU Lesser General Public License as published by
-% the Free Software Foundation, either version 3 of the License, or
-% (at your option) any later version.
-%
-% This program is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% GNU Lesser General Public License for more details.
-%
-% You should have received a copy of the GNU Lesser General Public License
-% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+% This file is part of MetaPost;
+% the MetaPost program is in the public domain.
+% See the <Show version...> code below for more info.
 
 \font\tenlogo=logo10 % font used for the METAFONT logo
 \def\MP{{\tenlogo META}\-{\tenlogo POST}}
@@ -49,18 +38,10 @@ have our customary command-line interface.
 #endif
 #include <mplib.h>
 #include <mpxout.h>
-#ifdef WIN32
-#include <process.h>
-#endif
 #include <kpathsea/kpathsea.h>
 @= /*@@null@@*/ @> static char *mpost_tex_program = NULL;
 static int debug = 0; /* debugging for makempx */
 static int nokpse = 0;
-#ifdef WIN32
-#define GETCWD _getcwd
-#else
-#define GETCWD getcwd
-#endif
 static boolean recorder_enabled = false;
 static string recorder_name = NULL;
 static FILE *recorder_file = NULL;
@@ -101,13 +82,13 @@ static char *mpost_itoa (int i) {
   while (v>=10) {
     char d = (char)(v % 10);
     v = v / 10;
-    res[idx--] = d;
+    res[idx--] = d  + '0';
   }
-  res[idx--] = (char)v;
+  res[idx--] = (char)v + '0';
   if (i<0) {
       res[idx--] = '-';
   }
-  return mpost_xstrdup(res+idx);
+  return mpost_xstrdup(res+idx+1);
 }
 
 
@@ -118,7 +99,7 @@ Isspace (char c)
 {
   return (c == ' ' || c == '\t');
 }
-#endif
+#endif 
 static void mpost_run_editor (MP mp, char *fname, int fline) {
   char *temp, *command, *fullcmd, *edit_value;
   char c;
@@ -161,10 +142,11 @@ static void mpost_run_editor (MP mp, char *fname, int fline) {
               exit(EXIT_FAILURE);  
             } else {
               char *s = mpost_itoa(fline);
+              char *ss = s;
               if (s != NULL) {
                 while (*s != '\0')
 	          *temp++ = *s++;
-                free(s);
+                free(ss);
               }
               ddone = true;
             }
@@ -192,8 +174,7 @@ static void mpost_run_editor (MP mp, char *fname, int fline) {
 	    *temp++ = c;
 	    break;
 	  }
-     }
-   else {
+     } else {
 #ifdef WIN32
         if (dontchange)
           *temp++ = c;
@@ -211,7 +192,7 @@ static void mpost_run_editor (MP mp, char *fname, int fline) {
 #else
      	*temp++ = c;
 #endif
-     }
+      }
    }
   *temp = '\0';
 
@@ -293,7 +274,7 @@ void recorder_start(char *jobname) {
     }
     recorder_file = xfopen(recorder_name, FOPEN_W_MODE);
 
--    if(getcwd(cwd,1020) != NULL) {
+    if(getcwd(cwd,1020) != NULL) {
 #ifdef WIN32
       char *p;
       for (p = cwd; *p; p++) {
@@ -542,7 +523,7 @@ static int get_random_seed (void) {
 #if defined (HAVE_GETTIMEOFDAY)
   struct timeval tv;
   gettimeofday(&tv, NULL);
-  ret = (tv.tv_usec + 1000000 * tv.tv_usec);
+  ret = (int)(tv.tv_usec + 1000000 * tv.tv_usec);
 #elif defined (HAVE_FTIME)
   struct timeb tb;
   ftime(&tb);
@@ -784,6 +765,8 @@ static struct option mpost_options[]
       { "dvitomp",                   0, &dvitomp_only, 1 },
       { "ini",                       0, &ini_version_test, 1 },
       { "interaction",               1, 0, 0 },
+      { "math",                      1, 0, 0 },
+      { "numbersystem",              1, 0, 0 },
       { "halt-on-error",             0, 0, 0 },
       { "kpathsea-debug",            1, 0, 0 },
       { "progname",                  1, 0, 0 },
@@ -853,7 +836,23 @@ static struct option mpost_options[]
       } else if (STREQ (optarg, "errorstopmode")) {
         options->interaction = mp_error_stop_mode;
       } else {
-        fprintf(stdout,"Ignoring unknown argument `%s' to --interaction", optarg);
+        fprintf(stdout,"Ignoring unknown argument `%s' to --interaction\n", optarg);
+      }
+    } else if (ARGUMENT_IS ("math") || ARGUMENT_IS ("numbersystem")) {
+      if (STREQ (optarg, "scaled")) {
+        options->math_mode = mp_math_scaled_mode;
+        internal_set_option("numbersystem=\"scaled\"");
+      } else if (STREQ (optarg, "double")) {
+        options->math_mode = mp_math_double_mode;
+        internal_set_option("numbersystem=\"double\"");
+      } else if (STREQ (optarg, "decimal")) {
+        options->math_mode = mp_math_decimal_mode;
+        internal_set_option("numbersystem=\"decimal\"");
+      } else if (STREQ (optarg, "binary")) {
+        options->math_mode = mp_math_binary_mode;
+        internal_set_option("numbersystem=\"binary\"");
+      } else {
+        fprintf(stdout,"Ignoring unknown argument `%s' to --numbersystem\n", optarg);
       }
     } else if (ARGUMENT_IS("troff") || 
                ARGUMENT_IS("T")) {
@@ -962,6 +961,7 @@ fprintf(stdout,
 "  -ini                      be inimpost, for dumping mem files\n"
 "  -interaction=STRING       set interaction mode (STRING=batchmode/nonstopmode/\n"
 "                            scrollmode/errorstopmode)\n"
+"  -numbersystem=STRING      set number system mode (STRING=scaled/double/binary/decimal)\n"
 "  -jobname=STRING           set the job name to STRING\n"
 "  -progname=STRING          set program (and mem) name to STRING\n"
 "  -tex=TEXPROGRAM           use TEXPROGRAM for text labels\n"
@@ -1287,7 +1287,6 @@ as DLL.
 extern __declspec(dllexport) int DLLPROC (int argc, char **argv);
 #endif
 
-
 @ Now this is really it: \MP\ starts and ends here.
 
 @c 
@@ -1329,10 +1328,8 @@ main (int argc, char **argv)
     if (dvi == NULL) {
       @<Show short help and exit@>;
     } else {
-      if (!nokpse) {
-        kpse_set_program_name(argv[0],
-                          user_progname ? user_progname : "dvitomp"); 
-      }
+      if (!nokpse)
+        kpse_set_program_name("dvitomp", user_progname);  
       exit (mpost_run_dvitomp(dvi, mpx));
     }
   }

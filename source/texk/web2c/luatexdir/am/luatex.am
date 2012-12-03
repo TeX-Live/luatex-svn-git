@@ -28,8 +28,8 @@ luatex_CPPFLAGS += -I$(srcdir)/synctexdir -DSYNCTEX_ENGINE_H='<synctex-luatex.h>
 luatex_CXXFLAGS = $(WARNING_CXXFLAGS)
 
 luatex_ldadd = libluatex.a libff.a libluamisc.a libluasocket.a liblua51.a
+luatex_ldadd += libmd5.a libmplib.a $(CAIRO_LIBS) $(PIXMAN_LIBS)
 luatex_ldadd += $(ZZIPLIB_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) $(POPPLER_LIBS)
-luatex_ldadd += libmd5.a libmplib.a 
 
 luatex_LDFLAGS = -export-dynamic
 

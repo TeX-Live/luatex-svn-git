@@ -5,17 +5,15 @@
 ##
 ACLOCAL_AMFLAGS = -I ../../m4 -I m4
 
-INCLUDES =
 AM_CPPFLAGS = $(KPATHSEA_INCLUDES)
 ## Not yet for C, C++, and ObjC++ (too many warnings or not yet implemented)
 AM_CFLAGS = $(WARNING_CFLAGS)
 AM_CXXFLAGS = ## $(WARNING_CXXFLAGS)
-## Not yet for ObjC++ (not yet implemented)
 AM_OBJCXXFLAGS = ## $(WARNING_OBJCXXFLAGS)
 
 version = $(WEB2CVERSION)
 
-SUBDIRS = doc lib man web2c . window omegafonts otps
+SUBDIRS = doc lib man web2c . window # omegafonts otps
 
 proglib = lib/lib.a
 
@@ -91,6 +89,10 @@ $(proglib): ${srcdir}/lib/*.c
 @XPDF_RULE@
 ## Rebuild poppler
 @POPPLER_RULE@
+## Rebuild pixman
+@PIXMAN_RULE@
+## Rebuild cairo
+@CAIRO_RULE@
 ## Rebuild libzzip
 @ZZIPLIB_RULE@
 ## Rebuild libgraphite
@@ -108,13 +110,11 @@ buildenv = TEXMFCNF=$(srcdir)/../kpathsea
 # Calling tangle & Co.
 tangle = WEBINPUTS=.:$(srcdir) $(buildenv) $(TANGLE)
 tangleboot = WEBINPUTS=.:$(srcdir) $(buildenv) $(TANGLEBOOT)
-otangle = WEBINPUTS=.:$(srcdir) $(buildenv) $(OTANGLE)
 ctangle = $(buildenv) $(CTANGLE)
 tie = WEBINPUTS=.:$(srcdir) $(buildenv) $(TIE)
 
 # Calling tangle & Co. via tangle-sh (several output files)
 texmf_tangle = WEBINPUTS=.:$(srcdir) $(SHELL) ./tangle-sh $@ $(TANGLE)
-o_tangle = WEBINPUTS=.:$(srcdir) $(SHELL) ./tangle-sh $@ $(OTANGLE)
 
 # For trip, trap, and other tests
 DIFF = diff

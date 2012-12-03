@@ -24,22 +24,15 @@
 AC_DEFUN([KPSE_LIBS_PKGS],
 [dnl generic libraries 'libs/*'
 m4_define([kpse_libs_pkgs], [
-icu
-teckit
-graphite
 zziplib
-xpdf
 poppler
-gd
-freetype2
-freetype
-t1lib
+cairo
+pixman
 libpng
 zlib
 ])[]dnl
 dnl TeX specific libraries
 m4_define([kpse_texlibs_pkgs], [
-ptexenc
 kpathsea
 ])]) # KPSE_LIBS_PKGS
 
@@ -53,6 +46,8 @@ AC_REQUIRE([KPSE_KPATHSEA_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_PTEXENC_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_ZLIB_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_LIBPNG_SYSTEM_FLAGS])[]dnl
+AC_REQUIRE([KPSE_PIXMAN_SYSTEM_FLAGS])[]dnl
+AC_REQUIRE([KPSE_CAIRO_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_T1LIB_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_FREETYPE_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_FREETYPE2_SYSTEM_FLAGS])[]dnl
@@ -60,9 +55,6 @@ AC_REQUIRE([KPSE_GD_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_XPDF_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_POPPLER_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_ZZIPLIB_SYSTEM_FLAGS])[]dnl
-AC_REQUIRE([KPSE_GRAPHITE_SYSTEM_FLAGS])[]dnl
-AC_REQUIRE([KPSE_TECKIT_SYSTEM_FLAGS])[]dnl
-AC_REQUIRE([KPSE_ICU_SYSTEM_FLAGS])[]dnl
 ]) # KPSE_ALL_SYSTEM_FLAGS
 
 # KPSE_UTILS_PKGS()
@@ -70,16 +62,6 @@ AC_REQUIRE([KPSE_ICU_SYSTEM_FLAGS])[]dnl
 # Define the list of utility sub-packages, i.e., subdirs 'utils/*'.
 AC_DEFUN([KPSE_UTILS_PKGS],
 [m4_define([kpse_utils_pkgs], [
-biber
-m-tx
-pmx
-ps2eps
-psutils
-t1utils
-tpic2pdftex
-vlna
-xindy
-xpdfopen
 ])]) # KPSE_UTILS_PKGS
 
 # KPSE_TEXK_PKGS()
@@ -89,38 +71,6 @@ xpdfopen
 AC_DEFUN([KPSE_TEXK_PKGS],
 [m4_define([kpse_texk_pkgs], [
 web2c
-afm2pl
-bibtex8
-bibtexu
-chktex
-cjkutils
-detex
-devnag
-dtl
-dvi2tty
-dvidvi
-dviljk
-dvipdfmx
-dvipng
-dvipos
-dvipsk
-dvisvgm
-gsftopk
-lacheck
-lcdf-typetools
-makeindexk
-makejvf
-mendexk
-ps2pkm
-seetexk
-tex4htk
-ttf2pk
-ttf2pk2
-ttfdump
-xdv2pdf
-xdvik
-xdvipdfmx
-tetex
 texlive
 ])]) # KPSE_TEXK_PKGS
 

@@ -1,3 +1,34 @@
+2012-11-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: No need to check for Annot::decRefCnt with
+	poppler 0.18 or better.
+	* Makefile.am: Avoid use of deprecated INCLUDES.
+
+2012-11-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/bootstrap.am: Add dependency of (c)tangleboot_OBJECTS on
+	(c)tangleboot_DEPENDENCIES.
+
+2012-11-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Also drop the unused otangle.
+
+2012-11-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Drop o_tangle, no longer used.
+
+2012-11-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tex.ch: Move native buffer printing code from here ...
+	* enctex.ch: ... to here.
+
+2012-11-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tex.ch: Avoid conflict with xetexdir/xetex.web.
+	Introduce Web macros check_quoted and print_quoted.
+	(cs_error): Move "endmubyte" code from here ...
+	* enctex.ch (cs_error): ... to here.
+
 2012-10-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* configure.ac (POPPLER): Adding '-lgdi32' for WIN32 now done

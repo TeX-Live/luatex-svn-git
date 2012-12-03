@@ -45,13 +45,15 @@ DIST_COMMON = README $(am__configure_deps) \
 	../build-aux/ltmain.sh ../build-aux/missing \
 	../build-aux/texinfo.tex ../build-aux/ylwrap
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/../m4/kpse-common.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/../m4/kpse-cairo-flags.m4 \
+	$(top_srcdir)/../m4/kpse-common.m4 \
 	$(top_srcdir)/../m4/kpse-cxx-hack.m4 \
 	$(top_srcdir)/../m4/kpse-kpathsea-flags.m4 \
 	$(top_srcdir)/../m4/kpse-libpng-flags.m4 \
 	$(top_srcdir)/../m4/kpse-lt-hack.m4 \
 	$(top_srcdir)/../m4/kpse-mktex.m4 \
 	$(top_srcdir)/../m4/kpse-options.m4 \
+	$(top_srcdir)/../m4/kpse-pixman-flags.m4 \
 	$(top_srcdir)/../m4/kpse-pkgs.m4 \
 	$(top_srcdir)/../m4/kpse-poppler-flags.m4 \
 	$(top_srcdir)/../m4/kpse-setup.m4 \
@@ -63,6 +65,8 @@ am__aclocal_m4_deps = $(top_srcdir)/../m4/kpse-common.m4 \
 	$(top_srcdir)/../texk/web2c/ac/web2c.ac \
 	$(top_srcdir)/../libs/zziplib/ac/withenable.ac \
 	$(top_srcdir)/../libs/poppler/ac/withenable.ac \
+	$(top_srcdir)/../libs/cairo/ac/withenable.ac \
+	$(top_srcdir)/../libs/pixman/ac/withenable.ac \
 	$(top_srcdir)/../libs/libpng/ac/withenable.ac \
 	$(top_srcdir)/../libs/zlib/ac/withenable.ac \
 	$(top_srcdir)/../texk/kpathsea/ac/withenable.ac \
@@ -220,7 +224,6 @@ psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
-subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
