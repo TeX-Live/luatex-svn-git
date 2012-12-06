@@ -551,7 +551,7 @@ return( NULL );
     nl = chunkalloc(sizeof(NameList));
     pt = strrchr(filename,'/');
     if ( pt==NULL ) pt = filename; else ++pt;
-    nl->title = def2utf8_copy(pt);
+    nl->title = copy(pt);
     pt = strrchr(nl->title,'.');
     if ( pt!=NULL ) *pt = '\0';
 

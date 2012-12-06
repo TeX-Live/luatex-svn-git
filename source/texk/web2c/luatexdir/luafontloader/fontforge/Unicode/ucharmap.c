@@ -38,7 +38,6 @@
 #include <charset.h>
 #include <chardata.h>
 
-int local_encoding = e_iso8859_1;
 #if HAVE_ICONV_H
 char *iconv_local_encoding_name = NULL;
 #endif
@@ -317,87 +316,3 @@ return( false );
 return( true );
 }
 #endif
-
-unichar_t *def2u_strncpy(unichar_t *uto, const char *from, int n) {
-#if HAVE_ICONV_H
-    if ( my_iconv_setup() ) {
-	size_t in_left = n, out_left = sizeof(unichar_t)*n;
-	char *cto = (char *) uto;
-	iconv(to_unicode, (iconv_arg2_t) &from, &in_left, &cto, &out_left);
-	if ( cto<((char *) uto)+2*n) *cto++ = '\0';
-	if ( cto<((char *) uto)+2*n) *cto++ = '\0';
-#ifndef UNICHAR_16
-	if ( cto<((char *) uto)+4*n) *cto++ = '\0';
-	if ( cto<((char *) uto)+4*n) *cto++ = '\0';
-#endif
-return( uto );
-    }
-#endif
-return( encoding2u_strncpy(uto,from,n,local_encoding));
-}
-
-
-unichar_t *def2u_copy(const char *from) {
-    int len;
-    unichar_t *uto, *ret;
-
-    if ( from==NULL )
-return( NULL );
-    len = strlen(from);
-    uto = galloc((len+1)*sizeof(unichar_t));
-#if HAVE_ICONV_H
-    if ( my_iconv_setup() ) {
-	size_t in_left = len, out_left = sizeof(unichar_t)*len;
-	char *cto = (char *) uto;
-	iconv(to_unicode, (iconv_arg2_t) &from, &in_left, &cto, &out_left);
-	*cto++ = '\0';
-	*cto++ = '\0';
-#ifndef UNICHAR_16
-	*cto++ = '\0';
-	*cto++ = '\0';
-#endif
-return( uto );
-    }
-#endif
-    ret = encoding2u_strncpy(uto,from,len,local_encoding);
-    if ( ret==NULL )
-	free( uto );
-    else
-	uto[len] = '\0';
-return( ret );
-}
-
-char *def2utf8_copy(const char *from) {
-    int len;
-    char *ret;
-    unichar_t *temp, *uto;
-
-    if ( from==NULL )
-return( NULL );
-    len = strlen(from);
-#if HAVE_ICONV_H
-    if ( my_iconv_setup() ) {
-	size_t in_left = len, out_left = 3*(len+1);
-	char *cto = (char *) galloc(3*(len+1)), *cret = cto;
-	iconv(to_utf8, (iconv_arg2_t) &from, &in_left, &cto, &out_left);
-	*cto++ = '\0';
-	*cto++ = '\0';
-#ifndef UNICHAR_16
-	*cto++ = '\0';
-	*cto++ = '\0';
-#endif
-return( cret );
-    }
-#endif
-    uto = galloc(sizeof(unichar_t)*(len+1));
-    temp = encoding2u_strncpy(uto,from,len,local_encoding);
-    if ( temp==NULL ) {
-	free( uto );
-return( NULL );
-    }
-    uto[len] = '\0';
-    ret = u2utf8_copy(uto);
-    free(uto);
-return( ret );
-}
-
