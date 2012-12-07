@@ -43,11 +43,9 @@ CFLAGS = @CFLAGS@ @CPPFLAGS@ $(_CFLAGS)
 LDFLAGS = @LDFLAGS@
 LIBLIBS = -rpath $(libdir) ../libgutils.la ../libgunicode.la @LIBS@ $(STATIC_LIBS) -lm
 
-../libfontforge.la: $(fontforge_LIBOBJECTS) libstamp.pre
-	sed -e '1,$$ s/REPLACE_ME_WITH_MAJOR_VERSION/$(FF_VERSION)/' -e '1,$$ s/REPLACE_ME_WITH_MINOR_VERSION/$(FF_REVISION)/' < $(srcdir)/libstamp.pre > libstamp.c
-	$(LIBTOOL) --mode=compile $(CC) $(CFLAGS) -c libstamp.c
+../libfontforge.la: $(fontforge_LIBOBJECTS)
 	$(LIBTOOL) --mode=link $(CC) -no-undefined $(CFLAGS) @LDFLAGS@ \
-	    -o ../libfontforge.la $(fontforge_LIBOBJECTS) libstamp.lo \
+	    -o ../libfontforge.la $(fontforge_LIBOBJECTS) \
 	    -rpath $(libdir) -version-info $(FF_VERSION):$(FF_REVISION):$(FF_AGE)
 
 %.o: %.c
@@ -61,7 +59,6 @@ LIBLIBS = -rpath $(libdir) ../libgutils.la ../libgunicode.la @LIBS@ $(STATIC_LIB
 	$(LIBTOOL) --mode=compile $(CC) $(CFLAGS) -c $<
 
 clean:
-	-rm -f ../libfontforge.la libstamp.c
 	-rm -f *.o
 	-rm -f *.lo
 	-rm -rf .libs

@@ -2031,8 +2031,6 @@ libff_a_SOURCES = \
 	luatexdir/luafontloader/fontforge/fontforge/fontviewbase.c \
 	luatexdir/luafontloader/fontforge/fontforge/fvcomposit.c \
 	luatexdir/luafontloader/fontforge/fontforge/fvfonts.c \
-	luatexdir/luafontloader/fontforge/fontforge/libffstamp.h \
-	luatexdir/luafontloader/fontforge/fontforge/libstamp.pre \
 	luatexdir/luafontloader/fontforge/fontforge/lookups.c \
 	luatexdir/luafontloader/fontforge/fontforge/lookups.h \
 	luatexdir/luafontloader/fontforge/fontforge/macbinary.c \
