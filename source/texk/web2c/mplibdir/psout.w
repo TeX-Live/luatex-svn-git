@@ -1,4 +1,4 @@
-% $Id: psout.w 1776 2012-11-26 14:27:14Z taco $
+% $Id: psout.w 1803 2012-12-05 15:47:35Z taco $
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
 % See the <Show version...> code in mpost.w for more info.
@@ -5645,14 +5645,14 @@ $y$~coordinates is less than the $y$~range |wy| for the pen.  ``Essentially
 vertical'' paths are detected similarly.  This code ensures that no component
 of the pen transformation is more that |aspect_bound*(ww+1)|.
 
-@d aspect_bound 10.0 /* ``less important'' of |wx|, |wy| cannot exceed the other by
+@d aspect_bound 10.0/65536.0 /* ``less important'' of |wx|, |wy| cannot exceed the other by
     more than this factor */
 
 @d do_x_loc 1
 @d do_y_loc 2
 
 @<Use |pen_p(p)| and |path_p(p)| to decide whether |wx| or |wy| is more...@>=
-tx=1.0; ty=1.0;
+tx=1.0/65536.0; ty=1.0/65536.0;
 if ( mp_gr_coord_rangeOK(path_p, do_y_loc, wy) ) tx=aspect_bound;
 else if ( mp_gr_coord_rangeOK(path_p, do_x_loc, wx) ) ty=aspect_bound;
 if ( wy / ty>=wx / tx ) { ww=wy; adj_wx=0; }

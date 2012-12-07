@@ -132,7 +132,6 @@ void * mp_initialize_double_math (MP mp);
 @c
 void * mp_initialize_double_math (MP mp) {
   math_data *math = (math_data *)mp_xmalloc(mp,1,sizeof(math_data));
-  fprintf(stdout, "IEEE double math initialized\n");
   /* alloc */
   math->new = mp_new_number;
   math->free = mp_free_number;

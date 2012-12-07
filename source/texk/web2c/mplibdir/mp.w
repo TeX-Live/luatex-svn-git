@@ -2886,10 +2886,10 @@ void mp_free_node (MP mp, mp_node p, size_t siz) {  /* node liberation */
   case mp_transform_node_type:
   case mp_edge_header_node_type:
   case mp_undefined:
-     break;
   case mp_vacuous:
+     break;
   case mp_known:
-     free_number(((mp_value_node)p)->data.n); 
+     free_number(((mp_value_node)p)->data.n);
      break;
   default:
      /* there is at least one of these, |mp->cur_mod_| */
@@ -8489,8 +8489,21 @@ if ((number_nonnegative(mp->st) && number_nonnegative(mp->sf)) || (number_nonpos
 api for solving path choices
 
 @c
-#define TOO_LARGE(a) (fabs((a))>=4096.0)
+#define TOO_LARGE(a) (fabs((a))>4096.0)
 #define PI 3.1415926535897932384626433832795028841971 
+
+static int out_of_range(MP mp, double a) 
+{
+    mp_number t;
+    new_number (t);
+    set_number_from_double(t,fabs(a));
+    if (number_greaterequal(t,inf_t)) {
+       free_number (t);
+       return 1;
+    }
+    free_number (t);
+    return 0;
+}
 
 static int mp_link_knotpair (MP mp, mp_knot p, mp_knot q);
 static int mp_link_knotpair (MP mp, mp_knot p, mp_knot q)
@@ -8534,8 +8547,8 @@ mp_knot mp_create_knot (MP mp)
 
 int mp_set_knot (MP mp, mp_knot p, double x, double y)
 {
-    if (TOO_LARGE(x)) return 0;
-    if (TOO_LARGE(y)) return 0;
+    if (out_of_range(mp, x)) return 0;
+    if (out_of_range(mp, y)) return 0;
     if (p==NULL) return 0;
     set_number_from_double(p->x_coord, x);
     set_number_from_double(p->y_coord, y);
@@ -8570,6 +8583,30 @@ int mp_set_knot_curl (MP mp, mp_knot q, double value) {
     return 1;
 }
 
+int mp_set_knot_left_curl (MP mp, mp_knot q, double value) {
+    if (q==NULL) return 0;
+    if (TOO_LARGE(value)) return 0;
+    mp_left_type(q)=mp_curl; 
+    set_number_from_double(q->left_curl, value);
+    if (mp_right_type(q)==mp_open) {
+	mp_right_type(q)=mp_curl; 
+	set_number_from_double(q->right_curl, value);
+    }
+    return 1;
+}
+
+int mp_set_knot_right_curl (MP mp, mp_knot q, double value) {
+    if (q==NULL) return 0;
+    if (TOO_LARGE(value)) return 0;
+    mp_right_type(q)=mp_curl; 
+    set_number_from_double(q->right_curl, value);
+    if (mp_left_type(q)==mp_open) {
+	mp_left_type(q)=mp_curl; 
+	set_number_from_double(q->left_curl, value);
+    }
+    return 1;
+}
+
 int mp_set_knotpair_curls (MP mp, mp_knot p, mp_knot q, double t1, double t2) {
     if (p==NULL || q==NULL) return 0;
     if (mp_set_knot_curl(mp, p, t1))
@@ -8588,18 +8625,54 @@ int mp_set_knotpair_tensions (MP mp, mp_knot p, mp_knot q, double t1, double t2)
     return 1;
 }
 
+int mp_set_knot_left_tension (MP mp, mp_knot p, double t1) {
+    if (p==NULL) return 0;
+    if (TOO_LARGE(t1)) return 0;
+    if ((fabs(t1)<0.75)) return 0;
+    set_number_from_double(p->left_tension, t1);
+    return 1;
+}
+
+int mp_set_knot_right_tension (MP mp, mp_knot p, double t1) {
+    if (p==NULL) return 0;
+    if (TOO_LARGE(t1)) return 0;
+    if ((fabs(t1)<0.75)) return 0;
+    set_number_from_double(p->right_tension, t1);
+    return 1;
+}
+
 int mp_set_knotpair_controls (MP mp, mp_knot p, mp_knot q, double x1, double y1, double x2, double y2) {
     if (p==NULL || q==NULL) return 0;
-    if (TOO_LARGE(x1)) return 0;
-    if (TOO_LARGE(y1)) return 0;
-    if (TOO_LARGE(x2)) return 0;
-    if (TOO_LARGE(y2)) return 0;
+    if (out_of_range(mp, x1)) return 0;
+    if (out_of_range(mp, y1)) return 0;
+    if (out_of_range(mp, x2)) return 0;
+    if (out_of_range(mp, y2)) return 0;
     mp_right_type(p)=mp_explicit; 
     set_number_from_double(p->right_x, x1);
     set_number_from_double(p->right_y, y1);
     mp_left_type(q)=mp_explicit; 
     set_number_from_double(q->left_x, x2);
     set_number_from_double(q->left_y, y2);
+    return 1;
+}
+
+int mp_set_knot_left_control (MP mp, mp_knot p, double x1, double y1) {
+    if (p==NULL) return 0;
+    if (out_of_range(mp, x1)) return 0;
+    if (out_of_range(mp, y1)) return 0;
+    mp_left_type(p)=mp_explicit; 
+    set_number_from_double(p->left_x, x1);
+    set_number_from_double(p->left_y, y1);
+    return 1;
+}
+
+int mp_set_knot_right_control (MP mp, mp_knot p, double x1, double y1) {
+    if (p==NULL) return 0;
+    if (out_of_range(mp, x1)) return 0;
+    if (out_of_range(mp, y1)) return 0;
+    mp_right_type(p)=mp_explicit; 
+    set_number_from_double(p->right_x, x1);
+    set_number_from_double(p->right_y, y1);
     return 1;
 }
 
@@ -8672,8 +8745,14 @@ mp_knot mp_create_knot (MP mp);
 int mp_set_knot (MP mp, mp_knot p, double x, double y);
 mp_knot mp_append_knot (MP mp, mp_knot p, double x, double y);
 int mp_set_knot_curl (MP mp, mp_knot q, double value);
+int mp_set_knot_left_curl (MP mp, mp_knot q, double value);
+int mp_set_knot_right_curl (MP mp, mp_knot q, double value);
 int mp_set_knotpair_curls (MP mp, mp_knot p, mp_knot q, double t1, double t2) ;
 int mp_set_knotpair_tensions (MP mp, mp_knot p, mp_knot q, double t1, double t2) ;
+int mp_set_knot_left_tension (MP mp, mp_knot p, double t1);
+int mp_set_knot_right_tension (MP mp, mp_knot p, double t1);
+int mp_set_knot_left_control (MP mp, mp_knot p, double t1, double t2);
+int mp_set_knot_right_control (MP mp, mp_knot p, double t1, double t2);
 int mp_set_knotpair_controls (MP mp, mp_knot p, mp_knot q, double x1, double y1, double x2, double y2) ;
 int mp_set_knot_direction (MP mp, mp_knot q, double x, double y) ;
 int mp_set_knotpair_directions (MP mp, mp_knot p, mp_knot q, double x1, double y1, double x2, double y2) ;
@@ -29360,6 +29439,10 @@ static void *mplib_open_file (MP mp, const char *fname, const char *fmode,
     mp_free_stream (&(run->ship_out));
     ff->f = xmalloc (1, 1);
     run->ship_out.fptr = ff->f;
+  } else if (ftype == mp_filetype_bitmap) {
+    mp_free_stream (&(run->ship_out));
+    ff->f = xmalloc (1, 1);
+    run->ship_out.fptr = ff->f;
   } else {
     char realmode[3];
     char *f = (mp->find_file) (mp, fname, fmode, ftype);
@@ -29449,6 +29532,14 @@ static void mp_append_string (MP mp, mp_stream * a, const char *b) {
   memcpy (a->data + a->used, b, l);
   a->used += l;
 }
+static void mp_append_data (MP mp, mp_stream * a, void *b, size_t l) {
+  if ((a->used + l) >= a->size) {
+    a->size += 256 + (a->size) / 5 + l;
+    a->data = xrealloc (a->data, a->size, 1);
+  }
+  memcpy (a->data + a->used, b, l);
+  a->used += l;
+}
 static void mplib_write_ascii_file (MP mp, void *ff, const char *s) {
   if (ff != NULL) {
     void *f = ((File *) ff)->f;
@@ -29481,9 +29572,15 @@ static void mplib_read_binary_file (MP mp, void *ff, void **data, size_t * size)
 static void mplib_write_binary_file (MP mp, void *ff, void *s, size_t size) {
   (void) mp;
   if (ff != NULL) {
-    FILE *f = ((File *) ff)->f;
-    if (f != NULL)
-      (void) fwrite (s, size, 1, f);
+    void *f = ((File *) ff)->f;
+    mp_run_data *run = mp_rundata (mp);
+    if (f != NULL) {
+      if (f == run->ship_out.fptr) {
+        mp_append_data (mp, &(run->ship_out), s, size);
+      } else {
+        (void) fwrite (s, size, 1, f);
+      }
+    }
   }
 }
 static void mplib_close_file (MP mp, void *ff) {
@@ -33790,10 +33887,10 @@ struct mp_edge_object *mp_gr_export (MP mp, mp_edge_header_node h) {
   hh->filename = mp_xstrdup (mp, mp_get_output_file_name (mp));
   c = round_unscaled (internal_value (mp_char_code));
   hh->charcode = c;
-  hh->width = number_to_scaled (internal_value (mp_char_wd));
-  hh->height = number_to_scaled (internal_value (mp_char_ht));
-  hh->depth = number_to_scaled (internal_value (mp_char_dp));
-  hh->ital_corr = number_to_scaled (internal_value (mp_char_ic));
+  hh->width = number_to_double (internal_value (mp_char_wd));
+  hh->height = number_to_double (internal_value (mp_char_ht));
+  hh->depth = number_to_double (internal_value (mp_char_dp));
+  hh->ital_corr = number_to_double (internal_value (mp_char_ic));
   @<Export pending specials@>;
   p = mp_link (edge_list (h));
   while (p != NULL) {
