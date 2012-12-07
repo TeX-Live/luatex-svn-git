@@ -124,16 +124,3 @@ EXTRA_DIST += \
 	luatexdir/luafontloader/fontforge/LICENSE \
 	luatexdir/luafontloader/fontforge/VERSION
 
-## Not used
-##
-EXTRA_DIST += \
-	luatexdir/luafontloader/fontforge/Makefile.in \
-	luatexdir/luafontloader/fontforge/Unicode/Makefile.in \
-	luatexdir/luafontloader/fontforge/configure-options \
-	luatexdir/luafontloader/fontforge/configure.in \
-	luatexdir/luafontloader/fontforge/fontforge/Makefile.in \
-	luatexdir/luafontloader/fontforge/gdraw/Makefile.in \
-	luatexdir/luafontloader/fontforge/gutils/Makefile.in \
-	luatexdir/luafontloader/fontforge/inc/config.h.in \
-	luatexdir/luafontloader/fontforge/plugins/Makefile.in
-
