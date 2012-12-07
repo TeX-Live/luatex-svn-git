@@ -10925,7 +10925,7 @@ static const char **tex_p0[] = {
 
 static NameList tex = {
 	&agl,
-	NU_("ΤεΧ Names"),
+	N_("ΤεΧ Names"),
 	{ tex_p0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	NULL, 0, 0, NULL
 };

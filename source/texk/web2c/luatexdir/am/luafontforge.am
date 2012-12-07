@@ -95,7 +95,6 @@ libff_a_SOURCES = \
 	luatexdir/luafontloader/fontforge/fontforge/unicoderange.h \
 	luatexdir/luafontloader/fontforge/fontforge/views.h \
 	luatexdir/luafontloader/fontforge/gutils/fsys.c \
-	luatexdir/luafontloader/fontforge/gutils/gwwintl.c \
 	luatexdir/luafontloader/fontforge/inc/basics.h \
 	luatexdir/luafontloader/fontforge/inc/chardata.h \
 	luatexdir/luafontloader/fontforge/inc/charset.h \
