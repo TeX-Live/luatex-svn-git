@@ -29730,6 +29730,7 @@ int mp_execute (MP mp, char *s, size_t l) {
     return mp->history;
   }
   if (mp->history < mp_fatal_error_stop) {
+    int i;
     xfree (mp->jump_buf);
     mp->jump_buf = malloc (sizeof (jmp_buf));
     if (mp->jump_buf == NULL || setjmp (*(mp->jump_buf)) != 0) {
@@ -29749,6 +29750,10 @@ int mp_execute (MP mp, char *s, size_t l) {
     if (mp->run_data.term_in.data)
       xfree (mp->run_data.term_in.data);
     mp->run_data.term_in.data = xstrdup (s);
+    for (i=0;i<strlen(s);i++) {
+      if (mp->run_data.term_in.data[i] == '\n')
+        mp->run_data.term_in.data[i] = ' ';
+    }
     mp->run_data.term_in.cur = mp->run_data.term_in.data;
     mp->run_data.term_in.size = l;
     if (mp->run_state == 0) {
