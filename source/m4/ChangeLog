@@ -1,6 +1,17 @@
+2012-11-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Add libs/pixman and libs/cairo for future MetaPost.
+	* kpse-cairo-flags.m4, kpse-pixman-flags.m4: New files.
+	* kpse-pkgs.m4: Add the new libraries.
+
+2012-11-26  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-poppler-flags.m4: Restore -DPOPPLER_VERSION for 0.18.
+
 2012-11-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* kpse-poppler-flags.m4: Require poppler-0.18 or better.
+	* kpse-freetype2-flags.m4: Simplify flags for lib from TL tree.
 
 2012-10-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
 

@@ -32,7 +32,7 @@ KPSE_RESTORE_FLAGS
 
 echo timestamp >config.force
 fi
- 
+
 if test "x$host" = x; then
   config_args=
 else
