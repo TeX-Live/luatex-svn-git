@@ -44,6 +44,9 @@ LUALIB_API int (luaopen_package) (lua_State *L);
 LUALIB_API void (luaL_openlibs) (lua_State *L); 
 
 
+#define LUA_BIT32LIBNAME  "bit32"
+LUALIB_API int luaopen_bit32(lua_State *L);
+
 
 #ifndef lua_assert
 #define lua_assert(x)	((void)0)

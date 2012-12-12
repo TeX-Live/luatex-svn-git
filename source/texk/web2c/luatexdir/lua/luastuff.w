@@ -107,6 +107,7 @@ static const luaL_Reg lualibs[] = {
     {"md5", luaopen_md5},
     {"lfs", luaopen_lfs},
     {"profiler", luaopen_profiler},
+    {"bit32", luaopen_bit32},
     {NULL, NULL}
 };
 static const luaL_Reg lualibs_nofenv[] = {
