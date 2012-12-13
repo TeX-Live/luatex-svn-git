@@ -207,7 +207,7 @@ static int streamLookChar (scannerdata *self) {
   return i;
 }
 
-static Token * _parseSpace (scannerdata *self, int c)
+static Token * _parseSpace (scannerdata *self)
 {
   return _parseToken (self,streamGetChar(self));
 }
@@ -490,18 +490,18 @@ static Token * _parseGt (scannerdata *self, int c)
 }
 
 
-static Token *_parseError (scannerdata *self, int c) 
+static Token *_parseError (int c) 
 {
   fprintf(stderr, "stray %c [%d] in stream", c, c);
   return NULL;
 }
 
-static Token *_parseStartarray (scannerdata *self, int c) 
+static Token *_parseStartarray () 
 {
   return new_operand (pdf_startarray);
 }
 
-static Token *_parseStoparray (scannerdata *self, int c) 
+static Token *_parseStoparray () 
 {
   return new_operand (pdf_stoparray);
 }
@@ -521,9 +521,9 @@ static Token *_parseToken (scannerdata *self, int c)
    if (c<0)  return NULL ;
    switch (c) {
    case '(': return _parseString(self,c); break;
-   case ')': return _parseError(self,c); break;
-   case '[': return _parseStartarray(self,c); break;
-   case ']': return _parseStoparray(self,c); break;
+   case ')': return _parseError(c); break;
+   case '[': return _parseStartarray(); break;
+   case ']': return _parseStoparray(); break;
    case '/': return _parseName(self,c); break;
    case '<': return _parseLt(self,c); break;
    case '>': return _parseGt(self,c); break;
@@ -532,7 +532,7 @@ static Token *_parseToken (scannerdata *self, int c)
    case '\r': 
    case '\n': 
    case '\t': 
-     return _parseSpace(self,c); break;
+     return _parseSpace(self); break;
    case '0': 
    case '1': 
    case '2': 
@@ -550,7 +550,7 @@ static Token *_parseToken (scannerdata *self, int c)
      if (c<=127) {
        return _parseOperator(self,c);
      } else {
-	 return _parseError(self,c);
+	 return _parseError(c);
      }
    }
 }
