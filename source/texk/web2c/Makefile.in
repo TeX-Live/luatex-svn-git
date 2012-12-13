@@ -321,21 +321,22 @@ am_libkanji_a_OBJECTS = libkanji_a-kanji.$(OBJEXT)
 libkanji_a_OBJECTS = $(am_libkanji_a_OBJECTS)
 liblua51_a_AR = $(AR) $(ARFLAGS)
 liblua51_a_LIBADD =
-am_liblua51_a_OBJECTS = liblua51_a-lapi.$(OBJEXT) liblua51_a-lauxlib.$(OBJEXT) \
-	liblua51_a-lbitlib.$(OBJEXT) liblua51_a-lbaselib.$(OBJEXT) \
-	liblua51_a-lcoco.$(OBJEXT) liblua51_a-lcode.$(OBJEXT) \
-	liblua51_a-ldblib.$(OBJEXT) liblua51_a-ldebug.$(OBJEXT) \
-	liblua51_a-ldo.$(OBJEXT) liblua51_a-ldump.$(OBJEXT) \
-	liblua51_a-lfunc.$(OBJEXT) liblua51_a-lgc.$(OBJEXT) \
-	liblua51_a-linit.$(OBJEXT) liblua51_a-llex.$(OBJEXT) \
-	liblua51_a-lmathlib.$(OBJEXT) liblua51_a-lmem.$(OBJEXT) \
-	liblua51_a-loadlib.$(OBJEXT) liblua51_a-lobject.$(OBJEXT) \
-	liblua51_a-lopcodes.$(OBJEXT) liblua51_a-loslib.$(OBJEXT) \
-	liblua51_a-lparser.$(OBJEXT) liblua51_a-lstate.$(OBJEXT) \
-	liblua51_a-lstring.$(OBJEXT) liblua51_a-lstrlib.$(OBJEXT) \
-	liblua51_a-ltable.$(OBJEXT) liblua51_a-ltablib.$(OBJEXT) \
-	liblua51_a-ltm.$(OBJEXT) liblua51_a-lundump.$(OBJEXT) \
-	liblua51_a-lvm.$(OBJEXT) liblua51_a-lzio.$(OBJEXT)
+am_liblua51_a_OBJECTS = liblua51_a-lapi.$(OBJEXT) \
+	liblua51_a-lauxlib.$(OBJEXT) liblua51_a-lbaselib.$(OBJEXT) \
+	liblua51_a-lbitlib.$(OBJEXT) liblua51_a-lcoco.$(OBJEXT) \
+	liblua51_a-lcode.$(OBJEXT) liblua51_a-ldblib.$(OBJEXT) \
+	liblua51_a-ldebug.$(OBJEXT) liblua51_a-ldo.$(OBJEXT) \
+	liblua51_a-ldump.$(OBJEXT) liblua51_a-lfunc.$(OBJEXT) \
+	liblua51_a-lgc.$(OBJEXT) liblua51_a-linit.$(OBJEXT) \
+	liblua51_a-llex.$(OBJEXT) liblua51_a-lmathlib.$(OBJEXT) \
+	liblua51_a-lmem.$(OBJEXT) liblua51_a-loadlib.$(OBJEXT) \
+	liblua51_a-lobject.$(OBJEXT) liblua51_a-lopcodes.$(OBJEXT) \
+	liblua51_a-loslib.$(OBJEXT) liblua51_a-lparser.$(OBJEXT) \
+	liblua51_a-lstate.$(OBJEXT) liblua51_a-lstring.$(OBJEXT) \
+	liblua51_a-lstrlib.$(OBJEXT) liblua51_a-ltable.$(OBJEXT) \
+	liblua51_a-ltablib.$(OBJEXT) liblua51_a-ltm.$(OBJEXT) \
+	liblua51_a-lundump.$(OBJEXT) liblua51_a-lvm.$(OBJEXT) \
+	liblua51_a-lzio.$(OBJEXT)
 liblua51_a_OBJECTS = $(am_liblua51_a_OBJECTS)
 libluamisc_a_AR = $(AR) $(ARFLAGS)
 libluamisc_a_LIBADD =
@@ -1867,8 +1868,8 @@ liblua51_a_SOURCES = \
 	luatexdir/lua51/lapi.h \
 	luatexdir/lua51/lauxlib.c \
 	luatexdir/lua51/lauxlib.h \
-	luatexdir/lua51/lbitlib.c \
 	luatexdir/lua51/lbaselib.c \
+	luatexdir/lua51/lbitlib.c \
 	luatexdir/lua51/lcoco.c \
 	luatexdir/lua51/lcoco.h \
 	luatexdir/lua51/lcode.c \
@@ -2890,8 +2891,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkanji_a-kanji.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua51_a-lapi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua51_a-lauxlib.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua51_a-lbitlib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua51_a-lbaselib.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua51_a-lbitlib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua51_a-lcoco.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua51_a-lcode.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua51_a-ldblib.Po@am__quote@
@@ -4005,20 +4006,6 @@ liblua51_a-lauxlib.obj: luatexdir/lua51/lauxlib.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua51_a_CPPFLAGS) $(CPPFLAGS) $(liblua51_a_CFLAGS) $(CFLAGS) -c -o liblua51_a-lauxlib.obj `if test -f 'luatexdir/lua51/lauxlib.c'; then $(CYGPATH_W) 'luatexdir/lua51/lauxlib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua51/lauxlib.c'; fi`
 
-liblua51_a-lbitlib.o: luatexdir/lua51/lbitlib.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua51_a_CPPFLAGS) $(CPPFLAGS) $(liblua51_a_CFLAGS) $(CFLAGS) -MT liblua51_a-lbitlib.o -MD -MP -MF $(DEPDIR)/liblua51_a-lbitlib.Tpo -c -o liblua51_a-lbitlib.o `test -f 'luatexdir/lua51/lbitlib.c' || echo '$(srcdir)/'`luatexdir/lua51/lbitlib.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/liblua51_a-lbitlib.Tpo $(DEPDIR)/liblua51_a-lbitlib.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/lua51/lbitlib.c' object='liblua51_a-lbitlib.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua51_a_CPPFLAGS) $(CPPFLAGS) $(liblua51_a_CFLAGS) $(CFLAGS) -c -o liblua51_a-lbitlib.o `test -f 'luatexdir/lua51/lbitlib.c' || echo '$(srcdir)/'`luatexdir/lua51/lbitlib.c
-
-liblua51_a-lbitlib.obj: luatexdir/lua51/lbitlib.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua51_a_CPPFLAGS) $(CPPFLAGS) $(liblua51_a_CFLAGS) $(CFLAGS) -MT liblua51_a-lbitlib.obj -MD -MP -MF $(DEPDIR)/liblua51_a-lbitlib.Tpo -c -o liblua51_a-lbitlib.obj `if test -f 'luatexdir/lua51/lbitlib.c'; then $(CYGPATH_W) 'luatexdir/lua51/lbitlib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua51/lbitlib.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/liblua51_a-lbitlib.Tpo $(DEPDIR)/liblua51_a-lbitlib.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/lua51/lbitlib.c' object='liblua51_a-lbitlib.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua51_a_CPPFLAGS) $(CPPFLAGS) $(liblua51_a_CFLAGS) $(CFLAGS) -c -o liblua51_a-lbitlib.obj `if test -f 'luatexdir/lua51/lbitlib.c'; then $(CYGPATH_W) 'luatexdir/lua51/lbitlib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua51/lbitlib.c'; fi`
-
 liblua51_a-lbaselib.o: luatexdir/lua51/lbaselib.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua51_a_CPPFLAGS) $(CPPFLAGS) $(liblua51_a_CFLAGS) $(CFLAGS) -MT liblua51_a-lbaselib.o -MD -MP -MF $(DEPDIR)/liblua51_a-lbaselib.Tpo -c -o liblua51_a-lbaselib.o `test -f 'luatexdir/lua51/lbaselib.c' || echo '$(srcdir)/'`luatexdir/lua51/lbaselib.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/liblua51_a-lbaselib.Tpo $(DEPDIR)/liblua51_a-lbaselib.Po
@@ -4032,6 +4019,20 @@ liblua51_a-lbaselib.obj: luatexdir/lua51/lbaselib.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/lua51/lbaselib.c' object='liblua51_a-lbaselib.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua51_a_CPPFLAGS) $(CPPFLAGS) $(liblua51_a_CFLAGS) $(CFLAGS) -c -o liblua51_a-lbaselib.obj `if test -f 'luatexdir/lua51/lbaselib.c'; then $(CYGPATH_W) 'luatexdir/lua51/lbaselib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua51/lbaselib.c'; fi`
+
+liblua51_a-lbitlib.o: luatexdir/lua51/lbitlib.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua51_a_CPPFLAGS) $(CPPFLAGS) $(liblua51_a_CFLAGS) $(CFLAGS) -MT liblua51_a-lbitlib.o -MD -MP -MF $(DEPDIR)/liblua51_a-lbitlib.Tpo -c -o liblua51_a-lbitlib.o `test -f 'luatexdir/lua51/lbitlib.c' || echo '$(srcdir)/'`luatexdir/lua51/lbitlib.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/liblua51_a-lbitlib.Tpo $(DEPDIR)/liblua51_a-lbitlib.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/lua51/lbitlib.c' object='liblua51_a-lbitlib.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua51_a_CPPFLAGS) $(CPPFLAGS) $(liblua51_a_CFLAGS) $(CFLAGS) -c -o liblua51_a-lbitlib.o `test -f 'luatexdir/lua51/lbitlib.c' || echo '$(srcdir)/'`luatexdir/lua51/lbitlib.c
+
+liblua51_a-lbitlib.obj: luatexdir/lua51/lbitlib.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua51_a_CPPFLAGS) $(CPPFLAGS) $(liblua51_a_CFLAGS) $(CFLAGS) -MT liblua51_a-lbitlib.obj -MD -MP -MF $(DEPDIR)/liblua51_a-lbitlib.Tpo -c -o liblua51_a-lbitlib.obj `if test -f 'luatexdir/lua51/lbitlib.c'; then $(CYGPATH_W) 'luatexdir/lua51/lbitlib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua51/lbitlib.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/liblua51_a-lbitlib.Tpo $(DEPDIR)/liblua51_a-lbitlib.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='luatexdir/lua51/lbitlib.c' object='liblua51_a-lbitlib.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua51_a_CPPFLAGS) $(CPPFLAGS) $(liblua51_a_CFLAGS) $(CFLAGS) -c -o liblua51_a-lbitlib.obj `if test -f 'luatexdir/lua51/lbitlib.c'; then $(CYGPATH_W) 'luatexdir/lua51/lbitlib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua51/lbitlib.c'; fi`
 
 liblua51_a-lcoco.o: luatexdir/lua51/lcoco.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua51_a_CPPFLAGS) $(CPPFLAGS) $(liblua51_a_CFLAGS) $(CFLAGS) -MT liblua51_a-lcoco.o -MD -MP -MF $(DEPDIR)/liblua51_a-lcoco.Tpo -c -o liblua51_a-lcoco.o `test -f 'luatexdir/lua51/lcoco.c' || echo '$(srcdir)/'`luatexdir/lua51/lcoco.c
