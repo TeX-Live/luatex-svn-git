@@ -19,7 +19,6 @@ liblua51_a_SOURCES = \
 	luatexdir/lua51/lauxlib.c \
 	luatexdir/lua51/lauxlib.h \
 	luatexdir/lua51/lbaselib.c \
-	luatexdir/lua51/lbitlib.c \
 	luatexdir/lua51/lcoco.c \
 	luatexdir/lua51/lcoco.h \
 	luatexdir/lua51/lcode.c \

@@ -37,17 +37,13 @@ PLATS= aix ansi bsd freebsd generic linux macosx mingw posix solaris
 COCO_O= lcoco.o
 # -- Coco =========
 
-# ++ bit32 =========
-BIT32_O= lbitlib.o
-# -- bit32 =========
-
 
 LUA_A=	liblua.a
 CORE_O=	lapi.o lcode.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o lmem.o \
 	lobject.o lopcodes.o lparser.o lstate.o lstring.o ltable.o ltm.o  \
 	lundump.o lvm.o lzio.o $(COCO_O)
 LIB_O=	lauxlib.o lbaselib.o ldblib.o liolib.o lmathlib.o loslib.o ltablib.o \
-	lstrlib.o loadlib.o linit.o $(BIT32_O)
+	lstrlib.o loadlib.o linit.o 
 
 LUA_T=	lua
 LUA_O=	lua.o
@@ -145,7 +141,6 @@ lapi.o: lapi.c lua.h luaconf.h lapi.h lobject.h llimits.h ldebug.h \
   ltable.h lundump.h lvm.h
 lauxlib.o: lauxlib.c lua.h luaconf.h lauxlib.h
 lbaselib.o: lbaselib.c lua.h luaconf.h lauxlib.h lualib.h lcoco.h
-lbitlib.o: lbitlib.c lua.h luaconf.h lauxlib.h lualib.h 
 lcoco.o: lcoco.c lua.h luaconf.h lobject.h llimits.h lstate.h ltm.h \
   lzio.h lmem.h lcoco.h ldo.h lvm.h lgc.h
 lcode.o: lcode.c lua.h luaconf.h lcode.h llex.h lobject.h llimits.h \
