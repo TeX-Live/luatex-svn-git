@@ -91,7 +91,7 @@ extern void prompt_input(const char *s);
      ((str_length(A)==3)&&*(str_string((A)))>=0xE0)||                   \
      ((str_length(A)==2)&&*(str_string((A)))>=0xC0))
 
-#  define is_active_cs(a) (str_length(a)>3 &&                           \
+#  define is_active_cs(a) (a && str_length(a)>3 &&			\
                            (*str_string(a) == 0xEF) &&                  \
                            (*(str_string(a)+1) == 0xBF) &&              \
                            (*(str_string(a)+2) == 0xBF))
