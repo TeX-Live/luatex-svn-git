@@ -2410,10 +2410,19 @@ void prefixed_command(void)
             eq_word_define(int_base + math_direction_code, cur_val);
             break;
         case int_base + text_direction_code:
+#if 0
+    /* various tests hint that this is unnecessary and 
+     * sometimes even produces weird results, eg 
+     *  (\hbox{\textdir TRT ABC\textdir TLT DEF})
+     * becomes
+     *  (DEFCBA)
+     * in the output
+     */
             if ((no_local_dirs > 0) && (abs(mode) == hmode)) {
                 /* DIR: Add local dir node */
                 tail_append(new_dir(text_direction));
             }
+#endif
             update_text_dir_ptr(cur_val);
             if (abs(mode) == hmode) {
                 /* DIR: Add local dir node */
