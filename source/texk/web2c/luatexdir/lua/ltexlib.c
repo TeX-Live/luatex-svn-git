@@ -1544,11 +1544,11 @@ static int gettex(lua_State * L)
 {
     int cur_cs1 = -1;
     int retval = 1;             /* default is to return nil  */
-
-    if (lua_isstring(L, 2)) {   /* 1 == 'tex' */
+    int t = lua_gettop(L);
+    if (lua_isstring(L, t)) {   /* 1 == 'tex', 2 == 'boxmaxdepth', or 1 == 'boxmaxdepth' */
         int texstr;
         size_t k;
-        const char *st = lua_tolstring(L, 2, &k);
+        const char *st = lua_tolstring(L, t, &k);
         texstr = maketexlstring(st, k);
         cur_cs1 = prim_lookup(texstr);   /* not found == relax == 0 */
         flush_str(texstr);
@@ -1588,7 +1588,9 @@ static int gettex(lua_State * L)
             break;
         }
     } else {
-        lua_rawget(L, 1);       /* fetch other index from table */
+	if (t == 2) {
+	    lua_rawget(L, 1);
+	}
     }
     return retval;
 }
