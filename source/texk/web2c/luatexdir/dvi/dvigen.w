@@ -1,6 +1,6 @@
 % dvigen.w
 %
-% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2009-2012 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -1337,7 +1337,6 @@ If |total_pages>=65536|, the \.{DVI} file will lie. And if
 void finish_dvi_file(PDF pdf, int version, int revision)
 {
     int k;
-    boolean res;
     int callback_id = callback_defined(stop_run_callback);
     (void) version;
     (void) revision;
@@ -1355,7 +1354,7 @@ void finish_dvi_file(PDF pdf, int version, int revision)
             tprint_nl("No pages of output.");
             print_ln();
         } else if (callback_id > 0) {
-            res = run_callback(callback_id, "->");
+            run_callback(callback_id, "->");
         }
     } else {
         dvi_out(post);          /* beginning of the postamble */
@@ -1413,7 +1412,7 @@ void finish_dvi_file(PDF pdf, int version, int revision)
             print_int(dvi_offset + dvi_ptr);
             tprint(" bytes).");
         } else if (callback_id > 0) {
-            res = run_callback(callback_id, "->");
+            run_callback(callback_id, "->");
         }
         close_file(pdf->file);
     }
