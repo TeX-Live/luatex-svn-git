@@ -703,11 +703,12 @@ void mp_dump_path (MP mp, mp_knot h) {
 static int mplib_solve_path(lua_State * L)
 {
     MP *mp_ptr;
-    MP mp;
+    MP mp = NULL;
     int cyclic;
     const char *errormsg = NULL;
     mp_knot p, q, first; 
     int numpoints, i;
+    p = q = first = NULL; 
     if (lua_gettop(L) != 3) {
 	errormsg = "Wrong number of arguments";
 	goto BAD;
