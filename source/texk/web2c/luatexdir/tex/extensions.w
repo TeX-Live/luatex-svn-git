@@ -454,9 +454,9 @@ void do_extension(PDF pdf)
     case save_cat_code_table_code:
         /* Implement \.{\\savecatcodetable} */
         scan_int();
-        if ((cur_val < 0) || (cur_val > 0xFFFF)) {
+        if ((cur_val < 0) || (cur_val > 0x7FFF)) {
             print_err("Invalid \\catcode table");
-            help1("All \\catcode table ids must be between 0 and 0xFFFF");
+            help1("All \\catcode table ids must be between 0 and 0x7FFF");
             error();
         } else {
             if (cur_val == cat_code_table) {
@@ -471,9 +471,9 @@ void do_extension(PDF pdf)
     case init_cat_code_table_code:
         /* Implement \.{\\initcatcodetable} */
         scan_int();
-        if ((cur_val < 0) || (cur_val > 0xFFFF)) {
+        if ((cur_val < 0) || (cur_val > 0x7FFF)) {
             print_err("Invalid \\catcode table");
-            help1("All \\catcode table ids must be between 0 and 0xFFFF");
+            help1("All \\catcode table ids must be between 0 and 0x7FFF");
             error();
         } else {
             if (cur_val == cat_code_table) {

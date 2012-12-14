@@ -577,7 +577,7 @@ format file.
 \subsubsection{\tex{catcodetable}}
 
 \startsyntax
-\catcodetable <16-bit number>
+\catcodetable <15-bit number>
 \stopsyntax
 
 The primitive \tex{catcodetable} switches to a different catcode table.
@@ -588,7 +588,7 @@ primitives below, or it has to be zero. Table zero is initialized by
 \subsubsection{\tex{initcatcodetable}}
 
 \startsyntax
-\initcatcodetable <16-bit number>
+\initcatcodetable <15-bit number>
 \stopsyntax
 
 The primitive \tex{initcatcodetable} creates a new table with catcodes
@@ -613,7 +613,7 @@ the currently active table, an error is raised.
 \subsubsection{\tex{savecatcodetable}}
 
 \startsyntax
-\savecatcodetable <16-bit number>
+\savecatcodetable <15-bit number>
 \stopsyntax
 
 \tex{savecatcodetable} copies the current set of catcodes to a

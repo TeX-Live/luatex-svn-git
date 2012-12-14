@@ -139,7 +139,7 @@ static sa_tree *catcode_heads = NULL;
 static int catcode_max = 0;
 static unsigned char *catcode_valid = NULL;
 
-#define CATCODE_MAX 65535
+#define CATCODE_MAX 32767
 
 #define update_catcode_max(h)  if (h > catcode_max)  catcode_max = h
 
