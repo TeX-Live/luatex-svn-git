@@ -100,7 +100,7 @@ static void utf82u_strcpy(unsigned int *ubuf, const char *utf8buf)
 @ @c
 #define noVERBOSE
 
-#define MAX_TEX_LANGUAGES  32768
+#define MAX_TEX_LANGUAGES  16384
 
 static struct tex_language *tex_languages[MAX_TEX_LANGUAGES] = { NULL };
 
@@ -895,7 +895,7 @@ void hnj_hyphenation(halfword head, halfword tail)
             r = vlink(r);
         }
         if (valid_wordend(r) && wordlen >= lhmin + rhmin
-            && (hyf_font != 0) && (lang = tex_languages[clang]) != NULL) {
+            && (hyf_font != 0) && clang >=0 && (lang = tex_languages[clang]) != NULL) {
             *hy = 0;
             if (lang->exceptions != 0 &&
                 (replacement =

@@ -2860,8 +2860,19 @@ void assign_internal_value(int a, halfword p, int val)
             word_define(p, val);
             break;
         case language_code:
-            word_define(int_base + cur_lang_code, val);
-            word_define(p, val);
+            if (val < 0) {
+	        word_define(int_base + cur_lang_code, -1);
+                word_define(p, -1);
+            } else if (val > 16383) {
+                print_err("Invalid \\language");
+                help2
+                    ("The absolute value for \\language has to be no higher than 16383.",
+                     "Your invalid assignment will be ignored.");
+                error();
+            } else {
+	        word_define(int_base + cur_lang_code, val);
+                word_define(p, val);
+            }
             break;
         default:
             word_define(p, val);
