@@ -44,6 +44,7 @@ static const char *const callbacknames[] = {
     "find_truetype_file", "read_truetype_file",
     "find_opentype_file", "read_opentype_file",
     "find_sfd_file", "read_sfd_file",
+    "find_cidmap_file", "read_cidmap_file",
     "find_pk_file", "read_pk_file",
     "show_error_hook",
     "process_input_buffer", "process_output_buffer",

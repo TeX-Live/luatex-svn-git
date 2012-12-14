@@ -179,6 +179,9 @@ char *luatex_find_file(const char *s, int callback_index)
             if (ftemp == NULL)
                 ftemp = kpse_find_file(s, kpse_vf_format, 0);
             break;
+        case find_cidmap_file_callback:
+            ftemp = kpse_find_file(s, kpse_cid_format, 0);
+            break;
         default:
             printf
                 ("luatex_find_file(): do not know how to handle file %s of type %d\n",

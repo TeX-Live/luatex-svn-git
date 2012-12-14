@@ -25,7 +25,6 @@
 extern int *input_file_callback_id;
 extern int read_file_callback_id[17];
 
-extern char *luatex_find_file(const char *s, int callback_index);
 extern char *luatex_find_read_file(const char *s, int n, int callback_index);
 extern boolean luatex_open_input(FILE ** f_ptr, const char *fn, int filefmt,
                                  const_string fopen_mode, boolean must_exist);
@@ -125,8 +124,6 @@ extern boolean zopen_w_input(FILE **, const char *, int,
                              const_string fopen_mode);
 extern boolean zopen_w_output(FILE **, const char *, const_string fopen_mode);
 extern void zwclose(FILE *);
-
-extern int readbinfile(FILE * f, unsigned char **b, int *s);
 
 #  define read_tfm_file  readbinfile
 #  define read_vf_file   readbinfile

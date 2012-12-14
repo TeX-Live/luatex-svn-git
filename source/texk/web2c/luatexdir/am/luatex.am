@@ -43,7 +43,7 @@ $(luatex_OBJECTS): libluatex.a
 
 luatex_SOURCES = luatexdir/luatex_svnversion.h luatexdir/luatex.c luatexdir/luatex.h
 
-EXTRA_DIST += luatexdir/ptexlib.h
+EXTRA_DIST += luatexdir/ptexlib.h luatexdir/luatexcallbackids.h
 
 EXTRA_DIST += luatexdir/getluatexsvnversion.sh
 

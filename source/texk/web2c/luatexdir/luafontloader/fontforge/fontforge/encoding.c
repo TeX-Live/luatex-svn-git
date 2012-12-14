@@ -36,6 +36,9 @@
 #include "plugins.h"
 #include "encoding.h"
 
+#include "luatexdir/luatexcallbackids.h"
+extern char *luatex_find_file(const char *s, int callback_index);
+
 Encoding *default_encoding = NULL;
 
 static int32 tex_base_encoding[] = {
@@ -504,67 +507,6 @@ int MaxCID(struct cidmap *map) {
 return( map->cidmax );
 }
 
-static char *SearchDirForCidMap(char *dir,char *registry,char *ordering,
-	int supplement,char **maybefile) {
-    char maybe[FILENAME_MAX+1];
-    struct dirent *ent;
-    DIR *d;
-    int len, rlen = strlen(registry), olen=strlen(ordering);
-    char *pt, *end, *ret;
-    int test, best = -1;
-
-    if ( dir==NULL )
-return( NULL );
-
-    if ( *maybefile!=NULL ) {
-	char *pt = strrchr(*maybefile,'.');
-	while ( pt>*maybefile && isdigit(pt[-1]))
-	    --pt;
-	best = strtol(pt,NULL,10);
-    }
-
-    d = opendir(dir);
-    if ( d==NULL )
-return( NULL );
-    while ( (ent = readdir(d))!=NULL ) {
-	if ( (len = strlen(ent->d_name))<8 )
-    continue;
-	if ( strcmp(ent->d_name+len-7,".cidmap")!=0 )
-    continue;
-	if ( strncmp(ent->d_name,registry,rlen)!=0 || ent->d_name[rlen]!='-' )
-    continue;
-	pt = ent->d_name+rlen+1;
-	if ( strncmp(pt,ordering,olen)!=0 || pt[olen]!='-' )
-    continue;
-	pt += olen+1;
-	if ( !isdigit(*pt))
-    continue;
-	test = strtol(pt,&end,10);
-	if ( *end!='.' )
-    continue;
-	if ( test>=supplement ) {
-	    ret = galloc(strlen(dir)+1+len+1);
-	    strcpy(ret,dir);
-	    strcat(ret,"/");
-	    strcat(ret,ent->d_name);
-	    closedir(d);
-return( ret );
-	} else if ( test>best ) {
-	    best = test;
-	    strcpy(maybe,ent->d_name);
-	}
-    }
-    closedir(d);
-    if ( best>-1 ) {
-	ret = galloc(strlen(dir)+1+strlen(maybe)+1);
-	strcpy(ret,dir);
-	strcat(ret,"/");
-	strcat(ret,maybe);
-	*maybefile = ret;
-    }
-return( NULL );
-}
-
 static struct cidmap *MakeDummyMap(char *registry,char *ordering,int supplement) {
     struct cidmap *ret = galloc(sizeof(struct cidmap));
 
@@ -582,7 +524,12 @@ struct cidmap *LoadMapFromFile(char *file,char *registry,char *ordering,
 	int supplement) {
     struct cidmap *ret = galloc(sizeof(struct cidmap));
     char *pt = strrchr(file,'.');
-    FILE *f;
+    char *filebuffer= NULL, *filebuffer_head= NULL;
+    FILE *f = NULL;
+    int filebuffer_size = 0;
+    int file_opened = 0;
+    int callback_id;
+    int scancount = 0;
     int cid1, cid2, uni, cnt, i;
     char name[100];
 
@@ -596,23 +543,46 @@ struct cidmap *LoadMapFromFile(char *file,char *registry,char *ordering,
     ret->next = cidmaps;
     cidmaps = ret;
 
-    f = fopen( file,"r" );
-    if ( f==NULL ) {
+    callback_id = callback_defined(read_cidmap_file_callback);
+    if (callback_id > 0) {
+	if (run_callback(callback_id, "S->bSd", file, &file_opened, &filebuffer, &filebuffer_size)) {
+	    if (!file_opened) {
+		filebuffer = NULL;
+	    }
+	} else {
+	    filebuffer = NULL;
+	}
+    } else {
+	if ((f = fopen(file,"rb"))) {
+	    if (!readbinfile(f, (unsigned char **)&filebuffer, &filebuffer_size)) {
+		filebuffer = NULL;
+	    }
+	    fclose(f);
+	}
+    }
+    if ( filebuffer==NULL ) {
 	ff_post_error(_("Missing cidmap file"),_("Couldn't open cidmap file: %s"), file );
 	ret->cidmax = ret->namemax = 0;
 	ret->unicode = NULL; ret->name = NULL;
-    } else if ( fscanf( f, "%d %d", &ret->cidmax, &ret->namemax )!=2 ) {
+    } else if ( sscanf( filebuffer, "%d %d", &ret->cidmax, &ret->namemax )!=2 ) {
 	ff_post_error(_("Bad cidmap file"),_("%s is not a cidmap file, please download\nhttp://fontforge.sourceforge.net/cidmaps.tgz"), file );
 	fprintf( stderr, _("%s is not a cidmap file, please download\nhttp://fontforge.sourceforge.net/cidmaps.tgz"), file );
 	ret->cidmax = ret->namemax = 0;
 	ret->unicode = NULL; ret->name = NULL;
     } else {
+	filebuffer_head = filebuffer;
+	/* ditch previous scan: */
+	(void)sscanf( filebuffer, "%d %d%n", &ret->cidmax, &ret->namemax, &scancount );
+	filebuffer += scancount;
 	ret->unicode = gcalloc(ret->namemax+1,sizeof(uint32));
 	ret->name = gcalloc(ret->namemax+1,sizeof(char *));
 	while ( 1 ) {
-	    cnt=fscanf( f, "%d..%d %x", &cid1, &cid2, (unsigned *) &uni );
+	    cnt=sscanf( filebuffer, "%d..%d %x", &cid1, &cid2, (unsigned *) &uni );
 	    if ( cnt<=0 )
 	break;
+	    /* ditch previous scan: */
+	    (void)sscanf( filebuffer, "%d..%d %x%n", &cid1, &cid2, (unsigned *) &uni, &scancount );
+	    filebuffer += scancount;
 	    if ( cid1>ret->namemax )
 	continue;
 	    if ( cnt==3 ) {
@@ -620,103 +590,41 @@ struct cidmap *LoadMapFromFile(char *file,char *registry,char *ordering,
 		for ( i=cid1; i<=cid2; ++i )
 		    ret->unicode[i] = uni++;
 	    } else if ( cnt==1 ) {
-		if ( fscanf(f,"%x", (unsigned *) &uni )==1 )
+		if ( sscanf(filebuffer,"%x", (unsigned *) &uni )==1 ) {
+		    /* ditch previous scan: */
+		    (void)sscanf(filebuffer,"%x%n", (unsigned *) &uni, &scancount );
+       		    filebuffer += scancount;
 		    ret->unicode[cid1] = uni;
-		else if ( fscanf(f," /%s", name )==1 )
+		} else if ( sscanf(filebuffer," /%s", name )==1 ) {
+		    /* ditch previous scan: */
+		    (void)sscanf(filebuffer," /%s%n", name, &scancount );
+       		    filebuffer += scancount;
 		    ret->name[cid1] = copy(name);
+		}
 	    }
 	}
-	fclose(f);
     }
+    if (filebuffer_head)
+	free(filebuffer_head);
     free(file);
 return( ret );
 }
 
 struct cidmap *FindCidMap(char *registry,char *ordering,int supplement,SplineFont *sf) {
-    struct cidmap *map, *maybe=NULL;
-    char *file, *maybefile=NULL;
-    int maybe_sup = -1;
-    char *buts[3], *buts2[3];
+    char *file = NULL;
     char buf[100];
-    int ret;
     
     if ( sf!=NULL && sf->cidmaster ) sf = sf->cidmaster;
     if ( sf!=NULL && sf->loading_cid_map )
 return( NULL );
 
-    for ( map = cidmaps; map!=NULL; map = map->next ) {
-	if ( strcmp(map->registry,registry)==0 && strcmp(map->ordering,ordering)==0 ) {
-	    if ( supplement<=map->supplement )
-return( map );
-	    else if ( maybe==NULL || maybe->supplement<map->supplement )
-		maybe = map;
-	}
-    }
-    if ( maybe!=NULL && supplement<=maybe->maxsupple )
-return( maybe );	/* User has said it's ok to use maybe at this supplement level */
-
-    file = SearchDirForCidMap(".",registry,ordering,supplement,&maybefile);
-    if ( file==NULL )
-	file = SearchDirForCidMap(getFontForgeShareDir(),registry,ordering,supplement,&maybefile);
-
-    if ( file==NULL && (maybe!=NULL || maybefile!=NULL)) {
-	if ( maybefile!=NULL ) {
-	    char *pt = strrchr(maybefile,'.');
-	    while ( pt>maybefile && isdigit(pt[-1]))
-		--pt;
-	    maybe_sup = strtol(pt,NULL,10);
-	    if ( maybe!=NULL && maybe->supplement >= maybe_sup ) {
-		free(maybefile); maybefile = NULL;
-		maybe_sup = maybe->supplement;
-	    } else
-		maybe = NULL;
-	}
-	if ( maybe!=NULL )
-	    maybe_sup = maybe->supplement;
-	if ( sf!=NULL ) sf->loading_cid_map = true;
-	buts[0] = _("_Use It"); buts[1] = _("_Search"); buts[2] = NULL;
-	ret = ff_ask(_("Use CID Map"),(const char **) buts,0,1,_("This font is based on the charset %1$.20s-%2$.20s-%3$d, but the best I've been able to find is %1$.20s-%2$.20s-%4$d.\nShall I use that or let you search?"),
-		registry,ordering,supplement,maybe_sup);
-	if ( sf!=NULL ) sf->loading_cid_map = false;
-	if ( ret==0 ) {
-	    if ( maybe!=NULL ) {
-		maybe->maxsupple = supplement;
-return( maybe );
-	    } else {
-		file = maybefile;
-		maybefile = NULL;
-	    }
-	}
-    }
-
-    if ( file==NULL ) {
-	char *uret;
 #if defined( _NO_SNPRINTF ) || defined( __VMS )
-	sprintf(buf,"%s-%s-*.cidmap", registry, ordering );
+    sprintf(buf,"%s-%s-%d.cidmap", registry, ordering, supplement );
 #else
-	snprintf(buf,sizeof(buf),"%s-%s-*.cidmap", registry, ordering );
+    snprintf(buf,sizeof(buf),"%s-%s-%d.cidmap", registry, ordering, supplement );
 #endif
-	if ( maybe==NULL && maybefile==NULL ) {
-            buf[0] = '\0';
-	}
-	uret = NULL;
-	if ( uret==NULL ) {
-	    buts2[0] = "_Use It"; buts2[1] = "_Search"; buts2[2] = NULL;
-	    if ( maybe==NULL && maybefile==NULL )
-		/* No luck */;
-	    else if ( maybe!=NULL ) {
-		maybe->maxsupple = supplement;
-return( maybe );
-	    } else {
-		file = maybefile;
-		maybefile = NULL;
-	    }
-	} else {
-	    file = uret; /* no utf82def() call for luatex */
-	}
-    }
+    file = luatex_find_file(buf, find_cidmap_file_callback);
 
-    free(maybefile);
     if ( file!=NULL )
 return( LoadMapFromFile(file,registry,ordering,supplement));
 

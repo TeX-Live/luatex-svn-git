@@ -23,7 +23,7 @@
 
 \setvariables
   [document]
-  [beta=0.72.0]
+  [beta=0.73.0]
 
 \starttext
 
@@ -1402,6 +1402,10 @@ both \ALEPH's \OVF\ files and traditional Knuthian \VF\ files.
 
 Like \luatex{find_font_file}, but for map files.
 
+\subsubsection{\luatex{find_cidmap_file} (new in 0.73)}
+
+Like \luatex{find_font_file}, but for cidmap files.
+
 \subsubsection{\luatex{find_enc_file}}
 
 Like \luatex{find_font_file}, but for enc files.
@@ -1567,6 +1571,7 @@ The list of functions is as follows:
 \NC \luatex{read_font_file}     \NC ofm or tfm files \NC\NR
 \NC \luatex{read_vf_file}       \NC virtual fonts \NC\NR
 \NC \luatex{read_map_file}      \NC map files \NC\NR
+\NC \luatex{read_cidmap_file}   \NC cidmap files \NC\NR
 \NC \luatex{read_enc_file}      \NC encoding files \NC\NR
 \NC \luatex{read_sfd_file}      \NC subfont definition files \NC\NR
 \NC \luatex{read_pk_file}       \NC pk bitmap files \NC\NR
