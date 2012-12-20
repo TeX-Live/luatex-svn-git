@@ -165,7 +165,7 @@ int is_userdata(lua_State *L, int b, char *utype)
     if (lua_type(L,b) == LUA_TUSERDATA) {
         lua_getmetatable(L, b);
         luaL_getmetatable(L, utype);
-        if (lua_equal(L, -2, -1)) {
+        if (lua_compare(L, -2, -1, LUA_OPEQ)) {
             lua_pop(L,2);
             return 1;
         } 
@@ -840,7 +840,7 @@ void handle_generic_pst(lua_State * L, struct generic_pst *pst)
                 lua_setfield(L, -2, next->subtable->subtable_name);
                 lua_getfield(L, -1, next->subtable->subtable_name);
             }
-            k = lua_objlen(L, -1) + 1;
+            k = lua_rawlen(L, -1) + 1;
             lua_pushnumber(L, k);
             lua_createtable(L, 0, 4);
             do_handle_generic_pst(L, next);
@@ -3552,7 +3552,7 @@ int ff_get_ttc_index(char *ffname, char *psname)
     return -1;
 }
 
-static struct luaL_reg fllib[] = {
+static struct luaL_Reg fllib[] = {
     {"open", ff_open},
     {"info", ff_info},
     {"close", ff_close},
@@ -3563,7 +3563,7 @@ static struct luaL_reg fllib[] = {
     {NULL, NULL}
 };
 
-static const struct luaL_reg fflib_m[] = {
+static const struct luaL_Reg fflib_m[] = {
     {"__gc", ff_close},         /* doesnt work yet! */
     {"__index", ff_index},
     {NULL, NULL}                /* sentinel */

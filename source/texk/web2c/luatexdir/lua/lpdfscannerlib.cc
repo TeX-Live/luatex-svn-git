@@ -25,9 +25,9 @@
 #  include <math.h>
 
 extern "C" {
-#  include <lua51/lua.h>
-#  include <lua51/lauxlib.h>
-#  include <lua51/lualib.h>
+#  include <lua52/lua.h>
+#  include <lua52/lauxlib.h>
+#  include <lua52/lualib.h>
 }
 
 #  include <poppler/poppler-config.h>
@@ -160,7 +160,6 @@ static scannerdata *scanner_check (lua_State *L, int index)
   scannerdata *bar;
   luaL_checktype(L, index, LUA_TUSERDATA);
   bar = (scannerdata *)luaL_checkudata(L, index, SCANNER);
-  if (bar == NULL) luaL_typerror(L, index, SCANNER);
   return bar;
 }
 
@@ -918,11 +917,11 @@ static int scanner_popany(lua_State * L)
   return 1;
 }
 
-static const luaL_reg scannerlib_meta[] = {
+static const luaL_Reg scannerlib_meta[] = {
   {0, 0}
 };
 
-static const struct luaL_reg scannerlib_m[] = {
+static const struct luaL_Reg scannerlib_m[] = {
     {"done",        scanner_done},
     {"popNumber",   scanner_popnumber},
     {"popName",     scanner_popname},

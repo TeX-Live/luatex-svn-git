@@ -23,7 +23,7 @@
 
 \setvariables
   [document]
-  [beta=0.73.0]
+  [beta=0.74.0]
 
 \starttext
 
@@ -73,7 +73,7 @@ distinguishable parts:
 \startitemize[packed]
 \item \PDFTEX\ version 1.40.9, converted to C (with patches from later releases).
 \item The direction model and some other bits from \ALEPH\ RC4 converted to C.
-\item \LUA\ 5.1.4 ($+$ coco 1.1.5 $+$ portable bytecode)
+\item \LUA\ 5.2.1
 \item dedicated \LUA\ libraries
 \item various \TEX\ extensions
 \item parts of \FONTFORGE\ 2008.11.17
@@ -945,17 +945,19 @@ needs to check \type{--progname}, or \type{--ini} and \type{--fmt}, if
 
 \section{\LUA\ changes}
 
-The C coroutine (\COCO) patches from LuaJIT are applied to the \LUA\
-core, the used version is 1.1.5.  See \hyphenatedurl{http://coco.luajit.org/}
-for details. This functionality currently (0.45) does not work on
-non-intel OpenBSD platforms nor on powerpc Linux-es. Additional note:
-\type{coroutines.wrap()} under Windows does not inherit the state
-of the random generator, it always has an implicit
-\type{math.randomseed(1)} that is added by the Windows kernel.
+{\bf NOTE:} \LUATEX\ 0.74.0 is the first version with Lua 5.2, and
+this is used without any patches to the core, which has some side
+effects.  In particular, we are now using the built-in \type{io}
+library, which means that some of the extended functionality is
+currently not present (yet?), and that Lua's \type{tonumber()} may
+return values in scientific notation, thereby confusing the \TEX\ end
+of things. Some of the documentation below in this section is not
+updated yet, while we are still deciding which extended features to
+keep and which will be removed.
 
 Starting from version 0.45, \LUATEX\ is able to use the kpathsea
 library to find \type{require()}d modules. For this purpose,
-\type{package.loaders[2]} is replaced by a different loader function,
+\type{package.searchers[2]} is replaced by a different loader function,
 that decides at runtime whether to use kpathsea or the built-in core
 lua function.  It uses \KPATHSEA\ when that is already initialized at
 that point in time, otherwise it reverts to using the normal
@@ -971,7 +973,7 @@ Starting from version 0.46.0 (as an {\bf experimental} feature!) \LUATEX\ is
 also able to use dynamically loadable \LUA\ libraries, unless
 \type{--safer} was given as an option on the command line.
 
-For this purpose, \type{package.loaders[3]} is replaced by a different
+For this purpose, \type{package.searchers[3]} is replaced by a different
 loader function, that decides at runtime whether to use kpathsea or
 the build-in core lua function.  As in the previous paragraph, it uses
 \KPATHSEA\ when that is already initialized at that point in time,
@@ -1212,7 +1214,7 @@ functions also accept the first 256 values of plane~18. This is the range \LUATE
 uses for raw binary output, as explained above.
 
 \item \lua{luazip}, from the kepler project, \hyphenatedurl{http://www.keplerproject.org/luazip/}.
-  (version 1.2.1, but patched for compilation with \LUA\ 5.1)
+  (version 1.2.1, but patched for compilation with \LUA\ 5.2)
 \item \lua{luafilesystem}, also from the kepler project, \hyphenatedurl{http://www.keplerproject.org/luafilesystem/}.
   (version 1.5.0)
 \item \lua{lpeg}, by Roberto Ierusalimschy, \hyphenatedurl{http://www.inf.puc-rio.br/~roberto/lpeg/lpeg.html}. (version 0.10.2)

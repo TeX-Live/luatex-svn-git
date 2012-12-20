@@ -18048,10 +18048,61 @@ if test "x$enable_ipc" = xyes; then
 $as_echo "#define IPC 1" >>confdefs.h
 
 fi
+
 # We may need additional libraries for luaTeX.
 # On Solaris -lnsl for gethostbyname(), -lrt for nanosleep(),
 # and maybe -lresolv for inet_aton().
 lua_socketlibs=$socketlibs
+if test "x$kpse_cv_have_win32" = xno; then :
+
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lws2_32" >&5
+$as_echo_n "checking for main in -lws2_32... " >&6; }
+if ${ac_cv_lib_ws2_32_main+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lws2_32  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_ws2_32_main=yes
+else
+  ac_cv_lib_ws2_32_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ws2_32_main" >&5
+$as_echo "$ac_cv_lib_ws2_32_main" >&6; }
+if test "x$ac_cv_lib_ws2_32_main" = xyes; then :
+  lua_socketlibs="$socketlibs -lws2_32"
+else
+  if test "x$enable_luatex" = xyes; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Sorry, no getaddrinfo(): disabling luatex" >&5
+$as_echo "$as_me: WARNING: Sorry, no getaddrinfo(): disabling luatex" >&2;}
+if test "x$enable_missing" = xno; then :
+  as_fn_error $? "terminating." "$LINENO" 5
+fi
+
+                       enable_luatex=no
+fi
+
+fi
+
+fi
+
 if test "x$kpse_cv_have_win32" = xno; then
   kpse_save_LIBS=$LIBS
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing gethostbyname" >&5

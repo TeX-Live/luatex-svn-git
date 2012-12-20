@@ -107,9 +107,6 @@ static const luaL_Reg lualibs[] = {
     {"md5", luaopen_md5},
     {"lfs", luaopen_lfs},
     {"profiler", luaopen_profiler},
-    {NULL, NULL}
-};
-static const luaL_Reg lualibs_nofenv[] = {
     {"lpeg", luaopen_lpeg},
     {NULL, NULL}
 };
@@ -118,19 +115,10 @@ static const luaL_Reg lualibs_nofenv[] = {
 @ @c
 static void do_openlibs(lua_State * L)
 {
-    const luaL_Reg *lib = lualibs;
-    for (; lib->func; lib++) {
-        lua_pushcfunction(L, lib->func);
-        lua_pushstring(L, lib->name);
-        lua_call(L, 1, 0);
-    }
-    lib = lualibs_nofenv;
-    for (; lib->func; lib++) {
-        lua_pushcfunction(L, lib->func);
-        lua_newtable(L);
-        lua_setfenv(L,-2);
-        lua_pushstring(L, lib->name);
-        lua_call(L, 1, 0);
+    const luaL_Reg *lib;
+    for (lib = lualibs; lib->func; lib++) {
+        luaL_requiref(L, lib->name, lib->func, 1);
+    	lua_pop(L, 1);  /* remove lib */
     }
 }
 
@@ -345,7 +333,7 @@ void unhide_lua_value(lua_State * L, const char *name, const char *item, int r)
 @ @c
 int lua_traceback(lua_State * L)
 {
-    lua_getfield(L, LUA_GLOBALSINDEX, "debug");
+    lua_getglobal(L, "debug");
     if (!lua_istable(L, -1)) {
         lua_pop(L, 1);
         return 1;
@@ -403,7 +391,7 @@ static void luacall(int p, int nameptr, boolean is_string)
             snprintf((char *) lua_id, 20, "\\latelua ");
         }
 
-        i = lua_load(Luas, getS, &ls, lua_id);
+        i = lua_load(Luas, getS, &ls, lua_id, NULL);
         if (i != 0) {
             Luas = luatex_error(Luas, (i == LUA_ERRSYNTAX ? 0 : 1));
         } else {
@@ -462,7 +450,7 @@ void luatokencall(int p, int nameptr)
         } else {
             lua_id = xstrdup("\\directlua ");
         }
-        i = lua_load(Luas, getS, &ls, lua_id);
+        i = lua_load(Luas, getS, &ls, lua_id, NULL);
         xfree(s);
         if (i != 0) {
             Luas = luatex_error(Luas, (i == LUA_ERRSYNTAX ? 0 : 1));
@@ -529,4 +517,13 @@ void preset_environment(lua_State * L, const parm_struct * p, const char *s)
         lua_settable(L, -3);    /* t s */
     }
     lua_settable(L, LUA_REGISTRYINDEX); /* - */
+}
+
+@ @c
+int luaL_typerror (void *LL, int narg, const char *tname)
+{
+  lua_State *L = (lua_State *)LL;
+  const char *msg = lua_pushfstring(L, "%s expected, got %s",
+                                    tname, luaL_typename(L, narg));
+  return luaL_argerror(L, narg, msg);	
 }

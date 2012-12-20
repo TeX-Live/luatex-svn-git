@@ -93,10 +93,17 @@ if test "x$enable_ipc" = xyes; then
    ipc_socketlibs=$socketlibs
    AC_DEFINE([IPC], 1, [tex: Define to enable --ipc.])
 fi
+
 # We may need additional libraries for luaTeX.
 # On Solaris -lnsl for gethostbyname(), -lrt for nanosleep(),
 # and maybe -lresolv for inet_aton().
 lua_socketlibs=$socketlibs
+AS_IF([test "x$kpse_cv_have_win32" = xno],
+      [],
+      [AC_CHECK_LIB([ws2_32], [main],
+                    [lua_socketlibs="$socketlibs -lws2_32"],
+                    [WEB2C_DISABLE([luatex], [no getaddrinfo()])])])
+
 if test "x$kpse_cv_have_win32" = xno; then
   kpse_save_LIBS=$LIBS
   AC_SEARCH_LIBS([gethostbyname], [nsl])

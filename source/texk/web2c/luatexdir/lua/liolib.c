@@ -4,6 +4,7 @@
 ** See Copyright Notice in lua.h
 */
 
+#if 0
 
 #include <errno.h>
 #include <stdio.h>
@@ -681,3 +682,5 @@ LUALIB_API int luaopen_io(lua_State * L)
     lua_setfield(L, LUA_ENVIRONINDEX, "__close");
     return 1;
 }
+
+#endif

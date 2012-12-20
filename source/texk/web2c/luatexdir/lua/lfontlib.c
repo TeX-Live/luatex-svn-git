@@ -47,7 +47,7 @@ static int font_read_tfm(lua_State * L)
     if (lua_isstring(L, 1)) {
         cnom = lua_tostring(L, 1);
         if (lua_isnumber(L, 2)) {
-            lua_number2int(s, lua_tonumber(L, 2));
+            s=(int)lua_tonumber(L, 2);
             if (strlen(cnom)) {
                 f = get_fontid();
                 if (read_tfm_info(f, cnom, s)) {
@@ -79,7 +79,7 @@ static int font_read_vf(lua_State * L)
         cnom = lua_tostring(L, 1);
         if (strlen(cnom)) {
             if (lua_isnumber(L, 2)) {
-                lua_number2int(i, lua_tonumber(L, 2));
+                i=(int)lua_tonumber(L, 2);
                 return make_vf_table(L, cnom, (scaled) i);
             } else {
                 luaL_error(L, "expected an integer size as second argument");
@@ -119,8 +119,8 @@ static int tex_max_font(lua_State * L)
 static int tex_each_font_next(lua_State * L)
 {
     int i, m;                   /* id */
-    lua_number2int(m, lua_tonumber(L, 1));
-    lua_number2int(i, lua_tonumber(L, 2));
+    m=(int)lua_tonumber(L, 1);
+    i=(int)lua_tonumber(L, 2);
     i++;
     while (i <= m && !is_valid_font(i))
         i++;
@@ -265,7 +265,7 @@ static int getfontid(lua_State * L)
 }
 
 
-static const struct luaL_reg fontlib[] = {
+static const struct luaL_Reg fontlib[] = {
     {"read_tfm", font_read_tfm},
     {"read_vf", font_read_vf},
     {"current", tex_current_font},
@@ -443,7 +443,7 @@ static int l_vf_special(lua_State * L)
     return 0;
 }
 
-static const struct luaL_reg vflib[] = {
+static const struct luaL_Reg vflib[] = {
     {"char", l_vf_char},
     {"down", l_vf_down},
     /* {"font", l_vf_font}, */

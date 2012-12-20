@@ -63,7 +63,8 @@ extern char **suffixlist;       /* in luainit.w */
 #  define pdftex_version 200    /* \.{\\pdftexversion} */
 #  define pdftex_revision "0"   /* \.{\\pdftexrevision} */
 
-#  include "lua51/lua.h"
+#define LUA_COMPAT_MODULE 1
+#  include "lua52/lua.h"
 
 
 /* pdftexlib macros from ptexmac.h */

@@ -30,9 +30,11 @@
 #  include <lauxlib.h>
 #  include <lualib.h>
 #else
-#  include <../lua51/lua.h>
-#  include <../lua51/lauxlib.h>
-#  include <../lua51/lualib.h>
+#  include <../lua52/lua.h>
+#  include <../lua52/lauxlib.h>
+#  include <../lua52/lualib.h>
+#define luaL_reg luaL_Reg
+#define lua_objlen lua_rawlen 
 #endif
 
 #include "mplib.h"

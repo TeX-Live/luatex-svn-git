@@ -197,7 +197,7 @@ static int get_bytecode(lua_State * L)
         if (k <= luabytecode_max && lua_bytecode_registers[k].buf != NULL) {
             if (lua_load
                 (L, reader, (void *) (lua_bytecode_registers + k),
-                 "bytecode")) {
+                 "bytecode", NULL)) {
 		return luaL_error(L, "bad bytecode register");
             } else {
                 lua_pushvalue(L, -1);
@@ -304,7 +304,7 @@ static int get_luaname(lua_State * L)
 
 
 
-static const struct luaL_reg lualib[] = {
+static const struct luaL_Reg lualib[] = {
     /* *INDENT-OFF* */
     {"getluaname",  get_luaname},
     {"setluaname",  set_luaname},

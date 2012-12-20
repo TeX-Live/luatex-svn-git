@@ -23,7 +23,7 @@
 static const char _svn_version[] =
     "$Id$ $URL$";
 
-#define  is_valid_token(L,i)  (lua_istable(L,i) && lua_objlen(L,i)==3)
+#define  is_valid_token(L,i)  (lua_istable(L,i) && lua_rawlen(L,i)==3)
 #define  get_token_cmd(L,i)  lua_rawgeti(L,i,1)
 #define  get_token_chr(L,i)  lua_rawgeti(L,i,2)
 #define  get_token_cs(L,i)   lua_rawgeti(L,i,3)
@@ -264,7 +264,7 @@ static int run_build(lua_State * L)
 }
 
 
-static const struct luaL_reg tokenlib[] = {
+static const struct luaL_Reg tokenlib[] = {
     {"get_next", run_get_next},
     {"expand", run_expand},
     {"lookup", run_lookup},

@@ -105,7 +105,7 @@ static int l_immediateobj(lua_State * L)
     n = lua_gettop(L);
     if (n > 0 && lua_type(L, 1) == LUA_TNUMBER) {
         first_arg++;
-        lua_number2int(k, lua_tonumber(L, 1));
+        k=(int)lua_tonumber(L, 1);
         check_obj_type(static_pdf, obj_type_obj, k);
         if (is_obj_scheduled(static_pdf, k) || obj_data_ptr(static_pdf, k) != 0)
             luaL_error(L, "pdf.immediateobj() object in use");
@@ -466,7 +466,7 @@ static int orig_obj(lua_State * L)
     n = lua_gettop(L);
     if (n > 0 && lua_type(L, 1) == LUA_TNUMBER) {
         first_arg++;
-        lua_number2int(k, lua_tonumber(L, 1));
+        k=(int)lua_tonumber(L, 1);
         check_obj_type(static_pdf, obj_type_obj, k);
         if (is_obj_scheduled(static_pdf, k) || obj_data_ptr(static_pdf, k) != 0)
             luaL_error(L, "pdf.obj() object in use");
@@ -764,7 +764,7 @@ static int l_pageref(lua_State * L)
     return 1;
 }
 
-static const struct luaL_reg pdflib[] = {
+static const struct luaL_Reg pdflib[] = {
     {"immediateobj", l_immediateobj},
     {"mapfile", l_mapfile},
     {"mapline", l_mapline},

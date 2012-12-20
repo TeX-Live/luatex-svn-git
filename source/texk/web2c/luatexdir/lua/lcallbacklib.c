@@ -122,7 +122,7 @@ void get_lua_number(const char *table, const char *name, int *target)
     if (lua_istable(Luas, -1)) {
         lua_getfield(Luas, -1, name);
         if (lua_isnumber(Luas, -1)) {
-            lua_number2int(*target, lua_tonumber(Luas, -1));
+            *target = (int)lua_tonumber(Luas, -1);
         }
     }
     lua_settop(Luas, stacktop);
@@ -138,7 +138,7 @@ void get_saved_lua_number(int r, const char *name, int *target)
     if (lua_istable(Luas, -1)) {
         lua_getfield(Luas, -1, name);
         if (lua_isnumber(Luas, -1)) {
-            lua_number2int(*target, lua_tonumber(Luas, -1));
+            *target=(int)lua_tonumber(Luas, -1);
         }
     }
     lua_settop(Luas, stacktop);
@@ -358,7 +358,7 @@ int do_run_callback(int special, const char *values, va_list vl)
                         lua_typename(L, lua_type(L, nres)));
                 goto EXIT;
             }
-            lua_number2int(b, lua_tonumber(L, nres));
+	    b=(int)lua_tonumber(L, nres);
             *va_arg(vl, int *) = b;
             break;
         case CALLBACK_LINE:    /* TeX line */
@@ -514,7 +514,7 @@ static int callback_listf(lua_State * L)
     return 1;
 }
 
-static const struct luaL_reg callbacklib[] = {
+static const struct luaL_Reg callbacklib[] = {
     {"find", callback_find},
     {"register", callback_register},
     {"list", callback_listf},

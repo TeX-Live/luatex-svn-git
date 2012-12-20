@@ -95,7 +95,7 @@ static int do_luacprint(lua_State * L, int partial, int deftable)
     n = lua_gettop(L);
     if (cattable != NO_CAT_TABLE) {
         if (lua_type(L, 1) == LUA_TNUMBER && n > 1) {
-            lua_number2int(cattable, lua_tonumber(L, 1));
+            cattable=(int)lua_tonumber(L, 1);
             startstrings = 2;
             if (cattable != -1 && cattable != -2 && !valid_catcode_table(cattable)) {
 	      cattable = DEFAULT_CAT_TABLE;
@@ -153,7 +153,7 @@ static int luactprint(lua_State * L)
         lua_pushnumber(L, 1);
         lua_gettable(L, -2);
         if (lua_type(L, -1) == LUA_TNUMBER) {
-            lua_number2int(cattable, lua_tonumber(L, -1));
+            cattable=(int)lua_tonumber(L, -1);
             startstrings = 2;
             if (cattable != -1 && cattable != -2 && !valid_catcode_table(cattable)) {
 	      cattable = DEFAULT_CAT_TABLE;
@@ -576,7 +576,7 @@ static int tex_scaledimen(lua_State * L)
             return 0;
         }
     } else {
-        lua_number2int(sp, lua_tonumber(L, 1));
+        sp=(int)lua_tonumber(L, 1);
     }
     lua_pushnumber(L, sp);
     return 1;
@@ -664,7 +664,7 @@ static int vsetdimen(lua_State * L, int is_global)
             luaL_error(L, "unsupported value type");
         }
     } else {
-        lua_number2int(j, lua_tonumber(L, i));
+        j=(int)lua_tonumber(L, i);
     }
     k = get_item_index(L, (i - 1), scaled_base);
     check_index_range(k, "setdimen");
@@ -902,7 +902,7 @@ static int get_box_id(lua_State * L, int i)
         }
         break;
     case LUA_TNUMBER:
-        lua_number2int(j, lua_tonumber(L, (i)));
+        j=(int)lua_tonumber(L, (i));
         break;
     default:
         luaL_error(L, "argument must be a string or a number");
@@ -1220,7 +1220,7 @@ static int settex(lua_State * L)
             if (is_int_assign(cur_cmd1)) {
                 if (lua_isnumber(L, i)) {
                     int luai;
-                    lua_number2int(luai, lua_tonumber(L, i));
+                    luai=(int)lua_tonumber(L, i);
                     assign_internal_value((isglobal ? 4 : 0),
                                           equiv(cur_cs1), luai);
                 } else {
@@ -1234,7 +1234,7 @@ static int settex(lua_State * L)
                         luaL_error(L, "unsupported value type");
                     }
                 } else {
-                    lua_number2int(j, lua_tonumber(L, i));
+                    j=(int)lua_tonumber(L, i);
                 }
                 assign_internal_value((isglobal ? 4 : 0), equiv(cur_cs1), j);
             } else if (is_glue_assign(cur_cmd1)) {
@@ -1303,7 +1303,7 @@ static int do_convert(lua_State * L, int cur_code)
         if (lua_gettop(L) < 1) {
             /* error */
         }
-        lua_number2int(i, lua_tonumber(L, 1));  /* these fall through! */
+        i=(int)lua_tonumber(L, 1);  /* these fall through! */
     default:
         texstr = the_convert_string(cur_code, i);
         if (texstr) {
@@ -1446,7 +1446,7 @@ static int tex_setmathparm(lua_State * L)
         j = luaL_checkoption(L, (n - 1), NULL, math_style_names);
         if (!lua_isnumber(L, n))
             luaL_error(L, "argument must be a number");
-        lua_number2int(k, lua_tonumber(L, n));
+        k=(int)lua_tonumber(L, n);
         def_math_param(i, j, (scaled) k, l);
     }
     return 0;
@@ -1745,7 +1745,7 @@ static int lua_nest_setfield(lua_State * L)
     const char *field = lua_tostring(L, -2);
     r = *rv;
     if (strcmp(field, "mode") == 0) {
-        lua_number2int(i, lua_tonumber(L, -1));
+        i=(int)lua_tonumber(L, -1);
         r->mode_field = i;
     } else if (strcmp(field, "head") == 0) {
         n = check_isnode(L, -1);
@@ -1757,16 +1757,16 @@ static int lua_nest_setfield(lua_State * L)
         n = check_isnode(L, -1);
         r->eTeX_aux_field = *n;
     } else if (strcmp(field, "prevgraf") == 0) {
-        lua_number2int(i, lua_tonumber(L, -1));
+        i=(int)lua_tonumber(L, -1);
         r->pg_field = i;
     } else if (strcmp(field, "modeline") == 0) {
-        lua_number2int(i, lua_tonumber(L, -1));
+        i=(int)lua_tonumber(L, -1);
         r->ml_field = i;
     } else if (strcmp(field, "prevdepth") == 0) {
-        lua_number2int(i, lua_tonumber(L, -1));
+        i=(int)lua_tonumber(L, -1);
         r->prev_depth_field = i;
     } else if (strcmp(field, "spacefactor") == 0) {
-        lua_number2int(i, lua_tonumber(L, -1));
+        i=(int)lua_tonumber(L, -1);
         r->space_factor_field = i;
     } else if (strcmp(field, "noad") == 0) {
         n = check_isnode(L, -1);
@@ -1777,13 +1777,13 @@ static int lua_nest_setfield(lua_State * L)
     } else if (strcmp(field, "mathdir") == 0) {
         r->math_field = lua_toboolean(L, -1);
     } else if (strcmp(field, "mathstyle") == 0) {
-        lua_number2int(i, lua_tonumber(L, -1));
+        i=(int)lua_tonumber(L, -1);
         r->math_style_field = i;
     }
     return 0;
 }
 
-static const struct luaL_reg nest_m[] = {
+static const struct luaL_Reg nest_m[] = {
     {"__index", lua_nest_getfield},
     {"__newindex", lua_nest_setfield},
     {NULL, NULL}                /* sentinel */
@@ -1801,7 +1801,7 @@ static int getnest(lua_State * L)
     int ptr;
     list_state_record **nestitem;
     if (lua_isnumber(L, 2)) {
-        lua_number2int(ptr, lua_tonumber(L, 2));
+        ptr=(int)lua_tonumber(L, 2);
         if (ptr >= 0 && ptr <= nest_ptr) {
             nestitem = lua_newuserdata(L, sizeof(list_state_record *));
             *nestitem = &nest[ptr];
@@ -2075,7 +2075,7 @@ static int tex_enableprimitives(lua_State * L)
     	lua_pushstring(L,(A));				\
 	lua_gettable(L,-2);				\
 	if (lua_type(L, -1) == LUA_TNUMBER) {		\
-	    lua_number2int(B,lua_tonumber(L, -1));	\
+	    B=(int)lua_tonumber(L, -1);			\
 	} else {					\
 	    B = (C);					\
 	}						\
@@ -2087,7 +2087,7 @@ static int tex_enableprimitives(lua_State * L)
     	lua_pushstring(L,(A));				\
 	lua_gettable(L,-2);				\
 	if (lua_type(L, -1) == LUA_TNUMBER) {		\
-	    lua_number2int(B,lua_tonumber(L, -1));	\
+	    B=(int)lua_tonumber(L, -1);			\
 	    D = null;					\
 	} else if (lua_type(L, -1) == LUA_TTABLE){	\
 	    B = 0;					\
@@ -2103,7 +2103,7 @@ static int tex_enableprimitives(lua_State * L)
     	lua_pushstring(L,(A));				\
 	lua_gettable(L,-2);				\
 	if (lua_type(L, -1) == LUA_TNUMBER) {		\
-	    lua_number2int(B,lua_tonumber(L, -1));	\
+	    B=(int)lua_tonumber(L, -1);			\
 	} else {					\
 	    B = (C);					\
 	}						\
@@ -2147,11 +2147,11 @@ static halfword nodelib_toparshape(lua_State * L, int i)
         if (lua_type(L, i) == LUA_TTABLE) {
             lua_rawgeti(L, -1, 1);      /* indent */
             if (lua_type(L, -1) == LUA_TNUMBER) {
-                lua_number2int(indent, lua_tonumber(L, -1));
+                indent=(int)lua_tonumber(L, -1);
                 lua_pop(L, 1);
                 lua_rawgeti(L, -1, 2);  /* width */
                 if (lua_type(L, -1) == LUA_TNUMBER) {
-                    lua_number2int(width, lua_tonumber(L, -1));
+                    width=(int)lua_tonumber(L, -1);
                     lua_pop(L, 1);
                     varmem[p + 2 * j].cint = indent;
                     varmem[p + 2 * j + 1].cint = width;
@@ -2187,7 +2187,7 @@ static halfword nodelib_topenalties(lua_State * L, int i)
 	j++;
 	if (lua_isnumber(L, -1)) {
 	    int pen = 0;
-	    lua_number2int(pen, lua_tonumber(L, -1));
+	    pen=(int)lua_tonumber(L, -1);
 	    varmem[p+j].cint = pen;
 	}
 	lua_pop(L, 1);
@@ -2356,8 +2356,8 @@ static int tex_shipout(lua_State * L)
 static int tex_badness(lua_State * L)
 {
     scaled t,s;
-    lua_number2int(t,lua_tonumber(L,1));
-    lua_number2int(s,lua_tonumber(L,2));
+    t=(int)lua_tonumber(L,1);
+    s=(int)lua_tonumber(L,2);
     lua_pushnumber(L, badness(t,s));
     return 1;
 }
@@ -2443,7 +2443,7 @@ void init_tex_table(lua_State * L)
 
 
 
-static const struct luaL_reg texlib[] = {
+static const struct luaL_Reg texlib[] = {
     {"run", tex_run_main},      /* may be needed  */
     {"finish", tex_run_end},    /* may be needed  */
     {"write", luacwrite},

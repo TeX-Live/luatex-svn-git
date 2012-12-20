@@ -134,7 +134,7 @@ void flush_loggable_info(void)
 }
 
 
-static const struct luaL_reg texiolib[] = {
+static const struct luaL_Reg texiolib[] = {
     {"write", texio_print},
     {"write_nl", texio_printnl},
     {NULL, NULL}                /* sentinel */

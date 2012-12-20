@@ -632,7 +632,7 @@ static int enum_field(lua_State * L, const char *name, int dflt,
     lua_pushstring(L, name);
     lua_rawget(L, -2);
     if (lua_isnumber(L, -1)) {
-        lua_number2int(i, lua_tonumber(L, -1));
+        i=(int)lua_tonumber(L, -1);
     } else if (lua_isstring(L, -1)) {
         s = lua_tostring(L, -1);
         k = 0;
@@ -843,7 +843,7 @@ static int count_char_packet_bytes(lua_State * L)
     register int i;
     register int l = 0;
     int ff = 0;
-    for (i = 1; i <= (int) lua_objlen(L, -1); i++) {
+    for (i = 1; i <= (int) lua_rawlen(L, -1); i++) {
         lua_rawgeti(L, -1, i);
         if (lua_istable(L, -1)) {
             lua_rawgeti(L, -1, 1);
@@ -926,7 +926,7 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
         max_f++;
 
     cp = cpackets = xmalloc((unsigned) (pc + 1));
-    for (i = 1; i <= (int) lua_objlen(L, -1); i++) {
+    for (i = 1; i <= (int) lua_rawlen(L, -1); i++) {
         lua_rawgeti(L, -1, i);
         if (lua_istable(L, -1)) {
             /* fetch the command code */
@@ -1052,7 +1052,7 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
                         lua_call(L, 1, 1);
                     }           /* img ... */
                     luaL_checkudata(L, -1, TYPE_IMG);   /* img ... --- just typecheck */
-                    n = luaL_ref(L, LUA_GLOBALSINDEX);  /* ... */
+                    n = luaL_ref(L, LUA_REGISTRYINDEX);  /* ... */
                     do_store_four(n);
                     break;
                 case packet_nop_code:
@@ -1110,7 +1110,7 @@ static void read_lua_parameters(lua_State * L, int f)
         lua_pushnil(L);         /* first key */
         while (lua_next(L, -2) != 0) {
             if (lua_isnumber(L, -2)) {
-                lua_number2int(i, lua_tonumber(L, -2));
+                i=(int)lua_tonumber(L, -2);
                 if (i > n)
                     n = i;
             }
@@ -1170,11 +1170,11 @@ static void read_lua_math_parameters(lua_State * L, int f)
         lua_pushnil(L);
         while (lua_next(L, -2) != 0) {
             if (lua_isnumber(L, -2)) {
-                lua_number2int(i, lua_tonumber(L, -2));
+                i=(int)lua_tonumber(L, -2);
             } else if (lua_isstring(L, -2)) {
                 i = ff_checkoption(L, -2, NULL, MATH_param_names);
             }
-            lua_number2int(n, lua_tonumber(L, -1));
+            n=(int)lua_tonumber(L, -1);
             if (i > 0) {
                 set_font_math_param(f, i, n);
             }
@@ -1192,13 +1192,13 @@ static void store_math_kerns(lua_State * L, charinfo * co, int id)
 {
     int l, k, i;
     scaled ht, krn;
-    if (lua_istable(L, -1) && ((k = (int) lua_objlen(L, -1)) > 0)) {
+    if (lua_istable(L, -1) && ((k = (int) lua_rawlen(L, -1)) > 0)) {
         for (l = 0; l < k; l++) {
             lua_rawgeti(L, -1, (l + 1));
             if (lua_istable(L, -1)) {
                 lua_getfield(L, -1, "height");
                 if (lua_isnumber(L, -1)) {
-                    lua_number2int(i, lua_tonumber(L, -1));
+                    i=(int)lua_tonumber(L, -1);
                     ht = (scaled) i;
                 } else {
                     ht = MIN_INF;
@@ -1206,7 +1206,7 @@ static void store_math_kerns(lua_State * L, charinfo * co, int id)
                 lua_pop(L, 1);
                 lua_getfield(L, -1, "kern");
                 if (lua_isnumber(L, -1)) {
-                    lua_number2int(i, lua_tonumber(L, -1));
+                    i=(int)lua_tonumber(L, -1);
                     krn = (scaled) i;
                 } else {
                     krn = MIN_INF;
@@ -1390,7 +1390,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
                 while (lua_next(L, -2) != 0) {
                     k = non_boundarychar;
                     if (lua_isnumber(L, -2)) {
-                        lua_number2int(k, lua_tonumber(L, -2)); /* adjacent char */
+                        k=(int)lua_tonumber(L, -2); /* adjacent char */
                         if (k < 0)
                             k = non_boundarychar;
                     } else if (lua_isstring(L, -2)) {
@@ -1452,7 +1452,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
                 while (lua_next(L, -2) != 0) {
                     k = non_boundarychar;
                     if (lua_isnumber(L, -2)) {
-                        lua_number2int(k, lua_tonumber(L, -2)); /* adjacent char */
+                        k=(int)lua_tonumber(L, -2); /* adjacent char */
                         if (k < 0) {
                             k = non_boundarychar;
                         }
@@ -1613,7 +1613,7 @@ int font_from_lua(lua_State * L, int f)
             if (lua_istable(L, -1)) {
                 lua_getfield(L, -1, "id");
                 if (lua_isnumber(L, -1)) {
-                    lua_number2int(l_fonts[i], lua_tonumber(L, -1));
+                    l_fonts[i]=(int)lua_tonumber(L, -1);
                     lua_pop(L, 2);      /* pop id  and entry */
                     continue;
                 }
@@ -1702,7 +1702,7 @@ int font_from_lua(lua_State * L, int f)
             lua_pushnil(L);     /* first key */
             while (lua_next(L, -2) != 0) {
                 if (lua_isnumber(L, -2)) {
-                    lua_number2int(i, lua_tonumber(L, -2));
+                    i=(int)lua_tonumber(L, -2);
                     if (i >= 0) {
                         font_char_from_lua(L, f, i, l_fonts, !no_math);
                     }

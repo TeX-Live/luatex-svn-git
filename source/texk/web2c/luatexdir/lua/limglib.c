@@ -26,8 +26,8 @@ static const char _svn_version[] =
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include "lua51/lua.h"
-#include "lua51/lauxlib.h"
+#include "lua52/lua.h"
+#include "lua52/lauxlib.h"
 
 #define IMG_ENV "img_env"
 
@@ -403,7 +403,7 @@ static void lua_to_image(lua_State * L, image * a)
             luaL_error(L, "image.bbox is now read-only");
         if (!lua_istable(L, -1))
             luaL_error(L, "image.bbox needs table value");
-        if (lua_objlen(L, -1) != 4)
+        if (lua_rawlen(L, -1) != 4)
             luaL_error(L, "image.bbox table must have exactly 4 elements");
         for (i = 1; i <= 4; i++) {      /* v k t ... */
             lua_pushinteger(L, i);      /* idx v k t ... */
@@ -471,8 +471,8 @@ static void copy_image(lua_State * L, lua_Number scale)
     img_transform(b) = img_transform(a);
     img_dict(b) = img_dict(a);
     if (img_dictref(a) != LUA_NOREF) {
-        lua_rawgeti(L, LUA_GLOBALSINDEX, img_dictref(a));       /* ad b */
-        img_dictref(b) = luaL_ref(L, LUA_GLOBALSINDEX); /* b */
+        lua_rawgeti(L, LUA_REGISTRYINDEX, img_dictref(a));       /* ad b */
+        img_dictref(b) = luaL_ref(L, LUA_REGISTRYINDEX); /* b */
     } else
         assert(img_state(img_dict(a)) >= DICT_REFERED);
 }
@@ -495,7 +495,7 @@ int l_new_image(lua_State * L)
     luaL_getmetatable(L, TYPE_IMG_DICT);        /* m ad i (t) */
     lua_setmetatable(L, -2);    /* ad i (t) */
     img_dict(a) = *add = new_image_dict();
-    img_dictref(a) = luaL_ref(L, LUA_GLOBALSINDEX);     /* i (t) */
+    img_dictref(a) = luaL_ref(L, LUA_REGISTRYINDEX);     /* i (t) */
     if (lua_gettop(L) == 2) {   /* i t, else just i */
         lua_insert(L, -2);      /* t i */
         lua_pushnil(L);         /* n t i (1st key for iterator) */
@@ -710,7 +710,7 @@ void vf_out_image(PDF pdf, unsigned i)
     image *a, **aa;
     image_dict *ad;
     lua_State *L = Luas;        /* ... */
-    lua_rawgeti(L, LUA_GLOBALSINDEX, (int) i);  /* image ... */
+    lua_rawgeti(L, LUA_REGISTRYINDEX, (int) i);  /* image ... */
     aa = (image **) luaL_checkudata(L, -1, TYPE_IMG);
     a = *aa;
     ad = img_dict(a);
@@ -777,7 +777,7 @@ static int m_img_gc(lua_State * L)
 #ifdef DEBUG
     printf("\n===== IMG GC ===== a=%d ad=%d\n", a, img_dict(a));
 #endif
-    luaL_unref(L, LUA_GLOBALSINDEX, img_dictref(a));
+    luaL_unref(L, LUA_REGISTRYINDEX, img_dictref(a));
     if (!img_is_refered(d))
         xfree(a);
     return 0;

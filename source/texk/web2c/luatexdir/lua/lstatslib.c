@@ -336,7 +336,7 @@ static int statslist(lua_State * L)
 
 
 
-static const struct luaL_reg statslib[] = {
+static const struct luaL_Reg statslib[] = {
     {"list", statslist},
     {NULL, NULL}                /* sentinel */
 };

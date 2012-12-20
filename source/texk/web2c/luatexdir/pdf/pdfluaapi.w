@@ -41,7 +41,7 @@ int new_pdflua(void)
         || lua_pcall(Luas, 0, 1, 0))
         pdftex_fail("new_pdflua(): lua_pcall()");
     luaL_checktype(Luas, -1, LUA_TTABLE);       /* t */
-    i = luaL_ref(Luas, LUA_GLOBALSINDEX);       /* - */
+    i = luaL_ref(Luas, LUA_REGISTRYINDEX);       /* - */
     xfree(uncompr);
     return i;
 }
@@ -50,7 +50,7 @@ int new_pdflua(void)
 void pdflua_begin_page(PDF pdf)
 {
     int err;                    /* ... */
-    lua_rawgeti(Luas, LUA_GLOBALSINDEX, pdf->pdflua_ref);       /* t ... */
+    lua_rawgeti(Luas, LUA_REGISTRYINDEX, pdf->pdflua_ref);       /* t ... */
     lua_pushstring(Luas, "beginpage");  /* s t ... */
     lua_gettable(Luas, -2);     /* f t ... */
     lua_newtable(Luas);         /* t f t ... */
@@ -73,7 +73,7 @@ void pdflua_begin_page(PDF pdf)
 void pdflua_end_page(PDF pdf, int annots, int beads)
 {
     int err;                    /* ... */
-    lua_rawgeti(Luas, LUA_GLOBALSINDEX, pdf->pdflua_ref);       /* t ... */
+    lua_rawgeti(Luas, LUA_REGISTRYINDEX, pdf->pdflua_ref);       /* t ... */
     lua_pushstring(Luas, "endpage");    /* s t ... */
     lua_gettable(Luas, -2);     /* f t ... */
     lua_newtable(Luas);         /* t f t ... */
@@ -106,7 +106,7 @@ void pdflua_end_page(PDF pdf, int annots, int beads)
 void pdflua_output_pages_tree(PDF pdf)
 {
     int err;
-    lua_rawgeti(Luas, LUA_GLOBALSINDEX, pdf->pdflua_ref);       /* t */
+    lua_rawgeti(Luas, LUA_REGISTRYINDEX, pdf->pdflua_ref);       /* t */
     lua_pushstring(Luas, "outputpagestree");    /* s t */
     lua_gettable(Luas, -2);     /* f */
     err = lua_pcall(Luas, 0, 0, 0);     /* - */

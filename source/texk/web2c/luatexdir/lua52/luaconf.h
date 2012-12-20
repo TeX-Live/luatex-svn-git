@@ -11,6 +11,11 @@
 #include <limits.h>
 #include <stddef.h>
 
+#include <c-auto.h>
+
+#define LUA_COMPAT_MODULE 1
+extern int luaL_typerror (void *L, int narg, const char *tname);
+
 
 /*
 ** ==================================================================
@@ -73,6 +78,11 @@
 #define LUA_USE_GMTIME_R
 #endif
 
+#if !defined(_WIN32)
+#if defined(HAVE_DLFCN_H)
+#define LUA_USE_DLOPEN /* needs an extra library: -ldl */
+#endif
+#endif
 
 
 /*
@@ -539,7 +549,6 @@
 ** Local configuration. You can use this space to add your redefinitions
 ** without modifying the main part of the file.
 */
-
 
 
 #endif

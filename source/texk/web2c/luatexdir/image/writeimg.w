@@ -37,8 +37,8 @@ static const char _svn_version[] =
 #include "image/writepng.h"
 #include "image/writejbig2.h"
 
-#include "lua51/lua.h"          /* for |LUA_NOREF| */
-#include "lua51/lauxlib.h"
+#include "lua52/lua.h"          /* for |LUA_NOREF| */
+#include "lua52/lauxlib.h"
 
 @ @c
 #define pdf_image_resolution int_par(pdf_image_resolution_code)

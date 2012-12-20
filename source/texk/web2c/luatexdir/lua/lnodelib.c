@@ -580,7 +580,7 @@ static int lua_nodelib_hpack(lua_State * L)
                                    "3rd argument should be either additional or exactly");
                 }
             } else if (lua_type(L, 3) == LUA_TNUMBER) {
-                lua_number2int(m, lua_tonumber(L, 3));
+                m=(int)lua_tonumber(L, 3);
             } else {
                 lua_pushstring(L, "incorrect 3rd argument");
             }
@@ -619,8 +619,8 @@ static int lua_nodelib_dimensions(lua_State * L)
             }
             i += 3;
             g_mult = (glue_ratio) lua_tonumber(L, 1);
-            lua_number2int(g_sign, lua_tonumber(L, 2));
-            lua_number2int(g_order, lua_tonumber(L, 3));
+            g_sign=(int)lua_tonumber(L, 2);
+            g_order=(int)lua_tonumber(L, 3);
         }
         n = *(check_isnode(L, i));
         if (lua_gettop(L) > i && !lua_isnil(L, (i + 1))) {
@@ -678,7 +678,7 @@ static int lua_nodelib_vpack(lua_State * L)
             }
 
             else if (lua_type(L, 3) == LUA_TNUMBER) {
-                lua_number2int(m, lua_tonumber(L, 3));
+                m=(int)lua_tonumber(L, 3);
             } else {
                 lua_pushstring(L, "incorrect 3rd argument");
             }
@@ -1013,8 +1013,8 @@ static int lua_nodelib_unset_attribute(lua_State * L)
     halfword *n;
     int i, val, ret;
     if (lua_gettop(L) <= 3) {
-        lua_number2int(i, luaL_checknumber(L, 2));
-        lua_number2int(val, luaL_optnumber(L, 3, UNUSED_ATTRIBUTE));
+        i=(int)luaL_checknumber(L, 2);
+        val=(int)luaL_optnumber(L, 3, UNUSED_ATTRIBUTE);
         n = check_isnode(L, 1);
         ret = unset_attribute(*n, i, val);
         if (ret > UNUSED_ATTRIBUTE) {
@@ -3513,7 +3513,7 @@ static int lua_nodelib_currentattr(lua_State * L)
 }
 
 
-static const struct luaL_reg nodelib_f[] = {
+static const struct luaL_Reg nodelib_f[] = {
     {"copy", lua_nodelib_copy},
     {"copy_list", lua_nodelib_copy_list},
     {"count", lua_nodelib_count},
@@ -3561,7 +3561,7 @@ static const struct luaL_reg nodelib_f[] = {
    {NULL, NULL}                /* sentinel */
 };
 
-static const struct luaL_reg nodelib_m[] = {
+static const struct luaL_Reg nodelib_m[] = {
     {"__index", lua_nodelib_getfield},
     {"__newindex", lua_nodelib_setfield},
     {"__tostring", lua_nodelib_print},

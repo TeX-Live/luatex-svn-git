@@ -187,7 +187,7 @@ int get_command_id(const char *s)
 static int get_cur_cmd(lua_State * L)
 {
     int r = 0;
-    size_t len = lua_objlen(L, -1);
+    size_t len = lua_rawlen(L, -1);
     cur_cs = 0;
     if (len == 3 || len == 2) {
         r = 1;
@@ -214,7 +214,7 @@ static int token_from_lua(lua_State * L)
 {
     int cmd, chr;
     int cs = 0;
-    size_t len = lua_objlen(L, -1);
+    size_t len = lua_rawlen(L, -1);
     if (len == 3 || len == 2) {
         lua_rawgeti(L, -1, 1);
         cmd = (int) lua_tointeger(L, -1);
@@ -319,7 +319,7 @@ int tokenlist_from_lua(lua_State * L)
     token_link(r) = null;
     p = r;
     if (lua_istable(L, -1)) {
-        j = lua_objlen(L, -1);
+        j = lua_rawlen(L, -1);
         if (j > 0) {
             for (i = 1; i <= j; i++) {
                 lua_rawgeti(L, -1, (int) i);
@@ -374,7 +374,7 @@ void do_get_token_lua(int callback_id)
                 /* build a token list */
                 r = get_avail();
                 p = r;
-                j = lua_objlen(L, -1);
+                j = lua_rawlen(L, -1);
                 if (j > 0) {
                     for (i = 1; i <= j; i++) {
                         lua_rawgeti(L, -1, (int) i);
