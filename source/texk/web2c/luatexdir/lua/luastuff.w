@@ -96,6 +96,7 @@ static int my_luapanic(lua_State * L)
 static const luaL_Reg lualibs[] = {
     {"", luaopen_base},
     {"package", luaopen_package},
+    {"coroutine", luaopen_coroutine},
     {"table", luaopen_table},
     {"io", luaopen_io},
     {"os", luaopen_os},
@@ -104,6 +105,7 @@ static const luaL_Reg lualibs[] = {
     {"debug", luaopen_debug},
     {"unicode", luaopen_unicode},
     {"zip", luaopen_zip},
+    {"bit32", luaopen_bit32},
     {"md5", luaopen_md5},
     {"lfs", luaopen_lfs},
     {"profiler", luaopen_profiler},
