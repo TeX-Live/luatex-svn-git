@@ -1,4 +1,4 @@
-% $Id: mp.w 1812 2012-12-17 09:10:01Z taco $
+% $Id: mp.w 1815 2012-12-21 15:21:28Z taco $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -2849,6 +2849,7 @@ A symbolic node is recycled by calling |free_symbolic_node|.
 void mp_free_node (MP mp, mp_node p, size_t siz) {  /* node liberation */
   FUNCTION_TRACE3 ("mp_free_node(%p,%d)\n", p, (int)siz);
   if (!p) return;
+  /* fprintf(stderr, "mp_free_node(%p,%d, %s)\n", p, (int)siz, mp_type_string(mp_type(p))); */
   mp->var_used -= siz;
   switch (mp_type (p)) {
   case mp_value_node_type:
@@ -2885,8 +2886,12 @@ void mp_free_node (MP mp, mp_node p, size_t siz) {  /* node liberation */
   case mp_text_node_type:
   case mp_transform_node_type:
   case mp_edge_header_node_type:
-  case mp_undefined:
   case mp_vacuous:
+     break;
+  case mp_undefined:
+     if (siz==value_node_size && ((mp_value_node)p)->data.n) {
+       free_number(((mp_value_node)p)->data.n);
+     }
      break;
   case mp_known:
      free_number(((mp_value_node)p)->data.n);
@@ -7005,8 +7010,7 @@ static mp_gr_knot mp_gr_new_knot (MP mp) {
 
 @c
 static mp_knot mp_copy_knot (MP mp, mp_knot p) {
-  mp_knot q;    /* the copy */
-  q = mp_new_knot (mp);
+  mp_knot q = mp_xmalloc (mp, 1, sizeof (struct mp_knot_data));
   memcpy (q, p, sizeof (struct mp_knot_data));
   new_number(q->x_coord);
   new_number(q->y_coord);
@@ -22107,6 +22111,7 @@ static void mp_recycle_value (MP mp, mp_node p) {
   new_number (v);
   new_number (vv);
   FUNCTION_TRACE2 ("mp_recycle_value(%p)\n", p);
+  /* fprintf (stderr, "mp_recycle_value(%p, %s)\n", p, mp_type_string(mp_type(p))); */
   t = mp_type (p);
   if (t < mp_dependent)
     number_clone (v, value_number (p));
