@@ -80,6 +80,7 @@ extern int luaopen_pdfscanner(lua_State * L);
 extern int luaopen_mplib(lua_State * L);
 
 extern void open_oslibext(lua_State * L, int safer_option);
+extern void open_strlibext(lua_State * L);
 extern void open_lfslibext(lua_State * L);
 
 extern void initfilecallbackids(int max);

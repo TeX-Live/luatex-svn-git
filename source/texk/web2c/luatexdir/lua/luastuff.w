@@ -190,6 +190,7 @@ void luainterpreter(void)
     luatex_md5_lua_open(L);
 
     open_oslibext(L, safer_option);
+    open_strlibext(L);
     open_lfslibext(L);
 
     /* luasockets */
