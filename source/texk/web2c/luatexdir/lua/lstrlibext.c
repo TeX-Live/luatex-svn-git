@@ -18,6 +18,10 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 #include "ptexlib.h"
+
+#include "lua52/lapi.h" /* various stuff needed for dump */
+#include "lua52/lundump.h" /* for luaU_dump */
+
 #include "lua/luatex-api.h"
 
 static const char _svn_version[] =
@@ -307,6 +311,44 @@ static int str_bytepairs (lua_State *L) {
 }
 
 
+
+static int writer (lua_State *L, const void* b, size_t size, void* B) {
+  (void)L;
+  luaL_addlstring((luaL_Buffer*) B, (const char *)b, size);
+  return 0;
+}
+
+static int lua_sdump (lua_State *L, lua_Writer writer, void *data, int stripping) {
+  int status;
+  TValue *o;
+  lua_lock(L);
+  api_checknelems(L, 1);
+  o = L->top - 1;
+  if (isLfunction(o))
+    status = luaU_dump(L, getproto(o), writer, data, stripping);
+  else
+    status = 1;
+  lua_unlock(L);
+  return status;
+}
+
+static int str_dump (lua_State *L) {
+  luaL_Buffer b;
+  int stripping = 0;
+  luaL_checktype(L, 1, LUA_TFUNCTION);
+  if (lua_gettop(L)==2) {
+      stripping = lua_toboolean(L,2);
+  }
+  lua_settop(L, 1);
+  luaL_buffinit(L,&b);
+  if (lua_sdump(L, writer, &b, stripping) != 0)
+    return luaL_error(L, "unable to dump given function");
+  luaL_pushresult(&b);
+  return 1;
+}
+
+
+
 static const luaL_Reg strlibext[] = {
   {"utfvalues", str_utfvalues},
   {"utfcharacters", str_utfcharacters},
@@ -315,12 +357,13 @@ static const luaL_Reg strlibext[] = {
   {"bytes", str_bytes},
   {"bytepairs", str_bytepairs},
   {"explode", str_split},
+  {"dump", str_dump},
   {NULL, NULL}
 };
 
 void open_strlibext(lua_State * L)
 {
-    luaL_Reg *lib;
+    const luaL_Reg *lib;
     lua_getglobal(L, "string");
     for (lib=strlibext;lib->name;lib++) {
         lua_pushcfunction(L, lib->func);

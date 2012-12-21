@@ -947,13 +947,8 @@ needs to check \type{--progname}, or \type{--ini} and \type{--fmt}, if
 
 {\bf NOTE:} \LUATEX\ 0.74.0 is the first version with Lua 5.2, and
 this is used without any patches to the core, which has some side
-effects.  In particular, we are now using the built-in \type{io}
-library, which means that some of the extended functionality is
-currently not present (yet?), and that Lua's \type{tonumber()} may
-return values in scientific notation, thereby confusing the \TEX\ end
-of things. Some of the documentation below in this section is not
-updated yet, while we are still deciding which extended features to
-keep and which will be removed.
+effects.  In particular, Lua's \type{tonumber()} may return values in
+scientific notation, thereby confusing the \TEX\ end of things.
 
 Starting from version 0.45, \LUATEX\ is able to use the kpathsea
 library to find \type{require()}d modules. For this purpose,
@@ -969,7 +964,7 @@ Initialization of \KPATHSEA\ can happen either implicitly (when
 \LUA\ function \type{kpse.set_program_name()}.
 
 
-Starting from version 0.46.0 (as an {\bf experimental} feature!) \LUATEX\ is
+Starting from version 0.46.0 \LUATEX\ is
 also able to use dynamically loadable \LUA\ libraries, unless
 \type{--safer} was given as an option on the command line.
 
@@ -1016,14 +1011,9 @@ function as normal. This change is new in 0.37.0.
 
 
 
-The \lua{read("*line")} function from the io library has been
-adjusted so that it is line|-|ending neutral: any of \type{LF}, \type
+The \lua{f:read("*line")} and \lua{f:lines()} functions from the io library have 
+been adjusted so that they are line|-|ending neutral: any of \type{LF}, \type
 {CR} or \type{CR+LF} are acceptable line endings.
-
-The \lua{tostring()} printer for numbers has been changed so that it
-returns~\type{0.00000000000001} instead of~\hbox{\type{1e-14}} (which
-confused \TEX\ enormously). Even values with an even smaller exponent
-print simply as~\type{0}.
 
 \lua{luafilesystem} has been extended: there are two extra boolean functions
 (\luatex{lfs.isdir(filename)} and \luatex{lfs.isfile(filename)}) and
@@ -1069,6 +1059,12 @@ number as its second return value if the string length was odd.
 
 The \luatex{string.characterpairs()} and \luatex{string.bytepairs()}
 are useful especially in the conversion of UTF-16 encoded data into UTF-8.
+
+
+Starting with \LUATEX\ 0.74, there is also a two-argument form of
+\type{string.dump()}. The second argument is a boolean which, if true,
+strips the symbols from the dumped data. This matches an extension
+made in \type{luajit}.
 
 Note: The \lua{string} library functions \luatex{len}, \luatex{lower},
 \luatex{sub} etc. are not \UNICODE|-|aware.  For strings in the UTF-8
