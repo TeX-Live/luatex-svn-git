@@ -1,4 +1,4 @@
-% $Id: mp.w 1802 2012-11-30 10:26:32Z taco $
+% $Id: mp.w 1812 2012-12-17 09:10:01Z taco $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -25805,7 +25805,7 @@ static void mp_bezier_slope (MP mp, mp_number ret, mp_number AX, mp_number AY, m
   free_number (xi);
   free_number (xo);
   free_number (xm);
-  set_number_from_double(ret, mp_floor(res));
+  set_number_from_double(ret, res);
   convert_scaled_to_angle (ret);
 }
 
@@ -25902,7 +25902,7 @@ static void mp_turn_cycles (MP mp, mp_number turns, mp_knot c) {
     if (number_nonzero(ang)) {
       number_add(res, ang);
       if (number_greaterequal(res, one_eighty_deg_t)) {
-        number_add(res, three_sixty_deg_t);
+        number_substract(res, three_sixty_deg_t);
         number_add(turns, unity_t);
       }
       if (number_lessequal(res, neg_one_eighty_deg_t)) {
@@ -29524,13 +29524,13 @@ static char *mplib_read_ascii_file (MP mp, void *ff, size_t * size) {
   return s;
 }
 static void mp_append_string (MP mp, mp_stream * a, const char *b) {
-  size_t l = strlen (b);
+  size_t l = strlen (b) + 1; /* don't forget the trailing '\0' */
   if ((a->used + l) >= a->size) {
     a->size += 256 + (a->size) / 5 + l;
     a->data = xrealloc (a->data, a->size, 1);
   }
   memcpy (a->data + a->used, b, l);
-  a->used += l;
+  a->used += (l-1);
 }
 static void mp_append_data (MP mp, mp_stream * a, void *b, size_t l) {
   if ((a->used + l) >= a->size) {

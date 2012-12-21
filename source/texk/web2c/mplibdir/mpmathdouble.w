@@ -1,4 +1,4 @@
-% $Id: mpmathdouble.w 1798 2012-11-28 15:03:46Z taco $
+% $Id: mpmathdouble.w 1804 2012-12-07 11:25:18Z taco $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
