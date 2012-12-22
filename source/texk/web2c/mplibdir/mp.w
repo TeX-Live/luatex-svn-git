@@ -2759,6 +2759,7 @@ control of what error messages the user receives.
 #define NODE_BODY                       \
   mp_variable_type type;                \
   mp_name_type_type name_type;          \
+  unsigned short has_number;		\
   struct mp_node_data *link
 typedef struct mp_node_data {
   NODE_BODY;
@@ -2832,6 +2833,7 @@ static mp_node mp_get_symbolic_node (MP mp) {
   p->type = mp_symbol_node;
   p->name_type = mp_normal_sym;
   new_number(p->data.n);
+  p->has_number = 1;
   FUNCTION_TRACE2 ("%p = mp_get_symbolic_node()\n", p);
   return (mp_node) p;
 }
@@ -2849,18 +2851,20 @@ A symbolic node is recycled by calling |free_symbolic_node|.
 void mp_free_node (MP mp, mp_node p, size_t siz) {  /* node liberation */
   FUNCTION_TRACE3 ("mp_free_node(%p,%d)\n", p, (int)siz);
   if (!p) return;
-  /* fprintf(stderr, "mp_free_node(%p,%d, %s)\n", p, (int)siz, mp_type_string(mp_type(p))); */
   mp->var_used -= siz;
+  if (p->has_number >= 1 && ((mp_symbolic_node)p)->data.n) {
+     free_number(((mp_symbolic_node)p)->data.n); 
+  }
+  if (p->has_number == 2 && ((mp_value_node)p)->subscript_) {
+     free_number(((mp_value_node)p)->subscript_); 
+  }
   switch (mp_type (p)) {
   case mp_value_node_type:
   case mp_dep_node_type:
   case mp_attr_node_type:
-     free_number(((mp_value_node)p)->data.n); 
-     free_number(((mp_value_node)p)->subscript_); 
      break;
   case mp_symbol_node:
   case mp_token_node_type:
-     free_number(((mp_symbolic_node)p)->data.n); 
      break;
   case mp_dash_node_type:
      free_number(((mp_dash_node)p)->start_x);
@@ -2886,15 +2890,10 @@ void mp_free_node (MP mp, mp_node p, size_t siz) {  /* node liberation */
   case mp_text_node_type:
   case mp_transform_node_type:
   case mp_edge_header_node_type:
+  case mp_undefined:
   case mp_vacuous:
      break;
-  case mp_undefined:
-     if (siz==value_node_size && ((mp_value_node)p)->data.n) {
-       free_number(((mp_value_node)p)->data.n);
-     }
-     break;
   case mp_known:
-     free_number(((mp_value_node)p)->data.n);
      break;
   default:
      /* there is at least one of these, |mp->cur_mod_| */
@@ -4972,6 +4971,7 @@ static mp_node mp_get_token_node (MP mp) {
   mp_token_node p = malloc_node (token_node_size);
   p->type = mp_token_node_type;
   new_number(p->data.n);
+  p->has_number = 1;
   FUNCTION_TRACE2 ("%p = mp_get_token_node()\n", p);
   return (mp_node) p;
 }
@@ -5384,6 +5384,7 @@ static mp_node mp_get_value_node (MP mp) {
   mp_type (p) = mp_value_node_type;
   new_number(p->data.n);
   new_number(p->subscript_);
+  p->has_number = 2;
   FUNCTION_TRACE2 ("%p = mp_get_value_node()\n", p);
   return (mp_node)p;
 }
@@ -7206,7 +7207,7 @@ void mp_toss_knot (MP mp, mp_knot q) {
   free_number (q->left_x); 
   free_number (q->left_y); 
   free_number (q->right_x); 
-  free_number (q->right_y); 
+  free_number (q->right_y);
   mp_xfree (q);
 }
 void mp_toss_knot_list (MP mp, mp_knot p) {
@@ -22111,7 +22112,6 @@ static void mp_recycle_value (MP mp, mp_node p) {
   new_number (v);
   new_number (vv);
   FUNCTION_TRACE2 ("mp_recycle_value(%p)\n", p);
-  /* fprintf (stderr, "mp_recycle_value(%p, %s)\n", p, mp_type_string(mp_type(p))); */
   t = mp_type (p);
   if (t < mp_dependent)
     number_clone (v, value_number (p));
