@@ -17,12 +17,17 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+/* The relative ordering of the header files is important here,
+   otherwise some of the defines that are needed for lua_sdump
+   come out wrong.
+ */
+#define LUA_CORE
+#include "lua.h"
+#include "lua52/luaconf.h"
+#include "lua52/lapi.h"
+#include "lua52/lundump.h"
+
 #include "ptexlib.h"
-
-#include "lua52/lapi.h" /* various stuff needed for dump */
-#include "lua52/lundump.h" /* for luaU_dump */
-
-#include "lua/luatex-api.h"
 
 static const char _svn_version[] =
     "$Id $ $URL $";
