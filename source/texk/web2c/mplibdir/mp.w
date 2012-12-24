@@ -1,4 +1,4 @@
-% $Id: mp.w 1815 2012-12-21 15:21:28Z taco $
+% $Id: mp.w 1817 2012-12-24 10:47:16Z taco $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -73,12 +73,12 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 1.770" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version 1.780" /* printed when \MP\ starts */
 @d true 1
 @d false 0
 
 @<Metapost version header@>=
-#define metapost_version "1.770"
+#define metapost_version "1.780"
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
 few typedefs and the header defintions for the externally used
@@ -20393,7 +20393,7 @@ void mp_stop_iteration (MP mp) {
   mp_loop_data *tmp;    /* for free() */
   p = mp->loop_ptr->type;
   if (p == PROGRESSION_FLAG) {
-    ;
+    mp_free_symbolic_node (mp, mp->loop_ptr->list);
   } else if (p == NULL) {
     q = mp->loop_ptr->list;
     while (q != NULL) {
@@ -33889,7 +33889,7 @@ struct mp_edge_object *mp_gr_export (MP mp, mp_edge_header_node h) {
   hh->maxx = (fabs(hh->maxx)<0.00001 ? 0 : hh->maxx);
   hh->maxy = number_to_double(h->maxy);
   hh->maxy = (fabs(hh->maxx)<0.00001 ? 0 : hh->maxy);
-  hh->filename = mp_xstrdup (mp, mp_get_output_file_name (mp));
+  hh->filename = mp_get_output_file_name (mp);
   c = round_unscaled (internal_value (mp_char_code));
   hh->charcode = c;
   hh->width = number_to_double (internal_value (mp_char_wd));

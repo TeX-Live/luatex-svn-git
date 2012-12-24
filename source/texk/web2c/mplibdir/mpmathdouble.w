@@ -1,4 +1,4 @@
-% $Id: mpmathdouble.w 1804 2012-12-07 11:25:18Z taco $
+% $Id: mpmathdouble.w 1818 2012-12-24 11:28:27Z taco $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -126,8 +126,8 @@ void * mp_initialize_double_math (MP mp);
 @d p_over_v_threshold 0x80000 /* TODO */
 @d equation_threshold 0.001
 @d tfm_warn_threshold 0.0625
-@d warning_limit 4.5E+15  /* this is a large value that can just be expressed without loss of precision */
-@d epsilon 4.5E-15
+@d warning_limit pow(2.0,52.0)  /* this is a large value that can just be expressed without loss of precision */
+@d epsilon pow(2.0,-52.0)
 
 @c
 void * mp_initialize_double_math (MP mp) {
