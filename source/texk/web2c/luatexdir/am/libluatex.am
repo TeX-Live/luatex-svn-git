@@ -205,7 +205,6 @@ libluatex_a_SOURCES += \
 	luatexdir/lua/liolibext.c \
 	luatexdir/lua/loslibext.c \
 	luatexdir/lua/lstrlibext.c \
-	luatexdir/lua/liolib.c \
 	luatexdir/lua/lpdflib.c \
 	luatexdir/lua/lstatslib.c \
 	luatexdir/lua/ltexiolib.c \
