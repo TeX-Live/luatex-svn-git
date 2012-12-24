@@ -948,7 +948,17 @@ needs to check \type{--progname}, or \type{--ini} and \type{--fmt}, if
 {\bf NOTE:} \LUATEX\ 0.74.0 is the first version with Lua 5.2, and
 this is used without any patches to the core, which has some side
 effects.  In particular, Lua's \type{tonumber()} may return values in
-scientific notation, thereby confusing the \TEX\ end of things.
+scientific notation, thereby confusing the \TEX\ end of things when it
+is used as the right-hand side of an assignment to a \type{\dimen}
+or \type{\count}. 
+
+{\bf NOTE:} Also in \LUATEX\ 0.74.0 (this is a change in Lua 5.2),
+loading dynamic Lua libraries will fail if there are two Lua libraries
+loaded at the same time (which will typically happen on Win32, because
+there is one Lua 5.2 inside luatex, and another will likely be linked
+to the \type{dll} file of the module itself). We plan to fix that later
+by switching \LUATEX\ itself to using de DLL version of Lua 5.2 inside
+\LUATEX\ instead of including a static version in the binary.
 
 Starting from version 0.45, \LUATEX\ is able to use the kpathsea
 library to find \type{require()}d modules. For this purpose,
@@ -962,7 +972,6 @@ Initialization of \KPATHSEA\ can happen either implicitly (when
 \LUATEX\ starts up and the startup script has not set
 \type{texconfig.kpse_init} to false), or explicitly by calling the
 \LUA\ function \type{kpse.set_program_name()}.
-
 
 Starting from version 0.46.0 \LUATEX\ is
 also able to use dynamically loadable \LUA\ libraries, unless
@@ -1199,6 +1208,12 @@ LC_NUMERIC=C
 
 \section {\LUA\ modules}
 
+{\bf NOTE}: Starting with \LUATEX\ 0.74, the implied use of the
+built-in Lua modules in this section is deprecated. If you want to use
+one of these libraries, please start your source file with a
+proper \type{require} line. In the near future, \LUATEX\ will switch
+to loading these modules on demand.
+
 Some modules that are normally external to \LUA\ are statically linked
 in with \LUATEX, because they offer useful functionality:
 
@@ -1240,6 +1255,13 @@ preloaded inside the executable, there are no external file dependencies.
 
 
 \chapter[libraries]{\LUATEX\ \LUA\ Libraries}
+
+{\bf NOTE}: Starting with \LUATEX\ 0.74, the implied use of the
+built-in Lua modules \type{epdf}, \type{fontloader}, \type{mplib},
+and \type{pdfscanner} is deprecated. If you want to use these, please
+start your source file with a proper \type{require} line. In the near
+future, \LUATEX\ will switch to loading these modules on demand.
+
 
 The interfacing between \TEX\ and \LUA\ is facilitated by a set of
 library modules. The \LUA\ libraries in this chapter are all defined and
