@@ -98,7 +98,7 @@ static const luaL_Reg lualibs[] = {
     {"package", luaopen_package},
     {"coroutine", luaopen_coroutine},
     {"table", luaopen_table},
-    {"io", luaopen_io},
+    {"io", open_iolibext},
     {"os", luaopen_os},
     {"string", luaopen_string},
     {"math", luaopen_math},
@@ -190,7 +190,9 @@ void luainterpreter(void)
     luatex_md5_lua_open(L);
 
     open_oslibext(L, safer_option);
+/*
     open_iolibext(L);
+*/
     open_strlibext(L);
     open_lfslibext(L);
 
