@@ -36,9 +36,6 @@
 #include "plugins.h"
 #include "encoding.h"
 
-#include "luatexdir/luatexcallbackids.h"
-extern char *luatex_find_file(const char *s, int callback_index);
-
 Encoding *default_encoding = NULL;
 
 static int32 tex_base_encoding[] = {
@@ -520,114 +517,7 @@ static struct cidmap *MakeDummyMap(char *registry,char *ordering,int supplement)
 return( ret );
 }
 
-struct cidmap *LoadMapFromFile(char *file,char *registry,char *ordering,
-	int supplement) {
-    struct cidmap *ret = galloc(sizeof(struct cidmap));
-    char *pt = strrchr(file,'.');
-    char *filebuffer= NULL, *filebuffer_head= NULL;
-    FILE *f = NULL;
-    int filebuffer_size = 0;
-    int file_opened = 0;
-    int callback_id;
-    int scancount = 0;
-    int cid1, cid2, uni, cnt, i;
-    char name[100];
-
-    while ( pt>file && isdigit(pt[-1]))
-	--pt;
-    ret->supplement = ret->maxsupple = strtol(pt,NULL,10);
-    if ( supplement>ret->maxsupple )
-	ret->maxsupple = supplement;
-    ret->registry = copy(registry);
-    ret->ordering = copy(ordering);
-    ret->next = cidmaps;
-    cidmaps = ret;
-
-    callback_id = callback_defined(read_cidmap_file_callback);
-    if (callback_id > 0) {
-	if (run_callback(callback_id, "S->bSd", file, &file_opened, &filebuffer, &filebuffer_size)) {
-	    if (!file_opened) {
-		filebuffer = NULL;
-	    }
-	} else {
-	    filebuffer = NULL;
-	}
-    } else {
-	if ((f = fopen(file,"rb"))) {
-	    if (!readbinfile(f, (unsigned char **)&filebuffer, &filebuffer_size)) {
-		filebuffer = NULL;
-	    }
-	    fclose(f);
-	}
-    }
-    if ( filebuffer==NULL ) {
-	ff_post_error(_("Missing cidmap file"),_("Couldn't open cidmap file: %s"), file );
-	ret->cidmax = ret->namemax = 0;
-	ret->unicode = NULL; ret->name = NULL;
-    } else if ( sscanf( filebuffer, "%d %d", &ret->cidmax, &ret->namemax )!=2 ) {
-	ff_post_error(_("Bad cidmap file"),_("%s is not a cidmap file, please download\nhttp://fontforge.sourceforge.net/cidmaps.tgz"), file );
-	fprintf( stderr, _("%s is not a cidmap file, please download\nhttp://fontforge.sourceforge.net/cidmaps.tgz"), file );
-	ret->cidmax = ret->namemax = 0;
-	ret->unicode = NULL; ret->name = NULL;
-    } else {
-	filebuffer_head = filebuffer;
-	/* ditch previous scan: */
-	(void)sscanf( filebuffer, "%d %d%n", &ret->cidmax, &ret->namemax, &scancount );
-	filebuffer += scancount;
-	ret->unicode = gcalloc(ret->namemax+1,sizeof(uint32));
-	ret->name = gcalloc(ret->namemax+1,sizeof(char *));
-	while ( 1 ) {
-	    cnt=sscanf( filebuffer, "%d..%d %x", &cid1, &cid2, (unsigned *) &uni );
-	    if ( cnt<=0 )
-	break;
-	    /* ditch previous scan: */
-	    (void)sscanf( filebuffer, "%d..%d %x%n", &cid1, &cid2, (unsigned *) &uni, &scancount );
-	    filebuffer += scancount;
-	    if ( cid1>ret->namemax )
-	continue;
-	    if ( cnt==3 ) {
-		if ( cid2>ret->namemax ) cid2 = ret->namemax;
-		for ( i=cid1; i<=cid2; ++i )
-		    ret->unicode[i] = uni++;
-	    } else if ( cnt==1 ) {
-		if ( sscanf(filebuffer,"%x", (unsigned *) &uni )==1 ) {
-		    /* ditch previous scan: */
-		    (void)sscanf(filebuffer,"%x%n", (unsigned *) &uni, &scancount );
-       		    filebuffer += scancount;
-		    ret->unicode[cid1] = uni;
-		} else if ( sscanf(filebuffer," /%s", name )==1 ) {
-		    /* ditch previous scan: */
-		    (void)sscanf(filebuffer," /%s%n", name, &scancount );
-       		    filebuffer += scancount;
-		    ret->name[cid1] = copy(name);
-		}
-	    }
-	}
-    }
-    if (filebuffer_head)
-	free(filebuffer_head);
-    free(file);
-return( ret );
-}
-
 struct cidmap *FindCidMap(char *registry,char *ordering,int supplement,SplineFont *sf) {
-    char *file = NULL;
-    char buf[100];
-    
-    if ( sf!=NULL && sf->cidmaster ) sf = sf->cidmaster;
-    if ( sf!=NULL && sf->loading_cid_map )
-return( NULL );
-
-#if defined( _NO_SNPRINTF ) || defined( __VMS )
-    sprintf(buf,"%s-%s-%d.cidmap", registry, ordering, supplement );
-#else
-    snprintf(buf,sizeof(buf),"%s-%s-%d.cidmap", registry, ordering, supplement );
-#endif
-    file = luatex_find_file(buf, find_cidmap_file_callback);
-
-    if ( file!=NULL )
-return( LoadMapFromFile(file,registry,ordering,supplement));
-
 return( MakeDummyMap(registry,ordering,supplement));
 }
 

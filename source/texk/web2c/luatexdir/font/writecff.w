@@ -1766,8 +1766,8 @@ long cff_read_charsets(cff_font * cff)
     }
 
     if (count > 0) {
-        fprintf(stdout, "count=%d\n", count);
-        CFF_ERROR("Charset data possibly broken");
+        /* fprintf(stdout, "count=%d\n", count); */
+        WARN("Charset data possibly broken (num_glyphs too high)");
     }
 
     return length;
