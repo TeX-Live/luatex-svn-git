@@ -108,6 +108,7 @@ if test "x$kpse_cv_have_win32" = xno; then
   kpse_save_LIBS=$LIBS
   AC_SEARCH_LIBS([gethostbyname], [nsl])
   AC_SEARCH_LIBS([inet_aton], [resolv])
+  AC_SEARCH_LIBS([hstrerror], [resolv])
   LIBS=$kpse_save_LIBS
   AC_SEARCH_LIBS([nanosleep], [rt])
   LIBS=$kpse_save_LIBS
@@ -125,6 +126,10 @@ if test "x$kpse_cv_have_win32" = xno; then
           ["none required"], [],
           [no], [WEB2C_DISABLE([luatex], [no inet_aton()])],
               [lua_socketlibs="$lua_socketlibs $ac_cv_search_inet_aton"])
+  AS_CASE([$ac_cv_search_hstrerror],
+          ["none required"], [],
+          [no], [WEB2C_DISABLE([luatex], [no hstrerror()])],
+              [lua_socketlibs="$lua_socketlibs $ac_cv_search_hstrerror"])
   AS_CASE([$ac_cv_search_gethostbyname],
           ["none required"], [],
           [no], [WEB2C_DISABLE([luatex], [no gethostbyname()])],
