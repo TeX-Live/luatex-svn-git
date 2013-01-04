@@ -1162,7 +1162,7 @@ static pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
                         a = height_plus_depth(f, cur->glyph);
                     else
                         a = char_width(f, cur->glyph);
-                    assert(a > 0);
+                    assert(a >= 0);
                 }
 		b_max += a - c;
 		prev_overlap = cur->end_overlap;
@@ -1181,7 +1181,7 @@ static pointer get_delim_box(extinfo * ext, internal_font_number f, scaled v,
                             a = height_plus_depth(f, cur->glyph);
                         else
                             a = char_width(f, cur->glyph);
-                        assert(a > 0);
+                        assert(a >= 0);
                     }
 		    b_max += a - c;
 		    prev_overlap = cur->end_overlap;
