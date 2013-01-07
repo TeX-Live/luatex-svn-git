@@ -464,6 +464,9 @@ main (int ac, string *av)
 #  ifdef WIN32
     _setmaxstdio(2048);
 #  endif
+#  ifdef __MINGW32__
+    _set_error_mode (_OUT_TO_STDERR);
+#  endif
 
     lua_initialize(ac, av);
 
