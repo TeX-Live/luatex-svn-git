@@ -137,6 +137,7 @@ static int load_aux (lua_State *L, int status) {
 
 @ @c
 static int luatex_loadfile (lua_State *L) {
+  int status = 0;
   const char *fname = luaL_optstring(L, 1, NULL);
   const char *mode = luaL_optstring(L, 2, NULL);
   int env = !lua_isnone(L, 3);  /* 'env' parameter? */
@@ -145,7 +146,7 @@ static int luatex_loadfile (lua_State *L) {
      lua_pushstring(L, "reading from stdin is disabled in batch mode");
      return 2;  /* return nil plus error message */
   }
-  int status = luaL_loadfilex(L, fname, mode);
+  status = luaL_loadfilex(L, fname, mode);
   if (status == LUA_OK && env) {  /* 'env' parameter? */
     lua_pushvalue(L, 3);
     lua_setupvalue(L, -2, 1);  /* set it as 1st upvalue of loaded chunk */
