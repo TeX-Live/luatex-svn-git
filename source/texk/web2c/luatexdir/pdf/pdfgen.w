@@ -1,6 +1,6 @@
 % pdfgen.w
 %
-% Copyright 2009-2012 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2009-2013 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -1283,6 +1283,14 @@ void pdf_add_int(PDF pdf, int i)
     pdf->cave = 1;
 }
 
+void pdf_add_longint(PDF pdf, longinteger n)
+{
+    if (pdf->cave > 0)
+        pdf_out(pdf, ' ');
+    pdf_print_int(pdf, n);
+    pdf->cave = 1;
+}
+
 void pdf_add_string(PDF pdf, const char *s)
 {
     if (pdf->cave > 0)
@@ -2550,9 +2558,9 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
             }
             pdf_puts(pdf, "startxref\n");
             if (pdf->os_enable)
-                pdf_add_int(pdf, (int) obj_offset(pdf, xref_stm));
+                pdf_add_longint(pdf, (longinteger) obj_offset(pdf, xref_stm));
             else
-                pdf_add_int(pdf, (int) pdf->save_offset);
+                pdf_add_longint(pdf, (longinteger) pdf->save_offset);
             pdf_puts(pdf, "\n%%EOF\n");
 
             pdf_flush(pdf);

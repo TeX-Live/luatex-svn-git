@@ -1,6 +1,6 @@
 /* pdfgen.h
 
-   Copyright 2009-2011 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2013 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -121,6 +121,7 @@ extern void pdf_print_str(PDF, const char *);
 extern void pdf_add_null(PDF);
 extern void pdf_add_bool(PDF, int i);
 extern void pdf_add_int(PDF, int i);
+extern void pdf_add_longint(PDF, longinteger n);
 extern void pdf_add_ref(PDF, int num);
 extern void pdf_add_string(PDF, const char *s);
 extern void pdf_add_name(PDF, const char *name);
