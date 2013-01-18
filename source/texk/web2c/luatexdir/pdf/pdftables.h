@@ -1,6 +1,6 @@
 /* pdftables.h
 
-   Copyright 2009-2011 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2013 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -90,10 +90,10 @@ well.
 #  define set_obj_stop(pdf,A,B)      obj_stop(pdf,A)=(B)
 #  define set_obj_data_ptr(pdf,A,B)  obj_data_ptr(pdf,A)=(B)
 
-#  define set_obj_fresh(pdf,A)       obj_offset(pdf,(A))=-2
-#  define set_obj_scheduled(pdf,A)   if (intcast(obj_offset(pdf,A))==-2) obj_offset(pdf,A)=-1
-#  define is_obj_scheduled(pdf,A)    (intcast(obj_offset(pdf,A))>-2)
-#  define is_obj_written(pdf,A)      (intcast(obj_offset(pdf,A))>-1)
+#  define set_obj_fresh(pdf,A)       obj_offset(pdf,(A))=-2l
+#  define set_obj_scheduled(pdf,A)   if (obj_offset(pdf,A)==-2l) obj_offset(pdf,A)=-1l
+#  define is_obj_scheduled(pdf,A)    ((obj_offset(pdf,A))>-2l)
+#  define is_obj_written(pdf,A)      ((obj_offset(pdf,A))>-1l)
 
 /*  NOTE: The data structure definitions for the nodes on the typesetting side are
     inside |nodes.h| */

@@ -92,9 +92,9 @@ static void strbuf_room(strbuf_s * b, size_t n)
 
 @ Seek to position |offset| within buffer. Position must be valid.
 @c
-void strbuf_seek(strbuf_s * b, off_t offset)
+void strbuf_seek(strbuf_s * b, long offset)
 {
-    assert(offset >= 0 && offset < (off_t) b->size);
+    assert(offset >= 0 && offset < (long) b->size);
     b->p = b->data + offset;
 }
 
@@ -340,7 +340,7 @@ static void write_zip(PDF pdf)
     while (true) {
         if (s->avail_out == 0 || (finish && s->avail_out < ZIP_BUF_SIZE)) {
             zip_len = ZIP_BUF_SIZE - s->avail_out;
-            pdf->gone += (off_t) xfwrite(pdf->zipbuf, 1, zip_len, pdf->file);
+            pdf->gone += (long) xfwrite(pdf->zipbuf, 1, zip_len, pdf->file);
             pdf->last_byte = pdf->zipbuf[zip_len - 1];
             s->next_out = (Bytef *) pdf->zipbuf;
             s->avail_out = ZIP_BUF_SIZE;
@@ -363,7 +363,7 @@ static void write_zip(PDF pdf)
         if (err != Z_OK && err != Z_STREAM_END)
             pdftex_fail("zlib: deflate() failed (error code %d)", err);
     }
-    pdf->stream_length = (off_t) s->total_out;
+    pdf->stream_length = (long) s->total_out;
 }
 
 @ @c
@@ -385,7 +385,7 @@ static void write_nozip(PDF pdf)
         return;
     pdf->stream_length = pdf_offset(pdf) - pdf->save_offset;
     pdf->gone +=
-        (off_t) xfwrite((char *) buf->data, sizeof(char), l, pdf->file);
+        (long) xfwrite((char *) buf->data, sizeof(char), l, pdf->file);
     pdf->last_byte = *(buf->p - 1);
 }
 
@@ -398,7 +398,7 @@ to finish it. The stream contents will be compressed if compression is turn on.
 void pdf_flush(PDF pdf)
 {                               /* flush out the |pdf->buf| */
     os_struct *os = pdf->os;
-    off_t saved_pdf_gone = pdf->gone;
+    long saved_pdf_gone = pdf->gone;
     assert(pdf->buf == os->buf[os->curbuf]);
     switch (os->curbuf) {
     case PDFOUT_BUF:
@@ -569,7 +569,7 @@ void pdf_print_int(PDF pdf, longinteger n)
 {
     char s[24];
     int w;
-    w = snprintf(s, 23, "%ld", n);
+    w = snprintf(s, 23, "%" LONGINTEGER_PRI "d", n);
     check_nprintf(w, 23);
     pdf_out_block(pdf, (const char *) s, (size_t) w);
 }
@@ -714,9 +714,9 @@ void pdf_end_stream(PDF pdf)
     pdf_puts(pdf, "endstream");
     /* write stream /Length */
     if (pdf->seek_write_length && pdf->draftmode == 0) {
-        xfseeko(pdf->file, (off_t) pdf->stream_length_offset, SEEK_SET,
+        xfseeko(pdf->file, (off_t)pdf->stream_length_offset, SEEK_SET,
                 pdf->job_name);
-        fprintf(pdf->file, "%" LONGINTEGER_PRI "i", (long int) pdf->stream_length);
+        fprintf(pdf->file, "%" LONGINTEGER_PRI "i", pdf->stream_length);
         xfseeko(pdf->file, 0, SEEK_END, pdf->job_name);
     }
     pdf->seek_write_length = false;
