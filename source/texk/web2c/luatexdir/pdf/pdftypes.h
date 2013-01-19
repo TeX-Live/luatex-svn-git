@@ -146,7 +146,7 @@ typedef struct obj_entry_ {
         char *str0;
     } u;
     int int1;
-    long int2;
+    off_t int2;
     int int3;
     union {
         int int4;
@@ -282,8 +282,8 @@ typedef struct pdf_output_file_ {
 
     strbuf_s *buf;              /* pointer to the current stream buffer (PDF stream, ObjStm, or Lua) */
 
-    long save_offset;          /* to save |pdf_offset| */
-    long gone;                 /* number of bytes that were flushed to output */
+    off_t save_offset;          /* to save |pdf_offset| */
+    off_t gone;                 /* number of bytes that were flushed to output */
 
     char *printf_buf;           /* a scratch buffer for |pdf_printf| */
 
@@ -321,8 +321,8 @@ typedef struct pdf_output_file_ {
     int last_pages;             /* pointer to most recently generated pages object */
     int last_page;              /* pointer to most recently generated page object */
     int last_stream;            /* pointer to most recently generated stream */
-    long stream_length;        /* length of most recently generated stream */
-    long stream_length_offset; /* file offset of the last stream length */
+    off_t stream_length;        /* length of most recently generated stream */
+    off_t stream_length_offset; /* file offset of the last stream length */
     int seek_write_length;      /* flag whether to seek back and write \.{/Length} */
     int last_byte;              /* byte most recently written to PDF file; for \.{endstream} in new line */
 

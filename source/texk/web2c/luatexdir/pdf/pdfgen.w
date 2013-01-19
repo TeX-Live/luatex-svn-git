@@ -92,9 +92,9 @@ static void strbuf_room(strbuf_s * b, size_t n)
 
 @ Seek to position |offset| within buffer. Position must be valid.
 @c
-void strbuf_seek(strbuf_s * b, long offset)
+void strbuf_seek(strbuf_s * b, off_t offset)
 {
-    assert(offset >= 0 && offset < (long) b->size);
+    assert(offset >= 0 && offset < (off_t) b->size);
     b->p = b->data + offset;
 }
 
@@ -340,7 +340,7 @@ static void write_zip(PDF pdf)
     while (true) {
         if (s->avail_out == 0 || (finish && s->avail_out < ZIP_BUF_SIZE)) {
             zip_len = ZIP_BUF_SIZE - s->avail_out;
-            pdf->gone += (long) xfwrite(pdf->zipbuf, 1, zip_len, pdf->file);
+            pdf->gone += (off_t) xfwrite(pdf->zipbuf, 1, zip_len, pdf->file);
             pdf->last_byte = pdf->zipbuf[zip_len - 1];
             s->next_out = (Bytef *) pdf->zipbuf;
             s->avail_out = ZIP_BUF_SIZE;
@@ -363,7 +363,7 @@ static void write_zip(PDF pdf)
         if (err != Z_OK && err != Z_STREAM_END)
             pdftex_fail("zlib: deflate() failed (error code %d)", err);
     }
-    pdf->stream_length = (long) s->total_out;
+    pdf->stream_length = (off_t) s->total_out;
 }
 
 @ @c
@@ -385,7 +385,7 @@ static void write_nozip(PDF pdf)
         return;
     pdf->stream_length = pdf_offset(pdf) - pdf->save_offset;
     pdf->gone +=
-        (long) xfwrite((char *) buf->data, sizeof(char), l, pdf->file);
+        (off_t) xfwrite((char *) buf->data, sizeof(char), l, pdf->file);
     pdf->last_byte = *(buf->p - 1);
 }
 
@@ -398,7 +398,7 @@ to finish it. The stream contents will be compressed if compression is turn on.
 void pdf_flush(PDF pdf)
 {                               /* flush out the |pdf->buf| */
     os_struct *os = pdf->os;
-    long saved_pdf_gone = pdf->gone;
+    off_t saved_pdf_gone = pdf->gone;
     assert(pdf->buf == os->buf[os->curbuf]);
     switch (os->curbuf) {
     case PDFOUT_BUF:

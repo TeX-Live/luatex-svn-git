@@ -90,10 +90,10 @@ well.
 #  define set_obj_stop(pdf,A,B)      obj_stop(pdf,A)=(B)
 #  define set_obj_data_ptr(pdf,A,B)  obj_data_ptr(pdf,A)=(B)
 
-#  define set_obj_fresh(pdf,A)       obj_offset(pdf,(A))=-2l
-#  define set_obj_scheduled(pdf,A)   if (obj_offset(pdf,A)==-2l) obj_offset(pdf,A)=-1l
-#  define is_obj_scheduled(pdf,A)    ((obj_offset(pdf,A))>-2l)
-#  define is_obj_written(pdf,A)      ((obj_offset(pdf,A))>-1l)
+#  define set_obj_fresh(pdf,A)       obj_offset(pdf,(A))=(off_t)-2
+#  define set_obj_scheduled(pdf,A)   if (obj_offset(pdf,A)==(off_t)-2) obj_offset(pdf,A)=(off_t)-1
+#  define is_obj_scheduled(pdf,A)    ((obj_offset(pdf,A))>(off_t)-2)
+#  define is_obj_written(pdf,A)      ((obj_offset(pdf,A))>(off_t)-1)
 
 /*  NOTE: The data structure definitions for the nodes on the typesetting side are
     inside |nodes.h| */
