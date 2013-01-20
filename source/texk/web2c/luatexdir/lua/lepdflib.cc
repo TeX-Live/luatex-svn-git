@@ -19,7 +19,8 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 static const char _svn_version[] =
-    "$Id: lepdflib.cc,v 1.4 2013/01/20 19:46:10 hahe Exp hahe $ " "$URL$";
+    "$Id$ "
+    "$URL$";
 
 #include "image/epdf.h"
 
@@ -892,6 +893,11 @@ static const struct luaL_Reg Dict_m[] = {
 // EmbFile
 
 m_poppler_get_INT(EmbFile, size);
+m_poppler_get_GOOSTRING(EmbFile, modDate);
+m_poppler_get_GOOSTRING(EmbFile, createDate);
+m_poppler_get_GOOSTRING(EmbFile, checksum);
+m_poppler_get_GOOSTRING(EmbFile, mimeType);
+
 m_poppler_get_BOOL(EmbFile, isOk);
 
 static int m_EmbFile_save(lua_State * L)
@@ -914,6 +920,10 @@ m_poppler__tostring(EmbFile);
 
 static const struct luaL_Reg EmbFile_m[] = {
     {"size", m_EmbFile_size},
+    {"modDate", m_EmbFile_modDate},
+    {"createDate", m_EmbFile_createDate},
+    {"checksum", m_EmbFile_checksum},
+    {"mimeType", m_EmbFile_mimeType},
     {"isOk", m_EmbFile_isOk},
     {"save", m_EmbFile_save},
     {"__tostring", m_EmbFile__tostring},
