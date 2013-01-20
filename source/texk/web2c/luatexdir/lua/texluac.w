@@ -1,7 +1,7 @@
 % texluac.w
 %
 % Copyright (C) 1994-2007 Lua.org, PUC-Rio.  All rights reserved.
-% Copyright 2006-2012 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2013 Taco Hoekwater <taco@@luatex.org>
 %
 % Permission is hereby granted, free of charge, to any person obtaining
 % a copy of this software and associated documentation files (the
@@ -49,6 +49,13 @@ static const char _svn_version[] =
 #include "lua52/lundump.h"
 
 #include "lua/luatex-api.h"
+
+#include <ctype.h>
+#include <stdio.h>
+
+#include "ldebug.h"
+#include "lobject.h"
+#include "lopcodes.h"
 
 static void PrintFunction(const Proto* f, int full);
 #define luaU_print	PrintFunction
@@ -256,20 +263,9 @@ int luac_main(int ac, char *av[])
 }
 
 /*
-** $Id$
 ** print bytecodes
 ** See Copyright Notice in lua.h
 */
-
-#include <ctype.h>
-#include <stdio.h>
-
-#define luac_c
-#define LUA_CORE
-
-#include "ldebug.h"
-#include "lobject.h"
-#include "lopcodes.h"
 
 #define VOID(p)		((const void*)(p))
 
