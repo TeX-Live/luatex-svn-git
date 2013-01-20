@@ -54,6 +54,7 @@ extern "C" {
 #  include "PDFDoc.h"
 #  include "GlobalParams.h"
 #  include "Error.h"
+#  include "FileSpec.h"
 
 extern "C" {
 

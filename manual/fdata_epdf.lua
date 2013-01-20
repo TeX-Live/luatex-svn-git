@@ -351,13 +351,13 @@ local fdata_epdf = {
       },
       embeddedFile = {
         type = "function",
-        shortdesc = "Get embedded file.",
+        shortdesc = "Get file spec of embedded file.",
         arguments = {
           {type = "Catalog", name = "catalog", optional = false, },
           {type = "integer", name = "integer", optional = false, },
         },
         returnvalues = {
-          {type = "EmbFile", name = "var", optional = false, },
+          {type = "FileSpec", name = "var", optional = false, },
         },
       },
       numJS = {
@@ -492,6 +492,70 @@ local fdata_epdf = {
         },
         returnvalues = {
           {type = "boolean", name = "var", optional = false, },
+        },
+      },
+      save = {
+        type = "function",
+        shortdesc = "Save embedded file to disk.",
+        arguments = {
+          {type = "EmbFile", name = "embfile", optional = false, },
+          {type = "string", name = "var", optional = false, },
+        },
+        returnvalues = {
+          {type = "boolean", name = "var", optional = false, },
+        },
+      },
+    },
+------------------------------------------------------------------------
+    FileSpec = {
+      isOk = {
+        type = "function",
+        shortdesc = "Check if filespec is ok.",
+        arguments = {
+          {type = "FileSpec", name = "filespec", optional = false, },
+        },
+        returnvalues = {
+          {type = "boolean", name = "var", optional = false, },
+        },
+      },
+      getFileName = {
+        type = "function",
+        shortdesc = "Get file name of filespec.",
+        arguments = {
+          {type = "FileSpec", name = "filespec", optional = false, },
+        },
+        returnvalues = {
+          {type = "string", name = "string", optional = false, },
+        },
+      },
+      getFileNameForPlatform = {
+        type = "function",
+        shortdesc = "Get file name for platform of filespec.",
+        arguments = {
+          {type = "FileSpec", name = "filespec", optional = false, },
+        },
+        returnvalues = {
+          {type = "string", name = "string", optional = false, },
+        },
+      },
+      getDescription = {
+        type = "function",
+        shortdesc = "Get description of filespec.",
+        arguments = {
+          {type = "FileSpec", name = "filespec", optional = false, },
+        },
+        returnvalues = {
+          {type = "string", name = "string", optional = false, },
+        },
+      },
+      getEmbeddedFile = {
+        type = "function",
+        shortdesc = "Get embedded file of filespec.",
+        arguments = {
+          {type = "FileSpec", name = "filespec", optional = false, },
+        },
+        returnvalues = {
+          {type = "EmbFile", name = "embfile", optional = false, },
         },
       },
     },

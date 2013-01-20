@@ -1,7 +1,7 @@
 /* lepdflib.cc
 
-   Copyright 2009-2012 Taco Hoekwater <taco@luatex.org>
-   Copyright 2009-2012 Hartmut Henkel <hartmut@luatex.org>
+   Copyright 2009-2013 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2013 Hartmut Henkel <hartmut@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -19,8 +19,7 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 static const char _svn_version[] =
-    "$Id$ "
-    "$URL$";
+    "$Id: lepdflib.cc,v 1.4 2013/01/20 19:46:10 hahe Exp hahe $ " "$URL$";
 
 #include "image/epdf.h"
 
@@ -53,6 +52,8 @@ static const char *ErrorCodeNames[] = { "None", "OpenFile", "BadCatalog",
 #define M_Array            "Array"
 #define M_Catalog          "Catalog"
 #define M_Dict             "Dict"
+#define M_EmbFile          "EmbFile"
+#define M_FileSpec         "FileSpec"
 #define M_GooString        "GooString"
 #define M_LinkDest         "LinkDest"
 #define M_Link             "Link"
@@ -85,6 +86,8 @@ new_poppler_userdata(Annot);
 new_poppler_userdata(Array);
 new_poppler_userdata(Catalog);
 new_poppler_userdata(Dict);
+new_poppler_userdata(EmbFile);
+new_poppler_userdata(FileSpec);
 new_poppler_userdata(LinkDest);
 new_poppler_userdata(Links);
 new_poppler_userdata(Object);
@@ -615,6 +618,25 @@ static int m_Catalog_findDest(lua_State * L)
 m_poppler_get_poppler(Catalog, Object, getDests);
 m_poppler_get_INT(Catalog, numEmbeddedFiles);
 
+static int m_Catalog_embeddedFile(lua_State * L)
+{
+    int i, len;
+    udstruct *uin, *uout;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Catalog);
+    if (uin->pd != NULL && uin->pd->pc != uin->pc)
+        pdfdoc_changed_error(L);
+    i = luaL_checkint(L, 2);
+    len = ((Catalog *) uin->d)->numEmbeddedFiles();
+    if (i > 0 && i <= len) {
+        uout = new_FileSpec_userdata(L);
+        uout->d = ((Catalog *) uin->d)->embeddedFile(i - 1);
+        uout->pc = uin->pc;
+        uout->pd = uin->pd;
+    } else
+        lua_pushnil(L);
+    return 1;
+}
+
 m_poppler_get_INT(Catalog, numJS);
 
 static int m_Catalog_getJS(lua_State * L)
@@ -656,6 +678,7 @@ static const struct luaL_Reg Catalog_m[] = {
     {"findDest", m_Catalog_findDest},
     {"getDests", m_Catalog_getDests},
     {"numEmbeddedFiles", m_Catalog_numEmbeddedFiles},
+    {"embeddedFile", m_Catalog_embeddedFile},
     {"numJS", m_Catalog_numJS},
     {"getJS", m_Catalog_getJS},
     {"getOutline", m_Catalog_getOutline},
@@ -862,6 +885,71 @@ static const struct luaL_Reg Dict_m[] = {
     {"getValNF", m_Dict_getValNF},
     {"hasKey", m_Dict_hasKey},
     {"__tostring", m_Dict__tostring},
+    {NULL, NULL}                // sentinel
+};
+
+//**********************************************************************
+// EmbFile
+
+m_poppler_get_INT(EmbFile, size);
+m_poppler_get_BOOL(EmbFile, isOk);
+
+static int m_EmbFile_save(lua_State * L)
+{
+    const char *s;
+    size_t len;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_EmbFile);
+    if (uin->pd != NULL && uin->pd->pc != uin->pc)
+        pdfdoc_changed_error(L);
+    s = luaL_checklstring(L, 2, &len);
+    if (((EmbFile *) uin->d)->save(s))
+        lua_pushboolean(L, 1);
+    else
+        lua_pushboolean(L, 0);
+    return 1;
+}
+
+m_poppler__tostring(EmbFile);
+
+static const struct luaL_Reg EmbFile_m[] = {
+    {"size", m_EmbFile_size},
+    {"isOk", m_EmbFile_isOk},
+    {"save", m_EmbFile_save},
+    {"__tostring", m_EmbFile__tostring},
+    {NULL, NULL}                // sentinel
+};
+
+//**********************************************************************
+// FileSpec
+
+m_poppler_get_BOOL(FileSpec, isOk);
+m_poppler_get_GOOSTRING(FileSpec, getFileName);
+m_poppler_get_GOOSTRING(FileSpec, getFileNameForPlatform);
+m_poppler_get_GOOSTRING(FileSpec, getDescription);
+
+static int m_FileSpec_getEmbeddedFile(lua_State * L)
+{
+    udstruct *uin, *uout;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_FileSpec);
+    if (uin->pd != NULL && uin->pd->pc != uin->pc)
+        pdfdoc_changed_error(L);
+    uout = new_EmbFile_userdata(L);
+    uout->d = ((FileSpec *) uin->d)->getEmbeddedFile();
+    uout->pc = uin->pc;
+    uout->pd = uin->pd;
+    return 1;
+}
+
+m_poppler__tostring(FileSpec);
+
+static const struct luaL_Reg FileSpec_m[] = {
+    {"isOk", m_FileSpec_isOk},
+    {"getFileName", m_FileSpec_getFileName},
+    {"getFileNameForPlatform", m_FileSpec_getFileNameForPlatform},
+    {"getDescription", m_FileSpec_getDescription},
+    {"getEmbeddedFile", m_FileSpec_getEmbeddedFile},
+    {"__tostring", m_FileSpec__tostring},
     {NULL, NULL}                // sentinel
 };
 
@@ -1772,7 +1860,7 @@ static int m_Object__gc(lua_State * L)
 #endif
     if (uin->atype == ALLOC_LEPDF) {
         ((Object *) uin->d)->free();
-	delete (Object *) uin->d;
+        delete(Object *) uin->d;
     }
     return 0;
 }
@@ -2534,6 +2622,8 @@ int luaopen_epdf(lua_State * L)
     register_meta(Array);
     register_meta(Catalog);
     register_meta(Dict);
+    register_meta(EmbFile);
+    register_meta(FileSpec);
     register_meta(GooString);
     register_meta(LinkDest);
     register_meta(Links);
