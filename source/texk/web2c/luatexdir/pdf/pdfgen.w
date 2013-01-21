@@ -1392,7 +1392,7 @@ void pdf_end_obj(PDF pdf)
         if (os->idx == PDF_OS_MAX_OBJS)
             pdf_os_write_objstream(pdf);
         else
-            pdf_out(pdf, ' ');  /* Adobe Reader seems to need this */
+            pdf_out(pdf, '\n'); /* Adobe Reader seems to need this */
         break;
     default:
         assert(0);
@@ -2450,7 +2450,7 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
             pdf_end_obj(pdf);
 
             /* last candidate for object stream */
-            info = pdf_print_info(pdf, luatexversion, luatexrevision);        /* final object for pdf->os_enable == false */
+            info = pdf_print_info(pdf, luatexversion, luatexrevision);  /* final object for pdf->os_enable == false */
 
             if (pdf->os_enable) {
                 pdf_buffer_select(pdf, true);
@@ -2557,6 +2557,7 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
                 pdf_out(pdf, '\n');
             }
             pdf_puts(pdf, "startxref\n");
+            pdf->cave = 0;
             if (pdf->os_enable)
                 pdf_add_longint(pdf, (longinteger) obj_offset(pdf, xref_stm));
             else
