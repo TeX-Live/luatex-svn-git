@@ -260,7 +260,7 @@ void error(void)
             case 'E':
                 if (base_ptr > 0) {
                     tprint_nl("You want to edit file ");
-                    slow_print(input_stack[base_ptr].name_field);
+                    print(input_stack[base_ptr].name_field);
                     tprint(" at line ");
                     print_int(line);
                     interaction = scroll_mode;

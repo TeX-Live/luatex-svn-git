@@ -107,7 +107,7 @@ void store_fmt_file(void)
     tprint(fmtname);
     free(fmtname);
     tprint_nl("");
-    slow_print(format_ident);
+    print(format_ident);
 
     /* Dump constants for consistency check */
     /* The next few sections of the program should make it clear how we use the

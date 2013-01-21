@@ -339,14 +339,6 @@ void tprint_nl(const char *s)
     tprint(s);
 }
 
-@ |slow_print| is the same as |print| nowadays, but the name is kept for now.
-
-@c
-void slow_print(int s)
-{                               /* prints string |s| */
-    print(s);
-}
-
 @ Here is the very first thing that \TeX\ prints: a headline that identifies
 the version number and format package. The |term_offset| variable is temporarily
 incorrect, but the discrepancy is not serious since we assume that the banner
@@ -365,7 +357,7 @@ void print_banner(const char *v, int e, int ver)
             fprintf(term_out, "This is LuaTeX, Version %s-%d (rev %d) ", v, e,
                     ver);
         if (format_ident > 0)
-            slow_print(format_ident);
+            print(format_ident);
         print_ln();
         if (shellenabledp) {
             wterm(' ');
@@ -392,7 +384,7 @@ void log_banner(const char *v, int e, int ver)
         fprintf(log_file, "This is LuaTeX, Version %s-%d ", v, e);
     else
         fprintf(log_file, "This is LuaTeX, Version %s-%d (rev %d) ", v, e, ver);
-    slow_print(format_ident);
+    print(format_ident);
     print_char(' ');
     print_char(' ');
     print_int(int_par(day_code));

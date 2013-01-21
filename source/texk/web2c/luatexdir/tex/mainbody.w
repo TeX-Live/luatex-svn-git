@@ -711,7 +711,7 @@ void debug_help(void)
                 show_token_list(n, null, 1000);
                 break;
             case 10:
-                slow_print(n);
+                print(n);
                 break;
             case 13:
                 (void) fscanf(term_in, "%d", &l);
