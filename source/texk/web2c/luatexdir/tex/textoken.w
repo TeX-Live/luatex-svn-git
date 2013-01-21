@@ -1647,12 +1647,6 @@ static boolean print_convert_string(halfword c, int i)
     case etex_code:
         tprint(eTeX_version_string);
         break;
-    case omega_code:
-        tprint(Omega_version_string);
-        break;
-    case aleph_code:
-        tprint(Aleph_version_string);
-        break;
     case pdftex_revision_code:
         tprint(pdftex_revision);
         break;
@@ -1709,12 +1703,6 @@ static boolean print_convert_string(halfword c, int i)
         break;
     case pdf_xform_name_code:
         print_int(obj_info(static_pdf, i));
-        break;
-    case Aleph_revision_code:
-        tprint(Aleph_revision);
-        break;
-    case Omega_revision_code:
-        tprint(Omega_revision);
         break;
     case eTeX_revision_code:
         tprint(eTeX_revision);
@@ -1788,8 +1776,6 @@ void conv_toks(void)
         scanner_status = save_scanner_status;
         break;
     case etex_code:
-    case omega_code:
-    case aleph_code:
         break;
     case font_name_code:
     case font_id_code:
@@ -1941,8 +1927,6 @@ void conv_toks(void)
             pdf_error("pdfximagebbox", "invalid parameter");
         break;
         /* Cases of 'Scan the argument for command |c|' */
-    case Aleph_revision_code:
-    case Omega_revision_code:
     case eTeX_revision_code:
         break;
     default:

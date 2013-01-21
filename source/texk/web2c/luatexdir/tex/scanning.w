@@ -307,7 +307,6 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
         break;
     case char_given_cmd:
     case math_given_cmd:
-    case omath_given_cmd:
     case xmath_given_cmd:
         scanned_result(cur_chr, int_val_level);
         break;
@@ -463,20 +462,8 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                 case pdf_last_link_code:
                     cur_val = pdf_last_link;
                     break;
-                case Aleph_version_code:
-                    cur_val = Aleph_version;
-                    break;
-                case Omega_version_code:
-                    cur_val = Omega_version;
-                    break;
                 case eTeX_version_code:
                     cur_val = eTeX_version;
-                    break;
-                case Aleph_minor_version_code:
-                    cur_val = Aleph_minor_version;
-                    break;
-                case Omega_minor_version_code:
-                    cur_val = Omega_minor_version;
                     break;
                 case eTeX_minor_version_code:
                     cur_val = eTeX_minor_version;

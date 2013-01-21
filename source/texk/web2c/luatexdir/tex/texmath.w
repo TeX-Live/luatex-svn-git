@@ -596,12 +596,6 @@ static void print_delimiter(pointer p)
         /* modern xetex/luatex style */
         print_hex(small_fam(p));
         print_hex(small_char(p));
-    } else {
-        /* assume this is omega-style */
-        a = small_fam(p) * 65536 + small_char(p);
-        print_hex(a);
-        a = large_fam(p) * 65536 + large_char(p);
-        print_hex(a);
     }
 }
 
@@ -1035,7 +1029,7 @@ void enter_display_math(void)
 }
 
 @ The next routine parses all variations of a delimiter code. The |extcode|
- tells what syntax form to use (\TeX, Aleph, XeTeX, XeTeXnum, ...) , the
+ tells what syntax form to use (\TeX, XeTeX, XeTeXnum, ...) , the
  |doclass| tells whether or not read a math class also (for \.{\\delimiter} c.s.).
  (the class is passed on for conversion to \.{\\mathchar}).
 
@@ -1067,24 +1061,6 @@ static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
         mschr = (cur_val % 0x100000) / 0x1000;
         mlfam = (cur_val & 0xFFF) / 0x100;
         mlchr = (cur_val % 0x100);
-    } else if (extcode == aleph_mathcode) {     /* \.{\\odelcode} */
-        /*  "MFFCCCC"FFCCCC or "FFCCCC"FFCCCC */
-        scan_int();
-        if (doclass) {
-            mcls = (cur_val / 0x1000000);
-            cur_val = (cur_val & 0xFFFFFF);
-        }
-        curval1 = cur_val;
-        scan_int();
-        if ((curval1 > 0xFFFFFF) || (cur_val > 0xFFFFFF)) {
-            tex_error("Invalid delimiter code", hlp);
-            curval1 = 0;
-            cur_val = 0;
-        }
-        msfam = (curval1 / 0x10000);
-        mschr = (curval1 % 0x10000);
-        mlfam = (cur_val / 0x10000);
-        mlchr = (cur_val % 0x10000);
     } else if (extcode == xetex_mathcode) {     /* \.{\\Udelcode} */
         /* <0-7>,<0-0xFF>,<0-0x10FFFF>  or <0-0xFF>,<0-0x10FFFF> */
         if (doclass) {
@@ -1172,21 +1148,6 @@ mathcodeval scan_mathchar(int extcode)
         mcls = (cur_val / 0x1000);
         mfam = ((cur_val % 0x1000) / 0x100);
         mchr = (cur_val % 0x100);
-    } else if (extcode == aleph_mathcode) {     /* \.{\\omathcode} */
-        /* "TFFCCCC */
-        scan_int();
-        if (cur_val > 0x8000000) {
-            tex_error("Invalid math code", hlp);
-            cur_val = 0;
-        }
-        if (cur_val < 0) {
-            snprintf(errstr, 255, "Bad mathchar (%d)", (int)cur_val);
-            tex_error(errstr, hlp);
-            cur_val = 0;
-        }
-        mcls = (cur_val / 0x1000000);
-        mfam = ((cur_val % 0x1000000) / 0x10000);
-        mchr = (cur_val % 0x10000);
     } else if (extcode == xetex_mathcode) {
         /* <0-0x7> <0-0xFF> <0-0x10FFFF> */
         scan_int();
@@ -1269,10 +1230,6 @@ mathcodeval mathchar_from_integer(int value, int extcode)
         mval.class_value = (value / 0x1000);
         mval.family_value = ((value % 0x1000) / 0x100);
         mval.character_value = (value % 0x100);
-    } else if (extcode == aleph_mathcode) {
-        mval.class_value = (value / 0x1000000);
-        mval.family_value = ((value % 0x1000000) / 0x10000);
-        mval.character_value = (value % 0x10000);
     } else {                    /* some xetexended xetex thing */
         int mfam = (value / 0x200000) & 0x7FF;
         mval.class_value = mfam % 0x08;
@@ -1326,19 +1283,14 @@ int scan_math(pointer p, int mstyle)
         if (cur_chr == 0)
             mval = scan_mathchar(tex_mathcode);
         else if (cur_chr == 1)
-            mval = scan_mathchar(aleph_mathcode);
-        else if (cur_chr == 2)
             mval = scan_mathchar(xetex_mathcode);
-        else if (cur_chr == 3)
+        else if (cur_chr == 2)
             mval = scan_mathchar(xetexnum_mathcode);
         else
             confusion("scan_math");
         break;
     case math_given_cmd:
         mval = mathchar_from_integer(cur_chr, tex_mathcode);
-        break;
-    case omath_given_cmd:
-        mval = mathchar_from_integer(cur_chr, aleph_mathcode);
         break;
     case xmath_given_cmd:
         mval = mathchar_from_integer(cur_chr, xetex_mathcode);
@@ -1347,8 +1299,6 @@ int scan_math(pointer p, int mstyle)
         if (cur_chr == 0)
             mval = scan_delimiter_as_mathchar(tex_mathcode);
         else if (cur_chr == 1)
-            mval = scan_delimiter_as_mathchar(aleph_mathcode);
-        else if (cur_chr == 2)
             mval = scan_delimiter_as_mathchar(xetex_mathcode);
         else
             confusion("scan_math");
@@ -1489,8 +1439,6 @@ static void scan_delimiter(pointer p, int r)
     delcodeval dval = { 0, 0, 0, 0, 0, 0 };
     if (r == tex_mathcode) {    /* \.{\\radical} */
         dval = do_scan_extdef_del_code(tex_mathcode, true);
-    } else if (r == aleph_mathcode) {   /* \.{\\oradical} */
-        dval = do_scan_extdef_del_code(aleph_mathcode, true);
     } else if (r == xetex_mathcode) {   /* \.{\\Uradical} */
         dval = do_scan_extdef_del_code(xetex_mathcode, false);
     } else if (r == no_mathcode) {
@@ -1503,9 +1451,7 @@ static void scan_delimiter(pointer p, int r)
         case delim_num_cmd:
             if (cur_chr == 0)   /* \.{\\delimiter} */
                 dval = do_scan_extdef_del_code(tex_mathcode, true);
-            else if (cur_chr == 1)      /* \.{\\odelimiter} */
-                dval = do_scan_extdef_del_code(aleph_mathcode, true);
-            else if (cur_chr == 2)      /* \.{\\Udelimiter} */
+            else if (cur_chr == 1)      /* \.{\\Udelimiter} */
                 dval = do_scan_extdef_del_code(xetex_mathcode, true);
             else
                 confusion("scan_delimiter1");
@@ -1554,23 +1500,21 @@ void math_radical(void)
     left_delimiter(tail) = q;
     if (chr_code == 0)          /* \.{\\radical} */
         scan_delimiter(left_delimiter(tail), tex_mathcode);
-    else if (chr_code == 1)     /* \.{\\oradical} */
-        scan_delimiter(left_delimiter(tail), aleph_mathcode);
-    else if (chr_code == 2)     /* \.{\\Uradical} */
+    else if (chr_code == 1)     /* \.{\\Uradical} */
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
-    else if (chr_code == 3)     /* \.{\\Uroot} */
+    else if (chr_code == 2)     /* \.{\\Uroot} */
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
-    else if (chr_code == 4)     /* \.{\\Uunderdelimiter} */
+    else if (chr_code == 3)     /* \.{\\Uunderdelimiter} */
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
-    else if (chr_code == 5)     /* \.{\\Uoverdelimiter} */
+    else if (chr_code == 4)     /* \.{\\Uoverdelimiter} */
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
-    else if (chr_code == 6)     /* \.{\\Udelimiterunder} */
+    else if (chr_code == 5)     /* \.{\\Udelimiterunder} */
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
-    else if (chr_code == 7)     /* \.{\\Udelimiterover} */
+    else if (chr_code == 6)     /* \.{\\Udelimiterover} */
         scan_delimiter(left_delimiter(tail), xetex_mathcode);
     else
         confusion("math_radical");
-    if (chr_code == 3) {
+    if (chr_code == 2) {
         /* the trick with the |vlink(q)| is used by |scan_math| 
            to decide whether it needs to go on */
         q = new_node(math_char_node, 0);
@@ -1606,9 +1550,7 @@ void math_ac(void)
     tail_append(new_node(accent_noad, 0));
     if (cur_chr == 0) {         /* \.{\\mathaccent} */
         t = scan_mathchar(tex_mathcode);
-    } else if (cur_chr == 1) {  /* \.{\\omathaccent} */
-        t = scan_mathchar(aleph_mathcode);
-    } else if (cur_chr == 2) {  /* \.{\\Umathaccent} */
+    } else if (cur_chr == 1) {  /* \.{\\Umathaccent} */
 	if (scan_keyword("fixed")) {
            subtype(tail) = 1;
 	   t = scan_mathchar(xetex_mathcode);
@@ -1629,13 +1571,6 @@ void math_ac(void)
 	} else {
 	   t = scan_mathchar(xetex_mathcode);
 	}
-    } else if (cur_chr == 3) {  /* deprecated: \.{\\Umathbotaccent} */
-        pdftex_warn("\\Umathbotaccent is deprecated, please update to \\Umathaccent bottom");
-        b = scan_mathchar(xetex_mathcode);
-    } else if (cur_chr == 4) {  /* deprecated: \.{\\Umathaccents} */
-        pdftex_warn("\\Umathaccents is deprecated, please update to \\Umathaccent both");
-        t = scan_mathchar(xetex_mathcode);
-        b = scan_mathchar(xetex_mathcode);
     } else {
         confusion("math_ac");
     }

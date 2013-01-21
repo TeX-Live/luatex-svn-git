@@ -92,7 +92,7 @@ in \LUA\ instead.
 \section{Introduction}
 
 From day one, \LUATEX\ has offered extra functionality when compared
-to the superset of \PDFTEX\ and Aleph. That has not been limited to
+to the superset of \PDFTEX\ and \ALEPH. That has not been limited to
 the possibility to execute lua code via \type{\directlua}, but
 \LUATEX\ also adds functionality via new \TEX-side primitives.
 
@@ -6217,10 +6217,6 @@ The supported commands at this moment are:
 
 \startcolumns[n=2]
 \starttyping
-tex.AlephVersion
-tex.Alephrevision
-tex.OmegaVersion
-tex.Omegarevision
 tex.eTeXVersion
 tex.eTeXrevision
 tex.formatname
@@ -6275,10 +6271,6 @@ tex.pdflastypos
 tex.pdfrandomseed
 tex.pdflastlink
 tex.luatexversion
-tex.Alephversion
-tex.Omegaversion
-tex.Alephminorversion
-tex.Omegaminorversion
 tex.eTeXminorversion
 tex.eTeXversion
 tex.currentgrouplevel
@@ -7331,17 +7323,15 @@ math group with the correct (numerator) math style.
 
 \section{Unicode math characters}
 
-Character handling is now extended up to the full \UNICODE\ range. The
-extension from 8-bit to 16-bit was already present in \ALEPH\ by means of a
-set of extra primitives starting with the \type{\o} prefix, the extension
-to full \UNICODE\ (the \type{\U} prefix) is compatible with \XETEX.
+Character handling is now extended up to the full \UNICODE\ range
+(the \type{\U} prefix), which is compatible with \XETEX.
 
-The math primitives from \TEX\ and \ALEPH\ are kept as they are, except for
+The math primitives from \TEX\ are kept as they are, except for
 the ones that convert from input to math commands:  \type{mathcode},
-\type{omathcode}, \type{delcode}, and \type{odelcode}. These four now allow
+and \type{delcode}. These two now allow
 for a 21-bit character argument on the left hand side of the equals sign.
 
-Some of the \ALEPH\ math primitives and the new \LUATEX\ primitives read
+Some of the new \LUATEX\ primitives read
 more than one separate value.  This is shown in the tables below by a plus
 sign in the second column.
 
@@ -7369,25 +7359,6 @@ Unaltered:
 \NC \tex{mathaccent}  \NC 0--7FFF               \NC\NR
 \NC \tex{delimiter}   \NC 0--7FFFFFF            \NC\NR
 \NC \tex{radical}     \NC 0--7FFFFFF            \NC\NR
-\stoptabulate
-
-Altered \ALEPH\ primitives:
-
-\starttabulate[|l|l|l|]
-\NC \bf primitive      \NC \bf value range (in hex)           \NC\NR
-\NC \tex{omathcode}    \NC 0--10FFFF = 0--8000000         \NC\NR
-\NC \tex{odelcode}     \NC 0--10FFFF = 0+0--FFFFFF+FFFFFF \NC\NR
-\stoptabulate
-
-Unaltered:
-
-\starttabulate[|l|l|l|]
-\NC \bf primitive        \NC \bf value range (in hex)           \NC\NR
-\NC \tex{omathchardef}   \NC 0--8000000                     \NC\NR
-\NC \tex{omathchar}      \NC 0--7FFFFFF                     \NC\NR
-\NC \tex{omathaccent}    \NC 0--7FFFFFF                     \NC\NR
-\NC \tex{odelimiter}     \NC 0+0--7FFFFFF + FFFFFF          \NC\NR
-\NC \tex{oradical}       \NC 0+0--7FFFFFF + FFFFFF          \NC\NR
 \stoptabulate
 
 New primitives that are compatible with \XETEX:
@@ -7440,8 +7411,6 @@ in following sections):
 
 \starttabulate[|l|l|l|l|]
 \NC \bf primitive         \NC \bf value range (in hex)               \NC\NR
-%\NC \tex{Umathbotaccent}  \NC 0+0+0--7+FF+10FFFF                     \NC\NR
-%\NC \tex{Umathaccents}    \NC 0+0+0+0+0+0--7+FF+10FFFF+7+FF+10FFFF   \NC\NR
 \NC \tex{Uroot}           \NC 0+0--FF+10FFFF$^2$                     \NC\NR
 \NC \tex{Uoverdelimiter}  \NC 0+0--FF+10FFFF$^2$                     \NC\NR
 \NC \tex{Uunderdelimiter} \NC 0+0--FF+10FFFF$^2$                     \NC\NR
@@ -7789,9 +7758,6 @@ A simple example:
 \Umathaccent both fixed 0 0 "20D7 fixed 0 0 "20D7 {example}
 \stoptyping
 
-The primitives \tex{Umathbotaccent} and \tex{Umathaccents} are deprecated since
-version 0.65, and will be removed eventually.
-
 If a math top accent has to be placed and the accentee is a character and has a non-zero
 \type{top_accent} value, then this value will be used to place the accent instead of
 the \type{\skewchar} kern used by \TEX82.
@@ -7919,8 +7885,8 @@ commands with explicit dollar sign(s).
 
 \subsection{Allowed math commands in non-math modes}
 
-The commands \type{\mathchar}, \type{\omathchar}, and \type{\Umathchar} and control
-sequences that are the result of \type{\mathchardef}, \type{\omathchardef}, or
+The commands \type{\mathchar}, and \type{\Umathchar} and control
+sequences that are the result of \type{\mathchardef} or
 \type{\Umathchardef}  are also acceptable in the horizontal and vertical modes.
 In those cases, the \type{\textfont} from the requested math family is used.
 
@@ -10148,6 +10114,9 @@ and \tex{pdfxformattr}, as an alternative to \tex{pdfxform} keywords.
 \section{Changes from \ALEPH\ RC4}
 
 \startitemize
+
+\item Starting with \LUATEX\ 0.75.0, the extended 16-bit math primitives
+  (\tex{omathcode} etc.~) have been removed.
 
 \item Starting with \LUATEX\ 0.63.0, OCP processing is no longer
   supported at all.  As a consequence, the following primitives have

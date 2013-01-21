@@ -26,7 +26,6 @@
 
 #  define no_mathcode 0         /* this is a flag for |scan_delimiter| */
 #  define tex_mathcode 8
-#  define aleph_mathcode 16
 #  define xetex_mathcode 21
 #  define xetexnum_mathcode 22
 

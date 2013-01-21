@@ -897,7 +897,7 @@ static int get_box_id(lua_State * L, int i)
         cur_cs1 = string_lookup(s, k);
         cur_cmd1 = eq_type(cur_cs1);
         if (cur_cmd1 == char_given_cmd ||
-            cur_cmd1 == math_given_cmd || cur_cmd1 == omath_given_cmd) {
+            cur_cmd1 == math_given_cmd) {
             j = equiv(cur_cs1);
         }
         break;
@@ -1408,10 +1408,6 @@ static int do_lastitem(lua_State * L, int cur_code)
     case random_seed_code:
     case pdf_last_link_code:
     case luatex_version_code:
-    case Aleph_version_code:
-    case Omega_version_code:
-    case Aleph_minor_version_code:
-    case Omega_minor_version_code:
     case eTeX_minor_version_code:
     case eTeX_version_code:
     case current_group_level_code:
@@ -1577,7 +1573,6 @@ static int gettex(lua_State * L)
         case set_page_dimen_cmd:
         case char_given_cmd:
         case math_given_cmd:
-        case omath_given_cmd:
             retval = do_scan_internal(L, cur_cmd1, cur_code);
             break;
         case set_tex_shape_cmd:

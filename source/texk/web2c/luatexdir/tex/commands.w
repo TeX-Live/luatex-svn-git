@@ -341,8 +341,7 @@ void initialize_commands(void)
     primitive_tex("char", char_num_cmd, 0, 0);
     primitive_tex("csname", cs_name_cmd, 0, 0);
     primitive_tex("delimiter", delim_num_cmd, 0, 0);
-    primitive_omega("odelimiter", delim_num_cmd, 1, 0);
-    primitive_luatex("Udelimiter", delim_num_cmd, 2, 0);
+    primitive_luatex("Udelimiter", delim_num_cmd, 1, 0);
     primitive_tex("divide", divide_cmd, 0, 0);
     primitive_tex("endcsname", end_cs_name_cmd, 0, 0);
     primitive_tex("endgroup", end_group_cmd, 0, 0);
@@ -360,14 +359,10 @@ void initialize_commands(void)
     primitive_omega("leftghost", char_ghost_cmd, 0, 0);
     primitive_tex("mark", mark_cmd, 0, 0);
     primitive_tex("mathaccent", math_accent_cmd, 0, 0);
-    primitive_omega("omathaccent", math_accent_cmd, 1, 0);
-    primitive_luatex("Umathaccent", math_accent_cmd, 2, 0);
-    primitive_luatex("Umathbotaccent", math_accent_cmd, 3, 0);
-    primitive_luatex("Umathaccents", math_accent_cmd, 4, 0);
+    primitive_luatex("Umathaccent", math_accent_cmd, 1, 0);
     primitive_tex("mathchar", math_char_num_cmd, 0, 0);
-    primitive_omega("omathchar", math_char_num_cmd, 1, 0);
-    primitive_luatex("Umathchar", math_char_num_cmd, 2, 0);
-    primitive_luatex("Umathcharnum", math_char_num_cmd, 3, 0);
+    primitive_luatex("Umathchar", math_char_num_cmd, 1, 0);
+    primitive_luatex("Umathcharnum", math_char_num_cmd, 2, 0);
     primitive_tex("mathchoice", math_choice_cmd, 0, 0);
     primitive_luatex("Ustack", math_choice_cmd, 1, 0);
     primitive_tex("multiply", multiply_cmd, 0, 0);
@@ -382,13 +377,12 @@ void initialize_commands(void)
     primitive_tex("penalty", break_penalty_cmd, 0, 0);
     primitive_tex("prevgraf", set_prev_graf_cmd, 0, 0);
     primitive_tex("radical", radical_cmd, 0, 0);
-    primitive_omega("oradical", radical_cmd, 1, 0);
-    primitive_luatex("Uradical", radical_cmd, 2, 0);
-    primitive_luatex("Uroot", radical_cmd, 3, 0);
-    primitive_luatex("Uunderdelimiter", radical_cmd, 4, 0);
-    primitive_luatex("Uoverdelimiter", radical_cmd, 5, 0);
-    primitive_luatex("Udelimiterunder", radical_cmd, 6, 0);
-    primitive_luatex("Udelimiterover", radical_cmd, 7, 0);
+    primitive_luatex("Uradical", radical_cmd, 1, 0);
+    primitive_luatex("Uroot", radical_cmd, 2, 0);
+    primitive_luatex("Uunderdelimiter", radical_cmd, 3, 0);
+    primitive_luatex("Uoverdelimiter", radical_cmd, 4, 0);
+    primitive_luatex("Udelimiterunder", radical_cmd, 5, 0);
+    primitive_luatex("Udelimiterover", radical_cmd, 6, 0);
     primitive_tex("read", read_to_cs_cmd, 0, 0);
     primitive_tex("relax", relax_cmd, too_big_char, too_big_char);
     cs_text(frozen_relax) = maketexstring("relax");
@@ -477,8 +471,6 @@ void initialize_commands(void)
     primitive_tex("string", convert_cmd, string_code, 0);
     primitive_tex("meaning", convert_cmd, meaning_code, 0);
     primitive_etex("eTeXVersion", convert_cmd, etex_code, 0);
-    primitive_omega("OmegaVersion", convert_cmd, omega_code, 0);
-    primitive_aleph("AlephVersion", convert_cmd, aleph_code, 0);
     primitive_tex("fontname", convert_cmd, font_name_code, 0);
     primitive_luatex("fontid", convert_cmd, font_id_code, 0);
     primitive_pdftex("pdftexrevision", convert_cmd, pdftex_revision_code, 0);
@@ -674,7 +666,6 @@ void initialize_commands(void)
     primitive_tex("futurelet", let_cmd, normal + 1, 0);
     primitive_tex("chardef", shorthand_def_cmd, char_def_code, 0);
     primitive_tex("mathchardef", shorthand_def_cmd, math_char_def_code, 0);
-    primitive_omega("omathchardef", shorthand_def_cmd, omath_char_def_code, 0);
     primitive_luatex("Umathchardef", shorthand_def_cmd, xmath_char_def_code, 0);
     primitive_luatex("Umathcharnumdef", shorthand_def_cmd, umath_char_def_code, 0);
     primitive_tex("countdef", shorthand_def_cmd, count_def_code, 0);
@@ -917,17 +908,13 @@ void initialize_commands(void)
 @ These are in a separate module due to a CWEAVE limitation.
 
 @<Create another bunch of primitives@>=
-    primitive_omega("omathcode", extdef_math_code_cmd, math_code_base,
-                    math_code_base);
-    primitive_omega("odelcode", extdef_del_code_cmd, del_code_base,
-                    del_code_base);
-    primitive_luatex("Umathcode", extdef_math_code_cmd, math_code_base + 1,
+    primitive_luatex("Umathcode", extdef_math_code_cmd, math_code_base,
                      math_code_base);
-    primitive_luatex("Udelcode", extdef_del_code_cmd, del_code_base + 1,
+    primitive_luatex("Udelcode", extdef_del_code_cmd, del_code_base,
                      del_code_base);
-    primitive_luatex("Umathcodenum", extdef_math_code_cmd, math_code_base + 2,
+    primitive_luatex("Umathcodenum", extdef_math_code_cmd, math_code_base + 1,
                      math_code_base);
-    primitive_luatex("Udelcodenum", extdef_del_code_cmd, del_code_base + 2,
+    primitive_luatex("Udelcodenum", extdef_del_code_cmd, del_code_base + 1,
                      del_code_base);
     primitive_tex("hyphenation", hyph_data_cmd, 0, 0);
     primitive_tex("patterns", hyph_data_cmd, 1, 0);
@@ -1041,17 +1028,9 @@ void initialize_commands(void)
 void initialize_etex_commands(void)
 {
     primitive_etex("lastnodetype", last_item_cmd, last_node_type_code, 0);
-    primitive_aleph("Alephversion", last_item_cmd, Aleph_version_code, 0);
-    primitive_aleph("Omegaversion", last_item_cmd, Omega_version_code, 0);
     primitive_etex("eTeXversion", last_item_cmd, eTeX_version_code, 0);
-    primitive_aleph("Alephminorversion", last_item_cmd,
-                    Aleph_minor_version_code, 0);
-    primitive_aleph("Omegaminorversion", last_item_cmd,
-                    Omega_minor_version_code, 0);
     primitive_etex("eTeXminorversion", last_item_cmd, eTeX_minor_version_code,
                    0);
-    primitive_aleph("Alephrevision", convert_cmd, Aleph_revision_code, 0);
-    primitive_aleph("Omegarevision", convert_cmd, Omega_revision_code, 0);
     primitive_etex("eTeXrevision", convert_cmd, eTeX_revision_code, 0);
 
     /*  First we implement the additional \eTeX\ parameters in the table of equivalents. */

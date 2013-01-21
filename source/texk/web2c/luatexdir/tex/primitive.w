@@ -560,10 +560,6 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
         tprint_esc("mathchar");
         show_mathcode_value(mathchar_from_integer(chr_code, tex_mathcode));
         break;
-    case omath_given_cmd:
-        tprint_esc("omathchar");
-        show_mathcode_value(mathchar_from_integer(chr_code, aleph_mathcode));
-        break;
     case xmath_given_cmd:
         tprint_esc("Umathchar");
         show_mathcode_value(mathchar_from_integer(chr_code, xetex_mathcode));

@@ -330,8 +330,6 @@ static void run_math_char_num (void) {
     if (cur_chr == 0)
         mval = scan_mathchar(tex_mathcode);
     else if (cur_chr == 1)
-        mval = scan_mathchar(aleph_mathcode);
-    else if (cur_chr == 2)
         mval = scan_mathchar(xetex_mathcode);
     else
         mval = scan_mathchar(xetexnum_mathcode);
@@ -342,12 +340,6 @@ static void run_math_char_num (void) {
 static void run_math_given (void) {
     mathcodeval mval;           /* to build up an argument to |set_math_char| */
     mval = mathchar_from_integer(cur_chr, tex_mathcode);
-    math_char_in_text(mval);
-}
-
-static void run_omath_given (void) {
-    mathcodeval mval;           /* to build up an argument to |set_math_char| */
-    mval = mathchar_from_integer(cur_chr, aleph_mathcode);
     math_char_in_text(mval);
 }
 
@@ -556,8 +548,6 @@ static void run_math_char_num_mmode (void) {
     if (cur_chr == 0)
         mval = scan_mathchar(tex_mathcode);
     else if (cur_chr == 1)
-        mval = scan_mathchar(aleph_mathcode);
-    else if (cur_chr == 2)
         mval = scan_mathchar(xetex_mathcode);
     else
         mval = scan_mathchar(xetexnum_mathcode);
@@ -568,12 +558,6 @@ static void run_math_char_num_mmode (void) {
 static void run_math_given_mmode (void) {
     mathcodeval mval;           /* to build up an argument to |set_math_char| */
     mval = mathchar_from_integer(cur_chr, tex_mathcode);
-    set_math_char(mval);
-}
-
-static void run_omath_given_mmode (void) {
-    mathcodeval mval;           /* to build up an argument to |set_math_char| */
-    mval = mathchar_from_integer(cur_chr, aleph_mathcode);
     set_math_char(mval);
 }
 
@@ -588,8 +572,6 @@ static void run_delim_num (void) {
     mathcodeval mval;           /* to build up an argument to |set_math_char| */
     if (cur_chr == 0)
         mval = scan_delimiter_as_mathchar(tex_mathcode);
-    else if (cur_chr == 1)
-        mval = scan_delimiter_as_mathchar(aleph_mathcode);
     else
         mval = scan_delimiter_as_mathchar(xetex_mathcode);
     set_math_char(mval);
@@ -689,11 +671,9 @@ static void init_main_control (void) {
     jump_table[vmode + stop_cmd] = run_stop;
     jump_table[vmode + math_char_num_cmd] = run_non_math_math;
     jump_table[vmode + math_given_cmd] = run_non_math_math;
-    jump_table[vmode + omath_given_cmd] = run_non_math_math;
     jump_table[vmode + xmath_given_cmd] = run_non_math_math;
     jump_table[hmode + math_char_num_cmd] = run_math_char_num;
     jump_table[hmode + math_given_cmd] = run_math_given;
-    jump_table[hmode + omath_given_cmd] = run_omath_given;
     jump_table[hmode + xmath_given_cmd] = run_xmath_given;
 
     jump_table[vmode + vmove_cmd] = report_illegal_case;
@@ -807,7 +787,6 @@ static void init_main_control (void) {
     jump_table[mmode + char_num_cmd] = run_char_num_mmode;
     jump_table[mmode + math_char_num_cmd] = run_math_char_num_mmode;
     jump_table[mmode + math_given_cmd] = run_math_given_mmode;
-    jump_table[mmode + omath_given_cmd] = run_omath_given_mmode;
     jump_table[mmode + xmath_given_cmd] = run_xmath_given_mmode;
     jump_table[mmode + delim_num_cmd] = run_delim_num;
     jump_table[mmode + math_comp_cmd] = math_math_comp;
@@ -2255,13 +2234,6 @@ void prefixed_command(void)
                 mval.character_value;
             define(p, math_given_cmd, cur_val);
             break;
-        case omath_char_def_code:
-            mval = scan_mathchar(aleph_mathcode);
-            cur_val =
-                (mval.class_value * 256 + mval.family_value) * 65536 +
-                mval.character_value;
-            define(p, omath_given_cmd, cur_val);
-            break;
         case xmath_char_def_code:
             mval = scan_mathchar(xetex_mathcode);
             cur_val =
@@ -2512,16 +2484,12 @@ void prefixed_command(void)
         else
             cur_val1 = cur_level;
         if (cur_chr == math_code_base)
-            scan_extdef_math_code(cur_val1, aleph_mathcode);
-        else if (cur_chr == math_code_base + 1)
             scan_extdef_math_code(cur_val1, xetex_mathcode);
-        else if (cur_chr == math_code_base + 2)
+        else if (cur_chr == math_code_base + 1)
             scan_extdef_math_code(cur_val1, xetexnum_mathcode);
         else if (cur_chr == del_code_base)
-            scan_extdef_del_code(cur_val1, aleph_mathcode);
-        else if (cur_chr == del_code_base + 1)
             scan_extdef_del_code(cur_val1, xetex_mathcode);
-        else if (cur_chr == del_code_base + 2)
+        else if (cur_chr == del_code_base + 1)
             scan_extdef_del_code(cur_val1, xetexnum_mathcode);
         break;
     case def_family_cmd:
