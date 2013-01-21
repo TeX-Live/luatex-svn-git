@@ -6923,11 +6923,16 @@ end
 \NC omega   \NC \ctxlua{out_prim('omega')  } \NC \NR
 \NC aleph   \NC \ctxlua{out_prim('aleph')  } \NC \NR
 \NC luatex  \NC \ctxlua{out_prim('luatex') } \NC \NR
+\NC umath   \NC \ctxlua{out_prim('umath') }  \NC \NR
 \stoptabulate
 
 Note that \type{'luatex'} does not contain \type{directlua}, as that is
 considered to be a core primitive, along with all the \TEX82
 primitives, so it is part of the list that is returned from \type{'core'}.
+
+\type{'umath'} is a subset of \type{'luatex'} that covers the Unicode math
+primitives and have been added in \LUATEX\ 0.75.0 as it might be desired to
+handle the prefixing of that subset differently.
 
 Running \type{tex.extraprimitives()} will give you the complete list
 of primitives that are not defined at \LUATEX\ 0.39.0 \type{-ini}

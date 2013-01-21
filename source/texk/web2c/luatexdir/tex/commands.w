@@ -341,7 +341,7 @@ void initialize_commands(void)
     primitive_tex("char", char_num_cmd, 0, 0);
     primitive_tex("csname", cs_name_cmd, 0, 0);
     primitive_tex("delimiter", delim_num_cmd, 0, 0);
-    primitive_luatex("Udelimiter", delim_num_cmd, 1, 0);
+    primitive_umath("Udelimiter", delim_num_cmd, 1, 0);
     primitive_tex("divide", divide_cmd, 0, 0);
     primitive_tex("endcsname", end_cs_name_cmd, 0, 0);
     primitive_tex("endgroup", end_group_cmd, 0, 0);
@@ -359,12 +359,12 @@ void initialize_commands(void)
     primitive_omega("leftghost", char_ghost_cmd, 0, 0);
     primitive_tex("mark", mark_cmd, 0, 0);
     primitive_tex("mathaccent", math_accent_cmd, 0, 0);
-    primitive_luatex("Umathaccent", math_accent_cmd, 1, 0);
+    primitive_umath("Umathaccent", math_accent_cmd, 1, 0);
     primitive_tex("mathchar", math_char_num_cmd, 0, 0);
-    primitive_luatex("Umathchar", math_char_num_cmd, 1, 0);
-    primitive_luatex("Umathcharnum", math_char_num_cmd, 2, 0);
+    primitive_umath("Umathchar", math_char_num_cmd, 1, 0);
+    primitive_umath("Umathcharnum", math_char_num_cmd, 2, 0);
     primitive_tex("mathchoice", math_choice_cmd, 0, 0);
-    primitive_luatex("Ustack", math_choice_cmd, 1, 0);
+    primitive_umath("Ustack", math_choice_cmd, 1, 0);
     primitive_tex("multiply", multiply_cmd, 0, 0);
     primitive_tex("noalign", no_align_cmd, 0, 0);
     primitive_tex("noboundary", no_boundary_cmd, 0, 0);
@@ -377,12 +377,12 @@ void initialize_commands(void)
     primitive_tex("penalty", break_penalty_cmd, 0, 0);
     primitive_tex("prevgraf", set_prev_graf_cmd, 0, 0);
     primitive_tex("radical", radical_cmd, 0, 0);
-    primitive_luatex("Uradical", radical_cmd, 1, 0);
-    primitive_luatex("Uroot", radical_cmd, 2, 0);
-    primitive_luatex("Uunderdelimiter", radical_cmd, 3, 0);
-    primitive_luatex("Uoverdelimiter", radical_cmd, 4, 0);
-    primitive_luatex("Udelimiterunder", radical_cmd, 5, 0);
-    primitive_luatex("Udelimiterover", radical_cmd, 6, 0);
+    primitive_umath("Uradical", radical_cmd, 1, 0);
+    primitive_umath("Uroot", radical_cmd, 2, 0);
+    primitive_umath("Uunderdelimiter", radical_cmd, 3, 0);
+    primitive_umath("Uoverdelimiter", radical_cmd, 4, 0);
+    primitive_umath("Udelimiterunder", radical_cmd, 5, 0);
+    primitive_umath("Udelimiterover", radical_cmd, 6, 0);
     primitive_tex("read", read_to_cs_cmd, 0, 0);
     primitive_tex("relax", relax_cmd, too_big_char, too_big_char);
     cs_text(frozen_relax) = maketexstring("relax");
@@ -608,10 +608,10 @@ void initialize_commands(void)
     primitive_omega("localleftbox", assign_local_box_cmd, 0, 0);
     primitive_omega("localrightbox", assign_local_box_cmd, 1, 0);
 
-    primitive_luatex("Ustartmath", math_shift_cs_cmd, text_style, 0);
-    primitive_luatex("Ustopmath", math_shift_cs_cmd, cramped_text_style, 0);
-    primitive_luatex("Ustartdisplaymath", math_shift_cs_cmd, display_style, 0);
-    primitive_luatex("Ustopdisplaymath", math_shift_cs_cmd,
+    primitive_umath("Ustartmath", math_shift_cs_cmd, text_style, 0);
+    primitive_umath("Ustopmath", math_shift_cs_cmd, cramped_text_style, 0);
+    primitive_umath("Ustartdisplaymath", math_shift_cs_cmd, display_style, 0);
+    primitive_umath("Ustopdisplaymath", math_shift_cs_cmd,
                      cramped_display_style, 0);
     primitive_tex("eqno", eq_no_cmd, 0, 0);
     primitive_tex("leqno", eq_no_cmd, 1, 0);
@@ -639,9 +639,9 @@ void initialize_commands(void)
                      0);
     primitive_luatex("crampedscriptscriptstyle", math_style_cmd,
                      cramped_script_script_style, 0);
-    primitive_luatex("Usuperscript", super_sub_script_cmd, sup_mark_cmd,
+    primitive_umath("Usuperscript", super_sub_script_cmd, sup_mark_cmd,
                      sup_mark_cmd);
-    primitive_luatex("Usubscript", super_sub_script_cmd, sub_mark_cmd,
+    primitive_umath("Usubscript", super_sub_script_cmd, sub_mark_cmd,
                      sup_mark_cmd);
     primitive_tex("above", above_cmd, above_code, 0);
     primitive_tex("over", above_cmd, over_code, 0);
@@ -666,8 +666,8 @@ void initialize_commands(void)
     primitive_tex("futurelet", let_cmd, normal + 1, 0);
     primitive_tex("chardef", shorthand_def_cmd, char_def_code, 0);
     primitive_tex("mathchardef", shorthand_def_cmd, math_char_def_code, 0);
-    primitive_luatex("Umathchardef", shorthand_def_cmd, xmath_char_def_code, 0);
-    primitive_luatex("Umathcharnumdef", shorthand_def_cmd, umath_char_def_code, 0);
+    primitive_umath("Umathchardef", shorthand_def_cmd, xmath_char_def_code, 0);
+    primitive_umath("Umathcharnumdef", shorthand_def_cmd, umath_char_def_code, 0);
     primitive_tex("countdef", shorthand_def_cmd, count_def_code, 0);
     primitive_luatex("attributedef", shorthand_def_cmd, attribute_def_code, 0);
     primitive_tex("dimendef", shorthand_def_cmd, dimen_def_code, 0);
@@ -683,238 +683,238 @@ void initialize_commands(void)
     primitive_tex("textfont", def_family_cmd, text_size, 0);
     primitive_tex("scriptfont", def_family_cmd, script_size, 0);
     primitive_tex("scriptscriptfont", def_family_cmd, script_script_size, 0);
-    primitive_luatex("Umathquad", set_math_param_cmd, math_param_quad, 0);
-    primitive_luatex("Umathaxis", set_math_param_cmd, math_param_axis, 0);
+    primitive_umath("Umathquad", set_math_param_cmd, math_param_quad, 0);
+    primitive_umath("Umathaxis", set_math_param_cmd, math_param_axis, 0);
 
 
 @ These are in a separate module due to a CWEAVE limitation.
 
 @<Create the math param primitives@>=
-    primitive_luatex("Umathoperatorsize", set_math_param_cmd,
+    primitive_umath("Umathoperatorsize", set_math_param_cmd,
                      math_param_operator_size, 0);
-    primitive_luatex("Umathoverbarkern", set_math_param_cmd,
+    primitive_umath("Umathoverbarkern", set_math_param_cmd,
                      math_param_overbar_kern, 0);
-    primitive_luatex("Umathoverbarrule", set_math_param_cmd,
+    primitive_umath("Umathoverbarrule", set_math_param_cmd,
                      math_param_overbar_rule, 0);
-    primitive_luatex("Umathoverbarvgap", set_math_param_cmd,
+    primitive_umath("Umathoverbarvgap", set_math_param_cmd,
                      math_param_overbar_vgap, 0);
-    primitive_luatex("Umathunderbarkern", set_math_param_cmd,
+    primitive_umath("Umathunderbarkern", set_math_param_cmd,
                      math_param_underbar_kern, 0);
-    primitive_luatex("Umathunderbarrule", set_math_param_cmd,
+    primitive_umath("Umathunderbarrule", set_math_param_cmd,
                      math_param_underbar_rule, 0);
-    primitive_luatex("Umathunderbarvgap", set_math_param_cmd,
+    primitive_umath("Umathunderbarvgap", set_math_param_cmd,
                      math_param_underbar_vgap, 0);
-    primitive_luatex("Umathradicalkern", set_math_param_cmd,
+    primitive_umath("Umathradicalkern", set_math_param_cmd,
                      math_param_radical_kern, 0);
-    primitive_luatex("Umathradicalrule", set_math_param_cmd,
+    primitive_umath("Umathradicalrule", set_math_param_cmd,
                      math_param_radical_rule, 0);
-    primitive_luatex("Umathradicalvgap", set_math_param_cmd,
+    primitive_umath("Umathradicalvgap", set_math_param_cmd,
                      math_param_radical_vgap, 0);
-    primitive_luatex("Umathradicaldegreebefore", set_math_param_cmd,
+    primitive_umath("Umathradicaldegreebefore", set_math_param_cmd,
                      math_param_radical_degree_before, 0);
-    primitive_luatex("Umathradicaldegreeafter", set_math_param_cmd,
+    primitive_umath("Umathradicaldegreeafter", set_math_param_cmd,
                      math_param_radical_degree_after, 0);
-    primitive_luatex("Umathradicaldegreeraise", set_math_param_cmd,
+    primitive_umath("Umathradicaldegreeraise", set_math_param_cmd,
                      math_param_radical_degree_raise, 0);
-    primitive_luatex("Umathstackvgap", set_math_param_cmd,
+    primitive_umath("Umathstackvgap", set_math_param_cmd,
                      math_param_stack_vgap, 0);
-    primitive_luatex("Umathstacknumup", set_math_param_cmd,
+    primitive_umath("Umathstacknumup", set_math_param_cmd,
                      math_param_stack_num_up, 0);
-    primitive_luatex("Umathstackdenomdown", set_math_param_cmd,
+    primitive_umath("Umathstackdenomdown", set_math_param_cmd,
                      math_param_stack_denom_down, 0);
-    primitive_luatex("Umathfractionrule", set_math_param_cmd,
+    primitive_umath("Umathfractionrule", set_math_param_cmd,
                      math_param_fraction_rule, 0);
-    primitive_luatex("Umathfractionnumvgap", set_math_param_cmd,
+    primitive_umath("Umathfractionnumvgap", set_math_param_cmd,
                      math_param_fraction_num_vgap, 0);
-    primitive_luatex("Umathfractionnumup", set_math_param_cmd,
+    primitive_umath("Umathfractionnumup", set_math_param_cmd,
                      math_param_fraction_num_up, 0);
-    primitive_luatex("Umathfractiondenomvgap", set_math_param_cmd,
+    primitive_umath("Umathfractiondenomvgap", set_math_param_cmd,
                      math_param_fraction_denom_vgap, 0);
-    primitive_luatex("Umathfractiondenomdown", set_math_param_cmd,
+    primitive_umath("Umathfractiondenomdown", set_math_param_cmd,
                      math_param_fraction_denom_down, 0);
-    primitive_luatex("Umathfractiondelsize", set_math_param_cmd,
+    primitive_umath("Umathfractiondelsize", set_math_param_cmd,
                      math_param_fraction_del_size, 0);
-    primitive_luatex("Umathlimitabovevgap", set_math_param_cmd,
+    primitive_umath("Umathlimitabovevgap", set_math_param_cmd,
                      math_param_limit_above_vgap, 0);
-    primitive_luatex("Umathlimitabovebgap", set_math_param_cmd,
+    primitive_umath("Umathlimitabovebgap", set_math_param_cmd,
                      math_param_limit_above_bgap, 0);
-    primitive_luatex("Umathlimitabovekern", set_math_param_cmd,
+    primitive_umath("Umathlimitabovekern", set_math_param_cmd,
                      math_param_limit_above_kern, 0);
-    primitive_luatex("Umathlimitbelowvgap", set_math_param_cmd,
+    primitive_umath("Umathlimitbelowvgap", set_math_param_cmd,
                      math_param_limit_below_vgap, 0);
-    primitive_luatex("Umathlimitbelowbgap", set_math_param_cmd,
+    primitive_umath("Umathlimitbelowbgap", set_math_param_cmd,
                      math_param_limit_below_bgap, 0);
-    primitive_luatex("Umathlimitbelowkern", set_math_param_cmd,
+    primitive_umath("Umathlimitbelowkern", set_math_param_cmd,
                      math_param_limit_below_kern, 0);
-    primitive_luatex("Umathunderdelimitervgap", set_math_param_cmd,
+    primitive_umath("Umathunderdelimitervgap", set_math_param_cmd,
                      math_param_under_delimiter_vgap, 0);
-    primitive_luatex("Umathunderdelimiterbgap", set_math_param_cmd,
+    primitive_umath("Umathunderdelimiterbgap", set_math_param_cmd,
                      math_param_under_delimiter_bgap, 0);
-    primitive_luatex("Umathoverdelimitervgap", set_math_param_cmd,
+    primitive_umath("Umathoverdelimitervgap", set_math_param_cmd,
                      math_param_over_delimiter_vgap, 0);
-    primitive_luatex("Umathoverdelimiterbgap", set_math_param_cmd,
+    primitive_umath("Umathoverdelimiterbgap", set_math_param_cmd,
                      math_param_over_delimiter_bgap, 0);
-    primitive_luatex("Umathsubshiftdrop", set_math_param_cmd,
+    primitive_umath("Umathsubshiftdrop", set_math_param_cmd,
                      math_param_sub_shift_drop, 0);
-    primitive_luatex("Umathsupshiftdrop", set_math_param_cmd,
+    primitive_umath("Umathsupshiftdrop", set_math_param_cmd,
                      math_param_sup_shift_drop, 0);
-    primitive_luatex("Umathsubshiftdown", set_math_param_cmd,
+    primitive_umath("Umathsubshiftdown", set_math_param_cmd,
                      math_param_sub_shift_down, 0);
-    primitive_luatex("Umathsubsupshiftdown", set_math_param_cmd,
+    primitive_umath("Umathsubsupshiftdown", set_math_param_cmd,
                      math_param_sub_sup_shift_down, 0);
-    primitive_luatex("Umathsubtopmax", set_math_param_cmd,
+    primitive_umath("Umathsubtopmax", set_math_param_cmd,
                      math_param_sub_top_max, 0);
-    primitive_luatex("Umathsupshiftup", set_math_param_cmd,
+    primitive_umath("Umathsupshiftup", set_math_param_cmd,
                      math_param_sup_shift_up, 0);
-    primitive_luatex("Umathsupbottommin", set_math_param_cmd,
+    primitive_umath("Umathsupbottommin", set_math_param_cmd,
                      math_param_sup_bottom_min, 0);
-    primitive_luatex("Umathsupsubbottommax", set_math_param_cmd,
+    primitive_umath("Umathsupsubbottommax", set_math_param_cmd,
                      math_param_sup_sub_bottom_max, 0);
-    primitive_luatex("Umathsubsupvgap", set_math_param_cmd,
+    primitive_umath("Umathsubsupvgap", set_math_param_cmd,
                      math_param_subsup_vgap, 0);
-    primitive_luatex("Umathspaceafterscript", set_math_param_cmd,
+    primitive_umath("Umathspaceafterscript", set_math_param_cmd,
                      math_param_space_after_script, 0);
-    primitive_luatex("Umathconnectoroverlapmin", set_math_param_cmd,
+    primitive_umath("Umathconnectoroverlapmin", set_math_param_cmd,
                      math_param_connector_overlap_min, 0);
-    primitive_luatex("Umathordordspacing", set_math_param_cmd,
+    primitive_umath("Umathordordspacing", set_math_param_cmd,
                      math_param_ord_ord_spacing, 0);
-    primitive_luatex("Umathordopspacing", set_math_param_cmd,
+    primitive_umath("Umathordopspacing", set_math_param_cmd,
                      math_param_ord_op_spacing, 0);
-    primitive_luatex("Umathordbinspacing", set_math_param_cmd,
+    primitive_umath("Umathordbinspacing", set_math_param_cmd,
                      math_param_ord_bin_spacing, 0);
-    primitive_luatex("Umathordrelspacing", set_math_param_cmd,
+    primitive_umath("Umathordrelspacing", set_math_param_cmd,
                      math_param_ord_rel_spacing, 0);
-    primitive_luatex("Umathordopenspacing", set_math_param_cmd,
+    primitive_umath("Umathordopenspacing", set_math_param_cmd,
                      math_param_ord_open_spacing, 0);
-    primitive_luatex("Umathordclosespacing", set_math_param_cmd,
+    primitive_umath("Umathordclosespacing", set_math_param_cmd,
                      math_param_ord_close_spacing, 0);
-    primitive_luatex("Umathordpunctspacing", set_math_param_cmd,
+    primitive_umath("Umathordpunctspacing", set_math_param_cmd,
                      math_param_ord_punct_spacing, 0);
-    primitive_luatex("Umathordinnerspacing", set_math_param_cmd,
+    primitive_umath("Umathordinnerspacing", set_math_param_cmd,
                      math_param_ord_inner_spacing, 0);
-    primitive_luatex("Umathopordspacing", set_math_param_cmd,
+    primitive_umath("Umathopordspacing", set_math_param_cmd,
                      math_param_op_ord_spacing, 0);
-    primitive_luatex("Umathopopspacing", set_math_param_cmd,
+    primitive_umath("Umathopopspacing", set_math_param_cmd,
                      math_param_op_op_spacing, 0);
-    primitive_luatex("Umathopbinspacing", set_math_param_cmd,
+    primitive_umath("Umathopbinspacing", set_math_param_cmd,
                      math_param_op_bin_spacing, 0);
-    primitive_luatex("Umathoprelspacing", set_math_param_cmd,
+    primitive_umath("Umathoprelspacing", set_math_param_cmd,
                      math_param_op_rel_spacing, 0);
-    primitive_luatex("Umathopopenspacing", set_math_param_cmd,
+    primitive_umath("Umathopopenspacing", set_math_param_cmd,
                      math_param_op_open_spacing, 0);
-    primitive_luatex("Umathopclosespacing", set_math_param_cmd,
+    primitive_umath("Umathopclosespacing", set_math_param_cmd,
                      math_param_op_close_spacing, 0);
-    primitive_luatex("Umathoppunctspacing", set_math_param_cmd,
+    primitive_umath("Umathoppunctspacing", set_math_param_cmd,
                      math_param_op_punct_spacing, 0);
-    primitive_luatex("Umathopinnerspacing", set_math_param_cmd,
+    primitive_umath("Umathopinnerspacing", set_math_param_cmd,
                      math_param_op_inner_spacing, 0);
-    primitive_luatex("Umathbinordspacing", set_math_param_cmd,
+    primitive_umath("Umathbinordspacing", set_math_param_cmd,
                      math_param_bin_ord_spacing, 0);
-    primitive_luatex("Umathbinopspacing", set_math_param_cmd,
+    primitive_umath("Umathbinopspacing", set_math_param_cmd,
                      math_param_bin_op_spacing, 0);
-    primitive_luatex("Umathbinbinspacing", set_math_param_cmd,
+    primitive_umath("Umathbinbinspacing", set_math_param_cmd,
                      math_param_bin_bin_spacing, 0);
-    primitive_luatex("Umathbinrelspacing", set_math_param_cmd,
+    primitive_umath("Umathbinrelspacing", set_math_param_cmd,
                      math_param_bin_rel_spacing, 0);
-    primitive_luatex("Umathbinopenspacing", set_math_param_cmd,
+    primitive_umath("Umathbinopenspacing", set_math_param_cmd,
                      math_param_bin_open_spacing, 0);
-    primitive_luatex("Umathbinclosespacing", set_math_param_cmd,
+    primitive_umath("Umathbinclosespacing", set_math_param_cmd,
                      math_param_bin_close_spacing, 0);
-    primitive_luatex("Umathbinpunctspacing", set_math_param_cmd,
+    primitive_umath("Umathbinpunctspacing", set_math_param_cmd,
                      math_param_bin_punct_spacing, 0);
-    primitive_luatex("Umathbininnerspacing", set_math_param_cmd,
+    primitive_umath("Umathbininnerspacing", set_math_param_cmd,
                      math_param_bin_inner_spacing, 0);
-    primitive_luatex("Umathrelordspacing", set_math_param_cmd,
+    primitive_umath("Umathrelordspacing", set_math_param_cmd,
                      math_param_rel_ord_spacing, 0);
-    primitive_luatex("Umathrelopspacing", set_math_param_cmd,
+    primitive_umath("Umathrelopspacing", set_math_param_cmd,
                      math_param_rel_op_spacing, 0);
-    primitive_luatex("Umathrelbinspacing", set_math_param_cmd,
+    primitive_umath("Umathrelbinspacing", set_math_param_cmd,
                      math_param_rel_bin_spacing, 0);
-    primitive_luatex("Umathrelrelspacing", set_math_param_cmd,
+    primitive_umath("Umathrelrelspacing", set_math_param_cmd,
                      math_param_rel_rel_spacing, 0);
-    primitive_luatex("Umathrelopenspacing", set_math_param_cmd,
+    primitive_umath("Umathrelopenspacing", set_math_param_cmd,
                      math_param_rel_open_spacing, 0);
-    primitive_luatex("Umathrelclosespacing", set_math_param_cmd,
+    primitive_umath("Umathrelclosespacing", set_math_param_cmd,
                      math_param_rel_close_spacing, 0);
-    primitive_luatex("Umathrelpunctspacing", set_math_param_cmd,
+    primitive_umath("Umathrelpunctspacing", set_math_param_cmd,
                      math_param_rel_punct_spacing, 0);
-    primitive_luatex("Umathrelinnerspacing", set_math_param_cmd,
+    primitive_umath("Umathrelinnerspacing", set_math_param_cmd,
                      math_param_rel_inner_spacing, 0);
-    primitive_luatex("Umathopenordspacing", set_math_param_cmd,
+    primitive_umath("Umathopenordspacing", set_math_param_cmd,
                      math_param_open_ord_spacing, 0);
-    primitive_luatex("Umathopenopspacing", set_math_param_cmd,
+    primitive_umath("Umathopenopspacing", set_math_param_cmd,
                      math_param_open_op_spacing, 0);
-    primitive_luatex("Umathopenbinspacing", set_math_param_cmd,
+    primitive_umath("Umathopenbinspacing", set_math_param_cmd,
                      math_param_open_bin_spacing, 0);
-    primitive_luatex("Umathopenrelspacing", set_math_param_cmd,
+    primitive_umath("Umathopenrelspacing", set_math_param_cmd,
                      math_param_open_rel_spacing, 0);
-    primitive_luatex("Umathopenopenspacing", set_math_param_cmd,
+    primitive_umath("Umathopenopenspacing", set_math_param_cmd,
                      math_param_open_open_spacing, 0);
-    primitive_luatex("Umathopenclosespacing", set_math_param_cmd,
+    primitive_umath("Umathopenclosespacing", set_math_param_cmd,
                      math_param_open_close_spacing, 0);
-    primitive_luatex("Umathopenpunctspacing", set_math_param_cmd,
+    primitive_umath("Umathopenpunctspacing", set_math_param_cmd,
                      math_param_open_punct_spacing, 0);
-    primitive_luatex("Umathopeninnerspacing", set_math_param_cmd,
+    primitive_umath("Umathopeninnerspacing", set_math_param_cmd,
                      math_param_open_inner_spacing, 0);
-    primitive_luatex("Umathcloseordspacing", set_math_param_cmd,
+    primitive_umath("Umathcloseordspacing", set_math_param_cmd,
                      math_param_close_ord_spacing, 0);
-    primitive_luatex("Umathcloseopspacing", set_math_param_cmd,
+    primitive_umath("Umathcloseopspacing", set_math_param_cmd,
                      math_param_close_op_spacing, 0);
-    primitive_luatex("Umathclosebinspacing", set_math_param_cmd,
+    primitive_umath("Umathclosebinspacing", set_math_param_cmd,
                      math_param_close_bin_spacing, 0);
-    primitive_luatex("Umathcloserelspacing", set_math_param_cmd,
+    primitive_umath("Umathcloserelspacing", set_math_param_cmd,
                      math_param_close_rel_spacing, 0);
-    primitive_luatex("Umathcloseopenspacing", set_math_param_cmd,
+    primitive_umath("Umathcloseopenspacing", set_math_param_cmd,
                      math_param_close_open_spacing, 0);
-    primitive_luatex("Umathcloseclosespacing", set_math_param_cmd,
+    primitive_umath("Umathcloseclosespacing", set_math_param_cmd,
                      math_param_close_close_spacing, 0);
-    primitive_luatex("Umathclosepunctspacing", set_math_param_cmd,
+    primitive_umath("Umathclosepunctspacing", set_math_param_cmd,
                      math_param_close_punct_spacing, 0);
-    primitive_luatex("Umathcloseinnerspacing", set_math_param_cmd,
+    primitive_umath("Umathcloseinnerspacing", set_math_param_cmd,
                      math_param_close_inner_spacing, 0);
-    primitive_luatex("Umathpunctordspacing", set_math_param_cmd,
+    primitive_umath("Umathpunctordspacing", set_math_param_cmd,
                      math_param_punct_ord_spacing, 0);
-    primitive_luatex("Umathpunctopspacing", set_math_param_cmd,
+    primitive_umath("Umathpunctopspacing", set_math_param_cmd,
                      math_param_punct_op_spacing, 0);
-    primitive_luatex("Umathpunctbinspacing", set_math_param_cmd,
+    primitive_umath("Umathpunctbinspacing", set_math_param_cmd,
                      math_param_punct_bin_spacing, 0);
-    primitive_luatex("Umathpunctrelspacing", set_math_param_cmd,
+    primitive_umath("Umathpunctrelspacing", set_math_param_cmd,
                      math_param_punct_rel_spacing, 0);
-    primitive_luatex("Umathpunctopenspacing", set_math_param_cmd,
+    primitive_umath("Umathpunctopenspacing", set_math_param_cmd,
                      math_param_punct_open_spacing, 0);
-    primitive_luatex("Umathpunctclosespacing", set_math_param_cmd,
+    primitive_umath("Umathpunctclosespacing", set_math_param_cmd,
                      math_param_punct_close_spacing, 0);
-    primitive_luatex("Umathpunctpunctspacing", set_math_param_cmd,
+    primitive_umath("Umathpunctpunctspacing", set_math_param_cmd,
                      math_param_punct_punct_spacing, 0);
-    primitive_luatex("Umathpunctinnerspacing", set_math_param_cmd,
+    primitive_umath("Umathpunctinnerspacing", set_math_param_cmd,
                      math_param_punct_inner_spacing, 0);
-    primitive_luatex("Umathinnerordspacing", set_math_param_cmd,
+    primitive_umath("Umathinnerordspacing", set_math_param_cmd,
                      math_param_inner_ord_spacing, 0);
-    primitive_luatex("Umathinneropspacing", set_math_param_cmd,
+    primitive_umath("Umathinneropspacing", set_math_param_cmd,
                      math_param_inner_op_spacing, 0);
-    primitive_luatex("Umathinnerbinspacing", set_math_param_cmd,
+    primitive_umath("Umathinnerbinspacing", set_math_param_cmd,
                      math_param_inner_bin_spacing, 0);
-    primitive_luatex("Umathinnerrelspacing", set_math_param_cmd,
+    primitive_umath("Umathinnerrelspacing", set_math_param_cmd,
                      math_param_inner_rel_spacing, 0);
-    primitive_luatex("Umathinneropenspacing", set_math_param_cmd,
+    primitive_umath("Umathinneropenspacing", set_math_param_cmd,
                      math_param_inner_open_spacing, 0);
-    primitive_luatex("Umathinnerclosespacing", set_math_param_cmd,
+    primitive_umath("Umathinnerclosespacing", set_math_param_cmd,
                      math_param_inner_close_spacing, 0);
-    primitive_luatex("Umathinnerpunctspacing", set_math_param_cmd,
+    primitive_umath("Umathinnerpunctspacing", set_math_param_cmd,
                      math_param_inner_punct_spacing, 0);
-    primitive_luatex("Umathinnerinnerspacing", set_math_param_cmd,
+    primitive_umath("Umathinnerinnerspacing", set_math_param_cmd,
                      math_param_inner_inner_spacing, 0);
 
 @ These are in a separate module due to a CWEAVE limitation.
 
 @<Create another bunch of primitives@>=
-    primitive_luatex("Umathcode", extdef_math_code_cmd, math_code_base,
+    primitive_umath("Umathcode", extdef_math_code_cmd, math_code_base,
                      math_code_base);
-    primitive_luatex("Udelcode", extdef_del_code_cmd, del_code_base,
+    primitive_umath("Udelcode", extdef_del_code_cmd, del_code_base,
                      del_code_base);
-    primitive_luatex("Umathcodenum", extdef_math_code_cmd, math_code_base + 1,
+    primitive_umath("Umathcodenum", extdef_math_code_cmd, math_code_base + 1,
                      math_code_base);
-    primitive_luatex("Udelcodenum", extdef_del_code_cmd, del_code_base + 1,
+    primitive_umath("Udelcodenum", extdef_del_code_cmd, del_code_base + 1,
                      del_code_base);
     primitive_tex("hyphenation", hyph_data_cmd, 0, 0);
     primitive_tex("patterns", hyph_data_cmd, 1, 0);
