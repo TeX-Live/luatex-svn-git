@@ -1043,7 +1043,6 @@ static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
         NULL
     };
     delcodeval d;
-    int curval1;               /* and the global |cur_val| */
     int mcls, msfam = 0, mschr = 0, mlfam = 0, mlchr = 0;
     mcls = 0;
     if (extcode == tex_mathcode) {      /* \.{\\delcode}, this is the easiest */
