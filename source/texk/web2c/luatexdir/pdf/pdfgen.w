@@ -1495,7 +1495,7 @@ static void convertStringToHexString(const char *in, char *out, int lin)
   implementation using just the first two items.
 
 @c
-static void print_ID(PDF pdf, const char *file_name)
+static void print_ID(PDF pdf)
 {
     time_t t;
     size_t size;
@@ -1526,7 +1526,8 @@ static void print_ID(PDF pdf, const char *file_name)
 #endif
     md5_append(&state, (const md5_byte_t *) pwd, (int) strlen(pwd));
     md5_append(&state, (const md5_byte_t *) "/", 1);
-    md5_append(&state, (const md5_byte_t *) file_name, (int) strlen(file_name));
+    md5_append(&state, (const md5_byte_t *) pdf->file_name,
+               (int) strlen(pdf->file_name));
     /* finish md5 */
     md5_finish(&state, digest);
     /* write the IDs */
@@ -2491,7 +2492,7 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
                     delete_token_ref(pdf_trailer_toks);
                     pdf_trailer_toks = null;
                 }
-                print_ID(pdf, pdf->file_name);
+                print_ID(pdf);
                 pdf_dict_add_streaminfo(pdf);
                 pdf_end_dict(pdf);
                 pdf_begin_stream(pdf);
@@ -2552,7 +2553,7 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
                     delete_token_ref(pdf_trailer_toks);
                     pdf_trailer_toks = null;
                 }
-                print_ID(pdf, pdf->file_name);
+                print_ID(pdf);
                 pdf_end_dict(pdf);
                 pdf_out(pdf, '\n');
             }
