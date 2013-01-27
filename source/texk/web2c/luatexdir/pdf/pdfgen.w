@@ -433,14 +433,13 @@ void pdf_flush(PDF pdf)
 }
 
 @ @c
-static void pdf_buffer_select(PDF pdf, boolean do_os)
+static void pdf_buffer_select(PDF pdf, buffer_e buf)
 {
     os_struct *os = pdf->os;
-    if (pdf->os_enable && do_os) {
+    if (pdf->os_enable && buf == OBJSTM_BUF)
         os->curbuf = OBJSTM_BUF;        /* switch to object stream */
-    } else {
+    else
         os->curbuf = PDFOUT_BUF;        /* switch to PDF stream */
-    }
     pdf->buf = os->buf[pdf->os->curbuf];
 }
 
@@ -453,7 +452,10 @@ static void pdf_prepare_obj(PDF pdf, int k, int pdf_os_threshold)
     strbuf_s *obuf = os->buf[OBJSTM_BUF];
     assert(os->curbuf != LUASTM_BUF);
     assert(pdf_os_threshold >= OBJSTM_ALWAYS);
-    pdf_buffer_select(pdf, (pdf->objcompresslevel >= pdf_os_threshold));
+    if (pdf->objcompresslevel >= pdf_os_threshold)
+        pdf_buffer_select(pdf, OBJSTM_BUF);
+    else
+        pdf_buffer_select(pdf, PDFOUT_BUF);
     assert(pdf->buf == os->buf[os->curbuf]);
     switch (os->curbuf) {
     case PDFOUT_BUF:
@@ -465,7 +467,8 @@ static void pdf_prepare_obj(PDF pdf, int k, int pdf_os_threshold)
         break;
     case OBJSTM_BUF:
         if (os->cur_objstm == 0) {
-            os->cur_objstm = (unsigned int) pdf_create_obj(pdf, obj_type_objstm, 0);
+            os->cur_objstm =
+                (unsigned int) pdf_create_obj(pdf, obj_type_objstm, 0);
             os->idx = 0;
             obuf->p = obuf->data;       /* start fresh object stream */
             os->ostm_ctr++;     /* only for statistics */
@@ -2454,10 +2457,10 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
             info = pdf_print_info(pdf, luatexversion, luatexrevision);  /* final object for pdf->os_enable == false */
 
             if (pdf->os_enable) {
-                pdf_buffer_select(pdf, true);
+                pdf_buffer_select(pdf, OBJSTM_BUF);
                 pdf_os_write_objstream(pdf);
                 pdf_flush(pdf);
-                pdf_buffer_select(pdf, false);
+                pdf_buffer_select(pdf, PDFOUT_BUF);
                 /* Output the cross-reference stream dictionary */
                 xref_stm = pdf_create_obj(pdf, obj_type_others, 0);
                 pdf_begin_obj(pdf, xref_stm, OBJSTM_NEVER);     /* final object for pdf->os_enable == true */
