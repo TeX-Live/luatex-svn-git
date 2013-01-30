@@ -32,6 +32,7 @@
 #  define dir_LTL  9
 #  define dir_RTT  24
 
+extern const char *dir_strings[128];
 
                                    /* #  define dir_array_size  25 *//* |dir_RTT + 1| */
 

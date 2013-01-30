@@ -8993,7 +8993,7 @@ accessible fields:
 \stoptabulate
 
 These objects are reference counted, so there is actually an extra
-field named \type {ref_count} as well. This item type will likely
+read-only field named \type {ref_count} as well. This item type will likely
 disappear in the future, and the glue fields themselves will
 become part of the nodes referencing glue items.
 
@@ -9045,7 +9045,7 @@ pdf start link objects.
 \NC file          \NC  string   \NC  \NC\NR
 \NC new_window    \NC  number   \NC  \NC\NR
 \NC data          \NC  string   \NC  \NC\NR
-\NC ref_count     \NC  number   \NC  \NC\NR
+\NC ref_count     \NC  number   \NC  (read-only)\NC\NR
 \stoptabulate
 
 \subsection{Main text nodes}

@@ -2241,7 +2241,7 @@ static int tex_run_linebreak(lua_State * L)
     lua_pushstring(L, "pardir");
     lua_gettable(L, -2);
     if (lua_type(L, -1) == LUA_TSTRING) {
-        paragraph_dir = nodelib_getdir(L, -1);
+        paragraph_dir = nodelib_getdir(L, -1, 1);
     }
     lua_pop(L, 1);
 
