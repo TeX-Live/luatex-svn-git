@@ -22,7 +22,7 @@
 #ifndef PDFFONT_H
 #  define PDFFONT_H
 
-extern void output_one_char(PDF pdf, halfword p);
+extern scaled_whd output_one_char(PDF pdf, halfword p);
 
 extern void pdf_init_font(PDF pdf, internal_font_number f);
 extern internal_font_number pdf_set_font(PDF pdf, internal_font_number f);
