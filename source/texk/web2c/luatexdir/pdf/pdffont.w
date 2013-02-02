@@ -1,6 +1,6 @@
 % pdffont.w
 %
-% Copyright 2009-2012 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2009-2013 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -44,10 +44,12 @@ The |has_packet()| C macro checks for this condition.
 @ The following code typesets a character to PDF output 
 
 @c
-void output_one_char(PDF pdf, internal_font_number ffi, int c)
+void output_one_char(PDF pdf, halfword p)
 {
     scaled_whd ci;              /* the real width, height and depth of the character */
-    ci = get_charinfo_whd(ffi, c);
+    internal_font_number ffi = font(p);
+    int c = character(p);
+    ci = get_charinfo_whd(p);
     switch (pdf->posstruct->dir) {
     case dir_TLT:
         break;

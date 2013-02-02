@@ -1068,9 +1068,11 @@ void dvi_place_rule(PDF pdf, halfword q, scaledpos size)
     dvi_four(size.h);
 }
 
-void dvi_place_glyph(PDF pdf, internal_font_number f, int c)
+void dvi_place_glyph(PDF pdf, halfword p)
 {
     scaled_whd ci;
+    internal_font_number f = font(p);
+    int c = character(p);
     synch_dvi_with_pos(pdf->posstruct->pos);
     if (f != pdf->f_cur) {
         /* Change font |f_cur| to |f| */
@@ -1084,7 +1086,7 @@ void dvi_place_glyph(PDF pdf, internal_font_number f, int c)
         pdf->f_cur = f;
     }
     if (textdir_is_L(pdf->posstruct->dir)) {
-        ci = get_charinfo_whd(f, c);
+        ci = get_charinfo_whd(p);
         dvi_set(c, ci.wd);      /* movement optimization for |dir_*L*| */
     } else
         dvi_put(c);
