@@ -1,6 +1,6 @@
 % pdfglyph.w
 %
-% Copyright 2009-2011 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2009-2013 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -192,9 +192,11 @@ void end_chararray(PDF pdf)
 }
 
 @ @c
-void pdf_place_glyph(PDF pdf, internal_font_number f, int c)
+void pdf_place_glyph(PDF pdf, halfword gp)
 {
     boolean move;
+    internal_font_number f = font(gp);
+    int c = character(gp);
     pdfstructure *p = pdf->pstruct;
     scaledpos pos = pdf->posstruct->pos;
     if (!char_exists(f, c))

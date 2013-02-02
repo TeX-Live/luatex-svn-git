@@ -70,7 +70,7 @@ void output_one_char(PDF pdf, halfword p)
     if (has_packet(ffi, c)) {
         do_vf_packet(pdf, ffi, c);
     } else
-        backend_out[glyph_node] (pdf, ffi, c);  /* |pdf_place_glyph(pdf, ffi, c);| */
+        backend_out[glyph_node] (pdf, p);       /* |pdf_place_glyph(pdf, p);| */
 }
 
 @ Mark |f| as a used font; set |font_used(f)|, |font_size(f)| and |pdf_font_num(f)| 
