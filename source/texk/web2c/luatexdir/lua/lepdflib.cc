@@ -183,7 +183,7 @@ static int l_new_PDFRectangle(lua_State * L)
     return 1;
 }
 
-static const struct luaL_Reg epdflib[] = {
+static const struct luaL_Reg epdflib_f[] = {
     {"open", l_open_PDFDoc},
     {"Array", l_new_Array},
     {"Dict", l_new_Dict},
@@ -2617,35 +2617,35 @@ static const struct luaL_Reg XRefEntry_m[] = {
 
 //**********************************************************************
 
-#define register_meta(type)                 \
+#define setfuncs_meta(type)                 \
     luaL_newmetatable(L, M_##type);         \
     lua_pushvalue(L, -1);                   \
     lua_setfield(L, -2, "__index");         \
     lua_pushstring(L, "no user access");    \
     lua_setfield(L, -2, "__metatable");     \
-    luaL_register(L, NULL, type##_m)
+    luaL_setfuncs(L, type##_m, 0)
 
 int luaopen_epdf(lua_State * L)
 {
-    register_meta(Annot);
-    register_meta(Annots);
-    register_meta(Array);
-    register_meta(Catalog);
-    register_meta(Dict);
-    register_meta(EmbFile);
-    register_meta(FileSpec);
-    register_meta(GooString);
-    register_meta(LinkDest);
-    register_meta(Links);
-    register_meta(Object);
-    register_meta(Page);
-    register_meta(PDFDoc);
-    register_meta(PDFRectangle);
-    register_meta(Ref);
-    register_meta(Stream);
-    register_meta(XRef);
-    register_meta(XRefEntry);
+    setfuncs_meta(Annot);
+    setfuncs_meta(Annots);
+    setfuncs_meta(Array);
+    setfuncs_meta(Catalog);
+    setfuncs_meta(Dict);
+    setfuncs_meta(EmbFile);
+    setfuncs_meta(FileSpec);
+    setfuncs_meta(GooString);
+    setfuncs_meta(LinkDest);
+    setfuncs_meta(Links);
+    setfuncs_meta(Object);
+    setfuncs_meta(Page);
+    setfuncs_meta(PDFDoc);
+    setfuncs_meta(PDFRectangle);
+    setfuncs_meta(Ref);
+    setfuncs_meta(Stream);
+    setfuncs_meta(XRef);
+    setfuncs_meta(XRefEntry);
 
-    luaL_register(L, "epdf", epdflib);
+    luaL_newlib(L, epdflib_f);
     return 1;
 }

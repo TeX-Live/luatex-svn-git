@@ -1,6 +1,6 @@
 /* limglib.c
    
-   Copyright 2006-2012 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2013 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -471,8 +471,8 @@ static void copy_image(lua_State * L, lua_Number scale)
     img_transform(b) = img_transform(a);
     img_dict(b) = img_dict(a);
     if (img_dictref(a) != LUA_NOREF) {
-        lua_rawgeti(L, LUA_REGISTRYINDEX, img_dictref(a));       /* ad b */
-        img_dictref(b) = luaL_ref(L, LUA_REGISTRYINDEX); /* b */
+        lua_rawgeti(L, LUA_REGISTRYINDEX, img_dictref(a));      /* ad b */
+        img_dictref(b) = luaL_ref(L, LUA_REGISTRYINDEX);        /* b */
     } else
         assert(img_state(img_dict(a)) >= DICT_REFERED);
 }
@@ -495,7 +495,7 @@ int l_new_image(lua_State * L)
     luaL_getmetatable(L, TYPE_IMG_DICT);        /* m ad i (t) */
     lua_setmetatable(L, -2);    /* ad i (t) */
     img_dict(a) = *add = new_image_dict();
-    img_dictref(a) = luaL_ref(L, LUA_REGISTRYINDEX);     /* i (t) */
+    img_dictref(a) = luaL_ref(L, LUA_REGISTRYINDEX);    /* i (t) */
     if (lua_gettop(L) == 2) {   /* i t, else just i */
         lua_insert(L, -2);      /* t i */
         lua_pushnil(L);         /* n t i (1st key for iterator) */
@@ -690,7 +690,7 @@ static int l_image_boxes(lua_State * L)
     return 1;
 }
 
-static const struct luaL_Reg imglib[] = {
+static const struct luaL_Reg imglib_f[] = {
     {"new", l_new_image},
     {"copy", l_copy_image},
     {"scan", l_scan_image},
@@ -710,7 +710,7 @@ void vf_out_image(PDF pdf, unsigned i)
     image *a, **aa;
     image_dict *ad;
     lua_State *L = Luas;        /* ... */
-    lua_rawgeti(L, LUA_REGISTRYINDEX, (int) i);  /* image ... */
+    lua_rawgeti(L, LUA_REGISTRYINDEX, (int) i); /* image ... */
     aa = (image **) luaL_checkudata(L, -1, TYPE_IMG);
     a = *aa;
     ad = img_dict(a);
@@ -819,10 +819,10 @@ int luaopen_img(lua_State * L)
 {
     preset_environment(L, img_parms, IMG_ENV);
     luaL_newmetatable(L, TYPE_IMG);
-    luaL_register(L, NULL, img_m);
+    luaL_setfuncs(L, img_m, 0);
     luaL_newmetatable(L, TYPE_IMG_DICT);
-    luaL_register(L, NULL, img_dict_m);
-    luaL_register(L, "img", imglib);
+    luaL_setfuncs(L, img_dict_m, 0);
+    luaL_newlib(L, imglib_f);
     return 1;
 }
 
