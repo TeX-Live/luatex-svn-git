@@ -377,7 +377,8 @@ void hlist_out(PDF pdf, halfword this_box)
                     tmpcur.v = cur.v - y_displace(p);
                     synch_pos_with_cur(pdf->posstruct, refpos, tmpcur);
                 }
-                ci = output_one_char(pdf, p);
+                output_one_char(pdf, p);
+                ci = get_charinfo_whd(p);
                 if (textdir_parallel(localpos.dir, dir_TLT))
                     cur.h += ci.wd;
                 else

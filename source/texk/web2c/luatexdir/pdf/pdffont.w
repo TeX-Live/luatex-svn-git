@@ -44,11 +44,12 @@ The |has_packet()| C macro checks for this condition.
 @ The following code typesets a character to PDF output 
 
 @c
-scaled_whd output_one_char(PDF pdf, halfword p)
+void output_one_char(PDF pdf, halfword p)
 {
+    scaled_whd ci;              /* the real width, height and depth of the character */
     internal_font_number ffi = font(p);
     int c = character(p);
-    scaled_whd ci = get_charinfo_whd(p);        /* the real width, height and depth of the character */
+    ci = get_charinfo_whd(p);
     switch (pdf->posstruct->dir) {
     case dir_TLT:
         break;
@@ -70,7 +71,6 @@ scaled_whd output_one_char(PDF pdf, halfword p)
         do_vf_packet(pdf, ffi, c);
     } else
         backend_out[glyph_node] (pdf, p);       /* |pdf_place_glyph(pdf, p);| */
-    return ci;
 }
 
 @ Mark |f| as a used font; set |font_used(f)|, |font_size(f)| and |pdf_font_num(f)| 
