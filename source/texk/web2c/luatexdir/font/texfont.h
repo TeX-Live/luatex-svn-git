@@ -111,7 +111,7 @@ extern extinfo *copy_variants(extinfo * o);
 extern extinfo *new_variant(int glyph, int startconnect, int endconnect,
                             int advance, int repeater);
 
-extern scaled_whd get_charinfo_whd(halfword p);
+extern scaled_whd get_charinfo_whd(internal_font_number f, int c);
 
 
 

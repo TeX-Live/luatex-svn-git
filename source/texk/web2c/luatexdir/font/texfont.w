@@ -340,12 +340,10 @@ charinfo *char_info(internal_font_number f, int c)
 }
 
 @ @c
-scaled_whd get_charinfo_whd(halfword p)
+scaled_whd get_charinfo_whd(internal_font_number f, int c)
 {
     scaled_whd s;
     charinfo *i;
-    internal_font_number f = font(p);
-    int c = character(p);
     i = char_info(f, c);
     s.wd = i->width;
     s.dp = i->depth;
