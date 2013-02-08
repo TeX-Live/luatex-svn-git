@@ -1,6 +1,6 @@
 /* pdfglyph.h
 
-   Copyright 2009-2013 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -24,7 +24,7 @@
 
 void end_chararray(PDF pdf);
 void end_charmode(PDF pdf);
-void pdf_place_glyph(PDF pdf, halfword p);
+void pdf_place_glyph(PDF pdf, internal_font_number f, int c);
 void pdf_print_charwidth(PDF pdf, internal_font_number f, int i);
 
 #endif
