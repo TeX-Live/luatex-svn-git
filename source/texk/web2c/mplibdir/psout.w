@@ -1,4 +1,4 @@
-% $Id: psout.w 1803 2012-12-05 15:47:35Z taco $
+% $Id: psout.w 1833 2013-02-08 16:25:37Z taco $
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
 % See the <Show version...> code in mpost.w for more info.
@@ -5627,13 +5627,13 @@ if ( (gr_right_x(pp)==gr_x_coord(pp)) && (gr_left_y(pp)==gr_y_coord(pp)) ) {
   new_number(ret);
   new_number(arg1);
   new_number(arg2);
-  mp_set_number_from_double (arg1, gr_left_x(pp)-gr_x_coord(pp));
-  mp_set_number_from_double (arg2, gr_right_x(pp)-gr_x_coord(pp));
-  mp_pyth_add(mp, ret, arg1, arg2);
+  mp_set_number_from_double (&arg1, gr_left_x(pp)-gr_x_coord(pp));
+  mp_set_number_from_double (&arg2, gr_right_x(pp)-gr_x_coord(pp));
+  mp_pyth_add(mp, &ret, arg1, arg2);
   wx = mp_number_to_double(ret);
-  mp_set_number_from_double (arg1, gr_left_y(pp)-gr_y_coord(pp));
-  mp_set_number_from_double (arg2, gr_right_y(pp)-gr_y_coord(pp));
-  mp_pyth_add(mp, ret, arg1, arg2);
+  mp_set_number_from_double (&arg1, gr_left_y(pp)-gr_y_coord(pp));
+  mp_set_number_from_double (&arg2, gr_right_y(pp)-gr_y_coord(pp));
+  mp_pyth_add(mp, &ret, arg1, arg2);
   wy = mp_number_to_double(ret);
   free_number(ret);
   free_number(arg1);
@@ -5968,13 +5968,13 @@ static double mp_gr_choose_scale (MP mp, mp_graphic_object *p) ;
   if ( d<0 ) negate(d);
   ad=(a-d)/2.0;
   bc=(b-c)/2.0;
-  mp_set_number_from_double(arg1, (d+ad));
-  mp_set_number_from_double(arg2, ad);
-  mp_pyth_add(mp, ret1, arg1, arg2);
-  mp_set_number_from_double(arg1, (c+bc));
-  mp_set_number_from_double(arg2, bc);
-  mp_pyth_add(mp, ret2, arg1, arg2);
-  mp_pyth_add(mp, ret, ret1, ret2);
+  mp_set_number_from_double(&arg1, (d+ad));
+  mp_set_number_from_double(&arg2, ad);
+  mp_pyth_add(mp, &ret1, arg1, arg2);
+  mp_set_number_from_double(&arg1, (c+bc));
+  mp_set_number_from_double(&arg2, bc);
+  mp_pyth_add(mp, &ret2, arg1, arg2);
+  mp_pyth_add(mp, &ret, ret1, ret2);
   r = mp_number_to_double(ret);
   free_number (ret);
   free_number (ret1);
@@ -6045,7 +6045,7 @@ static void mp_clear_sizes (MP mp) ;
     while ( mp->font_sizes[f]!=null ) {
       p=mp->font_sizes[f];
       mp->font_sizes[f]=mp_link(p);
-      mp_free_node(mp, p,font_size_size);
+      mp_xfree(p);
     }
   }
 }

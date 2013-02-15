@@ -1,4 +1,4 @@
-% $Id: svgout.w 1728 2012-11-12 13:08:50Z taco $
+% $Id: svgout.w 1833 2013-02-08 16:25:37Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -636,13 +636,13 @@ mp_pen_info *mp_svg_pen_info(MP mp, mp_gr_knot pp, mp_gr_knot p) {
     new_number(ret);
     new_number(arg1);
     new_number(arg2);
-    mp_set_number_from_double (arg1, gr_left_x(p)-gr_x_coord(p));
-    mp_set_number_from_double (arg2, gr_right_x(p)-gr_x_coord(p));
-    mp_pyth_add(mp, ret, arg1, arg2);
+    mp_set_number_from_double (&arg1, gr_left_x(p)-gr_x_coord(p));
+    mp_set_number_from_double (&arg2, gr_right_x(p)-gr_x_coord(p));
+    mp_pyth_add(mp, &ret, arg1, arg2);
     wx = mp_number_to_double(ret);
-    mp_set_number_from_double (arg1, gr_left_y(p)-gr_y_coord(p));
-    mp_set_number_from_double (arg2, gr_right_y(p)-gr_y_coord(p));
-    mp_pyth_add(mp, ret, arg1, arg2);
+    mp_set_number_from_double (&arg1, gr_left_y(p)-gr_y_coord(p));
+    mp_set_number_from_double (&arg2, gr_right_y(p)-gr_y_coord(p));
+    mp_pyth_add(mp, &ret, arg1, arg2);
     wy = mp_number_to_double(ret);
     free_number(ret);
     free_number(arg1);
