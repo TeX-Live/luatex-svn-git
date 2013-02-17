@@ -1,4 +1,4 @@
-% $Id: psout.w 1833 2013-02-08 16:25:37Z taco $
+% $Id: psout.w 1864 2013-02-17 13:20:58Z taco $
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
 % See the <Show version...> code in mpost.w for more info.
