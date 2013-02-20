@@ -46,14 +46,13 @@ void pdf_print_charwidth(PDF pdf, internal_font_number f, int i)
 {
     pdffloat cw;
     pdfstructure *p = pdf->pstruct;
-    assert(pdf_font_blink(f) == null_font);     /* must use unexpanded font! */
     cw.m = pdf_char_width(p, f, i);
     cw.e = p->cw.e;
     print_pdffloat(pdf, cw);
 }
 
 @ @c
-static void setup_fontparameters(PDF pdf, internal_font_number f)
+static void setup_fontparameters(PDF pdf, internal_font_number f, int ex)
 {
     float slant, extend, expand, scale = 1.0;
     float u = 1.0;
@@ -68,7 +67,7 @@ static void setup_fontparameters(PDF pdf, internal_font_number f)
     p->fs.m = lround(font_size(f) / u / one_bp * ten_pow[p->fs.e]);
     slant = font_slant(f) / 1000.0;
     extend = font_extend(f) / 1000.0;
-    expand = 1.0 + font_expand_ratio(f) / 1000.0;
+    expand = 1.0 + ex / 1000.0;
     p->tj_delta.e = p->cw.e - 1;        /* "- 1" makes less corrections inside []TJ */
     /* no need to be more precise than TeX (1sp) */
     while (p->tj_delta.e > 0
@@ -192,7 +191,7 @@ void end_chararray(PDF pdf)
 }
 
 @ @c
-void pdf_place_glyph(PDF pdf, internal_font_number f, int c)
+void pdf_place_glyph(PDF pdf, internal_font_number f, int c, int ex)
 {
     boolean move;
     pdfstructure *p = pdf->pstruct;
@@ -205,8 +204,8 @@ void pdf_place_glyph(PDF pdf, internal_font_number f, int c)
         p->need_tf = true;
     }
     /* all font setup */
-    if (f != pdf->f_cur || p->need_tf) {
-        setup_fontparameters(pdf, f);
+    if (true || f != pdf->f_cur || p->need_tf) {
+        setup_fontparameters(pdf, f, ex);
         if (p->need_tf || p->f_pdf != p->f_pdf_cur || p->fs.m != p->fs_cur.m) {
             pdf_goto_textmode(pdf);
             set_font(pdf);

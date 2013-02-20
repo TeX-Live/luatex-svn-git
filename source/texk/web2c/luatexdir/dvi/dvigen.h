@@ -1,6 +1,6 @@
 /* dvigen.h
 
-   Copyright 2009 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2013 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -180,7 +180,7 @@ extern void dvi_special(PDF pdf, halfword p);
 extern void ensure_dvi_header_written(PDF pdf);
 extern void finish_dvi_file(PDF pdf, int version, int revision);
 
-extern void dvi_place_glyph(PDF pdf, internal_font_number f, int c);
+extern void dvi_place_glyph(PDF pdf, internal_font_number f, int c, int ex);
 extern void dvi_place_rule(PDF pdf, halfword q, scaledpos size);
 
 extern void dvi_begin_page(PDF pdf);

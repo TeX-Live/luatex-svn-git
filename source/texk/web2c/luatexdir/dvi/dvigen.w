@@ -1,6 +1,6 @@
 % dvigen.w
 %
-% Copyright 2009-2012 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2009-2013 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -1068,8 +1068,9 @@ void dvi_place_rule(PDF pdf, halfword q, scaledpos size)
     dvi_four(size.h);
 }
 
-void dvi_place_glyph(PDF pdf, internal_font_number f, int c)
+void dvi_place_glyph(PDF pdf, internal_font_number f, int c, int ex)
 {
+    /* TODO: do something on ex, select font (if possible) */
     scaled_whd ci;
     synch_dvi_with_pos(pdf->posstruct->pos);
     if (f != pdf->f_cur) {
