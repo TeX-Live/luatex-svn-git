@@ -359,7 +359,7 @@ void do_subst_font(halfword p, int ex_ratio)
 scaled char_pw(halfword p, int side)
 {
     internal_font_number f;
-    int c;
+    int c, w;
     if (side == left_side)
         last_leftmost_char = null;
     else
@@ -378,7 +378,10 @@ scaled char_pw(halfword p, int side)
     }
     if (c == 0)
         return 0;
-    return round_xn_over_d(quad(f), c, 1000);
+    w = quad(f);
+    if (ex_glyph(p) != 0)
+        round_xn_over_d(w, 1000 + ex_glyph(p), 1000);
+    return round_xn_over_d(w, c, 1000);
 }
 
 @ @c
