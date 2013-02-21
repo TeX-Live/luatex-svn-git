@@ -193,17 +193,7 @@ internal_font_number pdf_set_font(PDF pdf, internal_font_number f)
 }
 
 @ Here come some subroutines to deal with expanded fonts for HZ-algorithm.
-@c
-void copy_expand_params(internal_font_number k, internal_font_number f, int e)
-{                               /* set expansion-related parameters for an expanded font |k|, based on the base
-                                   font |f| and the expansion amount |e| */
-    //set_font_expand_ratio(k, e);
-    set_font_step(k, font_step(f));
-    set_font_auto_expand(k, font_auto_expand(f));
-    //set_pdf_font_blink(k, f);
-}
-
-@ return 1 == identical
+return 1 == identical
 @c
 static boolean cmp_font_name(int id, char *tt)
 {
