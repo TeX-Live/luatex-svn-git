@@ -1768,6 +1768,8 @@ void conv_toks(void)
     /* Scan the argument for command |c| */
     switch (c) {
     case uchar_code:
+        scan_char_num();
+        break;
     case number_code:
     case roman_numeral_code:
         scan_int();
