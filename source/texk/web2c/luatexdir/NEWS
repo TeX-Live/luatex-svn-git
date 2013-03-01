@@ -2,6 +2,49 @@
 This file is in the public domain.
 
 ==============================================================
+Luatex beta-0.75.0 was released 20130301
+==============================================================
+
+News:
+
+* New expandable primitive \Uchar.
+
+* Metapost 1.790.
+
+* New version of lnodelib.c with speedups by Hans and Luigi.
+  Also added some extra sanity checks to the Lua node field
+  setting functions.
+
+* Support 'umath' in tex.extraprimitives(), so that formats can
+  make the \Umath* primitives unprefixed, now that they will be
+  provided by XeTeX as well.
+
+* Removed a bunch of deprecated primitives
+  * \AlephVersion, \Alephrevision, \Alephversion, \Alephminorversion
+  * \OmegaVersion, \Omegarevision, \Omegaversion, \Omegaminorversion
+  * \omathcode, \odelcode, \omathchardef, \omathchar, \omathaccent,
+    \odelimiter, \oradical
+  * \Umathbotaccent, \Umathaccents
+
+* Fix large file support.
+
+* Fix Lua's loadfile().
+
+* Removed the cidmap callbacks again (let that be done by user lua 
+  code after the fact).
+
+* Removed the fatal error on fonts where num_glyphs is too high,
+  as that problem is actually harmless.
+
+* Some compilation issues under Win32 and Solaris resolved.
+
+* Allow math extender objects to be zero width.
+
+* The 'epdf' library has been extended to deal with finding and
+  saving embedded files (catalog:numEmbeddedFiles() and catalog:
+  embeddedFile, new EmbFile object).
+
+==============================================================
 Luatex beta-0.74.0 was released 20121224
 ==============================================================
 
