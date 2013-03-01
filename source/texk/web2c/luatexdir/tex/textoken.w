@@ -1641,6 +1641,9 @@ static boolean print_convert_string(halfword c, int i)
     case number_code:
         print_int(i);
         break;
+    case uchar_code:
+        print(i);
+        break;
     case roman_numeral_code:
         print_roman_int(i);
         break;
@@ -1764,6 +1767,7 @@ void conv_toks(void)
     str_number str;
     /* Scan the argument for command |c| */
     switch (c) {
+    case uchar_code:
     case number_code:
     case roman_numeral_code:
         scan_int();

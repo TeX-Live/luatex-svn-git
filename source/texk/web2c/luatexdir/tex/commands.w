@@ -497,6 +497,7 @@ void initialize_commands(void)
     primitive_luatex("formatname", convert_cmd, format_name_code, 0);
     primitive_pdftex("pdfinsertht", convert_cmd, pdf_insert_ht_code, 0);
     primitive_pdftex("pdfximagebbox", convert_cmd, pdf_ximage_bbox_code, 0);
+    primitive_luatex("Uchar", convert_cmd, uchar_code, 0);
 
     primitive_tex("if", if_test_cmd, if_char_code, 0);
     primitive_tex("ifcat", if_test_cmd, if_cat_code, 0);
