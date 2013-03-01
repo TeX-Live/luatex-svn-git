@@ -1,4 +1,4 @@
-% $Id: mp.w 1864 2013-02-17 13:20:58Z taco $
+% $Id: mp.w 1867 2013-02-18 13:51:48Z taco $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -3891,6 +3891,7 @@ fuss with. Every such parameter has an identifying code number, defined here.
 enum mp_given_internal {
   mp_output_template = 1,       /* a string set up by \&{outputtemplate} */
   mp_output_format,             /* the output format set up by \&{outputformat} */
+  mp_output_format_options,     /* the output format options set up by \&{outputformatoptions} */
   mp_number_system,             /* the number system as set up by \&{numbersystem} */
   mp_number_precision,          /* the number system precision as set up by \&{numberprecision} */
   mp_job_name,                  /* the perceived jobname, as set up from the options stucture, 
@@ -3992,6 +3993,7 @@ memset (mp->internal, 0,
   }
 }
 set_internal_type (mp_output_format, mp_string_type);
+set_internal_type (mp_output_format_options, mp_string_type);
 set_internal_type (mp_output_template, mp_string_type);
 set_internal_type (mp_number_system, mp_string_type);
 set_internal_type (mp_job_name, mp_string_type);
@@ -4102,6 +4104,8 @@ mp_primitive (mp, "numberprecision", mp_internal_quantity, mp_number_precision);
 @:mp_number_precision_}{\&{numberprecision} primitive@>;
 mp_primitive (mp, "outputformat", mp_internal_quantity, mp_output_format);
 @:mp_output_format_}{\&{outputformat} primitive@>;
+mp_primitive (mp, "outputformatoptions", mp_internal_quantity, mp_output_format_options);
+@:mp_output_format_options_}{\&{outputformatoptions} primitive@>;
 mp_primitive (mp, "jobname", mp_internal_quantity, mp_job_name);
 @:mp_job_name_}{\&{jobname} primitive@>
 mp_primitive (mp, "hppp", mp_internal_quantity, mp_hppp);
@@ -4140,6 +4144,7 @@ number_clone (internal_value (mp_hppp), unity_t);
 number_clone (internal_value (mp_vppp), unity_t);
 set_internal_string (mp_output_template, mp_intern (mp, "%j.%c"));
 set_internal_string (mp_output_format, mp_intern (mp, "eps"));
+set_internal_string (mp_output_format_options, mp_intern (mp, ""));
 set_internal_string (mp_number_system, mp_intern (mp, "scaled"));
 #if DEBUG
 number_clone (internal_value (mp_tracing_titles), three_t);
@@ -4201,6 +4206,7 @@ set_internal_name (mp_gtroffmode, xstrdup ("troffmode"));
 set_internal_name (mp_restore_clip_color, xstrdup ("restoreclipcolor"));
 set_internal_name (mp_output_template, xstrdup ("outputtemplate"));
 set_internal_name (mp_output_format, xstrdup ("outputformat"));
+set_internal_name (mp_output_format_options, xstrdup ("outputformatoptions"));
 set_internal_name (mp_job_name, xstrdup ("jobname"));
 set_internal_name (mp_number_system, xstrdup ("numbersystem"));
 set_internal_name (mp_number_precision, xstrdup ("numberprecision"));
@@ -34174,8 +34180,7 @@ void mp_shipout_backend (MP mp, void *voidh) {
     (void) mp_svg_gr_ship_out (hh,
                                (number_to_scaled (internal_value (mp_prologues)) / 65536), false);
   } else if (s && strcmp (s, "png") == 0) {
-    (void) mp_png_gr_ship_out (hh,
-                               (number_to_scaled (internal_value (mp_prologues)) / 65536), false);
+    (void) mp_png_gr_ship_out (hh, (const char *)((internal_string (mp_output_format_options))->str), false);
   } else {
     (void) mp_gr_ship_out (hh,
                            (number_to_scaled (internal_value (mp_prologues)) / 65536),

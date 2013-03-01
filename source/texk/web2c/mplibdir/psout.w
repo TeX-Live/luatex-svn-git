@@ -1,4 +1,4 @@
-% $Id: psout.w 1864 2013-02-17 13:20:58Z taco $
+% $Id: psout.w 1872 2013-03-01 09:15:49Z taco $
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
 % See the <Show version...> code in mpost.w for more info.
@@ -435,7 +435,7 @@ RESTART:
   do {
     c = enc_getchar (mp);
     append_char_to_buf (c, p, mp->ps->enc_line, ENC_BUF_SIZE);
-  } while (c != 10);
+  } while (c && c != 10);
   append_eol (p, mp->ps->enc_line, ENC_BUF_SIZE);
   if (p - mp->ps->enc_line < 2 || *mp->ps->enc_line == '%')
     goto RESTART;
@@ -3562,7 +3562,7 @@ mp_edge_object *mp_ps_do_font_charstring (MP mp, mp_ps_font *f, char *nam) {
     mp_snprintf(err,255,"Glyph interpreter failed (missing glyph '%s'?)", nam);
     mp_warn(mp,err);
     if (f->h != NULL) { 
-      finish_subpath();
+      finish_subpath(mp, f);
       mp_gr_toss_objects(f->h);
     }
   }
@@ -3588,7 +3588,10 @@ mp_edge_object *mp_ps_do_font_charstring (MP mp, mp_ps_font *f, char *n);
 @<Declarations@>=
 boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr);
 
-@ @d start_subpath(f,dx,dy) do {  
+@
+@c
+static void start_subpath(MP mp, mp_ps_font *f, double dx, double dy)
+{  
   assert(f->pp == NULL);
   assert(f->p == NULL);
   f->pp = mp_xmalloc(mp, 1, sizeof (struct mp_gr_knot_data));
@@ -3603,37 +3606,11 @@ boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr);
   f->cur_y += dy;
   f->p = mp_new_graphic_object(mp,mp_fill_code);
   gr_path_p((mp_fill_object *)f->p) = f->pp;
-} while (0)
+}
 
-@d finish_subpath() do {
-  if (f->p != NULL) {
-    if (f->h->body == NULL) {
-      f->h->body = f->p;
-    } else {
-      mp_graphic_object *q = f->h->body;
-      while (gr_link(q) != NULL)
-        q = gr_link(q);
-      q->next = f->p;
-    }
-  }
-  if (f->p!=NULL) {
-    mp_gr_knot r, rr;
-    r = gr_path_p((mp_fill_object *)f->p); 
-    rr = r;
-    if (r && r->x_coord == f->pp->x_coord &&  r->y_coord == f->pp->y_coord ) {
-      while ( rr->next != f->pp) 
-        rr = rr->next;
-      rr->next = r;
-      r->left_x = f->pp->left_x;
-      r->left_y = f->pp->left_y;
-      mp_xfree(f->pp);
-    }
-  }
-  f->p = NULL;
-  f->pp = NULL;
-} while (0)
-
-@d add_line_segment(f,dx,dy) do {
+static void add_line_segment(MP mp, mp_ps_font *f, double dx, double dy)
+{
+   mp_gr_knot n;
    assert(f->pp != NULL);
    n = mp_xmalloc(mp,1, sizeof (struct mp_gr_knot_data));
    n->data.types.left_type = mp_explicit;
@@ -3649,9 +3626,12 @@ boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr);
    f->pp = n;
    f->cur_x += dx;
    f->cur_y += dy;
-} while (0)
+}
 
-@d add_curve_segment(f,dx1,dy1,dx2,dy2,dx3,dy3) do {
+static void add_curve_segment(MP mp, mp_ps_font *f, double dx1, double dy1, double dx2,
+                              double dy2, double dx3, double dy3)
+{
+   mp_gr_knot n;
    n = mp_xmalloc(mp, 1, sizeof (struct mp_gr_knot_data));
    n->data.types.left_type = mp_explicit;
    n->data.types.right_type = mp_explicit; 
@@ -3668,13 +3648,53 @@ boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr);
    f->pp = n;
    f->cur_x += dx1 + dx2 + dx3;
    f->cur_y += dy1 + dy2 + dy3;
-} while (0)
+}
 
+static void finish_subpath(MP mp, mp_ps_font *f)
+{
+   if (f->p != NULL) {
+    if (f->h->body == NULL) {
+      f->h->body = f->p;
+    } else {
+      mp_graphic_object *q = f->h->body;
+      while (gr_link(q) != NULL)
+        q = gr_link(q);
+      q->next = f->p;
+    }
+  }
+  if (f->p!=NULL) {
+    mp_gr_knot r, rr;
+    assert(f->pp != NULL);
+    r = gr_path_p((mp_fill_object *)f->p); 
+    rr = r;
+    if (r) { 
+      if (r == f->pp ) {
+        r->next = r;
+      } else if ( r->x_coord == f->pp->x_coord &&  r->y_coord == f->pp->y_coord ) {
+        while (rr->next != f->pp) 
+          rr = rr->next;
+        rr->next = r;
+        r->left_x = f->pp->left_x;
+        r->left_y = f->pp->left_y;
+        mp_xfree(f->pp);
+      }
+    }
+  }
+  f->p = NULL;
+  f->pp = NULL;
+}
+
+@ 
 @d cs_no_debug(A) cs_do_debug(mp,f,A,#A)
 @d cs_debug(A) 
 
 @<Declarations@>=
 void cs_do_debug (MP mp, mp_ps_font *f, int i, char *s);
+static void finish_subpath(MP mp, mp_ps_font *f);
+static void add_curve_segment(MP mp, mp_ps_font *f, double dx1, double dy1, double dx2,
+                              double dy2, double dx3, double dy3);
+static void add_line_segment(MP mp, mp_ps_font *f, double dx, double dy);
+static void start_subpath(MP mp, mp_ps_font *f, double dx, double dy);
 
 @ @c
 void cs_do_debug (MP mp, mp_ps_font *f, int i, char *s) {
@@ -3698,7 +3718,6 @@ boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr)
 
   cs_entry *ptr;
   cc_entry *cc;
-  mp_gr_knot n;
 
   if (cs_name == NULL) {
      ptr = f->subr_tab + subr;
@@ -3768,37 +3787,37 @@ boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr)
       switch (cc - cc_tab) {
       case CS_CLOSEPATH: /* - CLOSEPATH |- */
         cs_debug(CS_CLOSEPATH);
-        finish_subpath();
+        finish_subpath(mp, f);
         cc_clear ();
         break;
       case CS_HLINETO: /* |- dx HLINETO  |- */
         cs_debug(CS_HLINETO);
-        add_line_segment(f,cc_get(-1),0);
+        add_line_segment(mp,f,cc_get(-1),0);
         cc_clear ();
         break;
       case CS_HVCURVETO: /* |- dx1 dx2 dy2 dy3 HVCURVETO |- */
         cs_debug(CS_HVCURVETO);
-        add_curve_segment(f,cc_get(-4),0,cc_get(-3),cc_get(-2),0,cc_get(-1));
+        add_curve_segment(mp,f,cc_get(-4),0,cc_get(-3),cc_get(-2),0,cc_get(-1));
         cc_clear ();
         break;
       case CS_RLINETO: /* |- dx dy RLINETO |- */
         cs_debug(CS_RLINETO);
-        add_line_segment(f,cc_get(-2),cc_get(-1));
+        add_line_segment(mp,f,cc_get(-2),cc_get(-1));
         cc_clear ();
         break;
       case CS_RRCURVETO: /* |- dx1 dy1 dx2 dy2 dx3 dy3 RRCURVETO |- */
         cs_debug(CS_RRCURVETO);
-        add_curve_segment(f,cc_get(-6),cc_get(-5),cc_get(-4),cc_get(-3),cc_get(-2),cc_get(-1));
+        add_curve_segment(mp,f,cc_get(-6),cc_get(-5),cc_get(-4),cc_get(-3),cc_get(-2),cc_get(-1));
         cc_clear ();
         break;
       case CS_VHCURVETO: /* |- dy1 dx2 dy2 dx3 VHCURVETO |- */
         cs_debug(CS_VHCURVETO);
-        add_curve_segment(f,0, cc_get(-4),cc_get(-3),cc_get(-2),cc_get(-1),0);
+        add_curve_segment(mp,f,0, cc_get(-4),cc_get(-3),cc_get(-2),cc_get(-1),0);
         cc_clear ();
         break;
       case CS_VLINETO: /* |- dy VLINETO |- */
         cs_debug(CS_VLINETO);
-        add_line_segment(f,0,cc_get(-1));
+        add_line_segment(mp,f,0,cc_get(-1));
         cc_clear ();
         break;
       case CS_HMOVETO: /* |- dx HMOVETO  |- */
@@ -3806,27 +3825,27 @@ boolean cs_parse (MP mp, mp_ps_font *f, const char *cs_name, int subr)
 	/* treating in-line moves as 'line segments' work better than attempting 
            to split the path up in two separate sections, at least for now. */
         if (f->pp == NULL) { /* this is the first */
-           start_subpath(f,cc_get(-1),0);
+           start_subpath(mp,f,cc_get(-1),0);
         } else {  
-           add_line_segment(f,cc_get(-1),0);
+           add_line_segment(mp,f,cc_get(-1),0);
         }
         cc_clear ();
         break;
       case CS_RMOVETO:  /* |- dx dy RMOVETO |- */
         cs_debug(CS_RMOVETO);
         if (f->pp == NULL) { /* this is the first */
-           start_subpath(f,cc_get(-2),cc_get(-1));
+           start_subpath(mp,f,cc_get(-2),cc_get(-1));
         } else {  
-           add_line_segment(f,cc_get(-2),cc_get(-1));
+           add_line_segment(mp,f,cc_get(-2),cc_get(-1));
         }
         cc_clear ();
         break;
       case CS_VMOVETO: /* |- dy VMOVETO |- */
         cs_debug(CS_VMOVETO);
         if (f->pp == NULL) { /* this is the first */
-           start_subpath(f,0,cc_get(-1));
+           start_subpath(mp,f,0,cc_get(-1));
         } else {  
-           add_line_segment(f,0,cc_get(-1));
+           add_line_segment(mp,f,0,cc_get(-1));
         }
         cc_clear ();
         break;

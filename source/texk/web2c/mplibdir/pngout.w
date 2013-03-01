@@ -120,14 +120,11 @@ integer dy;
 
 @ 
 @<Declarations@>=
-static void mp_png_start(MP mp,mp_edge_object *hh);
+static void mp_png_start(MP mp,mp_edge_object *hh, double hppp, double vppp, int colormodel, int antialias);
 
 @ 
-@d number_to_double(A)		       (((math_data *)(mp->math))->to_double)(A)		       
-@d number_to_scaled(A)		       (((math_data *)(mp->math))->to_scaled)(A)		       
-
 @c
-void mp_png_start(MP mp,mp_edge_object *hh) {
+void mp_png_start(MP mp,mp_edge_object *hh, double hppp, double vppp, int colormodel, int antialias) {
   double w, h;
   if ( hh->minx>hh->maxx)  { 
     w = 1;
@@ -135,16 +132,26 @@ void mp_png_start(MP mp,mp_edge_object *hh) {
     mp->png->dx = 0;
     mp->png->dy = 0;
  } else {
-    w = (ceil(hh->maxx) - floor(hh->minx)) / number_to_double(internal_value(mp_hppp));
-    h = (ceil(hh->maxy) - floor(hh->miny)) / number_to_double(internal_value(mp_vppp));
+    w = (ceil(hh->maxx) - floor(hh->minx)) / hppp;
+    h = (ceil(hh->maxy) - floor(hh->miny)) / vppp;
     mp->png->dx = -floor(hh->minx);
     mp->png->dy = -floor(hh->miny);
   }
   mp->png->surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, w, h);
   mp->png->cr = cairo_create (mp->png->surface);
-  cairo_scale(mp->png->cr, 1/number_to_double(internal_value(mp_hppp)), -1/number_to_double(internal_value(mp_vppp)));
-  cairo_translate(mp->png->cr, 0, -(h*number_to_double(internal_value(mp_vppp))));
+  /* if there is no alpha channel, a white background is needed */
+  if (colormodel == PNG_COLOR_TYPE_RGB ||
+      colormodel == PNG_COLOR_TYPE_GRAY) {
+     cairo_save(mp->png->cr);
+     cairo_set_source_rgb(mp->png->cr, 1.0, 1.0, 1.0);
+     cairo_rectangle(mp->png->cr, 0, 0, w, h);
+     cairo_fill(mp->png->cr);
+     cairo_restore(mp->png->cr);
+  }
+  cairo_scale(mp->png->cr, 1/hppp, -1/vppp);
+  cairo_translate(mp->png->cr, 0, -(h*vppp));
   cairo_translate(mp->png->cr, mp->png->dx, mp->png->dy);
+  cairo_set_antialias(mp->png->cr, antialias);
 }
 
 @ Outputting a color specification.
@@ -552,7 +559,7 @@ void mp_png_fill_out (MP mp, mp_gr_knot p, mp_graphic_object *h) {
 @d gr_has_color(A) (gr_type((A))<mp_start_clip_code)
 
 @<Exported function ...@>=
-int mp_png_gr_ship_out (mp_edge_object *hh, int prologues, int standalone) ;
+int mp_png_gr_ship_out (mp_edge_object *hh, const char *options, int standalone) ;
 
 @ This is a structure to ship data from cairo to our png writer. |width| and
 |height| could have been stored in our private |mp| instance, but this is just
@@ -593,10 +600,10 @@ success, non-zero on error.  The original of this function was
 borrowed from an internet post, and extended as needed.
 
 @<Declarations@>=
-int mp_png_save_to_file (MP mp, const bitmap_t * bitmap, const char *path);
+int mp_png_save_to_file (MP mp, const bitmap_t * bitmap, const char *path, int colormodel);
 
 @ @c
-int mp_png_save_to_file (MP mp, const bitmap_t * bitmap, const char *path)
+int mp_png_save_to_file (MP mp, const bitmap_t * bitmap, const char *path, int colormodel)
 {
     mp_png_io io;
     png_structp png_ptr = NULL;
@@ -638,7 +645,7 @@ int mp_png_save_to_file (MP mp, const bitmap_t * bitmap, const char *path)
                   bitmap->width,
                   bitmap->height,
                   depth,
-                  PNG_COLOR_TYPE_RGBA,
+                  colormodel,
                   PNG_INTERLACE_NONE,
                   PNG_COMPRESSION_TYPE_DEFAULT,
                   PNG_FILTER_TYPE_DEFAULT);
@@ -646,7 +653,7 @@ int mp_png_save_to_file (MP mp, const bitmap_t * bitmap, const char *path)
     /* Compression level |3| appears the best tradeoff between 
        disk size and compression speed */
     png_set_compression_level(png_ptr, 3); 
-
+    png_set_filter(png_ptr,0,PNG_FILTER_NONE);
     /* setup some information */
     if (1) {
         png_text  text[2];
@@ -681,18 +688,48 @@ int mp_png_save_to_file (MP mp, const bitmap_t * bitmap, const char *path)
 
     row_pointers = malloc (bitmap->height * sizeof (png_byte *));
     for (y = 0; y < bitmap->height; ++y) {
-        row_pointers[y] = bitmap->data + bitmap->width * 4 * y;
+       if (colormodel == PNG_COLOR_TYPE_GRAY) {
+         row_pointers[y] = bitmap->data + bitmap->width * y;
+       } else if (colormodel == PNG_COLOR_TYPE_GRAY_ALPHA) {
+         row_pointers[y] = bitmap->data + bitmap->width * 2 * y;
+       } else {
+         row_pointers[y] = bitmap->data + bitmap->width * 4 * y;
+       }
     }
 
     /* Write the image data to |io| */
     png_set_write_fn(png_ptr, &io, mp_write_png_data, mp_write_png_flush);
 
     png_set_rows (png_ptr, info_ptr, row_pointers);
-    png_write_png (png_ptr, info_ptr, PNG_TRANSFORM_BGR, NULL);
-
-    /* The routine has successfully written the file, so we set
-       "status" to a value which indicates success. */
-
+    if (colormodel == PNG_COLOR_TYPE_RGB) {
+        /* Unfortunately, |png_write_png| does not have enough |PNG_TRANSFORM| options
+	   to do this properly, so we have to modify the bitmap data */
+        int i;
+        for (i = 0; i < bitmap->width*bitmap->height*4; i+=4) {
+	   unsigned char b = bitmap->data[i];
+	   unsigned char g = bitmap->data[i+1];
+	   bitmap->data[i]   = bitmap->data[i+3];
+	   bitmap->data[i+1] = bitmap->data[i+2];
+	   bitmap->data[i+2] = g;
+	   bitmap->data[i+3] = b;
+        }
+        png_write_png (png_ptr, info_ptr, PNG_TRANSFORM_STRIP_FILLER, NULL);
+    } else if (colormodel == PNG_COLOR_TYPE_RGB_ALPHA) {
+        png_write_png (png_ptr, info_ptr, PNG_TRANSFORM_BGR, NULL);
+    } else if (colormodel == PNG_COLOR_TYPE_GRAY ||
+               colormodel == PNG_COLOR_TYPE_GRAY_ALPHA) {
+        int i, j;
+	j = 0;
+        for (i = 0; i < bitmap->width*bitmap->height*4; i+=4) {
+	   unsigned char b = bitmap->data[i];
+	   unsigned char g = bitmap->data[i+1];
+	   unsigned char r = bitmap->data[i+2];
+    	   bitmap->data[j++] = ((r==g && r==b) ? r : 0.2126*r + 0.7152*g + 0.0722*b);
+	   if (colormodel == PNG_COLOR_TYPE_GRAY_ALPHA)
+	     bitmap->data[j++] = bitmap->data[i+3];
+        }
+        png_write_png (png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+    }
     status = 0;
     
     free (row_pointers);
@@ -708,18 +745,66 @@ int mp_png_save_to_file (MP mp, const bitmap_t * bitmap, const char *path)
 
 
 @ 
+@d number_to_double(A)		       (((math_data *)(mp->math))->to_double)(A)		       
+
 @c
-int mp_png_gr_ship_out (mp_edge_object *hh, int qprologues, int standalone) {
+int mp_png_gr_ship_out (mp_edge_object *hh, const char *options, int standalone) {
+  char *ss;
   mp_graphic_object *p;
   mp_pen_info *pen = NULL;
   MP mp = hh->parent;
+  bitmap_t bitmap;
+  const char *currentoption = options;
+  int colormodel = PNG_COLOR_TYPE_RGB_ALPHA;
+  int antialias = CAIRO_ANTIALIAS_FAST;
+  int c;
+  while (currentoption && *currentoption) {
+    if (strncmp(currentoption,"format=",7)==0) {
+      currentoption += 7;
+      if (strncmp(currentoption,"rgba",4)==0) {
+        colormodel = PNG_COLOR_TYPE_RGB_ALPHA;
+        currentoption += 4;
+      } else if (strncmp(currentoption,"rgb",3)==0) {
+        colormodel = PNG_COLOR_TYPE_RGB;
+        currentoption += 3;
+      } else if (strncmp(currentoption,"graya",5)==0) {
+        colormodel = PNG_COLOR_TYPE_GRAY_ALPHA;
+        currentoption += 5;
+      } else if (strncmp(currentoption,"gray",4)==0) {
+        colormodel = PNG_COLOR_TYPE_GRAY;
+        currentoption += 4;
+      }
+    } else if (strncmp(currentoption,"antialias=",10)==0) {
+      currentoption += 10;
+      if (strncmp(currentoption,"none",4)==0) {
+        antialias = CAIRO_ANTIALIAS_NONE;
+        currentoption += 4;
+      } else if (strncmp(currentoption,"fast",4)==0) {
+        antialias = CAIRO_ANTIALIAS_FAST;
+        currentoption += 4;
+      } else if (strncmp(currentoption,"good",4)==0) {
+        antialias = CAIRO_ANTIALIAS_GOOD;
+        currentoption += 4;
+      } else if (strncmp(currentoption,"best",4)==0) {
+        antialias = CAIRO_ANTIALIAS_BEST;
+        currentoption += 4;
+      }
+    }
+    currentoption = index(currentoption,' ');
+    if (currentoption) {
+      while (*currentoption == ' ')
+        currentoption++;
+    }
+  }
+  c = round_unscaled(internal_value (mp_char_code));
   if (standalone) {
      mp->jump_buf = malloc(sizeof(jmp_buf));
      if (mp->jump_buf == NULL || setjmp(*(mp->jump_buf)))
        return 0;
   }
   if (mp->history >= mp_fatal_error_stop ) return 1;
-  mp_png_start(mp, hh); 
+  mp_png_start(mp, hh, number_to_double(internal_value(mp_hppp)), number_to_double(internal_value(mp_vppp)),
+               colormodel, antialias);
   p = hh->body;
   while ( p!=NULL ) { 
     if (gr_has_color (p))
@@ -774,33 +859,28 @@ int mp_png_gr_ship_out (mp_edge_object *hh, int qprologues, int standalone) {
     } /* all cases are enumerated */
     p=gr_link(p);
   }
-  {
-    bitmap_t bitmap;
-    int c = round_unscaled(internal_value (mp_char_code));
-    char *ss;
-    (void)mp_set_output_file_name (mp, c);
-    mp_store_true_output_filename (mp, c);
-    ss = xstrdup(mp->name_of_file);
-    cairo_surface_flush (mp->png->surface);
-    cairo_destroy (mp->png->cr);
-    bitmap.data = cairo_image_surface_get_data (mp->png->surface);
-    bitmap.width = cairo_image_surface_get_width (mp->png->surface);
-    bitmap.height = cairo_image_surface_get_height (mp->png->surface);
-    mp_png_save_to_file (mp, &bitmap, ss);
-    cairo_surface_destroy (mp->png->surface);
-    free(ss);
-  }
+  (void)mp_set_output_file_name (mp, c);
+  mp_store_true_output_filename (mp, c);
+  ss = xstrdup(mp->name_of_file);
+  cairo_surface_flush (mp->png->surface);
+  cairo_destroy (mp->png->cr);
+  bitmap.data = cairo_image_surface_get_data (mp->png->surface);
+  bitmap.width = cairo_image_surface_get_width (mp->png->surface);
+  bitmap.height = cairo_image_surface_get_height (mp->png->surface);
+  mp_png_save_to_file (mp, &bitmap, ss, colormodel);
+  cairo_surface_destroy (mp->png->surface);
+  free(ss);
   return 1;
 }
 
 @ @(mplibpng.h@>=
 #ifndef MPLIBPNG_H
 #define MPLIBPNG_H 1
-int mp_png_ship_out (mp_edge_object *hh, int prologues) ;
+int mp_png_ship_out (mp_edge_object *hh, char *options) ;
 #endif
 
 @ @c
-int mp_png_ship_out (mp_edge_object *hh, int prologues) {
-  return mp_png_gr_ship_out (hh, prologues, (int)true);
+int mp_png_ship_out (mp_edge_object *hh, char *options) {
+  return mp_png_gr_ship_out (hh, options, (int)true);
 }
 
