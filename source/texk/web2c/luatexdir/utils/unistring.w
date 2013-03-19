@@ -57,7 +57,7 @@ unsigned str2uni(const unsigned char *k)
                 (((ch & 0xf) << 12) | ((text[0] & 0x3f) << 6) |
                  (text[1] & 0x3f));
         }
-    } else {
+    } else if (ch <= 0xf7) {
         int w = (((ch & 0x7) << 2) | ((text[0] & 0x30) >> 4)) - 1, w2;
         w = (w << 6) | ((text[0] & 0xf) << 2) | ((text[1] & 0x30) >> 4);
         w2 = ((text[1] & 0xf) << 6) | (text[2] & 0x3f);
@@ -65,6 +65,11 @@ unsigned str2uni(const unsigned char *k)
         if (*text < 0x80 || text[1] < 0x80 || text[2] < 0x80 ||
             *text >= 0xc0 || text[1] >= 0xc0 || text[2] >= 0xc0)
             val = 0xFFFD;
+    } else {
+        /* the 5- and 6-byte UTF-8 sequences generate integers 
+           that are outside of the valid UCS range, and therefore
+           unsupported 
+         */
     }
     if (val == 0xFFFD)
         utf_error();
@@ -110,56 +115,9 @@ of the |buffer|, but it is careful to check the validity of the
 UTF-8 encoding.
 
 @c
-#define test_sequence_byte(A) do {                      \
-        if (((A)<0x80) || ((A)>=0xC0)) {                \
-            utf_error();                                \
-            return 0xFFFD;                              \
-        }                                               \
-  } while (0)
-
-
 int buffer_to_unichar(int k)
 {
-    int a;                      /* a utf char */
-    int b;                      /* a utf nibble */
-    b = buffer[k];
-    if (b < 0x80) {
-        a = b;
-    } else if (b >= 0xF8) {
-        /* the 5- and 6-byte UTF-8 sequences generate integers 
-           that are outside of the valid UCS range, and therefore
-           unsupported 
-         */
-        test_sequence_byte(-1);
-    } else if (b >= 0xF0) {
-        a = (b - 0xF0) * 64;
-        b = buffer[k + 1];
-        test_sequence_byte(b);
-        a = (a + (b - 128)) * 64;
-        b = buffer[k + 2];
-        test_sequence_byte(b);
-        a = (a + (b - 128)) * 64;
-        b = buffer[k + 3];
-        test_sequence_byte(b);
-        a = a + (b - 128);
-    } else if (b >= 0xE0) {
-        a = (b - 0xE0) * 64;
-        b = buffer[k + 1];
-        test_sequence_byte(b);
-        a = (a + (b - 128)) * 64;
-        b = buffer[k + 2];
-        test_sequence_byte(b);
-        a = a + (b - 128);
-    } else if (b >= 0xC0) {
-        a = (b - 0xC0) * 64;
-        b = buffer[k + 1];
-        test_sequence_byte(b);
-        a = a + (b - 128);
-    } else {
-        /* This is an encoding error */
-        test_sequence_byte(-1);
-    }
-    return a;
+   return str2uni((const unsigned char *)(buffer+k));
 }
 
 
