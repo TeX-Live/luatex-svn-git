@@ -442,7 +442,8 @@ nodist_libluatex_a_OBJECTS = libluatex_a-dvigen.$(OBJEXT) \
 	libluatex_a-texfileio.$(OBJEXT) libluatex_a-texmath.$(OBJEXT) \
 	libluatex_a-texnodes.$(OBJEXT) libluatex_a-textcodes.$(OBJEXT) \
 	libluatex_a-textoken.$(OBJEXT) libluatex_a-avlstuff.$(OBJEXT) \
-	libluatex_a-managed-sa.$(OBJEXT) libluatex_a-utils.$(OBJEXT)
+	libluatex_a-managed-sa.$(OBJEXT) libluatex_a-utils.$(OBJEXT) \
+	libluatex_a-unistring.$(OBJEXT)
 libluatex_a_OBJECTS = $(am_libluatex_a_OBJECTS) \
 	$(nodist_libluatex_a_OBJECTS)
 libmd5_a_AR = $(AR) $(ARFLAGS)
@@ -2158,7 +2159,8 @@ libluatex_web = luatexdir/dvi/dvigen.w luatexdir/font/dofont.w \
 	luatexdir/tex/texfileio.w luatexdir/tex/texmath.w \
 	luatexdir/tex/texnodes.w luatexdir/tex/textcodes.w \
 	luatexdir/tex/textoken.w luatexdir/utils/avlstuff.w \
-	luatexdir/utils/managed-sa.w luatexdir/utils/utils.w
+	luatexdir/utils/managed-sa.w luatexdir/utils/utils.w \
+	luatexdir/utils/unistring.w
 nodist_libluatex_a_SOURCES = dvigen.c dofont.c luafont.c mapfile.c \
 	pkin.c sfnt.c subfont.c texfont.c tfmofm.c tounicode.c \
 	tt_glyf.c tt_table.c vfovf.c vfpacket.c writecff.c writeenc.c \
@@ -2177,7 +2179,8 @@ nodist_libluatex_a_SOURCES = dvigen.c dofont.c luafont.c mapfile.c \
 	maincontrol.c mathcodes.c memoryword.c mlist.c nesting.c \
 	packaging.c postlinebreak.c primitive.c printing.c scanning.c \
 	stringpool.c texdeffont.c texfileio.c texmath.c texnodes.c \
-	textcodes.c textoken.c avlstuff.c managed-sa.c utils.c
+	textcodes.c textoken.c avlstuff.c managed-sa.c utils.c \
+	unistring.c
 libluatex_a_SOURCES = luatexdir/luatex.h luatexdir/luatex-common.h \
 	luatexdir/dvi/dvigen.h luatexdir/font/luatexfont.h \
 	luatexdir/font/mapfile.h luatexdir/font/sfnt.h \
@@ -2230,8 +2233,9 @@ libluatex_a_SOURCES = luatexdir/luatex.h luatexdir/luatex-common.h \
 	luatexdir/tex/textcodes.h luatexdir/utils/avl.c \
 	luatexdir/utils/avl.h luatexdir/utils/avlstuff.h \
 	luatexdir/utils/managed-sa.h luatexdir/utils/utils.h \
-	synctexdir/synctex-common.h synctexdir/synctex-luatex.h \
-	synctexdir/synctex.c synctexdir/synctex.h mplibdir/lmplib.c
+	luatexdir/utils/unistring.h synctexdir/synctex-common.h \
+	synctexdir/synctex-luatex.h synctexdir/synctex.c \
+	synctexdir/synctex.h mplibdir/lmplib.c
 luatex_dvi_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/dvi $(ctangle)
 luatex_font_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/font $(ctangle)
 luatex_image_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/image $(ctangle)
@@ -3062,6 +3066,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-tounicode.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-tt_glyf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-tt_table.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-unistring.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-vfovf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-vfpacket.Po@am__quote@
@@ -6456,6 +6461,20 @@ libluatex_a-utils.obj: utils.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
 
+libluatex_a-unistring.o: unistring.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-unistring.o -MD -MP -MF $(DEPDIR)/libluatex_a-unistring.Tpo -c -o libluatex_a-unistring.o `test -f 'unistring.c' || echo '$(srcdir)/'`unistring.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-unistring.Tpo $(DEPDIR)/libluatex_a-unistring.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='unistring.c' object='libluatex_a-unistring.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-unistring.o `test -f 'unistring.c' || echo '$(srcdir)/'`unistring.c
+
+libluatex_a-unistring.obj: unistring.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-unistring.obj -MD -MP -MF $(DEPDIR)/libluatex_a-unistring.Tpo -c -o libluatex_a-unistring.obj `if test -f 'unistring.c'; then $(CYGPATH_W) 'unistring.c'; else $(CYGPATH_W) '$(srcdir)/unistring.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libluatex_a-unistring.Tpo $(DEPDIR)/libluatex_a-unistring.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='unistring.c' object='libluatex_a-unistring.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-unistring.obj `if test -f 'unistring.c'; then $(CYGPATH_W) 'unistring.c'; else $(CYGPATH_W) '$(srcdir)/unistring.c'; fi`
+
 libmd5_a-md5.o: libmd5/md5.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmd5_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmd5_a-md5.o -MD -MP -MF $(DEPDIR)/libmd5_a-md5.Tpo -c -o libmd5_a-md5.o `test -f 'libmd5/md5.c' || echo '$(srcdir)/'`libmd5/md5.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libmd5_a-md5.Tpo $(DEPDIR)/libmd5_a-md5.Po
@@ -9526,6 +9545,8 @@ managed-sa.c: ctangle$(EXEEXT) luatexdir/utils/managed-sa.w
 	$(luatex_utils_ctangle) managed-sa.w
 utils.c: ctangle$(EXEEXT) luatexdir/utils/utils.w
 	$(luatex_utils_ctangle) utils.w
+unistring.c: ctangle$(EXEEXT) luatexdir/utils/unistring.w
+	$(luatex_utils_ctangle) unistring.w
 
 $(libluatex_a_OBJECTS): libff.a libmplib.a
 $(xetex_OBJECTS): $(xetex_prereq)
