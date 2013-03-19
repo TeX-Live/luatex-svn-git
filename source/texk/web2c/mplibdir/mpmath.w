@@ -1,4 +1,4 @@
-% $Id: mpmath.w 1839 2013-02-15 09:46:56Z taco $
+% $Id: mpmath.w 1875 2013-03-18 09:44:55Z taco $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -43,6 +43,7 @@
 static void mp_scan_fractional_token (MP mp, int n);
 static void mp_scan_numeric_token (MP mp, int n);
 static void mp_ab_vs_cd (MP mp, mp_number *ret, mp_number a, mp_number b, mp_number c, mp_number d);
+static void mp_crossing_point (MP mp, mp_number *ret, mp_number a, mp_number b, mp_number c);
 static void mp_number_modulo (mp_number *a, mp_number b);
 static void mp_print_number (MP mp, mp_number n);
 static char * mp_number_tostring (MP mp, mp_number n);
@@ -258,6 +259,7 @@ void * mp_initialize_scaled_math (MP mp) {
   math->tostring = mp_number_tostring;
   math->modulo = mp_number_modulo;
   math->ab_vs_cd = mp_ab_vs_cd;
+  math->crossing_point = mp_crossing_point;
   math->scan_numeric = mp_scan_numeric_token;
   math->scan_fractional = mp_scan_fractional_token;
   math->free_math = mp_free_scaled_math;
@@ -1020,6 +1022,98 @@ if (d <= 0) {
   ret->data.val = (c == 0 ? 0 : -1);
   return;
 }
+
+@ Now here's a subroutine that's handy for all sorts of path computations:
+Given a quadratic polynomial $B(a,b,c;t)$, the |crossing_point| function
+returns the unique |fraction| value |t| between 0 and~1 at which
+$B(a,b,c;t)$ changes from positive to negative, or returns
+|t=fraction_one+1| if no such value exists. If |a<0| (so that $B(a,b,c;t)$
+is already negative at |t=0|), |crossing_point| returns the value zero.
+
+The general bisection method is quite simple when $n=2$, hence
+|crossing_point| does not take much time. At each stage in the
+recursion we have a subinterval defined by |l| and~|j| such that
+$B(a,b,c;2^{-l}(j+t))=B(x_0,x_1,x_2;t)$, and we want to ``zero in'' on
+the subinterval where $x_0\G0$ and $\min(x_1,x_2)<0$.
+
+It is convenient for purposes of calculation to combine the values
+of |l| and~|j| in a single variable $d=2^l+j$, because the operation
+of bisection then corresponds simply to doubling $d$ and possibly
+adding~1. Furthermore it proves to be convenient to modify
+our previous conventions for bisection slightly, maintaining the
+variables $X_0=2^lx_0$, $X_1=2^l(x_0-x_1)$, and $X_2=2^l(x_1-x_2)$.
+With these variables the conditions $x_0\ge0$ and $\min(x_1,x_2)<0$ are
+equivalent to $\max(X_1,X_1+X_2)>X_0\ge0$.
+
+The following code maintains the invariant relations
+$0\L|x0|<\max(|x1|,|x1|+|x2|)$,
+$\vert|x1|\vert<2^{30}$, $\vert|x2|\vert<2^{30}$;
+it has been constructed in such a way that no arithmetic overflow
+will occur if the inputs satisfy
+$a<2^{30}$, $\vert a-b\vert<2^{30}$, and $\vert b-c\vert<2^{30}$.
+
+@d no_crossing   { ret->data.val = fraction_one + 1; return; }
+@d one_crossing  { ret->data.val = fraction_one; return; }
+@d zero_crossing { ret->data.val = 0; return; }
+
+@c
+static void mp_crossing_point (MP mp, mp_number *ret, mp_number aa, mp_number bb, mp_number cc) {
+  integer a,b,c;
+  integer d;    /* recursive counter */
+  integer x, xx, x0, x1, x2;    /* temporary registers for bisection */
+  a = aa.data.val;
+  b = bb.data.val;
+  c = cc.data.val;
+  if (a < 0)
+    zero_crossing;
+  if (c >= 0) {
+    if (b >= 0) {
+      if (c > 0) {
+        no_crossing;
+      } else if ((a == 0) && (b == 0)) {
+        no_crossing;
+      } else {
+        one_crossing;
+      }
+    }
+    if (a == 0)
+      zero_crossing;
+  } else if (a == 0) {
+    if (b <= 0)
+      zero_crossing;
+  }
+
+  /* Use bisection to find the crossing point... */
+  d = 1;
+  x0 = a;
+  x1 = a - b;
+  x2 = b - c;
+  do {
+    x = (x1 + x2) / 2;
+    if (x1 - x0 > x0) {
+      x2 = x;
+      x0 += x0;
+      d += d;
+    } else {
+      xx = x1 + x - x0;
+      if (xx > x0) {
+        x2 = x;
+        x0 += x0;
+        d += d;
+      } else {
+        x0 = x0 - xx;
+        if (x <= x0) {
+          if (x + x2 <= x0)
+            no_crossing;
+        }
+        x1 = x;
+        d = d + d + 1;
+      }
+    }
+  } while (d < fraction_one);
+  ret->data.val = (d - fraction_one); 
+}
+ 
 
 @ We conclude this set of elementary routines with some simple rounding
 and truncation operations.

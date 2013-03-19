@@ -1,4 +1,4 @@
-% $Id: mp.w 1867 2013-02-18 13:51:48Z taco $
+% $Id: mp.w 1882 2013-03-19 09:50:16Z taco $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -73,12 +73,12 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 1.790" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version 1.800" /* printed when \MP\ starts */
 @d true 1
 @d false 0
 
 @<Metapost version header@>=
-#define metapost_version "1.790"
+#define metapost_version "1.800"
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
 few typedefs and the header defintions for the externally used
@@ -326,6 +326,7 @@ typedef void (*pyth_sub_func) (MP mp, mp_number *r, mp_number a, mp_number b);
 typedef void (*n_arg_func) (MP mp, mp_number *r, mp_number a, mp_number b);
 typedef void (*velocity_func) (MP mp, mp_number *r, mp_number a, mp_number b, mp_number c, mp_number d, mp_number e);
 typedef void (*ab_vs_cd_func) (MP mp, mp_number *r, mp_number a, mp_number b, mp_number c, mp_number d);
+typedef void (*crossing_point_func) (MP mp, mp_number *r, mp_number a, mp_number b, mp_number c);
 typedef void (*number_from_int_func) (mp_number *A, int B);
 typedef void (*number_from_boolean_func) (mp_number *A, int B);
 typedef void (*number_from_scaled_func) (mp_number *A, int B);
@@ -455,6 +456,7 @@ typedef struct math_data {
   take_scaled_func take_scaled;
   velocity_func velocity;
   ab_vs_cd_func ab_vs_cd;
+  crossing_point_func crossing_point;
   n_arg_func n_arg;
   m_log_func m_log;
   m_exp_func m_exp;
@@ -3890,6 +3892,7 @@ fuss with. Every such parameter has an identifying code number, defined here.
 @<Types...@>=
 enum mp_given_internal {
   mp_output_template = 1,       /* a string set up by \&{outputtemplate} */
+  mp_output_filename,           /* the output file name, accessible as \&{outputfilename} */
   mp_output_format,             /* the output format set up by \&{outputformat} */
   mp_output_format_options,     /* the output format options set up by \&{outputformatoptions} */
   mp_number_system,             /* the number system as set up by \&{numbersystem} */
@@ -3993,6 +3996,7 @@ memset (mp->internal, 0,
   }
 }
 set_internal_type (mp_output_format, mp_string_type);
+set_internal_type (mp_output_filename, mp_string_type);
 set_internal_type (mp_output_format_options, mp_string_type);
 set_internal_type (mp_output_template, mp_string_type);
 set_internal_type (mp_number_system, mp_string_type);
@@ -4098,6 +4102,8 @@ mp_primitive (mp, "restoreclipcolor", mp_internal_quantity, mp_restore_clip_colo
 @:mp_restore_clip_color_}{\&{restoreclipcolor} primitive@>;
 mp_primitive (mp, "outputtemplate", mp_internal_quantity, mp_output_template);
 @:mp_output_template_}{\&{outputtemplate} primitive@>;
+mp_primitive (mp, "outputfilename", mp_internal_quantity, mp_output_filename);
+@:mp_output_filename_}{\&{outputfilename} primitive@>;
 mp_primitive (mp, "numbersystem", mp_internal_quantity, mp_number_system);
 @:mp_number_system_}{\&{numbersystem} primitive@>;
 mp_primitive (mp, "numberprecision", mp_internal_quantity, mp_number_precision);
@@ -4143,6 +4149,7 @@ number_clone (internal_value (mp_restore_clip_color), unity_t);
 number_clone (internal_value (mp_hppp), unity_t);
 number_clone (internal_value (mp_vppp), unity_t);
 set_internal_string (mp_output_template, mp_intern (mp, "%j.%c"));
+set_internal_string (mp_output_filename, mp_intern (mp, ""));
 set_internal_string (mp_output_format, mp_intern (mp, "eps"));
 set_internal_string (mp_output_format_options, mp_intern (mp, ""));
 set_internal_string (mp_number_system, mp_intern (mp, "scaled"));
@@ -4205,6 +4212,7 @@ set_internal_name (mp_procset, xstrdup ("mpprocset"));
 set_internal_name (mp_gtroffmode, xstrdup ("troffmode"));
 set_internal_name (mp_restore_clip_color, xstrdup ("restoreclipcolor"));
 set_internal_name (mp_output_template, xstrdup ("outputtemplate"));
+set_internal_name (mp_output_filename, xstrdup ("outputfilename"));
 set_internal_name (mp_output_format, xstrdup ("outputformat"));
 set_internal_name (mp_output_format_options, xstrdup ("outputformatoptions"));
 set_internal_name (mp_job_name, xstrdup ("jobname"));
@@ -8997,130 +9005,6 @@ $$B(z_0,z_1,\ldots,z_n;t)=B(z_0^{(0)},z_0^{(1)},\ldots,z_0^{(n)};2t)
 This formula gives us the coefficients of polynomials to use over the ranges
 $0\L t\L{1\over2}$ and ${1\over2}\L t\L1$.
 
-@ Now here's a subroutine that's handy for all sorts of path computations:
-Given a quadratic polynomial $B(a,b,c;t)$, the |crossing_point| function
-returns the unique |fraction| value |t| between 0 and~1 at which
-$B(a,b,c;t)$ changes from positive to negative, or returns
-|t=fraction_one+1| if no such value exists. If |a<0| (so that $B(a,b,c;t)$
-is already negative at |t=0|), |crossing_point| returns the value zero.
-
-@d no_crossing {  number_clone(*ret, fraction_one_t); number_add_scaled(*ret, 1); goto RETURN; }
-@d one_crossing { number_clone(*ret, fraction_one_t); goto RETURN; }
-@d zero_crossing { set_number_to_zero(*ret); goto RETURN; }
-
-@c
-static void mp_crossing_point (MP mp, mp_number *ret, mp_number a, mp_number b, mp_number c) {
-  if (number_negative(a))
-    zero_crossing;
-  if (number_positive(c) || number_zero(c)) {
-    if (number_positive(b) || number_zero(b)) {
-      if (number_positive(c)) {
-        no_crossing;
-      } else if (number_zero(a) && number_zero(b)) {
-        no_crossing;
-      } else {
-        one_crossing;
-      }
-    }
-    if (number_zero(a))
-      zero_crossing;
-  } else if (number_zero(a)) {
-    if (number_zero(b) || number_negative(b))
-      zero_crossing;
-  }
-  @<Use bisection to find the crossing point, if one exists@>;
-RETURN:
-  ;
-}
-
-
-@ The general bisection method is quite simple when $n=2$, hence
-|crossing_point| does not take much time. At each stage in the
-recursion we have a subinterval defined by |l| and~|j| such that
-$B(a,b,c;2^{-l}(j+t))=B(x_0,x_1,x_2;t)$, and we want to ``zero in'' on
-the subinterval where $x_0\G0$ and $\min(x_1,x_2)<0$.
-
-It is convenient for purposes of calculation to combine the values
-of |l| and~|j| in a single variable $d=2^l+j$, because the operation
-of bisection then corresponds simply to doubling $d$ and possibly
-adding~1. Furthermore it proves to be convenient to modify
-our previous conventions for bisection slightly, maintaining the
-variables $X_0=2^lx_0$, $X_1=2^l(x_0-x_1)$, and $X_2=2^l(x_1-x_2)$.
-With these variables the conditions $x_0\ge0$ and $\min(x_1,x_2)<0$ are
-equivalent to $\max(X_1,X_1+X_2)>X_0\ge0$.
-
-The following code maintains the invariant relations
-$0\L|x0|<\max(|x1|,|x1|+|x2|)$,
-$\vert|x1|\vert<2^{30}$, $\vert|x2|\vert<2^{30}$;
-it has been constructed in such a way that no arithmetic overflow
-will occur if the inputs satisfy
-$a<2^{30}$, $\vert a-b\vert<2^{30}$, and $\vert b-c\vert<2^{30}$.
-
-@<Use bisection to find the crossing point...@>=
-{
-  mp_number x, xx, x0, x1, x2;    /* temporary registers for bisection */
-  mp_number d;    /* recursive counter, counts scaled units */
-  mp_number tmp;
-  new_number(tmp);
-  new_number(x);
-  new_number(xx);
-  new_number(x0);
-  new_number(x1);
-  new_number(x2);
-  number_clone(x0,a);
-  new_number(d);
-  set_number_from_substraction(x1, a, b);
-  set_number_from_substraction(x2, b, c);
-  number_add_scaled (d, 1);
-  do {
-    set_number_from_addition(tmp, x1, x2);
-    number_half (tmp);
-    number_clone(x, tmp);
-    set_number_from_substraction(tmp, x1, x0);
-    if (number_greater(tmp, x0)) {
-      number_clone(x2, x);
-      number_double(x0);
-      number_double(d);
-    } else {
-      set_number_from_addition(tmp, x1, x);
-      set_number_from_substraction(xx, tmp, x0);
-      if (number_greater(xx, x0)) {
-        number_clone(x2, x);
-        number_double(x0);
-        number_double(d);
-      } else {
-        set_number_from_substraction(x0, x0, xx);
-        if (number_lessequal(x, x0)) {
-	  set_number_from_addition(tmp, x, x2);
-          if (number_lessequal(tmp,x0)) {
-            free_number (tmp);
-            free_number (x);
-            free_number (xx);
-            free_number (x0);
-            free_number (x1);
-            free_number (x2);
-            free_number (d);
-            zero_crossing;
-          }
-        }
-        number_clone(x1, x);
-        number_double(d);
-	number_add_scaled (d,1);
-      }
-    }
-  } while (number_less(d, fraction_one_t));
-  free_number (tmp);
-  free_number (x);
-  free_number (xx);
-  free_number (x0);
-  free_number (x1);
-  free_number (x2);
-  number_substract (d, fraction_one_t);
-  number_clone(*ret, d);
-  free_number (d);
-}
- 
-
 @ Here is a routine that computes the $x$ or $y$ coordinate of the point on
 a cubic corresponding to the |fraction| value~|t|.
 
@@ -9239,7 +9123,7 @@ static void mp_bound_cubic (MP mp, mp_knot p, mp_knot q, quarterword c) {
       number_negate (del2);
       number_negate (del3);
     }
-    mp_crossing_point (mp, &t, del1, del2, del3);
+    crossing_point (t, del1, del2, del3);
     if (number_less(t, fraction_one_t)) {
       @<Test the extremes of the cubic against the bounding box@>;
     }
@@ -9335,7 +9219,7 @@ must cut it to zero to avoid confusion.
     number_negate(arg2);
     number_clone(arg3, del3);
     number_negate(arg3);
-    mp_crossing_point (mp, &tt, zero_t, arg2, arg3);
+    crossing_point (tt, zero_t, arg2, arg3);
     free_number (arg2);
     free_number (arg3);
   }
@@ -10954,6 +10838,7 @@ This first set goes into the header
 @d m_exp(R,A)                          (((math_data *)(mp->math))->m_exp)(mp,&(R),A)
 @d velocity(R,A,B,C,D,E)               (((math_data *)(mp->math))->velocity)(mp,&(R),A,B,C,D,E)
 @d ab_vs_cd(R,A,B,C,D)                 (((math_data *)(mp->math))->ab_vs_cd)(mp,&(R),A,B,C,D)
+@d crossing_point(R,A,B,C)             (((math_data *)(mp->math))->crossing_point)(mp,&(R),A,B,C)
 @d n_sin_cos(A,S,C)                    (((math_data *)(mp->math))->sin_cos)(mp,A,&(S),&(C))
 @d square_rt(A,S)                      (((math_data *)(mp->math))->sqrt)(mp,&(A),S)
 @d slow_add(R,A,B)                     (((math_data *)(mp->math))->slow_add)(mp,&(R),A,B)
@@ -13531,7 +13416,7 @@ void mp_fin_offset_prep (MP mp, mp_knot p, mp_knot w, mp_number
       ww = mp_prev_knot (w);    /* a pointer to $w_{k-1}$ */
     @<Compute test coefficients |(t0,t1,t2)|
       for $d(t)$ versus $d_k$ or $d_{k-1}$@>;
-    mp_crossing_point (mp, &t, t0, t1, t2);
+    crossing_point (t, t0, t1, t2);
     if (number_greaterequal(t, fraction_one_t)) {
       if (turn_amt > 0)
         number_clone(t, fraction_one_t);
@@ -13638,7 +13523,7 @@ respectively, yielding another solution of $(*)$.
     number_negate(arg2);
     number_clone(arg3, t2);
     number_negate(arg3);
-    mp_crossing_point (mp, &t, arg1, arg2, arg3);
+    crossing_point (t, arg1, arg2, arg3);
     free_number (arg1);
     free_number (arg2);
     free_number (arg3);
@@ -13839,7 +13724,7 @@ if (number_greater(t, fraction_one_t)) {
     number_negate(arg2);
     number_clone(arg3, t2);
     number_negate(arg3);
-    mp_crossing_point (mp, &t, arg1, arg2, arg3);
+    crossing_point (t, arg1, arg2, arg3);
     free_number (arg1);
     free_number (arg2);
     free_number (arg3);
@@ -13876,7 +13761,7 @@ answer.  If |t2<0|, there is one crossing and it is antiparallel only if
 crossing and the first crossing cannot be antiparallel.
 
 @<Find the first |t| where $d(t)$ crosses $d_{k-1}$ or set...@>=
-mp_crossing_point (mp, &t, t0, t1, t2);
+crossing_point (t, t0, t1, t2);
 if (turn_amt >= 0) {
   if (number_negative(t2)) {
     number_clone(t, fraction_one_t);
@@ -14018,7 +13903,7 @@ if (number_positive(t0)) {
   new_number(arg3);
   number_clone(arg3, t0);
   number_negate(arg3);
-  mp_crossing_point (mp, &t, t0, t1, arg3);
+  crossing_point (t, t0, t1, arg3);
   free_number (arg3);
   set_number_from_of_the_way(u0, t, x0, x1);
   set_number_from_of_the_way(u1, t, x1, x2);
@@ -14029,7 +13914,7 @@ if (number_positive(t0)) {
   new_number(arg1);
   number_clone(arg1, t0);
   number_negate(arg1);
-  mp_crossing_point (mp, &t, arg1, t1, t0);
+  crossing_point (t, arg1, t1, t0);
   free_number (arg1);
   set_number_from_of_the_way(u0, t, x2, x1);
   set_number_from_of_the_way(u1, t, x1, x0);
@@ -14625,53 +14510,36 @@ static void mp_find_direction_time (MP mp, mp_number *ret, mp_number x_orig, mp_
   mp_number tt;    /* the direction time within a cubic */
   mp_number x, y;
   mp_number abs_x, abs_y;
-  @<Other local variables for |find_direction_time|@>;
+  /* Other local variables for |find_direction_time| */
+  mp_number x1, x2, x3, y1, y2, y3;  /* multiples of rotated derivatives */
+  mp_number phi;       /* angles of exit and entry at a knot */
+  mp_number t;     /* temp storage */
+  mp_number ab_vs_cd;
+  new_number(max);
+  new_number(x1);
+  new_number(x2);
+  new_number(x3);
+  new_number(y1);
+  new_number(y2);
+  new_number(y3);
+  new_fraction(t);
+  new_angle(phi);
+  new_number (ab_vs_cd);
   set_number_to_zero (*ret); /* just in case */
   new_number (x);
   new_number (y);
   new_number (abs_x);
   new_number (abs_y);
   new_number (n);
-  new_fraction (tt);
+  new_fraction (tt); 
   number_clone (x, x_orig);
   number_clone (y, y_orig);
   number_clone (abs_x, x_orig);
   number_clone (abs_y, y_orig);
   number_abs (abs_x);
   number_abs (abs_y);
-  @<Normalize the given direction for better accuracy;
-      but |return| with zero result if it's zero@>;
-  p = h;
-  while (1) {
-    if (mp_right_type (p) == mp_endpoint)
-      break;
-    q = mp_next_knot (p);
-    @<Rotate the cubic between |p| and |q|; then
-      |goto found| if the rotated cubic travels due east at some time |tt|;
-      but |break| if an entire cyclic path has been traversed@>;
-    p = q;
-    number_add(n, unity_t);
-  }
-  set_number_to_unity (*ret);
-  number_negate(*ret);
-  goto FREE;
-FOUND:
-  set_number_from_addition (*ret, n, tt);
-  goto FREE;
-FREE: 
-  free_number (x);
-  free_number (y);
-  free_number (abs_x);
-  free_number (abs_y);
-  @<Free local variables for |find_direction_time|@>;
-  free_number (n);
-  free_number (max);
-  free_number (tt);
-}
-
-
-@ @<Normalize the given direction for better accuracy...@>=
-{
+  /* Normalize the given direction for better accuracy;
+     but |return| with zero result if it's zero */
   if (number_less(abs_x, abs_y)) {
     mp_number r1;
     new_fraction (r1);
@@ -14699,7 +14567,46 @@ FREE:
       number_negate(x);
     }
   }
+
+  p = h;
+  while (1) {
+    if (mp_right_type (p) == mp_endpoint)
+      break;
+    q = mp_next_knot (p);
+    @<Rotate the cubic between |p| and |q|; then
+      |goto found| if the rotated cubic travels due east at some time |tt|;
+      but |break| if an entire cyclic path has been traversed@>;
+    p = q;
+    number_add(n, unity_t);
+  }
+  set_number_to_unity (*ret);
+  number_negate(*ret);
+  goto FREE;
+FOUND:
+  set_number_from_addition (*ret, n, tt);
+  goto FREE;
+FREE: 
+  free_number (x);
+  free_number (y);
+  free_number (abs_x);
+  free_number (abs_y);
+  /* Free local variables for |find_direction_time| */
+  free_number (x1);
+  free_number (x2);
+  free_number (x3);
+  free_number (y1);
+  free_number (y2);
+  free_number (y3);
+  free_number (t);
+  free_number (phi);
+  free_number (ab_vs_cd);
+
+  free_number (n);
+  free_number (max);
+  free_number (tt);
 }
+
+
 
 @ Since we're interested in the tangent directions, we work with the
 derivative $${1\over3}B'(x_0,x_1,x_2,x_3;t)=
@@ -14712,54 +14619,16 @@ tangent direction at such a time. Therefore we remember the direction |phi|
 in which the previous rotated cubic was traveling. (The value of |phi| will be
 undefined on the first cubic, i.e., when |n=0|.)
 
+@d we_found_it { 
+  number_clone (tt, t);
+  fraction_to_round_scaled (tt);
+  goto FOUND; 
+}
+
 @<Rotate the cubic between |p| and |q|; then...@>=
 set_number_to_zero(tt);
-@<Set local variables |x1,x2,x3| and |y1,y2,y3| to multiples of the control
-  points of the rotated derivatives@>;
-if (number_zero(y1))
-  if (number_zero(x1) || number_positive(x1))
-    goto FOUND;
-if (number_positive(n)) {
-  @<Exit to |found| if an eastward direction occurs at knot |p|@>;
-  if (p == h)
-    break;
-}
-if (number_nonzero(x3) || number_nonzero(y3)) {
-  n_arg (phi, x3, y3);
-}
-@<Exit to |found| if the curve whose derivatives are specified by
-  |x1,x2,x3,y1,y2,y3| travels eastward at some time~|tt|@>
-
- 
-
-@ @<Other local variables for |find_direction_time|@>=
-mp_number x1, x2, x3, y1, y2, y3;  /* multiples of rotated derivatives */
-mp_number phi;       /* angles of exit and entry at a knot */
-mp_number t;     /* temp storage */
-mp_number ab_vs_cd;
-new_number(max);
-new_number(x1);
-new_number(x2);
-new_number(x3);
-new_number(y1);
-new_number(y2);
-new_number(y3);
-new_fraction(t);
-new_angle(phi);
-new_number (ab_vs_cd);
-
-@ @<Free local variables for |find_direction_time|@>=
-free_number (x1);
-free_number (x2);
-free_number (x3);
-free_number (y1);
-free_number (y2);
-free_number (y3);
-free_number (t);
-free_number (phi);
-free_number (ab_vs_cd);
-
-@ @<Set local variables |x1,x2,x3| and |y1,y2,y3| to multiples...@>=
+/* Set local variables |x1,x2,x3| and |y1,y2,y3| to multiples of the control
+   points of the rotated derivatives */
 {
   mp_number absval; 
   new_number (absval);
@@ -14837,16 +14706,18 @@ free_number (ab_vs_cd);
      free_number (r2);
   }
 }
- 
-
-@ @<Exit to |found| if an eastward direction occurs at knot |p|@>=
-{
+if (number_zero(y1))
+  if (number_zero(x1) || number_positive(x1))
+    goto FOUND;
+if (number_positive(n)) {
+  /* Exit to |found| if an eastward direction occurs at knot |p| */
   mp_number theta;
   mp_number tmp;
   new_angle (theta);
   n_arg (theta, x1, y1);
   new_angle (tmp);
   set_number_from_substraction (tmp, theta, one_eighty_deg_t);
+
   if (number_nonnegative(theta) && number_nonpositive(phi) && number_greaterequal(phi, tmp)) {
     free_number (tmp);
     free_number (theta);
@@ -14860,10 +14731,16 @@ free_number (ab_vs_cd);
   }
   free_number (tmp);
   free_number (theta);
+
+  if (p == h)
+    break;
 }
-
-
-@ In this step we want to use the |crossing_point| routine to find the
+if (number_nonzero(x3) || number_nonzero(y3)) {
+  n_arg (phi, x3, y3);
+}
+/* Exit to |found| if the curve whose derivatives are specified by
+   |x1,x2,x3,y1,y2,y3| travels eastward at some time~|tt| */
+/* In this step we want to use the |crossing_point| routine to find the
 roots of the quadratic equation $B(y_1,y_2,y_3;t)=0$.
 Several complications arise: If the quadratic equation has a double root,
 the curve never crosses zero, and |crossing_point| will find nothing;
@@ -14871,9 +14748,7 @@ this case occurs iff $y_1y_3=y_2^2$ and $y_1y_2<0$. If the quadratic
 equation has simple roots, or only one root, we may have to negate it
 so that $B(y_1,y_2,y_3;t)$ crosses from positive to negative at its first root.
 And finally, we need to do special things if $B(y_1,y_2,y_3;t)$ is
-identically zero.
-
-@ @<Exit to |found| if the curve whose derivatives are specified by...@>=
+identically zero. */
 if (number_negative(x1))
   if (number_negative(x2))
     if (number_negative(x3))
@@ -14881,8 +14756,70 @@ if (number_negative(x1))
 {
   ab_vs_cd (ab_vs_cd, y1, y3, y2, y2);
   if (number_zero(ab_vs_cd)) {
-    @<Handle the test for eastward directions when $y_1y_3=y_2^2$;
-      either |goto found| or |goto done|@>;
+    /* Handle the test for eastward directions when $y_1y_3=y_2^2$;
+      either |goto found| or |goto done| */
+{
+  ab_vs_cd (ab_vs_cd, y1, y2, zero_t, zero_t);
+  if (number_negative(ab_vs_cd)) {
+    mp_number tmp, arg2;
+    new_number(tmp);
+    new_number(arg2);
+    set_number_from_substraction (arg2, y1, y2);
+    make_fraction (t, y1, arg2);
+    free_number (arg2);
+    set_number_from_of_the_way(x1, t, x1, x2);
+    set_number_from_of_the_way(x2, t, x2, x3);
+    set_number_from_of_the_way(tmp, t, x1, x2);
+    if (number_zero(tmp) || number_positive(tmp)) {
+      free_number (tmp);
+      we_found_it;
+    }
+    free_number (tmp);
+  } else if (number_zero(y3)) {
+    if (number_zero(y1)) {
+      /* Exit to |found| if the derivative $B(x_1,x_2,x_3;t)$ becomes |>=0| */
+/* At this point we know that the derivative of |y(t)| is identically zero,
+and that |x1<0|; but either |x2>=0| or |x3>=0|, so there's some hope of
+traveling east. */
+{
+  mp_number arg1, arg2, arg3;
+  new_number (arg1);
+  new_number (arg2);
+  new_number (arg3);
+  number_clone(arg1, x1);
+  number_negate(arg1);
+  number_clone(arg2, x2);
+  number_negate(arg2);
+  number_clone(arg3, x3);
+  number_negate(arg3);
+  crossing_point (t, arg1, arg2, arg3);
+  free_number (arg1);
+  free_number (arg2);
+  free_number (arg3);
+  if (number_lessequal (t, fraction_one_t))
+    we_found_it;
+  ab_vs_cd (ab_vs_cd, x1, x3, x2, x2);
+  if (number_nonpositive(ab_vs_cd)) {
+    mp_number arg2;
+    new_number (arg2);
+    set_number_from_substraction (arg2, x1, x2);
+    make_fraction (t, x1, arg2);
+    free_number (arg2);
+    we_found_it;
+  }
+}
+
+
+
+    } else if (number_zero(x3) || number_positive(x3)) {
+      set_number_to_unity(tt);
+      goto FOUND;
+    }
+  }
+  goto DONE;
+}
+
+
   }
 }
 if (number_zero(y1) || number_negative(y1)) {
@@ -14895,11 +14832,9 @@ if (number_zero(y1) || number_negative(y1)) {
     number_negate(y3);
   }
 }
-@<Check the places where $B(y_1,y_2,y_3;t)=0$ to see if
-  $B(x_1,x_2,x_3;t)\ge0$@>;
-DONE:
-
-@ The quadratic polynomial $B(y_1,y_2,y_3;t)$ begins |>=0| and has at most
+/* Check the places where $B(y_1,y_2,y_3;t)=0$ to see if
+  $B(x_1,x_2,x_3;t)\ge0$ */
+/* The quadratic polynomial $B(y_1,y_2,y_3;t)$ begins |>=0| and has at most
 two roots, because we know that it isn't identically zero.
 
 It must be admitted that the |crossing_point| routine is not perfectly accurate;
@@ -14908,17 +14843,8 @@ miss the roots when $y_1y_3<y_2^2$. The rotation process is itself
 subject to rounding errors. Yet this code optimistically tries to
 do the right thing.
 
-TODO: this definition may need more work, the original code did something
-different.
-
-@d we_found_it { 
-  number_clone (tt, t);
-  fraction_to_round_scaled (tt);
-  goto FOUND; 
-}
-
-@<Check the places where $B(y_1,y_2,y_3;t)=0$...@>=
-mp_crossing_point (mp, &t, y1, y2, y3);
+*/
+crossing_point (t, y1, y2, y3);
 if (number_greater (t, fraction_one_t))
   goto DONE;
 set_number_from_of_the_way(y2, t, y2, y3);
@@ -14939,7 +14865,7 @@ number_clone(tt, t);
   number_negate(arg2);
   number_clone(arg3, y3);
   number_negate(arg3);
-  mp_crossing_point (mp, &t, arg1, arg2, arg3);
+  crossing_point (t, arg1, arg2, arg3);
   free_number (arg1);
   free_number (arg2);
   free_number (arg3);
@@ -14959,70 +14885,7 @@ if (number_greater (t, fraction_one_t))
   }
   free_number (tmp);
 }
-
-@ @<Handle the test for eastward directions when $y_1y_3=y_2^2$;
-    either |goto found| or |goto done|@>=
-{
-  ab_vs_cd (ab_vs_cd, y1, y2, zero_t, zero_t);
-  if (number_negative(ab_vs_cd)) {
-    mp_number tmp, arg2;
-    new_number(tmp);
-    new_number(arg2);
-    set_number_from_substraction (arg2, y1, y2);
-    make_fraction (t, y1, arg2);
-    free_number (arg2);
-    set_number_from_of_the_way(x1, t, x1, x2);
-    set_number_from_of_the_way(x2, t, x2, x3);
-    set_number_from_of_the_way(tmp, t, x1, x2);
-    if (number_zero(tmp) || number_positive(tmp)) {
-      free_number (tmp);
-      we_found_it;
-    }
-    free_number (tmp);
-  } else if (number_zero(y3)) {
-    if (number_zero(y1)) {
-      @<Exit to |found| if the derivative $B(x_1,x_2,x_3;t)$ becomes |>=0|@>;
-    } else if (number_zero(x3) || number_positive(x3)) {
-      set_number_to_unity(tt);
-      goto FOUND;
-    }
-  }
-  goto DONE;
-}
-
-
-@ At this point we know that the derivative of |y(t)| is identically zero,
-and that |x1<0|; but either |x2>=0| or |x3>=0|, so there's some hope of
-traveling east.
-
-@<Exit to |found| if the derivative $B(x_1,x_2,x_3;t)$ becomes |>=0|...@>=
-{
-  mp_number arg1, arg2, arg3;
-  new_number (arg1);
-  new_number (arg2);
-  new_number (arg3);
-  number_clone(arg1, x1);
-  number_negate(arg1);
-  number_clone(arg2, x2);
-  number_negate(arg2);
-  number_clone(arg3, x3);
-  number_negate(arg3);
-  mp_crossing_point (mp, &t, arg1, arg2, arg3);
-  free_number (arg1);
-  free_number (arg2);
-  free_number (arg3);
-  if (number_lessequal (t, fraction_one_t))
-    we_found_it;
-  ab_vs_cd (ab_vs_cd, x1, x3, x2, x2);
-  if (number_nonpositive(ab_vs_cd)) {
-    mp_number arg2;
-    new_number (arg2);
-    set_number_from_substraction (arg2, x1, x2);
-    make_fraction (t, x1, arg2);
-    free_number (arg2);
-    we_found_it;
-  }
-}
+DONE:
 
 
 @ The intersection of two cubics can be found by an interesting variant
@@ -17127,7 +16990,7 @@ by analogy with |line_stack|.
 @<Glob...@>=
 integer in_open;        /* the number of lines in the buffer, less one */
 integer in_open_max;    /* highest value of |in_open| ever seen */
-int open_parens;       /* the number of open text files */
+unsigned int open_parens;       /* the number of open text files */
 void **input_file;
 integer *line_stack;    /* the line number for each file */
 char **inext_stack;     /* used for naming \.{MPX} files */
@@ -33781,6 +33644,7 @@ void mp_store_true_output_filename (MP mp, int c)
     xfree (mp->last_file_name);
     mp->last_file_name = xstrdup (mp->name_of_file);
   }
+  set_internal_string (mp_output_filename, mp_rts (mp, mp->name_of_file));
 }
 
 @ @<Glob...@>=
@@ -34276,11 +34140,36 @@ boolean mp_load_preload_file (MP mp) {
   mp->reading_preload = true;
   do {
     mp_do_statement (mp);
-  } while (!(cur_cmd() == mp_stop && cur_mod() == 1));     /* "dump" or EOF */
+  } while (!(cur_cmd() == mp_stop));     /* "dump" or EOF */
   mp->reading_preload = false;
   mp_primitive (mp, "dump", mp_relax, 0); /* reset |dump| */
-  mp_print_char (mp, xord (')'));
-  decr (mp->open_parens);
+  while (mp->input_ptr > 0) {
+    if (token_state)
+      mp_end_token_list (mp);
+    else
+      mp_end_file_reading (mp);
+  }
+  while (mp->loop_ptr != NULL)
+    mp_stop_iteration (mp);
+  while (mp->open_parens > 0) {
+    mp_print (mp, " )");
+    decr (mp->open_parens);
+  };
+  while (mp->cond_ptr != NULL) {
+    mp_print_nl (mp, "(dump occurred when ");
+@.dump occurred...@>;
+    mp_print_cmd_mod (mp, mp_fi_or_else, mp->cur_if);
+    /* `\.{if}' or `\.{elseif}' or `\.{else}' */
+    if (mp->if_line != 0) {
+      mp_print (mp, " on line ");
+      mp_print_int (mp, mp->if_line);
+    }
+    mp_print (mp, " was incomplete)");
+    mp->if_line = if_line_field (mp->cond_ptr);
+    mp->cur_if = mp_name_type (mp->cond_ptr);
+    mp->cond_ptr = mp_link (mp->cond_ptr);
+  }
+
 /*  |(mp->close_file) (mp, mp->mem_file);| */
   cur_file = old_cur_file;
   mp->cur_input  = old_state;

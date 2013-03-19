@@ -43,7 +43,7 @@
 #include "mplibpng.h"
 
    /*@unused@*/ static const char _svn_version[] =
-    "$Id: lmplib.c 1703 2012-09-27 10:45:15Z taco $";
+    "$Id: lmplib.c 1868 2013-02-18 13:58:17Z taco $";
 
 int luaopen_mplib(lua_State * L); /* forward */
 
@@ -980,7 +980,8 @@ static int mplib_fig_png(lua_State * L)
 {
     mp_run_data *res;
     struct mp_edge_object **hh = is_fig(L, 1);
-    if (mp_png_ship_out(*hh, 1) 
+    char *string = (int)luaL_optstring(L, 2, NULL);
+    if (mp_png_ship_out(*hh, string) 
         && (res = mp_rundata((*hh)->parent))
         && (res->ship_out.size != 0)) {
         lua_pushlstring(L, res->ship_out.data, res->ship_out.size);

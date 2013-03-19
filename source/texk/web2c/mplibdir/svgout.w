@@ -1,4 +1,4 @@
-% $Id: svgout.w 1833 2013-02-08 16:25:37Z taco $
+% $Id: svgout.w 1881 2013-03-19 09:07:50Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -864,9 +864,9 @@ void mp_svg_print_glyph_defs (MP mp, mp_edge_object *h) {
                }
                mp_svg_open_starttag(mp,"g");
                append_string("scale(");
-               mp_svg_store_double(mp,dx);
+               mp_svg_store_double(mp,dx/65536);
                append_char(',');
-               mp_svg_store_double(mp,ds);
+               mp_svg_store_double(mp,ds/65536);
                append_char(')');
                if (sk!=0) {
                   append_string(" skewX(");
@@ -1228,7 +1228,7 @@ int mp_svg_gr_ship_out (mp_edge_object *hh, int qprologues, int standalone) {
   }
   if (mp->history >= mp_fatal_error_stop ) return 1;
   mp_open_output_file(mp);
-  if ( (qprologues>=1) && (mp->last_ps_fnum==0) )
+  if ( (qprologues>=1) && (mp->last_ps_fnum==0) && mp->last_fnum>0)
     mp_read_psname_table(mp);
   /* The next seems counterintuitive, but calls from |mp_svg_ship_out|
    * set standalone to true, and because embedded use is likely, it is 

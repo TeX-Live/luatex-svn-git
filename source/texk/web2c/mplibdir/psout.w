@@ -1,4 +1,4 @@
-% $Id: psout.w 1872 2013-03-01 09:15:49Z taco $
+% $Id: psout.w 1878 2013-03-18 14:05:40Z taco $
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
 % See the <Show version...> code in mpost.w for more info.
@@ -1407,7 +1407,7 @@ fm_entry * mp_fm_lookup (MP mp, font_number f) {
     fm_entry tmp;
     int e;
     if (mp->ps->tfm_tree == NULL)
-        fm_read_info (mp);        /* only to read default map file */
+        mp_read_psname_table (mp);        /* only to read default map file */
     tfm = mp->font_name[f];
     assert (strcmp (tfm, nontfm));
     /* Look up for full <tfmname>[+-]<expand> */
