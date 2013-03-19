@@ -23,7 +23,7 @@
 
 \setvariables
   [document]
-  [beta=0.75.0]
+  [beta=0.76.0]
 
 \starttext
 
@@ -5270,6 +5270,14 @@ against the upvalue \type{id}:
     return t
   end
 \stoptyping
+
+\subsubsection{\luatex{node.end_of_math} (0.76)}
+
+\startfunctioncall
+<node> t = node.end_of_math(<node> start)
+\stopfunctioncall
+
+Looks for and returns the next \type{math_node} following the \type{start}.
 
 \subsubsection{\luatex{node.remove}}
 
