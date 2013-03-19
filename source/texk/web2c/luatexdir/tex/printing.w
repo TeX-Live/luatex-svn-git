@@ -114,12 +114,13 @@ void print_ln(void)
 
 
 @ The |print_char| procedure sends one byte to the desired destination.
-  All printing comes through |print_ln| or |print_char|.
+  All printing comes through |print_ln| or |print_char|, except for the
+  case of |tprint| (see below).
 
 @c
 #define wterm_char(A) do {				\
     if ((A>=0x20)||(A==0x0A)||(A==0x0D)||(A==0x09)) {	\
-      wterm(A);					\
+      wterm(A);					        \
     } else {						\
       if (term_offset+2>=max_print_line) {		\
 	wterm_cr(); term_offset=0;			\
@@ -131,9 +132,9 @@ void print_ln(void)
   } while (0)
 
 #define needs_wrapping(A,B)				\
-  (((A>=0xC0)&&(A<=0xDF)&&(B+2>=max_print_line))||	\
-   ((A>=0xE0)&&(A<=0xEF)&&(B+3>=max_print_line))||	\
-   ((A>=0xF0)&&(B+4>=max_print_line)))
+  (((A>=0xF0)&&(B+4>=max_print_line))||                 \
+   ((A>=0xE0)&&(B+3>=max_print_line))||	                \
+   ((A>=0xC0)&&(B+2>=max_print_line)))
 
 #define fix_term_offset(A)	 do {			\
     if (needs_wrapping(A,term_offset)){			\
@@ -319,18 +320,126 @@ void print_nl(str_number s)
     print(s);
 }
 
-@ |char *| versions of the same procedures
+@ |char *| versions of the same procedures. |tprint| is
+different because it uses buffering, which works well because
+most of the output actually comes through |tprint|.
 
 @c
-void tprint(const char *s)
+void tprint(const char *sss)
 {
-    const unsigned char *ss = (const unsigned char *) s;
-    if (selector == new_string) {
-        append_string(ss, (unsigned) strlen(s));
+    char *buffer = NULL;
+    int i = 0; /* buffer index */
+    int newlinechar = int_par(new_line_char_code);
+    int dolog = 0;
+    int doterm = 0;
+    switch (selector) {
+    case new_string:
+        append_string((const unsigned char *)sss, (unsigned) strlen(sss));
         return;
+        break;
+    case pseudo:
+        while (*sss) {
+           if (tally++ < trick_count) {
+               trick_buf[tally % error_line] = (packed_ASCII_code) *sss++;
+           } else {
+               return;
+           }
+        }
+        return;
+        break;
+    case no_print:
+        return;
+        break;
+    case term_and_log:
+        dolog = 1;
+        doterm = 1;
+        break;
+    case log_only:
+        dolog = 1;
+        break;
+    case term_only:
+        doterm = 1;
+        break;
+    default:
+        {
+            char *newstr = xstrdup(sss);
+            char *s;
+            for (s=newstr;*s;s++) {
+                if (*s == newlinechar) {
+                    *s = '\n';
+                }
+            }
+            fputs(newstr, write_file[selector]);
+            free(newstr);
+            return;
+        }
+        break;
     }
-    while (*ss)
-        print_char(*ss++);
+    /* what is left is the 3 term/log settings */
+    buffer = xmalloc(strlen(sss)*3);
+    if (dolog) {
+        const unsigned char *ss = (const unsigned char *) sss;
+        while (*ss) {
+            int s = *ss++;
+            if (needs_wrapping(s,file_offset) || s == newlinechar) {
+                buffer[i++] = '\n';
+                buffer[i++] = '\0';
+                fputs(buffer, log_file);
+                i = 0; buffer[0] = '\0';
+                file_offset=0;
+            }
+            if (s != newlinechar) {
+                buffer[i++] = s;
+                if (file_offset++ == max_print_line) {
+                    buffer[i++] = '\n';
+                    buffer[i++] = '\0';
+                    fputs(buffer, log_file);
+                    i = 0; buffer[0] = '\0';
+                    file_offset = 0;
+                }
+            }
+        }
+        if (*buffer) {
+            buffer[i++] = '\0';
+            fputs(buffer, log_file);
+            buffer[0] = '\0';
+        }
+        i = 0;
+    }
+    if (doterm) {
+        while (*sss) {
+            int s = *sss++;
+            if (needs_wrapping(s,term_offset) || s == newlinechar) {
+                buffer[i++] = '\n';
+                buffer[i++] = '\0';
+                fputs(buffer, term_out);
+                i = 0; buffer[0] = '\0';
+                term_offset=0;
+            }
+            if (s != newlinechar) {
+                if ((s>=0x20)||(s==0x0A)||(s==0x0D)||(s==0x09)) {       
+                    buffer[i++] = s;
+                } else {                                                
+                    buffer[i++] = '^';
+                    buffer[i++] = '^';
+                    buffer[i++] = s+64;
+                    term_offset += 2;
+                }
+                if (term_offset++ == max_print_line) {
+                    buffer[i++] = '\n';
+                    buffer[i++] = '\0';
+                    fputs(buffer, term_out);
+                    i = 0; buffer[0] = '\0';
+                    term_offset = 0;
+                }
+            }
+        }
+        if (*buffer) {
+            buffer[i++] = '\0';
+            fputs(buffer, term_out);
+        }
+    }
+    free(buffer);
 }
 
 void tprint_nl(const char *s)
