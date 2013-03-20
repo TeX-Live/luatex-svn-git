@@ -980,7 +980,7 @@ static int mplib_fig_png(lua_State * L)
 {
     mp_run_data *res;
     struct mp_edge_object **hh = is_fig(L, 1);
-    char *string = (int)luaL_optstring(L, 2, NULL);
+    const char *string = luaL_optstring(L, 2, NULL);
     if (mp_png_ship_out(*hh, string) 
         && (res = mp_rundata((*hh)->parent))
         && (res->ship_out.size != 0)) {
