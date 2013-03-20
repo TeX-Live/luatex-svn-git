@@ -82,7 +82,7 @@ extern const unsigned char  ____digitval[];
 #define isideographic(ch)	(____utype[(ch)+1]&____ID)
 #define isideoalpha(ch)		(____utype[(ch)+1]&(____ID|____L|____U|____TITLE|____AL))
 #define isspace(ch)		(____utype[(ch)+1]&____S)
-#define ispunct(ch)		(____utype[(ch)+1]&_____P)
+#define ispunct(ch)		(____utype[(ch)+1]&____P)
 #define ishexdigit(ch)		(____utype[(ch)+1]&____X)
 #define iszerowidth(ch)		(____utype[(ch)+1]&____ZW)
 #define islefttoright(ch)	(____utype[(ch)+1]&____L2R)
