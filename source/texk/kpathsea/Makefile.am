@@ -1,6 +1,6 @@
 ## Makefile.am for the TeX Live subdirectory texk/kpathsea/
 ##
-## Copyright (C) 2009-2012 Peter Breitenlohner <tex-live@tug.org>
+## Copyright (C) 2009-2013 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
 ACLOCAL_AMFLAGS = -I ../../m4
@@ -67,7 +67,6 @@ libkpathsea_la_SOURCES = \
 	tex-hush.c \
 	tex-make.c \
 	tilde.c \
-	truncate.c \
 	uppercasify.c \
 	variable.c \
 	version.c \
@@ -175,7 +174,6 @@ noinst_HEADERS = \
 	fn.h \
 	fontmap.h \
 	tilde.h \
-	truncate.h \
 	xopendir.h \
 	xstat.h
 
@@ -207,12 +205,12 @@ stamp-paths: texmf.cnf bsnl.awk cnf-to-paths.awk
 	date >$@
 
 kpathsea.h: Makefile paths.h
-	rm -f $@
-	echo '/* This is a generated file */' >$@
-	echo '/* collecting all public kpathsea headers. */' >>$@
-	for f in config.h c-auto.h paths.h $(normal_headers); do \
-	  echo "#include <kpathsea/$$f>" >>$@; \
-	done
+	$(AM_V_GEN)rm -f $@; \
+	( echo '/* This is a generated file */'; \
+	  echo '/* collecting all public kpathsea headers. */'; \
+	  for f in config.h c-auto.h paths.h $(normal_headers); do \
+	    echo "#include <kpathsea/$$f>"; \
+	  done ) >$@
 
 EXTRA_DIST += bsnl.awk cnf-to-paths.awk
 
@@ -236,7 +234,7 @@ progname_test_LDADD = libkpathsea.la
 xdirtest_LDADD = libkpathsea.la
 
 ## The scripts and their data
-web2cdir = $(datarootdir)/texmf/web2c
+web2cdir = $(datarootdir)/texmf-dist/web2c
 
 dist_web2c_SCRIPTS = mktexdir mktexnam mktexupd
 

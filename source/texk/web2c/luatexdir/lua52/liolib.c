@@ -6,13 +6,9 @@
 
 
 /*
-** POSIX idiosyncrasy!
-** This definition must come before the inclusion of 'stdio.h'; it
-** should not affect non-POSIX systems
+** This must come before the inclusion of 'stdio.h'.
 */
-#if !defined(_FILE_OFFSET_BITS)
-#define _FILE_OFFSET_BITS 64
-#endif
+#include <c-auto.h>
 
 
 #include <errno.h>

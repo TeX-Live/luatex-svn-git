@@ -7,10 +7,6 @@
 #include <kpathsea/tex-make.h> /* for kpse_make_tex_discard_errors */
 
 #ifdef XeTeX
-#include <zlib.h>
-#endif
-
-#ifdef XeTeX
 /* added typedefs for unicodefile and voidpointer */
 #define XETEX_UNICODE_FILE_DEFINED	1
 typedef struct {
@@ -240,7 +236,12 @@ extern void topenin (void);
 #endif
 
 #ifdef XeTeX
+#if ENABLE_PIPES
+extern boolean u_open_in_or_pipe(unicodefile* f, integer filefmt, const_string fopen_mode, integer mode, integer encodingData);
+#define uopenin(f,p,m,d) u_open_in_or_pipe(&(f), p, FOPEN_RBIN_MODE, m, d)
+#else
 #define uopenin(f,p,m,d) u_open_in(&(f), p, FOPEN_RBIN_MODE, m, d)
+#endif
 #endif
 
 /* Used in tex.ch (section 1338) to get a core dump in debugging mode.  */
@@ -303,6 +304,7 @@ extern void paintrow (/*screenrow, pixelcolor, transspec, screencol*/);
 
 /* We define the routines to do the actual work in texmf.c.  */
 #ifdef XeTeX
+#include <zlib.h>
 extern void do_dump (char *, int, int, gzFile);
 extern void do_undump (char *, int, int, gzFile);
 #else

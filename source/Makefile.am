@@ -1,6 +1,6 @@
 ## Makefile.am for the TeX Live top-level
 ##
-## Copyright (C) 2009-2011 Peter Breitenlohner <tex-live@tug.org>
+## Copyright (C) 2009-2013 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
 ## Use 'aclocal --force' (for "computed m4_sinclude")
@@ -35,6 +35,11 @@ CONFIG_AUX = subsubdir-conf.cmd
 SUBDIRS = . $(TEXLIBS) libs utils texk
 DIST_SUBDIRS = auxdir/auxsub $(DIST_TEXLIBS) libs utils texk
 
+cf_silent = $(cf_silent_@AM_V@)
+cf_silent_ = $(cf_silent_@AM_DEFAULT_V@)
+cf_silent_0 = --silent
+cf_silent_1 =
+
 all-local: texlibs
 
 .PHONY: texlibs
@@ -43,7 +48,7 @@ all-local: texlibs
 # we append '--disable-build' so they can skip tests that would
 # fail because other libraries were not built.
 #
-# Sequentially configure and optionally build all texk subdirs;
+# Sequentially configure and optionally build all texk libraries;
 # code inspired by automake's way to handle recursive targets.
 texlibs: $(CONFIG_AUX)
 	@fail= failcom='exit 1'; \
@@ -62,9 +67,9 @@ texlibs: $(CONFIG_AUX)
 	      *) skip=' --disable-build';; \
 	    esac; \
 	    (cd $$texlibs && echo "=== configuring in $$texlibs (`pwd`)" && \
-	      echo "make: running $(SHELL) $$cmd$$skip" && \
+	      if $(AM_V_P); then echo "make: running $(SHELL) $$cmd$$skip"; fi && \
 	      CONFIG_SHELL=$(SHELL) && export CONFIG_SHELL && \
-	      eval $(SHELL) $$cmd$$skip || \
+	      eval $(SHELL) $$cmd$$skip $(cf_silent) || \
 	        { echo "=== configuring in $$texlibs failed"; exit 1; }) && \
 	    if test "x$$skip" = x; then \
 	      echo "Making all in $$texlibs" && \
@@ -83,18 +88,19 @@ subsubdir-conf.cmd:
 # Run texlinks here since the binaries won't be there
 # at install-data, and fmtutil.cnf won't be there at install-exec,
 # and there is no install-hook or install-local.
+texlinks_dir = texk/texlive/tl_scripts
 world: all
 ## Serialize 'make all' and 'make install-strip'.
 	@echo "top-level make $@: running install-strip..."
 	$(MAKE) $(AM_MAKEFLAGS) install-strip
 ##
-	@echo "top-level make $@: running texlinks in texk/texlive/linked_scripts..."
-	cd texk/texlive/linked_scripts && $(MAKE) $(AM_MAKEFLAGS) run-texlinks
+	@echo "top-level make $@: running texlinks in $(texlinks_dir) ..."
+	cd $(texlinks_dir) && $(MAKE) $(AM_MAKEFLAGS) run-texlinks
 ##
 	@echo "top-level make $@: running $(check_target)..."
 	$(MAKE) $(AM_MAKEFLAGS) $(check_target)
 ##
-	@echo "make $@ done."
+	@echo "top-level make $@ done."
 
 # Allow for skipping make check if needed.
 if cross

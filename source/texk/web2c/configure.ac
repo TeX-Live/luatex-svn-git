@@ -1,6 +1,6 @@
 dnl Process this file with Autoconf to produce a configure script for Web2c.
 dnl
-dnl   Copyright (C) 2009-2012 Peter Breitenlohner <tex-live@tug.org>
+dnl   Copyright (C) 2009-2013 Peter Breitenlohner <tex-live@tug.org>
 dnl
 dnl   This file is free software; the copyright holder
 dnl   gives unlimited permission to copy and/or distribute it,
@@ -58,7 +58,8 @@ dnl For tests
 AC_CHECK_PROGS([KPSEWHICH], [kpsewhich], [false])
 
 KPSE_ASM_UNDERSCORE
-KPSE_CHECK_WIN32
+KPSE_COND_MINGW32
+KPSE_WIN32_CALL
 
 AS_CASE([$with_editor],
         [''|yes|no], [AS_IF([test "x$kpse_cv_have_win32" = xno],
@@ -80,9 +81,6 @@ AS_CASE([$enable_ipc],
         [yes|no], [],
             [enable_ipc=yes])
 
-AM_CONDITIONAL([WIN32], [test "x$kpse_cv_have_win32" != xno])
-AM_CONDITIONAL([MINGW32], [test "x$kpse_cv_have_win32" = xmingw32])
-
 KPSE_CHECK_SOCKET_LIBS
 AS_CASE([$ac_cv_search_connect],
         ["none required"], [],
@@ -93,22 +91,15 @@ if test "x$enable_ipc" = xyes; then
    ipc_socketlibs=$socketlibs
    AC_DEFINE([IPC], 1, [tex: Define to enable --ipc.])
 fi
-
 # We may need additional libraries for luaTeX.
 # On Solaris -lnsl for gethostbyname(), -lrt for nanosleep(),
 # and maybe -lresolv for inet_aton().
 lua_socketlibs=$socketlibs
-AS_IF([test "x$kpse_cv_have_win32" = xno],
-      [],
-      [AC_CHECK_LIB([ws2_32], [main],
-                    [lua_socketlibs="$socketlibs -lws2_32"],
-                    [WEB2C_DISABLE([luatex], [no getaddrinfo()])])])
-
 if test "x$kpse_cv_have_win32" = xno; then
   kpse_save_LIBS=$LIBS
   AC_SEARCH_LIBS([gethostbyname], [nsl])
-  AC_SEARCH_LIBS([inet_aton], [resolv])
   AC_SEARCH_LIBS([hstrerror], [resolv])
+  AC_SEARCH_LIBS([inet_aton], [resolv])
   LIBS=$kpse_save_LIBS
   AC_SEARCH_LIBS([nanosleep], [rt])
   LIBS=$kpse_save_LIBS
@@ -122,14 +113,14 @@ if test "x$kpse_cv_have_win32" = xno; then
     fi
   fi
   LIBS=$kpse_save_LIBS
-  AS_CASE([$ac_cv_search_inet_aton],
-          ["none required"], [],
-          [no], [WEB2C_DISABLE([luatex], [no inet_aton()])],
-              [lua_socketlibs="$lua_socketlibs $ac_cv_search_inet_aton"])
   AS_CASE([$ac_cv_search_hstrerror],
           ["none required"], [],
           [no], [WEB2C_DISABLE([luatex], [no hstrerror()])],
               [lua_socketlibs="$lua_socketlibs $ac_cv_search_hstrerror"])
+  AS_CASE([$ac_cv_search_inet_aton],
+          ["none required"], [],
+          [no], [WEB2C_DISABLE([luatex], [no inet_aton()])],
+              [lua_socketlibs="$lua_socketlibs $ac_cv_search_inet_aton"])
   AS_CASE([$ac_cv_search_gethostbyname],
           ["none required"], [],
           [no], [WEB2C_DISABLE([luatex], [no gethostbyname()])],
@@ -138,16 +129,20 @@ if test "x$kpse_cv_have_win32" = xno; then
           ["none required"], [],
           [no], [WEB2C_DISABLE([luatex], [no nanosleep()])],
               [lua_socketlibs="$lua_socketlibs $ac_cv_search_nanosleep"])
+else
+  AC_CHECK_LIB([ws2_32], [main],
+               [lua_socketlibs="$socketlibs -lws2_32"],
+               [WEB2C_DISABLE([luatex], [no getaddrinfo()])])
 fi
+AM_CONDITIONAL([USE_DLOPEN], [test "x$ac_cv_header_dlfcn_h" = xyes])
 AC_SUBST([lua_socketlibs])
 AC_SUBST([ipc_socketlibs])
 
-KPSE_CHECK_FRAMEWORK([Carbon], [ATSUStyle style])
+KPSE_CHECK_FRAMEWORK([ApplicationServices], [CTFontRef font])
 KPSE_FONTCONFIG_FLAGS
-AS_IF([test "x$kpse_cv_have_Carbon:$kpse_cv_have_fontconfig" = xno:no],
-      [WEB2C_DISABLE([xetex], [neither Carbon framework nor fontconfig library])])
-AM_CONDITIONAL([XETEX_MACOSX], [test "x$kpse_cv_have_Carbon" = xyes])
-AM_CONDITIONAL([XETEX_GRAPHITE], [test "x$with_graphite" != xno])
+AS_IF([test "x$kpse_cv_have_ApplicationServices:$kpse_cv_have_fontconfig" = xno:no],
+      [WEB2C_DISABLE([xetex], [neither ApplicationServices framework nor fontconfig library])])
+AM_CONDITIONAL([XETEX_MACOSX], [test "x$kpse_cv_have_ApplicationServices" = xyes])
 
 dnl Generate *TEX and ALEPH conditionals.
 m4_foreach([Kpse_Prog], [kpse_tex_progs],
@@ -262,10 +257,11 @@ if test $ac_cv_sizeof_int -lt 4; then
 fi
 AC_CHECK_SIZEOF([long])
 AC_SEARCH_LIBS([pow], [m])
-AC_CHECK_FUNCS([access atoi fmax ftime gettimeofday mkdtemp setlocale strerror strlcat strlcpy])
+AC_CHECK_FUNCS([access atoi fmax ftime gettimeofday mkdtemp setlocale strerror strlcat strlcpy strndup])
+AC_CHECK_DECLS([strndup])
 AC_CHECK_HEADERS([errno.h langinfo.h locale.h sys/time.h sys/timeb.h sys/wait.h time.h])
 AC_TYPE_LONG_DOUBLE
-AC_TYPE_LONG_LONG_INT
+AC_HEADER_STDBOOL
 
 dnl sharable format files.
 AC_C_BIGENDIAN
@@ -277,15 +273,17 @@ KPSE_KPATHSEA_FLAGS
 KPSE_PTEXENC_FLAGS
 KPSE_ZLIB_FLAGS
 KPSE_LIBPNG_FLAGS
+KPSE_FREETYPE2_FLAGS
 KPSE_PIXMAN_FLAGS
 KPSE_CAIRO_FLAGS
 KPSE_XPDF_FLAGS
 KPSE_POPPLER_FLAGS
+KPSE_XPDF_FLAGS
 KPSE_ZZIPLIB_FLAGS
-KPSE_GRAPHITE_FLAGS
-KPSE_FREETYPE2_FLAGS
 KPSE_TECKIT_FLAGS
-KPSE_ICU_XETEX_FLAGS([icule])
+KPSE_ICU_FLAGS
+KPSE_HARFBUZZ_FLAGS
+KPSE_GRAPHITE2_FLAGS
 
 # Check size of off_t (using <kpathsea/config.h>)
 KPSE_ADD_FLAGS([kpathsea])
@@ -380,10 +378,12 @@ fi
 AC_CONFIG_SUBDIRS([web2c])
 
 AC_CONFIG_FILES([Makefile doc/Makefile lib/Makefile man/Makefile
+                 omegafonts/Makefile otps/Makefile otps/win32/Makefile
                  window/Makefile])
 AC_CONFIG_FILES([web2c-sh], [chmod +x web2c-sh])
 AC_CONFIG_FILES([tangle-sh], [chmod +x tangle-sh])
 AC_CONFIG_FILES([ctangleboot-sh], [chmod +x ctangleboot-sh])
+AC_CONFIG_FILES([silent-sh], [chmod +x silent-sh])
 
 dnl The subdirectory web2c must be configured for the build system.
 dnl When cross compiling, can not share the cache file with the subdirectory!

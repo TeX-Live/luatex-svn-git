@@ -1,6 +1,6 @@
 ## texk/web2c/luatexdir/am/libluatex.am: Makefile fragment for libluatex.
 ##
-## Copyright (C) 2009-2012 Peter Breitenlohner <tex-live@tug.org>
+## Copyright (C) 2009-2013 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 
 ## libluatex
@@ -11,9 +11,9 @@ libluatex_a_DEPENDENCIES = libff.a
 
 libluatex_a_CPPFLAGS = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES)
 libluatex_a_CPPFLAGS += $(POPPLER_INCLUDES) -I$(srcdir)/libmd5
-libluatex_a_CPPFLAGS += -I$(srcdir)/luatexdir -I$(srcdir)/luatexdir/lua52
-libluatex_a_CPPFLAGS += -DpdfTeX
-libluatex_a_CPPFLAGS += -I$(srcdir)/synctexdir -DSYNCTEX_ENGINE_H='<synctex-luatex.h>'
+libluatex_a_CPPFLAGS += -DpdfTeX -I$(srcdir)/luatexdir
+libluatex_a_CPPFLAGS += $(LUA_INCLUDES)
+libluatex_a_CPPFLAGS += -DSYNCTEX_ENGINE_H='<synctex-luatex.h>' -I$(srcdir)/synctexdir
 libluatex_a_CXXFLAGS = # $(WARNING_CXXFLAGS)
 
 ## from luatexdir
@@ -23,12 +23,14 @@ libluatex_web =
 nodist_libluatex_a_SOURCES =
 
 libluatex_a_SOURCES = \
+	luatexdir/luatexcallbackids.h \
 	luatexdir/luatex.h \
-	luatexdir/luatex-common.h
+	luatexdir/luatex-common.h \
+	luatexdir/ptexlib.h
 
 ## from luatexdir/dvi
 ##
-luatex_dvi_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/dvi $(ctangle)
+luatex_dvi_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/dvi $(ctangle)
 
 dvigen.c: ctangle$(EXEEXT) luatexdir/dvi/dvigen.w
 	$(luatex_dvi_ctangle) dvigen.w
@@ -42,7 +44,7 @@ libluatex_a_SOURCES += \
 
 ## from luatexdir/font
 ##
-luatex_font_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/font $(ctangle)
+luatex_font_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/font $(ctangle)
 
 dofont.c: ctangle$(EXEEXT) luatexdir/font/dofont.w
 	$(luatex_font_ctangle) dofont.w
@@ -115,7 +117,7 @@ libluatex_a_SOURCES += \
 
 ## from luatexdir/image
 ##
-luatex_image_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/image $(ctangle)
+luatex_image_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/image $(ctangle)
 
 writeimg.c: ctangle$(EXEEXT) luatexdir/image/writeimg.w
 	$(luatex_image_ctangle) writeimg.w
@@ -151,7 +153,7 @@ libluatex_a_SOURCES += \
 
 ## from luatexdir/lang
 ##
-luatex_lang_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/lang $(ctangle)
+luatex_lang_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/lang $(ctangle)
 
 hnjalloc.c: ctangle$(EXEEXT) luatexdir/lang/hnjalloc.w
 	$(luatex_lang_ctangle) hnjalloc.w
@@ -171,7 +173,7 @@ libluatex_a_SOURCES += \
 
 ## from luatexdir/lua
 ##
-luatex_lua_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/lua $(ctangle)
+luatex_lua_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/lua $(ctangle)
 
 luagen.c: ctangle$(EXEEXT) luatexdir/lua/luagen.w
 	$(luatex_lua_ctangle) luagen.w
@@ -215,7 +217,7 @@ libluatex_a_SOURCES += \
 
 ## from luatexdir/pdf
 ##
-luatex_pdf_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/pdf $(ctangle)
+luatex_pdf_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/pdf $(ctangle)
 
 pdfpagetree.c: ctangle$(EXEEXT) luatexdir/pdf/pdfpagetree.w
 	$(luatex_pdf_ctangle) pdfpagetree.w
@@ -307,7 +309,7 @@ libluatex_a_SOURCES += \
 
 ## from luatexdir/scripts
 ##
-luatex_luascripts_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/luascripts $(ctangle)
+luatex_luascripts_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/luascripts $(ctangle)
 
 txt2zlib.c: ctangle$(EXEEXT) luatexdir/luascripts/txt2zlib.w
 	$(luatex_luascripts_ctangle) txt2zlib.w
@@ -322,11 +324,11 @@ libluatex_web += \
 ## use instead the distributed luatexdir/luascripts/pdflua.c.
 if cross
 pdflua.c: luatexdir/luascripts/pdflua.c
-	rm -f pdflua.c
+	$(AM_V_GEN)rm -f pdflua.c; \
 	$(LN_S) $(srcdir)/luatexdir/luascripts/pdflua.c pdflua.c
 else !cross
 pdflua.c: txt2zlib$(EXEEXT) luatexdir/luascripts/pdflua.lua
-	./txt2zlib $(srcdir)/luatexdir/luascripts/pdflua.lua pdflua.c
+	$(AM_V_GEN)./txt2zlib $(srcdir)/luatexdir/luascripts/pdflua.lua pdflua.c && \
 	cmp -s pdflua.c $(srcdir)/luatexdir/luascripts/pdflua.c || \
 	  cp -f pdflua.c $(srcdir)/luatexdir/luascripts/pdflua.c
 endif !cross
@@ -338,7 +340,7 @@ libluatex_a_SOURCES += \
 
 ## from luatexdir/tex
 ##
-luatex_tex_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/tex $(ctangle)
+luatex_tex_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/tex $(ctangle)
 
 align.c: ctangle$(EXEEXT) luatexdir/tex/align.w
 	$(luatex_tex_ctangle) align.w
@@ -460,7 +462,7 @@ libluatex_a_SOURCES += \
 
 ## from luatexdir/utils
 ##
-luatex_utils_ctangle = CWEBINPUTS=$(srcdir)/luatexdir/utils $(ctangle)
+luatex_utils_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/utils $(ctangle)
 
 avlstuff.c: ctangle$(EXEEXT) luatexdir/utils/avlstuff.w
 	$(luatex_utils_ctangle) avlstuff.w

@@ -1,3 +1,58 @@
+2013-03-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-pkgs.m4 (KPSE_TEXK_PKGS): bibtex8+bibtexu -> bibtex-x.
+
+2013-03-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-cairo-flags.m4: Require cairo-1.12 or better.
+
+2013-01-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-common.m4: Enable subdir-objects.
+	* kpse-win32.m4: New macros KPSE_COND_* and KPSE_WIN32_CALL.
+
+2013-01-03  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-icu-flags.m4: Remove KPSE_ICU_XETEX_FLAGS since XeTeX can
+	now be built with unmodified ICU libraries.
+
+2013-01-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-setup.m4: The default is to disable silent rules.
+
+2012-12-24  Karl Berry  <karl@tug.org>
+
+	* kpse-pkgs.m4 (KPSE_UTILS_PKGS): add texdoctk.
+
+2012-12-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-freetype2-flags.m4: Only system lib uses freetype-config.
+	* kpse-icu-flags.m4: Only system lib uses icu-config.
+
+2012-12-16  Karl Berry  <karl@tug.org>
+
+	* kpse-pkgs.m4 (KPSE_TEXK_PKGS): no more tetex.
+
+2012-12-15  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-warnings.m4: Bug fix when KPSE_COMPILER_WARNINGS precedes
+	AC_PROG_CXX or similar.
+	* kpse-setup.m4: The default is to enable silent rules.
+	* kpse-common.m4: Factor out KPSE_BASIC from KPSE_COMMON and
+	enable silent rules.
+
+2012-12-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Add libs/graphite2 for future XeTeX.
+	* kpse-graphite2-flags.m4: New file.
+	* kpse-harfbuzz-flags.m4, kpse-pkgs.m4: Add the new library.
+
+2012-11-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Add libs/harfbuzz for future XeTeX.
+	* kpse-harfbuzz-flags.m4: New file.
+	* kpse-pkgs.m4: Add the new library.
+
 2012-11-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	Add libs/pixman and libs/cairo for future MetaPost.

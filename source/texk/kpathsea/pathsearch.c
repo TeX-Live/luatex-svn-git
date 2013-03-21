@@ -1,6 +1,6 @@
 /* pathsearch.c: look up a filename in a path.
 
-   Copyright 1993, 1994, 1995, 1997, 2007, 2009, 2010, 2011 Karl Berry.
+   Copyright 1993, 1994, 1995, 1997, 2007, 2009-2012 Karl Berry.
    Copyright 1997-2005 Olaf Weber.
 
    This library is free software; you can redistribute it and/or
@@ -157,8 +157,9 @@ dir_list_search (kpathsea kpse, str_llist_type *dirs,  const_string name,
   return ret;
 }
 
+/* Note: NAMES[i] is not modified.  */
 static str_list_type
-dir_list_search_list (kpathsea kpse, str_llist_type *dirs, const_string* names,
+dir_list_search_list (kpathsea kpse, str_llist_type *dirs, string* names,
                       boolean search_all)
 {
   str_llist_elt_type *elt;
@@ -405,12 +406,14 @@ search (kpathsea kpse, const_string path,  const_string original_name,
    Always return a list; if no files are found, the list will
    contain just NULL.  If ALL is true, the list will be
    terminated with NULL.  */
-static string *
-search_list (kpathsea kpse, const_string path, const_string* names,
-             boolean must_exist, boolean all)
+
+string *
+kpathsea_path_search_list_generic (kpathsea kpse,
+                                   const_string path, string* names,
+                                   boolean must_exist, boolean all)
 {
   str_list_type ret_list;
-  const_string* namep;
+  string* namep;
   string elt;
   boolean done = false;
   boolean all_absolute = true;
@@ -561,23 +564,10 @@ search_list (kpathsea kpse, const_string path, const_string* names,
 /* Search PATH for the first NAME according to MUST_EXIST.  */
 
 string
-kpathsea_path_search (kpathsea kpse, const_string path,  const_string name,
+kpathsea_path_search (kpathsea kpse, const_string path, const_string name,
                       boolean must_exist)
 {
   string *ret_list = search (kpse, path, name, must_exist, false);
-  string ret = *ret_list;
-  free (ret_list);
-  return ret;
-}
-
-/* Many inputs, return (more or less indeterminate) one matching string.  */
-
-string
-kpathsea_path_search_list (kpathsea kpse, const_string path,
-                           const_string* names, boolean must_exist)
-{
-  string *ret_list = kpathsea_path_search_list_generic (kpse, path, names,
-                                                        must_exist, false);
   string ret = *ret_list;
   free (ret_list);
   return ret;
@@ -587,32 +577,10 @@ kpathsea_path_search_list (kpathsea kpse, const_string path,
    to assert `must_exist' here, but it's too late to change.  */
 
 string *
-kpathsea_all_path_search (kpathsea kpse, const_string path,  const_string name)
+kpathsea_all_path_search (kpathsea kpse, const_string path, const_string name)
 {
     string *ret = search (kpse, path, name, true, true);
   return ret;
-}
-
-
-/* Many inputs, return list, allow specifying MUST_EXIST and ALL.  */
-
-string *
-kpathsea_path_search_list_generic (kpathsea kpse,
-                                   const_string path,  const_string* names,
-                                   boolean must_exist,  boolean all)
-{
-  string *ret = search_list (kpse, path, names, must_exist, all);
-  return ret;
-}
-
-
-/* Many inputs, return list, MUST_EXIST and ALL always true.  */
-
-string *
-kpathsea_all_path_search_list (kpathsea kpse, const_string path,
-                               const_string* names)
-{
-  return kpathsea_path_search_list_generic (kpse, path, names, true, true);
 }
 
 #if defined (KPSE_COMPAT_API)

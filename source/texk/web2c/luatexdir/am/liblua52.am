@@ -1,17 +1,24 @@
 ## texk/web2c/luatexdir/am/liblua52.am: Makefile fragment for liblua52.
 ##
-## Copyright (C) 2009 Peter Breitenlohner <tex-live@tug.org>
+## Copyright (C) 2009-2013 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 
 ## liblua52
 ##
 EXTRA_LIBRARIES += liblua52.a
 
-liblua52_a_CPPFLAGS = -I$(top_srcdir)/luatexdir/lua52
-if !MINGW32
+LUA_INCLUDES = -DLUA_COMPAT_MODULE -I$(top_srcdir)/luatexdir/lua52
+LUA_LIBS = liblua52.a
+LUA_DEPEND = liblua52.a
+
+liblua52_a_CPPFLAGS = $(LUA_INCLUDES)
+if !WIN32
 liblua52_a_CPPFLAGS += -DLUA_USE_POSIX
-endif !MINGW32
-liblua52_a_CFLAGS = # $(WARNING_CFLAGS)
+if USE_DLOPEN
+liblua52_a_CPPFLAGS += -DLUA_USE_DLOPEN
+endif USE_DLOPEN
+endif !WIN32
+liblua52_a_CFLAGS = $(WARNING_CFLAGS)
 
 liblua52_a_SOURCES = \
 	luatexdir/lua52/lapi.c \
@@ -61,8 +68,8 @@ liblua52_a_SOURCES = \
 	luatexdir/lua52/ltablib.c \
 	luatexdir/lua52/ltm.c \
 	luatexdir/lua52/ltm.h \
-	luatexdir/lua52/luaconf.h \
 	luatexdir/lua52/lua.h \
+	luatexdir/lua52/luaconf.h \
 	luatexdir/lua52/lualib.h \
 	luatexdir/lua52/lundump.c \
 	luatexdir/lua52/lundump.h \

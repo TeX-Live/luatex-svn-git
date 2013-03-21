@@ -1,3 +1,45 @@
+2013-03-21  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import LuaTeX beta-0.75.0 from LuaTeX repository (r4604).
+
+2013-03-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/luafontforge.am (EXTRA_DIST): Drop unused files.
+
+2013-03-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua52/*, am/liblua52.am (new): Add lua-5.2.1 for 0.75.0.
+
+2013-01-29  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/luatex.am: Allow subdir-objects.
+
+2013-01-19  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* pdf/pdftables.h: Support large files (from Martin).
+
+2013-01-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* luatex.c (mk_shellcmdlist): Simplify (sync with texmfmp.c).
+
+2013-01-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* pdf/pdfgen.w (write_stream_length): Cast length for printing.
+
+2012-12-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/libluatex.am (luatex_*_ctangle, pdflua.c):
+	Enable silent rules.
+
+2012-11-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua/lkpselib.c: Use kpse_readable_file() with non-const arg.
+
+2012-11-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua/lepdflib.cc: No need to test for Annot::decRefCnt with
+	poppler 0.18 or better.
+
 2012-11-06  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
 
 	* pdf/pdflistout.w: sync with r4471 (a bug fix by H. Henkel).

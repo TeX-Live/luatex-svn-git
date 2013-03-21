@@ -159,6 +159,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --enable-dump-share  \
     --enable-mp  \
     --enable-luatex  \
+    --without-system-harfbuzz \
     --without-system-ptexenc \
     --without-system-kpathsea \
     --without-system-poppler \

@@ -1,6 +1,6 @@
 % luastuff.w
 %
-% Copyright 2006-2012 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2013 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -523,13 +523,4 @@ void preset_environment(lua_State * L, const parm_struct * p, const char *s)
         lua_settable(L, -3);    /* t s */
     }
     lua_settable(L, LUA_REGISTRYINDEX); /* - */
-}
-
-@ @c
-int luaL_typerror (void *LL, int narg, const char *tname)
-{
-  lua_State *L = (lua_State *)LL;
-  const char *msg = lua_pushfstring(L, "%s expected, got %s",
-                                    tname, luaL_typename(L, narg));
-  return luaL_argerror(L, narg, msg);	
 }
