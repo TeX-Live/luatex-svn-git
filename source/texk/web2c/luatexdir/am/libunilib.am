@@ -25,7 +25,6 @@ libunilib_a_SOURCES = \
 	luatexdir/unilib/char.c \
 	luatexdir/unilib/cjk.c \
 	luatexdir/unilib/gwwiconv.c \
-	luatexdir/unilib/memory.c \
 	luatexdir/unilib/ucharmap.c \
 	luatexdir/unilib/unialt.c \
 	luatexdir/unilib/usprintf.c \

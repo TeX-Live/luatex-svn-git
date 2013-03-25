@@ -37,8 +37,6 @@
 #endif
 # include <w2c/config.h>
 #endif
-#define gfree ff_gfree
-#define grealloc ff_grealloc
 
 #include <stdio.h>		/* for NULL */
 #ifdef HAVE_STDINT_H
@@ -47,32 +45,14 @@
 # include <inttypes.h>
 #endif
 #include <stdlib.h>		/* for free */
-#include <limits.h>
 
-#define true 1
-#define false 0
+#define uint32 uint32_t
+#define int32 int32_t
+#define uint16 uint16_t
+#define int16 int16_t
+#define uint8 uint8_t
+#define int8 int8_t
 
-#define forever for (;;)
+typedef uint32_t unichar_t;
 
-typedef int32_t		int32;
-typedef uint32_t	uint32;
-typedef int16_t		int16;
-typedef uint16_t	uint16;
-typedef int8_t		int8;
-typedef uint8_t		uint8;
-
-	/* An integral type which can hold a pointer */
-typedef intptr_t	intpt;
-
-#ifdef UNICHAR_16
-typedef uint16 unichar_t;
-#else
-typedef uint32 unichar_t;
-#endif
-
-extern void *galloc(long size);
-extern void *gcalloc(int cnt, long size);
-extern void *grealloc(void *,long size);
-extern void gfree(void *);
-extern void galloc_set_trap(void (*)(void));
 #endif

@@ -41,6 +41,7 @@ libff_a_SOURCES = \
 	luatexdir/luafontloader/fontforge/fontforge/macbinary.c \
 	luatexdir/luafontloader/fontforge/fontforge/macenc.c \
 	luatexdir/luafontloader/fontforge/fontforge/mathconstants.c \
+	luatexdir/luafontloader/fontforge/fontforge/memory.c \
 	luatexdir/luafontloader/fontforge/fontforge/mm.c \
 	luatexdir/luafontloader/fontforge/fontforge/mm.h \
 	luatexdir/luafontloader/fontforge/fontforge/namelist.c \
