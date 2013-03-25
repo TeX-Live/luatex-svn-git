@@ -1694,7 +1694,6 @@ libluamisc_a_SOURCES = \
 EXTRA_libluamisc_a_SOURCES = luatexdir/slnunicode/slnudata.c
 libunilib_a_DEPENDENCIES = libluamisc.a
 libunilib_a_CPPFLAGS = $(AM_CPPFLAGS) \
-	-DUSE_OUR_MEMORY=1 \
 	-I$(top_srcdir)/w2c \
 	-I$(top_srcdir)/luatexdir/unilib
 
@@ -1722,6 +1721,7 @@ libunilib_a_SOURCES = \
 libff_a_DEPENDENCIES = libunilib.a
 libff_a_CPPFLAGS = $(AM_CPPFLAGS) $(LUA_INCLUDES) \
 	-DLUA_FF_LIB=1 -D_NO_PYTHON=1 -DX_DISPLAY_MISSING=1 \
+	-DUSE_OUR_MEMORY=1 \
 	-I$(top_srcdir)/w2c \
 	-I$(top_srcdir)/luatexdir/unilib \
 	-I$(top_srcdir)/luatexdir/luafontloader/fontforge/inc \

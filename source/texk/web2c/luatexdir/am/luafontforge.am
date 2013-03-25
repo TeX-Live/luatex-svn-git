@@ -13,6 +13,7 @@ $(libff_a_OBJECTS): $(libff_a_DEPENDENCIES)
 
 libff_a_CPPFLAGS = $(AM_CPPFLAGS) $(LUA_INCLUDES) \
 	-DLUA_FF_LIB=1 -D_NO_PYTHON=1 -DX_DISPLAY_MISSING=1 \
+	-DUSE_OUR_MEMORY=1 \
 	-I$(top_srcdir)/w2c \
 	-I$(top_srcdir)/luatexdir/unilib \
 	-I$(top_srcdir)/luatexdir/luafontloader/fontforge/inc \

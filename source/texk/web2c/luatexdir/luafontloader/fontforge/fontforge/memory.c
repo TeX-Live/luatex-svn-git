@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ustring.h"
+#include "basics.h"
 
 /* wrappers around standard memory routines so we can trap errors. */
 static void default_trap(void) {

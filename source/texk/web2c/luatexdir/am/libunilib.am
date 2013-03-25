@@ -12,7 +12,6 @@ libunilib_a_DEPENDENCIES = libluamisc.a
 $(libunilib_a_OBJECTS): $(libunilib_a_DEPENDENCIES)
 
 libunilib_a_CPPFLAGS = $(AM_CPPFLAGS) \
-	-DUSE_OUR_MEMORY=1 \
 	-I$(top_srcdir)/w2c \
 	-I$(top_srcdir)/luatexdir/unilib
 
