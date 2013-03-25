@@ -63,4 +63,7 @@ extern void *gcalloc(int cnt, long size);
 extern void *grealloc(void *,long size);
 extern void gfree(void *);
 extern void galloc_set_trap(void (*)(void));
+extern char *copy(const char *);
+extern char *copyn(const char *,long);
+
 #endif

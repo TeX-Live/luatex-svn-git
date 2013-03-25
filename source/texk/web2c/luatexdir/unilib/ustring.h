@@ -32,8 +32,6 @@
 #include <unibasics.h>
 #include <charset.h>
 
-extern char *copy(const char *);
-extern char *copyn(const char *,long);
 extern unichar_t *u_copy(const unichar_t*);
 extern unichar_t *u_copyn(const unichar_t*, long);
 extern unichar_t *u_copynallocm(const unichar_t *pt, long n, long m);

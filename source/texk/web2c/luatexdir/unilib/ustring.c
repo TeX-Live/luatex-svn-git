@@ -903,7 +903,7 @@ char* chomp( char* line ) {
 
 char *copytolower(const char *input)
 {
-    char* ret = copy(input);
+    char* ret = xstrdup(input);
     char* p = ret;
     for( ; *p; ++p ) {
 	*p = tolower(*p);

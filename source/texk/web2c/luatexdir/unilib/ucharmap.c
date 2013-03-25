@@ -432,7 +432,7 @@ return(false);
 return( to_unicode!=(iconv_t) (-1) );
 
     free(old_local_name);
-    old_local_name = copy(iconv_local_encoding_name);
+    old_local_name = xstrdup(iconv_local_encoding_name);
     to_utf8 = iconv_open("UTF-8",iconv_local_encoding_name);
     from_utf8 = iconv_open(iconv_local_encoding_name,"UTF-8");
 
@@ -634,7 +634,8 @@ char *utf82def_copy(const char *ufrom) {
 	return( to );
     }
 #endif
-    if ( local_encoding==e_utf8 ) return( copy( ufrom )); /* Well, that's easy */
+    if ( local_encoding==e_utf8 ) 
+       return( xstrdup( ufrom )); /* Well, that's easy */
     u2from = utf82u_copy(ufrom);
     ret = u2def_copy(u2from);
     free(u2from);
