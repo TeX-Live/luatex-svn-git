@@ -25,7 +25,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <basics.h>
+#include <unibasics.h>
 #include <gwwiconv.h>
 #include <charset.h>
 #include <chardata.h>

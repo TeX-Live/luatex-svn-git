@@ -205,6 +205,7 @@ include $(srcdir)/pdftexdir/am/pdftosrc.am
 include $(srcdir)/luatexdir/am/liblua52.am
 include $(srcdir)/luatexdir/am/luasocket.am
 include $(srcdir)/luatexdir/am/luamisc.am
+include $(srcdir)/luatexdir/am/libunilib.am
 include $(srcdir)/luatexdir/am/luafontforge.am
 include $(srcdir)/luatexdir/am/libluatex.am
 include $(srcdir)/luatexdir/am/luatex.am

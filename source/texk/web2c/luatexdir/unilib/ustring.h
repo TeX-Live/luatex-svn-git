@@ -29,7 +29,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <memory.h>
-#include <basics.h>
+#include <unibasics.h>
 #include <charset.h>
 
 extern char *copy(const char *);
