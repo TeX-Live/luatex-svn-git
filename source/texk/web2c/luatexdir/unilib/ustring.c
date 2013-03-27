@@ -685,7 +685,7 @@ return( val );
 
 char *utf8_idpb(char *utf8_text,uint32 ch) {
     /* Increment and deposit character */
-    if ( ch<0 || ch>=17*65536 )
+    if ( ch>=17*65536 )
 return( utf8_text );
 
     if ( ch<=127 )
