@@ -20,7 +20,6 @@ libunilib_a_CFLAGS = # $(WARNING_CFLAGS)
 libunilib_a_SOURCES = \
 	luatexdir/unilib/ArabicForms.c \
 	luatexdir/unilib/alphabet.c \
-	luatexdir/unilib/backtrns.c \
 	luatexdir/unilib/char.c \
 	luatexdir/unilib/cjk.c \
 	luatexdir/unilib/gwwiconv.c \

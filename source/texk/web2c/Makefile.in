@@ -439,7 +439,6 @@ libunilib_a_LIBADD =
 am_libunilib_a_OBJECTS =  \
 	luatexdir/unilib/libunilib_a-ArabicForms.$(OBJEXT) \
 	luatexdir/unilib/libunilib_a-alphabet.$(OBJEXT) \
-	luatexdir/unilib/libunilib_a-backtrns.$(OBJEXT) \
 	luatexdir/unilib/libunilib_a-char.$(OBJEXT) \
 	luatexdir/unilib/libunilib_a-cjk.$(OBJEXT) \
 	luatexdir/unilib/libunilib_a-gwwiconv.$(OBJEXT) \
@@ -1701,7 +1700,6 @@ libunilib_a_CFLAGS = # $(WARNING_CFLAGS)
 libunilib_a_SOURCES = \
 	luatexdir/unilib/ArabicForms.c \
 	luatexdir/unilib/alphabet.c \
-	luatexdir/unilib/backtrns.c \
 	luatexdir/unilib/char.c \
 	luatexdir/unilib/cjk.c \
 	luatexdir/unilib/gwwiconv.c \
@@ -2600,9 +2598,6 @@ luatexdir/unilib/libunilib_a-ArabicForms.$(OBJEXT):  \
 luatexdir/unilib/libunilib_a-alphabet.$(OBJEXT):  \
 	luatexdir/unilib/$(am__dirstamp) \
 	luatexdir/unilib/$(DEPDIR)/$(am__dirstamp)
-luatexdir/unilib/libunilib_a-backtrns.$(OBJEXT):  \
-	luatexdir/unilib/$(am__dirstamp) \
-	luatexdir/unilib/$(DEPDIR)/$(am__dirstamp)
 luatexdir/unilib/libunilib_a-char.$(OBJEXT):  \
 	luatexdir/unilib/$(am__dirstamp) \
 	luatexdir/unilib/$(DEPDIR)/$(am__dirstamp)
@@ -3114,7 +3109,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/slnunicode/$(DEPDIR)/libluamisc_a-slnunico.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/unilib/$(DEPDIR)/libunilib_a-ArabicForms.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/unilib/$(DEPDIR)/libunilib_a-alphabet.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/unilib/$(DEPDIR)/libunilib_a-backtrns.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/unilib/$(DEPDIR)/libunilib_a-char.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/unilib/$(DEPDIR)/libunilib_a-cjk.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/unilib/$(DEPDIR)/libunilib_a-gwwiconv.Po@am__quote@
@@ -6441,20 +6435,6 @@ luatexdir/unilib/libunilib_a-alphabet.obj: luatexdir/unilib/alphabet.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/unilib/alphabet.c' object='luatexdir/unilib/libunilib_a-alphabet.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libunilib_a_CPPFLAGS) $(CPPFLAGS) $(libunilib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/unilib/libunilib_a-alphabet.obj `if test -f 'luatexdir/unilib/alphabet.c'; then $(CYGPATH_W) 'luatexdir/unilib/alphabet.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/unilib/alphabet.c'; fi`
-
-luatexdir/unilib/libunilib_a-backtrns.o: luatexdir/unilib/backtrns.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libunilib_a_CPPFLAGS) $(CPPFLAGS) $(libunilib_a_CFLAGS) $(CFLAGS) -MT luatexdir/unilib/libunilib_a-backtrns.o -MD -MP -MF luatexdir/unilib/$(DEPDIR)/libunilib_a-backtrns.Tpo -c -o luatexdir/unilib/libunilib_a-backtrns.o `test -f 'luatexdir/unilib/backtrns.c' || echo '$(srcdir)/'`luatexdir/unilib/backtrns.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/unilib/$(DEPDIR)/libunilib_a-backtrns.Tpo luatexdir/unilib/$(DEPDIR)/libunilib_a-backtrns.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/unilib/backtrns.c' object='luatexdir/unilib/libunilib_a-backtrns.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libunilib_a_CPPFLAGS) $(CPPFLAGS) $(libunilib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/unilib/libunilib_a-backtrns.o `test -f 'luatexdir/unilib/backtrns.c' || echo '$(srcdir)/'`luatexdir/unilib/backtrns.c
-
-luatexdir/unilib/libunilib_a-backtrns.obj: luatexdir/unilib/backtrns.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libunilib_a_CPPFLAGS) $(CPPFLAGS) $(libunilib_a_CFLAGS) $(CFLAGS) -MT luatexdir/unilib/libunilib_a-backtrns.obj -MD -MP -MF luatexdir/unilib/$(DEPDIR)/libunilib_a-backtrns.Tpo -c -o luatexdir/unilib/libunilib_a-backtrns.obj `if test -f 'luatexdir/unilib/backtrns.c'; then $(CYGPATH_W) 'luatexdir/unilib/backtrns.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/unilib/backtrns.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/unilib/$(DEPDIR)/libunilib_a-backtrns.Tpo luatexdir/unilib/$(DEPDIR)/libunilib_a-backtrns.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/unilib/backtrns.c' object='luatexdir/unilib/libunilib_a-backtrns.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libunilib_a_CPPFLAGS) $(CPPFLAGS) $(libunilib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/unilib/libunilib_a-backtrns.obj `if test -f 'luatexdir/unilib/backtrns.c'; then $(CYGPATH_W) 'luatexdir/unilib/backtrns.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/unilib/backtrns.c'; fi`
 
 luatexdir/unilib/libunilib_a-char.o: luatexdir/unilib/char.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libunilib_a_CPPFLAGS) $(CPPFLAGS) $(libunilib_a_CFLAGS) $(CFLAGS) -MT luatexdir/unilib/libunilib_a-char.o -MD -MP -MF luatexdir/unilib/$(DEPDIR)/libunilib_a-char.Tpo -c -o luatexdir/unilib/libunilib_a-char.o `test -f 'luatexdir/unilib/char.c' || echo '$(srcdir)/'`luatexdir/unilib/char.c
