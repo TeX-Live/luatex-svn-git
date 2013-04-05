@@ -1,4 +1,4 @@
-% $Id: mpost.w 1767 2012-11-22 09:05:54Z taco $
+% $Id: mpost.w 1895 2013-03-27 11:17:17Z taco $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -1329,7 +1329,8 @@ main (int argc, char **argv)
       @<Show short help and exit@>;
     } else {
       if (!nokpse)
-        kpse_set_program_name("dvitomp", user_progname);  
+        kpse_set_program_name(argv[0],
+                          user_progname ? user_progname : "dvitomp"); 
       exit (mpost_run_dvitomp(dvi, mpx));
     }
   }
