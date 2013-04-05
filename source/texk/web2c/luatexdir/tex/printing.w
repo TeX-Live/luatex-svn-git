@@ -407,8 +407,9 @@ void tprint(const char *sss)
         i = 0;
     }
     if (doterm) {
-        while (*sss) {
-            int s = *sss++;
+        const unsigned char *ss = (const unsigned char *) sss;
+        while (*ss) {
+            int s = *ss++;
             if (needs_wrapping(s,term_offset) || s == newlinechar) {
                 buffer[i++] = '\n';
                 buffer[i++] = '\0';
