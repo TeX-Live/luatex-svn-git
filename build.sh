@@ -151,6 +151,7 @@ if [ "$ONLY_MAKE" = "FALSE" ]
 then
 TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --enable-cxx-runtime-hack \
+    --enable-silent-rules \
     --disable-all-pkgs \
     --disable-shared    \
     --disable-largefile \
