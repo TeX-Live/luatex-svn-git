@@ -1142,6 +1142,27 @@ static int lua_nodelib_tail_only(lua_State * L)
     return 1;
 }
 
+static int lua_nodelib_end_of_math(lua_State * L)
+{
+    halfword *n;
+    halfword t;
+    if (lua_isnil(L, 1))
+        return 1;               /* the nil itself */
+    n = check_isnode(L, 1);
+    t = *n;
+    if (t == null)
+        return 1;               /* the old userdata */
+    while (vlink(t) != null) {
+        t = vlink(t); /* skip first node */
+	if (t && type(t)==math_node) {
+           lua_nodelib_push_fast(L, t);
+           return 1;
+	}
+    }
+    lua_pushnil(L);
+    return 1;
+}
+
 
 /* a few utility functions for attribute stuff */
 
@@ -3150,6 +3171,7 @@ static const struct luaL_Reg nodelib_f[] = {
     {"current_attr", lua_nodelib_currentattr},
     {"dimensions", lua_nodelib_dimensions},
     {"do_ligature_n", lua_nodelib_do_ligature_n},
+    {"end_of_math", lua_nodelib_end_of_math},
     {"family_font", lua_nodelib_mfont},
     {"fields", lua_nodelib_fields},
     {"first_character", lua_nodelib_first_character},

@@ -194,6 +194,7 @@ size_t          T##_limit
 #  include "font/luatexfont.h"
 #  include "font/mapfile.h"
 #  include "utils/utils.h"
+#  include "utils/unistring.h"
 #  include "image/writejbig2.h"
 #  include "image/pdftoepdf.h"
 

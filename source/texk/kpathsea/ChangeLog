@@ -1,3 +1,76 @@
+2013-03-14  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (save_size): increase to 100000 (from 50000),
+	for perldoc-all.texi (http://www.gnu.org/software/perl/manual).
+
+2013-02-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (web2cdir): Change texmf => texmf-dist.
+
+2013-01-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Use KPSE_COND_MINGW32.
+
+2013-01-29  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* progname.c, types.h, win32lib.c, win32lib.h: Simplify win32_popen.
+
+2012-12-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (kpathsea.h): Enable silent rules.
+
+2012-12-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Resolve remaining const related problems.
+	* db.[ch] (kpathsea_db_search_list): Make arg3 non-const.
+	* pathsearch.[ch] (kpathsea_path_search_list_generic,
+	dir_list_search_list): Make arg3 non-const.
+	* tex-file.c: Remove casts 'string*' => 'const_string*'.
+	* readable.[ch] (kpathsea_readable_file): Make arg non-const.
+	Include code to truncate too-long filename components.
+
+	* truncate.[ch] (kpathsea_truncate_filename): Files removed.
+	* Makefile.am: Drop truncate.c and truncate.h.
+
+2012-12-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Somewhat disentangle path search functions.
+	* db.c (kpathsea_init_db):
+	Directly call kpathsea_path_search_list_generic()
+	instead of the kpathsea_all_path_search_list() wrapper.
+	* pathsearch.c: Rename the static function search_list() into
+	the non-static kpathsea_path_search_list_generic() and drop
+	the former kpathsea_path_search_list_generic() wrapper.
+	* pathsearch.[ch]: Drop the now unused *_path_search_list().
+
+2012-12-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Resolve some const related problems.
+	* str-list.[ch]: Add cstr_list_type and cstr_list_add() for
+	const strings.  Define [c]str_list_init() as static inline.
+	* kpathsea.c: Move definition of KPATHSEA_CAN_FREE from here ...
+	* hash.h: ... to here.
+	* hash.[ch]: Define hash_free() only if KPATHSEA_CAN_FREE!=0.
+	(hash_lookup): Change return type 'string*' => 'const_string*'.
+	* cnf.[ch] (kpathsea_cnf_get, kpse_cnf_get):
+	Change return type 'string*' => 'const_string*'.
+	* dir.c (kpathsea_dir_links): Adapt.
+	* rm-suffix.c (remove_suffix): Adapt.
+	* db.c, fontmap.c: Remove casts 'string*' => 'const_string*'.	
+
+2012-12-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mingw32.c: Remove look_for_cmd().
+
+2012-12-10  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* win32lib.c: remove look_for_cmd().
+
+2012-12-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mingw32.c (look_for_cmd): Do not compute unused value.
+	* win32lib.c (look_for_cmd, kpathsea_win32_popen): Same.
+
 2012-11-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* texmf.cnf: Increase main_memory, font_mem_size, hash_extra,

@@ -1,6 +1,6 @@
 ## texk/web2c/mplibdir/am/mplib.am: Makefile fragment for MetaPost.
 ##
-## Copyright (C) 2009-2012 Peter Breitenlohner <tex-live@tug.org>
+## Copyright (C) 2009-2013 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 
 ## MetaPost
@@ -18,10 +18,11 @@ endif MP
 EXTRA_PROGRAMS += mpost
 
 mpost_CPPFLAGS = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) -I$(srcdir)/mplibdir
+mpost_DEPENDENCIES = libmplib.a
 mpost_LDADD = libmplib.a $(KPATHSEA_LIBS) $(CAIRO_LIBS) $(PIXMAN_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS)
 
 call_mpost_CPPFLAGS = -DEXEPROG=\"mpost.exe\"
-call_mpost_SOURCES = $(srcdir)/../texlive/w32_wrapper/callexe.c
+nodist_call_mpost_SOURCES = callexe.c
 call_mpost_LDADD =
 
 .PHONY: install-mpost-links uninstall-mpost-links
@@ -35,9 +36,9 @@ uninstall-mpost-links:
 endif WIN32
 
 # Creating one file: just one rule
-mp_ctangle = CWEBINPUTS=$(srcdir)/mplibdir $(ctangle)
+mp_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/mplibdir $(ctangle)
 # Creating several files: need stamp file and two rules with identical recipes
-mp_ctangle_sh = CWEBINPUTS=$(srcdir)/mplibdir $(SHELL) ./tangle-sh $@ $(CTANGLE)
+mp_ctangle_sh = CWEBINPUTS=$(srcdir)/mplibdir AM_V_P=$(AM_V_P) $(SHELL) ./tangle-sh $@ $(CTANGLE)
 
 ## MetaPost C sources
 nodist_mpost_SOURCES = mpost.c $(mpxout_c_h)
@@ -81,13 +82,5 @@ mptrap.diffs: mpost$(EXEEXT)
 	$(triptrap_diffs) $@
 .PHONY: mptrap-clean
 mptrap-clean:
-	rm -f mtrap.mp mtrap.mem trapf.tfm
-	rm -f mtrap.log mtrap.0 mtrap.1 writeo writeo.log writeo.2
-	rm -f trap.mp trap.mpx mptrapin.fot mptrapin.log
-	rm -f mptrap.fot mptrap.log mptrap.tfm
-	rm -f trap.ps trap.mem trap.0 trap.5 trap.6 trap.95 trap.96 trap.97
-	rm -f trap.98 trap.99 trap.100 trap.101 trap.102 trap.103 trap.104
-	rm -f trap.105 trap.106 trap.107 trap.108 trap.109 trap.148
-	rm -f trap.149 trap.150 trap.151 trap.197 trap.200
-	rm -f mptrap.pl
+	rm -rf mptrapdir
 

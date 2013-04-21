@@ -209,40 +209,31 @@ mk_shellcmdlist (char *v)
 {
   char **p;
   char *q, *r;
-  int  n;
+  size_t n;
 
   q = v;
-  n = 0;
+  n = 1;
 
 /* analyze the variable shell_escape_commands = foo,bar,...
    spaces before and after (,) are not allowed. */
 
   while ((r = strchr (q, ',')) != 0) {
     n++;
-    r++;
-    q = r;
+    q = r + 1;
   }
   if (*q)
     n++;
-  cmdlist = xmalloc ((n + 1) * sizeof (char *));
+  cmdlist = xmalloc (n * sizeof (char *));
   p = cmdlist;
   q = v;
   while ((r = strchr (q, ',')) != 0) {
     *r = '\0';
-    *p = xmalloc (strlen (q) + 1);
-    strcpy (*p, q);
-    *r = ',';
-    r++;
-    q = r;
-    p++;
+    *p++ = xstrdup (q);
+    q = r + 1;
   }
-  if (*q) {
-    *p = xmalloc (strlen (q) + 1);
-    strcpy (*p, q);
-    p++;
-    *p = NULL;
-  } else
-    *p = NULL;
+  if (*q)
+    *p++ = xstrdup (q);
+  *p = NULL;
 }
 
 static void
@@ -1927,6 +1918,48 @@ open_in_or_pipe (FILE **f_ptr, int filefmt, const_string fopen_mode)
     return open_input(f_ptr,filefmt,fopen_mode) ;
 }
 
+#ifdef XeTeX
+boolean
+u_open_in_or_pipe(unicodefile* f, integer filefmt, const_string fopen_mode, integer mode, integer encodingData)
+{
+    string fname = NULL;
+    int i; /* iterator */
+
+    /* opening a read pipe is straightforward, only have to
+       skip past the pipe symbol in the file name. filename
+       quoting is assumed to happen elsewhere (it does :-)) */
+
+    if (shellenabledp && *(nameoffile+1) == '|') {
+      /* the user requested a pipe */
+      *f = malloc(sizeof(UFILE));
+      (*f)->encodingMode = (mode == AUTO) ? UTF8 : mode;
+      (*f)->conversionData = 0;
+      (*f)->savedChar = -1;
+      (*f)->skipNextLF = 0;
+      (*f)->f = NULL;
+      fname = xmalloc(strlen((const_string)(nameoffile+1))+1);
+      strcpy(fname,(const_string)(nameoffile+1));
+      recorder_record_input (fname + 1);
+      (*f)->f = runpopen(fname+1,"r");
+      free(fname);
+      for (i=0; i<NUM_PIPES; i++) {
+        if (pipes[i]==NULL) {
+          pipes[i] = (*f)->f;
+          break;
+        }
+      }
+      if ((*f)->f)
+        setvbuf ((*f)->f,NULL,_IONBF,0);
+#ifdef WIN32
+      Poptr = (*f)->f;
+#endif
+
+      return (*f)->f != NULL;
+    }
+
+    return u_open_in(f, filefmt, fopen_mode, mode, encodingData);
+}
+#endif
 
 boolean
 open_out_or_pipe (FILE **f_ptr, const_string fopen_mode)

@@ -28,79 +28,12 @@ static const char _svn_version[] =
 
 @ Low-level helpers 
 
-@c
-#define ex_hyphen_char int_par(ex_hyphen_char_code)
-static char *uni2string(char *utf8_text, unsigned ch)
-{
-    /* Increment and deposit character */
-    if (ch >= 17 * 65536)
-        return (utf8_text);
-
-    if (ch <= 127)
-        *utf8_text++ = (char) ch;
-    else if (ch <= 0x7ff) {
-        *utf8_text++ = (char) (0xc0 | (ch >> 6));
-        *utf8_text++ = (char) (0x80 | (ch & 0x3f));
-    } else if (ch <= 0xffff) {
-        *utf8_text++ = (char) (0xe0 | (ch >> 12));
-        *utf8_text++ = (char) (0x80 | ((ch >> 6) & 0x3f));
-        *utf8_text++ = (char) (0x80 | (ch & 0x3f));
-    } else {
-        unsigned val = ch - 0x10000;
-        unsigned u = ((val & 0xf0000) >> 16) + 1, z = (val & 0x0f000) >> 12, y =
-            (val & 0x00fc0) >> 6, x = val & 0x0003f;
-        *utf8_text++ = (char) (0xf0 | (u >> 2));
-        *utf8_text++ = (char) (0x80 | ((u & 3) << 4) | z);
-        *utf8_text++ = (char) (0x80 | y);
-        *utf8_text++ = (char) (0x80 | x);
-    }
-    return (utf8_text);
-}
-
-static unsigned u_length(register unsigned int *str)
-{
-    register unsigned len = 0;
-    while (*str++ != '\0')
-        ++len;
-    return (len);
-}
-
-
-static void utf82u_strcpy(unsigned int *ubuf, const char *utf8buf)
-{
-    int len = (int) strlen(utf8buf) + 1;
-    unsigned int *upt = ubuf, *uend = ubuf + len - 1;
-    const unsigned char *pt = (const unsigned char *) utf8buf, *end =
-        pt + strlen(utf8buf);
-    int w, w2;
-
-    while (pt < end && *pt != '\0' && upt < uend) {
-        if (*pt <= 127)
-            *upt = *pt++;
-        else if (*pt <= 0xdf) {
-            *upt = (unsigned int) (((*pt & 0x1f) << 6) | (pt[1] & 0x3f));
-            pt += 2;
-        } else if (*pt <= 0xef) {
-            *upt =
-                (unsigned int) (((*pt & 0xf) << 12) | ((pt[1] & 0x3f) << 6) |
-                                (pt[2] & 0x3f));
-            pt += 3;
-        } else {
-            w = (((*pt & 0x7) << 2) | ((pt[1] & 0x30) >> 4)) - 1;
-            w = (w << 6) | ((pt[1] & 0xf) << 2) | ((pt[2] & 0x30) >> 4);
-            w2 = ((pt[2] & 0xf) << 6) | (pt[3] & 0x3f);
-            *upt = (unsigned int) (w * 0x400 + w2 + 0x10000);
-            pt += 4;
-        }
-        ++upt;
-    }
-    *upt = '\0';
-}
-
 @ @c
 #define noVERBOSE
 
 #define MAX_TEX_LANGUAGES  16384
+
+#define ex_hyphen_char int_par(ex_hyphen_char_code)
 
 static struct tex_language *tex_languages[MAX_TEX_LANGUAGES] = { NULL };
 
@@ -272,7 +205,7 @@ const char *clean_hyphenation(const char *buff, char **cleaned)
     }
     /* now convert the input to unicode */	
     word[i] = '\0';
-    utf82u_strcpy(uword, (const char *)word);
+    utf2uni_strcpy(uword, (const char *)word);
 
     /* build the new word string */
     i = 0;
@@ -636,7 +569,7 @@ static void do_exception(halfword wordstart, halfword r, char *replacement)
     int clang;
     lang_variables langdata;
     unsigned uword[MAX_WORD_LEN + 1] = { 0 };
-    utf82u_strcpy(uword, replacement);
+    utf2uni_strcpy(uword, replacement);
     len = u_length(uword);
     i = 0;
     t = wordstart;

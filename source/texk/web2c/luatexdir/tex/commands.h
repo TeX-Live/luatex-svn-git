@@ -262,6 +262,7 @@ typedef enum {
     eTeX_revision_code,         /* command code for \.{\\eTeXrevision} */
     font_identifier_code,       /* command code for \.{tex.fontidentifier} (virtual) */
     font_id_code,               /* command code for \.{\\fontid} */
+    uchar_code,                 /* command code for \.{\\Uchar} */
 } convert_codes;
 
 typedef enum {

@@ -43,11 +43,16 @@
 #define DB_NAME_LC "ls-r"
 #endif
 
-/* read ls-R only on WIN32 */
-static const_string db_names[] = {
-    DB_NAME,
+static char db_name[] = DB_NAME;
 #ifndef WIN32
-    DB_NAME_LC,
+static char db_name_lc[] = DB_NAME_LC;
+#endif
+
+/* read ls-R only on WIN32 */
+static string db_names[] = {
+    db_name,
+#ifndef WIN32
+    db_name_lc,
 #endif
     NULL
 };
@@ -383,7 +388,7 @@ kpathsea_init_db (kpathsea kpse)
   assert (sizeof(DB_NAME) == sizeof(DB_NAME_LC));
 
   db_path = kpathsea_init_format (kpse, kpse_db_format);
-  db_files = kpathsea_all_path_search_list (kpse, db_path, db_names);
+  db_files = kpathsea_path_search_list_generic (kpse, db_path, db_names, true, true);
   orig_db_files = db_files;
 
   /* Must do this after the path searching (which ends up calling
@@ -435,7 +440,7 @@ str_list_type *
 kpathsea_db_search (kpathsea kpse, const_string name,
                     const_string orig_path_elt, boolean all)
 {
-  string *db_dirs, *orig_dirs;
+  const_string *db_dirs, *orig_dirs;
   const_string last_slash, path_elt;
   string temp_str = NULL;
   boolean done;
@@ -480,7 +485,7 @@ kpathsea_db_search (kpathsea kpse, const_string name,
 
   /* If we have aliases for this name, use them.  */
   if (kpse->alias_db.buckets)
-    aliases = (const_string *) hash_lookup (kpse->alias_db, name);
+    aliases = hash_lookup (kpse->alias_db, name);
   else
     aliases = NULL;
 
@@ -583,10 +588,10 @@ kpathsea_db_search (kpathsea kpse, const_string name,
 }
 
 str_list_type *
-kpathsea_db_search_list (kpathsea kpse, const_string* names,
+kpathsea_db_search_list (kpathsea kpse, string* names,
                          const_string path_elt, boolean all)
 {
-  string *db_dirs, *orig_dirs;
+  const_string *db_dirs, *orig_dirs;
   const_string last_slash, name, path;
   string temp_str = NULL;
   boolean done;
@@ -645,7 +650,7 @@ kpathsea_db_search_list (kpathsea kpse, const_string* names,
 
       /* If we have aliases for this name, use them.  */
       if (kpse->alias_db.buckets)
-          aliases = (const_string *) hash_lookup (kpse->alias_db, name);
+          aliases = hash_lookup (kpse->alias_db, name);
       else
           aliases = NULL;
 

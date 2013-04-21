@@ -468,10 +468,12 @@ static Token *_parseOperator (scannerdata *self, int c)
   if (strcmp(found,"false") == 0) {
     Token *token = new_operand(pdf_boolean);
     token->value = 0;
+    free(found);
     return token;
   } else if (strcmp(found,"true") == 0) {
     Token *token = new_operand(pdf_boolean);
     token->value = 1.0;
+    free(found);
     return token;
   } else {
     Token *token = new_operand(pdf_operator);

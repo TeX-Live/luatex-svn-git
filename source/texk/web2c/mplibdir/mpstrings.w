@@ -1,4 +1,4 @@
-% $Id: mpstrings.w 1864 2013-02-17 13:20:58Z taco $
+% $Id: mpstrings.w 1702 2012-09-27 10:31:30Z taco $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.

@@ -63,7 +63,7 @@ MACCROSS=FALSE
 JOBS_IF_PARALLEL=${JOBS_IF_PARALLEL:-3}
 MAX_LOAD_IF_PARALLEL=${MAX_LOAD_IF_PARALLEL:-2}
 
-CFLAGS="$CFLAGS -Wdeclaration-after-statement"
+CFLAGS="$CFLAGS"
 
 until [ -z "$1" ]; do
   case "$1" in
@@ -151,6 +151,7 @@ if [ "$ONLY_MAKE" = "FALSE" ]
 then
 TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --enable-cxx-runtime-hack \
+    --enable-silent-rules \
     --disable-all-pkgs \
     --disable-shared    \
     --disable-largefile \
@@ -159,6 +160,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --enable-dump-share  \
     --enable-mp  \
     --enable-luatex  \
+    --without-system-harfbuzz \
     --without-system-ptexenc \
     --without-system-kpathsea \
     --without-system-poppler \

@@ -75,13 +75,6 @@ static unsigned char *hnj_strdup(const unsigned char *s)
     return new;
 }
 
-static int is_utf8_follow(unsigned char c)
-{
-    if (c >= 0x80 && c < 0xC0)
-        return 1;
-    return 0;
-}
-
 @* Type definitions.
 
 @ a little bit of a hash table implementation. This simply maps strings

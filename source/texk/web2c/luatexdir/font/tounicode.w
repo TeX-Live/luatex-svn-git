@@ -174,27 +174,6 @@ static long check_unicode_value(char *s, boolean multiple_value)
     return code;
 }
 
-@ @c
-static char *utf16be_str(long code)
-{
-    static char buf[SMALL_BUF_SIZE];
-    long v;
-    unsigned vh, vl;
-
-    assert(code >= 0);
-
-    if (code <= 0xFFFF)
-        sprintf(buf, "%04lX", code);
-    else {
-        v = code - 0x10000;
-        vh = (unsigned) (v / 0x400 + 0xD800);
-        vl = (unsigned) (v % 0x400 + 0xDC00);
-        sprintf(buf, "%04X%04X", vh, vl);
-    }
-    return buf;
-}
-
-
 @ This function set proper values to |*gp| based on |s|; in case it returns
  |gp->code == UNI_EXTRA_STRING| then the caller is responsible for freeing
  |gp->unicode_seq| too.

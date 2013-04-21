@@ -3218,7 +3218,6 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
     int t_subtype;              /* the effective |subtype| of noad |q| during the second pass */
     pointer p, x, y, z;         /* temporary registers for list construction */
     int pen;                    /* a penalty to be inserted */
-    int s;                      /* the size of a noad to be deleted */
     scaled max_hl, max_d;       /* maximum height and depth of the list translated so far */
     scaled delta;               /* italic correction offset for subscript and superscript */
     scaled cur_mu;              /* the math unit width corresponding to |cur_size| */
@@ -3483,7 +3482,6 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
            sets up default values so that most of the branches are short. */
         t = simple_noad;
         t_subtype = ord_noad_type;
-        s = noad_size;
         pen = inf_penalty;
         switch (type(q)) {
         case simple_noad:
@@ -3502,15 +3500,12 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
                 break;
             }
         case radical_noad:
-            s = radical_noad_size;
             break;
         case accent_noad:
-            s = accent_noad_size;
             break;
         case fraction_noad:
             t = simple_noad;
             t_subtype = inner_noad_type;
-            s = fraction_noad_size;
             break;
         case fence_noad:
             t_subtype = make_left_right(q, style, max_d, max_hl);
@@ -3518,7 +3513,6 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
         case style_node:
             /* Change the current style and |goto delete_q| */
             cur_style = subtype(q);
-            s = style_node_size;
             setup_cur_size(cur_style);
             cur_mu = x_over_n(get_math_quad(cur_size), 18);
             goto DELETE_Q;

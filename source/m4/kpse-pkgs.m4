@@ -24,15 +24,25 @@
 AC_DEFUN([KPSE_LIBS_PKGS],
 [dnl generic libraries 'libs/*'
 m4_define([kpse_libs_pkgs], [
+harfbuzz
+icu
+teckit
+graphite2
 zziplib
+xpdf
 poppler
 cairo
 pixman
+gd
+freetype2
+freetype
+t1lib
 libpng
 zlib
 ])[]dnl
 dnl TeX specific libraries
 m4_define([kpse_texlibs_pkgs], [
+ptexenc
 kpathsea
 ])]) # KPSE_LIBS_PKGS
 
@@ -55,6 +65,10 @@ AC_REQUIRE([KPSE_CAIRO_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_XPDF_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_POPPLER_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_ZZIPLIB_SYSTEM_FLAGS])[]dnl
+AC_REQUIRE([KPSE_GRAPHITE2_SYSTEM_FLAGS])[]dnl
+AC_REQUIRE([KPSE_TECKIT_SYSTEM_FLAGS])[]dnl
+AC_REQUIRE([KPSE_ICU_SYSTEM_FLAGS])[]dnl
+AC_REQUIRE([KPSE_HARFBUZZ_SYSTEM_FLAGS])[]dnl
 ]) # KPSE_ALL_SYSTEM_FLAGS
 
 # KPSE_UTILS_PKGS()
@@ -62,6 +76,17 @@ AC_REQUIRE([KPSE_ZZIPLIB_SYSTEM_FLAGS])[]dnl
 # Define the list of utility sub-packages, i.e., subdirs 'utils/*'.
 AC_DEFUN([KPSE_UTILS_PKGS],
 [m4_define([kpse_utils_pkgs], [
+biber
+m-tx
+pmx
+ps2eps
+psutils
+t1utils
+texdoctk
+tpic2pdftex
+vlna
+xindy
+xpdfopen
 ])]) # KPSE_UTILS_PKGS
 
 # KPSE_TEXK_PKGS()
@@ -71,6 +96,36 @@ AC_DEFUN([KPSE_UTILS_PKGS],
 AC_DEFUN([KPSE_TEXK_PKGS],
 [m4_define([kpse_texk_pkgs], [
 web2c
+afm2pl
+bibtex-x
+chktex
+cjkutils
+detex
+devnag
+dtl
+dvi2tty
+dvidvi
+dviljk
+dvipdfmx
+dvipng
+dvipos
+dvipsk
+dvisvgm
+gsftopk
+lacheck
+lcdf-typetools
+makeindexk
+makejvf
+mendexk
+ps2pkm
+seetexk
+tex4htk
+ttf2pk
+ttf2pk2
+ttfdump
+xdv2pdf
+xdvik
+xdvipdfmx
 texlive
 ])]) # KPSE_TEXK_PKGS
 

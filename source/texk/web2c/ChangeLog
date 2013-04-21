@@ -1,3 +1,80 @@
+2013-03-21  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Reorder included Makefile fragments and drop the
+	obsolete luatexdir/am/liblua51.am.
+	* ac/web2c.ac: MetaPost now uses cairo.
+
+2013-03-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Add luatexdir/am/liblua52.am for LuaTeX 0.75.0.
+	* configure.ac: New conditional USE_DLOPEN.
+
+2013-03-11  Karl Berry  <karl@tug.org>
+
+	* doc/web2c.texi (Initial TeX, Initial Metafont): initex
+	and inimf are present again (as of 2011).  Report from Uwe Lueck.
+
+2013-03-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* triptrap-sh: Drop duplicate header msg.
+
+2013-02-15  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Avoid spurious failures of parallel tests.
+	* pbibtex-longline-test.pl: Use longline.bib from source tree.
+
+	* bibtex-openout-test.pl: Fix the input file location.
+
+2013-01-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/texmf.am: Allow subdir-objects.
+	* configure.ac: Use KPSE_COND_MINGW32 and KPSE_WIN32_CALL.
+
+2013-01-25  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Drop useless AC_TYPE_LONG_LONG_INT.
+
+2013-01-15  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am, am/texmf.am, configure.ac, trap.test, trip.test,
+	triptrap-sh: Enable parallel-tests.
+
+2013-01-10  Khaled Hosny  <khaledhosny@eglug.org>
+
+	* configure.ac: Check if system has stdbool.h
+
+2013-01-06  Khaled Hosny  <khaledhosny@eglug.org>
+
+	* texmfmp.h [XeTeX]: Support input pipes.
+
+2013-01-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Check for hstrerror() needed by luaTeX.
+
+2013-01-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Check if system defines and declares strndup().
+
+2013-01-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.h [XeTeX]: We must #include <zlib.h> and
+	<teckit/TECkit_Common.h> before "XeTeX_ext.h" to avoid typedef
+	duplications.
+
+2013-01-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am, am/bootstrap.am, am/cweb.am: Do not distribute
+	output from parallel-tests.
+	* configure.ac: Temporarily disable parallel-tests.
+
+2012-12-17  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* silent-sh: New shell script for some silent rules.
+	* configure.ac: Create silent-sh.
+	* Makefile.am (makecpool, tangle, tangleboot, ctangle, tie),
+	am/bootstrap.am, am/cweb.am, ctangleboot-sh.in, tangle-sh.in,
+	web2c-sh.in: Enable silent rules.
+
 2012-12-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* w2c/config.h [MinGW32]: Define LONGINTEGER_{TYPE ,PRI} as for

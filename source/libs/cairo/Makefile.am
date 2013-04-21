@@ -56,7 +56,6 @@ libcairo.la: cairo-build/Makefile
 	  && $(MAKE) $(AM_MAKEFLAGS) install
 	sleep 1
 	@for f in libcairo.*; do touch $$f; done
-	$(RANLIB) libcairo.a
 
 clean-local:
 	rm -rf cairo-* cairo libcairo* pkgconfig

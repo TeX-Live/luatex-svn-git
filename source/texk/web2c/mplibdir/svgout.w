@@ -1,4 +1,4 @@
-% $Id: svgout.w 1864 2013-02-17 13:20:58Z taco $
+% $Id: svgout.w 1897 2013-04-05 08:43:40Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -61,6 +61,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "mplib.h"
 #include "mplibps.h" /* external header */
 #include "mplibsvg.h" /* external header */
@@ -804,8 +805,8 @@ static void mp_svg_font_path_out (MP mp, mp_gr_knot h) {
 
 @d do_mark(A,B) do {
    if (mp_chars == NULL) {
-     mp_chars = mp_xmalloc(mp, mp->font_max, sizeof(int *));
-     memset(mp_chars, 0, (mp->font_max * sizeof(int *)));
+     mp_chars = mp_xmalloc(mp, mp->font_max+1, sizeof(int *));
+     memset(mp_chars, 0, ((mp->font_max+1) * sizeof(int *)));
    }
    if (mp_chars[(A)] == NULL) {
      int *glfs =  mp_xmalloc(mp, 256, sizeof(int));
@@ -841,7 +842,7 @@ void mp_svg_print_glyph_defs (MP mp, mp_edge_object *h) {
   }
   if (mp_chars != NULL) {
     mp_svg_starttag(mp,"defs");
-    for (k=0;k<(int)mp->font_max;k++) {
+    for (k=0;k<=(int)mp->font_max;k++) {
        if (mp_chars[k] != NULL ) {
           double scale; /* the next gives rounding errors */
           double ds,dx,sk;
@@ -864,9 +865,9 @@ void mp_svg_print_glyph_defs (MP mp, mp_edge_object *h) {
                }
                mp_svg_open_starttag(mp,"g");
                append_string("scale(");
-               mp_svg_store_double(mp,dx);
+               mp_svg_store_double(mp,dx/65536);
                append_char(',');
-               mp_svg_store_double(mp,ds);
+               mp_svg_store_double(mp,ds/65536);
                append_char(')');
                if (sk!=0) {
                   append_string(" skewX(");
@@ -1228,7 +1229,7 @@ int mp_svg_gr_ship_out (mp_edge_object *hh, int qprologues, int standalone) {
   }
   if (mp->history >= mp_fatal_error_stop ) return 1;
   mp_open_output_file(mp);
-  if ( (qprologues>=1) && (mp->last_ps_fnum==0) )
+  if ( (qprologues>=1) && (mp->last_ps_fnum==0) && mp->last_fnum>0)
     mp_read_psname_table(mp);
   /* The next seems counterintuitive, but calls from |mp_svg_ship_out|
    * set standalone to true, and because embedded use is likely, it is 
