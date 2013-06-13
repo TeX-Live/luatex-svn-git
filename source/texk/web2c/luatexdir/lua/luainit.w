@@ -482,7 +482,7 @@ static char *cleaned_invocation_name(char *arg)
     char *ret, *dot;
     const char *start = xbasename(arg);
     ret = xstrdup(start);
-    dot = index(ret, '.');
+    dot = strrchr(ret, '.');
     if (dot != NULL) {
         *dot = 0;               /* chop */
     }
@@ -790,7 +790,7 @@ void lua_initialize(int ac, char **av)
 
     /* be 'luac' */
     if (argc > 1 &&
-        (STREQ(kpse_invocation_name, "texluac") ||
+        (FILESTRCASEEQ(kpse_invocation_name, "texluac") ||
          STREQ(argv[1], "--luaconly") || STREQ(argv[1], "--luac"))) {
         exit(luac_main(ac, av));
     }
