@@ -345,7 +345,7 @@ static void parse_options(int ac, char **av)
                  "the terms of the GNU General Public License, version 2. For more\n"
                  "information about these matters, see the file named COPYING and\n"
                  "the LuaTeX source.\n\n" 
-                 "Copyright 2011 Taco Hoekwater, the LuaTeX Team.\n");
+                 "Copyright 2013 Taco Hoekwater, the LuaTeX Team.\n");
             /* *INDENT-ON* */
             uexit(0);
         } else if (ARGUMENT_IS("credits")) {
@@ -776,7 +776,7 @@ void lua_initialize(int ac, char **av)
         banner = xmalloc(len);
         sprintf(banner, fmt, luatex_version_string, buf);
     } else {
-        const char *fmt = "This is LuaTeX, Version %s-%s " WEB2CVERSION "(rev %d)";
+        const char *fmt = "This is LuaTeX, Version %s-%s" WEB2CVERSION " (rev %d)";
         size_t len;
         char buf[16];
         sprintf(buf, "%d", luatex_date_info);
@@ -789,10 +789,13 @@ void lua_initialize(int ac, char **av)
     kpse_invocation_name = cleaned_invocation_name(argv[0]);
 
     /* be 'luac' */
-    if (argc > 1 &&
-        (FILESTRCASEEQ(kpse_invocation_name, "texluac") ||
-         STREQ(argv[1], "--luaconly") || STREQ(argv[1], "--luac"))) {
-        exit(luac_main(ac, av));
+    if (argc >1) {
+        if (FILESTRCASEEQ(kpse_invocation_name, "texluac"))
+            exit(luac_main(ac, av));
+        if (STREQ(argv[1], "--luaconly") || STREQ(argv[1], "--luac")) {
+            strcpy(av[1], "luatex");
+            exit(luac_main(--ac, ++av));
+        }
     }
 #if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
     mk_suffixlist();
