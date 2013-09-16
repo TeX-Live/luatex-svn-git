@@ -149,7 +149,7 @@ static char *uni_interp_enum[9] = {
 void handle_generic_pst(lua_State * L, struct generic_pst *pst);        /* forward */
 void handle_generic_fpst(lua_State * L, struct generic_fpst *fpst);     /* forward */
 void handle_generic_asm(lua_State * L, struct generic_asm *sm);
-void handle_kernclass(lua_State * L, struct kernclass *kerns);
+void handle_kernclass(lua_State * L, struct kernclass *kerns, const char *name);
 void handle_anchorclass(lua_State * L, struct anchorclass *anchor);
 void handle_splinefont(lua_State * L, struct splinefont *sf);
 void handle_kernpair(lua_State * L, struct kernpair *kp);
@@ -494,26 +494,29 @@ void dump_subtable_name(lua_State * L, char *name, struct lookup_subtable *s)
 
 #define NESTED_TABLE(a,b,c) {                                           \
     int k = 1;                                                          \
-    next = b;															\
+    next = b;								\
     while (next != NULL) {                                              \
-      lua_checkstack(L,2);												\
-      lua_pushnumber(L,k); k++;                                         \
-      lua_createtable(L,0,c);                                           \
-      a(L, next);                                                       \
-      lua_rawset(L,-3);                                                 \
-      next = next->next;                                                \
+	lua_checkstack(L,2);						\
+	lua_pushnumber(L,k); k++;					\
+	lua_createtable(L,0,c);						\
+	a(L, next);							\
+	lua_rawset(L,-3);						\
+	next = next->next;						\
     } }
 
 #define NESTED_TABLE_SF(a,b,c,d) {                                      \
     int k = 1;                                                          \
-    next = b;															\
+    next = b;								\
     while (next != NULL) {                                              \
-      lua_checkstack(L,2);												\
-      lua_pushnumber(L,k); k++;                                         \
-      lua_createtable(L,0,d);                                           \
-      a(L, next, c);                                                    \
-      lua_rawset(L,-3);                                                 \
-      next = next->next;                                                \
+	lua_checkstack(L,2);						\
+	lua_pushnumber(L,k); k++;					\
+	lua_createtable(L,0,d);						\
+	if (a(L, next, c))						\
+	    lua_rawset(L,-3);						\
+	else {								\
+	    lua_pop(L,2);						\
+	}								\
+	next = next->next;						\
     } }
 
 
@@ -589,7 +592,7 @@ void do_handle_lookup_subtable(lua_State * L, struct lookup_subtable *subtable)
 
     if (subtable->kc != NULL) {
         lua_newtable(L);
-        handle_kernclass(L, subtable->kc);
+        handle_kernclass(L, subtable->kc, subtable->subtable_name);
         lua_setfield(L, -2, "kernclass");
     }
 #if 0
@@ -615,7 +618,7 @@ void handle_lookup_subtable(lua_State * L, struct lookup_subtable *subtable)
     NESTED_TABLE(do_handle_lookup_subtable, subtable, 2);
 }
 
-void do_handle_lookup(lua_State * L, struct otlookup *lookup, SplineFont * sf)
+int do_handle_lookup(lua_State * L, struct otlookup *lookup, SplineFont * sf)
 {
     int mc;
 
@@ -679,7 +682,7 @@ void do_handle_lookup(lua_State * L, struct otlookup *lookup, SplineFont * sf)
     /* dump_intfield   (L,"lookup_offset",    lookup->lookup_offset); */
     /* dump_intfield   (L,"lookup_length",    lookup->lookup_length); */
     /* dump_stringfield(L,"tempname",         lookup->tempname); */
-
+    return 1;
 }
 
 void handle_lookup(lua_State * L, struct otlookup *lookup, SplineFont * sf)
@@ -1524,14 +1527,25 @@ void handle_ttf_table(lua_State * L, struct ttf_table *ttf_tab)
     NESTED_TABLE(do_handle_ttf_table, ttf_tab, 4);
 }
 
-void do_handle_kernclass(lua_State * L, struct kernclass *kerns)
+int do_handle_kernclass(lua_State * L, struct kernclass *kerns, const char *name)
 {
     int k;
-
-    /*
-     * dump_intfield(L,"first_cnt",       kerns->first_cnt);
-     * dump_intfield(L,"second_cnt",      kerns->second_cnt);
-     */
+    int match = 0;
+    if (name) {
+	struct lookup_subtable *s = kerns->subtable;
+	while (s != NULL) {
+	    if (strcmp(s->subtable_name,name)==0) {
+		match = 1;
+		break;
+	    }
+            s = s->next;
+	}
+    } else {
+	match = 1;
+    }
+    if (!match) {
+	return 0;
+    }
     lua_checkstack(L, 4);
     lua_createtable(L, kerns->first_cnt, 1);
     for (k = 0; k < kerns->first_cnt; k++) {
@@ -1549,8 +1563,9 @@ void do_handle_kernclass(lua_State * L, struct kernclass *kerns)
     }
     lua_setfield(L, -2, "seconds");
 
-    dump_subtable_name(L, "lookup", kerns->subtable);
-    /*dump_intfield(L,"kcid", kerns->kcid); *//* probably not needed */
+    if (!name) {
+	dump_subtable_name(L, "lookup", kerns->subtable);
+    }
 
     lua_createtable(L, kerns->second_cnt * kerns->first_cnt, 1);
     for (k = 0; k < (kerns->second_cnt * kerns->first_cnt); k++) {
@@ -1561,13 +1576,13 @@ void do_handle_kernclass(lua_State * L, struct kernclass *kerns)
         }
     }
     lua_setfield(L, -2, "offsets");
-
+    return 1;
 }
 
-void handle_kernclass(lua_State * L, struct kernclass *kerns)
+void handle_kernclass(lua_State * L, struct kernclass *kerns, const char *name)
 {
     struct kernclass *next;
-    NESTED_TABLE(do_handle_kernclass, kerns, 8);
+    NESTED_TABLE_SF(do_handle_kernclass, kerns, name, 8);
 }
 
 
@@ -2365,12 +2380,12 @@ void handle_splinefont(lua_State * L, struct splinefont *sf)
     }
     if (sf->kerns != NULL) {
         lua_newtable(L);
-        handle_kernclass(L, sf->kerns);
+        handle_kernclass(L, sf->kerns, NULL);
         lua_setfield(L, -2, "kerns");
     }
     if (sf->vkerns != NULL) {
         lua_newtable(L);
-        handle_kernclass(L, sf->vkerns);
+        handle_kernclass(L, sf->vkerns, NULL);
         lua_setfield(L, -2, "vkerns");
     }
     if (sf->gsub_lookups != NULL) {
@@ -3229,7 +3244,7 @@ static int ff_index(lua_State * L)
     case FK_kerns:
         if (sf->kerns != NULL) {
             lua_newtable(L);
-            handle_kernclass(L, sf->kerns);
+            handle_kernclass(L, sf->kerns, NULL);
         } else {
             lua_pushnil(L);
         }
@@ -3237,7 +3252,7 @@ static int ff_index(lua_State * L)
     case FK_vkerns:
         if (sf->vkerns != NULL) {
             lua_newtable(L);
-            handle_kernclass(L, sf->vkerns);
+            handle_kernclass(L, sf->vkerns, NULL);
         } else {
             lua_pushnil(L);
         }

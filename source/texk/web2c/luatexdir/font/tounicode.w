@@ -457,8 +457,8 @@ int write_tounicode(PDF pdf, char **glyph_names, char *name)
 int write_cid_tounicode(PDF pdf, fo_entry * fo, internal_font_number f)
 {
 
-    int range_size[65537];
-    glyph_unicode_entry gtab[65537];
+    static int range_size[65537];
+    static glyph_unicode_entry gtab[65537];
     int objnum;
     int i, j, k;
     int bfchar_count, bfrange_count, subrange_count;
