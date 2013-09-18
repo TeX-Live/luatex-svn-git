@@ -1,0 +1,122 @@
+>>> Running MPTRAP test for MetaPost.
+>>> See SRCDIR/triptrap/mptrap.diffs for example of acceptable diffs.
++ ./pltotf SRCDIR/triptrap/trapf.pl trapf.tfm
++ ln -s SRCDIR/triptrap/mtrap.mp .
++ ./mpost --progname=inimpost --ini mtrap
+This is MetaPost, version 1.211 (kpathsea version 6.0.0dev) (INIMP)
+(./mtrap.mp
++ diff SRCDIR/triptrap/mtrap.log mtrap.log
+1c1
+< This is MetaPost, version 1.203 (kpathsea version 3.5.7dev) (INIMP)  25 MAY 2009 12:47
+---
+> This is MetaPost, version 1.211 (kpathsea version 6.0.0dev) (INIMP)  18 MAY 2010 13:31
+929c929
+< >> "%%Creator: MetaPost 1.203"
+---
+> >> "%%Creator: MetaPost 1.211"
+978c978
+< >> "%%CreationDate: 2009.05.25:1247"
+---
+> >> "%%CreationDate: 2010.05.18:1331"
++ diff SRCDIR/triptrap/mtrap.0 mtrap.0
+4,5c4,5
+< %%Creator: MetaPost 1.203
+< %%CreationDate: 2009.05.25:1247
+---
+> %%Creator: MetaPost 1.211
+> %%CreationDate: 2010.05.18:1331
++ diff SRCDIR/triptrap/mtrap.1 mtrap.1
+4,5c4,5
+< %%Creator: MetaPost 1.203
+< %%CreationDate: 2009.05.25:1247
+---
+> %%Creator: MetaPost 1.211
+> %%CreationDate: 2010.05.18:1331
++ diff SRCDIR/triptrap/writeo writeo
++ diff SRCDIR/triptrap/writeo.2 writeo.2
++ ln -s SRCDIR/triptrap/trap.mp .
++ ln -s SRCDIR/triptrap/trap.mpx .
++ ./mpost --progname=inimpost --jobname=trap --ini
++ mv trap.log mptrapin.log
++ diff SRCDIR/triptrap/mptrapin.log mptrapin.log
+1c1
+< This is MetaPost, version 1.203 (kpathsea version 3.5.7dev) (INIMP)  25 MAY 2009 12:47
+---
+> This is MetaPost, version 1.211 (kpathsea version 6.0.0dev) (INIMP)  18 MAY 2010 13:31
+195c195
+<  (mem=trap 2009.05.25)
+---
+>  (mem=trap 2010.05.18)
++ ./mpost --progname=inimpost --jobname=trap --mem=trap
++ mv trap.log mptrap.log
++ mv trap.tfm mptrap.tfm
++ diff SRCDIR/triptrap/mptrap.fot mptrap.fot
+1c1
+< This is MetaPost, version 1.203 (kpathsea version 3.5.7dev)
+---
+> This is MetaPost, version 1.211 (kpathsea version 6.0.0dev)
++ diff SRCDIR/triptrap/mptrap.log mptrap.log
+1c1
+< This is MetaPost, version 1.203 (kpathsea version 3.5.7dev) (mem=trap 2009.06.02)  2 JUN 2009 22:19
+---
+> This is MetaPost, version 1.211 (kpathsea version 6.0.0dev) (mem=trap 2010.05.18)  18 MAY 2010 13:31
++ diff SRCDIR/triptrap/trap.5 trap.5
+4,5c4,5
+< %%Creator: MetaPost 1.203
+< %%CreationDate: 2009.06.02:2219
+---
+> %%Creator: MetaPost 1.211
+> %%CreationDate: 2010.05.18:1331
++ diff SRCDIR/triptrap/trap.6 trap.6
+4,5c4,5
+< %%Creator: MetaPost 1.203
+< %%CreationDate: 2009.06.02:2219
+---
+> %%Creator: MetaPost 1.211
+> %%CreationDate: 2010.05.18:1331
++ diff SRCDIR/triptrap/trap.148 trap.148
+4,5c4,5
+< %%Creator: MetaPost 1.203
+< %%CreationDate: 2009.06.02:2230
+---
+> %%Creator: MetaPost 1.211
+> %%CreationDate: 2010.05.18:1331
++ diff SRCDIR/triptrap/trap.149 trap.149
+4,5c4,5
+< %%Creator: MetaPost 1.203
+< %%CreationDate: 2009.06.02:2238
+---
+> %%Creator: MetaPost 1.211
+> %%CreationDate: 2010.05.18:1331
++ diff SRCDIR/triptrap/trap.150 trap.150
+4,5c4,5
+< %%Creator: MetaPost 1.203
+< %%CreationDate: 2009.06.02:2235
+---
+> %%Creator: MetaPost 1.211
+> %%CreationDate: 2010.05.18:1331
++ diff SRCDIR/triptrap/trap.151 trap.151
+4,5c4,5
+< %%Creator: MetaPost 1.203
+< %%CreationDate: 2009.06.02:2234
+---
+> %%Creator: MetaPost 1.211
+> %%CreationDate: 2010.05.18:1331
++ diff SRCDIR/triptrap/trap.197 trap.197
+4,5c4,5
+< %%Creator: MetaPost 1.203
+< %%CreationDate: 2009.06.02:2231
+---
+> %%Creator: MetaPost 1.211
+> %%CreationDate: 2010.05.18:1331
++ diff SRCDIR/triptrap/trap.200 trap.200
+4,5c4,5
+< %%Creator: MetaPost 1.203
+< %%CreationDate: 2009.06.02:2231
+---
+> %%Creator: MetaPost 1.211
+> %%CreationDate: 2010.05.18:1331
++ ./tftopl ./mptrap.tfm mptrap.pl
++ diff SRCDIR/triptrap/mptrap.pl mptrap.pl
++ exit 0
+PASS: mplibdir/mptrap.test
