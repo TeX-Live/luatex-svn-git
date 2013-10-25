@@ -222,6 +222,7 @@ am_libff_a_OBJECTS = luatexdir/luafontloader/fontforge/fontforge/libff_a-autohin
 	luatexdir/luafontloader/fontforge/fontforge/libff_a-parsepfa.$(OBJEXT) \
 	luatexdir/luafontloader/fontforge/fontforge/libff_a-parsettf.$(OBJEXT) \
 	luatexdir/luafontloader/fontforge/fontforge/libff_a-parsettfatt.$(OBJEXT) \
+	luatexdir/luafontloader/fontforge/fontforge/libff_a-parsettfvar.$(OBJEXT) \
 	luatexdir/luafontloader/fontforge/fontforge/libff_a-psread.$(OBJEXT) \
 	luatexdir/luafontloader/fontforge/fontforge/libff_a-pua.$(OBJEXT) \
 	luatexdir/luafontloader/fontforge/fontforge/libff_a-python.$(OBJEXT) \
@@ -240,6 +241,7 @@ am_libff_a_OBJECTS = luatexdir/luafontloader/fontforge/fontforge/libff_a-autohin
 	luatexdir/luafontloader/fontforge/fontforge/libff_a-start.$(OBJEXT) \
 	luatexdir/luafontloader/fontforge/fontforge/libff_a-stemdb.$(OBJEXT) \
 	luatexdir/luafontloader/fontforge/fontforge/libff_a-tottf.$(OBJEXT) \
+	luatexdir/luafontloader/fontforge/fontforge/libff_a-tottfaat.$(OBJEXT) \
 	luatexdir/luafontloader/fontforge/fontforge/libff_a-tottfgpos.$(OBJEXT) \
 	luatexdir/luafontloader/fontforge/fontforge/libff_a-ttfspecial.$(OBJEXT) \
 	luatexdir/luafontloader/fontforge/gutils/libff_a-fsys.$(OBJEXT) \
@@ -1755,6 +1757,7 @@ libff_a_SOURCES = \
 	luatexdir/luafontloader/fontforge/fontforge/parsepfa.c \
 	luatexdir/luafontloader/fontforge/fontforge/parsettf.c \
 	luatexdir/luafontloader/fontforge/fontforge/parsettfatt.c \
+	luatexdir/luafontloader/fontforge/fontforge/parsettfvar.c \
 	luatexdir/luafontloader/fontforge/fontforge/pfaedit.h \
 	luatexdir/luafontloader/fontforge/fontforge/plugins.h \
 	luatexdir/luafontloader/fontforge/fontforge/psfont.h \
@@ -1781,6 +1784,7 @@ libff_a_SOURCES = \
 	luatexdir/luafontloader/fontforge/fontforge/stemdb.c \
 	luatexdir/luafontloader/fontforge/fontforge/stemdb.h \
 	luatexdir/luafontloader/fontforge/fontforge/tottf.c \
+	luatexdir/luafontloader/fontforge/fontforge/tottfaat.c \
 	luatexdir/luafontloader/fontforge/fontforge/tottfgpos.c \
 	luatexdir/luafontloader/fontforge/fontforge/ttf.h \
 	luatexdir/luafontloader/fontforge/fontforge/ttfspecial.c \
@@ -2128,6 +2132,9 @@ luatexdir/luafontloader/fontforge/fontforge/libff_a-parsettf.$(OBJEXT):  \
 luatexdir/luafontloader/fontforge/fontforge/libff_a-parsettfatt.$(OBJEXT):  \
 	luatexdir/luafontloader/fontforge/fontforge/$(am__dirstamp) \
 	luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/$(am__dirstamp)
+luatexdir/luafontloader/fontforge/fontforge/libff_a-parsettfvar.$(OBJEXT):  \
+	luatexdir/luafontloader/fontforge/fontforge/$(am__dirstamp) \
+	luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/$(am__dirstamp)
 luatexdir/luafontloader/fontforge/fontforge/libff_a-psread.$(OBJEXT):  \
 	luatexdir/luafontloader/fontforge/fontforge/$(am__dirstamp) \
 	luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/$(am__dirstamp)
@@ -2180,6 +2187,9 @@ luatexdir/luafontloader/fontforge/fontforge/libff_a-stemdb.$(OBJEXT):  \
 	luatexdir/luafontloader/fontforge/fontforge/$(am__dirstamp) \
 	luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/$(am__dirstamp)
 luatexdir/luafontloader/fontforge/fontforge/libff_a-tottf.$(OBJEXT):  \
+	luatexdir/luafontloader/fontforge/fontforge/$(am__dirstamp) \
+	luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/$(am__dirstamp)
+luatexdir/luafontloader/fontforge/fontforge/libff_a-tottfaat.$(OBJEXT):  \
 	luatexdir/luafontloader/fontforge/fontforge/$(am__dirstamp) \
 	luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/$(am__dirstamp)
 luatexdir/luafontloader/fontforge/fontforge/libff_a-tottfgpos.$(OBJEXT):  \
@@ -3043,6 +3053,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-parsepfa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-parsettf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-parsettfatt.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-parsettfvar.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-psread.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-pua.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-python.Po@am__quote@
@@ -3061,6 +3072,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-start.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-stemdb.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-tottf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-tottfaat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-tottfgpos.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-ttfspecial.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luafontloader/fontforge/gutils/$(DEPDIR)/libff_a-fsys.Po@am__quote@
@@ -3428,6 +3440,20 @@ luatexdir/luafontloader/fontforge/fontforge/libff_a-parsettfatt.obj: luatexdir/l
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(libff_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luafontloader/fontforge/fontforge/libff_a-parsettfatt.obj `if test -f 'luatexdir/luafontloader/fontforge/fontforge/parsettfatt.c'; then $(CYGPATH_W) 'luatexdir/luafontloader/fontforge/fontforge/parsettfatt.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontloader/fontforge/fontforge/parsettfatt.c'; fi`
 
+luatexdir/luafontloader/fontforge/fontforge/libff_a-parsettfvar.o: luatexdir/luafontloader/fontforge/fontforge/parsettfvar.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(libff_a_CFLAGS) $(CFLAGS) -MT luatexdir/luafontloader/fontforge/fontforge/libff_a-parsettfvar.o -MD -MP -MF luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-parsettfvar.Tpo -c -o luatexdir/luafontloader/fontforge/fontforge/libff_a-parsettfvar.o `test -f 'luatexdir/luafontloader/fontforge/fontforge/parsettfvar.c' || echo '$(srcdir)/'`luatexdir/luafontloader/fontforge/fontforge/parsettfvar.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-parsettfvar.Tpo luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-parsettfvar.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luafontloader/fontforge/fontforge/parsettfvar.c' object='luatexdir/luafontloader/fontforge/fontforge/libff_a-parsettfvar.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(libff_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luafontloader/fontforge/fontforge/libff_a-parsettfvar.o `test -f 'luatexdir/luafontloader/fontforge/fontforge/parsettfvar.c' || echo '$(srcdir)/'`luatexdir/luafontloader/fontforge/fontforge/parsettfvar.c
+
+luatexdir/luafontloader/fontforge/fontforge/libff_a-parsettfvar.obj: luatexdir/luafontloader/fontforge/fontforge/parsettfvar.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(libff_a_CFLAGS) $(CFLAGS) -MT luatexdir/luafontloader/fontforge/fontforge/libff_a-parsettfvar.obj -MD -MP -MF luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-parsettfvar.Tpo -c -o luatexdir/luafontloader/fontforge/fontforge/libff_a-parsettfvar.obj `if test -f 'luatexdir/luafontloader/fontforge/fontforge/parsettfvar.c'; then $(CYGPATH_W) 'luatexdir/luafontloader/fontforge/fontforge/parsettfvar.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontloader/fontforge/fontforge/parsettfvar.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-parsettfvar.Tpo luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-parsettfvar.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luafontloader/fontforge/fontforge/parsettfvar.c' object='luatexdir/luafontloader/fontforge/fontforge/libff_a-parsettfvar.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(libff_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luafontloader/fontforge/fontforge/libff_a-parsettfvar.obj `if test -f 'luatexdir/luafontloader/fontforge/fontforge/parsettfvar.c'; then $(CYGPATH_W) 'luatexdir/luafontloader/fontforge/fontforge/parsettfvar.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontloader/fontforge/fontforge/parsettfvar.c'; fi`
+
 luatexdir/luafontloader/fontforge/fontforge/libff_a-psread.o: luatexdir/luafontloader/fontforge/fontforge/psread.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(libff_a_CFLAGS) $(CFLAGS) -MT luatexdir/luafontloader/fontforge/fontforge/libff_a-psread.o -MD -MP -MF luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-psread.Tpo -c -o luatexdir/luafontloader/fontforge/fontforge/libff_a-psread.o `test -f 'luatexdir/luafontloader/fontforge/fontforge/psread.c' || echo '$(srcdir)/'`luatexdir/luafontloader/fontforge/fontforge/psread.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-psread.Tpo luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-psread.Po
@@ -3679,6 +3705,20 @@ luatexdir/luafontloader/fontforge/fontforge/libff_a-tottf.obj: luatexdir/luafont
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luafontloader/fontforge/fontforge/tottf.c' object='luatexdir/luafontloader/fontforge/fontforge/libff_a-tottf.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(libff_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luafontloader/fontforge/fontforge/libff_a-tottf.obj `if test -f 'luatexdir/luafontloader/fontforge/fontforge/tottf.c'; then $(CYGPATH_W) 'luatexdir/luafontloader/fontforge/fontforge/tottf.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontloader/fontforge/fontforge/tottf.c'; fi`
+
+luatexdir/luafontloader/fontforge/fontforge/libff_a-tottfaat.o: luatexdir/luafontloader/fontforge/fontforge/tottfaat.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(libff_a_CFLAGS) $(CFLAGS) -MT luatexdir/luafontloader/fontforge/fontforge/libff_a-tottfaat.o -MD -MP -MF luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-tottfaat.Tpo -c -o luatexdir/luafontloader/fontforge/fontforge/libff_a-tottfaat.o `test -f 'luatexdir/luafontloader/fontforge/fontforge/tottfaat.c' || echo '$(srcdir)/'`luatexdir/luafontloader/fontforge/fontforge/tottfaat.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-tottfaat.Tpo luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-tottfaat.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luafontloader/fontforge/fontforge/tottfaat.c' object='luatexdir/luafontloader/fontforge/fontforge/libff_a-tottfaat.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(libff_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luafontloader/fontforge/fontforge/libff_a-tottfaat.o `test -f 'luatexdir/luafontloader/fontforge/fontforge/tottfaat.c' || echo '$(srcdir)/'`luatexdir/luafontloader/fontforge/fontforge/tottfaat.c
+
+luatexdir/luafontloader/fontforge/fontforge/libff_a-tottfaat.obj: luatexdir/luafontloader/fontforge/fontforge/tottfaat.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(libff_a_CFLAGS) $(CFLAGS) -MT luatexdir/luafontloader/fontforge/fontforge/libff_a-tottfaat.obj -MD -MP -MF luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-tottfaat.Tpo -c -o luatexdir/luafontloader/fontforge/fontforge/libff_a-tottfaat.obj `if test -f 'luatexdir/luafontloader/fontforge/fontforge/tottfaat.c'; then $(CYGPATH_W) 'luatexdir/luafontloader/fontforge/fontforge/tottfaat.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontloader/fontforge/fontforge/tottfaat.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-tottfaat.Tpo luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-tottfaat.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luafontloader/fontforge/fontforge/tottfaat.c' object='luatexdir/luafontloader/fontforge/fontforge/libff_a-tottfaat.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(libff_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luafontloader/fontforge/fontforge/libff_a-tottfaat.obj `if test -f 'luatexdir/luafontloader/fontforge/fontforge/tottfaat.c'; then $(CYGPATH_W) 'luatexdir/luafontloader/fontforge/fontforge/tottfaat.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontloader/fontforge/fontforge/tottfaat.c'; fi`
 
 luatexdir/luafontloader/fontforge/fontforge/libff_a-tottfgpos.o: luatexdir/luafontloader/fontforge/fontforge/tottfgpos.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libff_a_CPPFLAGS) $(CPPFLAGS) $(libff_a_CFLAGS) $(CFLAGS) -MT luatexdir/luafontloader/fontforge/fontforge/libff_a-tottfgpos.o -MD -MP -MF luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR)/libff_a-tottfgpos.Tpo -c -o luatexdir/luafontloader/fontforge/fontforge/libff_a-tottfgpos.o `test -f 'luatexdir/luafontloader/fontforge/fontforge/tottfgpos.c' || echo '$(srcdir)/'`luatexdir/luafontloader/fontforge/fontforge/tottfgpos.c

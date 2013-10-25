@@ -51,6 +51,7 @@ libff_a_SOURCES = \
 	luatexdir/luafontloader/fontforge/fontforge/parsepfa.c \
 	luatexdir/luafontloader/fontforge/fontforge/parsettf.c \
 	luatexdir/luafontloader/fontforge/fontforge/parsettfatt.c \
+	luatexdir/luafontloader/fontforge/fontforge/parsettfvar.c \
 	luatexdir/luafontloader/fontforge/fontforge/pfaedit.h \
 	luatexdir/luafontloader/fontforge/fontforge/plugins.h \
 	luatexdir/luafontloader/fontforge/fontforge/psfont.h \
@@ -77,6 +78,7 @@ libff_a_SOURCES = \
 	luatexdir/luafontloader/fontforge/fontforge/stemdb.c \
 	luatexdir/luafontloader/fontforge/fontforge/stemdb.h \
 	luatexdir/luafontloader/fontforge/fontforge/tottf.c \
+	luatexdir/luafontloader/fontforge/fontforge/tottfaat.c \
 	luatexdir/luafontloader/fontforge/fontforge/tottfgpos.c \
 	luatexdir/luafontloader/fontforge/fontforge/ttf.h \
 	luatexdir/luafontloader/fontforge/fontforge/ttfspecial.c \

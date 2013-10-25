@@ -2933,6 +2933,8 @@ this part of the documentation are not yet finished):
 \NC lookups                       \NC table    \NC \NC\NR
 \NC gpos                          \NC table    \NC \NC\NR
 \NC gsub                          \NC table    \NC \NC\NR
+\NC sm                            \NC table    \NC \NC\NR
+\NC features                      \NC table    \NC \NC\NR
 \NC mm                            \NC table    \NC \NC\NR
 \NC chosenname                   \NC string   \NC \NC\NR
 \NC macstyle                     \NC number   \NC \NC\NR
@@ -3326,6 +3328,7 @@ The features subtable items of gpos have:
 \NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
 \NC tag                    \NC string   \NC \NC\NR
 \NC scripts                \NC table    \NC \NC\NR
+\NC ismac                  \NC number   \NC (only if true)\NC\NR
 \stoptabulate
 
 The scripts table within features has:
@@ -3383,6 +3386,61 @@ type:
 \NC data                   \NC number   \NC \NC\NR
 \stoptabulate
 
+\subsubsubsection{sm table}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC type                 \NC string   \NC one of "indic", "context", "lig", "simple", "insert", "kern"\NC\NR
+\NC lookup               \NC string   \NC \NC\NR
+\NC flags                \NC table    \NC a set of boolean values with
+                                          the keys : "vert", "descending", "always"\NC\NR
+\NC classes              \NC table    \NC an array of named classes \NC\NR
+\NC state                \NC table    \NC \NC\NR
+\stoptabulate
+
+The \type{state} table has:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC next                 \NC number   \NC \NC \NR
+\NC flags                \NC number   \NC \NC \NR
+\NC context              \NC table    \NC A small table that has 'mark' and
+'cur' as possible keys, with the values being lookup names. Only
+applies if the \type{sm.type} = \type{context}.\NC\NR
+\NC insert               \NC table    \NC A small table that has 'mark' and
+'cur' as possible keys, with the values strings. Only
+applies if the \type{sm.type} = \type{insert}.\NC\NR
+\NC kern               \NC table    \NC A small array with kern data. Only
+applies if the \type{sm.type} = \type{kern}.\NC\NR
+\stoptabulate
+
+
+\subsubsubsection{features table}
+
+% handle_macfeat
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC feature                 \NC number   \NC \NC \NR
+\NC ismutex                 \NC number   \NC \NC \NR
+\NC default_setting         \NC number   \NC \NC \NR
+\NC strid                   \NC number   \NC \NC \NR
+\NC featname                \NC table    \NC A set of mac names.
+macnames are like otfnames except that they also have an 'enc' field \NC \NR
+\NC settings                \NC table    \NC \NC \NR
+\stoptabulate
+
+The \type{settings} are:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC setting                 \NC number   \NC \NC \NR
+\NC strid                   \NC number   \NC \NC \NR
+\NC initially_enabled       \NC number   \NC \NC \NR
+\NC setname                 \NC table    \NC A set of mac names.
+macnames are like otfnames except that they also have an 'enc' field \NC \NR
+\stoptabulate
+
 \subsubsubsection{mm table}
 
 \starttabulate[|lT|l|p|]
@@ -3395,6 +3453,9 @@ type:
 \NC cdv                  \NC string  \NC \NC \NR
 \NC ndv                  \NC string  \NC \NC \NR
 \NC axismaps             \NC table   \NC  \NC \NR
+\NC named_instance_count \NC number   \NC \NC \NR
+\NC named_instances      \NC table   \NC \NC \NR
+\NC apple                \NC number   \NC \NC \NR
 \stoptabulate
 
 The \type{axismaps}:
@@ -3406,6 +3467,16 @@ The \type{axismaps}:
 \NC min                  \NC number   \NC \NC \NR
 \NC def                  \NC number   \NC \NC \NR
 \NC max                  \NC number   \NC \NC \NR
+\NC axisnames            \NC table     \NC a set of mac names \NC \NR
+\stoptabulate
+
+
+The \type{named_instances} is an array of instances:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key            \NC \bf type \NC \bf explanation \NC\NR
+\NC names                \NC table  \NC a set of mac names  \NC \NR
+\NC coords               \NC table  \NC an array of coordinates \NC \NR
 \stoptabulate
 
 

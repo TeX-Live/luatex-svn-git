@@ -79,4 +79,6 @@ extern Encoding *enclist;
 #define SCRIPT_MENU_MAX	10
 
 
+extern MacFeat *default_mac_feature_map;
+
 #endif
