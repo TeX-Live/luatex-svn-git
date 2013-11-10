@@ -22,7 +22,7 @@ why plugging in callbacks that operate on nodes is quite fast. No matter what
 future memory model \LUATEX\ has, an internal reference will always be a simple data
 type (like a number or light userdata in \LUA\ speak). So, if you use the direct
 model, even if you know that you currently deal with numbers, you should not depend
-on that property but treat is an abstraction just like traditional nodes. In fact,
+on that property but treat it an abstraction just like traditional nodes. In fact,
 the fact that we use a simple basic datatype has the penalty that less checking can
 be done, but less checking is also the reason why it's somewhat faster. An
 important aspect is that one cannot mix both methods, but you can cast both
@@ -32,7 +32,7 @@ So our advice is: use the indexed approach when possible and investigate the
 direct one when speed might be an issue. For that reason we also provide the
 \type {get*} and \type {set*} functions in the top level node namespace. There is
 a limited set of getters. When implementing this direct approach the regular
-index by key variant was also optimized, so direct access only make sense when
+index by key variant was also optimized, so direct access only makes sense when
 we're accessing nodes millions of times (which happens in some font processing
 for instance).
 
@@ -54,10 +54,10 @@ a metatable method being called. In practice it boils down to looking up the
 node type and based on the node type checking for the field name. In a worst case
 you have a node type that sits at the end of the lookup list and a field that is
 last in the lookup chain. However, in successive versions of \LUATEX\ these lookups
-have been optimized and the most frequently accessed nodes and fields hav ea higher
+have been optimized and the most frequently accessed nodes and fields have a higher
 priority.
 
-Because in practice the \type {next} accessor result sin a function call, there
+Because in practice the \type {next} accessor results in a function call, there
 is some overhead involved. The next code does the same and performs a tiny bit
 faster (but not that much because it is still a function call but one that
 knows what to look up).
@@ -71,7 +71,7 @@ end
 
 There are several such function based accessors now:
 
-\starttabulate[|T||]
+\starttabulate[|T|p|]
 \NC getnext    \NC parsing nodelist always involves this one \NC \NR
 \NC getprev    \NC used less but is logical companion to getnext \NC \NR
 \NC getid      \NC consulted a lot \NC \NR
@@ -80,7 +80,7 @@ There are several such function based accessors now:
 \NC getchar    \NC idem and also in other places \NC \NR
 \NC getlist    \NC we often parse nested lists so this is a convenient one too
                    (only works for hlist and vlist!) \NC \NR
-\NC getleader  \NC comparable to list, seldom used in tex (but needs frequent consulting
+\NC getleader  \NC comparable to list, seldom used in \TEX\ (but needs frequent consulting
                    like lists; leaders could have been made a dedicated node type) \NC \NR
 \NC getfield   \NC generic getter, sufficient for the rest (other field names are
                    often shared so a specific getter makes no sense then) \NC \NR
@@ -88,8 +88,8 @@ There are several such function based accessors now:
 
 It doesn't make sense to add more. Profiling demonstrated that these fields can
 get accesses way more times than other fields. Even in complex documents, many
-node and fields types never get seen, or seen only a few times. Most function in the
-\type {node} namespace have a compation in \type {node.direct}, but of course not the
+node and fields types never get seen, or seen only a few times. Most functions in the
+\type {node} namespace have a companion in \type {node.direct}, but of course not the
 ones that don't deal with nodes themselves. The following table summarized this:
 
 \start \def\yes{$+$} \def\nop{$-$}
