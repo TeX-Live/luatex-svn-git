@@ -4587,16 +4587,17 @@ static int lua_nodelib_direct_todirect(lua_State * L)
 {
     if (lua_type(L,1) != LUA_TNUMBER) {
         /* assume node, no further testing, used in known situations */
-        halfword n;
-        n = *((halfword *) lua_touserdata(L, 1));
+        void *n ; 
+        n = lua_touserdata(L, 1);
         if (n == null) {
             lua_pushnil(L);
         } else {
-            lua_pushnumber(L, n);
+            lua_pushnumber(L, *((halfword *)n) );
         }
     } /* else assume direct and returns argument */
     return 1;
 }
+
 
 /* node.direct.tonode */
 
