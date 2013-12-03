@@ -1770,10 +1770,11 @@ static struct { uint32 tag; char *str; } tagstr[] = {
     { 0, NULL }
 };
 
-static bool
+static int
 glyphNameExists (struct ttfinfo *info, char *name)
 {
-  for (int i = 0; i < info->glyph_cnt; ++i)
+  int i = 0;
+  for (i = 0; i < info->glyph_cnt; ++i)
     if (info->chars[i]->name != NULL)
       if (strcmp (info->chars[i]->name, name) == 0)
         return true;
