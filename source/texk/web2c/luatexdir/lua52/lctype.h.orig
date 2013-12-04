@@ -54,17 +54,12 @@
 /*
 ** 'lalpha' (Lua alphabetic) and 'lalnum' (Lua alphanumeric) both include '_'
 */
-/*all utf-8 chars are always alphabetic character (everthing higher then
-  2^7 is always a valid char), end of stream (-1) is not valid */
-#define lislalpha(c) (( (isalpha(c) || ((c) == '_')) || (0x80&c))  && c!=-1) 
-/*all utf-8 chars are always alphabetic character or numbers, end of
-  stream (-1) is not valid*/
-#define lislalnum(c) ((  (isalnum(c) || ((c) == '_')) || (0x80&c))  && c!=-1)  
+#define lislalpha(c)	testprop(c, MASK(ALPHABIT))
+#define lislalnum(c)	testprop(c, (MASK(ALPHABIT) | MASK(DIGITBIT)))
 #define lisdigit(c)	testprop(c, MASK(DIGITBIT))
 #define lisspace(c)	testprop(c, MASK(SPACEBIT))
 #define lisprint(c)	testprop(c, MASK(PRINTBIT))
 #define lisxdigit(c)	testprop(c, MASK(XDIGITBIT))
-
 
 /*
 ** this 'ltolower' only works for alphabetic characters
