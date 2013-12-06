@@ -66,6 +66,7 @@ void InitSimpleStuff(void) {
     coord_sep = ",";
     if ( *localeinfo.decimal_point=='.' ) coord_sep=",";
     else if ( *localeinfo.decimal_point!='.' ) coord_sep=" ";
+
     SetDefaults();
 }
 
