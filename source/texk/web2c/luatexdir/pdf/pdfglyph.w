@@ -196,24 +196,38 @@ void pdf_place_glyph(PDF pdf, internal_font_number f, int c, int ex)
     boolean move;
     pdfstructure *p = pdf->pstruct;
     scaledpos pos = pdf->posstruct->pos;
+
     if (!char_exists(f, c))
         return;
-    /* ensure to be within BT...ET */
-    if (is_pagemode(p)) {
-        pdf_goto_textmode(pdf);
-        p->need_tf = true;
+  
+    /* fix issue 857 */
+    /* /\* ensure to be within BT...ET *\/ */
+    /* if (is_pagemode(p)) { */
+    /*     pdf_goto_textmode(pdf); */
+    /*     p->need_tf = true; */
+    /* } */
+    /* /\* all font setup *\/ */
+    /* if (true || f != pdf->f_cur || p->need_tf) { */
+    /*     setup_fontparameters(pdf, f, ex); */
+    /*     if (p->need_tf || p->f_pdf != p->f_pdf_cur || p->fs.m != p->fs_cur.m) { */
+    /*         pdf_goto_textmode(pdf); */
+    /*         set_font(pdf); */
+    /*     } else if (p->tm0_cur.m != p->tm[0].m) { */
+    /*         /\* catch in-line HZ expand change due to efcode *\/ */
+    /*         p->need_tm = true; */
+    /*     } */
+    /* } */
+
+   /* is the p->need_tf test really needed ? */ 
+    if (p->need_tf || f != pdf->f_cur || p->f_pdf != p->f_pdf_cur || p->fs.m != p->fs_cur.m || is_pagemode(p)) {
+         pdf_goto_textmode(pdf);
+         setup_fontparameters(pdf, f, ex);
+         set_font(pdf);
+    } else if (p->tm0_cur.m != p->tm[0].m) {
+         setup_fontparameters(pdf, f, ex);
+         p->need_tm = true;
     }
-    /* all font setup */
-    if (true || f != pdf->f_cur || p->need_tf) {
-        setup_fontparameters(pdf, f, ex);
-        if (p->need_tf || p->f_pdf != p->f_pdf_cur || p->fs.m != p->fs_cur.m) {
-            pdf_goto_textmode(pdf);
-            set_font(pdf);
-        } else if (p->tm0_cur.m != p->tm[0].m) {
-            /* catch in-line HZ expand change due to efcode */
-            p->need_tm = true;
-        }
-    }
+
     /* all movements */
     move = calc_pdfpos(p, pos); /* within text or chararray or char mode */
     if (move || p->need_tm) {
