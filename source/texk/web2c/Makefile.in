@@ -1786,21 +1786,10 @@ libff_a_SOURCES = \
 	luatexdir/luafontloader/fontforge/fontforge/ttfspecial.c \
 	luatexdir/luafontloader/fontforge/fontforge/uiinterface.h \
 	luatexdir/luafontloader/fontforge/fontforge/unicoderange.h \
-	luatexdir/luafontloader/fontforge/fontforge/views.h \
 	luatexdir/luafontloader/fontforge/gutils/fsys.c \
 	luatexdir/luafontloader/fontforge/inc/basics.h \
-	luatexdir/luafontloader/fontforge/inc/dynamic.h \
-	luatexdir/luafontloader/fontforge/inc/fileutil.h \
-	luatexdir/luafontloader/fontforge/inc/gdraw.h \
 	luatexdir/luafontloader/fontforge/inc/gfile.h \
-	luatexdir/luafontloader/fontforge/inc/ggadget.h \
-	luatexdir/luafontloader/fontforge/inc/gicons.h \
 	luatexdir/luafontloader/fontforge/inc/gimage.h \
-	luatexdir/luafontloader/fontforge/inc/gio.h \
-	luatexdir/luafontloader/fontforge/inc/gkeysym.h \
-	luatexdir/luafontloader/fontforge/inc/gprogress.h \
-	luatexdir/luafontloader/fontforge/inc/gresource.h \
-	luatexdir/luafontloader/fontforge/inc/gwidget.h \
 	luatexdir/luafontloader/fontforge/inc/intl.h \
 	luatexdir/luafontloader/src/ffdummies.c \
 	luatexdir/luafontloader/src/luafflib.c
