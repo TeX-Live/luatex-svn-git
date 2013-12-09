@@ -2357,7 +2357,7 @@ typedef enum {
     FK_vkerns,
     FK_gsub,
     FK_gpos,
-    FK_sm,
+    /* FK_sm, */ /*this was removed because AAT is not supported anymore*/
     FK_features,
     FK_mm,
     FK_chosenname,
