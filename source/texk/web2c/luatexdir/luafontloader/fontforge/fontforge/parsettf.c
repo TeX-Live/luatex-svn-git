@@ -30,7 +30,6 @@
 #include <ustring.h>
 #include <math.h>
 #include <locale.h>
-#include <gwidget.h>
 #include "ttf.h"
 
 extern char *AdobeStandardEncoding[], *AdobeExpertEncoding[];

@@ -25,7 +25,6 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "fontforgevw.h"
-#include <gkeysym.h>
 #include <ustring.h>
 #include "ttf.h"
 

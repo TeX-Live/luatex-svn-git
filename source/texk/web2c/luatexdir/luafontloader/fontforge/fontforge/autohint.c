@@ -28,7 +28,6 @@
 #include <stdio.h>
 #include <math.h>
 #include "splinefont.h"
-#include "views.h"
 #include "stemdb.h"
 #include <utype.h>
 #include <chardata.h>

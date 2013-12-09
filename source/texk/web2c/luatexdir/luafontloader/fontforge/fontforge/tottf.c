@@ -32,7 +32,6 @@
 #include <utype.h>
 #include <ustring.h>
 #include <chardata.h>
-#include <gwidget.h>
 
 #ifdef __CygWin
  #include <sys/types.h>
