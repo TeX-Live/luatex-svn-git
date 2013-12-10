@@ -160,7 +160,7 @@ static scannerdata *scanner_check (lua_State *L, int index)
   scannerdata *bar;
   luaL_checktype(L, index, LUA_TUSERDATA);
   bar = (scannerdata *)luaL_checkudata(L, index, SCANNER);
-  if (bar == NULL) luaL_typerror(L, index, SCANNER);
+  if (bar == NULL) luaL_argerror(L, index, SCANNER " expected");
   return bar;
 }
 
