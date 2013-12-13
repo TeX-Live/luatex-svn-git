@@ -957,7 +957,7 @@ this is used without any patches to the core, which has some side
 effects.  In particular, Lua's \type{tonumber()} may return values in
 scientific notation, thereby confusing the \TEX\ end of things when it
 is used as the right-hand side of an assignment to a \type{\dimen}
-or \type{\count}. 
+or \type{\count}.
 
 {\bf NOTE:} Also in \LUATEX\ 0.74.0 (this is a change in Lua 5.2),
 loading dynamic Lua libraries will fail if there are two Lua libraries
@@ -1027,7 +1027,7 @@ function as normal. This change is new in 0.37.0.
 
 
 
-The \lua{f:read("*line")} and \lua{f:lines()} functions from the io library have 
+The \lua{f:read("*line")} and \lua{f:lines()} functions from the io library have
 been adjusted so that they are line|-|ending neutral: any of \type{LF}, \type
 {CR} or \type{CR+LF} are acceptable line endings.
 
@@ -5000,10 +5000,10 @@ copied.
 Creates a deep copy of the node list that starts at \type{n}. If
 \type{m} is also given, the copy stops just before node \type{m}.
 
-Note that you cannot copy attribute lists this way, specialized functions for 
-dealing with attribute lists will be provided later but are not there yet. 
+Note that you cannot copy attribute lists this way, specialized functions for
+dealing with attribute lists will be provided later but are not there yet.
 However, there is normally no need to copy attribute lists as when you do
-assignments to the \type{attr} field or make changes to specific attributes, the 
+assignments to the \type{attr} field or make changes to specific attributes, the
 needed copying and freeing takes place automatically.
 
 \subsubsection{\luatex{node.next} (0.65)}
@@ -5034,7 +5034,7 @@ such node.
 Returns the currently active list of attributes, if there is one.
 
 Note: this function is somewhat experimental, and it returns the {\it
- actual} attribute list, not a copy thereof. 
+ actual} attribute list, not a copy thereof.
 Therefore, changing any of the attributes in the list will change
 these values for all nodes that have the current attribute list
 assigned to them.
@@ -5200,12 +5200,12 @@ This function also accept string \type{id}'s.
 \stopfunctioncall
 
 This is a lua iterator that loops over the node list that starts at \type{n}.
-Typical input code like this 
+Typical input code like this
 
 \starttyping
 for n in node.traverse(head) do
    ...
-end 
+end
 \stoptyping
 
 is functionally equivalent to:
@@ -5231,12 +5231,12 @@ end
 \stoptyping
 
 It should be clear from the definition of the function \type{f} that
-even though it is possible to add or remove nodes from the node list while 
+even though it is possible to add or remove nodes from the node list while
 traversing, you have to take great care to make sure all the \type{next}
 (and \type{prev}) pointers remain valid.
 
 If the above is unclear to you, see the section \quote{For Statement}
-in the Lua Reference Manual. 
+in the Lua Reference Manual.
 
 \subsubsection{\luatex{node.traverse_id}}
 
@@ -5680,7 +5680,7 @@ pdfscanner.scan (<Object> stream, <table> operatortable, <table> info)
 \stopfunctioncall
 
 The first argument, \type{stream}, should be either a PDF stream
-object, or a PDF array of PDF stream objects (those options comprise 
+object, or a PDF array of PDF stream objects (those options comprise
 the possible return values of \type{<Page>:getContents()}
 and \type{<Object>:getStream()} in the \type{epdf} library).
 
@@ -5703,10 +5703,10 @@ next operator, and processing continues.
 
 The \type{scanner} argument to the processing functions is needed
 because it offers various methods to get the actual operands from the
-internal operand stack. The most important of those functions is 
+internal operand stack. The most important of those functions is
 \type{}
 
-A simple example of processing a PDF's document stream 
+A simple example of processing a PDF's document stream
 could look like this:
 
 \starttyping
@@ -5726,7 +5726,7 @@ function Do (scanner, info)
 	    pdfscanner.scan(xobject, operatortable, newinfo)
 	 end
       end
-   end   
+   end
 end
 operatortable = {Do = Do}
 
@@ -5742,17 +5742,17 @@ end
 \stoptyping
 
 This example iterates over all the actual content in the PDF, and
-prints out the found XObject names. While the code demonstrates quite 
+prints out the found XObject names. While the code demonstrates quite
 some of the \type{epdf} functions, let's focus on the type
-\type{pdfscanner} specific code instead. 
+\type{pdfscanner} specific code instead.
 
-From the bottom up, the line 
+From the bottom up, the line
 
 \starttyping
    pdfscanner.scan(page:getContents(), operatortable, info)
 \stoptyping
 
-runs the scanner with the PDF page's top-level content. 
+runs the scanner with the PDF page's top-level content.
 
 The third argument, \type{info}, contains two entries: \type{space} is
 used to indent the printed output, and \type{resources} is needed so
@@ -5773,7 +5773,7 @@ Of course, this is not a very useful example in practise, but for the
 purpose of demonstrating \type{pdfscanner}, it is just long enough.
 It makes use of only one \type{scanner} method: \type{scanner:pop()}.
 That function pops the top operand of the internal stack, and returns
-a lua table where the object at index one is a string representing 
+a lua table where the object at index one is a string representing
 the type of the operand, and object two is its value.
 
 The list of possible operand types and associated lua value types is:
@@ -5804,10 +5804,10 @@ decoded), and it treats the stream data for inline images as a string
 that is the single operand for \type{EI}.
 
 In case of \type{array}, the table content is a list of \type{pop}
-return values. 
+return values.
 
 In case of \type{dict}, the table keys are PDF name strings
-and the values are \type{pop} return values. 
+and the values are \type{pop} return values.
 
 \blank
 
@@ -5832,7 +5832,7 @@ to the \type{Do} operator is always a PDF name object.
 
 The \type{done} function allows you to abort processing of a stream
 once you have learned everything you want to learn. This comes in handy
-while parsing \type{/ToUnicode}, because there usually is trailing 
+while parsing \type{/ToUnicode}, because there usually is trailing
 garbage that you are not interested in. Without \type{done}, processing
 only end at the end of the stream, possibly wasting CPU cycles.
 
@@ -8013,7 +8013,7 @@ character, font, and component fields, and the new special fields like
 \stopitemize
 
 Incidentally, \LUATEX\ allows 16383 separate languages, and words can
-be 64KB characters long.
+be 256 characters long.
 
 Because the \tex{uchyph} value is saved in the actual nodes, its
 handling is subtly different from \TEX82: changes to \tex{uchyph}
@@ -9310,21 +9310,22 @@ Valid fields: \showfields{glyph}\crlf
 Id: \showid{glyph}
 
 \starttabulate[|lT|l|p|]
-\NC \ssbf field\NC \ssbf type         \NC \ssbf explanation \NC\NR
-\NC subtype    \NC number             \NC bitfield\NC\NR
-\NC attr       \NC \syntax{<node>}    \NC \NC\NR
-\NC char       \NC number             \NC \NC\NR
-\NC font       \NC number             \NC \NC\NR
-\NC lang       \NC number             \NC \NC\NR
-\NC left       \NC number             \NC \NC\NR
-\NC right      \NC number             \NC \NC\NR
-\NC uchyph     \NC boolean            \NC \NC\NR
-\NC components \NC \syntax{<node>}    \NC pointer to ligature components\NC\NR
-\NC xoffset    \NC number             \NC \NC\NR
-\NC yoffset    \NC number             \NC \NC\NR
-\NC width      \NC number             \NC (new in 0.53)\NC\NR
-\NC height     \NC number             \NC (new in 0.53)\NC\NR
-\NC depth      \NC number             \NC (new in 0.53)\NC\NR
+\NC \ssbf field      \NC \ssbf type         \NC \ssbf explanation \NC \NR
+\NC subtype          \NC number             \NC bitfield \NC \NR
+\NC attr             \NC \syntax{<node>}    \NC \NC \NR
+\NC char             \NC number             \NC \NC \NR
+\NC font             \NC number             \NC \NC \NR
+\NC lang             \NC number             \NC \NC \NR
+\NC left             \NC number             \NC \NC \NR
+\NC right            \NC number             \NC \NC \NR
+\NC uchyph           \NC boolean            \NC \NC \NR
+\NC components       \NC \syntax{<node>}    \NC pointer to ligature components \NC \NR
+\NC xoffset          \NC number             \NC \NC \NR
+\NC yoffset          \NC number             \NC \NC \NR
+\NC width            \NC number             \NC (new in 0.53) \NC \NR
+\NC height           \NC number             \NC (new in 0.53) \NC \NR
+\NC depth            \NC number             \NC (new in 0.53) \NC \NR
+\NC expansion_factor \NC number             \NC (new in 0.78) \NC \NR
 \stoptabulate
 
 A warning: never assign a node list to the components field
@@ -9345,7 +9346,13 @@ Valid bits for the \type{subtype} field are:
 See \in{section}[charsandglyphs] for a detailed description of the
 \type{subtype} field.
 
-
+The \type {expansion_factor} is relatively new and the result of extensive
+experiments with a more efficient implementation of expansion. Early versions of
+\LUATEX\ already replaced multiple instances of fonts in the backend by scaling
+but contrary to \PDFTEX\ in \LUATEX\ we now also got rid of font copies in the
+frontend and replaced them by expansion factors that travel with glyph nodes. Apart
+from a cleaner approach this is also a step towards a better separation between
+front- and backend.
 
 \subsubsection{margin{\_}kern nodes}
 
@@ -9979,6 +9986,173 @@ The \type{type} can have one of five distinct values:
 \NC  116          \NC  the value is a token list in \LUA\ table form\NC\NR
 \stoptabulate
 
+\section{Two access models}
+
+After doing lots of tests with \LUATEX\ and \LUAJITTEX\, with and without just in
+time compilation enabled, and with and without using ffi, we came to the
+conclusion that userdata prevents a speedup. We also found that the checking of
+metatables as well as assignment comes with overhead that can't be neglected.
+This is normally not really a problem but when processing fonts for more complex
+scripts it could have quite some overhead.
+
+Because the userdata approach has some benefits, this remains the recommended way
+to access nodes. We did several experiments with faster access using this model,
+but eventually settled for the \quote {direct} approach. For code that is proven
+to be okay, one can use this access model that operates on nodes more directly.
+
+Deep down in \TEX\ a node has a number which is an entry in a memory table. In
+fact, this model, where \TEX\ manages memory is real fast and one of the reasons
+why plugging in callbacks that operate on nodes is quite fast. No matter what
+future memory model \LUATEX\ has, an internal reference will always be a simple data
+type (like a number or light userdata in \LUA\ speak). So, if you use the direct
+model, even if you know that you currently deal with numbers, you should not depend
+on that property but treat it an abstraction just like traditional nodes. In fact,
+the fact that we use a simple basic datatype has the penalty that less checking can
+be done, but less checking is also the reason why it's somewhat faster. An
+important aspect is that one cannot mix both methods, but you can cast both
+models.
+
+So our advice is: use the indexed approach when possible and investigate the
+direct one when speed might be an issue. For that reason we also provide the
+\type {get*} and \type {set*} functions in the top level node namespace. There is
+a limited set of getters. When implementing this direct approach the regular
+index by key variant was also optimized, so direct access only makes sense when
+we're accessing nodes millions of times (which happens in some font processing
+for instance).
+
+We're talking mostly of getters because setters are less important. Documents
+have not that many content related nodes and setting many thousands of properties
+is hardly a burden contrary to millions of consultations.
+
+Normally you will access nodes like this:
+
+\starttyping
+local next = current.next
+if next then
+    -- do something
+end
+\stoptyping
+
+Here \type {next} is not a real field, but a virtual one. Accessing it results in
+a metatable method being called. In practice it boils down to looking up the
+node type and based on the node type checking for the field name. In a worst case
+you have a node type that sits at the end of the lookup list and a field that is
+last in the lookup chain. However, in successive versions of \LUATEX\ these lookups
+have been optimized and the most frequently accessed nodes and fields have a higher
+priority.
+
+Because in practice the \type {next} accessor results in a function call, there
+is some overhead involved. The next code does the same and performs a tiny bit
+faster (but not that much because it is still a function call but one that
+knows what to look up).
+
+\starttyping
+local next = node.next(current)
+if next then
+    -- do something
+end
+\stoptyping
+
+There are several such function based accessors now:
+
+\starttabulate[|T|p|]
+\NC getnext    \NC parsing nodelist always involves this one \NC \NR
+\NC getprev    \NC used less but is logical companion to getnext \NC \NR
+\NC getid      \NC consulted a lot \NC \NR
+\NC getsubtype \NC consulted less but also a topper \NC \NR
+\NC getfont    \NC used a lot in otf handling (glyph nodes are consulted a lot) \NC \NR
+\NC getchar    \NC idem and also in other places \NC \NR
+\NC getlist    \NC we often parse nested lists so this is a convenient one too
+                   (only works for hlist and vlist!) \NC \NR
+\NC getleader  \NC comparable to list, seldom used in \TEX\ (but needs frequent consulting
+                   like lists; leaders could have been made a dedicated node type) \NC \NR
+\NC getfield   \NC generic getter, sufficient for the rest (other field names are
+                   often shared so a specific getter makes no sense then) \NC \NR
+\stoptabulate
+
+It doesn't make sense to add more. Profiling demonstrated that these fields can
+get accesses way more times than other fields. Even in complex documents, many
+node and fields types never get seen, or seen only a few times. Most functions in the
+\type {node} namespace have a companion in \type {node.direct}, but of course not the
+ones that don't deal with nodes themselves. The following table summarized this:
+
+\start \def\yes{$+$} \def\nop{$-$}
+
+\starttabulate[|T|c|c|]
+\HL
+\NC \bf function        \NC \bf node \NC \bf direct \NC \NR
+\HL
+\NC copy                 \NC \yes \NC \yes   \NC \NR
+\NC copy_list            \NC \yes \NC \yes   \NC \NR
+\NC count                \NC \yes \NC \yes   \NC \NR
+\NC current_attr         \NC \yes \NC \yes   \NC \NR
+\NC dimensions           \NC \yes \NC \yes   \NC \NR
+\NC do_ligature_n        \NC \yes \NC \yes   \NC \NR
+\NC end_of_math          \NC \yes \NC \yes   \NC \NR
+\NC family_font          \NC \yes \NC \nop   \NC \NR
+\NC fields               \NC \yes \NC \nop   \NC \NR
+\NC first_character      \NC \yes \NC \nop   \NC \NR
+\NC first_glyph          \NC \yes \NC \yes   \NC \NR
+\NC flush_list           \NC \yes \NC \yes   \NC \NR
+\NC flush_node           \NC \yes \NC \yes   \NC \NR
+\NC free                 \NC \yes \NC \yes   \NC \NR
+\NC getbox               \NC \nop \NC \yes   \NC \NR
+\NC getchar              \NC \yes \NC \yes   \NC \NR
+\NC getfield             \NC \yes \NC \yes   \NC \NR
+\NC getfont              \NC \yes \NC \yes   \NC \NR
+\NC getid                \NC \yes \NC \yes   \NC \NR
+\NC getnext              \NC \yes \NC \yes   \NC \NR
+\NC getprev              \NC \yes \NC \yes   \NC \NR
+\NC getlist              \NC \yes \NC \yes   \NC \NR
+\NC getleader            \NC \yes \NC \yes   \NC \NR
+\NC getsubtype           \NC \yes \NC \yes   \NC \NR
+\NC has_glyph            \NC \yes \NC \yes   \NC \NR
+\NC has_attribute        \NC \yes \NC \yes   \NC \NR
+\NC has_field            \NC \yes \NC \yes   \NC \NR
+\NC hpack                \NC \yes \NC \yes   \NC \NR
+\NC id                   \NC \yes \NC \nop   \NC \NR
+\NC insert_after         \NC \yes \NC \yes   \NC \NR
+\NC insert_before        \NC \yes \NC \yes   \NC \NR
+\NC is_direct            \NC \nop \NC \yes   \NC \NR
+\NC is_node              \NC \yes \NC \yes   \NC \NR
+\NC kerning              \NC \yes \NC \nop   \NC \NR
+\NC last_node            \NC \yes \NC \yes   \NC \NR
+\NC length               \NC \yes \NC \yes   \NC \NR
+\NC ligaturing           \NC \yes \NC \nop   \NC \NR
+\NC mlist_to_hlist       \NC \yes \NC \nop   \NC \NR
+\NC new                  \NC \yes \NC \yes   \NC \NR
+\NC next                 \NC \yes \NC \nop   \NC \NR
+\NC prev                 \NC \yes \NC \nop   \NC \NR
+\NC tostring             \NC \yes \NC \yes   \NC \NR
+\NC protect_glyphs       \NC \yes \NC \yes   \NC \NR
+\NC protrusion_skippable \NC \yes \NC \yes   \NC \NR
+\NC remove               \NC \yes \NC \yes   \NC \NR
+\NC set_attribute        \NC \yes \NC \yes   \NC \NR
+\NC setbox               \NC \yes \NC \yes   \NC \NR
+\NC setfield             \NC \yes \NC \yes   \NC \NR
+\NC slide                \NC \yes \NC \yes   \NC \NR
+\NC subtype              \NC \yes \NC \nop   \NC \NR
+\NC tail                 \NC \yes \NC \yes   \NC \NR
+\NC todirect             \NC \yes \NC \yes   \NC \NR
+\NC tonode               \NC \yes \NC \yes   \NC \NR
+\NC traverse             \NC \yes \NC \yes   \NC \NR
+\NC traverse_id          \NC \yes \NC \yes   \NC \NR
+\NC type                 \NC \yes \NC \nop   \NC \NR
+\NC types                \NC \yes \NC \nop   \NC \NR
+\NC unprotect_glyphs     \NC \yes \NC \yes   \NC \NR
+\NC unset_attribute      \NC \yes \NC \yes   \NC \NR
+\NC usedlist             \NC \yes \NC \yes   \NC \NR
+\NC vpack                \NC \yes \NC \yes   \NC \NR
+\NC whatsits             \NC \yes \NC \nop   \NC \NR
+\NC write                \NC \yes \NC \yes   \NC \NR
+\stoptabulate
+
+\stop
+
+The \type {node.next} and \type {node.prev} functions will stay but for
+consistency there are variants called \type {getnext}  and \type {getprev}.
+We had to use \type{get} because \type {node.id} and \type {node.subtype} are
+already taken for providing meta information about nodes.
 
 \chapter{Modifications}
 
