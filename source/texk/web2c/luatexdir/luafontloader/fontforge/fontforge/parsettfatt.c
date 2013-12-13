@@ -1774,7 +1774,7 @@ glyphNameExists (struct ttfinfo *info, char *name)
 {
   int i = 0;
   for (i = 0; i < info->glyph_cnt; ++i)
-    if (info->chars[i]->name != NULL)
+    if (info->chars[i] != NULL && info->chars[i]->name != NULL)
       if (strcmp (info->chars[i]->name, name) == 0)
         return true;
   return false;
