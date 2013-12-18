@@ -81,7 +81,9 @@ static void setup_fontparameters(PDF pdf, internal_font_number f, int ex_glyph)
         ten_pow[e_tj +
                 p->cw.e] * scale / (ten_pow[p->pdf.h.e] * pdf2double(p->fs) *
                                     pdf2double(p->tm[0]));
-}
+    p->cur_ex = ex_glyph ;  /* we keep track of the state of ex */
+} 
+
 
 @ @c
 static void set_font(PDF pdf)
@@ -199,7 +201,16 @@ void pdf_place_glyph(PDF pdf, internal_font_number f, int c, int ex)
 
     if (!char_exists(f, c))
         return;
-  
+
+/*
+ p->need_tf : okay, set somewhere else
+ f != pdf->f_cur : font change
+ p->f_pdf != p->f_pdf_cur : font change
+ p->fs.m ~= p->fs_cur.m : move
+ is_pagemode(p) -> stream change
+ p->tm0_cur.m -> p->tm[0].m : also move
+*/
+
     /* fix issue 857 */
     /* /\* ensure to be within BT...ET *\/ */
     /* if (is_pagemode(p)) { */
@@ -218,15 +229,23 @@ void pdf_place_glyph(PDF pdf, internal_font_number f, int c, int ex)
     /*     } */
     /* } */
 
+
+    /* LS/HH: We need to adapt the tm when a font changes. A change can be a change in 
+       id (frontend) or pdf reference (backend, as we share font resources). At 
+       such a change we also need to adapt to the slant and extend. Initially
+       we also need to take the exfactor of a glyph into account. When the font is 
+       unchanged, we still need to check each glyph for a change in exfactor. We 
+       store the current one on the state record so that we can minimize testing. */
+
    /* is the p->need_tf test really needed ? */ 
     if (p->need_tf || f != pdf->f_cur || p->f_pdf != p->f_pdf_cur || p->fs.m != p->fs_cur.m || is_pagemode(p)) {
          pdf_goto_textmode(pdf);
          setup_fontparameters(pdf, f, ex);
          set_font(pdf);
-    } else if (p->tm0_cur.m != p->tm[0].m) {
+    } else if (p->tm0_cur.m != p->tm[0].m || p->cur_ex != ex) {
          setup_fontparameters(pdf, f, ex);
          p->need_tm = true;
-    }
+    } 
 
     /* all movements */
     move = calc_pdfpos(p, pos); /* within text or chararray or char mode */

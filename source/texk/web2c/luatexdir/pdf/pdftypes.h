@@ -138,6 +138,7 @@ typedef struct {
     int ishex;                  /* Whether the current char string is <> or () */
     int need_tf;                /* flag whether Tf needs to be set */
     int need_tm;                /* flag whether Tm needs to be set */
+    int cur_ex;                 /* the current glyph ex factor */
 } pdfstructure;
 
 typedef struct obj_entry_ {
