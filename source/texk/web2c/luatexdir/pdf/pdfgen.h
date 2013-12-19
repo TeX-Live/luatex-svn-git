@@ -182,6 +182,7 @@ extern void zip_free(PDF);
 /* functions that do not output stuff */
 
 extern scaled round_xn_over_d(scaled x, int n, unsigned int d);
+
 extern char *convertStringToPDFString(const char *in, int len);
 
 extern void init_start_time(PDF);

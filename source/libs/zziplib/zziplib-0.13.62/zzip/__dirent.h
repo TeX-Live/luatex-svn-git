@@ -41,6 +41,8 @@
 #define _zzip_seekdir   win32_seekdir
 #define _zzip_DIR       DIR
 
+
+
 /*
  * DIRENT.H (formerly DIRLIB.H)
  *
@@ -59,6 +61,7 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
  */
+
 
 #include <io.h>
 

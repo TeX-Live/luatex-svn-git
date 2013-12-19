@@ -475,27 +475,15 @@ int font_to_lua(lua_State * L, int f)
        lua_pushnumber(L,pdf_font_num(f));
        lua_setfield(L,-2,"pdf_num");
        }
-       if (pdf_font_blink(f) != null_font) {
-       lua_pushnumber(L,pdf_font_blink(f));
-       lua_setfield(L,-2,"pdf_blink");
-       }
-       if (pdf_font_elink(f) != null_font) {
-       lua_pushnumber(L,pdf_font_elink(f));
-       lua_setfield(L,-2,"pdf_elink");
-       }
 #endif
     /* the next one is read only */
-    if (font_expand_ratio(f) != 0) {
-        lua_pushnumber(L, font_expand_ratio(f));
-        lua_setfield(L, -2, "expand_ratio");
+    if (font_max_shrink(f) != 0) {
+        lua_pushnumber(L, font_max_shrink(f));
+        lua_setfield(L, -2, "max_shrink");
     }
-    if (font_shrink(f) != 0) {
-        lua_pushnumber(L, font_shrink(f));
-        lua_setfield(L, -2, "shrink");
-    }
-    if (font_stretch(f) != 0) {
-        lua_pushnumber(L, font_stretch(f));
-        lua_setfield(L, -2, "stretch");
+    if (font_max_stretch(f) != 0) {
+        lua_pushnumber(L, font_max_stretch(f));
+        lua_setfield(L, -2, "max_stretch");
     }
     if (font_step(f) != 0) {
         lua_pushnumber(L, font_step(f));
@@ -1746,7 +1734,7 @@ int font_from_lua(lua_State * L, int f)
                     fstretch -= (fstretch % fstep);
                     if (fstretch < 0)
                         fstretch = 0;
-                    set_expand_params(f, fexpand, fstretch, fshrink, fstep, 0);
+                    set_expand_params(f, fexpand, fstretch, fshrink, fstep);
                 }
             }
 

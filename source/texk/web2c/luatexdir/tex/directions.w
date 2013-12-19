@@ -136,12 +136,18 @@ void print_dir(int d)
 scaled pack_width(int curdir, int pdir, halfword p, boolean isglyph)
 {
     scaled wd = 0;
+    internal_font_number f;
     if (isglyph) {
-        if (textdir_parallel(curdir, pdir) ==
-            textglyphdir_orthogonal(pdir))
+        if (textdir_parallel(curdir, pdir) == textglyphdir_orthogonal(pdir)) {
             wd = glyph_width(p);
-        else
+            if (ex_glyph(p) != 0) {
+	      //wd = round_xn_over_d(wd, 1000 + ex_glyph(p)/1000, 1000);
+	      wd = ext_xn_over_d(wd, 1000000+ex_glyph(p), 1000000);
+
+	    }
+        } else {
             wd = glyph_depth(p) + glyph_height(p);
+        }
     } else {                    /* hlist, vlist, image, form, rule */
         if (textdir_parallel(pdir, curdir))
             wd = width(p);

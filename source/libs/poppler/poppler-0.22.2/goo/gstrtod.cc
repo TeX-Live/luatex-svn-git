@@ -49,7 +49,6 @@ double gstrtod(const char *nptr, char **endptr)
   int strtod_errno;
 
   fail_pos = NULL;
-
   locale_data = localeconv ();
   decimal_point = locale_data->decimal_point;
   decimal_point_len = strlen (decimal_point);

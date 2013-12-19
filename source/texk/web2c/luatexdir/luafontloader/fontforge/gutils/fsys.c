@@ -28,7 +28,6 @@
 #include <stdio.h>
 #include "basics.h"
 #include "ustring.h"
-#include "fileutil.h"
 #include "gfile.h"
 #include <sys/types.h>
 #include <sys/stat.h>		/* for mkdir */

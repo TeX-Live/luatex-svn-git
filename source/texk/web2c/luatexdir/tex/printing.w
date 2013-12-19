@@ -1,6 +1,6 @@
 % printing.w
 %
-% Copyright 2009-2011 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2009-2013 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -823,18 +823,12 @@ sort of ``complicated'' are indicated only by printing `\.{[]}'.
 void print_font_identifier(internal_font_number f)
 {
     str_number fonttext;
-    if (pdf_font_blink(f) == null_font)
-        fonttext = font_id_text(f);
-    else
-        fonttext = font_id_text(pdf_font_blink(f));
+    fonttext = font_id_text(f);
     if (fonttext > 0) {
         print_esc(fonttext);
     } else {
         tprint_esc("FONT");
-        if (pdf_font_blink(f) == null_font)
-            print_int(f);
-        else
-            print_int(pdf_font_blink(f));
+        print_int(f);
     }
     if (int_par(pdf_tracing_fonts_code) > 0) {
         tprint(" (");
@@ -844,12 +838,6 @@ void print_font_identifier(internal_font_number f)
             print_scaled(font_size(f));
             tprint("pt");
         }
-        print_char(')');
-    } else if (font_expand_ratio(f) != 0) {
-        tprint(" (");
-        if (font_expand_ratio(f) > 0)
-            print_char('+');
-        print_int(font_expand_ratio(f));
         print_char(')');
     }
 }

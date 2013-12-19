@@ -143,23 +143,22 @@ static scaled simple_advance_width(halfword p)
     scaled w = 0;
     while ((q != null) && (vlink(q) != null)) {
         q = vlink(q);
-        if (is_char_node(q)) {
+        switch (type(q)) {
+        case glyph_node:
             w += glyph_width(q);
-        } else {
-            switch (type(q)) {
-            case hlist_node:
-            case vlist_node:
-            case rule_node:
-            case margin_kern_node:
-            case kern_node:
-                w += width(q);
-                break;
-            case disc_node:
-                if (vlink(no_break(q)) != null)
-                    w += simple_advance_width(no_break(q));
-            default:
-                break;
-            }
+            break;
+        case hlist_node:
+        case vlist_node:
+        case rule_node:
+        case margin_kern_node:
+        case kern_node:
+            w += width(q);
+            break;
+        case disc_node:
+            if (vlink(no_break(q)) != null)
+                w += simple_advance_width(no_break(q));
+        default:
+            break;
         }
     }
     return w;
@@ -377,8 +376,7 @@ void hlist_out(PDF pdf, halfword this_box)
                     tmpcur.v = cur.v - y_displace(p);
                     synch_pos_with_cur(pdf->posstruct, refpos, tmpcur);
                 }
-                output_one_char(pdf, font(p), character(p));
-                ci = get_charinfo_whd(font(p), character(p));
+                ci = output_one_char(pdf, p);
                 if (textdir_parallel(localpos.dir, dir_TLT))
                     cur.h += ci.wd;
                 else

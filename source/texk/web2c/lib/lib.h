@@ -11,7 +11,12 @@ extern string basenamechangesuffix (const_string, const_string, const_string);
 extern string chartostring (char);
 
 /* eofeoln.c */
+/* avoid conflicts with x86_64 mingw */
+/*#ifndef __MINGW64__ 
 extern boolean eof (FILE *);
+#endif
+*/
+#define eof weof
 extern boolean eoln (FILE *);
 extern void readln (FILE *);
 

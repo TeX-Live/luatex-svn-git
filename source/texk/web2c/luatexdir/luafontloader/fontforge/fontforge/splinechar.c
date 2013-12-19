@@ -30,7 +30,6 @@
 #include <locale.h>
 # include <ustring.h>
 # include <utype.h>
-# include <gresource.h>
 #ifdef HAVE_IEEEFP_H
 # include <ieeefp.h>		/* Solaris defines isnan in ieeefp rather than math.h */
 #endif

@@ -98,7 +98,7 @@ static const luaL_Reg lualibs[] = {
     {"package", luaopen_package},
     {"coroutine", luaopen_coroutine},
     {"table", luaopen_table},
-    {"io", open_iolibext}, 
+    {"io", open_iolibext},
     {"os", luaopen_os},
     {"string", luaopen_string},
     {"math", luaopen_math},
