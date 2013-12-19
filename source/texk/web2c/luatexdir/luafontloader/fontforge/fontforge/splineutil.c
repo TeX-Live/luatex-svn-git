@@ -4094,10 +4094,10 @@ return( new );
 
 void KernClassFreeContents(KernClass *kc) {
     int i;
-
-    for ( i=1; i<kc->first_cnt; ++i )
+    /* Issue 863 */
+    for ( i=0; i<kc->first_cnt; ++i )
 	free(kc->firsts[i]);
-    for ( i=1; i<kc->second_cnt; ++i )
+    for ( i=0; i<kc->second_cnt; ++i )
 	free(kc->seconds[i]);
     free(kc->firsts);
     free(kc->seconds);
@@ -4310,6 +4310,10 @@ return;
 #endif
     BaseFree(sf->horiz_base);
     BaseFree(sf->vert_base);
+    /* issue 863 */
+    for ( i=0; i < sf->layer_cnt; ++i )
+        free (sf->layers[i].name);
+    free(sf->layers);
     free(sf);
 }
 
