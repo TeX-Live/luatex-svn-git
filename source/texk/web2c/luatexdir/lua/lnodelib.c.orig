@@ -22,7 +22,7 @@
     The node getter and setter are adapted a bit by Hans and Luigi so blame
     them! On the agenda: check all keys, maybe hide some fields that are not
     supposed to be seen and set (scratch fields for the backend and par
-    builder).
+    builder). THIS IS THE ORIGINAL FILE BEFORE INTRODUCTION OF NUTS.
 
 */
 

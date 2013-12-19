@@ -35,6 +35,6 @@
 #tcc -shared -o runscript.dll runscript_dll.c
 #tcc -o runscript.exe runscript_exe.c runscript.def
 
-gcc=x86_64-w64-mingw32-gcc
-$gcc -m64 -Os -s -shared -o mtxrun.dll mtxrun_dll.c
-$gcc -m64 -Os -s -o mtxrun.exe mtxrun_exe.c -L./ -lmtxrun
+#gcc=x86_64-w64-mingw32-gcc
+#$gcc -m64 -Os -s -shared -o mtxrun.dll mtxrun_dll.c
+#$gcc -m64 -Os -s -o mtxrun.exe mtxrun_exe.c -L./ -lmtxrun
