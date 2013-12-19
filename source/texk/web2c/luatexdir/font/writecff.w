@@ -891,7 +891,7 @@ double cff_dict_get(cff_dict * dict, const char *key, int idx)
 
     for (i = 0; i < dict->count; i++) {
         if (strcmp(key, (dict->entries)[i].key) == 0) {
-            if ((dict->entries)[i].count > idx)
+           if ((dict->entries)[i].count > idx)
                 value = (dict->entries)[i].values[idx];
             else
                 pdftex_fail("Invalid index number.");
@@ -1251,6 +1251,7 @@ static long pack_real(card8 * dest, long destlen, double value)
 {
     long e;
     int i = 0, pos = 2;
+    int res;
 #define CFF_REAL_MAX_LEN 17
 
     if (destlen < 2)
@@ -1282,10 +1283,16 @@ static long pack_real(card8 * dest, long destlen, double value)
         }
     }
 
-    sprintf(work_buffer, "%1.14g", value);
-    for (i = 0; i < CFF_REAL_MAX_LEN; i++) {
+    res=sprintf(work_buffer, "%1.14g", value);
+    if (res<0) CFF_ERROR("Invalid conversion.");
+    if (res>CFF_REAL_MAX_LEN) res=CFF_REAL_MAX_LEN;
+
+    for (i = 0; i < res; i++) {
         unsigned char ch = 0;
+
         if (work_buffer[i] == '\0') {
+	  /* res should prevent this  */ 
+	  /* CFF_ERROR("Cannot happen"); */ 
             break;
         } else if (work_buffer[i] == '.') {
             ch = 0x0a;
