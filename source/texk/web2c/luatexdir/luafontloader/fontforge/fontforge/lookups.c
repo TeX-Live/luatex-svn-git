@@ -657,15 +657,28 @@ SplineChar **SFGlyphsWithLigatureinLookup(SplineFont *sf,struct lookup_subtable 
     int i, cnt;
     PST *pst;
     sc=NULL;
-    for ( i=0; i<sf->glyphcnt; ++i ) if ( SCWorthOutputting(sc = sf->glyphs[i]) ) {
-	for ( pst=sc->possub; pst!=NULL; pst=pst->next ) {
-	    if ( pst->subtable == subtable ) {
-		used[i] = true;
-    goto continue_;
-	    }
-	}
-    continue_: ;
-    }
+    /* for ( i=0; i<sf->glyphcnt; ++i ) if ( SCWorthOutputting(sc = sf->glyphs[i]) ) { */
+    /* 	for ( pst=sc->possub; pst!=NULL; pst=pst->next ) { */
+    /* 	    if ( pst->subtable == subtable ) { */
+    /* 		used[i] = true; */
+    /* goto continue_; */
+    /* 	    } */
+    /* 	} */
+    /* continue_: ; */
+    /* } */
+    /* Issue 866 : currently #define SCWorthOutputting(a) 1 so we drop it */
+    for ( i=0; i<sf->glyphcnt; ++i ) {
+      sc = sf->glyphs[i];
+      if ( sc ) {
+    	for ( pst=sc->possub; pst!=NULL; pst=pst->next ) {
+	  if ( pst->subtable == subtable ) {
+	    used[i] = true;
+      goto continue_;
+	  }
+    	}
+      continue_: ;
+      }/* end if ( sc ) */
+    }/*end for */
 
     for ( i=cnt=0 ; i<sf->glyphcnt; ++i )
 	if ( used[i] )
