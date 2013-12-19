@@ -1291,7 +1291,7 @@ static long pack_real(card8 * dest, long destlen, double value)
         unsigned char ch = 0;
 
         if (work_buffer[i] == '\0') {
-	  /* res should prevent this  */ 
+	  /* res should prevent this.  */ 
 	  /* CFF_ERROR("Cannot happen"); */ 
             break;
         } else if (work_buffer[i] == '.') {
