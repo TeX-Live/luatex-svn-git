@@ -1569,7 +1569,7 @@ void dump_font(int f)
     dump_things(*param_base(f), (font_params(f) + 1));
 
     if (font_math_params(f) > 0) {
-        dump_things(*math_param_base(f), (font_math_params(f)));
+        dump_things(*math_param_base(f), (font_math_params(f) + 1 ));
     }
     if (has_left_boundary(f)) {
         dump_int(1);
