@@ -741,11 +741,13 @@ static double get_real(card8 ** data, card8 * endptr, int *status)
         /*  an application wishing to check for error situations */
         /*  should set errno to 0, then call strtod(), strtof(), or strtold(), */
         /*  then check errno. */
+        /* See also http://www.gnu.org/software/libc/manual/html_mono/libc.html#Parsing-of-Integers */
+        /* the example at the end*/
         /* LS: We also preserve the prev. errno */
         int temp_errno=errno;
         errno=0;
         result = strtod(work_buffer, &s);
-        if (errno==ERANGE) {
+        if (errno) {
              *status = CFF_CFF_ERROR_PARSE_CFF_ERROR;
        }
        /* Restore the prev. errno */
