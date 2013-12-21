@@ -736,9 +736,16 @@ static double get_real(card8 ** data, card8 * endptr, int *status)
     } else {
         char *s;
         result = strtod(work_buffer, &s);
-        if (*s != 0 || errno == ERANGE) {
-            *status = CFF_CFF_ERROR_PARSE_CFF_ERROR;
-        }
+	if ( (result==0) && (work_buffer==s))  {
+	     /* conversion is not possible */
+             *status = CFF_CFF_ERROR_PARSE_CFF_ERROR;
+	}else if ( (result==HUGE_VAL || result==-HUGE_VAL || result==HUGE_VALF || result==-HUGE_VALF || result==HUGE_VALL || result==-HUGE_VALL) && errno==ERANGE) {
+             /* Overflow */
+              *status = CFF_CFF_ERROR_PARSE_CFF_ERROR;	
+        } else if (result==0 && errno==ERANGE)  {
+            /*Underflow */
+             *status = CFF_CFF_ERROR_PARSE_CFF_ERROR;
+       }
     }
 
     return result;
