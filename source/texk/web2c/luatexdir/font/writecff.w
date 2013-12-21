@@ -735,12 +735,21 @@ static double get_real(card8 ** data, card8 * endptr, int *status)
         *status = CFF_CFF_ERROR_PARSE_CFF_ERROR;
     } else {
         char *s;
-        result = strtod(work_buffer, &s);
         /* An invalid number is indistinguishable from one that causes overflow */
-	if ( ((result==0) && (work_buffer==s)) ||  (result==HUGE_VAL || result==-HUGE_VAL || result==HUGE_VALF || result==-HUGE_VALF || result==HUGE_VALL || result==-HUGE_VALL) ) {
-	     /* conversion is not possible */
+        /* http://pubs.opengroup.org/onlinepubs/009696699/functions/strtod.html */
+        /*Since 0 is returned on error and is also a valid return on success,  */
+        /*  an application wishing to check for error situations */
+        /*  should set errno to 0, then call strtod(), strtof(), or strtold(), */
+        /*  then check errno. */
+        /* LS: We also preserve the prev. errno */
+        int temp_errno=errno;
+        errno=0;
+        result = strtod(work_buffer, &s);
+        if (errno==ERANGE) {
              *status = CFF_CFF_ERROR_PARSE_CFF_ERROR;
        }
+       /* Restore the prev. errno */
+       errno=temp_errno;
     }
 
     return result;
