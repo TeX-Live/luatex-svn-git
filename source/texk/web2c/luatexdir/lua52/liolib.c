@@ -83,15 +83,6 @@
 #define l_ftell(f)		_ftelli64(f)
 #define l_seeknum		__int64
 
-
-/* Enable support for LFS under Windows 32bit (quite useless) */
-/* and Windows 64 bit                                         */
-/* SEE liolibext.c                                           */
-/*#elif defined(__MINGW32__)                                 */
-/*#define l_fseek(f,o,w)          fseeko64(f,o,w)            */
-/*#define l_ftell(f)              ftello64(f)                */
-/*#define l_seeknum               int64_t                    */
-
 #else
 
 #define l_fseek(f,o,w)		fseek(f,o,w)
