@@ -64,12 +64,13 @@ JOBS_IF_PARALLEL=${JOBS_IF_PARALLEL:-3}
 MAX_LOAD_IF_PARALLEL=${MAX_LOAD_IF_PARALLEL:-2}
 
 CFLAGS="$CFLAGS"
+CXXFLAGS="$CXXFLAGS" 
 
 until [ -z "$1" ]; do
   case "$1" in
     --make      ) ONLY_MAKE=TRUE     ;;
     --nostrip   ) STRIP_LUATEX=FALSE ;;
-    --debug     ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-g -O0 $CFLAGS" ;;
+    --debug     ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-g -O0 $CFLAGS" ; CXXFLAGS="-g -O0 $CXXFLAGS" ;;
     --warnings=*) WARNINGS=`echo $1 | sed 's/--warnings=\(.*\)/\1/' `        ;;
     --mingw     ) MINGWCROSS=TRUE    ;;
     --host=*    ) CONFHOST="$1"      ;;
@@ -100,7 +101,7 @@ then
   LUATEXEXE=luatex.exe
   OLDPATH=$PATH
   PATH=/usr/mingw32/bin:$PATH
-  CFLAGS="-mtune=nocona -g -O3 $CFLAGS"
+  CFLAGS="-mtune=nocona -g -O3 $CFLAGS -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE"
   CXXFLAGS="-mtune=nocona -g -O3 $CXXFLAGS"
   : ${CONFHOST:=--host=i586-mingw32msvc}
   : ${CONFBUILD:=--build=i686-linux-gnu}
@@ -125,7 +126,7 @@ fi
 
 if [ "$STRIP_LUATEX" = "FALSE" ]
 then
-    export CFLAGS
+    export CFLAGS CXXFLAGS
 fi
 
 # ----------
@@ -178,6 +179,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --without-mf-x-toolkit --without-x \
    || exit 1 
 fi
+
 
 $MAKE
 

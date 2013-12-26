@@ -92,7 +92,7 @@ until [ -z "$1" ]; do
   case "$1" in
     --make      ) ONLY_MAKE=TRUE     ;;
     --nostrip   ) STRIP_LUATEX=FALSE ;;
-    --debug     ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-g -O0 $CFLAGS" ;;
+    --debug     ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-g -O0 $CFLAGS" ; CXXFLAGS="-g -O0 CXXFLAGS" ;;
     --warnings=*) WARNINGS=`echo $1 | sed 's/--warnings=\(.*\)/\1/' `        ;;
     --mingw     ) MINGWCROSS=TRUE    ;;
     --mingw32   ) MINGWCROSS=TRUE    ;;
@@ -199,7 +199,7 @@ fi
 
 if [ "$STRIP_LUATEX" = "FALSE" ]
 then
-    export CFLAGS
+    export CFLAGS CXXFLAGS
 fi
 
 # ----------

@@ -65,8 +65,7 @@ static const char _svn_version[] =
 #define l_seeknum		long
 
 
-/* Enable support for LFS under Windows 32bit (quite useless) */
-/* and Windows 64 bit                                         */
+/* Large File Support  under Windows 32bit Windows 64 bit */
 #if defined(__MINGW32__)
 #define l_fseek(f,o,w)          fseeko64(f,o,w)
 #define l_ftell(f)              ftello64(f)
