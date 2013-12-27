@@ -234,9 +234,12 @@ return( NULL );
 return( NULL );
 	    }
 	    if ( glyphs[i]>=info->glyph_cnt ) {
-		LogError( _("Bad coverage table. Glyph %d out of range [0,%d)\n"), glyphs[i], info->glyph_cnt );
+                /* Temp fix for bug 826 */
+		printf("Extraordinary error:Bad coverage table. Glyph %d out of range [0,%d). Probably the process will abort\n", glyphs[i], info->glyph_cnt);LogError( _("Bad coverage table. Glyph %d out of range [0,%d)\n"), glyphs[i], info->glyph_cnt );
 		info->bad_ot = true;
-		glyphs[i] = 0;
+		/*glyphs[i] = 0;*/
+                free(glyphs);
+return (NULL);
 	    }
 	}
     } else if ( format==2 ) {
@@ -1508,6 +1511,11 @@ return;
 
 	/* Just in case they used the coverage table to redefine class 0 */
 	glyphs = getCoverageTable(ttf,stoffset+coverage,info);
+        /* Temp fix fir bug 826 */
+        if (glyphs==NULL) {
+        free(class);
+        free(rules);
+return;}
 	fpst->nclass[0] = CoverageMinusClasses(glyphs,class,info);
 	free(glyphs); free(class); class = NULL;
 
