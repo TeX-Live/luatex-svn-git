@@ -625,12 +625,25 @@ static int luatex_kpse_clua_find(lua_State * L)
         const char *path_saved;
         char *prefix, *postfix, *p, *total;
         char *extensionless;
+        char *temp_name;
+        int j;
         filename = luatex_kpse_find_aux(L, name, kpse_clua_format, "C");
     	if (filename == NULL)
            return 1;               /* library not found in this path */
 	extensionless = strdup(filename);
 	if (!extensionless) return 1;  /* allocation failure */
-	p = strstr(extensionless, name);
+	/* Fix Issue 850: replace '.' with LUA_DIRSEP */
+        temp_name = strdup(name);
+        for(j=0; ; j++){
+          if ((unsigned char)temp_name[j]=='\0') {
+            break;
+          }
+          if ((unsigned char)temp_name[j]=='.'){
+            temp_name[j]=LUA_DIRSEP[0]; 
+          }
+        }
+	p = strstr(extensionless, temp_name);
+	printf("extensionless=%s,name=%s,p=%s\n", extensionless, name,p);
 	if (!p) return 1;  /* this would be exceedingly weird */
 	*p = '\0';
 	prefix = strdup(extensionless);
@@ -660,6 +673,7 @@ static int luatex_kpse_clua_find(lua_State * L)
 	lua_pop(L,1); /* pop "package" */
 	free(extensionless);
 	free(total);
+        free(temp_name);
         return 1;
     }
 }
