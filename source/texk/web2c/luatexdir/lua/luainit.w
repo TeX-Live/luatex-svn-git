@@ -643,7 +643,6 @@ static int luatex_kpse_clua_find(lua_State * L)
           }
         }
 	p = strstr(extensionless, temp_name);
-	printf("extensionless=%s,name=%s,p=%s\n", extensionless, name,p);
 	if (!p) return 1;  /* this would be exceedingly weird */
 	*p = '\0';
 	prefix = strdup(extensionless);
