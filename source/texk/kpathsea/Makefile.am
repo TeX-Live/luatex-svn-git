@@ -5,11 +5,6 @@
 ##
 ACLOCAL_AMFLAGS = -I ../../m4
 
-# Rebuild
-.PHONY: rebuild
-rebuild: all-am
-	touch libkpathsea.la
-
 SUBDIRS = . doc man
 
 EXTRA_DIST = BUGS PROJECTS
@@ -20,8 +15,11 @@ AM_CFLAGS = $(WARNING_CFLAGS)
 lib_LTLIBRARIES = libkpathsea.la
 
 libkpathsea_la_CPPFLAGS = $(AM_CPPFLAGS) -DMAKE_KPSE_DLL
+if have_EXEEXT
+libkpathsea_la_CPPFLAGS += -DEXEEXT=\"$(EXEEXT)\"
+endif have_EXEEXT
 
-libkpathsea_la_LDFLAGS = -no-undefined -version-info $(KPSE_LT_VERSINFO)
+libkpathsea_la_LDFLAGS = -bindir @bindir@ -no-undefined -version-info $(KPSE_LT_VERSINFO)
 
 libkpathsea_la_LIBADD = $(LTLIBOBJS)
 
@@ -47,8 +45,6 @@ libkpathsea_la_SOURCES = \
 	find-suffix.c \
 	fn.c \
 	fontmap.c \
-	getopt.c \
-	getopt1.c \
 	hash.c \
 	kdefault.c \
 	kpathsea.c \
@@ -83,6 +79,12 @@ libkpathsea_la_SOURCES = \
 	xrealloc.c \
 	xstat.c \
 	xstrdup.c
+
+if !MINGW32
+libkpathsea_la_SOURCES += \
+	getopt.c \
+	getopt1.c
+endif !MINGW32
 
 if WIN32
 if MINGW32
@@ -204,13 +206,25 @@ stamp-paths: texmf.cnf bsnl.awk cnf-to-paths.awk
 	rm -f paths.tmp
 	date >$@
 
-kpathsea.h: Makefile paths.h
+## Similarly we don't want to rewrite kpathsea.h when only Makefile has
+## been remade but kpathsea.h remains the same.
+##
+kpathsea.h: stamp-kpathsea
+stamp-kpathsea: Makefile paths.h
 	$(AM_V_GEN)rm -f $@; \
 	( echo '/* This is a generated file */'; \
 	  echo '/* collecting all public kpathsea headers. */'; \
 	  for f in config.h c-auto.h paths.h $(normal_headers); do \
 	    echo "#include <kpathsea/$$f>"; \
-	  done ) >$@
+	  done ) >kpathsea.tmp
+	@if cmp -s kpathsea.h kpathsea.tmp 2>/dev/null; then \
+	  echo "kpathsea.h is unchanged"; \
+	else \
+	  echo "cp kpathsea.tmp kpathsea.h"; \
+	  cp kpathsea.tmp kpathsea.h; \
+	fi
+	rm -f kpathsea.tmp
+	date >$@
 
 EXTRA_DIST += bsnl.awk cnf-to-paths.awk
 
@@ -282,18 +296,27 @@ endif !WIN32
 
 bin_links = mktexlsr:texhash
 
-include $(top_srcdir)/../am/bin_links.am
+include $(top_srcdir)/../../am/bin_links.am
 
 install-exec-hook: install-bin-links
 
 uninstall-hook: uninstall-bin-links
 
 ## The tests
-TESTS = kpseaccess.test kpsereadlink.test kpsestat.test kpsewhich.test
+TESTS  = tests/cnfnewline.test tests/kpseaccess.test
+TESTS += tests/kpsereadlink.test tests/kpsestat.test tests/kpsewhich.test
 TESTS_ENVIRONMENT = LN_S='$(LN_S)' LT_OBJDIR='$(LT_OBJDIR)'
 EXTRA_DIST += $(TESTS)
+EXTRA_DIST += tests/cnfnewline/texmf.cnf
+
+# Rebuild
+rebuild_prereq =
+rebuild_target = all-am
+CLEANFILES =
+
+include $(srcdir)/../../am/rebuild.am
 
 ## Not used
 ##
-EXTRA_DIST += mktex.cnf win32lib.h.mugica
+EXTRA_DIST += mktex.cnf
 

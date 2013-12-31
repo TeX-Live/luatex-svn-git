@@ -3,9 +3,9 @@
 % 
 % If you modify this original file, YOUR CHANGES WILL BE LOST when it is
 % updated.  Instead, put your changes -- and only your changes, not an
-% entire copy of the full texmf.cnf! -- in ../../texmf.cnf.  That is, if
-% this file is installed in /some/path/to/texlive/2012/texmf/web2c/texmf.cnf,
-% add your custom settings to /some/path/to/texlive/2012/texmf.cnf.
+% entire copy! -- in ../../texmf.cnf.  That is, if this file is
+% installed in /some/path/to/texlive/2013/texmf-dist/web2c/texmf.cnf,
+% add your custom settings to /some/path/to/texlive/2013/texmf.cnf.
 % 
 % What follows is a super-summary of what this .cnf file can
 % contain. Please read the Kpathsea manual for more information.
@@ -53,15 +53,15 @@
 % SELFAUTODIR (its parent), and SELFAUTOPARENT (its grandparent).
 TEXMFROOT = $SELFAUTOPARENT
 
-% The tree containing runtime files related to the specific
-% distribution and version.
-TEXMFMAIN = $TEXMFROOT/texmf
-
-% The main tree of packages, distribution-agnostic:
+% The main tree of distributed packages and programs:
 TEXMFDIST = $TEXMFROOT/texmf-dist
 
+% We used to have a separate /texmf tree with some core programs and files.
+% Keep the variable name.
+TEXMFMAIN = $TEXMFDIST
+
 % Local additions to the distribution trees.
-TEXMFLOCAL = $TEXMFROOT/../texmf-local
+TEXMFLOCAL = $SELFAUTOGRANDPARENT/texmf-local
 
 % TEXMFSYSVAR, where *-sys store cached runtime data.
 TEXMFSYSVAR = $TEXMFROOT/texmf-var
@@ -76,25 +76,22 @@ TEXMFSYSCONFIG = $TEXMFROOT/texmf-config
 TEXMFHOME = ~/texmf
 
 % TEXMFVAR, where texconfig/updmap/fmtutil store cached runtime data.
-TEXMFVAR = ~/.texlive2012/texmf-var
+TEXMFVAR = ~/.texlive2013/texmf-var
 
 % TEXMFCONFIG, where texconfig/updmap/fmtutil store configuration data.
-TEXMFCONFIG = ~/.texlive2012/texmf-config
+TEXMFCONFIG = ~/.texlive2013/texmf-config
 
-% List all the texmf trees.
+% List all the texmf trees. For an explanation of what they are, see the
+% TeX Live manual.
 %
 % For texconfig to work properly, TEXMFCONFIG and TEXMFVAR should be named
 % explicitly and before all other trees.
 % 
-% TEXMFLOCAL follows TEXMFMAIN (and precedes TEXMFDIST) because the
-% files in TEXMFMAIN are tightly coupled with the particular version of
-% the distribution, such as configuration files.  Overriding them would
-% be more likely to cause trouble than help.  On the other hand, the
-% bulk of packages and fonts are in TEXMFDIST, and locally-installed
-% versions should take precedence over those -- although it is generally
-% a source of confusion to have different versions of a package
-% installed, whatever the trees, so try to avoid it.
-TEXMF = {$TEXMFCONFIG,$TEXMFVAR,$TEXMFHOME,!!$TEXMFSYSCONFIG,!!$TEXMFSYSVAR,!!$TEXMFMAIN,!!$TEXMFLOCAL,!!$TEXMFDIST}
+% TEXMFLOCAL precedes TEXMFDIST because locally-installed versions
+% should take precedence over distribution files -- although it is
+% generally a source of confusion to have different versions of a
+% package installed, whatever the trees, so try to avoid it.
+TEXMF = {$TEXMFCONFIG,$TEXMFVAR,$TEXMFHOME,!!$TEXMFSYSCONFIG,!!$TEXMFSYSVAR,!!$TEXMFLOCAL,!!$TEXMFDIST}
 
 % Where to look for ls-R files.  There need not be an ls-R in the
 % directories in this path, but if there is one, Kpathsea will use it.
@@ -102,13 +99,19 @@ TEXMF = {$TEXMFCONFIG,$TEXMFVAR,$TEXMFHOME,!!$TEXMFSYSCONFIG,!!$TEXMFSYSVAR,!!$T
 % does not create ls-R files in the non-!! elements -- because if an
 % ls-R is present, it will be used, and the disk will not be searched.
 % This is arguably a bug in kpathsea.
-TEXMFDBS = {!!$TEXMFSYSCONFIG,!!$TEXMFSYSVAR,!!$TEXMFMAIN,!!$TEXMFLOCAL,!!$TEXMFDIST}
+TEXMFDBS = {!!$TEXMFSYSCONFIG,!!$TEXMFSYSVAR,!!$TEXMFLOCAL,!!$TEXMFDIST}
 
 % The system trees.  These are the trees that are shared by all users.
 % If a tree appears in this list, the mktex* scripts will use
 % VARTEXFONTS for generated files, if the original tree isn't writable;
 % otherwise the current working directory is used.
-SYSTEXMF = $TEXMFSYSVAR;$TEXMFMAIN;$TEXMFLOCAL;$TEXMFDIST
+SYSTEXMF = $TEXMFSYSVAR;$TEXMFLOCAL;$TEXMFDIST
+
+% First writable tree here is used by Lua(La)TeX for the font cache.
+% LuaLaTeX uses the value here, while ConTeXt uses the same variable but
+% from texmfcnf.lua; therefore the two values should be kept in sync.
+% (As should everything else in texmf.cnf <-> texmfcnf.lua.)
+TEXMFCACHE = $TEXMFSYSVAR;$TEXMFVAR
 
 % Where generated fonts may be written.  This tree is used when the sources
 % were found in a system tree and either that tree wasn't writable, or the
@@ -207,7 +210,7 @@ TEXINPUTS.aleph         = .;$TEXMF/tex/{plain,generic,}//
 TEXINPUTS.elambda       = .;$TEXMF/tex/{lambda,latex,generic,}//
 TEXINPUTS.eomega        = .;$TEXMF/tex/{plain,generic,}//
 TEXINPUTS.lambda        = .;$TEXMF/tex/{lambda,latex,generic,}//
-TEXINPUTS.lamed         = .;$TEXMF/tex/{lamed,lambda,latex,generic,}//
+TEXINPUTS.lamed         = .;$TEXMF/tex/{lambda,latex,generic,}//
 TEXINPUTS.omega         = .;$TEXMF/tex/{plain,generic,}//
 
 % p(La)TeX.
@@ -381,8 +384,8 @@ MIMELIBDIR = $TEXMFROOT/etc
 MAILCAPLIBDIR = $TEXMFROOT/etc
 
 % Default settings for the fontconfig library as used by the Windows
-% versions of xetex/xdvipdfmx.  On Unixish systems, fontconfig ignores
-% this.  ConTeXT MkIV (all platforms) also use these values.
+% versions of xetex/xdvipdfmx.  Not used by xetex on Unixish systems.
+% ConTeXT MkIV (all platforms) also use these values.
 % 
 FONTCONFIG_FILE = fonts.conf
 FONTCONFIG_PATH = $TEXMFSYSVAR/fonts/conf
@@ -457,20 +460,22 @@ RUBYINPUTS   = .;$TEXMF/scripts/{$progname,$engine,}/ruby//
 % argv[0], in kpse_set_program_name.
 % 
 % This main texmf.cnf file is installed, for a release YYYY, in a
-% directory such as /usr/local/texlive/YYYY/texmf/web2c/texmf.cnf.
+% directory such as /usr/local/texlive/YYYY/texmf-dist/web2c/texmf.cnf.
 % Since this file is subject to future updates, the TeX Live installer
 % or human administrator may also create a file
 % /usr/local/texlive/YYYY/texmf.cnf; any settings in this latter file
-% will take precedence over the distributed one under texmf/web2c.
+% will take precedence over the distributed one.
 % 
 % For security reasons, it is best not to include . in this path.
 %
 % The idea behind this lengthy definition: for each of
-% SELFAUTO{LOC,DIR,AUTO}, look in the directory,
-% then the subdirectories share/texmf-local and share/texmf,
-% then ./texmf-local and ./texmf.
+% SELFAUTO{LOC,DIR,PARENT}, look in the directory,
+% then the subdirectories share/texmf-local, share/texmf-dist, share/texmf,
+% then the subdirectories ./texmf-local, texmf-dist, ./texmf.
+% At any given installation, most of these directories will not exist,
+% but they all turn out to be useful somewhere.
 % 
-% However, we want to include one more directory: the
+% Special addition -- we want to include one more directory: the
 % great-grandparent's texmf-local, because that is how TL is installed
 % by default.  That is, given a binary
 % /usr/local/texlive/YYYY/bin/PLATFORM/kpsewhich, it should find
@@ -478,20 +483,34 @@ RUBYINPUTS   = .;$TEXMF/scripts/{$progname,$engine,}/ruby//
 % 
 % As a result, we cannot use actual brace expansion in the definition,
 % since we don't want to scatter ../'s throughout the value.  Hence we
-% explicitly list every directory.  Arguably more understandable this
-% way anyway.
+% explicitly list every directory.  Arguably more understandable anyway.
 %
 TEXMFCNF = {\
 $SELFAUTOLOC,\
-$SELFAUTOLOC/share/texmf-local/web2c,$SELFAUTOLOC/share/texmf/web2c,\
-$SELFAUTOLOC/texmf-local/web2c,$SELFAUTOLOC/texmf/web2c,\
+$SELFAUTOLOC/share/texmf-local/web2c,\
+$SELFAUTOLOC/share/texmf-dist/web2c,\
+$SELFAUTOLOC/share/texmf/web2c,\
+$SELFAUTOLOC/texmf-local/web2c,\
+$SELFAUTOLOC/texmf-dist/web2c,\
+$SELFAUTOLOC/texmf/web2c,\
+\
 $SELFAUTODIR,\
-$SELFAUTODIR/share/texmf-local/web2c,$SELFAUTODIR/share/texmf/web2c,\
-$SELFAUTODIR/texmf-local/web2c,$SELFAUTODIR/texmf/web2c,\
-$SELFAUTOPARENT/../texmf-local/web2c,\
+$SELFAUTODIR/share/texmf-local/web2c,\
+$SELFAUTODIR/share/texmf-dist/web2c,\
+$SELFAUTODIR/share/texmf/web2c,\
+$SELFAUTODIR/texmf-local/web2c,\
+$SELFAUTODIR/texmf-dist/web2c,\
+$SELFAUTODIR/texmf/web2c,\
+\
+$SELFAUTOGRANDPARENT/texmf-local/web2c,\
 $SELFAUTOPARENT,\
-$SELFAUTOPARENT/share/texmf-local/web2c,$SELFAUTOPARENT/share/texmf/web2c,\
-$SELFAUTOPARENT/texmf-local/web2c,$SELFAUTOPARENT/texmf/web2c\
+\
+$SELFAUTOPARENT/share/texmf-local/web2c,\
+$SELFAUTOPARENT/share/texmf-dist/web2c,\
+$SELFAUTOPARENT/share/texmf/web2c,\
+$SELFAUTOPARENT/texmf-local/web2c,\
+$SELFAUTOPARENT/texmf-dist/web2c,\
+$SELFAUTOPARENT/texmf/web2c\
 }
 %
 % For reference, here is the old brace-using definition:
@@ -568,7 +587,7 @@ shell_escape.initex = f
 % for the purportedly safe shell_escape_commands above to system
 % directories.
 TEXMF_RESTRICTED_SCRIPTS = \
-  {!!$TEXMFMAIN,!!$TEXMFLOCAL,!!$TEXMFDIST}/scripts/{$progname,$engine,}//
+  {!!$TEXMFLOCAL,!!$TEXMFDIST}/scripts/{$progname,$engine,}//
 
 % Allow TeX \openin, \openout, or \input on filenames starting with `.'
 % (e.g., .rhosts) or outside the current tree (e.g., /etc/passwd)?
@@ -653,7 +672,7 @@ BIBTEX_CSFILE = 88591lat.csf
 %TEXLIVE_WINDOWS_TRY_EXTERNAL_PERL = 0
 
 
-%  Part 3: Array and other sizes for TeX (and Metafont).
+%  Part 3: Array and other sizes for TeX, Metafont, etc.
 %
 % If you want to change some of these sizes only for a certain TeX
 % variant, the usual dot notation works, e.g.,
@@ -761,3 +780,7 @@ max_strings.pbibtex = 35307
 line_length.gftype = 500
 max_rows.gftype = 8191
 max_cols.gftype = 8191
+
+% Guess input encoding (SJIS vs. Unicode, etc.) in pTeX and friends?
+% Default is 0, to not guess.
+guess_input_kanji_encoding = 0
