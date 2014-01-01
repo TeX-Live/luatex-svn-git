@@ -1,6 +1,6 @@
 /* progname.c: the executable name we were invoked as; general initialization.
 
-   Copyright 1994, 1996, 1997, 2008, 2009, 2010, 2011, 2012 Karl Berry.
+   Copyright 1994, 1996, 1997, 2008-2013 Karl Berry.
    Copyright 1998-2005 Olaf Weber.
 
    This library is free software; you can redistribute it and/or
@@ -486,12 +486,12 @@ kpathsea_set_program_name (kpathsea kpse,  const_string argv0,
                            const_string progname)
 {
   const_string ext;
-  string sdir, sdir_parent, sdir_grandparent;
+  string sdir, sdir_parent, sdir_grandparent, sdir_greatgrandparent;
   string s = getenv ("KPATHSEA_DEBUG");
 #ifdef WIN32
   string debug_output = getenv("KPATHSEA_DEBUG_OUTPUT");
   string append_debug_output = getenv("KPATHSEA_DEBUG_APPEND");
-  int err, olderr;
+  int err, olderr, cp;
 #endif
 
   /* Set debugging stuff first, in case we end up doing debuggable stuff
@@ -501,7 +501,14 @@ kpathsea_set_program_name (kpathsea kpse,  const_string argv0,
   }
 
 #if defined(WIN32)
-  is_cp932_system = (GetACP () == 932);
+  if (!file_system_codepage)
+    file_system_codepage = AreFileApisANSI() ? GetACP() : GetOEMCP();
+  cp = file_system_codepage;
+  if (cp == 932 || cp == 936 || cp == 950) {
+    is_cp932_system = cp;
+  }
+  else
+    is_cp932_system = 0;
 
 #if defined(__MINGW32__)
   /* Set various info about user. Among many things,
@@ -665,6 +672,8 @@ kpathsea_set_program_name (kpathsea kpse,  const_string argv0,
   kpathsea_xputenv (kpse, "SELFAUTODIR", fix_selfdir (sdir_parent));
   sdir_grandparent = xdirname (sdir_parent);
   kpathsea_xputenv (kpse, "SELFAUTOPARENT", fix_selfdir (sdir_grandparent));
+  sdir_greatgrandparent = xdirname (sdir_grandparent);
+  kpathsea_xputenv (kpse, "SELFAUTOGRANDPARENT", fix_selfdir (sdir_greatgrandparent));
 
 #if defined(WIN32) || defined(__CYGWIN__)
   mk_suffixlist(kpse);
@@ -673,6 +682,7 @@ kpathsea_set_program_name (kpathsea kpse,  const_string argv0,
   free (sdir);
   free (sdir_parent);
   free (sdir_grandparent);
+  free (sdir_greatgrandparent);
 
   kpse->invocation_short_name
     = xstrdup (xbasename (kpse->invocation_name));
@@ -723,6 +733,23 @@ kpse_set_program_name (const_string argv0, const_string progname)
   kpathsea_set_program_name (kpse_def, argv0, progname);
 }
 #endif
+
+/* Returns ARGV0 with any leading path and on some systems the suffix
+   for executables stripped off.  This returns a new string.
+   For example, `kpse_program_basename ("/foo/bar.EXE")' returns "bar"
+   on WIndows or Cygwin and "bar.EXE" otherwise.  */
+
+string
+kpse_program_basename (const_string argv0)
+{
+  string base = xstrdup (xbasename (argv0));
+#ifdef EXEEXT
+  string dot = strrchr (base, '.');
+  if (dot && FILESTRCASEEQ (dot, EXEEXT))
+    *dot = 0;
+#endif
+  return base;
+}
 
 
 #ifdef TEST

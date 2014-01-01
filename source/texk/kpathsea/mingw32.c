@@ -1,6 +1,6 @@
 /* mingw32.c: bits and pieces for mingw32
 
-   Copyright 2009-2011 Taco Hoekwater <taco@luatex.org>.
+   Copyright 2009-2013 Taco Hoekwater <taco@luatex.org>.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -404,27 +404,34 @@ void texlive_gs_init(void)
   char *nptr, *path;
   char tlgsbindir[512];
   char tlgslibdir[512];
-  nptr = kpse_var_value("SELFAUTOPARENT");
-  if (nptr) {
-    strcpy(tlgsbindir, nptr);
-    strcat(tlgsbindir,"/tlpkg/tlgs");
-    if(is_dir(tlgsbindir)) {
-      strcpy(tlgslibdir, tlgsbindir);
-      strcat(tlgslibdir, "/lib;");
-      strcat(tlgslibdir, tlgsbindir);
-      strcat(tlgslibdir, "/fonts");
-      strcat(tlgsbindir, "/bin;");
-      free(nptr);
-      for(nptr = tlgsbindir; *nptr; nptr++) {
-        if(*nptr == '/') *nptr = '\\';
+  nptr = kpse_var_value("TEXLIVE_WINDOWS_EXTERNAL_GS");
+  if (nptr == NULL || !strcmp(nptr, "0") || !strcmp(nptr, "n") || !strcmp(nptr, "f")) {
+    if (nptr)
+      free (nptr);
+    nptr = kpse_var_value("SELFAUTOPARENT");
+    if (nptr) {
+      strcpy(tlgsbindir, nptr);
+      strcat(tlgsbindir,"/tlpkg/tlgs");
+      if(is_dir(tlgsbindir)) {
+        strcpy(tlgslibdir, tlgsbindir);
+        strcat(tlgslibdir, "/lib;");
+        strcat(tlgslibdir, tlgsbindir);
+        strcat(tlgslibdir, "/fonts");
+        strcat(tlgsbindir, "/bin;");
+        free(nptr);
+        for(nptr = tlgsbindir; *nptr; nptr++) {
+          if(*nptr == '/') *nptr = '\\';
+        }
+        nptr = getenv("PATH");
+        path = (char *)malloc(strlen(nptr) + strlen(tlgsbindir) + 6);
+        strcpy(path, tlgsbindir);
+        strcat(path, nptr);
+        xputenv("PATH", path);
+        xputenv("GS_LIB", tlgslibdir);
       }
-      nptr = getenv("PATH");
-      path = (char *)malloc(strlen(nptr) + strlen(tlgsbindir) + 6);
-      strcpy(path, tlgsbindir);
-      strcat(path, nptr);
-      xputenv("PATH", path);
-      xputenv("GS_LIB", tlgslibdir);
     }
+  } else {
+    free (nptr);
   }
 }
 

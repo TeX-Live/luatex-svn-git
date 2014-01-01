@@ -1,7 +1,7 @@
 /* win32lib.h: bits and pieces for win32 and msvc.
 
+   Copyright 2006, 2010-2013 Akira Kakuto.
    Copyright 1996, 1997, 1998, 1999 Fabrice Popineau.
-   Copyright 2006, 2010, 2011, 2012 Akira Kakuto.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -245,6 +245,10 @@
 #undef min
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern KPSEDLL FILE *win32_popen (const char *cmd, const char *mode);
 extern KPSEDLL int win32_pclose (FILE *f);
 extern KPSEDLL struct passwd *kpathsea_getpwnam (kpathsea kpse, char *name);
@@ -269,5 +273,9 @@ extern KPSEDLL char *get_home_directory (void);
 #define off_t __int64
 #define xfseeko xfseek64
 #define xftello xftell64
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* not KPATHSEA_WIN32LIB_H */

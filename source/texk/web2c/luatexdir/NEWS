@@ -2,6 +2,41 @@
 This file is in the public domain.
 
 ==============================================================
+Luatex beta-0.78.0 was released 20131231
+==============================================================
+
+* Instead of using expanded fonts, just calculate the expanded 
+  width of glyphs where needed, and carry expand info in the
+  glyph nodes (all based on Hans' suggestions). All font expansion 
+  functions are disabled and most are removed.
+
+* New, faster (but limited) direct node access from lua, see
+  the manual for details
+
+* Support for Apple Advanced Typography (AAT) information in
+  fonts is dropped
+
+* Extended build script for mingw/msys (includes 64-bit support)
+
+* Various patches from/via Akira Kakuta for better Win32 
+  integration
+
+* Fixes for some bugs in de pdfscanner library (mostly related
+  to inline images)
+
+* Maximum hyphenated word length is now 64Kb characters.
+
+* Various patches from Khaled Hosny and Luigi Scarso for the 
+  luafontloader subsystem
+
+* Fix for a crash when re-dumping formats
+
+* Fix for a Selene unicode library bug where some characters in 
+  UTF-8 were incorrectly flagged as having the 'Space' property
+
+* Some smaller fixes
+
+==============================================================
 Luatex beta-0.76.0 was released 20130405
 ==============================================================
 
@@ -2064,7 +2099,7 @@ Other news:
    we probably introduced new problems as well).
 
 * Most (all?) files now have a corrected Copyright header,
-   and link in $Id: NEWS 4628 2013-04-05 10:24:35Z taco $ and  $URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/NEWS $ into the object file.
+   and link in $Id: NEWS 4702 2013-12-31 15:27:57Z taco $ and  $URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/NEWS $ into the object file.
 
 * Some unnecessary files were removed from the distribution.
 

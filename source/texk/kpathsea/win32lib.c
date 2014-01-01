@@ -1,7 +1,7 @@
 /* win32lib.c: bits and pieces for win32 and msvc.
 
-   Copyright 1996, 1997. 1998, 1999 Fabrice Popineau.
-   Copyright 2006, 2011, 2012 Akira Kakuto.
+   Copyright 2006, 2011-2013 Akira Kakuto.
+   Copyright 1996, 1997, 1998, 1999 Fabrice Popineau.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -42,6 +42,12 @@ int win32_pclose (FILE *f)
 __int64
 xftell64 (FILE *f, const char *filename)
 {
+#if _MSC_VER > 1200
+    __int64 where;
+    where = _ftelli64(f);
+    if (where < (__int64)0)
+        FATAL_PERROR(filename);
+#else
   __int64 where, filepos;
   int fd;
 
@@ -56,12 +62,17 @@ xftell64 (FILE *f, const char *filename)
     where = (__int64)(f->_ptr - f->_base);
   else
     where = filepos - f->_cnt;
+#endif
   return where;
 }
 
 void
 xfseek64 (FILE *f, __int64 offset, int wherefrom,  const char *filename)
 {
+#if _MSC_VER > 1200
+    if (_fseeki64(f, offset, wherefrom) < (__int64)0)
+        FATAL_PERROR(filename);
+#else
   if(wherefrom == SEEK_CUR) {
     offset += xftell64(f, filename);
     wherefrom = SEEK_SET;
@@ -69,6 +80,7 @@ xfseek64 (FILE *f, __int64 offset, int wherefrom,  const char *filename)
   fflush(f);
   if (_lseeki64(fileno(f), offset, wherefrom) < (__int64)0)
     FATAL_PERROR(filename);
+#endif
 }
 
 
@@ -90,27 +102,34 @@ void texlive_gs_init(void)
   char *nptr, *path;
   char tlgsbindir[512];
   char tlgslibdir[512];
-  nptr = kpse_var_value("SELFAUTOPARENT");
-  if (nptr) {
-    strcpy(tlgsbindir, nptr);
-    strcat(tlgsbindir,"/tlpkg/tlgs");
-    if(is_dir(tlgsbindir)) {
-      strcpy(tlgslibdir, tlgsbindir);
-      strcat(tlgslibdir, "/lib;");
-      strcat(tlgslibdir, tlgsbindir);
-      strcat(tlgslibdir, "/fonts");
-      strcat(tlgsbindir, "/bin;");
-      free(nptr);
-      for(nptr = tlgsbindir; *nptr; nptr++) {
-        if(*nptr == '/') *nptr = '\\';
+  nptr = kpse_var_value("TEXLIVE_WINDOWS_EXTERNAL_GS");
+  if (nptr == NULL || !strcmp(nptr, "0") || !strcmp(nptr, "n") || !strcmp(nptr, "f")) {
+    if (nptr)
+      free (nptr);
+    nptr = kpse_var_value("SELFAUTOPARENT");
+    if (nptr) {
+      strcpy(tlgsbindir, nptr);
+      strcat(tlgsbindir,"/tlpkg/tlgs");
+      if(is_dir(tlgsbindir)) {
+        strcpy(tlgslibdir, tlgsbindir);
+        strcat(tlgslibdir, "/lib;");
+        strcat(tlgslibdir, tlgsbindir);
+        strcat(tlgslibdir, "/fonts");
+        strcat(tlgsbindir, "/bin;");
+        free(nptr);
+        for(nptr = tlgsbindir; *nptr; nptr++) {
+          if(*nptr == '/') *nptr = '\\';
+        }
+        nptr = getenv("PATH");
+        path = (char *)malloc(strlen(nptr) + strlen(tlgsbindir) + 6);
+        strcpy(path, tlgsbindir);
+        strcat(path, nptr);
+        xputenv("PATH", path);
+        xputenv("GS_LIB", tlgslibdir);
       }
-      nptr = getenv("PATH");
-      path = (char *)malloc(strlen(nptr) + strlen(tlgsbindir) + 6);
-      strcpy(path, tlgsbindir);
-      strcat(path, nptr);
-      xputenv("PATH", path);
-      xputenv("GS_LIB", tlgslibdir);
     }
+  } else {
+    free (nptr);
   }
 }
 

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# $Id: build.sh 4633 2013-04-10 18:24:57Z khaled $
+# $Id: build.sh 4700 2013-12-31 15:21:34Z taco $
 #
 # Copyright (c) 2005-2011 Martin Schröder <martin@luatex.org>
 # Copyright (c) 2009-2011 Taco Hoekwater <taco@luatex.org>
+# Copyright (c) 2013-2013 Luigi Scarso and Hans Hagen (mingw stuff)
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -24,10 +25,29 @@
 #      --nostrip   : do not strip binary
 #      --warnings= : enable compiler warnings
 #      --mingw     : crosscompile for mingw32 from i-386linux
+#      --mingw32   : crosscompile 32 binary on unix
+#      --mingw64   : crosscompile 64 binary on unix
+#      --msys      : crosscompile 32 binary on windows
+#      --msys32    : crosscompile 32 binary on windows
+#      --msys64    : crosscompile 64 binary on windows
 #      --host=     : target system for mingw32 cross-compilation
 #      --build=    : build system for mingw32 cross-compilation
 #      --arch=     : crosscompile for ARCH on OS X
 #      --debug     : CFLAGS="-g -O0" --warnings=max --nostrip
+
+# L/H: we assume a 64 bit build system .. it took us two days of experimenting with all
+# kind of permutations to figure it out .. partly due to tangle/tie dependencies and
+# we're not there yes as there are messages with respect to popen and so
+#
+# todo:
+#
+# - generate ctangle and tie
+# - get rid of otangle and tangle dependencies
+# - don't generate bins we don't need
+# - maybe make cario in mplib optional
+#
+# Patch suggested  by Fabrice Popineau in texk/web2c/lib/lib.h: #define eof weof
+
 $DEBUG
 
 # try to find bash, in case the standard shell is not capable of
@@ -41,7 +61,7 @@ fi
 # try to find gnu make; we may need it
 MAKE=make;
 if make -v 2>&1| grep "GNU Make" >/dev/null
-then 
+then
   echo "Your make is a GNU-make; I will use that"
 elif gmake -v >/dev/null 2>&1
 then
@@ -49,7 +69,7 @@ then
   export MAKE;
   echo "You have a GNU-make installed as gmake; I will use that"
 else
-  echo "I can't find a GNU-make; I'll try to use make and hope that works." 
+  echo "I can't find a GNU-make; I'll try to use make and hope that works."
   echo "If it doesn't, please install GNU-make."
 fi
 
@@ -57,6 +77,9 @@ ONLY_MAKE=FALSE
 STRIP_LUATEX=TRUE
 WARNINGS=yes
 MINGWCROSS=FALSE
+MINGWCROSS64=FALSE
+MINGWMSYS=FALSE
+MINGWMSYS64=FALSE
 CONFHOST=
 CONFBUILD=
 MACCROSS=FALSE
@@ -64,15 +87,19 @@ JOBS_IF_PARALLEL=${JOBS_IF_PARALLEL:-3}
 MAX_LOAD_IF_PARALLEL=${MAX_LOAD_IF_PARALLEL:-2}
 
 CFLAGS="$CFLAGS"
-CXXFLAGS="$CXXFLAGS" 
 
 until [ -z "$1" ]; do
   case "$1" in
     --make      ) ONLY_MAKE=TRUE     ;;
     --nostrip   ) STRIP_LUATEX=FALSE ;;
-    --debug     ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-g -O0 $CFLAGS" ; CXXFLAGS="-g -O0 $CXXFLAGS" ;;
+    --debug     ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-g -O0 $CFLAGS" ;;
     --warnings=*) WARNINGS=`echo $1 | sed 's/--warnings=\(.*\)/\1/' `        ;;
     --mingw     ) MINGWCROSS=TRUE    ;;
+    --mingw32   ) MINGWCROSS=TRUE    ;;
+    --mingw64   ) MINGWCROSS64=TRUE  ;;
+    --msys      ) MINGWMSYS=TRUE     ;;
+    --msys32    ) MINGWMSYS=TRUE     ;;
+    --msys64    ) MINGWMSYS64=TRUE   ;;
     --host=*    ) CONFHOST="$1"      ;;
     --build=*   ) CONFBUILD="$1"     ;;
     --parallel  ) MAKE="$MAKE -j $JOBS_IF_PARALLEL -l $MAX_LOAD_IF_PARALLEL" ;;
@@ -87,27 +114,73 @@ STRIP=strip
 LUATEXEXE=luatex
 
 case `uname` in
+  MINGW64*    ) LUATEXEXE=luatex.exe ;;
   MINGW32*    ) LUATEXEXE=luatex.exe ;;
-  CYGWIN*    ) LUATEXEXE=luatex.exe ;;
+  CYGWIN*     ) LUATEXEXE=luatex.exe ;;
 esac
 
 WARNINGFLAGS=--enable-compiler-warnings=$WARNINGS
 
 B=build
 
+OLDPATH=$PATH
+
 if [ "$MINGWCROSS" = "TRUE" ]
 then
   B=build-windows
+  PATH=`pwd`/extrabin/mingw:$PATH
   LUATEXEXE=luatex.exe
-  OLDPATH=$PATH
-  PATH=/usr/mingw32/bin:$PATH
-  CFLAGS="-mtune=nocona -g -O3 $CFLAGS -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE"
+  CFLAGS="-mtune=nocona -g -O3 $CFLAGS"
   CXXFLAGS="-mtune=nocona -g -O3 $CXXFLAGS"
-  : ${CONFHOST:=--host=i586-mingw32msvc}
-  : ${CONFBUILD:=--build=i686-linux-gnu}
+  CONFHOST="--host=i586-mingw32msvc"
+  CONFBUILD="--build=x86_64-unknown-linux-gnu"
   STRIP="${CONFHOST#--host=}-strip"
   LDFLAGS="-Wl,--large-address-aware $CFLAGS"
   export CFLAGS CXXFLAGS LDFLAGS
+fi
+
+if [ "$MINGWCROSS64" = "TRUE" ]
+then
+  B=build-windows64
+  PATH=`pwd`/extrabin/mingw:$PATH
+  LUATEXEXE=luatex.exe
+  CFLAGS="-mtune=nocona -g -O3 -static-libgcc -static-libstdc++ $CFLAGS"
+  CXXFLAGS="-mtune=nocona -g -O3 $CXXFLAGS"
+  CONFHOST="--host=x86_64-w64-mingw32"
+  CONFBUILD="--build=x86_64-unknown-linux-gnu"
+  STRIP="${CONFHOST#--host=}-strip"
+  LDFLAGS="$CFLAGS"
+  export CFLAGS CXXFLAGS LDFLAGS
+fi
+
+if [ "$MINGWMSYS" = "TRUE" ]
+then
+  B=build-win32
+  PATH=`pwd`/extrabin/msys:$PATH
+  LUATEXEXE=luatex.exe
+  STRIP=strip.exe
+  CFLAGS="-mtune=nocona -m32 -g -O3 $CFLAGS"
+  CXXFLAGS="-mtune=nocona -m32 -g -O3 $CXXFLAGS"
+  CONFHOST="--host=i586-mingw32"
+  CONFBUILD="--build=x86_64-w64-mingw32"
+  LDFLAGS="-m32"
+  CPPFLAGS="-m32"
+  export CFLAGS CXXFLAGS LDFLAGS CPPFLAGS
+fi
+
+if [ "$MINGWMSYS64" = "TRUE" ]
+then
+  B=build-win64
+  PATH=`pwd`/extrabin/mingw:$PATH
+  LUATEXEXE=luatex.exe
+  STRIP=strip.exe
+  CFLAGS="-mtune=nocona -g -O3 $CFLAGS"
+  CXXFLAGS="-mtune=nocona -g -O3 $CXXFLAGS"
+  CONFHOST="--host=x86_64-w64-mingw32"
+  CONFBUILD="--build=x86_64-w64-mingw32"
+  LDFLAGS=""
+  CPPFLAGS=""
+  export CFLAGS CXXFLAGS LDFLAGS CPPFLAGS
 fi
 
 if [ "$MACCROSS" = "TRUE" ]
@@ -120,13 +193,13 @@ then
   B=build-$ARCH
   CFLAGS="-arch $ARCH -g -O2 $CFLAGS"
   CXXFLAGS="-arch $ARCH -g -O2 $CXXFLAGS"
-  LDFLAGS="-arch $ARCH $LDFLAGS" 
+  LDFLAGS="-arch $ARCH $LDFLAGS"
   export CFLAGS CXXFLAGS LDFLAGS
 fi
 
 if [ "$STRIP_LUATEX" = "FALSE" ]
 then
-    export CFLAGS CXXFLAGS
+    export CFLAGS
 fi
 
 # ----------
@@ -177,9 +250,8 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --without-system-graphite \
     --without-system-zziplib \
     --without-mf-x-toolkit --without-x \
-   || exit 1 
+   || exit 1
 fi
-
 
 $MAKE
 
@@ -206,10 +278,7 @@ else
   echo "luatex binary not stripped"
 fi
 
-if [ "$MINGWCROSS" = "TRUE" ]
-then
-  PATH=$OLDPATH
-fi
+PATH=$OLDPATH
 
 # show the results
 ls -l "$B"/texk/web2c/$LUATEXEXE

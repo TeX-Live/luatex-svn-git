@@ -1,3 +1,165 @@
+2013-12-31  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* knj.h: Remove #include <kpathsea/types.h> because Visual Studio 2010
+	cannot compile Kpathsea.
+
+2013-12-31  TANAKA Takuji <KXD02663@nifty.ne.jp>
+
+	* knj.c, knj.h: Add new functions fsyscp_fopen() and
+	get_command_line_args_utf8() (Windows only)
+	* progname.c: Refine initialization for KANJI (Windows only)
+
+2013-12-03  TANAKA Takuji <KXD02663@nifty.ne.jp>
+
+	* elt-dirs.c, knj.c, knj.h, progname.c, readable.c: Support KANJI
+	file name in (e)upTeX and XeTeX on Windows.
+
+2013-09-22  Karl Berry  <karl@tug.org>
+
+	* mktexlsr: output normal msgs to stdout, not stderr.
+	Suggestion from Scott Kostyshak, tex-live mail 29 Jun 2013 04:42:10.
+
+2013-08-17  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac (AH_TOP): Simplify the generation of c-auto.h.
+
+2013-08-14  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* win32lib.c, mingw32.c (texlive_gs_init()): Fix a bug. 'n' and 'f' can
+	be drive letters.
+
+2013-08-12  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* win32lib.c, mingw32.c (texlive_gs_init()): Do nothing if
+	TEXLIVE_WINDOWS_EXTERNAL_GS is defined and its value is not
+	'0', 'n', or 'f'.
+
+2013-08-07  Karl Berry  <karl@tug.org>
+
+	* line.c (read_line): only at EOF if loc==0, i.e., do not ignore a
+	non-terminated last "line" of a file; distressingly common on Windows.
+	* Makefile.am (TESTS): add cnfnewline.test;
+	move all *.test to tests/ subdir.
+	(EXTRA_DIST): add tests/cnfnewline/texmf.cnf, a file without a
+	final newline.
+
+	* kpsewhich.test: also check that we can read the environment
+	variable that we set.
+
+2013-07-07  TANAKA Takuji <KXD02663@nifty.ne.jp>
+
+	* knj.c and progname.c: Generalize the method to avoid the 0x5c problem
+	in path names to the cases CP936 (simplified Chinese) and CP950
+	(traditional Chinese) on Windows system.
+
+2013-07-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Use ../../am/rebuild.am.
+
+2013-07-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am, man/Makefile.am:
+	Moved Makefile fragments to ../../am/.
+
+2013-07-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* c-memstr.h: Drop mapping of BSD => SYSV/ANSI string functions.
+
+2013-06-25  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (guess_input_kanji_encoding): config variable,
+	off by default.  Per Akira.
+
+2013-06-25  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* config.h: Remove definition of EXEEXT, comes from c-auto.h.
+
+2013-06-25  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* config.h: define EXEEXT if DOSISH is defined.
+
+	* win32lib.c: Unify two win32lib.c's in w32 sources.
+
+	* progname.c, texmf.cnf: Define SELFAUTOGRANDPARENT to give a
+	robust TEXMFLOCAL.
+
+2013-06-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: New conditional have_EXEEXT.
+	* Makefile.am (libkpathsea_la_CPPFLAGS): Define EXEEXT for
+	systems with a non-vanishing executable extension.
+	* progname.[ch]: New function kpse_program_basename().
+	* version.ac: Update version number 6.1.1 => 6.2.0dev.
+
+	Adapt kpathsea headers to C++.
+	* absolute.h, cnf.h, concatn.h, config.h, debug.h, expand.h,
+	hash.h, knj.h, lib.h, line.h, magstep.h, mingw32.h,
+	pathsearch.h, proginit.h, progname.h, readable.h, str-list.h,
+	str-llist.h, tex-file.h, tex-glyph.h, tex-hush.h, tex-make.h,
+	types.h, variable.h, version.h, win32lib.h: When compiling C++
+	surround all declarations by 'extern "C" {' ... '}'.
+
+2013-06-15  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* cnf.c, kpsewhich.c: Drop redundant <kpathsea/progname.h>
+	(in <kpathsea/config.h>).
+
+2013-06-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* xrealloc.c: Drop redundant extern (in <kpathsea/config.h>).
+
+2013-06-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (*_la_LDFLAGS): Add -bindir for MinGW DLL.
+
+	* win32lib.h.mugica (removed): Unused and unmaintained.
+	* Makefile.am: Adapt.
+
+2013-05-30  Karl Berry  <karl@tug.org>
+	
+	* Version 6.1.1 for TeX Live 2013.
+
+2013-04-15  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (TEXINPUTS.lamed): there is no lamed directory and
+	never has been, as far as I can tell, so don't look in it.
+
+	* texmf.cnf (TEXMFCACHE): new variable for lualatex font cache;
+	same value as ConTeXt MkIV's variable of the same name in
+	texmfcnf.lua.
+
+2013-04-10  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (TEXMFCNF): still look in texmf/ subdirs after all;
+	needed for non-TL ConTeXt and likely others.  Report from
+	Mojca/Hans.
+
+2013-04-05  Karl Berry  <karl@tug.org>
+
+	* other files: 2013 in copyright year list.
+
+	* kpsewhich.c,
+	* NEWS,
+	* version.ac: 6.1.1 and 2013 to prepare for TL'13 pretest.
+
+	* texmf.cnf (TEXMFCNF): likewise prepare to use texmf-dist instead
+	of texmf.  From Akira.
+
+2013-04-03  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (TEXMFMAIN): make it the same as $TEXMFDIST,
+	and do not use it.  That is, as of TL 2013, everything will be in
+	texmf-dist, not split between texmf and texmf-dist.  See the
+	thread including
+	http://tug.org/mailman/htdig/tex-live/2013-January/032888.html.
+	
+	Also change 2012 to 2013.
+
+2013-03-26  Karl Berry  <karl@tug.org>
+
+	* tex-make.c (kpathsea_make_tex): specify fn name in warnings
+	about invalid fontnames.
+
 2013-03-14  Karl Berry  <karl@tug.org>
 
 	* texmf.cnf (save_size): increase to 100000 (from 50000),
