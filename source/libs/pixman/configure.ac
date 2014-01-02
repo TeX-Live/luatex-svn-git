@@ -7,7 +7,7 @@ dnl   gives unlimited permission to copy and/or distribute it,
 dnl   with or without modifications, as long as this notice is preserved.
 dnl
 m4_include([version.ac])[] dnl define pixman_version
-AC_INIT([pixman for TeX Live], pixman_version, [tex-k@tug.org])
+AC_INIT([pixman (TeX Live)], pixman_version, [tex-k@tug.org])
 AC_PREREQ([2.65])
 AC_CONFIG_SRCDIR([pixman-]pixman_version[/pixman/pixman.h])
 AC_CONFIG_AUX_DIR([../../build-aux])
@@ -20,13 +20,11 @@ AC_SUBST([PIXMAN_VERSION_MAJOR], [pixman_major])[]dnl
 AC_SUBST([PIXMAN_VERSION_MINOR], [pixman_minor])[]dnl
 AC_SUBST([PIXMAN_VERSION_MICRO], [pixman_micro])[]dnl
 
-enable_static=yes enable_shared=no
-
-LT_INIT
-
 test_CFLAGS=${CFLAGS+set} # We may override autoconf default CFLAGS.
 
 AC_PROG_CC
+AC_PROG_RANLIB
+AC_PROG_LN_S
 AC_CHECK_FUNCS([getisax])
 AC_C_BIGENDIAN
 AC_C_INLINE
@@ -42,6 +40,7 @@ dnl add all these to config.h.in but do not define them in config.h
   AC_DEFINE([USE_LOONGSON_MMI], 1, [use Loongson Multimedia Instructions])
   AC_DEFINE([USE_X86_MMX], 1, [use x86 MMX compiler intrinsics])
   AC_DEFINE([USE_SSE2], 1, [use SSE2 compiler intrinsics])
+  AC_DEFINE([USE_SSSE3], 1, [use SSSE3 compiler intrinsics])
   AC_DEFINE([USE_VMX], 1, [use VMX compiler intrinsics])
   AC_DEFINE([USE_ARM_SIMD], 1, [use ARM SIMD assembly optimizations])
   AC_DEFINE([USE_ARM_NEON], 1, [use ARM NEON assembly optimizations])
@@ -51,7 +50,15 @@ dnl add all these to config.h.in but do not define them in config.h
   AC_DEFINE([PIXMAN_TIMERS], 1, [enable TIMER_BEGIN/TIMER_END macros])
   AC_DEFINE([TOOLCHAIN_SUPPORTS_ATTRIBUTE_CONSTRUCTOR], 1,
             [Whether the tool chain supports __attribute__((constructor))])
+  AC_DEFINE([HAVE_FLOAT128], [], [Whether the tool chain supports __float128])
+  AC_DEFINE([HAVE_BUILTIN_CLZ], [], [Whether the compiler supports __builtin_clz])
 fi
+
+dnl Check for missing sqrtf() as, e.g., for Solaris 9
+AC_SEARCH_LIBS([sqrtf], [m], ,
+               [AC_DEFINE([sqrtf], [sqrt],
+                          [Define to sqrt if you do not have the `sqrtf' function.])
+                AC_SEARCH_LIBS([sqrt], [m])])
 
 dnl PIXMAN_LINK_WITH_ENV(env-setup, program, true-action, false-action)
 dnl
