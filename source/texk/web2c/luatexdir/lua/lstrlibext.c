@@ -21,13 +21,13 @@
    otherwise some of the defines that are needed for lua_sdump
    come out wrong.
  */
+#include "ptexlib.h"
+
 #define LUA_CORE
 #include "lua.h"
-#include "lua52/luaconf.h"
-#include "lua52/lapi.h"
-#include "lua52/lundump.h"
-
-#include "ptexlib.h"
+#include "luaconf.h"
+#include "lapi.h"
+#include "lundump.h"
 
 static const char _svn_version[] =
     "$Id$ $URL$";

@@ -24,10 +24,10 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "basics.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "basics.h"
 
 /* wrappers around standard memory routines so we can trap errors. */
 static void default_trap(void) {

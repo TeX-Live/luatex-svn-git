@@ -23,14 +23,14 @@
 *  @author Taco Hoekwater
 */
 
+#include "pfaedit.h"
+#include "ustring.h"
+#include "lib/lib.h"            /* web2c's lib, for recorder_record_input */
+
 #include <stdio.h>
 #include <lua.h>
 #include <lauxlib.h>
 #include <locale.h>
-
-#include "pfaedit.h"
-#include "ustring.h"
-#include "lib/lib.h"            /* web2c's lib, for recorder_record_input */
 
 static const char _svn_version[] =
     "$Id$ "

@@ -22,8 +22,9 @@ static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
-#include <string.h>
 #include "ptexlib.h"
+
+#include <string.h>
 #include <kpathsea/absolute.h>
 
 @ @c
@@ -1136,7 +1137,7 @@ boolean zopen_w_input(FILE ** f, const char *fname, int format,
     if (callbackid > 0) {
         res = run_callback(callbackid, "S->S", fname, &fnam);
         if (res && fnam && strlen(fnam) > 0) {
-            *f = xfopen(fnam, fopen_mode);
+            *f = fopen(fnam, fopen_mode);
             if (*f == NULL) {
                 return 0;
             }

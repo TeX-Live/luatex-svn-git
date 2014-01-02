@@ -23,8 +23,8 @@ static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
-#include <math.h>
 #include "ptexlib.h"
+#include <math.h>
 #include <kpathsea/c-auto.h>
 #include <kpathsea/c-memstr.h>
 #include <string.h>

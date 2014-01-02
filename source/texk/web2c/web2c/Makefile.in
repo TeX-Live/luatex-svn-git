@@ -62,7 +62,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	web2c-lexer.c $(dist_noinst_SCRIPTS) \
 	$(top_srcdir)/../../../build-aux/depcomp \
 	$(top_srcdir)/../../../build-aux/ylwrap $(dist_noinst_DATA) \
-	$(noinst_HEADERS) ChangeLog README \
+	$(noinst_HEADERS) ChangeLog README ../../../build-aux/compile \
 	../../../build-aux/config.guess ../../../build-aux/config.sub \
 	../../../build-aux/depcomp ../../../build-aux/install-sh \
 	../../../build-aux/missing ../../../build-aux/texinfo.tex \
@@ -81,7 +81,7 @@ am__aclocal_m4_deps = $(top_srcdir)/../../../m4/kpse-common.m4 \
 	$(top_srcdir)/../../../m4/ltsugar.m4 \
 	$(top_srcdir)/../../../m4/ltversion.m4 \
 	$(top_srcdir)/../../../m4/lt~obsolete.m4 \
-	$(top_srcdir)/configure.ac
+	$(top_srcdir)/../../../version.ac $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
@@ -90,10 +90,20 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/kpathsea/c-auto.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
+ARFLAGS = cru
+AM_V_AR = $(am__v_AR_@AM_V@)
+am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
+am__v_AR_0 = @echo "  AR      " $@;
+am__v_AR_1 = 
+libweb2c_a_AR = $(AR) $(ARFLAGS)
+libweb2c_a_LIBADD =
+am_libweb2c_a_OBJECTS = kps.$(OBJEXT)
+libweb2c_a_OBJECTS = $(am_libweb2c_a_OBJECTS)
 PROGRAMS = $(noinst_PROGRAMS)
-am_fixwrites_OBJECTS = fixwrites.$(OBJEXT) kps.$(OBJEXT)
+am_fixwrites_OBJECTS = fixwrites.$(OBJEXT)
 fixwrites_OBJECTS = $(am_fixwrites_OBJECTS)
-fixwrites_LDADD = $(LDADD)
+am__DEPENDENCIES_1 =
+fixwrites_DEPENDENCIES = $(am__DEPENDENCIES_1)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -101,13 +111,13 @@ am__v_lt_1 =
 am_makecpool_OBJECTS = makecpool.$(OBJEXT)
 makecpool_OBJECTS = $(am_makecpool_OBJECTS)
 makecpool_LDADD = $(LDADD)
-am_splitup_OBJECTS = kps.$(OBJEXT) splitup.$(OBJEXT)
+am_splitup_OBJECTS = splitup.$(OBJEXT)
 splitup_OBJECTS = $(am_splitup_OBJECTS)
-splitup_LDADD = $(LDADD)
+splitup_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am_web2c_OBJECTS = web2c-parser.$(OBJEXT) web2c-lexer.$(OBJEXT) \
-	kps.$(OBJEXT) main.$(OBJEXT)
+	main.$(OBJEXT)
 web2c_OBJECTS = $(am_web2c_OBJECTS)
-web2c_LDADD = $(LDADD)
+web2c_DEPENDENCIES =
 SCRIPTS = $(dist_noinst_SCRIPTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -162,10 +172,10 @@ AM_V_YACC = $(am__v_YACC_@AM_V@)
 am__v_YACC_ = $(am__v_YACC_@AM_DEFAULT_V@)
 am__v_YACC_0 = @echo "  YACC    " $@;
 am__v_YACC_1 = 
-SOURCES = $(fixwrites_SOURCES) $(makecpool_SOURCES) $(splitup_SOURCES) \
-	$(web2c_SOURCES)
-DIST_SOURCES = $(fixwrites_SOURCES) $(makecpool_SOURCES) \
-	$(splitup_SOURCES) $(web2c_SOURCES)
+SOURCES = $(libweb2c_a_SOURCES) $(fixwrites_SOURCES) \
+	$(makecpool_SOURCES) $(splitup_SOURCES) $(web2c_SOURCES)
+DIST_SOURCES = $(libweb2c_a_SOURCES) $(fixwrites_SOURCES) \
+	$(makecpool_SOURCES) $(splitup_SOURCES) $(web2c_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -338,6 +348,7 @@ ACLOCAL_AMFLAGS = -I ../../../m4
 AM_CPPFLAGS = -I$(srcdir)/../..
 AM_YFLAGS = -d -v
 AM_CFLAGS = $(WARNING_CFLAGS)
+EXTRA_LIBRARIES = libweb2c.a
 BUILT_SOURCES = w2c/config.h
 DISTCLEANFILES = w2c/config.h web2c-parser.output
 noinst_HEADERS = coerce.h
@@ -350,25 +361,28 @@ dist_noinst_DATA = \
 	mfmp.defines \
 	texmf.defines
 
+libweb2c_a_SOURCES = \
+	kps.c
+
 web2c_SOURCES = \
 	web2c-parser.y \
 	web2c-lexer.l \
-	kps.c \
 	main.c \
 	web2c.h
 
+web2c_LDADD = -L. -lweb2c
 fixwrites_SOURCES = \
-	fixwrites.c \
-	kps.c
+	fixwrites.c
 
+fixwrites_LDADD = $(web2c_LDADD)
 splitup_SOURCES = \
-	kps.c \
 	splitup.c
 
+splitup_LDADD = $(web2c_LDADD)
 makecpool_SOURCES = \
 	makecpool.c
 
-nodist_noinst_DATA = stamp-web2c stamp-fixwrites stamp-splitup stamp-makecpool
+nodist_noinst_DATA = stamp-lib stamp-web2c stamp-fixwrites stamp-splitup stamp-makecpool
 CLEANFILES = $(nodist_noinst_DATA)
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -424,6 +438,10 @@ $(srcdir)/c-auto.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 
 distclean-hdr:
 	-rm -f kpathsea/c-auto.h kpathsea/stamp-h1
+libweb2c.a: $(libweb2c_a_OBJECTS) $(libweb2c_a_DEPENDENCIES) $(EXTRA_libweb2c_a_DEPENDENCIES) 
+	$(AM_V_at)-rm -f libweb2c.a
+	$(AM_V_AR)$(libweb2c_a_AR) libweb2c.a $(libweb2c_a_OBJECTS) $(libweb2c_a_LIBADD)
+	$(AM_V_at)$(RANLIB) libweb2c.a
 
 clean-noinstPROGRAMS:
 	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
@@ -855,14 +873,38 @@ uninstall-am:
 
 # Don't include our <c-auto.h>.
 w2c/config.h: ../w2c/config.h
-	$(AM_V_at)$(MKDIR_P) w2c
-	$(AM_V_GEN)sed -e '/c-auto\.h>/d' $(srcdir)/../w2c/config.h >$@
+	@if test -f $@; then :; else \
+	  trap 'rm -rf w2c.lock' 1 2 13 15; \
+	  if mkdir w2c.lock 2>/dev/null; then \
+	    $(MKDIR_P) w2c; \
+	    if $(AM_V_P); then :; else echo "  GEN      $@"; fi; \
+	    sed -e '/c-auto\.h>/d' $(srcdir)/../w2c/config.h >$@; \
+	    rmdir w2c.lock; \
+	  else \
+	    while test -d w2c.lock; do sleep 1; done; \
+	  fi; \
+	  test -f $@; \
+	fi
 
-$(web2c_OBJECTS): web2c-parser.h w2c/config.h
+$(libweb2c_a_OBJECTS): w2c/config.h
 
-$(fixwrites_OBJECTS): w2c/config.h
+$(web2c_OBJECTS): web2c-parser.h stamp-lib
 
-$(splitup_OBJECTS): w2c/config.h
+$(fixwrites_OBJECTS): stamp-lib
+
+$(splitup_OBJECTS): stamp-lib
+
+stamp-lib:
+	@if test -f $@; then :; else \
+	  trap 'rm -rf lib.lock' 1 2 13 15; \
+	  if mkdir lib.lock 2>/dev/null; then \
+	    $(MAKE) $(AM_MAKEFLAGS) libweb2c.a && echo timestamp >$@; \
+	    rmdir lib.lock; \
+	  else \
+	    while test -d lib.lock; do sleep 1; done; \
+	  fi; \
+	  test -f $@; \
+	fi
 
 stamp-web2c: web2c$(EXEEXT)
 	$(AM_V_at)echo timestamp >$@

@@ -42,6 +42,8 @@ static const char _svn_version[] =
     "$Id$ "
     "$URL$";
 
+#include "ptexlib.h"
+
 #include <stdlib.h>             /* for NULL, malloc */
 #include <stdio.h>              /* for fprintf */
 #include <string.h>             /* for strdup */
@@ -58,7 +60,6 @@ static const char _svn_version[] =
 #define noVERBOSE
 
 #include "lang/hnjalloc.h"
-#include "lang/hyphen.h"
 
 @ TODO: should be moved to separate library
 

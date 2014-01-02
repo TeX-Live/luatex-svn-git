@@ -36,8 +36,7 @@ luatex_LDFLAGS = -export-dynamic
 luatex_LDADD = $(luatex_ldadd) $(LDADD) $(LIBADD_DLOPEN) $(lua_socketlibs)
 
 luatex_DEPENDENCIES = $(proglib) $(KPATHSEA_DEPEND) libluatex.a
-luatex_DEPENDENCIES += $(LIBPNG_DEPEND) $(ZLIB_DEPEND) $(POPPLER_DEPEND)
-luatex_DEPENDENCIES += libmd5.a libmplib.a
+luatex_DEPENDENCIES += $(LIBPNG_DEPEND) libmd5.a libmplib.a
 
 $(luatex_OBJECTS): libluatex.a
 
@@ -61,11 +60,16 @@ endif WIN32
 
 # luaTeX Tests
 #
-luatex_tests = luatexdir/luatex.test
+luatex_tests = luatexdir/luatex.test luatexdir/luaimage.test
 
 EXTRA_DIST += $(luatex_tests)
 
 if LUATEX
 TESTS += $(luatex_tests)
 endif LUATEX
+
+## luaimage.test
+EXTRA_DIST += luatexdir/tests/luaimage.tex \
+       tests/1-4.jpg tests/B.pdf tests/basic.tex tests/lily-ledger-broken.png
+DISTCLEANFILES += luaimage.fmt luaimage.log luaimage.pdf
 

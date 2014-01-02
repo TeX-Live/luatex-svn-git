@@ -25,13 +25,14 @@ static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
+#include "ptexlib.h"
+
 #if  HAVE_CONFIG_H
 #  include <w2c/config.h>
 #endif                          /* |HAVE_CONFIG_H_| */
 
 #include <string.h>
 
-#  include "ptexlib.h"
 #include "font/sfnt.h"
 
 @ type:

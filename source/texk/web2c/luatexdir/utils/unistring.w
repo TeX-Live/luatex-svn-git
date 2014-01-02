@@ -23,8 +23,8 @@ static const char _svn_version[] =
     "$URL$";
 
 @ @c
-#include <string.h>
 #include "ptexlib.h"
+#include <string.h>
 
 @ @c
 static void utf_error(void)

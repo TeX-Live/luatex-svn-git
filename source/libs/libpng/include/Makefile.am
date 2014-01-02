@@ -13,5 +13,5 @@ hdr_links = \
 	$(LIBPNG_SRC)/pngconf.h \
 	$(LIBPNG_SRC)/pnglibconf.h
 
-include $(top_srcdir)/../am/hdr_links.am
+include $(top_srcdir)/../../am/hdr_links.am
 

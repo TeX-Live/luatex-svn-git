@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: updmap-cmdline-test.pl 28928 2013-01-24 12:40:04Z peter $
+# $Id: updmap-cmdline-test.pl 30033 2013-04-19 07:07:46Z peter $
 # Public domain.  Originally written 2011, Karl Berry.
 # Check that updmap can parse various cmdline invocations.
 
@@ -10,7 +10,7 @@ require "$srcdir/../tests/common-test.pl";
 exit (&main ());
 
 sub main {
-  my $ret = &test_run ("$srcdir/tl_scripts/updmap.pl", "--version");
+  my $ret = &test_run ("$srcdir/linked_scripts/texlive/updmap.pl", "--version");
 
   # we aren't going to fix this in the current updmap.pl.
                        # "foo", "--enable Map"

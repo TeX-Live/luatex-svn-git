@@ -23,7 +23,7 @@ DISTCLEANFILES = scripts-list
 EXTRA_DIST = scripts.lst
 
 # These first variable definitions are what scripts_links.am requires.
-perl_scripts = updmap e2pall
+perl_scripts = e2pall
 shell_scripts = fmtutil-sys updmap-sys
 sh_scripts = \
 	allcm \
@@ -45,7 +45,7 @@ sh_scripts = \
 nodist_bin_SCRIPTS =
 scriptsdir = texmf-dist/scripts/texlive
 #
-include $(srcdir)/../../../texk/am/script_links.am
+include $(top_srcdir)/../../am/script_links.am
 #
 texmfdir = $(datarootdir)/$(scriptsdir)
 dist_texmf_SCRIPTS = $(perl_scripts:=.pl) $(shell_scripts:=.sh) $(sh_scripts:=.sh)
@@ -80,7 +80,7 @@ bin_links = \
 	kpsetool:kpsexpand \
 	kpsetool:kpsepath
 
-include $(top_srcdir)/../am/bin_links.am
+include $(top_srcdir)/../../am/bin_links.am
 
 man1_links = \
 	fmtutil:fmtutil-sys \
@@ -90,7 +90,7 @@ man1_links = \
 	texconfig:texconfig-sys \
 	updmap:updmap-sys
 
-include $(top_srcdir)/../am/man1_links.am
+include $(top_srcdir)/../../am/man1_links.am
 
 ## Support files
 texconfigdir = $(datarootdir)/texmf-dist/texconfig
@@ -105,9 +105,10 @@ dist_web2c_DATA = fmtutil.cnf
 ## we don't want to require help2man for an install.  Leave that to be
 ## done by hand.
 .PHONY: xupdmap.1
-xupdmap.1: updmap.help2man updmap.pl
+updmap_dir = $(top_srcdir)/linked_scripts/texlive
+xupdmap.1: updmap.help2man $(updmap_dir)/updmap.pl
 	help2man --include=$< --source="TeX Live" --no-info \
-	  $(srcdir)/updmap.pl >/tmp/$@
+	  $(updmap_dir)/updmap.pl >/tmp/$@
 EXTRA_DIST += updmap.help2man
 
 

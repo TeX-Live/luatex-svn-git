@@ -26,10 +26,10 @@
  */
 #ifndef _UCHAR_H
 # define _UCHAR_H
+#include <unibasics.h>
 #include <stdarg.h>
 #include <string.h>
 #include <memory.h>
-#include <unibasics.h>
 #include <charset.h>
 
 extern unichar_t *u_copy(const unichar_t*);

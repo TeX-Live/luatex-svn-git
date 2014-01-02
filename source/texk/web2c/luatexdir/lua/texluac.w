@@ -29,6 +29,7 @@ static const char _svn_version[] =
     "$Id$"
     "$URL$";
 
+#include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,25 +38,19 @@ static const char _svn_version[] =
 #define luac_c
 #define LUA_CORE
 
-#include "lua52/lua.h"
-#include "lua52/lauxlib.h"
-
-#include "lua52/ldo.h"
-#include "lua52/lfunc.h"
-#include "lua52/lmem.h"
-#include "lua52/lobject.h"
-#include "lua52/lopcodes.h"
-#include "lua52/lstring.h"
-#include "lua52/lundump.h"
-
-#include "lua/luatex-api.h"
-
-#include <ctype.h>
-#include <stdio.h>
+#include "lua.h"
+#include "lauxlib.h"
 
 #include "ldebug.h"
+#include "ldo.h"
+#include "lfunc.h"
+#include "lmem.h"
 #include "lobject.h"
 #include "lopcodes.h"
+#include "lstring.h"
+#include "lundump.h"
+
+#include "lua/luatex-api.h"
 
 static void PrintFunction(const Proto* f, int full);
 #define luaU_print	PrintFunction

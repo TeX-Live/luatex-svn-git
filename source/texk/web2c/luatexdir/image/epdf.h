@@ -40,21 +40,22 @@ extern "C" {
 #  include <goo/GooString.h>
 #  include <goo/gmem.h>
 #  include <goo/gfile.h>
-#  include "Object.h"
-#  include "Stream.h"
-#  include "Gfx.h"
-#  include "Annot.h"
-#  include "Array.h"
-#  include "Dict.h"
-#  include "XRef.h"
-#  include "Catalog.h"
-#  include "Link.h"
-#  include "Page.h"
-#  include "GfxFont.h"
-#  include "PDFDoc.h"
-#  include "GlobalParams.h"
-#  include "Error.h"
-#  include "FileSpec.h"
+#  include <Object.h>
+#  include <Stream.h>
+#  include <Gfx.h>
+#  include <Annot.h>
+#  include <Array.h>
+#  include <Dict.h>
+#  include <XRef.h>
+#  include <Catalog.h>
+#  include <StructTreeRoot.h>
+#  include <Link.h>
+#  include <Page.h>
+#  include <GfxFont.h>
+#  include <PDFDoc.h>
+#  include <GlobalParams.h>
+#  include <Error.h>
+#  include <FileSpec.h>
 
 extern "C" {
 
@@ -81,8 +82,8 @@ extern "C" {
 #  include "utils/avlstuff.h"
 #  include "pdf/pdftypes.h"
 
-#  include "lua52/lua.h"
-#  include "lua52/lauxlib.h"
+#  include "lua.h"
+#  include "lauxlib.h"
 
     /* pdfgen.w */
     extern int ten_pow[10];

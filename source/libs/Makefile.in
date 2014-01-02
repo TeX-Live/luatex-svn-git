@@ -51,7 +51,7 @@ build_triplet = @build@
 host_triplet = @host@
 DIST_COMMON = $(srcdir)/../am/recurse.am $(srcdir)/Makefile.in \
 	$(srcdir)/Makefile.am $(top_srcdir)/configure \
-	$(am__configure_deps) ChangeLog README \
+	$(am__configure_deps) ChangeLog README ../build-aux/compile \
 	../build-aux/config.guess ../build-aux/config.sub \
 	../build-aux/depcomp ../build-aux/install-sh \
 	../build-aux/missing ../build-aux/texinfo.tex \
@@ -83,11 +83,13 @@ am__aclocal_m4_deps = $(top_srcdir)/../m4/kpse-cairo-flags.m4 \
 	$(top_srcdir)/../texk/web2c/ac/withenable.ac \
 	$(top_srcdir)/../texk/web2c/ac/web2c.ac \
 	$(top_srcdir)/../texk/texlive/ac/withenable.ac \
+	$(top_srcdir)/../texk/texlive/ac/texlive.ac \
 	$(top_srcdir)/../libs/zziplib/ac/withenable.ac \
 	$(top_srcdir)/../libs/poppler/ac/withenable.ac \
 	$(top_srcdir)/../libs/cairo/ac/withenable.ac \
 	$(top_srcdir)/../libs/pixman/ac/withenable.ac \
 	$(top_srcdir)/../libs/libpng/ac/withenable.ac \
+	$(top_srcdir)/../libs/lua52/ac/withenable.ac \
 	$(top_srcdir)/../libs/zlib/ac/withenable.ac \
 	$(top_srcdir)/../texk/kpathsea/ac/withenable.ac \
 	$(top_srcdir)/../texk/kpathsea/ac/mktex.ac \
@@ -206,6 +208,7 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CONF_SUBDIRS = @CONF_SUBDIRS@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
@@ -225,6 +228,7 @@ LIBS = @LIBS@
 LTLIBOBJS = @LTLIBOBJS@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
+MAKE_SUBDIRS = @MAKE_SUBDIRS@
 MKDIR_P = @MKDIR_P@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
@@ -285,6 +289,7 @@ psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@

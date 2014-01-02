@@ -1,3 +1,21 @@
+2013-12-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* ac/texlive.ac: New file for '--disable-linked-scripts'.
+	* Makefile.am, ac/withenable.ac, configure.ac: Add a configure
+	option to skip the linked scripts and still run texlinks.
+
+2013-07-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tl_scripts/Makefile.am: Moved Makefile fragments to ../../am/.
+
+2013-04-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tests/updmap-cmdline-test.pl: Adapt to updmap.pl again moved.
+
+2013-04-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am, configure.ac: Drop subdirectory context/.
+
 2013-01-24  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* tests/updmap-cmdline-test.pl: Adapt to updmap.pl now moved.

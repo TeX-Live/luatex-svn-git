@@ -59,7 +59,7 @@ test -n "${ZSH_VERSION+set}" && alias -g '${1+"$@"}'='"$@"'
 
 progname=fmtutil
 argv0=$0
-version='$Id: fmtutil.sh 29349 2013-03-12 00:01:41Z karl $'
+version='$Id: fmtutil.sh 30365 2013-05-10 06:53:44Z peter $'
 
 cnf=fmtutil.cnf   # name of the config file
 export PATH
@@ -930,7 +930,7 @@ recreate_by_hyphenfile()
       ;;
   esac
   need_find_hyphenfile=true
-  match_cmd="echo \"\$this_hyphenfile\" | grep $hyphenfile >/dev/null"
+  match_cmd="echo \"\$this_hyphenfile\" | grep \"$hyphenfile\" >/dev/null"
 
   # No match before the loop:
   setmatch false
