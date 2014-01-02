@@ -1,6 +1,6 @@
 % directions.w
 %
-% Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2009-2014 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -136,7 +136,6 @@ void print_dir(int d)
 scaled pack_width(int curdir, int pdir, halfword p, boolean isglyph)
 {
     scaled wd = 0;
-    internal_font_number f;
     if (isglyph) {
         if (textdir_parallel(curdir, pdir) == textglyphdir_orthogonal(pdir)) {
             wd = glyph_width(p);
