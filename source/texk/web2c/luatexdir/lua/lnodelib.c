@@ -96,7 +96,7 @@
 */
 
 static const char _svn_version[] =
-    "$Id: lnodelib.c 4679 2013-12-19 15:47:53Z luigi $ "
+    "$Id: lnodelib.c 4708 2014-01-02 10:15:34Z taco $ "
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/lnodelib.c $";
 
 #include "ptexlib.h"
@@ -2365,13 +2365,13 @@ static int lua_nodelib_direct_set_attribute(lua_State * L)
 
 static int lua_nodelib_unset_attribute(lua_State * L)
 {
-    halfword n;
+    halfword *n;
     int i, val, ret;
     if (lua_gettop(L) <= 3) {
         i=(int)luaL_checknumber(L, 2);
         val=(int)luaL_optnumber(L, 3, UNUSED_ATTRIBUTE);
-        n = (halfword) lua_tonumber(L, 1);
-        ret = unset_attribute(n, i, val);
+        n = check_isnode(L, 1);
+        ret = unset_attribute(*n, i, val);
         if (ret > UNUSED_ATTRIBUTE) {
             lua_pushnumber(L, ret);
         } else {
