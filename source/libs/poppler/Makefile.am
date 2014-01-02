@@ -8,10 +8,6 @@
 ##
 ACLOCAL_AMFLAGS = -I ../../m4
 
-# Rebuild
-.PHONY: rebuild
-rebuild: all
-
 ## We want to re-distribute the whole original poppler source tree.
 ##
 EXTRA_DIST = $(POPPLER_TREE)
@@ -24,18 +20,20 @@ EXTRA_DIST += $(POPPLER_TREE)-PATCHES
 dist-hook:
 	rm -rf `find $(distdir) -name .svn -o -name .deps -o -name .dirstamp -o -name '*.$(OBJEXT)'`
 
-SUBDIRS = goo fofi poppler
+SUBDIRS = . include
 
 GOO_SRC = $(top_srcdir)/$(POPPLER_TREE)/goo
 FOFI_SRC = $(top_srcdir)/$(POPPLER_TREE)/fofi
 POPPLER_SRC = $(top_srcdir)/$(POPPLER_TREE)/poppler
 
-AM_CPPFLAGS = -Igoo -Ifofi -Ipoppler -I$(GOO_SRC) -I$(FOFI_SRC) -I$(POPPLER_SRC) $(ZLIB_INCLUDES)
+AM_CPPFLAGS = -I$(top_srcdir)/$(POPPLER_TREE) -I$(GOO_SRC) $(ZLIB_INCLUDES)
 AM_CPPFLAGS += -DPOPPLER_DATADIR='"."'
 AM_CFLAGS = $(WARNING_CFLAGS)
 AM_CXXFLAGS = $(NO_WARN_CXXFLAGS)
 
 noinst_LIBRARIES = libpoppler.a
+
+$(libpoppler_a_OBJECTS): $(ZLIB_DEPEND)
 
 nodist_libpoppler_a_SOURCES = \
 	$(goo_libGoo_a_sources) \
@@ -43,16 +41,16 @@ nodist_libpoppler_a_SOURCES = \
 	$(poppler_libpoppler_a_sources)
 
 goo_libGoo_a_sources = \
-	@POPPLER_TREE@/goo/FixedPoint.cc \
 	@POPPLER_TREE@/goo/gfile.cc \
 	@POPPLER_TREE@/goo/gmem.cc \
 	@POPPLER_TREE@/goo/gmempp.cc \
+	@POPPLER_TREE@/goo/grandom.cc \
+	@POPPLER_TREE@/goo/gstrtod.cc \
+	@POPPLER_TREE@/goo/FixedPoint.cc \
 	@POPPLER_TREE@/goo/GooHash.cc \
 	@POPPLER_TREE@/goo/GooList.cc \
 	@POPPLER_TREE@/goo/GooString.cc \
-	@POPPLER_TREE@/goo/GooTimer.cc \
-	@POPPLER_TREE@/goo/grandom.cc \
-	@POPPLER_TREE@/goo/gstrtod.cc
+	@POPPLER_TREE@/goo/GooTimer.cc
 
 fofi_libfofi_a_sources = \
 	@POPPLER_TREE@/fofi/FoFiBase.cc \
@@ -89,9 +87,10 @@ poppler_libpoppler_a_sources = \
 	@POPPLER_TREE@/poppler/JArithmeticDecoder.cc \
 	@POPPLER_TREE@/poppler/JBIG2Stream.cc \
 	@POPPLER_TREE@/poppler/JPXStream.cc \
-	@POPPLER_TREE@/poppler/Linearization.cc \
 	@POPPLER_TREE@/poppler/Lexer.cc \
+	@POPPLER_TREE@/poppler/Linearization.cc \
 	@POPPLER_TREE@/poppler/Link.cc \
+	@POPPLER_TREE@/poppler/MarkedContentOutputDev.cc \
 	@POPPLER_TREE@/poppler/Movie.cc \
 	@POPPLER_TREE@/poppler/NameToCharCode.cc \
 	@POPPLER_TREE@/poppler/Object.cc \
@@ -100,6 +99,7 @@ poppler_libpoppler_a_sources = \
 	@POPPLER_TREE@/poppler/OutputDev.cc \
 	@POPPLER_TREE@/poppler/PDFDoc.cc \
 	@POPPLER_TREE@/poppler/PDFDocEncoding.cc \
+	@POPPLER_TREE@/poppler/PDFDocFactory.cc \
 	@POPPLER_TREE@/poppler/PSTokenizer.cc \
 	@POPPLER_TREE@/poppler/Page.cc \
 	@POPPLER_TREE@/poppler/PageLabelInfo.cc \
@@ -111,23 +111,34 @@ poppler_libpoppler_a_sources = \
 	@POPPLER_TREE@/poppler/Rendition.cc \
 	@POPPLER_TREE@/poppler/SecurityHandler.cc \
 	@POPPLER_TREE@/poppler/Sound.cc \
+	@POPPLER_TREE@/poppler/StdinCachedFile.cc \
+	@POPPLER_TREE@/poppler/StdinPDFDocBuilder.cc \
 	@POPPLER_TREE@/poppler/Stream.cc \
-	@POPPLER_TREE@/poppler/strtok_r.cpp \
+	@POPPLER_TREE@/poppler/StructElement.cc \
+	@POPPLER_TREE@/poppler/StructTreeRoot.cc \
+	@POPPLER_TREE@/poppler/UTF.cc \
 	@POPPLER_TREE@/poppler/UnicodeMap.cc \
 	@POPPLER_TREE@/poppler/UnicodeTypeTable.cc \
-	@POPPLER_TREE@/poppler/UTF.cc \
 	@POPPLER_TREE@/poppler/ViewerPreferences.cc \
 	@POPPLER_TREE@/poppler/XRef.cc \
-	@POPPLER_TREE@/poppler/XpdfPluginAPI.cc
+	@POPPLER_TREE@/poppler/XpdfPluginAPI.cc \
+	@POPPLER_TREE@/poppler/strtok_r.cpp
 
 $(libpoppler_a_OBJECTS): config.force
 
-config.force: $(ZLIB_DEPEND)
-	echo timestamp >config.force
-	$(SHELL) ./config.status --recheck
-
-DISTCLEANFILES = config.force
-
 ## Rebuild zlib
 @ZLIB_RULE@
+
+# Reconfig
+reconfig_prereq = $(ZLIB_DEPEND)
+DISTCLEANFILES =
+
+include $(srcdir)/../../am/reconfig.am
+
+# Rebuild
+rebuild_prereq =
+rebuild_target = all
+CLEANFILES =
+
+include $(srcdir)/../../am/rebuild.am
 

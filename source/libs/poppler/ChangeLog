@@ -1,3 +1,75 @@
+2013-12-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import poppler-0.25.0.
+	* Makefile.am (poppler_libpoppler_a_sources): Add
+	MarkedContentOutputDev.cc, StructElement.cc, and
+	StructTreeRoot.cc (new files).
+	* version.ac: Adjust.
+
+2013-12-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import poppler-0.24.4.
+	* version.ac: Adjust.
+
+2013-10-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import poppler-0.24.3.
+	* version.ac: Adjust.
+
+2013-09-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import poppler-0.24.2.
+	* version.ac: Adjust.
+
+2013-09-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import poppler-0.24.1.
+	* version.ac: Adjust.
+
+2013-07-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import poppler-0.24.0.
+	* version.ac: Adjust.
+
+2013-07-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import poppler-0.23.4.
+	* version.ac: Adjust.
+
+2012-07-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Use ../../am/reconfig.am and ../../am/rebuild.am.
+
+2013-07-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* include/Makefile.am, include/{fofi,goo}/Makefile.am:
+	Moved Makefile fragments to ../../am/.
+
+2013-07-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import poppler-0.23.3.
+	* version.ac: Adjust.
+
+2013-06-26  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Ensure existence of zlib headers.
+
+2013-06-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import poppler-0.23.2.
+	* version.ac: Adjust.
+
+	* configure.ac: Add check for ftell64()/fseek64().
+	Check sizeof(long long) == 8.
+	[MinGW] Define _WIN32_WINNT to 0x0500 for GetFileSizeEx().
+
+	Install headers as for system-poppler.
+	* poppler/Makefile.am: Moved from here ...
+	* include/Makefile.am: ... to here.
+	* {goo,fofi}/Makefile.am: Moved from here ...
+	* include/{goo,fofi}/Makefile.am: ... to here.
+	* configure.ac: Adjusted.
+
 2013-03-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	Import poppler-0.22.2.

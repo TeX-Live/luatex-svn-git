@@ -1,13 +1,13 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl
-dnl   Copyright (C) 2011-2012 Peter Breitenlohner <tex-live@tug.org>
+dnl   Copyright (C) 2011-2013 Peter Breitenlohner <tex-live@tug.org>
 dnl
 dnl   This file is free software; the copyright holder
 dnl   gives unlimited permission to copy and/or distribute it,
 dnl   with or without modifications, as long as this notice is preserved.
 dnl
 m4_include([version.ac])[] dnl define poppler_version
-AC_INIT([poppler for TeX Live], poppler_version, [tex-k@tug.org])
+AC_INIT([poppler (TeX Live)], poppler_version, [tex-k@tug.org])
 AC_PREREQ([2.65])
 AC_CONFIG_SRCDIR([poppler-]poppler_version[/poppler/Array.cc])
 AC_CONFIG_AUX_DIR([../../build-aux])
@@ -19,6 +19,11 @@ AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_RANLIB
 AC_PROG_LN_S
+
+AC_CHECK_SIZEOF([long long])
+if test $ac_cv_sizeof_long_long -lt 8; then
+  AC_MSG_ERROR([Sorry, your compiler has no `long long' with at least 8 bytes.])
+fi
 
 test "x$GXX" = xyes && NO_WARN_CXXFLAGS='-Wno-write-strings'
 AC_SUBST([NO_WARN_CXXFLAGS])  
@@ -35,7 +40,7 @@ fi
 AC_ARG_ENABLE([multithreaded],
               AS_HELP_STRING([--enable-multithreaded],
                              [include support for multithreading]),
-              [if test "x$enableval" = xyes; then
+              [if test "x$enableval" != xno; then
   AC_DEFINE([MULTITHREADED], 1, [Enable multithreading support.])
 fi
 ])
@@ -66,10 +71,18 @@ dnl **** Checks for library functions ****
 AC_CHECK_FUNCS([gettimeofday gmtime_r mkstemp popen rand_r])
 AC_SYS_LARGEFILE
 AC_FUNC_FSEEKO
+AC_CHECK_FUNC([ftell64], [AC_CHECK_FUNCS([fseek64])])
+
+KPSE_COND_MINGW32
+
+if test "x$kpse_cv_have_win32" = xmingw32; then
+  AC_DEFINE([_WIN32_WINNT], [0x0500],
+            [Define for MinGW32 to 0x0500 to declare `GetFileSizeEx'.])
+fi
 
 AC_CONFIG_HEADERS([config.h])
 
-AC_CONFIG_HEADERS([poppler/poppler-config.h:poppler-]poppler_version[/poppler/poppler-config.h.in])
+AC_CONFIG_HEADERS([poppler-config.h:poppler-]poppler_version[/poppler/poppler-config.h.in])
 
 dnl ##### Export the version
 AC_DEFINE_UNQUOTED([POPPLER_VERSION], ["poppler_version"], [Define to the poppler version.])
@@ -92,6 +105,6 @@ AC_DEFINE([ENABLE_ZLIB], 1, [Use zlib instead of builtin zlib decoder.])
 
 AC_SUBST([POPPLER_TREE], [poppler-]poppler_version)
 
-AC_CONFIG_FILES([Makefile poppler/Makefile goo/Makefile fofi/Makefile])
+AC_CONFIG_FILES([Makefile include/Makefile include/goo/Makefile include/fofi/Makefile])
 
 AC_OUTPUT
