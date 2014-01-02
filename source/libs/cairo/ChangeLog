@@ -1,3 +1,44 @@
+2013-10-31  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am, configure.ac, cairo/Makefile.am: Prepare for SVG.
+
+2013-10-29  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* cairotst.c: Print more info.
+
+2013-09-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import cairo-1.12.16.
+	* Makefile.am, version.ac: Adapted.
+
+2013-09-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Drop ACLOCAL_AMFLAGS.
+	* configure.ac: Use AC_CONFIG_MACRO_DIRS.
+
+2012-07-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Use ../../am/reconfig.am and ../../am/rebuild.am.
+
+2013-07-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* cairo/Makefile.am: Moved Makefile fragments to ../../am/.
+
+2013-06-26  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (SUBDIRS): Build the library first.
+
+2013-05-25  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import cairo-1.12.14.
+	* Makefile.am, version.ac: Adapted.
+
+2013-03-29  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am, configure.ac: Convert to proxy build system.
+	* cairo.test: Shell script for a basic test.
+	* cairotst.c: Source code for test program.
+
 2012-12-15  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* configure.ac: Use KPSE_BASIC to enable silent rules.
