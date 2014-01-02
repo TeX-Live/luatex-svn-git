@@ -1,3 +1,20 @@
+2013-09-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Drop ACLOCAL_AMFLAGS.
+	* configure.ac: Use AC_CONFIG_MACRO_DIRS.
+
+2012-07-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Use ../../am/reconfig.am and ../../am/rebuild.am.
+
+2013-07-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* include/Makefile.am: Moved Makefile fragments to ../../am/.
+
+2013-06-26  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (SUBDIRS): Build the library first.
+
 2013-01-29  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* Makefile.am: Allow subdir-objects.
