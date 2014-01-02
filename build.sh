@@ -231,6 +231,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --disable-largefile \
     --disable-ptex \
     --disable-ipc \
+    --disable-linked-scripts \
     --enable-dump-share  \
     --enable-mp  \
     --enable-luatex  \
@@ -260,12 +261,14 @@ $MAKE
 # but I am too lazy to look up what is wrong exactly.
 # (perhaps more files needed to be copied from TL?)
 
+(cd libs; $MAKE )
 (cd libs/zziplib; $MAKE all )
 (cd libs/zlib; $MAKE all )
 (cd libs/libpng; $MAKE all )
 (cd libs/poppler; $MAKE all )
 
 (cd texk/kpathsea; $MAKE )
+(cd texk; $MAKE )
 (cd texk/web2c; $MAKE $LUATEXEXE )
 
 # go back
