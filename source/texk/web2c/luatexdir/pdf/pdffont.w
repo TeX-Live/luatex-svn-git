@@ -1,6 +1,6 @@
 % pdffont.w
 %
-% Copyright 2009-2013 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2009-2014 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -98,7 +98,6 @@ indicates that the corresponding font shares the font resource with the font
 static boolean font_shareable(internal_font_number f, internal_font_number k)
 {
     int ret = 0;
-    internal_font_number b;     /* possible base font */
     /* For some lua-loaded (for instance AFM) fonts, it is normal to have
        a zero cidregistry,  and such fonts do not have a fontmap entry yet
        at this point, so the test should use the other branch  */
@@ -125,7 +124,7 @@ static boolean font_shareable(internal_font_number f, internal_font_number k)
 @c
 void pdf_init_font(PDF pdf, internal_font_number f)
 {
-    internal_font_number k, b;
+    internal_font_number k/*, b*/;
     fm_entry *fm;
     int i, l;
     assert(!font_used(f));
