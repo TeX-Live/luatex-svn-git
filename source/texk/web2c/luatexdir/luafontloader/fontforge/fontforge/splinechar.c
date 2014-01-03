@@ -148,25 +148,6 @@ void SplineSetsRound2Int(SplineSet *spl,real factor, int inspiro, int onlysel) {
     }
 }
 
-
-void AltUniAdd(SplineChar *sc,int uni) {
-    struct altuni *altuni;
-
-    if ( sc!=NULL && uni!=-1 && uni!=sc->unicodeenc ) {
-	for ( altuni = sc->altuni; altuni!=NULL && (altuni->unienc!=uni ||
-						    altuni->vs!=-1 ||
-			                            altuni->fid); altuni=altuni->next );
-	if ( altuni==NULL ) {
-	    altuni = chunkalloc(sizeof(struct altuni));
-	    altuni->next = sc->altuni;
-	    sc->altuni = altuni;
-	    altuni->unienc = uni;
-	    altuni->vs = -1;
-	    altuni->fid = 0;
-	}
-    }
-}
-
 void SCOrderAP(SplineChar *sc) {
     int lc=0, cnt=0, out=false, i,j;
     AnchorPoint *ap, **array;

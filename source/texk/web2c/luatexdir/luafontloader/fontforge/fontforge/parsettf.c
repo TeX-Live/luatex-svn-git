@@ -5493,17 +5493,6 @@ static void SymbolFixup(struct ttfinfo *info) {
     map->enccount = max;
 }
 
-void AltUniFigure(SplineFont *sf,EncMap *map) {
-    int i,gid;
-
-    if ( map->enc!=&custom ) {
-	for ( i=0; i<map->enccount; ++i ) if ( (gid = map->map[i])!=-1 ) {
-	    int uni = UniFromEnc(i,map->enc);
-	    AltUniAdd(sf->glyphs[gid],uni);
-	}
-    }
-}
-
 static void NameConsistancyCheck(SplineFont *sf,EncMap *map) {
     /* Many fonts seem to have glyph names which mean something other than */
     /*  what the encoding says of the glyph */
@@ -5612,7 +5601,6 @@ static void UseGivenEncoding(SplineFont *sf,struct ttfinfo *info) {
     }
     sf->map = info->map;
     sf->uni_interp = info->uni_interp;
-    AltUniFigure(sf,sf->map);
     NameConsistancyCheck(sf, sf->map);
 }
 

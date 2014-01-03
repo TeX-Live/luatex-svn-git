@@ -1914,7 +1914,6 @@ static void _SplineFontFromType1(SplineFont *sf, FontDict *fd, struct pscontext 
     /*  formality, it acutally contains a skew. So be ready */
     if ( fd->fontmatrix[0]!=0 )
 	TransByFontMatrix(sf,fd->fontmatrix);
-    AltUniFigure(sf,sf->map);
 }
 
 static void SplineFontFromType1(SplineFont *sf, FontDict *fd, struct pscontext *pscontext) {
