@@ -2,6 +2,47 @@
 This file is in the public domain.
 
 ==============================================================
+Luatex beta-0.78.0 was released 
+==============================================================
+
+* luatex's fontloader.to_table() no longer reports 'altuni' table
+  information for alternates that are solely driven by the font
+  encoding. This fixes loading time issues for fonts that fill 
+  encodings by copying a single glyph many times, like e.g. 
+  LastResort.ttf from Apple.
+
+* The datestamp no longer appears in any banners. The associated
+  \luatexdatestamp primitive is deprecated and will be removed
+  in 0.80.0.
+
+* Synchronization with the TeXLive sources updated the following
+  libraries:
+  * cairo is now 1.12.16
+  * pixman is now 0.32.4
+  * lua is now 5.2.3
+  * zlib is now 1.2.8
+  * poppler is now 0.25.0
+
+* That same TL synchronization also fixes these issues:
+  * Always write "\nendstream" to the PDF for PDF/A-1b compliance.
+  * Large file support (>4GB) in Lua
+  * Big images could overflow on systems where sizeof(long)=4.
+  * In writing CID CFF fonts to the PDF, and end_dict() was missing.
+  * Unknown 'post' table versions (found in some broken ttf/otf
+    fonts) are now treated as-if they specified version 3.0.
+  * Fix crashes on 32-bit systems caused by bad C header inclusion
+    order
+  * Handle '--luac' and '--luaconly' properly
+  * luatex is now released under GPLv2+, not just GPLv2.
+  * luatex can now find .ofm metric files even if the extension
+    is not given explicitly.
+
+* node.unset_attribute() was broken in 0.78.0
+   
+* The UTF-8 commandline patch from 0.78.0 for Win32 was removed
+  again (did not work properly)
+
+==============================================================
 Luatex beta-0.78.0 was released 20131231
 ==============================================================
 
