@@ -377,9 +377,18 @@ static void hnj_add_trans(HyphenDict * dict, int state1, int state2, int uni_ch)
     num_trans = dict->states[state1].num_trans;
     if (num_trans == 0) {
         dict->states[state1].trans = hnj_malloc(sizeof(HyphenTrans));
-    } else if (!(num_trans & (num_trans - 1))) {
+    } else { 
+        /* TH: The old version did
+           } else if (!(num_trans & (num_trans - 1))) {
+             ... hnj_realloc(dict->states[state1].trans,
+                                                 (int) ((num_trans << 1) *
+                                                        sizeof(HyphenTrans)));
+           but that is incredibly nasty when adding patters one-at-a-time.
+           Controlled growth would be nicer than the current +1, but if
+           noone complains, this is good enough ;)
+         */
         dict->states[state1].trans = hnj_realloc(dict->states[state1].trans,
-                                                 (int) (num_trans << 1 *
+                                                 (int) ((num_trans + 1) *
                                                         sizeof(HyphenTrans)));
     }
     dict->states[state1].trans[num_trans].uni_ch = uni_ch;
