@@ -411,7 +411,7 @@ void main_body(void)
     if (bad > 0) {
         goto FINAL_END;
     }
-    print_banner(luatex_version_string, luatex_date_info, luatex_svn);
+    print_banner(luatex_version_string, luatex_svn);
 
     /* Get the first line of input and prepare to start */
     /* When we begin the following code, \TeX's tables may still contain garbage;

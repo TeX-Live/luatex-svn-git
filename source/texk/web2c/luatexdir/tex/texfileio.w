@@ -829,8 +829,8 @@ void open_log_file(void)
     selector = log_only;
     log_opened_global = true;
     if (callback_defined(start_run_callback) == 0) {
-        /* Print the banner line, including the date and time */
-        log_banner(luatex_version_string, luatex_date_info, luatex_svn);
+        /* Print the banner line, including current date and time */
+        log_banner(luatex_version_string, luatex_svn);
 
         input_stack[input_ptr] = cur_input;     /* make sure bottom level is in memory */
         tprint_nl("**");

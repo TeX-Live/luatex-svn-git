@@ -456,21 +456,16 @@ and format identifier together will occupy at most |max_print_line|
 character positions.
 
 @c
-void print_banner(const char *v, int e, int ver)
+void print_banner(const char *v, int ver)
 {
     int callback_id;
     callback_id = callback_defined(start_run_callback);
     if (callback_id == 0) {
         if (ver < 0)
-            fprintf(term_out, "This is LuaTeX, Version %s-%d ", v, e);
+            fprintf(term_out, "This is LuaTeX, Version %s ", v);
         else
-#ifndef NATIVE_TEXLIVE_BUILD
-             fprintf(term_out, "This is LuaTeX, Version %s-%d (rev %d) ", v, e,
-                     ver);
-#else /* for TL binaries, replace datestamp with web2c ident */
              fprintf(term_out, "This is LuaTeX, Version %s%s (rev %d) ", v,
                      WEB2CVERSION, ver);
-#endif
         if (format_ident > 0)
             print(format_ident);
         print_ln();
@@ -486,7 +481,7 @@ void print_banner(const char *v, int e, int ver)
 }
 
 @ @c
-void log_banner(const char *v, int e, int ver)
+void log_banner(const char *v, int ver)
 {
     const char *months[] = { "   ",
         "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
@@ -496,9 +491,10 @@ void log_banner(const char *v, int e, int ver)
     if (month > 12)
         month = 0;
     if (ver < 0)
-        fprintf(log_file, "This is LuaTeX, Version %s-%d ", v, e);
+        fprintf(log_file, "This is LuaTeX, Version %s ", v);
     else
-        fprintf(log_file, "This is LuaTeX, Version %s-%d (rev %d) ", v, e, ver);
+        fprintf(log_file, "This is LuaTeX, Version %s%s (rev %d) ", v, 
+	                  WEB2CVERSION, ver);
     print(format_ident);
     print_char(' ');
     print_char(' ');
