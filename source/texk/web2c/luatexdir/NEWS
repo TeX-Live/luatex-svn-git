@@ -5,6 +5,11 @@ This file is in the public domain.
 Luatex beta-0.78.0 was released 
 ==============================================================
 
+* Restored --recorder output for lua files (dofile/loadfile/io.open)
+
+* One-at-a-time pattern adding from lua used to require enormous 
+  amounts of memory
+
 * luatex's fontloader.to_table() no longer reports 'altuni' table
   information for alternates that are solely driven by the font
   encoding. This fixes loading time issues for fonts that fill 
