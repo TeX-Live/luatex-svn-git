@@ -1,6 +1,6 @@
 /* lfontlib.c
 
-   Copyright 2006-2013 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2014 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -293,7 +293,7 @@ int luaopen_font(lua_State * L)
 static int l_vf_char(lua_State * L)
 {
     int k, w;
-    int ex = 0;                 /* Wrong! TODO */
+    /*int ex = 0;*/                 /* Wrong! TODO */
     vf_struct *vsp = static_pdf->vfstruct;
     packet_stack_record *mat_p;
     internal_font_number lf = vsp->lf;
