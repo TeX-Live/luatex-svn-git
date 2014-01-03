@@ -181,8 +181,14 @@ static LStream *newfile (lua_State *L) {
 static void opencheck (lua_State *L, const char *fname, const char *mode) {
   LStream *p = newfile(L);
   p->f = fopen(fname, mode);
-  if (p->f == NULL)
+  if (p->f == NULL) {
     luaL_error(L, "cannot open file " LUA_QS " (%s)", fname, strerror(errno));
+  } else {
+    if (mode[0]=='r') 
+       recorder_record_input(fname);
+    else
+       recorder_record_output(fname);
+  }
 }
 
 
@@ -199,7 +205,15 @@ static int io_open (lua_State *L) {
     return luaL_error(L, "invalid mode " LUA_QS
                          " (should match " LUA_QL("[rwa]%%+?b?") ")", mode);
   p->f = fopen(filename, mode);
-  return (p->f == NULL) ? luaL_fileresult(L, 0, filename) : 1;
+  if (p->f == NULL) {
+      return luaL_fileresult(L, 0, filename) ;
+  } else {
+      if (mode[0]=='r') 
+	  recorder_record_input(filename);
+      else
+	  recorder_record_output(filename);
+      return 1;
+  }
 }
 
 /*
