@@ -33,7 +33,7 @@
 #      --host=     : target system for mingw32 cross-compilation
 #      --build=    : build system for mingw32 cross-compilation
 #      --arch=     : crosscompile for ARCH on OS X
-#      --debug     : CFLAGS="-g -O0" --warnings=max --nostrip
+#      --debug     : CFLAGS="-g -O0" CXXFLAGS="-g -O0"--warnings=max --nostrip
 
 # L/H: we assume a 64 bit build system .. it took us two days of experimenting with all
 # kind of permutations to figure it out .. partly due to tangle/tie dependencies and
@@ -44,7 +44,7 @@
 # - generate ctangle and tie
 # - get rid of otangle and tangle dependencies
 # - don't generate bins we don't need
-# - maybe make cario in mplib optional
+# - maybe make cairo in mplib optional
 #
 # Patch suggested  by Fabrice Popineau in texk/web2c/lib/lib.h: #define eof weof
 
@@ -87,12 +87,13 @@ JOBS_IF_PARALLEL=${JOBS_IF_PARALLEL:-3}
 MAX_LOAD_IF_PARALLEL=${MAX_LOAD_IF_PARALLEL:-2}
 
 CFLAGS="$CFLAGS"
+CXXFLAGS="$CXXFLAGS"
 
 until [ -z "$1" ]; do
   case "$1" in
     --make      ) ONLY_MAKE=TRUE     ;;
     --nostrip   ) STRIP_LUATEX=FALSE ;;
-    --debug     ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-g -O0 $CFLAGS" ;;
+    --debug     ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-g -O0 $CFLAGS" ; CXXFLAGS="-g -O0 $CXXFLAGS" ;;
     --warnings=*) WARNINGS=`echo $1 | sed 's/--warnings=\(.*\)/\1/' `        ;;
     --mingw     ) MINGWCROSS=TRUE    ;;
     --mingw32   ) MINGWCROSS=TRUE    ;;
