@@ -201,6 +201,7 @@ fi
 if [ "$STRIP_LUATEX" = "FALSE" ]
 then
     export CFLAGS
+    export CXXFLAGS
 fi
 
 # ----------
