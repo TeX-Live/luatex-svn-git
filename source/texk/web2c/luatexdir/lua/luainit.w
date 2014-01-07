@@ -752,13 +752,17 @@ void lua_initialize(int ac, char **av)
     argc = ac;
     argv = av;
 
+
     if (luatex_svn < 0) {
         const char *fmt = "This is LuaTeX, Version %s " WEB2CVERSION;
         size_t len;
-        len = strlen(fmt) + strlen(luatex_version_string) - 3;
-
-        /* len is just enough, because of the placeholder chars in fmt
-           that get replaced by the arguments.  */
+        len = strlen(fmt) + strlen(luatex_version_string) ;
+	
+	/* Could be also
+	   len = strlen(fmt) + strlen(luatex_version_string) - 1;
+           because of the placeholder chars in fmt
+           that get replaced by the arguments,
+	   but we drop -1 to be consistent with 'else'  */
         banner = xmalloc(len);
         sprintf(banner, fmt, luatex_version_string);
     } else {
