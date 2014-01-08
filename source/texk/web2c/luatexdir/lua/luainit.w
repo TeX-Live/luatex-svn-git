@@ -45,7 +45,7 @@ In fact, it sets three C variables:
 
 and five environment variables:
 
-  SELFAUTOLOC  SELFAUTODIR  SELFAUTOPARENT  SELAUTOGRANDPARENT  progname
+  SELFAUTOLOC  SELFAUTODIR  SELFAUTOPARENT  SELFAUTOGRANDPARENT  progname
 
 @c
 const_string LUATEX_IHELP[] = {
