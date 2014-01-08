@@ -22,7 +22,7 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: writeimg.w 4524 2012-12-20 15:38:02Z taco $"
+    "$Id: writeimg.w 4718 2014-01-02 15:35:31Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/image/writeimg.w $";
 
 #include "ptexlib.h"
@@ -37,8 +37,8 @@ static const char _svn_version[] =
 #include "image/writepng.h"
 #include "image/writejbig2.h"
 
-#include "lua52/lua.h"          /* for |LUA_NOREF| */
-#include "lua52/lauxlib.h"
+#include "lua.h"          /* for |LUA_NOREF| */
+#include "lauxlib.h"
 
 @ @c
 #define pdf_image_resolution int_par(pdf_image_resolution_code)

@@ -28,7 +28,7 @@ dnl to build part of the distribution may not have any given program.
 dnl Even cpascal.h isn't guaranteed, but then nothing is, really ...
 AC_CONFIG_SRCDIR([cpascal.h])
 AC_CONFIG_AUX_DIR([../../build-aux])
-AC_CONFIG_MACRO_DIR([../../m4])
+AC_CONFIG_MACRO_DIRS([../../m4 m4])
 
 WEB2CVERSION=tex_live_version()
 AC_SUBST([WEB2CVERSION])
@@ -61,6 +61,12 @@ KPSE_ASM_UNDERSCORE
 KPSE_COND_MINGW32
 KPSE_WIN32_CALL
 
+# A compilation variable for doing a TL build so we can
+# adjust the luatex banner, maybe others.
+AS_IF([test "x$enable_native_texlive_build" = xyes],
+      [AC_DEFINE([NATIVE_TEXLIVE_BUILD], 1,
+                 [Define to 1 if building binaries for TeX Live, else 0.])])
+
 AS_CASE([$with_editor],
         [''|yes|no], [AS_IF([test "x$kpse_cv_have_win32" = xno],
                             [with_editor="vi +%d '%s'"],
@@ -91,28 +97,25 @@ if test "x$enable_ipc" = xyes; then
    ipc_socketlibs=$socketlibs
    AC_DEFINE([IPC], 1, [tex: Define to enable --ipc.])
 fi
+
 # We may need additional libraries for luaTeX.
 # On Solaris -lnsl for gethostbyname(), -lrt for nanosleep(),
 # and maybe -lresolv for inet_aton().
 lua_socketlibs=$socketlibs
+kpse_save_LIBS=$LIBS
+KPSE_LUA52_DEFINES
+LIBS=$kpse_save_LIBS
 if test "x$kpse_cv_have_win32" = xno; then
-  kpse_save_LIBS=$LIBS
   AC_SEARCH_LIBS([gethostbyname], [nsl])
   AC_SEARCH_LIBS([hstrerror], [resolv])
   AC_SEARCH_LIBS([inet_aton], [resolv])
   LIBS=$kpse_save_LIBS
   AC_SEARCH_LIBS([nanosleep], [rt])
   LIBS=$kpse_save_LIBS
-  AC_SEARCH_LIBS([dlopen], [dl])
-  if test "x$ac_cv_search_dlopen" != xno; then
-    AC_CHECK_HEADERS([dlfcn.h])
-    if test "x$ac_cv_header_dlfcn_h" = xyes; then
-      if test "x$ac_cv_search_dlopen" != "xnone required"; then
-        lua_socketlibs="$lua_socketlibs $ac_cv_search_dlopen"
-      fi
-    fi
-  fi
-  LIBS=$kpse_save_LIBS
+  AS_CASE([$ac_cv_header_dlfcn_h],
+          [yes], [AS_CASE([$ac_cv_search_dlopen],
+                          [no*], [],
+                          [lua_socketlibs="$lua_socketlibs $ac_cv_search_dlopen"])])
   AS_CASE([$ac_cv_search_hstrerror],
           ["none required"], [],
           [no], [WEB2C_DISABLE([luatex], [no hstrerror()])],
@@ -272,11 +275,11 @@ AC_TYPE_SIGNAL
 KPSE_KPATHSEA_FLAGS
 KPSE_PTEXENC_FLAGS
 KPSE_ZLIB_FLAGS
+KPSE_LUA52_FLAGS
 KPSE_LIBPNG_FLAGS
 KPSE_FREETYPE2_FLAGS
 KPSE_PIXMAN_FLAGS
 KPSE_CAIRO_FLAGS
-KPSE_XPDF_FLAGS
 KPSE_POPPLER_FLAGS
 KPSE_XPDF_FLAGS
 KPSE_ZZIPLIB_FLAGS

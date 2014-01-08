@@ -752,6 +752,23 @@ AC_DEFUN([_AM_SET_OPTIONS],
 AC_DEFUN([_AM_IF_OPTION],
 [m4_ifset(_AM_MANGLE_OPTION([$1]), [$2], [$3])])
 
+# Copyright (C) 2001-2013 Free Software Foundation, Inc.
+#
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# AM_RUN_LOG(COMMAND)
+# -------------------
+# Run COMMAND, save the exit status in ac_status, and log it.
+# (This has been adapted from Autoconf's _AC_RUN_LOG macro.)
+AC_DEFUN([AM_RUN_LOG],
+[{ echo "$as_me:$LINENO: $1" >&AS_MESSAGE_LOG_FD
+   ($1) >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD
+   ac_status=$?
+   echo "$as_me:$LINENO: \$? = $ac_status" >&AS_MESSAGE_LOG_FD
+   (exit $ac_status); }])
+
 # Check to make sure that the build environment is sane.    -*- Autoconf -*-
 
 # Copyright (C) 1996-2013 Free Software Foundation, Inc.
@@ -1038,7 +1055,6 @@ AC_SUBST([am__untar])
 m4_include([m4/kpse-cairo-flags.m4])
 m4_include([m4/kpse-common.m4])
 m4_include([m4/kpse-cxx-hack.m4])
-m4_include([m4/kpse-freetype-flags.m4])
 m4_include([m4/kpse-freetype2-flags.m4])
 m4_include([m4/kpse-gd-flags.m4])
 m4_include([m4/kpse-graphite2-flags.m4])
@@ -1049,12 +1065,13 @@ m4_include([m4/kpse-libpng-flags.m4])
 m4_include([m4/kpse-lt-hack.m4])
 m4_include([m4/kpse-mktex.m4])
 m4_include([m4/kpse-options.m4])
+m4_include([m4/kpse-paper-flags.m4])
 m4_include([m4/kpse-pixman-flags.m4])
 m4_include([m4/kpse-pkgs.m4])
 m4_include([m4/kpse-poppler-flags.m4])
+m4_include([m4/kpse-potrace-flags.m4])
 m4_include([m4/kpse-ptexenc-flags.m4])
 m4_include([m4/kpse-setup.m4])
-m4_include([m4/kpse-t1lib-flags.m4])
 m4_include([m4/kpse-teckit-flags.m4])
 m4_include([m4/kpse-warnings.m4])
 m4_include([m4/kpse-web2c.m4])

@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: luatex-api.h 4629 2013-04-05 10:54:08Z taco $ */
+/* $Id: luatex-api.h 4718 2014-01-02 15:35:31Z taco $ */
 
 #ifndef LUATEX_API_H
 #  define LUATEX_API_H 1
@@ -25,9 +25,9 @@
 #  include <stdlib.h>
 #  include <stdio.h>
 #  include <stdarg.h>
-#  include "lua52/lua.h"
-#  include "lua52/lauxlib.h"
-#  include "lua52/lualib.h"
+#  include "lua.h"
+#  include "lauxlib.h"
+#  include "lualib.h"
 
 #ifdef __cplusplus
 extern "C" {

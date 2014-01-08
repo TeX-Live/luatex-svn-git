@@ -19,11 +19,12 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: texfileio.w 4521 2012-12-14 13:54:54Z taco $"
+    "$Id: texfileio.w 4722 2014-01-03 09:32:35Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/tex/texfileio.w $";
 
-#include <string.h>
 #include "ptexlib.h"
+
+#include <string.h>
 #include <kpathsea/absolute.h>
 
 @ @c
@@ -828,8 +829,8 @@ void open_log_file(void)
     selector = log_only;
     log_opened_global = true;
     if (callback_defined(start_run_callback) == 0) {
-        /* Print the banner line, including the date and time */
-        log_banner(luatex_version_string, luatex_date_info, luatex_svn);
+        /* Print the banner line, including current date and time */
+        log_banner(luatex_version_string, luatex_svn);
 
         input_stack[input_ptr] = cur_input;     /* make sure bottom level is in memory */
         tprint_nl("**");
@@ -1136,7 +1137,7 @@ boolean zopen_w_input(FILE ** f, const char *fname, int format,
     if (callbackid > 0) {
         res = run_callback(callbackid, "S->S", fname, &fnam);
         if (res && fnam && strlen(fnam) > 0) {
-            *f = xfopen(fnam, fopen_mode);
+            *f = fopen(fnam, fopen_mode);
             if (*f == NULL) {
                 return 0;
             }

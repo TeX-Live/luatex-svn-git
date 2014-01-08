@@ -19,12 +19,12 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: unistring.w 4600 2013-03-19 15:50:19Z taco $"
+    "$Id: unistring.w 4718 2014-01-02 15:35:31Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/utils/unistring.w $";
 
 @ @c
-#include <string.h>
 #include "ptexlib.h"
+#include <string.h>
 
 @ @c
 static void utf_error(void)

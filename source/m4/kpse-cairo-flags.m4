@@ -12,7 +12,7 @@
 # Set the make variables CAIRO_INCLUDES and CAIRO_LIBS to the CPPFLAGS and
 # LIBS required for the `-lcairo' library in libs/cairo/ of the TL tree.
 AC_DEFUN([KPSE_CAIRO_FLAGS],
-[_KPSE_LIB_FLAGS([cairo], [cairo], [lt],
+[_KPSE_LIB_FLAGS([cairo], [cairo], [],
                  [-IBLD/libs/cairo/cairo], [BLD/libs/cairo/libcairo.a], [],
                  [], [${top_builddir}/../../libs/cairo/cairo/cairo.h])[]dnl
 ]) # KPSE_CAIRO_FLAGS
@@ -34,6 +34,6 @@ if $PKG_CONFIG cairo --atleast-version=1.12; then
   CAIRO_INCLUDES=`$PKG_CONFIG cairo --cflags`
   CAIRO_LIBS=`$PKG_CONFIG cairo --libs`
 elif test "x$need_cairo:$with_system_cairo" = xyes:yes; then
-  AC_MSG_ERROR([did not find cairo-1.10 or better])
+  AC_MSG_ERROR([did not find cairo-1.12 or better])
 fi
 ]) # KPSE_CAIRO_SYSTEM_FLAGS

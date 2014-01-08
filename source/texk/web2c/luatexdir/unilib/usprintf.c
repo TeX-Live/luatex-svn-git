@@ -24,10 +24,10 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include <stddef.h>
-#include <stdarg.h>
 #include "ustring.h"
 #include "utype.h"
+#include <stddef.h>
+#include <stdarg.h>
 
 /* unicode printf. Expect arguments to be given using <num>$ notation */
 /* But there's no way I'm going to implement all of printf now. I'll do what I */

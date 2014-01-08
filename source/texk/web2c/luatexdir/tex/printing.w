@@ -19,7 +19,7 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: printing.w 4679 2013-12-19 15:47:53Z luigi $"
+    "$Id: printing.w 4722 2014-01-03 09:32:35Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/tex/printing.w $";
 
 #include "ptexlib.h"
@@ -456,16 +456,16 @@ and format identifier together will occupy at most |max_print_line|
 character positions.
 
 @c
-void print_banner(const char *v, int e, int ver)
+void print_banner(const char *v, int ver)
 {
     int callback_id;
     callback_id = callback_defined(start_run_callback);
     if (callback_id == 0) {
         if (ver < 0)
-            fprintf(term_out, "This is LuaTeX, Version %s-%d ", v, e);
+            fprintf(term_out, "This is LuaTeX, Version %s ", v);
         else
-            fprintf(term_out, "This is LuaTeX, Version %s-%d (rev %d) ", v, e,
-                    ver);
+             fprintf(term_out, "This is LuaTeX, Version %s%s (rev %d) ", v,
+                     WEB2CVERSION, ver);
         if (format_ident > 0)
             print(format_ident);
         print_ln();
@@ -481,7 +481,7 @@ void print_banner(const char *v, int e, int ver)
 }
 
 @ @c
-void log_banner(const char *v, int e, int ver)
+void log_banner(const char *v, int ver)
 {
     const char *months[] = { "   ",
         "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
@@ -491,9 +491,10 @@ void log_banner(const char *v, int e, int ver)
     if (month > 12)
         month = 0;
     if (ver < 0)
-        fprintf(log_file, "This is LuaTeX, Version %s-%d ", v, e);
+        fprintf(log_file, "This is LuaTeX, Version %s ", v);
     else
-        fprintf(log_file, "This is LuaTeX, Version %s-%d (rev %d) ", v, e, ver);
+        fprintf(log_file, "This is LuaTeX, Version %s%s (rev %d) ", v, 
+	                  WEB2CVERSION, ver);
     print(format_ident);
     print_char(' ');
     print_char(' ');

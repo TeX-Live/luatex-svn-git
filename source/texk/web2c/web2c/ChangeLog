@@ -1,3 +1,25 @@
+2013-12-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+        * common.defines (makesuffix): Add this.
+
+2013-07-17  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (libweb2c.a): Avoid more 'parallel make' problems.
+
+2013-07-15  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (w2c/config.h): Avoid 'parallel make' problems.
+
+2013-06-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* cvtbib.sed: Generate bibtex.c to first #include "cpascal.h".
+	* makecpool.c: Generate tex-pool.c to first #include "texd.h".
+	* web2c-lexer.l: First #include <w2c/config.h> via "web2c.h".
+
+2013-06-27  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* main.c: Drop variable 'error' (set but not used).
+
 2012-12-17  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* Makefile.am: Enable silent rules.

@@ -20,10 +20,12 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: utils.w 4629 2013-04-05 10:54:08Z taco $"
+    "$Id: utils.w 4720 2014-01-02 16:06:16Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/utils/utils.w $";
 
 @ @c
+#include "ptexlib.h"
+
 #include <kpathsea/config.h> /* this is a trick to load mingw32's io.h early,
 				using a macro redefinition of |eof()|. */
 #include "sys/types.h"
@@ -33,7 +35,6 @@ static const char _svn_version[] =
 #include <time.h>
 #include <float.h>              /* for |DBL_EPSILON| */
 #include "zlib.h"
-#include "ptexlib.h"
 #include "md5.h"
 
 #include "lua/luatex-api.h"     /* for ptexbanner */
@@ -343,11 +344,11 @@ char *stripzeros(char *a)
 void initversionstring(char **versions)
 {
     const_string fmt =
-                    "Compiled with libpng %s; using libpng %s\n"
+                    "Compiled with libpng %s\n"
                     "Compiled with zlib %s; using zlib %s\n"
                     "Compiled with poppler version %s\n";
     size_t len = strlen(fmt)
-                    + strlen(PNG_LIBPNG_VER_STRING) + strlen(png_libpng_ver)
+                    + strlen(PNG_LIBPNG_VER_STRING)
                     + strlen(ZLIB_VERSION) + strlen(zlib_version)
                     + strlen(POPPLER_VERSION)
                     + 1;
@@ -356,7 +357,7 @@ void initversionstring(char **versions)
        that get replaced by the arguments.  */
     *versions = xmalloc(len);
     sprintf(*versions, fmt,
-                    PNG_LIBPNG_VER_STRING, png_libpng_ver,
+                    PNG_LIBPNG_VER_STRING, 
                     ZLIB_VERSION, zlib_version, POPPLER_VERSION);
 }
 

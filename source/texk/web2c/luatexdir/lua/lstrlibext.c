@@ -21,16 +21,16 @@
    otherwise some of the defines that are needed for lua_sdump
    come out wrong.
  */
-#define LUA_CORE
-#include "lua.h"
-#include "lua52/luaconf.h"
-#include "lua52/lapi.h"
-#include "lua52/lundump.h"
-
 #include "ptexlib.h"
 
+#define LUA_CORE
+#include "lua.h"
+#include "luaconf.h"
+#include "lapi.h"
+#include "lundump.h"
+
 static const char _svn_version[] =
-    "$Id: lstrlibext.c 4544 2012-12-25 14:07:44Z oneiros $ $URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/lstrlibext.c $";
+    "$Id: lstrlibext.c 4718 2014-01-02 15:35:31Z taco $ $URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/lstrlibext.c $";
 
 static int str_split (lua_State *L) {
   size_t l;

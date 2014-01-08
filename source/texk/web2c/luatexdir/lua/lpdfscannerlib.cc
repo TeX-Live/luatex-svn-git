@@ -25,12 +25,12 @@
 #  include <math.h>
 
 extern "C" {
-#  include <lua52/lua.h>
-#  include <lua52/lauxlib.h>
-#  include <lua52/lualib.h>
+#  include <lua.h>
+#  include <lauxlib.h>
+#  include <lualib.h>
 }
 
-#  include <poppler/poppler-config.h>
+#  include <poppler-config.h>
 #  include <goo/GooString.h>
 #  include <goo/gmem.h>
 #  include <goo/gfile.h>
@@ -52,7 +52,7 @@ extern "C" {
 #  include <lua/luatex-api.h>
 
 static const char _svn_version[] =
-    "$Id: lpdfscannerlib.cc 4670 2013-12-10 09:26:29Z taco $ $URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/lpdfscannerlib.cc $";
+    "$Id: lpdfscannerlib.cc 4718 2014-01-02 15:35:31Z taco $ $URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/lpdfscannerlib.cc $";
 
 #define SCANNER "pdfscanner"
 

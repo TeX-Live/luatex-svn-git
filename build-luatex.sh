@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# $Id: build.sh 4634 2013-04-21 14:45:45Z hhenkel $
+# $Id: build.sh 4734 2014-01-07 12:33:14Z luigi $
 #
 # Copyright (c) 2005-2011 Martin Schröder <martin@luatex.org>
 # Copyright (c) 2009-2011 Taco Hoekwater <taco@luatex.org>
@@ -33,7 +33,7 @@
 #      --host=     : target system for mingw32 cross-compilation
 #      --build=    : build system for mingw32 cross-compilation
 #      --arch=     : crosscompile for ARCH on OS X
-#      --debug     : CFLAGS="-g -O0" --warnings=max --nostrip
+#      --debug     : CFLAGS="-g -O0" CXXFLAGS="-g -O0"--warnings=max --nostrip
 
 # L/H: we assume a 64 bit build system .. it took us two days of experimenting with all
 # kind of permutations to figure it out .. partly due to tangle/tie dependencies and
@@ -44,7 +44,7 @@
 # - generate ctangle and tie
 # - get rid of otangle and tangle dependencies
 # - don't generate bins we don't need
-# - maybe make cario in mplib optional
+# - maybe make cairo in mplib optional
 #
 # Patch suggested  by Fabrice Popineau in texk/web2c/lib/lib.h: #define eof weof
 
@@ -87,12 +87,13 @@ JOBS_IF_PARALLEL=${JOBS_IF_PARALLEL:-3}
 MAX_LOAD_IF_PARALLEL=${MAX_LOAD_IF_PARALLEL:-2}
 
 CFLAGS="$CFLAGS"
+CXXFLAGS="$CXXFLAGS"
 
 until [ -z "$1" ]; do
   case "$1" in
     --make      ) ONLY_MAKE=TRUE     ;;
     --nostrip   ) STRIP_LUATEX=FALSE ;;
-    --debug     ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-g -O0 $CFLAGS" ; CXXFLAGS="-g -O0 CXXFLAGS" ;;
+    --debug     ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-g -O0 $CFLAGS" ; CXXFLAGS="-g -O0 $CXXFLAGS" ;;
     --warnings=*) WARNINGS=`echo $1 | sed 's/--warnings=\(.*\)/\1/' `        ;;
     --mingw     ) MINGWCROSS=TRUE    ;;
     --mingw32   ) MINGWCROSS=TRUE    ;;
@@ -199,7 +200,8 @@ fi
 
 if [ "$STRIP_LUATEX" = "FALSE" ]
 then
-    export CFLAGS CXXFLAGS
+    export CFLAGS
+    export CXXFLAGS
 fi
 
 # ----------
@@ -217,6 +219,10 @@ then
 fi
 #
 # get a new svn version header
+if [ "$WARNINGS" = "max" ]
+then
+   rm -f source/texk/web2c/luatexdir/luatex_svnversion.h
+fi
 ( cd source  ; ./texk/web2c/luatexdir/getluatexsvnversion.sh )
 
 cd "$B"
@@ -231,6 +237,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --disable-largefile \
     --disable-ptex \
     --disable-ipc \
+    --disable-linked-scripts \
     --enable-dump-share  \
     --enable-mp  \
     --enable-luatex  \
@@ -260,12 +267,14 @@ $MAKE
 # but I am too lazy to look up what is wrong exactly.
 # (perhaps more files needed to be copied from TL?)
 
+(cd libs; $MAKE )
 (cd libs/zziplib; $MAKE all )
 (cd libs/zlib; $MAKE all )
 (cd libs/libpng; $MAKE all )
 (cd libs/poppler; $MAKE all )
 
 (cd texk/kpathsea; $MAKE )
+(cd texk; $MAKE )
 (cd texk/web2c; $MAKE $LUATEXEXE )
 
 # go back

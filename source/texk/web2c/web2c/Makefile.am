@@ -1,6 +1,6 @@
 ## Makefile.am for the TeX Live subdirectory texk/web2c/web2c/
 ##
-## Copyright (C) 2009-2012 Peter Breitenlohner <tex-live@tug.org>
+## Copyright (C) 2009-2013 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
 ACLOCAL_AMFLAGS = -I ../../../m4
@@ -11,14 +11,26 @@ AM_CFLAGS = $(WARNING_CFLAGS)
 
 noinst_PROGRAMS = web2c fixwrites splitup makecpool
 
+EXTRA_LIBRARIES = libweb2c.a
+
 BUILT_SOURCES = w2c/config.h
 
 DISTCLEANFILES = w2c/config.h
 
 # Don't include our <c-auto.h>.
 w2c/config.h: ../w2c/config.h
-	$(AM_V_at)$(MKDIR_P) w2c
-	$(AM_V_GEN)sed -e '/c-auto\.h>/d' $(srcdir)/../w2c/config.h >$@
+	@if test -f $@; then :; else \
+	  trap 'rm -rf w2c.lock' 1 2 13 15; \
+	  if mkdir w2c.lock 2>/dev/null; then \
+	    $(MKDIR_P) w2c; \
+	    if $(AM_V_P); then :; else echo "  GEN      $@"; fi; \
+	    sed -e '/c-auto\.h>/d' $(srcdir)/../w2c/config.h >$@; \
+	    rmdir w2c.lock; \
+	  else \
+	    while test -d w2c.lock; do sleep 1; done; \
+	  fi; \
+	  test -f $@; \
+	fi
 
 noinst_HEADERS = coerce.h
 
@@ -32,33 +44,53 @@ dist_noinst_DATA = \
 	mfmp.defines \
 	texmf.defines
 
+libweb2c_a_SOURCES = \
+	kps.c
+
+$(libweb2c_a_OBJECTS): w2c/config.h
+
 web2c_SOURCES = \
 	web2c-parser.y \
 	web2c-lexer.l \
-	kps.c \
 	main.c \
 	web2c.h
 
-$(web2c_OBJECTS): web2c-parser.h w2c/config.h
+$(web2c_OBJECTS): web2c-parser.h stamp-lib
+
+web2c_LDADD = -L. -lweb2c
 
 DISTCLEANFILES += web2c-parser.output
 
 fixwrites_SOURCES = \
-	fixwrites.c \
-	kps.c
+	fixwrites.c
 
-$(fixwrites_OBJECTS): w2c/config.h
+$(fixwrites_OBJECTS): stamp-lib
+
+fixwrites_LDADD = $(web2c_LDADD)
 
 splitup_SOURCES = \
-	kps.c \
 	splitup.c
 
-$(splitup_OBJECTS): w2c/config.h
+$(splitup_OBJECTS): stamp-lib
+
+splitup_LDADD = $(web2c_LDADD)
 
 makecpool_SOURCES = \
 	makecpool.c
 
-nodist_noinst_DATA = stamp-web2c stamp-fixwrites stamp-splitup stamp-makecpool
+nodist_noinst_DATA = stamp-lib stamp-web2c stamp-fixwrites stamp-splitup stamp-makecpool
+
+stamp-lib:
+	@if test -f $@; then :; else \
+	  trap 'rm -rf lib.lock' 1 2 13 15; \
+	  if mkdir lib.lock 2>/dev/null; then \
+	    $(MAKE) $(AM_MAKEFLAGS) libweb2c.a && echo timestamp >$@; \
+	    rmdir lib.lock; \
+	  else \
+	    while test -d lib.lock; do sleep 1; done; \
+	  fi; \
+	  test -f $@; \
+	fi
 
 stamp-web2c: web2c$(EXEEXT)
 	$(AM_V_at)echo timestamp >$@
@@ -76,3 +108,4 @@ CLEANFILES = $(nodist_noinst_DATA)
 
 distclean-local:
 	rm -rf kpathsea w2c
+

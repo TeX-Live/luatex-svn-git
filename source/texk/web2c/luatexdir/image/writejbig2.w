@@ -1,8 +1,8 @@
 % writejbig2.w
 %
 % Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
-% Copyright 2006-2012 Taco Hoekwater <taco@@luatex.org>
-% Copyright 2003-2012 Hartmut Henkel <hartmut@@luatex.org>
+% Copyright 2006-2013 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2003-2013 Hartmut Henkel <hartmut@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -81,18 +81,15 @@ object exists, reference it. Else create fresh one.
 
 @ @c
 static const char _svn_version[] =
-    "$Id: writejbig2.w 4442 2012-05-25 22:40:34Z hhenkel $"
+    "$Id: writejbig2.w 4718 2014-01-02 15:35:31Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/image/writejbig2.w $";
 
 #undef DEBUG
 
-#ifdef HAVE_CONFIG_H
-#include <w2c/config.h>
-#endif
+#include "ptexlib.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include "ptexlib.h"
 #include "image/image.h"
 
 @ @c

@@ -20,7 +20,7 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: writet3.w 4442 2012-05-25 22:40:34Z hhenkel $"
+    "$Id: writet3.w 4718 2014-01-02 15:35:31Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/font/writet3.w $";
 
 #include "ptexlib.h"
@@ -194,7 +194,7 @@ static boolean writepk(PDF pdf, internal_font_number f)
         pdf_dict_add_streaminfo(pdf);
         pdf_end_dict(pdf);
         pdf_begin_stream(pdf);
-        setpdffloat(pf, (int) t3_char_widths[cd.charcode], 2);
+        setpdffloat(pf, (int64_t) t3_char_widths[cd.charcode], 2);
         print_pdffloat(pdf, pf);
         pdf_printf(pdf, " 0 %i %i %i %i d1\n",
                    (int) llx, (int) lly, (int) urx, (int) ury);
@@ -279,7 +279,7 @@ void writet3(PDF pdf, internal_font_number f)
             get_pk_font_scale(f, pdf->decimal_digits, pdf->pk_scale_factor);
         pdf_add_name(pdf, "FontMatrix");
         pdf_begin_array(pdf);
-        setpdffloat(pf, pk_font_scale, 5);
+        setpdffloat(pf, (int64_t) pk_font_scale, 5);
         print_pdffloat(pdf, pf);
         pdf_puts(pdf, " 0 0 ");
         print_pdffloat(pdf, pf);
@@ -324,7 +324,7 @@ void writet3(PDF pdf, internal_font_number f)
     pdf_begin_array(pdf);
     if (is_pk_font)
         for (i = first_char; i <= last_char; i++) {
-            setpdffloat(pf, (int) t3_char_widths[i], 2);
+            setpdffloat(pf, (int64_t) t3_char_widths[i], 2);
             print_pdffloat(pdf, pf);
             pdf_out(pdf, ' ');
     } else

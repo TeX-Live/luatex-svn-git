@@ -1,4 +1,4 @@
-/* texmf.c: Hand-coded routines for TeX or Metafont in C.  Originally
+/* luatex.c: Hand-coded routines for TeX or Metafont in C.  Originally
    written by Tim Morgan, drawing from other Unix ports of TeX.  This is
    a collection of miscellany, everything that's easier (or only
    possible) to do in C.
@@ -9,22 +9,23 @@
    changed to include texd.h or mfd.h.  The ?d.h file is what
    #defines TeX or MF, which avoids the need for a special
    Makefile rule.  */
-#include "luatex.h"
+
 #include "ptexlib.h"
+#include "luatex.h"
 #include "lua/luatex-api.h"
 #include "luatex_svnversion.h"
 
 static const char _svn_version[] =
-    "$Id: luatex.c 4607 2013-03-21 15:08:45Z taco $ "
+    "$Id: luatex.c 4724 2014-01-03 09:37:48Z taco $ "
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/luatex.c $";
 
 #define TeX
 
 int luatex_svn = luatex_svn_revision;
 int luatex_version = 78;        /* \.{\\luatexversion}  */
-int luatex_revision = '0';      /* \.{\\luatexrevision}  */
+int luatex_revision = '1';      /* \.{\\luatexrevision}  */
 int luatex_date_info = -extra_version_info;     /* the compile date is negated */
-const char *luatex_version_string = "beta-0.78.0";
+const char *luatex_version_string = "beta-0.78.1";
 const char *engine_name = "luatex";     /* the name of this engine */
 
 #include <kpathsea/c-ctype.h>
@@ -36,6 +37,9 @@ const char *engine_name = "luatex";     /* the name of this engine */
 #include <kpathsea/concatn.h>
 #endif
 
+#ifdef _MSC_VER
+#undef timezone
+#endif
 
 #include <time.h>               /* For `struct tm'.  */
 #if defined (HAVE_SYS_TIME_H)
@@ -521,178 +525,252 @@ void topenin(void)
    incrementally.  Shamim Mohamed adapted it for Web2c.  */
 #if defined (TeX) && defined (IPC)
 
-# ifdef WIN32
-#  include <winsock2.h>
-# else
-#  include <sys/socket.h>
-#  include <fcntl.h>
-#  ifndef O_NONBLOCK            /* POSIX */
-#    ifdef O_NDELAY             /* BSD */
-#      define O_NONBLOCK O_NDELAY
-#    else
-#      ifdef FNDELAY            /* NeXT */
-#        define O_NONBLOCK O_FNDELAY
-#      else
-what the fcntl ? cannot implement IPC without equivalent for O_NONBLOCK.
-#      endif                    /* no FNDELAY */
-#    endif                      /* no O_NDELAY */
-#  endif                        /* no O_NONBLOCK */
-# endif /* !WIN32 */
+#ifdef WIN32
+#undef _WINSOCKAPI_
+#include <winsock2.h>
+#else
+#include <sys/socket.h>
+#include <fcntl.h>
+#ifndef O_NONBLOCK /* POSIX */
+#ifdef O_NDELAY    /* BSD */
+#define O_NONBLOCK O_NDELAY
+#elif defined(O_FNDELAY)     /* NeXT */
+#define O_NONBLOCK O_FNDELAY
+#else
+what the fcntl? cannot implement IPC without equivalent for O_NONBLOCK.
+#endif
+#endif /* no O_NONBLOCK */
+#endif /* !WIN32 */
 
-#  ifndef IPC_PIPE_NAME         /* $HOME is prepended to this.  */
-#    define IPC_PIPE_NAME "/.TeXview_Pipe"
-#  endif
-#  ifndef IPC_SERVER_CMD        /* Command to run to start the server.  */
-#    define IPC_SERVER_CMD "open `which TeXview`"
-#  endif
-    struct msg {
-    short namelength;           /* length of auxiliary data */
-    int eof;                    /* new eof for dvi file */
-#  if 0                         /* see usage of struct msg below */
-    char more_data[0];          /* where the rest of the stuff goes */
-#  endif
+#ifdef WIN32
+# define IPC_AF AF_INET
+# ifndef IPC_LOCAL_HOST
+#  define IPC_LOCAL_HOST "127.0.0.1"
+#  define FIXED_PORT     (unsigned short)4242
+# endif
+#else
+# define IPC_AF AF_UNIX
+# ifndef IPC_PIPE_NAME /* $HOME is prepended to this.  */
+#  define IPC_PIPE_NAME "/.TeXview_Pipe"
+# endif
+#endif
+#ifndef IPC_SERVER_CMD /* Command to run to start the server.  */
+# ifdef WIN32
+#  define IPC_SERVER_CMD "texview.exe"
+# else
+#  define IPC_SERVER_CMD "open `which TeXview`"
+# endif
+#endif
+
+struct msg
+{
+  int   namelength; /* length of auxiliary data */
+  int   eof;        /* new eof for dvi file */
+#if 0  /* see usage of struct msg below */
+  char more_data[0]; /* where the rest of the stuff goes */ 
+#endif
 };
 
-static char *ipc_name;
 static struct sockaddr *ipc_addr;
 static int ipc_addr_len;
 
-static int ipc_make_name(void)
+static int
+ipc_make_name (void)
 {
-    if (ipc_addr_len == 0) {
-        string s = getenv("HOME");
-        if (s) {
-            ipc_addr = (struct sockaddr *) xmalloc(strlen(s) + 40);
-            ipc_addr->sa_family = 0;
-            ipc_name = ipc_addr->sa_data;
-            strcpy(ipc_name, s);
-            strcat(ipc_name, IPC_PIPE_NAME);
-            ipc_addr_len = strlen(ipc_name) + 3;
-        }
-    }
-    return ipc_addr_len;
-}
-
-
-static int sock = -1;
-
-static int ipc_is_open(void)
-{
-    return sock >= 0;
-}
-
-
-static void ipc_open_out(void)
-{
+  if (ipc_addr_len == 0) {
 #ifdef WIN32
-  u_long mode = 1;
+    unsigned long remote_addr = inet_addr(IPC_LOCAL_HOST);
+    if (remote_addr != INADDR_NONE) {
+      struct sockaddr_in *ipc_sin_addr = xmalloc (sizeof (struct sockaddr_in));
+      ipc_sin_addr->sin_family = AF_INET;
+      ipc_sin_addr->sin_addr.s_addr = remote_addr;
+      ipc_sin_addr->sin_port = htons (FIXED_PORT);
+      ipc_addr = ((struct sockaddr *) ipc_sin_addr);
+      ipc_addr_len = sizeof(struct sockaddr_in);
+    }
+#else
+    string s = getenv ("HOME");
+    if (s) {
+      char *ipc_name;
+      ipc_addr = xmalloc (strlen (s) + 40);
+      ipc_addr->sa_family = 0;
+      ipc_name = ipc_addr->sa_data;
+      strcpy (ipc_name, s);
+      strcat (ipc_name, IPC_PIPE_NAME);
+      ipc_addr_len = strlen (ipc_name) + 3;
+    }
 #endif
-#  ifdef IPC_DEBUG
-    fputs("tex: Opening socket for IPC output ...\n", stderr);
-#  endif
-    if (sock >= 0) {
-        return;
-    }
+  }
+  return ipc_addr_len;
+}
 
-    if (ipc_make_name() < 0) {
-        sock = -1;
-        return;
-    }
+#ifndef INVALID_SOCKET
+# define INVALID_SOCKET (-1)
+#endif
+static int sock = INVALID_SOCKET;
 
-    sock = socket(PF_UNIX, SOCK_STREAM, 0);
-    if (sock >= 0) {
-        if (connect(sock, ipc_addr, ipc_addr_len) != 0 ||
+#ifdef WIN32
+# define CLOSE_SOCKET(s) closesocket (s); WSACleanup ()
+#else
+# define CLOSE_SOCKET(s) close (s)
+#endif
+
+static int
+ipc_is_open (void)
+{
+   return sock != INVALID_SOCKET;
+}
+
+static void
+ipc_open_out (void) {
+#ifdef WIN32
+  struct WSAData wsaData;
+  int nCode;
+  unsigned long mode = 1;
+#endif
+#ifdef IPC_DEBUG
+  fputs ("tex: Opening socket for IPC output ...\n", stderr);
+#endif
+  if (sock != INVALID_SOCKET) {
+    return;
+  }
+
+#ifdef WIN32
+  if ((nCode = WSAStartup(MAKEWORD(1, 1), &wsaData)) != 0) {
+    fprintf(stderr,"WSAStartup() returned error code %d.\n", nCode);
+    return;
+  }
+#endif
+
+  if (ipc_make_name () <= 0)
+    return;
+
+  sock = socket (IPC_AF, SOCK_STREAM, 0);
+#ifdef IPC_DEBUG
+  if(sock != INVALID_SOCKET)
+    fprintf(stderr, "tex: Socket handle is %d\n", sock);
+  else
+    fprintf(stderr, "tex: Socket is invalid.\n");
+#endif
+
+  if (sock != INVALID_SOCKET) {
+    if (connect (sock, ipc_addr, ipc_addr_len) != 0 ||
 #ifdef WIN32
         ioctlsocket (sock, FIONBIO, &mode) < 0
 #else
         fcntl (sock, F_SETFL, O_NONBLOCK) < 0
 #endif
-           ) {
-            close(sock);
-            sock = -1;
-            return;
-        }
-#  ifdef IPC_DEBUG
-        fputs("tex: Successfully opened IPC socket.\n", stderr);
-#  endif
+        ) {
+      CLOSE_SOCKET (sock);
+      sock = INVALID_SOCKET;
+#ifdef IPC_DEBUG
+      fputs ("tex: IPC socket cannot be connected.\n", stderr);
+      fputs ("tex: Socket is closed.\n", stderr);
+#endif
+      return;
     }
+#ifdef IPC_DEBUG
+    fputs ("tex: Successfully opened IPC socket.\n", stderr);
+#endif
+  }
 }
 
-
-static void ipc_close_out(void)
+static void
+ipc_close_out (void)
 {
-#  ifdef IPC_DEBUG
-    fputs("tex: Closing output socket ...\n", stderr);
-#  endif
-    if (ipc_is_open()) {
-        close(sock);
-        sock = -1;
-    }
+#ifdef IPC_DEBUG
+  fputs ("tex: Closing output socket ...\n", stderr);
+#endif
+  if (ipc_is_open ()) {
+    CLOSE_SOCKET (sock);
+    sock = INVALID_SOCKET;
+  }
 }
 
-
-static void ipc_snd(int n, int is_eof, char *data)
+static void
+ipc_snd (int n, int is_eof, char *data)
 {
-    struct {
-        struct msg msg;
-        char more_data[1024];
-    } ourmsg;
+  struct
+  {
+    struct msg msg;
+    char more_data[1024];
+  } ourmsg;
 
-#  ifdef IPC_DEBUG
-    fputs("tex: Sending message to socket ...\n", stderr);
-#  endif
-    if (!ipc_is_open()) {
-        return;
-    }
+  if (!ipc_is_open ()) {
+    return;
+  }
 
-    ourmsg.msg.namelength = n;
-    ourmsg.msg.eof = is_eof;
-    if (n) {
-        strcpy(ourmsg.more_data, data);
-    }
-    n += sizeof(struct msg);
-#  ifdef IPC_DEBUG
-    fputs("tex: Writing to socket...\n", stderr);
-#  endif
-    if (write(sock, &ourmsg, n) != n) {
-        ipc_close_out();
-    }
-#  ifdef IPC_DEBUG
-    fputs("tex: IPC message sent.\n", stderr);
-#  endif
+#ifdef IPC_DEBUG
+  fprintf(stderr, "%d\t%d\n", ourmsg.msg.namelength, ourmsg.msg.eof);
+  fputs ("tex: Sending message to socket ...\n", stderr);
+#endif
+  ourmsg.msg.namelength = n;
+  ourmsg.msg.eof = is_eof;
+  if (n) {
+    strcpy (ourmsg.more_data, data);
+  }
+  n += sizeof (struct msg);
+#ifdef IPC_DEBUG
+  fprintf(stderr, "%d\t%d\n", ourmsg.msg.namelength, ourmsg.msg.eof);
+  fputs ("tex: Writing to socket...\n", stderr);
+#endif
+#if defined(WIN32)
+  if (send (sock, (char *)&ourmsg, n, 0) != n) {
+#else
+  if (write (sock, &ourmsg, n) != n) {
+#endif
+    ipc_close_out ();
+  }
+#ifdef IPC_DEBUG
+  fputs ("tex: IPC message sent.\n", stderr);
+#endif
 }
-
 
 /* This routine notifies the server if there is an eof, or the filename
-   if a new DVI file is starting.  This is the routine called by TeX.  */
-void ipcpage(int is_eof)
+   if a new DVI file is starting.  This is the routine called by TeX.
+   Aleph defines str_start(#) as str_start_ar[# - too_big_char], with
+   too_big_char = biggest_char + 1 = 65536 (omstr.ch).  */
+
+void
+ipcpage (int is_eof)
 {
-    static boolean begun = false;
-    unsigned len = 0;
-    string p = NULL;
+  static boolean begun = false;
+  unsigned len = 0;
+  string p = NULL;
 
-    if (!begun) {
-        string name;            /* Just the filename.  */
-        string cwd = xgetcwd();
+  if (!begun) {
+    string name; /* Just the filename.  */
+    string cwd = xgetcwd ();
+    
+    ipc_open_out ();
 
-        ipc_open_out();
+    /* Have to pass whole filename to the other end, since it may have
+       been started up and running as a daemon, e.g., as with the NeXT
+       preview program.  */
+    name = static_pdf->file_name;
+    p = concat3 (cwd, DIR_SEP_STRING, name);
+    free (cwd);
+    free (name);
 
-        /* Have to pass whole filename to the other end, since it may have
-           been started up and running as a daemon, e.g., as with the NeXT
-           preview program.  */
-	name = static_pdf->file_name;
-        p = concat3(cwd, DIR_SEP_STRING, name);
-        free(cwd);
-        len = strlen(p);
-        begun = true;
+#if defined (WIN32)
+    { char *q;
+      for (q = p; *q; q++) {
+        if (*q == '\\')
+          *q = '/';
+        else if (IS_KANJI(q))
+          q++;
+      }
     }
-    ipc_snd(len, is_eof, p);
-
-    if (p) {
-        free(p);
-    }
+#endif
+    len = strlen(p);
+    begun = true;
+  }
+  ipc_snd (len, is_eof, p);
+  
+  if (p)
+    free (p);
 }
-#endif                          /* TeX && IPC */
+#endif /* TeX && IPC */
 
 /* Normalize quoting of filename -- that is, only quote if there is a space,
    and always use the quote-name-quote style. */

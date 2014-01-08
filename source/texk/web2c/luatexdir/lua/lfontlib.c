@@ -1,6 +1,6 @@
 /* lfontlib.c
 
-   Copyright 2006-2013 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2014 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -18,7 +18,7 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 static const char _svn_version[] =
-    "$Id: lfontlib.c 4679 2013-12-19 15:47:53Z luigi $ "
+    "$Id: lfontlib.c 4728 2014-01-03 13:32:52Z oneiros $ "
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/lfontlib.c $";
 
 #include "ptexlib.h"
@@ -293,7 +293,7 @@ int luaopen_font(lua_State * L)
 static int l_vf_char(lua_State * L)
 {
     int k, w;
-    int ex = 0;                 /* Wrong! TODO */
+    /*int ex = 0;*/                 /* Wrong! TODO */
     vf_struct *vsp = static_pdf->vfstruct;
     packet_stack_record *mat_p;
     internal_font_number lf = vsp->lf;

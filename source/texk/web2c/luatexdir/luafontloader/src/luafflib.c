@@ -23,17 +23,17 @@
 *  @author Taco Hoekwater
 */
 
+#include "pfaedit.h"
+#include "ustring.h"
+#include "lib/lib.h"            /* web2c's lib, for recorder_record_input */
+
 #include <stdio.h>
 #include <lua.h>
 #include <lauxlib.h>
 #include <locale.h>
 
-#include "pfaedit.h"
-#include "ustring.h"
-#include "lib/lib.h"            /* web2c's lib, for recorder_record_input */
-
 static const char _svn_version[] =
-    "$Id: luafflib.c 4679 2013-12-19 15:47:53Z luigi $ "
+    "$Id: luafflib.c 4718 2014-01-02 15:35:31Z taco $ "
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/luafontloader/src/luafflib.c $";
 
 extern char **gww_errors;

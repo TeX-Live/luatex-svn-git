@@ -1,4 +1,4 @@
-$Id: README 29434 2013-03-19 12:41:14Z peter $
+$Id: README 32305 2013-12-03 12:13:36Z peter $
 Copyright 2006-2012 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -27,7 +27,7 @@ bibtex-x - maintained here, contains
   bibtexu
     http://omega.enstb.org/yannis/bibtexu/
 
-chktex 1.7.1 - checked 27sep12
+chktex 1.7.2 - checked 30may13
   http://mirror.ctan.org/support/chktex/
   http://download.savannah.gnu.org/releases/chktex/
 
@@ -59,8 +59,8 @@ dvipos - ?
 
 dvipsk - maintained here, by us
 
-dvisvgm - checked 2mar13
-  http://downloads.sourceforge.net/dvisvgm/dvisvgm-1.2.tar.gz
+dvisvgm - checked 30oct13
+  http://downloads.sourceforge.net/dvisvgm/dvisvgm-1.5.1.tar.gz
 
 gsftopk - from Paul Vojta's xdvi?
 
@@ -69,17 +69,20 @@ kpathsea - maintained here, by us
 lacheck - checked 25apr11
   http://mirror.ctan.org/support/lacheck/lacheck-1.26.tar.gz
 
-lcdf-typetools 2.97 - checked 26oct12
+lcdf-typetools 2.99 - checked 10sep13
   http://www.lcdf.org/type/
-  http://www.lcdf.org/type/lcdf-typetools-2.97.tar.gz
+  http://www.lcdf.org/type/lcdf-typetools-2.98.tar.gz
 
 makeindexk - maintained here, by us
 
 makejvf - ?
 
-mendexk - ?
+mendexk - maintained here, by us (akira et al.)
 
 ps2pkm - ?
+
+psutils 1.21 - checked 25oct13
+  https://github.com/rrthomas/psutils/archive/v1.21.tar.gz
 
 ptexenc - ?
 
@@ -92,7 +95,7 @@ tex4htk - checked 25apr11
 
 texlive - scripts maintained here, by us
 
-ttf2pk - maintained here, by us
+ttf2pk2 - maintained here, by us
 
 ttfdump - ?
 
@@ -102,7 +105,7 @@ web2c - maintained here, by us - core web2c, plain tex, etc.
 
 xdv2pdf - maintained here, by Khaled Hosny, Jonathan Kew
 
-xdvik 22.85 - checked 10may12
+xdvik 22.86 - checked 7apr13
   http://sourceforge.net/projects/xdvi/files/xdvik/
 
-xdvipdfmx - maintainered here, by Khaled Hosny, Jonathan Kew
+xdvipdfmx - maintained here, by Khaled Hosny, Jonathan Kew

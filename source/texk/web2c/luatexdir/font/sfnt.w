@@ -22,8 +22,10 @@
 @ Based on dvipdfmx-0.13.2c
 @c
 static const char _svn_version[] =
-    "$Id: sfnt.w 4457 2012-07-13 13:16:19Z taco $"
+    "$Id: sfnt.w 4718 2014-01-02 15:35:31Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/font/sfnt.w $";
+
+#include "ptexlib.h"
 
 #if  HAVE_CONFIG_H
 #  include <w2c/config.h>
@@ -31,7 +33,6 @@ static const char _svn_version[] =
 
 #include <string.h>
 
-#  include "ptexlib.h"
 #include "font/sfnt.h"
 
 @ type:

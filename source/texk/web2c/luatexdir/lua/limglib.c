@@ -18,7 +18,7 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 static const char _svn_version[] =
-    "$Id: limglib.c 4573 2013-02-03 16:47:07Z hhenkel $ "
+    "$Id: limglib.c 4718 2014-01-02 15:35:31Z taco $ "
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/limglib.c $";
 
 #include "ptexlib.h"
@@ -26,8 +26,8 @@ static const char _svn_version[] =
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include "lua52/lua.h"
-#include "lua52/lauxlib.h"
+#include "lua.h"
+#include "lauxlib.h"
 
 #define IMG_ENV "img_env"
 

@@ -1,3 +1,26 @@
+2013-12-31  TANAKA Takuji <KXD02663@nifty.ne.jp>
+
+	* openclose.c: bug fix about error check when fopen.
+	Use fsyscp_fopen() instead of fsyscp_xfopen() (Windows only)
+	* texmfmp.c: Use get_command_line_args_utf8() (Windows only)
+
+2013-12-03  TANAKA Takuji <KXD02663@nifty.ne.jp>
+
+	* openclose.c, texmfmp.c: Support KANJI file name in (e)upTeX and
+	XeTeX on Windows.
+
+2013-06-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Update to e-pTeX and e-upTeX 130605 from Hironori Kitagawa.
+	* texmfmp.c (pdftex_fail): Adapted from ../pdftexdir/utils.c.
+	(initstarttime, makecstring, makecfilename, getcreationdate,
+	getfilemoddate, getfilesize): Move definition of these functions
+	also used by e-(u)pTeX from ../pdftexdir/utils.c to here.
+
+2013-04-09  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* printversion.c: 2012 ---> 2013.
+
 2013-01-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* texmfmp.c (mk_shellcmdlist): Simplify.

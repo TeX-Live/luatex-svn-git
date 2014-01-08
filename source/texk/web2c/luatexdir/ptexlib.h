@@ -1,7 +1,7 @@
 /* ptexlib.h
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2012 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2013 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -18,17 +18,23 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: ptexlib.h 4597 2013-03-19 15:10:44Z taco $ */
+/* $Id: ptexlib.h 4718 2014-01-02 15:35:31Z taco $ */
 
 #ifndef PTEXLIB_H
 #  define PTEXLIB_H
+
+/* Try to detect if a system header has already been included.  */
+#if (defined(__linux__) && defined(_FEATURES_H)) || \
+    (defined(_MSC_VER) && (defined(_INC_CRTDEFS) || defined(_OFF_T_DEFINED))) || \
+    (defined(__MINGW32__) && defined(__MINGW_H))
+ptexlib.h must be included first!!!
+#endif
 
 #ifdef HAVE_CONFIG_H
 #include <w2c/config.h>
 #endif
 
 /* WEB2C macros and prototypes */
-#  define EXTERN extern
 #  include "luatex.h"
 
 #  include "lib/lib.h"
@@ -54,7 +60,7 @@ extern char **suffixlist;       /* in luainit.w */
 #  define pdftex_revision "0"   /* \.{\\pdftexrevision} */
 
 #define LUA_COMPAT_MODULE 1
-#  include "lua52/lua.h"
+#  include "lua.h"
 
 
 /* pdftexlib macros from ptexmac.h */

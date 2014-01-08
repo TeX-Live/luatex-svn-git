@@ -20,7 +20,7 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: pdftoepdf.w 4479 2012-11-07 16:38:55Z taco $"
+    "$Id: pdftoepdf.w 4718 2014-01-02 15:35:31Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/image/pdftoepdf.w $";
 
 // define DEBUG
@@ -279,7 +279,7 @@ static pdffloat conv_double_to_pdffloat(double n)
 {
     pdffloat a;
     a.e = 6;
-    a.m = lround(n * ten_pow[a.e]);
+    a.m = i64round(n * ten_pow[a.e]);
     return a;
 }
 

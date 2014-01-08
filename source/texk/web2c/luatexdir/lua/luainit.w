@@ -1,6 +1,6 @@
 % luainit.w
 %
-% Copyright 2006-2011 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2014 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -19,12 +19,13 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: luainit.w 4638 2013-06-14 07:44:16Z taco $"
+    "$Id: luainit.w 4736 2014-01-08 09:50:31Z luigi $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/luainit.w $";
+
+#include "ptexlib.h"
 
 #include <kpathsea/c-stat.h>
 
-#include "ptexlib.h"
 #include "lua/luatex-api.h"
 
 @
@@ -42,9 +43,9 @@ In fact, it sets three C variables:
 
   |kpse_invocation_name|  |kpse_invocation_short_name|  |kpse->program_name|
 
-and four environment variables:
+and five environment variables:
 
-  SELFAUTOLOC  SELFAUTODIR  SELFAUTOPARENT  progname
+  SELFAUTOLOC  SELFAUTODIR  SELFAUTOPARENT  SELFAUTOGRANDPARENT  progname
 
 @c
 const_string LUATEX_IHELP[] = {
@@ -342,10 +343,10 @@ static void parse_options(int ac, char **av)
             /* *INDENT-OFF* */
             puts("\n\nExecute  'luatex --credits'  for credits and version details.\n\n"
                  "There is NO warranty. Redistribution of this software is covered by\n"
-                 "the terms of the GNU General Public License, version 2. For more\n"
-                 "information about these matters, see the file named COPYING and\n"
-                 "the LuaTeX source.\n\n" 
-                 "Copyright 2013 Taco Hoekwater, the LuaTeX Team.\n");
+                 "the terms of the GNU General Public License, version 2 or (at your option)\n"
+                 "any later version. For more information about these matters, see the file\n"
+                 "named COPYING and the LuaTeX source.\n\n" 
+                 "Copyright 2014 Taco Hoekwater, the LuaTeX Team.\n");
             /* *INDENT-ON* */
             uexit(0);
         } else if (ARGUMENT_IS("credits")) {
@@ -477,19 +478,6 @@ static char *find_filename(char *name, const char *envkey)
 
 
 @ @c
-static char *cleaned_invocation_name(char *arg)
-{
-    char *ret, *dot;
-    const char *start = xbasename(arg);
-    ret = xstrdup(start);
-    dot = strrchr(ret, '.');
-    if (dot != NULL) {
-        *dot = 0;               /* chop */
-    }
-    return ret;
-}
-
-@ @c
 static void init_kpse(void)
 {
 
@@ -513,11 +501,11 @@ static void init_kpse(void)
                 user_progname = remove_suffix (input_name);
             }
             if (!user_progname) {
-                user_progname = cleaned_invocation_name(argv[0]);
+                user_progname = kpse_program_basename(argv[0]);
             }
         } else {
             if (!dump_name) {
-                dump_name = cleaned_invocation_name(argv[0]);
+                dump_name = kpse_program_basename(argv[0]);
             }
             user_progname = dump_name;
         }
@@ -777,29 +765,24 @@ void lua_initialize(int ac, char **av)
     argc = ac;
     argv = av;
 
-    if (luatex_svn < 0) {
-        const char *fmt = "This is LuaTeX, Version %s-%s" WEB2CVERSION;
-        size_t len;
-        char buf[16];
-        sprintf(buf, "%d", luatex_date_info);
-        len = strlen(fmt) + strlen(luatex_version_string) + strlen(buf) - 3;
 
-        /* len is just enough, because of the placeholder chars in fmt
-           that get replaced by the arguments.  */
-        banner = xmalloc(len);
-        sprintf(banner, fmt, luatex_version_string, buf);
-    } else {
-        const char *fmt = "This is LuaTeX, Version %s-%s" WEB2CVERSION " (rev %d)";
+    if (luatex_svn < 0) {
+        const char *fmt = "This is LuaTeX, Version %s" WEB2CVERSION;
         size_t len;
-        char buf[16];
-        sprintf(buf, "%d", luatex_date_info);
-        len = strlen(fmt) + strlen(luatex_version_string) + strlen(buf) + 6;
+        len = strlen(fmt) + strlen(luatex_version_string) ;
+	
         banner = xmalloc(len);
-        sprintf(banner, fmt, luatex_version_string, buf, luatex_svn);
+        sprintf(banner, fmt, luatex_version_string);
+    } else {
+        const char *fmt = "This is LuaTeX, Version %s" WEB2CVERSION " (rev %d)";
+        size_t len;
+        len = strlen(fmt) + strlen(luatex_version_string) + 6;
+        banner = xmalloc(len);
+        sprintf(banner, fmt, luatex_version_string, luatex_svn);
     }
     ptexbanner = banner;
 
-    kpse_invocation_name = cleaned_invocation_name(argv[0]);
+    kpse_invocation_name = kpse_program_basename(argv[0]);
 
     /* be 'luac' */
     if (argc >1) {

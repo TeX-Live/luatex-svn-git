@@ -1,6 +1,6 @@
 /* liolibext.c
    
-   Copyright 2012 Taco Hoekwater <taco@luatex.org>
+   Copyright 2014 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
 
@@ -30,7 +30,7 @@
 #include "lualib.h"
 
 static const char _svn_version[] =
-    "$Id: liolibext.c 4639 2013-06-14 07:45:03Z taco $ $URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/liolibext.c $";
+    "$Id: liolibext.c 4730 2014-01-03 14:44:14Z taco $ $URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/liolibext.c $";
 
 
 /*
@@ -60,10 +60,27 @@ static const char _svn_version[] =
 /* }====================================================== */
 
 
+#if defined(LUA_USE_POSIX)
+
+#define l_fseek(f,o,w)		fseeko(f,o,w)
+#define l_ftell(f)		ftello(f)
+#define l_seeknum		off_t
+
+#elif defined(LUA_WIN) && !defined(_CRTIMP_TYPEINFO) \
+   && defined(_MSC_VER) && (_MSC_VER >= 1400)
+/* Windows (but not DDK) and Visual C++ 2005 or higher */
+
+#define l_fseek(f,o,w)		_fseeki64(f,o,w)
+#define l_ftell(f)		_ftelli64(f)
+#define l_seeknum		__int64
+
+#else
+
 #define l_fseek(f,o,w)		fseek(f,o,w)
 #define l_ftell(f)		ftell(f)
 #define l_seeknum		long
 
+#endif
 
 /* Large File Support  under Windows 32bit Windows 64 bit */
 #if defined(__MINGW32__)
@@ -71,8 +88,6 @@ static const char _svn_version[] =
 #define l_ftell(f)              ftello64(f)
 #define l_seeknum               int64_t 
 #endif
-
-
 
 #define IO_PREFIX	"_IO_"
 #define IO_INPUT	(IO_PREFIX "input")
@@ -173,8 +188,14 @@ static LStream *newfile (lua_State *L) {
 static void opencheck (lua_State *L, const char *fname, const char *mode) {
   LStream *p = newfile(L);
   p->f = fopen(fname, mode);
-  if (p->f == NULL)
+  if (p->f == NULL) {
     luaL_error(L, "cannot open file " LUA_QS " (%s)", fname, strerror(errno));
+  } else {
+    if (mode[0]=='r') 
+       recorder_record_input(fname);
+    else
+       recorder_record_output(fname);
+  }
 }
 
 
@@ -191,7 +212,15 @@ static int io_open (lua_State *L) {
     return luaL_error(L, "invalid mode " LUA_QS
                          " (should match " LUA_QL("[rwa]%%+?b?") ")", mode);
   p->f = fopen(filename, mode);
-  return (p->f == NULL) ? luaL_fileresult(L, 0, filename) : 1;
+  if (p->f == NULL) {
+      return luaL_fileresult(L, 0, filename) ;
+  } else {
+      if (mode[0]=='r') 
+	  recorder_record_input(filename);
+      else
+	  recorder_record_output(filename);
+      return 1;
+  }
 }
 
 /*
@@ -397,16 +426,16 @@ static int read_line(lua_State * L, FILE * f, int chop)
 
 static void read_all (lua_State *L, FILE *f) {
   size_t rlen = LUAL_BUFFERSIZE;  /* how much to read in each cycle */
-  size_t old, nrlen = 0;  /* for testing file size */
+  l_seeknum old, nrlen = 0;  /* for testing file size */
   luaL_Buffer b;
   luaL_buffinit(L, &b);
   /* speed up loading of not too large files: */
-  old = ftell(f);
-  if ((fseek(f, 0, SEEK_END) >= 0) && 
-      ((nrlen = ftell(f)) > 0) && nrlen < 1000 * 1000 * 100) {
+  old = l_ftell(f);
+  if ((l_fseek(f, 0, SEEK_END) >= 0) && 
+      ((nrlen = l_ftell(f)) > 0) && nrlen < 1000 * 1000 * 100) {
       rlen = nrlen;
   }
-  fseek(f, old, SEEK_SET);
+  l_fseek(f, old, SEEK_SET);
   for (;;) {
     char *p = luaL_prepbuffsize(&b, rlen);
     size_t nr = fread(p, sizeof(char), rlen, f);

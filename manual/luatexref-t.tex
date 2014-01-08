@@ -23,7 +23,7 @@
 
 \setvariables
   [document]
-  [beta=0.78.0]
+  [beta=0.78.1]
 
 \starttext
 
@@ -138,7 +138,8 @@ There are three new primitives to test the version of \LUATEX:
                               the current current value is {\bf\the\luatexversion} \NC\NR
 \NC \tex{luatexrevision}  \NC the revision number, as in \PDFTEX;
                               the current value is {\bf\luatexrevision} \NC\NR
-\NC \tex{luatexdatestamp} \NC a combination of the local date and hour when
+\NC \tex{luatexdatestamp} \NC (deprecated in 0.78.1, will be gone in 0.80.0) 
+                              a combination of the local date and hour when
                               the current executable was compiled,
                               the syntax is identical to \tex{luatexrevision};
                               the value for the executable that generated this
@@ -157,13 +158,6 @@ The official \LUATEX\ version is defined as follows:
 \item The full version number consists of the major version,
   minor version and revision, separated by dots.
 \stopitemize
-
-
-Note that the \tex{luatexdatestamp} depends on both the compilation
-time and compilation place of the current executable; it is defined in
-terms of the local time. The purpose of this primitive is solely to be
-an aid in the development process, do not use it for anything besides
-debugging.
 
 \section{\UNICODE\ text support}
 
@@ -6161,7 +6155,6 @@ tex.eTeXrevision
 tex.formatname
 tex.jobname
 tex.luatexrevision
-tex.luatexdatestamp
 tex.pdfnormaldeviate
 tex.pdftexbanner
 tex.pdftexrevision

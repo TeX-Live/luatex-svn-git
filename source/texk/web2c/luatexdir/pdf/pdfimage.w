@@ -19,7 +19,7 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: pdfimage.w 4442 2012-05-25 22:40:34Z hhenkel $"
+    "$Id: pdfimage.w 4718 2014-01-02 15:35:31Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/pdf/pdfimage.w $";
 
 #include "ptexlib.h"
@@ -118,10 +118,10 @@ void place_img(PDF pdf, image_dict * idict, scaled_whd dim, int transform)
     default:;
     }
     /* the following is a kludge, TODO: use pdfpage.c functions */
-    setpdffloat(cm[0], round(a[0]), r);
-    setpdffloat(cm[1], round(a[1]), r);
-    setpdffloat(cm[2], round(a[2]), r);
-    setpdffloat(cm[3], round(a[3]), r);
+    setpdffloat(cm[0], i64round(a[0]), r);
+    setpdffloat(cm[1], i64round(a[1]), r);
+    setpdffloat(cm[2], i64round(a[2]), r);
+    setpdffloat(cm[3], i64round(a[3]), r);
     tmppos.h = round(a[4]);
     tmppos.v = round(a[5]);
     pdf_goto_pagemode(pdf);

@@ -48,20 +48,24 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-subdir = .
-DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/configure $(am__configure_deps) \
-	$(srcdir)/config.h.in $(top_srcdir)/../../build-aux/depcomp \
-	ChangeLog ../../build-aux/config.guess \
+DIST_COMMON = $(srcdir)/../../am/reconfig.am \
+	$(srcdir)/../../am/rebuild.am $(srcdir)/Makefile.in \
+	$(srcdir)/Makefile.am $(top_srcdir)/configure \
+	$(am__configure_deps) $(srcdir)/config.h.in \
+	$(top_srcdir)/poppler-0.25.0/poppler/poppler-config.h.in \
+	$(top_srcdir)/../../build-aux/depcomp ChangeLog \
+	../../build-aux/compile ../../build-aux/config.guess \
 	../../build-aux/config.sub ../../build-aux/depcomp \
 	../../build-aux/install-sh ../../build-aux/missing \
 	../../build-aux/texinfo.tex ../../build-aux/ylwrap \
 	../../build-aux/ltmain.sh \
 	$(top_srcdir)/../../build-aux/install-sh \
 	$(top_srcdir)/../../build-aux/missing
+subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/../../m4/kpse-common.m4 \
 	$(top_srcdir)/../../m4/kpse-warnings.m4 \
+	$(top_srcdir)/../../m4/kpse-win32.m4 \
 	$(top_srcdir)/../../m4/kpse-zlib-flags.m4 \
 	$(top_srcdir)/version.ac $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -69,7 +73,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = config.h $(top_builddir)/poppler/poppler-config.h
+CONFIG_HEADER = config.h poppler-config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 LIBRARIES = $(noinst_LIBRARIES)
@@ -82,16 +86,16 @@ am__v_AR_1 =
 libpoppler_a_AR = $(AR) $(ARFLAGS)
 libpoppler_a_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_1 = @POPPLER_TREE@/goo/FixedPoint.$(OBJEXT) \
-	@POPPLER_TREE@/goo/gfile.$(OBJEXT) \
+am__objects_1 = @POPPLER_TREE@/goo/gfile.$(OBJEXT) \
 	@POPPLER_TREE@/goo/gmem.$(OBJEXT) \
 	@POPPLER_TREE@/goo/gmempp.$(OBJEXT) \
+	@POPPLER_TREE@/goo/grandom.$(OBJEXT) \
+	@POPPLER_TREE@/goo/gstrtod.$(OBJEXT) \
+	@POPPLER_TREE@/goo/FixedPoint.$(OBJEXT) \
 	@POPPLER_TREE@/goo/GooHash.$(OBJEXT) \
 	@POPPLER_TREE@/goo/GooList.$(OBJEXT) \
 	@POPPLER_TREE@/goo/GooString.$(OBJEXT) \
-	@POPPLER_TREE@/goo/GooTimer.$(OBJEXT) \
-	@POPPLER_TREE@/goo/grandom.$(OBJEXT) \
-	@POPPLER_TREE@/goo/gstrtod.$(OBJEXT)
+	@POPPLER_TREE@/goo/GooTimer.$(OBJEXT)
 am__objects_2 = @POPPLER_TREE@/fofi/FoFiBase.$(OBJEXT) \
 	@POPPLER_TREE@/fofi/FoFiEncodings.$(OBJEXT) \
 	@POPPLER_TREE@/fofi/FoFiIdentifier.$(OBJEXT) \
@@ -124,9 +128,10 @@ am__objects_3 = @POPPLER_TREE@/poppler/Annot.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/JArithmeticDecoder.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/JBIG2Stream.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/JPXStream.$(OBJEXT) \
-	@POPPLER_TREE@/poppler/Linearization.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/Lexer.$(OBJEXT) \
+	@POPPLER_TREE@/poppler/Linearization.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/Link.$(OBJEXT) \
+	@POPPLER_TREE@/poppler/MarkedContentOutputDev.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/Movie.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/NameToCharCode.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/Object.$(OBJEXT) \
@@ -135,6 +140,7 @@ am__objects_3 = @POPPLER_TREE@/poppler/Annot.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/OutputDev.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/PDFDoc.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/PDFDocEncoding.$(OBJEXT) \
+	@POPPLER_TREE@/poppler/PDFDocFactory.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/PSTokenizer.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/Page.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/PageLabelInfo.$(OBJEXT) \
@@ -146,14 +152,18 @@ am__objects_3 = @POPPLER_TREE@/poppler/Annot.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/Rendition.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/SecurityHandler.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/Sound.$(OBJEXT) \
+	@POPPLER_TREE@/poppler/StdinCachedFile.$(OBJEXT) \
+	@POPPLER_TREE@/poppler/StdinPDFDocBuilder.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/Stream.$(OBJEXT) \
-	@POPPLER_TREE@/poppler/strtok_r.$(OBJEXT) \
+	@POPPLER_TREE@/poppler/StructElement.$(OBJEXT) \
+	@POPPLER_TREE@/poppler/StructTreeRoot.$(OBJEXT) \
+	@POPPLER_TREE@/poppler/UTF.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/UnicodeMap.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/UnicodeTypeTable.$(OBJEXT) \
-	@POPPLER_TREE@/poppler/UTF.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/ViewerPreferences.$(OBJEXT) \
 	@POPPLER_TREE@/poppler/XRef.$(OBJEXT) \
-	@POPPLER_TREE@/poppler/XpdfPluginAPI.$(OBJEXT)
+	@POPPLER_TREE@/poppler/XpdfPluginAPI.$(OBJEXT) \
+	@POPPLER_TREE@/poppler/strtok_r.$(OBJEXT)
 nodist_libpoppler_a_OBJECTS = $(am__objects_1) $(am__objects_2) \
 	$(am__objects_3)
 libpoppler_a_OBJECTS = $(nodist_libpoppler_a_OBJECTS)
@@ -169,7 +179,7 @@ AM_V_at = $(am__v_at_@AM_V@)
 am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
 am__v_at_0 = @
 am__v_at_1 = 
-DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/poppler
+DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/../../build-aux/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
@@ -376,12 +386,12 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I ../../m4
 EXTRA_DIST = $(POPPLER_TREE) $(POPPLER_TREE)-PATCHES
-SUBDIRS = goo fofi poppler
+SUBDIRS = . include
 GOO_SRC = $(top_srcdir)/$(POPPLER_TREE)/goo
 FOFI_SRC = $(top_srcdir)/$(POPPLER_TREE)/fofi
 POPPLER_SRC = $(top_srcdir)/$(POPPLER_TREE)/poppler
-AM_CPPFLAGS = -Igoo -Ifofi -Ipoppler -I$(GOO_SRC) -I$(FOFI_SRC) \
-	-I$(POPPLER_SRC) $(ZLIB_INCLUDES) -DPOPPLER_DATADIR='"."'
+AM_CPPFLAGS = -I$(top_srcdir)/$(POPPLER_TREE) -I$(GOO_SRC) \
+	$(ZLIB_INCLUDES) -DPOPPLER_DATADIR='"."'
 AM_CFLAGS = $(WARNING_CFLAGS)
 AM_CXXFLAGS = $(NO_WARN_CXXFLAGS)
 noinst_LIBRARIES = libpoppler.a
@@ -391,16 +401,16 @@ nodist_libpoppler_a_SOURCES = \
 	$(poppler_libpoppler_a_sources)
 
 goo_libGoo_a_sources = \
-	@POPPLER_TREE@/goo/FixedPoint.cc \
 	@POPPLER_TREE@/goo/gfile.cc \
 	@POPPLER_TREE@/goo/gmem.cc \
 	@POPPLER_TREE@/goo/gmempp.cc \
+	@POPPLER_TREE@/goo/grandom.cc \
+	@POPPLER_TREE@/goo/gstrtod.cc \
+	@POPPLER_TREE@/goo/FixedPoint.cc \
 	@POPPLER_TREE@/goo/GooHash.cc \
 	@POPPLER_TREE@/goo/GooList.cc \
 	@POPPLER_TREE@/goo/GooString.cc \
-	@POPPLER_TREE@/goo/GooTimer.cc \
-	@POPPLER_TREE@/goo/grandom.cc \
-	@POPPLER_TREE@/goo/gstrtod.cc
+	@POPPLER_TREE@/goo/GooTimer.cc
 
 fofi_libfofi_a_sources = \
 	@POPPLER_TREE@/fofi/FoFiBase.cc \
@@ -437,9 +447,10 @@ poppler_libpoppler_a_sources = \
 	@POPPLER_TREE@/poppler/JArithmeticDecoder.cc \
 	@POPPLER_TREE@/poppler/JBIG2Stream.cc \
 	@POPPLER_TREE@/poppler/JPXStream.cc \
-	@POPPLER_TREE@/poppler/Linearization.cc \
 	@POPPLER_TREE@/poppler/Lexer.cc \
+	@POPPLER_TREE@/poppler/Linearization.cc \
 	@POPPLER_TREE@/poppler/Link.cc \
+	@POPPLER_TREE@/poppler/MarkedContentOutputDev.cc \
 	@POPPLER_TREE@/poppler/Movie.cc \
 	@POPPLER_TREE@/poppler/NameToCharCode.cc \
 	@POPPLER_TREE@/poppler/Object.cc \
@@ -448,6 +459,7 @@ poppler_libpoppler_a_sources = \
 	@POPPLER_TREE@/poppler/OutputDev.cc \
 	@POPPLER_TREE@/poppler/PDFDoc.cc \
 	@POPPLER_TREE@/poppler/PDFDocEncoding.cc \
+	@POPPLER_TREE@/poppler/PDFDocFactory.cc \
 	@POPPLER_TREE@/poppler/PSTokenizer.cc \
 	@POPPLER_TREE@/poppler/Page.cc \
 	@POPPLER_TREE@/poppler/PageLabelInfo.cc \
@@ -459,24 +471,36 @@ poppler_libpoppler_a_sources = \
 	@POPPLER_TREE@/poppler/Rendition.cc \
 	@POPPLER_TREE@/poppler/SecurityHandler.cc \
 	@POPPLER_TREE@/poppler/Sound.cc \
+	@POPPLER_TREE@/poppler/StdinCachedFile.cc \
+	@POPPLER_TREE@/poppler/StdinPDFDocBuilder.cc \
 	@POPPLER_TREE@/poppler/Stream.cc \
-	@POPPLER_TREE@/poppler/strtok_r.cpp \
+	@POPPLER_TREE@/poppler/StructElement.cc \
+	@POPPLER_TREE@/poppler/StructTreeRoot.cc \
+	@POPPLER_TREE@/poppler/UTF.cc \
 	@POPPLER_TREE@/poppler/UnicodeMap.cc \
 	@POPPLER_TREE@/poppler/UnicodeTypeTable.cc \
-	@POPPLER_TREE@/poppler/UTF.cc \
 	@POPPLER_TREE@/poppler/ViewerPreferences.cc \
 	@POPPLER_TREE@/poppler/XRef.cc \
-	@POPPLER_TREE@/poppler/XpdfPluginAPI.cc
+	@POPPLER_TREE@/poppler/XpdfPluginAPI.cc \
+	@POPPLER_TREE@/poppler/strtok_r.cpp
 
+
+# Reconfig
+reconfig_prereq = $(ZLIB_DEPEND)
 DISTCLEANFILES = config.force
-all: config.h
+
+# Rebuild
+rebuild_prereq = 
+rebuild_target = all
+CLEANFILES = rebuild.stamp
+all: config.h poppler-config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 .SUFFIXES:
 .SUFFIXES: .cc .cpp .o .obj
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/../../am/reconfig.am $(srcdir)/../../am/rebuild.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -499,6 +523,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe);; \
 	esac;
+$(srcdir)/../../am/reconfig.am $(srcdir)/../../am/rebuild.am:
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
@@ -521,8 +546,16 @@ $(srcdir)/config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 	rm -f stamp-h1
 	touch $@
 
+poppler-config.h: stamp-h2
+	@if test ! -f $@; then rm -f stamp-h2; else :; fi
+	@if test ! -f $@; then $(MAKE) $(AM_MAKEFLAGS) stamp-h2; else :; fi
+
+stamp-h2: $(top_srcdir)/poppler-0.25.0/poppler/poppler-config.h.in $(top_builddir)/config.status
+	@rm -f stamp-h2
+	cd $(top_builddir) && $(SHELL) ./config.status poppler-config.h
+
 distclean-hdr:
-	-rm -f config.h stamp-h1
+	-rm -f config.h stamp-h1 poppler-config.h stamp-h2
 
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
@@ -532,15 +565,21 @@ clean-noinstLIBRARIES:
 @POPPLER_TREE@/goo/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) @POPPLER_TREE@/goo/$(DEPDIR)
 	@: > @POPPLER_TREE@/goo/$(DEPDIR)/$(am__dirstamp)
-@POPPLER_TREE@/goo/FixedPoint.$(OBJEXT):  \
-	@POPPLER_TREE@/goo/$(am__dirstamp) \
-	@POPPLER_TREE@/goo/$(DEPDIR)/$(am__dirstamp)
 @POPPLER_TREE@/goo/gfile.$(OBJEXT):  \
 	@POPPLER_TREE@/goo/$(am__dirstamp) \
 	@POPPLER_TREE@/goo/$(DEPDIR)/$(am__dirstamp)
 @POPPLER_TREE@/goo/gmem.$(OBJEXT): @POPPLER_TREE@/goo/$(am__dirstamp) \
 	@POPPLER_TREE@/goo/$(DEPDIR)/$(am__dirstamp)
 @POPPLER_TREE@/goo/gmempp.$(OBJEXT):  \
+	@POPPLER_TREE@/goo/$(am__dirstamp) \
+	@POPPLER_TREE@/goo/$(DEPDIR)/$(am__dirstamp)
+@POPPLER_TREE@/goo/grandom.$(OBJEXT):  \
+	@POPPLER_TREE@/goo/$(am__dirstamp) \
+	@POPPLER_TREE@/goo/$(DEPDIR)/$(am__dirstamp)
+@POPPLER_TREE@/goo/gstrtod.$(OBJEXT):  \
+	@POPPLER_TREE@/goo/$(am__dirstamp) \
+	@POPPLER_TREE@/goo/$(DEPDIR)/$(am__dirstamp)
+@POPPLER_TREE@/goo/FixedPoint.$(OBJEXT):  \
 	@POPPLER_TREE@/goo/$(am__dirstamp) \
 	@POPPLER_TREE@/goo/$(DEPDIR)/$(am__dirstamp)
 @POPPLER_TREE@/goo/GooHash.$(OBJEXT):  \
@@ -553,12 +592,6 @@ clean-noinstLIBRARIES:
 	@POPPLER_TREE@/goo/$(am__dirstamp) \
 	@POPPLER_TREE@/goo/$(DEPDIR)/$(am__dirstamp)
 @POPPLER_TREE@/goo/GooTimer.$(OBJEXT):  \
-	@POPPLER_TREE@/goo/$(am__dirstamp) \
-	@POPPLER_TREE@/goo/$(DEPDIR)/$(am__dirstamp)
-@POPPLER_TREE@/goo/grandom.$(OBJEXT):  \
-	@POPPLER_TREE@/goo/$(am__dirstamp) \
-	@POPPLER_TREE@/goo/$(DEPDIR)/$(am__dirstamp)
-@POPPLER_TREE@/goo/gstrtod.$(OBJEXT):  \
 	@POPPLER_TREE@/goo/$(am__dirstamp) \
 	@POPPLER_TREE@/goo/$(DEPDIR)/$(am__dirstamp)
 @POPPLER_TREE@/fofi/$(am__dirstamp):
@@ -669,13 +702,16 @@ clean-noinstLIBRARIES:
 @POPPLER_TREE@/poppler/JPXStream.$(OBJEXT):  \
 	@POPPLER_TREE@/poppler/$(am__dirstamp) \
 	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
-@POPPLER_TREE@/poppler/Linearization.$(OBJEXT):  \
-	@POPPLER_TREE@/poppler/$(am__dirstamp) \
-	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
 @POPPLER_TREE@/poppler/Lexer.$(OBJEXT):  \
 	@POPPLER_TREE@/poppler/$(am__dirstamp) \
 	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
+@POPPLER_TREE@/poppler/Linearization.$(OBJEXT):  \
+	@POPPLER_TREE@/poppler/$(am__dirstamp) \
+	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
 @POPPLER_TREE@/poppler/Link.$(OBJEXT):  \
+	@POPPLER_TREE@/poppler/$(am__dirstamp) \
+	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
+@POPPLER_TREE@/poppler/MarkedContentOutputDev.$(OBJEXT):  \
 	@POPPLER_TREE@/poppler/$(am__dirstamp) \
 	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
 @POPPLER_TREE@/poppler/Movie.$(OBJEXT):  \
@@ -700,6 +736,9 @@ clean-noinstLIBRARIES:
 	@POPPLER_TREE@/poppler/$(am__dirstamp) \
 	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
 @POPPLER_TREE@/poppler/PDFDocEncoding.$(OBJEXT):  \
+	@POPPLER_TREE@/poppler/$(am__dirstamp) \
+	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
+@POPPLER_TREE@/poppler/PDFDocFactory.$(OBJEXT):  \
 	@POPPLER_TREE@/poppler/$(am__dirstamp) \
 	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
 @POPPLER_TREE@/poppler/PSTokenizer.$(OBJEXT):  \
@@ -735,19 +774,28 @@ clean-noinstLIBRARIES:
 @POPPLER_TREE@/poppler/Sound.$(OBJEXT):  \
 	@POPPLER_TREE@/poppler/$(am__dirstamp) \
 	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
+@POPPLER_TREE@/poppler/StdinCachedFile.$(OBJEXT):  \
+	@POPPLER_TREE@/poppler/$(am__dirstamp) \
+	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
+@POPPLER_TREE@/poppler/StdinPDFDocBuilder.$(OBJEXT):  \
+	@POPPLER_TREE@/poppler/$(am__dirstamp) \
+	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
 @POPPLER_TREE@/poppler/Stream.$(OBJEXT):  \
 	@POPPLER_TREE@/poppler/$(am__dirstamp) \
 	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
-@POPPLER_TREE@/poppler/strtok_r.$(OBJEXT):  \
+@POPPLER_TREE@/poppler/StructElement.$(OBJEXT):  \
+	@POPPLER_TREE@/poppler/$(am__dirstamp) \
+	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
+@POPPLER_TREE@/poppler/StructTreeRoot.$(OBJEXT):  \
+	@POPPLER_TREE@/poppler/$(am__dirstamp) \
+	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
+@POPPLER_TREE@/poppler/UTF.$(OBJEXT):  \
 	@POPPLER_TREE@/poppler/$(am__dirstamp) \
 	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
 @POPPLER_TREE@/poppler/UnicodeMap.$(OBJEXT):  \
 	@POPPLER_TREE@/poppler/$(am__dirstamp) \
 	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
 @POPPLER_TREE@/poppler/UnicodeTypeTable.$(OBJEXT):  \
-	@POPPLER_TREE@/poppler/$(am__dirstamp) \
-	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
-@POPPLER_TREE@/poppler/UTF.$(OBJEXT):  \
 	@POPPLER_TREE@/poppler/$(am__dirstamp) \
 	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
 @POPPLER_TREE@/poppler/ViewerPreferences.$(OBJEXT):  \
@@ -757,6 +805,9 @@ clean-noinstLIBRARIES:
 	@POPPLER_TREE@/poppler/$(am__dirstamp) \
 	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
 @POPPLER_TREE@/poppler/XpdfPluginAPI.$(OBJEXT):  \
+	@POPPLER_TREE@/poppler/$(am__dirstamp) \
+	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
+@POPPLER_TREE@/poppler/strtok_r.$(OBJEXT):  \
 	@POPPLER_TREE@/poppler/$(am__dirstamp) \
 	@POPPLER_TREE@/poppler/$(DEPDIR)/$(am__dirstamp)
 libpoppler.a: $(libpoppler_a_OBJECTS) $(libpoppler_a_DEPENDENCIES) $(EXTRA_libpoppler_a_DEPENDENCIES) 
@@ -818,6 +869,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/Lexer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/Linearization.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/Link.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/MarkedContentOutputDev.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/Movie.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/NameToCharCode.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/Object.Po@am__quote@
@@ -826,6 +878,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/OutputDev.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/PDFDoc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/PDFDocEncoding.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/PDFDocFactory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/PSTokenizer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/Page.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/PageLabelInfo.Po@am__quote@
@@ -837,7 +890,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/Rendition.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/SecurityHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/Sound.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/StdinCachedFile.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/StdinPDFDocBuilder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/Stream.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/StructElement.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/StructTreeRoot.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/UTF.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/UnicodeMap.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@POPPLER_TREE@/poppler/$(DEPDIR)/UnicodeTypeTable.Po@am__quote@
@@ -1171,7 +1228,7 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-recursive
-all-am: Makefile $(LIBRARIES) config.h
+all-am: Makefile $(LIBRARIES) config.h poppler-config.h
 installdirs: installdirs-recursive
 installdirs-am:
 install: install-recursive
@@ -1196,6 +1253,7 @@ install-strip:
 mostlyclean-generic:
 
 clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
@@ -1303,21 +1361,48 @@ uninstall-am:
 	tags tags-am uninstall uninstall-am
 
 
-# Rebuild
-.PHONY: rebuild
-rebuild: all
-
 # in case of an SVN repository
 dist-hook:
 	rm -rf `find $(distdir) -name .svn -o -name .deps -o -name .dirstamp -o -name '*.$(OBJEXT)'`
 
+$(libpoppler_a_OBJECTS): $(ZLIB_DEPEND)
+
 $(libpoppler_a_OBJECTS): config.force
 
-config.force: $(ZLIB_DEPEND)
-	echo timestamp >config.force
-	$(SHELL) ./config.status --recheck
-
 @ZLIB_RULE@
+config.force: $(reconfig_prereq)
+	@if test -f $@; then :; else \
+	  trap 'rm -rf reconfig.lock' 1 2 13 15; \
+	  if mkdir reconfig.lock 2>/dev/null; then \
+	    echo timestamp >$@; \
+	    $(SHELL) ./config.status --recheck; \
+	    rmdir reconfig.lock; \
+	  else \
+	    while test -d rebuild.lock && test -z "$$dry"; do sleep 1; done; \
+	    test -f $@; \
+	  fi; \
+	fi
+rebuild.stamp: $(rebuild_target)
+	echo timestamp >$@
+
+.PHONY: rebuild
+rebuild: $(rebuild_prereq)
+	@dry=; for f in x $$MAKEFLAGS; do \
+	  case $$f in \
+	    *=*|--*);; \
+	    *n*) dry=:;; \
+	  esac; \
+	done; \
+	if test -f rebuild.stamp; then :; else \
+	  $$dry trap 'rm -rf rebuild.lock' 1 2 13 15; \
+	  if $$dry mkdir rebuild.lock 2>/dev/null; then \
+	    $(MAKE) $(AM_MAKEFLAGS) rebuild.stamp; \
+	    $$dry rmdir rebuild.lock; \
+	  else \
+	    while test -d rebuild.lock && test -z "$$dry"; do sleep 1; done; \
+	  fi; \
+	  $$dry test -f rebuild.stamp; exit $$?; \
+	fi
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

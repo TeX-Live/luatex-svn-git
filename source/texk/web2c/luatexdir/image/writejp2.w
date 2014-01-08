@@ -1,7 +1,7 @@
 % writejp2.w
 %
-% Copyright 2011-2012 Taco Hoekwater <taco@@luatex.org>
-% Copyright 2011-2012 Hartmut Henkel <hartmut@@luatex.org>
+% Copyright 2011-2013 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2011-2013 Hartmut Henkel <hartmut@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -20,7 +20,7 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: writejp2.w 4479 2012-11-07 16:38:55Z taco $"
+    "$Id: writejp2.w 4718 2014-01-02 15:35:31Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/image/writejp2.w $";
 
 @ Basic JPEG~2000 image support. Section and Table references below:
@@ -28,9 +28,9 @@ Information technology --- JPEG~2000 image coding system: Core coding system.
 ISO/IEC 15444-1, Second edition, 2004-09-15, file |15444-1annexi.pdf|.
 
 @c
+#include "ptexlib.h"
 #include <math.h>
 #include <assert.h>
-#include "ptexlib.h"
 #include "image/image.h"
 #include "image/writejp2.h"
 #include "image/writejbig2.h"   /* read2bytes(), read4bytes() */
@@ -54,7 +54,7 @@ typedef struct {
     unsigned int tbox;
 } hdr_struct;
 
-static unsigned long long read8bytes(FILE * f)
+static uint64_t read8bytes(FILE * f)
 {
     uint64_t l = read4bytes(f);
     l = (l << 32) + read4bytes(f);

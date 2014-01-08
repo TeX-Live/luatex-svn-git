@@ -3,6 +3,12 @@
 ## Copyright (C) 2009-2013 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 
+## liblua52
+##
+LUA_INCLUDES = $(LUA52_INCLUDES) $(LUA52_DEFINES)
+LUA_LIBS = $(LUA52_LIBS)
+LUA_DEPEND = $(LUA52_DEPEND)
+
 ## libluatex
 ##
 EXTRA_LIBRARIES += libluatex.a
@@ -15,6 +21,10 @@ libluatex_a_CPPFLAGS += -DpdfTeX -I$(srcdir)/luatexdir
 libluatex_a_CPPFLAGS += $(LUA_INCLUDES)
 libluatex_a_CPPFLAGS += -DSYNCTEX_ENGINE_H='<synctex-luatex.h>' -I$(srcdir)/synctexdir
 libluatex_a_CXXFLAGS = # $(WARNING_CXXFLAGS)
+
+## compatibility between poppler versions <=0.24.0 and >-0.25.0
+libluatex_a_CPPFLAGS += -I$(srcdir)/luatexdir/fake
+EXTRA_DIST += luatexdir/fake/StructTreeRoot.h
 
 ## from luatexdir
 ##
@@ -498,7 +508,7 @@ libluatex_a_SOURCES += \
 libluatex_a_SOURCES += \
 	mplibdir/lmplib.c
 
-$(libluatex_a_OBJECTS): libff.a libmplib.a
+$(libluatex_a_OBJECTS): libff.a libmplib.a $(POPPLER_DEPEND)
 
 EXTRA_DIST += $(libluatex_web) 
 

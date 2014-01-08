@@ -1,7 +1,7 @@
 % writepng.w
 %
 % Copyright 1996-2006 Han The Thanh <thanh@@pdftex.org>
-% Copyright 2006-2011 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2013 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -20,11 +20,11 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: writepng.w 4442 2012-05-25 22:40:34Z hhenkel $"
+    "$Id: writepng.w 4718 2014-01-02 15:35:31Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/image/writepng.w $";
 
-#include <assert.h>
 #include "ptexlib.h"
+#include <assert.h>
 #include "image/image.h"
 #include "image/writepng.h"
 

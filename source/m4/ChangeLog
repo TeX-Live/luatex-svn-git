@@ -1,3 +1,83 @@
+2013-12-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-pkgs.m4 (kpse_utils_pkgs): Add songs.
+
+2013-12-03  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-pkgs.m4: Move psutils from ../utils/ to ../texk/.
+
+2013-11-25  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-freetype2-flags.m4: New layout of installed headers.
+
+2013-10-24  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-pkgs.m4 (kpse_libs_pkgs): Add paper.
+	* kpse-paper-flags.m4: New file.
+
+2013-09-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-pkgs.m4 (kpse_libs_pkgs): Drop freetype (Version 1.5).
+	(kpse_texk_pkgs): Drop ttf2pk.
+
+2013-09-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-setup.m4 (KPSE_RECURSE_LIBS, KPSE_RECURSE_PROGS):
+	New macros to recurse into all library and program modules.
+	Ignore missing modules (at both autoconf and configure time).
+
+2013-09-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-freetype2-flags.m4: No reason to require Libtool.
+
+2013-08-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-zlib-flags.m4 (KPSE_ZLIB_FLAGS): Test if <<zlib.h> defines
+	'z_const' and accordingly define either ZLIB_CONST or z_const.
+
+2013-08-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* cho-libs.m4: Moved ...
+	* kpse-libpaper.m4: ... to here and simplified.
+
+2013-08-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-pkgs.m4 (KPSE_TEXK_PKGS): Recover dvipdfm-x@31034
+	(essentially dvipdfmx and xdvipdfmx from branch-2013) as
+	dvipdf-x.
+
+2013-07-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-common.m4: Drop checks for BSD string functions.
+
+2013-06-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-pkgs.m4 (KPSE_LIBS_PKGS): Add lua52.
+	* kpse-lua52-flags.m4: New file.
+	* kpse-largefile.m4 (new): CPPFLAGS for largefile support.
+
+2013-06-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-pkgs.m4 (kpse_texk_pkgs): Remove xdv2pdf.
+
+2013-06-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-poppler-flags.m4: Headers installed as for system-poppler.
+
+2013-05-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-pkgs.m4 (KPSE_LIBS_PKGS): Remove t1lib.
+	* kpse-t1lib-flags.m4: Removed.
+
+2013-04-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-pkgs.m4 (KPSE_LIBS_PKGS): Add t1lib.
+	* kpse-potrace-flags.m4: New file.
+
+2013-03-26  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-cairo-flags.m4: Require cairo-1.12 or better (message).
+
 2013-03-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* kpse-pkgs.m4 (KPSE_TEXK_PKGS): bibtex8+bibtexu -> bibtex-x.

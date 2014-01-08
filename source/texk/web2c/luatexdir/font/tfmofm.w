@@ -19,7 +19,7 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: tfmofm.w 4442 2012-05-25 22:40:34Z hhenkel $"
+    "$Id: tfmofm.w 4718 2014-01-02 15:35:31Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/font/tfmofm.w $";
 
 #include "ptexlib.h"
@@ -623,7 +623,7 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
     /* cnom can be an absolute filename, xbasename() fixes that. */
 
     tmpnam = strdup(xbasename(cnom));
-    if (strcmp(tmpnam + strlen(tmpnam) - 4, ".tfm") == 0) {
+    if (strcmp(tmpnam + strlen(tmpnam) - 4, ".tfm") == 0 || strcmp(tmpnam + strlen(tmpnam) - 4, ".ofm") == 0) {
         *(tmpnam + strlen(tmpnam) - 4) = 0;
     }
     set_font_name(f, tmpnam);

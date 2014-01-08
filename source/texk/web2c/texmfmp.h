@@ -7,6 +7,12 @@
 #include <kpathsea/tex-make.h> /* for kpse_make_tex_discard_errors */
 
 #ifdef XeTeX
+#ifdef XETEX_MAC
+/* include this here to avoid conflict between clang's emmintrin.h and
+ * texmfmem.h. Should be removed once a fixed clang is widely available
+ * http://llvm.org/bugs/show_bug.cgi?id=14964 */
+#include <ApplicationServices/ApplicationServices.h>
+#endif
 /* added typedefs for unicodefile and voidpointer */
 #define XETEX_UNICODE_FILE_DEFINED	1
 typedef struct {
@@ -103,6 +109,18 @@ typedef void* voidpointer;
 
 /* Hacks for TeX that are better not to #ifdef, see lib/openclose.c.  */
 extern int tfmtemp, texinputtype;
+
+/* pdfTeX routines also used for e-pTeX and e-upTeX */
+#if defined (pdfTeX) || defined (epTeX) || defined (eupTeX)
+extern char start_time_str[];
+extern void pdftex_fail(const char *fmt, ...);
+extern void initstarttime(void);
+extern char *makecstring(integer s);
+extern char *makecfilename(integer s);
+extern void getcreationdate(void);
+extern void getfilemoddate(integer s);
+extern void getfilesize(integer s);
+#endif
 
 /* pdftex etc. except for tex use these for pipe support */
 #if defined(TeX) && !defined(onlyTeX)

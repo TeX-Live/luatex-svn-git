@@ -20,7 +20,7 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: writettf.w 4442 2012-05-25 22:40:34Z hhenkel $"
+    "$Id: writettf.w 4718 2014-01-02 15:35:31Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/font/writettf.w $";
 
 #include "ptexlib.h"
@@ -816,14 +816,13 @@ void ttf_read_post(void)
             }
         }
         break;
+    default:
+        pdftex_warn("unsupported format (%.8X) of `post' table, assuming 3.0",
+                    (unsigned int) post_format);
     case 0x00030000:
         for (glyph = glyph_tab; glyph - glyph_tab < NMACGLYPHS; glyph++) {
             glyph->name_index = (TTF_USHORT) (glyph - glyph_tab);
         }
-        break;
-    default:
-        pdftex_fail("unsupported format (%.8X) of `post' table",
-                    (unsigned int) post_format);
     }
 }
 

@@ -1,3 +1,150 @@
+2013-12-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* pdf/pdfgen.w (pdf_end_stream): Always write "\nendstream" for
+	PDF/A-1b compliance.
+
+2013-12-19  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* lua/liolibext.c: Large files in lua.
+
+2013-12-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* image/epdf.h, lua/lepdflib.cc: Adapt for poppler-0.25.x.
+	* fake/StructTreeRoot.h (new): Provide 0.24.4 compatibility.
+
+2013-12-08  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* font/writet3.w: More cast arg2 of setpdffloat to int64_t.
+	* pdf/pdfpage.w: Fix i32round() => i64round().
+
+2013-12-07  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* lua/liolibext.c: Large files in lua.
+
+2013-12-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Fix a serious bug related to large numbers in pdfimages.
+	Mail from Akira Kakuto <kakuto@fuk.kindai.ac.jp>, 6 Dec 2013.
+	* pdf/pdftypes.h: Change pdffloat.m from long to int64_t.
+	Define i32round(a) and i64round(a) instead of lround(a).
+	* font/writet3.w: Cast arg2 of setpdffloat to int64_t.
+	* image/writejp2.w: Use uint64_t instead of unsigned long long.
+	* image/pdftoepdf.w, pdf/pdfgen.w, pdf/pdfglyph.w,
+	pdf/pdfimage.w, pdf/pdfpage.w, pdf/pdfrule.w: Replace lround(a)
+	by i32round(a) or i64round(a).
+
+2013-09-20  Karl Berry  <karl@tug.org>
+
+	* lua/luainit.w (lua_initialize) [NATIVE_TEXLIVE_BUILD]: omit date.
+	* tex/printing.w (print_banner) [NATIVE_TEXLIVE_BUILD]: replace
+	date with WEB2CVERSION for TL binaries.
+
+2013-08-06  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* font/writecff.w: Fix a bug in write_cid_cff(). There was not
+	pdf_end_dict() for the corresponding pdf_begin_dict().
+
+2013-07-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* font/writettf.w: Treat unknown 'post' table versions
+	(found in some broken fonts) as 3.0, i.e., no Glyph names.
+
+2013-07-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/luatex.am, tests/luaimage.tex: Add a .pdf image.
+
+2013-07-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* pdf/pdfgen.w: Use "%"LONGINTEGER_PRI"d" format specifier to
+	print (LONGINTEGER_TYPE) casted longinteger and off_t variables.
+
+2013-07-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua/luainit.w (init_kpse, lua_initialize):
+	Use kpse_program_basename().
+
+2013-07-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* luaimage.test, tests/luaimage.tex: New test and data.
+	* am/luatex.am: Add the new test.
+
+2013-07-02  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* luatex.c : Replace lines between "#if defined (TeX) && defined (IPC)"
+	and "#endif /* TeX && IPC */" with those in texmfmp.c.
+
+2013-07-01  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* luatex.c, ptexlib.h: Revert the previous change.
+	* luatex.c [MSVC]: Undef timezone before including <time.h>.
+
+2013-06-28  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* luatex.c, ptexlib.h: Slightly modify because Visual Studio cannot
+	compile luatex.c.
+
+2013-06-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua/lcallbacklib.c, lua/luainit.w: Replace index() => strchr().
+
+	* ptexlib.h: More general cases for not been included first.
+
+	* lang/hyphen.h: Do not '#include "ptexlib.h"'.
+	* lang/hyphen.w: Include ptexlib.h instead of lang/hyphen.h.
+
+2013-06-28  Karl Berry  <karl@tug.org>
+
+	* ptexlib.h: complain if various common things are #defined;
+	this must be the first #include.
+
+2013-06-27  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Bug fix for LuaTeX crash on 32bit Unix systems from Taco,
+	tlbuild mail 26 Jun 2013 16:10:35,
+	http://tug.org/pipermail/tex-live/2013-June/033782.html
+	* image/writejbig2.w, image/writejp2.w, image/writejpg.w,
+	image/writepng.w: Always first include ptexlib.h.
+
+2013-06-26  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/libluatex.am, am/luasocket.am, am/luatex.am:
+	Correct dependencies for build `on demand'.
+
+2013-06-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua52/: Moved to ../../../libs/lua52/.
+	* am/libluatex.am: Adapted.
+	* am/liblua52.am: Removed.
+
+2013-06-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* image/epdf.h, image/writeimg.w, lua/limglib.c,
+	lua/lpdfscannerlib.cc, lua/lstrlibext.c, lua/luatex-api.h,
+	lua/texluac.w, ptexlib.h: Replace 'lua52/lua.h' => 'lua.h'.
+
+2013-06-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua/lpdfscannerlib.cc: Include <poppler-config.h> instead of
+	<poppler/poppler-config.h>.
+
+2013-04-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua/luainit.w: Handle '--luac' and '--luaconly' (from Akira).
+
+2013-04-16  Elie Roux  <elie.roux@telecom-bretagne.eu>
+
+	* font/tfmofm.w: check for .ofm as well as .tfm.
+	* tex/mainbody.w: check for !ini_version before initialize().
+
+2013-04-16  Karl Berry  <karl@tug.org>
+
+	* lua/luainit.w (parse_options): GPLv2+, not just GPLv2 (after
+	discussion with Taco).
+
+2013-04-14  Karl Berry  <karl@tug.org>
+
+	* lua/luainit.w: 2013
+
 2013-04-08  Taco Hoekwater  <taco@luatex.org>
 
 	* luasocket/src/smtp.lua: uncomment require 'coroutine'
