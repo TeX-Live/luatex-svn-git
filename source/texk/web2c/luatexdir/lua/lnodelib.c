@@ -96,7 +96,7 @@
 */
 
 static const char _svn_version[] =
-    "$Id: lnodelib.c 4738 2014-01-09 13:27:52Z luigi $ "
+    "$Id: lnodelib.c 4740 2014-01-09 17:22:45Z luigi $ "
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/lnodelib.c $";
 
 #include "ptexlib.h"
@@ -1645,15 +1645,15 @@ static int lua_nodelib_direct_copy(lua_State * L)
 {
     halfword n;
     halfword m;
+    if (lua_isnil(L, 1))
+        return 1;               /* the nil itself */
+    /* beware, a glue node can have number 0 (zeropt) so we cannot test for null) */
     n = (halfword) lua_tonumber(L, 1);
-    if (n == null) {
-        lua_pushnil(L);
-    } else {
-        m = copy_node(n);
-        lua_pushnumber(L, m);
-    }
+    m = copy_node(n);
+    lua_pushnumber(L, m);
     return 1;
 }
+
 
 /* node.write (output a node to tex's processor) */
 
