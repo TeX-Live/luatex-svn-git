@@ -96,7 +96,7 @@
 */
 
 static const char _svn_version[] =
-    "$Id: lnodelib.c 4708 2014-01-02 10:15:34Z taco $ "
+    "$Id: lnodelib.c 4738 2014-01-09 13:27:52Z luigi $ "
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/lnodelib.c $";
 
 #include "ptexlib.h"
@@ -2566,7 +2566,7 @@ static int lua_nodelib_direct_traverse(lua_State * L)
     }
     n = (halfword) lua_tonumber(L, 1);
     if (n == null) {
-        lua_pushnil(L);
+        lua_pushcclosure(L, nodelib_aux_nil, 0);
         return 1;
     }
     lua_pushcclosure(L, nodelib_direct_aux_next, 0);
@@ -2574,6 +2574,7 @@ static int lua_nodelib_direct_traverse(lua_State * L)
     lua_pushnil(L);
     return 3;
 }
+
 
 /* counting */
 
