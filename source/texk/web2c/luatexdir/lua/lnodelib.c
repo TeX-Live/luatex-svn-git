@@ -2566,7 +2566,7 @@ static int lua_nodelib_direct_traverse(lua_State * L)
     }
     n = (halfword) lua_tonumber(L, 1);
     if (n == null) {
-        lua_pushnil(L);
+        lua_pushcclosure(L, nodelib_aux_nil, 0);
         return 1;
     }
     lua_pushcclosure(L, nodelib_direct_aux_next, 0);
@@ -2574,6 +2574,7 @@ static int lua_nodelib_direct_traverse(lua_State * L)
     lua_pushnil(L);
     return 3;
 }
+
 
 /* counting */
 
