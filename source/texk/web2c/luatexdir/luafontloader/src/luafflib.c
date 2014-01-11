@@ -2305,6 +2305,20 @@ void do_ff_info(lua_State * L, SplineFont * sf)
     dump_stringfield(L, "version", sf->version);
     dump_stringfield(L, "weight", sf->weight);
 
+    dump_intfield(L, "units_per_em", sf->units_per_em);
+    dump_intfield(L, "design_range_bottom", sf->design_range_bottom);
+    dump_intfield(L, "design_range_top", sf->design_range_top);
+    dump_intfield(L, "design_size", sf->design_size);
+
+    lua_createtable(L, 0, 40);
+    handle_pfminfo(L, sf->pfminfo);
+    lua_setfield(L, -2, "pfminfo");
+
+    if (sf->names != NULL) {
+        lua_newtable(L);
+        handle_ttflangname(L, sf->names);
+        lua_setfield(L, -2, "names");
+    }
 }
 
 typedef enum {
