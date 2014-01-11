@@ -1769,16 +1769,6 @@ static struct { uint32 tag; char *str; } tagstr[] = {
     { 0, NULL }
 };
 
-static int
-glyphNameExists (struct ttfinfo *info, char *name)
-{
-  int i = 0;
-  for (i = 0; i < info->glyph_cnt; ++i)
-    if (info->chars[i] != NULL && info->chars[i]->name != NULL)
-      if (strcmp (info->chars[i]->name, name) == 0)
-        return true;
-  return false;
-}
 
 static void gsubSimpleSubTable(FILE *ttf, int stoffset, struct ttfinfo *info,
 	struct lookup *l, struct lookup_subtable *subtable, int justinuse) {
@@ -1832,8 +1822,7 @@ return;
 		    }
 		    str = galloc(strlen(basename)+strlen(pt)+2);
 		    sprintf(str,"%s.%s", basename, pt );
-		    if (!glyphNameExists (info, str))
-		        info->chars[which]->name = str;
+		    info->chars[which]->name = str;
 		}
 	    }
 	}
@@ -2071,8 +2060,7 @@ return;
 			pt = str+strlen(str);
 			pt[-1] = '.';
 			strcpy(pt,tag);
-			if (!glyphNameExists (info, str))
-			    info->chars[lig]->name = str;
+			info->chars[lig]->name = str;
 		    }
 		}
 	    } else if ( info->chars[lig]!=NULL ) {
@@ -3398,8 +3386,7 @@ static struct glyphvariants *ttf_math_read_gvtable(FILE *ttf,struct ttfinfo *inf
 			(sc = info->chars[gid])!=NULL && sc->name==NULL ) {
 		    snprintf(buffer,sizeof(buffer),"%.30s.%csize%d",
 			    basesc->name, isv?'v':'h', i);
-		    if (!glyphNameExists (info, buffer))
-		        sc->name = copy(buffer);
+		    sc->name = copy(buffer);
 		}
 	    }
 	} else {
@@ -3467,8 +3454,7 @@ return( NULL );
 		    }
 		    snprintf(buffer,sizeof(buffer),"%.30s.%s",
 			    basesc->name, ext );
-		    if (!glyphNameExists (info, buffer))
-		        sc->name = copy(buffer);
+		    sc->name = copy(buffer);
 		}
 	    } else {
 		if ( gid<info->glyph_cnt && (sc = info->chars[gid])!=NULL ) {
