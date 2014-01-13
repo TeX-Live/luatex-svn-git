@@ -23,7 +23,7 @@
 
 \setvariables
   [document]
-  [beta=0.78.1]
+  [beta=0.78.2]
 
 \starttext
 
@@ -2646,7 +2646,7 @@ there can be holes in the sequence.
 
 This function returns either \type{nil}, or a \type{table}, or an
 array of small tables (in the case of a TrueType collection). The
-returned table(s) will contain six fairly interesting information
+returned table(s) will contain some fairly interesting information
 items from the font(s) defined by the file:
 
 \starttabulate[|lT|l|p|]
@@ -2657,6 +2657,12 @@ items from the font(s) defined by the file:
 \NC weight                       \NC string   \NC a string indicating the color value of the font\NC\NR
 \NC version                      \NC string   \NC the internal font version\NC\NR
 \NC italicangle                  \NC float    \NC the slant angle\NC\NR
+\NC design_size                  \NC number   \NC (since 0.78.2) \NC\NR
+\NC design_range_bottom          \NC number   \NC (since 0.78.2) \NC\NR
+\NC design_range_top             \NC number   \NC (since 0.78.2) \NC\NR
+\NC units_per_em                 \NC number   \NC (since 0.78.2) 1000 for \POSTSCRIPT-based fonts, usually 2048 for \TRUETYPE\NC\NR
+\NC pfminfo                      \NC table    \NC (since 0.78.2) (see \in{section}[fontloaderpfminfotable])\NC\NR
+\NC names                        \NC table    \NC (since 0.78.2) (see \in{section}[fontloadernamestable])\NC\NR
 \stoptabulate
 
 Getting information through this function is (sometimes much) more
@@ -3157,7 +3163,7 @@ values are both strings.
 \NC version                   \NC number   \NC \NC\NR
 \stoptabulate
 
-\subsubsubsection{pfminfo table}
+\subsubsubsection[fontloaderpfminfotable]{pfminfo table}
 
 The \type{pfminfo} table contains most of the OS/2 information:
 
@@ -3230,7 +3236,7 @@ The \type{panose} subtable has exactly 10 string keys:
 \NC xheight                \NC string   \NC id. \NC\NR
 \stoptabulate
 
-\subsubsubsection{names table}
+\subsubsubsection[fontloadernamestable]{names table}
 
 Each item has two top|-|level keys:
 

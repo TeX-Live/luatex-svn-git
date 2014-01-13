@@ -2,8 +2,19 @@
 This file is in the public domain.
 
 ==============================================================
-Luatex beta-0.78.0 was released 
+Luatex beta-0.78.2 was released 20140113
 ==============================================================
+
+* Extended luafontloader's info() function to include data
+  from the 'pfminfo' and 'names' structure.
+
+* Fixed a bug in the luafontloader library that made loading 
+  some fonts extremely slow (LastResort.ttf)
+
+* Removed a recent extension in the luafontloader library that
+  made loading fonts with lots of glyphs slow (ArialUnicoce.ttf).
+  Note: the extension made sure that there were no duplicate 
+  glyph names in the font after loading. 
 
 * Restored --recorder output for lua files (dofile/loadfile/io.open)
 
@@ -2145,7 +2156,7 @@ Other news:
    we probably introduced new problems as well).
 
 * Most (all?) files now have a corrected Copyright header,
-   and link in $Id: NEWS 4731 2014-01-03 15:17:48Z taco $ and  $URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/NEWS $ into the object file.
+   and link in $Id: NEWS 4746 2014-01-13 08:47:45Z taco $ and  $URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/NEWS $ into the object file.
 
 * Some unnecessary files were removed from the distribution.
 
