@@ -773,7 +773,7 @@ void write_epdf(PDF pdf, image_dict * idict)
         obj1.free();
         pdf_end_dict(pdf);
         pdf_begin_stream(pdf);
-        copyStreamStream(pdf, contents.getStream()->getBaseStream());
+        copyStreamStream(pdf, contents.getStream()->getUndecodedStream());
         pdf_end_stream(pdf);
         pdf_end_obj(pdf);
     } else if (contents.isArray()) {
