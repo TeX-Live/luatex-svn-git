@@ -20,7 +20,7 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: pdftoepdf.w 4718 2014-01-02 15:35:31Z taco $"
+    "$Id: pdftoepdf.w 4749 2014-01-15 08:43:57Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/image/pdftoepdf.w $";
 
 // define DEBUG
@@ -773,7 +773,7 @@ void write_epdf(PDF pdf, image_dict * idict)
         obj1.free();
         pdf_end_dict(pdf);
         pdf_begin_stream(pdf);
-        copyStreamStream(pdf, contents.getStream()->getBaseStream());
+        copyStreamStream(pdf, contents.getStream()->getUndecodedStream());
         pdf_end_stream(pdf);
         pdf_end_obj(pdf);
     } else if (contents.isArray()) {

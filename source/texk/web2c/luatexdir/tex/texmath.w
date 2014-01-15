@@ -19,8 +19,8 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: texmath.w 4634 2013-04-21 14:45:45Z hhenkel $"
-    "$URL: https://foundry.supelec.fr/svn/luatex/branches/ex-glyph/source/texk/web2c/luatexdir/tex/texmath.w $";
+    "$Id: texmath.w 4750 2014-01-15 09:13:32Z taco $"
+    "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/tex/texmath.w $";
 
 #include "ptexlib.h"
 
@@ -873,7 +873,7 @@ void init_math(void)
             back_input();
             enter_ordinary_math();
         }
-    } else if (cur_cmd == math_shift_cs_cmd && cur_chr == display_style) {
+    } else if (cur_cmd == math_shift_cs_cmd && cur_chr == display_style && (mode > 0)) {
         enter_display_math();
     } else if (cur_cmd == math_shift_cs_cmd && cur_chr == text_style) {
         enter_ordinary_math();
