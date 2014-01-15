@@ -873,7 +873,7 @@ void init_math(void)
             back_input();
             enter_ordinary_math();
         }
-    } else if (cur_cmd == math_shift_cs_cmd && cur_chr == display_style) {
+    } else if (cur_cmd == math_shift_cs_cmd && cur_chr == display_style && (mode > 0)) {
         enter_display_math();
     } else if (cur_cmd == math_shift_cs_cmd && cur_chr == text_style) {
         enter_ordinary_math();
