@@ -735,8 +735,13 @@ static double get_real(card8 ** data, card8 * endptr, int *status)
         *status = CFF_CFF_ERROR_PARSE_CFF_ERROR;
     } else {
         char *s;
+	/* strtod sets errno for  OVERFLOW and _maybe_ UNDERFLOW */    
+        /* but not for an invalid  conversion (as for example  if we try to convert "foo" in a double )*/
+        /* At least in glib sets errno also for UNDERFLOW */
+        /* We don't save/restore the prev. errno */
+        errno=0;
         result = strtod(work_buffer, &s);
-        if ( result==0.0 && work_buffer==s ) {
+        if ( (result==0.0 && work_buffer==s) || errno ) {
               /* conversion is not possible */
              *status = CFF_CFF_ERROR_PARSE_CFF_ERROR;
          }

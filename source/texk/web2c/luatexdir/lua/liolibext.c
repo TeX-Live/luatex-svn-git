@@ -82,6 +82,13 @@ static const char _svn_version[] =
 
 #endif
 
+/* Large File Support  under Windows 32bit Windows 64 bit */
+#if defined(__MINGW32__)
+#define l_fseek(f,o,w)          fseeko64(f,o,w)
+#define l_ftell(f)              ftello64(f)
+#define l_seeknum               int64_t 
+#endif
+
 #define IO_PREFIX	"_IO_"
 #define IO_INPUT	(IO_PREFIX "input")
 #define IO_OUTPUT	(IO_PREFIX "output")
