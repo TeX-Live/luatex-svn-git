@@ -819,10 +819,17 @@ int luaopen_img(lua_State * L)
 {
     preset_environment(L, img_parms, IMG_ENV);
     luaL_newmetatable(L, TYPE_IMG);
+#ifdef LuajitTeX
+    luaL_register(L, NULL, img_m);
+    luaL_newmetatable(L, TYPE_IMG_DICT);
+    luaL_register(L, NULL, img_dict_m);
+    luaL_register(L, "img", imglib_f);
+#else
     luaL_setfuncs(L, img_m, 0);
     luaL_newmetatable(L, TYPE_IMG_DICT);
     luaL_setfuncs(L, img_dict_m, 0);
     luaL_newlib(L, imglib_f);
+#endif
     return 1;
 }
 

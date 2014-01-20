@@ -109,6 +109,8 @@ $(proglib): ${srcdir}/lib/*.c
 @HARFBUZZ_RULE@
 ## Rebuild libgraphite2
 @GRAPHITE2_RULE@
+## Rebuild libjit
+@LUAJIT_RULE@
 
 # The environment for building.
 buildenv = TEXMFCNF=$(srcdir)/../kpathsea
@@ -211,6 +213,15 @@ include $(srcdir)/luatexdir/am/luafontforge.am
 include $(srcdir)/luatexdir/am/libluatex.am
 include $(srcdir)/luatexdir/am/luatex.am
 include $(srcdir)/luatexdir/am/txt2zlib.am
+
+## luajittex
+
+include $(srcdir)/luatexdir/am/libluajit20.am
+include $(srcdir)/luatexdir/am/luajitsocket.am
+include $(srcdir)/luatexdir/am/luajitmisc.am
+include $(srcdir)/luatexdir/am/luajitfontforge.am
+include $(srcdir)/luatexdir/am/libluajittex.am
+include $(srcdir)/luatexdir/am/luajittex.am
 
 ## XeTeX
 include $(srcdir)/xetexdir/am/xetex.am

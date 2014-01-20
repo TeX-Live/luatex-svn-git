@@ -68,6 +68,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/web2c-disable.m4 \
 	$(top_srcdir)/../../m4/kpse-icu-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-kpathsea-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-lex.m4 \
+	$(top_srcdir)/../../m4/kpse-libjit-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-libpng-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-lt-hack.m4 \
 	$(top_srcdir)/../../m4/kpse-lua52-flags.m4 \
@@ -263,6 +264,10 @@ LUA52_DEFINES = @LUA52_DEFINES@
 LUA52_DEPEND = @LUA52_DEPEND@
 LUA52_INCLUDES = @LUA52_INCLUDES@
 LUA52_LIBS = @LUA52_LIBS@
+LUAJIT_DEFINES = @LUAJIT_DEFINES@
+LUAJIT_DEPEND = @LUAJIT_DEPEND@
+LUAJIT_INCLUDES = @LUAJIT_INCLUDES@
+LUAJIT_LIBS = @LUAJIT_LIBS@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@

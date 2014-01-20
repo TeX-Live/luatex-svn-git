@@ -1,0 +1,10 @@
+--- ../luajit-2.0.2/src/Makefile.dep.orig	2014-01-10 02:46:45.561858000 +0100
++++ ../luajit-2.0.2/src/Makefile.dep	2014-01-10 02:46:45.561858000 +0100
+@@ -6,6 +6,7 @@
+  lj_tab.h lj_meta.h lj_state.h lj_ctype.h lj_cconv.h lj_bc.h lj_ff.h \
+  lj_ffdef.h lj_dispatch.h lj_jit.h lj_ir.h lj_char.h lj_strscan.h \
+  lj_lib.h lj_libdef.h
++lbitlib.o: lbitlib.c lua.h luaconf.h lauxlib.h lualib.h
+ lib_bit.o: lib_bit.c lua.h luaconf.h lauxlib.h lualib.h lj_obj.h lj_def.h \
+  lj_arch.h lj_err.h lj_errmsg.h lj_str.h lj_lib.h lj_libdef.h
+ lib_debug.o: lib_debug.c lua.h luaconf.h lauxlib.h lualib.h lj_obj.h \

@@ -39,6 +39,7 @@ libpng
 paper
 lua52
 zlib
+luajit
 ])[]dnl
 m4_define([kpse_texlibs_pkgs], [dnl
 ptexenc
@@ -68,6 +69,7 @@ AC_REQUIRE([KPSE_GRAPHITE2_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_TECKIT_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_ICU_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_HARFBUZZ_SYSTEM_FLAGS])[]dnl
+AC_REQUIRE([KPSE_LUAJIT_SYSTEM_FLAGS])[]dnl
 ]) # KPSE_ALL_SYSTEM_FLAGS
 
 # KPSE_UTILS_PKGS()

@@ -66,6 +66,7 @@ am__aclocal_m4_deps = $(top_srcdir)/../m4/kpse-cairo-flags.m4 \
 	$(top_srcdir)/../m4/kpse-common.m4 \
 	$(top_srcdir)/../m4/kpse-cxx-hack.m4 \
 	$(top_srcdir)/../m4/kpse-kpathsea-flags.m4 \
+	$(top_srcdir)/../m4/kpse-libjit-flags.m4 \
 	$(top_srcdir)/../m4/kpse-libpng-flags.m4 \
 	$(top_srcdir)/../m4/kpse-lt-hack.m4 \
 	$(top_srcdir)/../m4/kpse-mktex.m4 \
@@ -91,6 +92,7 @@ am__aclocal_m4_deps = $(top_srcdir)/../m4/kpse-cairo-flags.m4 \
 	$(top_srcdir)/../libs/libpng/ac/withenable.ac \
 	$(top_srcdir)/../libs/lua52/ac/withenable.ac \
 	$(top_srcdir)/../libs/zlib/ac/withenable.ac \
+	$(top_srcdir)/../libs/luajit/ac/withenable.ac \
 	$(top_srcdir)/../texk/kpathsea/ac/withenable.ac \
 	$(top_srcdir)/../texk/kpathsea/ac/mktex.ac \
 	$(top_srcdir)/configure.ac

@@ -1,0 +1,16 @@
+## texk/web2c/luatexdir/am/libluajit20.am: Makefile fragment for libluajit20
+##
+## Copyright (C) 2009 Peter Breitenlohner <tex-live@tug.org>
+## You may freely use, modify and/or distribute this file.
+
+## libluajit20
+##
+EXTRA_LIBRARIES += libluajit20.a
+
+libluajit20_a_CPPFLAGS = -I$(top_srcdir)/luatexdir/luajit20 -DLUAJIT_ENABLE_LUA52COMPAT
+if !MINGW32
+libluajit20_a_CPPFLAGS += -DLUA_USE_POSIX
+endif !MINGW32
+libluajit20_a_CFLAGS = -DLUAJIT_ENABLE_LUA52COMPAT #$(WARNING_CFLAGS)
+
+libluajit20_a_SOURCES = 

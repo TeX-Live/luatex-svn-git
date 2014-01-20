@@ -2631,6 +2631,15 @@ static const struct luaL_Reg XRefEntry_m[] = {
 
 //**********************************************************************
 
+#ifdef LuajitTeX
+#define setfuncs_meta(type)                 \
+    luaL_newmetatable(L, M_##type);         \
+    lua_pushvalue(L, -1);                   \
+    lua_setfield(L, -2, "__index");         \
+    lua_pushstring(L, "no user access");    \
+    lua_setfield(L, -2, "__metatable");     \
+    luaL_register(L, NULL, type##_m)
+#else
 #define setfuncs_meta(type)                 \
     luaL_newmetatable(L, M_##type);         \
     lua_pushvalue(L, -1);                   \
@@ -2638,6 +2647,7 @@ static const struct luaL_Reg XRefEntry_m[] = {
     lua_pushstring(L, "no user access");    \
     lua_setfield(L, -2, "__metatable");     \
     luaL_setfuncs(L, type##_m, 0)
+#endif
 
 int luaopen_epdf(lua_State * L)
 {
@@ -2660,6 +2670,10 @@ int luaopen_epdf(lua_State * L)
     setfuncs_meta(XRef);
     setfuncs_meta(XRefEntry);
 
+#ifdef LuajitTeX
+    luaL_register(L, "epdf", epdflib_f);
+#else
     luaL_newlib(L, epdflib_f);
+#endif
     return 1;
 }

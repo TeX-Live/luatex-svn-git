@@ -1,0 +1,60 @@
+## texk/web2c/luatexdir/am/luatex.am: Makefile fragment for luaTeX.
+##
+## Copyright (C) 2009-2013 Peter Breitenlohner <tex-live@tug.org>
+## You may freely use, modify and/or distribute this file.
+
+## luaTeX
+##
+if LUAJITTEX
+bin_PROGRAMS += luajittex
+if WIN32
+noinst_PROGRAMS += call_luajittex
+install_exe_links += install-luajittex-links
+uninstall_exe_links += uninstall-luajittex-links
+else !WIN32
+bin_links += luajittex$(EXEEXT):texluajit luajittex$(EXEEXT):texluajitc
+endif !WIN32
+endif LUAJITTEX
+EXTRA_PROGRAMS += luajittex
+
+# Force Automake to use CXXLD for linking
+nodist_EXTRA_luajittex_SOURCES = dummy.cxx
+
+luajittex_CPPFLAGS = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES)
+luajittex_CPPFLAGS += $(POPPLER_INCLUDES) $(LUAJIT_INCLUDES) -I$(srcdir)/libmd5
+luajittex_CPPFLAGS += -I$(srcdir)/luatexdir -I$(srcdir)/mplibdir
+luajittex_CPPFLAGS += -Dextra_version_info=`date +-%Y%m%d%H`
+luajittex_CPPFLAGS += -I$(srcdir)/synctexdir -DSYNCTEX_ENGINE_H='<synctex-luatex.h>'
+luajittex_CXXFLAGS = $(WARNING_CXXFLAGS)
+
+luajittex_ldadd = libluajittex.a libjitff.a libunilib.a libluajitmisc.a libluajitsocket.a $(LUAJIT_LIBS)
+luajittex_ldadd += libmd5.a libmplib.a $(CAIRO_LIBS) $(PIXMAN_LIBS)
+luajittex_ldadd += $(ZZIPLIB_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) $(POPPLER_LIBS)
+
+luajittex_LDFLAGS = -export-dynamic
+
+luajittex_LDADD = $(luajittex_ldadd) $(LDADD) $(LIBADD_DLOPEN) $(lua_socketlibs)
+
+luajittex_DEPENDENCIES = $(proglib) $(KPATHSEA_DEPEND) libluajittex.a
+luajittex_DEPENDENCIES += $(LIBPNG_DEPEND) libmd5.a libmplib.a
+
+$(luajittex_OBJECTS): libluajittex.a
+
+luajittex_SOURCES = luatexdir/luatex_svnversion.h luatexdir/luatex.c luatexdir/luatex.h
+
+EXTRA_DIST += luatexdir/getluatexsvnversion.sh
+
+call_luajittex_CPPFLAGS = -DEXEPROG=\"luajittex.exe\"
+nodist_call_luajittex_SOURCES = callexe.c
+call_luajittex_LDADD =
+
+.PHONY: install-luajittex-links uninstall-luajittex-links
+if WIN32
+install-luajittex-links: call_luatex$(EXEEXT)
+	$(INSTALL_PROGRAM) call_luajittex$(EXEEXT) $(DESTDIR)$(bindir)/texluajit$(EXEEXT)
+	$(INSTALL_PROGRAM) call_luajittex$(EXEEXT) $(DESTDIR)$(bindir)/texluajitc$(EXEEXT)
+uninstall-luajittex-links:
+	rm -f $(DESTDIR)$(bindir)/texluajit$(EXEEXT)
+	rm -f $(DESTDIR)$(bindir)/texluajitc$(EXEEXT)
+endif WIN32
+

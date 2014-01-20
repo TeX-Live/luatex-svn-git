@@ -29,6 +29,10 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
+#ifdef LuajitTeX
+#include "lauxlib_bridge.h"
+#endif
+
 static const char _svn_version[] =
     "$Id: liolibext.c 4730 2014-01-03 14:44:14Z taco $ $URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/liolibext.c $";
 
@@ -697,6 +701,9 @@ static void createstdfile (lua_State *L, FILE *f, const char *k,
 }
 
 int open_iolibext (lua_State *L) {
+#ifdef LuajitTeX
+  return luaopen_io(L);
+#else
   luaL_newlib(L, iolib);  /* new module */
   createmeta(L);
   /* create (and set) default files */
@@ -704,4 +711,5 @@ int open_iolibext (lua_State *L) {
   createstdfile(L, stdout, IO_OUTPUT, "stdout");
   createstdfile(L, stderr, NULL, "stderr");
   return 1;
+#endif
 }

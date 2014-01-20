@@ -1,0 +1,44 @@
+--- ../luajit-2.0.2/src/Makefile.orig	2014-01-10 02:46:45.561858000 +0100
++++ ../luajit-2.0.2/src/Makefile	2014-01-10 02:46:45.561858000 +0100
+@@ -72,10 +72,10 @@
+ # as dynamic mode.
+ #
+ # Mixed mode creates a static + dynamic library and a statically linked luajit.
+-BUILDMODE= mixed
++#BUILDMODE= mixed
+ #
+ # Static mode creates a static library and a statically linked luajit.
+-#BUILDMODE= static
++BUILDMODE= static
+ #
+ # Dynamic mode creates a dynamic library and a dynamically linked luajit.
+ # Note: this executable will only run when the library is installed!
+@@ -100,7 +100,7 @@
+ # enabled by default. Some other features that *might* break some existing
+ # code (e.g. __pairs or os.execute() return values) can be enabled here.
+ # Note: this does not provide full compatibility with Lua 5.2 at this time.
+-#XCFLAGS+= -DLUAJIT_ENABLE_LUA52COMPAT
++XCFLAGS+= -DLUAJIT_ENABLE_LUA52COMPAT
+ #
+ # Disable the JIT compiler, i.e. turn LuaJIT into a pure interpreter.
+ #XCFLAGS+= -DLUAJIT_DISABLE_JIT
+@@ -441,7 +441,7 @@
+ LJVM_BOUT= $(LJVM_S)
+ LJVM_MODE= elfasm
+ 
+-LJLIB_O= lib_base.o lib_math.o lib_bit.o lib_string.o lib_table.o \
++LJLIB_O= lib_base.o lib_math.o lbitlib.o lib_bit.o lib_string.o lib_table.o \
+ 	 lib_io.o lib_os.o lib_package.o lib_debug.o lib_jit.o lib_ffi.o
+ LJLIB_C= $(LJLIB_O:.o=.c)
+ 
+@@ -552,8 +552,8 @@
+ 
+ Q= @
+ E= @echo
+-#Q=
+-#E= @:
++Q=
++E= @:
+ 
+ ##############################################################################
+ # Make targets.

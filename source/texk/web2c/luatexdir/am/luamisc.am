@@ -15,7 +15,8 @@ $(libluamisc_a_OBJECTS): $(libluamisc_a_DEPENDENCIES)
 libluamisc_a_CPPFLAGS = \
 	$(ZLIB_INCLUDES) \
 	$(ZZIPLIB_INCLUDES) \
-	$(LUA_INCLUDES)
+	-DLUAJIT_ENABLE_LUA52COMPAT \
+	$(LUA_INCLUDES) 
 libluamisc_a_CFLAGS = # $(WARNING_CFLAGS)
 
 libluamisc_a_SOURCES = \

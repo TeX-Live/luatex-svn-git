@@ -104,6 +104,7 @@ fi
 lua_socketlibs=$socketlibs
 kpse_save_LIBS=$LIBS
 KPSE_LUA52_DEFINES
+KPSE_LUAJIT_DEFINES
 LIBS=$kpse_save_LIBS
 if test "x$kpse_cv_have_win32" = xno; then
   AC_SEARCH_LIBS([gethostbyname], [nsl])
@@ -287,6 +288,7 @@ KPSE_TECKIT_FLAGS
 KPSE_ICU_FLAGS
 KPSE_HARFBUZZ_FLAGS
 KPSE_GRAPHITE2_FLAGS
+KPSE_LUAJIT_FLAGS
 
 # Check size of off_t (using <kpathsea/config.h>)
 KPSE_ADD_FLAGS([kpathsea])
