@@ -75,7 +75,6 @@ __declspec(dllexport) int dllrunscript( int argc, char *argv[] )
   unsigned char is_jit=0;
 
   // directory of this module/executable
-
   HMODULE module_handle = GetModuleHandle( "mtxrun.dll" );
   // if ( module_handle == NULL ) exe path will be used, which is OK too
   k = (int) GetModuleFileName( module_handle, dirpath, MAX_PATH );
@@ -86,7 +85,6 @@ __declspec(dllexport) int dllrunscript( int argc, char *argv[] )
   *(++s) = '\0'; //remove file name, leave trailing backslash
 
   // program name
-
   k = strlen(argv[0]);
   while ( k && (argv[0][k-1] != '/') && (argv[0][k-1] != '\\') ) k--;
   strcpy(progname, &argv[0][k]);
@@ -126,64 +124,105 @@ __declspec(dllexport) int dllrunscript( int argc, char *argv[] )
     DIE( "file not found: %s\n", scriptpath );
 
   // find luatex.exe /luajittex.exe
-
   if ( SearchPath(
-	   getenv( "PATH" ), // path to search (optional)
-	   (is_jit ? "luajittex.exe":"luatex.exe"),     // file name to search
-	   NULL,             // file extension to add (optional)
-	   MAX_PATH,         // output buffer size
-	   luatexpath,       // output buffer pointer
-	   &luatexfname )    // pointer to a file part in the output buffer (optional)
+		  dirpath, // was getenv( "PATH" ), // path to search (optional)
+		  (is_jit ? "luajittex.exe":"luatex.exe"),     // file name to search
+		  NULL,             // file extension to add (optional)
+		  MAX_PATH,         // output buffer size
+		  luatexpath,       // output buffer pointer
+		  &luatexfname )    // pointer to a file part in the output buffer (optional)
        ) {
     binary = (is_jit ? "luajittex.exe":"luatex.exe");
-  }else if ( SearchPath(
-	       dirpath,          // path to search (optional)
-	       (is_jit ? "luajittex.exe":"luatex.exe"),     // file name to search
-	       NULL,             // file extension to add (optional)
-	       MAX_PATH,         // output buffer size
-	       luatexpath,       // output buffer pointer
-	       &luatexfname )    // pointer to a file part in the output buffer (optional)
-	     ) {
-    binary = (is_jit ? "luajittex.exe":"luatex.exe");
-  }else if ( SearchPath(
-	   getenv( "PATH" ), // path to search (optional)
-	   (is_jit ? "texluajit.exe":"texlua.exe"),     // file name to search
-	   NULL,             // file extension to add (optional)
-	   MAX_PATH,         // output buffer size
-	   luatexpath,       // output buffer pointer
-	   &luatexfname )    // pointer to a file part in the output buffer (optional)
-       ) {
+  } else if ( SearchPath(
+			 dirpath, // was getenv( "PATH" ), // path to search (optional)
+			 (is_jit ? "texluajit.exe":"texlua.exe"),     // file name to search
+			 NULL,             // file extension to add (optional)
+			 MAX_PATH,         // output buffer size
+			 luatexpath,       // output buffer pointer
+			 &luatexfname )    // pointer to a file part in the output buffer (optional)
+	      ) {
     binary = (is_jit ? "texluajit.exe":"texlua.exe");
-  }else if ( SearchPath(
-	       dirpath,          // path to search (optional)
-	       (is_jit ? "luajittex.exe":"luatex.exe"),     // file name to search
-	       NULL,             // file extension to add (optional)
-	       MAX_PATH,         // output buffer size
-	       luatexpath,       // output buffer pointer
-	       &luatexfname )    // pointer to a file part in the output buffer (optional)
-	     ) {
+  } else if ( SearchPath(
+			 getenv("PATH"), // was dirpath,          // path to search (optional)
+			 (is_jit ? "luajittex.exe":"luatex.exe"),     // file name to search
+			 NULL,             // file extension to add (optional)
+			 MAX_PATH,         // output buffer size
+			 luatexpath,       // output buffer pointer
+			 &luatexfname )    // pointer to a file part in the output buffer (optional)
+	      ) {
+    binary = (is_jit ? "luajittex.exe":"luatex.exe");
+  } else if ( SearchPath(
+			 getenv("PATH") , // was dirpath,          // path to search (optional)
+			 (is_jit ? "texluajit.exe":"texlua.exe"),     // file name to search
+			 NULL,             // file extension to add (optional)
+			 MAX_PATH,         // output buffer size
+			 luatexpath,       // output buffer pointer
+			 &luatexfname )    // pointer to a file part in the output buffer (optional)
+	      ) {
     binary = (is_jit ? "texluajit.exe":"texlua.exe");
   }else {
     DIE( "unable to locate texlua.exe on the search path" );
   }
-  // link directly with luatex.dll if available in texlua's dir
 
+  /* if ( SearchPath( */
+  /* 	   dirpath, // was getenv( "PATH" ), // path to search (optional) */
+  /* 	   (is_jit ? "luajittex.exe":"luatex.exe"),     // file name to search */
+  /* 	   NULL,             // file extension to add (optional) */
+  /* 	   MAX_PATH,         // output buffer size */
+  /* 	   luatexpath,       // output buffer pointer */
+  /* 	   &luatexfname )    // pointer to a file part in the output buffer (optional) */
+  /*      ) { */
+  /*   binary = (is_jit ? "luajittex.exe":"luatex.exe"); */
+  /* }else if ( SearchPath( */
+  /* 	       getenv("PATH"), // was dirpath,          // path to search (optional) */
+  /* 	       (is_jit ? "luajittex.exe":"luatex.exe"),     // file name to search */
+  /* 	       NULL,             // file extension to add (optional) */
+  /* 	       MAX_PATH,         // output buffer size */
+  /* 	       luatexpath,       // output buffer pointer */
+  /* 	       &luatexfname )    // pointer to a file part in the output buffer (optional) */
+  /* 	     ) { */
+  /*   binary = (is_jit ? "luajittex.exe":"luatex.exe"); */
+  /* }else if ( SearchPath( */
+  /* 	   dirpath, // was getenv( "PATH" ), // path to search (optional) */
+  /* 	   (is_jit ? "texluajit.exe":"texlua.exe"),     // file name to search */
+  /* 	   NULL,             // file extension to add (optional) */
+  /* 	   MAX_PATH,         // output buffer size */
+  /* 	   luatexpath,       // output buffer pointer */
+  /* 	   &luatexfname )    // pointer to a file part in the output buffer (optional) */
+  /*      ) { */
+  /*   binary = (is_jit ? "texluajit.exe":"texlua.exe"); */
+  /* }else if ( SearchPath( */
+  /* 	       getenv("PATH") , // was dirpath,          // path to search (optional) */
+  /* 	       (is_jit ? "texluajit.exe":"texlua.exe"),     // file name to search */
+  /* 	       NULL,             // file extension to add (optional) */
+  /* 	       MAX_PATH,         // output buffer size */
+  /* 	       luatexpath,       // output buffer pointer */
+  /* 	       &luatexfname )    // pointer to a file part in the output buffer (optional) */
+  /* 	     ) { */
+  /*   binary = (is_jit ? "texluajit.exe":"texlua.exe"); */
+  /* }else { */
+  /*   DIE( "unable to locate texlua.exe on the search path" ); */
+  /* } */
+
+
+
+
+  // link directly with luatex.dll if available in texlua's dir
   strcpy( luatexfname, (is_jit ? "luajittex.dll":"luatex.dll") );
   if ( dllluatex = LoadLibrary(luatexpath) )
   {
-    mainlikeproc dllluatexmain = (mainlikeproc) GetProcAddress( dllluatex, "dllluatexmain" );
+    mainlikeproc dllluatexmain = (mainlikeproc) GetProcAddress( dllluatex, (is_jit ? "dllluajittexmain": "dllluatexmain" ));
     if ( dllluatexmain == NULL )
       if (is_jit)
        DIE( "unable to locate dllluatexmain procedure in luajittex.dll"  )
      else 
        DIE( "unable to locate dllluatexmain procedure in luatex.dll"  );
 
-
     // set up argument list for texlua script
 
-    lua_argv = (char **)malloc( (argc + 4) * sizeof(char *) );
+    lua_argv = (char **)malloc( (argc + 5) * sizeof(char *) );
     if ( lua_argv == NULL ) DIE( "out of memory\n" );
-    lua_argv[lua_argc=0] =  binary;
+    lua_argv[lua_argc=0] =  luatexfname;
     lua_argv[++lua_argc] = "--luaonly";
     lua_argv[++lua_argc] = scriptpath; // script to execute
     if (passprogname) {
@@ -195,7 +234,7 @@ __declspec(dllexport) int dllrunscript( int argc, char *argv[] )
 
     // call texlua interpreter
     // dllluatexmain  never returns, but we pretend that it does
-
+    
     k = dllluatexmain( lua_argc, lua_argv );
     if (lua_argv) free( lua_argv );
     return k;
