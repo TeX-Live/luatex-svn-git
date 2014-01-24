@@ -144,15 +144,10 @@ AC_SUBST([ipc_socketlibs])
 
 dnl linker flags for luajittex
 AM_CONDITIONAL([luajittex_darwin64],[case "$host_os" in
-  *darwin*) 
-    if test "x$host_cpu" = xx86_64;
-    then
-       1
-    else
-       0
-    fi ;;
-  *) 
-    0;;
+   *darwin*)
+      test "x$host_cpu" == xx86_64 ;;
+   *)
+      ! test 1;;
 esac])
 
 

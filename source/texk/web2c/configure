@@ -18995,15 +18995,10 @@ fi
 
 
  if case "$host_os" in
-  *darwin*)
-    if test "x$host_cpu" = xx86_64;
-    then
-       1
-    else
-       0
-    fi ;;
-  *)
-    0;;
+   *darwin*)
+      test "x$host_cpu" == xx86_64 ;;
+   *)
+      ! test 1;;
 esac; then
   luajittex_darwin64_TRUE=
   luajittex_darwin64_FALSE='#'
