@@ -162,18 +162,18 @@ fi
 
 
 ### Dirty trick to check  Darwin X86_64
-TARGET_TESTARCH=$( ($TARGET_CC $TARGET_TCFLAGS -E source/libs/luajit/luajit-2.0.2/src/lj_arch.h -dM|grep -q LJ_TARGET_X64 && echo x64) || echo NO)
-HOST_SYS=$(uname -s)
-echo HOST_SYS=$HOST_SYS
-echo TARGET_TESTARCH=$TARGET_TESTARCH
-if [ $HOST_SYS == "Darwin" ]  
-then
- if [ $TARGET_TESTARCH == "x64" ] 
- then
-   export LDFLAGS="-pagezero_size 10000 -image_base 100000000  $LDFLAGS"
-   echo Setting LDFLAGS=$LDFLAGS
- fi
-fi
+# TARGET_TESTARCH=$( ($TARGET_CC $TARGET_TCFLAGS -E source/libs/luajit/luajit-2.0.2/src/lj_arch.h -dM|grep -q LJ_TARGET_X64 && echo x64) || echo NO)
+# HOST_SYS=$(uname -s)
+# echo HOST_SYS=$HOST_SYS
+# echo TARGET_TESTARCH=$TARGET_TESTARCH
+# if [ $HOST_SYS == "Darwin" ]  
+# then
+#  if [ $TARGET_TESTARCH == "x64" ] 
+#  then
+#    export LDFLAGS="-pagezero_size 10000 -image_base 100000000  $LDFLAGS"
+#    echo Setting LDFLAGS=$LDFLAGS
+#  fi
+# fi
 
 
 if [ "$STRIP_LUATEX" = "FALSE" ]

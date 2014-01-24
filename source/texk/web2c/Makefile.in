@@ -2531,7 +2531,8 @@ luajittex_ldadd = libluajittex.a libjitff.a libunilib.a \
 	libluajitmisc.a libluajitsocket.a $(LUAJIT_LIBS) libmd5.a \
 	libmplib.a $(CAIRO_LIBS) $(PIXMAN_LIBS) $(ZZIPLIB_LIBS) \
 	$(LIBPNG_LIBS) $(ZLIB_LIBS) $(POPPLER_LIBS)
-luajittex_LDFLAGS = -export-dynamic
+@luajittex_darwin64_FALSE@luajittex_LDFLAGS = -export-dynamic
+@luajittex_darwin64_TRUE@luajittex_LDFLAGS = -export-dynamic -pagezero_size 10000 -image_base 100000000
 luajittex_LDADD = $(luajittex_ldadd) $(LDADD) $(LIBADD_DLOPEN) $(lua_socketlibs)
 luajittex_DEPENDENCIES = $(proglib) $(KPATHSEA_DEPEND) libluajittex.a \
 	$(LIBPNG_DEPEND) libmd5.a libmplib.a

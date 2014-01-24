@@ -785,6 +785,8 @@ XETEX_MACOSX_TRUE
 FONTCONFIG_LIBS
 FONTCONFIG_INCLUDES
 PKG_CONFIG
+luajittex_darwin64_FALSE
+luajittex_darwin64_TRUE
 ipc_socketlibs
 lua_socketlibs
 USE_DLOPEN_FALSE
@@ -18992,6 +18994,26 @@ fi
 
 
 
+ if case "$host_os" in
+  *darwin*)
+    if test "x$host_cpu" = xx86_64;
+    then
+       1
+    else
+       0
+    fi ;;
+  *)
+    0;;
+esac; then
+  luajittex_darwin64_TRUE=
+  luajittex_darwin64_FALSE='#'
+else
+  luajittex_darwin64_TRUE='#'
+  luajittex_darwin64_FALSE=
+fi
+
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Mac OS X ApplicationServices framework" >&5
 $as_echo_n "checking for Mac OS X ApplicationServices framework... " >&6; }
 if ${kpse_cv_have_ApplicationServices+:} false; then :
@@ -24166,6 +24188,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${USE_DLOPEN_TRUE}" && test -z "${USE_DLOPEN_FALSE}"; then
   as_fn_error $? "conditional \"USE_DLOPEN\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${luajittex_darwin64_TRUE}" && test -z "${luajittex_darwin64_FALSE}"; then
+  as_fn_error $? "conditional \"luajittex_darwin64\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${XETEX_MACOSX_TRUE}" && test -z "${XETEX_MACOSX_FALSE}"; then

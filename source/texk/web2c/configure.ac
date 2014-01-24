@@ -142,6 +142,20 @@ AM_CONDITIONAL([USE_DLOPEN], [test "x$ac_cv_header_dlfcn_h" = xyes])
 AC_SUBST([lua_socketlibs])
 AC_SUBST([ipc_socketlibs])
 
+dnl linker flags for luajittex
+AM_CONDITIONAL([luajittex_darwin64],[case "$host_os" in
+  *darwin*) 
+    if test "x$host_cpu" = xx86_64;
+    then
+       1
+    else
+       0
+    fi ;;
+  *) 
+    0;;
+esac])
+
+
 KPSE_CHECK_FRAMEWORK([ApplicationServices], [CTFontRef font])
 KPSE_FONTCONFIG_FLAGS
 AS_IF([test "x$kpse_cv_have_ApplicationServices:$kpse_cv_have_fontconfig" = xno:no],
