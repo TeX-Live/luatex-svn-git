@@ -1347,12 +1347,22 @@ static int lua_nodelib_remove(lua_State * L)
     if (lua_isnil(L, 2))
         return 2;               /* the arguments, as they are */
     current = *(check_isnode(L, 2));
-
     if (head == current) {
+      //prev = alink(current);
+      //next = vlink(current);
+      //if prev and next then
+      if (alink(current) && vlink(current) ){
+        vlink( alink(current) ) = vlink(current); // vlink(prev) = next 
+        alink( vlink(current) ) = alink(current); // alink(next) = prev
+      }
+      head = vlink(current);     //head = next
+      current = vlink(current);  //current = next
+      /*if (head == current) {
         if (alink(head) != null && vlink(current) != null)
-            alink(vlink(current)) = alink(head);
+	alink(vlink(current)) = alink(head);
         head = vlink(current);
         current = head;
+      */
     } else {                    /* head != current */
         t = alink(current);
         if (t == null || vlink(t) != current) {
@@ -1396,10 +1406,21 @@ static int lua_nodelib_direct_remove(lua_State * L)
         return 2 ;
     }
     if (head == current) {
+    //prev = alink(current);
+    //next = vlink(current);
+    //if prev and next then
+      if (alink(current) && vlink(current) ){
+        vlink( alink(current) ) = vlink(current); // vlink(prev) = next 
+        alink( vlink(current) ) = alink(current); // alink(next) = prev
+      }
+      head = vlink(current);     //head = next
+      current = vlink(current);  //current = next
+      /*
         if (alink(head) != null && vlink(current) != null)
-            alink(vlink(current)) = alink(head);
+	alink(vlink(current)) = alink(head);
         head = vlink(current);
         current = head;
+      */
     } else {
         t = alink(current);
         if (t == null || vlink(t) != current) {
