@@ -7,7 +7,7 @@
 ##
 EXTRA_LIBRARIES += libjitff.a
 
-libjitff_a_DEPENDENCIES = libunilib.a
+libjitff_a_DEPENDENCIES = libunilib.a libluajitmisc.a
 
 $(libjitff_a_OBJECTS): $(libjitff_a_DEPENDENCIES)
 

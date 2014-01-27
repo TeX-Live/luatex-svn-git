@@ -205,6 +205,9 @@ include $(srcdir)/pdftexdir/am/pdftex.am
 include $(srcdir)/pdftexdir/am/ttf2afm.am
 include $(srcdir)/pdftexdir/am/pdftosrc.am
 
+## luaTeX and luajitTeX web files:
+include $(srcdir)/luatexdir/am/luacweb.am
+
 ## luaTeX
 include $(srcdir)/luatexdir/am/luasocket.am
 include $(srcdir)/luatexdir/am/luamisc.am
@@ -215,7 +218,6 @@ include $(srcdir)/luatexdir/am/luatex.am
 include $(srcdir)/luatexdir/am/txt2zlib.am
 
 ## luajittex
-
 include $(srcdir)/luatexdir/am/libluajit20.am
 include $(srcdir)/luatexdir/am/luajitsocket.am
 include $(srcdir)/luatexdir/am/luajitmisc.am
