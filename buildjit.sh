@@ -96,10 +96,11 @@ done
 #
 STRIP=strip
 LUATEXEXEJIT=luajittex
+LUATEXEXE=luatex
 
 case `uname` in
-  MINGW32*   ) LUATEXEXEJIT=luajittex.exe ;;
-  CYGWIN*    ) LUATEXEXEJIT=luajittex.exe ;;
+  MINGW32*   ) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ;;
+  CYGWIN*    ) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ;;
 esac
 
 WARNINGFLAGS=--enable-compiler-warnings=$WARNINGS
@@ -115,6 +116,7 @@ if [ "$MINGWCROSS64" = "TRUE" ]
 then
   B=buildjit-windows64
   LUATEXEXEJIT=luajittex.exe
+  LUATEXEXE=luatex.exe
   OLDPATH=$PATH
   PATH=/usr/mingw32/bin:$PATH
   PATH=`pwd`/extrabin/mingw:$PATH
@@ -132,6 +134,7 @@ if [ "$MINGWCROSS" = "TRUE" ]
 then
   B=buildjit-windows
   LUATEXEXEJIT=luajittex.exe
+  LUATEXEXE=luatex.exe
   OLDPATH=$PATH
   PATH=/usr/mingw32/bin:$PATH
   PATH=`pwd`/extrabin/mingw:$PATH
@@ -237,22 +240,20 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
 fi
 
 
-
 $MAKE
-
 
 # the fact that these makes inside libs/ have to be done manually for the cross
 # compiler hints that something is wrong in the --enable/--disable switches above,
 # but I am too lazy to look up what is wrong exactly.
 # (perhaps more files needed to be copied from TL?)
 
-(cd libs/zziplib; $MAKE all )
+(cd libs/zzip; $MAKE all )
 (cd libs/zlib; $MAKE all )
 (cd libs/libpng; $MAKE all )
 (cd libs/poppler; $MAKE all )
 (cd libs/luajit; $MAKE all )
 (cd texk/kpathsea; $MAKE )
-(cd texk/web2c; $MAKE $LUATEXEXEJIT )
+(cd texk/web2c; $MAKE $LUATEXEXEJIT; $MAKE $LUATEXEXE )
 
 
 
@@ -262,8 +263,9 @@ cd ..
 if [ "$STRIP_LUATEX" = "TRUE" ] ;
 then
   $STRIP "$B"/texk/web2c/$LUATEXEXEJIT
+  $STRIP "$B"/texk/web2c/$LUATEXEXE
 else
-  echo "luatex binary not stripped"
+  echo "lua(jit)tex binary not stripped"
 fi
 
 if [ "$MINGWCROSS" = "TRUE" ]
@@ -273,3 +275,4 @@ fi
 
 # show the result
 ls -l "$B"/texk/web2c/$LUATEXEXEJIT
+ls -l "$B"/texk/web2c/$LUATEXEXE
