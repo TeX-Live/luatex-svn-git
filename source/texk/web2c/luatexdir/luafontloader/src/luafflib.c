@@ -2315,11 +2315,12 @@ void do_ff_info(lua_State * L, SplineFont * sf)
     handle_pfminfo(L, sf->pfminfo);
     lua_setfield(L, -2, "pfminfo");
 
-    if (sf->names != NULL) {
-        lua_newtable(L);
-        handle_ttflangname(L, sf->names);
-        lua_setfield(L, -2, "names");
-    }
+    /* Do we need this ? */
+    if (sf->names != NULL) { 
+         lua_newtable(L); 
+         handle_ttflangname(L, sf->names); 
+         lua_setfield(L, -2, "names"); 
+    } 
 }
 
 typedef enum {
