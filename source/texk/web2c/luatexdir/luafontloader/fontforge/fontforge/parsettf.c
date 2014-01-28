@@ -6047,6 +6047,8 @@ static SplineFont *SFFillFromTTFInfo(struct ttfinfo *info) {
     sf->version = info->version;
     sf->italicangle = info->italicAngle;
     sf->names = info->names;
+    sf->units_per_em = info->emsize ;
+    sf->pfminfo = info->pfminfo ;
 
 return( sf );
 }
