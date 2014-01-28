@@ -5899,7 +5899,7 @@ static SplineFont *SFFillFromTTF(struct ttfinfo *info) {
 	    ++k;
 	} while ( k<sf->subfontcnt );
     }
-    /*  more info */
+    /* more info */
     sf->units_per_em = info->emsize ;
     sf->pfminfo = info->pfminfo ;
     sf->names  = info->names ;
