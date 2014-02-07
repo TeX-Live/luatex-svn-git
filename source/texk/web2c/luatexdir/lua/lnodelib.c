@@ -2011,6 +2011,7 @@ static int lua_nodelib_mlist_to_hlist(lua_State * L)
     luaL_checkany(L, 3);
     m = lua_toboolean(L, 3);
     mlist_to_hlist_args(n, w, m);
+    alink(vlink(temp_head)) = null; /*hh-ls */
     lua_nodelib_push_fast(L, vlink(temp_head));
     return 1;
 }
@@ -4202,6 +4203,7 @@ static int font_tex_ligaturing(lua_State * L)
     couple_nodes(tmp_head, *h);
     tlink(tmp_head) = t;
     t = handle_ligaturing(tmp_head, t);
+    alink(vlink(tmp_head)) = null ; /* hh-ls */
     lua_pushnumber(L, vlink(tmp_head));
     /* can be: lua_nodelib_push_fast(L, head); */
     flush_node(tmp_head);
@@ -4235,6 +4237,7 @@ static int font_tex_kerning(lua_State * L)
     couple_nodes(tmp_head, *h);
     tlink(tmp_head) = t;
     t = handle_kerning(tmp_head, t);
+    alink(vlink(tmp_head)) = null ; /* hh-ls */
     lua_pushnumber(L, vlink(tmp_head));
     /* can be: lua_nodelib_push_fast(L, head); */
     flush_node(tmp_head);
@@ -4245,6 +4248,7 @@ static int font_tex_kerning(lua_State * L)
     lua_pushboolean(L, 1);
     return 3;
 }
+
 
 /* node.protect_glyphs (returns also boolean because that signals callback) */
 
