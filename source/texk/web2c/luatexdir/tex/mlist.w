@@ -1573,7 +1573,7 @@ void run_mlist_to_hlist(halfword p, int mstyle, boolean penalties)
             return;
         }
         a = nodelist_from_lua(L);
-	alink(vlink(a)) = null; /* hh-ls */
+	/* alink(vlink(a)) = null; */ /* hh-ls: not need to null here  */
         lua_settop(L, sfix);
         vlink(temp_head) = a;
     } else if (callback_id == 0) {
