@@ -2167,8 +2167,7 @@ void read_toks(int n, halfword r, halfword j)
         /* Handle \.{\\readline} and |goto done|; */
         if (j == 1) {
             while (iloc <= ilimit) {    /* current line not yet finished */
-                cur_chr = buffer[iloc];
-                incr(iloc);
+		do_buffer_to_unichar(cur_chr, iloc);
                 if (cur_chr == ' ')
                     cur_tok = space_token;
                 else
