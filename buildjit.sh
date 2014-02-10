@@ -21,7 +21,7 @@
 # ----------
 # Options:
 #      --make      : only make, no make distclean; configure
-#      --parallel  : make -j 2 -l 3.0
+#      --parallel  : make -j 4 -l 5.0
 #      --nostrip   : do not strip binary
 #      --warnings= : enable compiler warnings
 #      --mingw     : crosscompile for mingw32 from x86_64linux
@@ -66,8 +66,8 @@ MACCROSS=FALSE
 CLANG=FALSE
 CONFHOST=
 CONFBUILD=
-JOBS_IF_PARALLEL=${JOBS_IF_PARALLEL:-3}
-MAX_LOAD_IF_PARALLEL=${MAX_LOAD_IF_PARALLEL:-2}
+JOBS_IF_PARALLEL=${JOBS_IF_PARALLEL:-4}
+MAX_LOAD_IF_PARALLEL=${MAX_LOAD_IF_PARALLEL:-5.0}
 TARGET_CC=gcc
 TARGET_TCFLAGS=
 
@@ -78,7 +78,7 @@ until [ -z "$1" ]; do
   case "$1" in
     --make      ) ONLY_MAKE=TRUE     ;;
     --nostrip   ) STRIP_LUATEX=FALSE ;;
-    --debug     ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-g -O0 $CFLAGS" ; CXXFLAGS="-g -O0 $CXXFLAGS"  ;;
+    --debug     ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-g3 -g -O0 $CFLAGS" ; CXXFLAGS="-g3 -g -O0 $CXXFLAGS"  ;;
     --clang     ) export CC=clang; export CXX=clang++ ; TARGET_CC=$CC ; CLANG=TRUE ;;
     --warnings=*) WARNINGS=`echo $1 | sed 's/--warnings=\(.*\)/\1/' `        ;;
     --mingw     ) MINGWCROSS=TRUE    ;;
