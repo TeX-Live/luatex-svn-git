@@ -104,7 +104,7 @@ void line_break(boolean d, int line_break_context)
     halfword start_of_par;
     int callback_id;
     pack_begin_line = cur_list.ml_field;        /* this is for over/underfull box messages */
-    alink(vlink(temp_head)) = null; /* hh-ls */
+    alink(temp_head) = null; /* hh-ls */
     vlink(temp_head) = vlink(cur_list.head_field);
     new_hyphenation(temp_head, cur_list.tail_field);
     cur_list.tail_field = new_ligkern(temp_head, cur_list.tail_field);
