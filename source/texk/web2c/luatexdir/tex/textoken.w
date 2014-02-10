@@ -19,7 +19,7 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: textoken.w 4586 2013-03-01 09:52:21Z taco $"
+    "$Id: textoken.w 4786 2014-02-10 13:17:44Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/tex/textoken.w $";
 
 #include "ptexlib.h"
@@ -2167,8 +2167,7 @@ void read_toks(int n, halfword r, halfword j)
         /* Handle \.{\\readline} and |goto done|; */
         if (j == 1) {
             while (iloc <= ilimit) {    /* current line not yet finished */
-                cur_chr = buffer[iloc];
-                incr(iloc);
+		do_buffer_to_unichar(cur_chr, iloc);
                 if (cur_chr == ' ')
                     cur_tok = space_token;
                 else
