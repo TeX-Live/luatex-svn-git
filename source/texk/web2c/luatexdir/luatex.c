@@ -23,10 +23,14 @@ static const char _svn_version[] =
 
 int luatex_svn = luatex_svn_revision;
 int luatex_version = 78;        /* \.{\\luatexversion}  */
-int luatex_revision = '2';      /* \.{\\luatexrevision}  */
+int luatex_revision = '3';      /* \.{\\luatexrevision}  */
 int luatex_date_info = -extra_version_info;     /* the compile date is negated */
-const char *luatex_version_string = "beta-0.78.2";
+const char *luatex_version_string = "beta-0.78.3";
+#ifdef LuajitTeX
+const char *engine_name = "luajittex";     /* the name of this engine */
+#else
 const char *engine_name = "luatex";     /* the name of this engine */
+#endif
 
 #include <kpathsea/c-ctype.h>
 #include <kpathsea/line.h>

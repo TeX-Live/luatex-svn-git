@@ -8,15 +8,8 @@
 ##
 ACLOCAL_AMFLAGS = -I ../../m4
 
-# Rebuild
-.PHONY: rebuild
-rebuild: all
-
 ## We want to re-distribute the whole original libpng source tree.
 ##
-## With current automake (1.10.2) 'make distcheck' fails when
-## DISTFILES contains a directory and files in that directory.
-## Thus nodist_* for all files in $(LIBPNG_TREE).
 EXTRA_DIST = $(LIBPNG_TREE)
 
 ## Patches applied to the original source tree
@@ -34,7 +27,7 @@ dist-hook:
 	  $(distdir)/$(LIBPNG_TREE)/missing \
 	  $(distdir)/$(LIBPNG_TREE)/mkinstalldirs
 
-SUBDIRS = include
+SUBDIRS = . include
 
 AM_CPPFLAGS = -I$(top_srcdir)/$(LIBPNG_TREE) $(ZLIB_INCLUDES) $(LIBPNG_DEFINES)
 AM_CFLAGS = $(WARNING_CFLAGS)
@@ -60,15 +53,8 @@ nodist_libpng_a_SOURCES = \
 
 $(libpng_a_OBJECTS): config.force
 
-config.force: $(ZLIB_DEPEND)
-	echo timestamp >config.force
-	$(SHELL) ./config.status --recheck
-
-DISTCLEANFILES = config.force
-
-## Rebuild zlib
-@ZLIB_RULE@
-
+## Tests
+##
 TESTS_ENVIRONMENT = LIBPNG_TREE=$(LIBPNG_TREE)
 if build
 TESTS = libpng.test
@@ -80,4 +66,19 @@ CLEANFILES = pngout.png
 
 nodist_pngtest_SOURCES = @LIBPNG_TREE@/pngtest.c
 pngtest_LDADD = libpng.a $(ZLIB_LIBS)
+
+## Rebuild zlib
+@ZLIB_RULE@
+
+# Reconfig
+reconfig_prereq = $(ZLIB_DEPEND)
+DISTCLEANFILES =
+
+include $(srcdir)/../../am/reconfig.am
+
+# Rebuild
+rebuild_prereq =
+rebuild_target = all
+
+include $(srcdir)/../../am/rebuild.am
 

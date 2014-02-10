@@ -1,4 +1,4 @@
-$Id: README 32305 2013-12-03 12:13:36Z peter $
+$Id: README 32688 2014-01-16 11:45:40Z peter $
 Copyright 2006-2012 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -49,7 +49,9 @@ dvidvi - ?
 
 dviljk - maintained here, by Joachim Schrod
 
-dvipdfmx - maintained here, by Khaled Hosny, Jonathan Kew
+dvipdfm-x - maintained here, by Khaled Hosny, Jonathan Kew, contains
+  dvipdfmx
+  xdvipdfmx
 
 dvipng 1.14 - checked 10may12
   http://mirror.ctan.org/dviware/dvipng/ (but maybe stale)
@@ -59,8 +61,8 @@ dvipos - ?
 
 dvipsk - maintained here, by us
 
-dvisvgm - checked 30oct13
-  http://downloads.sourceforge.net/dvisvgm/dvisvgm-1.5.1.tar.gz
+dvisvgm 1.5.2 - checked 13jan14
+  http://downloads.sourceforge.net/dvisvgm/
 
 gsftopk - from Paul Vojta's xdvi?
 
@@ -69,9 +71,8 @@ kpathsea - maintained here, by us
 lacheck - checked 25apr11
   http://mirror.ctan.org/support/lacheck/lacheck-1.26.tar.gz
 
-lcdf-typetools 2.99 - checked 10sep13
-  http://www.lcdf.org/type/
-  http://www.lcdf.org/type/lcdf-typetools-2.98.tar.gz
+lcdf-typetools 2.100 - checked 9jan14
+  http://www.lcdf.org/type/lcdf-typetools-2.100.tar.gz
 
 makeindexk - maintained here, by us
 
@@ -81,10 +82,10 @@ mendexk - maintained here, by us (akira et al.)
 
 ps2pkm - ?
 
-psutils 1.21 - checked 25oct13
-  https://github.com/rrthomas/psutils/archive/v1.21.tar.gz
+psutils 1.23 - checked 16jan14
+  https://github.com/rrthomas/psutils/archive/v1.23.tar.gz
 
-ptexenc - ?
+ptexenc - maintained here, by us (akira et al.)
 
 seetexk - ?
 
@@ -107,5 +108,3 @@ xdv2pdf - maintained here, by Khaled Hosny, Jonathan Kew
 
 xdvik 22.86 - checked 7apr13
   http://sourceforge.net/projects/xdvi/files/xdvik/
-
-xdvipdfmx - maintained here, by Khaled Hosny, Jonathan Kew

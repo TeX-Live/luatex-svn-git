@@ -1,3 +1,71 @@
+2014-02-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Add @LUAJIT_RULE@.
+	* ac/web2c.ac: Add LuaJITTeX.
+	* configure.ac: Add KPSE_LUAJIT_DEFINES and KPSE_LUAJIT_FLAGS.
+	Compute and substitute luajittex_extra for darwin64.
+
+2014-01-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* triptrap/trip.diffs: Updated for TeX 3.14159265.
+
+2014-01-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	TeX tuneup of 2014.
+	* gftopk.web, mf.web, pltotf.web, tex.web, tftopl.web,
+	vftovp.web, vptovf.web: Import new versions from Knuth and
+	remove some trailing white space.
+	* gftopk.ch, pltotf.ch, tex.ch, tftopl.ch, vftovp.ch, vptovf.ch,
+	mftraptest: Adapted.
+	* triptrap/{mftrap.fot,mftrap.log,mftrapin.log,trap.typ},
+	triptrap/{trip.fot,trip.log, trip.typ,tripin.log}: New versions
+	from Knuth.
+
+2014-01-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mftraptest: Stricter checking.
+
+2014-01-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* triptest: Stricter checking.
+	* triptrap-sh: Adapted.
+
+2014-01-17  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* trap.test (removed): Renamed ...
+	* mftraptest (new): ... into this.
+	* trp.test (removed): Renamed ...
+	* triptest (new): ... into this.
+	* am/texmf.am, triptrap-sh: Adapted.
+
+2014-01-14  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mf.ch, tex.ch: Write dump_name to the terminal.
+	* texmfmp.h: Define dumpname => dump_name.
+
+2014-01-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Request from Knuth.
+	* mf.ch: Restore the word `preloaded' for base_idents.
+	* tex.ch: Restore the word `preloaded' for format_idents.
+
+2014-01-09  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Introduce a genuine 64-bit integer type, in case of 32-bit off_t.
+	* cpascal.h: Define int64cast().
+	* w2c/config.h: Define integer64 as new type.
+
+2014-01-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* pltotf.ch, vptovf.ch: Consistent white space.
+
+2014-01-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* ac/web2c.ac, configure.ac: Use X toolkit for METAFONT only if
+	requested explicitly.
+
+	* Makefile.am, web2c-sh.in: Output from convert is (non)verbose.
+
 2013-12-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* vptovf.ch: Use make_suffix() for implied tfm_name.

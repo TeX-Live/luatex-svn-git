@@ -73,7 +73,7 @@
 #define IS_upTeX 1
 #include <euptexdir/euptexextra.h>
 #else
-#define BANNER "This is TeX, Version 3.1415926"
+#define BANNER "This is TeX, Version 3.14159265"
 #define COPYRIGHT_HOLDER "D.E. Knuth"
 #define AUTHOR NULL
 #define PROGRAM_HELP TEXHELP
@@ -89,7 +89,7 @@
 #define edit_var "TEXEDIT"
 #endif /* TeX */
 #ifdef MF
-#define BANNER "This is Metafont, Version 2.718281"
+#define BANNER "This is Metafont, Version 2.7182818"
 #define COPYRIGHT_HOLDER "D.E. Knuth"
 #define AUTHOR NULL
 #define PROGRAM_HELP MFHELP
@@ -486,7 +486,12 @@ shell_cmd_is_allowed (const char *cmd, char **safecmd, char **cmdname)
    1 if shell escapes are not restricted, hence any command is allowed.
    2 if shell escapes are restricted and CMD is allowed (possibly after
       quoting).  */
-   
+
+#ifdef WIN32
+#undef system
+#define system fsyscp_system
+#endif
+
 int
 runsystem (const char *cmd)
 {
@@ -576,9 +581,6 @@ int argc;
 
 /* If the user overrides argv[0] with -progname.  */
 static const_string user_progname;
-
-/* The C version of what might wind up in DUMP_VAR.  */
-static const_string dump_name;
 
 /* The C version of the jobname, if given. */
 static const_string c_job_name;

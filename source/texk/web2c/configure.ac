@@ -1,6 +1,6 @@
 dnl Process this file with Autoconf to produce a configure script for Web2c.
 dnl
-dnl   Copyright (C) 2009-2013 Peter Breitenlohner <tex-live@tug.org>
+dnl   Copyright (C) 2009-2014 Peter Breitenlohner <tex-live@tug.org>
 dnl
 dnl   This file is free software; the copyright holder
 dnl   gives unlimited permission to copy and/or distribute it,
@@ -104,6 +104,7 @@ fi
 lua_socketlibs=$socketlibs
 kpse_save_LIBS=$LIBS
 KPSE_LUA52_DEFINES
+KPSE_LUAJIT_DEFINES
 LIBS=$kpse_save_LIBS
 if test "x$kpse_cv_have_win32" = xno; then
   AC_SEARCH_LIBS([gethostbyname], [nsl])
@@ -141,6 +142,10 @@ AM_CONDITIONAL([USE_DLOPEN], [test "x$ac_cv_header_dlfcn_h" = xyes])
 AC_SUBST([lua_socketlibs])
 AC_SUBST([ipc_socketlibs])
 
+AS_CASE([$host_os:$host_cpu],
+        [*darwin*:x86_64], [luajittex_extra='-pagezero_size 10000 -image_base 100000000'])
+AC_SUBST([luajittex_extra])
+
 KPSE_CHECK_FRAMEWORK([ApplicationServices], [CTFontRef font])
 KPSE_FONTCONFIG_FLAGS
 AS_IF([test "x$kpse_cv_have_ApplicationServices:$kpse_cv_have_fontconfig" = xno:no],
@@ -169,11 +174,11 @@ AM_CONDITIONAL([MFN], [test "x$enable_mf_nowin" != xno])
 test "x$enable_mf" = xno || enable_mf=yes
 AS_CASE([$with_mf_x_toolkit],
         [yes|no], [],
-        [''], [with_mf_x_toolkit=$enable_mf],
+        [''], [with_mf_x_toolkit=no],
         [y|ye], [with_mf_x_toolkit=yes],
         [n], [with_mf_x_toolkit=no],
-            [AC_MSG_WARN([unknown --with-mf-x-toolkit argument \`$with_mf_x_toolkit'; using yes.])
-             with_mf_x_toolkit=yes])
+            [AC_MSG_WARN([unknown --with-mf-x-toolkit argument \`$with_mf_x_toolkit'; using no.])
+             with_mf_x_toolkit=no])
 test "x$with_x_toolkit" = xyes && with_x=yes
 test "x$with_x" = xno && with_x_toolkit=no
 : ${with_x=$enable_mf} # tell PATH_XTRA to use X for Metafont, if not specified.
@@ -276,6 +281,7 @@ KPSE_KPATHSEA_FLAGS
 KPSE_PTEXENC_FLAGS
 KPSE_ZLIB_FLAGS
 KPSE_LUA52_FLAGS
+KPSE_LUAJIT_FLAGS
 KPSE_LIBPNG_FLAGS
 KPSE_FREETYPE2_FLAGS
 KPSE_PIXMAN_FLAGS

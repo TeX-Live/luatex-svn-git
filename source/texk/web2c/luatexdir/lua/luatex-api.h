@@ -28,6 +28,9 @@
 #  include "lua.h"
 #  include "lauxlib.h"
 #  include "lualib.h"
+#ifdef LuajitTeX
+#  include "luajit.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,6 +71,11 @@ extern int luaopen_zlib(lua_State * L);
 extern int luaopen_gzip(lua_State * L);
 extern int luaopen_ff(lua_State * L);
 extern int luaopen_profiler(lua_State * L);
+#ifdef _MSC_VER
+extern LUALIB_API int luaopen_bit32(lua_State * L);
+#else
+extern int luaopen_bit32(lua_State * L);
+#endif
 
 extern int luaopen_socket_core(lua_State * L);
 extern int luaopen_mime_core(lua_State * L);
@@ -126,6 +134,9 @@ extern void dump_luac_registers(void);
 extern void undump_luac_registers(void);
 
 extern int lua_only;
+#ifdef LuajitTeX
+extern int luajiton;
+#endif
 
 extern void unhide_lua_table(lua_State * lua, const char *name, int r);
 extern int hide_lua_table(lua_State * lua, const char *name);
@@ -208,7 +219,6 @@ extern char charsetstr[];       /* from mpdir/psout.w */
 extern char **environ;
 #endif
 
-extern int luac_main(int argc, char *argv[]);   /* texluac.w */
 #ifdef __cplusplus
 }
 #endif

@@ -1,4 +1,49 @@
-2014-01-01  TANAKA Takuji <KXD02663@nifty.ne.jp>
+2014-02-08  TANAKA Takuji  <KXD02663@nifty.ne.jp>
+
+	* knj.[ch]: Add a new function win32_putc().
+	(Windows only)
+
+2014-01-25  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* kpsewhich.c : [WIN32 only] progname should be kpse->program_name
+	since progname can be NULL.
+
+2014-01-25  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* knj.c: Drop unused variable (avoid warning).
+
+2014-01-25  TANAKA Takuji  <KXD02663@nifty.ne.jp>
+
+	* knj.[ch]: Add a new function win32_getc(), win32_ungetc(),
+	win32_fputs(), and win32_puts(). (Windows only)
+	* kpsewhich.c, pathsearch.c, line.c:
+	Allow Unicode file name in kpsewhich. (Windows only)
+	* knj.c: Fix typo in error message. (Windows only)
+
+2014-01-14  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* knj.c: Add #include <wchar.h> as required for MinGW32.
+	Cast arg3 of fsyscp_spawnvp() to avoid warning.
+
+2014-01-14  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* knj.[ch]: Add new functions fsyscp_spawnvp(), and fsyscp_system().
+	(Windows only)
+
+2014-01-13  TANAKA Takuji  <KXD02663@nifty.ne.jp>
+
+	* knj.[ch]: Add a new function fsyscp_popen(). (Windows only)
+
+2014-01-08  TANAKA Takuji  <KXD02663@nifty.ne.jp>
+
+	* knj.c: Allow encoding name "" for non-utf8 command line.
+	Warn if unknown encoding. (Windows only)
+
+2014-01-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* knj.c: Keep non-utf8 command line.  Avoid compiler warnings.
+
+2014-01-01  TANAKA Takuji  <KXD02663@nifty.ne.jp>
 
 	* knj.c, knj.h: Use cast for ASCII string conversion
 	from char to wchar_t. (Windows only)
@@ -8,13 +53,13 @@
 	* knj.h: Remove #include <kpathsea/types.h> because Visual Studio 2010
 	cannot compile Kpathsea.
 
-2013-12-31  TANAKA Takuji <KXD02663@nifty.ne.jp>
+2013-12-31  TANAKA Takuji  <KXD02663@nifty.ne.jp>
 
 	* knj.c, knj.h: Add new functions fsyscp_fopen() and
 	get_command_line_args_utf8() (Windows only)
 	* progname.c: Refine initialization for KANJI (Windows only)
 
-2013-12-03  TANAKA Takuji <KXD02663@nifty.ne.jp>
+2013-12-03  TANAKA Takuji  <KXD02663@nifty.ne.jp>
 
 	* elt-dirs.c, knj.c, knj.h, progname.c, readable.c: Support KANJI
 	file name in (e)upTeX and XeTeX on Windows.
@@ -51,7 +96,7 @@
 	* kpsewhich.test: also check that we can read the environment
 	variable that we set.
 
-2013-07-07  TANAKA Takuji <KXD02663@nifty.ne.jp>
+2013-07-07  TANAKA Takuji  <KXD02663@nifty.ne.jp>
 
 	* knj.c and progname.c: Generalize the method to avoid the 0x5c problem
 	in path names to the cases CP936 (simplified Chinese) and CP950

@@ -53,7 +53,7 @@ zzip_rewinddir(ZZIP_DIR * dir)
 {
     if (! dir)
         return;
-    
+
     if (USE_DIRENT && dir->realdir)
     {
         _zzip_rewinddir(dir->realdir);

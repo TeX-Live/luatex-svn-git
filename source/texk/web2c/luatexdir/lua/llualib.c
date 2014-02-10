@@ -197,7 +197,11 @@ static int get_bytecode(lua_State * L)
         if (k <= luabytecode_max && lua_bytecode_registers[k].buf != NULL) {
             if (lua_load
                 (L, reader, (void *) (lua_bytecode_registers + k),
+#ifdef LuajitTeX
+                 "bytecode")) {
+#else
                  "bytecode", NULL)) {
+#endif
 		return luaL_error(L, "bad bytecode register");
             } else {
                 lua_pushvalue(L, -1);

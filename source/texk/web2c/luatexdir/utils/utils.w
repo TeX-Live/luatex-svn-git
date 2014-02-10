@@ -344,11 +344,11 @@ char *stripzeros(char *a)
 void initversionstring(char **versions)
 {
     const_string fmt =
-                    "Compiled with libpng %s\n"
-                    "Compiled with zlib %s; using zlib %s\n"
+                    "Compiled with libpng %s; using %s\n"
+                    "Compiled with zlib %s; using %s\n"
                     "Compiled with poppler version %s\n";
     size_t len = strlen(fmt)
-                    + strlen(PNG_LIBPNG_VER_STRING)
+                    + strlen(PNG_LIBPNG_VER_STRING) + strlen(png_libpng_ver)
                     + strlen(ZLIB_VERSION) + strlen(zlib_version)
                     + strlen(POPPLER_VERSION)
                     + 1;
@@ -357,7 +357,7 @@ void initversionstring(char **versions)
        that get replaced by the arguments.  */
     *versions = xmalloc(len);
     sprintf(*versions, fmt,
-                    PNG_LIBPNG_VER_STRING, 
+                    PNG_LIBPNG_VER_STRING, png_libpng_ver,
                     ZLIB_VERSION, zlib_version, POPPLER_VERSION);
 }
 

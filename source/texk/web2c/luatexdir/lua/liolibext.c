@@ -29,6 +29,10 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
+#ifdef LuajitTeX
+#include "lauxlib_bridge.h"
+#endif
+
 static const char _svn_version[] =
     "$Id$ $URL$";
 
@@ -74,19 +78,18 @@ static const char _svn_version[] =
 #define l_ftell(f)		_ftelli64(f)
 #define l_seeknum		__int64
 
+#elif defined(__MINGW32__)
+
+#define l_fseek(f,o,w)          fseeko64(f,o,w)
+#define l_ftell(f)              ftello64(f)
+#define l_seeknum               int64_t 
+
 #else
 
 #define l_fseek(f,o,w)		fseek(f,o,w)
 #define l_ftell(f)		ftell(f)
 #define l_seeknum		long
 
-#endif
-
-/* Large File Support  under Windows 32bit Windows 64 bit */
-#if defined(__MINGW32__)
-#define l_fseek(f,o,w)          fseeko64(f,o,w)
-#define l_ftell(f)              ftello64(f)
-#define l_seeknum               int64_t 
 #endif
 
 #define IO_PREFIX	"_IO_"
@@ -663,6 +666,7 @@ static const luaL_Reg flib[] = {
 };
 
 
+#ifndef LuajitTeX
 static void createmeta (lua_State *L) {
   luaL_newmetatable(L, LUA_FILEHANDLE);  /* create metatable for file handles */
   lua_pushvalue(L, -1);  /* push metatable */
@@ -695,8 +699,12 @@ static void createstdfile (lua_State *L, FILE *f, const char *k,
   }
   lua_setfield(L, -2, fname);  /* add file to module */
 }
+#endif
 
 int open_iolibext (lua_State *L) {
+#ifdef LuajitTeX
+  return luaopen_io(L);
+#else
   luaL_newlib(L, iolib);  /* new module */
   createmeta(L);
   /* create (and set) default files */
@@ -704,4 +712,5 @@ int open_iolibext (lua_State *L) {
   createstdfile(L, stdout, IO_OUTPUT, "stdout");
   createstdfile(L, stderr, NULL, "stderr");
   return 1;
+#endif
 }

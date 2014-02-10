@@ -205,6 +205,7 @@ extern char notdef[];
 /* vfovf.c */
 internal_font_number letter_space_font(internal_font_number f,
                                        int e, boolean nolig);
+internal_font_number auto_expand_font(internal_font_number f, int e);
 void pdf_check_vf(internal_font_number f);
 internal_font_number copy_font_info(internal_font_number f);
 

@@ -690,6 +690,10 @@ LIBPNG_RULE
 LIBPNG_DEPEND
 LIBPNG_LIBS
 LIBPNG_INCLUDES
+LUAJIT_RULE
+LUAJIT_DEPEND
+LUAJIT_LIBS
+LUAJIT_INCLUDES
 LUA52_RULE
 LUA52_DEPEND
 LUA52_LIBS
@@ -742,6 +746,8 @@ XETEX_FALSE
 XETEX_TRUE
 MP_FALSE
 MP_TRUE
+LUAJITTEX_FALSE
+LUAJITTEX_TRUE
 LUATEX_FALSE
 LUATEX_TRUE
 PDFTEX_SYNCTEX_FALSE
@@ -779,10 +785,12 @@ XETEX_MACOSX_TRUE
 FONTCONFIG_LIBS
 FONTCONFIG_INCLUDES
 PKG_CONFIG
+luajittex_extra
 ipc_socketlibs
 lua_socketlibs
 USE_DLOPEN_FALSE
 USE_DLOPEN_TRUE
+LUAJIT_DEFINES
 LUA52_DEFINES
 WIN32_CALL_FALSE
 WIN32_CALL_TRUE
@@ -966,6 +974,7 @@ enable_aleph
 enable_pdftex
 enable_pdftex_synctex
 enable_luatex
+enable_luajittex
 enable_mp
 enable_xetex
 enable_xetex_synctex
@@ -1688,7 +1697,8 @@ Optional Features:
   --disable-aleph         do not compile and install Aleph
   --disable-pdftex        do not compile and install pdfTeX
   --disable-pdftex-synctex  build pdfTeX without SyncTeX support
-  --disable-luatex        do not compile and install luaTeX
+  --disable-luatex        do not compile and install LuaTeX
+  --disable-luajittex     do not compile and install LuaJITTeX
   --disable-mp            do not compile and install MetaPost
   --disable-xetex         do not compile and install XeTeX
   --disable-xetex-synctex   build XeTeX without SyncTeX support
@@ -1718,7 +1728,7 @@ Optional Packages:
   --with-banner-add=STR   add STR to version string appended to banner lines
   --with-editor=CMD       invoke CMD from the `e' option [vi +%d '%s'] or
                           [texworks --position=%d "%s"]
-  --without-mf-x-toolkit  do not use X toolkit for METAFONT
+  --with-mf-x-toolkit     use X toolkit for METAFONT
   --with-fontconfig-includes=DIR
                           fontconfig headers installed in DIR
   --with-fontconfig-libdir=DIR
@@ -17999,6 +18009,24 @@ test "x$enable_web2c:$enable_luatex" = xyes:yes && {
   need_zziplib=yes
   need_lua52=yes
 }
+# Check whether --enable-luajittex was given.
+if test "${enable_luajittex+set}" = set; then :
+  enableval=$enable_luajittex;
+fi
+case $enable_luajittex in #(
+  yes | no) :
+     ;; #(
+  *) :
+    enable_luajittex=yes ;;
+esac
+
+test "x$enable_web2c:$enable_luajittex" = xyes:yes && {
+  need_poppler=yes
+  need_cairo=yes
+  need_libpng=yes
+  need_zziplib=yes
+  need_luajit=yes
+}
 # Check whether --enable-mp was given.
 if test "${enable_mp+set}" = set; then :
   enableval=$enable_mp;
@@ -18526,6 +18554,77 @@ fi
   fi
 fi
 
+LUAJIT_DEFINES=-DLUAJIT_ENABLE_LUA52COMPAT
+
+if test "x$kpse_cv_have_win32" = xno; then
+  LUAJIT_DEFINES="$LUAJIT_DEFINES -DLUA_USE_POSIX"
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing dlopen" >&5
+$as_echo_n "checking for library containing dlopen... " >&6; }
+if ${ac_cv_search_dlopen+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_func_search_save_LIBS=$LIBS
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char dlopen ();
+int
+main ()
+{
+return dlopen ();
+  ;
+  return 0;
+}
+_ACEOF
+for ac_lib in '' dl; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_dlopen=$ac_res
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext
+  if ${ac_cv_search_dlopen+:} false; then :
+  break
+fi
+done
+if ${ac_cv_search_dlopen+:} false; then :
+
+else
+  ac_cv_search_dlopen=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_dlopen" >&5
+$as_echo "$ac_cv_search_dlopen" >&6; }
+ac_res=$ac_cv_search_dlopen
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+
+fi
+
+  if test "x$ac_cv_search_dlopen" != xno; then
+    ac_fn_c_check_header_compile "$LINENO" "dlfcn.h" "ac_cv_header_dlfcn_h" "$ac_includes_default
+"
+if test "x$ac_cv_header_dlfcn_h" = xyes; then :
+  LUAJIT_DEFINES="$LUAJIT_DEFINES -DLUA_USE_DLOPEN"
+fi
+
+
+  fi
+fi
+
 LIBS=$kpse_save_LIBS
 if test "x$kpse_cv_have_win32" = xno; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing gethostbyname" >&5
@@ -18889,6 +18988,14 @@ else
 fi
 
 
+
+
+case $host_os:$host_cpu in #(
+  *darwin*:x86_64) :
+    luajittex_extra='-pagezero_size 10000 -image_base 100000000' ;; #(
+  *) :
+     ;;
+esac
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Mac OS X ApplicationServices framework" >&5
@@ -19310,6 +19417,13 @@ else
   LUATEX_TRUE='#'
   LUATEX_FALSE=
 fi
+ if test "x$enable_luajittex" = xyes; then
+  LUAJITTEX_TRUE=
+  LUAJITTEX_FALSE='#'
+else
+  LUAJITTEX_TRUE='#'
+  LUAJITTEX_FALSE=
+fi
  if test "x$enable_mp" = xyes; then
   MP_TRUE=
   MP_FALSE='#'
@@ -19393,15 +19507,15 @@ case $with_mf_x_toolkit in #(
   yes|no) :
      ;; #(
   '') :
-    with_mf_x_toolkit=$enable_mf ;; #(
+    with_mf_x_toolkit=no ;; #(
   y|ye) :
     with_mf_x_toolkit=yes ;; #(
   n) :
     with_mf_x_toolkit=no ;; #(
   *) :
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: unknown --with-mf-x-toolkit argument \`$with_mf_x_toolkit'; using yes." >&5
-$as_echo "$as_me: WARNING: unknown --with-mf-x-toolkit argument \`$with_mf_x_toolkit'; using yes." >&2;}
-             with_mf_x_toolkit=yes ;;
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: unknown --with-mf-x-toolkit argument \`$with_mf_x_toolkit'; using no." >&5
+$as_echo "$as_me: WARNING: unknown --with-mf-x-toolkit argument \`$with_mf_x_toolkit'; using no." >&2;}
+             with_mf_x_toolkit=no ;;
 esac
 test "x$with_x_toolkit" = xyes && with_x=yes
 test "x$with_x" = xno && with_x_toolkit=no
@@ -22973,6 +23087,16 @@ $(LUA52_DEPEND): ${top_builddir}/../../libs/lua52/include/lua.h
 ${top_builddir}/../../libs/lua52/include/lua.h:
 	cd ${top_builddir}/../../libs/lua52 && $(MAKE) $(AM_MAKEFLAGS) rebuild'
 
+## _KPSE_LIB_FLAGS: Setup luajit (-lluajit) flags
+  LUAJIT_INCLUDES="-I$kpse_BLD/libs/luajit/luajit-build/src"
+  LUAJIT_LIBS="$kpse_BLD/libs/luajit/luajit-build/src/libluajit.a"
+  LUAJIT_DEPEND='${top_builddir}/../../libs/luajit/luajit-build/src/libluajit.a'
+  LUAJIT_RULE='# Rebuild libluajit
+$(LUAJIT_DEPEND): ${top_builddir}/../../libs/luajit/luajit-build/src/luajit.h
+	cd ${top_builddir}/../../libs/luajit && $(MAKE) $(AM_MAKEFLAGS) rebuild
+${top_builddir}/../../libs/luajit/luajit-build/src/luajit.h:
+	cd ${top_builddir}/../../libs/luajit && $(MAKE) $(AM_MAKEFLAGS) rebuild'
+
 ## _KPSE_LIB_FLAGS: Setup libpng (-lpng) flags
 
 # Check whether --with-system-libpng was given.
@@ -23106,9 +23230,9 @@ else
   FREETYPE2_LIBS="$kpse_BLD/libs/freetype2/libfreetype.a"
   FREETYPE2_DEPEND='${top_builddir}/../../libs/freetype2/libfreetype.a'
   FREETYPE2_RULE='# Rebuild libfreetype
-$(FREETYPE2_DEPEND): ${top_builddir}/../../libs/freetype2/ft2build.h
+$(FREETYPE2_DEPEND): ${top_builddir}/../../libs/freetype2/freetype2/ft2build.h
 	cd ${top_builddir}/../../libs/freetype2 && $(MAKE) $(AM_MAKEFLAGS) rebuild
-${top_builddir}/../../libs/freetype2/ft2build.h:
+${top_builddir}/../../libs/freetype2/freetype2/ft2build.h:
 	cd ${top_builddir}/../../libs/freetype2 && $(MAKE) $(AM_MAKEFLAGS) rebuild'
 fi
 
@@ -24102,6 +24226,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${LUATEX_TRUE}" && test -z "${LUATEX_FALSE}"; then
   as_fn_error $? "conditional \"LUATEX\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${LUAJITTEX_TRUE}" && test -z "${LUAJITTEX_FALSE}"; then
+  as_fn_error $? "conditional \"LUAJITTEX\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${MP_TRUE}" && test -z "${MP_FALSE}"; then

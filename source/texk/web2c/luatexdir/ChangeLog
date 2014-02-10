@@ -1,3 +1,58 @@
+2014-02-07  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* lua/luatex-api.h: MSC version has luaopen_bit32() in dll.
+
+2014-02-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* bitlib/lbitlib.c (new): Copied from
+	../../../libs/luajit/LuaJIT-2.0.2/src/lbitlib.c.
+	* lua/luatex-api.h: Declare luaopen_bit32();
+	* am/luamisc.am: Add the new file.
+
+2014-02-06  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* luatex.c: Change engine_name for luajittex.
+
+2014-02-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/libluatex.am, am/luafontforge.am, am/luamisc.am,
+	am/luasocket.am, am/luatex.am: Add rules for LuaJITTeX.
+
+	* luajittex.test, luajitimage.test: New tests for LuaJITTeX.
+
+	Avoid compiler warnings.
+	* lua/liolibext.c, lua/luajitstuff.w: Drop compilation of
+	unused static functions.  Avoid to compute unused value.
+	* lua/texluajitc.w: Include header for luac_main() prototype.
+	* lua/luatex-api.h: Drop duplicate luac_main() prototype.
+
+2014-02-04  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* lua/luainit.w: Change a little for LuaJITTeX.
+
+2014-02-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import LuaTeX snapshot 0.78.3 from LuaTeX repository (r4772).
+
+	* luatexfont.h: Keep the prototype for auto_expand_font() as
+	long as the function remains in vfovf.w.
+
+	* liolibext.c [__MINGW32__]: Don't redefine l_fseek etc.
+
+2014-02-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/libluatex.am, am/luafontforge.am, am/luamisc.am,
+	am/luasocket.am, am/luatex.am: Prepare for LuaJITTeX.
+
+2014-01-31  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tex/printing.w (print_cs): Bug fix from TeX 3.14159265.
+
+2014-01-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* image/writepng.w: Allow libpng >= 1.6.3 to read images with
+	incorrect CMF bytes.
+
 2013-12-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* pdf/pdfgen.w (pdf_end_stream): Always write "\nendstream" for
@@ -11,6 +66,7 @@
 
 	* image/epdf.h, lua/lepdflib.cc: Adapt for poppler-0.25.x.
 	* fake/StructTreeRoot.h (new): Provide 0.24.4 compatibility.
+	* am/libluatex.am: Adapted.
 
 2013-12-08  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
 

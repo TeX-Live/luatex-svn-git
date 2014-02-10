@@ -1,6 +1,6 @@
 /* knj.h: check for 2-Byte Kanji (CP 932, SJIS) codes.
 
-   Copyright 2010, 2011 Akira Kakuto.
+   Copyright 2010, 2014 Akira Kakuto.
    Copyright 2013, 2014 TANAKA Takuji.
 
    This library is free software; you can redistribute it and/or
@@ -33,7 +33,15 @@ extern KPSEDLL wchar_t* get_wstring_from_mbstring(int cp, const char *mbstr, wch
 extern KPSEDLL char* get_mbstring_from_wstring(int cp, const wchar_t *wstr, char *mbstr);
 extern KPSEDLL FILE* fsyscp_xfopen(const char *filename, const char *mode);
 extern KPSEDLL FILE* fsyscp_fopen(const char *filename, const char *mode);
-extern KPSEDLL void get_command_line_args_utf8(const char *enc, int *p_ac, char ***p_av);
+extern KPSEDLL FILE* fsyscp_popen(const char *command, const char *mode);
+extern KPSEDLL int fsyscp_spawnvp(int mode, const char *command, const char* const *argv);
+extern KPSEDLL int fsyscp_system(const char *cmd);
+extern KPSEDLL int get_command_line_args_utf8(const char *enc, int *p_ac, char ***p_av);
+extern KPSEDLL int win32_getc(FILE *fp);
+extern KPSEDLL int win32_ungetc(int c, FILE *fp);
+extern KPSEDLL int win32_fputs(const char *str, FILE *fp);
+extern KPSEDLL int win32_puts(const char *str);
+extern KPSEDLL int win32_putc(int c, FILE *fp);
 
 #ifdef __cplusplus
 }
