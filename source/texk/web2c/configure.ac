@@ -142,7 +142,7 @@ AM_CONDITIONAL([USE_DLOPEN], [test "x$ac_cv_header_dlfcn_h" = xyes])
 AC_SUBST([lua_socketlibs])
 AC_SUBST([ipc_socketlibs])
 
-AS_CASE([$build_os:$build_cpu],
+AS_CASE([$host_os:$host_cpu],
         [*darwin*:x86_64], [luajittex_extra='-pagezero_size 10000 -image_base 100000000'])
 AC_SUBST([luajittex_extra])
 
