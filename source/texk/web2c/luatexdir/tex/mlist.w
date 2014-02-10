@@ -24,7 +24,7 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: mlist.w 4776 2014-02-09 07:22:41Z luigi $"
+    "$Id: mlist.w 4793 2014-02-10 23:13:29Z luigi $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/tex/mlist.w $";
 
 #include "ptexlib.h"
@@ -997,7 +997,8 @@ static scaled stack_into_box(pointer b, internal_font_number f, int c)
     pointer p, q;               /* new node placed into |b| */
     p = char_box(f, c, node_attr(b));
     if (type(b) == vlist_node) {
-        vlink(p) = list_ptr(b);
+//        vlink(p) = list_ptr(b);
+try_couple_nodes(p,list_ptr(b));
         list_ptr(b) = p;
         height(b) = height(p);
         if (width(b) < width(p))
@@ -1028,7 +1029,8 @@ static void stack_glue_into_box(pointer b, scaled min, scaled max) {
     p = new_glue(q);
     reset_attributes(p, node_attr(b));
     if (type(b) == vlist_node) {
-        vlink(p) = list_ptr(b);
+//        vlink(p) = list_ptr(b);
+try_couple_nodes(p,list_ptr(b));
         list_ptr(b) = p;
         height(b) = height(p);
     } else {
@@ -2165,7 +2167,8 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
             /* Make the height of box |y| equal to |h| */
             p = new_kern(h - height(y));
             reset_attributes(p, node_attr(q));
-            vlink(p) = list_ptr(y);
+//            vlink(p) = list_ptr(y);
+try_couple_nodes(p,list_ptr(y));
             list_ptr(y) = p;
             height(y) = h;
         }
