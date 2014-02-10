@@ -96,7 +96,7 @@
 */
 
 static const char _svn_version[] =
-    "$Id: lnodelib.c 4740 2014-01-09 17:22:45Z luigi $ "
+    "$Id: lnodelib.c 4775 2014-02-07 12:36:34Z luigi $ "
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/lnodelib.c $";
 
 #include "ptexlib.h"

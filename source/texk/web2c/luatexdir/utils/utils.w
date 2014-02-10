@@ -20,7 +20,7 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: utils.w 4720 2014-01-02 16:06:16Z taco $"
+    "$Id: utils.w 4781 2014-02-10 11:05:24Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/utils/utils.w $";
 
 @ @c

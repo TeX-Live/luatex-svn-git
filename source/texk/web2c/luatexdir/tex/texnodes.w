@@ -19,8 +19,8 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: texnodes.w 4442 2012-05-25 22:40:34Z hhenkel $"
-    "$URL: https://foundry.supelec.fr/svn/luatex/branches/ex-glyph/source/texk/web2c/luatexdir/tex/texnodes.w $";
+    "$Id: texnodes.w 4754 2014-01-23 10:01:21Z taco $"
+    "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/tex/texnodes.w $";
 
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
