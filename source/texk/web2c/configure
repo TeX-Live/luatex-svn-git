@@ -644,10 +644,6 @@ CTANGLE
 CTANGLEBOOT
 TANGLE
 TANGLEBOOT
-LUAJIT_RULE
-LUAJIT_DEPEND
-LUAJIT_LIBS
-LUAJIT_INCLUDES
 HARFBUZZ_RULE
 HARFBUZZ_DEPEND
 HARFBUZZ_LIBS
@@ -694,6 +690,10 @@ LIBPNG_RULE
 LIBPNG_DEPEND
 LIBPNG_LIBS
 LIBPNG_INCLUDES
+LUAJIT_RULE
+LUAJIT_DEPEND
+LUAJIT_LIBS
+LUAJIT_INCLUDES
 LUA52_RULE
 LUA52_DEPEND
 LUA52_LIBS
@@ -785,8 +785,7 @@ XETEX_MACOSX_TRUE
 FONTCONFIG_LIBS
 FONTCONFIG_INCLUDES
 PKG_CONFIG
-luajittex_darwin64_FALSE
-luajittex_darwin64_TRUE
+luajittex_extra
 ipc_socketlibs
 lua_socketlibs
 USE_DLOPEN_FALSE
@@ -1017,7 +1016,6 @@ with_teckit_libdir
 with_system_icu
 with_system_graphite2
 with_system_harfbuzz
-with_system_luajit
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1699,8 +1697,8 @@ Optional Features:
   --disable-aleph         do not compile and install Aleph
   --disable-pdftex        do not compile and install pdfTeX
   --disable-pdftex-synctex  build pdfTeX without SyncTeX support
-  --disable-luatex        do not compile and install luaTeX
-  --disable-luajittex     do not compile and install luajitTeX
+  --disable-luatex        do not compile and install LuaTeX
+  --disable-luajittex     do not compile and install LuaJITTeX
   --disable-mp            do not compile and install MetaPost
   --disable-xetex         do not compile and install XeTeX
   --disable-xetex-synctex   build XeTeX without SyncTeX support
@@ -1730,7 +1728,7 @@ Optional Packages:
   --with-banner-add=STR   add STR to version string appended to banner lines
   --with-editor=CMD       invoke CMD from the `e' option [vi +%d '%s'] or
                           [texworks --position=%d "%s"]
-  --without-mf-x-toolkit  do not use X toolkit for METAFONT
+  --with-mf-x-toolkit     use X toolkit for METAFONT
   --with-fontconfig-includes=DIR
                           fontconfig headers installed in DIR
   --with-fontconfig-libdir=DIR
@@ -1774,8 +1772,6 @@ Optional Packages:
   --with-system-graphite2 use installed graphite2 headers and library
                           (requires pkg-config)
   --with-system-harfbuzz  use installed harfbuzz headers and library (requires
-                          pkg-config)
-  --with-system-luajit    use installed luajit headers and library (requires
                           pkg-config)
 
 Some influential environment variables:
@@ -18558,7 +18554,7 @@ fi
   fi
 fi
 
-LUAJIT_DEFINES=-DLUA_COMPAT_MODULE
+LUAJIT_DEFINES=-DLUAJIT_ENABLE_LUA52COMPAT
 
 if test "x$kpse_cv_have_win32" = xno; then
   LUAJIT_DEFINES="$LUAJIT_DEFINES -DLUA_USE_POSIX"
@@ -18619,10 +18615,10 @@ if test "$ac_res" != no; then :
 fi
 
   if test "x$ac_cv_search_dlopen" != xno; then
- ac_fn_c_check_header_compile "$LINENO" "dlfcn.h" "ac_cv_header_dlfcn_h" "$ac_includes_default
+    ac_fn_c_check_header_compile "$LINENO" "dlfcn.h" "ac_cv_header_dlfcn_h" "$ac_includes_default
 "
 if test "x$ac_cv_header_dlfcn_h" = xyes; then :
-  LUA52_DEFINES="$LUAJIT_DEFINES -DLUA_USE_DLOPEN"
+  LUAJIT_DEFINES="$LUAJIT_DEFINES -DLUA_USE_DLOPEN"
 fi
 
 
@@ -18994,19 +18990,12 @@ fi
 
 
 
- if case "$host_os" in
-   *darwin*)
-      test "x$host_cpu" == xx86_64 ;;
-   *)
-      ! test 1;;
-esac; then
-  luajittex_darwin64_TRUE=
-  luajittex_darwin64_FALSE='#'
-else
-  luajittex_darwin64_TRUE='#'
-  luajittex_darwin64_FALSE=
-fi
-
+case $build_os:$build_cpu in #(
+  *darwin*:x86_64) :
+    luajittex_extra='-pagezero_size 10000 -image_base 100000000' ;; #(
+  *) :
+     ;;
+esac
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Mac OS X ApplicationServices framework" >&5
@@ -19518,15 +19507,15 @@ case $with_mf_x_toolkit in #(
   yes|no) :
      ;; #(
   '') :
-    with_mf_x_toolkit=$enable_mf ;; #(
+    with_mf_x_toolkit=no ;; #(
   y|ye) :
     with_mf_x_toolkit=yes ;; #(
   n) :
     with_mf_x_toolkit=no ;; #(
   *) :
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: unknown --with-mf-x-toolkit argument \`$with_mf_x_toolkit'; using yes." >&5
-$as_echo "$as_me: WARNING: unknown --with-mf-x-toolkit argument \`$with_mf_x_toolkit'; using yes." >&2;}
-             with_mf_x_toolkit=yes ;;
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: unknown --with-mf-x-toolkit argument \`$with_mf_x_toolkit'; using no." >&5
+$as_echo "$as_me: WARNING: unknown --with-mf-x-toolkit argument \`$with_mf_x_toolkit'; using no." >&2;}
+             with_mf_x_toolkit=no ;;
 esac
 test "x$with_x_toolkit" = xyes && with_x=yes
 test "x$with_x" = xno && with_x_toolkit=no
@@ -23098,6 +23087,16 @@ $(LUA52_DEPEND): ${top_builddir}/../../libs/lua52/include/lua.h
 ${top_builddir}/../../libs/lua52/include/lua.h:
 	cd ${top_builddir}/../../libs/lua52 && $(MAKE) $(AM_MAKEFLAGS) rebuild'
 
+## _KPSE_LIB_FLAGS: Setup luajit (-lluajit) flags
+  LUAJIT_INCLUDES="-I$kpse_BLD/libs/luajit/luajit-build/src"
+  LUAJIT_LIBS="$kpse_BLD/libs/luajit/luajit-build/src/libluajit.a"
+  LUAJIT_DEPEND='${top_builddir}/../../libs/luajit/luajit-build/src/libluajit.a'
+  LUAJIT_RULE='# Rebuild libluajit
+$(LUAJIT_DEPEND): ${top_builddir}/../../libs/luajit/luajit-build/src/luajit.h
+	cd ${top_builddir}/../../libs/luajit && $(MAKE) $(AM_MAKEFLAGS) rebuild
+${top_builddir}/../../libs/luajit/luajit-build/src/luajit.h:
+	cd ${top_builddir}/../../libs/luajit && $(MAKE) $(AM_MAKEFLAGS) rebuild'
+
 ## _KPSE_LIB_FLAGS: Setup libpng (-lpng) flags
 
 # Check whether --with-system-libpng was given.
@@ -23231,9 +23230,9 @@ else
   FREETYPE2_LIBS="$kpse_BLD/libs/freetype2/libfreetype.a"
   FREETYPE2_DEPEND='${top_builddir}/../../libs/freetype2/libfreetype.a'
   FREETYPE2_RULE='# Rebuild libfreetype
-$(FREETYPE2_DEPEND): ${top_builddir}/../../libs/freetype2/ft2build.h
+$(FREETYPE2_DEPEND): ${top_builddir}/../../libs/freetype2/freetype2/ft2build.h
 	cd ${top_builddir}/../../libs/freetype2 && $(MAKE) $(AM_MAKEFLAGS) rebuild
-${top_builddir}/../../libs/freetype2/ft2build.h:
+${top_builddir}/../../libs/freetype2/freetype2/ft2build.h:
 	cd ${top_builddir}/../../libs/freetype2 && $(MAKE) $(AM_MAKEFLAGS) rebuild'
 fi
 
@@ -23583,30 +23582,6 @@ $(GRAPHITE2_DEPEND): ${top_builddir}/../../libs/graphite2/include/graphite2/Font
 	cd ${top_builddir}/../../libs/graphite2 && $(MAKE) $(AM_MAKEFLAGS) rebuild
 ${top_builddir}/../../libs/graphite2/include/graphite2/Font.h:
 	cd ${top_builddir}/../../libs/graphite2 && $(MAKE) $(AM_MAKEFLAGS) rebuild'
-fi
-
-## _KPSE_LIB_FLAGS: Setup luajit (-lluajit) flags
-
-# Check whether --with-system-luajit was given.
-if test "${with_system_luajit+set}" = set; then :
-  withval=$with_system_luajit;
-fi
-if test "x$with_system_luajit" = xyes; then
-  if $PKG_CONFIG luajit --atleast-version=2.0; then
-  LUAJIT_INCLUDES=`$PKG_CONFIG luajit --cflags`
-  LUAJIT_LIBS=`$PKG_CONFIG luajit --libs`
-elif test "x$need_luajit:$with_system_luajit" = xyes:yes; then
-  as_fn_error $? "did not find luajit-2.0 or better" "$LINENO" 5
-fi
-else
-  LUAJIT_INCLUDES="-I$kpse_BLD/libs/luajit/luajit-build/src"
-  LUAJIT_LIBS="$kpse_BLD/libs/luajit/luajit-build/src/libluajit.a"
-  LUAJIT_DEPEND='${top_builddir}/../../libs/luajit/luajit-build/src/libluajit.a'
-  LUAJIT_RULE='# Rebuild libluajit
-$(LUAJIT_DEPEND): ${top_builddir}/../../libs/luajit/luajit-build/src/luajit.h
-	cd ${top_builddir}/../../libs/luajit && $(MAKE) $(AM_MAKEFLAGS) rebuild
-${top_builddir}/../../libs/luajit/luajit-build/src/luajit.h:
-	cd ${top_builddir}/../../libs/luajit && $(MAKE) $(AM_MAKEFLAGS) rebuild'
 fi
 
 
@@ -24183,10 +24158,6 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${USE_DLOPEN_TRUE}" && test -z "${USE_DLOPEN_FALSE}"; then
   as_fn_error $? "conditional \"USE_DLOPEN\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${luajittex_darwin64_TRUE}" && test -z "${luajittex_darwin64_FALSE}"; then
-  as_fn_error $? "conditional \"luajittex_darwin64\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${XETEX_MACOSX_TRUE}" && test -z "${XETEX_MACOSX_FALSE}"; then

@@ -1,4 +1,46 @@
-2012-09-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+2014-02-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import libpng-1.6.9.
+	* version.ac: Adjust.
+
+2014-01-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import libpng-1.6.8.
+	* version.ac: Adjust.
+
+2012-07-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Use ../../am/reconfig.am and ../../am/rebuild.am.
+
+2013-07-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* include/Makefile.am: Moved Makefile fragments to ../../am/.
+
+2013-06-29  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import libpng-1.5.17.
+	* version.ac: Adjust.
+
+2013-06-26  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (SUBDIRS): Build the library first.
+
+2013-06-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import libpng-1.5.16 (downgrade).
+	* version.ac: Adjust.
+
+2013-06-03  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import libpng-1.6.2.
+	* version.ac: Adjust.
+
+2013-04-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import libpng-1.6.1.
+	* version.ac: Adjust.
+
+2013-02-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	Import libpng-1.6.0.
 	* version.ac: Adjust.

@@ -1,5 +1,5 @@
 # Private macros for the TeX Live (TL) tree.
-# Copyright (C) 2009-2013 Peter Breitenlohner <tex-live@tug.org>
+# Copyright (C) 2009-2014 Peter Breitenlohner <tex-live@tug.org>
 #
 # This file is free software; the copyright holder
 # gives unlimited permission to copy and/or distribute it,
@@ -36,10 +36,10 @@ potrace
 gd
 freetype2
 libpng
-paper
+libpaper
+luajit
 lua52
 zlib
-luajit
 ])[]dnl
 m4_define([kpse_texlibs_pkgs], [dnl
 ptexenc
@@ -55,7 +55,7 @@ AC_REQUIRE([KPSE_LIBS_PREPARE])[]dnl
 AC_REQUIRE([KPSE_KPATHSEA_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_PTEXENC_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_ZLIB_SYSTEM_FLAGS])[]dnl
-AC_REQUIRE([KPSE_PAPER_SYSTEM_FLAGS])[]dnl
+AC_REQUIRE([KPSE_LIBPAPER_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_LIBPNG_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_FREETYPE2_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_GD_SYSTEM_FLAGS])[]dnl
@@ -69,7 +69,6 @@ AC_REQUIRE([KPSE_GRAPHITE2_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_TECKIT_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_ICU_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_HARFBUZZ_SYSTEM_FLAGS])[]dnl
-AC_REQUIRE([KPSE_LUAJIT_SYSTEM_FLAGS])[]dnl
 ]) # KPSE_ALL_SYSTEM_FLAGS
 
 # KPSE_UTILS_PKGS()
@@ -81,7 +80,6 @@ biber
 m-tx
 pmx
 ps2eps
-songs
 t1utils
 texdoctk
 tpic2pdftex

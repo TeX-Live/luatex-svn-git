@@ -72,6 +72,7 @@ const char *getS(lua_State * L, void *ud, size_t * size)
 }
 
 @ @c
+#if 0 /* currently unused */
 static void *my_luaalloc(void *ud, void *ptr, size_t osize, size_t nsize)
 {
     void *ret = NULL;
@@ -83,6 +84,7 @@ static void *my_luaalloc(void *ud, void *ptr, size_t osize, size_t nsize)
     luastate_bytes += (int) (nsize - osize);
     return ret;
 }
+#endif
 
 @ @c
 static int my_luapanic(lua_State * L)
@@ -631,7 +633,7 @@ LUA_API int lua_compare (lua_State *L, int o1, int o2, int op) {
     switch (op) {
       case LUA_OPEQ: i = lua_equal(L, o1, o2); break;
       case LUA_OPLT: i = lua_lessthan(L, o1, o2); break;
-      case LUA_OPLE: (i = lua_lessthan(L, o1, o2)) || (i = lua_equal(L, o1, o2)) ; break;
+      case LUA_OPLE: i = (lua_lessthan(L, o1, o2) || lua_equal(L, o1, o2)) ; break;
       default: luaL_error(L, "invalid option");
     }
   /*}*/

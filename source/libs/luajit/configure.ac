@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl
-dnl   Copyright (C) 2012 Peter Breitenlohner <tex-live@tug.org>
+dnl   Copyright (C) 2014 Peter Breitenlohner <tex-live@tug.org>
 dnl
 dnl   This file is free software; the copyright holder
 dnl   gives unlimited permission to copy and/or distribute it,
@@ -9,41 +9,39 @@ dnl
 m4_include([version.ac])[] dnl define luajit_version
 AC_INIT([luajit for TeX Live], luajit_version, [luigi.scarso@gmail.com])
 AC_PREREQ([2.65])
-AC_CONFIG_SRCDIR([luajit-]luajit_version[/src/luajit.h])
+AC_CONFIG_SRCDIR([LuaJIT-]luajit_version[/src/luajit.h])
 AC_CONFIG_AUX_DIR([../../build-aux])
 AC_CONFIG_MACRO_DIR([../../m4])
 
-AM_INIT_AUTOMAKE([foreign])
-AM_MAINTAINER_MODE
+KPSE_BASIC([luajit])
+
+AC_CANONICAL_HOST
+
 AC_PROG_CC
+AC_PROG_RANLIB
+AC_PROG_LN_S
 
-LT_INIT
-
-
-AM_CONDITIONAL([build], [test "x$enable_build" != xno])
-AM_CONDITIONAL([crosscompile_i586_mingw32msvc_gcc],[test "x$host_os" = xmingw32msvc])
-AM_CONDITIONAL([crosscompile_x86_64_w64_mingw32_gcc],[test "x$host_os" = xmingw32])
-AM_CONDITIONAL([clang_compiler],[test "x$CC" = xclang])
 AC_SEARCH_LIBS([sqrt], [m])
 
-if test "x$enable_build" != xno || test -f config.force; then
+KPSE_COND_WIN32
 
+AM_CONDITIONAL([build], [test "x$enable_build" != xno])
 
-echo timestamp >config.force
-fi
-
-if test "x$host" = x; then
-  config_args=
-else
-  config_args="--host=$host"
-  if test "x$build" != x; then
-    config_args="$config_args --build=$build"
-  fi
-fi
-AC_SUBST([config_args])
-
-AC_SUBST([LUAJIT_TREE], [luajit-]luajit_version)
+AC_SUBST([LUAJIT_TREE], [LuaJIT-]luajit_version)
 
 AC_CONFIG_FILES([Makefile])
+
+AC_CONFIG_SUBDIRS([native])
+
+AS_IF([test "x$cross_compiling" = xyes],
+      [AC_SUBST([CROSS], [$host-])])
+
+dnl The subdirectory native must be configured for the build system.
+dnl When cross compiling, can not share the cache file with the subdirectory!
+AC_CONFIG_COMMANDS_POST([AS_IF([test "x$cross_compiling" = xyes],
+[cache_file=/dev/null
+ ac_configure_args="$ac_configure_args --host='$kpse_build_alias' \
+ CC='$BUILDCC' CPPFLAGS='$BUILDCPPFLAGS'\
+ CFLAGS='$BUILDCFLAGS' LDFLAGS='$BUILDLDFLAGS'"])])
 
 AC_OUTPUT

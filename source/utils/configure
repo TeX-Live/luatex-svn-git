@@ -743,7 +743,6 @@ with_system_libpng
 with_system_zlib
 with_zlib_includes
 with_zlib_libdir
-with_system_luajit
 with_system_kpathsea
 with_kpathsea_includes
 with_kpathsea_libdir
@@ -1417,8 +1416,8 @@ Optional Features:
   --disable-aleph           do not compile and install Aleph
   --disable-pdftex          do not compile and install pdfTeX
   --disable-pdftex-synctex    build pdfTeX without SyncTeX support
-  --disable-luatex          do not compile and install luaTeX
-  --disable-luajittex       do not compile and install luajitTeX
+  --disable-luatex          do not compile and install LuaTeX
+  --disable-luajittex       do not compile and install LuaJITTeX
   --disable-mp              do not compile and install MetaPost
   --disable-xetex           do not compile and install XeTeX
   --disable-xetex-synctex     build XeTeX without SyncTeX support
@@ -1462,7 +1461,7 @@ Optional Packages:
   --with-banner-add=STR   add STR to version string appended to banner lines
   --with-editor=CMD       invoke CMD from the `e' option [vi +%d '%s'] or
                           [texworks --position=%d "%s"]
-  --without-mf-x-toolkit  do not use X toolkit for METAFONT
+  --with-mf-x-toolkit     use X toolkit for METAFONT
   --with-system-zziplib   use installed zziplib headers and library (requires
                           pkg-config)
   --with-system-poppler   use installed poppler headers and library (requires
@@ -1477,8 +1476,6 @@ Optional Packages:
   --with-zlib-includes=DIR
                           zlib headers installed in DIR
   --with-zlib-libdir=DIR  zlib library installed in DIR
-  --with-system-luajit    use installed luajit headers and library (requires
-                          pkg-config)
   --with-system-kpathsea  use installed kpathsea headers and library
   --with-kpathsea-includes=DIR
                           kpathsea headers installed in DIR
@@ -3574,6 +3571,9 @@ test "x$need_libpng" = xyes && {
   need_zlib=yes
 }
 
+## libs/luajit/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/luajit/
+## configure options and TL libraries required for luajit
+
 ## libs/lua52/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/lua52/
 ## configure options and TL libraries required for lua52
 
@@ -3605,26 +3605,6 @@ $as_echo "$as_me: Assuming installed \`zlib' headers and library" >&6;}
     with_system_zlib=yes
   fi
   ac_configure_args="$ac_configure_args '--with-system-zlib=$with_system_zlib'"
-fi
-
-## libs/luajit/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/luajit/
-## configure options and TL libraries required for luajit
-
-# Check whether --with-system-luajit was given.
-if test "${with_system_luajit+set}" = set; then :
-  withval=$with_system_luajit;
-fi
-if test "x$with_system_luajit" = x; then
-  if test -f $srcdir/../libs/luajit/configure; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`luajit' headers and library from TL tree" >&5
-$as_echo "$as_me: Assuming \`luajit' headers and library from TL tree" >&6;}
-    with_system_luajit=no
-  else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`luajit' headers and library" >&5
-$as_echo "$as_me: Assuming installed \`luajit' headers and library" >&6;}
-    with_system_luajit=yes
-  fi
-  ac_configure_args="$ac_configure_args '--with-system-luajit=$with_system_luajit'"
 fi
 
 

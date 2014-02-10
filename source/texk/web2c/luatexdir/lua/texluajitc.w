@@ -38,6 +38,8 @@
 #include <signal.h>
 #endif
 
+#include "lua/luatex-api.h"
+
 static lua_State *globalL = NULL;
 static const char *progname = LUA_PROGNAME;
 

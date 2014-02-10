@@ -1,6 +1,6 @@
 ## Makefile.am for the TeX Live subdirectory texk/web2c/
 ##
-## Copyright (C) 2009-2013 Peter Breitenlohner <tex-live@tug.org>
+## Copyright (C) 2009-2014 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
 AM_CPPFLAGS = $(KPATHSEA_INCLUDES)
@@ -40,7 +40,7 @@ dist-hook:
 NEVER_DIST = `find . -name .svn`
 
 ## The sh script that does the conversion.
-web2c = $(SHELL) ./web2c-sh $@
+web2c = AM_V_P=$(AM_V_P) $(SHELL) ./web2c-sh $@
 
 ## We put this in the web2c directory because it runs on the build system, it
 ## is separate from (and simpler than) the actual web-to-C conversion programs.
@@ -87,6 +87,8 @@ $(proglib): ${srcdir}/lib/*.c
 @ZLIB_RULE@
 ## Rebuild liblua52
 @LUA52_RULE@
+## Rebuild libluajit
+@LUAJIT_RULE@
 ## Rebuild libpng
 @LIBPNG_RULE@
 ## Rebuild libfreetype
@@ -109,8 +111,6 @@ $(proglib): ${srcdir}/lib/*.c
 @HARFBUZZ_RULE@
 ## Rebuild libgraphite2
 @GRAPHITE2_RULE@
-## Rebuild libjit
-@LUAJIT_RULE@
 
 # The environment for building.
 buildenv = TEXMFCNF=$(srcdir)/../kpathsea
@@ -205,9 +205,6 @@ include $(srcdir)/pdftexdir/am/pdftex.am
 include $(srcdir)/pdftexdir/am/ttf2afm.am
 include $(srcdir)/pdftexdir/am/pdftosrc.am
 
-## luaTeX and luajitTeX web files:
-include $(srcdir)/luatexdir/am/luacweb.am
-
 ## luaTeX
 include $(srcdir)/luatexdir/am/luasocket.am
 include $(srcdir)/luatexdir/am/luamisc.am
@@ -216,14 +213,6 @@ include $(srcdir)/luatexdir/am/luafontforge.am
 include $(srcdir)/luatexdir/am/libluatex.am
 include $(srcdir)/luatexdir/am/luatex.am
 include $(srcdir)/luatexdir/am/txt2zlib.am
-
-## luajittex
-include $(srcdir)/luatexdir/am/libluajit20.am
-include $(srcdir)/luatexdir/am/luajitsocket.am
-include $(srcdir)/luatexdir/am/luajitmisc.am
-include $(srcdir)/luatexdir/am/luajitfontforge.am
-include $(srcdir)/luatexdir/am/libluajittex.am
-include $(srcdir)/luatexdir/am/luajittex.am
 
 ## XeTeX
 include $(srcdir)/xetexdir/am/xetex.am
