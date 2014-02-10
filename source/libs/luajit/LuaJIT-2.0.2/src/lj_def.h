@@ -62,7 +62,7 @@ typedef unsigned int uintptr_t;
 #define LJ_MAX_BCINS	(1<<26)		/* Max. # of bytecode instructions. */
 #define LJ_MAX_SLOTS	250		/* Max. # of slots in a Lua func. */
 #define LJ_MAX_LOCVAR	200		/* Max. # of local variables. */
-#define LJ_MAX_UPVAL	60		/* Max. # of upvalues. */
+#define LJ_MAX_UPVAL	249		/* Max. # of upvalues. */
 
 #define LJ_MAX_IDXCHAIN	100		/* __index/__newindex chain limit. */
 #define LJ_STACK_EXTRA	5		/* Extra stack space (metamethods). */
