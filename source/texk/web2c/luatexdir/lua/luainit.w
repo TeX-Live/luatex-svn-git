@@ -28,6 +28,44 @@ static const char _svn_version[] =
 
 #include "lua/luatex-api.h"
 
+make_lua_key(adjust_head);
+make_lua_key(aleph);
+make_lua_key(align_head);
+make_lua_key(best_page_break);
+make_lua_key(best_size);
+make_lua_key(contrib_head);
+make_lua_key(core);
+make_lua_key(delimptr);
+make_lua_key(dirs);
+make_lua_key(etex);
+make_lua_key(global);
+make_lua_key(head);
+make_lua_key(hold_head);
+make_lua_key(least_page_cost);
+make_lua_key(log);
+make_lua_key(luatex);
+make_lua_key(mathdir);
+make_lua_key(mathstyle);
+make_lua_key(mode);
+make_lua_key(modeline);
+make_lua_key(noad);
+make_lua_key(omega);
+make_lua_key(page_head);
+make_lua_key(page_ins_head);
+make_lua_key(pdftex);
+make_lua_key(pre_adjust_head);
+make_lua_key(prevdepth);
+make_lua_key(prevgraf);
+make_lua_key(ptr);
+make_lua_key(spacefactor);
+make_lua_key(tail);
+make_lua_key(temp_head);
+make_lua_key(term);
+make_lua_key(tex);
+make_lua_key(umath);
+make_lua_key(term_and_log);/* alias */
+
+
 @
 TH: TODO
 
@@ -907,6 +945,44 @@ void lua_initialize(int ac, char **av)
     putenv(engine_luatex);
 
     luainterpreter();
+
+    /* init internalized strings */
+    init_lua_key(adjust_head);
+    init_lua_key(aleph);
+    init_lua_key(align_head);
+    init_lua_key(best_page_break);
+    init_lua_key(best_size);
+    init_lua_key(contrib_head);
+    init_lua_key(core);
+    init_lua_key(delimptr);
+    init_lua_key(dirs);
+    init_lua_key(etex);
+    init_lua_key(global);
+    init_lua_key(head);
+    init_lua_key(hold_head);
+    init_lua_key(least_page_cost);
+    init_lua_key(log);
+    init_lua_key(luatex);
+    init_lua_key(mathdir);
+    init_lua_key(mathstyle);
+    init_lua_key(mode);
+    init_lua_key(modeline);
+    init_lua_key(noad);
+    init_lua_key(omega);
+    init_lua_key(page_head);
+    init_lua_key(page_ins_head);
+    init_lua_key(pdftex);
+    init_lua_key(pre_adjust_head);
+    init_lua_key(prevdepth);
+    init_lua_key(prevgraf);
+    init_lua_key(ptr);
+    init_lua_key(spacefactor);
+    init_lua_key(tail);
+    init_lua_key(temp_head);
+    init_lua_key(term);
+    init_lua_key(tex);
+    init_lua_key(umath);
+    init_lua_key_alias(term_and_log,"term and log");
 
     prepare_cmdline(Luas, argv, argc, lua_offset);      /* collect arguments */
     setup_lua_path(Luas);

@@ -222,4 +222,105 @@ extern char **environ;
 #ifdef __cplusplus
 }
 #endif
+
+/*
+    Same as in lnodelib.c, but with prefix G_ for now.
+    These macros create and access pointers (indices) to keys which is faster. The
+    shortcuts are created as part of the initialization.
+
+*/
+
+/*#define init_luaS_index(a) do {                         */
+#define init_lua_key(a) do {                      \
+    lua_pushliteral(Luas,#a);                             \
+    G_luaS_##a##_ptr = lua_tostring(Luas,-1);               \
+    G_luaS_##a##_index = luaL_ref (Luas,LUA_REGISTRYINDEX); \
+} while (0)
+
+  /*#define init_luaS_index_s(a,b) do {           */      
+#define init_lua_key_alias(a,b) do {              \
+    lua_pushliteral(Luas,b);                              \
+    G_luaS_##a##_ptr = lua_tostring(Luas,-1);               \
+    G_luaS_##a##_index = luaL_ref (Luas,LUA_REGISTRYINDEX); \
+} while (0)
+
+  /*#define make_luaS_index(a) */                       
+#define make_lua_key(a)       \
+    int G_luaS_##a##_index = 0;          \
+    const char * G_luaS_##a##_ptr = NULL
+
+#define G_luaS_index(a) G_luaS_##a##_index
+
+/*#define luaS_ptr_eq(a,b) (a==luaS_##b##_ptr)*/
+#define lua_key_eq(a,b) (a==G_luaS_##b##_ptr)
+
+#define G_luaS_index(a) G_luaS_##a##_index
+
+#define use_lua_key(a)  extern const char * G_luaS_##a##_ptr 
+
 #endif                          /* LUATEX_API_H */
+
+/* These keys have to available to different files */
+use_lua_key(adjust_head);
+use_lua_key(aleph);
+use_lua_key(align_head);
+use_lua_key(best_page_break);
+use_lua_key(best_size);
+use_lua_key(contrib_head);
+use_lua_key(core);
+use_lua_key(delimptr);
+use_lua_key(dirs);
+use_lua_key(etex);
+use_lua_key(global);
+use_lua_key(head);
+use_lua_key(hold_head);
+use_lua_key(least_page_cost);
+use_lua_key(log);
+use_lua_key(luatex);
+use_lua_key(mathdir);
+use_lua_key(mathstyle);
+use_lua_key(mode);
+use_lua_key(modeline);
+use_lua_key(noad);
+use_lua_key(omega);
+use_lua_key(page_head);
+use_lua_key(page_ins_head);
+use_lua_key(pdftex);
+use_lua_key(pre_adjust_head);
+use_lua_key(prevdepth);
+use_lua_key(prevgraf);
+use_lua_key(ptr);
+use_lua_key(spacefactor);
+use_lua_key(tail);
+use_lua_key(temp_head);
+use_lua_key(term);
+use_lua_key(tex);
+use_lua_key(umath);
+use_lua_key(term_and_log);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
