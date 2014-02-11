@@ -692,139 +692,7 @@ static char *n_string_field(lua_State * L, int name_index, char *dflt)
     lua_pop(L, 1);
     return i;
 }
-
-#define init_luaS_index(a) do {					\
-	lua_pushliteral(L,#a);					\
-	luaS_##a##_ptr = lua_tostring(L,-1);			\
-	luaS_##a##_index = luaL_ref (L,LUA_REGISTRYINDEX);	\
-  } while (0)
-
-#define make_luaS_index(a)      \
-  static int luaS_##a##_index = 0;    \
-  static const char * luaS_##a##_ptr = NULL
-
-#define luaS_index(a) luaS_##a##_index
-
-#define luaS_ptr_eq(a,b) (a==luaS_##b##_ptr)
-
-make_luaS_index(width);
-make_luaS_index(height);
-make_luaS_index(depth);
-make_luaS_index(italic);
-make_luaS_index(top_accent);
-make_luaS_index(bot_accent);
-make_luaS_index(index);
-make_luaS_index(left_protruding);
-make_luaS_index(right_protruding);
-make_luaS_index(expansion_factor);
-make_luaS_index(top);
-make_luaS_index(bot);
-make_luaS_index(rep);
-make_luaS_index(mid);
-make_luaS_index(next);
-make_luaS_index(used);
-make_luaS_index(name);
-make_luaS_index(tounicode);
-make_luaS_index(font);
-make_luaS_index(char);
-make_luaS_index(slot);
-make_luaS_index(comment);
-make_luaS_index(nop);
-make_luaS_index(push);
-make_luaS_index(pop);
-make_luaS_index(rule);
-make_luaS_index(right);
-make_luaS_index(node);
-make_luaS_index(down);
-make_luaS_index(special);
-make_luaS_index(image);
-make_luaS_index(slant);
-make_luaS_index(space);
-make_luaS_index(space_stretch);
-make_luaS_index(space_shrink);
-make_luaS_index(x_height);
-make_luaS_index(quad);
-make_luaS_index(extra_space);
-make_luaS_index(left_boundary);
-make_luaS_index(right_boundary);
-make_luaS_index(kerns);
-make_luaS_index(ligatures);
-make_luaS_index(fonts);
-make_luaS_index(extender);
-make_luaS_index(start);
-make_luaS_index(end);
-make_luaS_index(advance);
-make_luaS_index(glyph);
-make_luaS_index(extensible);
-make_luaS_index(horiz_variants);
-make_luaS_index(vert_variants);
-make_luaS_index(mathkern);
-make_luaS_index(commands);
-make_luaS_index(scale);
-make_luaS_index(lua);
-
-static void init_font_string_pointers(lua_State * L)
-{
-    init_luaS_index(width);
-    init_luaS_index(height);
-    init_luaS_index(depth);
-    init_luaS_index(italic);
-    init_luaS_index(top_accent);
-    init_luaS_index(bot_accent);
-    init_luaS_index(index);
-    init_luaS_index(left_protruding);
-    init_luaS_index(right_protruding);
-    init_luaS_index(expansion_factor);
-    init_luaS_index(top);
-    init_luaS_index(bot);
-    init_luaS_index(rep);
-    init_luaS_index(mid);
-    init_luaS_index(next);
-    init_luaS_index(used);
-    init_luaS_index(name);
-    init_luaS_index(tounicode);
-    init_luaS_index(font);
-    init_luaS_index(char);
-    init_luaS_index(slot);
-    init_luaS_index(comment);
-    init_luaS_index(nop);
-    init_luaS_index(push);
-    init_luaS_index(pop);
-    init_luaS_index(rule);
-    init_luaS_index(right);
-    init_luaS_index(node);
-    init_luaS_index(down);
-    init_luaS_index(special);
-    init_luaS_index(image);
-
-    init_luaS_index(slant);
-    init_luaS_index(space);
-    init_luaS_index(space_stretch);
-    init_luaS_index(space_shrink);
-    init_luaS_index(x_height);
-    init_luaS_index(quad);
-    init_luaS_index(extra_space);
-
-    init_luaS_index(left_boundary);
-    init_luaS_index(right_boundary);
-    init_luaS_index(kerns);
-    init_luaS_index(ligatures);
-    init_luaS_index(fonts);
-
-    init_luaS_index(extender);
-    init_luaS_index(start);
-    init_luaS_index(end);
-    init_luaS_index(advance);
-    init_luaS_index(glyph);
-
-    init_luaS_index(extensible);
-    init_luaS_index(horiz_variants);
-    init_luaS_index(vert_variants);
-    init_luaS_index(mathkern);
-    init_luaS_index(commands);
-    init_luaS_index(scale);
-    init_luaS_index(lua);
-}
+/*static void init_font_string_pointers(lua_State * L){}*/
 
 static int count_char_packet_bytes(lua_State * L)
 {
@@ -837,30 +705,30 @@ static int count_char_packet_bytes(lua_State * L)
             lua_rawgeti(L, -1, 1);
             if (lua_isstring(L, -1)) {
                 const char *s = lua_tostring(L, -1);
-                if (luaS_ptr_eq(s, font)) {
+                if (lua_key_eq(s, font)) {
                     l += 5;
                     ff = 1;
-                } else if (luaS_ptr_eq(s, char)) {
+                } else if (lua_key_eq(s, char)) {
                     if (ff == 0) {
                         l += 5;
                     }
                     l += 5;
                     ff = 1;
-                } else if (luaS_ptr_eq(s, slot)) {
+                } else if (lua_key_eq(s, slot)) {
                     l += 10;
                     ff = 1;
-                } else if (luaS_ptr_eq(s, comment) || luaS_ptr_eq(s, nop)) {
+                } else if (lua_key_eq(s, comment) || lua_key_eq(s, nop)) {
                     ;
-                } else if (luaS_ptr_eq(s, push) || luaS_ptr_eq(s, pop)) {
+                } else if (lua_key_eq(s, push) || lua_key_eq(s, pop)) {
                     l++;
-                } else if (luaS_ptr_eq(s, rule)) {
+                } else if (lua_key_eq(s, rule)) {
                     l += 9;
-                } else if (luaS_ptr_eq(s, right) || luaS_ptr_eq(s, node)
-                           || luaS_ptr_eq(s, down) || luaS_ptr_eq(s, image)) {
+                } else if (lua_key_eq(s, right) || lua_key_eq(s, node)
+                           || lua_key_eq(s, down) || lua_key_eq(s, image)) {
                     l += 5;
-                } else if (luaS_ptr_eq(s, scale)) {
+                } else if (lua_key_eq(s, scale)) {
                     l += sizeof(float) + 1;
-                } else if (luaS_ptr_eq(s, special) || luaS_ptr_eq(s, lua)) {
+                } else if (lua_key_eq(s, special) || lua_key_eq(s, lua)) {
                     size_t len;
                     lua_rawgeti(L, -2, 2);
                     if (lua_isstring(L, -1)) {
@@ -922,16 +790,16 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
             if (lua_isstring(L, -1)) {
                 s = lua_tostring(L, -1);
                 cmd = 0;
-                if (luaS_ptr_eq(s, font)) {
+                if (lua_key_eq(s, font)) {
                     cmd = packet_font_code;
-                } else if (luaS_ptr_eq(s, char)) {
+                } else if (lua_key_eq(s, char)) {
                     cmd = packet_char_code;
                     if (ff == 0) {
                         append_packet(packet_font_code);
                         ff = l_fonts[1];
                         do_store_four(ff);
                     }
-                } else if (luaS_ptr_eq(s, slot)) {
+                } else if (lua_key_eq(s, slot)) {
                     cmd = packet_nop_code;
                     lua_rawgeti(L, -2, 2);
                     n = (int) luaL_checkinteger(L, -1);
@@ -943,27 +811,27 @@ read_char_packets(lua_State * L, int *l_fonts, charinfo * co, int atsize)
                     do_store_four(ff);
                     append_packet(packet_char_code);
                     do_store_four(n);
-                } else if (luaS_ptr_eq(s, comment) || luaS_ptr_eq(s, nop)) {
+                } else if (lua_key_eq(s, comment) || lua_key_eq(s, nop)) {
                     cmd = packet_nop_code;
-                } else if (luaS_ptr_eq(s, node)) {
+                } else if (lua_key_eq(s, node)) {
                     cmd = packet_node_code;
-                } else if (luaS_ptr_eq(s, push)) {
+                } else if (lua_key_eq(s, push)) {
                     cmd = packet_push_code;
-                } else if (luaS_ptr_eq(s, pop)) {
+                } else if (lua_key_eq(s, pop)) {
                     cmd = packet_pop_code;
-                } else if (luaS_ptr_eq(s, rule)) {
+                } else if (lua_key_eq(s, rule)) {
                     cmd = packet_rule_code;
-                } else if (luaS_ptr_eq(s, right)) {
+                } else if (lua_key_eq(s, right)) {
                     cmd = packet_right_code;
-                } else if (luaS_ptr_eq(s, down)) {
+                } else if (lua_key_eq(s, down)) {
                     cmd = packet_down_code;
-                } else if (luaS_ptr_eq(s, special)) {
+                } else if (lua_key_eq(s, special)) {
                     cmd = packet_special_code;
-                } else if (luaS_ptr_eq(s, image)) {
+                } else if (lua_key_eq(s, image)) {
                     cmd = packet_image_code;
-                } else if (luaS_ptr_eq(s, scale)) {
+                } else if (lua_key_eq(s, scale)) {
                     cmd = packet_scale_code;
-                } else if (luaS_ptr_eq(s, lua)) {
+                } else if (lua_key_eq(s, lua)) {
                     cmd = packet_lua_code;
                 }
 
@@ -1126,19 +994,19 @@ static void read_lua_parameters(lua_State * L, int f)
             } else if (lua_isstring(L, -2)) {
                 s = lua_tostring(L, -2);
                 n = (lua_isnumber(L, -1) ? lua_roundnumber(L, -1) : 0);
-                if (luaS_ptr_eq(s, slant)) {
+                if (lua_key_eq(s, slant)) {
                     set_font_param(f, slant_code, n);
-                } else if (luaS_ptr_eq(s, space)) {
+                } else if (lua_key_eq(s, space)) {
                     set_font_param(f, space_code, n);
-                } else if (luaS_ptr_eq(s, space_stretch)) {
+                } else if (lua_key_eq(s, space_stretch)) {
                     set_font_param(f, space_stretch_code, n);
-                } else if (luaS_ptr_eq(s, space_shrink)) {
+                } else if (lua_key_eq(s, space_shrink)) {
                     set_font_param(f, space_shrink_code, n);
-                } else if (luaS_ptr_eq(s, x_height)) {
+                } else if (lua_key_eq(s, x_height)) {
                     set_font_param(f, x_height_code, n);
-                } else if (luaS_ptr_eq(s, quad)) {
+                } else if (lua_key_eq(s, quad)) {
                     set_font_param(f, quad_code, n);
-                } else if (luaS_ptr_eq(s, extra_space)) {
+                } else if (lua_key_eq(s, extra_space)) {
                     set_font_param(f, extra_space_code, n);
                 }
             }
@@ -1383,7 +1251,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
                             k = non_boundarychar;
                     } else if (lua_isstring(L, -2)) {
                         s = lua_tostring(L, -2);
-                        if (luaS_ptr_eq(s, right_boundary)) {
+                        if (lua_key_eq(s, right_boundary)) {
                             k = right_boundarychar;
                             if (!has_right_boundary(f))
                                 set_right_boundary(f,
@@ -1446,7 +1314,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
                         }
                     } else if (lua_isstring(L, -2)) {
                         s = lua_tostring(L, -2);
-                        if (luaS_ptr_eq(s, right_boundary)) {
+                        if (lua_key_eq(s, right_boundary)) {
                             k = right_boundarychar;
                             if (!has_right_boundary(f))
                                 set_right_boundary(f,
@@ -1513,10 +1381,10 @@ int font_from_lua(lua_State * L, int f)
     free(s);
 
     /* the table is at stack index -1 */
-
-    if (luaS_width_index == 0)
+    /*if (luaS_width_index == 0)
         init_font_string_pointers(L);
-
+    */
+ 
     s = string_field(L, "area", "");
     set_font_area(f, s);
     s = string_field(L, "filename", NULL);
@@ -1696,10 +1564,10 @@ int font_from_lua(lua_State * L, int f)
                     }
                 } else if (lua_isstring(L, -2)) {
                     const char *ss1 = lua_tostring(L, -2);
-                    if (luaS_ptr_eq(ss1, left_boundary)) {
+                    if (lua_key_eq(ss1, left_boundary)) {
                         font_char_from_lua(L, f, left_boundarychar, l_fonts,
                                            !no_math);
-                    } else if (luaS_ptr_eq(ss1, right_boundary)) {
+                    } else if (lua_key_eq(ss1, right_boundary)) {
                         font_char_from_lua(L, f, right_boundarychar, l_fonts,
                                            !no_math);
                     }

@@ -233,94 +233,234 @@ extern char **environ;
 /*#define init_luaS_index(a) do {                         */
 #define init_lua_key(a) do {                      \
     lua_pushliteral(Luas,#a);                             \
-    G_luaS_##a##_ptr = lua_tostring(Luas,-1);               \
-    G_luaS_##a##_index = luaL_ref (Luas,LUA_REGISTRYINDEX); \
+    luaS_##a##_ptr = lua_tostring(Luas,-1);               \
+    luaS_##a##_index = luaL_ref (Luas,LUA_REGISTRYINDEX); \
 } while (0)
 
   /*#define init_luaS_index_s(a,b) do {           */      
 #define init_lua_key_alias(a,b) do {              \
     lua_pushliteral(Luas,b);                              \
-    G_luaS_##a##_ptr = lua_tostring(Luas,-1);               \
-    G_luaS_##a##_index = luaL_ref (Luas,LUA_REGISTRYINDEX); \
+    luaS_##a##_ptr = lua_tostring(Luas,-1);               \
+    luaS_##a##_index = luaL_ref (Luas,LUA_REGISTRYINDEX); \
 } while (0)
 
   /*#define make_luaS_index(a) */                       
 #define make_lua_key(a)       \
-    int G_luaS_##a##_index = 0;          \
-    const char * G_luaS_##a##_ptr = NULL
+    int luaS_##a##_index = 0;          \
+    const char * luaS_##a##_ptr = NULL
 
-#define G_luaS_index(a) G_luaS_##a##_index
 
 /*#define luaS_ptr_eq(a,b) (a==luaS_##b##_ptr)*/
-#define lua_key_eq(a,b) (a==G_luaS_##b##_ptr)
+#define lua_key_eq(a,b) (a==luaS_##b##_ptr)
 
-#define G_luaS_index(a) G_luaS_##a##_index
+#define luaS_index(a) luaS_##a##_index
 
-#define use_lua_key(a)  extern const char * G_luaS_##a##_ptr 
+#define use_lua_key(a)  \
+  extern int luaS_##a##_index ;          \
+  extern const char * luaS_##a##_ptr 
 
 #endif                          /* LUATEX_API_H */
 
+/*                                                 */  
 /* These keys have to available to different files */
+/*                                                 */ 
+use_lua_key(LTL);
+use_lua_key(RTT);
+use_lua_key(TLT);
+use_lua_key(TRT);
+use_lua_key(accent);
+use_lua_key(action);
+use_lua_key(action_id);
+use_lua_key(action_type);
+use_lua_key(additional);
 use_lua_key(adjust_head);
+use_lua_key(advance);
 use_lua_key(aleph);
 use_lua_key(align_head);
+use_lua_key(area);
+use_lua_key(attr);
+use_lua_key(best_ins_ptr);
 use_lua_key(best_page_break);
 use_lua_key(best_size);
+use_lua_key(bot);
+use_lua_key(bot_accent);
+use_lua_key(box_left);
+use_lua_key(box_left_width);
+use_lua_key(box_right);
+use_lua_key(box_right_width);
+use_lua_key(broken_ins);
+use_lua_key(broken_ptr);
+use_lua_key(cal_expand_ratio);
+use_lua_key(char);
+use_lua_key(class);
+use_lua_key(command);
+use_lua_key(commands);
+use_lua_key(comment);
+use_lua_key(components);
 use_lua_key(contrib_head);
 use_lua_key(core);
+use_lua_key(cost);
+use_lua_key(count);
+use_lua_key(data);
+use_lua_key(degree);
+use_lua_key(delim);
 use_lua_key(delimptr);
+use_lua_key(denom);
+use_lua_key(depth);
+use_lua_key(dest_id);
+use_lua_key(dest_type);
+use_lua_key(dir);
+use_lua_key(dir_h);
 use_lua_key(dirs);
+use_lua_key(display);
+use_lua_key(down);
+use_lua_key(dvi_ptr);
+use_lua_key(end);
 use_lua_key(etex);
+use_lua_key(exactly);
+use_lua_key(expansion_factor);
+use_lua_key(ext);
+use_lua_key(extender);
+use_lua_key(extensible);
+use_lua_key(extra_space);
+use_lua_key(fam);
+use_lua_key(fast);
+use_lua_key(file);
+use_lua_key(font);
+use_lua_key(fonts);
 use_lua_key(global);
+use_lua_key(glue_order);
+use_lua_key(glue_set);
+use_lua_key(glue_sign);
+use_lua_key(glyph);
 use_lua_key(head);
+use_lua_key(height);
 use_lua_key(hold_head);
+use_lua_key(horiz_variants);
+use_lua_key(id);
+use_lua_key(image);
+use_lua_key(index);
+use_lua_key(italic);
+use_lua_key(kern);
+use_lua_key(kerns);
+use_lua_key(lang);
+use_lua_key(large_char);
+use_lua_key(large_fam);
+use_lua_key(last_ins_ptr);
+use_lua_key(leader);
 use_lua_key(least_page_cost);
+use_lua_key(left);
+use_lua_key(left_boundary);
+use_lua_key(left_protruding);
+use_lua_key(level);
+use_lua_key(ligatures);
+use_lua_key(link_attr);
+use_lua_key(list);
 use_lua_key(log);
+use_lua_key(lua);
 use_lua_key(luatex);
+use_lua_key(luatex_node);
+use_lua_key(mLTL);
+use_lua_key(mRTT);
+use_lua_key(mTLT);
+use_lua_key(mTRT);
+use_lua_key(mark);
 use_lua_key(mathdir);
+use_lua_key(mathkern);
 use_lua_key(mathstyle);
+use_lua_key(mid);
 use_lua_key(mode);
 use_lua_key(modeline);
+use_lua_key(name);
+use_lua_key(named_id);
+use_lua_key(new_window);
+use_lua_key(next);
 use_lua_key(noad);
+use_lua_key(node);
+use_lua_key(nop);
+use_lua_key(nucleus);
+use_lua_key(num);
+use_lua_key(number);
+use_lua_key(objnum);
 use_lua_key(omega);
+use_lua_key(pLTL);
+use_lua_key(pRTT);
+use_lua_key(pTLT);
+use_lua_key(pTRT);
 use_lua_key(page_head);
 use_lua_key(page_ins_head);
 use_lua_key(pdftex);
+use_lua_key(pen_broken);
+use_lua_key(pen_inter);
+use_lua_key(penalty);
+use_lua_key(pop);
+use_lua_key(post);
+use_lua_key(pre);
 use_lua_key(pre_adjust_head);
+use_lua_key(prev);
 use_lua_key(prevdepth);
 use_lua_key(prevgraf);
 use_lua_key(ptr);
+use_lua_key(push);
+use_lua_key(quad);
+use_lua_key(ref_count);
+use_lua_key(reg);
+use_lua_key(rep);
+use_lua_key(replace);
+use_lua_key(right);
+use_lua_key(right_boundary);
+use_lua_key(right_protruding);
+use_lua_key(rule);
+use_lua_key(scale);
+use_lua_key(script);
+use_lua_key(scriptscript);
+use_lua_key(shift);
+use_lua_key(shrink);
+use_lua_key(shrink_order);
+use_lua_key(slant);
+use_lua_key(slot);
+use_lua_key(small_char);
+use_lua_key(small_fam);
+use_lua_key(space);
+use_lua_key(space_shrink);
+use_lua_key(space_stretch);
 use_lua_key(spacefactor);
+use_lua_key(spec);
+use_lua_key(special);
+use_lua_key(stack);
+use_lua_key(start);
+use_lua_key(stream);
+use_lua_key(stretch);
+use_lua_key(stretch_order);
+use_lua_key(string);
+use_lua_key(style);
+use_lua_key(sub);
+use_lua_key(subst_ex_font);
+use_lua_key(subtype);
+use_lua_key(sup);
+use_lua_key(surround);
 use_lua_key(tail);
 use_lua_key(temp_head);
 use_lua_key(term);
-use_lua_key(tex);
-use_lua_key(umath);
 use_lua_key(term_and_log);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+use_lua_key(tex);
+use_lua_key(text);
+use_lua_key(thread_attr);
+use_lua_key(thread_id);
+use_lua_key(top);
+use_lua_key(top_accent);
+use_lua_key(tounicode);
+use_lua_key(transform);
+use_lua_key(type);
+use_lua_key(uchyph);
+use_lua_key(umath);
+use_lua_key(used);
+use_lua_key(user_id);
+use_lua_key(value);
+use_lua_key(vert_variants);
+use_lua_key(width);
+use_lua_key(writable);
+use_lua_key(x_height);
+use_lua_key(xoffset);
+use_lua_key(xyz_zoom);
+use_lua_key(yoffset);
