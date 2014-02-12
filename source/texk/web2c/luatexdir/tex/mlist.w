@@ -3367,7 +3367,7 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
                 couple_nodes(q,p);
                 while (vlink(p) != null)
                     p = vlink(p);
-                couple_nodes(p,z);
+                try_couple_nodes(p,z);
             }
             goto DONE_WITH_NODE;
             break;
