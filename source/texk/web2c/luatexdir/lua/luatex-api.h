@@ -469,3 +469,5 @@ use_lua_key(top_left);
 use_lua_key(top_right);
 use_lua_key(bottom_right);
 use_lua_key(bottom_left);
+
+use_lua_key(step);

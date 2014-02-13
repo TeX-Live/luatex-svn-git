@@ -1559,14 +1559,14 @@ int font_from_lua(lua_State * L, int f)
             /* handle font expansion last: the |copy_font| routine is called eventually,
                and that needs to know |bc| and |ec|. */
             if (font_type(f) != virtual_font_type) {
-                int fstep = numeric_field(L, "step", 0);
+	        int fstep = n_numeric_field(L, lua_key_index(step), 0);
                 if (fstep < 0)
                     fstep = 0;
                 if (fstep > 100)
                     fstep = 100;
                 if (fstep != 0) {
-                    int fshrink = numeric_field(L, "shrink", 0);
-                    int fstretch = numeric_field(L, "stretch", 0);
+		  int fshrink = n_numeric_field(L, lua_key_index(shrink), 0);
+		  int fstretch =n_numeric_field(L, lua_key_index(stretch), 0);
                     int fexpand = boolean_field(L, "auto_expand", 0);
                     if (fshrink < 0)
                         fshrink = 0;

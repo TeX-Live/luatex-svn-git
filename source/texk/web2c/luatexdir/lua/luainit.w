@@ -234,6 +234,8 @@ make_lua_key(top_left);
 make_lua_key(top_right);
 make_lua_key(bottom_right);
 make_lua_key(bottom_left);
+/**/
+make_lua_key(step);
 
 
 
@@ -1324,7 +1326,8 @@ void lua_initialize(int ac, char **av)
     init_lua_key(top_right);
     init_lua_key(bottom_right);
     init_lua_key(bottom_left);
-
+    /**/
+    init_lua_key(step);
 
 
     prepare_cmdline(Luas, argv, argc, lua_offset);      /* collect arguments */
