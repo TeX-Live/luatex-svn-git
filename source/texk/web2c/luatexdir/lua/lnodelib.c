@@ -285,7 +285,7 @@ halfword *check_isnode(lua_State * L, int ud)
     halfword *p = maybe_isnode(L, ud);
     if (p != NULL)
         return p;
-    pdftex_fail("There should have been a lua <node> here, not an object with type %s!", luaL_typename(L, ud));
+    luatex_fail("There should have been a lua <node> here, not an object with type %s!", luaL_typename(L, ud));
     return NULL;
 }
 
@@ -4163,7 +4163,7 @@ static int lua_nodelib_direct_has_glyph(lua_State * L)
 
 static int lua_nodelib_first_character(lua_State * L)
 {
-    pdftex_warn("node.first_character() is deprecated, please update to node.first_glyph()");
+    luatex_warn("node.first_character() is deprecated, please update to node.first_glyph()");
     return lua_nodelib_first_glyph(L);
 }
 
@@ -4288,7 +4288,7 @@ static int lua_nodelib_currentattr(lua_State * L)
         return 1;
     } else {
         /* assign */
-        pdftex_warn("Assignment via node.current_attr(<list>) is not supported (yet)");
+        luatex_warn("Assignment via node.current_attr(<list>) is not supported (yet)");
         return 0;
     }
 }

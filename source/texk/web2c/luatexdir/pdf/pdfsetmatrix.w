@@ -94,7 +94,7 @@ static void pdfsetmatrix(const char *in, scaledpos pos)
     if (global_shipping_mode == SHIPPING_PAGE) {
         if (sscanf((const char *) in, " %lf %lf %lf %lf ",
                    &x.a, &x.b, &x.c, &x.d) != 4) {
-            pdftex_warn("Unrecognized format of \\pdfsetmatrix{%s}", in);
+            luatex_warn("Unrecognized format of \\pdfsetmatrix{%s}", in);
             return;
         }
         /* calculate this transformation matrix */

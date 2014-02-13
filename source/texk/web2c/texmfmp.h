@@ -114,7 +114,7 @@ extern int tfmtemp, texinputtype;
 /* pdfTeX routines also used for e-pTeX and e-upTeX */
 #if defined (pdfTeX) || defined (epTeX) || defined (eupTeX)
 extern char start_time_str[];
-extern void pdftex_fail(const char *fmt, ...);
+extern void luatex_fail(const char *fmt, ...);
 extern void initstarttime(void);
 extern char *makecstring(integer s);
 extern char *makecfilename(integer s);

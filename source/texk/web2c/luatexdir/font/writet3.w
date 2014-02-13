@@ -50,7 +50,7 @@ int t3_curbyte = 0;
 
 #define t3_check_eof()                                     \
     if (t3_eof())                                          \
-        pdftex_fail("unexpected end of file");
+        luatex_fail("unexpected end of file");
 
 @
 @c
@@ -141,7 +141,7 @@ static boolean writepk(PDF pdf, internal_font_number f)
         if (name == NULL ||
             !FILESTRCASEEQ(cur_file_name, font_ret.name) ||
             !kpse_bitmap_tolerance((float) font_ret.dpi, (float) dpi)) {
-            pdftex_fail("Font %s at %i not found", cur_file_name, (int) dpi);
+            luatex_fail("Font %s at %i not found", cur_file_name, (int) dpi);
         }
     }
     callback_id = callback_defined(read_pk_file_callback);
@@ -150,7 +150,7 @@ static boolean writepk(PDF pdf, internal_font_number f)
             (run_callback
              (callback_id, "S->bSd", name, &file_opened, &t3_buffer, &t3_size)
              && file_opened && t3_size > 0)) {
-            pdftex_warn("Font %s at %i not found", cur_file_name, (int) dpi);
+            luatex_warn("Font %s at %i not found", cur_file_name, (int) dpi);
             cur_file_name = NULL;
             return false;
         }

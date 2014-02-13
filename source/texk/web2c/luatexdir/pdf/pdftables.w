@@ -58,11 +58,11 @@ static void avl_put_obj(PDF pdf, int t, oentry * oe)
     if (pdf->obj_tree[t] == NULL) {
         pdf->obj_tree[t] = avl_create(compare_info, NULL, &avl_xallocator);
         if (pdf->obj_tree[t] == NULL)
-            pdftex_fail("avlstuff.c: avl_create() pdf->obj_tree failed");
+            luatex_fail("avlstuff.c: avl_create() pdf->obj_tree failed");
     }
     pp = avl_probe(pdf->obj_tree[t], oe);
     if (pp == NULL)
-        pdftex_fail("avlstuff.c: avl_probe() out of memory in insertion");
+        luatex_fail("avlstuff.c: avl_probe() out of memory in insertion");
 }
 
 static void avl_put_int_obj(PDF pdf, int int0, int objptr, int t)

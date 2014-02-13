@@ -133,7 +133,7 @@ typedef struct vf_stack_record {
 {                                                      \
   eight_bits vf_tmp_b;				       \
     if (vf_cur >= vf_size) {                           \
-        pdftex_fail("unexpected eof on virtual font"); \
+        luatex_fail("unexpected eof on virtual font"); \
     }                                                  \
     vf_tmp_b = vf_buffer[vf_cur++];                    \
     a = vf_tmp_b;                                      \
