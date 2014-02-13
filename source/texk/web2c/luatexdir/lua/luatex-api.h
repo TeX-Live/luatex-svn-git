@@ -471,3 +471,15 @@ use_lua_key(bottom_right);
 use_lua_key(bottom_left);
 
 use_lua_key(step);
+
+use_lua_key(version);
+use_lua_key(supplement);
+use_lua_key(units_per_em);
+use_lua_key(designsize);
+use_lua_key(size);
+use_lua_key(checksum);
+use_lua_key(direction);
+use_lua_key(encodingbytes);
+use_lua_key(extend);
+use_lua_key(hyphenchar);
+use_lua_key(skewchar);

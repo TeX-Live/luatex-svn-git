@@ -236,7 +236,18 @@ make_lua_key(bottom_right);
 make_lua_key(bottom_left);
 /**/
 make_lua_key(step);
-
+/**/
+make_lua_key(version);
+make_lua_key(supplement);
+make_lua_key(units_per_em);
+make_lua_key(designsize);
+make_lua_key(size);
+make_lua_key(checksum);
+make_lua_key(direction);
+make_lua_key(encodingbytes);
+make_lua_key(extend);
+make_lua_key(hyphenchar);
+make_lua_key(skewchar);
 
 
 
@@ -1328,7 +1339,18 @@ void lua_initialize(int ac, char **av)
     init_lua_key(bottom_left);
     /**/
     init_lua_key(step);
-
+    /**/
+    init_lua_key(version);
+    init_lua_key(supplement);
+    init_lua_key(units_per_em);
+    init_lua_key(designsize);
+    init_lua_key(size);
+    init_lua_key(checksum);
+    init_lua_key(direction);
+    init_lua_key(encodingbytes);
+    init_lua_key(extend);
+    init_lua_key(hyphenchar);
+    init_lua_key(skewchar);
 
     prepare_cmdline(Luas, argv, argc, lua_offset);      /* collect arguments */
     setup_lua_path(Luas);
