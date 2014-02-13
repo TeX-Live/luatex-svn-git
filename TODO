@@ -1,1 +1,3 @@
 [ ] Replace pdftex_warn & pdftex_fail with luatex_warn and luatex_warn
+] ]   i = enum_field(L, "type", unknown_font_type, font_type_strings);
+     can make these font_type_strings also arrays with indices
