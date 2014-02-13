@@ -254,7 +254,7 @@ extern char **environ;
 #define lua_key_eq(a,b) (a==luaS_##b##_ptr)
 
 #define luaS_index(a) luaS_##a##_index
-
+#define lua_key_index(a) luaS_##a##_index
 #define use_lua_key(a)  \
   extern int luaS_##a##_index ;          \
   extern const char * luaS_##a##_ptr 
@@ -464,3 +464,8 @@ use_lua_key(x_height);
 use_lua_key(xoffset);
 use_lua_key(xyz_zoom);
 use_lua_key(yoffset);
+
+use_lua_key(top_left);
+use_lua_key(top_right);
+use_lua_key(bottom_right);
+use_lua_key(bottom_left);

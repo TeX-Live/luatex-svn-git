@@ -229,7 +229,11 @@ make_lua_key(x_height);
 make_lua_key(xoffset);
 make_lua_key(xyz_zoom);
 make_lua_key(yoffset);
-
+/**/
+make_lua_key(top_left);
+make_lua_key(top_right);
+make_lua_key(bottom_right);
+make_lua_key(bottom_left);
 
 
 
@@ -1315,6 +1319,12 @@ void lua_initialize(int ac, char **av)
     init_lua_key_alias(pTLT,"+TLT");
     init_lua_key_alias(pTRT,"+TRT");
     init_lua_key_alias(term_and_log,"term and log");
+    /**/
+    init_lua_key(top_left);
+    init_lua_key(top_right);
+    init_lua_key(bottom_right);
+    init_lua_key(bottom_left);
+
 
 
     prepare_cmdline(Luas, argv, argc, lua_offset);      /* collect arguments */

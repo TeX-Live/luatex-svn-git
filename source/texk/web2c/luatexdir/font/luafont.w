@@ -1044,36 +1044,24 @@ static void read_lua_math_parameters(lua_State * L, int f)
 #define MIN_INF -0x7FFFFFFF
 
 
-static void store_math_kerns(lua_State * L, charinfo * co, int id)
+static void store_math_kerns(lua_State * L, int index, charinfo * co, int id)
 {
-    int l, k, i;
+    int l, k; 
     scaled ht, krn;
+    lua_rawgeti(L, LUA_REGISTRYINDEX, index);
     if (lua_istable(L, -1) && ((k = (int) lua_rawlen(L, -1)) > 0)) {
         for (l = 0; l < k; l++) {
             lua_rawgeti(L, -1, (l + 1));
             if (lua_istable(L, -1)) {
-                lua_getfield(L, -1, "height");
-                if (lua_isnumber(L, -1)) {
-                    i=(int)lua_tonumber(L, -1);
-                    ht = (scaled) i;
-                } else {
-                    ht = MIN_INF;
-                }
-                lua_pop(L, 1);
-                lua_getfield(L, -1, "kern");
-                if (lua_isnumber(L, -1)) {
-                    i=(int)lua_tonumber(L, -1);
-                    krn = (scaled) i;
-                } else {
-                    krn = MIN_INF;
-                }
-                lua_pop(L, 1);
+	        ht = (scaled) n_numeric_field(L, lua_key_index(height), MIN_INF);
+		krn = (scaled) n_numeric_field(L, lua_key_index(kern), MIN_INF);
                 if (krn > MIN_INF && ht > MIN_INF)
                     add_charinfo_math_kern(co, id, ht, krn);
             }
             lua_pop(L, 1);
         }
     }
+    lua_pop(L, 1);
 }
 
 @ @c
@@ -1219,18 +1207,10 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
             lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_mathkern_index);
             lua_rawget(L, -2);
             if (lua_istable(L, -1)) {
-                lua_getfield(L, -1, "top_left");
-                store_math_kerns(L, co, top_left_kern);
-                lua_pop(L, 1);
-                lua_getfield(L, -1, "top_right");
-                store_math_kerns(L, co, top_right_kern);
-                lua_pop(L, 1);
-                lua_getfield(L, -1, "bottom_right");
-                store_math_kerns(L, co, bottom_right_kern);
-                lua_pop(L, 1);
-                lua_getfield(L, -1, "bottom_left");
-                store_math_kerns(L, co, bottom_left_kern);
-                lua_pop(L, 1);
+	        store_math_kerns(L,lua_key_index(top_left), co, top_left_kern);
+                store_math_kerns(L,lua_key_index(top_right), co, top_right_kern);
+                store_math_kerns(L,lua_key_index(bottom_right), co, bottom_right_kern);
+                store_math_kerns(L,lua_key_index(bottom_left), co, bottom_left_kern);
             }
             lua_pop(L, 1);
         }
