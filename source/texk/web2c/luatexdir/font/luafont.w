@@ -1072,11 +1072,11 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
         set_charinfo_italic(co, j);
         j = n_numeric_field(L, lua_key_index(index), 0);
         set_charinfo_index(co, j);
-        j = n_numeric_field(L, luaS_expansion_factor_index, 0);
+        j = n_numeric_field(L, lua_key_index(expansion_factor), 0);
         set_charinfo_ef(co, j);
-        j = n_numeric_field(L, luaS_left_protruding_index, 0);
+        j = n_numeric_field(L, lua_key_index(left_protruding), 0);
         set_charinfo_lp(co, j);
-        j = n_numeric_field(L, luaS_right_protruding_index, 0);
+        j = n_numeric_field(L, lua_key_index(right_protruding), 0);
         set_charinfo_rp(co, j);
         k = n_boolean_field(L, lua_key_index(used), 0);
         set_charinfo_used(co, k);
@@ -1095,9 +1095,9 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
 	/* n_string_field leaves a value on stack*/
         lua_pop(L,1); 
         if (has_math) {
-            j = n_numeric_field(L, luaS_top_accent_index, INT_MIN);
+            j = n_numeric_field(L, lua_key_index(top_accent), INT_MIN);
             set_charinfo_top_accent(co, j);
-            j = n_numeric_field(L, luaS_bot_accent_index, INT_MIN);
+            j = n_numeric_field(L, lua_key_index(bot_accent), INT_MIN);
             set_charinfo_bot_accent(co, j);
             k = n_numeric_field(L, lua_key_index(next), -1);
             if (k >= 0) {
@@ -1124,7 +1124,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
             }
             lua_pop(L, 1);
 
-            lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_horiz_variants_index);
+            lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(horiz_variants));
             lua_rawget(L, -2);
             if (lua_istable(L, -1)) {
                 int glyph, startconnect, endconnect, advance, extender;
@@ -1151,7 +1151,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
             }
             lua_pop(L, 1);
 
-            lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_vert_variants_index);
+            lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(vert_variants));
             lua_rawget(L, -2);
             if (lua_istable(L, -1)) {
                 int glyph, startconnect, endconnect, advance, extender;
@@ -1198,10 +1198,10 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
             lua_pop(L, 1);
         }
         /* end of |has_math| */
-        nk = count_hash_items(L, luaS_index(kerns));
+        nk = count_hash_items(L, lua_key_index(kerns));
         if (nk > 0) {
             ckerns = xcalloc((unsigned) (nk + 1), sizeof(kerninfo));
-            lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(kerns));
+            lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(kerns));
             lua_rawget(L, -2);
             if (lua_istable(L, -1)) {   /* there are kerns */
                 ctr = 0;
@@ -1259,11 +1259,11 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
         lua_pop(L, 1);
 
         /* ligatures */
-        nl = count_hash_items(L, luaS_index(ligatures));
+        nl = count_hash_items(L, lua_key_index(ligatures));
 
         if (nl > 0) {
             cligs = xcalloc((unsigned) (nl + 1), sizeof(liginfo));
-            lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(ligatures));
+            lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(ligatures));
             lua_rawget(L, -2);
             if (lua_istable(L, -1)) {   /* do ligs */
                 ctr = 0;
@@ -1423,11 +1423,11 @@ int font_from_lua(lua_State * L, int f)
     }
 
     /* now fetch the base fonts, if needed */
-    n = count_hash_items(L, luaS_index(fonts));
+    n = count_hash_items(L, lua_key_index(fonts));
     if (n > 0) {
         l_fonts = xmalloc((unsigned) ((unsigned) (n + 2) * sizeof(int)));
         memset(l_fonts, 0, (size_t) ((unsigned) (n + 2) * sizeof(int)));
-        lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(fonts));
+        lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(fonts));
         lua_rawget(L, -2);
         for (i = 1; i <= n; i++) {
             lua_rawgeti(L, -1, i);
