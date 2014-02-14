@@ -255,6 +255,7 @@ extern char **environ;
 
 #define luaS_index(a) luaS_##a##_index
 #define lua_key_index(a) luaS_##a##_index
+#define lua_key(a) luaS_##a##_ptr
 #define use_lua_key(a)  \
   extern int luaS_##a##_index ;          \
   extern const char * luaS_##a##_ptr 
@@ -483,3 +484,8 @@ use_lua_key(encodingbytes);
 use_lua_key(extend);
 use_lua_key(hyphenchar);
 use_lua_key(skewchar);
+
+use_lua_key(cache);
+
+use_lua_key(no);
+use_lua_key(renew);

@@ -666,20 +666,11 @@ static char *string_field(lua_State * L, const char *name, const char *dflt)
     return i;
 }
 
-static char *n_string_field(lua_State * L, int name_index, char *dflt)
+static const char *n_string_field(lua_State * L, int name_index)
 {
-    char *i;
-    lua_rawgeti(L, LUA_REGISTRYINDEX, name_index);      /* fetch the stringptr */
+    lua_rawgeti(L, LUA_REGISTRYINDEX, name_index);      /* fetch the stringptr */ 
     lua_rawget(L, -2);
-    if (lua_isstring(L, -1)) {
-        i = xstrdup(lua_tostring(L, -1));
-    } else if (dflt == NULL) {
-        i = NULL;
-    } else {
-        i = xstrdup(dflt);
-    }
-    lua_pop(L, 1);
-    return i;
+    return lua_tostring(L,-1);
 }
 /*static void init_font_string_pointers(lua_State * L){}*/
 
@@ -1089,17 +1080,20 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
         set_charinfo_rp(co, j);
         k = n_boolean_field(L, lua_key_index(used), 0);
         set_charinfo_used(co, k);
-        s = n_string_field(L, lua_key_index(name), NULL);
+        s = n_string_field(L, lua_key_index(name));
         if (s != NULL)
             set_charinfo_name(co, xstrdup(s));
         else
             set_charinfo_name(co, NULL);
-        s = n_string_field(L, lua_key_index(tounicode), NULL);
+        /* n_string_field leaves a value on stack*/
+        lua_pop(L,1); 
+        s = n_string_field(L, lua_key_index(tounicode));
         if (s != NULL)
             set_charinfo_tounicode(co, xstrdup(s));
         else
             set_charinfo_tounicode(co, NULL);
-
+	/* n_string_field leaves a value on stack*/
+        lua_pop(L,1); 
         if (has_math) {
             j = n_numeric_field(L, luaS_top_accent_index, INT_MIN);
             set_charinfo_top_accent(co, j);
@@ -1336,18 +1330,20 @@ int font_from_lua(lua_State * L, int f)
     char *s;
     const char *ss;
     int *l_fonts = NULL;
-    int save_ref = 1;           /* unneeded, really */
+    int save_ref ;
     boolean no_math = false;
 
     /* will we save a cache of the luat table? */
-    s = string_field(L, "cache", "yes");
-    if (strcmp(s, "yes") == 0)
-        save_ref = 1;
-    else if (strcmp(s, "no") == 0)
+
+    save_ref = 1; /* we start with  ss = "yes" */
+    ss = NULL;
+    ss = n_string_field(L, lua_key_index(cache));
+    if (lua_key_eq(ss, no))
         save_ref = -1;
-    else if (strcmp(s, "renew") == 0)
+    else if (lua_key_eq(ss, renew))
         save_ref = 0;
-    free(s);
+    /* n_string_field leaves a value on stack*/
+    lua_pop(L,1); 
 
     /* the table is at stack index -1 */
     /*if (luaS_width_index == 0)

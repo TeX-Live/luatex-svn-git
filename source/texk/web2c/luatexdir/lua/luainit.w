@@ -248,6 +248,11 @@ make_lua_key(encodingbytes);
 make_lua_key(extend);
 make_lua_key(hyphenchar);
 make_lua_key(skewchar);
+/**/
+make_lua_key(cache);
+/**/
+make_lua_key(no);
+make_lua_key(renew);
 
 
 
@@ -1351,6 +1356,12 @@ void lua_initialize(int ac, char **av)
     init_lua_key(extend);
     init_lua_key(hyphenchar);
     init_lua_key(skewchar);
+    /**/
+    init_lua_key(cache);
+    /**/
+    init_lua_key(no);
+    init_lua_key(renew);
+
 
     prepare_cmdline(Luas, argv, argc, lua_offset);      /* collect arguments */
     setup_lua_path(Luas);
