@@ -649,11 +649,28 @@ static int n_boolean_field(lua_State * L, int name_index, int dflt)
     return i;
 }
 
-
+/*
 static char *string_field(lua_State * L, const char *name, const char *dflt)
 {
     char *i;
     lua_pushstring(L, name);
+    lua_rawget(L, -2);
+    if (lua_isstring(L, -1)) {
+        i = xstrdup(lua_tostring(L, -1));
+    } else if (dflt == NULL) {
+        i = NULL;
+    } else {
+        i = xstrdup(dflt);
+    }
+    lua_pop(L, 1);
+    return i;
+}
+*/
+
+static char *n_string_field_copy(lua_State * L, int name_index, const char *dflt)
+{
+    char *i;
+    lua_rawgeti(L, LUA_REGISTRYINDEX, name_index);      /* fetch the stringptr */
     lua_rawget(L, -2);
     if (lua_isstring(L, -1)) {
         i = xstrdup(lua_tostring(L, -1));
@@ -925,9 +942,9 @@ static void read_lua_cidinfo(lua_State * L, int f)
         set_font_cidversion(f, i);
         i = n_numeric_field(L,lua_key_index(supplement), 0);
         set_font_cidsupplement(f, i);
-        s = string_field(L, "registry", "Adobe");       /* Adobe-Identity-0 */
+        s = n_string_field_copy(L, lua_key_index(registry), "Adobe");       /* Adobe-Identity-0 */
         set_font_cidregistry(f, s);
-        s = string_field(L, "ordering", "Identity");
+        s = n_string_field_copy(L, lua_key_index(ordering), "Identity");
         set_font_cidordering(f, s);
     }
     lua_pop(L, 1);
@@ -1350,23 +1367,23 @@ int font_from_lua(lua_State * L, int f)
         init_font_string_pointers(L);
     */
  
-    s = string_field(L, "area", "");
+    s = n_string_field_copy(L,lua_key_index(area), "");
     set_font_area(f, s);
-    s = string_field(L, "filename", NULL);
+    s = n_string_field_copy(L, lua_key_index(filename), NULL);
     set_font_filename(f, s);
-    s = string_field(L, "encodingname", NULL);
+    s = n_string_field_copy(L, lua_key_index(encodingname), NULL);
     set_font_encodingname(f, s);
 
-    s = string_field(L, "name", NULL);
+    s = n_string_field_copy(L, lua_key_index(name), NULL);
     set_font_name(f, s);
-    s = string_field(L, "fullname", font_name(f));
+    s = n_string_field_copy(L, lua_key_index(fullname), font_name(f));
     set_font_fullname(f, s);
 
     if (s == NULL) {
         luatex_fail("lua-loaded font [%d] has no name!", f);
         return false;
     }
-    s = string_field(L, "psname", NULL);
+    s = n_string_field_copy(L, lua_key_index(psname), NULL);
     set_font_psname(f, s);
 
     i = n_numeric_field(L,lua_key_index(units_per_em), 0);
@@ -1404,7 +1421,7 @@ int font_from_lua(lua_State * L, int f)
     i = boolean_field(L, "used", 0);
     set_font_used(f, (char) i);
 
-    s = string_field(L, "attributes", NULL);
+    s = n_string_field_copy(L, lua_key_index(attributes), NULL);
     if (s != NULL && strlen(s) > 0) {
         i = maketexstring(s);
         set_pdf_font_attr(f, i);
