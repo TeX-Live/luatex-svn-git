@@ -265,7 +265,15 @@ extern char **environ;
   lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_##a##_index);\
   lua_rawget(L, -2)
 
+
+#define lua_roundnumber(a,b) (int)floor((double)lua_tonumber(L,-1)+0.5)
+extern int lua_numeric_field_by_index(lua_State *, int , int);
+ 
+
 #endif                          /* LUATEX_API_H */
+
+
+
 
 /*                                                 */  
 /* These keys have to available to different files */
@@ -506,3 +514,7 @@ use_lua_key(embedding);
 
 use_lua_key(nomath);
 use_lua_key(auto_expand);
+
+
+
+

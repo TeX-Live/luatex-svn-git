@@ -584,20 +584,20 @@ static void append_float(eight_bits ** cpp, float a)
     *cpp = cp;
 }
 
-#define lua_roundnumber(a,b) (int)floor((double)lua_tonumber(L,-1)+0.5)
+//#define lua_roundnumber(a,b) (int)floor((double)lua_tonumber(L,-1)+0.5)
 
 
-static int n_numeric_field(lua_State * L, int name_index, int dflt)
-{
-    register int i = dflt;
-    lua_rawgeti(L, LUA_REGISTRYINDEX, name_index);      /* fetch the stringptr */
-    lua_rawget(L, -2);
-    if (lua_type(L, -1) == LUA_TNUMBER) {
-        i = lua_roundnumber(L, -1);
-    }
-    lua_pop(L, 1);
-    return i;
-}
+/* static int n_numeric_field(lua_State * L, int name_index, int dflt) */
+/* { */
+/*     register int i = dflt; */
+/*     lua_rawgeti(L, LUA_REGISTRYINDEX, name_index);      /\* fetch the stringptr *\/ */
+/*     lua_rawget(L, -2); */
+/*     if (lua_type(L, -1) == LUA_TNUMBER) { */
+/*         i = lua_roundnumber(L, -1); */
+/*     } */
+/*     lua_pop(L, 1); */
+/*     return i; */
+/* } */
 
 
 
@@ -654,17 +654,17 @@ static int n_enum_field(lua_State * L, int name_index, int dflt,
 
 
 
-static int boolean_field(lua_State * L, const char *name, int dflt)
-{
-    int i = dflt;
-    lua_pushstring(L, name);
-    lua_rawget(L, -2);
-    if (lua_isboolean(L, -1)) {
-        i = lua_toboolean(L, -1);
-    }
-    lua_pop(L, 1);
-    return i;
-}
+/* static int boolean_field(lua_State * L, const char *name, int dflt) */
+/* { */
+/*     int i = dflt; */
+/*     lua_pushstring(L, name); */
+/*     lua_rawget(L, -2); */
+/*     if (lua_isboolean(L, -1)) { */
+/*         i = lua_toboolean(L, -1); */
+/*     } */
+/*     lua_pop(L, 1); */
+/*     return i; */
+/* } */
 
 static int n_boolean_field(lua_State * L, int name_index, int dflt)
 {
@@ -951,9 +951,9 @@ static void read_lua_cidinfo(lua_State * L, int f)
     //lua_getfield(L, -1, "cidinfo");
     lua_key_rawgeti(cidinfo);
     if (lua_istable(L, -1)) {
-        i = n_numeric_field(L,lua_key_index(version), 0);
+        i = lua_numeric_field_by_index(L,lua_key_index(version), 0);
         set_font_cidversion(f, i);
-        i = n_numeric_field(L,lua_key_index(supplement), 0);
+        i = lua_numeric_field_by_index(L,lua_key_index(supplement), 0);
         set_font_cidsupplement(f, i);
         s = n_string_field_copy(L, lua_key_index(registry), "Adobe");       /* Adobe-Identity-0 */
         set_font_cidregistry(f, s);
@@ -1065,8 +1065,8 @@ static void store_math_kerns(lua_State * L, int index, charinfo * co, int id)
         for (l = 0; l < k; l++) {
             lua_rawgeti(L, -1, (l + 1));
             if (lua_istable(L, -1)) {
-	        ht = (scaled) n_numeric_field(L, lua_key_index(height), MIN_INF);
-		krn = (scaled) n_numeric_field(L, lua_key_index(kern), MIN_INF);
+	        ht = (scaled) lua_numeric_field_by_index(L, lua_key_index(height), MIN_INF);
+		krn = (scaled) lua_numeric_field_by_index(L, lua_key_index(kern), MIN_INF);
                 if (krn > MIN_INF && ht > MIN_INF)
                     add_charinfo_math_kern(co, id, ht, krn);
             }
@@ -1094,21 +1094,21 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
     if (lua_istable(L, -1)) {
         co = get_charinfo(f, i);
         set_charinfo_tag(co, 0);
-        j = n_numeric_field(L, lua_key_index(width), 0);
+        j = lua_numeric_field_by_index(L, lua_key_index(width), 0);
         set_charinfo_width(co, j);
-        j = n_numeric_field(L, lua_key_index(height), 0);
+        j = lua_numeric_field_by_index(L, lua_key_index(height), 0);
         set_charinfo_height(co, j);
-        j = n_numeric_field(L, lua_key_index(depth), 0);
+        j = lua_numeric_field_by_index(L, lua_key_index(depth), 0);
         set_charinfo_depth(co, j);
-        j = n_numeric_field(L, lua_key_index(italic), 0);
+        j = lua_numeric_field_by_index(L, lua_key_index(italic), 0);
         set_charinfo_italic(co, j);
-        j = n_numeric_field(L, lua_key_index(index), 0);
+        j = lua_numeric_field_by_index(L, lua_key_index(index), 0);
         set_charinfo_index(co, j);
-        j = n_numeric_field(L, lua_key_index(expansion_factor), 0);
+        j = lua_numeric_field_by_index(L, lua_key_index(expansion_factor), 0);
         set_charinfo_ef(co, j);
-        j = n_numeric_field(L, lua_key_index(left_protruding), 0);
+        j = lua_numeric_field_by_index(L, lua_key_index(left_protruding), 0);
         set_charinfo_lp(co, j);
-        j = n_numeric_field(L, lua_key_index(right_protruding), 0);
+        j = lua_numeric_field_by_index(L, lua_key_index(right_protruding), 0);
         set_charinfo_rp(co, j);
         k = n_boolean_field(L, lua_key_index(used), 0);
         set_charinfo_used(co, k);
@@ -1127,11 +1127,11 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
 	/* n_string_field leaves a value on stack*/
         lua_pop(L,1); 
         if (has_math) {
-            j = n_numeric_field(L, lua_key_index(top_accent), INT_MIN);
+            j = lua_numeric_field_by_index(L, lua_key_index(top_accent), INT_MIN);
             set_charinfo_top_accent(co, j);
-            j = n_numeric_field(L, lua_key_index(bot_accent), INT_MIN);
+            j = lua_numeric_field_by_index(L, lua_key_index(bot_accent), INT_MIN);
             set_charinfo_bot_accent(co, j);
-            k = n_numeric_field(L, lua_key_index(next), -1);
+            k = lua_numeric_field_by_index(L, lua_key_index(next), -1);
             if (k >= 0) {
                 set_charinfo_tag(co, list_tag);
                 set_charinfo_remainder(co, k);
@@ -1141,10 +1141,10 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
             lua_rawget(L, -2);
             if (lua_istable(L, -1)) {
                 int top, bot, mid, rep;
-                top = n_numeric_field(L, lua_key_index(top), 0);
-                bot = n_numeric_field(L, lua_key_index(bot), 0);
-                mid = n_numeric_field(L, lua_key_index(mid), 0);
-                rep = n_numeric_field(L, lua_key_index(rep), 0);
+                top = lua_numeric_field_by_index(L, lua_key_index(top), 0);
+                bot = lua_numeric_field_by_index(L, lua_key_index(bot), 0);
+                mid = lua_numeric_field_by_index(L, lua_key_index(mid), 0);
+                rep = lua_numeric_field_by_index(L, lua_key_index(rep), 0);
                 if (top != 0 || bot != 0 || mid != 0 || rep != 0) {
                     set_charinfo_tag(co, ext_tag);
                     set_charinfo_extensible(co, top, bot, mid, rep);
@@ -1166,11 +1166,11 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
                 for (k = 1;; k++) {
                     lua_rawgeti(L, -1, k);
                     if (lua_istable(L, -1)) {
-                        glyph = n_numeric_field(L, lua_key_index(glyph), 0);
-                        extender = n_numeric_field(L, lua_key_index(extender), 0);
-                        startconnect = n_numeric_field(L, lua_key_index(start), 0);
-                        endconnect = n_numeric_field(L, lua_key_index(end), 0);
-                        advance = n_numeric_field(L, lua_key_index(advance), 0);
+                        glyph = lua_numeric_field_by_index(L, lua_key_index(glyph), 0);
+                        extender = lua_numeric_field_by_index(L, lua_key_index(extender), 0);
+                        startconnect = lua_numeric_field_by_index(L, lua_key_index(start), 0);
+                        endconnect = lua_numeric_field_by_index(L, lua_key_index(end), 0);
+                        advance = lua_numeric_field_by_index(L, lua_key_index(advance), 0);
                         h = new_variant(glyph, startconnect, endconnect,
                                         advance, extender);
                         add_charinfo_hor_variant(co, h);
@@ -1193,11 +1193,11 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
                 for (k = 1;; k++) {
                     lua_rawgeti(L, -1, k);
                     if (lua_istable(L, -1)) {
-                        glyph = n_numeric_field(L, lua_key_index(glyph), 0);
-                        extender = n_numeric_field(L, lua_key_index(extender), 0);
-                        startconnect = n_numeric_field(L, lua_key_index(start), 0);
-                        endconnect = n_numeric_field(L, lua_key_index(end), 0);
-                        advance = n_numeric_field(L, lua_key_index(advance), 0);
+                        glyph = lua_numeric_field_by_index(L, lua_key_index(glyph), 0);
+                        extender = lua_numeric_field_by_index(L, lua_key_index(extender), 0);
+                        startconnect = lua_numeric_field_by_index(L, lua_key_index(start), 0);
+                        endconnect = lua_numeric_field_by_index(L, lua_key_index(end), 0);
+                        advance = lua_numeric_field_by_index(L, lua_key_index(advance), 0);
                         h = new_variant(glyph, startconnect, endconnect,
                                         advance, extender);
                         add_charinfo_vert_variant(co, h);
@@ -1319,7 +1319,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
                     }
                     r = -1;
                     if (lua_istable(L, -1)) {
-                        r = n_numeric_field(L, lua_key_index(char), -1);    /* ligature */
+                        r = lua_numeric_field_by_index(L, lua_key_index(char), -1);    /* ligature */
                     }
                     if (r != -1 && k != non_boundarychar) {
 		        t = n_enum_field(L, lua_key_index(type), 0, ligature_type_strings);
@@ -1401,37 +1401,37 @@ int font_from_lua(lua_State * L, int f)
     s = n_string_field_copy(L, lua_key_index(psname), NULL);
     set_font_psname(f, s);
 
-    i = n_numeric_field(L,lua_key_index(units_per_em), 0);
+    i = lua_numeric_field_by_index(L,lua_key_index(units_per_em), 0);
     set_font_units_per_em(f, i);
-    i = n_numeric_field(L,lua_key_index(designsize), 655360);
+    i = lua_numeric_field_by_index(L,lua_key_index(designsize), 655360);
     set_font_dsize(f, i);
-    i = n_numeric_field(L,lua_key_index(size), font_dsize(f));
+    i = lua_numeric_field_by_index(L,lua_key_index(size), font_dsize(f));
     set_font_size(f, i);
-    i = n_numeric_field(L,lua_key_index(checksum), 0);
+    i = lua_numeric_field_by_index(L,lua_key_index(checksum), 0);
     set_font_checksum(f, (unsigned) i);
-    i = n_numeric_field(L,lua_key_index(direction), 0);
+    i = lua_numeric_field_by_index(L,lua_key_index(direction), 0);
     set_font_natural_dir(f, i);
-    i = n_numeric_field(L,lua_key_index(encodingbytes), 0);
+    i = lua_numeric_field_by_index(L,lua_key_index(encodingbytes), 0);
     set_font_encodingbytes(f, (char) i);
-    i = n_numeric_field(L,lua_key_index(tounicode), 0);
+    i = lua_numeric_field_by_index(L,lua_key_index(tounicode), 0);
     set_font_tounicode(f, (char) i);
 
-    i = n_numeric_field(L,lua_key_index(extend), 1000);
+    i = lua_numeric_field_by_index(L,lua_key_index(extend), 1000);
     if (i < FONT_EXTEND_MIN)
         i = FONT_EXTEND_MIN;
     if (i > FONT_EXTEND_MAX)
         i = FONT_EXTEND_MAX;
     set_font_extend(f, i);
-    i = n_numeric_field(L,lua_key_index(slant), 0);
+    i = lua_numeric_field_by_index(L,lua_key_index(slant), 0);
     if (i < FONT_SLANT_MIN)
         i = FONT_SLANT_MIN;
     if (i > FONT_SLANT_MAX)
         i = FONT_SLANT_MAX;
     set_font_slant(f, i);
 
-    i = n_numeric_field(L,lua_key_index(hyphenchar), int_par(default_hyphen_char_code));
+    i = lua_numeric_field_by_index(L,lua_key_index(hyphenchar), int_par(default_hyphen_char_code));
     set_hyphen_char(f, i);
-    i = n_numeric_field(L,lua_key_index(skewchar), int_par(default_skew_char_code));
+    i = lua_numeric_field_by_index(L,lua_key_index(skewchar), int_par(default_skew_char_code));
     set_skew_char(f, i);
     i = n_boolean_field(L, lua_key_index(used), 0);
     set_font_used(f, (char) i);
@@ -1485,7 +1485,7 @@ int font_from_lua(lua_State * L, int f)
                 /* lua_getfield(L, -1, "size"); */
                 /* t = (lua_isnumber(L, -1) ? lua_roundnumber(L, -1) : -1000); */
                 /* lua_pop(L, 1); */
-	        t = n_numeric_field(L, lua_key_index(size), -1000);
+	        t = lua_numeric_field_by_index(L, lua_key_index(size), -1000);
                 /* TODO: the stack is messed up, otherwise this
                  * explicit resizing would not be needed
                  */
@@ -1578,14 +1578,14 @@ int font_from_lua(lua_State * L, int f)
             /* handle font expansion last: the |copy_font| routine is called eventually,
                and that needs to know |bc| and |ec|. */
             if (font_type(f) != virtual_font_type) {
-	        int fstep = n_numeric_field(L, lua_key_index(step), 0);
+	        int fstep = lua_numeric_field_by_index(L, lua_key_index(step), 0);
                 if (fstep < 0)
                     fstep = 0;
                 if (fstep > 100)
                     fstep = 100;
                 if (fstep != 0) {
-		  int fshrink = n_numeric_field(L, lua_key_index(shrink), 0);
-		  int fstretch =n_numeric_field(L, lua_key_index(stretch), 0);
+		  int fshrink = lua_numeric_field_by_index(L, lua_key_index(shrink), 0);
+		  int fstretch =lua_numeric_field_by_index(L, lua_key_index(stretch), 0);
 		  int fexpand = n_boolean_field(L, lua_key_index(auto_expand), 0);
                     if (fshrink < 0)
                         fshrink = 0;
