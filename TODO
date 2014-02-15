@@ -1,3 +1,30 @@
 [X] Replace pdftex_warn & pdftex_fail with luatex_warn and luatex_warn
 [ ]   i = enum_field(L, "type", unknown_font_type, font_type_strings);
      can make these font_type_strings also arrays with indices
+
+
+
+[ ] s = string_field(L, "attributes", NULL);
+
+[ ]     i = boolean_field(L, "used", 0);
+
+[ ] lua_getfield(L, -1, "name");
+
+[ ] lua_getfield(L, -1, "size");
+
+[ ]  no_math = boolean_field(L, "nomath", 0);
+
+[ ] lua_getfield(L, -1, "characters"); (this one has the table on stack then)
+
+[ ] int fexpand = boolean_field(L, "auto_expand", 0);
+
+[ ] 
+also add keys
+type format embedding
+(so that we can play with the enum)
+probably a get_key there
+
+[ ] for completeness: read_lua_cidinfo too
+
+[ ] lua_getfield(L, -1, "parameters"); is like characters
+
