@@ -255,6 +255,14 @@ make_lua_key(x_height);
 make_lua_key(xoffset);
 make_lua_key(xyz_zoom);
 make_lua_key(yoffset);
+make_lua_key(characters);
+make_lua_key(cidinfo);
+make_lua_key(parameters);
+make_lua_key(MathConstants);
+make_lua_key(format);
+make_lua_key(embedding);
+make_lua_key(nomath);
+make_lua_key(auto_expand);
 
 @
 TH: TODO
@@ -1169,6 +1177,7 @@ void lua_initialize(int ac, char **av)
     init_lua_key(cache);
     init_lua_key(cal_expand_ratio);
     init_lua_key(char);
+    init_lua_key(characters);
     init_lua_key(checksum);
     init_lua_key(class);
     init_lua_key(command);
@@ -1354,6 +1363,7 @@ void lua_initialize(int ac, char **av)
     init_lua_key(xoffset);
     init_lua_key(xyz_zoom);
     init_lua_key(yoffset);
+    init_lua_key(cidinfo);
     init_lua_key_alias(mLTL,"-LTL");
     init_lua_key_alias(mRTT,"-RTT");
     init_lua_key_alias(mTLT,"-TLT");
@@ -1363,6 +1373,13 @@ void lua_initialize(int ac, char **av)
     init_lua_key_alias(pTLT,"+TLT");
     init_lua_key_alias(pTRT,"+TRT");
     init_lua_key_alias(term_and_log,"term and log");
+    init_lua_key(parameters);
+    init_lua_key(MathConstants);
+    init_lua_key(format);
+    init_lua_key(embedding);
+    init_lua_key(nomath);
+    init_lua_key(auto_expand);
+
 
     prepare_cmdline(Luas, argv, argc, lua_offset);      /* collect arguments */
     setup_lua_path(Luas);

@@ -600,13 +600,40 @@ static int n_numeric_field(lua_State * L, int name_index, int dflt)
 }
 
 
-static int enum_field(lua_State * L, const char *name, int dflt,
+
+
+/* static int enum_field(lua_State * L, const char *name, int dflt, */
+/*                       const char **values) */
+/* { */
+/*     int k; */
+/*     const char *s; */
+/*     int i = dflt; */
+/*     lua_pushstring(L, name); */
+/*     lua_rawget(L, -2); */
+/*     if (lua_isnumber(L, -1)) { */
+/*         i=(int)lua_tonumber(L, -1); */
+/*     } else if (lua_isstring(L, -1)) { */
+/*         s = lua_tostring(L, -1); */
+/*         k = 0; */
+/*         while (values[k] != NULL) { */
+/*             if (strcmp(values[k], s) == 0) { */
+/*                 i = k; */
+/*                 break; */
+/*             } */
+/*             k++; */
+/*         } */
+/*     } */
+/*     lua_pop(L, 1); */
+/*     return i; */
+/* } */
+
+static int n_enum_field(lua_State * L, int name_index, int dflt,
                       const char **values)
 {
     int k;
     const char *s;
     int i = dflt;
-    lua_pushstring(L, name);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, name_index);      /* fetch the stringptr */
     lua_rawget(L, -2);
     if (lua_isnumber(L, -1)) {
         i=(int)lua_tonumber(L, -1);
@@ -624,6 +651,8 @@ static int enum_field(lua_State * L, const char *name, int dflt,
     lua_pop(L, 1);
     return i;
 }
+
+
 
 static int boolean_field(lua_State * L, const char *name, int dflt)
 {
@@ -649,23 +678,6 @@ static int n_boolean_field(lua_State * L, int name_index, int dflt)
     return i;
 }
 
-/*
-static char *string_field(lua_State * L, const char *name, const char *dflt)
-{
-    char *i;
-    lua_pushstring(L, name);
-    lua_rawget(L, -2);
-    if (lua_isstring(L, -1)) {
-        i = xstrdup(lua_tostring(L, -1));
-    } else if (dflt == NULL) {
-        i = NULL;
-    } else {
-        i = xstrdup(dflt);
-    }
-    lua_pop(L, 1);
-    return i;
-}
-*/
 
 static char *n_string_field_copy(lua_State * L, int name_index, const char *dflt)
 {
@@ -936,7 +948,8 @@ static void read_lua_cidinfo(lua_State * L, int f)
 {
     int i;
     char *s;
-    lua_getfield(L, -1, "cidinfo");
+    //lua_getfield(L, -1, "cidinfo");
+    lua_key_rawgeti(cidinfo);
     if (lua_istable(L, -1)) {
         i = n_numeric_field(L,lua_key_index(version), 0);
         set_font_cidversion(f, i);
@@ -956,7 +969,8 @@ static void read_lua_parameters(lua_State * L, int f)
 {
     int i, n;
     const char *s;
-    lua_getfield(L, -1, "parameters");
+    //lua_getfield(L, -1, "parameters");
+    lua_key_rawgeti(parameters);
     if (lua_istable(L, -1)) {
         /* the number of parameters is the max(IntegerKeys(L)),7) */
         n = 7;
@@ -1018,7 +1032,8 @@ static void read_lua_parameters(lua_State * L, int f)
 static void read_lua_math_parameters(lua_State * L, int f)
 {
     int i = 0, n = 0;
-    lua_getfield(L, -1, "MathConstants");
+    //lua_getfield(L, -1, "MathConstants");
+    lua_key_rawgeti(MathConstants);
     if (lua_istable(L, -1)) {
         lua_pushnil(L);
         while (lua_next(L, -2) != 0) {
@@ -1045,7 +1060,7 @@ static void store_math_kerns(lua_State * L, int index, charinfo * co, int id)
 {
     int l, k; 
     scaled ht, krn;
-    lua_rawgeti(L, LUA_REGISTRYINDEX, index);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, index);lua_rawget(L, -2);
     if (lua_istable(L, -1) && ((k = (int) lua_rawlen(L, -1)) > 0)) {
         for (l = 0; l < k; l++) {
             lua_rawgeti(L, -1, (l + 1));
@@ -1307,8 +1322,8 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
                         r = n_numeric_field(L, lua_key_index(char), -1);    /* ligature */
                     }
                     if (r != -1 && k != non_boundarychar) {
-                        t = enum_field(L, "type", 0, ligature_type_strings);
-                        set_ligature_item(cligs[ctr], (char) ((t * 2) + 1), k,
+		        t = n_enum_field(L, lua_key_index(type), 0, ligature_type_strings);
+		        set_ligature_item(cligs[ctr], (char) ((t * 2) + 1), k,
                                           r);
                         ctr++;
                     } else {
@@ -1418,7 +1433,7 @@ int font_from_lua(lua_State * L, int f)
     set_hyphen_char(f, i);
     i = n_numeric_field(L,lua_key_index(skewchar), int_par(default_skew_char_code));
     set_skew_char(f, i);
-    i = boolean_field(L, "used", 0);
+    i = n_boolean_field(L, lua_key_index(used), 0);
     set_font_used(f, (char) i);
 
     s = n_string_field_copy(L, lua_key_index(attributes), NULL);
@@ -1427,11 +1442,11 @@ int font_from_lua(lua_State * L, int f)
         set_pdf_font_attr(f, i);
     }
 
-    i = enum_field(L, "type", unknown_font_type, font_type_strings);
+    i = n_enum_field(L, lua_key_index(type), unknown_font_type, font_type_strings);
     set_font_type(f, i);
-    i = enum_field(L, "format", unknown_format, font_format_strings);
+    i = n_enum_field(L, lua_key_index(format), unknown_format, font_format_strings);
     set_font_format(f, i);
-    i = enum_field(L, "embedding", unknown_embedding, font_embedding_strings);
+    i = n_enum_field(L, lua_key_index(embedding), unknown_embedding, font_embedding_strings);
     set_font_embedding(f, i);
     if (font_encodingbytes(f) == 0 &&
         (font_format(f) == opentype_format
@@ -1449,7 +1464,7 @@ int font_from_lua(lua_State * L, int f)
         for (i = 1; i <= n; i++) {
             lua_rawgeti(L, -1, i);
             if (lua_istable(L, -1)) {
-                lua_getfield(L, -1, "id");
+		lua_key_rawgeti(id);
                 if (lua_isnumber(L, -1)) {
                     l_fonts[i]=(int)lua_tonumber(L, -1);
                     lua_pop(L, 2);      /* pop id  and entry */
@@ -1459,17 +1474,18 @@ int font_from_lua(lua_State * L, int f)
             };
             ss = NULL;
             if (lua_istable(L, -1)) {
-                lua_getfield(L, -1, "name");
-                if (lua_isstring(L, -1)) {
-                    ss = lua_tostring(L, -1);
-                }
-                lua_pop(L, 1);  /* pop name */
+                /* lua_getfield(L, -1, "name"); */
+                /* if (lua_isstring(L, -1)) { */
+                /*     ss = lua_tostring(L, -1); */
+                /* } */
+                /* lua_pop(L, 1);  /\* pop name *\/ */
+		ss = n_string_field(L, lua_key_index(name));
             }
             if (ss != NULL) {
-                lua_getfield(L, -1, "size");
-                t = (lua_isnumber(L, -1) ? lua_roundnumber(L, -1) : -1000);
-                lua_pop(L, 1);
-
+                /* lua_getfield(L, -1, "size"); */
+                /* t = (lua_isnumber(L, -1) ? lua_roundnumber(L, -1) : -1000); */
+                /* lua_pop(L, 1); */
+	        t = n_numeric_field(L, lua_key_index(size), -1000);
                 /* TODO: the stack is messed up, otherwise this
                  * explicit resizing would not be needed
                  */
@@ -1497,7 +1513,7 @@ int font_from_lua(lua_State * L, int f)
     }
 
     /* parameters */
-    no_math = boolean_field(L, "nomath", 0);
+    no_math = n_boolean_field(L, lua_key_index(nomath), 0);
     read_lua_parameters(L, f);
     if (!no_math) {
         read_lua_math_parameters(L, f);
@@ -1505,8 +1521,9 @@ int font_from_lua(lua_State * L, int f)
     read_lua_cidinfo(L, f);
 
     /* characters */
-
-    lua_getfield(L, -1, "characters");
+    //lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(characters));lua_rawget(L, -2);
+    lua_key_rawgeti(characters);
+     /*lua_getfield(L, -1, "characters");*/
     if (lua_istable(L, -1)) {
         /* find the array size values */
         int num = 0;            /* number of charinfo's to add */
@@ -1569,7 +1586,7 @@ int font_from_lua(lua_State * L, int f)
                 if (fstep != 0) {
 		  int fshrink = n_numeric_field(L, lua_key_index(shrink), 0);
 		  int fstretch =n_numeric_field(L, lua_key_index(stretch), 0);
-                    int fexpand = boolean_field(L, "auto_expand", 0);
+		  int fexpand = n_boolean_field(L, lua_key_index(auto_expand), 0);
                     if (fshrink < 0)
                         fshrink = 0;
                     if (fshrink > 500)

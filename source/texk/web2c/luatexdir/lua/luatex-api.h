@@ -260,6 +260,11 @@ extern char **environ;
   extern int luaS_##a##_index ;          \
   extern const char * luaS_##a##_ptr 
 
+
+#define lua_key_rawgeti(a) \
+  lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_##a##_index);\
+  lua_rawget(L, -2)
+
 #endif                          /* LUATEX_API_H */
 
 /*                                                 */  
@@ -297,7 +302,9 @@ use_lua_key(broken_ptr);
 use_lua_key(cache);
 use_lua_key(cal_expand_ratio);
 use_lua_key(char);
+use_lua_key(characters);
 use_lua_key(checksum);
+use_lua_key(cidinfo);
 use_lua_key(class);
 use_lua_key(command);
 use_lua_key(commands);
@@ -491,3 +498,11 @@ use_lua_key(x_height);
 use_lua_key(xoffset);
 use_lua_key(xyz_zoom);
 use_lua_key(yoffset);
+
+use_lua_key(parameters);
+use_lua_key(MathConstants);
+use_lua_key(format);
+use_lua_key(embedding);
+
+use_lua_key(nomath);
+use_lua_key(auto_expand);

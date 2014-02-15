@@ -28,3 +28,7 @@ probably a get_key there
 
 [ ] lua_getfield(L, -1, "parameters"); is like characters
 
+
+[ ] /* TODO: the stack is messed up, otherwise this
+     * explicit resizing would not be needed
+     */ in luafont.w: int font_from_lua(lua_State * L, int f)
