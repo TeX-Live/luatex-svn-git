@@ -335,7 +335,6 @@ node_info whatsit_node_data[] = {
 #define last_whatsit_node user_defined_node
 
 #define copy_sub_list(target,source) do { \
-    l = source; \
     if (l != null) { \
         target = copy_node_list(l); \
     } else { \
@@ -761,7 +760,6 @@ halfword copy_node(const halfword p)
     halfword r;                 /* current node being fabricated for new list */
     register halfword s;        /* a helper variable for copying into variable mem  */
     register int i;
-    register halfword l;
     if (copy_error(p)) {
         r = new_node(temp_node, 0);
         return r;
