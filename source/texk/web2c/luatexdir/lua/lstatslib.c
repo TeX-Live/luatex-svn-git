@@ -344,7 +344,7 @@ static const struct luaL_Reg statslib[] = {
 int luaopen_stats(lua_State * L)
 {
     luaL_register(L, "status", statslib);
-    luaL_newmetatable(L, "stats");
+    luaL_newmetatable(L, "tex.stats");
     lua_pushstring(L, "__index");
     lua_pushcfunction(L, getstats);
     lua_settable(L, -3);

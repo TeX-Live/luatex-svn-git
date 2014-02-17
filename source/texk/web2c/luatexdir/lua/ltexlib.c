@@ -2538,7 +2538,7 @@ int luaopen_tex(lua_State * L)
     init_nest_lib(L);
     /* make the meta entries */
     /* fetch it back */
-    luaL_newmetatable(L, "tex_meta");
+    luaL_newmetatable(L, "tex.meta");
     lua_pushstring(L, "__index");
     lua_pushcfunction(L, gettex);
     lua_settable(L, -3);
