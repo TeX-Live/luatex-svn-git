@@ -43,7 +43,7 @@ typedef struct LoadS {
 
 extern lua_State *Luas;
 
-extern void make_table(lua_State * L, const char *tab, const char *getfunc,
+extern void make_table(lua_State * L, const char *tab, const char *mttab, const char *getfunc,
                        const char *setfunc);
 
 extern int luac_main(int argc, char *argv[]);

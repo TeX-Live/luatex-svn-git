@@ -36,7 +36,7 @@ extern scaled one_hundred_bp;   /* from pdfgen.w */
 #  define sp2bp(i)        (i * 100.0 / one_hundred_bp)
 
 #  define TYPE_IMG        "image"
-#  define TYPE_IMG_DICT   "image-dict"
+#  define TYPE_IMG_DICT   "image.dict"
 
 /**********************************************************************/
 

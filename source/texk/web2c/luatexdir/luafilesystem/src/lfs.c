@@ -74,7 +74,7 @@
 #define getcwd_error	strerror(errno)
 #endif
 
-#define DIR_METATABLE "directory metatable"
+#define DIR_METATABLE "lfs.directory"
 #define MAX_DIR_LENGTH 1023
 typedef struct dir_data {
 	int  closed;

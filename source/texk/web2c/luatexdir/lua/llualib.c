@@ -321,8 +321,8 @@ static const struct luaL_Reg lualib[] = {
 int luaopen_lua(lua_State * L, char *fname)
 {
     luaL_register(L, "lua", lualib);
-    make_table(L, "bytecode", "getbytecode", "setbytecode");
-    make_table(L, "name", "getluaname", "setluaname");
+    make_table(L, "bytecode", "tex.bytecode", "getbytecode", "setbytecode");
+    make_table(L, "name",     "tex.name", "getluaname", "setluaname");
     lua_newtable(L);
     lua_setfield(L, LUA_REGISTRYINDEX, "bytecode_shadow");
     lua_pushstring(L, LUA_VERSION);

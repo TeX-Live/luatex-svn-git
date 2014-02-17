@@ -1268,7 +1268,8 @@ void lua_initialize(int ac, char **av)
     init_lua_key(log);
     init_lua_key(lua);
     init_lua_key(luatex);
-    init_lua_key(luatex_node);
+    /*init_lua_key(luatex_node);*/
+    init_lua_key_alias(luatex_node, "luatex.node");
     init_lua_key(mark);
     init_lua_key(mathdir);
     init_lua_key(mathkern);

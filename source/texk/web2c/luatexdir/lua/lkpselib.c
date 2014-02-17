@@ -153,7 +153,7 @@ static const char *const filetypenames[] = {
 };
 
 
-#define KPATHSEA_METATABLE  "luatex_kpathsea"
+#define KPATHSEA_METATABLE  "luatex.kpathsea"
 
 /* set to 1 by the |program_name| function */
 

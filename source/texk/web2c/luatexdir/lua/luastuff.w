@@ -33,7 +33,7 @@ int luastate_bytes = 0;
 int lua_active = 0;
 
 @ @c
-void make_table(lua_State * L, const char *tab, const char *getfunc,
+void make_table(lua_State * L, const char *tab, const char *mttab, const char *getfunc,
                 const char *setfunc)
 {
     /* make the table *//* |[{<tex>}]| */
@@ -44,7 +44,7 @@ void make_table(lua_State * L, const char *tab, const char *getfunc,
     lua_pushstring(L, tab);     /* |[{<tex>},"dimen"]| */
     lua_gettable(L, -2);        /* |[{<tex>},{<dimen>}]| */
     /* make the meta entries */
-    luaL_newmetatable(L, tab);  /* |[{<tex>},{<dimen>},{<dimen_m>}]| */
+    luaL_newmetatable(L, mttab);  /* |[{<tex>},{<dimen>},{<dimen_m>}]| */
     lua_pushstring(L, "__index");       /* |[{<tex>},{<dimen>},{<dimen_m>},"__index"]| */
     lua_pushstring(L, getfunc); /* |[{<tex>},{<dimen>},{<dimen_m>},"__index","getdimen"]| */
     lua_gettable(L, -5);        /* |[{<tex>},{<dimen>},{<dimen_m>},"__index",<tex.getdimen>]| */

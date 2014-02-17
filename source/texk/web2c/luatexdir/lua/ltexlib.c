@@ -2520,20 +2520,20 @@ int luaopen_tex(lua_State * L)
 {
     luaL_register(L, "tex", texlib);
     /* *INDENT-OFF* */
-    make_table(L, "attribute",  "getattribute", "setattribute");
-    make_table(L, "skip",       "getskip",      "setskip");
-    make_table(L, "dimen",      "getdimen",     "setdimen");
-    make_table(L, "count",      "getcount",     "setcount");
-    make_table(L, "toks",       "gettoks",      "settoks");
-    make_table(L, "box",        "getbox",       "setbox");
-    make_table(L, "sfcode",     "getsfcode",    "setsfcode");
-    make_table(L, "lccode",     "getlccode",    "setlccode");
-    make_table(L, "uccode",     "getuccode",    "setuccode");
-    make_table(L, "catcode",    "getcatcode",   "setcatcode");
-    make_table(L, "mathcode",   "getmathcode",  "setmathcode");
-    make_table(L, "delcode",    "getdelcode",   "setdelcode");
-    make_table(L, "lists",      "getlist",      "setlist");
-    make_table(L, "nest",       "getnest",      "setnest");
+    make_table(L, "attribute", "tex.attribute"   ,"getattribute", "setattribute");
+    make_table(L, "skip",      "tex.skip"        ,"getskip",      "setskip");
+    make_table(L, "dimen",     "tex.dimen"       ,"getdimen",     "setdimen");
+    make_table(L, "count",     "tex.count"       ,"getcount",     "setcount");
+    make_table(L, "toks",      "tex.toks"        ,"gettoks",      "settoks");
+    make_table(L, "box",       "tex.box"         ,"getbox",       "setbox");
+    make_table(L, "sfcode",    "tex.sfcode"      ,"getsfcode",    "setsfcode");
+    make_table(L, "lccode",    "tex.lccode"      ,"getlccode",    "setlccode");
+    make_table(L, "uccode",    "tex.uccode"      ,"getuccode",    "setuccode");
+    make_table(L, "catcode",   "tex.catcode"     ,"getcatcode",   "setcatcode");
+    make_table(L, "mathcode",   "tex.mathcode"    ,"getmathcode",  "setmathcode");
+    make_table(L, "delcode",   "tex.delcode"     ,"getdelcode",   "setdelcode");
+    make_table(L, "lists",     "tex.lists"       ,"getlist",      "setlist");
+    make_table(L, "nest",      "tex.nest"        ,"getnest",      "setnest");
     /* *INDENT-ON* */
     init_nest_lib(L);
     /* make the meta entries */

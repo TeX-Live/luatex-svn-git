@@ -256,7 +256,7 @@ while (vlink(t)!=current && t != null) { \
         luaL_error(L, "incorrect index value %d for tex.%s()", (int)j, s); \
     }
 
-#define NODE_METATABLE  "luatex_node"
+#define NODE_METATABLE  "luatex.node"
 
 #define DEBUG 0
 #define DEBUG_OUT stdout
