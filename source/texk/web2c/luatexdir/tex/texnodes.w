@@ -334,6 +334,28 @@ node_info whatsit_node_data[] = {
 
 #define last_whatsit_node user_defined_node
 
+#define copy_sub_list(target,source) do { \
+    l = source; \
+    if (l != null) { \
+        target = copy_node_list(l); \
+    } else { \
+        target = null; \
+    } \
+} while (0)
+
+#define flush_sub_list(source) do { \
+    if (source != null) \
+        flush_node_list(source); \
+} while (0)
+
+#define flush_sub_node(source) do { \
+    if (source != null) \
+        flush_node(source); \
+} while (0)
+
+
+
+
 @ @c
 halfword new_node(int i, int j)
 {
@@ -488,13 +510,258 @@ halfword copy_node_list(halfword p)
     return do_copy_node_list(p, null);
 }
 
-@ make a dupe of a single node 
+/* halfword old_copy_node(const halfword p) */
+/* { */
+/*     halfword r;                 /\* current node being fabricated for new list *\/ */
+/*     register halfword s;        /\* a helper variable for copying into variable mem  *\/ */
+/*     register int i; */
+/*     if (copy_error(p)) { */
+/*         r = new_node(temp_node, 0); */
+/*         return r; */
+/*     } */
+/*     i = get_node_size(type(p), subtype(p)); */
+/*     r = get_node(i); */
+
+/*     (void) memcpy((void *) (varmem + r), (void *) (varmem + p), */
+/*                   (sizeof(memory_word) * (unsigned) i)); */
+
+/*     /\* handle synctex extension *\/ */
+/*     switch (type(p)) { */
+/*     case math_node: */
+/*         synctex_tag_math(r) = cur_input.synctex_tag_field; */
+/*         synctex_line_math(r) = line; */
+/*         break; */
+/*     case kern_node: */
+/*         synctex_tag_kern(r) = cur_input.synctex_tag_field; */
+/*         synctex_line_kern(r) = line; */
+/*         break; */
+/*     } */
+
+/*     if (nodetype_has_attributes(type(p))) { */
+/*         add_node_attr_ref(node_attr(p)); */
+/*         alink(r) = null;        /\* needs checking *\/ */
+/*     } */
+/*     vlink(r) = null; */
+
+
+/*     switch (type(p)) { */
+/*     case glyph_node: */
+/*         s = copy_node_list(lig_ptr(p)); */
+/*         lig_ptr(r) = s; */
+/*         break; */
+/*     case glue_node: */
+/*         add_glue_ref(glue_ptr(p)); */
+/*         s = copy_node_list(leader_ptr(p)); */
+/*         leader_ptr(r) = s; */
+/*         break; */
+/*     case hlist_node: */
+/*     case vlist_node: */
+/*     case unset_node: */
+/*         s = copy_node_list(list_ptr(p)); */
+/*         list_ptr(r) = s; */
+/*         break; */
+/*     case ins_node: */
+/*         add_glue_ref(split_top_ptr(p)); */
+/*         s = copy_node_list(ins_ptr(p)); */
+/*         ins_ptr(r) = s; */
+/*         break; */
+/*     case margin_kern_node: */
+/*         s = copy_node(margin_char(p)); */
+/*         margin_char(r) = s; */
+/*         break; */
+/*     case disc_node: */
+/*         pre_break(r) = pre_break_head(r); */
+/*         if (vlink_pre_break(p) != null) { */
+/*             s = copy_node_list(vlink_pre_break(p)); */
+/*             alink(s) = pre_break(r); */
+/*             tlink_pre_break(r) = tail_of_list(s); */
+/*             vlink_pre_break(r) = s; */
+/*         } else { */
+/*             assert(tlink(pre_break(r)) == null); */
+/*         } */
+/*         post_break(r) = post_break_head(r); */
+/*         if (vlink_post_break(p) != null) { */
+/*             s = copy_node_list(vlink_post_break(p)); */
+/*             alink(s) = post_break(r); */
+/*             tlink_post_break(r) = tail_of_list(s); */
+/*             vlink_post_break(r) = s; */
+/*         } else { */
+/*             assert(tlink_post_break(r) == null); */
+/*         } */
+/*         no_break(r) = no_break_head(r); */
+/*         if (vlink(no_break(p)) != null) { */
+/*             s = copy_node_list(vlink_no_break(p)); */
+/*             alink(s) = no_break(r); */
+/*             tlink_no_break(r) = tail_of_list(s); */
+/*             vlink_no_break(r) = s; */
+/*         } else { */
+/*             assert(tlink_no_break(r) == null); */
+/*         } */
+/*         break; */
+/*     case mark_node: */
+/*         add_token_ref(mark_ptr(p)); */
+/*         break; */
+/*     case adjust_node: */
+/*         s = copy_node_list(adjust_ptr(p)); */
+/*         adjust_ptr(r) = s; */
+/*         break; */
+
+/*     case choice_node: */
+/*         s = copy_node_list(display_mlist(p)); */
+/*         display_mlist(r) = s; */
+/*         s = copy_node_list(text_mlist(p)); */
+/*         text_mlist(r) = s; */
+/*         s = copy_node_list(script_mlist(p)); */
+/*         script_mlist(r) = s; */
+/*         s = copy_node_list(script_script_mlist(p)); */
+/*         script_script_mlist(r) = s; */
+/*         break; */
+/*     case simple_noad: */
+/*     case radical_noad: */
+/*     case accent_noad: */
+/*         s = copy_node_list(nucleus(p)); */
+/*         nucleus(r) = s; */
+/*         s = copy_node_list(subscr(p)); */
+/*         subscr(r) = s; */
+/*         s = copy_node_list(supscr(p)); */
+/*         supscr(r) = s; */
+/*         if (type(p) == accent_noad) { */
+/*             s = copy_node_list(accent_chr(p)); */
+/*             accent_chr(r) = s; */
+/*             s = copy_node_list(bot_accent_chr(p)); */
+/*             bot_accent_chr(r) = s; */
+/*         } else if (type(p) == radical_noad) { */
+/*             s = copy_node(left_delimiter(p)); */
+/*             left_delimiter(r) = s; */
+/*             s = copy_node_list(degree(p)); */
+/*             degree(r) = s; */
+/*         } */
+/*         break; */
+/*     case fence_noad: */
+/*         s = copy_node(delimiter(p)); */
+/*         delimiter(r) = s; */
+/*         break; */
+/*     case sub_box_node: */
+/*     case sub_mlist_node: */
+/*         s = copy_node_list(math_list(p)); */
+/*         math_list(r) = s; */
+/*         break; */
+/*     case fraction_noad: */
+/*         s = copy_node_list(numerator(p)); */
+/*         numerator(r) = s; */
+/*         s = copy_node_list(denominator(p)); */
+/*         denominator(r) = s; */
+/*         s = copy_node(left_delimiter(p)); */
+/*         left_delimiter(r) = s; */
+/*         s = copy_node(right_delimiter(p)); */
+/*         right_delimiter(r) = s; */
+/*         break; */
+/*     case glue_spec_node: */
+/*         glue_ref_count(r) = null; */
+/*         break; */
+/*     case whatsit_node: */
+/*         switch (subtype(p)) { */
+/*         case dir_node: */
+/*         case local_par_node: */
+/*             break; */
+/*         case write_node: */
+/*         case special_node: */
+/*             add_token_ref(write_tokens(p)); */
+/*             break; */
+/*         case pdf_literal_node: */
+/*             copy_pdf_literal(r, p); */
+/*             break; */
+/*         case pdf_colorstack_node: */
+/*             if (pdf_colorstack_cmd(p) <= colorstack_data) */
+/*                 add_token_ref(pdf_colorstack_data(p)); */
+/*             break; */
+/*         case pdf_setmatrix_node: */
+/*             add_token_ref(pdf_setmatrix_data(p)); */
+/*             break; */
+/*         case late_lua_node: */
+/*             copy_late_lua(r, p); */
+/*             break; */
+/*         case pdf_annot_node: */
+/*             add_token_ref(pdf_annot_data(p)); */
+/*             break; */
+/*         case pdf_start_link_node: */
+/*             if (pdf_link_attr(r) != null) */
+/*                 add_token_ref(pdf_link_attr(r)); */
+/*             add_action_ref(pdf_link_action(r)); */
+/*             break; */
+/*         case pdf_dest_node: */
+/*             if (pdf_dest_named_id(p) > 0) */
+/*                 add_token_ref(pdf_dest_id(p)); */
+/*             break; */
+/*         case pdf_thread_node: */
+/*         case pdf_start_thread_node: */
+/*             if (pdf_thread_named_id(p) > 0) */
+/*                 add_token_ref(pdf_thread_id(p)); */
+/*             if (pdf_thread_attr(p) != null) */
+/*                 add_token_ref(pdf_thread_attr(p)); */
+/*             break; */
+/*         case user_defined_node: */
+/*             switch (user_node_type(p)) { */
+/*             case 'a': */
+/*                 add_node_attr_ref(user_node_value(p)); */
+/*                 break; */
+/*             case 't': */
+/*                 add_token_ref(user_node_value(p)); */
+/*                 break; */
+/*             case 's': */
+/*                 /\* |add_string_ref(user_node_value(p));| *\//\* if this was mpost .. *\/ */
+/*                 break; */
+/*             case 'n': */
+/*                 s = copy_node_list(user_node_value(p)); */
+/*                 user_node_value(r) = s; */
+/*                 break; */
+/*             } */
+/*             break; */
+/* #if 0 */
+/*         case style_node: */
+/*         case delim_node: */
+/*         case math_char_node: */
+/*         case math_text_char_node: */
+/*         break; */
+/* #else */
+/*         default: */
+/* #endif */
+/*             break; */
+/*         } */
+/*         break; */
+/*     } */
+/* #ifdef DEBUG */
+/*     fprintf(DEBUG_OUT, "Alloc-ing %s node %d (copy of %d)\n", */
+/*             get_node_name(type(r), subtype(r)), (int) r, (int) p); */
+/* #endif */
+/*     return r; */
+/* } */
+
+@ @c
+int valid_node(halfword p)
+{
+    if (p > my_prealloc) {
+        if (p < var_mem_max) {
+#ifndef NDEBUG
+            if (varmem_sizes[p] > 0)
+#endif
+                return 1;
+        }
+    } else {
+        return 0;
+    }
+    return 0;
+}
+
+
+@ make a dupe of a single node
 @c
 halfword copy_node(const halfword p)
 {
     halfword r;                 /* current node being fabricated for new list */
     register halfword s;        /* a helper variable for copying into variable mem  */
     register int i;
+    register halfword l;
     if (copy_error(p)) {
         r = new_node(temp_node, 0);
         return r;
@@ -502,8 +769,7 @@ halfword copy_node(const halfword p)
     i = get_node_size(type(p), subtype(p));
     r = get_node(i);
 
-    (void) memcpy((void *) (varmem + r), (void *) (varmem + p),
-                  (sizeof(memory_word) * (unsigned) i));
+    (void) memcpy((void *) (varmem + r), (void *) (varmem + p), (sizeof(memory_word) * (unsigned) i));
 
     /* handle synctex extension */
     switch (type(p)) {
@@ -516,38 +782,24 @@ halfword copy_node(const halfword p)
         synctex_line_kern(r) = line;
         break;
     }
-
     if (nodetype_has_attributes(type(p))) {
         add_node_attr_ref(node_attr(p));
-        alink(r) = null;        /* needs checking */
+        alink(r) = null;
     }
     vlink(r) = null;
 
-
     switch (type(p)) {
     case glyph_node:
-        s = copy_node_list(lig_ptr(p));
-        lig_ptr(r) = s;
+        copy_sub_list(lig_ptr(r),lig_ptr(p)) ;
         break;
     case glue_node:
         add_glue_ref(glue_ptr(p));
-        s = copy_node_list(leader_ptr(p));
-        leader_ptr(r) = s;
+        copy_sub_list(leader_ptr(r),leader_ptr(p)) ;
         break;
     case hlist_node:
     case vlist_node:
     case unset_node:
-        s = copy_node_list(list_ptr(p));
-        list_ptr(r) = s;
-        break;
-    case ins_node:
-        add_glue_ref(split_top_ptr(p));
-        s = copy_node_list(ins_ptr(p));
-        ins_ptr(r) = s;
-        break;
-    case margin_kern_node:
-        s = copy_node(margin_char(p));
-        margin_char(r) = s;
+        copy_sub_list(list_ptr(r),list_ptr(p)) ;
         break;
     case disc_node:
         pre_break(r) = pre_break_head(r);
@@ -578,6 +830,14 @@ halfword copy_node(const halfword p)
             assert(tlink_no_break(r) == null);
         }
         break;
+    case ins_node:
+        add_glue_ref(split_top_ptr(p));
+        copy_sub_list(ins_ptr(r),ins_ptr(p)) ;
+        break;
+    case margin_kern_node:
+        s = copy_node(margin_char(p));
+        margin_char(r) = s;
+        break;
     case mark_node:
         add_token_ref(mark_ptr(p));
         break;
@@ -585,56 +845,38 @@ halfword copy_node(const halfword p)
         s = copy_node_list(adjust_ptr(p));
         adjust_ptr(r) = s;
         break;
-
     case choice_node:
-        s = copy_node_list(display_mlist(p));
-        display_mlist(r) = s;
-        s = copy_node_list(text_mlist(p));
-        text_mlist(r) = s;
-        s = copy_node_list(script_mlist(p));
-        script_mlist(r) = s;
-        s = copy_node_list(script_script_mlist(p));
-        script_script_mlist(r) = s;
+        copy_sub_list(display_mlist(r),display_mlist(p)) ;
+        copy_sub_list(text_mlist(r),text_mlist(p)) ;
+        copy_sub_list(script_mlist(r),script_mlist(p)) ;
+        copy_sub_list(script_script_mlist(r),script_script_mlist(p)) ;
         break;
     case simple_noad:
     case radical_noad:
     case accent_noad:
-        s = copy_node_list(nucleus(p));
-        nucleus(r) = s;
-        s = copy_node_list(subscr(p));
-        subscr(r) = s;
-        s = copy_node_list(supscr(p));
-        supscr(r) = s;
+        copy_sub_list(nucleus(r),nucleus(p)) ;
+        copy_sub_list(subscr(r),subscr(p)) ;
+        copy_sub_list(supscr(r),supscr(p)) ;
         if (type(p) == accent_noad) {
-            s = copy_node_list(accent_chr(p));
-            accent_chr(r) = s;
-            s = copy_node_list(bot_accent_chr(p));
-            bot_accent_chr(r) = s;
+            copy_sub_list(accent_chr(r),accent_chr(p)) ;
+            copy_sub_list(bot_accent_chr(r),bot_accent_chr(p)) ;
         } else if (type(p) == radical_noad) {
-            s = copy_node(left_delimiter(p));
-            left_delimiter(r) = s;
-            s = copy_node_list(degree(p));
-            degree(r) = s;
+            copy_sub_list(left_delimiter(r),left_delimiter(p)) ;
+            copy_sub_list(degree(r),degree(p)) ;
         }
         break;
     case fence_noad:
-        s = copy_node(delimiter(p));
-        delimiter(r) = s;
+        copy_sub_list(delimiter(r),delimiter(p)) ;
         break;
     case sub_box_node:
     case sub_mlist_node:
-        s = copy_node_list(math_list(p));
-        math_list(r) = s;
+        copy_sub_list(math_list(r),math_list(p)) ;
         break;
     case fraction_noad:
-        s = copy_node_list(numerator(p));
-        numerator(r) = s;
-        s = copy_node_list(denominator(p));
-        denominator(r) = s;
-        s = copy_node(left_delimiter(p));
-        left_delimiter(r) = s;
-        s = copy_node(right_delimiter(p));
-        right_delimiter(r) = s;
+        copy_sub_list(numerator(r),numerator(p)) ;
+        copy_sub_list(denominator(r),denominator(p)) ;
+        copy_sub_list(left_delimiter(r),left_delimiter(p)) ;
+        copy_sub_list(right_delimiter(r),right_delimiter(p)) ;
         break;
     case glue_spec_node:
         glue_ref_count(r) = null;
@@ -717,21 +959,8 @@ halfword copy_node(const halfword p)
     return r;
 }
 
-@ @c
-int valid_node(halfword p)
-{
-    if (p > my_prealloc) {
-        if (p < var_mem_max) {
-#ifndef NDEBUG
-            if (varmem_sizes[p] > 0)
-#endif
-                return 1;
-        }
-    } else {
-        return 0;
-    }
-    return 0;
-}
+
+
 
 @ @c
 static void do_free_error(halfword p)
@@ -881,12 +1110,253 @@ int copy_error(halfword p)
 }
 
 
+/* void old_flush_node(halfword p) */
+/* { */
+
+/*     if (p == null)              /\* legal, but no-op *\/ */
+/*         return; */
+
+/* #ifdef DEBUG */
+/*     fprintf(DEBUG_OUT, "Free-ing %s node %d\n", */
+/*             get_node_name(type(p), subtype(p)), (int) p); */
+/* #endif */
+/*     if (free_error(p)) */
+/*         return; */
+
+/*     switch (type(p)) { */
+/*     case glyph_node: */
+/*         flush_node_list(lig_ptr(p)); */
+/*         break; */
+/*     case glue_node: */
+/*         delete_glue_ref(glue_ptr(p)); */
+/*         flush_node_list(leader_ptr(p)); */
+/*         break; */
+/*     case glue_spec_node: */
+/*         /\* this allows free-ing of lua-allocated glue specs *\/ */
+/*         if (valid_node(p)) { */
+/*             if (glue_ref_count(p)!=null) { */
+/*                 decr(glue_ref_count(p)); */
+/*             } else { */
+/*                 free_node(p, get_node_size(type(p), subtype(p))); */
+/*             } */
+/*         } */
+/*         return ; */
+/*         break ; */
+/*     case attribute_node: */
+/*     case attribute_list_node: */
+/*     case temp_node: */
+/*     case rule_node: */
+/*     case kern_node: */
+/*     case math_node: */
+/*     case penalty_node: */
+/*         break; */
+
+/*     case hlist_node: */
+/*     case vlist_node: */
+/*     case unset_node: */
+/*         flush_node_list(list_ptr(p)); */
+/*         break; */
+/*     case whatsit_node: */
+/*         switch (subtype(p)) { */
+
+/*         case dir_node: */
+/*             break; */
+/*         case open_node: */
+/*         case write_node: */
+/*         case close_node: */
+/*         case pdf_save_node: */
+/*         case pdf_restore_node: */
+/*         case cancel_boundary_node: */
+/*         case close_lua_node: */
+/*         case pdf_refobj_node: */
+/*         case pdf_refxform_node: */
+/*         case pdf_refximage_node: */
+/*         case pdf_end_link_node: */
+/*         case pdf_end_thread_node: */
+/*         case pdf_save_pos_node: */
+/*         case local_par_node: */
+/*             break; */
+
+/*         case special_node: */
+/*             delete_token_ref(write_tokens(p)); */
+/*             break; */
+/*         case pdf_literal_node: */
+/*             free_pdf_literal(p); */
+/*             break; */
+/*         case pdf_colorstack_node: */
+/*             if (pdf_colorstack_cmd(p) <= colorstack_data) */
+/*                 delete_token_ref(pdf_colorstack_data(p)); */
+/*             break; */
+/*         case pdf_setmatrix_node: */
+/*             delete_token_ref(pdf_setmatrix_data(p)); */
+/*             break; */
+/*         case late_lua_node: */
+/*             free_late_lua(p); */
+/*             break; */
+/*         case pdf_annot_node: */
+/*             delete_token_ref(pdf_annot_data(p)); */
+/*             break; */
+
+/*         case pdf_link_data_node: */
+/*             break; */
+
+/*         case pdf_start_link_node: */
+/*             if (pdf_link_attr(p) != null) */
+/*                 delete_token_ref(pdf_link_attr(p)); */
+/*             delete_action_ref(pdf_link_action(p)); */
+/*             break; */
+/*         case pdf_dest_node: */
+/*             if (pdf_dest_named_id(p) > 0) */
+/*                 delete_token_ref(pdf_dest_id(p)); */
+/*             break; */
+
+/*         case pdf_thread_data_node: */
+/*             break; */
+
+/*         case pdf_thread_node: */
+/*         case pdf_start_thread_node: */
+/*             if (pdf_thread_named_id(p) > 0) */
+/*                 delete_token_ref(pdf_thread_id(p)); */
+/*             if (pdf_thread_attr(p) != null) */
+/*                 delete_token_ref(pdf_thread_attr(p)); */
+/*             break; */
+/*         case user_defined_node: */
+/*             switch (user_node_type(p)) { */
+/*             case 'a': */
+/*                 delete_attribute_ref(user_node_value(p)); */
+/*                 break; */
+/*             case 't': */
+/*                 delete_token_ref(user_node_value(p)); */
+/*                 break; */
+/*             case 'n': */
+/*                 flush_node_list(user_node_value(p)); */
+/*                 break; */
+/*             case 's': */
+/*                 /\* |delete_string_ref(user_node_value(p));| *\//\* if this was mpost .. *\/ */
+/*                 break; */
+/*             case 'd': */
+/*                 break; */
+/*             default: */
+/*                 { */
+/*                     const char *hlp[] = { */
+/*                         "The type of the value in a user defined whatsit node should be one", */
+/*                         "of 'a' (attribute list), 'd' (number), 'n' (node list), 's' (string),", */
+/*                         "or 't' (tokenlist). Yours has an unknown type, and therefore I don't", */
+/*                         "know how to free the node's value. A memory leak may result.", */
+/*                         NULL */
+/*                     }; */
+/*                     tex_error("Unidentified user defined whatsit", hlp); */
+/*                 } */
+/*                 break; */
+/*             } */
+/*             break; */
+
+/*         default: */
+/*             confusion("ext3"); */
+/*             return; */
+
+/*         } */
+/*         break; */
+/*     case ins_node: */
+/*         flush_node_list(ins_ptr(p)); */
+/*         delete_glue_ref(split_top_ptr(p)); */
+/*         break; */
+/*     case margin_kern_node: */
+/*         flush_node(margin_char(p)); */
+/*         break; */
+/*     case mark_node: */
+/*         delete_token_ref(mark_ptr(p)); */
+/*         break; */
+/*     case disc_node: */
+/*         flush_node_list(vlink(pre_break(p))); */
+/*         flush_node_list(vlink(post_break(p))); */
+/*         flush_node_list(vlink(no_break(p))); */
+/*         break; */
+/*     case adjust_node: */
+/*         flush_node_list(adjust_ptr(p)); */
+/*         break; */
+/*     case style_node:           /\* nothing to do *\/ */
+/*         break; */
+/*     case choice_node: */
+/*         flush_node_list(display_mlist(p)); */
+/*         flush_node_list(text_mlist(p)); */
+/*         flush_node_list(script_mlist(p)); */
+/*         flush_node_list(script_script_mlist(p)); */
+/*         break; */
+/*     case simple_noad: */
+/*     case radical_noad: */
+/*     case accent_noad: */
+/*         flush_node_list(nucleus(p)); */
+/*         flush_node_list(subscr(p)); */
+/*         flush_node_list(supscr(p)); */
+/*         if (type(p) == accent_noad) { */
+/*             flush_node_list(accent_chr(p)); */
+/*             flush_node_list(bot_accent_chr(p)); */
+/*         } else if (type(p) == radical_noad) { */
+/*             flush_node(left_delimiter(p)); */
+/*             flush_node_list(degree(p)); */
+/*         } */
+/*         break; */
+/*     case fence_noad: */
+/*         flush_node(delimiter(p)); */
+/*         break; */
+/*     case delim_node:           /\* nothing to do *\/ */
+/*     case math_char_node: */
+/*     case math_text_char_node: */
+/*         break; */
+/*     case sub_box_node: */
+/*     case sub_mlist_node: */
+/*         flush_node_list(math_list(p)); */
+/*         break; */
+/*     case fraction_noad: */
+/*         flush_node_list(numerator(p)); */
+/*         flush_node_list(denominator(p)); */
+/*         flush_node(left_delimiter(p)); */
+/*         flush_node(right_delimiter(p)); */
+/*         break; */
+/*     case pseudo_file_node: */
+/*         flush_node_list(pseudo_lines(p)); */
+/*         break; */
+/*     case pseudo_line_node: */
+/*     case shape_node: */
+/*         free_node(p, subtype(p)); */
+/*         return; */
+/*         break; */
+/*     case align_stack_node: */
+/*     case span_node: */
+/*     case movement_node: */
+/*     case if_node: */
+/*     case nesting_node: */
+/*     case unhyphenated_node: */
+/*     case hyphenated_node: */
+/*     case delta_node: */
+/*     case passive_node: */
+/*     case action_node: */
+/*     case inserting_node: */
+/*     case split_up_node: */
+/*     case expr_node: */
+/*         break; */
+/*     default: */
+/*         fprintf(stdout, "flush_node: type is %d\n", type(p)); */
+/*         return; */
+
+/*     } */
+/*     if (nodetype_has_attributes(type(p))) */
+/*         delete_attribute_ref(node_attr(p)); */
+/*     free_node(p, get_node_size(type(p), subtype(p))); */
+/*     return; */
+/* } */
+
+
 @ @c
 void flush_node(halfword p)
 {
 
+    /*register halfword l ;*/
+
     if (p == null)              /* legal, but no-op */
         return;
+
 
 #ifdef DEBUG
     fprintf(DEBUG_OUT, "Free-ing %s node %d\n",
@@ -897,11 +1367,26 @@ void flush_node(halfword p)
 
     switch (type(p)) {
     case glyph_node:
-        flush_node_list(lig_ptr(p));
+        flush_sub_list(lig_ptr(p));
         break;
     case glue_node:
         delete_glue_ref(glue_ptr(p));
-        flush_node_list(leader_ptr(p));
+        flush_sub_list(leader_ptr(p));
+        break;
+    case hlist_node:
+    case vlist_node:
+    case unset_node:
+        flush_sub_list(list_ptr(p));
+        break;
+    case disc_node:
+        flush_sub_list(vlink(pre_break(p)));
+        flush_sub_list(vlink(post_break(p)));
+        flush_sub_list(vlink(no_break(p)));
+        break;
+    case rule_node:
+    case kern_node:
+    case math_node:
+    case penalty_node:
         break;
     case glue_spec_node:
         /* this allows free-ing of lua-allocated glue specs */
@@ -914,20 +1399,6 @@ void flush_node(halfword p)
         }
         return ;
         break ;
-    case attribute_node:
-    case attribute_list_node:
-    case temp_node:
-    case rule_node:
-    case kern_node:
-    case math_node:
-    case penalty_node:
-        break;
-
-    case hlist_node:
-    case vlist_node:
-    case unset_node:
-        flush_node_list(list_ptr(p));
-        break;
     case whatsit_node:
         switch (subtype(p)) {
 
@@ -1039,38 +1510,33 @@ void flush_node(halfword p)
     case mark_node:
         delete_token_ref(mark_ptr(p));
         break;
-    case disc_node:
-        flush_node_list(vlink(pre_break(p)));
-        flush_node_list(vlink(post_break(p)));
-        flush_node_list(vlink(no_break(p)));
-        break;
     case adjust_node:
         flush_node_list(adjust_ptr(p));
         break;
     case style_node:           /* nothing to do */
         break;
     case choice_node:
-        flush_node_list(display_mlist(p));
-        flush_node_list(text_mlist(p));
-        flush_node_list(script_mlist(p));
-        flush_node_list(script_script_mlist(p));
+        flush_sub_list(display_mlist(p));
+        flush_sub_list(text_mlist(p));
+        flush_sub_list(script_mlist(p));
+        flush_sub_list(script_script_mlist(p));
         break;
     case simple_noad:
     case radical_noad:
     case accent_noad:
-        flush_node_list(nucleus(p));
-        flush_node_list(subscr(p));
-        flush_node_list(supscr(p));
+        flush_sub_list(nucleus(p));
+        flush_sub_list(subscr(p));
+        flush_sub_list(supscr(p));
         if (type(p) == accent_noad) {
-            flush_node_list(accent_chr(p));
-            flush_node_list(bot_accent_chr(p));
+            flush_sub_list(accent_chr(p));
+            flush_sub_list(bot_accent_chr(p));
         } else if (type(p) == radical_noad) {
-            flush_node(left_delimiter(p));
-            flush_node_list(degree(p));
+            flush_sub_node(left_delimiter(p));
+            flush_sub_list(degree(p));
         }
         break;
     case fence_noad:
-        flush_node(delimiter(p));
+        flush_sub_list(delimiter(p));
         break;
     case delim_node:           /* nothing to do */
     case math_char_node:
@@ -1078,16 +1544,16 @@ void flush_node(halfword p)
         break;
     case sub_box_node:
     case sub_mlist_node:
-        flush_node_list(math_list(p));
+        flush_sub_list(math_list(p));
         break;
     case fraction_noad:
-        flush_node_list(numerator(p));
-        flush_node_list(denominator(p));
-        flush_node(left_delimiter(p));
-        flush_node(right_delimiter(p));
+        flush_sub_list(numerator(p));
+        flush_sub_list(denominator(p));
+        flush_sub_node(left_delimiter(p));
+        flush_sub_node(right_delimiter(p));
         break;
     case pseudo_file_node:
-        flush_node_list(pseudo_lines(p));
+        flush_sub_list(pseudo_lines(p));
         break;
     case pseudo_line_node:
     case shape_node:
@@ -1107,17 +1573,25 @@ void flush_node(halfword p)
     case inserting_node:
     case split_up_node:
     case expr_node:
+    case attribute_node:
+    case attribute_list_node:
+    case temp_node:
         break;
     default:
         fprintf(stdout, "flush_node: type is %d\n", type(p));
         return;
 
     }
-    if (nodetype_has_attributes(type(p)))
+    if (nodetype_has_attributes(type(p))) {
         delete_attribute_ref(node_attr(p));
+        //lua_properties_push; /* hh */
+        //lua_properties_reset(p); /* hh */
+        //lua_properties_pop;  /* hh */
+    }
     free_node(p, get_node_size(type(p), subtype(p)));
     return;
 }
+
 
 @ @c
 void flush_node_list(halfword pp)

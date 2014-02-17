@@ -263,6 +263,7 @@ make_lua_key(format);
 make_lua_key(embedding);
 make_lua_key(nomath);
 make_lua_key(auto_expand);
+make_lua_key(node_properties);
 
 @
 TH: TODO
@@ -1394,6 +1395,7 @@ void lua_initialize(int ac, char **av)
     init_lua_key(embedding);
     init_lua_key(nomath);
     init_lua_key(auto_expand);
+    init_lua_key_alias(node_properties,"node.properties");
 
 
     prepare_cmdline(Luas, argv, argc, lua_offset);      /* collect arguments */

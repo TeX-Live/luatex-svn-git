@@ -514,6 +514,7 @@ use_lua_key(embedding);
 
 use_lua_key(nomath);
 use_lua_key(auto_expand);
+use_lua_key(node_properties);
 
 
 
