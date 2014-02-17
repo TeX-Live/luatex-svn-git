@@ -24,7 +24,7 @@ static const char _svn_version[] =
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
-#define PDF_ENV "pdf_env"
+#define PDF_ENV "pdf.env"
 
 static int luapdfprint(lua_State * L)
 {
@@ -788,7 +788,7 @@ int luaopen_pdf(lua_State * L)
     preset_environment(L, pdf_parms, PDF_ENV);
     luaL_register(L, "pdf", pdflib);
     /* build meta table */
-    luaL_newmetatable(L, "pdf_meta");
+    luaL_newmetatable(L, "pdf.meta");
     lua_pushstring(L, "__index");
     lua_pushcfunction(L, getpdf);
     /* do these later, NYI */

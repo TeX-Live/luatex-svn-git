@@ -86,7 +86,7 @@ typedef struct dir_data {
 #endif
 } dir_data;
 
-#define LOCK_METATABLE "lock metatable"
+#define LOCK_METATABLE "lfs.lock"
 
 #ifdef _WIN32
  #ifdef __BORLANDC__
