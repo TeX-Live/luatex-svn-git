@@ -128,7 +128,7 @@ void undump_luac_registers(void)
 static void bytecode_register_shadow_set(lua_State * L, int k)
 {
     /* the stack holds the value to be set */
-    lua_pushstring(L, "bytecode_shadow");       /* lua.bytecode_shadow */
+    lua_pushstring(L, "lua.bytecode_shadow");       /* lua.bytecode_shadow */
     lua_rawget(L, LUA_REGISTRYINDEX);
     if (lua_istable(L, -1)) {
         lua_pushvalue(L, -2);
@@ -143,7 +143,7 @@ static int bytecode_register_shadow_get(lua_State * L, int k)
 {
     /* the stack holds the value to be set */
     int ret = 0;
-    lua_pushstring(L, "bytecode_shadow");
+    lua_pushstring(L, "lua.bytecode_shadow");
     lua_rawget(L, LUA_REGISTRYINDEX);
     if (lua_istable(L, -1)) {
         lua_rawgeti(L, -1, k);
@@ -324,7 +324,7 @@ int luaopen_lua(lua_State * L, char *fname)
     make_table(L, "bytecode", "tex.bytecode", "getbytecode", "setbytecode");
     make_table(L, "name",     "tex.name", "getluaname", "setluaname");
     lua_newtable(L);
-    lua_setfield(L, LUA_REGISTRYINDEX, "bytecode_shadow");
+    lua_setfield(L, LUA_REGISTRYINDEX, "lua.bytecode_shadow");
     lua_pushstring(L, LUA_VERSION);
     lua_setfield(L, -2, "version");
     if (fname == NULL) {
