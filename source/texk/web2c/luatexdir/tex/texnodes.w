@@ -336,9 +336,10 @@ node_info whatsit_node_data[] = {
 
 /* hh: experiment */
 
-lua_properties_level   = 0 ; /* can be private */
-lua_properties_enabled = 0 ;
-lua_properties_default = 0 ; /* 0=nil slots 1=false slots */
+
+int lua_properties_level   = 0 ; /* can be private */
+int lua_properties_enabled = 0 ;
+int lua_properties_default = 0 ; /* 0=nil slots 1=false slots */
 
 #define lua_properties_push do { \
     if (lua_properties_enabled) { \
@@ -378,7 +379,7 @@ lua_properties_default = 0 ; /* 0=nil slots 1=false slots */
     } \
 } while(0)
 
-#define lua_properties_copy(target, source) do { \
+#define xlua_properties_copy(target, source) do { \
     if (lua_properties_enabled) { \
         lua_pushnumber(Luas,source); \
         lua_rawget(Luas,-2); \
@@ -387,6 +388,32 @@ lua_properties_default = 0 ; /* 0=nil slots 1=false slots */
         lua_rawset(Luas,-3); \
     } \
 } while(0)
+
+static void copy_lua_table(lua_State* L, int index) {
+    lua_newtable(L); /* -1: new table -2: old table */
+    lua_pushnil(L);
+    while(lua_next(L, index-1) != 0) {
+        lua_pushvalue(L, -2);
+        lua_insert(L, -2);
+        if (lua_type(L,-1)==LUA_TTABLE)
+            copy_lua_table(L,-1);
+        lua_settable(L, -4);
+    }
+    lua_pop(L,1);
+}
+
+#define lua_properties_copy(target, source) do { \
+    if (lua_properties_enabled) { \
+        lua_pushnumber(Luas,source); \
+        lua_rawget(Luas,-2); \
+        if (lua_type(Luas,-1)==LUA_TTABLE) \
+            copy_lua_table(Luas,-1); \
+        lua_pushnumber(Luas,target); \
+        lua_insert(Luas,-2); \
+        lua_rawset(Luas,-3); \
+    } \
+} while(0)
+
 
 /* end */
 
