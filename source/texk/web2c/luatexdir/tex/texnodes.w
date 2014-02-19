@@ -626,11 +626,11 @@ halfword copy_node(const halfword p)
     }
     if (nodetype_has_attributes(type(p))) {
         add_node_attr_ref(node_attr(p));
+        alink(r) = null;
         lua_properties_push; /* hh */
         lua_properties_copy(r,p); /* hh */
         lua_properties_pop;  /* hh */
     }
-    alink(r) = null;
     vlink(r) = null;
 
 
