@@ -5657,6 +5657,17 @@ static void PsuedoEncodeUnencoded(EncMap *map,struct ttfinfo *info) {
 	if ( info->chars[i]!=NULL && !info->chars[i]->ticked )
 	    ++extras;
     if ( extras!=0 ) {
+      /* UnicodeBmp has its own   Private Use Areas */
+        /* if (strcmp(map->enc_name","UnicodeBmp")==0) { */
+        /*     if ( (info->glyph_cnt < 0x18FF) && (map->enccount<0xE000)) */
+        /*         base = 0xE000 */
+        /*     else if ( map->enccount<0xF0000 ) */
+        /*         base = 0xF0000; */
+        /*     else if ( map->enccount<0x100000 ) */
+        /*         base = 0x100000; */
+        /*     else */
+        /*         base = map->enccount; */
+        /*   } else { */
 	if ( map->enccount<=256 )
 	    base = 256;
 	else if ( map->enccount<=65536 )
