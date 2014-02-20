@@ -32,3 +32,8 @@ probably a get_key there
 [ ] /* TODO: the stack is messed up, otherwise this
      * explicit resizing would not be needed
      */ in luafont.w: int font_from_lua(lua_State * L, int f)
+
+
+[] make s and *s consistent
+[] make LuaS, luas, L consistent -> L
+
