@@ -37,6 +37,11 @@ static const char _svn_version[] =
 #define count(A) eqtb[count_base+(A)].hh.rh
 #define box(A) equiv(box_base+(A))
 
+/* tex random generators */
+extern int unif_rand(int );
+extern int norm_rand(void );
+extern void init_randoms(int );
+
 
 typedef struct {
     char *text;
@@ -2420,6 +2425,69 @@ static int tex_run_boot(lua_State * L)
 
 }
 
+/* tex random generators */
+static int tex_init_rand(lua_State * L)
+{ 
+  int sp;
+  if (!lua_isnumber(L, 1)) {
+      luaL_error(L, "argument must be a number");
+      return 0;
+  }
+  sp=(int)lua_tonumber(L, 1);
+  init_randoms(sp);
+  return 0;
+}
+
+static int tex_unif_rand(lua_State * L)
+{ 
+  int sp;
+  if (!lua_isnumber(L, 1)) {
+      luaL_error(L, "argument must be a number");
+      return 0;
+  }
+  sp=(int)lua_tonumber(L, 1);
+  lua_pushnumber(L, unif_rand(sp));
+  return 1;
+}
+
+static int tex_norm_rand(lua_State * L)
+{ 
+    lua_pushnumber(L, norm_rand());
+    return 1;
+}
+
+/* Same as lua but  with tex rng */
+static int lua_math_random (lua_State *L) 
+{
+  lua_Number rand_max = 0x7fffffff ;
+  lua_Number r =  unif_rand(rand_max-1) ;
+  r = (r>=0 ? 0+r : 0-r) ;
+  r = r / rand_max;
+  switch (lua_gettop(L)) {  /* check number of arguments */
+    case 0: {  /* no arguments */
+      lua_pushnumber(L, r);  /* Number between 0 and 1 */
+      break;
+    }
+    case 1: {  /* only upper limit */
+      lua_Number u = luaL_checknumber(L, 1);
+      luaL_argcheck(L, (lua_Number)1.0 <= u, 1, "interval is empty");
+      lua_pushnumber(L, floor(r*u) + (lua_Number)(1.0));  /* [1, u] */
+      break;
+    }
+    case 2: {  /* lower and upper limits */
+      lua_Number l = luaL_checknumber(L, 1);
+      lua_Number u = luaL_checknumber(L, 2);
+      luaL_argcheck(L, l <= u, 2, "interval is empty");
+      lua_pushnumber(L, floor(r*(u-l+1)) + l);  /* [l, u] */
+      break;
+    }
+    default: return luaL_error(L, "wrong number of arguments");
+  }
+  return 1;
+}
+
+
+
 static int tex_run_main(lua_State * L)
 {
     (void) L;
@@ -2513,6 +2581,12 @@ static const struct luaL_Reg texlib[] = {
     {"setmath", tex_setmathparm},
     {"getmath", tex_getmathparm},
     {"linebreak", tex_run_linebreak},
+    /* tex random generators     */
+    {"init_rand",   tex_init_rand},
+    {"uniform_rand",tex_unif_rand},
+    {"normal_rand", tex_norm_rand},
+    {"lua_math_randomseed", tex_init_rand}, /* syntactic sugar  */
+    {"lua_math_random", lua_math_random},
     {NULL, NULL}                /* sentinel */
 };
 
