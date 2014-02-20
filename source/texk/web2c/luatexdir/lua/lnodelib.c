@@ -1317,7 +1317,9 @@ static int lua_nodelib_direct_insert_after(lua_State * L)
 }
 
 /* node.copy_list */
-
+/* hh-ls: we need to use an intermediate variable as otherwise target is used in the loop 
+and subfields get overwritten (or something like that) which results in crashes and
+unexpected side effects */
 static int lua_nodelib_copy_list(lua_State * L)
 {
     halfword n, s = null;
@@ -1328,10 +1330,13 @@ static int lua_nodelib_copy_list(lua_State * L)
     if ((lua_gettop(L) > 1) && (!lua_isnil(L,2)))
         s = *check_isnode(L, 2);
     m = do_copy_node_list(n, s);
-    lua_pushnumber(L, m);
-    lua_nodelib_push(L);
+//    lua_pushnumber(L, m);
+//    lua_nodelib_push(L);
+    lua_nodelib_push_fast(L,m);
     return 1;
+
 }
+
 
 /* node.direct.copy_list */
 

@@ -557,10 +557,11 @@ halfword do_copy_node_list(halfword p, halfword end)
 {
     halfword q = null;          /* previous position in new list */
     halfword h = null;          /* head of the list */
+    register halfword s ;
     copy_error_seen = 0;
     lua_properties_push;
     while (p != end) {
-        register halfword s = copy_node(p);
+        s = copy_node(p);
         if (h == null) {
             h = s;
         } else {
@@ -579,17 +580,38 @@ halfword copy_node_list(halfword p)
 }
 
 // #define copy_sub_list(target,source) do { \
+//      l = source; \
+//      if (l != null) { \
+//          s = copy_node_list(l); \
+//          target = s; \
+//      } else { \
+//          target = null; \
+//      } \
+//  } while (0)
+
+#define copy_sub_list(target,source) do { \
+     if (source != null) { \
+         s = copy_node_list(source); \
+         target = s; \
+     } else { \
+         target = null; \
+     } \
+ } while (0)
+
+// #define copy_sub_node(target,source) do { \
 //     l = source; \
 //     if (l != null) { \
-//         target = copy_node_list(l); \
+//         s = copy_node(l); \
+//         target = s ; \
 //     } else { \
 //         target = null; \
 //     } \
 // } while (0)
 
-#define copy_sub_list(target,source) do { \
+#define copy_sub_node(target,source) do { \
     if (source != null) { \
-        target = copy_node_list(source); \
+        s = copy_node(source); \
+        target = s ; \
     } else { \
         target = null; \
     } \
@@ -602,7 +624,6 @@ halfword copy_node(const halfword p)
     halfword r;                 /* current node being fabricated for new list */
     register halfword s;        /* a helper variable for copying into variable mem  */
     register int i;
-//register halfword l;
     if (copy_error(p)) {
         r = new_node(temp_node, 0);
         return r;
@@ -626,14 +647,12 @@ halfword copy_node(const halfword p)
     }
     if (nodetype_has_attributes(type(p))) {
         add_node_attr_ref(node_attr(p));
-        alink(r) = null;
         lua_properties_push; /* hh */
         lua_properties_copy(r,p); /* hh */
         lua_properties_pop;  /* hh */
+        alink(r) = null;
     }
     vlink(r) = null;
-
-
 
     switch (type(p)) {
     case glyph_node:
@@ -682,15 +701,13 @@ halfword copy_node(const halfword p)
         copy_sub_list(ins_ptr(r),ins_ptr(p)) ;
         break;
     case margin_kern_node:
-        s = copy_node(margin_char(p));
-        margin_char(r) = s;
+        copy_sub_node(margin_char(r),margin_char(p));
         break;
     case mark_node:
         add_token_ref(mark_ptr(p));
         break;
     case adjust_node:
-        s = copy_node_list(adjust_ptr(p));
-        adjust_ptr(r) = s;
+        copy_sub_list(adjust_ptr(r),adjust_ptr(p));
         break;
     case choice_node:
         copy_sub_list(display_mlist(r),display_mlist(p)) ;
@@ -708,12 +725,12 @@ halfword copy_node(const halfword p)
             copy_sub_list(accent_chr(r),accent_chr(p)) ;
             copy_sub_list(bot_accent_chr(r),bot_accent_chr(p)) ;
         } else if (type(p) == radical_noad) {
-            copy_sub_list(left_delimiter(r),left_delimiter(p)) ;
+            copy_sub_node(left_delimiter(r),left_delimiter(p)) ;
             copy_sub_list(degree(r),degree(p)) ;
         }
         break;
     case fence_noad:
-        copy_sub_list(delimiter(r),delimiter(p)) ;
+        copy_sub_node(delimiter(r),delimiter(p)) ;
         break;
     case sub_box_node:
     case sub_mlist_node:
@@ -722,8 +739,8 @@ halfword copy_node(const halfword p)
     case fraction_noad:
         copy_sub_list(numerator(r),numerator(p)) ;
         copy_sub_list(denominator(r),denominator(p)) ;
-        copy_sub_list(left_delimiter(r),left_delimiter(p)) ;
-        copy_sub_list(right_delimiter(r),right_delimiter(p)) ;
+        copy_sub_node(left_delimiter(r),left_delimiter(p)) ;
+        copy_sub_node(right_delimiter(r),right_delimiter(p)) ;
         break;
     case glue_spec_node:
         glue_ref_count(r) = null;
@@ -970,34 +987,30 @@ int copy_error(halfword p)
 }
 
 // #define free_sub_list(source) do { \
-//     l = source; \
-//     if (l != null) \
-//         flush_node_list(l); \
+//      l = source; \
+//      if (l != null) \
+//          flush_node_list(l); \
 // } while (0)
-//
-// #define free_sub_node(source) do { \
-//     l = source; \
-//     if (l != null) \
-//         flush_node(l); \
-// } while (0)
-
 
 #define free_sub_list(source) do { \
     if (source != null) \
         flush_node_list(source); \
 } while (0)
 
+// #define free_sub_node(source) do { \
+//     l = source; \
+//     if (l != null) \
+//         flush_node(l); \
+// } while (0)
+
 #define free_sub_node(source) do { \
     if (source != null) \
         flush_node(source); \
 } while (0)
 
-
 @ @c
 void flush_node(halfword p)
 {
-
-//    register halfword l ;
 
     if (p == null)              /* legal, but no-op */
         return;
@@ -1026,6 +1039,9 @@ void flush_node(halfword p)
         free_sub_list(vlink(pre_break(p)));
         free_sub_list(vlink(post_break(p)));
         free_sub_list(vlink(no_break(p)));
+// why not: free_sub_list(pre_break(p));
+// why not: free_sub_list(post_break(p));
+// why not: free_sub_list(no_break(p));
         break;
     case rule_node:
     case kern_node:
