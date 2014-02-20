@@ -2460,7 +2460,7 @@ static int tex_norm_rand(lua_State * L)
 static int lua_math_random (lua_State *L) 
 {
   lua_Number rand_max = 0x7fffffff ;
-  lua_Number r =  unif_rand(rand_max-1) ;
+  lua_Number r =  unif_rand(rand_max) ;
   r = (r>=0 ? 0+r : 0-r) ;
   r = r / rand_max;
   switch (lua_gettop(L)) {  /* check number of arguments */
