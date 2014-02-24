@@ -1397,7 +1397,7 @@ void lua_initialize(int ac, char **av)
     init_lua_key(nomath);
     init_lua_key(auto_expand);
     init_lua_key_alias(node_properties,"node.properties");
-    init_lua_key_alias(node_properties,"node.properties.indirect");
+    init_lua_key_alias(node_properties_indirect,"node.properties.indirect");
 
 
     prepare_cmdline(Luas, argv, argc, lua_offset);      /* collect arguments */
