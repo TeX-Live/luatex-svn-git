@@ -5955,8 +5955,10 @@ static int lua_nodelib_direct_is_node(lua_State * L)
 
 */
 
-static int lua_nodelib_attributes_to_table(lua_State * L) /* hh */
-{   /* <node|direct> */
+/* if really needed we can provide this:
+
+static int lua_nodelib_attributes_to_table(lua_State * L) // hh
+{   // <node|direct>
     halfword n;
     register halfword attribute;
     if (lua_isnumber(L,1)) {
@@ -5985,7 +5987,9 @@ static int lua_nodelib_attributes_to_table(lua_State * L) /* hh */
     return 1 ;
 }
 
-/* There is no gain here but letś keep it around:
+*/
+
+/* There is no gain here but let's keep it around:
 
 static int lua_nodelib_attributes_to_properties(lua_State * L)
 {   // <node|direct>
@@ -6041,13 +6045,6 @@ static int lua_nodelib_properties_set_mode(lua_State * L) /* hh */
         lua_properties_use_metatable = lua_toboolean(L,2);
     }
     return 0;
-}
-
-static int lua_nodelib_properties_get_table(lua_State * L) /* hh */
-{   /* <node|direct> */
-    lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(node_properties));
-    lua_gettable(L, LUA_REGISTRYINDEX);
-    return 1;
 }
 
 /* We used to have variants in assigned defaults but they made no sense. */
@@ -6128,10 +6125,63 @@ static int lua_nodelib_direct_set_property(lua_State * L) /* hh */
     return 0;
 }
 
+static int lua_nodelib_direct_properties_get_table(lua_State * L) /* hh */
+{   /* <node|direct> */
+    lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(node_properties));
+    lua_gettable(L, LUA_REGISTRYINDEX);
+    return 1;
+}
+
+static int lua_nodelib_properties_get_table(lua_State * L) /* hh */
+{   /* <node|direct> */
+    lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(node_properties_indirect));
+    lua_gettable(L, LUA_REGISTRYINDEX);
+    return 1;
+}
+
+/* bonus */
+
+static int lua_nodelib_get_property_t(lua_State * L) /* hh */
+{   /* <table> <node> */
+    halfword n;
+    n = *((halfword *) lua_touserdata(L, 2));
+    if (n == null) {
+        lua_pushnil(L);
+    } else {
+        lua_rawgeti(L,1,n);
+    }
+    return 1;
+}
+
+static int lua_nodelib_set_property_t(lua_State * L) /* hh */
+{
+    /* <table> <node> <value> */
+    halfword n;
+    n = *((halfword *) lua_touserdata(L, 2));
+    if (n != null) {
+        lua_settop(L,3);
+        lua_rawseti(L,1,n);
+    }
+    return 0;
+}
+
+static const struct luaL_Reg nodelib_p[] = {
+    {"__index",    lua_nodelib_get_property_t},
+    {"__newindex", lua_nodelib_set_property_t},
+    {NULL, NULL} /* sentinel */
+};
+
 static void lua_new_properties_table(lua_State * L) /* hh */
 {
     lua_pushstring(L,"node.properties");
     lua_newtable(L);
+    lua_settable(L,LUA_REGISTRYINDEX);
+
+    lua_pushstring(L,"node.properties.indirect");
+    lua_newtable(L);
+    luaL_newmetatable(L,"node.properties.indirect.meta");
+    luaL_register(L, NULL, nodelib_p);
+    lua_setmetatable(L,-2);
     lua_settable(L,LUA_REGISTRYINDEX);
 }
 
@@ -6204,10 +6254,11 @@ static const struct luaL_Reg direct_nodelib_f[] = {
  /* {"whatsits", lua_nodelib_whatsits}, */                    /* no node argument */
     {"write", lua_nodelib_direct_append},
     /* an experiment */
+ /* {"attributes_to_table",lua_nodelib_attributes_to_table}, */ /* hh experiment */
+    /* an experiment */
     {"set_properties_mode",lua_nodelib_properties_set_mode}, /* hh experiment */
-    {"attributes_to_table",lua_nodelib_attributes_to_table}, /* hh experiment */
     {"flush_properties_table",lua_nodelib_properties_flush_table}, /* hh experiment */
-    {"get_properties_table",lua_nodelib_properties_get_table}, /* hh experiment */
+    {"get_properties_table",lua_nodelib_direct_properties_get_table}, /* hh experiment */
     {"getproperty", lua_nodelib_direct_get_property}, /* bonus */ /* hh experiment */
     {"setproperty", lua_nodelib_direct_set_property}, /* bonus */ /* hh experiment */
     /* done */
@@ -6278,8 +6329,9 @@ static const struct luaL_Reg nodelib_f[] = {
     {"whatsits", lua_nodelib_whatsits},
     {"write", lua_nodelib_append},
     /* experiment */
+ /* {"attributes_to_table",lua_nodelib_attributes_to_table}, */ /* hh experiment */
+    /* experiment */
     {"set_properties_mode",lua_nodelib_properties_set_mode}, /* hh experiment */
-    {"attributes_to_table",lua_nodelib_attributes_to_table}, /* hh experiment */
     {"flush_properties_table",lua_nodelib_properties_flush_table}, /* hh experiment */
     {"get_properties_table",lua_nodelib_properties_get_table}, /* bonus */ /* hh experiment */
     {"getproperty", lua_nodelib_get_property}, /* hh experiment */
