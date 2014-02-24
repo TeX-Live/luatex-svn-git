@@ -336,10 +336,53 @@ node_info whatsit_node_data[] = {
 
 /* hh: experiment */
 
+/*
 
-int lua_properties_level   = 0 ; /* can be private */
-int lua_properties_enabled = 0 ;
-int lua_properties_default = 0 ; /* 0=nil slots 1=false slots */
+When we copy a node list, there are several possibilities: we do the same as a new node,
+we copy the entry to the table in properties (a reference), we do a deep copy of a table
+in the properties, we create a new table and give it the original one as a metatable.
+After some experiments (that also included timing) with these scenarios I decided that a
+deep copy made no sense, nor did nilling. In the end both the shallow copy and the metatable
+variant were both ok, although the second ons is slower. The most important aspect to keep
+in mind is that references to other nodes in properties no longer can be valid for that
+copy. We could use two tables (one unique and one shared) or metatables but that only
+complicates matters.
+
+When defining a new node, we could already allocate a table but it is rather easy to do
+that at the lua end e.g. using a metatable __index method. That way it is under macro
+package control.
+
+When deleting a node, we could keep the slot (e.g. setting it to false) but it could make
+memory consumption raise unneeded when we have temporary large node lists and after that
+only small lists.
+
+So, in the end this is what we ended up with. For the record, I also experimented with the
+following:
+
+- copy attributes to the properties so that we hav efast access at the lua end: in the end
+  the overhead is not compensated by speed and convenience, in fact, attributes are not
+  that slow when it comes to accessing them
+- a bitset in the node but again the gain compared to attributes is neglectable and it also
+  demands a pretty string agreement over what bit represents what, and this is unlikely to
+  succeed in the tex community (I could use it for font handling, which is cross package,
+  but decided that it doesn't pay off
+
+In case one wonders why properties make sense then, well, it is not so much speed that we
+gain, but more convenience: storing all kind of (temporary) data in attributes is no fun and
+this mechanism makes sure that properties are cleaned up when a node is freed. Also, the
+advantage of a more or less global properties table is that we stay at the lua end. An
+alternative is to store a reference in the node itself but that is complicated by the fact
+that the register has some limitations (no numeric keys) and we also don't want to mess with
+it too much.
+
+*/
+
+int lua_properties_level         = 0 ; /* can be private */
+int lua_properties_enabled       = 0 ;
+int lua_properties_use_metatable = 0 ;
+
+/* We keep track of nesting so that we don't oveflow the stack, and, what is more important,
+don't keep resolving the registry index. */
 
 #define lua_properties_push do { \
     if (lua_properties_enabled) { \
@@ -359,38 +402,34 @@ int lua_properties_default = 0 ; /* 0=nil slots 1=false slots */
     } \
 } while(0)
 
+/* No setting is needed: */
+
 #define lua_properties_set(target) do { \
-    if (lua_properties_enabled) { \
-        lua_pushnumber(Luas,target); \
-        lua_newtable(Luas); \
-        lua_rawset(Luas,-3); \
-    } \
 } while(0)
+
+/* Resetting boils down to nilling. */
 
 #define lua_properties_reset(target) do { \
     if (lua_properties_enabled) { \
-        lua_pushnumber(Luas,target); \
-        if (lua_properties_default) { \
-            lua_pushboolean(Luas,0); \
+        if (lua_properties_level == 0) { \
+            lua_rawgeti(Luas, LUA_REGISTRYINDEX, luaS_index(node_properties)); \
+            lua_gettable(Luas, LUA_REGISTRYINDEX); \
+            lua_pushnil(Luas); \
+            lua_rawseti(Luas,-2,target); \
+            lua_pop(Luas,1); \
         } else { \
             lua_pushnil(Luas); \
+            lua_rawseti(Luas,-2,target); \
         } \
-        lua_rawset(Luas,-3); \
     } \
 } while(0)
 
-#define xlua_properties_copy(target, source) do { \
-    if (lua_properties_enabled) { \
-        lua_pushnumber(Luas,source); \
-        lua_rawget(Luas,-2); \
-        lua_pushnumber(Luas,target); \
-        lua_insert(Luas,-2); \
-        lua_rawset(Luas,-3); \
-    } \
-} while(0)
+/* For a moment I considered supporting all kind of data types but in practice
+that makes no sense. So we stick to a cheap shallow copy with as option a
+metatable. Btw, a deep copy would look like this:
 
 static void copy_lua_table(lua_State* L, int index) {
-    lua_newtable(L); /* -1: new table -2: old table */
+    lua_newtable(L);
     lua_pushnil(L);
     while(lua_next(L, index-1) != 0) {
         lua_pushvalue(L, -2);
@@ -406,16 +445,61 @@ static void copy_lua_table(lua_State* L, int index) {
     if (lua_properties_enabled) { \
         lua_pushnumber(Luas,source); \
         lua_rawget(Luas,-2); \
-        if (lua_type(Luas,-1)==LUA_TTABLE) \
+        if (lua_type(Luas,-1)==LUA_TTABLE) { \
             copy_lua_table(Luas,-1); \
-        lua_pushnumber(Luas,target); \
-        lua_insert(Luas,-2); \
-        lua_rawset(Luas,-3); \
+            lua_pushnumber(Luas,target); \
+            lua_insert(Luas,-2); \
+            lua_rawset(Luas,-3); \
+        } else { \
+            lua_pop(Luas,1); \
+        } \
     } \
 } while(0)
 
+*/
 
-/* end */
+/* isn't there a faster way to metatable? */
+
+#define lua_properties_copy(target,source) do { \
+    if (lua_properties_enabled) { \
+        if (lua_properties_level == 0) { \
+            lua_rawgeti(Luas, LUA_REGISTRYINDEX, luaS_index(node_properties)); \
+            lua_gettable(Luas, LUA_REGISTRYINDEX); \
+            lua_rawgeti(Luas,-1,source); \
+            if (lua_type(Luas,-1)==LUA_TTABLE) { \
+                if (lua_properties_use_metatable) { \
+                    lua_newtable(Luas); \
+                    lua_insert(Luas,-2); \
+                    lua_setfield(Luas,-2,"__index"); \
+                    lua_newtable(Luas); \
+                    lua_insert(Luas,-2); \
+                    lua_setmetatable(Luas,-2); \
+                } \
+                lua_rawseti(Luas,-2,target); \
+            } else { \
+                lua_pop(Luas,1); \
+            } \
+            lua_pop(Luas,1); \
+        } else { \
+            lua_rawgeti(Luas,-1,source); \
+            if (lua_type(Luas,-1)==LUA_TTABLE) { \
+                if (lua_properties_use_metatable) { \
+                    lua_newtable(Luas); \
+                    lua_insert(Luas,-2); \
+                    lua_setfield(Luas,-2,"__index"); \
+                    lua_newtable(Luas); \
+                    lua_insert(Luas,-2); \
+                    lua_setmetatable(Luas,-2); \
+                } \
+                lua_rawseti(Luas,-2,target); \
+            } else { \
+                lua_pop(Luas,1); \
+            } \
+        } \
+    } \
+} while(0)
+
+/* Here end the property handlers. */
 
 @ @c
 halfword new_node(int i, int j)
@@ -510,9 +594,7 @@ halfword new_node(int i, int j)
     /* take care of attributes */
     if (nodetype_has_attributes(i)) {
         build_attribute_list(n);
-        lua_properties_push; /* hh */
-        lua_properties_set(n); /* hh */
-        lua_properties_pop;  /* hh */
+        /* lua_properties_set */
     }
     type(n) = (quarterword) i;
     subtype(n) = (quarterword) j;
@@ -543,9 +625,7 @@ halfword new_glyph_node(void)
     type(n) = glyph_node;
     subtype(n) = 0;
     build_attribute_list(n);
-    lua_properties_push; /* hh */
-    lua_properties_set(n); /* hh */
-    lua_properties_pop;  /* hh */
+    /* lua_properties_set */
     return n;
 }
 
@@ -559,7 +639,7 @@ halfword do_copy_node_list(halfword p, halfword end)
     halfword h = null;          /* head of the list */
     register halfword s ;
     copy_error_seen = 0;
-    lua_properties_push;
+    lua_properties_push; /* saves stack and time */
     while (p != end) {
         s = copy_node(p);
         if (h == null) {
@@ -570,7 +650,7 @@ halfword do_copy_node_list(halfword p, halfword end)
         q = s;
         p = vlink(p);
     }
-    lua_properties_pop;
+    lua_properties_pop; /* saves stack and time */
     return h;
 }
 
@@ -579,34 +659,39 @@ halfword copy_node_list(halfword p)
     return do_copy_node_list(p, null);
 }
 
-// #define copy_sub_list(target,source) do { \
-//      l = source; \
-//      if (l != null) { \
-//          s = copy_node_list(l); \
-//          target = s; \
-//      } else { \
-//          target = null; \
-//      } \
-//  } while (0)
+/*  There is no gain in using a temp var:
+
+    #define copy_sub_list(target,source) do { \
+         l = source; \
+         if (l != null) { \
+             s = copy_node_list(l); \
+             target = s; \
+         } else { \
+             target = null; \
+         } \
+    } while (0)
+
+    #define copy_sub_node(target,source) do { \
+        l = source; \
+        if (l != null) { \
+            s = copy_node(l); \
+            target = s ; \
+        } else { \
+            target = null; \
+        } \
+    } while (0)
+
+    So we use:
+*/
 
 #define copy_sub_list(target,source) do { \
      if (source != null) { \
-         s = copy_node_list(source); \
+         s = do_copy_node_list(source, null); \
          target = s; \
      } else { \
          target = null; \
      } \
  } while (0)
-
-// #define copy_sub_node(target,source) do { \
-//     l = source; \
-//     if (l != null) { \
-//         s = copy_node(l); \
-//         target = s ; \
-//     } else { \
-//         target = null; \
-//     } \
-// } while (0)
 
 #define copy_sub_node(target,source) do { \
     if (source != null) { \
@@ -647,10 +732,8 @@ halfword copy_node(const halfword p)
     }
     if (nodetype_has_attributes(type(p))) {
         add_node_attr_ref(node_attr(p));
-        lua_properties_push; /* hh */
-        lua_properties_copy(r,p); /* hh */
-        lua_properties_pop;  /* hh */
         alink(r) = null;
+        lua_properties_copy(r,p);
     }
     vlink(r) = null;
 
@@ -986,22 +1069,28 @@ int copy_error(halfword p)
     return 0;
 }
 
-// #define free_sub_list(source) do { \
-//      l = source; \
-//      if (l != null) \
-//          flush_node_list(l); \
-// } while (0)
+/* No gain in a helper:
+
+    #define free_sub_list(source) do { \
+        l = source; \
+        if (l != null) \
+            flush_node_list(l); \
+    } while (0)
+
+    #define free_sub_node(source) do { \
+        l = source; \
+        if (l != null) \
+            flush_node(l); \
+    } while (0)
+
+    So:
+
+*/
 
 #define free_sub_list(source) do { \
     if (source != null) \
         flush_node_list(source); \
 } while (0)
-
-// #define free_sub_node(source) do { \
-//     l = source; \
-//     if (l != null) \
-//         flush_node(l); \
-// } while (0)
 
 #define free_sub_node(source) do { \
     if (source != null) \
@@ -1244,9 +1333,7 @@ void flush_node(halfword p)
     }
     if (nodetype_has_attributes(type(p))) {
         delete_attribute_ref(node_attr(p));
-        lua_properties_push; /* hh */
-        lua_properties_reset(p); /* hh */
-        lua_properties_pop;  /* hh */
+        lua_properties_reset(p);
     }
     free_node(p, get_node_size(type(p), subtype(p)));
     return;
@@ -1261,13 +1348,13 @@ void flush_node_list(halfword pp)
         return;
     if (free_error(p))
         return;
-    lua_properties_push; /* hh */
+    lua_properties_push; /* saves stack and time */
     while (p != null) {
         register halfword q = vlink(p);
         flush_node(p);
         p = q;
     }
-    lua_properties_pop;  /* hh */
+    lua_properties_pop; /* saves stack and time */
 }
 
 @ @c

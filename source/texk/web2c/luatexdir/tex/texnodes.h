@@ -787,8 +787,7 @@ extern halfword new_penalty(int m);
 
 extern int lua_properties_enabled ;
 extern int lua_properties_level ;
-extern int lua_properties_default ;
-
+extern int lua_properties_use_metatable ;
 
 #endif
 

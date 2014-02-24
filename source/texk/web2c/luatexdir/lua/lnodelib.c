@@ -1317,7 +1317,7 @@ static int lua_nodelib_direct_insert_after(lua_State * L)
 }
 
 /* node.copy_list */
-/* hh-ls: we need to use an intermediate variable as otherwise target is used in the loop 
+/* hh-ls: we need to use an intermediate variable as otherwise target is used in the loop
 and subfields get overwritten (or something like that) which results in crashes and
 unexpected side effects */
 static int lua_nodelib_copy_list(lua_State * L)
@@ -2476,14 +2476,12 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, const char *s)
         } else if (lua_key_eq(s, value)) {
             switch (user_node_type(n)) {
             case 'a':
-                /* fast_metatable(n) */
                 nodelib_pushlist(L, user_node_value(n));
                 break;
             case 'd':
                 lua_pushnumber(L, user_node_value(n));
                 break;
             case 'n':
-                /* fast_metatable(n) */
                 nodelib_pushlist(L, user_node_value(n));
                 break;
             case 's':
@@ -5957,8 +5955,6 @@ static int lua_nodelib_direct_is_node(lua_State * L)
 
 */
 
-/* hh: begin of properties experiment */
-
 static int lua_nodelib_attributes_to_table(lua_State * L) /* hh */
 {   /* <node|direct> */
     halfword n;
@@ -5989,8 +5985,10 @@ static int lua_nodelib_attributes_to_table(lua_State * L) /* hh */
     return 1 ;
 }
 
-static int lua_nodelib_attributes_to_properties(lua_State * L) /* hh */
-{   /* <node|direct> */
+/* There is no gain here but letś keep it around:
+
+static int lua_nodelib_attributes_to_properties(lua_State * L)
+{   // <node|direct>
     halfword n;
     register halfword attribute;
     if (lua_isnumber(L,1)) {
@@ -6028,13 +6026,19 @@ static int lua_nodelib_attributes_to_properties(lua_State * L) /* hh */
     return 1 ;
 }
 
+*/
+
+/* Beware, enabling and disabling can result in an inconsistent properties table
+but it might make sense sometimes. Of course by default we have disabled this
+mechanism. And, one can always sweep the table empty. */
+
 static int lua_nodelib_properties_set_mode(lua_State * L) /* hh */
-{   /* <node|direct> <boolean> <boolean> */
-    if (lua_isboolean(L,2)) {
-        lua_properties_enabled = lua_toboolean(L,2);
+{   /* <boolean> */
+    if (lua_isboolean(L,1)) {
+        lua_properties_enabled = lua_toboolean(L,1);
     }
-    if (lua_isboolean(L,3)) {
-        lua_properties_default = lua_toboolean(L,3);
+    if (lua_isboolean(L,2)) {
+        lua_properties_use_metatable = lua_toboolean(L,2);
     }
     return 0;
 }
@@ -6046,53 +6050,18 @@ static int lua_nodelib_properties_get_table(lua_State * L) /* hh */
     return 1;
 }
 
+/* We used to have variants in assigned defaults but they made no sense. */
+
 static int lua_nodelib_properties_flush_table(lua_State * L) /* hh */
 {   /* <node|direct> <number> */
-    int n = 0 ;
-    if (lua_isnumber(L,2)) {
-        n = lua_tonumber(L,2);
-    } else {
-        n = -1 ;
-    }
-    if ((n<0) || (n>3)) {
-        if (lua_properties_default) {
-            n = 1 ; /* boolean */
-        } else {
-            n = 0 ; /* nil */
-        }
-    }
     lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(node_properties));
     lua_gettable(L, LUA_REGISTRYINDEX);
     lua_pushnil(L); /* initializes lua_next */
-    if (n == 2) {
-        /* assign tables to slots */
-        while (lua_next(L,-2) != 0) {
-            /* k v */
-            lua_pushvalue(L,-2);
-            /* k v k */
-            lua_newtable(L);
-            /* k v k t */
-            lua_settable(L,-5);
-            /* k v */
-            lua_pop(L,1);
-            /* k */
-        }
-    } else if (n == 1) {
-        /* assign booleans to slots */
-        while (lua_next(L,-2) != 0) {
-            lua_pushvalue(L,-2);
-            lua_pushboolean(L,0);
-            lua_settable(L,-5);
-            lua_pop(L,1);
-        }
-    } else {
-        /* assign nils to slots */
-        while (lua_next(L,-2) != 0) {
-            lua_pushvalue(L,-2);
-            lua_pushnil(L);
-            lua_settable(L,-5);
-            lua_pop(L,1);
-        }
+    while (lua_next(L,-2) != 0) {
+        lua_pushvalue(L,-2);
+        lua_pushnil(L);
+        lua_settable(L,-5);
+        lua_pop(L,1);
     }
     return 1;
 }
@@ -6131,7 +6100,7 @@ static int lua_nodelib_set_property(lua_State * L) /* hh */
     /* <node> <value> */
     halfword n;
     n = *((halfword *) lua_touserdata(L, 1));
-    if (n == null) {
+    if (n != null) {
         lua_settop(L,2);
         lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(node_properties));
         lua_gettable(L, LUA_REGISTRYINDEX);
@@ -6159,56 +6128,10 @@ static int lua_nodelib_direct_set_property(lua_State * L) /* hh */
     return 0;
 }
 
-static int lua_nodelib_property_index(lua_State * L) /* hh */
-{   /* t k */
-    halfword n;
-    if (lua_isnumber(L,2)) {
-        n = lua_tonumber(L,2);
-    } else {
-        n = *((halfword *) lua_touserdata(L, 2));
-    }
-    if (n == null) {
-        lua_pushnil(L);
-    } else {
-        lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(node_properties));
-        lua_gettable(L, LUA_REGISTRYINDEX);
-        lua_rawgeti(L,-1,n);
-    }
-    return 1;
-}
-
-static int lua_nodelib_property_newindex(lua_State * L) /* hh */
-{
-    /* t k v */
-    halfword n;
-    if (lua_isnumber(L,2)) {
-        n = lua_tonumber(L,2);
-    } else {
-        n = *((halfword *) lua_touserdata(L, 2));
-    }
-    if (n != null) {
-        lua_settop(L,3);
-        lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(node_properties));
-        lua_gettable(L, LUA_REGISTRYINDEX);
-        lua_replace(L,1);
-        lua_rawseti(L,1,n);
-    }
-    return 0;
-}
-
-static const struct luaL_Reg properties_f[] = {
-    {"__index", lua_nodelib_property_index},
-    {"__newindex", lua_nodelib_property_newindex},
-    {NULL, NULL} /* sentinel */
-};
-
 static void lua_new_properties_table(lua_State * L) /* hh */
 {
-    luaL_newmetatable(L, "node.properties.meta"); /* no keys set yet */
-    luaL_register(L, NULL, properties_f);
     lua_pushstring(L,"node.properties");
     lua_newtable(L);
-    luaL_setmetatable(L,"node.properties.meta");
     lua_settable(L,LUA_REGISTRYINDEX);
 }
 
@@ -6283,7 +6206,6 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     /* an experiment */
     {"set_properties_mode",lua_nodelib_properties_set_mode}, /* hh experiment */
     {"attributes_to_table",lua_nodelib_attributes_to_table}, /* hh experiment */
-    {"attributes_to_properties",lua_nodelib_attributes_to_properties}, /* hh experiment */
     {"flush_properties_table",lua_nodelib_properties_flush_table}, /* hh experiment */
     {"get_properties_table",lua_nodelib_properties_get_table}, /* hh experiment */
     {"getproperty", lua_nodelib_direct_get_property}, /* bonus */ /* hh experiment */
@@ -6358,7 +6280,6 @@ static const struct luaL_Reg nodelib_f[] = {
     /* experiment */
     {"set_properties_mode",lua_nodelib_properties_set_mode}, /* hh experiment */
     {"attributes_to_table",lua_nodelib_attributes_to_table}, /* hh experiment */
-    {"attributes_to_properties",lua_nodelib_attributes_to_properties}, /* hh experiment */
     {"flush_properties_table",lua_nodelib_properties_flush_table}, /* hh experiment */
     {"get_properties_table",lua_nodelib_properties_get_table}, /* bonus */ /* hh experiment */
     {"getproperty", lua_nodelib_get_property}, /* hh experiment */
