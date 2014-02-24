@@ -278,7 +278,10 @@ extern int lua_numeric_field_by_index(lua_State *, int , int);
 /*                                                 */  
 /* These keys have to available to different files */
 /*                                                 */ 
+
+
 use_lua_key(LTL);
+use_lua_key(MathConstants);
 use_lua_key(RTT);
 use_lua_key(TLT);
 use_lua_key(TRT);
@@ -294,6 +297,7 @@ use_lua_key(align_head);
 use_lua_key(area);
 use_lua_key(attr);
 use_lua_key(attributes);
+use_lua_key(auto_expand);
 use_lua_key(best_ins_ptr);
 use_lua_key(best_page_break);
 use_lua_key(best_size);
@@ -338,6 +342,7 @@ use_lua_key(dirs);
 use_lua_key(display);
 use_lua_key(down);
 use_lua_key(dvi_ptr);
+use_lua_key(embedding);
 use_lua_key(encodingbytes);
 use_lua_key(encodingname);
 use_lua_key(end);
@@ -355,6 +360,7 @@ use_lua_key(file);
 use_lua_key(filename);
 use_lua_key(font);
 use_lua_key(fonts);
+use_lua_key(format);
 use_lua_key(fullname);
 use_lua_key(global);
 use_lua_key(glue_order);
@@ -407,6 +413,9 @@ use_lua_key(next);
 use_lua_key(no);
 use_lua_key(noad);
 use_lua_key(node);
+use_lua_key(node_properties);
+use_lua_key(node_properties_indirect);
+use_lua_key(nomath);
 use_lua_key(nop);
 use_lua_key(nucleus);
 use_lua_key(num);
@@ -420,6 +429,7 @@ use_lua_key(pTLT);
 use_lua_key(pTRT);
 use_lua_key(page_head);
 use_lua_key(page_ins_head);
+use_lua_key(parameters);
 use_lua_key(pdftex);
 use_lua_key(pen_broken);
 use_lua_key(pen_inter);
@@ -507,15 +517,9 @@ use_lua_key(xoffset);
 use_lua_key(xyz_zoom);
 use_lua_key(yoffset);
 
-use_lua_key(parameters);
-use_lua_key(MathConstants);
-use_lua_key(format);
-use_lua_key(embedding);
-
-use_lua_key(nomath);
-use_lua_key(auto_expand);
-use_lua_key(node_properties);
-use_lua_key(node_properties_indirect);
+use_lua_key(immediate);
+use_lua_key(compresslevel);
+use_lua_key(objcompression);
 
 
 

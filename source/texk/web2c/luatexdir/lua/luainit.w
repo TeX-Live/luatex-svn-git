@@ -30,6 +30,7 @@ static const char _svn_version[] =
 
 /* internalized strings: see luatex-api.h */
 make_lua_key(LTL);
+make_lua_key(MathConstants);
 make_lua_key(RTT);
 make_lua_key(TLT);
 make_lua_key(TRT);
@@ -45,6 +46,7 @@ make_lua_key(align_head);
 make_lua_key(area);
 make_lua_key(attr);
 make_lua_key(attributes);
+make_lua_key(auto_expand);
 make_lua_key(best_ins_ptr);
 make_lua_key(best_page_break);
 make_lua_key(best_size);
@@ -61,7 +63,9 @@ make_lua_key(broken_ptr);
 make_lua_key(cache);
 make_lua_key(cal_expand_ratio);
 make_lua_key(char);
+make_lua_key(characters);
 make_lua_key(checksum);
+make_lua_key(cidinfo);
 make_lua_key(class);
 make_lua_key(command);
 make_lua_key(commands);
@@ -87,6 +91,7 @@ make_lua_key(dirs);
 make_lua_key(display);
 make_lua_key(down);
 make_lua_key(dvi_ptr);
+make_lua_key(embedding);
 make_lua_key(encodingbytes);
 make_lua_key(encodingname);
 make_lua_key(end);
@@ -104,6 +109,7 @@ make_lua_key(file);
 make_lua_key(filename);
 make_lua_key(font);
 make_lua_key(fonts);
+make_lua_key(format);
 make_lua_key(fullname);
 make_lua_key(global);
 make_lua_key(glue_order);
@@ -156,6 +162,9 @@ make_lua_key(next);
 make_lua_key(no);
 make_lua_key(noad);
 make_lua_key(node);
+make_lua_key(node_properties);
+make_lua_key(node_properties_indirect);
+make_lua_key(nomath);
 make_lua_key(nop);
 make_lua_key(nucleus);
 make_lua_key(num);
@@ -169,6 +178,7 @@ make_lua_key(pTLT);
 make_lua_key(pTRT);
 make_lua_key(page_head);
 make_lua_key(page_ins_head);
+make_lua_key(parameters);
 make_lua_key(pdftex);
 make_lua_key(pen_broken);
 make_lua_key(pen_inter);
@@ -229,7 +239,7 @@ make_lua_key(surround);
 make_lua_key(tail);
 make_lua_key(temp_head);
 make_lua_key(term);
-make_lua_key(term_and_log);/* alias */
+make_lua_key(term_and_log);
 make_lua_key(tex);
 make_lua_key(text);
 make_lua_key(thread_attr);
@@ -255,16 +265,10 @@ make_lua_key(x_height);
 make_lua_key(xoffset);
 make_lua_key(xyz_zoom);
 make_lua_key(yoffset);
-make_lua_key(characters);
-make_lua_key(cidinfo);
-make_lua_key(parameters);
-make_lua_key(MathConstants);
-make_lua_key(format);
-make_lua_key(embedding);
-make_lua_key(nomath);
-make_lua_key(auto_expand);
-make_lua_key(node_properties);
-make_lua_key(node_properties_indirect);
+
+make_lua_key(immediate);
+make_lua_key(compresslevel);
+make_lua_key(objcompression);
 
 @
 TH: TODO
@@ -1162,6 +1166,7 @@ void lua_initialize(int ac, char **av)
 
     /* init internalized strings */
     init_lua_key(LTL);
+    init_lua_key(MathConstants);
     init_lua_key(RTT);
     init_lua_key(TLT);
     init_lua_key(TRT);
@@ -1177,6 +1182,7 @@ void lua_initialize(int ac, char **av)
     init_lua_key(area);
     init_lua_key(attr);
     init_lua_key(attributes);
+    init_lua_key(auto_expand);
     init_lua_key(best_ins_ptr);
     init_lua_key(best_page_break);
     init_lua_key(best_size);
@@ -1195,6 +1201,7 @@ void lua_initialize(int ac, char **av)
     init_lua_key(char);
     init_lua_key(characters);
     init_lua_key(checksum);
+    init_lua_key(cidinfo);
     init_lua_key(class);
     init_lua_key(command);
     init_lua_key(commands);
@@ -1220,6 +1227,7 @@ void lua_initialize(int ac, char **av)
     init_lua_key(display);
     init_lua_key(down);
     init_lua_key(dvi_ptr);
+    init_lua_key(embedding);
     init_lua_key(encodingbytes);
     init_lua_key(encodingname);
     init_lua_key(end);
@@ -1237,6 +1245,7 @@ void lua_initialize(int ac, char **av)
     init_lua_key(filename);
     init_lua_key(font);
     init_lua_key(fonts);
+    init_lua_key(format);
     init_lua_key(fullname);
     init_lua_key(global);
     init_lua_key(glue_order);
@@ -1270,8 +1279,6 @@ void lua_initialize(int ac, char **av)
     init_lua_key(log);
     init_lua_key(lua);
     init_lua_key(luatex);
-    /*init_lua_key(luatex_node);*/
-    init_lua_key_alias(luatex_node, "luatex.node");
     init_lua_key(mark);
     init_lua_key(mathdir);
     init_lua_key(mathkern);
@@ -1286,6 +1293,7 @@ void lua_initialize(int ac, char **av)
     init_lua_key(no);
     init_lua_key(noad);
     init_lua_key(node);
+    init_lua_key(nomath);
     init_lua_key(nop);
     init_lua_key(nucleus);
     init_lua_key(num);
@@ -1295,6 +1303,7 @@ void lua_initialize(int ac, char **av)
     init_lua_key(ordering);
     init_lua_key(page_head);
     init_lua_key(page_ins_head);
+    init_lua_key(parameters);
     init_lua_key(pdftex);
     init_lua_key(pen_broken);
     init_lua_key(pen_inter);
@@ -1380,24 +1389,22 @@ void lua_initialize(int ac, char **av)
     init_lua_key(xoffset);
     init_lua_key(xyz_zoom);
     init_lua_key(yoffset);
-    init_lua_key(cidinfo);
+    init_lua_key_alias(luatex_node, "luatex.node");
     init_lua_key_alias(mLTL,"-LTL");
     init_lua_key_alias(mRTT,"-RTT");
     init_lua_key_alias(mTLT,"-TLT");
     init_lua_key_alias(mTRT,"-TRT");
+    init_lua_key_alias(node_properties,"node.properties");
+    init_lua_key_alias(node_properties_indirect,"node.properties.indirect");
     init_lua_key_alias(pLTL,"+LTL");
     init_lua_key_alias(pRTT,"+RTT");
     init_lua_key_alias(pTLT,"+TLT");
     init_lua_key_alias(pTRT,"+TRT");
     init_lua_key_alias(term_and_log,"term and log");
-    init_lua_key(parameters);
-    init_lua_key(MathConstants);
-    init_lua_key(format);
-    init_lua_key(embedding);
-    init_lua_key(nomath);
-    init_lua_key(auto_expand);
-    init_lua_key_alias(node_properties,"node.properties");
-    init_lua_key_alias(node_properties_indirect,"node.properties.indirect");
+
+    init_lua_key(immediate);
+    init_lua_key(compresslevel);
+    init_lua_key(objcompression);
 
 
     prepare_cmdline(Luas, argv, argc, lua_offset);      /* collect arguments */
