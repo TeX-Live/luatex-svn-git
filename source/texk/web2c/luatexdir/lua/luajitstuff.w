@@ -199,6 +199,26 @@ static int luatex_dofile (lua_State *L) {
 void luainterpreter(void)
 {
     lua_State *L;
+        
+    if (jithash_hashname==NULL){
+	/* default lua51 */ 
+	luajitex_choose_hash_function = 0;
+	fprintf(stdout, "\nLuajitTeX default hash function type:lua52\n");
+    } else {
+      if (strcmp((const char*)jithash_hashname,"lua51")==0){
+	luajitex_choose_hash_function = 0;
+	fprintf(stdout, "\nLuajitTeX default hash function type:lua52\n");
+      }else if (strcmp((const char*)jithash_hashname,"luajit20")==0){
+	luajitex_choose_hash_function = 1;
+	fprintf(stdout, "\nLuajitTeX default hash function type:luajit20\n");
+      } else {
+	/* default lua51 */ 
+	luajitex_choose_hash_function = 0;
+	fprintf(stdout, "\nLuajitTeX default hash function type:lua52\n");
+      }
+    }
+    
+
     L = luaL_newstate() ;
     /*L = lua_newstate(my_luaalloc, NULL);*/
     if (L == NULL) {

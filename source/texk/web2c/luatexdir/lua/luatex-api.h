@@ -136,6 +136,8 @@ extern void undump_luac_registers(void);
 extern int lua_only;
 #ifdef LuajitTeX
 extern int luajiton;
+extern int luajitex_choose_hash_function; 
+extern char *jithash_hashname ;
 #endif
 
 extern void unhide_lua_table(lua_State * lua, const char *name, int r);

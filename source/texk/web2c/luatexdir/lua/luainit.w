@@ -362,6 +362,7 @@ const_string LUATEX_IHELP[] = {
     "  --luaconly               byte-compile a lua file, then exit",
 #ifdef LuajitTeX
     "  --jiton                  turns the JIT compiler on (default off)",
+    "  --jithash=STRING         choose the hash function for the lua strings (lua51|luajit20: default lua51)",
 #endif
     "",
     "See the reference manual for more information about the startup process.",
@@ -431,6 +432,7 @@ int lua_only = 0;
 int lua_offset = 0;
 #ifdef LuajitTeX
 int luajiton   = 0;
+char *jithash_hashname = NULL;
 #endif
 
 int safer_option = 0;
@@ -452,6 +454,7 @@ static struct option long_options[]
 {"luaonly", 0, 0, 0},
 #ifdef LuajitTeX
 {"jiton", 0, 0, 0},
+{"jithash", 1, 0, 0},
 #endif
 {"safer", 0, &safer_option, 1},
 {"nosocket", 0, &nosocket_option, 1},
@@ -550,6 +553,17 @@ static void parse_options(int ac, char **av)
 #ifdef LuajitTeX
         } else if (ARGUMENT_IS("jiton")) {
             luajiton = 1;
+        } else if (ARGUMENT_IS("jithash")) {
+	      size_t len = strlen(optarg);
+	      if (len<16)
+		jithash_hashname = optarg;     
+	      else{
+		WARNING2("hash name truncated to 15 characters from %d. (%s)",      
+			 (int) len, optarg);
+		jithash_hashname = (string) xmalloc(16);
+                strncpy(jithash_hashname, optarg, 15);
+                jithash_hashname[15] = 0;
+	      }
 #endif
 
         } else if (ARGUMENT_IS("kpathsea-debug")) {

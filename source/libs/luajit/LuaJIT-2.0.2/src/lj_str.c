@@ -91,7 +91,7 @@ void lj_str_resize(lua_State *L, MSize newmask)
 }
 
 #define cast(t, exp)	((t)(exp))
-/* int luajitex_choose_hash_function = 0; */
+int luajitex_choose_hash_function = 0; 
 /* Intern a string and return string object. */
 GCstr *lj_str_new(lua_State *L, const char *str, size_t lenx)
 {
@@ -108,34 +108,38 @@ GCstr *lj_str_new(lua_State *L, const char *str, size_t lenx)
 
   if (len==0)
     return &g->strempty; 
-  /* We need a new switch at the command loine for this ! */
-  /* if (luajitex_choose_hash_function==0) { */
+  /* We need a new switch at the command line for this ! */
+  if (luajitex_choose_hash_function==0) { 
     /* Lua 5.1.5 hash function */
-    h = cast(unsigned int, len);  /* seed  */
+    /*
+    h = cast(unsigned int, len);  \/\* seed  \*\/
+    but h is already an unsigned int 
+    */
     step = (len>>5)+1;  /* if string is too long, don't hash all its chars  */
     for (l1=len; l1>=step; l1-=step)  /* compute hash */
       h = h ^ ((h<<5)+(h>>2)+cast(unsigned char, str[l1-1])); 
-  /* } else { */
-  /* /\* LuaJIT 2.0.2 hash function *\/ */
-  /* /\* Compute string hash. Constants taken from lookup3 hash by Bob Jenkins. *\/ */
-  /*   if (len >= 4) {  /\* Caveat: unaligned access! *\/ */
-  /*     a = lj_getu32(str); */
-  /*     h ^= lj_getu32(str+len-4); */
-  /*     b = lj_getu32(str+(len>>1)-2); */
-  /*     h ^= b; h -= lj_rol(b, 14); */
-  /*     b += lj_getu32(str+(len>>2)-1); */
-  /*   } else if (len > 0) { */
-  /*     a = *(const uint8_t *)str; */
-  /*     h ^= *(const uint8_t *)(str+len-1); */
-  /*     b = *(const uint8_t *)(str+(len>>1)); */
-  /*     h ^= b; h -= lj_rol(b, 14); */
-  /*   } else { */
-  /*     return &g->strempty; */
-  /*   } */
-  /*   a ^= h; a -= lj_rol(h, 11); */
-  /*   b ^= a; b -= lj_rol(a, 25); */
-  /*   h ^= b; h -= lj_rol(b, 16); */
-  /* } */
+   } else { 
+  /* LuaJIT 2.0.2 hash function */
+  /* Compute string hash. Constants taken from lookup3 hash by Bob Jenkins. */
+    if (len >= 4) {  /* Caveat: unaligned access! */
+      a = lj_getu32(str);
+      h ^= lj_getu32(str+len-4);
+      b = lj_getu32(str+(len>>1)-2);
+      h ^= b; h -= lj_rol(b, 14);
+      b += lj_getu32(str+(len>>2)-1);
+    } else if (len > 0) {
+      a = *(const uint8_t *)str;
+      h ^= *(const uint8_t *)(str+len-1);
+      b = *(const uint8_t *)(str+(len>>1));
+      h ^= b; h -= lj_rol(b, 14);
+    } else {
+       /* Already done, kept for reference */ 
+       return &g->strempty;
+    }
+    a ^= h; a -= lj_rol(h, 11);
+    b ^= a; b -= lj_rol(a, 25);
+    h ^= b; h -= lj_rol(b, 16);
+  } 
 
 
   /* Check if the string has already been interned. */
