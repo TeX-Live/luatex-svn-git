@@ -90,7 +90,6 @@ void lj_str_resize(lua_State *L, MSize newmask)
   g->strhash = newhash;
 }
 
-#define cast(t, exp)	((t)(exp))
 /* Intern a string and return string object. */
 GCstr *lj_str_new(lua_State *L, const char *str, size_t lenx)
 {
@@ -99,42 +98,27 @@ GCstr *lj_str_new(lua_State *L, const char *str, size_t lenx)
   GCobj *o;
   MSize len = (MSize)lenx;
   MSize a, b, h = len;
-  size_t step ;
-  size_t l1 ;
   if (lenx >= LJ_MAX_STR)
     lj_err_msg(L, LJ_ERR_STROV);
   g = G(L);
-
-  if (len==0)
-    return &g->strempty; 
-
-  h = cast(unsigned int, len);  /* seed  */
-  step = (len>>5)+1;  /* if string is too long, don't hash all its chars  */
-  for (l1=len; l1>=step; l1-=step)  /* compute hash */
-     h = h ^ ((h<<5)+(h>>2)+cast(unsigned char, str[l1-1])); 
-
-
-  /* /\* Compute string hash. Constants taken from lookup3 hash by Bob Jenkins. *\/ */
-  /* if (len >= 4) {  /\* Caveat: unaligned access! *\/ */
-  /*   a = lj_getu32(str); */
-  /*   h ^= lj_getu32(str+len-4); */
-  /*   b = lj_getu32(str+(len>>1)-2); */
-  /*   h ^= b; h -= lj_rol(b, 14); */
-  /*   b += lj_getu32(str+(len>>2)-1); */
-  /* } else if (len > 0) { */
-  /*   a = *(const uint8_t *)str; */
-  /*   h ^= *(const uint8_t *)(str+len-1); */
-  /*   b = *(const uint8_t *)(str+(len>>1)); */
-  /*   h ^= b; h -= lj_rol(b, 14); */
-  /* } else { */
-  /*   return &g->strempty; */
-  /* } */
-  /* a ^= h; a -= lj_rol(h, 11); */
-  /* b ^= a; b -= lj_rol(a, 25); */
-  /* h ^= b; h -= lj_rol(b, 16); */
-
-
-
+  /* Compute string hash. Constants taken from lookup3 hash by Bob Jenkins. */
+  if (len >= 4) {  /* Caveat: unaligned access! */
+    a = lj_getu32(str);
+    h ^= lj_getu32(str+len-4);
+    b = lj_getu32(str+(len>>1)-2);
+    h ^= b; h -= lj_rol(b, 14);
+    b += lj_getu32(str+(len>>2)-1);
+  } else if (len > 0) {
+    a = *(const uint8_t *)str;
+    h ^= *(const uint8_t *)(str+len-1);
+    b = *(const uint8_t *)(str+(len>>1));
+    h ^= b; h -= lj_rol(b, 14);
+  } else {
+    return &g->strempty;
+  }
+  a ^= h; a -= lj_rol(h, 11);
+  b ^= a; b -= lj_rol(a, 25);
+  h ^= b; h -= lj_rol(b, 16);
   /* Check if the string has already been interned. */
   o = gcref(g->strhash[h & g->strmask]);
   if (LJ_LIKELY((((uintptr_t)str+len-1) & (LJ_PAGESIZE-1)) <= LJ_PAGESIZE-4)) {
@@ -159,6 +143,7 @@ GCstr *lj_str_new(lua_State *L, const char *str, size_t lenx)
     }
   }
   /* Nope, create a new string. */
+  printf("lj_str_new: create a new string for %s, l=%d\n",str,lenx);
   s = lj_mem_newt(L, sizeof(GCstr)+len+1, GCstr);
   newwhite(g, s);
   s->gct = ~LJ_TSTR;
