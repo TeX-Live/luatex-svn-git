@@ -107,8 +107,8 @@ static int do_luacprint(lua_State * L, int partial, int deftable)
             cattable=(int)lua_tonumber(L, 1);
             startstrings = 2;
             if (cattable != -1 && cattable != -2 && !valid_catcode_table(cattable)) {
-	      cattable = DEFAULT_CAT_TABLE;
-	    }
+       cattable = DEFAULT_CAT_TABLE;
+     }
         }
     }
     if (lua_type(L, startstrings) == LUA_TTABLE) {
@@ -128,9 +128,23 @@ static int do_luacprint(lua_State * L, int partial, int deftable)
             }
             luac_store(L, i, partial, cattable);
         }
+        /* hh: We could use this but it makes not much different, apart from allocating more ropes so less
+           memory. To be looked into: lua 5.2 buffer mechanism as now we still hash the concatination. This
+           test was part of the why-eis-luajit-so-slow on crited experiments. */
+        /*
+        if (startstrings == n) {
+            luac_store(L, n, partial, cattable);
+        } else {
+            lua_concat(L,n-startstrings+1);
+            luac_store(L, startstrings, partial, cattable);
+        }
+        */
     }
     return 0;
 }
+
+
+
 
 static int luacwrite(lua_State * L)
 {
@@ -2522,7 +2536,6 @@ void init_tex_table(lua_State * L)
 static const struct luaL_Reg texlib[] = {
     {"run", tex_run_main},      /* may be needed  */
     {"finish", tex_run_end},    /* may be needed  */
-    {"write", luacwrite},
     {"write", luacwrite},
     {"print", luacprint},
     {"tprint", luactprint},
