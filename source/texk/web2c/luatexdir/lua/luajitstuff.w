@@ -203,18 +203,17 @@ void luainterpreter(void)
     if (jithash_hashname==NULL){
 	/* default lua51 */ 
 	luajitex_choose_hash_function = 0;
-	fprintf(stdout, "\nLuajitTeX default hash function type:lua52\n");
+        jithash_hashname = (char *) xmalloc(strlen("lua51")+1);
+        jithash_hashname = strcpy ( jithash_hashname, "lua51"); 
     } else {
       if (strcmp((const char*)jithash_hashname,"lua51")==0){
 	luajitex_choose_hash_function = 0;
-	fprintf(stdout, "\nLuajitTeX default hash function type:lua52\n");
       }else if (strcmp((const char*)jithash_hashname,"luajit20")==0){
 	luajitex_choose_hash_function = 1;
-	fprintf(stdout, "\nLuajitTeX default hash function type:luajit20\n");
       } else {
 	/* default lua51 */ 
 	luajitex_choose_hash_function = 0;
-	fprintf(stdout, "\nLuajitTeX default hash function type:lua52\n");
+	jithash_hashname = strcpy ( jithash_hashname, "lua51"); 
       }
     }
     
@@ -235,7 +234,6 @@ void luainterpreter(void)
     else {
        luaJIT_setmode(L, 0, LUAJIT_MODE_ENGINE|LUAJIT_MODE_OFF);
     }
-
 
 
     lua_pushcfunction(L,luatex_dofile);
@@ -342,6 +340,8 @@ void luainterpreter(void)
         (void) hide_lua_value(L, "lfs", "rmdir");
         (void) hide_lua_value(L, "lfs", "mkdir");
     }
+    fprintf(stdout, "\nLuajitTeX default hash function type:%s\n",
+    		                                jithash_hashname);
     Luas = L;
 }
 

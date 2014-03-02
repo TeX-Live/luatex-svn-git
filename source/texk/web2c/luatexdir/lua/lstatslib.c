@@ -78,6 +78,18 @@ static const char *luatexrevision(void)
     return (const char *) (strrchr(luatex_version_string, '.') + 1);
 }
 
+
+static const char *luatex_hashname(void) 
+{
+#ifdef LuajitTeX
+     return (const char *)jithash_hashname; 
+#else
+  return "luatex";
+#endif
+}
+
+
+
 static lua_Number get_pdf_gone(void)
 {
     if (static_pdf != NULL)
@@ -172,6 +184,9 @@ static struct statistic stats[] = {
     {"luatex_svn", 'G', &get_luatexsvn},
     {"luatex_version", 'G', &get_luatexversion},
     {"luatex_revision", 'S', (void *) &luatexrevision},
+    {"luatex_hashname", 'S', (void *) &luatex_hashname},
+
+
     {"ini_version", 'b', &ini_version},
     /*
      * mem stat
