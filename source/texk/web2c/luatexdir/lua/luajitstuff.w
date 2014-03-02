@@ -340,8 +340,8 @@ void luainterpreter(void)
         (void) hide_lua_value(L, "lfs", "rmdir");
         (void) hide_lua_value(L, "lfs", "mkdir");
     }
-    fprintf(stdout, "\nLuajitTeX default hash function type:%s\n",
-    		                                jithash_hashname);
+    /* fprintf(stdout, "\nLuajitTeX default hash function type:%s\n", */
+    /* 		                                jithash_hashname); */
     Luas = L;
 }
 
