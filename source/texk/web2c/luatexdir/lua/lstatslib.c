@@ -79,7 +79,7 @@ static const char *luatexrevision(void)
 }
 
 
-static const char *luatex_hashname(void) 
+static const char *get_luatexhashtype(void) 
 {
 #ifdef LuajitTeX
      return (const char *)jithash_hashname; 
@@ -184,7 +184,7 @@ static struct statistic stats[] = {
     {"luatex_svn", 'G', &get_luatexsvn},
     {"luatex_version", 'G', &get_luatexversion},
     {"luatex_revision", 'S', (void *) &luatexrevision},
-    {"luatex_hashname", 'S', (void *) &luatex_hashname},
+    {"luatex_hashtype", 'S', (void *) &get_luatexhashtype},
 
 
     {"ini_version", 'b', &ini_version},
