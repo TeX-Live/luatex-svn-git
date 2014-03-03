@@ -108,14 +108,10 @@ GCstr *lj_str_new(lua_State *L, const char *str, size_t lenx)
 
   if (len==0)
     return &g->strempty; 
-  /* We need a new switch at the command line for this ! */
   if (luajitex_choose_hash_function==0) { 
     /* Lua 5.1.5 hash function */
-    /*
-    h = cast(unsigned int, len);  \/\* seed  \*\/
-    but h is already an unsigned int 
-    */
-    step = (len>>5)+1;  /* if string is too long, don't hash all its chars  */
+    /* for 5.2 max methods we also need to patch the vm eq */ 
+    step = (len>>6)+1;  /* if string is too long, don't hash all its chars  Was 5, we try 6*/
     for (l1=len; l1>=step; l1-=step)  /* compute hash */
       h = h ^ ((h<<5)+(h>>2)+cast(unsigned char, str[l1-1])); 
    } else { 
