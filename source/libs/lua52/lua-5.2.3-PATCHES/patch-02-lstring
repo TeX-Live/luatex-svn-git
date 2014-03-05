@@ -1,0 +1,10 @@
+diff -ur lua-5.2.3.orig/src/lstring.c lua-5.2.3/src/lstring.c
+--- lua-5.2.3.orig/src/lstring.c2014-03-05 17:53:51.829468849 +0100
++++ lua-5.2.3/src/lstring.c2014-03-03 16:20:33.000000000 +0100
+@@ -23,7 +23,7 @@
+ ** compute its hash
+ */
+ #if !defined(LUAI_HASHLIMIT)
+-#define LUAI_HASHLIMIT5
++#define LUAI_HASHLIMIT6
+ #endif
