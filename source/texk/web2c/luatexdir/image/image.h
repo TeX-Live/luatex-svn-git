@@ -35,8 +35,8 @@ extern scaled one_hundred_bp;   /* from pdfgen.w */
 #  define bp2sp(p)        do_zround(p * (one_hundred_bp / 100.0))
 #  define sp2bp(i)        (i * 100.0 / one_hundred_bp)
 
-#  define TYPE_IMG        "image"
-#  define TYPE_IMG_DICT   "image-dict"
+#  define TYPE_IMG        "image.meta"
+#  define TYPE_IMG_DICT   "image.dict"
 
 /**********************************************************************/
 

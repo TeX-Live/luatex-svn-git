@@ -48,7 +48,7 @@ static const char _svn_version[] =
 @ @c
 #define check_nprintf(size_get, size_want) \
     if ((unsigned)(size_get) >= (unsigned)(size_want)) \
-        pdftex_fail ("snprintf failed: file %s, line %d", __FILE__, __LINE__);
+        luatex_fail ("snprintf failed: file %s, line %d", __FILE__, __LINE__);
 
 char *cur_file_name = NULL;
 static char print_buf[PRINTF_BUF_SIZE];
@@ -114,7 +114,7 @@ void make_subset_tag(fd_entry * fd)
     aa = avl_probe(st_tree, fd->subset_tag);
     assert(aa != NULL);
     if (j > 2)
-        pdftex_warn
+        luatex_warn
             ("\nmake_subset_tag(): subset-tag collision, resolved in round %d.\n",
              j);
 }
@@ -131,7 +131,7 @@ void tex_printf(const char *fmt, ...)
     va_end(args);
 }
 
-@ |pdftex_fail| may be called when a buffer overflow has happened/is
+@ |luatex_fail| may be called when a buffer overflow has happened/is
    happening, therefore may not call mktexstring.  However, with the
    current implementation it appears that error messages are misleading,
    possibly because pool overflows are detected too late.
@@ -141,7 +141,7 @@ void tex_printf(const char *fmt, ...)
 
 @c
 __attribute__ ((noreturn, format(printf, 1, 2)))
-void pdftex_fail(const char *fmt, ...)
+void luatex_fail(const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -171,7 +171,7 @@ void pdftex_fail(const char *fmt, ...)
    pdftex.web!
 @c
 __attribute__ ((format(printf, 1, 2)))
-void pdftex_warn(const char *fmt, ...)
+void luatex_warn(const char *fmt, ...)
 {
     int old_selector = selector;
     va_list args;
@@ -192,7 +192,7 @@ void pdftex_warn(const char *fmt, ...)
 @ @c
 void garbage_warning(void)
 {
-    pdftex_warn("dangling objects discarded, no output file produced.");
+    luatex_warn("dangling objects discarded, no output file produced.");
     remove_pdffile(static_pdf);
 }
 
@@ -225,7 +225,7 @@ void make_pdftex_banner(void)
 size_t xfwrite(void *ptr, size_t size, size_t nmemb, FILE * stream)
 {
     if (fwrite(ptr, size, nmemb, stream) != nmemb)
-        pdftex_fail("fwrite() failed");
+        luatex_fail("fwrite() failed");
     return nmemb;
 }
 
@@ -233,7 +233,7 @@ size_t xfwrite(void *ptr, size_t size, size_t nmemb, FILE * stream)
 int xfflush(FILE * stream)
 {
     if (fflush(stream) != 0)
-        pdftex_fail("fflush() failed (%s)", strerror(errno));
+        luatex_fail("fflush() failed (%s)", strerror(errno));
     return 0;
 }
 
@@ -242,7 +242,7 @@ int xgetc(FILE * stream)
 {
     int c = getc(stream);
     if (c < 0 && c != EOF)
-        pdftex_fail("getc() failed (%s)", strerror(errno));
+        luatex_fail("getc() failed (%s)", strerror(errno));
     return c;
 }
 
@@ -251,7 +251,7 @@ int xputc(int c, FILE * stream)
 {
     int i = putc(c, stream);
     if (i < 0)
-        pdftex_fail("putc() failed (%s)", strerror(errno));
+        luatex_fail("putc() failed (%s)", strerror(errno));
     return i;
 }
 
@@ -264,7 +264,7 @@ scaled ext_xn_over_d(scaled x, scaled n, scaled d)
     else
         r -= 0.5;
     if (r >= (double) max_integer || r <= -(double) max_integer)
-        pdftex_warn("arithmetic: number too big");
+        luatex_warn("arithmetic: number too big");
     return (scaled) r;
 }
 

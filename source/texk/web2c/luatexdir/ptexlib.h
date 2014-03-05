@@ -85,7 +85,7 @@ extern char **suffixlist;       /* in luainit.w */
 
 #  define check_buf(size, buf_size)                                 \
   if ((unsigned)(size) > (unsigned)(buf_size))                      \
-    pdftex_fail("buffer overflow: %d > %d at file %s, line %d",     \
+    luatex_fail("buffer overflow: %d > %d at file %s, line %d",     \
                 (int)(size), (int)(buf_size), __FILE__,  __LINE__ )
 
 #  define append_char_to_buf(c, p, buf, buf_size) do { \

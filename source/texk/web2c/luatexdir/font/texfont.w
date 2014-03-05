@@ -196,7 +196,7 @@ static void set_charinfo(internal_font_number f, int c, charinfo * ci)
         if (glyph) {
             font_tables[f]->charinfo[glyph] = *ci;
         } else {
-            pdftex_fail("font: %s", "character insertion failed");
+            luatex_fail("font: %s", "character insertion failed");
         }
     } else if (c == left_boundarychar) {
         set_left_boundary(f, ci);

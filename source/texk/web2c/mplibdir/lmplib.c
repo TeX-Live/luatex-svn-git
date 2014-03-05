@@ -49,7 +49,7 @@ int luaopen_mplib(lua_State * L); /* forward */
 
 /* metatable identifiers and tests */
 
-#define MPLIB_METATABLE     "MPlib"
+#define MPLIB_METATABLE     "MPlib.meta"
 #define MPLIB_FIG_METATABLE "MPlib.fig"
 #define MPLIB_GR_METATABLE  "MPlib.gr"
 

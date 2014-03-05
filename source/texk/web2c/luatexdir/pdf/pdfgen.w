@@ -34,7 +34,7 @@ static const char _svn_version[] =
 
 #define check_nprintf(size_get, size_want) \
     if ((unsigned)(size_get) >= (unsigned)(size_want)) \
-        pdftex_fail ("snprintf failed: file %s, line %d", __FILE__, __LINE__);
+        luatex_fail ("snprintf failed: file %s, line %d", __FILE__, __LINE__);
 
 PDF static_pdf = NULL;
 
@@ -300,7 +300,7 @@ void fix_pdf_minorversion(PDF pdf)
 
 #define check_err(f, fn)                        \
   if (f != Z_OK)                                \
-    pdftex_fail("zlib: %s() failed (error code %d)", fn, f)
+    luatex_fail("zlib: %s() failed (error code %d)", fn, f)
 
 @ @c
 static void write_zip(PDF pdf)
@@ -311,7 +311,7 @@ static void write_zip(PDF pdf)
     z_stream *s = pdf->c_stream;
     boolean finish = pdf->zip_write_state == ZIP_FINISH;
     assert(pdf->compress_level > 0);
-    /* This was just to suppress the filename report in |pdftex_fail|
+    /* This was just to suppress the filename report in |luatex_fail|
        but zlib errors are rare enough (especially now that the
        compress level is fixed) that I don't care about the slightly
        ugly error message that could result.
@@ -361,7 +361,7 @@ static void write_zip(PDF pdf)
         }
         err = deflate(s, flush);
         if (err != Z_OK && err != Z_STREAM_END)
-            pdftex_fail("zlib: deflate() failed (error code %d)", err);
+            luatex_fail("zlib: deflate() failed (error code %d)", err);
     }
     pdf->stream_length = (off_t) s->total_out;
 }
@@ -852,7 +852,7 @@ void addto_page_resources(PDF pdf, pdf_obj_type t, int k)
         re->resources_tree =
             avl_create(comp_page_resources, NULL, &avl_xallocator);
         if (re->resources_tree == NULL)
-            pdftex_fail
+            luatex_fail
                 ("addto_page_resources(): avl_create() page_resource_tree failed");
     }
     tmp.obj_type = t;
@@ -863,7 +863,7 @@ void addto_page_resources(PDF pdf, pdf_obj_type t, int k)
         pr->list = NULL;
         pp = avl_probe(re->resources_tree, pr);
         if (pp == NULL)
-            pdftex_fail
+            luatex_fail
                 ("addto_page_resources(): avl_probe() out of memory in insertion");
     }
     if (pr->list == NULL) {
@@ -1515,7 +1515,7 @@ static void print_ID(PDF pdf)
     md5_append(&state, (const md5_byte_t *) time_str, (int) size);
     /* get the file name */
     if (getcwd(pwd, sizeof(pwd)) == NULL)
-        pdftex_fail("getcwd() failed (%s), (path too long?)", strerror(errno));
+        luatex_fail("getcwd() failed (%s), (path too long?)", strerror(errno));
 #ifdef WIN32
     {
         char *p;
@@ -1928,7 +1928,7 @@ void pdf_end_page(PDF pdf)
     /* Finish stream of page/form contents */
     pdf_goto_pagemode(pdf);
     if (pos_stack_used > 0) {
-        pdftex_fail("%u unmatched \\pdfsave after %s shipout",
+        luatex_fail("%u unmatched \\pdfsave after %s shipout",
                     (unsigned int) pos_stack_used,
                     ((global_shipping_mode ==
                       SHIPPING_PAGE) ? "page" : "form"));

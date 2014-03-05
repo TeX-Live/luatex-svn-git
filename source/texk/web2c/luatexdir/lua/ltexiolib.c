@@ -27,18 +27,19 @@ typedef void (*texio_printer) (const char *);
 
 static char *loggable_info = NULL;
 
+
 static boolean get_selector_value(lua_State * L, int i, int *l)
 {
     boolean r = false;
     if (lua_isstring(L, i)) {
         const char *s = lua_tostring(L, i);
-        if (strcmp(s, "log") == 0) {
+        if (lua_key_eq(s,log)) {
             *l = log_only;
             r = true;
-        } else if (strcmp(s, "term") == 0) {
+        } else if (lua_key_eq(s,term)) {
             *l = term_only;
             r = true;
-        } else if (strcmp(s, "term and log") == 0) {
+        } else if (lua_key_eq(s,term_and_log)) {
             *l = term_and_log;
             r = true;
         }

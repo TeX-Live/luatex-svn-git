@@ -24,7 +24,7 @@ static const char _svn_version[] =
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
-#define PDF_ENV "pdf_env"
+#define PDF_ENV "pdf.env"
 
 static int luapdfprint(lua_State * L)
 {
@@ -236,8 +236,9 @@ static int table_obj(lua_State * L)
 
     /* get object "type" */
 
-    lua_pushstring(L, "type");  /* ks t */
-    lua_gettable(L, -2);        /* vs? t */
+    /* lua_pushstring(L, "type");  /\* ks t *\/ */
+    /* lua_gettable(L, -2);        /\* vs? t *\/ */
+    lua_key_rawgeti(type);
     if (lua_isnil(L, -1))       /* !vs t */
         luaL_error(L, "pdf.obj(): object \"type\" missing");
     if (!lua_isstring(L, -1))   /* !vs t */
@@ -261,8 +262,9 @@ static int table_obj(lua_State * L)
 
     /* get optional "immediate" */
 
-    lua_pushstring(L, "immediate");     /* ks t */
-    lua_gettable(L, -2);        /* b? t */
+    /* lua_pushstring(L, "immediate");     /\* ks t *\/ */
+    /* lua_gettable(L, -2);        /\* b? t *\/ */
+    lua_key_rawgeti(immediate);
     if (!lua_isnil(L, -1)) {    /* b? t */
         if (!lua_isboolean(L, -1))      /* !b t */
             luaL_error(L, "pdf.obj(): \"immediate\" must be boolean");
@@ -272,8 +274,9 @@ static int table_obj(lua_State * L)
 
     /* is a reserved object referenced by "objnum"? */
 
-    lua_pushstring(L, "objnum");        /* ks t */
-    lua_gettable(L, -2);        /* vi? t */
+    /* lua_pushstring(L, "objnum");        /\* ks t *\/ */
+    /* lua_gettable(L, -2);        /\* vi? t *\/ */
+    lua_key_rawgeti(objnum);
     if (!lua_isnil(L, -1)) {    /* vi? t */
         if (!lua_isnumber(L, -1))       /* !vi t */
             luaL_error(L, "pdf.obj(): \"objnum\" must be integer");
@@ -294,8 +297,9 @@ static int table_obj(lua_State * L)
 
     /* get optional "attr" (allowed only for stream case) */
 
-    lua_pushstring(L, "attr");  /* ks t */
-    lua_gettable(L, -2);        /* attr-s? t */
+    /* lua_pushstring(L, "attr");  /\* ks t *\/ */
+    /* lua_gettable(L, -2);        /\* attr-s? t *\/ */
+    lua_key_rawgeti(attr);
     if (!lua_isnil(L, -1)) {    /* attr-s? t */
         if (type != P_STREAM)
             luaL_error(L,
@@ -312,8 +316,9 @@ static int table_obj(lua_State * L)
 
     /* get optional "compresslevel" (allowed only for stream case) */
 
-    lua_pushstring(L, "compresslevel"); /* ks t */
-    lua_gettable(L, -2);        /* vi? t */
+    /* lua_pushstring(L, "compresslevel"); /\* ks t *\/ */
+    /* lua_gettable(L, -2);        /\* vi? t *\/ */
+    lua_key_rawgeti(compresslevel);
     if (!lua_isnil(L, -1)) {    /* vi? t */
         if (type == P_RAW)
             luaL_error(L,
@@ -332,8 +337,9 @@ static int table_obj(lua_State * L)
 
     /* get optional "objcompression" (allowed only for non-stream case) */
 
-    lua_pushstring(L, "objcompression");        /* ks t */
-    lua_gettable(L, -2);        /* b? t */
+    /* lua_pushstring(L, "objcompression");        /\* ks t *\/ */
+    /* lua_gettable(L, -2);        /\* b? t *\/ */
+    lua_key_rawgeti(objcompression);
     if (!lua_isnil(L, -1)) {    /* b? t */
         if (type == P_STREAM)
             luaL_error(L,
@@ -353,10 +359,14 @@ static int table_obj(lua_State * L)
 
     /* now the object contents for all cases are handled */
 
-    lua_pushstring(L, "string");        /* ks t */
-    lua_gettable(L, -2);        /* string-s? t */
-    lua_pushstring(L, "file");  /* ks string-s? t */
-    lua_gettable(L, -3);        /* file-s? string-s? t */
+    /* lua_pushstring(L, "string");        /\* ks t *\/ */
+    /* lua_gettable(L, -2);        /\* string-s? t *\/ */
+    lua_key_rawgeti(string);
+    /* lua_pushstring(L, "file");  /\* ks string-s? t *\/ */
+    /* lua_gettable(L, -3);        /\* file-s? string-s? t *\/ */
+    lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(file));
+    lua_gettable(L, -3);     
+
     if (!lua_isnil(L, -1) && !lua_isnil(L, -2)) /* file-s? string-s? t */
         luaL_error(L,
                    "pdf.obj(): \"string\" and \"file\" must not be given together");
@@ -788,7 +798,7 @@ int luaopen_pdf(lua_State * L)
     preset_environment(L, pdf_parms, PDF_ENV);
     luaL_register(L, "pdf", pdflib);
     /* build meta table */
-    luaL_newmetatable(L, "pdf_meta");
+    luaL_newmetatable(L, "pdf.meta");
     lua_pushstring(L, "__index");
     lua_pushcfunction(L, getpdf);
     /* do these later, NYI */

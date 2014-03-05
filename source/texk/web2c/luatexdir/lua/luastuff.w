@@ -33,7 +33,7 @@ int luastate_bytes = 0;
 int lua_active = 0;
 
 @ @c
-void make_table(lua_State * L, const char *tab, const char *getfunc,
+void make_table(lua_State * L, const char *tab, const char *mttab, const char *getfunc,
                 const char *setfunc)
 {
     /* make the table *//* |[{<tex>}]| */
@@ -44,7 +44,7 @@ void make_table(lua_State * L, const char *tab, const char *getfunc,
     lua_pushstring(L, tab);     /* |[{<tex>},"dimen"]| */
     lua_gettable(L, -2);        /* |[{<tex>},{<dimen>}]| */
     /* make the meta entries */
-    luaL_newmetatable(L, tab);  /* |[{<tex>},{<dimen>},{<dimen_m>}]| */
+    luaL_newmetatable(L, mttab);  /* |[{<tex>},{<dimen>},{<dimen_m>}]| */
     lua_pushstring(L, "__index");       /* |[{<tex>},{<dimen>},{<dimen_m>},"__index"]| */
     lua_pushstring(L, getfunc); /* |[{<tex>},{<dimen>},{<dimen_m>},"__index","getdimen"]| */
     lua_gettable(L, -5);        /* |[{<tex>},{<dimen>},{<dimen_m>},"__index",<tex.getdimen>]| */
@@ -360,7 +360,7 @@ int lua_traceback(lua_State * L)
 }
 
 @ @c
-static void luacall(int p, int nameptr, boolean is_string)
+static void luacall(int p, int nameptr, boolean is_string) /* hh-ls: optimized lua_id resolving */
 {
     LoadS ls;
     int i;
@@ -390,18 +390,19 @@ static void luacall(int p, int nameptr, boolean is_string)
         if (nameptr > 0) {
             int l = 0; /* not used */
             lua_id = tokenlist_to_cstring(nameptr, 1, &l);
+            i = lua_load(Luas, getS, &ls, lua_id, NULL);
+            xfree(lua_id);
         } else if (nameptr < 0) {
-            char *tmp = get_lua_name((nameptr + 65536));
-            if (tmp != NULL)
-                lua_id = xstrdup(tmp);
-            else
-                lua_id = xstrdup("\\latelua ");
+            lua_id = get_lua_name((nameptr + 65536));
+            if (lua_id != NULL) {
+                i = lua_load(Luas, getS, &ls, lua_id, NULL);
+                xfree(lua_id);
+            } else {
+                i = lua_load(Luas, getS, &ls, "\\latelua ", NULL);
+            }
         } else {
-            lua_id = xmalloc(20);
-            snprintf((char *) lua_id, 20, "\\latelua ");
+            i = lua_load(Luas, getS, &ls, "\\latelua ", NULL);
         }
-
-        i = lua_load(Luas, getS, &ls, lua_id, NULL);
         if (i != 0) {
             Luas = luatex_error(Luas, (i == LUA_ERRSYNTAX ? 0 : 1));
         } else {
@@ -416,7 +417,6 @@ static void luacall(int p, int nameptr, boolean is_string)
                 Luas = luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
             }
         }
-        xfree(lua_id);
         xfree(ls.s);
     }
     lua_active--;
@@ -436,7 +436,7 @@ void late_lua(PDF pdf, halfword p)
 }
 
 @ @c
-void luatokencall(int p, int nameptr)
+void luatokencall(int p, int nameptr) /* hh-ls: optimized lua_id resolving */
 {
     LoadS ls;
     int i, l;
@@ -451,16 +451,19 @@ void luatokencall(int p, int nameptr)
     if (ls.size > 0) {
         if (nameptr > 0) {
             lua_id = tokenlist_to_cstring(nameptr, 1, &l);
+            i = lua_load(Luas, getS, &ls, lua_id, NULL);
+            xfree(lua_id);
         } else if (nameptr < 0) {
-            char *tmp = get_lua_name((nameptr + 65536));
-            if (tmp != NULL)
-                lua_id = xstrdup(tmp);
-            else
-                lua_id = xstrdup("\\directlua ");
+            lua_id = get_lua_name((nameptr + 65536));
+            if (lua_id != NULL) {
+                i = lua_load(Luas, getS, &ls, lua_id, NULL);
+                xfree(lua_id);
+            } else {
+                i = lua_load(Luas, getS, &ls, "\\directlua ", NULL);
+            }
         } else {
-            lua_id = xstrdup("\\directlua ");
+            i = lua_load(Luas, getS, &ls, "\\directlua ", NULL);
         }
-        i = lua_load(Luas, getS, &ls, lua_id, NULL);
         xfree(s);
         if (i != 0) {
             Luas = luatex_error(Luas, (i == LUA_ERRSYNTAX ? 0 : 1));
@@ -476,7 +479,6 @@ void luatokencall(int p, int nameptr)
                 Luas = luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
             }
         }
-        xfree(lua_id);
     }
     lua_active--;
 }

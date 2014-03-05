@@ -239,7 +239,7 @@ int colorstackpop(int colstack_no)
 
     if (global_shipping_mode == SHIPPING_PAGE) {
         if (colstack->page_used == 0) {
-            pdftex_warn("pop empty color page stack %u",
+            luatex_warn("pop empty color page stack %u",
                         (unsigned int) colstack_no);
             return colstack->literal_mode;
         }
@@ -248,7 +248,7 @@ int colorstackpop(int colstack_no)
         put_cstring_on_str_pool(colstack->page_current);
     } else {
         if (colstack->form_used == 0) {
-            pdftex_warn("pop empty color form stack %u",
+            luatex_warn("pop empty color form stack %u",
                         (unsigned int) colstack_no);
             return colstack->literal_mode;
         }

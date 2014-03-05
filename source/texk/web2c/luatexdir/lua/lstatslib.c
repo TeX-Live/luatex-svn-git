@@ -78,6 +78,18 @@ static const char *luatexrevision(void)
     return (const char *) (strrchr(luatex_version_string, '.') + 1);
 }
 
+
+static const char *get_luatexhashtype(void) 
+{
+#ifdef LuajitTeX
+     return (const char *)jithash_hashname; 
+#else
+  return "luatex";
+#endif
+}
+
+
+
 static lua_Number get_pdf_gone(void)
 {
     if (static_pdf != NULL)
@@ -172,6 +184,9 @@ static struct statistic stats[] = {
     {"luatex_svn", 'G', &get_luatexsvn},
     {"luatex_version", 'G', &get_luatexversion},
     {"luatex_revision", 'S', (void *) &luatexrevision},
+    {"luatex_hashtype", 'S', (void *) &get_luatexhashtype},
+
+
     {"ini_version", 'b', &ini_version},
     /*
      * mem stat
@@ -344,7 +359,7 @@ static const struct luaL_Reg statslib[] = {
 int luaopen_stats(lua_State * L)
 {
     luaL_register(L, "status", statslib);
-    luaL_newmetatable(L, "stats_meta");
+    luaL_newmetatable(L, "tex.stats");
     lua_pushstring(L, "__index");
     lua_pushcfunction(L, getstats);
     lua_settable(L, -3);

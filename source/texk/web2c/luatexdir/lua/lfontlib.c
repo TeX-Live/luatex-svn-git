@@ -283,7 +283,7 @@ static const struct luaL_Reg fontlib[] = {
 int luaopen_font(lua_State * L)
 {
     luaL_register(L, "font", fontlib);
-    make_table(L, "fonts", "getfont", "setfont");
+    make_table(L, "fonts", "tex.fonts", "getfont", "setfont");
     return 1;
 }
 
