@@ -2749,10 +2749,10 @@ makesrcspecial (strnumber srcfilename, int lineno)
 
 #define check_nprintf(size_get, size_want) \
     if ((unsigned)(size_get) >= (unsigned)(size_want)) \
-        luatex_fail ("snprintf failed: file %s, line %d", __FILE__, __LINE__);
+        pdftex_fail ("snprintf failed: file %s, line %d", __FILE__, __LINE__);
 #  define check_buf(size, buf_size)                         \
     if ((unsigned)(size) > (unsigned)(buf_size))            \
-        luatex_fail("buffer overflow at file %s, line %d", __FILE__,  __LINE__ )
+        pdftex_fail("buffer overflow at file %s, line %d", __FILE__,  __LINE__ )
 #  define xfree(p)            do { if (p != NULL) free(p); p = NULL; } while (0)
 #  define MAX_CSTRING_LEN     1024 * 1024
 
@@ -2760,14 +2760,14 @@ makesrcspecial (strnumber srcfilename, int lineno)
 #  define PRINTF_BUF_SIZE     1024
 static char print_buf[PRINTF_BUF_SIZE];
 
-/* Helper for luatex_fail. */
+/* Helper for pdftex_fail. */
 static void safe_print(const char *str)
 {
     const char *c;
     for (c = str; *c; ++c)
         print(*c);
 }
-/* luatex_fail may be called when a buffer overflow has happened/is
+/* pdftex_fail may be called when a buffer overflow has happened/is
    happening, therefore may not call mktexstring.  However, with the
    current implementation it appears that error messages are misleading,
    possibly because pool overflows are detected too late.
@@ -2775,7 +2775,7 @@ static void safe_print(const char *str)
    The output format of this fuction must be the same as pdf_error in
    pdftex.web! */
 __attribute__ ((noreturn, format(printf, 1, 2)))
-void luatex_fail(const char *fmt, ...)
+void pdftex_fail(const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
