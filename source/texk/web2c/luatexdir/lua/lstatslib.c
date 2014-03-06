@@ -192,7 +192,7 @@ static struct statistic stats[] = {
     {"luatex_version", 'G', &get_luatexversion},
     {"luatex_revision", 'S', (void *) &luatexrevision},
     {"luatex_hashtype", 'S', (void *) &get_luatexhashtype},
-    {"luatex_hashchars", 'g',  &get_luatexhashchars},
+    {"luatex_hashchars", 'N',  &get_luatexhashchars},
 
 
     {"ini_version", 'b', &ini_version},

@@ -480,9 +480,9 @@ void print_banner(const char *v, int ver)
         if (show_luahashchars){
             wterm(' ');
 #ifdef LuajitTeX
-            fprintf(term_out,"Nr. of bits used by the hash function (luajittex): %d",LUAJITTEX_HASHCHARS);
+            fprintf(term_out,"Number of bits used by the hash function (luajittex): %d",LUAJITTEX_HASHCHARS);
 #else
-            fprintf(term_out,"Nr. of bits used by the hash function (luatex): %d",LUATEX_HASHCHARS);
+            fprintf(term_out,"Number of bits used by the hash function (luatex): %d",LUATEX_HASHCHARS);
 #endif
         print_ln();
         } 
