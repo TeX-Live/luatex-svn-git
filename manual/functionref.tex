@@ -1,102 +1,135 @@
 % $Id$
-\pdfcompresslevel=0
-\pdfobjcompresslevel=0
 
-\nonknuthmode
-\catcode`\|=12
+% \catcode`\|=12
 
-\setuplayout[backspace=1cm,edge=0pt,topspace=1cm,
-  margin=0pt,location=middle,height=fit,footer=0pt,width=middle,
-  header=24pt]
+\setuplayout
+  [backspace=1cm,
+   edge=0pt,
+   topspace=1cm,
+   margin=0pt,
+   location=middle,
+   height=fit,
+   footer=0pt,
+   width=middle,
+   header=24pt]
 
-\setuptabulate[before=]
-\setuppagenumbering[location=,alternative=doublesided]
-\setupheadertexts[Luatex 0.66 short reference][pagenumber]
-\setupheader[style=\ssbf]
+\setuptabulate
+  [before=]
 
-\setupalign[flushleft]
+\setuppagenumbering
+  [location=,
+   alternative=doublesided]
 
-\setuphead[section][number=no,style=\ssbfb,after=,before=\blank]
-\setuphead[subsection][number=no,after=,style=\ssbf]
+\setupheadertexts
+  [Luatex 0.66 short reference]
+  [pagenumber]
 
-\switchtobodyfont[times,9pt]
+\setupheader
+  [style=\ssbf]
+
+\setupalign
+ [flushleft,verytolerant,stretch]
+
+\setuphead
+  [section]
+  [number=no,
+   style=\ssbfb,
+   after=,
+   before=\blank]
+
+\setuphead
+  [subsection]
+  [number=no,
+   after=,
+   style=\ssbf]
+
+\switchtobodyfont
+  [dejavu,6pt]
+
 \usemodule[abr-01]
+
 \def\DPI{DPI}
 
-\setuptype[style=\ss]
-\setuptyping[style=\ss]
+\setuptype
+  [style=\ss]
 
-\def\afunction#1{{\ss\bf #1}}
-\def\aliteral#1{{\ss "#1"}}
+\setuptyping
+  [style=\ss]
 
-\def\showitemnoret#1#2#3#4#5#6%
+\unexpanded\def\afunction#1%
+  {{\ss\bf #1}}
+
+\unexpanded\def\aliteral#1%
+  {{\ss "#1"}}
+
+\unexpanded\def\showitemnoret#1#2#3#4#5#6%
   {\hangafter=1\hangindent=12pt
    \noindent {\ss \afunction{#1#6#2}#3}%
    \hskip 12pt plus .5\hsize\penalty0 \hskip 0pt plus -.5\hsize
    #5\par}
 
-\def\showitemret#1#2#3#4#5#6%
+\unexpanded\def\showitemret#1#2#3#4#5#6%
   {\hangafter=1\hangindent=12pt
    \noindent {\ss #4 = \afunction{#1#6#2}#3}%
    \hskip 12pt plus .5\hsize\penalty0\hskip 0pt plus -.5\hsize
    #5\par}
 
-\def\luafunction#1#2#3#4#5%
+\unexpanded\def\luafunction#1#2#3#4#5%
   {\doifemptyelse{#4}
     {\showitemnoret{#1}{#2}{#3}{#4}{#5}{.}}
     {\showitemret{#1}{#2}{#3}{#4}{#5}{.}}\par}
 
-\def\luamethod#1#2#3#4#5%
+\unexpanded\def\luamethod#1#2#3#4#5%
   {\doifemptyelse{#4}
     {\showitemnoret{#1}{#2}{#3}{#4}{#5}{:}}
     {\showitemret{#1}{#2}{#3}{#4}{#5}{:}}\par}
 
-\def\luacallback#1#2#3#4#5%
+\unexpanded\def\luacallback#1#2#3#4#5%
   {\doifemptyelse{#4}
     {\showitemnoret{}{#2}{#3}{#4}{#5}{}}
     {\showitemret{}{#2}{#3}{#4}{#5}{}}\par}
 
 \startluacode
+
 local fdata = dofile('fdata.lua')
+
 function showfunction (t,o,f)
-         local val
-         local method
-         if o == nil then
-            val = fdata[t]["functions"][f]
-            method = false
-         else
-            val = fdata[t]["methods"][o][f]
-            method = true
-         end
-         local r = {}
-         local a = {}
-         if #val.returnvalues > 0 then
-            for i,v in ipairs (val.returnvalues) do
-               if v.optional then
-                  r[#r+1] = '[' .. v.type .. ']'
-               else
-                  r[#r+1] = v.type
-               end
-            end
-         end
-         if #val.arguments > 0 then
-            for i,v in ipairs (val.arguments) do
-               if (method == false) or (i > 1) then
-                  if v.optional then
-                     a[#a+1] = '[' ..  v.type .. ']'
-                  else
-                     a[#a+1] = v.type
-                  end
-               end
-            end
-         end
-         if method == false then
-            tex.sprint(string.format('\\lua%s{%s}{%s}{(%s)}{%s}{%s}', val.type, t, f,
-                               table.concat(a,', '),table.concat(r,', '), val.shortdesc))
-         else
-            tex.sprint(string.format('\\lua%s{%s}{%s}{(%s)}{%s}{%s}', "method", o, f,
-                               table.concat(a,', '),table.concat(r,', '), val.shortdesc))
-         end
+     local val
+     local method
+     if o == nil then
+        val = fdata[t]["functions"][f]
+        method = false
+     else
+        val = fdata[t]["methods"][o][f]
+        method = true
+     end
+     local r = {}
+     local a = {}
+     if #val.returnvalues > 0 then
+        for i,v in ipairs (val.returnvalues) do
+           if v.optional then
+              r[#r+1] = '[' .. v.type .. ']'
+           else
+              r[#r+1] = v.type
+           end
+        end
+     end
+     if #val.arguments > 0 then
+        for i,v in ipairs (val.arguments) do
+           if (method == false) or (i > 1) then
+              if v.optional then
+                 a[#a+1] = '[' ..  v.type .. ']'
+              else
+                 a[#a+1] = v.type
+              end
+           end
+        end
+     end
+     if method == false then
+        context('\\lua%s{%s}{%s}{(%s)}{%s}{%s}', val.type, t, f, table.concat(a,', '),table.concat(r,', '), val.shortdesc)
+     else
+        context('\\lua%s{%s}{%s}{(%s)}{%s}{%s}', "method", o, f, table.concat(a,', '),table.concat(r,', '), val.shortdesc)
+     end
 end
 
 \stopluacode
@@ -247,7 +280,7 @@ in the same format as \type{\pdfximage}.
 \presentfunction{callback}{buildpage_filter}
 
 \afunction{buildpage_filter} context information:
-\starttabulate[|lf\ss|p|]
+\starttabulate[|lf{\ss}|p|]
 \NC \ssbf value     \NC \bf explanation                        \NC\NR
 \NC alignment       \NC a (partial) alignment is being added   \NC\NR
 \NC after_output    \NC an output routine has just finished    \NC\NR
@@ -265,7 +298,7 @@ in the same format as \type{\pdfximage}.
 \presentfunction{callback}{pre_linebreak_filter}
 
 \afunction{pre_linebreak_filter} context information:
-\starttabulate[|lf\ss|p|]
+\starttabulate[|lf{\ss}|p|]
 \NC \ssbf value        \NC \bf explanation                     \NC\NR
 \NC <empty>      \NC main vertical list                        \NC\NR
 \NC hbox         \NC \tex{hbox} in horizontal mode             \NC\NR
@@ -605,7 +638,7 @@ in the same format as \type{\pdfximage}.
 \presentfunction{fontloader}{info}
 
 \afunction{fontloader.info} returned information:
-\starttabulate[|lf\ss|lf\ss|p|]
+\starttabulate[|lf{\ss}|lf{\ss}|p|]
 \NC \ssbf key                      \NC \bf type \NC \bf explanation \NC\NR
 \NC fontname                     \NC string   \NC the \POSTSCRIPT\ name of the font\NC\NR
 \NC fullname                     \NC string   \NC the formal name of the font\NC\NR
@@ -628,7 +661,7 @@ reference manual.
 \section{Image table}
 
 Full list of \type{<image>} object fields:
-\starttabulate[|lf\ss|lf\ss|p|]
+\starttabulate[|lf{\ss}|lf{\ss}|p|]
 \NC \bf field name\NC \bf type \NC description \NC \NR
 \NC depth         \NC number   \NC the image depth for \LUATEX\ (in scaled points)\NC \NR
 \NC height        \NC number   \NC the image height for \LUATEX\ (in scaled points)\NC \NR
@@ -677,7 +710,7 @@ Full list of \type{<image>} object fields:
 The \afunction{kpse.lookup} options match commandline arguments from
 \type{kpsewhich}:
 
-\starttabulate[|lf\ss|lf\ss|p|]
+\starttabulate[|lf{\ss}|lf{\ss}|p|]
 \NC \ssbf key \NC \ssbf type \NC \ssbf description \NC \NR
 \NC debug     \NC number     \NC set debugging flags for this lookup\NC     \NR
 \NC format    \NC string     \NC use specific file type (see list above)\NC \NR
@@ -741,7 +774,7 @@ chunks.  To use \type{lua.name[1]}, set \type{lua.name[1] = 'testname'} and \typ
 The return value of \type{mp:execute} and \type{mp:finish} is a table
 with a few possible keys (only \type {status} is always guaranteed to be present).
 
-\starttabulate[|lf\ss|lf\ss|p|]
+\starttabulate[|lf{\ss}|lf{\ss}|p|]
 \NC log    \NC string \NC output to the \quote {log} stream \NC \NR
 \NC term   \NC string \NC output to the \quote {term} stream \NC \NR
 \NC error  \NC string \NC output to the \quote {error} stream (only used for \quote {out of memory})\NC \NR
@@ -815,7 +848,7 @@ see the big reference manual.
 \presentfunction{status}{list}
 
 The current list is:
-\starttabulate[|lf\ss|p|]
+\starttabulate[|lf{\ss}|p|]
 \NC \ssbf key    \NC  \bf explanation \NC\NR
 \NC pdf_gone\NC                  written \PDF\ bytes      \NC \NR
 \NC pdf_ptr\NC                   not yet written \PDF\ bytes      \NC \NR
@@ -874,6 +907,8 @@ The current list is:
 \NC luatex_svn\NC                the luatex repository id  (added in 0.51)\NC\NR
 \NC luatex_version\NC            the luatex version number (added in 0.38)\NC\NR
 \NC luatex_revision\NC           the luatex revision string (added in 0.38)\NC\NR
+\NC luatex_hashtype\NC           the hash function for strings used by the current lua interpreter\NC\NR
+\NC luatex_hashchars\NC          number of the bits used by the hash function for strings\NC\NR
 \NC ini_version\NC               \type{true} if this is an \INITEX\ run (added in 0.38)\NC\NR
 \stoptabulate
 
@@ -939,7 +974,7 @@ the literal \aliteral{global}. The items can also be accessed directly via virtu
 
 The \afunction{tex.linebreak} parameters:
 
-\starttabulate[|lf\ss|lf\ss|p|]
+\starttabulate[|lf{\ss}|lf{\ss}|p|]
 \NC \bf name                 \NC \bf type \NC \bf description \NC \NR
 \NC pardir                   \NC string   \NC \NC \NR
 \NC pretolerance             \NC number   \NC \NC \NR
@@ -976,7 +1011,7 @@ The \afunction{tex.linebreak} parameters:
 
 The \afunction{tex.linebreak} returned table data:
 
-\starttabulate[|lf\ss|p|]
+\starttabulate[|lf{\ss}|p|]
 \NC prevdepth   \NC depth of the last line in the broken paragraph \NC \NR
 \NC prevgraf    \NC number of lines in the broken paragraph \NC \NR
 \NC looseness   \NC the actual looseness value in the broken paragraph \NC \NR
@@ -989,7 +1024,7 @@ The \afunction{tex.linebreak} returned table data:
 The virtual table  \type{tex.lists} contains the set of internal
 registers that keep track of building page lists.
 
-\starttabulate[|lf\ss|p|]
+\starttabulate[|lf{\ss}|p|]
 \NC \bf field          \NC \bf description \NC \NR
 \NC page_ins_head      \NC  circular list of pending insertions \NC \NR
 \NC contrib_head       \NC  the recent contributions \NC \NR
@@ -1005,7 +1040,7 @@ semantic nesting state. It has two main parts: an zero-based array of
 userdata for the semantic nest itself, and the numerical value
 \type{tex.nest.ptr}. Known fields:
 
-\starttabulate[|lf\ss|lf\ss|l|p|]
+\starttabulate[|lf{\ss}|lf{\ss}|l|p|]
 \NC \ssbf key   \NC \bf type  \NC \bf modes  \NC \bf explanation \NC\NR
 \NC mode        \NC number    \NC all        \NC The current mode.
                                                  0 = no mode,
@@ -1037,36 +1072,35 @@ This is a table that is created empty. A startup \LUA\ script could
 fill this table with a number of settings that are read out by
 the executable after loading and executing the startup file.
 
-\starttabulate[|lf\ss|lf\ss|l|p|]
-\NC \ssbf key      \NC \bf type     \NC \bf default \NC \bf explanation \NC\NR
-\NC kpse_init \NC boolean \NC true    \NC \type{false} totally disables \KPATHSEA\ initialisation\NC \NR
-\NC shell_escape    \NC    string\NC \NC cf.\ web2c docs \NC\NR
-\NC shell_escape_commands \NC string\NC \NC cf.\ web2c docs \NC\NR
-\NC string_vacancies \NC   number\NC  75000\NC cf.\ web2c docs \NC \NR
-\NC pool_free \NC               number\NC  5000\NC cf.\ web2c docs \NC \NR
-\NC max_strings \NC        number\NC  15000\NC cf.\ web2c docs \NC \NR
-\NC strings_free \NC       number\NC  100\NC cf.\ web2c docs \NC \NR
-\NC nest_size \NC               number\NC  50\NC cf.\ web2c docs \NC \NR
-\NC max_in_open \NC        number\NC  15\NC cf.\ web2c docs \NC \NR
-\NC param_size \NC         number\NC  60\NC cf.\ web2c docs \NC \NR
-\NC save_size \NC               number\NC  4000\NC cf.\ web2c docs \NC \NR
-\NC stack_size \NC         number\NC  300\NC cf.\ web2c docs \NC \NR
-\NC dvi_buf_size \NC       number\NC  16384\NC cf.\ web2c docs \NC \NR
-\NC error_line \NC         number\NC  79\NC cf.\ web2c docs \NC \NR
-\NC half_error_line \NC    number\NC  50\NC cf.\ web2c docs \NC \NR
-\NC max_print_line \NC     number\NC  79\NC cf.\ web2c docs \NC \NR
-\NC hash_extra \NC         number\NC  0\NC cf.\ web2c docs \NC \NR
-\NC pk_dpi \NC             number\NC  72\NC cf.\ web2c docs \NC \NR
-\NC trace_file_names \NC boolean \NC true \NC \type{false} disables \TEX's normal file feedback\NC \NR
-\NC file_line_error  \NC boolean \NC false \NC \type{file:line} style error messages\NC \NR
-\NC halt_on_error    \NC boolean \NC false \NC abort run on the first encountered error\NC \NR
-\NC formatname       \NC string \NC \NC if no format name was given
-                                             on the commandline, this will be used\NC \NR
-\NC jobname          \NC string \NC \NC as \type{formatname}.\NC \NR
+\starttabulate[|lf{\ss}|lf{\ss}|l|p|]
+\NC \ssbf key \NC \bf type \NC \bf default \NC \bf explanation \NC\NR
+\NC kpse_init             \NC boolean \NC true    \NC \type{false} totally disables \KPATHSEA\ initialisation \NC \NR
+\NC shell_escape          \NC string  \NC         \NC cf.\ web2c docs \NC \NR
+\NC shell_escape_commands \NC string  \NC         \NC cf.\ web2c docs \NC \NR
+\NC string_vacancies      \NC number  \NC 75000   \NC cf.\ web2c docs \NC \NR
+\NC pool_free             \NC number  \NC 5000    \NC cf.\ web2c docs \NC \NR
+\NC max_strings           \NC number  \NC 15000   \NC cf.\ web2c docs \NC \NR
+\NC strings_free          \NC number  \NC 100     \NC cf.\ web2c docs \NC \NR
+\NC nest_size             \NC number  \NC 50      \NC cf.\ web2c docs \NC \NR
+\NC max_in_open           \NC number  \NC 15      \NC cf.\ web2c docs \NC \NR
+\NC param_size            \NC number  \NC 60      \NC cf.\ web2c docs \NC \NR
+\NC save_size             \NC number  \NC 4000    \NC cf.\ web2c docs \NC \NR
+\NC stack_size            \NC number  \NC 300     \NC cf.\ web2c docs \NC \NR
+\NC dvi_buf_size          \NC number  \NC 16384   \NC cf.\ web2c docs \NC \NR
+\NC error_line            \NC number  \NC 79      \NC cf.\ web2c docs \NC \NR
+\NC half_error_line       \NC number  \NC 50      \NC cf.\ web2c docs \NC \NR
+\NC max_print_line        \NC number  \NC 79      \NC cf.\ web2c docs \NC \NR
+\NC hash_extra            \NC number  \NC 0       \NC cf.\ web2c docs \NC \NR
+\NC pk_dpi                \NC number  \NC 72      \NC cf.\ web2c docs \NC \NR
+\NC trace_file_names      \NC boolean \NC true    \NC \type{false} disables \TEX's normal file feedback \NC \NR
+\NC file_line_error       \NC boolean \NC false   \NC \type{file:line} style error messages \NC \NR
+\NC halt_on_error         \NC boolean \NC false   \NC abort run on the first encountered error \NC \NR
+\NC formatname            \NC string  \NC         \NC if no format name was given on the commandline, this will be used \NC \NR
+\NC jobname               \NC string  \NC         \NC as \type{formatname}. \NC \NR
 \stoptabulate
 
-
 \section{IO table}
+
 \presentfunction{texio}{write}
 \presentfunction{texio}{write_nl}
 
@@ -1076,13 +1110,13 @@ A token is represented in \LUA\ as a small table. For the moment, this
 table consists of three numeric entries:
 
 \starttabulate[|l|l|p|]
-\NC \bf index\NC \bf meaning         \NC \bf description \NC \NR
-\NC 1      \NC command code        \NC this is a value between~$0$ and~$130$\NC \NR
-\NC 2      \NC command modifier    \NC this is a value between~$0$ and~$2^{21}$ \NC \NR
-\NC 3      \NC control sequence id \NC for commands that are not the result of control
-                                       sequences, like letters and characters, it is zero,
-                                       otherwise, it is a number pointing into the \quote
-                                       {equivalence table} \NC \NR
+\NC \bf index\NC \bf meaning \NC \bf description \NC \NR
+\NC 1 \NC command code        \NC this is a value between~$0$ and~$130$\NC \NR
+\NC 2 \NC command modifier    \NC this is a value between~$0$ and~$2^{21}$ \NC \NR
+\NC 3 \NC control sequence id \NC for commands that are not the result of control
+                                  sequences, like letters and characters, it is zero,
+                                  otherwise, it is a number pointing into the \quote
+                                  {equivalence table} \NC \NR
 \stoptabulate
 
 \presentfunction{token}{get_next}
@@ -1095,6 +1129,6 @@ table consists of three numeric entries:
 \presentfunction{token}{csname_name}
 \presentfunction{token}{csname_id}
 
-
 \stopcolumns
+
 \stoptext
