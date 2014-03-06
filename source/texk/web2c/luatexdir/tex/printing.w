@@ -477,6 +477,15 @@ void print_banner(const char *v, int ver)
         if (format_ident > 0)
             print(format_ident);
         print_ln();
+        if (show_luahashchars){
+            wterm(' ');
+#ifdef LuajitTeX
+            fprintf(term_out,"Nr. of bits used by the hash function (luajittex): %d",LUAJITTEX_HASHCHARS);
+#else
+            fprintf(term_out,"Nr. of bits used by the hash function (luatex): %d",LUATEX_HASHCHARS);
+#endif
+        print_ln();
+        } 
         if (shellenabledp) {
             wterm(' ');
             if (restrictedshell)

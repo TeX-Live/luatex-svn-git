@@ -140,6 +140,13 @@ extern int luajitex_choose_hash_function;
 extern char *jithash_hashname ;
 #endif
 
+#ifdef LuajitTeX
+#define LUAJITTEX_HASHCHARS 6 /* todo: It must be like that one on lj_str.c */
+#else 
+#define LUATEX_HASHCHARS 6  /* todo: It must be LUAI_HASHLIMIT! */
+#endif 
+extern unsigned char show_luahashchars ;
+
 extern void unhide_lua_table(lua_State * lua, const char *name, int r);
 extern int hide_lua_table(lua_State * lua, const char *name);
 

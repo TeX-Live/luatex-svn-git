@@ -360,6 +360,7 @@ const_string LUATEX_IHELP[] = {
     "",
     "  --luaonly                run a lua file, then exit",
     "  --luaconly               byte-compile a lua file, then exit",
+    "  --luahashchars           the bits used by current Lua interpreter for strings hashing",
 #ifdef LuajitTeX
     "  --jiton                  turns the JIT compiler on (default off)",
     "  --jithash=STRING         choose the hash function for the lua strings (lua51|luajit20: default lua51)",
@@ -430,6 +431,8 @@ static string user_progname = NULL;
 char *startup_filename = NULL;
 int lua_only = 0;
 int lua_offset = 0;
+unsigned char show_luahashchars = 0;
+
 #ifdef LuajitTeX
 int luajiton   = 0;
 char *jithash_hashname = NULL;
@@ -452,6 +455,7 @@ static struct option long_options[]
 = { {"fmt", 1, 0, 0},
 {"lua", 1, 0, 0},
 {"luaonly", 0, 0, 0},
+{"luahashchars", 0, 0, 0},
 #ifdef LuajitTeX
 {"jiton", 0, 0, 0},
 {"jithash", 1, 0, 0},
@@ -564,7 +568,10 @@ static void parse_options(int ac, char **av)
                 strncpy(jithash_hashname, optarg, 15);
                 jithash_hashname[15] = 0;
 	      }
-#endif
+#endif 
+
+        } else if (ARGUMENT_IS("luahashchars")) {
+            show_luahashchars = 1;
 
         } else if (ARGUMENT_IS("kpathsea-debug")) {
             kpathsea_debug |= atoi(optarg);
