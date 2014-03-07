@@ -91,7 +91,7 @@ void lj_str_resize(lua_State *L, MSize newmask)
 }
 
 #define cast(t, exp)	((t)(exp))
-int luajitex_choose_hash_function = 0; 
+int luajittex_choose_hash_function = 0; 
 /* Intern a string and return string object. */
 GCstr *lj_str_new(lua_State *L, const char *str, size_t lenx)
 {
@@ -108,7 +108,7 @@ GCstr *lj_str_new(lua_State *L, const char *str, size_t lenx)
 
   if (len==0)
     return &g->strempty; 
-  if (luajitex_choose_hash_function==0) { 
+  if (luajittex_choose_hash_function==0) { 
     /* Lua 5.1.5 hash function */
     /* for 5.2 max methods we also need to patch the vm eq */ 
     step = (len>>6)+1;  /* if string is too long, don't hash all its chars  Was 5, we try 6*/

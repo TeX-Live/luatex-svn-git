@@ -768,6 +768,18 @@ interpreter.
 script and is, in effect, a somewhat bulky standalone \LUA\
 interpreter with a bunch of extra preloaded libraries.
 
+\LUAJITTEX\ has also: 
+\startitemize[packed]
+\item the  \type{--jiton}  options that turns the JIT compiler on (default off) and 
+\item the \type{--jithash=STRING}   that selects the hash function for the lua strings (\type{lua51|luajit20}: default \type{lua51}.
+\stopitemize
+
+Still for the hash, \LUATEX\ has the \type{--luahashchars} option
+that shows  the bits used by current Lua interpreter for strings hashing --- more on hashing at the end od the section.
+
+  
+
+
 \subsection{\LUATEX\ as a \LUA\ byte compiler}
 
 There are two situations that make \LUATEX\ behave like the \LUA\
@@ -942,6 +954,38 @@ in order to initialize the built|-|in \KPATHSEA\ library properly,
 \LUATEX\ needs to know the correct program name to use, and for that it
 needs to check \type{--progname}, or \type{--ini} and \type{--fmt}, if
 \type{--progname} is missing.
+
+
+In \LUA\ strings are hashed which makes a test for equality fast and in \LUATEX\
+we benefit from that fact. Starting with \LUA\ 5.2 the hash function is no longer
+hashing strings larger than (by default) 40 characters. Of these at most 32
+characters are hashed in stock \LUA\ but for a string rich environment as \TEX\
+this can lead to many collisions. Therefore we have now set that constant limit
+to 64 characters (so in practice it's now 40 too).
+
+In \LUAJIT\ the hash function is not the same as in \LUA\ and can in some cases
+lead to a significant slowdown. We ran into cases where a \LUAJITTEX\ run was 20
+times slower than a normal \LUATEX\ run while normally such run is 30\% faster.
+For this reason we have replaced the hash code with the \LUA\ 5.1 hash code. This
+change is minimal and gives less collisions. The impact on speed can be neglected.
+
+For \LUAJITTEX\ you can control the hash method:
+
+\starttyping
+--jithash=luajit
+--jithash=lua51
+\stoptyping
+
+The current status of the hash function is available in:
+
+\starttyping
+status.list().luatex_hashtype
+status.list().luatex_hashchars
+\stoptyping
+
+The first one returns \type {lua}, \type{luajit} or \type {lua51} depending on
+the engine. The second one should always return 6. If it returns 5 then you have
+a non|-|optimized binary. Other values are suspicious.
 
 
 \section{\LUA\ changes}

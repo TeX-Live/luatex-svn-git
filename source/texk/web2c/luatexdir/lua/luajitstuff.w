@@ -32,6 +32,8 @@ lua_State *Luas = NULL;
 int luastate_bytes = 0;
 
 int lua_active = 0;
+/* Be careful: it's defined in lj_str.c */ 
+int luajittex_choose_hash_function ;
 
 @ @c
 void make_table(lua_State * L, const char *tab, const char *mttab, const char *getfunc,
@@ -202,17 +204,17 @@ void luainterpreter(void)
         
     if (jithash_hashname==NULL){
 	/* default lua51 */ 
-	luajitex_choose_hash_function = 0;
+	luajittex_choose_hash_function = 0;
         jithash_hashname = (char *) xmalloc(strlen("lua51")+1);
         jithash_hashname = strcpy ( jithash_hashname, "lua51"); 
     } else {
       if (strcmp((const char*)jithash_hashname,"lua51")==0){
-	luajitex_choose_hash_function = 0;
+	luajittex_choose_hash_function = 0;
       }else if (strcmp((const char*)jithash_hashname,"luajit20")==0){
-	luajitex_choose_hash_function = 1;
+	luajittex_choose_hash_function = 1;
       } else {
 	/* default lua51 */ 
-	luajitex_choose_hash_function = 0;
+	luajittex_choose_hash_function = 0;
 	jithash_hashname = strcpy ( jithash_hashname, "lua51"); 
       }
     }
