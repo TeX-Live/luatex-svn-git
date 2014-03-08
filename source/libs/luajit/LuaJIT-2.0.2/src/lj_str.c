@@ -91,7 +91,7 @@ void lj_str_resize(lua_State *L, MSize newmask)
 }
 
 #define cast(t, exp)	((t)(exp))
-int luajittex_choose_hash_function = 0; 
+LUA_API int luajittex_choose_hash_function = 0 ; 
 /* Intern a string and return string object. */
 GCstr *lj_str_new(lua_State *L, const char *str, size_t lenx)
 {

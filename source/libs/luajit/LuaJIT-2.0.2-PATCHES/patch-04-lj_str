@@ -1,12 +1,12 @@
 diff -ur LuaJIT-2.0.2.orig/src/lj_str.c LuaJIT-2.0.2/src/lj_str.c 
---- LuaJIT-2.0.2.orig/src/lj_str.c	2014-03-01 10:26:11.160061000 +0100
-+++ LuaJIT-2.0.2/src/lj_str.c	2014-03-07 00:15:13.099652133 +0100
+--- LuaJIT-2.0.2.orig/src/lj_str.c	2014-03-01 10:22:27.067664439 +0100
++++ LuaJIT-2.0.2/src/lj_str.c	2014-03-08 10:22:35.000000000 +0100
 @@ -90,6 +90,8 @@
    g->strhash = newhash;
  }
  
 +#define cast(t, exp)	((t)(exp))
-+int luajittex_choose_hash_function = 0; 
++LUA_API int luajittex_choose_hash_function = 0 ; 
  /* Intern a string and return string object. */
  GCstr *lj_str_new(lua_State *L, const char *str, size_t lenx)
  {
