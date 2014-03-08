@@ -32,8 +32,6 @@ lua_State *Luas = NULL;
 int luastate_bytes = 0;
 
 int lua_active = 0;
-/* Be careful: it's defined in lj_str.c */ 
-int luajittex_choose_hash_function ;
 
 @ @c
 void make_table(lua_State * L, const char *tab, const char *mttab, const char *getfunc,

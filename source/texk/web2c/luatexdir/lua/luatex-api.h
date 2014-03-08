@@ -137,7 +137,7 @@ extern int lua_only;
 #ifdef LuajitTeX
 extern int luajiton;
 extern char *jithash_hashname ;
-extern int luajittex_choose_hash_function; 
+LUA_API int luajittex_choose_hash_function  ;
 #endif
 
 
