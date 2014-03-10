@@ -1917,7 +1917,7 @@ void print_pdf_table_string(PDF pdf, const char *s)
 void pdf_end_page(PDF pdf)
 {
     char s[64], *p;
-    int j, annots = 0, beads = 0;
+    int j, annots = 0, beads = 0, callback_id;
     pdf_resource_struct *res_p = pdf->page_resources;
     pdf_resource_struct local_page_resources;
     pdf_object_list *annot_list, *bead_list, *link_list, *ol, *ol1;
@@ -1936,7 +1936,13 @@ void pdf_end_page(PDF pdf)
     pdf_end_stream(pdf);
     pdf_end_obj(pdf);
 
+    /* hh-ls : new call back finish_pdfpage_callback */
+    callback_id = callback_defined(finish_pdfpage_callback);
+    if (callback_id > 0)
+      run_callback(callback_id, "b->",(global_shipping_mode == SHIPPING_PAGE));
+
     if (global_shipping_mode == SHIPPING_PAGE) {
+
         pdf->last_pages = pdf_do_page_divert(pdf, pdf->last_page, 0);
 
         /* Write out /Page object */
