@@ -28,7 +28,6 @@ static const char _svn_version[] =
 #define pausing int_par(pausing_code)
 #define cat_code_table int_par(cat_code_table_code)
 #define tracing_nesting int_par(tracing_nesting_code)
-#define end_line_char int_par(end_line_char_code)
 #define suppress_outer_error int_par(suppress_outer_error_code)
 
 #define every_eof equiv(every_eof_loc)
@@ -1238,14 +1237,6 @@ static boolean check_expanded_code(int *kk)
     return false;
 }
 
-@ todo: this is a function because it is still used from the converted pascal.
-   once that is gone, it can be a \#define again
-
-@c
-boolean end_line_char_inactive(void)
-{
-    return ((end_line_char < 0) || (end_line_char > 127));
-}
 
 @ All of the easy branches of |get_next| have now been taken care of.
   There is one more branch.
@@ -1327,7 +1318,7 @@ static next_line_retval next_line(void)
             }
             return next_line_restart;
         }
-        if (inhibit_eol || end_line_char_inactive())
+        if (inhibit_eol || end_line_char_inactive)
             ilimit--;
         else
             buffer[ilimit] = (packed_ASCII_code) end_line_char;
@@ -1346,7 +1337,7 @@ static next_line_retval next_line(void)
         if (selector < log_only)
             open_log_file();
         if (interaction > nonstop_mode) {
-            if (end_line_char_inactive())
+            if (end_line_char_inactive)
                 ilimit++;
             if (ilimit == istart) {     /* previous line was empty */
                 tprint_nl("(Please type a command or say `\\end')");
@@ -1355,7 +1346,7 @@ static next_line_retval next_line(void)
             first = istart;
             prompt_input("*");  /* input on-line into |buffer| */
             ilimit = last;
-            if (end_line_char_inactive())
+            if (end_line_char_inactive)
                 ilimit--;
             else
                 buffer[ilimit] = (packed_ASCII_code) end_line_char;
@@ -2157,7 +2148,7 @@ void read_toks(int n, halfword r, halfword j)
 
         }
         ilimit = last;
-        if (end_line_char_inactive())
+        if (end_line_char_inactive)
             decr(ilimit);
         else
             buffer[ilimit] = (packed_ASCII_code) int_par(end_line_char_code);

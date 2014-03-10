@@ -973,7 +973,7 @@ void start_input(void)
         ;
     }
     firm_up_the_line();
-    if (end_line_char_inactive())
+    if (end_line_char_inactive)
         decr(ilimit);
     else
         buffer[ilimit] = (packed_ASCII_code) end_line_char;
