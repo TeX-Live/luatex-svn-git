@@ -1,4 +1,4 @@
-% $Id: mpost.w 1895 2013-03-27 11:17:17Z taco $
+% $Id: mpost.w 1955 2014-03-10 10:30:30Z taco $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -443,7 +443,7 @@ static int mpost_run_make_mpx (MP mp, char *mpname, char *mpxname) {
       mpost_xfree(mpversion);
     }
   }
-
+  
   mpost_xfree (cnf_cmd);
   return (int)(ret == 0);
 }
@@ -546,7 +546,7 @@ static char *mpost_find_file(MP mp, const char *fname, const char *fmode, int ft
   char *s;
   (void)mp;
   s = NULL;
-  if ((fmode[0]=='r' &&  !kpse_in_name_ok(fname)) ||
+  if (fname == NULL || (fmode[0]=='r' &&  !kpse_in_name_ok(fname)) ||
       (fmode[0]=='w' &&  !kpse_out_name_ok(fname)))
     return NULL;  /* disallowed filename */
   if (fmode[0]=='r') {
@@ -802,7 +802,6 @@ static struct option mpost_options[]
       break;
 
     if (g == '?') { /* Unknown option.  */
-      fprintf(stdout,"fatal error: %s: unknown option %s\n", argv[0], argv[optind]);
       exit(EXIT_FAILURE);
     }
 
@@ -942,9 +941,9 @@ static struct option dvitomp_options[]
 {
 char *s = mp_metapost_version();
 if (dvitomp_only)
-  fprintf(stdout, "This is dvitomp %s" WEB2CVERSION "\n", s);
+  fprintf(stdout, "This is dvitomp %s" WEB2CVERSION " (%s)\n", s, kpathsea_version_string);
 else
-  fprintf(stdout, "This is MetaPost %s" WEB2CVERSION "\n", s);
+  fprintf(stdout, "This is MetaPost %s" WEB2CVERSION " (%s)\n", s, kpathsea_version_string);
 mpost_xfree(s);
 fprintf(stdout,
 "\n"
@@ -989,9 +988,9 @@ fprintf(stdout,
 {
 char *s = mp_metapost_version();
 if (dvitomp_only)
-  fprintf(stdout, "This is dvitomp %s" WEB2CVERSION "\n", s);
+  fprintf(stdout, "This is dvitomp %s" WEB2CVERSION " (%s)\n", s, kpathsea_version_string);
 else
-  fprintf(stdout, "This is MetaPost %s" WEB2CVERSION "\n", s);
+  fprintf(stdout, "This is MetaPost %s" WEB2CVERSION " (%s)\n", s, kpathsea_version_string);
 mpost_xfree(s);
 fprintf(stdout,
 "\n"
@@ -1016,9 +1015,9 @@ fprintf(stdout,
 {
   char *s = mp_metapost_version();
 if (dvitomp_only)
-  fprintf(stdout, "dvitomp (MetaPost) %s" WEB2CVERSION "\n", s);
+  fprintf(stdout, "dvitomp (MetaPost) %s" WEB2CVERSION " (%s)\n", s, kpathsea_version_string);
 else
-  fprintf(stdout, "MetaPost %s" WEB2CVERSION "\n", s);
+  fprintf(stdout, "MetaPost %s" WEB2CVERSION " (%s)\n", s, kpathsea_version_string);
 fprintf(stdout, 
 "The MetaPost source code in the public domain.\n"
 "MetaPost also uses code available under the\n"
@@ -1028,9 +1027,12 @@ fprintf(stdout,
 "For more information about these matters, see the file\n"
 "COPYING.LESSER or <http://gnu.org/licenses/lgpl.html>.\n"
 "Original author of MetaPost: John Hobby.\n"
-"Author of the CWEB MetaPost: Taco Hoekwater.\n"
+"Author of the CWEB MetaPost: Taco Hoekwater.\n\n"
 );
   mpost_xfree(s);
+  if (!dvitomp_only) {
+     mp_show_library_versions();
+  }
   exit(EXIT_SUCCESS);
 }
 
@@ -1092,11 +1094,13 @@ static int setup_var (int def, const char *var_name, boolean nokpse) {
   mpost_xfree(options->banner);
   options->banner = mpost_xmalloc(strlen(banner)+
                             strlen(mpversion)+
+                            strlen(WEB2CVERSION)+
                             strlen(kpsebanner_start)+
                             strlen(kpathsea_version_string)+
                             strlen(kpsebanner_stop)+1);
   strcpy (options->banner, banner);
   strcat (options->banner, mpversion);
+  strcat (options->banner, WEB2CVERSION);
   strcat (options->banner, kpsebanner_start);
   strcat (options->banner, kpathsea_version_string);
   strcat (options->banner, kpsebanner_stop);
@@ -1290,6 +1294,17 @@ extern __declspec(dllexport) int DLLPROC (int argc, char **argv);
 @ Now this is really it: \MP\ starts and ends here.
 
 @c 
+static char *cleaned_invocation_name(char *arg)
+{
+    char *ret, *dot;
+    const char *start = xbasename(arg);
+    ret = xstrdup(start);
+    dot = strrchr(ret, '.');
+    if (dot != NULL) {
+        *dot = 0;               /* chop */
+    }
+    return ret;
+}
 int
 #if defined(WIN32) && !defined(__MINGW32__) && defined(DLLPROC)
 DLLPROC (int argc, char **argv)
@@ -1306,8 +1321,8 @@ main (int argc, char **argv)
   options->ini_version       = (int)false;
   options->print_found_names = (int)true;
   {
-    const char *base = xbasename(argv[0]);
-    if (!strcmp(base, "dvitomp") || !strcasecmp(base, "dvitomp.exe"))
+    const char *base = cleaned_invocation_name(argv[0]);
+    if (FILESTRCASEEQ(base, "dvitomp"))
       dvitomp_only=1;
   }
   if (dvitomp_only) {
