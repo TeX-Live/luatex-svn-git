@@ -1,4 +1,4 @@
-% $Id: mp.w 1898 2013-04-05 09:40:19Z taco $
+% $Id: mp.w 1959 2014-03-11 11:19:43Z taco $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -73,12 +73,12 @@ undergoes any modifications, so that it will be clear which version of
 @^extensions to \MP@>
 @^system dependencies@>
 
-@d default_banner "This is MetaPost, Version 1.801" /* printed when \MP\ starts */
+@d default_banner "This is MetaPost, Version 1.890" /* printed when \MP\ starts */
 @d true 1
 @d false 0
 
 @<Metapost version header@>=
-#define metapost_version "1.801"
+#define metapost_version "1.890"
 
 @ The external library header for \MP\ is |mplib.h|. It contains a
 few typedefs and the header defintions for the externally used
@@ -140,9 +140,9 @@ typedef struct MP_instance {
 #endif
 
 @ @c
-#include <stdio.h>
 #define KPATHSEA_DEBUG_H 1
 #include <w2c/config.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
@@ -152,6 +152,10 @@ typedef struct MP_instance {
 #  include <unistd.h>           /* for access */
 #endif
 #include <time.h>               /* for struct tm \& co */
+#include <zlib.h>               /* for ZLIB_VERSION, zlibVersion() */
+#include <png.h>                /* for PNG_LIBPNG_VER_STRING, png_libpng_ver */
+#include <pixman.h>             /* for PIXMAN_VERSION_STRING, pixman_version_string() */
+#include <cairo.h>              /* for CAIRO_VERSION_STRING, cairo_version_string() */
 #include "mplib.h"
 #include "mplibps.h"            /* external header */
 #include "mplibsvg.h"           /* external header */
@@ -162,6 +166,7 @@ typedef struct MP_instance {
 #include "mppngout.h"           /* internal header */
 #include "mpmath.h"             /* internal header */
 #include "mpmathdouble.h"       /* internal header */
+#include "mpmathdecimal.h"      /* internal header */
 #include "mpstrings.h"          /* internal header */
 extern font_number mp_read_font_info (MP mp, char *fname);      /* tfmin.w */
 @h @<Declarations@>;
@@ -309,6 +314,7 @@ typedef enum {
   mp_decimal_type
 } mp_number_type;
 typedef union {
+  void *num;
   double dval;
   int val;
 } mp_number_store;
@@ -378,8 +384,12 @@ typedef void (*print_func) (MP mp, mp_number A);
 typedef char * (*tostring_func) (MP mp, mp_number A);
 typedef void (*scan_func) (MP mp, int A);
 typedef void (*mp_free_func) (MP mp);
+typedef void (*set_precision_func) (MP mp);
 
 typedef struct math_data {
+  mp_number precision_default;
+  mp_number precision_max;
+  mp_number precision_min;
   mp_number epsilon_t;
   mp_number inf_t;
   mp_number one_third_inf_t;
@@ -477,6 +487,7 @@ typedef struct math_data {
   scan_func scan_numeric;
   scan_func scan_fractional;
   mp_free_func free_math;
+  set_precision_func set_precision;
 } math_data;
 
 
@@ -516,11 +527,13 @@ MP mp_initialize (MP_options * opt) {
   /* open the terminal for output */
   t_open_out();
 #if DEBUG
-  setlinebuf(stdout);
-  setlinebuf(mp->term_out);
+  setvbuf(stdout, (char *) NULL, _IONBF, 0);
+  setvbuf(mp->term_out, (char *) NULL, _IONBF, 0);
 #endif
   if (opt->math_mode == mp_math_scaled_mode) {
     mp->math = mp_initialize_scaled_math(mp);
+  } else if (opt->math_mode == mp_math_decimal_mode) {
+    mp->math = mp_initialize_decimal_math(mp);
   } else {
     mp->math = mp_initialize_double_math(mp);
   }
@@ -540,6 +553,13 @@ MP mp_initialize (MP_options * opt) {
   }
   mp_do_initialize (mp);        /* erase preloaded mem */
   mp_init_tab (mp);             /* initialize the tables */
+  if (opt->math_mode == mp_math_scaled_mode) {
+    set_internal_string (mp_number_system, mp_intern (mp, "scaled"));
+  } else if (opt->math_mode == mp_math_decimal_mode) {
+    set_internal_string (mp_number_system, mp_intern (mp, "decimal"));
+  } else {
+    set_internal_string (mp_number_system, mp_intern (mp, "double"));
+  }
   mp_init_prim (mp);            /* call |primitive| for each primitive */
   mp_fix_date_and_time (mp);
   if (!mp->noninteractive) {
@@ -2416,6 +2436,9 @@ static void mp_clear_arith (MP mp) {
 @d twentyeightbits_d_t ((math_data *)mp->math)->twentyeightbits_d_t
 @d twentysevenbits_sqrt2_d_t ((math_data *)mp->math)->twentysevenbits_sqrt2_d_t
 @d warning_limit_t ((math_data *)mp->math)->warning_limit_t
+@d precision_default  ((math_data *)mp->math)->precision_default
+@d precision_max  ((math_data *)mp->math)->precision_max
+@d precision_min  ((math_data *)mp->math)->precision_min
 
 @ In fact, the two sorts of scaling discussed above aren't quite
 sufficient; \MP\ has yet another, used internally to keep track of angles.
@@ -2754,6 +2777,7 @@ void *do_alloc_node (MP mp, size_t size) {
     p = xmalloc(1,size);
     add_var_used (size);
     ((mp_node)p)->link = NULL;
+    ((mp_node)p)->has_number = 0;
     return p;
 }
 
@@ -2907,6 +2931,8 @@ static mp_node mp_get_symbolic_node (MP mp) {
     p->link = NULL;
   } else {
     p = malloc_node (symbolic_node_size);
+    new_number(p->data.n);
+    p->has_number = 1;
   }
   p->type = mp_symbol_node;
   p->name_type = mp_normal_sym;
@@ -2978,27 +3004,6 @@ void mp_free_value_node (MP mp, mp_node p) {  /* node liberation */
 void mp_free_node (MP mp, mp_node p, size_t siz);
 void mp_free_symbolic_node (MP mp, mp_node p);
 void mp_free_value_node (MP mp, mp_node p);
-
-@ Same redirection trick as above
-
-@d mp_info(A) get_mp_info(mp,(A))
-@d set_mp_info(A,B) do_set_mp_info(mp,(A),(B))
-
-@c
-static void do_set_mp_info (MP mp, mp_node p, halfword v) {
-  (void) mp;
-  set_number_from_scaled (p->data.n, v);
-}
-halfword get_mp_info (MP mp, mp_node p) {
-  (void) mp;
-  return number_to_scaled (p->data.n);
-}
-
-
-@ @<Declarations@>=
-static halfword get_mp_info (MP mp, mp_node p);
-static void do_set_mp_info (MP mp, mp_node p, halfword v);
-
 
 @* Memory layout.
 Some nodes are created statically, since static allocation is
@@ -4154,6 +4159,7 @@ set_internal_string (mp_output_filename, mp_intern (mp, ""));
 set_internal_string (mp_output_format, mp_intern (mp, "eps"));
 set_internal_string (mp_output_format_options, mp_intern (mp, ""));
 set_internal_string (mp_number_system, mp_intern (mp, "scaled"));
+set_internal_from_number (mp_number_precision, precision_default);
 #if DEBUG
 number_clone (internal_value (mp_tracing_titles), three_t);
 number_clone (internal_value (mp_tracing_equations), three_t);
@@ -4443,7 +4449,7 @@ static mp_node do_get_equiv_node (MP mp, mp_sym A) {
 }
 static mp_sym do_get_equiv_sym (MP mp, mp_sym A) {
   FUNCTION_TRACE3 ("%p = do_get_equiv_sym(%p)\n",A->v.data.node,A);
-  return A->v.data.sym;
+  return (mp_sym)A->v.data.node;
 }
 #else
 #define text(A)         (A)->text
@@ -4467,6 +4473,7 @@ typedef struct mp_symbol_entry {
   halfword type;
   mp_value v;
   mp_string text;
+  void *parent;
 } mp_symbol_entry;
 
 @ @<Glob...@>=
@@ -4516,13 +4523,16 @@ static int comp_symbols_entry (void *p, const void *pa, const void *pb) {
 
 
 @ Copying a symbol happens when an item is inserted into an AVL tree.
-The |text| needs to be deep copied, every thing else can be reassigned.
-
+The |text| and |mp_number| needs to be deep copied, every thing else 
+can be reassigned.
+ 
 @c
 static void *copy_symbols_entry (const void *p) {
+  MP mp;
   mp_sym ff;
   const mp_symbol_entry *fp;
   fp = (const mp_symbol_entry *) p;
+  mp = (MP)fp->parent;
   ff = malloc (sizeof (mp_symbol_entry));
   if (ff == NULL)
     return NULL;
@@ -4531,9 +4541,9 @@ static void *copy_symbols_entry (const void *p) {
     return NULL;
   ff->v = fp->v;
   ff->type = fp->type;
-  /* todo: this only works for non-allocated numbers */
-  /* ff->v.data.n = malloc(sizeof (struct mp_number_data)); */
-  memcpy(&ff->v.data.n, &fp->v.data.n, sizeof(struct mp_number_data));
+  ff->parent = mp;
+  new_number(ff->v.data.n);
+  number_clone(ff->v.data.n, fp->v.data.n);
   return ff;
 }
 
@@ -4543,8 +4553,10 @@ end of the run.
 
 @c
 static void *delete_symbols_entry (void *p) {
+  MP mp;
   mp_sym ff = (mp_sym) p;
-  /* mp_xfree (ff->v.data.n); */ /* not good enough! */
+  mp = (MP)ff->parent;
+  free_number(ff->v.data.n);
   mp_xfree (ff->text->str);
   mp_xfree (ff->text);
   mp_xfree (ff);
@@ -4577,6 +4589,7 @@ static mp_sym new_symbols_entry (MP mp, unsigned char *nam, size_t len) {
   mp_sym ff;
   ff = mp_xmalloc (mp, 1, sizeof (mp_symbol_entry));
   memset (ff, 0, sizeof (mp_symbol_entry));
+  ff->parent = mp;
   ff->text = mp_xmalloc (mp, 1, sizeof (mp_lstring));
   ff->text->str = nam;
   ff->text->len = len;
@@ -4669,7 +4682,7 @@ static mp_sym mp_frozen_primitive (MP mp, const char *ss, halfword c,
   mp_sym str = mp_frozen_id_lookup (mp, s, strlen (ss), true);
   mp_xfree (s);
   str->type = c;
-  set_number_from_scaled (str->v.data.n, o);
+  str->v.data.indep.serial = o;
   return str;
 }
 
@@ -4973,11 +4986,12 @@ typedef struct mp_node_data *mp_token_node;
 
 @ @c
 #if DEBUG
-#define value_sym(A)    do_get_value_sym(mp_token_node)(A))
-#define value_number(A) do_get_value_number(mp_token_node)(A))
-#define value_node(A)   do_get_value_node(mp_token_node)(A))
-#define value_str(A)    do_get_value_str(mp_token_node)(A))
-#define value_knot(A)   do_get_value_knot(mp_token_node)(A))
+#define value_sym(A)    do_get_value_sym(mp,(mp_token_node)(A))
+//#define value_number(A) do_get_value_number(mp,(mp_token_node)(A))
+#define value_number(A) ((mp_token_node)(A))->data.n
+#define value_node(A)   do_get_value_node(mp,(mp_token_node)(A))
+#define value_str(A)    do_get_value_str(mp,(mp_token_node)(A))
+#define value_knot(A)   do_get_value_knot(mp,(mp_token_node)(A))
 #else
 #define value_sym(A)    ((mp_token_node)(A))->data.sym
 #define value_number(A) ((mp_token_node)(A))->data.n
@@ -4990,7 +5004,7 @@ static void do_set_value_sym(MP mp, mp_token_node A, mp_sym B) {
    A->data.sym=(B);
 }
 static void do_set_value_number(MP mp, mp_token_node A, mp_number B) {
-   FUNCTION_TRACE3 ("set_value(%p,%d)\n", (A),(B));
+   FUNCTION_TRACE3 ("set_value(%p,%s)\n", (A), number_tostring(B));
    A->data.p = NULL;
    A->data.str = NULL;
    A->data.node = NULL;
@@ -5046,7 +5060,7 @@ static mp_knot do_get_value_knot (MP mp, mp_token_node A) {
   FUNCTION_TRACE3 ("%p = get_value_knot(%p)\n", A->data.p, A);
   return  A->data.p ;
 }
-static mp_knot do_get_value_number (MP mp, mp_token_node A) {
+static mp_number do_get_value_number (MP mp, mp_token_node A) {
   assert (A->type != mp_structured);
   FUNCTION_TRACE3 ("%d = get_value_number(%p)\n", A->data.n.type, A);
   return  A->data.n ;
@@ -5055,7 +5069,7 @@ static mp_knot do_get_value_number (MP mp, mp_token_node A) {
 
 @ @<Declarations@>=
 #if DEBUG
-static mp_sym    do_get_value_number (MP mp, mp_token_node A);
+static mp_number do_get_value_number (MP mp, mp_token_node A);
 static mp_sym    do_get_value_sym    (MP mp, mp_token_node A);
 static mp_node   do_get_value_node   (MP mp, mp_token_node A);
 static mp_string do_get_value_str    (MP mp, mp_token_node A) ;
@@ -8330,8 +8344,8 @@ static void mp_curl_ratio (MP mp, mp_number *ret, mp_number gamma, mp_number a_t
 @ @c
 void mp_curl_ratio (MP mp, mp_number *ret, mp_number gamma_orig, mp_number a_tension, mp_number b_tension) {
   mp_number alpha, beta, gamma, num, denom, ff; /* registers */
-  mp_number n1;
-  new_number (n1);
+  mp_number arg1;
+  new_number (arg1);
   new_fraction (alpha);
   new_fraction (beta);
   new_fraction (gamma);
@@ -8342,49 +8356,33 @@ void mp_curl_ratio (MP mp, mp_number *ret, mp_number gamma_orig, mp_number a_ten
   make_fraction (beta, unity_t, b_tension);
   number_clone (gamma, gamma_orig);
   if (number_lessequal(alpha, beta)) {
-    mp_number arg1;
-    new_number (arg1);
     make_fraction (ff, alpha, beta);
     number_clone (arg1, ff);
     take_fraction (ff, arg1, arg1);
     number_clone (arg1, gamma);
     take_fraction (gamma, arg1, ff);
     convert_fraction_to_scaled (beta);
-    set_number_from_addition (arg1, alpha, three_t);
-    number_substract (arg1, beta);
-    take_fraction (denom, gamma, arg1);
-    set_number_from_substraction (arg1, fraction_three_t, alpha);
-    number_add (arg1, beta);
-    take_fraction (num, gamma, arg1);
-    free_number (arg1);
+    take_fraction (denom, gamma, alpha);
+    number_add (denom, three_t);
   } else {
-    mp_number arg1, r1;
-    new_number (arg1);
-    new_number (r1);
     make_fraction (ff, beta, alpha);
     number_clone (arg1, ff);
     take_fraction (ff, arg1, arg1);
     take_fraction (arg1, beta, ff);
     convert_fraction_to_scaled (arg1);
-    number_clone (beta, arg1);   
-    take_fraction (arg1, gamma, alpha);
-    new_number (denom);
-    {
-      set_number_from_div (n1, ff, twelvebits_3);
-      number_clone (denom, arg1);
-      number_add (denom, n1);
-      number_substract (denom, beta);
-    }
-    set_number_from_substraction (arg1, fraction_three_t, alpha);
-    take_fraction (num, gamma, arg1);
-    number_add (num, beta);
-    free_number (arg1);
-    free_number (r1);
+    number_clone (beta, arg1);
+    take_fraction (denom, gamma, alpha);
+    set_number_from_div (arg1, ff, twelvebits_3);
+    number_add (denom, arg1);
   }
-  number_clone (n1, denom);
-  number_double (n1);
-  number_double (n1); /* n1 = 4*denom */
-  if (number_greaterequal(num, n1)) {
+  number_substract (denom, beta);
+  set_number_from_substraction (arg1, fraction_three_t, alpha);
+  take_fraction (num, gamma, arg1);
+  number_add (num, beta);
+  number_clone (arg1, denom);
+  number_double (arg1);
+  number_double (arg1); /* arg1 = 4*denom */
+  if (number_greaterequal(num, arg1)) {
     number_clone(*ret, fraction_four_t);
   } else {
     make_fraction (*ret, num, denom);
@@ -8395,7 +8393,7 @@ void mp_curl_ratio (MP mp, mp_number *ret, mp_number gamma_orig, mp_number a_ten
   free_number (num);
   free_number (denom);
   free_number (ff);
-  free_number (n1);
+  free_number (arg1);
 }
 
 
@@ -9973,7 +9971,6 @@ if (number_negative(t)) {
 
 @ @<Deal with a negative |arc0_orig| value and |return|@>=
 {
-  new_number(*ret);
   if (mp_left_type (h) == mp_endpoint) {
     set_number_to_zero (*ret);
   } else {
@@ -9988,6 +9985,7 @@ if (number_negative(t)) {
     free_number (neg_arc0);
   }
   check_arith();
+  return;
 }
 
 
@@ -10805,6 +10803,7 @@ This first set goes into the header
 #define free_number(A) (((math_data *)(mp->math))->free)(mp, &(A))
 
 @ 
+@d set_precision()                     (((math_data *)(mp->math))->set_precision)(mp) 
 @d free_math()                         (((math_data *)(mp->math))->free_math)(mp) 
 @d scan_numeric_token(A)               (((math_data *)(mp->math))->scan_numeric)(mp, A) 
 @d scan_fractional_token(A)            (((math_data *)(mp->math))->scan_fractional)(mp, A) 
@@ -11437,6 +11436,7 @@ mp_free_node (mp, (mp_node)mp->null_dash, dash_node_size);
 @c
 static mp_dash_node mp_get_dash_node (MP mp) {
   mp_dash_node p = (mp_dash_node) malloc_node (dash_node_size);
+  p->has_number = 0;
   new_number(p->start_x);
   new_number(p->stop_x);
   new_number(p->dash_y);
@@ -15151,7 +15151,9 @@ free_number (mp->max_t);
 @ The given cubics $B(w_0,w_1,w_2,w_3;t)$ and
 $B(z_0,z_1,z_2,z_3;t)$ are specified in adjacent knot nodes |(p,mp_link(p))|
 and |(pp,mp_link(pp))|, respectively.
-
+ 
+@d half(A) ((A)/2)
+ 
 @c
 static void mp_cubic_intersection (MP mp, mp_knot p, mp_knot pp) {
   mp_knot q, qq;        /* |mp_link(p)|, |mp_link(pp)| */
@@ -15192,7 +15194,55 @@ CONTINUE:
       number_clone (mp->cur_tt, mp->appr_tt);
       return;
     }
-    @<Advance to the next pair |(cur_t,cur_tt)|@>;
+  NOT_FOUND:
+    /* Advance to the next pair |(cur_t,cur_tt)| */
+    if (odd (number_to_scaled (mp->cur_tt))) {
+      if (odd (number_to_scaled (mp->cur_t))) {
+        /* Descend to the previous level and |goto not_found| */
+        {
+          set_number_from_scaled (mp->cur_t, half (number_to_scaled (mp->cur_t)));
+          set_number_from_scaled (mp->cur_tt, half (number_to_scaled (mp->cur_tt)));
+          if (number_to_scaled (mp->cur_t) == 0)
+            return;
+          mp->bisect_ptr -= int_increment;
+          mp->three_l -= (integer) mp->tol_step;
+          number_clone (mp->delx, stack_dx);
+          number_clone (mp->dely, stack_dy);
+          mp->tol = number_to_scaled (stack_tol);
+          mp->uv = number_to_scaled (stack_uv);
+          mp->xy = number_to_scaled (stack_xy);
+          goto NOT_FOUND;
+        }
+        
+      } else {
+        set_number_from_scaled (mp->cur_t, number_to_scaled (mp->cur_t) + 1);
+        number_add (mp->delx, stack_1 (u_packet (mp->uv)));
+        number_add (mp->delx, stack_2 (u_packet (mp->uv)));
+        number_add (mp->delx, stack_3 (u_packet (mp->uv)));
+        number_add (mp->dely, stack_1 (v_packet (mp->uv)));
+        number_add (mp->dely, stack_2 (v_packet (mp->uv)));
+        number_add (mp->dely, stack_3 (v_packet (mp->uv)));
+        mp->uv = mp->uv + int_packets;      /* switch from |l_packets| to |r_packets| */
+        set_number_from_scaled (mp->cur_tt, number_to_scaled (mp->cur_tt) - 1);
+        mp->xy = mp->xy - int_packets;
+        number_add (mp->delx, stack_1 (x_packet (mp->xy)));
+        number_add (mp->delx, stack_2 (x_packet (mp->xy)));
+        number_add (mp->delx, stack_3 (x_packet (mp->xy)));
+        number_add (mp->dely, stack_1 (y_packet (mp->xy)));
+        number_add (mp->dely, stack_2 (y_packet (mp->xy)));
+        number_add (mp->dely, stack_3 (y_packet (mp->xy)));
+      }
+    } else {
+      set_number_from_scaled (mp->cur_tt, number_to_scaled (mp->cur_tt) + 1);
+      mp->tol = mp->tol + mp->three_l;
+      number_substract (mp->delx, stack_1 (x_packet (mp->xy)));
+      number_substract (mp->delx, stack_2 (x_packet (mp->xy)));
+      number_substract (mp->delx, stack_3 (x_packet (mp->xy)));
+      number_substract (mp->dely, stack_1 (y_packet (mp->xy)));
+      number_substract (mp->dely, stack_2 (y_packet (mp->xy)));
+      number_substract (mp->dely, stack_3 (y_packet (mp->xy)));
+      mp->xy = mp->xy + int_packets;        /* switch from |l_packets| to |r_packets| */
+    }
   }
 }
 
@@ -15306,65 +15356,6 @@ number_double(mp->dely);
 mp->tol = mp->tol - mp->three_l + (integer) mp->tol_step;
 mp->tol += mp->tol;
 mp->three_l = mp->three_l + (integer) mp->tol_step
-
-@ 
-
-@<Advance to the next pair |(cur_t,cur_tt)|@>=
-NOT_FOUND:
-if (odd (number_to_scaled (mp->cur_tt))) {
-  if (odd (number_to_scaled (mp->cur_t))) {
-    @<Descend to the previous level and |goto not_found|@>;
-  } else {
-    set_number_from_scaled (mp->cur_t, number_to_scaled (mp->cur_t) + 1);
-    number_add (mp->delx, stack_1 (u_packet (mp->uv)));
-    number_add (mp->delx, stack_2 (u_packet (mp->uv)));
-    number_add (mp->delx, stack_3 (u_packet (mp->uv)));
-    number_add (mp->dely, stack_1 (v_packet (mp->uv)));
-    number_add (mp->dely, stack_2 (v_packet (mp->uv)));
-    number_add (mp->dely, stack_3 (v_packet (mp->uv)));
-    mp->uv = mp->uv + int_packets;      /* switch from |l_packets| to |r_packets| */
-    set_number_from_scaled (mp->cur_tt, number_to_scaled (mp->cur_tt) - 1);
-    mp->xy = mp->xy - int_packets;
-    number_add (mp->delx, stack_1 (x_packet (mp->xy)));
-    number_add (mp->delx, stack_2 (x_packet (mp->xy)));
-    number_add (mp->delx, stack_3 (x_packet (mp->xy)));
-    number_add (mp->dely, stack_1 (y_packet (mp->xy)));
-    number_add (mp->dely, stack_2 (y_packet (mp->xy)));
-    number_add (mp->dely, stack_3 (y_packet (mp->xy)));
-  }
-} else {
-  set_number_from_scaled (mp->cur_tt, number_to_scaled (mp->cur_tt) + 1);
-  mp->tol = mp->tol + mp->three_l;
-  number_substract (mp->delx, stack_1 (x_packet (mp->xy)));
-  number_substract (mp->delx, stack_2 (x_packet (mp->xy)));
-  number_substract (mp->delx, stack_3 (x_packet (mp->xy)));
-  number_substract (mp->dely, stack_1 (y_packet (mp->xy)));
-  number_substract (mp->dely, stack_2 (y_packet (mp->xy)));
-  number_substract (mp->dely, stack_3 (y_packet (mp->xy)));
-  mp->xy = mp->xy + int_packets;        /* switch from |l_packets| to |r_packets| */
-}
-
-
-@ 
-@d half(A) ((A)/2)
- 
-@<Descend to the previous level...@>=
-{
-  set_number_from_scaled (mp->cur_t, half (number_to_scaled (mp->cur_t)));
-  set_number_from_scaled (mp->cur_tt, half (number_to_scaled (mp->cur_tt)));
-  if (number_to_scaled (mp->cur_t) == 0)
-    return;
-  mp->bisect_ptr -= int_increment;
-  mp->three_l -= (integer) mp->tol_step;
-  number_clone (mp->delx, stack_dx);
-  number_clone (mp->dely, stack_dy);
-  mp->tol = number_to_scaled (stack_tol);
-  mp->uv = number_to_scaled (stack_uv);
-  mp->xy = number_to_scaled (stack_xy);
-  goto NOT_FOUND;
-}
-
-
 
 @ The |path_intersection| procedure is much simpler.
 It invokes |cubic_intersection| in lexicographic order until finding a
@@ -20800,9 +20791,12 @@ boolean mp_open_mem_name (MP mp) {
       s = xrealloc (s, l + 5, 1);
       strcat (s, ".mp");
     }
+    s = (mp->find_file) (mp, s, "r", mp_filetype_program);
+    xfree(mp->name_of_file);
+    if (s == NULL)
+      return false;
+    mp->name_of_file = xstrdup(s);
     mp->mem_file = (mp->open_file) (mp, s, "r", mp_filetype_program);
-    xfree (mp->name_of_file);
-    mp->name_of_file = xstrdup (s);
     free (s);
     if (mp->mem_file)
       return true;
@@ -20816,9 +20810,10 @@ boolean mp_open_mem_file (MP mp) {
     return true;
   if (mp_xstrcmp (mp->mem_name, "plain")) {
     wake_up_terminal();
-    wterm_ln ("Sorry, I can\'t find the '");
+    wterm ("Sorry, I can\'t find the '");
     wterm (mp->mem_name);
     wterm ("' preload file; will try 'plain'.");
+    wterm_cr;
 @.Sorry, I can't find...@>;
     update_terminal();
     /* now pull out all the stops: try for the system \.{plain} file */
@@ -28644,6 +28639,31 @@ static void bad_internal_assignment (MP mp, mp_node lhs) {
   mp_back_error (mp, msg, hlp, true);
   mp_get_x_next (mp);
 }
+static void forbidden_internal_assignment (MP mp, mp_node lhs) {
+  char msg[256];
+  const char *hlp[] = {
+           "I can\'t set this internal quantity to anything just yet",
+           "(it is read-only), so I'll have to ignore this assignment.",
+           NULL };
+  mp_snprintf (msg, 256, "Internal quantity `%s' is read-only",
+               internal_name (mp_sym_info (lhs)));
+  mp_back_error (mp, msg, hlp, true);
+  mp_get_x_next (mp);
+}
+static void bad_internal_assignment_precision (MP mp, mp_node lhs, mp_number min, mp_number max) {
+  char msg[256];
+  char s[256];
+  const char *hlp[] = {
+       "Precision values are limited by the current numbersystem.",
+       NULL,
+       NULL } ;
+  mp_snprintf (msg, 256, "Bad '%s' has been ignored", internal_name (mp_sym_info (lhs)));
+  mp_snprintf (s, 256, "Currently I am using '%s'; the allowed precision range is [%s,%s].", 
+               mp_str (mp, internal_string (mp_number_system)), number_tostring(min), number_tostring(max));
+  hlp[1] = s;
+  mp_back_error (mp, msg, hlp, true);
+  mp_get_x_next (mp);
+}
 static void bad_expression_assignment (MP mp, mp_node lhs) {
   const char *hlp[] = { 
        "It seems you did a nasty thing---probably by accident,",
@@ -28690,7 +28710,21 @@ void mp_do_assignment (MP mp) {
       /* Assign the current expression to an internal variable */
       if ((mp->cur_exp.type == mp_known || mp->cur_exp.type == mp_string_type)
           && (internal_type (mp_sym_info (lhs)) == mp->cur_exp.type)) {
-        set_internal_from_cur_exp(mp_sym_info (lhs));
+	  if(mp_sym_info (lhs) == mp_number_system) {
+             forbidden_internal_assignment (mp, lhs);
+          } else if (mp_sym_info (lhs) == mp_number_precision) {
+	     if (!(mp->cur_exp.type == mp_known && 
+               (!number_less(cur_exp_value_number(), precision_min)) &&
+               (!number_greater(cur_exp_value_number(), precision_max))
+               )) {
+	       bad_internal_assignment_precision(mp, lhs, precision_min, precision_max);
+             } else {
+	       set_internal_from_cur_exp(mp_sym_info (lhs));
+               set_precision();
+             }
+          } else {
+	     set_internal_from_cur_exp(mp_sym_info (lhs));
+          }
       } else {
         bad_internal_assignment (mp, lhs);
       }
@@ -29753,13 +29787,18 @@ int mp_finish (MP mp) {
 char *mp_metapost_version (void) {
   return mp_strdup (metapost_version);
 }
-
+void mp_show_library_versions (void) {
+  fprintf(stdout, "Compiled with cairo %s; using %s\n", CAIRO_VERSION_STRING, cairo_version_string());
+  fprintf(stdout, "Compiled with pixman %s; using %s\n", PIXMAN_VERSION_STRING, pixman_version_string());
+  fprintf(stdout, "Compiled with libpng %s; using %s\n", PNG_LIBPNG_VER_STRING, png_libpng_ver);
+  fprintf(stdout, "Compiled with zlib %s; using %s\n\n", ZLIB_VERSION, zlibVersion());
+}
 
 @ @<Exported function headers@>=
 int mp_run (MP mp);
 int mp_execute (MP mp, char *s, size_t l);
 int mp_finish (MP mp);
-char *mp_metapost_version (void);
+char *mp_metapost_version (void);void mp_show_library_versions (void);
 
 @ @<Put each...@>=
 mp_primitive (mp, "end", mp_stop, 0);
@@ -32497,7 +32536,7 @@ static void mp_threshold (MP mp, mp_number ret, integer m) {
 
 
 @ The |skimp| procedure reduces the current list to at most |m| entries,
-by changing values if necessary. It also sets |mp_info(p):=k| if |value(p)|
+by changing values if necessary. It also sets |indep_value(p):=k| if |value(p)|
 is the |k|th distinct value on the resulting list, and it sets
 |perturbation| to the maximum amount by which a |value| field has
 been changed. The size of the resulting list is returned as the
@@ -32522,7 +32561,7 @@ static integer mp_skimp (MP mp, integer m) {
   while (p != mp->inf_val) {
     incr (m);
     number_clone (l, value_number (p));
-    set_mp_info (p, m);
+    set_indep_value (p,m);
     set_number_from_addition (l_d, l, d);
     if (number_lessequal (value_number (mp_link (p)), l_d)) {
       @<Replace an interval of values by its midpoint@>;
@@ -32544,12 +32583,12 @@ static integer mp_skimp (MP mp, integer m) {
   new_number (test);
   do {
     p = mp_link (p);
-    set_mp_info (p, m);
+    set_indep_value (p, m);
     decr (mp->excess);
-    if (mp->excess == 0)
-      set_number_to_zero (d);
-    set_number_from_addition (test, l, d);
-  } while (number_lessequal(value_number (mp_link (p)), test));
+    if (mp->excess == 0) {
+       number_clone (l_d, l);
+    }
+  } while (number_lessequal(value_number (mp_link (p)), l_d));
   set_number_from_substraction (test, value_number (p), l);
   number_halfp(test);
   set_number_from_addition (v, l, test);
@@ -32658,7 +32697,6 @@ if (number_greaterequal (mp->perturbation, tfm_warn_threshold_k))
 @ @<Initialize table entries@>=
 mp->zero_val = mp_get_value_node (mp);
 set_value_number (mp->zero_val, zero_t);
-set_mp_info (mp->zero_val, 0);
 
 @ @<Free table entries@>=
 mp_free_value_node (mp, mp->zero_val);
@@ -32743,7 +32781,7 @@ static integer mp_dimen_out (MP mp, mp_number x_orig) {
     mp_number arg1;
     new_number (arg1);
     number_clone (arg1, x);
-    number_multiply_int (x, 16);
+    number_multiply_int (arg1, 16);
     make_scaled (x, arg1, internal_value (mp_design_size));
     free_number (arg1);
   }
@@ -32897,9 +32935,9 @@ for (k = mp->bc; k <= mp->ec; k++) {
   if (!mp->char_exists[k]) {
     mp_tfm_four (mp, 0);
   } else {
-    tfm_out (mp_info (mp->tfm_width[k]));       /* the width index */
-    tfm_out ((mp_info (mp->tfm_height[k])) * 16 + mp_info (mp->tfm_depth[k]));
-    tfm_out ((mp_info (mp->tfm_ital_corr[k])) * 4 + mp->char_tag[k]);
+    tfm_out (indep_value (mp->tfm_width[k]));       /* the width index */
+    tfm_out ((indep_value (mp->tfm_height[k])) * 16 + indep_value (mp->tfm_depth[k]));
+    tfm_out ((indep_value (mp->tfm_ital_corr[k])) * 4 + mp->char_tag[k]);
     tfm_out (mp->char_remainder[k]);
   };
 }
@@ -33113,10 +33151,14 @@ for (k = 1; k <= (int) mp->last_fnum; k++) {
   xfree (mp->font_ps_name[k]);
 }
 for (k = 0; k <= 255; k++) {
+/* These are disabled for now following a bug-report about double free
+   errors. TO BE FIXED, bug tracker id 831 */
+/*
   mp_free_value_node (mp, mp->tfm_width[k]);
   mp_free_value_node (mp, mp->tfm_height[k]);
   mp_free_value_node (mp, mp->tfm_depth[k]);
   mp_free_value_node (mp, mp->tfm_ital_corr[k]);
+*/
 }
 
 xfree (mp->font_info);
@@ -33917,7 +33959,7 @@ struct mp_edge_object *mp_gr_export (MP mp, mp_edge_header_node h) {
       {
       mp_text_node p0 = (mp_text_node)p;
       tt = (mp_text_object *) hq;
-      gr_text_p (tt) = mp_xstrdup (mp, mp_str (mp, mp_text_p (p)));
+      gr_text_p (tt) = mp_xstrldup (mp, mp_str (mp, mp_text_p (p)),mp_text_p (p)->len);
       gr_text_l (tt) = (size_t) mp_text_p (p)->len;
       gr_font_n (tt) = (unsigned int) mp_font_n (p);
       gr_font_name (tt) = mp_xstrdup (mp, mp->font_name[mp_font_n (p)]);

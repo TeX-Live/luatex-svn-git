@@ -1,4 +1,4 @@
-% $Id: svgout.w 1897 2013-04-05 08:43:40Z taco $
+% $Id: svgout.w 1902 2013-05-22 14:44:36Z taco $
 %
 % Copyright 2008-2009 Taco Hoekwater.
 %
@@ -515,7 +515,7 @@ void mp_svg_print_initial_comment(MP mp,mp_edge_object *hh) {
 @c
 static void mp_svg_color_out (MP mp, mp_graphic_object *p) {
   int object_color_model;
-  int object_color_a, object_color_b, object_color_c, object_color_d ; 
+  double object_color_a, object_color_b, object_color_c, object_color_d ; 
   if (gr_type(p) == mp_fill_code) {
     mp_fill_object *pq = (mp_fill_object *)p;
     set_color_objects(pq);
@@ -986,7 +986,7 @@ void mp_svg_text_out (MP mp, mp_text_object *p, int prologues) {
    }
   }  else {
     mp_svg_open_starttag(mp, "text");
-    ds=(mp->font_dsize[gr_font_n(p)]+8) / 16;
+    ds=(mp->font_dsize[gr_font_n(p)]+8) / 16 / 65536.0;
     mp_svg_store_double(mp,ds);
     mp_svg_attribute(mp, "font-size", mp->svg->buf);
     mp_svg_reset_buf(mp);

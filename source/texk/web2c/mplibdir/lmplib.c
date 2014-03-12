@@ -177,7 +177,7 @@ static void mplib_init_Ses(lua_State * L)
 /* Enumeration arrays to map MPlib enums to Lua strings */
 
 static const char *math_options[] =
-    { "scaled", "double", NULL };
+  { "scaled", "double", "binary", "decimal", NULL };
 
 static const char *interaction_options[] =
     { "unknown", "batch", "nonstop", "scroll", "errorstop", NULL };

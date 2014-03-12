@@ -1,4 +1,4 @@
-% $Id: psout.w 1892 2013-03-22 10:21:05Z taco $
+% $Id: psout.w 1951 2014-03-10 08:36:45Z taco $
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
 % See the <Show version...> code in mpost.w for more info.
@@ -1611,8 +1611,8 @@ void mp_read_psname_table (MP mp) {
 
 @<Types...@>=
 typedef char char_entry;
-typedef unsigned char  Byte;
-typedef Byte  Bytef;
+typedef unsigned char  mp_Byte;
+typedef mp_Byte  mp_Bytef;
 
 @ @<Glob...@>=
 char_entry *char_ptr, *char_array;
@@ -1669,7 +1669,7 @@ mp_xfree(mp->ps->job_id_string);
   subsets prefixes somewhat disjunct
 
 @c
-static unsigned long crc32 (unsigned long oldcrc, const Byte *buf, size_t len) {
+static unsigned long crc32 (unsigned long oldcrc, const mp_Byte *buf, size_t len) {
   unsigned long ret = 0;
   size_t i;
   if (oldcrc==0)
@@ -1728,7 +1728,7 @@ static void make_subset_tag (MP mp, fm_entry * fm_cur, char **glyph_names, font_
         fnstr_append (mp, fm_cur->charset);
     }
     crc = crc32 (0L, Z_NULL, 0);
-    crc = crc32 (crc, (Bytef *) mp->ps->char_array, strlen (mp->ps->char_array));
+    crc = crc32 (crc, (mp_Bytef *) mp->ps->char_array, strlen (mp->ps->char_array));
     /* we need to fit a 32-bit number into a string of 6 uppercase chars long;
      * there are 26 uppercase chars ==> each char represents a number in range
      * |0..25|. The maximal number that can be represented by the tag is
