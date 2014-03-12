@@ -997,7 +997,9 @@ static void mp_wrapup_numeric_token(MP mp, unsigned char *start, unsigned char *
 void mp_wrapup_numeric_token(MP mp, unsigned char *start, unsigned char *stop) {
   decNumber result;
   size_t l = stop-start+1;
-  char *buf = strndup((const char *)start, l);
+  char *buf = mp_xmalloc(mp, l+1, 1);
+  buf[l] = '\0';
+  (void)strncpy(buf,(const char *)start, l);
   set.status = 0;
   decNumberFromString(&result,buf, &set);
   free(buf);
