@@ -269,6 +269,10 @@ make_lua_key(yoffset);
 make_lua_key(immediate);
 make_lua_key(compresslevel);
 make_lua_key(objcompression);
+make_lua_key(direct);
+make_lua_key(page);
+make_lua_key(streamfile);
+make_lua_key(annot);
 
 @
 TH: TODO
@@ -1426,7 +1430,10 @@ void lua_initialize(int ac, char **av)
     init_lua_key(immediate);
     init_lua_key(compresslevel);
     init_lua_key(objcompression);
-
+    init_lua_key(direct);
+    init_lua_key(page);
+    init_lua_key(streamfile);
+    init_lua_key(annot);
 
     prepare_cmdline(Luas, argv, argc, lua_offset);      /* collect arguments */
     setup_lua_path(Luas);
