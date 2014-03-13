@@ -273,6 +273,7 @@ make_lua_key(direct);
 make_lua_key(page);
 make_lua_key(streamfile);
 make_lua_key(annot);
+make_lua_key(lua_functions);
 
 @
 TH: TODO
@@ -405,6 +406,9 @@ static char *ex_selfdir(char *argv0)
     return kpse_selfdir(argv0);
 #endif
 }
+
+
+
 
 @ @c
 static void
@@ -1426,7 +1430,8 @@ void lua_initialize(int ac, char **av)
     init_lua_key_alias(pTLT,"+TLT");
     init_lua_key_alias(pTRT,"+TRT");
     init_lua_key_alias(term_and_log,"term and log");
-
+    init_lua_key_alias(lua_functions,"lua.functions");
+    
     init_lua_key(immediate);
     init_lua_key(compresslevel);
     init_lua_key(objcompression);
@@ -1434,6 +1439,10 @@ void lua_initialize(int ac, char **av)
     init_lua_key(page);
     init_lua_key(streamfile);
     init_lua_key(annot);
+
+    lua_pushstring(Luas,"lua.functions");
+    lua_newtable(Luas);
+    lua_settable(Luas,LUA_REGISTRYINDEX);
 
     prepare_cmdline(Luas, argv, argc, lua_offset);      /* collect arguments */
     setup_lua_path(Luas);

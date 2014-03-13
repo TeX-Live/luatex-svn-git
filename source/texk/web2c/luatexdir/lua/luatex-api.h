@@ -534,6 +534,7 @@ use_lua_key(direct);
 use_lua_key(page);
 use_lua_key(streamfile);
 use_lua_key(annot);
+use_lua_key(lua_functions);
 
 
 

@@ -1912,6 +1912,19 @@ void conv_toks(void)
             lua_string_start();
         return;
         break;
+    case lua_function_code:
+        scan_int();
+        if (cur_val <= 0) {
+            pdf_error("luafunction", "invalid number");
+        } else {
+            u = save_cur_string();
+            luacstrings = 0;
+            luafunctioncall(cur_val);
+            restore_cur_string(u);
+            if (luacstrings > 0)
+                lua_string_start();
+        }
+        break;
     case pdf_insert_ht_code:
         scan_register_num();
         break;
@@ -2013,6 +2026,7 @@ void conv_toks(void)
         case pdf_creation_date_code:
         case lua_escape_string_code:
         case lua_code:
+        case lua_function_code:
         case expanded_code:
             break;
         default:

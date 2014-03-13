@@ -263,6 +263,7 @@ typedef enum {
     font_identifier_code,       /* command code for \.{tex.fontidentifier} (virtual) */
     font_id_code,               /* command code for \.{\\fontid} */
     uchar_code,                 /* command code for \.{\\Uchar} */
+    lua_function_code,          /* command code for \.{\\luafunction} */
 } convert_codes;
 
 typedef enum {
