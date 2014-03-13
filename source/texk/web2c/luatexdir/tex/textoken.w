@@ -1709,27 +1709,28 @@ static boolean print_convert_string(halfword c, int i)
 }
 
 @ @c
-int scan_lua_state(void)
+int scan_lua_state(void) /* hh-ls: optional name or number (not optional name optional number) */
 {
-    int sn = 0;
-    if (scan_keyword("name")) {
-        scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
-        sn = def_ref;
-    }
     /* Parse optional lua state integer, or an instance name to be stored in |sn| */
     /* Get the next non-blank non-relax non-call token */
+    int sn = 0;
     do {
         get_x_token();
     } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
-
     back_input();               /* have to push it back, whatever it is  */
     if (cur_cmd != left_brace_cmd) {
-        scan_register_num();
-        if (get_lua_name(cur_val))
-            sn = (cur_val - 65536);
+        if (scan_keyword("name")) {
+            (void) scan_toks(false, true);
+            sn = def_ref;
+        } else {
+            scan_register_num();
+            if (get_lua_name(cur_val))
+                sn = (cur_val - 65536);
+        }
     }
     return sn;
 }
+
 
 
 @ The procedure |conv_toks| uses |str_toks| to insert the token list
