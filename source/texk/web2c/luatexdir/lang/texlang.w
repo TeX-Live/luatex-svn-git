@@ -724,11 +724,15 @@ static halfword find_next_wordstart(halfword r)
             }
             break;
         case glyph_node:
-            if (start_ok &&
-                is_simple_character(r) &&
-                (l = get_lc_code(character(r))) > 0 &&
-                (char_uchyph(r) || l == character(r)))
-                return r;
+            if (start_ok && 
+	        is_simple_character(r) &&
+                (l = get_lc_code(character(r))) > 0) {
+		if (char_uchyph(r) || l == character(r)) {
+                  return r;
+                } else {
+                  start_ok = 0;
+                }
+            }
             break;
         default:
             start_ok = 0;
