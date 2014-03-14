@@ -139,9 +139,9 @@ extern int get_char_cat_code(int);
 |get_next| if it wants to suppress expansion.
 */
 
-#  define no_expand_flag special_char
-
-extern boolean end_line_char_inactive(void);
+# define no_expand_flag special_char
+# define end_line_char int_par(end_line_char_code)
+# define  end_line_char_inactive ((end_line_char < 0) || (end_line_char > 127))
 
 extern halfword par_loc;
 extern halfword par_token;

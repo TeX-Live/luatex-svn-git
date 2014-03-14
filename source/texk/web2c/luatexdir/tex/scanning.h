@@ -57,7 +57,6 @@ extern void scan_limited_int(int max, const char *name);
 
 extern void scan_fifteen_bit_int(void);
 extern void scan_fifty_one_bit_int(void);
-extern void scan_string_argument(void);
 extern void scan_four_bit_int_or_18(void);
 
 #  define octal_token (other_token+'\'')        /* apostrophe, indicates an octal constant */

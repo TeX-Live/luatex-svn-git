@@ -254,8 +254,7 @@ void fix_o_mode(PDF pdf)
     if (pdf->o_mode == OMODE_NONE)
         pdf->o_mode = o_mode;
     else if (pdf->o_mode != o_mode)
-        pdf_error("setup",
-                  "\\pdfoutput can only be changed before anything is written to the output");
+        pdf_error("setup", "\\pdfoutput can only be changed before anything is written to the output");
 }
 
 @ This ensures that |pdfminorversion| is set only before any bytes have
@@ -268,14 +267,9 @@ void fix_pdf_minorversion(PDF pdf)
 {
     if (pdf->minor_version < 0) {       /* unset */
         if ((pdf_minor_version < 0) || (pdf_minor_version > 9)) {
-            const char *hlp[] =
-                { "The pdfminorversion must be between 0 and 9.",
-                "I changed this to 4.", NULL
-            };
+            const char *hlp[] = { "The pdfminorversion must be between 0 and 9.", "I changed this to 4.", NULL };
             char msg[256];
-            (void) snprintf(msg, 255,
-                            "LuaTeX error (illegal pdfminorversion %d)",
-                            (int) pdf_minor_version);
+            (void) snprintf(msg, 255, "LuaTeX error (illegal pdfminorversion %d)", (int) pdf_minor_version);
             tex_error(msg, hlp);
             pdf_minor_version = 4;
         }
@@ -283,11 +277,9 @@ void fix_pdf_minorversion(PDF pdf)
     } else {
         /* Check that variables for \.{PDF} output are unchanged */
         if (pdf->minor_version != pdf_minor_version)
-            pdf_error("setup",
-                      "\\pdfminorversion cannot be changed after data is written to the PDF file");
+            pdf_error("setup", "\\pdfminorversion cannot be changed after data is written to the PDF file");
         if (pdf->draftmode != pdf_draftmode)
-            pdf_error("setup",
-                      "\\pdfdraftmode cannot be changed after data is written to the PDF file");
+            pdf_error("setup", "\\pdfdraftmode cannot be changed after data is written to the PDF file");
     }
     if (pdf->draftmode != 0) {
         pdf->compress_level = 0;        /* re-fix it, might have been changed inbetween */
@@ -418,8 +410,7 @@ void pdf_flush(PDF pdf)
             pdf->zip_write_state = NO_ZIP;
         strbuf_seek(pdf->buf, 0);
         if (saved_pdf_gone > pdf->gone)
-            pdf_error("file size",
-                      "File size exceeds architectural limits (pdf_gone wraps around)");
+            pdf_error("file size", "File size exceeds architectural limits (pdf_gone wraps around)");
         break;
     case LUASTM_BUF:
         luaL_addsize(&(os->b), strbuf_offset(pdf->buf));
@@ -1420,8 +1411,7 @@ char *convertStringToPDFString(const char *in, int len)
         check_buf((unsigned) j + sizeof(buf), MAX_PSTRING_LEN);
         if (((unsigned char) in[i] < '!') || ((unsigned char) in[i] > '~')) {
             /* convert control characters into oct */
-            k = snprintf(buf, sizeof(buf),
-                         "\\%03o", (unsigned int) (unsigned char) in[i]);
+            k = snprintf(buf, sizeof(buf), "\\%03o", (unsigned int) (unsigned char) in[i]);
             check_nprintf(k, sizeof(buf));
             out[j++] = buf[0];
             out[j++] = buf[1];
@@ -1455,8 +1445,7 @@ static void convertStringToHexString(const char *in, char *out, int lin)
     char buf[3];
     j = 0;
     for (i = 0; i < lin; i++) {
-        k = snprintf(buf, sizeof(buf),
-                     "%02X", (unsigned int) (unsigned char) in[i]);
+        k = snprintf(buf, sizeof(buf), "%02X", (unsigned int) (unsigned char) in[i]);
         check_nprintf(k, sizeof(buf));
         out[j++] = buf[0];
         out[j++] = buf[1];
@@ -1917,7 +1906,7 @@ void print_pdf_table_string(PDF pdf, const char *s)
 void pdf_end_page(PDF pdf)
 {
     char s[64], *p;
-    int j, annots = 0, beads = 0;
+    int j, annots = 0, beads = 0, callback_id;
     pdf_resource_struct *res_p = pdf->page_resources;
     pdf_resource_struct local_page_resources;
     pdf_object_list *annot_list, *bead_list, *link_list, *ol, *ol1;
@@ -1936,7 +1925,13 @@ void pdf_end_page(PDF pdf)
     pdf_end_stream(pdf);
     pdf_end_obj(pdf);
 
+    /* hh-ls : new call back finish_pdfpage_callback */
+    callback_id = callback_defined(finish_pdfpage_callback);
+    if (callback_id > 0)
+      run_callback(callback_id, "b->",(global_shipping_mode == SHIPPING_PAGE));
+
     if (global_shipping_mode == SHIPPING_PAGE) {
+
         pdf->last_pages = pdf_do_page_divert(pdf, pdf->last_page, 0);
 
         /* Write out /Page object */

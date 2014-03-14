@@ -92,6 +92,31 @@ static int my_luapanic(lua_State * L)
     return 0;
 }
 
+
+@ @c
+void luafunctioncall(int slot)
+{
+    int i ;
+    int stacktop = lua_gettop(Luas);
+    lua_active++;
+    lua_rawgeti(Luas, LUA_REGISTRYINDEX, lua_key_index(lua_functions));
+    lua_gettable(Luas, LUA_REGISTRYINDEX);
+    lua_rawgeti(Luas, -1,slot);
+    if (lua_isfunction(Luas,-1)) {
+        lua_pushcfunction(Luas, lua_traceback);     /* push traceback function */
+        lua_insert(Luas, -2);     /* put it under chunk  */
+        lua_pushnumber(Luas, slot);
+        i = lua_pcall(Luas, 1, 0, -2);
+        if (i != 0) {
+            lua_gc(Luas, LUA_GCCOLLECT, 0);
+            Luas = luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
+        }
+    }
+    lua_settop(Luas,stacktop);
+    lua_active--;
+}
+
+
 @ @c
 static const luaL_Reg lualibs[] = {
     {"", luaopen_base},

@@ -530,7 +530,11 @@ use_lua_key(yoffset);
 use_lua_key(immediate);
 use_lua_key(compresslevel);
 use_lua_key(objcompression);
-
+use_lua_key(direct);
+use_lua_key(page);
+use_lua_key(streamfile);
+use_lua_key(annot);
+use_lua_key(lua_functions);
 
 
 
