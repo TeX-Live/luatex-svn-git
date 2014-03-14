@@ -4001,14 +4001,7 @@ static void readttfvwidths(FILE *ttf,struct ttfinfo *info) {
 	tsb = getushort(ttf);
 	if ( info->chars[i]!=NULL ) {		/* can happen in ttc files */
 	    info->chars[i]->vwidth = lastvwidth;
-#if 0	/* this used to mean something once */
-	/* At one point I stored the ymax of loading the glyph in lsidebearing*/
-	/* I've removed that as it now seems pointless */
-	    if ( info->cff_start==0 ) {
-		voff += tsb + info->chars[i]->lsidebearing /* actually maxy */;
-		++cnt;
-	    }
-#endif
+	    info->chars[i]->tsb = tsb;
 	}
     }
     if ( i==0 ) {

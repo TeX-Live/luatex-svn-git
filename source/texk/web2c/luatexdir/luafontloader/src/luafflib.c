@@ -1001,8 +1001,11 @@ void handle_splinechar(lua_State * L, struct splinechar *glyph, int hasvmetrics)
     lua_rawset(L, -3);
     lua_setfield(L, -2, "boundingbox");
     /*dump_intfield(L,"orig_pos",       glyph->orig_pos); */
-    if (hasvmetrics)
+    if (hasvmetrics) {
         dump_intfield(L, "vwidth", glyph->vwidth);
+        if (glyph->tsb != 0)
+           dump_intfield(L, "tsidebearing", glyph->tsb);
+    }
     dump_intfield(L, "width", glyph->width);
 
     if (glyph->lsidebearing != glyph->xmin) {
