@@ -19,7 +19,7 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: luainit.w 4781 2014-02-10 11:05:24Z taco $"
+    "$Id: luainit.w 4881 2014-03-14 12:51:16Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/luainit.w $";
 
 #include "ptexlib.h"
@@ -549,8 +549,11 @@ static void parse_options(int ac, char **av)
 
         if (g == -1)            /* End of arguments, exit the loop.  */
             break;
-        if (g == '?')           /* Unknown option.  */
-            continue;
+        if (g == '?')  {         /* Unknown option.  */
+          if (!luainit) 
+            fprintf(stderr,"%s: unrecognized option '%s'\n", argv[0], argv[optind-1]);
+          continue;
+        }
 
         assert(g == 0);         /* We have no short option names.  */
 

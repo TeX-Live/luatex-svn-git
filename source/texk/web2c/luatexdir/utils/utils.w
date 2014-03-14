@@ -20,7 +20,7 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: utils.w 4781 2014-02-10 11:05:24Z taco $"
+    "$Id: utils.w 4882 2014-03-14 12:56:21Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/utils/utils.w $";
 
 @ @c
@@ -40,6 +40,7 @@ static const char _svn_version[] =
 #include "lua/luatex-api.h"     /* for ptexbanner */
 
 #include "png.h"
+#include "mplib.h"
 
 /* POPPLER_VERSION is defined in poppler-config.h for poppler from
  * the TeX Live tree, or in the Makefile for an installed version.  */
@@ -346,11 +347,13 @@ void initversionstring(char **versions)
     const_string fmt =
                     "Compiled with libpng %s; using %s\n"
                     "Compiled with zlib %s; using %s\n"
-                    "Compiled with poppler version %s\n";
+                    "Compiled with poppler version %s\n"
+                    "Compiled with mplib version %s\n";
     size_t len = strlen(fmt)
                     + strlen(PNG_LIBPNG_VER_STRING) + strlen(png_libpng_ver)
                     + strlen(ZLIB_VERSION) + strlen(zlib_version)
                     + strlen(POPPLER_VERSION)
+                    + strlen(mp_metapost_version())
                     + 1;
 
     /* len will be more than enough, because of the placeholder chars in fmt
@@ -358,7 +361,7 @@ void initversionstring(char **versions)
     *versions = xmalloc(len);
     sprintf(*versions, fmt,
                     PNG_LIBPNG_VER_STRING, png_libpng_ver,
-                    ZLIB_VERSION, zlib_version, POPPLER_VERSION);
+                    ZLIB_VERSION, zlib_version, POPPLER_VERSION, mp_metapost_version());
 }
 
 @ @c

@@ -19,7 +19,7 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: texlang.w 4599 2013-03-19 15:41:07Z taco $"
+    "$Id: texlang.w 4880 2014-03-14 12:01:16Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lang/texlang.w $";
 
 #include "ptexlib.h"
@@ -724,11 +724,15 @@ static halfword find_next_wordstart(halfword r)
             }
             break;
         case glyph_node:
-            if (start_ok &&
-                is_simple_character(r) &&
-                (l = get_lc_code(character(r))) > 0 &&
-                (char_uchyph(r) || l == character(r)))
-                return r;
+            if (start_ok && 
+	        is_simple_character(r) &&
+                (l = get_lc_code(character(r))) > 0) {
+		if (char_uchyph(r) || l == character(r)) {
+                  return r;
+                } else {
+                  start_ok = 0;
+                }
+            }
             break;
         default:
             start_ok = 0;
