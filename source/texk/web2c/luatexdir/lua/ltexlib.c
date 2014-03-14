@@ -69,15 +69,6 @@ static int spindle_index = 0;
 
 
 
-static int lua_functions_get_table(lua_State * L) /* hh */
-{
-    lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(lua_functions));
-    lua_gettable(L, LUA_REGISTRYINDEX);
-    return 1;
-}
-
-
-
 static void luac_store(lua_State * L, int i, int partial, int cattable)
 {
     char *st;
@@ -2613,7 +2604,6 @@ static const struct luaL_Reg texlib[] = {
     {"normal_rand", tex_norm_rand},
     {"lua_math_randomseed", tex_init_rand}, /* syntactic sugar  */
     {"lua_math_random", lua_math_random},
-    {"get_functions_table",lua_functions_get_table},
     {NULL, NULL}                /* sentinel */
 };
 

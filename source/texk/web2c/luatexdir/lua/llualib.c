@@ -306,6 +306,12 @@ static int get_luaname(lua_State * L)
     return 1;
 }
 
+static int lua_functions_get_table(lua_State * L) /* hh */
+{
+    lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(lua_functions));
+    lua_gettable(L, LUA_REGISTRYINDEX);
+    return 1;
+}
 
 
 static const struct luaL_Reg lualib[] = {
@@ -314,6 +320,7 @@ static const struct luaL_Reg lualib[] = {
     {"setluaname",  set_luaname},
     {"getbytecode", get_bytecode},
     {"setbytecode", set_bytecode},
+    {"get_functions_table",lua_functions_get_table},
     /* *INDENT-ON* */
     {NULL, NULL}                /* sentinel */
 };
