@@ -6061,6 +6061,11 @@ static SplineFont *SFFillFromTTFInfo(struct ttfinfo *info) {
     sf->units_per_em = info->emsize ;
     sf->pfminfo = info->pfminfo ;
 
+    free(info->savetab);
+    if ( sf->copyright==NULL )
+	sf->copyright = info->copyright;
+    else
+	free( info->copyright );
 return( sf );
 }
 
