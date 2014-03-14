@@ -43,7 +43,7 @@
 #include "mplibpng.h"
 
    /*@unused@*/ static const char _svn_version[] =
-    "$Id: lmplib.c 1885 2013-03-20 07:46:07Z taco $";
+    "$Id: lmplib.c 1962 2014-03-11 13:18:08Z taco $";
 
 int luaopen_mplib(lua_State * L); /* forward */
 
