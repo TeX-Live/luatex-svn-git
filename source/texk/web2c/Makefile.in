@@ -1773,7 +1773,7 @@ mp_ctangle_sh = CWEBINPUTS=$(srcdir)/mplibdir AM_V_P=$(AM_V_P) $(SHELL) ./tangle
 nodist_mpost_SOURCES = mpost.c $(mpxout_c_h)
 mpxout_c_h = mpxout.c mpxout.h
 mpost_web = mplibdir/mpost.w mplibdir/mpxout.w
-mp_tests = mplibdir/dvitomp.test mplibdir/mptrap.test
+mp_tests = mplibdir/dvitomp.test mplibdir/mptraptest
 libmplib_a_CPPFLAGS = $(CAIRO_INCLUDES) $(PIXMAN_INCLUDES) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(AM_CPPFLAGS) -I$(srcdir)/mplibdir
 decnumber_c_h = mplibdir/decNumber.c mplibdir/decNumber.h mplibdir/decNumberLocal.h mplibdir/decContext.h mplibdir/decContext.c
 libmplib_a_SOURCES = mplibdir/avl.h mplibdir/avl.c $(decnumber_c_h)
@@ -10025,6 +10025,13 @@ tests/write18-quote-test.pl.log: tests/write18-quote-test.pl
 mftraptest.log: mftraptest
 	@p='mftraptest'; \
 	b='mftraptest'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+mplibdir/mptraptest.log: mplibdir/mptraptest
+	@p='mplibdir/mptraptest'; \
+	b='mplibdir/mptraptest'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
