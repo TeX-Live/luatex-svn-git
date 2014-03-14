@@ -549,8 +549,11 @@ static void parse_options(int ac, char **av)
 
         if (g == -1)            /* End of arguments, exit the loop.  */
             break;
-        if (g == '?')           /* Unknown option.  */
-            continue;
+        if (g == '?')  {         /* Unknown option.  */
+          if (!luainit) 
+            fprintf(stderr,"%s: unrecognized option '%s'\n", argv[0], argv[optind-1]);
+          continue;
+        }
 
         assert(g == 0);         /* We have no short option names.  */
 
