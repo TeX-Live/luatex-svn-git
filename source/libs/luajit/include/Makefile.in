@@ -58,8 +58,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/lj-system.m4 \
 	$(top_srcdir)/../../m4/kpse-largefile.m4 \
 	$(top_srcdir)/../../m4/kpse-luajit-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-warnings.m4 \
-	$(top_srcdir)/../../m4/kpse-win32.m4 $(top_srcdir)/version.ac \
-	$(top_srcdir)/configure.ac
+	$(top_srcdir)/version.ac $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -109,9 +108,7 @@ DEPDIR = @DEPDIR@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
-EGREP = @EGREP@
 EXEEXT = @EXEEXT@
-GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -126,6 +123,7 @@ LJVM_MODE = @LJVM_MODE@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 LUAJIT_DEFINES = @LUAJIT_DEFINES@
+LUAJIT_LDEXTRA = @LUAJIT_LDEXTRA@
 LUAJIT_TREE = @LUAJIT_TREE@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
