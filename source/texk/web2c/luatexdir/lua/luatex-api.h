@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: luatex-api.h 4781 2014-02-10 11:05:24Z taco $ */
+/* $Id: luatex-api.h 4903 2014-03-15 12:18:10Z taco $ */
 
 #ifndef LUATEX_API_H
 #  define LUATEX_API_H 1
@@ -71,11 +71,7 @@ extern int luaopen_zlib(lua_State * L);
 extern int luaopen_gzip(lua_State * L);
 extern int luaopen_ff(lua_State * L);
 extern int luaopen_profiler(lua_State * L);
-#ifdef _MSC_VER
-LUALIB_API int luaopen_bit32(lua_State * L);
-#else
 extern int luaopen_bit32(lua_State * L);
-#endif
 
 extern int luaopen_socket_core(lua_State * L);
 extern int luaopen_mime_core(lua_State * L);

@@ -20,7 +20,7 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: utils.w 4882 2014-03-14 12:56:21Z taco $"
+    "$Id: utils.w 4903 2014-03-15 12:18:10Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/utils/utils.w $";
 
 @ @c
@@ -447,23 +447,14 @@ int do_zround(double r)
 }
 
 
-@ MSVC doesn't have |rind|.
+@ MSVC doesn't have |rint|.
 @c
-#ifdef MSVC
+#ifdef _MSC_VER
 
 #  include <math.h>
 double rint(double x)
 {
-    double c, f, d1, d2;
-
-    c = ceil(x);
-    f = floor(x);
-    d1 = fabs(c - x);
-    d2 = fabs(x - f);
-    if (d1 > d2)
-        return f;
-    else
-        return c;
+    return floor(x+0.5);
 }
 
 #endif
