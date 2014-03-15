@@ -12,24 +12,20 @@
 # libs/luajit/ of the TL tree.
 AC_DEFUN([KPSE_LUAJIT_FLAGS], [dnl
 _KPSE_LIB_FLAGS([luajit], [luajit], [tree],
-                [-IBLD/libs/luajit/luajit-build/src], [BLD/libs/luajit/luajit-build/src/libluajit.a], [],
-                [], [${top_builddir}/../../libs/luajit/luajit-build/src/luajit.h])[]dnl
+                [-IBLD/libs/luajit/include], [BLD/libs/luajit/libluajit.a], [],
+                [], [${top_builddir}/../../libs/luajit/include/luajit.h])[]dnl
 ]) # KPSE_LUAJIT_FLAGS
 
 # KPSE_LUAJIT_DEFINES
 # -------------------
 # Set the make variable LUAJIT_DEFINES to the CPPFLAGS required when
 # compiling or using the `-lluajit' library.
+# Set the make variable LUAJIT_LDEXTRA to the LDFLAGS required when
+# linking with the `-lluajit' library.
 AC_DEFUN([KPSE_LUAJIT_DEFINES], [dnl
-AC_REQUIRE([KPSE_CHECK_WIN32])[]dnl
+AC_REQUIRE([AC_CANONICAL_HOST])[]dnl
 AC_SUBST([LUAJIT_DEFINES], [-DLUAJIT_ENABLE_LUA52COMPAT])
-if test "x$kpse_cv_have_win32" = xno; then
-  LUAJIT_DEFINES="$LUAJIT_DEFINES -DLUA_USE_POSIX"
-  AC_SEARCH_LIBS([dlopen], [dl])
-  if test "x$ac_cv_search_dlopen" != xno; then
-    AC_CHECK_HEADER([dlfcn.h],
-                    [LUAJIT_DEFINES="$LUAJIT_DEFINES -DLUA_USE_DLOPEN"],
-                    [], [AC_INCLUDES_DEFAULT])
-  fi
-fi
+AS_CASE([$host_os:$host_cpu],
+        [*darwin*:x86_64], [LUAJIT_LDEXTRA='-pagezero_size 10000 -image_base 100000000'])
+AC_SUBST([LUAJIT_LDEXTRA])
 ]) # KPSE_LUAJIT_DEFINES
