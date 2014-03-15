@@ -7,6 +7,8 @@
 #ifndef lctype_h
 #define lctype_h
 
+#include <ctype.h>
+
 #include "lua.h"
 
 
@@ -53,13 +55,11 @@
 
 /*
 ** 'lalpha' (Lua alphabetic) and 'lalnum' (Lua alphanumeric) both include '_'
+**
+** all utf-8 chars (greater than 0x7f) are always alphabetic
 */
-/*all utf-8 chars are always alphabetic character (everthing higher then
-  2^7 is always a valid char), end of stream (-1) is not valid */
-#define lislalpha(c) (( (isalpha(c) || ((c) == '_')) || (0x80&c))  && c!=-1) 
-/*all utf-8 chars are always alphabetic character or numbers, end of
-  stream (-1) is not valid*/
-#define lislalnum(c) ((  (isalnum(c) || ((c) == '_')) || (0x80&c))  && c!=-1)  
+#define lislalpha(c)	(isalpha(c) || (c) == '_' || (c) > 0x7f)
+#define lislalnum(c)	(isalnum(c) || (c) == '_' || (c) > 0x7f)
 #define lisdigit(c)	testprop(c, MASK(DIGITBIT))
 #define lisspace(c)	testprop(c, MASK(SPACEBIT))
 #define lisprint(c)	testprop(c, MASK(PRINTBIT))

@@ -1,4 +1,4 @@
-$Id: README 32905 2014-02-07 08:08:52Z peter $
+$Id: README 33172 2014-03-14 09:24:13Z peter $
 Public domain.  Originally created by Karl Berry, 2005.
 
 Libraries we compile for TeX Live.
@@ -12,7 +12,7 @@ See also comments in ../texk/README.
 cairo 1.12.16 - checked 10sep13
   http://cairographics.org/releases/
 
-freetype2 2.5.2 - checked 9dec13
+freetype2 2.5.3 - checked 8mar14
   http://savannah.nongnu.org/download/freetype/
 
 gd 2.1.0 - checked 26jun13
@@ -37,8 +37,8 @@ libpng 1.6.9 - checked 7feb14
 lua 5.2.3 - checked 7dec13
   http://www.lua.org/ftp/
 
-luajit 2.0.2 - checked 6feb14
-  http://luajit.org/download/LuaJIT-2.0.2.tar.gz
+luajit 2.0.3 - checked 14mar14
+  http://luajit.org/download/LuaJIT-2.0.3.tar.gz
 
 pixman 0.32.4 - checked 18nov13
   http://cairographics.org/releases/

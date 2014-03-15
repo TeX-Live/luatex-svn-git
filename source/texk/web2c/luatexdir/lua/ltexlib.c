@@ -27,7 +27,7 @@ setter no prev link is created so we can presume that it's not used later on. */
 
 
 static const char _svn_version[] =
-    "$Id: ltexlib.c 4775 2014-02-07 12:36:34Z luigi $ $URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/ltexlib.c $";
+    "$Id: ltexlib.c 4878 2014-03-14 10:48:03Z taco $ $URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/ltexlib.c $";
 
 #define attribute(A) eqtb[attribute_base+(A)].hh.rh
 #define dimen(A) eqtb[scaled_base+(A)].hh.rh
@@ -66,15 +66,6 @@ typedef struct {
 static int spindle_size = 0;
 static spindle *spindles = NULL;
 static int spindle_index = 0;
-
-
-
-static int lua_functions_get_table(lua_State * L) /* hh */
-{
-    lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(lua_functions));
-    lua_gettable(L, LUA_REGISTRYINDEX);
-    return 1;
-}
 
 
 
@@ -2613,7 +2604,6 @@ static const struct luaL_Reg texlib[] = {
     {"normal_rand", tex_norm_rand},
     {"lua_math_randomseed", tex_init_rand}, /* syntactic sugar  */
     {"lua_math_random", lua_math_random},
-    {"get_functions_table",lua_functions_get_table},
     {NULL, NULL}                /* sentinel */
 };
 

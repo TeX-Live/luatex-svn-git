@@ -58,7 +58,7 @@ approved by the @TeX{} Users Group.
 
 @dircategory TeX
 @direntry
-* @TL{}: (texlive).                        The @TL{} System.
+* @TL: (texlive).                        The @TL{} System.
 @end direntry
 
 

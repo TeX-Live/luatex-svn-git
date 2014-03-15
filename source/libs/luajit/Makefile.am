@@ -1,10 +1,8 @@
-## Wrapper Makefile.am to build libluajit.
+## Makefile.am for the TeX Live subdirectory libs/luajit/native/
 ##
-##   Copyright (C) 2014 Luigi Scarso <luigi.scarso@gmail.com>
-##
-##   This file is free software; the copyright holder
-##   gives unlimited permission to copy and/or distribute it,
-##   with or without modifications, as long as this notice is preserved.
+## Copyright (C) 2014 Luigi Scarso <luigi.scarso@gmail.com>
+## Copyright (C) 2014 Peter Breitenlohner <tex-live@tug.org>
+## You may freely use, modify and/or distribute this file.
 ##
 ## We want to re-distribute the whole original luajit source tree.
 ##
@@ -16,41 +14,155 @@ EXTRA_DIST += $(LUAJIT_TREE)-PATCHES
 
 # in case of an SVN repository
 dist-hook:
-	rm -rf `find $(distdir) -name .svn`
+	rm -rf `find $(distdir) -name .svn -o -name .deps -o -name .dirstamp -o -name '*.$(OBJEXT)'`
 
-SUBDIRS = native
+AM_CPPFLAGS = -I$(srcdir)/$(LUAJIT_TREE)/src $(LUAJIT_DEFINES)
+AM_CFLAGS = -Wall
 
-host_flags = BUILDMODE=static CROSS=$(CROSS)
-if WIN32
-host_flags += TARGET_SYS=Windows
-endif WIN32
+SUBDIRS = . native include
 
-noinst_DATA = luajit-build/src/libluajit.a
+noinst_LIBRARIES = libluajit.a
 
-luajit-build/src/Makefile:
-	rm -rf luajit-build
-	$(MKDIR_P) luajit-build
-	cd luajit-build && cp -r $(abs_srcdir)/$(LUAJIT_TREE)/src src \
-	&& cp -r $(abs_srcdir)/$(LUAJIT_TREE)/dynasm dynasm \
-	&& chmod -R u+w src dynasm
+nodist_libluajit_a_SOURCES = \
+	$(ljlib_sources) \
+	@LUAJIT_TREE@/src/lbitlib.c \
+	@LUAJIT_TREE@/src/lib_aux.c \
+	@LUAJIT_TREE@/src/lib_init.c \
+	@LUAJIT_TREE@/src/lj_alloc.c \
+	@LUAJIT_TREE@/src/lj_api.c \
+	@LUAJIT_TREE@/src/lj_asm.c \
+	@LUAJIT_TREE@/src/lj_bc.c \
+	@LUAJIT_TREE@/src/lj_bcread.c \
+	@LUAJIT_TREE@/src/lj_bcwrite.c \
+	@LUAJIT_TREE@/src/lj_carith.c \
+	@LUAJIT_TREE@/src/lj_ccall.c \
+	@LUAJIT_TREE@/src/lj_ccallback.c \
+	@LUAJIT_TREE@/src/lj_cconv.c \
+	@LUAJIT_TREE@/src/lj_cdata.c \
+	@LUAJIT_TREE@/src/lj_char.c \
+	@LUAJIT_TREE@/src/lj_clib.c \
+	@LUAJIT_TREE@/src/lj_cparse.c \
+	@LUAJIT_TREE@/src/lj_crecord.c \
+	@LUAJIT_TREE@/src/lj_ctype.c \
+	@LUAJIT_TREE@/src/lj_debug.c \
+	@LUAJIT_TREE@/src/lj_dispatch.c \
+	@LUAJIT_TREE@/src/lj_err.c \
+	@LUAJIT_TREE@/src/lj_ffrecord.c \
+	@LUAJIT_TREE@/src/lj_func.c \
+	@LUAJIT_TREE@/src/lj_gc.c \
+	@LUAJIT_TREE@/src/lj_gdbjit.c \
+	@LUAJIT_TREE@/src/lj_ir.c \
+	@LUAJIT_TREE@/src/lj_lex.c \
+	@LUAJIT_TREE@/src/lj_lib.c \
+	@LUAJIT_TREE@/src/lj_load.c \
+	@LUAJIT_TREE@/src/lj_mcode.c \
+	@LUAJIT_TREE@/src/lj_meta.c \
+	@LUAJIT_TREE@/src/lj_obj.c \
+	@LUAJIT_TREE@/src/lj_opt_dce.c \
+	@LUAJIT_TREE@/src/lj_opt_fold.c \
+	@LUAJIT_TREE@/src/lj_opt_loop.c \
+	@LUAJIT_TREE@/src/lj_opt_mem.c \
+	@LUAJIT_TREE@/src/lj_opt_narrow.c \
+	@LUAJIT_TREE@/src/lj_opt_sink.c \
+	@LUAJIT_TREE@/src/lj_opt_split.c \
+	@LUAJIT_TREE@/src/lj_parse.c \
+	@LUAJIT_TREE@/src/lj_record.c \
+	@LUAJIT_TREE@/src/lj_snap.c \
+	@LUAJIT_TREE@/src/lj_state.c \
+	@LUAJIT_TREE@/src/lj_str.c \
+	@LUAJIT_TREE@/src/lj_strscan.c \
+	@LUAJIT_TREE@/src/lj_tab.c \
+	@LUAJIT_TREE@/src/lj_trace.c \
+	@LUAJIT_TREE@/src/lj_udata.c \
+	@LUAJIT_TREE@/src/lj_vmevent.c \
+	@LUAJIT_TREE@/src/lj_vmmath.c
 
-native/build-flags: luajit-build/src/Makefile
-	cd native && $(MAKE) $(AM_MAKEFLAGS) build-flags
 
-luajit-build/src/libluajit.a: native/build-flags
-	build_flags=`cat native/build-flags` && \
-	cat native/build-flags
-	cd luajit-build/src && \
-	  $(MAKE) $(AM_MAKEFLAGS) `if $(AM_V_P); then echo 'E=@: Q='; fi` \
-	  $(host_flags) $$build_flags
+if PEOBJ
+libluajit_a_LIBADD = lj_vm_obj.o
+else !PEOBJ
+nodist_libluajit_a_SOURCES += lj_vm_asm.s
+endif !PEOBJ
 
-clean-local:
-	rm -rf luajit-build
+ljlib_sources = \
+	lib_base.c \
+	lib_math.c \
+	lib_bit.c \
+	lib_string.c \
+	lib_table.c \
+	lib_io.c \
+	lib_os.c \
+	lib_package.c \
+	lib_debug.c \
+	lib_jit.c \
+	lib_ffi.c
+
+$(libluajit_a_OBJECTS): $(HDRGEN)
+
+# When cross-compiling, EXEEXT for the build and host systems may differ.
+# Thus we depend on the auxiliary file native/buildvm-stamp.
+native/buildvm-stamp: $(ljlib_sources)
+	cd native && $(MAKE) $(AM_MAKEFLAGS) buildvm-stamp
+
+HDRGEN = lj_bcdef.h lj_ffdef.h lj_libdef.h lj_recdef.h lj_folddef.h
+
+lj_bcdef.h: native/buildvm-stamp
+	$(AM_V_GEN)native/buildvm -m bcdef -o $@ $(ljlib_sources)
+
+lj_ffdef.h: native/buildvm-stamp
+	$(AM_V_GEN)native/buildvm -m ffdef -o $@ $(ljlib_sources)
+
+lj_libdef.h: native/buildvm-stamp
+	$(AM_V_GEN)native/buildvm -m libdef -o $@ $(ljlib_sources)
+
+lj_recdef.h: native/buildvm-stamp
+	$(AM_V_GEN)native/buildvm -m recdef -o $@ $(ljlib_sources)
+
+lj_folddef.h: native/buildvm-stamp $(LUAJIT_TREE)/src/lj_opt_fold.c
+	$(AM_V_GEN)native/buildvm -m folddef -o $@ $(srcdir)/$(LUAJIT_TREE)/src/lj_opt_fold.c
+
+lj_vm_obj.o lj_vm_asm.s: native/buildvm-stamp
+	$(AM_V_GEN)native/buildvm -m $(LJVM_MODE) -o $@
+
+$(ljlib_sources): config.force
+	@test -f $@ || { rm -f $@; \
+	  if $(AM_V_P); then echo "$(LN_S) $(srcdir)/$(LUAJIT_TREE)/src/$@ $@"; \
+	    else echo "  LINK     $@"; fi; \
+	  $(LN_S) $(srcdir)/$(LUAJIT_TREE)/src/$@ $@; } || exit 1
+
+CLEANFILES = $(HDRGEN) $(ljlib_sources) lj_vm_asm.s
+
+CONFIG_CLEAN_FILES = dynasm_flags native_flags
+
+if build
+check_PROGRAMS = jittest luajittry
+dist_check_SCRIPTS = luajit.test luajiterr.test
+TESTS = luajit.test luajiterr.test
+endif build
+
+jittest_SOURCES = jittest.c
+
+jittest_CPPFLAGS = -Iinclude
+
+nodist_luajittry_SOURCES = @LUAJIT_TREE@/src/luajit.c
+
+luajittry_CPPFLAGS = -Iinclude
+luajittry_LDFLAGS = $(LUAJIT_LDEXTRA)
+
+LDADD = libluajit.a
+
+EXTRA_DIST += jiterr.exp
+CLEANFILES += jiterr.out jiterr.tmp
+
+# Reconfig
+reconfig_prereq =
+DISTCLEANFILES =
+
+include $(srcdir)/../../am/reconfig.am
 
 # Rebuild
 rebuild_prereq =
 rebuild_target = all
-CLEANFILES =
 
 include $(srcdir)/../../am/rebuild.am
 

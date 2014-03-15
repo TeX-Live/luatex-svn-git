@@ -21,7 +21,7 @@
 #include "lua/luatex-api.h"
 
 static const char _svn_version[] =
-    "$Id: llualib.c 4781 2014-02-10 11:05:24Z taco $ $URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/llualib.c $";
+    "$Id: llualib.c 4878 2014-03-14 10:48:03Z taco $ $URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/llualib.c $";
 
 #define LOAD_BUF_SIZE 256
 #define UINT_MAX32 0xFFFFFFFF
@@ -306,6 +306,12 @@ static int get_luaname(lua_State * L)
     return 1;
 }
 
+static int lua_functions_get_table(lua_State * L) /* hh */
+{
+    lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(lua_functions));
+    lua_gettable(L, LUA_REGISTRYINDEX);
+    return 1;
+}
 
 
 static const struct luaL_Reg lualib[] = {
@@ -314,6 +320,7 @@ static const struct luaL_Reg lualib[] = {
     {"setluaname",  set_luaname},
     {"getbytecode", get_bytecode},
     {"setbytecode", set_bytecode},
+    {"get_functions_table",lua_functions_get_table},
     /* *INDENT-ON* */
     {NULL, NULL}                /* sentinel */
 };
