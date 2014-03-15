@@ -603,22 +603,21 @@ nodist_libmf_a_OBJECTS = $(am__objects_11) mf-pool.$(OBJEXT)
 libmf_a_OBJECTS = $(nodist_libmf_a_OBJECTS)
 libmplib_a_AR = $(AR) $(ARFLAGS)
 libmplib_a_LIBADD =
-am__objects_12 = mplibdir/libmplib_a-decNumber.$(OBJEXT) \
-	mplibdir/libmplib_a-decContext.$(OBJEXT)
 am_libmplib_a_OBJECTS = mplibdir/libmplib_a-avl.$(OBJEXT) \
-	$(am__objects_12)
-am__objects_13 = libmplib_a-mp.$(OBJEXT)
-am__objects_14 = libmplib_a-mpmath.$(OBJEXT)
+	mplibdir/libmplib_a-decNumber.$(OBJEXT) \
+	mplibdir/libmplib_a-decContext.$(OBJEXT)
+am__objects_12 = libmplib_a-mp.$(OBJEXT)
+am__objects_13 = libmplib_a-mpmath.$(OBJEXT)
+am__objects_14 = libmplib_a-mpmathdecimal.$(OBJEXT)
 am__objects_15 = libmplib_a-mpmathdouble.$(OBJEXT)
-am__objects_16 = libmplib_a-mpmathdecimal.$(OBJEXT)
-am__objects_17 = libmplib_a-psout.$(OBJEXT)
-am__objects_18 = libmplib_a-svgout.$(OBJEXT)
-am__objects_19 = libmplib_a-pngout.$(OBJEXT)
-am__objects_20 = libmplib_a-mpstrings.$(OBJEXT)
+am__objects_16 = libmplib_a-mpstrings.$(OBJEXT)
+am__objects_17 = libmplib_a-pngout.$(OBJEXT)
+am__objects_18 = libmplib_a-psout.$(OBJEXT)
+am__objects_19 = libmplib_a-svgout.$(OBJEXT)
 nodist_libmplib_a_OBJECTS = libmplib_a-tfmin.$(OBJEXT) \
-	$(am__objects_13) $(am__objects_14) $(am__objects_15) \
-	$(am__objects_16) $(am__objects_17) $(am__objects_18) \
-	$(am__objects_19) $(am__objects_20)
+	$(am__objects_12) $(am__objects_13) $(am__objects_14) \
+	$(am__objects_15) $(am__objects_16) $(am__objects_17) \
+	$(am__objects_18) $(am__objects_19)
 libmplib_a_OBJECTS = $(am_libmplib_a_OBJECTS) \
 	$(nodist_libmplib_a_OBJECTS)
 libunilib_a_AR = $(AR) $(ARFLAGS)
@@ -720,8 +719,8 @@ inimf_DEPENDENCIES =
 nodist_initex_OBJECTS = initex-callexe.$(OBJEXT)
 initex_OBJECTS = $(nodist_initex_OBJECTS)
 initex_DEPENDENCIES =
-am__objects_21 = luatexdir/luajittex-luatex.$(OBJEXT)
-nodist_luajittex_OBJECTS = $(am__objects_21)
+am__objects_20 = luatexdir/luajittex-luatex.$(OBJEXT)
+nodist_luajittex_OBJECTS = $(am__objects_20)
 luajittex_OBJECTS = $(nodist_luajittex_OBJECTS)
 am__DEPENDENCIES_2 = libluajittex.a libjitff.a libunilib.a \
 	libluajitmisc.a libluajitsocket.a $(am__DEPENDENCIES_1) \
@@ -733,8 +732,8 @@ am__DEPENDENCIES_3 = $(proglib) $(am__DEPENDENCIES_1)
 luajittex_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(luajittex_CXXFLAGS) \
 	$(CXXFLAGS) $(luajittex_LDFLAGS) $(LDFLAGS) -o $@
-am__objects_22 = luatexdir/luatex-luatex.$(OBJEXT)
-nodist_luatex_OBJECTS = $(am__objects_22)
+am__objects_21 = luatexdir/luatex-luatex.$(OBJEXT)
+nodist_luatex_OBJECTS = $(am__objects_21)
 luatex_OBJECTS = $(nodist_luatex_OBJECTS)
 am__DEPENDENCIES_4 = $(am__DEPENDENCIES_1)
 am__DEPENDENCIES_5 = libluatex.a libff.a libunilib.a libluamisc.a \
@@ -763,8 +762,8 @@ nodist_mft_OBJECTS = mft.$(OBJEXT)
 mft_OBJECTS = $(nodist_mft_OBJECTS)
 mft_LDADD = $(LDADD)
 mft_DEPENDENCIES = $(proglib) $(am__DEPENDENCIES_1)
-am__objects_23 = mpost-mpxout.$(OBJEXT)
-nodist_mpost_OBJECTS = mpost-mpost.$(OBJEXT) $(am__objects_23)
+am__objects_22 = mpost-mpxout.$(OBJEXT)
+nodist_mpost_OBJECTS = mpost-mpost.$(OBJEXT) $(am__objects_22)
 mpost_OBJECTS = $(nodist_mpost_OBJECTS)
 nodist_patgen_OBJECTS = patgen.$(OBJEXT)
 patgen_OBJECTS = $(nodist_patgen_OBJECTS)
@@ -794,8 +793,8 @@ nodist_tangleboot_OBJECTS = tangleboot.$(OBJEXT)
 tangleboot_OBJECTS = $(nodist_tangleboot_OBJECTS)
 tangleboot_LDADD = $(LDADD)
 dist_tex_OBJECTS = tex-texextra.$(OBJEXT)
-am__objects_24 = tex-texini.$(OBJEXT) tex-tex0.$(OBJEXT)
-nodist_tex_OBJECTS = $(am__objects_24) tex-tex-pool.$(OBJEXT)
+am__objects_23 = tex-texini.$(OBJEXT) tex-tex0.$(OBJEXT)
+nodist_tex_OBJECTS = $(am__objects_23) tex-tex-pool.$(OBJEXT)
 tex_OBJECTS = $(dist_tex_OBJECTS) $(nodist_tex_OBJECTS)
 tex_DEPENDENCIES = $(am__DEPENDENCIES_3) $(am__DEPENDENCIES_1)
 nodist_tftopl_OBJECTS = tftopl.$(OBJEXT)
@@ -1585,7 +1584,7 @@ DISTCLEANFILES = $(EXTRA_LIBRARIES) CXXLD.sh tangle.c tangle.h \
 	mf-tangle $(nodist_mpost_SOURCES) mpxout-tangle mptrap.diffs \
 	ptmr.mpx tests/xptmr.mpx tests/xstory.mpx \
 	$(nodist_libmplib_a_SOURCES) mp-tangle mpmath-tangle \
-	mpmathdouble-tangle mpmathdecimal-tangle mpstrings-tangle \
+	mpmathdecimal-tangle mpmathdouble-tangle mpstrings-tangle \
 	psout-tangle svgout-tangle pngout-tangle \
 	$(nodist_libluatex_sources) luaimage.* luajitimage.* \
 	txt2zlib.c
@@ -1769,21 +1768,26 @@ nodist_mpost_SOURCES = mpost.c $(mpxout_c_h)
 mpxout_c_h = mpxout.c mpxout.h
 mpost_web = mplibdir/mpost.w mplibdir/mpxout.w
 mp_tests = mplibdir/dvitomp.test mplibdir/mptraptest
-libmplib_a_CPPFLAGS = $(CAIRO_INCLUDES) $(PIXMAN_INCLUDES) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(AM_CPPFLAGS) -I$(srcdir)/mplibdir
-decnumber_c_h = mplibdir/decNumber.c mplibdir/decNumber.h mplibdir/decNumberLocal.h mplibdir/decContext.h mplibdir/decContext.c
-libmplib_a_SOURCES = mplibdir/avl.h mplibdir/avl.c $(decnumber_c_h)
-nodist_libmplib_a_SOURCES = tfmin.c $(mp_c_h) $(mpmath_c_h) $(mpmathdouble_c_h) $(mpmathdecimal_c_h) $(psout_c_h) $(svgout_c_h) $(pngout_c_h) $(mpstrings_c_h)
+libmplib_a_CPPFLAGS = $(CAIRO_INCLUDES) $(PIXMAN_INCLUDES) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) \
+	$(AM_CPPFLAGS) -I$(srcdir)/mplibdir
+
+libmplib_a_SOURCES = mplibdir/avl.h mplibdir/avl.c mplibdir/decNumber.c mplibdir/decNumber.h \
+	mplibdir/decNumberLocal.h mplibdir/decContext.h mplibdir/decContext.c
+
+nodist_libmplib_a_SOURCES = tfmin.c $(mp_c_h) $(mpmath_c_h) $(mpmathdecimal_c_h) \
+	$(mpmathdouble_c_h) $(mpstrings_c_h) $(pngout_c_h) $(psout_c_h) $(svgout_c_h)
+
 mp_c_h = mp.c mplib.h mpmp.h
 mpmath_c_h = mpmath.h mpmath.c
-mpmathdouble_c_h = mpmathdouble.h mpmathdouble.c
 mpmathdecimal_c_h = mpmathdecimal.h mpmathdecimal.c
+mpmathdouble_c_h = mpmathdouble.h mpmathdouble.c
 mpstrings_c_h = mpstrings.h mpstrings.c
 psout_c_h = mppsout.h psout.c mplibps.h
 svgout_c_h = mplibsvg.h mpsvgout.h svgout.c
 pngout_c_h = mplibpng.h mppngout.h pngout.c
 libmplib_web = mplibdir/mp.w mplibdir/psout.w mplibdir/svgout.w \
-	mplibdir/pngout.w mplibdir/mpmath.w mplibdir/mpmathdouble.w \
-	mplibdir/mpmathdecimal.w mplibdir/mpstrings.w mplibdir/tfmin.w
+	mplibdir/pngout.w mplibdir/mpmath.w mplibdir/mpmathdecimal.w \
+	mplibdir/mpmathdouble.w mplibdir/mpstrings.w mplibdir/tfmin.w
 libluasocket_a_DEPENDENCIES = $(ZLIB_DEPEND)
 libluajitsocket_a_DEPENDENCIES = $(ZLIB_DEPEND)
 libluasocket_a_CPPFLAGS = \
@@ -9069,6 +9073,20 @@ libmplib_a-mpmath.obj: mpmath.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-mpmath.obj `if test -f 'mpmath.c'; then $(CYGPATH_W) 'mpmath.c'; else $(CYGPATH_W) '$(srcdir)/mpmath.c'; fi`
 
+libmplib_a-mpmathdecimal.o: mpmathdecimal.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-mpmathdecimal.o -MD -MP -MF $(DEPDIR)/libmplib_a-mpmathdecimal.Tpo -c -o libmplib_a-mpmathdecimal.o `test -f 'mpmathdecimal.c' || echo '$(srcdir)/'`mpmathdecimal.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmplib_a-mpmathdecimal.Tpo $(DEPDIR)/libmplib_a-mpmathdecimal.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpmathdecimal.c' object='libmplib_a-mpmathdecimal.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-mpmathdecimal.o `test -f 'mpmathdecimal.c' || echo '$(srcdir)/'`mpmathdecimal.c
+
+libmplib_a-mpmathdecimal.obj: mpmathdecimal.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-mpmathdecimal.obj -MD -MP -MF $(DEPDIR)/libmplib_a-mpmathdecimal.Tpo -c -o libmplib_a-mpmathdecimal.obj `if test -f 'mpmathdecimal.c'; then $(CYGPATH_W) 'mpmathdecimal.c'; else $(CYGPATH_W) '$(srcdir)/mpmathdecimal.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmplib_a-mpmathdecimal.Tpo $(DEPDIR)/libmplib_a-mpmathdecimal.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpmathdecimal.c' object='libmplib_a-mpmathdecimal.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-mpmathdecimal.obj `if test -f 'mpmathdecimal.c'; then $(CYGPATH_W) 'mpmathdecimal.c'; else $(CYGPATH_W) '$(srcdir)/mpmathdecimal.c'; fi`
+
 libmplib_a-mpmathdouble.o: mpmathdouble.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-mpmathdouble.o -MD -MP -MF $(DEPDIR)/libmplib_a-mpmathdouble.Tpo -c -o libmplib_a-mpmathdouble.o `test -f 'mpmathdouble.c' || echo '$(srcdir)/'`mpmathdouble.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmplib_a-mpmathdouble.Tpo $(DEPDIR)/libmplib_a-mpmathdouble.Po
@@ -9083,19 +9101,33 @@ libmplib_a-mpmathdouble.obj: mpmathdouble.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-mpmathdouble.obj `if test -f 'mpmathdouble.c'; then $(CYGPATH_W) 'mpmathdouble.c'; else $(CYGPATH_W) '$(srcdir)/mpmathdouble.c'; fi`
 
-libmplib_a-mpmathdecimal.o: mpmathdecimal.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-mpmathdecimal.o -MD -MP -MF $(DEPDIR)/libmplib_a-mpmathdecimal.Tpo -c -o libmplib_a-mpmathdecimal.o `test -f 'mpmathdecimal.c' || echo '$(srcdir)/'`mpmathdecimal.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmplib_a-mpmathdecimal.Tpo $(DEPDIR)/libmplib_a-mpmathdecimal.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpmathdecimal.c' object='libmplib_a-mpmathdecimal.o' libtool=no @AMDEPBACKSLASH@
+libmplib_a-mpstrings.o: mpstrings.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-mpstrings.o -MD -MP -MF $(DEPDIR)/libmplib_a-mpstrings.Tpo -c -o libmplib_a-mpstrings.o `test -f 'mpstrings.c' || echo '$(srcdir)/'`mpstrings.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmplib_a-mpstrings.Tpo $(DEPDIR)/libmplib_a-mpstrings.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpstrings.c' object='libmplib_a-mpstrings.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-mpmathdecimal.o `test -f 'mpmathdecimal.c' || echo '$(srcdir)/'`mpmathdecimal.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-mpstrings.o `test -f 'mpstrings.c' || echo '$(srcdir)/'`mpstrings.c
 
-libmplib_a-mpmathdecimal.obj: mpmathdecimal.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-mpmathdecimal.obj -MD -MP -MF $(DEPDIR)/libmplib_a-mpmathdecimal.Tpo -c -o libmplib_a-mpmathdecimal.obj `if test -f 'mpmathdecimal.c'; then $(CYGPATH_W) 'mpmathdecimal.c'; else $(CYGPATH_W) '$(srcdir)/mpmathdecimal.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmplib_a-mpmathdecimal.Tpo $(DEPDIR)/libmplib_a-mpmathdecimal.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpmathdecimal.c' object='libmplib_a-mpmathdecimal.obj' libtool=no @AMDEPBACKSLASH@
+libmplib_a-mpstrings.obj: mpstrings.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-mpstrings.obj -MD -MP -MF $(DEPDIR)/libmplib_a-mpstrings.Tpo -c -o libmplib_a-mpstrings.obj `if test -f 'mpstrings.c'; then $(CYGPATH_W) 'mpstrings.c'; else $(CYGPATH_W) '$(srcdir)/mpstrings.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmplib_a-mpstrings.Tpo $(DEPDIR)/libmplib_a-mpstrings.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpstrings.c' object='libmplib_a-mpstrings.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-mpmathdecimal.obj `if test -f 'mpmathdecimal.c'; then $(CYGPATH_W) 'mpmathdecimal.c'; else $(CYGPATH_W) '$(srcdir)/mpmathdecimal.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-mpstrings.obj `if test -f 'mpstrings.c'; then $(CYGPATH_W) 'mpstrings.c'; else $(CYGPATH_W) '$(srcdir)/mpstrings.c'; fi`
+
+libmplib_a-pngout.o: pngout.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-pngout.o -MD -MP -MF $(DEPDIR)/libmplib_a-pngout.Tpo -c -o libmplib_a-pngout.o `test -f 'pngout.c' || echo '$(srcdir)/'`pngout.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmplib_a-pngout.Tpo $(DEPDIR)/libmplib_a-pngout.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pngout.c' object='libmplib_a-pngout.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-pngout.o `test -f 'pngout.c' || echo '$(srcdir)/'`pngout.c
+
+libmplib_a-pngout.obj: pngout.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-pngout.obj -MD -MP -MF $(DEPDIR)/libmplib_a-pngout.Tpo -c -o libmplib_a-pngout.obj `if test -f 'pngout.c'; then $(CYGPATH_W) 'pngout.c'; else $(CYGPATH_W) '$(srcdir)/pngout.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmplib_a-pngout.Tpo $(DEPDIR)/libmplib_a-pngout.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pngout.c' object='libmplib_a-pngout.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-pngout.obj `if test -f 'pngout.c'; then $(CYGPATH_W) 'pngout.c'; else $(CYGPATH_W) '$(srcdir)/pngout.c'; fi`
 
 libmplib_a-psout.o: psout.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-psout.o -MD -MP -MF $(DEPDIR)/libmplib_a-psout.Tpo -c -o libmplib_a-psout.o `test -f 'psout.c' || echo '$(srcdir)/'`psout.c
@@ -9124,34 +9156,6 @@ libmplib_a-svgout.obj: svgout.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='svgout.c' object='libmplib_a-svgout.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-svgout.obj `if test -f 'svgout.c'; then $(CYGPATH_W) 'svgout.c'; else $(CYGPATH_W) '$(srcdir)/svgout.c'; fi`
-
-libmplib_a-pngout.o: pngout.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-pngout.o -MD -MP -MF $(DEPDIR)/libmplib_a-pngout.Tpo -c -o libmplib_a-pngout.o `test -f 'pngout.c' || echo '$(srcdir)/'`pngout.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmplib_a-pngout.Tpo $(DEPDIR)/libmplib_a-pngout.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pngout.c' object='libmplib_a-pngout.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-pngout.o `test -f 'pngout.c' || echo '$(srcdir)/'`pngout.c
-
-libmplib_a-pngout.obj: pngout.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-pngout.obj -MD -MP -MF $(DEPDIR)/libmplib_a-pngout.Tpo -c -o libmplib_a-pngout.obj `if test -f 'pngout.c'; then $(CYGPATH_W) 'pngout.c'; else $(CYGPATH_W) '$(srcdir)/pngout.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmplib_a-pngout.Tpo $(DEPDIR)/libmplib_a-pngout.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pngout.c' object='libmplib_a-pngout.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-pngout.obj `if test -f 'pngout.c'; then $(CYGPATH_W) 'pngout.c'; else $(CYGPATH_W) '$(srcdir)/pngout.c'; fi`
-
-libmplib_a-mpstrings.o: mpstrings.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-mpstrings.o -MD -MP -MF $(DEPDIR)/libmplib_a-mpstrings.Tpo -c -o libmplib_a-mpstrings.o `test -f 'mpstrings.c' || echo '$(srcdir)/'`mpstrings.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmplib_a-mpstrings.Tpo $(DEPDIR)/libmplib_a-mpstrings.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpstrings.c' object='libmplib_a-mpstrings.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-mpstrings.o `test -f 'mpstrings.c' || echo '$(srcdir)/'`mpstrings.c
-
-libmplib_a-mpstrings.obj: mpstrings.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-mpstrings.obj -MD -MP -MF $(DEPDIR)/libmplib_a-mpstrings.Tpo -c -o libmplib_a-mpstrings.obj `if test -f 'mpstrings.c'; then $(CYGPATH_W) 'mpstrings.c'; else $(CYGPATH_W) '$(srcdir)/mpstrings.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmplib_a-mpstrings.Tpo $(DEPDIR)/libmplib_a-mpstrings.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpstrings.c' object='libmplib_a-mpstrings.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-mpstrings.obj `if test -f 'mpstrings.c'; then $(CYGPATH_W) 'mpstrings.c'; else $(CYGPATH_W) '$(srcdir)/mpstrings.c'; fi`
 
 luatexdir/unilib/libunilib_a-ArabicForms.o: luatexdir/unilib/ArabicForms.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libunilib_a_CPPFLAGS) $(CPPFLAGS) $(libunilib_a_CFLAGS) $(CFLAGS) -MT luatexdir/unilib/libunilib_a-ArabicForms.o -MD -MP -MF luatexdir/unilib/$(DEPDIR)/libunilib_a-ArabicForms.Tpo -c -o luatexdir/unilib/libunilib_a-ArabicForms.o `test -f 'luatexdir/unilib/ArabicForms.c' || echo '$(srcdir)/'`luatexdir/unilib/ArabicForms.c
@@ -10675,20 +10679,25 @@ $(mpmath_c_h): mpmath-tangle
 mpmath-tangle: ctangle$(EXEEXT) mplibdir/mpmath.w tangle-sh
 	@$(mp_ctangle_sh) mpmath
 
-$(mpmathdouble_c_h): mpmathdouble-tangle
-	@$(mp_ctangle_sh) mpmathdouble
-mpmathdouble-tangle: ctangle$(EXEEXT) mplibdir/mpmathdouble.w tangle-sh
-	@$(mp_ctangle_sh) mpmathdouble
-
 $(mpmathdecimal_c_h): mpmathdecimal-tangle
 	@$(mp_ctangle_sh) mpmathdecimal
 mpmathdecimal-tangle: ctangle$(EXEEXT) mplibdir/mpmathdecimal.w tangle-sh
 	@$(mp_ctangle_sh) mpmathdecimal
 
+$(mpmathdouble_c_h): mpmathdouble-tangle
+	@$(mp_ctangle_sh) mpmathdouble
+mpmathdouble-tangle: ctangle$(EXEEXT) mplibdir/mpmathdouble.w tangle-sh
+	@$(mp_ctangle_sh) mpmathdouble
+
 $(mpstrings_c_h): mpstrings-tangle
 	@$(mp_ctangle_sh) mpstrings
 mpstrings-tangle: ctangle$(EXEEXT) mplibdir/mpstrings.w tangle-sh
 	@$(mp_ctangle_sh) mpstrings
+
+$(pngout_c_h): pngout-tangle
+	@$(mp_ctangle_sh) pngout
+pngout-tangle: ctangle$(EXEEXT) mplibdir/pngout.w tangle-sh
+	@$(mp_ctangle_sh) pngout
 
 $(psout_c_h): psout-tangle
 	@$(mp_ctangle_sh) psout
@@ -10699,11 +10708,6 @@ $(svgout_c_h): svgout-tangle
 	@$(mp_ctangle_sh) svgout
 svgout-tangle: ctangle$(EXEEXT) mplibdir/svgout.w tangle-sh
 	@$(mp_ctangle_sh) svgout
-
-$(pngout_c_h): pngout-tangle
-	@$(mp_ctangle_sh) pngout
-pngout-tangle: ctangle$(EXEEXT) mplibdir/pngout.w tangle-sh
-	@$(mp_ctangle_sh) pngout
 
 $(libmplib_a_OBJECTS): $(nodist_libmplib_a_SOURCES) $(KPATHSEA_DEPEND) $(CAIRO_DEPEND)
 
