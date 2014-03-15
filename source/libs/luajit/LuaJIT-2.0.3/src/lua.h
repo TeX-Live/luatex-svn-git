@@ -103,6 +103,9 @@ typedef LUA_NUMBER lua_Number;
 typedef LUA_INTEGER lua_Integer;
 
 
+/* communication with LuaJiTTeX */
+LUA_API int luajittex_choose_hash_function; 
+
 
 /*
 ** state manipulation

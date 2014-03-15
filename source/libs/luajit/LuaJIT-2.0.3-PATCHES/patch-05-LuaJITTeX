@@ -1,12 +1,24 @@
-diff -u LuaJIT-2.0.3.orig/src/lj_str.c LuaJIT-2.0.3/src/lj_str.c
---- LuaJIT-2.0.3.orig/src/lj_str.c	2014-03-13 12:38:39.403900527 +0100
-+++ LuaJIT-2.0.3/src/lj_str.c	2014-03-13 13:19:53.956003116 +0100
+diff -ur -x lbitlib.c LuaJIT-2.0.3.orig/src/lj_def.h LuaJIT-2.0.3/src/lj_def.h
+--- LuaJIT-2.0.3.orig/src/lj_def.h	2014-03-12 13:10:00.000000000 +0100
++++ LuaJIT-2.0.3/src/lj_def.h	2014-03-14 09:30:30.000000000 +0100
+@@ -62,7 +62,7 @@
+ #define LJ_MAX_BCINS	(1<<26)		/* Max. # of bytecode instructions. */
+ #define LJ_MAX_SLOTS	250		/* Max. # of slots in a Lua func. */
+ #define LJ_MAX_LOCVAR	200		/* Max. # of local variables. */
+-#define LJ_MAX_UPVAL	60		/* Max. # of upvalues. */
++#define LJ_MAX_UPVAL	249		/* Max. # of upvalues. */
+ 
+ #define LJ_MAX_IDXCHAIN	100		/* __index/__newindex chain limit. */
+ #define LJ_STACK_EXTRA	5		/* Extra stack space (metamethods). */
+diff -ur -x lbitlib.c LuaJIT-2.0.3.orig/src/lj_str.c LuaJIT-2.0.3/src/lj_str.c
+--- LuaJIT-2.0.3.orig/src/lj_str.c	2014-03-12 13:10:00.000000000 +0100
++++ LuaJIT-2.0.3/src/lj_str.c	2014-03-14 10:04:14.540946490 +0100
 @@ -90,6 +90,8 @@
    g->strhash = newhash;
  }
  
 +#define cast(t, exp)	((t)(exp))
-+LUA_API int luajittex_choose_hash_function = 0 ; 
++int luajittex_choose_hash_function = 0 ; 
  /* Intern a string and return string object. */
  GCstr *lj_str_new(lua_State *L, const char *str, size_t lenx)
  {
@@ -72,3 +84,16 @@ diff -u LuaJIT-2.0.3.orig/src/lj_str.c LuaJIT-2.0.3/src/lj_str.c
    /* Check if the string has already been interned. */
    o = gcref(g->strhash[h & g->strmask]);
    if (LJ_LIKELY((((uintptr_t)str+len-1) & (LJ_PAGESIZE-1)) <= LJ_PAGESIZE-4)) {
+diff -ur -x lbitlib.c LuaJIT-2.0.3.orig/src/lua.h LuaJIT-2.0.3/src/lua.h
+--- LuaJIT-2.0.3.orig/src/lua.h	2014-03-14 09:15:50.000000000 +0100
++++ LuaJIT-2.0.3/src/lua.h	2014-03-14 10:08:51.000000000 +0100
+@@ -103,6 +103,9 @@
+ typedef LUA_INTEGER lua_Integer;
+ 
+ 
++/* communication with LuaJiTTeX */
++LUA_API int luajittex_choose_hash_function; 
++
+ 
+ /*
+ ** state manipulation
