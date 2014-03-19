@@ -2481,6 +2481,13 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, const char *s)
             case 'd':
                 lua_pushnumber(L, user_node_value(n));
                 break;
+            case 'l':
+                if (user_node_value(n) != 0) {
+                    lua_rawgeti(L, LUA_REGISTRYINDEX, user_node_value(n));
+                } else {
+                    lua_pushnil(L);
+                }
+                break;
             case 'n':
                 nodelib_pushlist(L, user_node_value(n));
                 break;
@@ -2522,7 +2529,7 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, const char *s)
             lua_pushnumber(L, pdf_literal_mode(n));
         } else if (lua_key_eq(s, data)) {
             if (pdf_literal_type(n) == lua_refid_literal) {
-                lua_rawgeti(Luas, LUA_REGISTRYINDEX, pdf_literal_data(n));
+                lua_rawgeti(L, LUA_REGISTRYINDEX, pdf_literal_data(n));
             } else {
                 tokenlist_to_luastring(L, pdf_literal_data(n));
             }
@@ -2530,14 +2537,14 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, const char *s)
             lua_pushnil(L);
         }
     } else if (t == late_lua_node) {
-        if (lua_key_eq(s, name)) {
-            tokenlist_to_luastring(L, late_lua_name(n));
-        } else if (lua_key_eq(s, data) || lua_key_eq(s, string)) {
+        if (lua_key_eq(s, string) || lua_key_eq(s, data)) {
             if (late_lua_type(n) == lua_refid_literal) {
-                lua_rawgeti(Luas, LUA_REGISTRYINDEX, late_lua_data(n));
+                lua_rawgeti(L, LUA_REGISTRYINDEX, late_lua_data(n));
             } else {
                 tokenlist_to_luastring(L, late_lua_data(n));
             }
+        } else if (lua_key_eq(s, name)) {
+            tokenlist_to_luastring(L, late_lua_name(n));
         } else {
             lua_pushnil(L);
         }
@@ -3231,6 +3238,13 @@ static void lua_nodelib_direct_getfield_whatsit(lua_State * L, int n, const char
             case 'd':
                 lua_pushnumber(L, user_node_value(n));
                 break;
+            case 'l':
+                if (user_node_value(n) != 0) {
+                    lua_rawgeti(L, LUA_REGISTRYINDEX, user_node_value(n));
+                } else {
+                    lua_pushnil(L);
+                }
+                break;
             case 'n':
                 nodelib_pushdirect(user_node_value(n));
                 break;
@@ -3270,7 +3284,7 @@ static void lua_nodelib_direct_getfield_whatsit(lua_State * L, int n, const char
             lua_pushnumber(L, pdf_literal_mode(n));
         } else if (lua_key_eq(s, data)) {
             if (pdf_literal_type(n) == lua_refid_literal) {
-                lua_rawgeti(Luas, LUA_REGISTRYINDEX, pdf_literal_data(n));
+                lua_rawgeti(L, LUA_REGISTRYINDEX, pdf_literal_data(n));
             } else {
                 tokenlist_to_luastring(L, pdf_literal_data(n));
             }
@@ -3278,14 +3292,14 @@ static void lua_nodelib_direct_getfield_whatsit(lua_State * L, int n, const char
             lua_pushnil(L);
         }
     } else if (t == late_lua_node) {
-        if (lua_key_eq(s, name)) {
-            tokenlist_to_luastring(L, late_lua_name(n));
-        } else if (lua_key_eq(s, data) || lua_key_eq(s, string)) {
+        if (lua_key_eq(s, string) || lua_key_eq(s, data)) {
             if (late_lua_type(n) == lua_refid_literal) {
-                lua_rawgeti(Luas, LUA_REGISTRYINDEX, late_lua_data(n));
+                lua_rawgeti(L, LUA_REGISTRYINDEX, late_lua_data(n));
             } else {
                 tokenlist_to_luastring(L, late_lua_data(n));
             }
+        } else if (lua_key_eq(s, name)) {
+            tokenlist_to_luastring(L, late_lua_name(n));
         } else {
             lua_pushnil(L);
         }
@@ -4353,6 +4367,24 @@ static int lua_nodelib_direct_tonode(lua_State * L)
 
 /* node.setfield */
 
+/* ls-hh: normally a value will not be reassigned */
+
+#define cleanup_late_lua(n) do { \
+    if (late_lua_data(n) != 0) { \
+        if (late_lua_type(n) == normal) { \
+            delete_token_ref(late_lua_data(n)); \
+        } else if (late_lua_type(n) == lua_refid_literal) { \
+            luaL_unref(L, LUA_REGISTRYINDEX,late_lua_data(n)); \
+        } \
+    } \
+} while (0)
+
+#define cleanup_late_lua_name(n) do { \
+    if (late_lua_name(n) != 0) { \
+        delete_token_ref(late_lua_name(n)); \
+    } \
+} while (0)
+
 static int lua_nodelib_setfield_whatsit(lua_State * L, int n, const char *s)
 {
     int t ;
@@ -4385,12 +4417,8 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, const char *s)
             return nodelib_cantset(L, n, s);
         }
     } else if (t == late_lua_node) {
-        if (lua_key_eq(s, data)) {
-            late_lua_data(n) = nodelib_gettoks(L, 3);
-            late_lua_type(n) = normal;
-        } else if (lua_key_eq(s, name)) {
-            late_lua_name(n) = nodelib_gettoks(L, 3);
-        } else if (lua_key_eq(s, string)) {
+        if (lua_key_eq(s, string)) {
+            cleanup_late_lua(n) ; /* ls-hh */
             if (ini_version) {
                 late_lua_data(n) = nodelib_gettoks(L, 3);
                 late_lua_type(n) = normal;
@@ -4399,9 +4427,17 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, const char *s)
                 late_lua_data(n) = luaL_ref(L, LUA_REGISTRYINDEX);
                 late_lua_type(n) = lua_refid_literal;
             }
+        } else if (lua_key_eq(s, data)) {
+            cleanup_late_lua(n) ; /* ls-hh */
+            late_lua_data(n) = nodelib_gettoks(L, 3);
+            late_lua_type(n) = normal;
+        } else if (lua_key_eq(s, name)) {
+            cleanup_late_lua_name(n) ; /* ls-hh */
+            late_lua_name(n) = nodelib_gettoks(L, 3);
         } else {
             return nodelib_cantset(L, n, s);
         }
+        /* done */
     } else if (t == user_defined_node) {
         if (lua_key_eq(s, user_id)) {
             user_node_id(n) = (halfword) lua_tointeger(L, 3);
@@ -4414,6 +4450,13 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, const char *s)
                 break;
             case 'd':
                 user_node_value(n) = (halfword) lua_tointeger(L, 3);
+                break;
+            case 'l':
+                lua_pushvalue(L, 3);
+                if (user_node_value(n) != 0) {
+                    luaL_unref(L, LUA_REGISTRYINDEX,user_node_value(n));
+                }
+                user_node_value(n) = luaL_ref(L, LUA_REGISTRYINDEX);
                 break;
             case 'n':
                 user_node_value(n) = nodelib_getlist(L, 3);
@@ -5120,12 +5163,8 @@ static int lua_nodelib_direct_setfield_whatsit(lua_State * L, int n, const char 
             return nodelib_cantset(L, n, s);
         }
     } else if (t == late_lua_node) {
-        if (lua_key_eq(s, data)) {
-            late_lua_data(n) = nodelib_gettoks(L, 3);
-            late_lua_type(n) = normal;
-        } else if (lua_key_eq(s, name)) {
-            late_lua_name(n) = nodelib_gettoks(L, 3);
-        } else if (lua_key_eq(s, string)) {
+        if (lua_key_eq(s, string)) {
+            cleanup_late_lua(n) ; /* ls-hh */
             if (ini_version) {
                 late_lua_data(n) = nodelib_gettoks(L, 3);
                 late_lua_type(n) = normal;
@@ -5134,6 +5173,13 @@ static int lua_nodelib_direct_setfield_whatsit(lua_State * L, int n, const char 
                 late_lua_data(n) = luaL_ref(L, LUA_REGISTRYINDEX);
                 late_lua_type(n) = lua_refid_literal;
             }
+        } else if (lua_key_eq(s, data)) {
+            cleanup_late_lua(n) ; /* ls-hh */
+            late_lua_data(n) = nodelib_gettoks(L, 3);
+            late_lua_type(n) = normal;
+        } else if (lua_key_eq(s, name)) {
+            cleanup_late_lua_name(n) ; /* ls-hh */
+            late_lua_name(n) = nodelib_gettoks(L, 3);
         } else {
             return nodelib_cantset(L, n, s);
         }
@@ -5149,6 +5195,13 @@ static int lua_nodelib_direct_setfield_whatsit(lua_State * L, int n, const char 
                 break;
             case 'd':
                 user_node_value(n) = (halfword) lua_tointeger(L, 3);
+                break;
+            case 'l':
+                lua_pushvalue(L, 3);
+                if (user_node_value(n) != 0) {
+                    luaL_unref(L, LUA_REGISTRYINDEX,user_node_value(n));
+                }
+                user_node_value(n) = luaL_ref(L, LUA_REGISTRYINDEX);
                 break;
             case 'n':
                 user_node_value(n) = nodelib_getlist(L, 3);
@@ -6024,7 +6077,7 @@ static int lua_nodelib_attributes_to_properties(lua_State * L)
                 }
             }
         }
-        lua_rawset(Luas,-3);
+        lua_rawset(L,-3);
         n = vlink(n);
     }
     return 1 ;
