@@ -451,16 +451,30 @@ static void luacall(int p, int nameptr, boolean is_string) /* hh-ls: optimized l
     }
     lua_active++;
     if (is_string) {
-       const char *ss = NULL;
-       lua_rawgeti(Luas, LUA_REGISTRYINDEX, p);
-       ss = lua_tolstring(Luas, -1, &ll);
-       s = xmalloc(ll+1);
-       memcpy(s,ss,ll+1);
-       lua_pop(Luas,1);
+        const char *ss = NULL;
+        lua_rawgeti(Luas, LUA_REGISTRYINDEX, p);
+        if (lua_isfunction(Luas,-1)) {
+            int base = lua_gettop(Luas);        /* function index */
+            lua_checkstack(Luas, 1);
+            lua_pushcfunction(Luas, lua_traceback);     /* push traceback function */
+            lua_insert(Luas, base);     /* put it under chunk  */
+            i = lua_pcall(Luas, 0, 0, base);
+            lua_remove(Luas, base);     /* remove traceback function */
+            if (i != 0) {
+                lua_gc(Luas, LUA_GCCOLLECT, 0);
+                Luas = luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
+            }
+            lua_active--;
+            return ;
+        }
+        ss = lua_tolstring(Luas, -1, &ll);
+        s = xmalloc(ll+1);
+        memcpy(s,ss,ll+1);
+        lua_pop(Luas,1);
     } else {
-       int l = 0;
-       s = tokenlist_to_cstring(p, 1, &l);
-       ll = (size_t)l;
+        int l = 0;
+        s = tokenlist_to_cstring(p, 1, &l);
+        ll = (size_t)l;
     }
     ls.s = s;
     ls.size = ll;
@@ -499,6 +513,7 @@ static void luacall(int p, int nameptr, boolean is_string) /* hh-ls: optimized l
     }
     lua_active--;
 }
+
 
 @ @c
 void late_lua(PDF pdf, halfword p)
