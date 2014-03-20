@@ -384,8 +384,10 @@ chunk, but in this case the name will be taken from the
 \type{lua.name} array (see the documentation of the \type{lua} table
 further in this manual). This syntax is new in version 0.36.0.
 
-The chunk name should not start with a \type{@}, or it will be displayed
-as a file name (this is a quirk in the current \LUA\ implementation).
+The chunk name should not start with a \type {@}, or it will be displayed as a
+file name. The name will show up in double quotes with \type {string} prepended.
+This can be avoided by starting the name with a \type {=}. Both the \type {@} and
+\type {=} are part of the low level \LUA\ error reporting mechanism.
 
 The \tex{directlua} command is expandable. Since it passes {\LUA} code to the
 {\LUA} interpreter its expansion from the {\TEX} viewpoint is usually empty.
@@ -439,6 +441,7 @@ assertion errors from within the \TEX\ portion of the executable.
 The behavior documented in the above subsection is considered stable
 in the sense that there will not be backward-incompatible changes any
 more.
+
 
 \subsection{\tex{luafunction}}
 
@@ -9883,6 +9886,9 @@ Id: \showid{whatsit,pdf_save_pos}
 
 \subsubsection{late_lua nodes}
 
+If you use the string version you can either assign a string or a function. When
+at shipout time the node is consulted a string is translated to a function.
+
 Valid fields: \showfields{whatsit,late_lua}\crlf
 Id: \showid{whatsit,late_lua}
 
@@ -9963,16 +9969,20 @@ Id: \showid{whatsit,user_defined}
 \NC          \NC table \NC \NC\NR
 \stoptabulate
 
-The \type{type} can have one of five distinct values:
+The \type{type} can have one of six distinct values:
 
 \starttabulate[|lT|p|]
 \NC \ssbf value   \NC  \bf explanation \NC\NR
 \NC  97           \NC  the value is an attribute node list \NC\NR
 \NC  100          \NC  the value is a number \NC\NR
+\NC  108          \NC  a lua variable \NC\NR
 \NC  110          \NC  the value is a node list \NC\NR
 \NC  115          \NC  the value is a string\NC\NR
 \NC  116          \NC  the value is a token list in \LUA\ table form\NC\NR
 \stoptabulate
+
+These numbers are in fact \ASCII\ values, so the 108 is for instance 
+the numeric value of character \type {l}.
 
 \section{Two access models}
 
