@@ -338,6 +338,7 @@ void copy_pdf_literal(pointer r, pointer p)
     }
 }
 
+@ @c
 void copy_late_lua(pointer r, pointer p)
 {
     late_lua_type(r) = late_lua_type(p);
@@ -349,6 +350,15 @@ void copy_late_lua(pointer r, pointer p)
     } else {
         lua_rawgeti(Luas, LUA_REGISTRYINDEX, late_lua_data(p));
         late_lua_data(r) = luaL_ref(Luas, LUA_REGISTRYINDEX);
+    }
+}
+
+@ @c
+void copy_user_lua(pointer r, pointer p)
+{
+    if (user_node_value(p) != 0) {
+        lua_rawgeti(Luas, LUA_REGISTRYINDEX, user_node_value(p));
+        user_node_value(r) = luaL_ref(Luas, LUA_REGISTRYINDEX);
     }
 }
 
@@ -373,6 +383,15 @@ void free_late_lua(pointer p)
         luaL_unref(Luas, LUA_REGISTRYINDEX, late_lua_data(p));
     }
 }
+
+@ @c
+void free_user_lua(pointer p)
+{
+    if (user_node_value(p) != 0) {
+        luaL_unref(Luas, LUA_REGISTRYINDEX, user_node_value(p));
+    }
+}
+
 
 @ @c
 void show_pdf_literal(pointer p)
