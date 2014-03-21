@@ -162,8 +162,7 @@ static boolean writepk(PDF pdf, internal_font_number f)
     }
     t3_image_used = true;
     is_pk_font = true;
-    if (tracefilenames)
-        tex_printf(" <%s", (char *) name);
+    report_start_file(filetype_font,(char *) name);
     cd.rastersize = 256;
     cd.raster = xtalloc((unsigned long) cd.rastersize, halfword);
     check_preamble = true;
@@ -378,7 +377,6 @@ void writet3(PDF pdf, internal_font_number f)
         }
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
-    if (tracefilenames)
-        tex_printf(">");
+    report_stop_file(filetype_font);
     cur_file_name = NULL;
 }

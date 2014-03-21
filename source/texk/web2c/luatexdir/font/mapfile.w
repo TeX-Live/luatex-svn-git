@@ -517,14 +517,12 @@ static void fm_read_info(void)
                                  &file_opened, &fm_buffer, &fm_size)) {
                     if (file_opened) {
                         if (fm_size > 0) {
-                            if (tracefilenames)
-                                tex_printf("{%s", cur_file_name);
+                            report_start_file(filetype_map,cur_file_name);
                             while (!fm_eof()) {
                                 fm_scan_line();
                                 mitem->lineno++;
                             }
-                            if (tracefilenames)
-                                tex_printf("}");
+                            report_stop_file(filetype_map);
                             fm_file = NULL;
                         }
                     } else {
@@ -538,13 +536,13 @@ static void fm_read_info(void)
                     luatex_warn("cannot open font map file (%s)", cur_file_name);
                 } else {
                     fm_read_file();
-                    tex_printf("{%s", cur_file_name);
+                    report_start_file(filetype_map,cur_file_name);
                     while (!fm_eof()) {
                         fm_scan_line();
                         mitem->lineno++;
                     }
                     fm_close();
-                    tex_printf("}");
+                    report_stop_file(filetype_map);
                     fm_file = NULL;
                 }
             }

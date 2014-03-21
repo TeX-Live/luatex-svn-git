@@ -60,6 +60,8 @@ typedef enum {
     finish_pdffile_callback,
     finish_pdfpage_callback,
     pre_dump_callback,
+    start_file_callback,
+    stop_file_callback,
     total_callbacks
 } callback_callback_types;
 
@@ -94,5 +96,48 @@ extern char *get_lua_name(int i);
 extern char *luatex_find_file(const char *s, int callback_index);
 extern int readbinfile(FILE * f, unsigned char **b, int *s);
 
+#define filetype_unknown 0
+#define filetype_tex     1
+#define filetype_map     2
+#define filetype_image   3
+#define filetype_subset  4
+#define filetype_font    5
+
+static const char *const filetypes_left[]  = { "?", "(", "{", "<", "<", "<<" } ;
+static const char *const filetypes_right[] = { "?", ")", "}", ">", ">", ">>" } ;
+
+#define report_start_file(left,name) do { \
+    if (tracefilenames) { \
+        int report_id = callback_defined(start_file_callback); \
+        if (report_id == 0) { \
+            if (left == 1) { \
+                /* we only do this for traditional name reporting, normally name is iname */ \
+                if (term_offset + strlen(name) > max_print_line - 2) \
+                    print_ln(); \
+                else if ((term_offset > 0) || (file_offset > 0)) \
+                    print_char(' '); \
+                tex_printf("%s", filetypes_left[left]); \
+                tprint_file_name(NULL, (unsigned char *) name, NULL); \
+            } else { \
+                tex_printf("%s", filetypes_left[left]); \
+                tex_printf("%s", (unsigned char *) name); \
+            } \
+        } else { \
+          /*  (void) run_callback(report_id, "dS->",left,(unsigned char *) fullnameoffile); */ \
+            (void) run_callback(report_id, "dS->",left,name); \
+        } \
+    } \
+} while (0) 
+
+#define report_stop_file(right) do { \
+    if (tracefilenames) { \
+        int report_id = callback_defined(stop_file_callback); \
+        if (report_id == 0) { \
+            tex_printf("%s", filetypes_right[right]); \
+        } else { \
+            (void) run_callback(report_id, "d->",right); \
+        } \
+    } \
+} while (0)
 
 #endif

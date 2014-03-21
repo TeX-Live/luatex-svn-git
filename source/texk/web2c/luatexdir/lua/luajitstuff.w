@@ -483,16 +483,16 @@ static void luacall(int p, int nameptr, boolean is_string) /* hh-ls: optimized l
             int l = 0; /* not used */
             lua_id = tokenlist_to_cstring(nameptr, 1, &l);
             i = lua_load(Luas, getS, &ls, lua_id);
-            xfree(lua_id);
+	    xfree(lua_id);
         } else if (nameptr < 0) {
             lua_id = get_lua_name((nameptr + 65536));
             if (lua_id != NULL) {
                 i = lua_load(Luas, getS, &ls, lua_id);
             } else {
-                i = lua_load(Luas, getS, &ls, "\\latelua ");
+                i = lua_load(Luas, getS, &ls, "=[\\latelua]");
             }
         } else {
-            i = lua_load(Luas, getS, &ls, "\\latelua ");
+            i = lua_load(Luas, getS, &ls, "=[\\latelua]");
         }
         if (i != 0) {
             Luas = luatex_error(Luas, (i == LUA_ERRSYNTAX ? 0 : 1));
@@ -544,16 +544,16 @@ void luatokencall(int p, int nameptr) /* hh-ls: optimized lua_id resolving */
         if (nameptr > 0) {
             lua_id = tokenlist_to_cstring(nameptr, 1, &l);
             i = lua_load(Luas, getS, &ls, lua_id);
-            xfree(lua_id);
+	    xfree(lua_id);
         } else if (nameptr < 0) {
             lua_id = get_lua_name((nameptr + 65536));
             if (lua_id != NULL) {
                 i = lua_load(Luas, getS, &ls, lua_id);
             } else {
-                i = lua_load(Luas, getS, &ls, "\\directlua ");
+                i = lua_load(Luas, getS, &ls, "=[\\directlua]");
             }
         } else {
-            i = lua_load(Luas, getS, &ls, "\\directlua ");
+            i = lua_load(Luas, getS, &ls, "=[\\directlua]");
         }
         xfree(s);
         if (i != 0) {

@@ -47,6 +47,7 @@ static const char *const callbacknames[] = {
     "find_cidmap_file", "read_cidmap_file",
     "find_pk_file", "read_pk_file",
     "show_error_hook",
+    "pre_dump","start_file", "stop_file",
     "process_input_buffer", "process_output_buffer",
     "process_jobname",
     "start_page_number", "stop_page_number",

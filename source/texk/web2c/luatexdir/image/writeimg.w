@@ -579,8 +579,7 @@ void write_img(PDF pdf, image_dict * idict)
 {
     assert(idict != NULL);
     if (img_state(idict) < DICT_WRITTEN) {
-        if (tracefilenames)
-            tex_printf(" <%s", img_filepath(idict));
+        report_start_file(filetype_image, img_filepath(idict));
         switch (img_type(idict)) {
         case IMG_TYPE_PNG:
             write_png(pdf, idict);
@@ -603,8 +602,7 @@ void write_img(PDF pdf, image_dict * idict)
         default:
             luatex_fail("internal error: unknown image type (1)");
         }
-        if (tracefilenames)
-            tex_printf(">");
+        report_stop_file(filetype_image);
         if (img_type(idict) == IMG_TYPE_PNG) {
             write_additional_png_objects(pdf);
         }

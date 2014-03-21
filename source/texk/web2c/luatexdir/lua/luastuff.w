@@ -436,10 +436,10 @@ static void luacall(int p, int nameptr, boolean is_string) /* hh-ls: optimized l
             if (lua_id != NULL) {
                 i = lua_load(Luas, getS, &ls, lua_id, NULL);
             } else {
-                i = lua_load(Luas, getS, &ls, "\\latelua ", NULL);
+                i = lua_load(Luas, getS, &ls, "=[\\latelua]", NULL);
             }
         } else {
-            i = lua_load(Luas, getS, &ls, "\\latelua ", NULL);
+            i = lua_load(Luas, getS, &ls, "=[\\latelua]", NULL);
         }
         if (i != 0) {
             Luas = luatex_error(Luas, (i == LUA_ERRSYNTAX ? 0 : 1));
@@ -498,10 +498,10 @@ void luatokencall(int p, int nameptr) /* hh-ls: optimized lua_id resolving */
             if (lua_id != NULL) {
                 i = lua_load(Luas, getS, &ls, lua_id, NULL);
             } else {
-                i = lua_load(Luas, getS, &ls, "\\directlua ", NULL);
+                i = lua_load(Luas, getS, &ls, "=[\\directlua]", NULL);
             }
         } else {
-            i = lua_load(Luas, getS, &ls, "\\directlua ", NULL);
+            i = lua_load(Luas, getS, &ls, "=[\\directlua]", NULL);
         }
         xfree(s);
         if (i != 0) {
