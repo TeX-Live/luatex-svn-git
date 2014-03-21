@@ -435,7 +435,6 @@ static void luacall(int p, int nameptr, boolean is_string) /* hh-ls: optimized l
             lua_id = get_lua_name((nameptr + 65536));
             if (lua_id != NULL) {
                 i = lua_load(Luas, getS, &ls, lua_id, NULL);
-                xfree(lua_id);
             } else {
                 i = lua_load(Luas, getS, &ls, "\\latelua ", NULL);
             }
@@ -493,6 +492,7 @@ void luatokencall(int p, int nameptr) /* hh-ls: optimized lua_id resolving */
         if (nameptr > 0) {
             lua_id = tokenlist_to_cstring(nameptr, 1, &l);
             i = lua_load(Luas, getS, &ls, lua_id, NULL);
+	    xfree(lua_id);
         } else if (nameptr < 0) {
             lua_id = get_lua_name((nameptr + 65536));
             if (lua_id != NULL) {
