@@ -420,7 +420,9 @@ void unhide_lua_value(lua_State * L, const char *name, const char *item, int r)
 
 @ @c
 int lua_traceback(lua_State * L)
-{
+{   const char *ss;
+    char *s ; 
+    size_t ll = 0;
     lua_getglobal(L, "debug");
     if (!lua_istable(L, -1)) {
         lua_pop(L, 1);
@@ -432,6 +434,10 @@ int lua_traceback(lua_State * L)
         return 1;
     }
     lua_pushvalue(L, 1);        /* pass error message */
+    ss = lua_tolstring(Luas,-1, &ll); /* store the error message into last_lua_err */
+    s = xmalloc(ll+1);
+    memcpy(s,ss,ll+1);                                     
+    last_lua_error = s  ;
     lua_pushinteger(L, 2);      /* skip this function and traceback */
     lua_call(L, 2, 1);          /* call debug.traceback */
     return 1;

@@ -169,6 +169,9 @@ extern int saved_callback_count;
 
 extern const char *ptexbanner;
 
+extern const char *last_lua_error;
+
+
 /* luastuff.h */
 
 typedef struct {
