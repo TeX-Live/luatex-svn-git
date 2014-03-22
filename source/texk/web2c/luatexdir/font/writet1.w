@@ -1715,15 +1715,15 @@ void writet1(PDF pdf, fd_entry * fd)
 
     t1_save_offset = 0;
     if (!is_subsetted(fd_cur->fm)) {    /* include entire font */
-        if (!(fd->ff_found = t1_open_fontfile(3)))
+        if (!(fd->ff_found = t1_open_fontfile(filetype_subset)))
             return;
         t1_include(pdf);
-        t1_close_font_file(3);
+        t1_close_font_file(7);
         xfree(t1_buffer);
         return;
     }
     /* partial downloading */
-    if (!(fd->ff_found = t1_open_fontfile(3)))
+    if (!(fd->ff_found = t1_open_fontfile(filetype_font)))
         return;
     t1_subset_ascii_part(pdf);
     t1_start_eexec(pdf);
