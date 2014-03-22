@@ -77,7 +77,7 @@ static const char *getlasterror(void)
 
 static const char *getlastluaerror(void)
 {
-    return last_error;
+    return last_lua_error;
 }
 
 
