@@ -1715,10 +1715,10 @@ void writet1(PDF pdf, fd_entry * fd)
 
     t1_save_offset = 0;
     if (!is_subsetted(fd_cur->fm)) {    /* include entire font */
-        if (!(fd->ff_found = t1_open_fontfile(7)))
+        if (!(fd->ff_found = t1_open_fontfile(3)))
             return;
         t1_include(pdf);
-        t1_close_font_file(7);
+        t1_close_font_file(3);
         xfree(t1_buffer);
         return;
     }
