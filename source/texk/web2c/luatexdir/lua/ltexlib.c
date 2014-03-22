@@ -2527,7 +2527,6 @@ static int tex_show_context(lua_State * L)
     return 0;
 }
 
-
 void init_tex_table(lua_State * L)
 {
     lua_createtable(L, 0, 3);
