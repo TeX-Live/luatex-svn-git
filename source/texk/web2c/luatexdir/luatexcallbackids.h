@@ -60,8 +60,8 @@ typedef enum {
     finish_pdffile_callback,
     finish_pdfpage_callback,
     pre_dump_callback,
-    start_file_callback,
-    stop_file_callback,
+    start_file_callback, stop_file_callback,
+    show_error_message_callback,show_lua_error_hook_callback,
     total_callbacks
 } callback_callback_types;
 

@@ -68,6 +68,7 @@ static const char *const callbacknames[] = {
     "finish_pdffile",
     "finish_pdfpage",
     "pre_dump","start_file", "stop_file",
+    "show_error_message","show_lua_error_hook",
     NULL
 };
 
