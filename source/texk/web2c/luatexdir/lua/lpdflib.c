@@ -193,10 +193,6 @@ typedef enum { P__ZERO,
     P_H,
     P_INFO,
     P_NAMES,
-    P_PDFCATALOG,
-    P_PDFINFO,
-    P_PDFNAMES,
-    P_PDFTRAILER,
     P_RAW,
     P_STREAM,
     P_TRAILER,
@@ -210,10 +206,6 @@ static const parm_struct pdf_parms[] = {
     {"h", P_H},
     {"info", P_INFO},
     {"names", P_NAMES},
-    {"pdfcatalog", P_PDFCATALOG},       /* obsolescent */
-    {"pdfinfo", P_PDFINFO},     /* obsolescent */
-    {"pdfnames", P_PDFNAMES},   /* obsolescent */
-    {"pdftrailer", P_PDFTRAILER},       /* obsolescent */
     {"raw", P_RAW},
     {"stream", P_STREAM},
     {"trailer", P_TRAILER},
@@ -511,7 +503,7 @@ static int orig_obj(lua_State * L)
             }
             if (lua_key_eq(st_s, stream)) {
                 set_obj_obj_is_stream(static_pdf, k);
-            } else if (lua_key_eq(st_s, streamfile)) { 
+            } else if (lua_key_eq(st_s, streamfile)) {
                 set_obj_obj_is_stream(static_pdf, k);
                 set_obj_obj_is_file(static_pdf, k);
             } else
@@ -566,7 +558,7 @@ static int l_reserveobj(lua_State * L)
     case 1:
         if (!lua_isstring(L, -1))
             luaL_error(L, "pdf.reserveobj() optional argument must be string");
-        if (lua_key_eq(st_s, annot)) { 
+        if (lua_key_eq(st_s, annot)) {
             pdf_last_annot = pdf_create_obj(static_pdf, obj_type_annot, 0);
         } else {
             luaL_error(L, "pdf.reserveobj() optional string must be \"annot\"");
@@ -599,7 +591,40 @@ static int l_registerannot(lua_State * L)
     return 0;
 }
 
-static int getpdf(lua_State * L)
+static int l_getcatalog(lua_State * L)
+{
+    char *s;
+    int l; /* is l really needed? */
+    s = tokenlist_to_cstring(pdf_catalog_toks, true, &l);
+    lua_pushlstring(L, s, (size_t) l);
+    return 1;
+}
+static int l_getinfo(lua_State * L)
+{
+    char *s;
+    int l; /* is l really needed? */
+    s = tokenlist_to_cstring(pdf_info_toks, true, &l);
+    lua_pushlstring(L, s, (size_t) l);
+    return 1;
+}
+static int l_getnames(lua_State * L)
+{
+    char *s;
+    int l; /* is l really needed? */
+    s = tokenlist_to_cstring(pdf_names_toks, true, &l);
+    lua_pushlstring(L, s, (size_t) l);
+    return 1;
+}
+static int l_gettrailer(lua_State * L)
+{
+    char *s;
+    int l; /* is l really needed? */
+    s = tokenlist_to_cstring(pdf_trailer_toks, true, &l);
+    lua_pushlstring(L, s, (size_t) l);
+    return 1;
+}
+
+static int getpdf(lua_State * L) /* kind of obsolete */
 {
     char *s;
     int i, l;
@@ -612,22 +637,18 @@ static int getpdf(lua_State * L)
             i = (int) lua_tointeger(L, -1);     /* i t ... */
             lua_pop(L, 2);      /* ... */
             switch (i) {
-            case P_PDFCATALOG:
             case P_CATALOG:
                 s = tokenlist_to_cstring(pdf_catalog_toks, true, &l);
                 lua_pushlstring(L, s, (size_t) l);
                 break;
-            case P_PDFINFO:
             case P_INFO:
                 s = tokenlist_to_cstring(pdf_info_toks, true, &l);
                 lua_pushlstring(L, s, (size_t) l);
                 break;
-            case P_PDFNAMES:
             case P_NAMES:
                 s = tokenlist_to_cstring(pdf_names_toks, true, &l);
                 lua_pushlstring(L, s, (size_t) l);
                 break;
-            case P_PDFTRAILER:
             case P_TRAILER:
                 s = tokenlist_to_cstring(pdf_trailer_toks, true, &l);
                 lua_pushlstring(L, s, (size_t) l);
@@ -651,7 +672,36 @@ static int getpdf(lua_State * L)
     return 1;
 }
 
-static int setpdf(lua_State * L)
+static int l_setcatalog(lua_State * L)
+{
+    if (lua_isstring(L, -1)) {
+        pdf_catalog_toks = tokenlist_from_lua(L);
+    }
+    return 0;
+}
+static int l_setinfo(lua_State * L)
+{
+    if (lua_isstring(L, -1)) {
+        pdf_info_toks = tokenlist_from_lua(L);
+    }
+    return 0;
+}
+static int l_setnames(lua_State * L)
+{
+    if (lua_isstring(L, -1)) {
+        pdf_names_toks = tokenlist_from_lua(L);
+    }
+    return 0;
+}
+static int l_settrailer(lua_State * L)
+{
+    if (lua_isstring(L, -1)) {
+        pdf_trailer_toks = tokenlist_from_lua(L);
+    }
+    return 0;
+}
+
+static int setpdf(lua_State * L) /* kind of obsolete */
 {
     int i;
     if (lua_gettop(L) != 3) {
@@ -666,19 +716,15 @@ static int setpdf(lua_State * L)
         i = (int) lua_tointeger(L, -1); /* i t ... */
         lua_pop(L, 2);          /* ... */
         switch (i) {
-        case P_PDFCATALOG:
         case P_CATALOG:
             pdf_catalog_toks = tokenlist_from_lua(L);
             break;
-        case P_PDFINFO:
         case P_INFO:
             pdf_info_toks = tokenlist_from_lua(L);
             break;
-        case P_PDFNAMES:
         case P_NAMES:
             pdf_names_toks = tokenlist_from_lua(L);
             break;
-        case P_PDFTRAILER:
         case P_TRAILER:
             pdf_trailer_toks = tokenlist_from_lua(L);
             break;
@@ -738,18 +784,6 @@ static int l_mapline(lua_State * L)
         process_map_item(s, MAPLINE);
         free(s);
     }
-    return 0;
-}
-
-static int l_pdfmapfile(lua_State * L)
-{
-    luaL_error(L, "pdf.pdfmapfile() is obsolete. Use pdf.mapfile() instead.");
-    return 0;
-}
-
-static int l_pdfmapline(lua_State * L)
-{
-    luaL_error(L, "pdf.pdfmapline() is obsolete. Use pdf.mapline() instead.");
     return 0;
 }
 
@@ -821,8 +855,6 @@ static const struct luaL_Reg pdflib[] = {
     {"obj", l_obj},
     {"objtype", l_objtype},
     {"pageref", l_pageref},
-    {"pdfmapfile", l_pdfmapfile},       /* obsolete */
-    {"pdfmapline", l_pdfmapline},       /* obsolete */
     {"print", luapdfprint},
     {"refobj", l_refobj},
     {"registerannot", l_registerannot},
@@ -832,6 +864,14 @@ static const struct luaL_Reg pdflib[] = {
     {"getvpos", l_getvpos},
     {"getmatrix", l_getmatrix},
     {"hasmatrix", l_hasmatrix},
+    {"setcatalog", l_setcatalog},
+    {"setinfo", l_setinfo},
+    {"setnames", l_setnames},
+    {"settrailer", l_settrailer},
+    {"getcatalog", l_getcatalog},
+    {"getinfo", l_getinfo},
+    {"getnames", l_getnames},
+    {"gettrailer", l_gettrailer},
     {NULL, NULL}                /* sentinel */
 };
 
