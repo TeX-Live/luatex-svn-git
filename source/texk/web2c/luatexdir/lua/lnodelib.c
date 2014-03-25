@@ -2749,7 +2749,11 @@ static int lua_nodelib_fast_getfield(lua_State * L)
         p = vlink(p);
         while (p != null) {
             if (attribute_id(p) == i) {
-                lua_pushnumber(L, (int) attribute_value(p));
+                if ((int) attribute_value(p) > UNUSED_ATTRIBUTE) {
+                    lua_pushnumber(L, (int) attribute_value(p));
+                } else {
+                    lua_pushnil(L);
+                }
                 return 1;
             } else if (attribute_id(p) > i) {
                 lua_pushnil(L);
@@ -3491,7 +3495,11 @@ static int lua_nodelib_direct_getfield(lua_State * L)
         p = vlink(p);
         while (p != null) {
             if (attribute_id(p) == i) {
-                lua_pushnumber(L, (int) attribute_value(p));
+                if ((int) attribute_value(p) > UNUSED_ATTRIBUTE) {
+                    lua_pushnumber(L, (int) attribute_value(p));
+                } else {
+                    lua_pushnil(L);
+                }
                 return 1;
             } else if (attribute_id(p) > i) {
                 lua_pushnil(L) ;
