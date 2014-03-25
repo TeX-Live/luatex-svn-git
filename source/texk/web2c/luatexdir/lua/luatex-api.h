@@ -137,9 +137,9 @@ extern char *jithash_hashname ;
 
 #ifdef LuajitTeX
 #define LUAJITTEX_HASHCHARS 6 /* todo: It must be like that one on lj_str.c */
-#else 
+#else
 #define LUATEX_HASHCHARS 6  /* todo: It must be LUAI_HASHLIMIT! */
-#endif 
+#endif
 extern unsigned char show_luahashchars ;
 
 extern void unhide_lua_table(lua_State * lua, const char *name, int r);
@@ -213,6 +213,7 @@ extern int lua_traceback(lua_State * L);
 
 extern int luainit;
 
+
 extern char *luanames[];
 
 extern int ff_get_ttc_index(char *ffname, char *psname);        /* luafontloader/src/luafflib.c */
@@ -244,14 +245,14 @@ extern char **environ;
     luaS_##a##_index = luaL_ref (Luas,LUA_REGISTRYINDEX); \
 } while (0)
 
-  /*#define init_luaS_index_s(a,b) do {           */      
+  /*#define init_luaS_index_s(a,b) do {           */
 #define init_lua_key_alias(a,b) do {              \
     lua_pushliteral(Luas,b);                              \
     luaS_##a##_ptr = lua_tostring(Luas,-1);               \
     luaS_##a##_index = luaL_ref (Luas,LUA_REGISTRYINDEX); \
 } while (0)
 
-  /*#define make_luaS_index(a) */                       
+  /*#define make_luaS_index(a) */
 #define make_lua_key(a)       \
     int luaS_##a##_index = 0;          \
     const char * luaS_##a##_ptr = NULL
@@ -265,26 +266,29 @@ extern char **environ;
 #define lua_key(a) luaS_##a##_ptr
 #define use_lua_key(a)  \
   extern int luaS_##a##_index ;          \
-  extern const char * luaS_##a##_ptr 
+  extern const char * luaS_##a##_ptr
 
 
 #define lua_key_rawgeti(a) \
   lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_##a##_index);\
   lua_rawget(L, -2)
 
+#define lua_key_rawgeti_n(a,n) \
+  lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_##a##_index);\
+  lua_rawget(L, -1+n)
 
 #define lua_roundnumber(a,b) (int)floor((double)lua_tonumber(L,-1)+0.5)
 extern int lua_numeric_field_by_index(lua_State *, int , int);
- 
+
 
 #endif                          /* LUATEX_API_H */
 
 
 
 
-/*                                                 */  
+/*                                                 */
 /* These keys have to available to different files */
-/*                                                 */ 
+/*                                                 */
 
 
 use_lua_key(LTL);
@@ -533,5 +537,15 @@ use_lua_key(streamfile);
 use_lua_key(annot);
 use_lua_key(lua_functions);
 
-
+use_lua_key(pdf_data);
+use_lua_key(catalog);
+use_lua_key(info);
+use_lua_key(names);
+use_lua_key(trailer);
+use_lua_key(pageattributes);
+use_lua_key(pagesattributes);
+use_lua_key(pageresources);
+use_lua_key(raw);
+use_lua_key(h);
+use_lua_key(v);
 

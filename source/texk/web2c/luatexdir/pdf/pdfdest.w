@@ -404,6 +404,7 @@ int output_name_tree(PDF pdf)
             delete_token_ref(pdf_names_toks);
             pdf_names_toks = null;
         }
+        print_pdf_table_string(pdf, "names");
         pdf_end_dict(pdf);
         pdf_end_obj(pdf);
         return m;

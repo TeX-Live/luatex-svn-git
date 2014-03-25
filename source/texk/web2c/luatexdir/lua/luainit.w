@@ -275,6 +275,19 @@ make_lua_key(streamfile);
 make_lua_key(annot);
 make_lua_key(lua_functions);
 
+make_lua_key(pdf_data);
+make_lua_key(catalog);
+make_lua_key(info);
+make_lua_key(names);
+make_lua_key(trailer);
+make_lua_key(pageattributes);
+make_lua_key(pagesattributes);
+make_lua_key(pageresources);
+make_lua_key(raw);
+make_lua_key(h);
+make_lua_key(v);
+
+
 @
 TH: TODO
 
@@ -284,7 +297,7 @@ Better to wait until Karl has some time (after texlive 2008) so we can
 synchronize with kpathsea. One problem, for instance, is that I would
 like to resolve the full executable path.  |kpse_set_program_name()| does
 that, indirectly (by setting SELFAUTOLOC in the environment), but it
-does much more, making it hard to use for our purpose. 
+does much more, making it hard to use for our purpose.
 
 In fact, it sets three C variables:
 
@@ -449,11 +462,11 @@ char *jithash_hashname = NULL;
 int safer_option = 0;
 int nosocket_option = 0;
 
-@ Reading the options.  
+@ Reading the options.
 
 @ Test whether getopt found an option ``A''.
 Assumes the option index is in the variable |option_index|, and the
-option table in a variable |long_options|.  
+option table in a variable |long_options|.
 
 @c
 #define ARGUMENT_IS(a) STREQ (long_options[option_index].name, a)
@@ -550,7 +563,7 @@ static void parse_options(int ac, char **av)
         if (g == -1)            /* End of arguments, exit the loop.  */
             break;
         if (g == '?')  {         /* Unknown option.  */
-          if (!luainit) 
+          if (!luainit)
             fprintf(stderr,"%s: unrecognized option '%s'\n", argv[0], argv[optind-1]);
           continue;
         }
@@ -571,15 +584,15 @@ static void parse_options(int ac, char **av)
         } else if (ARGUMENT_IS("jithash")) {
 	      size_t len = strlen(optarg);
 	      if (len<16)
-		jithash_hashname = optarg;     
+		jithash_hashname = optarg;
 	      else{
-		WARNING2("hash name truncated to 15 characters from %d. (%s)",      
+		WARNING2("hash name truncated to 15 characters from %d. (%s)",
 			 (int) len, optarg);
 		jithash_hashname = (string) xmalloc(16);
                 strncpy(jithash_hashname, optarg, 15);
                 jithash_hashname[15] = 0;
 	      }
-#endif 
+#endif
 
         } else if (ARGUMENT_IS("luahashchars")) {
             show_luahashchars = 1;
@@ -670,7 +683,7 @@ static void parse_options(int ac, char **av)
                  "There is NO warranty. Redistribution of this software is covered by\n"
                  "the terms of the GNU General Public License, version 2 or (at your option)\n"
                  "any later version. For more information about these matters, see the file\n"
-                 "named COPYING and the LuaTeX source.\n\n" 
+                 "named COPYING and the LuaTeX source.\n\n"
 #ifdef LuajitTeX
                  "LuaTeX is Copyright 2014 Taco Hoekwater, the LuaTeX Team.\n"
                  "Libraries and JIT extensions by Luigi Scarso, the LuaTeX SwigLib team.\n");
@@ -684,31 +697,31 @@ static void parse_options(int ac, char **av)
             initversionstring(&versions);
             print_version_banner();
             /* *INDENT-OFF* */
-            puts("\n\nThe LuaTeX team is Hans Hagen, Hartmut Henkel, Taco Hoekwater.\n" 
+            puts("\n\nThe LuaTeX team is Hans Hagen, Hartmut Henkel, Taco Hoekwater.\n"
 #ifdef LuajitTex
-                 "LuajitTeX merges and builds upon (parts of) the code from these projects:\n\n" 
+                 "LuajitTeX merges and builds upon (parts of) the code from these projects:\n\n"
 #else
-                 "LuaTeX merges and builds upon (parts of) the code from these projects:\n\n" 
+                 "LuaTeX merges and builds upon (parts of) the code from these projects:\n\n"
 #endif
-                 "tex       by Donald Knuth\n" 
-                 "etex      by Peter Breitenlohner, Phil Taylor and friends\n" 
-                 "omega     by John Plaice and Yannis Haralambous\n" 
-                 "aleph     by Giuseppe Bilotta\n" 
-                 "pdftex    by Han The Thanh and friends\n" 
-                 "kpathsea  by Karl Berry, Olaf Weber and others\n" 
-                 "lua       by Roberto Ierusalimschy, Waldemar Celes,\n" 
-                 "             Luiz Henrique de Figueiredo\n" 
-                 "metapost  by John Hobby, Taco Hoekwater and friends.\n" 
-                 "poppler   by Derek Noonburg, Kristian H\\ogsberg (partial)\n" 
+                 "tex       by Donald Knuth\n"
+                 "etex      by Peter Breitenlohner, Phil Taylor and friends\n"
+                 "omega     by John Plaice and Yannis Haralambous\n"
+                 "aleph     by Giuseppe Bilotta\n"
+                 "pdftex    by Han The Thanh and friends\n"
+                 "kpathsea  by Karl Berry, Olaf Weber and others\n"
+                 "lua       by Roberto Ierusalimschy, Waldemar Celes,\n"
+                 "             Luiz Henrique de Figueiredo\n"
+                 "metapost  by John Hobby, Taco Hoekwater and friends.\n"
+                 "poppler   by Derek Noonburg, Kristian H\\ogsberg (partial)\n"
 #ifdef LuajitTeX
-                 "fontforge by George Williams (partial)\n" 
-                 "luajit    by Mike Pall\n\n" 
+                 "fontforge by George Williams (partial)\n"
+                 "luajit    by Mike Pall\n\n"
 #else
-                 "fontforge by George Williams (partial)\n\n" 
+                 "fontforge by George Williams (partial)\n\n"
 #endif
-                 "Some extensions to lua and additional lua libraries are used, as well as\n" 
-                 "libraries for graphic inclusion. More details can be found in the source.\n" 
-                 "Code development was sponsored by a grant from Colorado State University\n" 
+                 "Some extensions to lua and additional lua libraries are used, as well as\n"
+                 "libraries for graphic inclusion. More details can be found in the source.\n"
+                 "Code development was sponsored by a grant from Colorado State University\n"
 #ifdef LuajitTeX
                  "via the 'oriental tex' project, the TeX User Groups, and donations.\n"
                  "The additional libraries and the LuaJIT extensions are provided by the LuaTeX SwigLib project.\n");
@@ -787,7 +800,7 @@ static void parse_options(int ac, char **av)
     }
 }
 
-@ test for readability 
+@ test for readability
 @c
 #define is_readable(a) (stat(a,&finfo)==0) && S_ISREG(finfo.st_mode) &&  \
   (f=fopen(a,"r")) != NULL && !fclose(f)
@@ -903,12 +916,12 @@ static const char *luatex_kpse_find_aux(lua_State *L, const char *name,
 }
 
 @ The lua search function.
- 
+
 When kpathsea is not initialized, then it runs the
 normal lua function that is saved in the registry, otherwise
 it uses kpathsea.
 
-two registry ref variables are needed: one for the actual lua 
+two registry ref variables are needed: one for the actual lua
 function, the other for its environment .
 
 @c
@@ -971,7 +984,7 @@ static int luatex_kpse_clua_find(lua_State * L)
             break;
           }
           if ((unsigned char)temp_name[j]=='.'){
-            temp_name[j]=LUA_DIRSEP[0]; 
+            temp_name[j]=LUA_DIRSEP[0];
           }
         }
 	p = strstr(extensionless, temp_name);
@@ -1009,9 +1022,9 @@ static int luatex_kpse_clua_find(lua_State * L)
     }
 }
 
-@ Setting up the new search functions. 
+@ Setting up the new search functions.
 
-This replaces package.searchers[2] and package.searchers[3] with the 
+This replaces package.searchers[2] and package.searchers[3] with the
 functions defined above.
 
 @c
@@ -1126,7 +1139,7 @@ void lua_initialize(int ac, char **av)
 #endif
         size_t len;
         len = strlen(fmt) + strlen(luatex_version_string) ;
-	
+
         banner = xmalloc(len);
         sprintf(banner, fmt, luatex_version_string);
     } else {
@@ -1434,7 +1447,7 @@ void lua_initialize(int ac, char **av)
     init_lua_key_alias(pTRT,"+TRT");
     init_lua_key_alias(term_and_log,"term and log");
     init_lua_key_alias(lua_functions,"lua.functions");
-    
+
     init_lua_key(immediate);
     init_lua_key(compresslevel);
     init_lua_key(objcompression);
@@ -1442,6 +1455,18 @@ void lua_initialize(int ac, char **av)
     init_lua_key(page);
     init_lua_key(streamfile);
     init_lua_key(annot);
+
+    init_lua_key_alias(pdf_data,"pdf.data");
+    init_lua_key(catalog);
+    init_lua_key(info);
+    init_lua_key(names);
+    init_lua_key(trailer);
+    init_lua_key(pageattributes);
+    init_lua_key(pagesattributes);
+    init_lua_key(pageresources);
+    init_lua_key(raw);
+    init_lua_key(h);
+    init_lua_key(v);
 
     lua_pushstring(Luas,"lua.functions");
     lua_newtable(Luas);
