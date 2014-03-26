@@ -51,6 +51,10 @@ scaled_whd output_one_char(PDF pdf, halfword p)
     int c = character(p);
     int ex_glyph = ex_glyph(p)/1000;
     ci = get_charinfo_whd(f, c);
+    if (!(char_exists(f,c))) {
+        char_warning(f,c);
+        return ci;
+    }
     //ci.wd = round_xn_over_d(ci.wd, 1000 + ex_glyph, 1000);
     ci.wd = ext_xn_over_d(ci.wd, 1000000 + ex_glyph(p), 1000000);
     switch (pdf->posstruct->dir) {
