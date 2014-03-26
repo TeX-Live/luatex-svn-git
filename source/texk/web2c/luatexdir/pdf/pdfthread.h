@@ -20,7 +20,7 @@
 /* $Id$ */
 
 #ifndef PDFTHREAD_H
-#  define PDFTHREADH
+#  define PDFTHREAD_H
 
 /* data structure of threads; words 1..4 represent the coordinates of the  corners */
 
