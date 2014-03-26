@@ -59,7 +59,8 @@ const char *pack_type_name[] = { "exactly", "additional" };
 
 
 @ @c
-void lua_node_filter_s(int filterid, const char *extrainfo)
+void 
+lua_node_filter_s(int filterid, int extrainfo)
 {
     lua_State *L = Luas;
     int callback_id = callback_defined(filterid);
@@ -72,7 +73,7 @@ void lua_node_filter_s(int filterid, const char *extrainfo)
         lua_settop(L, s_top);
         return;
     }
-    lua_pushstring(L, extrainfo);       /* arg 1 */
+    lua_push_string_by_index(L,extrainfo); /* arg 1 */
     if (lua_pcall(L, 1, 0, 0) != 0) {
         fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
         lua_settop(L, s_top);
@@ -83,16 +84,15 @@ void lua_node_filter_s(int filterid, const char *extrainfo)
     return;
 }
 
+
 @ @c
-void
-lua_node_filter(int filterid, int xextrainfo, halfword head_node,
-                halfword * tail_node)
+void 
+lua_node_filter(int filterid, int extrainfo, halfword head_node, halfword * tail_node)
 {
     halfword ret;
     int a;
     lua_State *L = Luas;
     int s_top = lua_gettop(L);
-    const char *extrainfo = group_code_names[xextrainfo];
     int callback_id = callback_defined(filterid);
     if (head_node == null || vlink(head_node) == null || callback_id <= 0) {
 	lua_settop(L, s_top);
@@ -104,7 +104,7 @@ lua_node_filter(int filterid, int xextrainfo, halfword head_node,
     }
     alink(vlink(head_node)) = null ; /* hh-ls */
     nodelist_to_lua(L, vlink(head_node));       /* arg 1 */
-    lua_pushstring(L, extrainfo);       /* arg 2 */
+    lua_push_group_code(L,extrainfo); /* arg 2 */
     if (lua_pcall(L, 2, 1, 0) != 0) {   /* no arg, 1 result */
         fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
         lua_settop(L, s_top);
@@ -134,7 +134,6 @@ lua_node_filter(int filterid, int xextrainfo, halfword head_node,
     lua_settop(L, s_top);
     return;
 }
-
 
 @ @c
 int

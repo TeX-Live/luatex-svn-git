@@ -297,8 +297,8 @@ extern int l_pack_type_index       [PACK_TYPE_SIZE] ;
 extern int l_group_code_index      [GROUP_CODE_SIZE];
 extern int l_math_style_name_index [MATH_STYLE_NAME_SIZE];
 
-#define lua_push_pack_type      (L,pack_type)  lua_rawgeti(L, LUA_REGISTRYINDEX, l_pack_type_index      [pack_type] );
-#define lua_push_group_code     (L,group_code) lua_rawgeti(L, LUA_REGISTRYINDEX, l_group_code_index     [group_code]);
+#define lua_push_pack_type(L,pack_type)  lua_rawgeti(L, LUA_REGISTRYINDEX, l_pack_type_index      [pack_type] );
+#define lua_push_group_code(L,group_code) lua_rawgeti(L, LUA_REGISTRYINDEX, l_group_code_index     [group_code]);
 #define lua_push_math_style_name(L,style_name) lua_rawgeti(L, LUA_REGISTRYINDEX, l_math_style_name_index[style_name]);
 
 #define lua_push_string_by_index(L,index) lua_rawgeti(L, LUA_REGISTRYINDEX, index)

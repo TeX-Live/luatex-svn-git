@@ -1023,7 +1023,7 @@ void enter_display_math(void)
         begin_token_list(every_display, every_display_text);
     if (nest_ptr == 1) {
         if (!output_active)
-            lua_node_filter_s(buildpage_filter_callback, "before_display");
+	    lua_node_filter_s(buildpage_filter_callback,lua_key_index(before_display));
         build_page();
     }
 }
@@ -1977,7 +1977,7 @@ static void resume_after_display(void)
     if (cur_cmd != spacer_cmd)
         back_input();
     if (nest_ptr == 1) {
-        lua_node_filter_s(buildpage_filter_callback, "after_display");
+        lua_node_filter_s(buildpage_filter_callback,lua_key_index(after_display));
         build_page();
     }
 }
