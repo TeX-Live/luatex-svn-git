@@ -37,3 +37,6 @@ probably a get_key there
 [] make s and *s consistent
 [] make LuaS, luas, L consistent -> L
 
+[]  check lua_gettable usage (we might not want to fallback)
+
+[]  Luas everywhere and get rid of L
