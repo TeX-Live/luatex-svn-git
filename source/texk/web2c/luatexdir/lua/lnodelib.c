@@ -4921,11 +4921,11 @@ static int lua_nodelib_fast_setfield(lua_State * L)
         }
     } else if (t == style_node) {
         if (lua_key_eq(s, subtype)) {
-	  /* dummy subtype */
-	} else if (lua_key_eq(s, style)) {
+            /* dummy subtype */
+        } else if (lua_key_eq(s, style)) {
             subtype(n) = (quarterword) luaL_checkoption(L, 3, "text", math_style_names); /* not 2? */
         } else {
-	  /* return nodelib_cantset(L, n, s); */
+            /* return nodelib_cantset(L, n, s); */
         }
     } else if (t == accent_noad) {
         if (lua_key_eq(s, subtype)) {
@@ -5666,10 +5666,9 @@ static int lua_nodelib_direct_setfield(lua_State * L)
         if (lua_key_eq(s, subtype)) {
             /* dummy subtype */
         } else if (lua_key_eq(s, style)) {
-            lua_push_math_style_name(L,subtype(n));
+            subtype(n) = (quarterword) luaL_checkoption(L, 2, "text", math_style_names); /* was 3 */
         } else {
             /* return nodelib_cantset(L, n, s); */
-            subtype(n) = (quarterword) luaL_checkoption(L, 2, "text", math_style_names); /* was 3 */
         }
     } else if (t == accent_noad) {
         if (lua_key_eq(s, subtype)) {
