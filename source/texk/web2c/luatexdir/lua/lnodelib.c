@@ -4921,12 +4921,11 @@ static int lua_nodelib_fast_setfield(lua_State * L)
         }
     } else if (t == style_node) {
         if (lua_key_eq(s, subtype)) {
-            /* dummy subtype */
-        } else if (lua_key_eq(s, style)) {
-            lua_pushstring(L, math_style_names[subtype(n)]);
-        } else {
-            /* return nodelib_cantset(L, n, s); */
+	  /* dummy subtype */
+	} else if (lua_key_eq(s, style)) {
             subtype(n) = (quarterword) luaL_checkoption(L, 3, "text", math_style_names); /* not 2? */
+        } else {
+	  /* return nodelib_cantset(L, n, s); */
         }
     } else if (t == accent_noad) {
         if (lua_key_eq(s, subtype)) {
