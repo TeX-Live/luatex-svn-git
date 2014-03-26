@@ -194,9 +194,9 @@ lua_hpack_filter(halfword head_node, scaled size, int pack_type, int extrainfo,
     }
     alink(head_node) = null ; /* hh-ls */
     nodelist_to_lua(L, head_node);
-    lua_pushstring(L, group_code_names[extrainfo]);
+    lua_push_group_code(L,extrainfo);
     lua_pushnumber(L, size);
-    lua_pushstring(L, pack_type_name[pack_type]);
+    lua_push_pack_type(L,pack_type);
     if (pack_direction >= 0)
         lua_pushstring(L, string_dir(pack_direction));
     else
@@ -253,9 +253,9 @@ lua_vpack_filter(halfword head_node, scaled size, int pack_type, scaled maxd,
     }
     alink(head_node) = null ; /* hh-ls */
     nodelist_to_lua(L, head_node);
-    lua_pushstring(L, group_code_names[extrainfo]);
+    lua_push_group_code(L,extrainfo);
     lua_pushnumber(L, size);
-    lua_pushstring(L, pack_type_name[pack_type]);
+    lua_push_pack_type(L,pack_type);
     lua_pushnumber(L, maxd);
     if (pack_direction >= 0)
         lua_pushstring(L, string_dir(pack_direction));
