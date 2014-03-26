@@ -1467,10 +1467,10 @@ static int lua_nodelib_hpack(lua_State * L)
         if (lua_gettop(L) > 2) {
             if (lua_type(L, 3) == LUA_TSTRING) {
                 s = lua_tostring(L, 3);
-                if (lua_key_eq(s, additional)) {
-                    m = 1;
-                } else if (lua_key_eq(s, exactly)) {
+                if (lua_key_eq(s, exactly)) {
                     m = 0;
+                } else if (lua_key_eq(s, additional)) {
+                    m = 1;
                 } else if (lua_key_eq(s, cal_expand_ratio)) {
                     m = 2;
                 } else if (lua_key_eq(s, subst_ex_font)) {
