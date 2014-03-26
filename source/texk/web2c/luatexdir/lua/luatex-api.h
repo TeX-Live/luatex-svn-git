@@ -281,6 +281,68 @@ extern char **environ;
 extern int lua_numeric_field_by_index(lua_State *, int , int);
 
 
+
+/* Currently we sometimes use numbers and sometimes strings in node properties. We can
+make that consistent by having a check on number and if not then assign a string. The
+strings are prehashed and we make a bunch of lua tables that have these values. We can
+preassign these at startup time. */
+
+/* no need for L state argument */
+
+#define PACK_TYPE_SIZE        2
+#define GROUP_CODE_SIZE      23
+#define MATH_STYLE_NAME_SIZE  8 
+
+extern int l_pack_type_index       [PACK_TYPE_SIZE] ;
+extern int l_group_code_index      [GROUP_CODE_SIZE];
+extern int l_math_style_name_index [MATH_STYLE_NAME_SIZE];
+
+#define lua_push_pack_type      (L,pack_type)  lua_rawgeti(L, LUA_REGISTRYINDEX, l_pack_type_index      [pack_type] );
+#define lua_push_group_code     (L,group_code) lua_rawgeti(L, LUA_REGISTRYINDEX, l_group_code_index     [group_code]);
+#define lua_push_math_style_name(L,style_name) lua_rawgeti(L, LUA_REGISTRYINDEX, l_math_style_name_index[style_name]);
+
+#define lua_push_string_by_index(L,index) lua_rawgeti(L, LUA_REGISTRYINDEX, index)
+
+
+#define set_pack_type_index \
+l_pack_type_index[0] = lua_key_index(exactly);\
+l_pack_type_index[1] = lua_key_index(additional)
+
+#define set_l_group_code_index \
+l_group_code_index[0]  = lua_key_index(empty_string);\
+l_group_code_index[1]  = lua_key_index(simple);\
+l_group_code_index[2]  = lua_key_index(hbox);\
+l_group_code_index[3]  = lua_key_index(adjusted_hbox);\
+l_group_code_index[4]  = lua_key_index(vbox);\
+l_group_code_index[5]  = lua_key_index(vtop);\
+l_group_code_index[6]  = lua_key_index(align);\
+l_group_code_index[7]  = lua_key_index(no_align);\
+l_group_code_index[8]  = lua_key_index(output);\
+l_group_code_index[9]  = lua_key_index(math);\
+l_group_code_index[10] = lua_key_index(disc);\
+l_group_code_index[11] = lua_key_index(insert);\
+l_group_code_index[12] = lua_key_index(vcenter);\
+l_group_code_index[13] = lua_key_index(math_choice);\
+l_group_code_index[14] = lua_key_index(semi_simple);\
+l_group_code_index[15] = lua_key_index(math_shift);\
+l_group_code_index[16] = lua_key_index(math_left);\
+l_group_code_index[17] = lua_key_index(local_box);\
+l_group_code_index[18] = lua_key_index(split_off);\
+l_group_code_index[19] = lua_key_index(split_keep);\
+l_group_code_index[20] = lua_key_index(preamble);\
+l_group_code_index[21] = lua_key_index(align_set);\
+l_group_code_index[22] = lua_key_index(fin_row)
+
+#define set_l_math_style_name_index \
+l_math_style_name_index[0] = lua_key_index(display);\
+l_math_style_name_index[1] = lua_key_index(crampeddisplay);\
+l_math_style_name_index[2] = lua_key_index(text);\
+l_math_style_name_index[3] = lua_key_index(crampedtext);\
+l_math_style_name_index[4] = lua_key_index(script);\
+l_math_style_name_index[5] = lua_key_index(crampedscript);\
+l_math_style_name_index[6] = lua_key_index(scriptscript);\
+l_math_style_name_index[7] = lua_key_index(crampedscriptscript)
+
 #endif                          /* LUATEX_API_H */
 
 
@@ -549,3 +611,43 @@ use_lua_key(raw);
 use_lua_key(h);
 use_lua_key(v);
 
+/*************************************/
+use_lua_key(adjust);
+use_lua_key(adjusted_hbox);
+use_lua_key(after_display);
+use_lua_key(after_output);
+use_lua_key(align);
+use_lua_key(align_set);
+use_lua_key(alignment);
+use_lua_key(before_display);
+use_lua_key(box);
+use_lua_key(crampeddisplay);
+use_lua_key(crampedscript);
+use_lua_key(crampedscriptscript);
+use_lua_key(crampedtext);
+use_lua_key(disc);
+use_lua_key(empty_string);
+use_lua_key(fin_row);
+use_lua_key(hbox);
+use_lua_key(hmode_par);
+use_lua_key(insert);
+use_lua_key(local_box);
+use_lua_key(math);
+use_lua_key(math_choice);
+use_lua_key(math_left);
+use_lua_key(math_shift);
+use_lua_key(new_graf);
+use_lua_key(no_align);
+use_lua_key(output);
+use_lua_key(pre_adjust);
+use_lua_key(pre_align);
+use_lua_key(pre_box);
+use_lua_key(preamble);
+use_lua_key(semi_simple);
+use_lua_key(simple);
+use_lua_key(split_keep);
+use_lua_key(split_off);
+use_lua_key(vbox);
+use_lua_key(vcenter);
+use_lua_key(vmode_par);
+use_lua_key(vtop);

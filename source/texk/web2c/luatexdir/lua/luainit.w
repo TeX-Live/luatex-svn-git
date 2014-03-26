@@ -287,6 +287,46 @@ make_lua_key(raw);
 make_lua_key(h);
 make_lua_key(v);
 
+make_lua_key(adjust);
+make_lua_key(adjusted_hbox);
+make_lua_key(after_display);
+make_lua_key(after_output);
+make_lua_key(align);
+make_lua_key(align_set);
+make_lua_key(alignment);
+make_lua_key(before_display);
+make_lua_key(box);
+make_lua_key(crampeddisplay);
+make_lua_key(crampedscript);
+make_lua_key(crampedscriptscript);
+make_lua_key(crampedtext);
+make_lua_key(disc);
+make_lua_key(empty_string);
+make_lua_key(fin_row);
+make_lua_key(hbox);
+make_lua_key(hmode_par);
+make_lua_key(insert);
+make_lua_key(local_box);
+make_lua_key(math);
+make_lua_key(math_choice);
+make_lua_key(math_left);
+make_lua_key(math_shift);
+make_lua_key(new_graf);
+make_lua_key(no_align);
+make_lua_key(output);
+make_lua_key(pre_adjust);
+make_lua_key(pre_align);
+make_lua_key(pre_box);
+make_lua_key(preamble);
+make_lua_key(semi_simple);
+make_lua_key(simple);
+make_lua_key(split_keep);
+make_lua_key(split_off);
+make_lua_key(vbox);
+make_lua_key(vcenter);
+make_lua_key(vmode_par);
+make_lua_key(vtop);
+
 
 @
 TH: TODO
@@ -1057,6 +1097,11 @@ int pdf_table_id;
 int token_table_id;
 int node_table_id;
 
+@ @c
+int l_pack_type_index       [PACK_TYPE_SIZE] ;
+int l_group_code_index      [GROUP_CODE_SIZE];
+int l_math_style_name_index [MATH_STYLE_NAME_SIZE];
+
 
 #if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
 char **suffixlist;
@@ -1467,10 +1512,56 @@ void lua_initialize(int ac, char **av)
     init_lua_key(raw);
     init_lua_key(h);
     init_lua_key(v);
+    
+    init_lua_key(adjust);
+    init_lua_key(adjusted_hbox);
+    init_lua_key(after_display);
+    init_lua_key(after_output);
+    init_lua_key(align);
+    init_lua_key(align_set);
+    init_lua_key(alignment);
+    init_lua_key(before_display);
+    init_lua_key(box);
+    init_lua_key(crampeddisplay);
+    init_lua_key(crampedscript);
+    init_lua_key(crampedscriptscript);
+    init_lua_key(crampedtext);
+    init_lua_key(disc);
+    init_lua_key_alias(empty_string,"");
+    init_lua_key(fin_row);
+    init_lua_key(hbox);
+    init_lua_key(hmode_par);
+    init_lua_key(insert);
+    init_lua_key(local_box);
+    init_lua_key(math);
+    init_lua_key(math_choice);
+    init_lua_key(math_left);
+    init_lua_key(math_shift);
+    init_lua_key(new_graf);
+    init_lua_key(no_align);
+    init_lua_key(output);
+    init_lua_key(pre_adjust);
+    init_lua_key(pre_align);
+    init_lua_key(pre_box);
+    init_lua_key(preamble);
+    init_lua_key(semi_simple);
+    init_lua_key(simple);
+    init_lua_key(split_keep);
+    init_lua_key(split_off);
+    init_lua_key(vbox);
+    init_lua_key(vcenter);
+    init_lua_key(vmode_par);
+    init_lua_key(vtop);
+
 
     lua_pushstring(Luas,"lua.functions");
     lua_newtable(Luas);
     lua_settable(Luas,LUA_REGISTRYINDEX);
+
+    /* here start the key definitions */
+    set_pack_type_index;
+    set_l_group_code_index;
+    set_l_math_style_name_index;
 
     prepare_cmdline(Luas, argv, argc, lua_offset);      /* collect arguments */
     setup_lua_path(Luas);

@@ -2995,7 +2995,7 @@ static int lua_nodelib_fast_getfield(lua_State * L)
         if (lua_key_eq(s, subtype)) {
             lua_pushnumber(L, subtype(n));
         } else if (lua_key_eq(s, style)) {
-            lua_pushstring(L, math_style_names[subtype(n)]);
+            lua_push_math_style_name(L,subtype(n));
         } else {
             lua_pushnil(L);
         }
@@ -3711,7 +3711,7 @@ static int lua_nodelib_direct_getfield(lua_State * L)
         }
     } else if (t == style_node) {
         if (lua_key_eq(s, style)) {
-            lua_pushstring(L, math_style_names[subtype(n)]);
+            lua_push_math_style_name(L,subtype(n));
         } else {
             lua_pushnil(L);
         }
@@ -5666,7 +5666,7 @@ static int lua_nodelib_direct_setfield(lua_State * L)
         if (lua_key_eq(s, subtype)) {
             /* dummy subtype */
         } else if (lua_key_eq(s, style)) {
-            lua_pushstring(L, math_style_names[subtype(n)]);
+            lua_push_math_style_name(L,subtype(n));
         } else {
             /* return nodelib_cantset(L, n, s); */
             subtype(n) = (quarterword) luaL_checkoption(L, 2, "text", math_style_names); /* was 3 */
