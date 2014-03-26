@@ -1885,9 +1885,9 @@ void print_pdf_table_string(PDF pdf, const char *s)
     size_t len;
     const char *ls;
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, lua_key_index(pdf_data));
-    lua_gettable(Luas, LUA_REGISTRYINDEX);
+    lua_rawget(Luas, LUA_REGISTRYINDEX);
     lua_pushstring(Luas, s);    /* s t ... */
-    lua_gettable(Luas, -2);     /* s? t ... */
+    lua_rawget(Luas, -2);     /* s? t ... */
     if (lua_isstring(Luas, -1)) {       /* s t ... */
         ls = lua_tolstring(Luas, -1, &len);
         if (len > 0) {
@@ -1905,9 +1905,9 @@ char *get_pdf_table_string(const char *s)
 {
     const_lstring ls;
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, lua_key_index(pdf_data));
-    lua_gettable(Luas, LUA_REGISTRYINDEX);
+    lua_rawget(Luas, LUA_REGISTRYINDEX);
     lua_pushstring(Luas, s);    /* s t ... */
-    lua_gettable(Luas, -2);     /* s? t ... */
+    lua_rawget(Luas, -2);     /* s? t ... */
     if (lua_isstring(Luas, -1)) {       /* s t ... */
         ls.s = lua_tolstring(Luas, -1, &ls.l);
         lua_pop(Luas, 2);           /* ... */
