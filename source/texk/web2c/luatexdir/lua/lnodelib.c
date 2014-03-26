@@ -1732,7 +1732,8 @@ static int lua_nodelib_mlist_to_hlist(lua_State * L)
     int w;
     boolean m;
     n = *(check_isnode(L, 1));
-    w = luaL_checkoption(L, 2, "text", math_style_names);
+    //w = luaL_checkoption(L, 2, "text", math_style_names);
+     assign_math_style(L,2,w);
     luaL_checkany(L, 3);
     m = lua_toboolean(L, 3);
     mlist_to_hlist_args(n, w, m);
@@ -4923,7 +4924,8 @@ static int lua_nodelib_fast_setfield(lua_State * L)
         if (lua_key_eq(s, subtype)) {
             /* dummy subtype */
         } else if (lua_key_eq(s, style)) {
-            subtype(n) = (quarterword) luaL_checkoption(L, 3, "text", math_style_names); /* not 2? */
+	    assign_math_style(L,3,subtype(n));
+            //subtype(n) = (quarterword) luaL_checkoption(L, 3, "text", math_style_names); /* not 2? */
         } else {
             /* return nodelib_cantset(L, n, s); */
         }
@@ -5666,7 +5668,8 @@ static int lua_nodelib_direct_setfield(lua_State * L)
         if (lua_key_eq(s, subtype)) {
             /* dummy subtype */
         } else if (lua_key_eq(s, style)) {
-            subtype(n) = (quarterword) luaL_checkoption(L, 2, "text", math_style_names); /* was 3 */
+	    assign_math_style(L,2,subtype(n));
+            //subtype(n) = (quarterword) luaL_checkoption(L, 2, "text", math_style_names); /* was 3 */
         } else {
             /* return nodelib_cantset(L, n, s); */
         }

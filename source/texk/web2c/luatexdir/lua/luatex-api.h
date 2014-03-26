@@ -289,7 +289,7 @@ preassign these at startup time. */
 
 /* no need for L state argument */
 
-#define PACK_TYPE_SIZE        2
+#define PACK_TYPE_SIZE        4
 #define GROUP_CODE_SIZE      23
 #define MATH_STYLE_NAME_SIZE  8 
 
@@ -301,12 +301,17 @@ extern int l_math_style_name_index [MATH_STYLE_NAME_SIZE];
 #define lua_push_group_code(L,group_code) lua_rawgeti(L, LUA_REGISTRYINDEX, l_group_code_index     [group_code]);
 #define lua_push_math_style_name(L,style_name) lua_rawgeti(L, LUA_REGISTRYINDEX, l_math_style_name_index[style_name]);
 
+
 #define lua_push_string_by_index(L,index) lua_rawgeti(L, LUA_REGISTRYINDEX, index)
 
 
 #define set_pack_type_index \
-l_pack_type_index[0] = lua_key_index(exactly);\
-l_pack_type_index[1] = lua_key_index(additional)
+l_pack_type_index[0] = lua_key_index(exactly); \
+l_pack_type_index[1] = lua_key_index(additional); \
+l_pack_type_index[2] = lua_key_index(cal_expand_ratio);\
+l_pack_type_index[3] = lua_key_index(subst_ex_font);
+
+
 
 #define set_l_group_code_index \
 l_group_code_index[0]  = lua_key_index(empty_string);\
@@ -342,6 +347,38 @@ l_math_style_name_index[4] = lua_key_index(script);\
 l_math_style_name_index[5] = lua_key_index(crampedscript);\
 l_math_style_name_index[6] = lua_key_index(scriptscript);\
 l_math_style_name_index[7] = lua_key_index(crampedscriptscript)
+
+
+#define assign_math_style(L,n,target) do { \
+    if (lua_isnumber(L,n)) { \
+        /* new, often same as subtype anyway  */ \
+        target = lua_tonumber(L,n); \
+    } else if (lua_isstring(L,n)) { \
+        const char *s = lua_tostring(L, n); \
+        if (lua_key_eq(s,display)) { \
+            target = 0; \
+        } else if (lua_key_eq(s,crampeddisplay)) { \
+            target = 1; \
+        } else if (lua_key_eq(s,text)) { \
+            target = 2; \
+        } else if (lua_key_eq(s,crampedtext)) { \
+            target = 3; \
+        } else if (lua_key_eq(s,script)) { \
+            target = 4; \
+        } else if (lua_key_eq(s,crampedscript)) { \
+            target = 5; \
+        } else if (lua_key_eq(s,scriptscript)) { \
+            target = 6; \
+        } else if (lua_key_eq(s,crampedscriptscript)) { \
+            target = 7; \
+        } else { \
+            target = 2; \
+        } \
+    } else { \
+        target = 2; /* text by default */ \
+    } \
+} while(0)
+
 
 #endif                          /* LUATEX_API_H */
 

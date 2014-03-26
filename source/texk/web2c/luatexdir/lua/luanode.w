@@ -238,7 +238,7 @@ lua_vpack_filter(halfword head_node, scaled size, int pack_type, scaled maxd,
         lua_settop(L, s_top);
         return head_node;
     }
-    if (strcmp("output", group_code_names[extrainfo]) == 0) {
+    if  (extrainfo == 8)  { /* output */
         callback_id = callback_defined(pre_output_filter_callback);
     } else {
         callback_id = callback_defined(vpack_filter_callback);
