@@ -4800,7 +4800,7 @@ static int lua_nodelib_fast_setfield(lua_State * L)
         } else if (lua_key_eq(s, stretch_order)) {
             stretch_order(n) = (quarterword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, shrink_order)) {
-            lua_pushnumber(L, shrink_order(n));
+	    shrink_order(n) = (quarterword) lua_tointeger(L, 3);
     /* } else if (lua_key_eq(s, ref_count)) {
             glue_ref_count(n) = (halfword) lua_tointeger(L, 3);
            } else if (lua_key_eq(s, writable)) {
@@ -5544,7 +5544,7 @@ static int lua_nodelib_direct_setfield(lua_State * L)
         } else if (lua_key_eq(s, stretch_order)) {
             stretch_order(n) = (quarterword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, shrink_order)) {
-            lua_pushnumber(L, shrink_order(n));
+            shrink_order(n) = (quarterword) lua_tointeger(L, 3);
      /* } else if (lua_key_eq(s, ref_count)) {
             glue_ref_count(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, writable)) {
