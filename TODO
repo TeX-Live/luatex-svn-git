@@ -40,3 +40,8 @@ probably a get_key there
 []  check lua_gettable usage (we might not want to fallback)
 
 []  Luas everywhere and get rid of L
+
+[] check is hpack calback is called for case 2 and 3
+
+[] pdf_error and pdf_warning: redo them (sformatted strings and callback)
+   or maybe a variant of print_err : print_warning
