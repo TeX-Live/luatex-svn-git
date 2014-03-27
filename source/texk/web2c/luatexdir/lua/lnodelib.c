@@ -4707,9 +4707,10 @@ static int lua_nodelib_fast_setfield(lua_State * L)
 
     s = lua_tostring(L, 2);
 
-    if (lua_key_eq(s, id)) {
-        lua_pushnumber(L, t);
-    } else if (lua_key_eq(s, next)) {
+    /*if (lua_key_eq(s, id)) {
+      type(n) = (quarteword) lua_tointeger(L, 3);
+      }* else */
+    if (lua_key_eq(s, next)) {
         halfword x = nodelib_getlist(L, 3);
         if (x>0 && type(x) == glue_spec_node) {
             return luaL_error(L, "You can't assign a %s node to a next field\n", node_data[type(x)].name);
@@ -4815,7 +4816,7 @@ static int lua_nodelib_fast_setfield(lua_State * L)
         } else if (lua_key_eq(s, stretch_order)) {
             stretch_order(n) = (quarterword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, shrink_order)) {
-            lua_pushnumber(L, shrink_order(n));
+	    shrink_order(n) = (quarterword) lua_tointeger(L, 3);
     /* } else if (lua_key_eq(s, ref_count)) {
             glue_ref_count(n) = (halfword) lua_tointeger(L, 3);
            } else if (lua_key_eq(s, writable)) {
@@ -5452,9 +5453,10 @@ static int lua_nodelib_direct_setfield(lua_State * L)
 
     s = lua_tostring(L, 2);
 
-    if (lua_key_eq(s, id)) {
-        lua_pushnumber(L, t);
-    } else if (lua_key_eq(s, next)) {
+    /*if (lua_key_eq(s, id)) {
+        type(n) = (quarteword) lua_tointeger(L, 3);
+	} else*/
+    if (lua_key_eq(s, next)) {
         halfword x = nodelib_popdirect(3);
         if (x>0 && type(x) == glue_spec_node) {
             return luaL_error(L, "You can't assign a %s node to a next field\n", node_data[type(x)].name);
@@ -5560,7 +5562,7 @@ static int lua_nodelib_direct_setfield(lua_State * L)
         } else if (lua_key_eq(s, stretch_order)) {
             stretch_order(n) = (quarterword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, shrink_order)) {
-            lua_pushnumber(L, shrink_order(n));
+            shrink_order(n) = (quarterword) lua_tointeger(L, 3);
      /* } else if (lua_key_eq(s, ref_count)) {
             glue_ref_count(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, writable)) {
