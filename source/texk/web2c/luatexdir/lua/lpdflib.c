@@ -558,9 +558,12 @@ static int l_get_info(lua_State * L) {
 static int l_get_names(lua_State * L) {
     return l_get_pdf_value(L,lua_key_index(names));
 }
+
+
 static int l_get_trailer(lua_State * L) {
     return l_get_pdf_value(L,lua_key_index(trailer));
 }
+
 
 static int getpdf(lua_State * L)
 {
@@ -569,8 +572,7 @@ static int getpdf(lua_State * L)
     if (lua_gettop(L) != 2) {
         return 0;
     }
-    (void) luaL_checkstring(L, 1);
-    if (lua_isstring(L, -2)) {
+    if (lua_isstring(L, -1)) {
         s =  lua_tostring(L, -1);
         if (lua_key_eq(s,h)) {
             lua_pushnumber(L, static_pdf->posstruct->pos.h);
@@ -590,6 +592,9 @@ static int getpdf(lua_State * L)
     lua_rawget(L, -2);
     return 0;
 }
+
+
+
 
 static int l_set_pdf_value(lua_State * L, int key)
 {
@@ -628,6 +633,7 @@ static int l_set_trailer(lua_State * L) {
     return l_set_pdf_value(L,lua_key_index(trailer));
 }
 
+
 static int setpdf(lua_State * L)
 {
     /* [pdf table] [key] [value] */
@@ -635,7 +641,6 @@ static int setpdf(lua_State * L)
     if (lua_gettop(L) != 3) {
         return 0;
     }
-    (void) luaL_checkstring(L, 2);
     if (lua_isstring(L, -2)) {
         s =  lua_tostring(L, -1);
         if (
@@ -652,6 +657,7 @@ static int setpdf(lua_State * L)
     lua_rawset(L, -3);
     return 0;
 }
+
 
 static int l_objtype(lua_State * L)
 {
