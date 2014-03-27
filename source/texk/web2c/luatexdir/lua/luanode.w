@@ -28,7 +28,7 @@ static const char _svn_version[] =
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
-/* TO BE REMOVED 
+/* TO BE REMOVED
 static const char *group_code_names[] = {
     "",
     "simple",
@@ -59,7 +59,7 @@ const char *pack_type_name[] = { "exactly", "additional" };
 */
 
 @ @c
-void 
+void
 lua_node_filter_s(int filterid, int extrainfo)
 {
     lua_State *L = Luas;
@@ -86,7 +86,7 @@ lua_node_filter_s(int filterid, int extrainfo)
 
 
 @ @c
-void 
+void
 lua_node_filter(int filterid, int extrainfo, halfword head_node, halfword * tail_node)
 {
     halfword ret;
@@ -198,7 +198,7 @@ lua_hpack_filter(halfword head_node, scaled size, int pack_type, int extrainfo,
     lua_pushnumber(L, size);
     lua_push_pack_type(L,pack_type);
     if (pack_direction >= 0)
-        lua_pushstring(L, string_dir(pack_direction));
+        lua_push_dir_par(L, pack_direction);
     else
         lua_pushnil(L);
     if (lua_pcall(L, 5, 1, 0) != 0) {   /* no arg, 1 result */
@@ -258,7 +258,7 @@ lua_vpack_filter(halfword head_node, scaled size, int pack_type, scaled maxd,
     lua_push_pack_type(L,pack_type);
     lua_pushnumber(L, maxd);
     if (pack_direction >= 0)
-        lua_pushstring(L, string_dir(pack_direction));
+         lua_push_dir_par(L, pack_direction);
     else
         lua_pushnil(L);
     if (lua_pcall(L, 6, 1, 0) != 0) {   /* no arg, 1 result */
