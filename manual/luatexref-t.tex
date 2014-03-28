@@ -2098,6 +2098,35 @@ end
 
 This callback replaces the code that prints the extra lua error message.
 
+
+\subsubsection{\luatex{start_file}}
+
+\startfunctioncall
+function(category,filename)
+end
+\stopfunctioncall
+
+This callback replaces the code that prints \LUATEX's when a file is opened
+like \type {(filename} for regular files. The category is a number:
+
+\starttabulate[|||]
+\NC 1 \NC a normal data file, like a \TEX\ source \NC \NR
+\NC 2 \NC a font map coupling font names to resources \NC \NR
+\NC 3 \NC an image file (\type {png}, \type {pdf}, etc) \NC \NR
+\NC 4 \NC an embedded font subset \NC \NR
+\NC 5 \NC a fully embedded font \NC \NR
+\stoptabulate
+
+\subsubsection{\luatex{stop_file}}
+
+\startfunctioncall
+function(category)
+end
+\stopfunctioncall
+
+This callback replaces the code that prints \LUATEX's when a file is closed
+like the \type{)} for regular files.
+
 \subsection{PDF-related callbacks}
 
 \subsubsection{\luatex{finish_pdffile}}

@@ -2,7 +2,67 @@
 This file is in the public domain.
 
 ==============================================================
-Luatex beta-0.78.2 was released 20140113
+Luatex beta-0.79.0 was released 20140328 (4956)
+==============================================================
+
+* The luafontloader now returns 'tsidebearing' glyph values
+  for OT/TT fonts, if applicable.
+
+* new lua variables: stats.luatex_hastype, stats.luatex_hashchars,
+  stats.lastluaerrorstring.
+
+* new lua functions: tex.init_rand(), tex.uniform_rand(),
+  tex.normal_rand(), tex.lua_math_randomseed(), tex.lua_math_random(),
+  tex.show_context()
+
+* In the lua node interface, there were often issues with rubbish
+  in (especially) 'prev' fields because luatex itself never looks
+  at those values. This is now cleaned up to prevent weird stuff
+  happening inside lua node processing code.
+
+* Various smallish fixes to the node direct interface
+
+* LPeg is now at version 0.12
+
+* Some small fixes to the CFF (font) parsing
+
+* Font file inclusion reporting messages on the terminal now 
+  comply to the texconfig.trace_file_names setting
+
+* Removed some of the additional luafontloader.info() return
+  information that was added in 0.78.2, but could not work 
+  properly.
+
+* new primitive \luafunction (see manual), with associated
+  lua.get_functions_table() function
+
+* lua error message reporting has been altered a bit to make
+  the distinction between \directlua and other lua source code
+  sources clearer
+
+* Additional pdf document data functionality in the 'pdf' table 
+  has been cleaned up internally
+
+* Additional pdf destination names can now be set via lua.
+
+* New callbacks: finish_pdfpage, show_error_message, 
+  show_lua_error_hook, start_file, stop_file
+
+* Handling of \tracinglostchars is fixed
+
+* Embedded metapost library version is now 1.900
+
+* luajittex is now included in the distribution. One can use
+  buildjit.sh to build both luatex and luajittex, where 
+  supported by the platform
+
+* Synchronization with the TeXLive sources updated the following
+  libraries:
+  * libpng is now 1.6.10
+  * poppler is now 0.25.1
+
+==============================================================
+Luatex beta-0.78.2 was released 20140113 (4748)
 ==============================================================
 
 * Extended luafontloader's info() function to include data
