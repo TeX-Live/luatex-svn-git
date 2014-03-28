@@ -2284,7 +2284,7 @@ static int pdf_print_info(PDF pdf, int luatexversion,
         trapped_given = substr_of_str("/Trapped", s);
     }
     p = get_pdf_table_string("info");
-    if (strlen(p) > 0) {
+    if (p && strlen(p) > 0) {
         creator_given = creator_given || substr_of_str("/Creator", p);
         producer_given = producer_given || substr_of_str("/Producer", p);
         creationdate_given = creationdate_given || substr_of_str("/CreationDate", p);
@@ -2301,7 +2301,7 @@ static int pdf_print_info(PDF pdf, int luatexversion,
         delete_token_ref(pdf_info_toks);
         pdf_info_toks = null;
     }
-    if (strlen(p) > 0) {
+    if (p && strlen(p) > 0) {
         pdf_out(pdf, '\n');
         pdf_puts(pdf, p); /* no free, pointer */
         pdf_out(pdf, '\n');
