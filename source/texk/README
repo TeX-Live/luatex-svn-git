@@ -1,4 +1,4 @@
-$Id: README 32688 2014-01-16 11:45:40Z peter $
+$Id: README 33244 2014-03-21 08:11:03Z peter $
 Copyright 2006-2012 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -103,8 +103,6 @@ ttfdump - ?
 web2c - maintained here, by us - core web2c, plain tex, etc.
         The TeX variant dirs (pdftexdir, xetexdir, etc.)
         updated here by their respective maintainers.
-
-xdv2pdf - maintained here, by Khaled Hosny, Jonathan Kew
 
 xdvik 22.86 - checked 7apr13
   http://sourceforge.net/projects/xdvi/files/xdvik/

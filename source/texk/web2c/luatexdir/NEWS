@@ -2,7 +2,7 @@
 This file is in the public domain.
 
 ==============================================================
-Luatex beta-0.79.0 was released 20140328 (4956)
+Luatex beta-0.79.0 was released 20140328 (4960)
 ==============================================================
 
 * The luafontloader now returns 'tsidebearing' glyph values
@@ -89,7 +89,7 @@ Luatex beta-0.79.0 was released 20140328 (4956)
 * Synchronization with the TeXLive sources updated the following
   libraries:
   * libpng is now 1.6.10
-  * poppler is now 0.25.1
+  * poppler is now 0.25.2
 
 ==============================================================
 Luatex beta-0.78.2 was released 20140113 (4748)
