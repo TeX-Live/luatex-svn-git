@@ -255,7 +255,7 @@ void lua_node_filter(int filterid, int extrainfo, halfword head_node,
                      halfword * tail_node);
 halfword lua_vpack_filter(halfword head_node, scaled size, int pack_type,
                           scaled maxd, int extrainfo, int d);
-void lua_node_filter_s(int filterid, const char *extrainfo);
+void lua_node_filter_s(int filterid, int extrainfo);
 int lua_linebreak_callback(int is_broken, halfword head_node,
                            halfword * new_head);
 
