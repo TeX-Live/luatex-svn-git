@@ -578,9 +578,6 @@ void write_png(PDF pdf, image_dict * idict)
         && !png_get_valid(png_p, info_p, PNG_INFO_hIST)
         && !png_get_valid(png_p, info_p, PNG_INFO_tRNS)
         && !png_get_valid(png_p, info_p, PNG_INFO_sPLT)) {
-        /* PNG copy */
-        if (tracefilenames)
-            tex_printf(" (PNG copy)");
         copy_png(pdf, idict);
     } else {
         if (0) {

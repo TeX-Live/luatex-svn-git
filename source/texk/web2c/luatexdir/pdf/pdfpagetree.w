@@ -226,6 +226,7 @@ static void write_pages(PDF pdf, pages_entry * p, int parent)
             pdf_out(pdf, ' ');
         }
         print_pdf_table_string(pdf, "pagesattributes");
+        pdf_out(pdf, ' ');
     } else
         pdf_dict_add_ref(pdf, "Parent", parent);
     pdf_dict_add_int(pdf, "Count", (int) p->number_of_pages);

@@ -34,6 +34,8 @@ typedef const char *(*charfunc) (void);
 typedef lua_Number(*numfunc) (void);
 typedef int (*intfunc) (void);
 
+const char *last_lua_error;
+
 static const char *getbanner(void)
 {
     return (const char *) ptexbanner;
@@ -72,6 +74,13 @@ static const char *getlasterror(void)
 {
     return last_error;
 }
+
+static const char *getlastluaerror(void)
+{
+    return last_lua_error;
+}
+
+
 
 static const char *luatexrevision(void)
 {
@@ -245,6 +254,7 @@ static struct statistic stats[] = {
     {"inputid", 'g', &(iname)},
     {"linenumber", 'g', &line},
     {"lasterrorstring", 'S', (void *) &getlasterror},
+    {"lastluaerrorstring", 'S', (void *) &getlastluaerror},
 
     {"luabytecodes", 'g', &luabytecode_max},
     {"luabytecode_bytes", 'g', &luabytecode_bytes},

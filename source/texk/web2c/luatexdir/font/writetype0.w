@@ -71,11 +71,10 @@ void writetype0(PDF pdf, fd_entry * fd)
 
     fd_cur->ff_found = true;
 
-    if (tracefilenames) {
-        if (is_subsetted(fd_cur->fm))
-            tex_printf("<%s", cur_file_name);
-        else
-            tex_printf("<<%s", cur_file_name);
+    if (is_subsetted(fd_cur->fm)) {
+        report_start_file(filetype_subset, cur_file_name);
+    } else {
+        report_start_file(filetype_font, cur_file_name);
     }
     ttf_read_tabdir();
     /* read font parameters */
@@ -116,11 +115,10 @@ void writetype0(PDF pdf, fd_entry * fd)
     }
     xfree(dir_tab);
     xfree(ttf_buffer);
-    if (tracefilenames) {
-        if (is_subsetted(fd_cur->fm))
-            tex_printf(">");
-        else
-            tex_printf(">>");
+    if (is_subsetted(fd_cur->fm)) {
+        report_stop_file(filetype_subset);
+    } else {
+        report_stop_file(filetype_font);
     }
     cur_file_name = NULL;
 }

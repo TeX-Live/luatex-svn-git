@@ -28,6 +28,7 @@ int saved_callback_count = 0;
 
 int callback_set[total_callbacks] = { 0 };
 
+/* See also callback_callback_type in luatexcallbackids.h: they must have the same order ! */
 static const char *const callbacknames[] = {
     "",                         /* empty on purpose */
     "find_write_file",
@@ -66,7 +67,8 @@ static const char *const callbacknames[] = {
     "mlist_to_hlist",
     "finish_pdffile",
     "finish_pdfpage",
-    "pre_dump",
+    "pre_dump","start_file", "stop_file",
+    "show_error_message","show_lua_error_hook",
     NULL
 };
 
