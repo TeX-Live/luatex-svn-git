@@ -18,7 +18,7 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 static const char _svn_version[] =
-    "$Id: lpdflib.c 4524 2012-12-20 15:38:02Z taco $ "
+    "$Id: lpdflib.c 4956 2014-03-28 12:12:17Z luigi $ "
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/lpdflib.c $";
 
 #include "ptexlib.h"

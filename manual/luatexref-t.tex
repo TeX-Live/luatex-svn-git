@@ -2098,6 +2098,35 @@ end
 
 This callback replaces the code that prints the extra lua error message.
 
+
+\subsubsection{\luatex{start_file}}
+
+\startfunctioncall
+function(category,filename)
+end
+\stopfunctioncall
+
+This callback replaces the code that prints \LUATEX's when a file is opened
+like \type {(filename} for regular files. The category is a number:
+
+\starttabulate[|||]
+\NC 1 \NC a normal data file, like a \TEX\ source \NC \NR
+\NC 2 \NC a font map coupling font names to resources \NC \NR
+\NC 3 \NC an image file (\type {png}, \type {pdf}, etc) \NC \NR
+\NC 4 \NC an embedded font subset \NC \NR
+\NC 5 \NC a fully embedded font \NC \NR
+\stoptabulate
+
+\subsubsection{\luatex{stop_file}}
+
+\startfunctioncall
+function(category)
+end
+\stopfunctioncall
+
+This callback replaces the code that prints \LUATEX's when a file is closed
+like the \type{)} for regular files.
+
 \subsection{PDF-related callbacks}
 
 \subsubsection{\luatex{finish_pdffile}}
@@ -5461,31 +5490,37 @@ The also functions replace the former variables
 \luatex{pdf.pdfmapfile} and \luatex{pdf.pdfmapline}.
 
 %***********************************************************************
-
 \subsection{\luatex{pdf.catalog}, \luatex{pdf.info},
     \luatex{pdf.names}, \luatex{pdf.trailer} (new in 0.53.0)}
 
-These variables offer a read-write interface to the corresponding
-\PDFTEX\ token lists. The value types are strings.
+These variables offer a read|-|write interface to the corresponding
+\PDFTEX\ token lists. The value types are strings and they are
+written out to the \PDF\ file directly after the \PDFTEX\ token registers.
 
-The corresponding \quote{\type{pdf}} parameter names
-\luatex{pdf.pdfcatalog}, \luatex{pdf.pdfinfo}, \luatex{pdf.pdfnames},
-and \luatex{pdf.pdftrailer} (all new in 0.47.0)
-still work, but are obsolescent (since 0.53.0).
+The preferred interface is now \luatex {pdf.setcatalog}, \luatex {pdf.setinfo}
+\luatex {pdf.setnames} and \luatex {pdf.settrailer} for setting these properties
+and \luatex {pdf.getcatalog}, \luatex {pdf.getinfo} \luatex {pdf.getnames} and
+\luatex {pdf.gettrailer} for querying them,
 
-Note: this interface will almost certainly change in the future.
+The corresponding \quote {\type{pdf}} parameter names \luatex {pdf.pdfcatalog},
+\luatex {pdf.pdfinfo}, \luatex {pdf.pdfnames}, and \luatex {pdf.pdftrailer} are
+removed in 0.79.0.
 
 %***********************************************************************
-
 \subsection{\luatex{pdf.pageattributes}, \luatex{pdf.pageresources},
-    \luatex{pdf.pagesattributes} (new in 0.53.0)}
+    \luatex{pdf.pagesattributes}}
 
-These variables offer a read-write interface to related
+These variables offer a read|-|write interface to related
 token lists. The value types are strings. The variables have no
 interaction with the corresponding \PDFTEX\ token registers
-\tex{pdfpageattr}, \tex{pdfpageresources}, and \tex{pdfpagesattr},
-but they are written out to the \PDF\ file directly after
+\tex{pdfpageattr}, \tex{pdfpageresources}, and \tex{pdfpagesattr}.
+They are written out to the \PDF\ file directly after
 the \PDFTEX\ token registers.
+
+The preferred interface is now \luatex {pdf.pageattributes}, \luatex
+{pdf.pagesattributes} and \luatex {pdf.setpageresources} for setting these
+properties and \luatex {pdf.pageattributes}, \luatex {pdf.getpageattributes} and
+\luatex {pdf.getpageresources} for querying them.
 
 %***********************************************************************
 

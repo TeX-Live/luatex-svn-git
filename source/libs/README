@@ -1,4 +1,4 @@
-$Id: README 33172 2014-03-14 09:24:13Z peter $
+$Id: README 33300 2014-03-27 09:49:34Z peter $
 Public domain.  Originally created by Karl Berry, 2005.
 
 Libraries we compile for TeX Live.
@@ -21,16 +21,16 @@ gd 2.1.0 - checked 26jun13
 graphite2 1.2.4 - checked 2dec13
   http://sourceforge.net/projects/silgraphite/files/graphite2/
 
-harfbuzz 0.9.26 - checked 31jan14
+harfbuzz 0.9.27 - checked 19mar14
   http://www.freedesktop.org/software/harfbuzz/release/
 
-icu 52.1 (release) - checked 10oct13
+icu 53.1 (rc) - checked 20mar14
   http://download.icu-project.org/files/icu4c/
 
 libpaper 1.1.24+nmu2 - checked 24oct13
   ftp://ftp.de.debian.org/debian/pool/main/libp/libpaper/
 
-libpng 1.6.9 - checked 7feb14
+libpng 1.6.10 - checked 15mar14
   http://www.libpng.org/ - used by many
   http://www.libpng.org/pub/png/pngcode.html
 
@@ -43,7 +43,7 @@ luajit 2.0.3 - checked 14mar14
 pixman 0.32.4 - checked 18nov13
   http://cairographics.org/releases/
 
-poppler 0.25.1 - checked 3jan14
+poppler 0.25.2 - checked 27mar14
   http://poppler.freedesktop.org/ - used by luatex and xetex
 
 potrace 1.11 - checked 12apr13
