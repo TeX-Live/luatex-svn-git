@@ -38,6 +38,7 @@ make_lua_key(accent);
 make_lua_key(action);
 make_lua_key(action_id);
 make_lua_key(action_type);
+make_lua_key(active);
 make_lua_key(additional);
 make_lua_key(adjust_head);
 make_lua_key(advance);
@@ -67,6 +68,8 @@ make_lua_key(characters);
 make_lua_key(checksum);
 make_lua_key(cidinfo);
 make_lua_key(class);
+make_lua_key(cmd);
+make_lua_key(cmdname);
 make_lua_key(command);
 make_lua_key(commands);
 make_lua_key(comment);
@@ -75,6 +78,7 @@ make_lua_key(contrib_head);
 make_lua_key(core);
 make_lua_key(cost);
 make_lua_key(count);
+make_lua_key(csname);
 make_lua_key(data);
 make_lua_key(degree);
 make_lua_key(delim);
@@ -97,6 +101,7 @@ make_lua_key(encodingname);
 make_lua_key(end);
 make_lua_key(etex);
 make_lua_key(exactly);
+make_lua_key(expandable);
 make_lua_key(expansion_factor);
 make_lua_key(ext);
 make_lua_key(extend);
@@ -143,6 +148,7 @@ make_lua_key(list);
 make_lua_key(log);
 make_lua_key(lua);
 make_lua_key(luatex);
+make_lua_key(luatex_newtoken);
 make_lua_key(luatex_node);
 make_lua_key(mLTL);
 make_lua_key(mRTT);
@@ -153,6 +159,7 @@ make_lua_key(mathdir);
 make_lua_key(mathkern);
 make_lua_key(mathstyle);
 make_lua_key(mid);
+make_lua_key(mod);
 make_lua_key(mode);
 make_lua_key(modeline);
 make_lua_key(name);
@@ -190,6 +197,7 @@ make_lua_key(pre_adjust_head);
 make_lua_key(prev);
 make_lua_key(prevdepth);
 make_lua_key(prevgraf);
+make_lua_key(protected);
 make_lua_key(psname);
 make_lua_key(ptr);
 make_lua_key(push);
@@ -244,6 +252,7 @@ make_lua_key(tex);
 make_lua_key(text);
 make_lua_key(thread_attr);
 make_lua_key(thread_id);
+make_lua_key(tok);
 make_lua_key(top);
 make_lua_key(top_accent);
 make_lua_key(top_left);
@@ -1042,6 +1051,7 @@ static void setup_lua_path(lua_State * L)
 int tex_table_id;
 int pdf_table_id;
 int token_table_id;
+int newtoken_table_id;
 int node_table_id;
 
 
@@ -1206,6 +1216,7 @@ void lua_initialize(int ac, char **av)
     init_lua_key(action);
     init_lua_key(action_id);
     init_lua_key(action_type);
+    init_lua_key(active);
     init_lua_key(additional);
     init_lua_key(adjust_head);
     init_lua_key(advance);
@@ -1235,6 +1246,8 @@ void lua_initialize(int ac, char **av)
     init_lua_key(checksum);
     init_lua_key(cidinfo);
     init_lua_key(class);
+    init_lua_key(cmd);
+    init_lua_key(cmdname);
     init_lua_key(command);
     init_lua_key(commands);
     init_lua_key(comment);
@@ -1243,6 +1256,7 @@ void lua_initialize(int ac, char **av)
     init_lua_key(core);
     init_lua_key(cost);
     init_lua_key(count);
+    init_lua_key(csname);
     init_lua_key(data);
     init_lua_key(degree);
     init_lua_key(delim);
@@ -1265,6 +1279,7 @@ void lua_initialize(int ac, char **av)
     init_lua_key(end);
     init_lua_key(etex);
     init_lua_key(exactly);
+    init_lua_key(expandable);
     init_lua_key(expansion_factor);
     init_lua_key(ext);
     init_lua_key(extend);
@@ -1311,11 +1326,13 @@ void lua_initialize(int ac, char **av)
     init_lua_key(log);
     init_lua_key(lua);
     init_lua_key(luatex);
+    init_lua_key(luatex_newtoken);
     init_lua_key(mark);
     init_lua_key(mathdir);
     init_lua_key(mathkern);
     init_lua_key(mathstyle);
     init_lua_key(mid);
+    init_lua_key(mod);
     init_lua_key(mode);
     init_lua_key(modeline);
     init_lua_key(name);
@@ -1347,6 +1364,7 @@ void lua_initialize(int ac, char **av)
     init_lua_key(prev);
     init_lua_key(prevdepth);
     init_lua_key(prevgraf);
+    init_lua_key(protected);
     init_lua_key(psname);
     init_lua_key(ptr);
     init_lua_key(push);
@@ -1400,6 +1418,7 @@ void lua_initialize(int ac, char **av)
     init_lua_key(text);
     init_lua_key(thread_attr);
     init_lua_key(thread_id);
+    init_lua_key(tok);
     init_lua_key(top);
     init_lua_key(top_accent);
     init_lua_key(top_left);
@@ -1460,6 +1479,7 @@ void lua_initialize(int ac, char **av)
         /* hide the 'tex' and 'pdf' table */
         tex_table_id = hide_lua_table(Luas, "tex");
         token_table_id = hide_lua_table(Luas, "token");
+        newtoken_table_id = hide_lua_table(Luas, "newtoken");
         node_table_id = hide_lua_table(Luas, "node");
         pdf_table_id = hide_lua_table(Luas, "pdf");
 
@@ -1491,6 +1511,7 @@ void lua_initialize(int ac, char **av)
         /* unhide the 'tex' and 'pdf' table */
         unhide_lua_table(Luas, "tex", tex_table_id);
         unhide_lua_table(Luas, "pdf", pdf_table_id);
+        unhide_lua_table(Luas, "newtoken", newtoken_table_id);
         unhide_lua_table(Luas, "token", token_table_id);
         unhide_lua_table(Luas, "node", node_table_id);
 

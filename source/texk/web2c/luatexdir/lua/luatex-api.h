@@ -109,6 +109,7 @@ extern int font_to_lua(lua_State * L, int f);
 extern int font_from_lua(lua_State * L, int f); /* return is boolean */
 
 extern int luaopen_token(lua_State * L);
+extern int luaopen_newtoken(lua_State * L);
 extern void tokenlist_to_lua(lua_State * L, int p);
 extern void tokenlist_to_luastring(lua_State * L, int p);
 extern int tokenlist_from_lua(lua_State * L);
@@ -202,6 +203,7 @@ extern void init_tex_table(lua_State * L);
 extern int tex_table_id;
 extern int pdf_table_id;
 extern int token_table_id;
+extern int newtoken_table_id;
 extern int node_table_id;
 extern int main_initialize(void);
 
@@ -283,6 +285,11 @@ extern int lua_numeric_field_by_index(lua_State *, int , int);
 /* These keys have to available to different files */
 /*                                                 */ 
 
+/*
+    These macros create and access pointers (indices) to keys which is faster. The
+    shortcuts are created as part of the initialization.
+*/
+
 
 use_lua_key(LTL);
 use_lua_key(MathConstants);
@@ -293,6 +300,7 @@ use_lua_key(accent);
 use_lua_key(action);
 use_lua_key(action_id);
 use_lua_key(action_type);
+use_lua_key(active);
 use_lua_key(additional);
 use_lua_key(adjust_head);
 use_lua_key(advance);
@@ -322,6 +330,8 @@ use_lua_key(characters);
 use_lua_key(checksum);
 use_lua_key(cidinfo);
 use_lua_key(class);
+use_lua_key(cmd);
+use_lua_key(cmdname);
 use_lua_key(command);
 use_lua_key(commands);
 use_lua_key(comment);
@@ -330,6 +340,7 @@ use_lua_key(contrib_head);
 use_lua_key(core);
 use_lua_key(cost);
 use_lua_key(count);
+use_lua_key(csname);
 use_lua_key(data);
 use_lua_key(degree);
 use_lua_key(delim);
@@ -352,6 +363,7 @@ use_lua_key(encodingname);
 use_lua_key(end);
 use_lua_key(etex);
 use_lua_key(exactly);
+use_lua_key(expandable);
 use_lua_key(expansion_factor);
 use_lua_key(ext);
 use_lua_key(extend);
@@ -398,6 +410,7 @@ use_lua_key(list);
 use_lua_key(log);
 use_lua_key(lua);
 use_lua_key(luatex);
+use_lua_key(luatex_newtoken);
 use_lua_key(luatex_node);
 use_lua_key(mLTL);
 use_lua_key(mRTT);
@@ -408,6 +421,7 @@ use_lua_key(mathdir);
 use_lua_key(mathkern);
 use_lua_key(mathstyle);
 use_lua_key(mid);
+use_lua_key(mod);
 use_lua_key(mode);
 use_lua_key(modeline);
 use_lua_key(name);
@@ -445,6 +459,7 @@ use_lua_key(pre_adjust_head);
 use_lua_key(prev);
 use_lua_key(prevdepth);
 use_lua_key(prevgraf);
+use_lua_key(protected);
 use_lua_key(psname);
 use_lua_key(ptr);
 use_lua_key(push);
@@ -499,6 +514,7 @@ use_lua_key(tex);
 use_lua_key(text);
 use_lua_key(thread_attr);
 use_lua_key(thread_id);
+use_lua_key(tok);
 use_lua_key(top);
 use_lua_key(top_accent);
 use_lua_key(top_left);
