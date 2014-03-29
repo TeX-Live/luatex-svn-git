@@ -2,7 +2,7 @@
 This file is in the public domain.
 
 ==============================================================
-Luatex beta-0.79.1 was released 20140328 (4969)
+Luatex beta-0.79.1 was released 20140329 (4971)
 ==============================================================
 
 * Fixed a bug that caused crashes if pdf.info was not set.
