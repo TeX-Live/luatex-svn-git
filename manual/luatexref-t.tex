@@ -5299,6 +5299,7 @@ against the upvalue \type{id}:
 \stopfunctioncall
 
 Looks for and returns the next \type{math_node} following the \type{start}.
+If the given node is a math endnode this helper return that node, else it follows the list and return the next math endnote. If no such node is found nil is returned.
 
 \subsubsection{\luatex{node.remove}}
 
