@@ -337,7 +337,8 @@ static void fm_scan_line(void)
     float d;
     fm_entry *fm;
     char fm_line[FM_BUF_SIZE], buf[FM_BUF_SIZE];
-    char *p, *q, *r, *s;
+    char *p, *q, *s; 
+    char *r = NULL;
     switch (mitem->type) {
     case MAPFILE:
         p = fm_line;

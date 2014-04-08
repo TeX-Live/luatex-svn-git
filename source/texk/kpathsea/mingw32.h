@@ -76,6 +76,9 @@ win32_popen (const char *command, const char *fmode)
 
   return _popen (command, mode);
 }
+#ifdef popen
+#undef popen
+#endif
 #define popen(cmd, mode) win32_popen(cmd, mode)
 
 #ifdef __cplusplus

@@ -235,9 +235,12 @@ static output_mode get_o_mode(void)
 {
     output_mode o_mode;
     if (pdf_output > 0) {
+    /* ls-hh: for the moment disabled ... incomplete old experiment */
+    /* 
         if (pdf_output == 2009)
             o_mode = OMODE_LUA;
         else
+    */
             o_mode = OMODE_PDF;
     } else
         o_mode = OMODE_DVI;
@@ -639,7 +642,9 @@ void pdf_begin_stream(PDF pdf)
     pdf_puts(pdf, "\nstream\n");
     pdf_save_offset(pdf);
     pdf_flush(pdf);
-    if (os->trigger_luastm) {
+
+    if (callback_defined(pdf_stream_filter_callback)) {
+    /*if (os->trigger_luastm) {*/
         os->trigger_luastm = false;     /* this was just a trigger */
         luaL_buffinit(Luas, &(os->b));
         lbuf->p = lbuf->data = (unsigned char *) luaL_prepbuffer(&(os->b));
@@ -660,9 +665,20 @@ void pdf_begin_stream(PDF pdf)
 @c
 void pdf_end_stream(PDF pdf)
 {
+    typedef struct strbuf_const_s_ {
+    unsigned const char *data;   /* a PDF stream buffer */
+    unsigned const char *p;     /* pointer to the next character in the PDF stream buffer */
+    size_t size;                /* currently allocated size of the PDF stream buffer, grows dynamically */
+    size_t limit;               /* maximum allowed PDF stream buffer size */
+    } strbuf_const_s;
+
+
     os_struct *os = pdf->os;
-    strbuf_s *lbuf = os->buf[LUASTM_BUF];
+#pragma message "***** USING AN EXPERIMENTAL FEATURE: strbuf_const_s "
+    //strbuf_s *lbuf = os->buf[LUASTM_BUF];
+    strbuf_const_s *lbuf = (strbuf_const_s * )os->buf[LUASTM_BUF];
     const_lstring ls;
+    int callback_id ;
     assert(pdf->buf == os->buf[os->curbuf]);
     switch (os->curbuf) {
     case PDFOUT_BUF:
@@ -673,12 +689,17 @@ void pdf_end_stream(PDF pdf)
     case LUASTM_BUF:
         luaL_addsize(&(os->b), strbuf_offset(os->buf[LUASTM_BUF]));
         luaL_pushresult(&(os->b));
-
         /* now the complete page stream is on the Lua stack */
         /* TODO: pagestream filter callback here */
 
+        callback_id = callback_defined(pdf_stream_filter_callback);
+        if (callback_id > 0) {
+            run_callback(callback_id, "S->S");
+        }
+
         ls.s = lua_tolstring(Luas, -1, &ls.l);
-        lbuf->data = (unsigned char *) ls.s;
+        //lbuf->data = (unsigned char *) ls.s;
+        lbuf->data = (unsigned const char *) ls.s;
         lbuf->p = lbuf->data + ls.l;
         os->curbuf = LUASTM_BUF;
         pdf->buf = os->buf[os->curbuf];
@@ -1901,7 +1922,7 @@ void print_pdf_table_string(PDF pdf, const char *s)
 }
 
 @ @c
-char *get_pdf_table_string(const char *s)
+const char *get_pdf_table_string(const char *s)
 {
     const_lstring ls;
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, lua_key_index(pdf_data));
@@ -1910,8 +1931,11 @@ char *get_pdf_table_string(const char *s)
     lua_rawget(Luas, -2);     /* s? t ... */
     if (lua_isstring(Luas, -1)) {       /* s t ... */
         ls.s = lua_tolstring(Luas, -1, &ls.l);
+	/*  s is  supposed to be anchored (e.g in the registry)
+	    so it's not garbage collected */
         lua_pop(Luas, 2);           /* ... */
-        return (char *)ls.s;
+        //return (char *)ls.s;
+	return ls.s;
     }
     lua_pop(Luas, 2);           /* ... */
     return NULL ;
@@ -2265,7 +2289,7 @@ static int pdf_print_info(PDF pdf, int luatexversion,
     boolean creator_given, producer_given, creationdate_given, moddate_given,
         trapped_given;
     char *s = NULL;
-    char *p = NULL;
+    const char *p = NULL;
     int k, len = 0;
     k = pdf_create_obj(pdf, obj_type_info, 0);
     pdf_begin_obj(pdf, k, 3);   /* keep Info readable unless explicitely forced */
