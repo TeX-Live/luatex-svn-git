@@ -443,12 +443,10 @@ void init_align(int status)
 
         v_part(cur_align) = token_link(hold_token_head);
     }
-    scanner_status = normal;
-
     new_save_level(align_group);
     if (every_cr != null)
         begin_token_list(every_cr, every_cr_text);
-    align_peek();               /* look for \.{\\noalign} or \.{\\omit} */
+    align_peek(normal);               /* look for \.{\\noalign} or \.{\\omit} */
 }
 
 
@@ -463,12 +461,12 @@ the right thing; it either gets a new row started, or gets a \.{\\noalign}
 started, or finishes off the alignment.
 
 @c
-void align_peek(void)
+void align_peek(int status)
 {
   RESTART:
     align_state = 1000000;
     do {
-        get_x_or_protected(scanner_status);
+        get_x_or_protected(status);
     } while (cur_cmd == spacer_cmd);
     if (cur_cmd == no_align_cmd) {
         scan_left_brace();
@@ -598,7 +596,7 @@ that makes them happen. This routine returns |true| if a row as well as a
 column has been finished.
 
 @c
-boolean fin_col(void)
+boolean fin_col(int status)
 {
     pointer p;                  /* the alignrecord after the current one */
     pointer q, r;               /* temporary pointers for list manipulation */
@@ -630,7 +628,7 @@ boolean fin_col(void)
             q = hold_token_head;
             r = u_part(cur_loop);
             while (r != null) {
-                s = get_avail(scanner_status);
+                s = get_avail(status);
                 token_link(q) = s;
                 q = token_link(q);
                 token_info(q) = token_info(r);
@@ -641,7 +639,7 @@ boolean fin_col(void)
             q = hold_token_head;
             r = v_part(cur_loop);
             while (r != null) {
-                s = get_avail(scanner_status);
+                s = get_avail(status);
                 token_link(q) = s;
                 q = token_link(q);
                 token_info(q) = token_info(r);
@@ -730,7 +728,7 @@ boolean fin_col(void)
     }
     align_state = 1000000;
     do {
-        get_x_or_protected(scanner_status);
+        get_x_or_protected(status);
     } while (cur_cmd == spacer_cmd);
     cur_align = p;
     init_col();
@@ -768,7 +766,7 @@ contains the unset boxes for the columns, separated by the tabskip glue.
 Everything will be set later.
 
 @c
-void fin_row(void)
+void fin_row(int status)
 {
     pointer p;                  /* the new unset box */
     if (cur_list.mode_field == -hmode) {
@@ -792,7 +790,7 @@ void fin_row(void)
     glue_stretch(p) = 0;
     if (every_cr != null)
         begin_token_list(every_cr, every_cr_text);
-    align_peek();
+    align_peek(status);
     /* note that |glue_shrink(p)=0| since |glue_shrink==shift_amount| */
 }
 

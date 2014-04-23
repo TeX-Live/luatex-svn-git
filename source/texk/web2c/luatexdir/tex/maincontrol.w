@@ -1247,7 +1247,7 @@ void handle_right_brace(void)
     case no_align_group:
         end_graf(no_align_group);
         unsave();
-        align_peek();
+        align_peek(scanner_status);
         break;
     case vcenter_group:
         end_graf(vcenter_group);
@@ -2067,8 +2067,8 @@ void do_endv(void)
     /*.interwoven alignment preambles... */
     if (cur_group == align_group) {
         end_graf(align_group);
-        if (fin_col())
-            fin_row();
+        if (fin_col(scanner_status))
+            fin_row(scanner_status);
     } else {
         off_save();
     }

@@ -45,10 +45,10 @@ as its command code.
 extern void init_align(int status);
 extern void initialize_alignments(void);
 
-extern boolean fin_col(void);
-extern void fin_row(void);
+extern boolean fin_col(int status);
+extern void fin_row(int status);
 
-extern void align_peek(void);
+extern void align_peek(int status);
 extern void insert_vj_template(int status);
 
 
