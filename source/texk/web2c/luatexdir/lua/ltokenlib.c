@@ -176,7 +176,7 @@ static int run_get_csname_id(lua_State * L)
     size_t k, cs = 0;
     if (lua_isstring(L, -1)) {
         s = lua_tolstring(L, -1, &k);
-        cs = (size_t) string_lookup(s, k);
+        cs = (size_t) string_lookup(s, k, true);
     }
     lua_pushnumber(L, (lua_Number) cs);
     return 1;
@@ -196,11 +196,7 @@ void make_token_table(lua_State * L, int cmd, int chr, int cs)
 
 static int run_get_next(lua_State * L)
 {
-    int save_nncs;
-    save_nncs = no_new_control_sequence;
-    no_new_control_sequence = 0;
-    get_next();
-    no_new_control_sequence = save_nncs;
+    get_next(false);
     make_token_table(L, cur_cmd, cur_chr, cur_cs);
     return 1;
 }
@@ -218,18 +214,14 @@ static int run_lookup(lua_State * L)
     const char *s;
     size_t l;
     int cs, cmd, chr;
-    int save_nncs;
     if (lua_isstring(L, -1)) {
         s = lua_tolstring(L, -1, &l);
         if (l > 0) {
-            save_nncs = no_new_control_sequence;
-            no_new_control_sequence = true;
-            cs = id_lookup((last + 1), (int) l);        /* cleans up the lookup buffer */
-            cs = string_lookup(s, l);
+            cs = id_lookup((last + 1), (int) l, true);        /* cleans up the lookup buffer */
+            cs = string_lookup(s, l, true);
             cmd = eq_type(cs);
             chr = equiv(cs);
             make_token_table(L, cmd, chr, cs);
-            no_new_control_sequence = save_nncs;
             return 1;
         }
     }
@@ -252,7 +244,7 @@ static int run_build(lua_State * L)
             cmd = 12;
         }
         if (cmd == 13) {
-            cs = active_to_cs(chr, false);
+	  cs = active_to_cs(chr, false, true);
             cmd = eq_type(cs);
             chr = equiv(cs);
         }

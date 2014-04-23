@@ -871,7 +871,7 @@ void scan_something_internal(scan_result *val, int level, boolean negative)
                    expansion creating new errors.
                  */
                 get_token();
-                cur_cs = prim_lookup(cs_text(cur_cs));
+                cur_cs = prim_lookup(cs_text(cur_cs), true);
                 if (cur_cs != undefined_primitive) {
                     cur_cmd = get_prim_eq_type(cur_cs);
                     cur_chr = get_prim_equiv(cur_cs);
@@ -1024,7 +1024,7 @@ void scan_int(scan_result *val)
            expansion creating new errors.
          */
         get_token();
-        cur_cs = prim_lookup(cs_text(cur_cs));
+        cur_cs = prim_lookup(cs_text(cur_cs), true);
         if (cur_cs != undefined_primitive) {
             cur_cmd = get_prim_eq_type(cur_cs);
             cur_chr = get_prim_equiv(cur_cs);

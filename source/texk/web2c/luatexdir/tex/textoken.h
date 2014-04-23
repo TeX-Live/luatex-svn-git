@@ -126,10 +126,10 @@ extern void make_token_table(lua_State * L, int cmd, int chr, int cs);
 #  define  NO_CAT_TABLE      -2
 #  define  DEFAULT_CAT_TABLE -1
 
-extern void get_next(void);
+extern void get_next(int prohibit_new_cs);
 extern void check_outer_validity(void);
 extern boolean scan_keyword(const char *);
-extern halfword active_to_cs(int, int);
+extern halfword active_to_cs(int, int, int);
 extern void get_token_lua(void);
 halfword string_to_toks(char *);
 extern int get_char_cat_code(int);

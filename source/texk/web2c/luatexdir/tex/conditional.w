@@ -211,7 +211,7 @@ static boolean test_for_cs(void)
         p = token_link(p);
     }
     if (m > first) {
-        cur_cs = id_lookup(first, m - first);   /*|no_new_control_sequence| is |true| */
+        cur_cs = id_lookup(first, m - first, true);   /* inhibit creating a new csname */
     } else if (m == first) {
         cur_cs = null_cs;       /*the list is empty */
     }
@@ -468,7 +468,7 @@ void conditional(void)
         scanner_status = normal;
         get_token_lua();
         scanner_status = save_scanner_status;
-        m = prim_lookup(cs_text(cur_cs));
+        m = prim_lookup(cs_text(cur_cs), true);
         b = ((cur_cmd != undefined_cs_cmd) &&
              (m != undefined_primitive) &&
              (cur_cmd == get_prim_eq_type(m)) &&

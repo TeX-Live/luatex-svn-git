@@ -253,13 +253,10 @@ static int get_cur_cs(lua_State * L)
             for (j = 0; j < l; j++) {
                 buffer[(unsigned) last + 1 + j] = (packed_ASCII_code) * s++;
             }
-            save_nncs = no_new_control_sequence;
-            no_new_control_sequence = false;
-            cs = id_lookup((last + 1), (int) l);
+            cs = id_lookup((last + 1), (int) l, false);
             cur_tok = cs_token_flag + cs;
             cur_cmd = eq_type(cs);
             cur_chr = equiv(cs);
-            no_new_control_sequence = save_nncs;
             ret = 1;
         }
     }
@@ -355,7 +352,7 @@ void do_get_token_lua(int callback_id)
     lua_State *L = Luas;
     while (1) {
         if (!get_callback(L, callback_id)) {
-            get_next();
+            get_next(false);
             lua_pop(L, 2);      /* the not-a-function callback and the container */
             break;
         }
@@ -388,7 +385,7 @@ void do_get_token_lua(int callback_id)
                     free_avail(r);
                     begin_token_list(p, inserted);
                     cur_input.nofilter_field = true;
-                    get_next();
+                    get_next(false);
                 } else {
                     tex_error("error: illegal or empty token list returned",
                               NULL);

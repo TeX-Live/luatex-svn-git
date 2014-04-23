@@ -28,21 +28,17 @@ typedef struct lua_token {
 typedef struct saved_tex_scanner {
     int token;
     int origin;
-    int save_nncs;
     int save_cmd, save_chr, save_cs, save_tok;
 } saved_tex_scanner;
 
 #define save_tex_scanner(a) do {		  \
-	a.save_nncs = no_new_control_sequence;	  \
 	a.save_cmd = cur_cmd;			  \
 	a.save_chr = cur_chr;			  \
 	a.save_cs  = cur_cs;			  \
 	a.save_tok = cur_tok;			  \
-	no_new_control_sequence = 0;		  \
     } while (0)
 
 #define unsave_tex_scanner(a) do {		  \
-	no_new_control_sequence = a.save_nncs ;	  \
 	cur_cmd = a.save_cmd;			  \
 	cur_chr = a.save_chr;			  \
 	cur_cs = a.save_cs;			  \
@@ -152,7 +148,7 @@ static int run_get_csname_id(lua_State * L)
     size_t k, cs = 0;
     if (lua_isstring(L, -1)) {
         s = lua_tolstring(L, -1, &k);
-        cs = (size_t) string_lookup(s, k);
+        cs = (size_t) string_lookup(s, k, true);
     }
     lua_pushnumber(L, (lua_Number) cs);
     return 1;
@@ -162,7 +158,7 @@ static int run_get_next(lua_State * L)
 {
     saved_tex_scanner texstate;
     save_tex_scanner(texstate);
-    get_next();
+    get_next(false);
     make_new_token(L, cur_cmd, cur_chr, cur_cs);
     unsave_tex_scanner(texstate);
     return 1;
@@ -278,18 +274,14 @@ static int run_lookup(lua_State * L)
     const char *s;
     size_t l;
     int cs, cmd, chr;
-    int save_nncs;
     if (lua_isstring(L, -1)) {
         s = lua_tolstring(L, -1, &l);
         if (l > 0) {
-            save_nncs = no_new_control_sequence;
-            no_new_control_sequence = true;
-            cs = id_lookup((last + 1), (int) l);        /* cleans up the lookup buffer */
-            cs = string_lookup(s, l);
+            cs = id_lookup((last + 1), (int) l, true);        /* cleans up the lookup buffer */
+            cs = string_lookup(s, l, true);
             cmd = eq_type(cs);
             chr = equiv(cs);
             make_new_token(L, cmd, chr, cs);
-            no_new_control_sequence = save_nncs;
             return 1;
         }
     }
@@ -312,7 +304,7 @@ static int run_build(lua_State * L)
             cmd = 12;
         }
         if (cmd == 13) {
-            cs = active_to_cs(chr, false);
+            cs = active_to_cs(chr, false, true);
             cmd = eq_type(cs);
             chr = equiv(cs);
         }

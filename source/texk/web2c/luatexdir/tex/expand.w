@@ -189,7 +189,7 @@ void expand(void)
                 scanner_status = normal;
                 get_token();
                 scanner_status = save_scanner_status;
-                cur_cs = prim_lookup(cs_text(cur_cs));
+                cur_cs = prim_lookup(cs_text(cur_cs), true);
                 if (cur_cs != undefined_primitive) {
                     t = get_prim_eq_type(cur_cs);
                     if (t > max_command_cmd) {
@@ -328,9 +328,7 @@ void manufacture_csname(void)
 
     ss = tokenlist_to_lstring(r, true);
     if (ss->l > 0) {
-        no_new_control_sequence = false;
-        cur_cs = string_lookup((char *) ss->s, ss->l);
-        no_new_control_sequence = true;
+        cur_cs = string_lookup((char *) ss->s, ss->l, false);
     } else {
         cur_cs = null_cs;       /* the list is empty */
     }

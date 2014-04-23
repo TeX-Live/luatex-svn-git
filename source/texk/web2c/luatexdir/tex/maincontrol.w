@@ -300,7 +300,7 @@ static void run_ignore_spaces (void) {
         scanner_status = normal;
         get_token_lua();
         scanner_status = t;
-        cur_cs = prim_lookup(cs_text(cur_cs));
+        cur_cs = prim_lookup(cs_text(cur_cs), true);
         if (cur_cs != undefined_primitive) {
             cur_cmd = get_prim_eq_type(cur_cs);
             cur_chr = get_prim_equiv(cur_cs);
@@ -3354,7 +3354,7 @@ void shift_case(void)
             else
                 i = get_lc_code(c);
             if (i != 0)
-                set_token_info(p, active_to_cs(i, true) + cs_token_flag);
+                set_token_info(p, active_to_cs(i, true, true) + cs_token_flag);
         }
         p = token_link(p);
     }
@@ -3513,7 +3513,6 @@ void initialize(void)
     page_max_depth = 0;
 
     initialize_equivalents();
-    no_new_control_sequence = true;     /* new identifiers are usually forbidden */
     init_primitives();
 
     mag_set = 0;

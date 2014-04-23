@@ -1271,7 +1271,7 @@ int scan_math(pointer p, int mstyle)
         mval = get_math_code(cur_chr);
         if (mval.class_value == 8) {
             /* An active character that is an |outer_call| is allowed here */
-            cur_cs = active_to_cs(cur_chr, true);
+            cur_cs = active_to_cs(cur_chr, true, true);
             cur_cmd = eq_type(cur_cs);
             cur_chr = equiv(cur_cs);
             x_token();
@@ -1341,7 +1341,7 @@ void set_math_char(mathcodeval mval)
     pointer p;                  /* the new noad */
     if (mval.class_value == 8) {
         /* An active character that is an |outer_call| is allowed here */
-        cur_cs = active_to_cs(cur_chr, true);
+        cur_cs = active_to_cs(cur_chr, true, true);
         cur_cmd = eq_type(cur_cs);
         cur_chr = equiv(cur_cs);
         x_token();
@@ -1388,7 +1388,7 @@ void math_char_in_text(mathcodeval mval)
     pointer p;                  /* the new node */
     if (mval.class_value == 8) {
         /* An active character that is an |outer_call| is allowed here */
-        cur_cs = active_to_cs(cur_chr, true);
+        cur_cs = active_to_cs(cur_chr, true, true);
         cur_cmd = eq_type(cur_cs);
         cur_chr = equiv(cur_cs);
         x_token();

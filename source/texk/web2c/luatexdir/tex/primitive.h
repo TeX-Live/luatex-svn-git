@@ -45,7 +45,6 @@ extern halfword hash_used;      /* allocation pointer for |hash| */
 extern int hash_extra;          /* |hash_extra=hash| above |eqtb_size| */
 extern halfword hash_top;       /* maximum of the hash array */
 extern halfword hash_high;      /* pointer to next high hash location */
-extern boolean no_new_control_sequence; /* are new identifiers legal? */
 extern int cs_count;            /* total number of known identifiers */
 
 #  define cs_next(a) hash[(a)].lhfield  /* link for coalesced lists */
@@ -61,7 +60,7 @@ extern void ini_init_primitives(void);
 
 extern halfword compute_pool_hash(pool_pointer j, pool_pointer l,
                                   halfword prime_number);
-extern pointer prim_lookup(str_number s);
+extern pointer prim_lookup(str_number s, int prohibit_new_cs);
 
 extern boolean is_primitive(str_number csname);
 
@@ -89,7 +88,7 @@ extern int primitive(const char *ss, quarterword c, halfword o, halfword off,
                       int cmd_origin);
 extern void print_cmd_chr(quarterword cmd, halfword chr_code);
 
-extern pointer string_lookup(const char *s, size_t l);
-extern pointer id_lookup(int j, int l);
+extern pointer string_lookup(const char *s, size_t l, int prohibit_new_cs);
+extern pointer id_lookup(int j, int l, int prohibit_new_cs);
 
 #endif                          /* LUATEX_PRIMITIVE_H */

@@ -386,12 +386,10 @@ int main_initialize(void)
         initialize();           /* set global variables to their starting values */
         if (ini_version) {
             /* initialize all the primitives */
-            no_new_control_sequence = false;
             first = 0;
             initialize_commands();
             initialize_etex_commands();
             init_str_ptr = str_ptr;
-            no_new_control_sequence = true;
             fix_date_and_time();
         }
         ready_already = 314159;

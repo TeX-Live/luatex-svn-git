@@ -654,7 +654,7 @@ static int get_item_index(lua_State * L, int i, int base)
     switch (lua_type(L, i)) {
     case LUA_TSTRING:
         s = lua_tolstring(L, i, &kk);
-        cur_cs1 = string_lookup(s, kk);
+        cur_cs1 = string_lookup(s, kk, true);
         if (cur_cs1 == undefined_control_sequence || cur_cs1 == undefined_cs_cmd)
             k = -1;             /* guarandeed invalid */
         else
@@ -917,7 +917,7 @@ static int get_box_id(lua_State * L, int i)
     switch (lua_type(L, i)) {
     case LUA_TSTRING:
         s = lua_tolstring(L, i, &k);
-        cur_cs1 = string_lookup(s, k);
+        cur_cs1 = string_lookup(s, k, true);
         cur_cmd1 = eq_type(cur_cs1);
         if (cur_cmd1 == char_given_cmd ||
             cur_cmd1 == math_given_cmd) {
@@ -1237,7 +1237,7 @@ static int settex(lua_State * L)
                 if (lua_key_eq(s,global))
                     isglobal = 1;
             }
-            cur_cs1 = string_lookup(st, k);
+            cur_cs1 = string_lookup(st, k, true);
             flush_str(texstr);
             cur_cmd1 = eq_type(cur_cs1);
             if (is_int_assign(cur_cmd1)) {
@@ -1571,7 +1571,7 @@ static int gettex(lua_State * L)
         size_t k;
         const char *st = lua_tolstring(L, t, &k);
         texstr = maketexlstring(st, k);
-        cur_cs1 = prim_lookup(texstr);   /* not found == relax == 0 */
+        cur_cs1 = prim_lookup(texstr, true);   /* not found == relax == 0 */
         flush_str(texstr);
     }
     if (cur_cs1 > 0) {
@@ -1919,7 +1919,7 @@ static int tex_definefont(lua_State * L)
     size_t l;
     int i = 1;
     int a = 0;
-    if (!no_new_control_sequence) {
+    if (is_in_csname) {
         const char *help[] =
             { "You can't create a new font inside a \\csname\\endcsname pair",
             NULL
@@ -1933,9 +1933,7 @@ static int tex_definefont(lua_State * L)
     csname = luaL_checklstring(L, i, &l);
     f = (int) luaL_checkinteger(L, (i + 1));
     t = maketexlstring(csname, l);
-    no_new_control_sequence = 0;
-    u = string_lookup(csname, l);
-    no_new_control_sequence = 1;
+    u = string_lookup(csname, l, false);
     if (a)
         geq_define(u, set_font_cmd, f);
     else
@@ -2050,15 +2048,13 @@ static int tex_enableprimitives(lua_State * L)
         int i;
         const char *pre = luaL_checklstring(L, 1, &l);
         if (lua_istable(L, 2)) {
-            int nncs = no_new_control_sequence;
-            no_new_control_sequence = true;
             i = 1;
             while (1) {
                 lua_rawgeti(L, 2, i);
                 if (lua_isstring(L, 3)) {
                     const char *prim = lua_tostring(L, 3);
                     str_number s = maketexstring(prim);
-                    halfword prim_val = prim_lookup(s);
+                    halfword prim_val = prim_lookup(s, true);
                     if (prim_val != undefined_primitive) {
                         char *newprim;
                         int val;
@@ -2075,7 +2071,7 @@ static int tex_enableprimitives(lua_State * L)
                             newprim = (char *) xmalloc((unsigned) (newl + 1));
                             strcpy(newprim, prim);
                         }
-                        val = string_lookup(newprim, newl);
+                        val = string_lookup(newprim, newl, true);
                         if (val == undefined_control_sequence ||
                             eq_type(val) == undefined_cs_cmd) {
 			  (void)primitive_def(newprim, newl, (quarterword) cur_cmd1,
@@ -2092,7 +2088,6 @@ static int tex_enableprimitives(lua_State * L)
                 i++;
             }
             lua_pop(L, 1);      /* the table */
-            no_new_control_sequence = nncs;
         } else {
             luaL_error(L, "Expected an array of names as second argument");
         }

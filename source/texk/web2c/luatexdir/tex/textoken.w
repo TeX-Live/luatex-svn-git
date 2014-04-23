@@ -448,7 +448,7 @@ static void invalid_character_error(void)
 @ @c
 static boolean process_sup_mark(void);  /* below */
 
-static int scan_control_sequence(void); /* below */
+static int scan_control_sequence(int inhibit_new_cs); /* below */
 
 typedef enum { next_line_ok, next_line_return,
     next_line_restart
@@ -517,26 +517,25 @@ boolean scan_keyword(const char *s)
  (inside |shift_case|, for example). This needs thinking.
  
 @c
-halfword active_to_cs(int curchr, int force)
+halfword active_to_cs(int curchr, int force, int prohibit_new_cs)
 {
     halfword curcs;
     char *a, *b;
     char *utfbytes = xmalloc(10);
-    int nncs = no_new_control_sequence;
+    int no_new = prohibit_new_cs;
     a = (char *) uni2str(0xFFFF);
     utfbytes = strcpy(utfbytes, a);
     if (force)
-        no_new_control_sequence = false;
+       no_new = false;
     if (curchr > 0) {
         b = (char *) uni2str((unsigned) curchr);
         utfbytes = strcat(utfbytes, b);
         free(b);
-        curcs = string_lookup(utfbytes, strlen(utfbytes));
+        curcs = string_lookup(utfbytes, strlen(utfbytes), no_new);
     } else {
         utfbytes[3] = '\0';
-        curcs = string_lookup(utfbytes, 4);
+        curcs = string_lookup(utfbytes, 4, no_new);
     }
-    no_new_control_sequence = nncs;
     free(a);
     free(utfbytes);
     return curcs;
@@ -809,7 +808,7 @@ void check_outer_validity(void)
 }
 
 @ @c
-static boolean get_next_file(void)
+static boolean get_next_file(int prohibit_new_cs)
 {
   SWITCH:
     if (iloc <= ilimit) {       /* current line not yet finished */
@@ -843,14 +842,14 @@ static boolean get_next_file(void)
         case mid_line + escape_cmd:
         case new_line + escape_cmd:
         case skip_blanks + escape_cmd: /* Scan a control sequence ...; */
-            istate = (unsigned char) scan_control_sequence();
+            istate = (unsigned char) scan_control_sequence(prohibit_new_cs);
             if (cur_cmd >= outer_call_cmd)
                 check_outer_validity();
             break;
         case mid_line + active_char_cmd:
         case new_line + active_char_cmd:
         case skip_blanks + active_char_cmd:    /* Process an active-character  */
-            cur_cs = active_to_cs(cur_chr, false);
+            cur_cs = active_to_cs(cur_chr, false, prohibit_new_cs);
             cur_cmd = eq_type(cur_cs);
             cur_chr = equiv(cur_cs);
             istate = mid_line;
@@ -1085,7 +1084,7 @@ static boolean process_sup_mark(void)
 @c
 static boolean check_expanded_code(int *kk);    /* below */
 
-static int scan_control_sequence(void)
+static int scan_control_sequence(int inhibit_new_cs)
 {
     int retval = mid_line;
     if (iloc > ilimit) {
@@ -1119,7 +1118,7 @@ static int scan_control_sequence(void)
                         decr(k);
                 }               /* now |k| points to first nonletter */
             }
-            cur_cs = id_lookup(iloc, k - iloc);
+            cur_cs = id_lookup(iloc, k - iloc, inhibit_new_cs);
             iloc = k;
             break;
         }
@@ -1417,13 +1416,13 @@ static boolean get_next_tokenlist(void)
 @ sets |cur_cmd|, |cur_chr|, |cur_cs| to next token 
 
 @c
-void get_next(void)
+void get_next(int prohibit_new_cs)
 {
   RESTART:
     cur_cs = 0;
     if (istate != token_list) {
         /* Input from external file, |goto restart| if no input found */
-        if (!get_next_file())
+        if (!get_next_file(prohibit_new_cs))
             goto RESTART;
     } else {
         if (iloc == null) {
@@ -1461,15 +1460,12 @@ or the evaluation of the conditional.
 In fact, these three procedures account for almost every use of |get_next|.
 
 No new control sequences will be defined except during a call of
-|get_token|, or when \.{\\csname} compresses a token list, because
-|no_new_control_sequence| is always |true| at other times.
+|get_token|, or when \.{\\csname} compresses a token list.
 
 @c
 void get_token(void)
 {                               /* sets |cur_cmd|, |cur_chr|, |cur_tok| */
-    no_new_control_sequence = false;
     get_token_lua();
-    no_new_control_sequence = true;
     if (cur_cs == 0)
         cur_tok = token_val(cur_cmd, cur_chr);
     else
@@ -1491,7 +1487,7 @@ void get_token_lua(void)
             return;
         }
     }
-    get_next();
+    get_next(false);
 }
 
 
