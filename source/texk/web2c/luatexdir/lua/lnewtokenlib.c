@@ -30,9 +30,6 @@ typedef struct saved_tex_scanner {
     int origin;
     int save_nncs;
     int save_cmd, save_chr, save_cs, save_tok;
-    int cur_val;                    /* value returned by numeric scanners */
-    int cur_val_level;
-    int cur_order;
 } saved_tex_scanner;
 
 #define save_tex_scanner(a) do {		  \
@@ -42,9 +39,6 @@ typedef struct saved_tex_scanner {
 	a.save_cs  = cur_cs;			  \
 	a.save_tok = cur_tok;			  \
 	no_new_control_sequence = 0;		  \
-	a.cur_val = cur_val;			  \
-	a.cur_val_level = cur_val_level;	  \
-	a.cur_order = cur_order;		  \
     } while (0)
 
 #define unsave_tex_scanner(a) do {		  \
@@ -53,9 +47,6 @@ typedef struct saved_tex_scanner {
 	cur_chr = a.save_chr;			  \
 	cur_cs = a.save_cs;			  \
 	cur_tok = a.save_tok;			  \
-	cur_val = a.cur_val;			  \
-	cur_val_level = a.cur_val_level;	  \
-	cur_order = a.cur_order;		  \
     } while (0)
 
 
@@ -197,9 +188,10 @@ static int run_scan_int(lua_State * L)
 {
     saved_tex_scanner texstate;
     int v = 0;
+    scan_result val;
     save_tex_scanner(texstate);
-    scan_int();
-    v = cur_val;
+    scan_int(&val);
+    v = val.value.int_val;
     unsave_tex_scanner(texstate);
     lua_pushnumber(L,(lua_Number)v);
     return 1;
@@ -210,15 +202,16 @@ static int run_scan_dimen(lua_State * L)
     saved_tex_scanner texstate;
     int v = 0, o = 0;
     int inf = false, mu = false;
+    scan_result val;
     int t = lua_gettop(L);
     if (t>0)
 	inf = lua_toboolean(L,1); // inf values allowed ?
     if (t>1)
 	mu = lua_toboolean(L,2); // mu units required ? 
     save_tex_scanner(texstate);
-    scan_dimen(mu,inf, false); // arg3 = shortcut
-    v = cur_val;
-    o = cur_order;
+    scan_dimen(&val, mu,inf, false); // arg3 = shortcut
+    v = val.value.dimen_val;
+    o = val.info.order;
     unsave_tex_scanner(texstate);
     lua_pushnumber(L,(lua_Number)v);
     lua_pushnumber(L,(lua_Number)o);
@@ -230,12 +223,13 @@ static int run_scan_glue(lua_State * L)
     saved_tex_scanner texstate;
     int v = 0;
     int mu = false;
+    scan_result val;
     int t = lua_gettop(L);
     if (t>0)
 	mu = lua_toboolean(L,1); // mu units required ? 
     save_tex_scanner(texstate);
-    scan_glue((mu ? mu_val_level : glue_val_level));
-    v = cur_val; // which is a glue_spec node
+    scan_glue(&val, (mu ? mu_val_level : glue_val_level));
+    v = val.value.glu_val; // which is a glue_spec node
     unsave_tex_scanner(texstate);
     lua_nodelib_push_fast(L,(halfword)v); 
     return 1;

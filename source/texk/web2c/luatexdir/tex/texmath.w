@@ -1038,6 +1038,7 @@ void enter_display_math(void)
 
 static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
 {
+    scan_result val;
     const char *hlp[] = {
         "I'm going to use 0 instead of that illegal code value.",
         NULL
@@ -1046,7 +1047,9 @@ static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
     int mcls, msfam = 0, mschr = 0, mlfam = 0, mlchr = 0;
     mcls = 0;
     if (extcode == tex_mathcode) {      /* \.{\\delcode}, this is the easiest */
-        scan_int();
+        int cur_val;
+        scan_int(&val);
+        cur_val = val.value.int_val;
         /*  "MFCCFCC or "FCCFCC */
         if (doclass) {
             mcls = (cur_val / 0x1000000);
@@ -1063,13 +1066,13 @@ static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
     } else if (extcode == xetex_mathcode) {     /* \.{\\Udelcode} */
         /* <0-7>,<0-0xFF>,<0-0x10FFFF>  or <0-0xFF>,<0-0x10FFFF> */
         if (doclass) {
-            scan_int();
-            mcls = cur_val;
+            scan_int(&val);
+            mcls = val.value.int_val;
         }
-        scan_int();
-        msfam = cur_val;
-        scan_char_num();
-        mschr = cur_val;
+        scan_int(&val);
+        msfam = val.value.int_val;
+        scan_char_num(&val);
+        mschr = val.value.int_val;
         if (msfam < 0 || msfam > 255) {
             tex_error("Invalid delimiter code", hlp);
             msfam = 0;
@@ -1085,9 +1088,9 @@ static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
         if (doclass) {          /* such a primitive doesn't exist */
             confusion("xetexnum_mathcode");
         }
-        scan_int();
-        msfam = (cur_val / 0x200000);
-        mschr = cur_val & 0x1FFFFF;
+        scan_int(&val);
+        msfam = (val.value.int_val / 0x200000);
+        mschr = val.value.int_val & 0x1FFFFF;
         if (msfam < 0 || msfam > 255 || mschr > 0x10FFFF) {
             tex_error("Invalid delimiter code", hlp);
             msfam = 0;
@@ -1113,8 +1116,9 @@ void scan_extdef_del_code(int level, int extcode)
 {
     delcodeval d;
     int p;
-    scan_char_num();
-    p = cur_val;
+    scan_result val;
+    scan_char_num(&val);
+    p = val.value.int_val;
     scan_optional_equals();
     d = do_scan_extdef_del_code(extcode, false);
     set_del_code(p, extcode, d.small_family_value, d.small_character_value,
@@ -1131,30 +1135,31 @@ mathcodeval scan_mathchar(int extcode)
         NULL
     };
     mathcodeval d;
+    scan_result val;
     int mcls = 0, mfam = 0, mchr = 0;
     if (extcode == tex_mathcode) {      /* \.{\\mathcode} */
         /* "TFCC */
-        scan_int();
-        if (cur_val > 0x8000) {
+        scan_int(&val);
+        if (val.value.int_val > 0x8000) {
             tex_error("Invalid math code", hlp);
-            cur_val = 0;
+            val.value.int_val = 0;
         }
-        if (cur_val < 0) {
-            snprintf(errstr, 255, "Bad mathchar (%d)", (int)cur_val);
+        if (val.value.int_val < 0) {
+            snprintf(errstr, 255, "Bad mathchar (%d)", (int)val.value.int_val);
             tex_error(errstr, hlp);
-            cur_val = 0;
+            val.value.int_val = 0;
         }
-        mcls = (cur_val / 0x1000);
-        mfam = ((cur_val % 0x1000) / 0x100);
-        mchr = (cur_val % 0x100);
+        mcls = (val.value.int_val / 0x1000);
+        mfam = ((val.value.int_val % 0x1000) / 0x100);
+        mchr = (val.value.int_val % 0x100);
     } else if (extcode == xetex_mathcode) {
         /* <0-0x7> <0-0xFF> <0-0x10FFFF> */
-        scan_int();
-        mcls = cur_val;
-        scan_int();
-        mfam = cur_val;
-        scan_char_num();
-        mchr = cur_val;
+        scan_int(&val);
+        mcls = val.value.int_val;
+        scan_int(&val);
+        mfam = val.value.int_val;
+        scan_char_num(&val);
+        mchr = val.value.int_val;
         if (mcls < 0 || mcls > 7 || mfam > 255) {
             tex_error("Invalid math code", hlp);
             mchr = 0;
@@ -1167,11 +1172,11 @@ mathcodeval scan_mathchar(int extcode)
            the top of bit 21 can't be used as it contains invalid USV's
          */
         /* Note: |scan_int| won't accept families 128-255 because these use bit 32 */
-        scan_int();
-        mfam = (cur_val / 0x200000) & 0x7FF;
+        scan_int(&val);
+        mfam = (val.value.int_val / 0x200000) & 0x7FF;
         mcls = mfam % 0x08;
         mfam = mfam / 0x08;
-        mchr = cur_val & 0x1FFFFF;
+        mchr = val.value.int_val & 0x1FFFFF;
         if (mchr > 0x10FFFF) {
             tex_error("Invalid math code", hlp);
             mcls = 0;
@@ -1194,8 +1199,9 @@ void scan_extdef_math_code(int level, int extcode)
 {
     mathcodeval d;
     int p;
-    scan_char_num();
-    p = cur_val;
+    scan_result val;
+    scan_char_num(&val);
+    p = val.value.int_val;
     scan_optional_equals();
     d = scan_mathchar(extcode);
     set_math_code(p, extcode, d.class_value,
@@ -1252,6 +1258,7 @@ that subformula into a given word of |mem|.
 int scan_math(pointer p, int mstyle)
 {
     /* label restart,reswitch,exit; */
+    scan_result val;
     mathcodeval mval = { 0, 0, 0, 0 };
     assert(p != null);
   RESTART:
@@ -1273,8 +1280,8 @@ int scan_math(pointer p, int mstyle)
         }
         break;
     case char_num_cmd:
-        scan_char_num();
-        cur_chr = cur_val;
+        scan_char_num(&val);
+        cur_chr = val.value.int_val;
         cur_cmd = char_given_cmd;
         goto RESWITCH;
         break;
@@ -1708,6 +1715,7 @@ void math_fraction(void)
 {
     halfword c;                 /* the type of generalized fraction we are scanning */
     pointer q;
+    scan_result val;
     c = cur_chr;
     if (incompleat_noad != null) {
         const char *hlp[] = {
@@ -1721,7 +1729,7 @@ void math_fraction(void)
             scan_delimiter(null, no_mathcode);
         }
         if ((c % delimited_code) == above_code)
-            scan_normal_dimen();
+            scan_normal_dimen(&val);
         tex_error("Ambiguous; you need another { and }", hlp);
     } else {
         incompleat_noad = new_node(fraction_noad, 0);
@@ -1741,8 +1749,8 @@ void math_fraction(void)
         }
         switch (c % delimited_code) {
         case above_code:
-            scan_normal_dimen();
-            thickness(incompleat_noad) = cur_val;
+            scan_normal_dimen(&val);
+            thickness(incompleat_noad) = val.value.dimen_val;
             break;
         case over_code:
             thickness(incompleat_noad) = default_code;

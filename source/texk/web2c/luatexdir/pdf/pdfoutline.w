@@ -100,6 +100,7 @@ void scan_pdfoutline(PDF pdf)
 {
     halfword p, q, r;
     int i, j, k, l;
+    scan_result val;
     if (scan_keyword("attr")) {
         scan_pdf_ext_toks();
         r = def_ref;
@@ -108,8 +109,8 @@ void scan_pdfoutline(PDF pdf)
     }
     p = scan_action(pdf);
     if (scan_keyword("count")) {
-        scan_int();
-        i = cur_val;
+        scan_int(&val);
+        i = val.value.int_val;
     } else {
         i = 0;
     }

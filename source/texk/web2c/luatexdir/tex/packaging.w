@@ -25,8 +25,6 @@ static const char _svn_version[] =
 #include "ptexlib.h"
 
 @ @c
-#define scan_normal_dimen() scan_dimen(false,false,false)
-
 #define prev_depth      cur_list.prev_depth_field
 #define space_factor    cur_list.space_factor_field
 #define box(A) eqtb[box_base+(A)].hh.rh
@@ -81,17 +79,18 @@ $$\vbox{\halign{#\hfil\cr
 void scan_spec(group_code c)
 {                               /* scans a box specification and left brace */
     int spec_code;
+    scan_result val;
     if (scan_keyword("to")) {
         spec_code = exactly;
-        scan_normal_dimen();
+        scan_normal_dimen(&val);
     } else if (scan_keyword("spread")) {
         spec_code = additional;
-        scan_normal_dimen();
+        scan_normal_dimen(&val);
     } else {
         spec_code = additional;
-        cur_val = 0;
+        val.value.dimen_val = 0;
     }
-    set_saved_record(0, saved_boxspec, spec_code, cur_val);
+    set_saved_record(0, saved_boxspec, spec_code, val.value.dimen_val);
     save_ptr++;
     new_save_level(c);
     scan_left_brace();
@@ -114,6 +113,7 @@ void scan_full_spec(group_code c, int spec_direction)
     int i;
     int v;
     int spec_code;
+    scan_result val;
     halfword attr_list;
     if (attr_list_cache == cache_disabled)
         update_attribute_cache();
@@ -127,11 +127,11 @@ void scan_full_spec(group_code c, int spec_direction)
             back_input();
     }
     if (scan_keyword("attr")) {
-        scan_register_num();
-        i = cur_val;
+        scan_register_num(&val);
+        i = val.value.int_val;
         scan_optional_equals();
-        scan_int();
-        v = cur_val;
+        scan_int(&val);
+        v = val.value.int_val;
         if ((attr_list != null) && (attr_list == attr_list_cache)) {
             attr_list = copy_attribute_list(attr_list_cache);
             add_node_attr_ref(attr_list);       /* will be used once */
@@ -140,8 +140,8 @@ void scan_full_spec(group_code c, int spec_direction)
         goto CONTINUE;
     }
     if (scan_keyword("dir")) {
-        scan_direction();
-        spec_direction = cur_val;
+        scan_direction(&val);
+        spec_direction = val.value.int_val;
         goto CONTINUE;
     }
     if (attr_list == attr_list_cache) {
@@ -149,17 +149,16 @@ void scan_full_spec(group_code c, int spec_direction)
     }
     if (scan_keyword("to")) {
         spec_code = exactly;
+        scan_normal_dimen(&val);
     } else if (scan_keyword("spread")) {
         spec_code = additional;
+        scan_normal_dimen(&val);
     } else {
         spec_code = additional;
-        cur_val = 0;
-        goto FOUND;
+        val.value.dimen_val = 0;
     }
-    scan_normal_dimen();
-  FOUND:
     set_saved_record(0, saved_boxcontext, 0, s);
-    set_saved_record(1, saved_boxspec, spec_code, cur_val);
+    set_saved_record(1, saved_boxspec, spec_code, val.value.dimen_val);
     /* DIR: Adjust |text_dir_ptr| for |scan_spec| */
     if (spec_direction != -1) {
         set_saved_record(2, saved_boxdir, spec_direction, text_dir_ptr);
@@ -1662,15 +1661,16 @@ void begin_box(int box_context)
     halfword k;                 /* 0 or |vmode| or |hmode| */
     int n;                      /* a box number */
     int spec_direction = -1;
+    scan_result val;
     switch (cur_chr) {
     case box_code:
-        scan_register_num();
-        cur_box = box(cur_val);
-        box(cur_val) = null;    /* the box becomes void, at the same level */
+        scan_register_num(&val);
+        cur_box = box(val.value.int_val);
+        box(val.value.int_val) = null;    /* the box becomes void, at the same level */
         break;
     case copy_code:
-        scan_register_num();
-        cur_box = copy_node_list(box(cur_val));
+        scan_register_num(&val);
+        cur_box = copy_node_list(box(val.value.int_val));
         break;
     case last_box_code:
         /* If the current list ends with a box node, delete it from
@@ -1709,16 +1709,16 @@ void begin_box(int box_context)
     case vsplit_code:
         /* Split off part of a vertical box, make |cur_box| point to it */
         /* Here we deal with things like `\.{\\vsplit 13 to 100pt}'. */
-        scan_register_num();
-        n = cur_val;
+        scan_register_num(&val);
+        n = val.value.int_val;
         if (!scan_keyword("to")) {
             print_err("Missing `to' inserted");
             help2("I'm working on `\\vsplit<box number> to <dimen>';",
                   "will look for the <dimen> next.");
             error();
         }
-        scan_normal_dimen();
-        cur_box = vsplit(n, cur_val);
+        scan_normal_dimen(&val);
+        cur_box = vsplit(n, val.value.dimen_val);
         break;
     default:
         /* Initiate the construction of an hbox or vbox, then |return| */

@@ -145,6 +145,7 @@ void init_obj_obj(PDF pdf, int k)
 void scan_obj(PDF pdf)
 {
     int k;
+    scan_result val;
     lstring *st = NULL;
     if (scan_keyword("reserveobjnum")) {
         /* Scan an optional space */
@@ -155,8 +156,8 @@ void scan_obj(PDF pdf)
         k = pdf_create_obj(pdf, obj_type_obj, 0);
     } else {
         if (scan_keyword("useobjnum")) {
-            scan_int();
-            k = cur_val;
+            scan_int(&val);
+            k = val.value.int_val;
             check_obj_type(pdf, obj_type_obj, k);
             if (is_obj_scheduled(pdf, k) || obj_data_ptr(pdf, k) != 0)
                 luaL_error(Luas, "object in use");
@@ -200,10 +201,11 @@ void scan_obj(PDF pdf)
 
 void scan_refobj(PDF pdf)
 {
-    scan_int();
-    check_obj_type(pdf, obj_type_obj, cur_val);
+    scan_result val;
+    scan_int(&val);
+    check_obj_type(pdf, obj_type_obj, val.value.int_val);
     new_whatsit(pdf_refobj_node);
-    pdf_obj_objnum(tail) = cur_val;
+    pdf_obj_objnum(tail) = val.value.int_val;
 }
 
 void scan_refobj_lua(PDF pdf, int k)

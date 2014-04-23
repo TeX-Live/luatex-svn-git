@@ -157,6 +157,7 @@ size_t          T##_limit
 /* that was ptexmac.h */
 
 #  include "tex/mainbody.h"
+#  include "tex/scanning.h"
 #  include "tex/expand.h"
 #  include "tex/conditional.h"
 #  include "pdf/pdftypes.h"
@@ -222,7 +223,6 @@ size_t          T##_limit
 #  include "tex/packaging.h"
 #  include "tex/linebreak.h"
 #  include "tex/postlinebreak.h"
-#  include "tex/scanning.h"
 #  include "tex/buildpage.h"
 #  include "tex/maincontrol.h"
 #  include "tex/dumpdata.h"

@@ -403,10 +403,9 @@ static const char *scan_dimen_part(lua_State * L, const char *ss, int *ret)
     int rdig[18];               /* to save the |dig[]| array */
     int saved_tex_remainder;    /* to save |tex_remainder|  */
     int saved_arith_error;      /* to save |arith_error|  */
-    int saved_cur_val;          /* to save the global |cur_val| */
+    int cur_val;                /* the value we are building */
     saved_tex_remainder = tex_remainder;
     saved_arith_error = arith_error;
-    saved_cur_val = cur_val;
     /* Get the next non-blank non-sign... */
     do {
         /* Get the next non-blank non-call token */
@@ -574,7 +573,6 @@ static const char *scan_dimen_part(lua_State * L, const char *ss, int *ret)
     *ret = cur_val;
     tex_remainder = saved_tex_remainder;
     arith_error = saved_arith_error;
-    cur_val = saved_cur_val;
     return s;
 }
 
@@ -1350,18 +1348,21 @@ static int do_scan_internal(lua_State * L, int cur_cmd1, int cur_code)
 {
     int texstr;
     char *str = NULL;
-    int save_cur_val, save_cur_val_level;
-    save_cur_val = cur_val;
-    save_cur_val_level = cur_val_level;
-    scan_something_simple(cur_cmd1, cur_code);
+    scan_result *val = scan_something_simple(cur_cmd1, cur_code);
 
-    if (cur_val_level == int_val_level ||
-        cur_val_level == dimen_val_level || cur_val_level == attr_val_level) {
-        lua_pushnumber(L, cur_val);
-    } else if (cur_val_level == glue_val_level) {
-        lua_nodelib_push_fast(L, cur_val);
-    } else {                    /* dir_val_level, mu_val_level, tok_val_level */
-        texstr = the_scanned_result();
+    switch (val->level) {
+    case int_val_level:
+    case attr_val_level:
+        lua_pushnumber(L, val->value.int_val);
+        break;
+    case dimen_val_level:
+        lua_pushnumber(L, val->value.dimen_val);
+        break;
+    case glue_val_level:
+        lua_nodelib_push_fast(L, val->value.glu_val);
+        break;
+    default:                    /* dir_val_level, mu_val_level, tok_val_level, ident_val_level */
+        texstr = the_scanned_result(val);
         str = makecstring(texstr);
         if (str) {
             lua_pushstring(L, str);
@@ -1371,8 +1372,7 @@ static int do_scan_internal(lua_State * L, int cur_cmd1, int cur_code)
         }
         flush_str(texstr);
     }
-    cur_val = save_cur_val;
-    cur_val_level = save_cur_val_level;
+    free(val);
     return 1;
 }
 
@@ -2078,7 +2078,7 @@ static int tex_enableprimitives(lua_State * L)
                         val = string_lookup(newprim, newl);
                         if (val == undefined_control_sequence ||
                             eq_type(val) == undefined_cs_cmd) {
-                            primitive_def(newprim, newl, (quarterword) cur_cmd1,
+			  (void)primitive_def(newprim, newl, (quarterword) cur_cmd1,
                                           cur_chr1);
                         }
                         free(newprim);

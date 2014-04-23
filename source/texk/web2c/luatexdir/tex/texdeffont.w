@@ -86,6 +86,7 @@ void tex_def_font(small_number a)
     int old_setting;            /* holds |selector| setting */
     scaled s = -1000;           /* stated ``at'' size, or negative of scaled magnification */
     int natural_dir = -1;       /* the natural direction of the font */
+    scan_result val;
     char *fn;
     if (job_name == 0)
         open_log_file();        /* avoid confusing \.{texput} with the font name */
@@ -145,8 +146,8 @@ void tex_def_font(small_number a)
     name_in_progress = true;    /* this keeps |cur_name| from being changed */
     if (scan_keyword("at")) {
         /* Put the positive `at' size into |s| */
-        scan_normal_dimen();
-        s = cur_val;
+        scan_normal_dimen(&val);
+        s = val.value.dimen_val;
         if ((s <= 0) || (s >= 01000000000)) {
             char err[256];
             const char *errhelp[] =
@@ -160,9 +161,9 @@ void tex_def_font(small_number a)
             s = 10 * unity;
         }
     } else if (scan_keyword("scaled")) {
-        scan_int();
-        s = -cur_val;
-        if ((cur_val <= 0) || (cur_val > 32768)) {
+        scan_int(&val);
+        s = -val.value.int_val;
+        if ((val.value.int_val <= 0) || (val.value.int_val > 32768)) {
             char err[256];
             const char *errhelp[] =
                 { "The magnification ratio must be between 1 and 32768.",
@@ -170,14 +171,14 @@ void tex_def_font(small_number a)
             };
             snprintf(err, 255,
                      "Illegal magnification has been changed to 1000 (%d)",
-                     (int) cur_val);
+                     (int) val.value.int_val);
             tex_error(err, errhelp);
             s = -1000;
         }
     }
     if (scan_keyword("naturaldir")) {
-        scan_direction();
-        natural_dir = cur_val;
+        scan_direction(&val);
+        natural_dir = val.value.int_val;
     }
     name_in_progress = false;
     fn = makecstring(cur_name);

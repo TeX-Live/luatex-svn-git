@@ -51,6 +51,7 @@ void delete_action_node(halfword a)
 halfword scan_action(PDF pdf)
 {
     int p;
+    scan_result val;
     (void) pdf;
     p = new_action_node();
     if (scan_keyword("user"))
@@ -74,10 +75,10 @@ halfword scan_action(PDF pdf)
         if (pdf_action_type(p) != pdf_action_goto)
             pdf_error("ext1", "only GoTo action can be used with `page'");
         set_pdf_action_type(p, pdf_action_page);
-        scan_int();
-        if (cur_val <= 0)
+        scan_int(&val);
+        if (val.value.int_val <= 0)
             pdf_error("ext1", "page number must be positive");
-        set_pdf_action_id(p, cur_val);
+        set_pdf_action_id(p, val.value.int_val);
         set_pdf_action_named_id(p, 0);
         scan_pdf_ext_toks();
         set_pdf_action_tokens(p, def_ref);
@@ -90,11 +91,11 @@ halfword scan_action(PDF pdf)
             (pdf_action_file(p) != null))
             pdf_error("ext1",
                       "`goto' option cannot be used with both `file' and `num'");
-        scan_int();
-        if (cur_val <= 0)
+        scan_int(&val);
+        if (val.value.int_val <= 0)
             pdf_error("ext1", "num identifier must be positive");
         set_pdf_action_named_id(p, 0);
-        set_pdf_action_id(p, cur_val);
+        set_pdf_action_id(p, val.value.int_val);
     } else {
         pdf_error("ext1", "identifier type missing");
     }

@@ -133,6 +133,7 @@ void do_extension(PDF pdf)
 {
     int i, k;                   /* all-purpose integers */
     halfword p;                 /* all-purpose pointer */
+    scan_result val;
     switch (cur_chr) {
     case open_node:
         /* Implement \.{\\openout} */
@@ -260,8 +261,8 @@ void do_extension(PDF pdf)
            \.{\\pdffontattr} to a string containing a single zero, as that
            would be nonsensical in the PDF output. */
         check_o_mode(pdf, "\\pdffontattr", 1 << OMODE_PDF, false);
-        scan_font_ident();
-        k = cur_val;
+        scan_font_ident(&val);
+        k = val.value.int_val;
         if (k == null_font)
             pdf_error("font", "invalid font identifier");
         scan_pdf_ext_toks();
@@ -304,23 +305,23 @@ void do_extension(PDF pdf)
         /* Implement \.{\\pdfcolorstack} */
         check_o_mode(pdf, "\\pdfcolorstack", 1 << OMODE_PDF, false);
         /* Scan and check the stack number and store in |cur_val| */
-        scan_int();
-        if (cur_val >= colorstackused()) {
+        scan_int(&val);
+        if (val.value.int_val >= colorstackused()) {
             print_err("Unknown color stack number ");
-            print_int(cur_val);
+            print_int(val.value.int_val);
             help3
                 ("Allocate and initialize a color stack with \\pdfcolorstackinit.",
                  "I'll use default color stack 0 here.",
                  "Proceed, with fingers crossed.");
             error();
-            cur_val = 0;
+            val.value.int_val = 0;
         }
-        if (cur_val < 0) {
+        if (val.value.int_val < 0) {
             print_err("Invalid negative color stack number");
             help2("I'll use default color stack 0 here.",
                   "Proceed, with fingers crossed.");
             error();
-            cur_val = 0;
+            val.value.int_val = 0;
         }
         if (scan_keyword("set"))
             i = colorstack_set;
@@ -335,7 +336,7 @@ void do_extension(PDF pdf)
 
         if (i >= 0) {
             new_whatsit(pdf_colorstack_node);
-            set_pdf_colorstack_stack(tail, cur_val);
+            set_pdf_colorstack_stack(tail, val.value.int_val);
             set_pdf_colorstack_cmd(tail, i);
             set_pdf_colorstack_data(tail, null);
             if (i <= colorstack_data) {
@@ -453,45 +454,45 @@ void do_extension(PDF pdf)
         break;
     case save_cat_code_table_code:
         /* Implement \.{\\savecatcodetable} */
-        scan_int();
-        if ((cur_val < 0) || (cur_val > 0x7FFF)) {
+        scan_int(&val);
+        if ((val.value.int_val < 0) || (val.value.int_val > 0x7FFF)) {
             print_err("Invalid \\catcode table");
             help1("All \\catcode table ids must be between 0 and 0x7FFF");
             error();
         } else {
-            if (cur_val == cat_code_table) {
+            if (val.value.int_val == cat_code_table) {
                 print_err("Invalid \\catcode table");
                 help1("You cannot overwrite the current \\catcode table");
                 error();
             } else {
-                copy_cat_codes(cat_code_table, cur_val);
+                copy_cat_codes(cat_code_table, val.value.int_val);
             }
         }
         break;
     case init_cat_code_table_code:
         /* Implement \.{\\initcatcodetable} */
-        scan_int();
-        if ((cur_val < 0) || (cur_val > 0x7FFF)) {
+        scan_int(&val);
+        if ((val.value.int_val < 0) || (val.value.int_val > 0x7FFF)) {
             print_err("Invalid \\catcode table");
             help1("All \\catcode table ids must be between 0 and 0x7FFF");
             error();
         } else {
-            if (cur_val == cat_code_table) {
+            if (val.value.int_val == cat_code_table) {
                 print_err("Invalid \\catcode table");
                 help1("You cannot overwrite the current \\catcode table");
                 error();
             } else {
-                initex_cat_codes(cur_val);
+                initex_cat_codes(val.value.int_val);
             }
         }
         break;
     case set_random_seed_code:
         /* Implement \.{\\pdfsetrandomseed} */
         /*  Negative random seed values are silently converted to positive ones */
-        scan_int();
-        if (cur_val < 0)
-            negate(cur_val);
-        random_seed = cur_val;
+        scan_int(&val);
+        if (val.value.int_val < 0)
+            negate(val.value.int_val);
+        random_seed = val.value.int_val;
         init_randoms(random_seed);
         break;
     case pdf_glyph_to_unicode_code:
@@ -532,17 +533,18 @@ involved, and also inserts a |write_stream| number.
 @c
 void new_write_whatsit(int w)
 {
+    scan_result val;
     new_whatsit(cur_chr);
     if (w != write_node_size) {
-        scan_four_bit_int();
+        scan_four_bit_int(&val);
     } else {
-        scan_int();
-        if (cur_val < 0)
-            cur_val = 17;
-        else if ((cur_val > 15) && (cur_val != 18))
-            cur_val = 16;
+        scan_int(&val);
+        if (val.value.int_val < 0)
+            val.value.int_val = 17;
+        else if ((val.value.int_val > 15) && (val.value.int_val != 18))
+            val.value.int_val = 16;
     }
-    write_stream(tail) = cur_val;
+    write_stream(tail) = val.value.int_val;
 }
 
 

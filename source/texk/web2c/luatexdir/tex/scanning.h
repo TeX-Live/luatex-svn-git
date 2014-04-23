@@ -33,31 +33,41 @@ typedef enum {
     tok_val_level,              /* token lists */
 } value_level_code;
 
+typedef union {
+    int int_val; /* int, attr or dir */
+    int dimen_val; /* dimension */
+    halfword glu_val; /* glue or muglue spec */
+    halfword token_val; /* font identifier or token list */
+} scan_value;
+typedef struct {
+    scan_value value;
+    union {
+        int radix; /* from scan_int, used by scan_dimen */
+        int order; /* from scan_dimen, used by scan_glue */
+    } info;
+    value_level_code level;
+} scan_result;
+
 extern void scan_left_brace(void);
 extern void scan_optional_equals(void);
 
-extern int cur_val;             /* value returned by numeric scanners */
-extern int cur_val1;            /* delcodes are sometimes 51 digits */
-extern int cur_val_level;       /* the ``level'' of this value */
-
-extern void scan_something_simple(halfword cmd, halfword subitem);
-extern void scan_something_internal(int level, boolean negative);
+extern scan_result *scan_something_simple(halfword cmd, halfword subitem);
+extern void scan_something_internal(scan_result*val, int level, boolean negative);
 
 
-extern void scan_limited_int(int max, const char *name);
+extern void scan_limited_int(scan_result *val, int max, const char *name);
 
-#  define scan_register_num() scan_limited_int(65535,"register code")
-#  define scan_mark_num() scan_limited_int(65535,"marks code")
-#  define scan_char_num() scan_limited_int(biggest_char,"character code")
-#  define scan_four_bit_int() scan_limited_int(15,NULL)
-#  define scan_math_family_int() scan_limited_int(255,"math family")
-#  define scan_real_fifteen_bit_int() scan_limited_int(32767,"mathchar")
-#  define scan_big_fifteen_bit_int() scan_limited_int(0x7FFFFFF,"extended mathchar")
-#  define scan_twenty_seven_bit_int() scan_limited_int(0777777777,"delimiter code")
+#  define scan_register_num(v) scan_limited_int(v,65535,"register code")
+#  define scan_mark_num(v) scan_limited_int(v,65535,"marks code")
+#  define scan_char_num(v) scan_limited_int(v,biggest_char,"character code")
+#  define scan_four_bit_int(v) scan_limited_int(v,15,NULL)
+#  define scan_math_family_int(v) scan_limited_int(v,255,"math family")
+#  define scan_real_fifteen_bit_int(v) scan_limited_int(v,32767,"mathchar")
+#  define scan_big_fifteen_bit_int(v) scan_limited_int(v,0x7FFFFFF,"extended mathchar")
+#  define scan_twenty_seven_bit_int(v) scan_limited_int(v,0777777777,"delimiter code")
 
-extern void scan_fifteen_bit_int(void);
-extern void scan_fifty_one_bit_int(void);
-extern void scan_four_bit_int_or_18(void);
+extern void scan_fifteen_bit_int(scan_result *val);
+extern void scan_four_bit_int_or_18(scan_result *val);
 
 #  define octal_token (other_token+'\'')        /* apostrophe, indicates an octal constant */
 #  define hex_token (other_token+'"')   /* double quote, indicates a hex constant */
@@ -67,43 +77,37 @@ extern void scan_four_bit_int_or_18(void);
 #  define infinity 017777777777 /* the largest positive value that \TeX\ knows */
 #  define zero_token (other_token+'0')  /* zero, the smallest digit */
 #  define A_token (letter_token+'A')    /* the smallest special hex digit */
-#  define other_A_token (other_token+'A')
-                                        /* special hex digit of type |other_char| */
+#  define other_A_token (other_token+'A') /* special hex digit of type |other_char| */
 
-extern int radix;
+extern void scan_int(scan_result *val);
 
-extern void scan_int(void);
+#  define scan_normal_dimen(v) scan_dimen(v,false,false,false)
 
-extern int cur_order;
-
-#  define scan_normal_dimen() scan_dimen(false,false,false)
-
-extern void scan_dimen(boolean mu, boolean inf, boolean shortcut);
-extern void scan_glue(int level);
-extern void scan_scaled(void);
+extern void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut);
+extern void scan_glue(scan_result *val, int level);
 
 extern halfword the_toks(void);
-extern str_number the_scanned_result(void);
+extern str_number the_scanned_result(scan_result *val);
 extern void set_font_dimen(void);
-extern void get_font_dimen(void);
+extern void get_font_dimen(scan_result *val);
 
 #  define default_rule 26214    /* 0.4\thinspace pt */
 
 extern halfword scan_rule_spec(void);
 
-extern void scan_font_ident(void);
-extern void scan_general_text(void);
+extern void scan_font_ident(scan_result *val);
+extern void scan_general_text(scan_result *val);
 extern void get_x_or_protected(void);
 extern halfword scan_toks(boolean macrodef, boolean xpand);
 
 
-extern void scan_normal_glue(void);
-extern void scan_mu_glue(void);
+extern void scan_normal_glue(scan_result *val);
+extern void scan_mu_glue(scan_result *val);
 
 extern int add_or_sub(int x, int y, int max_answer, boolean negative);
 extern int quotient(int n, int d);
 extern int fract(int x, int n, int d, int max_answer);
-extern void scan_expr(void);
+extern void scan_expr(scan_result *val, int level);
 
 
 

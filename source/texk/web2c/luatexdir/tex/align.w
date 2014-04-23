@@ -286,6 +286,7 @@ tabskip glue (locally).
 @c
 static void get_preamble_token(void)
 {
+   scan_result val;
   RESTART:
     get_token();
     while ((cur_chr == span_code) && (cur_cmd == tab_mark_cmd)) {
@@ -300,11 +301,11 @@ static void get_preamble_token(void)
     if ((cur_cmd == assign_glue_cmd)
         && (cur_chr == glue_base + tab_skip_code)) {
         scan_optional_equals();
-        scan_glue(glue_val_level);
+        scan_glue(&val, glue_val_level);
         if (int_par(global_defs_code) > 0)
-            geq_define(glue_base + tab_skip_code, glue_ref_cmd, cur_val);
+            geq_define(glue_base + tab_skip_code, glue_ref_cmd, val.value.glu_val);
         else
-            eq_define(glue_base + tab_skip_code, glue_ref_cmd, cur_val);
+            eq_define(glue_base + tab_skip_code, glue_ref_cmd, val.value.glu_val);
         goto RESTART;
     }
 }

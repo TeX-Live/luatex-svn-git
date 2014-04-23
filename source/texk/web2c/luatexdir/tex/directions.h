@@ -334,7 +334,7 @@ extern halfword new_dir(int s);
 extern const char *string_dir(int d);
 extern void print_dir(int d);
 
-extern void scan_direction(void);
+extern void scan_direction(scan_result *val);
 
 extern halfword do_push_dir_node(halfword p, halfword a);
 extern halfword do_pop_dir_node(halfword p);

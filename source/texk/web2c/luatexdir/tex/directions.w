@@ -25,28 +25,28 @@ static const char _svn_version[] =
 #include "ptexlib.h"
 
 @ @c
-void scan_direction(void)
+void scan_direction(scan_result *val)
 {
     int save_cur_cmd = cur_cmd;
     int save_cur_chr = cur_chr;
     get_x_token();
     if (cur_cmd == assign_dir_cmd) {
-        cur_val = eqtb[cur_chr].cint;
+        val->value.int_val = eqtb[cur_chr].cint;
         goto EXIT;
     } else {
         back_input();
     }
     if (scan_keyword("TLT")) {
-        cur_val = dir_TLT;
+        val->value.int_val = dir_TLT;
     } else if (scan_keyword("TRT")) {
-        cur_val = dir_TRT;
+        val->value.int_val = dir_TRT;
     } else if (scan_keyword("LTL")) {
-        cur_val = dir_LTL;
+        val->value.int_val = dir_LTL;
     } else if (scan_keyword("RTT")) {
-        cur_val = dir_RTT;
+        val->value.int_val = dir_RTT;
     } else {
         tex_error("Bad direction", NULL);
-        cur_val = 0;
+        val->value.int_val = 0;
     }
     get_x_token();
     if (cur_cmd != spacer_cmd)

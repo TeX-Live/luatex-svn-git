@@ -169,7 +169,7 @@ extern int read_open[17];       /* state of |read_file[n]| */
 
 extern void initialize_read(void);
 
-extern void read_toks(int n, halfword r, halfword j);
+extern void read_toks(scan_result *val, int n, halfword r, halfword j);
 
 extern str_number tokens_to_string(halfword p); /* return a string from tokens list */
 

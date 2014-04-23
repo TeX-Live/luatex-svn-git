@@ -18,9 +18,8 @@
 % with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @ @c
-static const char _svn_version[] =
-    "$Id$"
-    "$URL$";
+/*  "$Id$" */
+/*  "$URL$"; */
 
 #include "ptexlib.h"
 
@@ -102,15 +101,22 @@ static void mu_error(void)
 }
 
 
+@ The rest of scanning routines make use of a return value structure, a 
+pointer to which is passed as the first argument to these routines.
+Especially because of the next function, |scan_something_internal|,
+which can return many different things, this structure contains a union of 
+a whole bunch of fields to store the actual value in. More explanations
+in the next section.
+
+@c
+
 @ The next routine `|scan_something_internal|' is used to fetch internal
 numeric quantities like `\.{\\hsize}', and also to handle the `\.{\\the}'
 when expanding constructions like `\.{\\the\\toks0}' and
 `\.{\\the\\baselineskip}'. Soon we will be considering the |scan_int|
 procedure, which calls |scan_something_internal|; on the other hand,
 |scan_something_internal| also calls |scan_int|, for constructions like
-`\.{\\catcode\`\\\$}' or `\.{\\fontdimen} \.3 \.{\\ff}'. So we
-have to declare |scan_int| as a |forward| procedure. A few other
-procedures are also declared at this point.
+`\.{\\catcode\`\\\$}' or `\.{\\fontdimen} \.3 \.{\\ff}'. 
 
 \TeX\ doesn't know exactly what to expect when
 |scan_something_internal| begins.  For example, an integer or
@@ -125,32 +131,46 @@ to produce. Eight levels are distinguished, namely |int_val|,
 |attr_val|, |dimen_val|, |glue_val|, |mu_val|, |dir_val|, |ident_val|,
 and |tok_val|.
 
-The output of |scan_something_internal| (and of the other routines
-|scan_int|, |scan_dimen|, and |scan_glue| below) is put into the global
-variable |cur_val|, and its level is put into |cur_val_level|. The highest
-values of |cur_val_level| are special: |mu_val| is used only when
-|cur_val| points to something in a ``muskip'' register, or to one of the
+The output value of |scan_something_internal| (and of the other routines
+|scan_int|, |scan_dimen|, and |scan_glue| below) and its level, are put 
+into the |scan_result| argument. The highest values of |level| decide 
+which union field in |value| is used: |mu_val| is used only when
+|value| points to something in a ``muskip'' register, or to one of the
 three parameters \.{\\thinmuskip}, \.{\\medmuskip}, \.{\\thickmuskip};
-|ident_val| is used only when |cur_val| points to a font identifier;
-|tok_val| is used only when |cur_val| points to |null| or to the reference
+|ident_val| is used only when |value| points to a font identifier;
+|tok_val| is used only when |value| points to |null| or to the reference
 count of a token list. The last two cases are allowed only when
 |scan_something_internal| is called with |level=tok_val|.
 
-If the output is glue, |cur_val| will point to a glue specification, and
+If the output is glue, |glu_val| will point to a glue specification, and
 the reference count of that glue will have been updated to reflect this
-reference; if the output is a nonempty token list, |cur_val| will point to
+reference; if the output is a nonempty token list, |token_val| will point to
 its reference count, but in this case the count will not have been updated.
-Otherwise |cur_val| will contain the integer or scaled value in question.
+Otherwise |int_val| or |dimen_val| will contain the integer or scaled value in 
+question (|dimen_val| is empt separate from |int_val| mostly for cosmetics).
 
 @c
-int cur_val;                    /* value returned by numeric scanners */
-int cur_val1;                   /* delcodes are sometimes 51 digits */
-int cur_val_level;              /* the ``level'' of this value */
-
-#define scanned_result(A,B) do {		\
-	cur_val=A;				\
-	cur_val_level=B;			\
-    } while (0)
+#define scanned_result(A,B) do {   \
+    switch (B) {                   \
+    case int_val_level:            \
+    case attr_val_level:           \
+    case dir_val_level:            \
+        val->value.int_val = A;    \
+        break;                     \
+    case dimen_val_level:          \
+        val->value.dimen_val = A;  \
+        break;                     \
+    case glue_val_level:           \
+    case mu_val_level:             \
+        val->value.glu_val = A;    \
+        break;                     \
+    case ident_val_level:          \
+    case tok_val_level:            \
+        val->value.token_val = A;  \
+        break;                     \
+    }                              \
+    val->level = B;   	           \
+ } while (0)
 
 
 @ When a |glue_val| changes to a |dimen_val|, we use the width component
@@ -160,25 +180,59 @@ we use scaled points so that the value doesn't actually change. And when a
 |mu_val| changes to a |glue_val|, the value doesn't change either.
 
 @c
-static void downgrade_cur_val(boolean delete_glue)
+static void downgrade_cur_val(scan_result *val, boolean delete_glue)
 {
-    halfword m;
-    if (cur_val_level == glue_val_level) {
-        m = cur_val;
+    switch (val->level) {
+    case int_val_level:
+        break;
+    case attr_val_level:
+        val->level = int_val_level;
+        break;
+    case dimen_val_level:
+        val->value.int_val = val->value.dimen_val;
+        val->level = int_val_level;
+        break;
+    case glue_val_level:
+    {
+        halfword m;
+        int cur_val;
+        m = val->value.glu_val;
         cur_val = width(m);
         if (delete_glue)
             delete_glue_ref(m);
-    } else if (cur_val_level == mu_val_level) {
-        mu_error();
+        val->value.dimen_val = cur_val;
+        val->level = dimen_val_level;
     }
-    decr(cur_val_level);
+        break;
+    case mu_val_level:
+        val->level = glue_val_level;
+        mu_error();
+        break;
+    case dir_val_level:
+    case ident_val_level:
+    case tok_val_level:
+       confusion("downgrade");
+       break;
+    }
 }
 
-static void negate_cur_val(boolean delete_glue)
+static void negate_cur_val(scan_result *val, boolean delete_glue)
 {
     halfword m;
-    if (cur_val_level >= glue_val_level) {
-        m = cur_val;
+    halfword cur_val;
+    switch (val->level) {
+    case int_val_level:
+        negate(val->value.int_val);
+        break;
+    case attr_val_level:
+        confusion("negate");
+        break;
+    case dimen_val_level:
+        negate(val->value.dimen_val);
+        break;
+    case glue_val_level:
+    case mu_val_level:
+	m = val->value.glu_val; 
         cur_val = new_spec(m);
         if (delete_glue)
             delete_glue_ref(m);
@@ -186,9 +240,13 @@ static void negate_cur_val(boolean delete_glue)
         negate(width(cur_val));
         negate(stretch(cur_val));
         negate(shrink(cur_val));
-
-    } else {
-        negate(cur_val);
+        val->value.glu_val = cur_val;
+        break;
+    case dir_val_level:
+    case ident_val_level:
+    case tok_val_level:
+        confusion("negate");
+        break;
     }
 }
 
@@ -198,7 +256,7 @@ and these have been split off into the next routine, that
 returns true if the command code was understood 
 
 @c
-static boolean short_scan_something_internal(int cmd, int chr, int level,
+static boolean short_scan_something_internal(scan_result *val, int cmd, int chr, int level,
                                              boolean negative)
 {
     halfword m;                 /* |chr_code| part of the operand token */
@@ -266,44 +324,44 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
     case set_page_int_cmd:
         /* Fetch the |dead_cycles| or the |insert_penalties| */
         if (m == 0)
-            cur_val = dead_cycles;
+            val->value.int_val = dead_cycles;
         else if (m == 2)
-            cur_val = interaction;      /* interactionmode */
+            val->value.int_val = interaction;      /* interactionmode */
         else
-            cur_val = insert_penalties;
-        cur_val_level = int_val_level;
+            val->value.int_val = insert_penalties;
+        val->level = int_val_level;
         break;
     case set_page_dimen_cmd:
         /* Fetch something on the |page_so_far| */
         if ((page_contents == empty) && (!output_active)) {
             if (m == 0)
-                cur_val = max_dimen;
+                val->value.dimen_val = max_dimen;
             else
-                cur_val = 0;
+                val->value.dimen_val = 0;
         } else {
-            cur_val = page_so_far[m];
+            val->value.dimen_val = page_so_far[m];
         }
-        cur_val_level = dimen_val_level;
+        val->level = dimen_val_level;
         break;
     case set_tex_shape_cmd:
         /* Fetch the |par_shape| size */
         if (par_shape_ptr == null)
-            cur_val = 0;
+            val->value.int_val = 0;
         else
-            cur_val = vinfo(par_shape_ptr + 1);
-        cur_val_level = int_val_level;
+            val->value.int_val = vinfo(par_shape_ptr + 1);
+        val->level = int_val_level;
         break;
     case set_etex_shape_cmd:
         /* Fetch a penalties array element */
-        scan_int();
-        if ((equiv(m) == null) || (cur_val < 0)) {
-            cur_val = 0;
+        scan_int(val);
+        if ((equiv(m) == null) || (val->value.int_val < 0)) {
+            val->value.int_val = 0;
         } else {
-            if (cur_val > penalty(equiv(m)))
-                cur_val = penalty(equiv(m));
-            cur_val = penalty(equiv(m) + cur_val);
+            if (val->value.int_val > penalty(equiv(m)))
+                val->value.int_val = penalty(equiv(m));
+            val->value.int_val = penalty(equiv(m) + val->value.int_val);
         }
-        cur_val_level = int_val_level;
+        val->level = int_val_level;
         break;
     case char_given_cmd:
     case math_given_cmd:
@@ -328,202 +386,203 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                 if (m < eTeX_mu) {
                     switch (m) {
                     case mu_to_glue_code:
-                        scan_mu_glue();
+                        scan_mu_glue(val);
                         break;
                     };          /* there are no other cases */
-                    cur_val_level = glue_val_level;
+                    val->level = glue_val_level;
                 } else if (m < eTeX_expr) {
                     switch (m) {
                     case glue_to_mu_code:
-                        scan_normal_glue();
+                        scan_normal_glue(val);
                         break;
                     }           /* there are no other cases */
-                    cur_val_level = mu_val_level;
+                    val->level = mu_val_level;
                 } else {
-                    cur_val_level = m - eTeX_expr + int_val_level;
-                    scan_expr();
+                    scan_expr(val,  m - eTeX_expr + int_val_level);
                 }
                 /* This code for reducing |cur_val_level| and\slash or negating the
                    result is similar to the one for all the other cases of
                    |scan_something_internal|, with the difference that |scan_expr| has
                    already increased the reference count of a glue specification. 
                  */
-                while (cur_val_level > level) {
-                    downgrade_cur_val(true);
+                while (val->level > level) {
+                    downgrade_cur_val(val, true);
                 }
                 if (negative) {
-                    negate_cur_val(true);
+                    negate_cur_val(val, true);
                 }
                 return succeeded;
 
             } else if (m >= eTeX_dim) {
+                int c;
                 switch (m) {
                 case font_char_wd_code:
                 case font_char_ht_code:
                 case font_char_dp_code:
                 case font_char_ic_code:
-                    scan_font_ident();
-                    q = cur_val;
-                    scan_char_num();
-                    if (char_exists(q, cur_val)) {
+                    scan_font_ident(val);
+                    q = val->value.int_val;
+                    scan_char_num(val);
+                    c = val->value.int_val;
+                    if (char_exists(q, c)) {
                         switch (m) {
                         case font_char_wd_code:
-                            cur_val = char_width(q, cur_val);
+                            val->value.dimen_val = char_width(q, c);
                             break;
                         case font_char_ht_code:
-                            cur_val = char_height(q, cur_val);
+                            val->value.dimen_val = char_height(q, c);
                             break;
                         case font_char_dp_code:
-                            cur_val = char_depth(q, cur_val);
+                            val->value.dimen_val = char_depth(q, c);
                             break;
                         case font_char_ic_code:
-                            cur_val = char_italic(q, cur_val);
+                            val->value.dimen_val = char_italic(q, c);
                             break;
                         }       /* there are no other cases */
                     } else {
-                        cur_val = 0;
+                        val->value.dimen_val = 0;
                     }
                     break;
                 case par_shape_length_code:
                 case par_shape_indent_code:
                 case par_shape_dimen_code:
                     q = cur_chr - par_shape_length_code;
-                    scan_int();
-                    if ((par_shape_ptr == null) || (cur_val <= 0)) {
-                        cur_val = 0;
+                    scan_int(val);
+                    c = val->value.int_val;
+                    if ((par_shape_ptr == null) || (c <= 0)) {
+                        val->value.dimen_val = 0;
                     } else {
                         if (q == 2) {
-                            q = cur_val % 2;
-                            cur_val = (cur_val + q) / 2;
+                            q = c % 2;
+                            c = (c + q) / 2;
                         }
-                        if (cur_val > vinfo(par_shape_ptr + 1))
-                            cur_val = vinfo(par_shape_ptr + 1);
-                        cur_val =
-                            varmem[par_shape_ptr + 2 * cur_val - q + 1].cint;
+                        if (c > vinfo(par_shape_ptr + 1))
+                            c = vinfo(par_shape_ptr + 1);
+                        val->value.dimen_val = varmem[par_shape_ptr + 2 * c - q + 1].cint;
                     }
-                    cur_val_level = dimen_val_level;
                     break;
                 case glue_stretch_code:
                 case glue_shrink_code:
-                    scan_normal_glue();
-                    q = cur_val;
+                    scan_normal_glue(val);
+                    q = val->value.glu_val;
                     if (m == glue_stretch_code)
-                        cur_val = stretch(q);
+                        val->value.dimen_val = stretch(q);
                     else
-                        cur_val = shrink(q);
+                        val->value.dimen_val = shrink(q);
                     delete_glue_ref(q);
                     break;
                 }               /* there are no other cases */
-                cur_val_level = dimen_val_level;
+                val->level = dimen_val_level;
             } else {
                 switch (m) {
                 case input_line_no_code:
-                    cur_val = line;
+                    val->value.int_val = line;
                     break;
                 case badness_code:
-                    cur_val = last_badness;
+                    val->value.int_val = last_badness;
                     break;
                 case pdftex_version_code:
-                    cur_val = pdftex_version;
+                    val->value.int_val = pdftex_version;
                     break;
                 case luatex_version_code:
-                    cur_val = get_luatexversion();
+                    val->value.int_val = get_luatexversion();
                     break;
                 case pdf_last_obj_code:
-                    cur_val = pdf_last_obj;
+                    val->value.int_val = pdf_last_obj;
                     break;
                 case pdf_last_xform_code:
-                    cur_val = pdf_last_xform;
+                    val->value.int_val = pdf_last_xform;
                     break;
                 case pdf_last_ximage_code:
-                    cur_val = pdf_last_ximage;
+                    val->value.int_val = pdf_last_ximage;
                     break;
                 case pdf_last_ximage_pages_code:
-                    cur_val = pdf_last_ximage_pages;
+                    val->value.int_val = pdf_last_ximage_pages;
                     break;
                 case pdf_last_annot_code:
-                    cur_val = pdf_last_annot;
+                    val->value.int_val = pdf_last_annot;
                     break;
                 case pdf_last_x_pos_code:
-                    cur_val = pdf_last_pos.h;
+                    val->value.int_val = pdf_last_pos.h;
                     break;
                 case pdf_last_y_pos_code:
-                    cur_val = pdf_last_pos.v;
+                    val->value.int_val = pdf_last_pos.v;
                     break;
                 case pdf_retval_code:
-                    cur_val = pdf_retval;
+                    val->value.int_val = pdf_retval;
                     break;
                 case pdf_last_ximage_colordepth_code:
-                    cur_val = pdf_last_ximage_colordepth;
+                    val->value.int_val = pdf_last_ximage_colordepth;
                     break;
                 case random_seed_code:
-                    cur_val = random_seed;
+                    val->value.int_val = random_seed;
                     break;
                 case pdf_last_link_code:
-                    cur_val = pdf_last_link;
+                    val->value.int_val = pdf_last_link;
                     break;
                 case eTeX_version_code:
-                    cur_val = eTeX_version;
+                    val->value.int_val = eTeX_version;
                     break;
                 case eTeX_minor_version_code:
-                    cur_val = eTeX_minor_version;
+                    val->value.int_val = eTeX_minor_version;
                     break;
                 case current_group_level_code:
-                    cur_val = cur_level - level_one;
+                    val->value.int_val = cur_level - level_one;
                     break;
                 case current_group_type_code:
-                    cur_val = cur_group;
+                    val->value.int_val = cur_group;
                     break;
                 case current_if_level_code:
                     q = cond_ptr;
-                    cur_val = 0;
+                    val->value.int_val = 0;
                     while (q != null) {
-                        incr(cur_val);
+                        incr(val->value.int_val);
                         q = vlink(q);
                     }
                     break;
                 case current_if_type_code:
                     if (cond_ptr == null)
-                        cur_val = 0;
+                        val->value.int_val = 0;
                     else if (cur_if < unless_code)
-                        cur_val = cur_if + 1;
+                        val->value.int_val = cur_if + 1;
                     else
-                        cur_val = -(cur_if - unless_code + 1);
+                        val->value.int_val = -(cur_if - unless_code + 1);
                     break;
                 case current_if_branch_code:
                     if ((if_limit == or_code) || (if_limit == else_code))
-                        cur_val = 1;
+                        val->value.int_val = 1;
                     else if (if_limit == fi_code)
-                        cur_val = -1;
+                        val->value.int_val = -1;
                     else
-                        cur_val = 0;
+                        val->value.int_val = 0;
                     break;
                 case glue_stretch_order_code:
                 case glue_shrink_order_code:
-                    scan_normal_glue();
-                    q = cur_val;
+                    scan_normal_glue(val);
+                    q = val->value.glu_val;
                     if (m == glue_stretch_order_code)
-                        cur_val = stretch_order(q);
+                        val->value.int_val = stretch_order(q);
                     else
-                        cur_val = shrink_order(q);
+                        val->value.int_val = shrink_order(q);
                     delete_glue_ref(q);
                     break;
 
                 }               /* there are no other cases */
-                cur_val_level = int_val_level;
+                val->level = int_val_level;
             }
         } else {
-            if (cur_chr == glue_val_level)
-                cur_val = zero_glue;
-            else
-                cur_val = 0;
+            if (cur_chr == glue_val_level) {
+                val->value.glu_val = zero_glue;
+            } else {
+                memset(&val->value, 0, sizeof(val->value));
+            }
             if (cur_chr == last_node_type_code) {
-                cur_val_level = int_val_level;
+                val->level = int_val_level;
                 if ((cur_list.tail_field == cur_list.head_field)
                     || (cur_list.mode_field == 0))
-                    cur_val = -1;
+                    val->value.int_val = -1;
             } else {
-                cur_val_level = cur_chr;        /* assumes identical values */
+                val->level = cur_chr;        /* assumes identical values */
             }
             if ((cur_list.tail_field != contrib_head) &&
                 !is_char_node(cur_list.tail_field) &&
@@ -531,37 +590,40 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                 switch (cur_chr) {
                 case lastpenalty_code:
                     if (type(cur_list.tail_field) == penalty_node)
-                        cur_val = penalty(cur_list.tail_field);
+                        val->value.int_val = penalty(cur_list.tail_field);
                     break;
                 case lastkern_code:
                     if (type(cur_list.tail_field) == kern_node)
-                        cur_val = width(cur_list.tail_field);
+                        val->value.dimen_val = width(cur_list.tail_field);
                     break;
                 case lastskip_code:
-                    if (type(cur_list.tail_field) == glue_node)
-                        cur_val = glue_ptr(cur_list.tail_field);
-                    if (subtype(cur_list.tail_field) == mu_glue)
-                        cur_val_level = mu_val_level;
+                    if (type(cur_list.tail_field) == glue_node) {
+                        if (subtype(cur_list.tail_field) == mu_glue) {
+                           val->level = mu_val_level;
+                         }
+                         val->value.glu_val = glue_ptr(cur_list.tail_field);
+                    }
                     break;
                 case last_node_type_code:
-                    cur_val = visible_last_node_type(cur_list.tail_field);
+                    val->value.int_val = visible_last_node_type(cur_list.tail_field);
                     break;
                 }               /* there are no other cases */
             } else if ((cur_list.mode_field == vmode)
                        && (cur_list.tail_field == cur_list.head_field)) {
                 switch (cur_chr) {
                 case lastpenalty_code:
-                    cur_val = last_penalty;
+                    val->value.int_val = last_penalty;
                     break;
                 case lastkern_code:
-                    cur_val = last_kern;
+                    val->value.dimen_val = last_kern;
                     break;
                 case lastskip_code:
+                    // this cannot be a mu_glue because of vertical mode
                     if (last_glue != max_halfword)
-                        cur_val = last_glue;
+                        val->value.glu_val = last_glue;
                     break;
                 case last_node_type_code:
-                    cur_val = last_node_type;
+                    val->value.int_val = last_node_type;
                     break;
                 }               /* there are no other cases */
             }
@@ -572,20 +634,19 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
         succeeded = false;
     }
     if (succeeded) {
-        while (cur_val_level > level) {
-            /* Convert |cur_val| to a lower level */
-            downgrade_cur_val(false);
+        while (val->level > level) {
+            /* Convert |val| to a lower level */
+            downgrade_cur_val(val, false);
         }
-        /* Fix the reference count, if any, and negate |cur_val| if |negative| */
-        /* If |cur_val| points to a glue specification at this point, the reference
-           count for the glue does not yet include the reference by |cur_val|.
-           If |negative| is |true|, |cur_val_level| is known to be |<=mu_val|.
+        /* Fix the reference count, if any, and negate |val| if |negative| */
+        /* If |val| points to a glue specification at this point, the reference
+           count for the glue does not yet include the reference by |val|.
+           If |negative| is |true|, |val->level| is known to be |<=mu_val|.
          */
         if (negative) {
-            negate_cur_val(false);
-        } else if ((cur_val_level >= glue_val_level)
-                   && (cur_val_level <= mu_val_level)) {
-            add_glue_ref(cur_val);
+            negate_cur_val(val, false);
+        } else if (val->level == glue_val_level || val->level == mu_val_level) {
+            add_glue_ref(val->value.glu_val);
         }
     }
     return succeeded;
@@ -596,10 +657,11 @@ the  real work is delegated to |short_scan_something_internal| that
 is shared between this routine and |scan_something_internal|. 
 
 @c
-void scan_something_simple(halfword cmd, halfword subitem)
+scan_result *scan_something_simple(halfword cmd, halfword subitem)
 {
     /* negative is never true */
-    if (!short_scan_something_internal(cmd, subitem, tok_val_level, false)) {
+    scan_result *val = xmalloc(sizeof(scan_result));
+    if (!short_scan_something_internal(val, cmd, subitem, tok_val_level, false)) {
         /* Complain that |texlib| can not do this; give zero result */
         print_err("You can't use `");
         print_cmd_chr((quarterword) cmd, subitem);
@@ -608,59 +670,61 @@ void scan_something_simple(halfword cmd, halfword subitem)
         error();
         scanned_result(0, int_val_level);
     }
+    return val;
 }
 
 
 
-@ OK, we're ready for |scan_something_internal| itself. A second parameter,
+@ OK, we're ready for |scan_something_internal| itself. A third parameter,
 |negative|, is set |true| if the value that is found should be negated.
 It is assumed that |cur_cmd| and |cur_chr| represent the first token of
 the internal quantity to be scanned; an error will be signalled if
 |cur_cmd<min_internal| or |cur_cmd>max_internal|.
 
 @c
-void scan_something_internal(int level, boolean negative)
+void scan_something_internal(scan_result *val, int level, boolean negative)
 {
     /* fetch an internal parameter */
     halfword m;                 /* |chr_code| part of the operand token */
     int n, k;                   /* accumulators */
+    int val1;
   RESTART:
     m = cur_chr;
-    if (!short_scan_something_internal(cur_cmd, cur_chr, level, negative)) {
+    if (!short_scan_something_internal(val, cur_cmd, cur_chr, level, negative)) {
         switch (cur_cmd) {
         case def_char_code_cmd:
             /* Fetch a character code from some table */
-            scan_char_num();
+            scan_char_num(val);
             if (m == math_code_base) {
-                cur_val1 = get_math_code_num(cur_val, true);
-                scanned_result(cur_val1, int_val_level);
+                val1 = get_math_code_num(val->value.int_val, true);
+                scanned_result(val1, int_val_level);
             } else if (m == lc_code_base) {
-                cur_val1 = get_lc_code(cur_val);
-                scanned_result(cur_val1, int_val_level);
+                val1 = get_lc_code(val->value.int_val);
+                scanned_result(val1, int_val_level);
             } else if (m == uc_code_base) {
-                cur_val1 = get_uc_code(cur_val);
-                scanned_result(cur_val1, int_val_level);
+                val1 = get_uc_code(val->value.int_val);
+                scanned_result(val1, int_val_level);
             } else if (m == sf_code_base) {
-                cur_val1 = get_sf_code(cur_val);
-                scanned_result(cur_val1, int_val_level);
+                val1 = get_sf_code(val->value.int_val);
+                scanned_result(val1, int_val_level);
             } else if (m == cat_code_base) {
-                cur_val1 = get_cat_code(int_par(cat_code_table_code), cur_val);
-                scanned_result(cur_val1, int_val_level);
+                val1 = get_cat_code(int_par(cat_code_table_code), val->value.int_val);
+                scanned_result(val1, int_val_level);
             } else {
                 confusion("def_char");
             }
             break;
         case def_del_code_cmd:
             /* Fetch a character code from some table */
-            scan_char_num();
-            cur_val1 = get_del_code_num(cur_val);
-            scanned_result(cur_val1, int_val_level);
+            scan_char_num(val);
+            val1 = get_del_code_num(val->value.int_val);
+            scanned_result(val1, int_val_level);
             break;
         case extdef_math_code_cmd:
             /* Fetch an extended math code table value */
-            scan_char_num();
-            cur_val1 = get_math_code_num(cur_val, false);
-            scanned_result(cur_val1, int_val_level);
+            scan_char_num(val);
+            val1 = get_math_code_num(val->value.int_val, false);
+            scanned_result(val1, int_val_level);
             break;
         case toks_register_cmd:
         case set_font_cmd:
@@ -676,88 +740,88 @@ void scan_something_internal(int level, boolean negative)
                 back_error();
                 scanned_result(0, dimen_val_level);
             } else if (cur_cmd == toks_register_cmd) {
-                scan_register_num();
-                m = toks_base + cur_val;
+                scan_register_num(val);
+                m = toks_base + val->value.int_val;
                 scanned_result(equiv(m), tok_val_level);
             } else {
                 back_input();
-                scan_font_ident();
-                scanned_result(font_id_base + cur_val, ident_val_level);
+                scan_font_ident(val);
+                scanned_result(font_id_base + val->value.int_val, ident_val_level);
             }
             break;
         case def_family_cmd:
             /* Fetch a math font identifier */
-            scan_char_num();
-            cur_val1 = fam_fnt(cur_val, m);
-            scanned_result(font_id_base + cur_val1, ident_val_level);
+            scan_char_num(val);
+            val1 = fam_fnt(val->value.int_val, m);
+            scanned_result(font_id_base + val1, ident_val_level);
             break;
         case set_math_param_cmd:
             /* Fetch a math param */
-            cur_val1 = cur_chr;
+            val1 = cur_chr;
             get_token();
             if (cur_cmd != math_style_cmd) {
                 print_err("Missing math style, treated as \\displaystyle");
                 help1
                     ("A style should have been here; I inserted `\\displaystyle'.");
-                cur_val = display_style;
+                val1 = display_style;
                 back_error();
             } else {
-                cur_val = cur_chr;
+                val1 = cur_chr;
             }
-            if (cur_val1 < math_param_first_mu_glue) {
-                if (cur_val1 == math_param_radical_degree_raise) {
-                    cur_val1 = get_math_param(cur_val1, cur_chr);
-                    scanned_result(cur_val1, int_val_level);
+            if (val1 < math_param_first_mu_glue) {
+                if (val1 == math_param_radical_degree_raise) {
+                    val1 = get_math_param(val1, cur_chr);
+                    scanned_result(val1, int_val_level);
                 } else {
-                    cur_val1 = get_math_param(cur_val1, cur_chr);
-                    scanned_result(cur_val1, dimen_val_level);
+                    val1 = get_math_param(val1, cur_chr);
+                    scanned_result(val1, dimen_val_level);
                 }
             } else {
-                cur_val1 = get_math_param(cur_val1, cur_chr);
-                if (cur_val1 == thin_mu_skip_code)
-                    cur_val1 = glue_par(thin_mu_skip_code);
-                else if (cur_val1 == med_mu_skip_code)
-                    cur_val1 = glue_par(med_mu_skip_code);
-                else if (cur_val1 == thick_mu_skip_code)
-                    cur_val1 = glue_par(thick_mu_skip_code);
-                scanned_result(cur_val1, mu_val_level);
+                val1 = get_math_param(val1, cur_chr);
+                if (val1 == thin_mu_skip_code)
+                    val1 = glue_par(thin_mu_skip_code);
+                else if (val1 == med_mu_skip_code)
+                    val1 = glue_par(med_mu_skip_code);
+                else if (val1 == thick_mu_skip_code)
+                    val1 = glue_par(thick_mu_skip_code);
+                scanned_result(val1, mu_val_level);
             }
             break;
         case assign_box_dir_cmd:
-            scan_register_num();
-            m = cur_val;
+            scan_register_num(val);
+            m = val->value.int_val;
             if (box(m) != null)
-                cur_val = box_dir(box(m));
+                val->value.int_val = box_dir(box(m));
             else
-                cur_val = 0;
-            cur_val_level = dir_val_level;
+                val->value.int_val = 0;
+            val->level = dir_val_level;
             break;
         case set_box_dimen_cmd:
             /* Fetch a box dimension */
-            scan_register_num();
-            if (box(cur_val) == null)
-                cur_val = 0;
+            scan_register_num(val);
+            if (box(val->value.int_val) == null)
+                val->value.dimen_val = 0;
             else
-                cur_val = varmem[box(cur_val) + m].cint;
-            cur_val_level = dimen_val_level;
+                val->value.dimen_val = varmem[box(val->value.int_val) + m].cint;
+            val->level = dimen_val_level;
             break;
         case assign_font_dimen_cmd:
             /* Fetch a font dimension */
-            get_font_dimen();
+            get_font_dimen(val);
             break;
         case assign_font_int_cmd:
             /* Fetch a font integer */
-            scan_font_ident();
+            scan_font_ident(val);
             if (m == 0) {
-                scanned_result(hyphen_char(cur_val), int_val_level);
+                scanned_result(hyphen_char(val->value.int_val), int_val_level);
             } else if (m == 1) {
-                scanned_result(skew_char(cur_val), int_val_level);
+                scanned_result(skew_char(val->value.int_val), int_val_level);
             } else if (m == no_lig_code) {
-                scanned_result(test_no_ligatures(cur_val), int_val_level);
+                scanned_result(test_no_ligatures(val->value.int_val), int_val_level);
             } else {
-                n = cur_val;
-                scan_char_num();
-                k = cur_val;
+                n = val->value.int_val;
+                scan_char_num(val);
+                k = val->value.int_val;
                 switch (m) {
                 case lp_code_base:
                     scanned_result(get_lp_code(n, k), int_val_level);
@@ -776,25 +840,25 @@ void scan_something_internal(int level, boolean negative)
             break;
         case register_cmd:
             /* Fetch a register */
-            scan_register_num();
+            scan_register_num(val);
             switch (m) {
             case int_val_level:
-                cur_val = count(cur_val);
+                val->value.int_val = count(val->value.int_val);
                 break;
             case attr_val_level:
-                cur_val = attribute(cur_val);
+                val->value.int_val = attribute(val->value.int_val);
                 break;
             case dimen_val_level:
-                cur_val = dimen(cur_val);
+                val->value.dimen_val = dimen(val->value.int_val);
                 break;
             case glue_val_level:
-                cur_val = skip(cur_val);
+                val->value.glu_val = skip(val->value.int_val);
                 break;
             case mu_val_level:
-                cur_val = mu_skip(cur_val);
+                val->value.glu_val = mu_skip(val->value.int_val);
                 break;
-            }                   /* there are no other cases */
-            cur_val_level = m;
+            }                   /* there are no other relevant cases */
+            val->level = m;
             break;
         case ignore_spaces_cmd:        /* trap unexpandable primitives */
             if (cur_chr == 1) {
@@ -834,9 +898,9 @@ void scan_something_internal(int level, boolean negative)
                 scanned_result(0, int_val_level);
             break;
         }
-        while (cur_val_level > level) {
+        while (val->level > level) {
             /* Convert |cur_val| to a lower level */
-            downgrade_cur_val(false);
+            downgrade_cur_val(val, false);
         }
         /* Fix the reference count, if any, and negate |cur_val| if |negative| */
         /* If |cur_val| points to a glue specification at this point, the reference
@@ -844,10 +908,9 @@ void scan_something_internal(int level, boolean negative)
            If |negative| is |true|, |cur_val_level| is known to be |<=mu_val|.
          */
         if (negative) {
-            negate_cur_val(false);
-        } else if ((cur_val_level >= glue_val_level) &&
-                   (cur_val_level <= mu_val_level)) {
-            add_glue_ref(cur_val);
+            negate_cur_val(val, false);
+        } else if (val->level == glue_val_level || val->level == mu_val_level) {
+            add_glue_ref(val->value.glu_val);
         }
     }
 }
@@ -862,11 +925,11 @@ the same except for the upper limit and the error message, so it makes
 sense to combine these all into one function. 
 
 @c
-void scan_limited_int(int max, const char *name)
+void scan_limited_int(scan_result *val, int max, const char *name)
 {
     char hlp[80];
-    scan_int();
-    if ((cur_val < 0) || (cur_val > max)) {
+    scan_int(val);
+    if ((val->value.int_val < 0) || (val->value.int_val > max)) {
         if (name == NULL) {
             snprintf(hlp, 80,
                      "Since I expected to read a number between 0 and %d,",
@@ -879,46 +942,20 @@ void scan_limited_int(int max, const char *name)
             print_err(msg);
         }
         help2(hlp, "I changed this one to zero.");
-        int_error(cur_val);
-        cur_val = 0;
+        int_error(val->value.int_val);
+        val->value.int_val = 0;
     }
 }
 
 @ @c
-void scan_fifteen_bit_int(void)
+void scan_fifteen_bit_int(scan_result *val)
 {
-    scan_real_fifteen_bit_int();
-    cur_val = ((cur_val / 0x1000) * 0x1000000) +
+    int cur_val;
+    scan_real_fifteen_bit_int(val);
+    cur_val = val->value.int_val;
+    val->value.int_val = ((cur_val / 0x1000) * 0x1000000) +
         (((cur_val % 0x1000) / 0x100) * 0x10000) + (cur_val % 0x100);
 }
-
-@ @c
-void scan_fifty_one_bit_int(void)
-{
-    int iiii;
-    scan_int();
-    if ((cur_val < 0) || (cur_val > 0777777777)) {
-        print_err("Bad delimiter code");
-        help2
-            ("A numeric delimiter (first part) must be between 0 and 2^{27}-1.",
-             "I changed this one to zero.");
-        int_error(cur_val);
-        cur_val = 0;
-    }
-    iiii = cur_val;
-    scan_int();
-    if ((cur_val < 0) || (cur_val > 0xFFFFFF)) {
-        print_err("Bad delimiter code");
-        help2
-            ("A numeric delimiter (second part) must be between 0 and 2^{24}-1.",
-             "I changed this one to zero.");
-        int_error(cur_val);
-        cur_val = 0;
-    }
-    cur_val1 = cur_val;
-    cur_val = iiii;
-}
-
 
 @ To be able to determine whether \.{\\write18} is enabled from within
 \TeX\ we also implement \.{\\eof18}.  We sort of cheat by having an
@@ -926,15 +963,15 @@ additional route |scan_four_bit_int_or_18| which is the same as
 |scan_four_bit_int| except it also accepts the value 18.
 
 @c
-void scan_four_bit_int_or_18(void)
+void scan_four_bit_int_or_18(scan_result *val)
 {
-    scan_int();
-    if ((cur_val < 0) || ((cur_val > 15) && (cur_val != 18))) {
+    scan_int(val);
+    if ((val->value.int_val < 0) || ((val->value.int_val > 15) && (val->value.int_val != 18))) {
         print_err("Bad number");
         help2("Since I expected to read a number between 0 and 15,",
               "I changed this one to zero.");
-        int_error(cur_val);
-        cur_val = 0;
+        int_error(val->value.int_val);
+        val->value.int_val = 0;
     }
 }
 
@@ -946,14 +983,10 @@ void scan_four_bit_int_or_18(void)
 octal constant (i.e., radix 8, preceded by~'), a hexadecimal constant
 (radix 16, preceded by~"), an alphabetic constant (preceded by~`), or
 an internal variable. After scanning is complete,
-|cur_val| will contain the answer, which must be at most
+|val| will contain the answer, which must be at most
 $2^{31}-1=2147483647$ in absolute value. The value of |radix| is set to
 10, 8, or 16 in the cases of decimal, octal, or hexadecimal constants,
 otherwise |radix| is set to zero. An optional space follows a constant.
-
-@c
-int radix;                      /* |scan_int| sets this to 8, 10, 16, or zero */
-
 
 @ The |scan_int| routine is used also to scan the integer part of a
   fraction; for example, the `\.3' in `\.{3.14159}' will be found by
@@ -962,17 +995,14 @@ int radix;                      /* |scan_int| sets this to 8, 10, 16, or zero */
   and that the decimal point has been backed up to be scanned again.
 
 @c
-void scan_int(void)
+void scan_int(scan_result *val)
 {                               /* sets |cur_val| to an integer */
     boolean negative;           /* should the answer be negated? */
     int m;                      /* |$2^{31}$ / radix|, the threshold of danger */
     int d;                      /* the digit just scanned */
-    boolean vacuous;            /* have no digits appeared? */
-    boolean OK_so_far;          /* has an error message been issued? */
-    radix = 0;
-    OK_so_far = true;
     /* Get the next non-blank non-sign token; set |negative| appropriately */
     negative = false;
+    val->info.radix = 0;
     do {
         /* Get the next non-blank non-call token */
         do {
@@ -984,43 +1014,7 @@ void scan_int(void)
         }
     } while (cur_tok == other_token + '+');
 
-  RESTART:
-    if (cur_tok == alpha_token) {
-        /* Scan an alphabetic character code into |cur_val| */
-        /* A space is ignored after an alphabetic character constant, so that
-           such constants behave like numeric ones. */
-        get_token();            /* suppress macro expansion */
-        if (cur_tok < cs_token_flag) {
-            cur_val = cur_chr;
-            if (cur_cmd <= right_brace_cmd) {
-                if (cur_cmd == right_brace_cmd)
-                    incr(align_state);
-                else
-                    decr(align_state);
-            }
-        } else {                /* the value of a csname in this context is its name */
-            str_number txt = cs_text(cur_tok - cs_token_flag);
-            if (is_active_cs(txt))
-                cur_val = active_cs_value(txt);
-            else if (single_letter(txt))
-                cur_val = pool_to_unichar(str_string(txt));
-            else
-                cur_val = (biggest_char + 1);
-        }
-        if (cur_val > biggest_char) {
-            print_err("Improper alphabetic constant");
-            help2("A one-character control sequence belongs after a ` mark.",
-                  "So I'm essentially inserting \\0 here.");
-            cur_val = '0';
-            back_error();
-        } else {
-            /* Scan an optional space */
-            get_x_token();
-            if (cur_cmd != spacer_cmd)
-                back_input();
-        }
-
-    } else if (cur_tok == cs_token_flag + frozen_primitive) {
+    while (cur_tok == cs_token_flag + frozen_primitive) {
         /* Reset |cur_tok| for unexpandable primitives, goto restart */
         /* This block deals with unexpandable \.{\\primitive} appearing at a spot where
            an integer or an internal values should have been found. It fetches the
@@ -1041,32 +1035,67 @@ void scan_int(void)
             cur_tok = cs_token_flag + frozen_relax;
             cur_cs = frozen_relax;
         }
-        goto RESTART;
+    }
+    if (cur_tok == alpha_token) {
+        /* Scan an alphabetic character code into |cur_val| */
+        /* A space is ignored after an alphabetic character constant, so that
+           such constants behave like numeric ones. */
+        get_token();            /* suppress macro expansion */
+        if (cur_tok < cs_token_flag) {
+            val->value.int_val = cur_chr;
+            if (cur_cmd <= right_brace_cmd) {
+                if (cur_cmd == right_brace_cmd)
+                    incr(align_state);
+                else
+                    decr(align_state);
+            }
+        } else {                /* the value of a csname in this context is its name */
+            str_number txt = cs_text(cur_tok - cs_token_flag);
+            if (is_active_cs(txt))
+                val->value.int_val = active_cs_value(txt);
+            else if (single_letter(txt))
+                val->value.int_val = pool_to_unichar(str_string(txt));
+            else
+                val->value.int_val = (biggest_char + 1);
+        }
+        if (val->value.int_val > biggest_char) {
+            print_err("Improper alphabetic constant");
+            help2("A one-character control sequence belongs after a ` mark.",
+                  "So I'm essentially inserting \\0 here.");
+            val->value.int_val = '0'; /* == 48 */
+            back_error();
+        } else {
+            /* Scan an optional space */
+            get_x_token();
+            if (cur_cmd != spacer_cmd)
+                back_input();
+        }
     } else if (cur_cmd == math_style_cmd) {
-        cur_val = cur_chr;
+        val->value.int_val = cur_chr;
     } else if ((cur_cmd >= min_internal_cmd) && (cur_cmd <= max_internal_cmd)) {
-        scan_something_internal(int_val_level, false);
+        scan_something_internal(val, int_val_level, false);
     } else {
+        boolean vacuous = true;            /* have no digits appeared? */
+        boolean OK_so_far = true;          /* has an error message been issued? */
         /* Scan a numeric constant */
-        radix = 10;
+        val->info.radix = 10;
         m = 214748364;
         if (cur_tok == octal_token) {
-            radix = 8;
+            val->info.radix = 8;
             m = 02000000000;
             get_x_token();
         } else if (cur_tok == hex_token) {
-            radix = 16;
+            val->info.radix = 16;
             m = 01000000000;
             get_x_token();
         }
-        vacuous = true;
-        cur_val = 0;
+        val->value.int_val = 0;
         /* Accumulate the constant until |cur_tok| is not a suitable digit */
         while (1) {
-            if ((cur_tok < zero_token + radix) && (cur_tok >= zero_token)
+            if ((cur_tok < zero_token + val->info.radix) && (cur_tok >= zero_token)
                 && (cur_tok <= zero_token + 9)) {
                 d = cur_tok - zero_token;
-            } else if (radix == 16) {
+            } else if (val->info.radix == 16) {
                 if ((cur_tok <= A_token + 5) && (cur_tok >= A_token)) {
                     d = cur_tok - A_token + 10;
                 } else if ((cur_tok <= other_A_token + 5)
@@ -1079,18 +1108,18 @@ void scan_int(void)
                 break;
             }
             vacuous = false;
-            if ((cur_val >= m) && ((cur_val > m) || (d > 7) || (radix != 10))) {
+            if ((val->value.int_val >= m) && ((val->value.int_val > m) || (d > 7) || (val->info.radix != 10))) {
                 if (OK_so_far) {
                     print_err("Number too big");
                     help2
                         ("I can only go up to 2147483647='17777777777=\"7FFFFFFF,",
                          "so I'm using that number instead of yours.");
                     error();
-                    cur_val = infinity;
+                    val->value.int_val = infinity;
                     OK_so_far = false;
                 }
             } else {
-                cur_val = cur_val * radix + d;
+                val->value.int_val = val->value.int_val * val->info.radix + d;
             }
             get_x_token();
         }
@@ -1106,7 +1135,7 @@ void scan_int(void)
         }
     }
     if (negative)
-        negate(cur_val);
+        negate(val->value.int_val);
 }
 
 
@@ -1115,35 +1144,32 @@ called asking for |mu_val|, when we really wanted a ``mudimen'' instead
 of ``muglue.''
 
 @c
-static void coerce_glue(void)
+static void coerce_glue(scan_result *val)
 {
-    int v;
-    if (cur_val_level >= glue_val_level) {
-        v = width(cur_val);
-        delete_glue_ref(cur_val);
-        cur_val = v;
+    int v = 0;
+    if (val->level >= glue_val_level) {
+        if (val->level == glue_val_level || val->level == mu_val_level) {
+           v = width(val->value.glu_val);
+           delete_glue_ref(val->value.glu_val);
+        }
+        val->value.dimen_val = v;
     }
 }
 
 
-
-@ The |scan_dimen| routine is similar to |scan_int|, but it sets |cur_val| to
+@ The |scan_dimen| routine is similar to |scan_int|, but it sets |val| to
 a |scaled| value, i.e., an integral number of sp. One of its main tasks
 is therefore to interpret the abbreviations for various kinds of units and
 to convert measurements to scaled points.
 
-There are three parameters: |mu| is |true| if the finite units must be
+There are three extra parameters: |mu| is |true| if the finite units must be
 `\.{mu}', while |mu| is |false| if `\.{mu}' units are disallowed;
 |inf| is |true| if the infinite units `\.{fil}', `\.{fill}', `\.{filll}'
 are permitted; and |shortcut| is |true| if |cur_val| already contains
 an integer and only the units need to be considered.
 
 The order of infinity that was found in the case of infinite glue is returned
-in the global variable |cur_order|.
-
-@c
-int cur_order;                  /* order of infinity found by |scan_dimen| */
-
+in |order|.
 
 @ Constructions like `\.{-\'77 pt}' are legal dimensions, so |scan_dimen|
 may begin with |scan_int|. This explains why it is convenient to use
@@ -1156,7 +1182,7 @@ representation is put into the single word |cur_val|, which suddenly
 switches significance from |integer| to |scaled|.
 
 @c
-void scan_dimen(boolean mu, boolean inf, boolean shortcut)
+void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut)
 /* sets |cur_val| to a dimension */
 {
     boolean negative;           /* should the answer be negated? */
@@ -1167,10 +1193,10 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
     halfword p, q;              /* top of decimal digit stack */
     scaled v;                   /* an internal dimension */
     int save_cur_val;           /* temporary storage of |cur_val| */
-
+    int order;
     f = 0;
     arith_error = false;
-    cur_order = normal;
+    order = normal;
     negative = false;
     if (!shortcut) {
         /* Get the next non-blank non-sign... */
@@ -1190,15 +1216,15 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
             /* Fetch an internal dimension and |goto attach_sign|,
                or fetch an internal integer */
             if (mu) {
-                scan_something_internal(mu_val_level, false);
-                coerce_glue();
-                if (cur_val_level == mu_val_level)
+                scan_something_internal(val, mu_val_level, false);
+                coerce_glue(val);
+                if (val->level == mu_val_level)
                     goto ATTACH_SIGN;
-                if (cur_val_level != int_val_level)
+                if (val->level != int_val_level)
                     mu_error();
             } else {
-                scan_something_internal(dimen_val_level, false);
-                if (cur_val_level == dimen_val_level)
+                scan_something_internal(val, dimen_val_level, false);
+                if (val->level == dimen_val_level)
                     goto ATTACH_SIGN;
             }
 
@@ -1208,14 +1234,14 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
                 cur_tok = point_token;
             }
             if (cur_tok != point_token) {
-                scan_int();
+                scan_int(val);
             } else {
-                radix = 10;
-                cur_val = 0;
+                val->info.radix = 10;
+                val->value.dimen_val = 0;
             }
             if (cur_tok == continental_point_token)
                 cur_tok = point_token;
-            if ((radix == 10) && (cur_tok == point_token)) {
+            if ((val->info.radix == 10) && (cur_tok == point_token)) {
                 /* Scan decimal fraction */
                 /* When the following code is executed, we have |cur_tok=point_token|, but this
                    token has been backed up using |back_input|; we must first discard it.
@@ -1250,9 +1276,9 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
             }
         }
     }
-    if (cur_val < 0) {          /* in this case |f=0| */
+    if (val->value.int_val < 0) {          /* in this case |f=0| */
         negative = !negative;
-        negate(cur_val);
+        negate(val->value.int_val);
     }
     /* Scan units and set |cur_val| to $x\cdot(|cur_val|+f/2^{16})$, where there
        are |x| sp per unit; |goto attach_sign| if the units are internal */
@@ -1271,23 +1297,23 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
            \.{"l"}). 
            Not so for luatex, it just parses the construct in reverse. */
         if (scan_keyword("filll")) {
-            cur_order = filll;
+            order = filll;
             goto ATTACH_FRACTION;
         } else if (scan_keyword("fill")) {
-            cur_order = fill;
+            order = fill;
             goto ATTACH_FRACTION;
         } else if (scan_keyword("fil")) {
-            cur_order = fil;
+            order = fil;
             goto ATTACH_FRACTION;
         } else if (scan_keyword("fi")) {
-            cur_order = sfi;
+            order = sfi;
             goto ATTACH_FRACTION;
         }
 
     }
     /* Scan for (u)units that are internal dimensions;
        |goto attach_sign| with |cur_val| set if found */
-    save_cur_val = cur_val;
+    save_cur_val = val->value.int_val;
     /* Get the next non-blank non-call... */
     do {
         get_x_token();
@@ -1297,14 +1323,14 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
         back_input();
     } else {
         if (mu) {
-            scan_something_internal(mu_val_level, false);
-            coerce_glue();
-            if (cur_val_level != mu_val_level)
+            scan_something_internal(val,mu_val_level, false);
+            coerce_glue(val);
+            if (val->level != mu_val_level)
                 mu_error();
         } else {
-            scan_something_internal(dimen_val_level, false);
+            scan_something_internal(val,dimen_val_level, false);
         }
-        v = cur_val;
+        v = val->value.dimen_val;
         goto FOUND;
     }
     if (mu)
@@ -1324,7 +1350,7 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
         back_input();
 
   FOUND:
-    cur_val = nx_plus_y(save_cur_val, v, xn_over_d(v, f, 0200000));
+    val->value.int_val = nx_plus_y(save_cur_val, v, xn_over_d(v, f, 0200000));
     goto ATTACH_SIGN;
   NOT_FOUND:
 
@@ -1346,9 +1372,9 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
         /* Adjust (f)for the magnification ratio */
         prepare_mag();
         if (int_par(mag_code) != 1000) {
-            cur_val = xn_over_d(cur_val, 1000, int_par(mag_code));
+            val->value.int_val = xn_over_d(val->value.int_val, 1000, int_par(mag_code));
             f = (1000 * f + 0200000 * tex_remainder) / int_par(mag_code);
-            cur_val = cur_val + (f / 0200000);
+            val->value.int_val = val->value.int_val + (f / 0200000);
             f = f % 0200000;
         }
     }
@@ -1409,33 +1435,36 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
         error();
         goto DONE2;
     }
-    cur_val = xn_over_d(cur_val, num, denom);
+    val->value.int_val = xn_over_d(val->value.int_val, num, denom);
     f = (num * f + 0200000 * tex_remainder) / denom;
-    cur_val = cur_val + (f / 0200000);
+    val->value.int_val = val->value.int_val + (f / 0200000);
     f = f % 0200000;
   DONE2:
   ATTACH_FRACTION:
-    if (cur_val >= 040000)
+    if (val->value.int_val >= 040000)
         arith_error = true;
     else
-        cur_val = cur_val * unity + f;
+        val->value.int_val = val->value.int_val * unity + f;
   DONE:
     /* Scan an optional space */
     get_x_token();
     if (cur_cmd != spacer_cmd)
         back_input();
   ATTACH_SIGN:
-    if (arith_error || (abs(cur_val) >= 010000000000)) {
+    val->value.dimen_val = val->value.int_val;
+    val->level = dimen_val_level;
+    val->info.order = order;
+    if (arith_error || (abs(val->value.dimen_val) >= 010000000000)) {
         /* Report that this dimension is out of range */
         print_err("Dimension too large");
         help2("I can't work with sizes bigger than about 19 feet.",
               "Continue and I'll use the largest value I can.");
         error();
-        cur_val = max_dimen;
+        val->value.dimen_val = max_dimen;
         arith_error = false;
     }
     if (negative)
-        negate(cur_val);
+        negate(val->value.dimen_val);
 }
 
 
@@ -1450,11 +1479,12 @@ Since |scan_dimen| was so much more complex than |scan_int|, we might expect
 most of the work has already been done.
 
 @c
-void scan_glue(int level)
+void scan_glue(scan_result *val, int level)
 {                               /* sets |cur_val| to a glue spec pointer */
     boolean negative;           /* should the answer be negated? */
     halfword q;                 /* new glue specification */
     boolean mu;                 /* does |level=mu_val|? */
+    val->value.glu_val = 0;
     mu = (level == mu_val_level);
     /* Get the next non-blank non-sign... */
     negative = false;
@@ -1470,122 +1500,37 @@ void scan_glue(int level)
     } while (cur_tok == other_token + '+');
 
     if ((cur_cmd >= min_internal_cmd) && (cur_cmd <= max_internal_cmd)) {
-        scan_something_internal(level, negative);
-        if (cur_val_level >= glue_val_level) {
-            if (cur_val_level != level)
+        scan_something_internal(val, level, negative);
+        if (val->level >= glue_val_level) {
+            if (val->level != level)
                 mu_error();
             return;
         }
-        if (cur_val_level == int_val_level)
-            scan_dimen(mu, false, true);
+        if (val->level == int_val_level)
+            scan_dimen(val,mu, false, true);
         else if (level == mu_val_level)
             mu_error();
     } else {
         back_input();
-        scan_dimen(mu, false, false);
+        scan_dimen(val, mu, false, false);
         if (negative)
-            negate(cur_val);
+            negate(val->value.dimen_val);
     }
     /* Create a new glue specification whose width is |cur_val|; scan for its
        stretch and shrink components  */
     q = new_spec(zero_glue);
-    width(q) = cur_val;
+    width(q) = val->value.dimen_val;
     if (scan_keyword("plus")) {
-        scan_dimen(mu, true, false);
-        stretch(q) = cur_val;
-        stretch_order(q) = (quarterword) cur_order;
+        scan_dimen(val, mu, true, false);
+        stretch(q) = val->value.dimen_val;
+        stretch_order(q) = (quarterword) val->info.order;
     }
     if (scan_keyword("minus")) {
-        scan_dimen(mu, true, false);
-        shrink(q) = cur_val;
-        shrink_order(q) = (quarterword) cur_order;
+        scan_dimen(val, mu, true, false);
+        shrink(q) = val->value.dimen_val;
+        shrink_order(q) = (quarterword) val->info.order;
     }
-    cur_val = q;
-}
-
-@ This is an omega routine 
-@c
-void scan_scaled(void)
-{                               /* sets |cur_val| to a scaled value */
-    boolean negative;           /* should the answer be negated? */
-    int f;                      /* numerator of a fraction whose denominator is $2^{16}$ */
-    int k, kk;                  /* number of digits in a decimal fraction */
-    halfword p, q;              /* top of decimal digit stack */
-    f = 0;
-    arith_error = false;
-    negative = false;
-    /* Get the next non-blank non-sign... */
-    do {
-        /* Get the next non-blank non-call token */
-        do {
-            get_x_token();
-        } while (cur_cmd == spacer_cmd);
-        if (cur_tok == other_token + '-') {
-            negative = !negative;
-            cur_tok = other_token + '+';
-        }
-    } while (cur_tok == other_token + '+');
-
-    back_input();
-    if (cur_tok == continental_point_token)
-        cur_tok = point_token;
-    if (cur_tok != point_token) {
-        scan_int();
-    } else {
-        radix = 10;
-        cur_val = 0;
-    }
-    if (cur_tok == continental_point_token)
-        cur_tok = point_token;
-    if ((radix == 10) && (cur_tok == point_token)) {
-        /* Scan decimal fraction */
-        /* TODO: merge this with the same block in |scan_dimen| */
-        /* When the following code is executed, we have |cur_tok=point_token|, but this
-           token has been backed up using |back_input|; we must first discard it.
-
-           It turns out that a decimal point all by itself is equivalent to `\.{0.0}'.
-           Let's hope people don't use that fact. */
-
-        k = 0;
-        p = null;
-        get_token();            /* |point_token| is being re-scanned */
-        while (1) {
-            get_x_token();
-            if ((cur_tok > zero_token + 9) || (cur_tok < zero_token))
-                break;
-            if (k < 17) {       /* digits for |k>=17| cannot affect the result */
-                q = get_avail();
-                set_token_link(q, p);
-                set_token_info(q, cur_tok - zero_token);
-                p = q;
-                incr(k);
-            }
-        }
-        for (kk = k; kk >= 1; kk--) {
-            dig[kk - 1] = token_info(p);
-            q = p;
-            p = token_link(p);
-            free_avail(q);
-        }
-        f = round_decimals(k);
-        if (cur_cmd != spacer_cmd)
-            back_input();
-
-    }
-    if (cur_val < 0) {          /* in this case |f=0| */
-        negative = !negative;
-        negate(cur_val);
-    }
-    if (cur_val > 040000)
-        arith_error = true;
-    else
-        cur_val = cur_val * unity + f;
-    if (arith_error || (abs(cur_val) >= 010000000000)) {
-        print_err("Stack number too large");
-        error();
-    }
-    if (negative)
-        negate(cur_val);
+    val->value.glu_val = q;
 }
 
 
@@ -1601,12 +1546,13 @@ halfword the_toks(void)
     int c;                      /* value of |cur_chr| */
     str_number s;
     halfword retval;
+    scan_result *val = xmalloc(sizeof(scan_result));
     /* Handle \.{\\unexpanded} or \.{\\detokenize} and |return| */
     if (odd(cur_chr)) {
         c = cur_chr;
-        scan_general_text();
+        scan_general_text(val);
         if (c == 1) {
-            return cur_val;
+            retval = val->value.token_val;
         } else {
             old_setting = selector;
             selector = new_string;
@@ -1618,95 +1564,99 @@ halfword the_toks(void)
             s = make_string();
             retval = str_toks(str_lstring(s));
             flush_str(s);
-            return retval;
         }
+        xfree(val);
+        return retval;
     }
     get_x_token();
-    scan_something_internal(tok_val_level, false);
-    if (cur_val_level >= ident_val_level) {
+    scan_something_internal(val, tok_val_level, false);
+    if (val->level >= ident_val_level) {
         /* Copy the token list */
         p = temp_token_head;
         set_token_link(p, null);
-        if (cur_val_level == ident_val_level) {
-            store_new_token(cs_token_flag + cur_val);
-        } else if (cur_val != null) {
-            r = token_link(cur_val);    /* do not copy the reference count */
+        if (val->level == ident_val_level) {
+            store_new_token(cs_token_flag + val->value.token_val);
+        } else if (val->value.token_val != null) {
+            r = token_link(val->value.token_val);    /* do not copy the reference count */
             while (r != null) {
                 fast_store_new_token(token_info(r));
                 r = token_link(r);
             }
         }
+        xfree(val);
         return p;
     } else {
         old_setting = selector;
         selector = new_string;
-        switch (cur_val_level) {
+        switch (val->level) {
         case int_val_level:
-            print_int(cur_val);
-            break;
         case attr_val_level:
-            print_int(cur_val);
+            print_int(val->value.int_val);
             break;
         case dir_val_level:
-            print_dir(cur_val);
+            print_dir(val->value.int_val);
             break;
         case dimen_val_level:
-            print_scaled(cur_val);
+            print_scaled(val->value.dimen_val);
             tprint("pt");
             break;
         case glue_val_level:
-            print_spec(cur_val, "pt");
-            delete_glue_ref(cur_val);
+            print_spec(val->value.glu_val, "pt");
+            delete_glue_ref(val->value.glu_val);
             break;
         case mu_val_level:
-            print_spec(cur_val, "mu");
-            delete_glue_ref(cur_val);
+            print_spec(val->value.glu_val, "mu");
+            delete_glue_ref(val->value.glu_val);
+            break;
+        default:
             break;
         }                       /* there are no other cases */
         selector = old_setting;
         s = make_string();
         retval = str_toks(str_lstring(s));
         flush_str(s);
+        xfree(val);
         return retval;
     }
 }
 
 @ @c
-str_number the_scanned_result(void)
+str_number the_scanned_result(scan_result *val)
 {
     int old_setting;            /* holds |selector| setting */
     str_number r;               /* return value * */
     old_setting = selector;
     selector = new_string;
-    if (cur_val_level >= ident_val_level) {
-        if (cur_val != null) {
-            show_token_list(token_link(cur_val), null, -1);
+    if (val->level == tok_val_level || val->level == ident_val_level ) {
+        halfword tok = val->value.token_val;
+        if (tok != null) {
+            show_token_list(token_link(tok), null, -1);
             r = make_string();
         } else {
             r = get_nullstr();
         }
     } else {
-        switch (cur_val_level) {
+        switch (val->level) {
         case int_val_level:
-            print_int(cur_val);
-            break;
         case attr_val_level:
-            print_int(cur_val);
+            print_int(val->value.int_val);
             break;
         case dir_val_level:
-            print_dir(cur_val);
+            print_dir(val->value.int_val);
             break;
         case dimen_val_level:
-            print_scaled(cur_val);
+            print_scaled(val->value.dimen_val);
             tprint("pt");
             break;
         case glue_val_level:
-            print_spec(cur_val, "pt");
-            delete_glue_ref(cur_val);
+            print_spec(val->value.glu_val, "pt");
+            delete_glue_ref(val->value.glu_val);
             break;
         case mu_val_level:
-            print_spec(cur_val, "mu");
-            delete_glue_ref(cur_val);
+            print_spec(val->value.glu_val, "mu");
+            delete_glue_ref(val->value.glu_val);
+            break;
+        default:
             break;
         }                       /* there are no other cases */
         r = make_string();
@@ -1738,10 +1688,11 @@ void set_font_dimen(void)
 {
     internal_font_number f;
     int n;                      /* the parameter number */
-    scan_int();
-    n = cur_val;
-    scan_font_ident();
-    f = cur_val;
+    scan_result *val = xmalloc(sizeof(scan_result));
+    scan_int(val);
+    n = val->value.int_val;
+    scan_font_ident(val);
+    f = val->value.int_val;
     if (n <= 0) {
         font_param_error(f);
     } else {
@@ -1757,19 +1708,20 @@ void set_font_dimen(void)
         }
     }
     scan_optional_equals();
-    scan_normal_dimen();
-    set_font_param(f, n, cur_val);
+    scan_normal_dimen(val);
+    set_font_param(f, n, val->value.dimen_val);
+    xfree(val);
 }
 
-void get_font_dimen(void)
+void get_font_dimen(scan_result *val)
 {
     internal_font_number f;
     int n;                      /* the parameter number */
-    scan_int();
-    n = cur_val;
-    scan_font_ident();
-    f = cur_val;
-    cur_val = 0;                /* initialize return value */
+    scan_int(val);
+    n = val->value.int_val;
+    scan_font_ident(val);
+    f = val->value.int_val;
+    val->value.dimen_val = 0;                /* initialize return value */
     if (n <= 0) {
         font_param_error(f);
         goto EXIT;
@@ -1787,9 +1739,9 @@ void get_font_dimen(void)
             }
         }
     }
-    cur_val = font_param(f, n);
+    val->value.dimen_val = font_param(f, n);
   EXIT:
-    scanned_result(cur_val, dimen_val_level);
+    scanned_result(val->value.dimen_val, dimen_val_level);
 }
 
 
@@ -1805,6 +1757,7 @@ halfword scan_rule_spec(void)
 {
     halfword q;                 /* the rule node being created */
     q = new_rule();             /* |width|, |depth|, and |height| all equal |null_flag| now */
+    scan_result *val = xmalloc(sizeof(scan_result));
     if (cur_cmd == vrule_cmd) {
         width(q) = default_rule;
         rule_dir(q) = body_direction;
@@ -1815,20 +1768,21 @@ halfword scan_rule_spec(void)
     }
   RESWITCH:
     if (scan_keyword("width")) {
-        scan_normal_dimen();
-        width(q) = cur_val;
+        scan_normal_dimen(val);
+        width(q) = val->value.dimen_val;
         goto RESWITCH;
     }
     if (scan_keyword("height")) {
-        scan_normal_dimen();
-        height(q) = cur_val;
+        scan_normal_dimen(val);
+        height(q) = val->value.dimen_val;
         goto RESWITCH;
     }
     if (scan_keyword("depth")) {
-        scan_normal_dimen();
-        depth(q) = cur_val;
+        scan_normal_dimen(val);
+        depth(q) = val->value.dimen_val;
         goto RESWITCH;
     }
+    xfree(val);
     return q;
 }
 
@@ -1836,7 +1790,7 @@ halfword scan_rule_spec(void)
 @ Declare procedures that scan font-related stuff
 
 @c
-void scan_font_ident(void)
+void scan_font_ident(scan_result *val)
 {
     internal_font_number f;
     halfword m;
@@ -1853,8 +1807,8 @@ void scan_font_ident(void)
         set_font_touched(f, 1);
     } else if (cur_cmd == def_family_cmd) {
         m = cur_chr;
-        scan_math_family_int();
-        f = fam_fnt(cur_val, m);
+        scan_math_family_int(val);
+        f = fam_fnt(val->value.int_val, m);
         set_font_touched(f, 1);
     } else {
         print_err("Missing font identifier");
@@ -1863,7 +1817,7 @@ void scan_font_ident(void)
         back_error();
         f = null_font;
     }
-    cur_val = f;
+    val->value.int_val = f;
 }
 
 @ The |scan_general_text| procedure is much like |scan_toks(false,false)|,
@@ -1874,7 +1828,7 @@ at |link(temp_token_head)| and ends at |cur_val|.  (If |cur_val=temp_token_head|
 the list is empty.)
 
 @c
-void scan_general_text(void)
+void scan_general_text(scan_result *val)
 {
     int s;                      /* to save |scanner_status| */
     halfword w;                 /* to save |warning_index| */
@@ -1909,9 +1863,9 @@ void scan_general_text(void)
     q = token_link(def_ref);
     free_avail(def_ref);        /* discard reference count */
     if (q == null)
-        cur_val = temp_token_head;
+        val->value.token_val = temp_token_head;
     else
-        cur_val = p;
+        val->value.token_val = p;
     set_token_link(temp_token_head, q);
     scanner_status = s;
     warning_index = w;
@@ -2112,14 +2066,14 @@ halfword scan_toks(boolean macro_def, boolean xpand)
 recursive procedures with parameters.
 
 @c
-void scan_normal_glue(void)
+void scan_normal_glue(scan_result *val)
 {
-    scan_glue(glue_val_level);
+    scan_glue(val, glue_val_level);
 }
 
-void scan_mu_glue(void)
+void scan_mu_glue(scan_result *val)
 {
-    scan_glue(mu_val_level);
+    scan_glue(val, mu_val_level);
 }
 
 @ The |scan_expr| procedure scans and evaluates an expression.
@@ -2367,7 +2321,7 @@ int fract(int x, int n, int d, int max_answer)
 }
 
 @ @c
-void scan_expr(void)
+void scan_expr(scan_result *val, int level)
 {                               /* scans and evaluates an expression */
     boolean a, b;               /* saved values of |arith_error| */
     int l;                      /* type of expression */
@@ -2380,7 +2334,7 @@ void scan_expr(void)
     int n;                      /* numerator of combined multiplication and division */
     halfword p;                 /* top of expression stack */
     halfword q;                 /* for stack manipulations */
-    l = cur_val_level;
+    l = level;
     a = arith_error;
     b = false;
     p = null;
@@ -2416,15 +2370,22 @@ void scan_expr(void)
         goto RESTART;
     }
     back_input();
-    if ((o == int_val_level) || (o == attr_val_level))
-        scan_int();
-    else if (o == dimen_val_level)
-        scan_normal_dimen();
-    else if (o == glue_val_level)
-        scan_normal_glue();
-    else
-        scan_mu_glue();
-    f = cur_val;
+    if (o == int_val_level) {
+        scan_int(val);
+        f = val->value.int_val;
+    } else if (o == attr_val_level) {
+        scan_int(val);
+        f = val->value.int_val;
+    } else if (o == dimen_val_level) {
+        scan_normal_dimen(val);
+         f = val->value.dimen_val;
+    } else if (o == glue_val_level) {
+        scan_normal_glue(val);
+        f = val->value.glu_val;
+    } else {
+        scan_mu_glue(val);
+        f = val->value.glu_val;
+    }
 
   FOUND:
     /* Scan the next operator and set |o| */
@@ -2594,6 +2555,18 @@ void scan_expr(void)
         }
     }
     arith_error = a;
-    cur_val = e;
-    cur_val_level = l;
+    val->level = l;
+    switch (l) {
+      case int_val_level:
+      case attr_val_level:
+         val->value.int_val = e;
+         break;
+      case dimen_val_level:
+         val->value.dimen_val = e;
+         break;
+      case glue_val_level:
+      case mu_val_level:
+         val->value.glu_val = e;
+         break;
+    }
 }

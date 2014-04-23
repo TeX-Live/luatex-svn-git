@@ -72,6 +72,7 @@ void new_annot_whatsit(small_number w)
 void scan_annot(PDF pdf)
 {
     int k;
+    scan_result val;
     if (scan_keyword("reserveobjnum")) {
         k = pdf_create_obj(pdf, obj_type_annot, 0);
         /* Scan an optional space */
@@ -80,8 +81,8 @@ void scan_annot(PDF pdf)
             back_input();
     } else {
         if (scan_keyword("useobjnum")) {
-            scan_int();
-            k = cur_val;
+            scan_int(&val);
+            k = val.value.int_val;
             check_obj_type(pdf, obj_type_annot, k);
             if (obj_annot_ptr(pdf, k) != 0)
                 pdf_error("ext1", "annot object in use");

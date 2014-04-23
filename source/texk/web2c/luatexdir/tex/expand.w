@@ -67,17 +67,12 @@ void expand(void)
     halfword t;                 /* token that is being ``expanded after'' */
     halfword p;                 /* for list manipulation */
     halfword cur_ptr;           /* for a local token list pointer */
-    int cv_backup;              /* to save the global quantity |cur_val| */
-    int cvl_backup, radix_backup, co_backup;    /* to save |cur_val_level|, etc. */
+    scan_result val;
     halfword backup_backup;     /* to save |link(backup_head)| */
     int save_scanner_status;    /* temporary storage of |scanner_status| */
     incr(expand_depth_count);
     if (expand_depth_count >= expand_depth)
         overflow("expansion depth", (unsigned) expand_depth);
-    cv_backup = cur_val;
-    cvl_backup = cur_val_level;
-    radix_backup = radix;
-    co_backup = cur_order;
     backup_backup = token_link(backup_head);
   RESWITCH:
     if (cur_cmd < call_cmd) {
@@ -89,24 +84,24 @@ void expand(void)
             /* Insert the appropriate mark text into the scanner */
             t = cur_chr % marks_code;
             if (cur_chr >= marks_code)
-                scan_mark_num();
+                scan_mark_num(&val);
             else
-                cur_val = 0;
+                val.value.int_val = 0;
             switch (t) {
             case first_mark_code:
-                cur_ptr = first_mark(cur_val);
+                cur_ptr = first_mark(val.value.int_val);
                 break;
             case bot_mark_code:
-                cur_ptr = bot_mark(cur_val);
+                cur_ptr = bot_mark(val.value.int_val);
                 break;
             case split_first_mark_code:
-                cur_ptr = split_first_mark(cur_val);
+                cur_ptr = split_first_mark(val.value.int_val);
                 break;
             case split_bot_mark_code:
-                cur_ptr = split_bot_mark(cur_val);
+                cur_ptr = split_bot_mark(val.value.int_val);
                 break;
             default:
-                cur_ptr = top_mark(cur_val);
+                cur_ptr = top_mark(val.value.int_val);
                 break;
             }
             if (cur_ptr != null)
@@ -298,10 +293,6 @@ void expand(void)
         back_input();
 
     }
-    cur_val = cv_backup;
-    cur_val_level = cvl_backup;
-    radix = radix_backup;
-    cur_order = co_backup;
     set_token_link(backup_head, backup_backup);
     decr(expand_depth_count);
 }

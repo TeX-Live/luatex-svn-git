@@ -249,12 +249,13 @@ void conditional(void)
 {
     boolean b;                  /*is the condition true? */
     int r;                      /*relation to be evaluated */
-    int m, n;                   /*to be tested against the second operand */
+    int m, n, nn;               /*to be tested against the second operand */
     halfword p, q;              /*for traversing token lists in \.{\\ifx} tests */
     int save_scanner_status;    /*|scanner_status| upon entry */
     halfword save_cond_ptr;     /*|cond_ptr| corresponding to this conditional */
     int this_if;                /*type of this conditional */
     boolean is_unless;          /*was this if preceded by `\.{\\unless}' ? */
+    scan_result val;
     b = false;                  /*default is false, just in case */
     if (int_par(tracing_ifs_code) > 0)
         if (int_par(tracing_commands_code) <= 1)
@@ -293,11 +294,13 @@ void conditional(void)
         /* Test relation between integers or dimensions */
         /* Here we use the fact that |"<"|, |"="|, and |">"| are consecutive ASCII
            codes. */
-        if (this_if == if_int_code || this_if == if_abs_num_code)
-            scan_int();
-        else
-            scan_normal_dimen();
-        n = cur_val;
+        if (this_if == if_int_code || this_if == if_abs_num_code) {
+            scan_int(&val);
+            n = val.value.int_val;
+        } else {
+            scan_normal_dimen(&val);
+            n = val.value.dimen_val;
+        }
         if (n < 0)
             if (this_if == if_abs_dim_code || this_if == if_abs_num_code)
                 negate(n);
@@ -316,24 +319,26 @@ void conditional(void)
             back_error();
             r = '=';
         }
-        if (this_if == if_int_code || this_if == if_abs_num_code)
-            scan_int();
-        else
-            scan_normal_dimen();
-
-        if (cur_val < 0)
+        if (this_if == if_int_code || this_if == if_abs_num_code) {
+            scan_int(&val);
+            nn = val.value.int_val;
+        } else {
+            scan_normal_dimen(&val);
+            nn = val.value.dimen_val;
+        }
+        if (nn < 0)
             if (this_if == if_abs_dim_code || this_if == if_abs_num_code)
-                negate(cur_val);
+                negate(nn);
 
         switch (r) {
         case '<':
-            b = (n < cur_val);
+            b = (n < nn);
             break;
         case '=':
-            b = (n == cur_val);
+            b = (n == nn);
             break;
         case '>':
-            b = (n > cur_val);
+            b = (n > nn);
             break;
         default:
             b = false;
@@ -342,8 +347,8 @@ void conditional(void)
         break;
     case if_odd_code:
         /* Test if an integer is odd */
-        scan_int();
-        b = odd(cur_val);
+        scan_int(&val);
+        b = odd(val.value.int_val);
         break;
     case if_vmode_code:
         b = (abs(cur_list.mode_field) == vmode);
@@ -361,8 +366,8 @@ void conditional(void)
     case if_hbox_code:
     case if_vbox_code:
         /* Test box register status */
-        scan_register_num();
-        p = box(cur_val);
+        scan_register_num(&val);
+        p = box(val.value.int_val);
         if (this_if == if_void_code)
             b = (p == null);
         else if (p == null)
@@ -420,11 +425,11 @@ void conditional(void)
         scanner_status = save_scanner_status;
         break;
     case if_eof_code:
-        scan_four_bit_int_or_18();
-        if (cur_val == 18)
+        scan_four_bit_int_or_18(&val);
+        if (val.value.int_val == 18)
             b = !shellenabledp;
         else
-            b = (read_open[cur_val] == closed);
+            b = (read_open[val.value.int_val] == closed);
         break;
     case if_true_code:
         b = true;
@@ -435,8 +440,8 @@ void conditional(void)
     case if_case_code:
         /* Select the appropriate case
            and |return| or |goto common_ending| */
-        scan_int();
-        n = cur_val;            /*|n| is the number of cases to pass */
+        scan_int(&val);
+        n = val.value.int_val;            /*|n| is the number of cases to pass */
         if (int_par(tracing_commands_code) > 1) {
             begin_diagnostic();
             tprint("{case ");
@@ -488,10 +493,10 @@ void conditional(void)
     case if_font_char_code:
         /* The conditional \.{\\iffontchar} tests the existence of a character in
            a font. */
-        scan_font_ident();
-        n = cur_val;
-        scan_char_num();
-        b = char_exists(n, cur_val);
+        scan_font_ident(&val);
+        n = val.value.int_val;
+        scan_char_num(&val);
+        b = char_exists(n, val.value.int_val);
         break;
     default:                   /* there are no other cases, but for -Wall:  */
         b = false;

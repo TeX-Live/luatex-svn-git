@@ -74,18 +74,19 @@ extern void dump_primitives(void);
 extern void undump_primitives(void);
 
 #  define primitive_tex(a,b,c,d)    primitive((a),(b),(c),(d),tex_command)
-#  define primitive_etex(a,b,c,d)   primitive((a),(b),(c),(d),etex_command)
-#  define primitive_aleph(a,b,c,d)  primitive((a),(b),(c),(d),aleph_command)
-#  define primitive_omega(a,b,c,d)  primitive((a),(b),(c),(d),omega_command)
-#  define primitive_pdftex(a,b,c,d) primitive((a),(b),(c),(d),pdftex_command)
-#  define primitive_luatex(a,b,c,d) primitive((a),(b),(c),(d),luatex_command)
-#  define primitive_umath(a,b,c,d)  primitive((a),(b),(c),(d),umath_command)
+#  define primitive_etex(a,b,c,d)   (void)primitive((a),(b),(c),(d),etex_command)
+#  define primitive_aleph(a,b,c,d)  (void)primitive((a),(b),(c),(d),aleph_command)
+#  define primitive_omega(a,b,c,d)  (void)primitive((a),(b),(c),(d),omega_command)
+#  define primitive_pdftex(a,b,c,d) (void)primitive((a),(b),(c),(d),pdftex_command)
+#  define primitive_luatex(a,b,c,d) (void)primitive((a),(b),(c),(d),luatex_command)
+#  define primitive_umath(a,b,c,d)  (void)primitive((a),(b),(c),(d),umath_command)
 #  define primitive_core(a,b,c,d)   primitive((a),(b),(c),(d),core_command)
-#  define primitive_no(a,b,c,d)     primitive((a),(b),(c),(d),no_command)
+#  define primitive_no(a,b,c,d)     (void)primitive((a),(b),(c),(d),no_command)
 
-extern void primitive(const char *ss, quarterword c, halfword o, halfword off,
+extern int primitive_def (const char *s, size_t l, quarterword c, halfword o);
+
+extern int primitive(const char *ss, quarterword c, halfword o, halfword off,
                       int cmd_origin);
-extern void primitive_def(const char *s, size_t l, quarterword c, halfword o);
 extern void print_cmd_chr(quarterword cmd, halfword chr_code);
 
 extern pointer string_lookup(const char *s, size_t l);

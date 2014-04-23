@@ -1711,6 +1711,7 @@ static boolean print_convert_string(halfword c, int i)
 @ @c
 int scan_lua_state(void) /* hh-ls: optional name or number (not optional name optional number) */
 {
+    scan_result val;
     /* Parse optional lua state integer, or an instance name to be stored in |sn| */
     /* Get the next non-blank non-relax non-call token */
     int sn = 0;
@@ -1723,9 +1724,9 @@ int scan_lua_state(void) /* hh-ls: optional name or number (not optional name op
             (void) scan_toks(false, true);
             sn = def_ref;
         } else {
-            scan_register_num();
-            if (get_lua_name(cur_val))
-                sn = (cur_val - 65536);
+            scan_register_num(&val);
+            if (get_lua_name(val.value.int_val))
+                sn = (val.value.int_val - 65536);
         }
     }
     return sn;
@@ -1757,14 +1758,15 @@ void conv_toks(void)
     int j = 0;                  /* second temp integer */
     int c = cur_chr;            /* desired type of conversion */
     str_number str;
+    scan_result val;
     /* Scan the argument for command |c| */
     switch (c) {
     case uchar_code:
-        scan_char_num();
+        scan_char_num(&val);
         break;
     case number_code:
     case roman_numeral_code:
-        scan_int();
+        scan_int(&val);
         break;
     case string_code:
     case meaning_code:
@@ -1777,7 +1779,7 @@ void conv_toks(void)
         break;
     case font_name_code:
     case font_id_code:
-        scan_font_ident();
+        scan_font_ident(&val);
         break;
     case pdftex_revision_code:
     case luatex_revision_code:
@@ -1787,29 +1789,29 @@ void conv_toks(void)
     case pdf_font_name_code:
     case pdf_font_objnum_code:
     case pdf_font_size_code:
-        scan_font_ident();
-        if (cur_val == null_font)
+        scan_font_ident(&val);
+        if (val.value.int_val == null_font)
             pdf_error("font", "invalid font identifier");
         if (c != pdf_font_size_code) {
-            pdf_check_vf(cur_val);
-            if (!font_used(cur_val))
-                pdf_init_font(static_pdf, cur_val);
+            pdf_check_vf(val.value.int_val);
+            if (!font_used(val.value.int_val))
+                pdf_init_font(static_pdf, val.value.int_val);
         }
         break;
     case pdf_page_ref_code:
-        scan_int();
-        if (cur_val <= 0)
+        scan_int(&val);
+        if (val.value.int_val <= 0)
             pdf_error("pageref", "invalid page number");
         break;
     case left_margin_kern_code:
     case right_margin_kern_code:
-        scan_int();
-        if ((box(cur_val) == null) || (type(box(cur_val)) != hlist_node))
+        scan_int(&val);
+        if ((box(val.value.int_val) == null) || (type(box(val.value.int_val)) != hlist_node))
             pdf_error("marginkern", "a non-empty hbox expected");
         break;
     case pdf_xform_name_code:
-        scan_int();
-        check_obj_type(static_pdf, obj_type_xform, cur_val);
+        scan_int(&val);
+        check_obj_type(static_pdf, obj_type_xform, val.value.int_val);
         break;
     case pdf_creation_date_code:
         ins_list(string_to_toks(getcreationdate(static_pdf)));
@@ -1823,11 +1825,11 @@ void conv_toks(void)
     case pdf_colorstack_init_code:
         bool = scan_keyword("page");
         if (scan_keyword("direct"))
-            cur_val = direct_always;
+            val.value.int_val = direct_always;
         else if (scan_keyword("page"))
-            cur_val = direct_page;
+            val.value.int_val = direct_page;
         else
-            cur_val = set_origin;
+            val.value.int_val = set_origin;
         save_scanner_status = scanner_status;
         save_warning_index = warning_index;
         save_def_ref = def_ref;
@@ -1838,20 +1840,20 @@ void conv_toks(void)
         def_ref = save_def_ref;
         warning_index = save_warning_index;
         scanner_status = save_scanner_status;
-        cur_val = newcolorstack(s, cur_val, bool);
+        val.value.int_val = newcolorstack(s, val.value.int_val, bool);
         flush_str(s);
-        cur_val_level = int_val_level;
-        if (cur_val < 0) {
+        val.level = int_val_level;
+        if (val.value.int_val < 0) {
             print_err("Too many color stacks");
             help2("The number of color stacks is limited to 32768.",
                   "I'll use the default color stack 0 here.");
             error();
-            cur_val = 0;
+            val.value.int_val = 0;
             restore_cur_string(u);
         }
         break;
     case uniform_deviate_code:
-        scan_int();
+        scan_int(&val);
         break;
     case normal_deviate_code:
         break;
@@ -1913,27 +1915,27 @@ void conv_toks(void)
         return;
         break;
     case lua_function_code:
-        scan_int();
-        if (cur_val <= 0) {
+        scan_int(&val);
+        if (val.value.int_val <= 0) {
             pdf_error("luafunction", "invalid number");
         } else {
             u = save_cur_string();
             luacstrings = 0;
-            luafunctioncall(cur_val);
+            luafunctioncall(val.value.int_val);
             restore_cur_string(u);
             if (luacstrings > 0)
                 lua_string_start();
         }
         break;
     case pdf_insert_ht_code:
-        scan_register_num();
+        scan_register_num(&val);
         break;
     case pdf_ximage_bbox_code:
-        scan_int();
-        check_obj_type(static_pdf, obj_type_ximage, cur_val);
-        i = obj_data_ptr(static_pdf, cur_val);
-        scan_int();
-        j = cur_val;
+        scan_int(&val);
+        check_obj_type(static_pdf, obj_type_ximage, val.value.int_val);
+        i = obj_data_ptr(static_pdf, val.value.int_val);
+        scan_int(&val);
+        j = val.value.int_val;
         if ((j < 1) || (j > 4))
             pdf_error("pdfximagebbox", "invalid parameter");
         break;
@@ -1949,7 +1951,7 @@ void conv_toks(void)
     selector = new_string;
 
     /* Print the result of command |c| */
-    if (!print_convert_string(c, cur_val)) {
+    if (!print_convert_string(c, val.value.int_val)) {
         switch (c) {
         case string_code:
             if (cur_cs != 0)
@@ -1961,7 +1963,7 @@ void conv_toks(void)
             print_meaning();
             break;
         case left_margin_kern_code:
-            p = list_ptr(box(cur_val));
+            p = list_ptr(box(val.value.int_val));
             if ((p != null) && (!is_char_node(p)) &&
                 (type(p) == glue_node) && (subtype(p) == left_skip_code + 1))
                 p = vlink(p);
@@ -1973,7 +1975,7 @@ void conv_toks(void)
             tprint("pt");
             break;
         case right_margin_kern_code:
-            q = list_ptr(box(cur_val));
+            q = list_ptr(box(val.value.int_val));
             p = null;
             if (q != null) {
                 p = prev_rightmost(q, null);
@@ -1989,10 +1991,10 @@ void conv_toks(void)
             tprint("pt");
             break;
         case pdf_colorstack_init_code:
-            print_int(cur_val);
+            print_int(val.value.int_val);
             break;
         case pdf_insert_ht_code:
-            i = cur_val;
+            i = val.value.int_val;
             p = page_ins_head;
             while (i >= subtype(vlink(p)))
                 p = vlink(p);
@@ -2092,7 +2094,7 @@ macro definition, and makes |cur_val| point to it. Parameter |r| points
 to the control sequence that will receive this token list.
 
 @c
-void read_toks(int n, halfword r, halfword j)
+void read_toks(scan_result *val, int n, halfword r, halfword j)
 {
     halfword p;                 /* tail of the token list */
     halfword q;                 /* new node being added to the token list via |store_new_token| */
@@ -2198,7 +2200,7 @@ void read_toks(int n, halfword r, halfword j)
         end_file_reading();
 
     } while (align_state != 1000000);
-    cur_val = def_ref;
+    val->value.token_val = def_ref;
     scanner_status = normal;
     align_state = s;
 }

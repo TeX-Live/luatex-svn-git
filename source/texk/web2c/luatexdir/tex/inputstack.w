@@ -722,8 +722,9 @@ void pseudo_from_string(void)
 
 void pseudo_start(void)
 {
+    scan_result val;
     int old_setting;            /* holds |selector| setting */
-    scan_general_text();
+    scan_general_text(&val);
     old_setting = selector;
     selector = new_string;
     token_show(temp_token_head);

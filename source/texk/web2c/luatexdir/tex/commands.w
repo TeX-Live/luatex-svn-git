@@ -33,54 +33,54 @@ now, so that we don't have to list all those parameter names anywhere else.
 @c
 void initialize_commands(void)
 {
-
-    primitive_tex("lineskip", assign_glue_cmd, glue_base + line_skip_code,
+    int c = 0;
+    (void)primitive_tex("lineskip", assign_glue_cmd, glue_base + line_skip_code,
                   glue_base);
-    primitive_tex("baselineskip", assign_glue_cmd,
+    (void)primitive_tex("baselineskip", assign_glue_cmd,
                   glue_base + baseline_skip_code, glue_base);
-    primitive_tex("parskip", assign_glue_cmd, glue_base + par_skip_code,
+    (void)primitive_tex("parskip", assign_glue_cmd, glue_base + par_skip_code,
                   glue_base);
-    primitive_tex("abovedisplayskip", assign_glue_cmd,
+    (void)primitive_tex("abovedisplayskip", assign_glue_cmd,
                   glue_base + above_display_skip_code, glue_base);
-    primitive_tex("belowdisplayskip", assign_glue_cmd,
+    (void)primitive_tex("belowdisplayskip", assign_glue_cmd,
                   glue_base + below_display_skip_code, glue_base);
-    primitive_tex("abovedisplayshortskip", assign_glue_cmd,
+    (void)primitive_tex("abovedisplayshortskip", assign_glue_cmd,
                   glue_base + above_display_short_skip_code, glue_base);
-    primitive_tex("belowdisplayshortskip", assign_glue_cmd,
+    (void)primitive_tex("belowdisplayshortskip", assign_glue_cmd,
                   glue_base + below_display_short_skip_code, glue_base);
-    primitive_tex("leftskip", assign_glue_cmd, glue_base + left_skip_code,
+    (void)primitive_tex("leftskip", assign_glue_cmd, glue_base + left_skip_code,
                   glue_base);
-    primitive_tex("rightskip", assign_glue_cmd, glue_base + right_skip_code,
+    (void)primitive_tex("rightskip", assign_glue_cmd, glue_base + right_skip_code,
                   glue_base);
-    primitive_tex("topskip", assign_glue_cmd, glue_base + top_skip_code,
+    (void)primitive_tex("topskip", assign_glue_cmd, glue_base + top_skip_code,
                   glue_base);
-    primitive_tex("splittopskip", assign_glue_cmd,
+    (void)primitive_tex("splittopskip", assign_glue_cmd,
                   glue_base + split_top_skip_code, glue_base);
-    primitive_tex("tabskip", assign_glue_cmd, glue_base + tab_skip_code,
+    (void)primitive_tex("tabskip", assign_glue_cmd, glue_base + tab_skip_code,
                   glue_base);
-    primitive_tex("spaceskip", assign_glue_cmd, glue_base + space_skip_code,
+    (void)primitive_tex("spaceskip", assign_glue_cmd, glue_base + space_skip_code,
                   glue_base);
-    primitive_tex("xspaceskip", assign_glue_cmd, glue_base + xspace_skip_code,
+    (void)primitive_tex("xspaceskip", assign_glue_cmd, glue_base + xspace_skip_code,
                   glue_base);
-    primitive_tex("parfillskip", assign_glue_cmd,
+    (void)primitive_tex("parfillskip", assign_glue_cmd,
                   glue_base + par_fill_skip_code, glue_base);
-    primitive_tex("thinmuskip", assign_mu_glue_cmd,
+    (void)primitive_tex("thinmuskip", assign_mu_glue_cmd,
                   glue_base + thin_mu_skip_code, glue_base + thin_mu_skip_code);
-    primitive_tex("medmuskip", assign_mu_glue_cmd, glue_base + med_mu_skip_code,
+    (void)primitive_tex("medmuskip", assign_mu_glue_cmd, glue_base + med_mu_skip_code,
                   glue_base + thin_mu_skip_code);
-    primitive_tex("thickmuskip", assign_mu_glue_cmd,
+    (void)primitive_tex("thickmuskip", assign_mu_glue_cmd,
                   glue_base + thick_mu_skip_code,
                   glue_base + thin_mu_skip_code);
-    primitive_tex("output", assign_toks_cmd, output_routine_loc, local_base);
-    primitive_tex("everypar", assign_toks_cmd, every_par_loc, local_base);
-    primitive_tex("everymath", assign_toks_cmd, every_math_loc, local_base);
-    primitive_tex("everydisplay", assign_toks_cmd, every_display_loc,
+    (void)primitive_tex("output", assign_toks_cmd, output_routine_loc, local_base);
+    (void)primitive_tex("everypar", assign_toks_cmd, every_par_loc, local_base);
+    (void)primitive_tex("everymath", assign_toks_cmd, every_math_loc, local_base);
+    (void)primitive_tex("everydisplay", assign_toks_cmd, every_display_loc,
                   local_base);
-    primitive_tex("everyhbox", assign_toks_cmd, every_hbox_loc, local_base);
-    primitive_tex("everyvbox", assign_toks_cmd, every_vbox_loc, local_base);
-    primitive_tex("everyjob", assign_toks_cmd, every_job_loc, local_base);
-    primitive_tex("everycr", assign_toks_cmd, every_cr_loc, local_base);
-    primitive_tex("errhelp", assign_toks_cmd, err_help_loc, local_base);
+    (void)primitive_tex("everyhbox", assign_toks_cmd, every_hbox_loc, local_base);
+    (void)primitive_tex("everyvbox", assign_toks_cmd, every_vbox_loc, local_base);
+    (void)primitive_tex("everyjob", assign_toks_cmd, every_job_loc, local_base);
+    (void)primitive_tex("everycr", assign_toks_cmd, every_cr_loc, local_base);
+    (void)primitive_tex("errhelp", assign_toks_cmd, err_help_loc, local_base);
     primitive_pdftex("pdfpagesattr", assign_toks_cmd, pdf_pages_attr_loc,
                      local_base);
     primitive_pdftex("pdfpageattr", assign_toks_cmd, pdf_page_attr_loc,
@@ -94,111 +94,111 @@ void initialize_commands(void)
     primitive_pdftex("pdfpkmode", assign_toks_cmd, pdf_pk_mode_loc, local_base);
 
     /* The integer parameter names must be entered into the hash table */
-    primitive_tex("pretolerance", assign_int_cmd, int_base + pretolerance_code,
+    (void)primitive_tex("pretolerance", assign_int_cmd, int_base + pretolerance_code,
                   int_base);
-    primitive_tex("tolerance", assign_int_cmd, int_base + tolerance_code,
+    (void)primitive_tex("tolerance", assign_int_cmd, int_base + tolerance_code,
                   int_base);
-    primitive_tex("linepenalty", assign_int_cmd, int_base + line_penalty_code,
+    (void)primitive_tex("linepenalty", assign_int_cmd, int_base + line_penalty_code,
                   int_base);
-    primitive_tex("hyphenpenalty", assign_int_cmd,
+    (void)primitive_tex("hyphenpenalty", assign_int_cmd,
                   int_base + hyphen_penalty_code, int_base);
-    primitive_tex("exhyphenpenalty", assign_int_cmd,
+    (void)primitive_tex("exhyphenpenalty", assign_int_cmd,
                   int_base + ex_hyphen_penalty_code, int_base);
-    primitive_tex("clubpenalty", assign_int_cmd, int_base + club_penalty_code,
+    (void)primitive_tex("clubpenalty", assign_int_cmd, int_base + club_penalty_code,
                   int_base);
-    primitive_tex("widowpenalty", assign_int_cmd, int_base + widow_penalty_code,
+    (void)primitive_tex("widowpenalty", assign_int_cmd, int_base + widow_penalty_code,
                   int_base);
-    primitive_tex("displaywidowpenalty", assign_int_cmd,
+    (void)primitive_tex("displaywidowpenalty", assign_int_cmd,
                   int_base + display_widow_penalty_code, int_base);
-    primitive_tex("brokenpenalty", assign_int_cmd,
+    (void)primitive_tex("brokenpenalty", assign_int_cmd,
                   int_base + broken_penalty_code, int_base);
-    primitive_tex("binoppenalty", assign_int_cmd,
+    (void)primitive_tex("binoppenalty", assign_int_cmd,
                   int_base + bin_op_penalty_code, int_base);
-    primitive_tex("relpenalty", assign_int_cmd, int_base + rel_penalty_code,
+    (void)primitive_tex("relpenalty", assign_int_cmd, int_base + rel_penalty_code,
                   int_base);
-    primitive_tex("predisplaypenalty", assign_int_cmd,
+    (void)primitive_tex("predisplaypenalty", assign_int_cmd,
                   int_base + pre_display_penalty_code, int_base);
-    primitive_tex("postdisplaypenalty", assign_int_cmd,
+    (void)primitive_tex("postdisplaypenalty", assign_int_cmd,
                   int_base + post_display_penalty_code, int_base);
-    primitive_tex("interlinepenalty", assign_int_cmd,
+    (void)primitive_tex("interlinepenalty", assign_int_cmd,
                   int_base + inter_line_penalty_code, int_base);
-    primitive_tex("doublehyphendemerits", assign_int_cmd,
+    (void)primitive_tex("doublehyphendemerits", assign_int_cmd,
                   int_base + double_hyphen_demerits_code, int_base);
-    primitive_tex("finalhyphendemerits", assign_int_cmd,
+    (void)primitive_tex("finalhyphendemerits", assign_int_cmd,
                   int_base + final_hyphen_demerits_code, int_base);
-    primitive_tex("adjdemerits", assign_int_cmd, int_base + adj_demerits_code,
+    (void)primitive_tex("adjdemerits", assign_int_cmd, int_base + adj_demerits_code,
                   int_base);
-    primitive_tex("mag", assign_int_cmd, int_base + mag_code, int_base);
-    primitive_tex("delimiterfactor", assign_int_cmd,
+    (void)primitive_tex("mag", assign_int_cmd, int_base + mag_code, int_base);
+    (void)primitive_tex("delimiterfactor", assign_int_cmd,
                   int_base + delimiter_factor_code, int_base);
-    primitive_tex("looseness", assign_int_cmd, int_base + looseness_code,
+    (void)primitive_tex("looseness", assign_int_cmd, int_base + looseness_code,
                   int_base);
-    primitive_tex("time", assign_int_cmd, int_base + time_code, int_base);
-    primitive_tex("day", assign_int_cmd, int_base + day_code, int_base);
-    primitive_tex("month", assign_int_cmd, int_base + month_code, int_base);
-    primitive_tex("year", assign_int_cmd, int_base + year_code, int_base);
-    primitive_tex("showboxbreadth", assign_int_cmd,
+    (void)primitive_tex("time", assign_int_cmd, int_base + time_code, int_base);
+    (void)primitive_tex("day", assign_int_cmd, int_base + day_code, int_base);
+    (void)primitive_tex("month", assign_int_cmd, int_base + month_code, int_base);
+    (void)primitive_tex("year", assign_int_cmd, int_base + year_code, int_base);
+    (void)primitive_tex("showboxbreadth", assign_int_cmd,
                   int_base + show_box_breadth_code, int_base);
-    primitive_tex("showboxdepth", assign_int_cmd,
+    (void)primitive_tex("showboxdepth", assign_int_cmd,
                   int_base + show_box_depth_code, int_base);
-    primitive_tex("hbadness", assign_int_cmd, int_base + hbadness_code,
+    (void)primitive_tex("hbadness", assign_int_cmd, int_base + hbadness_code,
                   int_base);
-    primitive_tex("vbadness", assign_int_cmd, int_base + vbadness_code,
+    (void)primitive_tex("vbadness", assign_int_cmd, int_base + vbadness_code,
                   int_base);
-    primitive_tex("pausing", assign_int_cmd, int_base + pausing_code, int_base);
-    primitive_tex("tracingonline", assign_int_cmd,
+    (void)primitive_tex("pausing", assign_int_cmd, int_base + pausing_code, int_base);
+    (void)primitive_tex("tracingonline", assign_int_cmd,
                   int_base + tracing_online_code, int_base);
-    primitive_tex("tracingmacros", assign_int_cmd,
+    (void)primitive_tex("tracingmacros", assign_int_cmd,
                   int_base + tracing_macros_code, int_base);
-    primitive_tex("tracingstats", assign_int_cmd, int_base + tracing_stats_code,
+    (void)primitive_tex("tracingstats", assign_int_cmd, int_base + tracing_stats_code,
                   int_base);
-    primitive_tex("tracingparagraphs", assign_int_cmd,
+    (void)primitive_tex("tracingparagraphs", assign_int_cmd,
                   int_base + tracing_paragraphs_code, int_base);
-    primitive_tex("tracingpages", assign_int_cmd, int_base + tracing_pages_code,
+    (void)primitive_tex("tracingpages", assign_int_cmd, int_base + tracing_pages_code,
                   int_base);
-    primitive_tex("tracingoutput", assign_int_cmd,
+    (void)primitive_tex("tracingoutput", assign_int_cmd,
                   int_base + tracing_output_code, int_base);
-    primitive_tex("tracinglostchars", assign_int_cmd,
+    (void)primitive_tex("tracinglostchars", assign_int_cmd,
                   int_base + tracing_lost_chars_code, int_base);
-    primitive_tex("tracingcommands", assign_int_cmd,
+    (void)primitive_tex("tracingcommands", assign_int_cmd,
                   int_base + tracing_commands_code, int_base);
-    primitive_tex("tracingrestores", assign_int_cmd,
+    (void)primitive_tex("tracingrestores", assign_int_cmd,
                   int_base + tracing_restores_code, int_base);
-    primitive_tex("uchyph", assign_int_cmd, int_base + uc_hyph_code, int_base);
-    primitive_tex("outputpenalty", assign_int_cmd,
+    (void)primitive_tex("uchyph", assign_int_cmd, int_base + uc_hyph_code, int_base);
+    (void)primitive_tex("outputpenalty", assign_int_cmd,
                   int_base + output_penalty_code, int_base);
-    primitive_tex("maxdeadcycles", assign_int_cmd,
+    (void)primitive_tex("maxdeadcycles", assign_int_cmd,
                   int_base + max_dead_cycles_code, int_base);
-    primitive_tex("hangafter", assign_int_cmd, int_base + hang_after_code,
+    (void)primitive_tex("hangafter", assign_int_cmd, int_base + hang_after_code,
                   int_base);
-    primitive_tex("floatingpenalty", assign_int_cmd,
+    (void)primitive_tex("floatingpenalty", assign_int_cmd,
                   int_base + floating_penalty_code, int_base);
-    primitive_tex("globaldefs", assign_int_cmd, int_base + global_defs_code,
+    (void)primitive_tex("globaldefs", assign_int_cmd, int_base + global_defs_code,
                   int_base);
-    primitive_tex("fam", assign_int_cmd, int_base + cur_fam_code, int_base);
-    primitive_tex("escapechar", assign_int_cmd, int_base + escape_char_code,
+    (void)primitive_tex("fam", assign_int_cmd, int_base + cur_fam_code, int_base);
+    (void)primitive_tex("escapechar", assign_int_cmd, int_base + escape_char_code,
                   int_base);
-    primitive_tex("defaulthyphenchar", assign_int_cmd,
+    (void)primitive_tex("defaulthyphenchar", assign_int_cmd,
                   int_base + default_hyphen_char_code, int_base);
-    primitive_tex("defaultskewchar", assign_int_cmd,
+    (void)primitive_tex("defaultskewchar", assign_int_cmd,
                   int_base + default_skew_char_code, int_base);
-    primitive_tex("endlinechar", assign_int_cmd, int_base + end_line_char_code,
+    (void)primitive_tex("endlinechar", assign_int_cmd, int_base + end_line_char_code,
                   int_base);
-    primitive_tex("newlinechar", assign_int_cmd, int_base + new_line_char_code,
+    (void)primitive_tex("newlinechar", assign_int_cmd, int_base + new_line_char_code,
                   int_base);
-    primitive_tex("language", assign_int_cmd, int_base + language_code,
+    (void)primitive_tex("language", assign_int_cmd, int_base + language_code,
                   int_base);
-    primitive_tex("setlanguage", assign_int_cmd, int_base + cur_lang_code,
+    (void)primitive_tex("setlanguage", assign_int_cmd, int_base + cur_lang_code,
                   int_base);
-    primitive_tex("exhyphenchar", assign_int_cmd,
+    (void)primitive_tex("exhyphenchar", assign_int_cmd,
                   int_base + ex_hyphen_char_code, int_base);
-    primitive_tex("lefthyphenmin", assign_int_cmd,
+    (void)primitive_tex("lefthyphenmin", assign_int_cmd,
                   int_base + left_hyphen_min_code, int_base);
-    primitive_tex("righthyphenmin", assign_int_cmd,
+    (void)primitive_tex("righthyphenmin", assign_int_cmd,
                   int_base + right_hyphen_min_code, int_base);
-    primitive_tex("holdinginserts", assign_int_cmd,
+    (void)primitive_tex("holdinginserts", assign_int_cmd,
                   int_base + holding_inserts_code, int_base);
-    primitive_tex("errorcontextlines", assign_int_cmd,
+    (void)primitive_tex("errorcontextlines", assign_int_cmd,
                   int_base + error_context_lines_code, int_base);
     primitive_luatex("luastartup", assign_int_cmd,
                      int_base + luastartup_id_code, int_base);
@@ -254,47 +254,47 @@ void initialize_commands(void)
                      int_base + pdf_inclusion_copy_font_code, int_base);
     primitive_pdftex("pdfreplacefont", assign_int_cmd,
                      int_base + pdf_replace_font_code, int_base);
-    primitive_tex("parindent", assign_dimen_cmd, dimen_base + par_indent_code,
+    (void)primitive_tex("parindent", assign_dimen_cmd, dimen_base + par_indent_code,
                   dimen_base);
-    primitive_tex("mathsurround", assign_dimen_cmd,
+    (void)primitive_tex("mathsurround", assign_dimen_cmd,
                   dimen_base + math_surround_code, dimen_base);
-    primitive_tex("lineskiplimit", assign_dimen_cmd,
+    (void)primitive_tex("lineskiplimit", assign_dimen_cmd,
                   dimen_base + line_skip_limit_code, dimen_base);
-    primitive_tex("hsize", assign_dimen_cmd, dimen_base + hsize_code,
+    (void)primitive_tex("hsize", assign_dimen_cmd, dimen_base + hsize_code,
                   dimen_base);
-    primitive_tex("vsize", assign_dimen_cmd, dimen_base + vsize_code,
+    (void)primitive_tex("vsize", assign_dimen_cmd, dimen_base + vsize_code,
                   dimen_base);
-    primitive_tex("maxdepth", assign_dimen_cmd, dimen_base + max_depth_code,
+    (void)primitive_tex("maxdepth", assign_dimen_cmd, dimen_base + max_depth_code,
                   dimen_base);
-    primitive_tex("splitmaxdepth", assign_dimen_cmd,
+    (void)primitive_tex("splitmaxdepth", assign_dimen_cmd,
                   dimen_base + split_max_depth_code, dimen_base);
-    primitive_tex("boxmaxdepth", assign_dimen_cmd,
+    (void)primitive_tex("boxmaxdepth", assign_dimen_cmd,
                   dimen_base + box_max_depth_code, dimen_base);
-    primitive_tex("hfuzz", assign_dimen_cmd, dimen_base + hfuzz_code,
+    (void)primitive_tex("hfuzz", assign_dimen_cmd, dimen_base + hfuzz_code,
                   dimen_base);
-    primitive_tex("vfuzz", assign_dimen_cmd, dimen_base + vfuzz_code,
+    (void)primitive_tex("vfuzz", assign_dimen_cmd, dimen_base + vfuzz_code,
                   dimen_base);
-    primitive_tex("delimitershortfall", assign_dimen_cmd,
+    (void)primitive_tex("delimitershortfall", assign_dimen_cmd,
                   dimen_base + delimiter_shortfall_code, dimen_base);
-    primitive_tex("nulldelimiterspace", assign_dimen_cmd,
+    (void)primitive_tex("nulldelimiterspace", assign_dimen_cmd,
                   dimen_base + null_delimiter_space_code, dimen_base);
-    primitive_tex("scriptspace", assign_dimen_cmd,
+    (void)primitive_tex("scriptspace", assign_dimen_cmd,
                   dimen_base + script_space_code, dimen_base);
-    primitive_tex("predisplaysize", assign_dimen_cmd,
+    (void)primitive_tex("predisplaysize", assign_dimen_cmd,
                   dimen_base + pre_display_size_code, dimen_base);
-    primitive_tex("displaywidth", assign_dimen_cmd,
+    (void)primitive_tex("displaywidth", assign_dimen_cmd,
                   dimen_base + display_width_code, dimen_base);
-    primitive_tex("displayindent", assign_dimen_cmd,
+    (void)primitive_tex("displayindent", assign_dimen_cmd,
                   dimen_base + display_indent_code, dimen_base);
-    primitive_tex("overfullrule", assign_dimen_cmd,
+    (void)primitive_tex("overfullrule", assign_dimen_cmd,
                   dimen_base + overfull_rule_code, dimen_base);
-    primitive_tex("hangindent", assign_dimen_cmd, dimen_base + hang_indent_code,
+    (void)primitive_tex("hangindent", assign_dimen_cmd, dimen_base + hang_indent_code,
                   dimen_base);
-    primitive_tex("hoffset", assign_dimen_cmd, dimen_base + h_offset_code,
+    (void)primitive_tex("hoffset", assign_dimen_cmd, dimen_base + h_offset_code,
                   dimen_base);
-    primitive_tex("voffset", assign_dimen_cmd, dimen_base + v_offset_code,
+    (void)primitive_tex("voffset", assign_dimen_cmd, dimen_base + v_offset_code,
                   dimen_base);
-    primitive_tex("emergencystretch", assign_dimen_cmd,
+    (void)primitive_tex("emergencystretch", assign_dimen_cmd,
                   dimen_base + emergency_stretch_code, dimen_base);
     primitive_pdftex("pdfhorigin", assign_dimen_cmd,
                      dimen_base + pdf_h_origin_code, dimen_base);
@@ -331,72 +331,71 @@ void initialize_commands(void)
        by their |eq_type| alone. These primitives are loaded into the hash table
        as follows: */
 
-    primitive_tex(" ", ex_space_cmd, 0, 0);
-    primitive_tex("/", ital_corr_cmd, 0, 0);
-    primitive_tex("accent", accent_cmd, 0, 0);
-    primitive_tex("advance", advance_cmd, 0, 0);
-    primitive_tex("afterassignment", after_assignment_cmd, 0, 0);
-    primitive_tex("aftergroup", after_group_cmd, 0, 0);
-    primitive_tex("begingroup", begin_group_cmd, 0, 0);
-    primitive_tex("char", char_num_cmd, 0, 0);
-    primitive_tex("csname", cs_name_cmd, 0, 0);
-    primitive_tex("delimiter", delim_num_cmd, 0, 0);
+    (void)primitive_tex(" ", ex_space_cmd, 0, 0);
+    (void)primitive_tex("/", ital_corr_cmd, 0, 0);
+    (void)primitive_tex("accent", accent_cmd, 0, 0);
+    (void)primitive_tex("advance", advance_cmd, 0, 0);
+    (void)primitive_tex("afterassignment", after_assignment_cmd, 0, 0);
+    (void)primitive_tex("aftergroup", after_group_cmd, 0, 0);
+    (void)primitive_tex("begingroup", begin_group_cmd, 0, 0);
+    (void)primitive_tex("char", char_num_cmd, 0, 0);
+    (void)primitive_tex("csname", cs_name_cmd, 0, 0);
+    (void)primitive_tex("delimiter", delim_num_cmd, 0, 0);
     primitive_umath("Udelimiter", delim_num_cmd, 1, 0);
-    primitive_tex("divide", divide_cmd, 0, 0);
-    primitive_tex("endcsname", end_cs_name_cmd, 0, 0);
-    primitive_tex("endgroup", end_group_cmd, 0, 0);
+    (void)primitive_tex("divide", divide_cmd, 0, 0);
+    (void)primitive_tex("endcsname", end_cs_name_cmd, 0, 0);
+    c = primitive_tex("endgroup", end_group_cmd, 0, 0);
     cs_text(frozen_end_group) = maketexstring("endgroup");
-    eqtb[frozen_end_group] = eqtb[cur_val];
-    primitive_tex("expandafter", expand_after_cmd, 0, 0);
-    primitive_tex("font", def_font_cmd, 0, 0);
+    eqtb[frozen_end_group] = eqtb[c];
+    (void)primitive_tex("expandafter", expand_after_cmd, 0, 0);
+    (void)primitive_tex("font", def_font_cmd, 0, 0);
     primitive_pdftex("letterspacefont", letterspace_font_cmd, 0, 0);
     primitive_pdftex("pdfcopyfont", pdf_copy_font_cmd, 0, 0);
-    primitive_tex("fontdimen", assign_font_dimen_cmd, 0, 0);
-    primitive_tex("halign", halign_cmd, 0, 0);
-    primitive_tex("hrule", hrule_cmd, 0, 0);
-    primitive_tex("ignorespaces", ignore_spaces_cmd, 0, 0);
-    primitive_tex("insert", insert_cmd, 0, 0);
+    (void)primitive_tex("fontdimen", assign_font_dimen_cmd, 0, 0);
+    (void)primitive_tex("halign", halign_cmd, 0, 0);
+    (void)primitive_tex("hrule", hrule_cmd, 0, 0);
+    (void)primitive_tex("ignorespaces", ignore_spaces_cmd, 0, 0);
+    (void)primitive_tex("insert", insert_cmd, 0, 0);
     primitive_omega("leftghost", char_ghost_cmd, 0, 0);
-    primitive_tex("mark", mark_cmd, 0, 0);
-    primitive_tex("mathaccent", math_accent_cmd, 0, 0);
+    (void)primitive_tex("mark", mark_cmd, 0, 0);
+    (void)primitive_tex("mathaccent", math_accent_cmd, 0, 0);
     primitive_umath("Umathaccent", math_accent_cmd, 1, 0);
-    primitive_tex("mathchar", math_char_num_cmd, 0, 0);
+    (void)primitive_tex("mathchar", math_char_num_cmd, 0, 0);
     primitive_umath("Umathchar", math_char_num_cmd, 1, 0);
     primitive_umath("Umathcharnum", math_char_num_cmd, 2, 0);
-    primitive_tex("mathchoice", math_choice_cmd, 0, 0);
+    (void)primitive_tex("mathchoice", math_choice_cmd, 0, 0);
     primitive_umath("Ustack", math_choice_cmd, 1, 0);
-    primitive_tex("multiply", multiply_cmd, 0, 0);
-    primitive_tex("noalign", no_align_cmd, 0, 0);
-    primitive_tex("noboundary", no_boundary_cmd, 0, 0);
-    primitive_tex("noexpand", no_expand_cmd, 0, 0);
+    (void)primitive_tex("multiply", multiply_cmd, 0, 0);
+    (void)primitive_tex("noalign", no_align_cmd, 0, 0);
+    (void)primitive_tex("noboundary", no_boundary_cmd, 0, 0);
+    (void)primitive_tex("noexpand", no_expand_cmd, 0, 0);
     primitive_luatex("primitive", no_expand_cmd, 1, 0);
     primitive_pdftex("pdfprimitive", no_expand_cmd, 1, 0);
-    primitive_tex("nonscript", non_script_cmd, 0, 0);
-    primitive_tex("omit", omit_cmd, 0, 0);
-    primitive_tex("parshape", set_tex_shape_cmd, par_shape_loc, par_shape_loc);
-    primitive_tex("penalty", break_penalty_cmd, 0, 0);
-    primitive_tex("prevgraf", set_prev_graf_cmd, 0, 0);
-    primitive_tex("radical", radical_cmd, 0, 0);
+    (void)primitive_tex("nonscript", non_script_cmd, 0, 0);
+    (void)primitive_tex("omit", omit_cmd, 0, 0);
+    (void)primitive_tex("parshape", set_tex_shape_cmd, par_shape_loc, par_shape_loc);
+    (void)primitive_tex("penalty", break_penalty_cmd, 0, 0);
+    (void)primitive_tex("prevgraf", set_prev_graf_cmd, 0, 0);
+    (void)primitive_tex("radical", radical_cmd, 0, 0);
     primitive_umath("Uradical", radical_cmd, 1, 0);
     primitive_umath("Uroot", radical_cmd, 2, 0);
     primitive_umath("Uunderdelimiter", radical_cmd, 3, 0);
     primitive_umath("Uoverdelimiter", radical_cmd, 4, 0);
     primitive_umath("Udelimiterunder", radical_cmd, 5, 0);
     primitive_umath("Udelimiterover", radical_cmd, 6, 0);
-    primitive_tex("read", read_to_cs_cmd, 0, 0);
-    primitive_tex("relax", relax_cmd, too_big_char, too_big_char);
+    (void)primitive_tex("read", read_to_cs_cmd, 0, 0);
+    c = primitive_tex("relax", relax_cmd, too_big_char, too_big_char);
     cs_text(frozen_relax) = maketexstring("relax");
-    eqtb[frozen_relax] = eqtb[cur_val];
+    eqtb[frozen_relax] = eqtb[c];
     primitive_omega("rightghost", char_ghost_cmd, 1, 0);
-    primitive_tex("setbox", set_box_cmd, 0, 0);
-    primitive_tex("the", the_cmd, 0, 0);
-    primitive_tex("toks", toks_register_cmd, 0, 0);
-    primitive_tex("vadjust", vadjust_cmd, 0, 0);
-    primitive_tex("valign", valign_cmd, 0, 0);
-    primitive_tex("vcenter", vcenter_cmd, 0, 0);
-    primitive_tex("vrule", vrule_cmd, 0, 0);
-    primitive_tex("par", par_end_cmd, too_big_char, too_big_char);      /* cf.\ |scan_file_name| */
-    par_loc = cur_val;
+    (void)primitive_tex("setbox", set_box_cmd, 0, 0);
+    (void)primitive_tex("the", the_cmd, 0, 0);
+    (void)primitive_tex("toks", toks_register_cmd, 0, 0);
+    (void)primitive_tex("vadjust", vadjust_cmd, 0, 0);
+    (void)primitive_tex("valign", valign_cmd, 0, 0);
+    (void)primitive_tex("vcenter", vcenter_cmd, 0, 0);
+    (void)primitive_tex("vrule", vrule_cmd, 0, 0);
+    par_loc = primitive_tex("par", par_end_cmd, too_big_char, too_big_char);      /* cf.\ |scan_file_name| */
     par_token = cs_token_flag + par_loc;
     @<Create a bunch of primitives@>;
     @<Create the math param primitives@>;
@@ -409,13 +408,13 @@ void initialize_commands(void)
 @<Create a bunch of primitives@>=
     /* The processing of \.{\\input} involves the |start_input| subroutine,
        which will be declared later; the processing of \.{\\endinput} is trivial. */
-    primitive_tex("input", input_cmd, 0, 0);
-    primitive_tex("endinput", input_cmd, 1, 0);
-    primitive_tex("topmark", top_bot_mark_cmd, top_mark_code, 0);
-    primitive_tex("firstmark", top_bot_mark_cmd, first_mark_code, 0);
-    primitive_tex("botmark", top_bot_mark_cmd, bot_mark_code, 0);
-    primitive_tex("splitfirstmark", top_bot_mark_cmd, split_first_mark_code, 0);
-    primitive_tex("splitbotmark", top_bot_mark_cmd, split_bot_mark_code, 0);
+    (void)primitive_tex("input", input_cmd, 0, 0);
+    (void)primitive_tex("endinput", input_cmd, 1, 0);
+    (void)primitive_tex("topmark", top_bot_mark_cmd, top_mark_code, 0);
+    (void)primitive_tex("firstmark", top_bot_mark_cmd, first_mark_code, 0);
+    (void)primitive_tex("botmark", top_bot_mark_cmd, bot_mark_code, 0);
+    (void)primitive_tex("splitfirstmark", top_bot_mark_cmd, split_first_mark_code, 0);
+    (void)primitive_tex("splitbotmark", top_bot_mark_cmd, split_bot_mark_code, 0);
     primitive_luatex("clearmarks", mark_cmd, clear_marks_code, 0);
     primitive_etex("marks", mark_cmd, marks_code, 0);
     primitive_etex("topmarks", top_bot_mark_cmd, top_mark_code + marks_code, 0);
@@ -432,24 +431,24 @@ void initialize_commands(void)
        as their command code; they are distinguished by the |chr_code|, which
        is either |int_val|, |attr_val|, |dimen_val|, |glue_val|, or |mu_val|. 
      */
-    primitive_tex("count", register_cmd, int_val_level, 0);
+    (void)primitive_tex("count", register_cmd, int_val_level, 0);
     primitive_luatex("attribute", register_cmd, attr_val_level, 0);
-    primitive_tex("dimen", register_cmd, dimen_val_level, 0);
-    primitive_tex("skip", register_cmd, glue_val_level, 0);
-    primitive_tex("muskip", register_cmd, mu_val_level, 0);
+    (void)primitive_tex("dimen", register_cmd, dimen_val_level, 0);
+    (void)primitive_tex("skip", register_cmd, glue_val_level, 0);
+    (void)primitive_tex("muskip", register_cmd, mu_val_level, 0);
 
-    primitive_tex("spacefactor", set_aux_cmd, hmode, 0);
-    primitive_tex("prevdepth", set_aux_cmd, vmode, 0);
-    primitive_tex("deadcycles", set_page_int_cmd, 0, 0);
-    primitive_tex("insertpenalties", set_page_int_cmd, 1, 0);
-    primitive_tex("wd", set_box_dimen_cmd, width_offset, 0);
-    primitive_tex("ht", set_box_dimen_cmd, height_offset, 0);
-    primitive_tex("dp", set_box_dimen_cmd, depth_offset, 0);
-    primitive_tex("lastpenalty", last_item_cmd, lastpenalty_code, 0);
-    primitive_tex("lastkern", last_item_cmd, lastkern_code, 0);
-    primitive_tex("lastskip", last_item_cmd, lastskip_code, 0);
-    primitive_tex("inputlineno", last_item_cmd, input_line_no_code, 0);
-    primitive_tex("badness", last_item_cmd, badness_code, 0);
+    (void)primitive_tex("spacefactor", set_aux_cmd, hmode, 0);
+    (void)primitive_tex("prevdepth", set_aux_cmd, vmode, 0);
+    (void)primitive_tex("deadcycles", set_page_int_cmd, 0, 0);
+    (void)primitive_tex("insertpenalties", set_page_int_cmd, 1, 0);
+    (void)primitive_tex("wd", set_box_dimen_cmd, width_offset, 0);
+    (void)primitive_tex("ht", set_box_dimen_cmd, height_offset, 0);
+    (void)primitive_tex("dp", set_box_dimen_cmd, depth_offset, 0);
+    (void)primitive_tex("lastpenalty", last_item_cmd, lastpenalty_code, 0);
+    (void)primitive_tex("lastkern", last_item_cmd, lastkern_code, 0);
+    (void)primitive_tex("lastskip", last_item_cmd, lastskip_code, 0);
+    (void)primitive_tex("inputlineno", last_item_cmd, input_line_no_code, 0);
+    (void)primitive_tex("badness", last_item_cmd, badness_code, 0);
     primitive_pdftex("pdftexversion", last_item_cmd, pdftex_version_code, 0);
     primitive_luatex("luatexversion", last_item_cmd, luatex_version_code, 0);
     primitive_pdftex("pdflastobj", last_item_cmd, pdf_last_obj_code, 0);
@@ -466,12 +465,12 @@ void initialize_commands(void)
     primitive_pdftex("pdfrandomseed", last_item_cmd, random_seed_code, 0);
     primitive_pdftex("pdflastlink", last_item_cmd, pdf_last_link_code, 0);
 
-    primitive_tex("number", convert_cmd, number_code, 0);
-    primitive_tex("romannumeral", convert_cmd, roman_numeral_code, 0);
-    primitive_tex("string", convert_cmd, string_code, 0);
-    primitive_tex("meaning", convert_cmd, meaning_code, 0);
+    (void)primitive_tex("number", convert_cmd, number_code, 0);
+    (void)primitive_tex("romannumeral", convert_cmd, roman_numeral_code, 0);
+    (void)primitive_tex("string", convert_cmd, string_code, 0);
+    (void)primitive_tex("meaning", convert_cmd, meaning_code, 0);
     primitive_etex("eTeXVersion", convert_cmd, etex_code, 0);
-    primitive_tex("fontname", convert_cmd, font_name_code, 0);
+    (void)primitive_tex("fontname", convert_cmd, font_name_code, 0);
     primitive_luatex("fontid", convert_cmd, font_id_code, 0);
     primitive_pdftex("pdftexrevision", convert_cmd, pdftex_revision_code, 0);
     primitive_luatex("luatexrevision", convert_cmd, luatex_revision_code, 0);
@@ -494,54 +493,54 @@ void initialize_commands(void)
     primitive_luatex("luaescapestring", convert_cmd, lua_escape_string_code, 0);
     primitive_luatex("mathstyle", convert_cmd, math_style_code, 0);
     primitive_pdftex("expanded", convert_cmd, expanded_code, 0);
-    primitive_tex("jobname", convert_cmd, job_name_code, 0);
+    (void)primitive_tex("jobname", convert_cmd, job_name_code, 0);
     primitive_luatex("formatname", convert_cmd, format_name_code, 0);
     primitive_pdftex("pdfinsertht", convert_cmd, pdf_insert_ht_code, 0);
     primitive_pdftex("pdfximagebbox", convert_cmd, pdf_ximage_bbox_code, 0);
     primitive_luatex("Uchar", convert_cmd, uchar_code, 0);
 
-    primitive_tex("if", if_test_cmd, if_char_code, 0);
-    primitive_tex("ifcat", if_test_cmd, if_cat_code, 0);
-    primitive_tex("ifnum", if_test_cmd, if_int_code, 0);
-    primitive_tex("ifdim", if_test_cmd, if_dim_code, 0);
-    primitive_tex("ifodd", if_test_cmd, if_odd_code, 0);
-    primitive_tex("ifvmode", if_test_cmd, if_vmode_code, 0);
-    primitive_tex("ifhmode", if_test_cmd, if_hmode_code, 0);
-    primitive_tex("ifmmode", if_test_cmd, if_mmode_code, 0);
-    primitive_tex("ifinner", if_test_cmd, if_inner_code, 0);
-    primitive_tex("ifvoid", if_test_cmd, if_void_code, 0);
+    (void)primitive_tex("if", if_test_cmd, if_char_code, 0);
+    (void)primitive_tex("ifcat", if_test_cmd, if_cat_code, 0);
+    (void)primitive_tex("ifnum", if_test_cmd, if_int_code, 0);
+    (void)primitive_tex("ifdim", if_test_cmd, if_dim_code, 0);
+    (void)primitive_tex("ifodd", if_test_cmd, if_odd_code, 0);
+    (void)primitive_tex("ifvmode", if_test_cmd, if_vmode_code, 0);
+    (void)primitive_tex("ifhmode", if_test_cmd, if_hmode_code, 0);
+    (void)primitive_tex("ifmmode", if_test_cmd, if_mmode_code, 0);
+    (void)primitive_tex("ifinner", if_test_cmd, if_inner_code, 0);
+    (void)primitive_tex("ifvoid", if_test_cmd, if_void_code, 0);
 
-    primitive_tex("ifhbox", if_test_cmd, if_hbox_code, 0);
-    primitive_tex("ifvbox", if_test_cmd, if_vbox_code, 0);
-    primitive_tex("ifx", if_test_cmd, ifx_code, 0);
-    primitive_tex("ifeof", if_test_cmd, if_eof_code, 0);
-    primitive_tex("iftrue", if_test_cmd, if_true_code, 0);
-    primitive_tex("iffalse", if_test_cmd, if_false_code, 0);
-    primitive_tex("ifcase", if_test_cmd, if_case_code, 0);
+    (void)primitive_tex("ifhbox", if_test_cmd, if_hbox_code, 0);
+    (void)primitive_tex("ifvbox", if_test_cmd, if_vbox_code, 0);
+    (void)primitive_tex("ifx", if_test_cmd, ifx_code, 0);
+    (void)primitive_tex("ifeof", if_test_cmd, if_eof_code, 0);
+    (void)primitive_tex("iftrue", if_test_cmd, if_true_code, 0);
+    (void)primitive_tex("iffalse", if_test_cmd, if_false_code, 0);
+    (void)primitive_tex("ifcase", if_test_cmd, if_case_code, 0);
     primitive_luatex("ifprimitive", if_test_cmd, if_primitive_code, 0);
     primitive_pdftex("ifpdfprimitive", if_test_cmd, if_primitive_code, 0);
 
-    primitive_tex("fi", fi_or_else_cmd, fi_code, 0);
+    c = primitive_tex("fi", fi_or_else_cmd, fi_code, 0);
     cs_text(frozen_fi) = maketexstring("fi");
-    eqtb[frozen_fi] = eqtb[cur_val];
-    primitive_tex("or", fi_or_else_cmd, or_code, 0);
-    primitive_tex("else", fi_or_else_cmd, else_code, 0);
+    eqtb[frozen_fi] = eqtb[c];
+    (void)primitive_tex("or", fi_or_else_cmd, or_code, 0);
+    (void)primitive_tex("else", fi_or_else_cmd, else_code, 0);
 
     /* \TeX\ always knows at least one font, namely the null font. It has no
        characters, and its seven parameters are all equal to zero. */
-    primitive_tex("nullfont", set_font_cmd, null_font, 0);
+    c = primitive_tex("nullfont", set_font_cmd, null_font, 0);
     cs_text(frozen_null_font) = maketexstring("nullfont");
-    eqtb[frozen_null_font] = eqtb[cur_val];
+    eqtb[frozen_null_font] = eqtb[c];
 
-    primitive_tex("span", tab_mark_cmd, span_code, tab_mark_cmd_code);
+    (void)primitive_tex("span", tab_mark_cmd, span_code, tab_mark_cmd_code);
     primitive_luatex("aligntab", tab_mark_cmd, tab_mark_cmd_code,
                      tab_mark_cmd_code);
     primitive_luatex("alignmark", mac_param_cmd, tab_mark_cmd_code,
                      tab_mark_cmd_code);
-    primitive_tex("cr", car_ret_cmd, cr_code, cr_code);
+    c = primitive_tex("cr", car_ret_cmd, cr_code, cr_code);
     cs_text(frozen_cr) = maketexstring("cr");
-    eqtb[frozen_cr] = eqtb[cur_val];
-    primitive_tex("crcr", car_ret_cmd, cr_cr_code, cr_code);
+    eqtb[frozen_cr] = eqtb[c];
+    (void)primitive_tex("crcr", car_ret_cmd, cr_cr_code, cr_code);
     cs_text(frozen_end_template) = maketexstring("endtemplate");
     cs_text(frozen_endv) = maketexstring("endtemplate");
     set_eq_type(frozen_endv, endv_cmd);
@@ -550,63 +549,63 @@ void initialize_commands(void)
     eqtb[frozen_end_template] = eqtb[frozen_endv];
     set_eq_type(frozen_end_template, end_template_cmd);
 
-    primitive_tex("pagegoal", set_page_dimen_cmd, 0, 0);
-    primitive_tex("pagetotal", set_page_dimen_cmd, 1, 0);
-    primitive_tex("pagestretch", set_page_dimen_cmd, 2, 0);
-    primitive_tex("pagefilstretch", set_page_dimen_cmd, 3, 0);
-    primitive_tex("pagefillstretch", set_page_dimen_cmd, 4, 0);
-    primitive_tex("pagefilllstretch", set_page_dimen_cmd, 5, 0);
-    primitive_tex("pageshrink", set_page_dimen_cmd, 6, 0);
-    primitive_tex("pagedepth", set_page_dimen_cmd, 7, 0);
+    (void)primitive_tex("pagegoal", set_page_dimen_cmd, 0, 0);
+    (void)primitive_tex("pagetotal", set_page_dimen_cmd, 1, 0);
+    (void)primitive_tex("pagestretch", set_page_dimen_cmd, 2, 0);
+    (void)primitive_tex("pagefilstretch", set_page_dimen_cmd, 3, 0);
+    (void)primitive_tex("pagefillstretch", set_page_dimen_cmd, 4, 0);
+    (void)primitive_tex("pagefilllstretch", set_page_dimen_cmd, 5, 0);
+    (void)primitive_tex("pageshrink", set_page_dimen_cmd, 6, 0);
+    (void)primitive_tex("pagedepth", set_page_dimen_cmd, 7, 0);
 
     /* Either \.{\\dump} or \.{\\end} will cause |main_control| to enter the
        endgame, since both of them have `|stop|' as their command code. */
 
-    primitive_tex("end", stop_cmd, 0, 0);
-    primitive_tex("dump", stop_cmd, 1, 0);
+    (void)primitive_tex("end", stop_cmd, 0, 0);
+    (void)primitive_tex("dump", stop_cmd, 1, 0);
 
-    primitive_tex("hskip", hskip_cmd, skip_code, 0);
-    primitive_tex("hfil", hskip_cmd, fil_code, 0);
-    primitive_tex("hfill", hskip_cmd, fill_code, 0);
-    primitive_tex("hss", hskip_cmd, ss_code, 0);
-    primitive_tex("hfilneg", hskip_cmd, fil_neg_code, 0);
-    primitive_tex("vskip", vskip_cmd, skip_code, 0);
-    primitive_tex("vfil", vskip_cmd, fil_code, 0);
-    primitive_tex("vfill", vskip_cmd, fill_code, 0);
-    primitive_tex("vss", vskip_cmd, ss_code, 0);
-    primitive_tex("vfilneg", vskip_cmd, fil_neg_code, 0);
-    primitive_tex("mskip", mskip_cmd, mskip_code, 0);
-    primitive_tex("kern", kern_cmd, explicit, 0);
-    primitive_tex("mkern", mkern_cmd, mu_glue, 0);
-    primitive_tex("moveleft", hmove_cmd, 1, 0);
-    primitive_tex("moveright", hmove_cmd, 0, 0);
-    primitive_tex("raise", vmove_cmd, 1, 0);
-    primitive_tex("lower", vmove_cmd, 0, 0);
-    primitive_tex("box", make_box_cmd, box_code, 0);
-    primitive_tex("copy", make_box_cmd, copy_code, 0);
-    primitive_tex("lastbox", make_box_cmd, last_box_code, 0);
-    primitive_tex("vsplit", make_box_cmd, vsplit_code, 0);
-    primitive_tex("vtop", make_box_cmd, vtop_code, 0);
-    primitive_tex("vbox", make_box_cmd, vtop_code + vmode, 0);
-    primitive_tex("hbox", make_box_cmd, vtop_code + hmode, 0);
-    primitive_tex("shipout", leader_ship_cmd, a_leaders - 1, 0);        /* |ship_out_flag=leader_flag-1| */
-    primitive_tex("leaders", leader_ship_cmd, a_leaders, 0);
-    primitive_tex("cleaders", leader_ship_cmd, c_leaders, 0);
-    primitive_tex("xleaders", leader_ship_cmd, x_leaders, 0);
+    (void)primitive_tex("hskip", hskip_cmd, skip_code, 0);
+    (void)primitive_tex("hfil", hskip_cmd, fil_code, 0);
+    (void)primitive_tex("hfill", hskip_cmd, fill_code, 0);
+    (void)primitive_tex("hss", hskip_cmd, ss_code, 0);
+    (void)primitive_tex("hfilneg", hskip_cmd, fil_neg_code, 0);
+    (void)primitive_tex("vskip", vskip_cmd, skip_code, 0);
+    (void)primitive_tex("vfil", vskip_cmd, fil_code, 0);
+    (void)primitive_tex("vfill", vskip_cmd, fill_code, 0);
+    (void)primitive_tex("vss", vskip_cmd, ss_code, 0);
+    (void)primitive_tex("vfilneg", vskip_cmd, fil_neg_code, 0);
+    (void)primitive_tex("mskip", mskip_cmd, mskip_code, 0);
+    (void)primitive_tex("kern", kern_cmd, explicit, 0);
+    (void)primitive_tex("mkern", mkern_cmd, mu_glue, 0);
+    (void)primitive_tex("moveleft", hmove_cmd, 1, 0);
+    (void)primitive_tex("moveright", hmove_cmd, 0, 0);
+    (void)primitive_tex("raise", vmove_cmd, 1, 0);
+    (void)primitive_tex("lower", vmove_cmd, 0, 0);
+    (void)primitive_tex("box", make_box_cmd, box_code, 0);
+    (void)primitive_tex("copy", make_box_cmd, copy_code, 0);
+    (void)primitive_tex("lastbox", make_box_cmd, last_box_code, 0);
+    (void)primitive_tex("vsplit", make_box_cmd, vsplit_code, 0);
+    (void)primitive_tex("vtop", make_box_cmd, vtop_code, 0);
+    (void)primitive_tex("vbox", make_box_cmd, vtop_code + vmode, 0);
+    (void)primitive_tex("hbox", make_box_cmd, vtop_code + hmode, 0);
+    (void)primitive_tex("shipout", leader_ship_cmd, a_leaders - 1, 0);        /* |ship_out_flag=leader_flag-1| */
+    (void)primitive_tex("leaders", leader_ship_cmd, a_leaders, 0);
+    (void)primitive_tex("cleaders", leader_ship_cmd, c_leaders, 0);
+    (void)primitive_tex("xleaders", leader_ship_cmd, x_leaders, 0);
     primitive_luatex("gleaders", leader_ship_cmd, g_leaders, 0);
     primitive_aleph("boxdir", assign_box_dir_cmd, 0, 0);
-    primitive_tex("indent", start_par_cmd, 1, 0);
-    primitive_tex("noindent", start_par_cmd, 0, 0);
+    (void)primitive_tex("indent", start_par_cmd, 1, 0);
+    (void)primitive_tex("noindent", start_par_cmd, 0, 0);
     primitive_pdftex("quitvmode", start_par_cmd, 2, 0);
-    primitive_tex("unpenalty", remove_item_cmd, penalty_node, 0);
-    primitive_tex("unkern", remove_item_cmd, kern_node, 0);
-    primitive_tex("unskip", remove_item_cmd, glue_node, 0);
-    primitive_tex("unhbox", un_hbox_cmd, box_code, 0);
-    primitive_tex("unhcopy", un_hbox_cmd, copy_code, 0);
-    primitive_tex("unvbox", un_vbox_cmd, box_code, 0);
-    primitive_tex("unvcopy", un_vbox_cmd, copy_code, 0);
-    primitive_tex("-", discretionary_cmd, explicit_disc, 0);
-    primitive_tex("discretionary", discretionary_cmd, discretionary_disc, 0);
+    (void)primitive_tex("unpenalty", remove_item_cmd, penalty_node, 0);
+    (void)primitive_tex("unkern", remove_item_cmd, kern_node, 0);
+    (void)primitive_tex("unskip", remove_item_cmd, glue_node, 0);
+    (void)primitive_tex("unhbox", un_hbox_cmd, box_code, 0);
+    (void)primitive_tex("unhcopy", un_hbox_cmd, copy_code, 0);
+    (void)primitive_tex("unvbox", un_vbox_cmd, box_code, 0);
+    (void)primitive_tex("unvcopy", un_vbox_cmd, copy_code, 0);
+    (void)primitive_tex("-", discretionary_cmd, explicit_disc, 0);
+    (void)primitive_tex("discretionary", discretionary_cmd, discretionary_disc, 0);
     primitive_omega("localleftbox", assign_local_box_cmd, 0, 0);
     primitive_omega("localrightbox", assign_local_box_cmd, 1, 0);
 
@@ -615,25 +614,25 @@ void initialize_commands(void)
     primitive_umath("Ustartdisplaymath", math_shift_cs_cmd, display_style, 0);
     primitive_umath("Ustopdisplaymath", math_shift_cs_cmd,
                      cramped_display_style, 0);
-    primitive_tex("eqno", eq_no_cmd, 0, 0);
-    primitive_tex("leqno", eq_no_cmd, 1, 0);
-    primitive_tex("mathord", math_comp_cmd, ord_noad_type, 0);
-    primitive_tex("mathop", math_comp_cmd, op_noad_type_normal, 0);
-    primitive_tex("mathbin", math_comp_cmd, bin_noad_type, 0);
-    primitive_tex("mathrel", math_comp_cmd, rel_noad_type, 0);
-    primitive_tex("mathopen", math_comp_cmd, open_noad_type, 0);
-    primitive_tex("mathclose", math_comp_cmd, close_noad_type, 0);
-    primitive_tex("mathpunct", math_comp_cmd, punct_noad_type, 0);
-    primitive_tex("mathinner", math_comp_cmd, inner_noad_type, 0);
-    primitive_tex("underline", math_comp_cmd, under_noad_type, 0);
-    primitive_tex("overline", math_comp_cmd, over_noad_type, 0);
-    primitive_tex("displaylimits", limit_switch_cmd, op_noad_type_normal, 0);
-    primitive_tex("limits", limit_switch_cmd, op_noad_type_limits, 0);
-    primitive_tex("nolimits", limit_switch_cmd, op_noad_type_no_limits, 0);
-    primitive_tex("displaystyle", math_style_cmd, display_style, 0);
-    primitive_tex("textstyle", math_style_cmd, text_style, 0);
-    primitive_tex("scriptstyle", math_style_cmd, script_style, 0);
-    primitive_tex("scriptscriptstyle", math_style_cmd, script_script_style, 0);
+    (void)primitive_tex("eqno", eq_no_cmd, 0, 0);
+    (void)primitive_tex("leqno", eq_no_cmd, 1, 0);
+    (void)primitive_tex("mathord", math_comp_cmd, ord_noad_type, 0);
+    (void)primitive_tex("mathop", math_comp_cmd, op_noad_type_normal, 0);
+    (void)primitive_tex("mathbin", math_comp_cmd, bin_noad_type, 0);
+    (void)primitive_tex("mathrel", math_comp_cmd, rel_noad_type, 0);
+    (void)primitive_tex("mathopen", math_comp_cmd, open_noad_type, 0);
+    (void)primitive_tex("mathclose", math_comp_cmd, close_noad_type, 0);
+    (void)primitive_tex("mathpunct", math_comp_cmd, punct_noad_type, 0);
+    (void)primitive_tex("mathinner", math_comp_cmd, inner_noad_type, 0);
+    (void)primitive_tex("underline", math_comp_cmd, under_noad_type, 0);
+    (void)primitive_tex("overline", math_comp_cmd, over_noad_type, 0);
+    (void)primitive_tex("displaylimits", limit_switch_cmd, op_noad_type_normal, 0);
+    (void)primitive_tex("limits", limit_switch_cmd, op_noad_type_limits, 0);
+    (void)primitive_tex("nolimits", limit_switch_cmd, op_noad_type_no_limits, 0);
+    (void)primitive_tex("displaystyle", math_style_cmd, display_style, 0);
+    (void)primitive_tex("textstyle", math_style_cmd, text_style, 0);
+    (void)primitive_tex("scriptstyle", math_style_cmd, script_style, 0);
+    (void)primitive_tex("scriptscriptstyle", math_style_cmd, script_script_style, 0);
     primitive_luatex("crampeddisplaystyle", math_style_cmd,
                      cramped_display_style, 0);
     primitive_luatex("crampedtextstyle", math_style_cmd, cramped_text_style, 0);
@@ -645,46 +644,46 @@ void initialize_commands(void)
                      sup_mark_cmd);
     primitive_umath("Usubscript", super_sub_script_cmd, sub_mark_cmd,
                      sup_mark_cmd);
-    primitive_tex("above", above_cmd, above_code, 0);
-    primitive_tex("over", above_cmd, over_code, 0);
-    primitive_tex("atop", above_cmd, atop_code, 0);
-    primitive_tex("abovewithdelims", above_cmd, delimited_code + above_code, 0);
-    primitive_tex("overwithdelims", above_cmd, delimited_code + over_code, 0);
-    primitive_tex("atopwithdelims", above_cmd, delimited_code + atop_code, 0);
-    primitive_tex("left", left_right_cmd, left_noad_side, 0);
-    primitive_tex("right", left_right_cmd, right_noad_side, 0);
-    primitive_tex("middle", left_right_cmd, middle_noad_side, 0);
+    (void)primitive_tex("above", above_cmd, above_code, 0);
+    (void)primitive_tex("over", above_cmd, over_code, 0);
+    (void)primitive_tex("atop", above_cmd, atop_code, 0);
+    (void)primitive_tex("abovewithdelims", above_cmd, delimited_code + above_code, 0);
+    (void)primitive_tex("overwithdelims", above_cmd, delimited_code + over_code, 0);
+    (void)primitive_tex("atopwithdelims", above_cmd, delimited_code + atop_code, 0);
+    (void)primitive_tex("left", left_right_cmd, left_noad_side, 0);
+    c = primitive_tex("right", left_right_cmd, right_noad_side, 0);
+    (void)primitive_tex("middle", left_right_cmd, middle_noad_side, 0);
     cs_text(frozen_right) = maketexstring("right");
-    eqtb[frozen_right] = eqtb[cur_val];
+    eqtb[frozen_right] = eqtb[c];
 
-    primitive_tex("long", prefix_cmd, 1, 0);
-    primitive_tex("outer", prefix_cmd, 2, 0);
-    primitive_tex("global", prefix_cmd, 4, 0);
-    primitive_tex("def", def_cmd, 0, 0);
-    primitive_tex("gdef", def_cmd, 1, 0);
-    primitive_tex("edef", def_cmd, 2, 0);
-    primitive_tex("xdef", def_cmd, 3, 0);
-    primitive_tex("let", let_cmd, normal, 0);
-    primitive_tex("futurelet", let_cmd, normal + 1, 0);
-    primitive_tex("chardef", shorthand_def_cmd, char_def_code, 0);
-    primitive_tex("mathchardef", shorthand_def_cmd, math_char_def_code, 0);
+    (void)primitive_tex("long", prefix_cmd, 1, 0);
+    (void)primitive_tex("outer", prefix_cmd, 2, 0);
+    (void)primitive_tex("global", prefix_cmd, 4, 0);
+    (void)primitive_tex("def", def_cmd, 0, 0);
+    (void)primitive_tex("gdef", def_cmd, 1, 0);
+    (void)primitive_tex("edef", def_cmd, 2, 0);
+    (void)primitive_tex("xdef", def_cmd, 3, 0);
+    (void)primitive_tex("let", let_cmd, normal, 0);
+    (void)primitive_tex("futurelet", let_cmd, normal + 1, 0);
+    (void)primitive_tex("chardef", shorthand_def_cmd, char_def_code, 0);
+    (void)primitive_tex("mathchardef", shorthand_def_cmd, math_char_def_code, 0);
     primitive_umath("Umathchardef", shorthand_def_cmd, xmath_char_def_code, 0);
     primitive_umath("Umathcharnumdef", shorthand_def_cmd, umath_char_def_code, 0);
-    primitive_tex("countdef", shorthand_def_cmd, count_def_code, 0);
+    (void)primitive_tex("countdef", shorthand_def_cmd, count_def_code, 0);
     primitive_luatex("attributedef", shorthand_def_cmd, attribute_def_code, 0);
-    primitive_tex("dimendef", shorthand_def_cmd, dimen_def_code, 0);
-    primitive_tex("skipdef", shorthand_def_cmd, skip_def_code, 0);
-    primitive_tex("muskipdef", shorthand_def_cmd, mu_skip_def_code, 0);
-    primitive_tex("toksdef", shorthand_def_cmd, toks_def_code, 0);
-    primitive_tex("catcode", def_char_code_cmd, cat_code_base, cat_code_base);
-    primitive_tex("mathcode", def_char_code_cmd, math_code_base, cat_code_base);
-    primitive_tex("lccode", def_char_code_cmd, lc_code_base, cat_code_base);
-    primitive_tex("uccode", def_char_code_cmd, uc_code_base, cat_code_base);
-    primitive_tex("sfcode", def_char_code_cmd, sf_code_base, cat_code_base);
-    primitive_tex("delcode", def_del_code_cmd, del_code_base, del_code_base);
-    primitive_tex("textfont", def_family_cmd, text_size, 0);
-    primitive_tex("scriptfont", def_family_cmd, script_size, 0);
-    primitive_tex("scriptscriptfont", def_family_cmd, script_script_size, 0);
+    (void)primitive_tex("dimendef", shorthand_def_cmd, dimen_def_code, 0);
+    (void)primitive_tex("skipdef", shorthand_def_cmd, skip_def_code, 0);
+    (void)primitive_tex("muskipdef", shorthand_def_cmd, mu_skip_def_code, 0);
+    (void)primitive_tex("toksdef", shorthand_def_cmd, toks_def_code, 0);
+    (void)primitive_tex("catcode", def_char_code_cmd, cat_code_base, cat_code_base);
+    (void)primitive_tex("mathcode", def_char_code_cmd, math_code_base, cat_code_base);
+    (void)primitive_tex("lccode", def_char_code_cmd, lc_code_base, cat_code_base);
+    (void)primitive_tex("uccode", def_char_code_cmd, uc_code_base, cat_code_base);
+    (void)primitive_tex("sfcode", def_char_code_cmd, sf_code_base, cat_code_base);
+    (void)primitive_tex("delcode", def_del_code_cmd, del_code_base, del_code_base);
+    (void)primitive_tex("textfont", def_family_cmd, text_size, 0);
+    (void)primitive_tex("scriptfont", def_family_cmd, script_size, 0);
+    (void)primitive_tex("scriptscriptfont", def_family_cmd, script_script_size, 0);
     primitive_umath("Umathquad", set_math_param_cmd, math_param_quad, 0);
     primitive_umath("Umathaxis", set_math_param_cmd, math_param_axis, 0);
 
@@ -918,42 +917,42 @@ void initialize_commands(void)
                      math_code_base);
     primitive_umath("Udelcodenum", extdef_del_code_cmd, del_code_base + 1,
                      del_code_base);
-    primitive_tex("hyphenation", hyph_data_cmd, 0, 0);
-    primitive_tex("patterns", hyph_data_cmd, 1, 0);
+    (void)primitive_tex("hyphenation", hyph_data_cmd, 0, 0);
+    (void)primitive_tex("patterns", hyph_data_cmd, 1, 0);
     primitive_luatex("prehyphenchar", hyph_data_cmd, 2, 0);
     primitive_luatex("posthyphenchar", hyph_data_cmd, 3, 0);
     primitive_luatex("preexhyphenchar", hyph_data_cmd, 4, 0);
     primitive_luatex("postexhyphenchar", hyph_data_cmd, 5, 0);
-    primitive_tex("hyphenchar", assign_font_int_cmd, 0, 0);
-    primitive_tex("skewchar", assign_font_int_cmd, 1, 0);
+    (void)primitive_tex("hyphenchar", assign_font_int_cmd, 0, 0);
+    (void)primitive_tex("skewchar", assign_font_int_cmd, 1, 0);
     primitive_pdftex("lpcode", assign_font_int_cmd, lp_code_base, 0);
     primitive_pdftex("rpcode", assign_font_int_cmd, rp_code_base, 0);
     primitive_pdftex("efcode", assign_font_int_cmd, ef_code_base, 0);
     primitive_pdftex("tagcode", assign_font_int_cmd, tag_code, 0);
     primitive_pdftex("pdfnoligatures", assign_font_int_cmd, no_lig_code, 0);
-    primitive_tex("batchmode", set_interaction_cmd, batch_mode, 0);
-    primitive_tex("nonstopmode", set_interaction_cmd, nonstop_mode, 0);
-    primitive_tex("scrollmode", set_interaction_cmd, scroll_mode, 0);
-    primitive_tex("errorstopmode", set_interaction_cmd, error_stop_mode, 0);
-    primitive_tex("openin", in_stream_cmd, 1, 0);
-    primitive_tex("closein", in_stream_cmd, 0, 0);
-    primitive_tex("message", message_cmd, 0, 0);
-    primitive_tex("errmessage", message_cmd, 1, 0);
-    primitive_tex("lowercase", case_shift_cmd, lc_code_base, lc_code_base);
-    primitive_tex("uppercase", case_shift_cmd, uc_code_base, lc_code_base);
-    primitive_tex("show", xray_cmd, show_code, 0);
-    primitive_tex("showbox", xray_cmd, show_box_code, 0);
-    primitive_tex("showthe", xray_cmd, show_the_code, 0);
-    primitive_tex("showlists", xray_cmd, show_lists, 0);
+    (void)primitive_tex("batchmode", set_interaction_cmd, batch_mode, 0);
+    (void)primitive_tex("nonstopmode", set_interaction_cmd, nonstop_mode, 0);
+    (void)primitive_tex("scrollmode", set_interaction_cmd, scroll_mode, 0);
+    (void)primitive_tex("errorstopmode", set_interaction_cmd, error_stop_mode, 0);
+    (void)primitive_tex("openin", in_stream_cmd, 1, 0);
+    (void)primitive_tex("closein", in_stream_cmd, 0, 0);
+    (void)primitive_tex("message", message_cmd, 0, 0);
+    (void)primitive_tex("errmessage", message_cmd, 1, 0);
+    (void)primitive_tex("lowercase", case_shift_cmd, lc_code_base, lc_code_base);
+    (void)primitive_tex("uppercase", case_shift_cmd, uc_code_base, lc_code_base);
+    (void)primitive_tex("show", xray_cmd, show_code, 0);
+    (void)primitive_tex("showbox", xray_cmd, show_box_code, 0);
+    (void)primitive_tex("showthe", xray_cmd, show_the_code, 0);
+    (void)primitive_tex("showlists", xray_cmd, show_lists, 0);
 
-    primitive_tex("openout", extension_cmd, open_node, 0);
-    primitive_tex("write", extension_cmd, write_node, 0);
-    write_loc = cur_val;
-    primitive_tex("closeout", extension_cmd, close_node, 0);
-    primitive_tex("special", extension_cmd, special_node, 0);
+    (void)primitive_tex("openout", extension_cmd, open_node, 0);
+    c = primitive_tex("write", extension_cmd, write_node, 0);
+    write_loc = c;
+    (void)primitive_tex("closeout", extension_cmd, close_node, 0);
+    c = primitive_tex("special", extension_cmd, special_node, 0);
     cs_text(frozen_special) = maketexstring("special");
-    eqtb[frozen_special] = eqtb[cur_val];
-    primitive_tex("immediate", extension_cmd, immediate_code, 0);
+    eqtb[frozen_special] = eqtb[c];
+    (void)primitive_tex("immediate", extension_cmd, immediate_code, 0);
     primitive_omega("localinterlinepenalty", assign_int_cmd,
                     int_base + local_inter_line_penalty_code, int_base);
     primitive_omega("localbrokenpenalty", assign_int_cmd,

@@ -217,15 +217,16 @@ void scan_pdfdest(PDF pdf)
     int k;
     str_number i;
     scaled_whd alt_rule;
+    scan_result val;
     q = cur_list.tail_field;
     new_whatsit(pdf_dest_node);
     if (scan_keyword("num")) {
-        scan_int();
-        if (cur_val <= 0)
+        scan_int(&val);
+        if (val.value.int_val <= 0)
             pdf_error("ext1", "num identifier must be positive");
-        if (cur_val > max_halfword)
+        if (val.value.int_val > max_halfword)
             pdf_error("ext1", "number too big");
-        set_pdf_dest_id(cur_list.tail_field, cur_val);
+        set_pdf_dest_id(cur_list.tail_field, val.value.int_val);
         set_pdf_dest_named_id(cur_list.tail_field, 0);
     } else if (scan_keyword("name")) {
         scan_pdf_ext_toks();
@@ -237,10 +238,10 @@ void scan_pdfdest(PDF pdf)
     if (scan_keyword("xyz")) {
         set_pdf_dest_type(cur_list.tail_field, pdf_dest_xyz);
         if (scan_keyword("zoom")) {
-            scan_int();
-            if (cur_val > max_halfword)
+            scan_int(&val);
+            if (val.value.int_val > max_halfword)
                 pdf_error("ext1", "number too big");
-            set_pdf_dest_xyz_zoom(cur_list.tail_field, cur_val);
+            set_pdf_dest_xyz_zoom(cur_list.tail_field, val.value.int_val);
         } else {
             set_pdf_dest_xyz_zoom(cur_list.tail_field, null);
         }

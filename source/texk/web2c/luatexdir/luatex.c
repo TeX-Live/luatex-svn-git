@@ -25,7 +25,7 @@ int luatex_svn = luatex_svn_revision;
 int luatex_version = 79;        /* \.{\\luatexversion}  */
 int luatex_revision = '0';      /* \.{\\luatexrevision}  */
 int luatex_date_info = -extra_version_info;     /* the compile date is negated */
-const char *luatex_version_string = "beta-0.79.0";
+const char *luatex_version_string = "beta-0.79.0-tokenlib";
 #ifdef LuajitTeX
 const char *engine_name = "luajittex";     /* the name of this engine */
 #else

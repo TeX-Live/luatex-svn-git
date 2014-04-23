@@ -390,6 +390,7 @@ void scan_pdfximage(PDF pdf)
     image_dict *idict;
     int transform = 0, page = 1, pagebox, colorspace = 0;
     char *named = NULL, *attr = NULL, *file_name = NULL;
+    scan_result val;
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
     if (scan_keyword("attr")) {
         scan_pdf_ext_toks();
@@ -402,12 +403,12 @@ void scan_pdfximage(PDF pdf)
         delete_token_ref(def_ref);
         page = 0;
     } else if (scan_keyword("page")) {
-        scan_int();
-        page = cur_val;
+        scan_int(&val);
+        page = val.value.int_val;
     }
     if (scan_keyword("colorspace")) {
-        scan_int();
-        colorspace = cur_val;
+        scan_int(&val);
+        colorspace = val.value.int_val;
     }
     pagebox = scan_pdf_box_spec();
     if (pagebox == PDF_BOX_SPEC_NONE) {
@@ -438,11 +439,12 @@ void scan_pdfrefximage(PDF pdf)
     int transform = 0;          /* one could scan transform as well */
     image_dict *idict;
     scaled_whd alt_rule, dim;
+    scan_result val;
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
-    scan_int();
-    check_obj_type(pdf, obj_type_ximage, cur_val);
+    scan_int(&val);
+    check_obj_type(pdf, obj_type_ximage, val.value.int_val);
     new_whatsit(pdf_refximage_node);
-    idict = idict_array[obj_data_ptr(pdf, cur_val)];
+    idict = idict_array[obj_data_ptr(pdf, val.value.int_val)];
     if (alt_rule.wd != null_flag || alt_rule.ht != null_flag
         || alt_rule.dp != null_flag)
         dim = scale_img(idict, alt_rule, transform);
@@ -841,22 +843,23 @@ scaled_whd scan_alt_rule(void)
 {
     boolean loop;
     scaled_whd alt_rule;
+    scan_result val;
     alt_rule.wd = null_flag;
     alt_rule.ht = null_flag;
     alt_rule.dp = null_flag;
     do {
         loop = false;
         if (scan_keyword("width")) {
-            scan_normal_dimen();
-            alt_rule.wd = cur_val;
+            scan_normal_dimen(&val);
+            alt_rule.wd = val.value.dimen_val;
             loop = true;
         } else if (scan_keyword("height")) {
-            scan_normal_dimen();
-            alt_rule.ht = cur_val;
+            scan_normal_dimen(&val);
+            alt_rule.ht = val.value.dimen_val;
             loop = true;
         } else if (scan_keyword("depth")) {
-            scan_normal_dimen();
-            alt_rule.dp = cur_val;
+            scan_normal_dimen(&val);
+            alt_rule.dp = val.value.dimen_val;
             loop = true;
         }
     } while (loop);

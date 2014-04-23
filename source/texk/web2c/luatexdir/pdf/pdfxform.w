@@ -72,6 +72,7 @@ void scan_pdfxform(PDF pdf)
 {
     int k;
     halfword p;
+    scan_result val;
     pdf->xform_count++;
     k = pdf_create_obj(pdf, obj_type_xform, pdf->xform_count);
     set_obj_data_ptr(pdf, k, pdf_get_mem(pdf, pdfmem_xform_size));
@@ -87,15 +88,15 @@ void scan_pdfxform(PDF pdf)
     } else {
         set_obj_xform_resources(pdf, k, null);
     }
-    scan_int();
-    p = box(cur_val);
+    scan_int(&val);
+    p = box(val.value.int_val);
     if (p == null)
         pdf_error("ext1", "\\pdfxform cannot be used with a void box");
     set_obj_xform_box(pdf, k, p);       /* save pointer to the box */
     set_obj_xform_width(pdf, k, width(p));
     set_obj_xform_height(pdf, k, height(p));
     set_obj_xform_depth(pdf, k, depth(p));
-    box(cur_val) = null;
+    box(val.value.int_val) = null;
     pdf_last_xform = k;
 }
 
@@ -106,13 +107,14 @@ void scan_pdfrefxform(PDF pdf)
 {
     int transform = 0;
     scaled_whd alt_rule, dim, nat;
+    scan_result val;
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
-    scan_int();
-    check_obj_type(pdf, obj_type_xform, cur_val);
+    scan_int(&val);
+    check_obj_type(pdf, obj_type_xform, val.value.int_val);
     new_whatsit(pdf_refxform_node);
-    nat.wd = obj_xform_width(pdf, cur_val);
-    nat.ht = obj_xform_height(pdf, cur_val);
-    nat.dp = obj_xform_depth(pdf, cur_val);
+    nat.wd = obj_xform_width(pdf, val.value.int_val);
+    nat.ht = obj_xform_height(pdf, val.value.int_val);
+    nat.dp = obj_xform_depth(pdf, val.value.int_val);
     if (alt_rule.wd != null_flag || alt_rule.ht != null_flag
         || alt_rule.dp != null_flag) {
         dim = tex_scale(nat, alt_rule);
@@ -123,5 +125,5 @@ void scan_pdfrefxform(PDF pdf)
     height(tail) = dim.ht;
     depth(tail) = dim.dp;
     pdf_xform_transform(tail) = transform;      /* not implemented yet */
-    pdf_xform_objnum(tail) = cur_val;
+    pdf_xform_objnum(tail) = val.value.int_val;
 }

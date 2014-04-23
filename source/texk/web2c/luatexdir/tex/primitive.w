@@ -275,15 +275,17 @@ void undump_primitives(void)
    is needed that does nothing except creating the control sequence name. 
 
 @c
-void primitive_def(const char *s, size_t l, quarterword c, halfword o)
+int primitive_def(const char *s, size_t l, quarterword c, halfword o)
 {
+    int v;
     int nncs = no_new_control_sequence;
     no_new_control_sequence = false;
-    cur_val = string_lookup(s, l);      /* this creates the |text()| string */
+    v = string_lookup(s, l);      /* this creates the |text()| string */
     no_new_control_sequence = nncs;
-    eq_level(cur_val) = level_one;
-    eq_type(cur_val) = c;
-    equiv(cur_val) = o;
+    eq_level(v) = level_one;
+    eq_type(v) = c;
+    equiv(v) = o;
+    return v;
 }
 
 @ The function |store_primitive_name| sets up the bookkeeping for the
@@ -330,22 +332,24 @@ store_primitive_name(str_number s, quarterword c, halfword o, halfword offset)
    that is used to group primitives by originator.
 
 @c
-void
+int
 primitive(const char *thes, quarterword c, halfword o, halfword off,
           int cmd_origin)
 {
+    int v = 0;
     int prim_val;               /* needed to fill |prim_eqtb| */
     str_number ss;
     assert(o >= off);
     ss = maketexstring(thes);
     if (cmd_origin == tex_command || cmd_origin == core_command) {
-        primitive_def(thes, strlen(thes), c, o);
+        v = primitive_def(thes, strlen(thes), c, o);
     }
     prim_val = prim_lookup(ss);
     prim_origin(prim_val) = (quarterword) cmd_origin;
     prim_eq_type(prim_val) = c;
     prim_equiv(prim_val) = o;
     store_primitive_name(ss, c, o, off);
+    return v;
 }
 
 
