@@ -211,7 +211,7 @@ void write_out_pdf_mark_destinations(PDF pdf)
 }
 
 @ @c
-void scan_pdfdest(PDF pdf)
+void scan_pdfdest(PDF pdf, int status)
 {
     halfword q;
     int k;
@@ -220,44 +220,44 @@ void scan_pdfdest(PDF pdf)
     scan_result val;
     q = cur_list.tail_field;
     new_whatsit(pdf_dest_node);
-    if (scan_keyword("num")) {
-        scan_int(&val);
+    if (scan_keyword("num", status)) {
+        scan_int(&val, status);
         if (val.value.int_val <= 0)
             pdf_error("ext1", "num identifier must be positive");
         if (val.value.int_val > max_halfword)
             pdf_error("ext1", "number too big");
         set_pdf_dest_id(cur_list.tail_field, val.value.int_val);
         set_pdf_dest_named_id(cur_list.tail_field, 0);
-    } else if (scan_keyword("name")) {
+    } else if (scan_keyword("name", status)) {
         scan_pdf_ext_toks();
         set_pdf_dest_id(cur_list.tail_field, def_ref);
         set_pdf_dest_named_id(cur_list.tail_field, 1);
     } else {
         pdf_error("ext1", "identifier type missing");
     }
-    if (scan_keyword("xyz")) {
+    if (scan_keyword("xyz", status)) {
         set_pdf_dest_type(cur_list.tail_field, pdf_dest_xyz);
-        if (scan_keyword("zoom")) {
-            scan_int(&val);
+        if (scan_keyword("zoom", status)) {
+            scan_int(&val, status);
             if (val.value.int_val > max_halfword)
                 pdf_error("ext1", "number too big");
             set_pdf_dest_xyz_zoom(cur_list.tail_field, val.value.int_val);
         } else {
             set_pdf_dest_xyz_zoom(cur_list.tail_field, null);
         }
-    } else if (scan_keyword("fitbh")) {
+    } else if (scan_keyword("fitbh", status)) {
         set_pdf_dest_type(cur_list.tail_field, pdf_dest_fitbh);
-    } else if (scan_keyword("fitbv")) {
+    } else if (scan_keyword("fitbv", status)) {
         set_pdf_dest_type(cur_list.tail_field, pdf_dest_fitbv);
-    } else if (scan_keyword("fitb")) {
+    } else if (scan_keyword("fitb", status)) {
         set_pdf_dest_type(cur_list.tail_field, pdf_dest_fitb);
-    } else if (scan_keyword("fith")) {
+    } else if (scan_keyword("fith", status)) {
         set_pdf_dest_type(cur_list.tail_field, pdf_dest_fith);
-    } else if (scan_keyword("fitv")) {
+    } else if (scan_keyword("fitv", status)) {
         set_pdf_dest_type(cur_list.tail_field, pdf_dest_fitv);
-    } else if (scan_keyword("fitr")) {
+    } else if (scan_keyword("fitr", status)) {
         set_pdf_dest_type(cur_list.tail_field, pdf_dest_fitr);
-    } else if (scan_keyword("fit")) {
+    } else if (scan_keyword("fit", status)) {
         set_pdf_dest_type(cur_list.tail_field, pdf_dest_fit);
     } else {
         pdf_error("ext1", "destination type missing");
@@ -268,7 +268,7 @@ void scan_pdfdest(PDF pdf)
         back_input();
 
     if (pdf_dest_type(cur_list.tail_field) == pdf_dest_fitr) {
-        alt_rule = scan_alt_rule();     /* scans |<rule spec>| to |alt_rule| */
+        alt_rule = scan_alt_rule(status);     /* scans |<rule spec>| to |alt_rule| */
         set_width(cur_list.tail_field, alt_rule.wd);
         set_height(cur_list.tail_field, alt_rule.ht);
         set_depth(cur_list.tail_field, alt_rule.dp);

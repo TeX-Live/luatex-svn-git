@@ -57,7 +57,7 @@ extern void warn_dest_dup(int id, small_number byname, const char *s1,
                           const char *s2);
 
 extern void write_out_pdf_mark_destinations(PDF);
-extern void scan_pdfdest(PDF);
+extern void scan_pdfdest(PDF, int);
 extern void init_dest_names(PDF);
 extern void sort_dest_names(PDF);
 extern int output_name_tree(PDF);

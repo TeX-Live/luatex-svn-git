@@ -78,7 +78,7 @@ static char *scaled_to_string(scaled s)
 }
 
 @ @c
-void tex_def_font(small_number a)
+void tex_def_font(small_number a, int status)
 {
     pointer u;                  /* user's font identifier */
     internal_font_number f;     /* runs through existing fonts */
@@ -144,9 +144,9 @@ void tex_def_font(small_number a)
     }
     /* Scan the font size specification; */
     name_in_progress = true;    /* this keeps |cur_name| from being changed */
-    if (scan_keyword("at")) {
+    if (scan_keyword("at", status)) {
         /* Put the positive `at' size into |s| */
-        scan_normal_dimen(&val);
+        scan_normal_dimen(&val, status);
         s = val.value.dimen_val;
         if ((s <= 0) || (s >= 01000000000)) {
             char err[256];
@@ -160,8 +160,8 @@ void tex_def_font(small_number a)
             tex_error(err, errhelp);
             s = 10 * unity;
         }
-    } else if (scan_keyword("scaled")) {
-        scan_int(&val);
+    } else if (scan_keyword("scaled", status)) {
+        scan_int(&val, status);
         s = -val.value.int_val;
         if ((val.value.int_val <= 0) || (val.value.int_val > 32768)) {
             char err[256];
@@ -176,8 +176,8 @@ void tex_def_font(small_number a)
             s = -1000;
         }
     }
-    if (scan_keyword("naturaldir")) {
-        scan_direction(&val);
+    if (scan_keyword("naturaldir", status)) {
+        scan_direction(&val, status);
         natural_dir = val.value.int_val;
     }
     name_in_progress = false;

@@ -145,20 +145,20 @@ void append_link(PDF pdf, halfword parent_box, scaledpos cur, small_number i)
 }
 
 @ @c
-void scan_startlink(PDF pdf)
+void scan_startlink(PDF pdf, int status)
 {
     int k;
     halfword r;
     if (abs(cur_list.mode_field) == vmode)
         pdf_error("ext1", "\\pdfstartlink cannot be used in vertical mode");
     k = pdf_create_obj(pdf, obj_type_others, 0);
-    new_annot_whatsit(pdf_start_link_node);
+    new_annot_whatsit(pdf_start_link_node, status);
     set_pdf_link_attr(cur_list.tail_field, null);
-    if (scan_keyword("attr")) {
+    if (scan_keyword("attr", status)) {
         scan_pdf_ext_toks();
         set_pdf_link_attr(cur_list.tail_field, def_ref);
     }
-    r = scan_action(pdf);
+    r = scan_action(pdf, status);
     set_pdf_link_action(cur_list.tail_field, r);
     set_pdf_link_objnum(cur_list.tail_field, k);
     pdf_last_link = k;

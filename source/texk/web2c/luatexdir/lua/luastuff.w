@@ -452,7 +452,7 @@ void late_lua(PDF pdf, halfword p)
 {
     (void) pdf;
     if (late_lua_type(p)==normal) {
-        expand_macros_in_tokenlist(p);      /* sets |def_ref| */
+        expand_macros_in_tokenlist(p, normal);      /* sets |def_ref| */
         luacall(def_ref, late_lua_name(p), false);
         flush_list(def_ref);
     } else {

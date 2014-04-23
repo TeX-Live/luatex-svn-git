@@ -96,20 +96,20 @@ static int outline_list_count(PDF pdf, pointer p)
 }
 
 @ @c
-void scan_pdfoutline(PDF pdf)
+void scan_pdfoutline(PDF pdf, int status)
 {
     halfword p, q, r;
     int i, j, k, l;
     scan_result val;
-    if (scan_keyword("attr")) {
+    if (scan_keyword("attr", status)) {
         scan_pdf_ext_toks();
         r = def_ref;
     } else {
         r = 0;
     }
-    p = scan_action(pdf);
-    if (scan_keyword("count")) {
-        scan_int(&val);
+    p = scan_action(pdf, status);
+    if (scan_keyword("count", status)) {
+        scan_int(&val, status);
         i = val.value.int_val;
     } else {
         i = 0;

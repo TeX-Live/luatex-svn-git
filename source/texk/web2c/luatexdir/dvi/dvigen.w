@@ -1124,18 +1124,18 @@ single page, the stack would overflow.
 /* TODO: keep track of this value */
 #define end_write_token cs_token_flag+end_write
 
-void expand_macros_in_tokenlist(halfword p)
+void expand_macros_in_tokenlist(halfword p, int status)
 {
     int old_mode;               /* saved |mode| */
     pointer q, r;               /* temporary variables for list manipulation */
-    q = get_avail();
+    q = get_avail(status);
     token_info(q) = right_brace_token + '}';
-    r = get_avail();
+    r = get_avail(status);
     token_link(q) = r;
     token_info(r) = end_write_token;
     begin_token_list(q, inserted);
     begin_token_list(write_tokens(p), write_text);
-    q = get_avail();
+    q = get_avail(status);
     token_info(q) = left_brace_token + '{';
     begin_token_list(q, inserted);
     /* now we're ready to scan
@@ -1145,7 +1145,7 @@ void expand_macros_in_tokenlist(halfword p)
     /* disable \.{\\prevdepth}, \.{\\spacefactor}, \.{\\lastskip}, \.{\\prevgraf} */
     cur_cs = write_loc;
     q = scan_toks(false, true); /* expand macros, etc. */
-    get_token();
+    get_token(status);
     if (cur_tok != end_write_token) {
         /* Recover from an unbalanced write command */
         const char *hlp[] = {
@@ -1154,7 +1154,7 @@ void expand_macros_in_tokenlist(halfword p)
         };
         tex_error("Unbalanced write command", hlp);
         do {
-            get_token();
+            get_token(status);
         } while (cur_tok != end_write_token);
     }
     mode = old_mode;
@@ -1170,7 +1170,7 @@ void write_out(halfword p)
     char *s, *ss;               /* line to be written, as a C string */
     int callback_id;
     int lua_retval;
-    expand_macros_in_tokenlist(p);
+    expand_macros_in_tokenlist(p, normal);
     old_setting = selector;
     j = write_stream(p);
     if (j == 18) {

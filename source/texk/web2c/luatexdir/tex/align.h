@@ -42,14 +42,14 @@ as its command code.
 #  define cr_cr_code (cr_code+1)        /* this distinguishes \.{\\crcr} from \.{\\cr} */
 
 
-extern void init_align(void);
+extern void init_align(int status);
 extern void initialize_alignments(void);
 
 extern boolean fin_col(void);
 extern void fin_row(void);
 
 extern void align_peek(void);
-extern void insert_vj_template(void);
+extern void insert_vj_template(int status);
 
 
 #endif

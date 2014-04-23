@@ -863,10 +863,10 @@ void enter_display_math(void);
 called for.
 
 @c
-void init_math(void)
+void init_math(int status)
 {
     if (cur_cmd == math_shift_cmd) {
-        get_token();            /* |get_x_token| would fail on \.{\\ifmmode}\thinspace! */
+        get_token(status);            /* |get_x_token| would fail on \.{\\ifmmode}\thinspace! */
         if ((cur_cmd == math_shift_cmd) && (mode > 0)) {
             enter_display_math();
         } else {
@@ -1048,7 +1048,7 @@ static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
     mcls = 0;
     if (extcode == tex_mathcode) {      /* \.{\\delcode}, this is the easiest */
         int cur_val;
-        scan_int(&val);
+        scan_int(&val, scanner_status);
         cur_val = val.value.int_val;
         /*  "MFCCFCC or "FCCFCC */
         if (doclass) {
@@ -1066,12 +1066,12 @@ static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
     } else if (extcode == xetex_mathcode) {     /* \.{\\Udelcode} */
         /* <0-7>,<0-0xFF>,<0-0x10FFFF>  or <0-0xFF>,<0-0x10FFFF> */
         if (doclass) {
-            scan_int(&val);
+            scan_int(&val, scanner_status);
             mcls = val.value.int_val;
         }
-        scan_int(&val);
+        scan_int(&val, scanner_status);
         msfam = val.value.int_val;
-        scan_char_num(&val);
+        scan_char_num(&val, scanner_status);
         mschr = val.value.int_val;
         if (msfam < 0 || msfam > 255) {
             tex_error("Invalid delimiter code", hlp);
@@ -1088,7 +1088,7 @@ static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
         if (doclass) {          /* such a primitive doesn't exist */
             confusion("xetexnum_mathcode");
         }
-        scan_int(&val);
+        scan_int(&val, scanner_status);
         msfam = (val.value.int_val / 0x200000);
         mschr = val.value.int_val & 0x1FFFFF;
         if (msfam < 0 || msfam > 255 || mschr > 0x10FFFF) {
@@ -1117,7 +1117,7 @@ void scan_extdef_del_code(int level, int extcode)
     delcodeval d;
     int p;
     scan_result val;
-    scan_char_num(&val);
+    scan_char_num(&val, scanner_status);
     p = val.value.int_val;
     scan_optional_equals();
     d = do_scan_extdef_del_code(extcode, false);
@@ -1139,7 +1139,7 @@ mathcodeval scan_mathchar(int extcode)
     int mcls = 0, mfam = 0, mchr = 0;
     if (extcode == tex_mathcode) {      /* \.{\\mathcode} */
         /* "TFCC */
-        scan_int(&val);
+        scan_int(&val, scanner_status);
         if (val.value.int_val > 0x8000) {
             tex_error("Invalid math code", hlp);
             val.value.int_val = 0;
@@ -1154,11 +1154,11 @@ mathcodeval scan_mathchar(int extcode)
         mchr = (val.value.int_val % 0x100);
     } else if (extcode == xetex_mathcode) {
         /* <0-0x7> <0-0xFF> <0-0x10FFFF> */
-        scan_int(&val);
+        scan_int(&val, scanner_status);
         mcls = val.value.int_val;
-        scan_int(&val);
+        scan_int(&val, scanner_status);
         mfam = val.value.int_val;
-        scan_char_num(&val);
+        scan_char_num(&val, scanner_status);
         mchr = val.value.int_val;
         if (mcls < 0 || mcls > 7 || mfam > 255) {
             tex_error("Invalid math code", hlp);
@@ -1172,7 +1172,7 @@ mathcodeval scan_mathchar(int extcode)
            the top of bit 21 can't be used as it contains invalid USV's
          */
         /* Note: |scan_int| won't accept families 128-255 because these use bit 32 */
-        scan_int(&val);
+        scan_int(&val, scanner_status);
         mfam = (val.value.int_val / 0x200000) & 0x7FF;
         mcls = mfam % 0x08;
         mfam = mfam / 0x08;
@@ -1200,7 +1200,7 @@ void scan_extdef_math_code(int level, int extcode)
     mathcodeval d;
     int p;
     scan_result val;
-    scan_char_num(&val);
+    scan_char_num(&val, scanner_status);
     p = val.value.int_val;
     scan_optional_equals();
     d = scan_mathchar(extcode);
@@ -1274,13 +1274,13 @@ int scan_math(pointer p, int mstyle)
             cur_cs = active_to_cs(cur_chr, true, true);
             cur_cmd = eq_type(cur_cs);
             cur_chr = equiv(cur_cs);
-            x_token();
+            x_token(scanner_status);
             back_input();
             goto RESTART;
         }
         break;
     case char_num_cmd:
-        scan_char_num(&val);
+        scan_char_num(&val, scanner_status);
         cur_chr = val.value.int_val;
         cur_cmd = char_given_cmd;
         goto RESWITCH;
@@ -1344,7 +1344,7 @@ void set_math_char(mathcodeval mval)
         cur_cs = active_to_cs(cur_chr, true, true);
         cur_cmd = eq_type(cur_cs);
         cur_chr = equiv(cur_cs);
-        x_token();
+        x_token(scanner_status);
         back_input();
     } else {
         pointer q;
@@ -1391,7 +1391,7 @@ void math_char_in_text(mathcodeval mval)
         cur_cs = active_to_cs(cur_chr, true, true);
         cur_cmd = eq_type(cur_cs);
         cur_chr = equiv(cur_cs);
-        x_token();
+        x_token(scanner_status);
         back_input();
     } else {
         p = new_char(fam_fnt(mval.family_value, text_size),
@@ -1540,7 +1540,7 @@ void math_radical(void)
 }
 
 @ @c
-void math_ac(void)
+void math_ac(int status)
 {
     halfword q;
     mathcodeval t = { 0, 0, 0, 0 }, b = {
@@ -1557,20 +1557,20 @@ void math_ac(void)
     if (cur_chr == 0) {         /* \.{\\mathaccent} */
         t = scan_mathchar(tex_mathcode);
     } else if (cur_chr == 1) {  /* \.{\\Umathaccent} */
-	if (scan_keyword("fixed")) {
+	if (scan_keyword("fixed", status)) {
            subtype(tail) = 1;
 	   t = scan_mathchar(xetex_mathcode);
-	} else if (scan_keyword("both")) {
-  	   if (scan_keyword("fixed")) {
+	} else if (scan_keyword("both", status)) {
+  	   if (scan_keyword("fixed", status)) {
              subtype(tail) = 1;
            }
 	   t = scan_mathchar(xetex_mathcode);
-  	   if (scan_keyword("fixed")) {
+  	   if (scan_keyword("fixed", status)) {
              subtype(tail) += 2;
            }
 	   b = scan_mathchar(xetex_mathcode);
-	} else if (scan_keyword("bottom")) {
-  	   if (scan_keyword("fixed")) {
+	} else if (scan_keyword("bottom", status)) {
+  	   if (scan_keyword("fixed", status)) {
              subtype(tail) = 2;
            }
 	   b = scan_mathchar(xetex_mathcode);
@@ -1711,7 +1711,7 @@ whole formula, unless it is surrounded by `\.{\\left}' and `\.{\\right}'
 delimiters. 
 
 @c
-void math_fraction(void)
+void math_fraction(int status)
 {
     halfword c;                 /* the type of generalized fraction we are scanning */
     pointer q;
@@ -1729,7 +1729,7 @@ void math_fraction(void)
             scan_delimiter(null, no_mathcode);
         }
         if ((c % delimited_code) == above_code)
-            scan_normal_dimen(&val);
+            scan_normal_dimen(&val, status);
         tex_error("Ambiguous; you need another { and }", hlp);
     } else {
         incompleat_noad = new_node(fraction_noad, 0);
@@ -1749,7 +1749,7 @@ void math_fraction(void)
         }
         switch (c % delimited_code) {
         case above_code:
-            scan_normal_dimen(&val);
+            scan_normal_dimen(&val, status);
             thickness(incompleat_noad) = val.value.dimen_val;
             break;
         case over_code:

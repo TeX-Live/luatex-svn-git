@@ -280,7 +280,7 @@ void print_save_stack(void)
         case insert_token:
             tprint(", ");
             {
-                halfword p = get_avail();
+                halfword p = get_avail(normal);
                 set_token_info(p, save_value(i));
                 show_token_list(p, null, 1);
                 free_avail(p);

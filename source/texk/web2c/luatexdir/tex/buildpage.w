@@ -1008,7 +1008,7 @@ void fire_up(halfword c)
 in internal vertical mode, and \TeX\ will do the following:
 
 @c
-void resume_after_output(void)
+void resume_after_output(int status)
 {
     if ((iloc != null)
         || ((token_type != output_text) && (token_type != backed_up))) {
@@ -1018,7 +1018,7 @@ void resume_after_output(void)
               "I can't handle that very well; good luck.");
         error();
         do {
-            get_token();
+            get_token(status);
         } while (iloc != null);
         /* loops forever if reading from a file, since |null=min_halfword<=0| */
 

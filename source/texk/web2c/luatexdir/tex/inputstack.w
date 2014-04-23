@@ -50,15 +50,15 @@ pointer def_ref = null;         /* reference count of token list being defined *
 
 
 
-@ Here is a procedure that uses |scanner_status| to print a warning message
+@ Here is a procedure that uses |status| to print a warning message
 when a subfile has ended, and at certain other crucial times:
 
 @c
-void runaway(void)
+void runaway(int status)
 {
     pointer p = null;           /* head of runaway list */
-    if (scanner_status > skipping) {
-        switch (scanner_status) {
+    if (status > skipping) {
+        switch (status) {
         case defining:
             tprint_nl("Runaway definition");
             p = def_ref;
@@ -476,7 +476,7 @@ void back_input(void)
     while ((istate == token_list) && (iloc == null)
            && (token_type != v_template))
         end_token_list();       /* conserve stack space */
-    p = get_avail();
+    p = get_avail(scanner_status);
     set_token_info(p, cur_tok);
     if (cur_tok < right_brace_limit) {
         if (cur_tok < left_brace_limit)
@@ -500,7 +500,7 @@ int reinsert_token(boolean a, halfword pp)
     cur_tok = pp;
     if (a) {
         halfword p;
-        p = get_avail();
+        p = get_avail(scanner_status);
         set_token_info(p, cur_tok);
         set_token_link(p, iloc);
         iloc = p;

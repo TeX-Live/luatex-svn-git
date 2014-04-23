@@ -173,7 +173,7 @@ this is essentially the depth of |push| commands in the \.{DVI} output.
 
 extern scaledpos dvi;
 
-extern void expand_macros_in_tokenlist(halfword p);
+extern void expand_macros_in_tokenlist(halfword p, int status);
 extern void write_out(halfword p);
 extern void dvi_special(PDF pdf, halfword p);
 

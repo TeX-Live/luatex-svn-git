@@ -237,7 +237,7 @@ void error(void)
                     else
                         c = c - '0';
                     while (c > 0) {
-                        get_token();    /* one-level recursive call of |error| is possible */
+                        get_token(normal);    /* one-level recursive call of |error| is possible */
                         decr(c);
                     }
                     cur_tok = s1;

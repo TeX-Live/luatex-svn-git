@@ -35,11 +35,11 @@ extern void set_expand_params(internal_font_number f, boolean auto_expand,
                               int stretch_limit, int shrink_limit,
                               int font_step);
 
-extern void read_expand_font(void);
-extern void new_letterspaced_font(small_number a);
-extern void make_font_copy(small_number a);
+extern void read_expand_font(int status);
+extern void new_letterspaced_font(small_number a, int status);
+extern void make_font_copy(small_number a, int status);
 
-extern void pdf_include_chars(PDF);
+extern void pdf_include_chars(PDF pdf, int status);
 extern void glyph_to_unicode(void);
 
 extern int fix_expand_value(internal_font_number f, int e);

@@ -76,16 +76,16 @@ $$\vbox{\halign{#\hfil\cr
 |hpack(p,saved_value(0),saved_level(0)).|\cr}}$$
 
 @c
-void scan_spec(group_code c)
+void scan_spec(group_code c, int status)
 {                               /* scans a box specification and left brace */
     int spec_code;
     scan_result val;
-    if (scan_keyword("to")) {
+    if (scan_keyword("to", status)) {
         spec_code = exactly;
-        scan_normal_dimen(&val);
-    } else if (scan_keyword("spread")) {
+        scan_normal_dimen(&val, status);
+    } else if (scan_keyword("spread", status)) {
         spec_code = additional;
-        scan_normal_dimen(&val);
+        scan_normal_dimen(&val, status);
     } else {
         spec_code = additional;
         val.value.dimen_val = 0;
@@ -107,7 +107,7 @@ input stream (the others are \.{\\vcenter}, \.{\\valign}, and
 \.{\\halign}).
 
 @c
-void scan_full_spec(group_code c, int spec_direction)
+void scan_full_spec(group_code c, int spec_direction, int status)
 {                               /* scans a box specification and left brace */
     int s;                      /* temporarily saved value */
     int i;
@@ -126,11 +126,11 @@ void scan_full_spec(group_code c, int spec_direction)
         if (cur_cmd != relax_cmd && cur_cmd != spacer_cmd)
             back_input();
     }
-    if (scan_keyword("attr")) {
-        scan_register_num(&val);
+    if (scan_keyword("attr", status)) {
+        scan_register_num(&val, status);
         i = val.value.int_val;
         scan_optional_equals();
-        scan_int(&val);
+        scan_int(&val, status);
         v = val.value.int_val;
         if ((attr_list != null) && (attr_list == attr_list_cache)) {
             attr_list = copy_attribute_list(attr_list_cache);
@@ -139,20 +139,20 @@ void scan_full_spec(group_code c, int spec_direction)
         attr_list = do_set_attribute(attr_list, i, v);
         goto CONTINUE;
     }
-    if (scan_keyword("dir")) {
-        scan_direction(&val);
+    if (scan_keyword("dir", status)) {
+        scan_direction(&val, status);
         spec_direction = val.value.int_val;
         goto CONTINUE;
     }
     if (attr_list == attr_list_cache) {
         add_node_attr_ref(attr_list);
     }
-    if (scan_keyword("to")) {
+    if (scan_keyword("to", status)) {
         spec_code = exactly;
-        scan_normal_dimen(&val);
-    } else if (scan_keyword("spread")) {
+        scan_normal_dimen(&val, status);
+    } else if (scan_keyword("spread", status)) {
         spec_code = additional;
-        scan_normal_dimen(&val);
+        scan_normal_dimen(&val, status);
     } else {
         spec_code = additional;
         val.value.dimen_val = 0;
@@ -1655,7 +1655,7 @@ the first steps in their creation. The |begin_box| routine is called when
 box desired, and |cur_cmd=make_box|.
 
 @c
-void begin_box(int box_context)
+void begin_box(int box_context, int status)
 {
     halfword q;                 /* run through the current list */
     halfword k;                 /* 0 or |vmode| or |hmode| */
@@ -1664,12 +1664,12 @@ void begin_box(int box_context)
     scan_result val;
     switch (cur_chr) {
     case box_code:
-        scan_register_num(&val);
+        scan_register_num(&val, status);
         cur_box = box(val.value.int_val);
         box(val.value.int_val) = null;    /* the box becomes void, at the same level */
         break;
     case copy_code:
-        scan_register_num(&val);
+        scan_register_num(&val, status);
         cur_box = copy_node_list(box(val.value.int_val));
         break;
     case last_box_code:
@@ -1709,15 +1709,15 @@ void begin_box(int box_context)
     case vsplit_code:
         /* Split off part of a vertical box, make |cur_box| point to it */
         /* Here we deal with things like `\.{\\vsplit 13 to 100pt}'. */
-        scan_register_num(&val);
+        scan_register_num(&val, status);
         n = val.value.int_val;
-        if (!scan_keyword("to")) {
+        if (!scan_keyword("to", status)) {
             print_err("Missing `to' inserted");
             help2("I'm working on `\\vsplit<box number> to <dimen>';",
                   "will look for the <dimen> next.");
             error();
         }
-        scan_normal_dimen(&val);
+        scan_normal_dimen(&val, status);
         cur_box = vsplit(n, val.value.dimen_val);
         break;
     default:
@@ -1739,14 +1739,14 @@ void begin_box(int box_context)
         }
         if (k == hmode) {
             if ((box_context < box_flag) && (abs(cur_list.mode_field) == vmode))
-                scan_full_spec(adjusted_hbox_group, spec_direction);
+                scan_full_spec(adjusted_hbox_group, spec_direction, status);
             else
-                scan_full_spec(hbox_group, spec_direction);
+                scan_full_spec(hbox_group, spec_direction, status);
         } else {
             if (k == vmode) {
-                scan_full_spec(vbox_group, spec_direction);
+                scan_full_spec(vbox_group, spec_direction, status);
             } else {
-                scan_full_spec(vtop_group, spec_direction);
+                scan_full_spec(vtop_group, spec_direction, status);
                 k = vmode;
             }
             normal_paragraph();

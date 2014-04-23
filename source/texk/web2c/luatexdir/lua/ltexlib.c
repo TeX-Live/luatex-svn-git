@@ -872,7 +872,7 @@ static int vsettoks(lua_State * L, int is_global)
     str.s = (unsigned char *)s;
     k = get_item_index(L, (i - 1), toks_base);
     check_index_range(k, "settoks");
-    err = set_tex_toks_register(k, str);
+    err = set_tex_toks_register(k, str, normal);
     xfree(str.s);
     int_par(global_defs_code) = save_global_defs;
     if (err) {
@@ -1267,7 +1267,7 @@ static int settex(lua_State * L)
                     }
             } else if (is_toks_assign(cur_cmd1)) {
                 if (lua_isstring(L, i)) {
-                    j = tokenlist_from_lua(L);  /* uses stack -1 */
+		  j = tokenlist_from_lua(L);  /* uses stack -1 */
                     assign_internal_value((isglobal ? 4 : 0), equiv(cur_cs1), j);
 
                 } else {

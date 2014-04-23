@@ -284,16 +284,16 @@ token survives in the preamble and the `\.{\\tabskip}' defines new
 tabskip glue (locally).
 
 @c
-static void get_preamble_token(void)
+static void get_preamble_token(int status)
 {
    scan_result val;
   RESTART:
-    get_token();
+    get_token(status);
     while ((cur_chr == span_code) && (cur_cmd == tab_mark_cmd)) {
-        get_token();            /* this token will be expanded once */
+        get_token(status);            /* this token will be expanded once */
         if (cur_cmd > max_command_cmd) {
-            expand();
-            get_token();
+            expand(status);
+            get_token(status);
         }
     }
     if (cur_cmd == endv_cmd)
@@ -301,7 +301,7 @@ static void get_preamble_token(void)
     if ((cur_cmd == assign_glue_cmd)
         && (cur_chr == glue_base + tab_skip_code)) {
         scan_optional_equals();
-        scan_glue(&val, glue_val_level);
+        scan_glue(&val, glue_val_level, status);
         if (int_par(global_defs_code) > 0)
             geq_define(glue_base + tab_skip_code, glue_ref_cmd, val.value.glu_val);
         else
@@ -319,7 +319,7 @@ information into the preamble list.
 @^preamble@>
 
 @c
-void init_align(void)
+void init_align(int status)
 {
     /* label done, done1, done2, continue; */
     pointer save_cs_ptr;        /* |warning_index| value for error messages */
@@ -354,12 +354,12 @@ void init_align(void)
     } else if (cur_list.mode_field > 0) {
         cur_list.mode_field = -(cur_list.mode_field);
     }
-    scan_spec(align_group);
+    scan_spec(align_group, status);
     /* Scan the preamble */
     preamble = null;
     cur_align = align_head;
     cur_loop = null;
-    scanner_status = aligning;
+    status = aligning;// redefinition!
     warning_index = save_cs_ptr;
     align_state = -1000000;
     /* at this point, |cur_cmd=left_brace| */
@@ -379,7 +379,7 @@ void init_align(void)
         p = hold_token_head;
         token_link(p) = null;
         while (1) {
-            get_preamble_token();
+            get_preamble_token(status);
             if (cur_cmd == mac_param_cmd)
                 break;
             if ((cur_cmd <= car_ret_cmd) && (cur_cmd >= tab_mark_cmd)
@@ -399,7 +399,7 @@ void init_align(void)
                     break;
                 }
             } else if ((cur_cmd != spacer_cmd) || (p != hold_token_head)) {
-                r = get_avail();
+                r = get_avail(status);
                 token_link(p) = r;
                 p = token_link(p);
                 token_info(p) = cur_tok;
@@ -417,7 +417,7 @@ void init_align(void)
         token_link(p) = null;
         while (1) {
           CONTINUE:
-            get_preamble_token();
+            get_preamble_token(status);
             if ((cur_cmd <= car_ret_cmd) && (cur_cmd >= tab_mark_cmd)
                 && (align_state == -1000000))
                 break;
@@ -431,12 +431,12 @@ void init_align(void)
                 tex_error("Only one # is allowed per tab", hlp);
                 goto CONTINUE;
             }
-            r = get_avail();
+            r = get_avail(status);
             token_link(p) = r;
             p = token_link(p);
             token_info(p) = cur_tok;
         }
-        r = get_avail();
+        r = get_avail(status);
         token_link(p) = r;
         p = token_link(p);
         token_info(p) = end_template_token;     /* put \.{\\endtemplate} at the end */
@@ -468,7 +468,7 @@ void align_peek(void)
   RESTART:
     align_state = 1000000;
     do {
-        get_x_or_protected();
+        get_x_or_protected(scanner_status);
     } while (cur_cmd == spacer_cmd);
     if (cur_cmd == no_align_cmd) {
         scan_left_brace();
@@ -558,9 +558,9 @@ This part of the program had better not be activated when the preamble
 to another alignment is being scanned, or when no alignment preamble is active.
 
 @c
-void insert_vj_template(void)
+void insert_vj_template(int status)
 {
-    if ((scanner_status == aligning) || (cur_align == null))
+    if ((status == aligning) || (cur_align == null))
         fatal_error("(interwoven alignment preambles are not allowed)");
     cur_cmd = extra_info(cur_align);
     extra_info(cur_align) = cur_chr;
@@ -630,7 +630,7 @@ boolean fin_col(void)
             q = hold_token_head;
             r = u_part(cur_loop);
             while (r != null) {
-                s = get_avail();
+                s = get_avail(scanner_status);
                 token_link(q) = s;
                 q = token_link(q);
                 token_info(q) = token_info(r);
@@ -641,7 +641,7 @@ boolean fin_col(void)
             q = hold_token_head;
             r = v_part(cur_loop);
             while (r != null) {
-                s = get_avail();
+                s = get_avail(scanner_status);
                 token_link(q) = s;
                 q = token_link(q);
                 token_info(q) = token_info(r);
@@ -730,7 +730,7 @@ boolean fin_col(void)
     }
     align_state = 1000000;
     do {
-        get_x_or_protected();
+        get_x_or_protected(scanner_status);
     } while (cur_cmd == spacer_cmd);
     cur_align = p;
     init_col();

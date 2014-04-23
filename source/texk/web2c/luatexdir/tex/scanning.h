@@ -52,22 +52,22 @@ extern void scan_left_brace(void);
 extern void scan_optional_equals(void);
 
 extern scan_result *scan_something_simple(halfword cmd, halfword subitem);
-extern void scan_something_internal(scan_result*val, int level, boolean negative);
+extern void scan_something_internal(scan_result*val, int level, boolean negative, int status);
 
 
-extern void scan_limited_int(scan_result *val, int max, const char *name);
+extern void scan_limited_int(scan_result *val, int max, const char *name, int status);
 
-#  define scan_register_num(v) scan_limited_int(v,65535,"register code")
-#  define scan_mark_num(v) scan_limited_int(v,65535,"marks code")
-#  define scan_char_num(v) scan_limited_int(v,biggest_char,"character code")
-#  define scan_four_bit_int(v) scan_limited_int(v,15,NULL)
-#  define scan_math_family_int(v) scan_limited_int(v,255,"math family")
-#  define scan_real_fifteen_bit_int(v) scan_limited_int(v,32767,"mathchar")
-#  define scan_big_fifteen_bit_int(v) scan_limited_int(v,0x7FFFFFF,"extended mathchar")
-#  define scan_twenty_seven_bit_int(v) scan_limited_int(v,0777777777,"delimiter code")
+#  define scan_register_num(v,x) scan_limited_int(v,65535,"register code",x)
+#  define scan_mark_num(v,x) scan_limited_int(v,65535,"marks code",x)
+#  define scan_char_num(v,x) scan_limited_int(v,biggest_char,"character code",x)
+#  define scan_four_bit_int(v,x) scan_limited_int(v,15,NULL,x)
+#  define scan_math_family_int(v,x) scan_limited_int(v,255,"math family",x)
+#  define scan_real_fifteen_bit_int(v,x) scan_limited_int(v,32767,"mathchar",x)
+#  define scan_big_fifteen_bit_int(v,x) scan_limited_int(v,0x7FFFFFF,"extended mathchar",x)
+#  define scan_twenty_seven_bit_int(v,x) scan_limited_int(v,0777777777,"delimiter code",x)
 
-extern void scan_fifteen_bit_int(scan_result *val);
-extern void scan_four_bit_int_or_18(scan_result *val);
+extern void scan_fifteen_bit_int(scan_result *val, int status);
+extern void scan_four_bit_int_or_18(scan_result *val, int status);
 
 #  define octal_token (other_token+'\'')        /* apostrophe, indicates an octal constant */
 #  define hex_token (other_token+'"')   /* double quote, indicates a hex constant */
@@ -79,35 +79,35 @@ extern void scan_four_bit_int_or_18(scan_result *val);
 #  define A_token (letter_token+'A')    /* the smallest special hex digit */
 #  define other_A_token (other_token+'A') /* special hex digit of type |other_char| */
 
-extern void scan_int(scan_result *val);
+extern void scan_int(scan_result *val, int status);
 
-#  define scan_normal_dimen(v) scan_dimen(v,false,false,false)
+#  define scan_normal_dimen(v,x) scan_dimen(v,false,false,false,x)
 
-extern void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut);
-extern void scan_glue(scan_result *val, int level);
+extern void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int status);
+extern void scan_glue(scan_result *val, int level, int status);
 
-extern halfword the_toks(void);
+extern halfword the_toks(int status);
 extern str_number the_scanned_result(scan_result *val);
-extern void set_font_dimen(void);
-extern void get_font_dimen(scan_result *val);
+extern void set_font_dimen(int status);
+extern void get_font_dimen(scan_result *val, int status);
 
 #  define default_rule 26214    /* 0.4\thinspace pt */
 
-extern halfword scan_rule_spec(void);
+extern halfword scan_rule_spec(int status);
 
-extern void scan_font_ident(scan_result *val);
+extern void scan_font_ident(scan_result *val, int status);
 extern void scan_general_text(scan_result *val);
-extern void get_x_or_protected(void);
+extern void get_x_or_protected(int status);
 extern halfword scan_toks(boolean macrodef, boolean xpand);
 
 
-extern void scan_normal_glue(scan_result *val);
-extern void scan_mu_glue(scan_result *val);
+extern void scan_normal_glue(scan_result *val, int status);
+extern void scan_mu_glue(scan_result *val, int status);
 
 extern int add_or_sub(int x, int y, int max_answer, boolean negative);
 extern int quotient(int n, int d);
 extern int fract(int x, int n, int d, int max_answer);
-extern void scan_expr(scan_result *val, int level);
+extern void scan_expr(scan_result *val, int level, int status);
 
 
 

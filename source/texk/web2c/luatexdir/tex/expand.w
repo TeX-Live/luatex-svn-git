@@ -62,7 +62,7 @@ recursive calls don't invalidate them.
 boolean is_in_csname = false;
 
 @ @c
-void expand(void)
+void expand(int status)
 {
     halfword t;                 /* token that is being ``expanded after'' */
     halfword p;                 /* for list manipulation */
@@ -84,7 +84,7 @@ void expand(void)
             /* Insert the appropriate mark text into the scanner */
             t = cur_chr % marks_code;
             if (cur_chr >= marks_code)
-                scan_mark_num(&val);
+                scan_mark_num(&val, status);
             else
                 val.value.int_val = 0;
             switch (t) {
@@ -111,11 +111,11 @@ void expand(void)
             if (cur_chr == 0) {
                 /* Expand the token after the next token */
                 /* It takes only a little shuffling to do what \TeX\ calls \.{\\expandafter}. */
-                get_token();
+                get_token(status);
                 t = cur_tok;
-                get_token();
+                get_token(status);
                 if (cur_cmd > max_command_cmd)
-                    expand();
+                    expand(status);
                 else
                     back_input();
                 cur_tok = t;
@@ -125,7 +125,7 @@ void expand(void)
                 /* Negate a boolean conditional and |goto reswitch| */
                 /* The result of a boolean condition is reversed when the conditional is
                    preceded by \.{\\unless}. */
-                get_token();
+                get_token(status);
                 if ((cur_cmd == if_test_cmd) && (cur_chr != if_case_code)) {
                     cur_chr = cur_chr + unless_code;
                     goto RESWITCH;
@@ -148,15 +148,11 @@ void expand(void)
                    Since \.{\\outer} macros might arise here, we must also
                    clear the |scanner_status| temporarily.
                  */
-
-                save_scanner_status = scanner_status;
-                scanner_status = normal;
-                get_token();
-                scanner_status = save_scanner_status;
+                get_token(normal);
                 t = cur_tok;
                 back_input();   /* now |start| and |loc| point to the backed-up token |t| */
                 if (t >= cs_token_flag) {
-                    p = get_avail();
+                    p = get_avail(status);
                     set_token_info(p, cs_token_flag + frozen_dont_expand);
                     set_token_link(p, iloc);
                     istart = p;
@@ -185,10 +181,7 @@ void expand(void)
                    all the primitives.  Then, this problem would not happen, at the
                    expense of a few hundred extra control sequences.
                  */
-                save_scanner_status = scanner_status;
-                scanner_status = normal;
-                get_token();
-                scanner_status = save_scanner_status;
+                get_token(normal);
                 cur_cs = prim_lookup(cs_text(cur_cs), true);
                 if (cur_cs != undefined_primitive) {
                     t = get_prim_eq_type(cur_cs);
@@ -200,7 +193,7 @@ void expand(void)
                         goto RESWITCH;
                     } else {
                         back_input();   /*  now |loc| and |start| point to a one-item list */
-                        p = get_avail();
+                        p = get_avail(status);
                         set_token_info(p, cs_token_flag + frozen_primitive);
                         set_token_link(p, iloc);
                         iloc = p;
@@ -221,7 +214,7 @@ void expand(void)
             manufacture_csname();
             break;
         case convert_cmd:
-            conv_toks();        /* this procedure is discussed in Part 27 below */
+            conv_toks(status);        /* this procedure is discussed in Part 27 below */
             break;
         case the_cmd:
             ins_the_toks();     /* this procedure is discussed in Part 27 below */
@@ -311,13 +304,13 @@ void manufacture_csname(void)
 {
     halfword p, q, r;
     lstring *ss;
-    r = get_avail();
+    r = get_avail(scanner_status);
     p = r;                      /* head of the list of characters */
     is_in_csname = true;
     do {
         get_x_token();
         if (cur_cs == 0)
-            store_new_token(cur_tok);
+            store_new_token(cur_tok, scanner_status);
     } while (cur_cs == 0);
     if (cur_cmd != end_cs_name_cmd) {
         /* Complain about missing \.{\\endcsname} */
@@ -364,7 +357,7 @@ common cases.
 void get_x_token(void)
 {                               /* sets |cur_cmd|, |cur_chr|, |cur_tok|,  and expands macros */
   RESTART:
-    get_token_lua();
+    get_token_lua(scanner_status);
     if (cur_cmd <= max_command_cmd)
         goto DONE;
     if (cur_cmd >= call_cmd) {
@@ -376,7 +369,7 @@ void get_x_token(void)
             goto DONE;          /* |cur_chr=null_list| */
         }
     } else {
-        expand();
+        expand(scanner_status);
     }
     goto RESTART;
   DONE:
@@ -391,11 +384,11 @@ void get_x_token(void)
 procedure calls: |get_next; x_token|.
 
 @c
-void x_token(void)
+void x_token(int status)
 {                               /* |get_x_token| without the initial |get_next| */
     while (cur_cmd > max_command_cmd) {
-        expand();
-        get_token_lua();
+        expand(status);
+        get_token_lua(status);
     }
     if (cur_cs == 0)
         cur_tok = token_val(cur_cmd, cur_chr);
@@ -552,7 +545,7 @@ void macro_call(void)
                a |match| that is immediately followed by |match| or |end_match|---will
                always fail the test `|cur_tok=info(r)|' in the following algorithm. */
           CONTINUE:
-            get_token();        /* set |cur_tok| to the next token of input */
+            get_token(scanner_status);        /* set |cur_tok| to the next token of input */
             if (cur_tok == token_info(r)) {
                 /* Advance |r|; |goto found| if the parameter delimiter has been
                    fully matched, otherwise |goto continue| */
@@ -608,7 +601,7 @@ void macro_call(void)
                 } else {
                     t = s;
                     do {
-                        store_new_token(token_info(t));
+                        store_new_token(token_info(t), scanner_status);
                         incr(m);
                         u = token_link(t);
                         v = s;
@@ -643,8 +636,8 @@ void macro_call(void)
                     /* Contribute an entire group to the current parameter */
                     unbalance = 1;
                     while (1) {
-                        fast_store_new_token(cur_tok);
-                        get_token();
+                        fast_store_new_token(cur_tok, scanner_status);
+                        get_token(scanner_status);
                         if (cur_tok == par_token) {
                             if (long_state != long_call_cmd) {
                                 if (!int_par(suppress_long_error_code)) {
@@ -664,7 +657,7 @@ void macro_call(void)
                         }
                     }
                     rbrace_ptr = p;
-                    store_new_token(cur_tok);
+                    store_new_token(cur_tok, scanner_status);
 
                 } else {
                     /* Report an extra right brace and |goto continue| */
@@ -693,7 +686,7 @@ void macro_call(void)
                     if (token_info(r) <= end_match_token)
                         if (token_info(r) >= match_token)
                             goto CONTINUE;
-                store_new_token(cur_tok);
+                store_new_token(cur_tok, scanner_status);
 
             }
             incr(m);
@@ -757,7 +750,7 @@ void macro_call(void)
     /* Report a runaway argument and abort */
     /* If |long_state=outer_call|, a runaway argument has already been reported. */
     if (long_state == call_cmd) {
-        runaway();
+        runaway(scanner_status);
         print_err("Paragraph ended before ");
         sprint_cs(warning_index);
         tprint(" was complete");

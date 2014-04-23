@@ -271,14 +271,14 @@ void set_expand_params(internal_font_number f, boolean auto_expand,
 }
 
 @ @c
-void read_expand_font(void)
+void read_expand_font(int status)
 {                               /* read font expansion spec and load expanded font */
     int shrink_limit, stretch_limit, font_step;
     internal_font_number f;
     boolean auto_expand;
     scan_result val;
     /* read font expansion parameters */
-    scan_font_ident(&val);
+    scan_font_ident(&val, status);
     f = val.value.int_val;
     if (f == null_font)
         pdf_error("font expansion", "invalid font identifier");
@@ -286,11 +286,11 @@ void read_expand_font(void)
     //    pdf_error("font expansion",
     //              "\\pdffontexpand cannot be used this way (the base font has been expanded)");
     scan_optional_equals();
-    scan_int(&val);
+    scan_int(&val, status);
     stretch_limit = fix_int(val.value.int_val, 0, 1000);
-    scan_int(&val);
+    scan_int(&val, status);
     shrink_limit = fix_int(val.value.int_val, 0, 500);
-    scan_int(&val);
+    scan_int(&val, status);
     font_step = fix_int(val.value.int_val, 0, 100);
     if (font_step == 0)
         pdf_error("font expansion", "invalid step");
@@ -303,7 +303,7 @@ void read_expand_font(void)
     if ((stretch_limit == 0) && (shrink_limit == 0))
         pdf_error("font expansion", "invalid limit(s)");
     auto_expand = false;
-    if (scan_keyword("autoexpand")) {
+    if (scan_keyword("autoexpand", status)) {
         auto_expand = true;
         /* Scan an optional space */
         get_x_token();
@@ -343,7 +343,7 @@ void read_expand_font(void)
 }
 
 @ @c
-void new_letterspaced_font(small_number a)
+void new_letterspaced_font(small_number a, int status)
 {                               /* letter-space a font by creating a virtual font */
     pointer u;                  /* user's font identifier */
     str_number t;               /* name for the frozen font identifier */
@@ -358,10 +358,10 @@ void new_letterspaced_font(small_number a)
         t = maketexstring("FONT");
     define(u, set_font_cmd, null_font);
     scan_optional_equals();
-    scan_font_ident(&val);
+    scan_font_ident(&val, status);
     k = val.value.int_val;
-    scan_int(&val);
-    if (scan_keyword("nolig"))
+    scan_int(&val, status);
+    if (scan_keyword("nolig", status))
        nolig=true;
     f = letter_space_font(k, fix_int(val.value.int_val, -1000, 1000), nolig);
     equiv(u) = f;
@@ -370,7 +370,7 @@ void new_letterspaced_font(small_number a)
 }
 
 @ @c
-void make_font_copy(small_number a)
+void make_font_copy(small_number a, int status)
 {                               /* make a font copy for further use with font expansion */
     pointer u;                  /* user's font identifier */
     str_number t;               /* name for the frozen font identifier */
@@ -384,7 +384,7 @@ void make_font_copy(small_number a)
         t = maketexstring("FONT");
     define(u, set_font_cmd, null_font);
     scan_optional_equals();
-    scan_font_ident(&val);
+    scan_font_ident(&val, status);
     k = val.value.int_val;
     f = copy_font_info(k);
     equiv(u) = f;
@@ -393,13 +393,13 @@ void make_font_copy(small_number a)
 }
 
 @ @c
-void pdf_include_chars(PDF pdf)
+void pdf_include_chars(PDF pdf, int status)
 {
     str_number s;
     unsigned char *k, *j;       /* running index */
     internal_font_number f;
     scan_result val;
-    scan_font_ident(&val);
+    scan_font_ident(&val, status);
     f = val.value.int_val;
     if (f == null_font)
         pdf_error("font", "invalid font identifier");

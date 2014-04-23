@@ -196,7 +196,7 @@ void make_token_table(lua_State * L, int cmd, int chr, int cs)
 
 static int run_get_next(lua_State * L)
 {
-    get_next(false);
+    get_next(false, normal);
     make_token_table(L, cur_cmd, cur_chr, cur_cs);
     return 1;
 }
@@ -204,7 +204,7 @@ static int run_get_next(lua_State * L)
 static int run_expand(lua_State * L)
 {
     (void) L;
-    expand();
+    expand(normal);
     return 0;
 }
 

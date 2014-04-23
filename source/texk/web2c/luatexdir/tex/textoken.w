@@ -93,22 +93,22 @@ void initialize_tokens(void)
     halfword p;
     avail = null;
     fix_mem_end = 0;
-    p = get_avail();
+    p = get_avail(normal);
     temp_token_head = p;
     set_token_info(temp_token_head, 0);
-    p = get_avail();
+    p = get_avail(normal);
     hold_token_head = p;
     set_token_info(hold_token_head, 0);
-    p = get_avail();
+    p = get_avail(normal);
     omit_template = p;
     set_token_info(omit_template, 0);
-    p = get_avail();
+    p = get_avail(normal);
     null_list = p;
     set_token_info(null_list, 0);
-    p = get_avail();
+    p = get_avail(normal);
     backup_head = p;
     set_token_info(backup_head, 0);
-    p = get_avail();
+    p = get_avail(normal);
     garbage = p;
     set_token_info(garbage, 0);
     dyn_used = 0;               /* initialize statistics */
@@ -124,7 +124,7 @@ we try first to increase |fix_mem_end|. If that cannot be done, i.e., if
 If, that doesn't work, we have to quit.
 
 @c
-halfword get_avail(void)
+halfword get_avail(int status)
 {                               /* single-word node allocation */
     unsigned p;                 /* the new node being got */
     unsigned t;
@@ -141,7 +141,7 @@ halfword get_avail(void)
             fixmemcast(realloc
                        (fixmem, sizeof(smemory_word) * (fix_mem_max + t + 1)));
         if (new_fixmem == NULL) {
-            runaway();          /* if memory is exhausted, display possible runaway text */
+            runaway(status);          /* if memory is exhausted, display possible runaway text */
             overflow("token memory size", fix_mem_max);
         } else {
             fixmem = new_fixmem;
@@ -454,7 +454,7 @@ typedef enum { next_line_ok, next_line_return,
     next_line_restart
 } next_line_retval;
 
-static next_line_retval next_line(void);        /* below */
+static next_line_retval next_line(int status);        /* below */
 
  
 @  In case you are getting bored, here is a slightly less trivial routine:
@@ -473,7 +473,7 @@ static next_line_retval next_line(void);        /* below */
    @^inner loop@>
 
 @c
-boolean scan_keyword(const char *s)
+boolean scan_keyword(const char *s, int status)
 {                               /* look for a given string */
     halfword p;                 /* tail of the backup list */
     halfword q;                 /* new node being added to the token list via |store_new_token| */
@@ -488,11 +488,11 @@ boolean scan_keyword(const char *s)
         get_x_token();      /* recursion is possible here */
         if ((cur_cs == 0) &&
             ((cur_chr == *k) || (cur_chr == *k - 'a' + 'A'))) {
-            store_new_token(cur_tok);
+            store_new_token(cur_tok, status);
             k++;
         } else if ((cur_cmd != spacer_cmd) || (p != backup_head)) {
             if (p != backup_head) {
-                q = get_avail();
+                q = get_avail(status);
                 token_info(q) = cur_tok;
                 token_link(q) = null;
                 token_link(p) = q;
@@ -688,27 +688,27 @@ void firm_up_the_line(void)
    by |cur_cs|, which is zero at the end of a file.
 
 @c
-void check_outer_validity(void)
+void check_outer_validity(int status)
 {
     halfword p;                 /* points to inserted token list */
     halfword q;                 /* auxiliary pointer */
     if (suppress_outer_error)
         return;
-    if (scanner_status != normal) {
+    if (status != normal) {
         deletions_allowed = false;
         /* Back up an outer control sequence so that it can be reread; */
         /* An outer control sequence that occurs in a \.{\\read} will not be reread,
            since the error recovery for \.{\\read} is not very powerful. */
         if (cur_cs != 0) {
             if ((istate == token_list) || (iname < 1) || (iname > 17)) {
-                p = get_avail();
+                p = get_avail(status);
                 token_info(p) = cs_token_flag + cur_cs;
                 begin_token_list(p, backed_up); /* prepare to read the control sequence again */
             }
             cur_cmd = spacer_cmd;
             cur_chr = ' ';      /* replace it by a space */
         }
-        if (scanner_status > skipping) {
+        if (status > skipping) {
             const char *errhlp[] =
                 { "I suspect you have forgotten a `}', causing me",
                 "to read past where you wanted me to stop.",
@@ -720,7 +720,7 @@ void check_outer_validity(void)
             const char *startmsg;
             const char *scannermsg;
             /* Tell the user what has run away and try to recover */
-            runaway();          /* print a definition, argument, or preamble */
+            runaway(status);          /* print a definition, argument, or preamble */
             if (cur_cs == 0) {
                 startmsg = "File ended";
             } else {
@@ -735,8 +735,8 @@ void check_outer_validity(void)
                runaway preamble, we will insert a special \.{\\cr} token and a right
                brace; and for a runaway argument, we will set |long_state| to
                |outer_call| and insert \.{\\par}. */
-            p = get_avail();
-            switch (scanner_status) {
+            p = get_avail(status);
+            switch (status) {
             case defining:
                 scannermsg = "definition";
                 token_info(p) = right_brace_token + '}';
@@ -750,7 +750,7 @@ void check_outer_validity(void)
                 scannermsg = "preamble";
                 token_info(p) = right_brace_token + '}';
                 q = p;
-                p = get_avail();
+                p = get_avail(status);
                 token_link(p) = q;
                 token_info(p) = cs_token_flag + frozen_cr;
                 align_state = -1000000;
@@ -808,7 +808,7 @@ void check_outer_validity(void)
 }
 
 @ @c
-static boolean get_next_file(int prohibit_new_cs)
+static boolean get_next_file(int prohibit_new_cs, int status)
 {
   SWITCH:
     if (iloc <= ilimit) {       /* current line not yet finished */
@@ -844,7 +844,7 @@ static boolean get_next_file(int prohibit_new_cs)
         case skip_blanks + escape_cmd: /* Scan a control sequence ...; */
             istate = (unsigned char) scan_control_sequence(prohibit_new_cs);
             if (cur_cmd >= outer_call_cmd)
-                check_outer_validity();
+                check_outer_validity(status);
             break;
         case mid_line + active_char_cmd:
         case new_line + active_char_cmd:
@@ -854,7 +854,7 @@ static boolean get_next_file(int prohibit_new_cs)
             cur_chr = equiv(cur_cs);
             istate = mid_line;
             if (cur_cmd >= outer_call_cmd)
-                check_outer_validity();
+                check_outer_validity(status);
             break;
         case mid_line + sup_mark_cmd:
         case new_line + sup_mark_cmd:
@@ -898,7 +898,7 @@ static boolean get_next_file(int prohibit_new_cs)
             cur_cmd = eq_type(cur_cs);
             cur_chr = equiv(cur_cs);
             if (cur_cmd >= outer_call_cmd)
-                check_outer_validity();
+                check_outer_validity(status);
             break;
         case skip_blanks + left_brace_cmd:
         case new_line + left_brace_cmd:
@@ -948,7 +948,7 @@ static boolean get_next_file(int prohibit_new_cs)
            or |return| if a \.{\\read} line has finished;
          */
         do {
-            next_line_retval r = next_line();
+            next_line_retval r = next_line(status);
             if (r == next_line_return) {
                 return true;
             } else if (r == next_line_restart) {
@@ -1241,7 +1241,7 @@ static boolean check_expanded_code(int *kk)
   There is one more branch.
 
 @c
-static next_line_retval next_line(void)
+static next_line_retval next_line(int status)
 {
     boolean inhibit_eol = false;        /* a way to end a pseudo file without trailing space */
     if (iname > 17) {
@@ -1313,7 +1313,7 @@ static next_line_retval next_line(void)
                 end_file_reading();
             } else {
                 end_file_reading();
-                check_outer_validity();
+                check_outer_validity(status);
             }
             return next_line_restart;
         }
@@ -1363,7 +1363,7 @@ static next_line_retval next_line(void)
 @ Let's consider now what happens when |get_next| is looking at a token list. 
 
 @c
-static boolean get_next_tokenlist(void)
+static boolean get_next_tokenlist(int status)
 {
     register halfword t;        /* a token */
     t = token_info(iloc);
@@ -1386,7 +1386,7 @@ static boolean get_next_tokenlist(void)
                     return true;
                 }
             } else {
-                check_outer_validity();
+                check_outer_validity(status);
             }
         }
         cur_chr = equiv(cur_cs);
@@ -1416,25 +1416,25 @@ static boolean get_next_tokenlist(void)
 @ sets |cur_cmd|, |cur_chr|, |cur_cs| to next token 
 
 @c
-void get_next(int prohibit_new_cs)
+void get_next(int prohibit_new_cs, int status)
 {
   RESTART:
     cur_cs = 0;
     if (istate != token_list) {
         /* Input from external file, |goto restart| if no input found */
-        if (!get_next_file(prohibit_new_cs))
+        if (!get_next_file(prohibit_new_cs, status))
             goto RESTART;
     } else {
         if (iloc == null) {
             end_token_list();
             goto RESTART;       /* list exhausted, resume previous level */
-        } else if (!get_next_tokenlist()) {
+        } else if (!get_next_tokenlist(status)) {
             goto RESTART;       /* parameter needs to be expanded */
         }
     }
     /* If an alignment entry has just ended, take appropriate action */
     if ((cur_cmd == tab_mark_cmd || cur_cmd == car_ret_cmd) && align_state == 0) {
-        insert_vj_template();
+        insert_vj_template(status);
         goto RESTART;
     }
 }
@@ -1463,9 +1463,9 @@ No new control sequences will be defined except during a call of
 |get_token|, or when \.{\\csname} compresses a token list.
 
 @c
-void get_token(void)
+void get_token(int status)
 {                               /* sets |cur_cmd|, |cur_chr|, |cur_tok| */
-    get_token_lua();
+    get_token_lua(status);
     if (cur_cs == 0)
         cur_tok = token_val(cur_cmd, cur_chr);
     else
@@ -1473,7 +1473,7 @@ void get_token(void)
 }
 
 @ @c
-void get_token_lua(void)
+void get_token_lua(int status)
 {
     register int callback_id;
     callback_id = callback_defined(token_filter_callback);
@@ -1483,17 +1483,17 @@ void get_token_lua(void)
         /* there is some stuff we don't want to see inside the callback */
         if (!(istate == token_list &&
               ((nofilter == true) || (iindex == backed_up && iloc != null)))) {
-            do_get_token_lua(callback_id);
+            do_get_token_lua(callback_id, status);
             return;
         }
     }
-    get_next(false);
+    get_next(false, status);
 }
 
 
 @ changes the string |s| to a token list 
 @c
-halfword string_to_toks(char *ss)
+halfword string_to_toks(char *ss, int status)
 {
     halfword p;                 /* tail of the token list */
     halfword q;                 /* new node being added to the token list via |store_new_token| */
@@ -1508,7 +1508,7 @@ halfword string_to_toks(char *ss)
             t = space_token;
         else
             t = other_token + t;
-        fast_store_new_token(t);
+        fast_store_new_token(t, status);
     }
     return token_link(temp_token_head);
 }
@@ -1528,7 +1528,7 @@ at the value |p| that is returned. (If |p=temp_token_head|, the list is empty.)
 symbols that |lua| considers special while scanning a literal string
 
 @c
-static halfword lua_str_toks(lstring b)
+static halfword lua_str_toks(lstring b, int status)
 {                               /* changes the string |str_pool[b..pool_ptr]| to a token list */
     halfword p;                 /* tail of the token list */
     halfword q;                 /* new node being added to the token list via |store_new_token| */
@@ -1545,14 +1545,14 @@ static halfword lua_str_toks(lstring b)
         } else {
             if ((t == '\\') || (t == '"') || (t == '\'') || (t == 10)
                 || (t == 13))
-                fast_store_new_token(other_token + '\\');
+                fast_store_new_token(other_token + '\\', status);
             if (t == 10)
                 t = 'n';
             if (t == 13)
                 t = 'r';
             t = other_token + t;
         }
-        fast_store_new_token(t);
+        fast_store_new_token(t, status);
     }
     return p;
 }
@@ -1562,7 +1562,7 @@ static halfword lua_str_toks(lstring b)
 which has similar input/output characteristics.
 
 @c
-halfword str_toks(lstring s)
+halfword str_toks(lstring s, int status)
 {                               /* changes the string |str_pool[b..pool_ptr]| to a token list */
     halfword p;                 /* tail of the token list */
     halfword q;                 /* new node being added to the token list via |store_new_token| */
@@ -1579,7 +1579,7 @@ halfword str_toks(lstring s)
             t = space_token;
         else
             t = other_token + t;
-        fast_store_new_token(t);
+        fast_store_new_token(t, status);
     }
     return p;
 }
@@ -1588,7 +1588,7 @@ halfword str_toks(lstring s)
 @c
 void ins_the_toks(void)
 {
-    (void) the_toks();
+    (void) the_toks(scanner_status);
     ins_list(token_link(temp_token_head));
 }
 
@@ -1705,7 +1705,7 @@ static boolean print_convert_string(halfword c, int i)
 }
 
 @ @c
-int scan_lua_state(void) /* hh-ls: optional name or number (not optional name optional number) */
+int scan_lua_state(int status) /* hh-ls: optional name or number (not optional name optional number) */
 {
     scan_result val;
     /* Parse optional lua state integer, or an instance name to be stored in |sn| */
@@ -1716,11 +1716,11 @@ int scan_lua_state(void) /* hh-ls: optional name or number (not optional name op
     } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
     back_input();               /* have to push it back, whatever it is  */
     if (cur_cmd != left_brace_cmd) {
-        if (scan_keyword("name")) {
+        if (scan_keyword("name", status)) {
             (void) scan_toks(false, true);
             sn = def_ref;
         } else {
-            scan_register_num(&val);
+            scan_register_num(&val, status);
             if (get_lua_name(val.value.int_val))
                 sn = (val.value.int_val - 65536);
         }
@@ -1739,11 +1739,10 @@ any pending string in its output. In order to save such a pending string,
 we have to create a temporary string that is destroyed immediately after.
 
 @c
-void conv_toks(void)
+void conv_toks(int status)
 {
     int old_setting;            /* holds |selector| setting */
     halfword p, q;
-    int save_scanner_status;    /* |scanner_status| upon entry */
     halfword save_def_ref;      /* |def_ref| upon entry, important if inside `\.{\\message}' */
     halfword save_warning_index;
     boolean bool;               /* temp boolean */
@@ -1753,29 +1752,27 @@ void conv_toks(void)
     int i = 0;                  /* first temp integer */
     int j = 0;                  /* second temp integer */
     int c = cur_chr;            /* desired type of conversion */
+    int save_scanner_status;
     str_number str;
     scan_result val;
     /* Scan the argument for command |c| */
     switch (c) {
     case uchar_code:
-        scan_char_num(&val);
+        scan_char_num(&val, scanner_status);
         break;
     case number_code:
     case roman_numeral_code:
-        scan_int(&val);
+        scan_int(&val, scanner_status);
         break;
     case string_code:
     case meaning_code:
-        save_scanner_status = scanner_status;
-        scanner_status = normal;
-        get_token();
-        scanner_status = save_scanner_status;
+        get_token(normal);
         break;
     case etex_code:
         break;
     case font_name_code:
     case font_id_code:
-        scan_font_ident(&val);
+        scan_font_ident(&val, scanner_status);
         break;
     case pdftex_revision_code:
     case luatex_revision_code:
@@ -1785,7 +1782,7 @@ void conv_toks(void)
     case pdf_font_name_code:
     case pdf_font_objnum_code:
     case pdf_font_size_code:
-        scan_font_ident(&val);
+        scan_font_ident(&val, scanner_status);
         if (val.value.int_val == null_font)
             pdf_error("font", "invalid font identifier");
         if (c != pdf_font_size_code) {
@@ -1795,22 +1792,22 @@ void conv_toks(void)
         }
         break;
     case pdf_page_ref_code:
-        scan_int(&val);
+        scan_int(&val, scanner_status);
         if (val.value.int_val <= 0)
             pdf_error("pageref", "invalid page number");
         break;
     case left_margin_kern_code:
     case right_margin_kern_code:
-        scan_int(&val);
+        scan_int(&val, scanner_status);
         if ((box(val.value.int_val) == null) || (type(box(val.value.int_val)) != hlist_node))
             pdf_error("marginkern", "a non-empty hbox expected");
         break;
     case pdf_xform_name_code:
-        scan_int(&val);
+        scan_int(&val, scanner_status);
         check_obj_type(static_pdf, obj_type_xform, val.value.int_val);
         break;
     case pdf_creation_date_code:
-        ins_list(string_to_toks(getcreationdate(static_pdf)));
+        ins_list(string_to_toks(getcreationdate(static_pdf), scanner_status));
         return;
         break;
     case format_name_code:
@@ -1819,14 +1816,13 @@ void conv_toks(void)
             open_log_file();
         break;
     case pdf_colorstack_init_code:
-        bool = scan_keyword("page");
-        if (scan_keyword("direct"))
+        bool = scan_keyword("page", status);
+        if (scan_keyword("direct", status))
             val.value.int_val = direct_always;
-        else if (scan_keyword("page"))
+        else if (scan_keyword("page", status))
             val.value.int_val = direct_page;
         else
             val.value.int_val = set_origin;
-        save_scanner_status = scanner_status;
         save_warning_index = warning_index;
         save_def_ref = def_ref;
         u = save_cur_string();
@@ -1835,7 +1831,6 @@ void conv_toks(void)
         delete_token_ref(def_ref);
         def_ref = save_def_ref;
         warning_index = save_warning_index;
-        scanner_status = save_scanner_status;
         val.value.int_val = newcolorstack(s, val.value.int_val, bool);
         flush_str(s);
         val.level = int_val_level;
@@ -1849,7 +1844,7 @@ void conv_toks(void)
         }
         break;
     case uniform_deviate_code:
-        scan_int(&val);
+        scan_int(&val, scanner_status);
         break;
     case normal_deviate_code:
         break;
@@ -1870,7 +1865,7 @@ void conv_toks(void)
             def_ref = save_def_ref;
             warning_index = save_warning_index;
             scanner_status = save_scanner_status;
-            (void) lua_str_toks(escstr);
+            (void) lua_str_toks(escstr, scanner_status);
             ins_list(token_link(temp_token_head));
             free(escstr.s);
             return;
@@ -1896,7 +1891,7 @@ void conv_toks(void)
         save_scanner_status = scanner_status;
         save_def_ref = def_ref;
         save_warning_index = warning_index;
-        sn = scan_lua_state();
+        sn = scan_lua_state(scanner_status);
         scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
         s = def_ref;
         warning_index = save_warning_index;
@@ -1911,7 +1906,7 @@ void conv_toks(void)
         return;
         break;
     case lua_function_code:
-        scan_int(&val);
+        scan_int(&val, scanner_status);
         if (val.value.int_val <= 0) {
             pdf_error("luafunction", "invalid number");
         } else {
@@ -1924,13 +1919,13 @@ void conv_toks(void)
         }
         break;
     case pdf_insert_ht_code:
-        scan_register_num(&val);
+        scan_register_num(&val, scanner_status);
         break;
     case pdf_ximage_bbox_code:
-        scan_int(&val);
+        scan_int(&val, scanner_status);
         check_obj_type(static_pdf, obj_type_ximage, val.value.int_val);
         i = obj_data_ptr(static_pdf, val.value.int_val);
-        scan_int(&val);
+        scan_int(&val, scanner_status);
         j = val.value.int_val;
         if ((j < 1) || (j > 4))
             pdf_error("pdfximagebbox", "invalid parameter");
@@ -2035,7 +2030,7 @@ void conv_toks(void)
 
     selector = old_setting;
     str = make_string();
-    (void) str_toks(str_lstring(str));
+    (void) str_toks(str_lstring(str), scanner_status);
     flush_str(str);
     ins_list(token_link(temp_token_head));
 }
@@ -2096,13 +2091,13 @@ void read_toks(scan_result *val, int n, halfword r, halfword j)
     halfword q;                 /* new node being added to the token list via |store_new_token| */
     int s;                      /* saved value of |align_state| */
     int m;                      /* stream number */
-    scanner_status = defining;
+    int status = defining;
     warning_index = r;
-    p = get_avail();
+    p = get_avail(status);
     def_ref = p;
     set_token_ref_count(def_ref, 0);
     p = def_ref;                /* the reference count */
-    store_new_token(end_match_token);
+    store_new_token(end_match_token, status);
     if ((n < 0) || (n > 15))
         m = 16;
     else
@@ -2151,7 +2146,7 @@ void read_toks(scan_result *val, int n, halfword r, halfword j)
                 lua_a_close_in(read_file[m], (m + 1));
                 read_open[m] = closed;
                 if (align_state != 1000000) {
-                    runaway();
+                    runaway(status);
                     print_err("File ended within \\read");
                     help1("This \\read has unbalanced braces.");
                     align_state = 1000000;
@@ -2176,28 +2171,27 @@ void read_toks(scan_result *val, int n, halfword r, halfword j)
                     cur_tok = space_token;
                 else
                     cur_tok = cur_chr + other_token;
-                store_new_token(cur_tok);
+                store_new_token(cur_tok, status);
             }
         } else {
             while (1) {
-                get_token();
+                get_token(status);
                 if (cur_tok == 0)
                     break;      /* |cur_cmd=cur_chr=0| will occur at the end of the line */
                 if (align_state < 1000000) {    /* unmatched `\.\}' aborts the line */
                     do {
-                        get_token();
+                        get_token(status);
                     } while (cur_tok != 0);
                     align_state = 1000000;
                     break;
                 }
-                store_new_token(cur_tok);
+                store_new_token(cur_tok, status);
             }
         }
         end_file_reading();
 
     } while (align_state != 1000000);
     val->value.token_val = def_ref;
-    scanner_status = normal;
     align_state = s;
 }
 

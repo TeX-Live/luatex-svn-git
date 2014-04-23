@@ -204,7 +204,7 @@ extern int scanner_status;
 extern pointer warning_index;
 extern pointer def_ref;
 
-extern void runaway(void);
+extern void runaway(int status);
 
 /*
 However, the discussion about input state really applies only to the

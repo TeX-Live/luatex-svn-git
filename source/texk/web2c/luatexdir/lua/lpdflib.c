@@ -668,19 +668,19 @@ static int setpdf(lua_State * L)
         switch (i) {
         case P_PDFCATALOG:
         case P_CATALOG:
-            pdf_catalog_toks = tokenlist_from_lua(L);
+	  pdf_catalog_toks = tokenlist_from_lua(L);
             break;
         case P_PDFINFO:
         case P_INFO:
-            pdf_info_toks = tokenlist_from_lua(L);
+	  pdf_info_toks = tokenlist_from_lua(L);
             break;
         case P_PDFNAMES:
         case P_NAMES:
-            pdf_names_toks = tokenlist_from_lua(L);
+	  pdf_names_toks = tokenlist_from_lua(L);
             break;
         case P_PDFTRAILER:
         case P_TRAILER:
-            pdf_trailer_toks = tokenlist_from_lua(L);
+	  pdf_trailer_toks = tokenlist_from_lua(L);
             break;
         case P_H:
         case P_V:

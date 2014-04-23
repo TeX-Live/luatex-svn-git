@@ -75,7 +75,7 @@ void pass_text(void)
     l = 0;
     skip_line = line;
     while (1) {
-        get_token_lua();
+        get_token_lua(scanner_status);
         if (cur_cmd == fi_or_else_cmd) {
             if (l == 0)
                 break;
@@ -161,14 +161,14 @@ static boolean test_for_cs(void)
     boolean b;                  /*is the condition true? */
     int m, s;                   /*to be tested against the second operand */
     halfword n, p, q;           /*for traversing token lists in \.{\\ifx} tests */
-    n = get_avail();
+    n = get_avail(scanner_status);
     p = n;                      /*head of the list of characters */
     b = false;
     while (1) {
         get_x_token();
         if (cur_cs != 0)
             break;
-        store_new_token(cur_tok);
+        store_new_token(cur_tok, scanner_status);
     }
     if (cur_cmd != end_cs_name_cmd) {
         if (int_par(suppress_ifcsname_error_code)) {
@@ -295,10 +295,10 @@ void conditional(void)
         /* Here we use the fact that |"<"|, |"="|, and |">"| are consecutive ASCII
            codes. */
         if (this_if == if_int_code || this_if == if_abs_num_code) {
-            scan_int(&val);
+            scan_int(&val, scanner_status);
             n = val.value.int_val;
         } else {
-            scan_normal_dimen(&val);
+            scan_normal_dimen(&val, scanner_status);
             n = val.value.dimen_val;
         }
         if (n < 0)
@@ -320,10 +320,10 @@ void conditional(void)
             r = '=';
         }
         if (this_if == if_int_code || this_if == if_abs_num_code) {
-            scan_int(&val);
+            scan_int(&val, scanner_status);
             nn = val.value.int_val;
         } else {
-            scan_normal_dimen(&val);
+            scan_normal_dimen(&val, scanner_status);
             nn = val.value.dimen_val;
         }
         if (nn < 0)
@@ -347,7 +347,7 @@ void conditional(void)
         break;
     case if_odd_code:
         /* Test if an integer is odd */
-        scan_int(&val);
+        scan_int(&val, scanner_status);
         b = odd(val.value.int_val);
         break;
     case if_vmode_code:
@@ -366,7 +366,7 @@ void conditional(void)
     case if_hbox_code:
     case if_vbox_code:
         /* Test box register status */
-        scan_register_num(&val);
+        scan_register_num(&val, scanner_status);
         p = box(val.value.int_val);
         if (this_if == if_void_code)
             b = (p == null);
@@ -388,11 +388,11 @@ void conditional(void)
          */
         save_scanner_status = scanner_status;
         scanner_status = normal;
-        get_token_lua();
+        get_token_lua(scanner_status);
         n = cur_cs;
         p = cur_cmd;
         q = cur_chr;
-        get_token_lua();
+        get_token_lua(scanner_status);
         if (cur_cmd != p) {
             b = false;
         } else if (cur_cmd < call_cmd) {
@@ -425,7 +425,7 @@ void conditional(void)
         scanner_status = save_scanner_status;
         break;
     case if_eof_code:
-        scan_four_bit_int_or_18(&val);
+        scan_four_bit_int_or_18(&val, scanner_status);
         if (val.value.int_val == 18)
             b = !shellenabledp;
         else
@@ -440,7 +440,7 @@ void conditional(void)
     case if_case_code:
         /* Select the appropriate case
            and |return| or |goto common_ending| */
-        scan_int(&val);
+        scan_int(&val, scanner_status);
         n = val.value.int_val;            /*|n| is the number of cases to pass */
         if (int_par(tracing_commands_code) > 1) {
             begin_diagnostic();
@@ -466,7 +466,7 @@ void conditional(void)
     case if_primitive_code:
         save_scanner_status = scanner_status;
         scanner_status = normal;
-        get_token_lua();
+        get_token_lua(scanner_status);
         scanner_status = save_scanner_status;
         m = prim_lookup(cs_text(cur_cs), true);
         b = ((cur_cmd != undefined_cs_cmd) &&
@@ -480,7 +480,7 @@ void conditional(void)
            are allowed, but we might be scanning a macro definition or preamble. */
         save_scanner_status = scanner_status;
         scanner_status = normal;
-        get_token_lua();
+        get_token_lua(scanner_status);
         b = (cur_cmd != undefined_cs_cmd);
         scanner_status = save_scanner_status;
         break;
@@ -493,9 +493,9 @@ void conditional(void)
     case if_font_char_code:
         /* The conditional \.{\\iffontchar} tests the existence of a character in
            a font. */
-        scan_font_ident(&val);
+        scan_font_ident(&val, scanner_status);
         n = val.value.int_val;
-        scan_char_num(&val);
+        scan_char_num(&val, scanner_status);
         b = char_exists(n, val.value.int_val);
         break;
     default:                   /* there are no other cases, but for -Wall:  */

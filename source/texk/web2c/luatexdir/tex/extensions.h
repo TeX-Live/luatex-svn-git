@@ -32,7 +32,7 @@ extern scaled neg_ht;
 
 extern halfword write_loc;
 
-extern void do_extension(PDF pdf);
+extern void do_extension(PDF pdf, int status);
 
 /* Three extra node types carry information from |main_control|. */
 
@@ -44,7 +44,7 @@ type of the value depends on the |user_node_type| field.
 */
 
 extern void new_whatsit(int s);
-extern void new_write_whatsit(int w);
+extern void new_write_whatsit(int w, int status);
 extern void scan_pdf_ext_toks(void);
 extern halfword prev_rightmost(halfword s, halfword e);
 extern int pdf_last_xform;
@@ -91,7 +91,7 @@ extern int set_tex_count_register(int j, scaled v);
 extern int set_tex_box_register(int j, scaled v);
 extern int set_tex_attribute_register(int j, scaled v);
 extern int get_tex_toks_register(int l);
-extern int set_tex_toks_register(int j, lstring s);
+extern int set_tex_toks_register(int j, lstring s, int status);
 extern scaled get_tex_box_width(int j);
 extern int set_tex_box_width(int j, scaled v);
 extern scaled get_tex_box_height(int j);
