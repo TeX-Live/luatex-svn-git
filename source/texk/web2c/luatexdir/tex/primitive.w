@@ -188,7 +188,7 @@ boolean is_primitive(str_number csname)
     char *ss;
     m = prim_lookup(csname, true);
     ss = makecstring(csname);
-    n = string_lookup(ss, str_length(csname), true);
+    n = id_lookup((const char *)ss, str_length(csname), true);
     free(ss);
     return ((n != undefined_cs_cmd) &&
             (m != undefined_primitive) &&
@@ -274,7 +274,7 @@ void undump_primitives(void)
 int primitive_def(const char *s, size_t l, quarterword c, halfword o)
 {
     int v;
-    v = string_lookup(s, l, false);      /* this creates the |text()| string */
+    v = id_lookup(s, l, false);      /* this creates the |text()| string */
     eq_level(v) = level_one;
     eq_type(v) = c;
     equiv(v) = o;
@@ -393,70 +393,29 @@ static halfword insert_id(halfword p, const unsigned char *j, unsigned int l)
 
 
 @ Here is the subroutine that searches the hash table for an identifier
- that matches a given string of length |l>1| appearing in |buffer[j..
- (j+l-1)]|. If the identifier is found, the corresponding hash table address
+ that matches a given string of length |l>1|. 
+ If the identifier is found, the corresponding hash table address
  is returned. Otherwise, if the variable |prohibit_new_cs|
  is |true|, the dummy address |undefined_control_sequence| is returned.
  Otherwise the identifier is inserted into the hash table and its location
  is returned.
 
 @c
-pointer id_lookup(int j, int l, int prohibit_new_cs)
+pointer id_lookup(const char *buf_j, size_t l, int prohibit_new_cs)
 {                               /* search the hash table */
     int h;                      /* hash code */
     pointer p;                  /* index in |hash| array */
-
-    h = compute_hash((char *) (buffer + j), (unsigned) l, hash_prime);
-#ifdef VERBOSE
-    {
-        unsigned char *todo = xmalloc(l + 2);
-        strncpy(todo, (buffer + j), l);
-        todo[l] = '\0';
-        todo[l + 1] = '\0';
-        fprintf(stdout, "id_lookup(%s)\n", todo);
-        free(todo);
-    }
-#endif
+    h = compute_hash(buf_j, (unsigned) l, hash_prime);
     p = h + hash_base;          /* we start searching here; note that |0<=h<hash_prime| */
     while (1) {
         if (cs_text(p) > 0)
-            if (str_length(cs_text(p)) == (unsigned) l)
-                if (str_eq_buf(cs_text(p), j))
-                    goto FOUND;
-        if (cs_next(p) == 0) {
-            if (prohibit_new_cs) {
-                p = undefined_control_sequence;
-            } else {
-                p = insert_id(p, (buffer + j), (unsigned) l);
-            }
-            goto FOUND;
-        }
-        p = cs_next(p);
-    }
-  FOUND:
-    return p;
-}
-
-@ Here is a similar subroutine for finding a primitive in the hash.
-This one is based on a C string, and not using a global for the
-undefined cs test.
-
-@c
-pointer string_lookup(const char *s, size_t l, int prohibit_new_cs)
-{                               /* search the hash table */
-    int h;                      /* hash code */
-    pointer p;                  /* index in |hash| array */
-    h = compute_hash(s, (unsigned) l, hash_prime);
-    p = h + hash_base;          /* we start searching here; note that |0<=h<hash_prime| */
-    while (1) {
-        if (cs_text(p) > 0)
-            if (str_eq_cstr(cs_text(p), s, l))
+            if (str_eq_cstr(cs_text(p), buf_j, l))
                 goto FOUND;
         if (cs_next(p) == 0) {
             if (prohibit_new_cs) {
                 p = undefined_control_sequence;
             } else {
-                p = insert_id(p, (const unsigned char *) s, (unsigned) l);
+                p = insert_id(p, (const unsigned char *)buf_j, (unsigned) l);
             }
             goto FOUND;
         }

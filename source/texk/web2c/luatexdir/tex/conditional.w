@@ -211,7 +211,7 @@ static boolean test_for_cs(void)
         p = token_link(p);
     }
     if (m > first) {
-        cur_cs = id_lookup(first, m - first, true);   /* inhibit creating a new csname */
+        cur_cs = id_lookup((const char *)(buffer+first), m - first, true);   /* inhibit creating a new csname */
     } else if (m == first) {
         cur_cs = null_cs;       /*the list is empty */
     }

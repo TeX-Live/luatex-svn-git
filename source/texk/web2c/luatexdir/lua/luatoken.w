@@ -236,32 +236,21 @@ static int token_from_lua(lua_State * L)
 @ @c
 static int get_cur_cs(lua_State * L)
 {
+    size_t l = 0;
     const char *s;
-    unsigned j;
-    size_t l;
-    int cs;
-    int save_nncs;
-    int ret;
-    ret = 0;
-    cur_cs = 0;
     lua_getfield(L, -1, "name");
     if (lua_isstring(L, -1)) {
         s = lua_tolstring(L, -1, &l);
-        if (l > 0) {
-            if ((last + (int) l) > buf_size)
-                check_buffer_overflow((last + (int) l));
-            for (j = 0; j < l; j++) {
-                buffer[(unsigned) last + 1 + j] = (packed_ASCII_code) * s++;
-            }
-            cs = id_lookup((last + 1), (int) l, false);
-            cur_tok = cs_token_flag + cs;
-            cur_cmd = eq_type(cs);
-            cur_chr = equiv(cs);
-            ret = 1;
-        }
     }
     lua_pop(L, 1);
-    return ret;
+    if (l > 0) {
+        int cs = id_lookup(s, (int) l, false);
+        cur_tok = cs_token_flag + cs;
+        cur_cmd = eq_type(cs);
+        cur_chr = equiv(cs);
+        return 1;
+    }
+    return 0;
 }
 
 @ @c

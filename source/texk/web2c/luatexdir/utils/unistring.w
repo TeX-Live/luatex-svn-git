@@ -109,18 +109,6 @@ unsigned char *uni2str(unsigned unic)
     return buf;
 }
 
-@ |buffer_to_unichar| converts a sequence of bytes in the |buffer|
-into a unicode character value. It does not check for overflow
-of the |buffer|, but it is careful to check the validity of the 
-UTF-8 encoding.
-
-@c
-int buffer_to_unichar(int k)
-{
-   return str2uni((const unsigned char *)(buffer+k));
-}
-
-
 @ These came from texlang.w
 @c 
 char *uni2string(char *utf8_text, unsigned ch)

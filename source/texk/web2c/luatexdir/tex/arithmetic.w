@@ -91,25 +91,25 @@ terminate before $s$ can possibly become zero.
 void print_scaled(scaled s)
 {                               /* prints scaled real, rounded to five digits */
     scaled delta;               /* amount of allowable inaccuracy */
-    char buffer[20];
+    char buf[20];
     int i = 0;
     if (s < 0) {
         print_char('-');
         negate(s);              /* print the sign, if negative */
     }
     print_int(s / unity);       /* print the integer part */
-    buffer[i++] = '.';
+    buf[i++] = '.';
     s = 10 * (s % unity) + 5;
     delta = 10;
     do {
         if (delta > unity)
             s = s + 0100000 - 50000;    /* round the last digit */
-        buffer[i++] = '0' + (s / unity);
+        buf[i++] = '0' + (s / unity);
         s = 10 * (s % unity);
         delta = delta * 10;
     } while (s > delta);
-    buffer[i++] = '\0';
-    tprint(buffer);
+    buf[i++] = '\0';
+    tprint(buf);
 }
 
 @ Physical sizes that a \TeX\ user specifies for portions of documents are

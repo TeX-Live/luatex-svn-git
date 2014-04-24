@@ -5872,7 +5872,7 @@ static int direct_get_box_id(lua_State * L, int i)
     switch (lua_type(L, i)) {
     case LUA_TSTRING:
         s = lua_tolstring(L, i, &k);
-        cur_cs1 = string_lookup(s, k, true);
+        cur_cs1 = id_lookup(s, k, true);
         cur_cmd1 = eq_type(cur_cs1);
         if (cur_cmd1 == char_given_cmd ||
             cur_cmd1 == math_given_cmd) {

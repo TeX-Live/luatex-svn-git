@@ -531,10 +531,10 @@ halfword active_to_cs(int curchr, int force, int prohibit_new_cs)
         b = (char *) uni2str((unsigned) curchr);
         utfbytes = strcat(utfbytes, b);
         free(b);
-        curcs = string_lookup(utfbytes, strlen(utfbytes), no_new);
+        curcs = id_lookup(utfbytes, strlen(utfbytes), no_new);
     } else {
         utfbytes[3] = '\0';
-        curcs = string_lookup(utfbytes, 4, no_new);
+        curcs = id_lookup(utfbytes, 4, no_new);
     }
     free(a);
     free(utfbytes);
@@ -1118,7 +1118,7 @@ static int scan_control_sequence(int inhibit_new_cs)
                         decr(k);
                 }               /* now |k| points to first nonletter */
             }
-            cur_cs = id_lookup(iloc, k - iloc, inhibit_new_cs);
+            cur_cs = id_lookup((char *)(buffer+iloc), k - iloc, inhibit_new_cs);
             iloc = k;
             break;
         }

@@ -24,7 +24,6 @@
 
 extern unsigned char *uni2str(unsigned);
 extern unsigned str2uni(const unsigned char *);
-extern int buffer_to_unichar(int k);
 
 extern char *uni2string(char *utf8_text, unsigned ch);
 extern unsigned u_length(register unsigned int *str);

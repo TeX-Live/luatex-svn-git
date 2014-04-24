@@ -88,7 +88,6 @@ extern int primitive(const char *ss, quarterword c, halfword o, halfword off,
                       int cmd_origin);
 extern void print_cmd_chr(quarterword cmd, halfword chr_code);
 
-extern pointer string_lookup(const char *s, size_t l, int prohibit_new_cs);
-extern pointer id_lookup(int j, int l, int prohibit_new_cs);
+extern pointer id_lookup(const char *j, size_t l, int prohibit_new_cs);
 
 #endif                          /* LUATEX_PRIMITIVE_H */

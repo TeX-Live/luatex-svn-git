@@ -249,7 +249,7 @@ static int getfontid(lua_State * L)
     int f;
     if (lua_type(L, 1) == LUA_TSTRING) {
         s = lua_tolstring(L, 1, &ff);
-        cs = string_lookup(s, ff, true);
+        cs = id_lookup(s, ff, true);
         if (cs == undefined_control_sequence || cs == undefined_cs_cmd
             || eq_type(cs) != set_font_cmd) {
             lua_pushstring(L, "not a valid font csname");

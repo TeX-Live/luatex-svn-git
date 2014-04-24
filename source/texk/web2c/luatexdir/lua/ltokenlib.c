@@ -176,7 +176,7 @@ static int run_get_csname_id(lua_State * L)
     size_t k, cs = 0;
     if (lua_isstring(L, -1)) {
         s = lua_tolstring(L, -1, &k);
-        cs = (size_t) string_lookup(s, k, true);
+        cs = (size_t) id_lookup(s, k, true);
     }
     lua_pushnumber(L, (lua_Number) cs);
     return 1;
@@ -217,8 +217,7 @@ static int run_lookup(lua_State * L)
     if (lua_isstring(L, -1)) {
         s = lua_tolstring(L, -1, &l);
         if (l > 0) {
-            cs = id_lookup((last + 1), (int) l, true);        /* cleans up the lookup buffer */
-            cs = string_lookup(s, l, true);
+            cs = id_lookup(s, l, true);
             cmd = eq_type(cs);
             chr = equiv(cs);
             make_token_table(L, cmd, chr, cs);

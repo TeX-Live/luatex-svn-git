@@ -327,7 +327,7 @@ most of the output actually comes through |tprint|.
 @c
 void tprint(const char *sss)
 {
-    char *buffer = NULL;
+    char *buf = NULL;
     int i = 0; /* buffer index */
     int newlinechar = int_par(new_line_char_code);
     int dolog = 0;
@@ -376,33 +376,33 @@ void tprint(const char *sss)
         break;
     }
     /* what is left is the 3 term/log settings */
-    buffer = xmalloc(strlen(sss)*3);
+    buf = xmalloc(strlen(sss)*3);
     if (dolog) {
         const unsigned char *ss = (const unsigned char *) sss;
         while (*ss) {
             int s = *ss++;
             if (needs_wrapping(s,file_offset) || s == newlinechar) {
-                buffer[i++] = '\n';
-                buffer[i++] = '\0';
-                fputs(buffer, log_file);
-                i = 0; buffer[0] = '\0';
+                buf[i++] = '\n';
+                buf[i++] = '\0';
+                fputs(buf, log_file);
+                i = 0; buf[0] = '\0';
                 file_offset=0;
             }
             if (s != newlinechar) {
-                buffer[i++] = s;
+                buf[i++] = s;
                 if (file_offset++ == max_print_line) {
-                    buffer[i++] = '\n';
-                    buffer[i++] = '\0';
-                    fputs(buffer, log_file);
-                    i = 0; buffer[0] = '\0';
+                    buf[i++] = '\n';
+                    buf[i++] = '\0';
+                    fputs(buf, log_file);
+                    i = 0; buf[0] = '\0';
                     file_offset = 0;
                 }
             }
         }
-        if (*buffer) {
-            buffer[i++] = '\0';
-            fputs(buffer, log_file);
-            buffer[0] = '\0';
+        if (*buf) {
+            buf[i++] = '\0';
+            fputs(buf, log_file);
+            buf[0] = '\0';
         }
         i = 0;
     }
@@ -411,36 +411,36 @@ void tprint(const char *sss)
         while (*ss) {
             int s = *ss++;
             if (needs_wrapping(s,term_offset) || s == newlinechar) {
-                buffer[i++] = '\n';
-                buffer[i++] = '\0';
-                fputs(buffer, term_out);
-                i = 0; buffer[0] = '\0';
+                buf[i++] = '\n';
+                buf[i++] = '\0';
+                fputs(buf, term_out);
+                i = 0; buf[0] = '\0';
                 term_offset=0;
             }
             if (s != newlinechar) {
                 if ((s>=0x20)||(s==0x0A)||(s==0x0D)||(s==0x09)) {       
-                    buffer[i++] = s;
+                    buf[i++] = s;
                 } else {                                                
-                    buffer[i++] = '^';
-                    buffer[i++] = '^';
-                    buffer[i++] = s+64;
+                    buf[i++] = '^';
+                    buf[i++] = '^';
+                    buf[i++] = s+64;
                     term_offset += 2;
                 }
                 if (term_offset++ == max_print_line) {
-                    buffer[i++] = '\n';
-                    buffer[i++] = '\0';
-                    fputs(buffer, term_out);
-                    i = 0; buffer[0] = '\0';
+                    buf[i++] = '\n';
+                    buf[i++] = '\0';
+                    fputs(buf, term_out);
+                    i = 0; buf[0] = '\0';
                     term_offset = 0;
                 }
             }
         }
-        if (*buffer) {
-            buffer[i++] = '\0';
-            fputs(buffer, term_out);
+        if (*buf) {
+            buf[i++] = '\0';
+            fputs(buf, term_out);
         }
     }
-    free(buffer);
+    free(buf);
 }
 
 void tprint_nl(const char *s)

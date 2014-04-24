@@ -103,7 +103,6 @@ extern unsigned pool_size;
 #  define flush_char() --cur_length     /* forget the last character in the pool */
 
 extern str_number make_string(void);
-extern boolean str_eq_buf(str_number s, int k);
 extern boolean str_eq_str(str_number s, str_number t);
 extern boolean str_eq_cstr(str_number, const char *, size_t);
 extern boolean get_strings_started(void);

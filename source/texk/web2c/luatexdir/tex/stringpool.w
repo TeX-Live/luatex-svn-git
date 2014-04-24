@@ -54,8 +54,8 @@ lstring *_string_pool;          /* this variable lives |STRING_OFFSET| below |st
 str_number str_ptr = (STRING_OFFSET + 1);       /* number of the current string being created */
 str_number init_str_ptr;        /* the starting value of |str_ptr| */
 
-unsigned char *cur_string;      /*  current string buffer */
-unsigned cur_length;            /* current index in that buffer */
+unsigned char *cur_string;      /*  current string */
+unsigned cur_length;            /* current index in that string */
 unsigned cur_string_size;       /*  malloced size of |cur_string| */
 unsigned pool_size;             /* occupied byte count */
 
@@ -100,32 +100,6 @@ int pool_to_unichar(unsigned char *t)
     return (int) str2uni(t);
 }
 
-
-
-@ The following subroutine compares string |s| with another string of the
-same length that appears in |buffer| starting at position |k|;
-the result is |true| if and only if the strings are equal.
-Empirical tests indicate that |str_eq_buf| is used in such a way that
-it tends to return |true| about 80 percent of the time.
-
-@c
-boolean str_eq_buf(str_number s, int k)
-{                               /* test equality of strings */
-    int a;                      /* a unicode character */
-    if (s < STRING_OFFSET) {
-        a = buffer_to_unichar(k);
-        if (a != s)
-            return false;
-    } else {
-        unsigned char *j = str_string(s);
-        unsigned char *l = j + str_length(s);
-        while (j < l) {
-            if (*j++ != buffer[k++])
-                return false;
-        }
-    }
-    return true;
-}
 
 
 @ Here is a similar routine, but it compares two strings in the string pool,

@@ -328,7 +328,7 @@ void manufacture_csname(void)
 
     ss = tokenlist_to_lstring(r, true);
     if (ss->l > 0) {
-        cur_cs = string_lookup((char *) ss->s, ss->l, false);
+        cur_cs = id_lookup((char *) ss->s, ss->l, false);
     } else {
         cur_cs = null_cs;       /* the list is empty */
     }
