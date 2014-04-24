@@ -1233,32 +1233,30 @@ static next_line_retval next_line(void)
                 } else {
                     force_eof = true;
                 }
-            } else {
-                if (iname == luacstring_name) {
-                    if (luacstring_input()) {   /* not end of strings  */
-                        firm_up_the_line();
-                        line_catcode_table = (short) luacstring_cattable();
-                        line_partial = (signed char) luacstring_partial();
-                        if (luacstring_final_line() || line_partial
-                            || line_catcode_table == NO_CAT_TABLE)
-                            inhibit_eol = true;
-                        if (!line_partial)
-                            istate = new_line;
-                    } else {
-                        force_eof = true;
-                    }
+            } else if (iname == luacstring_name) {
+                if (luacstring_input()) {   /* not end of strings  */
+                    firm_up_the_line();
+                    line_catcode_table = (short) luacstring_cattable();
+                    line_partial = (signed char) luacstring_partial();
+                    if (luacstring_final_line() || line_partial
+                        || line_catcode_table == NO_CAT_TABLE)
+                        inhibit_eol = true;
+                    if (!line_partial)
+                        istate = new_line;
                 } else {
-                    if (lua_input_ln(cur_file, 0, true)) {      /* not end of file */
-                        firm_up_the_line();     /* this sets |ilimit| */
-                        line_catcode_table = DEFAULT_CAT_TABLE;
-                    } else if ((every_eof != null) && (!eof_seen[iindex])) {
-                        ilimit = first - 1;
-                        eof_seen[iindex] = true;        /* fake one empty line */
-                        begin_token_list(every_eof, every_eof_text);
-                        return next_line_restart;
-                    } else {
-                        force_eof = true;
-                    }
+                    force_eof = true;
+                }
+            } else {
+                if (lua_input_ln(cur_file, 0, true)) {      /* not end of file */
+                    firm_up_the_line();     /* this sets |ilimit| */
+                    line_catcode_table = DEFAULT_CAT_TABLE;
+                } else if ((every_eof != null) && (!eof_seen[iindex])) {
+                    ilimit = first - 1;
+                    eof_seen[iindex] = true;        /* fake one empty line */
+                    begin_token_list(every_eof, every_eof_text);
+                    return next_line_restart;
+                } else {
+                    force_eof = true;
                 }
             }
         }
@@ -1272,9 +1270,6 @@ static next_line_retval next_line(void)
                 if (tracefilenames)
                     print_char(')');
                 open_parens--;
-#if 0
-                update_terminal(); /* show user that file has been read */
-#endif
             }
             force_eof = false;
             if (iname == luacstring_name ||  /* lua input */
