@@ -772,13 +772,15 @@ for optimizations that are not possible in pascal.
 @c
 scaled round_xn_over_d(scaled x, int n, unsigned int d)
 {
-    boolean positive;           /* was |x>=0|? */
+    boolean positive = true;           /* was |x>=0|, |n>=0| ? */
     unsigned t, u, v;           /* intermediate quantities */
-    if (x >= 0) {
-        positive = true;
-    } else {
+    if (x < 0) {
+        positive = !positive;
         x = -(x);
-        positive = false;
+    }
+    if (n < 0) {
+        positive = !positive;
+        n = -(n);
     }
     t = (unsigned) ((x % 0100000) * n);//printf("t=%d\n",t);
     u = (unsigned) (((unsigned) (x) / 0100000) * (unsigned) n + (t / 0100000));//printf("u=%d\n",u);
