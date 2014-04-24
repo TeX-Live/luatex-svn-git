@@ -1082,7 +1082,7 @@ static boolean process_sup_mark(void)
    buffer and the process is repeated, slowly but surely.
 
 @c
-static boolean check_expanded_code(int *kk);    /* below */
+static boolean check_expanded_code(int k);    /* below */
 
 static int scan_control_sequence(int inhibit_new_cs)
 {
@@ -1097,7 +1097,7 @@ static int scan_control_sequence(int inhibit_new_cs)
             do_get_cat_code(cat, cur_chr);
             if (cat != letter_cmd || k > ilimit) {
                 retval = (cat == spacer_cmd ? skip_blanks : mid_line);
-                if (cat == sup_mark_cmd && check_expanded_code(&k))     /* If an expanded...; */
+                if (cat == sup_mark_cmd && check_expanded_code(k))     /* If an expanded...; */
                     continue;
             } else {
                 retval = skip_blanks;
@@ -1106,7 +1106,7 @@ static int scan_control_sequence(int inhibit_new_cs)
                     do_get_cat_code(cat, cur_chr);
                 } while (cat == letter_cmd && k <= ilimit);
 
-                if (cat == sup_mark_cmd && check_expanded_code(&k))     /* If an expanded...; */
+                if (cat == sup_mark_cmd && check_expanded_code(k))     /* If an expanded...; */
                     continue;
                 if (cat != letter_cmd) {
                     decr(k);
@@ -1136,10 +1136,10 @@ static int scan_control_sequence(int inhibit_new_cs)
    the buffer left two or three places.
 
 @c
-static boolean check_expanded_code(int *kk)
+static boolean check_expanded_code(int k)
 {
+    char *utf = NULL;
     int l;
-    int k = *kk;
     int d = 1;                  /* number of excess characters in an expanded code */
     int c, cc, ccc, cccc, ccccc, cccccc;        /* constituents of a possible expanded code */
     if (buffer[k] == cur_chr && k < ilimit) {
@@ -1190,47 +1190,16 @@ static boolean check_expanded_code(int *kk)
             d = 2 * d - 1;
         else
             d++;
-        if (cur_chr <= 0x7F) {
-            buffer[k - 1] = (packed_ASCII_code) cur_chr;
-        } else if (cur_chr <= 0x7FF) {
-            buffer[k - 1] = (packed_ASCII_code) (0xC0 + cur_chr / 0x40);
-            k++;
-            d--;
-            buffer[k - 1] = (packed_ASCII_code) (0x80 + cur_chr % 0x40);
-        } else if (cur_chr <= 0xFFFF) {
-            buffer[k - 1] = (packed_ASCII_code) (0xE0 + cur_chr / 0x1000);
-            k++;
-            d--;
-            buffer[k - 1] =
-                (packed_ASCII_code) (0x80 + (cur_chr % 0x1000) / 0x40);
-            k++;
-            d--;
-            buffer[k - 1] =
-                (packed_ASCII_code) (0x80 + (cur_chr % 0x1000) % 0x40);
-        } else {
-            buffer[k - 1] = (packed_ASCII_code) (0xF0 + cur_chr / 0x40000);
-            k++;
-            d--;
-            buffer[k - 1] =
-                (packed_ASCII_code) (0x80 + (cur_chr % 0x40000) / 0x1000);
-            k++;
-            d--;
-            buffer[k - 1] =
-                (packed_ASCII_code) (0x80 +
-                                     ((cur_chr % 0x40000) % 0x1000) / 0x40);
-            k++;
-            d--;
-            buffer[k - 1] =
-                (packed_ASCII_code) (0x80 +
-                                     ((cur_chr % 0x40000) % 0x1000) % 0x40);
-        }
-        l = k;
+        /* put |cur_str|'s representation back */
+        utf = (char *)uni2str(cur_chr);
+        memcpy((void *)(buffer + k - 1),utf,strlen(utf));
+        /* shift the rest of the |buffer| down */
         ilimit = ilimit - d;
+        l = k - 1 + strlen(utf);
         while (l <= ilimit) {
             buffer[l] = buffer[l + d];
             l++;
         }
-        *kk = k;
         return true;
     }
     return false;
