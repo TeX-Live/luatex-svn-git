@@ -22,7 +22,7 @@
 #ifndef FILENAME_H
 #  define FILENAME_H
 
-extern void scan_file_name(void);
+extern void scan_file_name(int status);
 extern void scan_file_name_toks(void);
 extern char *pack_job_name(const char *s);
 extern char *prompt_file_name(const char *s, const char *e);

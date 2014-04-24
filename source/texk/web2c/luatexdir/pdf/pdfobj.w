@@ -149,9 +149,9 @@ void scan_obj(PDF pdf, int status)
     lstring *st = NULL;
     if (scan_keyword("reserveobjnum", status)) {
         /* Scan an optional space */
-        get_x_token();
+        get_x_token(status);
         if (cur_cmd != spacer_cmd)
-            back_input();
+            back_input(status);
         pdf->obj_count++;
         k = pdf_create_obj(pdf, obj_type_obj, 0);
     } else {

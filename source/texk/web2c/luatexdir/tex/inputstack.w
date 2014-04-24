@@ -470,13 +470,13 @@ so it has been slightly optimized for speed.
 @^inner loop@>
 
 @c
-void back_input(void)
+void back_input(int status)
 {                               /* undoes one token of input */
     halfword p;                 /* a token list of length one */
     while ((istate == token_list) && (iloc == null)
            && (token_type != v_template))
         end_token_list();       /* conserve stack space */
-    p = get_avail(scanner_status);
+    p = get_avail(status);
     set_token_info(p, cur_tok);
     if (cur_tok < right_brace_limit) {
         if (cur_tok < left_brace_limit)
@@ -493,14 +493,14 @@ void back_input(void)
 
 @ Insert token |p| into \TeX's input
 @c
-int reinsert_token(boolean a, halfword pp)
+int reinsert_token(boolean a, halfword pp, int status)
 {
     halfword t;
     t = cur_tok;
     cur_tok = pp;
     if (a) {
         halfword p;
-        p = get_avail(scanner_status);
+        p = get_avail(status);
         set_token_info(p, cur_tok);
         set_token_link(p, iloc);
         iloc = p;
@@ -512,7 +512,7 @@ int reinsert_token(boolean a, halfword pp)
                 incr(align_state);
         }
     } else {
-        back_input();
+        back_input(status);
         a = true;               /* etex is always on */
     }
     cur_tok = t;

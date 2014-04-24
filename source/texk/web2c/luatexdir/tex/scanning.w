@@ -52,11 +52,11 @@ a character whose catcode is |left_brace|.) \TeX\ allows \.{\\relax} to
 appear before the |left_brace|.
 
 @c
-void scan_left_brace(void)
+void scan_left_brace(int status)
 {                               /* reads a mandatory |left_brace| */
     /* Get the next non-blank non-relax non-call token */
     do {
-        get_x_token();
+        get_x_token(status);
     } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
 
     if (cur_cmd != left_brace_cmd) {
@@ -65,7 +65,7 @@ void scan_left_brace(void)
               "You might want to delete and/or insert some corrections",
               "so that I will find a matching right brace soon.",
               "If you're confused by all this, try typing `I}' now.");
-        back_error();
+        back_error(status);
         cur_tok = left_brace_token + '{';
         cur_cmd = left_brace_cmd;
         cur_chr = '{';
@@ -78,14 +78,14 @@ void scan_left_brace(void)
 by optional spaces; `\.{\\relax}' is not ignored here.
 
 @c
-void scan_optional_equals(void)
+void scan_optional_equals(int status)
 {
     /* Get the next non-blank non-call token */
     do {
-        get_x_token();
+        get_x_token(status);
     } while (cur_cmd == spacer_cmd);
     if (cur_tok != other_token + '=')
-        back_input();
+        back_input(status);
 }
 
 
@@ -737,14 +737,14 @@ void scan_something_internal(scan_result *val, int level, boolean negative, int 
                 help3("A number should have been here; I inserted `0'.",
                       "(If you can't figure out why I needed to see a number,",
                       "look up `weird error' in the index to The TeXbook.)");
-                back_error();
+                back_error(status);
                 scanned_result(0, dimen_val_level);
             } else if (cur_cmd == toks_register_cmd) {
                 scan_register_num(val, status);
                 m = toks_base + val->value.int_val;
                 scanned_result(equiv(m), tok_val_level);
             } else {
-                back_input();
+                back_input(status);
                 scan_font_ident(val, status);
                 scanned_result(font_id_base + val->value.int_val, ident_val_level);
             }
@@ -764,7 +764,7 @@ void scan_something_internal(scan_result *val, int level, boolean negative, int 
                 help1
                     ("A style should have been here; I inserted `\\displaystyle'.");
                 val1 = display_style;
-                back_error();
+                back_error(status);
             } else {
                 val1 = cur_chr;
             }
@@ -1006,7 +1006,7 @@ void scan_int(scan_result *val, int status)
     do {
         /* Get the next non-blank non-call token */
         do {
-            get_x_token();
+            get_x_token(status);
         } while (cur_cmd == spacer_cmd);
         if (cur_tok == other_token + '-') {
             negative = !negative;
@@ -1063,12 +1063,12 @@ void scan_int(scan_result *val, int status)
             help2("A one-character control sequence belongs after a ` mark.",
                   "So I'm essentially inserting \\0 here.");
             val->value.int_val = '0'; /* == 48 */
-            back_error();
+            back_error(status);
         } else {
             /* Scan an optional space */
-            get_x_token();
+            get_x_token(status);
             if (cur_cmd != spacer_cmd)
-                back_input();
+                back_input(status);
         }
     } else if (cur_cmd == math_style_cmd) {
         val->value.int_val = cur_chr;
@@ -1083,11 +1083,11 @@ void scan_int(scan_result *val, int status)
         if (cur_tok == octal_token) {
             val->info.radix = 8;
             m = 02000000000;
-            get_x_token();
+            get_x_token(status);
         } else if (cur_tok == hex_token) {
             val->info.radix = 16;
             m = 01000000000;
-            get_x_token();
+            get_x_token(status);
         }
         val->value.int_val = 0;
         /* Accumulate the constant until |cur_tok| is not a suitable digit */
@@ -1121,7 +1121,7 @@ void scan_int(scan_result *val, int status)
             } else {
                 val->value.int_val = val->value.int_val * val->info.radix + d;
             }
-            get_x_token();
+            get_x_token(status);
         }
         if (vacuous) {
             /* Express astonishment that no number was here */
@@ -1129,9 +1129,9 @@ void scan_int(scan_result *val, int status)
             help3("A number should have been here; I inserted `0'.",
                   "(If you can't figure out why I needed to see a number,",
                   "look up `weird error' in the index to The TeXbook.)");
-            back_error();
+            back_error(status);
         } else if (cur_cmd != spacer_cmd) {
-            back_input();
+            back_input(status);
         }
     }
     if (negative)
@@ -1204,7 +1204,7 @@ void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int
         do {
             /* Get the next non-blank non-call token */
             do {
-                get_x_token();
+                get_x_token(status);
             } while (cur_cmd == spacer_cmd);
             if (cur_tok == other_token + '-') {
                 negative = !negative;
@@ -1229,7 +1229,7 @@ void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int
             }
 
         } else {
-            back_input();
+            back_input(status);
             if (cur_tok == continental_point_token) {
                 cur_tok = point_token;
             }
@@ -1253,7 +1253,7 @@ void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int
                 p = null;
                 get_token(status);    /* |point_token| is being re-scanned */
                 while (1) {
-                    get_x_token();
+                    get_x_token(status);
                     if ((cur_tok > zero_token + 9) || (cur_tok < zero_token))
                         break;
                     if (k < 17) {       /* digits for |k>=17| cannot affect the result */
@@ -1272,7 +1272,7 @@ void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int
                 }
                 f = round_decimals(k);
                 if (cur_cmd != spacer_cmd)
-                    back_input();
+                    back_input(status);
             }
         }
     }
@@ -1316,11 +1316,11 @@ void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int
     save_cur_val = val->value.int_val;
     /* Get the next non-blank non-call... */
     do {
-        get_x_token();
+        get_x_token(status);
     } while (cur_cmd == spacer_cmd);
 
     if ((cur_cmd < min_internal_cmd) || (cur_cmd > max_internal_cmd)) {
-        back_input();
+        back_input(status);
     } else {
         if (mu) {
             scan_something_internal(val,mu_val_level, false, status);
@@ -1345,9 +1345,9 @@ void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int
         goto NOT_FOUND;
     }
     /* Scan an optional space */
-    get_x_token();
+    get_x_token(status);
     if (cur_cmd != spacer_cmd)
-        back_input();
+        back_input(status);
 
   FOUND:
     val->value.int_val = nx_plus_y(save_cur_val, v, xn_over_d(v, f, 0200000));
@@ -1447,9 +1447,9 @@ void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int
         val->value.int_val = val->value.int_val * unity + f;
   DONE:
     /* Scan an optional space */
-    get_x_token();
+    get_x_token(status);
     if (cur_cmd != spacer_cmd)
-        back_input();
+        back_input(status);
   ATTACH_SIGN:
     val->value.dimen_val = val->value.int_val;
     val->level = dimen_val_level;
@@ -1491,7 +1491,7 @@ void scan_glue(scan_result *val, int level, int status)
     do {
         /* Get the next non-blank non-call token */
         do {
-            get_x_token();
+            get_x_token(status);
         } while (cur_cmd == spacer_cmd);
         if (cur_tok == other_token + '-') {
             negative = !negative;
@@ -1511,7 +1511,7 @@ void scan_glue(scan_result *val, int level, int status)
         else if (level == mu_val_level)
             mu_error();
     } else {
-        back_input();
+        back_input(status);
         scan_dimen(val, mu, false, false, status);
         if (negative)
             negate(val->value.dimen_val);
@@ -1568,7 +1568,7 @@ halfword the_toks(int status)
         xfree(val);
         return retval;
     }
-    get_x_token();
+    get_x_token(status);
     scan_something_internal(val, tok_val_level, false, status);
     if (val->level >= ident_val_level) {
         /* Copy the token list */
@@ -1707,7 +1707,7 @@ void set_font_dimen(int status)
             }
         }
     }
-    scan_optional_equals();
+    scan_optional_equals(status);
     scan_normal_dimen(val, status);
     set_font_param(f, n, val->value.dimen_val);
     xfree(val);
@@ -1796,7 +1796,7 @@ void scan_font_ident(scan_result *val, int status)
     halfword m;
     /* Get the next non-blank non-call... */
     do {
-        get_x_token();
+        get_x_token(status);
     } while (cur_cmd == spacer_cmd);
 
     if ((cur_cmd == def_font_cmd) || (cur_cmd == letterspace_font_cmd)
@@ -1814,7 +1814,7 @@ void scan_font_ident(scan_result *val, int status)
         print_err("Missing font identifier");
         help2("I was looking for a control sequence whose",
               "current meaning has been defined by \\font.");
-        back_error();
+        back_error(status);
         f = null_font;
     }
     val->value.int_val = f;
@@ -1830,24 +1830,21 @@ the list is empty.)
 @c
 void scan_general_text(scan_result *val)
 {
-    int s;                      /* to save |scanner_status| */
     halfword w;                 /* to save |warning_index| */
     halfword d;                 /* to save |def_ref| */
     halfword p;                 /* tail of the token list being built */
     halfword q;                 /* new node being added to the token list via |store_new_token| */
     halfword unbalance;         /* number of unmatched left braces */
     int status;
-    s = scanner_status;
     w = warning_index;
     d = def_ref;
     status = absorbing;
-    scanner_status = status;
     warning_index = cur_cs;
     p = get_avail(status);
     def_ref = p;
     set_token_ref_count(def_ref, 0);
     p = def_ref;
-    scan_left_brace();          /* remove the compulsory left brace */
+    scan_left_brace(status);          /* remove the compulsory left brace */
     unbalance = 1;
     while (1) {
         get_token(status);
@@ -1869,7 +1866,6 @@ void scan_general_text(scan_result *val)
     else
         val->value.token_val = p;
     set_token_link(temp_token_head, q);
-    scanner_status = s;
     warning_index = w;
     def_ref = d;
 }
@@ -1932,7 +1928,6 @@ halfword scan_toks(boolean macro_def, boolean xpand)
         status = defining;
     else
         status = absorbing;
-    scanner_status = status;
     warning_index = cur_cs;
     p = get_avail(status);
     def_ref = p;
@@ -1970,7 +1965,7 @@ halfword scan_toks(boolean macro_def, boolean xpand)
                         help2
                             ("I've inserted the digit you should have used after the #.",
                              "Type `1' to delete what you did use.");
-                        back_error();
+                        back_error(status);
                     }
                     cur_tok = s;
                 }
@@ -1990,7 +1985,7 @@ halfword scan_toks(boolean macro_def, boolean xpand)
         }
 
     } else {
-        scan_left_brace();      /* remove the compulsory left brace */
+        scan_left_brace(status);      /* remove the compulsory left brace */
     }
   DONE:
     /* Scan and build the body of the token list; |goto found| when finished */
@@ -2038,7 +2033,7 @@ halfword scan_toks(boolean macro_def, boolean xpand)
                 /* Look for parameter number or \.{\#\#} */
                 s = cur_tok;
                 if (xpand)
-                    get_x_token();
+                    get_x_token(status);
                 else
                     get_token(status);
                 if (cur_cmd != mac_param_cmd) {
@@ -2048,7 +2043,7 @@ halfword scan_toks(boolean macro_def, boolean xpand)
                         help3("You meant to type ## instead of #, right?",
                               "Or maybe a } was forgotten somewhere earlier, and things",
                               "are all screwed up? I''m going to assume that you meant ##.");
-                        back_error();
+                        back_error(status);
                         cur_tok = s;
                     } else {
                         cur_tok = out_param_token - '0' + cur_chr;
@@ -2059,7 +2054,6 @@ halfword scan_toks(boolean macro_def, boolean xpand)
         store_new_token(cur_tok, status);
     }
   FOUND:
-    scanner_status = normal;
     if (hash_brace != 0)
         store_new_token(hash_brace, normal);
     return p;
@@ -2357,7 +2351,7 @@ void scan_expr(scan_result *val, int level, int status)
     /* Scan a factor |f| of type |o| or start a subexpression */
     /* Get the next non-blank non-call token */
     do {
-        get_x_token();
+        get_x_token(status);
     } while (cur_cmd == spacer_cmd);
 
     if (cur_tok == other_token + '(') {
@@ -2373,7 +2367,7 @@ void scan_expr(scan_result *val, int level, int status)
         l = o;
         goto RESTART;
     }
-    back_input();
+    back_input(status);
     if (o == int_val_level) {
         scan_int(val, status);
         f = val->value.int_val;
@@ -2381,13 +2375,13 @@ void scan_expr(scan_result *val, int level, int status)
         scan_int(val, status);
         f = val->value.int_val;
     } else if (o == dimen_val_level) {
-        scan_normal_dimen(val, scanner_status);
+        scan_normal_dimen(val, status);
          f = val->value.dimen_val;
     } else if (o == glue_val_level) {
-        scan_normal_glue(val, scanner_status);
+        scan_normal_glue(val, status);
         f = val->value.glu_val;
     } else {
-        scan_mu_glue(val, scanner_status);
+        scan_mu_glue(val, status);
         f = val->value.glu_val;
     }
 
@@ -2395,7 +2389,7 @@ void scan_expr(scan_result *val, int level, int status)
     /* Scan the next operator and set |o| */
     /* Get the next non-blank non-call token */
     do {
-        get_x_token();
+        get_x_token(status);
     } while (cur_cmd == spacer_cmd);
 
     if (cur_tok == other_token + '+') {
@@ -2410,11 +2404,11 @@ void scan_expr(scan_result *val, int level, int status)
         o = expr_none;
         if (p == null) {
             if (cur_cmd != relax_cmd)
-                back_input();
+                back_input(status);
         } else if (cur_tok != other_token + ')') {
             print_err("Missing ) inserted for expression");
             help1("I was expecting to see `+', `-', `*', `/', or `)'. Didn't.");
-            back_error();
+            back_error(status);
         }
     }
 

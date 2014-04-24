@@ -41,15 +41,15 @@ static const char _svn_version[] =
 
 @ TODO: not sure if this is the right order 
 @c
-#define back_error(A,B) do {                    \
+#define back_error(A,B,c) do {                    \
     OK_to_interrupt=false;                      \
-    back_input();                               \
+    back_input(c);                               \
     OK_to_interrupt=true;                       \
     tex_error(A,B);                             \
   } while (0)
 
 @ @c
-int scan_math(pointer, int);
+int scan_math(pointer, int, int);
 pointer fin_mlist(pointer);
 
 #define pre_display_size dimen_par(pre_display_size_code)
@@ -143,9 +143,9 @@ and `\.{\$P\$}' produce different results (the former will not have the
 will be added).
 
 @c
-static void unsave_math(void)
+static void unsave_math(int status)
 {
-    unsave();
+    unsave(status);
     decr(save_ptr);
     flush_node_list(text_dir_ptr);
     assert(saved_type(0) == saved_textdir);
@@ -870,7 +870,7 @@ void init_math(int status)
         if ((cur_cmd == math_shift_cmd) && (mode > 0)) {
             enter_display_math();
         } else {
-            back_input();
+            back_input(status);
             enter_ordinary_math();
         }
     } else if (cur_cmd == math_shift_cs_cmd && cur_chr == display_style && (mode > 0)) {
@@ -915,14 +915,14 @@ Here is the code that handles case (1); the other cases are not quite as
 trivial, so we shall consider them later.
 
 @c
-void math_left_brace(void)
+void math_left_brace(int status)
 {
     pointer q;
     tail_append(new_noad());
     q = new_node(math_char_node, 0);
     nucleus(tail) = q;
-    back_input();
-    (void) scan_math(nucleus(tail), m_style);
+    back_input(status);
+    (void) scan_math(nucleus(tail), m_style, status);
 }
 
 @ If the inline directions of \.{\\pardir} and \.{\\mathdir} are
@@ -1036,7 +1036,7 @@ void enter_display_math(void)
 @c
 #define fam_in_range ((cur_fam>=0)&&(cur_fam<256))
 
-static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
+static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass, int status)
 {
     scan_result val;
     const char *hlp[] = {
@@ -1048,7 +1048,7 @@ static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
     mcls = 0;
     if (extcode == tex_mathcode) {      /* \.{\\delcode}, this is the easiest */
         int cur_val;
-        scan_int(&val, scanner_status);
+        scan_int(&val, status);
         cur_val = val.value.int_val;
         /*  "MFCCFCC or "FCCFCC */
         if (doclass) {
@@ -1066,12 +1066,12 @@ static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
     } else if (extcode == xetex_mathcode) {     /* \.{\\Udelcode} */
         /* <0-7>,<0-0xFF>,<0-0x10FFFF>  or <0-0xFF>,<0-0x10FFFF> */
         if (doclass) {
-            scan_int(&val, scanner_status);
+            scan_int(&val, status);
             mcls = val.value.int_val;
         }
-        scan_int(&val, scanner_status);
+        scan_int(&val, status);
         msfam = val.value.int_val;
-        scan_char_num(&val, scanner_status);
+        scan_char_num(&val, status);
         mschr = val.value.int_val;
         if (msfam < 0 || msfam > 255) {
             tex_error("Invalid delimiter code", hlp);
@@ -1088,7 +1088,7 @@ static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
         if (doclass) {          /* such a primitive doesn't exist */
             confusion("xetexnum_mathcode");
         }
-        scan_int(&val, scanner_status);
+        scan_int(&val, status);
         msfam = (val.value.int_val / 0x200000);
         mschr = val.value.int_val & 0x1FFFFF;
         if (msfam < 0 || msfam > 255 || mschr > 0x10FFFF) {
@@ -1112,22 +1112,22 @@ static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
 }
 
 @ @c
-void scan_extdef_del_code(int level, int extcode)
+void scan_extdef_del_code(int level, int extcode, int status)
 {
     delcodeval d;
     int p;
     scan_result val;
-    scan_char_num(&val, scanner_status);
+    scan_char_num(&val, status);
     p = val.value.int_val;
-    scan_optional_equals();
-    d = do_scan_extdef_del_code(extcode, false);
+    scan_optional_equals(status);
+    d = do_scan_extdef_del_code(extcode, false, status);
     set_del_code(p, extcode, d.small_family_value, d.small_character_value,
                  d.large_family_value, d.large_character_value,
                  (quarterword) (level));
 }
 
 @ @c
-mathcodeval scan_mathchar(int extcode)
+mathcodeval scan_mathchar(int extcode, int status)
 {
     char errstr[255] = { 0 };
     const char *hlp[] = {
@@ -1139,7 +1139,7 @@ mathcodeval scan_mathchar(int extcode)
     int mcls = 0, mfam = 0, mchr = 0;
     if (extcode == tex_mathcode) {      /* \.{\\mathcode} */
         /* "TFCC */
-        scan_int(&val, scanner_status);
+        scan_int(&val, status);
         if (val.value.int_val > 0x8000) {
             tex_error("Invalid math code", hlp);
             val.value.int_val = 0;
@@ -1154,11 +1154,11 @@ mathcodeval scan_mathchar(int extcode)
         mchr = (val.value.int_val % 0x100);
     } else if (extcode == xetex_mathcode) {
         /* <0-0x7> <0-0xFF> <0-0x10FFFF> */
-        scan_int(&val, scanner_status);
+        scan_int(&val, status);
         mcls = val.value.int_val;
-        scan_int(&val, scanner_status);
+        scan_int(&val, status);
         mfam = val.value.int_val;
-        scan_char_num(&val, scanner_status);
+        scan_char_num(&val, status);
         mchr = val.value.int_val;
         if (mcls < 0 || mcls > 7 || mfam > 255) {
             tex_error("Invalid math code", hlp);
@@ -1172,7 +1172,7 @@ mathcodeval scan_mathchar(int extcode)
            the top of bit 21 can't be used as it contains invalid USV's
          */
         /* Note: |scan_int| won't accept families 128-255 because these use bit 32 */
-        scan_int(&val, scanner_status);
+        scan_int(&val, status);
         mfam = (val.value.int_val / 0x200000) & 0x7FF;
         mcls = mfam % 0x08;
         mfam = mfam / 0x08;
@@ -1195,15 +1195,15 @@ mathcodeval scan_mathchar(int extcode)
 }
 
 @ @c
-void scan_extdef_math_code(int level, int extcode)
+void scan_extdef_math_code(int level, int extcode, int status)
 {
     mathcodeval d;
     int p;
     scan_result val;
-    scan_char_num(&val, scanner_status);
+    scan_char_num(&val, status);
     p = val.value.int_val;
-    scan_optional_equals();
-    d = scan_mathchar(extcode);
+    scan_optional_equals(status);
+    d = scan_mathchar(extcode, status);
     set_math_code(p, extcode, d.class_value,
                   d.family_value, d.character_value, (quarterword) (level));
 }
@@ -1211,11 +1211,11 @@ void scan_extdef_math_code(int level, int extcode)
 
 @ this reads in a delcode when actually a mathcode is needed 
 @c
-mathcodeval scan_delimiter_as_mathchar(int extcode)
+mathcodeval scan_delimiter_as_mathchar(int extcode, int status)
 {
     delcodeval dval;
     mathcodeval mval;
-    dval = do_scan_extdef_del_code(extcode, true);
+    dval = do_scan_extdef_del_code(extcode, true, status);
     mval.origin_value = 0;
     mval.class_value = dval.class_value;
     mval.family_value = dval.small_family_value;
@@ -1252,17 +1252,17 @@ subformula that comes next in the input, and places an encoding of
 that subformula into a given word of |mem|.
 
 @c
-#define get_next_nb_nr() do { get_x_token(); } while (cur_cmd==spacer_cmd||cur_cmd==relax_cmd)
+#define get_next_nb_nr(s) do { get_x_token(s); } while (cur_cmd==spacer_cmd||cur_cmd==relax_cmd)
 
 
-int scan_math(pointer p, int mstyle)
+int scan_math(pointer p, int mstyle, int status)
 {
     /* label restart,reswitch,exit; */
     scan_result val;
     mathcodeval mval = { 0, 0, 0, 0 };
     assert(p != null);
   RESTART:
-    get_next_nb_nr();
+    get_next_nb_nr(status);
   RESWITCH:
     switch (cur_cmd) {
     case letter_cmd:
@@ -1274,24 +1274,24 @@ int scan_math(pointer p, int mstyle)
             cur_cs = active_to_cs(cur_chr, true, true);
             cur_cmd = eq_type(cur_cs);
             cur_chr = equiv(cur_cs);
-            x_token(scanner_status);
-            back_input();
+            x_token(status);
+            back_input(status);
             goto RESTART;
         }
         break;
     case char_num_cmd:
-        scan_char_num(&val, scanner_status);
+        scan_char_num(&val, status);
         cur_chr = val.value.int_val;
         cur_cmd = char_given_cmd;
         goto RESWITCH;
         break;
     case math_char_num_cmd:
         if (cur_chr == 0)
-            mval = scan_mathchar(tex_mathcode);
+            mval = scan_mathchar(tex_mathcode, status);
         else if (cur_chr == 1)
-            mval = scan_mathchar(xetex_mathcode);
+            mval = scan_mathchar(xetex_mathcode, status);
         else if (cur_chr == 2)
-            mval = scan_mathchar(xetexnum_mathcode);
+            mval = scan_mathchar(xetexnum_mathcode, status);
         else
             confusion("scan_math");
         break;
@@ -1303,17 +1303,17 @@ int scan_math(pointer p, int mstyle)
         break;
     case delim_num_cmd:
         if (cur_chr == 0)
-            mval = scan_delimiter_as_mathchar(tex_mathcode);
+            mval = scan_delimiter_as_mathchar(tex_mathcode, status);
         else if (cur_chr == 1)
-            mval = scan_delimiter_as_mathchar(xetex_mathcode);
+            mval = scan_delimiter_as_mathchar(xetex_mathcode, status);
         else
             confusion("scan_math");
         break;
     default:
         /* The pointer |p| is placed on |save_stack| while a complex subformula
            is being scanned. */
-        back_input();
-        scan_left_brace();
+        back_input(status);
+        scan_left_brace(status);
         set_saved_record(0, saved_math, 0, p);
         incr(save_ptr);
         push_math(math_group, mstyle);
@@ -1336,7 +1336,7 @@ is sufficiently large, the |cur_chr| is treated as an active character and
 nothing is appended.
 
 @c
-void set_math_char(mathcodeval mval)
+void set_math_char(mathcodeval mval, int status)
 {
     pointer p;                  /* the new noad */
     if (mval.class_value == 8) {
@@ -1344,8 +1344,8 @@ void set_math_char(mathcodeval mval)
         cur_cs = active_to_cs(cur_chr, true, true);
         cur_cmd = eq_type(cur_cs);
         cur_chr = equiv(cur_cs);
-        x_token(scanner_status);
-        back_input();
+        x_token(status);
+        back_input(status);
     } else {
         pointer q;
         p = new_noad();
@@ -1383,7 +1383,7 @@ is sufficiently large, the |cur_chr| is treated as an active character and
 nothing is appended.
 
 @c
-void math_char_in_text(mathcodeval mval)
+void math_char_in_text(mathcodeval mval, int status)
 {
     pointer p;                  /* the new node */
     if (mval.class_value == 8) {
@@ -1391,8 +1391,8 @@ void math_char_in_text(mathcodeval mval)
         cur_cs = active_to_cs(cur_chr, true, true);
         cur_cmd = eq_type(cur_cs);
         cur_chr = equiv(cur_cs);
-        x_token(scanner_status);
-        back_input();
+        x_token(status);
+        back_input(status);
     } else {
         p = new_char(fam_fnt(mval.family_value, text_size),
                      mval.character_value);
@@ -1403,7 +1403,7 @@ void math_char_in_text(mathcodeval mval)
 
 
 @ @c
-void math_math_comp(void)
+void math_math_comp(int status)
 {
     pointer q;
     tail_append(new_noad());
@@ -1411,9 +1411,9 @@ void math_math_comp(void)
     q = new_node(math_char_node, 0);
     nucleus(tail) = q;
     if (cur_chr == over_noad_type)
-        (void) scan_math(nucleus(tail), cramped_style(m_style));
+        (void) scan_math(nucleus(tail), cramped_style(m_style), status);
     else
-        (void) scan_math(nucleus(tail), m_style);
+        (void) scan_math(nucleus(tail), m_style, status);
 }
 
 
@@ -1440,15 +1440,15 @@ delimiter is to be placed; the second tells if this delimiter follows
 \.{\\radical} or not.
 
 @c
-static void scan_delimiter(pointer p, int r)
+static void scan_delimiter(pointer p, int r, int status)
 {
     delcodeval dval = { 0, 0, 0, 0, 0, 0 };
     if (r == tex_mathcode) {    /* \.{\\radical} */
-        dval = do_scan_extdef_del_code(tex_mathcode, true);
+        dval = do_scan_extdef_del_code(tex_mathcode, true, status);
     } else if (r == xetex_mathcode) {   /* \.{\\Uradical} */
-        dval = do_scan_extdef_del_code(xetex_mathcode, false);
+        dval = do_scan_extdef_del_code(xetex_mathcode, false, status);
     } else if (r == no_mathcode) {
-        get_next_nb_nr();
+        get_next_nb_nr(status);
         switch (cur_cmd) {
         case letter_cmd:
         case other_char_cmd:
@@ -1456,9 +1456,9 @@ static void scan_delimiter(pointer p, int r)
             break;
         case delim_num_cmd:
             if (cur_chr == 0)   /* \.{\\delimiter} */
-                dval = do_scan_extdef_del_code(tex_mathcode, true);
+                dval = do_scan_extdef_del_code(tex_mathcode, true, status);
             else if (cur_chr == 1)      /* \.{\\Udelimiter} */
-                dval = do_scan_extdef_del_code(xetex_mathcode, true);
+                dval = do_scan_extdef_del_code(xetex_mathcode, true, status);
             else
                 confusion("scan_delimiter1");
             break;
@@ -1481,7 +1481,7 @@ static void scan_delimiter(pointer p, int r)
             "nonnegative, or you can use `\\delimiter <delimiter code>'.",
             NULL
         };
-        back_error("Missing delimiter (. inserted)", hlp);
+        back_error("Missing delimiter (. inserted)", hlp, status);
         small_fam(p) = 0;
         small_char(p) = 0;
         large_fam(p) = 0;
@@ -1497,7 +1497,7 @@ static void scan_delimiter(pointer p, int r)
 
 
 @ @c
-void math_radical(void)
+void math_radical(int status)
 {
     halfword q;
     int chr_code = cur_chr;
@@ -1505,19 +1505,19 @@ void math_radical(void)
     q = new_node(delim_node, 0);
     left_delimiter(tail) = q;
     if (chr_code == 0)          /* \.{\\radical} */
-        scan_delimiter(left_delimiter(tail), tex_mathcode);
+        scan_delimiter(left_delimiter(tail), tex_mathcode, status);
     else if (chr_code == 1)     /* \.{\\Uradical} */
-        scan_delimiter(left_delimiter(tail), xetex_mathcode);
+        scan_delimiter(left_delimiter(tail), xetex_mathcode, status);
     else if (chr_code == 2)     /* \.{\\Uroot} */
-        scan_delimiter(left_delimiter(tail), xetex_mathcode);
+        scan_delimiter(left_delimiter(tail), xetex_mathcode, status);
     else if (chr_code == 3)     /* \.{\\Uunderdelimiter} */
-        scan_delimiter(left_delimiter(tail), xetex_mathcode);
+        scan_delimiter(left_delimiter(tail), xetex_mathcode, status);
     else if (chr_code == 4)     /* \.{\\Uoverdelimiter} */
-        scan_delimiter(left_delimiter(tail), xetex_mathcode);
+        scan_delimiter(left_delimiter(tail), xetex_mathcode, status);
     else if (chr_code == 5)     /* \.{\\Udelimiterunder} */
-        scan_delimiter(left_delimiter(tail), xetex_mathcode);
+        scan_delimiter(left_delimiter(tail), xetex_mathcode, status);
     else if (chr_code == 6)     /* \.{\\Udelimiterover} */
-        scan_delimiter(left_delimiter(tail), xetex_mathcode);
+        scan_delimiter(left_delimiter(tail), xetex_mathcode, status);
     else
         confusion("math_radical");
     if (chr_code == 2) {
@@ -1526,16 +1526,16 @@ void math_radical(void)
         q = new_node(math_char_node, 0);
         vlink(q) = tail;
         degree(tail) = q;
-        if (!scan_math(degree(tail), sup_sup_style(m_style))) {
+        if (!scan_math(degree(tail), sup_sup_style(m_style), status)) {
             vlink(degree(tail)) = null;
             q = new_node(math_char_node, 0);
             nucleus(tail) = q;
-            (void) scan_math(nucleus(tail), cramped_style(m_style));
+            (void) scan_math(nucleus(tail), cramped_style(m_style), status);
         }
     } else {
         q = new_node(math_char_node, 0);
         nucleus(tail) = q;
-        (void) scan_math(nucleus(tail), cramped_style(m_style));
+        (void) scan_math(nucleus(tail), cramped_style(m_style), status);
     }
 }
 
@@ -1555,27 +1555,27 @@ void math_ac(int status)
     }
     tail_append(new_node(accent_noad, 0));
     if (cur_chr == 0) {         /* \.{\\mathaccent} */
-        t = scan_mathchar(tex_mathcode);
+        t = scan_mathchar(tex_mathcode, status);
     } else if (cur_chr == 1) {  /* \.{\\Umathaccent} */
 	if (scan_keyword("fixed", status)) {
            subtype(tail) = 1;
-	   t = scan_mathchar(xetex_mathcode);
+	   t = scan_mathchar(xetex_mathcode, status);
 	} else if (scan_keyword("both", status)) {
   	   if (scan_keyword("fixed", status)) {
              subtype(tail) = 1;
            }
-	   t = scan_mathchar(xetex_mathcode);
+	   t = scan_mathchar(xetex_mathcode, status);
   	   if (scan_keyword("fixed", status)) {
              subtype(tail) += 2;
            }
-	   b = scan_mathchar(xetex_mathcode);
+	   b = scan_mathchar(xetex_mathcode, status);
 	} else if (scan_keyword("bottom", status)) {
   	   if (scan_keyword("fixed", status)) {
              subtype(tail) = 2;
            }
-	   b = scan_mathchar(xetex_mathcode);
+	   b = scan_mathchar(xetex_mathcode, status);
 	} else {
-	   t = scan_mathchar(xetex_mathcode);
+	   t = scan_mathchar(xetex_mathcode, status);
 	}
     } else {
         confusion("math_ac");
@@ -1600,7 +1600,7 @@ void math_ac(int status)
     }
     q = new_node(math_char_node, 0);
     nucleus(tail) = q;
-    (void) scan_math(nucleus(tail), cramped_style(m_style));
+    (void) scan_math(nucleus(tail), cramped_style(m_style), status);
 }
 
 @ @c
@@ -1620,22 +1620,22 @@ pointer math_vcenter_group(pointer p)
 much like the routine that builds discretionary nodes.
 
 @c
-void append_choices(void)
+void append_choices(int status)
 {
     tail_append(new_choice());
     incr(save_ptr);
     set_saved_record(-1, saved_choices, 0, 0);
     push_math(math_choice_group, display_style);
-    scan_left_brace();
+    scan_left_brace(status);
 }
 
 @ @c
-void build_choices(void)
+void build_choices(int status)
 {
     pointer p;                  /* the current mlist */
     int prev_style;
     prev_style = m_style;
-    unsave_math();
+    unsave_math(status);
     p = fin_mlist(null);
     assert(saved_type(-1) == saved_choices);
     switch (saved_value(-1)) {
@@ -1656,7 +1656,7 @@ void build_choices(void)
     }                           /* there are no other cases */
     set_saved_record(-1, saved_choices, 0, (saved_value(-1) + 1));
     push_math(math_choice_group, (prev_style + 2));
-    scan_left_brace();
+    scan_left_brace(status);
 }
 
 
@@ -1664,7 +1664,7 @@ void build_choices(void)
 action procedure called |sub_sup|. 
 
 @c
-void sub_sup(void)
+void sub_sup(int status)
 {
     pointer q;
     if (tail == head || (!scripts_allowed(tail))) {
@@ -1684,7 +1684,7 @@ void sub_sup(void)
         }
         q = new_node(math_char_node, 0);
         supscr(tail) = q;
-        (void) scan_math(supscr(tail), sup_style(m_style));
+        (void) scan_math(supscr(tail), sup_style(m_style), status);
     } else if (cur_cmd == sub_mark_cmd || cur_chr == sub_mark_cmd) {
         if (subscr(tail) != null) {
             const char *hlp[] = {
@@ -1697,7 +1697,7 @@ void sub_sup(void)
         }
         q = new_node(math_char_node, 0);
         subscr(tail) = q;
-        (void) scan_math(subscr(tail), sub_style(m_style));
+        (void) scan_math(subscr(tail), sub_style(m_style), status);
     }
 }
 
@@ -1725,8 +1725,8 @@ void math_fraction(int status)
             NULL
         };
         if (c >= delimited_code) {
-            scan_delimiter(null, no_mathcode);
-            scan_delimiter(null, no_mathcode);
+            scan_delimiter(null, no_mathcode, status);
+            scan_delimiter(null, no_mathcode, status);
         }
         if ((c % delimited_code) == above_code)
             scan_normal_dimen(&val, status);
@@ -1744,8 +1744,8 @@ void math_fraction(int status)
             left_delimiter(incompleat_noad) = q;
             q = new_node(delim_node, 0);
             right_delimiter(incompleat_noad) = q;
-            scan_delimiter(left_delimiter(incompleat_noad), no_mathcode);
-            scan_delimiter(right_delimiter(incompleat_noad), no_mathcode);
+            scan_delimiter(left_delimiter(incompleat_noad), no_mathcode, status);
+            scan_delimiter(right_delimiter(incompleat_noad), no_mathcode, status);
         }
         switch (c % delimited_code) {
         case above_code:
@@ -1808,10 +1808,10 @@ removed when they surround a single Ord without sub/superscripts, or when they
 surround an accent that is the nucleus of an Ord atom.
 
 @c
-void close_math_group(pointer p)
+void close_math_group(pointer p, int status)
 {
     int old_style = m_style;
-    unsave_math();
+    unsave_math(status);
 
     decr(save_ptr);
     assert(saved_type(0) == saved_math);
@@ -1863,7 +1863,7 @@ void close_math_group(pointer p)
         nucleus(vlink(saved_value(0))) = q;
         vlink(saved_value(0)) = null;
         saved_value(0) = q;
-        (void) scan_math(saved_value(0), old_style);
+        (void) scan_math(saved_value(0), old_style, status);
         /* restart */
     }
 }
@@ -1875,7 +1875,7 @@ the program. The |middle| feature of eTeX allows one ore several \.{\\middle}
 delimiters to appear between \.{\\left} and \.{\\right}.
 
 @c
-void math_left_right(void)
+void math_left_right(int status)
 {
     halfword t;                 /* |left_noad_side| .. |right_noad_side| */
     pointer p;                  /* new noad */
@@ -1884,7 +1884,7 @@ void math_left_right(void)
     t = cur_chr;
     if ((t != left_noad_side) && (cur_group != math_left_group)) {
         if (cur_group == math_shift_group) {
-            scan_delimiter(null, no_mathcode);
+            scan_delimiter(null, no_mathcode, status);
             if (t == middle_noad_side) {
                 const char *hlp[] = {
                     "I'm ignoring a \\middle that had no matching \\left.",
@@ -1907,12 +1907,12 @@ void math_left_right(void)
         subtype(p) = (quarterword) t;
         r = new_node(delim_node, 0);
         delimiter(p) = r;
-        scan_delimiter(delimiter(p), no_mathcode);
+        scan_delimiter(delimiter(p), no_mathcode, status);
         if (t == left_noad_side) {
             q = p;
         } else {
             q = fin_mlist(p);
-            unsave_math();
+            unsave_math(status);
         }
         if (t != right_noad_side) {
             push_math(math_left_group, m_style);
@@ -1934,16 +1934,16 @@ void math_left_right(void)
 the first `\.\$' ending a display has been scanned.
 
 @c
-static void check_second_math_shift(void)
+static void check_second_math_shift(int status)
 {
-    get_x_token();
+    get_x_token(status);
     if (cur_cmd != math_shift_cmd) {
         const char *hlp[] = {
             "The `$' that I just saw supposedly matches a previous `$$'.",
             "So I shall assume that you typed `$$' both times.",
             NULL
         };
-        back_error("Display math should end with $$", hlp);
+        back_error("Display math should end with $$", hlp, status);
     }
 }
 
@@ -1970,20 +1970,20 @@ static void check_inline_math_end(void)
 }
 
 @ @c
-static void resume_after_display(void)
+static void resume_after_display(int status)
 {
     if (cur_group != math_shift_group)
         confusion("display");
-    unsave_math();
+    unsave_math(status);
     prev_graf = prev_graf + 3;
     push_nest();
     mode = hmode;
     space_factor = 1000;
     tail_append(make_local_par_node()); /* this needs to be intercepted in 
                                            the display math start ! */
-    get_x_token();
+    get_x_token(status);
     if (cur_cmd != spacer_cmd)
-        back_input();
+        back_input(status);
     if (nest_ptr == 1) {
         lua_node_filter_s(buildpage_filter_callback, "after_display");
         build_page();
@@ -2003,7 +2003,7 @@ At this time we are in vertical mode (or internal vertical mode).
 
 
 @c
-static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
+static void finish_displayed_math(boolean l, pointer eqno_box, pointer p, int status)
 {
     pointer eq_box;             /* box containing the equation */
     scaled eq_w;                /* width of the equation */
@@ -2187,11 +2187,11 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
     if (g2 > 0)
         tail_append(new_param_glue(g2));
 
-    resume_after_display();
+    resume_after_display(status);
 }
 
 @ @c
-void after_math(void)
+void after_math(int status)
 {
     int m;                      /* |mmode| or |-mmode| */
     pointer p;                  /* the formula */
@@ -2205,13 +2205,13 @@ void after_math(void)
     }
     if (mode == -m) {           /* end of equation number */
         if (cur_cmd == math_shift_cmd) {
-            check_second_math_shift();
+            check_second_math_shift(status);
         } else {
             check_display_math_end();
         }
         run_mlist_to_hlist(p, text_style, false);
         a = hpack(vlink(temp_head), 0, additional, -1);
-        unsave_math();
+        unsave_math(status);
         decr(save_ptr);         /* now |cur_group=math_shift_group| */
         assert(saved_type(0) == saved_eqno);
         if (saved_value(0) == 1)
@@ -2243,17 +2243,17 @@ void after_math(void)
         dir_math_save = false;
         tail_append(new_math(math_surround, after));
         space_factor = 1000;
-        unsave_math();
+        unsave_math(status);
     } else {
         if (a == null) {
             if (cur_cmd == math_shift_cmd) {
-                check_second_math_shift();
+                check_second_math_shift(status);
             } else {
                 check_display_math_end();
             }
         }
         run_mlist_to_hlist(p, display_style, false);
-        finish_displayed_math(l, a, vlink(temp_head));
+        finish_displayed_math(l, a, vlink(temp_head), status);
     }
 }
 
@@ -2264,11 +2264,11 @@ activated, with |p| and |q| pointing to the beginning and end of the
 resulting list, and with |aux_save| holding the |prev_depth| value.
 
 @c
-void finish_display_alignment(pointer p, pointer q, halfword saved_prevdepth)
+void finish_display_alignment(pointer p, pointer q, halfword saved_prevdepth, int status)
 {
     do_assignments();
     if (cur_cmd == math_shift_cmd) {
-        check_second_math_shift();
+        check_second_math_shift(status);
     } else {
         check_display_math_end();
     }
@@ -2281,19 +2281,19 @@ void finish_display_alignment(pointer p, pointer q, halfword saved_prevdepth)
     tail_append(new_penalty(int_par(post_display_penalty_code)));
     tail_append(new_param_glue(below_display_skip_code));
     cur_list.prev_depth_field = saved_prevdepth;
-    resume_after_display();
+    resume_after_display(status);
 }
 
 @ Interface to \.{\\Umath} and \.{\\mathstyle} 
 
 @c
-void setup_math_style(void)
+void setup_math_style(int status)
 {
     pointer q;
     tail_append(new_noad());
     q = new_node(math_char_node, 0);
     nucleus(tail) = q;
-    (void) scan_math(nucleus(tail), num_style(m_style));
+    (void) scan_math(nucleus(tail), num_style(m_style), status);
 }
 
 

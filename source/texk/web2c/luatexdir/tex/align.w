@@ -27,9 +27,9 @@ static const char _svn_version[] =
 #include "ptexlib.h"
 
 @ @c
-void fin_align(void);
+static void fin_align(int status);
 void init_row(void);
-void init_col(void);
+static void init_col(int status);
 
 #define noDEBUG
 
@@ -300,7 +300,7 @@ static void get_preamble_token(int status)
         fatal_error("(interwoven alignment preambles are not allowed)");
     if ((cur_cmd == assign_glue_cmd)
         && (cur_chr == glue_base + tab_skip_code)) {
-        scan_optional_equals();
+        scan_optional_equals(status);
         scan_glue(&val, glue_val_level, status);
         if (int_par(global_defs_code) > 0)
             geq_define(glue_base + tab_skip_code, glue_ref_cmd, val.value.glu_val);
@@ -394,7 +394,7 @@ void init_align(int status)
                         "none, so I've put one in; maybe that will work.",
                         NULL
                     };
-                    back_input();
+                    back_input(status);
                     tex_error("Missing # inserted in alignment preamble", hlp);
                     break;
                 }
@@ -469,17 +469,17 @@ void align_peek(int status)
         get_x_or_protected(status);
     } while (cur_cmd == spacer_cmd);
     if (cur_cmd == no_align_cmd) {
-        scan_left_brace();
+        scan_left_brace(status);
         new_save_level(no_align_group);
         if (cur_list.mode_field == -vmode)
             normal_paragraph();
     } else if (cur_cmd == right_brace_cmd) {
-        fin_align();
+        fin_align(status);
     } else if ((cur_cmd == car_ret_cmd) && (cur_chr == cr_cr_code)) {
         goto RESTART;           /* ignore \.{\\crcr} */
     } else {
         init_row();             /* start a new row */
-        init_col();             /* start a new column and replace what we peeked at */
+        init_col(status);             /* start a new column and replace what we peeked at */
     }
 }
 
@@ -534,13 +534,13 @@ this time.  We remain in the same mode, and start the template if it is
 called for.
 
 @c
-void init_col(void)
+void init_col(int status)
 {
     extra_info(cur_align) = cur_cmd;
     if (cur_cmd == omit_cmd)
         align_state = 0;
     else {
-        back_input();
+        back_input(status);
         begin_token_list(u_part(cur_align), u_template);
     }                           /* now |align_state=1000000| */
 }
@@ -663,7 +663,7 @@ boolean fin_col(int status)
         }
     }
     if (extra_info(cur_align) != span_code) {
-        unsave();
+        unsave(status);
         new_save_level(align_group);
         /* Package an unset box for the current column and record its width */
         if (cur_list.mode_field == -hmode) {
@@ -731,7 +731,7 @@ boolean fin_col(int status)
         get_x_or_protected(status);
     } while (cur_cmd == spacer_cmd);
     cur_align = p;
-    init_col();
+    init_col(status);
     return false;
 }
 
@@ -800,7 +800,7 @@ sigh of relief that memory hasn't overflowed. All the unset boxes will now be
 set so that the columns line up, taking due account of spanned columns.
 
 @c
-void fin_align(void)
+void fin_align(int status)
 {
     pointer p, q, r, s, u, v, rr;       /* registers for the list operations */
     scaled t, w;                /* width of column */
@@ -810,10 +810,10 @@ void fin_align(void)
     halfword pd;                /* temporary storage for |prev_depth| */
     if (cur_group != align_group)
         confusion("align1");
-    unsave();                   /* that |align_group| was for individual entries */
+    unsave(status);                   /* that |align_group| was for individual entries */
     if (cur_group != align_group)
         confusion("align0");
-    unsave();                   /* that |align_group| was for the whole alignment */
+    unsave(status);                   /* that |align_group| was for the whole alignment */
     if (nest[nest_ptr - 1].mode_field == mmode)
         o = display_indent;
     else
@@ -1132,7 +1132,7 @@ value is changed to zero and so is the next tabskip.
     q = cur_list.tail_field;
     pop_nest();
     if (cur_list.mode_field == mmode) {
-        finish_display_alignment(p, q, pd);
+        finish_display_alignment(p, q, pd, status);
     } else {
         vlink(cur_list.tail_field) = p;
         if (p != null)

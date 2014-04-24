@@ -533,7 +533,7 @@ extern void eq_word_define(halfword p, int w);
 extern void geq_define(halfword p, quarterword t, halfword e);  /* global |eq_define| */
 extern void geq_word_define(halfword p, int w); /* global |eq_word_define| */
 extern void save_for_after(halfword t);
-extern void unsave(void);       /* pops the top level off the save stack */
+extern void unsave(int status);       /* pops the top level off the save stack */
 extern void restore_trace(halfword p, const char *s);   /* |eqtb[p]| has just been restored or retained */
 extern void show_save_groups(void);
 

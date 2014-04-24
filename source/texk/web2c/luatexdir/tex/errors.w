@@ -564,19 +564,19 @@ requires that |cur_tok| has been set. We disable interrupts during the
 call of |back_input| so that the help message won't be lost.
 
 @c
-void back_error(void)
+void back_error(int status)
 {                               /* back up one token and call |error| */
     OK_to_interrupt = false;
-    back_input();
+    back_input(status);
     OK_to_interrupt = true;
     error();
 }
 
 @ @c
-void ins_error(void)
+void ins_error(int status)
 {                               /* back up one inserted token and call |error| */
     OK_to_interrupt = false;
-    back_input();
+    back_input(status);
     token_type = inserted;
     OK_to_interrupt = true;
     error();

@@ -138,8 +138,8 @@ void do_extension(PDF pdf, int status)
     case open_node:
         /* Implement \.{\\openout} */
         new_write_whatsit(open_node_size, status);
-        scan_optional_equals();
-        scan_file_name();
+        scan_optional_equals(status);
+        scan_file_name(status);
         open_name(tail) = cur_name;
         open_area(tail) = cur_area;
         open_ext(tail) = cur_ext;
@@ -183,7 +183,7 @@ void do_extension(PDF pdf, int status)
            to descend to one level of recursion. Nothing happens unless \.{\\immediate}
            is followed by `\.{\\openout}', `\.{\\write}', or `\.{\\closeout}'.
          */
-        get_x_token();
+        get_x_token(status);
         if (cur_cmd == extension_cmd) {
             if (cur_chr <= close_node) {
                 p = tail;
@@ -220,12 +220,12 @@ void do_extension(PDF pdf, int status)
                     pdf_write_image(pdf, pdf_last_ximage);
                     break;
                 default:
-                    back_input();
+                    back_input(status);
                     break;
                 }
             }
         } else {
-            back_input();
+            back_input(status);
         }
         break;
     case pdf_annot_node:

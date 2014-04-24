@@ -93,7 +93,7 @@ void scan_spec(group_code c, int status)
     set_saved_record(0, saved_boxspec, spec_code, val.value.dimen_val);
     save_ptr++;
     new_save_level(c);
-    scan_left_brace();
+    scan_left_brace(status);
 }
 
 
@@ -122,14 +122,14 @@ void scan_full_spec(group_code c, int spec_direction, int status)
     s = saved_value(0);         /* the box context */
   CONTINUE:
     while (cur_cmd == relax_cmd || cur_cmd == spacer_cmd) {
-        get_x_token();
+        get_x_token(status);
         if (cur_cmd != relax_cmd && cur_cmd != spacer_cmd)
-            back_input();
+            back_input(status);
     }
     if (scan_keyword("attr", status)) {
         scan_register_num(&val, status);
         i = val.value.int_val;
-        scan_optional_equals();
+        scan_optional_equals(status);
         scan_int(&val, status);
         v = val.value.int_val;
         if ((attr_list != null) && (attr_list == attr_list_cache)) {
@@ -169,7 +169,7 @@ void scan_full_spec(group_code c, int spec_direction, int status)
     set_saved_record(3, saved_boxattr, 0, attr_list);
     save_ptr += 4;
     new_save_level(c);
-    scan_left_brace();
+    scan_left_brace(status);
     eq_word_define(int_base + body_direction_code, spec_direction);
     eq_word_define(int_base + par_direction_code, spec_direction);
     eq_word_define(int_base + text_direction_code, spec_direction);
@@ -1197,10 +1197,10 @@ halfword filtered_vpackage(halfword p, scaled h, int m, scaled l, int grp,
 }
 
 @ @c
-void finish_vcenter(void)
+void finish_vcenter(int status)
 {
     halfword p;
-    unsave();
+    unsave(status);
     save_ptr--;
     p = vpack(vlink(cur_list.head_field), saved_value(0), saved_level(0), -1);
     pop_nest();
@@ -1209,7 +1209,7 @@ void finish_vcenter(void)
 }
 
 @ @c
-void package(int c)
+void package(int c, int status)
 {
     scaled h;                   /* height of box */
     halfword p;                 /* first node in a box */
@@ -1217,7 +1217,7 @@ void package(int c)
     int grp;
     grp = cur_group;
     d = box_max_depth;
-    unsave();
+    unsave(status);
     save_ptr -= 4;
     if (cur_list.mode_field == -hmode) {
         cur_box = filtered_hpack(cur_list.head_field,
@@ -1253,7 +1253,7 @@ void package(int c)
     }
     replace_attribute_list(cur_box, saved_value(3));
     pop_nest();
-    box_end(saved_value(0));
+    box_end(saved_value(0), status);
 }
 
 
@@ -1765,5 +1765,5 @@ void begin_box(int box_context, int status)
         return;
         break;
     }
-    box_end(box_context);       /* in simple cases, we use the box immediately */
+    box_end(box_context, status);       /* in simple cases, we use the box immediately */
 }

@@ -29,12 +29,12 @@ void scan_direction(scan_result *val, int status)
 {
     int save_cur_cmd = cur_cmd;
     int save_cur_chr = cur_chr;
-    get_x_token();
+    get_x_token(status);
     if (cur_cmd == assign_dir_cmd) {
         val->value.int_val = eqtb[cur_chr].cint;
         goto EXIT;
     } else {
-        back_input();
+        back_input(status);
     }
     if (scan_keyword("TLT", status)) {
         val->value.int_val = dir_TLT;
@@ -48,9 +48,9 @@ void scan_direction(scan_result *val, int status)
         tex_error("Bad direction", NULL);
         val->value.int_val = 0;
     }
-    get_x_token();
+    get_x_token(status);
     if (cur_cmd != spacer_cmd)
-        back_input();
+        back_input(status);
   EXIT:
     cur_cmd = save_cur_cmd;
     cur_chr = save_cur_chr;

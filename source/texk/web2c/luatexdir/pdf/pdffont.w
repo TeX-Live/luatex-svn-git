@@ -285,7 +285,7 @@ void read_expand_font(int status)
     //if (pdf_font_blink(f) != null_font)
     //    pdf_error("font expansion",
     //              "\\pdffontexpand cannot be used this way (the base font has been expanded)");
-    scan_optional_equals();
+    scan_optional_equals(status);
     scan_int(&val, status);
     stretch_limit = fix_int(val.value.int_val, 0, 1000);
     scan_int(&val, status);
@@ -306,9 +306,9 @@ void read_expand_font(int status)
     if (scan_keyword("autoexpand", status)) {
         auto_expand = true;
         /* Scan an optional space */
-        get_x_token();
+        get_x_token(status);
         if (cur_cmd != spacer_cmd)
-            back_input();
+            back_input(status);
     }
 
     if (font_step(f) != 0) {
@@ -357,7 +357,7 @@ void new_letterspaced_font(small_number a, int status)
     else
         t = maketexstring("FONT");
     define(u, set_font_cmd, null_font);
-    scan_optional_equals();
+    scan_optional_equals(status);
     scan_font_ident(&val, status);
     k = val.value.int_val;
     scan_int(&val, status);
@@ -383,7 +383,7 @@ void make_font_copy(small_number a, int status)
     else
         t = maketexstring("FONT");
     define(u, set_font_cmd, null_font);
-    scan_optional_equals();
+    scan_optional_equals(status);
     scan_font_ident(&val, status);
     k = val.value.int_val;
     f = copy_font_info(k);

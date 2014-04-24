@@ -102,15 +102,15 @@ halfword scan_action(PDF pdf, int status)
     if (scan_keyword("newwindow", status)) {
         set_pdf_action_new_window(p, pdf_window_new);
         /* Scan an optional space */
-        get_x_token();
+        get_x_token(status);
         if (cur_cmd != spacer_cmd)
-            back_input();
+            back_input(status);
     } else if (scan_keyword("nonewwindow", status)) {
         set_pdf_action_new_window(p, pdf_window_nonew);
         /* Scan an optional space */
-        get_x_token();
+        get_x_token(status);
         if (cur_cmd != spacer_cmd)
-            back_input();
+            back_input(status);
     } else {
         set_pdf_action_new_window(p, pdf_window_notset);
     }

@@ -978,7 +978,7 @@ void fire_up(halfword c)
             begin_token_list(output_routine, output_text);
             new_save_level(output_group);
             normal_paragraph();
-            scan_left_brace();
+            scan_left_brace(normal); /* status */
             return;
 
         }
@@ -1025,7 +1025,7 @@ void resume_after_output(int status)
     }
     end_token_list();           /* conserve stack space in case more outputs are triggered */
     end_graf(bottom_level);
-    unsave();
+    unsave(status);
     output_active = false;
     insert_penalties = 0;
     /* Ensure that box |output_box| is empty after output */

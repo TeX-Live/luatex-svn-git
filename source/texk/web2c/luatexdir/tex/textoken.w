@@ -485,7 +485,7 @@ boolean scan_keyword(const char *s, int status)
     token_link(p) = null;
     k = s;
     while (*k) {
-        get_x_token();      /* recursion is possible here */
+        get_x_token(status);      /* recursion is possible here */
         if ((cur_cs == 0) &&
             ((cur_chr == *k) || (cur_chr == *k - 'a' + 'A'))) {
             store_new_token(cur_tok, status);
@@ -500,7 +500,7 @@ boolean scan_keyword(const char *s, int status)
                 if (cur_cmd != endv_cmd) 
    	           align_state = saved_align_state;
             } else {
-                back_input();
+                back_input(status);
             }
             cur_cs = save_cur_cs;
             return false;
@@ -797,7 +797,7 @@ void check_outer_validity(int status)
             /* back up one inserted token and call |error| */
             {
                 OK_to_interrupt = false;
-                back_input();
+                back_input(status);
                 token_type = inserted;
                 OK_to_interrupt = true;
                 tex_error(errmsg, errhlp);
@@ -1586,9 +1586,9 @@ halfword str_toks(lstring s, int status)
 
 @ Here's part of the |expand| subroutine that we are now ready to complete:
 @c
-void ins_the_toks(void)
+void ins_the_toks(int status)
 {
-    (void) the_toks(scanner_status);
+    (void) the_toks(status);
     ins_list(token_link(temp_token_head));
 }
 
@@ -1712,9 +1712,9 @@ int scan_lua_state(int status) /* hh-ls: optional name or number (not optional n
     /* Get the next non-blank non-relax non-call token */
     int sn = 0;
     do {
-        get_x_token();
+        get_x_token(status);
     } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
-    back_input();               /* have to push it back, whatever it is  */
+    back_input(status);               /* have to push it back, whatever it is  */
     if (cur_cmd != left_brace_cmd) {
         if (scan_keyword("name", status)) {
             (void) scan_toks(false, true);
@@ -1752,17 +1752,16 @@ void conv_toks(int status)
     int i = 0;                  /* first temp integer */
     int j = 0;                  /* second temp integer */
     int c = cur_chr;            /* desired type of conversion */
-    int save_scanner_status;
     str_number str;
     scan_result val;
     /* Scan the argument for command |c| */
     switch (c) {
     case uchar_code:
-        scan_char_num(&val, scanner_status);
+        scan_char_num(&val, status);
         break;
     case number_code:
     case roman_numeral_code:
-        scan_int(&val, scanner_status);
+        scan_int(&val, status);
         break;
     case string_code:
     case meaning_code:
@@ -1772,7 +1771,7 @@ void conv_toks(int status)
         break;
     case font_name_code:
     case font_id_code:
-        scan_font_ident(&val, scanner_status);
+        scan_font_ident(&val, status);
         break;
     case pdftex_revision_code:
     case luatex_revision_code:
@@ -1782,7 +1781,7 @@ void conv_toks(int status)
     case pdf_font_name_code:
     case pdf_font_objnum_code:
     case pdf_font_size_code:
-        scan_font_ident(&val, scanner_status);
+        scan_font_ident(&val, status);
         if (val.value.int_val == null_font)
             pdf_error("font", "invalid font identifier");
         if (c != pdf_font_size_code) {
@@ -1792,22 +1791,22 @@ void conv_toks(int status)
         }
         break;
     case pdf_page_ref_code:
-        scan_int(&val, scanner_status);
+        scan_int(&val, status);
         if (val.value.int_val <= 0)
             pdf_error("pageref", "invalid page number");
         break;
     case left_margin_kern_code:
     case right_margin_kern_code:
-        scan_int(&val, scanner_status);
+        scan_int(&val, status);
         if ((box(val.value.int_val) == null) || (type(box(val.value.int_val)) != hlist_node))
             pdf_error("marginkern", "a non-empty hbox expected");
         break;
     case pdf_xform_name_code:
-        scan_int(&val, scanner_status);
+        scan_int(&val, status);
         check_obj_type(static_pdf, obj_type_xform, val.value.int_val);
         break;
     case pdf_creation_date_code:
-        ins_list(string_to_toks(getcreationdate(static_pdf), scanner_status));
+        ins_list(string_to_toks(getcreationdate(static_pdf), status));
         return;
         break;
     case format_name_code:
@@ -1844,7 +1843,7 @@ void conv_toks(int status)
         }
         break;
     case uniform_deviate_code:
-        scan_int(&val, scanner_status);
+        scan_int(&val, status);
         break;
     case normal_deviate_code:
         break;
@@ -1852,7 +1851,6 @@ void conv_toks(int status)
         {
             lstring escstr;
             int l = 0;
-            save_scanner_status = scanner_status;
             save_def_ref = def_ref;
             save_warning_index = warning_index;
             scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
@@ -1864,8 +1862,7 @@ void conv_toks(int status)
             delete_token_ref(def_ref);
             def_ref = save_def_ref;
             warning_index = save_warning_index;
-            scanner_status = save_scanner_status;
-            (void) lua_str_toks(escstr, scanner_status);
+            (void) lua_str_toks(escstr, status);
             ins_list(token_link(temp_token_head));
             free(escstr.s);
             return;
@@ -1874,13 +1871,11 @@ void conv_toks(int status)
     case math_style_code:
         break;
     case expanded_code:
-        save_scanner_status = scanner_status;
         save_warning_index = warning_index;
         save_def_ref = def_ref;
         u = save_cur_string();
         scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
         warning_index = save_warning_index;
-        scanner_status = save_scanner_status;
         ins_list(token_link(def_ref));
         def_ref = save_def_ref;
         restore_cur_string(u);
@@ -1888,15 +1883,13 @@ void conv_toks(int status)
         break;
     case lua_code:
         u = save_cur_string();
-        save_scanner_status = scanner_status;
         save_def_ref = def_ref;
         save_warning_index = warning_index;
-        sn = scan_lua_state(scanner_status);
+        sn = scan_lua_state(status);
         scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
         s = def_ref;
         warning_index = save_warning_index;
         def_ref = save_def_ref;
-        scanner_status = save_scanner_status;
         luacstrings = 0;
         luatokencall(s, sn);
         delete_token_ref(s);
@@ -1906,7 +1899,7 @@ void conv_toks(int status)
         return;
         break;
     case lua_function_code:
-        scan_int(&val, scanner_status);
+        scan_int(&val, status);
         if (val.value.int_val <= 0) {
             pdf_error("luafunction", "invalid number");
         } else {
@@ -1919,13 +1912,13 @@ void conv_toks(int status)
         }
         break;
     case pdf_insert_ht_code:
-        scan_register_num(&val, scanner_status);
+        scan_register_num(&val, status);
         break;
     case pdf_ximage_bbox_code:
-        scan_int(&val, scanner_status);
+        scan_int(&val, status);
         check_obj_type(static_pdf, obj_type_ximage, val.value.int_val);
         i = obj_data_ptr(static_pdf, val.value.int_val);
-        scan_int(&val, scanner_status);
+        scan_int(&val, status);
         j = val.value.int_val;
         if ((j < 1) || (j > 4))
             pdf_error("pdfximagebbox", "invalid parameter");
@@ -2030,7 +2023,7 @@ void conv_toks(int status)
 
     selector = old_setting;
     str = make_string();
-    (void) str_toks(str_lstring(str), scanner_status);
+    (void) str_toks(str_lstring(str), status);
     flush_str(str);
     ins_list(token_link(temp_token_head));
 }

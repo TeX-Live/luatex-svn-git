@@ -48,8 +48,8 @@ typedef struct {
     value_level_code level;
 } scan_result;
 
-extern void scan_left_brace(void);
-extern void scan_optional_equals(void);
+extern void scan_left_brace(int status);
+extern void scan_optional_equals(int status);
 
 extern scan_result *scan_something_simple(halfword cmd, halfword subitem);
 extern void scan_something_internal(scan_result*val, int level, boolean negative, int status);

@@ -79,8 +79,8 @@ extern int pack_begin_line;
 extern halfword vpackage(halfword p, scaled h, int m, scaled l, int d);
 extern halfword filtered_vpackage(halfword p, scaled h, int m, scaled l,
                                   int grp, int d);
-extern void finish_vcenter(void);
-extern void package(int c);
+extern void finish_vcenter(int status);
+extern void package(int c, int status);
 extern void append_to_vlist(halfword b);
 
 extern halfword prune_page_top(halfword p, boolean s);

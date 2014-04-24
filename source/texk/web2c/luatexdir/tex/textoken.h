@@ -152,7 +152,7 @@ extern void firm_up_the_line(void);
 extern void get_token(int status);
 
 extern halfword str_toks(lstring b, int status);
-extern void ins_the_toks(void);
+extern void ins_the_toks(int status);
 
 extern int scan_lua_state(int status);
 extern void conv_toks(int status);

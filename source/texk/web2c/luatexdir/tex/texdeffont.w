@@ -101,15 +101,15 @@ void tex_def_font(small_number a, int status)
     } else {
         eq_define(u, set_font_cmd, null_font);
     }
-    scan_optional_equals();
+    scan_optional_equals(status);
     /* Get the next non-blank non-call token; */
     do {
-        get_x_token();
+        get_x_token(status);
     } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
 
     if (cur_cmd != left_brace_cmd) {
-        back_input();
-        scan_file_name();
+        back_input(status);
+        scan_file_name(status);
         if (cur_area != get_nullstr() || cur_ext != get_nullstr()) {
             /* Have to do some rescue-ing here, fonts only have a name,
                no area nor extension */
@@ -130,7 +130,7 @@ void tex_def_font(small_number a, int status)
             cur_area = get_nullstr();
         }
     } else {
-        back_input();
+        back_input(status);
         (void) scan_toks(false, true);
         old_setting = selector;
         selector = new_string;

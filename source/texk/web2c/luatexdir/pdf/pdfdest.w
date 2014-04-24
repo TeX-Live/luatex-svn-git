@@ -263,9 +263,9 @@ void scan_pdfdest(PDF pdf, int status)
         pdf_error("ext1", "destination type missing");
     }
     /* Scan an optional space */
-    get_x_token();
+    get_x_token(status);
     if (cur_cmd != spacer_cmd)
-        back_input();
+        back_input(status);
 
     if (pdf_dest_type(cur_list.tail_field) == pdf_dest_fitr) {
         alt_rule = scan_alt_rule(status);     /* scans |<rule spec>| to |alt_rule| */

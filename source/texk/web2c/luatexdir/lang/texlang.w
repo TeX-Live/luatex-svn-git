@@ -1061,7 +1061,7 @@ defaults are ascii hyphen ("-") and zero (nul).
 void new_pre_hyphen_char(void)
 {
     scan_result val;
-    scan_optional_equals();
+    scan_optional_equals(normal);
     scan_int(&val, normal);
     set_pre_hyphen_char(int_par(language_code), val.value.int_val);
 }
@@ -1069,7 +1069,7 @@ void new_pre_hyphen_char(void)
 void new_post_hyphen_char(void)
 {
     scan_result val;
-    scan_optional_equals();
+    scan_optional_equals(normal);
     scan_int(&val, normal);
     set_post_hyphen_char(int_par(language_code), val.value.int_val);
 }
@@ -1083,7 +1083,7 @@ defaults are both zero (nul).
 void new_pre_exhyphen_char(void)
 {
     scan_result val;
-    scan_optional_equals();
+    scan_optional_equals(normal);
     scan_int(&val, normal);
     set_pre_exhyphen_char(int_par(language_code), val.value.int_val);
 }
@@ -1091,7 +1091,7 @@ void new_pre_exhyphen_char(void)
 void new_post_exhyphen_char(void)
 {
     scan_result val;
-    scan_optional_equals();
+    scan_optional_equals(normal);
     scan_int(&val, normal);
     set_post_exhyphen_char(int_par(language_code), val.value.int_val);
 }
