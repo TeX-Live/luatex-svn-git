@@ -259,11 +259,10 @@ void expand(void)
             if (cur_chr == 1)
                 force_eof = true;
             else if (cur_chr == 2)
-                pseudo_start();
-            else if (cur_chr == 3) {
-                pseudo_start();
-                iname = 19;
-            } else if (name_in_progress)
+                scantokens_start(false); /* scantokens */
+            else if (cur_chr == 3)
+                scantokens_start(true); /* scantextokens */
+            else if (name_in_progress)
                 insert_relax();
             else
                 start_input();

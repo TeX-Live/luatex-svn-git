@@ -686,10 +686,10 @@ static halfword string_to_pseudo(str_number str, int nl)
 }
 
 
-@ The |pseudo_start| procedure initiates reading from a pseudo file.
+@ The |scantokens_start| procedure initiates reading from a pseudo file.
 
 @c
-void pseudo_from_string(void)
+static void pseudo_from_string(int extended)
 {
     str_number s;               /* string to be converted into a pseudo file */
     halfword p;                 /* for list construction */
@@ -717,10 +717,13 @@ void pseudo_from_string(void)
         iname = 18;
     }
     /* Prepare pseudo file {\sl Sync\TeX} information */
+    if (extended) {
+       iname = 19;
+    }
     synctex_tag = 0;
 }
 
-void pseudo_start(void)
+void scantokens_start(int extended)
 {
     scan_result val;
     int old_setting;            /* holds |selector| setting */
@@ -731,7 +734,7 @@ void pseudo_start(void)
     selector = old_setting;
     flush_list(token_link(temp_token_head));
     str_room(1);
-    pseudo_from_string();
+    pseudo_from_string(extended);
 }
 
 @ @c
