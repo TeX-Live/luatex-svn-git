@@ -700,7 +700,7 @@ void check_outer_validity(void)
         /* An outer control sequence that occurs in a \.{\\read} will not be reread,
            since the error recovery for \.{\\read} is not very powerful. */
         if (cur_cs != 0) {
-            if ((istate == token_list) || (iname < 1) || (iname > 17)) {
+            if ((istate == token_list) || (iname < 1) || (iname > terminal_name)) {
                 p = get_avail();
                 token_info(p) = cs_token_flag + cur_cs;
                 begin_token_list(p, backed_up); /* prepare to read the control sequence again */
@@ -939,7 +939,7 @@ static boolean get_next_file(int prohibit_new_cs)
             break;
         }
     } else {
-        if (iname != 21)
+        if (iname != luacstring_name)
             istate = new_line;
 
         /*
@@ -1213,28 +1213,28 @@ static boolean check_expanded_code(int k)
 static next_line_retval next_line(void)
 {
     boolean inhibit_eol = false;        /* a way to end a pseudo file without trailing space */
-    if (iname > 17) {
+    if (iname >= scantokens_min_name) {
         /* Read next line of file into |buffer|, or |goto restart| if the file has ended */
         incr(line);
         first = istart;
         if (!force_eof) {
-            if (iname <= 20) {
-                if (pseudo_input()) {   /* not end of file */
+            if (iname <= scantokens_max_name) {
+                if (scantokens_input()) {   /* not end of file */
                     firm_up_the_line(); /* this sets |ilimit| */
                     line_catcode_table = DEFAULT_CAT_TABLE;
-                    if ((iname == 19) && (pseudo_lines(pseudo_files) == null))
+                    if ((iname == scantextokens_name) && (pseudo_lines(pseudo_files) == null))
                         inhibit_eol = true;
                 } else if ((every_eof != null) && !eof_seen[iindex]) {
                     ilimit = first - 1;
                     eof_seen[iindex] = true;    /* fake one empty line */
-                    if (iname != 19)
+                    if (iname != scantextokens_name)
                         begin_token_list(every_eof, every_eof_text);
                     return next_line_restart;
                 } else {
                     force_eof = true;
                 }
             } else {
-                if (iname == 21) {
+                if (iname == luacstring_name) {
                     if (luacstring_input()) {   /* not end of strings  */
                         firm_up_the_line();
                         line_catcode_table = (short) luacstring_cattable();
@@ -1266,9 +1266,9 @@ static next_line_retval next_line(void)
             if (tracing_nesting > 0)
                 if ((grp_stack[in_open] != cur_boundary)
                     || (if_stack[in_open] != cond_ptr))
-                    if (!((iname == 19) || (iname == 21)))
+                    if (!((iname == scantextokens_name) || (iname == luacstring_name)))
                         file_warning(); /* give warning for some unfinished groups and/or conditionals */
-            if ((iname > 21) || (iname == 20)) {
+            if ((iname > luacstring_name) || (iname == scantokens_debugged_name)) {
                 if (tracefilenames)
                     print_char(')');
                 open_parens--;
@@ -1277,8 +1277,8 @@ static next_line_retval next_line(void)
 #endif
             }
             force_eof = false;
-            if (iname == 21 ||  /* lua input */
-                iname == 19) {  /* \.{\\scantextokens} */
+            if (iname == luacstring_name ||  /* lua input */
+                iname == scantextokens_name) {  /* \.{\\scantextokens} */
                 end_file_reading();
             } else {
                 end_file_reading();

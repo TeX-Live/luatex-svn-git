@@ -275,7 +275,7 @@ void show_context(void)
     while (true) {
         cur_input = input_stack[base_ptr];      /* enter into the context */
         if (istate != token_list) {
-            if ((iname > 21) || (base_ptr == 0))
+            if ((iname > luacstring_name) || (base_ptr == 0))
                 bottom_line = true;
         }
         if ((base_ptr == input_ptr) || bottom_line
@@ -293,7 +293,7 @@ void show_context(void)
                        indication of where the current line resides in the input file.
                        For example, on some systems it is best to print both a page and line number.
                      */
-                    if (iname <= 17) {
+                    if (iname < scantokens_min_name) {
                         if (terminal_input) {
                             if (base_ptr == 0)
                                 tprint_nl("<*>");
@@ -301,7 +301,7 @@ void show_context(void)
                                 tprint_nl("<insert> ");
                         } else {
                             tprint_nl("<read ");
-                            if (iname == 17)
+                            if (iname == terminal_name)
                                 print_char('*');
                             else
                                 print_int(iname - 1);
@@ -556,15 +556,16 @@ void begin_file_reading(void)
 is finished:
 
 @c
+static void scantokens_close_file(void);
 void end_file_reading(void)
 {
     first = istart;
     line = line_stack[iindex];
-    if ((iname >= 18) && (iname <= 20))
-        pseudo_close();
-    else if (iname == 21)
+    if ((iname >= scantokens_min_name) && (iname <= scantokens_max_name))
+        scantokens_close_file();
+    else if (iname == luacstring_name)
         luacstring_close(iindex);
-    else if (iname > 17)
+    else if (iname > luacstring_name)
         lua_a_close_in(cur_file, 0);    /* forget it */
     pop_input();
     decr(in_open);
@@ -704,22 +705,21 @@ static void pseudo_from_string(int extended)
     line = 0;
     ilimit = istart;
     iloc = ilimit + 1;          /* force line read */
-    if (int_par(tracing_scan_tokens_code) > 0) {
+    if (extended) {
+       iname = scantextokens_name;
+    } else if (int_par(tracing_scan_tokens_code) > 0) {
         if (term_offset > max_print_line - 3)
             print_ln();
         else if ((term_offset > 0) || (file_offset > 0))
             print_char(' ');
-        iname = 20;
         tprint("( ");
         incr(open_parens);
         update_terminal();
+        iname = scantokens_debugged_name;
     } else {
-        iname = 18;
+        iname = scantokens_name;
     }
     /* Prepare pseudo file {\sl Sync\TeX} information */
-    if (extended) {
-       iname = 19;
-    }
     synctex_tag = 0;
 }
 
@@ -744,14 +744,14 @@ void lua_string_start(void)
     line = 0;
     ilimit = istart;
     iloc = ilimit + 1;          /* force line read */
-    iname = 21;
+    iname = luacstring_name;
     luacstring_start(iindex);
 }
 
 @ Here we read a line from the current pseudo file into |buffer|.
 
 @c
-boolean pseudo_input(void)
+boolean scantokens_input(void)
 {                               /* inputs the next line or returns |false| */
     halfword p;                 /* current line from pseudo file */
     int sz;                     /* size of node |p| */
@@ -787,10 +787,18 @@ boolean pseudo_input(void)
 @ When we are done with a pseudo file we `close' it.
 
 @c
-void pseudo_close(void)
+static void scantokens_close_file(void)
 {                               /* close the top level pseudo file */
     halfword p;
     p = vlink(pseudo_files);
     flush_node(pseudo_files);
     pseudo_files = p;
+}
+
+@ 
+@c
+void scantokens_flush_files(void)
+{ 
+     while (pseudo_files != null)
+         scantokens_close_file(); /* flush pseudo files */
 }

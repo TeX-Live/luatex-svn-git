@@ -339,10 +339,18 @@ extern void clear_for_error_prompt(void);
 extern void initialize_inputstack(void);
 
 extern halfword pseudo_files;
+#define terminal_name 17
+#define scantokens_min_name 18
+#define scantokens_name 18
+#define scantextokens_name 19
+#define scantokens_debugged_name 20
+#define scantokens_max_name 20
+#define luacstring_name 21
 extern void scantokens_start(int extended);
+extern void scantokens_flush_files(void);
+extern boolean scantokens_input(void);
+
 extern void lua_string_start(void);
-extern boolean pseudo_input(void);
-extern void pseudo_close(void);
 
 
 #endif

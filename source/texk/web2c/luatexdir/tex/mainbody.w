@@ -634,8 +634,7 @@ void final_cleanup(void)
                 flush_node_list(disc_ptr[c]);
             if (last_glue != max_halfword)
                 delete_glue_ref(last_glue);
-            while (pseudo_files != null)
-                pseudo_close(); /* flush pseudo files */
+            scantokens_flush_files();
             store_fmt_file();
             return;
         }
