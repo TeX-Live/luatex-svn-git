@@ -132,19 +132,19 @@ static void end_name(void)
    file name in the input by calling |get_x_token| for the information.
 
 @c
-void scan_file_name(int status)
+void scan_file_name(void)
 {
     str_number u = 0;
     name_in_progress = true;
     begin_name();
     /* Get the next non-blank non-call token; */
     do {
-        get_x_token(status);
+        get_x_token();
     } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
 
     while (true) {
         if ((cur_cmd > other_char_cmd) || (cur_chr > biggest_char)) {   /* not a character */
-            back_input(status);
+            back_input();
             break;
         }
         /* If |cur_chr| is a space and we're not scanning a token list, check
@@ -169,7 +169,7 @@ void scan_file_name(int status)
                 break;
         }
         u = save_cur_string();
-        get_x_token(status);
+        get_x_token();
         restore_cur_string(u);
     }
     end_name();

@@ -368,49 +368,49 @@ static image_dict *read_image(PDF pdf, char *file_name, int page_num,
 
 @ scans PDF pagebox specification
 @c
-static pdfboxspec_e scan_pdf_box_spec(int status)
+static pdfboxspec_e scan_pdf_box_spec(void)
 {
-    if (scan_keyword("mediabox", status))
+    if (scan_keyword("mediabox"))
         return PDF_BOX_SPEC_MEDIA;
-    else if (scan_keyword("cropbox", status))
+    else if (scan_keyword("cropbox"))
         return PDF_BOX_SPEC_CROP;
-    else if (scan_keyword("bleedbox", status))
+    else if (scan_keyword("bleedbox"))
         return PDF_BOX_SPEC_BLEED;
-    else if (scan_keyword("trimbox", status))
+    else if (scan_keyword("trimbox"))
         return PDF_BOX_SPEC_TRIM;
-    else if (scan_keyword("artbox", status))
+    else if (scan_keyword("artbox"))
         return PDF_BOX_SPEC_ART;
     return PDF_BOX_SPEC_NONE;
 }
 
 @ @c
-void scan_pdfximage(PDF pdf, int status)
+void scan_pdfximage(PDF pdf)
 {
     scaled_whd alt_rule;
     image_dict *idict;
     int transform = 0, page = 1, pagebox, colorspace = 0;
     char *named = NULL, *attr = NULL, *file_name = NULL;
     scan_result val;
-    alt_rule = scan_alt_rule(status); /* scans |<rule spec>| to |alt_rule| */
-    if (scan_keyword("attr", status)) {
+    alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
+    if (scan_keyword("attr")) {
         scan_pdf_ext_toks();
         attr = tokenlist_to_cstring(def_ref, true, NULL);
         delete_token_ref(def_ref);
     }
-    if (scan_keyword("named", status)) {
+    if (scan_keyword("named")) {
         scan_pdf_ext_toks();
         named = tokenlist_to_cstring(def_ref, true, NULL);
         delete_token_ref(def_ref);
         page = 0;
-    } else if (scan_keyword("page", status)) {
-        scan_int(&val, status);
+    } else if (scan_keyword("page")) {
+        scan_int(&val);
         page = val.value.int_val;
     }
-    if (scan_keyword("colorspace", status)) {
-        scan_int(&val, status);
+    if (scan_keyword("colorspace")) {
+        scan_int(&val);
         colorspace = val.value.int_val;
     }
-    pagebox = scan_pdf_box_spec(status);
+    pagebox = scan_pdf_box_spec();
     if (pagebox == PDF_BOX_SPEC_NONE) {
         pagebox = pdf_pagebox;
         if (pagebox == PDF_BOX_SPEC_NONE)
@@ -434,14 +434,14 @@ void scan_pdfximage(PDF pdf, int status)
 @ @c
 #define tail          cur_list.tail_field
 
-void scan_pdfrefximage(PDF pdf, int status)
+void scan_pdfrefximage(PDF pdf)
 {
     int transform = 0;          /* one could scan transform as well */
     image_dict *idict;
     scaled_whd alt_rule, dim;
     scan_result val;
-    alt_rule = scan_alt_rule(status); /* scans |<rule spec>| to |alt_rule| */
-    scan_int(&val, status);
+    alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
+    scan_int(&val);
     check_obj_type(pdf, obj_type_ximage, val.value.int_val);
     new_whatsit(pdf_refximage_node);
     idict = idict_array[obj_data_ptr(pdf, val.value.int_val)];
@@ -839,7 +839,7 @@ void undumpimagemeta(PDF pdf, int pdfversion, int pdfinclusionerrorlevel)
 
 @ scan rule spec to |alt_rule|
 @c
-scaled_whd scan_alt_rule(int status)
+scaled_whd scan_alt_rule(void)
 {
     boolean loop;
     scaled_whd alt_rule;
@@ -849,16 +849,16 @@ scaled_whd scan_alt_rule(int status)
     alt_rule.dp = null_flag;
     do {
         loop = false;
-        if (scan_keyword("width", status)) {
-            scan_normal_dimen(&val, status);
+        if (scan_keyword("width")) {
+            scan_normal_dimen(&val);
             alt_rule.wd = val.value.dimen_val;
             loop = true;
-        } else if (scan_keyword("height", status)) {
-            scan_normal_dimen(&val, status);
+        } else if (scan_keyword("height")) {
+            scan_normal_dimen(&val);
             alt_rule.ht = val.value.dimen_val;
             loop = true;
-        } else if (scan_keyword("depth", status)) {
-            scan_normal_dimen(&val, status);
+        } else if (scan_keyword("depth")) {
+            scan_normal_dimen(&val);
             alt_rule.dp = val.value.dimen_val;
             loop = true;
         }

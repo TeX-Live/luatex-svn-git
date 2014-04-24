@@ -978,7 +978,7 @@ void fire_up(halfword c)
             begin_token_list(output_routine, output_text);
             new_save_level(output_group);
             normal_paragraph();
-            scan_left_brace(normal); /* status */
+            scan_left_brace();
             return;
 
         }
@@ -1008,7 +1008,7 @@ void fire_up(halfword c)
 in internal vertical mode, and \TeX\ will do the following:
 
 @c
-void resume_after_output(int status)
+void resume_after_output(void)
 {
     if ((iloc != null)
         || ((token_type != output_text) && (token_type != backed_up))) {
@@ -1018,14 +1018,14 @@ void resume_after_output(int status)
               "I can't handle that very well; good luck.");
         error();
         do {
-            get_token(status);
+            get_token();
         } while (iloc != null);
         /* loops forever if reading from a file, since |null=min_halfword<=0| */
 
     }
     end_token_list();           /* conserve stack space in case more outputs are triggered */
     end_graf(bottom_level);
-    unsave(status);
+    unsave();
     output_active = false;
     insert_penalties = 0;
     /* Ensure that box |output_box| is empty after output */

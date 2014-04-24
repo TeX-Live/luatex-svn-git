@@ -34,8 +34,8 @@ typedef enum {
 
 #  define substituted 3         /* |subtype| of kern nodes that should be substituted */
 
-extern void scan_spec(group_code c, int status);
-extern void scan_full_spec(group_code c, int spec_direction, int status);
+extern void scan_spec(group_code c);
+extern void scan_full_spec(group_code c, int spec_direction);
 
 extern scaled total_stretch[5];
 extern scaled total_shrink[5];  /* glue found by |hpack| or |vpack| */
@@ -79,8 +79,8 @@ extern int pack_begin_line;
 extern halfword vpackage(halfword p, scaled h, int m, scaled l, int d);
 extern halfword filtered_vpackage(halfword p, scaled h, int m, scaled l,
                                   int grp, int d);
-extern void finish_vcenter(int status);
-extern void package(int c, int status);
+extern void finish_vcenter(void);
+extern void package(int c);
 extern void append_to_vlist(halfword b);
 
 extern halfword prune_page_top(halfword p, boolean s);
@@ -147,6 +147,6 @@ where the latter two are used denote \.{\\vbox} and \.{\\hbox}, respectively.
 #  define ship_out_flag (max_global_box_flag+1) /* context code for `\.{\\shipout}' */
 #  define leader_flag ship_out_flag+1   /* context code for `\.{\\leaders}' */
 
-extern void begin_box(int box_context, int status);
+extern void begin_box(int box_context);
 
 #endif

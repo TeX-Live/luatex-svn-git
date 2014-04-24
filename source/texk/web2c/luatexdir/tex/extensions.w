@@ -129,7 +129,7 @@ halfword write_loc;             /* |eqtb| address of \.{\\write} */
 the |do_extension| routine is called.
 
 @c
-void do_extension(PDF pdf, int status)
+void do_extension(PDF pdf)
 {
     int i, k;                   /* all-purpose integers */
     halfword p;                 /* all-purpose pointer */
@@ -137,9 +137,9 @@ void do_extension(PDF pdf, int status)
     switch (cur_chr) {
     case open_node:
         /* Implement \.{\\openout} */
-        new_write_whatsit(open_node_size, status);
-        scan_optional_equals(status);
-        scan_file_name(status);
+        new_write_whatsit(open_node_size);
+        scan_optional_equals();
+        scan_file_name();
         open_name(tail) = cur_name;
         open_area(tail) = cur_area;
         open_ext(tail) = cur_ext;
@@ -150,14 +150,14 @@ void do_extension(PDF pdf, int status)
            without expanding its macros; the macros will be expanded later when this
            token list is rescanned. */
         k = cur_cs;
-        new_write_whatsit(write_node_size, status);
+        new_write_whatsit(write_node_size);
         cur_cs = k;
         p = scan_toks(false, false);
         write_tokens(tail) = def_ref;
         break;
     case close_node:
         /* Implement \.{\\closeout} */
-        new_write_whatsit(write_node_size, status);
+        new_write_whatsit(write_node_size);
         write_tokens(tail) = null;
         break;
     case special_node:
@@ -183,12 +183,12 @@ void do_extension(PDF pdf, int status)
            to descend to one level of recursion. Nothing happens unless \.{\\immediate}
            is followed by `\.{\\openout}', `\.{\\write}', or `\.{\\closeout}'.
          */
-        get_x_token(status);
+        get_x_token();
         if (cur_cmd == extension_cmd) {
             if (cur_chr <= close_node) {
                 p = tail;
                 /* |do_extension()| and |out_what()| here can only be open, write, or close */
-                do_extension(pdf, status);      /* append a whatsit node */
+                do_extension(pdf);      /* append a whatsit node */
                 out_what(pdf, tail);    /* do the action immediately */
                 flush_node_list(tail);
                 tail = p;
@@ -198,7 +198,7 @@ void do_extension(PDF pdf, int status)
                 case pdf_obj_code:
                     check_o_mode(pdf, "\\immediate\\pdfobj", 1 << OMODE_PDF,
                                  true);
-                    do_extension(pdf, status);  /* scan object and set |pdf_last_obj| */
+                    do_extension(pdf);  /* scan object and set |pdf_last_obj| */
                     if (obj_data_ptr(pdf, pdf_last_obj) == 0)   /* this object has not been initialized yet */
                         pdf_error("ext1",
                                   "`\\pdfobj reserveobjnum' cannot be used with \\immediate");
@@ -206,42 +206,40 @@ void do_extension(PDF pdf, int status)
                     break;
                 case pdf_xform_code:
                     check_o_mode(pdf, "\\immediate\\pdfxform", 1 << OMODE_PDF,
-
-
                                  true);
-                    do_extension(pdf, status);  /* scan form and set |pdf_last_xform| */
+                    do_extension(pdf);  /* scan form and set |pdf_last_xform| */
                     pdf_cur_form = pdf_last_xform;
                     ship_out(pdf, obj_xform_box(pdf, pdf_last_xform), SHIPPING_FORM);
                     break;
                 case pdf_ximage_code:
                     check_o_mode(pdf, "\\immediate\\pdfximage", 1 << OMODE_PDF,
                                  true);
-                    do_extension(pdf, status);  /* scan image and set |pdf_last_ximage| */
+                    do_extension(pdf);  /* scan image and set |pdf_last_ximage| */
                     pdf_write_image(pdf, pdf_last_ximage);
                     break;
                 default:
-                    back_input(status);
+                    back_input();
                     break;
                 }
             }
         } else {
-            back_input(status);
+            back_input();
         }
         break;
     case pdf_annot_node:
         /* Implement \.{\\pdfannot} */
         check_o_mode(pdf, "\\pdfannot", 1 << OMODE_PDF, false);
-        scan_annot(pdf, status);
+        scan_annot(pdf);
         break;
     case pdf_catalog_code:
         /* Implement \.{\\pdfcatalog} */
         check_o_mode(pdf, "\\pdfcatalog", 1 << OMODE_PDF, true);        /* writes an object */
-        scan_pdfcatalog(pdf, status);
+        scan_pdfcatalog(pdf);
         break;
     case pdf_dest_node:
         /* Implement \.{\\pdfdest} */
         check_o_mode(pdf, "\\pdfdest", 1 << OMODE_PDF, false);
-        scan_pdfdest(pdf, status);
+        scan_pdfdest(pdf);
         break;
     case pdf_end_link_node:
         /* Implement \.{\\pdfendlink} */
@@ -263,7 +261,7 @@ void do_extension(PDF pdf, int status)
            \.{\\pdffontattr} to a string containing a single zero, as that
            would be nonsensical in the PDF output. */
         check_o_mode(pdf, "\\pdffontattr", 1 << OMODE_PDF, false);
-        scan_font_ident(&val, status);
+        scan_font_ident(&val);
         k = val.value.int_val;
         if (k == null_font)
             pdf_error("font", "invalid font identifier");
@@ -276,12 +274,12 @@ void do_extension(PDF pdf, int status)
         break;
     case pdf_font_expand_code:
         /* Implement \.{\\pdffontexpand} */
-        read_expand_font(status);
+        read_expand_font();
         break;
     case pdf_include_chars_code:
         /* Implement \.{\\pdfincludechars} */
         check_o_mode(pdf, "\\pdfincludechars", 1 << OMODE_PDF, false);
-        pdf_include_chars(pdf, status);
+        pdf_include_chars(pdf);
         break;
     case pdf_info_code:
         /* Implement \.{\\pdfinfo} */
@@ -293,9 +291,9 @@ void do_extension(PDF pdf, int status)
         /* Implement \.{\\pdfliteral} */
         check_o_mode(pdf, "\\pdfliteral", 1 << OMODE_PDF, false);
         new_whatsit(pdf_literal_node);
-        if (scan_keyword("direct", status))
+        if (scan_keyword("direct"))
             set_pdf_literal_mode(tail, direct_always);
-        else if (scan_keyword("page", status))
+        else if (scan_keyword("page"))
             set_pdf_literal_mode(tail, direct_page);
         else
             set_pdf_literal_mode(tail, set_origin);
@@ -307,7 +305,7 @@ void do_extension(PDF pdf, int status)
         /* Implement \.{\\pdfcolorstack} */
         check_o_mode(pdf, "\\pdfcolorstack", 1 << OMODE_PDF, false);
         /* Scan and check the stack number and store in |cur_val| */
-        scan_int(&val, status);
+        scan_int(&val);
         if (val.value.int_val >= colorstackused()) {
             print_err("Unknown color stack number ");
             print_int(val.value.int_val);
@@ -325,13 +323,13 @@ void do_extension(PDF pdf, int status)
             error();
             val.value.int_val = 0;
         }
-        if (scan_keyword("set", status))
+        if (scan_keyword("set"))
             i = colorstack_set;
-        else if (scan_keyword("push", status))
+        else if (scan_keyword("push"))
             i = colorstack_push;
-        else if (scan_keyword("pop", status))
+        else if (scan_keyword("pop"))
             i = colorstack_pop;
-        else if (scan_keyword("current", status))
+        else if (scan_keyword("current"))
             i = colorstack_current;
         else
             i = -1;             /* error */
@@ -393,27 +391,27 @@ void do_extension(PDF pdf, int status)
     case pdf_obj_code:
         /* Implement \.{\\pdfobj} */
         check_o_mode(pdf, "\\pdfobj", 1 << OMODE_PDF, false);
-        scan_obj(pdf, status);
+        scan_obj(pdf);
         break;
     case pdf_outline_code:
         /* Implement \.{\\pdfoutline} */
         check_o_mode(pdf, "\\pdfoutline", 1 << OMODE_PDF, true);
-        scan_pdfoutline(pdf, status);
+        scan_pdfoutline(pdf);
         break;
     case pdf_refobj_node:
         /* Implement \.{\\pdfrefobj} */
         check_o_mode(pdf, "\\pdfrefobj", 1 << OMODE_PDF, false);
-        scan_refobj(pdf, status);
+        scan_refobj(pdf);
         break;
     case pdf_refxform_node:
         /* Implement \.{\\pdfrefxform} */
         check_o_mode(pdf, "\\pdfrefxform", 1 << OMODE_PDF, false);
-        scan_pdfrefxform(pdf, status);
+        scan_pdfrefxform(pdf);
         break;
     case pdf_refximage_node:
         /* Implement \.{\\pdfrefximage} */
         check_o_mode(pdf, "\\pdfrefximage", 1 << OMODE_PDF, false);
-        scan_pdfrefximage(pdf, status);
+        scan_pdfrefximage(pdf);
         break;
     case pdf_save_pos_node:
         /* Implement \.{\\pdfsavepos} */
@@ -422,19 +420,19 @@ void do_extension(PDF pdf, int status)
     case pdf_start_link_node:
         /* Implement \.{\\pdfstartlink} */
         check_o_mode(pdf, "\\pdfstartlink", 1 << OMODE_PDF, false);
-        scan_startlink(pdf, status);
+        scan_startlink(pdf);
         break;
     case pdf_start_thread_node:
         /* Implement \.{\\pdfstartthread} */
         check_o_mode(pdf, "\\pdfstartthread", 1 << OMODE_PDF, false);
-        new_annot_whatsit(pdf_start_thread_node, status);
-        scan_thread_id(status);
+        new_annot_whatsit(pdf_start_thread_node);
+        scan_thread_id();
         break;
     case pdf_thread_node:
         /* Implement \.{\\pdfthread} */
         check_o_mode(pdf, "\\pdfthread", 1 << OMODE_PDF, false);
-        new_annot_whatsit(pdf_thread_node, status);
-        scan_thread_id(status);
+        new_annot_whatsit(pdf_thread_node);
+        scan_thread_id();
         break;
     case pdf_trailer_code:
         /* Implement \.{\\pdftrailer} */
@@ -445,18 +443,18 @@ void do_extension(PDF pdf, int status)
     case pdf_xform_code:
         /* Implement \.{\\pdfxform} */
         check_o_mode(pdf, "\\pdfxform", 1 << OMODE_PDF, false);
-        scan_pdfxform(pdf, status);
+        scan_pdfxform(pdf);
         break;
     case pdf_ximage_code:
         /* Implement \.{\\pdfximage} */
         check_o_mode(pdf, "\\pdfximage", 1 << OMODE_PDF, false);
         /* png, jpeg, and pdf image handling depends on this done so early: */
         fix_pdf_minorversion(pdf);
-        scan_pdfximage(pdf, status);
+        scan_pdfximage(pdf);
         break;
     case save_cat_code_table_code:
         /* Implement \.{\\savecatcodetable} */
-        scan_int(&val, status);
+        scan_int(&val);
         if ((val.value.int_val < 0) || (val.value.int_val > 0x7FFF)) {
             print_err("Invalid \\catcode table");
             help1("All \\catcode table ids must be between 0 and 0x7FFF");
@@ -473,7 +471,7 @@ void do_extension(PDF pdf, int status)
         break;
     case init_cat_code_table_code:
         /* Implement \.{\\initcatcodetable} */
-        scan_int(&val, status);
+        scan_int(&val);
         if ((val.value.int_val < 0) || (val.value.int_val > 0x7FFF)) {
             print_err("Invalid \\catcode table");
             help1("All \\catcode table ids must be between 0 and 0x7FFF");
@@ -491,7 +489,7 @@ void do_extension(PDF pdf, int status)
     case set_random_seed_code:
         /* Implement \.{\\pdfsetrandomseed} */
         /*  Negative random seed values are silently converted to positive ones */
-        scan_int(&val, status);
+        scan_int(&val);
         if (val.value.int_val < 0)
             negate(val.value.int_val);
         random_seed = val.value.int_val;
@@ -504,7 +502,7 @@ void do_extension(PDF pdf, int status)
     case late_lua_node:
         /* Implement \.{\\latelua} */
         new_whatsit(late_lua_node); /* type == normal */
-        late_lua_name(tail) = scan_lua_state(status);
+        late_lua_name(tail) = scan_lua_state();
         (void) scan_toks(false, false);
         late_lua_data(tail) = def_ref;
         break;
@@ -533,14 +531,14 @@ void new_whatsit(int s)
 involved, and also inserts a |write_stream| number.
 
 @c
-void new_write_whatsit(int w, int status)
+void new_write_whatsit(int w)
 {
     scan_result val;
     new_whatsit(cur_chr);
     if (w != write_node_size) {
-        scan_four_bit_int(&val, status);
+        scan_four_bit_int(&val);
     } else {
-        scan_int(&val, status);
+        scan_int(&val);
         if (val.value.int_val < 0)
             val.value.int_val = 17;
         else if ((val.value.int_val > 15) && (val.value.int_val != 18))
@@ -990,12 +988,12 @@ int get_tex_toks_register(int j)
     return s;
 }
 
-int set_tex_toks_register(int j, lstring s, int status)
+int set_tex_toks_register(int j, lstring s)
 {
     halfword ref;
     int a;
-    ref = get_avail(status);
-    (void) str_toks(s, status);
+    ref = get_avail();
+    (void) str_toks(s);
     set_token_ref_count(ref, 0);
     set_token_link(ref, token_link(temp_token_head));
     if (global_defs > 0)

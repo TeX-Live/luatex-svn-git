@@ -237,7 +237,7 @@ void error(void)
                     else
                         c = c - '0';
                     while (c > 0) {
-                        get_token(normal);    /* one-level recursive call of |error| is possible */
+                        get_token();    /* one-level recursive call of |error| is possible */
                         decr(c);
                     }
                     cur_tok = s1;
@@ -564,19 +564,19 @@ requires that |cur_tok| has been set. We disable interrupts during the
 call of |back_input| so that the help message won't be lost.
 
 @c
-void back_error(int status)
+void back_error(void)
 {                               /* back up one token and call |error| */
     OK_to_interrupt = false;
-    back_input(status);
+    back_input();
     OK_to_interrupt = true;
     error();
 }
 
 @ @c
-void ins_error(int status)
+void ins_error(void)
 {                               /* back up one inserted token and call |error| */
     OK_to_interrupt = false;
-    back_input(status);
+    back_input();
     token_type = inserted;
     OK_to_interrupt = true;
     error();

@@ -79,7 +79,7 @@ extern int dyn_used;
 extern halfword avail;          /* head of the list of available one-word nodes */
 extern unsigned fix_mem_end;    /* the last one-word node used in |mem| */
 
-extern halfword get_avail(int status);
+extern halfword get_avail(void);
 
 /* A one-word node is recycled by calling |free_avail|.
 This routine is part of \TeX's ``inner loop,'' so we want it to be fast.
@@ -95,9 +95,9 @@ overhead at the expense of extra programming. This routine is used in
 the places that would otherwise account for the most calls of |get_avail|.
 */
 
-#  define fast_get_avail(A,B) do {					\
+#  define fast_get_avail(A) do {						\
     (A)=avail; /* avoid |get_avail| if possible, to save time */	\
-    if ((A)==null)  { (A)=get_avail(B); }				\
+    if ((A)==null)  { (A)=get_avail(); }				\
     else  { avail=token_link((A)); token_link((A))=null; incr(dyn_used); } \
   } while (0)
 
@@ -111,12 +111,12 @@ extern void token_show(halfword p);
 #  define set_token_ref_count(a,b) token_info((a))=b
 #  define add_token_ref(a)   token_ref_count(a)++       /* new reference to a token list */
 
-#  define store_new_token(a,b) do {					\
-    q=get_avail(b); token_link(p)=q; token_info(q)=(a); p=q;	\
+#  define store_new_token(a) do {				\
+    q=get_avail(); token_link(p)=q; token_info(q)=(a); p=q;	\
   } while (0)
 
-#  define fast_store_new_token(a,b) do {				\
-    fast_get_avail(q,b); token_link(p)=q; token_info(q)=(a); p=q;	\
+#  define fast_store_new_token(a) do {					\
+    fast_get_avail(q); token_link(p)=q; token_info(q)=(a); p=q;	\
   } while (0)
 
 extern void delete_token_ref(halfword p);
@@ -126,12 +126,12 @@ extern void make_token_table(lua_State * L, int cmd, int chr, int cs);
 #  define  NO_CAT_TABLE      -2
 #  define  DEFAULT_CAT_TABLE -1
 
-extern void get_next(int prohibit_new_cs, int status);
-extern void check_outer_validity(int status);
-extern boolean scan_keyword(const char *, int);
+extern void get_next(int prohibit_new_cs);
+extern void check_outer_validity(void);
+extern boolean scan_keyword(const char *);
 extern halfword active_to_cs(int, int, int);
-extern void get_token_lua(int status);
-halfword string_to_toks(char *, int);
+extern void get_token_lua(void);
+halfword string_to_toks(char *);
 extern int get_char_cat_code(int);
 
 /*
@@ -149,13 +149,13 @@ extern boolean force_eof;
 extern int luacstrings;
 
 extern void firm_up_the_line(void);
-extern void get_token(int status);
+extern void get_token(void);
 
-extern halfword str_toks(lstring b, int status);
-extern void ins_the_toks(int status);
+extern halfword str_toks(lstring b);
+extern void ins_the_toks(void);
 
-extern int scan_lua_state(int status);
-extern void conv_toks(int status);
+extern int scan_lua_state(void);
+extern void conv_toks(void);
 
 extern boolean in_lua_escape;
 extern boolean is_convert(halfword c);

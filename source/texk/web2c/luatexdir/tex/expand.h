@@ -23,12 +23,12 @@
 #  define EXPAND_H
 
 extern boolean is_in_csname;
-extern void expand(int status);
-extern void complain_missing_csname(int status);
-extern void manufacture_csname(int status);
-extern void insert_relax(int status);
-extern void get_x_token(int status);
-extern void x_token(int status);
+extern void expand(void);
+extern void complain_missing_csname(void);
+extern void manufacture_csname(void);
+extern void insert_relax(void);
+extern void get_x_token(void);
+extern void x_token(void);
 
 #  define top_mark_code 0       /* the mark in effect at the previous page break */
 #  define first_mark_code 1     /* the first mark between |top_mark| and |bot_mark| */
@@ -96,7 +96,7 @@ extern void initialize_marks(void);
 
 extern int long_state;
 extern halfword pstack[9];
-extern void macro_call(int status);
+extern void macro_call(void);
 
 
 #endif

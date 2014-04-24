@@ -204,7 +204,7 @@ extern int scanner_status;
 extern pointer warning_index;
 extern pointer def_ref;
 
-extern void runaway(int status);
+extern void runaway(void);
 
 /*
 However, the discussion about input state really applies only to the
@@ -330,8 +330,8 @@ extern void push_input(void);
 
 extern void begin_token_list(halfword p, quarterword t);
 extern void end_token_list(void);
-extern void back_input(int status);
-extern int reinsert_token(boolean a, halfword pp, int status);
+extern void back_input(void);
+extern int reinsert_token(boolean a, halfword pp);
 extern void begin_file_reading(void);
 extern void end_file_reading(void);
 extern void clear_for_error_prompt(void);

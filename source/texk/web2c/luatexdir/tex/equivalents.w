@@ -280,7 +280,7 @@ void print_save_stack(void)
         case insert_token:
             tprint(", ");
             {
-                halfword p = get_avail(normal);
+                halfword p = get_avail();
                 set_token_info(p, save_value(i));
                 show_token_list(p, null, 1);
                 free_avail(p);
@@ -713,7 +713,7 @@ This routine takes care of restoration when a level ends; everything
 belonging to the topmost group is cleared off of the save stack.
 
 @c
-void unsave(int status)
+void unsave(void)
 {                               /* pops the top level off the save stack */
     halfword p;                 /* position to be restored */
     quarterword l;              /* saved level, if in fullword regions of |eqtb| */
@@ -733,7 +733,7 @@ void unsave(int status)
                 break;
             p = save_value(save_ptr);
             if (save_type(save_ptr) == insert_token) {
-                a = reinsert_token(a, p, status);
+                a = reinsert_token(a, p);
             } else {
                 if (save_type(save_ptr) == restore_old_value) {
                     l = save_level(save_ptr);

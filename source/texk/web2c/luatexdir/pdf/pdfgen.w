@@ -2614,17 +2614,17 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
 }
 
 @ @c
-void scan_pdfcatalog(PDF pdf, int status)
+void scan_pdfcatalog(PDF pdf)
 {
     halfword p;
     scan_pdf_ext_toks();
     pdf_catalog_toks = concat_tokens(pdf_catalog_toks, def_ref);
-    if (scan_keyword("openaction", status)) {
+    if (scan_keyword("openaction")) {
         if (pdf_catalog_openaction != 0) {
             pdf_error("ext1", "duplicate of openaction");
         } else {
             check_o_mode(pdf, "\\pdfcatalog", 1 << OMODE_PDF, true);
-            p = scan_action(pdf, status);
+            p = scan_action(pdf);
             pdf_catalog_openaction = pdf_create_obj(pdf, obj_type_others, 0);
             pdf_begin_obj(pdf, pdf_catalog_openaction, OBJSTM_ALWAYS);
             write_action(pdf, p);

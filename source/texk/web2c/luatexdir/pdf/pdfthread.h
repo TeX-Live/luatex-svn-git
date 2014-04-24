@@ -57,7 +57,7 @@ extern void append_bead(PDF pdf, halfword p);
 extern void do_thread(PDF pdf, halfword parent_box, halfword p, scaledpos cur);
 extern void append_thread(PDF pdf, halfword parent_box, scaledpos cur);
 extern void end_thread(PDF pdf, halfword p);
-extern void scan_thread_id(int status);
+extern void scan_thread_id(void);
 
 extern void thread_title(PDF pdf, int t);
 extern void pdf_fix_thread(PDF pdf, int t);

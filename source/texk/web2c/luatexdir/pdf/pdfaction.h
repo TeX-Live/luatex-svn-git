@@ -71,7 +71,7 @@ typedef enum {
 #  define set_pdf_action_named_id(A,B) pdf_action_named_id(A)=B
 #  define set_pdf_action_new_window(A,B) pdf_action_new_window(A)=B
 
-extern halfword scan_action(PDF pdf, int status);
+extern halfword scan_action(PDF pdf);
 extern void write_action(PDF pdf, halfword p);
 extern void delete_action_node(halfword a);
 

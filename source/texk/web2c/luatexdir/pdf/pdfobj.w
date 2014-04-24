@@ -142,21 +142,21 @@ void init_obj_obj(PDF pdf, int k)
    |pdf_obj_list|.
 
 @c
-void scan_obj(PDF pdf, int status)
+void scan_obj(PDF pdf)
 {
     int k;
     scan_result val;
     lstring *st = NULL;
-    if (scan_keyword("reserveobjnum", status)) {
+    if (scan_keyword("reserveobjnum")) {
         /* Scan an optional space */
-        get_x_token(status);
+        get_x_token();
         if (cur_cmd != spacer_cmd)
-            back_input(status);
+            back_input();
         pdf->obj_count++;
         k = pdf_create_obj(pdf, obj_type_obj, 0);
     } else {
-        if (scan_keyword("useobjnum", status)) {
-            scan_int(&val, status);
+        if (scan_keyword("useobjnum")) {
+            scan_int(&val);
             k = val.value.int_val;
             check_obj_type(pdf, obj_type_obj, k);
             if (is_obj_scheduled(pdf, k) || obj_data_ptr(pdf, k) != 0)
@@ -167,13 +167,13 @@ void scan_obj(PDF pdf, int status)
         }
         obj_data_ptr(pdf, k) = pdf_get_mem(pdf, pdfmem_obj_size);
         init_obj_obj(pdf, k);
-        if (scan_keyword("uncompressed", status)) {
+        if (scan_keyword("uncompressed")) {
             obj_obj_pdfcompresslevel(pdf, k) = 0;       /* \pdfcompresslevel = 0 */
             obj_obj_objstm_threshold(pdf, k) = OBJSTM_NEVER;
         }
-        if (scan_keyword("stream", status)) {
+        if (scan_keyword("stream")) {
             set_obj_obj_is_stream(pdf, k);
-            if (scan_keyword("attr", status)) {
+            if (scan_keyword("attr")) {
                 scan_pdf_ext_toks();
                 st = tokenlist_to_lstring(def_ref, true);
                 flush_list(def_ref);
@@ -183,7 +183,7 @@ void scan_obj(PDF pdf, int status)
                 st = NULL;
             }
         }
-        if (scan_keyword("file", status))
+        if (scan_keyword("file"))
             set_obj_obj_is_file(pdf, k);
         scan_pdf_ext_toks();
         st = tokenlist_to_lstring(def_ref, true);
@@ -199,10 +199,10 @@ void scan_obj(PDF pdf, int status)
 @ @c
 #define tail          cur_list.tail_field
 
-void scan_refobj(PDF pdf, int status)
+void scan_refobj(PDF pdf)
 {
     scan_result val;
-    scan_int(&val, status);
+    scan_int(&val);
     check_obj_type(pdf, obj_type_obj, val.value.int_val);
     new_whatsit(pdf_refobj_node);
     pdf_obj_objnum(tail) = val.value.int_val;

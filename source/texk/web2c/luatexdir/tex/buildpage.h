@@ -70,6 +70,6 @@ extern void start_new_page(void);
 
 extern void build_page(void);   /* append contributions to the current page */
 extern void fire_up(halfword c);
-extern void resume_after_output(int status);
+extern void resume_after_output(void);
 
 #endif

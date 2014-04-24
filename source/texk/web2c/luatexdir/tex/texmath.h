@@ -29,8 +29,8 @@ extern pointer new_noad(void);
 
 extern void show_math_node(halfword);
 extern void flush_math(void);
-extern void math_left_brace(int status);
-extern void finish_display_alignment(halfword, halfword, halfword, int);
+extern void math_left_brace(void);
+extern void finish_display_alignment(halfword, halfword, halfword);
 extern halfword new_sub_box(halfword);
 
 #  define math_reset(p) do { if (p!=null) flush_node(p); p = null; } while (0)
@@ -58,25 +58,25 @@ typedef enum {
 extern void initialize_math(void);
 extern void initialize_math_spacing(void);
 extern halfword math_vcenter_group(halfword);
-extern void build_choices(int halfword);
-extern void close_math_group(halfword v, int status);
-extern void init_math(int);
+extern void build_choices(void);
+extern void close_math_group(halfword);
+extern void init_math(void);
 extern void start_eq_no(void);
-extern void set_math_char(mathcodeval v, int status);
-extern void math_char_in_text(mathcodeval v, int status);
-extern void math_math_comp(int status);
+extern void set_math_char(mathcodeval);
+extern void math_char_in_text(mathcodeval);
+extern void math_math_comp(void);
 extern void math_limit_switch(void);
-extern void math_radical(int status);
-extern void math_ac(int);
+extern void math_radical(void);
+extern void math_ac(void);
 extern pointer new_style(small_number);
-extern void append_choices(int status);
-extern void sub_sup(int status);
-extern void math_fraction(int);
-extern void math_left_right(int status);
-extern void after_math(int status);
+extern void append_choices(void);
+extern void sub_sup(void);
+extern void math_fraction(void);
+extern void math_left_right(void);
+extern void after_math(void);
 
-extern void scan_extdef_del_code(int level, int extcode, int status);
-extern void scan_extdef_math_code(int level, int extcode, int status);
+extern void scan_extdef_del_code(int level, int extcode);
+extern void scan_extdef_math_code(int level, int extcode);
 
 extern int fam_fnt(int fam_id, int size_id);
 extern void def_fam_fnt(int fam_id, int size_id, int f, int lvl);
@@ -114,7 +114,7 @@ extern const char *math_style_names[];
 #  define denom_style(A) 2*((A)/2)+cramped+2-2*((A)/6)  /* smaller, cramped */
 #  define sup_sup_style(A) sup_style(sup_style((A)))    /* smaller */
 
-void setup_math_style(int status);
+void setup_math_style(void);
 void print_math_style(void);
 
 #  define text_size 0

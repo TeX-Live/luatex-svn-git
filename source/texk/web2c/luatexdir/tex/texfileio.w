@@ -882,17 +882,17 @@ char *luatex_synctex_get_current_name (void)
 when an `\.{\\input}' command is being processed.
 
 @c
-void start_input(int status)
+void start_input(void)
 {                               /* \TeX\ will \.{\\input} something */
     str_number temp_str;
     char *fn;
     do {
-        get_x_token(status);
+        get_x_token();
     } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
 
-    back_input(status);
+    back_input();
     if (cur_cmd != left_brace_cmd) {
-        scan_file_name(status);       /* set |cur_name| to desired file name */
+        scan_file_name();       /* set |cur_name| to desired file name */
     } else {
         scan_file_name_toks();
     }

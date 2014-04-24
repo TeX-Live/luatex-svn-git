@@ -77,6 +77,6 @@ extern void push_condition_stack(void);
 extern void pop_condition_stack(void);
 extern void change_if_limit(int l, halfword p);
 
-extern void conditional(int status);
+extern void conditional(void);
 
 #endif

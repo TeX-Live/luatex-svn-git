@@ -310,8 +310,7 @@ int tokenlist_from_lua(lua_State * L)
     int tok;
     size_t i, j;
     halfword p, q, r;
-    int status = normal; /* scanner state */
-    r = get_avail(status);
+    r = get_avail();
     token_info(r) = 0;          /* ref count */
     token_link(r) = null;
     p = r;
@@ -322,7 +321,7 @@ int tokenlist_from_lua(lua_State * L)
                 lua_rawgeti(L, -1, (int) i);
                 tok = token_from_lua(L);
                 if (tok >= 0) {
-                    store_new_token(tok, status);
+                    store_new_token(tok);
                 }
                 lua_pop(L, 1);
             };
@@ -338,7 +337,7 @@ int tokenlist_from_lua(lua_State * L)
                 i = i + (size_t) (utf8_size(j1) - 1);
                 tok = token_val(12, j1);
             }
-            store_new_token(tok, status);
+            store_new_token(tok);
         }
         return r;
     } else {
@@ -348,12 +347,12 @@ int tokenlist_from_lua(lua_State * L)
 }
 
 @ @c
-void do_get_token_lua(int callback_id, int status)
+void do_get_token_lua(int callback_id)
 {
     lua_State *L = Luas;
     while (1) {
         if (!get_callback(L, callback_id)) {
-            get_next(false, status);
+            get_next(false);
             lua_pop(L, 2);      /* the not-a-function callback and the container */
             break;
         }
@@ -369,14 +368,14 @@ void do_get_token_lua(int callback_id, int status)
                 size_t i, j;
                 lua_pop(L, 1);  /* container, result */
                 /* build a token list */
-                r = get_avail(status);
+                r = get_avail();
                 p = r;
                 j = lua_rawlen(L, -1);
                 if (j > 0) {
                     for (i = 1; i <= j; i++) {
                         lua_rawgeti(L, -1, (int) i);
                         if (get_cur_cmd(L) || get_cur_cs(L)) {
-                            store_new_token(cur_tok, status);
+                            store_new_token(cur_tok);
                         }
                         lua_pop(L, 1);
                     }
@@ -386,7 +385,7 @@ void do_get_token_lua(int callback_id, int status)
                     free_avail(r);
                     begin_token_list(p, inserted);
                     cur_input.nofilter_field = true;
-                    get_next(false, status);
+                    get_next(false);
                 } else {
                     tex_error("error: illegal or empty token list returned",
                               NULL);

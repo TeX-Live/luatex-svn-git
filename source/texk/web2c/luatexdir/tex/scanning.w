@@ -52,11 +52,11 @@ a character whose catcode is |left_brace|.) \TeX\ allows \.{\\relax} to
 appear before the |left_brace|.
 
 @c
-void scan_left_brace(int status)
+void scan_left_brace(void)
 {                               /* reads a mandatory |left_brace| */
     /* Get the next non-blank non-relax non-call token */
     do {
-        get_x_token(status);
+        get_x_token();
     } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
 
     if (cur_cmd != left_brace_cmd) {
@@ -65,7 +65,7 @@ void scan_left_brace(int status)
               "You might want to delete and/or insert some corrections",
               "so that I will find a matching right brace soon.",
               "If you're confused by all this, try typing `I}' now.");
-        back_error(status);
+        back_error();
         cur_tok = left_brace_token + '{';
         cur_cmd = left_brace_cmd;
         cur_chr = '{';
@@ -78,14 +78,14 @@ void scan_left_brace(int status)
 by optional spaces; `\.{\\relax}' is not ignored here.
 
 @c
-void scan_optional_equals(int status)
+void scan_optional_equals(void)
 {
     /* Get the next non-blank non-call token */
     do {
-        get_x_token(status);
+        get_x_token();
     } while (cur_cmd == spacer_cmd);
     if (cur_tok != other_token + '=')
-        back_input(status);
+        back_input();
 }
 
 
@@ -257,7 +257,7 @@ returns true if the command code was understood
 
 @c
 static boolean short_scan_something_internal(scan_result *val, int cmd, int chr, int level,
-                                             boolean negative, int status)
+                                             boolean negative)
 {
     halfword m;                 /* |chr_code| part of the operand token */
     halfword q;                 /* general purpose index */
@@ -353,7 +353,7 @@ static boolean short_scan_something_internal(scan_result *val, int cmd, int chr,
         break;
     case set_etex_shape_cmd:
         /* Fetch a penalties array element */
-        scan_int(val, status);
+        scan_int(val);
         if ((equiv(m) == null) || (val->value.int_val < 0)) {
             val->value.int_val = 0;
         } else {
@@ -386,19 +386,19 @@ static boolean short_scan_something_internal(scan_result *val, int cmd, int chr,
                 if (m < eTeX_mu) {
                     switch (m) {
                     case mu_to_glue_code:
-                        scan_mu_glue(val, status);
+                        scan_mu_glue(val);
                         break;
                     };          /* there are no other cases */
                     val->level = glue_val_level;
                 } else if (m < eTeX_expr) {
                     switch (m) {
                     case glue_to_mu_code:
-                        scan_normal_glue(val, status);
+                        scan_normal_glue(val);
                         break;
                     }           /* there are no other cases */
                     val->level = mu_val_level;
                 } else {
-                    scan_expr(val,  m - eTeX_expr + int_val_level, status);
+                    scan_expr(val,  m - eTeX_expr + int_val_level);
                 }
                 /* This code for reducing |cur_val_level| and\slash or negating the
                    result is similar to the one for all the other cases of
@@ -420,9 +420,9 @@ static boolean short_scan_something_internal(scan_result *val, int cmd, int chr,
                 case font_char_ht_code:
                 case font_char_dp_code:
                 case font_char_ic_code:
-                    scan_font_ident(val, status);
+                    scan_font_ident(val);
                     q = val->value.int_val;
-                    scan_char_num(val, status);
+                    scan_char_num(val);
                     c = val->value.int_val;
                     if (char_exists(q, c)) {
                         switch (m) {
@@ -447,7 +447,7 @@ static boolean short_scan_something_internal(scan_result *val, int cmd, int chr,
                 case par_shape_indent_code:
                 case par_shape_dimen_code:
                     q = cur_chr - par_shape_length_code;
-                    scan_int(val, status);
+                    scan_int(val);
                     c = val->value.int_val;
                     if ((par_shape_ptr == null) || (c <= 0)) {
                         val->value.dimen_val = 0;
@@ -463,7 +463,7 @@ static boolean short_scan_something_internal(scan_result *val, int cmd, int chr,
                     break;
                 case glue_stretch_code:
                 case glue_shrink_code:
-                    scan_normal_glue(val, status);
+                    scan_normal_glue(val);
                     q = val->value.glu_val;
                     if (m == glue_stretch_code)
                         val->value.dimen_val = stretch(q);
@@ -558,7 +558,7 @@ static boolean short_scan_something_internal(scan_result *val, int cmd, int chr,
                     break;
                 case glue_stretch_order_code:
                 case glue_shrink_order_code:
-                    scan_normal_glue(val, status);
+                    scan_normal_glue(val);
                     q = val->value.glu_val;
                     if (m == glue_stretch_order_code)
                         val->value.int_val = stretch_order(q);
@@ -661,7 +661,7 @@ scan_result *scan_something_simple(halfword cmd, halfword subitem)
 {
     /* negative is never true */
     scan_result *val = xmalloc(sizeof(scan_result));
-    if (!short_scan_something_internal(val, cmd, subitem, tok_val_level, false, normal)) {
+    if (!short_scan_something_internal(val, cmd, subitem, tok_val_level, false)) {
         /* Complain that |texlib| can not do this; give zero result */
         print_err("You can't use `");
         print_cmd_chr((quarterword) cmd, subitem);
@@ -682,7 +682,7 @@ the internal quantity to be scanned; an error will be signalled if
 |cur_cmd<min_internal| or |cur_cmd>max_internal|.
 
 @c
-void scan_something_internal(scan_result *val, int level, boolean negative, int status)
+void scan_something_internal(scan_result *val, int level, boolean negative)
 {
     /* fetch an internal parameter */
     halfword m;                 /* |chr_code| part of the operand token */
@@ -690,11 +690,11 @@ void scan_something_internal(scan_result *val, int level, boolean negative, int 
     int val1;
   RESTART:
     m = cur_chr;
-    if (!short_scan_something_internal(val, cur_cmd, cur_chr, level, negative, status)) {
+    if (!short_scan_something_internal(val, cur_cmd, cur_chr, level, negative)) {
         switch (cur_cmd) {
         case def_char_code_cmd:
             /* Fetch a character code from some table */
-            scan_char_num(val, status);
+            scan_char_num(val);
             if (m == math_code_base) {
                 val1 = get_math_code_num(val->value.int_val, true);
                 scanned_result(val1, int_val_level);
@@ -716,13 +716,13 @@ void scan_something_internal(scan_result *val, int level, boolean negative, int 
             break;
         case def_del_code_cmd:
             /* Fetch a character code from some table */
-            scan_char_num(val, status);
+            scan_char_num(val);
             val1 = get_del_code_num(val->value.int_val);
             scanned_result(val1, int_val_level);
             break;
         case extdef_math_code_cmd:
             /* Fetch an extended math code table value */
-            scan_char_num(val, status);
+            scan_char_num(val);
             val1 = get_math_code_num(val->value.int_val, false);
             scanned_result(val1, int_val_level);
             break;
@@ -737,34 +737,34 @@ void scan_something_internal(scan_result *val, int level, boolean negative, int 
                 help3("A number should have been here; I inserted `0'.",
                       "(If you can't figure out why I needed to see a number,",
                       "look up `weird error' in the index to The TeXbook.)");
-                back_error(status);
+                back_error();
                 scanned_result(0, dimen_val_level);
             } else if (cur_cmd == toks_register_cmd) {
-                scan_register_num(val, status);
+                scan_register_num(val);
                 m = toks_base + val->value.int_val;
                 scanned_result(equiv(m), tok_val_level);
             } else {
-                back_input(status);
-                scan_font_ident(val, status);
+                back_input();
+                scan_font_ident(val);
                 scanned_result(font_id_base + val->value.int_val, ident_val_level);
             }
             break;
         case def_family_cmd:
             /* Fetch a math font identifier */
-            scan_char_num(val, status);
+            scan_char_num(val);
             val1 = fam_fnt(val->value.int_val, m);
             scanned_result(font_id_base + val1, ident_val_level);
             break;
         case set_math_param_cmd:
             /* Fetch a math param */
             val1 = cur_chr;
-            get_token(status);
+            get_token();
             if (cur_cmd != math_style_cmd) {
                 print_err("Missing math style, treated as \\displaystyle");
                 help1
                     ("A style should have been here; I inserted `\\displaystyle'.");
                 val1 = display_style;
-                back_error(status);
+                back_error();
             } else {
                 val1 = cur_chr;
             }
@@ -788,7 +788,7 @@ void scan_something_internal(scan_result *val, int level, boolean negative, int 
             }
             break;
         case assign_box_dir_cmd:
-            scan_register_num(val, status);
+            scan_register_num(val);
             m = val->value.int_val;
             if (box(m) != null)
                 val->value.int_val = box_dir(box(m));
@@ -798,7 +798,7 @@ void scan_something_internal(scan_result *val, int level, boolean negative, int 
             break;
         case set_box_dimen_cmd:
             /* Fetch a box dimension */
-            scan_register_num(val, status);
+            scan_register_num(val);
             if (box(val->value.int_val) == null)
                 val->value.dimen_val = 0;
             else
@@ -807,11 +807,11 @@ void scan_something_internal(scan_result *val, int level, boolean negative, int 
             break;
         case assign_font_dimen_cmd:
             /* Fetch a font dimension */
-            get_font_dimen(val, status);
+            get_font_dimen(val);
             break;
         case assign_font_int_cmd:
             /* Fetch a font integer */
-            scan_font_ident(val, status);
+            scan_font_ident(val);
             if (m == 0) {
                 scanned_result(hyphen_char(val->value.int_val), int_val_level);
             } else if (m == 1) {
@@ -820,7 +820,7 @@ void scan_something_internal(scan_result *val, int level, boolean negative, int 
                 scanned_result(test_no_ligatures(val->value.int_val), int_val_level);
             } else {
                 n = val->value.int_val;
-                scan_char_num(val, status);
+                scan_char_num(val);
                 k = val->value.int_val;
                 switch (m) {
                 case lp_code_base:
@@ -840,7 +840,7 @@ void scan_something_internal(scan_result *val, int level, boolean negative, int 
             break;
         case register_cmd:
             /* Fetch a register */
-            scan_register_num(val, status);
+            scan_register_num(val);
             switch (m) {
             case int_val_level:
                 val->value.int_val = count(val->value.int_val);
@@ -870,7 +870,7 @@ void scan_something_internal(scan_result *val, int level, boolean negative, int 
                    next token may be all sorts of things. This could trigger further
                    expansion creating new errors.
                  */
-                get_token(status);
+                get_token();
                 cur_cs = prim_lookup(cs_text(cur_cs), true);
                 if (cur_cs != undefined_primitive) {
                     cur_cmd = get_prim_eq_type(cur_cs);
@@ -925,10 +925,10 @@ the same except for the upper limit and the error message, so it makes
 sense to combine these all into one function. 
 
 @c
-void scan_limited_int(scan_result *val, int max, const char *name, int status)
+void scan_limited_int(scan_result *val, int max, const char *name)
 {
     char hlp[80];
-    scan_int(val, status);
+    scan_int(val);
     if ((val->value.int_val < 0) || (val->value.int_val > max)) {
         if (name == NULL) {
             snprintf(hlp, 80,
@@ -948,10 +948,10 @@ void scan_limited_int(scan_result *val, int max, const char *name, int status)
 }
 
 @ @c
-void scan_fifteen_bit_int(scan_result *val, int status)
+void scan_fifteen_bit_int(scan_result *val)
 {
     int cur_val;
-    scan_real_fifteen_bit_int(val, status);
+    scan_real_fifteen_bit_int(val);
     cur_val = val->value.int_val;
     val->value.int_val = ((cur_val / 0x1000) * 0x1000000) +
         (((cur_val % 0x1000) / 0x100) * 0x10000) + (cur_val % 0x100);
@@ -963,9 +963,9 @@ additional route |scan_four_bit_int_or_18| which is the same as
 |scan_four_bit_int| except it also accepts the value 18.
 
 @c
-void scan_four_bit_int_or_18(scan_result *val, int status)
+void scan_four_bit_int_or_18(scan_result *val)
 {
-    scan_int(val, status);
+    scan_int(val);
     if ((val->value.int_val < 0) || ((val->value.int_val > 15) && (val->value.int_val != 18))) {
         print_err("Bad number");
         help2("Since I expected to read a number between 0 and 15,",
@@ -995,7 +995,7 @@ otherwise |radix| is set to zero. An optional space follows a constant.
   and that the decimal point has been backed up to be scanned again.
 
 @c
-void scan_int(scan_result *val, int status)
+void scan_int(scan_result *val)
 {                               /* sets |cur_val| to an integer */
     boolean negative;           /* should the answer be negated? */
     int m;                      /* |$2^{31}$ / radix|, the threshold of danger */
@@ -1006,7 +1006,7 @@ void scan_int(scan_result *val, int status)
     do {
         /* Get the next non-blank non-call token */
         do {
-            get_x_token(status);
+            get_x_token();
         } while (cur_cmd == spacer_cmd);
         if (cur_tok == other_token + '-') {
             negative = !negative;
@@ -1023,7 +1023,7 @@ void scan_int(scan_result *val, int status)
            next token may be all sorts of things. This could trigger further
            expansion creating new errors.
          */
-        get_token(status);
+        get_token();
         cur_cs = prim_lookup(cs_text(cur_cs), true);
         if (cur_cs != undefined_primitive) {
             cur_cmd = get_prim_eq_type(cur_cs);
@@ -1040,7 +1040,7 @@ void scan_int(scan_result *val, int status)
         /* Scan an alphabetic character code into |cur_val| */
         /* A space is ignored after an alphabetic character constant, so that
            such constants behave like numeric ones. */
-        get_token(status);            /* suppress macro expansion */
+        get_token();            /* suppress macro expansion */
         if (cur_tok < cs_token_flag) {
             val->value.int_val = cur_chr;
             if (cur_cmd <= right_brace_cmd) {
@@ -1063,17 +1063,17 @@ void scan_int(scan_result *val, int status)
             help2("A one-character control sequence belongs after a ` mark.",
                   "So I'm essentially inserting \\0 here.");
             val->value.int_val = '0'; /* == 48 */
-            back_error(status);
+            back_error();
         } else {
             /* Scan an optional space */
-            get_x_token(status);
+            get_x_token();
             if (cur_cmd != spacer_cmd)
-                back_input(status);
+                back_input();
         }
     } else if (cur_cmd == math_style_cmd) {
         val->value.int_val = cur_chr;
     } else if ((cur_cmd >= min_internal_cmd) && (cur_cmd <= max_internal_cmd)) {
-        scan_something_internal(val, int_val_level, false, status);
+        scan_something_internal(val, int_val_level, false);
     } else {
         boolean vacuous = true;            /* have no digits appeared? */
         boolean OK_so_far = true;          /* has an error message been issued? */
@@ -1083,11 +1083,11 @@ void scan_int(scan_result *val, int status)
         if (cur_tok == octal_token) {
             val->info.radix = 8;
             m = 02000000000;
-            get_x_token(status);
+            get_x_token();
         } else if (cur_tok == hex_token) {
             val->info.radix = 16;
             m = 01000000000;
-            get_x_token(status);
+            get_x_token();
         }
         val->value.int_val = 0;
         /* Accumulate the constant until |cur_tok| is not a suitable digit */
@@ -1121,7 +1121,7 @@ void scan_int(scan_result *val, int status)
             } else {
                 val->value.int_val = val->value.int_val * val->info.radix + d;
             }
-            get_x_token(status);
+            get_x_token();
         }
         if (vacuous) {
             /* Express astonishment that no number was here */
@@ -1129,9 +1129,9 @@ void scan_int(scan_result *val, int status)
             help3("A number should have been here; I inserted `0'.",
                   "(If you can't figure out why I needed to see a number,",
                   "look up `weird error' in the index to The TeXbook.)");
-            back_error(status);
+            back_error();
         } else if (cur_cmd != spacer_cmd) {
-            back_input(status);
+            back_input();
         }
     }
     if (negative)
@@ -1182,7 +1182,7 @@ representation is put into the single word |cur_val|, which suddenly
 switches significance from |integer| to |scaled|.
 
 @c
-void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int status)
+void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut)
 /* sets |cur_val| to a dimension */
 {
     boolean negative;           /* should the answer be negated? */
@@ -1204,7 +1204,7 @@ void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int
         do {
             /* Get the next non-blank non-call token */
             do {
-                get_x_token(status);
+                get_x_token();
             } while (cur_cmd == spacer_cmd);
             if (cur_tok == other_token + '-') {
                 negative = !negative;
@@ -1216,25 +1216,25 @@ void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int
             /* Fetch an internal dimension and |goto attach_sign|,
                or fetch an internal integer */
             if (mu) {
-                scan_something_internal(val, mu_val_level, false, status);
+                scan_something_internal(val, mu_val_level, false);
                 coerce_glue(val);
                 if (val->level == mu_val_level)
                     goto ATTACH_SIGN;
                 if (val->level != int_val_level)
                     mu_error();
             } else {
-                scan_something_internal(val, dimen_val_level, false, status);
+                scan_something_internal(val, dimen_val_level, false);
                 if (val->level == dimen_val_level)
                     goto ATTACH_SIGN;
             }
 
         } else {
-            back_input(status);
+            back_input();
             if (cur_tok == continental_point_token) {
                 cur_tok = point_token;
             }
             if (cur_tok != point_token) {
-                scan_int(val, status);
+                scan_int(val);
             } else {
                 val->info.radix = 10;
                 val->value.dimen_val = 0;
@@ -1251,13 +1251,13 @@ void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int
 
                 k = 0;
                 p = null;
-                get_token(status);    /* |point_token| is being re-scanned */
+                get_token();    /* |point_token| is being re-scanned */
                 while (1) {
-                    get_x_token(status);
+                    get_x_token();
                     if ((cur_tok > zero_token + 9) || (cur_tok < zero_token))
                         break;
                     if (k < 17) {       /* digits for |k>=17| cannot affect the result */
-                        q = get_avail(status);
+                        q = get_avail();
                         set_token_link(q, p);
                         set_token_info(q, cur_tok - zero_token);
                         p = q;
@@ -1272,7 +1272,7 @@ void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int
                 }
                 f = round_decimals(k);
                 if (cur_cmd != spacer_cmd)
-                    back_input(status);
+                    back_input();
             }
         }
     }
@@ -1296,16 +1296,16 @@ void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int
            L}' will lead to two error messages (one for each additional keyword
            \.{"l"}). 
            Not so for luatex, it just parses the construct in reverse. */
-        if (scan_keyword("filll", status)) {
+        if (scan_keyword("filll")) {
             order = filll;
             goto ATTACH_FRACTION;
-        } else if (scan_keyword("fill", status)) {
+        } else if (scan_keyword("fill")) {
             order = fill;
             goto ATTACH_FRACTION;
-        } else if (scan_keyword("fil", status)) {
+        } else if (scan_keyword("fil")) {
             order = fil;
             goto ATTACH_FRACTION;
-        } else if (scan_keyword("fi", status)) {
+        } else if (scan_keyword("fi")) {
             order = sfi;
             goto ATTACH_FRACTION;
         }
@@ -1316,38 +1316,38 @@ void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int
     save_cur_val = val->value.int_val;
     /* Get the next non-blank non-call... */
     do {
-        get_x_token(status);
+        get_x_token();
     } while (cur_cmd == spacer_cmd);
 
     if ((cur_cmd < min_internal_cmd) || (cur_cmd > max_internal_cmd)) {
-        back_input(status);
+        back_input();
     } else {
         if (mu) {
-            scan_something_internal(val,mu_val_level, false, status);
+            scan_something_internal(val,mu_val_level, false);
             coerce_glue(val);
             if (val->level != mu_val_level)
                 mu_error();
         } else {
-            scan_something_internal(val,dimen_val_level, false, status);
+            scan_something_internal(val,dimen_val_level, false);
         }
         v = val->value.dimen_val;
         goto FOUND;
     }
     if (mu)
         goto NOT_FOUND;
-    if (scan_keyword("em", status)) {
+    if (scan_keyword("em")) {
         v = (quad(get_cur_font()));
-    } else if (scan_keyword("ex", status)) {
+    } else if (scan_keyword("ex")) {
         v = (x_height(get_cur_font()));
-    } else if (scan_keyword("px", status)) {
+    } else if (scan_keyword("px")) {
         v = dimen_par(pdf_px_dimen_code);
     } else {
         goto NOT_FOUND;
     }
     /* Scan an optional space */
-    get_x_token(status);
+    get_x_token();
     if (cur_cmd != spacer_cmd)
-        back_input(status);
+        back_input();
 
   FOUND:
     val->value.int_val = nx_plus_y(save_cur_val, v, xn_over_d(v, f, 0200000));
@@ -1356,7 +1356,7 @@ void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int
 
     if (mu) {
         /* Scan for (m)\.{mu} units and |goto attach_fraction| */
-        if (scan_keyword("mu", status)) {
+        if (scan_keyword("mu")) {
             goto ATTACH_FRACTION;
         } else {
             print_err("Illegal unit of measure (mu inserted)");
@@ -1368,7 +1368,7 @@ void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int
             goto ATTACH_FRACTION;
         }
     }
-    if (scan_keyword("true", status)) {
+    if (scan_keyword("true")) {
         /* Adjust (f)for the magnification ratio */
         prepare_mag();
         if (int_par(mag_code) != 1000) {
@@ -1378,7 +1378,7 @@ void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int
             f = f % 0200000;
         }
     }
-    if (scan_keyword("pt", status))
+    if (scan_keyword("pt"))
         goto ATTACH_FRACTION;   /* the easy case */
     /* Scan for (a)all other units and adjust |cur_val| and |f| accordingly;
        |goto done| in the case of scaled points */
@@ -1403,25 +1403,25 @@ void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int
 
 #define set_conversion(A,B) do { num=(A); denom=(B); } while(0)
 
-    if (scan_keyword("in", status)) {
+    if (scan_keyword("in")) {
         set_conversion(7227, 100);
-    } else if (scan_keyword("pc", status)) {
+    } else if (scan_keyword("pc")) {
         set_conversion(12, 1);
-    } else if (scan_keyword("cm", status)) {
+    } else if (scan_keyword("cm")) {
         set_conversion(7227, 254);
-    } else if (scan_keyword("mm", status)) {
+    } else if (scan_keyword("mm")) {
         set_conversion(7227, 2540);
-    } else if (scan_keyword("bp", status)) {
+    } else if (scan_keyword("bp")) {
         set_conversion(7227, 7200);
-    } else if (scan_keyword("dd", status)) {
+    } else if (scan_keyword("dd")) {
         set_conversion(1238, 1157);
-    } else if (scan_keyword("cc", status)) {
+    } else if (scan_keyword("cc")) {
         set_conversion(14856, 1157);
-    } else if (scan_keyword("nd", status)) {
+    } else if (scan_keyword("nd")) {
         set_conversion(685, 642);
-    } else if (scan_keyword("nc", status)) {
+    } else if (scan_keyword("nc")) {
         set_conversion(1370, 107);
-    } else if (scan_keyword("sp", status)) {
+    } else if (scan_keyword("sp")) {
         goto DONE;
     } else {
         /* Complain about unknown unit and |goto done2| */
@@ -1447,9 +1447,9 @@ void scan_dimen(scan_result *val, boolean mu, boolean inf, boolean shortcut, int
         val->value.int_val = val->value.int_val * unity + f;
   DONE:
     /* Scan an optional space */
-    get_x_token(status);
+    get_x_token();
     if (cur_cmd != spacer_cmd)
-        back_input(status);
+        back_input();
   ATTACH_SIGN:
     val->value.dimen_val = val->value.int_val;
     val->level = dimen_val_level;
@@ -1479,7 +1479,7 @@ Since |scan_dimen| was so much more complex than |scan_int|, we might expect
 most of the work has already been done.
 
 @c
-void scan_glue(scan_result *val, int level, int status)
+void scan_glue(scan_result *val, int level)
 {                               /* sets |cur_val| to a glue spec pointer */
     boolean negative;           /* should the answer be negated? */
     halfword q;                 /* new glue specification */
@@ -1491,7 +1491,7 @@ void scan_glue(scan_result *val, int level, int status)
     do {
         /* Get the next non-blank non-call token */
         do {
-            get_x_token(status);
+            get_x_token();
         } while (cur_cmd == spacer_cmd);
         if (cur_tok == other_token + '-') {
             negative = !negative;
@@ -1500,19 +1500,19 @@ void scan_glue(scan_result *val, int level, int status)
     } while (cur_tok == other_token + '+');
 
     if ((cur_cmd >= min_internal_cmd) && (cur_cmd <= max_internal_cmd)) {
-        scan_something_internal(val, level, negative, status);
+        scan_something_internal(val, level, negative);
         if (val->level >= glue_val_level) {
             if (val->level != level)
                 mu_error();
             return;
         }
         if (val->level == int_val_level)
-            scan_dimen(val,mu, false, true, status);
+            scan_dimen(val,mu, false, true);
         else if (level == mu_val_level)
             mu_error();
     } else {
-        back_input(status);
-        scan_dimen(val, mu, false, false, status);
+        back_input();
+        scan_dimen(val, mu, false, false);
         if (negative)
             negate(val->value.dimen_val);
     }
@@ -1520,13 +1520,13 @@ void scan_glue(scan_result *val, int level, int status)
        stretch and shrink components  */
     q = new_spec(zero_glue);
     width(q) = val->value.dimen_val;
-    if (scan_keyword("plus", status)) {
-        scan_dimen(val, mu, true, false, status);
+    if (scan_keyword("plus")) {
+        scan_dimen(val, mu, true, false);
         stretch(q) = val->value.dimen_val;
         stretch_order(q) = (quarterword) val->info.order;
     }
-    if (scan_keyword("minus", status)) {
-        scan_dimen(val, mu, true, false, status);
+    if (scan_keyword("minus")) {
+        scan_dimen(val, mu, true, false);
         shrink(q) = val->value.dimen_val;
         shrink_order(q) = (quarterword) val->info.order;
     }
@@ -1539,7 +1539,7 @@ i.e., whatever can follow `\.{\\the}', and it constructs a token list
 containing something like `\.{-3.0pt minus 0.5fill}'.
 
 @c
-halfword the_toks(int status)
+halfword the_toks(void)
 {
     int old_setting;            /* holds |selector| setting */
     halfword p, q, r;           /* used for copying a token list */
@@ -1556,30 +1556,30 @@ halfword the_toks(int status)
         } else {
             old_setting = selector;
             selector = new_string;
-            p = get_avail(status);
+            p = get_avail();
             set_token_link(p, token_link(temp_token_head));
             token_show(p);
             flush_list(p);
             selector = old_setting;
             s = make_string();
-            retval = str_toks(str_lstring(s), status);
+            retval = str_toks(str_lstring(s));
             flush_str(s);
         }
         xfree(val);
         return retval;
     }
-    get_x_token(status);
-    scan_something_internal(val, tok_val_level, false, status);
+    get_x_token();
+    scan_something_internal(val, tok_val_level, false);
     if (val->level >= ident_val_level) {
         /* Copy the token list */
         p = temp_token_head;
         set_token_link(p, null);
         if (val->level == ident_val_level) {
-            store_new_token(cs_token_flag + val->value.token_val, status);
+            store_new_token(cs_token_flag + val->value.token_val);
         } else if (val->value.token_val != null) {
             r = token_link(val->value.token_val);    /* do not copy the reference count */
             while (r != null) {
-                fast_store_new_token(token_info(r), status);
+                fast_store_new_token(token_info(r));
                 r = token_link(r);
             }
         }
@@ -1613,7 +1613,7 @@ halfword the_toks(int status)
         }                       /* there are no other cases */
         selector = old_setting;
         s = make_string();
-        retval = str_toks(str_lstring(s), status);
+        retval = str_toks(str_lstring(s));
         flush_str(s);
         xfree(val);
         return retval;
@@ -1684,14 +1684,14 @@ static void font_param_error(int f)
     error();
 }
 
-void set_font_dimen(int status)
+void set_font_dimen(void)
 {
     internal_font_number f;
     int n;                      /* the parameter number */
     scan_result *val = xmalloc(sizeof(scan_result));
-    scan_int(val, status);
+    scan_int(val);
     n = val->value.int_val;
-    scan_font_ident(val, status);
+    scan_font_ident(val);
     f = val->value.int_val;
     if (n <= 0) {
         font_param_error(f);
@@ -1707,19 +1707,19 @@ void set_font_dimen(int status)
             }
         }
     }
-    scan_optional_equals(status);
-    scan_normal_dimen(val, status);
+    scan_optional_equals();
+    scan_normal_dimen(val);
     set_font_param(f, n, val->value.dimen_val);
     xfree(val);
 }
 
-void get_font_dimen(scan_result *val, int status)
+void get_font_dimen(scan_result *val)
 {
     internal_font_number f;
     int n;                      /* the parameter number */
-    scan_int(val, status);
+    scan_int(val);
     n = val->value.int_val;
-    scan_font_ident(val, status);
+    scan_font_ident(val);
     f = val->value.int_val;
     val->value.dimen_val = 0;                /* initialize return value */
     if (n <= 0) {
@@ -1753,7 +1753,7 @@ the default rule dimensions in the node, then to override them if
 found (in any order).
 
 @c
-halfword scan_rule_spec(int status)
+halfword scan_rule_spec(void)
 {
     halfword q;                 /* the rule node being created */
     q = new_rule();             /* |width|, |depth|, and |height| all equal |null_flag| now */
@@ -1767,18 +1767,18 @@ halfword scan_rule_spec(int status)
         rule_dir(q) = text_direction;
     }
   RESWITCH:
-    if (scan_keyword("width", status)) {
-        scan_normal_dimen(val, status);
+    if (scan_keyword("width")) {
+        scan_normal_dimen(val);
         width(q) = val->value.dimen_val;
         goto RESWITCH;
     }
-    if (scan_keyword("height", status)) {
-        scan_normal_dimen(val, status);
+    if (scan_keyword("height")) {
+        scan_normal_dimen(val);
         height(q) = val->value.dimen_val;
         goto RESWITCH;
     }
-    if (scan_keyword("depth", status)) {
-        scan_normal_dimen(val, status);
+    if (scan_keyword("depth")) {
+        scan_normal_dimen(val);
         depth(q) = val->value.dimen_val;
         goto RESWITCH;
     }
@@ -1790,13 +1790,13 @@ halfword scan_rule_spec(int status)
 @ Declare procedures that scan font-related stuff
 
 @c
-void scan_font_ident(scan_result *val, int status)
+void scan_font_ident(scan_result *val)
 {
     internal_font_number f;
     halfword m;
     /* Get the next non-blank non-call... */
     do {
-        get_x_token(status);
+        get_x_token();
     } while (cur_cmd == spacer_cmd);
 
     if ((cur_cmd == def_font_cmd) || (cur_cmd == letterspace_font_cmd)
@@ -1807,14 +1807,14 @@ void scan_font_ident(scan_result *val, int status)
         set_font_touched(f, 1);
     } else if (cur_cmd == def_family_cmd) {
         m = cur_chr;
-        scan_math_family_int(val, status);
+        scan_math_family_int(val);
         f = fam_fnt(val->value.int_val, m);
         set_font_touched(f, 1);
     } else {
         print_err("Missing font identifier");
         help2("I was looking for a control sequence whose",
               "current meaning has been defined by \\font.");
-        back_error(status);
+        back_error();
         f = null_font;
     }
     val->value.int_val = f;
@@ -1830,24 +1830,25 @@ the list is empty.)
 @c
 void scan_general_text(scan_result *val)
 {
+    int s;                      /* to save |scanner_status| */
     halfword w;                 /* to save |warning_index| */
     halfword d;                 /* to save |def_ref| */
     halfword p;                 /* tail of the token list being built */
     halfword q;                 /* new node being added to the token list via |store_new_token| */
     halfword unbalance;         /* number of unmatched left braces */
-    int status;
+    s = scanner_status;
     w = warning_index;
     d = def_ref;
-    status = absorbing;
+    scanner_status = absorbing;
     warning_index = cur_cs;
-    p = get_avail(status);
+    p = get_avail();
     def_ref = p;
     set_token_ref_count(def_ref, 0);
     p = def_ref;
-    scan_left_brace(status);          /* remove the compulsory left brace */
+    scan_left_brace();          /* remove the compulsory left brace */
     unbalance = 1;
     while (1) {
-        get_token(status);
+        get_token();
         if (cur_tok < right_brace_limit) {
             if (cur_cmd < right_brace_cmd) {
                 incr(unbalance);
@@ -1857,7 +1858,7 @@ void scan_general_text(scan_result *val)
                     break;
             }
         }
-        store_new_token(cur_tok, status);
+        store_new_token(cur_tok);
     }
     q = token_link(def_ref);
     free_avail(def_ref);        /* discard reference count */
@@ -1866,6 +1867,7 @@ void scan_general_text(scan_result *val)
     else
         val->value.token_val = p;
     set_token_link(temp_token_head, q);
+    scanner_status = s;
     warning_index = w;
     def_ref = d;
 }
@@ -1875,18 +1877,18 @@ void scan_general_text(scan_result *val)
 protected macros are not expanded.
 
 @c
-void get_x_or_protected(int status)
+void get_x_or_protected(void)
 {                               /* sets |cur_cmd|, |cur_chr|, |cur_tok|,
                                    and expands non-protected macros */
     while (1) {
-        get_token(status);
+        get_token();
         if (cur_cmd <= max_command_cmd)
             return;
         if ((cur_cmd >= call_cmd) && (cur_cmd < end_template_cmd)) {
             if (token_info(token_link(cur_chr)) == protected_token)
                 return;
         }
-        expand(status);
+        expand();
     }
 }
 
@@ -1923,13 +1925,12 @@ halfword scan_toks(boolean macro_def, boolean xpand)
     halfword q;                 /* new node being added to the token list via |store_new_token| */
     halfword unbalance;         /* number of unmatched left braces */
     halfword hash_brace;        /* possible `\.{\#\{}' token */
-    int status;
     if (macro_def)
-        status = defining;
+        scanner_status = defining;
     else
-        status = absorbing;
+        scanner_status = absorbing;
     warning_index = cur_cs;
-    p = get_avail(status);
+    p = get_avail();
     def_ref = p;
     set_token_ref_count(def_ref, 0);
     p = def_ref;
@@ -1938,7 +1939,7 @@ halfword scan_toks(boolean macro_def, boolean xpand)
     if (macro_def) {
         /* Scan and build the parameter part of the macro definition */
         while (1) {
-            get_token(status);        /* set |cur_cmd|, |cur_chr|, |cur_tok| */
+            get_token();        /* set |cur_cmd|, |cur_chr|, |cur_tok| */
             if (cur_tok < right_brace_limit)
                 break;
             if (cur_cmd == mac_param_cmd) {
@@ -1947,11 +1948,11 @@ halfword scan_toks(boolean macro_def, boolean xpand)
                    `|left_brace|, |end_match|', set |hash_brace|, and |goto done|;
                  */
                 s = match_token + cur_chr;
-                get_token(status);
+                get_token();
                 if (cur_cmd == left_brace_cmd) {
                     hash_brace = cur_tok;
-                    store_new_token(cur_tok, status);
-                    store_new_token(end_match_token, status);
+                    store_new_token(cur_tok);
+                    store_new_token(end_match_token);
                     goto DONE;
                 }
                 if (t == zero_token + 9) {
@@ -1965,14 +1966,14 @@ halfword scan_toks(boolean macro_def, boolean xpand)
                         help2
                             ("I've inserted the digit you should have used after the #.",
                              "Type `1' to delete what you did use.");
-                        back_error(status);
+                        back_error();
                     }
                     cur_tok = s;
                 }
             }
-            store_new_token(cur_tok, status);
+            store_new_token(cur_tok);
         }
-        store_new_token(end_match_token, status);
+        store_new_token(end_match_token);
         if (cur_cmd == right_brace_cmd) {
             /* Express shock at the missing left brace; |goto found| */
             print_err("Missing { inserted");
@@ -1985,7 +1986,7 @@ halfword scan_toks(boolean macro_def, boolean xpand)
         }
 
     } else {
-        scan_left_brace(status);      /* remove the compulsory left brace */
+        scan_left_brace();      /* remove the compulsory left brace */
     }
   DONE:
     /* Scan and build the body of the token list; |goto found| when finished */
@@ -1996,7 +1997,7 @@ halfword scan_toks(boolean macro_def, boolean xpand)
             /* Here we insert an entire token list created by |the_toks| without
                expanding it further. */
             while (1) {
-                get_token_lua(status);
+                get_token_lua();
                 if (cur_cmd >= call_cmd) {
                     if (token_info(token_link(cur_chr)) == protected_token) {
                         cur_cmd = relax_cmd;
@@ -2006,19 +2007,19 @@ halfword scan_toks(boolean macro_def, boolean xpand)
                 if (cur_cmd <= max_command_cmd)
                     break;
                 if (cur_cmd != the_cmd) {
-                    expand(status);
+                    expand();
                 } else {
-                    q = the_toks(status);
+                    q = the_toks();
                     if (token_link(temp_token_head) != null) {
                         set_token_link(p, token_link(temp_token_head));
                         p = q;
                     }
                 }
             }
-            x_token(status);
+            x_token();
 
         } else {
-            get_token(status);
+            get_token();
         }
         if (cur_tok < right_brace_limit) {
             if (cur_cmd < right_brace_cmd) {
@@ -2033,9 +2034,9 @@ halfword scan_toks(boolean macro_def, boolean xpand)
                 /* Look for parameter number or \.{\#\#} */
                 s = cur_tok;
                 if (xpand)
-                    get_x_token(status);
+                    get_x_token();
                 else
-                    get_token(status);
+                    get_token();
                 if (cur_cmd != mac_param_cmd) {
                     if ((cur_tok <= zero_token) || (cur_tok > t)) {
                         print_err("Illegal parameter number in definition of ");
@@ -2043,7 +2044,7 @@ halfword scan_toks(boolean macro_def, boolean xpand)
                         help3("You meant to type ## instead of #, right?",
                               "Or maybe a } was forgotten somewhere earlier, and things",
                               "are all screwed up? I''m going to assume that you meant ##.");
-                        back_error(status);
+                        back_error();
                         cur_tok = s;
                     } else {
                         cur_tok = out_param_token - '0' + cur_chr;
@@ -2051,11 +2052,12 @@ halfword scan_toks(boolean macro_def, boolean xpand)
                 }
             }
         }
-        store_new_token(cur_tok, status);
+        store_new_token(cur_tok);
     }
   FOUND:
+    scanner_status = normal;
     if (hash_brace != 0)
-        store_new_token(hash_brace, normal);
+        store_new_token(hash_brace);
     return p;
 }
 
@@ -2064,14 +2066,14 @@ halfword scan_toks(boolean macro_def, boolean xpand)
 recursive procedures with parameters.
 
 @c
-void scan_normal_glue(scan_result *val, int status)
+void scan_normal_glue(scan_result *val)
 {
-    scan_glue(val, glue_val_level, status);
+    scan_glue(val, glue_val_level);
 }
 
-void scan_mu_glue(scan_result *val, int status)
+void scan_mu_glue(scan_result *val)
 {
-    scan_glue(val, mu_val_level, status);
+    scan_glue(val, mu_val_level);
 }
 
 @ The |scan_expr| procedure scans and evaluates an expression.
@@ -2319,7 +2321,7 @@ int fract(int x, int n, int d, int max_answer)
 }
 
 @ @c
-void scan_expr(scan_result *val, int level, int status)
+void scan_expr(scan_result *val, int level)
 {                               /* scans and evaluates an expression */
     boolean a, b;               /* saved values of |arith_error| */
     int l;                      /* type of expression */
@@ -2351,7 +2353,7 @@ void scan_expr(scan_result *val, int level, int status)
     /* Scan a factor |f| of type |o| or start a subexpression */
     /* Get the next non-blank non-call token */
     do {
-        get_x_token(status);
+        get_x_token();
     } while (cur_cmd == spacer_cmd);
 
     if (cur_tok == other_token + '(') {
@@ -2367,21 +2369,21 @@ void scan_expr(scan_result *val, int level, int status)
         l = o;
         goto RESTART;
     }
-    back_input(status);
+    back_input();
     if (o == int_val_level) {
-        scan_int(val, status);
+        scan_int(val);
         f = val->value.int_val;
     } else if (o == attr_val_level) {
-        scan_int(val, status);
+        scan_int(val);
         f = val->value.int_val;
     } else if (o == dimen_val_level) {
-        scan_normal_dimen(val, status);
+        scan_normal_dimen(val);
          f = val->value.dimen_val;
     } else if (o == glue_val_level) {
-        scan_normal_glue(val, status);
+        scan_normal_glue(val);
         f = val->value.glu_val;
     } else {
-        scan_mu_glue(val, status);
+        scan_mu_glue(val);
         f = val->value.glu_val;
     }
 
@@ -2389,7 +2391,7 @@ void scan_expr(scan_result *val, int level, int status)
     /* Scan the next operator and set |o| */
     /* Get the next non-blank non-call token */
     do {
-        get_x_token(status);
+        get_x_token();
     } while (cur_cmd == spacer_cmd);
 
     if (cur_tok == other_token + '+') {
@@ -2404,11 +2406,11 @@ void scan_expr(scan_result *val, int level, int status)
         o = expr_none;
         if (p == null) {
             if (cur_cmd != relax_cmd)
-                back_input(status);
+                back_input();
         } else if (cur_tok != other_token + ')') {
             print_err("Missing ) inserted for expression");
             help1("I was expecting to see `+', `-', `*', `/', or `)'. Didn't.");
-            back_error(status);
+            back_error();
         }
     }
 

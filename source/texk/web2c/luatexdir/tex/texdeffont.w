@@ -78,7 +78,7 @@ static char *scaled_to_string(scaled s)
 }
 
 @ @c
-void tex_def_font(small_number a, int status)
+void tex_def_font(small_number a)
 {
     pointer u;                  /* user's font identifier */
     internal_font_number f;     /* runs through existing fonts */
@@ -101,15 +101,15 @@ void tex_def_font(small_number a, int status)
     } else {
         eq_define(u, set_font_cmd, null_font);
     }
-    scan_optional_equals(status);
+    scan_optional_equals();
     /* Get the next non-blank non-call token; */
     do {
-        get_x_token(status);
+        get_x_token();
     } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
 
     if (cur_cmd != left_brace_cmd) {
-        back_input(status);
-        scan_file_name(status);
+        back_input();
+        scan_file_name();
         if (cur_area != get_nullstr() || cur_ext != get_nullstr()) {
             /* Have to do some rescue-ing here, fonts only have a name,
                no area nor extension */
@@ -130,7 +130,7 @@ void tex_def_font(small_number a, int status)
             cur_area = get_nullstr();
         }
     } else {
-        back_input(status);
+        back_input();
         (void) scan_toks(false, true);
         old_setting = selector;
         selector = new_string;
@@ -144,9 +144,9 @@ void tex_def_font(small_number a, int status)
     }
     /* Scan the font size specification; */
     name_in_progress = true;    /* this keeps |cur_name| from being changed */
-    if (scan_keyword("at", status)) {
+    if (scan_keyword("at")) {
         /* Put the positive `at' size into |s| */
-        scan_normal_dimen(&val, status);
+        scan_normal_dimen(&val);
         s = val.value.dimen_val;
         if ((s <= 0) || (s >= 01000000000)) {
             char err[256];
@@ -160,8 +160,8 @@ void tex_def_font(small_number a, int status)
             tex_error(err, errhelp);
             s = 10 * unity;
         }
-    } else if (scan_keyword("scaled", status)) {
-        scan_int(&val, status);
+    } else if (scan_keyword("scaled")) {
+        scan_int(&val);
         s = -val.value.int_val;
         if ((val.value.int_val <= 0) || (val.value.int_val > 32768)) {
             char err[256];
@@ -176,8 +176,8 @@ void tex_def_font(small_number a, int status)
             s = -1000;
         }
     }
-    if (scan_keyword("naturaldir", status)) {
-        scan_direction(&val, status);
+    if (scan_keyword("naturaldir")) {
+        scan_direction(&val);
         natural_dir = val.value.int_val;
     }
     name_in_progress = false;

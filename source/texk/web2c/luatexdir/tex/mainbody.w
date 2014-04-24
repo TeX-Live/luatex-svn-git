@@ -455,7 +455,7 @@ void main_body(void)
     check_texconfig_init();
     if ((iloc < ilimit) && (get_cat_code(int_par(cat_code_table_code),
                                          buffer[iloc]) != escape_cmd))
-        start_input(normal);          /* \.{\\input} assumed, status = normal */
+        start_input();          /* \.{\\input} assumed */
     /* DIR: Initialize |text_dir_ptr| */
     text_dir_ptr = new_dir(0);
 

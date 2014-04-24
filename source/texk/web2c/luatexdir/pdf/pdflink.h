@@ -33,7 +33,7 @@ extern void end_link(PDF pdf, halfword p);
 extern void append_link(PDF pdf, halfword parent_box, scaledpos cur,
                         small_number i);
 
-extern void scan_startlink(PDF pdf, int status);
+extern void scan_startlink(PDF pdf);
 
 
 #endif

@@ -27,9 +27,9 @@ static const char _svn_version[] =
 #include "ptexlib.h"
 
 @ @c
-static void fin_align(int status);
+void fin_align(void);
 void init_row(void);
-static void init_col(int status);
+void init_col(void);
 
 #define noDEBUG
 
@@ -284,24 +284,24 @@ token survives in the preamble and the `\.{\\tabskip}' defines new
 tabskip glue (locally).
 
 @c
-static void get_preamble_token(int status)
+static void get_preamble_token(void)
 {
    scan_result val;
   RESTART:
-    get_token(status);
+    get_token();
     while ((cur_chr == span_code) && (cur_cmd == tab_mark_cmd)) {
-        get_token(status);            /* this token will be expanded once */
+        get_token();            /* this token will be expanded once */
         if (cur_cmd > max_command_cmd) {
-            expand(status);
-            get_token(status);
+            expand();
+            get_token();
         }
     }
     if (cur_cmd == endv_cmd)
         fatal_error("(interwoven alignment preambles are not allowed)");
     if ((cur_cmd == assign_glue_cmd)
         && (cur_chr == glue_base + tab_skip_code)) {
-        scan_optional_equals(status);
-        scan_glue(&val, glue_val_level, status);
+        scan_optional_equals();
+        scan_glue(&val, glue_val_level);
         if (int_par(global_defs_code) > 0)
             geq_define(glue_base + tab_skip_code, glue_ref_cmd, val.value.glu_val);
         else
@@ -319,7 +319,7 @@ information into the preamble list.
 @^preamble@>
 
 @c
-void init_align(int status)
+void init_align(void)
 {
     /* label done, done1, done2, continue; */
     pointer save_cs_ptr;        /* |warning_index| value for error messages */
@@ -354,12 +354,12 @@ void init_align(int status)
     } else if (cur_list.mode_field > 0) {
         cur_list.mode_field = -(cur_list.mode_field);
     }
-    scan_spec(align_group, status);
+    scan_spec(align_group);
     /* Scan the preamble */
     preamble = null;
     cur_align = align_head;
     cur_loop = null;
-    status = aligning;// redefinition!
+    scanner_status = aligning;
     warning_index = save_cs_ptr;
     align_state = -1000000;
     /* at this point, |cur_cmd=left_brace| */
@@ -379,7 +379,7 @@ void init_align(int status)
         p = hold_token_head;
         token_link(p) = null;
         while (1) {
-            get_preamble_token(status);
+            get_preamble_token();
             if (cur_cmd == mac_param_cmd)
                 break;
             if ((cur_cmd <= car_ret_cmd) && (cur_cmd >= tab_mark_cmd)
@@ -394,12 +394,12 @@ void init_align(int status)
                         "none, so I've put one in; maybe that will work.",
                         NULL
                     };
-                    back_input(status);
+                    back_input();
                     tex_error("Missing # inserted in alignment preamble", hlp);
                     break;
                 }
             } else if ((cur_cmd != spacer_cmd) || (p != hold_token_head)) {
-                r = get_avail(status);
+                r = get_avail();
                 token_link(p) = r;
                 p = token_link(p);
                 token_info(p) = cur_tok;
@@ -417,7 +417,7 @@ void init_align(int status)
         token_link(p) = null;
         while (1) {
           CONTINUE:
-            get_preamble_token(status);
+            get_preamble_token();
             if ((cur_cmd <= car_ret_cmd) && (cur_cmd >= tab_mark_cmd)
                 && (align_state == -1000000))
                 break;
@@ -431,22 +431,24 @@ void init_align(int status)
                 tex_error("Only one # is allowed per tab", hlp);
                 goto CONTINUE;
             }
-            r = get_avail(status);
+            r = get_avail();
             token_link(p) = r;
             p = token_link(p);
             token_info(p) = cur_tok;
         }
-        r = get_avail(status);
+        r = get_avail();
         token_link(p) = r;
         p = token_link(p);
         token_info(p) = end_template_token;     /* put \.{\\endtemplate} at the end */
 
         v_part(cur_align) = token_link(hold_token_head);
     }
+    scanner_status = normal;
+
     new_save_level(align_group);
     if (every_cr != null)
         begin_token_list(every_cr, every_cr_text);
-    align_peek(normal);               /* look for \.{\\noalign} or \.{\\omit} */
+    align_peek();               /* look for \.{\\noalign} or \.{\\omit} */
 }
 
 
@@ -461,25 +463,25 @@ the right thing; it either gets a new row started, or gets a \.{\\noalign}
 started, or finishes off the alignment.
 
 @c
-void align_peek(int status)
+void align_peek(void)
 {
   RESTART:
     align_state = 1000000;
     do {
-        get_x_or_protected(status);
+        get_x_or_protected();
     } while (cur_cmd == spacer_cmd);
     if (cur_cmd == no_align_cmd) {
-        scan_left_brace(status);
+        scan_left_brace();
         new_save_level(no_align_group);
         if (cur_list.mode_field == -vmode)
             normal_paragraph();
     } else if (cur_cmd == right_brace_cmd) {
-        fin_align(status);
+        fin_align();
     } else if ((cur_cmd == car_ret_cmd) && (cur_chr == cr_cr_code)) {
         goto RESTART;           /* ignore \.{\\crcr} */
     } else {
         init_row();             /* start a new row */
-        init_col(status);             /* start a new column and replace what we peeked at */
+        init_col();             /* start a new column and replace what we peeked at */
     }
 }
 
@@ -534,13 +536,13 @@ this time.  We remain in the same mode, and start the template if it is
 called for.
 
 @c
-void init_col(int status)
+void init_col(void)
 {
     extra_info(cur_align) = cur_cmd;
     if (cur_cmd == omit_cmd)
         align_state = 0;
     else {
-        back_input(status);
+        back_input();
         begin_token_list(u_part(cur_align), u_template);
     }                           /* now |align_state=1000000| */
 }
@@ -556,9 +558,9 @@ This part of the program had better not be activated when the preamble
 to another alignment is being scanned, or when no alignment preamble is active.
 
 @c
-void insert_vj_template(int status)
+void insert_vj_template(void)
 {
-    if ((status == aligning) || (cur_align == null))
+    if ((scanner_status == aligning) || (cur_align == null))
         fatal_error("(interwoven alignment preambles are not allowed)");
     cur_cmd = extra_info(cur_align);
     extra_info(cur_align) = cur_chr;
@@ -596,7 +598,7 @@ that makes them happen. This routine returns |true| if a row as well as a
 column has been finished.
 
 @c
-boolean fin_col(int status)
+boolean fin_col(void)
 {
     pointer p;                  /* the alignrecord after the current one */
     pointer q, r;               /* temporary pointers for list manipulation */
@@ -628,7 +630,7 @@ boolean fin_col(int status)
             q = hold_token_head;
             r = u_part(cur_loop);
             while (r != null) {
-                s = get_avail(status);
+                s = get_avail();
                 token_link(q) = s;
                 q = token_link(q);
                 token_info(q) = token_info(r);
@@ -639,7 +641,7 @@ boolean fin_col(int status)
             q = hold_token_head;
             r = v_part(cur_loop);
             while (r != null) {
-                s = get_avail(status);
+                s = get_avail();
                 token_link(q) = s;
                 q = token_link(q);
                 token_info(q) = token_info(r);
@@ -663,7 +665,7 @@ boolean fin_col(int status)
         }
     }
     if (extra_info(cur_align) != span_code) {
-        unsave(status);
+        unsave();
         new_save_level(align_group);
         /* Package an unset box for the current column and record its width */
         if (cur_list.mode_field == -hmode) {
@@ -728,10 +730,10 @@ boolean fin_col(int status)
     }
     align_state = 1000000;
     do {
-        get_x_or_protected(status);
+        get_x_or_protected();
     } while (cur_cmd == spacer_cmd);
     cur_align = p;
-    init_col(status);
+    init_col();
     return false;
 }
 
@@ -766,7 +768,7 @@ contains the unset boxes for the columns, separated by the tabskip glue.
 Everything will be set later.
 
 @c
-void fin_row(int status)
+void fin_row(void)
 {
     pointer p;                  /* the new unset box */
     if (cur_list.mode_field == -hmode) {
@@ -790,7 +792,7 @@ void fin_row(int status)
     glue_stretch(p) = 0;
     if (every_cr != null)
         begin_token_list(every_cr, every_cr_text);
-    align_peek(status);
+    align_peek();
     /* note that |glue_shrink(p)=0| since |glue_shrink==shift_amount| */
 }
 
@@ -800,7 +802,7 @@ sigh of relief that memory hasn't overflowed. All the unset boxes will now be
 set so that the columns line up, taking due account of spanned columns.
 
 @c
-void fin_align(int status)
+void fin_align(void)
 {
     pointer p, q, r, s, u, v, rr;       /* registers for the list operations */
     scaled t, w;                /* width of column */
@@ -810,10 +812,10 @@ void fin_align(int status)
     halfword pd;                /* temporary storage for |prev_depth| */
     if (cur_group != align_group)
         confusion("align1");
-    unsave(status);                   /* that |align_group| was for individual entries */
+    unsave();                   /* that |align_group| was for individual entries */
     if (cur_group != align_group)
         confusion("align0");
-    unsave(status);                   /* that |align_group| was for the whole alignment */
+    unsave();                   /* that |align_group| was for the whole alignment */
     if (nest[nest_ptr - 1].mode_field == mmode)
         o = display_indent;
     else
@@ -1132,7 +1134,7 @@ value is changed to zero and so is the next tabskip.
     q = cur_list.tail_field;
     pop_nest();
     if (cur_list.mode_field == mmode) {
-        finish_display_alignment(p, q, pd, status);
+        finish_display_alignment(p, q, pd);
     } else {
         vlink(cur_list.tail_field) = p;
         if (p != null)

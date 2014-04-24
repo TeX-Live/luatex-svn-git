@@ -62,13 +62,14 @@ recursive calls don't invalidate them.
 boolean is_in_csname = false;
 
 @ @c
-void expand(int status)
+void expand(void)
 {
     halfword t;                 /* token that is being ``expanded after'' */
     halfword p;                 /* for list manipulation */
     halfword cur_ptr;           /* for a local token list pointer */
     scan_result val;
     halfword backup_backup;     /* to save |link(backup_head)| */
+    int save_scanner_status;    /* temporary storage of |scanner_status| */
     incr(expand_depth_count);
     if (expand_depth_count >= expand_depth)
         overflow("expansion depth", (unsigned) expand_depth);
@@ -83,7 +84,7 @@ void expand(int status)
             /* Insert the appropriate mark text into the scanner */
             t = cur_chr % marks_code;
             if (cur_chr >= marks_code)
-                scan_mark_num(&val, status);
+                scan_mark_num(&val);
             else
                 val.value.int_val = 0;
             switch (t) {
@@ -110,21 +111,21 @@ void expand(int status)
             if (cur_chr == 0) {
                 /* Expand the token after the next token */
                 /* It takes only a little shuffling to do what \TeX\ calls \.{\\expandafter}. */
-                get_token(status);
+                get_token();
                 t = cur_tok;
-                get_token(status);
+                get_token();
                 if (cur_cmd > max_command_cmd)
-                    expand(status);
+                    expand();
                 else
-                    back_input(status);
+                    back_input();
                 cur_tok = t;
-                back_input(status);
+                back_input();
 
             } else {            /* \\unless */
                 /* Negate a boolean conditional and |goto reswitch| */
                 /* The result of a boolean condition is reversed when the conditional is
                    preceded by \.{\\unless}. */
-                get_token(status);
+                get_token();
                 if ((cur_cmd == if_test_cmd) && (cur_chr != if_case_code)) {
                     cur_chr = cur_chr + unless_code;
                     goto RESWITCH;
@@ -133,7 +134,7 @@ void expand(int status)
                 print_cmd_chr((quarterword) cur_cmd, cur_chr);
                 print_char('\'');
                 help1("Continue, and I'll forget that it ever happened.");
-                back_error(status);
+                back_error();
             }
             break;
         case no_expand_cmd:
@@ -145,13 +146,17 @@ void expand(int status)
                    not slow down the inner loop.
 
                    Since \.{\\outer} macros might arise here, we must also
-                   clear the |status| temporarily.
+                   clear the |scanner_status| temporarily.
                  */
-                get_token(normal);
+
+                save_scanner_status = scanner_status;
+                scanner_status = normal;
+                get_token();
+                scanner_status = save_scanner_status;
                 t = cur_tok;
-                back_input(status);   /* now |start| and |loc| point to the backed-up token |t| */
+                back_input();   /* now |start| and |loc| point to the backed-up token |t| */
                 if (t >= cs_token_flag) {
-                    p = get_avail(status);
+                    p = get_avail();
                     set_token_info(p, cs_token_flag + frozen_dont_expand);
                     set_token_link(p, iloc);
                     istart = p;
@@ -180,7 +185,10 @@ void expand(int status)
                    all the primitives.  Then, this problem would not happen, at the
                    expense of a few hundred extra control sequences.
                  */
-                get_token(normal);
+                save_scanner_status = scanner_status;
+                scanner_status = normal;
+                get_token();
+                scanner_status = save_scanner_status;
                 cur_cs = prim_lookup(cs_text(cur_cs), true);
                 if (cur_cs != undefined_primitive) {
                     t = get_prim_eq_type(cur_cs);
@@ -191,8 +199,8 @@ void expand(int status)
                         cur_cs = 0;
                         goto RESWITCH;
                     } else {
-                        back_input(status);   /*  now |loc| and |start| point to a one-item list */
-                        p = get_avail(status);
+                        back_input();   /*  now |loc| and |start| point to a one-item list */
+                        p = get_avail();
                         set_token_info(p, cs_token_flag + frozen_primitive);
                         set_token_link(p, iloc);
                         iloc = p;
@@ -203,23 +211,23 @@ void expand(int status)
                     help2
                         ("The control sequence marked <to be read again> does not",
                          "represent any known primitive.");
-                    back_error(status);
+                    back_error();
                 }
 
             }
             break;
         case cs_name_cmd:
             /* Manufacture a control sequence name; */
-            manufacture_csname(status);
+            manufacture_csname();
             break;
         case convert_cmd:
-            conv_toks(status);        /* this procedure is discussed in Part 27 below */
+            conv_toks();        /* this procedure is discussed in Part 27 below */
             break;
         case the_cmd:
-            ins_the_toks(status);     /* this procedure is discussed in Part 27 below */
+            ins_the_toks();     /* this procedure is discussed in Part 27 below */
             break;
         case if_test_cmd:
-            conditional(status);      /* this procedure is discussed in Part 28 below */
+            conditional();      /* this procedure is discussed in Part 28 below */
             break;
         case fi_or_else_cmd:
             /* Terminate the current conditional and skip to \.{\\fi} */
@@ -232,7 +240,7 @@ void expand(int status)
                     show_cur_cmd_chr();
             if (cur_chr > if_limit) {
                 if (if_limit == if_code) {
-                    insert_relax(status);     /*  condition not yet evaluated */
+                    insert_relax();     /*  condition not yet evaluated */
                 } else {
                     print_err("Extra ");
                     print_cmd_chr(fi_or_else_cmd, cur_chr);
@@ -256,9 +264,9 @@ void expand(int status)
                 pseudo_start();
                 iname = 19;
             } else if (name_in_progress)
-                insert_relax(status);
+                insert_relax();
             else
-                start_input(status);
+                start_input();
             break;
         default:
             /* Complain about an undefined macro */
@@ -272,7 +280,7 @@ void expand(int status)
             break;
         }
     } else if (cur_cmd < end_template_cmd) {
-        macro_call(status);
+        macro_call();
     } else {
         /* Insert a token containing |frozen_endv| */
         /* An |end_template| command is effectively changed to an |endv| command
@@ -282,7 +290,7 @@ void expand(int status)
            accomplished.)
          */
         cur_tok = cs_token_flag + frozen_endv;
-        back_input(status);
+        back_input();
 
     }
     set_token_link(backup_head, backup_backup);
@@ -290,30 +298,30 @@ void expand(int status)
 }
 
 @ @c
-void complain_missing_csname(int status)
+void complain_missing_csname(void)
 {
     print_err("Missing \\endcsname inserted");
     help2("The control sequence marked <to be read again> should",
           "not appear between \\csname and \\endcsname.");
-    back_error(status);
+    back_error();
 }
 
 @ @c
-void manufacture_csname(int status)
+void manufacture_csname(void)
 {
     halfword p, q, r;
     lstring *ss;
-    r = get_avail(status);
+    r = get_avail();
     p = r;                      /* head of the list of characters */
     is_in_csname = true;
     do {
-        get_x_token(status);
+        get_x_token();
         if (cur_cs == 0)
-            store_new_token(cur_tok, status);
+            store_new_token(cur_tok);
     } while (cur_cs == 0);
     if (cur_cmd != end_cs_name_cmd) {
         /* Complain about missing \.{\\endcsname} */
-        complain_missing_csname(status);
+        complain_missing_csname();
     }
     is_in_csname = false;
     /* Look up the characters of list |r| in the hash table, and set |cur_cs| */
@@ -330,7 +338,7 @@ void manufacture_csname(int status)
         eq_define(cur_cs, relax_cmd, too_big_char);     /* N.B.: The |save_stack| might change */
     };                          /* the control sequence will now match `\.{\\relax}' */
     cur_tok = cur_cs + cs_token_flag;
-    back_input(status);
+    back_input();
 }
 
 
@@ -338,12 +346,12 @@ void manufacture_csname(int status)
 a harmless \.{\\relax} into the user's input.
 
 @c
-void insert_relax(int status)
+void insert_relax(void)
 {
     cur_tok = cs_token_flag + cur_cs;
-    back_input(status);
+    back_input();
     cur_tok = cs_token_flag + frozen_relax;
-    back_input(status);
+    back_input();
     token_type = inserted;
 }
 
@@ -353,22 +361,22 @@ next token of input. It has been slightly optimized to take account of
 common cases.
 
 @c
-void get_x_token(int status)
+void get_x_token(void)
 {                               /* sets |cur_cmd|, |cur_chr|, |cur_tok|,  and expands macros */
   RESTART:
-    get_token_lua(status);
+    get_token_lua();
     if (cur_cmd <= max_command_cmd)
         goto DONE;
     if (cur_cmd >= call_cmd) {
         if (cur_cmd < end_template_cmd) {
-            macro_call(status);
+            macro_call();
         } else {
             cur_cs = frozen_endv;
             cur_cmd = endv_cmd;
             goto DONE;          /* |cur_chr=null_list| */
         }
     } else {
-        expand(status);
+        expand();
     }
     goto RESTART;
   DONE:
@@ -383,11 +391,11 @@ void get_x_token(int status)
 procedure calls: |get_next; x_token|.
 
 @c
-void x_token(int status)
+void x_token(void)
 {                               /* |get_x_token| without the initial |get_next| */
     while (cur_cmd > max_command_cmd) {
-        expand(status);
-        get_token_lua(status);
+        expand();
+        get_token_lua();
     }
     if (cur_cs == 0)
         cur_tok = token_val(cur_cmd, cur_chr);
@@ -476,7 +484,7 @@ the control sequence \.{\\par}. If an illegal \.{\\par} appears, the macro
 call is aborted, and the \.{\\par} will be rescanned.
 
 @c
-void macro_call(int status)
+void macro_call(void)
 {                               /* invokes a user-defined control sequence */
     halfword r;                 /* current node in the macro's token list */
     halfword p = null;          /* current node in parameter token list being built */
@@ -489,6 +497,7 @@ void macro_call(int status)
     halfword unbalance;         /* unmatched left braces in current parameter */
     halfword m = 0;             /* the number of tokens or groups (usually) */
     halfword ref_count;         /* start of the token list */
+    int save_scanner_status = scanner_status;   /* |scanner_status| upon entry */
     halfword save_warning_index = warning_index;        /* |warning_index| upon entry */
     int match_chr = 0;          /* character used in parameter */
     warning_index = cur_cs;
@@ -518,7 +527,7 @@ void macro_call(int status)
            a string that will delimit the next parameter.
          */
 
-        status = matching;
+        scanner_status = matching;
         unbalance = 0;
         long_state = eq_type(cur_cs);
         if (long_state >= outer_call_cmd)
@@ -543,7 +552,7 @@ void macro_call(int status)
                a |match| that is immediately followed by |match| or |end_match|---will
                always fail the test `|cur_tok=info(r)|' in the following algorithm. */
           CONTINUE:
-            get_token(status);        /* set |cur_tok| to the next token of input */
+            get_token();        /* set |cur_tok| to the next token of input */
             if (cur_tok == token_info(r)) {
                 /* Advance |r|; |goto found| if the parameter delimiter has been
                    fully matched, otherwise |goto continue| */
@@ -599,7 +608,7 @@ void macro_call(int status)
                 } else {
                     t = s;
                     do {
-                        store_new_token(token_info(t), status);
+                        store_new_token(token_info(t));
                         incr(m);
                         u = token_link(t);
                         v = s;
@@ -634,8 +643,8 @@ void macro_call(int status)
                     /* Contribute an entire group to the current parameter */
                     unbalance = 1;
                     while (1) {
-                        fast_store_new_token(cur_tok, status);
-                        get_token(status);
+                        fast_store_new_token(cur_tok);
+                        get_token();
                         if (cur_tok == par_token) {
                             if (long_state != long_call_cmd) {
                                 if (!int_par(suppress_long_error_code)) {
@@ -655,11 +664,11 @@ void macro_call(int status)
                         }
                     }
                     rbrace_ptr = p;
-                    store_new_token(cur_tok, status);
+                    store_new_token(cur_tok);
 
                 } else {
                     /* Report an extra right brace and |goto continue| */
-                    back_input(status);
+                    back_input();
                     print_err("Argument of ");
                     sprint_cs(warning_index);
                     tprint(" has an extra }");
@@ -673,7 +682,7 @@ void macro_call(int status)
                     incr(align_state);
                     long_state = call_cmd;
                     cur_tok = par_token;
-                    ins_error(status);
+                    ins_error();
                     goto CONTINUE;
                     /* a white lie; the \.{\\par} won't always trigger a runaway */
                 }
@@ -684,7 +693,7 @@ void macro_call(int status)
                     if (token_info(r) <= end_match_token)
                         if (token_info(r) >= match_token)
                             goto CONTINUE;
-                store_new_token(cur_tok, status);
+                store_new_token(cur_tok);
 
             }
             incr(m);
@@ -748,14 +757,14 @@ void macro_call(int status)
     /* Report a runaway argument and abort */
     /* If |long_state=outer_call|, a runaway argument has already been reported. */
     if (long_state == call_cmd) {
-        runaway(status);
+        runaway();
         print_err("Paragraph ended before ");
         sprint_cs(warning_index);
         tprint(" was complete");
         help3("I suspect you've forgotten a `}', causing me to apply this",
               "control sequence to too much text. How can we recover?",
               "My plan is to forget the whole thing and hope for the best.");
-        back_error(status);
+        back_error();
     }
     pstack[n] = token_link(temp_token_head);
     align_state = align_state - unbalance;
@@ -763,5 +772,6 @@ void macro_call(int status)
         flush_list(pstack[m]);
 
   EXIT:
+    scanner_status = save_scanner_status;
     warning_index = save_warning_index;
 }

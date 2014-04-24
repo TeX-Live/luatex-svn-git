@@ -287,7 +287,7 @@ int luacstring_partial(void);
 int luacstring_final_line(void);
 
 /* lua/luatoken.c */
-void do_get_token_lua(int callback_id, int status);
+void do_get_token_lua(int callback_id);
 
 /* lua/luanode.c */
 int visible_last_node_type(int n);

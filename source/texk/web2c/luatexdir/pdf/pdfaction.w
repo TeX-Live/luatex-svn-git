@@ -48,17 +48,17 @@ void delete_action_node(halfword a)
 
 @ read an action specification
 @c
-halfword scan_action(PDF pdf, int status)
+halfword scan_action(PDF pdf)
 {
     int p;
     scan_result val;
     (void) pdf;
     p = new_action_node();
-    if (scan_keyword("user", status))
+    if (scan_keyword("user"))
         set_pdf_action_type(p, pdf_action_user);
-    else if (scan_keyword("goto", status))
+    else if (scan_keyword("goto"))
         set_pdf_action_type(p, pdf_action_goto);
-    else if (scan_keyword("thread", status))
+    else if (scan_keyword("thread"))
         set_pdf_action_type(p, pdf_action_thread);
     else
         pdf_error("ext1", "action type missing");
@@ -67,31 +67,31 @@ halfword scan_action(PDF pdf, int status)
         set_pdf_action_tokens(p, def_ref);
         return p;
     }
-    if (scan_keyword("file", status)) {
+    if (scan_keyword("file")) {
         scan_pdf_ext_toks();
         set_pdf_action_file(p, def_ref);
     }
-    if (scan_keyword("page", status)) {
+    if (scan_keyword("page")) {
         if (pdf_action_type(p) != pdf_action_goto)
             pdf_error("ext1", "only GoTo action can be used with `page'");
         set_pdf_action_type(p, pdf_action_page);
-        scan_int(&val,status);
+        scan_int(&val);
         if (val.value.int_val <= 0)
             pdf_error("ext1", "page number must be positive");
         set_pdf_action_id(p, val.value.int_val);
         set_pdf_action_named_id(p, 0);
         scan_pdf_ext_toks();
         set_pdf_action_tokens(p, def_ref);
-    } else if (scan_keyword("name", status)) {
+    } else if (scan_keyword("name")) {
         scan_pdf_ext_toks();
         set_pdf_action_named_id(p, 1);
         set_pdf_action_id(p, def_ref);
-    } else if (scan_keyword("num", status)) {
+    } else if (scan_keyword("num")) {
         if ((pdf_action_type(p) == pdf_action_goto) &&
             (pdf_action_file(p) != null))
             pdf_error("ext1",
                       "`goto' option cannot be used with both `file' and `num'");
-        scan_int(&val, status);
+        scan_int(&val);
         if (val.value.int_val <= 0)
             pdf_error("ext1", "num identifier must be positive");
         set_pdf_action_named_id(p, 0);
@@ -99,18 +99,18 @@ halfword scan_action(PDF pdf, int status)
     } else {
         pdf_error("ext1", "identifier type missing");
     }
-    if (scan_keyword("newwindow", status)) {
+    if (scan_keyword("newwindow")) {
         set_pdf_action_new_window(p, pdf_window_new);
         /* Scan an optional space */
-        get_x_token(status);
+        get_x_token();
         if (cur_cmd != spacer_cmd)
-            back_input(status);
-    } else if (scan_keyword("nonewwindow", status)) {
+            back_input();
+    } else if (scan_keyword("nonewwindow")) {
         set_pdf_action_new_window(p, pdf_window_nonew);
         /* Scan an optional space */
-        get_x_token(status);
+        get_x_token();
         if (cur_cmd != spacer_cmd)
-            back_input(status);
+            back_input();
     } else {
         set_pdf_action_new_window(p, pdf_window_notset);
     }

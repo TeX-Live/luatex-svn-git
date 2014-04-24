@@ -50,16 +50,16 @@ void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 
 @ create a new whatsit node for annotation
 @c
-void new_annot_whatsit(small_number w, int status)
+void new_annot_whatsit(small_number w)
 {
     scaled_whd alt_rule;
     new_whatsit(w);
-    alt_rule = scan_alt_rule(status); /* scans |<rule spec>| to |alt_rule| */
+    alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
     set_width(tail, alt_rule.wd);
     set_height(tail, alt_rule.ht);
     set_depth(tail, alt_rule.dp);
     if ((w == pdf_thread_node) || (w == pdf_start_thread_node)) {
-        if (scan_keyword("attr", status)) {
+        if (scan_keyword("attr")) {
             scan_pdf_ext_toks();
             set_pdf_thread_attr(tail, def_ref);
         } else {
@@ -69,19 +69,19 @@ void new_annot_whatsit(small_number w, int status)
 }
 
 @ @c
-void scan_annot(PDF pdf, int status)
+void scan_annot(PDF pdf)
 {
     int k;
     scan_result val;
-    if (scan_keyword("reserveobjnum", status)) {
+    if (scan_keyword("reserveobjnum")) {
         k = pdf_create_obj(pdf, obj_type_annot, 0);
         /* Scan an optional space */
-        get_x_token(status);
+        get_x_token();
         if (cur_cmd != spacer_cmd)
-            back_input(status);
+            back_input();
     } else {
-        if (scan_keyword("useobjnum", status)) {
-            scan_int(&val, status);
+        if (scan_keyword("useobjnum")) {
+            scan_int(&val);
             k = val.value.int_val;
             check_obj_type(pdf, obj_type_annot, k);
             if (obj_annot_ptr(pdf, k) != 0)
@@ -89,7 +89,7 @@ void scan_annot(PDF pdf, int status)
         } else {
             k = pdf_create_obj(pdf, obj_type_annot, 0);
         }
-        new_annot_whatsit(pdf_annot_node, status);
+        new_annot_whatsit(pdf_annot_node);
         obj_annot_ptr(pdf, k) = tail;
         set_pdf_annot_objnum(tail, k);
         scan_pdf_ext_toks();

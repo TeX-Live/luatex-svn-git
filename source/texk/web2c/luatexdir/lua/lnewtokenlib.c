@@ -107,7 +107,7 @@ static void make_new_token(lua_State * L, int cmd, int chr, int cs)
     int tok = 0;
     lua_token *thetok = lua_newuserdata(L, sizeof(lua_token));
     thetok->origin = LUA_ORIGIN;
-    fast_get_avail(thetok->token, normal);
+    fast_get_avail(thetok->token);
     tok = (cs ? cs_token_flag + cs : token_val(cmd, chr));
     set_token_info(thetok->token, tok);
     lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(luatex_newtoken));
@@ -158,7 +158,7 @@ static int run_get_next(lua_State * L)
 {
     saved_tex_scanner texstate;
     save_tex_scanner(texstate);
-    get_next(false, normal);
+    get_next(false);
     make_new_token(L, cur_cmd, cur_chr, cur_cs);
     unsave_tex_scanner(texstate);
     return 1;
@@ -171,7 +171,7 @@ static int run_scan_keyword(lua_State * L)
     int v = 0;
     if (s) {
 	save_tex_scanner(texstate);
-	if (scan_keyword(s, normal)) {
+	if (scan_keyword(s)) {
 	    v = 1;
 	}
 	unsave_tex_scanner(texstate);
@@ -186,7 +186,7 @@ static int run_scan_int(lua_State * L)
     int v = 0;
     scan_result val;
     save_tex_scanner(texstate);
-    scan_int(&val, normal);
+    scan_int(&val);
     v = val.value.int_val;
     unsave_tex_scanner(texstate);
     lua_pushnumber(L,(lua_Number)v);
@@ -205,7 +205,7 @@ static int run_scan_dimen(lua_State * L)
     if (t>1)
 	mu = lua_toboolean(L,2); // mu units required ? 
     save_tex_scanner(texstate);
-    scan_dimen(&val, mu,inf, false, normal); // arg3 = shortcut, arg4 = scanner status
+    scan_dimen(&val, mu,inf, false); // arg3 = shortcut
     v = val.value.dimen_val;
     o = val.info.order;
     unsave_tex_scanner(texstate);
@@ -224,7 +224,7 @@ static int run_scan_glue(lua_State * L)
     if (t>0)
 	mu = lua_toboolean(L,1); // mu units required ? 
     save_tex_scanner(texstate);
-    scan_glue(&val, (mu ? mu_val_level : glue_val_level), normal);
+    scan_glue(&val, (mu ? mu_val_level : glue_val_level));
     v = val.value.glu_val; // which is a glue_spec node
     unsave_tex_scanner(texstate);
     lua_nodelib_push_fast(L,(halfword)v); 
@@ -264,7 +264,7 @@ static int run_scan_toks(lua_State * L)
 static int run_expand(lua_State * L)
 {
     (void) L;
-    expand(normal);
+    expand();
     return 0;
 }
 

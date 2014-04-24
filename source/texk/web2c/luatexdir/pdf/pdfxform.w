@@ -68,7 +68,7 @@ void pdf_place_form(PDF pdf, halfword p)
 }
 
 @ @c
-void scan_pdfxform(PDF pdf, int status)
+void scan_pdfxform(PDF pdf)
 {
     int k;
     halfword p;
@@ -76,19 +76,19 @@ void scan_pdfxform(PDF pdf, int status)
     pdf->xform_count++;
     k = pdf_create_obj(pdf, obj_type_xform, pdf->xform_count);
     set_obj_data_ptr(pdf, k, pdf_get_mem(pdf, pdfmem_xform_size));
-    if (scan_keyword("attr", status)) {
+    if (scan_keyword("attr")) {
         scan_pdf_ext_toks();
         set_obj_xform_attr(pdf, k, def_ref);
     } else {
         set_obj_xform_attr(pdf, k, null);
     }
-    if (scan_keyword("resources", status)) {
+    if (scan_keyword("resources")) {
         scan_pdf_ext_toks();
         set_obj_xform_resources(pdf, k, def_ref);
     } else {
         set_obj_xform_resources(pdf, k, null);
     }
-    scan_int(&val, status);
+    scan_int(&val);
     p = box(val.value.int_val);
     if (p == null)
         pdf_error("ext1", "\\pdfxform cannot be used with a void box");
@@ -103,13 +103,13 @@ void scan_pdfxform(PDF pdf, int status)
 @ @c
 #define tail          cur_list.tail_field
 
-void scan_pdfrefxform(PDF pdf, int status)
+void scan_pdfrefxform(PDF pdf)
 {
     int transform = 0;
     scaled_whd alt_rule, dim, nat;
     scan_result val;
-    alt_rule = scan_alt_rule(status); /* scans |<rule spec>| to |alt_rule| */
-    scan_int(&val, status);
+    alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
+    scan_int(&val);
     check_obj_type(pdf, obj_type_xform, val.value.int_val);
     new_whatsit(pdf_refxform_node);
     nat.wd = obj_xform_width(pdf, val.value.int_val);

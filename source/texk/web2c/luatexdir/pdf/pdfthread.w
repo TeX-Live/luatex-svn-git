@@ -243,18 +243,18 @@ void out_thread(PDF pdf, int t)
 }
 
 @ @c
-void scan_thread_id(int status)
+void scan_thread_id(void)
 {
     scan_result val;
-    if (scan_keyword("num", status)) {
-        scan_int(&val, status);
+    if (scan_keyword("num")) {
+        scan_int(&val);
         if (val.value.int_val <= 0)
             pdf_error("ext1", "num identifier must be positive");
         if (val.value.int_val > max_halfword)
             pdf_error("ext1", "number too big");
         set_pdf_thread_id(cur_list.tail_field, val.value.int_val);
         set_pdf_thread_named_id(cur_list.tail_field, 0);
-    } else if (scan_keyword("name", status)) {
+    } else if (scan_keyword("name")) {
         scan_pdf_ext_toks();
         set_pdf_thread_id(cur_list.tail_field, def_ref);
         set_pdf_thread_named_id(cur_list.tail_field, 1);

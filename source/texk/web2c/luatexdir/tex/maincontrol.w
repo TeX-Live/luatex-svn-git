@@ -200,7 +200,7 @@ in the order that the appear in |init_main_control|, below.
 @c
 static void run_char_num (void) {
     scan_result val;
-    scan_char_num(&val, normal);
+    scan_char_num(&val);
     cur_chr = val.value.int_val;
     adjust_space_factor();
     tail_append(new_char(cur_font, cur_chr));
@@ -264,7 +264,7 @@ static void run_no_boundary (void) {
 static void run_char_ghost (void) {
     int t;
     t = cur_chr;
-    get_x_token(normal);
+    get_x_token();
     if ((cur_cmd == letter_cmd) || (cur_cmd == other_char_cmd)
         || (cur_cmd == char_given_cmd) || (cur_cmd == char_num_cmd)) {
         halfword p = new_glyph(get_cur_font(), cur_chr);
@@ -291,12 +291,15 @@ static void run_ignore_spaces (void) {
     if (cur_chr == 0) {
         /* Get the next non-blank non-call... */
         do {
-            get_x_token(normal);
+            get_x_token();
         } while (cur_cmd == spacer_cmd);
 
         main_control_state = goto_skip_token;
     } else {
-        get_token_lua(normal);
+        int t = scanner_status;
+        scanner_status = normal;
+        get_token_lua();
+        scanner_status = t;
         cur_cs = prim_lookup(cs_text(cur_cs), true);
         if (cur_cs != undefined_primitive) {
             cur_cmd = get_prim_eq_type(cur_cs);
@@ -318,7 +321,7 @@ static void run_stop (void) {
 
 @ @c
 static void run_non_math_math (void) {
-    back_input(scanner_status);
+    back_input();
     new_graf(true);
 }
 
@@ -326,25 +329,25 @@ static void run_non_math_math (void) {
 static void run_math_char_num (void) {
     mathcodeval mval;           /* to build up an argument to |set_math_char| */
     if (cur_chr == 0)
-        mval = scan_mathchar(tex_mathcode, scanner_status);
+        mval = scan_mathchar(tex_mathcode);
     else if (cur_chr == 1)
-        mval = scan_mathchar(xetex_mathcode, scanner_status);
+        mval = scan_mathchar(xetex_mathcode);
     else
-        mval = scan_mathchar(xetexnum_mathcode, scanner_status);
-    math_char_in_text(mval, scanner_status);
+        mval = scan_mathchar(xetexnum_mathcode);
+    math_char_in_text(mval);
 }
 
 @ @c
 static void run_math_given (void) {
     mathcodeval mval;           /* to build up an argument to |set_math_char| */
     mval = mathchar_from_integer(cur_chr, tex_mathcode);
-    math_char_in_text(mval, scanner_status);
+    math_char_in_text(mval);
 }
 
 static void run_xmath_given (void) {
     mathcodeval mval;           /* to build up an argument to |set_math_char| */
     mval = mathchar_from_integer(cur_chr, xetex_mathcode);
-    math_char_in_text(mval, scanner_status);
+    math_char_in_text(mval);
 }
 
 @  The most important parts of |main_control| are concerned with \TeX's
@@ -364,7 +367,7 @@ mode, by setting |prev_depth:=pdf_ignored_dimen|.
 
 @c
 static void run_rule (void) {
-    tail_append(scan_rule_spec(scanner_status));
+    tail_append(scan_rule_spec());
     if (abs(mode) == vmode)
         prev_depth = pdf_ignored_dimen;
     else if (abs(mode) == hmode)
@@ -422,30 +425,30 @@ that a |make_box| command comes next and then it calls |begin_box|.
 static void run_move (void) {
     scan_result val;
     int t = cur_chr;
-    scan_normal_dimen(&val, scanner_status);
+    scan_normal_dimen(&val);
     if (t == 0)
-        scan_box(val.value.dimen_val, scanner_status);
+        scan_box(val.value.dimen_val);
     else
-        scan_box(-val.value.dimen_val, scanner_status);
+        scan_box(-val.value.dimen_val);
 }
 
 @ @c
 static void run_leader_ship (void) {
-    scan_box(leader_flag - a_leaders + cur_chr, scanner_status);
+    scan_box(leader_flag - a_leaders + cur_chr);
 }
 
 @ @c
 static void run_make_box (void) {
-    begin_box(0, scanner_status);
+    begin_box(0);
 }
 
 @ @c
 static void run_box_dir (void) {
     scan_result val;
-    scan_register_num(&val, scanner_status);
+    scan_register_num(&val);
     cur_box = box(val.value.int_val);
-    scan_optional_equals(scanner_status);
-    scan_direction(&val, scanner_status);
+    scan_optional_equals();
+    scan_direction(&val);
     if (cur_box != null)
         box_dir(cur_box) = val.value.int_val;
 }
@@ -472,7 +475,7 @@ static void run_start_par (void) {
 
 @ @c
 static void run_new_graf (void) {
-   back_input(scanner_status);
+   back_input();
    new_graf(true);
 }
 
@@ -514,13 +517,10 @@ static void run_local_box (void) {
 static void run_halign_mmode (void) {
     if (privileged()) {
         if (cur_group == math_shift_group)
-            init_align(scanner_status);
+            init_align();
         else
             off_save();
     }
-}
-static void do_init_align (void) {
-    init_align(scanner_status);
 }
 
 @ @c
@@ -532,71 +532,59 @@ static void run_eq_no (void) {
             off_save();
     }
 }
-static void run_math_radical (void) {
-    math_radical(scanner_status);
-}
-static void run_math_left_right (void) {
-    math_left_right(scanner_status);
-}
-static void run_math_math_comp (void) {
-   math_math_comp(scanner_status);
-}
-static void run_sub_sup (void) {
-   sub_sup(scanner_status);
-}
 
 @ @c
 static void run_letter_mmode (void) {
-   set_math_char(get_math_code(cur_chr), scanner_status);
+   set_math_char(get_math_code(cur_chr));
 }
 
 @ @c
 static void run_char_num_mmode (void) {
     scan_result val;
-    scan_char_num(&val, scanner_status);
+    scan_char_num(&val);
     cur_chr = val.value.int_val;
-    set_math_char(get_math_code(cur_chr), scanner_status);
+    set_math_char(get_math_code(cur_chr));
 }
 
 @ @c
 static void run_math_char_num_mmode (void) {
     mathcodeval mval;           /* to build up an argument to |set_math_char| */
     if (cur_chr == 0)
-        mval = scan_mathchar(tex_mathcode, scanner_status);
+        mval = scan_mathchar(tex_mathcode);
     else if (cur_chr == 1)
-        mval = scan_mathchar(xetex_mathcode, scanner_status);
+        mval = scan_mathchar(xetex_mathcode);
     else
-        mval = scan_mathchar(xetexnum_mathcode, scanner_status);
-    set_math_char(mval, scanner_status);
+        mval = scan_mathchar(xetexnum_mathcode);
+    set_math_char(mval);
 }
 
 @ @c
 static void run_math_given_mmode (void) {
     mathcodeval mval;           /* to build up an argument to |set_math_char| */
     mval = mathchar_from_integer(cur_chr, tex_mathcode);
-    set_math_char(mval, scanner_status);
+    set_math_char(mval);
 }
 
 static void run_xmath_given_mmode (void) {
     mathcodeval mval;           /* to build up an argument to |set_math_char| */
     mval = mathchar_from_integer(cur_chr, xetex_mathcode);
-    set_math_char(mval, scanner_status);
+    set_math_char(mval);
 }
 
 @ @c
 static void run_delim_num (void) {
     mathcodeval mval;           /* to build up an argument to |set_math_char| */
     if (cur_chr == 0)
-        mval = scan_delimiter_as_mathchar(tex_mathcode, scanner_status);
+        mval = scan_delimiter_as_mathchar(tex_mathcode);
     else
-        mval = scan_delimiter_as_mathchar(xetex_mathcode, scanner_status);
-    set_math_char(mval, scanner_status);
+        mval = scan_delimiter_as_mathchar(xetex_mathcode);
+    set_math_char(mval);
 
 }
 
 @ @c
 static void run_vcenter (void) {
-    scan_spec(vcenter_group, scanner_status);
+    scan_spec(vcenter_group);
     normal_paragraph();
     push_nest();
     mode = -vmode;
@@ -619,46 +607,34 @@ static void run_non_script (void) {
 @ @c
 static void run_math_choice (void) {
     if (cur_chr == 0)
-        append_choices(scanner_status);
+        append_choices();
     else
-        setup_math_style(scanner_status);
-}
-static void do_init_math (void) {
-   init_math (scanner_status);
-}
-static void run_math_fraction (void) {
-   math_fraction (scanner_status);
-}
-static void run_math_ac (void) {
-   math_ac (scanner_status);
-}
-static void run_math_left_brace (void) {
-   math_left_brace (scanner_status);
+        setup_math_style();
 }
 
 @ @c
 static void run_math_shift (void) {
     if (cur_group == math_shift_group)
-        after_math(scanner_status);
+        after_math();
     else
         off_save();
 }
 
 @ @c
 static void run_after_assignment (void) {
-    get_token(scanner_status);
+    get_token();
     after_token = cur_tok;
 }
 
 @ @c
 static void run_after_group (void) {
-    get_token(scanner_status);
+    get_token();
     save_for_after(cur_tok);
 }
 
 @ @c
 static void run_extension (void) {
-    do_extension(static_pdf, scanner_status);
+    do_extension(static_pdf);
 }
 
 
@@ -799,16 +775,16 @@ static void init_main_control (void) {
     any_mode(tab_mark_cmd,align_error);
     any_mode(no_align_cmd,no_align_error);
     any_mode(omit_cmd, omit_error);
-    jump_table[vmode + halign_cmd] = do_init_align;
-    jump_table[hmode + valign_cmd] = do_init_align;
+    jump_table[vmode + halign_cmd] = init_align;
+    jump_table[hmode + valign_cmd] = init_align;
     jump_table[mmode + halign_cmd] = run_halign_mmode;
     jump_table[vmode + endv_cmd] = do_endv;
     jump_table[hmode + endv_cmd] = do_endv;
     any_mode(end_cs_name_cmd, cs_error);
-    jump_table[hmode + math_shift_cmd] = do_init_math;
-    jump_table[hmode + math_shift_cs_cmd] = do_init_math;
+    jump_table[hmode + math_shift_cmd] = init_math;
+    jump_table[hmode + math_shift_cs_cmd] = init_math;
     jump_table[mmode + eq_no_cmd] = run_eq_no;
-    jump_table[mmode + left_brace_cmd] = run_math_left_brace;
+    jump_table[mmode + left_brace_cmd] = math_left_brace;
     jump_table[mmode + letter_cmd] = run_letter_mmode;
     jump_table[mmode + other_char_cmd] = run_letter_mmode;
     jump_table[mmode + char_given_cmd] = run_letter_mmode;
@@ -817,20 +793,20 @@ static void init_main_control (void) {
     jump_table[mmode + math_given_cmd] = run_math_given_mmode;
     jump_table[mmode + xmath_given_cmd] = run_xmath_given_mmode;
     jump_table[mmode + delim_num_cmd] = run_delim_num;
-    jump_table[mmode + math_comp_cmd] = run_math_math_comp;
+    jump_table[mmode + math_comp_cmd] = math_math_comp;
     jump_table[mmode + limit_switch_cmd] = math_limit_switch;
-    jump_table[mmode + radical_cmd] = run_math_radical;
-    jump_table[mmode + accent_cmd] = run_math_ac;
-    jump_table[mmode + math_accent_cmd] = run_math_ac;
+    jump_table[mmode + radical_cmd] = math_radical;
+    jump_table[mmode + accent_cmd] = math_ac;
+    jump_table[mmode + math_accent_cmd] = math_ac;
     jump_table[mmode + vcenter_cmd] = run_vcenter;
     jump_table[mmode + math_style_cmd] = run_math_style;
     jump_table[mmode + non_script_cmd] = run_non_script;
     jump_table[mmode + math_choice_cmd] = run_math_choice;
-    jump_table[mmode + above_cmd] = run_math_fraction;
-    jump_table[mmode + sub_mark_cmd] = run_sub_sup;
-    jump_table[mmode + sup_mark_cmd] = run_sub_sup;
-    jump_table[mmode + super_sub_script_cmd] = run_sub_sup;
-    jump_table[mmode + left_right_cmd] = run_math_left_right;
+    jump_table[mmode + above_cmd] = math_fraction;
+    jump_table[mmode + sub_mark_cmd] = sub_sup;
+    jump_table[mmode + sup_mark_cmd] = sub_sup;
+    jump_table[mmode + super_sub_script_cmd] = sub_sup;
+    jump_table[mmode + left_right_cmd] = math_left_right;
     jump_table[mmode + math_shift_cmd] = run_math_shift;
     jump_table[mmode + math_shift_cs_cmd] = run_math_shift;
     any_mode(toks_register_cmd, prefixed_command);
@@ -896,13 +872,13 @@ void main_control(void)
 	if (main_control_state == goto_skip_token)
             main_control_state = goto_next; /* reset */
         else
-            get_x_token(normal);
+            get_x_token();
 
         /* Give diagnostic information, if requested */
         /* When a new token has just been fetched at |big_switch|, we have an
            ideal place to monitor \TeX's activity. */
         if (interrupt != 0 && OK_to_interrupt) {
-            back_input(normal);
+            back_input();
             check_interrupt();
             continue;
         }
@@ -949,12 +925,12 @@ void app_space(void)
 @ @c
 void insert_dollar_sign(void)
 {
-    back_input(normal);
+    back_input();
     cur_tok = math_shift_token + '$';
     print_err("Missing $ inserted");
     help2("I've inserted a begin-math/end-math symbol since I think",
           "you left one out. Proceed, with fingers crossed.");
-    ins_error(normal);
+    ins_error();
 }
 
 
@@ -1024,7 +1000,7 @@ boolean its_all_over(void)
         if ((page_head == page_tail) && (head == tail) && (dead_cycles == 0)) {
             return true;
         }
-        back_input(normal);           /* we will try to end again after ejecting residual material */
+        back_input();           /* we will try to end again after ejecting residual material */
         tail_append(new_null_box());
         width(tail) = hsize;
         tail_append(new_glue(fill_glue));
@@ -1064,10 +1040,10 @@ void append_glue (void)
         val.value.glu_val = fil_neg_glue;
         break;
     case skip_code:
-        scan_glue(&val, glue_val_level, scanner_status);
+        scan_glue(&val, glue_val_level);
         break;
     case mskip_code:
-        scan_glue(&val, mu_val_level, scanner_status);
+        scan_glue(&val, mu_val_level);
         break;
     }                           /* now |cur_val| points to the glue specification */
     tail_append(new_glue(val.value.glu_val));
@@ -1084,7 +1060,7 @@ void append_kern(void)
     int s;                      /* |subtype| of the kern node */
     scan_result val;
     s = cur_chr;
-    scan_dimen(&val, (s == mu_glue), false, false, scanner_status);
+    scan_dimen(&val, (s == mu_glue), false, false);
     tail_append(new_kern(val.value.dimen_val));
     subtype(tail) = (quarterword) s;
 }
@@ -1112,8 +1088,8 @@ void off_save(void)
         error();
 
     } else {
-        back_input(scanner_status);
-        p = get_avail(scanner_status);
+        back_input();
+        p = get_avail();
         set_token_link(temp_token_head, p);
         print_err("Missing ");
         /* Prepare to insert a token that matches |cur_group|, and print what it is */
@@ -1129,7 +1105,7 @@ void off_save(void)
             break;
         case math_left_group:
             set_token_info(p, cs_token_flag + frozen_right);
-            q = get_avail(scanner_status);
+            q = get_avail();
             set_token_link(p, q);
             p = token_link(p);
             set_token_info(p, other_token + '.');
@@ -1186,20 +1162,20 @@ void handle_right_brace(void)
         /* When the right brace occurs at the end of an \.{\\hbox} or \.{\\vbox} or
            \.{\\vtop} construction, the |package| routine comes into action. We might
            also have to finish a paragraph that hasn't ended. */
-        package(0, scanner_status);
+        package(0);
         break;
     case adjusted_hbox_group:
         adjust_tail = adjust_head;
         pre_adjust_tail = pre_adjust_head;
-        package(0, scanner_status);
+        package(0);
         break;
     case vbox_group:
         end_graf(vbox_group);
-        package(0, scanner_status);
+        package(0);
         break;
     case vtop_group:
         end_graf(vtop_group);
-        package(vtop_code, scanner_status);
+        package(vtop_code);
         break;
     case insert_group:
         end_graf(insert_group);
@@ -1207,7 +1183,7 @@ void handle_right_brace(void)
         add_glue_ref(q);
         d = split_max_depth;
         f = floating_penalty;
-        unsave(scanner_status);
+        unsave();
         save_ptr--;
         /* now |saved_value(0)| is the insertion number, or the |vadjust| subtype */
         p = vpack(vlink(head), 0, additional, -1);
@@ -1241,7 +1217,7 @@ void handle_right_brace(void)
 	    flush_node(text_dir_ptr);
 	    text_dir_ptr = text_dir_tmp;
 	}
-        resume_after_output(scanner_status);
+        resume_after_output();
         break;
     case disc_group:
         build_discretionary();
@@ -1250,26 +1226,26 @@ void handle_right_brace(void)
         build_local_box();
         break;
     case align_group:
-        back_input(scanner_status);
+        back_input();
         cur_tok = cs_token_flag + frozen_cr;
         print_err("Missing \\cr inserted");
         help1("I'm guessing that you meant to end an alignment here.");
-        ins_error(scanner_status);
+        ins_error();
         break;
     case no_align_group:
         end_graf(no_align_group);
-        unsave(scanner_status);
-        align_peek(scanner_status);
+        unsave();
+        align_peek();
         break;
     case vcenter_group:
         end_graf(vcenter_group);
-        finish_vcenter(scanner_status);
+        finish_vcenter();
         break;
     case math_choice_group:
-        build_choices(scanner_status);
+        build_choices();
         break;
     case math_group:
-        close_math_group(p, scanner_status);
+        close_math_group(p);
         break;
     default:
         confusion("rightbrace");
@@ -1334,7 +1310,7 @@ halfword cur_box;               /* box to be placed into its context */
 |box_context| represents the context as explained above.
 
 @c
-void box_end(int box_context, int status)
+void box_end(int box_context)
 {
     if (box_context < box_flag) {
         /* Append box |cur_box| to the current list, shifted by |box_context| */
@@ -1384,7 +1360,7 @@ void box_end(int box_context, int status)
             /* Append a new leader node that uses |cur_box| */
             /* Get the next non-blank non-relax... */
             do {
-                get_x_token(status);
+                get_x_token();
             } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
 
             if (((cur_cmd == hskip_cmd) && (abs(mode) != vmode)) ||
@@ -1399,7 +1375,7 @@ void box_end(int box_context, int status)
                     ("You should say `\\leaders <box or rule><hskip or vskip>'.",
                      "I found the <box or rule>, but there's no suitable",
                      "<hskip or vskip>, so I'm ignoring these leaders.");
-                back_error(status);
+                back_error();
                 flush_node_list(cur_box);
             }
 
@@ -1411,25 +1387,25 @@ void box_end(int box_context, int status)
 @ the next input should specify a box or perhaps a rule
 
 @c
-void scan_box(int box_context, int status)
+void scan_box(int box_context)
 {
     /* Get the next non-blank non-relax... */
     do {
-        get_x_token(status);
+        get_x_token();
     } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
 
     if (cur_cmd == make_box_cmd) {
-        begin_box(box_context, status);
+        begin_box(box_context);
     } else if ((box_context >= leader_flag)
                && ((cur_cmd == hrule_cmd) || (cur_cmd == vrule_cmd))) {
-        cur_box = scan_rule_spec(status);
-        box_end(box_context, status);
+        cur_box = scan_rule_spec();
+        box_end(box_context);
     } else {
         print_err("A <box> was supposed to be here");
         help3("I was expecting to see \\hbox or \\vbox or \\copy or \\box or",
               "something like that. So you might find something missing in",
               "your output. But keep trying; you can fix this later.");
-        back_error(status);
+        back_error();
     }
 }
 
@@ -1507,9 +1483,9 @@ void head_for_vmode(void)
             error();
         }
     } else {
-        back_input(scanner_status);
+        back_input();
         cur_tok = par_token;
-        back_input(scanner_status);
+        back_input();
         token_type = inserted;
     }
 }
@@ -1546,7 +1522,7 @@ void begin_insert_or_adjust(void)
 {
     scan_result val;
     if (cur_cmd != vadjust_cmd) {
-        scan_register_num(&val, scanner_status);
+        scan_register_num(&val);
         if (val.value.int_val == output_box) {
             print_err("You can't \\insert");
             print_int(output_box);
@@ -1555,14 +1531,14 @@ void begin_insert_or_adjust(void)
             val.value.int_val = 0;
         }
         set_saved_record(0, saved_insert, 0, val.value.int_val);
-    } else if (scan_keyword("pre", scanner_status)) {
+    } else if (scan_keyword("pre")) {
         set_saved_record(0, saved_adjust, 0, 1);
     } else {
         set_saved_record(0, saved_adjust, 0, 0);
     }
     save_ptr++;
     new_save_level(insert_group);
-    scan_left_brace(scanner_status);
+    scan_left_brace();
     normal_paragraph();
     push_nest();
     mode = -vmode;
@@ -1582,7 +1558,7 @@ void handle_mark(void)
     halfword c;                 /* the mark class */
     scan_result val;
     if (cur_chr == clear_marks_code) {
-        scan_mark_num(&val, scanner_status);
+        scan_mark_num(&val);
         c = val.value.int_val;
         delete_top_mark(c);
         delete_bot_mark(c);
@@ -1593,7 +1569,7 @@ void handle_mark(void)
         if (cur_chr == 0) {
             c = 0;
         } else {
-            scan_mark_num(&val, scanner_status);
+            scan_mark_num(&val);
             c = val.value.int_val;
             if (c > biggest_used_mark)
                 biggest_used_mark = c;
@@ -1612,7 +1588,7 @@ void handle_mark(void)
 void append_penalty(void)
 {
     scan_result val;
-    scan_int(&val, scanner_status);
+    scan_int(&val);
     tail_append(new_penalty(val.value.int_val));
     if (mode == vmode) {
         check_filter("penalty");
@@ -1694,7 +1670,7 @@ void unpackage(void)
         goto DONE;
     }
     c = cur_chr;
-    scan_register_num(&val, scanner_status);
+    scan_register_num(&val);
     p = box(val.value.int_val);
     if (p == null)
         return;
@@ -1756,7 +1732,7 @@ void append_local_box(int kind)
     incr(save_ptr);
     set_saved_record(-1, saved_boxtype, 0, kind);
     new_save_level(local_box_group);
-    scan_left_brace(scanner_status);
+    scan_left_brace();
     push_nest();
     mode = -hmode;
     space_factor = 1000;
@@ -1792,7 +1768,7 @@ void append_discretionary(void)
         incr(save_ptr);
         set_saved_record(-1, saved_disc, 0, 0);
         new_save_level(disc_group);
-        scan_left_brace(scanner_status);
+        scan_left_brace();
         push_nest();
         mode = -hmode;
         space_factor = 1000;
@@ -1807,7 +1783,7 @@ void build_local_box(void)
 {
     halfword p;
     int kind;
-    unsave(scanner_status);
+    unsave();
     assert(saved_type(-1) == saved_boxtype);
     kind = saved_value(-1);
     decr(save_ptr);
@@ -1836,7 +1812,7 @@ void build_discretionary(void)
 {
     halfword p, q;              /* for link manipulation */
     int n;                      /* length of discretionary list */
-    unsave(scanner_status);
+    unsave();
     /* Prune the current list, if necessary, until it contains only
        |char_node|, |kern_node|, |hlist_node|, |vlist_node| and
        |rule_node| items; set |n| to the length of the list,
@@ -1904,7 +1880,7 @@ void build_discretionary(void)
     }                           /* there are no other cases */
     set_saved_record(-1, saved_disc, 0, (saved_value(-1) + 1));
     new_save_level(disc_group);
-    scan_left_brace(scanner_status);
+    scan_left_brace();
     push_nest();
     mode = -hmode;
     space_factor = 1000;
@@ -1927,7 +1903,7 @@ void make_accent(void)
     internal_font_number f;     /* relevant font */
     scaled a, h, x, w, delta;   /* heights and widths, as explained above */
     scan_result val;
-    scan_char_num(&val, scanner_status);
+    scan_char_num(&val);
     f = equiv(cur_font_loc);
     p = new_glyph(f, val.value.int_val);
     if (p != null) {
@@ -1943,10 +1919,10 @@ void make_accent(void)
             (cur_cmd == other_char_cmd) || (cur_cmd == char_given_cmd)) {
             q = new_glyph(f, cur_chr);
         } else if (cur_cmd == char_num_cmd) {
-            scan_char_num(&val, scanner_status);
+            scan_char_num(&val);
             q = new_glyph(f, val.value.int_val);
         } else {
-            back_input(scanner_status);
+            back_input();
         }
 
         if (q != null) {
@@ -2015,7 +1991,7 @@ void align_error(void)
         error();
 
     } else {
-        back_input(scanner_status);
+        back_input();
         if (align_state < 0) {
             print_err("Missing { inserted");
             incr(align_state);
@@ -2028,7 +2004,7 @@ void align_error(void)
         help3("I've put in what seems to be necessary to fix",
               "the current column of the current alignment.",
               "Try to go on, since this might almost work.");
-        ins_error(scanner_status);
+        ins_error();
     }
 }
 
@@ -2079,8 +2055,8 @@ void do_endv(void)
     /*.interwoven alignment preambles... */
     if (cur_group == align_group) {
         end_graf(align_group);
-        if (fin_col(scanner_status))
-            fin_row(scanner_status);
+        if (fin_col())
+            fin_row();
     } else {
         off_save();
     }
@@ -2156,7 +2132,7 @@ void prefixed_command(void)
             a = a + cur_chr;
         /* Get the next non-blank non-relax... */
         do {
-            get_x_token(scanner_status);
+            get_x_token();
         } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
 
         if (cur_cmd <= max_non_prefixed_command) {
@@ -2167,7 +2143,7 @@ void prefixed_command(void)
             help2
                 ("I'll pretend you didn't say \\long or \\outer or \\global or",
                  "\\protected.");
-            back_error(scanner_status);
+            back_error();
             return;
         }
         if (int_par(tracing_commands_code) > 2)
@@ -2216,7 +2192,7 @@ void prefixed_command(void)
         p = cur_cs;
         q = scan_toks(true, e);
         if (j != 0) {
-            q = get_avail(scanner_status);
+            q = get_avail();
             set_token_info(q, j);
             set_token_link(q, token_link(def_ref));
             set_token_link(def_ref, q);
@@ -2229,20 +2205,20 @@ void prefixed_command(void)
         p = cur_cs;
         if (n == normal) {
             do {
-                get_token(scanner_status);
+                get_token();
             } while (cur_cmd == spacer_cmd);
             if (cur_tok == other_token + '=') {
-                get_token(scanner_status);
+                get_token();
                 if (cur_cmd == spacer_cmd)
-                    get_token(scanner_status);
+                    get_token();
             }
         } else {
-            get_token(scanner_status);
+            get_token();
             q = cur_tok;
-            get_token(scanner_status);
-            back_input(scanner_status);
+            get_token();
+            back_input();
             cur_tok = q;
-            back_input(scanner_status);       /* look ahead, then back up */
+            back_input();       /* look ahead, then back up */
         }                       /* note that |back_input| doesn't affect |cur_cmd|, |cur_chr| */
         if (cur_cmd >= call_cmd)
             add_token_ref(cur_chr);
@@ -2258,35 +2234,35 @@ void prefixed_command(void)
         get_r_token();
         p = cur_cs;
         define(p, relax_cmd, too_big_char);
-        scan_optional_equals(scanner_status);
+        scan_optional_equals();
         switch (n) {
         case char_def_code:
-            scan_char_num(&val, scanner_status);
+            scan_char_num(&val);
             define(p, char_given_cmd, val.value.int_val);
             break;
         case math_char_def_code:
-            mval = scan_mathchar(tex_mathcode, scanner_status);
+            mval = scan_mathchar(tex_mathcode);
             cur_val1 =
                 (mval.class_value * 16 + mval.family_value) * 256 +
                 mval.character_value;
             define(p, math_given_cmd, cur_val1);
             break;
         case xmath_char_def_code:
-            mval = scan_mathchar(xetex_mathcode, scanner_status);
+            mval = scan_mathchar(xetex_mathcode);
             cur_val1 =
                 (mval.class_value + (8 * mval.family_value)) * (65536 * 32) +
                 mval.character_value;
             define(p, xmath_given_cmd, cur_val1);
             break;
         case umath_char_def_code:
-            mval = scan_mathchar(xetexnum_mathcode, scanner_status);
+            mval = scan_mathchar(xetexnum_mathcode);
             cur_val1 =
                 (mval.class_value + (8 * mval.family_value)) * (65536 * 32) +
                 mval.character_value;
             define(p, xmath_given_cmd, cur_val1);
             break;
         default:
-            scan_register_num(&val, scanner_status);
+            scan_register_num(&val);
             switch (n) {
             case count_def_code:
                 define(p, assign_int_cmd, count_base + val.value.int_val);
@@ -2315,9 +2291,9 @@ void prefixed_command(void)
         break;
     case read_to_cs_cmd:
         j = cur_chr;
-        scan_int(&val,  scanner_status);
+        scan_int(&val);
         n = val.value.int_val;
-        if (!scan_keyword("to", scanner_status)) {
+        if (!scan_keyword("to")) {
             print_err("Missing `to' inserted");
             help2("You should have said `\\read<number> to \\cs'.",
                   "I'm going to look for the \\cs now.");
@@ -2335,22 +2311,22 @@ void prefixed_command(void)
            enclosing pair of braces around an \.{\\output} list.) */
         q = cur_cs;
         if (cur_cmd == toks_register_cmd) {
-            scan_register_num(&val, scanner_status);
+            scan_register_num(&val);
             p = toks_base + val.value.int_val;
         } else {
             p = cur_chr;        /* |p=every_par_loc| or |output_routine_loc| or \dots */
         }
-        scan_optional_equals(scanner_status);
+        scan_optional_equals();
         /* Get the next non-blank non-relax non-call token */
         do {
-            get_x_token(scanner_status);
+            get_x_token();
         } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
 
         if (cur_cmd != left_brace_cmd) {
             /* If the right-hand side is a token parameter
                or token register, finish the assignment and |goto done| */
             if (cur_cmd == toks_register_cmd) {
-                scan_register_num(&val, scanner_status);
+                scan_register_num(&val);
                 cur_cmd = assign_toks_cmd;
                 cur_chr = toks_base + val.value.int_val;
             }
@@ -2365,7 +2341,7 @@ void prefixed_command(void)
                 goto DONE;
             }
         }
-        back_input(scanner_status);
+        back_input();
         cur_cs = q;
         q = scan_toks(false, false);
         if (token_link(def_ref) == null) {      /* empty list: revert to the default */
@@ -2373,12 +2349,12 @@ void prefixed_command(void)
             free_avail(def_ref);
         } else {
             if (p == output_routine_loc) {      /* enclose in curlies */
-                p = get_avail(scanner_status);
+                p = get_avail();
                 set_token_link(q, p);
                 p = output_routine_loc;
                 q = token_link(q);
                 set_token_info(q, right_brace_token + '}');
-                q = get_avail(scanner_status);
+                q = get_avail();
                 set_token_info(q, left_brace_token + '{');
                 set_token_link(q, token_link(def_ref));
                 set_token_link(def_ref, q);
@@ -2389,14 +2365,14 @@ void prefixed_command(void)
     case assign_int_cmd:
         /* Similar routines are used to assign values to the numeric parameters. */
         p = cur_chr;
-        scan_optional_equals(scanner_status);
-        scan_int(&val, scanner_status);
+        scan_optional_equals();
+        scan_int(&val);
         assign_internal_value(a, p, val.value.int_val);
         break;
     case assign_attr_cmd:
         p = cur_chr;
-        scan_optional_equals(scanner_status);
-        scan_int(&val, scanner_status);
+        scan_optional_equals();
+        scan_int(&val);
         if ((p - attribute_base) > max_used_attr)
             max_used_attr = (p - attribute_base);
         attr_list_cache = cache_disabled;
@@ -2404,7 +2380,7 @@ void prefixed_command(void)
         break;
     case assign_dir_cmd:
         /* DIR: Assign direction codes */
-        scan_direction(&val, scanner_status);
+        scan_direction(&val);
         switch (cur_chr) {
         case int_base + page_direction_code:
             eq_word_define(int_base + page_direction_code, val.value.int_val);
@@ -2445,19 +2421,19 @@ void prefixed_command(void)
         break;
     case assign_dimen_cmd:
         p = cur_chr;
-        scan_optional_equals(scanner_status);
-        scan_normal_dimen(&val, scanner_status);
+        scan_optional_equals();
+        scan_normal_dimen(&val);
         assign_internal_value(a, p, val.value.dimen_val);
         break;
     case assign_glue_cmd:
     case assign_mu_glue_cmd:
         p = cur_chr;
         n = cur_cmd;
-        scan_optional_equals(scanner_status);
+        scan_optional_equals();
         if (n == assign_mu_glue_cmd)
-            scan_glue(&val, mu_val_level, scanner_status);
+            scan_glue(&val, mu_val_level);
         else
-            scan_glue(&val, glue_val_level, scanner_status);
+            scan_glue(&val, glue_val_level);
         trap_zero_glue(&val);
         define(p, glue_ref_cmd, val.value.glu_val);
         break;
@@ -2477,33 +2453,33 @@ void prefixed_command(void)
                 cur_val1 = level_one;
             else
                 cur_val1 = cur_level;
-            scan_extdef_math_code(cur_val1, tex_mathcode, scanner_status);
+            scan_extdef_math_code(cur_val1, tex_mathcode);
         } else if (cur_chr == lc_code_base) {
-            scan_char_num(&val, scanner_status);
+            scan_char_num(&val);
             p = val.value.int_val;
-            scan_optional_equals(scanner_status);
-            scan_int(&val, scanner_status);
+            scan_optional_equals();
+            scan_int(&val);
             check_def_code(lc_code_base);
             define_lc_code(p, val.value.int_val);
         } else if (cur_chr == uc_code_base) {
-            scan_char_num(&val, scanner_status);
+            scan_char_num(&val);
             p = val.value.int_val;
-            scan_optional_equals(scanner_status);
-            scan_int(&val, scanner_status);
+            scan_optional_equals();
+            scan_int(&val);
             check_def_code(uc_code_base);
             define_uc_code(p, val.value.int_val);
         } else if (cur_chr == sf_code_base) {
-            scan_char_num(&val, scanner_status);
+            scan_char_num(&val);
             p = val.value.int_val;
-            scan_optional_equals(scanner_status);
-            scan_int(&val, scanner_status);
+            scan_optional_equals();
+            scan_int(&val);
             check_def_code(sf_code_base);
             define_sf_code(p, val.value.int_val);
         } else if (cur_chr == cat_code_base) {
-            scan_char_num(&val, scanner_status);
+            scan_char_num(&val);
             p = val.value.int_val;
-            scan_optional_equals(scanner_status);
-            scan_int(&val, scanner_status);
+            scan_optional_equals();
+            scan_int(&val);
             check_def_code(cat_code_base);
             define_cat_code(p, val.value.int_val);
         } else if (cur_chr == del_code_base) {
@@ -2511,7 +2487,7 @@ void prefixed_command(void)
                 cur_val1 = level_one;
             else
                 cur_val1 = cur_level;
-            scan_extdef_del_code(cur_val1, tex_mathcode, scanner_status);
+            scan_extdef_del_code(cur_val1, tex_mathcode);
         }
         break;
     case extdef_math_code_cmd:
@@ -2521,46 +2497,46 @@ void prefixed_command(void)
         else
             cur_val1 = cur_level;
         if (cur_chr == math_code_base)
-            scan_extdef_math_code(cur_val1, xetex_mathcode, scanner_status);
+            scan_extdef_math_code(cur_val1, xetex_mathcode);
         else if (cur_chr == math_code_base + 1)
-            scan_extdef_math_code(cur_val1, xetexnum_mathcode, scanner_status);
+            scan_extdef_math_code(cur_val1, xetexnum_mathcode);
         else if (cur_chr == del_code_base)
-            scan_extdef_del_code(cur_val1, xetex_mathcode, scanner_status);
+            scan_extdef_del_code(cur_val1, xetex_mathcode);
         else if (cur_chr == del_code_base + 1)
-            scan_extdef_del_code(cur_val1, xetexnum_mathcode, scanner_status);
+            scan_extdef_del_code(cur_val1, xetexnum_mathcode);
         break;
     case def_family_cmd:
         p = cur_chr;
-        scan_math_family_int(&val, scanner_status);
+        scan_math_family_int(&val);
         cur_val1 = val.value.int_val;
-        scan_optional_equals(scanner_status);
-        scan_font_ident(&val, scanner_status);
+        scan_optional_equals();
+        scan_font_ident(&val);
         define_fam_fnt(cur_val1, p, val.value.int_val);
         break;
     case set_math_param_cmd:
         p = cur_chr;
-        get_token(scanner_status);
+        get_token();
         if (cur_cmd != math_style_cmd) {
             print_err("Missing math style, treated as \\displaystyle");
             help1
                 ("A style should have been here; I inserted `\\displaystyle'.");
             cur_val1 = display_style;
-            back_error(scanner_status);
+            back_error();
         } else {
             cur_val1 = cur_chr;
         }
-        scan_optional_equals(scanner_status);
+        scan_optional_equals();
         if (p < math_param_first_mu_glue) {
             if (p == math_param_radical_degree_raise) {
-                scan_int(&val, scanner_status);
+                scan_int(&val);
                 define_math_param(p, cur_val1, val.value.int_val);
             } else {
-                scan_dimen(&val, false, false, false, scanner_status);
+                scan_dimen(&val, false, false, false);
                 define_math_param(p, cur_val1, val.value.dimen_val);
             }
         } else {
             halfword cv;
-            scan_glue(&val, mu_val_level, scanner_status);
+            scan_glue(&val, mu_val_level);
             trap_zero_glue(&val);
             cv = val.value.glu_val;
             if (cv == glue_par(thin_mu_skip_code))
@@ -2582,14 +2558,14 @@ void prefixed_command(void)
         /* The processing of boxes is somewhat different, because we may need
            to scan and create an entire box before we actually change the value
            of the old one. */
-        scan_register_num(&val, scanner_status);
+        scan_register_num(&val);
         if (is_global(a))
             n = global_box_flag + val.value.int_val;
         else
             n = box_flag + val.value.int_val;
-        scan_optional_equals(scanner_status);
+        scan_optional_equals();
         if (set_box_allowed) {
-            scan_box(n, scanner_status);
+            scan_box(n);
         } else {
             print_err("Improper \\setbox");
             help2("Sorry, \\setbox is not allowed after \\halign in a display,",
@@ -2620,8 +2596,8 @@ void prefixed_command(void)
         break;
     case set_tex_shape_cmd:
         q = cur_chr;
-        scan_optional_equals(scanner_status);
-        scan_int(&val, scanner_status);
+        scan_optional_equals();
+        scan_int(&val);
         n = val.value.int_val;
         if (n <= 0) {
             p = null;
@@ -2629,9 +2605,9 @@ void prefixed_command(void)
             p = new_node(shape_node, 2 * (n + 1) + 1);
             vinfo(p + 1) = n;
             for (j = 1; j <= n; j++) {
-                scan_normal_dimen(&val, scanner_status);
+                scan_normal_dimen(&val);
                 varmem[p + 2 * j].cint = val.value.dimen_val;       /* indentation */
-                scan_normal_dimen(&val, scanner_status);
+                scan_normal_dimen(&val);
                 varmem[p + 2 * j + 1].cint = val.value.dimen_val;   /* width */
             }
         }
@@ -2639,8 +2615,8 @@ void prefixed_command(void)
         break;
     case set_etex_shape_cmd:
         q = cur_chr;
-        scan_optional_equals(scanner_status);
-        scan_int(&val, scanner_status);
+        scan_optional_equals();
+        scan_int(&val);
         n = val.value.int_val;
         if (n <= 0) {
             p = null;
@@ -2651,7 +2627,7 @@ void prefixed_command(void)
             n = val.value.int_val;
             varmem[p + 2].cint = n;     /* number of penalties */
             for (j = p + 3; j <= p + n + 2; j++) {
-                scan_int(&val, scanner_status);
+                scan_int(&val);
                 varmem[j].cint = val.value.int_val;       /* penalty values */
             }
             if (!odd(n))
@@ -2685,26 +2661,26 @@ void prefixed_command(void)
         }
         break;
     case assign_font_dimen_cmd:
-        set_font_dimen(scanner_status);
+        set_font_dimen();
         break;
     case assign_font_int_cmd:
         n = cur_chr;
-        scan_font_ident(&val, scanner_status);
+        scan_font_ident(&val);
         f = val.value.int_val;
         if (n == no_lig_code) {
             set_no_ligatures(f);
         } else if (n < lp_code_base) {
-            scan_optional_equals(scanner_status);
-            scan_int(&val, scanner_status);
+            scan_optional_equals();
+            scan_int(&val);
             if (n == 0)
                 set_hyphen_char(f, val.value.int_val);
             else
                 set_skew_char(f, val.value.int_val);
         } else {
-            scan_char_num(&val, scanner_status);
+            scan_char_num(&val);
             p = val.value.int_val;
-            scan_optional_equals(scanner_status);
-            scan_int(&val, scanner_status);
+            scan_optional_equals();
+            scan_int(&val);
             switch (n) {
             case lp_code_base:
                 set_lp_code(f, p, val.value.int_val);
@@ -2723,13 +2699,13 @@ void prefixed_command(void)
         break;
     case def_font_cmd:
         /* Here is where the information for a new font gets loaded. */
-        tex_def_font((small_number) a, scanner_status);
+        tex_def_font((small_number) a);
         break;
     case letterspace_font_cmd:
-        new_letterspaced_font((small_number) a, scanner_status);
+        new_letterspaced_font((small_number) a);
         break;
     case pdf_copy_font_cmd:
-        make_font_copy((small_number) a, scanner_status);
+        make_font_copy((small_number) a);
         break;
     case set_interaction_cmd:
         new_interaction();
@@ -2742,7 +2718,7 @@ void prefixed_command(void)
     /* Insert a token saved by \.{\\afterassignment}, if any */
     if (after_token != 0) {
         cur_tok = after_token;
-        back_input(scanner_status);
+        back_input();
         after_token = 0;
     }
 }
@@ -2763,7 +2739,7 @@ void fixup_directions(void)
         text_dir_ptr = text_dir_tmp;
 
     }
-    unsave(scanner_status);
+    unsave();
     if (abs(mode) == hmode) {
         if (temp_no_dirs != 0) {
             /* DIR: Add local dir node */
@@ -2789,7 +2765,7 @@ void get_r_token(void)
 {
   RESTART:
     do {
-        get_token(scanner_status);
+        get_token();
     } while (cur_tok == space_token);
     if ((cur_cs == 0) || (cur_cs > eqtb_top) ||
         ((cur_cs > frozen_control_sequence) && (cur_cs <= eqtb_size))) {
@@ -2800,9 +2776,9 @@ void get_r_token(void)
               "You can recover graciously from this error, if you're",
               "careful; see exercise 27.2 in The TeXbook.");
         if (cur_cs == 0)
-            back_input(scanner_status);
+            back_input();
         cur_tok = cs_token_flag + frozen_protection;
-        ins_error(scanner_status);
+        ins_error();
         goto RESTART;
     }
 }
@@ -2957,7 +2933,7 @@ void do_register_command(int a)
        |assign_int..assign_mu_glue| correspond to each other nicely. */
     l = 0;
     if (q != register_cmd) {
-        get_x_token(scanner_status);
+        get_x_token();
         if ((cur_cmd >= assign_int_cmd) && (cur_cmd <= assign_mu_glue_cmd)) {
             l = cur_chr;
             p = cur_cmd - assign_int_cmd;
@@ -2974,7 +2950,7 @@ void do_register_command(int a)
         }
     }
     p = cur_chr;
-    scan_register_num(&val, scanner_status);
+    scan_register_num(&val);
     if (p == int_val_level)
         l = val.value.int_val + count_base;
     else if (p == attr_val_level)
@@ -2988,8 +2964,8 @@ void do_register_command(int a)
 
   FOUND:
     if (q == register_cmd) {
-        scan_optional_equals(scanner_status);
-    } else if (scan_keyword("by", scanner_status)) {
+        scan_optional_equals();
+    } else if (scan_keyword("by")) {
         ;                       /* optional `\.{by}' */
     }
     arith_error = false;
@@ -2997,20 +2973,20 @@ void do_register_command(int a)
         /* Compute result of |register| or |advance|, put it in |cur_val| */
         if (p < glue_val_level) {
             if (p == int_val_level) {
-                scan_int(&val, scanner_status);
+                scan_int(&val);
                 if (q == advance_cmd)
                     val.value.int_val = val.value.int_val + eqtb[l].cint;
             } else if (p == attr_val_level) {
-                scan_int(&val, scanner_status);
+                scan_int(&val);
                 if (q == advance_cmd)
                     val.value.int_val = val.value.int_val + eqtb[l].cint;
             } else {
-                scan_normal_dimen(&val, scanner_status);
+                scan_normal_dimen(&val);
                 if (q == advance_cmd)
                     val.value.dimen_val = val.value.dimen_val + eqtb[l].cint;
             }
         } else {
-            scan_glue(&val, p, scanner_status);
+            scan_glue(&val, p);
             if (q == advance_cmd) {
                 /* Compute the sum of two glue specs */
                 q = new_spec(val.value.glu_val);
@@ -3043,7 +3019,7 @@ void do_register_command(int a)
 
     } else {
         /* Compute result of |multiply| or |divide|, put it in |cur_val| */
-        scan_int(&val, scanner_status);
+        scan_int(&val);
         if (p < glue_val_level) {
             if (q == multiply_cmd) {
                 if (p == int_val_level) {
@@ -3115,12 +3091,12 @@ void alter_aux(void)
         report_illegal_case();
     } else {
         c = cur_chr;
-        scan_optional_equals(scanner_status);
+        scan_optional_equals();
         if (c == vmode) {
-            scan_normal_dimen(&val, scanner_status);
+            scan_normal_dimen(&val);
             prev_depth = val.value.dimen_val;
         } else {
-            scan_int(&val, scanner_status);
+            scan_int(&val);
             if ((val.value.int_val <= 0) || (val.value.int_val > 32767)) {
                 print_err("Bad space factor");
                 help1("I allow only values in the range 1..32767 here.");
@@ -3140,8 +3116,8 @@ void alter_prev_graf(void)
     p = nest_ptr;
     while (abs(nest[p].mode_field) != vmode)
         decr(p);
-    scan_optional_equals(scanner_status);
-    scan_int(&val, scanner_status);
+    scan_optional_equals();
+    scan_int(&val);
     if (val.value.int_val < 0) {
         print_err("Bad \\prevgraf");
         help1("I allow only nonnegative values here.");
@@ -3157,8 +3133,8 @@ void alter_page_so_far(void)
     int c;                      /* index into |page_so_far| */
     scan_result val;
     c = cur_chr;
-    scan_optional_equals(scanner_status);
-    scan_normal_dimen(&val, scanner_status);
+    scan_optional_equals();
+    scan_normal_dimen(&val);
     page_so_far[c] = val.value.dimen_val;
 }
 
@@ -3168,8 +3144,8 @@ void alter_integer(void)
     int c;                      /* 0 for \.{\\deadcycles}, 1 for \.{\\insertpenalties}, etc. */
     scan_result val;
     c = cur_chr;
-    scan_optional_equals(scanner_status);
-    scan_int(&val,  scanner_status);
+    scan_optional_equals();
+    scan_int(&val);
     if (c == 0) {
         dead_cycles = val.value.int_val;
     } else if (c == 2) {
@@ -3194,10 +3170,10 @@ void alter_box_dimen(void)
     int b;                      /* box number */
     scan_result val;
     c = cur_chr;
-    scan_register_num(&val, scanner_status);
+    scan_register_num(&val);
     b = val.value.int_val;
-    scan_optional_equals(scanner_status);
-    scan_normal_dimen(&val, scanner_status);
+    scan_optional_equals();
+    scan_normal_dimen(&val);
     if (box(b) != null)
         varmem[box(b) + c].cint = val.value.dimen_val;
 }
@@ -3233,7 +3209,7 @@ void do_assignments(void)
     while (true) {
         /* Get the next non-blank non-relax... */
         do {
-            get_x_token(scanner_status);
+            get_x_token();
         } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
 
         if (cur_cmd <= max_non_prefixed_command)
@@ -3252,20 +3228,20 @@ void open_or_close_in(void)
     scan_result val;
     char *fn;
     c = cur_chr;
-    scan_four_bit_int(&val, scanner_status);
+    scan_four_bit_int(&val);
     n = val.value.int_val;
     if (read_open[n] != closed) {
         lua_a_close_in(read_file[n], (n + 1));
         read_open[n] = closed;
     }
     if (c != 0) {
-        scan_optional_equals(scanner_status);
+        scan_optional_equals();
         do {
-            get_x_token(scanner_status);
+            get_x_token();
         } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
-        back_input(scanner_status);
+        back_input();
         if (cur_cmd != left_brace_cmd) {
-            scan_file_name(scanner_status);   /* set |cur_name| to desired file name */
+            scan_file_name();   /* set |cur_name| to desired file name */
             if (cur_ext == get_nullstr())
                 cur_ext = maketexstring(".tex");
         } else {
@@ -3406,7 +3382,7 @@ void show_whatever(void)
         break;
     case show_box_code:
         /* Show the current contents of a box */
-        scan_register_num(&val, scanner_status);
+        scan_register_num(&val);
         begin_diagnostic();
         tprint_nl("> \\box");
         print_int(val.value.int_val);
@@ -3418,7 +3394,7 @@ void show_whatever(void)
         break;
     case show_code:
         /* Show the current meaning of a token, then |goto common_ending| */
-        get_token(scanner_status);
+        get_token();
         if (interaction == error_stop_mode)
             wake_up_terminal();
         tprint_nl("> ");
@@ -3472,7 +3448,7 @@ void show_whatever(void)
     default:
         /* Show the current value of some parameter or register,
            then |goto common_ending| */
-        p = the_toks(scanner_status);
+        p = the_toks();
         if (interaction == error_stop_mode)
             wake_up_terminal();
         tprint_nl("> ");

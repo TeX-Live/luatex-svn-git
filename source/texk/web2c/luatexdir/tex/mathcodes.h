@@ -44,8 +44,8 @@ void set_math_code(int n,
 mathcodeval get_math_code(int n);
 int get_math_code_num(int n, boolean compat);
 int get_del_code_num(int n);
-mathcodeval scan_mathchar(int extcode, int status);
-mathcodeval scan_delimiter_as_mathchar(int extcode, int status);
+mathcodeval scan_mathchar(int extcode);
+mathcodeval scan_delimiter_as_mathchar(int extcode);
 
 mathcodeval mathchar_from_integer(int value, int extcode);
 void show_mathcode_value(mathcodeval d);
