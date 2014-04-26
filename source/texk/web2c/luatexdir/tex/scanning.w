@@ -1756,8 +1756,9 @@ found (in any order).
 halfword scan_rule_spec(void)
 {
     halfword q;                 /* the rule node being created */
+    scan_result *val;
     q = new_rule();             /* |width|, |depth|, and |height| all equal |null_flag| now */
-    scan_result *val = xmalloc(sizeof(scan_result));
+    val = xmalloc(sizeof(scan_result));
     if (cur_cmd == vrule_cmd) {
         width(q) = default_rule;
         rule_dir(q) = body_direction;
