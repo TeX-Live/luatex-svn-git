@@ -114,7 +114,7 @@ void push_condition_stack(void)
 void pop_condition_stack(void)
 {
     halfword p;
-    if (if_stack[in_open] == cond_ptr)
+    if (in_open_info[in_open].if_stack == cond_ptr)
         if_warning();
     /* conditionals possibly not properly nested with files */
     p = cond_ptr;

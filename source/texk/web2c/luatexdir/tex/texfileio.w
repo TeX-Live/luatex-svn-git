@@ -82,7 +82,6 @@ in the traditional sense.
 Signalling this fact is achieved by having two arrays of integers.
 
 @c
-int *input_file_callback_id;
 int read_file_callback_id[17];
 
 @ Handle -output-directory.
@@ -291,7 +290,7 @@ boolean lua_a_open_in(alpha_file * f, char *fn, int n)
     boolean ret = true;         /* return value */
     boolean file_ok = true;     /* the status so far  */
     if (n == 0) {
-        input_file_callback_id[iindex] = 0;
+        in_open_info[iindex].input_file_callback_id = 0;
     } else {
         read_file_callback_id[n] = 0;
     }
@@ -307,7 +306,7 @@ boolean lua_a_open_in(alpha_file * f, char *fn, int n)
         if (k > 0) {
             ret = true;
             if (n == 0)
-                input_file_callback_id[iindex] = k;
+                in_open_info[iindex].input_file_callback_id = k;
             else
                 read_file_callback_id[n] = k;
         } else {
@@ -377,14 +376,14 @@ void lua_a_close_in(alpha_file f, int n)
 {                               /* close a text file */
     int callback_id;
     if (n == 0)
-        callback_id = input_file_callback_id[iindex];
+        callback_id = in_open_info[iindex].input_file_callback_id;
     else
         callback_id = read_file_callback_id[n];
     if (callback_id > 0) {
         run_saved_callback(callback_id, "close", "->");
         destroy_saved_callback(callback_id);
         if (n == 0)
-            input_file_callback_id[iindex] = 0;
+            in_open_info[iindex].input_file_callback_id = 0;
         else
             read_file_callback_id[n] = 0;
     } else {
@@ -462,7 +461,7 @@ boolean lua_input_ln(alpha_file f, int n, boolean bypass_eoln)
     int callback_id;
     (void) bypass_eoln;         /* todo: variable can be removed */
     if (n == 0)
-        callback_id = input_file_callback_id[iindex];
+        callback_id = in_open_info[iindex].input_file_callback_id;
     else
         callback_id = read_file_callback_id[n];
     if (callback_id > 0) {
@@ -935,8 +934,8 @@ void start_input(void)
     }
 
 
-    source_filename_stack[in_open] = iname;
-    full_source_filename_stack[in_open] = xstrdup(fullnameoffile);
+    in_open_info[in_open].source_filename_stack = iname;
+    in_open_info[in_open].full_source_filename_stack = xstrdup(fullnameoffile);
     /* we can try to conserve string pool space now */
     temp_str = search_string(iname);
     if (temp_str > 0) {

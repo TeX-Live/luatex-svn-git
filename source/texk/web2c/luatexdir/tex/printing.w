@@ -1,9 +1,5 @@
 % printing.w
 %
-% Copyright 2009-2013 Taco Hoekwater <taco@@luatex.org>
-%
-% This file is part of LuaTeX.
-%
 % LuaTeX is free software; you can redistribute it and/or modify it under
 % the terms of the GNU General Public License as published by the Free
 % Software Foundation; either version 2 of the License, or (at your
@@ -1051,18 +1047,19 @@ void print_file_line(void)
 {
     int level;
     level = in_open;
-    while ((level > 0) && (full_source_filename_stack[level] == 0))
+    while ((level > 0) && 
+           (in_open_info[level].full_source_filename_stack == NULL))
         decr(level);
     if (level == 0) {
         tprint_nl("! ");
     } else {
         tprint_nl("");
-        tprint(full_source_filename_stack[level]);
+        tprint(in_open_info[level].full_source_filename_stack);
         print_char(':');
         if (level == in_open)
             print_int(line);
         else
-            print_int(line_stack[level + 1]);
+            print_int(in_open_info[level + 1].line_stack);
         tprint(": ");
     }
 }

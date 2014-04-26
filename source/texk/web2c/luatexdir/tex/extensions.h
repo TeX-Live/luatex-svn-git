@@ -68,11 +68,8 @@ distinguished by their |chr_code| values |last_box_code| and
 |copy_code|.
 */
 
-extern boolean *eof_seen;       /* has eof been seen? */
 extern void print_group(boolean e);
 extern void group_trace(boolean e);
-extern save_pointer *grp_stack; /* initial |cur_boundary| */
-extern halfword *if_stack;      /* initial |cond_ptr| */
 extern void group_warning(void);
 extern void if_warning(void);
 extern void file_warning(void);

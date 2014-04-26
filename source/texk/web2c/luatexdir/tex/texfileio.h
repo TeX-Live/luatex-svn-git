@@ -22,7 +22,7 @@
 #ifndef TEXFILEIO_H
 #  define TEXFILEIO_H
 
-extern int *input_file_callback_id;
+/* extern int *input_file_callback_id; */
 extern int read_file_callback_id[17];
 
 extern char *luatex_find_read_file(const char *s, int n, int callback_index);

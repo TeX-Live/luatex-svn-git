@@ -37,7 +37,6 @@ typedef struct in_state_record {
     signed int cattable_field:16;       /* category table used by the current line (see textoken.c) */
     quarterword state_field:8;
     quarterword index_field:8;
-    boolean partial_field:8;    /* is the current line partial? (see textoken.c) */
     boolean nofilter_field:8;   /* used by token filtering */
 } in_state_record;
 
@@ -55,7 +54,6 @@ extern in_state_record cur_input;       /* the ``top'' input state */
 #  define  nofilter cur_input.nofilter_field    /* is token filtering explicitly disallowed? */
 #  define  synctex_tag cur_input.synctex_tag_field      /* tag of the current file */
 #  define  line_catcode_table cur_input.cattable_field
-#  define  line_partial cur_input.partial_field
 
 /*
 Let's look more closely now at the control variables
@@ -128,37 +126,49 @@ lines in the buffer is |in_open+1|, and we have |in_open=index|
 when we are not reading a token list.
 
 If we are not currently reading from the terminal, or from an input
-stream, we are reading from the file variable |input_file[index]|. We use
-the notation |terminal_input| as a convenient abbreviation for |name=0|,
-and |cur_file| as an abbreviation for |input_file[index]|.
+stream, we are reading from the file variable |in_open_info[index].input_file|.
+We use the notation |terminal_input| as a convenient abbreviation for |name=0|,
+and |cur_file| as an abbreviation for |in_open_info[index].input_file|.
 
 The global variable |line| contains the line number in the topmost
 open file, for use in error messages. If we are not reading from
-the terminal, |line_stack[index]| holds the line number for the
+the terminal, |in_open_info[index].line_stack| holds the line number for the
 enclosing level, so that |line| can be restored when the current
 file has been read. Line numbers should never be negative, since the
 negative of the current line number is used to identify the user's output
 routine in the |mode_line| field of the semantic nest entries.
 
+The |in_open_info| array keeps track of a small number of other variables
+that are useful while dealing with actual input files, For example, the 
+|in_open_info[index].if_stack| and |in_open_info[index].grp_stack|
+variables are used by the e-\TeX\ error tracking code. 
+
 If more information about the input state is needed, it can be
-included in small arrays like those shown here. For example,
+included in extra fields like those shown here. For example,
 the current page or segment number in the input file might be
-put into a variable |@!page|, maintained for enclosing levels in
-`\ignorespaces|@!page_stack:array[1..max_in_open] of integer|\unskip'
-by analogy with |line_stack|.
+put into a variable |@!page|.
 @^system dependencies@>
 */
 
 #  define terminal_input (iname==0)     /* are we reading from the terminal? */
-#  define cur_file input_file[iindex]   /* the current |alpha_file| variable */
+#  define cur_file in_open_info[iindex].input_file   /* the current |alpha_file| variable */
 
 extern int in_open;
 extern int open_parens;
-extern alpha_file *input_file;
 extern int line;
-extern int *line_stack;
-extern str_number *source_filename_stack;
-extern char **full_source_filename_stack;
+
+typedef struct in_file_state_record {
+  alpha_file input_file;
+  int input_file_callback_id;
+  int line_stack;
+  boolean eof_seen;
+  save_pointer grp_stack;
+  pointer if_stack;
+  str_number source_filename_stack;
+  char *full_source_filename_stack;
+} in_file_state_record;
+
+extern in_file_state_record *in_open_info;
 
 /*
 Users of \TeX\ sometimes forget to balance left and right braces properly,

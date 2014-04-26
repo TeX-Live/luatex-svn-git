@@ -320,14 +320,8 @@ int main_initialize(void)
     nest = xmallocarray(list_state_record, (unsigned) nest_size);
     save_stack = xmallocarray(save_record, (unsigned) save_size);
     input_stack = xmallocarray(in_state_record, (unsigned) stack_size);
-    input_file = xmallocarray(alpha_file, (unsigned) max_in_open);
-    input_file_callback_id = xmallocarray(int, (unsigned) max_in_open);
-    line_stack = xmallocarray(int, (unsigned) max_in_open);
-    eof_seen = xmallocarray(boolean, (unsigned) max_in_open);
-    grp_stack = xmallocarray(save_pointer, (unsigned) max_in_open);
-    if_stack = xmallocarray(pointer, (unsigned) max_in_open);
-    source_filename_stack = xmallocarray(str_number, (unsigned) max_in_open);
-    full_source_filename_stack = xmallocarray(char *, (unsigned) max_in_open);
+    in_open_info = xmallocarray(in_file_state_record, (unsigned) max_in_open);
+
     param_stack = xmallocarray(halfword, (unsigned) param_size);
     dvi_buf = xmallocarray(eight_bits, (unsigned) dvi_buf_size);
 

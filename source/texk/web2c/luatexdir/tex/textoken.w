@@ -1224,9 +1224,9 @@ static next_line_retval next_line(void)
                     line_catcode_table = DEFAULT_CAT_TABLE;
                     if ((iname == scantextokens_name) && scantokens_last_line_p())
                         inhibit_eol = true;
-                } else if ((every_eof != null) && !eof_seen[iindex]) {
+                } else if ((every_eof != null) && !in_open_info[iindex].eof_seen) {
                     ilimit = first - 1;
-                    eof_seen[iindex] = true;    /* fake one empty line */
+                    in_open_info[iindex].eof_seen = true;    /* fake one empty line */
                     if (iname != scantextokens_name)
                         begin_token_list(every_eof, every_eof_text);
                     return next_line_restart;
@@ -1235,9 +1235,10 @@ static next_line_retval next_line(void)
                 }
             } else if (iname == luacstring_name) {
                 if (luacstring_input()) {   /* not end of strings  */
+		    int line_partial;
                     firm_up_the_line();
                     line_catcode_table = (short) luacstring_cattable();
-                    line_partial = (signed char) luacstring_partial();
+                    line_partial = luacstring_partial();
                     if (luacstring_final_line() || line_partial
                         || line_catcode_table == NO_CAT_TABLE)
                         inhibit_eol = true;
@@ -1250,9 +1251,9 @@ static next_line_retval next_line(void)
                 if (lua_input_ln(cur_file, 0, true)) {      /* not end of file */
                     firm_up_the_line();     /* this sets |ilimit| */
                     line_catcode_table = DEFAULT_CAT_TABLE;
-                } else if ((every_eof != null) && (!eof_seen[iindex])) {
+                } else if ((every_eof != null) && (!in_open_info[iindex].eof_seen)) {
                     ilimit = first - 1;
-                    eof_seen[iindex] = true;        /* fake one empty line */
+                    in_open_info[iindex].eof_seen = true;        /* fake one empty line */
                     begin_token_list(every_eof, every_eof_text);
                     return next_line_restart;
                 } else {
@@ -1262,8 +1263,8 @@ static next_line_retval next_line(void)
         }
         if (force_eof) {
             if (tracing_nesting > 0)
-                if ((grp_stack[in_open] != cur_boundary)
-                    || (if_stack[in_open] != cond_ptr))
+                if ((in_open_info[in_open].grp_stack != cur_boundary)
+                    || (in_open_info[in_open].if_stack != cond_ptr))
                     if (!((iname == scantextokens_name) || (iname == luacstring_name)))
                         file_warning(); /* give warning for some unfinished groups and/or conditionals */
             if ((iname > luacstring_name) || (iname == scantokens_debugged_name)) {

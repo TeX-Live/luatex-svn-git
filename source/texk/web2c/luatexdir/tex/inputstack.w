@@ -37,12 +37,8 @@ in_state_record cur_input;      /* the ``top'' input state */
 
 int in_open = 0;                /* the number of lines in the buffer, less one */
 int open_parens = 0;            /* the number of open text files */
-alpha_file *input_file = NULL;
 int line = 0;                   /* current line number in the current source file */
-int *line_stack = NULL;
-str_number *source_filename_stack = NULL;
-char **full_source_filename_stack = NULL;
-
+in_file_state_record *in_open_info = NULL;
 
 int scanner_status = 0;         /* can a subfile end now? */
 pointer warning_index = null;   /* identifier relevant to non-|normal| scanner status */
@@ -312,7 +308,7 @@ void show_context(void)
                         if (iindex == in_open) {
                             print_int(line);
                         } else {     /* input from a pseudo file */
-                            print_int(line_stack[iindex + 1]);
+                            print_int(in_open_info[iindex + 1].line_stack);
                         }
                     }
                     print_char(' ');
@@ -536,17 +532,16 @@ void begin_file_reading(void)
     incr(in_open);
     push_input();
     iindex = (unsigned char) in_open;
-    source_filename_stack[iindex] = 0;
-    full_source_filename_stack[iindex] = NULL;
-    eof_seen[iindex] = false;
-    grp_stack[iindex] = cur_boundary;
-    if_stack[iindex] = cond_ptr;
-    line_stack[iindex] = line;
+    in_open_info[iindex].source_filename_stack = 0;
+    in_open_info[iindex].full_source_filename_stack = NULL;
+    in_open_info[iindex].eof_seen = false;
+    in_open_info[iindex].grp_stack = cur_boundary;
+    in_open_info[iindex].if_stack = cond_ptr;
+    in_open_info[iindex].line_stack = line;
     istart = first;
     istate = mid_line;
     iname = 0;                  /* |terminal_input| is now |true| */
     line_catcode_table = DEFAULT_CAT_TABLE;
-    line_partial = false;
     /* Prepare terminal input {\sl Sync\TeX} information */
     synctex_tag = 0;
 }
@@ -560,7 +555,7 @@ static void scantokens_close_file(void);
 void end_file_reading(void)
 {
     first = istart;
-    line = line_stack[iindex];
+    line = in_open_info[iindex].line_stack;
     if ((iname >= scantokens_min_name) && (iname <= scantokens_max_name))
         scantokens_close_file();
     else if (iname == luacstring_name)
@@ -594,15 +589,11 @@ void initialize_inputstack(void)
 {
     input_ptr = 0;
     max_in_stack = 0;
-    source_filename_stack[0] = 0;
-
-    full_source_filename_stack[0] = NULL;
+    memset(in_open_info, 0, sizeof (in_file_state_record));
     in_open = 0;
     open_parens = 0;
     max_buf_stack = 0;
 
-    grp_stack[0] = 0;
-    if_stack[0] = null;
     param_ptr = 0;
     max_param_stack = 0;
     first = buf_size;
@@ -622,7 +613,6 @@ void initialize_inputstack(void)
     force_eof = false;
     luacstrings = 0;
     line_catcode_table = DEFAULT_CAT_TABLE;
-    line_partial = false;
     align_state = 1000000;
     if (!init_terminal())
         exit(EXIT_FAILURE);     /* |goto final_end|; */

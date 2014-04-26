@@ -773,7 +773,7 @@ void unsave(void)
         }
         if (int_par(tracing_groups_code) > 0)
             group_trace(true);
-        if (grp_stack[in_open] == cur_boundary)
+        if (in_open_info[in_open].grp_stack == cur_boundary)
             group_warning();    /* groups possibly not properly nested with files */
         cur_group = save_level(save_ptr);
         cur_boundary = save_value(save_ptr);

@@ -651,13 +651,6 @@ resp.\ disabled by assigning a positive, resp.\ non-positive value to
 that integer.
 
 
-@ In order to handle \.{\\everyeof} we need an array |eof_seen| of
-boolean variables.
-
-@c
-boolean *eof_seen;              /* has eof been seen? */
-
-
 @ The |print_group| procedure prints the current level of grouping and
 the name corresponding to |cur_group|.
 
@@ -753,13 +746,8 @@ void group_trace(boolean e)
 different file.  Such slight anomalies, although perfectly legitimate,
 may cause errors that are difficult to locate.  In order to be able to
 give a warning message when such anomalies occur, \eTeX\ uses the
-|grp_stack| and |if_stack| arrays to record the initial |cur_boundary|
+|grp_stack| and |if_stack| fields to record the initial |cur_boundary|
 and |cond_ptr| values for each input file.
-
-@c
-save_pointer *grp_stack;        /* initial |cur_boundary| */
-halfword *if_stack;             /* initial |cond_ptr| */
-
 
 @ When a group ends that was apparently entered in a different input
 file, the |group_warning| procedure is invoked in order to update the
@@ -780,7 +768,7 @@ void group_warning(void)
     input_stack[base_ptr] = cur_input;  /* store current state */
     i = in_open;
     w = false;
-    while ((grp_stack[i] == cur_boundary) && (i > 0)) {
+    while ((in_open_info[i].grp_stack == cur_boundary) && (i > 0)) {
         /* Set variable |w| to indicate if this case should be reported */
         /* This code scans the input stack in order to determine the type of the
            current input file. */
@@ -792,7 +780,7 @@ void group_warning(void)
                 w = true;
         }
 
-        grp_stack[i] = save_value(save_ptr);
+        in_open_info[i].grp_stack = save_value(save_ptr);
         decr(i);
     }
     if (w) {
@@ -822,7 +810,7 @@ void if_warning(void)
     input_stack[base_ptr] = cur_input;  /* store current state */
     i = in_open;
     w = false;
-    while (if_stack[i] == cond_ptr) {
+    while (in_open_info[i].if_stack == cond_ptr) {
         /* Set variable |w| to... */
         if (tracing_nesting > 0) {
             while ((input_stack[base_ptr].state_field == token_list) ||
@@ -832,7 +820,7 @@ void if_warning(void)
                 w = true;
         }
 
-        if_stack[i] = vlink(cond_ptr);
+        in_open_info[i].if_stack = vlink(cond_ptr);
         decr(i);
     }
     if (w) {
@@ -864,7 +852,7 @@ void file_warning(void)
     l = cur_level;
     c = cur_group;
     save_ptr = cur_boundary;
-    while (grp_stack[in_open] != save_ptr) {
+    while (in_open_info[in_open].grp_stack != save_ptr) {
         decr(cur_level);
         tprint_nl("Warning: end of file when ");
         print_group(true);
@@ -879,7 +867,7 @@ void file_warning(void)
     l = if_limit;
     c = cur_if;
     i = if_line;
-    while (if_stack[in_open] != cond_ptr) {
+    while (in_open_info[in_open].if_stack != cond_ptr) {
         tprint_nl("Warning: end of file when ");
         print_cmd_chr(if_test_cmd, cur_if);
         if (if_limit == fi_code)
