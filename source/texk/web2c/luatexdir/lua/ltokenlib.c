@@ -234,7 +234,7 @@ static int run_build(lua_State * L)
     if (lua_isnumber(L, 1)) {
         cs = 0;
         chr = (int) lua_tointeger(L, 1);
-        cmd = (int) luaL_optinteger(L, 2, get_char_cat_code(chr));
+        cmd = (int) luaL_optinteger(L, 2, get_cat_code(int_par(cat_code_table_code),chr));
         if (cmd == 0 || cmd == 9 || cmd == 14 || cmd == 15) {
             fprintf(stdout,
                     "\n\nluatex error: not a good token.\nCatcode %i can not be returned, so I replaced it by 12 (other)",

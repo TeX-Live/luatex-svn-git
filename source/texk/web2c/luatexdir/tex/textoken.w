@@ -425,14 +425,6 @@ void delete_token_ref(halfword p)
 }
 
 @ @c
-int get_char_cat_code(int curchr)
-{
-    int a;
-    do_get_cat_code(a,curchr);
-    return a;
-}
-
-@ @c
 static void invalid_character_error(void)
 {
     const char *hlp[] =
@@ -2222,8 +2214,6 @@ str_number tokens_to_string(halfword p)
     while (*v) { append_i_byte(*v); v++; }                      \
   }
 
-#define is_cat_letter(a)                                                \
-    (get_char_cat_code(pool_to_unichar(str_string((a)))) == 11)
 
 @ the actual token conversion in this function is now functionally 
    equivalent to |show_token_list|, except that it always prints the
@@ -2292,7 +2282,8 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
                             Print_char(*s);
                             s++;
                         }
-                        if ((!single_letter(txt)) || is_cat_letter(txt)) {
+                        if ((!single_letter(txt)) || (get_cat_code(int_par(cat_code_table_code), 
+                                                            pool_to_unichar(str_string((txt)))) == 11)) {
                             Print_char(' ');
                         }
                     }

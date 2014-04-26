@@ -3184,7 +3184,7 @@ static pointer check_nucleus_complexity(halfword q, scaled * delta,
             *delta = char_italic(cur_f, cur_c);
             p = new_glyph(cur_f, cur_c);
             reset_attributes(p, node_attr(nucleus(q)));
-            if ((is_new_mathfont(cur_f) && get_char_cat_code(cur_c) == 11) ||
+            if ((is_new_mathfont(cur_f) && get_cat_code(int_par(cat_code_table_code), cur_c) == 11) ||
                 (!is_new_mathfont(cur_f) && type(nucleus(q)) == math_text_char_node && space(cur_f)) != 0) {
                 *delta = 0;     /* no italic correction in mid-word of text font */
 	    }
