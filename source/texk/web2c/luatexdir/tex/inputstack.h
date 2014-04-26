@@ -338,7 +338,17 @@ extern void clear_for_error_prompt(void);
 
 extern void initialize_inputstack(void);
 
-extern halfword pseudo_files;
+typedef struct line_list {
+    lstring string;
+    struct line_list *next;    
+} line_list;
+
+typedef struct file_list {
+    struct line_list *lines;
+    struct file_list *next;
+} file_list;
+
+extern file_list *pseudo_files;
 #define terminal_name 17
 #define scantokens_min_name 18
 #define scantokens_name 18
@@ -349,6 +359,7 @@ extern halfword pseudo_files;
 extern void scantokens_start(int extended);
 extern void scantokens_flush_files(void);
 extern boolean scantokens_input(void);
+extern boolean scantokens_last_line_p (void);
 
 extern void lua_string_start(void);
 

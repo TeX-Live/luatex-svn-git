@@ -327,3 +327,13 @@ void flush_str(str_number s)
     while (str_string((str_ptr - 1)) == NULL)
         str_ptr--;
 }
+void flush_str_nofree(str_number s)
+{
+    if (s > STRING_OFFSET) {    /* don't ever delete the null string */
+        pool_size -= (unsigned) str_length(s);
+        str_length(s) = 0;
+        str_string(s) = NULL;
+    }
+    while (str_string((str_ptr - 1)) == NULL)
+        str_ptr--;
+}

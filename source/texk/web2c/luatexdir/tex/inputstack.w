@@ -630,60 +630,82 @@ void initialize_inputstack(void)
     first = last + 1;           /* |init_terminal| has set |loc| and |last| */
 }
 
-
-
-
 @ The global variable |pseudo_files| is used to maintain a stack of
-pseudo files.  The |pseudo_lines| field of each pseudo file points to
-a linked list of variable size nodes representing lines not yet
-processed: the |subtype| field contains the size of this node,
-all the following words contain ASCII codes.
+pseudo files.  The |lines| field of each pseudo file points to
+a linked list of structures each representing a line not yet processed.
 
 @c
-halfword pseudo_files;          /* stack of pseudo files */
+file_list *pseudo_files = NULL;          /* stack of pseudo files */
 
-static halfword string_to_pseudo(str_number str, int nl)
+static file_list *new_pseudo_file (file_list *old)
 {
-    halfword i, r, q = null;
-    unsigned l, len;
-    four_quarters w;
-    int sz;
-    halfword h = new_node(pseudo_file_node, 0);
-    unsigned char *s = str_string(str);
-    len = (unsigned) str_length(str);
-    l = 0;
-    while (l < len) {
-        unsigned m = l;         /* start of current line */
-        while ((l < len) && (s[l] != nl))
-            l++;
-        sz = (int) (l - m + 7) / 4;
-        if (sz == 1)
-            sz = 2;
-        r = new_node(pseudo_line_node, sz);
-        i = r;
-        while (--sz > 1) {
-            w.b0 = s[m++];
-            w.b1 = s[m++];
-            w.b2 = s[m++];
-            w.b3 = s[m++];
-            varmem[++i].qqqq = w;
-        }
-        w.b0 = (quarterword) (l > m ? s[m++] : ' ');
-        w.b1 = (quarterword) (l > m ? s[m++] : ' ');
-        w.b2 = (quarterword) (l > m ? s[m++] : ' ');
-        w.b3 = (quarterword) (l > m ? s[m] : ' ');
-        varmem[++i].qqqq = w;
-        if (pseudo_lines(h) == null) {
-            pseudo_lines(h) = r;
-            q = r;
-        } else {
-            couple_nodes(q, r);
-        }
-        q = vlink(q);
-        if (s[l] == nl)
-            l++;
+    file_list *new_file = xmalloc(sizeof (struct file_list));
+    new_file->lines = NULL;
+    new_file->next = old;
+    return new_file;
+}
+
+static line_list *new_pseudo_line (line_list *old, char *s, size_t len, boolean make_copy)
+{
+    line_list *new_line;
+    new_line = xmalloc(sizeof (struct line_list));
+    new_line->next = NULL;
+    if (make_copy) {
+        if (len>0) {
+           new_line->string.s = xmalloc(len);
+  	   memcpy(new_line->string.s,s,len);
+         } else {
+           new_line->string.s = xmalloc(1);
+	   *new_line->string.s = '\0';
+         }
+    } else {
+        new_line->string.s = (unsigned char *)s;
     }
-    return h;
+    new_line->string.l = len;
+    if (old) {
+       old->next = new_line;
+       return old;
+    }
+    return new_line;
+}
+
+@ Converting the new string |str| in the string pool is done by the 
+|string_to_pseudo| function, which deletes the string from the
+pool after it has finished. The use of |flush_str_nofree| stops
+us from having to copy the actual byte array in the case where
+the string does not contain |new_line_char|.
+
+We can do a bit of a shortcut if the new line char, |nl| is negative.
+This bit of luatex actually accepts new line chars larger than 127,
+even if the rest of luatex does not (yet).
+
+The implementation tries hard to be compatible with the old e-\TeX{}
+version that used node processing. 
+
+@c
+static void string_to_pseudo(str_number str, int nl)
+{
+    size_t len  = str_length(str);
+    if (len>0) {
+        char *s = (char *)str_string(str);
+        pseudo_files = new_pseudo_file(pseudo_files);
+        if (nl<0) {
+            pseudo_files->lines = new_pseudo_line(pseudo_files->lines, s,len, false);
+        } else {
+            char *needle = (char *)uni2str(nl);
+            char *orig, *r;
+            orig = r = s;
+            while ((r = strstr(s, needle)) != NULL) {
+                *r = '\0';
+                pseudo_files->lines = new_pseudo_line(pseudo_files->lines, s, r-s, (s!=orig));
+                s = r + strlen((char *)needle);
+            }
+            if (*s) {
+                pseudo_files->lines = new_pseudo_line(pseudo_files->lines, s, orig+len-s, (s!=orig));
+            }
+        }
+    }
+    flush_str_nofree(str);
 }
 
 
@@ -693,20 +715,16 @@ static halfword string_to_pseudo(str_number str, int nl)
 static void pseudo_from_string(int extended)
 {
     str_number s;               /* string to be converted into a pseudo file */
-    halfword p;                 /* for list construction */
     s = make_string();
     /* Convert string |s| into a new pseudo file */
-    p = string_to_pseudo(s, int_par(new_line_char_code));
-    vlink(p) = pseudo_files;
-    pseudo_files = p;
-    flush_str(s);
+    string_to_pseudo(s, int_par(new_line_char_code));
     /* Initiate input from new pseudo file */
     begin_file_reading();       /* set up |cur_file| and new level of input */
     line = 0;
     ilimit = istart;
     iloc = ilimit + 1;          /* force line read */
     if (extended) {
-       iname = scantextokens_name;
+        iname = scantextokens_name;
     } else if (int_par(tracing_scan_tokens_code) > 0) {
         if (term_offset > max_print_line - 3)
             print_ln();
@@ -723,6 +741,9 @@ static void pseudo_from_string(int extended)
     synctex_tag = 0;
 }
 
+@ The |scantokens_start| procedure initiates reading from a pseudo file.
+
+@c
 void scantokens_start(int extended)
 {
     scan_result val;
@@ -737,6 +758,78 @@ void scantokens_start(int extended)
     pseudo_from_string(extended);
 }
 
+@ Here we read a line from the current pseudo file into |buffer|.
+
+@c
+boolean scantokens_input(void)
+{                               /* inputs the next line or returns |false| */
+    line_list *p;               /* current line from pseudo file */
+    last = first;               /* cf.\ Matthew 19\thinspace:\thinspace30 */
+    if (pseudo_files == null) {
+        return false;
+    } else {
+        p = pseudo_files->lines;
+        if (!p) {
+	  scantokens_close_file();
+          return false;
+        }
+        pseudo_files->lines = p->next;
+        check_buffer_overflow(last + p->string.l);
+        last = first;
+	memcpy(buffer+last, p->string.s, p->string.l);
+        last += p->string.l;
+        if (last >= max_buf_stack)
+            max_buf_stack = last + 1;
+        while ((last > first) && (buffer[last - 1] == ' '))
+            decr(last);
+        free(p->string.s);
+        free(p);
+    }
+    return true;
+}
+
+@ When we are done with a pseudo file we `close' it.
+
+@c
+static void scantokens_close_file(void)
+{                               /* close the top level pseudo file */
+    file_list *r;
+    if (pseudo_files) {
+      line_list *p = NULL;
+      p = pseudo_files->lines;
+      while (p) {
+        line_list *q = p->next;
+        if (p->string.s) 
+  	    free(p->string.s);
+        free(p);
+        p = q;
+      }
+      r = pseudo_files->next;
+      free(pseudo_files);
+      pseudo_files = r;
+   }
+}
+
+@  This function is called by |main_control| when all is done.
+@c
+void scantokens_flush_files(void)
+{ 
+     while (pseudo_files != null)
+         scantokens_close_file(); /* flush pseudo files */
+}
+
+@
+@c
+boolean scantokens_last_line_p (void)
+{
+  if (pseudo_files) {
+    if (pseudo_files->lines) {
+       return false;
+    }
+  }
+  return true;
+}
+
 @ @c
 void lua_string_start(void)
 {
@@ -748,57 +841,3 @@ void lua_string_start(void)
     luacstring_start(iindex);
 }
 
-@ Here we read a line from the current pseudo file into |buffer|.
-
-@c
-boolean scantokens_input(void)
-{                               /* inputs the next line or returns |false| */
-    halfword p;                 /* current line from pseudo file */
-    int sz;                     /* size of node |p| */
-    four_quarters w;            /* four ASCII codes */
-    halfword r;                 /* loop index */
-    last = first;               /* cf.\ Matthew 19\thinspace:\thinspace30 */
-    p = pseudo_lines(pseudo_files);
-    if (p == null) {
-        return false;
-    } else {
-        pseudo_lines(pseudo_files) = vlink(p);
-        sz = subtype(p);
-        if (4 * sz - 3 >= buf_size - last)
-            check_buffer_overflow(last + 4 * sz);
-        last = first;
-        for (r = p + 1; r <= p + sz - 1; r++) {
-            w = varmem[r].qqqq;
-            buffer[last] = (packed_ASCII_code) w.b0;
-            buffer[last + 1] = (packed_ASCII_code) w.b1;
-            buffer[last + 2] = (packed_ASCII_code) w.b2;
-            buffer[last + 3] = (packed_ASCII_code) w.b3;
-            last += 4;
-        }
-        if (last >= max_buf_stack)
-            max_buf_stack = last + 1;
-        while ((last > first) && (buffer[last - 1] == ' '))
-            decr(last);
-        flush_node(p);
-    }
-    return true;
-}
-
-@ When we are done with a pseudo file we `close' it.
-
-@c
-static void scantokens_close_file(void)
-{                               /* close the top level pseudo file */
-    halfword p;
-    p = vlink(pseudo_files);
-    flush_node(pseudo_files);
-    pseudo_files = p;
-}
-
-@ 
-@c
-void scantokens_flush_files(void)
-{ 
-     while (pseudo_files != null)
-         scantokens_close_file(); /* flush pseudo files */
-}

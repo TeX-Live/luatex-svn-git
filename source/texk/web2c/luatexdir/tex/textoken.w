@@ -1222,7 +1222,7 @@ static next_line_retval next_line(void)
                 if (scantokens_input()) {   /* not end of file */
                     firm_up_the_line(); /* this sets |ilimit| */
                     line_catcode_table = DEFAULT_CAT_TABLE;
-                    if ((iname == scantextokens_name) && (pseudo_lines(pseudo_files) == null))
+                    if ((iname == scantextokens_name) && scantokens_last_line_p())
                         inhibit_eol = true;
                 } else if ((every_eof != null) && !eof_seen[iindex]) {
                     ilimit = first - 1;

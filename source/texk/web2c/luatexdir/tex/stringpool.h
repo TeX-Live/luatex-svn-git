@@ -137,5 +137,6 @@ extern int undump_string_pool(void);
 
 extern void init_string_pool_array(unsigned s);
 extern void flush_str(str_number s);
+extern void flush_str_nofree(str_number s);
 
 #endif
