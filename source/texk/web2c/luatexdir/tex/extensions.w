@@ -152,7 +152,7 @@ void do_extension(PDF pdf)
         k = cur_cs;
         new_write_whatsit(write_node_size);
         cur_cs = k;
-        p = scan_toks(false, false);
+        (void) scan_toks(false, false);
         write_tokens(tail) = def_ref;
         break;
     case close_node:
@@ -166,7 +166,7 @@ void do_extension(PDF pdf)
            list as in \.{\\xdef} and \.{\\mark}. */
         new_whatsit(special_node);
         write_stream(tail) = null;
-        p = scan_toks(false, true);
+        (void) scan_toks(false, true);
         write_tokens(tail) = def_ref;
         break;
     case immediate_code:

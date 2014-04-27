@@ -236,7 +236,7 @@ static int run_scan_toks(lua_State * L)
 {
     saved_tex_scanner texstate;
     int macro_def = false, xpand = false;
-    halfword tail, t, saved_defref;
+    halfword t, saved_defref;
     int i = 1;
     int top = lua_gettop(L);
     if (top>0)
@@ -245,7 +245,7 @@ static int run_scan_toks(lua_State * L)
 	xpand = lua_toboolean(L,2); // expand ?
     save_tex_scanner(texstate);
     saved_defref = def_ref;
-    tail = scan_toks(macro_def, xpand);
+    (void) scan_toks(macro_def, xpand);
     t = def_ref;
     unsave_tex_scanner(texstate);
     def_ref = saved_defref;
@@ -253,7 +253,7 @@ static int run_scan_toks(lua_State * L)
        list, and it also makes |def_ref| point to the reference count at the
        head of that list. */
     lua_newtable(L);
-    while (t != tail) {
+    while (token_link(t)) {
 	t = token_link(t);
 	push_token(L,t);
 	lua_rawseti(L,-2,i++);

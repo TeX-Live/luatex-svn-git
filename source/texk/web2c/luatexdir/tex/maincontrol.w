@@ -1574,7 +1574,7 @@ void handle_mark(void)
             if (c > biggest_used_mark)
                 biggest_used_mark = c;
         }
-        p = scan_toks(false, true);
+        (void) scan_toks(false, true);
         p = new_node(mark_node, 0);     /* the |subtype| is not used */
         mark_class(p) = c;
         mark_ptr(p) = def_ref;
@@ -2190,7 +2190,7 @@ void prefixed_command(void)
         e = (cur_chr >= 2);
         get_r_token();
         p = cur_cs;
-        q = scan_toks(true, e);
+        (void) scan_toks(true, e);
         if (j != 0) {
             q = get_avail();
             set_token_info(q, j);
@@ -2343,12 +2343,16 @@ void prefixed_command(void)
         }
         back_input();
         cur_cs = q;
-        q = scan_toks(false, false);
+        (void) scan_toks(false, false);
         if (token_link(def_ref) == null) {      /* empty list: revert to the default */
             define(p, undefined_cs_cmd, null);
             free_avail(def_ref);
         } else {
             if (p == output_routine_loc) {      /* enclose in curlies */
+	        /* need to find the tail of |def_ref| */
+                q = def_ref;
+                while (token_link(q)) 
+                    q = token_link(q);
                 p = get_avail();
                 set_token_link(q, p);
                 p = output_routine_loc;
@@ -3330,7 +3334,7 @@ void shift_case(void)
     halfword c;                 /* character code */
     halfword i;                 /* inbetween */
     b = cur_chr;
-    p = scan_toks(false, false);
+    (void) scan_toks(false, false);
     p = token_link(def_ref);
     while (p != null) {
         /* Change the case of the token in |p|, if a change is appropriate */

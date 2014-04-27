@@ -1144,7 +1144,7 @@ void expand_macros_in_tokenlist(halfword p)
     mode = 0;
     /* disable \.{\\prevdepth}, \.{\\spacefactor}, \.{\\lastskip}, \.{\\prevgraf} */
     cur_cs = write_loc;
-    q = scan_toks(false, true); /* expand macros, etc. */
+    (void) scan_toks(false, true); /* expand macros, etc. */
     get_token();
     if (cur_tok != end_write_token) {
         /* Recover from an unbalanced write command */
