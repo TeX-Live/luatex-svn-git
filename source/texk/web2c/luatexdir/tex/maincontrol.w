@@ -296,10 +296,10 @@ static void run_ignore_spaces (void) {
 
         main_control_state = goto_skip_token;
     } else {
-        int t = scanner_status;
+        int save_scanner_status = scanner_status;
         scanner_status = normal;
         get_token_lua();
-        scanner_status = t;
+        scanner_status = save_scanner_status;
         cur_cs = prim_lookup(cs_text(cur_cs), true);
         if (cur_cs != undefined_primitive) {
             cur_cmd = get_prim_eq_type(cur_cs);

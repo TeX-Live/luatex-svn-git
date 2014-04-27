@@ -1831,15 +1831,15 @@ the list is empty.)
 @c
 void scan_general_text(scan_result *val)
 {
-    int s;                      /* to save |scanner_status| */
-    halfword w;                 /* to save |warning_index| */
-    halfword d;                 /* to save |def_ref| */
+    int save_scanner_status;    /* to save |scanner_status| */
+    halfword save_warning_index;/* to save |warning_index| */
+    halfword save_def_ref;      /* to save |def_ref| */
     halfword p;                 /* tail of the token list being built */
     halfword q;                 /* new node being added to the token list via |store_new_token| */
     halfword unbalance;         /* number of unmatched left braces */
-    s = scanner_status;
-    w = warning_index;
-    d = def_ref;
+    save_scanner_status = scanner_status;
+    save_warning_index = warning_index;
+    save_def_ref = def_ref;
     scanner_status = absorbing;
     warning_index = cur_cs;
     p = get_avail();
@@ -1868,9 +1868,9 @@ void scan_general_text(scan_result *val)
     else
         val->value.token_val = p;
     set_token_link(temp_token_head, q);
-    scanner_status = s;
-    warning_index = w;
-    def_ref = d;
+    scanner_status = save_scanner_status;
+    warning_index = save_warning_index;
+    def_ref = save_def_ref;
 }
 
 
@@ -1926,6 +1926,8 @@ halfword scan_toks(boolean macro_def, boolean xpand)
     halfword q;                 /* new node being added to the token list via |store_new_token| */
     halfword unbalance;         /* number of unmatched left braces */
     halfword hash_brace;        /* possible `\.{\#\{}' token */
+    halfword save_scanner_status = scanner_status; /* save |scanner_status| so the caller doesnt have to */
+    halfword save_warning_index = warning_index; /* likewise for |warning_index| */
     if (macro_def)
         scanner_status = defining;
     else
@@ -2056,7 +2058,8 @@ halfword scan_toks(boolean macro_def, boolean xpand)
         store_new_token(cur_tok);
     }
   FOUND:
-    scanner_status = normal;
+    scanner_status = save_scanner_status;
+    warning_index = save_warning_index;
     if (hash_brace != 0)
         store_new_token(hash_brace);
     return p;

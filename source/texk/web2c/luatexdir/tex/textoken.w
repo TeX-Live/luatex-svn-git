@@ -1702,7 +1702,6 @@ void conv_toks(void)
     halfword p, q;
     int save_scanner_status;    /* |scanner_status| upon entry */
     halfword save_def_ref;      /* |def_ref| upon entry, important if inside `\.{\\message}' */
-    halfword save_warning_index;
     boolean bool;               /* temp boolean */
     str_number s;               /* first temp string */
     int sn;                     /* lua chunk name */
@@ -1783,16 +1782,12 @@ void conv_toks(void)
             val.value.int_val = direct_page;
         else
             val.value.int_val = set_origin;
-        save_scanner_status = scanner_status;
-        save_warning_index = warning_index;
         save_def_ref = def_ref;
         u = save_cur_string();
         scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
         s = tokens_to_string(def_ref);
         delete_token_ref(def_ref);
         def_ref = save_def_ref;
-        warning_index = save_warning_index;
-        scanner_status = save_scanner_status;
         val.value.int_val = newcolorstack(s, val.value.int_val, bool);
         flush_str(s);
         val.level = int_val_level;
@@ -1814,9 +1809,7 @@ void conv_toks(void)
         {
             lstring escstr;
             int l = 0;
-            save_scanner_status = scanner_status;
             save_def_ref = def_ref;
-            save_warning_index = warning_index;
             scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
             bool = in_lua_escape;
             in_lua_escape = true;
@@ -1825,8 +1818,6 @@ void conv_toks(void)
             in_lua_escape = bool;
             delete_token_ref(def_ref);
             def_ref = save_def_ref;
-            warning_index = save_warning_index;
-            scanner_status = save_scanner_status;
             (void) lua_str_toks(escstr);
             ins_list(token_link(temp_token_head));
             free(escstr.s);
@@ -1836,13 +1827,9 @@ void conv_toks(void)
     case math_style_code:
         break;
     case expanded_code:
-        save_scanner_status = scanner_status;
-        save_warning_index = warning_index;
         save_def_ref = def_ref;
         u = save_cur_string();
         scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
-        warning_index = save_warning_index;
-        scanner_status = save_scanner_status;
         ins_list(token_link(def_ref));
         def_ref = save_def_ref;
         restore_cur_string(u);
@@ -1850,15 +1837,11 @@ void conv_toks(void)
         break;
     case lua_code:
         u = save_cur_string();
-        save_scanner_status = scanner_status;
         save_def_ref = def_ref;
-        save_warning_index = warning_index;
         sn = scan_lua_state();
         scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
         s = def_ref;
-        warning_index = save_warning_index;
         def_ref = save_def_ref;
-        scanner_status = save_scanner_status;
         luacstrings = 0;
         luatokencall(s, sn);
         delete_token_ref(s);
