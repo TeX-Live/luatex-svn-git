@@ -16,16 +16,16 @@
 #include "luatex_svnversion.h"
 
 static const char _svn_version[] =
-    "$Id: luatex.c 4890 2014-03-14 14:58:36Z taco $ "
+    "$Id: luatex.c 4999 2014-05-06 08:52:33Z taco $ "
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/luatex.c $";
 
 #define TeX
 
 int luatex_svn = luatex_svn_revision;
 int luatex_version = 79;        /* \.{\\luatexversion}  */
-int luatex_revision = '0';      /* \.{\\luatexrevision}  */
+int luatex_revision = '1';      /* \.{\\luatexrevision}  */
 int luatex_date_info = -extra_version_info;     /* the compile date is negated */
-const char *luatex_version_string = "beta-0.79.0";
+const char *luatex_version_string = "beta-0.79.1";
 #ifdef LuajitTeX
 const char *engine_name = "luajittex";     /* the name of this engine */
 #else

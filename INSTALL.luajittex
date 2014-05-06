@@ -2,30 +2,24 @@
 INSTALL for LuaJITTeX Snapshots
 
 =========================================================
-The snapshot code is NOT stable, it may not even compile
-properly!  Features that are present today may be gone
-in tomorrow. There ARE bugs. You should NOT use this
-program for ANYTHING except testing!
-=========================================================
 
-This distribution is essentially a  version of 
-LuaTeX, with changes on the layout of the code
-to replace Lua5.1 with  LuaJIT.
+LuaJITTeX is version of LuaTeX with changes on the layout 
+of the code to replace Lua5.2 with  LuaJIT.
 
-All source code is in the directory source:
-the build.sh
-scripts will generate and populate a directory build.
+All source code is in the directory source; the build.sh
+script will generate and populate a directory build.
  
-The actual code of luaTeX is in source/texk/web2c/luatexdir
+The actual code of lua(JIT)TeX is in source/texk/web2c/luatexdir
 and its subdirectories; LuaJIT is in source/libs/luajit
 
-* buildjit.sh         builds  luajittex using gcc (tested on Linux and OSX)
-* buildjit-win32.sh   crosscompiles for mingw32 (tested on Linux)
-* buildjit-clang.sh   builds  luajittex using clang (tested on Linux and OSX)
+* build.sh --jit    
+     builds  luajittex using gcc (tested on Linux and OSX)
+* build.sh --jit --mingw32
+     crosscompiles for mingw32 (tested on Linux)
+* build.sh --jit --clang
+     builds  luajittex using clang (tested on Linux and OSX)
 
-
-See INSTALL.orig for details on installation;
-the file jit.zip is needed if you want to access some 
-particular features of luajit of LuaJITTeX.
+See INSTALL for details on installation; and the start of
+build.sh for other options
 
 =========================================================
