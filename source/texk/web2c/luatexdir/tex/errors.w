@@ -60,7 +60,7 @@ char *last_error = NULL;
 int err_old_setting = 0 ;
 int in_error = 0 ;
 
-static void flush_err(void)
+void flush_err(void)
 {
     str_number s_error;
     char *s = NULL;
