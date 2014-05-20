@@ -2323,7 +2323,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
                             s++;
                         }
                     } else {
-                        Print_uchar(e);
+                        if (e>=0) Print_uchar(e);
                         while (*s) {
                             Print_char(*s);
                             s++;
