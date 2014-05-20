@@ -188,6 +188,7 @@ void get_saved_lua_string(int r, const char *name, char **target)
 #define CALLBACK_STRNUMBER      's'
 #define CALLBACK_STRING         'S'
 #define CALLBACK_CHARNUM        'c'
+#define CALLBACK_LSTRING        'L'
 
 
 int run_saved_callback(int r, const char *name, const char *values, ...)
@@ -265,6 +266,7 @@ int do_run_callback(int special, const char *values, va_list vl)
     size_t len;
     int narg, nres;
     const char *s;
+    lstring *lstr;
     char cs;
     int *bufloc;
     char *ss = NULL;
@@ -287,6 +289,10 @@ int do_run_callback(int special, const char *values, va_list vl)
         case CALLBACK_STRING:  /* C string */
             s = va_arg(vl, char *);
             lua_pushstring(L, s);
+            break;
+        case CALLBACK_LSTRING:  /* 'lstring' */
+            lstr = va_arg(vl, lstring *);
+            lua_pushlstring(L, (const char *)lstr->s, lstr->l);
             break;
         case CALLBACK_INTEGER: /* int */
             lua_pushnumber(L, va_arg(vl, int));
@@ -418,6 +424,26 @@ int do_run_callback(int special, const char *values, va_list vl)
                 ss = xmalloc((unsigned) (len + 1));
                 (void) memcpy(ss, s, (len + 1));
                 *va_arg(vl, char **) = ss;
+            }
+            break;
+        case CALLBACK_LSTRING:  /* lstring */
+            if (!lua_isstring(L, nres)) {
+                if (!lua_isnil(L, nres)) {
+                    fprintf(stderr, "Expected a string for (S), not: %s\n",
+                            lua_typename(L, lua_type(L, nres)));
+                    goto EXIT;
+                }
+            }
+            s = lua_tolstring(L, nres, &len);
+
+            if (s == NULL)      /* |len| can be zero */
+                *va_arg(vl, int *) = 0;
+            else {
+	        lstring *ret = xmalloc(sizeof(lstring));
+                ret->s = xmalloc((unsigned) (len + 1));
+                (void) memcpy(ret->s, s, (len + 1));
+		ret->l = len;
+                *va_arg(vl, lstring **) = ret;
             }
             break;
         default:

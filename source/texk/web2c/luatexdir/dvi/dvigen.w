@@ -1167,7 +1167,7 @@ void write_out(halfword p)
     int j;                      /* write stream number */
     boolean clobbered;          /* system string is ok? */
     int ret;                    /* return value from |runsystem| */
-    char *s, *ss;               /* line to be written, as a C string */
+    lstring *s, *ss = NULL;
     int callback_id;
     int lua_retval;
     expand_macros_in_tokenlist(p);
@@ -1182,18 +1182,18 @@ void write_out(halfword p)
             selector = log_only;
         tprint_nl("");
     }
-    s = tokenlist_to_cstring(def_ref, false, NULL);
+    s = tokenlist_to_lstring(def_ref, false);
     if (selector < no_print) {  /* selector is a file */
         /* fix up the output buffer using callbacks */
         callback_id = callback_defined(process_output_buffer_callback);
         if (callback_id > 0) {
-            lua_retval = run_callback(callback_id, "S->S", s, &ss);
+            lua_retval = run_callback(callback_id, "L->L", s, &ss);
             if ((lua_retval == true) && (ss != NULL))
-	      { xfree(s); s = ss; }
+	      { free_lstring(s); s = ss; }
         }
     }
-    tprint(s);
-    xfree(s);
+    lprint(s);
+    free_lstring(s);
     print_ln();
     flush_list(def_ref);
     if (j == 18) {
