@@ -2802,14 +2802,14 @@ void assign_internal_value(int a, halfword p, int val)
                      "Your invalid assignment will be ignored.");
                 error();
             } else if (val < 0) {
-                word_define(p, -1);
+                word_define(p, val);
             } else {
                 word_define(p, val);
             }
             break;
         case end_line_char_code:
             if (val < 0) {
-                word_define(p, -1);
+                word_define(p, val);
             } else if (val > 127) {
                 print_err("Invalid \\endlinechar");
                 help2
