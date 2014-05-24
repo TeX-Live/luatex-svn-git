@@ -19,7 +19,7 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: maincontrol.w 4562 2013-01-21 02:58:59Z khaled $"
+    "$Id: maincontrol.w 5006 2014-05-21 11:24:16Z taco $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/tex/maincontrol.w $";
 
 #include "ptexlib.h"
@@ -2802,14 +2802,14 @@ void assign_internal_value(int a, halfword p, int val)
                      "Your invalid assignment will be ignored.");
                 error();
             } else if (val < 0) {
-                word_define(p, -1);
+                word_define(p, val);
             } else {
                 word_define(p, val);
             }
             break;
         case end_line_char_code:
             if (val < 0) {
-                word_define(p, -1);
+                word_define(p, val);
             } else if (val > 127) {
                 print_err("Invalid \\endlinechar");
                 help2
