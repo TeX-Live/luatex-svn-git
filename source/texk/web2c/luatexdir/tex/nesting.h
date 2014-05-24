@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: nesting.h 3477 2010-03-12 13:59:34Z taco $ */
+/* $Id$ */
 
 #ifndef NESTING_H
 #  define NESTING_H

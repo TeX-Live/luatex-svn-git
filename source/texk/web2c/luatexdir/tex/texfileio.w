@@ -19,8 +19,8 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: texfileio.w 4722 2014-01-03 09:32:35Z taco $"
-    "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/tex/texfileio.w $";
+    "$Id$"
+    "$URL$";
 
 #include "ptexlib.h"
 

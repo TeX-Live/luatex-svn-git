@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: maincontrol.h 4562 2013-01-21 02:58:59Z khaled $ */
+/* $Id$ */
 
 #ifndef MAINCONTROL_H
 #  define MAINCONTROL_H

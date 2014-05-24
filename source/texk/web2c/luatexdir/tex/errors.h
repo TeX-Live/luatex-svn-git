@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: errors.h 3385 2010-01-26 05:45:55Z taco $ */
+/* $Id$ */
 
 #ifndef ERRORS_H
 #  define ERRORS_H

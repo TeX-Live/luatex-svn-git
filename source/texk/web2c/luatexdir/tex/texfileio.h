@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: texfileio.h 4521 2012-12-14 13:54:54Z taco $ */
+/* $Id$ */
 
 #ifndef TEXFILEIO_H
 #  define TEXFILEIO_H

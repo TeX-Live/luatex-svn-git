@@ -20,8 +20,8 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: mathcodes.w 4562 2013-01-21 02:58:59Z khaled $"
-    "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/tex/mathcodes.w $";
+    "$Id$"
+    "$URL$";
 
 #include "ptexlib.h"
 

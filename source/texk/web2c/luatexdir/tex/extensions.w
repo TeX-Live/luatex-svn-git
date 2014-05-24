@@ -22,8 +22,8 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: extensions.w 4519 2012-12-14 09:11:19Z taco $"
-    "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/tex/extensions.w $";
+    "$Id$"
+    "$URL$";
 
 #include "ptexlib.h"
 

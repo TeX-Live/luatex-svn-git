@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: scanning.h 4085 2011-02-10 09:21:57Z taco $ */
+/* $Id$ */
 
 #ifndef SCANNING_H
 #  define SCANNING_H

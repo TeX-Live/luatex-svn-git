@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: mainbody.h 4462 2012-08-07 15:08:21Z taco $ */
+/* $Id$ */
 
 #ifndef MAINBODY_H
 #  define MAINBODY_H
