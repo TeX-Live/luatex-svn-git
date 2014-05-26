@@ -2089,7 +2089,7 @@ halfword scan_toks(boolean macro_def, boolean xpand)
                         sprint_cs(warning_index);
                         help3("You meant to type ## instead of #, right?",
                               "Or maybe a } was forgotten somewhere earlier, and things",
-                              "are all screwed up? I''m going to assume that you meant ##.");
+                              "are all screwed up? I'm going to assume that you meant ##.");
                         back_error();
                         cur_tok = s;
                     } else {
