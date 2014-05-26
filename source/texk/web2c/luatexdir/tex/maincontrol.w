@@ -2798,7 +2798,7 @@ void assign_internal_value(int a, halfword p, int val)
             if (val > 127) {
                 print_err("Invalid \\newlinechar");
                 help2
-                    ("The value for \\newlinechar has to be between 0 and 127.",
+                    ("The value for \\newlinechar has to be no higher than 127.",
                      "Your invalid assignment will be ignored.");
                 error();
             } else if (val < 0) {
