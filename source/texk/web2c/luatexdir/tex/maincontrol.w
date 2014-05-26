@@ -2801,16 +2801,12 @@ void assign_internal_value(int a, halfword p, int val)
                     ("The value for \\newlinechar has to be no higher than 127.",
                      "Your invalid assignment will be ignored.");
                 error();
-            } else if (val < 0) {
-                word_define(p, val);
             } else {
                 word_define(p, val);
             }
             break;
         case end_line_char_code:
-            if (val < 0) {
-                word_define(p, val);
-            } else if (val > 127) {
+            if (val > 127) {
                 print_err("Invalid \\endlinechar");
                 help2
                     ("The value for \\endlinechar has to be no higher than 127.",
