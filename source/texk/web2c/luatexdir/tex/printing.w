@@ -341,8 +341,9 @@ void tprint(const char *sss)
         break;
     case pseudo:
         while (*sss) {
-           if (tally++ < trick_count) {
+           if (tally < trick_count) {
                trick_buf[tally % error_line] = (packed_ASCII_code) *sss++;
+	       tally++;
            } else {
                return;
            }
