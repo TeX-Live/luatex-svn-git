@@ -48,8 +48,8 @@ Modified for use with pdftex by Han The Thanh <thanh@@fi.muni.cz>.
 
 @c
 static const char _svn_version[] =
-    "$Id: pkin.w 4442 2012-05-25 22:40:34Z hhenkel $"
-    "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/font/pkin.w $";
+    "$Id$"
+    "$URL$";
 
 #include "ptexlib.h"
 

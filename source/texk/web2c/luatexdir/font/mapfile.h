@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: mapfile.h 3404 2010-01-28 11:17:10Z taco $ */
+/* $Id$ */
 
 #ifndef MAPFILE_H
 #  define MAPFILE_H
