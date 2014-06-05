@@ -40,7 +40,7 @@ static int sfd_curbyte = 0;
 
 #define sfd_read_file() readbinfile(sfd_file,&sfd_buffer,&sfd_size)
 #define sfd_getchar()   sfd_buffer[sfd_curbyte++]
-#define sfd_eof()      (sfd_curbyte>sfd_size)
+#define sfd_eof()      (sfd_curbyte>=sfd_size)
 
 
 static FILE *sfd_file;
