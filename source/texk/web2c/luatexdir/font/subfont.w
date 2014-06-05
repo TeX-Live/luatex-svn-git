@@ -102,9 +102,11 @@ static void sfd_getline(boolean expect_eof)
     char c;
   restart:
     if (sfd_eof()) {
-        if (expect_eof)
+        if (expect_eof) {
+            if (*sfd_line == '#')
+                *sfd_line = 10;
             return;
-        else
+        } else
             luatex_fail("unexpected end of file");
     }
     p = sfd_line;
