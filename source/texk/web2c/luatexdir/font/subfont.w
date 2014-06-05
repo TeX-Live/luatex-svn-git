@@ -20,7 +20,7 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: subfont.w 4442 2012-05-25 22:40:34Z hhenkel $"
+    "$Id: subfont.w 5014 2014-06-05 13:53:58Z luigi $"
     "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/font/subfont.w $";
 
 #include "ptexlib.h"
@@ -40,7 +40,7 @@ static int sfd_curbyte = 0;
 
 #define sfd_read_file() readbinfile(sfd_file,&sfd_buffer,&sfd_size)
 #define sfd_getchar()   sfd_buffer[sfd_curbyte++]
-#define sfd_eof()      (sfd_curbyte>sfd_size)
+#define sfd_eof()      (sfd_curbyte>=sfd_size)
 
 
 static FILE *sfd_file;
