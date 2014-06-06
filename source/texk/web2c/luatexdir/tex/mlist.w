@@ -2539,7 +2539,7 @@ static void make_ord(pointer q)
                                 type(nucleus(r)) = math_text_char_node; /* prevent combination */
                             break;
                         default:
-                            couple_nodes(q,vlink(p));
+                            try_couple_nodes(q,vlink(p));
                             math_character(nucleus(q)) = lig_replacement(lig);  /* \.{=:} */
                             s = math_clone(subscr(p));
                             subscr(q) = s;
