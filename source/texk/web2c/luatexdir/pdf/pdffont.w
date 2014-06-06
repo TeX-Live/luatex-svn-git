@@ -21,8 +21,8 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: pdffont.w 4934 2014-03-26 08:17:27Z taco $"
-    "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/pdf/pdffont.w $";
+    "$Id$"
+    "$URL$";
 
 #include "ptexlib.h"
 

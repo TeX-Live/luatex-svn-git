@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: luatexcallbackids.h 4544 2012-12-25 14:07:44Z oneiros $ */
+/* $Id$ */
 
 #ifndef LUATEXCALLBACKIDS_H
 #define LUATEXCALLBACKIDS_H

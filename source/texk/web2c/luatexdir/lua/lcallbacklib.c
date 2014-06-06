@@ -21,7 +21,7 @@
 #include "lua/luatex-api.h"
 
 static const char _svn_version[] =
-    "$Id: lcallbacklib.c 5002 2014-05-20 09:14:16Z taco $ $URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/lcallbacklib.c $";
+    "$Id$ $URL$";
 
 int callback_count = 0;
 int saved_callback_count = 0;

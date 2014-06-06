@@ -28,8 +28,8 @@
 #include <ustring.h>
 
 static const char _svn_version[] =
-    "$Id: ffdummies.c 3738 2010-07-13 10:28:24Z oneiros $ "
-    "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/luafontloader/src/ffdummies.c $";
+    "$Id$ "
+    "$URL$";
 
 
 /* fix for non-gcc compilation: */

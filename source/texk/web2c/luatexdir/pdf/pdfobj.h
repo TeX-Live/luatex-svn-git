@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: pdfobj.h 4184 2011-04-19 21:15:22Z hhenkel $ */
+/* $Id$ */
 
 #ifndef PDFOBJ_H
 #  define PDFOBJ_H

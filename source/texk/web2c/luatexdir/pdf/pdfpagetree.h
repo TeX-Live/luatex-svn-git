@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: pdfpagetree.h 4214 2011-04-27 21:53:38Z hhenkel $ */
+/* $Id$ */
 
 #ifndef PAGETREE_H
 #  define PAGETREE_H

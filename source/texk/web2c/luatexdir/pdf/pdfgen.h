@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: pdfgen.h 4956 2014-03-28 12:12:17Z luigi $ */
+/* $Id$ */
 
 #ifndef PDFGEN_H
 #  define PDFGEN_H

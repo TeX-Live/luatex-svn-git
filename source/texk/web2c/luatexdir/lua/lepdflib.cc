@@ -19,8 +19,8 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 static const char _svn_version[] =
-    "$Id: lepdflib.cc 4781 2014-02-10 11:05:24Z taco $ "
-    "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/lepdflib.cc $";
+    "$Id$ "
+    "$URL$";
 
 #include "image/epdf.h"
 

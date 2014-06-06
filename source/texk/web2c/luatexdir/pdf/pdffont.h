@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: pdffont.h 4679 2013-12-19 15:47:53Z luigi $ */
+/* $Id$ */
 
 #ifndef PDFFONT_H
 #  define PDFFONT_H
