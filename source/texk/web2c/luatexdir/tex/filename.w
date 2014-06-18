@@ -262,6 +262,8 @@ char *prompt_file_name(const char *s, const char *e)
     } else {
         if ((strcmp(e, ".tex") == 0) || (strcmp(e, "") == 0))
             show_context();
+        if (strcmp(s, "input file name") == 0)
+            tprint_nl(promptfilenamehelpmsg ")");
     }
     tprint_nl("Please type another ");
     tprint(s);
