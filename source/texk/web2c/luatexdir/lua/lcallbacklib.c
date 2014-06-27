@@ -69,6 +69,7 @@ static const char *const callbacknames[] = {
     "finish_pdfpage",
     "pre_dump","start_file", "stop_file",
     "show_error_message","show_lua_error_hook",
+    "pdf_stream_filter_callback",
     NULL
 };
 
