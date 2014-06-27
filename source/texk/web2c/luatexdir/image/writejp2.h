@@ -18,7 +18,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id$ */
+/* $Id: writejp2.h 5022 2014-06-06 19:22:31Z oneiros $ */
 
 #ifndef WRITEJP2_H
 #  define WRITEJP2_H

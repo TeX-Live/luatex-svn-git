@@ -23,8 +23,8 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id$"
-    "$URL$";
+    "$Id: tt_glyf.w 5016 2014-06-05 14:06:34Z oneiros $"
+    "$URL: https://foundry.supelec.fr/svn/luatex/branches/experimental/source/texk/web2c/luatexdir/font/tt_glyf.w $";
 
 #include "ptexlib.h"
 

@@ -39,8 +39,8 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id$ "
-    "$URL$";
+    "$Id: hyphen.w 5022 2014-06-06 19:22:31Z oneiros $ "
+    "$URL: https://foundry.supelec.fr/svn/luatex/branches/experimental/source/texk/web2c/luatexdir/lang/hyphen.w $";
 
 #include "ptexlib.h"
 

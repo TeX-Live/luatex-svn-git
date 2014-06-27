@@ -22,8 +22,8 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id$"
-    "$URL$";
+    "$Id: avlstuff.w 5022 2014-06-06 19:22:31Z oneiros $"
+    "$URL: https://foundry.supelec.fr/svn/luatex/branches/experimental/source/texk/web2c/luatexdir/utils/avlstuff.w $";
 
 #include "ptexlib.h"
 #include "utils/avl.h"

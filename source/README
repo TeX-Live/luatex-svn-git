@@ -1,4 +1,4 @@
-$Id: README 33168 2014-03-13 08:37:06Z peter $
+$Id: README 33784 2014-05-01 23:05:45Z karl $
 Public domain.  Originally written 2005 by Karl Berry.
 
 For a high-level overview of building TeX Live, see
@@ -7,68 +7,54 @@ http://tug.org/texlive/build.html.  In brief:
 To configure and make the source tree, run ./Build.
 To build (mostly) without optimization, run ./Build --debug.
 To make without configuring, run TL_CONFIGURE=true ./Build.
+Email tlbuild@tug.org if problems.
 
 (Nearly everything the Build script does can be overridden via
-environment variables; just take a look to see all the names.)
+environment variables; just take a look to see the names.)
 
-Prerequisites:
-- C and C++ compilers.
-
-- GNU make.  If your GNU make is invoked by some name other than `make',
-  try: env TL_MAKE=/your/gnu/make ./Build
-
-- GNU clisp and GNU libffcall, for xindy.  See more
-  details in utils/README.  (Alternative: Build --disable-xindy.)
-  Also perl, latex, and pdflatex to build the rules and/or documentation.
-
-- Perl to autodetect the TeX Live platform name for biber.
-
-- X11 headers and libraries (often a ``development'' package, not
-  installed by default), for pdfopen and xdvi.
-  (Alternative: Build --without-x.)
-
-- libfontconfig (again both headers and library), for XeTeX,
-  except on MacOSX.  (Alternative: Build --disable-xetex.)
-  While on MacOSX, an Objective C++ compiler is needed for XeTeX.
-
-- If you modify any .y or .l source files, then Bison and Flex (or maybe
-  equivalents) are needed.  The distributed .c and .h files are generated
-  with bison-3.0 and flex-2.5.37.
-
-The binaries will be left in ./inst/bin/<stdplatform>.
-For TeX Live, ignore the other files and directories that end up in ./inst.
-
-The new binaries are not directly usable from that location.  Instead,
-copy them to Master/bin/<tlplatformname>/.
-
-That should be it for normal builds.  Email tex-live@tug.org if problems.
-
-To make a usable TeX installation, you have to have (thousands of)
-support files as well as the binaries that are built here.  The support
-files are maintained completely independently.  The best basis for
-dealing with them is the TeX Live (plain text) database,
-Master/tlpkg/texlive.tlpdb, and/or our installer.  More information is
-under Master/tlpkg.  See also http://tug.org/texlive/distro.html.
-
-If your C++ needs to find the standard library in, say, /usr/local/lib,
-(i.e., configure fails saying the compiler doesn't work), try:
-env LD_OPTIONS=-R/usr/local/lib ./Build
-
-Many more details about the TL build system, such as adding new
-programs or libraries, recompiling after fixing problems, etc., are in
-doc/texlive.pdf and in the other README.* files here.
+Many more details about the TL build system, such as configuring to work
+on a single program, adding new programs or libraries, recompiling after
+fixing problems, etc., are in the doc/tlbuild* document and the sibling
+README* files here (which are generated from that document).
 
 
 Build information for some of the platforms.
 
-i386-linux: gcc 4.8.2, Linux 2.6.18-* (CentOS 5, tug.org)
-  ~karl/bin/mybuild
+i386-linux: gcc 4.8.2, Linux 2.6.18-* (CentOS 5.10, tug.org:~karl/bin/mybuild)
+  Except for dvisvgm, where we must use the system compiler (gcc 4.1.2,
+  Red Hat 4.1.2-54) or libgs.so crashes trying to use gcc 4.8.2's
+  libstdc++.  On the other hand, the system compiler has an optimization
+  bug that causes lcdf-typetools's tfm.test to fail, so it can't be used
+  for everything.  Sigh.
         
 x86_64-linux: gcc 4.8.2, libc 2.3.6, Linux 2.6.28.6
   
+amd64-netbsd:
+  gcc version 4.5.3 (NetBSD nb2 20110806)
+  NetBSD/amd64 6.1.3
+  TL_MAKE=gmake LDFLAGS='-L/usr/X11R7/lib -Wl,-rpath,/usr/X11R7/lib' ./Build
+
+*-kfreebsd:  the builder says ...
+  I do not have any native kfreebsd systems. The best way to build is
+  to run a clean kfreebsd "userland" within a jail.  I am running Debian
+  "stable" kfreebsd userland under a freebsd 10.0 real system. Thus, I
+  produced 32bit i386-kfreebsd binaries above ("./Build").
+  
+  I also tried, but am planning on dropping, running Debian "stable"
+  kfreebsd installed on a virtual machine via VirtualBox. Thus, I
+  produced 64bit amd64-kfreebsd binaries above.
+  
+  I tested that the freebsd binaries will *not* run on a kfreebsd
+  "userland" and the kfreebsd binaries will *not* run on a freebsd
+  "userland". Whereas I would have thought them to be somewhat
+  interchangeable, they are linked to libraries (ELF interpreter ld.so.1)
+  and maybe others) that are to be found in different locations on the
+  different systems.
+  
 i386-solaris, x86_64-solaris: Solaris 10.
 
-i386-cygwin: gcc-4.5.3.
+i386-cygwin, x86_64-cygwin: gcc-4.8.2, cygwin-1.7.29.
+  ./Build (with --enable-xindy for i386).
 
 powerpc-linux (Debian Squeeze)
   Linux homer 2.6.32-5-powerpc64 #1 SMP Tue Mar 8 02:01:42 UTC 2011

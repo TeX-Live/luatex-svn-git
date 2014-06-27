@@ -1,3 +1,29 @@
+2014-06-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Drop the obsolete NATIVE_TEXLIVE_BUILD.
+
+2014-05-20  Karl Berry  <karl@tug.org>
+
+	* doc/web2c.texi (Languages and hyphenation): consistent
+	ordering in menu vs. sectioning.
+
+2014-05-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Update to e-pTeX and e-upTeX from Akira Kakuto.
+	* texmfmp.h (getfiledump): Move declaration from
+	pdftexdir/ptexlib.h to here.
+
+2014-05-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* dvicopy.ch, dvicopy.web: Fixed a non-Web2C bug and several
+	typos, mostly from Udo Wermuth <u.wermuth@icloud.com>.
+
+2014-05-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mftraptest: Separate generic and capsule diffs.
+	* triptest: Separate generic and glue rounding diffs.
+	* triptrap/{mftrap,mptrap,trip}.diffs: Updated for TL14.
+
 2014-03-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* configure.ac: Use LUAJIT_LDEXTRA instead of luajittex_extra.

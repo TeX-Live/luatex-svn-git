@@ -1,4 +1,4 @@
-% $Id: mpxout.w 1808 2012-12-10 08:57:11Z taco $
+% $Id: mpxout.w 2031 2014-06-24 13:38:58Z luigi $
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
 % See the <Show version...> code in mpost.w for more info.
@@ -2751,9 +2751,9 @@ used anyway - thus just skip the value,
 @c 
 static float mpx_get_float_map(MPX mpx, char *s) {
     if (s != NULL) {
-	while (isspace(*s))
+	while (isspace((unsigned char)*s))
 	    s++;
-	while (!isspace(*s) && *s)
+	while (!isspace((unsigned char)*s) && *s)
 	    s++;
     }
     mpx->arg_tail = s;

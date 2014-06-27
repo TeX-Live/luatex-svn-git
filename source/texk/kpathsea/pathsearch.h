@@ -1,6 +1,7 @@
 /* pathsearch.h: mostly-generic path searching.
 
-   Copyright 1993, 1994, 1996, 1997, 2007, 2008, 2009, 2011, 2012 Karl Berry.
+   Copyright 1993, 1994, 1996, 1997, 2007, 2008, 2009, 2011, 2012,
+   2014 Karl Berry.
    Copyright 1999-2005 Olaf Weber.
 
    This library is free software; you can redistribute it and/or
@@ -20,6 +21,7 @@
 #define KPATHSEA_PATHSEARCH_H
 
 #include <kpathsea/c-proto.h>
+
 #include <kpathsea/str-llist.h>
 #include <kpathsea/types.h>
 
