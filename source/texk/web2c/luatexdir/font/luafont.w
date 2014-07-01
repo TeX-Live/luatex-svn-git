@@ -1441,6 +1441,7 @@ int font_from_lua(lua_State * L, int f)
         i = maketexstring(s);
         set_pdf_font_attr(f, i);
     }
+    free(s);
 
     i = n_enum_field(L, lua_key_index(type), unknown_font_type, font_type_strings);
     set_font_type(f, i);
@@ -1480,6 +1481,8 @@ int font_from_lua(lua_State * L, int f)
                 /* } */
                 /* lua_pop(L, 1);  /\* pop name *\/ */
 		ss = n_string_field(L, lua_key_index(name));
+                /* string is anchored */
+                lua_pop(L,1);
             }
             if (ss != NULL) {
                 /* lua_getfield(L, -1, "size"); */
