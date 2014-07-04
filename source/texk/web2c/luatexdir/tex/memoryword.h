@@ -123,7 +123,7 @@ typedef union {
 typedef FILE *word_file;
 
 #  ifdef DEBUG
-extern procedure print_word(memory_word w);
+extern void print_word(memory_word w);
 #  endif
 
 #endif
