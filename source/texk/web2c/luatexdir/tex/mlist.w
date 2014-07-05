@@ -1021,6 +1021,7 @@ try_couple_nodes(p,list_ptr(b));
     }
 }
 
+
 static void stack_glue_into_box(pointer b, scaled min, scaled max) {
     pointer p, q;               /* new node placed into |b| */
     q = new_spec(zero_glue);
@@ -1029,10 +1030,8 @@ static void stack_glue_into_box(pointer b, scaled min, scaled max) {
     p = new_glue(q);
     reset_attributes(p, node_attr(b));
     if (type(b) == vlist_node) {
-//        vlink(p) = list_ptr(b);
-try_couple_nodes(p,list_ptr(b));
+        try_couple_nodes(p,list_ptr(b));
         list_ptr(b) = p;
-        height(b) = height(p);
     } else {
         q = list_ptr(b);
         if (q == null) {
@@ -1042,10 +1041,6 @@ try_couple_nodes(p,list_ptr(b));
                 q = vlink(q);
             couple_nodes(q,p);
         }
-        if (height(b) < height(p))
-            height(b) = height(p);
-        if (depth(b) < depth(p))
-            depth(b) = depth(p);
     }
 }
 
