@@ -17,13 +17,11 @@
  *          of the Mozilla Public License 1.1
  */
 
-
-
 #ifdef _USE_MMAP
 #if    defined ZZIP_HAVE_SYS_MMAN_H
 #include <sys/mman.h>
 #define USE_POSIX_MMAP 1
-#elif (defined ZZIP_HAVE_WINBASE_H || defined WIN32) && !(defined __MINGW32__ || defined __MINGW64__) 
+#elif defined ZZIP_HAVE_WINBASE_H || defined WIN32
 #include <windows.h>
 #define USE_WIN32_MMAP 1
 #else
