@@ -1,3 +1,71 @@
+2014-07-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* luasocket/src/wsocket.h: Avoid redefinition of _WIN32_WINNT.
+
+2014-07-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/libluatex.am: Compiling liblua(jit)tex.a requires mplib.h;
+	add libmplib.a as dependency.
+
+2014-06-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/libluatex.am: Remove ../mplibdir/lmplib.c from sources and
+	dependency on libmplib.a.
+	* am/luatex.am: Add ../mplibdir/lmplib.c to sources, dependency
+	on libmplib.a, and -DpdfTeX to CPPFLAGS.
+
+	* am/luatex.am: Adapt to MetaPost 1.999 (libgmp and libmpfr).
+
+2014-06-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* font/mapfile.w, font/tounicode.w, font/writet1.w,
+	font/writettf.w, lang/texlang.w, pdf/pdfgen.w: Avoid undefined
+	behaviour when char is signed.
+
+2014-06-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* lua/luatex-api.h: Use '#define LUAI_HASHLIMIT 5' as default,
+	as in ../../libs/lua52/lua-5.2.3/src/lstring.c and in
+	../../libs/luajit/LuaJIT-2.0.3/src/lj_str.c.
+	* lua/lstatslib.c, tex/printing.w: Use LUAI_HASHLIMIT instead of
+	LUATEX_HASHCHARS and LUAJITTEX_HASHCHARS.
+
+	* lua/luatex-api.h: Define MyName as "LuajitTeX"/"LuaTeX" and
+	my_name as "luajittex"/"luatex".
+	* lua/luainit.w, luatex.c, tex/printing.w: Use MyName, my_name.
+
+2014-05-14  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tex/filename.w: Avoid redefinition of promptfilenamehelpmsg,
+	(re)use definition in ../cpascal.h.
+
+2014-05-13  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* tex/filename.w: Print the usual TeX promptfilenamehelpmsg also
+	in lua(jit)tex.
+
+2014-04-10  Taco Hoekwater  <taco@luatex.org>
+
+	* luatex.c: hardwire the compilation date, preventing the 
+	luatex binary from constantly changing after recompilation
+
+2014-03-29  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* pdf/pdfgen.[hw]: Declare get_pdf_table_string() as
+	'static const char *'.
+
+2014-03-29  Taco Hoekwater  <taco@luatex.org>
+
+	Import LuaTeX 0.79.1 from LuaTeX repository (released)
+
+2014-03-28  Taco Hoekwater  <taco@luatex.org>
+
+	Import LuaTeX 0.79.0 from LuaTeX repository (released)
+
+2014-03-15  Taco Hoekwater  <taco@luatex.org>
+
+	Import LuaTeX snapshot 0.79.0 from LuaTeX repository (r4903).
+
 2014-03-14  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* bitlib/lbitlib.c (removed), lua/luatex-api.h, am/luamisc.am:
