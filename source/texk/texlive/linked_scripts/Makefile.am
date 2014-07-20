@@ -34,7 +34,6 @@ installdirs-local:
 # The instances in texmf* are the masters (except when it is CTAN).
 #
 ## We distinguish several classes of scripts according to their
-## destination in texmf/scripts/ or texmf-dist/scripts/ and their
 ## type: `shell', `context', or `other'.
 ## 
 ## On Unix systems a symlink from $(bindir) to the script is installed
@@ -102,6 +101,7 @@ texmf_other_scripts = \
 	fontools/autoinst \
 	fontools/ot2kpx \
 	fragmaster/fragmaster.pl \
+	getmap/getmapdl.lua \
 	glossaries/makeglossaries \
 	jfontmaps/kanji-fontmap-creator.pl \
 	jfontmaps/kanji-config-updmap.pl \
@@ -166,7 +166,8 @@ texmf_other_scripts = \
 	thumbpdf/thumbpdf.pl \
 	ulqda/ulqda.pl \
 	urlbst/urlbst \
-	vpe/vpe.pl
+	vpe/vpe.pl \
+	yplan/yplan
 texmf_context_scripts = \
 	context/stubs/unix/context \
 	context/stubs/unix/contextjit \
@@ -188,8 +189,7 @@ nobase_dist_texmf_scripts_SCRIPTS = \
 ## Symlinks within $(bindir): FILE:LINK indicates LINK->FILE
 bin_links = \
 	epstopdf:repstopdf \
-	pdfcrop:rpdfcrop \
-	luaotfload-tool:mkluatexfontdb
+	pdfcrop:rpdfcrop
 
 # The idea is to install the scripts themselves in texmf*/scripts, and
 # have bin/arch/foo be a symlink to, say,

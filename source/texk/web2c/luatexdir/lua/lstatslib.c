@@ -18,8 +18,8 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 static const char _svn_version[] =
-    "$Id: lstatslib.c 5022 2014-06-06 19:22:31Z oneiros $ "
-    "$URL: https://foundry.supelec.fr/svn/luatex/branches/experimental/source/texk/web2c/luatexdir/lua/lstatslib.c $";
+    "$Id: lstatslib.c 4956 2014-03-28 12:12:17Z luigi $ "
+    "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/lua/lstatslib.c $";
 
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
@@ -89,11 +89,7 @@ static const char *luatexrevision(void)
 
 static lua_Number get_luatexhashchars(void) 
 {
-#ifdef LuajitTeX
-  return (lua_Number) LUAJITTEX_HASHCHARS;
-#else
-  return (lua_Number) LUATEX_HASHCHARS;
-#endif
+  return (lua_Number) LUAI_HASHLIMIT;
 }
 
 static const char *get_luatexhashtype(void) 

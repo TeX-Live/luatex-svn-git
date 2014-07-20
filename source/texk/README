@@ -1,4 +1,4 @@
-$Id: README 34333 2014-06-20 09:30:04Z peter $
+$Id: README 34550 2014-07-08 06:44:39Z peter $
 Copyright 2006-2012 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -71,8 +71,8 @@ kpathsea - maintained here, by us
 lacheck - checked 25apr11
   http://mirror.ctan.org/support/lacheck/lacheck-1.26.tar.gz
 
-lcdf-typetools 2.101 - checked 17jun14
-  http://www.lcdf.org/type/lcdf-typetools-2.100.tar.gz
+lcdf-typetools 2.104 - checked 8jul14
+  http://www.lcdf.org/type/
 
 makeindexk - maintained here, by us
 

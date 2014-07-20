@@ -1,4 +1,4 @@
-$Id: README 34273 2014-06-18 11:02:12Z peter $
+$Id: README 34477 2014-06-28 22:41:26Z karl $
 Public domain.  Originally written 2005 by Karl Berry.
 
 Extra utilities we (optionally) compile for TeX Live.
@@ -43,6 +43,11 @@ xindy 2.5.0 - checked 28apr14
 After building clisp as described below, run the TL
   Build --enable-xindy CLISP=$clisp_builddir/clisp
 to include xindy in the build.  It is disabled by default.
+
+xindy/README-clisp has alternative instructions with some extra
+information, especially for those building xindy on its own.  The
+process here is written for building clisp-for-xindy-for-TL.  The
+differences are minimal.
 
 mkdir clisp; cd clisp
 clisp_basedir=`pwd`

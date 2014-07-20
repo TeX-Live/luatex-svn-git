@@ -33,7 +33,6 @@ AC_CONFIG_MACRO_DIRS([../../m4 m4])
 WEB2CVERSION=tex_live_version()
 AC_SUBST([WEB2CVERSION])
 
-dnl Common code for all programs using libkpathsea.
 KPSE_COMMON([web2c programs])
 
 AM_CONDITIONAL([cross], [test "x$cross_compiling" = xyes])
@@ -153,8 +152,6 @@ AS_IF([test "x$enable_aleph:$enable_xetex:$enable_omfonts" = xno:no:yes],
       [enable_otangle=yes])
 AM_CONDITIONAL([OTANGLE],
                [test "x$enable_otangle" = xyes])[]dnl
-
-AM_CONDITIONAL([OMFONTS], [test "x$enable_omfonts" != xno])
 
 AM_CONDITIONAL([MF], [test "x$enable_mf" != xno])
 AM_CONDITIONAL([MFN], [test "x$enable_mf_nowin" != xno])
@@ -290,6 +287,26 @@ KPSE_ADD_FLAGS([kpathsea])
 AC_CHECK_SIZEOF([off_t], , AC_INCLUDES_DEFAULT
 [#include <kpathsea/config.h>])
 
+# Check of poppler 0.25 or better
+AS_CASE([$with_system_poppler],
+        [yes], [dnl
+KPSE_ADD_FLAGS([poppler])
+AC_LANG_PUSH([C++])
+AC_MSG_CHECKING([for StructTreeRoot.h (poppler 0.25 or better)])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>
+#include <StructTreeRoot.h>]],
+                                   [[PDFDoc *doc;
+                                     Dict *dict;
+                                     StructTreeRoot root(doc, dict);]])],
+                  [kpse_cv_have_StructTreeRoot_h=yes],
+                  [kpse_cv_have_StructTreeRoot_h=no])
+AC_MSG_RESULT([$kpse_cv_have_StructTreeRoot_h])
+AC_LANG_POP([C++])],
+        [kpse_cv_have_StructTreeRoot_h=yes])
+if test "x$kpse_cv_have_StructTreeRoot_h" = xyes; then
+  AC_DEFINE([HAVE_STRUCTTREEROOT_H], 1,
+            [Define to 1 if you have the <StructTreeRoot.h> header file.])
+fi
 KPSE_RESTORE_FLAGS
 
 dnl Write output here, instead of putting a zillion -D's on the command line.
@@ -382,6 +399,9 @@ AC_CONFIG_FILES([web2c-sh], [chmod +x web2c-sh])
 AC_CONFIG_FILES([tangle-sh], [chmod +x tangle-sh])
 AC_CONFIG_FILES([ctangleboot-sh], [chmod +x ctangleboot-sh])
 AC_CONFIG_FILES([silent-sh], [chmod +x silent-sh])
+
+dnl Additional code for synctex
+m4_sinclude([synctexdir/ac/synctex.ac])
 
 dnl The subdirectory web2c must be configured for the build system.
 KPSE_NATIVE_SUBDIRS([web2c])

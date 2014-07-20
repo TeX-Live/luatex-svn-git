@@ -1,4 +1,4 @@
-$Id: README 34330 2014-06-20 06:50:58Z peter $
+$Id: README 34652 2014-07-18 09:49:37Z peter $
 Public domain.  Originally created by Karl Berry, 2005.
 
 Libraries we compile for TeX Live.
@@ -24,7 +24,7 @@ gmp 6.0.0 - checked 25mar14
 graphite2 1.2.4 - checked 2dec13
   http://sourceforge.net/projects/silgraphite/files/graphite2/
 
-harfbuzz 0.9.29 - checked 29may14
+harfbuzz 0.9.32 - checked 18jul14
   http://www.freedesktop.org/software/harfbuzz/release/
 
 icu 53.1 (release) - checked 3apr14
@@ -46,7 +46,7 @@ luajit 2.0.3 - checked 14mar14
 mpfr 3.1.2 - checked 13mar13
   http://ftp.gnu.org/gnu/mpfr/
 
-pixman 0.32.4 - checked 18nov13
+pixman 0.32.6 - checked 7jul14
   http://cairographics.org/releases/
 
 poppler 0.26.2 - checked 20jun14
@@ -55,9 +55,9 @@ poppler 0.26.2 - checked 20jun14
 potrace 1.11 - checked 12apr13
   http://potrace.sourceforge.net
 
-teckit 2.5.3 - checked 17mar12
+teckit 2.5.4 - checked 18jul14
   http://scripts.sil.org/svn-public/teckit/TRUNK
-  (svn r1250 2012-03-14 19:45:41 UTC).
+  (svn r139 2014-07-09 14:47:39 UTC).
 
 xpdf 3.04 - checked 28may14
   ftp://ftp.foolabs.com/pub/xpdf/

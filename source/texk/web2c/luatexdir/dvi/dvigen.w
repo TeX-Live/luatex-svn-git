@@ -30,8 +30,8 @@
 @ Initial identification of this file, and the needed headers.
 @c
 static const char _svn_version[] =
-    "$Id: dvigen.w 5022 2014-06-06 19:22:31Z oneiros $"
-    "$URL: https://foundry.supelec.fr/svn/luatex/branches/experimental/source/texk/web2c/luatexdir/dvi/dvigen.w $";
+    "$Id: dvigen.w 4679 2013-12-19 15:47:53Z luigi $"
+    "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/dvi/dvigen.w $";
 
 #include "ptexlib.h"
 
@@ -1167,7 +1167,7 @@ void write_out(halfword p)
     int j;                      /* write stream number */
     boolean clobbered;          /* system string is ok? */
     int ret;                    /* return value from |runsystem| */
-    lstring *s, *ss = NULL;
+    char *s, *ss;               /* line to be written, as a C string */
     int callback_id;
     int lua_retval;
     expand_macros_in_tokenlist(p);
@@ -1182,18 +1182,18 @@ void write_out(halfword p)
             selector = log_only;
         tprint_nl("");
     }
-    s = tokenlist_to_lstring(def_ref, false);
+    s = tokenlist_to_cstring(def_ref, false, NULL);
     if (selector < no_print) {  /* selector is a file */
         /* fix up the output buffer using callbacks */
         callback_id = callback_defined(process_output_buffer_callback);
         if (callback_id > 0) {
-            lua_retval = run_callback(callback_id, "L->L", s, &ss);
+            lua_retval = run_callback(callback_id, "S->S", s, &ss);
             if ((lua_retval == true) && (ss != NULL))
-	      { free_lstring(s); s = ss; }
+	      { xfree(s); s = ss; }
         }
     }
-    lprint(s);
-    free_lstring(s);
+    tprint(s);
+    xfree(s);
     print_ln();
     flush_list(def_ref);
     if (j == 18) {

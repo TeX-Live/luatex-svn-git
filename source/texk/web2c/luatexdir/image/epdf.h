@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: epdf.h 5022 2014-06-06 19:22:31Z oneiros $ */
+/* $Id: epdf.h 4718 2014-01-02 15:35:31Z taco $ */
 
 // this is the common header file for C++ sources pdftoepdf.cc and lepdflib.cc
 
@@ -48,7 +48,9 @@ extern "C" {
 #  include <Dict.h>
 #  include <XRef.h>
 #  include <Catalog.h>
-#  include <StructTreeRoot.h>
+#  ifdef HAVE_STRUCTTREEROOT_H
+#    include <StructTreeRoot.h>
+#  endif
 #  include <Link.h>
 #  include <Page.h>
 #  include <GfxFont.h>

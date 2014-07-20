@@ -731,7 +731,9 @@ maininit (int ac, string *av)
 #ifdef WIN32
   if (main_input_file == NULL) {
     string name;
+#ifndef XeTeX
     boolean quoted;
+#endif
 
     name = argv[argc-1];
     if (name && name[0] != '-' && name[0] != '&' && name[0] != '\\') {
@@ -748,11 +750,9 @@ maininit (int ac, string *av)
 #ifdef XeTeX
       name = normalize_quotes(argv[argc-1], "argument");
       main_input_file = kpse_find_file(argv[argc-1], INPUT_FORMAT, false);
-#ifdef WIN32
       change_to_long_name (&main_input_file);
       if (main_input_file)
         name = normalize_quotes(main_input_file, "argument");
-#endif
       argv[argc-1] = name;
 #else
       name = normalize_quotes(argv[argc-1], "argument");
@@ -763,23 +763,19 @@ maininit (int ac, string *av)
         name++;
       }
       main_input_file = kpse_find_file(name, INPUT_FORMAT, false);
-#ifdef WIN32
       change_to_long_name (&main_input_file);
-#endif
       if (quoted) {
         /* Undo modifications */
         name[strlen(name)] = '"';
         name--;
       }
-#ifdef WIN32
       if (main_input_file)
         name = normalize_quotes(main_input_file, "argument");
-#endif
       argv[argc-1] = name;
 #endif
     }
   }
-#endif
+#endif /* WIN32 */
 
   /* Second chance to activate file:line:error style messages, this
      time from texmf.cnf. */
@@ -1684,7 +1680,7 @@ parse_options (int argc, string *argv)
       /* Try to start up the other end if it's not already.  */
       if (!ipc_is_open ()) {
 #ifdef WIN32
-        if (spawnlp (_P_NOWAIT, IPC_SERVER_CMD, IPC_SERVER_CMD, NULL) != -1) {
+        if (_spawnlp (_P_NOWAIT, IPC_SERVER_CMD, IPC_SERVER_CMD, NULL) != -1) {
 #else
         if (system (IPC_SERVER_CMD) == 0) {
 #endif
@@ -2594,7 +2590,12 @@ maketexstring(const_string s)
   UInt32 rval;
   const unsigned char *cp = (const unsigned char *)s;
 #endif
+#if defined(TeX) && !defined(Aleph)
+  if (s == NULL || *s == 0)
+    return getnullstr();
+#else
   assert (s != 0);
+#endif
   len = strlen(s);
   checkpoolpointer (poolptr, len); /* in the XeTeX case, this may be more than enough */
 #ifdef XeTeX
