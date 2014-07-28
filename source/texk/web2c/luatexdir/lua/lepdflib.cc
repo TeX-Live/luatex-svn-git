@@ -2781,15 +2781,17 @@ static int m_Attribute_getOwnerName(lua_State * L)
 static int m_Attribute_getValue(lua_State * L)
 {
     udstruct *uin, *uout;
+    Object *origin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Attribute);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
     uout = new_Object_userdata(L);
     uout->d = new Object();
-    ((Object *)uout->d)->copy( ((Attribute *) uin->d)->getValue() );
+    origin = (Object *) (((Attribute *) uin->d)->getValue());
+    origin->copy ( ((Object *)uout->d) );
     uout->atype = ALLOC_LEPDF;
     uout->pc = uin->pc;
-     uout->pd = uin->pd;
+    uout->pd = uin->pd;
     return 1;
 }
 
@@ -2804,7 +2806,7 @@ static int m_Attribute_getDefaultValue(lua_State * L)
     t = (Attribute::Type) luaL_checkint(L, 2);
     uout = new_Object_userdata(L);
     uout->d = ((Attribute *)uin->d)->getDefaultValue(t)  ; 
-    uout->atype = ALLOC_LEPDF;
+    //uout->atype = ALLOC_LEPDF;
     uout->pc = uin->pc;
     uout->pd = uin->pd;
     return 1;
@@ -2991,7 +2993,7 @@ static int m_StructElement_getPageRef(lua_State * L)
     if (b) {
       uout = new_Ref_userdata(L);
       uout->d = r ;
-      uout->atype = ALLOC_LEPDF;
+      //uout->atype = ALLOC_LEPDF;
       uout->pc = uin->pc;
       uout->pd = uin->pd;
     } else
@@ -3051,11 +3053,11 @@ static int m_StructElement_getChild(lua_State * L)
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
     i = (int) luaL_checkint(L, 2);
-    c =  ((StructElement *) uin->d)->getChild(i);
+    c =  ((StructElement *) uin->d)->getChild(i-1);
     if (c != NULL) {                                           
       uout = new_StructElement_userdata(L);
       uout->d = c ;
-      uout->atype = ALLOC_LEPDF;
+      //uout->atype = ALLOC_LEPDF;
       uout->pc = uin->pc;
       uout->pd = uin->pd;
     }  
@@ -3088,11 +3090,10 @@ static int m_StructElement_getAttribute(lua_State * L)
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
     i = (int) luaL_checkint(L, 2);
-    a =  ((StructElement *) uin->d)->getAttribute(i);
+    a =  ((StructElement *) uin->d)->getAttribute(i-1);
     if (a != NULL) {                                           
       uout = new_Attribute_userdata(L);
       uout->d = a ;
-      uout->atype = ALLOC_LEPDF;
       uout->pc = uin->pc;
       uout->pd = uin->pd;
     }  
@@ -3197,7 +3198,7 @@ static const struct luaL_Reg StructElement_m[] = {
   {"getChild",m_StructElement_getChild},
   {"appendChild",m_StructElement_appendChild},
   {"getNumAttributes",m_StructElement_getNumAttributes},
-  {"geAttribute",m_StructElement_getAttribute},
+  {"getAttribute",m_StructElement_getAttribute},
   {"appendAttribute",m_StructElement_appendAttribute},
   {"findAttribute",m_StructElement_findAttribute},
   {"getAltText",m_StructElement_getAltText},
@@ -3230,11 +3231,11 @@ static int m_StructTreeRoot_getChild(lua_State * L)
         pdfdoc_changed_error(L);
     i = (unsigned) luaL_checkint(L, 2);
     root = (StructTreeRoot *) uin->d;
-    if (i < root->getNumChildren() ){
-       child = root->getChild(i);
+    if (i-1 < root->getNumChildren() ){
+       child = root->getChild(i-1);
        uout = new_StructElement_userdata(L);
        uout->d = child;
-       uout->atype = ALLOC_LEPDF;
+       //uout->atype = ALLOC_LEPDF;
        uout->pc = uin->pc;
        uout->pd = uin->pd;
     } else
@@ -3272,7 +3273,7 @@ static int m_StructTreeRoot_findParentElement(lua_State * L)
         pdfdoc_changed_error(L);
     i = (unsigned) luaL_checkint(L, 2);
     root = (StructTreeRoot *) uin->d;
-    parent = root->findParentElement(i);
+    parent = root->findParentElement(i-1);
     if (parent != NULL) {
        uout = new_StructElement_userdata(L);
        uout->d = new StructElement( *parent );
