@@ -1,4 +1,4 @@
-% $Id: mp.w 2005 2014-04-09 10:02:21Z taco $
+% $Id: mp.w 2037 2014-09-02 14:59:07Z luigi $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -704,7 +704,7 @@ mp->bad = 0;
 @d decr(A)   (A)=(A)-1 /* decrease a variable by unity */
 @d negate(A) (A)=-(A) /* change the sign of a variable */
 @d double(A) (A)=(A)+(A)
-@d odd(A)   ((A)%2==1)
+@d odd(A)   (abs(A)%2==1)
 
 @* The character set.
 In order to make \MP\ readily portable to a wide variety of
