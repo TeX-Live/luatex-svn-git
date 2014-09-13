@@ -1,6 +1,6 @@
 ## Makefile.am for the TeX Live subdirectory texk/texlive/tl_scripts/
 ##
-## Copyright (C) 2013 Karl Berry <tex-live@tug.org>
+## Copyright 2013-2014 Karl Berry <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 
 ## Build lists of scripts.
@@ -120,14 +120,21 @@ EXTRA_DIST += updmap.help2man
 ## fmtutil.cnf file to use for the sake of distro builds.
 ## We pass along the executable extension for the sake of cygwin, so we
 ## don't create dangling symlinks there (even though they work).
-run_texlinks = $(DESTDIR)$(bindir)/texlinks -v \
+#
+texlinks_prog = $(DESTDIR)$(bindir)/texlinks
+#
+run_texlinks = $(texlinks_prog) -v \
 	-f $(DESTDIR)$(web2cdir)/fmtutil.cnf \
 	-e "$(EXEEXT)" $(DESTDIR)$(bindir)
-run-texlinks:
+#
+run-texlinks: $(DESTDIR)$(bindir)/texlinks
 if !WIN32
 	PATH="$(DESTDIR)$(bindir):$(PATH)"; export PATH; $(run_texlinks)
 endif !WIN32
-
+#
+$(DESTDIR)$(bindir)/texlinks: $(DESTDIR)$(web2cdir)/fmtutil.cnf
+$(DESTDIR)$(web2cdir)/fmtutil.cnf:
+	$(MAKE) $(AM_MAKEFLAGS) install
 
 ## 
 ## This target is invoked by check-wrapper-consistency (run from cron).

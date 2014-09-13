@@ -490,7 +490,11 @@ shell_cmd_is_allowed (const char *cmd, char **safecmd, char **cmdname)
 #ifdef WIN32
 #undef system
 #define system fsyscp_system
-#endif
+#if ENABLE_PIPES
+#undef popen
+#define popen fsyscp_popen
+#endif /* ENABLE_PIPES */
+#endif /* WIN32 */
 
 int
 runsystem (const char *cmd)

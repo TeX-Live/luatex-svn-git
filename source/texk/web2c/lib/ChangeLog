@@ -1,7 +1,20 @@
+2014-08-22  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* texmfmp.c: Symplify support of multibyte characters, by
+	updating fsyscp_popen in kpathsea (Windows only).
+
+2014-08-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c: Avoid several compiler warnings (Windows only).
+
+2014-08-22  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* texmfmp.c: Support multibyte characters in pipe (Windows only).
+
 2014-07-23  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
 
 	* texmfmp.c: Short-file-name convention is incompatible with
-	--src-specials (w32 only).
+	--src-specials (Windows only).
 
 2014-07-21  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
 
