@@ -98,6 +98,8 @@ TESTS = tangle.test $(am__EXEEXT_21) ctiedir/ctie.test \
 DIST_COMMON = $(srcdir)/am/bootstrap.am $(srcdir)/am/web.am \
 	$(srcdir)/am/cweb.am $(srcdir)/am/texmf.am \
 	$(srcdir)/mplibdir/am/mplib.am \
+	$(srcdir)/pmpostdir/am/pmpost.am \
+	$(srcdir)/mplibdir/am/libmputil.am \
 	$(srcdir)/mplibdir/am/libmplib.am $(srcdir)/etexdir/am/etex.am \
 	$(srcdir)/ptexdir/am/ptex.am $(srcdir)/eptexdir/am/eptex.am \
 	$(srcdir)/uptexdir/am/uptex.am \
@@ -632,9 +634,6 @@ nodist_libmf_a_OBJECTS = $(am__objects_11) mf-pool.$(OBJEXT)
 libmf_a_OBJECTS = $(nodist_libmf_a_OBJECTS)
 libmplib_a_AR = $(AR) $(ARFLAGS)
 libmplib_a_LIBADD =
-am_libmplib_a_OBJECTS = mplibdir/libmplib_a-avl.$(OBJEXT) \
-	mplibdir/libmplib_a-decNumber.$(OBJEXT) \
-	mplibdir/libmplib_a-decContext.$(OBJEXT)
 am__objects_12 = libmplib_a-mp.$(OBJEXT)
 am__objects_13 = libmplib_a-mpmath.$(OBJEXT)
 am__objects_14 = libmplib_a-mpmathbinary.$(OBJEXT)
@@ -648,8 +647,13 @@ nodist_libmplib_a_OBJECTS = libmplib_a-tfmin.$(OBJEXT) \
 	$(am__objects_12) $(am__objects_13) $(am__objects_14) \
 	$(am__objects_15) $(am__objects_16) $(am__objects_17) \
 	$(am__objects_18) $(am__objects_19) $(am__objects_20)
-libmplib_a_OBJECTS = $(am_libmplib_a_OBJECTS) \
-	$(nodist_libmplib_a_OBJECTS)
+libmplib_a_OBJECTS = $(nodist_libmplib_a_OBJECTS)
+libmputil_a_AR = $(AR) $(ARFLAGS)
+libmputil_a_LIBADD =
+am_libmputil_a_OBJECTS = mplibdir/libmputil_a-avl.$(OBJEXT) \
+	mplibdir/libmputil_a-decNumber.$(OBJEXT) \
+	mplibdir/libmputil_a-decContext.$(OBJEXT)
+libmputil_a_OBJECTS = $(am_libmputil_a_OBJECTS)
 libunilib_a_AR = $(AR) $(ARFLAGS)
 libunilib_a_LIBADD =
 am_libunilib_a_OBJECTS =  \
@@ -753,14 +757,13 @@ am__objects_21 = luatexdir/luajittex-luatex.$(OBJEXT) \
 	mplibdir/luajittex-lmplib.$(OBJEXT)
 nodist_luajittex_OBJECTS = $(am__objects_21)
 luajittex_OBJECTS = $(nodist_luajittex_OBJECTS)
-am__DEPENDENCIES_2 = libluajittex.a libjitff.a libunilib.a \
-	libluajitmisc.a libluajitsocket.a $(am__DEPENDENCIES_1) \
-	libmd5.a libmplib.a $(am__DEPENDENCIES_1) \
+am__DEPENDENCIES_2 = $(proglib) $(am__DEPENDENCIES_1)
+am__DEPENDENCIES_3 = libmplib.a $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
-am__DEPENDENCIES_3 = $(proglib) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2) libmputil.a \
+	libunilib.a libmd5.a $(am__DEPENDENCIES_1)
 luajittex_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(luajittex_CXXFLAGS) \
 	$(CXXFLAGS) $(luajittex_LDFLAGS) $(LDFLAGS) -o $@
@@ -769,12 +772,6 @@ am__objects_22 = luatexdir/luatex-luatex.$(OBJEXT) \
 nodist_luatex_OBJECTS = $(am__objects_22)
 luatex_OBJECTS = $(nodist_luatex_OBJECTS)
 am__DEPENDENCIES_4 = $(am__DEPENDENCIES_1)
-am__DEPENDENCIES_5 = libluatex.a libff.a libunilib.a libluamisc.a \
-	libluasocket.a $(am__DEPENDENCIES_4) libmd5.a libmplib.a \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 luatex_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(luatex_CXXFLAGS) \
 	$(CXXFLAGS) $(luatex_LDFLAGS) $(LDFLAGS) -o $@
@@ -783,15 +780,15 @@ md5main_OBJECTS = $(am_md5main_OBJECTS)
 md5main_DEPENDENCIES = libmd5.a
 dist_mf_OBJECTS = mf-mfextra.$(OBJEXT)
 mf_OBJECTS = $(dist_mf_OBJECTS)
-@WIN32_FALSE@am__DEPENDENCIES_6 = $(am__DEPENDENCIES_1) \
+@WIN32_FALSE@am__DEPENDENCIES_5 = $(am__DEPENDENCIES_1) \
 @WIN32_FALSE@	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 @WIN32_FALSE@	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 @WIN32_FALSE@	$(am__DEPENDENCIES_1)
-mf_DEPENDENCIES = libmf.a $(am__DEPENDENCIES_3) $(windowlib) \
-	$(am__DEPENDENCIES_6)
+mf_DEPENDENCIES = libmf.a $(am__DEPENDENCIES_2) $(windowlib) \
+	$(am__DEPENDENCIES_5)
 dist_mf_nowin_OBJECTS = mf_nowin-mfextra.$(OBJEXT)
 mf_nowin_OBJECTS = $(dist_mf_nowin_OBJECTS)
-mf_nowin_DEPENDENCIES = libmf.a $(am__DEPENDENCIES_3) $(windowlib)
+mf_nowin_DEPENDENCIES = libmf.a $(am__DEPENDENCIES_2) $(windowlib)
 nodist_mft_OBJECTS = mft.$(OBJEXT)
 mft_OBJECTS = $(nodist_mft_OBJECTS)
 mft_LDADD = $(LDADD)
@@ -799,6 +796,10 @@ mft_DEPENDENCIES = $(proglib) $(am__DEPENDENCIES_1)
 am__objects_23 = mpost-mpxout.$(OBJEXT)
 nodist_mpost_OBJECTS = mpost-mpost.$(OBJEXT) $(am__objects_23)
 mpost_OBJECTS = $(nodist_mpost_OBJECTS)
+mpost_DEPENDENCIES = libmplib.a $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) libmputil.a
 nodist_patgen_OBJECTS = patgen.$(OBJEXT)
 patgen_OBJECTS = $(nodist_patgen_OBJECTS)
 patgen_LDADD = $(LDADD)
@@ -830,7 +831,7 @@ dist_tex_OBJECTS = tex-texextra.$(OBJEXT)
 am__objects_24 = tex-texini.$(OBJEXT) tex-tex0.$(OBJEXT)
 nodist_tex_OBJECTS = $(am__objects_24) tex-tex-pool.$(OBJEXT)
 tex_OBJECTS = $(dist_tex_OBJECTS) $(nodist_tex_OBJECTS)
-tex_DEPENDENCIES = $(am__DEPENDENCIES_3) $(am__DEPENDENCIES_1)
+tex_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
 nodist_tftopl_OBJECTS = tftopl.$(OBJEXT)
 tftopl_OBJECTS = $(nodist_tftopl_OBJECTS)
 tftopl_LDADD = $(LDADD)
@@ -912,8 +913,8 @@ SOURCES = $(nodist_libff_a_SOURCES) $(nodist_libjitff_a_SOURCES) \
 	$(nodist_libluamisc_a_SOURCES) \
 	$(nodist_libluasocket_a_SOURCES) $(dist_libluatex_a_SOURCES) \
 	$(nodist_libluatex_a_SOURCES) $(libmd5_a_SOURCES) \
-	$(nodist_libmf_a_SOURCES) $(libmplib_a_SOURCES) \
-	$(nodist_libmplib_a_SOURCES) $(libunilib_a_SOURCES) \
+	$(nodist_libmf_a_SOURCES) $(nodist_libmplib_a_SOURCES) \
+	$(libmputil_a_SOURCES) $(libunilib_a_SOURCES) \
 	$(nodist_bibtex_SOURCES) $(nodist_call_luajittex_SOURCES) \
 	$(nodist_call_luatex_SOURCES) $(nodist_call_mpost_SOURCES) \
 	$(nodist_ctangle_SOURCES) $(nodist_ctangleboot_SOURCES) \
@@ -936,7 +937,7 @@ SOURCES = $(nodist_libff_a_SOURCES) $(nodist_libjitff_a_SOURCES) \
 	$(nodist_weave_SOURCES)
 DIST_SOURCES = $(dist_libluajittex_a_SOURCES) \
 	$(dist_libluatex_a_SOURCES) $(libmd5_a_SOURCES) \
-	$(libmplib_a_SOURCES) $(libunilib_a_SOURCES) \
+	$(libmputil_a_SOURCES) $(libunilib_a_SOURCES) \
 	$(gftodvi_SOURCES) $(md5main_SOURCES) $(dist_mf_SOURCES) \
 	$(dist_mf_nowin_SOURCES) $(dist_tex_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
@@ -1459,9 +1460,9 @@ SUBDIRS = doc lib man web2c . window omegafonts otps
 proglib = lib/lib.a
 dist_man_MANS = 
 nodist_man_MANS = 
-EXTRA_LIBRARIES = libmf.a libmplib.a libluasocket.a libluajitsocket.a \
-	libluamisc.a libluajitmisc.a libunilib.a libff.a libjitff.a \
-	libluatex.a libluajittex.a libmd5.a
+EXTRA_LIBRARIES = libmf.a libmputil.a libmplib.a libluasocket.a \
+	libluajitsocket.a libluamisc.a libluajitmisc.a libunilib.a \
+	libff.a libjitff.a libluatex.a libluajittex.a libmd5.a
 EXTRA_DIST = PROJECTS cftests cpascal.h help.h w2c/config.h \
 	triptrap-sh tangle.web tangle.ch tangleboot.pin cwebdir \
 	ctangleboot.cin cwebboot.cin cwebboot.hin tangle.test \
@@ -1793,9 +1794,8 @@ mf_ch_src = \
 #
 mf_tests = mftraptest
 mpost_CPPFLAGS = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) -I$(srcdir)/mplibdir
-mpost_DEPENDENCIES = libmplib.a
 mpost_LDADD = libmplib.a $(KPATHSEA_LIBS) $(MPFR_LIBS) $(GMP_LIBS) \
-	$(CAIRO_LIBS) $(PIXMAN_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS)
+	$(CAIRO_LIBS) $(PIXMAN_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) libmputil.a
 
 call_mpost_CPPFLAGS = -DEXEPROG=\"mpost.exe\"
 nodist_call_mpost_SOURCES = callexe.c
@@ -1809,11 +1809,12 @@ nodist_mpost_SOURCES = mpost.c $(mpxout_c_h)
 mpxout_c_h = mpxout.c mpxout.h
 mpost_web = mplibdir/mpost.w mplibdir/mpxout.w
 mp_tests = mplibdir/dvitomp.test mplibdir/mptraptest
+libmputil_a_CPPFLAGS = $(AM_CPPFLAGS) -I$(srcdir)/mplibdir
+libmputil_a_SOURCES = mplibdir/avl.h mplibdir/avl.c mplibdir/decNumber.c mplibdir/decNumber.h \
+	mplibdir/decNumberLocal.h mplibdir/decContext.h mplibdir/decContext.c
+
 libmplib_a_CPPFLAGS = $(MPFR_INCLUDES) $(GMP_INCLUDES) $(CAIRO_INCLUDES) $(PIXMAN_INCLUDES) \
 	$(LIBPNG_INCLUDES) $(ZLIB_INCLUDES) $(AM_CPPFLAGS) -I$(srcdir)/mplibdir
-
-libmplib_a_SOURCES = mplibdir/avl.h mplibdir/avl.c mplibdir/decNumber.c mplibdir/decNumber.h \
-	mplibdir/decNumberLocal.h mplibdir/decContext.h mplibdir/decContext.c
 
 nodist_libmplib_a_SOURCES = tfmin.c $(mp_c_h) $(mpmath_c_h) $(mpmathbinary_c_h) $(mpmathdecimal_c_h) \
 	$(mpmathdouble_c_h) $(mpstrings_c_h) $(pngout_c_h) $(psout_c_h) $(svgout_c_h)
@@ -2194,23 +2195,17 @@ luatex_CPPFLAGS = $(luatex_preflags) $(LUA_INCLUDES) $(luatex_postflags)
 luajittex_CPPFLAGS = $(luatex_preflags) $(LUAJIT_INCLUDES) $(LUAJIT_DEFINES) $(luatex_postflags)
 luatex_CXXFLAGS = $(WARNING_CXXFLAGS)
 luajittex_CXXFLAGS = $(WARNING_CXXFLAGS)
-luatex_ldadd = libluatex.a libff.a libunilib.a libluamisc.a \
-	libluasocket.a $(LUA_LIBS) libmd5.a libmplib.a $(MPFR_LIBS) \
-	$(GMP_LIBS) $(CAIRO_LIBS) $(PIXMAN_LIBS) $(ZZIPLIB_LIBS) \
-	$(LIBPNG_LIBS) $(ZLIB_LIBS) $(POPPLER_LIBS)
-luajittex_ldadd = libluajittex.a libjitff.a libunilib.a \
-	libluajitmisc.a libluajitsocket.a $(LUAJIT_LIBS) libmd5.a \
-	libmplib.a $(MPFR_LIBS) $(GMP_LIBS) $(CAIRO_LIBS) \
-	$(PIXMAN_LIBS) $(ZZIPLIB_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) \
-	$(POPPLER_LIBS)
 luatex_LDFLAGS = -export-dynamic
 luajittex_LDFLAGS = -export-dynamic $(LUAJIT_LDEXTRA)
-luatex_LDADD = $(luatex_ldadd) $(LDADD) $(LIBADD_DLOPEN) $(lua_socketlibs)
-luajittex_LDADD = $(luajittex_ldadd) $(LDADD) $(LIBADD_DLOPEN) $(lua_socketlibs)
-luatex_DEPENDENCIES = $(proglib) $(KPATHSEA_DEPEND) libluatex.a \
-	$(LIBPNG_DEPEND) libmd5.a libmplib.a
-luajittex_DEPENDENCIES = $(proglib) $(KPATHSEA_DEPEND) libluajittex.a \
-	$(LIBPNG_DEPEND) libmd5.a libmplib.a
+luatex_postldadd = libmplib.a $(MPFR_LIBS) $(GMP_LIBS) $(CAIRO_LIBS) \
+	$(PIXMAN_LIBS) $(ZZIPLIB_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) \
+	$(POPPLER_LIBS) $(LDADD) libmputil.a libunilib.a libmd5.a \
+	$(lua_socketlibs)
+luatex_LDADD = libluatex.a libff.a libluamisc.a libluasocket.a $(LUA_LIBS) $(luatex_postldadd)
+luajittex_LDADD = libluajittex.a libjitff.a libluajitmisc.a libluajitsocket.a $(LUAJIT_LIBS) $(luatex_postldadd)
+luatex_depend = $(proglib) $(KPATHSEA_DEPEND) $(LIBPNG_DEPEND) libmputil.a libmd5.a
+luatex_DEPENDENCIES = $(luatex_depend) libluatex.a
+luajittex_DEPENDENCIES = $(luatex_depend) libluajittex.a
 nodist_luatex_SOURCES = $(luatex_sources)
 nodist_luajittex_SOURCES = $(luatex_sources)
 luatex_sources = \
@@ -2246,7 +2241,7 @@ all: ff-config.h
 .SUFFIXES: .c .cc .cin .cxx .h .hin .lo .log .o .obj .p .pin .test .test$(EXEEXT) .trs
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/am/bootstrap.am $(srcdir)/am/web.am $(srcdir)/am/cweb.am $(srcdir)/am/texmf.am $(srcdir)/mplibdir/am/mplib.am $(srcdir)/mplibdir/am/libmplib.am $(srcdir)/etexdir/am/etex.am $(srcdir)/ptexdir/am/ptex.am $(srcdir)/eptexdir/am/eptex.am $(srcdir)/uptexdir/am/uptex.am $(srcdir)/euptexdir/am/euptex.am $(srcdir)/pdftexdir/am/libpdftex.am $(srcdir)/pdftexdir/am/pdftex.am $(srcdir)/pdftexdir/am/ttf2afm.am $(srcdir)/pdftexdir/am/pdftosrc.am $(srcdir)/luatexdir/am/luasocket.am $(srcdir)/luatexdir/am/luamisc.am $(srcdir)/luatexdir/am/libunilib.am $(srcdir)/luatexdir/am/luafontforge.am $(srcdir)/luatexdir/am/libluatex.am $(srcdir)/luatexdir/am/luatex.am $(srcdir)/luatexdir/am/txt2zlib.am $(srcdir)/xetexdir/am/xetex.am $(srcdir)/omegaware/am/omegaware.am $(srcdir)/alephdir/am/aleph.am $(srcdir)/synctexdir/am/synctex.am $(srcdir)/libmd5/am/md5.am $(srcdir)/../../am/bin_links.am $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/am/bootstrap.am $(srcdir)/am/web.am $(srcdir)/am/cweb.am $(srcdir)/am/texmf.am $(srcdir)/mplibdir/am/mplib.am $(srcdir)/pmpostdir/am/pmpost.am $(srcdir)/mplibdir/am/libmputil.am $(srcdir)/mplibdir/am/libmplib.am $(srcdir)/etexdir/am/etex.am $(srcdir)/ptexdir/am/ptex.am $(srcdir)/eptexdir/am/eptex.am $(srcdir)/uptexdir/am/uptex.am $(srcdir)/euptexdir/am/euptex.am $(srcdir)/pdftexdir/am/libpdftex.am $(srcdir)/pdftexdir/am/pdftex.am $(srcdir)/pdftexdir/am/ttf2afm.am $(srcdir)/pdftexdir/am/pdftosrc.am $(srcdir)/luatexdir/am/luasocket.am $(srcdir)/luatexdir/am/luamisc.am $(srcdir)/luatexdir/am/libunilib.am $(srcdir)/luatexdir/am/luafontforge.am $(srcdir)/luatexdir/am/libluatex.am $(srcdir)/luatexdir/am/luatex.am $(srcdir)/luatexdir/am/txt2zlib.am $(srcdir)/xetexdir/am/xetex.am $(srcdir)/omegaware/am/omegaware.am $(srcdir)/alephdir/am/aleph.am $(srcdir)/synctexdir/am/synctex.am $(srcdir)/libmd5/am/md5.am $(srcdir)/../../am/bin_links.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -2268,7 +2263,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe);; \
 	esac;
-$(srcdir)/am/bootstrap.am $(srcdir)/am/web.am $(srcdir)/am/cweb.am $(srcdir)/am/texmf.am $(srcdir)/mplibdir/am/mplib.am $(srcdir)/mplibdir/am/libmplib.am $(srcdir)/etexdir/am/etex.am $(srcdir)/ptexdir/am/ptex.am $(srcdir)/eptexdir/am/eptex.am $(srcdir)/uptexdir/am/uptex.am $(srcdir)/euptexdir/am/euptex.am $(srcdir)/pdftexdir/am/libpdftex.am $(srcdir)/pdftexdir/am/pdftex.am $(srcdir)/pdftexdir/am/ttf2afm.am $(srcdir)/pdftexdir/am/pdftosrc.am $(srcdir)/luatexdir/am/luasocket.am $(srcdir)/luatexdir/am/luamisc.am $(srcdir)/luatexdir/am/libunilib.am $(srcdir)/luatexdir/am/luafontforge.am $(srcdir)/luatexdir/am/libluatex.am $(srcdir)/luatexdir/am/luatex.am $(srcdir)/luatexdir/am/txt2zlib.am $(srcdir)/xetexdir/am/xetex.am $(srcdir)/omegaware/am/omegaware.am $(srcdir)/alephdir/am/aleph.am $(srcdir)/synctexdir/am/synctex.am $(srcdir)/libmd5/am/md5.am $(srcdir)/../../am/bin_links.am:
+$(srcdir)/am/bootstrap.am $(srcdir)/am/web.am $(srcdir)/am/cweb.am $(srcdir)/am/texmf.am $(srcdir)/mplibdir/am/mplib.am $(srcdir)/pmpostdir/am/pmpost.am $(srcdir)/mplibdir/am/libmputil.am $(srcdir)/mplibdir/am/libmplib.am $(srcdir)/etexdir/am/etex.am $(srcdir)/ptexdir/am/ptex.am $(srcdir)/eptexdir/am/eptex.am $(srcdir)/uptexdir/am/uptex.am $(srcdir)/euptexdir/am/euptex.am $(srcdir)/pdftexdir/am/libpdftex.am $(srcdir)/pdftexdir/am/pdftex.am $(srcdir)/pdftexdir/am/ttf2afm.am $(srcdir)/pdftexdir/am/pdftosrc.am $(srcdir)/luatexdir/am/luasocket.am $(srcdir)/luatexdir/am/luamisc.am $(srcdir)/luatexdir/am/libunilib.am $(srcdir)/luatexdir/am/luafontforge.am $(srcdir)/luatexdir/am/libluatex.am $(srcdir)/luatexdir/am/luatex.am $(srcdir)/luatexdir/am/txt2zlib.am $(srcdir)/xetexdir/am/xetex.am $(srcdir)/omegaware/am/omegaware.am $(srcdir)/alephdir/am/aleph.am $(srcdir)/synctexdir/am/synctex.am $(srcdir)/libmd5/am/md5.am $(srcdir)/../../am/bin_links.am:
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
@@ -3016,23 +3011,28 @@ libmf.a: $(libmf_a_OBJECTS) $(libmf_a_DEPENDENCIES) $(EXTRA_libmf_a_DEPENDENCIES
 	$(AM_V_at)-rm -f libmf.a
 	$(AM_V_AR)$(libmf_a_AR) libmf.a $(libmf_a_OBJECTS) $(libmf_a_LIBADD)
 	$(AM_V_at)$(RANLIB) libmf.a
+
+libmplib.a: $(libmplib_a_OBJECTS) $(libmplib_a_DEPENDENCIES) $(EXTRA_libmplib_a_DEPENDENCIES) 
+	$(AM_V_at)-rm -f libmplib.a
+	$(AM_V_AR)$(libmplib_a_AR) libmplib.a $(libmplib_a_OBJECTS) $(libmplib_a_LIBADD)
+	$(AM_V_at)$(RANLIB) libmplib.a
 mplibdir/$(am__dirstamp):
 	@$(MKDIR_P) mplibdir
 	@: > mplibdir/$(am__dirstamp)
 mplibdir/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) mplibdir/$(DEPDIR)
 	@: > mplibdir/$(DEPDIR)/$(am__dirstamp)
-mplibdir/libmplib_a-avl.$(OBJEXT): mplibdir/$(am__dirstamp) \
+mplibdir/libmputil_a-avl.$(OBJEXT): mplibdir/$(am__dirstamp) \
 	mplibdir/$(DEPDIR)/$(am__dirstamp)
-mplibdir/libmplib_a-decNumber.$(OBJEXT): mplibdir/$(am__dirstamp) \
+mplibdir/libmputil_a-decNumber.$(OBJEXT): mplibdir/$(am__dirstamp) \
 	mplibdir/$(DEPDIR)/$(am__dirstamp)
-mplibdir/libmplib_a-decContext.$(OBJEXT): mplibdir/$(am__dirstamp) \
+mplibdir/libmputil_a-decContext.$(OBJEXT): mplibdir/$(am__dirstamp) \
 	mplibdir/$(DEPDIR)/$(am__dirstamp)
 
-libmplib.a: $(libmplib_a_OBJECTS) $(libmplib_a_DEPENDENCIES) $(EXTRA_libmplib_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f libmplib.a
-	$(AM_V_AR)$(libmplib_a_AR) libmplib.a $(libmplib_a_OBJECTS) $(libmplib_a_LIBADD)
-	$(AM_V_at)$(RANLIB) libmplib.a
+libmputil.a: $(libmputil_a_OBJECTS) $(libmputil_a_DEPENDENCIES) $(EXTRA_libmputil_a_DEPENDENCIES) 
+	$(AM_V_at)-rm -f libmputil.a
+	$(AM_V_AR)$(libmputil_a_AR) libmputil.a $(libmputil_a_OBJECTS) $(libmputil_a_LIBADD)
+	$(AM_V_at)$(RANLIB) libmputil.a
 luatexdir/unilib/$(am__dirstamp):
 	@$(MKDIR_P) luatexdir/unilib
 	@: > luatexdir/unilib/$(am__dirstamp)
@@ -3772,9 +3772,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/unilib/$(DEPDIR)/libunilib_a-utype.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/utils/$(DEPDIR)/libluajittex_a-avl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/utils/$(DEPDIR)/libluatex_a-avl.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@mplibdir/$(DEPDIR)/libmplib_a-avl.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@mplibdir/$(DEPDIR)/libmplib_a-decContext.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@mplibdir/$(DEPDIR)/libmplib_a-decNumber.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@mplibdir/$(DEPDIR)/libmputil_a-avl.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@mplibdir/$(DEPDIR)/libmputil_a-decContext.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@mplibdir/$(DEPDIR)/libmputil_a-decNumber.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@mplibdir/$(DEPDIR)/luajittex-lmplib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@mplibdir/$(DEPDIR)/luatex-lmplib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@synctexdir/$(DEPDIR)/libluajittex_a-synctex.Po@am__quote@
@@ -9054,48 +9054,6 @@ libmd5/libmd5_a-md5.obj: libmd5/md5.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmd5_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmd5/libmd5_a-md5.obj `if test -f 'libmd5/md5.c'; then $(CYGPATH_W) 'libmd5/md5.c'; else $(CYGPATH_W) '$(srcdir)/libmd5/md5.c'; fi`
 
-mplibdir/libmplib_a-avl.o: mplibdir/avl.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mplibdir/libmplib_a-avl.o -MD -MP -MF mplibdir/$(DEPDIR)/libmplib_a-avl.Tpo -c -o mplibdir/libmplib_a-avl.o `test -f 'mplibdir/avl.c' || echo '$(srcdir)/'`mplibdir/avl.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) mplibdir/$(DEPDIR)/libmplib_a-avl.Tpo mplibdir/$(DEPDIR)/libmplib_a-avl.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mplibdir/avl.c' object='mplibdir/libmplib_a-avl.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mplibdir/libmplib_a-avl.o `test -f 'mplibdir/avl.c' || echo '$(srcdir)/'`mplibdir/avl.c
-
-mplibdir/libmplib_a-avl.obj: mplibdir/avl.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mplibdir/libmplib_a-avl.obj -MD -MP -MF mplibdir/$(DEPDIR)/libmplib_a-avl.Tpo -c -o mplibdir/libmplib_a-avl.obj `if test -f 'mplibdir/avl.c'; then $(CYGPATH_W) 'mplibdir/avl.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/avl.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) mplibdir/$(DEPDIR)/libmplib_a-avl.Tpo mplibdir/$(DEPDIR)/libmplib_a-avl.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mplibdir/avl.c' object='mplibdir/libmplib_a-avl.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mplibdir/libmplib_a-avl.obj `if test -f 'mplibdir/avl.c'; then $(CYGPATH_W) 'mplibdir/avl.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/avl.c'; fi`
-
-mplibdir/libmplib_a-decNumber.o: mplibdir/decNumber.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mplibdir/libmplib_a-decNumber.o -MD -MP -MF mplibdir/$(DEPDIR)/libmplib_a-decNumber.Tpo -c -o mplibdir/libmplib_a-decNumber.o `test -f 'mplibdir/decNumber.c' || echo '$(srcdir)/'`mplibdir/decNumber.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) mplibdir/$(DEPDIR)/libmplib_a-decNumber.Tpo mplibdir/$(DEPDIR)/libmplib_a-decNumber.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mplibdir/decNumber.c' object='mplibdir/libmplib_a-decNumber.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mplibdir/libmplib_a-decNumber.o `test -f 'mplibdir/decNumber.c' || echo '$(srcdir)/'`mplibdir/decNumber.c
-
-mplibdir/libmplib_a-decNumber.obj: mplibdir/decNumber.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mplibdir/libmplib_a-decNumber.obj -MD -MP -MF mplibdir/$(DEPDIR)/libmplib_a-decNumber.Tpo -c -o mplibdir/libmplib_a-decNumber.obj `if test -f 'mplibdir/decNumber.c'; then $(CYGPATH_W) 'mplibdir/decNumber.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/decNumber.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) mplibdir/$(DEPDIR)/libmplib_a-decNumber.Tpo mplibdir/$(DEPDIR)/libmplib_a-decNumber.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mplibdir/decNumber.c' object='mplibdir/libmplib_a-decNumber.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mplibdir/libmplib_a-decNumber.obj `if test -f 'mplibdir/decNumber.c'; then $(CYGPATH_W) 'mplibdir/decNumber.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/decNumber.c'; fi`
-
-mplibdir/libmplib_a-decContext.o: mplibdir/decContext.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mplibdir/libmplib_a-decContext.o -MD -MP -MF mplibdir/$(DEPDIR)/libmplib_a-decContext.Tpo -c -o mplibdir/libmplib_a-decContext.o `test -f 'mplibdir/decContext.c' || echo '$(srcdir)/'`mplibdir/decContext.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) mplibdir/$(DEPDIR)/libmplib_a-decContext.Tpo mplibdir/$(DEPDIR)/libmplib_a-decContext.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mplibdir/decContext.c' object='mplibdir/libmplib_a-decContext.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mplibdir/libmplib_a-decContext.o `test -f 'mplibdir/decContext.c' || echo '$(srcdir)/'`mplibdir/decContext.c
-
-mplibdir/libmplib_a-decContext.obj: mplibdir/decContext.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mplibdir/libmplib_a-decContext.obj -MD -MP -MF mplibdir/$(DEPDIR)/libmplib_a-decContext.Tpo -c -o mplibdir/libmplib_a-decContext.obj `if test -f 'mplibdir/decContext.c'; then $(CYGPATH_W) 'mplibdir/decContext.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/decContext.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) mplibdir/$(DEPDIR)/libmplib_a-decContext.Tpo mplibdir/$(DEPDIR)/libmplib_a-decContext.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mplibdir/decContext.c' object='mplibdir/libmplib_a-decContext.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mplibdir/libmplib_a-decContext.obj `if test -f 'mplibdir/decContext.c'; then $(CYGPATH_W) 'mplibdir/decContext.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/decContext.c'; fi`
-
 libmplib_a-tfmin.o: tfmin.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmplib_a-tfmin.o -MD -MP -MF $(DEPDIR)/libmplib_a-tfmin.Tpo -c -o libmplib_a-tfmin.o `test -f 'tfmin.c' || echo '$(srcdir)/'`tfmin.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmplib_a-tfmin.Tpo $(DEPDIR)/libmplib_a-tfmin.Po
@@ -9235,6 +9193,48 @@ libmplib_a-svgout.obj: svgout.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='svgout.c' object='libmplib_a-svgout.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmplib_a-svgout.obj `if test -f 'svgout.c'; then $(CYGPATH_W) 'svgout.c'; else $(CYGPATH_W) '$(srcdir)/svgout.c'; fi`
+
+mplibdir/libmputil_a-avl.o: mplibdir/avl.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmputil_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mplibdir/libmputil_a-avl.o -MD -MP -MF mplibdir/$(DEPDIR)/libmputil_a-avl.Tpo -c -o mplibdir/libmputil_a-avl.o `test -f 'mplibdir/avl.c' || echo '$(srcdir)/'`mplibdir/avl.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) mplibdir/$(DEPDIR)/libmputil_a-avl.Tpo mplibdir/$(DEPDIR)/libmputil_a-avl.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mplibdir/avl.c' object='mplibdir/libmputil_a-avl.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmputil_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mplibdir/libmputil_a-avl.o `test -f 'mplibdir/avl.c' || echo '$(srcdir)/'`mplibdir/avl.c
+
+mplibdir/libmputil_a-avl.obj: mplibdir/avl.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmputil_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mplibdir/libmputil_a-avl.obj -MD -MP -MF mplibdir/$(DEPDIR)/libmputil_a-avl.Tpo -c -o mplibdir/libmputil_a-avl.obj `if test -f 'mplibdir/avl.c'; then $(CYGPATH_W) 'mplibdir/avl.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/avl.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) mplibdir/$(DEPDIR)/libmputil_a-avl.Tpo mplibdir/$(DEPDIR)/libmputil_a-avl.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mplibdir/avl.c' object='mplibdir/libmputil_a-avl.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmputil_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mplibdir/libmputil_a-avl.obj `if test -f 'mplibdir/avl.c'; then $(CYGPATH_W) 'mplibdir/avl.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/avl.c'; fi`
+
+mplibdir/libmputil_a-decNumber.o: mplibdir/decNumber.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmputil_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mplibdir/libmputil_a-decNumber.o -MD -MP -MF mplibdir/$(DEPDIR)/libmputil_a-decNumber.Tpo -c -o mplibdir/libmputil_a-decNumber.o `test -f 'mplibdir/decNumber.c' || echo '$(srcdir)/'`mplibdir/decNumber.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) mplibdir/$(DEPDIR)/libmputil_a-decNumber.Tpo mplibdir/$(DEPDIR)/libmputil_a-decNumber.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mplibdir/decNumber.c' object='mplibdir/libmputil_a-decNumber.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmputil_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mplibdir/libmputil_a-decNumber.o `test -f 'mplibdir/decNumber.c' || echo '$(srcdir)/'`mplibdir/decNumber.c
+
+mplibdir/libmputil_a-decNumber.obj: mplibdir/decNumber.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmputil_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mplibdir/libmputil_a-decNumber.obj -MD -MP -MF mplibdir/$(DEPDIR)/libmputil_a-decNumber.Tpo -c -o mplibdir/libmputil_a-decNumber.obj `if test -f 'mplibdir/decNumber.c'; then $(CYGPATH_W) 'mplibdir/decNumber.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/decNumber.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) mplibdir/$(DEPDIR)/libmputil_a-decNumber.Tpo mplibdir/$(DEPDIR)/libmputil_a-decNumber.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mplibdir/decNumber.c' object='mplibdir/libmputil_a-decNumber.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmputil_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mplibdir/libmputil_a-decNumber.obj `if test -f 'mplibdir/decNumber.c'; then $(CYGPATH_W) 'mplibdir/decNumber.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/decNumber.c'; fi`
+
+mplibdir/libmputil_a-decContext.o: mplibdir/decContext.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmputil_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mplibdir/libmputil_a-decContext.o -MD -MP -MF mplibdir/$(DEPDIR)/libmputil_a-decContext.Tpo -c -o mplibdir/libmputil_a-decContext.o `test -f 'mplibdir/decContext.c' || echo '$(srcdir)/'`mplibdir/decContext.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) mplibdir/$(DEPDIR)/libmputil_a-decContext.Tpo mplibdir/$(DEPDIR)/libmputil_a-decContext.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mplibdir/decContext.c' object='mplibdir/libmputil_a-decContext.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmputil_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mplibdir/libmputil_a-decContext.o `test -f 'mplibdir/decContext.c' || echo '$(srcdir)/'`mplibdir/decContext.c
+
+mplibdir/libmputil_a-decContext.obj: mplibdir/decContext.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmputil_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mplibdir/libmputil_a-decContext.obj -MD -MP -MF mplibdir/$(DEPDIR)/libmputil_a-decContext.Tpo -c -o mplibdir/libmputil_a-decContext.obj `if test -f 'mplibdir/decContext.c'; then $(CYGPATH_W) 'mplibdir/decContext.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/decContext.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) mplibdir/$(DEPDIR)/libmputil_a-decContext.Tpo mplibdir/$(DEPDIR)/libmputil_a-decContext.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mplibdir/decContext.c' object='mplibdir/libmputil_a-decContext.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmputil_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mplibdir/libmputil_a-decContext.obj `if test -f 'mplibdir/decContext.c'; then $(CYGPATH_W) 'mplibdir/decContext.c'; else $(CYGPATH_W) '$(srcdir)/mplibdir/decContext.c'; fi`
 
 luatexdir/unilib/libunilib_a-ArabicForms.o: luatexdir/unilib/ArabicForms.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libunilib_a_CPPFLAGS) $(CPPFLAGS) $(libunilib_a_CFLAGS) $(CFLAGS) -MT luatexdir/unilib/libunilib_a-ArabicForms.o -MD -MP -MF luatexdir/unilib/$(DEPDIR)/libunilib_a-ArabicForms.Tpo -c -o luatexdir/unilib/libunilib_a-ArabicForms.o `test -f 'luatexdir/unilib/ArabicForms.c' || echo '$(srcdir)/'`luatexdir/unilib/ArabicForms.c
@@ -11058,8 +11058,8 @@ utils.c: ctangle$(EXEEXT) luatexdir/utils/utils.w
 unistring.c: ctangle$(EXEEXT) luatexdir/utils/unistring.w
 	$(luatex_utils_ctangle) unistring.w
 
-$(luatex_OBJECTS): libluatex.a libmplib.a
-$(luajittex_OBJECTS): libluajittex.a libmplib.a
+$(luatex_OBJECTS): libluatex.a
+$(luajittex_OBJECTS): libluajittex.a
 
 .PHONY: install-luatex-links uninstall-luatex-links
 .PHONY: install-luajittex-links uninstall-luajittex-links

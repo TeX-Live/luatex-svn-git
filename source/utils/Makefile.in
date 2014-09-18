@@ -79,7 +79,7 @@ build_triplet = @build@
 host_triplet = @host@
 DIST_COMMON = $(srcdir)/../am/recurse.am $(srcdir)/Makefile.in \
 	$(srcdir)/Makefile.am $(top_srcdir)/configure \
-	$(am__configure_deps) README ../build-aux/compile \
+	$(am__configure_deps) ChangeLog README ../build-aux/compile \
 	../build-aux/config.guess ../build-aux/config.sub \
 	../build-aux/depcomp ../build-aux/install-sh \
 	../build-aux/missing ../build-aux/texinfo.tex \
