@@ -149,8 +149,6 @@ then
   RANLIB="${CONFHOST#--host=}-ranlib"
   STRIP="${CONFHOST#--host=}-strip"
   LDFLAGS="-Wl,--large-address-aware -Wl,--stack,2621440 $CFLAGS"
-  BUILDCC="gcc -m32"
-  BUILDCXX="g++ -m32"
   export CFLAGS CXXFLAGS LDFLAGS BUILDCXX BUILDCC
 fi
 
