@@ -1875,7 +1875,8 @@ static int m_Object__gc(lua_State * L)
     printf("\n===== Object GC ===== uin=<%p>\n", uin);
 #endif
     if (uin->atype == ALLOC_LEPDF) {
-        ((Object *) uin->d)->free();
+        //free() here seems to collides with lua gc
+        //((Object *) uin->d)->free();
         delete(Object *) uin->d;
     }
     return 0;
