@@ -16,21 +16,17 @@
 #include "luatex_svnversion.h"
 
 static const char _svn_version[] =
-    "$Id: luatex.c 5022 2014-06-06 19:22:31Z oneiros $ "
-    "$URL: https://foundry.supelec.fr/svn/luatex/branches/experimental/source/texk/web2c/luatexdir/luatex.c $";
+    "$Id: luatex.c 4969 2014-03-29 08:47:58Z taco $ "
+    "$URL: https://foundry.supelec.fr/svn/luatex/tags/beta-0.79.1/source/texk/web2c/luatexdir/luatex.c $";
 
 #define TeX
 
 int luatex_svn = luatex_svn_revision;
 int luatex_version = 79;        /* \.{\\luatexversion}  */
 int luatex_revision = '1';      /* \.{\\luatexrevision}  */
-int luatex_date_info = -extra_version_info;     /* the compile date is negated */
+int luatex_date_info = 2014040100;     /* the compile date is now hardwired */
 const char *luatex_version_string = "beta-0.79.1";
-#ifdef LuajitTeX
-const char *engine_name = "luajittex";     /* the name of this engine */
-#else
-const char *engine_name = "luatex";     /* the name of this engine */
-#endif
+const char *engine_name = my_name;     /* the name of this engine */
 
 #include <kpathsea/c-ctype.h>
 #include <kpathsea/line.h>
@@ -117,40 +113,31 @@ void mk_shellcmdlist(char *v)
 {
     char **p;
     char *q, *r;
-    unsigned int n;
+    size_t n;
 
     q = v;
-    n = 0;
+    n = 1;
 
 /* analyze the variable shell_escape_commands = foo,bar,...
    spaces before and after (,) are not allowed. */
 
     while ((r = strchr(q, ',')) != 0) {
         n++;
-        r++;
-        q = r;
+        q = r + 1;
     }
     if (*q)
         n++;
-    cmdlist = (char **) xmalloc((unsigned) ((n + 1) * sizeof(char *)));
+    cmdlist = (char **) xmalloc(n  * sizeof(char *));
     p = cmdlist;
     q = v;
     while ((r = strchr(q, ',')) != 0) {
         *r = '\0';
-        *p = (char *) xmalloc((unsigned) strlen(q) + 1);
-        strcpy(*p, q);
-        *r = ',';
-        r++;
-        q = r;
-        p++;
+        *p++ = xstrdup (q);
+        q = r + 1;
     }
-    if (*q) {
-        *p = (char *) xmalloc((unsigned) strlen(q) + 1);
-        strcpy(*p, q);
-        p++;
-        *p = NULL;
-    } else
-        *p = NULL;
+    if (*q)
+        *p++ = xstrdup (q);
+    *p = NULL;
 }
 
 /* Called from maininit.  Not static because also called from
@@ -472,6 +459,7 @@ main (int ac, string *av)
 #  ifdef WIN32
     _setmaxstdio(2048);
     SetErrorMode (SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);
+    setmode(fileno(stdin), _O_BINARY);
 #  endif
 
     lua_initialize(ac, av);
