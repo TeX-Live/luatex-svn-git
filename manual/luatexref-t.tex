@@ -2234,7 +2234,7 @@ by the \type{epdf} library, currently these are
 \type{Annots},
 \type{Annot},
 \type{Array},
-\type{Attribute}
+\type{Attribute},
 \type{Catalog},
 \type{Dict},
 \type{EmbFile},
@@ -2290,7 +2290,7 @@ All object constructors:
 <Annot>        = epdf.Annot(<XRef>, <Dict>, <Catalog>, <Ref>)
 <Annots>       = epdf.Annots(<XRef>, <Catalog>, <Object>)
 <Array>        = epdf.Array(<XRef>)
-<Attribute>    = epdf.Attribute(<Type>|<string>,<Object>)
+<Attribute>    = epdf.Attribute(<Type>,<Object>)| epdf.Attribute(<string>, <int>, <Object>)
 <Dict>         = epdf.Dict(<XRef>)
 <Object>       = epdf.Object()
 <PDFRectangle> = epdf.PDFRectangle()
@@ -2347,7 +2347,7 @@ The functions \type{StructElement_Type},
 <string>   = <Attribute>:getOwnerName()
 <Object>   = <Attribute>:getValue()
 <Object>   = <Attribute>:getDefaultValue
-<string>   = <Attribute>:getName(<Attribute::Type>)
+<string>   = <Attribute>:getName()
 <integer>  = <Attribute>:getRevision()
              <Attribute>:setRevision(<unsigned integer>)
 <boolean>  = <Attribute>:istHidden()

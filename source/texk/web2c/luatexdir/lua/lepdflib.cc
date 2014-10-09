@@ -165,22 +165,28 @@ static int l_new_Attribute(lua_State * L)
 {
     Attribute::Type t;
     const char *n;
+    int nlen;
     udstruct *uobj, *uout;
-    uobj = (udstruct *) luaL_checkudata(L, 2, M_Object);
-    if (uobj->pd != NULL && uobj->pd->pc != uobj->pc)
-        pdfdoc_changed_error(L);
 
     if (lua_type(L,1)==LUA_TNUMBER) {
+       uobj = (udstruct *) luaL_checkudata(L, 2, M_Object);
+       if (uobj->pd != NULL && uobj->pd->pc != uobj->pc)
+           pdfdoc_changed_error(L);
        t = (Attribute::Type) luaL_checkint(L, 1);
        uout = new_Attribute_userdata(L);
        uout->d = new Attribute(t, (Object *)uobj->d);
        uout->atype = ALLOC_LEPDF;
        uout->pc = uobj->pc;
        uout->pd = uobj->pd;
+
     } else if (lua_type(L,1)==LUA_TSTRING) {
        n = luaL_checkstring(L,1);
+       nlen = luaL_checkint(L,2);
+       uobj = (udstruct *) luaL_checkudata(L, 3, M_Object);
+       if (uobj->pd != NULL && uobj->pd->pc != uobj->pc)
+          pdfdoc_changed_error(L);
        uout = new_Attribute_userdata(L);
-       uout->d = new Attribute(n, (Object *)uobj->d);
+       uout->d = new Attribute(n, nlen, (Object *)uobj->d);
        uout->atype = ALLOC_LEPDF;
        uout->pc = uobj->pc;
        uout->pd = uobj->pd;
@@ -2079,8 +2085,8 @@ static int m_Object__gc(lua_State * L)
     printf("\n===== Object GC ===== uin=<%p>\n", uin);
 #endif
     if (uin->atype == ALLOC_LEPDF) {
-        // free() here seems to collides with lua gc
-	//((Object *) uin->d)->free();
+      // free() seems to collide with the lua gc
+      //((Object *) uin->d)->free();
         delete(Object *) uin->d;
     }
     return 0;
@@ -2758,6 +2764,7 @@ static const struct luaL_Reg TextSpan_m[] = {
 m_poppler_get_BOOL(Attribute,isOk);
 m_poppler_get_INT(Attribute,getType);
 m_poppler_get_INT(Attribute,getOwner);
+m_poppler_get_GOOSTRING(Attribute,getName);
 
 static int m_Attribute_getTypeName(lua_State * L)
 {
@@ -2813,15 +2820,6 @@ static int m_Attribute_getDefaultValue(lua_State * L)
     return 1;
 }
 
-static int m_Attribute_getName(lua_State * L)
-{
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Attribute);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-   lua_pushstring(L, ((Attribute *) uin->d)->getName());
-    return 1;
-}
 
 m_poppler_get_GUINT(Attribute,getRevision);
 
