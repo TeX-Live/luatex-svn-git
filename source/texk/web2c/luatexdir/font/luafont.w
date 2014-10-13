@@ -173,18 +173,24 @@ static void font_char_to_lua(lua_State * L, internal_font_number f, charinfo * c
     lua_pushnumber(L, get_charinfo_depth(co));
     lua_rawset(L, -3);
 
-    lua_pushstring(L, "italic");
-    lua_pushnumber(L, get_charinfo_italic(co));
-    lua_rawset(L, -3);
 
-    lua_pushstring(L, "top_accent");
-    lua_pushnumber(L, get_charinfo_top_accent(co));
-    lua_rawset(L, -3);
+    if (get_charinfo_italic(co) != 0) {
+       lua_pushstring(L, "italic");
+       lua_pushnumber(L, get_charinfo_italic(co));
+       lua_rawset(L, -3);
+    }
 
-    lua_pushstring(L, "bot_accent");
-    lua_pushnumber(L, get_charinfo_bot_accent(co));
-    lua_rawset(L, -3);
+    if (get_charinfo_top_accent(co) !=0) {
+       lua_pushstring(L, "top_accent");
+       lua_pushnumber(L, get_charinfo_top_accent(co));
+       lua_rawset(L, -3);
+    }
 
+    if (get_charinfo_bot_accent(co) != 0) {
+       lua_pushstring(L, "bot_accent")	;
+       lua_pushnumber(L, get_charinfo_bot_accent(co));
+       lua_rawset(L, -3);
+    }      
 
     if (get_charinfo_ef(co) != 0) {
         lua_pushstring(L, "expansion_factor");
@@ -203,7 +209,6 @@ static void font_char_to_lua(lua_State * L, internal_font_number f, charinfo * c
         lua_pushnumber(L, get_charinfo_rp(co));
         lua_rawset(L, -3);
     }
-
 
     if (font_encodingbytes(f) == 2) {
         lua_pushstring(L, "index");
