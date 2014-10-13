@@ -198,7 +198,7 @@ static void font_char_to_lua(lua_State * L, internal_font_number f, charinfo * c
         lua_rawset(L, -3);
     }
 
-    if (get_charinfo_lp(co) != 0) {
+    if (get_charinfo_rp(co) != 0) {
         lua_pushstring(L, "right_protruding");
         lua_pushnumber(L, get_charinfo_rp(co));
         lua_rawset(L, -3);
