@@ -18,7 +18,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: luatex.h 5022 2014-06-06 19:22:31Z oneiros $ */
+/* $Id: luatex.h 4718 2014-01-02 15:35:31Z taco $ */
 
 #ifndef LUATEX_H
 #  define LUATEX_H
@@ -74,7 +74,7 @@ extern void mk_shellcmdlist(char *);
 extern void init_shell_escape(void);
 extern int shell_cmd_is_allowed(const char *cmd, char **safecmd,
                                 char **cmdname);
-extern int runsystem(char *cmd);
+extern int runsystem(const char *cmd);
 
 
 #if defined(WIN32) && !defined(__MINGW32__) && defined(DLLPROC)

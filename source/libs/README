@@ -1,4 +1,4 @@
-$Id: README 35191 2014-09-18 09:45:34Z peter $
+$Id: README 35377 2014-10-15 07:49:29Z peter $
 Public domain.  Originally created by Karl Berry, 2005.
 
 Libraries we compile for TeX Live.
@@ -9,7 +9,7 @@ bypassing or using the original one.
 
 See also comments in ../texk/README.
 
-cairo 1.12.16 - checked 10sep13
+cairo 1.14.0 - checked 15oct14
   http://cairographics.org/releases/
 
 freetype2 2.5.3 - checked 8mar14
@@ -27,7 +27,7 @@ graphite2 1.2.4 - checked 2dec13
 harfbuzz 0.9.35 - checked 14aug14
   http://www.freedesktop.org/software/harfbuzz/release/
 
-icu 54.1 (rc) - checked 18sep14
+icu 54.1 (release) - checked 2oct14
   http://download.icu-project.org/files/icu4c/
 
 libpaper 1.1.24+nmu2 - checked 24oct13
@@ -49,7 +49,7 @@ mpfr 3.1.2 - checked 13mar13
 pixman 0.32.6 - checked 7jul14
   http://cairographics.org/releases/
 
-poppler 0.26.4 - checked 22aug14
+poppler 0.26.5 - checked 29sep14
   http://poppler.freedesktop.org/ - used by luatex and xetex
 
 potrace 1.11 - checked 12apr13
