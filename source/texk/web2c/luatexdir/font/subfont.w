@@ -20,8 +20,8 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: subfont.w 5020 2014-06-06 19:06:17Z luigi $"
-    "$URL: https://foundry.supelec.fr/svn/luatex/branches/experimental/source/texk/web2c/luatexdir/font/subfont.w $";
+    "$Id$"
+    "$URL$";
 
 #include "ptexlib.h"
 #include <string.h>

@@ -21,7 +21,7 @@
 #include "lua/luatex-api.h"
 
 static const char _svn_version[] =
-    "$Id: ltokenlib.c 5022 2014-06-06 19:22:31Z oneiros $ $URL: https://foundry.supelec.fr/svn/luatex/branches/experimental/source/texk/web2c/luatexdir/lua/ltokenlib.c $";
+    "$Id$ $URL$";
 
 #define  is_valid_token(L,i)  (lua_istable(L,i) && lua_rawlen(L,i)==3)
 #define  get_token_cmd(L,i)  lua_rawgeti(L,i,1)

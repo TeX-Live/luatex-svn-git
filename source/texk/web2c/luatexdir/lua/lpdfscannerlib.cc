@@ -52,7 +52,7 @@ extern "C" {
 #  include <lua/luatex-api.h>
 
 static const char _svn_version[] =
-    "$Id: lpdfscannerlib.cc 5022 2014-06-06 19:22:31Z oneiros $ $URL: https://foundry.supelec.fr/svn/luatex/branches/experimental/source/texk/web2c/luatexdir/lua/lpdfscannerlib.cc $";
+    "$Id$ $URL$";
 
 #define SCANNER "pdfscanner"
 

@@ -1,6 +1,6 @@
 #! /bin/sh
 # creates a c header file with the current subversion version
-# $Id: getluatexsvnversion.sh 5022 2014-06-06 19:22:31Z oneiros $
+# $Id$
 # This script should be run within the source directory.
 
 $DEBUG

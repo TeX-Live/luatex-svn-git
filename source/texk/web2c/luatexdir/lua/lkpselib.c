@@ -29,7 +29,7 @@
 #include <kpathsea/paths.h>
 
 static const char _svn_version[] =
-    "$Id: lkpselib.c 5022 2014-06-06 19:22:31Z oneiros $ $URL: https://foundry.supelec.fr/svn/luatex/branches/experimental/source/texk/web2c/luatexdir/lua/lkpselib.c $";
+    "$Id$ $URL$";
 
 static const unsigned filetypes[] = {
     kpse_gf_format,

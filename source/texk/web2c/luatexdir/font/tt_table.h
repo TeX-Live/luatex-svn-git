@@ -19,7 +19,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: tt_table.h 5016 2014-06-05 14:06:34Z oneiros $ */
+/* $Id$ */
 
 #ifndef _TT_TABLE_H_
 #  define _TT_TABLE_H_

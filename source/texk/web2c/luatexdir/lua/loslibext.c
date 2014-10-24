@@ -25,7 +25,7 @@
 #include <time.h>
 
 static const char _svn_version[] =
-    "$Id: loslibext.c 5022 2014-06-06 19:22:31Z oneiros $ $URL: https://foundry.supelec.fr/svn/luatex/branches/experimental/source/texk/web2c/luatexdir/lua/loslibext.c $";
+    "$Id$ $URL$";
 
 #if defined(_WIN32) || defined(__NT__)
 #  define MKDIR(a,b) mkdir(a)

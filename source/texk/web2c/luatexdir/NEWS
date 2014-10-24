@@ -2256,7 +2256,7 @@ Other news:
    we probably introduced new problems as well).
 
 * Most (all?) files now have a corrected Copyright header,
-   and link in $Id: NEWS 5022 2014-06-06 19:22:31Z oneiros $ and  $URL: https://foundry.supelec.fr/svn/luatex/branches/experimental/source/texk/web2c/luatexdir/NEWS $ into the object file.
+   and link in $Id$ and  $URL$ into the object file.
 
 * Some unnecessary files were removed from the distribution.
 
