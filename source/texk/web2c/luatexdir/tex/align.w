@@ -1135,6 +1135,7 @@ value is changed to zero and so is the next tabskip.
     if (cur_list.mode_field == mmode) {
         finish_display_alignment(p, q, pd);
     } else {
+	cur_list.prev_depth_field = pd; /* aux:=aux_save; */
         vlink(cur_list.tail_field) = p;
         if (p != null)
             cur_list.tail_field = q;
