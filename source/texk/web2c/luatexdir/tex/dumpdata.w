@@ -19,8 +19,8 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: dumpdata.w 5008 2014-05-24 14:16:11Z oneiros $"
-    "$URL: https://foundry.supelec.fr/svn/luatex/branches/experimental/source/texk/web2c/luatexdir/tex/dumpdata.w $";
+    "$Id: dumpdata.w 4563 2013-01-21 03:22:53Z khaled $"
+    "$URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/tex/dumpdata.w $";
 
 #include "ptexlib.h"
 
@@ -52,7 +52,7 @@ month, and day that the format file was created. We have |format_ident=0|
 before \TeX's tables are loaded. |FORMAT_ID| is a new field ot type int 
 suitable for the identification of a format: values between 0 and 256 
 included can not be used because in the previous format they are used
-for the length of  the name of the engine 
+for the length of  the name of the engine.
 @c
 str_number format_ident;
 str_number format_name;         /* principal file name */
