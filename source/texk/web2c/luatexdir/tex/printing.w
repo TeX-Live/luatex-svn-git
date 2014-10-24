@@ -19,8 +19,8 @@
 
 @ @c
 static const char _svn_version[] =
-    "$Id: printing.w 5026 2014-06-18 15:40:14Z luigi $"
-    "$URL: https://foundry.supelec.fr/svn/luatex/branches/experimental/source/texk/web2c/luatexdir/tex/printing.w $";
+    "$Id$"
+    "$URL$";
 
 #include "ptexlib.h"
 #include "lua/luatex-api.h"     /* for ptexbanner */

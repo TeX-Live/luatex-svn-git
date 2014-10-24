@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* $Id: conditional.h 5008 2014-05-24 14:16:11Z oneiros $ */
+/* $Id$ */
 
 #ifndef CONDITIONAL_H
 #  define CONDITIONAL_H
