@@ -49,9 +49,9 @@ after the |banner| line when \TeX\ is ready to start. For \.{INITEX} this
 string says simply `\.{(INITEX)}'; for other versions of \TeX\ it says,
 for example, `\.{(preloaded format=plain 1982.11.19)}', showing the year,
 month, and day that the format file was created. We have |format_ident=0|
-before \TeX's tables are loaded. |FORMAT_ID| is a new field ot type int 
+before \TeX's tables are loaded. |FORMAT_ID| is a new field of type int 
 suitable for the identification of a format: values between 0 and 256 
-included can not be used because in the previous format they are used
+(included) can not be used because in the previous format they are used
 for the length of  the name of the engine.
 @c
 str_number format_ident;
