@@ -155,8 +155,10 @@ PDF init_pdf_struct(PDF pdf)
 
     os->curbuf = PDFOUT_BUF;
     pdf->buf = os->buf[os->curbuf];
-
-    pdf->fb = new_strbuf(1, 100000000);
+    
+    /* Later  ttf_seek_outbuf(TABDIR_OFF + n * 4 * TTF_ULONG_SIZE) */
+    /* in ttf_init_font will need 236 bytes, so we start with 256 bytes as in pdftex. */
+    pdf->fb = new_strbuf(256, 100000000);
 
     pdf->stream_deflate = false;
     pdf->stream_writing = false;

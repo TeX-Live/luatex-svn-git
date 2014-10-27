@@ -426,6 +426,9 @@ static void register_fo_entry(fo_entry * fo)
 static void write_fontfile(PDF pdf, fd_entry * fd)
 {
     assert(is_included(fd->fm));
+    /* In principle we could replace the pdftex derived ttf.otf inclusion part */
+    /* by using the regular code for this and assigning indices and tounicodes */
+    /* to the character blobs, but for the moment we keep the current approach */
     if (is_cidkeyed(fd->fm)) {
         if (is_opentype(fd->fm))
             writetype0(pdf, fd);
