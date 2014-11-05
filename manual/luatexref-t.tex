@@ -5607,8 +5607,8 @@ The corresponding \quote {\type{pdf}} parameter names \luatex {pdf.pdfcatalog},
 removed in 0.79.0.
 
 %***********************************************************************
-\subsection{\luatex{pdf.pageattributes}, \luatex{pdf.pageresources},
-    \luatex{pdf.pagesattributes}}
+\subsection{\luatex{pdf.<set/get>pageattributes}, \luatex{pdf.<set/get>pageresources},
+    \luatex{pdf.<set/get>pagesattributes}}
 
 These variables offer a read|-|write interface to related
 token lists. The value types are strings. The variables have no
@@ -5617,9 +5617,9 @@ interaction with the corresponding \PDFTEX\ token registers
 They are written out to the \PDF\ file directly after
 the \PDFTEX\ token registers.
 
-The preferred interface is now \luatex {pdf.pageattributes}, \luatex
-{pdf.pagesattributes} and \luatex {pdf.setpageresources} for setting these
-properties and \luatex {pdf.pageattributes}, \luatex {pdf.getpageattributes} and
+The preferred interface is now \luatex {pdf.setpageattributes}, \luatex
+{pdf.setpagesattributes} and \luatex {pdf.setpageresources} for setting these
+properties and \luatex {pdf.getpageattributes}, \luatex {pdf.getpageattributes} and
 \luatex {pdf.getpageresources} for querying them.
 
 %***********************************************************************
