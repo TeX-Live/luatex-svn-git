@@ -920,7 +920,7 @@ maininit (int ac, string *av)
    happen in `topenin', then call the main body.  */
 
 int
-#if defined(WIN32) && !defined(__MINGW32__) && defined(DLLPROC)
+#if defined(DLLPROC)
 DLLPROC (int ac, string *av)
 #else
 main (int ac, string *av)
@@ -946,13 +946,13 @@ main (int ac, string *av)
         isalpha(av[ac-1][0]) &&
         (av[ac-1][1] == ':') &&
         (av[ac-1][2] == '\\')) {
-    for (pp=av[ac-1]+2; *pp; pp++) {
-      if (IS_KANJI(pp)) {
-        pp++;
-        continue;
-      }
-      if (*pp == '\\')
-        *pp = '/';
+      for (pp=av[ac-1]+2; *pp; pp++) {
+        if (IS_KANJI(pp)) {
+          pp++;
+          continue;
+        }
+        if (*pp == '\\')
+          *pp = '/';
       }
     }
   }

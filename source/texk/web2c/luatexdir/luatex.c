@@ -10,6 +10,14 @@
    #defines TeX or MF, which avoids the need for a special
    Makefile rule.  */
 
+/* We |#define DLLPROC| in order to build LuaTeX and LuajitTeX as DLL
+   for W32TeX.  */
+#if defined LuajitTeX
+#define DLLPROC dllluajittexmain
+#else
+#define DLLPROC dllluatexmain
+#endif
+
 #include "ptexlib.h"
 #include "luatex.h"
 #include "lua/luatex-api.h"
@@ -127,7 +135,7 @@ void mk_shellcmdlist(char *v)
     }
     if (*q)
         n++;
-    cmdlist = (char **) xmalloc(n  * sizeof(char *));
+    cmdlist = (char **) xmalloc(n * sizeof (char *));
     p = cmdlist;
     q = v;
     while ((r = strchr(q, ',')) != 0) {
@@ -466,7 +474,7 @@ static void myInvalidParameterHandler(const wchar_t * expression,
    happen in `topenin', then call the main body.  */
 
 int
-#if defined(WIN32) && !defined(__MINGW32__) && defined(DLLPROC)
+#if defined(DLLPROC)
 DLLPROC (int ac, string *av)
 #else
 main (int ac, string *av)
@@ -496,13 +504,13 @@ main (int ac, string *av)
           isalpha(av[ac-1][0]) &&
           (av[ac-1][1] == ':') &&
           (av[ac-1][2] == '\\')) {
-      for (pp=av[ac-1]+2; *pp; pp++) {
-        if (IS_KANJI(pp)) {
-          pp++;
-          continue;
-        }
-        if (*pp == '\\')
-          *pp = '/';
+        for (pp=av[ac-1]+2; *pp; pp++) {
+          if (IS_KANJI(pp)) {
+            pp++;
+            continue;
+          }
+          if (*pp == '\\')
+            *pp = '/';
         }
       }
     }

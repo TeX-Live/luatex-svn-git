@@ -2,16 +2,6 @@
 This file is in the public domain.
 
 ==============================================================
-Luatex beta-0.79.1 was released 20140329 (4971)
-==============================================================
-
-* Fixed a bug that caused crashes if pdf.info was not set.
-
-* The top-level build scripts have been merged again, use 
-    build.sh --jit 
-  to build luajittex as well as luatex itself
-
-==============================================================
 Luatex beta-0.79.0 was released 20140328 (4960)
 ==============================================================
 

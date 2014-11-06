@@ -1,3 +1,11 @@
+2014-11-03  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* texmfmp.c: Indentation.
+
+2014-10-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c: Use the decision about tex*.dll from ../texmfmp.h.
+
 2014-10-09  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* texmfmp.c: Apply some code from W32TeX.

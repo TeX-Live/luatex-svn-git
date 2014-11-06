@@ -1,3 +1,16 @@
+2014-11-05  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* psout.w: Sync with the trunk. Luigi fixes to avoid enormous number
+	of warnings.
+
+2014-10-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mpost.w [W32TeX]: Handle building of mpost.dll as for tex & Co.
+
+2014-09-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mp.w: Fixed an error message typo.
+
 2014-09-19  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
 
 	* pngout.w: Sync with the trunk. Luigi fixes a bug in png text output.
