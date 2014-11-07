@@ -121,7 +121,11 @@ fsyscp_xfopen (const char *filename, const char *mode)
         DEBUGF_START ();
         fprintf (stderr, "fsyscp_xfopen(%s [", filename);
         WriteConsoleW( GetStdHandle( STD_ERROR_HANDLE ), fnamew, wcslen( fnamew ), NULL, NULL );
+#if defined(_WIN64)
+        fprintf (stderr, "], %s) => 0x%I64x\n", mode, (unsigned __int64) f);
+#else
         fprintf (stderr, "], %s) => 0x%lx\n", mode, (unsigned long) f);
+#endif
         DEBUGF_END ();
     }
 #endif
@@ -154,7 +158,11 @@ fsyscp_fopen (const char *filename, const char *mode)
             DEBUGF_START ();
             fprintf (stderr, "fsyscp_fopen(%s [", filename);
             WriteConsoleW( GetStdHandle( STD_ERROR_HANDLE ), fnamew, wcslen( fnamew ), NULL, NULL );
+#if defined(_WIN64)
+            fprintf (stderr, "], %s) => 0x%I64x\n", mode, (unsigned __int64) f);
+#else
             fprintf (stderr, "], %s) => 0x%lx\n", mode, (unsigned long) f);
+#endif
             DEBUGF_END ();
         }
     }
@@ -167,6 +175,17 @@ fsyscp_fopen (const char *filename, const char *mode)
 /*
   popen by file system codepage
 */
+static int
+is_include_space(const char *s)
+{
+    char *p;
+    p = strchr(s, ' ');
+    if(p) return 1;
+    p = strchr(s, '\t');
+    if(p) return 1;
+    return 0;
+}
+
 FILE *
 fsyscp_popen (const char *command, const char *mode)
 {
@@ -178,7 +197,22 @@ fsyscp_popen (const char *command, const char *mode)
 #endif
     assert(command && mode);
 
-    commandw = get_wstring_from_fsyscp(command, commandw=NULL);
+    if (is_include_space (command)) {
+        const char *p;
+        char *command2, *q;
+        command2 = xmalloc (strlen (command) + 3);
+        p = command;
+        q = command2;
+        *q++ = '\"';
+        while (*p)
+            *q++ = *p++;
+        *q++ = '\"';
+        *q = '\0';
+        commandw = get_wstring_from_fsyscp(command2, commandw=NULL);
+        free (command2);
+    } else {
+        commandw = get_wstring_from_fsyscp(command, commandw=NULL);
+    }
     for(i=0; (modew[i]=(wchar_t)mode[i]); i++) {} /* mode[i] must be ASCII */
     f = _wpopen(commandw, modew);
 #if defined (KPSE_COMPAT_API)
@@ -188,7 +222,11 @@ fsyscp_popen (const char *command, const char *mode)
             DEBUGF_START ();
             fprintf (stderr, "fsyscp_popen(%s [", command);
             WriteConsoleW( GetStdHandle( STD_ERROR_HANDLE ), commandw, wcslen( commandw ), NULL, NULL );
+#if defined(_WIN64)
+            fprintf (stderr, "], %s) => 0x%I64x\n", mode, (unsigned __int64) f);
+#else
             fprintf (stderr, "], %s) => 0x%lx\n", mode, (unsigned long) f);
+#endif
             DEBUGF_END ();
         }
     }
@@ -280,17 +318,6 @@ fsyscp_spawnvp (int mode, const char *command, const char* const *argv)
     }
 
     return ret;
-}
-
-static
-int is_include_space (const char *s)
-{
-    char *p;
-    p = strchr (s, ' ');
-    if (p) return 1;
-    p = strchr (s, '\t');
-    if (p) return 1;
-    return 0;
 }
 
 /*
@@ -395,19 +422,10 @@ int win32_ungetc(int c, FILE *fp)
     return getc_buff[getc_len++] = c;
 }
 
-int win32_fputs(const char *str, FILE *fp)
+static int __win32_fputs(const char *str, HANDLE hStdout)
 {
-    const int fd = fileno(fp);
-    HANDLE hStdout;
     DWORD ret;
     wchar_t *wstr;
-
-    if (!((fd == fileno(stdout) || fd == fileno(stderr)) && _isatty(fd)
-        && file_system_codepage == CP_UTF8))
-        return fputs(str, fp);
-
-    hStdout = (fd == fileno(stdout)) ?
-        GetStdHandle(STD_OUTPUT_HANDLE) : GetStdHandle(STD_ERROR_HANDLE);
 
     wstr = get_wstring_from_utf8(str, wstr=NULL);
 
@@ -417,6 +435,44 @@ int win32_fputs(const char *str, FILE *fp)
     }
 
     free(wstr);
+    return ret;
+}
+
+int win32_fputs(const char *str, FILE *fp)
+{
+    const int fd = fileno(fp);
+    HANDLE hStdout;
+
+    if (!((fd == fileno(stdout) || fd == fileno(stderr)) && _isatty(fd)
+        && file_system_codepage == CP_UTF8))
+        return fputs(str, fp);
+
+    hStdout = (fd == fileno(stdout)) ?
+        GetStdHandle(STD_OUTPUT_HANDLE) : GetStdHandle(STD_ERROR_HANDLE);
+
+    return __win32_fputs(str, hStdout);
+}
+
+#define MAX_PROMPT_STR_SIZE 8192
+
+int win32_vfprintf(FILE *fp, const char *format, va_list argp)
+{
+    const int fd = fileno(fp);
+    HANDLE hStdout;
+    char buff[MAX_PROMPT_STR_SIZE];
+    int ret;
+
+    if (!((fd == fileno(stdout) || fd == fileno(stderr)) && _isatty(fd)
+        && file_system_codepage == CP_UTF8))
+        return vfprintf(fp, format, argp);
+
+    hStdout = (fd == fileno(stdout)) ?
+        GetStdHandle(STD_OUTPUT_HANDLE) : GetStdHandle(STD_ERROR_HANDLE);
+
+    ret = _vsnprintf(buff, sizeof(buff), format, argp);
+    if (__win32_fputs(buff, hStdout)==EOF) {
+        return EOF;
+    }
     return ret;
 }
 

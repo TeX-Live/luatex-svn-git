@@ -1,3 +1,61 @@
+2014-11-03  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* texmfmp.c: Indentation.
+
+2014-10-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c: Use the decision about tex*.dll from ../texmfmp.h.
+
+2014-10-09  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c: Apply some code from W32TeX.
+
+2014-08-22  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* texmfmp.c: Symplify support of multibyte characters, by
+	updating fsyscp_popen in kpathsea (Windows only).
+
+2014-08-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c: Avoid several compiler warnings (Windows only).
+
+2014-08-22  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* texmfmp.c: Support multibyte characters in pipe (Windows only).
+
+2014-07-23  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* texmfmp.c: Short-file-name convention is incompatible with
+	--src-specials (Windows only).
+
+2014-07-21  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* texmfmp.c: Use getnullstr() in maketexstring(), also in aleph.
+
+2014-07-19  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* texmfmp.c: Use getnullstr() in maketexstring(), as in pdfTeX,
+	in most cases in order to avoid an assertion error.
+
+2014-07-15  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.c: Replace the deprecated spawnvp() by _spawnvp(),
+	they differ for 64-bit MinGW.
+
+2014-07-04  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* texmfmp.c: Remove redundant cpp macros (w32 only).
+
+2014-06-20  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* texmfmp.c: Support short-file-name convention (w32 only).
+
+2014-05-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Update to e-pTeX and e-upTeX from Akira Kakuto.
+	* texmfmp.c (getfiledump): Move definition of this function
+	also used by e-(u)pTeX from ../pdftexdir/utils.c to here.
+
 2014-01-20  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
 
 	* printversion.c: 2013 ---> 2014.

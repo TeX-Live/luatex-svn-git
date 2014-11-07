@@ -1,3 +1,57 @@
+2014-11-05  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* psout.w: Sync with the trunk. Luigi fixes to avoid enormous number
+	of warnings.
+
+2014-10-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mpost.w [W32TeX]: Handle building of mpost.dll as for tex & Co.
+
+2014-09-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mp.w: Fixed an error message typo.
+
+2014-09-19  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* pngout.w: Sync with the trunk. Luigi fixes a bug in png text output.
+
+2014-09-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/libmplib.am: Build a separate library libmputil.a from
+	distributed *.[ch] files.  Move respective rules from here ...
+	* am/libmputil.am (new): ... to here.
+	* am/mplib.am (mpost_LDADD): Add libmputil.a.
+
+2014-09-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mpxout.w (bad_dvi_two): Correctly use mpx_abort().
+
+2014-09-03  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* lmplib.c, mp.w, mpmath.w, mpmathbinary.w, mpmathdecimal.w,
+	mpmathdouble.w, mpost.w, mpxout.w, psout.w: Sync with the trunk.
+
+2014-07-15  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mpxout.w: Replace the deprecated spawnvp() by _spawnvp(),
+	they differ for 64-bit MinGW.
+
+2014-06-21  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mpxout.w: Avoid undefined behaviour when char is signed.
+
+2014-06-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import metapost 1.999
+
+2014-04-23 Taco Hoekwater  <taco@luatex.org>
+
+	Import metapost 1.902
+
+2014-04-09 Taco Hoekwater  <taco@luatex.org>
+
+	Import metapost 1.901
+
 2014-03-16  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
 
 	* mp.w: An unimportant typo (1.890 --> 1.900).

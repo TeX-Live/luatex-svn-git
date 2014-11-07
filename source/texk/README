@@ -1,4 +1,4 @@
-$Id: README 33244 2014-03-21 08:11:03Z peter $
+$Id: README 35175 2014-09-15 09:15:29Z peter $
 Copyright 2006-2012 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -61,7 +61,7 @@ dvipos - ?
 
 dvipsk - maintained here, by us
 
-dvisvgm 1.5.2 - checked 13jan14
+dvisvgm 1.8.1 - checked 15sep14
   http://downloads.sourceforge.net/dvisvgm/
 
 gsftopk - from Paul Vojta's xdvi?
@@ -71,8 +71,8 @@ kpathsea - maintained here, by us
 lacheck - checked 25apr11
   http://mirror.ctan.org/support/lacheck/lacheck-1.26.tar.gz
 
-lcdf-typetools 2.100 - checked 9jan14
-  http://www.lcdf.org/type/lcdf-typetools-2.100.tar.gz
+lcdf-typetools 2.104 - checked 8jul14
+  http://www.lcdf.org/type/
 
 makeindexk - maintained here, by us
 
@@ -104,5 +104,5 @@ web2c - maintained here, by us - core web2c, plain tex, etc.
         The TeX variant dirs (pdftexdir, xetexdir, etc.)
         updated here by their respective maintainers.
 
-xdvik 22.86 - checked 7apr13
+xdvik 22.87 - checked 14apr14
   http://sourceforge.net/projects/xdvi/files/xdvik/

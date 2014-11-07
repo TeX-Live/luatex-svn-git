@@ -30,6 +30,11 @@
 #  include "lualib.h"
 #ifdef LuajitTeX
 #  include "luajit.h"
+#  define MyName "LuajitTeX"
+#  define my_name "luajittex"
+#else
+#  define MyName "LuaTeX"
+#  define my_name "luatex"
 #endif
 
 #ifdef __cplusplus
@@ -135,10 +140,8 @@ extern char *jithash_hashname ;
 #endif
 
 
-#ifdef LuajitTeX
-#define LUAJITTEX_HASHCHARS 6 /* todo: It must be like that one on lj_str.c */
-#else
-#define LUATEX_HASHCHARS 6  /* todo: It must be LUAI_HASHLIMIT! */
+#if !defined(LUAI_HASHLIMIT)
+#define LUAI_HASHLIMIT		5
 #endif
 extern unsigned char show_luahashchars ;
 
@@ -997,6 +1000,29 @@ init_lua_key_alias(term_and_log,"term and log")
         target = 2; /* text by default */ \
     } \
 } while(0)
+
+
+
+
+#ifdef __MINGW32__
+extern FILE *_cairo_win32_tmpfile( void );
+#define tmpfile() _cairo_win32_tmpfile()
+#endif /* __MINGW32__ */
+
+
+
+/*
+* experimental code (no primitive):
+
+   0 = all
+   1 = retain math nodes
+
+*/
+
+#define max_experimental_code 1
+#define MAX_EXPERIMENTAL_CODE_SIZE max_experimental_code+1
+/* to be indexed by i with 1<= i <=max_experimental_code */
+extern int experimental_code[MAX_EXPERIMENTAL_CODE_SIZE] ; 
 
 
 #endif                          /* LUATEX_API_H */

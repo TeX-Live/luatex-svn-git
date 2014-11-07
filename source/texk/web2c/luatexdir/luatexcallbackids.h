@@ -62,6 +62,7 @@ typedef enum {
     pre_dump_callback,
     start_file_callback, stop_file_callback,
     show_error_message_callback,show_lua_error_hook_callback,
+    pdf_stream_filter_callback,
     total_callbacks
 } callback_callback_types;
 

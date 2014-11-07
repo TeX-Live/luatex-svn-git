@@ -1,4 +1,4 @@
-% $Id: psout.w 1892 2013-03-22 10:21:05Z taco $
+% $Id: psout.w 2045 2014-11-05 11:33:13Z luigi $
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
 % See the <Show version...> code in mpost.w for more info.
@@ -52,7 +52,7 @@
 @d incr(A)   (A)=(A)+1 /* increase a variable by unity */
 @d decr(A)   (A)=(A)-1 /* decrease a variable by unity */
 @d negate(A)   (A)=-(A) /* change the sign of a variable */
-@d odd(A)   ((A)%2==1)
+@d odd(A)   (abs(A)%2==1)
 @d max_quarterword 0x3FFF /* largest allowable value in a |quarterword| */
 
 @c
@@ -1205,8 +1205,9 @@ static int check_fm_entry (MP mp, fm_entry * fm, boolean warn) {
     float d;
     fm_entry *fm;
     char fm_line[FM_BUF_SIZE], buf[FM_BUF_SIZE];
-    char *p, *q, *r, *s;
+    char *p, *q, *s;
     char warn_s[128];
+    char *r = NULL;
     switch (mp->ps->mitem->type) {
     case MAPFILE:
         p = fm_line;
@@ -1584,6 +1585,7 @@ void mp_read_psname_table (MP mp) ;
 void mp_read_psname_table (MP mp) {
   font_number k;
   char *s;
+  static boolean isread = false;
   if (mp->ps->mitem == NULL) {
     mp->ps->mitem = mp_xmalloc (mp,1,sizeof(mapitem));
     mp->ps->mitem->mode = FM_DUPIGNORE;
@@ -1591,8 +1593,11 @@ void mp_read_psname_table (MP mp) {
     mp->ps->mitem->map_line = NULL;
   }
   s = mp_xstrdup (mp,ps_tab_name);
-  mp->ps->mitem->map_line = s; 
-  fm_read_info (mp);
+  mp->ps->mitem->map_line = s;
+  if (!isread) {
+    isread = true; 
+    fm_read_info (mp);
+  }
   for (k=mp->last_ps_fnum+1;k<=mp->last_fnum;k++) {
     if (mp_has_fm_entry(mp, k, NULL)) {
       mp_xfree(mp->font_ps_name[k]);
@@ -5647,21 +5652,13 @@ if ( (gr_right_x(pp)==gr_x_coord(pp)) && (gr_left_y(pp)==gr_y_coord(pp)) ) {
   wx = fabs(gr_left_x(pp) - gr_x_coord(pp));
   wy = fabs(gr_right_y(pp) - gr_y_coord(pp));
 } else {
-  mp_number arg1, arg2, ret;
-  new_number(ret);
-  new_number(arg1);
-  new_number(arg2);
-  mp_set_number_from_double (&arg1, gr_left_x(pp)-gr_x_coord(pp));
-  mp_set_number_from_double (&arg2, gr_right_x(pp)-gr_x_coord(pp));
-  mp_pyth_add(mp, &ret, arg1, arg2);
-  wx = mp_number_to_double(ret);
-  mp_set_number_from_double (&arg1, gr_left_y(pp)-gr_y_coord(pp));
-  mp_set_number_from_double (&arg2, gr_right_y(pp)-gr_y_coord(pp));
-  mp_pyth_add(mp, &ret, arg1, arg2);
-  wy = mp_number_to_double(ret);
-  free_number(ret);
-  free_number(arg1);
-  free_number(arg2);
+  double a, b;
+  a = gr_left_x(pp)-gr_x_coord(pp);
+  b = gr_right_x(pp)-gr_x_coord(pp);
+  wx = sqrt(a*a + b*b);
+  a = gr_left_y(pp)-gr_y_coord(pp);
+  b = gr_right_y(pp)-gr_y_coord(pp);
+  wy = sqrt(a*a + b*b);
 }
 
 @ The path is considered ``essentially horizontal'' if its range of
@@ -5976,12 +5973,6 @@ static double mp_gr_choose_scale (MP mp, mp_graphic_object *p) ;
   /* |p| should point to a text node */
   double a,b,c,d,ad,bc; /* temporary values */
   double r;
-  mp_number arg1, arg2, ret, ret1, ret2;
-  new_number(ret);
-  new_number(ret1);
-  new_number(ret2);
-  new_number(arg1);
-  new_number(arg2);
   a=gr_txx_val(p);
   b=gr_txy_val(p);
   c=gr_tyx_val(p);
@@ -5992,19 +5983,13 @@ static double mp_gr_choose_scale (MP mp, mp_graphic_object *p) ;
   if ( d<0 ) negate(d);
   ad=(a-d)/2.0;
   bc=(b-c)/2.0;
-  mp_set_number_from_double(&arg1, (d+ad));
-  mp_set_number_from_double(&arg2, ad);
-  mp_pyth_add(mp, &ret1, arg1, arg2);
-  mp_set_number_from_double(&arg1, (c+bc));
-  mp_set_number_from_double(&arg2, bc);
-  mp_pyth_add(mp, &ret2, arg1, arg2);
-  mp_pyth_add(mp, &ret, ret1, ret2);
-  r = mp_number_to_double(ret);
-  free_number (ret);
-  free_number (ret1);
-  free_number (ret2);
-  free_number (arg1);
-  free_number (arg2);
+  a = (d+ad);
+  b = ad;
+  d = sqrt(a*a + b*b);
+  a = (c+bc);
+  b = bc;
+  c = sqrt(a*a + b*b);
+  r = sqrt(c*c + d*d);
   return r;
 }
 

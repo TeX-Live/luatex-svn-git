@@ -1,7 +1,7 @@
 /* kpsewhich -- standalone path lookup and variable expansion for Kpathsea.
    Ideas from Thomas Esser, Pierre MacKay, and many others.
 
-   Copyright 1995-2013 Karl Berry & Olaf Weber.
+   Copyright 1995-2014 Karl Berry & Olaf Weber.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -462,7 +462,9 @@ help_message (kpathsea kpse, string *argv)
   puts ("\nRecognized format names and their (abbreviations) and suffixes:");
   for (f = 0; f < kpse_last_format; f++) {
     const_string *ext;
-    kpathsea_init_format (kpse, (kpse_file_format_type)f);
+
+    const_string envvar_list = 
+      kpathsea_init_format_return_varlist (kpse, (kpse_file_format_type) f);
     printf ("%s", kpse->format_info[f].type);
 
     /* Show abbreviation if we accept one.  We repeatedly go through the
@@ -494,7 +496,12 @@ help_message (kpathsea kpse, string *argv)
       fputs (*ext, stdout);
     }
 
-    putchar ('\n');
+    printf ("  [variables: %s]\n", envvar_list);
+    
+    printf ("  [original path (from %s) = %s]\n",
+            kpse->format_info[f].path_source, kpse->format_info[f].raw_path);
+    printf ("  [expanded path = %s]\n",
+            kpse->format_info[f].path);
   }
 
   exit (0);
@@ -611,7 +618,7 @@ read_command_line (kpathsea kpse, int argc, string *argv)
 
     } else if (ARGUMENT_IS ("version")) {
       puts (kpathsea_version_string);
-      puts ("Copyright 2013 Karl Berry & Olaf Weber.\n\
+      puts ("Copyright 2014 Karl Berry & Olaf Weber.\n\
 License LGPLv2.1+: GNU Lesser GPL version 2.1 or later <http://gnu.org/licenses/lgpl.html>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n");

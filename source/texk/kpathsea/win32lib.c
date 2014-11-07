@@ -21,15 +21,42 @@
 #include <kpathsea/variable.h>
 #include <kpathsea/c-stat.h>
 
+static int is_include_space(const char *s)
+{
+  char *p;
+  p = strchr(s, ' ');
+  if(p) return 1;
+  p = strchr(s, '\t');
+  if(p) return 1;
+  return 0;
+}
+
 FILE * win32_popen (const char *cmd, const char *fmode)
 {
   char mode[3];
+  char *p, *q;
+  const char *cmd2;
+  FILE *ret;
 
   mode[0] = fmode[0];
   mode[1] = 'b';
   mode[2] = '\0';
 
-  return _popen (cmd, mode);
+  if (is_include_space (cmd)) {
+    cmd2 = xmalloc (strlen (cmd) + 3);
+    q = (char *)cmd2;
+    p = (char *)cmd;
+    *q++= '\"';
+    while(*p)
+      *q++ = *p++;
+    *q++ = '\"';
+    *q = '\0';
+    ret = _popen (cmd2, mode);
+    free ((char *)cmd2);
+    return ret;
+  } else {
+    return _popen (cmd, mode);
+  }
 }
 
 int win32_pclose (FILE *f)
@@ -218,15 +245,25 @@ drive name
       }
       if(*p == '\\') {
          *p = '\0';
-         if((hnd = FindFirstFile(q, &ffd)) == INVALID_HANDLE_VALUE) {
-            return 0;
+         if((*(p-2) == '\\' || p-1 == q) && *(p-1) == '.') {
+            cnt += 2;
+            if(cnt > len) return 0;
+            strcat(buff, "./");
+         } else if((*(p-3) == '\\' || p-2 == q) && *(p-2) == '.' && *(p-1) == '.') {
+            cnt += 3;
+            if(cnt > len) return 0;
+            strcat(buff, "../");
+         } else {
+            if((hnd = FindFirstFile(q, &ffd)) == INVALID_HANDLE_VALUE) {
+               return 0;
+            }
+            FindClose(hnd);
+            cnt += strlen(ffd.cFileName);
+            cnt++;
+            if(cnt > len) return 0;
+            strcat(buff, ffd.cFileName);
+            strcat(buff, "/");
          }
-         FindClose(hnd);
-         cnt += strlen(ffd.cFileName);
-         cnt++;
-         if(cnt > len) return 0;
-         strcat(buff, ffd.cFileName);
-         strcat(buff, "/");
          *p = '\\';
       }
    }
@@ -344,16 +381,6 @@ kpathsea_init_user_info (kpathsea kpse)
 }
 
 /* win32_system */
-static int is_include_space(const char *s)
-{
-  char *p;
-  p = strchr(s, ' ');
-  if(p) return 1;
-  p = strchr(s, '\t');
-  if(p) return 1;
-  return 0;
-}
-
 int win32_system(const char *cmd)
 {
   const char *p;
@@ -384,7 +411,7 @@ int win32_system(const char *cmd)
     *q++ = '"';
   *q = '\0';
   av[3] = NULL;
-  ret = spawnvp(_P_WAIT, av[0], av);
+  ret = _spawnvp(_P_WAIT, av[0], av);
   free(av[0]);
   free(av[1]);
   free(av[2]);

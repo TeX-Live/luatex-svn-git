@@ -1,3 +1,36 @@
+2014-07-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (run-texlinks): Install the required files.
+
+2014-07-27  Karl Berry  <karl@tug.org>
+
+	* Makefile.am (texlinks_prog): separate out from $(run_texlinks).
+
+2014-07-17  Karl Berry  <karl@tug.org>
+
+	* tcfmgr,
+	* fmtutil.sh,
+	* fmtutil-sys.sh:
+	* texconfig.1: prepend directory of executable to $PATH.
+
+2014-07-13  Karl Berry  <karl@tug.org>
+
+	* texconfig.sh,
+	* texconfig-sys.sh,
+	* texconfig-dialog.sh,
+	* texconfig.1: prepend directory of executable to $PATH.
+	(Testing with texconfig before propagating to updmap and fmtutil.)
+
+2014-05-09  Karl Berry  <karl@tug.org>
+
+	* texlinks.sh (install_link): force destination for
+	pdfcsplain to be pdftex.
+
+2014-04-21  Norbert Preining  <preining@logic.at>
+
+	* fmtutil.sh: new option --no-error-if-no-engine,
+	for the sake of luajittex, not available on all platforms.
+
 2013-07-31  Norbert Preining  <preining@logic.at>
 
 	* updmap-sys.sh: call updmap --sys  instead of epanding vars

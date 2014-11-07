@@ -1,4 +1,4 @@
-% $Id: mpost.w 1955 2014-03-10 10:30:30Z taco $
+% $Id: mpost.w 2007 2014-04-10 11:13:03Z taco $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
@@ -1027,7 +1027,8 @@ fprintf(stdout,
 "For more information about these matters, see the file\n"
 "COPYING.LESSER or <http://gnu.org/licenses/lgpl.html>.\n"
 "Original author of MetaPost: John Hobby.\n"
-"Author of the CWEB MetaPost: Taco Hoekwater.\n\n"
+"Author of the CWEB MetaPost: Taco Hoekwater.\n"
+"Current maintainer of MetaPost: Luigi Scarso.\n\n"
 );
   mpost_xfree(s);
   if (!dvitomp_only) {
@@ -1283,12 +1284,15 @@ if (options->job_name != NULL) {
 }
 options->job_name = job_name;
 
-@ For W32\TeX we can |#define DLLPROC dllmpostmain| in order to build \MP\
-as DLL.
+@ We |#define DLLPROC dllmpostmain| in order to build \MP\ as DLL for
+W32\TeX.
 
 @<Declarations@>=
+#define DLLPROC dllmpostmain
 #if defined(WIN32) && !defined(__MINGW32__) && defined(DLLPROC)
 extern __declspec(dllexport) int DLLPROC (int argc, char **argv);
+#else
+#undef DLLPROC
 #endif
 
 @ Now this is really it: \MP\ starts and ends here.
@@ -1306,7 +1310,7 @@ static char *cleaned_invocation_name(char *arg)
     return ret;
 }
 int
-#if defined(WIN32) && !defined(__MINGW32__) && defined(DLLPROC)
+#if defined(DLLPROC)
 DLLPROC (int argc, char **argv)
 #else
 main (int argc, char **argv)

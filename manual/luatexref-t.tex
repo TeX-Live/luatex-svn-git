@@ -23,7 +23,7 @@
 
 \setvariables
   [document]
-  [beta=0.79.0]
+  [beta=0.79.1]
 
 \starttext
 
@@ -2196,7 +2196,11 @@ xpdf functionality is being used since long time to embed \PDF\ files.
 The \type{epdf} library shall allow to scrutinize an external \PDF\ file.
 It gives access to its document structure,
 e.\,g., catalog, cross-reference table, individual pages, objects,
-annotations, info, and metadata.
+annotations, info, and metadata. The \LUATEX\ team is evaluating 
+the possibility of reducing the binding to a basic low level \PDF\ 
+primitives and delegate the complete set of functions 
+to an external shared object module.
+
 
 The \type{epdf} library is still in alpha state:
 \PDF\ access is currently read|-|only
@@ -2225,27 +2229,33 @@ knowledge of the \PDF\ file architecture is indispensable.
 
 There are many different userdata types defined
 by the \type{epdf} library, currently these are
-\type{Annot},
-\type{AnnotBorder},
 \type{AnnotBorderStyle},
+\type{AnnotBorder},
 \type{Annots},
+\type{Annot},
 \type{Array},
+\type{Attribute},
 \type{Catalog},
-\type{EmbFile},
 \type{Dict},
+\type{EmbFile},
 \type{GString},
-\type{Link},
 \type{LinkDest},
 \type{Links},
-\type{Object},
+\type{Link},
 \type{ObjectStream},
-\type{Page},
+\type{Object},
 \type{PDFDoc},
 \type{PDFRectangle},
+\type{Page},
 \type{Ref},
 \type{Stream},
-\type{XRef}, and
-\type{XRefEntry}.
+\type{StructElement},
+\type{StructTreeRoot}
+\type{TextSpan},
+\type{XRefEntry} 
+and
+\type{XRef}
+
 
 All these userdata names and the Lua access functions closely resemble
 the classes naming from the poppler header files,
@@ -2280,10 +2290,17 @@ All object constructors:
 <Annot>        = epdf.Annot(<XRef>, <Dict>, <Catalog>, <Ref>)
 <Annots>       = epdf.Annots(<XRef>, <Catalog>, <Object>)
 <Array>        = epdf.Array(<XRef>)
+<Attribute>    = epdf.Attribute(<Type>,<Object>)| epdf.Attribute(<string>, <int>, <Object>)
 <Dict>         = epdf.Dict(<XRef>)
 <Object>       = epdf.Object()
 <PDFRectangle> = epdf.PDFRectangle()
 \stopfunctioncall
+
+The functions \type{StructElement_Type}, 
+\type{Attribute_Type} and 
+\type{AttributeOwner_Type} return a hash table \type{{<string>,<integer>}}.
+
+
 
 \type{Annot} methods:
 
@@ -2318,6 +2335,28 @@ All object constructors:
 <Object>  = <Array>:getNF(<integer>)
 <string>  = <Array>:getString(<integer>)
 \stopfunctioncall
+
+
+\type{Attribute} methods:
+
+\startfunctioncall
+<boolean>  = <Attribute>:isOk()
+<integer>  = <Attribute>:getType()
+<integer>  = <Attribute>:getOwner()
+<string>   = <Attribute>:getTypeName()
+<string>   = <Attribute>:getOwnerName()
+<Object>   = <Attribute>:getValue()
+<Object>   = <Attribute>:getDefaultValue
+<string>   = <Attribute>:getName()
+<integer>  = <Attribute>:getRevision()
+             <Attribute>:setRevision(<unsigned integer>)
+<boolean>  = <Attribute>:istHidden()
+             <Attribute>:setHidden(<boolean>)
+<string>   = <Attribute>:getFormattedValue()
+<string>   = <Attribute>:setFormattedValue(<string>)
+\stopfunctioncall
+
+
 
 \type{Catalog} methods:
 
@@ -2561,6 +2600,66 @@ All object constructors:
 <Stream>   = <Stream>:getUndecodedStream()
 <Dict>     = <Stream>:getDict()
 \stopfunctioncall
+
+\type{StructElement} methods:
+
+\startfunctioncall
+<string>         = <StructElement>:getTypeName()
+<integer>        = <StructElement>:getType()
+<boolean>        = <StructElement>:isOk()
+<boolean>        = <StructElement>:isBlock()
+<boolean>        = <StructElement>:isInline()
+<boolean>        = <StructElement>:isGrouping()
+<boolean>        = <StructElement>:isContent()
+<boolean>        = <StructElement>:isObjectRef()
+<integer>        = <StructElement>:getMCID()
+<Ref>            = <StructElement>:getObjectRef()
+<Ref>            = <StructElement>:getParentRef()
+<boolean>        = <StructElement>:hasPageRef()
+<Ref>            = <StructElement>:getPageRef()
+<StructTreeRoot> = <StructElement>:getStructTreeRoot()
+<string>         = <StructElement>:getID()
+<string>         = <StructElement>:getLanguage()
+<integer>        = <StructElement>:getRevision()
+                   <StructElement>:setRevision(<unsigned integer>)
+<string>         = <StructElement>:getTitle()
+<string>         = <StructElement>:getExpandedAbbr()
+<integer>        = <StructElement>:getNumChildren()
+<StructElement>  = <StructElement>:getChild()
+                 = <StructElement>:appendChild<StructElement>)
+<integer>        = <StructElement>:getNumAttributes()
+<Attribute>      = <StructElement>:geAttribute(<integer>)
+<string>         = <StructElement>:appendAttribute(<Attribute>)
+<Attribute>      = <StructElement>:findAttribute(<Attribute::Type>,boolean,Attribute::Owner)
+<string>         = <StructElement>:getAltText()
+<string>         = <StructElement>:getActualText()
+<string>         = <StructElement>:getText(<boolean>)
+<table>          = <StructElement>:getTextSpans()
+\stopfunctioncall
+
+
+\type{StructTreeRoot} methods:
+
+\startfunctioncall
+<StructElement> = <StructTreeRoot>:findParentElement
+<PDFDoc>        = <StructTreeRoot>:getDoc
+<Dict>          = <StructTreeRoot>:getRoleMap
+<Dict>          = <StructTreeRoot>:getClassMap
+<integer>       = <StructTreeRoot>:getNumChildren
+<StructElement> = <StructTreeRoot>:getChild
+                  <StructTreeRoot>:appendChild
+<StructElement> = <StructTreeRoot>:findParentElement
+\stopfunctioncall
+
+
+\type{TextSpan} han only one method:
+
+\startfunctioncall
+<string> = <TestSpan>:getText()
+\stopfunctioncall
+
+
+
 
 \type{XRef} methods:
 
@@ -5299,6 +5398,7 @@ against the upvalue \type{id}:
 \stopfunctioncall
 
 Looks for and returns the next \type{math_node} following the \type{start}.
+If the given node is a math endnode this helper return that node, else it follows the list and return the next math endnote. If no such node is found nil is returned.
 
 \subsubsection{\luatex{node.remove}}
 
@@ -5507,8 +5607,8 @@ The corresponding \quote {\type{pdf}} parameter names \luatex {pdf.pdfcatalog},
 removed in 0.79.0.
 
 %***********************************************************************
-\subsection{\luatex{pdf.pageattributes}, \luatex{pdf.pageresources},
-    \luatex{pdf.pagesattributes}}
+\subsection{\luatex{pdf.<set/get>pageattributes}, \luatex{pdf.<set/get>pageresources},
+    \luatex{pdf.<set/get>pagesattributes}}
 
 These variables offer a read|-|write interface to related
 token lists. The value types are strings. The variables have no
@@ -5517,9 +5617,9 @@ interaction with the corresponding \PDFTEX\ token registers
 They are written out to the \PDF\ file directly after
 the \PDFTEX\ token registers.
 
-The preferred interface is now \luatex {pdf.pageattributes}, \luatex
-{pdf.pagesattributes} and \luatex {pdf.setpageresources} for setting these
-properties and \luatex {pdf.pageattributes}, \luatex {pdf.getpageattributes} and
+The preferred interface is now \luatex {pdf.setpageattributes}, \luatex
+{pdf.setpagesattributes} and \luatex {pdf.setpageresources} for setting these
+properties and \luatex {pdf.getpageattributes}, \luatex {pdf.getpageattributes} and
 \luatex {pdf.getpageresources} for querying them.
 
 %***********************************************************************

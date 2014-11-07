@@ -88,7 +88,7 @@
 #include <kpathsea/c-std.h>    /* <stdio.h>, <math.h>, etc.  */
 #endif
 
-#include <kpathsea/c-proto.h>  /* Macros to discard or keep prototypes.  */
+#include <kpathsea/c-proto.h>  /* KPSEDLL.  */
 
 /*
   This must be included after "c-proto.h"
@@ -137,7 +137,6 @@
    A violation of (1) is handled here through static inline wrapper
    functions.  */
 
-#include <stdarg.h>
 
 #undef snprintf
 #undef vsnprintf

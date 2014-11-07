@@ -231,12 +231,12 @@ maketex (kpathsea kpse, kpse_file_format_type format, string* args)
       }
     }
     fprintf(stderr, "\nThe command name is %s\n", fullbin);
-    hchild = (HANDLE)spawnvp(_P_NOWAIT, fullbin, (const char * const *) args);
+    hchild = (HANDLE)_spawnvp(_P_NOWAIT, fullbin, (const char * const *) args);
 
     _dup2(hstdout, fileno(stdout));
     close(hstdout);
 
-    if((int)hchild == -1) {
+    if(hchild == (HANDLE)(-1)) {
       close(childpipe[0]);
       goto labeldone;
     }

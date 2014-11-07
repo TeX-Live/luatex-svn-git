@@ -1,3 +1,152 @@
+2014-10-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* db.c (db_names): Use initialized non-const strings to avoid warning.
+
+2014-10-19  Karl Berry  <karl@tug.org>
+
+	* db.c (db_names): list DB_NAME_LC first, and list both always,
+	dropping WIN32 conditional.
+	(init_db): check at runtime if ls-R and ls-R are same_file_p,
+	and only read one on any system, not just hardwiring Windows.
+	Output debugging lines.  Basic patch from Adam Maxwell
+	(since MacOSX now uses a case-preserving filesystem).
+	
+	* db.c (DB_HASH_SIZE): increase per current texmf-dist/ls-R.
+	
+2014-10-17  Karl Berry  <karl@tug.org>
+
+	* line.c (getc, FLOCKFILE, FUNLOCKFILE): #define to getc_unlocked, etc.
+	(get_line): call them, so we lock once per call instead of
+	once per character read.  Change from Adam Maxwell <amaxwell@mac.com>.
+	https://email.esm.psu.edu/pipermail/macosx-tex/2014-October/053026.html
+
+2014-09-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmf.cnf (TEX.upmpost): Added.
+
+2014-08-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* knj.c (win32_fputs): Drop unused variables.
+
+2014-08-22  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* knj.c: Update fsyscp_popen().
+
+2014-08-22  TANAKA Takuji  <KXD02663@nifty.ne.jp>
+
+	* knj.[ch], c-std.h, config.h: Add a new function win32_vfprintf()
+	(Windows only)
+
+2014-07-22  Karl Berry  <karl@tug.org>
+
+	* tex-file.h,
+	* tex-file.c (kpathsea_init_format_return_varlist): new fn
+	to expose list of environment/config variable names considered.
+	* kpsewhich.c (help_message): use it.
+
+2014-07-18  Karl Berry  <karl@tug.org>
+
+	* mktex.opt: don't basename-ify the program name, that's
+	potentially useful information.
+	
+	* mktexdir,
+	* mktexlsr, 
+	* mktexmf,
+	* mktexnam,
+	* mktexpk,
+	* mktextfm,
+	* mktexupd: prepend to PATH via a simple method for Unix
+	(but leave the complicated DOS version in mktexlsr).
+
+2014-07-15  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tex-make.c, win32lib.c: Replace the deprecated spawnvp() by
+	_spawnvp(), they differ for 64-bit MinGW.
+
+2014-07-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* debug.c, hash.c, knj.c, tex-make.c: [WIN64] Avoid cast from
+	pointer to integer of different size.
+
+2014-06-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mingw32.h: Require WINVER >= 0x0500.
+
+2014-06-20  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* win32lib.c: Fix a potential bug (w32 only).
+
+2014-06-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* c-ctype.h: Avoid useless char subscript warnings.
+
+2014-06-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (kpathsea.h): Drop c-auto.h, c-ctype.h, c-errno.h,
+	and more from the list of files; they are included via others.
+	* version.ac: Update version number 6.2.0 => 6.2.1dev.
+
+2014-05-07  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* win32lib.c: Update win32_popen() (w32 only).
+
+2014-05-05  Karl Berry  <karl@tug.org>
+
+	* doc/kpathsea.texi,
+	* doc/unixtex.texi,
+	* README,
+	* PROJECTS: omit old information about building and installing;
+	general updates (though plenty more could be done).
+	
+	* BUGS,
+	* doc/bugs.texi,
+	* doc/hier.texi,
+	* doc/install.texi: remove.
+	* Makefile.am,
+	* doc/Makefile.am: update accordingly.
+
+2014-04-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (normal_headers): Add simpletypes.h.
+	* simpletypes.h: Don't '#include <kpathsea/simpletypes.h>'.
+
+2014-04-29  Karl Berry  <karl@tug.org>
+
+	* simpletypes.h: new file, defining just boolean, string, address, etc.
+	* pathsearch.h: restore #include of str-llist.h before types.h,
+	as it should be.
+	* str-llist.h: #include simpletypes.h instead of types.h.
+	* types.h: #include simpletypes.h.
+
+2014-04-22  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (guess_input_kanji_encoding): set to 1,
+	per Akira and Norbert.
+
+2014-04-17  Karl Berry  <karl@tug.org>
+
+	* version.ac: 6.2.0 (without the dev) for 2014 pretest.
+	* NEWS,
+	* texmf.cnf,
+	* kpsewhich.c: 2014.
+
+	* texmf.cnf (TEXINPUTS.pdfx{latex,mex,tex}): this engine has
+	not existed for a long time.  Remove.
+	(TEXINPUTS.luajittex): same as .luatex.
+
+2014-04-09  Karl Berry  <karl@tug.org>
+
+	* pathsearch.h: with deep regret, #include types.h before
+	str-llist.h, since otherwise str_llist_type is not defined
+	in its use within types.h and a simple #include
+	<kpathsea/pathsearch.h> fails.  Reported by Norman Gray,
+	tex-k 14 Apr 2013 12:23:50,
+	http://tug.org/pipermail/tex-k/2013-April/002496.html
+
+2014-04-09  Luigi Scarso  <luigi.scarso@gmail.com>
+
+	* mingw32.h [MinGW64]: Avoid warning due to redefining popen.
+
 2014-03-21  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* Makefile.am, configure.ac, getopt.h: Revert previous change.

@@ -1,3 +1,40 @@
+2014-11-03  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* luatex.c: Indentation.
+
+2014-10-31  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* luatex.[ch] [W32TEX]: Handle DLLPROC as for TeX & Co.
+	* am/luatex.am: Define LuajitTeX.
+
+2014-10-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* luatex.[ch]: More sync with ../texmfmp.h and ../lib/texmfmp.c.
+
+2014-10-09  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* luatex.c: Apply some code from W32TeX.
+
+2014-10-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* luatex.c: Sync with some recent changes in ../lib/texmfmp.c
+	(and luatexfirst.c from W32TeX).
+
+2014-09-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/luatex.am: Factor out common *_LDADD and *_DEPENDENCIES.
+
+2014-08-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* image/writepng.w: Avoid PNG warnings.
+
+2014-07-15  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* image/epdf.h, lua/lepdflib.cc: Use code for poppler >= 0.25
+	with <StructTreeRoot.h> or code for poppler <= 0.24 without.
+	* fake/StructTreeRoot.h (removed): Obsolete.
+	* am/libluatex.am: Adapted.
+
 2014-07-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* luasocket/src/wsocket.h: Avoid redefinition of _WIN32_WINNT.
@@ -66,55 +103,13 @@
 
 	Import LuaTeX snapshot 0.79.0 from LuaTeX repository (r4903).
 
-2014-03-14  Peter Breitenlohner  <peb@mppmu.mpg.de>
-
-	* bitlib/lbitlib.c (removed), lua/luatex-api.h, am/luamisc.am:
-	Revert change from 2014-02-07, keep lbitlib.c in LuaJIT-2.0.3.
-
-2014-03-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
-
-	* am/luatex.am: Use LUAJIT_LDEXTRA instead of luajittex_extra.
-
-2014-03-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
-
-	* luafilesystem/src/lfs.c: Avoid to redefine _O_TEXT, _O_BINARY.
-
-2014-02-17  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
-
-	* utils/utils.w: Typo in a comment. Simplify rint() for W32.
-	Thanks Peter.
-
-2014-02-12  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
-
-	* tex/mlist.w: Luigi fixes a bug (r4804).
-
-2014-02-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
-
-	* lua/luanode.w, tex/linebreak.w, tex/mlist.w,
-	tex/texnodes.w, tex/textoken.w: Convert CRLF => NL.
-
-2014-02-11  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
-
-	* lua/lnodelib.c, lua/ltexlib.c, lua/luanode.w,
-	luafontloader/fontforge/fontforge/parsettf.c,
-	luafontloader/src/luafflib.c, luapeg/lpeg.c, luapeg/lpeg.h,
-	luatex_svnversion.h, tex/linebreak.w, tex/mlist.w,
-	tex/texnodes.w, tex/textoken.w: Import from r4794.
-
 2014-02-10  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
 
 	* lua/luatex-api.h: MSC version has luaopen_bit32() in dll.
 
 2014-02-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
-	* bitlib/lbitlib.c (new): Copied from
-	../../../libs/luajit/LuaJIT-2.0.2/src/lbitlib.c.
 	* lua/luatex-api.h: Declare luaopen_bit32();
-	* am/luamisc.am: Add the new file.
-
-2014-02-06  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
-
-	* luatex.c: Change engine_name for luajittex.
 
 2014-02-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
 

@@ -18,16 +18,16 @@ KPSE_BASIC([luajit native])
 AC_PROG_CC
 AC_PROG_LN_S
 
+AC_CHECK_SIZEOF([void *])
+AS_IF([test "x$ac_cv_sizeof_void_p" != "x$HOST_PTR_SIZE"], [dnl
+HOST_PTR_BITS=`expr 8 \* $HOST_PTR_SIZE`
+AC_MSG_WARN([pointer size mismatch in cross-build; use a ${HOST_PTR_BITS}bit compiler BULDCC.])
+AS_CASE([$HOST_PTR_BITS],
+        [32|64], [CC="$CC -m$HOST_PTR_BITS"; AC_MSG_WARN([trying: $CC])])])
+
 KPSE_LUAJIT_DEFINES
 
-lj_save_LIBS=$LIBS
-AC_SEARCH_LIBS([pow], [m])
-LIBS=$lj_save_LIBS
-AS_CASE([$ac_cv_search_pow],
-        ["none required"], [],
-        [no], [AC_MSG_ERROR([Sorry, did not find pow()])],
-        [MATH_LIB=$ac_cv_search_pow])
-AC_SUBST([MATH_LIB])
+KPSE_SEARCH_LIBS([MATH_LIB], [pow], [m])
 
 AC_SUBST([DASM_ARCH])
 

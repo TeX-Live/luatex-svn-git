@@ -97,6 +97,7 @@ extern void tex_error(const char *msg, const char **hlp);
 
 extern void back_error(void);
 extern void ins_error(void);
+extern void flush_err(void);
 
 extern void char_warning(internal_font_number f, int c);
 

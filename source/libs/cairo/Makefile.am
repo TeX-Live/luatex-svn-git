@@ -1,13 +1,13 @@
 ## Proxy Makefile.am to build cairo for TeX Live.
 ##
 ##   Copyright (C) 2012 Taco Hoekwater <taco@metatex.org>
-##   Copyright (C) 2013 Peter Breitenlohner <tex-live@tug.org>
+##   Copyright (C) 2013, 2014 Peter Breitenlohner <tex-live@tug.org>
 ##
 ##   This file is free software; the copyright holder
 ##   gives unlimited permission to copy and/or distribute it,
 ##   with or without modifications, as long as this notice is preserved.
 ##
-## We want to re-distribute the whole original cairo source tree.
+## We want to re-distribute the whole cairo source tree.
 ##
 EXTRA_DIST = $(CAIRO_TREE)
 
@@ -72,6 +72,7 @@ libcairo_a_SOURCES = \
 	@CAIRO_TREE@/src/cairo-image-info.c \
 	@CAIRO_TREE@/src/cairo-image-source.c \
 	@CAIRO_TREE@/src/cairo-image-surface.c \
+	@CAIRO_TREE@/src/cairo-line.c \
 	@CAIRO_TREE@/src/cairo-lzw.c \
 	@CAIRO_TREE@/src/cairo-matrix.c \
 	@CAIRO_TREE@/src/cairo-mask-compositor.c \
@@ -154,6 +155,7 @@ libcairo_a_SOURCES += \
 	@CAIRO_TREE@/src/cairo-xcb-connection-core.c \
 	@CAIRO_TREE@/src/cairo-xcb-connection-render.c \
 	@CAIRO_TREE@/src/cairo-xcb-connection-shm.c \
+	@CAIRO_TREE@/src/cairo-xcb-resources.c \
 	@CAIRO_TREE@/src/cairo-xcb-screen.c \
 	@CAIRO_TREE@/src/cairo-xcb-shm.c \
 	@CAIRO_TREE@/src/cairo-xcb-surface.c \

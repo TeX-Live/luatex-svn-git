@@ -121,6 +121,7 @@ extern char *makecfilename(integer s);
 extern void getcreationdate(void);
 extern void getfilemoddate(integer s);
 extern void getfilesize(integer s);
+extern void getfiledump(integer s, int offset, int length);
 #endif
 
 /* pdftex etc. except for tex use these for pipe support */
@@ -140,6 +141,8 @@ extern int runsystem (const char *cmd);
 extern void maininit (int ac, string *av);
 #if defined(WIN32) && !defined(__MINGW32__) && defined(DLLPROC)
 extern __declspec(dllexport) int DLLPROC (int ac, string *av);
+#else
+#undef DLLPROC
 #endif
 
 /* All but the Omega family use this. */

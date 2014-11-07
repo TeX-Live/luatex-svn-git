@@ -1418,7 +1418,10 @@ void math_limit_switch(void)
         NULL
     };
     if (head != tail) {
-        if (type(tail) == simple_noad) {
+         if (type(tail) == simple_noad &&
+             (subtype(tail) == op_noad_type_normal ||
+              subtype(tail) == op_noad_type_limits ||
+              subtype(tail) == op_noad_type_no_limits)) {
             subtype(tail) = (quarterword) cur_chr;
             return;
         }

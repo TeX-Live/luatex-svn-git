@@ -1,3 +1,34 @@
+2014-11-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import poppler-0.28.0.
+	* version.ac: Adjust.
+
+2014-09-29  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import poppler-0.26.5.
+	* version.ac: Adjust.
+
+2014-08-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import poppler-0.26.4.
+	* version.ac: Adjust.
+
+2014-07-21  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import poppler-0.26.3.
+	* version.ac: Adjust.
+
+2014-06-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import poppler-0.26.2.
+	* version.ac: Adjust.
+
+2014-06-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import poppler-0.26.1.
+	* version.ac: Adjust.
+	* Makefile.am: Drop the obsolete ACLOCAL_AMFLAGS.
+
 2014-03-27  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	Import poppler-0.25.2.

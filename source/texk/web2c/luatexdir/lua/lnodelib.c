@@ -1984,14 +1984,18 @@ static int lua_nodelib_end_of_math(lua_State * L)
     halfword *n;
     halfword t;
     if (lua_isnil(L, 1))
-        return 1;               /* the nil itself */
+        return 0;
     n = check_isnode(L, 1);
     t = *n;
     if (t == null)
-        return 1;               /* the old userdata */
+        return 0;
+    if (type(t)==math_node && (subtype(t)==1)) {
+        lua_nodelib_push_fast(L, t);
+        return 1;
+    }
     while (vlink(t) != null) {
-        t = vlink(t); /* skip first node */
-        if (t && type(t)==math_node) {
+        t = vlink(t);
+        if (t && (type(t)==math_node) && (subtype(t)==1)) {
             lua_nodelib_push_fast(L, t);
             return 1;
         }
@@ -2005,18 +2009,22 @@ static int lua_nodelib_direct_end_of_math(lua_State * L)
 {
     halfword n;
     n = (halfword) lua_tonumber(L, 1);
-    if (n != null) {
-        while (vlink(n) != null) {
-            n = vlink(n); /* skip first node */
-            if (n && type(n)==math_node) {
-                lua_pushnumber(L, n);
-                return 1;
-            }
+    if (n == null)
+        return 0;
+    if ((type(n)==math_node && (subtype(n)==1))) {
+        lua_pushnumber(L, n);
+        return 1;
+    }
+    while (vlink(n) != null) {
+        n = vlink(n);
+        if (n && (type(n)==math_node) && (subtype(n)==1)) {
+            lua_pushnumber(L, n);
+            return 1;
         }
     }
-    lua_pushnil(L);
     return 0;
 }
+
 
 /* node.has_attribute (gets attribute) */
 

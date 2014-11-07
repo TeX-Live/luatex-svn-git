@@ -1,10 +1,11 @@
 #!/bin/sh
+# $Id: fmtutil.sh 34641 2014-07-17 16:38:18Z karl $
 # fmtutil - utility to maintain format files.
 # Public domain.  Originally written by Thomas Esser.
 # Run with --help for usage.
 
 # program history:
-#   further changes in texk/tetex/ChangeLog.
+#   further changes in texk/texlive/tl_scripts/ChangeLog.
 #   2007-01-04  patch by JK to support $engine subdir (enabled by default)
 #   Fr Apr  8 19:15:05 CEST 2005 cleanup now has an argument for the return code
 #   Do Mar 02 10:42:31 CET 2006 add tmpdir to TEXFORMATS
@@ -57,12 +58,15 @@ unset RUNNING_BSH
 # hack around a bug in zsh:
 test -n "${ZSH_VERSION+set}" && alias -g '${1+"$@"}'='"$@"'
 
+# preferentially use subprograms from our own directory.
+mydir=`echo "$0" | sed 's,/[^/]*$,,'`
+mydir=`cd "$mydir" && pwd`
+PATH="$mydir:$PATH"; export PATH
+
+version='$Id: fmtutil.sh 34641 2014-07-17 16:38:18Z karl $'
 progname=fmtutil
 argv0=$0
-version='$Id: fmtutil.sh 30365 2013-05-10 06:53:44Z peter $'
-
 cnf=fmtutil.cnf   # name of the config file
-export PATH
 
 ###############################################################################
 # cleanup()
@@ -104,9 +108,11 @@ Optional behavior:
   --cnffile FILE             read FILE instead of fmtutil.cnf.
   --fmtdir DIRECTORY
   --no-engine-subdir         don't use engine-specific subdir of the fmtdir
+  --no-error-if-no-engine ENGINE1,ENGINE2,...
+                             exit successfully even if the required engine
+                               is missing, if it is included in this list
   --no-error-if-no-format    exit successfully if no format is selected
   --quiet                    be silent
-  --test                     (not implemented, just for compatibility)
   --dolinks                  (not implemented, just for compatibility)
   --force                    (not implemented, just for compatibility)
 
@@ -501,6 +507,10 @@ main()
           cmd=listcfg;;
       --no-error-if-no-format)
           noAbortFlag=true;;
+      --no-error-if-no-engine)
+          shift; noErrorEngines=$1;;
+      --no-error-if-no-engine=*)
+          noErrorEngines=`echo "$1" | sed 's/--no-error-if-no-engine=//'`;;
       --quiet|-q|--silent)
           verboseFlag=false;;
       --test|--dolinks|--force)
@@ -756,6 +766,18 @@ run_initex()
   esac
   mktexfmt_loop=$mktexfmt_loop:$format/$engine
   export mktexfmt_loop
+
+  # check for existence of engine and ignored setting
+  if `which $engine >/dev/null` ; then
+    : nothing to be done
+  else
+    # add additional commas at front and back and search for comma separated
+    # engine
+    if case ,$noErrorEngines, in *",$engine,"*) true ;; *) false;; esac ; then
+      verboseMsg "$progname: not building $format due to missing engine $engine."
+      return
+    fi
+  fi
 
   verboseMsg "$progname: running \`$engine -ini  $tcxflag $jobswitch $prgswitch $texargs' ..."
 

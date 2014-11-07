@@ -1,3 +1,67 @@
+2014-11-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mf.ch, tftopl.ch, vftovp.ch: Add stringcast to avoid printing
+	strings as numbers.
+
+2014-10-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.h: Define here whether or not to build tex*.dll.
+
+2014-10-28  Karl Berry  <karl@tug.org>
+
+	* enctex.ch: patch for \^^ab control sequences from Petr Olsak.
+
+2014-09-25  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* w2c/config.h: Bug fix: integer64 must always be a 64bit type,
+	even when long and off_t are not (detected by Norbert Preinig).
+
+2014-09-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Include fragments libmputil.am and pmpost.am.
+	* ac/web2c.ac: Add pMetaPost and upMetaPost.
+	* pmpostdir/ (new): Code for pMetaPost and upMetaPost.
+
+2014-08-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Drop redundant AM_CONDITIONAL MP.
+	
+2014-07-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Check for <StructTreeRoot.h> (poppler 0.25 or
+	better) and define HAVE_STRUCTTREEROOT_H if found.
+	
+2014-07-09  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* ac/web2c.ac: Drop configure option --disable-omfonts.
+	* configure.ac: Drop Automake conditional OMFONTS.
+
+2014-06-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Drop the obsolete NATIVE_TEXLIVE_BUILD.
+
+2014-05-20  Karl Berry  <karl@tug.org>
+
+	* doc/web2c.texi (Languages and hyphenation): consistent
+	ordering in menu vs. sectioning.
+
+2014-05-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Update to e-pTeX and e-upTeX from Akira Kakuto.
+	* texmfmp.h (getfiledump): Move declaration from
+	pdftexdir/ptexlib.h to here.
+
+2014-05-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* dvicopy.ch, dvicopy.web: Fixed a non-Web2C bug and several
+	typos, mostly from Udo Wermuth <u.wermuth@icloud.com>.
+
+2014-05-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mftraptest: Separate generic and capsule diffs.
+	* triptest: Separate generic and glue rounding diffs.
+	* triptrap/{mftrap,mptrap,trip}.diffs: Updated for TL14.
+
 2014-03-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* configure.ac: Use LUAJIT_LDEXTRA instead of luajittex_extra.

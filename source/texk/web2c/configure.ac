@@ -33,9 +33,7 @@ AC_CONFIG_MACRO_DIRS([../../m4 m4])
 WEB2CVERSION=tex_live_version()
 AC_SUBST([WEB2CVERSION])
 
-dnl Common code for all programs using libkpathsea.
 KPSE_COMMON([web2c programs])
-KPSE_CANONICAL_HOST
 
 AM_CONDITIONAL([cross], [test "x$cross_compiling" = xyes])
 
@@ -60,12 +58,6 @@ AC_CHECK_PROGS([KPSEWHICH], [kpsewhich], [false])
 KPSE_ASM_UNDERSCORE
 KPSE_COND_MINGW32
 KPSE_WIN32_CALL
-
-# A compilation variable for doing a TL build so we can
-# adjust the luatex banner, maybe others.
-AS_IF([test "x$enable_native_texlive_build" = xyes],
-      [AC_DEFINE([NATIVE_TEXLIVE_BUILD], 1,
-                 [Define to 1 if building binaries for TeX Live, else 0.])])
 
 AS_CASE([$with_editor],
         [''|yes|no], [AS_IF([test "x$kpse_cv_have_win32" = xno],
@@ -161,8 +153,6 @@ AS_IF([test "x$enable_aleph:$enable_xetex:$enable_omfonts" = xno:no:yes],
 AM_CONDITIONAL([OTANGLE],
                [test "x$enable_otangle" = xyes])[]dnl
 
-AM_CONDITIONAL([OMFONTS], [test "x$enable_omfonts" != xno])
-
 AM_CONDITIONAL([MF], [test "x$enable_mf" != xno])
 AM_CONDITIONAL([MFN], [test "x$enable_mf_nowin" != xno])
 
@@ -204,8 +194,6 @@ dnl Generate MetaFont *WIN defines.
 m4_foreach([Kpse_Win], [kpse_mf_win],
            [m4_ifset([Kpse_Win],
                      [KPSE_MFWIN_DEFINE(Kpse_Win)])])[]dnl
-
-AM_CONDITIONAL([MP], [test "x$enable_mp" != xno])
 
 AM_CONDITIONAL([WEB], [test "x$enable_web_progs" != xno])
 
@@ -282,6 +270,8 @@ KPSE_LIBPNG_FLAGS
 KPSE_FREETYPE2_FLAGS
 KPSE_PIXMAN_FLAGS
 KPSE_CAIRO_FLAGS
+KPSE_GMP_FLAGS
+KPSE_MPFR_FLAGS
 KPSE_POPPLER_FLAGS
 KPSE_XPDF_FLAGS
 KPSE_ZZIPLIB_FLAGS
@@ -295,6 +285,26 @@ KPSE_ADD_FLAGS([kpathsea])
 AC_CHECK_SIZEOF([off_t], , AC_INCLUDES_DEFAULT
 [#include <kpathsea/config.h>])
 
+# Check of poppler 0.25 or better
+AS_CASE([$with_system_poppler],
+        [yes], [dnl
+KPSE_ADD_FLAGS([poppler])
+AC_LANG_PUSH([C++])
+AC_MSG_CHECKING([for StructTreeRoot.h (poppler 0.25 or better)])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>
+#include <StructTreeRoot.h>]],
+                                   [[PDFDoc *doc;
+                                     Dict *dict;
+                                     StructTreeRoot root(doc, dict);]])],
+                  [kpse_cv_have_StructTreeRoot_h=yes],
+                  [kpse_cv_have_StructTreeRoot_h=no])
+AC_MSG_RESULT([$kpse_cv_have_StructTreeRoot_h])
+AC_LANG_POP([C++])],
+        [kpse_cv_have_StructTreeRoot_h=yes])
+if test "x$kpse_cv_have_StructTreeRoot_h" = xyes; then
+  AC_DEFINE([HAVE_STRUCTTREEROOT_H], 1,
+            [Define to 1 if you have the <StructTreeRoot.h> header file.])
+fi
 KPSE_RESTORE_FLAGS
 
 dnl Write output here, instead of putting a zillion -D's on the command line.
@@ -380,8 +390,6 @@ if test "x$cross_compiling" = xyes; then
   fi
 fi
 
-AC_CONFIG_SUBDIRS([web2c])
-
 AC_CONFIG_FILES([Makefile doc/Makefile lib/Makefile man/Makefile
                  omegafonts/Makefile otps/Makefile otps/win32/Makefile
                  window/Makefile])
@@ -390,12 +398,10 @@ AC_CONFIG_FILES([tangle-sh], [chmod +x tangle-sh])
 AC_CONFIG_FILES([ctangleboot-sh], [chmod +x ctangleboot-sh])
 AC_CONFIG_FILES([silent-sh], [chmod +x silent-sh])
 
+dnl Additional code for synctex
+m4_sinclude([synctexdir/ac/synctex.ac])
+
 dnl The subdirectory web2c must be configured for the build system.
-dnl When cross compiling, can not share the cache file with the subdirectory!
-AC_CONFIG_COMMANDS_POST([AS_IF([test "x$cross_compiling" = xyes],
-[cache_file=/dev/null
- ac_configure_args="$ac_configure_args --host='$kpse_build_alias' \
- CC='$BUILDCC' CPPFLAGS='$BUILDCPPFLAGS'\
- CFLAGS='$BUILDCFLAGS' LDFLAGS='$BUILDLDFLAGS'"])])
+KPSE_NATIVE_SUBDIRS([web2c])
 
 AC_OUTPUT
