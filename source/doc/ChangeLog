@@ -1,0 +1,39 @@
+2014-06-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tlbuild.texi: Drop '--with-xindy-recode'.
+
+2014-05-20  Karl Berry  <karl@tug.org>
+
+	* tlbuild-incl/install-tl.texi,
+	* tlbuild-incl/tlmgr.texi: new files, generated from the pod doc.
+	* tlbuild.texi: @include them.
+	* Makefile.am (tlbuild_TEXINFOS): add them.
+	($(mydoc)-incl.texi): new phony target to run pod2texi;
+	currently requires development texinfo,
+	and thus is not intended to be invoked except by hand.
+	(readme-install): new phony target.
+	* splitinfo.gawk: quit at appendix too.
+
+2014-05-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (EXTRA_DIST): no ${PDFS} any more.
+
+2014-05-01  Karl Berry  <karl@tug.org>
+
+	* tlbuild.texi (Building): split into sections.
+	Give full example of working on a single program.
+
+2014-04-09  Karl Berry  <karl@tug.org>
+	    Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texlive.texi: Update for Texinfo, etc.
+	* build.texi, build-tools (removed): Moved ...
+	* tlbuild.texi, build-tools.txt (new): ... to here.
+	* splitinfo.gawk (new): Awk script to generate README.* files.
+	* Makefile.am: Adapted.
+
+2013-12-14  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* doc/build.texi: Fixed some typos.
+
+(This ChangeLog file is in the public domain.)
