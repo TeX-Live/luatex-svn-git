@@ -32,7 +32,7 @@ static const char _svn_version[] =
 int luatex_svn = luatex_svn_revision;
 int luatex_version = 79;        /* \.{\\luatexversion}  */
 int luatex_revision = '2';      /* \.{\\luatexrevision}  */
-int luatex_date_info = 2014102400;     /* the compile date is now hardwired */
+int luatex_date_info = 2014111100;     /* the compile date is now hardwired */
 const char *luatex_version_string = "beta-0.79.2";
 const char *engine_name = my_name;     /* the name of this engine */
 

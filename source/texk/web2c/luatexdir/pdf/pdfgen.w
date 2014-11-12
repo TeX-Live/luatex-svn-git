@@ -676,8 +676,8 @@ void pdf_end_stream(PDF pdf)
 
 
     os_struct *os = pdf->os;
-#pragma message "***** USING AN EXPERIMENTAL FEATURE: strbuf_const_s "
-    //strbuf_s *lbuf = os->buf[LUASTM_BUF];
+    /*  Old code,                             */
+    /*  strbuf_s *lbuf = os->buf[LUASTM_BUF]; */
     strbuf_const_s *lbuf = (strbuf_const_s * )os->buf[LUASTM_BUF];
     const_lstring ls;
     int callback_id ;
@@ -700,7 +700,7 @@ void pdf_end_stream(PDF pdf)
         }
 
         ls.s = lua_tolstring(Luas, -1, &ls.l);
-        //lbuf->data = (unsigned char *) ls.s;
+        /* lbuf->data = (unsigned char *) ls.s; */
         lbuf->data = (unsigned const char *) ls.s;
         lbuf->p = lbuf->data + ls.l;
         os->curbuf = LUASTM_BUF;
@@ -784,9 +784,9 @@ scaled round_xn_over_d(scaled x, int n, unsigned int d)
         positive = !positive;
         n = -(n);
     }
-    t = (unsigned) ((x % 0100000) * n);//printf("t=%d\n",t);
-    u = (unsigned) (((unsigned) (x) / 0100000) * (unsigned) n + (t / 0100000));//printf("u=%d\n",u);
-    v = (u % d) * 0100000 + (t % 0100000);//printf("v=%d\n",v);
+    t = (unsigned) ((x % 0100000) * n);
+    u = (unsigned) (((unsigned) (x) / 0100000) * (unsigned) n + (t / 0100000));
+    v = (u % d) * 0100000 + (t % 0100000);
     if (u / d >= 0100000)
         arith_error = true;
     else
@@ -1938,7 +1938,6 @@ const char *get_pdf_table_string(const char *s)
 	/*  s is  supposed to be anchored (e.g in the registry)
 	    so it's not garbage collected */
         lua_pop(Luas, 2);           /* ... */
-        //return (char *)ls.s;
 	return ls.s;
     }
     lua_pop(Luas, 2);           /* ... */

@@ -1,7 +1,23 @@
+2014-11-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* cpascal.h (makebinaryfile): Avoid gcc -Wunused-value warning.
+
+2014-11-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* tftopl.ch, vftovp.ch: Add missing space to message.
+	* tftopl.test, vftovp.test: Display help and warning message.
+
+	* help.h: Correct help messages for ofm2opl & Co.
+
 2014-11-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* mf.ch, tftopl.ch, vftovp.ch: Add stringcast to avoid printing
 	strings as numbers.
+
+	* configure.ac: AC_CHECK_SIZEOF([void *]) and AC_TYPE_UINTPTR_T.
+	* w2c/config.h: If necessary define uintptr_t.
+	* texmfmp.h: Cast pointers to uintptr_t and use PRIdPTR, PRIxPTR
+	to print them.
 
 2014-10-30  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
