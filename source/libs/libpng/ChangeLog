@@ -1,3 +1,13 @@
+2014-12-03  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Added KPSE_COMPILER_VISIBILITY.
+	* Makefile.am [AM_CFLAGS]: Added $(VISIBILITY_CFLAGS).
+
+2014-11-21  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import libpng-1.6.15.
+	* version.ac: Adjust.
+
 2014-10-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	Import libpng-1.6.14.
