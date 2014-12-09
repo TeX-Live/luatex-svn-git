@@ -1,4 +1,4 @@
-$Id: README 35508 2014-11-04 09:50:53Z peter $
+$Id: README 35761 2014-12-07 13:04:51Z peter $
 Public domain.  Originally created by Karl Berry, 2005.
 
 Libraries we compile for TeX Live.
@@ -12,7 +12,7 @@ See also comments in ../texk/README.
 cairo 1.14.0 - checked 15oct14
   http://cairographics.org/releases/
 
-freetype2 2.5.3 - checked 8mar14
+freetype2 2.5.4 - checked 7dec14
   http://savannah.nongnu.org/download/freetype/
 
 gd 2.1.0 - checked 26jun13
@@ -24,7 +24,7 @@ gmp 6.0.0 - checked 25mar14
 graphite2 1.2.4 - checked 2dec13
   http://sourceforge.net/projects/silgraphite/files/graphite2/
 
-harfbuzz 0.9.35 - checked 14aug14
+harfbuzz 0.9.36 - checked 11nov14
   http://www.freedesktop.org/software/harfbuzz/release/
 
 icu 54.1 (release) - checked 2oct14
@@ -33,7 +33,7 @@ icu 54.1 (release) - checked 2oct14
 libpaper 1.1.24+nmu2 - checked 24oct13
   ftp://ftp.de.debian.org/debian/pool/main/libp/libpaper/
 
-libpng 1.6.14 - checked 23oct14
+libpng 1.6.15 - checked 11nov14
   http://www.libpng.org/ - used by many
   http://www.libpng.org/pub/png/pngcode.html
 
@@ -49,7 +49,7 @@ mpfr 3.1.2 - checked 13mar13
 pixman 0.32.6 - checked 7jul14
   http://cairographics.org/releases/
 
-poppler 0.28.0 - checked 4nov14
+poppler 0.29.0 - checked 5dec14
   http://poppler.freedesktop.org/ - used by luatex and xetex
 
 potrace 1.11 - checked 12apr13

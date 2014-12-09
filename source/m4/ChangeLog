@@ -1,3 +1,19 @@
+2014-12-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-options.m4: Set platform name to ${host_alias-$host}.
+
+2014-12-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-luajit-flags.m4: LuaJIT is now a Libtool library.
+
+2014-12-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-visibility.m4: Also try -fvisibility-inlines-hidden.
+
+2014-11-17  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* kpse-win32.m4: Check for WIN64 and AC_SUBST([WIN_WRAPPER]).
+
 2014-10-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* kpse-lua52-flags.m4: Lua52 is now a Libtool library.

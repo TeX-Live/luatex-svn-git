@@ -1,4 +1,4 @@
-$Id: README 35175 2014-09-15 09:15:29Z peter $
+$Id: README 35661 2014-11-25 08:47:42Z peter $
 Copyright 2006-2012 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -88,8 +88,6 @@ psutils 1.23 - checked 16jan14
 ptexenc - maintained here, by us (akira et al.)
 
 seetexk - ?
-
-tetex - scripts maintained here, by us
 
 tex4htk - checked 25apr11
   http://tug.org/tex4ht/

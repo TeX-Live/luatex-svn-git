@@ -4179,7 +4179,7 @@ static int lua_nodelib_has_glyph(lua_State * L)
     halfword *a;
     halfword h = (halfword) *(check_isnode(L,1)) ;
     while (h != null) {
-        if (type(h) == glyph_node) {
+        if ( (type(h) == glyph_node) || (type(h) == disc_node)) {
             fast_metatable(h);
             return 1;
         } else {
@@ -4196,7 +4196,7 @@ static int lua_nodelib_direct_has_glyph(lua_State * L)
 {
     halfword h = (halfword) lua_tonumber(L,1) ;
     while (h != null) {
-        if (type(h) == glyph_node) {
+        if ((type(h) == glyph_node) || (type(h) == disc_node)) {
             nodelib_pushdirect(h);
             return 1;
         } else {

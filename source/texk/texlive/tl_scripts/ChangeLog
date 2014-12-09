@@ -1,3 +1,24 @@
+2014-11-20  Karl Berry  <karl@tug.org>
+
+	* fmtutil.sh: (init_log_warnings, log_warning): remove.
+	(main): change log_warning calls to log_failure.
+	(flush_msg_buffers, byebye): no warnings any more.
+
+	* fmtutil-sys.sh: doc fixes.
+
+	* updmap-sys.sh: prepend directory of executable to $PATH.
+	
+2014-11-17  Karl Berry  <karl@tug.org>
+
+	* fmtutil.sh: install (modified) patch from Zephyrus C,
+	29 May 2014 00:15:15,
+	http://tug.org/pipermail/tex-live/2014-May/035443.html.
+	(setupTmpDir): call byebye instead of cleanup, to display msgs.
+	(byebye): exit 1 if warnings, not just errors.
+	(verbose): do not assume && ... || precedence.
+	(main): set setupTmpDir (and trap in general) earlier.
+	(run_initex): check for mv and cp failure, e.g., full file system.
+
 2014-07-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* Makefile.am (run-texlinks): Install the required files.
