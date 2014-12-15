@@ -903,6 +903,7 @@ void do_handle_anchorpoint(lua_State * L, struct anchorpoint *anchor)
         dump_intfield(L, "y", anchor->me.y);
         if (anchor->has_ttf_pt)
             dump_intfield(L, "ttf_pt_index", anchor->ttf_pt_index);
+         /* lig_index is sparse */
         dump_intfield(L, "lig_index", anchor->lig_index);
         lua_rawseti(L, -2, (anchor->lig_index + 1));
         lua_pop(L, 1);
@@ -913,6 +914,7 @@ void do_handle_anchorpoint(lua_State * L, struct anchorpoint *anchor)
         dump_intfield(L, "y", anchor->me.y);
         if (anchor->has_ttf_pt)
             dump_intfield(L, "ttf_pt_index", anchor->ttf_pt_index);
+        /* lig_index is sparse */
         dump_intfield(L, "lig_index", anchor->lig_index);
         lua_rawset(L, -3);
     }
