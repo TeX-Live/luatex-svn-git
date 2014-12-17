@@ -2146,6 +2146,10 @@ static halfword new_attribute_node(unsigned int i, int v)
     type(r) = attribute_node;
     attribute_id(r) = (halfword) i;
     attribute_value(r) = v;
+    /* not used but nicer in print */ 
+    subtype(r) = 0; 
+    alink(r) = null;
+    /* we only have forward links */
     return r;
 }
 
