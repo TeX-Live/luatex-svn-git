@@ -2312,12 +2312,9 @@ void set_attribute(halfword n, int i, int val)
     } else if (attr_list_ref(p) == 1) {
         /* this can really happen HH-LS */
         if (p == attr_list_cache) {
-            /*
-                attr_list_cache = cache_disabled;
-
-                or (saved a list creation):
-
-            */
+            /* we can invalidate the cache setting */
+            /* attr_list_cache = cache_disabled    */
+            /* or save the list, as done below     */
             p = copy_attribute_list(p);
             node_attr(n) = p;
             /* the copied list gets ref count 1 */
