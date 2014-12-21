@@ -3290,6 +3290,8 @@ For clarification, an anchor table could for example look like this :
         }
     }
 \stoptyping
+Note: The \type {baselig} table can be sparse!
+
 
 \subsubsubsection{map table}
 
@@ -9180,6 +9182,12 @@ Valid fields in \type{attribute} items:
 \NC number         \NC number  \NC the attribute type id\NC\NR
 \NC value          \NC number  \NC the attribute value\NC\NR
 \stoptabulate
+
+As mentioned it's better to use the official helpers rather than edit
+these fields directly. For instance the \type {prev} field is 
+used for other purposes and there is no double linked list.
+
+
 
 \subsubsection{action item}
 
