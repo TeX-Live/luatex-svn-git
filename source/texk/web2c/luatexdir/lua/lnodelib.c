@@ -3910,9 +3910,10 @@ static void lua_nodelib_do_tostring(lua_State * L, halfword n, const char *tag)
     char a[7] = { ' ', ' ', ' ', 'n', 'i', 'l', 0 };
     char v[7] = { ' ', ' ', ' ', 'n', 'i', 'l', 0 };
     msg = xmalloc(256);
-    if (alink(n) != null)
+
+    if ((alink(n) != null) && (type(n) != attribute_node))
         snprintf(a, 7, "%6d", (int) alink(n));
-    if (vlink(n) != null)
+    if (vlink(n) != null) 
         snprintf(v, 7, "%6d", (int) vlink(n));
     snprintf(msg, 255, "<%s %s < %6d > %s : %s %d>", tag, a, (int) n, v, node_data[type(n)].name, subtype(n));
     lua_pushstring(L, msg);

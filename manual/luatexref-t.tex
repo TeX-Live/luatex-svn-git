@@ -10303,6 +10303,8 @@ The \type {node.next} and \type {node.prev} functions will stay but for
 consistency there are variants called \type {getnext}  and \type {getprev}.
 We had to use \type{get} because \type {node.id} and \type {node.subtype} are
 already taken for providing meta information about nodes.
+Note: The getters do only basic checking for valid keys. 
+You should just stick to the keys mentioned in the sections that describe node properties.
 
 \chapter{Modifications}
 
