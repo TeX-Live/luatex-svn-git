@@ -2292,7 +2292,7 @@ void set_attribute(halfword n, int i, int val)
         vlink(node_attr(n)) = p;
         return;
     }
-    /* we check if we have this attribute already and quite if the value stays the same */
+    /* we check if we have this attribute already and quit if the value stays the same */
     assert(vlink(p) != null);
     while (vlink(p) != null) {
         int t = attribute_id(vlink(p));
@@ -2346,9 +2346,6 @@ void set_attribute(halfword n, int i, int val)
     }
     return;
 }
-
-
-
 
 
 @ @c
