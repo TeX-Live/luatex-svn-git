@@ -1,4 +1,4 @@
-$Id: README 35838 2014-12-16 08:47:28Z peter $
+$Id: README 35886 2014-12-23 09:31:54Z peter $
 Copyright 2006-2012 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -36,8 +36,6 @@ cjkutils 4.8.3 - checked 11may12
 
 detex 2.8 - checked 10may12
   http://www.cs.purdue.edu/homes/trinkle/detex/
-
-devnag - from devnag package installed in texmf-dist.
 
 dtl - ?
 
