@@ -3333,7 +3333,9 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
         case style_node:
             cur_style = subtype(q);
             setup_cur_size(cur_style);
-            cur_mu = x_over_n(get_math_quad(cur_size), 18);
+            /* HH-LS: was cur_mu = x_over_n(get_math_quad(cur_size), 18);*/
+            /* This is an old bug so the fix can influence outcome       */
+            cur_mu = x_over_n(get_math_quad(cur_style), 18);
             goto DONE_WITH_NODE;
             break;
         case choice_node:
