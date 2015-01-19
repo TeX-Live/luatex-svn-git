@@ -22249,6 +22249,8 @@ static void mp_recycle_value (MP mp, mp_node p);
 static void mp_recycle_value (MP mp, mp_node p) {
   mp_variable_type t;   /* a type code */
   FUNCTION_TRACE2 ("mp_recycle_value(%p)\n", p);
+  if (p==NULL || p==MP_VOID)
+    return;
   t = mp_type (p);
   switch (t) {
   case mp_vacuous:
