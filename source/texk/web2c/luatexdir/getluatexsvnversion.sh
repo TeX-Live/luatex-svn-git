@@ -16,7 +16,7 @@ if ( svn info . >/dev/null 2>&1 && svnversion > /dev/null )
 then
   # svn up > /dev/null
   DEFREV=`cat $FILE`
-  SVNREV=`svnversion -c . | sed -ne 's/^[0-9]*:*\([0-9]\{4,\}\).*/#define luatex_svn_revision \1/p'`
+  SVNREV=`svnversion -c . | sed -ne 's/^[0-9]*:*\([0-9]*\).*/#define luatex_svn_revision \1/p'`
   test "$DEFREV" != "$SVNREV" && echo "$SVNREV" > $FILE
 elif ( [ -f ../.git/refs/remotes/git-svn ] || [ -d ../.git/svn ] && git svn --version > /dev/null )
 then
