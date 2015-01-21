@@ -1,0 +1,34 @@
+
+INSTALL for LuaTeX Snapshots
+
+=========================================================
+The snapshot code is NOT stable, it may not even compile
+properly!  Features that are present today may be gone
+in tomorrow. There ARE bugs. You should NOT use this
+program for ANYTHING except testing!
+=========================================================
+
+This distribution is essentially a stripped-down version of 
+the TeXlive distribution with some additional libraries.
+
+All source code is in the directory source; the build.sh
+scripts will generate and populate a directory build.
+ 
+The actual code of luaTeX is in source/texk/web2c/luatexdir
+and its subdirectories.
+
+* build.sh         builds a native luatex on your system
+* build.sh --ppc   crosscompiles for osx-ppx from osx-intel
+* build.sh --mingw crosscompiles luatex for mingw32 on i686-linux
+
+LuaTeX does not need a run-time pool file, and it locates
+texmf.cnf based on its relative position in the TeX tree.
+
+Post-compilation installation should be a simple matter 
+of copying the executable to a normal place for web2c 
+binaries and generating the desired formats.
+
+You may want to install the executable under the names
+'texlua' and 'texluac' as well (create a copy or symlink)
+
+=========================================================
