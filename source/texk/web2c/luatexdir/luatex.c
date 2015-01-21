@@ -29,11 +29,11 @@ static const char _svn_version[] =
 
 #define TeX
 
-int luatex_svn = luatex_svn_revision;
+int luatex_svn = 5130;
 int luatex_version = 79;        /* \.{\\luatexversion}  */
-int luatex_revision = '2';      /* \.{\\luatexrevision}  */
-int luatex_date_info = 2014111100;     /* the compile date is now hardwired */
-const char *luatex_version_string = "beta-0.79.2";
+int luatex_revision = '3';      /* \.{\\luatexrevision}  */
+int luatex_date_info = 2015012100;     /* the compile date is now hardwired */
+const char *luatex_version_string = "beta-0.79.3";
 const char *engine_name = my_name;     /* the name of this engine */
 
 #include <kpathsea/c-ctype.h>
