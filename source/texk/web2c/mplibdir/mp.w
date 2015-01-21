@@ -17616,7 +17616,7 @@ token by the |cur_tok| routine.
 @<Declare the procedure called |make_exp_copy|@>;
 static mp_node mp_cur_tok (MP mp) {
   mp_node p;    /* a new token node */
-  if (cur_sym() == NULL && cur_sym_mod() == 0) {
+  if (cur_sym() == NULL && (cur_sym_mod() == 0 || cur_sym_mod() == mp_normal_sym)) {
     if (cur_cmd() == mp_capsule_token) {
       mp_number save_exp_num; /* possible |cur_exp| numerical to be restored */
       mp_value save_exp = mp->cur_exp;  /* |cur_exp| to be restored */

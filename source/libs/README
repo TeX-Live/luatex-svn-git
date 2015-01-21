@@ -1,4 +1,4 @@
-$Id: README 35880 2014-12-22 08:37:56Z peter $
+$Id: README 36054 2015-01-14 10:59:36Z peter $
 Public domain.  Originally created by Karl Berry, 2005.
 
 Libraries we compile for TeX Live.
@@ -12,10 +12,10 @@ See also comments in ../texk/README.
 cairo 1.14.0 - checked 15oct14
   http://cairographics.org/releases/
 
-freetype2 2.5.4 - checked 7dec14
+freetype2 2.5.5 - checked 7jan15
   http://savannah.nongnu.org/download/freetype/
 
-gd 2.1.0 - checked 26jun13
+gd 2.1.1 - checked 14jan15
   https://bitbucket.org/libgd/gd-libgd/downloads/
 
 gmp 6.0.0 - checked 25mar14
@@ -49,7 +49,7 @@ mpfr 3.1.2 - checked 13mar13
 pixman 0.32.6 - checked 7jul14
   http://cairographics.org/releases/
 
-poppler 0.29.0 - checked 5dec14
+poppler 0.30.0 - checked 7jan15
   http://poppler.freedesktop.org/ - used by luatex and xetex
 
 potrace 1.11 - checked 12apr13

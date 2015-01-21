@@ -1,4 +1,4 @@
-$Id: README 35896 2014-12-24 11:25:20Z peter $
+$Id: README 36016 2015-01-11 00:03:55Z karl $
 Copyright 2006-2012 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -43,11 +43,11 @@ dvi2tty 5.3.4 - checked 10may12
   http://www.mesa.nl/pub/dvi2tty/
   ftp://ftp.mesa.nl/pub/dvi2tty/
 
-dvidvi - ?
+dvidvi - maintained here.
 
 dviljk - maintained here, by Joachim Schrod
 
-dvipdfm-x - maintained here, by Khaled Hosny, Jonathan Kew, contains
+dvipdfm-x - maintained here, by Khaled Hosny, Akira Kakuto, et al., contains
   dvipdfmx
   xdvipdfmx
 
@@ -59,7 +59,7 @@ dvipos - ?
 
 dvipsk - maintained here, by us
 
-dvisvgm 1.8.1 - checked 15sep14
+dvisvgm 1.9 - checked 7jan15
   http://downloads.sourceforge.net/dvisvgm/
 
 gsftopk - from Paul Vojta's xdvi?
