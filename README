@@ -1,0 +1,24 @@
+$Id: README 14724 2009-08-17 16:37:46Z karl $
+Public domain.  Originally written 2006, Karl Berry.
+
+This Build directory contains sources and tools which are used in
+building TeX Live, but are not part of the live hierarchy.  Each subdir
+has another README with more details.
+
+logs   - complete logs of all commits to the TL source repositories.
+source - the actual sources for all the executable programs.
+tests  - a testing infrastructure, quiescent for some years
+         but left here in case it gets revived some day.
+
+Directories named tmp.raw and tmp.cooked are also created/used/removed
+here by ctan2tl, ctan2tds, and place.
+
+If you know enough about TeX to be reading this, then you (or your
+institution) should consider joining a TeX user group (there's a list at
+http://tug.org/usergroups.html) -- if you're already a member, thanks
+for your support!
+
+The TeX Users Group, the oldest such group, produces the periodicals
+TUGboat (http://tug.org/TUGboat), The PracTeX Journal
+(http://tug.org/pracjourn), sponsors an annual meeting,
+and hosts TeX Live development and distribution.
