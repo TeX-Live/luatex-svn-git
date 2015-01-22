@@ -20463,7 +20463,8 @@ void mp_resume_iteration (MP mp) {
     }
     mp->loop_ptr->list = mp_link (p);
     q = (mp_node)mp_sym_sym (p);
-    number_clone (mp->loop_ptr->old_value, q->data.n);
+    if (q)
+     number_clone (mp->loop_ptr->old_value, q->data.n);
     mp_free_symbolic_node (mp, p);
   } else if (p == MP_VOID) {
     mp_begin_token_list (mp, mp->loop_ptr->info, (quarterword) forever_text);
