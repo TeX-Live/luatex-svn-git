@@ -326,8 +326,8 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define suppress_ifcsname_error_code (etex_first_integer_code+11)
                                                         /*suppress errors for failed \.{\\ifcsname} */
 #  define suppress_outer_error_code (etex_first_integer_code+12)        /*suppress errors for \.{\\outer} */
-#  define synctex_code (etex_first_integer_code+13)     /* is synctex file generation enabled ?  */
-#  define suppress_mathpar_error_code (etex_first_integer_code+14) /*suppress errors for \.{\\par}} in math */
+#  define suppress_mathpar_error_code (etex_first_integer_code+13) /*suppress errors for \.{\\par}} in math */
+#  define synctex_code (etex_first_integer_code+14)     /* is synctex file generation enabled ?  */
 #  define tex_int_pars (synctex_code+1) /* total number of integer parameters */
 
 #  define page_direction_code (tex_int_pars)
