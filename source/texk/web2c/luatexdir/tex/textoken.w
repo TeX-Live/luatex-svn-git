@@ -29,6 +29,8 @@ static const char _svn_version[] =
 #define cat_code_table int_par(cat_code_table_code)
 #define tracing_nesting int_par(tracing_nesting_code)
 #define suppress_outer_error int_par(suppress_outer_error_code)
+#define suppress_mathpar_error int_par(suppress_mathpar_error_code)
+
 
 #define every_eof equiv(every_eof_loc)
 #define box(A) equiv(box_base+(A))

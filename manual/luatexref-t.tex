@@ -710,6 +710,24 @@ was simply ignored. That behavior has now reverted back to be
 \TEX82-compatible by default.
 
 
+
+\subsection{\tex{suppressmathparerror} (0.80)}
+
+The following setting will permit \par tokens in a math formula: 
+
+\startsyntax
+\suppressmathparerror = 1
+\stopsyntax
+
+So, the next code is valid then: 
+
+\starttyping
+$ x + 1 = 
+
+a $ 
+\stoptyping
+
+
 \subsection{\tex{outputbox} (0.37)}
 
 \startsyntax

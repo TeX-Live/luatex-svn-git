@@ -117,6 +117,7 @@ extern void adjust_space_factor(void);
 extern void main_control(void);
 extern void app_space(void);
 extern void insert_dollar_sign(void);
+extern void insert_dollar_sign_par_end(void);
 extern void you_cant(void);
 extern void report_illegal_case(void);
 extern boolean privileged(void);
