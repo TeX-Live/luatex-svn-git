@@ -680,16 +680,19 @@ typedef enum {
 
 extern void delete_attribute_ref(halfword b);
 extern void build_attribute_list(halfword b);
+extern halfword current_attribute_list(void);
 
 extern int unset_attribute(halfword n, int c, int w);
 extern void set_attribute(halfword n, int c, int w);
 extern int has_attribute(halfword n, int c, int w);
+
 
 extern halfword new_span_node(halfword n, int c, scaled w);
 
 extern void print_short_node_contents(halfword n);
 extern void show_node_list(int i);
 extern pointer actual_box_width(pointer r, scaled base_width);
+
 
 /* TH: these two defines still need checking. The node ordering in luatex is not
    quite the same as in tex82 */

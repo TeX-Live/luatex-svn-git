@@ -5159,6 +5159,31 @@ such node.
 
 Returns the currently active list of attributes, if there is one.
 
+The intended usage of \type{current_attr} is as follows:
+
+\starttyping
+local x1 = node.new("glyph")
+x1.attr = node.current_attr()
+local x2 = node.new("glyph")
+x2.attr = node.current_attr()
+\stoptyping
+
+or:
+
+\starttyping
+local x1 = node.new("glyph")
+local x2 = node.new("glyph")
+local ca = node.current_attr()
+x1.attr = ca
+x2.attr = ca
+\stoptyping
+
+The attribute lists are ref counted and the assignment takes care
+of incrementing the refcount. You cannot expect the value \type {ca}
+to be valid any more when you assign attributes (using \type
+{tex.setattribute}) or when control has been passed back to \TEX.
+
+
 Note: this function is somewhat experimental, and it returns the {\it
  actual} attribute list, not a copy thereof.
 Therefore, changing any of the attributes in the list will change

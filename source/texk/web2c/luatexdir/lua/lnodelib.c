@@ -217,6 +217,11 @@ static const char _svn_version[] =
 /* } */
 
 
+/* used in nodelib_setattr */
+
+#define assign_attribute_ref(n,p) do { node_attr(n) = p;attr_list_ref(p)++;} while (0)
+
+
 #define nodelib_gettoks(L,a)   tokenlist_from_lua(L)
 
 #define nodelib_getspec        nodelib_getlist
@@ -2447,18 +2452,28 @@ static str_number nodelib_getstring(lua_State * L, int a)
     return maketexlstring(s, k);
 }
 
+
 static void nodelib_setattr(lua_State * L, int stackindex, halfword n)
 {
-    halfword p;
-    p = nodelib_getlist(L, stackindex);
-    if (node_attr(n) != p) {
-        if (node_attr(n) != null)
-            delete_attribute_ref(node_attr(n));
-        node_attr(n) = p;
-    if (p != null)
-        attr_list_ref(p)++;
+    halfword old, new;
+    old = node_attr(n);
+    new = nodelib_getlist(L,stackindex);
+    if (new == null) {
+         /* there is nothing to assign but we need to check for an old value */
+        if (old != null)
+            delete_attribute_ref(old); // also nulls attr field of n 
+    } else if (old == null) {
+         /* nothing is assigned so we just do that now */
+        assign_attribute_ref(n,new);
+    } else if (old != new) { 
+         /* something is assigned so we need to clean up and assign then */
+        delete_attribute_ref(old);
+        assign_attribute_ref(n,new);
     }
+     /* else: same value so there is no need to assign and change the refcount */
 }
+
+
 
 static int nodelib_cantset(lua_State * L, int n, const char *s)
 {
@@ -4318,28 +4333,25 @@ static int lua_nodelib_direct_cp_skipable(lua_State * L)
     return 1;
 }
 
+
 /* node.currentattr(node m) */
 
 static int lua_nodelib_currentattr(lua_State * L)
 {
-    int n = lua_gettop(L);
-    if (n == null) {
-        /* query */
-        if (max_used_attr >= 0) {
-            if (attr_list_cache == cache_disabled) {
-                update_attribute_cache();
-                if (attr_list_cache == null) {
-                    lua_pushnil (L);
-                    return 1;
-                }
-            }
-            attr_list_ref(attr_list_cache)++;
-            lua_pushnumber(L, attr_list_cache);
-            lua_nodelib_push(L);
-        } else {
-            lua_pushnil(L);
-        }
-        return 1;
+    int u = lua_gettop(L);
+    if (u == null) {
+       /* query */
+       halfword n ;
+      /* current_attribute_list() return attr_list_cache */
+      /* or null  (attr_list_cache can also be null)     */
+       n = current_attribute_list();
+       if (n) {
+          lua_pushnumber(L, n);
+          lua_nodelib_push(L);
+       }
+       else
+          lua_pushnil(L);
+       return 1;
     } else {
         /* assign */
         luatex_warn("Assignment via node.current_attr(<list>) is not supported (yet)");
@@ -4347,25 +4359,22 @@ static int lua_nodelib_currentattr(lua_State * L)
     }
 }
 
+
 /* node.direct.currentattr(node m) */
 
 static int lua_nodelib_direct_currentattr(lua_State * L)
 {
-    if (max_used_attr >= 0) {
-        if (attr_list_cache == cache_disabled) {
-            update_attribute_cache();
-            if (attr_list_cache == null) {
-                lua_pushnil (L);
-                return 1;
-            }
-        }
-        attr_list_ref(attr_list_cache)++;
-        lua_pushnumber(L, attr_list_cache);
-    } else {
+    halfword n ;
+    /* current_attribute_list() return attr_list_cache */
+    /* or null  (attr_list_cache can also be null)     */
+    n = current_attribute_list();
+    if (n)
+        lua_pushnumber(L, n);
+    else
         lua_pushnil(L);
-    }
     return 1;
 }
+
 
 /* node.direct.todirect */
 

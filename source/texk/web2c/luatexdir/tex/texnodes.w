@@ -2199,7 +2199,7 @@ void update_attribute_cache(void)
 void build_attribute_list(halfword b)
 {
     if (max_used_attr >= 0) {
-        if (attr_list_cache == cache_disabled) {
+        if (attr_list_cache == cache_disabled|| attr_list_cache == null) {
             update_attribute_cache();
             if (attr_list_cache == null)
                 return;
@@ -2211,6 +2211,19 @@ void build_attribute_list(halfword b)
                 node_attr(b), b, attr_list_ref(attr_list_cache));
 #endif
     }
+}
+
+
+@ @c
+halfword current_attribute_list(void) 
+{
+    if (max_used_attr >= 0) {
+      if (attr_list_cache == cache_disabled) {
+            update_attribute_cache();
+      } 
+      return attr_list_cache ; 
+    }
+    return null ;
 }
 
 @ @c
