@@ -2226,6 +2226,30 @@ halfword current_attribute_list(void)
     return null ;
 }
 
+
+@ @c
+void reassign_attribute(halfword n, halfword new) 
+{
+    halfword old;
+    old = node_attr(n);
+    if (new == null) {
+         /* there is nothing to assign but we need to check for an old value */
+        if (old != null) 
+            delete_attribute_ref(old); /* also nulls attr field of n */
+    } else if (old == null) {
+         /* nothing is assigned so we just do that now */
+        assign_attribute_ref(n,new);
+    } else if (old != new) { 
+         /* something is assigned so we need to clean up and assign then */
+        delete_attribute_ref(old);
+        assign_attribute_ref(n,new);
+    }
+     /* else: same value so there is no need to assign and change the refcount */
+    node_attr(n) = new ; 
+}
+
+
+
 @ @c
 void delete_attribute_ref(halfword b)
 {

@@ -90,8 +90,10 @@ extern void undump_node_mem(void);
 
 #  define attribute_node_size 2
 
+
 #  define attr_list_ref(a)   vinfo((a)+1)
                                         /* the reference count */
+#  define assign_attribute_ref(n,p) do { node_attr(n) = p;attr_list_ref(p)++;} while (0)
 #  define attribute_id(a)    vinfo((a)+1)
 #  define attribute_value(a) vlink((a)+1)
 
@@ -678,6 +680,8 @@ typedef enum {
 
 #  define cache_disabled max_halfword
 
+extern void delete_attribute_ref(halfword b);
+extern void reassign_attribute(halfword n,halfword new);
 extern void delete_attribute_ref(halfword b);
 extern void build_attribute_list(halfword b);
 extern halfword current_attribute_list(void);

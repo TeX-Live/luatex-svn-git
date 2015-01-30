@@ -217,10 +217,7 @@ static const char _svn_version[] =
 /* } */
 
 
-/* used in nodelib_setattr */
-
-#define assign_attribute_ref(n,p) do { node_attr(n) = p;attr_list_ref(p)++;} while (0)
-
+#define nodelib_setattr(L, s, n)     reassign_attribute(n,nodelib_getlist(L,s)) 
 
 #define nodelib_gettoks(L,a)   tokenlist_from_lua(L)
 
@@ -2451,28 +2448,6 @@ static str_number nodelib_getstring(lua_State * L, int a)
     const char *s = lua_tolstring(L, a, &k);
     return maketexlstring(s, k);
 }
-
-
-static void nodelib_setattr(lua_State * L, int stackindex, halfword n)
-{
-    halfword old, new;
-    old = node_attr(n);
-    new = nodelib_getlist(L,stackindex);
-    if (new == null) {
-         /* there is nothing to assign but we need to check for an old value */
-        if (old != null)
-            delete_attribute_ref(old); // also nulls attr field of n 
-    } else if (old == null) {
-         /* nothing is assigned so we just do that now */
-        assign_attribute_ref(n,new);
-    } else if (old != new) { 
-         /* something is assigned so we need to clean up and assign then */
-        delete_attribute_ref(old);
-        assign_attribute_ref(n,new);
-    }
-     /* else: same value so there is no need to assign and change the refcount */
-}
-
 
 
 static int nodelib_cantset(lua_State * L, int n, const char *s)
