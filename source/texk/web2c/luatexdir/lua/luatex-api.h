@@ -281,9 +281,18 @@ extern char **environ;
   lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_##a##_index);\
   lua_rawget(L, -1+n)
 
-#define lua_roundnumber(a,b) (int)floor((double)lua_tonumber(L,-1)+0.5)
-extern int lua_numeric_field_by_index(lua_State *, int , int);
+/*
+Unfortunately floor is already redefined as 
+#define floor ((integer)floor((double)(a)))
+so 
+#define lua_uroundnumber(a,b) (unsigned int)floor((double)(lua_tonumber(a,b)+0.5))
+is useless.
+*/
 
+#define lua_roundnumber(a,b)  (int)floor((double)lua_tonumber(a,b)+0.5)
+#define lua_uroundnumber(a,b) (unsigned int)((double)(lua_tonumber(a,b)+0.5))
+extern int lua_numeric_field_by_index(lua_State *, int , int);
+extern unsigned int lua_unsigned_numeric_field_by_index(lua_State *, int , int);
 
 
 /* Currently we sometimes use numbers and sometimes strings in node properties. We can

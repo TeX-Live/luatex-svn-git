@@ -263,6 +263,20 @@ int lua_numeric_field_by_index(lua_State * L, int name_index, int dflt)
     return i;
 }
 
+@ @c
+unsigned int lua_unsigned_numeric_field_by_index(lua_State * L, int name_index, int dflt)
+{
+    register unsigned int i = dflt;
+    lua_rawgeti(L, LUA_REGISTRYINDEX, name_index);      /* fetch the stringptr */
+    lua_rawget(L, -2);
+    if (lua_type(L, -1) == LUA_TNUMBER) {
+        i = lua_uroundnumber(L, -1);
+    }
+    lua_pop(L, 1);
+    return i;
+}
+
+
 
 @ @c
 static void parse_options(int ac, char **av)
