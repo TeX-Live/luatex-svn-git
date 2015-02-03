@@ -661,7 +661,7 @@ LUALIB_API void *luaL_testudata (lua_State *L, int ud, const char *tname) {
 }
 
 @ @c
-/* It's not ok. See lua-users.org/wiki/CompatibilityWithLuafive for another solution */
+/* It's not ok. See lua-users.org/wiki/CompatibilityWithLuaFive for another solution */
 LUALIB_API void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup) {
   /*luaL_checkversion(L);*/
   luaL_checkstack(L, nup, "too many upvalues");
