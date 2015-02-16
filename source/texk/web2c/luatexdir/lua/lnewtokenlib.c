@@ -1,5 +1,5 @@
 /* lnewtokenlib.c
-   
+
    Copyright 2006-2012 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -170,11 +170,11 @@ static int run_scan_keyword(lua_State * L)
     const char *s = luaL_checkstring(L, -1);
     int v = 0;
     if (s) {
-	save_tex_scanner(texstate);
-	if (scan_keyword(s)) {
-	    v = 1;
-	}
-	unsave_tex_scanner(texstate);
+        save_tex_scanner(texstate);
+        if (scan_keyword(s)) {
+            v = 1;
+        }
+        unsave_tex_scanner(texstate);
     }
     lua_pushboolean(L,v);
     return 1;
@@ -201,7 +201,7 @@ static int run_scan_dimen(lua_State * L)
     if (t>0)
 	inf = lua_toboolean(L,1); // inf values allowed ?
     if (t>1)
-	mu = lua_toboolean(L,2); // mu units required ? 
+	mu = lua_toboolean(L,2); // mu units required ?
     save_tex_scanner(texstate);
     scan_dimen( mu,inf, false); // arg3 = shortcut
     v = cur_val;
@@ -219,12 +219,12 @@ static int run_scan_glue(lua_State * L)
     int mu = false;
     int t = lua_gettop(L);
     if (t>0)
-	mu = lua_toboolean(L,1); // mu units required ? 
+	mu = lua_toboolean(L,1); // mu units required ?
     save_tex_scanner(texstate);
     scan_glue((mu ? mu_val_level : glue_val_level));
     v = cur_val; // which is a glue_spec node
     unsave_tex_scanner(texstate);
-    lua_nodelib_push_fast(L,(halfword)v); 
+    lua_nodelib_push_fast(L,(halfword)v);
     return 1;
 }
 
@@ -257,6 +257,46 @@ static int run_scan_toks(lua_State * L)
     }
     return 1;
 }
+
+static int run_scan_string(lua_State * L) /* HH */
+{   /* can be simplified, no need for intermediate list */
+    saved_tex_scanner texstate;
+    halfword t, saved_defref;
+    save_tex_scanner(texstate);
+    saved_defref = def_ref;
+    (void) scan_toks(false, true);
+    t = def_ref;
+    unsave_tex_scanner(texstate);
+    def_ref = saved_defref;
+    tokenlist_to_luastring(L,t);
+    return 1;
+}
+
+static int run_scan_code(lua_State * L) /* HH */
+{
+    int cc = 2048 + 4096 ; /* default: letter and other */
+    if (lua_isnumber(L,-1)) {
+        cc = (int) lua_tointeger(L,-1);
+    }
+    saved_tex_scanner texstate;
+    save_tex_scanner(texstate);
+    get_x_token();
+    if (cc & (1<<(cur_cmd))) {
+        lua_pushnumber(L,(lua_Number)cur_chr);
+    } else {
+        lua_pushnil(L);
+        back_input();
+    }
+    unsave_tex_scanner(texstate);
+    return 1;
+}
+
+static int lua_tokenlib_is_token(lua_State * L) /* HH */
+{
+    lua_pushboolean(L,maybe_istoken(L,1)==NULL ? 0 : 1);
+    return 1;
+}
+
 
 static int run_expand(lua_State * L)
 {
@@ -380,11 +420,11 @@ static int lua_tokenlib_getfield(lua_State * L)
             lua_pushboolean(L, 0);
         }
     } else if (lua_key_eq(s, mode)) {
-	if (t >= cs_token_flag) {
-	    lua_pushnumber(L, equiv((t - cs_token_flag)));
+        if (t >= cs_token_flag) {
+            lua_pushnumber(L, equiv((t - cs_token_flag)));
         } else {
-	    lua_pushnumber(L, token_chr(t));
-	}
+            lua_pushnumber(L, token_chr(t));
+        }
     } else if (lua_key_eq(s, cmdname)) {
         int cmd = (t >= cs_token_flag ? eq_type(t - cs_token_flag) : token_cmd(t));
         lua_pushstring(L, command_names[cmd].cmd_name);
@@ -417,7 +457,6 @@ static int lua_tokenlib_tostring(lua_State * L)
     return 1;
 }
 
-
 static const struct luaL_Reg tokenlib[] = {
     {"get_next", run_get_next},
 /*     {"expand", run_expand}, */ /* does not work yet! */
@@ -426,6 +465,9 @@ static const struct luaL_Reg tokenlib[] = {
     {"scan_dimen", run_scan_dimen},
     {"scan_glue", run_scan_glue},
     {"scan_toks", run_scan_toks},
+{"scan_code", run_scan_code},
+{"scan_string", run_scan_string},
+{"is_token", lua_tokenlib_is_token},
     {"create", run_build},
     {"csname_id", run_get_csname_id},
     {"command_id", run_get_command_id},
