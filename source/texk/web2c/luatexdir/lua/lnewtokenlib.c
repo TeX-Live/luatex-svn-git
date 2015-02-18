@@ -17,6 +17,19 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+
+/*
+    This module is unfinished and an intermediate step to removal of the old
+    token lib. Between version 0.80 and 0.85 the transition will be complete
+    and at the same time the input (buffer) handling will be cleaned up and
+    simplified. At that moment we can feed back tokens into the input.
+
+    The code can be optimized a bit by faster key checking. The scan functions
+    implemented here will stay functionally the same but can be improved if
+    needed. The old triplet model will disappear.
+
+*/
+
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
@@ -251,9 +264,9 @@ static int run_scan_toks(lua_State * L)
        head of that list. */
     lua_newtable(L);
     while (token_link(t)) {
-	t = token_link(t);
-	push_token(L,t);
-	lua_rawseti(L,-2,i++);
+        t = token_link(t);
+        push_token(L,t);
+        lua_rawseti(L,-2,i++);
     }
     return 1;
 }
@@ -263,26 +276,39 @@ static int run_scan_string(lua_State * L) /* HH */
     saved_tex_scanner texstate;
     halfword t, saved_defref;
     save_tex_scanner(texstate);
-    saved_defref = def_ref;
-    (void) scan_toks(false, true);
-    t = def_ref;
+    do {
+        get_token();
+    } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
+    if (cur_cmd == left_brace_cmd) {
+        back_input();
+        saved_defref = def_ref;
+        (void) scan_toks(false, true);
+        t = def_ref;
+        def_ref = saved_defref;
+    } else {
+        t = token_link(cur_chr);
+    }
     unsave_tex_scanner(texstate);
-    def_ref = saved_defref;
     tokenlist_to_luastring(L,t);
     return 1;
 }
 
 static int run_scan_code(lua_State * L) /* HH */
 {
-    int cc = 2048 + 4096 ; /* default: letter and other */
-    if (lua_isnumber(L,-1)) {
-        cc = (int) lua_tointeger(L,-1);
-    }
     saved_tex_scanner texstate;
+    int cc = 2048 + 4096 ; /* default: letter and other */
     save_tex_scanner(texstate);
     get_x_token();
-    if (cc & (1<<(cur_cmd))) {
-        lua_pushnumber(L,(lua_Number)cur_chr);
+    if (cur_cmd < 16) {
+        if (lua_isnumber(L,-1)) {
+            cc = (int) lua_tointeger(L,-1);
+        }
+        if (cc & (1<<(cur_cmd))) {
+            lua_pushnumber(L,(lua_Number)cur_chr);
+        } else {
+            lua_pushnil(L);
+            back_input();
+        }
     } else {
         lua_pushnil(L);
         back_input();
@@ -338,8 +364,7 @@ static int run_build(lua_State * L)
                     (int) cmd);
             error();
             cmd = 12;
-        }
-        if (cmd == 13) {
+        } else if (cmd == 13) {
             cs = active_to_cs(chr, false);
             cmd = eq_type(cs);
             chr = equiv(cs);
@@ -358,11 +383,10 @@ static int lua_tokenlib_free(lua_State * L)
     lua_token *n;
     n = check_istoken(L, 1);
     if (n->origin == LUA_ORIGIN) {
-	free_avail(n->token);
+        free_avail(n->token);
     }
     return 1;
 }
-
 
 static int lua_tokenlib_getfield(lua_State * L)
 {
@@ -373,17 +397,22 @@ static int lua_tokenlib_getfield(lua_State * L)
     s = lua_tostring(L, 2);
     t = token_info(n->token);
     if (lua_key_eq(s, command)) {
-	if (t >= cs_token_flag) {
-	    lua_pushnumber(L, eq_type((t - cs_token_flag)));
+        if (t >= cs_token_flag) {
+            lua_pushnumber(L, eq_type((t - cs_token_flag)));
         } else {
-	    lua_pushnumber(L, token_cmd(t));
-	}
-    } else if (lua_key_eq(s, id)) {
-       lua_pushnumber(L, n->token);
-    } else if (lua_key_eq(s, tok)) {
-       lua_pushnumber(L, t);
+            lua_pushnumber(L, token_cmd(t));
+        }
+    } else if (lua_key_eq(s, mode)) {
+        if (t >= cs_token_flag) {
+            lua_pushnumber(L, equiv((t - cs_token_flag)));
+        } else {
+            lua_pushnumber(L, token_chr(t));
+        }
+    } else if (lua_key_eq(s, cmdname)) {
+        int cmd = (t >= cs_token_flag ? eq_type(t - cs_token_flag) : token_cmd(t));
+        lua_pushstring(L, command_names[cmd].cmd_name); /* can be sped up */
     } else if (lua_key_eq(s, csname)) {
-	unsigned char *s;
+        unsigned char *s;
         if (t >= cs_token_flag && ((s = get_cs_text(t - cs_token_flag)) != (unsigned char *) NULL)) {
             if (is_active_string(s))
                 lua_pushstring(L, (char *) (s + 3));
@@ -392,8 +421,12 @@ static int lua_tokenlib_getfield(lua_State * L)
         } else {
             lua_pushstring(L, "");
         }
+    } else if (lua_key_eq(s, id)) {
+       lua_pushnumber(L, n->token);
+    } else if (lua_key_eq(s, tok)) {
+       lua_pushnumber(L, t);
     } else if (lua_key_eq(s, active)) {
-	unsigned char *s;
+        unsigned char *s;
         if (t >= cs_token_flag && ((s = get_cs_text(t - cs_token_flag)) != (unsigned char *) NULL)) {
             if (is_active_string(s))
                 lua_pushboolean(L,1);
@@ -419,15 +452,6 @@ static int lua_tokenlib_getfield(lua_State * L)
         } else {
             lua_pushboolean(L, 0);
         }
-    } else if (lua_key_eq(s, mode)) {
-        if (t >= cs_token_flag) {
-            lua_pushnumber(L, equiv((t - cs_token_flag)));
-        } else {
-            lua_pushnumber(L, token_chr(t));
-        }
-    } else if (lua_key_eq(s, cmdname)) {
-        int cmd = (t >= cs_token_flag ? eq_type(t - cs_token_flag) : token_cmd(t));
-        lua_pushstring(L, command_names[cmd].cmd_name);
     }
     return 1;
 }
@@ -458,21 +482,21 @@ static int lua_tokenlib_tostring(lua_State * L)
 }
 
 static const struct luaL_Reg tokenlib[] = {
+    {"is_token", lua_tokenlib_is_token},
     {"get_next", run_get_next},
-/*     {"expand", run_expand}, */ /* does not work yet! */
     {"scan_keyword", run_scan_keyword},
     {"scan_int", run_scan_int},
     {"scan_dimen", run_scan_dimen},
     {"scan_glue", run_scan_glue},
     {"scan_toks", run_scan_toks},
-{"scan_code", run_scan_code},
-{"scan_string", run_scan_string},
-{"is_token", lua_tokenlib_is_token},
+    {"scan_code", run_scan_code},
+    {"scan_string", run_scan_string},
     {"create", run_build},
-    {"csname_id", run_get_csname_id},
-    {"command_id", run_get_command_id},
-    {"cs_offset", run_get_cs_offset},
-    {NULL, NULL}                /* sentinel */
+ /* {"expand", run_expand},               */ /* does not work yet! */
+ /* {"csname_id", run_get_csname_id},     */ /* yes or no */
+ /* {"command_id", run_get_command_id},   */ /* yes or no */
+ /* {"cs_offset", run_get_cs_offset},     */ /* not that useful */
+    {NULL, NULL} /* sentinel */
 };
 
 static const struct luaL_Reg tokenlib_m[] = {
