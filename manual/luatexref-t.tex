@@ -23,7 +23,7 @@
 
 \setvariables
   [document]
-  [beta=0.79.2]
+  [beta=0.79.3]
 
 \starttext
 
@@ -7470,6 +7470,132 @@ and active characters have the same \quote{name}.
 
 This returns a number that is the inverse operation of the previous
 command, to be used as the third item in a token table.
+
+\subsection{The \luatex{newtoken} libray}
+The current \type {token} library will be replaced by a new one that is more
+flexible and powerful. The transition takes place in steps. In version 0.80 we
+have \type {newtoken} and in version 0.85 the old lib will be replaced
+completely. So if you use this new mechanism in production code you need to be
+aware of incompatible updates between 0.80 and 0.90. Because the related in- and
+output code will also be cleaned up and rewritten you should be aware of
+incompatible logging and error reporting too.
+
+The old library presents tokens as triplets or numbers, the new library presents
+a userdata object. The old library used a callback to intercept tokens in the
+input but the new library provides a basic scanner infrastructure that can be
+used to write macros that accept a wide range of arguments. This interface is on
+purpose kept general and as performance is quite ok one can build additional
+parsers without too much overhead. It's up to macro package writers to see how
+they can benefit from this as the main principle behind \LUATEX\ is to provide
+a minimal set of tools and no solutions.
+
+The current functions in the \type {newtoken} namespace are given in the next
+table:
+
+\starttabulate[|lT|p|]
+\NC is_token     \NC checks if the given argument is a token userdatum \NC \NR
+\NC get_next     \NC returns the next token in the input \NC \NR
+\NC scan_keyword \NC returns true if the given keyword is gobbled \NC \NR
+\NC scan_int     \NC returns a number \NC \NR
+\NC scan_dimen   \NC returns a number representing a dimension \NC \NR
+\NC scan_glue    \NC returns a glue spec node \NC \NR
+\NC scan_toks    \NC returns a table of tokens token list (this can become a linked list in later releases) \NC \NR
+\NC scan_code    \NC returns a character if its category is in the given bitset (representing catcodes) \NC \NR
+\NC scan_string  \NC returns a string given between \type {{}} or as \type {\macro} \NC \NR
+\NC create       \NC returns a userdata token object of the given control sequence name (or character); this interface can change  \NC \NR
+\stoptabulate
+
+The scanners can be considered stable apart from the one scanning for a token.
+This is because futures releases can return a linked list instead of a table (as
+with nodes).
+
+The creator function can be used as follows:
+
+\starttyping
+local t = newtoken("relax")
+\stoptyping
+
+This gives back a token object that has the properties of the \type {\relax}
+primitive. The possible properties of tokens are:
+
+\starttabulate[|lT|p|]
+\NC command    \NC a number representing the internal command number \NC \NR
+\NC cmdname    \NC the type of the command (for instance the catcode in case of a
+                   character or the classifier that determines the internal
+                   treatment \NC \NR
+\NC csname     \NC the associated control sequence (if applicable) \NC \NR
+\NC id         \NC the unique id of the token \NC \NR
+%NC tok        \NC \NC \NR % might change
+\NC active     \NC a boolean indicating the active state of the token \NC \NR
+\NC expandable \NC a boolean indicating if the token (macro) is expandable \NC \NR
+\NC protected  \NC a boolean indicating if the token (macro) is protected \NC \NR
+\stoptabulate
+
+The numbers that represent a catcode are the same as in \TEX\ itself, so using
+this information assumes that you know a bit about \TEX's internals. The other
+numbers and names are used consistently but are not frozen. So, when you use them
+for comparing you can best query a known primitive or character first to see the
+values.
+
+More interesting are the scanners. You can use the \LUA\ interface as follows:
+
+\starttyping
+\directlua {
+    function mymacro(n)
+        ...
+    end
+}
+
+\def\mymacro#1{%
+    \directlua {
+        mymacro(\number\dimexpr#1)
+    }%
+}
+
+\mymacro{12pt}
+\mymacro{\dimen0}
+\stoptyping
+
+But starting with version 0.80 you can also do this:
+
+\starttyping
+\directlua {
+    function mymacro()
+        local d = newtoken.scan_dimen()
+        ...
+    end
+}
+
+\def\mymacro{%
+    \directlua {
+        mymacro()
+    }%
+}
+
+\mymacro 12pt
+\mymacro \dimen0
+\stoptyping
+
+It is quite clear from looking at the code what the first method needs as
+argument(s). For the second method you need to look at the \LUA\ code to see what
+gets picked up. Instead of passing from \TEX\ to \LUA\ we let \LUA\ fetch from
+the input stream.
+
+In the first case the input is tokenized and then turned into a string when it's
+passed to \LUA\ where it gets interpreted. In the second case only a function
+call gets interpreted but then the input is picked up by explicitly calling the
+scanner functions. These return proper \LUA\ variables so no further conversion
+has to be done. This is more efficient but in practice (given what \TEX\ has to
+do) this effect should not be overestimated. For numbers and dimensions it saves a
+bit but for passing strings conversion to and from tokens has to be done anyway
+(alkthough we can probably speed up the process in later versions if needed).
+
+When the interface is stable and has replaced the old one completely we will add
+some more information here. By that time the internals have been cleaned up a bit
+more so we know then what will stay and go. A positive side effect of this
+transition is that we can simplify the input part because we no longer need to
+intercept using callbacks.
+
 
 
 \chapter[math]{Math}
