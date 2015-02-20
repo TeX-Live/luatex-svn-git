@@ -84,7 +84,7 @@ until [ -z "$1" ]; do
     --nojit     ) BUILDJIT=FALSE     ;;
     --make      ) ONLY_MAKE=TRUE     ;;
     --nostrip   ) STRIP_LUATEX=FALSE ;;
-    --debug     ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-g -O0 $CFLAGS" ; CXXFLAGS="-g -O0 $CXXFLAGS"  ;;
+    --debug     ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-g -O0 -ggdb3 $CFLAGS" ; CXXFLAGS="-g -O0 -ggdb3 $CXXFLAGS"  ;;
     --clang     ) export CC=clang; export CXX=clang++ ; TARGET_CC=$CC ; CLANG=TRUE ;;
     --warnings=*) WARNINGS=`echo $1 | sed 's/--warnings=\(.*\)/\1/' `        ;;
     --mingw     ) MINGWCROSS=TRUE    ;;
