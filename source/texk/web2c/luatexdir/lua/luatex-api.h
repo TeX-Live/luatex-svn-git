@@ -660,6 +660,7 @@ make_lua_key(text);\
 make_lua_key(thread_attr);\
 make_lua_key(thread_id);\
 make_lua_key(tok);\
+make_lua_key(token);\
 make_lua_key(top);\
 make_lua_key(top_accent);\
 make_lua_key(top_left);\
@@ -947,6 +948,7 @@ init_lua_key(text);\
 init_lua_key(thread_attr);\
 init_lua_key(thread_id);\
 init_lua_key(tok);\
+init_lua_key(token);\
 init_lua_key(top);\
 init_lua_key(top_accent);\
 init_lua_key(top_left);\
@@ -1328,6 +1330,7 @@ use_lua_key(text);
 use_lua_key(thread_attr);
 use_lua_key(thread_id);
 use_lua_key(tok);
+use_lua_key(token);
 use_lua_key(top);
 use_lua_key(top_accent);
 use_lua_key(top_left);

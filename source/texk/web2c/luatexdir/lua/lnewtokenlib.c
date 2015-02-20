@@ -205,6 +205,7 @@ static int run_scan_int(lua_State * L)
     return 1;
 }
 
+
 static int run_scan_dimen(lua_State * L)
 {
     saved_tex_scanner texstate;
@@ -212,18 +213,25 @@ static int run_scan_dimen(lua_State * L)
     int inf = false, mu = false;
     int t = lua_gettop(L);
     if (t>0)
-	inf = lua_toboolean(L,1); // inf values allowed ?
+      inf = lua_toboolean(L,1); /* inf values allowed ?*/
     if (t>1)
-	mu = lua_toboolean(L,2); // mu units required ?
+      mu = lua_toboolean(L,2); /* mu units required ?*/
     save_tex_scanner(texstate);
-    scan_dimen( mu,inf, false); // arg3 = shortcut
+    scan_dimen( mu,inf, false); /* arg3 = shortcut */
     v = cur_val;
     o = cur_order;
     unsave_tex_scanner(texstate);
     lua_pushnumber(L,(lua_Number)v);
-    lua_pushnumber(L,(lua_Number)o);
-    return 2;
+    if (inf) {
+        lua_pushnumber(L,(lua_Number)o);
+        return 2;
+    } else {
+        return 1;
+    }
 }
+
+
+
 
 static int run_scan_glue(lua_State * L)
 {
@@ -232,10 +240,10 @@ static int run_scan_glue(lua_State * L)
     int mu = false;
     int t = lua_gettop(L);
     if (t>0)
-	mu = lua_toboolean(L,1); // mu units required ?
+      mu = lua_toboolean(L,1); /* mu units required ?*/
     save_tex_scanner(texstate);
     scan_glue((mu ? mu_val_level : glue_val_level));
-    v = cur_val; // which is a glue_spec node
+    v = cur_val; /* which is a glue_spec node */
     unsave_tex_scanner(texstate);
     lua_nodelib_push_fast(L,(halfword)v);
     return 1;
@@ -250,9 +258,9 @@ static int run_scan_toks(lua_State * L)
     int i = 1;
     int top = lua_gettop(L);
     if (top>0)
-	macro_def = lua_toboolean(L,1); // \\def ?
+      macro_def = lua_toboolean(L,1); /* \\def ? */
     if (top>1)
-	xpand = lua_toboolean(L,2); // expand ?
+      xpand = lua_toboolean(L,2); /* expand ? */
     save_tex_scanner(texstate);
     saved_defref = def_ref;
     (void) scan_toks(macro_def, xpand);
@@ -481,6 +489,17 @@ static int lua_tokenlib_tostring(lua_State * L)
     return 1;
 }
 
+static int lua_tokenlib_type(lua_State * L)
+{
+    if (maybe_istoken(L,1)!=NULL) {
+        lua_pushstring(L,"token");
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+
 static const struct luaL_Reg tokenlib[] = {
     {"is_token", lua_tokenlib_is_token},
     {"get_next", run_get_next},
@@ -491,6 +510,7 @@ static const struct luaL_Reg tokenlib[] = {
     {"scan_toks", run_scan_toks},
     {"scan_code", run_scan_code},
     {"scan_string", run_scan_string},
+    {"type", lua_tokenlib_type},
     {"create", run_build},
  /* {"expand", run_expand},               */ /* does not work yet! */
  /* {"csname_id", run_get_csname_id},     */ /* yes or no */
