@@ -208,6 +208,7 @@ extern void init_tex_table(lua_State * L);
 
 extern int tex_table_id;
 extern int pdf_table_id;
+extern int newtoken_table_id;
 extern int token_table_id;
 extern int node_table_id;
 extern int main_initialize(void);

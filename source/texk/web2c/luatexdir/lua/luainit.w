@@ -789,6 +789,7 @@ static void setup_lua_path(lua_State * L)
 @c
 int tex_table_id;
 int pdf_table_id;
+int newtoken_table_id;
 int token_table_id;
 int node_table_id;
 
@@ -965,6 +966,7 @@ void lua_initialize(int ac, char **av)
         char *v1;
         /* hide the 'tex' and 'pdf' table */
         tex_table_id = hide_lua_table(Luas, "tex");
+        newtoken_table_id = hide_lua_table(Luas, "newtoken");
         token_table_id = hide_lua_table(Luas, "token");
         node_table_id = hide_lua_table(Luas, "node");
         pdf_table_id = hide_lua_table(Luas, "pdf");
@@ -997,6 +999,7 @@ void lua_initialize(int ac, char **av)
         /* unhide the 'tex' and 'pdf' table */
         unhide_lua_table(Luas, "tex", tex_table_id);
         unhide_lua_table(Luas, "pdf", pdf_table_id);
+        unhide_lua_table(Luas, "newtoken", newtoken_table_id);
         unhide_lua_table(Luas, "token", token_table_id);
         unhide_lua_table(Luas, "node", node_table_id);
 

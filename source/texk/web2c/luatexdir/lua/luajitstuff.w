@@ -311,6 +311,7 @@ void luainterpreter(void)
     /* our own libraries */
     luaopen_ff(L);
     luaopen_tex(L);
+    luaopen_newtoken(L);
     luaopen_token(L);
     luaopen_node(L);
     luaopen_texio(L);
