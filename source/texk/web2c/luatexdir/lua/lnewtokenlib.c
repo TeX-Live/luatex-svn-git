@@ -308,7 +308,7 @@ static int run_scan_code(lua_State * L) /* HH */
     save_tex_scanner(texstate);
     get_x_token();
     if (cur_cmd < 16) {
-        if (lua_isnumber(L,-1)) {
+        if (lua_gettop(L) && lua_isnumber(L,-1)) {
             cc = (int) lua_tointeger(L,-1);
         }
         if (cc & (1<<(cur_cmd))) {
