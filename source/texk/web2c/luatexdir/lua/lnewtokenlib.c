@@ -70,6 +70,9 @@ static lua_token *check_istoken(lua_State * L, int ud);
 #define DEBUG_OUT stdout
 
 
+#define DEFAULT_SCAN_CODE_SET 2048 + 4096 /* default: letter and other */
+
+
 /* two core helpers */
 #define  is_active_string(s) (strlen((char *)s)>3 && *s==0xEF && *(s+1)==0xBF && *(s+2)==0xBF)
 
@@ -301,15 +304,21 @@ static int run_scan_string(lua_State * L) /* HH */
     return 1;
 }
 
+
+
 static int run_scan_code(lua_State * L) /* HH */
 {
     saved_tex_scanner texstate;
-    int cc = 2048 + 4096 ; /* default: letter and other */
+    int cc = DEFAULT_SCAN_CODE_SET ;
     save_tex_scanner(texstate);
     get_x_token();
     if (cur_cmd < 16) {
-        if (lua_gettop(L) && lua_isnumber(L,-1)) {
+        if (lua_gettop(L)>0) {
             cc = (int) lua_tointeger(L,-1);
+            if (cc == null) {
+                /* todo: message that we choose a default */
+                cc = DEFAULT_SCAN_CODE_SET ;
+            }
         }
         if (cc & (1<<(cur_cmd))) {
             lua_pushnumber(L,(lua_Number)cur_chr);
@@ -324,6 +333,7 @@ static int run_scan_code(lua_State * L) /* HH */
     unsave_tex_scanner(texstate);
     return 1;
 }
+
 
 static int lua_tokenlib_is_token(lua_State * L) /* HH */
 {
