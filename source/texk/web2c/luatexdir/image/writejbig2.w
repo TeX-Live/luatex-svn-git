@@ -80,9 +80,7 @@ object exists, reference it. Else create fresh one.
 09 Dec. 2002: JBIG2 seg. page numbers > 0 are now set to 1, see PDF Ref.
 
 @ @c
-static const char _svn_version[] =
-    "$Id$"
-    "$URL$";
+
 
 #undef DEBUG
 

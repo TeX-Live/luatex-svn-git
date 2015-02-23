@@ -27,9 +27,6 @@
 #include <basics.h>
 #include <ustring.h>
 
-static const char _svn_version[] =
-    "$Id$ "
-    "$URL$";
 
 
 /* fix for non-gcc compilation: */

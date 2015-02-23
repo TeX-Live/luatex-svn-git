@@ -23,9 +23,6 @@
 #include "lua/luatex-api.h"
 #include "luatex_svnversion.h"
 
-static const char _svn_version[] =
-    "$Id$ "
-    "$URL$";
 
 #define TeX
 

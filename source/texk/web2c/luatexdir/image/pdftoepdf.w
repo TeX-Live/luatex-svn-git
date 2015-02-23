@@ -19,9 +19,7 @@
 % with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @ @c
-static const char _svn_version[] =
-    "$Id$"
-    "$URL$";
+
 
 // define DEBUG
 #define __STDC_FORMAT_MACROS /* for PRId64 etc.  */

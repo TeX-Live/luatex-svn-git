@@ -24,8 +24,6 @@
 #include <kpathsea/c-dir.h>
 #include <time.h>
 
-static const char _svn_version[] =
-    "$Id$ $URL$";
 
 #if defined(_WIN32) || defined(__NT__)
 #  define MKDIR(a,b) mkdir(a)

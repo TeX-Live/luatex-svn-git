@@ -1,6 +1,5 @@
 #! /bin/sh
 # creates a c header file with the current subversion version
-# $Id$
 # This script should be run within the source directory.
 
 $DEBUG

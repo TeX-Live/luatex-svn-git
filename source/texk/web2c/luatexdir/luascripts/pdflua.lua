@@ -1,5 +1,3 @@
--- $Id$
--- $URL$
 
 -- this is early work in progress...
 

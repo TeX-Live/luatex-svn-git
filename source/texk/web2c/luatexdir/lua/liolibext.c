@@ -34,8 +34,6 @@
 #endif
 #include "lualib.h"
 
-static const char _svn_version[] =
-    "$Id$ $URL$";
 
 
 /*

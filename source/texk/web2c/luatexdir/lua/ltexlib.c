@@ -25,10 +25,6 @@ setter no prev link is created so we can presume that it's not used later on. */
 #include "lua/luatex-api.h"
 
 
-
-static const char _svn_version[] =
-    "$Id$ $URL$";
-
 #define attribute(A) eqtb[attribute_base+(A)].hh.rh
 #define dimen(A) eqtb[scaled_base+(A)].hh.rh
 #undef skip
