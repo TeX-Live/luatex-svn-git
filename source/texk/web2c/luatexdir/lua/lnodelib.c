@@ -3947,9 +3947,11 @@ static int lua_nodelib_equal(lua_State * L)
 static int font_tex_ligaturing(lua_State * L)
 {
     /* on the stack are two nodes and a direction */
+    /* hh-ls: we need to deal with prev nodes when a range starts with a ligature */
     halfword tmp_head;
     halfword *h;
     halfword t = null;
+    halfword p ; /* hh-ls */
     if (lua_gettop(L) < 1) {
         lua_pushnil(L);
         lua_pushboolean(L, 0);
@@ -3960,10 +3962,14 @@ static int font_tex_ligaturing(lua_State * L)
         t = *(check_isnode(L, 2));
     }
     tmp_head = new_node(nesting_node, 1);
+    p = alink(*h); /* hh-ls */
     couple_nodes(tmp_head, *h);
     tlink(tmp_head) = t;
     t = handle_ligaturing(tmp_head, t);
-    alink(vlink(tmp_head)) = null ; /* hh-ls */
+    if (p != null) {
+        vlink(p) = vlink(tmp_head) ; /* hh-ls */
+    }
+    alink(vlink(tmp_head)) = p ; /* hh-ls */
     lua_pushnumber(L, vlink(tmp_head));
     /* can be: lua_nodelib_push_fast(L, head); */
     flush_node(tmp_head);
@@ -3975,6 +3981,8 @@ static int font_tex_ligaturing(lua_State * L)
     return 3;
 }
 
+
+
 /* node.kerning */
 
 static int font_tex_kerning(lua_State * L)
@@ -3984,6 +3992,7 @@ static int font_tex_kerning(lua_State * L)
     halfword tmp_head;
     halfword *h;
     halfword t = null;
+    halfword p ; /* hh-ls */
     if (lua_gettop(L) < 1) {
         lua_pushnil(L);
         lua_pushboolean(L, 0);
@@ -3994,10 +4003,14 @@ static int font_tex_kerning(lua_State * L)
         t = *(check_isnode(L, 2));
     }
     tmp_head = new_node(nesting_node, 1);
+    p = alink(*h); /* hh-ls */
     couple_nodes(tmp_head, *h);
     tlink(tmp_head) = t;
     t = handle_kerning(tmp_head, t);
-    alink(vlink(tmp_head)) = null ; /* hh-ls */
+    if (p != null) {
+        vlink(p) = vlink(tmp_head) ; /* hh-ls */
+    }
+    alink(vlink(tmp_head)) = p ; /* hh-ls */
     lua_pushnumber(L, vlink(tmp_head));
     /* can be: lua_nodelib_push_fast(L, head); */
     flush_node(tmp_head);
